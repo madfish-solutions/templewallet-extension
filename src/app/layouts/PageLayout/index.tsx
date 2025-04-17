@@ -92,7 +92,13 @@ const PageLayout: FC<PropsWithChildren<PageLayoutProps>> = ({
         >
           {showTestnetModeIndicator && <TestnetModeIndicator />}
 
-          <div className={clsx('flex-grow flex flex-col bg-white', FADABLE_CONTENT_CLASSNAME)}>
+          <div
+            className={clsx(
+              'flex-grow flex flex-col bg-white',
+              FADABLE_CONTENT_CLASSNAME,
+              noScroll && 'h-full max-h-full'
+            )}
+          >
             {Header ? <Header /> : <DefaultHeader {...headerProps}>{headerChildren}</DefaultHeader>}
 
             <div

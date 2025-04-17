@@ -1,6 +1,6 @@
 import React, { memo, useCallback, useState } from 'react';
 
-import { BackButton, CLOSE_ANIMATION_TIMEOUT, PageModal } from 'app/atoms/PageModal';
+import { CLOSE_ANIMATION_TIMEOUT, PageModal } from 'app/atoms/PageModal';
 import { toastSuccess } from 'app/toaster';
 import { t } from 'lib/i18n';
 import { TempleChainKind } from 'temple/types';
@@ -76,11 +76,7 @@ export const ConnectLedgerModal = memo<ConnectLedgerModalProps>(
         title={t(state.step === ConnectLedgerModalStep.SelectAccount ? 'connectAccount' : 'ledgerConnect')}
         animated={animated}
         opened
-        titleLeft={
-          (shouldShowBackButton && isFirstStep) || !isFirstStep ? (
-            <BackButton onClick={isFirstStep ? onStartGoBack : goStepBack} />
-          ) : null
-        }
+        onGoBack={shouldShowBackButton && isFirstStep ? onStartGoBack : isFirstStep ? undefined : goStepBack}
         onRequestClose={onClose}
       >
         {state.step === ConnectLedgerModalStep.SelectNetwork && <SelectNetworkStep onSelect={goToConnectDevice} />}

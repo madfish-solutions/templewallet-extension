@@ -37,29 +37,28 @@ const Swap = memo(() => {
       pageTitle={<PageTitle title={t('swap')} />}
       contentPadding={false}
       noScroll
+      paperClassName="!overflow-hidden"
       headerRightElem={
         <IconBase Icon={ManageIcon} className="text-primary cursor-pointer" onClick={setSettingsModalOpen} />
       }
     >
-      <div className="flex-1 flex-grow w-full max-w-sm mx-auto">
-        <Suspense fallback={null}>
-          {publicKeyHash ? (
-            <>
-              <SwapForm publicKeyHash={publicKeyHash} slippageTolerance={slippageTolerance} />
-            </>
-          ) : (
+      <Suspense fallback={null}>
+        {publicKeyHash ? (
+          <SwapForm publicKeyHash={publicKeyHash} slippageTolerance={slippageTolerance} />
+        ) : (
+          <div className="flex flex-grow justify-center items-center">
             <p className="text-center text-sm">
               <T id="noExchangersAvailable" />
             </p>
-          )}
-        </Suspense>
+          </div>
+        )}
+      </Suspense>
 
-        <SwapSettingsModal
-          onSubmit={handleConfirmSlippageTolerance}
-          opened={settingsModalOpened}
-          onRequestClose={setSettingsModalClosed}
-        />
-      </div>
+      <SwapSettingsModal
+        onSubmit={handleConfirmSlippageTolerance}
+        opened={settingsModalOpened}
+        onRequestClose={setSettingsModalClosed}
+      />
     </PageLayout>
   );
 });

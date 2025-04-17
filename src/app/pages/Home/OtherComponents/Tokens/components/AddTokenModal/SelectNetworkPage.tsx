@@ -4,6 +4,7 @@ import { useDebounce } from 'use-debounce';
 
 import { EmptyState } from 'app/atoms/EmptyState';
 import { IconButton } from 'app/atoms/IconButton';
+import { ScrollView } from 'app/atoms/PageModal/scroll-view';
 import { ReactComponent as PlusIcon } from 'app/icons/base/plus.svg';
 import { Network } from 'app/templates/NetworkSelectModal';
 import { SearchBarField } from 'app/templates/SearchField';
@@ -57,13 +58,13 @@ export const SelectNetworkPage: FC<SelectNetworkPageProps> = ({ selectedNetwork,
 
   return (
     <>
-      <div className="flex gap-x-2 p-4">
+      <div className="flex gap-x-2 p-4 pb-3">
         <SearchBarField value={searchValue} placeholder="Network name" onValueChange={setSearchValue} />
 
         <IconButton Icon={PlusIcon} color="blue" onClick={() => navigate('settings/networks')} />
       </div>
 
-      <div className="px-4 flex-1 flex flex-col overflow-y-auto">
+      <ScrollView className="pt-1">
         {filteredNetworks.length === 0 && <EmptyState />}
 
         {filteredNetworks.map(network => (
@@ -76,7 +77,7 @@ export const SelectNetworkPage: FC<SelectNetworkPageProps> = ({ selectedNetwork,
             onClick={handleNetworkSelect}
           />
         ))}
-      </div>
+      </ScrollView>
     </>
   );
 };

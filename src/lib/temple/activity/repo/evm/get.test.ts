@@ -1,13 +1,14 @@
 import 'core-js/actual/structured-clone';
 
 import { ActivityOperKindEnum, ActivityOperTransferType } from 'lib/activity';
+import { VITALIK_ADDRESS } from 'lib/constants';
 import { TempleChainKind } from 'temple/types';
 
 import { getClosestEvmActivitiesInterval } from '..';
 import { DbEvmActivity, NO_TOKEN_ID_VALUE, evmActivities, evmActivitiesIntervals, evmActivityAssets } from '../db';
 import { resetDb } from '../test-helpers';
 
-import { toEvmActivitiesForCertainContract, interactorPkh, vitalikPkh, vitalikPkhLowercased } from './test-helpers';
+import { toEvmActivitiesForCertainContract, interactorPkh, vitalikPkhLowercased } from './test-helpers';
 import { toFrontEvmActivity } from './utils';
 
 describe('getClosestEvmActivitiesInterval', () => {
@@ -138,7 +139,7 @@ describe('getClosestEvmActivitiesInterval', () => {
         getClosestEvmActivitiesInterval({
           olderThanBlockHeight: '21821418',
           chainId: 1,
-          account: vitalikPkh
+          account: VITALIK_ADDRESS
         })
       ).resolves.toEqual(undefined);
 
@@ -146,7 +147,7 @@ describe('getClosestEvmActivitiesInterval', () => {
         getClosestEvmActivitiesInterval({
           olderThanBlockHeight: '21821419',
           chainId: 10,
-          account: vitalikPkh
+          account: VITALIK_ADDRESS
         })
       ).resolves.toEqual(undefined);
 
@@ -176,7 +177,7 @@ describe('getClosestEvmActivitiesInterval', () => {
         getClosestEvmActivitiesInterval({
           olderThanBlockHeight: '21821419',
           chainId: 1,
-          account: vitalikPkh
+          account: VITALIK_ADDRESS
         })
       ).resolves.toEqual(undefined);
     });
@@ -205,7 +206,7 @@ describe('getClosestEvmActivitiesInterval', () => {
         getClosestEvmActivitiesInterval({
           olderThanBlockHeight: '21821430',
           chainId: 1,
-          account: vitalikPkh
+          account: VITALIK_ADDRESS
         })
       ).resolves.toEqual({
         activities: [toFrontEvmActivity(activities[0], assets), toFrontEvmActivity(activities[1], assets)],
@@ -217,7 +218,7 @@ describe('getClosestEvmActivitiesInterval', () => {
         getClosestEvmActivitiesInterval({
           olderThanBlockHeight: '21821419',
           chainId: 1,
-          account: vitalikPkh
+          account: VITALIK_ADDRESS
         })
       ).resolves.toEqual({
         activities: [toFrontEvmActivity(activities[0], assets), toFrontEvmActivity(activities[1], assets)],
@@ -229,7 +230,7 @@ describe('getClosestEvmActivitiesInterval', () => {
         getClosestEvmActivitiesInterval({
           olderThanBlockHeight: '21821418',
           chainId: 1,
-          account: vitalikPkh
+          account: VITALIK_ADDRESS
         })
       ).resolves.toEqual({
         activities: [toFrontEvmActivity(activities[1], assets)],
@@ -241,7 +242,7 @@ describe('getClosestEvmActivitiesInterval', () => {
         getClosestEvmActivitiesInterval({
           olderThanBlockHeight: '21820086',
           chainId: 1,
-          account: vitalikPkh
+          account: VITALIK_ADDRESS
         })
       ).resolves.toEqual({
         activities: [toFrontEvmActivity(activities[2], assets)],
@@ -273,7 +274,7 @@ describe('getClosestEvmActivitiesInterval', () => {
       await expect(
         getClosestEvmActivitiesInterval({
           chainId: 1,
-          account: vitalikPkh
+          account: VITALIK_ADDRESS
         })
       ).resolves.toEqual({
         activities: [toFrontEvmActivity(activities[0], assets)],
@@ -286,7 +287,7 @@ describe('getClosestEvmActivitiesInterval', () => {
       await expect(
         getClosestEvmActivitiesInterval({
           chainId: 1,
-          account: vitalikPkh
+          account: VITALIK_ADDRESS
         })
       ).resolves.toEqual({
         activities: [toFrontEvmActivity(activities[1], assets), toFrontEvmActivity(activities[2], assets)],
@@ -314,7 +315,7 @@ describe('getClosestEvmActivitiesInterval', () => {
         getClosestEvmActivitiesInterval({
           olderThanBlockHeight: '21821418',
           chainId: 1,
-          account: vitalikPkh,
+          account: VITALIK_ADDRESS,
           contractAddress: '0xe4e0dc08c6945ade56e8209e3473024abf29a9b4'
         })
       ).resolves.toEqual(undefined);
@@ -323,7 +324,7 @@ describe('getClosestEvmActivitiesInterval', () => {
         getClosestEvmActivitiesInterval({
           olderThanBlockHeight: '21821419',
           chainId: 10,
-          account: vitalikPkh,
+          account: VITALIK_ADDRESS,
           contractAddress: '0xe4e0dc08c6945ade56e8209e3473024abf29a9b4'
         })
       ).resolves.toEqual(undefined);
@@ -389,7 +390,7 @@ and tokens are of the specified contract', async () => {
         getClosestEvmActivitiesInterval({
           olderThanBlockHeight: '21821430',
           chainId: 1,
-          account: vitalikPkh,
+          account: VITALIK_ADDRESS,
           contractAddress: '0xe4e0dc08c6945ade56e8209E3473024ABF29A9b4'
         })
       ).resolves.toEqual({
@@ -402,7 +403,7 @@ and tokens are of the specified contract', async () => {
         getClosestEvmActivitiesInterval({
           olderThanBlockHeight: '21821418',
           chainId: 1,
-          account: vitalikPkh,
+          account: VITALIK_ADDRESS,
           contractAddress: '0xe4e0dc08c6945ade56e8209E3473024ABF29A9b4'
         })
       ).resolves.toEqual({
@@ -415,7 +416,7 @@ and tokens are of the specified contract', async () => {
         getClosestEvmActivitiesInterval({
           olderThanBlockHeight: '21821430',
           chainId: 1,
-          account: vitalikPkh,
+          account: VITALIK_ADDRESS,
           contractAddress: '0x2F375Ce83EE85e505150d24E85A1742fd03cA593'
         })
       ).resolves.toEqual({
@@ -428,7 +429,7 @@ and tokens are of the specified contract', async () => {
         getClosestEvmActivitiesInterval({
           olderThanBlockHeight: '21820086',
           chainId: 1,
-          account: vitalikPkh,
+          account: VITALIK_ADDRESS,
           contractAddress: '0x2F375Ce83EE85e505150d24E85A1742fd03cA593'
         })
       ).resolves.toEqual({
@@ -441,7 +442,7 @@ and tokens are of the specified contract', async () => {
         getClosestEvmActivitiesInterval({
           olderThanBlockHeight: '21820086',
           chainId: 1,
-          account: vitalikPkh,
+          account: VITALIK_ADDRESS,
           contractAddress: '0x7CE31075d7450Aff4A9a82DdDF69D451B1e0C4E9'
         })
       ).resolves.toEqual({
@@ -494,7 +495,7 @@ and tokens are of the specified contract', async () => {
       await expect(
         getClosestEvmActivitiesInterval({
           chainId: 1,
-          account: vitalikPkh,
+          account: VITALIK_ADDRESS,
           contractAddress: '0xe4e0dc08c6945ade56e8209E3473024ABF29A9b4'
         })
       ).resolves.toEqual({
@@ -506,7 +507,7 @@ and tokens are of the specified contract', async () => {
       await expect(
         getClosestEvmActivitiesInterval({
           chainId: 1,
-          account: vitalikPkh,
+          account: VITALIK_ADDRESS,
           contractAddress: '0x2F375Ce83EE85e505150d24E85A1742fd03cA593'
         })
       ).resolves.toEqual({
@@ -521,7 +522,7 @@ and tokens are of the specified contract', async () => {
       await expect(
         getClosestEvmActivitiesInterval({
           chainId: 1,
-          account: vitalikPkh,
+          account: VITALIK_ADDRESS,
           contractAddress: '0xe4e0dc08c6945ade56e8209E3473024ABF29A9b4'
         })
       ).resolves.toEqual(undefined);
@@ -529,7 +530,7 @@ and tokens are of the specified contract', async () => {
       await expect(
         getClosestEvmActivitiesInterval({
           chainId: 1,
-          account: vitalikPkh,
+          account: VITALIK_ADDRESS,
           contractAddress: '0x2F375Ce83EE85e505150d24E85A1742fd03cA593'
         })
       ).resolves.toEqual({
@@ -541,7 +542,7 @@ and tokens are of the specified contract', async () => {
       await expect(
         getClosestEvmActivitiesInterval({
           chainId: 1,
-          account: vitalikPkh,
+          account: VITALIK_ADDRESS,
           contractAddress: '0x7CE31075d7450Aff4A9a82DdDF69D451B1e0C4E9'
         })
       ).resolves.toEqual({
@@ -573,7 +574,7 @@ and tokens are of the specified contract', async () => {
       await expect(
         getClosestEvmActivitiesInterval({
           chainId: 1,
-          account: vitalikPkh
+          account: VITALIK_ADDRESS
         })
       ).resolves.toEqual({
         activities: activities.map(activity => toFrontEvmActivity(activity, assets)),
@@ -586,7 +587,7 @@ and tokens are of the specified contract', async () => {
       await expect(
         getClosestEvmActivitiesInterval({
           chainId: 1,
-          account: vitalikPkh,
+          account: VITALIK_ADDRESS,
           maxItems
         })
       ).resolves.toEqual({
@@ -600,7 +601,7 @@ and tokens are of the specified contract', async () => {
       await expect(
         getClosestEvmActivitiesInterval({
           chainId: 1,
-          account: vitalikPkh,
+          account: VITALIK_ADDRESS,
           maxItems: 3
         })
       ).resolves.toEqual({
@@ -612,7 +613,7 @@ and tokens are of the specified contract', async () => {
       await expect(
         getClosestEvmActivitiesInterval({
           chainId: 1,
-          account: vitalikPkh,
+          account: VITALIK_ADDRESS,
           maxItems: 3,
           contractAddress: '0x2F375Ce83EE85e505150d24E85A1742fd03cA593'
         })

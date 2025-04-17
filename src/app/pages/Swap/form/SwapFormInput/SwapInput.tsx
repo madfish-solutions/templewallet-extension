@@ -66,6 +66,8 @@ const SwapInput: FC<SwapInputProps> = ({
           autoFocus
           min={0}
           readOnly={readOnly}
+          errorCaption={error}
+          shouldShowErrorCaption={false}
           rightSideComponent={
             <SwapSelectTokenFace
               tezosChainId={tezosChainId}

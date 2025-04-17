@@ -44,7 +44,6 @@ interface Tab {
   slug: string;
   titleI18nKey: TID;
   Icon: FC;
-  noScroll?: true;
   noPadding?: true;
   Component: FC<SettingsTabProps>;
   testID?: SettingsSelectors;
@@ -99,7 +98,6 @@ const TABS_GROUPS: Tab[][] = [
       titleI18nKey: 'addressBook',
       Icon: DefaultSettingsIconHOC(AddressBookIcon),
       Component: AddressBook,
-      noScroll: true,
       noPadding: true,
       testID: SettingsSelectors.addressBookButton
     },
@@ -161,7 +159,6 @@ const Settings = memo<SettingsProps>(({ tabSlug }) => {
     <PageLayout
       pageTitle={<T id={activeTab?.titleI18nKey ?? 'settings'} />}
       headerChildren={headerChildren}
-      noScroll={activeTab?.noScroll}
       contentPadding={!activeTab?.noPadding}
     >
       {extensionModalOpened && <ResetExtensionModal onClose={closeResetExtensionModal} />}

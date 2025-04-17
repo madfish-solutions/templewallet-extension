@@ -287,10 +287,6 @@
   "tryAgain": {
     "message": "再試一次"
   },
-  "tezosMainnet": {
-    "message": "Tezos 主網路",
-    "description": "Mainnet = main network"
-  },
   "templeWalletOptions": {
     "message": "Temple 錢包 | 選項"
   },

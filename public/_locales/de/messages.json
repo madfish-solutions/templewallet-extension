@@ -299,10 +299,6 @@
   "tryAgain": {
     "message": "Erneut versuchen"
   },
-  "tezosMainnet": {
-    "message": "Tezos Mainnet",
-    "description": "Mainnet = main network"
-  },
   "templeWalletOptions": {
     "message": "Temple Wallet | Optionen"
   },

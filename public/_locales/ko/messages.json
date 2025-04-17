@@ -287,10 +287,6 @@
   "tryAgain": {
     "message": "다시 시도하기"
   },
-  "tezosMainnet": {
-    "message": "테조스 메인넷(Tezos Mainnet)",
-    "description": "Mainnet = main network"
-  },
   "templeWalletOptions": {
     "message": "템플 지갑 | 옵션"
   },

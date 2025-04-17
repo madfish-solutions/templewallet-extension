@@ -47,7 +47,7 @@ export const SelectAccountButton = memo<Props>(({ value: selectedAccountAddress,
   }, [allAccounts, contacts, selectedAccountAddress]);
 
   return (
-    <DropdownTriggerButton className="w-full p-3" id={SELECT_ACCOUNT_BUTTON_ID} testID={testID} onClick={onClick}>
+    <DropdownTriggerButton className="w-full p-3 mb-4" id={SELECT_ACCOUNT_BUTTON_ID} testID={testID} onClick={onClick}>
       <div className="flex justify-center items-center gap-2">
         {iconHash ? (
           <AccountAvatar seed={iconHash} size={24} borderColor="secondary" />

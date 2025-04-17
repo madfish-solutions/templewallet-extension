@@ -53,7 +53,7 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
 
   const tezos = getTezosToolkitWithSigner(rpcBaseURL, account.ownerAddress || accountPkh, true);
 
-  const { data: estimationData } = useTezosEstimationData(
+  const { data: estimationData } = useTezosEstimationData({
     to,
     tezos,
     chainId,
@@ -63,8 +63,8 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
     balance,
     tezBalance,
     assetMetadata,
-    true
-  );
+    toFilled: true
+  });
 
   const getBasicSendParams = useCallback(async (): Promise<WalletParamsWithKind[]> => {
     let transferParams: TransferParams;

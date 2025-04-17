@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import React, { memo, useCallback, useEffect, useState } from 'react';
 
 import classNames from 'clsx';
 
@@ -24,10 +24,19 @@ import { getWertLink } from './utils/getWertLink.util';
 export const OnRampOverlay = memo(() => {
   const publicKeyHash = useAccountAddressForTezos();
   const isOnRampPossibility = useOnRampPossibilitySelector();
+  const [isVisible, setIsVisible] = useState(isOnRampPossibility);
 
-  const close = () => void dispatch(setOnRampPossibilityAction(false));
+  useEffect(() => {
+    if (isVisible) {
+      dispatch(setOnRampPossibilityAction(false));
+    } else if (isOnRampPossibility) {
+      setIsVisible(true);
+    }
+  }, [isVisible, isOnRampPossibility]);
 
-  if (!isOnRampPossibility || !publicKeyHash) return null;
+  const close = useCallback(() => setIsVisible(false), []);
+
+  if (!isVisible || !publicKeyHash) return null;
 
   return (
     <div className="fixed inset-0 z-overlay-promo flex flex-col items-center justify-center bg-black bg-opacity-10 backdrop-blur-xs">

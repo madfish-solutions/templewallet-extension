@@ -1,3 +1,5 @@
+import { TempleChainKind } from 'temple/types';
+
 import { NftCollectionAttribute } from '../apis/temple/endpoints/evm/api.interfaces';
 import { EVM_TOKEN_SLUG } from '../assets/defaults';
 import { EvmAssetStandard } from '../evm/types';
@@ -66,3 +68,7 @@ export interface EvmCollectibleMetadata extends EvmAssetMetadataBase {
 }
 
 export type EvmAssetMetadata = EvmTokenMetadata | EvmNativeTokenMetadata | EvmCollectibleMetadata;
+
+export type ChainAssetMetadata<T extends TempleChainKind> = T extends TempleChainKind.EVM
+  ? EvmAssetMetadata
+  : AssetMetadataBase;

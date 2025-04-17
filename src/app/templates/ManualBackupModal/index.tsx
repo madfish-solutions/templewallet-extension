@@ -1,6 +1,6 @@
 import React, { memo } from 'react';
 
-import { BackButton, PageModal } from 'app/atoms/PageModal';
+import { PageModal } from 'app/atoms/PageModal';
 import { t } from 'lib/i18n';
 import { useBooleanState } from 'lib/ui/hooks';
 
@@ -27,11 +27,7 @@ export const ManualBackupModal = memo<ManualBackupModalProps>(
         )}
         animated={animated}
         opened
-        titleLeft={
-          (isNewMnemonic && shouldVerifySeedPhrase) || Boolean(onStartGoBack) ? (
-            <BackButton onClick={shouldVerifySeedPhrase ? goToManualBackup : onStartGoBack ?? onCancel} />
-          ) : null
-        }
+        onGoBack={isNewMnemonic && shouldVerifySeedPhrase ? goToManualBackup : onStartGoBack}
         onRequestClose={onCancel}
       >
         {shouldVerifySeedPhrase ? (

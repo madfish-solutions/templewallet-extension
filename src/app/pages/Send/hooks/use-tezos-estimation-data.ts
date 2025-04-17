@@ -19,18 +19,33 @@ import { AccountForTezos } from 'temple/accounts';
 
 import { estimateTezosMaxFee } from '../form/utils';
 
-export const useTezosEstimationData = (
-  to: string,
-  tezos: TezosToolkit,
-  chainId: string,
-  account: AccountForTezos,
-  accountPkh: string,
-  assetSlug: string,
-  balance: BigNumber,
-  tezBalance: BigNumber,
-  assetMetadata: AssetMetadataBase,
-  toFilled?: boolean
-) => {
+interface TezosEstimationInput {
+  to: string;
+  tezos: TezosToolkit;
+  chainId: string;
+  account: AccountForTezos;
+  accountPkh: string;
+  assetSlug: string;
+  balance: BigNumber;
+  tezBalance: BigNumber;
+  assetMetadata: AssetMetadataBase;
+  toFilled?: boolean;
+  silent?: boolean;
+}
+
+export const useTezosEstimationData = ({
+  to,
+  tezos,
+  chainId,
+  account,
+  accountPkh,
+  assetSlug,
+  balance,
+  tezBalance,
+  assetMetadata,
+  toFilled,
+  silent
+}: TezosEstimationInput) => {
   const estimate = useCallback(async (): Promise<TezosEstimationData | undefined> => {
     try {
       const isTez = isTezAsset(assetSlug);
@@ -49,7 +64,9 @@ export const useTezosEstimationData = (
       const estimatedBaseFee = mutezToTz(estmtnMax.burnFeeMutez + estmtnMax.suggestedFeeMutez).plus(revealFeeMutez);
 
       if (isTez ? estimatedBaseFee.isGreaterThanOrEqualTo(balance) : estimatedBaseFee.isGreaterThan(tezBalance)) {
-        toastError('Not enough funds');
+        if (!silent) {
+          toastError('Not enough funds');
+        }
         return;
       }
 
@@ -64,7 +81,7 @@ export const useTezosEstimationData = (
 
       return undefined;
     }
-  }, [tezBalance, balance, assetMetadata, to, assetSlug, tezos, accountPkh, account]);
+  }, [tezBalance, balance, assetMetadata, to, assetSlug, tezos, accountPkh, account, silent]);
 
   return useTypedSWR(
     () => (toFilled ? ['tezos-estimation-data', assetSlug, chainId, accountPkh, to] : null),

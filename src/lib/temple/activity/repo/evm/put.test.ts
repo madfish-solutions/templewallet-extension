@@ -3,13 +3,14 @@ import 'core-js/actual/structured-clone';
 import { pick } from 'lodash';
 
 import { ActivityOperKindEnum, ActivityOperTransferType } from 'lib/activity';
+import { VITALIK_ADDRESS } from 'lib/constants';
 import { TempleChainKind } from 'temple/types';
 
 import { DbEvmActivity, NO_TOKEN_ID_VALUE, evmActivities, evmActivitiesIntervals, evmActivityAssets } from '../db';
 import { resetDb } from '../test-helpers';
 
 import { putEvmActivities } from './put';
-import { vitalikPkh, vitalikPkhLowercased, toEvmActivitiesForCertainContract, checkEvmDbState } from './test-helpers';
+import { vitalikPkhLowercased, toEvmActivitiesForCertainContract, checkEvmDbState } from './test-helpers';
 import { toFrontEvmActivity } from './utils';
 
 const operation1 = {
@@ -148,7 +149,7 @@ describe('putEvmActivities', () => {
           }
         ],
         chainId: 1,
-        account: vitalikPkh
+        account: VITALIK_ADDRESS
       })
     ).rejects.toThrowError();
   });
@@ -171,7 +172,7 @@ describe('putEvmActivities', () => {
       await putEvmActivities({
         activities: [],
         chainId: 1,
-        account: vitalikPkh,
+        account: VITALIK_ADDRESS,
         olderThanBlockHeight: '21821431',
         contractAddress: '0x7CE31075d7450Aff4A9a82DdDF69D451B1e0C4E9'
       });
@@ -180,7 +181,7 @@ describe('putEvmActivities', () => {
       await putEvmActivities({
         activities: [],
         chainId: 1,
-        account: vitalikPkh,
+        account: VITALIK_ADDRESS,
         olderThanBlockHeight: '21821420',
         contractAddress: '0x7CE31075d7450Aff4A9a82DdDF69D451B1e0C4E9'
       });
@@ -206,7 +207,7 @@ superset interval for the specified contract', async () => {
       await putEvmActivities({
         activities: [],
         chainId: 1,
-        account: vitalikPkh,
+        account: VITALIK_ADDRESS,
         olderThanBlockHeight: '21820077',
         contractAddress: '0x2F375Ce83EE85e505150d24E85A1742fd03cA593'
       });
@@ -215,7 +216,7 @@ superset interval for the specified contract', async () => {
       await putEvmActivities({
         activities: [],
         chainId: 1,
-        account: vitalikPkh,
+        account: VITALIK_ADDRESS,
         olderThanBlockHeight: '21820078',
         contractAddress: '0x2F375Ce83EE85e505150d24E85A1742fd03cA593'
       });
@@ -224,7 +225,7 @@ superset interval for the specified contract', async () => {
       await putEvmActivities({
         activities: [],
         chainId: 1,
-        account: vitalikPkh,
+        account: VITALIK_ADDRESS,
         olderThanBlockHeight: '21821431',
         contractAddress: '0x2F375Ce83EE85e505150d24E85A1742fd03cA593'
       });
@@ -265,7 +266,7 @@ superset interval for the specified contract', async () => {
       await putEvmActivities({
         activities: [],
         chainId: 1,
-        account: vitalikPkh,
+        account: VITALIK_ADDRESS,
         olderThanBlockHeight: '21821425',
         contractAddress: '0x2F375Ce83EE85e505150d24E85A1742fd03cA593'
       });
@@ -309,7 +310,7 @@ superset interval for the specified contract', async () => {
       await putEvmActivities({
         activities: [],
         chainId: 1,
-        account: vitalikPkh,
+        account: VITALIK_ADDRESS,
         olderThanBlockHeight: '21821423',
         contractAddress: '0x7CE31075d7450Aff4A9a82DdDF69D451B1e0C4E9'
       });
@@ -365,7 +366,7 @@ superset interval for the specified contract', async () => {
       await putEvmActivities({
         activities: [],
         chainId: 1,
-        account: vitalikPkh,
+        account: VITALIK_ADDRESS,
         olderThanBlockHeight: '21821421',
         contractAddress: '0x7CE31075d7450Aff4A9a82DdDF69D451B1e0C4E9'
       });
@@ -411,7 +412,7 @@ and intersects with a new one, with a joined interval', async () => {
       await putEvmActivities({
         activities: [],
         chainId: 1,
-        account: vitalikPkh,
+        account: VITALIK_ADDRESS,
         olderThanBlockHeight: '21820086',
         contractAddress: '0x2F375Ce83EE85e505150d24E85A1742fd03cA593'
       });
@@ -455,7 +456,7 @@ with a new one, with a new joined interval', async () => {
       await putEvmActivities({
         activities: [],
         chainId: 1,
-        account: vitalikPkh,
+        account: VITALIK_ADDRESS,
         olderThanBlockHeight: '21820077',
         contractAddress: '0x2F375Ce83EE85e505150d24E85A1742fd03cA593'
       });
@@ -490,7 +491,7 @@ that intersects', async () => {
       await putEvmActivities({
         activities: [],
         chainId: 1,
-        account: vitalikPkh,
+        account: VITALIK_ADDRESS,
         olderThanBlockHeight: '21820087',
         contractAddress: '0x7CE31075d7450Aff4A9a82DdDF69D451B1e0C4E9'
       });
@@ -528,7 +529,7 @@ that is neighboring', async () => {
       await putEvmActivities({
         activities: [],
         chainId: 1,
-        account: vitalikPkh,
+        account: VITALIK_ADDRESS,
         olderThanBlockHeight: '21820086',
         contractAddress: '0x7CE31075d7450Aff4A9a82DdDF69D451B1e0C4E9'
       });
@@ -565,7 +566,7 @@ that is neighboring', async () => {
       await putEvmActivities({
         activities: [],
         chainId: 1,
-        account: vitalikPkh,
+        account: VITALIK_ADDRESS,
         olderThanBlockHeight: '21820076',
         contractAddress: '0x2F375Ce83EE85e505150d24E85A1742fd03cA593'
       });
@@ -600,7 +601,7 @@ superset interval for all contracts', async () => {
       await putEvmActivities({
         activities: [],
         chainId: 1,
-        account: vitalikPkh,
+        account: VITALIK_ADDRESS,
         olderThanBlockHeight: '21820086'
       });
 
@@ -613,7 +614,7 @@ superset interval for all contracts', async () => {
       await putEvmActivities({
         activities: [],
         chainId: 1,
-        account: vitalikPkh,
+        account: VITALIK_ADDRESS,
         olderThanBlockHeight: '21821419'
       });
 
@@ -643,7 +644,7 @@ superset interval for all contracts', async () => {
       await putEvmActivities({
         activities: [],
         chainId: 1,
-        account: vitalikPkh,
+        account: VITALIK_ADDRESS,
         olderThanBlockHeight: '21820086'
       });
 
@@ -700,7 +701,7 @@ superset interval for all contracts', async () => {
       await putEvmActivities({
         activities: [],
         chainId: 1,
-        account: vitalikPkh,
+        account: VITALIK_ADDRESS,
         olderThanBlockHeight: '21821419'
       });
 
@@ -752,7 +753,7 @@ superset interval for all contracts', async () => {
       await putEvmActivities({
         activities: [],
         chainId: 1,
-        account: vitalikPkh,
+        account: VITALIK_ADDRESS,
         olderThanBlockHeight: '21820087'
       });
 
@@ -793,7 +794,7 @@ superset interval for all contracts', async () => {
       await evmActivityAssets.bulkAdd([assets[1], assets[2]]);
       await putEvmActivities({
         chainId: 1,
-        account: vitalikPkh,
+        account: VITALIK_ADDRESS,
         olderThanBlockHeight: '21820086',
         activities: []
       });
@@ -842,7 +843,7 @@ with a joined interval', async () => {
       await putEvmActivities({
         activities: [],
         chainId: 1,
-        account: vitalikPkh,
+        account: VITALIK_ADDRESS,
         olderThanBlockHeight: '21820090'
       });
       await checkEvmDbState([{ ...testInterval, oldestBlockHeight: 0 }], testActivities, pick(assets, 1));
@@ -864,7 +865,7 @@ with a new joined interval', async () => {
       await putEvmActivities({
         activities: [],
         chainId: 1,
-        account: vitalikPkh,
+        account: VITALIK_ADDRESS,
         olderThanBlockHeight: '21820087'
       });
       await checkEvmDbState([{ ...testInterval, oldestBlockHeight: 0 }], testActivities, pick(assets, 1));
@@ -885,7 +886,7 @@ with a new joined interval', async () => {
       await putEvmActivities({
         activities: [],
         chainId: 1,
-        account: vitalikPkh,
+        account: VITALIK_ADDRESS,
         olderThanBlockHeight: '21820086'
       });
       await checkEvmDbState(
@@ -923,14 +924,14 @@ with a new joined interval', async () => {
     await putEvmActivities({
       activities: [],
       chainId: 1,
-      account: vitalikPkh,
+      account: VITALIK_ADDRESS,
       contractAddress: '0x2f375ce83ee85e505150d24e85a1742fd03ca593'
     });
     await checkEvmDbState(testIntervals, testActivities, pick(assets, 1, 2));
     await putEvmActivities({
       activities: [],
       chainId: 1,
-      account: vitalikPkh
+      account: VITALIK_ADDRESS
     });
     await checkEvmDbState(testIntervals, testActivities, pick(assets, 1, 2));
   });
@@ -954,7 +955,7 @@ with a new joined interval', async () => {
       await putEvmActivities({
         activities: [toFrontEvmActivity(activities[1], assets)],
         chainId: 1,
-        account: vitalikPkh,
+        account: VITALIK_ADDRESS,
         olderThanBlockHeight: '21821431',
         contractAddress: '0x2F375Ce83EE85e505150d24E85A1742fd03cA593'
       });
@@ -963,7 +964,7 @@ with a new joined interval', async () => {
       await putEvmActivities({
         activities: [toFrontEvmActivity(activities[1], assets)],
         chainId: 1,
-        account: vitalikPkh,
+        account: VITALIK_ADDRESS,
         olderThanBlockHeight: '21821420',
         contractAddress: '0x2F375Ce83EE85e505150d24E85A1742fd03cA593'
       });
@@ -988,7 +989,7 @@ superset interval for the specified contract', async () => {
       await putEvmActivities({
         activities: [toFrontEvmActivity(testModifiedActivities[2], assets)],
         chainId: 1,
-        account: vitalikPkh,
+        account: VITALIK_ADDRESS,
         olderThanBlockHeight: '21820086',
         contractAddress: '0x2F375Ce83EE85e505150d24E85A1742fd03cA593'
       });
@@ -1005,7 +1006,7 @@ superset interval for the specified contract', async () => {
       await putEvmActivities({
         activities: [toFrontEvmActivity(testModifiedActivities[1], assets)],
         chainId: 1,
-        account: vitalikPkh,
+        account: VITALIK_ADDRESS,
         olderThanBlockHeight: '21821419',
         contractAddress: '0x2F375Ce83EE85e505150d24E85A1742fd03cA593'
       });
@@ -1056,7 +1057,7 @@ superset interval for the specified contract', async () => {
       await putEvmActivities({
         activities: [toFrontEvmActivity(testModifiedActivities[2], assets)],
         chainId: 1,
-        account: vitalikPkh,
+        account: VITALIK_ADDRESS,
         olderThanBlockHeight: '21820087',
         contractAddress: '0x2F375Ce83EE85e505150d24E85A1742fd03cA593'
       });
@@ -1108,7 +1109,7 @@ interval for all contracts', async () => {
           toFrontEvmActivity(testModifiedActivities[2], assets)
         ],
         chainId: 1,
-        account: vitalikPkh,
+        account: VITALIK_ADDRESS,
         olderThanBlockHeight: '21821419',
         contractAddress: '0x2F375Ce83EE85e505150d24E85A1742fd03cA593'
       });
@@ -1133,7 +1134,7 @@ interval for all contracts', async () => {
       await putEvmActivities({
         activities: [toFrontEvmActivity(activities[3], assets)],
         chainId: 1,
-        account: vitalikPkh,
+        account: VITALIK_ADDRESS,
         olderThanBlockHeight: '21821430',
         contractAddress: '0x7CE31075d7450Aff4A9a82DdDF69D451B1e0C4E9'
       });
@@ -1191,7 +1192,7 @@ and intersects with a new one, with a joined interval', async () => {
 
       await putEvmActivities({
         chainId: 1,
-        account: vitalikPkh,
+        account: VITALIK_ADDRESS,
         contractAddress: '0x2F375Ce83EE85e505150d24E85A1742fd03cA593',
         activities: [toFrontEvmActivity(activities[2], assets)],
         olderThanBlockHeight: '21820083'
@@ -1234,7 +1235,7 @@ with a new one, with a new joined interval', async () => {
 
       await putEvmActivities({
         chainId: 1,
-        account: vitalikPkh,
+        account: VITALIK_ADDRESS,
         contractAddress: '0x2F375Ce83EE85e505150d24E85A1742fd03cA593',
         activities: [toFrontEvmActivity(activities[2], assets)],
         olderThanBlockHeight: '21820080'
@@ -1272,7 +1273,7 @@ and intersects with a new one, with a joined interval', async () => {
       await putEvmActivities({
         activities: [toFrontEvmActivity(activities[1], assets)],
         chainId: 1,
-        account: vitalikPkh,
+        account: VITALIK_ADDRESS,
         olderThanBlockHeight: '21820099',
         contractAddress: '0x2F375Ce83EE85e505150d24E85A1742fd03cA593'
       });
@@ -1308,7 +1309,7 @@ with a new one, with a new joined interval', async () => {
       await putEvmActivities({
         activities: [toFrontEvmActivity(activities[1], assets)],
         chainId: 1,
-        account: vitalikPkh,
+        account: VITALIK_ADDRESS,
         olderThanBlockHeight: '21820099',
         contractAddress: '0x2F375Ce83EE85e505150d24E85A1742fd03cA593'
       });
@@ -1342,7 +1343,7 @@ if there is an interval with newer activities for all contracts that intersects'
 
       await putEvmActivities({
         chainId: 1,
-        account: vitalikPkh,
+        account: VITALIK_ADDRESS,
         contractAddress: '0x2F375Ce83EE85e505150d24E85A1742fd03cA593',
         activities: [toFrontEvmActivity(activities[2], assets)],
         olderThanBlockHeight: '21820083'
@@ -1381,7 +1382,7 @@ for all contracts that is neighboring', async () => {
 
       await putEvmActivities({
         chainId: 1,
-        account: vitalikPkh,
+        account: VITALIK_ADDRESS,
         contractAddress: '0x2F375Ce83EE85e505150d24E85A1742fd03cA593',
         activities: [toFrontEvmActivity(activities[2], assets)],
         olderThanBlockHeight: '21820080'
@@ -1422,7 +1423,7 @@ if there is an interval with older activities for all contracts that intersects'
 
       await putEvmActivities({
         chainId: 1,
-        account: vitalikPkh,
+        account: VITALIK_ADDRESS,
         contractAddress: '0x2F375Ce83EE85e505150d24E85A1742fd03cA593',
         activities: [toFrontEvmActivity(activities[1], assets), toFrontEvmActivity(modifiedActivity, assets)],
         olderThanBlockHeight: '21820087'
@@ -1462,7 +1463,7 @@ for all contracts that is neighboring', async () => {
 
       await putEvmActivities({
         chainId: 1,
-        account: vitalikPkh,
+        account: VITALIK_ADDRESS,
         contractAddress: '0x2F375Ce83EE85e505150d24E85A1742fd03cA593',
         activities: [toFrontEvmActivity(activities[1], assets)],
         olderThanBlockHeight: '21820087'
@@ -1500,7 +1501,7 @@ for all contracts that is neighboring', async () => {
 
       await putEvmActivities({
         chainId: 1,
-        account: vitalikPkh,
+        account: VITALIK_ADDRESS,
         contractAddress: '0x2F375Ce83EE85e505150d24E85A1742fd03cA593',
         activities: [toFrontEvmActivity(activities[2], assets)],
         olderThanBlockHeight: '21820079'
@@ -1526,7 +1527,7 @@ for all contracts that is neighboring', async () => {
     await putEvmActivities({
       activities: activities.map(activity => toFrontEvmActivity(activity, assets)),
       chainId: 1,
-      account: vitalikPkh
+      account: VITALIK_ADDRESS
     });
 
     await checkEvmDbState(

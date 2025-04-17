@@ -12,16 +12,29 @@ import { EvmChain } from 'temple/front';
 
 import { buildBasicEvmSendParams } from '../build-basic-evm-send-params';
 
-export const useEvmEstimationData = (
-  to: HexString,
-  assetSlug: string,
-  accountPkh: HexString,
-  network: EvmChain,
-  balance: BigNumber,
-  ethBalance: BigNumber,
-  toFilled?: boolean,
-  amount?: string
-) => {
+interface EvmEstimationInput {
+  to: HexString;
+  assetSlug: string;
+  accountPkh: HexString;
+  network: EvmChain;
+  balance: BigNumber;
+  ethBalance: BigNumber;
+  toFilled?: boolean;
+  amount?: string;
+  silent?: boolean;
+}
+
+export const useEvmEstimationData = ({
+  to,
+  assetSlug,
+  accountPkh,
+  network,
+  balance,
+  ethBalance,
+  toFilled,
+  amount,
+  silent
+}: EvmEstimationInput) => {
   const assetMetadata = useEvmCategorizedAssetMetadata(assetSlug, network.chainId);
 
   const estimate = useCallback(async () => {
@@ -40,11 +53,13 @@ export const useEvmEstimationData = (
       });
     } catch (err: any) {
       console.warn(err);
-      toastError(err.details || err.message);
+      if (!silent) {
+        toastError(err.details || err.message);
+      }
 
       throw err;
     }
-  }, [network, assetSlug, balance, ethBalance, accountPkh, to, amount, assetMetadata]);
+  }, [network, assetSlug, balance, ethBalance, accountPkh, to, amount, assetMetadata, silent]);
 
   return useTypedSWR(
     toFilled ? ['evm-estimation-data', network.chainId, assetSlug, accountPkh, to, amount] : null,

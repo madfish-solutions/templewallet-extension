@@ -116,3 +116,9 @@ export const MAX_EVM_ALLOWANCE = BigInt(2) ** BigInt(256) - BigInt(1);
 export const LEDGER_USB_VENDOR_ID = '0x2c97';
 
 export const TEZOS_APY = 5.6;
+
+export const TEZ_BURN_ADDRESS = 'tz1burnburnburnburnburnburnburjAYjjX';
+
+export const EVM_ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
+
+export const VITALIK_ADDRESS = '0xAb5801a7D398351b8bE11C439e05C5B3259aeC9B';

@@ -327,7 +327,8 @@ module.exports = {
 
       animation: {
         'toast-enter': 'toast-enter .2s ease-out',
-        'toast-leave': 'toast-leave .15s ease-in forwards'
+        'toast-leave': 'toast-leave .15s ease-in forwards',
+        shake: 'shake 0.2s ease-in-out 0s 2'
       },
       keyframes: {
         'toast-enter': {
@@ -348,6 +349,20 @@ module.exports = {
           '100%': {
             opacity: '0',
             transform: 'scale(.9)'
+          }
+        },
+        shake: {
+          '0%': {
+            'margin-left': '0rem'
+          },
+          '25%': {
+            'margin-left': '0.5rem'
+          },
+          '75%': {
+            'margin-left': '-0.5rem'
+          },
+          '100%': {
+            'margin-left': '0rem'
           }
         }
       }

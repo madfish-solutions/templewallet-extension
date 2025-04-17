@@ -102,13 +102,13 @@ export const NetworkSelectModalContent = memo<ContentProps>(({ opened, selectedN
 
   return (
     <>
-      <div className="flex gap-x-2 p-4">
+      <div className="flex gap-x-2 p-4 pb-3">
         <SearchBarField value={searchValue} placeholder="Network name" onValueChange={setSearchValue} />
 
         <IconButton Icon={PlusIcon} color="blue" onClick={() => navigate('settings/networks')} />
       </div>
 
-      <div className="px-4 pb-1 flex-grow flex flex-col overflow-y-auto">
+      <div className="px-4 py-1 flex-grow flex flex-col overflow-y-auto">
         {searchedNetworks.length === 0 ? (
           <EmptyState />
         ) : (
