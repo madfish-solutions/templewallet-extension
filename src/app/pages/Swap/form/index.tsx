@@ -94,6 +94,7 @@ export const SwapForm = memo<Props>(({ account, slippageTolerance, onReview }) =
     watch,
     setValue,
     control,
+    reset,
     formState: { isSubmitting, submitCount, errors }
   } = useForm<SwapFormValue>({
     defaultValues,
@@ -332,6 +333,11 @@ export const SwapForm = memo<Props>(({ account, slippageTolerance, onReview }) =
     [inputAssetMetadata.decimals, inputTokenMaxAmount, validateField]
   );
 
+  const resetForm = useCallback(() => {
+    reset(defaultValues);
+    setShouldUseFiat(false);
+  }, [defaultValues, reset]);
+
   const onSubmit = async () => {
     if (isSubmitting) return;
 
@@ -522,7 +528,10 @@ export const SwapForm = memo<Props>(({ account, slippageTolerance, onReview }) =
           amount: atomsToTokens(new BigNumber(minimumReceivedAtomic), outputAssetMetadata.decimals).toString(),
           symbol: outputAssetMetadata.symbol
         },
-        onConfirm: setOperation
+        onConfirm: o => {
+          resetForm();
+          setOperation(o);
+        }
       });
 
       formAnalytics.trackSubmitSuccess(analyticsProperties);

@@ -9,10 +9,12 @@ import { SwapForm } from 'app/pages/Swap/form';
 import { dispatch } from 'app/store';
 import { resetSwapParamsAction } from 'app/store/swap/actions';
 import { t, T } from 'lib/i18n';
+import { useStorage } from 'lib/temple/front';
 import { useBooleanState } from 'lib/ui/hooks';
 import { useAccountForTezos } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
 
+import { SWAP_SLIPPAGE_TOLERANCE_STORAGE_KEY } from './constants';
 import { TezosReviewData } from './form/interfaces';
 import { ConfirmSwapModal } from './modals/ConfirmSwap';
 import SwapSettingsModal, { Inputs } from './modals/SwapSettings';
@@ -20,7 +22,7 @@ import SwapSettingsModal, { Inputs } from './modals/SwapSettings';
 const Swap = memo(() => {
   const account = useAccountForTezos();
 
-  const [slippageTolerance, setSlippageTolerance] = useState(0.5);
+  const [slippageTolerance, setSlippageTolerance] = useStorage(SWAP_SLIPPAGE_TOLERANCE_STORAGE_KEY, 0.5);
 
   useEffect(() => void dispatch(resetSwapParamsAction()), []);
 
@@ -42,7 +44,7 @@ const Swap = memo(() => {
       setSlippageTolerance(slippageTolerance ?? 0.5);
       setSettingsModalClosed();
     },
-    [setSettingsModalClosed]
+    [setSettingsModalClosed, setSlippageTolerance]
   );
 
   return (
@@ -66,9 +68,10 @@ const Swap = memo(() => {
         </Suspense>
 
         <SwapSettingsModal
-          onSubmit={handleConfirmSlippageTolerance}
+          currentSlippageTolerance={slippageTolerance}
           opened={settingsModalOpened}
           onRequestClose={setSettingsModalClosed}
+          onSubmit={handleConfirmSlippageTolerance}
         />
         <ConfirmSwapModal
           opened={confirmSwapModalOpened}
