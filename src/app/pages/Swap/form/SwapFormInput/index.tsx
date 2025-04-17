@@ -70,13 +70,12 @@ const SwapFormInput: FC<SwapFormInputProps> = ({
 
   useTezosTokensMetadataPresenceCheck(network.rpcBaseURL, route3tokensSlugs);
 
-  const { actualMaxAmount, displayedMaxAmount } = useMemo(() => {
-    if (!assetSlug || !balance) return { actualMaxAmount: ZERO, displayedMaxAmount: ZERO };
+  const displayedMaxAmount = useMemo(() => {
+    if (!assetSlug || !balance) return ZERO;
 
-    const actualMaxAmount = isTezosSlug ? BigNumber.max(balance.minus(EXCHANGE_XTZ_RESERVE), ZERO) : balance;
-    const displayedMaxAmount = isTezosSlug && balance.lte(EXCHANGE_XTZ_RESERVE) ? balance : actualMaxAmount;
+    if (!isTezosSlug) return balance;
 
-    return { actualMaxAmount, displayedMaxAmount };
+    return balance.lte(EXCHANGE_XTZ_RESERVE) ? balance : balance.minus(EXCHANGE_XTZ_RESERVE);
   }, [assetSlug, isTezosSlug, balance]);
 
   const handleAmountChange = useCallback(
@@ -90,11 +89,11 @@ const SwapFormInput: FC<SwapFormInputProps> = ({
     if (assetSlug && displayedMaxAmount) {
       handleAmountChange(displayedMaxAmount);
 
-      if (actualMaxAmount.lt(displayedMaxAmount)) {
+      if (isTezosSlug && balance?.lte(EXCHANGE_XTZ_RESERVE)) {
         toastUniqWarning(t('notEnoughTezForFee'), true);
       }
     }
-  }, [assetSlug, displayedMaxAmount, handleAmountChange, actualMaxAmount]);
+  }, [assetSlug, balance, displayedMaxAmount, handleAmountChange, isTezosSlug]);
 
   const [selectAssetModalOpened, setSelectAssetModalOpen, setSelectAssetModalClosed] = useBooleanState(false);
 
