@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 
 import { EvmBalancesSource } from 'app/store/evm/state';
 import { ChainID } from 'lib/apis/temple/endpoints/evm/api.interfaces';
@@ -6,6 +6,7 @@ import { isSupportedChainId } from 'lib/apis/temple/endpoints/evm/api.utils';
 import { t } from 'lib/i18n';
 import { useWindowIsActive } from 'lib/temple/front/window-is-active-context';
 import { serializeError } from 'lib/utils/serialize-error';
+import { useLocation } from 'lib/woozie';
 import { useEnabledEvmChains } from 'temple/front';
 
 export interface SuccessPayload<T> {
@@ -56,6 +57,33 @@ export const useRefreshIfActive = ({
 }: RefreshIfActiveConfig) => {
   const evmChains = useEnabledEvmChains();
   const windowIsActive = useWindowIsActive();
+  const { pathname } = useLocation();
+
+  console.log('pathname', pathname);
+
+  const shouldRefresh = useMemo(() => {
+    if (pathname === '/') return true;
+    if (pathname.startsWith('/send')) return true;
+    if (pathname.startsWith('/swap')) return true;
+    if (pathname.startsWith('/token')) return true;
+    return false;
+  }, [pathname]);
+
+  const restrictedChainId = useMemo(() => {
+    if (pathname.startsWith('/token')) {
+      const parts = pathname.split('/');
+      const id = parts[3];
+      const maybeNum = Number(id);
+      console.log('restricted chainId', maybeNum);
+      return isNaN(maybeNum) ? undefined : maybeNum;
+    }
+    return undefined;
+  }, [pathname]);
+
+  const chainsToRefresh = useMemo(
+    () => (restrictedChainId !== undefined ? evmChains.filter(c => c.chainId === restrictedChainId) : evmChains),
+    [evmChains, restrictedChainId]
+  );
 
   const refreshData = useCallback(
     async (chainId: number) => {
@@ -92,11 +120,11 @@ export const useRefreshIfActive = ({
   );
 
   useEffect(() => {
-    if (!windowIsActive) return;
+    if (!windowIsActive || !shouldRefresh) return;
 
     const firstLoadTimeouts: NodeJS.Timeout[] = [];
     const refreshIntervals: NodeJS.Timer[] = [];
-    evmChains.forEach(({ chainId }) => {
+    chainsToRefresh.forEach(({ chainId }) => {
       loaders.forEach(({ setLoading }) => setLoading(chainId, false));
       firstLoadTimeouts.push(
         setTimeout(() => {
