@@ -17,7 +17,7 @@ import { TempleChainKind } from 'temple/types';
 import { SWAP_SLIPPAGE_TOLERANCE_STORAGE_KEY } from './constants';
 import { TezosReviewData } from './form/interfaces';
 import { ConfirmSwapModal } from './modals/ConfirmSwap';
-import SwapSettingsModal, { Inputs } from './modals/SwapSettings';
+import { SwapSettingsModal } from './modals/SwapSettings';
 
 const Swap = memo(() => {
   const account = useAccountForTezos();
@@ -40,8 +40,8 @@ const Swap = memo(() => {
   );
 
   const handleConfirmSlippageTolerance = useCallback(
-    ({ slippageTolerance }: Inputs) => {
-      setSlippageTolerance(slippageTolerance ?? 0.5);
+    (slippageTolerance: number) => {
+      setSlippageTolerance(slippageTolerance);
       setSettingsModalClosed();
     },
     [setSettingsModalClosed, setSlippageTolerance]
@@ -71,7 +71,7 @@ const Swap = memo(() => {
           currentSlippageTolerance={slippageTolerance}
           opened={settingsModalOpened}
           onRequestClose={setSettingsModalClosed}
-          onSubmit={handleConfirmSlippageTolerance}
+          onConfirm={handleConfirmSlippageTolerance}
         />
         <ConfirmSwapModal
           opened={confirmSwapModalOpened}

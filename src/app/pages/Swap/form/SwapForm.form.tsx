@@ -4,10 +4,7 @@ import BigNumber from 'bignumber.js';
 import { DeepPartial } from 'react-hook-form';
 
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
-import { useStorage } from 'lib/temple/front';
 import { useLocation } from 'lib/woozie';
-
-import { SWAP_SLIPPAGE_TOLERANCE_STORAGE_KEY } from '../constants';
 
 export interface SwapInputValue {
   assetSlug?: string;
@@ -17,7 +14,6 @@ export interface SwapInputValue {
 export interface SwapFormValue {
   input: SwapInputValue;
   output: SwapInputValue;
-  slippageTolerance?: number;
 }
 
 const getValidAssetSlug = (queryAssetSlug: string | null) =>
@@ -38,8 +34,6 @@ const getAssetsSlugsFromUrl = (fromSlug: null | string, toSlug: null | string) =
 };
 
 export const useSwapFormDefaultValue = () => {
-  const [slippageTolerance] = useStorage(SWAP_SLIPPAGE_TOLERANCE_STORAGE_KEY, 0.5);
-
   const location = useLocation();
 
   return useMemo<DeepPartial<SwapFormValue>>(() => {
@@ -49,8 +43,7 @@ export const useSwapFormDefaultValue = () => {
 
     return {
       input: { assetSlug: getValidAssetSlug(fromSlug) },
-      output: { assetSlug: getValidAssetSlug(toSlug) },
-      slippageTolerance
+      output: { assetSlug: getValidAssetSlug(toSlug) }
     };
-  }, [location.search, slippageTolerance]);
+  }, [location.search]);
 };
