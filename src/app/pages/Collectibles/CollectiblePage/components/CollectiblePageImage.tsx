@@ -1,22 +1,29 @@
 import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
 
+import clsx from 'clsx';
 import { isString } from 'lodash';
 
 import { Model3DViewer } from 'app/atoms/Model3DViewer';
 import { useCollectiblesListOptionsSelector } from 'app/store/assets-filter-options/selectors';
 import { TezosAssetImageStacked } from 'app/templates/AssetImage';
-import { isSvgDataUriInUtf8Encoding, buildObjktCollectibleArtifactUri, buildHttpLinkFromUri } from 'lib/images-uri';
+import {
+  isSvgDataUriInUtf8Encoding,
+  buildObjktCollectibleArtifactUri,
+  buildHttpLinkFromUri,
+  buildEvmCollectibleIconSources
+} from 'lib/images-uri';
 import { TokenMetadata } from 'lib/metadata';
 import { EvmCollectibleMetadata } from 'lib/metadata/types';
 import { ImageStacked } from 'lib/ui/ImageStacked';
 
-import { AudioCollectible } from '../components/AudioCollectible';
-import { CollectibleBlur } from '../components/CollectibleBlur';
-import { CollectibleImageFallback } from '../components/CollectibleImageFallback';
-import { CollectibleImageLoader } from '../components/CollectibleImageLoader';
-import { VideoCollectible } from '../components/VideoCollectible';
+import { AudioCollectible } from '../../components/AudioCollectible';
+import { CollectibleBlur } from '../../components/CollectibleBlur';
+import { CollectibleImageFallback } from '../../components/CollectibleImageFallback';
+import { CollectibleImageLoader } from '../../components/CollectibleImageLoader';
+import { VideoCollectible } from '../../components/VideoCollectible';
 
-interface Props {
+interface TezosCollectiblePageImageProps {
+  assetSlug: string;
   metadata?: TokenMetadata;
   areDetailsLoading: boolean;
   mime?: string | null;
@@ -25,8 +32,8 @@ interface Props {
   className?: string;
 }
 
-export const TezosCollectiblePageImage = memo<Props>(
-  ({ metadata, mime, objktArtifactUri, className, areDetailsLoading, isAdultContent = false }) => {
+export const TezosCollectiblePageImage = memo<TezosCollectiblePageImageProps>(
+  ({ assetSlug, metadata, mime, objktArtifactUri, className, areDetailsLoading, isAdultContent = false }) => {
     const { blur } = useCollectiblesListOptionsSelector();
 
     const blurred = isAdultContent && blur;
@@ -45,7 +52,7 @@ export const TezosCollectiblePageImage = memo<Props>(
     }
 
     if (shouldShowBlur) {
-      return <CollectibleBlur onClick={handleBlurClick} />;
+      return <CollectibleBlur assetSlug={assetSlug} large onClick={handleBlurClick} />;
     }
 
     if (objktArtifactUri && !isRenderFailedOnce) {
@@ -88,13 +95,20 @@ export const TezosCollectiblePageImage = memo<Props>(
     }
 
     return (
-      <TezosAssetImageStacked
-        metadata={metadata}
-        fullViewCollectible
-        loader={<CollectibleImageLoader large />}
-        fallback={<CollectibleImageFallback large />}
-        className={className}
-      />
+      <>
+        <TezosAssetImageStacked
+          metadata={metadata}
+          fullViewCollectible
+          className="absolute w-full h-full object-cover blur"
+        />
+        <TezosAssetImageStacked
+          metadata={metadata}
+          fullViewCollectible
+          loader={<CollectibleImageLoader large />}
+          fallback={<CollectibleImageFallback large />}
+          className={clsx('w-full h-full object-contain z-1', className)}
+        />
+      </>
     );
   }
 );
@@ -108,13 +122,17 @@ export const EvmCollectiblePageImage = memo<EvmCollectiblePageImageProps>(({ met
   const { image } = metadata;
 
   const sources = useMemo(() => [buildHttpLinkFromUri(image)].filter(isString), [image]);
+  const sourcesWithCompressedFallback = useMemo(() => buildEvmCollectibleIconSources(metadata), [metadata]);
 
   return (
-    <ImageStacked
-      sources={sources}
-      className={className}
-      loader={<CollectibleImageLoader large />}
-      fallback={<CollectibleImageFallback large />}
-    />
+    <>
+      <ImageStacked sources={sourcesWithCompressedFallback} className="absolute w-full h-full object-cover blur" />
+      <ImageStacked
+        sources={sources}
+        loader={<CollectibleImageLoader large />}
+        fallback={<CollectibleImageFallback large />}
+        className={clsx('w-full h-full object-contain z-1', className)}
+      />
+    </>
   );
 });

@@ -3,8 +3,8 @@ import { mockPersistedState } from 'lib/store';
 import { EvmLoadingStateInterface } from './state';
 
 export const mockEvmLoadingState = mockPersistedState<EvmLoadingStateInterface>({
-  balances: {},
+  balancesStates: {},
   tokensMetadataLoading: false,
   collectiblesMetadataLoading: false,
-  tokensExchangeRatesLoading: false
+  chainsTokensExchangeRatesLoading: {}
 });

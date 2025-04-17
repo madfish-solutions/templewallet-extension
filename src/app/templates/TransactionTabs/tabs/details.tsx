@@ -63,7 +63,7 @@ export const DetailsTab: FC<Props> = ({
         {displayedStorageFee && (
           <ChartListItem title={<T id="storageFee" />} titleClassName="capitalize" bottomSeparator={false}>
             <div className="flex flex-row items-center">
-              <FeesInfo network={network} assetSlug={assetSlug} amount={displayedFee} goToFeeTab={goToFeeTab} />
+              <FeesInfo network={network} assetSlug={assetSlug} amount={displayedStorageFee} goToFeeTab={goToFeeTab} />
             </div>
           </ChartListItem>
         )}

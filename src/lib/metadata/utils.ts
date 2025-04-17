@@ -1,3 +1,4 @@
+import { isDefined } from '@rnw-community/shared';
 import { isString, pick } from 'lodash';
 
 import type { TokenMetadataResponse, WhitelistResponseToken } from 'lib/apis/temple';
@@ -32,11 +33,11 @@ export function getCollectionName(metadata: EvmCollectibleMetadata | nullish) {
 }
 
 /** Empty string for `artifactUri` counts */
-export const isCollectible = (metadata: StringRecord<any>) =>
-  'artifactUri' in metadata && isString(metadata.artifactUri);
+export const isCollectible = (metadata?: StringRecord<any>) =>
+  isDefined(metadata) && 'artifactUri' in metadata && isString(metadata.artifactUri);
 
-export const isEvmCollectible = (metadata: EvmAssetMetadata): metadata is EvmCollectibleMetadata =>
-  'tokenId' in metadata;
+export const isEvmCollectible = (metadata?: EvmAssetMetadata): metadata is EvmCollectibleMetadata =>
+  isDefined(metadata) && 'tokenId' in metadata;
 
 /**
  * @deprecated // Assertion here is not safe!

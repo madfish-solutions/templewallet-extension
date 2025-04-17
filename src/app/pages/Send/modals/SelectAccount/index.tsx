@@ -29,7 +29,7 @@ interface Props {
   opened: boolean;
   selectedAccountAddress: string;
   onRequestClose: EmptyFn;
-  onAccountSelect: (address: string) => void;
+  onAccountSelect: SyncFn<string>;
   evm?: boolean;
 }
 

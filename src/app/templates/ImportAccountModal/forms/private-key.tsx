@@ -117,7 +117,7 @@ export const PrivateKeyForm = memo<ImportAccountFormProps>(({ onSuccess }) => {
           cleanable={Boolean(keyValue)}
           onClean={cleanPrivateKeyField}
           onChange={resetSubmitError}
-          additonalActionButtons={
+          additionalActionButtons={
             keyValue ? null : (
               <TextButton
                 color="blue"

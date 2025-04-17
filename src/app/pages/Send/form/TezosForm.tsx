@@ -12,7 +12,7 @@ import { useTezosAssetBalance } from 'lib/balances';
 import { RECOMMENDED_ADD_TEZ_GAS_FEE, TEZ_BURN_ADDRESS } from 'lib/constants';
 import { useAssetFiatCurrencyPrice } from 'lib/fiat-currency';
 import { toLocalFixed, t } from 'lib/i18n';
-import { useCategorizedTezosAssetMetadata, getAssetSymbol, getTezosGasMetadata } from 'lib/metadata';
+import { useCategorizedTezosAssetMetadata, getAssetSymbol, getTezosGasMetadata, isCollectible } from 'lib/metadata';
 import { validateRecipient as validateAddress } from 'lib/temple/front';
 import { isValidTezosAddress, isTezosContractAddress } from 'lib/tezos';
 import { useSafeState } from 'lib/ui/hooks';
@@ -56,6 +56,7 @@ export const TezosForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, o
 
   const assetPrice = useAssetFiatCurrencyPrice(assetSlug, chainId);
 
+  const isNft = isCollectible(assetMetadata);
   const assetDecimals = assetMetadata.decimals ?? 0;
 
   const assetSymbol = useMemo(() => getAssetSymbol(assetMetadata), [assetMetadata]);
@@ -171,9 +172,12 @@ export const TezosForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, o
       if (!amount) return t('required');
       if (toValue && !isTezosContractAddress(toValue) && Number(amount) === 0) return t('amountMustBePositive');
 
-      return new BigNumber(amount).isLessThanOrEqualTo(maxAmount) || t('maximalAmount', toLocalFixed(maxAmount, 6));
+      return (
+        new BigNumber(amount).isLessThanOrEqualTo(maxAmount) ||
+        t('maximalAmount', toLocalFixed(maxAmount, Math.min(assetDecimals, 6)))
+      );
     },
-    [maxAmount, toValue]
+    [maxAmount, toValue, assetDecimals]
   );
 
   const validateRecipient = useCallback(
@@ -260,6 +264,7 @@ export const TezosForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, o
         assetSlug={assetSlug}
         assetSymbol={assetSymbol}
         assetPrice={assetPrice}
+        isCollectible={isNft}
         maxAmount={maxAmount}
         maxEstimating={toFilled ? estimating : burnEstimating}
         canToggleFiat={canToggleFiat}
@@ -270,6 +275,7 @@ export const TezosForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, o
         validateRecipient={validateRecipient}
         onSelectAssetClick={onSelectAssetClick}
         isToFilledWithFamiliarAddress={isToFilledWithFamiliarAddress}
+        shouldShowConvertedAmountBlock={!isCollectible(assetMetadata)}
         onSubmit={onSubmit}
       />
     </FormProvider>

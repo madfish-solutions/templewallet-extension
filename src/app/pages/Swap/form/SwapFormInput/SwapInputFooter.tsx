@@ -43,7 +43,7 @@ const SwapFooter: FC<SwapFooterProps> = ({
   );
 
   return (
-    <div className="flex justify-between items-center mt-1 gap-2">
+    <div className="flex justify-between items-center gap-2">
       <div className="flex-1 flex items-center">
         {error ? (
           <span className="text-font-description text-error whitespace-nowrap overflow-ellipsis">{error}</span>
@@ -60,7 +60,7 @@ const SwapFooter: FC<SwapFooterProps> = ({
       </div>
       {inputName === 'input' && (
         <Button
-          className="text-font-description-bold text-secondary px-1 py-0.5 max-w-40 truncate"
+          className="text-font-description-bold text-secondary px-1 py-0.5 my-0.5 max-w-40 truncate"
           onClick={handleFiatToggle}
         >
           Switch to {shouldUseFiat ? assetSymbol : selectedFiatCurrency.name}

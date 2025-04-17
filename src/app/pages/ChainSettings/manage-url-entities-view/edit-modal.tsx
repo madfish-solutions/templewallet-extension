@@ -116,6 +116,7 @@ export const EditUrlEntityModal = <T extends UrlEntityBase>({
         opened
         onRequestClose={handleRequestClose}
         title={<ShortenedEntityNameActionTitle entityName={displayedName} i18nKeyBase={titleI18nKeyBase} />}
+        shouldChangeBottomShift={false}
       >
         <form onSubmit={handleSubmit(onSubmit)} className="flex-1 flex flex-col max-h-full">
           <PageModalScrollViewWithActions
@@ -133,8 +134,7 @@ export const EditUrlEntityModal = <T extends UrlEntityBase>({
                 >
                   <T id="save" />
                 </StyledButton>
-              ),
-              shouldChangeBottomShift: false
+              )
             }}
           >
             <SettingsCellGroup className="mb-4">
@@ -154,7 +154,9 @@ export const EditUrlEntityModal = <T extends UrlEntityBase>({
                 validate: (value: string) => (namesToExclude.includes(value) ? t('mustBeUnique') : true)
               })}
               className={isEditable ? '' : 'text-grey-1'}
-              additonalActionButtons={!isEditable && <IconBase size={16} Icon={LockFillIcon} className="text-grey-3" />}
+              additionalActionButtons={
+                !isEditable && <IconBase size={16} Icon={LockFillIcon} className="text-grey-3" />
+              }
               label={t('name')}
               id="editurlentity-name"
               placeholder={namePlaceholder}

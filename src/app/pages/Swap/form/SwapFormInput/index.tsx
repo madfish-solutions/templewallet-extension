@@ -84,7 +84,7 @@ const SwapFormInput: FC<SwapFormInputProps> = ({
   }, [assetSlug, maxAmount, handleAmountChange]);
 
   const [selectAssetModalOpened, setSelectAssetModalOpen, setSelectAssetModalClosed] = useBooleanState(false);
-  const onCloseBottomShiftCallback = useToastBottomShiftModalLogic(selectAssetModalOpened);
+  const onCloseBottomShiftCallback = useToastBottomShiftModalLogic(selectAssetModalOpened, true);
 
   const handleAssetSelect = useCallback(
     (chainSlug: string) => {

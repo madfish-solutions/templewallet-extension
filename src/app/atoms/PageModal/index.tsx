@@ -32,6 +32,7 @@ export interface PageModalProps extends TestIDProps {
   animated?: boolean;
   contentPadding?: boolean;
   suspenseLoader?: ReactNode;
+  shouldChangeBottomShift?: boolean;
   children: ReactNode | (() => ReactElement);
 }
 
@@ -47,11 +48,12 @@ export const PageModal: FC<PageModalProps> = ({
   testID,
   animated = true,
   contentPadding = false,
+  shouldChangeBottomShift = true,
   suspenseLoader
 }) => {
   const { fullPage, confirmWindow } = useAppEnv();
   const testnetModeEnabled = useTestnetModeEnabledSelector();
-  const onCloseBottomShiftCallback = useToastBottomShiftModalLogic(opened);
+  const onCloseBottomShiftCallback = useToastBottomShiftModalLogic(opened, shouldChangeBottomShift);
 
   const baseOverlayClassNames = useMemo(() => {
     if (confirmWindow) return 'pt-4';
@@ -60,11 +62,6 @@ export const PageModal: FC<PageModalProps> = ({
 
     return fullPage ? 'pt-13 pb-8' : 'pt-4';
   }, [confirmWindow, fullPage, testnetModeEnabled]);
-
-  const handleClose = useCallback(() => {
-    onCloseBottomShiftCallback();
-    onRequestClose?.();
-  }, [onCloseBottomShiftCallback, onRequestClose]);
 
   const handleGoBack = useCallback(() => {
     onCloseBottomShiftCallback();
@@ -94,7 +91,7 @@ export const PageModal: FC<PageModalProps> = ({
         beforeClose: ModStyles.closed
       }}
       appElement={document.getElementById('root')!}
-      onRequestClose={handleClose}
+      onRequestClose={onRequestClose}
       testId={testID}
     >
       <div className="flex items-center p-4 border-b-0.5 border-lines">
@@ -102,7 +99,7 @@ export const PageModal: FC<PageModalProps> = ({
 
         <div className={clsx('flex-1 text-center text-font-regular-bold', headerClassName)}>{title}</div>
 
-        <div className="w-12 flex justify-end">{titleRight ?? <CloseButton onClick={handleClose} />}</div>
+        <div className="w-12 flex justify-end">{titleRight ?? <CloseButton onClick={onRequestClose} />}</div>
       </div>
 
       <div className={clsx('flex-grow flex flex-col overflow-hidden', contentPadding && 'p-4')}>

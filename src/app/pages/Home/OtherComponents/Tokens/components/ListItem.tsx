@@ -9,7 +9,7 @@ import { setEvmTokenStatusAction } from 'app/store/evm/assets/actions';
 import { useStoredEvmTokenSelector } from 'app/store/evm/assets/selectors';
 import { setTezosTokenStatusAction } from 'app/store/tezos/assets/actions';
 import { useStoredTezosTokenSelector } from 'app/store/tezos/assets/selectors';
-import { EvmAssetIconWithNetwork, TezosTokenIconWithNetwork } from 'app/templates/AssetIcon';
+import { EvmAssetIconWithNetwork, TezosAssetIconWithNetwork } from 'app/templates/AssetIcon';
 import { DeleteAssetModal } from 'app/templates/remove-asset-modal/delete-asset-modal';
 import { setAnotherSelector } from 'lib/analytics';
 import { EVM_TOKEN_SLUG, TEZ_TOKEN_SLUG } from 'lib/assets/defaults';
@@ -97,7 +97,7 @@ export const TezosListItem = memo<TezosListItemProps>(
       return (
         <>
           <div className={LIST_ITEM_CLASSNAME} onClick={onClick}>
-            <TezosTokenIconWithNetwork tezosChainId={network.chainId} assetSlug={assetSlug} className="shrink-0" />
+            <TezosAssetIconWithNetwork tezosChainId={network.chainId} assetSlug={assetSlug} className="shrink-0" />
 
             <div className="flex-grow flex gap-x-2 items-center overflow-hidden">
               <div className="flex-grow flex flex-col gap-y-1 overflow-hidden">
@@ -134,7 +134,7 @@ export const TezosListItem = memo<TezosListItemProps>(
         testIDProperties={{ key: assetSlug }}
         {...setAnotherSelector('name', assetName)}
       >
-        <TezosTokenIconWithNetwork tezosChainId={network.chainId} assetSlug={assetSlug} className="shrink-0" />
+        <TezosAssetIconWithNetwork tezosChainId={network.chainId} assetSlug={assetSlug} className="shrink-0" />
 
         <div className="flex-grow flex flex-col gap-y-1 overflow-hidden">
           <div className="flex gap-x-4">

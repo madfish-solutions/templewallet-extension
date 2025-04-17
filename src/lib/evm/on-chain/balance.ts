@@ -3,6 +3,7 @@ import { erc20Abi, erc721Abi } from 'viem';
 
 import { erc1155Abi } from 'lib/abi/erc1155';
 import { fromAssetSlug } from 'lib/assets';
+import { delay } from 'lib/utils';
 import { isEvmNativeTokenSlug } from 'lib/utils/evm.utils';
 import { ONE, ZERO } from 'lib/utils/numbers';
 import { getReadOnlyEvm } from 'temple/evm';
@@ -11,8 +12,17 @@ import { EvmNetworkEssentials } from 'temple/networks';
 import { EvmAssetStandard } from '../types';
 
 import { detectEvmTokenStandard } from './utils/common.utils';
+import { EvmRpcRequestsExecutor } from './utils/evm-rpc-requests-executor';
 
-export const fetchEvmRawBalance = async (
+export interface LoadOnChainBalancePayload {
+  network: EvmNetworkEssentials;
+  assetSlug: string;
+  account: HexString;
+  assetStandard?: EvmAssetStandard;
+  throwOnTimeout?: boolean;
+}
+
+const fetchEvmRawBalance = async (
   network: EvmNetworkEssentials,
   assetSlug: string,
   account: HexString,
@@ -87,3 +97,34 @@ const fetchEvmNativeBalance = async (address: HexString, network: EvmNetworkEsse
     return ZERO;
   }
 };
+
+class EvmOnChainBalancesRequestsExecutor extends EvmRpcRequestsExecutor<LoadOnChainBalancePayload, BigNumber, number> {
+  protected getRequestsPoolKey(payload: LoadOnChainBalancePayload) {
+    return payload.network.chainId;
+  }
+
+  protected requestsAreSame(a: LoadOnChainBalancePayload, b: LoadOnChainBalancePayload) {
+    return a.network.chainId === b.network.chainId && a.assetSlug === b.assetSlug && a.account === b.account;
+  }
+
+  protected async getResult({
+    network,
+    assetSlug,
+    account,
+    assetStandard,
+    throwOnTimeout = true
+  }: LoadOnChainBalancePayload) {
+    if (!throwOnTimeout) {
+      return fetchEvmRawBalance(network, assetSlug, account, assetStandard);
+    }
+
+    return Promise.race([
+      fetchEvmRawBalance(network, assetSlug, account, assetStandard),
+      delay(30_000).then(() => {
+        throw new Error(`Request timed out for ${network.chainId} ${assetSlug} ${account}`);
+      })
+    ]);
+  }
+}
+
+export const evmOnChainBalancesRequestsExecutor = new EvmOnChainBalancesRequestsExecutor();

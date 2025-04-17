@@ -115,7 +115,7 @@ export const useGetEvmNoCategoryAssetMetadata = (chainId: number) => {
   return useCallback((slug: string) => tokensMetadatas?.[slug], [tokensMetadatas]);
 };
 
-export const useGetEvmGenericAssetMetadata = () => {
+const useGetEvmGenericAssetMetadata = () => {
   const allEvmChains = useAllEvmChains();
   const tokensMetadatas = useEvmTokensMetadataRecordSelector();
   const collectiblesMetadatas = useEvmCollectiblesMetadataRecordSelector();
@@ -238,18 +238,6 @@ export const useTezosGenericAssetsMetadataLoading = () => {
   const noCategoryAssetsMetadataLoading = useNoCategoryTezosAssetsMetadataLoadingSelector();
 
   return tokensMetadataLoading || collectiblesMetadataLoading || noCategoryAssetsMetadataLoading;
-};
-
-export const useGetTezosGenericAssetMetadata = () => {
-  const getCollectibleMetadata = useGetCollectibleMetadata();
-  const getTokenOrGasMetadata = useGetTokenOrGasMetadata();
-  const getNoCategoryAssetMetadata = useGetNoCategoryAssetMetadata();
-
-  return useCallback(
-    (slug: string, chainId: string) =>
-      getCollectibleMetadata(slug) || getTokenOrGasMetadata(chainId, slug) || getNoCategoryAssetMetadata(slug),
-    [getCollectibleMetadata, getNoCategoryAssetMetadata, getTokenOrGasMetadata]
-  );
 };
 
 export const useTezosGenericAssetsMetadataCheck = (chainSlugsToCheck?: string[], associatedAccountPkh?: string) => {

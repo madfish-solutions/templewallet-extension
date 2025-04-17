@@ -147,7 +147,7 @@ export const EVM_DEFAULT_NETWORKS: NonEmptyArray<StoredEvmNetwork> = [
     name: 'Avalanche',
     chain: TempleChainKind.EVM,
     chainId: OTHER_COMMON_MAINNET_CHAIN_IDS.avalanche,
-    rpcBaseURL: 'https://avalanche.drpc.org',
+    rpcBaseURL: 'https://avalanche-c-chain-rpc.publicnode.com',
     color: '#ff5959',
     default: true
   },
