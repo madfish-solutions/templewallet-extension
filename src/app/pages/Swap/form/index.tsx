@@ -16,6 +16,7 @@ import { dispatch, useSelector } from 'app/store';
 import { loadSwapParamsAction, resetSwapParamsAction } from 'app/store/swap/actions';
 import { useSwapParamsSelector, useSwapTokenSelector, useSwapTokensSelector } from 'app/store/swap/selectors';
 import OperationStatus from 'app/templates/OperationStatus';
+import { toastError } from 'app/toaster';
 import { setTestID, useFormAnalytics } from 'lib/analytics';
 import { fetchRoute3SwapParams } from 'lib/apis/route3/fetch-route3-swap-params';
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
@@ -51,7 +52,6 @@ import { HistoryAction, navigate } from 'lib/woozie';
 import { AccountForTezos } from 'temple/accounts';
 import { getTezosToolkitWithSigner, useTezosBlockLevel, useTezosMainnetChain } from 'temple/front';
 
-import { toastError } from '../../../toaster';
 import { EXCHANGE_XTZ_RESERVE } from '../constants';
 
 import { TezosReviewData } from './interfaces';
