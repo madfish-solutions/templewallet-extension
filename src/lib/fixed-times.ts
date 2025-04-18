@@ -1,4 +1,4 @@
-export const BLOCK_DURATION = 10_000;
+export const BLOCK_DURATION = 8_000;
 
 export const ASSETS_SYNC_INTERVAL = 4 * BLOCK_DURATION;
 
