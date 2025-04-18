@@ -4,6 +4,7 @@ import { Spinner } from 'app/atoms';
 import { DelegateButton, RedelegateButton } from 'app/atoms/BakingButtons';
 import { useIsStakingNotSupported, useManagableTezosStakeInfo } from 'app/hooks/use-baking-hooks';
 import { BakerBanner } from 'app/templates/BakerBanner';
+import { useGasToken } from 'lib/assets/hooks';
 import { T } from 'lib/i18n';
 import { useGasTokenMetadata } from 'lib/metadata';
 import { useAccountPkh, useNetwork } from 'lib/temple/front';
@@ -17,10 +18,14 @@ interface Props {
 
 export const BakerBannerWithStake = memo<Props>(({ bakerPkh, cannotDelegate }) => {
   const accountPkh = useAccountPkh();
+  const { isDcpNetwork } = useGasToken();
   const { rpcBaseURL } = useNetwork();
   const { symbol } = useGasTokenMetadata();
 
-  const isNotSupportedSwr = useIsStakingNotSupported(rpcBaseURL, bakerPkh);
+  const { data: stakingIsNotSupported = isDcpNetwork, isLoading: isNotSupportedSwrLoading } = useIsStakingNotSupported(
+    rpcBaseURL,
+    bakerPkh
+  );
 
   const { mayManage: shouldManage, isLoading: isShouldManageLoading } = useManagableTezosStakeInfo(
     rpcBaseURL,
@@ -38,9 +43,7 @@ export const BakerBannerWithStake = memo<Props>(({ bakerPkh, cannotDelegate }) =
     [cannotDelegate]
   );
 
-  const stakingIsNotSupported = isNotSupportedSwr.data;
-
-  const isLoading = isNotSupportedSwr.isLoading || isShouldManageLoading;
+  const isLoading = isNotSupportedSwrLoading || isShouldManageLoading;
 
   const StakeOrManageButton = useMemo<FC | undefined>(() => {
     if (isLoading) return () => <Spinner className="w-8 self-center" theme="gray" />;
