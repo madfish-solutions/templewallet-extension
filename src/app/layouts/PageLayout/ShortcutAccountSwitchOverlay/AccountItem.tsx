@@ -14,12 +14,11 @@ import { combineRefs } from 'lib/ui/utils';
 
 import { ShortcutAccountSwitchSelectors } from './selectors';
 
-const scrollIntoViewOptions: ScrollIntoViewOptions = { block: 'end', behavior: 'smooth' };
+const scrollIntoViewOptions: ScrollIntoViewOptions = { block: 'center', behavior: 'smooth' };
 
 interface AccountItemProps {
   account: StoredAccount;
   focused: boolean;
-  selected: boolean;
   onAccountSelect: (accountId: string) => void;
   searchValue: string;
   arrayIndex?: number;
@@ -29,21 +28,15 @@ interface AccountItemProps {
 const baseRowClasses = clsx(
   'block w-full p-2 flex items-center rounded-lg',
   'shadow-bottom overflow-hidden transition ease-in-out duration-200',
-  'border hover:border-lines'
+  'border border-transparent'
 );
 
-const getRowClassName = (selected: boolean, focused: boolean) =>
-  clsx(
-    baseRowClasses,
-    selected && 'shadow-none bg-secondary-low hover:border-transparent',
-    focused ? 'border-lines' : 'border-transparent',
-    selected && focused && 'border-transparent'
-  );
+const getRowClassName = (focused: boolean) =>
+  clsx(baseRowClasses, focused ? 'shadow-none bg-secondary-low' : 'hover:border-lines');
 
 export const AccountItem: React.FC<AccountItemProps> = ({
   account,
   focused,
-  selected,
   onAccountSelect,
   searchValue,
   arrayIndex,
@@ -58,7 +51,7 @@ export const AccountItem: React.FC<AccountItemProps> = ({
           itemsArrayRef.current[arrayIndex] = el;
         }
       })}
-      className={getRowClassName(selected, focused)}
+      className={getRowClassName(focused)}
       onClick={() => onAccountSelect(account.id)}
       testID={ShortcutAccountSwitchSelectors.accountItemButton}
       testIDProperties={{ accountTypeEnum: account.type }}
@@ -66,7 +59,7 @@ export const AccountItem: React.FC<AccountItemProps> = ({
       <div className="flex flex-1 flex-row justify-between items-center">
         <div className="flex items-center flex-row gap-x-2">
           <AccountAvatar seed={account.id} size={32} borderColor="gray" />
-          <Name className="text-font-medium-bold">
+          <Name className="text-font-description-bold">
             <SearchHighlightText searchValue={searchValue}>{account.name}</SearchHighlightText>
           </Name>
         </div>

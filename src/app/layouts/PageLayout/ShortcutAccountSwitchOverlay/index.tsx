@@ -143,6 +143,7 @@ export const ShortcutAccountSwitchOverlay = memo(() => {
                 autoFocus
                 defaultRightMargin={false}
                 value={searchValue}
+                className={'focus:outline-none focus:ring-0 focus:border-transparent'}
                 placeholder={t('searchAccount', [searchHotkey])}
                 onValueChange={handleSearchValueChange}
                 testID={AccountsManagementSelectors.searchField}
@@ -168,7 +169,6 @@ export const ShortcutAccountSwitchOverlay = memo(() => {
                           key={account.id}
                           account={account}
                           focused={filteredAccounts[focusedAccountItemIndex]?.id === account.id}
-                          selected={account.id === currentAccountId}
                           onAccountSelect={handleAccountClick}
                           searchValue={searchValue}
                           arrayIndex={filteredAccounts.findIndex(a => a.id === account.id)}
