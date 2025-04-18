@@ -31,9 +31,6 @@ const baseRowClasses = clsx(
   'border border-transparent'
 );
 
-const getRowClassName = (focused: boolean) =>
-  clsx(baseRowClasses, focused ? 'shadow-none bg-secondary-low' : 'hover:border-lines');
-
 export const AccountItem: React.FC<AccountItemProps> = ({
   account,
   focused,
@@ -51,7 +48,7 @@ export const AccountItem: React.FC<AccountItemProps> = ({
           itemsArrayRef.current[arrayIndex] = el;
         }
       })}
-      className={getRowClassName(focused)}
+      className={clsx(baseRowClasses, focused ? 'shadow-none bg-secondary-low' : 'hover:border-lines')}
       onClick={() => onAccountSelect(account.id)}
       testID={ShortcutAccountSwitchSelectors.accountItemButton}
       testIDProperties={{ accountTypeEnum: account.type }}
