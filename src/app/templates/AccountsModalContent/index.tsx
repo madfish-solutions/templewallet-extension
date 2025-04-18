@@ -14,6 +14,8 @@ import {
 } from 'app/templates/AccountsGroup';
 import { NewWalletActionsPopper } from 'app/templates/NewWalletActionsPopper';
 import { SearchBarField } from 'app/templates/SearchField';
+import { searchHotkey } from 'lib/constants';
+import { t } from 'lib/i18n';
 import { StoredAccount } from 'lib/temple/types';
 import { navigate } from 'lib/woozie';
 import { searchAndFilterAccounts, useAccountsGroups, useCurrentAccountId, useVisibleAccounts } from 'temple/front';
@@ -159,6 +161,7 @@ export const AccountsModalContent = memo<AccountsModalContentProps>(
           )}
         >
           <SearchBarField
+            placeholder={t('searchAccount', [searchHotkey])}
             value={searchValue}
             onValueChange={setSearchValue}
             testID={AccountsModalSelectors.searchField}

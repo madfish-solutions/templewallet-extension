@@ -101,8 +101,6 @@ const SearchField = forwardRef<HTMLDivElement, Props>(
   }
 );
 
-export default SearchField;
-
 interface SearchBarFieldProps extends Props {
   defaultRightMargin?: boolean;
 }
