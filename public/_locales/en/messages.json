@@ -69,6 +69,9 @@
   "clickToReveal": {
     "message": "Click to reveal"
   },
+  "swapDetails": {
+    "message": "Swap details"
+  },
   "copiedHash": {
     "message": "Copied"
   },
@@ -2618,7 +2621,7 @@
     "message": "Custom"
   },
   "minimumReceived": {
-    "message": "Minimum received"
+    "message": "Minimum Received"
   },
   "scam": {
     "message": "Scam"

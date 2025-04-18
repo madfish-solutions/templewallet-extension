@@ -2,7 +2,7 @@ import { Route3Token, Route3TokenStandardEnum } from 'lib/apis/route3/fetch-rout
 import { TempleToken } from 'lib/assets/known-tokens';
 
 export const ROUTE3_CONTRACT = 'KT1V5XKmeypanMS9pR65REpqmVejWBZURuuT';
-export const BURN_ADDREESS = 'tz1burnburnburnburnburnburnburjAYjjX';
+export const BURN_ADDRESS = 'tz1burnburnburnburnburnburnburjAYjjX';
 export const ROUTING_FEE_ADDRESS = 'tz1UbRzhYjQKTtWYvGUWcRtVT4fN3NESDVYT';
 
 export const SIRS_LIQUIDITY_SLIPPAGE_RATIO = 0.9999;

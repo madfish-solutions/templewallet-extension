@@ -30,8 +30,13 @@ export interface TransactionTabsProps<T extends TxParamsFormData> {
   estimationError?: string | nullish;
   formId: string;
   tabsName: string;
-  destinationName: ReactNode;
-  destinationValue: ReactNode;
+  destinationName?: ReactNode;
+  destinationValue?: ReactNode;
+  cashbackInTkey?: string;
+  minimumReceived?: {
+    amount: string;
+    symbol: string;
+  };
   children?: ReactNode;
 }
 
@@ -52,6 +57,8 @@ export const TransactionTabs = <T extends TxParamsFormData>({
   tabsName,
   destinationName,
   destinationValue,
+  cashbackInTkey,
+  minimumReceived,
   children
 }: TransactionTabsProps<T>) => {
   const { handleSubmit } = useFormContext<T>();
@@ -105,7 +112,7 @@ export const TransactionTabs = <T extends TxParamsFormData>({
       <form id={formId} className="flex-1 flex flex-col" onSubmit={handleSubmit(onSubmit)}>
         {!displayedFeeOptions && !estimationError ? (
           <div className="flex justify-center my-10">
-            <Loader size="M" trackVariant="dark" className="text-primary" />
+            <Loader size="M" trackVariant="dark" className="text-secondary" />
           </div>
         ) : (
           (() => {
@@ -128,12 +135,14 @@ export const TransactionTabs = <T extends TxParamsFormData>({
                 return (
                   <DetailsTab
                     network={network}
-                    assetSlug={nativeAssetSlug}
+                    nativeAssetSlug={nativeAssetSlug}
                     displayedFee={displayedFee}
                     displayedStorageFee={displayedStorageFee}
                     goToFeeTab={goToFeeTab}
                     destinationName={destinationName}
                     destinationValue={destinationValue}
+                    cashbackInTkey={cashbackInTkey}
+                    minimumReceived={minimumReceived}
                   />
                 );
             }

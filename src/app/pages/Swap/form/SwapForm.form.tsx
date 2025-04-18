@@ -14,7 +14,6 @@ export interface SwapInputValue {
 export interface SwapFormValue {
   input: SwapInputValue;
   output: SwapInputValue;
-  slippageTolerance?: number;
 }
 
 const getValidAssetSlug = (queryAssetSlug: string | null) =>
@@ -44,8 +43,7 @@ export const useSwapFormDefaultValue = () => {
 
     return {
       input: { assetSlug: getValidAssetSlug(fromSlug) },
-      output: { assetSlug: getValidAssetSlug(toSlug) },
-      slippageTolerance: 0.5
+      output: { assetSlug: getValidAssetSlug(toSlug) }
     };
   }, [location.search]);
 };

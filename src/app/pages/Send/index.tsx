@@ -1,6 +1,7 @@
 import React, { memo, Suspense, useCallback, useState } from 'react';
 
 import { PageTitle } from 'app/atoms';
+import { PageLoader } from 'app/atoms/Loader';
 import PageLayout from 'app/layouts/PageLayout';
 import { useAssetsFilterOptionsSelector } from 'app/store/assets-filter-options/selectors';
 import { useTestnetModeEnabledSelector } from 'app/store/settings/selectors';
@@ -19,7 +20,6 @@ import { TempleChainKind } from 'temple/types';
 
 import { Form } from './form';
 import { ReviewData } from './form/interfaces';
-import { SpinnerSection } from './form/SpinnerSection';
 import { ConfirmSendModal } from './modals/ConfirmSend';
 import { SelectAssetModal } from './modals/SelectAsset';
 
@@ -85,7 +85,7 @@ const Send = memo<Props>(({ chainKind, chainId, assetSlug }) => {
 
   return (
     <PageLayout pageTitle={<PageTitle title={t('send')} />} contentPadding={false} noScroll>
-      <Suspense fallback={<SpinnerSection />}>
+      <Suspense fallback={<PageLoader stretch />}>
         <Form
           selectedChainAssetSlug={selectedChainAssetSlug}
           onReview={handleReview}

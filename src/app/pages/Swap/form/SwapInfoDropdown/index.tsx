@@ -73,7 +73,7 @@ export const SwapInfoDropdown = ({
         <IconBase
           Icon={ChevronUpIcon}
           className={clsx(
-            'w-4 h-4 stroke-grey-1 stroke-2 transform transition-transform duration-200',
+            'text-grey-1 transform transition-transform duration-200',
             dropdownOpened ? 'rotate-0' : 'rotate-180'
           )}
         />

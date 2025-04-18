@@ -2,7 +2,7 @@ import React, { memo, useCallback, useEffect, useState } from 'react';
 
 import clsx from 'clsx';
 import { isEmpty } from 'lodash';
-import { Controller, SubmitHandler, useForm } from 'react-hook-form-v7';
+import { Controller, RegisterOptions, SubmitHandler, useForm } from 'react-hook-form-v7';
 
 import { CaptionAlert } from 'app/atoms';
 import AssetField from 'app/atoms/AssetField';
@@ -10,84 +10,99 @@ import { ActionsButtonsBox, PageModal } from 'app/atoms/PageModal';
 import { StyledButton } from 'app/atoms/StyledButton';
 import { t, T } from 'lib/i18n';
 
-export type Inputs = {
-  slippageTolerance?: number;
-};
+type Option = '0.5' | '1' | 'custom';
+const options = ['0.5', '1', 'custom'] as const;
 
-interface SelectTokenModalProps {
-  onSubmit: SubmitHandler<Inputs>;
-  opened: boolean;
-  onRequestClose: EmptyFn;
+interface SwapSettingForm {
+  customSlippage?: number;
 }
 
-const SwapSettingsModal = memo<SelectTokenModalProps>(({ onSubmit, opened, onRequestClose }) => {
-  const customLabel = t('custom');
-  const options: (number | typeof customLabel)[] = [0.5, 1, customLabel];
+interface SelectTokenModalProps {
+  currentSlippageTolerance: number;
+  opened: boolean;
+  onRequestClose: EmptyFn;
+  onConfirm: SyncFn<number>;
+}
 
-  const [appliedSlippage, setAppliedSlippage] = useState<number | typeof customLabel>(0.5);
-  const [customSlippage, setCustomSlippage] = useState<number | undefined>(undefined);
-  const [selectedOption, setSelectedOption] = useState<number | typeof customLabel>(appliedSlippage);
+export const SwapSettingsModal = memo<SelectTokenModalProps>(
+  ({ currentSlippageTolerance, opened, onRequestClose, onConfirm }) => {
+    const [selectedOption, setSelectedOption] = useState(getOptionFromSlippage(currentSlippageTolerance));
 
-  type SlippageOption = (typeof options)[number];
+    const {
+      watch,
+      control,
+      handleSubmit,
+      setValue,
+      setError,
+      formState: { errors, submitCount, isSubmitting }
+    } = useForm<SwapSettingForm>({
+      mode: 'onSubmit',
+      reValidateMode: 'onChange'
+    });
 
-  const {
-    watch,
-    control,
-    handleSubmit,
-    setValue,
-    formState: { errors, submitCount, isSubmitting }
-  } = useForm<Inputs>();
-  const formSubmitted = submitCount > 0;
+    const customSlippageValue = watch('customSlippage');
+    const formSubmitted = submitCount > 0;
 
-  const slippageValue = watch('slippageTolerance');
+    const resetSelectedOption = useCallback(() => {
+      const option = getOptionFromSlippage(currentSlippageTolerance);
 
-  const handleInputClean = useCallback(
-    () => setValue('slippageTolerance', undefined, { shouldValidate: formSubmitted }),
-    [setValue, formSubmitted]
-  );
+      setSelectedOption(option);
+      setValue('customSlippage', option === 'custom' ? currentSlippageTolerance : undefined);
+    }, [currentSlippageTolerance, setValue]);
 
-  const handleModalClose = () => {
-    setSelectedOption(appliedSlippage);
-    if (appliedSlippage === customLabel) {
-      setValue('slippageTolerance', customSlippage);
-    }
-    onRequestClose();
-  };
+    useEffect(() => {
+      if (opened) resetSelectedOption();
+    }, [opened]);
 
-  const handleOptionChange = (option: SlippageOption) => {
-    setSelectedOption(option);
-    if (typeof option === 'number') {
-      setValue('slippageTolerance', option, { shouldValidate: formSubmitted });
-    } else {
-      setValue('slippageTolerance', customSlippage, { shouldValidate: formSubmitted });
-    }
-  };
+    const handleOptionChange = useCallback(
+      (option: Option) => {
+        if (option === 'custom') {
+          control.register('customSlippage', customSlippageFieldOptions);
+        } else control.unregister('customSlippage');
 
-  const handleApplyClick = () => {
-    setAppliedSlippage(selectedOption);
-    if (selectedOption === customLabel) {
-      setCustomSlippage(slippageValue || 0.1);
-    }
-    handleSubmit(onSubmit)();
-  };
+        setSelectedOption(option);
+      },
+      [control]
+    );
 
-  useEffect(() => {
-    setSelectedOption(appliedSlippage);
-    if (appliedSlippage === customLabel) {
-      setValue('slippageTolerance', customSlippage);
-    }
-  }, [opened]);
+    const handleInputClean = useCallback(
+      () => void setValue('customSlippage', undefined, { shouldValidate: formSubmitted }),
+      [setValue, formSubmitted]
+    );
 
-  return (
-    <PageModal title="Swap Settings" opened={opened} onRequestClose={handleModalClose}>
-      <div className="mt-5 px-4">
-        <span className="font-semibold text-xs">
-          <T id="slippageTolerance" />
-        </span>
+    const handleModalClose = useCallback(() => {
+      resetSelectedOption();
+      onRequestClose();
+    }, [onRequestClose, resetSelectedOption]);
 
-        <CaptionAlert className="mt-1" type="info" message={t('slippageDescription')} />
+    const onSubmit = useCallback<SubmitHandler<SwapSettingForm>>(
+      ({ customSlippage }) => {
+        if (isSubmitting) return;
 
-        <form id="slippage-form" onSubmit={handleSubmit(onSubmit)}>
+        if (selectedOption !== 'custom') {
+          onConfirm(Number(selectedOption));
+          return;
+        }
+
+        if (!customSlippage) {
+          setError('customSlippage', { message: t('required') });
+          return;
+        }
+
+        onConfirm(customSlippage);
+      },
+      [isSubmitting, onConfirm, selectedOption, setError]
+    );
+
+    return (
+      <PageModal title="Swap Settings" opened={opened} onRequestClose={handleModalClose}>
+        <div className="mt-5 px-4">
+          <span className="font-semibold text-xs">
+            <T id="slippageTolerance" />
+          </span>
+
+          <CaptionAlert className="mt-1" type="info" message={t('slippageDescription')} />
+
           <div className="flex items-center bg-[#E2E2E2] rounded-lg p-0.5 my-4">
             {options.map(option => (
               <button
@@ -99,54 +114,60 @@ const SwapSettingsModal = memo<SelectTokenModalProps>(({ onSubmit, opened, onReq
                   selectedOption === option ? 'bg-white text-primary shadow-sm' : 'text-text'
                 )}
               >
-                {option}
-                {option !== customLabel && '%'}
+                {option === 'custom' ? t('custom') : option + '%'}
               </button>
             ))}
           </div>
-          {selectedOption === customLabel && (
+
+          <form id="slippage-form" onSubmit={handleSubmit(onSubmit)}>
             <Controller
-              name="slippageTolerance"
+              name="customSlippage"
               control={control}
-              rules={{
-                required: true,
-                validate: {
-                  maxSlippage: value => (value && value > 30 ? t('maxSlippage', '30') : true),
-                  minSlippage: value => (value && value < 0.1 ? t('minSlippage', '0.1') : true)
-                }
-              }}
               render={({ field: { value, onChange, onBlur } }) => (
-                <AssetField
-                  value={value}
-                  onChange={v => onChange(v ?? '')}
-                  onBlur={onBlur}
-                  assetDecimals={2}
-                  cleanable={Boolean(slippageValue)}
-                  onClean={handleInputClean}
-                  placeholder={'0.1 - 30'}
-                  errorCaption={formSubmitted ? errors.slippageTolerance?.message : null}
-                  containerClassName="pb-8"
-                />
+                <div className={selectedOption === 'custom' ? 'w-full' : 'hidden'}>
+                  <AssetField
+                    value={value}
+                    onChange={v => onChange(v ? Number(v) : undefined)}
+                    onBlur={onBlur}
+                    assetDecimals={2}
+                    cleanable={Boolean(customSlippageValue)}
+                    onClean={handleInputClean}
+                    placeholder={'0.1 - 30'}
+                    errorCaption={formSubmitted ? errors.customSlippage?.message : null}
+                    containerClassName="pb-8"
+                  />
+                </div>
               )}
             />
-          )}
-        </form>
-      </div>
-      <ActionsButtonsBox bgSet={false} className="mt-auto">
-        <StyledButton
-          type="button"
-          onClick={handleApplyClick}
-          form="slippage-form"
-          size="L"
-          color="primary"
-          loading={isSubmitting}
-          disabled={formSubmitted && !isEmpty(errors)}
-        >
-          Apply
-        </StyledButton>
-      </ActionsButtonsBox>
-    </PageModal>
-  );
-});
+          </form>
+        </div>
+        <ActionsButtonsBox bgSet={false} className="mt-auto">
+          <StyledButton
+            type="submit"
+            form="slippage-form"
+            size="L"
+            color="primary"
+            loading={isSubmitting}
+            disabled={formSubmitted && !isEmpty(errors)}
+          >
+            Apply
+          </StyledButton>
+        </ActionsButtonsBox>
+      </PageModal>
+    );
+  }
+);
 
-export default SwapSettingsModal;
+const customSlippageFieldOptions: RegisterOptions<SwapSettingForm> = {
+  required: t('required'),
+  validate: {
+    maxSlippage: value => (value && value > 30 ? t('maxSlippage', '30') : true),
+    minSlippage: value => (value && value < 0.1 ? t('minSlippage', '0.1') : true)
+  }
+};
+
+const getOptionFromSlippage = (slippage: number) => {
+  const slippageStr = slippage.toString() as Option;
+
+  return options.includes(slippageStr) ? slippageStr : 'custom';
+};
