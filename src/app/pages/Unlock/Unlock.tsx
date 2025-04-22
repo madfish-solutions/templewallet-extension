@@ -68,6 +68,7 @@ const Unlock: FC<UnlockProps> = ({ canImportNew = true }) => {
   const [pageModalName, setPageModalName] = useState<PageModalName | null>(null);
   const [attempt, setAttempt] = useLocalStorage<number>(TempleSharedStorageKey.PasswordAttempts, 1);
   const [timelock, setTimeLock] = useLocalStorage<number>(TempleSharedStorageKey.TimeLock, 0);
+  const [passwordShakeTrigger, setPasswordShakeTrigger] = useState(false);
   const lockLevel = LOCK_TIME * Math.floor(attempt / 3);
 
   const [timeleft, setTimeleft] = useState(getTimeLeft(timelock, lockLevel));
@@ -94,6 +95,17 @@ const Unlock: FC<UnlockProps> = ({ canImportNew = true }) => {
 
   const { register, handleSubmit, errors, setError, clearError, formState } = useForm<FormData>();
   const submitting = formState.isSubmitting;
+
+  const prevSubmitCountRef = useRef(formState.submitCount);
+  useEffect(() => {
+    if (formState.submitCount > prevSubmitCountRef.current && errors.password) {
+      setPasswordShakeTrigger(true);
+      setTimeout(() => {
+        setPasswordShakeTrigger(false);
+      }, 250);
+    }
+    prevSubmitCountRef.current = formState.submitCount;
+  }, [errors.password, formState.submitCount]);
 
   const setPasswordErrorMessage = useCallback(
     async (message: string) => {
@@ -200,7 +212,7 @@ const Unlock: FC<UnlockProps> = ({ canImportNew = true }) => {
               name="password"
               placeholder={DEFAULT_PASSWORD_INPUT_PLACEHOLDER}
               errorCaption={errors.password && errors.password.message}
-              shakeOnError
+              shakeTrigger={passwordShakeTrigger}
               additionalActionButtons={isDisabled && <IconBase Icon={LockFillIcon} className="text-grey-3" />}
               revealForbidden={isDisabled}
               containerClassName="mb-3"

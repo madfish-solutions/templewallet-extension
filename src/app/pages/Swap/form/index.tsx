@@ -6,7 +6,7 @@ import { BatchWalletOperation } from '@taquito/taquito/dist/types/wallet/batch-o
 import BigNumber from 'bignumber.js';
 import { useForm } from 'react-hook-form-v7';
 
-import { Alert, IconBase } from 'app/atoms';
+import { IconBase } from 'app/atoms';
 import { ActionsButtonsBox } from 'app/atoms/PageModal';
 import { StyledButton } from 'app/atoms/StyledButton';
 import { ReactComponent as SwapIcon } from 'app/icons/base/swap.svg';
@@ -114,6 +114,12 @@ export const SwapForm = memo<Props>(({ publicKeyHash, slippageTolerance }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isAlertVisible, setIsAlertVisible] = useState(false);
   const [shouldUseFiat, setShouldUseFiat] = useState(false);
+
+  useEffect(() => {
+    if (isAlertVisible) {
+      toastError(t('noRoutesFound'));
+    }
+  }, [isAlertVisible]);
 
   const slippageRatio = useMemo(() => getPercentageRatio(slippageTolerance ?? 0), [slippageTolerance]);
   const { outputAtomicAmountBeforeFee, minimumReceivedAtomic, outputFeeAtomicAmount } = useMemo(
@@ -544,21 +550,9 @@ export const SwapForm = memo<Props>(({ publicKeyHash, slippageTolerance }) => {
 
   const handleSubmitButtonClick = () => (isSubmitButtonPressedRef.current = true);
 
-  const handleCloseAlert = () => setIsAlertVisible(false);
-
   return (
     <>
       <form id="swap-form" className="flex-1 pt-4 px-4 flex flex-col overflow-y-auto" onSubmit={handleSubmit(onSubmit)}>
-        {isAlertVisible && (
-          <Alert
-            closable
-            className="mb-4 [&>div]:items-center"
-            type="error"
-            description={<T id="noRoutesFound" />}
-            onClose={handleCloseAlert}
-          />
-        )}
-
         {operation && (
           <OperationStatus
             network={network}

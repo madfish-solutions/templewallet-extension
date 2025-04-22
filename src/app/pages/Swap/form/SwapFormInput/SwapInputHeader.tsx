@@ -29,7 +29,7 @@ const SwapInputHeader = memo<SwapInputHeaderProps>(
       <div className="w-full flex items-center justify-between my-1">
         <span className="text-font-description-bold">{label}</span>
         {assetBalanceStr && (
-          <span className="text-xs text-grey-1 flex items-baseline">
+          <span className="text-xs text-grey-1 flex items-center">
             <span className="mr-1">
               <T id="balance" />:
             </span>
