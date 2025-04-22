@@ -11,8 +11,9 @@ import { ActionsButtonsBox } from 'app/atoms/PageModal';
 import { StyledButton } from 'app/atoms/StyledButton';
 import { ReactComponent as SwapIcon } from 'app/icons/base/swap.svg';
 import { buildSwapPageUrlQuery } from 'app/pages/Swap/build-url-query';
-import SwapFormInput from 'app/pages/Swap/form/SwapFormInput';
+import SwapFormInput, { EXCHANGE_XTZ_RESERVE } from 'app/pages/Swap/form/SwapFormInput';
 import { dispatch, useSelector } from 'app/store';
+import { setOnRampPossibilityAction } from 'app/store/settings/actions';
 import { loadSwapParamsAction, resetSwapParamsAction } from 'app/store/swap/actions';
 import { useSwapParamsSelector, useSwapTokenSelector, useSwapTokensSelector } from 'app/store/swap/selectors';
 import OperationStatus from 'app/templates/OperationStatus';
@@ -20,6 +21,7 @@ import { setTestID, useFormAnalytics } from 'lib/analytics';
 import { fetchRoute3SwapParams } from 'lib/apis/route3/fetch-route3-swap-params';
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
 import { KNOWN_TOKENS_SLUGS } from 'lib/assets/known-tokens';
+import { useGetTezosAccountTokenOrGasBalanceWithDecimals } from 'lib/balances/hooks';
 import { useAssetFiatCurrencyPrice } from 'lib/fiat-currency';
 import { useAssetUSDPrice } from 'lib/fiat-currency/core';
 import { T, t } from 'lib/i18n';
@@ -76,6 +78,7 @@ export const SwapForm = memo<Props>(({ publicKeyHash, slippageTolerance }) => {
   const allUsdToTokenRates = useSelector(state => state.currency.usdToTokenRates.data);
   const getTokenMetadata = useGetCategorizedAssetMetadata(TEZOS_MAINNET_CHAIN_ID);
   const prevOutputRef = useRef(swapParams.data.output);
+  const getTezosBalance = useGetTezosAccountTokenOrGasBalanceWithDecimals(publicKeyHash);
 
   const formAnalytics = useFormAnalytics('Index');
 
@@ -329,6 +332,17 @@ export const SwapForm = memo<Props>(({ publicKeyHash, slippageTolerance }) => {
     if (isSubmitting) {
       return;
     }
+
+    // TODO: add `toastUniqWarning(t('notEnoughTezForFee'), true)` call if the balance of the EVM native token is too low
+    if (
+      inputValue.assetSlug === TEZ_TOKEN_SLUG &&
+      getTezosBalance(TEZOS_MAINNET_CHAIN_ID, TEZ_TOKEN_SLUG)?.lte(EXCHANGE_XTZ_RESERVE)
+    ) {
+      dispatch(setOnRampPossibilityAction(true));
+
+      return;
+    }
+
     setIsSubmitting(true);
 
     const analyticsProperties = {

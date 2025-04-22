@@ -1479,6 +1479,9 @@
       }
     }
   },
+  "notEnoughTezForFee": {
+    "message": "Not enough TEZ for fee"
+  },
   "allowed": {
     "message": "Allowed"
   },
