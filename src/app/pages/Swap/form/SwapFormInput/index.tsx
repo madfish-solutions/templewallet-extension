@@ -6,11 +6,13 @@ import { useToastBottomShiftModalLogic } from 'app/hooks/use-toast-bottom-shift-
 import SwapInput from 'app/pages/Swap/form/SwapFormInput/SwapInput';
 import SwapInputHeader from 'app/pages/Swap/form/SwapFormInput/SwapInputHeader';
 import { InputContainer } from 'app/templates/InputContainer/InputContainer';
+import { toastUniqWarning } from 'app/toaster';
 import { useFormAnalytics } from 'lib/analytics';
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
 import { parseChainAssetSlug } from 'lib/assets/utils';
 import { useTezosAssetBalance } from 'lib/balances';
 import { useAssetFiatCurrencyPrice, useFiatCurrency } from 'lib/fiat-currency';
+import { t } from 'lib/i18n';
 import {
   useCategorizedTezosAssetMetadata,
   useGetCategorizedAssetMetadata,
@@ -19,12 +21,14 @@ import {
 } from 'lib/metadata';
 import { useAvailableRoute3TokensSlugs } from 'lib/route3/assets';
 import { useBooleanState } from 'lib/ui/hooks';
+import { ZERO } from 'lib/utils/numbers';
 
 import { SwapSelectAssetModal } from '../../modals/SwapSelectAsset';
 
 import { SwapFormInputProps } from './SwapFormInput.props';
 
-const EXCHANGE_XTZ_RESERVE = new BigNumber('0.3');
+// TODO: Define and use reserves for EVM native tokens
+export const EXCHANGE_XTZ_RESERVE = new BigNumber('0.3');
 
 /** @deprecated // Bad practice */
 const DEFAULT_ASSET_METADATA: AssetMetadataBase = {
@@ -67,21 +71,30 @@ const SwapFormInput: FC<SwapFormInputProps> = ({
 
   useTezosTokensMetadataPresenceCheck(network.rpcBaseURL, route3tokensSlugs);
 
-  const maxAmount = useMemo(() => {
-    if (!assetSlug) return new BigNumber(0);
-    return (isTezosSlug ? balance?.minus(EXCHANGE_XTZ_RESERVE) : balance) ?? new BigNumber(0);
+  const displayedMaxAmount = useMemo(() => {
+    if (!assetSlug || !balance) return ZERO;
+
+    if (!isTezosSlug) return balance;
+
+    return balance.lte(EXCHANGE_XTZ_RESERVE) ? balance : balance.minus(EXCHANGE_XTZ_RESERVE);
   }, [assetSlug, isTezosSlug, balance]);
 
   const handleAmountChange = useCallback(
-    (newAmount = new BigNumber(0), useFiat = shouldUseFiat) => {
+    (newAmount = ZERO, useFiat = shouldUseFiat) => {
       onChange({ assetSlug, amount: newAmount }, useFiat);
     },
     [assetSlug, onChange, shouldUseFiat]
   );
 
   const handleSetMaxAmount = useCallback(() => {
-    if (assetSlug && maxAmount) handleAmountChange(maxAmount);
-  }, [assetSlug, maxAmount, handleAmountChange]);
+    if (assetSlug && displayedMaxAmount) {
+      handleAmountChange(displayedMaxAmount);
+
+      if (isTezosSlug && balance?.lte(EXCHANGE_XTZ_RESERVE)) {
+        toastUniqWarning(t('notEnoughTezForFee'), true);
+      }
+    }
+  }, [assetSlug, balance, displayedMaxAmount, handleAmountChange, isTezosSlug]);
 
   const [selectAssetModalOpened, setSelectAssetModalOpen, setSelectAssetModalClosed] = useBooleanState(false);
   const onCloseBottomShiftCallback = useToastBottomShiftModalLogic(selectAssetModalOpened, true);
@@ -140,7 +153,7 @@ const SwapFormInput: FC<SwapFormInputProps> = ({
           <SwapInputHeader
             label={label}
             inputName={inputName}
-            isBalanceError={Boolean(amount && maxAmount.lt(amount))}
+            isBalanceError={Boolean(amount && displayedMaxAmount.lt(amount))}
             assetDecimals={assetMetadata.decimals}
             handleSetMaxAmount={handleSetMaxAmount}
             assetBalanceStr={assetSlug ? balance?.toString() ?? '0' : undefined}
