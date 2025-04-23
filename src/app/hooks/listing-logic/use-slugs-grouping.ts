@@ -1,9 +1,8 @@
-import { useMemo } from 'react';
-
 import { fromChainAssetSlug } from 'lib/assets/utils';
+import { useMemoWithCompare } from 'lib/ui/hooks';
 
 export const useChainsSlugsGrouping = <T extends string | number>(chainsSlugs: string[], active: boolean) =>
-  useMemo(() => {
+  useMemoWithCompare(() => {
     if (!active) return null;
 
     const result = new Map<T, string[]>();

@@ -34,8 +34,13 @@ export const useEvmChainsTokensExchangeRatesLoadingSelector = () =>
 export const useEvmTokensExchangeRatesLoading = () => {
   const chainsTokensExchangeRatesLoading = useEvmChainsTokensExchangeRatesLoadingSelector();
 
-  return useMemo(
-    () => !Object.values(chainsTokensExchangeRatesLoading).some(x => x),
-    [chainsTokensExchangeRatesLoading]
-  );
+  return useMemo(() => {
+    for (const chainId in chainsTokensExchangeRatesLoading) {
+      if (chainsTokensExchangeRatesLoading[chainId]) {
+        return true;
+      }
+    }
+
+    return false;
+  }, [chainsTokensExchangeRatesLoading]);
 };

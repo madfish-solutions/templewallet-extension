@@ -1,7 +1,7 @@
 import { createReducer } from '@reduxjs/toolkit';
 import { persistReducer } from 'redux-persist';
 
-import { storageConfig, createEntity } from 'lib/store';
+import { storageConfig } from 'lib/store';
 
 import { loadCollectiblesDetailsActions } from './actions';
 import { collectiblesInitialState, CollectiblesState } from './state';
@@ -17,25 +17,24 @@ const collectiblesReducer = createReducer<CollectiblesState>(collectiblesInitial
   builder.addCase(loadCollectiblesDetailsActions.success, (state, { payload }) => {
     const { details: detailsRecord, timestamp } = payload;
 
-    const adultFlags = { ...state.adultFlags };
     const timestampInSeconds = Math.round(timestamp / 1_000);
 
     // Removing expired flags
-    for (const [slug, { ts }] of Object.entries(adultFlags)) {
-      if (ts + ADULT_FLAG_TTL < timestampInSeconds) delete adultFlags[slug];
+    for (const slug in state.adultFlags) {
+      const { ts } = state.adultFlags[slug];
+      if (ts + ADULT_FLAG_TTL < timestampInSeconds) delete state.adultFlags[slug];
     }
 
-    for (const [slug, details] of Object.entries(detailsRecord)) {
+    for (const slug in detailsRecord) {
+      const details = detailsRecord[slug];
       if (details) {
-        adultFlags[slug] = { val: details.isAdultContent, ts: timestampInSeconds };
+        state.adultFlags[slug] = { val: details.isAdultContent, ts: timestampInSeconds };
       }
+      state.details.data[slug] = details;
     }
 
-    return {
-      ...state,
-      details: createEntity({ ...state.details.data, ...detailsRecord }),
-      adultFlags
-    };
+    state.details.isLoading = false;
+    state.details.error = undefined;
   });
 
   builder.addCase(loadCollectiblesDetailsActions.fail, (state, { payload }) => {

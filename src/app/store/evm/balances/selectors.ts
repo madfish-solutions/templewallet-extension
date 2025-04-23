@@ -19,4 +19,4 @@ export const useRawEvmAssetBalanceSelector = (
   accountAddress: HexString,
   chainId: number,
   assetSlug: string
-): string | undefined => useSelector(state => state.evmBalances.balancesAtomic[accountAddress]?.[chainId])?.[assetSlug];
+): string | undefined => useSelector(state => state.evmBalances.balancesAtomic[accountAddress]?.[chainId]?.[assetSlug]);

@@ -1,5 +1,4 @@
 import { createReducer } from '@reduxjs/toolkit';
-import { omit, pick } from 'lodash';
 
 import { toTokenSlug, fromAssetSlug } from 'lib/assets';
 import { buildTokenMetadataFromFetched, buildTokenMetadataFromWhitelist } from 'lib/metadata/utils';
@@ -56,10 +55,13 @@ export const tokensMetadataReducer = createReducer<TokensMetadataState>(tokensMe
 
       const metadata = buildTokenMetadataFromFetched(rawMetadata, address, id);
 
-      state.metadataRecord[slug] = {
-        ...omit(current, keysToRefresh),
-        ...pick(metadata, keysToRefresh)
-      };
+      if (state.metadataRecord[slug]) {
+        keysToRefresh.forEach(key => {
+          state.metadataRecord[slug][key] = metadata[key];
+        });
+      } else {
+        state.metadataRecord[slug] = metadata;
+      }
     }
   });
 });

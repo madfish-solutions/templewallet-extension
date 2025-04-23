@@ -1,5 +1,4 @@
 import { Draft, createReducer } from '@reduxjs/toolkit';
-import { omit, pick } from 'lodash';
 import { persistReducer } from 'redux-persist';
 
 import { fromAssetSlug } from 'lib/assets';
@@ -62,10 +61,13 @@ const noCategoryTezosAssetsMetadataReducer = createReducer<NoCategoryTezosAssets
 
         const metadata = buildTokenMetadataFromFetched(rawMetadata, address, id);
 
-        state.metadataRecord[slug] = {
-          ...omit(current, keysToRefresh),
-          ...pick(metadata, keysToRefresh)
-        };
+        if (state.metadataRecord[slug]) {
+          keysToRefresh.forEach(key => {
+            state.metadataRecord[slug][key] = metadata[key];
+          });
+        } else {
+          state.metadataRecord[slug] = metadata;
+        }
       }
     });
 

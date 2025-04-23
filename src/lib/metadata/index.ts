@@ -6,6 +6,7 @@ import {
   useEvmChainCollectiblesMetadataRecordSelector,
   useEvmCollectiblesMetadataRecordSelector
 } from 'app/store/evm/collectibles-metadata/selectors';
+import { EvmCollectibleMetadataRecord } from 'app/store/evm/collectibles-metadata/state';
 import { loadNoCategoryEvmAssetsMetadataActions } from 'app/store/evm/no-category-assets-metadata/actions';
 import {
   useEvmChainNoCategoryAssetsMetadataSelector,
@@ -13,6 +14,7 @@ import {
   useEvmNoCategoryAssetsMetadataLoadingSelector,
   useEvmNoCategoryAssetsMetadataRecordSelector
 } from 'app/store/evm/no-category-assets-metadata/selectors';
+import { EvmNoCategoryAssetMetadataRecord } from 'app/store/evm/no-category-assets-metadata/state';
 import {
   useEvmCollectiblesMetadataLoadingSelector,
   useEvmTokensMetadataLoadingSelector
@@ -22,6 +24,7 @@ import {
   useEvmChainTokensMetadataRecordSelector,
   useEvmTokensMetadataRecordSelector
 } from 'app/store/evm/tokens-metadata/selectors';
+import { EvmTokenMetadataRecord } from 'app/store/evm/tokens-metadata/state';
 import { loadCollectiblesMetadataAction } from 'app/store/tezos/collectibles-metadata/actions';
 import {
   useAllCollectiblesMetadataSelector,
@@ -44,6 +47,7 @@ import { METADATA_API_LOAD_CHUNK_SIZE } from 'lib/apis/temple';
 import { isTezAsset } from 'lib/assets';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { parseChainAssetSlug } from 'lib/assets/utils';
+import { useUpdatableRef } from 'lib/ui/hooks';
 import { isTruthy } from 'lib/utils';
 import { isEvmNativeTokenSlug } from 'lib/utils/evm.utils';
 import { useAllEvmChains, useAllTezosChains } from 'temple/front';
@@ -99,21 +103,60 @@ export const useEvmGenericAssetMetadata = (slug: string, evmChainId: number): Ev
   return categorizedAssetMetadata || noCategoryAssetMetadata;
 };
 
+const useGetter = <Input, Args extends unknown[], Output>(
+  input: Input,
+  getterFn: (input: Input, ...args: Args) => Output
+) => {
+  const inputRef = useUpdatableRef(input);
+
+  return useCallback((...args: Args) => getterFn(inputRef.current, ...args), [inputRef, getterFn]);
+};
+
+type GetterBySlugInput<T> = StringRecord<T> | Map<string, T> | undefined;
+const useGetterBySlug = <T>(input: GetterBySlugInput<T>, fallbackValueFn?: SyncFn<string, T | undefined>) => {
+  const getterFn = useCallback(
+    (input: GetterBySlugInput<T>, slug: string) =>
+      input instanceof Map ? input.get(slug) : input?.[slug] ?? fallbackValueFn?.(slug),
+    [fallbackValueFn]
+  );
+
+  return useGetter(input, getterFn);
+};
+
+export const useGetEvmGasOrTokenMetadata = () => {
+  const evmChains = useAllEvmChains();
+  const tokensMetadata = useEvmTokensMetadataRecordSelector();
+  const getterFn = useCallback(
+    (input: EvmTokenMetadataRecord, chainId: number, slug: string) =>
+      isEvmNativeTokenSlug(slug) ? evmChains[chainId]?.currency : input[chainId]?.[slug],
+    [evmChains]
+  );
+
+  return useGetter(tokensMetadata, getterFn);
+};
+
 export const useGetEvmChainTokenOrGasMetadata = (chainId: number) => {
   const network = useEvmChainByChainId(chainId);
   const tokensMetadatas = useEvmChainTokensMetadataRecordSelector(chainId);
-
-  return useCallback(
-    (slug: string) => (isEvmNativeTokenSlug(slug) ? network?.currency : tokensMetadatas?.[slug]),
-    [tokensMetadatas, network]
+  const fallbackValueFn = useCallback(
+    (slug: string) => (isEvmNativeTokenSlug(slug) ? network?.currency : undefined),
+    [network]
   );
+
+  return useGetterBySlug<EvmNativeTokenMetadata | EvmTokenMetadata>(tokensMetadatas, fallbackValueFn);
 };
 
 export const useGetEvmNoCategoryAssetMetadata = (chainId: number) => {
   const tokensMetadatas = useEvmChainNoCategoryAssetsMetadataSelector(chainId);
 
-  return useCallback((slug: string) => tokensMetadatas?.[slug], [tokensMetadatas]);
+  return useGetterBySlug(tokensMetadatas);
 };
+
+interface EvmGenericAssetMetadataGetterInput {
+  tokensMetadatas: EvmTokenMetadataRecord;
+  collectiblesMetadatas: EvmCollectibleMetadataRecord;
+  noCategoryMetadatas: EvmNoCategoryAssetMetadataRecord;
+}
 
 const useGetEvmGenericAssetMetadata = () => {
   const allEvmChains = useAllEvmChains();
@@ -121,24 +164,26 @@ const useGetEvmGenericAssetMetadata = () => {
   const collectiblesMetadatas = useEvmCollectiblesMetadataRecordSelector();
   const noCategoryMetadatas = useEvmNoCategoryAssetsMetadataRecordSelector();
 
-  return useCallback(
-    (slug: string, chainId: number): EvmAssetMetadata | undefined => {
+  const getterFn = useCallback(
+    (input: EvmGenericAssetMetadataGetterInput, slug: string, chainId: number) => {
       if (isEvmNativeTokenSlug(slug)) return allEvmChains[chainId]?.currency;
 
       return (
-        tokensMetadatas[chainId]?.[slug] ||
-        collectiblesMetadatas[chainId]?.[slug] ||
-        noCategoryMetadatas[chainId]?.[slug]
+        input.tokensMetadatas[chainId]?.[slug] ||
+        input.collectiblesMetadatas[chainId]?.[slug] ||
+        input.noCategoryMetadatas[chainId]?.[slug]
       );
     },
-    [allEvmChains, tokensMetadatas, collectiblesMetadatas, noCategoryMetadatas]
+    [allEvmChains]
   );
+
+  return useGetter({ tokensMetadatas, collectiblesMetadatas, noCategoryMetadatas }, getterFn);
 };
 
 export const useGetEvmChainCollectibleMetadata = (chainId: number) => {
   const collectiblesMetadatas = useEvmChainCollectiblesMetadataRecordSelector(chainId);
 
-  return useCallback((slug: string) => collectiblesMetadatas?.[slug], [collectiblesMetadatas]);
+  return useGetterBySlug(collectiblesMetadatas);
 };
 
 export const useGetEvmChainAssetMetadata = (chainId: number) => {
@@ -160,7 +205,7 @@ type TokenMetadataGetter = (slug: string) => TokenMetadata | undefined;
 export const useGetTokenMetadata = () => {
   const allMeta = useAllTokensMetadataSelector();
 
-  return useCallback<TokenMetadataGetter>(slug => allMeta[slug], [allMeta]);
+  return useGetterBySlug(allMeta);
 };
 
 export const useGetChainTokenOrGasMetadata = (tezosChainId: string) => {
@@ -186,13 +231,13 @@ export const useGetTokenOrGasMetadata = () => {
 export const useGetCollectibleMetadata = () => {
   const allMeta = useAllCollectiblesMetadataSelector();
 
-  return useCallback<TokenMetadataGetter>(slug => allMeta.get(slug), [allMeta]);
+  return useGetterBySlug(allMeta);
 };
 
 export const useGetNoCategoryAssetMetadata = () => {
   const allMeta = useAllNoCategoryTezosAssetsMetadataSelector();
 
-  return useCallback<TokenMetadataGetter>(slug => allMeta[slug], [allMeta]);
+  return useGetterBySlug(allMeta);
 };
 
 export const useGetCategorizedAssetMetadata = (tezosChainId: string) => {
