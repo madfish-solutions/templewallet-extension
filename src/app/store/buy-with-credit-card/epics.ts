@@ -6,7 +6,6 @@ import { ofType } from 'ts-action-operators';
 
 import type { RootState } from 'app/store/root-state.type';
 import { getMoonPayCurrencies } from 'lib/apis/moonpay';
-import { getAliceBobPairsInfo } from 'lib/apis/temple';
 import { getCurrenciesInfo as getUtorgCurrenciesInfo } from 'lib/apis/utorg';
 import { PAIR_NOT_FOUND_MESSAGE } from 'lib/buy-with-credit-card/constants';
 import { getUpdatedFiatLimits } from 'lib/buy-with-credit-card/get-updated-fiat-limits';
@@ -16,7 +15,7 @@ import { getAxiosQueryErrorMessage } from 'lib/utils/get-axios-query-error-messa
 
 import { loadAllCurrenciesActions, updatePairLimitsActions } from './actions';
 import { TopUpProviderCurrencies } from './state';
-import { mapAliceBobProviderCurrencies, mapMoonPayProviderCurrencies, mapUtorgProviderCurrencies } from './utils';
+import { mapMoonPayProviderCurrencies, mapUtorgProviderCurrencies } from './utils';
 
 const getCurrencies$ = <T>(fetchFn: () => Promise<T>, transformFn: (data: T) => TopUpProviderCurrencies) =>
   from(fetchFn()).pipe(
@@ -27,7 +26,7 @@ const getCurrencies$ = <T>(fetchFn: () => Promise<T>, transformFn: (data: T) => 
     })
   );
 
-const allTopUpProviderIds = [TopUpProviderId.MoonPay, TopUpProviderId.Utorg, TopUpProviderId.AliceBob];
+const allTopUpProviderIds = [TopUpProviderId.MoonPay, TopUpProviderId.Utorg];
 
 const loadAllCurrenciesEpic: Epic = action$ =>
   action$.pipe(
@@ -35,14 +34,12 @@ const loadAllCurrenciesEpic: Epic = action$ =>
     switchMap(() =>
       forkJoin([
         getCurrencies$(getMoonPayCurrencies, mapMoonPayProviderCurrencies),
-        getCurrencies$(getUtorgCurrenciesInfo, mapUtorgProviderCurrencies),
-        getCurrencies$(() => getAliceBobPairsInfo(false), mapAliceBobProviderCurrencies)
+        getCurrencies$(getUtorgCurrenciesInfo, mapUtorgProviderCurrencies)
       ]).pipe(
-        map(([moonpayCurrencies, utorgCurrencies, tezUahPairInfo]) =>
+        map(([moonpayCurrencies, utorgCurrencies]) =>
           loadAllCurrenciesActions.success({
             [TopUpProviderId.MoonPay]: moonpayCurrencies,
-            [TopUpProviderId.Utorg]: utorgCurrencies,
-            [TopUpProviderId.AliceBob]: tezUahPairInfo
+            [TopUpProviderId.Utorg]: utorgCurrencies
           })
         )
       )
@@ -78,14 +75,13 @@ const updatePairLimitsEpic: Epic<Action, Action, RootState> = (action$, state$) 
           return of(createEntity(undefined, false, PAIR_NOT_FOUND_MESSAGE));
         })
       ).pipe(
-        map(([moonPayData, utorgData, aliceBobData]) =>
+        map(([moonPayData, utorgData]) =>
           updatePairLimitsActions.success({
             fiatSymbol,
             cryptoSlug,
             limits: {
               [TopUpProviderId.MoonPay]: moonPayData,
-              [TopUpProviderId.Utorg]: utorgData,
-              [TopUpProviderId.AliceBob]: aliceBobData
+              [TopUpProviderId.Utorg]: utorgData
             }
           })
         )
