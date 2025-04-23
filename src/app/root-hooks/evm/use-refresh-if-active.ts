@@ -59,7 +59,6 @@ export const useRefreshIfActive = ({
   const windowIsActive = useWindowIsActive();
   const { pathname } = useLocation();
 
-
   const shouldRefresh = useMemo(() => {
     if (pathname === '/') return true;
     if (pathname.startsWith('/send')) return true;
@@ -126,7 +125,7 @@ export const useRefreshIfActive = ({
       loaders.forEach(({ setLoading }) => setLoading(chainId, false));
       firstLoadTimeouts.push(
         setTimeout(() => {
-          refreshData(chainId);
+          refreshData(chainId).then();
 
           refreshIntervals.push(setInterval(() => refreshData(chainId), syncInterval));
         }, Math.max(0, syncInterval - (Date.now() - getDataTimestamp(chainId))))
@@ -137,5 +136,15 @@ export const useRefreshIfActive = ({
       firstLoadTimeouts.forEach(timeout => clearTimeout(timeout));
       refreshIntervals.forEach(interval => clearInterval(interval));
     };
-  }, [refreshData, windowIsActive, syncInterval, loaders, publicKeyHash, getDataTimestamp, evmChains]);
+  }, [
+    refreshData,
+    windowIsActive,
+    syncInterval,
+    loaders,
+    publicKeyHash,
+    getDataTimestamp,
+    evmChains,
+    shouldRefresh,
+    chainsToRefresh
+  ]);
 };
