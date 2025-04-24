@@ -49,6 +49,8 @@ interface RefreshIfActiveConfig {
   syncInterval: number;
 }
 
+const validPaths = ['/', '/send', '/swap', '/token'];
+
 export const useRefreshIfActive = ({
   getDataTimestamp,
   loaders,
@@ -60,14 +62,10 @@ export const useRefreshIfActive = ({
   const { pathname } = useLocation();
 
   const shouldRefresh = useMemo(() => {
-    if (pathname === '/') return true;
-    if (pathname.startsWith('/send')) return true;
-    if (pathname.startsWith('/swap')) return true;
-    if (pathname.startsWith('/token')) return true;
-    return false;
+    return validPaths.some(path => pathname === path || pathname.startsWith(path));
   }, [pathname]);
 
-  const restrictedChainId = useMemo(() => {
+  const tokenPathChainId = useMemo(() => {
     if (pathname.startsWith('/token')) {
       const parts = pathname.split('/');
       const id = parts[3];
@@ -78,8 +76,8 @@ export const useRefreshIfActive = ({
   }, [pathname]);
 
   const chainsToRefresh = useMemo(
-    () => (restrictedChainId !== undefined ? evmChains.filter(c => c.chainId === restrictedChainId) : evmChains),
-    [evmChains, restrictedChainId]
+    () => (tokenPathChainId !== undefined ? evmChains.filter(c => c.chainId === tokenPathChainId) : evmChains),
+    [evmChains, tokenPathChainId]
   );
 
   const refreshData = useCallback(
