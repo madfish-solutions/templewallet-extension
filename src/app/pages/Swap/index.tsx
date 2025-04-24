@@ -52,6 +52,7 @@ const Swap = memo(() => {
       pageTitle={<PageTitle title={t('swap')} />}
       contentPadding={false}
       noScroll
+      paperClassName="!overflow-hidden"
       headerRightElem={
         <IconBase Icon={ManageIcon} className="text-primary cursor-pointer" onClick={setSettingsModalOpen} />
       }
@@ -61,9 +62,11 @@ const Swap = memo(() => {
           {account?.chain === TempleChainKind.Tezos ? (
             <SwapForm account={account} slippageTolerance={slippageTolerance} onReview={handleReview} />
           ) : (
-            <p className="text-center text-sm">
-              <T id="noExchangersAvailable" />
-            </p>
+            <div className="flex flex-grow justify-center items-center">
+              <p className="text-center text-sm">
+                <T id="noExchangersAvailable" />
+              </p>
+            </div>
           )}
         </Suspense>
 

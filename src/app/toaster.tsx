@@ -20,16 +20,34 @@ interface TxData {
 
 const MAX_TOASTS_COUNT = 3;
 const toastsIdsPool: string[] = [];
+const toastsHashesPool: (string | undefined)[] = [];
 
 const withToastsLimit =
-  (toastFn: (title: string, textBold?: boolean, txData?: TxData) => string) =>
-  (title: string, textBold?: boolean, txData?: TxData) => {
+  <A extends unknown[] = [title: string, textBold?: boolean]>(
+    toastFn: (...args: A) => string,
+    toastHashFn: (...args: A) => string | undefined = () => undefined
+  ) =>
+  (...args: A) => {
     if (toastsIdsPool.length >= MAX_TOASTS_COUNT) {
-      const toastsIdsToDismiss = toastsIdsPool.splice(0, toastsIdsPool.length - MAX_TOASTS_COUNT + 1);
+      const toastsToDismissCount = toastsIdsPool.length - MAX_TOASTS_COUNT + 1;
+      const toastsIdsToDismiss = toastsIdsPool.splice(0, toastsToDismissCount);
+      toastsHashesPool.splice(0, toastsToDismissCount);
       toastsIdsToDismiss.forEach(toast.remove);
     }
-    const newToastId = toastFn(title, textBold, txData);
+    const newToastId = toastFn(...args);
     toastsIdsPool.push(newToastId);
+    toastsHashesPool.push(toastHashFn(...args));
+  };
+
+const withUniqCheck =
+  <A extends unknown[] = [title: string, textBold?: boolean]>(
+    toastFn: (...args: A) => void,
+    toastHashFn: (...args: A) => string
+  ) =>
+  (...args: A) => {
+    if (!toastsHashesPool.includes(toastHashFn(...args))) {
+      toastFn(...args);
+    }
   };
 
 export const toastSuccess = withToastsLimit((title: string, textBold?: boolean, txData?: TxData) =>
@@ -38,19 +56,25 @@ export const toastSuccess = withToastsLimit((title: string, textBold?: boolean, 
   ))
 );
 // @ts-prune-ignore-next
-export const toastError = withToastsLimit((title: string, textBold?: boolean) =>
+export const toastError = withToastsLimit((title, textBold?) =>
   toast.custom(toast => <CustomToastBar toast={{ ...toast, message: title }} customType="error" textBold={textBold} />)
 );
 // @ts-prune-ignore-next
-export const toastInfo = withToastsLimit((title: string, textBold?: boolean) =>
+export const toastInfo = withToastsLimit((title, textBold?) =>
   toast.custom(toast => <CustomToastBar toast={{ ...toast, message: title }} customType="blank" textBold={textBold} />)
 );
+
+const getWarningToastHash = (title: string, textBold = true) => `${title}_${textBold}`;
 // @ts-prune-ignore-next
-export const toastWarning = withToastsLimit((title: string, textBold?: boolean) =>
-  toast.custom(toast => (
-    <CustomToastBar toast={{ ...toast, message: title }} customType="warning" textBold={textBold} />
-  ))
+export const toastWarning = withToastsLimit(
+  (title, textBold?) =>
+    toast.custom(toast => (
+      <CustomToastBar toast={{ ...toast, message: title }} customType="warning" textBold={textBold} />
+    )),
+  getWarningToastHash
 );
+// @ts-prune-ignore-next
+export const toastUniqWarning = withUniqCheck(toastWarning, getWarningToastHash);
 
 export const ToasterProvider = memo(() => {
   const [bottomShift] = useToastsContainerBottomShift();
@@ -96,6 +120,7 @@ const CustomToastBar = memo<CustomToastBarProps>(({ toast, customType, textBold 
       const toastIndex = toastsIdsPool.indexOf(toast.id);
       if (toastIndex !== -1) {
         toastsIdsPool.splice(toastIndex, 1);
+        toastsHashesPool.splice(toastIndex, 1);
       }
     }
     prevToastVisibleRef.current = toast.visible;
@@ -134,19 +159,25 @@ const CustomToastBar = memo<CustomToastBarProps>(({ toast, customType, textBold 
   );
 });
 
+const customIcons = {
+  success: SuccessIcon,
+  error: ErrorIcon,
+  blank: InfoIcon,
+  warning: WarningIcon
+};
+
 const CustomToastIcon = memo<{ toast: Toast; type: ToastTypeExtended }>(({ toast, type }) => {
   switch (type) {
-    case 'success':
-      return <SuccessIcon className="w-6 h-6" />;
-    case 'warning':
-      return <WarningIcon className="w-6 h-6" />;
-    case 'error':
-      return <ErrorIcon className="w-6 h-6" />;
     case 'loading':
       return <ToastIcon toast={toast} />;
+    case 'success':
+    case 'warning':
+    case 'error':
     case 'blank':
-      return <InfoIcon className="w-6 h-6" />;
-  }
+      const Icon = customIcons[type];
 
-  return null;
+      return <Icon className="size-6 min-w-6" />;
+    default:
+      return null;
+  }
 });
