@@ -42,7 +42,7 @@ const BalancesChangesViewRow = memo<BalancesChangesViewRowProps>(({ chain, symbo
         !allCollectibles && (
           <span className="text-font-num-12 text-grey-1 ml-3 whitespace-nowrap">
             <InFiat
-              volume={volume}
+              volume={volume.absoluteValue()}
               chainId={chain.chainId}
               assetSlug={assetSlug}
               evm={chain.kind === TempleChainKind.EVM}

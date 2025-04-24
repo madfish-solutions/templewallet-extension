@@ -1,7 +1,9 @@
 import React, { FC, PropsWithChildren, ReactNode, memo, useMemo } from 'react';
 
+import BigNumber from 'bignumber.js';
 import clsx from 'clsx';
 
+import Money from 'app/atoms/Money';
 import { ReactComponent as UnknownCollectible } from 'app/icons/unknown-collectible.svg';
 import { ReactComponent as UnknownToken } from 'app/icons/unknown-token.svg';
 import { T, t } from 'lib/i18n';
@@ -92,12 +94,21 @@ export const OperationConfirmationCardRow = memo<OperationConfirmationCardRowPro
         <div className={clsx('flex flex-1 gap-1 items-center text-font-num-bold-16 min-w-0', amountClassName)}>
           {isCollectible ? (
             <>
-              <span>{volume}</span>
+              <Money withSign smallFractionFont={false} tooltipPlacement="bottom">
+                {volume}
+              </Money>
               <ShortenedTextWithTooltip>{symbol ?? t('unknownToken')}</ShortenedTextWithTooltip>
             </>
           ) : (
             <>
-              <ShortenedTextWithTooltip>{volume}</ShortenedTextWithTooltip>
+              <Money
+                withSign
+                cryptoDecimals={new BigNumber(volume).gt(999) ? 2 : 6}
+                smallFractionFont={false}
+                tooltipPlacement="bottom"
+              >
+                {volume}
+              </Money>
               <span className="whitespace-nowrap">
                 {symbol ??
                   (isCollectible ? (
