@@ -11,7 +11,7 @@ import { ActionsButtonsBox } from 'app/atoms/PageModal';
 import { StyledButton } from 'app/atoms/StyledButton';
 import { ReactComponent as SwapIcon } from 'app/icons/base/swap.svg';
 import { buildSwapPageUrlQuery } from 'app/pages/Swap/build-url-query';
-import SwapFormInput, { EXCHANGE_XTZ_RESERVE } from 'app/pages/Swap/form/SwapFormInput';
+import SwapFormInput from 'app/pages/Swap/form/SwapFormInput';
 import { dispatch, useSelector } from 'app/store';
 import { setOnRampPossibilityAction } from 'app/store/settings/actions';
 import { loadSwapParamsAction, resetSwapParamsAction } from 'app/store/swap/actions';
@@ -22,7 +22,7 @@ import { setTestID, useFormAnalytics } from 'lib/analytics';
 import { fetchRoute3SwapParams } from 'lib/apis/route3/fetch-route3-swap-params';
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
 import { KNOWN_TOKENS_SLUGS } from 'lib/assets/known-tokens';
-import { useGetTezosAccountTokenOrGasBalanceWithDecimals } from 'lib/balances/hooks';
+import { useGetTezosAccountTokenOrGasBalanceWithDecimals, useTezosAssetBalance } from 'lib/balances/hooks';
 import { TEZ_BURN_ADDRESS } from 'lib/constants';
 import { useAssetFiatCurrencyPrice } from 'lib/fiat-currency';
 import { useAssetUSDPrice } from 'lib/fiat-currency/core';
@@ -321,11 +321,12 @@ export const SwapForm = memo<Props>(({ account, slippageTolerance, onReview }) =
   }, []);
 
   const inputTokenMaxAmount = useMemo(() => {
-    if (!inputValue.assetSlug) return new BigNumber(0);
-    return (
-      (inputValue.assetSlug === TEZ_TOKEN_SLUG ? inputTokenBalance?.minus(EXCHANGE_XTZ_RESERVE) : inputTokenBalance) ??
-      new BigNumber(0)
-    );
+    if (!inputValue.assetSlug || !inputTokenBalance) return ZERO;
+    if (inputValue.assetSlug === TEZ_TOKEN_SLUG) return inputTokenBalance;
+
+    return inputTokenBalance.lte(EXCHANGE_XTZ_RESERVE)
+      ? inputTokenBalance
+      : inputTokenBalance.minus(EXCHANGE_XTZ_RESERVE);
   }, [inputTokenBalance, inputValue.assetSlug]);
 
   const validateInputField = useCallback(
@@ -590,106 +591,105 @@ export const SwapForm = memo<Props>(({ account, slippageTolerance, onReview }) =
 
   return (
     <>
-    <form id="swap-form" className="flex flex-col h-full pt-4 flex-grow flex-1" onSubmit={handleSubmit(onSubmit)}>
-      {operation && (
-        // TODO: Redesign
-        <div className="px-4 hidden">
-          <OperationStatus network={network} typeTitle={t('swapNoun')} operation={operation} />
-        </div>
-      )}
-
-      <Controller
-        name="input"
-        control={control}
-        rules={{ validate: validateInputField }}
-        render={({ field: { value, onChange } }) => (
-          <SwapFormInput
-            inputName="input"
-            label={<T id="from" />}
-            network={network}
-            publicKeyHash={publicKeyHash}
-            className="px-4"
-            value={value}
-            error={errors.input?.message}
-            onChange={(value, shouldUseFiat) => {
-              onChange(value);
-              handleInputChange(value, shouldUseFiat);
-            }}
-            shouldUseFiat={shouldUseFiat}
-            setShouldUseFiat={setShouldUseFiat}
-            testIDs={{
-              input: SwapFormFromInputSelectors.assetInput,
-              assetDropDownButton: SwapFormFromInputSelectors.assetDropDownButton
-            }}
-          />
+      <form id="swap-form" className="flex-1 pt-4 px-4 flex flex-col overflow-y-auto" onSubmit={handleSubmit(onSubmit)}>
+        {operation && (
+          // TODO: Redesign
+          <div className="px-4 hidden">
+            <OperationStatus network={network} typeTitle={t('swapNoun')} operation={operation} />
+          </div>
         )}
-      />
 
-      <div className="w-full -my-2.5 flex justify-center z-1">
-        <button
-          className="bg-secondary-low p-1 rounded-6"
-          onClick={handleToggleIconClick}
-          type="button"
-          {...setTestID(SwapFormSelectors.swapPlacesButton)}
+        <Controller
+          name="input"
+          control={control}
+          rules={{ validate: validateInputField }}
+          render={({ field: { value, onChange } }) => (
+            <SwapFormInput
+              inputName="input"
+              label={<T id="from" />}
+              network={network}
+              publicKeyHash={publicKeyHash}
+              value={value}
+              error={errors.input?.message}
+              onChange={(value, shouldUseFiat) => {
+                onChange(value);
+                handleInputChange(value, shouldUseFiat);
+              }}
+              shouldUseFiat={shouldUseFiat}
+              setShouldUseFiat={setShouldUseFiat}
+              testIDs={{
+                input: SwapFormFromInputSelectors.assetInput,
+                assetDropDownButton: SwapFormFromInputSelectors.assetDropDownButton
+              }}
+            />
+          )}
+        />
+
+        <div className="w-full -my-2.5 flex justify-center z-1">
+          <button
+            className="bg-secondary-low p-1 rounded-6"
+            onClick={handleToggleIconClick}
+            type="button"
+            {...setTestID(SwapFormSelectors.swapPlacesButton)}
+          >
+            <IconBase Icon={SwapIcon} className="text-secondary rotate-90" />
+          </button>
+        </div>
+
+        <Controller
+          name="output"
+          control={control}
+          rules={{ validate: validateField }}
+          render={({ field: { value, onChange } }) => (
+            <SwapFormInput
+              readOnly
+              inputName="output"
+              label={<T id="toAsset" />}
+              network={network}
+              publicKeyHash={publicKeyHash}
+              className="mb-6"
+              value={value}
+              error={errors.output?.message}
+              onChange={value => {
+                onChange(value);
+                handleOutputChange(value);
+              }}
+              testIDs={{
+                input: SwapFormToInputSelectors.assetInput,
+                assetDropDownButton: SwapFormToInputSelectors.assetDropDownButton
+              }}
+            />
+          )}
+        />
+
+        {isDefined(swapParams.data.output) && (
+          <div className="mb-6">
+            <SwapInfoDropdown
+              showCashBack={outputAmountInUSD.gte(10)}
+              swapRouteSteps={swapRouteSteps}
+              inputAmount={isDefined(swapParams.data.input) ? new BigNumber(swapParams.data.input) : undefined}
+              outputAmount={new BigNumber(swapParams.data.output)}
+              inputAssetMetadata={inputAssetMetadata}
+              outputAssetMetadata={outputAssetMetadata}
+              minimumReceivedAmount={minimumReceivedAtomic}
+            />
+          </div>
+        )}
+      </form>
+
+      <ActionsButtonsBox className="mt-auto">
+        <StyledButton
+          type="submit"
+          form="swap-form"
+          size="L"
+          color="primary"
+          loading={isSubmitting || swapParams.isLoading}
+          disabled={submitCount > 0 && !isValid}
+          testID={SwapFormSelectors.swapButton}
         >
-          <IconBase Icon={SwapIcon} className="text-secondary rotate-90" />
-        </button>
-      </div>
-
-      <Controller
-        name="output"
-        control={control}
-        rules={{ validate: validateField }}
-        render={({ field: { value, onChange } }) => (
-          <SwapFormInput
-            readOnly
-            inputName="output"
-            label={<T id="toAsset" />}
-            network={network}
-            publicKeyHash={publicKeyHash}
-            className="mb-6 px-4"
-            value={value}
-            error={errors.output?.message}
-            onChange={value => {
-              onChange(value);
-              handleOutputChange(value);
-            }}
-            testIDs={{
-              input: SwapFormToInputSelectors.assetInput,
-              assetDropDownButton: SwapFormToInputSelectors.assetDropDownButton
-            }}
-          />
-        )}
-      />
-
-      {isDefined(swapParams.data.output) && (
-        <div className="mb-6">
-          <SwapInfoDropdown
-            showCashBack={outputAmountInUSD.gte(10)}
-            swapRouteSteps={swapRouteSteps}
-            inputAmount={isDefined(swapParams.data.input) ? new BigNumber(swapParams.data.input) : undefined}
-            outputAmount={new BigNumber(swapParams.data.output)}
-            inputAssetMetadata={inputAssetMetadata}
-            outputAssetMetadata={outputAssetMetadata}
-            minimumReceivedAmount={minimumReceivedAtomic}
-          />
-        </div>
-      )}
-    </form>
-
-  <ActionsButtonsBox className="mt-auto">
-    <StyledButton
-      type="submit"
-      form="swap-form"
-      size="L"
-      color="primary"
-      loading={isSubmitting || swapParams.isLoading}
-      disabled={submitCount > 0 && !isValid}
-      testID={SwapFormSelectors.swapButton}
-    >
-      <T id={swapParams.isLoading ? 'searchingTheBestRoute' : 'review'} />
-    </StyledButton>
-  </ActionsButtonsBox>
-</>
+          <T id={swapParams.isLoading ? 'searchingTheBestRoute' : 'review'} />
+        </StyledButton>
+      </ActionsButtonsBox>
+    </>
   );
 });

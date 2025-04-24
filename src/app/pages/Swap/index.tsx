@@ -57,31 +57,29 @@ const Swap = memo(() => {
         <IconBase Icon={ManageIcon} className="text-primary cursor-pointer" onClick={setSettingsModalOpen} />
       }
     >
-      <div className="flex-1 flex-grow w-full max-w-sm mx-auto">
-        <Suspense fallback={<PageLoader stretch />}>
-          {account?.chain === TempleChainKind.Tezos ? (
-            <SwapForm account={account} slippageTolerance={slippageTolerance} onReview={handleReview} />
-          ) : (
-            <div className="flex flex-grow justify-center items-center">
-              <p className="text-center text-sm">
-                <T id="noExchangersAvailable" />
-              </p>
-            </div>
-          )}
-        </Suspense>
+      <Suspense fallback={<PageLoader stretch />}>
+        {account?.chain === TempleChainKind.Tezos ? (
+          <SwapForm account={account} slippageTolerance={slippageTolerance} onReview={handleReview} />
+        ) : (
+          <div className="flex flex-grow justify-center items-center">
+            <p className="text-center text-sm">
+              <T id="noExchangersAvailable" />
+            </p>
+          </div>
+        )}
+      </Suspense>
 
-        <SwapSettingsModal
-          currentSlippageTolerance={slippageTolerance}
-          opened={settingsModalOpened}
-          onRequestClose={setSettingsModalClosed}
-          onConfirm={handleConfirmSlippageTolerance}
-        />
-        <ConfirmSwapModal
-          opened={confirmSwapModalOpened}
-          onRequestClose={setConfirmSwapModalClosed}
-          reviewData={reviewData}
-        />
-      </div>
+      <SwapSettingsModal
+        currentSlippageTolerance={slippageTolerance}
+        opened={settingsModalOpened}
+        onRequestClose={setSettingsModalClosed}
+        onConfirm={handleConfirmSlippageTolerance}
+      />
+      <ConfirmSwapModal
+        opened={confirmSwapModalOpened}
+        onRequestClose={setConfirmSwapModalClosed}
+        reviewData={reviewData}
+      />
     </PageLayout>
   );
 });
