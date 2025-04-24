@@ -49,7 +49,7 @@ interface RefreshIfActiveConfig {
   syncInterval: number;
 }
 
-const validPaths = ['/', '/send', '/swap', '/token'];
+const validPaths = ['/send', '/swap', '/token'];
 
 export const useRefreshIfActive = ({
   getDataTimestamp,
@@ -62,7 +62,8 @@ export const useRefreshIfActive = ({
   const { pathname } = useLocation();
 
   const shouldRefresh = useMemo(() => {
-    return validPaths.some(path => pathname === path || pathname.startsWith(path));
+    if (pathname === '/') return true;
+    return validPaths.some(path => pathname.startsWith(path));
   }, [pathname]);
 
   const tokenPathChainId = useMemo(() => {
