@@ -159,19 +159,25 @@ const CustomToastBar = memo<CustomToastBarProps>(({ toast, customType, textBold 
   );
 });
 
+const customIcons = {
+  success: SuccessIcon,
+  error: ErrorIcon,
+  blank: InfoIcon,
+  warning: WarningIcon
+};
+
 const CustomToastIcon = memo<{ toast: Toast; type: ToastTypeExtended }>(({ toast, type }) => {
   switch (type) {
-    case 'success':
-      return <SuccessIcon className="w-6 h-6" />;
-    case 'warning':
-      return <WarningIcon className="w-6 h-6" />;
-    case 'error':
-      return <ErrorIcon className="w-6 h-6" />;
     case 'loading':
       return <ToastIcon toast={toast} />;
+    case 'success':
+    case 'warning':
+    case 'error':
     case 'blank':
-      return <InfoIcon className="w-6 h-6" />;
-  }
+      const Icon = customIcons[type];
 
-  return null;
+      return <Icon className="size-6 min-w-6" />;
+    default:
+      return null;
+  }
 });

@@ -45,16 +45,16 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
 
   const [latestSubmitError, setLatestSubmitError] = useState<string | nullish>(null);
 
-  const { data: estimationData } = useEvmEstimationData(
-    to as HexString,
+  const { data: estimationData } = useEvmEstimationData({
+    to: to as HexString,
     assetSlug,
     accountPkh,
     network,
     balance,
     ethBalance,
-    true,
+    toFilled: true,
     amount
-  );
+  });
 
   const { form, tab, setTab, selectedFeeOption, handleFeeOptionSelect, feeOptions, displayedFee, getFeesPerGas } =
     useEvmEstimationForm(estimationData, null, account, network.chainId);

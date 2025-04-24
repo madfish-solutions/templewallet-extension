@@ -1,6 +1,6 @@
 import React, { memo, useCallback, useState } from 'react';
 
-import { BackButton, PageModal } from 'app/atoms/PageModal';
+import { PageModal } from 'app/atoms/PageModal';
 import { ScrollView } from 'app/atoms/PageModal/scroll-view';
 import { t } from 'lib/i18n';
 
@@ -23,7 +23,7 @@ export const RevealPrivateKeyModal = memo<RevealPrivateKeyModalProps>(({ private
       title={t('revealPrivateKey')}
       onRequestClose={onClose}
       opened
-      titleLeft={selectedPrivateKey ? <BackButton onClick={unselectPrivateKey} /> : undefined}
+      onGoBack={selectedPrivateKey ? unselectPrivateKey : undefined}
     >
       <ScrollView>
         {selectedPrivateKey ? (

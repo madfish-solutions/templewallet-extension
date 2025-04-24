@@ -54,45 +54,43 @@ const SwapInput: FC<SwapInputProps> = ({
   );
 
   return (
-    <div className="flex-1 flex items-center justify-between rounded-r-md min-h-18">
-      <div className="h-full flex-1 flex items-end justify-center flex-col">
-        <AssetField
-          value={amount?.toString()}
-          onChange={handleAmountChange}
-          extraFloatingInner={shouldUseFiat && floatingAssetSymbol}
-          assetDecimals={shouldUseFiat ? 2 : assetMetadata.decimals}
-          placeholder={shouldUseFiat ? `0.00 ${floatingAssetSymbol}` : '0.00'}
-          testID={testId}
-          autoFocus
-          min={0}
-          readOnly={readOnly}
-          rightSideComponent={
-            <SwapSelectTokenFace
-              tezosChainId={tezosChainId}
-              assetSlug={assetSlug}
-              assetSymbol={assetMetadata.symbol}
-              onSelectAssetClick={onSelectAsset}
-              testId={selectTokenTestId}
-            />
-          }
-          underneathComponent={
-            <SwapFooter
-              inputName={inputName}
-              tezosChainId={tezosChainId}
-              error={error}
-              assetPrice={assetPrice}
-              assetDecimals={assetMetadata.decimals}
-              assetSlug={assetSlug || ''}
-              assetSymbol={assetMetadata.symbol}
-              amount={amount}
-              shouldUseFiat={shouldUseFiat}
-              handleFiatToggle={handleFiatToggle}
-              selectedFiatCurrency={fiatCurrency}
-            />
-          }
+    <AssetField
+      value={amount?.toString()}
+      onChange={handleAmountChange}
+      extraFloatingInner={shouldUseFiat && floatingAssetSymbol}
+      assetDecimals={shouldUseFiat ? 2 : assetMetadata.decimals}
+      placeholder={shouldUseFiat ? `0.00 ${floatingAssetSymbol}` : '0.00'}
+      testID={testId}
+      autoFocus
+      min={0}
+      readOnly={readOnly}
+      errorCaption={error}
+      shouldShowErrorCaption={false}
+      rightSideComponent={
+        <SwapSelectTokenFace
+          tezosChainId={tezosChainId}
+          assetSlug={assetSlug}
+          assetSymbol={assetMetadata.symbol}
+          onSelectAssetClick={onSelectAsset}
+          testId={selectTokenTestId}
         />
-      </div>
-    </div>
+      }
+      underneathComponent={
+        <SwapFooter
+          inputName={inputName}
+          tezosChainId={tezosChainId}
+          error={error}
+          assetPrice={assetPrice}
+          assetDecimals={assetMetadata.decimals}
+          assetSlug={assetSlug || ''}
+          assetSymbol={assetMetadata.symbol}
+          amount={amount}
+          shouldUseFiat={shouldUseFiat}
+          handleFiatToggle={handleFiatToggle}
+          selectedFiatCurrency={fiatCurrency}
+        />
+      }
+    />
   );
 };
 

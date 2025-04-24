@@ -1,7 +1,7 @@
 import React, { FC, memo, useCallback } from 'react';
 
 import { ModalInfoBlock } from 'app/atoms/ModalInfoBlock';
-import { BackButton, PageModal } from 'app/atoms/PageModal';
+import { PageModal } from 'app/atoms/PageModal';
 import { ScrollView } from 'app/atoms/PageModal/scroll-view';
 import { useAllAccountsReactiveOnAddition } from 'app/hooks/use-all-accounts-reactive';
 import { ReactComponent as DocumentsIcon } from 'app/icons/base/documents.svg';
@@ -71,7 +71,7 @@ export const ImportAccountModal = memo<ImportAccountModalProps>(
         title={t(option?.titleI18nKey ?? 'importWallet')}
         opened
         onRequestClose={onRequestClose}
-        titleLeft={shouldShowBackButton ? <BackButton onClick={onGoBack} /> : undefined}
+        onGoBack={shouldShowBackButton ? onGoBack : undefined}
       >
         {option ? (
           <option.Form onSuccess={handleSuccess} />
