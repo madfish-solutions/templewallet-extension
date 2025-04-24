@@ -24,7 +24,7 @@ import { TEZ_TOKEN_SLUG } from 'lib/assets';
 import { KNOWN_TOKENS_SLUGS } from 'lib/assets/known-tokens';
 import { useGetTezosAccountTokenOrGasBalanceWithDecimals, useTezosAssetBalance } from 'lib/balances/hooks';
 import { TEZ_BURN_ADDRESS } from 'lib/constants';
-import { useAssetFiatCurrencyPrice } from 'lib/fiat-currency';
+import { useAssetFiatCurrencyPrice, useFiatCurrency } from 'lib/fiat-currency';
 import { useAssetUSDPrice } from 'lib/fiat-currency/core';
 import { T, t, toLocalFixed } from 'lib/i18n';
 import { useCategorizedTezosAssetMetadata, useGetCategorizedAssetMetadata } from 'lib/metadata';
@@ -138,23 +138,6 @@ export const SwapForm = memo<Props>(({ account, slippageTolerance, onReview }) =
   }, [isAlertVisible]);
 
   const slippageRatio = useMemo(() => getPercentageRatio(slippageTolerance ?? 0), [slippageTolerance]);
-  const { outputAtomicAmountBeforeFee, minimumReceivedAtomic, outputFeeAtomicAmount } = useMemo(
-    () =>
-      calculateOutputAmounts(
-        inputValue.amount,
-        inputAssetMetadata.decimals,
-        swapParams.data.output,
-        outputAssetMetadata.decimals,
-        slippageRatio
-      ),
-    [
-      inputValue.amount,
-      inputAssetMetadata.decimals,
-      swapParams.data.output,
-      outputAssetMetadata.decimals,
-      slippageRatio
-    ]
-  );
 
   const swapRouteSteps = useMemo(() => {
     let hopLength = 0;
@@ -171,11 +154,6 @@ export const SwapForm = memo<Props>(({ account, slippageTolerance, onReview }) =
   const hopsAreAbsent = isLiquidityBakingParamsResponse(swapParams.data)
     ? swapParams.data.tzbtcHops.length === 0 && swapParams.data.xtzHops.length === 0
     : swapParams.data.hops.length === 0;
-
-  const atomsInputValue = useMemo(
-    () => tokensToAtoms(inputValue.amount ?? ZERO, inputAssetMetadata.decimals),
-    [inputAssetMetadata.decimals, inputValue.amount]
-  );
 
   const getSwapWithFeeParams = useCallback(
     (newInputValue: SwapInputValue, newOutputValue: SwapInputValue) => {
@@ -201,6 +179,7 @@ export const SwapForm = memo<Props>(({ account, slippageTolerance, onReview }) =
   );
 
   const inputAssetPrice = useAssetFiatCurrencyPrice(inputValue.assetSlug ?? '', network.chainId);
+  const { selectedFiatCurrency } = useFiatCurrency();
 
   const price = useAssetUSDPrice(outputValue.assetSlug ?? TEZ_TOKEN_SLUG, network.chainId);
   const outputAmountInUSD = (price && BigNumber(price).times(outputValue.amount || 0)) || BigNumber(0);
@@ -212,6 +191,19 @@ export const SwapForm = memo<Props>(({ account, slippageTolerance, onReview }) =
         .decimalPlaces(assetDecimals, BigNumber.ROUND_FLOOR);
     },
     [inputAssetPrice]
+  );
+
+  const atomsInputValue = useMemo(() => {
+    const inputValueToUse = shouldUseFiat
+      ? toAssetAmount(inputValue.amount, inputAssetMetadata.decimals)
+      : inputValue.amount;
+
+    return tokensToAtoms(inputValueToUse ?? ZERO, inputAssetMetadata.decimals);
+  }, [inputAssetMetadata.decimals, inputValue.amount, shouldUseFiat, toAssetAmount]);
+
+  const { outputAtomicAmountBeforeFee, minimumReceivedAtomic, outputFeeAtomicAmount } = useMemo(
+    () => calculateOutputAmounts(atomsInputValue, swapParams.data.output, outputAssetMetadata.decimals, slippageRatio),
+    [atomsInputValue, swapParams.data.output, outputAssetMetadata.decimals, slippageRatio]
   );
 
   const dispatchLoadSwapParams = useCallback(
@@ -287,12 +279,8 @@ export const SwapForm = memo<Props>(({ account, slippageTolerance, onReview }) =
         amount: undefined
       });
     } else {
-      const inputValueToUse = shouldUseFiat
-        ? toAssetAmount(inputValue.amount, inputAssetMetadata.decimals)
-        : inputValue.amount;
       const { expectedReceivedAtomic } = calculateOutputAmounts(
-        inputValueToUse,
-        inputAssetMetadata.decimals,
+        atomsInputValue,
         currentOutput,
         outputAssetMetadata.decimals,
         slippageRatio
@@ -311,7 +299,8 @@ export const SwapForm = memo<Props>(({ account, slippageTolerance, onReview }) =
     inputValue.amount,
     inputAssetMetadata.decimals,
     shouldUseFiat,
-    toAssetAmount
+    toAssetAmount,
+    atomsInputValue
   ]);
 
   const validateField = useCallback(({ assetSlug }: SwapInputValue) => {
@@ -322,7 +311,7 @@ export const SwapForm = memo<Props>(({ account, slippageTolerance, onReview }) =
 
   const inputTokenMaxAmount = useMemo(() => {
     if (!inputValue.assetSlug || !inputTokenBalance) return ZERO;
-    if (inputValue.assetSlug === TEZ_TOKEN_SLUG) return inputTokenBalance;
+    if (inputValue.assetSlug !== TEZ_TOKEN_SLUG) return inputTokenBalance;
 
     return inputTokenBalance.lte(EXCHANGE_XTZ_RESERVE)
       ? inputTokenBalance
@@ -333,13 +322,29 @@ export const SwapForm = memo<Props>(({ account, slippageTolerance, onReview }) =
     (props: SwapInputValue) => {
       if (props.amount?.isLessThanOrEqualTo(0)) return t('amountMustBePositive');
 
-      if (props.amount?.gt(inputTokenMaxAmount)) {
-        return t('maximalAmount', toLocalFixed(inputTokenMaxAmount, Math.min(inputAssetMetadata.decimals, 6)));
+      const formattedMaxAmount = shouldUseFiat
+        ? inputTokenMaxAmount.times(inputAssetPrice).decimalPlaces(2, BigNumber.ROUND_FLOOR)
+        : inputTokenMaxAmount;
+
+      if (props.amount?.gt(formattedMaxAmount)) {
+        return t(
+          'maximalAmount',
+          toLocalFixed(formattedMaxAmount, shouldUseFiat ? 2 : Math.min(inputAssetMetadata.decimals, 6)) +
+            ` ${shouldUseFiat ? selectedFiatCurrency.symbol : inputAssetMetadata.symbol}`
+        );
       }
 
       return validateField(props);
     },
-    [inputAssetMetadata.decimals, inputTokenMaxAmount, validateField]
+    [
+      inputAssetMetadata.decimals,
+      inputAssetMetadata.symbol,
+      inputAssetPrice,
+      inputTokenMaxAmount,
+      selectedFiatCurrency.symbol,
+      shouldUseFiat,
+      validateField
+    ]
   );
 
   const resetForm = useCallback(() => {

@@ -69,7 +69,7 @@ const SwapFormInput: FC<SwapFormInputProps> = ({
 
   useTezosTokensMetadataPresenceCheck(network.rpcBaseURL, route3tokensSlugs);
 
-  const displayedMaxAmount = useMemo(() => {
+  const maxAmount = useMemo(() => {
     if (!assetSlug || !balance) return ZERO;
 
     if (!isTezosSlug) return balance;
@@ -85,14 +85,18 @@ const SwapFormInput: FC<SwapFormInputProps> = ({
   );
 
   const handleSetMaxAmount = useCallback(() => {
-    if (assetSlug && displayedMaxAmount) {
-      handleAmountChange(displayedMaxAmount);
+    if (assetSlug && maxAmount) {
+      const formattedMaxAmount = shouldUseFiat
+        ? maxAmount.times(assetPrice).decimalPlaces(2, BigNumber.ROUND_FLOOR)
+        : maxAmount;
+
+      handleAmountChange(formattedMaxAmount);
 
       if (isTezosSlug && balance?.lte(EXCHANGE_XTZ_RESERVE)) {
         toastUniqWarning(t('notEnoughTezForFee'), true);
       }
     }
-  }, [assetSlug, balance, displayedMaxAmount, handleAmountChange, isTezosSlug]);
+  }, [assetSlug, balance, maxAmount, handleAmountChange, isTezosSlug]);
 
   const [selectAssetModalOpened, setSelectAssetModalOpen, setSelectAssetModalClosed] = useBooleanState(false);
   const onCloseBottomShiftCallback = useToastBottomShiftModalLogic(selectAssetModalOpened, true);
@@ -102,7 +106,7 @@ const SwapFormInput: FC<SwapFormInputProps> = ({
       const newAssetSlug = parseChainAssetSlug(chainSlug)[2];
       const newAssetMetadata = getTokenMetadata(newAssetSlug);
       if (!newAssetMetadata) return setSelectAssetModalClosed();
-      const newAmount = amount?.decimalPlaces(newAssetMetadata.decimals, BigNumber.ROUND_DOWN);
+      const newAmount = shouldUseFiat ? amount : amount?.decimalPlaces(newAssetMetadata.decimals, BigNumber.ROUND_DOWN);
 
       onChange({
         assetSlug: newAssetSlug,
@@ -120,6 +124,7 @@ const SwapFormInput: FC<SwapFormInputProps> = ({
       onChange,
       onCloseBottomShiftCallback,
       setSelectAssetModalClosed,
+      shouldUseFiat,
       trackChange
     ]
   );
@@ -151,7 +156,7 @@ const SwapFormInput: FC<SwapFormInputProps> = ({
           <SwapInputHeader
             label={label}
             inputName={inputName}
-            isBalanceError={Boolean(amount && displayedMaxAmount.lt(amount))}
+            isBalanceError={Boolean(amount && maxAmount.lt(amount))}
             assetDecimals={assetMetadata.decimals}
             handleSetMaxAmount={handleSetMaxAmount}
             assetBalanceStr={assetSlug ? balance?.toString() ?? '0' : undefined}
