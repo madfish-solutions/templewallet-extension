@@ -42,6 +42,10 @@ export const ShortcutAccountSwitchOverlay = memo(() => {
   );
   const filteredGroups = useAccountsGroups(filteredAccounts);
 
+  const flattenedFilteredAccounts = useMemo(() => {
+    return filteredGroups.flatMap(group => group.accounts);
+  }, [filteredGroups]);
+
   const handleAccountClick = useCallback(
     (id: string) => {
       const selected = id === currentAccountId;
@@ -70,8 +74,10 @@ export const ShortcutAccountSwitchOverlay = memo(() => {
       if (e.key === 'Enter') {
         e.preventDefault();
 
-        const focusedAccount = filteredAccounts[focusedAccountItemIndex];
-        handleAccountClick(focusedAccount!.id);
+        const focusedAccount = flattenedFilteredAccounts[focusedAccountItemIndex];
+        if (focusedAccount) {
+          handleAccountClick(focusedAccount.id);
+        }
 
         return;
       }
@@ -94,9 +100,7 @@ export const ShortcutAccountSwitchOverlay = memo(() => {
       if (e.key === 'ArrowUp' || (e.key === 'Tab' && e['shiftKey'])) {
         e.preventDefault();
 
-        if (focusedAccountItemIndex > 0) {
-          setFocusedAccountItemIndex(prev => prev - 1);
-        }
+        setFocusedAccountItemIndex(prev => (prev === 0 ? flattenedFilteredAccounts.length - 1 : prev - 1));
 
         return;
       }
@@ -104,12 +108,10 @@ export const ShortcutAccountSwitchOverlay = memo(() => {
       if (e.key === 'ArrowDown' || e.key === 'Tab') {
         e.preventDefault();
 
-        if (focusedAccountItemIndex >= 0 && focusedAccountItemIndex < filteredAccounts.length - 1) {
-          setFocusedAccountItemIndex(prev => prev + 1);
-        }
+        setFocusedAccountItemIndex(prev => (prev === flattenedFilteredAccounts.length - 1 ? 0 : prev + 1));
       }
     },
-    [filteredAccounts, focusedAccountItemIndex, handleAccountClick, opened, searchValue, setOpened]
+    [flattenedFilteredAccounts, focusedAccountItemIndex, handleAccountClick, opened, searchValue, setOpened]
   );
 
   useEffect(() => {
@@ -168,7 +170,7 @@ export const ShortcutAccountSwitchOverlay = memo(() => {
                         <AccountItem
                           key={account.id}
                           account={account}
-                          focused={filteredAccounts[focusedAccountItemIndex]?.id === account.id}
+                          focused={flattenedFilteredAccounts[focusedAccountItemIndex]?.id === account.id}
                           onAccountSelect={handleAccountClick}
                           searchValue={searchValue}
                           arrayIndex={filteredAccounts.findIndex(a => a.id === account.id)}
