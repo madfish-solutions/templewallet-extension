@@ -18,6 +18,7 @@ export const UsageAnalyticsSettings = memo(() => {
 
   return (
     <EnablingSetting
+      disabled
       title={<T id="usageAnalytics" />}
       enabled={enabled}
       description={<T id="usageAnalyticsSettingsDescription" />}
