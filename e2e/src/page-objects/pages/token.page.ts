@@ -12,7 +12,6 @@ export class TokenPage extends Page {
   ReceiveButton = createPageElement(HomeSelectors.receiveButton);
   BuyButton = createPageElement(HomeSelectors.buyButton);
   SendButton = createPageElement(HomeSelectors.sendButton);
-  WithdrawButton = createPageElement(HomeSelectors.withdrawButton);
   SwapButton = createPageElement(HomeSelectors.swapButton);
   ActivityTab = createPageElement(HomeSelectors.activityTab);
   accountNameText = createPageElement(HomeSelectors.accountNameText);
@@ -24,7 +23,6 @@ export class TokenPage extends Page {
     await this.ReceiveButton.waitForDisplayed();
     await this.BuyButton.waitForDisplayed();
     await this.SendButton.waitForDisplayed();
-    await this.WithdrawButton.waitForDisplayed();
     await this.SwapButton.waitForDisplayed();
     await this.ActivityTab.waitForDisplayed();
     await this.accountNameText.waitForDisplayed();
