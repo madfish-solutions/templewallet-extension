@@ -10,13 +10,12 @@ import { TopUpInputInterface } from 'lib/buy-with-credit-card/topup.interface';
 export const useAllFiatCurrencies = (inputCurrencySymbol: string, outputTokenSymbol: string) => {
   const moonpayFiatCurrencies = useFiatCurrenciesSelector(TopUpProviderId.MoonPay);
   const utorgFiatCurrencies = useFiatCurrenciesSelector(TopUpProviderId.Utorg);
-  const aliceBobFiatCurrencies = useFiatCurrenciesSelector(TopUpProviderId.AliceBob);
 
   const allPairsLimits = useAllPairsLimitsSelector();
 
   const allNonUniqueFiatCurrencies = useMemo(
-    () => [...moonpayFiatCurrencies, ...utorgFiatCurrencies, ...aliceBobFiatCurrencies],
-    [moonpayFiatCurrencies, utorgFiatCurrencies, aliceBobFiatCurrencies]
+    () => [...moonpayFiatCurrencies, ...utorgFiatCurrencies],
+    [moonpayFiatCurrencies, utorgFiatCurrencies]
   );
 
   const pairLimits = useMemo(

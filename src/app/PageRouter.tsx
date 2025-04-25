@@ -23,8 +23,6 @@ import Settings from 'app/pages/Settings/Settings';
 import { Swap } from 'app/pages/Swap/Swap';
 import Unlock from 'app/pages/Unlock/Unlock';
 import Welcome from 'app/pages/Welcome/Welcome';
-import { AliceBobWithdraw } from 'app/pages/Withdraw/Debit/AliceBob/AliceBobWithdraw';
-import { Withdraw } from 'app/pages/Withdraw/Withdraw';
 import { usePageRouterAnalytics } from 'lib/analytics';
 import { Notifications, NotificationsItem } from 'lib/notifications/components';
 import { useTempleClient } from 'lib/temple/front';
@@ -94,8 +92,6 @@ const ROUTE_MAP = Woozie.createMap<RouteContext>([
   ['/buy', onlyReady(onlyInFullPage(() => <Buy />))],
   ['/buy/crypto/exolix', onlyReady(onlyInFullPage(() => <Exolix />))],
   ['/buy/debit', onlyReady(onlyInFullPage(() => <BuyWithCreditCard />))],
-  ['/withdraw', onlyReady(onlyInFullPage(() => <Withdraw />))],
-  ['/withdraw/debit/alice-bob', onlyReady(onlyInFullPage(() => <AliceBobWithdraw />))],
   ['/attention', onlyReady(onlyInFullPage(() => <AttentionPage />))],
   ['/notifications', onlyReady(() => <Notifications />)],
   ['/notifications/:id', onlyReady(({ id }) => <NotificationsItem id={Number(id) ?? 0} />)],
