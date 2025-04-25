@@ -10,28 +10,28 @@ import { TopUpOutputInterface } from 'lib/buy-with-credit-card/topup.interface';
 export const useAllCryptoCurrencies = () => {
   const moonpayCryptoCurrencies = useCryptoCurrenciesSelector(TopUpProviderId.MoonPay);
   const utorgCryptoCurrencies = useCryptoCurrenciesSelector(TopUpProviderId.Utorg);
-  const aliceBobCryptoCurrencies = useCryptoCurrenciesSelector(TopUpProviderId.AliceBob);
 
   return useMemo(
     () =>
       Object.values(
-        [...moonpayCryptoCurrencies, ...utorgCryptoCurrencies, ...aliceBobCryptoCurrencies].reduce<
-          Record<string, TopUpOutputInterface>
-        >((acc, token) => {
-          const accToken = acc[token.slug];
+        [...moonpayCryptoCurrencies, ...utorgCryptoCurrencies].reduce<Record<string, TopUpOutputInterface>>(
+          (acc, token) => {
+            const accToken = acc[token.slug];
 
-          if (isDefined(accToken)) {
-            acc[token.slug] = {
-              ...accToken,
-              providers: union(accToken.providers, token.providers)
-            };
-          } else {
-            acc[token.slug] = token;
-          }
+            if (isDefined(accToken)) {
+              acc[token.slug] = {
+                ...accToken,
+                providers: union(accToken.providers, token.providers)
+              };
+            } else {
+              acc[token.slug] = token;
+            }
 
-          return acc;
-        }, {})
+            return acc;
+          },
+          {}
+        )
       ).sort(({ code: aCode }, { code: bCode }) => aCode.localeCompare(bCode)),
-    [moonpayCryptoCurrencies, utorgCryptoCurrencies, aliceBobCryptoCurrencies]
+    [moonpayCryptoCurrencies, utorgCryptoCurrencies]
   );
 };
