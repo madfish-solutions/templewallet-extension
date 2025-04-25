@@ -7,6 +7,7 @@ import { HashShortView, IconBase } from 'app/atoms';
 import { AccountAvatar } from 'app/atoms/AccountAvatar';
 import { EmptyState } from 'app/atoms/EmptyState';
 import { PageModal } from 'app/atoms/PageModal';
+import { ScrollView } from 'app/atoms/PageModal/scroll-view';
 import { RadioButton } from 'app/atoms/RadioButton';
 import { ReactComponent as CopyIcon } from 'app/icons/base/copy.svg';
 import { SpinnerSection } from 'app/pages/Send/form/SpinnerSection';
@@ -91,11 +92,11 @@ export const SelectAccountModal = memo<Props>(
 
     return (
       <PageModal title="Select Account" opened={opened} onRequestClose={onRequestClose}>
-        <div className="flex flex-col px-4 pt-4 pb-3">
+        <div className="flex flex-col p-4">
           <SearchBarField value={searchValue} defaultRightMargin={false} onValueChange={setSearchValue} />
         </div>
 
-        <div className="px-4 flex-1 flex flex-col overflow-y-auto">
+        <ScrollView>
           <Suspense fallback={<SpinnerSection />}>
             {filteredGroups.length || filteredContacts.length ? (
               <>
@@ -123,7 +124,7 @@ export const SelectAccountModal = memo<Props>(
               <EmptyState />
             )}
           </Suspense>
-        </div>
+        </ScrollView>
       </PageModal>
     );
   }

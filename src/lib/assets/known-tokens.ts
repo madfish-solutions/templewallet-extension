@@ -63,15 +63,6 @@ const PREDEFINED_MAINNET_TOKENS_METADATA: TokenMetadata[] = [
   },
   {
     id: '0',
-    address: 'KT1XRPEPXbZK25r3Htzp2o1x7xdMMmfocKNW',
-    name: 'youves uUSD',
-    symbol: 'uUSD',
-    decimals: 12,
-    thumbnailUri: 'ipfs://QmbvhanNCxydZEbGu1RdqkG3LcpNGv7XYsCHgzWBXnmxRd',
-    standard: TezosTokenStandardsEnum.Fa2
-  },
-  {
-    id: '0',
     address: 'KT1K9gCRgaLRFKTErYt1wVxA3Frb9FjasjTV',
     name: 'Kolibri',
     symbol: 'kUSD',
@@ -81,30 +72,12 @@ const PREDEFINED_MAINNET_TOKENS_METADATA: TokenMetadata[] = [
   },
   TZBTC_TOKEN_METADATA,
   {
-    id: '2',
-    address: 'KT1XRPEPXbZK25r3Htzp2o1x7xdMMmfocKNW',
-    name: 'youves uBTC',
-    symbol: 'uBTC',
-    decimals: 12,
-    thumbnailUri: 'ipfs://Qmbev41h4axBqVzxsXP2NSaAF996bJjJBPb8FFZVqTvJTY',
-    standard: TezosTokenStandardsEnum.Fa2
-  },
-  {
     id: '0',
     address: 'KT193D4vozYnhGJQVtw7CoxxqphqUEEwK6Vb',
     name: 'Quipuswap governance token',
     symbol: 'QUIPU',
     decimals: 6,
     thumbnailUri: 'ipfs://Qmb2GiHN9EjcrN29J6y9PsXu3ZDosXTv6uLUWGZfRRSzS2/quipu.png',
-    standard: TezosTokenStandardsEnum.Fa2
-  },
-  {
-    id: '0',
-    address: 'KT1Xobej4mc6XgEjDoJoHtTKgbD1ELMvcQuL',
-    name: 'youves YOU Governance',
-    symbol: 'YOU',
-    decimals: 12,
-    thumbnailUri: 'ipfs://QmYAJaJvEJuwvMEgRbBoAUKrTxRTT22nCC9RuY7Jy4L4Gc',
     standard: TezosTokenStandardsEnum.Fa2
   }
 ];

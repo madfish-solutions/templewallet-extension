@@ -193,7 +193,7 @@ export const BaseForm: FC<Props> = ({
             name="amount"
             control={control}
             rules={{ validate: validateAmount }}
-            render={({ field: { value, onChange, onBlur } }) => (
+            render={({ field: { value, onChange, onBlur }, formState }) => (
               <AssetField
                 value={value}
                 onBlur={onBlur}
@@ -201,6 +201,7 @@ export const BaseForm: FC<Props> = ({
                 extraFloatingInner={isCollectible ? undefined : floatingAssetSymbol}
                 assetDecimals={shouldUseFiat ? 2 : assetDecimals}
                 cleanable={Boolean(amountValue)}
+                shouldShowErrorCaption={!shouldShowConvertedAmountBlock}
                 rightSideComponent={
                   <Button
                     type="button"
@@ -214,8 +215,12 @@ export const BaseForm: FC<Props> = ({
                 }
                 underneathComponent={
                   shouldShowConvertedAmountBlock ? (
-                    <div className="flex justify-between mt-1">
-                      <div className="max-w-40">
+                    <div className="flex justify-between items-center mt-1 gap-2">
+                      {formState.errors.amount ? (
+                        <span className="flex-1 text-font-description text-error">
+                          {formState.errors.amount.message}
+                        </span>
+                      ) : (
                         <ConvertedInputAssetAmount
                           chainId={network.chainId}
                           assetSlug={assetSlug}
@@ -224,7 +229,7 @@ export const BaseForm: FC<Props> = ({
                           toFiat={!shouldUseFiat}
                           evm={network.kind === TempleChainKind.EVM}
                         />
-                      </div>
+                      )}
                       {canToggleFiat && (
                         <Button
                           className="text-font-description-bold text-secondary px-1 py-0.5 max-w-40 truncate"

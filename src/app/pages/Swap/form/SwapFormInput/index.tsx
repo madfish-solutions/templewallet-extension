@@ -2,6 +2,7 @@ import React, { FC, useCallback, useMemo } from 'react';
 
 import BigNumber from 'bignumber.js';
 
+import { useToastBottomShiftModalLogic } from 'app/hooks/use-toast-bottom-shift-modal-logic';
 import SwapInput from 'app/pages/Swap/form/SwapFormInput/SwapInput';
 import SwapInputHeader from 'app/pages/Swap/form/SwapFormInput/SwapInputHeader';
 import { InputContainer } from 'app/templates/InputContainer/InputContainer';
@@ -96,6 +97,7 @@ const SwapFormInput: FC<SwapFormInputProps> = ({
   }, [assetSlug, balance, displayedMaxAmount, handleAmountChange, isTezosSlug]);
 
   const [selectAssetModalOpened, setSelectAssetModalOpen, setSelectAssetModalClosed] = useBooleanState(false);
+  const onCloseBottomShiftCallback = useToastBottomShiftModalLogic(selectAssetModalOpened, true);
 
   const handleAssetSelect = useCallback(
     (chainSlug: string) => {
@@ -109,9 +111,19 @@ const SwapFormInput: FC<SwapFormInputProps> = ({
         amount: newAmount
       });
       setSelectAssetModalClosed();
+      onCloseBottomShiftCallback();
       trackChange({ [inputName]: assetMetadata.symbol }, { [inputName]: newAssetMetadata.symbol });
     },
-    [amount, assetMetadata?.symbol, getTokenMetadata, inputName, onChange, setSelectAssetModalClosed, trackChange]
+    [
+      amount,
+      assetMetadata.symbol,
+      getTokenMetadata,
+      inputName,
+      onChange,
+      onCloseBottomShiftCallback,
+      setSelectAssetModalClosed,
+      trackChange
+    ]
   );
 
   const handleFiatToggle = useCallback(
