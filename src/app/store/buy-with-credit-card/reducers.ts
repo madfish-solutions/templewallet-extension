@@ -13,7 +13,6 @@ export const buyWithCreditCardReducer = createReducer<BuyWithCreditCardState>(
     builder.addCase(loadAllCurrenciesActions.submit, state => {
       state.currencies[TopUpProviderId.MoonPay].isLoading = true;
       state.currencies[TopUpProviderId.Utorg].isLoading = true;
-      state.currencies[TopUpProviderId.AliceBob].isLoading = true;
     });
 
     builder.addCase(loadAllCurrenciesActions.success, (state, { payload: currencies }) => ({
@@ -25,8 +24,7 @@ export const buyWithCreditCardReducer = createReducer<BuyWithCreditCardState>(
       ...state,
       currencies: {
         [TopUpProviderId.MoonPay]: createEntity(state.currencies[TopUpProviderId.MoonPay].data, false, error),
-        [TopUpProviderId.Utorg]: createEntity(state.currencies[TopUpProviderId.Utorg].data, false, error),
-        [TopUpProviderId.AliceBob]: createEntity(state.currencies[TopUpProviderId.AliceBob].data, false, error)
+        [TopUpProviderId.Utorg]: createEntity(state.currencies[TopUpProviderId.Utorg].data, false, error)
       }
     }));
 
@@ -43,12 +41,10 @@ export const buyWithCreditCardReducer = createReducer<BuyWithCreditCardState>(
 
         updatePerProvider(TopUpProviderId.MoonPay);
         updatePerProvider(TopUpProviderId.Utorg);
-        updatePerProvider(TopUpProviderId.AliceBob);
       } else {
         dataPerFiat[cryptoSlug] = {
           [TopUpProviderId.MoonPay]: createEntity(undefined, true),
-          [TopUpProviderId.Utorg]: createEntity(undefined, true),
-          [TopUpProviderId.AliceBob]: createEntity(undefined, true)
+          [TopUpProviderId.Utorg]: createEntity(undefined, true)
         };
       }
     });
@@ -75,8 +71,7 @@ export const buyWithCreditCardReducer = createReducer<BuyWithCreditCardState>(
             ...(state.pairLimits[fiatSymbol] ?? {}),
             [cryptoSlug]: {
               [TopUpProviderId.MoonPay]: createEntity(previousEntities?.[TopUpProviderId.MoonPay]?.data, false, error),
-              [TopUpProviderId.Utorg]: createEntity(previousEntities?.[TopUpProviderId.Utorg]?.data, false, error),
-              [TopUpProviderId.AliceBob]: createEntity(previousEntities?.[TopUpProviderId.AliceBob]?.data, false, error)
+              [TopUpProviderId.Utorg]: createEntity(previousEntities?.[TopUpProviderId.Utorg]?.data, false, error)
             }
           }
         }

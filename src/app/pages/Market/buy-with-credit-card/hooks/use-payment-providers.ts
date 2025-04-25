@@ -23,25 +23,15 @@ export const usePaymentProviders = (
     updateOutputAmount: updateUtorgOutputAmount,
     outputAmountLoading: utorgOutputLoading
   } = usePaymentProvider(TopUpProviderId.Utorg, inputAmount, inputAsset, outputAsset);
-  const {
-    errors: aliceBobErrors,
-    provider: aliceBobProvider,
-    updateOutputAmount: updateAliceBobOutputAmount,
-    outputAmountLoading: aliceBobOutputLoading
-  } = usePaymentProvider(TopUpProviderId.AliceBob, inputAmount, inputAsset, outputAsset);
 
-  const allPaymentProviders = useMemo(
-    () => [moonPayProvider, utorgProvider, aliceBobProvider],
-    [moonPayProvider, utorgProvider, aliceBobProvider]
-  );
+  const allPaymentProviders = useMemo(() => [moonPayProvider, utorgProvider], [moonPayProvider, utorgProvider]);
 
   const providersErrors = useMemo(
     () => ({
       [TopUpProviderId.MoonPay]: moonPayErrors,
-      [TopUpProviderId.Utorg]: utorgErrors,
-      [TopUpProviderId.AliceBob]: aliceBobErrors
+      [TopUpProviderId.Utorg]: utorgErrors
     }),
-    [moonPayErrors, utorgErrors, aliceBobErrors]
+    [moonPayErrors, utorgErrors]
   );
 
   const paymentProvidersToDisplay = useMemo(
@@ -51,29 +41,26 @@ export const usePaymentProviders = (
         providersErrors,
         {
           [TopUpProviderId.MoonPay]: moonPayOutputLoading,
-          [TopUpProviderId.Utorg]: utorgOutputLoading,
-          [TopUpProviderId.AliceBob]: aliceBobOutputLoading
+          [TopUpProviderId.Utorg]: utorgOutputLoading
         },
         inputAmount
       ),
-    [allPaymentProviders, providersErrors, inputAmount, moonPayOutputLoading, utorgOutputLoading, aliceBobOutputLoading]
+    [allPaymentProviders, providersErrors, inputAmount, moonPayOutputLoading, utorgOutputLoading]
   );
 
   const updateOutputAmounts = useCallback(
     async (newInputAmount?: number, newInputAsset = inputAsset, newOutputAsset = outputAsset) => {
-      const [moonPayOutputAmount, utorgOutputAmount, aliceBobOutputAmount] = await Promise.all([
+      const [moonPayOutputAmount, utorgOutputAmount] = await Promise.all([
         updateMoonPayOutputAmount(newInputAmount, newInputAsset, newOutputAsset),
-        updateUtorgOutputAmount(newInputAmount, newInputAsset, newOutputAsset),
-        updateAliceBobOutputAmount(newInputAmount, newInputAsset, newOutputAsset)
+        updateUtorgOutputAmount(newInputAmount, newInputAsset, newOutputAsset)
       ]);
 
       return {
         [TopUpProviderId.MoonPay]: moonPayOutputAmount,
-        [TopUpProviderId.Utorg]: utorgOutputAmount,
-        [TopUpProviderId.AliceBob]: aliceBobOutputAmount
+        [TopUpProviderId.Utorg]: utorgOutputAmount
       };
     },
-    [inputAsset, outputAsset, updateMoonPayOutputAmount, updateUtorgOutputAmount, updateAliceBobOutputAmount]
+    [inputAsset, outputAsset, updateMoonPayOutputAmount, updateUtorgOutputAmount]
   );
 
   return {

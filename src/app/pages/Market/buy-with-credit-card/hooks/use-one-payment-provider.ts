@@ -10,7 +10,6 @@ import {
   usePairLimitsErrorsSelector
 } from 'app/store/buy-with-credit-card/selectors';
 import { getMoonPayBuyQuote } from 'lib/apis/moonpay';
-import { estimateAliceBobOutput } from 'lib/apis/temple';
 import { convertFiatAmountToCrypto } from 'lib/apis/utorg';
 import { getAssetSymbolToDisplay } from 'lib/buy-with-credit-card/get-asset-symbol-to-display';
 import { getUpdatedFiatLimits } from 'lib/buy-with-credit-card/get-updated-fiat-limits';
@@ -58,12 +57,7 @@ const getOutputAmountFunctions: Record<TopUpProviderId, getOutputAmountFunction>
     return quoteCurrencyAmount;
   },
   [TopUpProviderId.Utorg]: async (inputAmount, inputAsset, outputAsset) =>
-    convertFiatAmountToCrypto(inputAsset.code, outputAsset.code, inputAmount),
-  [TopUpProviderId.AliceBob]: async (inputAmount, inputAsset, outputAsset) => {
-    const response = await estimateAliceBobOutput(inputAmount.toString(), inputAsset.code, outputAsset.code);
-
-    return response.data.outputAmount;
-  }
+    convertFiatAmountToCrypto(inputAsset.code, outputAsset.code, inputAmount)
 };
 
 const initialPaymentProvidersData: Record<TopUpProviderId, PaymentProviderInitialData> = {
@@ -76,11 +70,6 @@ const initialPaymentProvidersData: Record<TopUpProviderId, PaymentProviderInitia
     name: 'Utorg',
     id: TopUpProviderId.Utorg,
     kycRequired: true
-  },
-  [TopUpProviderId.AliceBob]: {
-    name: 'Alice&Bob',
-    id: TopUpProviderId.AliceBob,
-    kycRequired: false
   }
 };
 

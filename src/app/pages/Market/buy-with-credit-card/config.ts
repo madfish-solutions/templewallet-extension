@@ -12,7 +12,7 @@ export const FORM_REFRESH_INTERVAL = 30000;
 
 export const VALUE_PLACEHOLDER = '---';
 
-const allProviders = [TopUpProviderId.MoonPay, TopUpProviderId.Utorg, TopUpProviderId.AliceBob];
+const allProviders = [TopUpProviderId.MoonPay, TopUpProviderId.Utorg];
 
 export const DEFAULT_INPUT_CURRENCY: TopUpInputInterface = {
   code: 'USD',
