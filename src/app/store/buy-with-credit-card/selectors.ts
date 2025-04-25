@@ -21,9 +21,8 @@ const useCurrenciesByProviderLoadingSelector = (topUpProvider: TopUpProviderId) 
 export const useCurrenciesLoadingSelector = () => {
   const moonPayLoading = useCurrenciesByProviderLoadingSelector(TopUpProviderId.MoonPay);
   const utorgLoading = useCurrenciesByProviderLoadingSelector(TopUpProviderId.Utorg);
-  const aliceBobLoading = useCurrenciesByProviderLoadingSelector(TopUpProviderId.AliceBob);
 
-  return moonPayLoading || utorgLoading || aliceBobLoading;
+  return moonPayLoading || utorgLoading;
 };
 
 const useCurrenciesErrorSelector = (topUpProvider: TopUpProviderId) =>
@@ -32,15 +31,13 @@ const useCurrenciesErrorSelector = (topUpProvider: TopUpProviderId) =>
 export const useCurrenciesErrorsSelector = () => {
   const moonPayError = useCurrenciesErrorSelector(TopUpProviderId.MoonPay);
   const utorgError = useCurrenciesErrorSelector(TopUpProviderId.Utorg);
-  const aliceBobError = useCurrenciesErrorSelector(TopUpProviderId.AliceBob);
 
   return useMemo(
     () => ({
       [TopUpProviderId.MoonPay]: moonPayError,
-      [TopUpProviderId.Utorg]: utorgError,
-      [TopUpProviderId.AliceBob]: aliceBobError
+      [TopUpProviderId.Utorg]: utorgError
     }),
-    [moonPayError, utorgError, aliceBobError]
+    [moonPayError, utorgError]
   );
 };
 
@@ -64,14 +61,12 @@ const usePairLimitsErrorSelector = (fiatSymbol: string, cryptoSlug: string, topU
 export const usePairLimitsErrorsSelector = (fiatSymbol: string, cryptoSlug: string) => {
   const moonPayError = usePairLimitsErrorSelector(fiatSymbol, cryptoSlug, TopUpProviderId.MoonPay);
   const utorgError = usePairLimitsErrorSelector(fiatSymbol, cryptoSlug, TopUpProviderId.Utorg);
-  const aliceBobError = usePairLimitsErrorSelector(fiatSymbol, cryptoSlug, TopUpProviderId.AliceBob);
 
   return useMemo(
     () => ({
       [TopUpProviderId.MoonPay]: moonPayError,
-      [TopUpProviderId.Utorg]: utorgError,
-      [TopUpProviderId.AliceBob]: aliceBobError
+      [TopUpProviderId.Utorg]: utorgError
     }),
-    [moonPayError, utorgError, aliceBobError]
+    [moonPayError, utorgError]
   );
 };
