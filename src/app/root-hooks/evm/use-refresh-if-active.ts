@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo } from 'react';
 
+import { useAssetsFilterOptionsSelector } from 'app/store/assets-filter-options/selectors';
 import { EvmBalancesSource } from 'app/store/evm/state';
 import { ChainID } from 'lib/apis/temple/endpoints/evm/api.interfaces';
 import { isSupportedChainId } from 'lib/apis/temple/endpoints/evm/api.utils';
@@ -58,6 +59,7 @@ export const useRefreshIfActive = ({
   syncInterval
 }: RefreshIfActiveConfig) => {
   const evmChains = useEnabledEvmChains();
+  const { filterChain } = useAssetsFilterOptionsSelector();
   const windowIsActive = useWindowIsActive();
   const { pathname } = useLocation();
 
@@ -76,10 +78,17 @@ export const useRefreshIfActive = ({
     return undefined;
   }, [pathname]);
 
-  const chainsToRefresh = useMemo(
-    () => (tokenPathChainId !== undefined ? evmChains.filter(c => c.chainId === tokenPathChainId) : evmChains),
-    [evmChains, tokenPathChainId]
-  );
+  const chainsToRefresh = useMemo(() => {
+    if (filterChain) {
+      return filterChain.kind === 'evm' ? [filterChain] : [];
+    }
+
+    if (tokenPathChainId !== undefined) {
+      return evmChains.filter(c => c.chainId === tokenPathChainId);
+    }
+
+    return evmChains;
+  }, [evmChains, tokenPathChainId, filterChain]);
 
   const refreshData = useCallback(
     async (chainId: number) => {
