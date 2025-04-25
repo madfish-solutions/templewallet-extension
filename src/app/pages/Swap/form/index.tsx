@@ -355,7 +355,6 @@ export const SwapForm = memo<Props>(({ account, slippageTolerance, onReview }) =
   const onSubmit = async () => {
     if (isSubmitting) return;
 
-    // TODO: add `toastUniqWarning(t('notEnoughTezForFee'), true)` call if the balance of the EVM native token is too low
     if (
       inputValue.assetSlug === TEZ_TOKEN_SLUG &&
       getTezosBalance(TEZOS_MAINNET_CHAIN_ID, TEZ_TOKEN_SLUG)?.lte(EXCHANGE_XTZ_RESERVE)

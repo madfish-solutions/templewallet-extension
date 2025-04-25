@@ -22,14 +22,12 @@ export const ConfirmSwapModal: FC<ConfirmSendModalProps> = ({ opened, onRequestC
     onRequestClose={onRequestClose}
     shouldChangeBottomShift={false}
   >
-    {reviewData
-      ? isEvmReviewData(reviewData)
-        ? null
-        : () => (
-            <TezosEstimationDataProvider>
-              <TezosContent data={reviewData} onClose={onRequestClose} />
-            </TezosEstimationDataProvider>
-          )
+    {reviewData && !isEvmReviewData(reviewData)
+      ? () => (
+          <TezosEstimationDataProvider>
+            <TezosContent data={reviewData} onClose={onRequestClose} />
+          </TezosEstimationDataProvider>
+        )
       : null}
   </PageModal>
 );

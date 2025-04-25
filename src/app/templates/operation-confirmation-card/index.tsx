@@ -1,6 +1,5 @@
 import React, { FC, PropsWithChildren, ReactNode, memo, useMemo } from 'react';
 
-import BigNumber from 'bignumber.js';
 import clsx from 'clsx';
 
 import Money from 'app/atoms/Money';
@@ -101,12 +100,7 @@ export const OperationConfirmationCardRow = memo<OperationConfirmationCardRowPro
             </>
           ) : (
             <>
-              <Money
-                withSign
-                cryptoDecimals={new BigNumber(volume).gt(999) ? 2 : 6}
-                smallFractionFont={false}
-                tooltipPlacement="bottom"
-              >
+              <Money withSign smallFractionFont={false} tooltipPlacement="bottom">
                 {volume}
               </Money>
               <span className="whitespace-nowrap">
