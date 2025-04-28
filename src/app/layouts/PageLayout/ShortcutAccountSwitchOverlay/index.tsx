@@ -133,7 +133,7 @@ export const ShortcutAccountSwitchOverlay = memo(() => {
         }}
         unmountOnExit
       >
-        <div className="fixed inset-0 z-overlay flex flex-col items-center justify-center bg-black bg-opacity-15 backdrop-blur-xs">
+        <div className="fixed inset-0 z-overlay-promo flex flex-col items-center justify-center bg-black bg-opacity-15 backdrop-blur-xs">
           <div
             ref={accountSwitchRef}
             tabIndex={0}

@@ -37,9 +37,11 @@ export const useAccountSelectShortcut = () => {
 
   const handleShortcutPress = useCallback(
     (e: KeyboardEvent) => {
-      if (e.key !== ACCOUNT_SELECT_HOTKEY.key || accountsModalIsOpen) return;
+      if (e.key !== ACCOUNT_SELECT_HOTKEY.key) return;
 
       e.preventDefault();
+
+      if (accountsModalIsOpen) return;
 
       setOpened(prev => !prev);
     },
