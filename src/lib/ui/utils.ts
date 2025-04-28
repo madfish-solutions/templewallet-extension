@@ -31,4 +31,8 @@ export const readClipboard = async () => {
 };
 
 export const toPercentage = (value?: BigNumber.Value, fallback = '-', decimalPlaces = 2) =>
-  isDefined(value) ? `${toLocalFormat(new BigNumber(value).times(100), { decimalPlaces })}%` : fallback;
+  isDefined(value)
+    ? `${toLocalFormat(new BigNumber(value).times(100), {
+        decimalPlaces: Number.isFinite(decimalPlaces) ? decimalPlaces : undefined
+      })}%`
+    : fallback;

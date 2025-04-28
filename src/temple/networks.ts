@@ -59,8 +59,7 @@ export const isTezosDcpChainId = (chainId: string) => TEZOS_DCP_CHAIN_IDS.includ
 export const TEZOS_DEFAULT_NETWORKS: NonEmptyArray<StoredTezosNetwork> = [
   {
     id: 'mainnet',
-    name: 'Tezos Mainnet',
-    nameI18nKey: 'tezosMainnet',
+    name: 'Tezos',
     chain: TempleChainKind.Tezos,
     chainId: TempleTezosChainId.Mainnet,
     rpcBaseURL: 'https://prod.tcinfra.net/rpc/mainnet',
@@ -70,7 +69,7 @@ export const TEZOS_DEFAULT_NETWORKS: NonEmptyArray<StoredTezosNetwork> = [
   },
   {
     id: 'smartpy-mainnet',
-    name: 'SmartPy Mainnet',
+    name: 'SmartPy',
     chain: TempleChainKind.Tezos,
     chainId: TempleTezosChainId.Mainnet,
     rpcBaseURL: 'https://mainnet.smartpy.io',
@@ -80,7 +79,7 @@ export const TEZOS_DEFAULT_NETWORKS: NonEmptyArray<StoredTezosNetwork> = [
   },
   {
     id: 'tezie-mainnet',
-    name: 'ECAD Labs Mainnet',
+    name: 'ECAD Labs',
     chain: TempleChainKind.Tezos,
     chainId: TempleTezosChainId.Mainnet,
     rpcBaseURL: 'https://mainnet.api.tez.ie',
@@ -90,7 +89,7 @@ export const TEZOS_DEFAULT_NETWORKS: NonEmptyArray<StoredTezosNetwork> = [
   },
   {
     id: 'ghostnet',
-    name: 'Ghostnet Testnet',
+    name: 'Ghostnet',
     chain: TempleChainKind.Tezos,
     chainId: TempleTezosChainId.Ghostnet,
     rpcBaseURL: 'https://rpc.ghostnet.teztnets.com',
@@ -117,7 +116,7 @@ export const DEFAULT_EVM_CURRENCY: EvmNativeTokenMetadata = {
 export const EVM_DEFAULT_NETWORKS: NonEmptyArray<StoredEvmNetwork> = [
   {
     id: 'eth-mainnet',
-    name: 'Ethereum Mainnet',
+    name: 'Ethereum',
     chain: TempleChainKind.EVM,
     chainId: ETHEREUM_MAINNET_CHAIN_ID,
     rpcBaseURL: 'https://cloudflare-eth.com',
@@ -126,7 +125,7 @@ export const EVM_DEFAULT_NETWORKS: NonEmptyArray<StoredEvmNetwork> = [
   },
   {
     id: 'matic-mainnet',
-    name: 'Polygon Mainnet',
+    name: 'Polygon',
     chain: TempleChainKind.EVM,
     chainId: OTHER_COMMON_MAINNET_CHAIN_IDS.polygon,
     rpcBaseURL: 'https://polygon-rpc.com',
@@ -135,7 +134,7 @@ export const EVM_DEFAULT_NETWORKS: NonEmptyArray<StoredEvmNetwork> = [
   },
   {
     id: 'bsc-mainnet',
-    name: 'BSC Mainnet',
+    name: 'BSC',
     chain: TempleChainKind.EVM,
     chainId: OTHER_COMMON_MAINNET_CHAIN_IDS.bsc,
     rpcBaseURL: 'https://bsc-rpc.publicnode.com',
@@ -145,7 +144,7 @@ export const EVM_DEFAULT_NETWORKS: NonEmptyArray<StoredEvmNetwork> = [
   },
   {
     id: 'avalanche-mainnet',
-    name: 'Avalanche Mainnet',
+    name: 'Avalanche',
     chain: TempleChainKind.EVM,
     chainId: OTHER_COMMON_MAINNET_CHAIN_IDS.avalanche,
     rpcBaseURL: 'https://avalanche-c-chain-rpc.publicnode.com',
@@ -154,17 +153,17 @@ export const EVM_DEFAULT_NETWORKS: NonEmptyArray<StoredEvmNetwork> = [
   },
   {
     id: 'optimism-mainnet',
-    name: 'OP Mainnet',
+    name: 'Optimism',
     chain: TempleChainKind.EVM,
     chainId: OTHER_COMMON_MAINNET_CHAIN_IDS.optimism,
     rpcBaseURL: 'https://mainnet.optimism.io',
-    description: 'Optimism Mainnet',
+    description: 'Optimism',
     color: '#fc0000',
     default: true
   },
   {
     id: 'etherlink-mainnet',
-    name: 'Etherlink Mainnet',
+    name: 'Etherlink',
     chain: TempleChainKind.EVM,
     chainId: OTHER_COMMON_MAINNET_CHAIN_IDS.etherlink,
     rpcBaseURL: 'https://node.mainnet.etherlink.com',
@@ -192,7 +191,7 @@ export const EVM_DEFAULT_NETWORKS: NonEmptyArray<StoredEvmNetwork> = [
   },
   {
     id: 'bsc-testnet',
-    name: 'BSC Testnet',
+    name: 'BSC',
     chain: TempleChainKind.EVM,
     chainId: 97,
     rpcBaseURL: 'https://bsc-testnet-rpc.publicnode.com',
@@ -222,7 +221,7 @@ export const EVM_DEFAULT_NETWORKS: NonEmptyArray<StoredEvmNetwork> = [
   },
   {
     id: 'etherlink-ghostnet',
-    name: 'Etherlink Testnet',
+    name: 'Etherlink',
     chain: TempleChainKind.EVM,
     chainId: 128123,
     rpcBaseURL: 'https://node.ghostnet.etherlink.com',

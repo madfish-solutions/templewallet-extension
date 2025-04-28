@@ -8,7 +8,7 @@ import { useCryptoCurrenciesSelector } from 'app/store/buy-with-credit-card/sele
 import { useUserIdSelector } from 'app/store/settings/selectors';
 import { toastError } from 'app/toaster';
 import { useFormAnalytics } from 'lib/analytics';
-import { createAliceBobOrder, getMoonpaySign } from 'lib/apis/temple';
+import { getMoonpaySign } from 'lib/apis/temple';
 import { createOrder as createUtorgOrder } from 'lib/apis/utorg';
 import { TopUpProviderId } from 'lib/buy-with-credit-card/top-up-provider-id.enum';
 import { fromTopUpTokenSlug } from 'lib/buy-with-credit-card/top-up-token-slug.utils';
@@ -32,7 +32,6 @@ export const useBuyWithCreditCardFormSubmit = () => {
 
   const moonpayCryptoCurrencies = useCryptoCurrenciesSelector(TopUpProviderId.MoonPay);
   const utorgCryptoCurrencies = useCryptoCurrenciesSelector(TopUpProviderId.Utorg);
-  const aliceBobCryptoCurrencies = useCryptoCurrenciesSelector(TopUpProviderId.AliceBob);
 
   const onSubmit = useCallback<SubmitHandler<BuyWithCreditCardFormData>>(
     async formValues => {
@@ -84,16 +83,6 @@ export const useBuyWithCreditCardFormSubmit = () => {
               getProviderTokenCode(utorgCryptoCurrencies, outputToken.slug)
             );
             break;
-          case TopUpProviderId.AliceBob:
-            const { data } = await createAliceBobOrder(
-              inputAmount.toFixed(),
-              inputCurrency.code,
-              getProviderTokenCode(aliceBobCryptoCurrencies, outputToken.slug),
-              userId,
-              publicKeyHash
-            );
-            url = data.orderInfo.payUrl;
-            break;
           default:
             return assertUnreachable(provider.id);
         }
@@ -107,15 +96,7 @@ export const useBuyWithCreditCardFormSubmit = () => {
         setPurchaseLinkLoading(false);
       }
     },
-    [
-      aliceBobCryptoCurrencies,
-      evmAddress,
-      formAnalytics,
-      moonpayCryptoCurrencies,
-      tezosAddress,
-      userId,
-      utorgCryptoCurrencies
-    ]
+    [evmAddress, formAnalytics, moonpayCryptoCurrencies, tezosAddress, userId, utorgCryptoCurrencies]
   );
 
   return {

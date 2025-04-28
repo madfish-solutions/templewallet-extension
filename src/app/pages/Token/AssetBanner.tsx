@@ -4,105 +4,98 @@ import BigNumber from 'bignumber.js';
 
 import Money from 'app/atoms/Money';
 import { DeadEndBoundaryError } from 'app/ErrorBoundary';
-import { useEvmTokenMetadataSelector } from 'app/store/evm/tokens-metadata/selectors';
 import { EvmAssetIconWithNetwork, TezosAssetIconWithNetwork } from 'app/templates/AssetIcon';
-import { EvmBalance, TezosBalance } from 'app/templates/Balance';
+import { BalanceProps, EvmBalance, TezosBalance } from 'app/templates/Balance';
 import InFiat from 'app/templates/InFiat';
 import { setAnotherSelector, setTestID } from 'lib/analytics';
 import { t } from 'lib/i18n';
-import { getTokenName, getAssetSymbol, AssetMetadataBase } from 'lib/metadata';
-import { isEvmNativeTokenSlug } from 'lib/utils/evm.utils';
+import {
+  getTokenName,
+  getAssetSymbol,
+  useCategorizedTezosAssetMetadata,
+  useEvmCategorizedAssetMetadata
+} from 'lib/metadata';
+import { ChainAssetMetadata } from 'lib/metadata/types';
 import { useAccountAddressForEvm, useAccountAddressForTezos, useTezosChainByChainId } from 'temple/front';
-import { OneOfChains, useEvmChainByChainId } from 'temple/front/chains';
+import { ChainId, ChainOfKind, OneOfChains, useEvmChainByChainId } from 'temple/front/chains';
+import { TempleChainKind } from 'temple/types';
 
 import { TokenPageSelectors } from './selectors';
 import { TokenPrice } from './TokenPrice';
 
-interface TezosAssetBannerProps {
-  tezosChainId: string;
+interface AssetBannerProps<T extends TempleChainKind> {
+  chainId: ChainId<T>;
   assetSlug: string;
-  metadata: AssetMetadataBase | undefined;
 }
 
-export const TezosAssetBanner = memo<TezosAssetBannerProps>(({ tezosChainId, assetSlug, metadata: assetMetadata }) => {
-  const accountTezAddress = useAccountAddressForTezos();
-  const network = useTezosChainByChainId(tezosChainId);
+interface AssetBannerHOCConfig<T extends TempleChainKind> {
+  useAccountAddress: () => (T extends TempleChainKind.EVM ? HexString : string) | undefined;
+  useChainByChainId: SyncFn<ChainId<T>, ChainOfKind<T> | null | undefined>;
+  useCategorizedAssetMetadata: (assetSlug: string, chainId: ChainId<T>) => ChainAssetMetadata<T> | undefined;
+  Balance: FC<BalanceProps<T>>;
+  AssetIconWithNetwork: FC<{ assetSlug: string; chainId: ChainId<T>; size: number; className?: string }>;
+}
 
-  if (!accountTezAddress || !network) throw new DeadEndBoundaryError();
+const AssetBannerHOC = <T extends TempleChainKind>({
+  useAccountAddress,
+  useChainByChainId,
+  useCategorizedAssetMetadata,
+  Balance,
+  AssetIconWithNetwork
+}: AssetBannerHOCConfig<T>) =>
+  memo<AssetBannerProps<T>>(({ chainId, assetSlug }) => {
+    const accountAddress = useAccountAddress();
+    const network = useChainByChainId(chainId);
 
-  const assetName = getTokenName(assetMetadata);
-  const assetSymbol = getAssetSymbol(assetMetadata);
+    if (!accountAddress || !network) throw new DeadEndBoundaryError();
 
-  return (
-    <>
-      <div className="flex items-center gap-x-1">
-        <TezosAssetIconWithNetwork tezosChainId={tezosChainId} assetSlug={assetSlug} size={40} className="shrink-0" />
+    const assetMetadata = useCategorizedAssetMetadata(assetSlug, chainId);
+    const assetName = getTokenName(assetMetadata);
+    const assetSymbol = getAssetSymbol(assetMetadata);
 
-        <NamesComp assetName={assetName} network={network} />
+    return (
+      <>
+        <div className="flex items-center gap-x-1">
+          <AssetIconWithNetwork assetSlug={assetSlug} chainId={chainId} size={40} className="shrink-0" />
 
-        <TokenPrice assetSlug={assetSlug} chainId={tezosChainId} />
-      </div>
+          <NamesComp assetName={assetName} network={network} />
 
-      <div className="flex flex-col">
-        <TezosBalance network={network} address={accountTezAddress} assetSlug={assetSlug}>
-          {balance => (
-            <>
-              <AmountComp balance={balance} assetSymbol={assetSymbol} />
+          <TokenPrice assetSlug={assetSlug} chainId={chainId} />
+        </div>
 
-              <InFiat chainId={tezosChainId} assetSlug={assetSlug} volume={balance} smallFractionFont={false}>
-                {({ balance, symbol }) => <FiatValueComp balance={balance} symbol={symbol} />}
-              </InFiat>
-            </>
-          )}
-        </TezosBalance>
-      </div>
-    </>
-  );
+        <div className="flex flex-col">
+          <Balance network={network} address={accountAddress} assetSlug={assetSlug}>
+            {balance => (
+              <>
+                <AmountComp balance={balance} assetSymbol={assetSymbol} />
+
+                <InFiat chainId={chainId} assetSlug={assetSlug} volume={balance} smallFractionFont={false}>
+                  {({ balance, symbol }) => <FiatValueComp balance={balance} symbol={symbol} />}
+                </InFiat>
+              </>
+            )}
+          </Balance>
+        </div>
+      </>
+    );
+  });
+
+export const TezosAssetBanner = AssetBannerHOC({
+  useAccountAddress: useAccountAddressForTezos,
+  useChainByChainId: useTezosChainByChainId,
+  useCategorizedAssetMetadata: useCategorizedTezosAssetMetadata,
+  Balance: TezosBalance,
+  AssetIconWithNetwork: ({ chainId, ...restProps }) => (
+    <TezosAssetIconWithNetwork tezosChainId={chainId} {...restProps} />
+  )
 });
 
-interface EvmAssetBannerProps {
-  evmChainId: number;
-  assetSlug: string;
-}
-
-export const EvmAssetBanner = memo<EvmAssetBannerProps>(({ evmChainId, assetSlug }) => {
-  const accountEvmAddress = useAccountAddressForEvm();
-  const network = useEvmChainByChainId(evmChainId);
-
-  if (!accountEvmAddress || !network) throw new DeadEndBoundaryError();
-
-  const tokenMetadata = useEvmTokenMetadataSelector(evmChainId, assetSlug);
-
-  const metadata = isEvmNativeTokenSlug(assetSlug) ? network.currency : tokenMetadata;
-
-  const assetName = getTokenName(metadata);
-  const assetSymbol = getAssetSymbol(metadata);
-
-  return (
-    <>
-      <div className="flex items-center gap-x-1">
-        <EvmAssetIconWithNetwork evmChainId={evmChainId} assetSlug={assetSlug} size={40} className="shrink-0" />
-
-        <NamesComp assetName={assetName} network={network} />
-
-        <TokenPrice assetSlug={assetSlug} chainId={evmChainId} forEVM />
-      </div>
-
-      <div className="flex flex-col">
-        <EvmBalance network={network} address={accountEvmAddress} assetSlug={assetSlug}>
-          {balance => (
-            <>
-              <AmountComp balance={balance} assetSymbol={assetSymbol} />
-
-              <InFiat evm chainId={evmChainId} assetSlug={assetSlug} volume={balance} smallFractionFont={false}>
-                {({ balance, symbol }) => <FiatValueComp balance={balance} symbol={symbol} />}
-              </InFiat>
-            </>
-          )}
-        </EvmBalance>
-      </div>
-    </>
-  );
+export const EvmAssetBanner = AssetBannerHOC({
+  useAccountAddress: useAccountAddressForEvm,
+  useChainByChainId: useEvmChainByChainId,
+  useCategorizedAssetMetadata: useEvmCategorizedAssetMetadata,
+  Balance: EvmBalance,
+  AssetIconWithNetwork: ({ chainId, ...restProps }) => <EvmAssetIconWithNetwork evmChainId={chainId} {...restProps} />
 });
 
 const NamesComp: FC<{ assetName: string; network: OneOfChains }> = ({ assetName, network }) => {
@@ -125,7 +118,7 @@ const NamesComp: FC<{ assetName: string; network: OneOfChains }> = ({ assetName,
 
 const AmountComp: FC<{ balance: BigNumber; assetSymbol: string }> = ({ balance, assetSymbol }) => (
   <div className="text-font-num-bold-24 leading-9">
-    <Money smallFractionFont={false} fiat>
+    <Money smallFractionFont={false} cryptoDecimals={balance.gte(1000) ? 4 : 6}>
       {balance}
     </Money>
     <span className="ml-1">{assetSymbol}</span>

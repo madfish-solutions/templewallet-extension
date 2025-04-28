@@ -11,6 +11,7 @@ import { useEvmTokenMetadataSelector } from 'app/store/evm/tokens-metadata/selec
 import { useFormAnalytics } from 'lib/analytics';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { useEvmAssetBalance } from 'lib/balances/hooks';
+import { VITALIK_ADDRESS } from 'lib/constants';
 import { useAssetFiatCurrencyPrice } from 'lib/fiat-currency';
 import { t, toLocalFixed } from 'lib/i18n';
 import { getAssetSymbol } from 'lib/metadata';
@@ -96,25 +97,37 @@ export const EvmForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, onR
     return false;
   }, [allAccounts, contacts, toFilled, toResolved]);
 
-  const { data: estimationData, isValidating: estimating } = useEvmEstimationData(
-    toResolved as HexString,
+  const { data: estimationData, isValidating: estimating } = useEvmEstimationData({
+    to: toResolved as HexString,
     assetSlug,
     accountPkh,
     network,
     balance,
     ethBalance,
     toFilled
-  );
+  });
+  const { data: toVitalikEstimationData, isValidating: toVitalikEstimating } = useEvmEstimationData({
+    to: VITALIK_ADDRESS,
+    assetSlug,
+    accountPkh,
+    network,
+    balance,
+    ethBalance,
+    toFilled: true,
+    silent: true
+  });
 
   const maxAmount = useMemo(() => {
-    const fee = estimationData?.estimatedFee;
+    const fee = estimationData?.estimatedFee ?? toVitalikEstimationData?.estimatedFee;
 
     if (!fee) return shouldUseFiat ? getMaxAmountFiat(assetPrice.toNumber(), balance) : balance;
 
-    const maxAmountAsset = isEvmNativeTokenSlug(assetSlug) ? balance.minus(formatEther(fee)) : balance;
+    const maxAmountAsset = isEvmNativeTokenSlug(assetSlug)
+      ? BigNumber.max(balance.minus(formatEther(fee)), ZERO)
+      : balance;
 
     return shouldUseFiat ? getMaxAmountFiat(assetPrice.toNumber(), maxAmountAsset) : maxAmountAsset;
-  }, [estimationData, assetSlug, balance, shouldUseFiat, assetPrice]);
+  }, [estimationData, assetSlug, balance, shouldUseFiat, assetPrice, toVitalikEstimationData]);
 
   const validateAmount = useCallback(
     (amount: string) => {
@@ -195,7 +208,7 @@ export const EvmForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, onR
         assetPrice={assetPrice}
         isCollectible={isNft}
         maxAmount={maxAmount}
-        maxEstimating={estimating}
+        maxEstimating={toFilled ? estimating : toVitalikEstimating}
         assetDecimals={assetDecimals}
         canToggleFiat={canToggleFiat}
         shouldUseFiat={shouldUseFiat}

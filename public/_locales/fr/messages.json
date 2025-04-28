@@ -287,10 +287,6 @@
   "tryAgain": {
     "message": "Réessayer"
   },
-  "tezosMainnet": {
-    "message": "Mainnet Tezos",
-    "description": "Mainnet = main network"
-  },
   "templeWalletOptions": {
     "message": "Portefeuille Temple | Options"
   },

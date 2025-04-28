@@ -108,11 +108,13 @@ export const useTezosAccountTokens = (account: string) => {
       // 3. Whitelisted
       whitelisted = whitelisted.concat(
         chain.chainId === ChainIds.MAINNET
-          ? mainnetWhitelist.map<AccountToken>(slug => ({
-              slug,
-              status: getAssetStatus(balances[slug]),
-              chainId
-            }))
+          ? mainnetWhitelist
+              .filter(slug => Number(balances[slug]) > 0)
+              .map<AccountToken>(slug => ({
+                slug,
+                status: 'enabled',
+                chainId
+              }))
           : []
       );
     }
@@ -161,11 +163,13 @@ export const useTezosChainAccountTokens = (account: string, chainId: string) => 
       : [];
 
     // 3. Whitelisted
-    const whitelisted = whitelistSlugs.map<AccountToken>(slug => ({
-      slug,
-      status: getAssetStatus(balances[slug]),
-      chainId
-    }));
+    const whitelisted = whitelistSlugs
+      .filter(slug => Number(balances[slug]) > 0)
+      .map<AccountToken>(slug => ({
+        slug,
+        status: 'enabled',
+        chainId
+      }));
 
     // Keep this order to preserve correct statuses & flags
     const concatenated: AccountToken[] = predefined.concat(stored).concat(whitelisted);

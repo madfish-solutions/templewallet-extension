@@ -14,9 +14,6 @@
   "maximiseView": {
     "message": "Maximise view"
   },
-  "tezosMainnet": {
-    "message": "Главная сеть Tezos"
-  },
   "resetExtensionConfirmation": {
     "message": "Вы уверены, что хотите сбросить TempleWallet?\nВ результате все Ваши данные будут удалены."
   },
