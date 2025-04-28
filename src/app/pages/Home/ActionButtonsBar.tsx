@@ -8,7 +8,6 @@ import { ReactComponent as BuyIcon } from 'app/icons/buy.svg';
 import { ReactComponent as ReceiveIcon } from 'app/icons/receive.svg';
 import { ReactComponent as SendIcon } from 'app/icons/send-alt.svg';
 import { ReactComponent as SwapIcon } from 'app/icons/swap.svg';
-import { ReactComponent as WithdrawIcon } from 'app/icons/withdraw.svg';
 import { buildSwapPageUrlQuery } from 'app/pages/Swap/utils/build-url-query';
 import { TestIDProps } from 'lib/analytics';
 import { TID, T, t } from 'lib/i18n';
@@ -49,7 +48,7 @@ export const ActionButtonsBar = memo<Props>(({ assetSlug }) => {
   );
 
   return (
-    <div className="flex justify-between mx-auto w-full max-w-sm">
+    <div className="flex gap-x-6 w-full max-w-sm">
       <ActionButton labelI18nKey="receive" Icon={ReceiveIcon} to="/receive" testID={HomeSelectors.receiveButton} />
 
       <ActionButton
@@ -67,13 +66,6 @@ export const ActionButtonsBar = memo<Props>(({ assetSlug }) => {
         disabled={!canSend}
         tippyProps={tippyPropsMock}
         testID={HomeSelectors.swapButton}
-      />
-      <ActionButton
-        labelI18nKey="withdraw"
-        Icon={WithdrawIcon}
-        to="/withdraw"
-        disabled={!canSend || network.type !== 'main'}
-        testID={HomeSelectors.withdrawButton}
       />
       <ActionButton
         labelI18nKey="send"
@@ -105,15 +97,15 @@ const ActionButton = memo<ActionButtonProps>(
 
     const commonButtonProps = useMemo(
       () => ({
-        className: `flex flex-col items-center`,
+        className: `flex flex-1 flex-col items-center`,
         type: 'button' as const,
         children: (
           <>
             <div
               className={clsx(
                 disabled ? 'bg-gray-10' : 'bg-orange-10',
-                'rounded mb-2 flex items-center text-white',
-                'p-2 h-10'
+                'flex w-full justify-center items-center',
+                'rounded mb-2 py-2 text-white'
               )}
             >
               <Icon className={clsx('w-6 h-auto', disabled ? 'stroke-gray' : 'stroke-accent-orange')} />
