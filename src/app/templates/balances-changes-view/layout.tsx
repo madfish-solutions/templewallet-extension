@@ -1,8 +1,8 @@
-import React, { ReactNode, memo, useMemo } from 'react';
+import React, { ReactNode, memo } from 'react';
 
 import BigNumber from 'bignumber.js';
 
-import { T, toLocalFixed } from 'lib/i18n';
+import { T } from 'lib/i18n';
 import { OneOfChains } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
 
@@ -28,7 +28,6 @@ interface BalancesChangesViewLayoutProps {
 
 const BalancesChangesViewRow = memo<BalancesChangesViewRowProps>(({ chain, symbol, volume, assetSlug, variant }) => {
   const allCollectibles = variant === BalancesChangesViewRowVariant.AllCollectibles;
-  const formattedVolume = useMemo(() => `${volume.isPositive() ? '+' : ''}${toLocalFixed(volume)}`, [volume]);
 
   return (
     <OperationConfirmationCardRow
@@ -36,7 +35,7 @@ const BalancesChangesViewRow = memo<BalancesChangesViewRowProps>(({ chain, symbo
       assetSlug={assetSlug}
       variant={variant}
       amountClassName={volume.isPositive() ? 'text-success' : undefined}
-      volume={formattedVolume}
+      volume={volume}
       symbol={symbol}
       rightContent={
         !allCollectibles && (

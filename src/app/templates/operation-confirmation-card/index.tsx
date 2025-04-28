@@ -1,5 +1,6 @@
 import React, { FC, PropsWithChildren, ReactNode, memo, useMemo } from 'react';
 
+import BigNumber from 'bignumber.js';
 import clsx from 'clsx';
 
 import Money from 'app/atoms/Money';
@@ -46,7 +47,7 @@ interface OperationConfirmationCardRowProps {
   assetSlug: string;
   variant: OperationConfirmationCardRowVariant;
   amountClassName?: string;
-  volume: string;
+  volume: BigNumber | string;
   symbol?: string;
   rightContent?: ReactNode;
 }
@@ -93,16 +94,13 @@ export const OperationConfirmationCardRow = memo<OperationConfirmationCardRowPro
         <div className={clsx('flex flex-1 gap-1 items-center text-font-num-bold-16 min-w-0', amountClassName)}>
           {isCollectible ? (
             <>
-              <Money withSign smallFractionFont={false} tooltipPlacement="bottom">
-                {volume}
-              </Money>
+              <DisplayVolume volume={volume} />
               <ShortenedTextWithTooltip>{symbol ?? t('unknownToken')}</ShortenedTextWithTooltip>
             </>
           ) : (
             <>
-              <Money withSign smallFractionFont={false} tooltipPlacement="bottom">
-                {volume}
-              </Money>
+              <DisplayVolume volume={volume} />
+
               <span className="whitespace-nowrap">
                 {symbol ??
                   (isCollectible ? (
@@ -120,4 +118,14 @@ export const OperationConfirmationCardRow = memo<OperationConfirmationCardRowPro
       </div>
     );
   }
+);
+
+const DisplayVolume = memo<Pick<OperationConfirmationCardRowProps, 'volume'>>(({ volume }) =>
+  typeof volume === 'string' ? (
+    <ShortenedTextWithTooltip>{volume}</ShortenedTextWithTooltip>
+  ) : (
+    <Money withSign smallFractionFont={false} tooltipPlacement="bottom">
+      {volume}
+    </Money>
+  )
 );

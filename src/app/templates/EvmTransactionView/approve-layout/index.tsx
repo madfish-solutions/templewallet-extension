@@ -15,7 +15,7 @@ import { MAX_EVM_ALLOWANCE } from 'lib/constants';
 import { dataMatchesAbis } from 'lib/evm/on-chain/transactions';
 import { detectEvmTokenStandard } from 'lib/evm/on-chain/utils/common.utils';
 import { EvmAssetStandard } from 'lib/evm/types';
-import { T, t, toLocalFixed } from 'lib/i18n';
+import { T, t } from 'lib/i18n';
 import {
   useEvmGenericAssetMetadata,
   useEvmGenericAssetsMetadataCheck,
@@ -190,7 +190,7 @@ const ApproveLayoutContent = memo<ApproveLayoutContentProps>(
             chain={chain}
             assetSlug={assetSlug}
             variant={variant}
-            volume={volume.isFinite() ? toLocalFixed(volume) : t('unlimited')}
+            volume={volume.isFinite() ? volume : t('unlimited')}
             symbol={symbol}
             rightContent={
               isErc20 ? (
