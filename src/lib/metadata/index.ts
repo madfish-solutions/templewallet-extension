@@ -123,7 +123,6 @@ const useGetterBySlug = <T>(input: GetterBySlugInput<T>, fallbackValueFn?: SyncF
   return useGetter(input, getterFn);
 };
 
-// ts-prune-ignore-next
 export const useGetEvmGasOrTokenMetadata = () => {
   const evmChains = useAllEvmChains();
   const tokensMetadata = useEvmTokensMetadataRecordSelector();

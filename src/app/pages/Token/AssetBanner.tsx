@@ -17,7 +17,7 @@ import {
 } from 'lib/metadata';
 import { ChainAssetMetadata } from 'lib/metadata/types';
 import { useAccountAddressForEvm, useAccountAddressForTezos, useTezosChainByChainId } from 'temple/front';
-import { ChainId, ChainOfKind, OneOfChains, useEvmChainByChainId } from 'temple/front/chains';
+import { ChainId, ChainOfKind, OneOfChains, PublicKeyHash, useEvmChainByChainId } from 'temple/front/chains';
 import { TempleChainKind } from 'temple/types';
 
 import { TokenPageSelectors } from './selectors';
@@ -29,7 +29,7 @@ interface AssetBannerProps<T extends TempleChainKind> {
 }
 
 interface AssetBannerHOCConfig<T extends TempleChainKind> {
-  useAccountAddress: () => (T extends TempleChainKind.EVM ? HexString : string) | undefined;
+  useAccountAddress: () => PublicKeyHash<T> | undefined;
   useChainByChainId: SyncFn<ChainId<T>, ChainOfKind<T> | null | undefined>;
   useCategorizedAssetMetadata: (assetSlug: string, chainId: ChainId<T>) => ChainAssetMetadata<T> | undefined;
   Balance: FC<BalanceProps<T>>;

@@ -52,6 +52,10 @@ export type ChainOfKind<T extends TempleChainKind> = T extends TempleChainKind.T
 
 export type ChainId<T extends TempleChainKind> = ChainOfKind<T>['chainId'];
 
+export type PublicKeyHash<T extends TempleChainKind> = T extends TempleChainKind.EVM ? HexString : string;
+
+export type ChainGroupedSlugs<T extends TempleChainKind = TempleChainKind> = [ChainId<T>, string[]][];
+
 export const isPossibleTestnetChain = (chain: OneOfChains) => chain.testnet !== false;
 
 export const useTezosChainByChainId = (tezosChainId: string): TezosChain | null => {

@@ -1,0 +1,7 @@
+.content > :global.infinite-scroll-component__outerdiv {
+  padding: 0 1rem 1rem;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow-y: hidden;
+}

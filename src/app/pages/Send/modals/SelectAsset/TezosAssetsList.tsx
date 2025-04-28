@@ -1,13 +1,15 @@
-import React, { memo, useMemo, MouseEvent } from 'react';
+import React, { memo, useMemo, MouseEvent, useCallback, RefObject } from 'react';
 
-import { EmptyState } from 'app/atoms/EmptyState';
 import { useTezosAccountTokensForListing } from 'app/hooks/listing-logic/use-tezos-account-tokens-listing-logic';
 import { getSlugWithChainId } from 'app/hooks/listing-logic/utils';
-import { TezosListItem } from 'app/pages/Home/OtherComponents/Tokens/components/ListItem';
+import { TezosTokenListItem } from 'app/templates/TokenListItem';
 import { searchTezosAssetsWithNoMeta } from 'lib/assets/search.utils';
 import { parseChainAssetSlug } from 'lib/assets/utils';
 import { useGetTokenOrGasMetadata } from 'lib/metadata';
+import { TokenListItemElement } from 'lib/ui/tokens-list';
 import { useAllTezosChains } from 'temple/front';
+
+import { TokensListView } from './tokens-list-view';
 
 interface Props {
   publicKeyHash: string;
@@ -16,35 +18,36 @@ interface Props {
 }
 
 export const TezosAssetsList = memo<Props>(({ publicKeyHash, searchValue, onAssetSelect }) => {
-  const { enabledChainsSlugsSorted } = useTezosAccountTokensForListing(publicKeyHash, false);
+  const { enabledChainSlugsSorted } = useTezosAccountTokensForListing(publicKeyHash, false, false);
 
   const tezosChains = useAllTezosChains();
 
   const getMetadata = useGetTokenOrGasMetadata();
 
   const searchedSlugs = useMemo(
-    () => searchTezosAssetsWithNoMeta(searchValue, enabledChainsSlugsSorted, getMetadata, getSlugWithChainId),
-    [enabledChainsSlugsSorted, getMetadata, searchValue]
+    () => searchTezosAssetsWithNoMeta(searchValue, enabledChainSlugsSorted, getMetadata, getSlugWithChainId),
+    [enabledChainSlugsSorted, getMetadata, searchValue]
   );
 
-  return (
-    <>
-      {searchedSlugs.length === 0 && <EmptyState />}
+  const renderListItem = useCallback(
+    (slug: string, index: number, ref?: RefObject<TokenListItemElement>) => {
+      const [_, chainId, assetSlug] = parseChainAssetSlug(slug);
 
-      {searchedSlugs.map(chainSlug => {
-        const [_, chainId, assetSlug] = parseChainAssetSlug(chainSlug);
-
-        return (
-          <TezosListItem
-            network={tezosChains[chainId]}
-            key={chainSlug}
-            publicKeyHash={publicKeyHash}
-            assetSlug={assetSlug}
-            showTags={false}
-            onClick={e => onAssetSelect(e, chainSlug)}
-          />
-        );
-      })}
-    </>
+      return (
+        <TezosTokenListItem
+          key={slug}
+          index={index}
+          network={tezosChains[chainId]}
+          publicKeyHash={publicKeyHash}
+          assetSlug={assetSlug}
+          showTags={false}
+          onClick={e => onAssetSelect(e, slug)}
+          ref={ref}
+        />
+      );
+    },
+    [onAssetSelect, publicKeyHash, tezosChains]
   );
+
+  return <TokensListView slugs={searchedSlugs}>{renderListItem}</TokensListView>;
 });

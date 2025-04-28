@@ -1,4 +1,4 @@
-import React, { FC, memo, useMemo } from 'react';
+import React, { FC, memo, useMemo, useRef } from 'react';
 
 import { DeadEndBoundaryError } from 'app/ErrorBoundary';
 import {
@@ -9,12 +9,13 @@ import { usePreservedOrderSlugsToManage } from 'app/hooks/listing-logic/use-mana
 import { useAssetsViewState } from 'app/hooks/use-assets-view-state';
 import { useTokensListOptionsSelector } from 'app/store/assets-filter-options/selectors';
 import { PartnersPromotion, PartnersPromotionVariant } from 'app/templates/partners-promotion';
+import { EvmTokenListItem } from 'app/templates/TokenListItem';
 import { useMemoWithCompare } from 'lib/ui/hooks';
+import { makeGetTokenElementIndexFunction, TokenListItemElement } from 'lib/ui/tokens-list';
 import { EvmChain, useEvmChainByChainId } from 'temple/front/chains';
 
 import { getTokensViewWithPromo } from '../utils';
 
-import { EvmListItem } from './ListItem';
 import { TokensTabBase } from './TokensTabBase';
 
 interface Props {
@@ -95,19 +96,27 @@ interface TabContentBaseProps {
 const TabContentBase = memo<TabContentBaseProps>(({ allSlugsSorted, publicKeyHash, network, manageActive }) => {
   const { displayedSlugs, isSyncing, loadNext, searchValue, isInSearchMode, setSearchValue } =
     useEvmChainAccountTokensListingLogic(allSlugsSorted, network.chainId);
+  const promoRef = useRef<HTMLDivElement>(null);
+  const firstListItemRef = useRef<TokenListItemElement>(null);
 
-  const tokensView = useMemo(() => {
-    const tokensJsx = displayedSlugs.map(slug => (
-      <EvmListItem
+  const { tokensView, getElementIndex } = useMemo(() => {
+    const tokensJsx = displayedSlugs.map((slug, i) => (
+      <EvmTokenListItem
         key={slug}
         assetSlug={slug}
         publicKeyHash={publicKeyHash}
         network={network}
+        index={i}
         manageActive={manageActive}
+        ref={i === 0 ? firstListItemRef : null}
       />
     ));
 
-    if (manageActive) return tokensJsx;
+    if (manageActive)
+      return {
+        tokensView: tokensJsx,
+        getElementIndex: makeGetTokenElementIndexFunction(promoRef, firstListItemRef, tokensJsx.length)
+      };
 
     const promoJsx = (
       <PartnersPromotion
@@ -115,16 +124,21 @@ const TabContentBase = memo<TabContentBaseProps>(({ allSlugsSorted, publicKeyHas
         key="promo-token-item"
         variant={PartnersPromotionVariant.Text}
         pageName="Token page"
+        ref={promoRef}
       />
     );
 
-    return getTokensViewWithPromo(tokensJsx, promoJsx);
+    return {
+      tokensView: getTokensViewWithPromo(tokensJsx, promoJsx),
+      getElementIndex: makeGetTokenElementIndexFunction(promoRef, firstListItemRef, tokensJsx.length)
+    };
   }, [displayedSlugs, manageActive, network, publicKeyHash]);
 
   return (
     <TokensTabBase
       tokensCount={displayedSlugs.length}
       searchValue={searchValue}
+      getElementIndex={getElementIndex}
       loadNextPage={loadNext}
       onSearchValueChange={setSearchValue}
       isSyncing={isSyncing}

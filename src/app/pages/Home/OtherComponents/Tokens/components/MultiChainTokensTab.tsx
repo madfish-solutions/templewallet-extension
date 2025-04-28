@@ -1,25 +1,32 @@
-import React, { FC, memo, useMemo } from 'react';
-
-import clsx from 'clsx';
+import React, { FC, memo, useMemo, useRef } from 'react';
 
 import {
   useAccountTokensForListing,
   useAccountTokensListingLogic
 } from 'app/hooks/listing-logic/use-account-tokens-listing-logic';
-import { usePreservedOrderSlugsToManage } from 'app/hooks/listing-logic/use-manageable-slugs';
-import { useChainsSlugsGrouping } from 'app/hooks/listing-logic/use-slugs-grouping';
+import {
+  usePreservedOrderSlugsGroupsToManage,
+  usePreservedOrderSlugsToManage
+} from 'app/hooks/listing-logic/use-manageable-slugs';
 import { useAssetsViewState } from 'app/hooks/use-assets-view-state';
 import { useTokensListOptionsSelector } from 'app/store/assets-filter-options/selectors';
 import { PartnersPromotion, PartnersPromotionVariant } from 'app/templates/partners-promotion';
+import { EvmTokenListItem, TezosTokenListItem } from 'app/templates/TokenListItem';
 import { parseChainAssetSlug, toChainAssetSlug } from 'lib/assets/utils';
 import { useMemoWithCompare } from 'lib/ui/hooks';
-import { useAllEvmChains, useAllTezosChains } from 'temple/front';
+import {
+  makeGetTokenElementIndexFunction,
+  makeGroupedTokenElementIndexFunction,
+  TokenListItemElement
+} from 'lib/ui/tokens-list';
+import { groupByToEntries } from 'lib/utils/group-by-to-entries';
+import { EvmChain, TezosChain, useAllEvmChains, useAllTezosChains } from 'temple/front';
+import { ChainGroupedSlugs } from 'temple/front/chains';
 import { TempleChainKind } from 'temple/types';
 
-import { getTokensViewWithPromo } from '../utils';
+import { getGroupedTokensViewWithPromo, getTokensViewWithPromo } from '../utils';
 
-import { EvmListItem, TezosListItem } from './ListItem';
-import { TokensTabBase } from './TokensTabBase';
+import { TokensTabBase, TokensTabBaseProps } from './TokensTabBase';
 
 interface Props {
   accountTezAddress: string;
@@ -38,10 +45,11 @@ export const MultiChainTokensTab = memo<Props>(({ accountTezAddress, accountEvmA
 const TabContent: FC<Props> = ({ accountTezAddress, accountEvmAddress }) => {
   const { hideZeroBalance, groupByNetwork } = useTokensListOptionsSelector();
 
-  const { enabledChainsSlugsSorted } = useAccountTokensForListing(
+  const { enabledChainsSlugsSorted, enabledChainsSlugsSortedGrouped } = useAccountTokensForListing(
     accountTezAddress,
     accountEvmAddress,
-    hideZeroBalance
+    hideZeroBalance,
+    groupByNetwork
   );
 
   return (
@@ -49,6 +57,7 @@ const TabContent: FC<Props> = ({ accountTezAddress, accountEvmAddress }) => {
       accountTezAddress={accountTezAddress}
       accountEvmAddress={accountEvmAddress}
       allSlugsSorted={enabledChainsSlugsSorted}
+      allSlugsSortedGrouped={enabledChainsSlugsSortedGrouped}
       groupByNetwork={groupByNetwork}
       manageActive={false}
     />
@@ -58,11 +67,8 @@ const TabContent: FC<Props> = ({ accountTezAddress, accountEvmAddress }) => {
 const TabContentWithManageActive: FC<Props> = ({ accountTezAddress, accountEvmAddress }) => {
   const { hideZeroBalance, groupByNetwork } = useTokensListOptionsSelector();
 
-  const { enabledChainsSlugsSorted, tezTokens, evmTokens, tokensSortPredicate } = useAccountTokensForListing(
-    accountTezAddress,
-    accountEvmAddress,
-    hideZeroBalance
-  );
+  const { enabledChainsSlugsSorted, enabledChainsSlugsSortedGrouped, tezTokens, evmTokens, tokensSortPredicate } =
+    useAccountTokensForListing(accountTezAddress, accountEvmAddress, hideZeroBalance, groupByNetwork);
 
   const tokensChainsSlugs = useMemo(
     () =>
@@ -81,14 +87,23 @@ const TabContentWithManageActive: FC<Props> = ({ accountTezAddress, accountEvmAd
     () => tokensChainsSlugs.sort(tokensSortPredicate),
     [tokensChainsSlugs, tokensSortPredicate]
   );
+  const otherChainSlugsSortedGrouped = useMemoWithCompare(
+    () => groupByToEntries(otherChainSlugsSorted, slug => parseChainAssetSlug(slug)[1]),
+    [otherChainSlugsSorted]
+  );
 
   const allSlugsSorted = usePreservedOrderSlugsToManage(enabledChainsSlugsSorted, otherChainSlugsSorted);
+  const allSlugsSortedGrouped = usePreservedOrderSlugsGroupsToManage(
+    enabledChainsSlugsSortedGrouped,
+    otherChainSlugsSortedGrouped
+  );
 
   return (
     <TabContentBase
       accountTezAddress={accountTezAddress}
       accountEvmAddress={accountEvmAddress}
       allSlugsSorted={allSlugsSorted}
+      allSlugsSortedGrouped={allSlugsSortedGrouped}
       groupByNetwork={groupByNetwork}
       manageActive={true}
     />
@@ -97,97 +112,180 @@ const TabContentWithManageActive: FC<Props> = ({ accountTezAddress, accountEvmAd
 
 interface TabContentBaseProps extends Props {
   allSlugsSorted: string[];
+  allSlugsSortedGrouped: ChainGroupedSlugs | null;
   groupByNetwork: boolean;
   manageActive: boolean;
 }
 
 const TabContentBase = memo<TabContentBaseProps>(
-  ({ accountTezAddress, accountEvmAddress, allSlugsSorted, groupByNetwork, manageActive }) => {
-    const { displayedSlugs, isSyncing, loadNext, searchValue, isInSearchMode, setSearchValue } =
-      useAccountTokensListingLogic(allSlugsSorted);
-
-    const groupedSlugs = useChainsSlugsGrouping(displayedSlugs, groupByNetwork);
+  ({ accountTezAddress, accountEvmAddress, allSlugsSorted, allSlugsSortedGrouped, groupByNetwork, manageActive }) => {
+    const {
+      displayedSlugs,
+      displayedGroupedSlugs,
+      isSyncing,
+      loadNextPlain,
+      loadNextGrouped,
+      searchValue,
+      isInSearchMode,
+      setSearchValue
+    } = useAccountTokensListingLogic(allSlugsSorted, allSlugsSortedGrouped);
 
     const tezosChains = useAllTezosChains();
     const evmChains = useAllEvmChains();
 
-    const tokensView = useMemo(() => {
+    return (
+      <TabContentBaseBody
+        isInSearchMode={isInSearchMode}
+        isSyncing={isSyncing}
+        searchValue={searchValue}
+        displayedSlugs={displayedSlugs}
+        accountTezAddress={accountTezAddress}
+        accountEvmAddress={accountEvmAddress}
+        loadNextPage={groupByNetwork ? loadNextGrouped : loadNextPlain}
+        onSearchValueChange={setSearchValue}
+        groupedSlugs={displayedGroupedSlugs}
+        tezosChains={tezosChains}
+        evmChains={evmChains}
+        manageActive={manageActive}
+      />
+    );
+  }
+);
+
+interface TabContentBaseBodyProps
+  extends Props,
+    Omit<TokensTabBaseProps, 'tokensCount' | 'children' | 'network' | 'oneRemDivRef' | 'getElementIndex'> {
+  manageActive: boolean;
+  groupedSlugs: ChainGroupedSlugs | null;
+  tezosChains: StringRecord<TezosChain>;
+  evmChains: StringRecord<EvmChain>;
+  displayedSlugs: string[];
+}
+
+const TabContentBaseBody = memo<TabContentBaseBodyProps>(
+  ({
+    accountTezAddress,
+    accountEvmAddress,
+    manageActive,
+    groupedSlugs,
+    tezosChains,
+    evmChains,
+    displayedSlugs,
+    ...restProps
+  }) => {
+    const promoRef = useRef<HTMLDivElement>(null);
+    const firstHeaderRef = useRef<HTMLDivElement>(null);
+    const firstListItemRef = useRef<TokenListItemElement>(null);
+
+    const { tokensView, getElementIndex } = useMemo(() => {
       const promoJsx = manageActive ? null : (
         <PartnersPromotion
           id="promo-token-item"
           key="promo-token-item"
           variant={PartnersPromotionVariant.Text}
           pageName="Token page"
+          ref={promoRef}
         />
       );
 
-      if (groupedSlugs)
-        return groupedSlugs.map(([chainId, chainSlugs], gi) => {
-          const chain = typeof chainId === 'number' ? evmChains[chainId] : tezosChains[chainId];
-
-          return (
-            <React.Fragment key={chainId}>
-              <div className={clsx('mb-0.5 p-1 text-font-description-bold', gi > 0 && 'mt-4')}>
-                {chain?.name ?? 'Unknown chain'}
-              </div>
-
-              {(() => {
-                const tokensJsx = buildTokensJsxArray(chainSlugs);
-
-                if (gi > 0) return tokensJsx;
-
-                return getTokensViewWithPromo(tokensJsx, promoJsx);
-              })()}
-            </React.Fragment>
-          );
-        });
-
-      const tokensJsx = buildTokensJsxArray(displayedSlugs);
-
-      if (manageActive) return tokensJsx;
-
-      return getTokensViewWithPromo(tokensJsx, promoJsx);
-
-      function buildTokensJsxArray(chainSlugs: string[]) {
-        return chainSlugs.map(chainSlug => {
-          const [chainKind, chainId, assetSlug] = parseChainAssetSlug(chainSlug);
-
-          if (chainKind === TempleChainKind.Tezos) {
-            return (
-              <TezosListItem
-                network={tezosChains[chainId]!}
-                key={chainSlug}
-                publicKeyHash={accountTezAddress}
-                assetSlug={assetSlug}
-                manageActive={manageActive}
-              />
-            );
-          }
-
-          return (
-            <EvmListItem
-              key={chainSlug}
-              network={evmChains[chainId]!}
-              assetSlug={assetSlug}
-              publicKeyHash={accountEvmAddress}
-              manageActive={manageActive}
-            />
-          );
-        });
+      if (groupedSlugs) {
+        return {
+          tokensView: getGroupedTokensViewWithPromo({
+            groupedSlugs,
+            evmChains,
+            tezosChains,
+            promoJsx,
+            firstListItemRef,
+            firstHeaderRef,
+            buildTokensJsxArray: (slugs, firstListItemRef, indexShift) =>
+              buildTokensJsxArray(
+                slugs,
+                tezosChains,
+                evmChains,
+                accountTezAddress,
+                accountEvmAddress,
+                manageActive,
+                firstListItemRef,
+                indexShift
+              )
+          }),
+          getElementIndex: makeGroupedTokenElementIndexFunction(
+            promoRef,
+            firstListItemRef,
+            firstHeaderRef,
+            groupedSlugs
+          )
+        };
       }
+
+      const tokensJsx = buildTokensJsxArray(
+        displayedSlugs,
+        tezosChains,
+        evmChains,
+        accountTezAddress,
+        accountEvmAddress,
+        manageActive,
+        firstListItemRef
+      );
+
+      if (manageActive) {
+        return {
+          tokensView: tokensJsx,
+          getElementIndex: makeGetTokenElementIndexFunction(promoRef, firstListItemRef, tokensJsx.length)
+        };
+      }
+
+      return {
+        tokensView: getTokensViewWithPromo(tokensJsx, promoJsx),
+        getElementIndex: makeGetTokenElementIndexFunction(promoRef, firstListItemRef, tokensJsx.length)
+      };
     }, [groupedSlugs, displayedSlugs, evmChains, tezosChains, manageActive, accountEvmAddress, accountTezAddress]);
 
     return (
-      <TokensTabBase
-        tokensCount={displayedSlugs.length}
-        searchValue={searchValue}
-        loadNextPage={loadNext}
-        onSearchValueChange={setSearchValue}
-        isSyncing={isSyncing}
-        isInSearchMode={isInSearchMode}
-      >
+      <TokensTabBase tokensCount={displayedSlugs.length} getElementIndex={getElementIndex} {...restProps}>
         {tokensView}
       </TokensTabBase>
     );
   }
 );
+
+function buildTokensJsxArray(
+  chainSlugs: string[],
+  tezosChains: StringRecord<TezosChain>,
+  evmChains: StringRecord<EvmChain>,
+  accountTezAddress: string,
+  accountEvmAddress: HexString,
+  manageActive: boolean,
+  firstListItemRef: React.RefObject<TokenListItemElement> | null,
+  indexShift = 0
+) {
+  return chainSlugs.map((chainSlug, i) => {
+    const [chainKind, chainId, assetSlug] = parseChainAssetSlug(chainSlug);
+
+    if (chainKind === TempleChainKind.Tezos) {
+      return (
+        <TezosTokenListItem
+          network={tezosChains[chainId]!}
+          index={i + indexShift}
+          key={chainSlug}
+          publicKeyHash={accountTezAddress}
+          assetSlug={assetSlug}
+          manageActive={manageActive}
+          ref={i === 0 ? firstListItemRef : null}
+        />
+      );
+    }
+
+    return (
+      <EvmTokenListItem
+        key={chainSlug}
+        network={evmChains[chainId]!}
+        index={i + indexShift}
+        assetSlug={assetSlug}
+        publicKeyHash={accountEvmAddress}
+        manageActive={manageActive}
+        ref={i === 0 ? firstListItemRef : null}
+      />
+    );
+  });
+}

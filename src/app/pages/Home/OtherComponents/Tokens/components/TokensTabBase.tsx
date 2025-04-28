@@ -5,7 +5,10 @@ import { SyncSpinner } from 'app/atoms';
 import { AddCustomTokenButton } from 'app/atoms/AddCustomTokenButton';
 import { PageLoader } from 'app/atoms/Loader';
 import { ManageAssetsViewStateButtons } from 'app/atoms/ManageAssetsViewStateButtons';
-import { SimpleInfiniteScroll } from 'app/atoms/SimpleInfiniteScroll';
+import {
+  VisibilityTrackingInfiniteScroll,
+  VisibilityTrackingInfiniteScrollProps
+} from 'app/atoms/visibility-tracking-infinite-scroll';
 import { useAssetsViewState } from 'app/hooks/use-assets-view-state';
 import { ContentContainer, StickyBar } from 'app/layouts/containers';
 import { AssetsSelectors } from 'app/pages/Home/OtherComponents/Assets.selectors';
@@ -16,9 +19,10 @@ import { OneOfChains } from 'temple/front';
 
 import { EmptySection } from './EmptySection';
 
-interface TokensTabBaseProps {
+export interface TokensTabBaseProps {
   tokensCount: number;
   searchValue: string;
+  getElementIndex: VisibilityTrackingInfiniteScrollProps['getElementIndex'];
   loadNextPage: EmptyFn;
   onSearchValueChange: (value: string) => void;
   isSyncing: boolean;
@@ -29,6 +33,7 @@ interface TokensTabBaseProps {
 export const TokensTabBase: FC<PropsWithChildren<TokensTabBaseProps>> = ({
   tokensCount,
   searchValue,
+  getElementIndex,
   loadNextPage,
   onSearchValueChange,
   isSyncing,
@@ -80,7 +85,9 @@ export const TokensTabBase: FC<PropsWithChildren<TokensTabBaseProps>> = ({
                     className="mb-4"
                   />
                 )}
-                <SimpleInfiniteScroll loadNext={loadNextPage}>{children}</SimpleInfiniteScroll>
+                <VisibilityTrackingInfiniteScroll getElementIndex={getElementIndex} loadNext={loadNextPage}>
+                  {children}
+                </VisibilityTrackingInfiniteScroll>
                 {isSyncing && <SyncSpinner className="mt-4" />}
               </>
             )}

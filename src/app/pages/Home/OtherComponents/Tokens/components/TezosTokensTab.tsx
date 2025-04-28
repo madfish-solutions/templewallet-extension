@@ -1,9 +1,9 @@
-import React, { FC, memo, useMemo } from 'react';
+import React, { FC, memo, useMemo, useRef } from 'react';
 
-import clsx from 'clsx';
-
-import { usePreservedOrderSlugsToManage } from 'app/hooks/listing-logic/use-manageable-slugs';
-import { useChainsSlugsGrouping } from 'app/hooks/listing-logic/use-slugs-grouping';
+import {
+  usePreservedOrderSlugsGroupsToManage,
+  usePreservedOrderSlugsToManage
+} from 'app/hooks/listing-logic/use-manageable-slugs';
 import {
   useTezosAccountTokensForListing,
   useTezosAccountTokensListingLogic
@@ -12,14 +12,21 @@ import { useAssetsViewState } from 'app/hooks/use-assets-view-state';
 import { useTokensListOptionsSelector } from 'app/store/assets-filter-options/selectors';
 import { useMainnetTokensScamlistSelector } from 'app/store/tezos/assets/selectors';
 import { PartnersPromotion, PartnersPromotionVariant } from 'app/templates/partners-promotion';
-import { fromChainAssetSlug, toChainAssetSlug } from 'lib/assets/utils';
+import { TezosTokenListItem } from 'app/templates/TokenListItem';
+import { parseChainAssetSlug, toChainAssetSlug } from 'lib/assets/utils';
 import { useMemoWithCompare } from 'lib/ui/hooks';
+import {
+  makeGetTokenElementIndexFunction,
+  makeGroupedTokenElementIndexFunction,
+  TokenListItemElement
+} from 'lib/ui/tokens-list';
+import { groupByToEntries } from 'lib/utils/group-by-to-entries';
 import { useAllTezosChains, useTezosMainnetChain } from 'temple/front';
+import { ChainGroupedSlugs } from 'temple/front/chains';
 import { TempleChainKind } from 'temple/types';
 
-import { getTokensViewWithPromo } from '../utils';
+import { getGroupedTokensViewWithPromo, getTokensViewWithPromo } from '../utils';
 
-import { TezosListItem } from './ListItem';
 import { TokensTabBase } from './TokensTabBase';
 
 interface Props {
@@ -37,12 +44,17 @@ export const TezosTokensTab = memo<Props>(({ publicKeyHash }) => {
 const TabContent: FC<Props> = ({ publicKeyHash }) => {
   const { hideZeroBalance, groupByNetwork } = useTokensListOptionsSelector();
 
-  const { enabledChainsSlugsSorted } = useTezosAccountTokensForListing(publicKeyHash, hideZeroBalance);
+  const { enabledChainSlugsSorted, enabledChainSlugsSortedGrouped } = useTezosAccountTokensForListing(
+    publicKeyHash,
+    hideZeroBalance,
+    groupByNetwork
+  );
 
   return (
     <TabContentBase
       publicKeyHash={publicKeyHash}
-      allSlugsSorted={enabledChainsSlugsSorted}
+      allSlugsSorted={enabledChainSlugsSorted}
+      allSlugsSortedGrouped={enabledChainSlugsSortedGrouped}
       groupByNetwork={groupByNetwork}
       manageActive={false}
     />
@@ -52,10 +64,8 @@ const TabContent: FC<Props> = ({ publicKeyHash }) => {
 const TabContentWithManageActive: FC<Props> = ({ publicKeyHash }) => {
   const { hideZeroBalance, groupByNetwork } = useTokensListOptionsSelector();
 
-  const { enabledChainsSlugsSorted, tokens, tokensSortPredicate } = useTezosAccountTokensForListing(
-    publicKeyHash,
-    hideZeroBalance
-  );
+  const { enabledChainSlugsSorted, enabledChainSlugsSortedGrouped, tokens, tokensSortPredicate } =
+    useTezosAccountTokensForListing(publicKeyHash, hideZeroBalance, groupByNetwork);
 
   const allTezosTokensSlugs = useMemo(
     () =>
@@ -69,13 +79,22 @@ const TabContentWithManageActive: FC<Props> = ({ publicKeyHash }) => {
     () => allTezosTokensSlugs.sort(tokensSortPredicate),
     [allTezosTokensSlugs, tokensSortPredicate]
   );
+  const allTezosTokensSlugsSortedGrouped = useMemoWithCompare(
+    () => groupByToEntries(allTezosTokensSlugsSorted, slug => parseChainAssetSlug(slug, TempleChainKind.Tezos)[1]),
+    [allTezosTokensSlugsSorted]
+  );
 
-  const allSlugsSorted = usePreservedOrderSlugsToManage(enabledChainsSlugsSorted, allTezosTokensSlugsSorted);
+  const allSlugsSorted = usePreservedOrderSlugsToManage(enabledChainSlugsSorted, allTezosTokensSlugsSorted);
+  const allSlugsSortedGrouped = usePreservedOrderSlugsGroupsToManage<TempleChainKind.Tezos>(
+    enabledChainSlugsSortedGrouped,
+    allTezosTokensSlugsSortedGrouped
+  );
 
   return (
     <TabContentBase
       publicKeyHash={publicKeyHash}
       allSlugsSorted={allSlugsSorted}
+      allSlugsSortedGrouped={allSlugsSortedGrouped}
       groupByNetwork={groupByNetwork}
       manageActive={true}
     />
@@ -85,80 +104,104 @@ const TabContentWithManageActive: FC<Props> = ({ publicKeyHash }) => {
 interface TabContentBaseProps {
   publicKeyHash: string;
   allSlugsSorted: string[];
+  allSlugsSortedGrouped: ChainGroupedSlugs<TempleChainKind.Tezos> | null;
   groupByNetwork: boolean;
   manageActive: boolean;
 }
 
-const TabContentBase = memo<TabContentBaseProps>(({ publicKeyHash, allSlugsSorted, groupByNetwork, manageActive }) => {
-  const { displayedSlugs, isSyncing, isInSearchMode, loadNext, searchValue, setSearchValue } =
-    useTezosAccountTokensListingLogic(allSlugsSorted);
+const TabContentBase = memo<TabContentBaseProps>(
+  ({ publicKeyHash, allSlugsSorted, allSlugsSortedGrouped, groupByNetwork, manageActive }) => {
+    const promoRef = useRef<HTMLDivElement>(null);
+    const firstHeaderRef = useRef<HTMLDivElement>(null);
+    const firstListItemRef = useRef<TokenListItemElement>(null);
+    const {
+      displayedSlugs,
+      displayedGroupedSlugs,
+      isSyncing,
+      isInSearchMode,
+      loadNextGrouped,
+      loadNextPlain,
+      searchValue,
+      setSearchValue
+    } = useTezosAccountTokensListingLogic(allSlugsSorted, allSlugsSortedGrouped);
 
-  const groupedSlugs = useChainsSlugsGrouping<string>(displayedSlugs, groupByNetwork);
+    const mainnetChain = useTezosMainnetChain();
+    const tezosChains = useAllTezosChains();
+    const mainnetTokensScamSlugsRecord = useMainnetTokensScamlistSelector();
 
-  const mainnetChain = useTezosMainnetChain();
-  const tezosChains = useAllTezosChains();
-  const mainnetTokensScamSlugsRecord = useMainnetTokensScamlistSelector();
+    const { tokensView, getElementIndex } = useMemo(() => {
+      const promoJsx = manageActive ? null : (
+        <PartnersPromotion
+          id="promo-token-item"
+          key="promo-token-item"
+          variant={PartnersPromotionVariant.Text}
+          pageName="Token page"
+          ref={promoRef}
+        />
+      );
 
-  const tokensView = useMemo(() => {
-    const promoJsx = manageActive ? null : (
-      <PartnersPromotion
-        id="promo-token-item"
-        key="promo-token-item"
-        variant={PartnersPromotionVariant.Text}
-        pageName="Token page"
-      />
+      if (displayedGroupedSlugs) {
+        return {
+          tokensView: getGroupedTokensViewWithPromo({
+            groupedSlugs: displayedGroupedSlugs,
+            tezosChains,
+            promoJsx,
+            firstListItemRef,
+            firstHeaderRef,
+            buildTokensJsxArray
+          }),
+          getElementIndex: makeGroupedTokenElementIndexFunction(
+            promoRef,
+            firstListItemRef,
+            firstHeaderRef,
+            displayedGroupedSlugs
+          )
+        };
+      }
+
+      const tokensJsx = buildTokensJsxArray(displayedSlugs, firstListItemRef);
+
+      return {
+        tokensView: getTokensViewWithPromo(tokensJsx, promoJsx),
+        getElementIndex: makeGetTokenElementIndexFunction(promoRef, firstListItemRef, tokensJsx.length)
+      };
+
+      function buildTokensJsxArray(
+        chainSlugs: string[],
+        firstListItemRef: React.RefObject<TokenListItemElement> | null
+      ) {
+        return chainSlugs.map((chainSlug, i) => {
+          const [_, chainId, assetSlug] = parseChainAssetSlug(chainSlug, TempleChainKind.Tezos);
+
+          return (
+            <TezosTokenListItem
+              network={tezosChains[chainId]}
+              index={i}
+              key={chainSlug}
+              publicKeyHash={publicKeyHash}
+              assetSlug={assetSlug}
+              scam={mainnetTokensScamSlugsRecord[assetSlug]}
+              manageActive={manageActive}
+              ref={i === 0 ? firstListItemRef : null}
+            />
+          );
+        });
+      }
+    }, [displayedGroupedSlugs, displayedSlugs, tezosChains, publicKeyHash, mainnetTokensScamSlugsRecord, manageActive]);
+
+    return (
+      <TokensTabBase
+        tokensCount={displayedSlugs.length}
+        searchValue={searchValue}
+        getElementIndex={getElementIndex}
+        loadNextPage={groupByNetwork ? loadNextGrouped : loadNextPlain}
+        onSearchValueChange={setSearchValue}
+        isSyncing={isSyncing}
+        isInSearchMode={isInSearchMode}
+        network={mainnetChain}
+      >
+        {tokensView}
+      </TokensTabBase>
     );
-
-    if (groupedSlugs)
-      return groupedSlugs.map(([chainId, chainSlugs], gi) => (
-        <React.Fragment key={chainId}>
-          <div className={clsx('mb-0.5 p-1 text-font-description-bold', gi > 0 && 'mt-4')}>
-            {tezosChains[chainId]?.name ?? 'Unknown chain'}
-          </div>
-
-          {(() => {
-            const tokensJsx = buildTokensJsxArray(chainSlugs);
-
-            if (gi > 0) return tokensJsx;
-
-            return getTokensViewWithPromo(tokensJsx, promoJsx);
-          })()}
-        </React.Fragment>
-      ));
-
-    const tokensJsx = buildTokensJsxArray(displayedSlugs);
-
-    return getTokensViewWithPromo(tokensJsx, promoJsx);
-
-    function buildTokensJsxArray(chainSlugs: string[]) {
-      return chainSlugs.map(chainSlug => {
-        const [_, chainId, assetSlug] = fromChainAssetSlug<string>(chainSlug);
-
-        return (
-          <TezosListItem
-            network={tezosChains[chainId]}
-            key={chainSlug}
-            publicKeyHash={publicKeyHash}
-            assetSlug={assetSlug}
-            scam={mainnetTokensScamSlugsRecord[assetSlug]}
-            manageActive={manageActive}
-          />
-        );
-      });
-    }
-  }, [groupedSlugs, displayedSlugs, tezosChains, publicKeyHash, mainnetTokensScamSlugsRecord, manageActive]);
-
-  return (
-    <TokensTabBase
-      tokensCount={displayedSlugs.length}
-      searchValue={searchValue}
-      loadNextPage={loadNext}
-      onSearchValueChange={setSearchValue}
-      isSyncing={isSyncing}
-      isInSearchMode={isInSearchMode}
-      network={mainnetChain}
-    >
-      {tokensView}
-    </TokensTabBase>
-  );
-});
+  }
+);
