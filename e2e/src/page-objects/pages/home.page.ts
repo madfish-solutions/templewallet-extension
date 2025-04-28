@@ -11,7 +11,6 @@ export class HomePage extends Page {
   ReceiveButton = createPageElement(HomeSelectors.receiveButton);
   BuyButton = createPageElement(HomeSelectors.buyButton);
   SendButton = createPageElement(HomeSelectors.sendButton);
-  WithdrawButton = createPageElement(HomeSelectors.withdrawButton);
   SwapButton = createPageElement(HomeSelectors.swapButton);
   AssetsTab = createPageElement(HomeSelectors.assetsTab);
   ActivityTab = createPageElement(HomeSelectors.activityTab);
@@ -23,7 +22,6 @@ export class HomePage extends Page {
     await this.ReceiveButton.waitForDisplayed();
     await this.BuyButton.waitForDisplayed();
     await this.SendButton.waitForDisplayed();
-    await this.WithdrawButton.waitForDisplayed();
     await this.SwapButton.waitForDisplayed();
     await this.AssetsTab.waitForDisplayed();
     await this.ActivityTab.waitForDisplayed();

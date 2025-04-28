@@ -8,7 +8,7 @@ import { object as objectSchema, number as numberSchema, mixed as mixedSchema } 
 import { useUserIdSelector } from 'app/store/settings/selectors';
 import { AnalyticsEventCategory, useAnalytics, useFormAnalytics } from 'lib/analytics';
 import { MOONPAY_ASSETS_BASE_URL } from 'lib/apis/moonpay';
-import { createAliceBobOrder, getMoonpaySign } from 'lib/apis/temple';
+import { getMoonpaySign } from 'lib/apis/temple';
 import { createOrder as createUtorgOrder } from 'lib/apis/utorg';
 import { TopUpProviderId } from 'lib/buy-with-credit-card/top-up-provider-id.enum';
 import { TopUpInputInterface, TopUpOutputInterface } from 'lib/buy-with-credit-card/topup.interface';
@@ -128,16 +128,6 @@ export const useBuyWithCreditCardForm = () => {
             break;
           case TopUpProviderId.Utorg:
             url = await createUtorgOrder(outputAmount, inputCurrency.code, publicKeyHash, outputToken.code);
-            break;
-          case TopUpProviderId.AliceBob:
-            const { data } = await createAliceBobOrder(
-              inputAmount.toFixed(),
-              inputCurrency.code,
-              outputToken.code,
-              userId,
-              publicKeyHash
-            );
-            url = data.orderInfo.payUrl;
             break;
           default:
             return assertUnreachable(topUpProvider.id);
