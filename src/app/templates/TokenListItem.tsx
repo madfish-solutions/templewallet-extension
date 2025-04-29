@@ -276,9 +276,7 @@ const ManageActiveListItemLayoutHOC = <T extends TempleChainKind>(
               )}
             </div>
 
-            {deleteModalOpened && isVisible && (
-              <DeleteAssetModal onClose={setDeleteModalClosed} onDelete={handleDeleteClick} />
-            )}
+            {deleteModalOpened && <DeleteAssetModal onClose={setDeleteModalClosed} onDelete={handleDeleteClick} />}
           </>
         );
       }

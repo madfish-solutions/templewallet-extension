@@ -168,7 +168,8 @@ const TabContentBase = memo<TabContentBaseProps>(
 
       function buildTokensJsxArray(
         chainSlugs: string[],
-        firstListItemRef: React.RefObject<TokenListItemElement> | null
+        firstListItemRef: React.RefObject<TokenListItemElement> | null,
+        indexShift = 0
       ) {
         return chainSlugs.map((chainSlug, i) => {
           const [_, chainId, assetSlug] = parseChainAssetSlug(chainSlug, TempleChainKind.Tezos);
@@ -176,7 +177,7 @@ const TabContentBase = memo<TabContentBaseProps>(
           return (
             <TezosTokenListItem
               network={tezosChains[chainId]}
-              index={i}
+              index={i + indexShift}
               key={chainSlug}
               publicKeyHash={publicKeyHash}
               assetSlug={assetSlug}
