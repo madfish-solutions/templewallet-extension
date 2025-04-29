@@ -2,7 +2,6 @@ import React, { memo, useCallback, useLayoutEffect, useMemo } from 'react';
 
 import { generateMnemonic } from 'bip39';
 import { Controller, useForm } from 'react-hook-form';
-import { useDispatch } from 'react-redux';
 
 import { FormField, PASSWORD_ERROR_CAPTION } from 'app/atoms';
 import { SettingsCheckbox } from 'app/atoms/SettingsCheckbox';
@@ -10,16 +9,14 @@ import { StyledButton } from 'app/atoms/StyledButton';
 import { ValidationLabel } from 'app/atoms/ValidationLabel';
 import { PASSWORD_PATTERN, PasswordValidation, formatMnemonic, passwordValidationRegexes } from 'app/defaults';
 import { useOnboardingProgress } from 'app/pages/Onboarding/hooks/useOnboardingProgress.hook';
+import { dispatch } from 'app/store';
 import { togglePartnersPromotionAction } from 'app/store/partners-promotion/actions';
-import {
-  setIsAnalyticsEnabledAction,
-  setOnRampPossibilityAction,
-  setReferralLinksEnabledAction
-} from 'app/store/settings/actions';
+import { setIsAnalyticsEnabledAction, setReferralLinksEnabledAction } from 'app/store/settings/actions';
 import { toastError } from 'app/toaster';
 import { AnalyticsEventCategory, useAnalytics } from 'lib/analytics';
 import {
   DEFAULT_PASSWORD_INPUT_PLACEHOLDER,
+  IS_BETA_MODAL_SHOWED_ONCE_STORAGE_KEY,
   PRIVACY_POLICY_URL,
   REPLACE_REFERRALS_ENABLED,
   SHOULD_BACKUP_MNEMONIC_STORAGE_KEY,
@@ -59,11 +56,10 @@ const validationsLabelsInputs: Array<{ textI18nKey: TID; key: keyof PasswordVali
 export const CreatePasswordForm = memo<CreatePasswordFormProps>(({ seedPhrase: seedPhraseToImport }) => {
   const { registerWallet } = useTempleClient();
   const { trackEvent } = useAnalytics();
+  const [_, setBetaModalShowedOnce] = useStorage(IS_BETA_MODAL_SHOWED_ONCE_STORAGE_KEY);
   const [, setShouldBackupMnemonic] = useStorage(SHOULD_BACKUP_MNEMONIC_STORAGE_KEY);
   const { setOnboardingCompleted } = useOnboardingProgress();
   const [, setInitToast] = useInitToastMessage();
-
-  const dispatch = useDispatch();
 
   const { control, watch, register, handleSubmit, errors, triggerValidation, formState, setValue } = useForm<FormData>({
     defaultValues: {
@@ -124,11 +120,11 @@ export const CreatePasswordForm = memo<CreatePasswordFormProps>(({ seedPhrase: s
 
         if (seedPhraseToImport) {
           setInitToast(t('importSuccessful'));
+          setBetaModalShowedOnce(false);
         } else {
           await setShouldBackupMnemonic(true);
           setMnemonicToBackup(seedPhrase);
         }
-        dispatch(setOnRampPossibilityAction(!seedPhraseToImport));
         navigate('/loading');
       } catch (err: any) {
         console.error(err);
@@ -139,12 +135,12 @@ export const CreatePasswordForm = memo<CreatePasswordFormProps>(({ seedPhrase: s
     [
       setOnboardingCompleted,
       submitting,
-      dispatch,
       registerWallet,
       seedPhrase,
       seedPhraseToImport,
       trackEvent,
       setInitToast,
+      setBetaModalShowedOnce,
       setShouldBackupMnemonic
     ]
   );

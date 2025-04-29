@@ -20,11 +20,15 @@ import { useBooleanState } from 'lib/ui/hooks';
 import { NullComponent } from 'lib/ui/null-component';
 import { goBack, useLocation } from 'lib/woozie';
 
+import { FeedbackModal } from '../../layouts/PageLayout/FeedbackModal';
+
 import { WelcomeSelectors } from './Welcome.selectors';
 
 const Welcome = memo(() => {
   useABTestingLoading();
   const { historyPosition } = useLocation();
+
+  const [isFeedbackModalOpen, setFeedbackModalOpened, setFeedbackModalClosed] = useBooleanState(false);
 
   const { value: isImport, setTrue: switchToImport, setFalse: cancelImport } = useSearchParamsBoolean('import');
 
@@ -84,7 +88,11 @@ const Welcome = memo(() => {
         </div>
 
         <div className="flex flex-col gap-4">
-          <SocialButton className="w-full" testID={WelcomeSelectors.continueWithGoogleDrive}>
+          <SocialButton
+            className="w-full"
+            onClick={setFeedbackModalOpened}
+            testID={WelcomeSelectors.continueWithGoogleDrive}
+          >
             <GoogleDriveIcon className="h-8 w-auto" />
             <span className="text-font-regular-bold">
               <T id="continueWithGoogleDrive" />
@@ -119,6 +127,8 @@ const Welcome = memo(() => {
           </StyledButton>
         </div>
       </div>
+
+      {isFeedbackModalOpen && <FeedbackModal isGoogleSyncFeature onClose={setFeedbackModalClosed} />}
     </PageLayout>
   );
 });
