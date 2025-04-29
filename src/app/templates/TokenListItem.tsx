@@ -61,7 +61,6 @@ export const TezosTokenListItem = memo(
         assetMetadata: metadata
       } = useTezosAssetBalance(assetSlug, publicKeyHash, network);
       const { chainId } = network;
-      const isVisible = useIsItemVisible(index);
 
       const storedToken = useStoredTezosTokenSelector(publicKeyHash, chainId, assetSlug);
 
@@ -78,7 +77,7 @@ export const TezosTokenListItem = memo(
             assetName={assetName}
             checked={checked}
             network={network}
-            isVisible={isVisible}
+            index={index}
             publicKeyHash={publicKeyHash}
             onClick={onClick}
             ref={ref}
@@ -91,7 +90,7 @@ export const TezosTokenListItem = memo(
           assetName={assetName}
           className={active ? 'focus:bg-secondary-low' : undefined}
           network={network}
-          isVisible={isVisible}
+          index={index}
           balance={balance}
           onClick={onClick}
           ref={ref}
@@ -135,7 +134,6 @@ export const EvmTokenListItem = memo(
         metadata
       } = useEvmTokenBalance(assetSlug, publicKeyHash, network);
       const storedToken = useStoredEvmTokenSelector(publicKeyHash, chainId, assetSlug);
-      const isVisible = useIsItemVisible(index);
 
       const checked = getAssetStatus(rawBalance, storedToken?.status) === 'enabled';
 
@@ -153,7 +151,7 @@ export const EvmTokenListItem = memo(
             className="focus:bg-secondary-low"
             checked={checked}
             network={network}
-            isVisible={isVisible}
+            index={index}
             publicKeyHash={publicKeyHash}
             onClick={onClick}
             ref={ref}
@@ -166,7 +164,7 @@ export const EvmTokenListItem = memo(
           assetName={assetName}
           className="focus:bg-secondary-low"
           network={network}
-          isVisible={isVisible}
+          index={index}
           balance={balance}
           onClick={onClick}
           ref={ref}
@@ -185,7 +183,7 @@ interface ManageActiveListItemLayoutProps<T extends TempleChainKind> {
   className?: string;
   checked: boolean;
   network: NetworkEssentials<T>;
-  isVisible: boolean;
+  index?: number;
   publicKeyHash: PublicKeyHash<T>;
   onClick?: MouseEventHandler<TokenListItemElement>;
 }
@@ -208,10 +206,11 @@ const ManageActiveListItemLayoutHOC = <T extends TempleChainKind>(
 ) =>
   memo(
     forwardRef<TokenListItemElement, ManageActiveListItemLayoutProps<T>>(
-      ({ assetSlug, assetSymbol, assetName, className, checked, network, isVisible, publicKeyHash, onClick }, ref) => {
+      ({ assetSlug, assetSymbol, assetName, className, checked, network, index, publicKeyHash, onClick }, ref) => {
         const { chainId } = network;
         const [deleteModalOpened, setDeleteModalOpened, setDeleteModalClosed] = useBooleanState(false);
         const isUnmanageable = UNMANAGABLE_TOKENS_SLUGS[networkKind].includes(assetSlug);
+        const isVisible = useIsItemVisible(index);
 
         const handleTokenStatusSwitch = useCallback(
           () => toggleTokenStatus(checked ? 'disabled' : 'enabled', assetSlug, chainId, publicKeyHash),
@@ -303,7 +302,7 @@ interface DefaultListItemLayoutProps<T extends TempleChainKind> {
   assetName: string;
   className?: string;
   network: NetworkEssentials<T>;
-  isVisible: boolean;
+  index?: number;
   balance: BigNumber;
   onClick?: MouseEventHandler<TokenListItemElement>;
 }
@@ -313,8 +312,9 @@ const DefaultListItemLayoutHOC = <T extends TempleChainKind>(
   AssetIconWithNetwork: FC<{ chainId: ChainId<T>; assetSlug: string; className?: string }>
 ) =>
   forwardRef<TokenListItemElement, PropsWithChildren<DefaultListItemLayoutProps<T>>>(
-    ({ children, assetSlug, assetName, className, network, isVisible, balance, onClick }, ref) => {
+    ({ children, assetSlug, assetName, className, network, index, balance, onClick }, ref) => {
       const { chainId } = network;
+      const isVisible = useIsItemVisible(index);
 
       return (
         <Link

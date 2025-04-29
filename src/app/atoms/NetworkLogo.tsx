@@ -17,7 +17,8 @@ import { ImageStacked } from 'lib/ui/ImageStacked';
 import useTippy, { UseTippyOptions } from 'lib/ui/useTippy';
 import { isTruthy } from 'lib/utils';
 import { useTezosChainByChainId } from 'temple/front';
-import { useEvmChainByChainId } from 'temple/front/chains';
+import { ChainId, useEvmChainByChainId } from 'temple/front/chains';
+import { TempleChainKind } from 'temple/types';
 
 import { IdenticonInitials } from './Identicon';
 import { TezNetworkLogo } from './NetworksLogos';
@@ -32,15 +33,15 @@ const logosRecord: Record<number, string> = {
   [OTHER_COMMON_MAINNET_CHAIN_IDS.arbitrum]: ArbitrumIconSrc
 };
 
-interface TezosNetworkLogoProps {
-  chainId: string;
+export interface NetworkLogoPropsBase<T extends TempleChainKind> {
+  chainId: ChainId<T>;
   size?: number;
   className?: string;
   withTooltip?: boolean;
   tooltipPlacement?: Placement;
 }
 
-export const TezosNetworkLogo = memo<TezosNetworkLogoProps>(
+export const TezosNetworkLogo = memo<NetworkLogoPropsBase<TempleChainKind.Tezos>>(
   ({ chainId, size = 24, className, withTooltip, tooltipPlacement }) => {
     const chain = useTezosChainByChainId(chainId);
     const networkName = useMemo(() => (chain?.nameI18nKey ? t(chain.nameI18nKey) : chain?.name), [chain]);
@@ -64,14 +65,9 @@ export const TezosNetworkLogo = memo<TezosNetworkLogoProps>(
   }
 );
 
-interface EvmNetworkLogoProps {
-  chainId: number;
-  size?: number;
+interface EvmNetworkLogoProps extends NetworkLogoPropsBase<TempleChainKind.EVM> {
   chainName?: string;
-  className?: string;
   imgClassName?: string;
-  withTooltip?: boolean;
-  tooltipPlacement?: Placement;
 }
 
 export const EvmNetworkLogo = memo<EvmNetworkLogoProps>(

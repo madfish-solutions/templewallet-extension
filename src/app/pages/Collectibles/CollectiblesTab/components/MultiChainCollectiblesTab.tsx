@@ -1,16 +1,15 @@
-import React, { memo, useMemo } from 'react';
+import React, { memo, useCallback } from 'react';
 
 import { useAccountCollectiblesListingLogic } from 'app/hooks/listing-logic/use-account-collectibles-listing-logic';
 import { useAssetsViewState } from 'app/hooks/use-assets-view-state';
 import { useCollectiblesListOptionsSelector } from 'app/store/assets-filter-options/selectors';
-import { fromChainAssetSlug } from 'lib/assets/utils';
+import { parseChainAssetSlug } from 'lib/assets/utils';
+import { CollectiblesListItemElement } from 'lib/ui/collectibles-list';
 import { TempleChainKind } from 'temple/types';
 
-import { GRID_CLASSNAMES } from '../constants';
-
 import { EvmCollectibleItem, TezosCollectibleItem } from './CollectibleItem';
-import { CollectiblesTabBase } from './CollectiblesTabBase';
 import { useEvmCollectiblesMetadataLoading } from './evm-meta-loading';
+import { TabContentBaseBody } from './tab-content-base-body';
 
 interface MultiChainCollectiblesTabProps {
   accountTezAddress: string;
@@ -28,53 +27,54 @@ export const MultiChainCollectiblesTab = memo<MultiChainCollectiblesTabProps>(
 
     useEvmCollectiblesMetadataLoading(accountEvmAddress);
 
-    const contentElement = useMemo(
-      () => (
-        <div className={manageActive ? undefined : GRID_CLASSNAMES}>
-          {paginatedSlugs.map(chainSlug => {
-            const [chainKind, chainId, slug] = fromChainAssetSlug(chainSlug);
+    const renderItem = useCallback(
+      (chainSlug: string, index: number, ref?: React.RefObject<CollectiblesListItemElement>) => {
+        const [chainKind, chainId, slug] = parseChainAssetSlug(chainSlug);
 
-            if (chainKind === TempleChainKind.Tezos) {
-              return (
-                <TezosCollectibleItem
-                  key={chainSlug}
-                  assetSlug={slug}
-                  accountPkh={accountTezAddress}
-                  tezosChainId={chainId as string}
-                  adultBlur={blur}
-                  areDetailsShown={showInfo}
-                  manageActive={manageActive}
-                />
-              );
-            }
+        if (chainKind === TempleChainKind.Tezos) {
+          return (
+            <TezosCollectibleItem
+              key={chainSlug}
+              assetSlug={slug}
+              accountPkh={accountTezAddress}
+              tezosChainId={chainId as string}
+              adultBlur={blur}
+              areDetailsShown={showInfo}
+              manageActive={manageActive}
+              index={index}
+              ref={ref}
+            />
+          );
+        }
 
-            return (
-              <EvmCollectibleItem
-                key={chainSlug}
-                assetSlug={slug}
-                evmChainId={chainId as number}
-                accountPkh={accountEvmAddress}
-                showDetails={showInfo}
-                manageActive={manageActive}
-              />
-            );
-          })}
-        </div>
-      ),
-      [accountEvmAddress, accountTezAddress, blur, paginatedSlugs, showInfo, manageActive]
+        return (
+          <EvmCollectibleItem
+            key={chainSlug}
+            assetSlug={slug}
+            evmChainId={chainId as number}
+            accountPkh={accountEvmAddress}
+            showDetails={showInfo}
+            manageActive={manageActive}
+            index={index}
+            ref={ref}
+          />
+        );
+      },
+      [accountEvmAddress, accountTezAddress, blur, manageActive, showInfo]
     );
 
     return (
-      <CollectiblesTabBase
-        collectiblesCount={paginatedSlugs.length}
+      <TabContentBaseBody
         searchValue={searchValue}
         loadNextPage={loadNext}
         onSearchValueChange={setSearchValue}
         isSyncing={isSyncing}
         isInSearchMode={isInSearchMode}
-      >
-        {contentElement}
-      </CollectiblesTabBase>
+        manageActive={manageActive}
+        slugs={paginatedSlugs}
+        showInfo={showInfo}
+        renderItem={renderItem}
+      />
     );
   }
 );

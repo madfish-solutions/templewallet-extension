@@ -24,7 +24,7 @@ export const TokensListView = memo<TokensListViewProps>(({ slugs, children }) =>
 
   return (
     <VisibilityTrackingInfiniteScroll
-      getElementIndex={getTokenElementIndex}
+      getElementsIndexes={getTokenElementIndex}
       loadNext={noop}
       scrollableTargetId={SELECT_ASSET_SCROLLABLE_ID}
     >

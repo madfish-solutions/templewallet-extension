@@ -22,7 +22,7 @@ import { EmptySection } from './EmptySection';
 export interface TokensTabBaseProps {
   tokensCount: number;
   searchValue: string;
-  getElementIndex: VisibilityTrackingInfiniteScrollProps['getElementIndex'];
+  getElementIndex: VisibilityTrackingInfiniteScrollProps['getElementsIndexes'];
   loadNextPage: EmptyFn;
   onSearchValueChange: (value: string) => void;
   isSyncing: boolean;
@@ -85,7 +85,7 @@ export const TokensTabBase: FC<PropsWithChildren<TokensTabBaseProps>> = ({
                     className="mb-4"
                   />
                 )}
-                <VisibilityTrackingInfiniteScroll getElementIndex={getElementIndex} loadNext={loadNextPage}>
+                <VisibilityTrackingInfiniteScroll getElementsIndexes={getElementIndex} loadNext={loadNextPage}>
                   {children}
                 </VisibilityTrackingInfiniteScroll>
                 {isSyncing && <SyncSpinner className="mt-4" />}

@@ -72,3 +72,7 @@ export type EvmAssetMetadata = EvmTokenMetadata | EvmNativeTokenMetadata | EvmCo
 export type ChainAssetMetadata<T extends TempleChainKind> = T extends TempleChainKind.EVM
   ? EvmAssetMetadata
   : AssetMetadataBase;
+
+export type CollectibleMetadata<T extends TempleChainKind> = T extends TempleChainKind.EVM
+  ? EvmCollectibleMetadata
+  : TokenMetadata;

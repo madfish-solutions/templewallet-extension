@@ -23,17 +23,16 @@ export const makeGetTokenElementIndexFunction =
     const indexWithoutPromo = clamp(Math.floor(yAfterOffset / tokenElementHeight), 0, slugsCount - 1);
 
     if (!promoElement || slugsCount < 5 || indexWithoutPromo < 2) {
-      console.log('indexWithoutPromo', indexWithoutPromo, y);
-      return indexWithoutPromo;
+      return [indexWithoutPromo];
     }
 
     const contentPromoAndAboveHeight = promoHeight + tokenElementHeight * 2;
 
     if (yAfterOffset < contentPromoAndAboveHeight) {
-      return 1;
+      return [1];
     }
 
-    return 2 + Math.floor((yAfterOffset - contentPromoAndAboveHeight) / tokenElementHeight);
+    return [2 + Math.floor((yAfterOffset - contentPromoAndAboveHeight) / tokenElementHeight)];
   };
 
 export const makeGroupedTokenElementIndexFunction =
@@ -65,24 +64,24 @@ export const makeGroupedTokenElementIndexFunction =
       }
 
       if (yLeft < headerWithMarginsHeight) {
-        return slugsInPreviousGroupsCount;
+        return [slugsInPreviousGroupsCount];
       }
 
       yLeft -= headerWithMarginsHeight;
       const indexWithoutPromo = clamp(Math.floor(yLeft / tokenElementHeight), 0, groupSlugsCount - 1);
 
       if (!promoElement || groupSlugsCount < 5 || indexWithoutPromo < 2) {
-        return indexWithoutPromo + slugsInPreviousGroupsCount;
+        return [indexWithoutPromo + slugsInPreviousGroupsCount];
       }
 
       const contentPromoAndAboveHeight = groupPromoHeight + tokenElementHeight * 2;
 
       if (yLeft < contentPromoAndAboveHeight) {
-        return slugsInPreviousGroupsCount + 1;
+        return [slugsInPreviousGroupsCount + 1];
       }
 
-      return slugsInPreviousGroupsCount + 2 + Math.floor((yLeft - contentPromoAndAboveHeight) / tokenElementHeight);
+      return [slugsInPreviousGroupsCount + 2 + Math.floor((yLeft - contentPromoAndAboveHeight) / tokenElementHeight)];
     }
 
-    return slugsInPreviousGroupsCount - 1;
+    return [slugsInPreviousGroupsCount - 1];
   };

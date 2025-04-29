@@ -24,8 +24,8 @@ const [InfiniteScrollVisibilityContextProvider, useInfiniteScrollVisibilityConte
 
 export interface VisibilityTrackingInfiniteScrollProps
   extends PropsWithChildren<Omit<SimpleInfiniteScrollProps, 'onScroll'>> {
-  /** Return the index of the element that is located at the height of `y` relatively to the scrollable node */
-  getElementIndex: (y: number) => number;
+  /** Return the indexes of the elements that are located at the height of `y` relatively to the scrollable node */
+  getElementsIndexes: (y: number) => number[];
 }
 
 export const VisibilityTrackingInfiniteScroll: FC<VisibilityTrackingInfiniteScrollProps> = props => (
@@ -36,7 +36,7 @@ export const VisibilityTrackingInfiniteScroll: FC<VisibilityTrackingInfiniteScro
 
 const VisibilityTrackingInfiniteScrollContent: FC<VisibilityTrackingInfiniteScrollProps> = ({
   children,
-  getElementIndex,
+  getElementsIndexes,
   ...restProps
 }) => {
   const { setListItemsVisibility } = useInfiniteScrollVisibilityContext();
@@ -53,10 +53,10 @@ const VisibilityTrackingInfiniteScrollContent: FC<VisibilityTrackingInfiniteScro
     if (!scrollableNode) return;
 
     setListItemsVisibility({
-      top: getElementIndex(scrollableNode.scrollTop),
-      bottom: getElementIndex(scrollableNode.scrollTop + scrollableNode.clientHeight)
+      top: Math.min(...getElementsIndexes(scrollableNode.scrollTop)),
+      bottom: Math.max(...getElementsIndexes(scrollableNode.scrollTop + scrollableNode.clientHeight))
     });
-  }, [getElementIndex, setListItemsVisibility]);
+  }, [getElementsIndexes, setListItemsVisibility]);
 
   useEffect(() => {
     updateScrollDimensions();
