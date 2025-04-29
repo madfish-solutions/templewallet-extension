@@ -13,14 +13,13 @@ import { ReactComponent as GoogleDriveIcon } from 'app/icons/base/google_drive.s
 import { ReactComponent as ImportedIcon } from 'app/icons/base/imported.svg';
 import { ReactComponent as PlusIcon } from 'app/icons/base/plus.svg';
 import PageLayout from 'app/layouts/PageLayout';
+import { FeedbackModal } from 'app/layouts/PageLayout/FeedbackModal';
 import { CreatePasswordForm } from 'app/templates/CreatePasswordForm';
 import { ImportSeedForm } from 'app/templates/ImportSeedForm';
 import { t, T } from 'lib/i18n';
 import { useBooleanState } from 'lib/ui/hooks';
 import { NullComponent } from 'lib/ui/null-component';
 import { goBack, useLocation } from 'lib/woozie';
-
-import { FeedbackModal } from '../../layouts/PageLayout/FeedbackModal';
 
 import { WelcomeSelectors } from './Welcome.selectors';
 
