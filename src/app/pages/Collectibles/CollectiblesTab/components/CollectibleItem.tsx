@@ -410,7 +410,7 @@ const DefaultCollectibleListItemLayoutHOC = <
               </>
             )}
             {metadatasLoading && !metadata && isVisible && <CollectibleImageLoader />}
-            {(!metadatasLoading || !metadata) && isVisible && (
+            {(!metadatasLoading || metadata) && isVisible && (
               <>
                 <CollectibleItemImage metadata={metadata} assetSlug={assetSlug} {...restProps} />
 
