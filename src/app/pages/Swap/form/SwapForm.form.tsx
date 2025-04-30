@@ -14,6 +14,7 @@ export interface SwapInputValue {
 export interface SwapFormValue {
   input: SwapInputValue;
   output: SwapInputValue;
+  isFiatMode: boolean;
 }
 
 const getValidAssetSlug = (queryAssetSlug: string | null) =>
@@ -43,7 +44,8 @@ export const useSwapFormDefaultValue = () => {
 
     return {
       input: { assetSlug: getValidAssetSlug(fromSlug) },
-      output: { assetSlug: getValidAssetSlug(toSlug) }
+      output: { assetSlug: getValidAssetSlug(toSlug) },
+      isFiatMode: false
     };
   }, [location.search]);
 };

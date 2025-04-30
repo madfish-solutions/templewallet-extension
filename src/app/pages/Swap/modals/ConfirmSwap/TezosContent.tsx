@@ -70,8 +70,8 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
         gasFee: mutezToTz(BigNumber.sum(...estimates.map(est => est.suggestedFeeMutez))),
         revealFee: mutezToTz(estimates.length > opParams.length ? estimates[0].suggestedFeeMutez : 0)
       };
-    } catch (err: any) {
-      toastError(err.message);
+    } catch (err) {
+      console.error(err);
       return;
     }
   }, [tezos, opParams, tezBalance, account.ownerAddress, accountPkh]);

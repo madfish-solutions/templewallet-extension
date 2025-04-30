@@ -107,6 +107,7 @@ export const SwapForm = memo<Props>(({ account, slippageTolerance, onReview }) =
 
   const inputValue = watch('input');
   const outputValue = watch('output');
+  const isFiatMode = watch('isFiatMode');
 
   const { value: inputTokenBalance = ZERO } = useTezosAssetBalance(
     inputValue.assetSlug ?? TEZ_TOKEN_SLUG,
@@ -129,7 +130,6 @@ export const SwapForm = memo<Props>(({ account, slippageTolerance, onReview }) =
 
   const [operation, setOperation] = useState<BatchWalletOperation>();
   const [isAlertVisible, setIsAlertVisible] = useState(false);
-  const [shouldUseFiat, setShouldUseFiat] = useState(false);
 
   useEffect(() => {
     if (isAlertVisible) {
@@ -194,12 +194,12 @@ export const SwapForm = memo<Props>(({ account, slippageTolerance, onReview }) =
   );
 
   const atomsInputValue = useMemo(() => {
-    const inputValueToUse = shouldUseFiat
+    const inputValueToUse = isFiatMode
       ? toAssetAmount(inputValue.amount, inputAssetMetadata.decimals)
       : inputValue.amount;
 
     return tokensToAtoms(inputValueToUse ?? ZERO, inputAssetMetadata.decimals);
-  }, [inputAssetMetadata.decimals, inputValue.amount, shouldUseFiat, toAssetAmount]);
+  }, [inputAssetMetadata.decimals, inputValue.amount, isFiatMode, toAssetAmount]);
 
   const { outputAtomicAmountBeforeFee, minimumReceivedAtomic, outputFeeAtomicAmount } = useMemo(
     () => calculateOutputAmounts(atomsInputValue, swapParams.data.output, outputAssetMetadata.decimals, slippageRatio),
@@ -207,17 +207,16 @@ export const SwapForm = memo<Props>(({ account, slippageTolerance, onReview }) =
   );
 
   const dispatchLoadSwapParams = useCallback(
-    (input: SwapInputValue, output: SwapInputValue, useFiat?: boolean) => {
-      if (!input.assetSlug || !output.assetSlug) {
-        return;
-      }
+    (input: SwapInputValue, output: SwapInputValue) => {
+      if (!input.assetSlug || !output.assetSlug) return;
+
       const inputMetadata = getTokenMetadata(input.assetSlug);
 
-      if (!inputMetadata) {
-        return;
-      }
+      if (!inputMetadata) return;
 
-      const inputValueToUse = useFiat ? toAssetAmount(input.amount, inputAssetMetadata.decimals) : input.amount;
+      const inputValueToUse = watch('isFiatMode')
+        ? toAssetAmount(input.amount, inputAssetMetadata.decimals)
+        : input.amount;
 
       const { swapInputMinusFeeAtomic: amount } = calculateSidePaymentsFromInput(
         tokensToAtoms(inputValueToUse ?? ZERO, inputMetadata.decimals)
@@ -238,15 +237,15 @@ export const SwapForm = memo<Props>(({ account, slippageTolerance, onReview }) =
         })
       );
     },
-    [getTokenMetadata, toAssetAmount, inputAssetMetadata.decimals, route3Tokens, getSwapWithFeeParams, tezos.rpc]
+    [getTokenMetadata, watch, toAssetAmount, inputAssetMetadata.decimals, route3Tokens, getSwapWithFeeParams, tezos.rpc]
   );
 
   useEffect(() => {
     if (isDefined(fromRoute3Token) && isDefined(toRoute3Token) && prevBlockLevelRef.current !== blockLevel) {
-      dispatchLoadSwapParams(inputValue, outputValue, shouldUseFiat);
+      dispatchLoadSwapParams(inputValue, outputValue);
     }
     prevBlockLevelRef.current = blockLevel;
-  }, [blockLevel, dispatchLoadSwapParams, fromRoute3Token, inputValue, outputValue, toRoute3Token, shouldUseFiat]);
+  }, [blockLevel, dispatchLoadSwapParams, fromRoute3Token, inputValue, outputValue, toRoute3Token]);
 
   useEffect(() => {
     if (Number(swapParams.data.input) > 0 && hopsAreAbsent) {
@@ -298,7 +297,7 @@ export const SwapForm = memo<Props>(({ account, slippageTolerance, onReview }) =
     outputAssetMetadata.decimals,
     inputValue.amount,
     inputAssetMetadata.decimals,
-    shouldUseFiat,
+    isFiatMode,
     toAssetAmount,
     atomsInputValue
   ]);
@@ -322,35 +321,34 @@ export const SwapForm = memo<Props>(({ account, slippageTolerance, onReview }) =
     (props: SwapInputValue) => {
       if (props.amount?.isLessThanOrEqualTo(0)) return t('amountMustBePositive');
 
-      const formattedMaxAmount = shouldUseFiat
+      const latestIsFiatMode = watch('isFiatMode');
+
+      const formattedMaxAmount = latestIsFiatMode
         ? inputTokenMaxAmount.times(inputAssetPrice).decimalPlaces(2, BigNumber.ROUND_FLOOR)
         : inputTokenMaxAmount;
 
       if (props.amount?.gt(formattedMaxAmount)) {
         return t(
           'maximalAmount',
-          toLocalFixed(formattedMaxAmount, shouldUseFiat ? 2 : Math.min(inputAssetMetadata.decimals, 6)) +
-            ` ${shouldUseFiat ? selectedFiatCurrency.symbol : inputAssetMetadata.symbol}`
+          toLocalFixed(formattedMaxAmount, latestIsFiatMode ? 2 : Math.min(inputAssetMetadata.decimals, 6)) +
+            ` ${latestIsFiatMode ? selectedFiatCurrency.symbol : inputAssetMetadata.symbol}`
         );
       }
 
       return validateField(props);
     },
     [
+      watch,
+      inputTokenMaxAmount,
+      inputAssetPrice,
+      validateField,
       inputAssetMetadata.decimals,
       inputAssetMetadata.symbol,
-      inputAssetPrice,
-      inputTokenMaxAmount,
-      selectedFiatCurrency.symbol,
-      shouldUseFiat,
-      validateField
+      selectedFiatCurrency.symbol
     ]
   );
 
-  const resetForm = useCallback(() => {
-    reset(defaultValues);
-    setShouldUseFiat(false);
-  }, [defaultValues, reset]);
+  const resetForm = useCallback(() => void reset(defaultValues), [defaultValues, reset]);
 
   const onSubmit = async () => {
     if (isSubmitting) return;
@@ -577,17 +575,19 @@ export const SwapForm = memo<Props>(({ account, slippageTolerance, onReview }) =
     dispatch(resetSwapParamsAction());
   };
 
-  const handleInputChange = (newInputValue: SwapInputValue, useFiat?: boolean) => {
+  const handleInputChange = (newInputValue: SwapInputValue) => {
     if (newInputValue.assetSlug === outputValue.assetSlug) {
       setValue('output', {});
+      return;
     }
 
-    dispatchLoadSwapParams(newInputValue, outputValue, useFiat);
+    dispatchLoadSwapParams(newInputValue, outputValue);
   };
 
   const handleOutputChange = (newOutputValue: SwapInputValue) => {
     if (newOutputValue.assetSlug === inputValue.assetSlug) {
       setValue('input', {});
+      return;
     }
 
     dispatchLoadSwapParams(inputValue, newOutputValue);
@@ -615,12 +615,12 @@ export const SwapForm = memo<Props>(({ account, slippageTolerance, onReview }) =
               publicKeyHash={publicKeyHash}
               value={value}
               error={errors.input?.message}
-              onChange={(value, shouldUseFiat) => {
+              onChange={value => {
                 onChange(value);
-                handleInputChange(value, shouldUseFiat);
+                handleInputChange(value);
               }}
-              shouldUseFiat={shouldUseFiat}
-              setShouldUseFiat={setShouldUseFiat}
+              isFiatMode={isFiatMode}
+              setIsFiatMode={v => setValue('isFiatMode', v)}
               testIDs={{
                 input: SwapFormFromInputSelectors.assetInput,
                 assetDropDownButton: SwapFormFromInputSelectors.assetDropDownButton
@@ -691,7 +691,7 @@ export const SwapForm = memo<Props>(({ account, slippageTolerance, onReview }) =
           disabled={submitCount > 0 && !isValid}
           testID={SwapFormSelectors.swapButton}
         >
-          <T id={swapParams.isLoading ? 'searchingTheBestRoute' : 'review'} />
+          <T id="review" />
         </StyledButton>
       </ActionsButtonsBox>
     </>

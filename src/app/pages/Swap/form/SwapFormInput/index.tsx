@@ -47,8 +47,8 @@ const SwapFormInput: FC<SwapFormInputProps> = ({
   readOnly,
   testIDs,
   onChange,
-  shouldUseFiat = false,
-  setShouldUseFiat = () => {}
+  isFiatMode = false,
+  setIsFiatMode = () => {}
 }) => {
   const { trackChange } = useFormAnalytics('SwapForm');
 
@@ -78,15 +78,15 @@ const SwapFormInput: FC<SwapFormInputProps> = ({
   }, [assetSlug, isTezosSlug, balance]);
 
   const handleAmountChange = useCallback(
-    (newAmount = ZERO, useFiat = shouldUseFiat) => {
-      onChange({ assetSlug, amount: newAmount }, useFiat);
+    (newAmount = ZERO) => {
+      onChange({ assetSlug, amount: newAmount });
     },
-    [assetSlug, onChange, shouldUseFiat]
+    [assetSlug, onChange]
   );
 
   const handleSetMaxAmount = useCallback(() => {
     if (assetSlug && maxAmount) {
-      const formattedMaxAmount = shouldUseFiat
+      const formattedMaxAmount = isFiatMode
         ? maxAmount.times(assetPrice).decimalPlaces(2, BigNumber.ROUND_FLOOR)
         : maxAmount;
 
@@ -96,7 +96,7 @@ const SwapFormInput: FC<SwapFormInputProps> = ({
         toastUniqWarning(t('notEnoughTezForFee'), true);
       }
     }
-  }, [assetSlug, balance, maxAmount, handleAmountChange, isTezosSlug]);
+  }, [assetSlug, maxAmount, isFiatMode, assetPrice, handleAmountChange, isTezosSlug, balance]);
 
   const [selectAssetModalOpened, setSelectAssetModalOpen, setSelectAssetModalClosed] = useBooleanState(false);
   const onCloseBottomShiftCallback = useToastBottomShiftModalLogic(selectAssetModalOpened, true);
@@ -106,7 +106,7 @@ const SwapFormInput: FC<SwapFormInputProps> = ({
       const newAssetSlug = parseChainAssetSlug(chainSlug)[2];
       const newAssetMetadata = getTokenMetadata(newAssetSlug);
       if (!newAssetMetadata) return setSelectAssetModalClosed();
-      const newAmount = shouldUseFiat ? amount : amount?.decimalPlaces(newAssetMetadata.decimals, BigNumber.ROUND_DOWN);
+      const newAmount = isFiatMode ? amount : amount?.decimalPlaces(newAssetMetadata.decimals, BigNumber.ROUND_DOWN);
 
       onChange({
         assetSlug: newAssetSlug,
@@ -124,7 +124,7 @@ const SwapFormInput: FC<SwapFormInputProps> = ({
       onChange,
       onCloseBottomShiftCallback,
       setSelectAssetModalClosed,
-      shouldUseFiat,
+      isFiatMode,
       trackChange
     ]
   );
@@ -133,8 +133,8 @@ const SwapFormInput: FC<SwapFormInputProps> = ({
     (evt: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
       evt.preventDefault();
 
-      const newShouldUseFiat = !shouldUseFiat;
-      setShouldUseFiat(newShouldUseFiat);
+      const newShouldUseFiat = !isFiatMode;
+      setIsFiatMode(newShouldUseFiat);
 
       if (!amount) return;
 
@@ -143,9 +143,9 @@ const SwapFormInput: FC<SwapFormInputProps> = ({
         ? amountBN.times(assetPrice).decimalPlaces(2, BigNumber.ROUND_FLOOR)
         : new BigNumber(amountBN.div(assetPrice)).decimalPlaces(assetMetadata.decimals, BigNumber.ROUND_FLOOR);
 
-      handleAmountChange(formattedAmount, newShouldUseFiat);
+      handleAmountChange(formattedAmount);
     },
-    [shouldUseFiat, setShouldUseFiat, amount, handleAmountChange, assetPrice, assetMetadata.decimals]
+    [isFiatMode, setIsFiatMode, amount, handleAmountChange, assetPrice, assetMetadata.decimals]
   );
 
   return (
@@ -172,7 +172,7 @@ const SwapFormInput: FC<SwapFormInputProps> = ({
           assetPrice={assetPrice}
           assetSlug={assetSlug}
           assetMetadata={assetMetadata}
-          shouldUseFiat={shouldUseFiat}
+          shouldUseFiat={isFiatMode}
           fiatCurrency={selectedFiatCurrency}
           onChange={handleAmountChange}
           handleFiatToggle={handleFiatToggle}
