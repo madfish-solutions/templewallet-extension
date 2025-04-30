@@ -1,11 +1,13 @@
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 
+import { useAssetsFilterOptionsSelector } from 'app/store/assets-filter-options/selectors';
 import { EvmBalancesSource } from 'app/store/evm/state';
 import { ChainID } from 'lib/apis/temple/endpoints/evm/api.interfaces';
 import { isSupportedChainId } from 'lib/apis/temple/endpoints/evm/api.utils';
 import { t } from 'lib/i18n';
 import { useWindowIsActive } from 'lib/temple/front/window-is-active-context';
 import { serializeError } from 'lib/utils/serialize-error';
+import { useLocation } from 'lib/woozie';
 import { useEnabledEvmChains } from 'temple/front';
 
 export interface SuccessPayload<T> {
@@ -48,6 +50,8 @@ interface RefreshIfActiveConfig {
   syncInterval: number;
 }
 
+const validPaths = ['/send', '/swap', '/token'];
+
 export const useRefreshIfActive = ({
   getDataTimestamp,
   loaders,
@@ -55,7 +59,36 @@ export const useRefreshIfActive = ({
   syncInterval
 }: RefreshIfActiveConfig) => {
   const evmChains = useEnabledEvmChains();
+  const { filterChain } = useAssetsFilterOptionsSelector();
   const windowIsActive = useWindowIsActive();
+  const { pathname } = useLocation();
+
+  const shouldRefresh = useMemo(() => {
+    if (pathname === '/') return true;
+    return validPaths.some(path => pathname.startsWith(path));
+  }, [pathname]);
+
+  const tokenPathChainId = useMemo(() => {
+    if (pathname.startsWith('/token')) {
+      const parts = pathname.split('/');
+      const id = parts[3];
+      const maybeNum = Number(id);
+      return isNaN(maybeNum) ? undefined : maybeNum;
+    }
+    return undefined;
+  }, [pathname]);
+
+  const chainsToRefresh = useMemo(() => {
+    if (filterChain) {
+      return filterChain.kind === 'evm' ? [filterChain] : [];
+    }
+
+    if (tokenPathChainId !== undefined) {
+      return evmChains.filter(c => c.chainId === tokenPathChainId);
+    }
+
+    return evmChains;
+  }, [evmChains, tokenPathChainId, filterChain]);
 
   const refreshData = useCallback(
     async (chainId: number) => {
@@ -92,15 +125,15 @@ export const useRefreshIfActive = ({
   );
 
   useEffect(() => {
-    if (!windowIsActive) return;
+    if (!windowIsActive || !shouldRefresh) return;
 
     const firstLoadTimeouts: NodeJS.Timeout[] = [];
     const refreshIntervals: NodeJS.Timer[] = [];
-    evmChains.forEach(({ chainId }) => {
+    chainsToRefresh.forEach(({ chainId }) => {
       loaders.forEach(({ setLoading }) => setLoading(chainId, false));
       firstLoadTimeouts.push(
         setTimeout(() => {
-          refreshData(chainId);
+          refreshData(chainId).then();
 
           refreshIntervals.push(setInterval(() => refreshData(chainId), syncInterval));
         }, Math.max(0, syncInterval - (Date.now() - getDataTimestamp(chainId))))
@@ -111,5 +144,15 @@ export const useRefreshIfActive = ({
       firstLoadTimeouts.forEach(timeout => clearTimeout(timeout));
       refreshIntervals.forEach(interval => clearInterval(interval));
     };
-  }, [refreshData, windowIsActive, syncInterval, loaders, publicKeyHash, getDataTimestamp, evmChains]);
+  }, [
+    refreshData,
+    windowIsActive,
+    syncInterval,
+    loaders,
+    publicKeyHash,
+    getDataTimestamp,
+    evmChains,
+    shouldRefresh,
+    chainsToRefresh
+  ]);
 };

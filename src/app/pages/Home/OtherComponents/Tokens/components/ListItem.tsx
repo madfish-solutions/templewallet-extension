@@ -12,6 +12,7 @@ import { useStoredTezosTokenSelector } from 'app/store/tezos/assets/selectors';
 import { EvmAssetIconWithNetwork, TezosAssetIconWithNetwork } from 'app/templates/AssetIcon';
 import { DeleteAssetModal } from 'app/templates/remove-asset-modal/delete-asset-modal';
 import { setAnotherSelector } from 'lib/analytics';
+import { TEMPLE_TOKEN_SLUG } from 'lib/assets';
 import { EVM_TOKEN_SLUG, TEZ_TOKEN_SLUG } from 'lib/assets/defaults';
 import { getAssetStatus } from 'lib/assets/hooks/utils';
 import { useEvmTokenBalance, useTezosAssetBalance } from 'lib/balances/hooks';
@@ -58,7 +59,7 @@ export const TezosListItem = memo<TezosListItemProps>(
     const storedToken = useStoredTezosTokenSelector(publicKeyHash, chainId, assetSlug);
 
     const checked = getAssetStatus(rawBalance, storedToken?.status, assetSlug) === 'enabled';
-    const isNativeToken = assetSlug === TEZ_TOKEN_SLUG;
+    const isUnmanageable = assetSlug === TEZ_TOKEN_SLUG || assetSlug === TEMPLE_TOKEN_SLUG;
 
     const [deleteModalOpened, setDeleteModalOpened, setDeleteModalClosed] = useBooleanState(false);
 
@@ -108,14 +109,13 @@ export const TezosListItem = memo<TezosListItemProps>(
 
               <IconBase
                 Icon={DeleteIcon}
-                size={16}
-                className={clsx('shrink-0', isNativeToken ? 'text-disable' : 'cursor-pointer text-error')}
-                onClick={isNativeToken ? undefined : setDeleteModalOpened}
+                className={clsx('shrink-0', isUnmanageable ? 'text-disable' : 'cursor-pointer text-error')}
+                onClick={isUnmanageable ? undefined : setDeleteModalOpened}
               />
 
               <ToggleSwitch
-                checked={isNativeToken ? true : checked}
-                disabled={isNativeToken}
+                checked={isUnmanageable ? true : checked}
+                disabled={isUnmanageable}
                 onChange={toggleTokenStatus}
               />
             </div>
@@ -248,7 +248,6 @@ export const EvmListItem = memo<EvmListItemProps>(
 
               <IconBase
                 Icon={DeleteIcon}
-                size={16}
                 className={clsx('shrink-0', isNativeToken ? 'text-disable' : 'cursor-pointer text-error')}
                 onClick={isNativeToken ? undefined : setDeleteModalOpened}
               />

@@ -1,6 +1,7 @@
 import React, { memo, useCallback, useMemo, useRef, useState } from 'react';
 
 import { CustomEvmChainIdContext } from 'lib/analytics';
+import { EVM_ZERO_ADDRESS } from 'lib/constants';
 import { useTempleClient } from 'lib/temple/front/client';
 import { EvmTransactionRequestWithSender, StoredAccount, TempleEvmDAppPayload } from 'lib/temple/types';
 import { getAccountForEvm, isAccountOfActableType } from 'temple/accounts';
@@ -16,14 +17,12 @@ interface EvmConfirmDAppFormProps {
   id: string;
 }
 
-const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
-
 export const EvmConfirmDAppForm = memo<EvmConfirmDAppFormProps>(({ payload, id }) => {
   const { confirmDAppPermission, confirmDAppSign, confirmEvmDAppOperation, confirmDAppEvmChainAdding } =
     useTempleClient();
 
   const [finalEvmTransaction, setFinalEvmTransaction] = useState<EvmTransactionRequestWithSender>(() =>
-    payload.type === 'confirm_operations' ? payload.req : { to: ZERO_ADDRESS, from: ZERO_ADDRESS }
+    payload.type === 'confirm_operations' ? payload.req : { to: EVM_ZERO_ADDRESS, from: EVM_ZERO_ADDRESS }
   );
   const evmTransactionRef = useRef(finalEvmTransaction);
   const updateFinalEvmTransaction = useCallback<ReactSetStateFn<EvmTransactionRequestWithSender>>(newEvmTransaction => {

@@ -43,9 +43,11 @@ const SwapFooter: FC<SwapFooterProps> = ({
   );
 
   return (
-    <div className="flex flex-col">
-      <div className="flex justify-between mt-1">
-        <div className="max-w-40">
+    <div className="flex justify-between items-center gap-2 min-h-6">
+      <div className="flex-1 flex items-center">
+        {error ? (
+          <span className="text-font-description text-error whitespace-nowrap overflow-ellipsis">{error}</span>
+        ) : (
           <ConvertedInputAssetAmount
             chainId={tezosChainId}
             assetSlug={assetSlug}
@@ -54,17 +56,16 @@ const SwapFooter: FC<SwapFooterProps> = ({
             toFiat={!shouldUseFiat}
             evm={false}
           />
-        </div>
-        {inputName === 'input' && (
-          <Button
-            className="text-font-description-bold text-secondary px-1 py-0.5 max-w-40 truncate"
-            onClick={handleFiatToggle}
-          >
-            Switch to {shouldUseFiat ? assetSymbol : selectedFiatCurrency.name}
-          </Button>
         )}
       </div>
-      {error && <div className="text-red-700 text-xs">{error}</div>}
+      {inputName === 'input' && (
+        <Button
+          className="text-font-description-bold text-secondary px-1 py-0.5 my-0.5 max-w-40 truncate"
+          onClick={handleFiatToggle}
+        >
+          Switch to {shouldUseFiat ? assetSymbol : selectedFiatCurrency.name}
+        </Button>
+      )}
     </div>
   );
 };

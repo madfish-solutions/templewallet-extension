@@ -479,10 +479,6 @@
   "errorGettingBakerAddressMessage": {
     "message": "Failed to get baker's address. Please, check your internet connection and try again."
   },
-  "tezosMainnet": {
-    "message": "Tezos Mainnet",
-    "description": "Mainnet = main network"
-  },
   "templeWalletOptions": {
     "message": "Temple Wallet | Options"
   },
@@ -1478,6 +1474,9 @@
         "content": "$1"
       }
     }
+  },
+  "notEnoughTezForFee": {
+    "message": "Not enough TEZ for fee"
   },
   "allowed": {
     "message": "Allowed"
@@ -3516,6 +3515,60 @@
   },
   "step": {
     "message": "Step"
+  },
+  "steps_one": {
+    "message": "$amount$ Step",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "steps_zero": {
+    "message": "$amount$ Steps",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "steps_two": {
+    "message": "$amount$ Steps",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "steps_few": {
+    "message": "$amount$ Steps",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "steps_many": {
+    "message": "$amount$ Steps",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "steps_other": {
+    "message": "$amount$ Steps",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
   },
   "waitingStatusDescription": {
     "message": "Waiting for client deposit."

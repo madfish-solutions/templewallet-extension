@@ -287,10 +287,6 @@
   "tryAgain": {
     "message": "もう一度お試しください"
   },
-  "tezosMainnet": {
-    "message": "テゾスメインネット",
-    "description": "Mainnet = main network"
-  },
   "templeWalletOptions": {
     "message": "テンプルウォレット | オプション"
   },

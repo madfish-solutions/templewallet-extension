@@ -5,6 +5,7 @@ import clsx from 'clsx';
 import { EmptyState } from 'app/atoms/EmptyState';
 import { IconButton } from 'app/atoms/IconButton';
 import { ScrollView } from 'app/atoms/PageModal/scroll-view';
+import { useAppEnv } from 'app/env';
 import { useShortcutAccountSelectModalIsOpened } from 'app/hooks/use-account-select-shortcut';
 import { useAllAccountsReactiveOnAddition } from 'app/hooks/use-all-accounts-reactive';
 import { ReactComponent as SettingsIcon } from 'app/icons/base/settings.svg';
@@ -44,6 +45,7 @@ enum AccountsModalSubmodals {
 
 export const AccountsModalContent = memo<AccountsModalContentProps>(
   ({ accounts: specifiedAccounts, currentAccountId: specifiedCurrentAccountId, opened, onRequestClose }) => {
+    const { confirmWindow } = useAppEnv();
     const allAccounts = useVisibleAccounts();
     const globalCurrentAccountId = useCurrentAccountId();
     const currentAccountId = specifiedCurrentAccountId ?? globalCurrentAccountId;
@@ -163,24 +165,29 @@ export const AccountsModalContent = memo<AccountsModalContentProps>(
           <SearchBarField
             placeholder={t('searchAccount', [searchHotkey])}
             value={searchValue}
+            defaultRightMargin={!confirmWindow}
             onValueChange={setSearchValue}
             testID={AccountsModalSelectors.searchField}
           />
 
-          <IconButton
-            Icon={SettingsIcon}
-            color="blue"
-            onClick={() => navigate('settings/accounts-management')}
-            testID={AccountsModalSelectors.accountsManagementButton}
-          />
+          {!confirmWindow && (
+            <>
+              <IconButton
+                Icon={SettingsIcon}
+                color="blue"
+                onClick={() => navigate('settings/accounts-management')}
+                testID={AccountsModalSelectors.accountsManagementButton}
+              />
 
-          <NewWalletActionsPopper
-            startWalletCreation={startWalletCreation}
-            testID={AccountsModalSelectors.newWalletActionsButton}
-            goToImportModal={goToImportModal}
-            goToWatchOnlyModal={goToWatchOnlyModal}
-            goToConnectLedgerModal={goToConnectLedgerModal}
-          />
+              <NewWalletActionsPopper
+                startWalletCreation={startWalletCreation}
+                testID={AccountsModalSelectors.newWalletActionsButton}
+                goToImportModal={goToImportModal}
+                goToWatchOnlyModal={goToWatchOnlyModal}
+                goToConnectLedgerModal={goToConnectLedgerModal}
+              />
+            </>
+          )}
         </div>
 
         <ScrollView onTopEdgeVisibilityChange={setTopEdgeIsVisible} topEdgeThreshold={4}>

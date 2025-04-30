@@ -26,10 +26,10 @@ const SwapInputHeader = memo<SwapInputHeaderProps>(
     });
 
     return (
-      <div className="w-full flex items-center justify-between">
+      <div className="w-full flex items-center justify-between my-1">
         <span className="text-font-description-bold">{label}</span>
         {assetBalanceStr && (
-          <span className="text-xs text-grey-1 flex items-baseline">
+          <span className="text-xs text-grey-1 flex items-center">
             <span className="mr-1">
               <T id="balance" />:
             </span>
@@ -37,17 +37,14 @@ const SwapInputHeader = memo<SwapInputHeaderProps>(
               <Button
                 ref={assetDecimals > 6 ? fullBalanceStrRef : null}
                 onClick={handleSetMaxAmount}
-                className={clsx(
-                  'text-xs mr-1 text-font-num',
-                  isBalanceError ? 'text-error underline' : 'text-secondary'
-                )}
+                className={clsx('text-xs text-font-num', isBalanceError ? 'text-error underline' : 'text-secondary')}
               >
                 <Money tooltip={false} smallFractionFont={false} fiat={false}>
                   {assetBalanceStr}
                 </Money>
               </Button>
             ) : (
-              <span className="text-xs mr-1 text-grey-1 text-font-num">
+              <span className="text-xs text-grey-1 text-font-num">
                 <Money smallFractionFont={false} fiat={false}>
                   {assetBalanceStr}
                 </Money>
