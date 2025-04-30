@@ -3,6 +3,7 @@ import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { FadeTransition } from 'app/a11y/FadeTransition';
 import { EmptyState } from 'app/atoms/EmptyState';
 import { useAllAccountsReactiveOnAddition, useAllAccountsReactiveOnRemoval } from 'app/hooks/use-all-accounts-reactive';
+import { searchHotkey } from 'lib/constants';
 import { t } from 'lib/i18n';
 import { useTempleClient } from 'lib/temple/front';
 import { DisplayedGroup, StoredAccount } from 'lib/temple/types';
@@ -207,7 +208,7 @@ export const AccountsManagement = memo<SettingsTabProps>(({ setHeaderChildren })
       <div className="flex p-4 gap-x-2 items-center bg-background">
         <SearchBarField
           value={searchValue}
-          placeholder={t('searchAccount', '')}
+          placeholder={t('searchAccount', [searchHotkey])}
           onValueChange={setSearchValue}
           testID={AccountsManagementSelectors.searchField}
         />
