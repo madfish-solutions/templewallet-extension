@@ -7,6 +7,9 @@ import { StyledButton } from 'app/atoms/StyledButton';
 import { ReactComponent as DocumentsIcon } from 'app/icons/base/documents.svg';
 import { ReactComponent as GoogleDriveIcon } from 'app/icons/base/google_drive.svg';
 import { t } from 'lib/i18n';
+import { useBooleanState } from 'lib/ui/hooks';
+
+import { FeedbackModal } from '../FeedbackModal';
 
 import { BackupOptionsModalSelectors } from './selectors';
 
@@ -14,26 +17,38 @@ interface BackupOptionsModalProps {
   onSelect: EmptyFn;
 }
 
-export const BackupOptionsModal = memo<BackupOptionsModalProps>(({ onSelect }) => (
-  <ActionModal title={t('backupYourWallet')} hasCloseButton={false}>
-    <div className="w-full flex flex-col items-center px-3 pt-2.5 pb-6 gap-3">
-      <p className="py-1 text-font-description text-grey-1 text-center">{t('backupWalletDescription')}</p>
+export const BackupOptionsModal = memo<BackupOptionsModalProps>(({ onSelect }) => {
+  const [isFeedbackModalOpen, setFeedbackModalOpened, setFeedbackModalClosed] = useBooleanState(false);
 
-      <SocialButton className="w-full" testID={BackupOptionsModalSelectors.useGoogleDriveButton}>
-        <GoogleDriveIcon className="h-8 w-auto" />
-        <span className="text-font-regular-bold">{t('useGoogleDrive')}</span>
-      </SocialButton>
+  return (
+    <>
+      <ActionModal title={t('secureYourWallet')} hasCloseButton={false}>
+        <div className="w-full flex flex-col items-center px-3 pt-2.5 pb-6 gap-3">
+          <p className="py-1 text-font-description text-grey-1 text-center">{t('backupWalletDescription')}</p>
 
-      <StyledButton
-        className="w-full flex justify-center gap-0.5"
-        size="L"
-        color="primary"
-        onClick={onSelect}
-        testID={BackupOptionsModalSelectors.manualBackupButton}
-      >
-        <IconBase Icon={DocumentsIcon} size={16} className="text-white" />
-        <span className="text-font-regular-bold">{t('backupManually')}</span>
-      </StyledButton>
-    </div>
-  </ActionModal>
-));
+          <SocialButton
+            className="w-full"
+            onClick={setFeedbackModalOpened}
+            testID={BackupOptionsModalSelectors.useGoogleDriveButton}
+          >
+            <GoogleDriveIcon className="h-8 w-auto" />
+            <span className="text-font-regular-bold">{t('backupToGoogle')}</span>
+          </SocialButton>
+
+          <StyledButton
+            className="w-full flex justify-center gap-0.5"
+            size="L"
+            color="primary"
+            onClick={onSelect}
+            testID={BackupOptionsModalSelectors.manualBackupButton}
+          >
+            <IconBase Icon={DocumentsIcon} className="text-white" />
+            <span className="text-font-regular-bold">{t('backupManually')}</span>
+          </StyledButton>
+        </div>
+      </ActionModal>
+
+      {isFeedbackModalOpen && <FeedbackModal isGoogleSyncFeature onClose={setFeedbackModalClosed} />}
+    </>
+  );
+});
