@@ -109,17 +109,29 @@ export const CreatePasswordForm = memo<CreatePasswordFormProps>(({ seedPhrase: s
         dispatch(setIsAnalyticsEnabledAction(analyticsEnabled));
         dispatch(setReferralLinksEnabledAction(adsViewEnabled));
 
-        const accountPkh = await registerWallet(data.password!, formatMnemonic(seedPhrase));
+        const account = await registerWallet(data.password!, formatMnemonic(seedPhrase));
 
         // registerWallet function clears async storages
         await putToStorage(REPLACE_REFERRALS_ENABLED, adsViewEnabled);
         await putToStorage(WEBSITES_ANALYTICS_ENABLED, adsViewEnabled);
 
+        trackEvent('wallet_initialized', AnalyticsEventCategory.General, { ...account }, true);
+
         if (adsViewEnabled && analyticsEnabled) {
-          trackEvent('AnalyticsAndAdsEnabled', AnalyticsEventCategory.General, { accountPkh }, true);
+          trackEvent(
+            'AnalyticsAndAdsEnabled',
+            AnalyticsEventCategory.General,
+            { accountPkh: account.tezAddress },
+            true
+          );
         } else {
-          trackEvent('AnalyticsEnabled', AnalyticsEventCategory.General, { accountPkh }, analyticsEnabled);
-          trackEvent('AdsEnabled', AnalyticsEventCategory.General, { accountPkh }, adsViewEnabled);
+          trackEvent(
+            'AnalyticsEnabled',
+            AnalyticsEventCategory.General,
+            { accountPkh: account.tezAddress },
+            analyticsEnabled
+          );
+          trackEvent('AdsEnabled', AnalyticsEventCategory.General, { accountPkh: account.tezAddress }, adsViewEnabled);
         }
 
         if (seedPhraseToImport) {
@@ -230,6 +242,7 @@ export const CreatePasswordForm = memo<CreatePasswordFormProps>(({ seedPhrase: s
             label={<T id="usageAnalytics" />}
             tooltip={<T id="analyticsInputDescription" />}
             testID={createPasswordSelectors.analyticsCheckBox}
+            disabled
           />
 
           <Controller
