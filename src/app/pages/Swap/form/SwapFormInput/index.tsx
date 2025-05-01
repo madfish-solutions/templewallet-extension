@@ -1,6 +1,7 @@
 import React, { FC, useCallback, useMemo } from 'react';
 
 import BigNumber from 'bignumber.js';
+import { noop } from 'lodash';
 
 import { useToastBottomShiftModalLogic } from 'app/hooks/use-toast-bottom-shift-modal-logic';
 import SwapInput from 'app/pages/Swap/form/SwapFormInput/SwapInput';
@@ -48,7 +49,7 @@ const SwapFormInput: FC<SwapFormInputProps> = ({
   testIDs,
   onChange,
   isFiatMode = false,
-  setIsFiatMode = () => {}
+  setIsFiatMode = noop
 }) => {
   const { trackChange } = useFormAnalytics('SwapForm');
 
