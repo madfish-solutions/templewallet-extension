@@ -1,5 +1,6 @@
 import React, { memo, FunctionComponent, SVGProps, useMemo } from 'react';
 
+import { isDefined } from '@rnw-community/shared';
 import { ChainIds } from '@taquito/taquito';
 import clsx from 'clsx';
 import { Props as TippyProps } from 'tippy.js';
@@ -16,6 +17,7 @@ import { buildSwapPageUrlQuery } from 'app/pages/Swap/build-url-query';
 import { useTestnetModeEnabledSelector } from 'app/store/settings/selectors';
 import { TestIDProps } from 'lib/analytics';
 import { TID, T, t } from 'lib/i18n';
+import { useAvailableRoute3TokensSlugs } from 'lib/route3/assets';
 import { TempleAccountType } from 'lib/temple/types';
 import useTippy from 'lib/ui/useTippy';
 import { createUrl, Link, To } from 'lib/woozie';
@@ -36,19 +38,26 @@ interface Props {
 export const ExploreActionButtonsBar = memo<Props>(({ chainKind, chainId, assetSlug, activityBtn, className }) => {
   const account = useAccount();
   const testnetModeEnabled = useTestnetModeEnabledSelector();
+  const { route3tokensSlugs } = useAvailableRoute3TokensSlugs();
 
   const canSend = account.type !== TempleAccountType.WatchOnly;
   const sendLink = buildSendPagePath(chainKind, chainId, assetSlug);
 
+  const isTokenAvailableForSwap = useMemo(() => {
+    return (
+      isDefined(assetSlug) &&
+      chainKind === TempleChainKind.Tezos &&
+      chainId === ChainIds.MAINNET &&
+      route3tokensSlugs.includes(assetSlug)
+    );
+  }, [assetSlug, chainId, chainKind, route3tokensSlugs]);
+
   const swapLink = useMemo(
     () => ({
       pathname: '/swap',
-      search:
-        chainKind === TempleChainKind.Tezos && chainId === ChainIds.MAINNET
-          ? buildSwapPageUrlQuery(assetSlug)
-          : undefined
+      search: isTokenAvailableForSwap ? buildSwapPageUrlQuery(assetSlug) : undefined
     }),
-    [chainKind, chainId, assetSlug]
+    [isTokenAvailableForSwap, assetSlug]
   );
 
   const labelClassName = useMemo(() => (activityBtn ? 'max-w-12' : 'max-w-15'), [activityBtn]);

@@ -1,6 +1,7 @@
 import React, { memo, Suspense, useCallback, useEffect, useState } from 'react';
 
 import { IconBase } from 'app/atoms';
+import { PageLoader } from 'app/atoms/Loader';
 import { PageTitle } from 'app/atoms/PageTitle';
 import { ReactComponent as ManageIcon } from 'app/icons/base/manage.svg';
 import PageLayout from 'app/layouts/PageLayout';
@@ -8,28 +9,42 @@ import { SwapForm } from 'app/pages/Swap/form';
 import { dispatch } from 'app/store';
 import { resetSwapParamsAction } from 'app/store/swap/actions';
 import { t, T } from 'lib/i18n';
+import { useStorage } from 'lib/temple/front';
 import { useBooleanState } from 'lib/ui/hooks';
-import { useAccountAddressForTezos } from 'temple/front';
+import { useAccountForTezos } from 'temple/front';
+import { TempleChainKind } from 'temple/types';
 
-import SwapSettingsModal, { Inputs } from './modals/SwapSettings';
+import { SWAP_SLIPPAGE_TOLERANCE_STORAGE_KEY } from './constants';
+import { TezosReviewData } from './form/interfaces';
+import { ConfirmSwapModal } from './modals/ConfirmSwap';
+import { SwapSettingsModal } from './modals/SwapSettings';
 
 const Swap = memo(() => {
-  const publicKeyHash = useAccountAddressForTezos();
+  const account = useAccountForTezos();
 
-  const [slippageTolerance, setSlippageTolerance] = useState<number>(0.5);
+  const [slippageTolerance, setSlippageTolerance] = useStorage(SWAP_SLIPPAGE_TOLERANCE_STORAGE_KEY, 0.5);
 
-  useEffect(() => {
-    dispatch(resetSwapParamsAction());
-  }, []);
+  useEffect(() => void dispatch(resetSwapParamsAction()), []);
 
   const [settingsModalOpened, setSettingsModalOpen, setSettingsModalClosed] = useBooleanState(false);
+  const [confirmSwapModalOpened, setConfirmSwapModalOpen, setConfirmSwapModalClosed] = useBooleanState(false);
+
+  const [reviewData, setReviewData] = useState<TezosReviewData>();
+
+  const handleReview = useCallback(
+    (data: TezosReviewData) => {
+      setReviewData(data);
+      setConfirmSwapModalOpen();
+    },
+    [setConfirmSwapModalOpen]
+  );
 
   const handleConfirmSlippageTolerance = useCallback(
-    ({ slippageTolerance }: Inputs) => {
-      setSlippageTolerance(slippageTolerance ?? 0.5);
+    (slippageTolerance: number) => {
+      setSlippageTolerance(slippageTolerance);
       setSettingsModalClosed();
     },
-    [setSettingsModalClosed]
+    [setSettingsModalClosed, setSlippageTolerance]
   );
 
   return (
@@ -42,9 +57,9 @@ const Swap = memo(() => {
         <IconBase Icon={ManageIcon} className="text-primary cursor-pointer" onClick={setSettingsModalOpen} />
       }
     >
-      <Suspense fallback={null}>
-        {publicKeyHash ? (
-          <SwapForm publicKeyHash={publicKeyHash} slippageTolerance={slippageTolerance} />
+      <Suspense fallback={<PageLoader stretch />}>
+        {account?.chain === TempleChainKind.Tezos ? (
+          <SwapForm account={account} slippageTolerance={slippageTolerance} onReview={handleReview} />
         ) : (
           <div className="flex flex-grow justify-center items-center">
             <p className="text-center text-sm">
@@ -55,9 +70,15 @@ const Swap = memo(() => {
       </Suspense>
 
       <SwapSettingsModal
-        onSubmit={handleConfirmSlippageTolerance}
+        currentSlippageTolerance={slippageTolerance}
         opened={settingsModalOpened}
         onRequestClose={setSettingsModalClosed}
+        onConfirm={handleConfirmSlippageTolerance}
+      />
+      <ConfirmSwapModal
+        opened={confirmSwapModalOpened}
+        onRequestClose={setConfirmSwapModalClosed}
+        reviewData={reviewData}
       />
     </PageLayout>
   );

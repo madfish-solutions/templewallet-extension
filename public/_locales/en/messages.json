@@ -69,6 +69,9 @@
   "clickToReveal": {
     "message": "Click to reveal"
   },
+  "swapDetails": {
+    "message": "Swap details"
+  },
   "copiedHash": {
     "message": "Copied"
   },
@@ -2617,7 +2620,7 @@
     "message": "Custom"
   },
   "minimumReceived": {
-    "message": "Minimum received"
+    "message": "Minimum Received"
   },
   "scam": {
     "message": "Scam"
@@ -3736,9 +3739,6 @@
   },
   "swapRoute3Link": {
     "message": "3route DEX aggregator."
-  },
-  "searchingTheBestRoute": {
-    "message": "Searching the best route"
   },
   "loadingExchangeRates": {
     "message": "Loading exchange rates"

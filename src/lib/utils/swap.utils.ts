@@ -233,8 +233,7 @@ const calculateOutputFeeAtomic = (inputAmount: BigNumber | undefined, outputAmou
 };
 
 export const calculateOutputAmounts = (
-  inputAmount: BigNumber.Value | undefined,
-  inputAssetDecimals: number,
+  inputAmount: BigNumber,
   route3OutputInTokens: string | undefined,
   outputAssetDecimals: number,
   slippageRatio: number
@@ -247,10 +246,7 @@ export const calculateOutputAmounts = (
     slippageRatio,
     BigNumber.ROUND_FLOOR
   );
-  const outputFeeAtomicAmount = calculateOutputFeeAtomic(
-    tokensToAtoms(inputAmount ?? ZERO, inputAssetDecimals),
-    minOutputAtomicBeforeFee
-  );
+  const outputFeeAtomicAmount = calculateOutputFeeAtomic(inputAmount, minOutputAtomicBeforeFee);
   const expectedReceivedAtomic = outputAtomicAmountBeforeFee.minus(outputFeeAtomicAmount);
   const minimumReceivedAtomic = minOutputAtomicBeforeFee.minus(outputFeeAtomicAmount);
 
