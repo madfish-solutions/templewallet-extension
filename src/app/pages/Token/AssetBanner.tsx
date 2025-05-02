@@ -34,6 +34,7 @@ interface AssetBannerHOCConfig<T extends TempleChainKind> {
   useCategorizedAssetMetadata: (assetSlug: string, chainId: ChainId<T>) => ChainAssetMetadata<T> | undefined;
   Balance: FC<BalanceProps<T>>;
   AssetIconWithNetwork: FC<{ assetSlug: string; chainId: ChainId<T>; size: number; className?: string }>;
+  chainKind: T;
 }
 
 const AssetBannerHOC = <T extends TempleChainKind>({
@@ -41,7 +42,8 @@ const AssetBannerHOC = <T extends TempleChainKind>({
   useChainByChainId,
   useCategorizedAssetMetadata,
   Balance,
-  AssetIconWithNetwork
+  AssetIconWithNetwork,
+  chainKind
 }: AssetBannerHOCConfig<T>) =>
   memo<AssetBannerProps<T>>(({ chainId, assetSlug }) => {
     const accountAddress = useAccountAddress();
@@ -60,7 +62,7 @@ const AssetBannerHOC = <T extends TempleChainKind>({
 
           <NamesComp assetName={assetName} network={network} />
 
-          <TokenPrice assetSlug={assetSlug} chainId={chainId} />
+          <TokenPrice assetSlug={assetSlug} chainId={chainId} forEVM={chainKind === TempleChainKind.EVM} />
         </div>
 
         <div className="flex flex-col">
@@ -69,7 +71,13 @@ const AssetBannerHOC = <T extends TempleChainKind>({
               <>
                 <AmountComp balance={balance} assetSymbol={assetSymbol} />
 
-                <InFiat chainId={chainId} assetSlug={assetSlug} volume={balance} smallFractionFont={false}>
+                <InFiat
+                  chainId={chainId}
+                  assetSlug={assetSlug}
+                  volume={balance}
+                  smallFractionFont={false}
+                  evm={chainKind === TempleChainKind.EVM}
+                >
                   {({ balance, symbol }) => <FiatValueComp balance={balance} symbol={symbol} />}
                 </InFiat>
               </>
@@ -87,7 +95,8 @@ export const TezosAssetBanner = AssetBannerHOC({
   Balance: TezosBalance,
   AssetIconWithNetwork: ({ chainId, ...restProps }) => (
     <TezosAssetIconWithNetwork tezosChainId={chainId} {...restProps} />
-  )
+  ),
+  chainKind: TempleChainKind.Tezos
 });
 
 export const EvmAssetBanner = AssetBannerHOC({
@@ -95,7 +104,8 @@ export const EvmAssetBanner = AssetBannerHOC({
   useChainByChainId: useEvmChainByChainId,
   useCategorizedAssetMetadata: useEvmCategorizedAssetMetadata,
   Balance: EvmBalance,
-  AssetIconWithNetwork: ({ chainId, ...restProps }) => <EvmAssetIconWithNetwork evmChainId={chainId} {...restProps} />
+  AssetIconWithNetwork: ({ chainId, ...restProps }) => <EvmAssetIconWithNetwork evmChainId={chainId} {...restProps} />,
+  chainKind: TempleChainKind.EVM
 });
 
 const NamesComp: FC<{ assetName: string; network: OneOfChains }> = ({ assetName, network }) => {
