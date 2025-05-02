@@ -12,6 +12,7 @@ import {
   TempleTezosChainId,
   BlockExplorer
 } from 'lib/temple/types';
+import { useUpdatableRef } from 'lib/ui/hooks';
 import { EMPTY_FROZEN_OBJ } from 'lib/utils';
 import { TempleChainKind } from 'temple/types';
 
@@ -115,25 +116,28 @@ export function useBlockExplorers() {
 
 function useGetBlockExplorers(chainKind: TempleChainKind) {
   const [allBlockExplorers] = useAllBlockExplorers();
+  const allBlockExplorersRef = useUpdatableRef(allBlockExplorers);
 
   return useCallback(
     (chainId: string) =>
-      allBlockExplorers[chainKind]?.[chainId] ??
+      allBlockExplorersRef.current[chainKind]?.[chainId] ??
       DEFAULT_BLOCK_EXPLORERS[chainKind]?.[chainId] ??
       FALLBACK_CHAIN_BLOCK_EXPLORERS,
-    [allBlockExplorers, chainKind]
+    [allBlockExplorersRef, chainKind]
   );
 }
 
 export function useGetActiveBlockExplorer(chainKind: TempleChainKind) {
   const [tezosChainsSpecs] = useTezosChainsSpecs();
   const [evmChainsSpecs] = useEvmChainsSpecs();
+  const tezosChainsSpecsRef = useUpdatableRef(tezosChainsSpecs);
+  const evmChainsSpecsRef = useUpdatableRef(evmChainsSpecs);
 
   const getBlockExplorers = useGetBlockExplorers(chainKind);
 
   return useCallback(
     (chainId: string) => {
-      const chainsSpecs = chainKind === TempleChainKind.Tezos ? tezosChainsSpecs : evmChainsSpecs;
+      const chainsSpecs = chainKind === TempleChainKind.Tezos ? tezosChainsSpecsRef.current : evmChainsSpecsRef.current;
       const chainBlockExplorers = getBlockExplorers(chainId);
       const activeBlockExplorerId = chainsSpecs[chainId]?.activeBlockExplorerId;
 
@@ -141,7 +145,7 @@ export function useGetActiveBlockExplorer(chainKind: TempleChainKind) {
 
       return chainBlockExplorers.find(({ id }) => id === activeBlockExplorerId) ?? chainBlockExplorers[0];
     },
-    [getBlockExplorers, tezosChainsSpecs, evmChainsSpecs, chainKind]
+    [chainKind, tezosChainsSpecsRef, evmChainsSpecsRef, getBlockExplorers]
   );
 }
 

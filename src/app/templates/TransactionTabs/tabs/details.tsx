@@ -10,28 +10,36 @@ import { EvmNetworkLogo, TezosNetworkLogo } from 'app/atoms/NetworkLogo';
 import { ReactComponent as ChevronRightIcon } from 'app/icons/base/chevron_right.svg';
 import { ChartListItem } from 'app/templates/chart-list-item';
 import InFiat from 'app/templates/InFiat';
-import { T } from 'lib/i18n';
+import { t, T } from 'lib/i18n';
 import { getAssetSymbol, getTezosGasMetadata } from 'lib/metadata';
+import { TEMPLE_TOKEN } from 'lib/route3/constants';
 import { OneOfChains } from 'temple/front/chains';
 import { TempleChainKind } from 'temple/types';
 
 interface Props {
   network: OneOfChains;
-  assetSlug: string;
+  nativeAssetSlug: string;
   goToFeeTab: EmptyFn;
   displayedFee?: string;
   displayedStorageFee?: string;
-  destinationName: ReactNode;
-  destinationValue: ReactNode;
+  destinationName?: ReactNode;
+  destinationValue?: ReactNode;
+  cashbackInTkey?: string;
+  minimumReceived?: {
+    amount: string;
+    symbol: string;
+  };
 }
 
 export const DetailsTab: FC<Props> = ({
   network,
-  assetSlug,
+  nativeAssetSlug,
   destinationName,
   destinationValue,
   displayedFee,
   displayedStorageFee,
+  cashbackInTkey,
+  minimumReceived,
   goToFeeTab
 }) => {
   const { kind: chainKind, chainId } = network;
@@ -54,16 +62,27 @@ export const DetailsTab: FC<Props> = ({
           <ChartListItem title={destinationName}>{destinationValue}</ChartListItem>
         )}
 
+        {isDefined(minimumReceived) && <SwapInfoRow title={t('minimumReceived')} {...minimumReceived} />}
+
+        {isDefined(cashbackInTkey) && (
+          <SwapInfoRow title={t('swapCashback')} amount={cashbackInTkey} symbol={TEMPLE_TOKEN.symbol} />
+        )}
+
         <ChartListItem title={<T id="gasFee" />} bottomSeparator={Boolean(displayedStorageFee)}>
           <div className="flex flex-row items-center">
-            <FeesInfo network={network} assetSlug={assetSlug} amount={displayedFee} goToFeeTab={goToFeeTab} />
+            <FeesInfo network={network} assetSlug={nativeAssetSlug} amount={displayedFee} goToFeeTab={goToFeeTab} />
           </div>
         </ChartListItem>
 
         {displayedStorageFee && (
           <ChartListItem title={<T id="storageFee" />} titleClassName="capitalize" bottomSeparator={false}>
             <div className="flex flex-row items-center">
-              <FeesInfo network={network} assetSlug={assetSlug} amount={displayedStorageFee} goToFeeTab={goToFeeTab} />
+              <FeesInfo
+                network={network}
+                assetSlug={nativeAssetSlug}
+                amount={displayedStorageFee}
+                goToFeeTab={goToFeeTab}
+              />
             </div>
           </ChartListItem>
         )}
@@ -116,3 +135,20 @@ const FeesInfo: FC<FeesInfoProps> = ({ network, assetSlug, amount = '0.00', goTo
     </>
   );
 };
+
+interface SwapInfoRowProps {
+  title: string;
+  amount: string;
+  symbol: string;
+}
+
+const SwapInfoRow: FC<SwapInfoRowProps> = ({ title, amount, symbol }) => (
+  <ChartListItem title={title}>
+    <span className="p-1 text-font-num-bold-12">
+      <Money smallFractionFont={false} tooltipPlacement="bottom">
+        {amount}
+      </Money>{' '}
+      {symbol}
+    </span>
+  </ChartListItem>
+);

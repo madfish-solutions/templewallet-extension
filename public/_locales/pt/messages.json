@@ -1433,7 +1433,7 @@
     "message": "Tolerância de derrapagem"
   },
   "minimumReceived": {
-    "message": "Mínimo recebido"
+    "message": "Mínimo Recebido"
   },
   "inputOutputAssetsCannotBeSame": {
     "message": "Os ativos de entrada e saída não podem ser os mesmos"

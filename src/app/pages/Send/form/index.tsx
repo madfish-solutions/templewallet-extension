@@ -20,8 +20,8 @@ export const Form = memo<Props>(({ selectedChainAssetSlug, ...rest }) => {
   );
 
   if (chainKind === TempleChainKind.EVM) {
-    return <EvmForm assetSlug={assetSlug} chainId={chainId} {...rest} />;
+    return <EvmForm assetSlug={assetSlug} chainId={chainId as number} {...rest} />;
   }
 
-  return <TezosForm assetSlug={assetSlug} chainId={chainId} {...rest} />;
+  return <TezosForm assetSlug={assetSlug} chainId={chainId as string} {...rest} />;
 });

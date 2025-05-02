@@ -28,7 +28,7 @@ export const balancesReducer = createReducer(balancesInitialState, builder => {
   builder.addCase(loadAssetsBalancesActions.success, (state, { payload }) => {
     const records = retrieveBalancesRecord(state, payload.publicKeyHash, payload.chainId);
 
-    records.data = Object.assign({}, records.data, payload.balances);
+    Object.assign(records.data, payload.balances);
     records.isLoading = false;
     delete records.error;
   });
@@ -45,6 +45,6 @@ export const balancesReducer = createReducer(balancesInitialState, builder => {
 
     const records = retrieveBalancesRecord(state, payload.publicKeyHash, payload.chainId);
 
-    records.data = Object.assign({}, records.data, payload.balances);
+    Object.assign(records.data, payload.balances);
   });
 });

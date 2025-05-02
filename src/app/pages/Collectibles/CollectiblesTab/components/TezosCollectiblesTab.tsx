@@ -1,4 +1,4 @@
-import React, { FC, memo, useMemo } from 'react';
+import React, { FC, memo, useCallback } from 'react';
 
 import { usePreservedOrderSlugsToManage } from 'app/hooks/listing-logic/use-manageable-slugs';
 import {
@@ -8,14 +8,13 @@ import {
 import { useAssetsViewState } from 'app/hooks/use-assets-view-state';
 import { useCollectiblesListOptionsSelector } from 'app/store/assets-filter-options/selectors';
 import { parseChainAssetSlug, toChainAssetSlug } from 'lib/assets/utils';
+import { CollectiblesListItemElement } from 'lib/ui/collectibles-list';
 import { useMemoWithCompare } from 'lib/ui/hooks';
 import { useTezosMainnetChain } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
 
-import { GRID_CLASSNAMES } from '../constants';
-
 import { TezosCollectibleItem } from './CollectibleItem';
-import { CollectiblesTabBase } from './CollectiblesTabBase';
+import { TabContentBaseBody } from './tab-content-base-body';
 
 interface Props {
   publicKeyHash: string;
@@ -66,40 +65,39 @@ const TabContentBase = memo<TabContentBaseProps>(({ publicKeyHash, allSlugsSorte
 
   const { blur, showInfo } = useCollectiblesListOptionsSelector();
 
-  const contentElement = useMemo(
-    () => (
-      <div className={manageActive ? undefined : GRID_CLASSNAMES}>
-        {displayedSlugs.map(chainSlug => {
-          const [_, chainId, slug] = parseChainAssetSlug(chainSlug, TempleChainKind.Tezos);
+  const renderItem = useCallback(
+    (chainSlug: string, index: number, ref?: React.RefObject<CollectiblesListItemElement>) => {
+      const [_, chainId, slug] = parseChainAssetSlug(chainSlug, TempleChainKind.Tezos);
 
-          return (
-            <TezosCollectibleItem
-              key={chainSlug}
-              assetSlug={slug}
-              accountPkh={publicKeyHash}
-              tezosChainId={chainId}
-              adultBlur={blur}
-              areDetailsShown={showInfo}
-              manageActive={manageActive}
-            />
-          );
-        })}
-      </div>
-    ),
-    [displayedSlugs, publicKeyHash, blur, showInfo, manageActive]
+      return (
+        <TezosCollectibleItem
+          key={chainSlug}
+          assetSlug={slug}
+          accountPkh={publicKeyHash}
+          tezosChainId={chainId}
+          adultBlur={blur}
+          areDetailsShown={showInfo}
+          manageActive={manageActive}
+          index={index}
+          ref={ref}
+        />
+      );
+    },
+    [blur, manageActive, publicKeyHash, showInfo]
   );
 
   return (
-    <CollectiblesTabBase
-      collectiblesCount={displayedSlugs.length}
+    <TabContentBaseBody
       searchValue={searchValue}
       loadNextPage={loadNext}
       onSearchValueChange={setSearchValue}
       isSyncing={isSyncing}
       isInSearchMode={isInSearchMode}
       network={mainnetChain}
-    >
-      {contentElement}
-    </CollectiblesTabBase>
+      manageActive={manageActive}
+      slugs={displayedSlugs}
+      showInfo={showInfo}
+      renderItem={renderItem}
+    />
   );
 });

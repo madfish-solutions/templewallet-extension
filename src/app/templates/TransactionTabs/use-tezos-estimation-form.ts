@@ -7,6 +7,7 @@ import { useForm } from 'react-hook-form-v7';
 import { BehaviorSubject, EMPTY, catchError, from, of, switchMap } from 'rxjs';
 import { useDebounce } from 'use-debounce';
 
+import { toastError } from 'app/toaster';
 import {
   DisplayedFeeOptions,
   FeeOptionLabel,
@@ -98,7 +99,7 @@ export const useTezosEstimationForm = ({
                   entry.metadata.operation_result.status !== 'applied'
               )
             ) {
-              throw new Error('Could not get results by simulation');
+              throw new Error('Failed get results by simulation.');
             }
 
             setBalancesChangesLoading(false);
@@ -106,7 +107,7 @@ export const useTezosEstimationForm = ({
             return of(getBalancesChanges(response.contents, accountPkh));
           }),
           catchError(e => {
-            console.error(e);
+            toastError(e.message);
 
             try {
               return of(getBalancesChanges(operation.contents, accountPkh));

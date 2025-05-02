@@ -1433,7 +1433,7 @@
     "message": "Slipaj toleransı"
   },
   "minimumReceived": {
-    "message": "Alınan minimum"
+    "message": "Alınan Minimum"
   },
   "inputOutputAssetsCannotBeSame": {
     "message": "Giriş ve çıkış varlıkları aynı olamaz"

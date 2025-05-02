@@ -2,6 +2,7 @@ import BigNumber from 'bignumber.js';
 import { getAddress } from 'viem';
 
 import type { AssetMetadataBase } from 'lib/metadata';
+import type { ChainId } from 'temple/front/chains';
 import { isTezosDcpChainId } from 'temple/networks';
 import { TempleChainKind } from 'temple/types';
 
@@ -36,31 +37,23 @@ export const fromChainAssetSlug = <T = string | number>(
   return [chainKind, convertedChainId, assetSlug];
 };
 
-export function parseChainAssetSlug(
+type ParseChainReturnType<T extends TempleChainKind> = [chainKind: T, chainId: ChainId<T>, assetSlug: string];
+
+export function parseChainAssetSlug<T extends TempleChainKind>(
   chainAssetSlug: string,
-  chainKind: TempleChainKind.EVM
-): [chainKind: TempleChainKind.EVM, chainId: number, assetSlug: string];
-export function parseChainAssetSlug(
-  chainAssetSlug: string,
-  chainKind: TempleChainKind.Tezos
-): [chainKind: TempleChainKind.Tezos, chainId: string, assetSlug: string];
-export function parseChainAssetSlug(
-  chainAssetSlug: string
-):
-  | [chainKind: TempleChainKind.EVM, chainId: number, assetSlug: string]
-  | [chainKind: TempleChainKind.Tezos, chainId: string, assetSlug: string];
-export function parseChainAssetSlug(chainAssetSlug: string, chainKind?: TempleChainKind) {
+  chainKind?: T
+): ParseChainReturnType<T> {
   const [_chainKind, chainId = '', assetSlug = ''] = chainAssetSlug.split(CHAIN_SLUG_SEPARATOR);
 
   switch (chainKind) {
     case TempleChainKind.EVM:
-      return [TempleChainKind.EVM, Number(chainId), assetSlug];
+      return [TempleChainKind.EVM as T, Number(chainId), assetSlug];
     case TempleChainKind.Tezos:
-      return [TempleChainKind.Tezos, chainId, assetSlug];
+      return [TempleChainKind.Tezos as T, chainId, assetSlug];
     default:
-      if (_chainKind === TempleChainKind.EVM) return [TempleChainKind.EVM, Number(chainId), assetSlug];
+      if (_chainKind === TempleChainKind.EVM) return [TempleChainKind.EVM as T, Number(chainId), assetSlug];
 
-      return [TempleChainKind.Tezos, chainId, assetSlug];
+      return [TempleChainKind.Tezos as T, chainId, assetSlug];
   }
 }
 

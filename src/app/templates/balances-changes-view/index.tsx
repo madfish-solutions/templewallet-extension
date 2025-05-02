@@ -31,7 +31,7 @@ function BalancesChangesViewHOC<
   useNoCategoryMetadataGetter: (chainId: C['chainId']) => (assetSlug: string) => TM | CM | undefined,
   useGenericAssetsMetadataCheck: (chainSlugsToCheck: string[]) => void
 ) {
-  return memo<BalancesChangesViewProps<C>>(({ balancesChanges, chain }) => {
+  return memo<BalancesChangesViewProps<C>>(({ title, balancesChanges, chain }) => {
     const { chainId } = chain;
     const getCollectibleMetadata = useCollectibleMetadataGetter(chainId);
 
@@ -52,7 +52,7 @@ function BalancesChangesViewHOC<
 
     return (
       <BalancesChangesViewLayout
-        title={allAssetsAreCollectibles ? <T id="estimatedTxDetails" /> : <T id="transactionInfo" />}
+        title={title ?? (allAssetsAreCollectibles ? <T id="estimatedTxDetails" /> : <T id="transactionInfo" />)}
         rows={rows}
       />
     );
@@ -76,10 +76,10 @@ const EvmBalancesChangesView = BalancesChangesViewHOC<
   useEvmGenericAssetsMetadataCheck
 );
 
-export const BalancesChangesView = memo<BalancesChangesViewProps>(({ balancesChanges, chain }) => {
+export const BalancesChangesView = memo<BalancesChangesViewProps>(({ chain, ...rest }) => {
   if (chain.kind === TempleChainKind.Tezos) {
-    return <TezosBalancesChangesView balancesChanges={balancesChanges} chain={chain} />;
+    return <TezosBalancesChangesView {...rest} chain={chain} />;
   }
 
-  return <EvmBalancesChangesView balancesChanges={balancesChanges} chain={chain} />;
+  return <EvmBalancesChangesView {...rest} chain={chain} />;
 });

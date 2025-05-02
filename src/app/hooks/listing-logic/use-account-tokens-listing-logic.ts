@@ -16,9 +16,12 @@ import { useAccountTokensSortPredicate } from 'lib/assets/use-sorting';
 import { parseChainAssetSlug, toChainAssetSlug } from 'lib/assets/utils';
 import { useGetTokenOrGasMetadata } from 'lib/metadata';
 import { useMemoWithCompare } from 'lib/ui/hooks';
+import { groupByToEntries } from 'lib/utils/group-by-to-entries';
 import { useAllEvmChains, useEnabledEvmChains, useEnabledTezosChains } from 'temple/front';
+import { ChainGroupedSlugs } from 'temple/front/chains';
 import { TempleChainKind } from 'temple/types';
 
+import { useGroupedAssetsPaginationLogic } from '../use-group-assets-pagination-logic';
 import { useSimpleAssetsPaginationLogic } from '../use-simple-assets-pagination-logic';
 
 import { useEvmBalancesAreLoading } from './use-evm-balances-loading-state';
@@ -27,7 +30,8 @@ import { getSlugFromChainSlug, useCommonAssetsListingLogic } from './utils';
 export const useAccountTokensForListing = (
   accountTezAddress: string,
   accountEvmAddress: HexString,
-  filterZeroBalances = false
+  filterZeroBalances = false,
+  groupingEnabled = false
 ) => {
   const tezTokens = useTezosAccountTokens(accountTezAddress);
   const evmTokens = useEvmAccountTokens(accountEvmAddress);
@@ -46,8 +50,8 @@ export const useAccountTokensForListing = (
 
       const balance =
         chainKind === TempleChainKind.Tezos
-          ? tezBalances[getKeyForBalancesRecord(accountTezAddress, chainId)]?.data[slug]
-          : evmBalances[chainId]?.[slug];
+          ? tezBalances[getKeyForBalancesRecord(accountTezAddress, chainId as string)]?.data[slug]
+          : evmBalances[chainId as number]?.[slug];
       return isDefined(balance) && balance !== '0';
     },
     [accountTezAddress, tezBalances, evmBalances]
@@ -81,17 +85,32 @@ export const useAccountTokensForListing = (
     () => enabledChainsSlugsFiltered.sort(tokensSortPredicate),
     [enabledChainsSlugsFiltered, tokensSortPredicate]
   );
+  const enabledChainsSlugsSortedGrouped = useMemoWithCompare(() => {
+    if (!groupingEnabled) return null;
+
+    return groupByToEntries(enabledChainsSlugsSorted, slug => parseChainAssetSlug(slug)[1]);
+  }, [enabledChainsSlugsSorted, groupingEnabled]);
 
   return {
     enabledChainsSlugsSorted,
+    enabledChainsSlugsSortedGrouped,
     tezTokens,
     evmTokens,
     tokensSortPredicate
   };
 };
 
-export const useAccountTokensListingLogic = (allSlugsSorted: string[]) => {
-  const { slugs: paginatedSlugs, loadNext } = useSimpleAssetsPaginationLogic(allSlugsSorted);
+const fallbackAllSlugsSortedGrouped: never[] = [];
+
+export const useAccountTokensListingLogic = (
+  allSlugsSorted: string[],
+  allSlugsSortedGrouped: ChainGroupedSlugs | null
+) => {
+  const { slugs: paginatedSlugs, loadNext: loadNextPlain } = useSimpleAssetsPaginationLogic(allSlugsSorted);
+  const { slugsGroups: paginatedSlugsGroupsWithFallback, loadNext: loadNextGrouped } = useGroupedAssetsPaginationLogic(
+    allSlugsSortedGrouped ?? fallbackAllSlugsSortedGrouped
+  );
+  const paginatedSlugsGroups = allSlugsSortedGrouped ? paginatedSlugsGroupsWithFallback : null;
 
   const tezAssetsAreLoading = useAreAssetsLoading('tokens');
   const tezMetadatasLoading = useTokensMetadataLoadingSelector();
@@ -131,12 +150,33 @@ export const useAccountTokensListingLogic = (allSlugsSorted: string[]) => {
         : paginatedSlugs,
     [isInSearchMode, searchValueDebounced, allSlugsSorted, getTezMetadata, getEvmMetadata, paginatedSlugs]
   );
+  const displayedGroupedSlugs = useMemo(
+    () =>
+      isInSearchMode
+        ? allSlugsSortedGrouped
+            ?.map(([chainId, slugs]): [string | number, string[]] => [
+              chainId,
+              searchAssetsWithNoMeta(
+                searchValueDebounced,
+                slugs,
+                getTezMetadata,
+                getEvmMetadata,
+                slug => slug,
+                getSlugFromChainSlug
+              )
+            ])
+            .filter(([, slugs]) => slugs.length > 0) ?? null
+        : paginatedSlugsGroups,
+    [allSlugsSortedGrouped, getEvmMetadata, getTezMetadata, isInSearchMode, paginatedSlugsGroups, searchValueDebounced]
+  );
 
   return {
     isInSearchMode,
     displayedSlugs,
+    displayedGroupedSlugs,
     isSyncing,
-    loadNext,
+    loadNextGrouped,
+    loadNextPlain,
     searchValue,
     setSearchValue
   };

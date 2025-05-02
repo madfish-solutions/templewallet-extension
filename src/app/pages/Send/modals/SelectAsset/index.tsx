@@ -3,9 +3,9 @@ import React, { memo, useCallback, useState, MouseEvent, useMemo, Suspense, useE
 import { useDebounce } from 'use-debounce';
 
 import { Button, IconBase } from 'app/atoms';
+import { PageLoader } from 'app/atoms/Loader';
 import { PageModal } from 'app/atoms/PageModal';
 import { ReactComponent as CompactDown } from 'app/icons/base/compact_down.svg';
-import { SpinnerSection } from 'app/pages/Send/form/SpinnerSection';
 import { useAssetsFilterOptionsSelector } from 'app/store/assets-filter-options/selectors';
 import { FilterChain } from 'app/store/assets-filter-options/state';
 import { NetworkPopper } from 'app/templates/network-popper';
@@ -13,6 +13,7 @@ import { SearchBarField } from 'app/templates/SearchField';
 import { useAccountAddressForEvm, useAccountAddressForTezos } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
 
+import { SELECT_ASSET_SCROLLABLE_ID } from './constants';
 import { EvmAssetsList } from './EvmAssetsList';
 import { EvmChainAssetsList } from './EvmChainAssetsList';
 import { MultiChainAssetsList } from './MultiChainAssetsList';
@@ -120,8 +121,8 @@ export const SelectAssetModal = memo<SelectTokenModalProps>(({ onAssetSelect, op
         />
       </div>
 
-      <div className="px-4 pb-4 flex-1 flex flex-col overflow-y-auto">
-        <Suspense fallback={<SpinnerSection />}>{AssetsList}</Suspense>
+      <div className="px-4 pb-4 flex-1 flex flex-col overflow-y-auto" id={SELECT_ASSET_SCROLLABLE_ID}>
+        <Suspense fallback={<PageLoader stretch />}>{AssetsList}</Suspense>
       </div>
     </PageModal>
   );

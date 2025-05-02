@@ -1,15 +1,14 @@
-import React, { memo, useMemo } from 'react';
+import React, { memo, useCallback } from 'react';
 
 import { useEvmChainCollectiblesListingLogic } from 'app/hooks/listing-logic/use-evm-chain-collectibles-listing-logic';
 import { useAssetsViewState } from 'app/hooks/use-assets-view-state';
 import { useCollectiblesListOptionsSelector } from 'app/store/assets-filter-options/selectors';
+import { CollectiblesListItemElement } from 'lib/ui/collectibles-list';
 import { useEvmChainByChainId } from 'temple/front/chains';
 
-import { GRID_CLASSNAMES } from '../constants';
-
 import { EvmCollectibleItem } from './CollectibleItem';
-import { CollectiblesTabBase } from './CollectiblesTabBase';
 import { useEvmCollectiblesMetadataLoading } from './evm-meta-loading';
+import { TabContentBaseBody } from './tab-content-base-body';
 
 interface EvmChainCollectiblesTabProps {
   chainId: number;
@@ -27,35 +26,34 @@ export const EvmChainCollectiblesTab = memo<EvmChainCollectiblesTabProps>(({ cha
 
   useEvmCollectiblesMetadataLoading(publicKeyHash);
 
-  const contentElement = useMemo(
-    () => (
-      <div className={manageActive ? undefined : GRID_CLASSNAMES}>
-        {paginatedSlugs.map(slug => (
-          <EvmCollectibleItem
-            key={slug}
-            assetSlug={slug}
-            evmChainId={chainId}
-            accountPkh={publicKeyHash}
-            showDetails={showInfo}
-            manageActive={manageActive}
-          />
-        ))}
-      </div>
+  const renderItem = useCallback(
+    (slug: string, index: number, ref?: React.RefObject<CollectiblesListItemElement>) => (
+      <EvmCollectibleItem
+        key={slug}
+        assetSlug={slug}
+        evmChainId={chainId}
+        accountPkh={publicKeyHash}
+        showDetails={showInfo}
+        manageActive={manageActive}
+        index={index}
+        ref={ref}
+      />
     ),
-    [chainId, manageActive, paginatedSlugs, publicKeyHash, showInfo]
+    [chainId, manageActive, publicKeyHash, showInfo]
   );
 
   return (
-    <CollectiblesTabBase
-      collectiblesCount={paginatedSlugs.length}
+    <TabContentBaseBody
       searchValue={searchValue}
       loadNextPage={loadNext}
       onSearchValueChange={setSearchValue}
       isSyncing={isSyncing}
       isInSearchMode={isInSearchMode}
+      manageActive={manageActive}
+      slugs={paginatedSlugs}
+      showInfo={showInfo}
+      renderItem={renderItem}
       network={network}
-    >
-      {contentElement}
-    </CollectiblesTabBase>
+    />
   );
 });

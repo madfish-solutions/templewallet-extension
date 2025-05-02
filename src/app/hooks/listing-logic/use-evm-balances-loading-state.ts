@@ -5,8 +5,14 @@ import { useAllEvmChainsBalancesLoadingStatesSelector } from 'app/store/evm/sele
 export const useEvmBalancesAreLoading = () => {
   const loadingStates = useAllEvmChainsBalancesLoadingStatesSelector();
 
-  return useMemo(
-    () => Object.values(loadingStates).some(({ api, onchain }) => api.isLoading || onchain.isLoading),
-    [loadingStates]
-  );
+  return useMemo(() => {
+    for (const assetSlug in loadingStates) {
+      const { api, onchain } = loadingStates[assetSlug];
+      if (api.isLoading || onchain.isLoading) {
+        return true;
+      }
+    }
+
+    return false;
+  }, [loadingStates]);
 };

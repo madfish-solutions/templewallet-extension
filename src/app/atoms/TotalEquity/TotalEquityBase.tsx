@@ -1,4 +1,4 @@
-import React, { memo, useMemo } from 'react';
+import React, { memo, Suspense, useMemo } from 'react';
 
 import BigNumber from 'bignumber.js';
 
@@ -32,7 +32,11 @@ export const TotalEquityBase = memo<TotalEquityForTezosOnlyProps>(({ totalBalanc
     case 'eth':
       return <InEth amountInDollar={totalBalanceInDollar} />;
     default:
-      return <InFiat amountInDollar={totalBalanceInDollar} />;
+      return (
+        <Suspense fallback={null}>
+          <InFiat amountInDollar={totalBalanceInDollar} />
+        </Suspense>
+      );
   }
 });
 
