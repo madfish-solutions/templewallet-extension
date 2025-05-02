@@ -1,8 +1,7 @@
-import React, { memo, MouseEvent, useMemo } from 'react';
+import React, { memo, MouseEvent, RefObject, useCallback, useMemo } from 'react';
 
-import { EmptyState } from 'app/atoms/EmptyState';
 import { DeadEndBoundaryError } from 'app/ErrorBoundary';
-import { TezosListItem } from 'app/pages/Home/OtherComponents/Tokens/components/ListItem';
+import { TezosTokenListItem } from 'app/templates/TokenListItem';
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
 import { useEnabledTezosChainAccountTokenSlugs } from 'lib/assets/hooks';
 import { searchTezosChainAssetsWithNoMeta } from 'lib/assets/search.utils';
@@ -10,8 +9,11 @@ import { useTezosChainAccountTokensSortPredicate } from 'lib/assets/use-sorting'
 import { toChainAssetSlug } from 'lib/assets/utils';
 import { useGetChainTokenOrGasMetadata } from 'lib/metadata';
 import { useMemoWithCompare } from 'lib/ui/hooks';
+import { TokenListItemElement } from 'lib/ui/tokens-list';
 import { useTezosChainByChainId } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
+
+import { TokensListView } from './tokens-list-view';
 
 interface Props {
   chainId: string;
@@ -42,20 +44,21 @@ export const TezosChainAssetsList = memo<Props>(({ chainId, publicKeyHash, searc
     [assetsSlugs, getAssetMetadata, searchValue]
   );
 
-  return (
-    <>
-      {searchedSlugs.length === 0 && <EmptyState />}
-
-      {searchedSlugs.map(slug => (
-        <TezosListItem
-          key={slug}
-          network={network}
-          publicKeyHash={publicKeyHash}
-          assetSlug={slug}
-          showTags={false}
-          onClick={e => onAssetSelect(e, toChainAssetSlug(TempleChainKind.Tezos, chainId, slug))}
-        />
-      ))}
-    </>
+  const renderListItem = useCallback(
+    (slug: string, index: number, ref?: RefObject<TokenListItemElement>) => (
+      <TezosTokenListItem
+        key={slug}
+        index={index}
+        network={network}
+        publicKeyHash={publicKeyHash}
+        assetSlug={slug}
+        showTags={false}
+        onClick={e => onAssetSelect(e, toChainAssetSlug(TempleChainKind.Tezos, chainId, slug))}
+        ref={ref}
+      />
+    ),
+    [chainId, network, onAssetSelect, publicKeyHash]
   );
+
+  return <TokensListView slugs={searchedSlugs}>{renderListItem}</TokensListView>;
 });

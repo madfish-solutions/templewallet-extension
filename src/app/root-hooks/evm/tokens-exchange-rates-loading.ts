@@ -33,6 +33,7 @@ export const AppEvmTokensExchangeRatesLoading = memo<{ publicKeyHash: HexString 
   );
   const handleSuccess = useCallback((data: SuccessPayload<BalancesResponse>) => {
     dispatch(processLoadedEvmExchangeRatesAction(data));
+    dispatch(setEvmTokensExchangeRatesLoading({ chainId: data.chainId, isLoading: false }));
   }, []);
   const handleError = useCallback(({ chainId }: ErrorPayload) => {
     dispatch(setEvmTokensExchangeRatesLoading({ chainId, isLoading: false }));

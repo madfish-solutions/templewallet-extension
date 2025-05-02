@@ -1,4 +1,4 @@
-import React, { FC, memo, useMemo } from 'react';
+import React, { FC, memo, useCallback } from 'react';
 
 import { DeadEndBoundaryError } from 'app/ErrorBoundary';
 import { usePreservedOrderSlugsToManage } from 'app/hooks/listing-logic/use-manageable-slugs';
@@ -8,13 +8,12 @@ import {
 } from 'app/hooks/listing-logic/use-tezos-chain-collectibles-listing-logic';
 import { useAssetsViewState } from 'app/hooks/use-assets-view-state';
 import { useCollectiblesListOptionsSelector } from 'app/store/assets-filter-options/selectors';
+import { CollectiblesListItemElement } from 'lib/ui/collectibles-list';
 import { useMemoWithCompare } from 'lib/ui/hooks';
 import { TezosChain, useTezosChainByChainId } from 'temple/front';
 
-import { GRID_CLASSNAMES } from '../constants';
-
 import { TezosCollectibleItem } from './CollectibleItem';
-import { CollectiblesTabBase } from './CollectiblesTabBase';
+import { TabContentBaseBody } from './tab-content-base-body';
 
 interface Props {
   chainId: string;
@@ -92,36 +91,35 @@ const TabContentBase = memo<TabContentBaseProps>(({ network, publicKeyHash, allS
   const { chainId } = network;
   const { blur, showInfo } = useCollectiblesListOptionsSelector();
 
-  const contentElement = useMemo(
-    () => (
-      <div className={manageActive ? undefined : GRID_CLASSNAMES}>
-        {displayedSlugs.map(slug => (
-          <TezosCollectibleItem
-            key={slug}
-            assetSlug={slug}
-            accountPkh={publicKeyHash}
-            tezosChainId={chainId}
-            adultBlur={blur}
-            areDetailsShown={showInfo}
-            manageActive={manageActive}
-          />
-        ))}
-      </div>
+  const renderItem = useCallback(
+    (slug: string, index: number, ref?: React.RefObject<CollectiblesListItemElement>) => (
+      <TezosCollectibleItem
+        key={slug}
+        assetSlug={slug}
+        accountPkh={publicKeyHash}
+        tezosChainId={chainId}
+        adultBlur={blur}
+        areDetailsShown={showInfo}
+        manageActive={manageActive}
+        index={index}
+        ref={ref}
+      />
     ),
-    [displayedSlugs, publicKeyHash, chainId, blur, showInfo, manageActive]
+    [blur, chainId, manageActive, publicKeyHash, showInfo]
   );
 
   return (
-    <CollectiblesTabBase
-      collectiblesCount={displayedSlugs.length}
+    <TabContentBaseBody
       searchValue={searchValue}
       loadNextPage={loadNext}
       onSearchValueChange={setSearchValue}
       isSyncing={isSyncing}
       isInSearchMode={isInSearchMode}
+      manageActive={manageActive}
+      slugs={displayedSlugs}
+      showInfo={showInfo}
+      renderItem={renderItem}
       network={network}
-    >
-      {contentElement}
-    </CollectiblesTabBase>
+    />
   );
 });

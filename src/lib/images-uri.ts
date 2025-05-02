@@ -300,6 +300,7 @@ export const buildHttpLinkFromUri = (uri?: string) => {
     const uriInfo = getMediaUriInfo(uri);
     return buildIpfsMediaUriByInfo(uriInfo, 'small', false);
   } else {
-    return uri;
+    // Covalent IPFS gateway has poor performance
+    return uri.replace('https://ipfs.covalenthq.com', IPFS_GATE);
   }
 };

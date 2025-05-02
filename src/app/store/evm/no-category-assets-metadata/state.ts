@@ -6,7 +6,7 @@ export type ChainId = number;
 
 type TokenSlugAssetMetadataRecord = StringRecord<NoCategoryAssetMetadata>;
 
-type EvmNoCategoryAssetMetadataRecord = Record<ChainId, TokenSlugAssetMetadataRecord>;
+export type EvmNoCategoryAssetMetadataRecord = Record<ChainId, TokenSlugAssetMetadataRecord>;
 
 export interface NoCategoryEvmAssetsMetadataState {
   metadataRecord: EvmNoCategoryAssetMetadataRecord;

@@ -6,7 +6,10 @@ import { AddCustomTokenButton } from 'app/atoms/AddCustomTokenButton';
 import { PageLoader } from 'app/atoms/Loader';
 import { ManageAssetsViewStateButtons } from 'app/atoms/ManageAssetsViewStateButtons';
 import { ScrollBackUpButton } from 'app/atoms/ScrollBackUpButton';
-import { SimpleInfiniteScroll } from 'app/atoms/SimpleInfiniteScroll';
+import {
+  VisibilityTrackingInfiniteScroll,
+  VisibilityTrackingInfiniteScrollProps
+} from 'app/atoms/visibility-tracking-infinite-scroll';
 import { useAssetsViewState } from 'app/hooks/use-assets-view-state';
 import { ContentContainer, StickyBar } from 'app/layouts/containers';
 import { AssetsSelectors } from 'app/pages/Home/OtherComponents/Assets.selectors';
@@ -15,9 +18,10 @@ import { AssetsFilterOptions } from 'app/templates/AssetsFilterOptions';
 import { SearchBarField } from 'app/templates/SearchField';
 import { OneOfChains } from 'temple/front';
 
-interface CollectiblesTabBaseProps {
+export interface CollectiblesTabBaseProps {
   collectiblesCount: number;
   searchValue: string;
+  getElementsIndexes: VisibilityTrackingInfiniteScrollProps['getElementsIndexes'];
   loadNextPage: EmptyFn;
   onSearchValueChange: (value: string) => void;
   isSyncing: boolean;
@@ -28,6 +32,7 @@ interface CollectiblesTabBaseProps {
 export const CollectiblesTabBase: FC<PropsWithChildren<CollectiblesTabBaseProps>> = ({
   collectiblesCount,
   searchValue,
+  getElementsIndexes,
   loadNextPage,
   onSearchValueChange,
   isSyncing,
@@ -80,7 +85,9 @@ export const CollectiblesTabBase: FC<PropsWithChildren<CollectiblesTabBaseProps>
                         className="mb-4"
                       />
                     )}
-                    <SimpleInfiniteScroll loadNext={loadNextPage}>{children}</SimpleInfiniteScroll>
+                    <VisibilityTrackingInfiniteScroll loadNext={loadNextPage} getElementsIndexes={getElementsIndexes}>
+                      {children}
+                    </VisibilityTrackingInfiniteScroll>
                   </>
                 )}
 

@@ -1,9 +1,8 @@
-import React, { memo, useMemo, MouseEvent, useCallback } from 'react';
+import React, { memo, useMemo, MouseEvent, useCallback, RefObject } from 'react';
 
-import { EmptyState } from 'app/atoms/EmptyState';
 import { getSlugFromChainSlug } from 'app/hooks/listing-logic/utils';
-import { EvmListItem, TezosListItem } from 'app/pages/Home/OtherComponents/Tokens/components/ListItem';
 import { useEvmTokensMetadataRecordSelector } from 'app/store/evm/tokens-metadata/selectors';
+import { EvmTokenListItem, TezosTokenListItem } from 'app/templates/TokenListItem';
 import { EVM_TOKEN_SLUG, TEZ_TOKEN_SLUG } from 'lib/assets/defaults';
 import { useEnabledEvmAccountTokenSlugs, useEnabledTezosAccountTokenSlugs } from 'lib/assets/hooks/tokens';
 import { searchAssetsWithNoMeta } from 'lib/assets/search.utils';
@@ -11,8 +10,11 @@ import { useAccountTokensSortPredicate } from 'lib/assets/use-sorting';
 import { parseChainAssetSlug, toChainAssetSlug } from 'lib/assets/utils';
 import { useGetTokenOrGasMetadata } from 'lib/metadata';
 import { useMemoWithCompare } from 'lib/ui/hooks';
+import { TokenListItemElement } from 'lib/ui/tokens-list';
 import { useAllEvmChains, useAllTezosChains, useEnabledEvmChains, useEnabledTezosChains } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
+
+import { TokensListView } from './tokens-list-view';
 
 interface Props {
   accountTezAddress: string;
@@ -73,37 +75,40 @@ export const MultiChainAssetsList = memo<Props>(
       [enabledAssetsSlugsSorted, getEvmMetadata, getTezMetadata, searchValue]
     );
 
-    return (
-      <>
-        {searchedSlugs.length === 0 && <EmptyState />}
+    const renderListItem = useCallback(
+      (chainSlug: string, index: number, ref?: RefObject<TokenListItemElement>) => {
+        const [chainKind, chainId, assetSlug] = parseChainAssetSlug(chainSlug);
 
-        {searchedSlugs.map(chainSlug => {
-          const [chainKind, chainId, assetSlug] = parseChainAssetSlug(chainSlug);
-
-          if (chainKind === TempleChainKind.Tezos) {
-            return (
-              <TezosListItem
-                key={chainSlug}
-                network={tezosChains[chainId]!}
-                publicKeyHash={accountTezAddress}
-                assetSlug={assetSlug}
-                showTags={false}
-                onClick={e => onAssetSelect(e, chainSlug)}
-              />
-            );
-          }
-
+        if (chainKind === TempleChainKind.Tezos) {
           return (
-            <EvmListItem
+            <TezosTokenListItem
               key={chainSlug}
-              network={evmChains[chainId]!}
+              index={index}
+              network={tezosChains[chainId]!}
+              publicKeyHash={accountTezAddress}
               assetSlug={assetSlug}
-              publicKeyHash={accountEvmAddress}
+              showTags={false}
               onClick={e => onAssetSelect(e, chainSlug)}
+              ref={ref}
             />
           );
-        })}
-      </>
+        }
+
+        return (
+          <EvmTokenListItem
+            key={chainSlug}
+            index={index}
+            network={evmChains[chainId]!}
+            assetSlug={assetSlug}
+            publicKeyHash={accountEvmAddress}
+            onClick={e => onAssetSelect(e, chainSlug)}
+            ref={ref}
+          />
+        );
+      },
+      [accountEvmAddress, accountTezAddress, evmChains, onAssetSelect, tezosChains]
     );
+
+    return <TokensListView slugs={searchedSlugs}>{renderListItem}</TokensListView>;
   }
 );

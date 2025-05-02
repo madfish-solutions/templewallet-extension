@@ -1,4 +1,4 @@
-import React, { memo, MouseEventHandler, useCallback, useEffect, useRef, useState } from 'react';
+import React, { forwardRef, memo, MouseEventHandler, useCallback, useEffect, useRef, useState } from 'react';
 
 import clsx from 'clsx';
 import { useDispatch } from 'react-redux';
@@ -37,116 +37,119 @@ const shouldBeHiddenTemporarily = (hiddenAt: number) => {
   return Date.now() - hiddenAt < AD_HIDING_TIMEOUT;
 };
 
-export const PartnersPromotion = memo<PartnersPromotionProps>(
-  ({ variant, id, pageName, withPersonaProvider, className }) => {
-    const isImageAd = variant === PartnersPromotionVariant.Image;
-    const adsViewerAddress = useAdsViewerPkh();
-    const dispatch = useDispatch();
-    const hiddenAt = usePromotionHidingTimestampSelector(id);
-    const shouldShowPartnersPromo = useShouldShowPartnersPromoSelector();
+export const PartnersPromotion = memo(
+  forwardRef<HTMLDivElement, PartnersPromotionProps>(
+    ({ variant, id, pageName, withPersonaProvider, className }, ref) => {
+      const isImageAd = variant === PartnersPromotionVariant.Image;
+      const adsViewerAddress = useAdsViewerPkh();
+      const dispatch = useDispatch();
+      const hiddenAt = usePromotionHidingTimestampSelector(id);
+      const shouldShowPartnersPromo = useShouldShowPartnersPromoSelector();
 
-    const isAnalyticsSentRef = useRef(false);
+      const isAnalyticsSentRef = useRef(false);
 
-    const [hovered, setHovered, setUnhovered] = useBooleanState(false);
-    const [isHiddenTemporarily, setIsHiddenTemporarily] = useState(shouldBeHiddenTemporarily(hiddenAt));
-    const [providerName, setProviderName] = useState<AdsProviderLocalName>('HypeLab');
-    const [adError, setAdError] = useState(false);
-    const [adIsReady, setAdIsReady] = useState(false);
+      const [hovered, setHovered, setUnhovered] = useBooleanState(false);
+      const [isHiddenTemporarily, setIsHiddenTemporarily] = useState(shouldBeHiddenTemporarily(hiddenAt));
+      const [providerName, setProviderName] = useState<AdsProviderLocalName>('HypeLab');
+      const [adError, setAdError] = useState(false);
+      const [adIsReady, setAdIsReady] = useState(false);
 
-    useEffect(() => {
-      const newIsHiddenTemporarily = shouldBeHiddenTemporarily(hiddenAt);
-      setIsHiddenTemporarily(newIsHiddenTemporarily);
+      useEffect(() => {
+        const newIsHiddenTemporarily = shouldBeHiddenTemporarily(hiddenAt);
+        setIsHiddenTemporarily(newIsHiddenTemporarily);
 
-      if (newIsHiddenTemporarily) {
-        const timeout = setTimeout(
-          () => setIsHiddenTemporarily(false),
-          Math.max(Date.now() - hiddenAt + AD_HIDING_TIMEOUT, 0)
-        );
+        if (newIsHiddenTemporarily) {
+          const timeout = setTimeout(
+            () => setIsHiddenTemporarily(false),
+            Math.max(Date.now() - hiddenAt + AD_HIDING_TIMEOUT, 0)
+          );
 
-        return () => clearTimeout(timeout);
+          return () => clearTimeout(timeout);
+        }
+
+        return;
+      }, [hiddenAt]);
+
+      const handleAdRectSeen = useCallback(() => {
+        if (isAnalyticsSentRef.current) return;
+
+        postAdImpression(adsViewerAddress, AdsProviderTitle[providerName], { pageName });
+
+        isAnalyticsSentRef.current = true;
+      }, [providerName, pageName, adsViewerAddress]);
+
+      const handleClosePartnersPromoClick = useCallback<MouseEventHandler<HTMLButtonElement>>(
+        e => {
+          e.preventDefault();
+          e.stopPropagation();
+          dispatch(hidePromotionAction({ timestamp: Date.now(), id }));
+        },
+        [id, dispatch]
+      );
+
+      const handleHypelabError = useCallback(
+        () => (withPersonaProvider ? setProviderName('Persona') : setAdError(true)),
+        [withPersonaProvider]
+      );
+      const handlePersonaError = useCallback(() => setAdError(true), []);
+
+      const handleAdReady = useCallback(() => setAdIsReady(true), []);
+
+      if (!shouldShowPartnersPromo || adError || isHiddenTemporarily) {
+        return null;
       }
 
-      return;
-    }, [hiddenAt]);
+      return (
+        <div
+          className={clsx(
+            'w-full relative flex flex-col items-center',
+            !adIsReady && (isImageAd ? 'min-h-[101px]' : 'min-h-16'),
+            className
+          )}
+          onMouseEnter={setHovered}
+          onMouseLeave={setUnhovered}
+          ref={ref}
+        >
+          {(() => {
+            switch (providerName) {
+              case 'HypeLab':
+                return (
+                  <HypelabPromotion
+                    accountPkh={adsViewerAddress}
+                    variant={variant}
+                    isVisible={adIsReady}
+                    pageName={pageName}
+                    onAdRectSeen={handleAdRectSeen}
+                    onReady={handleAdReady}
+                    onError={handleHypelabError}
+                  />
+                );
+              case 'Persona':
+                return (
+                  <PersonaPromotion
+                    accountPkh={adsViewerAddress}
+                    id={id}
+                    isVisible={adIsReady}
+                    pageName={pageName}
+                    onAdRectSeen={handleAdRectSeen}
+                    onReady={handleAdReady}
+                    onError={handlePersonaError}
+                  />
+                );
+            }
+          })()}
 
-    const handleAdRectSeen = useCallback(() => {
-      if (isAnalyticsSentRef.current) return;
+          {!adIsReady && (
+            <div className="absolute inset-0 bg-grey-4 text-secondary flex justify-center items-center rounded-lg">
+              <span className="text-font-description-bold text-grey-2">
+                <T id="thanksForSupportingTemple" />
+              </span>
+            </div>
+          )}
 
-      postAdImpression(adsViewerAddress, AdsProviderTitle[providerName], { pageName });
-
-      isAnalyticsSentRef.current = true;
-    }, [providerName, pageName, adsViewerAddress]);
-
-    const handleClosePartnersPromoClick = useCallback<MouseEventHandler<HTMLButtonElement>>(
-      e => {
-        e.preventDefault();
-        e.stopPropagation();
-        dispatch(hidePromotionAction({ timestamp: Date.now(), id }));
-      },
-      [id, dispatch]
-    );
-
-    const handleHypelabError = useCallback(
-      () => (withPersonaProvider ? setProviderName('Persona') : setAdError(true)),
-      [withPersonaProvider]
-    );
-    const handlePersonaError = useCallback(() => setAdError(true), []);
-
-    const handleAdReady = useCallback(() => setAdIsReady(true), []);
-
-    if (!shouldShowPartnersPromo || adError || isHiddenTemporarily) {
-      return null;
+          {hovered && <CloseButton onClick={handleClosePartnersPromoClick} />}
+        </div>
+      );
     }
-
-    return (
-      <div
-        className={clsx(
-          'w-full relative flex flex-col items-center',
-          !adIsReady && (isImageAd ? 'min-h-[101px]' : 'min-h-16'),
-          className
-        )}
-        onMouseEnter={setHovered}
-        onMouseLeave={setUnhovered}
-      >
-        {(() => {
-          switch (providerName) {
-            case 'HypeLab':
-              return (
-                <HypelabPromotion
-                  accountPkh={adsViewerAddress}
-                  variant={variant}
-                  isVisible={adIsReady}
-                  pageName={pageName}
-                  onAdRectSeen={handleAdRectSeen}
-                  onReady={handleAdReady}
-                  onError={handleHypelabError}
-                />
-              );
-            case 'Persona':
-              return (
-                <PersonaPromotion
-                  accountPkh={adsViewerAddress}
-                  id={id}
-                  isVisible={adIsReady}
-                  pageName={pageName}
-                  onAdRectSeen={handleAdRectSeen}
-                  onReady={handleAdReady}
-                  onError={handlePersonaError}
-                />
-              );
-          }
-        })()}
-
-        {!adIsReady && (
-          <div className="absolute inset-0 bg-grey-4 text-secondary flex justify-center items-center rounded-lg">
-            <span className="text-font-description-bold text-grey-2">
-              <T id="thanksForSupportingTemple" />
-            </span>
-          </div>
-        )}
-
-        {hovered && <CloseButton onClick={handleClosePartnersPromoClick} />}
-      </div>
-    );
-  }
+  )
 );

@@ -13,4 +13,6 @@ export const useEvmChainUsdToTokenRatesSelector = (chainId: number) =>
   useSelector(({ evmTokensExchangeRates }) => evmTokensExchangeRates.usdToTokenRates[chainId] ?? EMPTY_FROZEN_OBJ);
 
 export const useEthUsdToTokenRateSelector = () =>
-  useEvmChainUsdToTokenRatesSelector(ETHEREUM_MAINNET_CHAIN_ID)[EVM_TOKEN_SLUG];
+  useSelector(
+    ({ evmTokensExchangeRates }) => evmTokensExchangeRates.usdToTokenRates[ETHEREUM_MAINNET_CHAIN_ID]?.[EVM_TOKEN_SLUG]
+  );

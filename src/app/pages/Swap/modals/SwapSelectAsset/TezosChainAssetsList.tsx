@@ -4,8 +4,8 @@ import { isDefined } from '@rnw-community/shared';
 
 import { EmptyState } from 'app/atoms/EmptyState';
 import { DeadEndBoundaryError } from 'app/ErrorBoundary';
-import { TezosListItem } from 'app/pages/Home/OtherComponents/Tokens/components/ListItem';
 import { useAllAccountBalancesSelector } from 'app/store/tezos/balances/selectors';
+import { TezosTokenListItem } from 'app/templates/TokenListItem';
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
 import { searchTezosChainAssetsWithNoMeta } from 'lib/assets/search.utils';
 import { useTezosChainAccountTokensSortPredicate } from 'lib/assets/use-sorting';
@@ -57,7 +57,7 @@ export const TezosChainAssetsList = memo<Props>(
         {filteredAssets.length === 0 && <EmptyState />}
 
         {filteredAssets.map(slug => (
-          <TezosListItem
+          <TezosTokenListItem
             key={slug}
             network={network}
             publicKeyHash={publicKeyHash}

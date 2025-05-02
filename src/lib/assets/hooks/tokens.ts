@@ -26,7 +26,7 @@ import { TempleChainKind } from 'temple/types';
 
 import { getAssetStatus, isAssetStatusIdle } from './utils';
 
-interface AccountToken extends AccountAsset {
+export interface AccountToken extends AccountAsset {
   chainId: string | number;
   predefined?: boolean;
 }

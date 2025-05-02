@@ -9,11 +9,10 @@ import { hidePromotionAction, togglePartnersPromotionAction } from './actions';
 import { partnersPromotionInitialState, PartnersPromotionState } from './state';
 
 const partnersPromotionReducer = createReducer(partnersPromotionInitialState, builder => {
-  builder.addCase(togglePartnersPromotionAction, (state, { payload }) => ({
-    ...state,
-    shouldShowPromotion: payload,
-    promotionHidingTimestamps: {}
-  }));
+  builder.addCase(togglePartnersPromotionAction, (state, { payload }) => {
+    state.shouldShowPromotion = payload;
+    state.promotionHidingTimestamps = {};
+  });
 
   builder.addCase(hidePromotionAction, (state, { payload: { id: pathname, timestamp } }) => {
     const { promotionHidingTimestamps } = state;

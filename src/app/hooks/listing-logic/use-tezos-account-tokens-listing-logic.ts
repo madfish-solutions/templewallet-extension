@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from 'react';
+import { useCallback } from 'react';
 
 import { isDefined } from '@rnw-community/shared';
 
@@ -10,41 +10,22 @@ import { TEZ_TOKEN_SLUG } from 'lib/assets';
 import { useTezosAccountTokens } from 'lib/assets/hooks/tokens';
 import { searchTezosAssetsWithNoMeta } from 'lib/assets/search.utils';
 import { useTezosAccountTokensSortPredicate } from 'lib/assets/use-sorting';
-import { fromChainAssetSlug, toChainAssetSlug } from 'lib/assets/utils';
+import { parseChainAssetSlug } from 'lib/assets/utils';
 import { useGetTokenOrGasMetadata } from 'lib/metadata';
-import { useMemoWithCompare } from 'lib/ui/hooks';
 import { useEnabledTezosChains } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
 
-import { useSimpleAssetsPaginationLogic } from '../use-simple-assets-pagination-logic';
+import {
+  makeUseChainKindAccountTokensForListing,
+  makeUseChainKindAccountTokensListingLogic
+} from './make-use-chain-kind-account-tokens-listing-logic';
 
-import { getSlugWithChainId, useCommonAssetsListingLogic } from './utils';
-
-export const useTezosAccountTokensForListing = (publicKeyHash: string, filterZeroBalances: boolean) => {
-  const tokensSortPredicate = useTezosAccountTokensSortPredicate(publicKeyHash);
-
-  const tokens = useTezosAccountTokens(publicKeyHash);
-
-  const enabledStoredChainSlugs = useMemo(
-    () =>
-      tokens
-        .filter(({ status }) => status === 'enabled')
-        .map(({ chainId, slug }) => toChainAssetSlug(TempleChainKind.Tezos, chainId, slug)),
-    [tokens]
-  );
-
-  const enabledChains = useEnabledTezosChains();
-
-  const gasSlugs = useMemo(
-    () => enabledChains.map(chain => toChainAssetSlug(TempleChainKind.Tezos, chain.chainId, TEZ_TOKEN_SLUG)),
-    [enabledChains]
-  );
-
+const useIsNonZeroBalance = (publicKeyHash: string) => {
   const balancesRecord = useBalancesAtomicRecordSelector();
 
-  const isNonZeroBalance = useCallback(
+  return useCallback(
     (chainSlug: string) => {
-      const [_, chainId, assetSlug] = fromChainAssetSlug<string>(chainSlug);
+      const [_, chainId, assetSlug] = parseChainAssetSlug(chainSlug, TempleChainKind.Tezos);
       const key = getKeyForBalancesRecord(publicKeyHash, chainId);
 
       const balance = balancesRecord[key]?.data[assetSlug];
@@ -52,51 +33,21 @@ export const useTezosAccountTokensForListing = (publicKeyHash: string, filterZer
     },
     [balancesRecord, publicKeyHash]
   );
-
-  const enabledSlugsFiltered = useMemo(() => {
-    const enabledSlugs = gasSlugs.concat(enabledStoredChainSlugs);
-
-    return filterZeroBalances ? enabledSlugs.filter(isNonZeroBalance) : enabledSlugs;
-  }, [enabledStoredChainSlugs, filterZeroBalances, gasSlugs, isNonZeroBalance]);
-
-  const enabledChainsSlugsSorted = useMemoWithCompare(
-    () => enabledSlugsFiltered.sort(tokensSortPredicate),
-    [enabledSlugsFiltered, tokensSortPredicate]
-  );
-
-  return {
-    enabledChainsSlugsSorted,
-    tokens,
-    tokensSortPredicate
-  };
 };
 
-export const useTezosAccountTokensListingLogic = (allSlugsSorted: string[]) => {
-  const { slugs: paginatedSlugs, loadNext } = useSimpleAssetsPaginationLogic(allSlugsSorted);
+export const useTezosAccountTokensForListing = makeUseChainKindAccountTokensForListing<TempleChainKind.Tezos>({
+  useAccountTokens: useTezosAccountTokens,
+  useEnabledChains: useEnabledTezosChains,
+  useTokensSortPredicate: useTezosAccountTokensSortPredicate,
+  useIsNonZeroBalance,
+  chainKind: TempleChainKind.Tezos,
+  gasTokenSlug: TEZ_TOKEN_SLUG
+});
 
-  const assetsAreLoading = useAreAssetsLoading('tokens');
-  const metadatasLoading = useTokensMetadataLoadingSelector();
-
-  const { searchValue, searchValueDebounced, setSearchValue, isInSearchMode, isSyncing } = useCommonAssetsListingLogic(
-    assetsAreLoading || metadatasLoading
-  );
-
-  const getMetadata = useGetTokenOrGasMetadata();
-
-  const displayedSlugs = useMemoWithCompare(
-    () =>
-      isInSearchMode
-        ? searchTezosAssetsWithNoMeta(searchValueDebounced, allSlugsSorted, getMetadata, getSlugWithChainId)
-        : paginatedSlugs,
-    [isInSearchMode, allSlugsSorted, paginatedSlugs, getMetadata, searchValueDebounced]
-  );
-
-  return {
-    isInSearchMode,
-    displayedSlugs,
-    isSyncing,
-    loadNext,
-    searchValue,
-    setSearchValue
-  };
-};
+export const useTezosAccountTokensListingLogic = makeUseChainKindAccountTokensListingLogic<TempleChainKind.Tezos>({
+  useBalancesAreLoading: () => useAreAssetsLoading('tokens'),
+  useIsMetadataLoading: useTokensMetadataLoadingSelector,
+  useExchangeRatesLoading: () => false,
+  useGetTokenOrGasMetadata,
+  searchTokensWithNoMeta: searchTezosAssetsWithNoMeta
+});
