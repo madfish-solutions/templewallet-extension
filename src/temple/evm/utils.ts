@@ -184,10 +184,9 @@ export const getCustomViemChain = (network: PartiallyRequired<EvmChain, 'chainId
 export const getViemTransportForNetwork = (network: EvmNetworkEssentials): Transport => {
   const additionalFallbackRpcs = EVM_FALLBACK_RPC_URLS[network.chainId];
 
-  if (!additionalFallbackRpcs) return http(network.rpcBaseURL);
+  if (!additionalFallbackRpcs) return http(network.rpcBaseURL, READ_ONLY_CLIENT_TRANSPORT_CONFIG);
 
   return fallback(
-    [network.rpcBaseURL, ...additionalFallbackRpcs].map(url => http(url, READ_ONLY_CLIENT_TRANSPORT_CONFIG)),
-    { rank: true }
+    [network.rpcBaseURL, ...additionalFallbackRpcs].map(url => http(url, READ_ONLY_CLIENT_TRANSPORT_CONFIG))
   );
 };

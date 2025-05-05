@@ -4,6 +4,8 @@ import { EvmNetworkEssentials } from 'temple/networks';
 
 import { Listener, ListenerCallback } from './listener';
 
+const FILTER_NOT_FOUND_ERROR = 'filter not found';
+
 export abstract class EvmHttpRpcListener<T extends unknown[] = []> extends Listener<T> {
   protected rpcClient: ChainPublicClient;
   protected isActive = false;
@@ -59,13 +61,14 @@ export abstract class EvmHttpRpcListener<T extends unknown[] = []> extends Liste
     }
   }
 
-  protected async onError(error: unknown) {
-    if (!this.isActive) {
-      return;
-    }
+  protected async onError(error: any) {
+    if (!this.isActive) return;
+
+    this.stopListening();
+
+    if (error.details === FILTER_NOT_FOUND_ERROR) return;
 
     console.error(error);
-    this.stopListening();
     await delay(1000);
     this.startListening();
   }
