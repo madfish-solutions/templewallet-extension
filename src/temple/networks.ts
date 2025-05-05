@@ -129,7 +129,7 @@ export const EVM_DEFAULT_NETWORKS: NonEmptyArray<StoredEvmNetwork> = [
     name: 'Polygon',
     chain: TempleChainKind.EVM,
     chainId: COMMON_MAINNET_CHAIN_IDS.polygon,
-    rpcBaseURL: 'https://polygon-rpc.com',
+    rpcBaseURL: 'https://polygon-bor-rpc.publicnode.com',
     color: '#725ae8',
     default: true
   },
@@ -248,9 +248,9 @@ export const EVM_FALLBACK_RPC_URLS: Record<number, string[]> = {
     'https://1rpc.io/bnb'
   ],
   [COMMON_MAINNET_CHAIN_IDS.polygon]: [
+    'https://polygon-rpc.com',
     'https://polygon.drpc.org',
     'https://polygon.meowrpc.com',
-    'https://polygon-bor-rpc.publicnode.com',
     'https://endpoints.omniatech.io/v1/matic/mainnet/public',
     'https://1rpc.io/matic'
   ],
