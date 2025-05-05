@@ -1,3 +1,4 @@
+import { isDefined } from '@rnw-community/shared';
 import memoizee from 'memoizee';
 import { Transport, Chain, createPublicClient, PublicClient, http } from 'viem';
 
@@ -10,20 +11,14 @@ import { getCustomViemChain, getViemChainByChainId, getViemTransportForNetwork }
 
 export type ChainPublicClient = PublicClient<Transport, Pick<Chain, 'id' | 'name' | 'nativeCurrency' | 'rpcUrls'>>;
 
-/**
- * Some Viem Client methods will need chain definition to execute, use below fn in those cases
- */
 export const getViemPublicClient = memoizee(
   (network: EvmNetworkEssentials): ChainPublicClient => {
     const viemChain = getViemChainByChainId(network.chainId);
 
-    if (viemChain) {
-      return createPublicClient({ chain: viemChain, transport: getViemTransportForNetwork(network) });
-    }
-
     return createPublicClient({
-      chain: getCustomViemChain(network),
-      transport: getViemTransportForNetwork(network)
+      chain: isDefined(viemChain) ? viemChain : getCustomViemChain(network),
+      transport: getViemTransportForNetwork(network),
+      batch: { multicall: true }
     });
   },
   {

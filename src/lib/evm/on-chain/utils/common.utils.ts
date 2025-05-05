@@ -1,7 +1,8 @@
+import { isDefined } from '@rnw-community/shared';
 import { erc20Abi, parseAbi } from 'viem';
 
 import { fromAssetSlug } from 'lib/assets';
-import { getViemPublicClient } from 'temple/evm';
+import { ChainPublicClient, getViemPublicClient } from 'temple/evm';
 import { EvmNetworkEssentials } from 'temple/networks';
 
 import { ContractInterfaceId, EvmAssetStandard } from '../../types';
@@ -9,12 +10,12 @@ import { ContractInterfaceId, EvmAssetStandard } from '../../types';
 const supportsInterfaceAbi = parseAbi(['function supportsInterface(bytes4 interfaceID) external view returns (bool)']);
 
 export const detectEvmTokenStandard = async (
-  network: EvmNetworkEssentials,
+  clientOrNetwork: ChainPublicClient | EvmNetworkEssentials,
   assetSlug: string
 ): Promise<EvmAssetStandard | undefined> => {
   const [contractAddress] = fromAssetSlug<HexString>(assetSlug);
 
-  const publicClient = getViemPublicClient(network);
+  const publicClient = isNetworkArg(clientOrNetwork) ? getViemPublicClient(clientOrNetwork) : clientOrNetwork;
 
   try {
     const isERC721Supported = await publicClient.readContract({
@@ -48,3 +49,7 @@ export const detectEvmTokenStandard = async (
     return undefined;
   }
 };
+
+const isNetworkArg = (
+  clientOrNetwork: ChainPublicClient | EvmNetworkEssentials
+): clientOrNetwork is EvmNetworkEssentials => isDefined((clientOrNetwork as EvmNetworkEssentials).rpcBaseURL);

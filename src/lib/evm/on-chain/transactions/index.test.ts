@@ -28,12 +28,10 @@ import {
 
 import { getEvmBalancesChanges } from '.';
 
-const testNetwork = {
+const testClient = getViemPublicClient({
   chainId: kavaTestnet.id,
   rpcBaseURL: kavaTestnet.rpcUrls.default.http[0]
-};
-
-const testClient = getViemPublicClient(testNetwork);
+});
 
 const simulateContractMock = jest.fn();
 
@@ -55,7 +53,7 @@ const getTestErc721TokenSlug = (tokenId: number) => toEvmAssetSlug(testErc721Add
 const getTestErc1155TokenSlug = (tokenId: number) => toEvmAssetSlug(testErc1155Address, String(tokenId));
 
 const checkEvmBalancesChanges = async (tx: TransactionSerializable, sender: HexString, expected: AssetsAmounts) => {
-  const actualValue = stripZeroBalancesChanges(await getEvmBalancesChanges(tx, sender, testNetwork));
+  const actualValue = stripZeroBalancesChanges(await getEvmBalancesChanges(tx, sender, testClient));
   expect(actualValue).toEqual(expected);
 };
 

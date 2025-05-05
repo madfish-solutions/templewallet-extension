@@ -18,6 +18,7 @@ import { useTypedSWR } from 'lib/swr';
 import { FeeOptionLabel, useEvmEstimationDataState } from 'lib/temple/front/estimation-data-providers';
 import { EvmEstimationDataWithFallback, StoredAccount } from 'lib/temple/types';
 import { AccountForChain, getAccountAddressForEvm } from 'temple/accounts';
+import { getViemPublicClient } from 'temple/evm';
 import { isEvmEstimationData } from 'temple/evm/utils';
 import { useAllEvmChains } from 'temple/front';
 import { AssetsAmounts, TempleChainKind } from 'temple/types';
@@ -178,7 +179,8 @@ export const useEvmEstimationForm = (
   );
 
   const estimateBalancesChanges = useCallback(
-    async (): Promise<AssetsAmounts> => (basicParams ? getEvmBalancesChanges(basicParams, accountAddress, chain) : {}),
+    async (): Promise<AssetsAmounts> =>
+      basicParams ? getEvmBalancesChanges(basicParams, accountAddress, getViemPublicClient(chain)) : {},
     [basicParams, chain, accountAddress]
   );
   const estimateBalancesChangesSwrKey = useMemo(
