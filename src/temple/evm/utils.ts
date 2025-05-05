@@ -25,14 +25,6 @@ export const getViemChainsList = memoizee(() => Object.values(ViemChains) as Cha
 export const getViemChainByChainId = (chainId: number): Chain | undefined =>
   extractChain({ chains: getViemChainsList(), id: chainId });
 
-export function makeErrorLikeObject(code: number, message: string) {
-  return { code, message };
-}
-
-export function throwErrorLikeObject(code: number, message: string): never {
-  throw makeErrorLikeObject(code, message);
-}
-
 export function parseTransactionRequest(req: RpcTransactionRequest): TransactionRequest {
   if (req.type === '0x0') {
     const { gas, value, gasPrice, type, nonce, ...restProps } = req;
