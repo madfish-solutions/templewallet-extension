@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
-import { ETHEREUM_MAINNET_CHAIN_ID, OTHER_COMMON_MAINNET_CHAIN_IDS } from 'lib/temple/types';
+import { ETHEREUM_MAINNET_CHAIN_ID, COMMON_MAINNET_CHAIN_IDS } from 'lib/temple/types';
 import { BasicChain } from 'temple/front/chains';
 import { TempleChainKind } from 'temple/types';
 
@@ -105,35 +105,35 @@ const COINGECKO_EVM_TOKENS_IDS: Record<number, StringRecord> = {
     '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48_0': 'usd-coin', // USDC
     '0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599_0': 'wrapped-bitcoin' // wBTC
   },
-  [OTHER_COMMON_MAINNET_CHAIN_IDS.polygon]: {
+  [COMMON_MAINNET_CHAIN_IDS.polygon]: {
     [EVM_TOKEN_SLUG]: 'matic-network',
     '0x889b165212c8A813fc7Ef9a92ce0eeB9f9919E2B_0': 'tether', // USDT
     '0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174_0': 'usd-coin', // USDC
     '0x1BFD67037B42Cf73acF2047067bd4F2C47D9BfD6_0': 'polygon-bridged-wbtc-polygon-pos' // wBTC
   },
-  [OTHER_COMMON_MAINNET_CHAIN_IDS.optimism]: {
+  [COMMON_MAINNET_CHAIN_IDS.optimism]: {
     [EVM_TOKEN_SLUG]: 'optimism',
     '0x94b008aA00579c1307B0EF2c499aD98a8ce58e58_0': 'bridged-usdt', // USDT
     '0x7F5c764cBc14f9669B88837ca1490cCa17c31607_0': 'bridged-usd-coin-optimism', // USDC
     '0x68f180fcCe6836688e9084f035309E29Bf0A2095_0': 'optimism-bridged-wbtc-optimism' // wBTC
   },
-  [OTHER_COMMON_MAINNET_CHAIN_IDS.arbitrum]: {
+  [COMMON_MAINNET_CHAIN_IDS.arbitrum]: {
     [EVM_TOKEN_SLUG]: 'arbitrum',
     '0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9_0': 'arbitrum-bridged-usdt-arbitrum', // USDT
     '0xaf88d065e77c8cC2239327C5EDb3A432268e5831_0': 'usd-coin', // USDC
     '0x2f2a2543B76A4166549F7aaB2e75Bef0aefC5B0f_0': 'arbitrum-bridged-wbtc-arbitrum-one' // wBTC
   },
-  [OTHER_COMMON_MAINNET_CHAIN_IDS.avalanche]: {
+  [COMMON_MAINNET_CHAIN_IDS.avalanche]: {
     [EVM_TOKEN_SLUG]: 'avalanche-2',
     '0x9702230A8Ea53601f5cD2dc00fDBc13d4dF4A8c7_0': 'tether', // USDT
     '0xB97EF9Ef8734C71904D8002F8b6Bc66Dd9c48a6E_0': 'usd-coin' // USDC
   },
-  [OTHER_COMMON_MAINNET_CHAIN_IDS.bsc]: {
+  [COMMON_MAINNET_CHAIN_IDS.bsc]: {
     [EVM_TOKEN_SLUG]: 'binancecoin',
     '0x55d398326f99059fF775485246999027B3197955_0': 'binance-bridged-usdt-bnb-smart-chain', // USDT
     '0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d_0': 'binance-bridged-usdc-bnb-smart-chain' // USDC
   },
-  [OTHER_COMMON_MAINNET_CHAIN_IDS.base]: {
+  [COMMON_MAINNET_CHAIN_IDS.base]: {
     [EVM_TOKEN_SLUG]: 'base',
     '0xfde4C96c8593536E31F229EA8f37b2ADa2699bb2_0': 'l2-standard-bridged-usdt-base', // USDT
     '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913_0': 'usd-coin' // USDC

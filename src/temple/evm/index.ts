@@ -7,7 +7,7 @@ import { rejectOnTimeout } from 'lib/utils';
 import { MAX_MEMOIZED_TOOLKITS } from '../misc';
 import { EvmNetworkEssentials } from '../networks';
 
-import { READ_ONLY_CLIENT_TRANSPORT_CONFIG } from './constants';
+import { DEFAULT_TRANSPORT_CONFIG } from './constants';
 import { getCustomViemChain, getViemChainByChainId, getViemTransportForNetwork } from './utils';
 
 export type ChainPublicClient = PublicClient<Transport, Pick<Chain, 'id' | 'name' | 'nativeCurrency' | 'rpcUrls'>>;
@@ -28,7 +28,7 @@ export const getViemPublicClient = memoizee(
 );
 
 export function loadEvmChainId(rpcUrl: string, timeout?: number) {
-  const client = createPublicClient({ transport: http(rpcUrl, READ_ONLY_CLIENT_TRANSPORT_CONFIG) });
+  const client = createPublicClient({ transport: http(rpcUrl, DEFAULT_TRANSPORT_CONFIG) });
 
   if (timeout && timeout > 0)
     return rejectOnTimeout(client.getChainId(), timeout, new Error('Timed-out for loadEvmChainId()'));

@@ -17,7 +17,7 @@ import type { EvmChain } from 'temple/front';
 
 import { DEFAULT_EVM_CURRENCY, EVM_FALLBACK_RPC_URLS, type EvmNetworkEssentials } from '../networks';
 
-import { READ_ONLY_CLIENT_TRANSPORT_CONFIG } from './constants';
+import { DEFAULT_TRANSPORT_CONFIG } from './constants';
 import type { EvmEstimationData, SerializedEvmEstimationData } from './estimate';
 
 export const getViemChainsList = memoizee(() => Object.values(ViemChains) as Chain[]);
@@ -174,11 +174,12 @@ export const getCustomViemChain = (network: PartiallyRequired<EvmChain, 'chainId
 });
 
 export const getViemTransportForNetwork = (network: EvmNetworkEssentials): Transport => {
-  const additionalFallbackRpcs = EVM_FALLBACK_RPC_URLS[network.chainId];
+  const fallbackRpcs = EVM_FALLBACK_RPC_URLS[network.chainId];
 
-  if (!additionalFallbackRpcs) return http(network.rpcBaseURL, READ_ONLY_CLIENT_TRANSPORT_CONFIG);
+  if (!fallbackRpcs) return http(network.rpcBaseURL, DEFAULT_TRANSPORT_CONFIG);
 
   return fallback(
-    [network.rpcBaseURL, ...additionalFallbackRpcs].map(url => http(url, READ_ONLY_CLIENT_TRANSPORT_CONFIG))
+    [network.rpcBaseURL, ...fallbackRpcs].map(url => http(url, { retryCount: 0 })),
+    { retryCount: 0 }
   );
 };

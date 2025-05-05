@@ -39,7 +39,7 @@ export const RETURNED_ACCOUNTS_CAVEAT_NAME = 'restrictReturnedAccounts';
 export const GET_DEFAULT_WEB3_PARAMS_METHOD_NAME = 'getDefaultRpc';
 
 /** See: https://viem.sh/docs/clients/transports/http */
-export const READ_ONLY_CLIENT_TRANSPORT_CONFIG: HttpTransportConfig = {
+export const DEFAULT_TRANSPORT_CONFIG: HttpTransportConfig = {
   /** Defaults to 3 */
   retryCount: 1,
   /** Defaults to 150 */
