@@ -1,13 +1,29 @@
 import memoizee from 'memoizee';
-import { toHex, type RpcTransactionRequest, type TransactionRequest } from 'viem';
+import {
+  toHex,
+  type RpcTransactionRequest,
+  type TransactionRequest,
+  extractChain,
+  Chain,
+  Transport,
+  http,
+  fallback
+} from 'viem';
 import * as ViemChains from 'viem/chains';
 import type { AuthorizationList, RpcAuthorizationList } from 'viem/experimental';
 
 import { EvmEstimationDataWithFallback, SerializedEvmEstimationDataWithFallback } from 'lib/temple/types';
+import type { EvmChain } from 'temple/front';
 
+import { DEFAULT_EVM_CURRENCY, EVM_FALLBACK_RPC_URLS, type EvmNetworkEssentials } from '../networks';
+
+import { READ_ONLY_CLIENT_TRANSPORT_CONFIG } from './constants';
 import type { EvmEstimationData, SerializedEvmEstimationData } from './estimate';
 
-export const getViemChainsList = memoizee(() => Object.values(ViemChains));
+export const getViemChainsList = memoizee(() => Object.values(ViemChains) as Chain[]);
+
+export const getViemChainByChainId = (chainId: number): Chain | undefined =>
+  extractChain({ chains: getViemChainsList(), id: chainId });
 
 export function makeErrorLikeObject(code: number, message: string) {
   return { code, message };
@@ -153,3 +169,25 @@ export const isEvmEstimationData = (data: EvmEstimationDataWithFallback | undefi
 export const isSerializedEvmEstimationData = (
   data: SerializedEvmEstimationDataWithFallback
 ): data is SerializedEvmEstimationData => 'gas' in data;
+
+export const getCustomViemChain = (network: PartiallyRequired<EvmChain, 'chainId' | 'rpcBaseURL'>) => ({
+  id: network.chainId,
+  rpcUrls: {
+    default: {
+      http: [network.rpcBaseURL]
+    }
+  },
+  name: network.name ?? '',
+  nativeCurrency: network.currency ?? DEFAULT_EVM_CURRENCY
+});
+
+export const getViemTransportForNetwork = (network: EvmNetworkEssentials): Transport => {
+  const additionalFallbackRpcs = EVM_FALLBACK_RPC_URLS[network.chainId];
+
+  if (!additionalFallbackRpcs) return http(network.rpcBaseURL);
+
+  return fallback(
+    [network.rpcBaseURL, ...additionalFallbackRpcs].map(url => http(url, READ_ONLY_CLIENT_TRANSPORT_CONFIG)),
+    { rank: true }
+  );
+};

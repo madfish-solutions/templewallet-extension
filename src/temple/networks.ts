@@ -119,7 +119,7 @@ export const EVM_DEFAULT_NETWORKS: NonEmptyArray<StoredEvmNetwork> = [
     name: 'Ethereum',
     chain: TempleChainKind.EVM,
     chainId: ETHEREUM_MAINNET_CHAIN_ID,
-    rpcBaseURL: 'https://cloudflare-eth.com',
+    rpcBaseURL: 'https://ethereum-rpc.publicnode.com',
     color: '#0036fc',
     default: true
   },
@@ -156,7 +156,7 @@ export const EVM_DEFAULT_NETWORKS: NonEmptyArray<StoredEvmNetwork> = [
     name: 'Optimism',
     chain: TempleChainKind.EVM,
     chainId: OTHER_COMMON_MAINNET_CHAIN_IDS.optimism,
-    rpcBaseURL: 'https://mainnet.optimism.io',
+    rpcBaseURL: 'https://optimism-rpc.publicnode.com',
     description: 'Optimism',
     color: '#fc0000',
     default: true
@@ -230,3 +230,39 @@ export const EVM_DEFAULT_NETWORKS: NonEmptyArray<StoredEvmNetwork> = [
     default: true
   }
 ];
+
+export const EVM_FALLBACK_RPC_URLS: Record<number, string[]> = {
+  [ETHEREUM_MAINNET_CHAIN_ID]: [
+    'https://cloudflare-eth.com',
+    'https://eth.llamarpc.com',
+    'https://eth.drpc.org',
+    'https://eth.meowrpc.com',
+    'https://endpoints.omniatech.io/v1/eth/mainnet/public'
+  ],
+  [OTHER_COMMON_MAINNET_CHAIN_IDS.bsc]: [
+    'https://binance.llamarpc.com',
+    'https://bsc.drpc.org',
+    'https://bsc.meowrpc.com',
+    'https://endpoints.omniatech.io/v1/bsc/mainnet/public',
+    'https://1rpc.io/bnb'
+  ],
+  [OTHER_COMMON_MAINNET_CHAIN_IDS.polygon]: [
+    'https://polygon.drpc.org',
+    'https://polygon.meowrpc.com',
+    'https://polygon-bor-rpc.publicnode.com',
+    'https://endpoints.omniatech.io/v1/matic/mainnet/public',
+    'https://1rpc.io/matic'
+  ],
+  [OTHER_COMMON_MAINNET_CHAIN_IDS.avalanche]: [
+    'https://avalanche.drpc.org',
+    'https://avax.meowrpc.com',
+    'https://endpoints.omniatech.io/v1/avax/mainnet/public',
+    'https://1rpc.io/avax/c'
+  ],
+  [OTHER_COMMON_MAINNET_CHAIN_IDS.optimism]: [
+    'https://mainnet.optimism.io',
+    'https://optimism.drpc.org',
+    'https://optimism.meowrpc.com',
+    'https://1rpc.io/op'
+  ]
+};

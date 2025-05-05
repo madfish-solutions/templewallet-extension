@@ -2,7 +2,7 @@ import BigNumber from 'bignumber.js';
 import { TransactionSerializable } from 'viem';
 
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
-import { ChainPublicClient } from 'temple/evm';
+import { EvmNetworkEssentials } from 'temple/networks';
 import { AssetsAmounts } from 'temple/types';
 
 import { ContractCallTransaction, knownOperationsHandlers } from './handlers';
@@ -14,7 +14,7 @@ const isContractCallTransaction = (tx: TransactionSerializable): tx is ContractC
 export const getEvmBalancesChanges = async (
   tx: TransactionSerializable,
   sender: HexString,
-  client: ChainPublicClient
+  network: EvmNetworkEssentials
 ) => {
   const basicBalancesChanges: AssetsAmounts = {
     [EVM_TOKEN_SLUG]: { atomicAmount: new BigNumber((tx.value ?? 0).toString()).negated(), isNft: false }
@@ -25,7 +25,7 @@ export const getEvmBalancesChanges = async (
   }
 
   for (const handler of knownOperationsHandlers) {
-    const additionalDeltas = await handler(tx, sender, client);
+    const additionalDeltas = await handler(tx, sender, network);
 
     if (additionalDeltas) {
       return { ...basicBalancesChanges, ...additionalDeltas };

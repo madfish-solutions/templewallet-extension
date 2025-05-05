@@ -1,53 +1,42 @@
 import memoizee from 'memoizee';
-import { Transport, Chain, createPublicClient, http, PublicClient } from 'viem';
+import { Transport, Chain, createPublicClient, PublicClient, http } from 'viem';
 
 import { rejectOnTimeout } from 'lib/utils';
-import type { EvmChain } from 'temple/front';
 
-import { getReadOnlyEvm } from './get-read-only-evm';
-import { getViemChainsList } from './utils';
+import { MAX_MEMOIZED_TOOLKITS } from '../misc';
+import { EvmNetworkEssentials } from '../networks';
 
-export { getReadOnlyEvm } from './get-read-only-evm';
+import { getCustomViemChain, getViemChainByChainId, getViemTransportForNetwork } from './utils';
 
 export type ChainPublicClient = PublicClient<Transport, Pick<Chain, 'id' | 'name' | 'nativeCurrency' | 'rpcUrls'>>;
 
 /**
  * Some Viem Client methods will need chain definition to execute, use below fn in those cases
  */
-export const getReadOnlyEvmForNetwork = memoizee(
-  (network: EvmChain): ChainPublicClient => {
-    const viemChain = getViemChainsList().find(chain => chain.id === network.chainId);
+export const getViemPublicClient = memoizee(
+  (network: EvmNetworkEssentials): ChainPublicClient => {
+    const viemChain = getViemChainByChainId(network.chainId);
 
     if (viemChain) {
-      return createPublicClient({ chain: viemChain, transport: http(network.rpcBaseURL) }) as ChainPublicClient;
+      return createPublicClient({ chain: viemChain, transport: getViemTransportForNetwork(network) });
     }
 
     return createPublicClient({
-      chain: {
-        id: network.chainId,
-        name: network.name,
-        nativeCurrency: network.currency,
-        rpcUrls: {
-          default: {
-            http: [network.rpcBaseURL]
-          }
-        }
-      },
-      transport: http()
+      chain: getCustomViemChain(network),
+      transport: getViemTransportForNetwork(network)
     });
   },
   {
-    max: 10,
-    normalizer: ([{ chainId, name, rpcBaseURL, currency }]) =>
-      `${rpcBaseURL}${chainId}${name}${JSON.stringify(currency)}`
+    max: MAX_MEMOIZED_TOOLKITS,
+    normalizer: args => JSON.stringify(args)
   }
 );
 
 export function loadEvmChainId(rpcUrl: string, timeout?: number) {
-  const rpc = getReadOnlyEvm(rpcUrl);
+  const client = createPublicClient({ transport: http(rpcUrl) });
 
   if (timeout && timeout > 0)
-    return rejectOnTimeout(rpc.getChainId(), timeout, new Error('Timed-out for loadEvmChainId()'));
+    return rejectOnTimeout(client.getChainId(), timeout, new Error('Timed-out for loadEvmChainId()'));
 
-  return rpc.getChainId();
+  return client.getChainId();
 }

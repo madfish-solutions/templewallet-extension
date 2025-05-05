@@ -28,7 +28,7 @@ import {
 import { toEvmAssetSlug } from 'lib/assets/utils';
 import { EvmAssetStandard } from 'lib/evm/types';
 import { toBigNumber } from 'lib/utils/numbers';
-import { ChainPublicClient } from 'temple/evm';
+import { EvmNetworkEssentials } from 'temple/networks';
 import { AssetsAmounts } from 'temple/types';
 
 import { detectEvmTokenStandard } from '../utils/common.utils';
@@ -46,11 +46,11 @@ export type ContractCallTransaction = TransactionSerializable & { data: HexStrin
 const makeAbiFunctionHandler = <AbiFragment extends TxAbiFragment>(
   fragment: AbiFragment,
   onParse: ParseCallback<AbiFragment>,
-  applicabilityPredicate?: (tx: ContractCallTransaction, client: ChainPublicClient) => Promise<boolean>
+  applicabilityPredicate?: (tx: ContractCallTransaction, network: EvmNetworkEssentials) => Promise<boolean>
 ) => {
-  return async (tx: ContractCallTransaction, sender: HexString, client: ChainPublicClient) => {
+  return async (tx: ContractCallTransaction, sender: HexString, network: EvmNetworkEssentials) => {
     try {
-      if (applicabilityPredicate && !(await applicabilityPredicate(tx, client))) {
+      if (applicabilityPredicate && !(await applicabilityPredicate(tx, network))) {
         return null;
       }
 
@@ -155,8 +155,8 @@ const onErc1155BurnsParse: ParseCallback<typeof erc1155BurnBatchAbi> = async (ar
 };
 
 const makeTargetIsOfStandardFn =
-  (standard: EvmAssetStandard) => async (tx: ContractCallTransaction, client: ChainPublicClient) => {
-    const standardDetected = await detectEvmTokenStandard(client, toEvmAssetSlug(tx.to, '0'));
+  (standard: EvmAssetStandard) => async (tx: ContractCallTransaction, network: EvmNetworkEssentials) => {
+    const standardDetected = await detectEvmTokenStandard(network, toEvmAssetSlug(tx.to, '0'));
 
     return standardDetected === standard;
   };

@@ -1,3 +1,5 @@
+import { HttpTransportConfig } from 'viem';
+
 export enum EVMErrorCodes {
   USER_REJECTED_REQUEST = 4001,
   NOT_AUTHORIZED = 4100,
@@ -35,3 +37,11 @@ export const evmRpcMethodsNames = {
 export const RETURNED_ACCOUNTS_CAVEAT_NAME = 'restrictReturnedAccounts';
 
 export const GET_DEFAULT_WEB3_PARAMS_METHOD_NAME = 'getDefaultRpc';
+
+/** See: https://viem.sh/docs/clients/transports/http */
+export const READ_ONLY_CLIENT_TRANSPORT_CONFIG: HttpTransportConfig = {
+  /** Defaults to 3 */
+  retryCount: 1,
+  /** Defaults to 150 */
+  retryDelay: 300
+};

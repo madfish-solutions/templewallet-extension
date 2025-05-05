@@ -2,6 +2,8 @@ import memoizee from 'memoizee';
 
 import { EvmAssetStandard } from 'lib/evm/types';
 
+import { EvmNetworkEssentials } from '../../../../temple/networks';
+
 import { EvmNewBlockListener, getEvmNewBlockListener } from './evm-new-block-listener';
 import { getERC1155TransferEventsListener } from './transfer-events-listeners/erc1155-transfer-events-listener';
 import { getERC20TransferEventsListener } from './transfer-events-listeners/erc20-transfer-events-listener';
@@ -17,11 +19,16 @@ const transferListenerGetters = {
 class EvmAssetTransfersListener {
   private listener: ReturnType<(typeof transferListenerGetters)[EvmAssetStandard]>;
 
-  constructor(rpcUrl: string, account: HexString, private assetSlug: string, assetStandard: EvmAssetStandard) {
+  constructor(
+    network: EvmNetworkEssentials,
+    account: HexString,
+    private assetSlug: string,
+    assetStandard: EvmAssetStandard
+  ) {
     if (assetStandard === EvmAssetStandard.NATIVE) {
-      this.listener = getEvmNewBlockListener(rpcUrl);
+      this.listener = getEvmNewBlockListener(network);
     } else {
-      this.listener = transferListenerGetters[assetStandard](rpcUrl, account);
+      this.listener = transferListenerGetters[assetStandard](network, account);
     }
   }
 
@@ -44,7 +51,7 @@ class EvmAssetTransfersListener {
 }
 
 export const createEvmTransfersListener = memoizee(
-  (rpcUrl: string, account: HexString, assetSlug: string, assetStandard: EvmAssetStandard) =>
-    new EvmAssetTransfersListener(rpcUrl, account, assetSlug, assetStandard),
+  (network: EvmNetworkEssentials, account: HexString, assetSlug: string, assetStandard: EvmAssetStandard) =>
+    new EvmAssetTransfersListener(network, account, assetSlug, assetStandard),
   { length: 4 }
 );
