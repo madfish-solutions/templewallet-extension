@@ -25,14 +25,18 @@ export const useAnalytics = () => {
       isAnalyticsEnabled = analyticsEnabled
     ) =>
       isAnalyticsEnabled &&
-      sendTrackEvent(userId, chainId, event, category, { ...properties, abTestingCategory: testGroupName }),
+      sendTrackEvent(userId, chainId, event, category, { ...properties, abTestingCategory: testGroupName, beta: true }),
     [analyticsEnabled, userId, chainId, testGroupName]
   );
 
   const pageEvent = useCallback(
     (path: string, search: string, additionalProperties = {}) =>
       analyticsEnabled &&
-      sendPageEvent(userId, chainId, path, search, { ...additionalProperties, abTestingCategory: testGroupName }),
+      sendPageEvent(userId, chainId, path, search, {
+        ...additionalProperties,
+        abTestingCategory: testGroupName,
+        beta: true
+      }),
     [analyticsEnabled, userId, chainId, testGroupName]
   );
 

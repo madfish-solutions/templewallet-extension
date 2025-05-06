@@ -189,7 +189,7 @@ export class Vault {
       });
       await savePlain(migrationLevelStrgKey, MIGRATIONS.length);
 
-      return tezosAcc.address;
+      return { tezAddress: tezosAcc.address, evmAddress: evmAcc.address };
     });
   }
 
