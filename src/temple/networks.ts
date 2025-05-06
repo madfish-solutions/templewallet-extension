@@ -75,8 +75,7 @@ export const TEZOS_DEFAULT_NETWORKS: NonEmptyArray<StoredTezosNetwork> = [
     chainId: TempleTezosChainId.Mainnet,
     rpcBaseURL: 'https://mainnet.smartpy.io',
     description: 'SmartPy Mainnet',
-    color: '#34D399',
-    default: true
+    color: '#34D399'
   },
   {
     id: 'tezie-mainnet',
@@ -85,8 +84,7 @@ export const TEZOS_DEFAULT_NETWORKS: NonEmptyArray<StoredTezosNetwork> = [
     chainId: TempleTezosChainId.Mainnet,
     rpcBaseURL: 'https://mainnet.api.tez.ie',
     description: 'Highly available Tezos Mainnet nodes operated by ECAD Labs',
-    color: '#047857',
-    default: true
+    color: '#047857'
   },
   {
     id: 'ghostnet',

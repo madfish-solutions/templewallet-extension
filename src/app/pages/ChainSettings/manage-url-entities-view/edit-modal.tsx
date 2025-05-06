@@ -49,6 +49,7 @@ interface EditUrlEntityModalProps<T extends UrlEntityBase> {
   onRemoveConfirm: EmptyFn;
   updateEntity: (entity: T, values: EditUrlEntityModalFormValues, signal: AbortSignal) => Promise<void>;
   activeSwitchTestID: string;
+  hideDefaultUrlEntityText?: string;
 }
 
 export const EditUrlEntityModal = <T extends UrlEntityBase>({
@@ -58,6 +59,7 @@ export const EditUrlEntityModal = <T extends UrlEntityBase>({
   canChangeActiveState,
   entity,
   entityUrl,
+  hideDefaultUrlEntityText,
   namesToExclude,
   urlsToExclude,
   activeI18nKey,
@@ -76,7 +78,11 @@ export const EditUrlEntityModal = <T extends UrlEntityBase>({
   const [removeModalIsOpen, openRemoveModal, closeRemoveModal] = useBooleanState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const formReturn = useForm<EditUrlEntityModalFormValues>({
-    defaultValues: { name: entity.name, url: entityUrl, isActive },
+    defaultValues: {
+      name: entity.name,
+      url: hideDefaultUrlEntityText && entity.default ? hideDefaultUrlEntityText : entityUrl,
+      isActive
+    },
     mode: 'onChange'
   });
   const { control, register, handleSubmit, formState } = formReturn;

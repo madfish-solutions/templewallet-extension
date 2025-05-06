@@ -1,5 +1,6 @@
 import React, { ReactNode, useCallback, useEffect, useMemo, useState } from 'react';
 
+import { isDefined } from '@rnw-community/shared';
 import { isEqual } from 'lodash';
 
 import { Button, IconBase } from 'app/atoms';
@@ -35,6 +36,7 @@ interface ManageUrlEntitiesViewProps<T> {
   itemTestID: string;
   activeSwitchTestID: string;
   activeCheckboxTestID: string;
+  hideDefaultUrlEntityText?: string;
 }
 
 export const ManageUrlEntitiesView = <T extends UrlEntityBase>({
@@ -48,6 +50,7 @@ export const ManageUrlEntitiesView = <T extends UrlEntityBase>({
   deleteLabelI18nKey,
   successfullyAddedMessageI18nKey,
   createModalTitle,
+  hideDefaultUrlEntityText,
   urlInputPlaceholder,
   namePlaceholder,
   getEntityUrl,
@@ -110,6 +113,7 @@ export const ManageUrlEntitiesView = <T extends UrlEntityBase>({
           <ManageUrlEntitiesItem
             key={item.id}
             item={item}
+            hideDefaultEntityUrl={isDefined(hideDefaultUrlEntityText)}
             isActive={item.id === activeItemId}
             getEntityUrl={getEntityUrl}
             onClick={setEntityToEdit}
@@ -135,6 +139,7 @@ export const ManageUrlEntitiesView = <T extends UrlEntityBase>({
           }
           entity={entityToEdit}
           entityUrl={getEntityUrl(entityToEdit)}
+          hideDefaultUrlEntityText={hideDefaultUrlEntityText}
           namesToExclude={namesToExclude}
           urlsToExclude={urlsToExclude}
           onClose={closeEditModal}
