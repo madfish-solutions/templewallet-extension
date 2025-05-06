@@ -1,3 +1,4 @@
+import { uniq } from 'lodash';
 import memoizee from 'memoizee';
 import {
   toHex,
@@ -179,7 +180,7 @@ export const getViemTransportForNetwork = (network: EvmNetworkEssentials): Trans
   if (!fallbackRpcs) return http(network.rpcBaseURL, DEFAULT_TRANSPORT_CONFIG);
 
   return fallback(
-    [network.rpcBaseURL, ...fallbackRpcs].map(url => http(url, { retryCount: 0 })),
+    uniq([network.rpcBaseURL, ...fallbackRpcs]).map(url => http(url, { retryCount: 0 })),
     { retryCount: 0 }
   );
 };
