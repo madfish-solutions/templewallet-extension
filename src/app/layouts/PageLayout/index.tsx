@@ -175,7 +175,7 @@ const ContentPaper: FC<ContentPaperProps> = ({
           className
         )}
       >
-        <FadeTransition className="h-[unset] flex-grow">{children}</FadeTransition>
+        <FadeTransition className="!h-[unset] flex-grow">{children}</FadeTransition>
       </ContentPaperNode>
     </ContentPaperRefContext.Provider>
   );
