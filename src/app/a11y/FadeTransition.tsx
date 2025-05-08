@@ -1,8 +1,9 @@
 import React, { FC, useLayoutEffect, useRef, useState } from 'react';
 
+import clsx from 'clsx';
 import CSSTransition from 'react-transition-group/CSSTransition';
 
-export const FadeTransition: FC<PropsWithChildren> = ({ children }) => {
+export const FadeTransition: FC<PropsWithChildren<{ className?: string }>> = ({ children, className }) => {
   const nodeRef = useRef(null);
 
   const [booted, setBooted] = useState(false);
@@ -23,7 +24,7 @@ export const FadeTransition: FC<PropsWithChildren> = ({ children }) => {
         enterActive: 'opacity-100 transition ease-out duration-300'
       }}
     >
-      <div ref={nodeRef} className="flex flex-col h-full">
+      <div ref={nodeRef} className={clsx('flex flex-col h-full', className)}>
         {children}
       </div>
     </CSSTransition>
