@@ -27,11 +27,11 @@ import { useEnabledEvmChains } from 'temple/front';
 
 import { DataLoader, ErrorPayload, SuccessPayload, useRefreshIfActive } from './use-refresh-if-active';
 
-type Loaders = [DataLoader<StringRecord>, DataLoader<BalancesResponse>] | [DataLoader<BalancesResponse>];
+type Loaders = [DataLoader<StringRecord>] | [DataLoader<BalancesResponse>, DataLoader<StringRecord>];
 
 export const AppEvmBalancesLoading = memo<{ publicKeyHash: HexString }>(({ publicKeyHash }) => {
   const chains = useEnabledEvmChains();
-  const testnetModeEnabled = useTestnetModeEnabledSelector();
+  const isTestnetMode = useTestnetModeEnabledSelector();
   const loadingStates = useAllEvmChainsBalancesLoadingStatesSelector();
   const balancesTimestamps = useEvmAccountBalancesTimestampsSelector(publicKeyHash);
   const rawBalances = useRawEvmAccountBalancesSelector(publicKeyHash);
@@ -165,42 +165,34 @@ export const AppEvmBalancesLoading = memo<{ publicKeyHash: HexString }>(({ publi
     [evmCollectiblesMetadataRef, evmTokensMetadataRef, rawBalancesRef, chains]
   );
 
-  const apiLoader = useMemo<DataLoader<BalancesResponse>>(
+  const onChainLoader = useMemo<DataLoader<StringRecord>>(
     () => ({
-      type: 'api',
-      isLoading: isLoadingApi,
-      setLoading: setLoadingApi,
-      getData: getEvmBalancesFromApi,
-      handleSuccess: handleApiSuccess,
-      handleError: handleApiError
+      type: 'onchain',
+      isLoading: isLoadingOnChain,
+      setLoading: setLoadingOnChain,
+      getData: getEvmBalancesFromChain,
+      handleSuccess: handleOnchainSuccess,
+      handleError: handleOnchainError
     }),
-    [getEvmBalancesFromApi, handleApiError, handleApiSuccess, isLoadingApi, setLoadingApi]
+    [isLoadingOnChain, setLoadingOnChain, getEvmBalancesFromChain, handleOnchainSuccess, handleOnchainError]
   );
 
   const loaders = useMemo<Loaders>(
     () =>
-      testnetModeEnabled
-        ? [
+      isTestnetMode
+        ? [onChainLoader]
+        : [
             {
-              type: 'onchain',
-              isLoading: isLoadingOnChain,
-              setLoading: setLoadingOnChain,
-              getData: getEvmBalancesFromChain,
-              handleSuccess: handleOnchainSuccess,
-              handleError: handleOnchainError
+              type: 'api',
+              isLoading: isLoadingApi,
+              setLoading: setLoadingApi,
+              getData: getEvmBalancesFromApi,
+              handleSuccess: handleApiSuccess,
+              handleError: handleApiError
             },
-            apiLoader
-          ]
-        : [apiLoader],
-    [
-      testnetModeEnabled,
-      isLoadingOnChain,
-      setLoadingOnChain,
-      getEvmBalancesFromChain,
-      handleOnchainSuccess,
-      handleOnchainError,
-      apiLoader
-    ]
+            onChainLoader
+          ],
+    [getEvmBalancesFromApi, handleApiError, handleApiSuccess, isLoadingApi, setLoadingApi, isTestnetMode, onChainLoader]
   );
 
   useRefreshIfActive({
