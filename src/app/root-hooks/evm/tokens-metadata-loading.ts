@@ -13,6 +13,7 @@ import {
 } from 'app/store/evm/tokens-metadata/actions';
 import { useEvmTokensMetadataRecordSelector } from 'app/store/evm/tokens-metadata/selectors';
 import { isValidFetchedEvmMetadata } from 'app/store/evm/tokens-metadata/utils';
+import { useTestnetModeEnabledSelector } from 'app/store/settings/selectors';
 import { getEvmTokensMetadata } from 'lib/apis/temple/endpoints/evm';
 import { isSupportedChainId } from 'lib/apis/temple/endpoints/evm/api.utils';
 import { toTokenSlug } from 'lib/assets';
@@ -22,6 +23,7 @@ import { EvmChain, useEnabledEvmChains } from 'temple/front';
 export const AppEvmTokensMetadataLoading = memo<{ publicKeyHash: HexString }>(({ publicKeyHash }) => {
   const evmChains = useEnabledEvmChains();
   const isLoading = useEvmTokensMetadataLoadingSelector();
+  const isTestnetMode = useTestnetModeEnabledSelector();
 
   const storedTokensRecord = useEvmStoredTokensRecordSelector();
   const tokensMetadataRecord = useEvmTokensMetadataRecordSelector();
@@ -53,7 +55,7 @@ export const AppEvmTokensMetadataLoading = memo<{ publicKeyHash: HexString }>(({
 
         dispatchSetEvmTokensMetadataLoadingToTrue();
 
-        if (isSupportedChainId(chainId)) {
+        if (isSupportedChainId(chainId) && !isTestnetMode) {
           return getEvmTokensMetadata(publicKeyHash, chainId).then(data => {
             dispatch(processLoadedEvmTokensMetadataAction({ chainId, data }));
 
@@ -71,7 +73,7 @@ export const AppEvmTokensMetadataLoading = memo<{ publicKeyHash: HexString }>(({
         return loadEvmTokensMetadataFromChain(slugsWithoutMeta, chain);
       })
     ).then(() => void dispatch(setEvmTokensMetadataLoading(false)));
-  }, [evmChains, storedTokensRecord, publicKeyHash]);
+  }, [evmChains, storedTokensRecord, publicKeyHash, isTestnetMode]);
 
   return null;
 });
