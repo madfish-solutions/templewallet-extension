@@ -74,7 +74,9 @@ export const CollectiblesTabBase: FC<PropsWithChildren<CollectiblesTabBaseProps>
             ) : (
               <>
                 {isInSearchMode ? (
-                  children
+                  <VisibilityTrackingInfiniteScroll loadNext={loadNextPage} getElementsIndexes={getElementsIndexes}>
+                    {children}
+                  </VisibilityTrackingInfiniteScroll>
                 ) : (
                   <>
                     {manageActive && (
