@@ -1,10 +1,12 @@
 import memoizee from 'memoizee';
 
+import { EvmNetworkEssentials } from 'temple/networks';
+
 interface ListenerClassConstructor<T> {
-  new (httpRpcUrl: string, account: HexString): T;
+  new (network: EvmNetworkEssentials, account: HexString): T;
 }
 
 export const makeGetTransferEventsListener = <T>(constructor: ListenerClassConstructor<T>) =>
-  memoizee((httpRpcUrl: string, account: HexString) => new constructor(httpRpcUrl, account), {
+  memoizee((network: EvmNetworkEssentials, account: HexString) => new constructor(network, account), {
     length: 2
   });

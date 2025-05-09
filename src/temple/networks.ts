@@ -5,8 +5,9 @@ import { EvmNativeTokenMetadata } from 'lib/metadata/types';
 import {
   ETHEREUM_MAINNET_CHAIN_ID,
   ETH_SEPOLIA_CHAIN_ID,
-  OTHER_COMMON_MAINNET_CHAIN_IDS,
-  TempleTezosChainId
+  COMMON_MAINNET_CHAIN_IDS,
+  TempleTezosChainId,
+  COMMON_TESTNET_CHAIN_IDS
 } from 'lib/temple/types';
 
 import { TempleChainKind } from './types';
@@ -74,8 +75,7 @@ export const TEZOS_DEFAULT_NETWORKS: NonEmptyArray<StoredTezosNetwork> = [
     chainId: TempleTezosChainId.Mainnet,
     rpcBaseURL: 'https://mainnet.smartpy.io',
     description: 'SmartPy Mainnet',
-    color: '#34D399',
-    default: true
+    color: '#34D399'
   },
   {
     id: 'tezie-mainnet',
@@ -84,8 +84,7 @@ export const TEZOS_DEFAULT_NETWORKS: NonEmptyArray<StoredTezosNetwork> = [
     chainId: TempleTezosChainId.Mainnet,
     rpcBaseURL: 'https://mainnet.api.tez.ie',
     description: 'Highly available Tezos Mainnet nodes operated by ECAD Labs',
-    color: '#047857',
-    default: true
+    color: '#047857'
   },
   {
     id: 'ghostnet',
@@ -112,6 +111,72 @@ export const DEFAULT_EVM_CURRENCY: EvmNativeTokenMetadata = {
   decimals: 18
 };
 
+export const EVM_FALLBACK_RPC_URLS: Record<number, string[]> = {
+  [ETHEREUM_MAINNET_CHAIN_ID]: [
+    'https://ethereum-rpc.publicnode.com',
+    'https://cloudflare-eth.com',
+    'https://eth.llamarpc.com',
+    'https://eth.drpc.org',
+    'https://eth.meowrpc.com',
+    'https://endpoints.omniatech.io/v1/eth/mainnet/public'
+  ],
+  [COMMON_MAINNET_CHAIN_IDS.polygon]: [
+    'https://polygon-bor-rpc.publicnode.com',
+    'https://polygon-rpc.com',
+    'https://polygon.drpc.org',
+    'https://polygon.meowrpc.com',
+    'https://endpoints.omniatech.io/v1/matic/mainnet/public',
+    'https://1rpc.io/matic'
+  ],
+  [COMMON_MAINNET_CHAIN_IDS.bsc]: [
+    'https://bsc-rpc.publicnode.com',
+    'https://binance.llamarpc.com',
+    'https://bsc.drpc.org',
+    'https://bsc.meowrpc.com',
+    'https://endpoints.omniatech.io/v1/bsc/mainnet/public',
+    'https://1rpc.io/bnb'
+  ],
+  [COMMON_MAINNET_CHAIN_IDS.avalanche]: [
+    'https://avalanche-c-chain-rpc.publicnode.com',
+    'https://avalanche.drpc.org',
+    'https://avax.meowrpc.com',
+    'https://endpoints.omniatech.io/v1/avax/mainnet/public',
+    'https://1rpc.io/avax/c'
+  ],
+  [COMMON_MAINNET_CHAIN_IDS.optimism]: [
+    'https://optimism-rpc.publicnode.com',
+    'https://mainnet.optimism.io',
+    'https://optimism.drpc.org',
+    'https://optimism.meowrpc.com',
+    'https://1rpc.io/op'
+  ],
+  [ETH_SEPOLIA_CHAIN_ID]: [
+    'https://ethereum-sepolia-rpc.publicnode.com',
+    'https://sepolia.drpc.org',
+    'https://1rpc.io/sepolia'
+  ],
+  [COMMON_TESTNET_CHAIN_IDS.polygon]: [
+    'https://polygon-amoy-bor-rpc.publicnode.com',
+    'https://rpc-amoy.polygon.technology',
+    'https://polygon-amoy.drpc.org'
+  ],
+  [COMMON_TESTNET_CHAIN_IDS.bsc]: [
+    'https://bsc-testnet-rpc.publicnode.com',
+    'https://bsc-testnet.drpc.org',
+    'https://endpoints.omniatech.io/v1/bsc/testnet/public'
+  ],
+  [COMMON_TESTNET_CHAIN_IDS.avalanche]: [
+    'https://avalanche-fuji-c-chain-rpc.publicnode.com',
+    'https://avalanche-fuji.drpc.org',
+    'https://endpoints.omniatech.io/v1/avax/fuji/public'
+  ],
+  [COMMON_TESTNET_CHAIN_IDS.optimism]: [
+    'https://optimism-sepolia-rpc.publicnode.com',
+    'https://endpoints.omniatech.io/v1/op/sepolia/public',
+    'https://sepolia.optimism.io'
+  ]
+};
+
 /** (!) Never remove Mainnet */
 export const EVM_DEFAULT_NETWORKS: NonEmptyArray<StoredEvmNetwork> = [
   {
@@ -119,7 +184,7 @@ export const EVM_DEFAULT_NETWORKS: NonEmptyArray<StoredEvmNetwork> = [
     name: 'Ethereum',
     chain: TempleChainKind.EVM,
     chainId: ETHEREUM_MAINNET_CHAIN_ID,
-    rpcBaseURL: 'https://cloudflare-eth.com',
+    rpcBaseURL: EVM_FALLBACK_RPC_URLS[ETHEREUM_MAINNET_CHAIN_ID][0],
     color: '#0036fc',
     default: true
   },
@@ -127,8 +192,8 @@ export const EVM_DEFAULT_NETWORKS: NonEmptyArray<StoredEvmNetwork> = [
     id: 'matic-mainnet',
     name: 'Polygon',
     chain: TempleChainKind.EVM,
-    chainId: OTHER_COMMON_MAINNET_CHAIN_IDS.polygon,
-    rpcBaseURL: 'https://polygon-rpc.com',
+    chainId: COMMON_MAINNET_CHAIN_IDS.polygon,
+    rpcBaseURL: EVM_FALLBACK_RPC_URLS[COMMON_MAINNET_CHAIN_IDS.polygon][0],
     color: '#725ae8',
     default: true
   },
@@ -136,8 +201,8 @@ export const EVM_DEFAULT_NETWORKS: NonEmptyArray<StoredEvmNetwork> = [
     id: 'bsc-mainnet',
     name: 'BSC',
     chain: TempleChainKind.EVM,
-    chainId: OTHER_COMMON_MAINNET_CHAIN_IDS.bsc,
-    rpcBaseURL: 'https://bsc-rpc.publicnode.com',
+    chainId: COMMON_MAINNET_CHAIN_IDS.bsc,
+    rpcBaseURL: EVM_FALLBACK_RPC_URLS[COMMON_MAINNET_CHAIN_IDS.bsc][0],
     description: 'Binance Smart Chain Mainnet',
     color: '#f5d300',
     default: true
@@ -146,8 +211,8 @@ export const EVM_DEFAULT_NETWORKS: NonEmptyArray<StoredEvmNetwork> = [
     id: 'avalanche-mainnet',
     name: 'Avalanche',
     chain: TempleChainKind.EVM,
-    chainId: OTHER_COMMON_MAINNET_CHAIN_IDS.avalanche,
-    rpcBaseURL: 'https://avalanche-c-chain-rpc.publicnode.com',
+    chainId: COMMON_MAINNET_CHAIN_IDS.avalanche,
+    rpcBaseURL: EVM_FALLBACK_RPC_URLS[COMMON_MAINNET_CHAIN_IDS.avalanche][0],
     color: '#ff5959',
     default: true
   },
@@ -155,8 +220,8 @@ export const EVM_DEFAULT_NETWORKS: NonEmptyArray<StoredEvmNetwork> = [
     id: 'optimism-mainnet',
     name: 'Optimism',
     chain: TempleChainKind.EVM,
-    chainId: OTHER_COMMON_MAINNET_CHAIN_IDS.optimism,
-    rpcBaseURL: 'https://mainnet.optimism.io',
+    chainId: COMMON_MAINNET_CHAIN_IDS.optimism,
+    rpcBaseURL: EVM_FALLBACK_RPC_URLS[COMMON_MAINNET_CHAIN_IDS.optimism][0],
     description: 'Optimism',
     color: '#fc0000',
     default: true
@@ -165,7 +230,7 @@ export const EVM_DEFAULT_NETWORKS: NonEmptyArray<StoredEvmNetwork> = [
     id: 'etherlink-mainnet',
     name: 'Etherlink',
     chain: TempleChainKind.EVM,
-    chainId: OTHER_COMMON_MAINNET_CHAIN_IDS.etherlink,
+    chainId: COMMON_MAINNET_CHAIN_IDS.etherlink,
     rpcBaseURL: 'https://node.mainnet.etherlink.com',
     description: 'Etherlink Mainnet',
     color: '#207449',
@@ -176,7 +241,7 @@ export const EVM_DEFAULT_NETWORKS: NonEmptyArray<StoredEvmNetwork> = [
     name: 'Ethereum Sepolia',
     chain: TempleChainKind.EVM,
     chainId: ETH_SEPOLIA_CHAIN_ID,
-    rpcBaseURL: 'https://ethereum-sepolia-rpc.publicnode.com',
+    rpcBaseURL: EVM_FALLBACK_RPC_URLS[ETH_SEPOLIA_CHAIN_ID][0],
     color: '#010b79',
     default: true
   },
@@ -184,8 +249,8 @@ export const EVM_DEFAULT_NETWORKS: NonEmptyArray<StoredEvmNetwork> = [
     id: 'polygon-amoy',
     name: 'Polygon Amoy',
     chain: TempleChainKind.EVM,
-    chainId: 80002,
-    rpcBaseURL: 'https://rpc-amoy.polygon.technology',
+    chainId: COMMON_TESTNET_CHAIN_IDS.polygon,
+    rpcBaseURL: EVM_FALLBACK_RPC_URLS[COMMON_TESTNET_CHAIN_IDS.polygon][0],
     color: '#392f77',
     default: true
   },
@@ -193,8 +258,8 @@ export const EVM_DEFAULT_NETWORKS: NonEmptyArray<StoredEvmNetwork> = [
     id: 'bsc-testnet',
     name: 'BSC',
     chain: TempleChainKind.EVM,
-    chainId: 97,
-    rpcBaseURL: 'https://bsc-testnet-rpc.publicnode.com',
+    chainId: COMMON_TESTNET_CHAIN_IDS.bsc,
+    rpcBaseURL: EVM_FALLBACK_RPC_URLS[COMMON_TESTNET_CHAIN_IDS.bsc][0],
     description: 'Binance Smart Chain Testnet',
     color: '#867000',
     default: true
@@ -203,8 +268,8 @@ export const EVM_DEFAULT_NETWORKS: NonEmptyArray<StoredEvmNetwork> = [
     id: 'avalanche-testnet',
     name: 'Avalanche Fuji',
     chain: TempleChainKind.EVM,
-    chainId: 43113,
-    rpcBaseURL: 'https://endpoints.omniatech.io/v1/avax/fuji/public',
+    chainId: COMMON_TESTNET_CHAIN_IDS.avalanche,
+    rpcBaseURL: EVM_FALLBACK_RPC_URLS[COMMON_TESTNET_CHAIN_IDS.avalanche][0],
     description: 'Avalanche Testnet',
     color: '#812e2e',
     default: true
@@ -213,8 +278,8 @@ export const EVM_DEFAULT_NETWORKS: NonEmptyArray<StoredEvmNetwork> = [
     id: 'optimism-sepolia',
     name: 'OP Sepolia',
     chain: TempleChainKind.EVM,
-    chainId: 11155420,
-    rpcBaseURL: 'https://endpoints.omniatech.io/v1/op/sepolia/public',
+    chainId: COMMON_TESTNET_CHAIN_IDS.optimism,
+    rpcBaseURL: EVM_FALLBACK_RPC_URLS[COMMON_TESTNET_CHAIN_IDS.optimism][0],
     description: 'Optimism Testnet',
     color: '#fc0000',
     default: true

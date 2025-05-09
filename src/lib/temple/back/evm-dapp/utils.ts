@@ -9,11 +9,12 @@ import {
   removeDApps as genericRemoveDApps,
   getAllDApps as genericGetAllDApps
 } from 'app/storage/dapps';
-import { getReadOnlyEvm } from 'temple/evm';
+import { getViemPublicClient } from 'temple/evm';
 import { EVMErrorCodes, evmRpcMethodsNames, RETURNED_ACCOUNTS_CAVEAT_NAME } from 'temple/evm/constants';
 import { EvmEstimationData } from 'temple/evm/estimate';
-import { getEvmChainsRpcUrls } from 'temple/evm/evm-chains-rpc-urls';
+import { getActiveEvmChainsRpcUrls, getEvmChainsRpcUrls } from 'temple/evm/evm-chains-rpc-urls';
 import { ErrorWithCode } from 'temple/evm/types';
+import { EvmNetworkEssentials } from 'temple/networks';
 import { TempleChainKind } from 'temple/types';
 
 import { TempleEvmDAppPayload, TempleEvmDAppSignPayload, TempleMessageType } from '../../types';
@@ -53,6 +54,11 @@ export async function assertiveGetChainRpcURLs(chainId: number) {
   }
 
   return rpcUrls;
+}
+
+export async function getActiveRpcBaseURL(chainId: number) {
+  const rpcUrls = await assertiveGetChainRpcURLs(chainId);
+  return (await getActiveEvmChainsRpcUrls())[chainId] ?? rpcUrls[0];
 }
 
 export async function switchChain(origin: string, destinationChainId: number, isInternal: boolean) {
@@ -177,8 +183,8 @@ export async function assertDAppChainId(origin: string, chainId: string) {
 
 export const makeChainIdRequest = memoizee(
   async (chainId: number) => {
-    const rpcUrls = await assertiveGetChainRpcURLs(chainId);
-    const evmToolkit = getReadOnlyEvm(rpcUrls);
+    const rpcBaseURL = await getActiveRpcBaseURL(chainId);
+    const evmToolkit = getViemPublicClient({ rpcBaseURL, chainId });
 
     return evmToolkit.request({ method: evmRpcMethodsNames.eth_chainId });
   },
@@ -186,8 +192,8 @@ export const makeChainIdRequest = memoizee(
 );
 
 export const networkSupportsEIP1559 = memoizee(
-  async (rpcBaseURL: string) => {
-    const evmToolkit = getReadOnlyEvm(rpcBaseURL);
+  async (network: EvmNetworkEssentials) => {
+    const evmToolkit = getViemPublicClient(network);
     const block = await evmToolkit.getBlock({ includeTransactions: false, blockTag: 'latest' });
 
     return block.baseFeePerGas !== null;
@@ -196,8 +202,8 @@ export const networkSupportsEIP1559 = memoizee(
 );
 
 export const getGasPrice = memoizee(
-  async (rpcBaseURL: string) => {
-    const evmToolkit = getReadOnlyEvm(rpcBaseURL);
+  async (network: EvmNetworkEssentials) => {
+    const evmToolkit = getViemPublicClient(network);
 
     return evmToolkit.request({ method: evmRpcMethodsNames.eth_gasPrice });
   },

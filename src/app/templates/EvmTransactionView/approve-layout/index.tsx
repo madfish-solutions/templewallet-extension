@@ -28,7 +28,7 @@ import { useTypedSWR } from 'lib/swr';
 import { EvmTransactionRequestWithSender } from 'lib/temple/types';
 import { useBooleanState } from 'lib/ui/hooks';
 import { toBigInt, toBigNumber } from 'lib/utils/numbers';
-import { getReadOnlyEvmForNetwork } from 'temple/evm';
+import { getViemPublicClient } from 'temple/evm';
 import { EvmChain } from 'temple/front';
 
 import { EditModal } from './edit-modal';
@@ -50,7 +50,7 @@ export const ApproveLayout = memo<ApproveLayoutProps>(({ chain, req, setFinalEvm
   const knownAssetMetadata = useEvmGenericAssetMetadata(toEvmAssetSlug(tokenAddress), chain.chainId);
 
   const isErc20IncreaseAllowance = useMemo(() => dataMatchesAbis(txData, [erc20IncreaseAllowanceAbi]), [txData]);
-  const evmToolkit = useMemo(() => getReadOnlyEvmForNetwork(chain), [chain]);
+  const evmToolkit = useMemo(() => getViemPublicClient(chain), [chain]);
 
   const getAllowancesAmountsContext = useCallback(async () => {
     if (isErc20IncreaseAllowance) {
@@ -72,7 +72,7 @@ export const ApproveLayout = memo<ApproveLayoutProps>(({ chain, req, setFinalEvm
 
     return {
       onChainAllowance: BigInt(0),
-      isErc20: (await detectEvmTokenStandard(evmToolkit, toEvmAssetSlug(tokenAddress))) === EvmAssetStandard.ERC20
+      isErc20: (await detectEvmTokenStandard(chain, toEvmAssetSlug(tokenAddress))) === EvmAssetStandard.ERC20
     };
   }, [evmToolkit, isErc20IncreaseAllowance, knownAssetMetadata, from, tokenAddress, txData]);
   const { data: allowancesAmountsContext, isValidating: contextLoading } = useTypedSWR(

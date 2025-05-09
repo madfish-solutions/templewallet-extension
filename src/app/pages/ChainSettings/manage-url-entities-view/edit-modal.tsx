@@ -49,6 +49,7 @@ interface EditUrlEntityModalProps<T extends UrlEntityBase> {
   onRemoveConfirm: EmptyFn;
   updateEntity: (entity: T, values: EditUrlEntityModalFormValues, signal: AbortSignal) => Promise<void>;
   activeSwitchTestID: string;
+  hideDefaultUrlEntityText?: string;
 }
 
 export const EditUrlEntityModal = <T extends UrlEntityBase>({
@@ -58,6 +59,7 @@ export const EditUrlEntityModal = <T extends UrlEntityBase>({
   canChangeActiveState,
   entity,
   entityUrl,
+  hideDefaultUrlEntityText,
   namesToExclude,
   urlsToExclude,
   activeI18nKey,
@@ -75,8 +77,15 @@ export const EditUrlEntityModal = <T extends UrlEntityBase>({
   const { abort, abortAndRenewSignal } = useAbortSignal();
   const [removeModalIsOpen, openRemoveModal, closeRemoveModal] = useBooleanState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+
+  const shouldHideUrl = Boolean(hideDefaultUrlEntityText && entity.default && !isEditable);
+
   const formReturn = useForm<EditUrlEntityModalFormValues>({
-    defaultValues: { name: entity.name, url: entityUrl, isActive },
+    defaultValues: {
+      name: entity.name,
+      url: shouldHideUrl ? hideDefaultUrlEntityText : entityUrl,
+      isActive
+    },
     mode: 'onChange'
   });
   const { control, register, handleSubmit, formState } = formReturn;
@@ -97,16 +106,18 @@ export const EditUrlEntityModal = <T extends UrlEntityBase>({
 
   const onSubmit = useCallback(
     async (values: EditUrlEntityModalFormValues) => {
+      const actualValues = shouldHideUrl ? { ...values, url: entityUrl } : values;
+
       try {
         const signal = abortAndRenewSignal();
-        await updateEntity(entity, values, signal);
+        await updateEntity(entity, actualValues, signal);
         onClose();
       } catch (error) {
         toastError(error instanceof Error ? error.message : String(error));
         setSubmitError(t('wrongAddress'));
       }
     },
-    [abortAndRenewSignal, entity, onClose, updateEntity]
+    [abortAndRenewSignal, entity, entityUrl, onClose, shouldHideUrl, updateEntity]
   );
 
   return (

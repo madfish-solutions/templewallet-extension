@@ -1,5 +1,7 @@
 import memoizee from 'memoizee';
 
+import { EvmNetworkEssentials } from 'temple/networks';
+
 import { EvmHttpRpcListener } from './evm-http-rpc-listener';
 
 /** Do not construct directly; use `getEvmNewBlockListener` instead */
@@ -12,4 +14,4 @@ export class EvmNewBlockListener extends EvmHttpRpcListener {
   }
 }
 
-export const getEvmNewBlockListener = memoizee((httpRpcUrl: string) => new EvmNewBlockListener(httpRpcUrl));
+export const getEvmNewBlockListener = memoizee((network: EvmNetworkEssentials) => new EvmNewBlockListener(network));

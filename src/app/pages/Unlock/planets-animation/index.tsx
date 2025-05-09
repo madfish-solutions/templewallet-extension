@@ -4,7 +4,7 @@ import clsx from 'clsx';
 
 import { Logo } from 'app/atoms/Logo';
 import { TezosNetworkLogo } from 'app/atoms/NetworkLogo';
-import { ETHEREUM_MAINNET_CHAIN_ID, OTHER_COMMON_MAINNET_CHAIN_IDS, TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
+import { ETHEREUM_MAINNET_CHAIN_ID, COMMON_MAINNET_CHAIN_IDS, TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
 
 import { SUN_RADIUS } from './constants';
 import { EvmPlanetItem } from './evm-planet-item';
@@ -28,7 +28,7 @@ const orbitsBase = [
       {
         id: 'avalanche',
         radius: 19,
-        item: <EvmPlanetItem chainId={OTHER_COMMON_MAINNET_CHAIN_IDS.avalanche} padding="large" />
+        item: <EvmPlanetItem chainId={COMMON_MAINNET_CHAIN_IDS.avalanche} padding="large" />
       }
     ]
   },
@@ -40,12 +40,12 @@ const orbitsBase = [
       {
         id: 'bsc',
         radius: 19,
-        item: <EvmPlanetItem chainId={OTHER_COMMON_MAINNET_CHAIN_IDS.bsc} />
+        item: <EvmPlanetItem chainId={COMMON_MAINNET_CHAIN_IDS.bsc} />
       },
       {
         id: 'polygon',
         radius: 19,
-        item: <EvmPlanetItem chainId={OTHER_COMMON_MAINNET_CHAIN_IDS.polygon} />
+        item: <EvmPlanetItem chainId={COMMON_MAINNET_CHAIN_IDS.polygon} />
       }
     ]
   },
@@ -62,17 +62,17 @@ const orbitsBase = [
       {
         id: 'optimism',
         radius: 19,
-        item: <EvmPlanetItem chainId={OTHER_COMMON_MAINNET_CHAIN_IDS.optimism} padding="medium" />
+        item: <EvmPlanetItem chainId={COMMON_MAINNET_CHAIN_IDS.optimism} padding="medium" />
       },
       {
         id: 'arbitrum',
         radius: 19,
-        item: <EvmPlanetItem chainId={OTHER_COMMON_MAINNET_CHAIN_IDS.arbitrum} />
+        item: <EvmPlanetItem chainId={COMMON_MAINNET_CHAIN_IDS.arbitrum} />
       },
       {
         id: 'base',
         radius: 19,
-        item: <EvmPlanetItem chainId={OTHER_COMMON_MAINNET_CHAIN_IDS.base} />
+        item: <EvmPlanetItem chainId={COMMON_MAINNET_CHAIN_IDS.base} />
       }
     ]
   },

@@ -1,10 +1,10 @@
-import { Chain, FeeValues, FeeValuesEIP1559, FeeValuesLegacy, TransactionRequest } from 'viem';
+import { FeeValues, FeeValuesEIP1559, FeeValuesLegacy, TransactionRequest } from 'viem';
 
-import type { EvmChain } from 'temple/front';
+import { EvmNetworkEssentials } from '../networks';
 
 import { SerializedBigints, toBigintRecord } from './utils';
 
-import { getReadOnlyEvm, getReadOnlyEvmForNetwork } from '.';
+import { getViemPublicClient } from '.';
 
 interface EvmEstimationDataBase {
   estimatedFee: bigint;
@@ -47,15 +47,10 @@ function getEstimatedFee(fees: Partial<FeeValues & { gas: bigint }>): bigint | u
   return fees.gas !== undefined && gasPrice !== undefined ? fees.gas * gasPrice : undefined;
 }
 
-export const estimate = async (
-  network: EvmChain | { chain: Chain; rpcUrl: string },
-  req: TransactionRequest
-): Promise<EvmEstimationData> => {
+export const estimate = async (network: EvmNetworkEssentials, req: TransactionRequest): Promise<EvmEstimationData> => {
   const { gasPrice, maxFeePerGas, maxPriorityFeePerGas, from, ...restReqProps } = req;
-  const publicClient =
-    'allRpcs' in network ? getReadOnlyEvmForNetwork(network) : getReadOnlyEvm(network.rpcUrl, network.chain);
+  const publicClient = getViemPublicClient(network);
 
-  // @ts-expect-error: weird 'none of those signatures are compatible with each other' error
   const transaction = await publicClient.prepareTransactionRequest({ account: from, ...restReqProps });
 
   const commonProps = {

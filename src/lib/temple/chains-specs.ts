@@ -1,12 +1,7 @@
 import { EvmNativeTokenMetadata } from 'lib/metadata/types';
 import { DEFAULT_EVM_CURRENCY } from 'temple/networks';
 
-import {
-  ETH_SEPOLIA_CHAIN_ID,
-  ETHEREUM_MAINNET_CHAIN_ID,
-  OTHER_COMMON_MAINNET_CHAIN_IDS,
-  TempleTezosChainId
-} from './types';
+import { ETH_SEPOLIA_CHAIN_ID, ETHEREUM_MAINNET_CHAIN_ID, COMMON_MAINNET_CHAIN_IDS, TempleTezosChainId } from './types';
 
 interface ChainSpecsBase {
   activeRpcId?: string;
@@ -47,7 +42,7 @@ export const DEFAULT_EVM_CHAINS_SPECS: Record<string, EvmChainSpecs & { testnet:
     testnet: false,
     currency: DEFAULT_EVM_CURRENCY
   },
-  [OTHER_COMMON_MAINNET_CHAIN_IDS.polygon]: {
+  [COMMON_MAINNET_CHAIN_IDS.polygon]: {
     name: 'Polygon',
     testnet: false,
     currency: {
@@ -56,7 +51,7 @@ export const DEFAULT_EVM_CHAINS_SPECS: Record<string, EvmChainSpecs & { testnet:
       symbol: 'POL'
     }
   },
-  [OTHER_COMMON_MAINNET_CHAIN_IDS.bsc]: {
+  [COMMON_MAINNET_CHAIN_IDS.bsc]: {
     name: 'BSC',
     testnet: false,
     currency: {
@@ -65,7 +60,7 @@ export const DEFAULT_EVM_CHAINS_SPECS: Record<string, EvmChainSpecs & { testnet:
       symbol: 'BNB'
     }
   },
-  [OTHER_COMMON_MAINNET_CHAIN_IDS.avalanche]: {
+  [COMMON_MAINNET_CHAIN_IDS.avalanche]: {
     name: 'Avalanche',
     testnet: false,
     currency: {
@@ -74,12 +69,12 @@ export const DEFAULT_EVM_CHAINS_SPECS: Record<string, EvmChainSpecs & { testnet:
       symbol: 'AVAX'
     }
   },
-  [OTHER_COMMON_MAINNET_CHAIN_IDS.optimism]: {
+  [COMMON_MAINNET_CHAIN_IDS.optimism]: {
     name: 'Optimism',
     testnet: false,
     currency: DEFAULT_EVM_CURRENCY
   },
-  [OTHER_COMMON_MAINNET_CHAIN_IDS.etherlink]: {
+  [COMMON_MAINNET_CHAIN_IDS.etherlink]: {
     name: 'Etherlink',
     testnet: false,
     currency: {

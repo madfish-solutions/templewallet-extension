@@ -6,8 +6,8 @@ import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { toEvmAssetSlug } from 'lib/assets/utils';
 import { EvmAssetStandard } from 'lib/evm/types';
 import { stripZeroBalancesChanges } from 'lib/utils/balances-changes';
-import { getReadOnlyEvmForNetwork } from 'temple/evm';
-import { AssetsAmounts, TempleChainKind } from 'temple/types';
+import { getViemPublicClient } from 'temple/evm';
+import { AssetsAmounts } from 'temple/types';
 
 import { detectEvmTokenStandard } from './common.utils.mock';
 import {
@@ -28,36 +28,9 @@ import {
 
 import { getEvmBalancesChanges } from '.';
 
-const testClient = getReadOnlyEvmForNetwork({
-  kind: TempleChainKind.EVM,
+const testClient = getViemPublicClient({
   chainId: kavaTestnet.id,
-  rpcBaseURL: kavaTestnet.rpcUrls.default.http[0],
-  name: kavaTestnet.name,
-  currency: {
-    standard: EvmAssetStandard.NATIVE,
-    address: EVM_TOKEN_SLUG,
-    ...kavaTestnet.nativeCurrency
-  },
-  default: false,
-  allBlockExplorers: [{ id: 'defaultBE', default: false, ...kavaTestnet.blockExplorers.default }],
-  rpc: {
-    chain: TempleChainKind.EVM,
-    chainId: kavaTestnet.id,
-    id: 'defaultRPC',
-    rpcBaseURL: kavaTestnet.rpcUrls.default.http[0],
-    name: kavaTestnet.name,
-    color: '#000000'
-  },
-  allRpcs: [
-    {
-      chain: TempleChainKind.EVM,
-      chainId: kavaTestnet.id,
-      id: 'defaultRPC',
-      rpcBaseURL: kavaTestnet.rpcUrls.default.http[0],
-      name: kavaTestnet.name,
-      color: '#000000'
-    }
-  ]
+  rpcBaseURL: kavaTestnet.rpcUrls.default.http[0]
 });
 
 const simulateContractMock = jest.fn();

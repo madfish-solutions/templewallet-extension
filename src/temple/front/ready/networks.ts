@@ -11,7 +11,7 @@ import {
   setActiveEvmChainsRpcUrls,
   setEvmChainsRpcUrls
 } from 'temple/evm/evm-chains-rpc-urls';
-import { getViemChainsList } from 'temple/evm/utils';
+import { getViemChainByChainId } from 'temple/evm/utils';
 import {
   DEFAULT_EVM_CURRENCY,
   EVM_DEFAULT_NETWORKS,
@@ -182,7 +182,7 @@ function useChains<T extends OneOfChains>(
 const getCurrency = (chainId: number, specsCurrency?: EvmNativeTokenMetadata): EvmNativeTokenMetadata => {
   if (specsCurrency) return specsCurrency;
 
-  const viemChain = getViemChainsList().find(chain => chain.id === chainId);
+  const viemChain = getViemChainByChainId(chainId);
 
   if (viemChain) {
     return {

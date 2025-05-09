@@ -6,7 +6,7 @@ import { fromAssetSlug } from 'lib/assets';
 import { delay } from 'lib/utils';
 import { isEvmNativeTokenSlug } from 'lib/utils/evm.utils';
 import { ONE, ZERO } from 'lib/utils/numbers';
-import { getReadOnlyEvm } from 'temple/evm';
+import { getViemPublicClient } from 'temple/evm';
 import { EvmNetworkEssentials } from 'temple/networks';
 
 import { EvmAssetStandard } from '../types';
@@ -36,14 +36,14 @@ const fetchEvmRawBalance = async (
 
   const tokenId = BigInt(tokenIdStr ?? 0);
 
-  const publicClient = getReadOnlyEvm(network.rpcBaseURL);
+  const publicClient = getViemPublicClient(network);
 
   let standard: EvmAssetStandard | undefined;
 
   if (assetStandard) {
     standard = assetStandard;
   } else {
-    standard = await detectEvmTokenStandard(network.rpcBaseURL, assetSlug);
+    standard = await detectEvmTokenStandard(network, assetSlug);
   }
 
   try {
@@ -85,7 +85,7 @@ const fetchEvmRawBalance = async (
 };
 
 const fetchEvmNativeBalance = async (address: HexString, network: EvmNetworkEssentials) => {
-  const publicClient = getReadOnlyEvm(network.rpcBaseURL);
+  const publicClient = getViemPublicClient(network);
 
   try {
     const fetchedBalance = await publicClient.getBalance({ address });

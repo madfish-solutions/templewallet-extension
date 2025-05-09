@@ -220,9 +220,9 @@ function useEvmAssetRawBalance(
   const evmTransfersListener = useMemo(
     () =>
       assetStandard && usingOnchainRequests
-        ? createEvmTransfersListener(network.rpcBaseURL, address, assetSlug, assetStandard)
+        ? createEvmTransfersListener(network, address, assetSlug, assetStandard)
         : undefined,
-    [address, assetSlug, assetStandard, network.rpcBaseURL, usingOnchainRequests]
+    [address, assetSlug, assetStandard, network, usingOnchainRequests]
   );
 
   const refreshBalanceOnChain = useCallback(() => {

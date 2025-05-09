@@ -14,7 +14,7 @@ import {
   TempleTezosChainId
 } from 'lib/temple/types';
 import { ZERO, toBigNumber } from 'lib/utils/numbers';
-import { getReadOnlyEvmForNetwork } from 'temple/evm';
+import { getViemPublicClient } from 'temple/evm';
 import { useTezosChainByChainId } from 'temple/front';
 import { useEvmChainByChainId } from 'temple/front/chains';
 import { DEFAULT_EVM_CURRENCY } from 'temple/networks';
@@ -56,7 +56,7 @@ export const useGetLedgerTezosAccount = () => {
 
 export const useGetLedgerEvmAccount = () => {
   const mainnetChain = useEvmChainByChainId(ETHEREUM_MAINNET_CHAIN_ID);
-  const evmToolkit = useMemo(() => getReadOnlyEvmForNetwork(mainnetChain!), [mainnetChain]);
+  const evmToolkit = useMemo(() => getViemPublicClient(mainnetChain!), [mainnetChain]);
   const { accounts, getLedgerEVMPk } = useTempleClient();
 
   return useCallback(

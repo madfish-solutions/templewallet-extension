@@ -6,7 +6,7 @@ import { nanoid } from 'nanoid';
 import { BLOCKCHAIN_EXPLORERS_OVERRIDES_STORAGE_KEY } from 'lib/constants';
 import { useStorage } from 'lib/temple/front/storage';
 import {
-  OTHER_COMMON_MAINNET_CHAIN_IDS,
+  COMMON_MAINNET_CHAIN_IDS,
   ETHEREUM_MAINNET_CHAIN_ID,
   ETH_SEPOLIA_CHAIN_ID,
   TempleTezosChainId,
@@ -273,35 +273,35 @@ const DEFAULT_BLOCK_EXPLORERS_BASE: Record<TempleChainKind, Record<string, Omit<
         id: 'etherscan-mainnet'
       }
     ],
-    [OTHER_COMMON_MAINNET_CHAIN_IDS.polygon]: [
+    [COMMON_MAINNET_CHAIN_IDS.polygon]: [
       {
         name: 'PolygonScan',
         url: 'https://polygonscan.com',
         id: 'polygonscan-mainnet'
       }
     ],
-    [OTHER_COMMON_MAINNET_CHAIN_IDS.bsc]: [
+    [COMMON_MAINNET_CHAIN_IDS.bsc]: [
       {
         name: 'BscScan',
         url: 'https://bscscan.com',
         id: 'bscscan-mainnet'
       }
     ],
-    [OTHER_COMMON_MAINNET_CHAIN_IDS.avalanche]: [
+    [COMMON_MAINNET_CHAIN_IDS.avalanche]: [
       {
         name: 'SnowTrace',
         url: 'https://snowtrace.io',
         id: 'snowtrace-mainnet'
       }
     ],
-    [OTHER_COMMON_MAINNET_CHAIN_IDS.optimism]: [
+    [COMMON_MAINNET_CHAIN_IDS.optimism]: [
       {
         name: 'Optimistic Ethereum',
         url: 'https://optimistic.etherscan.io',
         id: 'optimism-mainnet'
       }
     ],
-    [OTHER_COMMON_MAINNET_CHAIN_IDS.etherlink]: [
+    [COMMON_MAINNET_CHAIN_IDS.etherlink]: [
       {
         name: 'Etherlink explorer',
         url: 'https://explorer.etherlink.com',

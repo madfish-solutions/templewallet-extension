@@ -6,14 +6,7 @@ import { CompositeForger, RpcForger, Signer, TezosOperationError, TezosToolkit }
 import * as TaquitoUtils from '@taquito/utils';
 import * as Bip39 from 'bip39';
 import { nanoid } from 'nanoid';
-import {
-  createWalletClient,
-  http,
-  LocalAccount,
-  PrivateKeyAccount,
-  TransactionRequest,
-  TypedDataDefinition
-} from 'viem';
+import { createWalletClient, LocalAccount, PrivateKeyAccount, TransactionRequest, TypedDataDefinition } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
 import type * as WasmThemisPackageInterface from 'wasm-themis';
 
@@ -46,6 +39,7 @@ import {
 import { delay, isTruthy } from 'lib/utils';
 import { getAccountAddressForChain, getAccountAddressForEvm, getAccountAddressForTezos } from 'temple/accounts';
 import { TypedDataV1, typedV1SignatureHash } from 'temple/evm/typed-data-v1';
+import { getCustomViemChain, getViemTransportForNetwork } from 'temple/evm/utils';
 import { EvmChain } from 'temple/front';
 import { michelEncoder, getTezosFastRpcClient } from 'temple/tezos';
 import { TempleChainKind } from 'temple/types';
@@ -1015,17 +1009,8 @@ export class Vault {
     return this.withSigningEvmAccount(accPublicKeyHash, async account => {
       const client = createWalletClient({
         account,
-        chain: {
-          id: network.chainId,
-          name: network.name,
-          nativeCurrency: network.currency,
-          rpcUrls: {
-            default: {
-              http: [network.rpcBaseURL]
-            }
-          }
-        },
-        transport: http()
+        chain: getCustomViemChain(network),
+        transport: getViemTransportForNetwork(network)
       });
 
       return await client.sendTransaction(txParams);

@@ -25,7 +25,6 @@ import {
   RETURNED_ACCOUNTS_CAVEAT_NAME
 } from './constants';
 import type { TypedDataV1 } from './typed-data-v1';
-import { makeErrorLikeObject, throwErrorLikeObject } from './utils';
 
 export interface PassToBgEventDetail {
   origin: string;
@@ -424,4 +423,12 @@ export class TempleWeb3Provider extends EventEmitter {
     },
     { max: 1, maxAge: 1000 * 60 * 5 }
   );
+}
+
+function makeErrorLikeObject(code: number, message: string) {
+  return { code, message };
+}
+
+function throwErrorLikeObject(code: number, message: string): never {
+  throw makeErrorLikeObject(code, message);
 }

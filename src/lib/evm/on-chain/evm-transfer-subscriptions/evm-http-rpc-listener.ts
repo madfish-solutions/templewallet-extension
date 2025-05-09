@@ -1,18 +1,17 @@
-import { HttpTransport, PublicClient } from 'viem';
-
 import { delay } from 'lib/utils';
-import { getReadOnlyEvm } from 'temple/evm';
+import { ChainPublicClient, getViemPublicClient } from 'temple/evm';
+import { EvmNetworkEssentials } from 'temple/networks';
 
 import { Listener, ListenerCallback } from './listener';
 
 export abstract class EvmHttpRpcListener<T extends unknown[] = []> extends Listener<T> {
-  protected rpcClient: PublicClient<HttpTransport>;
+  protected rpcClient: ChainPublicClient;
   protected isActive = false;
   protected cancelSubscription: EmptyFn | null = null;
 
-  constructor(httpRpcUrl: string) {
+  constructor(network: EvmNetworkEssentials) {
     super();
-    this.rpcClient = getReadOnlyEvm(httpRpcUrl);
+    this.rpcClient = getViemPublicClient(network);
   }
 
   protected abstract subscribeToRpcEvents(): Promise<EmptyFn>;
@@ -60,10 +59,8 @@ export abstract class EvmHttpRpcListener<T extends unknown[] = []> extends Liste
     }
   }
 
-  protected async onError(error: unknown) {
-    if (!this.isActive) {
-      return;
-    }
+  protected async onError(error: any) {
+    if (!this.isActive) return;
 
     console.error(error);
     this.stopListening();

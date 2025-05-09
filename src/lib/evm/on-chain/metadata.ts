@@ -7,7 +7,7 @@ import { NftCollectionAttribute } from 'lib/apis/temple/endpoints/evm/api.interf
 import { fromAssetSlug } from 'lib/assets';
 import { buildHttpLinkFromUri } from 'lib/images-uri';
 import { EvmCollectibleMetadata, EvmTokenMetadata } from 'lib/metadata/types';
-import { getReadOnlyEvm } from 'temple/evm';
+import { getViemPublicClient } from 'temple/evm';
 import { EvmNetworkEssentials } from 'temple/networks';
 
 import { EvmAssetStandard } from '../types';
@@ -32,9 +32,9 @@ export const fetchEvmAssetMetadataFromChain = async (network: EvmNetworkEssentia
 
   const tokenId = BigInt(tokenIdStr ?? 0);
 
-  const publicClient = getReadOnlyEvm(network.rpcBaseURL);
+  const publicClient = getViemPublicClient(network);
 
-  const standard = await detectEvmTokenStandard(network.rpcBaseURL, assetSlug);
+  const standard = await detectEvmTokenStandard(network, assetSlug);
 
   try {
     switch (standard) {
@@ -55,7 +55,7 @@ export const fetchEvmAssetMetadataFromChain = async (network: EvmNetworkEssentia
 export const fetchEvmTokenMetadataFromChain = async (network: EvmNetworkEssentials, tokenSlug: string) => {
   const [contractAddress] = fromAssetSlug<HexString>(tokenSlug);
 
-  const publicClient = getReadOnlyEvm(network.rpcBaseURL);
+  const publicClient = getViemPublicClient(network);
 
   try {
     return await getERC20Metadata(publicClient, contractAddress);
@@ -71,9 +71,9 @@ export const fetchEvmCollectibleMetadataFromChain = async (network: EvmNetworkEs
 
   const tokenId = BigInt(tokenIdStr ?? 0);
 
-  const publicClient = getReadOnlyEvm(network.rpcBaseURL);
+  const publicClient = getViemPublicClient(network);
 
-  const standard = await detectEvmTokenStandard(network.rpcBaseURL, collectibleSlug);
+  const standard = await detectEvmTokenStandard(network, collectibleSlug);
 
   try {
     switch (standard) {
