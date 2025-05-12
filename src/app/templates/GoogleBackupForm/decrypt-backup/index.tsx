@@ -13,6 +13,7 @@ import { T, t } from 'lib/i18n';
 import { BackupDamagedError, EncryptedBackupObject, backupFileName, getSeedPhrase } from 'lib/temple/backup';
 import { useTempleClient } from 'lib/temple/front';
 import { useBooleanState } from 'lib/ui/hooks';
+import { useShakeOnErrorTrigger } from 'lib/ui/hooks/use-shake-on-error-trigger';
 import { serializeError } from 'lib/utils/serialize-error';
 
 import { GoogleBackupFormSelectors } from '../selectors';
@@ -35,6 +36,7 @@ export const DecryptBackup = memo<DecryptBackupProps>(({ next, backupContent }) 
   const [forgotPasswordModalOpened, openForgotPasswordModal, closeForgotPasswordModal] = useBooleanState(false);
   const [deleteBackupModalOpened, openDeleteBackupModal, closeDeleteBackupModal] = useBooleanState(false);
   const { register, handleSubmit, setError, formState } = useForm<FormData>();
+  const { errors, submitCount, isSubmitting } = formState;
 
   const proceedToDeleteModal = useCallback(() => {
     closeForgotPasswordModal();
@@ -67,6 +69,8 @@ export const DecryptBackup = memo<DecryptBackupProps>(({ next, backupContent }) 
     [backupContent, next, setError]
   );
 
+  const passwordShakeTrigger = useShakeOnErrorTrigger(submitCount, errors.password);
+
   return (
     <>
       <PageModalScrollViewWithActions
@@ -77,7 +81,7 @@ export const DecryptBackup = memo<DecryptBackupProps>(({ next, backupContent }) 
               size="L"
               color="primary"
               type="submit"
-              loading={formState.isSubmitting}
+              loading={isSubmitting}
               testID={GoogleBackupFormSelectors.continueButton}
               form="decrypt-backup"
             >
@@ -109,8 +113,8 @@ export const DecryptBackup = memo<DecryptBackupProps>(({ next, backupContent }) 
               id="decryption-password"
               type="password"
               placeholder={DEFAULT_PASSWORD_INPUT_PLACEHOLDER}
-              errorCaption={formState.errors.password?.message}
-              // shakeTrigger={passwordShakeTrigger}
+              errorCaption={errors.password?.message}
+              shakeTrigger={passwordShakeTrigger}
               containerClassName="mb-3"
               autoFocus
               testID={GoogleBackupFormSelectors.decryptionPasswordInput}

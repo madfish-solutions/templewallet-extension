@@ -18,6 +18,7 @@ import { T, t } from 'lib/i18n';
 import { useTempleClient } from 'lib/temple/front';
 import { loadMnemonicToBackup } from 'lib/temple/front/mnemonic-to-backup-keeper';
 import { TempleSharedStorageKey } from 'lib/temple/types';
+import { useShakeOnErrorTrigger } from 'lib/ui/hooks/use-shake-on-error-trigger';
 import { useLocalStorage } from 'lib/ui/local-storage';
 import { delay } from 'lib/utils';
 
@@ -59,7 +60,6 @@ const Unlock: FC<UnlockProps> = ({ canImportNew = true }) => {
   const [pageModalName, setPageModalName] = useState<PageModalName | null>(null);
   const [attempt, setAttempt] = useLocalStorage<number>(TempleSharedStorageKey.PasswordAttempts, 1);
   const [timelock, setTimeLock] = useLocalStorage<number>(TempleSharedStorageKey.TimeLock, 0);
-  const [passwordShakeTrigger, setPasswordShakeTrigger] = useState(false);
   const lockLevel = LOCK_TIME * Math.floor(attempt / 3);
 
   const [timeleft, setTimeleft] = useState(getTimeLeft(timelock, lockLevel));
@@ -81,16 +81,7 @@ const Unlock: FC<UnlockProps> = ({ canImportNew = true }) => {
   const { register, handleSubmit, errors, setError, clearError, formState } = useForm<FormData>();
   const submitting = formState.isSubmitting;
 
-  const prevSubmitCountRef = useRef(formState.submitCount);
-  useEffect(() => {
-    if (formState.submitCount > prevSubmitCountRef.current && errors.password) {
-      setPasswordShakeTrigger(true);
-      setTimeout(() => {
-        setPasswordShakeTrigger(false);
-      }, 250);
-    }
-    prevSubmitCountRef.current = formState.submitCount;
-  }, [errors.password, formState.submitCount]);
+  const passwordShakeTrigger = useShakeOnErrorTrigger(formState.submitCount, errors.password);
 
   const setPasswordErrorMessage = useCallback(
     async (message: string) => {

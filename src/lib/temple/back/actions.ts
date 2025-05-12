@@ -85,8 +85,7 @@ import {
   dAppQueueCountersUpdated,
   focusLocationChanged,
   popupClosed,
-  popupOpened,
-  googleAuthTokenUpdated
+  popupOpened
 } from './store';
 import { Vault } from './vault';
 
@@ -925,8 +924,4 @@ export function setWindowPopupOpened(windowId: number | null, opened: boolean) {
   } else {
     popupClosed(windowId);
   }
-}
-
-export function setGoogleAuthToken(token: string | null) {
-  googleAuthTokenUpdated(token);
 }

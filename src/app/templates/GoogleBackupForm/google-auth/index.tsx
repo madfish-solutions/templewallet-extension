@@ -4,12 +4,8 @@ import { IconBase, Loader } from 'app/atoms';
 import { StyledButton } from 'app/atoms/StyledButton';
 import { ReactComponent as OkFillIcon } from 'app/icons/base/ok_fill.svg';
 import { ReactComponent as XCircleFillIcon } from 'app/icons/base/x_circle_fill.svg';
-import {
-  FileDoesNotExistError,
-  getAccountEmail,
-  readGoogleDriveFile,
-  updateGoogleAuthTokenWithProxyWebsite
-} from 'lib/apis/google';
+import { FileDoesNotExistError, getAccountEmail, readGoogleDriveFile, getGoogleAuthToken } from 'lib/apis/google';
+import { EnvVars } from 'lib/env';
 import { T, TID } from 'lib/i18n';
 import { EncryptedBackupObject, backupFileName } from 'lib/temple/backup';
 import { useTempleClient } from 'lib/temple/front';
@@ -49,9 +45,10 @@ interface GoogleAuthProps {
 }
 
 export const GoogleAuth = memo<GoogleAuthProps>(({ next }) => {
-  const { googleAuthToken, forgetGoogleAuthToken } = useTempleClient();
+  const { googleAuthToken, setGoogleAuthToken } = useTempleClient();
   const [isAuthError, setIsAuthError] = useState(false);
   const [backup, setBackup] = useState<GoogleBackup>();
+  const googleAuthIframeRef = useRef<HTMLIFrameElement>(null);
   const authState = backup ? 'success' : isAuthError ? 'error' : 'active';
   const { titleI18nKey, descriptionI18nKey, icon } = stateRenderParams[authState];
 
@@ -74,38 +71,41 @@ export const GoogleAuth = memo<GoogleAuthProps>(({ next }) => {
     }
   }, []);
 
+  const refreshGoogleAuthToken = useCallback(() => {
+    setGoogleAuthToken(undefined);
+    getGoogleAuthToken(googleAuthIframeRef, true)
+      .then(setGoogleAuthToken)
+      .catch(e => {
+        console.error(e);
+        setIsAuthError(true);
+      });
+  }, [setGoogleAuthToken]);
+
   const retry = useCallback(() => {
     setIsAuthError(false);
 
     if (googleAuthToken) {
       handleGoogleAuthToken(googleAuthToken);
     } else {
-      updateGoogleAuthTokenWithProxyWebsite().catch(e => {
-        console.error(e);
-        setIsAuthError(true);
-      });
+      refreshGoogleAuthToken();
     }
-  }, [googleAuthToken, handleGoogleAuthToken]);
-
-  const onContinueClick = useCallback(() => void (backup && next(backup)), [backup, next]);
+  }, [googleAuthToken, handleGoogleAuthToken, refreshGoogleAuthToken]);
 
   const isFirstMountRef = useRef(true);
   useEffect(() => {
     if (isFirstMountRef.current) {
       isFirstMountRef.current = false;
-      forgetGoogleAuthToken().then(() =>
-        updateGoogleAuthTokenWithProxyWebsite().catch(e => {
-          console.error(e);
-          setIsAuthError(true);
-        })
-      );
+      refreshGoogleAuthToken();
     } else if (googleAuthToken) {
       handleGoogleAuthToken(googleAuthToken);
     }
-  }, [forgetGoogleAuthToken, googleAuthToken, handleGoogleAuthToken]);
+  }, [googleAuthToken, handleGoogleAuthToken, refreshGoogleAuthToken]);
+
+  const onContinueClick = useCallback(() => void (backup && next(backup)), [backup, next]);
 
   return (
     <PageModalScrollViewWithActions
+      className="relative"
       initialBottomEdgeVisible
       actionsBoxProps={{
         children: (
@@ -122,6 +122,13 @@ export const GoogleAuth = memo<GoogleAuthProps>(({ next }) => {
         )
       }}
     >
+      <iframe
+        className="absolute top-0 left-0 w-1 h-1 invisible"
+        src={EnvVars.GOOGLE_AUTH_PAGE_URL}
+        title="Google Auth"
+        ref={googleAuthIframeRef}
+      />
+
       <div className="-mx-4">
         <AuthIllustration className="w-full h-auto" state={authState} />
       </div>

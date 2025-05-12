@@ -188,8 +188,7 @@ const scriptsConfig = (() => {
 
   config.entry = {
     main: Path.join(PATHS.SOURCE, 'content-scripts/main.ts'),
-    inpage: Path.join(PATHS.SOURCE, 'content-scripts/inpage.ts'),
-    googleAuthCommunication: Path.join(PATHS.SOURCE, 'content-scripts/googleAuthCommunication.ts')
+    inpage: Path.join(PATHS.SOURCE, 'content-scripts/inpage.ts')
   };
   if (!IS_CORE_BUILD) {
     config.entry.replaceAds = Path.join(PATHS.SOURCE, 'replaceAds.ts');

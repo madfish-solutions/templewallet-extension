@@ -37,7 +37,6 @@ export interface TempleState {
   settings: TempleSettings | null;
   focusLocation: FocusLocation | null;
   windowsWithPopups: (number | null)[];
-  googleAuthToken: string | null;
 }
 
 export const TEZOS_MAINNET_CHAIN_ID = 'NetXdQprcVkpaWU';
@@ -376,7 +375,6 @@ export type TempleDAppPayload = TempleTezosDAppPayload | TempleEvmDAppPayload;
 export enum TempleMessageType {
   // Acknowledge
   Acknowledge = 'TEMPLE_CONNECT_AKNOWLEDGE',
-  GoogleAuthTokenReceiveAcknowledge = 'GOOGLE_AUTH_TOKEN_RECEIVE_ACKNOWLEDGE',
   // Notifications
   StateUpdated = 'TEMPLE_STATE_UPDATED',
   ConfirmationRequested = 'TEMPLE_CONFIRMATION_REQUESTED',
@@ -466,10 +464,7 @@ export enum TempleMessageType {
   ResetExtensionRequest = 'RESET_EXTENSION_REQUEST',
   ResetExtensionResponse = 'RESET_EXTENSION_RESPONSE',
   SetWindowPopupStateRequest = 'SET_WINDOW_POPUP_STATE_REQUEST',
-  SetWindowPopupStateResponse = 'SET_WINDOW_POPUP_STATE_RESPONSE',
-  GoogleAuthTokenReceivedRequest = 'GOOGLE_AUTH_TOKEN_RECEIVED_REQUEST',
-  ForgetGoogleAuthTokenRequest = 'FORGET_GOOGLE_AUTH_TOKEN_REQUEST',
-  ForgetGoogleAuthTokenResponse = 'FORGET_GOOGLE_AUTH_TOKEN_RESPONSE'
+  SetWindowPopupStateResponse = 'SET_WINDOW_POPUP_STATE_RESPONSE'
 }
 
 export type TempleNotification =
@@ -523,14 +518,11 @@ export type TempleRequest =
   | TempleSendPageEventRequest
   | TempleSendEvmTransactionRequest
   | TempleResetExtensionRequest
-  | TempleSetWindowPopupStateRequest
-  | TempleGoogleAuthTokenReceivedRequest
-  | TempleForgetGoogleAuthTokenRequest;
+  | TempleSetWindowPopupStateRequest;
 
 export type TempleResponse =
   | TempleGetStateResponse
   | TempleAcknowledgeResponse
-  | TempleGoogleAuthTokenReceiveAcknowledgeResponse
   | TempleNewWalletResponse
   | TempleUnlockResponse
   | TempleLockResponse
@@ -569,8 +561,7 @@ export type TempleResponse =
   | TempleSendPageEventResponse
   | TempleSendEvmTransactionResponse
   | TempleResetExtensionResponse
-  | TempleSetWindowPopupStateResponse
-  | TempleForgetGoogleAuthTokenResponse;
+  | TempleSetWindowPopupStateResponse;
 
 export interface TempleMessageBase {
   type: TempleMessageType;
@@ -612,7 +603,6 @@ interface TempleEvmChainSwitched extends TempleMessageBase {
   origin: string;
   chainId: number;
 }
-
 interface TempleGetStateRequest extends TempleMessageBase {
   type: TempleMessageType.GetStateRequest;
 }
@@ -1053,23 +1043,6 @@ interface TempleSetWindowPopupStateRequest extends TempleMessageBase {
 
 interface TempleSetWindowPopupStateResponse extends TempleMessageBase {
   type: TempleMessageType.SetWindowPopupStateResponse;
-}
-
-interface TempleGoogleAuthTokenReceivedRequest extends TempleMessageBase {
-  type: TempleMessageType.GoogleAuthTokenReceivedRequest;
-  authToken: string;
-}
-
-interface TempleGoogleAuthTokenReceiveAcknowledgeResponse extends TempleMessageBase {
-  type: TempleMessageType.GoogleAuthTokenReceiveAcknowledge;
-}
-
-interface TempleForgetGoogleAuthTokenRequest extends TempleMessageBase {
-  type: TempleMessageType.ForgetGoogleAuthTokenRequest;
-}
-
-interface TempleForgetGoogleAuthTokenResponse extends TempleMessageBase {
-  type: TempleMessageType.ForgetGoogleAuthTokenResponse;
 }
 
 export type EvmTransactionRequestWithSender = RpcTransactionRequest & { from: HexString };

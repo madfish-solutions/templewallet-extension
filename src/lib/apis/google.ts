@@ -1,10 +1,9 @@
+import type { MutableRefObject } from 'react';
+
 import axios from 'axios';
 import { v4 } from 'uuid';
-import browser from 'webextension-polyfill';
 
 import { EnvVars } from 'lib/env';
-import { TempleMessageType, TempleNotification } from 'lib/temple/types';
-import { intercomClient, makeIntercomRequest } from 'temple/front/intercom-client';
 
 interface GoogleFile {
   kind: string;
@@ -26,41 +25,42 @@ const googleApi = axios.create({
   baseURL: 'https://www.googleapis.com'
 });
 
-export const updateGoogleAuthTokenWithProxyWebsite = async () => {
-  const tab = await browser.tabs.create({ url: EnvVars.GOOGLE_AUTH_PAGE_URL });
+enum AuthEventType {
+  DoAuthRetry = 'doauthretry',
+  AuthRequest = 'authrequest',
+  AuthError = 'autherror'
+}
 
-  await new Promise<void>((res, rej) => {
-    const unsubscribe = intercomClient.subscribe(async (msg: TempleNotification) => {
-      if (msg?.type !== TempleMessageType.StateUpdated) {
-        return;
+export const getGoogleAuthToken = async (
+  googleAuthIframeRef: MutableRefObject<HTMLIFrameElement | null>,
+  isRetry: boolean
+) => {
+  return new Promise<string>((res, rej) => {
+    const messagesListener = async (e: MessageEvent) => {
+      switch (e.data?.type) {
+        case AuthEventType.AuthRequest:
+          res(e.data.content);
+          window.removeEventListener('message', messagesListener);
+          break;
+        case AuthEventType.AuthError:
+          rej(new Error(e.data.content));
+          window.removeEventListener('message', messagesListener);
+          break;
       }
-
-      const response = await makeIntercomRequest({
-        type: TempleMessageType.GetStateRequest
-      });
-      if (response.type === TempleMessageType.GetStateResponse && response.state.googleAuthToken) {
-        unsubscribe();
-        res();
-        try {
-          if (tab.id !== undefined) {
-            await browser.tabs.remove(tab.id);
-          }
-        } catch {
-          // noop
-        }
-      }
-    });
-
-    const removedTabListener = (tabId: number) => {
-      if (tabId !== tab.id) {
-        return;
-      }
-
-      browser.tabs.onRemoved.removeListener(removedTabListener);
-      unsubscribe();
-      rej(new Error('Google auth tab closed'));
     };
-    browser.tabs.onRemoved.addListener(removedTabListener);
+    window.addEventListener('message', messagesListener);
+    const googleAuthIframeWindow = googleAuthIframeRef.current?.contentWindow;
+
+    if (!googleAuthIframeWindow) {
+      rej(new Error('Google auth iframe window is not available'));
+      window.removeEventListener('message', messagesListener);
+
+      return;
+    }
+
+    if (isRetry) {
+      googleAuthIframeWindow.postMessage({ type: AuthEventType.DoAuthRetry }, '*');
+    }
   });
 };
 

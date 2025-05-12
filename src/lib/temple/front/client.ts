@@ -68,8 +68,7 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
             settings: null,
             dAppQueueCounters: DEFAULT_PROMISES_QUEUE_COUNTERS,
             focusLocation: { tabId: null, windowId: null },
-            windowsWithPopups: [],
-            googleAuthToken: res.state.googleAuthToken
+            windowsWithPopups: []
           }
         : res.state,
       shouldLockOnStartup: isLocked
@@ -85,6 +84,7 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
   const state = data!.state;
 
   const [confirmation, setConfirmation] = useState<Confirmation | null>(null);
+  const [googleAuthToken, setGoogleAuthToken] = useState<string>();
 
   useEffect(() => {
     return intercomClient.subscribe((msg: TempleNotification) => {
@@ -113,7 +113,7 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
    * Aliases
    */
 
-  const { status, accounts, settings, dAppQueueCounters, focusLocation, windowsWithPopups, googleAuthToken } = state;
+  const { status, accounts, settings, dAppQueueCounters, focusLocation, windowsWithPopups } = state;
   const idle = status === TempleStatus.Idle;
   const locked = status === TempleStatus.Locked;
   const ready = status === TempleStatus.Ready;
@@ -480,11 +480,6 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
     assertResponse(res.type === TempleMessageType.SetWindowPopupStateResponse);
   }, []);
 
-  const forgetGoogleAuthToken = useCallback(async () => {
-    const res = await request({ type: TempleMessageType.ForgetGoogleAuthTokenRequest });
-    assertResponse(res.type === TempleMessageType.ForgetGoogleAuthTokenResponse);
-  }, []);
-
   useEffect(() => void (data?.shouldLockOnStartup && lock()), [data?.shouldLockOnStartup, lock]);
 
   return {
@@ -503,10 +498,11 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
     dAppQueueCounters,
     focusLocation,
     windowsWithPopups,
-    googleAuthToken,
 
     // Misc
     confirmation,
+    googleAuthToken,
+    setGoogleAuthToken,
 
     // Actions
     registerWallet,
@@ -543,7 +539,6 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
     switchDAppEvmChain,
     sendEvmTransaction,
     resetExtension,
-    setWindowPopupState,
-    forgetGoogleAuthToken
+    setWindowPopupState
   };
 });
