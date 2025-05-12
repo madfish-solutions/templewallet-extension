@@ -3,6 +3,7 @@ import { Log } from 'viem';
 
 import { erc1155TransferBatchEvent, erc1155TransferSingleEvent } from 'lib/abi/erc1155';
 import { toTokenSlug } from 'lib/assets';
+import { EvmNetworkEssentials } from 'temple/networks';
 
 import { ListenersDelegate } from '../listeners-delegate';
 
@@ -38,10 +39,10 @@ class ERC1155BatchTransferEventsListener extends EvmTransferEventsListener<typeo
 }
 
 class ERC1155TransferEventsListener extends ListenersDelegate<[string]> {
-  constructor(httpRpcUrl: string, account: HexString) {
+  constructor(network: EvmNetworkEssentials, account: HexString) {
     super([
-      new ERC1155SingleTransferEventsListener(httpRpcUrl, account, erc1155TransferSingleEvent),
-      new ERC1155BatchTransferEventsListener(httpRpcUrl, account, erc1155TransferBatchEvent)
+      new ERC1155SingleTransferEventsListener(network, account, erc1155TransferSingleEvent),
+      new ERC1155BatchTransferEventsListener(network, account, erc1155TransferBatchEvent)
     ]);
   }
 }

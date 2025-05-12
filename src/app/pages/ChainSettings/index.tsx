@@ -81,6 +81,7 @@ const ChainExistentSettings = memo<ChainExistentSettingsProps>(({ chain, bottomE
           confirmDeleteDescriptionI18nKey="confirmDeleteRpcDescription"
           deleteLabelI18nKey="deleteRpc"
           successfullyAddedMessageI18nKey="rpcAdded"
+          hideDefaultUrlEntityText="Default RPC"
           urlInputPlaceholder="https://rpc.link"
           namePlaceholder="RPC"
           getEntityUrl={rpcUrlFn}

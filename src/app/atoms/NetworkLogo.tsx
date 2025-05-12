@@ -12,7 +12,7 @@ import OptimismIconSrc from 'app/icons/networks/optimism.svg?url';
 import PolygonIconSrc from 'app/icons/networks/polygon.svg?url';
 import { t } from 'lib/i18n';
 import { getEvmNativeAssetIcon } from 'lib/images-uri';
-import { ETHEREUM_MAINNET_CHAIN_ID, OTHER_COMMON_MAINNET_CHAIN_IDS, TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
+import { ETHEREUM_MAINNET_CHAIN_ID, COMMON_MAINNET_CHAIN_IDS, TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
 import { ImageStacked } from 'lib/ui/ImageStacked';
 import useTippy, { UseTippyOptions } from 'lib/ui/useTippy';
 import { isTruthy } from 'lib/utils';
@@ -25,12 +25,12 @@ import { TezNetworkLogo } from './NetworksLogos';
 
 const logosRecord: Record<number, string> = {
   [ETHEREUM_MAINNET_CHAIN_ID]: EthereumIconSrc,
-  [OTHER_COMMON_MAINNET_CHAIN_IDS.bsc]: BinanceSmartChainIconSrc,
-  [OTHER_COMMON_MAINNET_CHAIN_IDS.polygon]: PolygonIconSrc,
-  [OTHER_COMMON_MAINNET_CHAIN_IDS.optimism]: OptimismIconSrc,
-  [OTHER_COMMON_MAINNET_CHAIN_IDS.base]: BaseIconSrc,
-  [OTHER_COMMON_MAINNET_CHAIN_IDS.avalanche]: AvalancheIconSrc,
-  [OTHER_COMMON_MAINNET_CHAIN_IDS.arbitrum]: ArbitrumIconSrc
+  [COMMON_MAINNET_CHAIN_IDS.bsc]: BinanceSmartChainIconSrc,
+  [COMMON_MAINNET_CHAIN_IDS.polygon]: PolygonIconSrc,
+  [COMMON_MAINNET_CHAIN_IDS.optimism]: OptimismIconSrc,
+  [COMMON_MAINNET_CHAIN_IDS.base]: BaseIconSrc,
+  [COMMON_MAINNET_CHAIN_IDS.avalanche]: AvalancheIconSrc,
+  [COMMON_MAINNET_CHAIN_IDS.arbitrum]: ArbitrumIconSrc
 };
 
 export interface NetworkLogoPropsBase<T extends TempleChainKind> {
