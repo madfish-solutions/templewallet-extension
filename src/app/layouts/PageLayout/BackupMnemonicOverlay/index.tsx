@@ -2,7 +2,7 @@ import React, { memo, useCallback, useState } from 'react';
 
 import { ManualBackupModal } from 'app/templates/ManualBackupModal';
 import { toastError } from 'app/toaster';
-import { SHOULD_BACKUP_MNEMONIC_STORAGE_KEY } from 'lib/constants';
+import { IS_BETA_MODAL_SHOWED_ONCE_STORAGE_KEY, SHOULD_BACKUP_MNEMONIC_STORAGE_KEY } from 'lib/constants';
 import { t } from 'lib/i18n';
 import { useStorage } from 'lib/temple/front';
 import { clearMnemonicToBackup, getMnemonicToBackup } from 'lib/temple/front/mnemonic-to-backup-keeper';
@@ -14,6 +14,7 @@ export const BackupMnemonicOverlay = memo(() => {
   // TODO: change state to support both Google Drive and manual backups
   const [backupSelected, setBackupSelected] = useState(false);
   const [mnemonicToBackup, setMnemonicToBackup] = useState('');
+  const [_, setBetaModalShowedOnce] = useStorage(IS_BETA_MODAL_SHOWED_ONCE_STORAGE_KEY);
   const [, setShouldBackupMnemonic] = useStorage(SHOULD_BACKUP_MNEMONIC_STORAGE_KEY, false);
   const [, setInitToast] = useInitToastMessage();
 
@@ -32,9 +33,10 @@ export const BackupMnemonicOverlay = memo(() => {
   }, []);
   const handleSeedPhraseVerified = useCallback(() => {
     setInitToast(t('backupSuccessful'));
+    setBetaModalShowedOnce(false);
     clearMnemonicToBackup();
     setShouldBackupMnemonic(false).catch(e => console.error(e));
-  }, [setInitToast, setShouldBackupMnemonic]);
+  }, [setBetaModalShowedOnce, setInitToast, setShouldBackupMnemonic]);
 
   return backupSelected ? (
     <ManualBackupModal

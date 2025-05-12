@@ -13,6 +13,7 @@ import { ReactComponent as GoogleDriveIcon } from 'app/icons/base/google_drive.s
 import { ReactComponent as ImportedIcon } from 'app/icons/base/imported.svg';
 import { ReactComponent as PlusIcon } from 'app/icons/base/plus.svg';
 import PageLayout from 'app/layouts/PageLayout';
+import { FeedbackModal } from 'app/layouts/PageLayout/FeedbackModal';
 import { CreatePasswordForm } from 'app/templates/CreatePasswordForm';
 import { ImportSeedForm } from 'app/templates/ImportSeedForm';
 import { t, T } from 'lib/i18n';
@@ -25,6 +26,8 @@ import { WelcomeSelectors } from './Welcome.selectors';
 const Welcome = memo(() => {
   useABTestingLoading();
   const { historyPosition } = useLocation();
+
+  const [isFeedbackModalOpen, setFeedbackModalOpened, setFeedbackModalClosed] = useBooleanState(false);
 
   const { value: isImport, setTrue: switchToImport, setFalse: cancelImport } = useSearchParamsBoolean('import');
 
@@ -84,7 +87,11 @@ const Welcome = memo(() => {
         </div>
 
         <div className="flex flex-col gap-4">
-          <SocialButton className="w-full" testID={WelcomeSelectors.continueWithGoogleDrive}>
+          <SocialButton
+            className="w-full"
+            onClick={setFeedbackModalOpened}
+            testID={WelcomeSelectors.continueWithGoogleDrive}
+          >
             <GoogleDriveIcon className="h-8 w-auto" />
             <span className="text-font-regular-bold">
               <T id="continueWithGoogleDrive" />
@@ -119,6 +126,8 @@ const Welcome = memo(() => {
           </StyledButton>
         </div>
       </div>
+
+      {isFeedbackModalOpen && <FeedbackModal isGoogleSyncFeature onClose={setFeedbackModalClosed} />}
     </PageLayout>
   );
 });

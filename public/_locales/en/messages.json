@@ -3882,14 +3882,14 @@
   "somethingWentWrong": {
     "message": "Something went wrong"
   },
-  "backupYourWallet": {
-    "message": "Backup your wallet"
+  "secureYourWallet": {
+    "message": "Secure your wallet"
   },
   "backupWalletDescription": {
     "message": "Save access to your wallet using backup"
   },
-  "useGoogleDrive": {
-    "message": "Use Google Drive"
+  "backupToGoogle": {
+    "message": "Backup to Google"
   },
   "backupManually": {
     "message": "Backup Manually"
@@ -3899,6 +3899,21 @@
   },
   "notedSeedPhraseDown": {
     "message": "I’ve noted it down"
+  },
+  "leaveFeedback": {
+    "message": "Leave feedback"
+  },
+  "docs": {
+    "message": "Docs"
+  },
+  "googleSyncFeatureNotReadyDescription": {
+    "message": "Thanks for trying out the new Temple Wallet!\nCurrently, Google feature isn’t available in our wallet, but it might change very soon. If you would like to support integration of this feature - leave feedback!"
+  },
+  "inBeta": {
+    "message": "We’re in Beta!"
+  },
+  "inBetaDescription": {
+    "message": "Thanks for trying out the new Temple Wallet!\nThings might feel a little fresh - and that’s because they are! If you need help getting started, check out our docs. Have ideas or run into issues? Feel free to let us know!"
   },
   "newMnemonicManualBackupWarning": {
     "message": "Note down your seed phrase and keep it safe. Write the words in order and keep them stored safely. $neverShare$ or $enterSeedPhrase$ it into any apps.",

@@ -10,20 +10,23 @@ interface EnablingSettingProps {
   description: ReactNode;
   onChange: (value: boolean, event: React.ChangeEvent<HTMLInputElement>) => void;
   testID: string;
+  disabled?: boolean;
 }
 
-export const EnablingSetting = memo(({ title, enabled, description, onChange, testID }: EnablingSettingProps) => (
-  <SettingsCellGroup>
-    <SettingsCellSingle Component="div" isLast={false} cellName={title}>
-      <ToggleSwitch checked={enabled} onChange={onChange} testID={testID} />
-    </SettingsCellSingle>
+export const EnablingSetting = memo(
+  ({ title, enabled, description, onChange, testID, disabled }: EnablingSettingProps) => (
+    <SettingsCellGroup>
+      <SettingsCellSingle Component="div" isLast={false} cellName={title}>
+        <ToggleSwitch checked={enabled} onChange={onChange} testID={testID} disabled={disabled} />
+      </SettingsCellSingle>
 
-    <SettingsCellSingle
-      Component="div"
-      cellName={description}
-      cellNameClassName="text-grey-1 text-font-description font-normal"
-    >
-      {null}
-    </SettingsCellSingle>
-  </SettingsCellGroup>
-));
+      <SettingsCellSingle
+        Component="div"
+        cellName={description}
+        cellNameClassName="text-grey-1 text-font-description font-normal"
+      >
+        {null}
+      </SettingsCellSingle>
+    </SettingsCellGroup>
+  )
+);

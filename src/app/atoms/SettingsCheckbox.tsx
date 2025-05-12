@@ -14,7 +14,7 @@ interface SettingsCheckboxProps extends CheckboxProps {
 
 export const SettingsCheckbox = memo(
   forwardRef<HTMLInputElement, SettingsCheckboxProps>(
-    ({ label, tooltip, testID, testIDProperties, onChange, ...restProps }, ref) => {
+    ({ label, tooltip, testID, testIDProperties, onChange, disabled, ...restProps }, ref) => {
       const { trackEvent } = useAnalytics();
 
       const handleChange = useCallback(
@@ -30,11 +30,12 @@ export const SettingsCheckbox = memo(
         <div
           className={clsx(
             'flex items-center p-3 rounded-lg bg-white shadow-bottom',
-            'gap-2 border-0.5 border-transparent hover:border-lines'
+            'gap-2 border-0.5 border-transparent',
+            !disabled && 'hover:border-lines'
           )}
         >
           <label className="flex-1 flex items-center gap-2" {...setTestID(testID)}>
-            <Checkbox onChange={handleChange} ref={ref} {...restProps} />
+            <Checkbox onChange={handleChange} ref={ref} disabled={disabled} {...restProps} />
             <span className="text-font-medium-bold">{label}</span>
           </label>
           {tooltip && <Tooltip content={tooltip} size={16} className="text-grey-3" />}
