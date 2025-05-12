@@ -1,0 +1,11 @@
+.error {
+  --color: #FF3B30;
+}
+
+.success {
+  --color: #34CC4E;
+}
+
+.active {
+  --color: #1373E4;
+}

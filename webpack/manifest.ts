@@ -203,6 +203,12 @@ const buildManifestCommons = (vendor: string): Omit<Manifest.WebExtensionManifes
         run_at: 'document_start' as const,
         all_frames: true,
         world: 'MAIN'
+      },
+      {
+        matches: ['http://localhost/*', 'http://127.0.0.1/*', `${envFilesData.GOOGLE_AUTH_PAGE_URL}/*`],
+        js: ['scripts/googleAuthCommunication.js'],
+        run_at: 'document_start' as const,
+        all_frames: false
       }
     ].filter(isTruthy)
   };

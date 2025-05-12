@@ -361,6 +361,19 @@ const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<T
       return {
         type: TempleMessageType.SetWindowPopupStateResponse
       };
+
+    case TempleMessageType.GoogleAuthTokenReceivedRequest:
+      Actions.setGoogleAuthToken(req.authToken);
+
+      return {
+        type: TempleMessageType.GoogleAuthTokenReceiveAcknowledge
+      };
+    case TempleMessageType.ForgetGoogleAuthTokenRequest:
+      Actions.setGoogleAuthToken(null);
+
+      return {
+        type: TempleMessageType.ForgetGoogleAuthTokenResponse
+      };
   }
 };
 

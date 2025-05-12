@@ -68,7 +68,8 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
             settings: null,
             dAppQueueCounters: DEFAULT_PROMISES_QUEUE_COUNTERS,
             focusLocation: { tabId: null, windowId: null },
-            windowsWithPopups: []
+            windowsWithPopups: [],
+            googleAuthToken: res.state.googleAuthToken
           }
         : res.state,
       shouldLockOnStartup: isLocked
@@ -112,7 +113,7 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
    * Aliases
    */
 
-  const { status, accounts, settings, dAppQueueCounters, focusLocation, windowsWithPopups } = state;
+  const { status, accounts, settings, dAppQueueCounters, focusLocation, windowsWithPopups, googleAuthToken } = state;
   const idle = status === TempleStatus.Idle;
   const locked = status === TempleStatus.Locked;
   const ready = status === TempleStatus.Ready;
@@ -479,6 +480,11 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
     assertResponse(res.type === TempleMessageType.SetWindowPopupStateResponse);
   }, []);
 
+  const forgetGoogleAuthToken = useCallback(async () => {
+    const res = await request({ type: TempleMessageType.ForgetGoogleAuthTokenRequest });
+    assertResponse(res.type === TempleMessageType.ForgetGoogleAuthTokenResponse);
+  }, []);
+
   useEffect(() => void (data?.shouldLockOnStartup && lock()), [data?.shouldLockOnStartup, lock]);
 
   return {
@@ -497,6 +503,7 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
     dAppQueueCounters,
     focusLocation,
     windowsWithPopups,
+    googleAuthToken,
 
     // Misc
     confirmation,
@@ -536,6 +543,7 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
     switchDAppEvmChain,
     sendEvmTransaction,
     resetExtension,
-    setWindowPopupState
+    setWindowPopupState,
+    forgetGoogleAuthToken
   };
 });

@@ -13,7 +13,6 @@ import { ImportSeedFormSelectors } from './selectors';
 
 interface ImportSeedFormProps {
   next: SyncFn<string>;
-  onCancel: EmptyFn;
 }
 
 export const ImportSeedForm = memo<ImportSeedFormProps>(({ next }) => {

@@ -5,7 +5,7 @@ import { ActionModal } from 'app/atoms/action-modal';
 import { SocialButton } from 'app/atoms/SocialButton';
 import { StyledButton } from 'app/atoms/StyledButton';
 import { ReactComponent as DocumentsIcon } from 'app/icons/base/documents.svg';
-import { ReactComponent as GoogleDriveIcon } from 'app/icons/base/google_drive.svg';
+import GoogleIconSrc from 'app/icons/google-logo.png';
 import { t } from 'lib/i18n';
 
 import { BackupOptionsModalSelectors } from './selectors';
@@ -20,7 +20,7 @@ export const BackupOptionsModal = memo<BackupOptionsModalProps>(({ onSelect }) =
       <p className="py-1 text-font-description text-grey-1 text-center">{t('backupWalletDescription')}</p>
 
       <SocialButton className="w-full" testID={BackupOptionsModalSelectors.useGoogleDriveButton}>
-        <GoogleDriveIcon className="h-8 w-auto" />
+        <img src={GoogleIconSrc} alt="" className="h-6 w-auto p-1" />
         <span className="text-font-regular-bold">{t('useGoogleDrive')}</span>
       </SocialButton>
 

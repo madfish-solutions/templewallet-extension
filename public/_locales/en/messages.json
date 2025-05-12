@@ -880,11 +880,49 @@
   "forgotPasswordModalDescription": {
     "message": "For safety reasons, Temple never stores your password and can’t help recover it. If you forgot your password, you can reset extension and re-import your wallet using your Seed Phrase without losing any funds."
   },
+  "forgotBackupPasswordDescription": {
+    "message": "For safety reasons, Temple never stores your password and can’t recover it. If you forgot password for your backup, you can create a new wallet and overwrite the existing Google backup."
+  },
+  "backupPasswordHint": {
+    "message": "Hint: wallet backup password and Temple Wallet unlock password are often similar."
+  },
   "unlockScreenResetModalAlertText": {
     "message": "Before you continue, ensure you have a back up of your Seed Phrase to avoid permanent loss of your funds and recover access later."
   },
   "unlockScreenResetModalDescription": {
     "message": "If you reset the extension without Seed Phrase back up, you'll not be able to recover your funds."
+  },
+  "incorrectPasswordError": {
+    "message": "Incorrect password"
+  },
+  "deleteExistingBackupQuestion": {
+    "message": "Delete existing backup?"
+  },
+  "deleteBackupWarning": {
+    "message": "Before you continue, ensure you saved current backed up seed phrase to avoid loss of funds."
+  },
+  "deleteBackupDescription": {
+    "message": "If you overwrite the wallet backup from your current Google account, you won’t be able to restore this wallet in the future."
+  },
+  "deleteBackupError": {
+    "message": "Failed to delete backup: $errorMessage$",
+    "placeholders": {
+      "errorMessage": {
+        "content": "$1"
+      }
+    }
+  },
+  "useBackupPassword": {
+    "message": "Use backup password"
+  },
+  "newPassword": {
+    "message": "New password"
+  },
+  "walletPassword": {
+    "message": "Wallet password"
+  },
+  "backupPasswordAlertText": {
+    "message": "The password for Google backup will be used to unlock Temple Wallet by default."
   },
   "incorrectPasswordAttemptError": {
     "message": "Incorrect password. $attempt$/$maxAttempts$ attempts remain.",
@@ -967,8 +1005,17 @@
   "couldNotConnect": {
     "message": "Couldn’t connect"
   },
-  "couldNotConnectDescription": {
+  "couldNotConnectLedgerDescription": {
     "message": "Please approve relevant browser permissions to connect and ensure that your Ledger is unlocked."
+  },
+  "couldNotConnectGoogleAccountDescription": {
+    "message": "Temple encountered an issue while receiving confirmation from your Google account. Please try again."
+  },
+  "decryptYourBackup": {
+    "message": "Decrypt your backup"
+  },
+  "decryptYourBackupDescription": {
+    "message": "This account already has a wallet, confirm import with your backup password to continue."
   },
   "someAppIsNotReady": {
     "message": "$appName$ app isn’t ready",
@@ -1043,8 +1090,25 @@
   "accountAlreadyListed": {
     "message": "This account is already in the list"
   },
-  "continueWithGoogleDrive": {
-    "message": "Continue with Google Drive"
+  "continueWithGoogle": {
+    "message": "Continue with Google"
+  },
+  "signInWithGoogle": {
+    "message": "Sign in with Google"
+  },
+  "signInWithGoogleToCreateWalletDescription": {
+    "message": "Please confirm access to create a wallet linked to your Google account."
+  },
+  "accountConnected": {
+    "message": "Account connected"
+  },
+  "accountConnectedDescription": {
+    "message": "$email$ has been successfully linked to your Temple Wallet.",
+    "placeholders": {
+      "email": {
+        "content": "$1"
+      }
+    }
   },
   "or": {
     "message": "or"
@@ -2380,6 +2444,9 @@
   },
   "welcomeTo": {
     "message": "Welcome to"
+  },
+  "chooseTheBestWayToStart": {
+    "message": "Choose the best way for you to start"
   },
   "domain": {
     "message": "Domain"
@@ -3953,6 +4020,9 @@
   },
   "importSuccessful": {
     "message": "You successfully imported your wallet"
+  },
+  "yourWalletIsReady": {
+    "message": "Your wallet is ready"
   },
   "walletCreatedSuccessfully": {
     "message": "Wallet has been created successfully"

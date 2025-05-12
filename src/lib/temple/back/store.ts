@@ -44,6 +44,8 @@ export const popupOpened = createEvent<number | null>('Popup opened');
 
 export const popupClosed = createEvent<number | null>('Popup closed');
 
+export const googleAuthTokenUpdated = createEvent<string | null>('Google auth token updated');
+
 /**
  * Store
  */
@@ -56,7 +58,8 @@ export const store = createStore<StoreState>({
   settings: null,
   dAppQueueCounters: DEFAULT_PROMISES_QUEUE_COUNTERS,
   focusLocation: null,
-  windowsWithPopups: []
+  windowsWithPopups: [],
+  googleAuthToken: null
 })
   .on(inited, (state, vaultExist) => ({
     ...state,
@@ -77,7 +80,8 @@ export const store = createStore<StoreState>({
     settings: null,
     dAppQueueCounters: DEFAULT_PROMISES_QUEUE_COUNTERS,
     focusLocation,
-    windowsWithPopups
+    windowsWithPopups,
+    googleAuthToken: null
   }))
   .on(unlocked, (state, { vault, accounts, settings }) => ({
     ...state,
@@ -109,6 +113,10 @@ export const store = createStore<StoreState>({
   .on(popupClosed, (state, windowId) => ({
     ...state,
     windowsWithPopups: state.windowsWithPopups.filter(prevWindowId => prevWindowId !== windowId)
+  }))
+  .on(googleAuthTokenUpdated, (state, googleAuthToken) => ({
+    ...state,
+    googleAuthToken
   }));
 
 /**
