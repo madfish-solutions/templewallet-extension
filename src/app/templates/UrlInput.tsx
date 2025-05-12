@@ -115,14 +115,19 @@ export const UrlInput = <K extends string, T extends Record<K, string>>({
 
   return (
     <FormField
-      {...register(castName, {
-        required: required && t('required'),
-        pattern: { value: URL_PATTERN, message: t('mustBeValidURL') },
-        validate: (value: PathValue<T, Path<T>>) =>
-          urlsToExclude.includes(value as string) ? t('mustBeUnique') : true,
-        onChange: handleChange,
-        onBlur: updateShowErrorOnBlur
-      })}
+      {...register(
+        castName,
+        isEditable
+          ? {
+              required: required && t('required'),
+              pattern: { value: URL_PATTERN, message: t('mustBeValidURL') },
+              validate: (value: PathValue<T, Path<T>>) =>
+                urlsToExclude.includes(value as string) ? t('mustBeUnique') : true,
+              onChange: handleChange,
+              onBlur: updateShowErrorOnBlur
+            }
+          : undefined
+      )}
       className={clsx(!isEditable && 'text-grey-1', 'resize-none')}
       cleanable={Boolean(url) && (!textarea || isEditable)}
       onClean={clearUrl}

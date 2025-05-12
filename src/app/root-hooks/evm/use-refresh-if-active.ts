@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo } from 'react';
 
 import { useAssetsFilterOptionsSelector } from 'app/store/assets-filter-options/selectors';
 import { EvmBalancesSource } from 'app/store/evm/state';
+import { useTestnetModeEnabledSelector } from 'app/store/settings/selectors';
 import { ChainID } from 'lib/apis/temple/endpoints/evm/api.interfaces';
 import { isSupportedChainId } from 'lib/apis/temple/endpoints/evm/api.utils';
 import { t } from 'lib/i18n';
@@ -60,6 +61,7 @@ export const useRefreshIfActive = ({
 }: RefreshIfActiveConfig) => {
   const evmChains = useEnabledEvmChains();
   const { filterChain } = useAssetsFilterOptionsSelector();
+  const isTestnetMode = useTestnetModeEnabledSelector();
   const windowIsActive = useWindowIsActive();
   const { pathname } = useLocation();
 
@@ -93,7 +95,7 @@ export const useRefreshIfActive = ({
   const refreshData = useCallback(
     async (chainId: number) => {
       for (const { type, isLoading, setLoading, getData, handleSuccess, handleError } of loaders) {
-        if (type === 'api' && !isSupportedChainId(chainId)) {
+        if (type === 'api' && (!isSupportedChainId(chainId) || isTestnetMode)) {
           continue;
         }
 
@@ -121,7 +123,7 @@ export const useRefreshIfActive = ({
         }
       }
     },
-    [publicKeyHash, loaders]
+    [publicKeyHash, loaders, isTestnetMode]
   );
 
   useEffect(() => {

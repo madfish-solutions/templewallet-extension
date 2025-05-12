@@ -8,7 +8,7 @@ type EmptyFn = () => void;
 
 type Defined<T> = Exclude<T, undefined>;
 
-type WithRequired<T, K extends keyof T> = T & { [P in K]-?: T[P] };
+type PartiallyRequired<T, K extends keyof T> = Partial<Omit<T, K>> & Required<Pick<T, K>>;
 
 type SyncFn<T, R = void> = (arg: T) => R;
 
