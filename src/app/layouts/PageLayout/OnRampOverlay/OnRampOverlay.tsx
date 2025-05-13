@@ -5,6 +5,7 @@ import browser from 'webextension-polyfill';
 
 import { Button } from 'app/atoms';
 import { OverlayCloseButton } from 'app/atoms/OverlayCloseButton';
+import Spinner from 'app/atoms/Spinner/Spinner';
 import { useAppEnv } from 'app/env';
 import { ReactComponent as ArrowRightIcon } from 'app/icons/arrow-right.svg';
 import { ReactComponent as SmileWithDollarIcon } from 'app/icons/smile-with-dollar.svg';
@@ -15,7 +16,6 @@ import { useOnboardingProgress } from 'app/pages/Onboarding/hooks/useOnboardingP
 import { dispatch } from 'app/store';
 import { setOnRampPossibilityAction } from 'app/store/settings/actions';
 import { useOnRampPossibilitySelector } from 'app/store/settings/selectors';
-import { SpinnerSection } from 'app/templates/SendForm/SpinnerSection';
 import { T } from 'lib/i18n/react';
 import { useAccount } from 'lib/temple/front';
 
@@ -67,15 +67,18 @@ export const OnRampOverlay = memo(() => {
             popup && 'h-full'
           )}
           style={{
-            backgroundImage: `url(${popup ? OnRampOverlayBgPopupImg : OnRampOverlayBgImg})`
+            backgroundImage: `url(${popup ? OnRampOverlayBgPopupImg : OnRampOverlayBgImg})`,
+            maxHeight: popup ? 'unset' : '34.25rem'
           }}
         >
+          <OverlayCloseButton testID={OnRampOverlaySelectors.closeButton} onClick={close} />
+
           {isLinkLoading ? (
-            <SpinnerSection />
+            <div className="flex justify-center my-60">
+              <Spinner theme="gray" className="w-20" />
+            </div>
           ) : (
             <>
-              <OverlayCloseButton testID={OnRampOverlaySelectors.closeButton} onClick={close} />
-
               <h1 className="font-inter font-normal text-gray-910 mt-25" style={{ fontSize: '1.438rem' }}>
                 <T id="jumpInTezos" />
               </h1>

@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useLayoutEffect } from 'react';
+import React, { memo, useLayoutEffect } from 'react';
 
 import { isDefined } from '@rnw-community/shared';
 
@@ -11,8 +11,6 @@ import { useAssetMetadata, getAssetSymbol } from 'lib/metadata';
 import { useAccount } from 'lib/temple/front';
 import { HistoryAction, navigate, useLocation } from 'lib/woozie';
 
-import { dispatch } from '../../store';
-import { setOnRampPossibilityAction } from '../../store/settings/actions';
 import { useOnboardingProgress } from '../Onboarding/hooks/useOnboardingProgress.hook';
 import Onboarding from '../Onboarding/Onboarding';
 
@@ -38,8 +36,6 @@ const Home = memo<Props>(({ assetSlug }) => {
 
   const assetMetadata = useAssetMetadata(assetSlug || TEZ_TOKEN_SLUG);
   const assetSymbol = getAssetSymbol(assetMetadata);
-
-  useEffect(() => void dispatch(setOnRampPossibilityAction(true)), []);
 
   useLayoutEffect(() => {
     const usp = new URLSearchParams(search);
