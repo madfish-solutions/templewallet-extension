@@ -49,7 +49,7 @@ const stateToUIConfiguration: Record<LedgerOperationState, UIConfiguration> =
     },
     [LedgerOperationState.Canceled]: {
       title: t('couldNotConnect'),
-      description: t('couldNotConnectDescription')
+      description: t('couldNotConnectLedgerDescription')
     },
     [LedgerOperationState.AppNotReady]: {
       title: appName => t('someAppIsNotReady', appName),

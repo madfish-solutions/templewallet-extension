@@ -100,3 +100,10 @@ export const Alert: FC<AlertProps> = ({
     </div>
   );
 };
+
+export const DescriptionWithHeader: FC<PropsWithChildren<{ header: ReactChildren }>> = ({ header, children }) => (
+  <div className="flex flex-col gap-0.5 text-font-description">
+    <p className="text-font-description-bold">{header}</p>
+    {children}
+  </div>
+);

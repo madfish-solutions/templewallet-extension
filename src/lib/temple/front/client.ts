@@ -84,6 +84,7 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
   const state = data!.state;
 
   const [confirmation, setConfirmation] = useState<Confirmation | null>(null);
+  const [googleAuthToken, setGoogleAuthToken] = useState<string>();
 
   useEffect(() => {
     return intercomClient.subscribe((msg: TempleNotification) => {
@@ -500,6 +501,8 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
 
     // Misc
     confirmation,
+    googleAuthToken,
+    setGoogleAuthToken,
 
     // Actions
     registerWallet,

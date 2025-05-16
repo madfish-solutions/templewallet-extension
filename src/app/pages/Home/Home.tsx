@@ -18,7 +18,7 @@ import { TokensTab } from './OtherComponents/Tokens/Tokens';
 import { TotalEquityBanner } from './OtherComponents/TotalEquityBanner';
 
 const Home = memo(() => {
-  const tabSlug = useLocationSearchParamValue('tab');
+  const [tabSlug] = useLocationSearchParamValue('tab');
   const { onboardingCompleted } = useOnboardingProgress();
 
   const [initToastMessage, setInitToastMessage] = useInitToastMessage();

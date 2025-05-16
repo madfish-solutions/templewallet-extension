@@ -41,7 +41,7 @@ export const ImportWallet = memo(() => {
           {shouldShowPasswordForm ? (
             <CreatePasswordForm seedPhrase={seedPhrase} />
           ) : (
-            <ImportSeedForm next={handleSeedPhraseSubmit} onCancel={goHome} />
+            <ImportSeedForm next={handleSeedPhraseSubmit} />
           )}
         </SuspenseContainer>
       </PageModal>
