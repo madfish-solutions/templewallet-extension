@@ -22,13 +22,14 @@ interface FilesListResponse {
 export class FileDoesNotExistError extends Error {}
 
 const googleApi = axios.create({
-  baseURL: 'https://www.googleapis.com'
+  baseURL: `${EnvVars.TEMPLE_WALLET_API_URL}/api/google-drive`
 });
 
 enum AuthEventType {
   DoAuthRetry = 'doauthretry',
   AuthRequest = 'authrequest',
-  AuthError = 'autherror'
+  AuthError = 'autherror',
+  Load = 'load'
 }
 
 export const getGoogleAuthPageUrl = () => {
@@ -43,34 +44,38 @@ export const getGoogleAuthToken = async (
   isRetry: boolean
 ) =>
   new Promise<string>((res, rej) => {
-    const removeListeners = () => {
+    const loadFailedTimeout = setTimeout(() => {
+      rej(new Error('Google auth iframe load failed'));
+      finalize();
+    }, 20000);
+
+    const finalize = () => {
       window.removeEventListener('message', messagesListener);
-      googleAuthIframeRef.current?.removeEventListener('error', errorListener);
+      clearTimeout(loadFailedTimeout);
     };
+
     async function messagesListener(e: MessageEvent) {
       switch (e.data?.type) {
         case AuthEventType.AuthRequest:
           res(e.data.content);
-          removeListeners();
+          finalize();
           break;
         case AuthEventType.AuthError:
           rej(new Error(e.data.content));
-          removeListeners();
+          finalize();
+          break;
+        case AuthEventType.Load:
+          clearTimeout(loadFailedTimeout);
           break;
       }
     }
-    async function errorListener(e: ErrorEvent) {
-      rej(new Error(e.message));
-      removeListeners();
-    }
 
     window.addEventListener('message', messagesListener);
-    googleAuthIframeRef.current?.addEventListener('error', errorListener);
     const googleAuthIframeWindow = googleAuthIframeRef.current?.contentWindow;
 
     if (!googleAuthIframeWindow) {
       rej(new Error('Google auth iframe window is not available'));
-      removeListeners();
+      finalize();
 
       return;
     }
@@ -84,7 +89,6 @@ const getFileId = async (fileName: string, authToken: string, nextPageToken?: st
   const { data } = await googleApi.get<FilesListResponse>('/drive/v3/files', {
     params: {
       supportsAllDrives: false,
-      key: EnvVars.GOOGLE_DRIVE_API_KEY,
       pageToken: nextPageToken,
       spaces: 'appDataFolder'
     },
@@ -121,7 +125,6 @@ export const readGoogleDriveFile = async <T = string>(fileName: string, authToke
     const { data } = await googleApi.get<T>(`/drive/v3/files/${fileId}`, {
       params: {
         alt: 'media',
-        key: EnvVars.GOOGLE_DRIVE_API_KEY,
         spaces: 'appDataFolder'
       },
       headers: {
@@ -154,8 +157,7 @@ export const writeGoogleDriveFile = async (
     })}\r\n--${boundary}\r\ncontent-type: ${contentType}\r\n\r\n${content}\r\n--${boundary}--`,
     {
       params: {
-        uploadType: 'multipart',
-        key: EnvVars.GOOGLE_DRIVE_API_KEY
+        uploadType: 'multipart'
       },
       headers: {
         Authorization: `Bearer ${authToken}`,
@@ -176,7 +178,6 @@ export const deleteGoogleDriveFile = async (fileName: string, authToken: string)
 
   await googleApi.delete(`/drive/v3/files/${fileId}`, {
     params: {
-      key: EnvVars.GOOGLE_DRIVE_API_KEY,
       supportsAllDrives: false
     },
     headers: {

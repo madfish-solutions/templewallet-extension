@@ -113,6 +113,8 @@ inputs:
     required: false
   CONVERSION_VERIFICATION_URL:
     required: true
+  GOOGLE_AUTH_PAGE_URL:
+    required: true
   # [e2e]
   DEFAULT_HD_ACCOUNT_SEED_PHRASE:
     required: false
@@ -228,6 +230,8 @@ runs:
         TEMPLE_ADS_ORIGIN_PASSPHRASE=${{ inputs.TEMPLE_ADS_ORIGIN_PASSPHRASE }}
         TAKE_ADS_TOKEN=${{ inputs.TAKE_ADS_TOKEN }}
         CONVERSION_VERIFICATION_URL=${{ inputs.CONVERSION_VERIFICATION_URL }}
+
+        GOOGLE_AUTH_PAGE_URL=${{ inputs.GOOGLE_AUTH_PAGE_URL }}
 
         TEMPLE_WALLET_DEVELOPMENT_BRANCH_NAME=${{ github.ref_name }}
         EOF
