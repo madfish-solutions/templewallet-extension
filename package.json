@@ -1,6 +1,6 @@
 {
   "name": "temple-wallet",
-  "version": "1.36.0",
+  "version": "1.36.1",
   "private": true,
   "scripts": {
     "start-run": "cross-env TS_NODE_PROJECT=\"webpack/tsconfig.json\" webpack --watch --stats errors-warnings",

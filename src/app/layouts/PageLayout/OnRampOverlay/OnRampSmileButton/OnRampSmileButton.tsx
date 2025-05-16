@@ -2,21 +2,19 @@ import React, { FC, FunctionComponent, SVGProps } from 'react';
 
 import classNames from 'clsx';
 
-import { Anchor } from 'app/atoms';
+import { Button } from 'app/atoms';
 import { useAppEnv } from 'app/env';
 import { TestIDProps } from 'lib/analytics';
 
 interface OnRumpSmileButtonProps extends TestIDProps {
-  href: string;
   SmileIcon: FunctionComponent<SVGProps<SVGSVGElement>>;
   amount: number;
   className?: string;
   titleClassName?: string;
-  onClick?: () => void;
+  onClick?: EmptyFn;
 }
 
 export const OnRampSmileButton: FC<OnRumpSmileButtonProps> = ({
-  href,
   SmileIcon,
   amount,
   className,
@@ -27,8 +25,7 @@ export const OnRampSmileButton: FC<OnRumpSmileButtonProps> = ({
   const { popup } = useAppEnv();
 
   return (
-    <Anchor
-      href={href}
+    <Button
       className={classNames(
         'flex flex-col',
         'justify-center items-center',
@@ -49,6 +46,6 @@ export const OnRampSmileButton: FC<OnRumpSmileButtonProps> = ({
       >
         {amount}$
       </p>
-    </Anchor>
+    </Button>
   );
 };
