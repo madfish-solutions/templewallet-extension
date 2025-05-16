@@ -3949,17 +3949,41 @@
   "somethingWentWrong": {
     "message": "Something went wrong"
   },
-  "backupYourWallet": {
-    "message": "Backup your wallet"
+  "secureYourWallet": {
+    "message": "Secure your wallet"
   },
-  "backupWalletDescription": {
-    "message": "Save access to your wallet using backup"
+  "backupToGoogle": {
+    "message": "Backup to Google"
   },
-  "useGoogleDrive": {
-    "message": "Use Google Drive"
+  "backupToGoogleDescription": {
+    "message": "More convenience. Seed phrase will be encrypted on your Google account."
   },
-  "backupManually": {
-    "message": "Backup Manually"
+  "manualBackup": {
+    "message": "Manual Backup"
+  },
+  "manualBackupDescription": {
+    "message": "Higher security. Save maximum control of your wallet."
+  },
+  "checkingBackupFromGoogleDrive": {
+    "message": "checking backup from Google Drive"
+  },
+  "backupAlreadyExists": {
+    "message": "Backup already exists"
+  },
+  "backupAlreadyExistsDescription": {
+    "message": "Your Google account already contains a wallet backup. Select how you want to proceed."
+  },
+  "switchAccount": {
+    "message": "Switch Account"
+  },
+  "switchGoogleAccountDescription": {
+    "message": "Select another Google account to continue with backup of your wallet"
+  },
+  "overwriteBackup": {
+    "message": "Overwrite Backup"
+  },
+  "overwriteBackupDescription": {
+    "message": "Delete existing backup and create new one on your current Google account."
   },
   "backupYourSeedPhrase": {
     "message": "Backup your Seed Phrase"

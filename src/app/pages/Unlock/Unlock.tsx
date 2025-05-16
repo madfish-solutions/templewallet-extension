@@ -16,7 +16,7 @@ import { DEFAULT_PASSWORD_INPUT_PLACEHOLDER } from 'lib/constants';
 import { USER_ACTION_TIMEOUT } from 'lib/fixed-times';
 import { T, t } from 'lib/i18n';
 import { useTempleClient } from 'lib/temple/front';
-import { loadMnemonicToBackup } from 'lib/temple/front/mnemonic-to-backup-keeper';
+import { loadBackupCredentials } from 'lib/temple/front/mnemonic-to-backup-keeper';
 import { TempleSharedStorageKey } from 'lib/temple/types';
 import { useShakeOnErrorTrigger } from 'lib/ui/hooks/use-shake-on-error-trigger';
 import { useLocalStorage } from 'lib/ui/local-storage';
@@ -102,7 +102,7 @@ const Unlock: FC<UnlockProps> = ({ canImportNew = true }) => {
       try {
         if (attempt > LAST_ATTEMPT) await delay(Math.random() * 2000 + 1000);
         await unlock(password);
-        await loadMnemonicToBackup(password);
+        await loadBackupCredentials(password);
 
         formAnalytics.trackSubmitSuccess();
         setAttempt(1);

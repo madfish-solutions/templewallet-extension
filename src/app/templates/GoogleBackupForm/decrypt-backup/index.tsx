@@ -5,6 +5,7 @@ import { useForm } from 'react-hook-form-v7';
 import { FormField } from 'app/atoms';
 import { StyledButton } from 'app/atoms/StyledButton';
 import { TextButton } from 'app/atoms/TextButton';
+import { DeleteBackupModal } from 'app/templates/delete-backup-modal';
 import { PageModalScrollViewWithActions } from 'app/templates/page-modal-scroll-view-with-actions';
 import { toastError } from 'app/toaster';
 import { deleteGoogleDriveFile } from 'lib/apis/google';
@@ -19,7 +20,6 @@ import { serializeError } from 'lib/utils/serialize-error';
 import { GoogleBackupFormSelectors } from '../selectors';
 
 import DecryptIllustrationSrc from './decrypt-illustration.png';
-import { DeleteBackupModal } from './delete-backup-modal';
 import { ForgotPasswordModal } from './forgot-password-modal';
 
 interface DecryptBackupProps {
@@ -61,9 +61,11 @@ export const DecryptBackup = memo<DecryptBackupProps>(({ next, backupContent }) 
         next(seed, password);
       } catch (error) {
         console.error(error);
-        setError('password', {
-          message: error instanceof BackupDamagedError ? error.message : t('incorrectPasswordError')
-        });
+        if (error instanceof BackupDamagedError) {
+          toastError(error.message);
+        } else {
+          setError('password', { message: t('incorrectPasswordError') });
+        }
       }
     },
     [backupContent, next, setError]

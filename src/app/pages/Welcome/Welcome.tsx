@@ -16,6 +16,7 @@ import { CreatePasswordForm } from 'app/templates/CreatePasswordForm';
 import { GoogleBackupForm } from 'app/templates/GoogleBackupForm';
 import { ImportSeedForm } from 'app/templates/ImportSeedForm';
 import { t, T } from 'lib/i18n';
+import { useTempleClient } from 'lib/temple/front';
 import { useBooleanState } from 'lib/ui/hooks';
 import { goBack, useLocation } from 'lib/woozie';
 
@@ -26,19 +27,28 @@ const GOOGLE_IMPORT_TYPE = 'google';
 
 const Welcome = memo(() => {
   useABTestingLoading();
+  const { setGoogleAuthToken } = useTempleClient();
   const { historyPosition } = useLocation();
 
   const [importType, setImportType] = useLocationSearchParamValue('importType');
   const isManualImport = importType === MANUAL_IMPORT_TYPE;
   const isGoogleImport = importType === GOOGLE_IMPORT_TYPE;
-  const cancelImport = useCallback(() => setImportType(null), [setImportType]);
-  const switchToManualImport = useCallback(() => setImportType(MANUAL_IMPORT_TYPE), [setImportType]);
-  const switchToGoogleImport = useCallback(() => setImportType(GOOGLE_IMPORT_TYPE), [setImportType]);
 
   const [backupPassword, setBackupPassword] = useState<string | undefined>();
   const [seedPhrase, setSeedPhrase] = useState<string | undefined>();
 
   const [shouldShowPasswordForm, showPasswordForm, hidePasswordForm] = useBooleanState(false);
+
+  const switchToCreateWallet = useCallback(() => {
+    setGoogleAuthToken(undefined);
+    showPasswordForm();
+  }, [setGoogleAuthToken, showPasswordForm]);
+  const cancelImport = useCallback(() => setImportType(null), [setImportType]);
+  const switchToManualImport = useCallback(() => {
+    setGoogleAuthToken(undefined);
+    setImportType(MANUAL_IMPORT_TYPE);
+  }, [setGoogleAuthToken, setImportType]);
+  const switchToGoogleImport = useCallback(() => setImportType(GOOGLE_IMPORT_TYPE), [setImportType]);
 
   const handleSeedPhraseSubmit = useCallback(
     (seed: string) => {
@@ -118,7 +128,7 @@ const Welcome = memo(() => {
             size="L"
             color="primary"
             testID={WelcomeSelectors.createNewWallet}
-            onClick={showPasswordForm}
+            onClick={switchToCreateWallet}
           >
             <IconBase Icon={PlusIcon} size={16} />
             <span>

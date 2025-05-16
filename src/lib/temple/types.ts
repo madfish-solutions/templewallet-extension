@@ -603,6 +603,7 @@ interface TempleEvmChainSwitched extends TempleMessageBase {
   origin: string;
   chainId: number;
 }
+
 interface TempleGetStateRequest extends TempleMessageBase {
   type: TempleMessageType.GetStateRequest;
 }

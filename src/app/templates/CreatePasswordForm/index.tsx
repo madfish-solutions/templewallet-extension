@@ -20,6 +20,7 @@ import {
 } from 'app/store/settings/actions';
 import { toastError } from 'app/toaster';
 import { AnalyticsEventCategory, useAnalytics } from 'lib/analytics';
+import { writeGoogleDriveFile } from 'lib/apis/google';
 import {
   DEFAULT_PASSWORD_INPUT_PLACEHOLDER,
   PRIVACY_POLICY_URL,
@@ -30,8 +31,9 @@ import {
 } from 'lib/constants';
 import { T, TID, t } from 'lib/i18n';
 import { putToStorage } from 'lib/storage';
-import { useStorage, useTempleClient } from 'lib/temple/front';
-import { setMnemonicToBackup } from 'lib/temple/front/mnemonic-to-backup-keeper';
+import { backupFileName, toEncryptedBackup } from 'lib/temple/backup';
+import { useTempleClient } from 'lib/temple/front';
+import { setBackupCredentials } from 'lib/temple/front/mnemonic-to-backup-keeper';
 import { useInitToastMessage } from 'lib/temple/front/toasts-context';
 import { useBooleanState } from 'lib/ui/hooks';
 import { navigate } from 'lib/woozie';
@@ -62,16 +64,15 @@ const validationsLabelsInputs: Array<{ textI18nKey: TID; key: keyof PasswordVali
 
 export const CreatePasswordForm = memo<CreatePasswordFormProps>(
   ({ seedPhrase: seedPhraseToImport, backupPassword }) => {
-    const { registerWallet } = useTempleClient();
+    const { googleAuthToken, registerWallet } = useTempleClient();
     const { trackEvent } = useAnalytics();
-    const [, setShouldBackupMnemonic] = useStorage(SHOULD_BACKUP_MNEMONIC_STORAGE_KEY);
     const { setOnboardingCompleted } = useOnboardingProgress();
     const [, setInitToast] = useInitToastMessage();
     const [backupPasswordUsed, goToBackupPassword, goToCustomPassword] = useBooleanState(Boolean(backupPassword));
 
     const dispatch = useDispatch();
 
-    const { control, watch, register, handleSubmit, errors, triggerValidation, formState, setValue } =
+    const { control, watch, register, handleSubmit, errors, triggerValidation, formState, setValue, reset } =
       useForm<FormData>({
         defaultValues: {
           password: backupPassword ?? '',
@@ -84,8 +85,12 @@ export const CreatePasswordForm = memo<CreatePasswordFormProps>(
     const submitting = formState.isSubmitting;
     const wasSubmitted = formState.submitCount > 0;
 
-    const passwordValue = watch('password');
-    const repeatPasswordValue = watch('repeatPassword');
+    const {
+      password: passwordValue,
+      repeatPassword: repeatPasswordValue,
+      analytics: analyticsEnabled,
+      getRewards: rewardsEnabled
+    } = watch();
 
     const passwordValidation = useMemo(
       () =>
@@ -118,6 +123,15 @@ export const CreatePasswordForm = memo<CreatePasswordFormProps>(
           dispatch(setIsAnalyticsEnabledAction(analyticsEnabled));
           dispatch(setReferralLinksEnabledAction(adsViewEnabled));
 
+          const shouldBackupToGoogleDrive = googleAuthToken !== undefined && !backupPassword;
+          if (shouldBackupToGoogleDrive) {
+            await writeGoogleDriveFile(
+              backupFileName,
+              await toEncryptedBackup(seedPhrase, data.password!),
+              googleAuthToken
+            );
+          }
+
           const accountPkh = await registerWallet(data.password!, formatMnemonic(seedPhrase));
 
           // registerWallet function clears async storages
@@ -131,11 +145,11 @@ export const CreatePasswordForm = memo<CreatePasswordFormProps>(
             trackEvent('AdsEnabled', AnalyticsEventCategory.General, { accountPkh }, adsViewEnabled);
           }
 
-          if (seedPhraseToImport) {
-            setInitToast(t(backupPassword ? 'yourWalletIsReady' : 'importSuccessful'));
+          if (seedPhraseToImport || shouldBackupToGoogleDrive) {
+            setInitToast(t(backupPassword || shouldBackupToGoogleDrive ? 'yourWalletIsReady' : 'importSuccessful'));
           } else {
-            await setShouldBackupMnemonic(true);
-            setMnemonicToBackup(seedPhrase);
+            await putToStorage(SHOULD_BACKUP_MNEMONIC_STORAGE_KEY, true);
+            setBackupCredentials(seedPhrase, data.password!);
           }
           dispatch(setOnRampPossibilityAction(!seedPhraseToImport));
           navigate('/loading');
@@ -151,32 +165,34 @@ export const CreatePasswordForm = memo<CreatePasswordFormProps>(
         dispatch,
         registerWallet,
         backupPassword,
+        googleAuthToken,
         seedPhrase,
         seedPhraseToImport,
         trackEvent,
-        setInitToast,
-        setShouldBackupMnemonic
+        setInitToast
       ]
     );
 
     const cleanPassword = useCallback(async () => setValue('password', '', true), [setValue]);
     const cleanRepeatPassword = useCallback(async () => setValue('repeatPassword', '', true), [setValue]);
     const fillFormForPassword = useCallback(
-      (password: string, shouldValidate: boolean) =>
-        Promise.all([
-          setValue('password', password, shouldValidate),
-          setValue('repeatPassword', password, shouldValidate)
-        ]),
-      [setValue]
+      (password: string) =>
+        reset({
+          password,
+          repeatPassword: password,
+          analytics: analyticsEnabled,
+          getRewards: rewardsEnabled
+        }),
+      [analyticsEnabled, reset, rewardsEnabled]
     );
 
-    const handleNewPasswordClick = useCallback(async () => {
-      await fillFormForPassword('', false);
+    const handleNewPasswordClick = useCallback(() => {
+      fillFormForPassword('');
       goToCustomPassword();
     }, [fillFormForPassword, goToCustomPassword]);
     const handleUseBackupPasswordClick = useCallback(async () => {
       goToBackupPassword();
-      await fillFormForPassword(backupPassword!, true);
+      fillFormForPassword(backupPassword!);
     }, [backupPassword, fillFormForPassword, goToBackupPassword]);
 
     const submitButtonNameI18nKey = seedPhraseToImport ? 'importWallet' : 'createWallet';
@@ -191,7 +207,7 @@ export const CreatePasswordForm = memo<CreatePasswordFormProps>(
           bottomEdgeThreshold={24}
           actionsBoxProps={{
             children: (
-              <StyledButton size="L" color="primary" type="submit" disabled={submitting} testID={submitButtonTestID}>
+              <StyledButton size="L" color="primary" type="submit" loading={submitting} testID={submitButtonTestID}>
                 <T id={submitButtonNameI18nKey} />
               </StyledButton>
             )
@@ -250,7 +266,7 @@ export const CreatePasswordForm = memo<CreatePasswordFormProps>(
             <FormField
               ref={register({
                 required: t('required'),
-                validate: val => val === passwordValue || t('mustBeEqualToPasswordAbove')
+                validate: val => backupPasswordUsed || val === passwordValue || t('mustBeEqualToPasswordAbove')
               })}
               label={<T id="repeatPassword" />}
               id="newwallet-repassword"

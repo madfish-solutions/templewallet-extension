@@ -1,20 +1,19 @@
-import React, { ReactNode, memo, useCallback, useEffect, useRef, useState } from 'react';
+import React, { ReactNode, memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { IconBase, Loader } from 'app/atoms';
+import { GoogleIllustration, GoogleIllustrationState } from 'app/atoms/google-illustration';
 import { StyledButton } from 'app/atoms/StyledButton';
 import { ReactComponent as OkFillIcon } from 'app/icons/base/ok_fill.svg';
 import { ReactComponent as XCircleFillIcon } from 'app/icons/base/x_circle_fill.svg';
-import { FileDoesNotExistError, getAccountEmail, readGoogleDriveFile, getGoogleAuthToken } from 'lib/apis/google';
-import { EnvVars } from 'lib/env';
-import { T, TID } from 'lib/i18n';
-import { EncryptedBackupObject, backupFileName } from 'lib/temple/backup';
+import { toastError } from 'app/toaster';
+import { getAccountEmail, getGoogleAuthToken, getGoogleAuthPageUrl } from 'lib/apis/google';
+import { T, TID, t } from 'lib/i18n';
 import { useTempleClient } from 'lib/temple/front';
+import { serializeError } from 'lib/utils/serialize-error';
 
-import { PageModalScrollViewWithActions } from '../../page-modal-scroll-view-with-actions';
-import { GoogleBackupFormSelectors } from '../selectors';
-import { AuthState, GoogleBackup } from '../types';
+import { PageModalScrollViewWithActions } from '../page-modal-scroll-view-with-actions';
 
-import { AuthIllustration } from './auth-illustration';
+import { GoogleAuthSelectors } from './selectors';
 
 interface StateRenderParams {
   titleI18nKey: TID;
@@ -22,7 +21,7 @@ interface StateRenderParams {
   icon: ReactNode;
 }
 
-const stateRenderParams: Record<AuthState, StateRenderParams> = {
+const stateRenderParams: Record<GoogleIllustrationState, StateRenderParams> = {
   active: {
     titleI18nKey: 'signInWithGoogle',
     descriptionI18nKey: 'signInWithGoogleToCreateWalletDescription',
@@ -41,33 +40,25 @@ const stateRenderParams: Record<AuthState, StateRenderParams> = {
 };
 
 interface GoogleAuthProps {
-  next: SyncFn<GoogleBackup>;
+  next: (googleAuthToken: string) => void | Promise<void>;
 }
 
 export const GoogleAuth = memo<GoogleAuthProps>(({ next }) => {
   const { googleAuthToken, setGoogleAuthToken } = useTempleClient();
   const [isAuthError, setIsAuthError] = useState(false);
-  const [backup, setBackup] = useState<GoogleBackup>();
+  const [email, setEmail] = useState<string>();
   const googleAuthIframeRef = useRef<HTMLIFrameElement>(null);
-  const authState = backup ? 'success' : isAuthError ? 'error' : 'active';
+  const authState = email ? 'success' : isAuthError ? 'error' : 'active';
   const { titleI18nKey, descriptionI18nKey, icon } = stateRenderParams[authState];
 
-  const handleGoogleAuthToken = useCallback(async (authToken: string) => {
-    const [emailResult, contentResult] = await Promise.allSettled([
-      getAccountEmail(authToken),
-      readGoogleDriveFile<EncryptedBackupObject>(backupFileName, authToken)
-    ]);
+  const googleAuthPageUrl = useMemo(() => getGoogleAuthPageUrl(), []);
 
-    if (emailResult.status === 'rejected') {
-      console.error(emailResult.reason);
+  const handleGoogleAuthToken = useCallback(async (authToken: string) => {
+    try {
+      setEmail(await getAccountEmail(authToken));
+    } catch (e) {
+      console.error(e);
       setIsAuthError(true);
-    } else if (contentResult.status === 'rejected' && contentResult.reason instanceof FileDoesNotExistError) {
-      setBackup({ email: emailResult.value });
-    } else if (contentResult.status === 'rejected') {
-      console.error(contentResult.reason);
-      setIsAuthError(true);
-    } else {
-      setBackup({ email: emailResult.value, content: contentResult.value });
     }
   }, []);
 
@@ -101,7 +92,20 @@ export const GoogleAuth = memo<GoogleAuthProps>(({ next }) => {
     }
   }, [googleAuthToken, handleGoogleAuthToken, refreshGoogleAuthToken]);
 
-  const onContinueClick = useCallback(() => void (backup && next(backup)), [backup, next]);
+  const [isLoading, setIsLoading] = useState(false);
+  const onContinueClick = useCallback(async () => {
+    if (!email) return;
+
+    try {
+      setIsLoading(true);
+      await next(googleAuthToken!);
+    } catch (e) {
+      console.error(e);
+      toastError(serializeError(e) ?? t('unknownError'));
+    } finally {
+      setIsLoading(false);
+    }
+  }, [email, googleAuthToken, next]);
 
   return (
     <PageModalScrollViewWithActions
@@ -114,7 +118,8 @@ export const GoogleAuth = memo<GoogleAuthProps>(({ next }) => {
             color="primary"
             type="button"
             disabled={authState === 'active'}
-            testID={isAuthError ? GoogleBackupFormSelectors.retryButton : GoogleBackupFormSelectors.continueButton}
+            loading={isLoading}
+            testID={isAuthError ? GoogleAuthSelectors.retryButton : GoogleAuthSelectors.continueButton}
             onClick={isAuthError ? retry : onContinueClick}
           >
             <T id={isAuthError ? 'retry' : 'continue'} />
@@ -124,13 +129,13 @@ export const GoogleAuth = memo<GoogleAuthProps>(({ next }) => {
     >
       <iframe
         className="absolute top-0 left-0 w-1 h-1 invisible"
-        src={EnvVars.GOOGLE_AUTH_PAGE_URL}
+        src={googleAuthPageUrl}
         title="Google Auth"
         ref={googleAuthIframeRef}
       />
 
       <div className="-mx-4">
-        <AuthIllustration className="w-full h-auto" state={authState} />
+        <GoogleIllustration className="w-full h-auto" state={authState} />
       </div>
 
       <div className="flex flex-col items-center mb-4">
@@ -142,7 +147,7 @@ export const GoogleAuth = memo<GoogleAuthProps>(({ next }) => {
           <T
             id={descriptionI18nKey}
             substitutions={
-              authState === 'success' ? <span className="text-font-description-bold">{backup?.email}</span> : undefined
+              authState === 'success' ? <span className="text-font-description-bold">{email}</span> : undefined
             }
           />
         </p>

@@ -31,29 +31,46 @@ enum AuthEventType {
   AuthError = 'autherror'
 }
 
+export const getGoogleAuthPageUrl = () => {
+  const url = new URL(EnvVars.GOOGLE_AUTH_PAGE_URL);
+  url.searchParams.set('nonce', v4());
+
+  return url.toString();
+};
+
 export const getGoogleAuthToken = async (
   googleAuthIframeRef: MutableRefObject<HTMLIFrameElement | null>,
   isRetry: boolean
-) => {
-  return new Promise<string>((res, rej) => {
-    const messagesListener = async (e: MessageEvent) => {
+) =>
+  new Promise<string>((res, rej) => {
+    const removeListeners = () => {
+      window.removeEventListener('message', messagesListener);
+      googleAuthIframeRef.current?.removeEventListener('error', errorListener);
+    };
+    async function messagesListener(e: MessageEvent) {
       switch (e.data?.type) {
         case AuthEventType.AuthRequest:
           res(e.data.content);
-          window.removeEventListener('message', messagesListener);
+          removeListeners();
           break;
         case AuthEventType.AuthError:
           rej(new Error(e.data.content));
-          window.removeEventListener('message', messagesListener);
+          removeListeners();
           break;
       }
-    };
+    }
+    async function errorListener(e: ErrorEvent) {
+      rej(new Error(e.message));
+      removeListeners();
+    }
+
     window.addEventListener('message', messagesListener);
+    googleAuthIframeRef.current?.addEventListener('error', errorListener);
     const googleAuthIframeWindow = googleAuthIframeRef.current?.contentWindow;
 
     if (!googleAuthIframeWindow) {
       rej(new Error('Google auth iframe window is not available'));
-      window.removeEventListener('message', messagesListener);
+      removeListeners();
 
       return;
     }
@@ -62,7 +79,6 @@ export const getGoogleAuthToken = async (
       googleAuthIframeWindow.postMessage({ type: AuthEventType.DoAuthRetry }, '*');
     }
   });
-};
 
 const getFileId = async (fileName: string, authToken: string, nextPageToken?: string): Promise<string | undefined> => {
   const { data } = await googleApi.get<FilesListResponse>('/drive/v3/files', {
@@ -85,6 +101,9 @@ const getFileId = async (fileName: string, authToken: string, nextPageToken?: st
 
   return data.nextPageToken ? getFileId(fileName, authToken, data.nextPageToken) : undefined;
 };
+
+export const fileExists = async (fileName: string, authToken: string) =>
+  (await getFileId(fileName, authToken)) !== undefined;
 
 export const getAccountEmail = async (authToken: string) => {
   const { data } = await googleApi.get<{ email: string }>('/oauth2/v3/userinfo', {

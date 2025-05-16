@@ -77,8 +77,7 @@ export const store = createStore<StoreState>({
     settings: null,
     dAppQueueCounters: DEFAULT_PROMISES_QUEUE_COUNTERS,
     focusLocation,
-    windowsWithPopups,
-    googleAuthToken: null
+    windowsWithPopups
   }))
   .on(unlocked, (state, { vault, accounts, settings }) => ({
     ...state,
