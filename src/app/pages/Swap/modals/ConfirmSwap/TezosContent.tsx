@@ -1,5 +1,6 @@
 import React, { FC, useCallback, useMemo, useState } from 'react';
 
+//import { MichelCodecPacker, ParamsWithKind } from '@taquito/taquito';
 import BigNumber from 'bignumber.js';
 import { FormProvider } from 'react-hook-form-v7';
 
@@ -76,7 +77,7 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
     }
   }, [tezos, opParams, tezBalance, account.ownerAddress, accountPkh]);
 
-  const { data: estimationData } = useTypedSWR(
+  const { data: estimationData, isLoading } = useTypedSWR(
     () => ['tezos-estimation-data', chainId, accountPkh, opParams],
     estimate,
     {
@@ -102,6 +103,7 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
     basicParams: opParams,
     senderAccount: account,
     simulateOperation: true,
+    estimationDataLoading: isLoading,
     rpcBaseURL,
     chainId
   });
