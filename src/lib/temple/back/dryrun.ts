@@ -4,7 +4,7 @@ import { TezosToolkit, TezosOperationError, getRevealGasLimit, getRevealFee, Est
 import { omit } from 'lodash';
 
 import { FEE_PER_GAS_UNIT } from 'lib/constants';
-import { formatOpParamsBeforeSend } from 'lib/temple/helpers';
+import { formatOpParamsBeforeSend, getParamsWithCustomGasLimitFor3RouteSwap } from 'lib/temple/helpers';
 import { ReadOnlySigner } from 'lib/temple/read-only-signer';
 import { SerializedEstimate } from 'lib/temple/types';
 import { serializeEstimate } from 'lib/utils/serialize-estimate';
@@ -51,9 +51,12 @@ export async function dryRunOpParams({
     let serializedEstimates: SerializedEstimate[] | undefined;
     let error: any = [];
     try {
-      const formatted = opParams.map(operation => formatOpParamsBeforeSend(operation, sourcePkh));
+      const route3HandledParams = await getParamsWithCustomGasLimitFor3RouteSwap(tezos, opParams);
+      const formatted = route3HandledParams.map(operation => formatOpParamsBeforeSend(operation, sourcePkh));
+
       const [estimationResult] = await Promise.allSettled([tezos.estimate.batch(formatted)]);
       const [contractBatchResult] = await Promise.allSettled([tezos.contract.batch(formatted).send()]);
+
       if (estimationResult.status === 'rejected' && contractBatchResult.status === 'rejected') {
         if (
           estimationResult.reason instanceof TezosOperationError &&

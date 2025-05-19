@@ -1,6 +1,5 @@
 import React, { FC, useCallback, useMemo, useState } from 'react';
 
-//import { MichelCodecPacker, ParamsWithKind } from '@taquito/taquito';
 import BigNumber from 'bignumber.js';
 import { FormProvider } from 'react-hook-form-v7';
 
@@ -21,7 +20,7 @@ import { useTezosAssetBalance } from 'lib/balances';
 import { TEZOS_BLOCK_DURATION } from 'lib/fixed-times';
 import { T, t } from 'lib/i18n';
 import { useTypedSWR } from 'lib/swr';
-import { mutezToTz } from 'lib/temple/helpers';
+import { getParamsWithCustomGasLimitFor3RouteSwap, mutezToTz } from 'lib/temple/helpers';
 import { TempleAccountType } from 'lib/temple/types';
 import { runConnectedLedgerOperationFlow } from 'lib/ui';
 import { ZERO } from 'lib/utils/numbers';
@@ -53,8 +52,9 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
 
   const estimate = useCallback(async () => {
     try {
+      const route3HandledParams = await getParamsWithCustomGasLimitFor3RouteSwap(tezos, opParams);
       const estimates = await tezos.estimate.batch(
-        opParams.map(params => ({ ...params, source: account.ownerAddress || accountPkh }))
+        route3HandledParams.map(params => ({ ...params, source: account.ownerAddress || accountPkh }))
       );
 
       const estimatedBaseFee = mutezToTz(

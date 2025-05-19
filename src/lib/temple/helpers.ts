@@ -1,5 +1,7 @@
+import { OpKind, TezosToolkit, WalletParamsWithKind } from '@taquito/taquito';
 import BigNumber from 'bignumber.js';
 
+import { ROUTE3_CONTRACT } from 'lib/route3/constants';
 import { TempleChainKind } from 'temple/types';
 
 import { StoredAccount, StoredHDAccount, TempleAccountType, WalletSpecs } from './types';
@@ -36,7 +38,7 @@ export function tokensToAtoms(x: BigNumber.Value, decimals: number) {
 }
 
 export function formatOpParamsBeforeSend(params: any, sourcePkh?: string) {
-  if (params.kind === 'origination' && params.script) {
+  if (params.kind === OpKind.ORIGINATION && params.script) {
     const newParams = { ...params, ...params.script };
     newParams.init = newParams.storage;
     delete newParams.script;
@@ -44,11 +46,44 @@ export function formatOpParamsBeforeSend(params: any, sourcePkh?: string) {
     return newParams;
   }
 
-  if (params.kind === 'transaction' && sourcePkh) {
+  if (params.kind === OpKind.TRANSACTION && sourcePkh) {
     return { ...params, source: sourcePkh };
   }
 
   return params;
+}
+
+const NON_3ROUTE_OPERATIONS_GAS_LIMIT = 20000;
+
+function is3RouteOpParam(p: WalletParamsWithKind) {
+  return p.kind === OpKind.TRANSACTION && p.to === ROUTE3_CONTRACT;
+}
+
+export async function getParamsWithCustomGasLimitFor3RouteSwap(tezos: TezosToolkit, opParams: WalletParamsWithKind[]) {
+  if (opParams.length < 2 || !opParams.some(op => is3RouteOpParam(op))) {
+    return opParams;
+  }
+
+  try {
+    const constants = await tezos.rpc.getConstants();
+
+    const non3RouteOpParamsCount = opParams.filter(op => !is3RouteOpParam(op)).length;
+
+    const gasPer3RouteOperation = Math.min(
+      constants.hard_gas_limit_per_block
+        .minus(non3RouteOpParamsCount * NON_3ROUTE_OPERATIONS_GAS_LIMIT)
+        .div(opParams.length - non3RouteOpParamsCount)
+        .toNumber(),
+      constants.hard_gas_limit_per_operation.toNumber()
+    );
+
+    return opParams.map(op => ({
+      ...op,
+      gasLimit: is3RouteOpParam(op) ? gasPer3RouteOperation : NON_3ROUTE_OPERATIONS_GAS_LIMIT
+    }));
+  } catch {
+    return opParams;
+  }
 }
 
 export function toExcelColumnName(n: number) {
