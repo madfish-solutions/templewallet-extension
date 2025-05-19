@@ -53,11 +53,14 @@ export function formatOpParamsBeforeSend(params: any, sourcePkh?: string) {
   return params;
 }
 
-const NON_3ROUTE_OPERATIONS_GAS_LIMIT = 20000;
-
 function is3RouteOpParam(p: WalletParamsWithKind) {
   return p.kind === OpKind.TRANSACTION && p.to === ROUTE3_CONTRACT;
 }
+
+// Applies mainly to "approve" and "transfer" operations.
+// Those take less than 5,000 gas on average,
+// so this value is with a generous buffer.
+const NON_3ROUTE_OPERATIONS_GAS_LIMIT = 20000;
 
 export async function getParamsWithCustomGasLimitFor3RouteSwap(tezos: TezosToolkit, opParams: WalletParamsWithKind[]) {
   if (opParams.length < 2 || !opParams.some(op => is3RouteOpParam(op))) {
