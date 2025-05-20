@@ -4,10 +4,11 @@ import { TezosToolkit, TezosOperationError, getRevealGasLimit, getRevealFee, Est
 import { omit } from 'lodash';
 
 import { FEE_PER_GAS_UNIT } from 'lib/constants';
-import { formatOpParamsBeforeSend, getParamsWithCustomGasLimitFor3RouteSwap } from 'lib/temple/helpers';
+import { formatOpParamsBeforeSend } from 'lib/temple/helpers';
 import { ReadOnlySigner } from 'lib/temple/read-only-signer';
 import { SerializedEstimate } from 'lib/temple/types';
 import { serializeEstimate } from 'lib/utils/serialize-estimate';
+import { getParamsWithCustomGasLimitFor3RouteSwap } from 'lib/utils/swap.utils';
 import { michelEncoder, getTezosFastRpcClient } from 'temple/tezos';
 
 interface DryRunParams {

@@ -1,5 +1,5 @@
 import { isDefined } from '@rnw-community/shared';
-import { TezosToolkit, TransferParams } from '@taquito/taquito';
+import { OpKind, TezosToolkit, TransferParams, WalletParamsWithKind } from '@taquito/taquito';
 import { BigNumber } from 'bignumber.js';
 
 import { getLbStorage } from 'lib/apis/route3/fetch-route3-swap-params';
@@ -310,3 +310,39 @@ export const getRoutingFeeTransferParams = async (
 
   return [];
 };
+
+function is3RouteOpParam(p: WalletParamsWithKind) {
+  return p.kind === OpKind.TRANSACTION && p.to === ROUTE3_CONTRACT;
+}
+
+// Applies mainly to "approve" and "transfer" operations.
+// Those take less than 5,000 gas on average,
+// so this value is with a generous buffer.
+const NON_3ROUTE_OPERATIONS_GAS_LIMIT = 20000;
+
+export async function getParamsWithCustomGasLimitFor3RouteSwap(tezos: TezosToolkit, opParams: WalletParamsWithKind[]) {
+  if (opParams.length < 2 || !opParams.some(op => is3RouteOpParam(op))) {
+    return opParams;
+  }
+
+  try {
+    const constants = await tezos.rpc.getConstants();
+
+    const non3RouteOpParamsCount = opParams.filter(op => !is3RouteOpParam(op)).length;
+
+    const gasPer3RouteOperation = Math.min(
+      constants.hard_gas_limit_per_block
+        .minus(non3RouteOpParamsCount * NON_3ROUTE_OPERATIONS_GAS_LIMIT)
+        .div(opParams.length - non3RouteOpParamsCount)
+        .toNumber(),
+      constants.hard_gas_limit_per_operation.toNumber()
+    );
+
+    return opParams.map(op => ({
+      ...op,
+      gasLimit: is3RouteOpParam(op) ? gasPer3RouteOperation : NON_3ROUTE_OPERATIONS_GAS_LIMIT
+    }));
+  } catch {
+    return opParams;
+  }
+}
