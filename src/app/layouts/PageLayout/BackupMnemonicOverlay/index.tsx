@@ -86,7 +86,6 @@ export const BackupMnemonicOverlay = memo(() => {
       ) : (
         <GoogleBackupModalContent
           backupCredentials={backupCredentials!}
-          googleBackupExists={googleBackupExists}
           nonce={nonceRef.current}
           goToManualBackup={goToManualBackup}
           onBackupExists={setGoogleBackupExists}
