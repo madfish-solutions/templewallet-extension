@@ -3,14 +3,13 @@ import React, { memo, useCallback, useMemo, useRef, useState } from 'react';
 import { Alert } from 'app/atoms';
 import { DescriptionWithHeader } from 'app/atoms/Alert';
 import { PageLoader } from 'app/atoms/Loader';
-import { PageModal } from 'app/atoms/PageModal';
 import { ScrollView } from 'app/atoms/PageModal/scroll-view';
 import { DeleteBackupModal } from 'app/templates/delete-backup-modal';
 import { GoogleAuth } from 'app/templates/google-auth';
-import { fileExists, writeGoogleDriveFile } from 'lib/apis/google';
-import { T, t } from 'lib/i18n';
+import { GoogleBackupStatusModalContent } from 'app/templates/google-backup-status-modal-content';
+import { T } from 'lib/i18n';
 import { useTypedSWR } from 'lib/swr';
-import { backupFileName, toEncryptedBackup } from 'lib/temple/backup';
+import { backupExists, writeGoogleDriveBackup } from 'lib/temple/backup';
 import { useTempleClient } from 'lib/temple/front';
 import { BackupCredentials } from 'lib/temple/front/mnemonic-to-backup-keeper';
 import { useBooleanState } from 'lib/ui/hooks';
@@ -18,38 +17,27 @@ import { useBooleanState } from 'lib/ui/hooks';
 import { GoogleDriveBackupOption, GoogleDriveBackupOptionProps, IllustrationName } from './backup-option';
 import { BackupMnemonicOverlaySelectors } from './selectors';
 
-interface GoogleBackupModalProps {
+interface GoogleBackupModalContentProps {
   backupCredentials: BackupCredentials;
   nonce: number;
-  onCancel: EmptyFn;
   goToManualBackup: EmptyFn;
-  onSuccess: EmptyFn;
+  onBackupExists: SyncFn<boolean | undefined>;
+  onFinish: EmptyFn;
 }
 
-export const GoogleBackupModal = memo<GoogleBackupModalProps>(({ onCancel, ...restProps }) => (
-  <PageModal
-    title={t('backupToGoogle')}
-    opened
-    suspenseErrorMessage={t('checkingBackupFromGoogleDrive')}
-    onRequestClose={onCancel}
-  >
-    <GoogleBackupModalContent {...restProps} />
-  </PageModal>
-));
-
-type GoogleBackupModalContentProps = Omit<GoogleBackupModalProps, 'onCancel'>;
-
-const GoogleBackupModalContent = memo<GoogleBackupModalContentProps>(
-  ({ backupCredentials, nonce, onSuccess, goToManualBackup }) => {
+export const GoogleBackupModalContent = memo<GoogleBackupModalContentProps>(
+  ({ backupCredentials, nonce, onFinish, goToManualBackup, onBackupExists }) => {
     const { googleAuthToken, setGoogleAuthToken } = useTempleClient();
+    const { mnemonic, password } = backupCredentials;
     const initialAuthTokenRef = useRef(googleAuthToken);
+    const [isSuccess, setIsSuccess] = useState<boolean | undefined>();
 
     const initialGoogleBackupExistsSWRKey = useMemo(() => {
       const initialGoogleAuthToken = initialAuthTokenRef.current;
 
       return initialGoogleAuthToken ? ['google-backup-exists', initialGoogleAuthToken, nonce] : null;
     }, [nonce]);
-    const getInitialBackupExists = useCallback(() => fileExists(backupFileName, initialAuthTokenRef.current!), []);
+    const getInitialBackupExists = useCallback(() => backupExists(initialAuthTokenRef.current!), []);
     const { data: initialGoogleBackupExists } = useTypedSWR(initialGoogleBackupExistsSWRKey, getInitialBackupExists, {
       suspense: true
     });
@@ -57,25 +45,44 @@ const GoogleBackupModalContent = memo<GoogleBackupModalContentProps>(
 
     const handleAuth = useCallback(
       async (currentGoogleAuthToken: string) => {
-        const newGoogleBackupExists = await fileExists(backupFileName, currentGoogleAuthToken);
-        setGoogleBackupExists(newGoogleBackupExists);
+        try {
+          const newGoogleBackupExists = await backupExists(currentGoogleAuthToken);
+          setGoogleBackupExists(newGoogleBackupExists);
+          onBackupExists(newGoogleBackupExists);
 
-        if (newGoogleBackupExists) {
-          return;
+          if (newGoogleBackupExists) {
+            return;
+          }
+
+          await writeGoogleDriveBackup(mnemonic, password, currentGoogleAuthToken);
+          setIsSuccess(true);
+        } catch (e) {
+          console.error(e);
+          setIsSuccess(false);
         }
-
-        const { mnemonic, password } = backupCredentials;
-        await writeGoogleDriveFile(backupFileName, await toEncryptedBackup(mnemonic, password), currentGoogleAuthToken);
-        onSuccess();
       },
-      [backupCredentials, onSuccess]
+      [mnemonic, onBackupExists, password]
     );
 
     const goToSwitchAccount = useCallback(() => {
       setGoogleAuthToken(undefined);
       initialAuthTokenRef.current = undefined;
       setGoogleBackupExists(undefined);
-    }, [setGoogleAuthToken]);
+      onBackupExists(undefined);
+    }, [onBackupExists, setGoogleAuthToken]);
+    const handleSuccess = useCallback(() => setIsSuccess(true), []);
+
+    if (isSuccess !== undefined) {
+      return (
+        <GoogleBackupStatusModalContent
+          success={isSuccess}
+          mnemonic={mnemonic}
+          password={password}
+          onSuccess={handleSuccess}
+          onFinish={onFinish}
+        />
+      );
+    }
 
     switch (googleBackupExists) {
       case undefined:
@@ -86,7 +93,7 @@ const GoogleBackupModalContent = memo<GoogleBackupModalContentProps>(
         return (
           <BackupExistsModalContent
             backupCredentials={backupCredentials}
-            onSuccess={onSuccess}
+            onSuccess={setIsSuccess}
             goToManualBackup={goToManualBackup}
             goToSwitchAccount={goToSwitchAccount}
           />
@@ -95,8 +102,9 @@ const GoogleBackupModalContent = memo<GoogleBackupModalContentProps>(
   }
 );
 
-type BackupExistsModalContentProps = Omit<GoogleBackupModalContentProps, 'nonce'> & {
+type BackupExistsModalContentProps = Omit<GoogleBackupModalContentProps, 'nonce' | 'onBackupExists' | 'onFinish'> & {
   goToSwitchAccount: EmptyFn;
+  onSuccess: SyncFn<boolean>;
 };
 
 const BackupExistsModalContent = memo<BackupExistsModalContentProps>(
@@ -166,7 +174,7 @@ const BackupExistsModalContent = memo<BackupExistsModalContentProps>(
 
 interface DeleteConfirmationModalProps {
   backupCredentials: BackupCredentials;
-  onSuccess: EmptyFn;
+  onSuccess: SyncFn<boolean>;
   onClose: EmptyFn;
 }
 
@@ -174,8 +182,13 @@ const OverwriteConfirmationModal = memo<DeleteConfirmationModalProps>(({ backupC
   const { mnemonic, password } = backupCredentials;
   const { googleAuthToken } = useTempleClient();
   const overwriteBackup = useCallback(async () => {
-    await writeGoogleDriveFile(backupFileName, await toEncryptedBackup(mnemonic, password), googleAuthToken!);
-    onSuccess();
+    try {
+      await writeGoogleDriveBackup(mnemonic, password, googleAuthToken!);
+      onSuccess(true);
+    } catch (e) {
+      console.error(e);
+      onSuccess(false);
+    }
   }, [googleAuthToken, mnemonic, onSuccess, password]);
 
   return <DeleteBackupModal onCancel={onClose} onDelete={overwriteBackup} />;

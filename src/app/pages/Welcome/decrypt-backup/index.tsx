@@ -8,19 +8,16 @@ import { TextButton } from 'app/atoms/TextButton';
 import { DeleteBackupModal } from 'app/templates/delete-backup-modal';
 import { PageModalScrollViewWithActions } from 'app/templates/page-modal-scroll-view-with-actions';
 import { toastError } from 'app/toaster';
-import { deleteGoogleDriveFile } from 'lib/apis/google';
 import { DEFAULT_PASSWORD_INPUT_PLACEHOLDER } from 'lib/constants';
 import { T, t } from 'lib/i18n';
-import { BackupDamagedError, EncryptedBackupObject, backupFileName, getSeedPhrase } from 'lib/temple/backup';
+import { BackupDamagedError, EncryptedBackupObject, deleteGoogleDriveBackup, getSeedPhrase } from 'lib/temple/backup';
 import { useTempleClient } from 'lib/temple/front';
 import { useBooleanState } from 'lib/ui/hooks';
 import { useShakeOnErrorTrigger } from 'lib/ui/hooks/use-shake-on-error-trigger';
-import { serializeError } from 'lib/utils/serialize-error';
-
-import { GoogleBackupFormSelectors } from '../selectors';
 
 import DecryptIllustrationSrc from './decrypt-illustration.png';
 import { ForgotPasswordModal } from './forgot-password-modal';
+import { DecryptBackupFormSelectors } from './selectors';
 
 interface DecryptBackupProps {
   next: (seed?: string, password?: string) => void;
@@ -45,13 +42,8 @@ export const DecryptBackup = memo<DecryptBackupProps>(({ next, backupContent }) 
 
   const deleteBackup = useCallback(async () => {
     closeDeleteBackupModal();
-    try {
-      await deleteGoogleDriveFile(backupFileName, googleAuthToken!);
-      next();
-    } catch (error) {
-      console.error(error);
-      toastError(t('deleteBackupError', serializeError(error) ?? t('unknownError')));
-    }
+    await deleteGoogleDriveBackup(googleAuthToken!);
+    next();
   }, [closeDeleteBackupModal, googleAuthToken, next]);
 
   const onSubmit = useCallback(
@@ -84,7 +76,7 @@ export const DecryptBackup = memo<DecryptBackupProps>(({ next, backupContent }) 
               color="primary"
               type="submit"
               loading={isSubmitting}
-              testID={GoogleBackupFormSelectors.continueButton}
+              testID={DecryptBackupFormSelectors.continueButton}
               form="decrypt-backup"
             >
               <T id="continue" />
@@ -119,7 +111,7 @@ export const DecryptBackup = memo<DecryptBackupProps>(({ next, backupContent }) 
               shakeTrigger={passwordShakeTrigger}
               containerClassName="mb-3"
               autoFocus
-              testID={GoogleBackupFormSelectors.decryptionPasswordInput}
+              testID={DecryptBackupFormSelectors.decryptionPasswordInput}
             />
           </div>
 

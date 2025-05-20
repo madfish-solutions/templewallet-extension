@@ -21,7 +21,7 @@ interface FilesListResponse {
 
 export class FileDoesNotExistError extends Error {}
 
-const googleApi = axios.create({
+const googleDriveProxyApi = axios.create({
   baseURL: `${EnvVars.TEMPLE_WALLET_API_URL}/api/google-drive`
 });
 
@@ -86,7 +86,7 @@ export const getGoogleAuthToken = async (
   });
 
 const getFileId = async (fileName: string, authToken: string, nextPageToken?: string): Promise<string | undefined> => {
-  const { data } = await googleApi.get<FilesListResponse>('/drive/v3/files', {
+  const { data } = await googleDriveProxyApi.get<FilesListResponse>('/drive/v3/files', {
     params: {
       supportsAllDrives: false,
       pageToken: nextPageToken,
@@ -110,7 +110,7 @@ export const fileExists = async (fileName: string, authToken: string) =>
   (await getFileId(fileName, authToken)) !== undefined;
 
 export const getAccountEmail = async (authToken: string) => {
-  const { data } = await googleApi.get<{ email: string }>('/oauth2/v3/userinfo', {
+  const { data } = await googleDriveProxyApi.get<{ email: string }>('/oauth2/v3/userinfo', {
     params: {
       access_token: authToken
     }
@@ -122,7 +122,7 @@ export const getAccountEmail = async (authToken: string) => {
 export const readGoogleDriveFile = async <T = string>(fileName: string, authToken: string) => {
   const fileId = await getFileId(fileName, authToken);
   if (fileId) {
-    const { data } = await googleApi.get<T>(`/drive/v3/files/${fileId}`, {
+    const { data } = await googleDriveProxyApi.get<T>(`/drive/v3/files/${fileId}`, {
       params: {
         alt: 'media',
         spaces: 'appDataFolder'
@@ -148,20 +148,22 @@ export const writeGoogleDriveFile = async (
   const method = fileId ? 'patch' : 'post';
   const boundary = v4();
 
-  const { data } = await googleApi[method]<GoogleFile>(
+  const { data } = await googleDriveProxyApi[method]<GoogleFile>(
     `/upload/drive/v3/files${fileId ? `/${fileId}` : ''}`,
-    `--${boundary}\r\ncontent-type: application/json; charset=UTF-8\r\n\r\n${JSON.stringify({
-      name: fileName,
-      mimeType: contentType,
-      parents: fileId ? undefined : ['appDataFolder']
-    })}\r\n--${boundary}\r\ncontent-type: ${contentType}\r\n\r\n${content}\r\n--${boundary}--`,
+    {
+      body: `--${boundary}\r\ncontent-type: application/json; charset=UTF-8\r\n\r\n${JSON.stringify({
+        name: fileName,
+        mimeType: contentType,
+        parents: fileId ? undefined : ['appDataFolder']
+      })}\r\n--${boundary}\r\ncontent-type: ${contentType}\r\n\r\n${content}\r\n--${boundary}--`,
+      contentType: `multipart/related; boundary=${boundary}`
+    },
     {
       params: {
         uploadType: 'multipart'
       },
       headers: {
-        Authorization: `Bearer ${authToken}`,
-        'Content-Type': `multipart/related; boundary=${boundary}`
+        Authorization: `Bearer ${authToken}`
       }
     }
   );
@@ -176,7 +178,7 @@ export const deleteGoogleDriveFile = async (fileName: string, authToken: string)
     throw new FileDoesNotExistError(`File ${fileName} does not exist`);
   }
 
-  await googleApi.delete(`/drive/v3/files/${fileId}`, {
+  await googleDriveProxyApi.delete(`/drive/v3/files/${fileId}`, {
     params: {
       supportsAllDrives: false
     },

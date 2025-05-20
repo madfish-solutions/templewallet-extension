@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useState } from 'react';
+import React, { memo, useCallback, useMemo, useState } from 'react';
 
 import { IconBase } from 'app/atoms';
 import { Lines } from 'app/atoms/Lines';
@@ -7,98 +7,205 @@ import { SocialButton } from 'app/atoms/SocialButton';
 import { StyledButton } from 'app/atoms/StyledButton';
 import { SuspenseContainer } from 'app/atoms/SuspenseContainer';
 import { useABTestingLoading } from 'app/hooks/use-ab-testing-loading';
-import { useLocationSearchParamValue } from 'app/hooks/use-location';
 import { ReactComponent as ImportedIcon } from 'app/icons/base/imported.svg';
 import { ReactComponent as PlusIcon } from 'app/icons/base/plus.svg';
 import GoogleIconSrc from 'app/icons/google-logo.png';
 import { PlanetsBgPageLayout } from 'app/layouts/planets-bg-page-layout';
 import { CreatePasswordForm } from 'app/templates/CreatePasswordForm';
-import { GoogleBackupForm } from 'app/templates/GoogleBackupForm';
+import { GoogleBackupStatusModalContent } from 'app/templates/google-backup-status-modal-content';
 import { ImportSeedForm } from 'app/templates/ImportSeedForm';
-import { t, T } from 'lib/i18n';
+import { t, T, TID } from 'lib/i18n';
+import type { EncryptedBackupObject } from 'lib/temple/backup';
 import { useTempleClient } from 'lib/temple/front';
-import { useBooleanState } from 'lib/ui/hooks';
-import { goBack, useLocation } from 'lib/woozie';
+import { useInitToastMessage } from 'lib/temple/front/toasts-context';
+import { goBack, navigate, useLocation } from 'lib/woozie';
 
+import { DecryptBackup } from './decrypt-backup';
+import { GoogleAuth } from './google-auth';
 import { WelcomeSelectors } from './Welcome.selectors';
 
-const MANUAL_IMPORT_TYPE = 'manual';
-const GOOGLE_IMPORT_TYPE = 'google';
+enum WalletCreationStage {
+  NotStarted = 'not-started',
+  GoogleAuth = 'google-auth',
+  GoogleBackupReading = 'google-backup-reading',
+  GoogleBackupStatus = 'google-backup-status',
+  ManualImport = 'manual-import',
+  CreatePassword = 'create-password'
+}
+
+interface WalletCreationStateBase {
+  stage: WalletCreationStage;
+}
+
+interface WalletCreationNotStartedState extends WalletCreationStateBase {
+  stage: WalletCreationStage.NotStarted;
+}
+
+interface WalletCreationGoogleAuthState extends WalletCreationStateBase {
+  stage: WalletCreationStage.GoogleAuth;
+}
+
+interface WalletCreationGoogleBackupReadingState extends WalletCreationStateBase {
+  stage: WalletCreationStage.GoogleBackupReading;
+  backupContent: EncryptedBackupObject;
+}
+
+interface WalletCreationGoogleBackupStatusState extends WalletCreationStateBase {
+  stage: WalletCreationStage.GoogleBackupStatus;
+  success: boolean;
+  mnemonic: string;
+  password: string;
+}
+
+interface WalletCreationManualImportState extends WalletCreationStateBase {
+  stage: WalletCreationStage.ManualImport;
+}
+
+interface WalletCreationCreatePasswordState extends WalletCreationStateBase {
+  stage: WalletCreationStage.CreatePassword;
+  mnemonic?: string;
+  backupPassword?: string;
+  importType?: 'manual' | 'google';
+}
+
+type WalletCreationState =
+  | WalletCreationNotStartedState
+  | WalletCreationGoogleAuthState
+  | WalletCreationGoogleBackupReadingState
+  | WalletCreationGoogleBackupStatusState
+  | WalletCreationManualImportState
+  | WalletCreationCreatePasswordState;
+
+const stageModalTitleI18nKeys: Record<WalletCreationStage, TID | null> = {
+  [WalletCreationStage.NotStarted]: null,
+  [WalletCreationStage.GoogleAuth]: 'continueWithGoogle',
+  [WalletCreationStage.GoogleBackupReading]: 'continueWithGoogle',
+  [WalletCreationStage.GoogleBackupStatus]: 'backupToGoogle',
+  [WalletCreationStage.ManualImport]: 'importExistingWallet',
+  [WalletCreationStage.CreatePassword]: 'createPassword'
+};
 
 const Welcome = memo(() => {
   useABTestingLoading();
-  const { setGoogleAuthToken } = useTempleClient();
+  const { setGoogleAuthToken, setSuppressReady } = useTempleClient();
+  const [, setInitToast] = useInitToastMessage();
   const { historyPosition } = useLocation();
 
-  const [importType, setImportType] = useLocationSearchParamValue('importType');
-  const isManualImport = importType === MANUAL_IMPORT_TYPE;
-  const isGoogleImport = importType === GOOGLE_IMPORT_TYPE;
+  const [walletCreationState, setWalletCreationState] = useState<WalletCreationState>({
+    stage: WalletCreationStage.NotStarted
+  });
+  const stage = walletCreationState.stage;
+  const titleI18nKey = stageModalTitleI18nKeys[walletCreationState.stage];
 
-  const [backupPassword, setBackupPassword] = useState<string | undefined>();
-  const [seedPhrase, setSeedPhrase] = useState<string | undefined>();
-
-  const [shouldShowPasswordForm, showPasswordForm, hidePasswordForm] = useBooleanState(false);
-
-  const switchToCreateWallet = useCallback(() => {
-    setGoogleAuthToken(undefined);
-    showPasswordForm();
-  }, [setGoogleAuthToken, showPasswordForm]);
-  const cancelImport = useCallback(() => setImportType(null), [setImportType]);
-  const switchToManualImport = useCallback(() => {
-    setGoogleAuthToken(undefined);
-    setImportType(MANUAL_IMPORT_TYPE);
-  }, [setGoogleAuthToken, setImportType]);
-  const switchToGoogleImport = useCallback(() => setImportType(GOOGLE_IMPORT_TYPE), [setImportType]);
-
-  const handleSeedPhraseSubmit = useCallback(
-    (seed: string) => {
-      setSeedPhrase(seed);
-      showPasswordForm();
-    },
-    [showPasswordForm]
-  );
-
+  const handleBackupFinish = useCallback(() => {
+    setInitToast(t('yourWalletIsReady'));
+    setSuppressReady(false);
+    navigate('/loading');
+  }, [setInitToast, setSuppressReady]);
   const closeModal = useCallback(() => {
-    if (historyPosition === 0) {
-      setSeedPhrase(undefined);
-      hidePasswordForm();
-      cancelImport();
-    } else {
+    if (historyPosition !== 0) {
       goBack();
+
+      return;
     }
-  }, [cancelImport, hidePasswordForm, historyPosition]);
 
-  const handleGoBack = useCallback(
-    () => void (shouldShowPasswordForm && hidePasswordForm()),
-    [hidePasswordForm, shouldShowPasswordForm]
+    if (stage === WalletCreationStage.GoogleBackupStatus) {
+      handleBackupFinish();
+    } else {
+      setWalletCreationState({ stage: WalletCreationStage.NotStarted });
+      setGoogleAuthToken(undefined);
+    }
+  }, [handleBackupFinish, historyPosition, setGoogleAuthToken, stage]);
+
+  const goToGoogleAuth = useCallback(() => {
+    setWalletCreationState({ stage: WalletCreationStage.GoogleAuth });
+    setGoogleAuthToken(undefined);
+  }, [setGoogleAuthToken]);
+  const handleGoBack = useMemo(() => {
+    switch (stage) {
+      case WalletCreationStage.GoogleBackupReading:
+        return goToGoogleAuth;
+      case WalletCreationStage.CreatePassword:
+        const { importType, mnemonic } = walletCreationState;
+
+        if (importType === 'manual') {
+          return () => setWalletCreationState({ stage: WalletCreationStage.ManualImport });
+        }
+
+        if (importType === 'google' && !mnemonic) {
+          return goToGoogleAuth;
+        }
+
+        return undefined;
+      default:
+        return undefined;
+    }
+  }, [goToGoogleAuth, stage, walletCreationState]);
+
+  const goToBackupReading = useCallback((backupContent: EncryptedBackupObject) => {
+    setWalletCreationState({
+      stage: WalletCreationStage.GoogleBackupReading,
+      backupContent
+    });
+  }, []);
+  const handleReadGoogleBackup = useCallback(
+    (mnemonic?: string, backupPassword?: string) =>
+      setWalletCreationState({
+        stage: WalletCreationStage.CreatePassword,
+        mnemonic,
+        backupPassword,
+        importType: 'google'
+      }),
+    []
   );
-
-  const handleGoogleBackup = useCallback(
-    (seed?: string, password?: string) => {
-      setSeedPhrase(seed);
-      setBackupPassword(password);
-      showPasswordForm();
-    },
-    [showPasswordForm]
+  const handleBackupSuccess = useCallback(
+    () =>
+      setWalletCreationState(state =>
+        state.stage === WalletCreationStage.GoogleBackupStatus ? { ...state, success: true } : state
+      ),
+    []
+  );
+  const handleSeedPhraseSubmit = useCallback(
+    (mnemonic: string) =>
+      setWalletCreationState({ stage: WalletCreationStage.CreatePassword, mnemonic, importType: 'manual' }),
+    []
+  );
+  const onCreateWalletClick = useCallback(
+    () => setWalletCreationState({ stage: WalletCreationStage.CreatePassword }),
+    []
+  );
+  const goToManualImport = useCallback(() => setWalletCreationState({ stage: WalletCreationStage.ManualImport }), []);
+  const handleNewBackupState = useCallback(
+    (mnemonic: string, password: string, success: boolean) =>
+      setWalletCreationState({ stage: WalletCreationStage.GoogleBackupStatus, mnemonic, password, success }),
+    []
   );
 
   return (
     <>
       <PageModal
-        title={t(
-          shouldShowPasswordForm ? 'createPassword' : isManualImport ? 'importExistingWallet' : 'continueWithGoogle'
-        )}
-        opened={shouldShowPasswordForm || isManualImport || isGoogleImport}
-        onGoBack={shouldShowPasswordForm && isManualImport ? handleGoBack : undefined}
+        title={titleI18nKey && t(titleI18nKey)}
+        opened={stage !== WalletCreationStage.NotStarted}
+        onGoBack={handleGoBack}
         onRequestClose={closeModal}
       >
         <SuspenseContainer>
-          {shouldShowPasswordForm ? (
-            <CreatePasswordForm seedPhrase={seedPhrase} backupPassword={backupPassword} />
-          ) : isGoogleImport ? (
-            <GoogleBackupForm next={handleGoogleBackup} />
-          ) : (
-            <ImportSeedForm next={handleSeedPhraseSubmit} />
+          {stage === WalletCreationStage.GoogleAuth && (
+            <GoogleAuth onMissingBackup={handleReadGoogleBackup} onBackupContent={goToBackupReading} />
+          )}
+          {stage === WalletCreationStage.GoogleBackupReading && (
+            <DecryptBackup next={handleReadGoogleBackup} backupContent={walletCreationState.backupContent} />
+          )}
+          {stage === WalletCreationStage.GoogleBackupStatus && (
+            <GoogleBackupStatusModalContent
+              {...walletCreationState}
+              onSuccess={handleBackupSuccess}
+              onFinish={handleBackupFinish}
+            />
+          )}
+          {stage === WalletCreationStage.ManualImport && <ImportSeedForm next={handleSeedPhraseSubmit} />}
+          {stage === WalletCreationStage.CreatePassword && (
+            <CreatePasswordForm {...walletCreationState} onNewBackupState={handleNewBackupState} />
           )}
         </SuspenseContainer>
       </PageModal>
@@ -114,7 +221,7 @@ const Welcome = memo(() => {
         </div>
 
         <div className="flex flex-col gap-4">
-          <SocialButton className="w-full" testID={WelcomeSelectors.continueWithGoogle} onClick={switchToGoogleImport}>
+          <SocialButton className="w-full" testID={WelcomeSelectors.continueWithGoogle} onClick={goToGoogleAuth}>
             <img src={GoogleIconSrc} alt="" className="h-6 w-auto p-1" />
             <span className="text-font-regular-bold">
               <T id="continueWithGoogle" />
@@ -128,7 +235,7 @@ const Welcome = memo(() => {
             size="L"
             color="primary"
             testID={WelcomeSelectors.createNewWallet}
-            onClick={switchToCreateWallet}
+            onClick={onCreateWalletClick}
           >
             <IconBase Icon={PlusIcon} size={16} />
             <span>
@@ -140,7 +247,7 @@ const Welcome = memo(() => {
             size="L"
             color="secondary"
             testID={WelcomeSelectors.importExistingWallet}
-            onClick={switchToManualImport}
+            onClick={goToManualImport}
           >
             <IconBase Icon={ImportedIcon} size={16} />
             <span>

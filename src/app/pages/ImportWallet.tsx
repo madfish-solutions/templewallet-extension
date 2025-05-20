@@ -39,7 +39,7 @@ export const ImportWallet = memo(() => {
       >
         <SuspenseContainer>
           {shouldShowPasswordForm ? (
-            <CreatePasswordForm seedPhrase={seedPhrase} />
+            <CreatePasswordForm mnemonic={seedPhrase} />
           ) : (
             <ImportSeedForm next={handleSeedPhraseSubmit} />
           )}

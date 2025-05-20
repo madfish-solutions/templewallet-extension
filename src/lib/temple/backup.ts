@@ -1,5 +1,6 @@
 import * as WasmThemis from 'wasm-themis';
 
+import { deleteGoogleDriveFile, fileExists, readGoogleDriveFile, writeGoogleDriveFile } from 'lib/apis/google';
 import { APP_VERSION } from 'lib/env';
 
 interface BackupObject {
@@ -19,7 +20,7 @@ export class BackupDamagedError extends Error {
   }
 }
 
-export const backupFileName = 'wallet-backup.json';
+const backupFileName = 'wallet-backup.json';
 
 const libthemisWasmSrc = '/wasm/libthemis.wasm';
 
@@ -47,7 +48,7 @@ export const getSeedPhrase = async (backup: EncryptedBackupObject, password: str
   }
 };
 
-export const toEncryptedBackup = async (mnemonic: string, password: string) => {
+const toEncryptedBackup = async (mnemonic: string, password: string) => {
   await initializeWasmThemis();
   const cell = WasmThemis.SecureCellSeal.withPassphrase(password);
   const backupObject = {
@@ -58,3 +59,13 @@ export const toEncryptedBackup = async (mnemonic: string, password: string) => {
 
   return JSON.stringify(backupObject);
 };
+
+export const backupExists = (authToken: string) => fileExists(backupFileName, authToken);
+
+export const writeGoogleDriveBackup = async (mnemonic: string, password: string, authToken: string) =>
+  writeGoogleDriveFile(backupFileName, await toEncryptedBackup(mnemonic, password), authToken);
+
+export const readGoogleDriveBackup = (authToken: string) =>
+  readGoogleDriveFile<EncryptedBackupObject>(backupFileName, authToken);
+
+export const deleteGoogleDriveBackup = (authToken: string) => deleteGoogleDriveFile(backupFileName, authToken);

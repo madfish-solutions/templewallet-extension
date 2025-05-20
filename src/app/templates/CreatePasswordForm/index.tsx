@@ -20,7 +20,6 @@ import {
 } from 'app/store/settings/actions';
 import { toastError } from 'app/toaster';
 import { AnalyticsEventCategory, useAnalytics } from 'lib/analytics';
-import { writeGoogleDriveFile } from 'lib/apis/google';
 import {
   DEFAULT_PASSWORD_INPUT_PLACEHOLDER,
   PRIVACY_POLICY_URL,
@@ -31,7 +30,7 @@ import {
 } from 'lib/constants';
 import { T, TID, t } from 'lib/i18n';
 import { putToStorage } from 'lib/storage';
-import { backupFileName, toEncryptedBackup } from 'lib/temple/backup';
+import { writeGoogleDriveBackup } from 'lib/temple/backup';
 import { useTempleClient } from 'lib/temple/front';
 import { setBackupCredentials } from 'lib/temple/front/mnemonic-to-backup-keeper';
 import { useInitToastMessage } from 'lib/temple/front/toasts-context';
@@ -50,8 +49,9 @@ interface FormData {
 }
 
 interface CreatePasswordFormProps {
-  seedPhrase?: string;
+  mnemonic?: string;
   backupPassword?: string;
+  onNewBackupState?: (mnemonic: string, password: string, success: boolean) => void;
 }
 
 const validationsLabelsInputs: Array<{ textI18nKey: TID; key: keyof PasswordValidation }> = [
@@ -63,8 +63,8 @@ const validationsLabelsInputs: Array<{ textI18nKey: TID; key: keyof PasswordVali
 ];
 
 export const CreatePasswordForm = memo<CreatePasswordFormProps>(
-  ({ seedPhrase: seedPhraseToImport, backupPassword }) => {
-    const { googleAuthToken, registerWallet } = useTempleClient();
+  ({ mnemonic: mnemonicToImport, backupPassword, onNewBackupState }) => {
+    const { googleAuthToken, registerWallet, setSuppressReady } = useTempleClient();
     const { trackEvent } = useAnalytics();
     const { setOnboardingCompleted } = useOnboardingProgress();
     const [, setInitToast] = useInitToastMessage();
@@ -100,7 +100,7 @@ export const CreatePasswordForm = memo<CreatePasswordFormProps>(
       [passwordValue]
     );
 
-    const seedPhrase = useMemo(() => seedPhraseToImport ?? generateMnemonic(128), [seedPhraseToImport]);
+    const seedPhrase = useMemo(() => mnemonicToImport ?? generateMnemonic(128), [mnemonicToImport]);
 
     useLayoutEffect(() => {
       if (formState.dirtyFields.has('repeatPassword')) {
@@ -123,14 +123,8 @@ export const CreatePasswordForm = memo<CreatePasswordFormProps>(
           dispatch(setIsAnalyticsEnabledAction(analyticsEnabled));
           dispatch(setReferralLinksEnabledAction(adsViewEnabled));
 
-          const shouldBackupToGoogleDrive = googleAuthToken !== undefined && !backupPassword;
-          if (shouldBackupToGoogleDrive) {
-            await writeGoogleDriveFile(
-              backupFileName,
-              await toEncryptedBackup(seedPhrase, data.password!),
-              googleAuthToken
-            );
-          }
+          const shouldBackupToGoogleAutomatically = Boolean(googleAuthToken && !mnemonicToImport);
+          setSuppressReady(shouldBackupToGoogleAutomatically);
 
           const accountPkh = await registerWallet(data.password!, formatMnemonic(seedPhrase));
 
@@ -145,14 +139,23 @@ export const CreatePasswordForm = memo<CreatePasswordFormProps>(
             trackEvent('AdsEnabled', AnalyticsEventCategory.General, { accountPkh }, adsViewEnabled);
           }
 
-          if (seedPhraseToImport || shouldBackupToGoogleDrive) {
-            setInitToast(t(backupPassword || shouldBackupToGoogleDrive ? 'yourWalletIsReady' : 'importSuccessful'));
-          } else {
+          dispatch(setOnRampPossibilityAction(!mnemonicToImport));
+
+          if (mnemonicToImport) {
+            setInitToast(t(backupPassword ? 'yourWalletIsReady' : 'importSuccessful'));
+            navigate('/loading');
+          } else if (!googleAuthToken) {
             await putToStorage(SHOULD_BACKUP_MNEMONIC_STORAGE_KEY, true);
             setBackupCredentials(seedPhrase, data.password!);
+            navigate('/loading');
+          } else {
+            try {
+              await writeGoogleDriveBackup(seedPhrase, data.password!, googleAuthToken);
+              onNewBackupState?.(seedPhrase, data.password!, true);
+            } catch (e) {
+              onNewBackupState?.(seedPhrase, data.password!, false);
+            }
           }
-          dispatch(setOnRampPossibilityAction(!seedPhraseToImport));
-          navigate('/loading');
         } catch (err: any) {
           console.error(err);
 
@@ -167,9 +170,11 @@ export const CreatePasswordForm = memo<CreatePasswordFormProps>(
         backupPassword,
         googleAuthToken,
         seedPhrase,
-        seedPhraseToImport,
+        mnemonicToImport,
+        setSuppressReady,
         trackEvent,
-        setInitToast
+        setInitToast,
+        onNewBackupState
       ]
     );
 
@@ -195,8 +200,8 @@ export const CreatePasswordForm = memo<CreatePasswordFormProps>(
       fillFormForPassword(backupPassword!);
     }, [backupPassword, fillFormForPassword, goToBackupPassword]);
 
-    const submitButtonNameI18nKey = seedPhraseToImport ? 'importWallet' : 'createWallet';
-    const submitButtonTestID = seedPhraseToImport
+    const submitButtonNameI18nKey = mnemonicToImport ? 'importWallet' : 'createWallet';
+    const submitButtonTestID = mnemonicToImport
       ? createPasswordSelectors.importButton
       : createPasswordSelectors.createButton;
 

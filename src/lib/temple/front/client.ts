@@ -113,10 +113,11 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
    * Aliases
    */
 
+  const [suppressReady, setSuppressReady] = useState(false);
   const { status, accounts, settings, dAppQueueCounters, focusLocation, windowsWithPopups } = state;
   const idle = status === TempleStatus.Idle;
   const locked = status === TempleStatus.Locked;
-  const ready = status === TempleStatus.Ready;
+  const ready = status === TempleStatus.Ready && !suppressReady;
 
   const [walletsSpecs, setWalletsSpecs] = useStorage<StringRecord<WalletSpecs>>(WALLETS_SPECS_STORAGE_KEY, {});
 
@@ -503,6 +504,7 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
     confirmation,
     googleAuthToken,
     setGoogleAuthToken,
+    setSuppressReady,
 
     // Actions
     registerWallet,

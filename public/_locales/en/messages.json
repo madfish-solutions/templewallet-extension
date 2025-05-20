@@ -904,14 +904,6 @@
   "deleteBackupDescription": {
     "message": "If you overwrite the wallet backup from your current Google account, you won’t be able to restore this wallet in the future."
   },
-  "deleteBackupError": {
-    "message": "Failed to delete backup: $errorMessage$",
-    "placeholders": {
-      "errorMessage": {
-        "content": "$1"
-      }
-    }
-  },
   "useBackupPassword": {
     "message": "Use backup password"
   },
@@ -1109,6 +1101,21 @@
         "content": "$1"
       }
     }
+  },
+  "walletLinkedWithGoogle": {
+    "message": "Wallet linked with Google"
+  },
+  "walletLinkedWithGoogleDescription": {
+    "message": "Your seed phrase backed up using your Temple Wallet password and linked to your Google account. For better safety, note down your seed phrase additionally."
+  },
+  "couldNotBackupWallet": {
+    "message": "Couldn’t back up wallet"
+  },
+  "couldNotBackupWalletDescription": {
+    "message": "Temple encountered an issue while backing up wallet to your Google account. Please try again."
+  },
+  "rememberGoogleBackupPassword": {
+    "message": "Remember your Temple Wallet password. It encrypts your Google backup."
   },
   "or": {
     "message": "or"
