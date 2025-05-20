@@ -42,8 +42,8 @@ import { PageModalScrollViewWithActions } from '../page-modal-scroll-view-with-a
 import { createPasswordSelectors } from './selectors';
 
 interface FormData {
-  password?: string;
-  repeatPassword?: string;
+  password: string;
+  repeatPassword: string;
   analytics: boolean;
   getRewards: boolean;
 }
@@ -116,8 +116,7 @@ export const CreatePasswordForm = memo<CreatePasswordFormProps>(
         if (submitting) return;
 
         try {
-          const analyticsEnabled = data.analytics;
-          const adsViewEnabled = data.getRewards;
+          const { analytics: analyticsEnabled, getRewards: adsViewEnabled, password } = data;
 
           dispatch(togglePartnersPromotionAction(adsViewEnabled));
           dispatch(setIsAnalyticsEnabledAction(analyticsEnabled));
@@ -126,7 +125,7 @@ export const CreatePasswordForm = memo<CreatePasswordFormProps>(
           const shouldBackupToGoogleAutomatically = Boolean(googleAuthToken && !mnemonicToImport);
           setSuppressReady(shouldBackupToGoogleAutomatically);
 
-          const accountPkh = await registerWallet(data.password!, formatMnemonic(seedPhrase));
+          const accountPkh = await registerWallet(password, formatMnemonic(seedPhrase));
 
           // registerWallet function clears async storages
           await putToStorage(REPLACE_REFERRALS_ENABLED, adsViewEnabled);
@@ -146,14 +145,14 @@ export const CreatePasswordForm = memo<CreatePasswordFormProps>(
             navigate('/loading');
           } else if (!googleAuthToken) {
             await putToStorage(SHOULD_BACKUP_MNEMONIC_STORAGE_KEY, true);
-            setBackupCredentials(seedPhrase, data.password!);
+            setBackupCredentials(seedPhrase, password);
             navigate('/loading');
           } else {
             try {
-              await writeGoogleDriveBackup(seedPhrase, data.password!, googleAuthToken);
-              onNewBackupState?.(seedPhrase, data.password!, true);
+              await writeGoogleDriveBackup(seedPhrase, password, googleAuthToken);
+              onNewBackupState?.(seedPhrase, password, true);
             } catch (e) {
-              onNewBackupState?.(seedPhrase, data.password!, false);
+              onNewBackupState?.(seedPhrase, password, false);
             }
           }
         } catch (err: any) {

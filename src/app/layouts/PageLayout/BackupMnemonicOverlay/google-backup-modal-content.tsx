@@ -19,6 +19,7 @@ import { BackupMnemonicOverlaySelectors } from './selectors';
 
 interface GoogleBackupModalContentProps {
   backupCredentials: BackupCredentials;
+  googleBackupExists: boolean | undefined;
   nonce: number;
   goToManualBackup: EmptyFn;
   onBackupExists: SyncFn<boolean | undefined>;
@@ -26,7 +27,7 @@ interface GoogleBackupModalContentProps {
 }
 
 export const GoogleBackupModalContent = memo<GoogleBackupModalContentProps>(
-  ({ backupCredentials, nonce, onFinish, goToManualBackup, onBackupExists }) => {
+  ({ backupCredentials, googleBackupExists, nonce, onFinish, goToManualBackup, onBackupExists }) => {
     const { googleAuthToken, setGoogleAuthToken } = useTempleClient();
     const { mnemonic, password } = backupCredentials;
     const initialAuthTokenRef = useRef(googleAuthToken);
@@ -41,13 +42,11 @@ export const GoogleBackupModalContent = memo<GoogleBackupModalContentProps>(
     const { data: initialGoogleBackupExists } = useTypedSWR(initialGoogleBackupExistsSWRKey, getInitialBackupExists, {
       suspense: true
     });
-    const [googleBackupExists, setGoogleBackupExists] = useState(initialGoogleBackupExists);
 
     const handleAuth = useCallback(
       async (currentGoogleAuthToken: string) => {
         try {
           const newGoogleBackupExists = await backupExists(currentGoogleAuthToken);
-          setGoogleBackupExists(newGoogleBackupExists);
           onBackupExists(newGoogleBackupExists);
 
           if (newGoogleBackupExists) {
@@ -67,7 +66,6 @@ export const GoogleBackupModalContent = memo<GoogleBackupModalContentProps>(
     const goToSwitchAccount = useCallback(() => {
       setGoogleAuthToken(undefined);
       initialAuthTokenRef.current = undefined;
-      setGoogleBackupExists(undefined);
       onBackupExists(undefined);
     }, [onBackupExists, setGoogleAuthToken]);
     const handleSuccess = useCallback(() => setIsSuccess(true), []);
@@ -102,7 +100,10 @@ export const GoogleBackupModalContent = memo<GoogleBackupModalContentProps>(
   }
 );
 
-type BackupExistsModalContentProps = Omit<GoogleBackupModalContentProps, 'nonce' | 'onBackupExists' | 'onFinish'> & {
+type BackupExistsModalContentProps = Omit<
+  GoogleBackupModalContentProps,
+  'nonce' | 'googleBackupExists' | 'onBackupExists' | 'onFinish'
+> & {
   goToSwitchAccount: EmptyFn;
   onSuccess: SyncFn<boolean>;
 };
