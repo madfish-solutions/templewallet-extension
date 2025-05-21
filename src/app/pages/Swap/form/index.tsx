@@ -61,8 +61,10 @@ import { SwapFormSelectors, SwapFormFromInputSelectors, SwapFormToInputSelectors
 import { SwapInfoDropdown } from './SwapInfoDropdown';
 import { useGetSwapTransferParams } from './use-swap-params';
 
+// Maximum number of DEXes allowed in a cashback swap route.
+// This is used when performing an additional swap via the 3Route contract
+// to obtain TKEY tokens for user cashback rewards.
 const CASHBACK_SWAP_MAX_DEXES = 3;
-const MAIN_SWAP_MAX_DEXES = 12;
 
 interface Props {
   account: AccountForTezos;
@@ -141,7 +143,7 @@ export const SwapForm = memo<Props>(({ account, slippageTolerance, onReview }) =
     let hopLength = 0;
 
     if (isLiquidityBakingParamsResponse(swapParams.data)) {
-      hopLength = (swapParams.data.tzbtcHops?.length || 0) + (swapParams.data.xtzHops?.length || 0);
+      hopLength = (swapParams.data.tzbtcHops?.length || 0) + (swapParams.data.xtzHops?.length || 0) + 1;
     } else if ('hops' in swapParams.data) {
       hopLength = swapParams.data.hops?.length || 0;
     }
@@ -226,7 +228,6 @@ export const SwapForm = memo<Props>(({ account, slippageTolerance, onReview }) =
           toSymbol: route3ToToken?.symbol ?? '',
           toTokenDecimals: route3ToToken?.decimals ?? 0,
           amount: atomsToTokens(amount, route3FromToken?.decimals ?? 0).toFixed(),
-          dexesLimit: MAIN_SWAP_MAX_DEXES,
           rpcUrl: tezos.rpc.getRpcUrl()
         })
       );
