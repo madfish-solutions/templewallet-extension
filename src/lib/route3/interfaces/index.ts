@@ -94,7 +94,7 @@ interface Route3TreeNodeBase {
   dexId: number | null;
 }
 
-export interface Route3EmptyTreeNode extends Route3TreeNodeBase {
+interface Route3EmptyTreeNode extends Route3TreeNodeBase {
   type: Route3TreeNodeType.Empty;
   items: [];
   dexId: null;

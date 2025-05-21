@@ -32,7 +32,7 @@ const DEPRECATED_TKEY_METADATA: TokenMetadata = {
   standard: TezosTokenStandardsEnum.Fa2
 };
 
-export const TZBTC_TOKEN_METADATA: TokenMetadata = {
+const TZBTC_TOKEN_METADATA: TokenMetadata = {
   id: '0',
   address: 'KT1PWx2mnDueood7fEmfbBDKx1D9BAnnXitn',
   name: 'Tezos BTC',
