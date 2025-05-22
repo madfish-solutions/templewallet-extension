@@ -143,7 +143,7 @@ export const GoogleAuth = memo<GoogleAuthProps>(({ next }) => {
       case 'success':
         return <span className="text-font-description-bold">{authState.email}</span>;
       case 'popupError':
-        return window.location.hostname;
+        return <span className="text-font-description-bold">{window.location.hostname}</span>;
       default:
         return undefined;
     }
