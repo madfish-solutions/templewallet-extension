@@ -1003,6 +1003,14 @@
   "couldNotConnectGoogleAccountDescription": {
     "message": "Temple encountered an issue while receiving confirmation from your Google account. Please try again."
   },
+  "authPopupErrorDescription": {
+    "message": "The browser blocked the authorization pop-up. Please allow pop-ups for $hostname$ using the \"Preferences\" button above, close a new popup, reload the page, and try again.",
+    "placeholders": {
+      "hostname": {
+        "content": "$1"
+      }
+    }
+  },
   "decryptYourBackup": {
     "message": "Decrypt your backup"
   },

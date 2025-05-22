@@ -44,14 +44,17 @@ export const getGoogleAuthToken = async (
   isRetry: boolean
 ) =>
   new Promise<string>((res, rej) => {
-    const loadFailedTimeout = setTimeout(() => {
-      rej(new Error('Google auth iframe load failed'));
-      finalize();
-    }, 20000);
+    const loadFailedTimeout = isRetry
+      ? undefined
+      : setTimeout(() => {
+          rej(new Error('Google auth iframe load failed'));
+          finalize();
+        }, 20000);
+    const clearLoadTimeout = () => void (loadFailedTimeout !== undefined && clearTimeout(loadFailedTimeout));
 
     const finalize = () => {
       window.removeEventListener('message', messagesListener);
-      clearTimeout(loadFailedTimeout);
+      clearLoadTimeout();
     };
 
     async function messagesListener(e: MessageEvent) {
@@ -61,11 +64,11 @@ export const getGoogleAuthToken = async (
           finalize();
           break;
         case AuthEventType.AuthError:
-          rej(new Error(e.data.content));
+          rej(new Error(e.data.message));
           finalize();
           break;
         case AuthEventType.Load:
-          clearTimeout(loadFailedTimeout);
+          clearLoadTimeout();
           break;
       }
     }

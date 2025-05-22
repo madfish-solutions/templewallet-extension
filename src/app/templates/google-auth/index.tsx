@@ -19,23 +19,50 @@ interface StateRenderParams {
   titleI18nKey: TID;
   descriptionI18nKey: TID;
   icon: ReactNode;
+  illustrationState: GoogleIllustrationState;
 }
 
-const stateRenderParams: Record<GoogleIllustrationState, StateRenderParams> = {
-  active: {
+type AuthStateType = 'pending' | 'success' | 'popupError' | 'otherError';
+
+interface AuthStateBase {
+  type: AuthStateType;
+}
+
+interface AuthStateSuccess extends AuthStateBase {
+  type: 'success';
+  email: string;
+}
+
+interface OtherAuthState extends AuthStateBase {
+  type: Exclude<AuthStateType, 'success'>;
+}
+
+type AuthState = AuthStateSuccess | OtherAuthState;
+
+const stateRenderParams: Record<AuthStateType, StateRenderParams> = {
+  pending: {
     titleI18nKey: 'signInWithGoogle',
     descriptionI18nKey: 'signInWithGoogleToCreateWalletDescription',
-    icon: <Loader size="L" trackVariant="dark" className="text-secondary" />
+    icon: <Loader size="L" trackVariant="dark" className="text-secondary" />,
+    illustrationState: 'active'
   },
   success: {
     titleI18nKey: 'accountConnected',
     descriptionI18nKey: 'accountConnectedDescription',
-    icon: <IconBase Icon={OkFillIcon} size={24} className="text-success" />
+    icon: <IconBase Icon={OkFillIcon} size={24} className="text-success" />,
+    illustrationState: 'success'
   },
-  error: {
+  popupError: {
+    titleI18nKey: 'couldNotConnect',
+    descriptionI18nKey: 'authPopupErrorDescription',
+    icon: <IconBase Icon={XCircleFillIcon} size={24} className="text-error" />,
+    illustrationState: 'error'
+  },
+  otherError: {
     titleI18nKey: 'couldNotConnect',
     descriptionI18nKey: 'couldNotConnectGoogleAccountDescription',
-    icon: <IconBase Icon={XCircleFillIcon} size={24} className="text-error" />
+    icon: <IconBase Icon={XCircleFillIcon} size={24} className="text-error" />,
+    illustrationState: 'error'
   }
 };
 
@@ -45,40 +72,42 @@ interface GoogleAuthProps {
 
 export const GoogleAuth = memo<GoogleAuthProps>(({ next }) => {
   const { googleAuthToken, setGoogleAuthToken } = useTempleClient();
-  const [isAuthError, setIsAuthError] = useState(false);
-  const [email, setEmail] = useState<string>();
+  const [authState, setAuthState] = useState<AuthState>({ type: 'pending' });
+  const isAuthError = authState.type === 'popupError' || authState.type === 'otherError';
   const googleAuthIframeRef = useRef<HTMLIFrameElement>(null);
-  const authState = email ? 'success' : isAuthError ? 'error' : 'active';
-  const { titleI18nKey, descriptionI18nKey, icon } = stateRenderParams[authState];
+  const { titleI18nKey, descriptionI18nKey, icon, illustrationState } = stateRenderParams[authState.type];
 
   const googleAuthPageUrl = useMemo(() => getGoogleAuthPageUrl(), []);
 
   const handleGoogleAuthToken = useCallback(async (authToken: string) => {
     try {
-      setEmail(await getAccountEmail(authToken));
+      setAuthState({ type: 'success', email: await getAccountEmail(authToken) });
     } catch (e) {
       console.error(e);
-      setIsAuthError(true);
+      setAuthState({ type: 'otherError' });
     }
   }, []);
 
-  const refreshGoogleAuthToken = useCallback(() => {
-    setGoogleAuthToken(undefined);
-    getGoogleAuthToken(googleAuthIframeRef, true)
-      .then(setGoogleAuthToken)
-      .catch(e => {
-        console.error(e);
-        setIsAuthError(true);
-      });
-  }, [setGoogleAuthToken]);
+  const refreshGoogleAuthToken = useCallback(
+    (isRetry: boolean) => {
+      setGoogleAuthToken(undefined);
+      getGoogleAuthToken(googleAuthIframeRef, isRetry)
+        .then(setGoogleAuthToken)
+        .catch(e => {
+          console.error(e);
+          setAuthState({ type: e.message === 'popup_failed_to_open' ? 'popupError' : 'otherError' });
+        });
+    },
+    [setGoogleAuthToken]
+  );
 
   const retry = useCallback(() => {
-    setIsAuthError(false);
+    setAuthState({ type: 'pending' });
 
     if (googleAuthToken) {
       handleGoogleAuthToken(googleAuthToken);
     } else {
-      refreshGoogleAuthToken();
+      refreshGoogleAuthToken(true);
     }
   }, [googleAuthToken, handleGoogleAuthToken, refreshGoogleAuthToken]);
 
@@ -86,7 +115,7 @@ export const GoogleAuth = memo<GoogleAuthProps>(({ next }) => {
   useEffect(() => {
     if (isFirstMountRef.current) {
       isFirstMountRef.current = false;
-      refreshGoogleAuthToken();
+      refreshGoogleAuthToken(false);
     } else if (googleAuthToken) {
       handleGoogleAuthToken(googleAuthToken);
     }
@@ -94,7 +123,9 @@ export const GoogleAuth = memo<GoogleAuthProps>(({ next }) => {
 
   const [isLoading, setIsLoading] = useState(false);
   const onContinueClick = useCallback(async () => {
-    if (!email) return;
+    if (!googleAuthToken) {
+      return;
+    }
 
     try {
       setIsLoading(true);
@@ -105,7 +136,18 @@ export const GoogleAuth = memo<GoogleAuthProps>(({ next }) => {
     } finally {
       setIsLoading(false);
     }
-  }, [email, googleAuthToken, next]);
+  }, [googleAuthToken, next]);
+
+  const descriptionSubstitutions = useMemo(() => {
+    switch (authState.type) {
+      case 'success':
+        return <span className="text-font-description-bold">{authState.email}</span>;
+      case 'popupError':
+        return window.location.hostname;
+      default:
+        return undefined;
+    }
+  }, [authState]);
 
   return (
     <PageModalScrollViewWithActions
@@ -117,7 +159,7 @@ export const GoogleAuth = memo<GoogleAuthProps>(({ next }) => {
             size="L"
             color="primary"
             type="button"
-            disabled={authState === 'active'}
+            disabled={authState.type === 'pending'}
             loading={isLoading}
             testID={isAuthError ? GoogleAuthSelectors.retryButton : GoogleAuthSelectors.continueButton}
             onClick={isAuthError ? retry : onContinueClick}
@@ -135,7 +177,7 @@ export const GoogleAuth = memo<GoogleAuthProps>(({ next }) => {
       />
 
       <div className="-mx-4">
-        <GoogleIllustration className="w-full h-auto" state={authState} />
+        <GoogleIllustration className="w-full h-auto" state={illustrationState} />
       </div>
 
       <div className="flex flex-col items-center mb-4">
@@ -144,12 +186,7 @@ export const GoogleAuth = memo<GoogleAuthProps>(({ next }) => {
         </p>
 
         <p className="mx-1 mb-6 text-center text-font-description text-grey-1">
-          <T
-            id={descriptionI18nKey}
-            substitutions={
-              authState === 'success' ? <span className="text-font-description-bold">{email}</span> : undefined
-            }
-          />
+          <T id={descriptionI18nKey} substitutions={descriptionSubstitutions} />
         </p>
 
         {icon}

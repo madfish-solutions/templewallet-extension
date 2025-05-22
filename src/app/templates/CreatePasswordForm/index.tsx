@@ -68,15 +68,15 @@ export const CreatePasswordForm = memo<CreatePasswordFormProps>(
     const { trackEvent } = useAnalytics();
     const { setOnboardingCompleted } = useOnboardingProgress();
     const [, setInitToast] = useInitToastMessage();
-    const [backupPasswordUsed, goToBackupPassword, goToCustomPassword] = useBooleanState(Boolean(backupPassword));
+    const [backupPasswordUsed, goToBackupPassword, goToCustomPassword] = useBooleanState(false);
 
     const dispatch = useDispatch();
 
     const { control, watch, register, handleSubmit, errors, triggerValidation, formState, setValue, reset } =
       useForm<FormData>({
         defaultValues: {
-          password: backupPassword ?? '',
-          repeatPassword: backupPassword ?? '',
+          password: '',
+          repeatPassword: '',
           analytics: true,
           getRewards: true
         },
