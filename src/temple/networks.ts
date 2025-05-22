@@ -1,4 +1,5 @@
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
+import { EnvVars } from 'lib/env';
 import { EvmAssetStandard } from 'lib/evm/types';
 import type { TID } from 'lib/i18n';
 import { EvmNativeTokenMetadata } from 'lib/metadata/types';
@@ -113,6 +114,7 @@ export const DEFAULT_EVM_CURRENCY: EvmNativeTokenMetadata = {
 
 export const EVM_FALLBACK_RPC_URLS: Record<number, string[]> = {
   [ETHEREUM_MAINNET_CHAIN_ID]: [
+    `https://eth-rpc.kolibr.io${EnvVars.TEMPLE_WALLET_KOLIBRIO_PARAMS}`,
     'https://ethereum-rpc.publicnode.com',
     'https://cloudflare-eth.com',
     'https://eth.llamarpc.com',
@@ -129,6 +131,7 @@ export const EVM_FALLBACK_RPC_URLS: Record<number, string[]> = {
     'https://1rpc.io/matic'
   ],
   [COMMON_MAINNET_CHAIN_IDS.bsc]: [
+    `https://bsc.kolibr.io${EnvVars.TEMPLE_WALLET_KOLIBRIO_PARAMS}`,
     'https://bsc-rpc.publicnode.com',
     'https://binance.llamarpc.com',
     'https://bsc.drpc.org',
@@ -151,6 +154,7 @@ export const EVM_FALLBACK_RPC_URLS: Record<number, string[]> = {
     'https://1rpc.io/op'
   ],
   [COMMON_MAINNET_CHAIN_IDS.base]: [
+    `https://base.kolibr.io${EnvVars.TEMPLE_WALLET_KOLIBRIO_PARAMS}`,
     'https://base-rpc.publicnode.com',
     'https://base.llamarpc.com',
     'https://base.drpc.org',
