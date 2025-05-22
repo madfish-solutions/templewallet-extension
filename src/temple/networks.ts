@@ -150,6 +150,13 @@ export const EVM_FALLBACK_RPC_URLS: Record<number, string[]> = {
     'https://optimism.meowrpc.com',
     'https://1rpc.io/op'
   ],
+  [COMMON_MAINNET_CHAIN_IDS.base]: [
+    'https://base-rpc.publicnode.com',
+    'https://base.llamarpc.com',
+    'https://base.drpc.org',
+    'https://base.meowrpc.com',
+    'https://base-pokt.nodies.app'
+  ],
   [ETH_SEPOLIA_CHAIN_ID]: [
     'https://ethereum-sepolia-rpc.publicnode.com',
     'https://sepolia.drpc.org',
@@ -174,6 +181,11 @@ export const EVM_FALLBACK_RPC_URLS: Record<number, string[]> = {
     'https://optimism-sepolia-rpc.publicnode.com',
     'https://endpoints.omniatech.io/v1/op/sepolia/public',
     'https://sepolia.optimism.io'
+  ],
+  [COMMON_TESTNET_CHAIN_IDS.base]: [
+    'https://base-sepolia-rpc.publicnode.com',
+    'https://base-sepolia.drpc.org',
+    'https://sepolia.base.org'
   ]
 };
 
@@ -224,6 +236,16 @@ export const EVM_DEFAULT_NETWORKS: NonEmptyArray<StoredEvmNetwork> = [
     rpcBaseURL: EVM_FALLBACK_RPC_URLS[COMMON_MAINNET_CHAIN_IDS.optimism][0],
     description: 'Optimism',
     color: '#fc0000',
+    default: true
+  },
+  {
+    id: 'base-mainnet',
+    name: 'Base',
+    chain: TempleChainKind.EVM,
+    chainId: COMMON_MAINNET_CHAIN_IDS.base,
+    rpcBaseURL: EVM_FALLBACK_RPC_URLS[COMMON_MAINNET_CHAIN_IDS.base][0],
+    description: 'Base Mainnet',
+    color: '#323ea8',
     default: true
   },
   {
@@ -285,10 +307,20 @@ export const EVM_DEFAULT_NETWORKS: NonEmptyArray<StoredEvmNetwork> = [
     default: true
   },
   {
+    id: 'base-sepolia',
+    name: 'Base Sepolia',
+    chain: TempleChainKind.EVM,
+    chainId: COMMON_TESTNET_CHAIN_IDS.base,
+    rpcBaseURL: EVM_FALLBACK_RPC_URLS[COMMON_TESTNET_CHAIN_IDS.base][0],
+    description: 'Base Testnet',
+    color: '#1c2366',
+    default: true
+  },
+  {
     id: 'etherlink-ghostnet',
     name: 'Etherlink',
     chain: TempleChainKind.EVM,
-    chainId: 128123,
+    chainId: COMMON_TESTNET_CHAIN_IDS.etherlink,
     rpcBaseURL: 'https://node.ghostnet.etherlink.com',
     description: 'Etherlink Testnet (Ghostnet)',
     color: '#144c2f',
