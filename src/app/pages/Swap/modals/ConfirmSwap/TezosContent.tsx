@@ -78,7 +78,7 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
     }
   }, [tezos, opParams, tezBalance, account.ownerAddress, accountPkh]);
 
-  const { data: estimationData, isLoading } = useTypedSWR(
+  const { data: estimationData, isLoading: estimationDataLoading } = useTypedSWR(
     () => ['tezos-estimation-data', chainId, accountPkh, opParams],
     estimate,
     {
@@ -98,13 +98,14 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
     displayedFeeOptions,
     displayedFee,
     displayedStorageFee,
-    balancesChanges
+    balancesChanges,
+    balancesChangesLoading
   } = useTezosEstimationForm({
     estimationData,
     basicParams: opParams,
     senderAccount: account,
     simulateOperation: true,
-    estimationDataLoading: isLoading,
+    estimationDataLoading,
     rpcBaseURL,
     chainId
   });
@@ -229,7 +230,7 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
           color="primary"
           size="L"
           className="w-full"
-          loading={formState.isSubmitting}
+          loading={formState.isSubmitting || estimationDataLoading || balancesChangesLoading}
           disabled={!formState.isValid}
         >
           <T id={latestSubmitError ? 'retry' : 'confirm'} />
