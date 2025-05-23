@@ -5,9 +5,9 @@ export interface Route3SwapParamsRequestRaw {
   toSymbol: string;
   toTokenDecimals: number;
   amount: string | undefined;
-  dexesLimit: number;
   /** Needed to make a correction of params if input is SIRS */
   rpcUrl: string;
+  dexesLimit?: number;
 }
 
 interface Route3SwapParamsRequestBase {
@@ -22,12 +22,12 @@ interface Route3SwapParamsRequestBase {
 }
 
 export interface Route3SwapParamsRequest extends Route3SwapParamsRequestBase {
-  dexesLimit: number;
+  dexesLimit?: number;
 }
 
 export interface Route3LbSwapParamsRequest extends Route3SwapParamsRequestBase {
-  xtzDexesLimit: number;
-  tzbtcDexesLimit: number;
+  xtzDexesLimit?: number;
+  tzbtcDexesLimit?: number;
 }
 
 export interface Hop {
@@ -94,7 +94,7 @@ interface Route3TreeNodeBase {
   dexId: number | null;
 }
 
-export interface Route3EmptyTreeNode extends Route3TreeNodeBase {
+interface Route3EmptyTreeNode extends Route3TreeNodeBase {
   type: Route3TreeNodeType.Empty;
   items: [];
   dexId: null;

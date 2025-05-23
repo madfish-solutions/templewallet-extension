@@ -25,6 +25,7 @@ import { TempleAccountType } from 'lib/temple/types';
 import { runConnectedLedgerOperationFlow } from 'lib/ui';
 import { ZERO } from 'lib/utils/numbers';
 import { serializeEstimate } from 'lib/utils/serialize-estimate';
+import { getParamsWithCustomGasLimitFor3RouteSwap } from 'lib/utils/swap.utils';
 import { getTezosToolkitWithSigner } from 'temple/front';
 import { useGetTezosActiveBlockExplorer } from 'temple/front/ready';
 
@@ -52,8 +53,9 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
 
   const estimate = useCallback(async () => {
     try {
+      const route3HandledParams = await getParamsWithCustomGasLimitFor3RouteSwap(tezos, opParams);
       const estimates = await tezos.estimate.batch(
-        opParams.map(params => ({ ...params, source: account.ownerAddress || accountPkh }))
+        route3HandledParams.map(params => ({ ...params, source: account.ownerAddress || accountPkh }))
       );
 
       const estimatedBaseFee = mutezToTz(
@@ -76,7 +78,7 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
     }
   }, [tezos, opParams, tezBalance, account.ownerAddress, accountPkh]);
 
-  const { data: estimationData } = useTypedSWR(
+  const { data: estimationData, isLoading: estimationDataLoading } = useTypedSWR(
     () => ['tezos-estimation-data', chainId, accountPkh, opParams],
     estimate,
     {
@@ -96,12 +98,14 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
     displayedFeeOptions,
     displayedFee,
     displayedStorageFee,
-    balancesChanges
+    balancesChanges,
+    balancesChangesLoading
   } = useTezosEstimationForm({
     estimationData,
     basicParams: opParams,
     senderAccount: account,
     simulateOperation: true,
+    estimationDataLoading,
     rpcBaseURL,
     chainId
   });
@@ -226,7 +230,7 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
           color="primary"
           size="L"
           className="w-full"
-          loading={formState.isSubmitting}
+          loading={formState.isSubmitting || estimationDataLoading || balancesChangesLoading}
           disabled={!formState.isValid}
         >
           <T id={latestSubmitError ? 'retry' : 'confirm'} />

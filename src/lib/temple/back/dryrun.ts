@@ -8,6 +8,7 @@ import { formatOpParamsBeforeSend } from 'lib/temple/helpers';
 import { ReadOnlySigner } from 'lib/temple/read-only-signer';
 import { SerializedEstimate } from 'lib/temple/types';
 import { serializeEstimate } from 'lib/utils/serialize-estimate';
+import { getParamsWithCustomGasLimitFor3RouteSwap } from 'lib/utils/swap.utils';
 import { michelEncoder, getTezosFastRpcClient } from 'temple/tezos';
 
 interface DryRunParams {
@@ -51,9 +52,12 @@ export async function dryRunOpParams({
     let serializedEstimates: SerializedEstimate[] | undefined;
     let error: any = [];
     try {
-      const formatted = opParams.map(operation => formatOpParamsBeforeSend(operation, sourcePkh));
+      const route3HandledParams = await getParamsWithCustomGasLimitFor3RouteSwap(tezos, opParams);
+      const formatted = route3HandledParams.map(operation => formatOpParamsBeforeSend(operation, sourcePkh));
+
       const [estimationResult] = await Promise.allSettled([tezos.estimate.batch(formatted)]);
       const [contractBatchResult] = await Promise.allSettled([tezos.contract.batch(formatted).send()]);
+
       if (estimationResult.status === 'rejected' && contractBatchResult.status === 'rejected') {
         if (
           estimationResult.reason instanceof TezosOperationError &&
