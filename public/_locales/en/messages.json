@@ -1011,6 +1011,9 @@
       }
     }
   },
+  "reload": {
+    "message": "Reload"
+  },
   "decryptYourBackup": {
     "message": "Decrypt your backup"
   },

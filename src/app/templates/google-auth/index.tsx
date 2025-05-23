@@ -149,6 +149,33 @@ export const GoogleAuth = memo<GoogleAuthProps>(({ next }) => {
     }
   }, [authState]);
 
+  const {
+    testID: actionButtonTestID,
+    onClick: onActionButtonClick,
+    labelI18nKey: actionButtonI18nKey
+  } = useMemo(() => {
+    switch (authState.type) {
+      case 'popupError':
+        return {
+          testID: GoogleAuthSelectors.reloadButton,
+          onClick: () => window.location.reload(),
+          labelI18nKey: 'reload' as const
+        };
+      case 'otherError':
+        return {
+          testID: GoogleAuthSelectors.retryButton,
+          onClick: retry,
+          labelI18nKey: 'retry' as const
+        };
+      default:
+        return {
+          testID: GoogleAuthSelectors.continueButton,
+          onClick: onContinueClick,
+          labelI18nKey: 'continue' as const
+        };
+    }
+  }, [authState, onContinueClick, retry]);
+
   return (
     <PageModalScrollViewWithActions
       className="relative"
@@ -161,10 +188,10 @@ export const GoogleAuth = memo<GoogleAuthProps>(({ next }) => {
             type="button"
             disabled={authState.type === 'pending'}
             loading={isLoading}
-            testID={isAuthError ? GoogleAuthSelectors.retryButton : GoogleAuthSelectors.continueButton}
-            onClick={isAuthError ? retry : onContinueClick}
+            testID={actionButtonTestID}
+            onClick={onActionButtonClick}
           >
-            <T id={isAuthError ? 'retry' : 'continue'} />
+            <T id={actionButtonI18nKey} />
           </StyledButton>
         )
       }}
