@@ -11,13 +11,13 @@ import { searchTezosChainAssetsWithNoMeta } from 'lib/assets/search.utils';
 import { useTezosChainAccountTokensSortPredicate } from 'lib/assets/use-sorting';
 import { toChainAssetSlug } from 'lib/assets/utils';
 import { useGetChainTokenOrGasMetadata } from 'lib/metadata';
+import { useAvailableRoute3TokensSlugs } from 'lib/route3/assets';
 import { useMemoWithCompare } from 'lib/ui/hooks';
 import { useTezosChainByChainId } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
 
 interface Props {
   chainId: string;
-  route3tokensSlugs: string[];
   filterZeroBalances: boolean;
   publicKeyHash: string;
   searchValue: string;
@@ -25,9 +25,10 @@ interface Props {
 }
 
 export const TezosChainAssetsList = memo<Props>(
-  ({ chainId, route3tokensSlugs, filterZeroBalances, publicKeyHash, searchValue, onAssetSelect }) => {
+  ({ chainId, filterZeroBalances, publicKeyHash, searchValue, onAssetSelect }) => {
     const network = useTezosChainByChainId(chainId);
     if (!network) throw new DeadEndBoundaryError();
+    const { route3tokensSlugs } = useAvailableRoute3TokensSlugs();
 
     const balances = useAllAccountBalancesSelector(publicKeyHash, chainId);
     const isNonZeroBalance = useCallback(

@@ -19,6 +19,7 @@ import {
   useEvmCollectiblesMetadataLoadingSelector,
   useEvmTokensMetadataLoadingSelector
 } from 'app/store/evm/selectors';
+import { useLifiEvmChainTokensMetadataSelector } from 'app/store/evm/swap-lifi-metadata/selectors';
 import {
   useEvmTokenMetadataSelector,
   useEvmChainTokensMetadataRecordSelector,
@@ -137,13 +138,17 @@ export const useGetEvmGasOrTokenMetadata = () => {
 
 export const useGetEvmChainTokenOrGasMetadata = (chainId: number) => {
   const network = useEvmChainByChainId(chainId);
-  const tokensMetadatas = useEvmChainTokensMetadataRecordSelector(chainId);
+  const tokensMetadata = useEvmChainTokensMetadataRecordSelector(chainId);
+  const { metadata: lifiTokensMetadata } = useLifiEvmChainTokensMetadataSelector(chainId);
   const fallbackValueFn = useCallback(
     (slug: string) => (isEvmNativeTokenSlug(slug) ? network?.currency : undefined),
     [network]
   );
 
-  return useGetterBySlug<EvmNativeTokenMetadata | EvmTokenMetadata>(tokensMetadatas, fallbackValueFn);
+  return useGetterBySlug<EvmNativeTokenMetadata | EvmTokenMetadata>(
+    tokensMetadata ?? lifiTokensMetadata,
+    fallbackValueFn
+  );
 };
 
 export const useGetEvmNoCategoryAssetMetadata = (chainId: number) => {

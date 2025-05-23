@@ -48,6 +48,11 @@ export interface EvmTokenMetadata extends EvmAssetMetadataBase {
   address: HexString;
 }
 
+export interface LifiEvmTokenMetadata extends EvmTokenMetadata {
+  priceUSD: string;
+  logoURI?: string;
+}
+
 export interface EvmNativeTokenMetadata extends Required<EvmAssetMetadataBase> {
   standard: EvmAssetStandard.NATIVE;
   address: typeof EVM_TOKEN_SLUG;

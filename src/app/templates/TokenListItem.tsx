@@ -9,6 +9,7 @@ import { ReactComponent as DeleteIcon } from 'app/icons/base/delete.svg';
 import { dispatch } from 'app/store';
 import { setEvmTokenStatusAction } from 'app/store/evm/assets/actions';
 import { useStoredEvmTokenSelector } from 'app/store/evm/assets/selectors';
+import { useLifiEvmTokenMetadataSelector } from 'app/store/evm/swap-lifi-metadata/selectors';
 import { setTezosTokenStatusAction } from 'app/store/tezos/assets/actions';
 import { useStoredTezosTokenSelector } from 'app/store/tezos/assets/selectors';
 import { EvmAssetIconWithNetwork, TezosAssetIconWithNetwork } from 'app/templates/AssetIcon';
@@ -127,6 +128,7 @@ export const EvmTokenListItem = memo(
   forwardRef<TokenListItemElement, EvmTokenListItemProps>(
     ({ network, index, publicKeyHash, assetSlug, manageActive = false, onClick }, ref) => {
       const { chainId } = network;
+      const lifiTokenMetadata = useLifiEvmTokenMetadataSelector(chainId, assetSlug);
 
       const {
         value: balance = ZERO,
@@ -137,10 +139,10 @@ export const EvmTokenListItem = memo(
 
       const checked = getAssetStatus(rawBalance, storedToken?.status) === 'enabled';
 
-      if (metadata == null) return null;
+      if (metadata == null && lifiTokenMetadata == null) return null;
 
-      const assetSymbol = getAssetSymbol(metadata);
-      const assetName = getTokenName(metadata);
+      const assetSymbol = getAssetSymbol(metadata?.decimals ? metadata : lifiTokenMetadata);
+      const assetName = getTokenName(metadata?.decimals ? metadata : lifiTokenMetadata);
 
       if (manageActive)
         return (
@@ -307,7 +309,11 @@ interface DefaultListItemLayoutProps<T extends TempleChainKind> {
 
 const DefaultListItemLayoutHOC = <T extends TempleChainKind>(
   networkKind: T,
-  AssetIconWithNetwork: FC<{ chainId: ChainId<T>; assetSlug: string; className?: string }>
+  AssetIconWithNetwork: FC<{
+    chainId: ChainId<T>;
+    assetSlug: string;
+    className?: string;
+  }>
 ) =>
   forwardRef<TokenListItemElement, PropsWithChildren<DefaultListItemLayoutProps<T>>>(
     ({ children, assetSlug, assetName, className, network, index, balance, onClick }, ref) => {

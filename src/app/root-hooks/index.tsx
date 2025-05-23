@@ -13,6 +13,7 @@ import { useNoCategoryTezosAssetsLoading } from 'app/hooks/use-no-category-tezos
 import { useStorageAnalytics } from 'app/hooks/use-storage-analytics';
 import { useUserAnalyticsAndAdsSettings } from 'app/hooks/use-user-analytics-and-ads-settings.hook';
 import { useUserIdAccountPkhSync } from 'app/hooks/use-user-id-account-pkh-sync';
+import { useLifiEvmTokensSlugs } from 'app/pages/Swap/form/hooks';
 import { dispatch } from 'app/store';
 import { useTestnetModeEnabledSelector } from 'app/store/settings/selectors';
 import { loadSwapDexesAction, loadSwapTokensAction } from 'app/store/swap/actions';
@@ -94,6 +95,7 @@ const ConfirmWindowReadyRootHooks = memo(() => {
 const TezosAccountHooks = memo<{ publicKeyHash: string }>(({ publicKeyHash }) => {
   useCollectiblesDetailsLoading(publicKeyHash);
   useNoCategoryTezosAssetsLoading(publicKeyHash);
+  useLifiEvmTokensSlugs(publicKeyHash as HexString);
 
   return (
     <>

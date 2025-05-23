@@ -5,6 +5,7 @@ import { DeepPartial } from 'react-hook-form';
 
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
 import { useLocation } from 'lib/woozie';
+import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 
 export interface SwapInputValue {
   assetSlug?: string;
@@ -20,10 +21,10 @@ export interface SwapFormValue {
 const getValidAssetSlug = (queryAssetSlug: string | null) =>
   queryAssetSlug && queryAssetSlug.length > 0 ? queryAssetSlug : undefined;
 
-const getAssetsSlugsFromUrl = (fromSlug: null | string, toSlug: null | string) => {
+const getAssetsSlugsFromUrl = (evm: boolean, fromSlug: null | string, toSlug: null | string) => {
   if (!fromSlug && !toSlug) {
     return {
-      fromSlug: TEZ_TOKEN_SLUG,
+      fromSlug: evm ? EVM_TOKEN_SLUG : TEZ_TOKEN_SLUG,
       toSlug
     };
   }
@@ -34,18 +35,19 @@ const getAssetsSlugsFromUrl = (fromSlug: null | string, toSlug: null | string) =
   };
 };
 
-export const useSwapFormDefaultValue = () => {
+export const useSwapFormDefaultValue = ({ evm }: { evm: boolean }) => {
   const location = useLocation();
 
   return useMemo<DeepPartial<SwapFormValue>>(() => {
     const usp = new URLSearchParams(location.search);
 
-    const { fromSlug, toSlug } = getAssetsSlugsFromUrl(usp.get('from'), usp.get('to'));
+    const { fromSlug, toSlug } = getAssetsSlugsFromUrl(evm, usp.get('from'), usp.get('to'));
+    console.log('useSwapFormDefaultValue', fromSlug, toSlug);
 
     return {
       input: { assetSlug: getValidAssetSlug(fromSlug) },
       output: { assetSlug: getValidAssetSlug(toSlug) },
       isFiatMode: false
     };
-  }, [location.search]);
+  }, [evm, location.search]);
 };

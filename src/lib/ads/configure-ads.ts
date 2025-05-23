@@ -1,6 +1,6 @@
 import browser from 'webextension-polyfill';
 
-import { buildSwapPageUrlQuery } from 'app/pages/Swap/build-url-query';
+import { buildSwapPagePath } from 'app/pages/Swap/build-url-query';
 import {
   ADS_META_SEARCH_PARAM_NAME,
   AD_CATEGORIES_PARAM_NAME,
@@ -52,9 +52,9 @@ interface AdsStackIframeURLParams {
 const smallTkeyInpageAdUrl = browser.runtime.getURL(`/misc/ad-banners/small-tkey-inpage-ad.png`);
 const tkeyInpageAdUrl = browser.runtime.getURL(`/misc/ad-banners/tkey-inpage-ad.png`);
 
-const swapTkeyUrl = `${browser.runtime.getURL('fullpage.html')}#/swap?${buildSwapPageUrlQuery(
-  'tez',
-  'KT1VaEsVNiBoA56eToEK6n6BcPgh1tdx9eXi_0',
+const swapTkeyUrl = `${browser.runtime.getURL('fullpage.html')}#${buildSwapPagePath(
+  { chainKind: 'tezos', chainId: 'mainnet', assetSlug: 'tez' },
+  { chainKind: 'tezos', chainId: 'mainnet', assetSlug: 'KT1VaEsVNiBoA56eToEK6n6BcPgh1tdx9eXi_0' },
   true
 )}`;
 

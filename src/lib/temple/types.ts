@@ -1,5 +1,6 @@
 import type { DerivationType } from '@taquito/ledger-signer';
 import type { TempleDAppMetadata } from '@temple-wallet/dapp/dist/types';
+import BigNumber from 'bignumber.js';
 import type { RpcTransactionRequest, TypedDataDefinition } from 'viem';
 
 import type { DAppsSessionsRecord } from 'app/storage/dapps';
@@ -883,6 +884,9 @@ interface TempleSendEvmTransactionRequest extends TempleMessageBase {
   accountPkh: HexString;
   network: EvmChain;
   txParams: RpcTransactionRequest;
+  spender?: HexString;
+  tokenAddress?: HexString;
+  fromAmount?: BigNumber;
 }
 
 interface TempleSendEvmTransactionResponse extends TempleMessageBase {

@@ -1,33 +1,39 @@
-import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { isDefined } from '@rnw-community/shared';
 import { TransferParams } from '@taquito/taquito';
 import { BatchWalletOperation } from '@taquito/taquito/dist/types/wallet/batch-operation';
 import BigNumber from 'bignumber.js';
-import { Controller, useForm } from 'react-hook-form-v7';
+import { FormProvider, useForm } from 'react-hook-form-v7';
 
-import { IconBase } from 'app/atoms';
-import { ActionsButtonsBox } from 'app/atoms/PageModal';
-import { StyledButton } from 'app/atoms/StyledButton';
-import { ReactComponent as SwapIcon } from 'app/icons/base/swap.svg';
-import { buildSwapPageUrlQuery } from 'app/pages/Swap/build-url-query';
-import SwapFormInput from 'app/pages/Swap/form/SwapFormInput';
+import { DeadEndBoundaryError } from 'app/ErrorBoundary';
+import { EXCHANGE_XTZ_RESERVE } from 'app/pages/Swap/constants';
+import { BaseSwapForm } from 'app/pages/Swap/form/BaseSwapForm';
+import { TezosReviewData } from 'app/pages/Swap/form/interfaces';
+import { SwapFormValue, SwapInputValue } from 'app/pages/Swap/form/SwapForm.form';
+import { useGetTezosSwapTransferParams } from 'app/pages/Swap/form/use-swap-params';
 import { dispatch, useSelector } from 'app/store';
 import { setOnRampPossibilityAction } from 'app/store/settings/actions';
-import { loadSwapParamsAction, resetSwapParamsAction } from 'app/store/swap/actions';
+import { loadSwapParamsAction } from 'app/store/swap/actions';
 import { useSwapParamsSelector, useSwapTokenSelector, useSwapTokensSelector } from 'app/store/swap/selectors';
 import OperationStatus from 'app/templates/OperationStatus';
-import { toastError } from 'app/toaster';
-import { setTestID, useFormAnalytics } from 'lib/analytics';
+import { toastError, toastUniqWarning } from 'app/toaster';
+import { useFormAnalytics } from 'lib/analytics';
 import { fetchRoute3SwapParams } from 'lib/apis/route3/fetch-route3-swap-params';
-import { TEZ_TOKEN_SLUG } from 'lib/assets';
+import { isTezAsset, TEZ_TOKEN_SLUG } from 'lib/assets';
 import { KNOWN_TOKENS_SLUGS } from 'lib/assets/known-tokens';
-import { useGetTezosAccountTokenOrGasBalanceWithDecimals, useTezosAssetBalance } from 'lib/balances/hooks';
+import { parseChainAssetSlug } from 'lib/assets/utils';
+import { useTezosAssetBalance } from 'lib/balances';
+import { useGetTezosAccountTokenOrGasBalanceWithDecimals } from 'lib/balances/hooks';
 import { TEZ_BURN_ADDRESS } from 'lib/constants';
-import { useAssetFiatCurrencyPrice, useFiatCurrency } from 'lib/fiat-currency';
-import { useAssetUSDPrice } from 'lib/fiat-currency/core';
-import { T, t, toLocalFixed } from 'lib/i18n';
-import { useCategorizedTezosAssetMetadata, useGetCategorizedAssetMetadata } from 'lib/metadata';
+import { useAssetFiatCurrencyPrice } from 'lib/fiat-currency';
+import { t } from 'lib/i18n';
+import {
+  useCategorizedTezosAssetMetadata,
+  useGetCategorizedAssetMetadata,
+  useTezosTokensMetadataPresenceCheck
+} from 'lib/metadata';
+import { useAvailableRoute3TokensSlugs } from 'lib/route3/assets';
 import {
   ROUTING_FEE_ADDRESS,
   ROUTING_FEE_RATIO,
@@ -44,43 +50,49 @@ import { TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
 import { ZERO } from 'lib/utils/numbers';
 import { parseTransferParamsToParamsWithKind } from 'lib/utils/parse-transfer-params';
 import {
+  calculateOutputAmounts,
   calculateSidePaymentsFromInput,
   getRoutingFeeTransferParams,
-  multiplyAtomicAmount,
-  calculateOutputAmounts
+  multiplyAtomicAmount
 } from 'lib/utils/swap.utils';
-import { HistoryAction, navigate } from 'lib/woozie';
-import { AccountForTezos } from 'temple/accounts';
-import { getTezosToolkitWithSigner, useTezosBlockLevel, useTezosMainnetChain } from 'temple/front';
-
-import { EXCHANGE_XTZ_RESERVE } from '../constants';
-
-import { TezosReviewData } from './interfaces';
-import { SwapFormValue, SwapInputValue, useSwapFormDefaultValue } from './SwapForm.form';
-import { SwapFormSelectors, SwapFormFromInputSelectors, SwapFormToInputSelectors } from './SwapForm.selectors';
-import { SwapInfoDropdown } from './SwapInfoDropdown';
-import { useGetSwapTransferParams } from './use-swap-params';
+import { useAccountForTezos, useTezosBlockLevel, useTezosMainnetChain } from 'temple/front';
+import { getTezosToolkitWithSigner } from 'temple/front/tezos';
 
 const CASHBACK_SWAP_MAX_DEXES = 3;
-// Actually, at most 2 dexes for each of underlying SIRS -> tzBTC -> X swap and SIRS -> XTZ -> X swap
+// Actually, at most 2 dexes for each of the underlying SIRS-> tzBTC-> X swap and SIRS -> XTZ -> X swap
 const MAIN_SIRS_SWAP_MAX_DEXES = 4;
 const MAIN_NON_SIRS_SWAP_MAX_DEXES = 3;
 
-interface Props {
-  account: AccountForTezos;
+interface TezosSwapFormProps {
   slippageTolerance: number;
   onReview: SyncFn<TezosReviewData>;
+  onSelectAssetClick: (field: 'from' | 'to') => void;
+  selectedChainAssets: { from: string | null; to: string | null };
+  activeField: 'from' | 'to';
+  handleToggleIconClick: EmptyFn;
 }
 
-export const SwapForm = memo<Props>(({ account, slippageTolerance, onReview }) => {
+export const TezosSwapForm: FC<TezosSwapFormProps> = ({
+  slippageTolerance,
+  onReview,
+  onSelectAssetClick,
+  selectedChainAssets,
+  activeField,
+  handleToggleIconClick
+}) => {
+  const account = useAccountForTezos();
   const network = useTezosMainnetChain();
+  if (!account || !network) throw new DeadEndBoundaryError();
 
   const publicKeyHash = account.address;
   const tezos = getTezosToolkitWithSigner(network.rpcBaseURL, publicKeyHash);
 
+  const { route3tokensSlugs } = useAvailableRoute3TokensSlugs();
+  useTezosTokensMetadataPresenceCheck(network.rpcBaseURL, route3tokensSlugs);
+
   const blockLevel = useTezosBlockLevel(network.rpcBaseURL);
   const prevBlockLevelRef = useRef(blockLevel);
-  const getSwapParams = useGetSwapTransferParams(tezos, publicKeyHash);
+  const getSwapParams = useGetTezosSwapTransferParams(tezos, publicKeyHash);
   const { data: route3Tokens } = useSwapTokensSelector();
   const swapParams = useSwapParamsSelector();
   const allUsdToTokenRates = useSelector(state => state.currency.usdToTokenRates.data);
@@ -88,22 +100,37 @@ export const SwapForm = memo<Props>(({ account, slippageTolerance, onReview }) =
   const prevOutputRef = useRef(swapParams.data.output);
   const getTezosBalance = useGetTezosAccountTokenOrGasBalanceWithDecimals(publicKeyHash);
 
-  const formAnalytics = useFormAnalytics('Index');
+  const formAnalytics = useFormAnalytics('SwapForm');
 
-  const defaultValues = useSwapFormDefaultValue();
-  const {
-    handleSubmit,
-    watch,
-    setValue,
-    control,
-    reset,
-    formState: { isSubmitting, submitCount, errors }
-  } = useForm<SwapFormValue>({
+  // const defaultValues = useSwapFormDefaultValue({ evm: false });
+  const tezosFrom = useMemo(
+    () => (selectedChainAssets.from ? parseChainAssetSlug(selectedChainAssets.from) : null),
+    [selectedChainAssets.from]
+  );
+  const tezosTo = useMemo(
+    () => (selectedChainAssets.to ? parseChainAssetSlug(selectedChainAssets.to) : null),
+    [selectedChainAssets.to]
+  );
+
+  const defaultValues = useMemo(() => {
+    return {
+      input: {
+        assetSlug: tezosFrom ? tezosFrom[2] : undefined
+      },
+      output: {
+        assetSlug: tezosTo ? tezosTo[2] : undefined
+      },
+      isFiatMode: false
+    };
+  }, [tezosFrom, tezosTo]);
+
+  const form = useForm<SwapFormValue>({
     defaultValues,
     mode: 'onSubmit',
     reValidateMode: 'onChange'
   });
-  const isValid = Object.keys(errors).length === 0;
+
+  const { watch, reset, setValue, formState, getValues } = form;
 
   const inputValue = watch('input');
   const outputValue = watch('output');
@@ -111,6 +138,12 @@ export const SwapForm = memo<Props>(({ account, slippageTolerance, onReview }) =
 
   const { value: inputTokenBalance = ZERO } = useTezosAssetBalance(
     inputValue.assetSlug ?? TEZ_TOKEN_SLUG,
+    publicKeyHash,
+    network
+  );
+
+  const { value: outputTokenBalance = ZERO } = useTezosAssetBalance(
+    outputValue.assetSlug ?? TEZ_TOKEN_SLUG,
     publicKeyHash,
     network
   );
@@ -179,12 +212,8 @@ export const SwapForm = memo<Props>(({ account, slippageTolerance, onReview }) =
   );
 
   const inputAssetPrice = useAssetFiatCurrencyPrice(inputValue.assetSlug ?? '', network.chainId);
-  const { selectedFiatCurrency } = useFiatCurrency();
 
-  const price = useAssetUSDPrice(outputValue.assetSlug ?? TEZ_TOKEN_SLUG, network.chainId);
-  const outputAmountInUSD = (price && BigNumber(price).times(outputValue.amount || 0)) || BigNumber(0);
-
-  const toAssetAmount = useCallback(
+  const parseFiatValueToAssetAmount = useCallback(
     (fiatAmount: BigNumber.Value = ZERO, assetDecimals: number = 2) => {
       return new BigNumber(fiatAmount || '0')
         .dividedBy(inputAssetPrice ?? 1)
@@ -195,11 +224,11 @@ export const SwapForm = memo<Props>(({ account, slippageTolerance, onReview }) =
 
   const atomsInputValue = useMemo(() => {
     const inputValueToUse = isFiatMode
-      ? toAssetAmount(inputValue.amount, inputAssetMetadata.decimals)
+      ? parseFiatValueToAssetAmount(inputValue.amount, inputAssetMetadata.decimals)
       : inputValue.amount;
 
     return tokensToAtoms(inputValueToUse ?? ZERO, inputAssetMetadata.decimals);
-  }, [inputAssetMetadata.decimals, inputValue.amount, isFiatMode, toAssetAmount]);
+  }, [inputAssetMetadata.decimals, inputValue.amount, isFiatMode, parseFiatValueToAssetAmount]);
 
   const { outputAtomicAmountBeforeFee, minimumReceivedAtomic, outputFeeAtomicAmount } = useMemo(
     () => calculateOutputAmounts(atomsInputValue, swapParams.data.output, outputAssetMetadata.decimals, slippageRatio),
@@ -215,7 +244,7 @@ export const SwapForm = memo<Props>(({ account, slippageTolerance, onReview }) =
       if (!inputMetadata) return;
 
       const inputValueToUse = watch('isFiatMode')
-        ? toAssetAmount(input.amount, inputAssetMetadata.decimals)
+        ? parseFiatValueToAssetAmount(input.amount, inputAssetMetadata.decimals)
         : input.amount;
 
       const { swapInputMinusFeeAtomic: amount } = calculateSidePaymentsFromInput(
@@ -237,7 +266,15 @@ export const SwapForm = memo<Props>(({ account, slippageTolerance, onReview }) =
         })
       );
     },
-    [getTokenMetadata, watch, toAssetAmount, inputAssetMetadata.decimals, route3Tokens, getSwapWithFeeParams, tezos.rpc]
+    [
+      getTokenMetadata,
+      watch,
+      parseFiatValueToAssetAmount,
+      inputAssetMetadata.decimals,
+      route3Tokens,
+      getSwapWithFeeParams,
+      tezos.rpc
+    ]
   );
 
   useEffect(() => {
@@ -254,15 +291,6 @@ export const SwapForm = memo<Props>(({ account, slippageTolerance, onReview }) =
       setIsAlertVisible(false);
     }
   }, [hopsAreAbsent, swapParams.data]);
-
-  useEffect(
-    () =>
-      navigate(
-        { pathname: '/swap', search: buildSwapPageUrlQuery(inputValue.assetSlug, outputValue.assetSlug) },
-        HistoryAction.Replace
-      ),
-    [inputValue.assetSlug, outputValue.assetSlug]
-  );
 
   useEffect(() => {
     const currentOutput = swapParams.data.output;
@@ -290,68 +318,94 @@ export const SwapForm = memo<Props>(({ account, slippageTolerance, onReview }) =
       });
     }
   }, [
-    slippageRatio,
-    swapParams.data.output,
-    setValue,
-    outputValue.assetSlug,
+    atomsInputValue,
     outputAssetMetadata.decimals,
-    inputValue.amount,
-    inputAssetMetadata.decimals,
-    isFiatMode,
-    toAssetAmount,
-    atomsInputValue
+    outputValue.assetSlug,
+    setValue,
+    slippageRatio,
+    swapParams.data.output
   ]);
 
-  const validateField = useCallback(({ assetSlug }: SwapInputValue) => {
-    if (!assetSlug) return t('assetMustBeSelected');
+  const resetForm = useCallback(() => void reset(defaultValues), [defaultValues, reset]);
 
-    return true;
-  }, []);
+  const handleInputChange = useCallback(
+    (newInputValue: SwapInputValue) => {
+      const currentFormState = getValues();
+      setValue('input', newInputValue);
+
+      if (newInputValue.assetSlug && newInputValue.assetSlug === currentFormState.output.assetSlug) {
+        setValue('output', { assetSlug: undefined, amount: undefined });
+        return;
+      }
+
+      dispatchLoadSwapParams(newInputValue, currentFormState.output);
+    },
+    [dispatchLoadSwapParams, getValues, setValue]
+  );
+
+  const handleOutputChange = useCallback(
+    (newOutputValue: SwapInputValue) => {
+      const currentFormState = getValues();
+      setValue('output', newOutputValue);
+
+      if (newOutputValue.assetSlug && newOutputValue.assetSlug === currentFormState.input.assetSlug) {
+        setValue('input', { assetSlug: undefined, amount: undefined });
+        return;
+      }
+
+      dispatchLoadSwapParams(currentFormState.input, newOutputValue);
+    },
+    [dispatchLoadSwapParams, getValues, setValue]
+  );
 
   const inputTokenMaxAmount = useMemo(() => {
     if (!inputValue.assetSlug || !inputTokenBalance) return ZERO;
-    if (inputValue.assetSlug !== TEZ_TOKEN_SLUG) return inputTokenBalance;
+    if (!isTezAsset(inputValue.assetSlug)) return inputTokenBalance;
 
     return inputTokenBalance.lte(EXCHANGE_XTZ_RESERVE)
       ? inputTokenBalance
       : inputTokenBalance.minus(EXCHANGE_XTZ_RESERVE);
   }, [inputTokenBalance, inputValue.assetSlug]);
 
-  const validateInputField = useCallback(
-    (props: SwapInputValue) => {
-      if (props.amount?.isLessThanOrEqualTo(0)) return t('amountMustBePositive');
-
-      const latestIsFiatMode = watch('isFiatMode');
-
-      const formattedMaxAmount = latestIsFiatMode
+  const handleSetMaxAmount = useCallback(() => {
+    if (inputValue.assetSlug && inputTokenMaxAmount) {
+      const formattedMaxAmount = isFiatMode
         ? inputTokenMaxAmount.times(inputAssetPrice).decimalPlaces(2, BigNumber.ROUND_FLOOR)
         : inputTokenMaxAmount;
 
-      if (props.amount?.gt(formattedMaxAmount)) {
-        return t(
-          'maximalAmount',
-          toLocalFixed(formattedMaxAmount, latestIsFiatMode ? 2 : Math.min(inputAssetMetadata.decimals, 6)) +
-            ` ${latestIsFiatMode ? selectedFiatCurrency.symbol : inputAssetMetadata.symbol}`
-        );
+      handleInputChange({ assetSlug: inputValue.assetSlug, amount: formattedMaxAmount });
+
+      if (isTezAsset(inputValue.assetSlug) && inputTokenBalance?.lte(EXCHANGE_XTZ_RESERVE)) {
+        toastUniqWarning(t('notEnoughTezForFee'), true);
       }
+    }
+  }, [handleInputChange, inputAssetPrice, inputTokenBalance, inputTokenMaxAmount, inputValue.assetSlug, isFiatMode]);
 
-      return validateField(props);
-    },
-    [
-      watch,
-      inputTokenMaxAmount,
-      inputAssetPrice,
-      validateField,
-      inputAssetMetadata.decimals,
-      inputAssetMetadata.symbol,
-      selectedFiatCurrency.symbol
-    ]
-  );
+  useEffect(() => {
+    const newAssetSlug = activeField === 'from' ? tezosFrom?.[2] : tezosTo?.[2];
+    if (!newAssetSlug) return;
+    const newAssetMetadata = getTokenMetadata(newAssetSlug);
+    if (!newAssetMetadata) return;
 
-  const resetForm = useCallback(() => void reset(defaultValues), [defaultValues, reset]);
+    const currentFormState = getValues();
+    const amount = activeField === 'from' ? currentFormState.input.amount : currentFormState.output.amount;
+    const newAmount = isFiatMode
+      ? amount
+      : amount?.decimalPlaces(newAssetMetadata?.decimals ?? 0, BigNumber.ROUND_DOWN);
 
-  const onSubmit = async () => {
-    if (isSubmitting) return;
+    activeField === 'from'
+      ? handleInputChange({
+          assetSlug: newAssetSlug,
+          amount: newAmount
+        })
+      : handleOutputChange({
+          assetSlug: newAssetSlug,
+          amount: newAmount
+        });
+  }, [activeField, getTokenMetadata, getValues, handleInputChange, handleOutputChange, isFiatMode, tezosFrom, tezosTo]);
+
+  const onSubmit = useCallback(async () => {
+    if (formState.isSubmitting) return;
 
     if (
       inputValue.assetSlug === TEZ_TOKEN_SLUG &&
@@ -541,17 +595,17 @@ export const SwapForm = memo<Props>(({ account, slippageTolerance, onReview }) =
       const opParams = allSwapParams.map(param => parseTransferParamsToParamsWithKind(param));
 
       onReview({
-        opParams,
         account,
         network,
+        opParams,
         cashbackInTkey: cashback ? atomsToTokens(new BigNumber(cashback), TEMPLE_TOKEN.decimals).toString() : undefined,
-        minimumReceived: {
-          amount: atomsToTokens(new BigNumber(minimumReceivedAtomic), outputAssetMetadata.decimals).toString(),
-          symbol: outputAssetMetadata.symbol
-        },
         onConfirm: o => {
           resetForm();
           setOperation(o);
+        },
+        minimumReceived: {
+          amount: atomsToTokens(new BigNumber(minimumReceivedAtomic), outputAssetMetadata.decimals).toString(),
+          symbol: outputAssetMetadata.symbol
         }
       });
 
@@ -563,137 +617,67 @@ export const SwapForm = memo<Props>(({ account, slippageTolerance, onReview }) =
       }
       formAnalytics.trackSubmitFail(analyticsProperties);
     }
-  };
-
-  const handleToggleIconClick = () => {
-    setValue('input', {
-      assetSlug: outputValue.assetSlug
-    });
-    setValue('output', {
-      assetSlug: inputValue.assetSlug
-    });
-    dispatch(resetSwapParamsAction());
-  };
-
-  const handleInputChange = (newInputValue: SwapInputValue) => {
-    if (newInputValue.assetSlug === outputValue.assetSlug) {
-      setValue('output', {});
-      return;
-    }
-
-    dispatchLoadSwapParams(newInputValue, outputValue);
-  };
-
-  const handleOutputChange = (newOutputValue: SwapInputValue) => {
-    if (newOutputValue.assetSlug === inputValue.assetSlug) {
-      setValue('input', {});
-      return;
-    }
-
-    dispatchLoadSwapParams(inputValue, newOutputValue);
-  };
+  }, [
+    account,
+    atomsInputValue,
+    formAnalytics,
+    formState.isSubmitting,
+    fromRoute3Token,
+    getSwapParams,
+    getSwapWithFeeParams,
+    getTezosBalance,
+    inputValue,
+    minimumReceivedAtomic,
+    network,
+    onReview,
+    outputAssetMetadata.decimals,
+    outputAssetMetadata.symbol,
+    outputAtomicAmountBeforeFee,
+    outputFeeAtomicAmount,
+    outputValue,
+    publicKeyHash,
+    resetForm,
+    slippageRatio,
+    swapParams.data,
+    tezos,
+    toRoute3Token
+  ]);
 
   return (
-    <>
-      <form id="swap-form" className="flex-1 pt-4 px-4 flex flex-col overflow-y-auto" onSubmit={handleSubmit(onSubmit)}>
-        {operation && (
-          // TODO: Redesign
-          <div className="px-4 hidden">
-            <OperationStatus network={network} typeTitle={t('swapNoun')} operation={operation} />
-          </div>
-        )}
-
-        <Controller
-          name="input"
-          control={control}
-          rules={{ validate: validateInputField }}
-          render={({ field: { value, onChange } }) => (
-            <SwapFormInput
-              inputName="input"
-              label={<T id="from" />}
-              network={network}
-              publicKeyHash={publicKeyHash}
-              value={value}
-              error={errors.input?.message}
-              onChange={value => {
-                onChange(value);
-                handleInputChange(value);
-              }}
-              isFiatMode={isFiatMode}
-              setIsFiatMode={v => setValue('isFiatMode', v)}
-              testIDs={{
-                input: SwapFormFromInputSelectors.assetInput,
-                assetDropDownButton: SwapFormFromInputSelectors.assetDropDownButton
-              }}
-            />
-          )}
-        />
-
-        <div className="w-full -my-2.5 flex justify-center z-1">
-          <button
-            className="bg-secondary-low p-1 rounded-6"
-            onClick={handleToggleIconClick}
-            type="button"
-            {...setTestID(SwapFormSelectors.swapPlacesButton)}
-          >
-            <IconBase Icon={SwapIcon} className="text-secondary rotate-90" />
-          </button>
+    <FormProvider {...form}>
+      {operation && (
+        // TODO: Redesign
+        <div className="px-4 hidden">
+          <OperationStatus network={network} typeTitle={t('swapNoun')} operation={operation} />
         </div>
-
-        <Controller
-          name="output"
-          control={control}
-          rules={{ validate: validateField }}
-          render={({ field: { value, onChange } }) => (
-            <SwapFormInput
-              readOnly
-              inputName="output"
-              label={<T id="toAsset" />}
-              network={network}
-              publicKeyHash={publicKeyHash}
-              className="mb-6"
-              value={value}
-              error={errors.output?.message}
-              onChange={value => {
-                onChange(value);
-                handleOutputChange(value);
-              }}
-              testIDs={{
-                input: SwapFormToInputSelectors.assetInput,
-                assetDropDownButton: SwapFormToInputSelectors.assetDropDownButton
-              }}
-            />
-          )}
-        />
-
-        {isDefined(swapParams.data.output) && (
-          <div className="mb-6">
-            <SwapInfoDropdown
-              showCashBack={outputAmountInUSD.gte(10)}
-              swapRouteSteps={swapRouteSteps}
-              inputAmount={isDefined(swapParams.data.input) ? new BigNumber(swapParams.data.input) : undefined}
-              outputAmount={new BigNumber(swapParams.data.output)}
-              inputAssetMetadata={inputAssetMetadata}
-              outputAssetMetadata={outputAssetMetadata}
-              minimumReceivedAmount={minimumReceivedAtomic}
-            />
-          </div>
-        )}
-      </form>
-
-      <ActionsButtonsBox className="mt-auto">
-        <StyledButton
-          type="submit"
-          form="swap-form"
-          size="L"
-          color="primary"
-          loading={isSubmitting || swapParams.isLoading}
-          disabled={submitCount > 0 && !isValid}
-          testID={SwapFormSelectors.swapButton}
-        >
-          <T id="review" />
-        </StyledButton>
-      </ActionsButtonsBox>
-    </>
+      )}
+      <BaseSwapForm
+        network={network}
+        inputAssetSlug={inputValue.assetSlug}
+        inputAssetSymbol={inputAssetMetadata.symbol}
+        inputAssetDecimals={inputAssetMetadata.decimals}
+        inputAssetPrice={inputAssetPrice}
+        inputAssetBalance={inputTokenBalance}
+        inputTokenAmount={inputValue.amount}
+        inputAmount={isDefined(swapParams.data.input) ? new BigNumber(swapParams.data.input) : undefined}
+        inputTokenMaxAmount={inputTokenMaxAmount}
+        outputAssetSlug={outputValue.assetSlug}
+        outputAssetSymbol={outputAssetMetadata.symbol}
+        outputAssetDecimals={outputAssetMetadata.decimals}
+        outputAssetBalance={outputTokenBalance}
+        outputAmount={isDefined(swapParams.data.output) ? new BigNumber(swapParams.data.output) : undefined}
+        minimumReceivedAmount={minimumReceivedAtomic}
+        swapParamsAreLoading={swapParams.isLoading}
+        swapRouteSteps={swapRouteSteps}
+        setIsFiatMode={v => setValue('isFiatMode', v)}
+        parseFiatValueToAssetAmount={parseFiatValueToAssetAmount}
+        onInputChange={handleInputChange}
+        onOutputChange={handleOutputChange}
+        onSelectAssetClick={onSelectAssetClick}
+        handleSetMaxAmount={handleSetMaxAmount}
+        handleToggleIconClick={handleToggleIconClick}
+        onSubmit={onSubmit}
+      />
+    </FormProvider>
   );
-});
+};

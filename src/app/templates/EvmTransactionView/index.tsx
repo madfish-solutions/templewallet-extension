@@ -30,7 +30,7 @@ interface EvmTransactionViewProps {
   formId: string;
   error: any;
   setFinalEvmTransaction: ReactSetStateFn<EvmTransactionRequestWithSender>;
-  onSubmit: EmptyFn;
+  onSubmit: (tx?: EvmTransactionRequestWithSender) => void;
 }
 
 export const EvmTransactionView = memo<EvmTransactionViewProps>(
@@ -106,7 +106,7 @@ const EvmTransactionViewBody = memo<EvmTransactionViewProps>(
           ...(nonce ? { nonce: Number(nonce) } : {})
         } as TransactionRequest;
         setFinalEvmTransaction({ ...formatTransactionRequest(finalTransaction), from: txRequest.from });
-        onSubmit();
+        onSubmit({ ...formatTransactionRequest(finalTransaction), from: txRequest.from });
       },
       [estimationData, formState.isSubmitting, getFeesPerGas, onSubmit, txRequest, setFinalEvmTransaction]
     );

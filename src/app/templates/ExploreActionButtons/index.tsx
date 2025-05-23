@@ -13,9 +13,10 @@ import { ReactComponent as OutcomeIcon } from 'app/icons/base/outcome.svg';
 import { ReactComponent as SendIcon } from 'app/icons/base/send.svg';
 import { ReactComponent as SwapIcon } from 'app/icons/base/swap.svg';
 import { buildSendPagePath } from 'app/pages/Send/build-url';
-import { buildSwapPageUrlQuery } from 'app/pages/Swap/build-url-query';
+import { buildSwapPagePath } from 'app/pages/Swap/build-url-query';
 import { useTestnetModeEnabledSelector } from 'app/store/settings/selectors';
 import { TestIDProps } from 'lib/analytics';
+import { LifiSupportedChains } from 'lib/apis/temple/endpoints/evm/api.interfaces';
 import { TID, T, t } from 'lib/i18n';
 import { useAvailableRoute3TokensSlugs } from 'lib/route3/assets';
 import { TempleAccountType } from 'lib/temple/types';
@@ -29,7 +30,7 @@ import { ExploreActionButtonsSelectors } from './selectors';
 
 interface Props {
   chainKind?: string | nullish;
-  chainId?: string | nullish;
+  chainId?: number | string | nullish;
   assetSlug?: string | nullish;
   activityBtn?: 'activity' | 'earn-tez';
   className?: string;
@@ -41,24 +42,18 @@ export const ExploreActionButtonsBar = memo<Props>(({ chainKind, chainId, assetS
   const { route3tokensSlugs } = useAvailableRoute3TokensSlugs();
 
   const canSend = account.type !== TempleAccountType.WatchOnly;
-  const sendLink = buildSendPagePath(chainKind, chainId, assetSlug);
+  const sendLink = buildSendPagePath(chainKind, chainId as string, assetSlug);
+  const swapLink = buildSwapPagePath({ chainKind, chainId: chainId as string, assetSlug });
 
   const isTokenAvailableForSwap = useMemo(() => {
-    return (
-      isDefined(assetSlug) &&
-      chainKind === TempleChainKind.Tezos &&
-      chainId === ChainIds.MAINNET &&
-      route3tokensSlugs.includes(assetSlug)
-    );
+    if (chainKind === TempleChainKind.Tezos) {
+      return isDefined(assetSlug) && chainId === ChainIds.MAINNET && route3tokensSlugs.includes(assetSlug);
+    }
+    if (chainKind === TempleChainKind.EVM && chainId) {
+      return isDefined(assetSlug) && LifiSupportedChains.includes(+chainId);
+    }
+    return false;
   }, [assetSlug, chainId, chainKind, route3tokensSlugs]);
-
-  const swapLink = useMemo(
-    () => ({
-      pathname: '/swap',
-      search: isTokenAvailableForSwap ? buildSwapPageUrlQuery(assetSlug) : undefined
-    }),
-    [isTokenAvailableForSwap, assetSlug]
-  );
 
   const labelClassName = useMemo(() => (activityBtn ? 'max-w-12' : 'max-w-15'), [activityBtn]);
 
@@ -85,7 +80,14 @@ export const ExploreActionButtonsBar = memo<Props>(({ chainKind, chainId, assetS
       <ActionButton
         labelI18nKey="swap"
         Icon={SwapIcon}
-        to={swapLink}
+        to={
+          isTokenAvailableForSwap
+            ? swapLink
+            : {
+                pathname: '/swap',
+                search: undefined
+              }
+        }
         disabled={!canSend || testnetModeEnabled}
         tippyProps={getDisabledTippyProps(testnetModeEnabled)}
         testID={ExploreActionButtonsSelectors.swapButton}

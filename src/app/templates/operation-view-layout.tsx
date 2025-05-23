@@ -44,7 +44,7 @@ export const OperationViewLayout = <T extends TxParamsFormData>({
         </div>
       )}
 
-      <div className="flex flex-col">
+      <div className="flex flex-col mt-4">
         <AccountCard account={sendingAccount} isCurrent={false} attractSelf={false} showRadioOnHover={false} />
 
         <TransactionTabs<T> network={network} {...restProps} />

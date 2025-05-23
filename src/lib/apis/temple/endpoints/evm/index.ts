@@ -1,7 +1,9 @@
+import { Route, Token } from '@lifi/sdk';
+
 import { templeWalletApi } from '../templewallet.api';
 
 import { AssetTransfersWithMetadataResult, Log } from './alchemy';
-import { BalancesResponse, ChainID, NftAddressBalanceNftResponse } from './api.interfaces';
+import { BalancesResponse, ChainID, NftAddressBalanceNftResponse, RouteParams } from './api.interfaces';
 
 export const getEvmBalances = (walletAddress: string, chainId: ChainID) =>
   buildEvmRequest<BalancesResponse>('/balances', walletAddress, chainId);
@@ -31,11 +33,33 @@ export const fetchEvmTransactions = (
     signal
   );
 
+export interface TokensByChain {
+  [chainId: number]: Token[];
+}
+
 interface TransactionsResponse {
   transfers: AssetTransfersWithMetadataResult[];
   /** These depend on the blocks gap of returned transfers. */
   approvals: Log[];
 }
+
+export const getEvmBestSwapRoute = (params: RouteParams) =>
+  templeWalletApi.get<Route>('evm/swap-route', { params }).then(
+    res => res.data,
+    error => {
+      console.error(error);
+      throw error;
+    }
+  );
+
+export const getEvmSwapTokensMetadata = (chainIds: ChainID[]) =>
+  templeWalletApi.get<TokensByChain>('evm/swap-tokens', { params: { chainIds: chainIds.join(',') } }).then(
+    res => res.data,
+    error => {
+      console.error(error);
+      throw error;
+    }
+  );
 
 const buildEvmRequest = <T>(
   path: string,

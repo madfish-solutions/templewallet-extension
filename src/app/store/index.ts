@@ -25,6 +25,7 @@ export const SLICES_BLACKLIST = [
   'evmTokensExchangeRates' as const,
   'currency' as const,
   'evmNoCategoryAssetMetadata' as const,
+  'lifiEvmTokensMetadata' as const,
   'noCategoryAssetMetadata' as const
 ];
 
