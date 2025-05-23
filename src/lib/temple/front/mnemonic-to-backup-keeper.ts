@@ -4,10 +4,15 @@ import { assertResponse, makeIntercomRequest } from 'temple/front/intercom-clien
 
 import { TempleMessageType, WalletSpecs } from '../types';
 
-let mnemonicBackup: string | undefined;
+export interface BackupCredentials {
+  mnemonic: string;
+  password: string;
+}
+
+let backup: BackupCredentials | undefined;
 let loadPromise: Promise<void> | undefined;
 
-export async function loadMnemonicToBackup(password: string) {
+export async function loadBackupCredentials(password: string) {
   loadPromise = (async () => {
     if (!(await fetchFromStorage(SHOULD_BACKUP_MNEMONIC_STORAGE_KEY))) {
       return;
@@ -26,24 +31,24 @@ export async function loadMnemonicToBackup(password: string) {
     });
     assertResponse(res.type === TempleMessageType.RevealMnemonicResponse);
 
-    mnemonicBackup = res.mnemonic;
+    backup = { mnemonic: res.mnemonic, password };
   })();
 
   await loadPromise;
 }
 
-export async function getMnemonicToBackup() {
-  if (!mnemonicBackup && loadPromise) {
+export async function getBackupCredentials() {
+  if (!backup && loadPromise) {
     await loadPromise;
   }
 
-  return mnemonicBackup;
+  return backup;
 }
 
-export function setMnemonicToBackup(mnemonic: string) {
-  mnemonicBackup = mnemonic;
+export function setBackupCredentials(mnemonic: string, password: string) {
+  backup = { mnemonic, password };
 }
 
-export function clearMnemonicToBackup() {
-  mnemonicBackup = undefined;
+export function clearBackupCredentials() {
+  backup = undefined;
 }

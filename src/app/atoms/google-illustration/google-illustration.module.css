@@ -1,0 +1,14 @@
+.error {
+  --color: #FF3B30;
+  --icon-opacity: 100%;
+}
+
+.success {
+  --color: #34CC4E;
+  --icon-opacity: 100%;
+}
+
+.active {
+  --color: #1373E4;
+  --icon-opacity: 0%;
+}

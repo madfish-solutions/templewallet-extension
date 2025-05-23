@@ -1,4 +1,4 @@
-import { ManualBackupModalSelectors } from 'src/app/templates/ManualBackupModal/selectors';
+import { ManualBackupModalSelectors } from 'src/app/templates/manual-backup-modal-content/selectors';
 
 import { CustomBrowserContext } from '../../../classes/browser-context.class';
 import { Page } from '../../../classes/page.class';

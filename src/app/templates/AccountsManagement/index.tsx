@@ -15,7 +15,7 @@ import { useAccountsGroups } from 'temple/front/groups';
 import { ConnectLedgerModal } from '../connect-ledger-modal';
 import { CreateHDWalletModal } from '../CreateHDWalletModal';
 import { ImportAccountModal, ImportOptionSlug } from '../ImportAccountModal';
-import { ManualBackupModal } from '../ManualBackupModal';
+import { ManualBackupModal } from '../manual-backup-modal';
 import { NewWalletActionsPopper } from '../NewWalletActionsPopper';
 import { SearchBarField } from '../SearchField';
 
