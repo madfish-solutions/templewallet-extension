@@ -73,7 +73,6 @@ interface GoogleAuthProps {
 export const GoogleAuth = memo<GoogleAuthProps>(({ next }) => {
   const { googleAuthToken, setGoogleAuthToken } = useTempleClient();
   const [authState, setAuthState] = useState<AuthState>({ type: 'pending' });
-  const isAuthError = authState.type === 'popupError' || authState.type === 'otherError';
   const googleAuthIframeRef = useRef<HTMLIFrameElement>(null);
   const { titleI18nKey, descriptionI18nKey, icon, illustrationState } = stateRenderParams[authState.type];
 
