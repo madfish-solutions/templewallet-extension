@@ -38,7 +38,6 @@ const Home = memo(() => {
   const onCollectiblesTabClick = useCallback(() => navigate({ search: 'tab=collectibles' }, HistoryAction.Replace), []);
 
   if (!onboardingCompleted) return <Onboarding />;
-  console.log(1);
 
   return (
     <PageLayout Header={AppHeader} contentPadding={false}>
