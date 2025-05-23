@@ -1,8 +1,9 @@
-import React, { memo, useCallback } from 'react';
+import React, { memo, useCallback, useState } from 'react';
 
 import { IconBase } from 'app/atoms';
 import { ActionsButtonsBox } from 'app/atoms/PageModal';
 import { StyledButton } from 'app/atoms/StyledButton';
+import { useAppEnv } from 'app/env';
 import { ReactComponent as AdjustmentIcon } from 'app/icons/base/adjustment.svg';
 import { ReactComponent as AdsIcon } from 'app/icons/base/ads_fill.svg';
 import { ReactComponent as ChartIcon } from 'app/icons/base/chart_fill.svg';
@@ -13,8 +14,10 @@ import { togglePartnersPromotionAction } from 'app/store/partners-promotion/acti
 import { useShouldShowPartnersPromoSelector } from 'app/store/partners-promotion/selectors';
 import { toastSuccess } from 'app/toaster';
 import { T, t, TID } from 'lib/i18n';
+import { Lottie } from 'lib/ui/react-lottie';
 
 import { EarnTkeySelectors } from './selectors';
+import tkeyCoinAnimation from './tkey-coin-animation.json';
 
 interface Advantage {
   Icon: ImportedSVGComponent;
@@ -28,7 +31,19 @@ const advantages: Advantage[] = [
   { Icon: AdjustmentIcon, textI18nKey: 'turnOnWhenNeeded' }
 ];
 
+const tkeyCoinAnimationOptions = {
+  loop: true,
+  autoplay: true,
+  animationData: tkeyCoinAnimation,
+  rendererSettings: {
+    preserveAspectRatio: 'xMidYMid slice'
+  }
+};
+
 export const EarnTkeyPage = memo(() => {
+  const { popup } = useAppEnv();
+  const [topEdgeIsVisible, setTopEdgeIsVisible] = useState(popup);
+
   const isEnabled = useShouldShowPartnersPromoSelector();
 
   const handleStartEarningClick = useCallback(() => {
@@ -37,8 +52,15 @@ export const EarnTkeyPage = memo(() => {
   }, []);
 
   return (
-    <PageLayout pageTitle={t('earn')} contentPadding={false}>
-      <div className="flex-1 px-4 flex flex-col overflow-y-auto">
+    <PageLayout
+      pageTitle={t('earn')}
+      contentPadding={false}
+      contentClassName="!bg-white"
+      onTopEdgeVisibilityChange={setTopEdgeIsVisible}
+    >
+      <div className="flex-1 px-4">
+        <Lottie isClickToPauseDisabled options={tkeyCoinAnimationOptions} height={172} width={352} />
+
         <h3 className="text-font-h3 text-center pb-4">
           <T id="earnTkeyHeadline" />
         </h3>
@@ -54,7 +76,7 @@ export const EarnTkeyPage = memo(() => {
         </p>
       </div>
 
-      <ActionsButtonsBox bgSet={false}>
+      <ActionsButtonsBox className="sticky left-0 bottom-0" shouldCastShadow={topEdgeIsVisible}>
         <StyledButton
           size="L"
           color="primary"
