@@ -42,7 +42,7 @@ const tkeyCoinAnimationOptions = {
 
 export const EarnTkeyPage = memo(() => {
   const { popup } = useAppEnv();
-  const [topEdgeIsVisible, setTopEdgeIsVisible] = useState(popup);
+  const [shouldCastShadow, setShouldCastShadow] = useState(popup);
 
   const isEnabled = useShouldShowPartnersPromoSelector();
 
@@ -56,7 +56,7 @@ export const EarnTkeyPage = memo(() => {
       pageTitle={t('earn')}
       contentPadding={false}
       contentClassName="!bg-white"
-      onTopEdgeVisibilityChange={setTopEdgeIsVisible}
+      onTopEdgeVisibilityChange={setShouldCastShadow}
     >
       <div className="flex-1 px-4">
         <Lottie isClickToPauseDisabled options={tkeyCoinAnimationOptions} height={172} width={352} />
@@ -76,7 +76,7 @@ export const EarnTkeyPage = memo(() => {
         </p>
       </div>
 
-      <ActionsButtonsBox className="sticky left-0 bottom-0" shouldCastShadow={topEdgeIsVisible}>
+      <ActionsButtonsBox className="sticky left-0 bottom-0" shouldCastShadow={shouldCastShadow}>
         <StyledButton
           size="L"
           color="primary"
