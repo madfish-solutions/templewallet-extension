@@ -4,7 +4,12 @@ import { isTruthy } from 'lib/utils';
 
 import { EvmAssetStandard } from './evm/types';
 import type { TokenMetadata, EvmAssetMetadataBase, EvmCollectibleMetadata } from './metadata/types';
-import { ETHEREUM_MAINNET_CHAIN_ID, ETH_SEPOLIA_CHAIN_ID, COMMON_MAINNET_CHAIN_IDS } from './temple/types';
+import {
+  ETHEREUM_MAINNET_CHAIN_ID,
+  ETH_SEPOLIA_CHAIN_ID,
+  COMMON_MAINNET_CHAIN_IDS,
+  COMMON_TESTNET_CHAIN_IDS
+} from './temple/types';
 
 type TcInfraMediaSize = 'small' | 'medium' | 'large' | 'raw';
 type ObjktMediaTail = 'display' | 'artifact' | 'thumb288';
@@ -177,9 +182,9 @@ const chainIdsChainNamesRecord: Record<number, string> = {
   [ETH_SEPOLIA_CHAIN_ID]: 'sepolia',
   [COMMON_MAINNET_CHAIN_IDS.polygon]: 'polygon',
   [COMMON_MAINNET_CHAIN_IDS.bsc]: 'smartchain',
-  97: 'bnbt',
+  [COMMON_TESTNET_CHAIN_IDS.bsc]: 'bnbt',
   [COMMON_MAINNET_CHAIN_IDS.avalanche]: 'avalanchex',
-  43113: 'avalanchecfuji',
+  [COMMON_TESTNET_CHAIN_IDS.avalanche]: 'avalanchecfuji',
   [COMMON_MAINNET_CHAIN_IDS.optimism]: 'optimism',
   42170: 'arbitrumnova',
   1313161554: 'aurora',

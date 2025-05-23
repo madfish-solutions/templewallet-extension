@@ -7,6 +7,7 @@ import { BLOCKCHAIN_EXPLORERS_OVERRIDES_STORAGE_KEY } from 'lib/constants';
 import { useStorage } from 'lib/temple/front/storage';
 import {
   COMMON_MAINNET_CHAIN_IDS,
+  COMMON_TESTNET_CHAIN_IDS,
   ETHEREUM_MAINNET_CHAIN_ID,
   ETH_SEPOLIA_CHAIN_ID,
   TempleTezosChainId,
@@ -301,6 +302,13 @@ const DEFAULT_BLOCK_EXPLORERS_BASE: Record<TempleChainKind, Record<string, Omit<
         id: 'optimism-mainnet'
       }
     ],
+    [COMMON_MAINNET_CHAIN_IDS.base]: [
+      {
+        name: 'BaseScan',
+        url: 'https://basescan.org',
+        id: 'basescan-mainnet'
+      }
+    ],
     [COMMON_MAINNET_CHAIN_IDS.etherlink]: [
       {
         name: 'Etherlink explorer',
@@ -315,35 +323,42 @@ const DEFAULT_BLOCK_EXPLORERS_BASE: Record<TempleChainKind, Record<string, Omit<
         id: 'eth-sepolia'
       }
     ],
-    '80002': [
+    [COMMON_TESTNET_CHAIN_IDS.polygon]: [
       {
         name: 'PolygonScan',
         url: 'https://amoy.polygonscan.com',
         id: 'polygon-amoy'
       }
     ],
-    '97': [
+    [COMMON_TESTNET_CHAIN_IDS.bsc]: [
       {
         name: 'BscScan',
         url: 'https://testnet.bscscan.com',
         id: 'bscscan-testnet'
       }
     ],
-    '43113': [
+    [COMMON_TESTNET_CHAIN_IDS.avalanche]: [
       {
         name: 'SnowTrace',
         url: 'https://testnet.snowtrace.io',
         id: 'snowtrace-testnet'
       }
     ],
-    '11155420': [
+    [COMMON_TESTNET_CHAIN_IDS.optimism]: [
       {
         name: 'Blockscout',
         url: 'https://optimism-sepolia.blockscout.com',
         id: 'optimism-sepolia'
       }
     ],
-    '128123': [
+    [COMMON_TESTNET_CHAIN_IDS.base]: [
+      {
+        name: 'BaseScan',
+        url: 'https://sepolia.basescan.org',
+        id: 'basescan-sepolia'
+      }
+    ],
+    [COMMON_TESTNET_CHAIN_IDS.etherlink]: [
       {
         name: 'Etherlink Testnet explorer',
         url: 'https://testnet.explorer.etherlink.com',
