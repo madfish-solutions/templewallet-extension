@@ -44,7 +44,7 @@ const Home = memo(() => {
       <div className="flex flex-col pt-1 px-4 bg-white">
         <TotalEquityBanner />
 
-        <ExploreActionButtonsBar activityBtn="activity" className="mt-4" />
+        <ExploreActionButtonsBar additionalButtonType="activity" className="mt-4" />
 
         <AssetsSegmentControl
           tabSlug={tabSlug}
