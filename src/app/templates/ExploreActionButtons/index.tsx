@@ -61,7 +61,7 @@ export const ExploreActionButtonsBar = memo<Props>(
       [isTokenAvailableForSwap, assetSlug]
     );
 
-    const labelClassName = useMemo(() => (additionalButtonType ? 'max-w-12' : 'max-w-15'), [additionalButtonType]);
+    const labelClassName = additionalButtonType ? 'max-w-12' : 'max-w-15';
 
     const additionalButton = useMemo(() => {
       switch (additionalButtonType) {
