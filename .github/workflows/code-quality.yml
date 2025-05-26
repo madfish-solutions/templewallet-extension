@@ -86,15 +86,16 @@ jobs:
           optional_modules: true
 
       - name: Create Chrome build
-        run: yarn build:chrome
+        run: yarn build:without-zip:chrome
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: chrome
-          path: dist/chrome.zip
+          path: dist/chrome_unpacked
           if-no-files-found: error
           retention-days: 10
+          compression-level: 1
 
       - name: Remove private modules
         run: rm -rf node_modules/@temple-wallet/extension-ads
@@ -106,12 +107,13 @@ jobs:
           optional_modules: false
 
       - name: Create Chrome core build
-        run: yarn build:chrome:core
+        run: yarn build:without-zip:chrome:core
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: chrome_core
-          path: dist/chrome.zip
+          path: dist/chrome_unpacked
           if-no-files-found: error
           retention-days: 10
+          compression-level: 1
