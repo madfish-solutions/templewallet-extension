@@ -3447,6 +3447,21 @@
   "depositDisclaimer": {
     "message": "Send the exact amount of crypto to the deposit address. Otherwise the transaction will be failed and you will need to contact Exolix support."
   },
+  "depositTokensToGetStarted": {
+    "message": "Deposit tokens to get started!"
+  },
+  "buyWithFiat": {
+    "message": "Buy with Fiat"
+  },
+  "buyWithFiatDescription": {
+    "message": "Purchase crypto via credit or debit card with 26+ currencies options"
+  },
+  "crossChainSwap": {
+    "message": "Cross-chain Swap"
+  },
+  "crossChainSwapDescription": {
+    "message": "Exchange crypto instantly from Solana, Bitcoin and other networks"
+  },
   "convertation": {
     "message": "Convertation"
   },

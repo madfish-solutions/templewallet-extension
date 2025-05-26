@@ -1,4 +1,4 @@
-import React, { FC, RefObject, memo, useMemo, useRef } from 'react';
+import React, { FC, RefObject, createContext, memo, useContext, useMemo, useRef } from 'react';
 
 import {
   useEvmAccountTokensForListing,
@@ -26,21 +26,27 @@ import { TempleChainKind } from 'temple/types';
 
 import { getGroupedTokensViewWithPromo, getTokensViewWithPromo } from '../utils';
 
-import { TokensTabBase } from './TokensTabBase';
+import { TokensTabBase } from './tokens-tab-base';
 
 interface Props {
   publicKeyHash: HexString;
+  accountId: string;
 }
 
-export const EvmTokensTab = memo<Props>(({ publicKeyHash }) => {
+const EvmTokensTabContext = createContext<Props>({ publicKeyHash: '0x', accountId: '' });
+
+export const EvmTokensTab = memo<Props>(props => {
   const { manageActive } = useAssetsViewState();
 
-  if (manageActive) return <TabContentWithManageActive publicKeyHash={publicKeyHash} />;
-
-  return <TabContent publicKeyHash={publicKeyHash} />;
+  return (
+    <EvmTokensTabContext.Provider value={props}>
+      {manageActive ? <TabContentWithManageActive /> : <TabContent />}
+    </EvmTokensTabContext.Provider>
+  );
 });
 
-const TabContent: FC<Props> = ({ publicKeyHash }) => {
+const TabContent: FC = () => {
+  const { publicKeyHash } = useContext(EvmTokensTabContext);
   const { hideZeroBalance, groupByNetwork } = useTokensListOptionsSelector();
 
   const { enabledChainSlugsSorted, enabledChainSlugsSortedGrouped } = useEvmAccountTokensForListing(
@@ -51,7 +57,6 @@ const TabContent: FC<Props> = ({ publicKeyHash }) => {
 
   return (
     <TabContentBase
-      publicKeyHash={publicKeyHash}
       allSlugsSorted={enabledChainSlugsSorted}
       allSlugsSortedGrouped={enabledChainSlugsSortedGrouped}
       groupByNetwork={groupByNetwork}
@@ -60,7 +65,8 @@ const TabContent: FC<Props> = ({ publicKeyHash }) => {
   );
 };
 
-const TabContentWithManageActive: FC<Props> = ({ publicKeyHash }) => {
+const TabContentWithManageActive: FC = () => {
+  const { publicKeyHash } = useContext(EvmTokensTabContext);
   const { hideZeroBalance, groupByNetwork } = useTokensListOptionsSelector();
 
   const { enabledChainSlugsSorted, enabledChainSlugsSortedGrouped, tokens, tokensSortPredicate } =
@@ -91,7 +97,6 @@ const TabContentWithManageActive: FC<Props> = ({ publicKeyHash }) => {
 
   return (
     <TabContentBase
-      publicKeyHash={publicKeyHash}
       allSlugsSorted={allSlugsSorted}
       allSlugsSortedGrouped={allSlugsSortedGrouped}
       groupByNetwork={groupByNetwork}
@@ -101,7 +106,6 @@ const TabContentWithManageActive: FC<Props> = ({ publicKeyHash }) => {
 };
 
 interface TabContentBaseProps {
-  publicKeyHash: HexString;
   allSlugsSorted: string[];
   allSlugsSortedGrouped: ChainGroupedSlugs<TempleChainKind.EVM> | null;
   groupByNetwork: boolean;
@@ -109,7 +113,8 @@ interface TabContentBaseProps {
 }
 
 const TabContentBase = memo<TabContentBaseProps>(
-  ({ publicKeyHash, allSlugsSorted, allSlugsSortedGrouped, groupByNetwork, manageActive }) => {
+  ({ allSlugsSorted, allSlugsSortedGrouped, groupByNetwork, manageActive }) => {
+    const { publicKeyHash, accountId } = useContext(EvmTokensTabContext);
     const {
       displayedSlugs,
       displayedGroupedSlugs,
@@ -189,6 +194,7 @@ const TabContentBase = memo<TabContentBaseProps>(
 
     return (
       <TokensTabBase
+        accountId={accountId}
         tokensCount={displayedSlugs.length}
         searchValue={searchValue}
         getElementIndex={getElementIndex}
