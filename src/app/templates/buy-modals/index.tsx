@@ -6,7 +6,7 @@ import { BuyWithCreditCard } from './buy-with-credit-card-modal';
 import { CryptoExchangeModal } from './crypto-exchange-modal';
 import { CryptoExchangeDataProvider } from './crypto-exchange-modal/context';
 
-export * from './crypto-exchange-modal/context';
+export { CryptoExchangeDataProvider, useCryptoExchangeDataState } from './crypto-exchange-modal/context';
 export * from './crypto-exchange-modal/components/ExchangeCountdown';
 
 interface BuyModalsProps {

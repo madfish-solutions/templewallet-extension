@@ -6,7 +6,7 @@ import { accountIsInitialized } from 'lib/utils/account-is-initialized';
 
 import { loadIsAccountInitializedActions } from './actions';
 
-export const loadIsAccountInitializedEpic: Epic = action$ =>
+const loadIsAccountInitializedEpic: Epic = action$ =>
   action$.pipe(
     ofType(loadIsAccountInitializedActions.submit),
     mergeMap(({ payload }) => {

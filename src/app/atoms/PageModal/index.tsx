@@ -21,7 +21,7 @@ export { ActionsButtonsBox } from './actions-buttons-box';
 
 export const CLOSE_ANIMATION_TIMEOUT = 300;
 
-export interface PageModalProps extends TestIDProps {
+interface PageModalProps extends TestIDProps {
   title: ReactChildren;
   opened: boolean;
   headerClassName?: string;
