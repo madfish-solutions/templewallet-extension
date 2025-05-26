@@ -95,7 +95,6 @@ const ConfirmWindowReadyRootHooks = memo(() => {
 const TezosAccountHooks = memo<{ publicKeyHash: string }>(({ publicKeyHash }) => {
   useCollectiblesDetailsLoading(publicKeyHash);
   useNoCategoryTezosAssetsLoading(publicKeyHash);
-  useLifiEvmTokensSlugs(publicKeyHash as HexString);
 
   return (
     <>
@@ -108,6 +107,7 @@ const TezosAccountHooks = memo<{ publicKeyHash: string }>(({ publicKeyHash }) =>
 
 const EvmAccountHooks = memo<{ publicKeyHash: HexString }>(({ publicKeyHash }) => {
   useNoCategoryEvmAssetsLoading(publicKeyHash);
+  useLifiEvmTokensSlugs(publicKeyHash as HexString);
   const testnetModeEnabled = useTestnetModeEnabledSelector();
 
   return (

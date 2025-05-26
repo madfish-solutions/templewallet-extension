@@ -19,7 +19,11 @@ import {
   useEvmCollectiblesMetadataLoadingSelector,
   useEvmTokensMetadataLoadingSelector
 } from 'app/store/evm/selectors';
-import { useLifiEvmChainTokensMetadataSelector } from 'app/store/evm/swap-lifi-metadata/selectors';
+import {
+  useLifiEvmChainTokensMetadataSelector,
+  useLifiEvmTokensMetadataRecordSelector
+} from 'app/store/evm/swap-lifi-metadata/selectors';
+import { LifiEvmTokenMetadataRecord } from 'app/store/evm/swap-lifi-metadata/state';
 import {
   useEvmTokenMetadataSelector,
   useEvmChainTokensMetadataRecordSelector,
@@ -146,7 +150,7 @@ export const useGetEvmChainTokenOrGasMetadata = (chainId: number) => {
   );
 
   return useGetterBySlug<EvmNativeTokenMetadata | EvmTokenMetadata>(
-    tokensMetadata ?? lifiTokensMetadata,
+    { ...tokensMetadata, ...lifiTokensMetadata },
     fallbackValueFn
   );
 };
@@ -161,6 +165,7 @@ interface EvmGenericAssetMetadataGetterInput {
   tokensMetadatas: EvmTokenMetadataRecord;
   collectiblesMetadatas: EvmCollectibleMetadataRecord;
   noCategoryMetadatas: EvmNoCategoryAssetMetadataRecord;
+  lifiMetadata: LifiEvmTokenMetadataRecord;
 }
 
 const useGetEvmGenericAssetMetadata = () => {
@@ -168,6 +173,7 @@ const useGetEvmGenericAssetMetadata = () => {
   const tokensMetadatas = useEvmTokensMetadataRecordSelector();
   const collectiblesMetadatas = useEvmCollectiblesMetadataRecordSelector();
   const noCategoryMetadatas = useEvmNoCategoryAssetsMetadataRecordSelector();
+  const lifiMetadata = useLifiEvmTokensMetadataRecordSelector();
 
   const getterFn = useCallback(
     (input: EvmGenericAssetMetadataGetterInput, slug: string, chainId: number) => {
@@ -176,13 +182,14 @@ const useGetEvmGenericAssetMetadata = () => {
       return (
         input.tokensMetadatas[chainId]?.[slug] ||
         input.collectiblesMetadatas[chainId]?.[slug] ||
-        input.noCategoryMetadatas[chainId]?.[slug]
+        input.noCategoryMetadatas[chainId]?.[slug] ||
+        input.lifiMetadata[chainId]?.[slug]
       );
     },
     [allEvmChains]
   );
 
-  return useGetter({ tokensMetadatas, collectiblesMetadatas, noCategoryMetadatas }, getterFn);
+  return useGetter({ tokensMetadatas, collectiblesMetadatas, noCategoryMetadatas, lifiMetadata }, getterFn);
 };
 
 export const useGetEvmChainCollectibleMetadata = (chainId: number) => {

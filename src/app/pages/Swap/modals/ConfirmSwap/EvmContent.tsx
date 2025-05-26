@@ -4,6 +4,7 @@ import { LiFiStep } from '@lifi/sdk';
 import type { TransactionRequest as LiFiTxRequest } from '@lifi/types';
 import BigNumber from 'bignumber.js';
 import { FormProvider } from 'react-hook-form-v7';
+import { TransactionRequest } from 'viem';
 
 import { CLOSE_ANIMATION_TIMEOUT } from 'app/atoms/PageModal';
 import { DeadEndBoundaryError } from 'app/ErrorBoundary';
@@ -36,39 +37,62 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
 
   if (!lifiStep) throw new DeadEndBoundaryError();
 
-  const estimationData = useMemo(() => mapToEvmEstimationDataWithFallback(lifiStep.transactionRequest!), [lifiStep]);
-
   const accountPkh = account.address as HexString;
   const isLedgerAccount = account.type === TempleAccountType.Ledger;
 
+  const fromTokenSlug = useMemo(() => {
+    return EVM_ZERO_ADDRESS === lifiStep.action.fromToken.address
+      ? EVM_TOKEN_SLUG
+      : toTokenSlug(lifiStep.action.fromToken.address, 0);
+  }, [lifiStep.action.fromToken.address]);
+
+  const toTokenSLug = useMemo(() => {
+    return EVM_ZERO_ADDRESS === lifiStep.action.toToken.address
+      ? EVM_TOKEN_SLUG
+      : toTokenSlug(lifiStep.action.toToken.address, 0);
+  }, [lifiStep.action.toToken.address]);
+
   const { sendEvmTransaction } = useTempleClient();
+  // const { value: balance = ZERO } = useEvmAssetBalance(fromTokenSlug, account.address as HexString, network);
   const { value: ethBalance = ZERO } = useEvmAssetBalance(EVM_TOKEN_SLUG, accountPkh, network);
   const getActiveBlockExplorer = useGetEvmActiveBlockExplorer();
 
   const [latestSubmitError, setLatestSubmitError] = useState<string | nullish>(null);
 
+  // const { data: estimationData } = useEvmEstimationData({
+  //   to: lifiStep.action.toAddress as HexString,
+  //   assetSlug: fromTokenSlug,
+  //   accountPkh: account.address as HexString,
+  //   network,
+  //   balance,
+  //   ethBalance,
+  //   toFilled: true,
+  //   silent: true
+  // });
+
+  const lifiEstimationData = useMemo(
+    () => mapToEvmEstimationDataWithFallback(lifiStep.transactionRequest!),
+    [lifiStep]
+  );
+
   const { form, tab, setTab, selectedFeeOption, handleFeeOptionSelect, feeOptions, displayedFee, getFeesPerGas } =
-    useEvmEstimationForm(estimationData, null, account, network.chainId);
+    useEvmEstimationForm(lifiEstimationData, null, account, network.chainId);
   const { formState } = form;
   const { ledgerApprovalModalState, setLedgerApprovalModalState, handleLedgerModalClose } =
     useLedgerApprovalModalState();
 
   const balancesChanges = useMemo(() => {
     return {
-      [EVM_ZERO_ADDRESS === lifiStep.action.fromToken.address
-        ? EVM_TOKEN_SLUG
-        : toTokenSlug(lifiStep.action.fromToken.address, 0)]: {
+      [fromTokenSlug]: {
         atomicAmount: new BigNumber(-lifiStep.estimate.fromAmount),
         isNft: false
       },
-      [EVM_ZERO_ADDRESS === lifiStep.action.toToken.address
-        ? EVM_TOKEN_SLUG
-        : toTokenSlug(lifiStep.action.toToken.address, 0)]: {
-        atomicAmount: new BigNumber(lifiStep.estimate.toAmount),
+      [toTokenSLug]: {
+        atomicAmount: new BigNumber(+lifiStep.estimate.toAmount),
         isNft: false
       }
     };
-  }, [lifiStep]);
+  }, [fromTokenSlug, lifiStep.estimate.fromAmount, lifiStep.estimate.toAmount, toTokenSLug]);
 
   const executeRouteStep = useCallback(
     async (step: LiFiStep, { gasPrice, gasLimit, nonce }: Partial<EvmTxParamsFormData>) => {
@@ -83,7 +107,8 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
         ...(gasPrice ? { gasPrice: BigInt(gasPrice) } : {}),
         ...(gasLimit ? { gas: BigInt(gasLimit) } : {}),
         ...(nonce ? { nonce: Number(nonce) } : {})
-      });
+      } as TransactionRequest);
+
       const blockExplorer = getActiveBlockExplorer(network.chainId.toString());
       setTimeout(() => {
         toastSuccess(t('transactionSubmitted'), true, {
@@ -103,7 +128,7 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
       if (formState.isSubmitting) return;
 
       const feesPerGas = getFeesPerGas(gasPrice);
-      if (!estimationData || !feesPerGas) {
+      if (!lifiEstimationData || !feesPerGas) {
         toastError('Failed to estimate transaction.');
         return;
       }
@@ -137,7 +162,7 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
     },
     [
       displayedFee,
-      estimationData,
+      lifiEstimationData,
       ethBalance,
       executeRouteStep,
       formState.isSubmitting,

@@ -109,6 +109,10 @@ export const MultiChainAssetsList = memo<Props>(
       [accountEvmAddress, accountTezAddress, evmChains, onAssetSelect, tezosChains]
     );
 
-    return <TokensListView slugs={searchedSlugs}>{renderListItem}</TokensListView>;
+    return (
+      <div className="px-4 pb-4 flex-1 flex flex-col overflow-y-auto">
+        <TokensListView slugs={searchedSlugs}>{renderListItem}</TokensListView>
+      </div>
+    );
   }
 );

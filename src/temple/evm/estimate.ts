@@ -85,3 +85,25 @@ export const estimate = async (
       throw new Error('Unsupported transaction type');
   }
 };
+
+export async function getNonceUsingEstimate(
+  network: EvmChain | { chain: Chain; rpcUrl: string },
+  fromAddress: string
+): Promise<number | undefined> {
+  const genericReq: TransactionRequest = {
+    from: fromAddress as HexString,
+    to: fromAddress as HexString,
+    value: BigInt(0),
+    data: '0x',
+    gas: BigInt(21000),
+    type: 'legacy'
+  };
+
+  try {
+    const estimationData = await estimate(network, genericReq);
+    return estimationData.nonce;
+  } catch (error) {
+    console.error('Error getting nonce using estimate:', error);
+    return undefined;
+  }
+}

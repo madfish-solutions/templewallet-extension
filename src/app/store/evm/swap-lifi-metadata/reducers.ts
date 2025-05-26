@@ -12,14 +12,13 @@ const lifiEvmTokensMetadataReducer = createReducer<LifiEvmTokensMetadataState>(
     builder.addCase(putLifiEvmTokensMetadataAction, ({ metadataRecord }, { payload }) => {
       const { chainId, records } = payload;
 
-      if (!metadataRecord[chainId]) metadataRecord[chainId] = {};
-      const chainTokensMetadata = metadataRecord[chainId];
+      metadataRecord[chainId] = {};
 
       for (const slug of Object.keys(records)) {
         const metadata = records[slug];
         if (!metadata) continue;
 
-        chainTokensMetadata[slug] = metadata;
+        metadataRecord[chainId][slug] = metadata;
       }
     });
     builder.addCase(putLifiEvmTokensMetadataLoadingAction, (state, { payload }) => {

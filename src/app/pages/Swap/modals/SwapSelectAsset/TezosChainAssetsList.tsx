@@ -29,6 +29,7 @@ export const TezosChainAssetsList = memo<Props>(
     const network = useTezosChainByChainId(chainId);
     if (!network) throw new DeadEndBoundaryError();
     const { route3tokensSlugs } = useAvailableRoute3TokensSlugs();
+    console.log('rerender')
 
     const balances = useAllAccountBalancesSelector(publicKeyHash, chainId);
     const isNonZeroBalance = useCallback(
@@ -54,7 +55,7 @@ export const TezosChainAssetsList = memo<Props>(
     }, [filterZeroBalances, assetsSlugs, searchValue, getAssetMetadata, isNonZeroBalance]);
 
     return (
-      <>
+      <div className="px-4 pb-4 flex-1 flex flex-col overflow-y-auto">
         {filteredAssets.length === 0 && <EmptyState />}
 
         {filteredAssets.map(slug => (
@@ -67,7 +68,7 @@ export const TezosChainAssetsList = memo<Props>(
             onClick={e => onAssetSelect(e, toChainAssetSlug(TempleChainKind.Tezos, chainId, slug))}
           />
         ))}
-      </>
+      </div>
     );
   }
 );

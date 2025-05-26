@@ -122,11 +122,12 @@ interface EvmTokenListItemProps {
   assetSlug: string;
   manageActive?: boolean;
   onClick?: MouseEventHandler<TokenListItemElement>;
+  useIsVisible?: boolean;
 }
 
 export const EvmTokenListItem = memo(
   forwardRef<TokenListItemElement, EvmTokenListItemProps>(
-    ({ network, index, publicKeyHash, assetSlug, manageActive = false, onClick }, ref) => {
+    ({ network, index, publicKeyHash, assetSlug, manageActive = false, useIsVisible = true, onClick }, ref) => {
       const { chainId } = network;
       const lifiTokenMetadata = useLifiEvmTokenMetadataSelector(chainId, assetSlug);
 
@@ -169,6 +170,7 @@ export const EvmTokenListItem = memo(
           index={index}
           balance={balance}
           onClick={onClick}
+          useIsVisible={useIsVisible}
           ref={ref}
         >
           <div className="flex-grow text-font-medium truncate">{assetSymbol}</div>
@@ -305,6 +307,7 @@ interface DefaultListItemLayoutProps<T extends TempleChainKind> {
   index?: number;
   balance: BigNumber;
   onClick?: MouseEventHandler<TokenListItemElement>;
+  useIsVisible?: boolean;
 }
 
 const DefaultListItemLayoutHOC = <T extends TempleChainKind>(
@@ -316,9 +319,9 @@ const DefaultListItemLayoutHOC = <T extends TempleChainKind>(
   }>
 ) =>
   forwardRef<TokenListItemElement, PropsWithChildren<DefaultListItemLayoutProps<T>>>(
-    ({ children, assetSlug, assetName, className, network, index, balance, onClick }, ref) => {
+    ({ children, assetSlug, assetName, className, network, index, balance, onClick, useIsVisible }, ref) => {
       const { chainId } = network;
-      const isVisible = useIsItemVisible(index);
+      const visible = useIsVisible ? useIsItemVisible(index) : true;
 
       return (
         <Link
@@ -330,7 +333,7 @@ const DefaultListItemLayoutHOC = <T extends TempleChainKind>(
           ref={ref as ForwardedRef<HTMLAnchorElement>}
           {...setAnotherSelector('name', assetName)}
         >
-          {isVisible ? (
+          {visible ? (
             <>
               <AssetIconWithNetwork chainId={chainId} assetSlug={assetSlug} className="shrink-0" />
 

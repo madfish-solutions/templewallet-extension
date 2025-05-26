@@ -3,7 +3,7 @@ import React, { memo } from 'react';
 import { TempleChainKind } from 'temple/types';
 
 import { EvmSwapForm } from './EvmSwapForm';
-import { ReviewData } from './interfaces';
+import { SwapReviewData } from './interfaces';
 import { TezosSwapForm } from './TezosSwapForm';
 
 interface SwapFormProps {
@@ -12,7 +12,7 @@ interface SwapFormProps {
   activeField: 'from' | 'to';
   selectedChainAssets: { from: string | null; to: string | null };
   slippageTolerance: number;
-  onReview: (data: ReviewData) => void;
+  onReview: (data: SwapReviewData) => void;
   onSelectAssetClick: (field: 'from' | 'to') => void;
   handleToggleIconClick: EmptyFn;
 }

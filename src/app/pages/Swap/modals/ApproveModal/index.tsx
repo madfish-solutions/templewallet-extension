@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 
 import BigNumber from 'bignumber.js';
 import clsx from 'clsx';
@@ -12,7 +12,7 @@ import { StyledButton } from 'app/atoms/StyledButton';
 import { DeadEndBoundaryError } from 'app/ErrorBoundary';
 import { ReactComponent as LinkIcon } from 'app/icons/base/link.svg';
 import { ReactComponent as OutLinkIcon } from 'app/icons/base/outLink.svg';
-import { buildBasicEvmSendParams } from 'app/pages/Send/build-basic-evm-send-params';
+import { useEvmEstimationData } from 'app/pages/Send/hooks/use-evm-estimation-data';
 import LiFiImgSrc from 'app/pages/Swap/form/assets/lifi.png';
 import { EvmReviewData, SwapReviewData } from 'app/pages/Swap/form/interfaces';
 import { parseLiFiTxRequestToViem, timeout } from 'app/pages/Swap/modals/ConfirmSwap/utils';
@@ -20,12 +20,13 @@ import { EvmTransactionView } from 'app/templates/EvmTransactionView';
 import { toastSuccess } from 'app/toaster';
 import { erc20IncreaseAllowanceAbi } from 'lib/abi/erc20';
 import { toTokenSlug } from 'lib/assets';
+import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
+import { useEvmAssetBalance } from 'lib/balances/hooks';
 import { t, T } from 'lib/i18n';
-import { useEvmCategorizedAssetMetadata } from 'lib/metadata';
 import { useTempleClient } from 'lib/temple/front';
 import { atomsToTokens } from 'lib/temple/helpers';
 import { EvmTransactionRequestWithSender, TempleEvmDAppTransactionPayload } from 'lib/temple/types';
-import { estimate as genericEstimate, EvmEstimationData } from 'temple/evm/estimate';
+import { ZERO } from 'lib/utils/numbers';
 import { useGetEvmActiveBlockExplorer } from 'temple/front/ready';
 import { TempleChainKind } from 'temple/types';
 
@@ -54,50 +55,82 @@ const ApproveModal = ({ data, onClose, onReview, setLoading }: ApproveModalProps
     });
   }, [lifiStep.action.fromAmount, lifiStep.estimate.approvalAddress, onChainAllowance]);
 
-  const assetMetadata = useEvmCategorizedAssetMetadata(
-    toTokenSlug(lifiStep.action.fromToken.address, 0),
-    network.chainId
+  const assetSlug = useMemo(
+    () => toTokenSlug(lifiStep.action.fromToken.address, 0),
+    [lifiStep.action.fromToken.address]
   );
 
   const [finalEvmTransaction, setFinalEvmTransaction] = useState<EvmTransactionRequestWithSender>({
     from: lifiStep.action.fromAddress as HexString
   });
   const [latestSubmitError, setLatestSubmitError] = useState<string | nullish>(null);
-  const [estimationData, setEstimationData] = useState<EvmEstimationData | null>(null);
 
-  useEffect(() => {
-    if (assetMetadata) {
-      const amount = atomsToTokens(
+  const amount = useMemo(
+    () =>
+      atomsToTokens(
         new BigNumber((BigInt(lifiStep.action.fromAmount) - onChainAllowance).toString()),
-        assetMetadata?.decimals ?? 0
-      ).toString();
+        lifiStep.action.fromToken.decimals ?? 0
+      ).toString(),
+    [lifiStep.action.fromAmount, lifiStep.action.fromToken.decimals, onChainAllowance]
+  );
 
-      genericEstimate(network, {
-        ...buildBasicEvmSendParams(
-          account.address as HexString,
-          lifiStep.estimate.approvalAddress as HexString,
-          assetMetadata,
-          amount
-        ),
-        from: account.address as HexString
-      }).then(estimate => {
-        setEstimationData(estimate);
-      });
-    }
-  }, [
-    account.address,
-    assetMetadata,
-    lifiStep.action.fromAmount,
-    lifiStep.estimate.approvalAddress,
+  const { value: balance = ZERO } = useEvmAssetBalance(assetSlug, account.address as HexString, network);
+  const { value: ethBalance = ZERO } = useEvmAssetBalance(EVM_TOKEN_SLUG, account.address as HexString, network);
+
+  const { data: estimationData } = useEvmEstimationData({
+    to: lifiStep.estimate.approvalAddress as HexString,
+    assetSlug: assetSlug,
+    accountPkh: account.address as HexString,
     network,
-    onChainAllowance
-  ]);
+    balance,
+    ethBalance,
+    toFilled: true,
+    amount
+  });
+  // const [estimationData, setEstimationData] = useState<EvmEstimationData | null>(null);
+  //
+  // useEffect(() => {
+  //   if (assetMetadata) {
+  //     const amount = atomsToTokens(
+  //       new BigNumber((BigInt(lifiStep.action.fromAmount) - onChainAllowance).toString()),
+  //       assetMetadata?.decimals ?? 0
+  //     ).toString();
+  //     console.log(
+  //       'basicEvmSendParams',
+  //       buildBasicEvmSendParams(
+  //         account.address as HexString,
+  //         lifiStep.estimate.approvalAddress as HexString,
+  //         assetMetadata,
+  //         amount
+  //       )
+  //     );
+  //
+  //     genericEstimate(network, {
+  //       ...buildBasicEvmSendParams(
+  //         account.address as HexString,
+  //         lifiStep.estimate.approvalAddress as HexString,
+  //         assetMetadata,
+  //         amount
+  //       ),
+  //       from: account.address as HexString
+  //     }).then(estimate => {
+  //       setEstimationData(estimate);
+  //     });
+  //   }
+  // }, [
+  //   account.address,
+  //   assetMetadata,
+  //   lifiStep.action.fromAmount,
+  //   lifiStep.estimate.approvalAddress,
+  //   network,
+  //   onChainAllowance
+  // ]);
 
   const request = useMemo(() => {
     return {
       to: lifiStep.action.fromToken.address as HexString,
       from: lifiStep.transactionRequest?.from as HexString,
-      data: finalEvmTransaction ? finalEvmTransaction.data : txData,
+      data: finalEvmTransaction?.data ? finalEvmTransaction.data : txData,
       value: toHex(BigInt(0)),
       maxFeePerGas: estimationData?.maxFeePerGas !== undefined ? toHex(estimationData.maxFeePerGas) : undefined,
       gas: estimationData?.gas !== undefined ? toHex(estimationData.gas) : undefined,

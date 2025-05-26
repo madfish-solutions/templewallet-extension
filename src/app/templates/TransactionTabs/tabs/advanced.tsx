@@ -31,6 +31,7 @@ const EvmContent = () => {
 
   const gasLimitError = errors.gasLimit?.message;
   const nonceError = errors.nonce?.message;
+  console.log('nonce data', data)
 
   return (
     <>

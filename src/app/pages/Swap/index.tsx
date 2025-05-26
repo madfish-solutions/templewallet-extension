@@ -20,7 +20,7 @@ import { useAccountAddressForEvm } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
 
 import { SWAP_SLIPPAGE_TOLERANCE_STORAGE_KEY } from './constants';
-import { ReviewData, SwapReviewData } from './form/interfaces';
+import { SwapReviewData } from './form/interfaces';
 import { ConfirmSwapModal } from './modals/ConfirmSwap';
 import { SwapSettingsModal } from './modals/SwapSettings';
 

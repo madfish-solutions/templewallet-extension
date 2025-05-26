@@ -119,9 +119,7 @@ export const SwapSelectAssetModal = memo<SelectTokenModalProps>(
           />
         </div>
 
-        <div className="px-4 pb-4 flex-1 flex flex-col overflow-y-auto">
-          <Suspense fallback={<SpinnerSection />}>{AssetsList}</Suspense>
-        </div>
+        <Suspense fallback={<SpinnerSection />}>{AssetsList}</Suspense>
       </PageModal>
     );
   }

@@ -30,7 +30,7 @@ import { getReadOnlyEvmForNetwork } from 'temple/evm';
 import { useAccountForEvm } from 'temple/front';
 import { useEvmChainByChainId } from 'temple/front/chains';
 
-import { ReviewData } from '../interfaces';
+import { EvmReviewData } from '../interfaces';
 
 interface ChainAssetInfo {
   networkName: string;
@@ -41,7 +41,7 @@ interface ChainAssetInfo {
 interface EvmSwapFormProps {
   chainId: number;
   slippageTolerance: number;
-  onReview: (data: ReviewData) => void;
+  onReview: SyncFn<EvmReviewData>;
   onSelectAssetClick: (field: 'from' | 'to') => void;
   selectedChainAssets: { from: string | null; to: string | null };
   activeField: 'from' | 'to';
@@ -73,7 +73,6 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
     [swapRoute]
   );
 
-  // const [operation, setOperation] = useState<BatchWalletOperation>();
   const [isAlertVisible, setIsAlertVisible] = useState(false);
 
   const getTokenMetadata = useGetEvmChainAssetMetadata(chainId);
