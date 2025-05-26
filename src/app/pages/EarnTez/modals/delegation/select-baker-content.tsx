@@ -14,7 +14,7 @@ import { ScrollView } from 'app/atoms/PageModal/scroll-view';
 import { ReactComponent as FilteroffIcon } from 'app/icons/base/filteroff.svg';
 import { SearchBarField } from 'app/templates/SearchField';
 import { T, t } from 'lib/i18n';
-import { HELP_UKRAINE_BAKER_ADDRESS, RECOMMENDED_BAKER_ADDRESS } from 'lib/known-bakers';
+import { HELP_UKRAINE_BAKER_ADDRESS, EVERSTAKE_BAKER_ADDRESS, TEMPLE_BAKER_ADDRESS } from 'lib/known-bakers';
 import { useTypedSWR } from 'lib/swr';
 import { Baker, useKnownBakers } from 'lib/temple/front';
 import { isValidTezosImplicitAddress } from 'lib/tezos';
@@ -49,7 +49,7 @@ enum BakersSortField {
   MinBalance = 'minBalance'
 }
 
-const sponsoredBakersAddresses = [RECOMMENDED_BAKER_ADDRESS, HELP_UKRAINE_BAKER_ADDRESS];
+const sponsoredBakersAddresses = [TEMPLE_BAKER_ADDRESS, EVERSTAKE_BAKER_ADDRESS, HELP_UKRAINE_BAKER_ADDRESS];
 
 export const SelectBakerContent = memo<SelectBakerContentProps>(({ account, bakerPkh, network, onSelect }) => {
   const accountPkh = account.address;
