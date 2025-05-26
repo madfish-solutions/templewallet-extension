@@ -116,3 +116,4 @@ jobs:
           path: dist/chrome.zip
           if-no-files-found: error
           retention-days: 10
+          compression-level: 0
