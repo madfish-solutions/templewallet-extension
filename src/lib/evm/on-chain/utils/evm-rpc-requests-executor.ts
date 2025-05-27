@@ -1,9 +1,10 @@
 import { Mutex, Semaphore } from 'async-mutex';
 
-export class RequestAlreadyPendingError extends Error {}
-
 export abstract class EvmRpcRequestsExecutor<T extends object, R, K extends string | number> {
-  private requestsPools = new Map<K, { semaphore: Semaphore; pendingRequests: T[] }>();
+  private requestsPools = new Map<
+    K,
+    { semaphore: Semaphore; pendingRequests: { payload: T; reqPromise: Promise<R> }[] }
+  >();
   private mapMutex = new Mutex();
 
   constructor(private readonly rps = 15) {}
@@ -35,7 +36,7 @@ export abstract class EvmRpcRequestsExecutor<T extends object, R, K extends stri
   async executeRequest(payload: T) {
     const chainId = this.getRequestsPoolKey(payload);
 
-    const { pool, alreadyPending } = await this.mapMutex.runExclusive(async () => {
+    const { pendingReqPromise, pool } = await this.mapMutex.runExclusive(async () => {
       let pool = this.requestsPools.get(chainId);
       if (!pool) {
         pool = {
@@ -45,27 +46,35 @@ export abstract class EvmRpcRequestsExecutor<T extends object, R, K extends stri
         this.requestsPools.set(chainId, pool);
       }
 
-      const alreadyPending = pool.pendingRequests.some(pendingRequest => this.requestsAreSame(pendingRequest, payload));
-      if (!alreadyPending) {
-        pool.pendingRequests.push(payload);
-      }
-
-      return { pool, alreadyPending };
+      return {
+        pendingReqPromise: pool.pendingRequests.find(({ payload: pendingReqPayload }) =>
+          this.requestsAreSame(pendingReqPayload, payload)
+        )?.reqPromise,
+        pool
+      };
     });
 
-    if (alreadyPending) {
-      throw new RequestAlreadyPendingError();
+    if (pendingReqPromise) {
+      return pendingReqPromise;
     }
 
-    const [, release] = await pool.semaphore.acquire();
-    setTimeout(release, 1000);
+    const newReqPromise = pool.semaphore
+      .acquire()
+      .then(([, release]) => {
+        setTimeout(release, 1000);
 
-    return this.getResult(payload).finally(() => {
-      this.mapMutex.runExclusive(() => {
-        pool.pendingRequests = pool.pendingRequests.filter(
-          pendingRequest => !this.requestsAreSame(pendingRequest, payload)
-        );
+        return this.getResult(payload);
+      })
+      .finally(() => {
+        this.mapMutex.runExclusive(() => {
+          pool.pendingRequests = pool.pendingRequests.filter(
+            ({ payload: pendingReqPayload }) => !this.requestsAreSame(pendingReqPayload, payload)
+          );
+        });
       });
-    });
+
+    await this.mapMutex.runExclusive(() => void pool.pendingRequests.push({ payload, reqPromise: newReqPromise }));
+
+    return newReqPromise;
   }
 }

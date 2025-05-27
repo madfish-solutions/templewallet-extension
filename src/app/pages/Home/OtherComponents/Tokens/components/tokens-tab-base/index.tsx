@@ -11,7 +11,7 @@ import {
   VisibilityTrackingInfiniteScrollProps
 } from 'app/atoms/visibility-tracking-infinite-scroll';
 import { useAssetsViewState } from 'app/hooks/use-assets-view-state';
-import { ReactComponent as ApplePayIcon } from 'app/icons/payment-options/apple-pay.svg';
+import { ReactComponent as ApplePayIcon } from 'app/icons/payment-options/apple-pay-no-frame.svg';
 import { ReactComponent as MastercardIcon } from 'app/icons/payment-options/mastercard.svg';
 import { ReactComponent as VisaIcon } from 'app/icons/payment-options/visa.svg';
 import { ContentContainer, StickyBar } from 'app/layouts/containers';
@@ -97,6 +97,8 @@ interface TokensTabBaseContentProps {
   manageActive: boolean;
 }
 
+const fiatOptionsIcons = [MastercardIcon, VisaIcon, ApplePayIcon];
+
 const TokensTabBaseContent: FC<PropsWithChildren<TokensTabBaseContentProps>> = ({
   tokensCount,
   getElementIndex,
@@ -136,9 +138,14 @@ const TokensTabBaseContent: FC<PropsWithChildren<TokensTabBaseContentProps>> = (
               </span>
 
               <div className="flex gap-1 items-center">
-                <VisaIcon />
-                <MastercardIcon />
-                <ApplePayIcon />
+                {fiatOptionsIcons.map((Icon, index) => (
+                  <div
+                    className="w-[29px] h-5 px-1 flex items-center justify-center border-0.5 border-lines rounded"
+                    key={index}
+                  >
+                    <Icon />
+                  </div>
+                ))}
               </div>
             </div>
           }
@@ -168,7 +175,10 @@ const TokensTabBaseContent: FC<PropsWithChildren<TokensTabBaseContentProps>> = (
     );
   }
 
-  if (accountIsInitialized !== true && isSyncingInitializedState && !isTestnet) {
+  if (
+    (accountIsInitialized !== true && isSyncingInitializedState && !isTestnet) ||
+    (tokensCount === 0 && isSyncing && !isInSearchMode)
+  ) {
     return <PageLoader stretch />;
   }
 
