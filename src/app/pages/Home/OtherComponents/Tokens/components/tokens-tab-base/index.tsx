@@ -129,8 +129,7 @@ const TokensTabBaseContent: FC<PropsWithChildren<TokensTabBaseContentProps>> = (
           <T id="depositTokensToGetStarted" />
         </p>
 
-        <IllustratedOption<ButtonProps>
-          Component={Button}
+        <IllustratedOption
           title={
             <div className="flex gap-2 flex-wrap items-center">
               <span>
@@ -156,8 +155,7 @@ const TokensTabBaseContent: FC<PropsWithChildren<TokensTabBaseContentProps>> = (
           onClick={openDebitCreditCardModal}
         />
 
-        <IllustratedOption<ButtonProps>
-          Component={Button}
+        <IllustratedOption
           title={<T id="crossChainSwap" />}
           descriptionI18nKey="crossChainSwapDescription"
           testID={HomeSelectors.crossChainSwapButton}

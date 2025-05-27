@@ -1,52 +1,26 @@
-import React, { FC, HTMLAttributes } from 'react';
+import React from 'react';
 
 import clsx from 'clsx';
 
+import { Button, ButtonProps } from 'app/atoms/Button';
 import { T, TID } from 'lib/i18n';
 
-interface ComponentBase {
-  className?: string;
-  testID?: string;
-  children?: ReactChildren;
-}
-
-interface IllustratedOptionPropsBase<P extends ComponentBase = ComponentBase> {
-  // 'button' option is not going to be used but it fixes an error of substitution with FC<P>
-  Component: 'button' | FC<Omit<P, Exclude<keyof IllustratedOptionPropsBase<P>, 'testID'>>>;
+interface IllustratedOptionProps extends Omit<ButtonProps, 'title' | 'children'> {
   title: ReactChildren;
   descriptionI18nKey: TID;
   testID?: string;
   IllustrationAsset: string | ImportedSVGComponent;
 }
 
-type AcceptableComponentProps<P extends ComponentBase> = Omit<
-  P,
-  Exclude<keyof IllustratedOptionPropsBase<P>, 'testID'>
->;
-
-interface ButtonIllustratedOptionProps
-  extends AcceptableComponentProps<HTMLAttributes<HTMLButtonElement>>,
-    IllustratedOptionPropsBase {
-  Component: 'button';
-}
-
-type FCIllustratedOptionProps<P extends ComponentBase> = AcceptableComponentProps<P> &
-  IllustratedOptionPropsBase<P> & { Component: FC<AcceptableComponentProps<P>> };
-
-type IllustratedOptionProps<P extends ComponentBase> = P extends { Component: 'button' }
-  ? ButtonIllustratedOptionProps
-  : FCIllustratedOptionProps<P>;
-
-export const IllustratedOption = <P extends ComponentBase>({
-  Component,
+export const IllustratedOption = ({
   title,
   descriptionI18nKey,
   testID,
   IllustrationAsset,
   className,
   ...restProps
-}: IllustratedOptionProps<P>) => (
-  <Component
+}: IllustratedOptionProps) => (
+  <Button
     className={clsx(className, 'flex items-center gap-2 p-4 rounded-lg hover:bg-grey-4 border-0.5 border-lines')}
     testID={testID}
     {...restProps}
@@ -62,5 +36,5 @@ export const IllustratedOption = <P extends ComponentBase>({
         <T id={descriptionI18nKey} />
       </p>
     </div>
-  </Component>
+  </Button>
 );
