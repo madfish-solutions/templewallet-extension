@@ -86,6 +86,7 @@ export const estimate = async (
   }
 };
 
+// TODO: use this for nonce on confirtmation Swap modal?
 export async function getNonceUsingEstimate(
   network: EvmChain | { chain: Chain; rpcUrl: string },
   fromAddress: string

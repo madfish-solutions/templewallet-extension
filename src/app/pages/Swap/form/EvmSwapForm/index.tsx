@@ -275,7 +275,6 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
     };
   }, [getAndSetSwapRoute]);
 
-  // Effect for input amount changes and asset changes
   useEffect(() => {
     if (!inputValue.amount || new BigNumber(inputValue.amount).isLessThanOrEqualTo(0)) {
       setSwapRoute(null);
@@ -286,7 +285,6 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
     }
   }, [inputValue.amount, sourceAssetInfo, targetAssetInfo]);
 
-  // Effect for periodic auto-refresh
   useEffect(() => {
     const intervalId = setInterval(() => {
       if (

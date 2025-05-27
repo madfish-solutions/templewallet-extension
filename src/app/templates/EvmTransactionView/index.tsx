@@ -123,6 +123,7 @@ const EvmTransactionViewBody = memo<EvmTransactionViewProps>(
             req={req}
             setFinalEvmTransaction={setFinalEvmTransaction}
             onLoadingState={setApprovesLoading}
+            formId={formId}
           />
         )}
 

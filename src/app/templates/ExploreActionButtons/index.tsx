@@ -17,6 +17,7 @@ import { buildSwapPagePath } from 'app/pages/Swap/build-url-query';
 import { useTestnetModeEnabledSelector } from 'app/store/settings/selectors';
 import { TestIDProps } from 'lib/analytics';
 import { LifiSupportedChains } from 'lib/apis/temple/endpoints/evm/api.interfaces';
+import { TEZ_TOKEN_SLUG } from 'lib/assets';
 import { TID, T, t } from 'lib/i18n';
 import { useAvailableRoute3TokensSlugs } from 'lib/route3/assets';
 import { TempleAccountType } from 'lib/temple/types';
@@ -47,7 +48,11 @@ export const ExploreActionButtonsBar = memo<Props>(({ chainKind, chainId, assetS
 
   const isTokenAvailableForSwap = useMemo(() => {
     if (chainKind === TempleChainKind.Tezos) {
-      return isDefined(assetSlug) && chainId === ChainIds.MAINNET && route3tokensSlugs.includes(assetSlug);
+      return (
+        isDefined(assetSlug) &&
+        chainId === ChainIds.MAINNET &&
+        (route3tokensSlugs.includes(assetSlug) || assetSlug === TEZ_TOKEN_SLUG)
+      );
     }
     if (chainKind === TempleChainKind.EVM && chainId) {
       return isDefined(assetSlug) && LifiSupportedChains.includes(+chainId);

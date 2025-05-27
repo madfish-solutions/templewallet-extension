@@ -35,7 +35,6 @@ import { TempleChainKind } from 'temple/types';
 
 import { getShouldBeLockedOnStartup } from './lock';
 import { useStorage } from './storage';
-import BigNumber from 'bignumber.js';
 
 interface Confirmation {
   id: string;
@@ -447,22 +446,12 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
   }, []);
 
   const sendEvmTransaction = useCallback(
-    async (
-      accountPkh: HexString,
-      network: EvmChain,
-      txParams: TransactionRequest,
-      spender?: HexString,
-      tokenAddress?: HexString,
-      fromAmount?: BigNumber
-    ) => {
+    async (accountPkh: HexString, network: EvmChain, txParams: TransactionRequest) => {
       const res = await request({
         type: TempleMessageType.SendEvmTransactionRequest,
         accountPkh,
         network,
-        txParams: formatTransactionRequest(txParams),
-        spender,
-        tokenAddress,
-        fromAmount
+        txParams: formatTransactionRequest(txParams)
       });
       assertResponse(res.type === TempleMessageType.SendEvmTransactionResponse);
 

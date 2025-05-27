@@ -29,7 +29,6 @@ export const TezosChainAssetsList = memo<Props>(
     const network = useTezosChainByChainId(chainId);
     if (!network) throw new DeadEndBoundaryError();
     const { route3tokensSlugs } = useAvailableRoute3TokensSlugs();
-    console.log('rerender')
 
     const balances = useAllAccountBalancesSelector(publicKeyHash, chainId);
     const isNonZeroBalance = useCallback(

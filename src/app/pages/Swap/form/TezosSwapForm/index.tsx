@@ -72,6 +72,12 @@ interface TezosSwapFormProps {
   handleToggleIconClick: EmptyFn;
 }
 
+interface ChainAssetInfo {
+  networkName: string;
+  chainId: string;
+  assetSlug: string;
+}
+
 export const TezosSwapForm: FC<TezosSwapFormProps> = ({
   slippageTolerance,
   onReview,
@@ -102,27 +108,48 @@ export const TezosSwapForm: FC<TezosSwapFormProps> = ({
 
   const formAnalytics = useFormAnalytics('SwapForm');
 
-  // const defaultValues = useSwapFormDefaultValue({ evm: false });
-  const tezosFrom = useMemo(
-    () => (selectedChainAssets.from ? parseChainAssetSlug(selectedChainAssets.from) : null),
-    [selectedChainAssets.from]
-  );
-  const tezosTo = useMemo(
-    () => (selectedChainAssets.to ? parseChainAssetSlug(selectedChainAssets.to) : null),
-    [selectedChainAssets.to]
-  );
+  // const tezosFrom = useMemo(
+  //   () => (selectedChainAssets.from ? parseChainAssetSlug(selectedChainAssets.from) : null),
+  //   [selectedChainAssets.from]
+  // );
+  // const tezosTo = useMemo(
+  //   () => (selectedChainAssets.to ? parseChainAssetSlug(selectedChainAssets.to) : null),
+  //   [selectedChainAssets.to]
+  // );
+
+  const sourceAssetInfo = useMemo<ChainAssetInfo | null>(() => {
+    if (!selectedChainAssets.from) return null;
+
+    const [networkName, chainId, assetSlug] = parseChainAssetSlug(selectedChainAssets.from);
+    return {
+      networkName,
+      chainId: chainId.toString(),
+      assetSlug
+    };
+  }, [selectedChainAssets.from]);
+
+  const targetAssetInfo = useMemo<ChainAssetInfo | null>(() => {
+    if (!selectedChainAssets.to) return null;
+
+    const [networkName, chainId, assetSlug] = parseChainAssetSlug(selectedChainAssets.to);
+    return {
+      networkName,
+      chainId: chainId.toString(),
+      assetSlug
+    };
+  }, [selectedChainAssets.to]);
 
   const defaultValues = useMemo(() => {
     return {
       input: {
-        assetSlug: tezosFrom ? tezosFrom[2] : undefined
+        assetSlug: sourceAssetInfo?.assetSlug
       },
       output: {
-        assetSlug: tezosTo ? tezosTo[2] : undefined
+        assetSlug: targetAssetInfo?.assetSlug
       },
       isFiatMode: false
     };
-  }, [tezosFrom, tezosTo]);
+  }, [sourceAssetInfo, targetAssetInfo]);
 
   const form = useForm<SwapFormValue>({
     defaultValues,
@@ -382,7 +409,7 @@ export const TezosSwapForm: FC<TezosSwapFormProps> = ({
   }, [handleInputChange, inputAssetPrice, inputTokenBalance, inputTokenMaxAmount, inputValue.assetSlug, isFiatMode]);
 
   useEffect(() => {
-    const newAssetSlug = activeField === 'from' ? tezosFrom?.[2] : tezosTo?.[2];
+    const newAssetSlug = activeField === 'from' ? sourceAssetInfo?.assetSlug : targetAssetInfo?.assetSlug;
     if (!newAssetSlug) return;
     const newAssetMetadata = getTokenMetadata(newAssetSlug);
     if (!newAssetMetadata) return;
@@ -402,7 +429,16 @@ export const TezosSwapForm: FC<TezosSwapFormProps> = ({
           assetSlug: newAssetSlug,
           amount: newAmount
         });
-  }, [activeField, getTokenMetadata, getValues, handleInputChange, handleOutputChange, isFiatMode, tezosFrom, tezosTo]);
+  }, [
+    activeField,
+    getTokenMetadata,
+    getValues,
+    handleInputChange,
+    handleOutputChange,
+    isFiatMode,
+    sourceAssetInfo?.assetSlug,
+    targetAssetInfo?.assetSlug
+  ]);
 
   const onSubmit = useCallback(async () => {
     if (formState.isSubmitting) return;
@@ -646,7 +682,6 @@ export const TezosSwapForm: FC<TezosSwapFormProps> = ({
   return (
     <FormProvider {...form}>
       {operation && (
-        // TODO: Redesign
         <div className="px-4 hidden">
           <OperationStatus network={network} typeTitle={t('swapNoun')} operation={operation} />
         </div>

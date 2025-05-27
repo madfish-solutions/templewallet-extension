@@ -4,12 +4,11 @@ import { BatchWalletOperation } from '@taquito/taquito/dist/types/wallet/batch-o
 
 import {
   EvmReviewData as GenericEvmReviewData,
-  TezosReviewData as GenericTezosReviewData,
-  ReviewData as GenericReviewData
+  TezosReviewData as GenericTezosReviewData
 } from 'lib/temple/front/estimation-data-providers';
 import { TempleChainKind } from 'temple/types';
 
-export interface EvmSwapReviewData {
+interface EvmSwapReviewData {
   needsApproval: boolean;
   neededApproval: boolean;
   onChainAllowance: bigint;
@@ -21,7 +20,7 @@ export interface EvmSwapReviewData {
   lifiStep: LiFiStep;
 }
 
-export interface TezosSwapReviewData {
+interface TezosSwapReviewData {
   opParams: WalletParamsWithKind[];
   cashbackInTkey?: string;
   onConfirm: SyncFn<BatchWalletOperation | undefined>;
@@ -34,18 +33,6 @@ export interface TezosSwapReviewData {
 export type EvmReviewData = GenericEvmReviewData<EvmSwapReviewData>;
 
 export type TezosReviewData = GenericTezosReviewData<TezosSwapReviewData>;
-
-export type ReviewData = GenericReviewData<EvmSwapReviewData | TezosSwapReviewData>;
-
-// export type EvmReviewData<T extends object> = T & {
-//   account: AccountForChain<TempleChainKind.EVM>;
-//   network: EvmChain;
-// };
-//
-// export type TezosReviewData<T extends object> = T & {
-//   account: AccountForChain<TempleChainKind.Tezos>;
-//   network: TezosChain;
-// };
 
 export type SwapReviewData = TezosReviewData | EvmReviewData;
 

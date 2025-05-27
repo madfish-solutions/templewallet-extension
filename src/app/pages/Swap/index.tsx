@@ -111,7 +111,6 @@ const Swap = memo<Props>(() => {
   const handleAssetSelect = useCallback(
     (slug: string) => {
       navigate({ pathname: '/swap' }, HistoryAction.Replace);
-      console.log('slug', slug);
       const selectedChainId = parseChainAssetSlug(slug)[1];
 
       if (activeField === 'from') {

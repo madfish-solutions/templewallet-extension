@@ -87,62 +87,18 @@ const ApproveModal = ({ data, onClose, onReview, setLoading }: ApproveModalProps
     toFilled: true,
     amount
   });
-  // const [estimationData, setEstimationData] = useState<EvmEstimationData | null>(null);
-  //
-  // useEffect(() => {
-  //   if (assetMetadata) {
-  //     const amount = atomsToTokens(
-  //       new BigNumber((BigInt(lifiStep.action.fromAmount) - onChainAllowance).toString()),
-  //       assetMetadata?.decimals ?? 0
-  //     ).toString();
-  //     console.log(
-  //       'basicEvmSendParams',
-  //       buildBasicEvmSendParams(
-  //         account.address as HexString,
-  //         lifiStep.estimate.approvalAddress as HexString,
-  //         assetMetadata,
-  //         amount
-  //       )
-  //     );
-  //
-  //     genericEstimate(network, {
-  //       ...buildBasicEvmSendParams(
-  //         account.address as HexString,
-  //         lifiStep.estimate.approvalAddress as HexString,
-  //         assetMetadata,
-  //         amount
-  //       ),
-  //       from: account.address as HexString
-  //     }).then(estimate => {
-  //       setEstimationData(estimate);
-  //     });
-  //   }
-  // }, [
-  //   account.address,
-  //   assetMetadata,
-  //   lifiStep.action.fromAmount,
-  //   lifiStep.estimate.approvalAddress,
-  //   network,
-  //   onChainAllowance
-  // ]);
 
   const request = useMemo(() => {
     return {
       to: lifiStep.action.fromToken.address as HexString,
-      from: lifiStep.transactionRequest?.from as HexString,
+      from: lifiStep.action.fromAddress as HexString,
       data: finalEvmTransaction?.data ? finalEvmTransaction.data : txData,
       value: toHex(BigInt(0)),
       maxFeePerGas: estimationData?.maxFeePerGas !== undefined ? toHex(estimationData.maxFeePerGas) : undefined,
       gas: estimationData?.gas !== undefined ? toHex(estimationData.gas) : undefined,
       gasPrice: estimationData?.gasPrice !== undefined ? toHex(estimationData.gasPrice) : undefined
     };
-  }, [
-    estimationData,
-    finalEvmTransaction,
-    lifiStep.action.fromToken.address,
-    lifiStep.transactionRequest?.from,
-    txData
-  ]);
+  }, [estimationData, finalEvmTransaction, lifiStep.action.fromToken.address, lifiStep.action.fromAddress, txData]);
 
   const payload = useMemo(() => {
     return {

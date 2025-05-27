@@ -12,7 +12,7 @@ import { FiatCurrencyOptionBase } from 'lib/fiat-currency';
 import { OneOfChains } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
 
-export interface SwapFormInputProps extends TestIDProps {
+interface SwapFormInputProps extends TestIDProps {
   inputName: 'input' | 'output';
   label: React.ReactNode;
   value: SwapInputValue;
