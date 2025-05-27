@@ -1,4 +1,4 @@
-import React, { FC } from 'react';
+import React, { FC, memo } from 'react';
 
 import { FadeTransition } from 'app/a11y/FadeTransition';
 import { SyncSpinner } from 'app/atoms';
@@ -112,64 +112,9 @@ const TokensTabBaseContent: FC<PropsWithChildren<TokensTabBaseContentProps>> = (
   const isTestnet = useTestnetModeEnabledSelector();
   const accountIsInitialized = useIsAccountInitializedSelector(accountId);
   const isSyncingInitializedState = useIsAccountInitializedLoadingSelector(accountId);
-  const {
-    cryptoExchangeModalOpened,
-    debitCreditCardModalOpened,
-    closeCryptoExchangeModal,
-    closeDebitCreditCardModal,
-    openCryptoExchangeModal,
-    openDebitCreditCardModal
-  } = useBuyModalsState();
 
   if (accountIsInitialized === false && !isSyncingInitializedState && !isTestnet) {
-    return (
-      <>
-        <p className="p-1 mb-1 text-font-description-bold text-grey-1">
-          <T id="depositTokensToGetStarted" />
-        </p>
-
-        <IllustratedOption
-          title={
-            <div className="flex gap-2 flex-wrap items-center">
-              <span>
-                <T id="buyWithFiat" />
-              </span>
-
-              <div className="flex gap-1 items-center">
-                {fiatOptionsIcons.map((Icon, index) => (
-                  <div
-                    className="w-[29px] h-5 px-1 flex items-center justify-center border-0.5 border-lines rounded"
-                    key={index}
-                  >
-                    <Icon />
-                  </div>
-                ))}
-              </div>
-            </div>
-          }
-          className="mb-2"
-          descriptionI18nKey="buyWithFiatDescription"
-          testID={HomeSelectors.buyWithFiatButton}
-          IllustrationAsset={BuyWithFiatIllustrationSrc}
-          onClick={openDebitCreditCardModal}
-        />
-
-        <IllustratedOption
-          title={<T id="crossChainSwap" />}
-          descriptionI18nKey="crossChainSwapDescription"
-          testID={HomeSelectors.crossChainSwapButton}
-          IllustrationAsset={CrossChainSwapIllustrationSrc}
-          onClick={openCryptoExchangeModal}
-        />
-
-        <BuyModals
-          cryptoExchangeModalOpened={cryptoExchangeModalOpened}
-          debitCreditCardModalOpened={debitCreditCardModalOpened}
-          closeCryptoExchangeModal={closeCryptoExchangeModal}
-          closeDebitCreditCardModal={closeDebitCreditCardModal}
-        />
-      </>
-    );
+    return <UninitializedAccountContent />;
   }
 
   if (
@@ -193,3 +138,63 @@ const TokensTabBaseContent: FC<PropsWithChildren<TokensTabBaseContentProps>> = (
     </>
   );
 };
+
+const UninitializedAccountContent = memo(() => {
+  const {
+    cryptoExchangeModalOpened,
+    debitCreditCardModalOpened,
+    closeCryptoExchangeModal,
+    closeDebitCreditCardModal,
+    openCryptoExchangeModal,
+    openDebitCreditCardModal
+  } = useBuyModalsState();
+
+  return (
+    <>
+      <p className="p-1 mb-1 text-font-description-bold text-grey-1">
+        <T id="depositTokensToGetStarted" />
+      </p>
+
+      <IllustratedOption
+        title={
+          <div className="flex gap-2 flex-wrap items-center">
+            <span>
+              <T id="buyWithFiat" />
+            </span>
+
+            <div className="flex gap-1 items-center">
+              {fiatOptionsIcons.map((Icon, index) => (
+                <div
+                  className="w-[29px] h-5 px-1 flex items-center justify-center border-0.5 border-lines rounded"
+                  key={index}
+                >
+                  <Icon />
+                </div>
+              ))}
+            </div>
+          </div>
+        }
+        className="mb-2"
+        descriptionI18nKey="buyWithFiatDescription"
+        testID={HomeSelectors.buyWithFiatButton}
+        IllustrationAsset={BuyWithFiatIllustrationSrc}
+        onClick={openDebitCreditCardModal}
+      />
+
+      <IllustratedOption
+        title={<T id="crossChainSwap" />}
+        descriptionI18nKey="crossChainSwapDescription"
+        testID={HomeSelectors.crossChainSwapButton}
+        IllustrationAsset={CrossChainSwapIllustrationSrc}
+        onClick={openCryptoExchangeModal}
+      />
+
+      <BuyModals
+        cryptoExchangeModalOpened={cryptoExchangeModalOpened}
+        debitCreditCardModalOpened={debitCreditCardModalOpened}
+        closeCryptoExchangeModal={closeCryptoExchangeModal}
+        closeDebitCreditCardModal={closeDebitCreditCardModal}
+      />
+    </>
+  );
+});
