@@ -1,9 +1,8 @@
 import React, { FC } from 'react';
 
 import { FadeTransition } from 'app/a11y/FadeTransition';
-import { Button, SyncSpinner } from 'app/atoms';
+import { SyncSpinner } from 'app/atoms';
 import { AddCustomTokenButton } from 'app/atoms/AddCustomTokenButton';
-import { ButtonProps } from 'app/atoms/Button';
 import { PageLoader } from 'app/atoms/Loader';
 import { ManageAssetsViewStateButtons } from 'app/atoms/ManageAssetsViewStateButtons';
 import {
