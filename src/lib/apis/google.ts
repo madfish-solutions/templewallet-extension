@@ -26,7 +26,6 @@ const googleDriveProxyApi = axios.create({
 });
 
 enum AuthEventType {
-  DoAuthRetry = 'doauthretry',
   AuthRequest = 'authrequest',
   AuthError = 'autherror',
   Load = 'load'
@@ -44,12 +43,10 @@ export const getGoogleAuthToken = async (
   isRetry: boolean
 ) =>
   new Promise<string>((res, rej) => {
-    const loadFailedTimeout = isRetry
-      ? undefined
-      : setTimeout(() => {
-          rej(new Error('Google auth iframe load failed'));
-          finalize();
-        }, 20000);
+    const loadFailedTimeout = setTimeout(() => {
+      rej(new Error('Google auth iframe load failed'));
+      finalize();
+    }, 20000);
     const clearLoadTimeout = () => void (loadFailedTimeout !== undefined && clearTimeout(loadFailedTimeout));
 
     const finalize = () => {
@@ -57,11 +54,16 @@ export const getGoogleAuthToken = async (
       clearLoadTimeout();
     };
 
-    async function messagesListener(e: MessageEvent) {
+    function messagesListener(e: MessageEvent) {
       switch (e.data?.type) {
         case AuthEventType.AuthRequest:
-          res(e.data.content);
+          const { access_token, scope } = e.data.response;
           finalize();
+          if (scope.includes('https://www.googleapis.com/auth/drive.appdata')) {
+            res(access_token);
+          } else {
+            getGoogleAuthToken(googleAuthIframeRef, true).then(res).catch(rej);
+          }
           break;
         case AuthEventType.AuthError:
           rej(new Error(e.data.message));
@@ -74,17 +76,17 @@ export const getGoogleAuthToken = async (
     }
 
     window.addEventListener('message', messagesListener);
-    const googleAuthIframeWindow = googleAuthIframeRef.current?.contentWindow;
+    const googleAuthIframe = googleAuthIframeRef.current;
 
-    if (!googleAuthIframeWindow) {
-      rej(new Error('Google auth iframe window is not available'));
+    if (!googleAuthIframe) {
+      rej(new Error('Google auth iframe is not available'));
       finalize();
 
       return;
     }
 
     if (isRetry) {
-      googleAuthIframeWindow.postMessage({ type: AuthEventType.DoAuthRetry }, '*');
+      googleAuthIframe.src += '';
     }
   });
 
