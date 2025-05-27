@@ -1,6 +1,7 @@
 import React, { memo, useMemo, MouseEvent, useCallback, RefObject } from 'react';
 
 import { getSlugFromChainSlug } from 'app/hooks/listing-logic/utils';
+import { TokensListView } from 'app/pages/Send/modals/SelectAsset/tokens-list-view';
 import { useEvmTokensMetadataRecordSelector } from 'app/store/evm/tokens-metadata/selectors';
 import { EvmTokenListItem, TezosTokenListItem } from 'app/templates/TokenListItem';
 import { EVM_TOKEN_SLUG, TEZ_TOKEN_SLUG } from 'lib/assets/defaults';
@@ -13,8 +14,6 @@ import { useMemoWithCompare } from 'lib/ui/hooks';
 import { TokenListItemElement } from 'lib/ui/tokens-list';
 import { useAllEvmChains, useAllTezosChains, useEnabledEvmChains, useEnabledTezosChains } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
-
-import { TokensListView } from './tokens-list-view';
 
 interface Props {
   accountTezAddress: string;
