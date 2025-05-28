@@ -42,7 +42,10 @@ export const OnRampOverlay = memo(() => {
     return wertCommodityEvmChainIdMap[chainId]?.commodity;
   }, [onRampPossibility]);
 
-  const close = useCallback(() => void dispatch(setOnRampPossibilityAction(false)), []);
+  const close = useCallback(() => {
+    setIsLinkLoading(false);
+    dispatch(setOnRampPossibilityAction(false));
+  }, []);
 
   const handleRedirect = useCallback(
     async (amount?: number) => {
@@ -58,11 +61,10 @@ export const OnRampOverlay = memo(() => {
         if (!accountAddress) throw new Error();
         const url = await getWertLink(accountAddress, onRampPossibility, amount);
 
+        close();
+
         await browser.tabs.create({ url });
       } catch {
-        // do nothing
-      } finally {
-        setIsLinkLoading(false);
         close();
       }
     },
