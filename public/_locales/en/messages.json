@@ -1464,8 +1464,13 @@
       }
     }
   },
-  "insufficientTezBalance": {
-    "message": "Insufficient TEZ balance"
+  "insufficientTokenBalance": {
+    "message": "Insufficient $tokenSymbol$ balance",
+    "placeholders": {
+      "tokenSymbol": {
+        "content": "$1"
+      }
+    }
   },
   "notEnoughFunds": {
     "message": "Not enough funds"
@@ -3771,7 +3776,7 @@
       }
     }
   },
-  "topupTezosBalance": {
+  "topupBalanceDescription": {
     "message": "Top up your balance instantly with fiat and remove barriers to using blockchain"
   },
   "customAmount": {

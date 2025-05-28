@@ -18,6 +18,7 @@ import {
 } from 'app/store/settings/actions';
 import { toastError } from 'app/toaster';
 import { AnalyticsEventCategory, useAnalytics } from 'lib/analytics';
+import { TEZOS_CHAIN_ASSET_SLUG } from 'lib/apis/wert';
 import {
   DEFAULT_PASSWORD_INPUT_PLACEHOLDER,
   PRIVACY_POLICY_URL,
@@ -128,7 +129,7 @@ export const CreatePasswordForm = memo<CreatePasswordFormProps>(({ seedPhrase: s
           await setShouldBackupMnemonic(true);
           setMnemonicToBackup(seedPhrase);
         }
-        dispatch(setOnRampPossibilityAction(!seedPhraseToImport));
+        !seedPhraseToImport && dispatch(setOnRampPossibilityAction(TEZOS_CHAIN_ASSET_SLUG));
         navigate('/loading');
       } catch (err: any) {
         console.error(err);

@@ -39,7 +39,8 @@ export const NewsletterOverlay = memo(() => {
 
   const { ready } = useTempleClient();
   const shouldShowNewsletterModal = useShouldShowNewsletterModalSelector();
-  const isOnRampPossibility = useOnRampPossibilitySelector();
+  const onRampPossibility = useOnRampPossibilitySelector();
+  const isOnRampPossibility = Boolean(onRampPossibility);
 
   const validationResolver = useYupValidationResolver<FormValues>(validationSchema);
 

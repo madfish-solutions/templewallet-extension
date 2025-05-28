@@ -20,6 +20,7 @@ import OperationStatus from 'app/templates/OperationStatus';
 import { toastError } from 'app/toaster';
 import { setTestID, useFormAnalytics } from 'lib/analytics';
 import { fetchRoute3SwapParams } from 'lib/apis/route3/fetch-route3-swap-params';
+import { TEZOS_CHAIN_ASSET_SLUG } from 'lib/apis/wert';
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
 import { KNOWN_TOKENS_SLUGS } from 'lib/assets/known-tokens';
 import { useGetTezosAccountTokenOrGasBalanceWithDecimals, useTezosAssetBalance } from 'lib/balances/hooks';
@@ -352,7 +353,7 @@ export const SwapForm = memo<Props>(({ account, slippageTolerance, onReview }) =
       inputValue.assetSlug === TEZ_TOKEN_SLUG &&
       getTezosBalance(TEZOS_MAINNET_CHAIN_ID, TEZ_TOKEN_SLUG)?.lte(EXCHANGE_XTZ_RESERVE)
     ) {
-      dispatch(setOnRampPossibilityAction(true));
+      dispatch(setOnRampPossibilityAction(TEZOS_CHAIN_ASSET_SLUG));
 
       return;
     }

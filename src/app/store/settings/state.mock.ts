@@ -6,7 +6,7 @@ import { SettingsState } from './state';
 export const mockSettingsState = mockPersistedState<SettingsState>({
   isAnalyticsEnabled: true,
   userId: '0',
-  isOnRampPossibility: false,
+  onRampPossibility: false,
   isConversionTracked: false,
   pendingReactivateAds: false,
   adsImpressionsLinked: false,

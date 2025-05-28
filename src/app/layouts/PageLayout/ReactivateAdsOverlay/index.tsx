@@ -35,7 +35,8 @@ export const ReactivateAdsOverlay = memo<Props>(({ onClose }) => {
 
   const { onboardingCompleted } = useOnboardingProgress();
   const shouldShowNewsletterModal = useShouldShowNewsletterModalSelector();
-  const isOnRampPossibility = useOnRampPossibilitySelector();
+  const onRampPossibility = useOnRampPossibilitySelector();
+  const isOnRampPossibility = Boolean(onRampPossibility);
   const { pathname } = useLocation();
 
   const close = onClose ?? (() => void dispatch(setPendingReactivateAdsAction(false)));

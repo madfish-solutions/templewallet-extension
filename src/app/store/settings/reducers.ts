@@ -20,7 +20,7 @@ const settingsReducer = createReducer<SettingsState>(settingsInitialState, build
   });
 
   builder.addCase(setOnRampPossibilityAction, (state, { payload }) => {
-    state.isOnRampPossibility = payload;
+    state.onRampPossibility = payload;
   });
 
   builder.addCase(setConversionTrackedAction, state => {

@@ -2,28 +2,19 @@ import React, { FC, FunctionComponent, SVGProps } from 'react';
 
 import clsx from 'clsx';
 
-import { Anchor } from 'app/atoms';
+import { Button } from 'app/atoms';
 import { TestIDProps } from 'lib/analytics';
 
 interface OnRumpSmileButtonProps extends TestIDProps {
-  href: string;
   SmileIcon: FunctionComponent<SVGProps<SVGSVGElement>>;
   amount: number;
   accentColors?: boolean;
-  onClick?: () => void;
+  onClick?: EmptyFn;
 }
 
-export const OnRampSmileButton: FC<OnRumpSmileButtonProps> = ({
-  href,
-  SmileIcon,
-  amount,
-  accentColors,
-  onClick,
-  testID
-}) => {
+export const OnRampSmileButton: FC<OnRumpSmileButtonProps> = ({ SmileIcon, amount, accentColors, onClick, testID }) => {
   return (
-    <Anchor
-      href={href}
+    <Button
       className={clsx(
         'flex flex-col py-[18px] flex-1 ',
         'justify-center items-center',
@@ -39,6 +30,6 @@ export const OnRampSmileButton: FC<OnRumpSmileButtonProps> = ({
       <p className={clsx('text-base font-rubik font-medium mt-1', accentColors ? 'text-white' : 'text-primary')}>
         {amount}$
       </p>
-    </Anchor>
+    </Button>
   );
 };
