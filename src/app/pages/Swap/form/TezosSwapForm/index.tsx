@@ -58,10 +58,10 @@ import {
 import { useAccountForTezos, useTezosBlockLevel, useTezosMainnetChain } from 'temple/front';
 import { getTezosToolkitWithSigner } from 'temple/front/tezos';
 
+// Maximum number of DEXes allowed in a cashback swap route.
+// This is used when performing an additional swap via the 3Route contract
+// to obtain TKEY tokens for user cashback rewards.
 const CASHBACK_SWAP_MAX_DEXES = 3;
-// Actually, at most 2 dexes for each of the underlying SIRS-> tzBTC-> X swap and SIRS -> XTZ -> X swap
-const MAIN_SIRS_SWAP_MAX_DEXES = 4;
-const MAIN_NON_SIRS_SWAP_MAX_DEXES = 3;
 
 interface TezosSwapFormProps {
   slippageTolerance: number;
@@ -107,15 +107,6 @@ export const TezosSwapForm: FC<TezosSwapFormProps> = ({
   const getTezosBalance = useGetTezosAccountTokenOrGasBalanceWithDecimals(publicKeyHash);
 
   const formAnalytics = useFormAnalytics('SwapForm');
-
-  // const tezosFrom = useMemo(
-  //   () => (selectedChainAssets.from ? parseChainAssetSlug(selectedChainAssets.from) : null),
-  //   [selectedChainAssets.from]
-  // );
-  // const tezosTo = useMemo(
-  //   () => (selectedChainAssets.to ? parseChainAssetSlug(selectedChainAssets.to) : null),
-  //   [selectedChainAssets.to]
-  // );
 
   const sourceAssetInfo = useMemo<ChainAssetInfo | null>(() => {
     if (!selectedChainAssets.from) return null;
@@ -203,7 +194,7 @@ export const TezosSwapForm: FC<TezosSwapFormProps> = ({
     let hopLength = 0;
 
     if (isLiquidityBakingParamsResponse(swapParams.data)) {
-      hopLength = (swapParams.data.tzbtcHops?.length || 0) + (swapParams.data.xtzHops?.length || 0);
+      hopLength = (swapParams.data.tzbtcHops?.length || 0) + (swapParams.data.xtzHops?.length || 0) + 1;
     } else if ('hops' in swapParams.data) {
       hopLength = swapParams.data.hops?.length || 0;
     }
@@ -224,15 +215,12 @@ export const TezosSwapForm: FC<TezosSwapFormProps> = ({
 
       const isInputTokenTempleToken = inputAssetSlug === KNOWN_TOKENS_SLUGS.TEMPLE;
       const isOutputTokenTempleToken = outputAssetSlug === KNOWN_TOKENS_SLUGS.TEMPLE;
-      const isSirsSwap = inputAssetSlug === KNOWN_TOKENS_SLUGS.SIRS || outputAssetSlug === KNOWN_TOKENS_SLUGS.SIRS;
       const isSwapAmountMoreThreshold = inputAmountInUsd.isGreaterThanOrEqualTo(SWAP_THRESHOLD_TO_GET_CASHBACK);
-      const mainSwapMaxDexes = isSirsSwap ? MAIN_SIRS_SWAP_MAX_DEXES : MAIN_NON_SIRS_SWAP_MAX_DEXES;
 
       return {
         isInputTokenTempleToken,
         isOutputTokenTempleToken,
-        isSwapAmountMoreThreshold,
-        mainSwapMaxDexes
+        isSwapAmountMoreThreshold
       };
     },
     [allUsdToTokenRates]
@@ -280,7 +268,6 @@ export const TezosSwapForm: FC<TezosSwapFormProps> = ({
 
       const route3FromToken = getRoute3TokenBySlug(route3Tokens, input.assetSlug);
       const route3ToToken = getRoute3TokenBySlug(route3Tokens, output.assetSlug);
-      const { mainSwapMaxDexes } = getSwapWithFeeParams(input, output);
 
       dispatch(
         loadSwapParamsAction.submit({
@@ -288,20 +275,11 @@ export const TezosSwapForm: FC<TezosSwapFormProps> = ({
           toSymbol: route3ToToken?.symbol ?? '',
           toTokenDecimals: route3ToToken?.decimals ?? 0,
           amount: atomsToTokens(amount, route3FromToken?.decimals ?? 0).toFixed(),
-          dexesLimit: mainSwapMaxDexes,
           rpcUrl: tezos.rpc.getRpcUrl()
         })
       );
     },
-    [
-      getTokenMetadata,
-      watch,
-      parseFiatValueToAssetAmount,
-      inputAssetMetadata.decimals,
-      route3Tokens,
-      getSwapWithFeeParams,
-      tezos.rpc
-    ]
+    [getTokenMetadata, inputAssetMetadata.decimals, parseFiatValueToAssetAmount, route3Tokens, tezos.rpc, watch]
   );
 
   useEffect(() => {

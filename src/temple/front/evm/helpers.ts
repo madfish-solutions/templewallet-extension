@@ -32,7 +32,6 @@ export function useEvmAddressByDomainName(domainName: string) {
     async () => {
       const ensCapableChainsReadOnlyEvms = getEnsCapableEnabledChainsReadOnlyEvms(enabledEvmChains);
       const results = await Promise.allSettled(
-        // @ts-expect-error
         ensCapableChainsReadOnlyEvms.map(evm => evm.getEnsAddress({ name: normalize(domainName) }))
       );
 

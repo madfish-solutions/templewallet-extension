@@ -4,7 +4,8 @@ import { Log, OneOf, WatchEventParameters } from 'viem';
 import { erc1155TransferBatchEvent, erc1155TransferSingleEvent } from 'lib/abi/erc1155';
 import { erc20TransferEvent } from 'lib/abi/erc20';
 import { erc721TransferEvent } from 'lib/abi/erc721';
-import { getReadOnlyEvm } from 'temple/evm';
+import { getViemPublicClient } from 'temple/evm';
+import { EvmNetworkEssentials } from 'temple/networks';
 
 import { EvmRpcRequestsExecutor, RequestAlreadyPendingError } from '../../utils/evm-rpc-requests-executor';
 import { EvmHttpRpcListener } from '../evm-http-rpc-listener';
@@ -17,7 +18,7 @@ export type TransferEvent = OneOf<
 >;
 
 interface TransfersSubscriptionPayload {
-  rpcUrl: string;
+  network: EvmNetworkEssentials;
   args: WatchEventParameters<TransferEvent>;
 }
 
@@ -27,7 +28,7 @@ class EvmTransferEventsSubscriptionExecutor extends EvmRpcRequestsExecutor<
   string
 > {
   protected getRequestsPoolKey(payload: TransfersSubscriptionPayload) {
-    return payload.rpcUrl;
+    return payload.network.rpcBaseURL;
   }
 
   protected requestsAreSame(a: TransfersSubscriptionPayload, b: TransfersSubscriptionPayload) {
@@ -35,7 +36,7 @@ class EvmTransferEventsSubscriptionExecutor extends EvmRpcRequestsExecutor<
   }
 
   protected async getResult(payload: TransfersSubscriptionPayload) {
-    const client = getReadOnlyEvm(payload.rpcUrl);
+    const client = getViemPublicClient(payload.network);
 
     return client.watchEvent(payload.args);
   }
@@ -44,8 +45,8 @@ class EvmTransferEventsSubscriptionExecutor extends EvmRpcRequestsExecutor<
 const evmTransferEventsSubscriptionExecutor = new EvmTransferEventsSubscriptionExecutor();
 
 export abstract class EvmTransferEventsListener<T extends TransferEvent> extends EvmHttpRpcListener<[string]> {
-  constructor(protected httpRpcUrl: string, protected account: HexString, protected event: T) {
-    super(httpRpcUrl);
+  constructor(protected network: EvmNetworkEssentials, protected account: HexString, protected event: T) {
+    super(network);
   }
 
   protected abstract getAssetsSlugs(log: Log<bigint, number, false, T>): string[];
@@ -62,7 +63,7 @@ export abstract class EvmTransferEventsListener<T extends TransferEvent> extends
       eventsArgs.map(args =>
         evmTransferEventsSubscriptionExecutor
           .executeRequest({
-            rpcUrl: this.httpRpcUrl,
+            network: this.network,
             args: {
               onLogs: logs => logs.forEach(log => this.handleLog(log as Log<bigint, number, false, T>)),
               event: this.event,

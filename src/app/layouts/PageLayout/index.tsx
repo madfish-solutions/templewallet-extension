@@ -153,6 +153,7 @@ const ContentPaper: FC<ContentPaperProps> = ({
 }) => {
   const appEnv = useAppEnv();
   const rootRef = useRef<HTMLDivElement>(null);
+  const testnetModeEnabled = useTestnetModeEnabledSelector();
 
   useScrollEdgesVisibility(
     rootRef,
@@ -175,7 +176,7 @@ const ContentPaper: FC<ContentPaperProps> = ({
           className
         )}
       >
-        <FadeTransition>{children}</FadeTransition>
+        <FadeTransition className={testnetModeEnabled ? '!h-[unset] flex-grow' : undefined}>{children}</FadeTransition>
       </ContentPaperNode>
     </ContentPaperRefContext.Provider>
   );

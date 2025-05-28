@@ -17,12 +17,14 @@ interface ManageUrlEntitiesItemProps<T> {
   isActive: boolean;
   onClick: SyncFn<T, void>;
   testID: string;
+  hideDefaultEntityUrl: boolean;
 }
 
 export const ManageUrlEntitiesItem = <T extends UrlEntityBase>({
   item,
   isActive,
   getEntityUrl,
+  hideDefaultEntityUrl,
   onClick,
   testID
 }: ManageUrlEntitiesItemProps<T>) => {
@@ -39,7 +41,9 @@ export const ManageUrlEntitiesItem = <T extends UrlEntityBase>({
           <ShortenedTextWithTooltip className="text-font-description">
             {nameI18nKey ? t(nameI18nKey) : name}
           </ShortenedTextWithTooltip>
-          <ShortenedTextWithTooltip className="text-font-small text-grey-1">{url}</ShortenedTextWithTooltip>
+          <ShortenedTextWithTooltip className="text-font-small text-grey-1">
+            {hideDefaultEntityUrl && item.default ? 'Default' : url}
+          </ShortenedTextWithTooltip>
         </div>
       }
       wrapCellName={false}

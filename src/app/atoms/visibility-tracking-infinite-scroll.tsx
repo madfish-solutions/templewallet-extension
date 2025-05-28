@@ -83,7 +83,8 @@ export const useIsItemVisible = (index: number | undefined) => {
   const [isVisible, setIsVisible] = useState(true);
   const tokensTabBaseContext = useInfiniteScrollVisibilityContext();
   useEffect(() => {
-    if (index != null && tokensTabBaseContext && navigator.userAgent.match(/firefox/i)) {
+    // `constate` sets empty object as default context value but let's add one more check for the safety
+    if (index != null && tokensTabBaseContext?.listItemsVisibility && navigator.userAgent.match(/firefox/i)) {
       const { top, bottom } = tokensTabBaseContext.listItemsVisibility;
       setIsVisible(index >= top && index <= bottom);
     } else {

@@ -9,10 +9,9 @@ import { DEFAULT_EVM_CHAINS_SPECS, EvmChainSpecs } from 'lib/temple/chains-specs
 import { getRandomColor } from 'lib/ui/colors';
 import { generateEntityNameFromUrl } from 'lib/utils';
 import { serializeError } from 'lib/utils/serialize-error';
-import { getReadOnlyEvm } from 'temple/evm';
+import { getViemPublicClient } from 'temple/evm';
 import { EVMErrorCodes, evmRpcMethodsNames } from 'temple/evm/constants';
 import { estimate } from 'temple/evm/estimate';
-import { getActiveEvmChainsRpcUrls } from 'temple/evm/evm-chains-rpc-urls';
 import { ChangePermissionsPayload, ErrorWithCode } from 'temple/evm/types';
 import { parseTransactionRequest, serializeBigints } from 'temple/evm/utils';
 import { DEFAULT_EVM_CURRENCY, EVM_DEFAULT_NETWORKS } from 'temple/networks';
@@ -36,6 +35,7 @@ import {
   assertDAppChainId,
   assertiveGetChainRpcURLs,
   checkDApp,
+  getActiveRpcBaseURL,
   getAppMeta,
   getDApp,
   getGasPrice,
@@ -162,8 +162,8 @@ export const handleEvmRpcRequest = async (origin: string, payload: any, chainId:
       return await makeChainIdRequest(requestChainId);
     }
 
-    const rpcUrls = await assertiveGetChainRpcURLs(requestChainId);
-    const evmToolkit = getReadOnlyEvm(rpcUrls);
+    const rpcBaseURL = await getActiveRpcBaseURL(requestChainId);
+    const evmToolkit = getViemPublicClient({ rpcBaseURL, chainId: requestChainId });
 
     return await evmToolkit.request(payload);
   } catch (err) {
@@ -189,10 +189,9 @@ export const sendEvmTransactionAfterConfirm = async (
   await assertDAppChainId(origin, chainId);
   const id = nanoid();
   const parsedChainId = Number(chainId);
-  const rpcUrls = await assertiveGetChainRpcURLs(parsedChainId);
-  const rpcBaseURL = (await getActiveEvmChainsRpcUrls())[parsedChainId] ?? rpcUrls[0];
+  const rpcBaseURL = await getActiveRpcBaseURL(parsedChainId);
   let modifiedReq = req;
-  const eip1559Supported = await networkSupportsEIP1559(rpcBaseURL);
+  const eip1559Supported = await networkSupportsEIP1559({ rpcBaseURL, chainId: parsedChainId });
   try {
     if (eip1559Supported && (req.type === 'legacy' || (req.gasPrice && !req.authorizationList && !req.accessList))) {
       const { gasPrice, ...restProps } = req;
@@ -271,19 +270,7 @@ export const sendEvmTransactionAfterConfirm = async (
   let error: string | null | undefined;
 
   try {
-    const estimation = await estimate(
-      {
-        rpcUrl: rpcBaseURL,
-        chain: {
-          id: parsedChainId,
-          rpcUrls: { default: { http: [rpcBaseURL] } },
-          // The two fields below are just for type compatibility
-          name: '',
-          nativeCurrency: DEFAULT_EVM_CURRENCY
-        }
-      },
-      modifiedReq
-    );
+    const estimation = await estimate({ rpcBaseURL, chainId: parsedChainId }, modifiedReq);
 
     if (isReqGasPriceLowerThanEstimated(modifiedReq, estimation)) {
       modifiedReq.gasPrice = estimation.gasPrice;
@@ -296,7 +283,10 @@ export const sendEvmTransactionAfterConfirm = async (
   } catch (e) {
     console.error(e);
     try {
-      estimationData = { gasPrice: await getGasPrice(rpcBaseURL), type: eip1559Supported ? 'eip1559' : 'legacy' };
+      estimationData = {
+        gasPrice: await getGasPrice({ rpcBaseURL, chainId: parsedChainId }),
+        type: eip1559Supported ? 'eip1559' : 'legacy'
+      };
     } catch (e) {
       console.error(e);
     }

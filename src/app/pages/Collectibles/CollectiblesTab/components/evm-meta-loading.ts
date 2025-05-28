@@ -9,6 +9,7 @@ import {
 } from 'app/store/evm/collectibles-metadata/actions';
 import { useEvmCollectiblesMetadataRecordSelector } from 'app/store/evm/collectibles-metadata/selectors';
 import { useEvmCollectiblesMetadataLoadingSelector } from 'app/store/evm/selectors';
+import { useTestnetModeEnabledSelector } from 'app/store/settings/selectors';
 import { getEvmCollectiblesMetadata } from 'lib/apis/temple/endpoints/evm';
 import { isSupportedChainId } from 'lib/apis/temple/endpoints/evm/api.utils';
 import { fetchEvmCollectiblesMetadataFromChain } from 'lib/evm/on-chain/metadata';
@@ -20,6 +21,7 @@ import { useEnabledEvmChains } from 'temple/front';
 export const useEvmCollectiblesMetadataLoading = (publicKeyHash: HexString) => {
   const evmChains = useEnabledEvmChains();
   const isLoading = useEvmCollectiblesMetadataLoadingSelector();
+  const isTestnetMode = useTestnetModeEnabledSelector();
 
   const storedCollectiblesRecord = useEvmStoredCollectiblesRecordSelector();
   const collectiblesMetadataRecord = useEvmCollectiblesMetadataRecordSelector();
@@ -48,7 +50,7 @@ export const useEvmCollectiblesMetadataLoading = (publicKeyHash: HexString) => {
 
         dispatch(setEvmCollectiblesMetadataLoading(true));
 
-        if (isSupportedChainId(chainId))
+        if (isSupportedChainId(chainId) && !isTestnetMode)
           try {
             return await getEvmCollectiblesMetadata(publicKeyHash, chainId).then(data => {
               dispatch(processLoadedEvmCollectiblesMetadataAction({ chainId, data }));
@@ -63,5 +65,5 @@ export const useEvmCollectiblesMetadataLoading = (publicKeyHash: HexString) => {
         );
       })
     ).then(() => void dispatch(setEvmCollectiblesMetadataLoading(false)));
-  }, [evmChains, storedCollectiblesRecord, publicKeyHash]);
+  }, [evmChains, storedCollectiblesRecord, publicKeyHash, isTestnetMode]);
 };

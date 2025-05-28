@@ -4,7 +4,7 @@ import { isTruthy } from 'lib/utils';
 
 import { EvmAssetStandard } from './evm/types';
 import type { TokenMetadata, EvmAssetMetadataBase, EvmCollectibleMetadata } from './metadata/types';
-import { ETHEREUM_MAINNET_CHAIN_ID, ETH_SEPOLIA_CHAIN_ID, OTHER_COMMON_MAINNET_CHAIN_IDS } from './temple/types';
+import { ETHEREUM_MAINNET_CHAIN_ID, ETH_SEPOLIA_CHAIN_ID, COMMON_MAINNET_CHAIN_IDS } from './temple/types';
 
 type TcInfraMediaSize = 'small' | 'medium' | 'large' | 'raw';
 type ObjktMediaTail = 'display' | 'artifact' | 'thumb288';
@@ -175,12 +175,12 @@ const buildIpfsMediaUriByInfo = (
 const chainIdsChainNamesRecord: Record<number, string> = {
   [ETHEREUM_MAINNET_CHAIN_ID]: 'ethereum',
   [ETH_SEPOLIA_CHAIN_ID]: 'sepolia',
-  [OTHER_COMMON_MAINNET_CHAIN_IDS.polygon]: 'polygon',
-  [OTHER_COMMON_MAINNET_CHAIN_IDS.bsc]: 'smartchain',
+  [COMMON_MAINNET_CHAIN_IDS.polygon]: 'polygon',
+  [COMMON_MAINNET_CHAIN_IDS.bsc]: 'smartchain',
   97: 'bnbt',
-  [OTHER_COMMON_MAINNET_CHAIN_IDS.avalanche]: 'avalanchex',
+  [COMMON_MAINNET_CHAIN_IDS.avalanche]: 'avalanchex',
   43113: 'avalanchecfuji',
-  [OTHER_COMMON_MAINNET_CHAIN_IDS.optimism]: 'optimism',
+  [COMMON_MAINNET_CHAIN_IDS.optimism]: 'optimism',
   42170: 'arbitrumnova',
   1313161554: 'aurora',
   81457: 'blast',
@@ -216,8 +216,8 @@ const chainIdsChainNamesRecord: Record<number, string> = {
   100: 'xdai',
   324: 'zksync',
   787: 'acalaevm',
-  [OTHER_COMMON_MAINNET_CHAIN_IDS.arbitrum]: 'arbitrum',
-  [OTHER_COMMON_MAINNET_CHAIN_IDS.base]: 'base',
+  [COMMON_MAINNET_CHAIN_IDS.arbitrum]: 'arbitrum',
+  [COMMON_MAINNET_CHAIN_IDS.base]: 'base',
   321: 'kcc',
   4200: 'merlin',
   82: 'meter',
@@ -228,7 +228,7 @@ const chainIdsChainNamesRecord: Record<number, string> = {
   7000: 'zetachain',
   48900: 'zircuit',
   32769: 'zilliqa',
-  [OTHER_COMMON_MAINNET_CHAIN_IDS.etherlink]: 'etherlink'
+  [COMMON_MAINNET_CHAIN_IDS.etherlink]: 'etherlink'
 };
 
 const rainbowBaseUrl = 'https://raw.githubusercontent.com/rainbow-me/assets/master/blockchains/';

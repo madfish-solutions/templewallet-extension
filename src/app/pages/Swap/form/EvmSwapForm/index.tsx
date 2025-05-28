@@ -26,7 +26,7 @@ import { getAssetSymbol, useGetEvmChainAssetMetadata } from 'lib/metadata';
 import { atomsToTokens, tokensToAtoms } from 'lib/temple/helpers';
 import { isEvmNativeTokenSlug } from 'lib/utils/evm.utils';
 import { toBigInt, ZERO } from 'lib/utils/numbers';
-import { getReadOnlyEvmForNetwork } from 'temple/evm';
+import { getViemPublicClient } from 'temple/evm';
 import { useAccountForEvm } from 'temple/front';
 import { useEvmChainByChainId } from 'temple/front/chains';
 
@@ -327,7 +327,7 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
     }
   }, [handleInputChange, inputAssetPrice, inputTokenMaxAmount, inputValue.assetSlug, isFiatMode]);
 
-  const evmToolkit = useMemo(() => getReadOnlyEvmForNetwork(network), [network]);
+  const evmToolkit = useMemo(() => getViemPublicClient(network), [network]);
 
   useEffect(() => {
     const newAssetSlug = activeField === 'from' ? sourceAssetInfo?.assetSlug : targetAssetInfo?.assetSlug;
