@@ -1,6 +1,5 @@
 import React, { memo, useCallback, useMemo, useState } from 'react';
 
-import classNames from 'clsx';
 import browser from 'webextension-polyfill';
 
 import { Anchor, IconBase } from 'app/atoms';
@@ -74,9 +73,9 @@ export const OnRampOverlay = memo(() => {
   if (!isOnRampPossibility) return null;
 
   return (
-    <div className="fixed inset-0 z-overlay-promo flex flex-col items-center justify-center bg-black bg-opacity-10 backdrop-blur-xs">
-      <div className="w-88 h-88 mx-auto relative flex flex-col text-center bg-white shadow-lg bg-no-repeat rounded-md p-4">
-        <div className="ml-auto">
+    <div className="fixed inset-0 z-overlay-promo flex flex-col items-center justify-center bg-black bg-opacity-15 backdrop-blur-xs">
+      <div className="w-88 h-[19.375rem] relative flex flex-col text-center bg-white shadow-bottom rounded-8 px-3 py-4">
+        <div className="absolute top-3 right-3">
           <CloseButton onClick={close} />
         </div>
 
@@ -84,15 +83,15 @@ export const OnRampOverlay = memo(() => {
           <PageLoader stretch />
         ) : (
           <>
-            <h1 className="text-base font-semibold text-text my-1">
-              <T id="insufficientTokenBalance" substitutions={[tokenSymbol]} />
+            <h1 className="text-font-regular-bold my-1">
+              <T id="insufficientBalanceForGas" substitutions={[tokenSymbol]} />
             </h1>
 
-            <p className="text-sm text-grey-1 mb-1">
+            <p className="text-font-medium text-grey-1 mb-1">
               <T id="topupBalanceDescription" />
             </p>
 
-            <div className="flex flex-row items-center my-4 gap-x-2">
+            <div className="flex flex-row justify-center items-center py-4 gap-x-2">
               <OnRampSmileButton
                 SmileIcon={SmileIcon}
                 amount={50}
@@ -115,24 +114,19 @@ export const OnRampOverlay = memo(() => {
             </div>
 
             <Anchor
-              className={classNames(
-                'my-0.5 font-inter text-secondary',
-                'text-xs font-semibold',
-                'flex items-center',
-                'hover:secondary-hover cursor-pointer self-center'
-              )}
+              className="flex items-center self-center text-secondary text-font-description-bold cursor-pointer"
               onClick={() => handleRedirect()}
               testID={OnRampOverlaySelectors.customAmountButton}
             >
               <T id="customAmount" />
-              <IconBase Icon={OutLinkIcon} size={16} className="text-secondary" />
+              <IconBase Icon={OutLinkIcon} className="text-secondary" />
             </Anchor>
 
-            <p className="text-xxxs mt-3 mb-2 text-grey-1">
+            <p className="text-font-small mt-3 mb-2 text-grey-1">
               <T id="thirdParty" />
             </p>
 
-            <div className="mb-1 gap-x-2 flex items-center self-center">
+            <div className="flex items-center self-center mb-1 gap-x-2">
               <VisaIcon />
               <MastercardIcon />
               <ApplePayIcon />

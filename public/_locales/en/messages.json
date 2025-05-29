@@ -1464,8 +1464,8 @@
       }
     }
   },
-  "insufficientTokenBalance": {
-    "message": "Insufficient $tokenSymbol$ balance",
+  "insufficientBalanceForGas": {
+    "message": "Insufficient $tokenSymbol$ for gas",
     "placeholders": {
       "tokenSymbol": {
         "content": "$1"

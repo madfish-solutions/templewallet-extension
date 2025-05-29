@@ -16,7 +16,7 @@ export const OnRampSmileButton: FC<OnRumpSmileButtonProps> = ({ SmileIcon, amoun
   return (
     <Button
       className={clsx(
-        'flex flex-col py-[18px] flex-1 ',
+        'flex flex-col w-24 h-23',
         'justify-center items-center',
         'rounded-10 shadow-md',
         'transition ease-in-out duration-200',
@@ -26,10 +26,8 @@ export const OnRampSmileButton: FC<OnRumpSmileButtonProps> = ({ SmileIcon, amoun
       onClick={onClick}
       testID={testID}
     >
-      <SmileIcon className="w-7 h-auto" />
-      <p className={clsx('text-base font-rubik font-medium mt-1', accentColors ? 'text-white' : 'text-primary')}>
-        {amount}$
-      </p>
+      <SmileIcon className="w-7 h-7" />
+      <p className={clsx('text-font-num-bold-16 mt-1', accentColors ? 'text-white' : 'text-primary')}>{amount}$</p>
     </Button>
   );
 };
