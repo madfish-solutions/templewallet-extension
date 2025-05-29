@@ -9,7 +9,7 @@ import { useWillUnmount } from 'lib/ui/hooks/useWillUnmount';
 export interface ActionsButtonsBoxProps extends HTMLAttributes<HTMLDivElement> {
   shouldCastShadow?: boolean;
   flexDirection?: 'row' | 'col';
-  bgSet?: false;
+  bgSet?: boolean;
   shouldChangeBottomShift?: boolean;
 }
 

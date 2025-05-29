@@ -13,7 +13,7 @@ import { useMainnetTokensScamlistSelector } from 'app/store/tezos/assets/selecto
 import { ActivityListContainer, EvmActivityList, TezosActivityList } from 'app/templates/activity';
 import { AdvertisingBanner } from 'app/templates/advertising/advertising-banner/advertising-banner';
 import { ExploreActionButtonsBar } from 'app/templates/ExploreActionButtons';
-import { isTezAsset } from 'lib/assets';
+import { isTezAsset, TEMPLE_TOKEN_SLUG } from 'lib/assets';
 import { useEvmCategorizedAssetMetadata, useCategorizedTezosAssetMetadata } from 'lib/metadata';
 import { useBooleanState } from 'lib/ui/hooks';
 import { HistoryAction, navigate, useLocation } from 'lib/woozie';
@@ -79,6 +79,11 @@ const TezosTokenPage: FC<TezosTokenPageProps> = ({ chainId, assetSlug }) => {
     [setInfoModalOpen, assetSlug, chainId]
   );
 
+  const additionalButtonType = useMemo(
+    () => (isTezAsset(assetSlug) ? 'earn-tez' : assetSlug === TEMPLE_TOKEN_SLUG ? 'earn-tkey' : undefined),
+    [assetSlug]
+  );
+
   return (
     <>
       <PageModal title="Token Info" opened={infoModalOpen} contentPadding onRequestClose={setInfoModalClosed}>
@@ -95,7 +100,7 @@ const TezosTokenPage: FC<TezosTokenPageProps> = ({ chainId, assetSlug }) => {
             chainKind={TempleChainKind.Tezos}
             chainId={chainId}
             assetSlug={assetSlug}
-            activityBtn={isTezAsset(assetSlug) ? 'earn-tez' : undefined}
+            additionalButtonType={additionalButtonType}
           />
         </div>
 
