@@ -7,7 +7,7 @@ import {
   setAdsImpressionsLinkedAction,
   setConversionTrackedAction,
   setIsAnalyticsEnabledAction,
-  setOnRampPossibilityAction,
+  setOnRampAssetAction,
   setPendingReactivateAdsAction,
   setReferralLinksEnabledAction,
   setIsTestnetModeEnabledAction
@@ -19,8 +19,8 @@ const settingsReducer = createReducer<SettingsState>(settingsInitialState, build
     state.isAnalyticsEnabled = payload;
   });
 
-  builder.addCase(setOnRampPossibilityAction, (state, { payload }) => {
-    state.onRampPossibility = payload;
+  builder.addCase(setOnRampAssetAction, (state, { payload }) => {
+    state.onRampAsset = payload;
   });
 
   builder.addCase(setConversionTrackedAction, state => {

@@ -13,8 +13,8 @@ import { ReactComponent as SmileWithDollarIcon } from 'app/icons/smile-with-doll
 import { ReactComponent as SmileWithGlassesIcon } from 'app/icons/smile-with-glasses.svg';
 import { ReactComponent as SmileIcon } from 'app/icons/smile.svg';
 import { dispatch } from 'app/store';
-import { setOnRampPossibilityAction } from 'app/store/settings/actions';
-import { useOnRampPossibilitySelector } from 'app/store/settings/selectors';
+import { setOnRampAssetAction } from 'app/store/settings/actions';
+import { useOnRampAssetSelector } from 'app/store/settings/selectors';
 import { getWertLink, wertCommodityEvmChainIdMap } from 'lib/apis/wert';
 import { parseChainAssetSlug } from 'lib/assets/utils';
 import { T } from 'lib/i18n/react';
@@ -27,38 +27,38 @@ import { OnRampSmileButton } from './OnRampSmileButton/OnRampSmileButton';
 
 export const OnRampOverlay = memo(() => {
   const account = useAccount();
-  const onRampPossibility = useOnRampPossibilitySelector();
-  const isOnRampPossibility = Boolean(onRampPossibility);
+  const onRampAsset = useOnRampAssetSelector();
+  const isOnRampPossibility = Boolean(onRampAsset);
 
   const [isLinkLoading, setIsLinkLoading] = useState(false);
 
   const tokenSymbol = useMemo(() => {
-    if (!onRampPossibility) return;
+    if (!onRampAsset) return;
 
-    const [chainKind, chainId] = parseChainAssetSlug(onRampPossibility);
+    const [chainKind, chainId] = parseChainAssetSlug(onRampAsset);
 
     if (chainKind === TempleChainKind.Tezos) return 'TEZ';
     return wertCommodityEvmChainIdMap[chainId]?.commodity;
-  }, [onRampPossibility]);
+  }, [onRampAsset]);
 
   const close = useCallback(() => {
     setIsLinkLoading(false);
-    dispatch(setOnRampPossibilityAction(false));
+    dispatch(setOnRampAssetAction(null));
   }, []);
 
   const handleRedirect = useCallback(
     async (amount?: number) => {
-      if (!onRampPossibility) return;
+      if (!onRampAsset) return;
 
       try {
         setIsLinkLoading(true);
 
-        const [chainKind] = parseChainAssetSlug(onRampPossibility);
+        const [chainKind] = parseChainAssetSlug(onRampAsset);
 
         const accountAddress = getAccountAddressForChain(account, chainKind);
 
         if (!accountAddress) throw new Error();
-        const url = await getWertLink(accountAddress, onRampPossibility, amount);
+        const url = await getWertLink(accountAddress, onRampAsset, amount);
 
         close();
 
@@ -67,7 +67,7 @@ export const OnRampOverlay = memo(() => {
         close();
       }
     },
-    [account, close, onRampPossibility]
+    [account, close, onRampAsset]
   );
 
   if (!isOnRampPossibility) return null;

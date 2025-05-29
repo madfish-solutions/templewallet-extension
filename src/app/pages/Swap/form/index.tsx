@@ -13,7 +13,7 @@ import { ReactComponent as SwapIcon } from 'app/icons/base/swap.svg';
 import { buildSwapPageUrlQuery } from 'app/pages/Swap/build-url-query';
 import SwapFormInput from 'app/pages/Swap/form/SwapFormInput';
 import { dispatch, useSelector } from 'app/store';
-import { setOnRampPossibilityAction } from 'app/store/settings/actions';
+import { setOnRampAssetAction } from 'app/store/settings/actions';
 import { loadSwapParamsAction, resetSwapParamsAction } from 'app/store/swap/actions';
 import { useSwapParamsSelector, useSwapTokenSelector, useSwapTokensSelector } from 'app/store/swap/selectors';
 import OperationStatus from 'app/templates/OperationStatus';
@@ -353,7 +353,7 @@ export const SwapForm = memo<Props>(({ account, slippageTolerance, onReview }) =
       inputValue.assetSlug === TEZ_TOKEN_SLUG &&
       getTezosBalance(TEZOS_MAINNET_CHAIN_ID, TEZ_TOKEN_SLUG)?.lte(EXCHANGE_XTZ_RESERVE)
     ) {
-      dispatch(setOnRampPossibilityAction(TEZOS_CHAIN_ASSET_SLUG));
+      dispatch(setOnRampAssetAction(TEZOS_CHAIN_ASSET_SLUG));
 
       return;
     }

@@ -11,7 +11,7 @@ import { useShouldShowNewsletterModalSelector } from 'app/store/newsletter/newsl
 import { togglePartnersPromotionAction } from 'app/store/partners-promotion/actions';
 import { useShouldShowPartnersPromoSelector } from 'app/store/partners-promotion/selectors';
 import { setPendingReactivateAdsAction } from 'app/store/settings/actions';
-import { useIsPendingReactivateAdsSelector, useOnRampPossibilitySelector } from 'app/store/settings/selectors';
+import { useIsPendingReactivateAdsSelector, useOnRampAssetSelector } from 'app/store/settings/selectors';
 import { EmojiInlineIcon } from 'lib/icons/emoji';
 import { useLocation } from 'lib/woozie';
 import { HOME_PAGE_PATH } from 'lib/woozie/config';
@@ -35,8 +35,8 @@ export const ReactivateAdsOverlay = memo<Props>(({ onClose }) => {
 
   const { onboardingCompleted } = useOnboardingProgress();
   const shouldShowNewsletterModal = useShouldShowNewsletterModalSelector();
-  const onRampPossibility = useOnRampPossibilitySelector();
-  const isOnRampPossibility = Boolean(onRampPossibility);
+  const onRampAsset = useOnRampAssetSelector();
+  const isOnRampPossibility = Boolean(onRampAsset);
   const { pathname } = useLocation();
 
   const close = onClose ?? (() => void dispatch(setPendingReactivateAdsAction(false)));

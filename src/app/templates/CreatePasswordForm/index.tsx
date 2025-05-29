@@ -13,7 +13,7 @@ import { useOnboardingProgress } from 'app/pages/Onboarding/hooks/useOnboardingP
 import { togglePartnersPromotionAction } from 'app/store/partners-promotion/actions';
 import {
   setIsAnalyticsEnabledAction,
-  setOnRampPossibilityAction,
+  setOnRampAssetAction,
   setReferralLinksEnabledAction
 } from 'app/store/settings/actions';
 import { toastError } from 'app/toaster';
@@ -129,7 +129,7 @@ export const CreatePasswordForm = memo<CreatePasswordFormProps>(({ seedPhrase: s
           await setShouldBackupMnemonic(true);
           setMnemonicToBackup(seedPhrase);
         }
-        !seedPhraseToImport && dispatch(setOnRampPossibilityAction(TEZOS_CHAIN_ASSET_SLUG));
+        !seedPhraseToImport && dispatch(setOnRampAssetAction(TEZOS_CHAIN_ASSET_SLUG));
         navigate('/loading');
       } catch (err: any) {
         console.error(err);

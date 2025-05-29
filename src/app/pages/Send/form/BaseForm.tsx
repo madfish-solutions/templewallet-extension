@@ -13,7 +13,7 @@ import { ActionsButtonsBox } from 'app/atoms/PageModal/actions-buttons-box';
 import { StyledButton } from 'app/atoms/StyledButton';
 import { SelectAccountModal } from 'app/pages/Send/modals/SelectAccount';
 import { dispatch } from 'app/store';
-import { setOnRampPossibilityAction } from 'app/store/settings/actions';
+import { setOnRampAssetAction } from 'app/store/settings/actions';
 import { isWertSupportedChainAssetSlug } from 'lib/apis/wert';
 import { toChainAssetSlug } from 'lib/assets/utils';
 import { useFiatCurrency } from 'lib/fiat-currency';
@@ -181,7 +181,7 @@ export const BaseForm: FC<Props> = ({
       if (errors.amount?.message?.includes(t('maximalAmount'))) {
         const chainAssetSlug = toChainAssetSlug(network.kind, network.chainId, assetSlug);
 
-        isWertSupportedChainAssetSlug(chainAssetSlug) && dispatch(setOnRampPossibilityAction(chainAssetSlug));
+        isWertSupportedChainAssetSlug(chainAssetSlug) && dispatch(setOnRampAssetAction(chainAssetSlug));
       }
     },
     [assetSlug, network]
