@@ -33,104 +33,116 @@ interface Props {
   chainKind?: string | nullish;
   chainId?: number | string | nullish;
   assetSlug?: string | nullish;
-  activityBtn?: 'activity' | 'earn-tez';
+  additionalButtonType?: 'activity' | 'earn-tez' | 'earn-tkey';
   className?: string;
 }
 
-export const ExploreActionButtonsBar = memo<Props>(({ chainKind, chainId, assetSlug, activityBtn, className }) => {
-  const account = useAccount();
-  const testnetModeEnabled = useTestnetModeEnabledSelector();
-  const { route3tokensSlugs } = useAvailableRoute3TokensSlugs();
+export const ExploreActionButtonsBar = memo<Props>(
+  ({ chainKind, chainId, assetSlug, additionalButtonType, className }) => {
+    const account = useAccount();
+    const testnetModeEnabled = useTestnetModeEnabledSelector();
+    const { route3tokensSlugs } = useAvailableRoute3TokensSlugs();
 
-  const canSend = account.type !== TempleAccountType.WatchOnly;
-  const sendLink = buildSendPagePath(chainKind, chainId as string, assetSlug);
-  const swapLink = buildSwapPagePath({ chainKind, chainId: chainId as string, assetSlug });
+    const canSend = account.type !== TempleAccountType.WatchOnly;
+    const sendLink = buildSendPagePath(chainKind, chainId as string, assetSlug);
+    const swapLink = buildSwapPagePath({ chainKind, chainId: chainId as string, assetSlug });
 
-  const isTokenAvailableForSwap = useMemo(() => {
-    if (chainKind === TempleChainKind.Tezos) {
-      return (
-        isDefined(assetSlug) &&
-        chainId === ChainIds.MAINNET &&
-        (route3tokensSlugs.includes(assetSlug) || assetSlug === TEZ_TOKEN_SLUG)
-      );
-    }
-    if (chainKind === TempleChainKind.EVM && chainId) {
-      return isDefined(assetSlug) && LifiSupportedChains.includes(+chainId);
-    }
-    return false;
-  }, [assetSlug, chainId, chainKind, route3tokensSlugs]);
+    const isTokenAvailableForSwap = useMemo(() => {
+      if (chainKind === TempleChainKind.Tezos) {
+        return (
+          isDefined(assetSlug) &&
+          chainId === ChainIds.MAINNET &&
+          (route3tokensSlugs.includes(assetSlug) || assetSlug === TEZ_TOKEN_SLUG)
+        );
+      }
+      if (chainKind === TempleChainKind.EVM && chainId) {
+        return isDefined(assetSlug) && LifiSupportedChains.includes(+chainId);
+      }
+      return false;
+    }, [assetSlug, chainId, chainKind, route3tokensSlugs]);
 
-  const labelClassName = useMemo(() => (activityBtn ? 'max-w-12' : 'max-w-15'), [activityBtn]);
+    const labelClassName = additionalButtonType ? 'max-w-12' : 'max-w-15';
 
-  return (
-    <div className={clsx('flex justify-between gap-x-2 h-13.5', className)}>
-      <ActionButton
-        labelI18nKey="receive"
-        Icon={ReceiveIcon}
-        to={chainKind ? `/receive/${chainKind}` : '/receive'}
-        testID={ExploreActionButtonsSelectors.receiveButton}
-        labelClassName={labelClassName}
-      />
+    const additionalButton = useMemo(() => {
+      switch (additionalButtonType) {
+        case 'earn-tez':
+        case 'earn-tkey':
+          return (
+            <ActionButton
+              labelI18nKey="earn"
+              Icon={OutcomeIcon}
+              to={additionalButtonType === 'earn-tez' ? `/earn-tez/${chainId}` : '/earn-tkey'}
+              testID={ExploreActionButtonsSelectors.earnButton}
+              labelClassName={labelClassName}
+            />
+          );
+        case 'activity':
+          return (
+            <ActionButton
+              labelI18nKey="activity"
+              Icon={ActivityIcon}
+              to="/activity"
+              testID={ExploreActionButtonsSelectors.activityButton}
+              labelClassName={labelClassName}
+            />
+          );
+        default:
+          return null;
+      }
+    }, [additionalButtonType, chainId, labelClassName]);
 
-      <ActionButton
-        labelI18nKey="market"
-        Icon={MarketIcon}
-        to="/market"
-        disabled={!canSend || testnetModeEnabled}
-        tippyProps={getDisabledTippyProps(testnetModeEnabled)}
-        testID={ExploreActionButtonsSelectors.marketButton}
-        labelClassName={labelClassName}
-      />
-
-      <ActionButton
-        labelI18nKey="swap"
-        Icon={SwapIcon}
-        to={
-          isTokenAvailableForSwap
-            ? swapLink
-            : {
-                pathname: '/swap',
-                search: undefined
-              }
-        }
-        disabled={!canSend || testnetModeEnabled}
-        tippyProps={getDisabledTippyProps(testnetModeEnabled)}
-        testID={ExploreActionButtonsSelectors.swapButton}
-        labelClassName={labelClassName}
-      />
-
-      {activityBtn === 'earn-tez' ? (
+    return (
+      <div className={clsx('flex justify-between gap-x-2 h-13.5', className)}>
         <ActionButton
-          labelI18nKey="earn"
-          Icon={OutcomeIcon}
-          to={`/earn-tez/${chainId}`}
-          testID={ExploreActionButtonsSelectors.earnButton}
+          labelI18nKey="receive"
+          Icon={ReceiveIcon}
+          to={chainKind ? `/receive/${chainKind}` : '/receive'}
+          testID={ExploreActionButtonsSelectors.receiveButton}
           labelClassName={labelClassName}
         />
-      ) : (
-        activityBtn === 'activity' && (
-          <ActionButton
-            labelI18nKey="activity"
-            Icon={ActivityIcon}
-            to="/activity"
-            testID={ExploreActionButtonsSelectors.activityButton}
-            labelClassName={labelClassName}
-          />
-        )
-      )}
 
-      <ActionButton
-        labelI18nKey="send"
-        Icon={SendIcon}
-        to={sendLink}
-        disabled={!canSend}
-        tippyProps={getDisabledTippyProps(false)}
-        testID={ExploreActionButtonsSelectors.sendButton}
-        labelClassName={labelClassName}
-      />
-    </div>
-  );
-});
+        <ActionButton
+          labelI18nKey="market"
+          Icon={MarketIcon}
+          to="/market"
+          disabled={!canSend || testnetModeEnabled}
+          tippyProps={getDisabledTippyProps(testnetModeEnabled)}
+          testID={ExploreActionButtonsSelectors.marketButton}
+          labelClassName={labelClassName}
+        />
+
+        <ActionButton
+          labelI18nKey="swap"
+          Icon={SwapIcon}
+          to={
+            isTokenAvailableForSwap
+              ? swapLink
+              : {
+                  pathname: '/swap',
+                  search: undefined
+                }
+          }
+          disabled={!canSend || testnetModeEnabled}
+          tippyProps={getDisabledTippyProps(testnetModeEnabled)}
+          testID={ExploreActionButtonsSelectors.swapButton}
+          labelClassName={labelClassName}
+        />
+
+        {additionalButton}
+
+        <ActionButton
+          labelI18nKey="send"
+          Icon={SendIcon}
+          to={sendLink}
+          disabled={!canSend}
+          tippyProps={getDisabledTippyProps(false)}
+          testID={ExploreActionButtonsSelectors.sendButton}
+          labelClassName={labelClassName}
+        />
+      </div>
+    );
+  }
+);
 
 interface ActionButtonProps extends TestIDProps {
   labelI18nKey: TID;
