@@ -98,7 +98,7 @@ export const DEFAULT_EVM_CHAINS_SPECS: Record<string, EvmChainSpecs & { testnet:
     name: 'Ethereum Sepolia',
     currency: {
       ...DEFAULT_EVM_CURRENCY,
-      name: 'Sepolia Ether'
+      name: 'Sepolia Ethereum'
     },
     testnet: true
   },
@@ -133,7 +133,7 @@ export const DEFAULT_EVM_CHAINS_SPECS: Record<string, EvmChainSpecs & { testnet:
     name: 'Optimism Sepolia',
     currency: {
       ...DEFAULT_EVM_CURRENCY,
-      name: 'Sepolia Ether'
+      name: 'Sepolia Ethereum'
     },
     testnet: true
   },

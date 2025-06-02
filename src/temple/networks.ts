@@ -107,7 +107,7 @@ export interface StoredEvmNetwork extends NetworkBase {
 export const DEFAULT_EVM_CURRENCY: EvmNativeTokenMetadata = {
   standard: EvmAssetStandard.NATIVE,
   address: EVM_TOKEN_SLUG,
-  name: 'Ether',
+  name: 'Ethereum',
   symbol: 'ETH',
   decimals: 18
 };
