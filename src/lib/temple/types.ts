@@ -629,7 +629,8 @@ interface TempleNewWalletRequest extends TempleMessageBase {
 
 interface TempleNewWalletResponse extends TempleMessageBase {
   type: TempleMessageType.NewWalletResponse;
-  accountPkh: string;
+  evmAddress: string;
+  tezAddress: string;
 }
 
 interface TempleUnlockRequest extends TempleMessageBase {

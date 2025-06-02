@@ -140,7 +140,7 @@ const buildManifestCommons = (vendor: string): Omit<Manifest.WebExtensionManifes
     // Public key to fixate extension ID
     key: envFilesData._MANIFEST_KEY_,
 
-    name: 'Temple - Tezos & EVM Wallet',
+    name: 'Temple Wallet BETA',
     short_name: 'Temple Wallet',
 
     icons: {
@@ -150,7 +150,7 @@ const buildManifestCommons = (vendor: string): Omit<Manifest.WebExtensionManifes
       '128': 'misc/icon-128.png'
     },
 
-    description: '__MSG_appDesc__',
+    description: 'A crypto wallet for Tezos and all EVM chains. THIS EXTENSION IS FOR BETA TESTING.',
 
     default_locale: 'en',
 

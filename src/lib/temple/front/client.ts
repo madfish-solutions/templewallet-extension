@@ -137,7 +137,7 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
     assertResponse(res.type === TempleMessageType.NewWalletResponse);
     clearLocalStorage(['onboarding', 'analytics']);
 
-    return res.accountPkh;
+    return res;
   }, []);
 
   const unlock = useCallback(async (password: string) => {
