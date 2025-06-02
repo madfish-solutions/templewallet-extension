@@ -1,4 +1,4 @@
-import React, { FC, useCallback, useMemo } from 'react';
+import React, { FC, useCallback, useImperativeHandle, useMemo } from 'react';
 
 import BigNumber from 'bignumber.js';
 import { isString } from 'lodash';
@@ -25,6 +25,7 @@ import { useEvmChainByChainId } from 'temple/front/chains';
 import { useEvmAddressByDomainName } from 'temple/front/evm/ens';
 import { useSettings } from 'temple/front/ready';
 
+import { useSendFormControl } from '../context';
 import { useEvmEstimationData } from '../hooks/use-evm-estimation-data';
 
 import { BaseForm } from './BaseForm';
@@ -41,6 +42,8 @@ interface Props {
 export const EvmForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, onReview }) => {
   const account = useAccountForEvm();
   const network = useEvmChainByChainId(chainId);
+
+  const formControlRef = useSendFormControl();
 
   if (!account || !network) throw new DeadEndBoundaryError();
 
@@ -163,6 +166,8 @@ export const EvmForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, onR
     reset({ to: '', amount: '' });
     setShouldUseFiat(false);
   }, [reset, setShouldUseFiat]);
+
+  useImperativeHandle(formControlRef, () => ({ resetForm }));
 
   const onSubmit = useCallback(
     async ({ amount }: SendFormData) => {
