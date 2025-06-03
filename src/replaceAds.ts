@@ -4,6 +4,7 @@ import { checkIfShouldReplaceAds } from 'content-scripts/utils';
 import { configureAds } from 'lib/ads/configure-ads';
 import { importExtensionAdsModule } from 'lib/ads/import-extension-ads-module';
 import { ContentScriptType, ADS_RULES_UPDATE_INTERVAL } from 'lib/constants';
+import { IS_MISES_BROWSER } from 'lib/env';
 import { throttleAsyncCalls } from 'lib/utils/functions';
 
 import { getRulesFromContentScript, clearRulesCache } from './content-scripts/replace-ads';
@@ -11,8 +12,8 @@ import { getRulesFromContentScript, clearRulesCache } from './content-scripts/re
 const INJECTED_PIXEL_ID = 'twa-injected-pixel';
 let impressionWasPosted = false;
 
-setInterval(() => {
-  if (document.getElementById(INJECTED_PIXEL_ID)) {
+setInterval(async () => {
+  if (document.getElementById(INJECTED_PIXEL_ID) || (!IS_MISES_BROWSER && !(await checkIfShouldReplaceAds()))) {
     return;
   }
 
