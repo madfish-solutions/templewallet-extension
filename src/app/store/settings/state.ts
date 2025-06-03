@@ -2,15 +2,19 @@ import { nanoid } from '@reduxjs/toolkit';
 
 import { IS_MISES_BROWSER } from 'lib/env';
 
+type ChainAssetSlug = string;
+
 export interface SettingsState {
   userId: string;
   isAnalyticsEnabled: boolean;
-  isOnRampPossibility: boolean;
   isConversionTracked: boolean;
   pendingReactivateAds: boolean;
   adsImpressionsLinked: boolean;
   referralLinksEnabled: boolean;
   isTestnetModeEnabled: boolean;
+  onRampAsset: ChainAssetSlug | null;
+  /** @deprecated */
+  isOnRampPossibility?: boolean;
   /** @deprecated */
   acceptedTermsVersion?: number;
   /** @deprecated */
@@ -24,10 +28,10 @@ export interface SettingsState {
 export const settingsInitialState: SettingsState = {
   userId: nanoid(),
   isAnalyticsEnabled: false,
-  isOnRampPossibility: false,
   isConversionTracked: false,
   pendingReactivateAds: false,
   adsImpressionsLinked: false,
   referralLinksEnabled: IS_MISES_BROWSER,
-  isTestnetModeEnabled: false
+  isTestnetModeEnabled: false,
+  onRampAsset: null
 };
