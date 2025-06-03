@@ -4,6 +4,7 @@ import { isDefined } from '@rnw-community/shared';
 import BigNumber from 'bignumber.js';
 
 import AssetField from 'app/atoms/AssetField';
+import { SwapFieldName } from 'app/pages/Swap/form/interfaces';
 import { SwapInputValue } from 'app/pages/Swap/form/SwapForm.form';
 import SwapFooter from 'app/pages/Swap/form/SwapFormInput/SwapInputFooter';
 import { FiatCurrencyOptionBase } from 'lib/fiat-currency';
@@ -21,7 +22,7 @@ interface SwapInputProps {
   assetSlug?: string;
   assetSymbol: string;
   assetDecimals: number;
-  onSelectAssetClick: (field: 'from' | 'to') => void;
+  onSelectAssetClick: SyncFn<SwapFieldName>;
   isFiatMode: boolean;
   fiatCurrency: FiatCurrencyOptionBase;
   handleFiatToggle: (evt: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;

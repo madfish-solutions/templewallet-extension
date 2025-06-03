@@ -122,12 +122,12 @@ interface EvmTokenListItemProps {
   assetSlug: string;
   manageActive?: boolean;
   onClick?: MouseEventHandler<TokenListItemElement>;
-  useIsVisible?: boolean;
+  requiresVisibility?: boolean;
 }
 
 export const EvmTokenListItem = memo(
   forwardRef<TokenListItemElement, EvmTokenListItemProps>(
-    ({ network, index, publicKeyHash, assetSlug, manageActive = false, useIsVisible = true, onClick }, ref) => {
+    ({ network, index, publicKeyHash, assetSlug, manageActive = false, requiresVisibility = true, onClick }, ref) => {
       const { chainId } = network;
       const lifiTokenMetadata = useLifiEvmTokenMetadataSelector(chainId, assetSlug);
 
@@ -170,7 +170,7 @@ export const EvmTokenListItem = memo(
           index={index}
           balance={balance}
           onClick={onClick}
-          useIsVisible={useIsVisible}
+          requiresVisibility={requiresVisibility}
           ref={ref}
         >
           <div className="flex-grow text-font-medium truncate">{assetSymbol}</div>
@@ -307,7 +307,7 @@ interface DefaultListItemLayoutProps<T extends TempleChainKind> {
   index?: number;
   balance: BigNumber;
   onClick?: MouseEventHandler<TokenListItemElement>;
-  useIsVisible?: boolean;
+  requiresVisibility?: boolean;
 }
 
 const DefaultListItemLayoutHOC = <T extends TempleChainKind>(
@@ -319,9 +319,10 @@ const DefaultListItemLayoutHOC = <T extends TempleChainKind>(
   }>
 ) =>
   forwardRef<TokenListItemElement, PropsWithChildren<DefaultListItemLayoutProps<T>>>(
-    ({ children, assetSlug, assetName, className, network, index, balance, onClick, useIsVisible }, ref) => {
+    ({ children, assetSlug, assetName, className, network, index, balance, onClick, requiresVisibility }, ref) => {
       const { chainId } = network;
-      const visible = useIsVisible ? useIsItemVisible(index) : true;
+      const isVisible = useIsItemVisible(index);
+      const visible = !requiresVisibility || isVisible;
 
       return (
         <Link

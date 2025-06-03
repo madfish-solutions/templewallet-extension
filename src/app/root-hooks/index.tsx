@@ -107,7 +107,7 @@ const TezosAccountHooks = memo<{ publicKeyHash: string }>(({ publicKeyHash }) =>
 
 const EvmAccountHooks = memo<{ publicKeyHash: HexString }>(({ publicKeyHash }) => {
   useNoCategoryEvmAssetsLoading(publicKeyHash);
-  useLifiEvmTokensSlugs(publicKeyHash as HexString);
+  useLifiEvmTokensSlugs(publicKeyHash);
   const testnetModeEnabled = useTestnetModeEnabledSelector();
 
   return (

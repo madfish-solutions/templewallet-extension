@@ -20,7 +20,7 @@ import { useAccountAddressForEvm } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
 
 import { SWAP_SLIPPAGE_TOLERANCE_STORAGE_KEY } from './constants';
-import { SwapReviewData } from './form/interfaces';
+import { SwapFieldName, SwapReviewData } from './form/interfaces';
 import { ConfirmSwapModal } from './modals/ConfirmSwap';
 import { SwapSettingsModal } from './modals/SwapSettings';
 
@@ -57,7 +57,7 @@ const Swap = memo<Props>(() => {
   const accountEvmAddress = useAccountAddressForEvm();
   const { filterChain } = useAssetsFilterOptionsSelector();
 
-  const [activeField, setActiveField] = useState<'from' | 'to'>('from');
+  const [activeField, setActiveField] = useState<SwapFieldName>('from');
   const [selectedChainAssets, setSelectedChainAssets] = useState<SelectedChainAssets>(() => {
     const fromSlug =
       from?.chainKind && from?.chainId && from?.assetSlug
@@ -188,7 +188,7 @@ const Swap = memo<Props>(() => {
           selectedChainAssets={selectedChainAssets}
           slippageTolerance={slippageTolerance}
           onReview={handleReview}
-          onSelectAssetClick={(field: 'from' | 'to') => {
+          onSelectAssetClick={(field: SwapFieldName) => {
             setActiveField(field);
             setSelectAssetModalOpen();
           }}

@@ -9,6 +9,7 @@ import { FormProvider, useForm } from 'react-hook-form-v7';
 import { DeadEndBoundaryError } from 'app/ErrorBoundary';
 import { BaseSwapForm } from 'app/pages/Swap/form/BaseSwapForm';
 import { SwapFormValue, SwapInputValue } from 'app/pages/Swap/form/SwapForm.form';
+import { getDefaultSwapFormValues } from 'app/pages/Swap/form/utils';
 import { useLifiEvmTokenMetadataSelector } from 'app/store/evm/swap-lifi-metadata/selectors';
 import { useEvmTokenMetadataSelector } from 'app/store/evm/tokens-metadata/selectors';
 import { toastError } from 'app/toaster';
@@ -24,13 +25,14 @@ import { useAssetFiatCurrencyPrice } from 'lib/fiat-currency';
 import { t } from 'lib/i18n';
 import { getAssetSymbol, useGetEvmChainAssetMetadata } from 'lib/metadata';
 import { atomsToTokens, tokensToAtoms } from 'lib/temple/helpers';
+import { useInterval } from 'lib/ui/hooks';
 import { isEvmNativeTokenSlug } from 'lib/utils/evm.utils';
 import { toBigInt, ZERO } from 'lib/utils/numbers';
 import { getViemPublicClient } from 'temple/evm';
 import { useAccountForEvm } from 'temple/front';
 import { useEvmChainByChainId } from 'temple/front/chains';
 
-import { EvmReviewData } from '../interfaces';
+import { EvmReviewData, SwapFieldName } from '../interfaces';
 
 interface ChainAssetInfo {
   networkName: string;
@@ -42,9 +44,9 @@ interface EvmSwapFormProps {
   chainId: number;
   slippageTolerance: number;
   onReview: SyncFn<EvmReviewData>;
-  onSelectAssetClick: (field: 'from' | 'to') => void;
+  onSelectAssetClick: SyncFn<SwapFieldName>;
   selectedChainAssets: { from: string | null; to: string | null };
-  activeField: 'from' | 'to';
+  activeField: SwapFieldName;
   handleToggleIconClick: EmptyFn;
 }
 
@@ -100,17 +102,10 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
     };
   }, [selectedChainAssets.to]);
 
-  const defaultValues = useMemo(() => {
-    return {
-      input: {
-        assetSlug: sourceAssetInfo?.assetSlug
-      },
-      output: {
-        assetSlug: targetAssetInfo?.assetSlug
-      },
-      isFiatMode: false
-    };
-  }, [sourceAssetInfo, targetAssetInfo]);
+  const defaultValues = useMemo(
+    () => getDefaultSwapFormValues(sourceAssetInfo?.assetSlug, targetAssetInfo?.assetSlug),
+    [sourceAssetInfo?.assetSlug, targetAssetInfo?.assetSlug]
+  );
 
   const form = useForm<SwapFormValue>({
     defaultValues,
@@ -285,8 +280,8 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
     }
   }, [inputValue.amount, sourceAssetInfo, targetAssetInfo]);
 
-  useEffect(() => {
-    const intervalId = setInterval(() => {
+  useInterval(
+    () => {
       if (
         inputValue.amount &&
         new BigNumber(inputValue.amount).isGreaterThan(0) &&
@@ -295,15 +290,15 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
         !isRouteLoading &&
         !formState.isSubmitting
       ) {
-        console.log('Auto-refreshing swap route...');
         getAndSetSwapRoute(true).catch(error => {
           console.error('Error during auto-refresh:', error);
         });
       }
-    }, AUTO_REFRESH_INTERVAL_MS);
-
-    return () => clearInterval(intervalId);
-  }, [inputValue.amount, sourceAssetInfo, targetAssetInfo, getAndSetSwapRoute, isRouteLoading, formState.isSubmitting]);
+    },
+    [inputValue.amount, sourceAssetInfo, targetAssetInfo, isRouteLoading, formState.isSubmitting, getAndSetSwapRoute],
+    AUTO_REFRESH_INTERVAL_MS,
+    false
+  );
 
   useEffect(() => {
     if (swapRoute && outputValue.assetSlug) {

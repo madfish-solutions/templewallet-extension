@@ -9,9 +9,10 @@ import { FormProvider, useForm } from 'react-hook-form-v7';
 import { DeadEndBoundaryError } from 'app/ErrorBoundary';
 import { EXCHANGE_XTZ_RESERVE } from 'app/pages/Swap/constants';
 import { BaseSwapForm } from 'app/pages/Swap/form/BaseSwapForm';
-import { TezosReviewData } from 'app/pages/Swap/form/interfaces';
+import { SwapFieldName, TezosReviewData } from 'app/pages/Swap/form/interfaces';
 import { SwapFormValue, SwapInputValue } from 'app/pages/Swap/form/SwapForm.form';
 import { useGetTezosSwapTransferParams } from 'app/pages/Swap/form/use-swap-params';
+import { getDefaultSwapFormValues } from 'app/pages/Swap/form/utils';
 import { dispatch, useSelector } from 'app/store';
 import { setOnRampPossibilityAction } from 'app/store/settings/actions';
 import { loadSwapParamsAction } from 'app/store/swap/actions';
@@ -66,9 +67,9 @@ const CASHBACK_SWAP_MAX_DEXES = 3;
 interface TezosSwapFormProps {
   slippageTolerance: number;
   onReview: SyncFn<TezosReviewData>;
-  onSelectAssetClick: (field: 'from' | 'to') => void;
+  onSelectAssetClick: SyncFn<SwapFieldName>;
   selectedChainAssets: { from: string | null; to: string | null };
-  activeField: 'from' | 'to';
+  activeField: SwapFieldName;
   handleToggleIconClick: EmptyFn;
 }
 
@@ -130,17 +131,10 @@ export const TezosSwapForm: FC<TezosSwapFormProps> = ({
     };
   }, [selectedChainAssets.to]);
 
-  const defaultValues = useMemo(() => {
-    return {
-      input: {
-        assetSlug: sourceAssetInfo?.assetSlug
-      },
-      output: {
-        assetSlug: targetAssetInfo?.assetSlug
-      },
-      isFiatMode: false
-    };
-  }, [sourceAssetInfo, targetAssetInfo]);
+  const defaultValues = useMemo(
+    () => getDefaultSwapFormValues(sourceAssetInfo?.assetSlug, targetAssetInfo?.assetSlug),
+    [sourceAssetInfo?.assetSlug, targetAssetInfo?.assetSlug]
+  );
 
   const form = useForm<SwapFormValue>({
     defaultValues,

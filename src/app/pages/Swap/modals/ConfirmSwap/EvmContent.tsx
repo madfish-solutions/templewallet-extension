@@ -7,7 +7,6 @@ import { FormProvider } from 'react-hook-form-v7';
 import { TransactionRequest } from 'viem';
 
 import { CLOSE_ANIMATION_TIMEOUT } from 'app/atoms/PageModal';
-import { DeadEndBoundaryError } from 'app/ErrorBoundary';
 import { useLedgerApprovalModalState } from 'app/hooks/use-ledger-approval-modal-state';
 import { EvmReviewData } from 'app/pages/Swap/form/interfaces';
 import { mapToEvmEstimationDataWithFallback, parseLiFiTxRequestToViem } from 'app/pages/Swap/modals/ConfirmSwap/utils';
@@ -35,8 +34,6 @@ interface EvmContentProps {
 export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
   const { account, network, minimumReceived, onConfirm, lifiStep } = data;
 
-  if (!lifiStep) throw new DeadEndBoundaryError();
-
   const accountPkh = account.address as HexString;
   const isLedgerAccount = account.type === TempleAccountType.Ledger;
 
@@ -53,22 +50,10 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
   }, [lifiStep.action.toToken.address]);
 
   const { sendEvmTransaction } = useTempleClient();
-  // const { value: balance = ZERO } = useEvmAssetBalance(fromTokenSlug, account.address as HexString, network);
   const { value: ethBalance = ZERO } = useEvmAssetBalance(EVM_TOKEN_SLUG, accountPkh, network);
   const getActiveBlockExplorer = useGetEvmActiveBlockExplorer();
 
   const [latestSubmitError, setLatestSubmitError] = useState<string | nullish>(null);
-
-  // const { data: estimationData } = useEvmEstimationData({
-  //   to: lifiStep.action.toAddress as HexString,
-  //   assetSlug: fromTokenSlug,
-  //   accountPkh: account.address as HexString,
-  //   network,
-  //   balance,
-  //   ethBalance,
-  //   toFilled: true,
-  //   silent: true
-  // });
 
   const lifiEstimationData = useMemo(
     () => mapToEvmEstimationDataWithFallback(lifiStep.transactionRequest!),

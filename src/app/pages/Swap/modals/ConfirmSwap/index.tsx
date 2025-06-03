@@ -23,13 +23,6 @@ interface ConfirmSwapModalProps {
 export const ConfirmSwapModal: FC<ConfirmSwapModalProps> = ({ opened, onRequestClose, reviewData, onReview }) => {
   const [evmLoading, setEvmLoading] = useState(false);
 
-  const getTitle = () => {
-    if (reviewData && isSwapEvmReviewData(reviewData) && reviewData.needsApproval) {
-      return 'Approve';
-    }
-    return 'Swap Preview';
-  };
-
   const renderEvmContent = (data: EvmReviewData) => (
     <EvmEstimationDataProvider>
       {evmLoading ? (
@@ -65,15 +58,10 @@ export const ConfirmSwapModal: FC<ConfirmSwapModalProps> = ({ opened, onRequestC
 
   return (
     <PageModal
-      title={getTitle()}
+      title={reviewData && isSwapEvmReviewData(reviewData) && reviewData.needsApproval ? 'Approve' : 'Swap Preview'}
       titleLeft={
-        reviewData && isSwapEvmReviewData(reviewData) && reviewData?.neededApproval ? (
-          titleLeft(reviewData)
-        ) : (
-          <div className={'w-12'} />
-        )
+        reviewData && isSwapEvmReviewData(reviewData) && reviewData?.neededApproval ? titleLeft(reviewData) : undefined
       }
-      titleRight={<div />}
       opened={opened}
       onRequestClose={onRequestClose}
       shouldChangeBottomShift={false}

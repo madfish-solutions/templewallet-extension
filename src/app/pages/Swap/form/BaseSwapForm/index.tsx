@@ -8,6 +8,7 @@ import { IconBase } from 'app/atoms';
 import { ActionsButtonsBox } from 'app/atoms/PageModal';
 import { StyledButton } from 'app/atoms/StyledButton';
 import { ReactComponent as SwapIcon } from 'app/icons/base/swap.svg';
+import { SwapFieldName } from 'app/pages/Swap/form/interfaces';
 import { dispatch } from 'app/store';
 import { resetSwapParamsAction } from 'app/store/swap/actions';
 import { setTestID } from 'lib/analytics';
@@ -44,12 +45,12 @@ interface Props {
   swapRouteSteps: number;
   setIsFiatMode?: SyncFn<boolean>;
   parseFiatValueToAssetAmount: (fiatAmount?: BigNumber.Value, assetDecimals?: number) => BigNumber;
-  onInputChange: (value: SwapInputValue) => void;
-  onOutputChange: (value: SwapInputValue) => void;
-  onSelectAssetClick: (field: 'from' | 'to') => void;
-  handleSetMaxAmount: SyncFn<void>;
+  onInputChange: SyncFn<SwapInputValue>;
+  onOutputChange: SyncFn<SwapInputValue>;
+  onSelectAssetClick: SyncFn<SwapFieldName>;
+  handleSetMaxAmount: EmptyFn;
   handleToggleIconClick: EmptyFn;
-  onSubmit: () => void;
+  onSubmit: EmptyFn;
 }
 
 export const BaseSwapForm: FC<Props> = ({
@@ -193,14 +194,16 @@ export const BaseSwapForm: FC<Props> = ({
         />
 
         <div className="w-full -my-2.5 flex justify-center z-1">
-          <button
-            className="bg-secondary-low p-1 rounded-6"
+          <StyledButton
+            size={'S'}
+            style={{ padding: '0.25rem' }}
+            color={'secondary-low'}
             onClick={handleToggleIconClickChangeFields}
             type="button"
             {...setTestID(SwapFormSelectors.swapPlacesButton)}
           >
             <IconBase Icon={SwapIcon} className="text-secondary rotate-90" />
-          </button>
+          </StyledButton>
         </div>
 
         <Controller

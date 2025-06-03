@@ -9,7 +9,6 @@ import { Anchor, IconBase } from 'app/atoms';
 import { Logo } from 'app/atoms/Logo';
 import { ActionsButtonsBox, CLOSE_ANIMATION_TIMEOUT } from 'app/atoms/PageModal';
 import { StyledButton } from 'app/atoms/StyledButton';
-import { DeadEndBoundaryError } from 'app/ErrorBoundary';
 import { ReactComponent as LinkIcon } from 'app/icons/base/link.svg';
 import { ReactComponent as OutLinkIcon } from 'app/icons/base/outLink.svg';
 import { useEvmEstimationData } from 'app/pages/Send/hooks/use-evm-estimation-data';
@@ -41,8 +40,6 @@ const LIFI = 'https://li.fi/';
 
 const ApproveModal = ({ data, onClose, onReview, setLoading }: ApproveModalProps) => {
   const { lifiStep, account, network, minimumReceived, onConfirm, neededApproval, onChainAllowance } = data;
-
-  if (!lifiStep) throw new DeadEndBoundaryError();
 
   const { sendEvmTransaction } = useTempleClient();
   const getActiveBlockExplorer = useGetEvmActiveBlockExplorer();
@@ -193,7 +190,7 @@ const ApproveModal = ({ data, onClose, onReview, setLoading }: ApproveModalProps
         {estimationData && (
           <EvmTransactionView
             payload={payload}
-            formId={'swap-approve'}
+            formId="swap-approve"
             error={null}
             setFinalEvmTransaction={setFinalEvmTransaction}
             onSubmit={onSubmit}

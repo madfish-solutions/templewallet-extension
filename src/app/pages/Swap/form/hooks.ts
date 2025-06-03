@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { Token } from '@lifi/sdk';
-import { useDispatch } from 'react-redux';
 
+import { dispatch } from 'app/store';
 import {
   putLifiEvmTokensMetadataAction,
   putLifiEvmTokensMetadataLoadingAction
@@ -21,8 +21,6 @@ import { useEnabledEvmChains } from 'temple/front';
  * Hook to fetch and provide available EVM tokens for swap operations
  */
 export const useLifiEvmTokensSlugs = (publicKeyHash: HexString) => {
-  const dispatch = useDispatch();
-
   const [lifiEvmTokensByChain, setLifiEvmTokensByChain] = useState<TokensByChain>({});
   const lastFetchTimeRef = useRef<number>(0);
 
@@ -58,11 +56,9 @@ export const useLifiEvmTokensSlugs = (publicKeyHash: HexString) => {
     } finally {
       dispatch(putLifiEvmTokensMetadataLoadingAction({ isLoading: false }));
     }
-  }, [enabledLifiSupportedChains, dispatch]);
+  }, [enabledLifiSupportedChains]);
 
-  useEffect(() => {
-    fetchEvmTokens().then();
-  }, [fetchEvmTokens]);
+  useEffect(() => void fetchEvmTokens(), [fetchEvmTokens]);
 
   const existingTokens = useEvmAccountTokens(publicKeyHash);
 
@@ -108,5 +104,5 @@ export const useLifiEvmTokensSlugs = (publicKeyHash: HexString) => {
         })
       );
     });
-  }, [dispatch, filteredTokensByChain]);
+  }, [filteredTokensByChain]);
 };

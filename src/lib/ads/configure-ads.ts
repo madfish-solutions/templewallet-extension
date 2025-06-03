@@ -11,6 +11,7 @@ import {
   THEME_COLOR_SEARCH_PARAM_NAME
 } from 'lib/constants';
 import { APP_VERSION, EnvVars, IS_MISES_BROWSER } from 'lib/env';
+import { TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
 import { isTruthy } from 'lib/utils';
 
 import { importExtensionAdsModule } from './import-extension-ads-module';
@@ -53,8 +54,8 @@ const smallTkeyInpageAdUrl = browser.runtime.getURL(`/misc/ad-banners/small-tkey
 const tkeyInpageAdUrl = browser.runtime.getURL(`/misc/ad-banners/tkey-inpage-ad.png`);
 
 const swapTkeyUrl = `${browser.runtime.getURL('fullpage.html')}#${buildSwapPagePath(
-  { chainKind: 'tezos', chainId: 'mainnet', assetSlug: 'tez' },
-  { chainKind: 'tezos', chainId: 'mainnet', assetSlug: 'KT1VaEsVNiBoA56eToEK6n6BcPgh1tdx9eXi_0' },
+  { chainKind: 'tezos', chainId: TEZOS_MAINNET_CHAIN_ID, assetSlug: 'tez' },
+  { chainKind: 'tezos', chainId: TEZOS_MAINNET_CHAIN_ID, assetSlug: 'KT1VaEsVNiBoA56eToEK6n6BcPgh1tdx9eXi_0' },
   true
 )}`;
 

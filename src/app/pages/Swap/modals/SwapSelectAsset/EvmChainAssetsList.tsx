@@ -51,11 +51,11 @@ export const EvmChainAssetsList = memo<Props>(
     const evmChainAssetsSlugs = useMemo(() => {
       const gasTokensSlugs: string[] = [EVM_TOKEN_SLUG];
 
-      return gasTokensSlugs.concat(filterZeroBalances ? tokensSlugs : [...tokensSlugs, ...lifiTokenSlugs]);
+      return gasTokensSlugs.concat(filterZeroBalances ? tokensSlugs : tokensSlugs.concat(lifiTokenSlugs));
     }, [filterZeroBalances, lifiTokenSlugs, tokensSlugs]);
 
     const evmChainAssetsSlugsSorted = useMemoWithCompare(
-      () => [...evmChainAssetsSlugs].sort(tokensSortPredicate),
+      () => evmChainAssetsSlugs.toSorted(tokensSortPredicate),
       [evmChainAssetsSlugs, tokensSortPredicate]
     );
 
@@ -112,7 +112,7 @@ const TokenListItemRenderer = ({ index, style, data }: ListChildComponentProps<I
         assetSlug={slug}
         publicKeyHash={publicKeyHash}
         network={network}
-        useIsVisible={false}
+        requiresVisibility={false}
         onClick={e => onAssetSelect(e, toChainAssetSlug(TempleChainKind.EVM, chainId, slug))}
       />
     </div>

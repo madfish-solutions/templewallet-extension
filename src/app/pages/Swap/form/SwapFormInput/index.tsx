@@ -3,6 +3,7 @@ import React, { FC } from 'react';
 import BigNumber from 'bignumber.js';
 import { noop } from 'lodash';
 
+import { SwapFieldName } from 'app/pages/Swap/form/interfaces';
 import { SwapInputValue } from 'app/pages/Swap/form/SwapForm.form';
 import SwapInput from 'app/pages/Swap/form/SwapFormInput/SwapInput';
 import SwapInputHeader from 'app/pages/Swap/form/SwapFormInput/SwapInputHeader';
@@ -29,7 +30,7 @@ interface SwapFormInputProps extends TestIDProps {
   selectedFiatCurrency: FiatCurrencyOptionBase;
   handleFiatToggle?: (evt: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
   handleSetMaxAmount?: SyncFn<void>;
-  onSelectAssetClick: (field: 'from' | 'to') => void;
+  onSelectAssetClick: SyncFn<SwapFieldName>;
   parseFiatValueToAssetAmount: (fiatAmount?: BigNumber.Value, assetDecimals?: number) => BigNumber;
   testIDs?: SwapFormTestIDs;
 }

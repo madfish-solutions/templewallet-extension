@@ -3,9 +3,10 @@ import React, { memo, useCallback, useState, MouseEvent, Suspense, useEffect, us
 import { useDebounce } from 'use-debounce';
 
 import { Button, IconBase } from 'app/atoms';
+import { PageLoader } from 'app/atoms/Loader';
 import { PageModal } from 'app/atoms/PageModal';
-import Spinner from 'app/atoms/Spinner/Spinner';
 import { ReactComponent as CompactDown } from 'app/icons/base/compact_down.svg';
+import { SwapFieldName } from 'app/pages/Swap/form/interfaces';
 import { useAssetsFilterOptionsSelector } from 'app/store/assets-filter-options/selectors';
 import { FilterChain } from 'app/store/assets-filter-options/state';
 import { NetworkPopper } from 'app/templates/network-popper';
@@ -22,7 +23,7 @@ import { MultiChainAssetsList } from './MultiChainAssetsList';
 import { TezosChainAssetsList } from './TezosChainAssetsList';
 
 interface SelectTokenModalProps {
-  activeField: 'from' | 'to';
+  activeField: SwapFieldName;
   onAssetSelect: (chainSlug: string) => void;
   opened: boolean;
   onRequestClose: EmptyFn;
@@ -65,7 +66,7 @@ export const SwapSelectAssetModal = memo<SelectTokenModalProps>(
       }
     }, [activeField, chainKind, evmNetwork, filterChain, tezosNetwork]);
 
-    const AssetsList = useMemo(() => {
+    const assetsList = useMemo(() => {
       if (localFilterChain?.kind === TempleChainKind.Tezos && accountTezAddress)
         return (
           <TezosChainAssetsList
@@ -119,7 +120,7 @@ export const SwapSelectAssetModal = memo<SelectTokenModalProps>(
           />
         </div>
 
-        <Suspense fallback={<SpinnerSection />}>{AssetsList}</Suspense>
+        <Suspense fallback={<SpinnerSection />}>{assetsList}</Suspense>
       </PageModal>
     );
   }
@@ -152,6 +153,6 @@ const FilterNetworkPopper = memo<FilterNetworkPopperProps>(({ selectedOption, on
 
 const SpinnerSection: FC = () => (
   <div className="flex justify-center my-8">
-    <Spinner className="w-20" />
+    <PageLoader className="w-20" />
   </div>
 );
