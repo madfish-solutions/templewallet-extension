@@ -57,7 +57,9 @@ export const COMMON_TESTNET_CHAIN_IDS = {
   polygon: 80002,
   bsc: 97,
   avalanche: 43113,
-  optimism: 11155420
+  optimism: 11155420,
+  base: 84532,
+  etherlink: 128123
 };
 
 export enum TempleTezosChainId {

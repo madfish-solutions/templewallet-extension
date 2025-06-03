@@ -2,30 +2,21 @@ import React, { FC, FunctionComponent, SVGProps } from 'react';
 
 import clsx from 'clsx';
 
-import { Anchor } from 'app/atoms';
+import { Button } from 'app/atoms';
 import { TestIDProps } from 'lib/analytics';
 
 interface OnRumpSmileButtonProps extends TestIDProps {
-  href: string;
   SmileIcon: FunctionComponent<SVGProps<SVGSVGElement>>;
   amount: number;
   accentColors?: boolean;
-  onClick?: () => void;
+  onClick?: EmptyFn;
 }
 
-export const OnRampSmileButton: FC<OnRumpSmileButtonProps> = ({
-  href,
-  SmileIcon,
-  amount,
-  accentColors,
-  onClick,
-  testID
-}) => {
+export const OnRampSmileButton: FC<OnRumpSmileButtonProps> = ({ SmileIcon, amount, accentColors, onClick, testID }) => {
   return (
-    <Anchor
-      href={href}
+    <Button
       className={clsx(
-        'flex flex-col py-[18px] flex-1 ',
+        'flex flex-col w-24 h-23',
         'justify-center items-center',
         'rounded-10 shadow-md',
         'transition ease-in-out duration-200',
@@ -35,10 +26,8 @@ export const OnRampSmileButton: FC<OnRumpSmileButtonProps> = ({
       onClick={onClick}
       testID={testID}
     >
-      <SmileIcon className="w-7 h-auto" />
-      <p className={clsx('text-base font-rubik font-medium mt-1', accentColors ? 'text-white' : 'text-primary')}>
-        {amount}$
-      </p>
-    </Anchor>
+      <SmileIcon className="w-7 h-7" />
+      <p className={clsx('text-font-num-bold-16 mt-1', accentColors ? 'text-white' : 'text-primary')}>{amount}$</p>
+    </Button>
   );
 };

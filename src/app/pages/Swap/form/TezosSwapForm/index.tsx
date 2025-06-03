@@ -14,13 +14,14 @@ import { SwapFormValue, SwapInputValue } from 'app/pages/Swap/form/SwapForm.form
 import { useGetTezosSwapTransferParams } from 'app/pages/Swap/form/use-swap-params';
 import { getDefaultSwapFormValues } from 'app/pages/Swap/form/utils';
 import { dispatch, useSelector } from 'app/store';
-import { setOnRampPossibilityAction } from 'app/store/settings/actions';
+import { setOnRampAssetAction } from 'app/store/settings/actions';
 import { loadSwapParamsAction } from 'app/store/swap/actions';
 import { useSwapParamsSelector, useSwapTokenSelector, useSwapTokensSelector } from 'app/store/swap/selectors';
 import OperationStatus from 'app/templates/OperationStatus';
 import { toastError, toastUniqWarning } from 'app/toaster';
 import { useFormAnalytics } from 'lib/analytics';
 import { fetchRoute3SwapParams } from 'lib/apis/route3/fetch-route3-swap-params';
+import { TEZOS_CHAIN_ASSET_SLUG } from 'lib/apis/wert';
 import { isTezAsset, TEZ_TOKEN_SLUG } from 'lib/assets';
 import { KNOWN_TOKENS_SLUGS } from 'lib/assets/known-tokens';
 import { parseChainAssetSlug } from 'lib/assets/utils';
@@ -419,7 +420,7 @@ export const TezosSwapForm: FC<TezosSwapFormProps> = ({
       inputValue.assetSlug === TEZ_TOKEN_SLUG &&
       getTezosBalance(TEZOS_MAINNET_CHAIN_ID, TEZ_TOKEN_SLUG)?.lte(EXCHANGE_XTZ_RESERVE)
     ) {
-      dispatch(setOnRampPossibilityAction(true));
+      dispatch(setOnRampAssetAction(TEZOS_CHAIN_ASSET_SLUG));
 
       return;
     }
