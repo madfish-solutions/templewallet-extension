@@ -1,6 +1,5 @@
 import React, { memo, useCallback, useState } from 'react';
 
-import { Alert } from 'app/atoms';
 import {
   ActionModal,
   ActionModalBodyContainer,
