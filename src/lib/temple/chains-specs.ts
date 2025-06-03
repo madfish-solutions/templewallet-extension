@@ -1,7 +1,13 @@
 import { EvmNativeTokenMetadata } from 'lib/metadata/types';
 import { DEFAULT_EVM_CURRENCY } from 'temple/networks';
 
-import { ETH_SEPOLIA_CHAIN_ID, ETHEREUM_MAINNET_CHAIN_ID, COMMON_MAINNET_CHAIN_IDS, TempleTezosChainId } from './types';
+import {
+  ETH_SEPOLIA_CHAIN_ID,
+  ETHEREUM_MAINNET_CHAIN_ID,
+  COMMON_MAINNET_CHAIN_IDS,
+  TempleTezosChainId,
+  COMMON_TESTNET_CHAIN_IDS
+} from './types';
 
 interface ChainSpecsBase {
   activeRpcId?: string;
@@ -74,6 +80,11 @@ export const DEFAULT_EVM_CHAINS_SPECS: Record<string, EvmChainSpecs & { testnet:
     testnet: false,
     currency: DEFAULT_EVM_CURRENCY
   },
+  [COMMON_MAINNET_CHAIN_IDS.base]: {
+    name: 'Base',
+    testnet: false,
+    currency: DEFAULT_EVM_CURRENCY
+  },
   [COMMON_MAINNET_CHAIN_IDS.etherlink]: {
     name: 'Etherlink',
     testnet: false,
@@ -87,11 +98,11 @@ export const DEFAULT_EVM_CHAINS_SPECS: Record<string, EvmChainSpecs & { testnet:
     name: 'Ethereum Sepolia',
     currency: {
       ...DEFAULT_EVM_CURRENCY,
-      name: 'Sepolia Ether'
+      name: 'Sepolia Ethereum'
     },
     testnet: true
   },
-  '80002': {
+  [COMMON_TESTNET_CHAIN_IDS.polygon]: {
     name: 'Polygon Amoy',
     currency: {
       ...DEFAULT_EVM_CURRENCY,
@@ -100,7 +111,7 @@ export const DEFAULT_EVM_CHAINS_SPECS: Record<string, EvmChainSpecs & { testnet:
     },
     testnet: true
   },
-  '97': {
+  [COMMON_TESTNET_CHAIN_IDS.bsc]: {
     name: 'BSC',
     currency: {
       ...DEFAULT_EVM_CURRENCY,
@@ -109,7 +120,7 @@ export const DEFAULT_EVM_CHAINS_SPECS: Record<string, EvmChainSpecs & { testnet:
     },
     testnet: true
   },
-  '43113': {
+  [COMMON_TESTNET_CHAIN_IDS.avalanche]: {
     name: 'Avalanche Fuji',
     currency: {
       ...DEFAULT_EVM_CURRENCY,
@@ -118,15 +129,23 @@ export const DEFAULT_EVM_CHAINS_SPECS: Record<string, EvmChainSpecs & { testnet:
     },
     testnet: true
   },
-  '11155420': {
+  [COMMON_TESTNET_CHAIN_IDS.optimism]: {
     name: 'Optimism Sepolia',
+    currency: {
+      ...DEFAULT_EVM_CURRENCY,
+      name: 'Sepolia Ethereum'
+    },
+    testnet: true
+  },
+  [COMMON_TESTNET_CHAIN_IDS.base]: {
+    name: 'Base Sepolia',
     currency: {
       ...DEFAULT_EVM_CURRENCY,
       name: 'Sepolia Ether'
     },
     testnet: true
   },
-  '128123': {
+  [COMMON_TESTNET_CHAIN_IDS.etherlink]: {
     name: 'Etherlink',
     currency: {
       ...DEFAULT_EVM_CURRENCY,

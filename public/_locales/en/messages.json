@@ -4176,6 +4176,30 @@
   "earn": {
     "message": "Earn"
   },
+  "earnTkeyHeadline": {
+    "message": "Hold, browse or use your Temple and get rewarded in TKEY"
+  },
+  "nonIntrusiveAds": {
+    "message": "Watch non-intrusive ads with Temple"
+  },
+  "earnOnBackground": {
+    "message": "Earn on background and boost with mobile"
+  },
+  "autoPayouts": {
+    "message": "Auto-payouts every month"
+  },
+  "turnOnWhenNeeded": {
+    "message": "Turn feature on when it works for you"
+  },
+  "earnTkeyDisclaimer": {
+    "message": "By enabling ads, you agree to share your wallet address and IP\nto receive tokens and ads content."
+  },
+  "startEarning": {
+    "message": "Start Earning"
+  },
+  "rewardsEarningEnabled": {
+    "message": "Rewards earning successfully enabled"
+  },
   "marketPageDisclaimer": {
     "message": "Temple integrated third-party solutions to buy or exchange crypto."
   },
