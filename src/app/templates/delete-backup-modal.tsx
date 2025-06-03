@@ -32,7 +32,7 @@ export const DeleteBackupModal = memo<DeleteBackupModalProps>(({ onCancel, onDel
   }, [onDelete, setDeleteInProgress]);
 
   return (
-    <ActionModal title={t('deleteExistingBackupQuestion')} onClose={onCancel}>
+    <ActionModal title={t('deleteExistingBackupQuestion')} hasCloseButton={false}>
       <ActionModalBodyContainer className="pt-3 pb-1 gap-3">
         <Alert description={t('deleteBackupWarning')} type="warning" />
         <p className="text-font-description text-center text-grey-1">{t('deleteBackupDescription')}</p>
