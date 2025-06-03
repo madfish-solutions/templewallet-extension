@@ -139,7 +139,7 @@ export const CreatePasswordForm = memo<CreatePasswordFormProps>(
             trackEvent('AdsEnabled', AnalyticsEventCategory.General, { accountPkh }, adsViewEnabled);
           }
 
-          dispatch(setOnRampPossibilityAction(!mnemonicToImport));
+          dispatch(setOnRampAssetAction(mnemonicToImport ? null : TEZOS_CHAIN_ASSET_SLUG));
 
           if (mnemonicToImport) {
             setInitToast(t(backupPassword ? 'yourWalletIsReady' : 'importSuccessful'));
@@ -147,10 +147,8 @@ export const CreatePasswordForm = memo<CreatePasswordFormProps>(
           } else if (!googleAuthToken) {
             await putToStorage(SHOULD_BACKUP_MNEMONIC_STORAGE_KEY, true);
             setBackupCredentials(seedPhrase, password);
-            dispatch(setOnRampAssetAction(TEZOS_CHAIN_ASSET_SLUG));
             navigate('/loading');
           } else {
-            dispatch(setOnRampAssetAction(TEZOS_CHAIN_ASSET_SLUG));
             try {
               await writeGoogleDriveBackup(seedPhrase, password, googleAuthToken);
               onNewBackupState?.(seedPhrase, password, true);
