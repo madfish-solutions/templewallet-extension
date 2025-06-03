@@ -3,7 +3,11 @@ import { persistReducer } from 'redux-persist';
 
 import { storageConfig } from 'lib/store';
 
-import { putLifiEvmTokensMetadataAction, putLifiEvmTokensMetadataLoadingAction } from './actions';
+import {
+  putLifiEvmTokensMetadataAction,
+  putLifiEvmTokensMetadataLoadingAction,
+  setLifiMetadataLastFetchTimeAction
+} from './actions';
 import { lifiEvmTokensMetadataInitialState, LifiEvmTokensMetadataState } from './state';
 
 const lifiEvmTokensMetadataReducer = createReducer<LifiEvmTokensMetadataState>(
@@ -29,12 +33,16 @@ const lifiEvmTokensMetadataReducer = createReducer<LifiEvmTokensMetadataState>(
         state.error = payload.error;
       }
     });
+    builder.addCase(setLifiMetadataLastFetchTimeAction, (state, action) => {
+      state.lastFetchTime = action.payload;
+    });
   }
 );
 
 export const lifiEvmTokensMetadataPersistedReducer = persistReducer(
   {
     key: 'root.lifiEvmTokensMetadata',
+    blacklist: ['isLoading', 'error'],
     ...storageConfig
   },
   lifiEvmTokensMetadataReducer

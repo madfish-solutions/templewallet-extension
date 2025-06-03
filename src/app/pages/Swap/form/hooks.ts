@@ -1,12 +1,14 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { Token } from '@lifi/sdk';
 
 import { dispatch } from 'app/store';
 import {
   putLifiEvmTokensMetadataAction,
-  putLifiEvmTokensMetadataLoadingAction
+  putLifiEvmTokensMetadataLoadingAction,
+  setLifiMetadataLastFetchTimeAction
 } from 'app/store/evm/swap-lifi-metadata/actions';
+import { useLifiEvmMetadataLastFetchTimeSelector } from 'app/store/evm/swap-lifi-metadata/selectors';
 import { TokenSlugTokenMetadataRecord } from 'app/store/evm/swap-lifi-metadata/state';
 import { getEvmSwapTokensMetadata, TokensByChain } from 'lib/apis/temple/endpoints/evm';
 import { ChainID, LifiSupportedChains } from 'lib/apis/temple/endpoints/evm/api.interfaces';
@@ -20,9 +22,11 @@ import { useEnabledEvmChains } from 'temple/front';
 /**
  * Hook to fetch and provide available EVM tokens for swap operations
  */
-export const useLifiEvmTokensSlugs = (publicKeyHash: HexString) => {
+export const useFetchLifiEvmTokensSlugs = (publicKeyHash: HexString) => {
   const [lifiEvmTokensByChain, setLifiEvmTokensByChain] = useState<TokensByChain>({});
-  const lastFetchTimeRef = useRef<number>(0);
+  const lastFetchTime = useLifiEvmMetadataLastFetchTimeSelector();
+
+  // chrome.storage.local.get('temple-root').then(res => console.log(res))
 
   const enabledChains = useEnabledEvmChains();
   const enabledLifiSupportedChains = useMemo(
@@ -31,12 +35,11 @@ export const useLifiEvmTokensSlugs = (publicKeyHash: HexString) => {
   );
 
   const fetchEvmTokens = useCallback(async () => {
-    const now = Date.now();
-    if (now - lastFetchTimeRef.current < LIFI_METADATA_SYNC_INTERVAL) {
+    if (Date.now() - (lastFetchTime ?? 0) < LIFI_METADATA_SYNC_INTERVAL) {
       return;
     }
 
-    lastFetchTimeRef.current = now;
+    dispatch(setLifiMetadataLastFetchTimeAction(Date.now()));
 
     try {
       dispatch(putLifiEvmTokensMetadataLoadingAction({ isLoading: true, error: null }));

@@ -14,3 +14,5 @@ export const putLifiEvmTokensMetadataAction = createAction<putLifiEvmTokensMetad
 export const putLifiEvmTokensMetadataLoadingAction = createAction<{ isLoading?: boolean; error?: any }>(
   'evm/swap-lifi-metadata/PUT_LIFI_TOKENS_METADATA_LOADING_ACTION'
 );
+
+export const setLifiMetadataLastFetchTimeAction = createAction<number>('@swap-lifi-metadata/set-last-fetch-time');
