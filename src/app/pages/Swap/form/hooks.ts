@@ -26,8 +26,6 @@ export const useFetchLifiEvmTokensSlugs = (publicKeyHash: HexString) => {
   const [lifiEvmTokensByChain, setLifiEvmTokensByChain] = useState<TokensByChain>({});
   const lastFetchTime = useLifiEvmMetadataLastFetchTimeSelector();
 
-  // chrome.storage.local.get('temple-root').then(res => console.log(res))
-
   const enabledChains = useEnabledEvmChains();
   const enabledLifiSupportedChains = useMemo(
     () => enabledChains.filter(chain => LifiSupportedChains.includes(chain.chainId)),
