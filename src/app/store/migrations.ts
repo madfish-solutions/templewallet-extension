@@ -1,6 +1,7 @@
 import { cloneDeep } from 'lodash';
 import type { MigrationManifest, PersistedState } from 'redux-persist';
 
+import { TEZOS_CHAIN_ASSET_SLUG } from 'lib/apis/wert';
 import { toTokenSlug } from 'lib/assets';
 import { IS_MISES_BROWSER } from 'lib/env';
 import { isCollectible } from 'lib/metadata/utils';
@@ -115,6 +116,24 @@ export const MIGRATIONS: MigrationManifest = {
       settings: {
         ...typedPersistedState.settings,
         referralLinksEnabled: false
+      }
+    };
+
+    return newState;
+  },
+
+  '6': (persistedState: PersistedState) => {
+    if (!persistedState) return persistedState;
+
+    const typedPersistedState = persistedState as TypedPersistedRootState;
+
+    if (!typedPersistedState.settings.isOnRampPossibility) return persistedState;
+
+    const newState: TypedPersistedRootState = {
+      ...typedPersistedState,
+      settings: {
+        ...typedPersistedState.settings,
+        onRampAsset: TEZOS_CHAIN_ASSET_SLUG
       }
     };
 

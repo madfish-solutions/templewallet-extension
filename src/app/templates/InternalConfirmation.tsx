@@ -13,13 +13,14 @@ import { ReactComponent as EyeIcon } from 'app/icons/eye.svg';
 import { ReactComponent as HashIcon } from 'app/icons/hash.svg';
 import OperationsBanner from 'app/icons/OperationsBanner/OperationsBanner';
 import { dispatch } from 'app/store';
-import { setOnRampPossibilityAction } from 'app/store/settings/actions';
+import { setOnRampAssetAction } from 'app/store/settings/actions';
 import AccountBanner from 'app/templates/AccountBanner';
 import ExpensesView, { ModifyFeeAndLimit } from 'app/templates/ExpensesView/ExpensesView';
 import NetworkBanner from 'app/templates/NetworkBanner';
 import RawPayloadView from 'app/templates/RawPayloadView';
 import ViewsSwitcher from 'app/templates/ViewsSwitcher/ViewsSwitcher';
 import { ViewsSwitcherItemProps } from 'app/templates/ViewsSwitcher/ViewsSwitcherItem';
+import { TEZOS_CHAIN_ASSET_SLUG } from 'lib/apis/wert';
 import { toTokenSlug } from 'lib/assets';
 import { T, t } from 'lib/i18n';
 import { useRetryableSWR } from 'lib/swr';
@@ -95,7 +96,7 @@ const InternalConfirmation: FC<InternalConfirmationProps> = ({ payload, onConfir
     try {
       const { errorDetails, errors, name, message } = payloadError.error[0];
       if (message?.includes('empty_implicit_contract') && message?.includes(payload.sourcePkh)) {
-        dispatch(setOnRampPossibilityAction(true));
+        dispatch(setOnRampAssetAction(TEZOS_CHAIN_ASSET_SLUG));
       }
       if (
         payload.type !== 'operations' ||
@@ -113,7 +114,7 @@ const InternalConfirmation: FC<InternalConfirmationProps> = ({ payload, onConfir
       });
 
       if (tezBalanceTooLow) {
-        dispatch(setOnRampPossibilityAction(true));
+        dispatch(setOnRampAssetAction(TEZOS_CHAIN_ASSET_SLUG));
       }
     } catch {}
   }, [payload.sourcePkh, payload.type, payloadError]);

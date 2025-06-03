@@ -1,4 +1,4 @@
-import React, { memo, Suspense, useCallback, useState } from 'react';
+import React, { memo, Suspense, useCallback, useRef, useState } from 'react';
 
 import { PageTitle } from 'app/atoms';
 import { PageLoader } from 'app/atoms/Loader';
@@ -18,6 +18,7 @@ import { useBooleanState } from 'lib/ui/hooks';
 import { useAccountAddressForEvm } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
 
+import { SendFormControl, SendFormControlContext } from './context';
 import { Form } from './form';
 import { ReviewData } from './form/interfaces';
 import { ConfirmSendModal } from './modals/ConfirmSend';
@@ -33,6 +34,8 @@ const Send = memo<Props>(({ chainKind, chainId, assetSlug }) => {
   const accountEvmAddress = useAccountAddressForEvm();
   const { filterChain } = useAssetsFilterOptionsSelector();
   const testnetModeEnabled = useTestnetModeEnabledSelector();
+
+  const formControlRef = useRef<SendFormControl>(null);
 
   const [selectedChainAssetSlug, setSelectedChainAssetSlug] = useState(() => {
     if (chainKind && chainId && assetSlug) {
@@ -69,6 +72,7 @@ const Send = memo<Props>(({ chainKind, chainId, assetSlug }) => {
 
   const handleAssetSelect = useCallback(
     (slug: string) => {
+      formControlRef.current?.resetForm();
       setSelectedChainAssetSlug(slug);
       setSelectAssetModalClosed();
     },
@@ -86,11 +90,13 @@ const Send = memo<Props>(({ chainKind, chainId, assetSlug }) => {
   return (
     <PageLayout pageTitle={<PageTitle title={t('send')} />} contentPadding={false} noScroll>
       <Suspense fallback={<PageLoader stretch />}>
-        <Form
-          selectedChainAssetSlug={selectedChainAssetSlug}
-          onReview={handleReview}
-          onSelectAssetClick={setSelectAssetModalOpen}
-        />
+        <SendFormControlContext.Provider value={formControlRef}>
+          <Form
+            selectedChainAssetSlug={selectedChainAssetSlug}
+            onReview={handleReview}
+            onSelectAssetClick={setSelectAssetModalOpen}
+          />
+        </SendFormControlContext.Provider>
       </Suspense>
 
       <SelectAssetModal
