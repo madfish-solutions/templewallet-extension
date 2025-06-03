@@ -195,9 +195,9 @@ export const BaseSwapForm: FC<Props> = ({
 
         <div className="w-full -my-2.5 flex justify-center z-1">
           <StyledButton
-            size={'S'}
+            size="S"
             style={{ padding: '0.25rem' }}
-            color={'secondary-low'}
+            color="secondary-low"
             onClick={handleToggleIconClickChangeFields}
             type="button"
             {...setTestID(SwapFormSelectors.swapPlacesButton)}
