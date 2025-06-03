@@ -881,7 +881,7 @@
     "message": "For safety reasons, Temple never stores your password and can’t help recover it. If you forgot your password, you can reset extension and re-import your wallet using your Seed Phrase without losing any funds."
   },
   "forgotBackupPasswordDescription": {
-    "message": "For safety reasons, Temple never stores your password and can’t recover it. If you forgot password for your backup, you can create a new wallet and overwrite the existing Google backup."
+    "message": "For safety reasons, Temple never stores your passwords and can’t recover it. If you forgot password for your backup, you can delete current Google backup and create a new wallet."
   },
   "backupPasswordHint": {
     "message": "Hint: wallet backup password and Temple Wallet unlock password are often similar."
@@ -902,7 +902,7 @@
     "message": "Before you continue, ensure you saved current backed up seed phrase to avoid loss of funds."
   },
   "deleteBackupDescription": {
-    "message": "If you overwrite the wallet backup from your current Google account, you won’t be able to restore this wallet in the future."
+    "message": "If you delete the wallet backup from your current Google account, you won’t be able to restore this wallet in the future."
   },
   "useBackupPassword": {
     "message": "Use backup password"
