@@ -71,12 +71,7 @@ export const TokensTabBase: FC<PropsWithChildren<TokensTabBaseProps>> = ({
         <AssetsFilterOptions />
       ) : (
         <FadeTransition>
-          <ContentContainer padding={tokensCount > 0}>
-            {/*TODO: Update banner UI*/}
-            {/*{manageActive ? null : <UpdateAppBanner stickyBarRef={stickyBarRef} />}*/}
-
-            <TokensTabBaseContent {...restProps} tokensCount={tokensCount} manageActive={manageActive} />
-          </ContentContainer>
+          <TokensTabBaseContent {...restProps} tokensCount={tokensCount} manageActive={manageActive} />
         </FadeTransition>
       )}
 
@@ -114,28 +109,50 @@ const TokensTabBaseContent: FC<PropsWithChildren<TokensTabBaseContentProps>> = (
   const isSyncingInitializedState = useIsAccountInitializedLoadingSelector(accountId);
 
   if (accountIsInitialized === false && !isSyncingInitializedState && !isTestnet) {
-    return <UninitializedAccountContent />;
+    return (
+      <TokensTabBaseContentWrapper>
+        <UninitializedAccountContent />
+      </TokensTabBaseContentWrapper>
+    );
   }
 
   if (
     (accountIsInitialized !== true && isSyncingInitializedState && !isTestnet) ||
     (tokensCount === 0 && isSyncing && !isInSearchMode)
   ) {
-    return <PageLoader stretch />;
+    return (
+      <TokensTabBaseContentWrapper padding={false}>
+        <PageLoader stretch />
+      </TokensTabBaseContentWrapper>
+    );
   }
 
-  return tokensCount === 0 ? (
-    <EmptySection forCollectibles={false} manageActive={manageActive} forSearch={isInSearchMode} network={network} />
-  ) : (
-    <>
-      {manageActive && (
-        <AddCustomTokenButton forCollectibles={false} manageActive={manageActive} network={network} className="mb-4" />
+  return (
+    <TokensTabBaseContentWrapper padding={tokensCount > 0}>
+      {tokensCount === 0 ? (
+        <EmptySection
+          forCollectibles={false}
+          manageActive={manageActive}
+          forSearch={isInSearchMode}
+          network={network}
+        />
+      ) : (
+        <>
+          {manageActive && (
+            <AddCustomTokenButton
+              forCollectibles={false}
+              manageActive={manageActive}
+              network={network}
+              className="mb-4"
+            />
+          )}
+          <VisibilityTrackingInfiniteScroll getElementsIndexes={getElementIndex} loadNext={loadNextPage}>
+            {children}
+          </VisibilityTrackingInfiniteScroll>
+          {isSyncing && <SyncSpinner className="mt-4" />}
+        </>
       )}
-      <VisibilityTrackingInfiniteScroll getElementsIndexes={getElementIndex} loadNext={loadNextPage}>
-        {children}
-      </VisibilityTrackingInfiniteScroll>
-      {isSyncing && <SyncSpinner className="mt-4" />}
-    </>
+    </TokensTabBaseContentWrapper>
   );
 };
 
@@ -198,3 +215,12 @@ const UninitializedAccountContent = memo(() => {
     </>
   );
 });
+
+const TokensTabBaseContentWrapper: FC<PropsWithChildren<{ padding?: boolean }>> = ({ padding, children }) => (
+  <ContentContainer padding={padding}>
+    {/*TODO: Update banner UI*/}
+    {/*{manageActive ? null : <UpdateAppBanner stickyBarRef={stickyBarRef} />}*/}
+
+    {children}
+  </ContentContainer>
+);
