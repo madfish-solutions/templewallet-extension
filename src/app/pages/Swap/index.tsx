@@ -164,7 +164,7 @@ const Swap = memo<Props>(() => {
 
   const handleConfirmSlippageTolerance = useCallback(
     (slippageTolerance: number) => {
-      setSlippageTolerance(slippageTolerance).then();
+      setSlippageTolerance(slippageTolerance);
       setSettingsModalClosed();
     },
     [setSettingsModalClosed, setSlippageTolerance]

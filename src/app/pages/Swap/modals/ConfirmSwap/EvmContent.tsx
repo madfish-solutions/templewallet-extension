@@ -37,13 +37,13 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
   const accountPkh = account.address as HexString;
   const isLedgerAccount = account.type === TempleAccountType.Ledger;
 
-  const fromTokenSlug = useMemo(() => {
+  const inputTokenSlug = useMemo(() => {
     return EVM_ZERO_ADDRESS === lifiStep.action.fromToken.address
       ? EVM_TOKEN_SLUG
       : toTokenSlug(lifiStep.action.fromToken.address, 0);
   }, [lifiStep.action.fromToken.address]);
 
-  const toTokenSLug = useMemo(() => {
+  const outputTokenSlug = useMemo(() => {
     return EVM_ZERO_ADDRESS === lifiStep.action.toToken.address
       ? EVM_TOKEN_SLUG
       : toTokenSlug(lifiStep.action.toToken.address, 0);
@@ -68,16 +68,16 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
 
   const balancesChanges = useMemo(() => {
     return {
-      [fromTokenSlug]: {
+      [inputTokenSlug]: {
         atomicAmount: new BigNumber(-lifiStep.estimate.fromAmount),
         isNft: false
       },
-      [toTokenSLug]: {
+      [outputTokenSlug]: {
         atomicAmount: new BigNumber(+lifiStep.estimate.toAmount),
         isNft: false
       }
     };
-  }, [fromTokenSlug, lifiStep.estimate.fromAmount, lifiStep.estimate.toAmount, toTokenSLug]);
+  }, [inputTokenSlug, lifiStep.estimate.fromAmount, lifiStep.estimate.toAmount, outputTokenSlug]);
 
   const executeRouteStep = useCallback(
     async (step: LiFiStep, { gasPrice, gasLimit, nonce }: Partial<EvmTxParamsFormData>) => {

@@ -1,4 +1,4 @@
-import React, { FC } from 'react';
+import React, { FC, MouseEventHandler } from 'react';
 
 import BigNumber from 'bignumber.js';
 import { noop } from 'lodash';
@@ -28,7 +28,7 @@ interface SwapFormInputProps extends TestIDProps {
   maxAmount?: BigNumber;
   isFiatMode?: boolean;
   selectedFiatCurrency: FiatCurrencyOptionBase;
-  handleFiatToggle?: (evt: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
+  handleFiatToggle?: MouseEventHandler<HTMLButtonElement>;
   handleSetMaxAmount?: SyncFn<void>;
   onSelectAssetClick: SyncFn<SwapFieldName>;
   parseFiatValueToAssetAmount: (fiatAmount?: BigNumber.Value, assetDecimals?: number) => BigNumber;
