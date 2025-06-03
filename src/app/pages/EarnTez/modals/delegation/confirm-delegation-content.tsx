@@ -7,7 +7,8 @@ import { useDispatch } from 'react-redux';
 import { Alert } from 'app/atoms';
 import { HashChip } from 'app/atoms/HashChip';
 import { TextButton } from 'app/atoms/TextButton';
-import { setOnRampPossibilityAction } from 'app/store/settings/actions';
+import { setOnRampAssetAction } from 'app/store/settings/actions';
+import { TEZOS_CHAIN_ASSET_SLUG } from 'lib/apis/wert';
 import { T } from 'lib/i18n';
 import { getTezosGasMetadata } from 'lib/metadata';
 import { ZERO } from 'lib/utils/numbers';
@@ -71,7 +72,7 @@ const TxTabsInnerContent: ConfirmEarnOperationContentProps<ReviewData>['TxTabsIn
     const dispatch = useDispatch();
     const { symbol: tezSymbol } = getTezosGasMetadata(network.chainId);
 
-    const openWertPopup = useCallback(() => void dispatch(setOnRampPossibilityAction(true)), [dispatch]);
+    const openWertPopup = useCallback(() => void dispatch(setOnRampAssetAction(TEZOS_CHAIN_ASSET_SLUG)), [dispatch]);
     const delegatedAmount = useMemo(
       () => BigNumber.max(ZERO, tezBalance.minus(estimationData?.gasFee ?? ZERO)),
       [estimationData?.gasFee, tezBalance]
