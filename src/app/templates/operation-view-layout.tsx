@@ -38,7 +38,7 @@ export const OperationViewLayout = <T extends TxParamsFormData>({
           <BalancesChangesView balancesChanges={filteredBalancesChanges} chain={network} />
         </div>
       )}
-      {!expensesViewIsVisible && (otherDataLoading || metadataLoading) && (
+      {someBalancesChanges && (otherDataLoading || metadataLoading) && (
         <div className="flex justify-center items-center">
           <Loader size="L" trackVariant="dark" className="text-secondary" />
         </div>
