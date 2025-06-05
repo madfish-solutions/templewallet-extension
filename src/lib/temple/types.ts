@@ -375,7 +375,7 @@ export type TempleDAppPayload = TempleTezosDAppPayload | TempleEvmDAppPayload;
  */
 
 export enum TempleMessageType {
-  // Aknowledge
+  // Acknowledge
   Acknowledge = 'TEMPLE_CONNECT_AKNOWLEDGE',
   // Notifications
   StateUpdated = 'TEMPLE_STATE_UPDATED',

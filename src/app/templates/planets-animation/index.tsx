@@ -14,6 +14,8 @@ import { ReactComponent as SunGlow } from './sun-glow.svg';
 import { PlanetsAnimationProps, OrbitProps } from './types';
 import { calculateBottomGapAngle } from './utils';
 
+export { SUN_RADIUS } from './constants';
+
 const orbitsBase = [
   {
     fullRotationPeriod: 150,
