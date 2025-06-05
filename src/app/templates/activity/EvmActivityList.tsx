@@ -1,14 +1,18 @@
 import React, { FC, useMemo } from 'react';
 
 import { DeadEndBoundaryError } from 'app/ErrorBoundary';
+import { dispatch } from 'app/store';
+import { putEvmCollectiblesMetadataAction } from 'app/store/evm/collectibles-metadata/actions';
+import { putEvmTokensMetadataAction } from 'app/store/evm/tokens-metadata/actions';
 import { EvmActivity } from 'lib/activity';
+import { EtherlinkPageParams, isEtherlinkSupportedChainId } from 'lib/apis/etherlink';
 import { useAccountAddressForEvm } from 'temple/front';
 import { useEvmChainByChainId } from 'temple/front/chains';
 import { TempleChainKind } from 'temple/types';
 
 import { EvmActivityComponent } from './ActivityItem';
 import { ActivityListView } from './ActivityListView';
-import { fetchEvmActivitiesWithCache } from './fetch-activities-with-cache';
+import { fetchEtherlinkActivitiesWithCache, fetchEvmActivitiesWithCache } from './fetch-activities-with-cache';
 import { ActivitiesDateGroup, useGroupingByDate } from './grouping-by-date';
 import { RETRY_AFTER_ERROR_TIMEOUT, useActivitiesLoadingLogic } from './loading-logic';
 import { useAssetsFromActivitiesCheck } from './use-assets-from-activites-check';
@@ -42,19 +46,56 @@ export const EvmActivityList: FC<Props> = ({ chainId, assetSlug, filterKind }) =
 
       const currActivities = initial ? [] : activities;
 
-      const olderThanBlockHeight = currActivities.at(-1)?.blockHeight;
+      const lastActivity = currActivities.at(-1);
 
       try {
-        const newActivities = await fetchEvmActivitiesWithCache({
-          chainId,
-          accountAddress,
-          assetSlug,
-          signal,
-          olderThan: olderThanBlockHeight
-        });
+        if (isEtherlinkSupportedChainId(chainId)) {
+          let olderThan: EtherlinkPageParams | undefined;
+          if (lastActivity) {
+            const { blockHeight, hash, addedAt, index, fee, value } = lastActivity;
+            olderThan = {
+              block_number: Number(blockHeight),
+              index: index ?? 0,
+              items_count: currActivities.length,
+              fee: fee ?? '0',
+              hash,
+              inserted_at: addedAt.replace(/(\.\d+)?Z$/, '.999999Z'),
+              value: value ?? '0'
+            };
+          }
+          const {
+            activities: newActivities,
+            tokensMetadata,
+            collectiblesMetadata,
+            reachedTheEnd
+          } = await fetchEtherlinkActivitiesWithCache({
+            chainId,
+            accountAddress,
+            assetSlug,
+            signal,
+            olderThan
+          });
+          if (Object.keys(tokensMetadata).length) {
+            dispatch(putEvmTokensMetadataAction({ chainId, records: tokensMetadata }));
+          }
+          if (Object.keys(collectiblesMetadata).length) {
+            dispatch(putEvmCollectiblesMetadataAction({ chainId, records: collectiblesMetadata }));
+          }
 
-        if (newActivities.length) setActivities(currActivities.concat(newActivities));
-        else setReachedTheEnd(true);
+          if (newActivities.length) setActivities(currActivities.concat(newActivities));
+          if (!newActivities.length || reachedTheEnd) setReachedTheEnd(true);
+        } else {
+          const { activities: newActivities } = await fetchEvmActivitiesWithCache({
+            chainId,
+            accountAddress,
+            assetSlug,
+            signal,
+            olderThan: lastActivity?.blockHeight
+          });
+
+          if (newActivities.length) setActivities(currActivities.concat(newActivities));
+          else setReachedTheEnd(true);
+        }
       } catch (error) {
         if (signal.aborted) return;
 

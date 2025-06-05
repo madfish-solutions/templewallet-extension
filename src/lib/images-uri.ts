@@ -278,7 +278,8 @@ const getEvmCustomChainIconUrl = (
 export const buildEvmTokenIconSources = (metadata: EvmAssetMetadataBase, chainId: number): string[] => {
   const fallbacks = [
     getEvmCustomChainIconUrl(chainId, metadata),
-    metadata.standard === EvmAssetStandard.NATIVE && getEvmCustomChainIconUrl(chainId, metadata, 'llamao')
+    metadata.standard === EvmAssetStandard.NATIVE && getEvmCustomChainIconUrl(chainId, metadata, 'llamao'),
+    metadata.iconURL
   ];
 
   return fallbacks.filter(isTruthy).map(url => getCompressedImageUrl(url, COMPRESSED_TOKEN_ICON_SIZE));

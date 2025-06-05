@@ -1,6 +1,10 @@
 import React, { memo, useMemo } from 'react';
 
+import { dispatch } from 'app/store';
+import { putEvmCollectiblesMetadataAction } from 'app/store/evm/collectibles-metadata/actions';
+import { putEvmTokensMetadataAction } from 'app/store/evm/tokens-metadata/actions';
 import { Activity, EvmActivity, TezosActivity } from 'lib/activity';
+import { EtherlinkPageParams, isEtherlinkSupportedChainId } from 'lib/apis/etherlink';
 import { TzktApiChainId } from 'lib/apis/tzkt';
 import { isKnownChainId as isKnownTzktChainId } from 'lib/apis/tzkt/api';
 import { isTruthy } from 'lib/utils';
@@ -15,7 +19,11 @@ import {
 
 import { EvmActivityComponent, TezosActivityComponent } from './ActivityItem';
 import { ActivityListView } from './ActivityListView';
-import { fetchEvmActivitiesWithCache, fetchTezosActivitiesWithCache } from './fetch-activities-with-cache';
+import {
+  fetchEtherlinkActivitiesWithCache,
+  fetchEvmActivitiesWithCache,
+  fetchTezosActivitiesWithCache
+} from './fetch-activities-with-cache';
 import { ActivitiesDateGroup, useGroupingByDate } from './grouping-by-date';
 import { useActivitiesLoadingLogic } from './loading-logic';
 import { useAssetsFromActivitiesCheck } from './use-assets-from-activites-check';
@@ -179,20 +187,53 @@ class EvmActivityLoader {
 
       if (this.reachedTheEnd || this.lastError) return;
 
-      const olderThanBlockHeight = this.activities.at(this.activities.length - 1)?.blockHeight;
+      const lastActivity = this.activities.at(-1);
 
-      const newActivities = await fetchEvmActivitiesWithCache({
-        chainId,
-        accountAddress,
-        assetSlug: undefined,
-        olderThan: olderThanBlockHeight,
-        signal
-      });
+      if (isEtherlinkSupportedChainId(chainId)) {
+        let olderThan: EtherlinkPageParams | undefined;
+        if (lastActivity) {
+          const { blockHeight, hash, addedAt, index, fee, value } = lastActivity;
+          olderThan = {
+            block_number: Number(blockHeight),
+            index: index ?? 0,
+            items_count: this.activities.length,
+            fee: fee ?? '0',
+            hash,
+            inserted_at: addedAt.replace(/(\.\d+)?Z$/, '.999999Z'),
+            value: value ?? '0'
+          };
+        }
+        const {
+          activities: newActivities,
+          tokensMetadata,
+          collectiblesMetadata,
+          reachedTheEnd
+        } = await fetchEtherlinkActivitiesWithCache({
+          chainId,
+          accountAddress,
+          signal,
+          olderThan
+        });
+        if (Object.keys(tokensMetadata).length) {
+          dispatch(putEvmTokensMetadataAction({ chainId, records: tokensMetadata }));
+        }
+        if (Object.keys(collectiblesMetadata).length) {
+          dispatch(putEvmCollectiblesMetadataAction({ chainId, records: collectiblesMetadata }));
+        }
 
-      if (signal.aborted) return;
+        if (newActivities.length) this.activities = this.activities.concat(newActivities);
+        if (!newActivities.length || reachedTheEnd) this.reachedTheEnd = true;
+      } else {
+        const { activities: newActivities } = await fetchEvmActivitiesWithCache({
+          chainId,
+          accountAddress,
+          signal,
+          olderThan: lastActivity?.blockHeight
+        });
 
-      if (newActivities.length) this.activities = this.activities.concat(newActivities);
-      else this.reachedTheEnd = true;
+        if (newActivities.length) this.activities = this.activities.concat(newActivities);
+        else this.reachedTheEnd = true;
+      }
 
       delete this.lastError;
     } catch (error) {
@@ -223,7 +264,7 @@ class TezosActivityLoader {
 
       const lastActivity = this.activities.at(-1);
 
-      const newActivities = await fetchTezosActivitiesWithCache({
+      const { activities: newActivities } = await fetchTezosActivitiesWithCache({
         chainId,
         rpcBaseURL,
         accountAddress,

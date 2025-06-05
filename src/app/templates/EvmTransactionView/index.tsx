@@ -8,6 +8,7 @@ import { HashChip } from 'app/atoms/HashChip';
 import { toastError } from 'app/toaster';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { EvmOperationKind, getOperationKind } from 'lib/evm/on-chain/transactions';
+import { equalsIgnoreCase } from 'lib/evm/on-chain/utils/common.utils';
 import { parseEvmTxRequest } from 'lib/evm/on-chain/utils/parse-evm-tx-request';
 import { T } from 'lib/i18n';
 import { useEvmGenericAssetsMetadataLoading } from 'lib/metadata';
@@ -56,7 +57,7 @@ const EvmTransactionViewBody = memo<EvmTransactionViewProps>(
     const accounts = useAllAccounts();
     const chain = chains[parsedChainId];
     const sendingAccount = useMemo(
-      () => accounts.find(acc => getAccountAddressForEvm(acc)?.toLowerCase() === req.from.toLowerCase())!,
+      () => accounts.find(acc => equalsIgnoreCase(getAccountAddressForEvm(acc), req.from))!,
       [accounts, req.from]
     );
 

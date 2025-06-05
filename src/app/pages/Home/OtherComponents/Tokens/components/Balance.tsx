@@ -1,17 +1,19 @@
 import React, { memo } from 'react';
 
 import BigNumber from 'bignumber.js';
+import clsx from 'clsx';
 
 import Money from 'app/atoms/Money';
 import InFiat from 'app/templates/InFiat';
 import { TestIDProps } from 'lib/analytics';
+import { ASSET_HUGE_AMOUNT } from 'lib/constants';
 
 interface CryptoBalanceProps extends TestIDProps {
   value: BigNumber;
 }
 
 export const CryptoBalance = memo<CryptoBalanceProps>(({ value, testID, testIDProperties }) => (
-  <div className="shrink-0 text-font-num-14">
+  <div className={clsx(value.lt(ASSET_HUGE_AMOUNT) ? 'shrink-0' : 'overflow-hidden text-ellipsis', 'text-font-num-14')}>
     <Money smallFractionFont={false} testID={testID} testIDProperties={testIDProperties}>
       {value}
     </Money>

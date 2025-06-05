@@ -58,7 +58,10 @@ describe('getClosestEvmActivitiesInterval', () => {
       blockHeight: 21821418,
       operations: [operation1],
       account: vitalikPkhLowercased,
-      contract: ''
+      contract: '',
+      index: null,
+      fee: null,
+      value: null
     },
     {
       chain: TempleChainKind.EVM,
@@ -69,7 +72,10 @@ describe('getClosestEvmActivitiesInterval', () => {
       blockHeight: 21820086,
       operations: [operation2],
       account: vitalikPkhLowercased,
-      contract: ''
+      contract: '',
+      index: null,
+      fee: null,
+      value: null
     },
     {
       chain: TempleChainKind.EVM,
@@ -80,7 +86,10 @@ describe('getClosestEvmActivitiesInterval', () => {
       blockHeight: 21820077,
       operations: [operation3],
       account: vitalikPkhLowercased,
-      contract: ''
+      contract: '',
+      index: null,
+      fee: null,
+      value: null
     },
     {
       chain: TempleChainKind.EVM,
@@ -91,7 +100,10 @@ describe('getClosestEvmActivitiesInterval', () => {
       blockHeight: 21817611,
       operations: [operation4],
       account: vitalikPkhLowercased,
-      contract: ''
+      contract: '',
+      index: null,
+      fee: null,
+      value: null
     }
   ];
   const assets = {

@@ -18,6 +18,7 @@ import { TEMPLE_TOKEN_SLUG } from 'lib/assets';
 import { EVM_TOKEN_SLUG, TEZ_TOKEN_SLUG } from 'lib/assets/defaults';
 import { getAssetStatus } from 'lib/assets/hooks/utils';
 import { useEvmTokenBalance, useTezosAssetBalance } from 'lib/balances/hooks';
+import { ASSET_HUGE_AMOUNT } from 'lib/constants';
 import { getTokenName, getAssetSymbol } from 'lib/metadata';
 import { useBooleanState } from 'lib/ui/hooks';
 import { TokenListItemElement } from 'lib/ui/tokens-list';
@@ -169,7 +170,9 @@ export const EvmTokenListItem = memo(
           onClick={onClick}
           ref={ref}
         >
-          <div className="flex-grow text-font-medium truncate">{assetSymbol}</div>
+          <div className={clsx('flex-grow text-font-medium', balance.lt(ASSET_HUGE_AMOUNT) && 'truncate')}>
+            {assetSymbol}
+          </div>
         </DefaultEvmListItemLayout>
       );
     }

@@ -9,6 +9,8 @@ import { ContractInterfaceId, EvmAssetStandard } from '../../types';
 
 const supportsInterfaceAbi = parseAbi(['function supportsInterface(bytes4 interfaceID) external view returns (bool)']);
 
+export const equalsIgnoreCase = (a: string | undefined, b: string | undefined) => a?.toLowerCase() === b?.toLowerCase();
+
 export const detectEvmTokenStandard = async (
   clientOrNetwork: ChainPublicClient | EvmNetworkEssentials,
   assetSlug: string

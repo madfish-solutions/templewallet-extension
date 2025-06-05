@@ -8,11 +8,12 @@ import { TempleTezosChainId } from 'lib/temple/types';
 import { tezosActivities, tezosActivitiesIntervals } from '../db';
 import { resetDb } from '../test-helpers';
 
-import { getClosestTezosActivitiesInterval, getSeparateActivities } from './get';
 import rawTestAccountActivitiesGhostnet from './test-account-activities-ghostnet.json';
 import rawTestAccountActivities from './test-account-activities.json';
 import { testAccount2Pkh, testAccountPkh, tkeySlug } from './test-helpers';
 import { toDbTezosActivity as genericToDbTezosActivity, getIntervalLimit } from './utils';
+
+import { getClosestTezosActivitiesInterval, getSeparateTezosActivities } from '.';
 
 const testAccountActivities = rawTestAccountActivities as TezosActivity[];
 const testAccountActivitiesGhostnet = rawTestAccountActivitiesGhostnet as TezosActivity[];
@@ -21,7 +22,7 @@ const toDbTezosActivity = (activity: TezosActivity, assetSlug = '') =>
   genericToDbTezosActivity(activity, assetSlug, testAccountPkh);
 
 describe('GET functions', () => {
-  describe('getSeparateActivities', () => {
+  describe('getSeparateTezosActivities', () => {
     afterAll(resetDb);
 
     beforeAll(() =>
@@ -35,7 +36,7 @@ describe('GET functions', () => {
       const expectedActivities = expectedActivitiesIndexes.map(i => testAccountActivitiesGhostnet[i]);
 
       await expect(
-        getSeparateActivities(TempleTezosChainId.Ghostnet, testAccountPkh, [
+        getSeparateTezosActivities(TempleTezosChainId.Ghostnet, testAccountPkh, [
           'onq6nDca3LiVUZHjwYAJh1aKLtvTsP332x4vnQuAB765XaKQY3u',
           'opZp2NFj7kyxJnRzu4A9u7t9p7LAmdDWsFnUmWa5dFg6m3HcNQH',
           'ooeyRuzN9KzWH3zkjLnFd7BSWvhF5DCNQJ2tvSboNaMp9W1ML9e',
