@@ -4,8 +4,7 @@ import { PageModal } from 'app/atoms/PageModal';
 import { t } from 'lib/i18n';
 import { useBooleanState } from 'lib/ui/hooks';
 
-import { MnemonicView } from './mnemonic-view';
-import { VerifyMnemonicForm } from './verify-mnemonic-form';
+import { ManualBackupModalContent } from './manual-backup-modal-content';
 
 interface ManualBackupModalProps {
   mnemonic: string;
@@ -30,11 +29,13 @@ export const ManualBackupModal = memo<ManualBackupModalProps>(
         onGoBack={isNewMnemonic && shouldVerifySeedPhrase ? goToManualBackup : onStartGoBack}
         onRequestClose={onCancel}
       >
-        {shouldVerifySeedPhrase ? (
-          <VerifyMnemonicForm mnemonic={mnemonic} onSuccess={onSuccess} />
-        ) : (
-          <MnemonicView mnemonic={mnemonic} isNewMnemonic={isNewMnemonic} onConfirm={goToVerifySeedPhrase} />
-        )}
+        <ManualBackupModalContent
+          shouldVerifySeedPhrase={shouldVerifySeedPhrase}
+          mnemonic={mnemonic}
+          isNewMnemonic={isNewMnemonic}
+          goToVerifySeedPhrase={goToVerifySeedPhrase}
+          onSuccess={onSuccess}
+        />
       </PageModal>
     );
   }

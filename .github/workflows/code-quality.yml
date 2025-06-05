@@ -81,6 +81,7 @@ jobs:
           TEMPLE_ADS_ORIGIN_PASSPHRASE: ${{ vars.TEMPLE_ADS_ORIGIN_PASSPHRASE }}
           TAKE_ADS_TOKEN: ${{ secrets.TAKE_ADS_TOKEN }}
           CONVERSION_VERIFICATION_URL: ${{ vars.CONVERSION_VERIFICATION_URL }}
+          GOOGLE_AUTH_PAGE_URL: ${{ vars.GOOGLE_AUTH_PAGE_URL }}
 
       - name: Install dependencies and code quality check with private modules
         uses: ./.github/workflows/code-quality-check

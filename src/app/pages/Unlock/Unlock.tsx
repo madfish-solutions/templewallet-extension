@@ -6,9 +6,8 @@ import { useDispatch } from 'react-redux';
 import { FormField, IconBase } from 'app/atoms';
 import { StyledButton } from 'app/atoms/StyledButton';
 import { TextButton } from 'app/atoms/TextButton';
-import { useResizeDependentValue } from 'app/hooks/use-resize-dependent-value';
 import { ReactComponent as LockFillIcon } from 'app/icons/base/lock_fill.svg';
-import PageLayout from 'app/layouts/PageLayout';
+import { PlanetsBgPageLayout } from 'app/layouts/planets-bg-page-layout';
 import { getUserTestingGroupNameActions } from 'app/store/ab-testing/actions';
 import { useUserTestingGroupNameSelector } from 'app/store/ab-testing/selectors';
 import { useFormAnalytics } from 'lib/analytics';
@@ -17,19 +16,15 @@ import { DEFAULT_PASSWORD_INPUT_PLACEHOLDER } from 'lib/constants';
 import { USER_ACTION_TIMEOUT } from 'lib/fixed-times';
 import { T, t } from 'lib/i18n';
 import { useTempleClient } from 'lib/temple/front';
-import { loadMnemonicToBackup } from 'lib/temple/front/mnemonic-to-backup-keeper';
+import { loadBackupCredentials } from 'lib/temple/front/mnemonic-to-backup-keeper';
 import { TempleSharedStorageKey } from 'lib/temple/types';
+import { useShakeOnErrorTrigger } from 'lib/ui/hooks/use-shake-on-error-trigger';
 import { useLocalStorage } from 'lib/ui/local-storage';
-import { NullComponent } from 'lib/ui/null-component';
 import { delay } from 'lib/utils';
 
 import { ForgotPasswordModal } from './forgot-password-modal';
-import { PlanetsAnimation } from './planets-animation';
-import { SUN_RADIUS } from './planets-animation/constants';
 import { ResetExtensionModal } from './reset-extension-modal';
 import { UnlockSelectors } from './Unlock.selectors';
-
-const MIN_BOTTOM_GAP = 88;
 
 interface UnlockProps {
   canImportNew?: boolean;
@@ -57,9 +52,6 @@ const getTimeLeft = (start: number, end: number) => {
   return `${checkTime(minutes)}:${checkTime(seconds)}`;
 };
 
-const getAnimationBottomGap = (bottomGapElement: HTMLDivElement) =>
-  bottomGapElement.getBoundingClientRect().height - SUN_RADIUS;
-
 const Unlock: FC<UnlockProps> = ({ canImportNew = true }) => {
   const { unlock } = useTempleClient();
   const dispatch = useDispatch();
@@ -68,7 +60,6 @@ const Unlock: FC<UnlockProps> = ({ canImportNew = true }) => {
   const [pageModalName, setPageModalName] = useState<PageModalName | null>(null);
   const [attempt, setAttempt] = useLocalStorage<number>(TempleSharedStorageKey.PasswordAttempts, 1);
   const [timelock, setTimeLock] = useLocalStorage<number>(TempleSharedStorageKey.TimeLock, 0);
-  const [passwordShakeTrigger, setPasswordShakeTrigger] = useState(false);
   const lockLevel = LOCK_TIME * Math.floor(attempt / 3);
 
   const [timeleft, setTimeleft] = useState(getTimeLeft(timelock, lockLevel));
@@ -83,12 +74,6 @@ const Unlock: FC<UnlockProps> = ({ canImportNew = true }) => {
 
   const formRef = useRef<HTMLFormElement>(null);
 
-  const { value: bottomGap, refFn: bottomGapElementRef } = useResizeDependentValue<number, HTMLDivElement>(
-    getAnimationBottomGap,
-    MIN_BOTTOM_GAP,
-    100
-  );
-
   const focusPasswordField = useCallback(() => {
     formRef.current?.querySelector<HTMLInputElement>("input[name='password']")?.focus();
   }, []);
@@ -96,16 +81,7 @@ const Unlock: FC<UnlockProps> = ({ canImportNew = true }) => {
   const { register, handleSubmit, errors, setError, clearError, formState } = useForm<FormData>();
   const submitting = formState.isSubmitting;
 
-  const prevSubmitCountRef = useRef(formState.submitCount);
-  useEffect(() => {
-    if (formState.submitCount > prevSubmitCountRef.current && errors.password) {
-      setPasswordShakeTrigger(true);
-      setTimeout(() => {
-        setPasswordShakeTrigger(false);
-      }, 250);
-    }
-    prevSubmitCountRef.current = formState.submitCount;
-  }, [errors.password, formState.submitCount]);
+  const passwordShakeTrigger = useShakeOnErrorTrigger(formState.submitCount, errors.password);
 
   const setPasswordErrorMessage = useCallback(
     async (message: string) => {
@@ -126,7 +102,7 @@ const Unlock: FC<UnlockProps> = ({ canImportNew = true }) => {
       try {
         if (attempt > LAST_ATTEMPT) await delay(Math.random() * 2000 + 1000);
         await unlock(password);
-        await loadMnemonicToBackup(password);
+        await loadBackupCredentials(password);
 
         formAnalytics.trackSubmitSuccess();
         setAttempt(1);
@@ -187,16 +163,8 @@ const Unlock: FC<UnlockProps> = ({ canImportNew = true }) => {
   }, [timelock, lockLevel, setTimeLock, clearError]);
 
   return (
-    <PageLayout
-      Header={NullComponent}
-      contentPadding={false}
-      contentClassName="relative"
-      showTestnetModeIndicator={false}
-    >
-      <PlanetsAnimation bottomGap={bottomGap} />
-      <div className="w-full min-h-full p-4 flex flex-col z-1">
-        <div className="w-full aspect-[2]" />
-        <div className="w-full flex-1" ref={bottomGapElementRef} style={{ minHeight: SUN_RADIUS + MIN_BOTTOM_GAP }} />
+    <>
+      <PlanetsBgPageLayout showTestnetModeIndicator={false}>
         <form ref={formRef} className="w-full flex flex-col items-center mb-4" onSubmit={handleSubmit(onSubmit)}>
           <p className="text-font-regular-bold text-center mb-0.5">
             <T id="welcomeBack" />
@@ -238,13 +206,13 @@ const Unlock: FC<UnlockProps> = ({ canImportNew = true }) => {
             </TextButton>
           )}
         </form>
-      </div>
+      </PlanetsBgPageLayout>
 
       {pageModalName === PageModalName.ForgotPassword && (
         <ForgotPasswordModal onClose={handleModalClose} onContinueClick={handleForgotPasswordContinueClick} />
       )}
       {pageModalName === PageModalName.ResetExtension && <ResetExtensionModal onClose={handleModalClose} />}
-    </PageLayout>
+    </>
   );
 };
 
