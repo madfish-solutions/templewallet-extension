@@ -5,6 +5,7 @@ import clsx from 'clsx';
 import { TokenListItemElement } from 'lib/ui/tokens-list';
 import { EvmChain, TezosChain } from 'temple/front';
 import { ChainGroupedSlugs } from 'temple/front/chains';
+import { DEFAULT_EVM_CURRENCY, StoredEvmNetwork, StoredTezosNetwork } from 'temple/networks';
 import { TempleChainKind } from 'temple/types';
 
 export const toExploreAssetLink = (
@@ -70,3 +71,25 @@ export const getGroupedTokensViewWithPromo = ({
     );
   });
 };
+
+export function makeFallbackChain(network: StoredTezosNetwork): TezosChain;
+export function makeFallbackChain(network: StoredEvmNetwork): EvmChain;
+export function makeFallbackChain(network: StoredEvmNetwork | StoredTezosNetwork): EvmChain | TezosChain {
+  const { name, rpcBaseURL } = network;
+  const commonProps = {
+    name,
+    rpcBaseURL,
+    allBlockExplorers: [],
+    default: true
+  };
+
+  if (network.chain === TempleChainKind.EVM) {
+    const { chain, chainId } = network;
+
+    return { ...commonProps, rpc: network, allRpcs: [network], kind: chain, chainId, currency: DEFAULT_EVM_CURRENCY };
+  }
+
+  const { chain, chainId } = network;
+
+  return { ...commonProps, rpc: network, allRpcs: [network], kind: chain, chainId };
+}

@@ -4,7 +4,6 @@ import { catchError, from, merge, mergeMap, of, switchMap } from 'rxjs';
 import { ofType } from 'ts-action-operators';
 
 import { evmOnChainBalancesRequestsExecutor } from 'lib/evm/on-chain/balance';
-import { RequestAlreadyPendingError } from 'lib/evm/on-chain/utils/evm-rpc-requests-executor';
 import { isTruthy } from 'lib/utils';
 
 import { setEvmBalancesLoadingState } from '../actions';
@@ -47,14 +46,12 @@ const loadEvmBalanceOnChainEpic: Epic = action$ =>
         ),
         catchError(
           withLoadingStateUpdate(chainId, error =>
-            error instanceof RequestAlreadyPendingError
-              ? null
-              : setEvmBalancesLoadingState({
-                  error: error.message,
-                  chainId: network.chainId,
-                  isLoading: false,
-                  source: 'onchain'
-                })
+            setEvmBalancesLoadingState({
+              error: error.message,
+              chainId: network.chainId,
+              isLoading: false,
+              source: 'onchain'
+            })
           )
         )
       );

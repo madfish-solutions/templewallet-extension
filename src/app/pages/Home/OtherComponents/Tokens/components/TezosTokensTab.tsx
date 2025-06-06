@@ -1,4 +1,4 @@
-import React, { FC, memo, useMemo, useRef } from 'react';
+import React, { createContext, FC, memo, useContext, useMemo, useRef } from 'react';
 
 import {
   usePreservedOrderSlugsGroupsToManage,
@@ -27,21 +27,27 @@ import { TempleChainKind } from 'temple/types';
 
 import { getGroupedTokensViewWithPromo, getTokensViewWithPromo } from '../utils';
 
-import { TokensTabBase } from './TokensTabBase';
+import { TokensTabBase } from './tokens-tab-base';
 
 interface Props {
   publicKeyHash: string;
+  accountId: string;
 }
 
-export const TezosTokensTab = memo<Props>(({ publicKeyHash }) => {
+const TezosTokensTabContext = createContext<Props>({ publicKeyHash: '', accountId: '' });
+
+export const TezosTokensTab = memo<Props>(props => {
   const { manageActive } = useAssetsViewState();
 
-  if (manageActive) return <TabContentWithManageActive publicKeyHash={publicKeyHash} />;
-
-  return <TabContent publicKeyHash={publicKeyHash} />;
+  return (
+    <TezosTokensTabContext.Provider value={props}>
+      {manageActive ? <TabContentWithManageActive /> : <TabContent />}
+    </TezosTokensTabContext.Provider>
+  );
 });
 
-const TabContent: FC<Props> = ({ publicKeyHash }) => {
+const TabContent: FC = () => {
+  const { publicKeyHash } = useContext(TezosTokensTabContext);
   const { hideZeroBalance, groupByNetwork } = useTokensListOptionsSelector();
 
   const { enabledChainSlugsSorted, enabledChainSlugsSortedGrouped } = useTezosAccountTokensForListing(
@@ -52,7 +58,6 @@ const TabContent: FC<Props> = ({ publicKeyHash }) => {
 
   return (
     <TabContentBase
-      publicKeyHash={publicKeyHash}
       allSlugsSorted={enabledChainSlugsSorted}
       allSlugsSortedGrouped={enabledChainSlugsSortedGrouped}
       groupByNetwork={groupByNetwork}
@@ -61,7 +66,8 @@ const TabContent: FC<Props> = ({ publicKeyHash }) => {
   );
 };
 
-const TabContentWithManageActive: FC<Props> = ({ publicKeyHash }) => {
+const TabContentWithManageActive: FC = () => {
+  const { publicKeyHash } = useContext(TezosTokensTabContext);
   const { hideZeroBalance, groupByNetwork } = useTokensListOptionsSelector();
 
   const { enabledChainSlugsSorted, enabledChainSlugsSortedGrouped, tokens, tokensSortPredicate } =
@@ -92,7 +98,6 @@ const TabContentWithManageActive: FC<Props> = ({ publicKeyHash }) => {
 
   return (
     <TabContentBase
-      publicKeyHash={publicKeyHash}
       allSlugsSorted={allSlugsSorted}
       allSlugsSortedGrouped={allSlugsSortedGrouped}
       groupByNetwork={groupByNetwork}
@@ -102,7 +107,6 @@ const TabContentWithManageActive: FC<Props> = ({ publicKeyHash }) => {
 };
 
 interface TabContentBaseProps {
-  publicKeyHash: string;
   allSlugsSorted: string[];
   allSlugsSortedGrouped: ChainGroupedSlugs<TempleChainKind.Tezos> | null;
   groupByNetwork: boolean;
@@ -110,7 +114,8 @@ interface TabContentBaseProps {
 }
 
 const TabContentBase = memo<TabContentBaseProps>(
-  ({ publicKeyHash, allSlugsSorted, allSlugsSortedGrouped, groupByNetwork, manageActive }) => {
+  ({ allSlugsSorted, allSlugsSortedGrouped, groupByNetwork, manageActive }) => {
+    const { publicKeyHash, accountId } = useContext(TezosTokensTabContext);
     const promoRef = useRef<HTMLDivElement>(null);
     const firstHeaderRef = useRef<HTMLDivElement>(null);
     const firstListItemRef = useRef<TokenListItemElement>(null);
@@ -192,6 +197,7 @@ const TabContentBase = memo<TabContentBaseProps>(
 
     return (
       <TokensTabBase
+        accountId={accountId}
         tokensCount={displayedSlugs.length}
         searchValue={searchValue}
         getElementIndex={getElementIndex}

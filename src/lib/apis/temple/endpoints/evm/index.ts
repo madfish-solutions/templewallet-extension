@@ -31,6 +31,9 @@ export const fetchEvmTransactions = (
     signal
   );
 
+export const fetchEvmAccountInitialized = (walletAddress: string, signal?: AbortSignal) =>
+  buildEvmRequest<{ isInitialized: boolean }>('/is-initialized', walletAddress, undefined, undefined, signal);
+
 interface TransactionsResponse {
   transfers: AssetTransfersWithMetadataResult[];
   /** These depend on the blocks gap of returned transfers. */
@@ -40,7 +43,7 @@ interface TransactionsResponse {
 const buildEvmRequest = <T>(
   path: string,
   walletAddress: string,
-  chainId: number,
+  chainId?: number,
   params?: object,
   signal?: AbortSignal
 ) =>

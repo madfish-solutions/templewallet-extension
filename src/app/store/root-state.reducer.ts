@@ -1,6 +1,7 @@
 import { combineReducers } from '@reduxjs/toolkit';
 
 import { abTestingReducer } from './ab-testing/reducers';
+import { accountsInitializationReducer } from './accounts-initialization/reducers';
 import { advertisingReducer } from './advertising/reducers';
 import { assetsFilterOptionsReducer } from './assets-filter-options/reducer';
 import { buyWithCreditCardReducer } from './buy-with-credit-card/reducers';
@@ -53,7 +54,8 @@ const rootStateReducersMap = {
   evmTokensExchangeRates: evmTokensExchangeRatesPersistedReducer,
   evmCollectiblesMetadata: evmCollectiblesMetadataPersistedReducer,
   evmNoCategoryAssetMetadata: noCategoryEvmAssetsMetadataPersistedReducer,
-  assetsFilterOptions: assetsFilterOptionsReducer
+  assetsFilterOptions: assetsFilterOptionsReducer,
+  accountsInitialization: accountsInitializationReducer
 };
 
 export const rootReducer = combineReducers(rootStateReducersMap);

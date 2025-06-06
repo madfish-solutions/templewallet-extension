@@ -1,5 +1,6 @@
 import React, { memo, useEffect } from 'react';
 
+import { useAccountsInitializedSync } from 'app/hooks/use-accounts-initialized-sync';
 import { useAdsImpressionsLinking } from 'app/hooks/use-ads-impressions-linking';
 import { useAdvertisingLoading } from 'app/hooks/use-advertising.hook';
 import { useAssetsMigrations } from 'app/hooks/use-assets-migrations';
@@ -66,6 +67,7 @@ const AppReadyRootHooks = memo(() => {
 
   useChainIDsCheck();
   useUserIdAccountPkhSync();
+  useAccountsInitializedSync();
 
   const tezosAddress = useAccountAddressForTezos();
   const evmAddress = useAccountAddressForEvm();

@@ -1,4 +1,4 @@
-import React, { FC, memo, useMemo, useRef } from 'react';
+import React, { createContext, FC, memo, useContext, useMemo, useRef } from 'react';
 
 import { DeadEndBoundaryError } from 'app/ErrorBoundary';
 import { usePreservedOrderSlugsToManage } from 'app/hooks/listing-logic/use-manageable-slugs';
@@ -13,54 +13,53 @@ import { TezosTokenListItem } from 'app/templates/TokenListItem';
 import { useMemoWithCompare } from 'lib/ui/hooks';
 import { makeGetTokenElementIndexFunction, TokenListItemElement } from 'lib/ui/tokens-list';
 import { TezosChain, useTezosChainByChainId } from 'temple/front';
+import { TEZOS_DEFAULT_NETWORKS } from 'temple/networks';
 
-import { getTokensViewWithPromo } from '../utils';
+import { getTokensViewWithPromo, makeFallbackChain } from '../utils';
 
-import { TokensTabBase } from './TokensTabBase';
+import { TokensTabBase } from './tokens-tab-base';
 
 interface Props {
   chainId: string;
   publicKeyHash: string;
+  accountId: string;
 }
 
-export const TezosChainTokensTab = memo<Props>(({ chainId, publicKeyHash }) => {
+const TezosChainTokensTabContext = createContext<Omit<Props, 'chainId'> & { network: TezosChain }>({
+  network: makeFallbackChain(TEZOS_DEFAULT_NETWORKS[0]),
+  publicKeyHash: '',
+  accountId: ''
+});
+
+export const TezosChainTokensTab = memo<Props>(({ chainId, accountId, publicKeyHash }) => {
   const network = useTezosChainByChainId(chainId);
 
   if (!network) throw new DeadEndBoundaryError();
 
   const { manageActive } = useAssetsViewState();
-
-  if (manageActive) return <TabContentWithManageActive publicKeyHash={publicKeyHash} network={network} />;
-
-  return <TabContent publicKeyHash={publicKeyHash} network={network} />;
-});
-
-interface TabContentProps {
-  publicKeyHash: string;
-  network: TezosChain;
-}
-
-const TabContent: FC<TabContentProps> = ({ publicKeyHash, network }) => {
-  const { chainId } = network;
-
-  const { enabledTokenSlugsSorted } = useTezosChainAccountTokensForListing(publicKeyHash, chainId);
+  const contextValue = useMemo(() => ({ accountId, network, publicKeyHash }), [accountId, network, publicKeyHash]);
 
   return (
-    <TabContentBase
-      network={network}
-      publicKeyHash={publicKeyHash}
-      allSlugsSorted={enabledTokenSlugsSorted}
-      manageActive={false}
-    />
+    <TezosChainTokensTabContext.Provider value={contextValue}>
+      {manageActive ? <TabContentWithManageActive /> : <TabContent />}
+    </TezosChainTokensTabContext.Provider>
   );
+});
+
+const TabContent: FC = () => {
+  const { publicKeyHash, network } = useContext(TezosChainTokensTabContext);
+
+  const { enabledTokenSlugsSorted } = useTezosChainAccountTokensForListing(publicKeyHash, network.chainId);
+
+  return <TabContentBase allSlugsSorted={enabledTokenSlugsSorted} manageActive={false} />;
 };
 
-const TabContentWithManageActive: FC<TabContentProps> = ({ publicKeyHash, network }) => {
-  const { chainId } = network;
+const TabContentWithManageActive: FC = () => {
+  const { publicKeyHash, network } = useContext(TezosChainTokensTabContext);
 
   const { enabledTokenSlugsSorted, tokens, tokensSortPredicate } = useTezosChainAccountTokensForListing(
     publicKeyHash,
-    chainId
+    network.chainId
   );
 
   const allTokensSlugs = useMemo(
@@ -75,30 +74,21 @@ const TabContentWithManageActive: FC<TabContentProps> = ({ publicKeyHash, networ
 
   const allSlugsSorted = usePreservedOrderSlugsToManage(enabledTokenSlugsSorted, allTokensSlugsSorted);
 
-  return (
-    <TabContentBase
-      network={network}
-      publicKeyHash={publicKeyHash}
-      allSlugsSorted={allSlugsSorted}
-      manageActive={true}
-    />
-  );
+  return <TabContentBase allSlugsSorted={allSlugsSorted} manageActive={true} />;
 };
 
 interface TabContentBaseProps {
-  network: TezosChain;
-  publicKeyHash: string;
   allSlugsSorted: string[];
   manageActive: boolean;
 }
 
-const TabContentBase = memo<TabContentBaseProps>(({ allSlugsSorted, network, publicKeyHash, manageActive }) => {
-  const { chainId } = network;
+const TabContentBase = memo<TabContentBaseProps>(({ allSlugsSorted, manageActive }) => {
+  const { publicKeyHash, network, accountId } = useContext(TezosChainTokensTabContext);
 
   const promoRef = useRef<HTMLDivElement>(null);
   const firstListItemRef = useRef<TokenListItemElement>(null);
   const { displayedSlugs, isSyncing, loadNext, searchValue, isInSearchMode, setSearchValue } =
-    useTezosChainAccountTokensListingLogic(allSlugsSorted, chainId);
+    useTezosChainAccountTokensListingLogic(allSlugsSorted, network.chainId);
 
   const mainnetTokensScamSlugsRecord = useMainnetTokensScamlistSelector();
 
@@ -140,6 +130,7 @@ const TabContentBase = memo<TabContentBaseProps>(({ allSlugsSorted, network, pub
 
   return (
     <TokensTabBase
+      accountId={accountId}
       tokensCount={displayedSlugs.length}
       searchValue={searchValue}
       getElementIndex={getElementIndex}
