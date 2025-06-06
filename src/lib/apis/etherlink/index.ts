@@ -14,10 +14,19 @@ import {
   ItemsWithPagination,
   EtherlinkPageParams,
   EtherlinkTokenBalance,
-  EtherlinkTxLogsResponse
+  EtherlinkTxLogsResponse,
+  EtherlinkAccountInfo,
+  EtherlinkAccountNftsResponse
 } from './types';
 
-export * from './types';
+export {
+  type EtherlinkChainId,
+  type EtherlinkTransaction,
+  type EtherlinkPageParams,
+  isEtherlinkSupportedChainId,
+  isErc20TokenTransfer,
+  isErc721TokenTransfer
+} from './types';
 
 const api = axios.create({
   adapter: 'fetch'
@@ -84,6 +93,13 @@ const fetchGetInternalTokensTransfers = async (
     signal
   );
 
+const fetchGetAccountNfts = async (
+  chainId: EtherlinkChainId,
+  address: string,
+  nextPageParams?: EtherlinkPageParams | null,
+  signal?: AbortSignal
+) => fetchGet<EtherlinkAccountNftsResponse>(chainId, `/addresses/${address}/nft`, nextPageParams ?? undefined, signal);
+
 const makeFetchAllPagesFn =
   <R, A extends unknown[]>(
     fetcher: (
@@ -107,9 +123,10 @@ const makeFetchAllPagesFn =
 
 export const fetchAllInternalTransactions = makeFetchAllPagesFn(fetchGetInternalTransactions);
 export const fetchAllInternalTokensTransfers = makeFetchAllPagesFn(fetchGetInternalTokensTransfers);
+export const fetchAllAccountNfts = makeFetchAllPagesFn(fetchGetAccountNfts);
 
 export const fetchGetTokensBalances = async (chainId: EtherlinkChainId, address: string, signal?: AbortSignal) =>
-  fetchGet<EtherlinkTokenBalance[]>(chainId, `/addresses/${address}/tokens`, null, signal);
+  fetchGet<EtherlinkTokenBalance[]>(chainId, `/addresses/${address}/token-balances`, null, signal);
 
 export const fetchGetTxLogs = async (
   chainId: EtherlinkChainId,
@@ -117,3 +134,6 @@ export const fetchGetTxLogs = async (
   nextPageParams?: EtherlinkPageParams | null,
   signal?: AbortSignal
 ) => fetchGet<EtherlinkTxLogsResponse>(chainId, `/transactions/${txHash}/logs`, nextPageParams ?? undefined, signal);
+
+export const fetchGetAccountInfo = async (chainId: EtherlinkChainId, address: string, signal?: AbortSignal) =>
+  fetchGet<EtherlinkAccountInfo>(chainId, `/addresses/${address}`, null, signal);

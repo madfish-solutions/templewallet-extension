@@ -456,7 +456,7 @@ export const fetchEtherlinkActivitiesWithCache = async ({
             blockHeight: `${block_number}` as const
           };
 
-          const operationKind = getOperationKind({ data: raw_input, to: toAddress });
+          const operationKind = getOperationKind({ data: raw_input, to: toAddress, value: BigInt(value) });
           let operations: EvmOperation[] = [];
 
           const isSending = equalsIgnoreCase(fromAddress, accountAddress);

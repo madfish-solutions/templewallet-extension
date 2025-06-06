@@ -5,7 +5,7 @@ export type EtherlinkChainId = keyof typeof ETHERLINK_API_URLS;
 export const isEtherlinkSupportedChainId = (chainId: number): chainId is EtherlinkChainId =>
   chainId in ETHERLINK_API_URLS;
 
-// TODO: Add more properties to these interfaces as needed
+// TODO: Add more properties to the interfaces in this file as needed
 interface EtherlinkAddressParam {
   hash: HexString;
   name: string | null;
@@ -86,6 +86,10 @@ interface EtherlinkNFTInstance {
   owner: EtherlinkAddressParam | null;
 }
 
+interface EtherlinkAddressNftInstance extends Omit<EtherlinkNFTInstance, 'owner'> {
+  value: string;
+}
+
 interface EtherlinkTotalERC721 {
   token_id: string;
   token_instance: EtherlinkNFTInstance;
@@ -118,7 +122,7 @@ interface EtherlinkTokenTransferERC1155 extends EtherlinkTokenTransferBase {
   token: EtherlinkTokenInfo<'ERC-1155'>;
   total: EtherlinkTotalERC1155;
 }
-export type EtherlinkTokenTransfer =
+type EtherlinkTokenTransfer =
   | EtherlinkTokenTransferERC20
   | EtherlinkTokenTransferERC721
   | EtherlinkTokenTransferERC1155;
@@ -127,22 +131,34 @@ export const isErc20TokenTransfer = (transfer: EtherlinkTokenTransfer): transfer
   transfer.token.type === 'ERC-20';
 export const isErc721TokenTransfer = (transfer: EtherlinkTokenTransfer): transfer is EtherlinkTokenTransferERC721 =>
   transfer.token.type === 'ERC-721';
-export const isErc1155TokenTransfer = (transfer: EtherlinkTokenTransfer): transfer is EtherlinkTokenTransferERC1155 =>
-  transfer.token.type === 'ERC-1155';
 
 export interface EtherlinkTokenBalance {
   token_instance: EtherlinkNFTInstance | null;
   token_id: string | null;
   token: EtherlinkTokenInfo;
+  value: string;
 }
 
-export interface EtherlinkLog {
+interface EtherlinkERC20TokenBalance extends EtherlinkTokenBalance {
+  token: EtherlinkTokenInfo<'ERC-20'>;
+  token_id: null;
+  token_instance: null;
+}
+export const isErc20TokenBalance = (balance: EtherlinkTokenBalance): balance is EtherlinkERC20TokenBalance =>
+  balance.token.type === 'ERC-20';
+
+interface EtherlinkLog {
   address: EtherlinkAddressParam;
   data: HexString;
   // TODO: Change the type when missing properties become necessary
   decoded: EtherlinkDecodedInput | null;
   topics: (HexString | null)[];
   index: number;
+}
+
+export interface EtherlinkAccountInfo {
+  coin_balance: string | null;
+  hash: HexString;
 }
 
 export interface EtherlinkPageParams {
@@ -167,3 +183,5 @@ export type EtherlinkInternalTransactionsResponse = ItemsWithPagination<Etherlin
 export type EtherlinkTokensTransfersResponse = ItemsWithPagination<EtherlinkTokenTransfer>;
 
 export type EtherlinkTxLogsResponse = ItemsWithPagination<EtherlinkLog>;
+
+export type EtherlinkAccountNftsResponse = ItemsWithPagination<EtherlinkAddressNftInstance>;

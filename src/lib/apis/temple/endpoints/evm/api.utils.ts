@@ -1,6 +1,6 @@
 import { ChainID, ChainIDs } from './api.interfaces';
 
-const DEFAULT_NATIVE_TOKEN_ADDRESS = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee';
+export const DEFAULT_NATIVE_TOKEN_ADDRESS = '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee';
 
 const chainIdNativeTokenAddressRecord: Record<number, string> = {
   // Polygon Mainnet

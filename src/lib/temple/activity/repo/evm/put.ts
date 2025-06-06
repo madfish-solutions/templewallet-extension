@@ -439,8 +439,7 @@ interface InsertActivitiesParams {
 
 const getAssetKey = (asset: EvmActivityAsset) =>
   `${asset.contract.toLowerCase()}_${asset.tokenId ?? NO_TOKEN_ID_VALUE}`;
-/** Only for usage in src/lib/temple/activity/repo */
-export const insertActivities = async ({ activities, account, contractAddress, chainId }: InsertActivitiesParams) => {
+const insertActivities = async ({ activities, account, contractAddress, chainId }: InsertActivitiesParams) => {
   const assetsBySlug: StringRecord<DbEvmActivityAsset> = {};
   activities.forEach(({ operations }) =>
     operations.forEach(({ asset }) => {

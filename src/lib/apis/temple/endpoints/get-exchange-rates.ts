@@ -8,6 +8,8 @@ interface GetExchangeRatesResponseItem {
   exchangeRate: string;
 }
 
+export const fetchTezExchangeRate = () => templeWalletApi.get<number>('/exchange-rates/tez').then(({ data }) => data);
+
 export const fetchUsdToTokenRates = () =>
   templeWalletApi.get<GetExchangeRatesResponseItem[]>('/exchange-rates').then(({ data }) => {
     const prices: StringRecord = {};
