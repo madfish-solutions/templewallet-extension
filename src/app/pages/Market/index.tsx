@@ -5,18 +5,24 @@ import { IconBaseProps } from 'app/atoms/IconBase';
 import { ReactComponent as CardIcon } from 'app/icons/base/card.svg';
 import { ReactComponent as RouteIcon } from 'app/icons/base/route.svg';
 import PageLayout from 'app/layouts/PageLayout';
+import {
+  BuyModals,
+  CryptoExchangeDataProvider,
+  ExchangeCountdown,
+  useBuyModalsState,
+  useCryptoExchangeDataState
+} from 'app/templates/buy-modals';
 import { t } from 'lib/i18n/react';
-import { useBooleanState } from 'lib/ui/hooks';
-
-import { BuyWithCreditCard } from './buy-with-credit-card';
-import { CryptoExchange } from './crypto-exchange';
-import { ExchangeCountdown } from './crypto-exchange/components/ExchangeCountdown';
-import { CryptoExchangeDataProvider, useCryptoExchangeDataState } from './crypto-exchange/context';
 
 export const Market = memo(() => {
-  const [cryptoExchangeModalOpened, setCryptoExchangeModalOpen, setCryptoExchangeModalClosed] = useBooleanState(false);
-  const [debitCreditCardModalOpened, setDebitCreditCardModalOpen, setDebitCreditCardModalClosed] =
-    useBooleanState(false);
+  const {
+    cryptoExchangeModalOpened,
+    openCryptoExchangeModal,
+    closeCryptoExchangeModal,
+    debitCreditCardModalOpened,
+    openDebitCreditCardModal,
+    closeDebitCreditCardModal
+  } = useBuyModalsState();
 
   return (
     <>
@@ -29,22 +35,23 @@ export const Market = memo(() => {
             title={t('cryptoExchange')}
             description={t('cryptoExchangeDescription')}
             extraInnerComponent={<Timer />}
-            onClick={setCryptoExchangeModalOpen}
+            onClick={openCryptoExchangeModal}
           />
         </CryptoExchangeDataProvider>
         <Option
           Icon={CardIcon}
           title={t('debitCreditCard')}
           description={t('debitCreditCardDescription')}
-          onClick={setDebitCreditCardModalOpen}
+          onClick={openDebitCreditCardModal}
         />
       </PageLayout>
 
-      <CryptoExchangeDataProvider>
-        <CryptoExchange opened={cryptoExchangeModalOpened} onRequestClose={setCryptoExchangeModalClosed} />
-      </CryptoExchangeDataProvider>
-
-      <BuyWithCreditCard opened={debitCreditCardModalOpened} onRequestClose={setDebitCreditCardModalClosed} />
+      <BuyModals
+        cryptoExchangeModalOpened={cryptoExchangeModalOpened}
+        closeCryptoExchangeModal={closeCryptoExchangeModal}
+        debitCreditCardModalOpened={debitCreditCardModalOpened}
+        closeDebitCreditCardModal={closeDebitCreditCardModal}
+      />
     </>
   );
 });

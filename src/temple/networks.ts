@@ -112,6 +112,8 @@ export const DEFAULT_EVM_CURRENCY: EvmNativeTokenMetadata = {
   decimals: 18
 };
 
+export const ETHERLINK_RPC_URL = 'https://node.mainnet.etherlink.com';
+
 export const EVM_FALLBACK_RPC_URLS: Record<number, string[]> = {
   [ETHEREUM_MAINNET_CHAIN_ID]: [
     `https://eth-rpc.kolibr.io${EnvVars.TEMPLE_WALLET_KOLIBRIO_PARAMS}`,
@@ -257,7 +259,7 @@ export const EVM_DEFAULT_NETWORKS: NonEmptyArray<StoredEvmNetwork> = [
     name: 'Etherlink',
     chain: TempleChainKind.EVM,
     chainId: COMMON_MAINNET_CHAIN_IDS.etherlink,
-    rpcBaseURL: 'https://node.mainnet.etherlink.com',
+    rpcBaseURL: ETHERLINK_RPC_URL,
     description: 'Etherlink Mainnet',
     color: '#207449',
     default: true
