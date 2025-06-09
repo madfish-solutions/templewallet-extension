@@ -86,16 +86,18 @@ export const SelectBakerContent = memo<SelectBakerContentProps>(({ account, bake
         { name: 'address', weight: 0.1 }
       ])
         .toSorted(({ delegation: a, address: aAddress }, { delegation: b, address: bAddress }) => {
-          const aIsSponsored = sponsoredBakersAddresses.includes(aAddress);
-          const bIsSponsored = sponsoredBakersAddresses.includes(bAddress);
+          const aSponsoredIndex = sponsoredBakersAddresses.indexOf(aAddress);
+          const bSponsoredIndex = sponsoredBakersAddresses.indexOf(bAddress);
 
-          if (aIsSponsored && !bIsSponsored) {
-            return -1;
+          const aIsSponsored = aSponsoredIndex !== -1;
+          const bIsSponsored = bSponsoredIndex !== -1;
+
+          if (aIsSponsored && bIsSponsored) {
+            return aSponsoredIndex - bSponsoredIndex;
           }
 
-          if (!aIsSponsored && bIsSponsored) {
-            return 1;
-          }
+          if (aIsSponsored) return -1;
+          if (bIsSponsored) return 1;
 
           switch (sortField) {
             case BakersSortField.Delegated:
