@@ -1,4 +1,4 @@
-import React, { FC, useCallback, useEffect, useMemo } from 'react';
+import React, { FC, useCallback, useEffect, useImperativeHandle, useMemo } from 'react';
 
 import { ChainIds } from '@taquito/taquito';
 import BigNumber from 'bignumber.js';
@@ -28,6 +28,7 @@ import {
   useTezosAddressByDomainName
 } from 'temple/front/tezos';
 
+import { useSendFormControl } from '../context';
 import { useTezosEstimationData } from '../hooks/use-tezos-estimation-data';
 
 import { BaseForm } from './BaseForm';
@@ -44,6 +45,8 @@ interface Props {
 export const TezosForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, onReview }) => {
   const account = useAccountForTezos();
   const network = useTezosChainByChainId(chainId);
+
+  const formControlRef = useSendFormControl();
 
   if (!account || !network) throw new DeadEndBoundaryError();
 
@@ -208,6 +211,8 @@ export const TezosForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, o
     reset({ to: '', amount: '' });
     setShouldUseFiat(false);
   }, [reset, setShouldUseFiat]);
+
+  useImperativeHandle(formControlRef, () => ({ resetForm }));
 
   const onSubmit = useCallback(
     async ({ amount }: SendFormData) => {

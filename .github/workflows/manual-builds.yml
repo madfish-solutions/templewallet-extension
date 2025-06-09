@@ -57,6 +57,7 @@ jobs:
           TEMPLE_ADS_API_URL: ${{ vars.TEMPLE_ADS_API_URL }}
           TEMPLE_WALLET_ROUTE3_AUTH_TOKEN: ${{ vars.TEMPLE_WALLET_ROUTE3_AUTH_TOKEN }}
           TEMPLE_WALLET_MOONPAY_API_KEY: ${{ secrets.TEMPLE_WALLET_MOONPAY_API_KEY }}
+          TEMPLE_WALLET_KOLIBRIO_PARAMS: ${{ vars.TEMPLE_WALLET_KOLIBRIO_PARAMS }}
           TEMPLE_FIREBASE_CONFIG: ${{ secrets.TEMPLE_FIREBASE_CONFIG }}
           TEMPLE_FIREBASE_MESSAGING_VAPID_KEY: ${{ secrets.TEMPLE_FIREBASE_MESSAGING_VAPID_KEY }}
           HYPELAB_API_URL: ${{ vars.HYPELAB_API_URL }}
@@ -102,6 +103,7 @@ jobs:
           TEMPLE_ADS_ORIGIN_PASSPHRASE: ${{ vars.TEMPLE_ADS_ORIGIN_PASSPHRASE }}
           TAKE_ADS_TOKEN: ${{ secrets.TAKE_ADS_TOKEN }}
           CONVERSION_VERIFICATION_URL: ${{ vars.CONVERSION_VERIFICATION_URL }}
+          GOOGLE_AUTH_PAGE_URL: ${{ vars.GOOGLE_AUTH_PAGE_URL }}
           # [e2e]
           DEFAULT_HD_ACCOUNT_SEED_PHRASE: ${{ secrets.DEFAULT_HD_ACCOUNT_SEED_PHRASE }}
           DEFAULT_HD_ACCOUNT_FIRST_PRIVATE_KEY: ${{ secrets.DEFAULT_HD_ACCOUNT_FIRST_PRIVATE_KEY }}
@@ -132,20 +134,21 @@ jobs:
 
       - name: Create Chrome build
         if: ${{ (github.event.inputs.chrome == 'true' || github.event.inputs.chromePlusE2E == 'true') && github.event.inputs.core != 'true' }}
-        run: yarn build:chrome
+        run: yarn build:without-zip:chrome
 
       - name: Create core Chrome build
         if: ${{ (github.event.inputs.chrome == 'true' || github.event.inputs.chromePlusE2E == 'true') && github.event.inputs.core == 'true' }}
-        run: yarn build:chrome:core
+        run: yarn build:without-zip:chrome:core
 
       - name: Upload Chrome artifact
         if: ${{ github.event.inputs.chrome == 'true' || github.event.inputs.chromePlusE2E == 'true' }}
         uses: actions/upload-artifact@v4
         with:
           name: chrome
-          path: dist/chrome.zip
+          path: dist/chrome_unpacked
           if-no-files-found: error
           retention-days: 30
+          compression-level: 1
 
       - name: Perform end-to-end tests
         if: ${{ github.event.inputs.chromePlusE2E == 'true' }}
@@ -164,17 +167,18 @@ jobs:
 
       - name: Create Firefox build
         if: ${{ github.event.inputs.firefox == 'true' && github.event.inputs.core != 'true'}}
-        run: yarn build:firefox
+        run: yarn build:without-zip:firefox
 
       - name: Create core Firefox build
         if: ${{ github.event.inputs.firefox == 'true' && github.event.inputs.core == 'true'}}
-        run: yarn build:firefox:core
+        run: yarn build:without-zip:firefox:core
 
       - name: Upload Firefox artifact
         if: ${{ github.event.inputs.firefox == 'true' }}
         uses: actions/upload-artifact@v4
         with:
           name: firefox
-          path: dist/firefox.xpi
+          path: dist/firefox_unpacked
           if-no-files-found: error
           retention-days: 30
+          compression-level: 1

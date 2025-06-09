@@ -3,6 +3,8 @@ import { EMPTY_FROZEN_OBJ } from 'lib/utils';
 
 import { AssetSlugBalanceRecord, ChainIdTokenSlugsBalancesRecord } from './state';
 
+export const useAllRawEvmBalancesSelector = () => useSelector(state => state.evmBalances.balancesAtomic);
+
 export const useRawEvmAccountBalancesSelector = (publicKeyHash: HexString): ChainIdTokenSlugsBalancesRecord =>
   useSelector(state => state.evmBalances.balancesAtomic[publicKeyHash]) ?? EMPTY_FROZEN_OBJ;
 

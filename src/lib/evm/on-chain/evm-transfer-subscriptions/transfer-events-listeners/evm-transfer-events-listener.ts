@@ -7,7 +7,7 @@ import { erc721TransferEvent } from 'lib/abi/erc721';
 import { getViemPublicClient } from 'temple/evm';
 import { EvmNetworkEssentials } from 'temple/networks';
 
-import { EvmRpcRequestsExecutor, RequestAlreadyPendingError } from '../../utils/evm-rpc-requests-executor';
+import { EvmRpcRequestsExecutor } from '../../utils/evm-rpc-requests-executor';
 import { EvmHttpRpcListener } from '../evm-http-rpc-listener';
 
 export type TransferEvent = OneOf<
@@ -72,9 +72,7 @@ export abstract class EvmTransferEventsListener<T extends TransferEvent> extends
             }
           })
           .catch(error => {
-            if (!(error instanceof RequestAlreadyPendingError)) {
-              console.error(error);
-            }
+            console.error(error);
 
             return noop;
           })

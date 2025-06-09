@@ -6,7 +6,7 @@ import { toastError, toastSuccess } from 'app/toaster';
 import { t } from 'lib/i18n';
 import { useTempleClient } from 'lib/temple/front';
 
-import { ManualBackupModal } from './ManualBackupModal';
+import { ManualBackupModal } from './manual-backup-modal';
 
 interface CreateHDWalletModalProps {
   animated?: boolean;

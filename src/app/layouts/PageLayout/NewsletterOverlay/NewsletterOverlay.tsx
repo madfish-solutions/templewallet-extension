@@ -11,7 +11,7 @@ import { useAppEnv } from 'app/env';
 import { LAYOUT_CONTAINER_CLASSNAME } from 'app/layouts/containers';
 import { shouldShowNewsletterModalAction } from 'app/store/newsletter/newsletter-actions';
 import { useShouldShowNewsletterModalSelector } from 'app/store/newsletter/newsletter-selectors';
-import { useOnRampPossibilitySelector } from 'app/store/settings/selectors';
+import { useOnRampAssetSelector } from 'app/store/settings/selectors';
 import { setTestID } from 'lib/analytics';
 import { newsletterApi } from 'lib/apis/newsletter';
 import { useYupValidationResolver } from 'lib/form/use-yup-validation-resolver';
@@ -39,7 +39,8 @@ export const NewsletterOverlay = memo(() => {
 
   const { ready } = useTempleClient();
   const shouldShowNewsletterModal = useShouldShowNewsletterModalSelector();
-  const isOnRampPossibility = useOnRampPossibilitySelector();
+  const onRampAsset = useOnRampAssetSelector();
+  const isOnRampPossibility = Boolean(onRampAsset);
 
   const validationResolver = useYupValidationResolver<FormValues>(validationSchema);
 

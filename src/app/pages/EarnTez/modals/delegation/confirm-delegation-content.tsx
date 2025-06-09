@@ -5,9 +5,11 @@ import BigNumber from 'bignumber.js';
 import { useDispatch } from 'react-redux';
 
 import { Alert } from 'app/atoms';
+import { DescriptionWithHeader } from 'app/atoms/Alert';
 import { HashChip } from 'app/atoms/HashChip';
 import { TextButton } from 'app/atoms/TextButton';
-import { setOnRampPossibilityAction } from 'app/store/settings/actions';
+import { setOnRampAssetAction } from 'app/store/settings/actions';
+import { TEZOS_CHAIN_ASSET_SLUG } from 'lib/apis/wert';
 import { T } from 'lib/i18n';
 import { getTezosGasMetadata } from 'lib/metadata';
 import { ZERO } from 'lib/utils/numbers';
@@ -71,7 +73,7 @@ const TxTabsInnerContent: ConfirmEarnOperationContentProps<ReviewData>['TxTabsIn
     const dispatch = useDispatch();
     const { symbol: tezSymbol } = getTezosGasMetadata(network.chainId);
 
-    const openWertPopup = useCallback(() => void dispatch(setOnRampPossibilityAction(true)), [dispatch]);
+    const openWertPopup = useCallback(() => void dispatch(setOnRampAssetAction(TEZOS_CHAIN_ASSET_SLUG)), [dispatch]);
     const delegatedAmount = useMemo(
       () => BigNumber.max(ZERO, tezBalance.minus(estimationData?.gasFee ?? ZERO)),
       [estimationData?.gasFee, tezBalance]
@@ -84,22 +86,19 @@ const TxTabsInnerContent: ConfirmEarnOperationContentProps<ReviewData>['TxTabsIn
           type="warning"
           closable={false}
           description={
-            <div className="flex flex-col gap-0.5">
-              <p className="text-font-description-bold">
-                <T id="minDelegationBalanceTitle" />
-              </p>
-              <p className="text-font-description">
+            <DescriptionWithHeader header={<T id="minDelegationBalanceTitle" />}>
+              <p>
                 <T id="minDelegationBalanceDescription" />
               </p>
               <div className="flex gap-1 items-center">
-                <span className="text-font-description">
+                <span>
                   <T id="topUp" /> {tezSymbol}:
                 </span>
                 <TextButton color="blue" onClick={openWertPopup}>
                   <T id="buyWithCardShort" />
                 </TextButton>
               </div>
-            </div>
+            </DescriptionWithHeader>
           }
         />
       );

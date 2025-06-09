@@ -3,6 +3,7 @@ import { combineEpics, createEpicMiddleware } from 'redux-observable';
 import { catchError } from 'rxjs/operators';
 
 import { abTestingEpics } from './ab-testing/epics';
+import { accountsInitializationEpics } from './accounts-initialization/epics';
 import { advertisingEpics } from './advertising/epics';
 import { buyWithCreditCardEpics } from './buy-with-credit-card/epics';
 import { cryptoExchangeEpics } from './crypto-exchange/epics';
@@ -36,7 +37,8 @@ const allEpics = combineEpics(
   buyWithCreditCardEpics,
   collectiblesEpics,
   rewardsEpics,
-  evmBalancesEpics
+  evmBalancesEpics,
+  accountsInitializationEpics
 );
 
 export const epicMiddleware = createEpicMiddleware<Action, Action, RootState>();

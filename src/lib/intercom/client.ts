@@ -50,7 +50,7 @@ export class IntercomClient {
     this.subscribers.push(callback);
 
     return () => {
-      const index = this.subscribers.findIndex(callback);
+      const index = this.subscribers.indexOf(callback);
       if (index > -1) this.subscribers.splice(index, 1);
     };
   }

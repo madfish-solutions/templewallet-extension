@@ -4,7 +4,7 @@ import { useAssetsViewState } from 'app/hooks/use-assets-view-state';
 import { dispatch } from 'app/store';
 import { setAssetsFilterChain } from 'app/store/assets-filter-options/actions';
 import { useAssetsFilterOptionsSelector } from 'app/store/assets-filter-options/selectors';
-import { useAccountAddressForEvm, useAccountAddressForTezos } from 'temple/front';
+import { useAccountAddressForEvm, useAccountAddressForTezos, useCurrentAccountId } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
 
 import { EvmChainTokensTab } from './components/EvmChainTokensTab';
@@ -21,6 +21,7 @@ export const TokensTab = memo(() => {
 
   const accountTezAddress = useAccountAddressForTezos();
   const accountEvmAddress = useAccountAddressForEvm();
+  const accountId = useCurrentAccountId();
 
   const isTezosFilter = localFilterChain?.kind === TempleChainKind.Tezos;
   const isEvmFilter = localFilterChain?.kind === TempleChainKind.EVM;
@@ -44,17 +45,29 @@ export const TokensTab = memo(() => {
   }, [filterChain]);
 
   if (isTezosFilter && accountTezAddress)
-    return <TezosChainTokensTab chainId={localFilterChain.chainId} publicKeyHash={accountTezAddress} />;
+    return (
+      <TezosChainTokensTab accountId={accountId} chainId={localFilterChain.chainId} publicKeyHash={accountTezAddress} />
+    );
 
   if (isEvmFilter && accountEvmAddress)
-    return <EvmChainTokensTab chainId={localFilterChain.chainId} publicKeyHash={accountEvmAddress} />;
+    return (
+      <EvmChainTokensTab accountId={accountId} chainId={localFilterChain.chainId} publicKeyHash={accountEvmAddress} />
+    );
 
   if (!localFilterChain && accountTezAddress && accountEvmAddress)
-    return <MultiChainTokensTab accountTezAddress={accountTezAddress} accountEvmAddress={accountEvmAddress} />;
+    return (
+      <MultiChainTokensTab
+        accountId={accountId}
+        accountTezAddress={accountTezAddress}
+        accountEvmAddress={accountEvmAddress}
+      />
+    );
 
-  if (!localFilterChain && accountTezAddress) return <TezosTokensTab publicKeyHash={accountTezAddress} />;
+  if (!localFilterChain && accountTezAddress)
+    return <TezosTokensTab accountId={accountId} publicKeyHash={accountTezAddress} />;
 
-  if (!localFilterChain && accountEvmAddress) return <EvmTokensTab publicKeyHash={accountEvmAddress} />;
+  if (!localFilterChain && accountEvmAddress)
+    return <EvmTokensTab accountId={accountId} publicKeyHash={accountEvmAddress} />;
 
   return null;
 });
