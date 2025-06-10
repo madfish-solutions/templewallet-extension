@@ -14,7 +14,7 @@ import { ScrollView } from 'app/atoms/PageModal/scroll-view';
 import { ReactComponent as FilteroffIcon } from 'app/icons/base/filteroff.svg';
 import { SearchBarField } from 'app/templates/SearchField';
 import { T, t } from 'lib/i18n';
-import { HELP_UKRAINE_BAKER_ADDRESS, RECOMMENDED_BAKER_ADDRESS } from 'lib/known-bakers';
+import { HELP_UKRAINE_BAKER_ADDRESS, EVERSTAKE_BAKER_ADDRESS, TEMPLE_BAKER_ADDRESS } from 'lib/known-bakers';
 import { useTypedSWR } from 'lib/swr';
 import { Baker, useKnownBakers } from 'lib/temple/front';
 import { isValidTezosImplicitAddress } from 'lib/tezos';
@@ -49,7 +49,7 @@ enum BakersSortField {
   MinBalance = 'minBalance'
 }
 
-const sponsoredBakersAddresses = [RECOMMENDED_BAKER_ADDRESS, HELP_UKRAINE_BAKER_ADDRESS];
+const sponsoredBakersAddresses = [TEMPLE_BAKER_ADDRESS, EVERSTAKE_BAKER_ADDRESS, HELP_UKRAINE_BAKER_ADDRESS];
 
 export const SelectBakerContent = memo<SelectBakerContentProps>(({ account, bakerPkh, network, onSelect }) => {
   const accountPkh = account.address;
@@ -86,16 +86,18 @@ export const SelectBakerContent = memo<SelectBakerContentProps>(({ account, bake
         { name: 'address', weight: 0.1 }
       ])
         .toSorted(({ delegation: a, address: aAddress }, { delegation: b, address: bAddress }) => {
-          const aIsSponsored = sponsoredBakersAddresses.includes(aAddress);
-          const bIsSponsored = sponsoredBakersAddresses.includes(bAddress);
+          const aSponsoredIndex = sponsoredBakersAddresses.indexOf(aAddress);
+          const bSponsoredIndex = sponsoredBakersAddresses.indexOf(bAddress);
 
-          if (aIsSponsored && !bIsSponsored) {
-            return -1;
+          const aIsSponsored = aSponsoredIndex !== -1;
+          const bIsSponsored = bSponsoredIndex !== -1;
+
+          if (aIsSponsored && bIsSponsored) {
+            return aSponsoredIndex - bSponsoredIndex;
           }
 
-          if (!aIsSponsored && bIsSponsored) {
-            return 1;
-          }
+          if (aIsSponsored) return -1;
+          if (bIsSponsored) return 1;
 
           switch (sortField) {
             case BakersSortField.Delegated:
