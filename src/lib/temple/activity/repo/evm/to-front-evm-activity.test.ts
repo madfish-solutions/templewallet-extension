@@ -70,7 +70,10 @@ describe('toFrontEvmActivity', () => {
           operationsCount: 1,
           blockHeight: 21809128,
           account: vitalikPkhLowercased,
-          contract: ''
+          contract: '',
+          fee: null,
+          index: null,
+          value: null
         },
         {
           1: {
@@ -132,7 +135,10 @@ describe('toFrontEvmActivity', () => {
           blockHeight: 21821418,
           operations: [operation],
           account: vitalikPkhLowercased,
-          contract: ''
+          contract: '',
+          fee: '700886073855429',
+          index: 0,
+          value: '0'
         },
         {
           1: {
@@ -196,7 +202,10 @@ describe('toFrontEvmActivity', () => {
           blockHeight: 46391420,
           operations: [operation],
           account: vitalikPkhLowercased,
-          contract: ''
+          contract: '',
+          fee: null,
+          index: null,
+          value: null
         },
         {
           1: {
