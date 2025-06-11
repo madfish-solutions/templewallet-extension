@@ -16,17 +16,23 @@ import { fetchOperGroupsForOperations, fetchOperations } from 'lib/activity/tezo
 import { TezosActivityOlderThan } from 'lib/activity/tezos/types';
 import {
   EtherlinkChainId,
-  EtherlinkPageParams,
   fetchGetAccountOperations,
   fetchAllInternalTransactions,
-  fetchAllInternalTokensTransfers,
   isErc20TokenTransfer,
   isErc721TokenTransfer,
-  fetchGetTxLogs,
-  EtherlinkTransaction
+  fetchAllTxLogs,
+  EtherlinkTransaction,
+  EtherlinkOperationsPageParams,
+  EtherlinkTokenTransfer,
+  fetchGetTokensTransfers,
+  EtherlinkTokenTransfersPageParams,
+  fetchGetCoinBalanceHistory,
+  fetchAllInternalTokensTransfers,
+  EtherlinkInternalTx
 } from 'lib/apis/etherlink';
 import { fromAssetSlug } from 'lib/assets';
 import { toEvmAssetSlug } from 'lib/assets/utils';
+import { EVM_ZERO_ADDRESS } from 'lib/constants';
 import { EvmOperationKind, getOperationKind } from 'lib/evm/on-chain/transactions';
 import { equalsIgnoreCase } from 'lib/evm/on-chain/utils/common.utils';
 import { EvmAssetStandard } from 'lib/evm/types';
@@ -41,13 +47,17 @@ import {
   tezosLowestIntervalLimit,
   putEvmActivities,
   putTezosActivities,
-  getSeparateTezosActivities,
-  getSeparateEvmActivites
+  getSeparateTezosActivities
 } from 'lib/temple/activity/repo';
 import { DEFAULT_EVM_CHAINS_SPECS } from 'lib/temple/chains-specs';
 import { TempleTezosChainId } from 'lib/temple/types';
 import { filterUnique } from 'lib/utils';
 import { TempleChainKind } from 'temple/types';
+
+export interface AllEtherlinkActivitiesPageParams {
+  operationsPageParams: EtherlinkOperationsPageParams | nullish;
+  tokensTransfersPageParams: EtherlinkTokenTransfersPageParams | nullish;
+}
 
 interface GetClosestNonEmptyActivitiesIntervalConfig<P, I, A> {
   getClosestActivitiesInterval: (olderThan: P | undefined) => Promise<I | undefined>;
@@ -59,14 +69,13 @@ interface GetClosestNonEmptyActivitiesIntervalConfig<P, I, A> {
   olderThan?: P;
 }
 
-interface FetchActivitiesWithCacheConfig<P, I, A, TM = never, CM = never, R = A[]>
+interface FetchActivitiesWithCacheConfig<P, I, A, M = never, R = A[]>
   extends GetClosestNonEmptyActivitiesIntervalConfig<P, I, A> {
   /** May we fetch assets metadata here intentionally? */
   fetchActivities: (olderThan?: P) => Promise<R>;
   getNewContractMatchItems: SyncFn<R, A[]>;
   getAllNewItems?: SyncFn<R, A[]>;
-  getTokensMetadata?: SyncFn<R, StringRecord<TM>>;
-  getCollectiblesMetadata?: SyncFn<R, StringRecord<CM>>;
+  getAssetsMetadata?: SyncFn<R, StringRecord<M>>;
   getReachedTheEnd?: SyncFn<R, boolean>;
   putNewActivities: (contractMatchActivities: A[], allActivities: A[], olderThan?: P) => Promise<void>;
 }
@@ -106,13 +115,12 @@ const getClosestNonEmptyActivitiesInterval = async <P, I, A>({
 
   return { currentOlderThan, newActivities };
 };
-const fetchActivitiesWithCache = async <P, I, A, TM = never, CM = never, R = A[]>({
+const fetchActivitiesWithCache = async <P, I, A, M = never, R = A[]>({
   getClosestActivitiesInterval,
   fetchActivities,
   getNewContractMatchItems,
   getAllNewItems = getNewContractMatchItems,
-  getTokensMetadata,
-  getCollectiblesMetadata,
+  getAssetsMetadata,
   getReachedTheEnd,
   isGenesisBlockPointer,
   getActivities,
@@ -121,10 +129,9 @@ const fetchActivitiesWithCache = async <P, I, A, TM = never, CM = never, R = A[]
   putNewActivities,
   signal,
   olderThan
-}: FetchActivitiesWithCacheConfig<P, I, A, TM, CM, R>) => {
+}: FetchActivitiesWithCacheConfig<P, I, A, M, R>) => {
   let currentOlderThan = olderThan;
-  let tokensMetadata: StringRecord<TM> = {};
-  let collectiblesMetadata: StringRecord<CM> = {};
+  let assetsMetadata: StringRecord<M> = {};
 
   let activitiesFromCache: A[] | undefined;
   if (olderThan) {
@@ -150,11 +157,8 @@ const fetchActivitiesWithCache = async <P, I, A, TM = never, CM = never, R = A[]
       const response = await fetchActivities(currentOlderThan);
       reachedTheEnd = getReachedTheEnd?.(response);
       activities = getNewContractMatchItems(response);
-      if (getTokensMetadata) {
-        tokensMetadata = getTokensMetadata(response);
-      }
-      if (getCollectiblesMetadata) {
-        collectiblesMetadata = getCollectiblesMetadata(response);
+      if (getAssetsMetadata) {
+        assetsMetadata = getAssetsMetadata(response);
       }
       signal.throwIfAborted();
 
@@ -181,7 +185,7 @@ const fetchActivitiesWithCache = async <P, I, A, TM = never, CM = never, R = A[]
 
   signal.throwIfAborted();
 
-  return { activities, tokensMetadata, collectiblesMetadata, reachedTheEnd };
+  return { activities, assetsMetadata, reachedTheEnd };
 };
 
 interface FetchEvmActivitiesWithCacheConfig {
@@ -231,7 +235,7 @@ export const fetchEvmActivitiesWithCache = async ({
 
 interface FetchEtherlinkActivitiesWithCacheConfig extends Omit<FetchEvmActivitiesWithCacheConfig, 'olderThan'> {
   chainId: EtherlinkChainId;
-  olderThan?: EtherlinkPageParams;
+  olderThan?: AllEtherlinkActivitiesPageParams;
 }
 
 const erc20ApprovalEventRegex = /Approval\(address indexed [A-z_]+, address indexed [A-z_]+, uint256 [A-z_]+\)/;
@@ -252,6 +256,13 @@ const nullToUndefined = <T extends object>(obj: T): NullToUndefined<T> => {
   return result as NullToUndefined<T>;
 };
 
+const ETHERLINK_ITEMS_PER_PAGE = 50;
+const getBlockNumberFromOlderThan = (olderThan: AllEtherlinkActivitiesPageParams | undefined) => {
+  const { operationsPageParams, tokensTransfersPageParams } = olderThan ?? {};
+  const { block_number: blockNumber } = operationsPageParams ?? tokensTransfersPageParams ?? {};
+
+  return blockNumber;
+};
 export const fetchEtherlinkActivitiesWithCache = async ({
   chainId,
   accountAddress,
@@ -262,36 +273,233 @@ export const fetchEtherlinkActivitiesWithCache = async ({
   const contractAddress = assetSlug ? fromAssetSlug(assetSlug)[0] : undefined;
 
   return fetchActivitiesWithCache<
-    EtherlinkPageParams,
+    AllEtherlinkActivitiesPageParams,
     GetEvmActivitiesIntervalResult,
     EvmActivity,
-    EvmTokenMetadata,
-    EvmCollectibleMetadata,
+    EvmTokenMetadata | EvmCollectibleMetadata,
     {
       allActivities: EvmActivity[];
-      nextPageParams: EtherlinkPageParams | null;
-      tokensMetadata: StringRecord<EvmTokenMetadata>;
-      collectiblesMetadata: StringRecord<EvmCollectibleMetadata>;
+      nextPageParams: AllEtherlinkActivitiesPageParams;
+      assetsMetadata: StringRecord<EvmTokenMetadata | EvmCollectibleMetadata>;
     }
   >({
-    getClosestActivitiesInterval: currentOlderThan =>
-      getClosestEvmActivitiesInterval({
-        olderThanBlockHeight: currentOlderThan ? `${currentOlderThan.block_number}` : undefined,
+    getClosestActivitiesInterval: currentOlderThan => {
+      const blockNumber = getBlockNumberFromOlderThan(currentOlderThan);
+
+      return getClosestEvmActivitiesInterval({
+        olderThanBlockHeight: isDefined(blockNumber) ? `${blockNumber}` : undefined,
         chainId,
         account: accountAddress,
         contractAddress,
-        maxItems: 50
-      }),
+        maxItems: ETHERLINK_ITEMS_PER_PAGE
+      });
+    },
     fetchActivities: async currentOlderThan => {
-      const { items: transactions, nextPageParams } = await fetchGetAccountOperations(
-        chainId,
-        accountAddress,
-        currentOlderThan,
-        signal
-      );
-      const tokensMetadata: StringRecord<EvmTokenMetadata> = {};
-      const collectiblesMetadata: StringRecord<EvmCollectibleMetadata> = {};
+      console.log('oy vey 0', currentOlderThan);
+      const { operationsPageParams, tokensTransfersPageParams } = currentOlderThan ?? {};
+      let explicitOperations: EtherlinkTransaction[];
+      let explicitOperationsNextPageParams: EtherlinkOperationsPageParams | nullish;
+      const explicitOperationsPage =
+        operationsPageParams === null
+          ? { items: [], nextPageParams: null }
+          : await fetchGetAccountOperations({
+              chainId,
+              address: accountAddress,
+              pageParams: operationsPageParams,
+              signal
+            });
+      explicitOperations = explicitOperationsPage.items;
+      explicitOperationsNextPageParams = explicitOperationsPage.nextPageParams;
+      let { items: coinBalanceHistoryItems } =
+        operationsPageParams === null
+          ? { items: [] }
+          : await fetchGetCoinBalanceHistory({
+              chainId,
+              address: accountAddress,
+              signal,
+              pageParams: operationsPageParams && {
+                block_number: operationsPageParams.block_number,
+                items_count: operationsPageParams.items_count
+              }
+            });
+      let tokensTransfers: EtherlinkTokenTransfer[];
+      let tokensTransfersNextPageParams: EtherlinkTokenTransfersPageParams | nullish;
+      const tokensTransfersPage =
+        tokensTransfersPageParams === null
+          ? { items: [], nextPageParams: null }
+          : await fetchGetTokensTransfers({
+              address: accountAddress,
+              pageParams: tokensTransfersPageParams,
+              signal,
+              chainId
+            });
+      tokensTransfers = tokensTransfersPage.items;
+      tokensTransfersNextPageParams = tokensTransfersPage.nextPageParams;
+      console.log('oy vey 1', {
+        explicitOperations,
+        explicitOperationsNextPageParams,
+        tokensTransfers,
+        tokensTransfersNextPageParams,
+        coinBalanceHistoryItems
+      });
+      if (
+        explicitOperationsNextPageParams &&
+        tokensTransfersNextPageParams &&
+        explicitOperationsNextPageParams.block_number <= tokensTransfersNextPageParams.block_number
+      ) {
+        console.log('oy vey 2');
+        const lastTransferHash = tokensTransfers.at(-1)!.block_hash;
+        const lastTxTokensTransfers = await fetchAllInternalTokensTransfers({
+          txHash: lastTransferHash,
+          chainId,
+          signal
+        });
+        console.log('oy vey 3', lastTxTokensTransfers);
+        tokensTransfers = tokensTransfers
+          .filter(({ transaction_hash }) => transaction_hash !== lastTransferHash)
+          .concat(
+            lastTxTokensTransfers
+              .filter(({ from, to }) => [from, to].some(({ hash }) => equalsIgnoreCase(hash, accountAddress)))
+              .sort(({ log_index: aLogIndex }, { log_index: bLogIndex }) => bLogIndex - aLogIndex) ?? []
+          );
+        const lastTokenTransfer = tokensTransfers.at(-1)!;
+        tokensTransfersNextPageParams = {
+          block_number: lastTokenTransfer.block_number,
+          index: lastTokenTransfer.log_index
+        };
 
+        explicitOperations = explicitOperations.filter(
+          ({ block_number: blockNumber }) => blockNumber >= tokensTransfersNextPageParams!.block_number
+        );
+        coinBalanceHistoryItems = coinBalanceHistoryItems.filter(
+          ({ block_number: blockNumber }) => blockNumber >= tokensTransfersNextPageParams!.block_number
+        );
+        const lastExplicitOperation = explicitOperations.at(-1);
+        if (lastExplicitOperation) {
+          console.log('oy vey 3.1');
+          const { block_number, fee, hash, position, timestamp, value } = lastExplicitOperation;
+          explicitOperationsNextPageParams = {
+            block_number,
+            fee: fee?.value ?? '0',
+            hash,
+            index: position,
+            inserted_at: timestamp,
+            items_count: (operationsPageParams?.items_count ?? 0) + explicitOperations.length,
+            value
+          };
+        } else {
+          console.log('oy vey 3.2');
+          explicitOperationsNextPageParams = operationsPageParams;
+        }
+        console.log('oy vey 4', {
+          explicitOperations,
+          explicitOperationsNextPageParams,
+          tokensTransfers,
+          tokensTransfersNextPageParams,
+          coinBalanceHistoryItems
+        });
+      } else if (explicitOperationsNextPageParams && tokensTransfersNextPageParams) {
+        console.log('oy vey 5');
+        const { block_number: lastOperationBlockNumber } = explicitOperations.at(-1)!;
+        const earliestBlockNumberOperationsHashes = new Set(
+          explicitOperations
+            .filter(({ block_number: blockNumber }) => blockNumber === lastOperationBlockNumber)
+            .map(({ hash }) => hash.toLowerCase())
+        );
+        tokensTransfers = tokensTransfers.filter(
+          ({ block_number: blockNumber, transaction_hash: txHash }) =>
+            blockNumber > lastOperationBlockNumber || earliestBlockNumberOperationsHashes.has(txHash.toLowerCase())
+        );
+        const lastTokenTransfer = tokensTransfers.at(-1);
+        tokensTransfersNextPageParams = lastTokenTransfer
+          ? {
+              block_number: lastTokenTransfer.block_number,
+              index: lastTokenTransfer.log_index
+            }
+          : tokensTransfersPageParams;
+        console.log('oy vey 6', {
+          explicitOperations,
+          explicitOperationsNextPageParams,
+          tokensTransfers,
+          tokensTransfersNextPageParams,
+          coinBalanceHistoryItems
+        });
+      }
+
+      const assetsMetadata: StringRecord<EvmTokenMetadata | EvmCollectibleMetadata> = {};
+      const rawActivitiesByHash: StringRecord<{
+        tx?: EtherlinkTransaction;
+        tokensTransfers: EtherlinkTokenTransfer[];
+        nativeCoinDelta: string;
+      }> = {};
+      explicitOperations.forEach((op, i) => {
+        const fee = op.fee?.value ?? '0';
+        const { delta: nativeCoinDeltaWithFee } = coinBalanceHistoryItems[i] ?? { delta: `-${fee}` };
+
+        rawActivitiesByHash[op.hash] = {
+          tx: op,
+          tokensTransfers: [],
+          nativeCoinDelta: (BigInt(nativeCoinDeltaWithFee) + BigInt(fee)).toString()
+        };
+      });
+      tokensTransfers.forEach(transfer => {
+        const { transaction_hash: txHash } = transfer;
+        if (rawActivitiesByHash[txHash]) {
+          rawActivitiesByHash[txHash].tokensTransfers.push(transfer);
+        } else {
+          rawActivitiesByHash[txHash] = {
+            tokensTransfers: [transfer],
+            nativeCoinDelta: '0'
+          };
+        }
+        if (isErc20TokenTransfer(transfer)) {
+          const { address_hash: address, decimals, symbol, name, icon_url: iconURL } = transfer.token;
+          assetsMetadata[toEvmAssetSlug(address)] = nullToUndefined({
+            standard: EvmAssetStandard.ERC20,
+            symbol,
+            address,
+            name,
+            decimals: decimals ? Number(decimals) : undefined,
+            iconURL
+          });
+        } else {
+          const {
+            token,
+            id: tokenId,
+            metadata,
+            image_url: fullImageUrl,
+            external_app_url: externalUrl,
+            animation_url: animationUrl
+          } = transfer.total.token_instance;
+          const {
+            address_hash: address,
+            symbol,
+            name: tokenName,
+            decimals: rawDecimals,
+            icon_url: iconFallback
+          } = token;
+          const { attributes, description, name: collectibleName, image: metadataImage } = metadata ?? {};
+          const iconURL = metadataImage ?? iconFallback;
+
+          assetsMetadata[toEvmAssetSlug(address, tokenId)] = nullToUndefined({
+            symbol,
+            address,
+            name: tokenName,
+            decimals: Number(rawDecimals ?? 0),
+            iconURL,
+            tokenId,
+            image: fullImageUrl ?? metadataImage,
+            collectibleName,
+            description,
+            attributes,
+            externalUrl,
+            animationUrl
+          });
+        }
+      });
+      console.log('oy vey 7', { assetsMetadata, rawActivitiesByHash });
+
+      const activitiesByHash: StringRecord<EvmActivity> = {};
       const {
         address: gasAddress,
         decimals: gasDecimals,
@@ -304,119 +512,69 @@ export const fetchEtherlinkActivitiesWithCache = async ({
         symbol: gasSymbol,
         iconURL: getEvmNativeAssetIcon(chainId, undefined, 'llamao') ?? undefined
       };
-      const handleTokensTransfers = async (tx: EtherlinkTransaction) => {
-        const { hash, from, position, value } = tx;
-        const { hash: fromAddress } = from;
-        const toAddress = tx.to?.hash;
-        let operations: EvmOperation[] = [];
-        const tokensTransfers = await fetchAllInternalTokensTransfers(signal, chainId, hash);
-        operations = tokensTransfers
-          .filter(({ from, to }) => [from, to].some(({ hash }) => equalsIgnoreCase(hash, accountAddress)))
-          .map(transfer => {
-            const { from, to, log_index: logIndex } = transfer;
-            const isSending = equalsIgnoreCase(from.hash, accountAddress);
-            const amountNotSigned = isErc721TokenTransfer(transfer) ? '1' : transfer.total.value;
-            const assetIsToken = isErc20TokenTransfer(transfer);
-            let asset: EvmActivityAsset;
-            if (assetIsToken) {
-              const { address_hash: address, decimals, symbol, name, icon_url: iconURL } = transfer.token;
-              asset = nullToUndefined({
-                contract: address,
-                amountSigned: isSending ? `-${amountNotSigned}` : amountNotSigned,
-                decimals: decimals ? Number(decimals) : undefined,
-                nft: false,
-                symbol,
-                name,
-                iconURL
-              });
-              tokensMetadata[toEvmAssetSlug(address)] = nullToUndefined({
-                standard: EvmAssetStandard.ERC20,
-                symbol,
-                address,
-                name,
-                decimals: decimals ? Number(decimals) : undefined,
-                iconURL
-              });
-            } else {
-              const {
-                token,
-                id: tokenId,
-                metadata,
-                image_url: fullImageUrl,
-                external_app_url: externalUrl,
-                animation_url: animationUrl
-              } = transfer.total.token_instance;
-              const {
-                address_hash: address,
-                symbol,
-                name: tokenName,
-                decimals: rawDecimals,
-                icon_url: iconFallback
-              } = token;
-              const { attributes, description, name: collectibleName, image: metadataImage } = metadata ?? {};
-              const decimals = rawDecimals ? Number(rawDecimals) : undefined;
-              const iconURL = metadataImage ?? iconFallback;
-
-              asset = nullToUndefined({
-                contract: address,
-                tokenId,
-                amountSigned: isSending ? `-${amountNotSigned}` : amountNotSigned,
-                decimals,
-                nft: true,
-                symbol,
-                name: tokenName,
-                iconURL
-              });
-              collectiblesMetadata[toEvmAssetSlug(address, tokenId)] = nullToUndefined({
-                symbol,
-                address,
-                name: tokenName,
-                decimals,
-                iconURL,
-                tokenId,
-                image: fullImageUrl ?? metadataImage,
-                collectibleName,
-                description,
-                attributes,
-                externalUrl,
-                animationUrl
-              });
-            }
-
-            return {
-              kind: ActivityOperKindEnum.transfer,
-              fromAddress: from.hash,
-              toAddress: to.hash,
-              asset,
-              logIndex,
-              type: equalsIgnoreCase(from.hash, accountAddress)
-                ? ActivityOperTransferType.sendToAccount
-                : ActivityOperTransferType.receiveFromAccount
-            };
+      const parseTokenTransfer = (transfer: EtherlinkTokenTransfer): EvmOperation => {
+        const { from, to, log_index: logIndex } = transfer;
+        const isSending = equalsIgnoreCase(from.hash, accountAddress);
+        const amountNotSigned = isErc721TokenTransfer(transfer) ? '1' : transfer.total.value;
+        const assetIsToken = isErc20TokenTransfer(transfer);
+        let asset: EvmActivityAsset;
+        if (assetIsToken) {
+          const { address_hash: address, decimals, symbol, name, icon_url: iconURL } = transfer.token;
+          asset = nullToUndefined({
+            contract: address,
+            amountSigned: isSending ? `-${amountNotSigned}` : amountNotSigned,
+            decimals: decimals ? Number(decimals) : undefined,
+            nft: false,
+            symbol,
+            name,
+            iconURL
           });
+        } else {
+          const { token, id: tokenId, metadata } = transfer.total.token_instance;
+          const {
+            address_hash: address,
+            symbol,
+            name: tokenName,
+            decimals: rawDecimals,
+            icon_url: iconFallback
+          } = token;
+          const { image: metadataImage } = metadata ?? {};
+          const decimals = rawDecimals ? Number(rawDecimals) : undefined;
+          const iconURL = metadataImage ?? iconFallback;
 
-        if (equalsIgnoreCase(fromAddress, accountAddress) && Number(value) > 0) {
-          operations.unshift({
-            kind: ActivityOperKindEnum.transfer,
-            fromAddress,
-            toAddress: toAddress!,
-            asset: { ...gasAsset, amountSigned: `-${value}` },
-            logIndex: position,
-            type: ActivityOperTransferType.sendToAccount
+          asset = nullToUndefined({
+            contract: address,
+            tokenId,
+            amountSigned: isSending ? `-${amountNotSigned}` : amountNotSigned,
+            decimals,
+            nft: true,
+            symbol,
+            name: tokenName,
+            iconURL
           });
         }
 
-        return operations;
+        return {
+          kind: ActivityOperKindEnum.transfer,
+          fromAddress: from.hash,
+          toAddress: to.hash,
+          asset,
+          logIndex,
+          type: equalsIgnoreCase(from.hash, accountAddress)
+            ? ActivityOperTransferType.sendToAccount
+            : ActivityOperTransferType.receiveFromAccount
+        };
       };
       const getApprovals = async (tx: EtherlinkTransaction) => {
-        const { items: logEntries } = await fetchGetTxLogs(chainId, tx.hash, null, signal);
+        const logEntries = await fetchAllTxLogs({ chainId, txHash: tx.hash, signal });
+        console.log('oy vey 8', tx, logEntries);
 
         return logEntries
           .filter(
             ({ decoded, topics }) =>
               [erc20ApprovalEventRegex, erc721SingleApprovalEventRegex].some(regex =>
                 decoded?.method_call.match(regex)
-              ) && equalsIgnoreCase(topics[1] ?? undefined, accountAddress)
+              ) && equalsIgnoreCase(topics[1] ? `0x${topics[1].slice(-40)}` : undefined, accountAddress)
           )
           .map(logEntry => {
             const { topics, index: logIndex, data, address } = logEntry;
@@ -425,49 +583,31 @@ export const fetchEtherlinkActivitiesWithCache = async ({
             return parseApprovalLog({ topics: topics.filter(isDefined), logIndex, data, address: tokenAddress });
           });
       };
+      const makeGasTokenTransfer = (tx: EtherlinkTransaction | EtherlinkInternalTx): EvmOperation => {
+        const { from, to, value } = tx;
+        const { hash: fromAddress } = from;
+        const isSending = equalsIgnoreCase(fromAddress, accountAddress);
 
-      const hashes = transactions.map(op => op.hash);
-      const alreadyKnownActivities = await getSeparateEvmActivites(chainId, accountAddress, hashes);
-      const alreadyKnownActivitiesByHashes = Object.fromEntries(
-        alreadyKnownActivities.map(activity => [activity.hash, activity])
-      );
+        return {
+          kind: ActivityOperKindEnum.transfer,
+          fromAddress: fromAddress,
+          toAddress: to?.hash ?? EVM_ZERO_ADDRESS,
+          asset: { ...gasAsset, amountSigned: isSending ? `-${value}` : value },
+          logIndex: 'position' in tx ? tx.position : tx.index,
+          type: isSending ? ActivityOperTransferType.sendToAccount : ActivityOperTransferType.receiveFromAccount
+        };
+      };
 
-      const newOperationsByHash = transactions.reduce<Record<string, EtherlinkTransaction>>((acc, operation) => {
-        const { hash } = operation;
-        if (!alreadyKnownActivitiesByHashes[hash]) {
-          acc[hash] = operation;
-        }
-
-        return acc;
-      }, {});
-
-      const newActivities = await Promise.all(
-        Object.keys(newOperationsByHash).map(async (hash): Promise<EvmActivity> => {
-          const transaction = newOperationsByHash[hash];
-          const { from, to, fee, position, raw_input, block_number, timestamp, status, value } = transaction;
-          const { hash: fromAddress } = from;
+      for (const hash in rawActivitiesByHash) {
+        const { tx, tokensTransfers, nativeCoinDelta } = rawActivitiesByHash[hash];
+        let operations: EvmOperation[];
+        if (tx) {
+          const { to, position, raw_input, value } = tx;
           const toAddress = to?.hash;
-          const basicActivityProps = {
-            chain: TempleChainKind.EVM as const,
-            hash,
-            addedAt: timestamp,
-            status: status === 'ok' ? ActivityStatus.applied : ActivityStatus.failed,
-            chainId,
-            blockHeight: `${block_number}` as const
-          };
 
           const operationKind = getOperationKind({ data: raw_input, to: toAddress, value: BigInt(value) });
-          let operations: EvmOperation[] = [];
-
-          const isSending = equalsIgnoreCase(fromAddress, accountAddress);
-          const gasTokenTransfer: EvmOperation = {
-            kind: ActivityOperKindEnum.transfer,
-            fromAddress,
-            toAddress: toAddress!,
-            asset: { ...gasAsset, amountSigned: isSending ? `-${value}` : value },
-            logIndex: position,
-            type: isSending ? ActivityOperTransferType.sendToAccount : ActivityOperTransferType.receiveFromAccount
-          };
+          operations = [];
+          const gasTokenTransfer = makeGasTokenTransfer(tx);
           const fallbackOperations: EvmOperation[] = [
             {
               kind: ActivityOperKindEnum.interaction,
@@ -479,7 +619,7 @@ export const fetchEtherlinkActivitiesWithCache = async ({
 
           switch (operationKind) {
             case EvmOperationKind.DeployContract:
-              operations = fallbackOperations;
+              operations = tokensTransfers.map(parseTokenTransfer).concat(fallbackOperations);
               break;
             case EvmOperationKind.Send:
             case EvmOperationKind.Mint:
@@ -487,56 +627,74 @@ export const fetchEtherlinkActivitiesWithCache = async ({
                 operations = [gasTokenTransfer];
                 break;
               }
-              operations = await handleTokensTransfers(transaction);
+              operations = tokensTransfers.map(parseTokenTransfer);
+              if (Number(value)) {
+                operations.unshift(gasTokenTransfer);
+              }
               break;
             case EvmOperationKind.Approval:
-              const approvals = await getApprovals(transaction);
+              const approvals = await getApprovals(tx);
               operations = approvals.length ? approvals : fallbackOperations;
               break;
             case EvmOperationKind.ApprovalForAll:
               operations = [{ kind: ActivityOperKindEnum.interaction, logIndex: position, withAddress: toAddress }];
               break;
             default:
-              const tokensOperations = await handleTokensTransfers(transaction);
-              const gasTokenReceiveOperations = (await fetchAllInternalTransactions(signal, chainId, hash))
-                .filter(({ to, value }) => equalsIgnoreCase(to?.hash, accountAddress) && Number(value) > 0)
-                .map(
-                  ({ value, from, index }): EvmOperation => ({
-                    kind: ActivityOperKindEnum.transfer,
-                    type: ActivityOperTransferType.receiveFromAccount,
-                    fromAddress: from.hash,
-                    toAddress: accountAddress,
-                    logIndex: index,
-                    asset: { ...gasAsset, amountSigned: value }
-                  })
-                );
-              // Actually, an operation may contain both transfers and approvals for the account but chances are low
-              if (tokensOperations.length || gasTokenReceiveOperations.length) {
-                operations = tokensOperations.concat(gasTokenReceiveOperations);
+              const hasGasTokenReceiveOperations = BigInt(nativeCoinDelta) + BigInt(value) > BigInt(0);
+              if (tokensTransfers.length || hasGasTokenReceiveOperations) {
+                let gasTokenReceiveOperations: EvmOperation[] = [];
+                if (hasGasTokenReceiveOperations) {
+                  const internalOperations = await fetchAllInternalTransactions({
+                    txHash: tx.hash,
+                    chainId,
+                    signal
+                  });
+                  gasTokenReceiveOperations = internalOperations
+                    .filter(({ to, value }) => equalsIgnoreCase(to?.hash, accountAddress) && Number(value) > 0)
+                    .map(operation => makeGasTokenTransfer(operation));
+                  console.log('oy vey 9', tx.hash, gasTokenReceiveOperations);
+                }
+
+                operations = tokensTransfers.map(parseTokenTransfer).concat(gasTokenReceiveOperations);
               } else {
-                const approvalOperations = await getApprovals(transaction);
+                const approvalOperations = await getApprovals(tx);
                 operations = approvalOperations.length ? approvalOperations : fallbackOperations;
               }
-              operations.sort((a, b) => a.logIndex - b.logIndex);
+              if (Number(value)) {
+                operations.unshift(gasTokenTransfer);
+              }
           }
+        } else {
+          operations = tokensTransfers.map(parseTokenTransfer);
+        }
+        operations.sort((a, b) => a.logIndex - b.logIndex);
 
-          return {
-            ...basicActivityProps,
-            operationsCount: operations.length,
-            operations,
-            value,
-            index: position,
-            fee: fee?.value ?? null
-          };
-        })
-      );
-      const newActivitiesByHashes = Object.fromEntries(newActivities.map(activity => [activity.hash, activity]));
+        activitiesByHash[hash] = {
+          chain: TempleChainKind.EVM,
+          hash: tx?.hash ?? tokensTransfers[0].transaction_hash,
+          operationsCount: operations.length,
+          /** ISO string */
+          addedAt: (tx ?? tokensTransfers[0]).timestamp,
+          status: tx?.status === 'error' ? ActivityStatus.failed : ActivityStatus.applied,
+          chainId,
+          operations,
+          blockHeight: `${(tx ?? tokensTransfers[0]).block_number}`,
+          index: tx?.position ?? null,
+          fee: tx ? tx.fee?.value ?? '0' : null,
+          value: tx?.value ?? null
+        };
+      }
 
       return {
-        allActivities: hashes.map(hash => alreadyKnownActivitiesByHashes[hash] ?? newActivitiesByHashes[hash]),
-        nextPageParams,
-        tokensMetadata,
-        collectiblesMetadata
+        allActivities: Object.values(activitiesByHash).sort(
+          ({ blockHeight: aLevel, index: aIndex }, { blockHeight: bLevel, index: bIndex }) =>
+            Number(aLevel) === Number(bLevel) ? (bIndex ?? 0) - (aIndex ?? 0) : Number(bLevel) - Number(aLevel)
+        ),
+        nextPageParams: {
+          operationsPageParams: explicitOperationsNextPageParams,
+          tokensTransfersPageParams: tokensTransfersNextPageParams
+        },
+        assetsMetadata
       };
     },
     getAllNewItems: response => response.allActivities,
@@ -546,22 +704,28 @@ export const fetchEtherlinkActivitiesWithCache = async ({
             activity.operations.some(op => equalsIgnoreCase(op.asset?.contract, contractAddress))
           )
         : response.allActivities,
-    getTokensMetadata: response => response.tokensMetadata,
-    getCollectiblesMetadata: response => response.collectiblesMetadata,
-    getReachedTheEnd: response => response.nextPageParams === null,
-    isGenesisBlockPointer: pointer => pointer.block_number === 0,
+    getAssetsMetadata: response => response.assetsMetadata,
+    getReachedTheEnd: ({ nextPageParams }) =>
+      nextPageParams.operationsPageParams === null && nextPageParams.tokensTransfersPageParams === null,
+    isGenesisBlockPointer: pointer => getBlockNumberFromOlderThan(pointer) === 0,
     getActivities: interval => interval.activities,
     getNewOlderThan: ({ activities }) => {
       // TODO: replace mock values
       if (activities.length === 0) {
         return {
-          block_number: 0,
-          fee: '0',
-          hash: '0x37628d45dcd6265c969aa5f5dc3fe8fddd21198c683b85ac7099d8e39597df50',
-          index: 0,
-          inserted_at: '2024-05-02T13:24:54.000Z',
-          items_count: Number.MAX_SAFE_INTEGER,
-          value: '0'
+          operationsPageParams: {
+            block_number: 0,
+            fee: '0',
+            hash: '0x37628d45dcd6265c969aa5f5dc3fe8fddd21198c683b85ac7099d8e39597df50',
+            index: 0,
+            inserted_at: '2024-05-02T13:24:54.000Z',
+            items_count: Number.MAX_SAFE_INTEGER,
+            value: '0'
+          },
+          tokensTransfersPageParams: {
+            block_number: 0,
+            index: 0
+          }
         };
       }
 
@@ -569,23 +733,32 @@ export const fetchEtherlinkActivitiesWithCache = async ({
       const { logIndex } = operations.at(-1)!;
 
       return {
-        block_number: Number(blockHeight),
-        fee: '0',
-        hash,
-        index: logIndex,
-        inserted_at: addedAt,
-        items_count: 0,
-        value: '0'
+        operationsPageParams: {
+          block_number: Number(blockHeight),
+          fee: '0',
+          hash,
+          index: logIndex,
+          inserted_at: addedAt,
+          items_count: 0,
+          value: '0'
+        },
+        tokensTransfersPageParams: {
+          block_number: Number(blockHeight),
+          index: logIndex
+        }
       };
     },
     canUseCachedInterval: (interval, currentOlderThan) => interval.newestBlockHeight === Number(currentOlderThan) - 1,
-    putNewActivities: (_, allActivities, currentOlderThan) =>
-      putEvmActivities({
+    putNewActivities: (_, allActivities, currentOlderThan) => {
+      const blockNumber = getBlockNumberFromOlderThan(currentOlderThan);
+
+      return putEvmActivities({
         activities: allActivities,
         chainId,
         account: accountAddress,
-        olderThanBlockHeight: currentOlderThan ? `${currentOlderThan.block_number}` : undefined
-      }),
+        olderThanBlockHeight: isDefined(blockNumber) ? `${blockNumber}` : undefined
+      });
+    },
     signal,
     olderThan
   });

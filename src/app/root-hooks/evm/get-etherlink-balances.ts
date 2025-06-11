@@ -1,7 +1,17 @@
-import { EtherlinkChainId, fetchAllAccountNfts, fetchGetAccountInfo, fetchGetTokensBalances } from 'lib/apis/etherlink';
-import { isErc20TokenBalance } from 'lib/apis/etherlink/types';
+import {
+  EtherlinkAddressNftInstance,
+  EtherlinkChainId,
+  fetchAllAccountNfts,
+  fetchGetAccountInfo,
+  fetchGetTokensBalances,
+  isErc20TokenBalance
+} from 'lib/apis/etherlink';
 import { fetchTezExchangeRate } from 'lib/apis/temple';
-import { BalanceItem, BalancesResponse } from 'lib/apis/temple/endpoints/evm/api.interfaces';
+import {
+  BalanceItem,
+  BalancesResponse,
+  NftTokenContractBalanceItem
+} from 'lib/apis/temple/endpoints/evm/api.interfaces';
 import { DEFAULT_NATIVE_TOKEN_ADDRESS } from 'lib/apis/temple/endpoints/evm/api.utils';
 import { getEvmNativeAssetIcon } from 'lib/images-uri';
 import { DEFAULT_EVM_CHAINS_SPECS } from 'lib/temple/chains-specs';
@@ -9,9 +19,28 @@ import { atomsToTokens } from 'lib/temple/helpers';
 import { COMMON_MAINNET_CHAIN_IDS } from 'lib/temple/types';
 import { groupByToEntries } from 'lib/utils/group-by-to-entries';
 
-export interface EtherlinkBalancesResponse extends Omit<BalancesResponse, 'chain_id'> {
+export interface EtherlinkBalancesResponse extends Omit<BalancesResponse, 'chain_id' | 'items'> {
   chain_id: EtherlinkChainId;
+  balanceItems: BalanceItem[];
+  nftItems: NftTokenContractBalanceItem[];
 }
+
+const makeCommonExternalData = ({
+  metadata,
+  image_url,
+  animation_url,
+  external_app_url
+}: EtherlinkAddressNftInstance) => ({
+  name: metadata?.name ?? '',
+  description: metadata?.description ?? '',
+  image: metadata?.image ?? image_url ?? '',
+  image_256: '',
+  image_512: '',
+  image_1024: '',
+  animation_url: animation_url ?? '',
+  external_url: external_app_url ?? '',
+  attributes: metadata?.attributes ?? []
+});
 
 /** Contains tokens metadata and exchange rates too */
 export const getEtherlinkBalances = async (
@@ -29,7 +58,7 @@ export const getEtherlinkBalances = async (
     fetchGetAccountInfo(chainId, walletAddress),
     fetchGetTokensBalances(chainId, walletAddress),
     chainId === COMMON_MAINNET_CHAIN_IDS.etherlink ? fetchTezExchangeRate() : Promise.resolve(null),
-    fetchAllAccountNfts(undefined, chainId, walletAddress)
+    fetchAllAccountNfts({ chainId, address: walletAddress })
   ]);
   const tokensBalances = tokensBalancesWithIncompleteNFT.filter(isErc20TokenBalance);
   const gasTokenQuote = atomsToTokens(accountInfo.coin_balance ?? '0', gasTokenDecimals).decimalPlaces(2);
@@ -67,6 +96,29 @@ export const getEtherlinkBalances = async (
     protocol_metadata: null,
     nft_data: null
   };
+  const groupedNftBalances = groupByToEntries(nftBalances, ({ token }) => token.address_hash).map(([, value]) => value);
+  const commonNftItemsProps = groupedNftBalances.map(nftInstances => {
+    const balance = String(nftInstances.reduce((acc, instance) => acc + Number(instance.value), 0));
+    const { token } = nftInstances[0];
+    const { name, symbol, address_hash, type: tokenType } = token;
+    const supportsErc = tokenType === 'ERC-721' ? ['erc721'] : ['erc1155'];
+
+    return {
+      type: 'nft',
+      contract_name: name,
+      contract_ticker_symbol: symbol,
+      contract_address: address_hash,
+      supports_erc: supportsErc,
+      is_spam: false,
+      balance,
+      balance_24h: balance,
+      nft_data: nftInstances.map(({ id }) => ({
+        token_id: id,
+        token_url: '',
+        original_owner: walletAddress
+      }))
+    };
+  });
 
   return {
     address: walletAddress,
@@ -74,7 +126,7 @@ export const getEtherlinkBalances = async (
     chain_name: '',
     quote_currency: 'USD',
     updated_at: updatedAt.toISOString(),
-    items: [gasTokenBalanceItem].concat(
+    balanceItems: [gasTokenBalanceItem].concat(
       tokensBalances.map(({ token, value }) => {
         const { decimals, name, symbol, address_hash, icon_url, exchange_rate } = token;
         const logoUrl = icon_url ?? '';
@@ -109,19 +161,15 @@ export const getEtherlinkBalances = async (
           nft_data: null
         };
       }),
-      groupByToEntries(nftBalances, ({ token }) => token.address_hash).map(([, nftInstances]) => {
-        const value = String(nftInstances.reduce((acc, instance) => acc + Number(instance.value), 0));
+      groupedNftBalances.map((nftInstances, i) => {
         const { token } = nftInstances[0];
-        const { decimals, name, symbol, address_hash, icon_url, exchange_rate, type: tokenType } = token;
+        const { decimals, symbol, icon_url, exchange_rate, type: tokenType } = token;
         const supportsErc = tokenType === 'ERC-721' ? ['erc721'] : ['erc1155'];
 
-        const result: BalanceItem = {
+        return {
+          ...commonNftItemsProps[i],
           contract_decimals: decimals ? Number(decimals) : null,
-          contract_name: name,
-          contract_ticker_symbol: symbol,
-          contract_address: address_hash,
           contract_display_name: symbol,
-          supports_erc: supportsErc,
           logo_url: icon_url ?? '',
           logo_urls: {
             token_logo_url: icon_url ?? '',
@@ -130,10 +178,6 @@ export const getEtherlinkBalances = async (
           },
           last_transferred_at: updatedAt,
           native_token: false,
-          type: 'nft',
-          is_spam: false,
-          balance: value,
-          balance_24h: null,
           quote_rate: exchange_rate ? Number(exchange_rate) : null,
           quote_rate_24h: exchange_rate ? Number(exchange_rate) : 0,
           quote: 0,
@@ -141,24 +185,14 @@ export const getEtherlinkBalances = async (
           pretty_quote: '$0.00',
           pretty_quote_24h: '',
           protocol_metadata: null,
-          nft_data: nftInstances.map(({ id, value, metadata, image_url, animation_url, external_app_url }) => ({
-            token_id: id,
-            token_balance: value,
-            token_url: '',
+          nft_data: nftInstances.map((instance, j) => ({
+            ...commonNftItemsProps[i].nft_data[j],
+            token_balance: instance.value,
             supports_erc: supportsErc,
             token_price_wei: null,
             token_quote_rate_eth: '',
-            original_owner: walletAddress,
             external_data: {
-              name: metadata?.name ?? '',
-              description: metadata?.description ?? '',
-              image: metadata?.image ?? image_url ?? '',
-              image_256: '',
-              image_512: '',
-              image_1024: '',
-              animation_url: animation_url ?? '',
-              external_url: external_app_url ?? '',
-              attributes: metadata?.attributes ?? [],
+              ...makeCommonExternalData(instance),
               owner: walletAddress
             },
             owner: walletAddress,
@@ -166,9 +200,29 @@ export const getEtherlinkBalances = async (
             burned: false
           }))
         };
-
-        return result;
       })
-    )
+    ),
+    nftItems: groupedNftBalances.map((nftInstances, i) => ({
+      ...commonNftItemsProps[i],
+      last_transfered_at: updatedAt,
+      floor_price_quote: 0,
+      pretty_floor_price_quote: '',
+      floor_price_native_quote: 0,
+      contract_name: commonNftItemsProps[i].contract_name ?? '',
+      contract_ticker_symbol: commonNftItemsProps[i].contract_ticker_symbol ?? '',
+      nft_data: nftInstances.map((instance, j) => ({
+        ...commonNftItemsProps[i].nft_data[j],
+        current_owner: walletAddress,
+        external_data: {
+          ...makeCommonExternalData(instance),
+          asset_url: '',
+          asset_file_extension: '',
+          asset_mime_type: instance.media_type ?? 'application/octet-stream',
+          asset_size_bytes: ''
+        },
+        asset_cached: false,
+        image_cached: false
+      }))
+    }))
   };
 };

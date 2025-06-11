@@ -3,6 +3,7 @@ import { getAddress } from 'viem';
 import { ActivityOperKindEnum, ActivityOperTransferType, EvmActivityAsset, EvmOperation } from 'lib/activity/types';
 import { AssetTransfersCategory, AssetTransfersWithMetadataResult, Log } from 'lib/apis/temple/endpoints/evm/alchemy';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
+import { MAX_EVM_ALLOWANCE } from 'lib/constants';
 
 export function parseTransfer(
   transfer: AssetTransfersWithMetadataResult,
@@ -209,7 +210,11 @@ export function parseApprovalLog(approval: Pick<Log, 'topics' | 'logIndex' | 'da
   const asset: EvmActivityAsset = {
     contract: approval.address,
     tokenId: erc721TokenId ? hexToStringInteger(erc721TokenId) : undefined,
-    amountSigned: erc721TokenId ? '1' : hexToStringInteger(approval.data),
+    amountSigned: erc721TokenId
+      ? '1'
+      : BigInt(approval.data) === MAX_EVM_ALLOWANCE
+      ? null
+      : hexToStringInteger(approval.data),
     nft: erc721TokenId ? true : undefined // Still exhaustive?
   };
 

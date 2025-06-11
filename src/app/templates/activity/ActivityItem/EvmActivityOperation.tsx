@@ -1,4 +1,4 @@
-import React, { memo, useMemo } from 'react';
+import React, { memo, useEffect, useMemo } from 'react';
 
 import { ActivityOperKindEnum, EvmOperation, ActivityStatus } from 'lib/activity';
 import { toEvmAssetSlug } from 'lib/assets/utils';
@@ -23,9 +23,15 @@ interface Props {
 export const EvmActivityOperationComponent = memo<Props>(
   ({ hash, operation, chain, blockExplorerUrl, status, withoutAssetIcon, withoutOperHashChip }) => {
     const assetBase = operation?.asset;
-    const assetSlug = assetBase?.contract ? toEvmAssetSlug(assetBase.contract) : undefined;
+    const assetSlug = assetBase?.contract ? toEvmAssetSlug(assetBase.contract, assetBase.tokenId) : undefined;
 
     const assetMetadata = useEvmGenericAssetMetadata(assetSlug ?? '', chain.chainId);
+
+    useEffect(() => {
+      if (hash === '0x2f5388dd66e1b8144d683cca318a6456bb4ce729f6ad9679b1215fddfce74b40') {
+        console.log('ebota 1', { operation, assetBase, assetSlug, assetMetadata, chainId: chain.chainId });
+      }
+    }, [assetBase, assetMetadata, assetSlug, chain.chainId, hash, operation]);
 
     const asset = useMemo(() => {
       if (!assetBase) return;

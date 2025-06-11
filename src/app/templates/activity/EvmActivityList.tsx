@@ -2,10 +2,9 @@ import React, { FC, useMemo } from 'react';
 
 import { DeadEndBoundaryError } from 'app/ErrorBoundary';
 import { dispatch } from 'app/store';
-import { putEvmCollectiblesMetadataAction } from 'app/store/evm/collectibles-metadata/actions';
-import { putEvmTokensMetadataAction } from 'app/store/evm/tokens-metadata/actions';
+import { putEvmNoCategoryAssetsMetadataAction } from 'app/store/evm/no-category-assets-metadata/actions';
 import { EvmActivity } from 'lib/activity';
-import { EtherlinkPageParams, isEtherlinkSupportedChainId } from 'lib/apis/etherlink';
+import { isEtherlinkSupportedChainId } from 'lib/apis/etherlink';
 import { useAccountAddressForEvm } from 'temple/front';
 import { useEvmChainByChainId } from 'temple/front/chains';
 import { TempleChainKind } from 'temple/types';
@@ -16,7 +15,7 @@ import { fetchEtherlinkActivitiesWithCache, fetchEvmActivitiesWithCache } from '
 import { ActivitiesDateGroup, useGroupingByDate } from './grouping-by-date';
 import { RETRY_AFTER_ERROR_TIMEOUT, useActivitiesLoadingLogic } from './loading-logic';
 import { useAssetsFromActivitiesCheck } from './use-assets-from-activites-check';
-import { FilterKind, getActivityFilterKind } from './utils';
+import { FilterKind, getActivityFilterKind, getAllEtherlinkActivitiesPageParams } from './utils';
 
 interface Props {
   chainId: number;
@@ -50,36 +49,26 @@ export const EvmActivityList: FC<Props> = ({ chainId, assetSlug, filterKind }) =
 
       try {
         if (isEtherlinkSupportedChainId(chainId)) {
-          let olderThan: EtherlinkPageParams | undefined;
-          if (lastActivity) {
-            const { blockHeight, hash, addedAt, index, fee, value } = lastActivity;
-            olderThan = {
-              block_number: Number(blockHeight),
-              index: index ?? 0,
-              items_count: currActivities.length,
-              fee: fee ?? '0',
-              hash,
-              inserted_at: addedAt.replace(/(\.\d+)?Z$/, '.999999Z'),
-              value: value ?? '0'
-            };
-          }
           const {
             activities: newActivities,
-            tokensMetadata,
-            collectiblesMetadata,
+            assetsMetadata,
             reachedTheEnd
           } = await fetchEtherlinkActivitiesWithCache({
             chainId,
             accountAddress,
             assetSlug,
             signal,
-            olderThan
+            olderThan: getAllEtherlinkActivitiesPageParams(currActivities)
           });
-          if (Object.keys(tokensMetadata).length) {
-            dispatch(putEvmTokensMetadataAction({ chainId, records: tokensMetadata }));
-          }
-          if (Object.keys(collectiblesMetadata).length) {
-            dispatch(putEvmCollectiblesMetadataAction({ chainId, records: collectiblesMetadata }));
+          if (Object.keys(assetsMetadata).length) {
+            dispatch(
+              putEvmNoCategoryAssetsMetadataAction({
+                records: {
+                  [chainId]: assetsMetadata
+                },
+                associatedAccountPkh: accountAddress
+              })
+            );
           }
 
           if (newActivities.length) setActivities(currActivities.concat(newActivities));

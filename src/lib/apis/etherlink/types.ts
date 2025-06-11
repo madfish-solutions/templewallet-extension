@@ -41,7 +41,7 @@ export interface EtherlinkTransaction {
   fee: { type: 'maximum' | 'actual'; value: string } | null;
 }
 
-interface EtherlinkInternalTransaction {
+export interface EtherlinkInternalTx {
   block_index: number;
   index: number;
   from: EtherlinkAddressParam;
@@ -86,7 +86,7 @@ interface EtherlinkNFTInstance {
   owner: EtherlinkAddressParam | null;
 }
 
-interface EtherlinkAddressNftInstance extends Omit<EtherlinkNFTInstance, 'owner'> {
+export interface EtherlinkAddressNftInstance extends Omit<EtherlinkNFTInstance, 'owner'> {
   value: string;
 }
 
@@ -104,6 +104,10 @@ interface EtherlinkTotalERC1155 {
 
 interface EtherlinkTokenTransferBase {
   log_index: number;
+  block_hash: HexString;
+  block_number: number;
+  transaction_hash: HexString;
+  timestamp: string;
   from: EtherlinkAddressParam;
   to: EtherlinkAddressParam;
   token: EtherlinkTokenInfo;
@@ -122,7 +126,8 @@ interface EtherlinkTokenTransferERC1155 extends EtherlinkTokenTransferBase {
   token: EtherlinkTokenInfo<'ERC-1155'>;
   total: EtherlinkTotalERC1155;
 }
-type EtherlinkTokenTransfer =
+
+export type EtherlinkTokenTransfer =
   | EtherlinkTokenTransferERC20
   | EtherlinkTokenTransferERC721
   | EtherlinkTokenTransferERC1155;
@@ -161,27 +166,76 @@ export interface EtherlinkAccountInfo {
   hash: HexString;
 }
 
-export interface EtherlinkPageParams {
+interface EtherlinkCoinBalanceHistoryItem {
+  block_number: number;
+  block_timestamp: string;
+  delta: string;
+  transaction_hash: HexString;
+  value: string;
+}
+
+export interface EtherlinkOperationsPageParams {
+  block_number: number;
+  fee: string;
+  hash: string;
+  index: number;
+  inserted_at: string;
+  items_count: number;
+  value: string;
+}
+
+interface EtherlinkInternalTxsPageParams {
   block_number: number;
   index: number;
   items_count: number;
-  fee?: string;
-  hash?: string;
-  inserted_at?: string;
-  value?: string;
+  transaction_index: number;
 }
 
-export interface ItemsWithPagination<T> {
+export interface EtherlinkTokenTransfersPageParams {
+  block_number: number;
+  index: number;
+}
+
+interface EtherlinkTxLogsPageParams {
+  block_number: number;
+  index: number;
+  items_count: number;
+}
+
+interface EtherlinkCoinBalanceHistoryPageParams {
+  block_number: number;
+  items_count: number;
+}
+
+interface EtherlinkAccountNftsPageParams {
+  items_count: number;
+  token_contract_address_hash: HexString;
+  token_id: string;
+  token_type: Exclude<EtherlinkTokenType, 'ERC-20'>;
+}
+
+export interface ItemsWithPagination<T, P> {
   items: T[];
-  nextPageParams: EtherlinkPageParams | null;
+  nextPageParams: P | null;
 }
 
-export type EtherlinkOperationsResponse = ItemsWithPagination<EtherlinkTransaction>;
+export type EtherlinkOperationsResponse = ItemsWithPagination<EtherlinkTransaction, EtherlinkOperationsPageParams>;
 
-export type EtherlinkInternalTransactionsResponse = ItemsWithPagination<EtherlinkInternalTransaction>;
+export type EtherlinkInternalTxsResponse = ItemsWithPagination<EtherlinkInternalTx, EtherlinkInternalTxsPageParams>;
 
-export type EtherlinkTokensTransfersResponse = ItemsWithPagination<EtherlinkTokenTransfer>;
+export type EtherlinkTokensTransfersResponse = ItemsWithPagination<
+  EtherlinkTokenTransfer,
+  EtherlinkTokenTransfersPageParams
+>;
 
-export type EtherlinkTxLogsResponse = ItemsWithPagination<EtherlinkLog>;
+export type EtherlinkTxLogsResponse = ItemsWithPagination<EtherlinkLog, EtherlinkTxLogsPageParams>;
 
-export type EtherlinkAccountNftsResponse = ItemsWithPagination<EtherlinkAddressNftInstance>;
+export type EtherlinkAccountNftsResponse = ItemsWithPagination<
+  EtherlinkAddressNftInstance,
+  EtherlinkAccountNftsPageParams
+>;
+
+export type EtherlinkCoinBalanceHistoryResponse = ItemsWithPagination<
+  EtherlinkCoinBalanceHistoryItem,
+  EtherlinkCoinBalanceHistoryPageParams
+>;
