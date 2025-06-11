@@ -103,10 +103,7 @@ describe('toFrontEvmActivity', () => {
         }
       ],
       operationsCount: 1,
-      blockHeight: '21809128',
-      fee: null,
-      index: null,
-      value: null
+      blockHeight: '21809128'
     });
   });
 
@@ -167,10 +164,7 @@ describe('toFrontEvmActivity', () => {
         }
       ],
       blockHeight: '21821418',
-      operationsCount: 1,
-      fee: '700886073855429',
-      index: 0,
-      value: '0'
+      operationsCount: 1
     });
   });
 
@@ -232,10 +226,7 @@ describe('toFrontEvmActivity', () => {
         }
       ],
       operationsCount: 1,
-      blockHeight: '46391420',
-      fee: null,
-      index: null,
-      value: null
+      blockHeight: '46391420'
     });
   });
 });
