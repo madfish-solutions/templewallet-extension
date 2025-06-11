@@ -1,14 +1,15 @@
 import React, { FC, HTMLAttributes, memo, useCallback, useMemo } from 'react';
 
 import BigNumber from 'bignumber.js';
-import classNames from 'clsx';
+import clsx from 'clsx';
 import { Placement } from 'tippy.js';
 
+import { useRichFormatTooltip } from 'app/hooks/use-rich-format-tooltip';
 import { toastSuccess } from 'app/toaster';
 import { AnalyticsEventCategory, setTestID, TestIDProps, useAnalytics } from 'lib/analytics';
+import { ASSET_HUGE_AMOUNT } from 'lib/constants';
 import { getNumberSymbols, toLocalFixed, toLocalFormat, toShortened, t } from 'lib/i18n';
 import useCopyToClipboard from 'lib/ui/useCopyToClipboard';
-import useTippy, { UseTippyOptions } from 'lib/ui/useTippy';
 
 interface MoneyProps extends TestIDProps {
   children: number | string | BigNumber;
@@ -56,7 +57,7 @@ const Money = memo<MoneyProps>(
 
     const indexOfDecimal = result.indexOf(decimal) === -1 ? result.indexOf('.') : result.indexOf(decimal);
 
-    const tippyClassName = classNames(
+    const tippyClassName = clsx(
       'px-px -mr-px rounded truncate',
       tooltip && 'cursor-pointer hover:bg-black hover:bg-opacity-5 transition ease-in-out duration-200'
     );
@@ -274,23 +275,33 @@ const FullAmountTippy: FC<FullAmountTippyProps> = ({
   enabled = true,
   testID,
   testIDProperties,
+  className,
   ...rest
 }) => {
   const fullAmountStr = useMemo(() => toLocalFixed(fullAmount), [fullAmount]);
   const { fieldRef, copy } = useCopyToClipboard();
+  const isHugeAmount = fullAmount.gte(ASSET_HUGE_AMOUNT);
 
-  const tippyProps = useMemo<UseTippyOptions>(
+  const tooltipProps = useMemo(
     () => ({
       trigger: 'mouseenter',
       hideOnClick: true,
-      content: fullAmountStr,
       animation: 'shift-away-subtle',
       placement: tooltipPlacement
     }),
-    [fullAmountStr, tooltipPlacement]
+    [tooltipPlacement]
   );
 
-  const ref = useTippy<HTMLSpanElement>(tippyProps);
+  const tooltipWrapperFactory = useCallback(() => {
+    const element = document.createElement('span');
+    if (isHugeAmount) {
+      element.style.overflowWrap = 'break-word';
+    }
+    element.style.maxWidth = '20rem';
+
+    return element;
+  }, [isHugeAmount]);
+  const ref = useRichFormatTooltip<HTMLSpanElement>(tooltipProps, tooltipWrapperFactory, fullAmountStr);
 
   const { trackEvent } = useAnalytics();
 
@@ -310,14 +321,19 @@ const FullAmountTippy: FC<FullAmountTippyProps> = ({
   );
 
   return (
-    <div className="contents" {...setTestID(testID)}>
+    <div className={isHugeAmount ? 'flex' : 'contents'} {...setTestID(testID)}>
       {enabled ? (
         <>
-          <span ref={showAmountTooltip ? ref : undefined} onClick={handleClick} {...rest} />
+          <span
+            className={clsx(className, isHugeAmount && 'overflow-hidden text-ellipsis')}
+            ref={showAmountTooltip ? ref : undefined}
+            onClick={handleClick}
+            {...rest}
+          />
           <input ref={fieldRef} value={fullAmountStr} readOnly className="sr-only" />
         </>
       ) : (
-        <span {...rest} />
+        <span className={clsx(className, isHugeAmount && 'overflow-hidden text-ellipsis')} {...rest} />
       )}
     </div>
   );

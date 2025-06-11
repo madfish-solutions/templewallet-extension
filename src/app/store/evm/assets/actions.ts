@@ -1,6 +1,6 @@
 import { createAction } from '@reduxjs/toolkit';
 
-import { BalancesResponse } from 'lib/apis/temple/endpoints/evm/api.interfaces';
+import { BalancesResponse } from '../types';
 
 import { EvmAccountAssetForStore } from './state';
 

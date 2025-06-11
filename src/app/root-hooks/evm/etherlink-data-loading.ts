@@ -1,23 +1,26 @@
 import { memo, useCallback, useMemo } from 'react';
 
+import { isEqual } from 'lodash';
+
 import { dispatch } from 'app/store';
-import { setEvmBalancesLoadingState } from 'app/store/evm/actions';
+import { setEvmBalancesLoadingState, setEvmTokensExchangeRatesLoading } from 'app/store/evm/actions';
 import { processLoadedEvmAssetsAction } from 'app/store/evm/assets/actions';
 import {
   processLoadedEvmAssetsBalancesAction,
   processLoadedOnchainBalancesAction
 } from 'app/store/evm/balances/actions';
 import { useEvmAccountBalancesTimestampsSelector } from 'app/store/evm/balances/selectors';
+import { processLoadedEvmCollectiblesMetadataAction } from 'app/store/evm/collectibles-metadata/actions';
 import { useAllEvmChainsBalancesLoadingStatesSelector } from 'app/store/evm/selectors';
 import { EvmBalancesSource } from 'app/store/evm/state';
+import { processLoadedEvmExchangeRatesAction } from 'app/store/evm/tokens-exchange-rates/actions';
+import { processLoadedEvmTokensMetadataAction } from 'app/store/evm/tokens-metadata/actions';
 import { useTestnetModeEnabledSelector } from 'app/store/settings/selectors';
-import { isEtherlinkSupportedChainId } from 'lib/apis/etherlink';
-import { getEvmBalances } from 'lib/apis/temple/endpoints/evm';
-import { BalancesResponse, ChainID } from 'lib/apis/temple/endpoints/evm/api.interfaces';
-import { isSupportedChainId } from 'lib/apis/temple/endpoints/evm/api.utils';
+import { EtherlinkChainId, isEtherlinkSupportedChainId } from 'lib/apis/etherlink';
 import { EVM_BALANCES_SYNC_INTERVAL } from 'lib/fixed-times';
 import { useUpdatableRef } from 'lib/ui/hooks';
 
+import { EtherlinkBalancesResponse, getEtherlinkBalances } from './get-etherlink-balances';
 import { useGetBalancesFromChain } from './use-get-balances-from-chain';
 import {
   ApiDataLoader,
@@ -29,14 +32,14 @@ import {
 
 type Loaders =
   | [OnchainDataLoader<StringRecord>]
-  | [ApiDataLoader<BalancesResponse, ChainID>, OnchainDataLoader<StringRecord>];
+  | [ApiDataLoader<EtherlinkBalancesResponse, EtherlinkChainId>, OnchainDataLoader<StringRecord>];
 
-export const AppEvmBalancesLoading = memo<{ publicKeyHash: HexString }>(({ publicKeyHash }) => {
+export const AppEtherlinkDataLoading = memo<{ publicKeyHash: HexString }>(({ publicKeyHash }) => {
   const isTestnetMode = useTestnetModeEnabledSelector();
-  const loadingStates = useAllEvmChainsBalancesLoadingStatesSelector();
+  // Loading states for Etherlink balances and exchange rates should always be synced
+  const balancesLoadingStates = useAllEvmChainsBalancesLoadingStatesSelector();
+  const balancesLoadingStatesRef = useUpdatableRef(balancesLoadingStates);
   const balancesTimestamps = useEvmAccountBalancesTimestampsSelector(publicKeyHash);
-
-  const loadingStatesRef = useUpdatableRef(loadingStates);
   const balancesTimestampsRef = useUpdatableRef(balancesTimestamps);
 
   const getDataTimestamp = useCallback(
@@ -47,36 +50,58 @@ export const AppEvmBalancesLoading = memo<{ publicKeyHash: HexString }>(({ publi
     },
     [balancesTimestampsRef]
   );
-
   const isLoadingFactory = useCallback(
     (source: EvmBalancesSource) => (chainId: number) => {
-      const loadingState = loadingStatesRef.current[chainId]?.[source];
+      const loadingState = balancesLoadingStatesRef.current[chainId]?.[source];
 
       return loadingState?.isLoading ?? false;
     },
-    [loadingStatesRef]
+    [balancesLoadingStatesRef]
   );
   const isLoadingApi = useMemo(() => isLoadingFactory('api'), [isLoadingFactory]);
   const isLoadingOnChain = useMemo(() => isLoadingFactory('onchain'), [isLoadingFactory]);
 
   const setLoadingFactory = useCallback(
-    (source: EvmBalancesSource) => (chainId: number, isLoading: boolean) =>
-      dispatch(
-        setEvmBalancesLoadingState({
-          chainId,
-          isLoading,
-          source
-        })
-      ),
+    (source: EvmBalancesSource) => (chainId: number, isLoading: boolean, error?: string) => {
+      dispatch(setEvmBalancesLoadingState({ chainId, isLoading, source, error }));
+      if (source === 'api') {
+        dispatch(setEvmTokensExchangeRatesLoading({ chainId, isLoading: false }));
+      }
+    },
     []
   );
   const setLoadingApi = useMemo(() => setLoadingFactory('api'), [setLoadingFactory]);
   const setLoadingOnChain = useMemo(() => setLoadingFactory('onchain'), [setLoadingFactory]);
 
   const handleApiSuccess = useCallback(
-    ({ chainId, data }: SuccessPayload<BalancesResponse>) => {
-      dispatch(processLoadedEvmAssetsAction({ publicKeyHash, chainId, data }));
-      dispatch(processLoadedEvmAssetsBalancesAction({ publicKeyHash, chainId, data }));
+    ({ chainId, data, timestamp }: SuccessPayload<EtherlinkBalancesResponse>) => {
+      const { balanceItems, nftItems, ...restData } = data;
+      dispatch(
+        processLoadedEvmTokensMetadataAction({
+          chainId,
+          data: { ...restData, items: data.balanceItems.filter(({ supports_erc }) => isEqual(supports_erc, ['erc20'])) }
+        })
+      );
+      dispatch(
+        processLoadedEvmCollectiblesMetadataAction({
+          chainId,
+          data: {
+            ...restData,
+            updated_at: new Date(data.updated_at),
+            items: data.nftItems
+          }
+        })
+      );
+      const onlyBalancesData = { ...restData, items: data.balanceItems };
+      dispatch(processLoadedEvmAssetsAction({ publicKeyHash, chainId, data: onlyBalancesData }));
+      dispatch(
+        processLoadedEvmAssetsBalancesAction({
+          publicKeyHash,
+          chainId,
+          data: onlyBalancesData
+        })
+      );
+      dispatch(processLoadedEvmExchangeRatesAction({ chainId, data: onlyBalancesData, timestamp }));
       setLoadingApi(chainId, false);
     },
     [publicKeyHash, setLoadingApi]
@@ -92,27 +117,20 @@ export const AppEvmBalancesLoading = memo<{ publicKeyHash: HexString }>(({ publi
   const handleErrorFactory = useCallback(
     (source: EvmBalancesSource) =>
       ({ chainId, error }: ErrorPayload) =>
-        dispatch(
-          setEvmBalancesLoadingState({
-            chainId,
-            isLoading: false,
-            error,
-            source
-          })
-        ),
-    []
+        setLoadingFactory(source)(chainId, false, error),
+    [setLoadingFactory]
   );
   const handleApiError = useMemo(() => handleErrorFactory('api'), [handleErrorFactory]);
   const handleOnchainError = useMemo(() => handleErrorFactory('onchain'), [handleErrorFactory]);
 
-  const getEvmBalancesFromApi = useCallback(
-    (walletAddress: string, chainId: ChainID) =>
-      getEvmBalances(walletAddress, chainId)
+  const getEtherlinkBalancesFromApi = useCallback(
+    (walletAddress: string, chainId: EtherlinkChainId) =>
+      getEtherlinkBalances(walletAddress, chainId)
         .then(data => ({ data }))
         .catch(error => ({ error })),
     []
   );
-  const getEvmBalancesFromChain = useGetBalancesFromChain(publicKeyHash, isSupportedChainId);
+  const getEvmBalancesFromChain = useGetBalancesFromChain(publicKeyHash, isEtherlinkSupportedChainId);
 
   const onChainLoader = useMemo<OnchainDataLoader<StringRecord>>(
     () => ({
@@ -122,7 +140,7 @@ export const AppEvmBalancesLoading = memo<{ publicKeyHash: HexString }>(({ publi
       getData: getEvmBalancesFromChain,
       handleSuccess: handleOnchainSuccess,
       handleError: handleOnchainError,
-      isApplicable: (chainId): chainId is number => !isEtherlinkSupportedChainId(chainId)
+      isApplicable: isEtherlinkSupportedChainId
     }),
     [isLoadingOnChain, setLoadingOnChain, getEvmBalancesFromChain, handleOnchainSuccess, handleOnchainError]
   );
@@ -136,14 +154,22 @@ export const AppEvmBalancesLoading = memo<{ publicKeyHash: HexString }>(({ publi
               type: 'api',
               isLoading: isLoadingApi,
               setLoading: setLoadingApi,
-              getData: getEvmBalancesFromApi,
+              getData: getEtherlinkBalancesFromApi,
               handleSuccess: handleApiSuccess,
               handleError: handleApiError,
-              isApplicable: isSupportedChainId
+              isApplicable: isEtherlinkSupportedChainId
             },
             onChainLoader
           ],
-    [getEvmBalancesFromApi, handleApiError, handleApiSuccess, isLoadingApi, setLoadingApi, isTestnetMode, onChainLoader]
+    [
+      getEtherlinkBalancesFromApi,
+      handleApiError,
+      handleApiSuccess,
+      isLoadingApi,
+      setLoadingApi,
+      isTestnetMode,
+      onChainLoader
+    ]
   );
 
   useRefreshIfActive({

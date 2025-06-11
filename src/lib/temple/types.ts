@@ -50,7 +50,7 @@ export const COMMON_MAINNET_CHAIN_IDS = {
   arbitrum: 42161,
   base: 8453,
   etherlink: 42793
-};
+} as const;
 export const ETH_SEPOLIA_CHAIN_ID = 11155111;
 export const COMMON_TESTNET_CHAIN_IDS = {
   polygon: 80002,
@@ -59,7 +59,7 @@ export const COMMON_TESTNET_CHAIN_IDS = {
   optimism: 11155420,
   base: 84532,
   etherlink: 128123
-};
+} as const;
 
 export enum TempleTezosChainId {
   Mainnet = TEZOS_MAINNET_CHAIN_ID,

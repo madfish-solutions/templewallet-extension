@@ -9,7 +9,8 @@ export const buildEvmTokenMetadataFromFetched = (data: BalanceItem, contractAddr
   address: contractAddress,
   name: data.contract_display_name ?? undefined,
   symbol: data.contract_ticker_symbol ?? undefined,
-  decimals: data.contract_decimals ?? undefined
+  decimals: data.contract_decimals ?? undefined,
+  iconURL: data.logo_url ?? undefined
 });
 
 /** While `decimals` is an optional method on ERC-20 contract by

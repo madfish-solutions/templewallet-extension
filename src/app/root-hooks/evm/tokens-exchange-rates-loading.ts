@@ -7,10 +7,11 @@ import { processLoadedEvmExchangeRatesAction } from 'app/store/evm/tokens-exchan
 import { useEvmUsdToTokenRatesTimestampsSelector } from 'app/store/evm/tokens-exchange-rates/selectors';
 import { getEvmTokensMetadata } from 'lib/apis/temple/endpoints/evm';
 import { BalancesResponse, ChainID } from 'lib/apis/temple/endpoints/evm/api.interfaces';
+import { isSupportedChainId } from 'lib/apis/temple/endpoints/evm/api.utils';
 import { RATES_SYNC_INTERVAL } from 'lib/fixed-times';
 import { useUpdatableRef } from 'lib/ui/hooks';
 
-import { useRefreshIfActive, SuccessPayload, ErrorPayload, DataLoader } from './use-refresh-if-active';
+import { useRefreshIfActive, SuccessPayload, ErrorPayload, ApiDataLoader } from './use-refresh-if-active';
 
 /** Note: Rates are updated only for the given account's tokens */
 export const AppEvmTokensExchangeRatesLoading = memo<{ publicKeyHash: HexString }>(({ publicKeyHash }) => {
@@ -47,7 +48,7 @@ export const AppEvmTokensExchangeRatesLoading = memo<{ publicKeyHash: HexString 
     []
   );
 
-  const loaders = useMemo<[DataLoader<BalancesResponse>]>(
+  const loaders = useMemo<[ApiDataLoader<BalancesResponse, ChainID>]>(
     () => [
       {
         type: 'api',
@@ -55,7 +56,8 @@ export const AppEvmTokensExchangeRatesLoading = memo<{ publicKeyHash: HexString 
         setLoading,
         getData: getEvmTokensMetadataWrapped,
         handleSuccess,
-        handleError
+        handleError,
+        isApplicable: isSupportedChainId
       }
     ],
     [getEvmTokensMetadataWrapped, handleError, handleSuccess, isLoading, setLoading]

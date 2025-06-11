@@ -6,6 +6,7 @@ import ReactJson from 'react-json-view';
 import { TextButton } from 'app/atoms/TextButton';
 import { ReactComponent as CopyIcon } from 'app/icons/base/copy.svg';
 import { toastSuccess } from 'app/toaster';
+import { equalsIgnoreCase } from 'lib/evm/on-chain/utils/common.utils';
 import { T, t } from 'lib/i18n';
 import { TempleEvmDAppSignPayload, TempleTezosDAppSignPayload } from 'lib/temple/types';
 import useCopyToClipboard from 'lib/ui/useCopyToClipboard';
@@ -25,7 +26,7 @@ export const SignPayloadView = memo<SignPayloadViewProps>(({ payload }) => {
     () =>
       accounts.find(
         acc =>
-          getAccountAddressForEvm(acc)?.toLowerCase() === payload.sourcePkh.toLowerCase() ||
+          equalsIgnoreCase(getAccountAddressForEvm(acc), payload.sourcePkh) ||
           getAccountAddressForTezos(acc) === payload.sourcePkh
       ),
     [accounts, payload.sourcePkh]

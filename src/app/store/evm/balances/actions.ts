@@ -1,10 +1,11 @@
 import { createAction } from '@reduxjs/toolkit';
 import BigNumber from 'bignumber.js';
 
-import { BalancesResponse } from 'lib/apis/temple/endpoints/evm/api.interfaces';
 import { LoadOnChainBalancePayload } from 'lib/evm/on-chain/balance';
 import { createActions } from 'lib/store';
 import { EvmNetworkEssentials } from 'temple/networks';
+
+import { BalancesResponse } from '../types';
 
 interface ProcessLoadedOnChainBalancesActionPayload {
   balances: StringRecord;

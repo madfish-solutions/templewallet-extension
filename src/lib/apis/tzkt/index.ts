@@ -25,8 +25,7 @@ export {
   fetchAllAssetsBalancesFromTzkt,
   fetchGetOperationsTransactions,
   fetchGetAccountOperations,
-  fetchGetOperationsByHash,
-  refetchOnce429
+  fetchGetOperationsByHash
 } from './api';
 
 export { calcTzktAccountSpendableTezBalance } from './utils';

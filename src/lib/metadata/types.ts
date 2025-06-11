@@ -1,3 +1,5 @@
+import type { RequiredBy } from 'viem';
+
 import { TempleChainKind } from 'temple/types';
 
 import { NftCollectionAttribute } from '../apis/temple/endpoints/evm/api.interfaces';
@@ -41,6 +43,8 @@ export interface EvmAssetMetadataBase {
   symbol?: string;
   /** contract decimals (could be available only for ERC20 tokens and native currency) */
   decimals?: number;
+  /** A fallback for icon URL */
+  iconURL?: string;
 }
 
 export interface EvmTokenMetadata extends EvmAssetMetadataBase {
@@ -48,7 +52,8 @@ export interface EvmTokenMetadata extends EvmAssetMetadataBase {
   address: HexString;
 }
 
-export interface EvmNativeTokenMetadata extends Required<EvmAssetMetadataBase> {
+export interface EvmNativeTokenMetadata
+  extends RequiredBy<EvmAssetMetadataBase, Exclude<keyof EvmAssetMetadataBase, 'iconURL'>> {
   standard: EvmAssetStandard.NATIVE;
   address: typeof EVM_TOKEN_SLUG;
 }

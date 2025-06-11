@@ -18,20 +18,23 @@ import { getEvmTokensMetadata } from 'lib/apis/temple/endpoints/evm';
 import { isSupportedChainId } from 'lib/apis/temple/endpoints/evm/api.utils';
 import { toTokenSlug } from 'lib/assets';
 import { fetchEvmTokensMetadataFromChain } from 'lib/evm/on-chain/metadata';
+import { useUpdatableRef } from 'lib/ui/hooks';
 import { EvmChain, useEnabledEvmChains } from 'temple/front';
 
 export const AppEvmTokensMetadataLoading = memo<{ publicKeyHash: HexString }>(({ publicKeyHash }) => {
   const evmChains = useEnabledEvmChains();
   const isLoading = useEvmTokensMetadataLoadingSelector();
+  const isLoadingRef = useUpdatableRef(isLoading);
   const isTestnetMode = useTestnetModeEnabledSelector();
 
   const storedTokensRecord = useEvmStoredTokensRecordSelector();
   const tokensMetadataRecord = useEvmTokensMetadataRecordSelector();
+  const tokensMetadataRecordRef = useUpdatableRef(tokensMetadataRecord);
 
   const checkedRef = useRef<Record<number, string[]>>({});
 
   useEffect(() => {
-    if (isLoading) return;
+    if (isLoadingRef.current) return;
 
     const currentAccountTokens = storedTokensRecord[publicKeyHash];
 
@@ -42,7 +45,7 @@ export const AppEvmTokensMetadataLoading = memo<{ publicKeyHash: HexString }>(({
         const { chainId } = chain;
 
         const chainTokensRecord = currentAccountTokens?.[chainId];
-        const chainMetadataRecord = tokensMetadataRecord[chainId];
+        const chainMetadataRecord = tokensMetadataRecordRef.current[chainId];
 
         const allSlugs = chainTokensRecord ? Object.keys(chainTokensRecord) : [];
         const checkedSlugs = checkedRef.current[chainId] ?? [];
@@ -73,7 +76,7 @@ export const AppEvmTokensMetadataLoading = memo<{ publicKeyHash: HexString }>(({
         return loadEvmTokensMetadataFromChain(slugsWithoutMeta, chain);
       })
     ).then(() => void dispatch(setEvmTokensMetadataLoading(false)));
-  }, [evmChains, storedTokensRecord, publicKeyHash, isTestnetMode]);
+  }, [evmChains, isLoadingRef, tokensMetadataRecordRef, storedTokensRecord, publicKeyHash, isTestnetMode]);
 
   return null;
 });
