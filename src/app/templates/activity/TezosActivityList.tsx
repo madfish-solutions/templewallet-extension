@@ -54,7 +54,7 @@ export const TezosActivityList = memo<Props>(({ tezosChainId, assetSlug, filterK
       const olderThan: TezosActivityOlderThan | undefined = currActivities.at(-1);
 
       try {
-        const { activities: newActivities } = await fetchTezosActivitiesWithCache({
+        const newActivities = await fetchTezosActivitiesWithCache({
           chainId,
           rpcBaseURL,
           accountAddress,

@@ -16,7 +16,6 @@ export const lowestIntervalLimit = Object.freeze({
     timestamp: '2018-06-30T16:07:32Z'
   }
 });
-export const lowestIntervalLimitTs = lowestIntervalLimit.oldestTzktOperation.timestamp;
 
 export const getIntervalLimit = (baseActivity: TezosActivityOlderThan, shift = 0) => {
   const { level: opLevel, timestamp } = baseActivity.oldestTzktOperation;
@@ -35,7 +34,11 @@ export const compareLimits = (a: TezosActivityOlderThan, b: TezosActivityOlderTh
   const { level: aLevel, timestamp: aTimestamp } = a.oldestTzktOperation;
   const { level: bLevel, timestamp: bTimestamp } = b.oldestTzktOperation;
 
-  return isDefined(aLevel) && isDefined(bLevel) ? aLevel - bLevel : aTimestamp.localeCompare(bTimestamp);
+  if (isDefined(aLevel) && isDefined(bLevel)) {
+    return aLevel - bLevel;
+  }
+
+  return aTimestamp.localeCompare(bTimestamp);
 };
 
 export const toFrontTezosActivity = ({ account, assetSlug, id, ...activity }: DbTezosActivity): TezosActivity =>

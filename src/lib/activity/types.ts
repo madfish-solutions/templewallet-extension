@@ -75,9 +75,6 @@ export interface EvmActivity extends ChainActivityBase {
   chainId: number;
   operations: EvmOperation[];
   blockHeight: `${number}`;
-  index: number | null;
-  fee: string | null;
-  value: string | null;
 }
 
 interface EvmOperationBase extends OperationBase {
@@ -112,7 +109,6 @@ export interface EvmActivityAsset {
   decimals?: number;
   nft?: boolean;
   symbol?: string;
-  name?: string;
   iconURL?: string;
 }
 

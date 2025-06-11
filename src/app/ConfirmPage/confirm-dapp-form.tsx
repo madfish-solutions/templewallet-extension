@@ -51,7 +51,7 @@ const evmOperationTitles: Record<EvmOperationKind, ReactNode> = {
   [EvmOperationKind.Send]: <T id="send" />,
   [EvmOperationKind.Other]: <T id="unknownTransaction" />,
   [EvmOperationKind.Approval]: <T id="approval" />,
-  [EvmOperationKind.ApprovalForAll]: <T id="confirmAction" substitutions={<T id="transfer" />} />
+  [EvmOperationKind.Transfer]: <T id="confirmAction" substitutions={<T id="transfer" />} />
 };
 
 const ledgerInteractingPayloadTypes: TempleDAppPayload['type'][] = [

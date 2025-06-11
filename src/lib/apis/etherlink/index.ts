@@ -8,29 +8,17 @@ import { refetchOnce429 } from '../utils';
 import { ETHERLINK_API_URLS } from './constants';
 import {
   EtherlinkChainId,
-  EtherlinkOperationsResponse,
-  EtherlinkInternalTxsResponse,
-  EtherlinkTokensTransfersResponse,
   ItemsWithPagination,
   EtherlinkTokenBalance,
-  EtherlinkTxLogsResponse,
   EtherlinkAccountInfo,
-  EtherlinkAccountNftsResponse,
-  EtherlinkCoinBalanceHistoryResponse
+  EtherlinkAccountNftsResponse
 } from './types';
 
 export {
   type EtherlinkAddressNftInstance,
   type EtherlinkChainId,
-  type EtherlinkInternalTx,
-  type EtherlinkTransaction,
-  type EtherlinkOperationsPageParams,
-  type EtherlinkTokenTransfersPageParams,
-  type EtherlinkTokenTransfer,
   isEtherlinkSupportedChainId,
-  isErc20TokenBalance,
-  isErc20TokenTransfer,
-  isErc721TokenTransfer
+  isErc20TokenBalance
 } from './types';
 
 const api = axios.create({
@@ -88,35 +76,10 @@ const makeItemsPageGetter =
 const makeItemsPageGetterByAddress = <R extends ItemsWithObjectPagination>(
   makeEndpointUrl: (address: string) => string
 ) => makeItemsPageGetter<{ address: string }, R>(({ address }) => makeEndpointUrl(address));
-const makeItemsPageGetterByTxHash = <R extends ItemsWithObjectPagination>(
-  makeEndpointUrl: (txHash: string) => string
-) => makeItemsPageGetter<{ txHash: string }, R>(({ txHash }) => makeEndpointUrl(txHash));
-
-export const fetchGetAccountOperations = makeItemsPageGetterByAddress<EtherlinkOperationsResponse>(
-  address => `/addresses/${address}/transactions`
-);
-
-const fetchGetInternalTransactions = makeItemsPageGetterByTxHash<EtherlinkInternalTxsResponse>(
-  txHash => `/transactions/${txHash}/internal-transactions`
-);
-
-export const fetchGetTokensTransfers = makeItemsPageGetterByAddress<EtherlinkTokensTransfersResponse>(
-  address => `/addresses/${address}/token-transfers`
-);
 
 const fetchGetAccountNfts = makeItemsPageGetterByAddress<EtherlinkAccountNftsResponse>(
   address => `/addresses/${address}/nft`
 );
-
-export const fetchGetCoinBalanceHistory = makeItemsPageGetterByAddress<EtherlinkCoinBalanceHistoryResponse>(
-  address => `/addresses/${address}/coin-balance-history`
-);
-
-const fetchGetInternalTokensTransfers = makeItemsPageGetterByTxHash<EtherlinkTokensTransfersResponse>(
-  txHash => `/transactions/${txHash}/token-transfers`
-);
-
-const fetchGetTxLogs = makeItemsPageGetterByTxHash<EtherlinkTxLogsResponse>(txHash => `/transactions/${txHash}/logs`);
 
 const makeFetchAllPagesFn =
   <T, A extends object, P extends object>(pageGetter: ItemsPageGetter<A, ItemsWithPagination<T, P>>) =>
@@ -135,10 +98,7 @@ const makeFetchAllPagesFn =
     return allItems;
   };
 
-export const fetchAllInternalTransactions = makeFetchAllPagesFn(fetchGetInternalTransactions);
-export const fetchAllInternalTokensTransfers = makeFetchAllPagesFn(fetchGetInternalTokensTransfers);
 export const fetchAllAccountNfts = makeFetchAllPagesFn(fetchGetAccountNfts);
-export const fetchAllTxLogs = makeFetchAllPagesFn(fetchGetTxLogs);
 
 export const fetchGetTokensBalances = (chainId: EtherlinkChainId, address: string, signal?: AbortSignal) =>
   fetchGet<EtherlinkTokenBalance[], never>({ chainId, endpoint: `/addresses/${address}/token-balances`, signal });

@@ -1,6 +1,8 @@
+import { isDefined } from '@rnw-community/shared';
 import { Collection } from 'dexie';
 
 import { EvmActivity } from 'lib/activity';
+import { filterUnique } from 'lib/utils';
 
 import {
   DbEvmActivity,
@@ -11,7 +13,7 @@ import {
   evmActivityAssets
 } from '../db';
 
-import { getRelevantAssets, toFrontEvmActivities } from './utils';
+import { toFrontEvmActivity } from './utils';
 
 interface GetEvmActivitiesIntervalParams {
   olderThanBlockHeight?: `${number}`;
@@ -94,10 +96,30 @@ export const getClosestEvmActivitiesInterval = async ({
     } else {
       rawActivities = await allRawActivitiesCollection.sortBy('blockHeight');
     }
-    const idsToAssets = await getRelevantAssets(rawActivities);
+    const assetsIds = filterUnique(
+      rawActivities
+        .map(({ operations }) => operations.map(({ fkAsset }) => fkAsset))
+        .flat()
+        .filter(isDefined)
+    );
+    const assets = await evmActivityAssets.bulkGet(assetsIds);
+    const idsToAssets = Object.fromEntries(assets.map((asset, i) => [assetsIds[i], asset]));
 
     return {
-      activities: toFrontEvmActivities(rawActivities, idsToAssets, contractAddress),
+      activities: rawActivities
+        .map(activity => {
+          if (!contractAddress) {
+            return toFrontEvmActivity(activity, idsToAssets);
+          }
+
+          const { operations, ...restProps } = toFrontEvmActivity(activity, idsToAssets);
+
+          return {
+            ...restProps,
+            operations: operations.filter(operation => operation.asset?.contract.toLowerCase() === contractAddress)
+          };
+        })
+        .filter(({ operations }) => operations.length > 0),
       newestBlockHeight: searchNewestBlockHeight,
       oldestBlockHeight
     };

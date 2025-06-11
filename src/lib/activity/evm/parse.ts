@@ -3,14 +3,14 @@ import { getAddress } from 'viem';
 import { ActivityOperKindEnum, ActivityOperTransferType, EvmActivityAsset, EvmOperation } from 'lib/activity/types';
 import { AssetTransfersCategory, AssetTransfersWithMetadataResult, Log } from 'lib/apis/temple/endpoints/evm/alchemy';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
-import { MAX_EVM_ALLOWANCE } from 'lib/constants';
 
 export function parseTransfer(
   transfer: AssetTransfersWithMetadataResult,
   accAddress: string,
   chainId: number
 ): EvmOperation {
-  const { from: fromAddress, to: toAddress } = transfer;
+  const fromAddress = transfer.from;
+  const toAddress = transfer.to;
 
   const logIndex = getTransferLogIndex(transfer);
 
@@ -187,7 +187,7 @@ export function parseTransfer(
   return buildInteraction(transfer, accAddress);
 }
 
-export function parseApprovalLog(approval: Pick<Log, 'topics' | 'logIndex' | 'data' | 'address'>): EvmOperation {
+export function parseApprovalLog(approval: Log): EvmOperation {
   const spenderAddress = '0x' + approval.topics.at(2)!.slice(26);
   const logIndex = approval.logIndex;
 
@@ -205,17 +205,13 @@ export function parseApprovalLog(approval: Pick<Log, 'topics' | 'logIndex' | 'da
     return { kind: ActivityOperKindEnum.approve, spenderAddress, asset, logIndex };
   }
 
-  const erc721TokenId = approval.topics.at(3);
+  const approvalOnERC721 = approval.topics.length === 4;
 
   const asset: EvmActivityAsset = {
     contract: approval.address,
-    tokenId: erc721TokenId ? hexToStringInteger(erc721TokenId) : undefined,
-    amountSigned: erc721TokenId
-      ? '1'
-      : BigInt(approval.data) === MAX_EVM_ALLOWANCE
-      ? null
-      : hexToStringInteger(approval.data),
-    nft: erc721TokenId ? true : undefined // Still exhaustive?
+    tokenId: approvalOnERC721 ? hexToStringInteger(approval.topics.at(3)!) : undefined,
+    amountSigned: approvalOnERC721 ? '1' : hexToStringInteger(approval.data),
+    nft: approvalOnERC721 ? true : undefined // Still exhaustive?
   };
 
   return { kind: ActivityOperKindEnum.approve, spenderAddress, asset, logIndex };

@@ -214,10 +214,7 @@
         "amountSigned": "-5100000",
         "fkAsset": 1
       }
-    ],
-    "index": null,
-    "fee": null,
-    "value": null
+    ]
   },
   {
     "chain": "evm",
@@ -470,10 +467,7 @@
         "amountSigned": "-64000000000000000000",
         "fkAsset": 2
       }
-    ],
-    "index": null,
-    "fee": null,
-    "value": null
+    ]
   },
   {
     "chain": "evm",
@@ -492,9 +486,6 @@
         "amountSigned": "99189654",
         "fkAsset": 1
       }
-    ],
-    "index": null,
-    "fee": null,
-    "value": null
+    ]
   }
 ]

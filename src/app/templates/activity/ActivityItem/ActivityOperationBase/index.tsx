@@ -63,10 +63,7 @@ export const ActivityOperationBaseComponent = memo<Props>(
         <div
           className={clsx(
             'max-w-40 flex text-font-num-14 overflow-hidden',
-            asset.amountSigned &&
-              Number(asset.amountSigned) > 0 &&
-              kind !== ActivityOperKindEnum.approve &&
-              'text-success',
+            asset.amountSigned && Number(asset.amountSigned) > 0 && 'text-success',
             onClick && 'group-hover:hidden'
           )}
         >

@@ -80,7 +80,7 @@ d6000803e3d6000fd5b5000fea265627a7a72315820631b0dbb6b871cdbfdec2773af15ebfb8e52c
           data: '0xa22cb465000000000000000000000000253c35f10766e8a5115c89ab8ce50282fdc1cec8000000000000000000000000\
 0000000000000000000000000000000000000001'
         })
-      ).toEqual(EvmOperationKind.ApprovalForAll);
+      ).toEqual(EvmOperationKind.Transfer);
     });
 
     describe('should mark other approvals as approvals', () => {
