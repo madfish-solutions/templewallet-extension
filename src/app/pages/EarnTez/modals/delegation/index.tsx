@@ -5,7 +5,7 @@ import { noop } from 'lodash';
 import { PageLoader } from 'app/atoms/Loader';
 import { submitDelegation } from 'lib/apis/everstake';
 import { T, t } from 'lib/i18n';
-import { RECOMMENDED_BAKER_ADDRESS } from 'lib/known-bakers';
+import { EVERSTAKE_BAKER_ADDRESS } from 'lib/known-bakers';
 import { Baker } from 'lib/temple/front';
 import { AccountForTezos } from 'temple/accounts';
 import { TezosChain } from 'temple/front';
@@ -40,7 +40,7 @@ export const DelegationModal = memo<DelegationModalProps>(({ bakerPkh, account, 
       baker: data,
       onConfirm: opHash => {
         onSuccess(opHash);
-        if (getBakerAddress(data) === RECOMMENDED_BAKER_ADDRESS) {
+        if (getBakerAddress(data) === EVERSTAKE_BAKER_ADDRESS) {
           submitDelegation(opHash).catch(noop);
         }
       },

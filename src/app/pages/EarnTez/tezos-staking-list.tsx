@@ -124,7 +124,7 @@ export const TezosStakingList = memo<Props>(
             }
           />
         )}
-        {finalizationIsPending && stakingEnabled && (
+        {Boolean(finalizationIsPending) && stakingEnabled && (
           <Alert
             type="info"
             className="mb-4"
