@@ -37,6 +37,9 @@ export interface TokensByChain {
   [chainId: number]: Token[];
 }
 
+export const fetchEvmAccountInitialized = (walletAddress: string, signal?: AbortSignal) =>
+  buildEvmRequest<{ isInitialized: boolean }>('/is-initialized', walletAddress, undefined, undefined, signal);
+
 interface TransactionsResponse {
   transfers: AssetTransfersWithMetadataResult[];
   /** These depend on the blocks gap of returned transfers. */
@@ -64,7 +67,7 @@ export const getEvmSwapTokensMetadata = (chainIds: ChainID[]) =>
 const buildEvmRequest = <T>(
   path: string,
   walletAddress: string,
-  chainId: number,
+  chainId?: number,
   params?: object,
   signal?: AbortSignal
 ) =>

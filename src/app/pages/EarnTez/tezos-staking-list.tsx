@@ -5,6 +5,7 @@ import BigNumber from 'bignumber.js';
 import clsx from 'clsx';
 
 import { Alert, Anchor, Divider, IconBase, Money } from 'app/atoms';
+import { DescriptionWithHeader } from 'app/atoms/Alert';
 import { StyledButton } from 'app/atoms/StyledButton';
 import { Tooltip } from 'app/atoms/Tooltip';
 import {
@@ -123,19 +124,14 @@ export const TezosStakingList = memo<Props>(
             }
           />
         )}
-        {finalizationIsPending && stakingEnabled && (
+        {Boolean(finalizationIsPending) && stakingEnabled && (
           <Alert
             type="info"
             className="mb-4"
             description={
-              <div className="flex flex-col gap-0.5">
-                <p className="text-font-description-bold">
-                  <T id="pendingFinalization" />
-                </p>
-                <p className="text-font-description">
-                  <T id="pendingFinalizationDescription" />
-                </p>
-              </div>
+              <DescriptionWithHeader header={<T id="pendingFinalization" />}>
+                <T id="pendingFinalizationDescription" />
+              </DescriptionWithHeader>
             }
           />
         )}

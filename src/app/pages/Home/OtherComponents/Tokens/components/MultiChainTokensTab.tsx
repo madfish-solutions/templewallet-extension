@@ -1,4 +1,4 @@
-import React, { FC, memo, useMemo, useRef } from 'react';
+import React, { createContext, FC, memo, useContext, useMemo, useRef } from 'react';
 
 import {
   useAccountTokensForListing,
@@ -26,23 +26,32 @@ import { TempleChainKind } from 'temple/types';
 
 import { getGroupedTokensViewWithPromo, getTokensViewWithPromo } from '../utils';
 
-import { TokensTabBase, TokensTabBaseProps } from './TokensTabBase';
+import { TokensTabBase, TokensTabBaseProps } from './tokens-tab-base';
 
 interface Props {
   accountTezAddress: string;
   accountEvmAddress: HexString;
+  accountId: string;
 }
 
-export const MultiChainTokensTab = memo<Props>(({ accountTezAddress, accountEvmAddress }) => {
-  const { manageActive } = useAssetsViewState();
-
-  if (manageActive)
-    return <TabContentWithManageActive accountTezAddress={accountTezAddress} accountEvmAddress={accountEvmAddress} />;
-
-  return <TabContent accountTezAddress={accountTezAddress} accountEvmAddress={accountEvmAddress} />;
+const MultiChainTokensTabContext = createContext<Props>({
+  accountTezAddress: '',
+  accountEvmAddress: '0x',
+  accountId: ''
 });
 
-const TabContent: FC<Props> = ({ accountTezAddress, accountEvmAddress }) => {
+export const MultiChainTokensTab = memo<Props>(props => {
+  const { manageActive } = useAssetsViewState();
+
+  return (
+    <MultiChainTokensTabContext.Provider value={props}>
+      {manageActive ? <TabContentWithManageActive /> : <TabContent />}
+    </MultiChainTokensTabContext.Provider>
+  );
+});
+
+const TabContent: FC = () => {
+  const { accountTezAddress, accountEvmAddress } = useContext(MultiChainTokensTabContext);
   const { hideZeroBalance, groupByNetwork } = useTokensListOptionsSelector();
 
   const { enabledChainsSlugsSorted, enabledChainsSlugsSortedGrouped } = useAccountTokensForListing(
@@ -54,8 +63,6 @@ const TabContent: FC<Props> = ({ accountTezAddress, accountEvmAddress }) => {
 
   return (
     <TabContentBase
-      accountTezAddress={accountTezAddress}
-      accountEvmAddress={accountEvmAddress}
       allSlugsSorted={enabledChainsSlugsSorted}
       allSlugsSortedGrouped={enabledChainsSlugsSortedGrouped}
       groupByNetwork={groupByNetwork}
@@ -64,7 +71,8 @@ const TabContent: FC<Props> = ({ accountTezAddress, accountEvmAddress }) => {
   );
 };
 
-const TabContentWithManageActive: FC<Props> = ({ accountTezAddress, accountEvmAddress }) => {
+const TabContentWithManageActive: FC = () => {
+  const { accountTezAddress, accountEvmAddress } = useContext(MultiChainTokensTabContext);
   const { hideZeroBalance, groupByNetwork } = useTokensListOptionsSelector();
 
   const { enabledChainsSlugsSorted, enabledChainsSlugsSortedGrouped, tezTokens, evmTokens, tokensSortPredicate } =
@@ -100,8 +108,6 @@ const TabContentWithManageActive: FC<Props> = ({ accountTezAddress, accountEvmAd
 
   return (
     <TabContentBase
-      accountTezAddress={accountTezAddress}
-      accountEvmAddress={accountEvmAddress}
       allSlugsSorted={allSlugsSorted}
       allSlugsSortedGrouped={allSlugsSortedGrouped}
       groupByNetwork={groupByNetwork}
@@ -110,7 +116,7 @@ const TabContentWithManageActive: FC<Props> = ({ accountTezAddress, accountEvmAd
   );
 };
 
-interface TabContentBaseProps extends Props {
+interface TabContentBaseProps {
   allSlugsSorted: string[];
   allSlugsSortedGrouped: ChainGroupedSlugs | null;
   groupByNetwork: boolean;
@@ -118,7 +124,7 @@ interface TabContentBaseProps extends Props {
 }
 
 const TabContentBase = memo<TabContentBaseProps>(
-  ({ accountTezAddress, accountEvmAddress, allSlugsSorted, allSlugsSortedGrouped, groupByNetwork, manageActive }) => {
+  ({ allSlugsSorted, allSlugsSortedGrouped, groupByNetwork, manageActive }) => {
     const {
       displayedSlugs,
       displayedGroupedSlugs,
@@ -139,8 +145,6 @@ const TabContentBase = memo<TabContentBaseProps>(
         isSyncing={isSyncing}
         searchValue={searchValue}
         displayedSlugs={displayedSlugs}
-        accountTezAddress={accountTezAddress}
-        accountEvmAddress={accountEvmAddress}
         loadNextPage={groupByNetwork ? loadNextGrouped : loadNextPlain}
         onSearchValueChange={setSearchValue}
         groupedSlugs={displayedGroupedSlugs}
@@ -153,8 +157,10 @@ const TabContentBase = memo<TabContentBaseProps>(
 );
 
 interface TabContentBaseBodyProps
-  extends Props,
-    Omit<TokensTabBaseProps, 'tokensCount' | 'children' | 'network' | 'oneRemDivRef' | 'getElementIndex'> {
+  extends Omit<
+    TokensTabBaseProps,
+    'tokensCount' | 'children' | 'network' | 'oneRemDivRef' | 'getElementIndex' | 'accountId'
+  > {
   manageActive: boolean;
   groupedSlugs: ChainGroupedSlugs | null;
   tezosChains: StringRecord<TezosChain>;
@@ -163,16 +169,8 @@ interface TabContentBaseBodyProps
 }
 
 const TabContentBaseBody = memo<TabContentBaseBodyProps>(
-  ({
-    accountTezAddress,
-    accountEvmAddress,
-    manageActive,
-    groupedSlugs,
-    tezosChains,
-    evmChains,
-    displayedSlugs,
-    ...restProps
-  }) => {
+  ({ manageActive, groupedSlugs, tezosChains, evmChains, displayedSlugs, ...restProps }) => {
+    const { accountTezAddress, accountEvmAddress, accountId } = useContext(MultiChainTokensTabContext);
     const promoRef = useRef<HTMLDivElement>(null);
     const firstHeaderRef = useRef<HTMLDivElement>(null);
     const firstListItemRef = useRef<TokenListItemElement>(null);
@@ -242,7 +240,12 @@ const TabContentBaseBody = memo<TabContentBaseBodyProps>(
     }, [groupedSlugs, displayedSlugs, evmChains, tezosChains, manageActive, accountEvmAddress, accountTezAddress]);
 
     return (
-      <TokensTabBase tokensCount={displayedSlugs.length} getElementIndex={getElementIndex} {...restProps}>
+      <TokensTabBase
+        accountId={accountId}
+        tokensCount={displayedSlugs.length}
+        getElementIndex={getElementIndex}
+        {...restProps}
+      >
         {tokensView}
       </TokensTabBase>
     );

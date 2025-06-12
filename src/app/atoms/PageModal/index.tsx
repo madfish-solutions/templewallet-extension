@@ -21,7 +21,7 @@ export { ActionsButtonsBox } from './actions-buttons-box';
 
 export const CLOSE_ANIMATION_TIMEOUT = 300;
 
-export interface PageModalProps extends TestIDProps {
+interface PageModalProps extends TestIDProps {
   title: ReactChildren;
   opened: boolean;
   headerClassName?: string;
@@ -32,9 +32,12 @@ export interface PageModalProps extends TestIDProps {
   animated?: boolean;
   contentPadding?: boolean;
   suspenseLoader?: ReactNode;
+  suspenseErrorMessage?: string;
   shouldChangeBottomShift?: boolean;
   children: ReactNode | (() => ReactElement);
 }
+
+export type ModalHeaderConfig = Pick<PageModalProps, 'title' | 'onGoBack'>;
 
 export const PageModal: FC<PageModalProps> = ({
   title,
@@ -49,7 +52,8 @@ export const PageModal: FC<PageModalProps> = ({
   animated = true,
   contentPadding = false,
   shouldChangeBottomShift = true,
-  suspenseLoader
+  suspenseLoader,
+  suspenseErrorMessage
 }) => {
   const { fullPage, confirmWindow } = useAppEnv();
   const testnetModeEnabled = useTestnetModeEnabledSelector();
@@ -103,7 +107,7 @@ export const PageModal: FC<PageModalProps> = ({
       </div>
 
       <div className={clsx('flex-grow flex flex-col overflow-hidden', contentPadding && 'p-4')}>
-        <SuspenseContainer loader={suspenseLoader}>
+        <SuspenseContainer loader={suspenseLoader} errorMessage={suspenseErrorMessage}>
           {typeof children === 'function' ? (opened ? children() : null) : children}
         </SuspenseContainer>
       </div>

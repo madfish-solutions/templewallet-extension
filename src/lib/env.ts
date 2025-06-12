@@ -73,5 +73,6 @@ export const EnvVars = {
   BITMEDIA_970_90_PLACEMENT_ID: process.env.BITMEDIA_970_90_PLACEMENT_ID,
   /** Whether ads stubs should be added if loading failed. Set it to `true` only for testing */
   USE_ADS_STUBS: process.env.USE_ADS_STUBS === 'true',
-  TAKE_ADS_TOKEN: process.env.TAKE_ADS_TOKEN!
+  TAKE_ADS_TOKEN: process.env.TAKE_ADS_TOKEN!,
+  GOOGLE_AUTH_PAGE_URL: process.env.GOOGLE_AUTH_PAGE_URL!
 } as const;
