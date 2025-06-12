@@ -44,10 +44,10 @@ interface GetClosestNonEmptyActivitiesIntervalConfig<P, I, A> {
 
 interface FetchActivitiesWithCacheConfig<P, I, A, M = never, R = A[]>
   extends GetClosestNonEmptyActivitiesIntervalConfig<P, I, A> {
-  /** May we fetch assets metadata here intentionally? */
   fetchActivities: (olderThan?: P) => Promise<R>;
   getNewContractMatchItems: SyncFn<R, A[]>;
   getAllNewItems?: SyncFn<R, A[]>;
+  /** A function for assets metadata that are the side product of fetching activities */
   getAssetsMetadata?: SyncFn<R, StringRecord<M>>;
   getReachedTheEnd?: SyncFn<R, boolean>;
   putNewActivities: (contractMatchActivities: A[], allActivities: A[], olderThan?: P) => Promise<void>;

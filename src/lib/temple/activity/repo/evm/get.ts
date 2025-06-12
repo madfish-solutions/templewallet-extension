@@ -27,6 +27,20 @@ export interface GetEvmActivitiesIntervalResult {
   oldestBlockHeight: number;
 }
 
+export const getSeparateActivities = async (
+  chainId: number,
+  account: HexString,
+  hashes: string[]
+): Promise<EvmActivity[]> => {
+  const rawEvmActivities = await evmActivities
+    .where(['chainId', 'account', 'hash'])
+    .anyOf(hashes.map(hash => [chainId, account.toLowerCase(), hash]))
+    .toArray();
+  const idsToAssets = await getRelevantAssets(rawEvmActivities);
+
+  return toFrontEvmActivities(rawEvmActivities, idsToAssets);
+};
+
 export const getClosestEvmActivitiesInterval = async ({
   olderThanBlockHeight,
   chainId,

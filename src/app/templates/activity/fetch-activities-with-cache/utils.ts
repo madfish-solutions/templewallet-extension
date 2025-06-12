@@ -32,6 +32,7 @@ import { equalsIgnoreCase } from 'lib/evm/on-chain/utils/common.utils';
 import { EvmAssetStandard } from 'lib/evm/types';
 import { getEvmNativeAssetIcon } from 'lib/images-uri';
 import { EvmCollectibleMetadata, EvmTokenMetadata } from 'lib/metadata/types';
+import { getSeparateEvmActivities } from 'lib/temple/activity/repo';
 import { DEFAULT_EVM_CHAINS_SPECS } from 'lib/temple/chains-specs';
 import { TempleChainKind } from 'temple/types';
 
@@ -129,9 +130,23 @@ export const fetchEtherlinkActivities = async (
     }
   });
 
+  const alreadyKnownActivities = await getSeparateEvmActivities(
+    chainId,
+    accountAddress,
+    Object.keys(rawActivitiesByHash)
+  );
+  const alreadyKnownActivitiesByHash = Object.fromEntries(
+    alreadyKnownActivities.map(activity => [activity.hash, activity])
+  );
   const activitiesByHash: StringRecord<EvmActivity> = {};
 
   for (const hash in rawActivitiesByHash) {
+    const alreadyKnownActivity = alreadyKnownActivitiesByHash[hash];
+    if (alreadyKnownActivity) {
+      activitiesByHash[hash] = alreadyKnownActivity;
+      continue;
+    }
+
     const { tx, tokensTransfers, nativeCoinDelta } = rawActivitiesByHash[hash];
     const operations = tx
       ? await toUnorderedOperations(tx, tokensTransfers, nativeCoinDelta, accountAddress, chainId, signal)
@@ -382,7 +397,8 @@ const toUnorderedOperations = async (
   chainId: EtherlinkChainId,
   signal?: AbortSignal
 ): Promise<EvmOperation[]> => {
-  const { to, position, raw_input, value } = tx;
+  const { to, position, raw_input, value, status } = tx;
+  const isSuccessful = status === 'ok';
   const toAddress = to?.hash;
   const parsedTokensTransfers = tokensTransfers.map(transfer => parseTokenTransfer(transfer, accountAddress));
 
@@ -404,7 +420,9 @@ const toUnorderedOperations = async (
     case EvmOperationKind.Mint:
       return raw_input === '0x'
         ? [gasTokenTransfer]
-        : parsedTokensTransfers.concat(Number(value) ? gasTokenTransfer : []);
+        : parsedTokensTransfers.length
+        ? parsedTokensTransfers.concat(Number(value) ? gasTokenTransfer : [])
+        : fallbackOperations;
     case EvmOperationKind.Approval:
       const approvals = await getApprovalsForAccount(tx, chainId, accountAddress, signal);
 
@@ -412,6 +430,10 @@ const toUnorderedOperations = async (
     case EvmOperationKind.ApprovalForAll:
       return [{ kind: ActivityOperKindEnum.interaction, logIndex: position, withAddress: toAddress }];
     default:
+      if (!isSuccessful) {
+        return fallbackOperations;
+      }
+
       const hasGasTokenReceiveOperations = BigInt(nativeCoinDelta) + BigInt(value) > BigInt(0);
       if (tokensTransfers.length || hasGasTokenReceiveOperations) {
         let gasTokenReceiveOperations: EvmOperation[] = [];
