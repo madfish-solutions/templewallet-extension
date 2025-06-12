@@ -4,11 +4,12 @@ import clsx from 'clsx';
 import Modal from 'react-modal';
 
 import { ACTIVATE_CONTENT_FADER_CLASSNAME } from 'app/a11y/content-fader';
+import { useIsBrowserFullscreen } from 'app/ConfirmPage/hooks/use-is-browser-fullscreen';
 import { useAppEnv } from 'app/env';
 import { useToastBottomShiftModalLogic } from 'app/hooks/use-toast-bottom-shift-modal-logic';
 import { ReactComponent as ChevronLeftIcon } from 'app/icons/base/chevron_left.svg';
 import { ReactComponent as ExIcon } from 'app/icons/base/x.svg';
-import { LAYOUT_CONTAINER_CLASSNAME } from 'app/layouts/containers';
+import { FULL_PAGE_WRAP_OVERLAY_CLASSNAME, LAYOUT_CONTAINER_CLASSNAME } from 'app/layouts/containers';
 import { useTestnetModeEnabledSelector } from 'app/store/settings/selectors';
 import { TestIDProps } from 'lib/analytics';
 
@@ -58,14 +59,15 @@ export const PageModal: FC<PageModalProps> = ({
   const { fullPage, confirmWindow } = useAppEnv();
   const testnetModeEnabled = useTestnetModeEnabledSelector();
   const onCloseBottomShiftCallback = useToastBottomShiftModalLogic(opened, shouldChangeBottomShift);
+  const isBrowserFullscreen = useIsBrowserFullscreen();
 
   const baseOverlayClassNames = useMemo(() => {
-    if (confirmWindow) return 'pt-4';
+    if (confirmWindow) return isBrowserFullscreen ? 'pt-13 pb-8' : 'pt-4';
 
     if (testnetModeEnabled) return fullPage ? 'pt-19 pb-8' : 'pt-10';
 
     return fullPage ? 'pt-13 pb-8' : 'pt-4';
-  }, [confirmWindow, fullPage, testnetModeEnabled]);
+  }, [confirmWindow, fullPage, testnetModeEnabled, isBrowserFullscreen]);
 
   const handleGoBack = useCallback(() => {
     onCloseBottomShiftCallback();
@@ -86,6 +88,7 @@ export const PageModal: FC<PageModalProps> = ({
       className={{
         base: clsx(
           LAYOUT_CONTAINER_CLASSNAME,
+          FULL_PAGE_WRAP_OVERLAY_CLASSNAME,
           'h-full flex flex-col bg-white overflow-hidden focus:outline-none',
           fullPage ? 'rounded-lg' : 'rounded-t-lg',
           ModStyles.base,

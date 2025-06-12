@@ -5,7 +5,7 @@ import clsx from 'clsx';
 
 import { EvmAssetIconWithNetwork, TezosAssetIconWithNetwork } from 'app/templates/AssetIcon';
 import InFiat from 'app/templates/InFiat';
-import { useEvmGenericAssetMetadata, useGenericTezosAssetMetadata, isCollectible, getTokenName } from 'lib/metadata';
+import { getTokenName, isCollectible, useEvmGenericAssetMetadata, useGenericTezosAssetMetadata } from 'lib/metadata';
 import { ChainAssetMetadata } from 'lib/metadata/types';
 import { getAssetSymbol, isEvmCollectible } from 'lib/metadata/utils';
 import { ChainId, ChainOfKind } from 'temple/front/chains';
@@ -69,11 +69,12 @@ const AmountInFiat = memo<Omit<OneAssetHeaderProps, 'className'>>(({ network, as
     volume={amount}
     smallFractionFont={false}
     roundingMode={BigNumber.ROUND_FLOOR}
+    evm={network.kind === TempleChainKind.EVM}
   >
     {({ balance, symbol }) => (
       <span className="text-font-num-12 text-grey-1">
-        {balance}
-        {symbol}
+        <span>{balance}</span>
+        <span className="ml-0.5">{symbol}</span>
       </span>
     )}
   </InFiat>

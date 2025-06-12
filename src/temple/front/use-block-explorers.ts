@@ -290,9 +290,9 @@ const DEFAULT_BLOCK_EXPLORERS_BASE: Record<TempleChainKind, Record<string, Omit<
     ],
     [COMMON_MAINNET_CHAIN_IDS.avalanche]: [
       {
-        name: 'SnowTrace',
-        url: 'https://snowtrace.io',
-        id: 'snowtrace-mainnet'
+        name: 'AvaScan',
+        url: 'https://avascan.info/blockchain/c',
+        id: 'avascan-mainnet'
       }
     ],
     [COMMON_MAINNET_CHAIN_IDS.optimism]: [
@@ -339,9 +339,9 @@ const DEFAULT_BLOCK_EXPLORERS_BASE: Record<TempleChainKind, Record<string, Omit<
     ],
     [COMMON_TESTNET_CHAIN_IDS.avalanche]: [
       {
-        name: 'SnowTrace',
-        url: 'https://testnet.snowtrace.io',
-        id: 'snowtrace-testnet'
+        name: 'AvaScan',
+        url: 'https://testnet.avascan.info/blockchain/c',
+        id: 'avascan-testnet'
       }
     ],
     [COMMON_TESTNET_CHAIN_IDS.optimism]: [

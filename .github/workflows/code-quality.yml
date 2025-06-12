@@ -98,6 +98,7 @@ jobs:
           path: dist/chrome_unpacked
           if-no-files-found: error
           retention-days: 10
+          compression-level: 1
 
       - name: Remove private modules
         run: rm -rf node_modules/@temple-wallet/extension-ads
