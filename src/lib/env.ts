@@ -2,8 +2,11 @@ import PackageJSON from '../../package.json';
 
 export const APP_VERSION = PackageJSON.version;
 
-// @ts-expect-error
-export const IS_MISES_BROWSER = Boolean(navigator.userAgentData?.brands?.find(b => b.brand === 'Mises'));
+// Detects the Mises browser or a Chromium-based browser on iOS (e.g., Chrome on iPhone/iPad, which includes 'CriOS' in userAgent).
+// Mises supports desktop extensions on mobile, so it's treated as compatible in this context.
+export const IS_MISES_BROWSER =
+  // @ts-expect-error
+  navigator.userAgentData?.brands?.some(b => b.brand === 'Mises') || navigator.userAgent.includes('CriOS/');
 
 export const IS_DEV_ENV = process.env.NODE_ENV === 'development';
 
