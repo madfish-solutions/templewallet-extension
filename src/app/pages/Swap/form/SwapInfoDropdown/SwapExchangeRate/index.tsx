@@ -3,17 +3,16 @@ import React, { FC, useMemo } from 'react';
 import { BigNumber } from 'bignumber.js';
 
 import Money from 'app/atoms/Money';
-import { AssetMetadataBase } from 'lib/metadata';
 import { ZERO } from 'lib/utils/numbers';
 
 interface Props {
   inputAmount?: BigNumber;
   outputAmount?: BigNumber;
-  inputAssetMetadata: AssetMetadataBase;
-  outputAssetMetadata: AssetMetadataBase;
+  inputAssetSymbol: string;
+  outputAssetSymbol: string;
 }
 
-export const SwapExchangeRate: FC<Props> = ({ inputAmount, outputAmount, inputAssetMetadata, outputAssetMetadata }) => {
+export const SwapExchangeRate: FC<Props> = ({ inputAmount, outputAmount, inputAssetSymbol, outputAssetSymbol }) => {
   const exchangeRate = useMemo(() => {
     if (inputAmount && outputAmount && outputAmount.isGreaterThan(ZERO)) {
       return inputAmount.dividedBy(outputAmount);
@@ -26,12 +25,12 @@ export const SwapExchangeRate: FC<Props> = ({ inputAmount, outputAmount, inputAs
     <span className="text-grey-1 text-font-num-12">
       {exchangeRate ? (
         <span className="flex items-end justify-end">
-          <span>1 {outputAssetMetadata.symbol}</span>
+          <span>1 {outputAssetSymbol}</span>
           <span className="mx-0.5">=</span>
           <Money smallFractionFont={false} fiat={false}>
             {exchangeRate}
           </Money>
-          <span className="ml-1">{inputAssetMetadata.symbol}</span>
+          <span className="ml-1">{inputAssetSymbol}</span>
         </span>
       ) : (
         '-'

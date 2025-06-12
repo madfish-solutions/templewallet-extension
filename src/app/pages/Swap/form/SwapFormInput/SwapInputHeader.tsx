@@ -4,12 +4,13 @@ import clsx from 'clsx';
 
 import { Button } from 'app/atoms';
 import Money from 'app/atoms/Money';
+import { SwapFieldName } from 'app/pages/Swap/form/interfaces';
 import { T } from 'lib/i18n';
 import useTippy from 'lib/ui/useTippy';
 
 interface SwapInputHeaderProps {
   label: ReactNode;
-  inputName: 'input' | 'output';
+  inputName: SwapFieldName;
   isBalanceError: boolean;
   assetDecimals: number;
   handleSetMaxAmount: EmptyFn;

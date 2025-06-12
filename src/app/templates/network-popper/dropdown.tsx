@@ -24,12 +24,18 @@ import { NetworkPopperProps, Network } from './types';
 interface NetworkDropdownProps extends Omit<NetworkPopperProps, 'children'>, PopperRenderProps {}
 
 export const NetworkDropdown = memo<NetworkDropdownProps>(
-  ({ opened, setOpened, selectedOption, showAllNetworksOption, chainKind, onOptionSelect }) => {
+  ({ opened, setOpened, selectedOption, showAllNetworksOption, chainKind, onOptionSelect, supportedChainIds }) => {
     const accountTezAddress = useAccountAddressForTezos();
     const accountEvmAddress = useAccountAddressForEvm();
 
     const tezosChains = useEnabledTezosChains();
-    const evmChains = useEnabledEvmChains();
+    const evmChainsUnfiltered = useEnabledEvmChains();
+
+    const evmChains = useMemo(() => {
+      if (!supportedChainIds) return evmChainsUnfiltered;
+
+      return evmChainsUnfiltered.filter(chain => supportedChainIds.includes(Number(chain.chainId)));
+    }, [evmChainsUnfiltered, supportedChainIds]);
 
     const [searchValue, setSearchValue] = useState('');
     const [searchValueDebounced] = useDebounce(searchValue, 300);

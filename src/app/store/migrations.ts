@@ -90,15 +90,16 @@ export const MIGRATIONS: MigrationManifest = {
     if (!persistedState) return persistedState;
 
     const typedPersistedState = persistedState as TypedPersistedRootState;
+
     const newState: TypedPersistedRootState = {
       ...typedPersistedState,
       swap: {
-        ...typedPersistedState.swap,
+        ...(typedPersistedState.swap ?? {}),
         swapParams: {
           data: DEFAULT_SWAP_PARAMS,
           isLoading: false
         }
-      }
+      } as TypedPersistedRootState['swap']
     };
 
     return newState;

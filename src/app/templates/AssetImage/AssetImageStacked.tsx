@@ -47,15 +47,15 @@ export interface EvmAssetImageStackedProps extends AssetImageStackedPropsBase {
 
 export const EvmAssetImageStacked: FC<EvmAssetImageStackedProps> = ({ evmChainId, metadata, extraSrc, ...rest }) => {
   const sources = useMemo(() => {
-    const sources = metadata
-      ? isEvmCollectibleMetadata(metadata)
-        ? buildEvmCollectibleIconSources(metadata)
-        : buildEvmTokenIconSources(metadata, evmChainId)
-      : [];
+    if (!metadata) return extraSrc ? [extraSrc] : [];
 
-    if (extraSrc) sources.push(extraSrc);
+    if (isEvmCollectibleMetadata(metadata)) {
+      const baseSources = buildEvmCollectibleIconSources(metadata);
+      return extraSrc ? [...baseSources, extraSrc] : baseSources;
+    }
+    if (extraSrc) return [extraSrc];
 
-    return sources;
+    return buildEvmTokenIconSources(metadata, evmChainId);
   }, [evmChainId, metadata, extraSrc]);
 
   return <ImageStacked sources={sources} alt={metadata?.name} {...rest} />;

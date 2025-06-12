@@ -1,5 +1,7 @@
 import { combineReducers } from '@reduxjs/toolkit';
 
+import { lifiEvmTokensMetadataPersistedReducer } from 'app/store/evm/swap-lifi-metadata/reducers';
+
 import { abTestingReducer } from './ab-testing/reducers';
 import { accountsInitializationReducer } from './accounts-initialization/reducers';
 import { advertisingReducer } from './advertising/reducers';
@@ -50,6 +52,7 @@ const rootStateReducersMap = {
   evmLoading: evmLoadingReducer,
   evmAssets: evmAssetsPersistedReducer,
   evmBalances: evmBalancesReducer,
+  lifiEvmTokensMetadata: lifiEvmTokensMetadataPersistedReducer,
   evmTokensMetadata: evmTokensMetadataPersistedReducer,
   evmTokensExchangeRates: evmTokensExchangeRatesPersistedReducer,
   evmCollectiblesMetadata: evmCollectiblesMetadataPersistedReducer,

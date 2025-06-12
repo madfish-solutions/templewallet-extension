@@ -1,5 +1,6 @@
 import React, { memo } from 'react';
 
+import { useLifiEvmTokenMetadataSelector } from 'app/store/evm/swap-lifi-metadata/selectors';
 import { AssetMetadataBase, useEvmGenericAssetMetadata, useGenericTezosAssetMetadata } from 'lib/metadata';
 import { EvmAssetMetadataBase } from 'lib/metadata/types';
 
@@ -46,12 +47,14 @@ export const EvmAssetImage = memo<EvmAssetImageProps>(({ Loader, Fallback, metad
   const { evmChainId, assetSlug, ...rest } = props;
 
   const storedMetadata = useEvmGenericAssetMetadata(assetSlug, evmChainId);
-  const metadata = metadataOverrides ?? storedMetadata;
+  const lifiMetadata = useLifiEvmTokenMetadataSelector(evmChainId, assetSlug);
+  const metadata = metadataOverrides ?? storedMetadata?.decimals ? storedMetadata : lifiMetadata;
 
   return (
     <EvmAssetImageStacked
       evmChainId={evmChainId}
       metadata={metadata}
+      extraSrc={lifiMetadata?.logoURI}
       loader={Loader ? <Loader {...props} metadata={metadata} /> : undefined}
       fallback={Fallback ? <Fallback {...props} metadata={metadata} /> : undefined}
       {...rest}

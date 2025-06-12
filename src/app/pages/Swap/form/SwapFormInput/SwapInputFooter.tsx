@@ -1,47 +1,45 @@
-import React, { FC, useCallback } from 'react';
+import React, { FC } from 'react';
 
 import BigNumber from 'bignumber.js';
 
 import { Button } from 'app/atoms';
 import { ConvertedInputAssetAmount } from 'app/atoms/ConvertedInputAssetAmount';
+import { SwapFieldName } from 'app/pages/Swap/form/interfaces';
 import { FiatCurrencyOptionBase } from 'lib/fiat-currency';
-import { ZERO } from 'lib/utils/numbers';
 
 interface SwapFooterProps {
-  inputName: 'input' | 'output';
-  tezosChainId: string;
+  inputName: SwapFieldName;
+  amount?: BigNumber;
   error?: string;
-  assetPrice: BigNumber;
-  assetDecimals: number;
+  chainId: string | number;
+  evm: boolean;
   assetSlug: string;
   assetSymbol: string;
-  amount?: BigNumber;
-  shouldUseFiat: boolean;
-  handleFiatToggle: (evt: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
+  assetDecimals: number;
+  isFiatMode: boolean;
   selectedFiatCurrency: FiatCurrencyOptionBase;
+  handleFiatToggle: (evt: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
+  parseFiatValueToAssetAmount: (
+    fiatAmount?: BigNumber.Value,
+    assetDecimals?: number,
+    inputName?: SwapFieldName
+  ) => BigNumber;
 }
 
 const SwapFooter: FC<SwapFooterProps> = ({
   inputName,
-  tezosChainId,
+  amount,
   error,
-  assetPrice,
-  assetDecimals,
+  chainId,
+  evm,
   assetSlug,
   assetSymbol,
-  amount,
-  shouldUseFiat,
+  assetDecimals,
+  isFiatMode,
+  selectedFiatCurrency,
   handleFiatToggle,
-  selectedFiatCurrency
+  parseFiatValueToAssetAmount
 }) => {
-  const toAssetAmount = useCallback(
-    (fiatAmount: BigNumber.Value = ZERO) =>
-      new BigNumber(fiatAmount || '0').dividedBy(assetPrice ?? 1).toFormat(assetDecimals, BigNumber.ROUND_FLOOR, {
-        decimalSeparator: '.'
-      }),
-    [assetPrice, assetDecimals]
-  );
-
   return (
     <div className="flex justify-between items-center gap-2 min-h-6">
       <div className="flex-1 flex items-center">
@@ -49,12 +47,16 @@ const SwapFooter: FC<SwapFooterProps> = ({
           <span className="text-font-description text-error whitespace-nowrap overflow-ellipsis">{error}</span>
         ) : (
           <ConvertedInputAssetAmount
-            chainId={tezosChainId}
+            chainId={chainId}
             assetSlug={assetSlug}
             assetSymbol={assetSymbol}
-            amountValue={shouldUseFiat ? toAssetAmount(amount) : amount?.toString() || '0'}
-            toFiat={!shouldUseFiat}
-            evm={false}
+            amountValue={
+              isFiatMode
+                ? parseFiatValueToAssetAmount(amount, assetDecimals, inputName).toString()
+                : amount?.toString() || '0'
+            }
+            toFiat={!isFiatMode}
+            evm={evm}
           />
         )}
       </div>
@@ -63,7 +65,7 @@ const SwapFooter: FC<SwapFooterProps> = ({
           className="text-font-description-bold text-secondary px-1 py-0.5 my-0.5 max-w-40 truncate"
           onClick={handleFiatToggle}
         >
-          Switch to {shouldUseFiat ? assetSymbol : selectedFiatCurrency.name}
+          Switch to {isFiatMode ? assetSymbol : selectedFiatCurrency.name}
         </Button>
       )}
     </div>

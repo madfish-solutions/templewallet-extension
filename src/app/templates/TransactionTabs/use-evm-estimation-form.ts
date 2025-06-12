@@ -58,6 +58,7 @@ export const useEvmEstimationForm = (
       rawTransaction: safeSerializeTransaction(basicParams)
     };
   }, [basicParams, fullEstimationData]);
+
   const form = useForm<EvmTxParamsFormData>({ mode: 'onChange', defaultValues });
   const { watch, setValue, formState } = form;
 
@@ -80,8 +81,17 @@ export const useEvmEstimationForm = (
   }, [fullEstimationData, feeOptions, setData]);
 
   useEffect(() => {
+    if (feeOptions) {
+      for (const key of Object.keys(feeOptions.gasPrice) as FeeOptionLabel[]) {
+        const gas = feeOptions.gasPrice[key].maxFeePerGas || feeOptions.gasPrice[key].gasPrice;
+        if (gas && formatEther(gas, 'gwei') === gasPriceValue) {
+          setSelectedFeeOption(key);
+          return;
+        }
+      }
+    }
     if (gasPriceValue && selectedFeeOption) setSelectedFeeOption(null);
-  }, [gasPriceValue, selectedFeeOption]);
+  }, [feeOptions, gasPriceValue, selectedFeeOption]);
 
   const feesPerGasFromBasicParams = useMemo(() => {
     if (!basicParams) {

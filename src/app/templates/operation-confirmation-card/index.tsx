@@ -124,7 +124,7 @@ const DisplayVolume = memo<Pick<OperationConfirmationCardRowProps, 'volume'>>(({
   typeof volume === 'string' ? (
     <ShortenedTextWithTooltip>{volume}</ShortenedTextWithTooltip>
   ) : (
-    <Money withSign smallFractionFont={false} tooltipPlacement="bottom">
+    <Money withSign={false} smallFractionFont={false} tooltipPlacement="bottom">
       {volume}
     </Money>
   )

@@ -20,6 +20,11 @@ import {
   useEvmTokensMetadataLoadingSelector
 } from 'app/store/evm/selectors';
 import {
+  useLifiEvmChainTokensMetadataSelector,
+  useLifiEvmTokensMetadataRecordSelector
+} from 'app/store/evm/swap-lifi-metadata/selectors';
+import { LifiEvmTokenMetadataRecord } from 'app/store/evm/swap-lifi-metadata/state';
+import {
   useEvmTokenMetadataSelector,
   useEvmChainTokensMetadataRecordSelector,
   useEvmTokensMetadataRecordSelector
@@ -137,13 +142,17 @@ export const useGetEvmGasOrTokenMetadata = () => {
 
 export const useGetEvmChainTokenOrGasMetadata = (chainId: number) => {
   const network = useEvmChainByChainId(chainId);
-  const tokensMetadatas = useEvmChainTokensMetadataRecordSelector(chainId);
+  const tokensMetadata = useEvmChainTokensMetadataRecordSelector(chainId);
+  const { metadata: lifiTokensMetadata } = useLifiEvmChainTokensMetadataSelector(chainId);
   const fallbackValueFn = useCallback(
     (slug: string) => (isEvmNativeTokenSlug(slug) ? network?.currency : undefined),
     [network]
   );
 
-  return useGetterBySlug<EvmNativeTokenMetadata | EvmTokenMetadata>(tokensMetadatas, fallbackValueFn);
+  return useGetterBySlug<EvmNativeTokenMetadata | EvmTokenMetadata>(
+    { ...tokensMetadata, ...lifiTokensMetadata },
+    fallbackValueFn
+  );
 };
 
 export const useGetEvmNoCategoryAssetMetadata = (chainId: number) => {
@@ -156,6 +165,7 @@ interface EvmGenericAssetMetadataGetterInput {
   tokensMetadatas: EvmTokenMetadataRecord;
   collectiblesMetadatas: EvmCollectibleMetadataRecord;
   noCategoryMetadatas: EvmNoCategoryAssetMetadataRecord;
+  lifiMetadata: LifiEvmTokenMetadataRecord;
 }
 
 const useGetEvmGenericAssetMetadata = () => {
@@ -163,6 +173,7 @@ const useGetEvmGenericAssetMetadata = () => {
   const tokensMetadatas = useEvmTokensMetadataRecordSelector();
   const collectiblesMetadatas = useEvmCollectiblesMetadataRecordSelector();
   const noCategoryMetadatas = useEvmNoCategoryAssetsMetadataRecordSelector();
+  const lifiMetadata = useLifiEvmTokensMetadataRecordSelector();
 
   const getterFn = useCallback(
     (input: EvmGenericAssetMetadataGetterInput, slug: string, chainId: number) => {
@@ -171,13 +182,14 @@ const useGetEvmGenericAssetMetadata = () => {
       return (
         input.tokensMetadatas[chainId]?.[slug] ||
         input.collectiblesMetadatas[chainId]?.[slug] ||
-        input.noCategoryMetadatas[chainId]?.[slug]
+        input.noCategoryMetadatas[chainId]?.[slug] ||
+        input.lifiMetadata[chainId]?.[slug]
       );
     },
     [allEvmChains]
   );
 
-  return useGetter({ tokensMetadatas, collectiblesMetadatas, noCategoryMetadatas }, getterFn);
+  return useGetter({ tokensMetadatas, collectiblesMetadatas, noCategoryMetadatas, lifiMetadata }, getterFn);
 };
 
 export const useGetEvmChainCollectibleMetadata = (chainId: number) => {

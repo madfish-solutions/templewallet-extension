@@ -19,7 +19,6 @@ import { T, t } from 'lib/i18n';
 import {
   useEvmGenericAssetMetadata,
   useEvmGenericAssetsMetadataCheck,
-  useEvmGenericAssetsMetadataLoading,
   useGetEvmChainCollectibleMetadata,
   useGetEvmChainTokenOrGasMetadata,
   useGetEvmNoCategoryAssetMetadata
@@ -38,63 +37,67 @@ interface ApproveLayoutProps {
   req: EvmTransactionRequestWithSender;
   setFinalEvmTransaction: ReactSetStateFn<EvmTransactionRequestWithSender>;
   onLoadingState: SyncFn<boolean>;
+  minAllowance?: bigint;
 }
 
 const unlimitedAtomicAmountThreshold = toBigNumber(MAX_EVM_ALLOWANCE);
 
-export const ApproveLayout = memo<ApproveLayoutProps>(({ chain, req, setFinalEvmTransaction, onLoadingState }) => {
-  const tokenAddress = req.to!;
-  const txData = req.data!;
-  const { from } = req;
+export const ApproveLayout = memo<ApproveLayoutProps>(
+  ({ chain, req, setFinalEvmTransaction, onLoadingState, minAllowance }) => {
+    const tokenAddress = req.to!;
+    const txData = req.data!;
+    const { from } = req;
 
-  const knownAssetMetadata = useEvmGenericAssetMetadata(toEvmAssetSlug(tokenAddress), chain.chainId);
+    const knownAssetMetadata = useEvmGenericAssetMetadata(toEvmAssetSlug(tokenAddress), chain.chainId);
 
-  const isErc20IncreaseAllowance = useMemo(() => dataMatchesAbis(txData, [erc20IncreaseAllowanceAbi]), [txData]);
-  const evmToolkit = useMemo(() => getViemPublicClient(chain), [chain]);
+    const isErc20IncreaseAllowance = useMemo(() => dataMatchesAbis(txData, [erc20IncreaseAllowanceAbi]), [txData]);
+    const evmToolkit = useMemo(() => getViemPublicClient(chain), [chain]);
 
-  const getAllowancesAmountsContext = useCallback(async () => {
-    if (isErc20IncreaseAllowance) {
-      const [spender] = decodeFunctionData({ abi: [erc20IncreaseAllowanceAbi], data: txData }).args;
+    const getAllowancesAmountsContext = useCallback(async () => {
+      if (isErc20IncreaseAllowance) {
+        const [spender] = decodeFunctionData({ abi: [erc20IncreaseAllowanceAbi], data: txData }).args;
 
-      const onChainAllowance = await evmToolkit.readContract({
-        address: tokenAddress,
-        abi: [erc20AllowanceAbi],
-        functionName: 'allowance',
-        args: [from, spender]
-      });
+        const onChainAllowance = await evmToolkit.readContract({
+          address: tokenAddress,
+          abi: [erc20AllowanceAbi],
+          functionName: 'allowance',
+          args: [from, spender]
+        });
 
-      return { onChainAllowance: onChainAllowance, isErc20: true };
-    }
+        return { onChainAllowance: onChainAllowance, isErc20: true };
+      }
 
-    if (knownAssetMetadata) {
-      return { onChainAllowance: BigInt(0), isErc20: knownAssetMetadata.standard === EvmAssetStandard.ERC20 };
-    }
+      if (knownAssetMetadata) {
+        return { onChainAllowance: BigInt(0), isErc20: knownAssetMetadata.standard === EvmAssetStandard.ERC20 };
+      }
 
-    return {
-      onChainAllowance: BigInt(0),
-      isErc20: (await detectEvmTokenStandard(chain, toEvmAssetSlug(tokenAddress))) === EvmAssetStandard.ERC20
-    };
-  }, [evmToolkit, isErc20IncreaseAllowance, knownAssetMetadata, from, tokenAddress, txData]);
-  const { data: allowancesAmountsContext, isValidating: contextLoading } = useTypedSWR(
-    ['isErc20Approve', chain.disabled, tokenAddress, txData],
-    getAllowancesAmountsContext,
-    {
-      revalidateOnFocus: false,
-      shouldRetryOnError: false
-    }
-  );
+      return {
+        onChainAllowance: BigInt(0),
+        isErc20: (await detectEvmTokenStandard(chain, toEvmAssetSlug(tokenAddress))) === EvmAssetStandard.ERC20
+      };
+    }, [isErc20IncreaseAllowance, knownAssetMetadata, chain, tokenAddress, txData, evmToolkit, from]);
+    const { data: allowancesAmountsContext, isValidating: contextLoading } = useTypedSWR(
+      ['isErc20Approve', chain.disabled, tokenAddress, txData],
+      getAllowancesAmountsContext,
+      {
+        revalidateOnFocus: false,
+        shouldRetryOnError: false
+      }
+    );
 
-  useEffect(() => onLoadingState(contextLoading), [contextLoading, onLoadingState]);
+    useEffect(() => onLoadingState(contextLoading), [contextLoading, onLoadingState]);
 
-  return allowancesAmountsContext ? (
-    <ApproveLayoutContent
-      allowancesAmountsContext={allowancesAmountsContext}
-      req={req}
-      chain={chain}
-      setFinalEvmTransaction={setFinalEvmTransaction}
-    />
-  ) : null;
-});
+    return allowancesAmountsContext ? (
+      <ApproveLayoutContent
+        allowancesAmountsContext={allowancesAmountsContext}
+        req={req}
+        chain={chain}
+        setFinalEvmTransaction={setFinalEvmTransaction}
+        minAllowance={minAllowance}
+      />
+    ) : null;
+  }
+);
 
 interface ApproveLayoutContentProps extends Omit<ApproveLayoutProps, 'onLoadingState'> {
   allowancesAmountsContext: {
@@ -104,14 +107,13 @@ interface ApproveLayoutContentProps extends Omit<ApproveLayoutProps, 'onLoadingS
 }
 
 const ApproveLayoutContent = memo<ApproveLayoutContentProps>(
-  ({ allowancesAmountsContext, chain, req, setFinalEvmTransaction }) => {
+  ({ allowancesAmountsContext, chain, req, setFinalEvmTransaction, minAllowance }) => {
     const tokenAddress = req.to!;
     const txData = req.data!;
     const { from } = req;
     const { onChainAllowance, isErc20 } = allowancesAmountsContext;
 
     const [editModalIsVisible, openEditModal, closeEditModal] = useBooleanState(false);
-    const metadataLoading = useEvmGenericAssetsMetadataLoading();
 
     const isErc20IncreaseAllowance = useMemo(() => dataMatchesAbis(txData, [erc20IncreaseAllowanceAbi]), [txData]);
     const newSuggestedAllowances = useMemo(() => {
@@ -179,10 +181,6 @@ const ApproveLayoutContent = memo<ApproveLayoutContentProps>(
       [newSuggestedAllowances]
     );
 
-    if (metadataLoading) {
-      return null;
-    }
-
     return (
       <>
         <OperationConfirmationCard title={<T id="approve" />}>
@@ -209,7 +207,7 @@ const ApproveLayoutContent = memo<ApproveLayoutContentProps>(
             chain={chain}
             from={from}
             initialAllowance={initialAllowance}
-            minAllowance={onChainAllowance}
+            minAllowance={minAllowance || onChainAllowance}
             minInclusive={!isErc20IncreaseAllowance}
             onClose={closeEditModal}
             setAllowance={setAllowance}

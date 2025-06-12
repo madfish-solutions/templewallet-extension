@@ -4,62 +4,74 @@ import { isDefined } from '@rnw-community/shared';
 import BigNumber from 'bignumber.js';
 
 import AssetField from 'app/atoms/AssetField';
+import { SwapFieldName } from 'app/pages/Swap/form/interfaces';
+import { SwapInputValue } from 'app/pages/Swap/form/SwapForm.form';
 import SwapFooter from 'app/pages/Swap/form/SwapFormInput/SwapInputFooter';
 import { FiatCurrencyOptionBase } from 'lib/fiat-currency';
-import { AssetMetadataBase } from 'lib/metadata';
 
 import SwapSelectTokenFace from './SwapSelectTokenFace';
 
 interface SwapInputProps {
-  inputName: 'input' | 'output';
-  tezosChainId: string;
+  inputName: SwapFieldName;
   amount?: BigNumber;
   readOnly: boolean;
   error?: string;
-  assetPrice: BigNumber;
+  onChange: SyncFn<SwapInputValue>;
+  chainId: string | number;
+  evm: boolean;
   assetSlug?: string;
-  assetMetadata: AssetMetadataBase;
-  selectTokenTestId?: string;
-  shouldUseFiat: boolean;
+  assetSymbol: string;
+  assetDecimals: number;
+  onSelectAssetClick: SyncFn<SwapFieldName>;
+  isFiatMode: boolean;
   fiatCurrency: FiatCurrencyOptionBase;
   handleFiatToggle: (evt: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
-  onChange: (value?: BigNumber, shouldUseFiat?: boolean) => void;
-  onSelectAsset: EmptyFn;
   testId?: string;
+  selectTokenTestId?: string;
+  parseFiatValueToAssetAmount: (
+    fiatAmount?: BigNumber.Value,
+    assetDecimals?: number,
+    inputName?: SwapFieldName
+  ) => BigNumber;
 }
 
 const SwapInput: FC<SwapInputProps> = ({
   inputName,
-  tezosChainId,
   amount,
   readOnly,
   error,
-  assetPrice,
-  assetSlug,
-  assetMetadata,
-  shouldUseFiat,
-  fiatCurrency,
   onChange,
+  chainId,
+  evm,
+  assetSlug,
+  assetSymbol,
+  assetDecimals,
+  onSelectAssetClick,
+  isFiatMode,
+  fiatCurrency,
   handleFiatToggle,
-  onSelectAsset,
+  testId,
   selectTokenTestId,
-  testId
+  parseFiatValueToAssetAmount
 }) => {
   const handleAmountChange = (newAmount?: string) =>
-    onChange(Boolean(newAmount) && isDefined(newAmount) ? new BigNumber(newAmount) : undefined, shouldUseFiat);
+    onChange({
+      assetSlug: assetSlug,
+      amount: newAmount && isDefined(newAmount) ? new BigNumber(newAmount) : undefined
+    });
 
   const floatingAssetSymbol = useMemo(
-    () => (shouldUseFiat ? fiatCurrency.name : assetMetadata.symbol.slice(0, 4)),
-    [assetMetadata.symbol, fiatCurrency.name, shouldUseFiat]
+    () => (isFiatMode ? fiatCurrency.name : assetSymbol.slice(0, 4)),
+    [assetSymbol, fiatCurrency.name, isFiatMode]
   );
 
   return (
     <AssetField
       value={amount?.toString()}
       onChange={handleAmountChange}
-      extraFloatingInner={shouldUseFiat && floatingAssetSymbol}
-      assetDecimals={shouldUseFiat ? 2 : assetMetadata.decimals}
-      placeholder={shouldUseFiat ? `0.00 ${floatingAssetSymbol}` : '0.00'}
+      extraFloatingInner={isFiatMode && floatingAssetSymbol}
+      assetDecimals={isFiatMode ? 2 : assetDecimals}
+      placeholder={isFiatMode ? `0.00 ${floatingAssetSymbol}` : '0.00'}
       testID={testId}
       autoFocus
       min={0}
@@ -68,26 +80,28 @@ const SwapInput: FC<SwapInputProps> = ({
       shouldShowErrorCaption={false}
       rightSideComponent={
         <SwapSelectTokenFace
-          tezosChainId={tezosChainId}
+          inputName={inputName}
+          chainId={chainId}
           assetSlug={assetSlug}
-          assetSymbol={assetMetadata.symbol}
-          onSelectAssetClick={onSelectAsset}
+          assetSymbol={assetSymbol}
+          onSelectAssetClick={onSelectAssetClick}
           testId={selectTokenTestId}
         />
       }
       underneathComponent={
         <SwapFooter
           inputName={inputName}
-          tezosChainId={tezosChainId}
+          chainId={chainId}
           error={error}
-          assetPrice={assetPrice}
-          assetDecimals={assetMetadata.decimals}
           assetSlug={assetSlug || ''}
-          assetSymbol={assetMetadata.symbol}
+          assetSymbol={assetSymbol}
+          assetDecimals={assetDecimals}
           amount={amount}
-          shouldUseFiat={shouldUseFiat}
+          isFiatMode={isFiatMode}
           handleFiatToggle={handleFiatToggle}
           selectedFiatCurrency={fiatCurrency}
+          parseFiatValueToAssetAmount={parseFiatValueToAssetAmount}
+          evm={evm}
         />
       }
     />

@@ -8,14 +8,14 @@ import { useDidUpdate } from 'lib/ui/hooks';
 export const useImagesStackLoading = (sources: string[]) => {
   const emptyStack = sources.length < 1;
 
-  const [isLoading, setIsLoading] = useState(emptyStack === false);
+  const [isLoading, setIsLoading] = useState(!emptyStack);
   const [isStackFailed, setIsStackFailed] = useState(emptyStack);
 
   useDidUpdate(() => {
     const emptyStack = sources.length < 1;
 
     setIndex(emptyStack ? -1 : 0);
-    setIsLoading(emptyStack === false);
+    setIsLoading(!emptyStack);
     setIsStackFailed(emptyStack);
   }, [sources]);
 

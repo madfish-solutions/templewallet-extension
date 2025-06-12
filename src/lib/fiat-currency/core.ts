@@ -5,6 +5,7 @@ import axios from 'axios';
 import { BigNumber } from 'bignumber.js';
 
 import { useTezosUsdToTokenRatesSelector } from 'app/store/currency/selectors';
+import { useLifiEvmTokenMetadataSelector } from 'app/store/evm/swap-lifi-metadata/selectors';
 import { useEvmUsdToTokenRatesSelector } from 'app/store/evm/tokens-exchange-rates/selectors';
 import { useSelector } from 'app/store/root-state.selector';
 import { useStorage } from 'lib/temple/front';
@@ -19,13 +20,19 @@ const FIAT_CURRENCY_STORAGE_KEY = 'fiat_currency';
 export function useAssetUSDPrice(slug: string, chainId: number | string, evm = false) {
   const tezosUsdToTokenRates = useTezosUsdToTokenRatesSelector();
   const evmUsdToTokenRates = useEvmUsdToTokenRatesSelector();
+  const lifiUsdToTokenRate = useLifiEvmTokenMetadataSelector(chainId as number, slug)?.priceUSD;
 
   return useMemo(() => {
-    const rateStr =
-      evm && typeof chainId === 'number' ? evmUsdToTokenRates[chainId]?.[slug] ?? 0 : tezosUsdToTokenRates[slug];
+    let rate: number | string;
 
-    return rateStr ? Number(rateStr) : undefined;
-  }, [evm, chainId, evmUsdToTokenRates, slug, tezosUsdToTokenRates]);
+    if (evm && typeof chainId === 'number') {
+      rate = evmUsdToTokenRates[chainId]?.[slug] ?? lifiUsdToTokenRate;
+    } else {
+      rate = tezosUsdToTokenRates[slug];
+    }
+
+    return rate !== undefined ? Number(rate) : undefined;
+  }, [evm, chainId, evmUsdToTokenRates, slug, tezosUsdToTokenRates, lifiUsdToTokenRate]);
 }
 
 export const useFiatToUsdRate = () => {
