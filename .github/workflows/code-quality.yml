@@ -57,15 +57,6 @@ jobs:
           PERSONA_ADS_MEDIUM_BANNER_UNIT_ID: ${{ vars.PERSONA_ADS_MEDIUM_BANNER_UNIT_ID }}
           PERSONA_ADS_MISES_SQUARISH_BANNER_UNIT_ID: ${{ vars.PERSONA_ADS_MISES_SQUARISH_BANNER_UNIT_ID }}
           PERSONA_ADS_SQUARISH_BANNER_UNIT_ID: ${{ vars.PERSONA_ADS_SQUARISH_BANNER_UNIT_ID }}
-          SMARTY_300_250_PLACEMENT_ID: ${{ vars.SMARTY_300_250_PLACEMENT_ID }}
-          SMARTY_320_50_PLACEMENT_ID: ${{ vars.SMARTY_320_50_PLACEMENT_ID }}
-          SMARTY_728_90_PLACEMENT_ID: ${{ vars.SMARTY_728_90_PLACEMENT_ID }}
-          SMARTY_970_90_PLACEMENT_ID: ${{ vars.SMARTY_970_90_PLACEMENT_ID }}
-          SMARTY_336_280_PLACEMENT_ID: ${{ vars.SMARTY_336_280_PLACEMENT_ID }}
-          SMARTY_160_600_PLACEMENT_ID: ${{ vars.SMARTY_160_600_PLACEMENT_ID }}
-          SMARTY_970_250_PLACEMENT_ID: ${{ vars.SMARTY_970_250_PLACEMENT_ID }}
-          SMARTY_320_100_PLACEMENT_ID: ${{ vars.SMARTY_320_100_PLACEMENT_ID }}
-          SMARTY_300_600_PLACEMENT_ID: ${{ vars.SMARTY_300_600_PLACEMENT_ID }}
           BITMEDIA_320_50_PLACEMENT_ID: ${{ vars.BITMEDIA_320_50_PLACEMENT_ID }}
           BITMEDIA_320_100_PLACEMENT_ID: ${{ vars.BITMEDIA_320_100_PLACEMENT_ID }}
           BITMEDIA_300_250_PLACEMENT_ID: ${{ vars.BITMEDIA_300_250_PLACEMENT_ID }}
@@ -86,15 +77,16 @@ jobs:
           optional_modules: true
 
       - name: Create Chrome build
-        run: yarn build:chrome
+        run: yarn build:without-zip:chrome
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: chrome
-          path: dist/chrome.zip
+          path: dist/chrome_unpacked
           if-no-files-found: error
           retention-days: 10
+          compression-level: 1
 
       - name: Remove private modules
         run: rm -rf node_modules/@temple-wallet/extension-ads
@@ -106,12 +98,13 @@ jobs:
           optional_modules: false
 
       - name: Create Chrome core build
-        run: yarn build:chrome:core
+        run: yarn build:without-zip:chrome:core
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: chrome_core
-          path: dist/chrome.zip
+          path: dist/chrome_unpacked
           if-no-files-found: error
           retention-days: 10
+          compression-level: 1
