@@ -30,7 +30,7 @@ interface TezosSwapReviewData {
   };
 }
 
-export type SwapFieldName = 'from' | 'to';
+export type SwapFieldName = 'input' | 'output';
 
 export type EvmReviewData = GenericEvmReviewData<EvmSwapReviewData>;
 

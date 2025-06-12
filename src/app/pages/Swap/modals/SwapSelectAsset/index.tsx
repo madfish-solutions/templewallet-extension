@@ -59,7 +59,7 @@ export const SwapSelectAssetModal = memo<SelectTokenModalProps>(
     );
 
     useEffect(() => {
-      if (activeField === 'to') {
+      if (activeField === 'output') {
         setLocalFilterChain(chainKind === TempleChainKind.EVM ? evmNetwork : tezosNetwork);
       } else {
         setLocalFilterChain(filterChain);
@@ -71,7 +71,7 @@ export const SwapSelectAssetModal = memo<SelectTokenModalProps>(
         return (
           <TezosChainAssetsList
             chainId={localFilterChain.chainId}
-            filterZeroBalances={activeField === 'from'}
+            filterZeroBalances={activeField === 'input'}
             publicKeyHash={accountTezAddress}
             searchValue={searchValueDebounced}
             onAssetSelect={handleAssetSelect}
@@ -82,7 +82,7 @@ export const SwapSelectAssetModal = memo<SelectTokenModalProps>(
         return (
           <EvmChainAssetsList
             chainId={localFilterChain.chainId}
-            filterZeroBalances={activeField === 'from'}
+            filterZeroBalances={activeField === 'input'}
             publicKeyHash={accountEvmAddress}
             searchValue={searchValueDebounced}
             onAssetSelect={handleAssetSelect}

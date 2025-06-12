@@ -12,7 +12,7 @@ import { FiatCurrencyOptionBase } from 'lib/fiat-currency';
 import SwapSelectTokenFace from './SwapSelectTokenFace';
 
 interface SwapInputProps {
-  inputName: 'input' | 'output';
+  inputName: SwapFieldName;
   amount?: BigNumber;
   readOnly: boolean;
   error?: string;
@@ -31,7 +31,7 @@ interface SwapInputProps {
   parseFiatValueToAssetAmount: (
     fiatAmount?: BigNumber.Value,
     assetDecimals?: number,
-    inputName?: 'input' | 'output'
+    inputName?: SwapFieldName
   ) => BigNumber;
 }
 

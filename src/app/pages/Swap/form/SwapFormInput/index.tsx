@@ -14,7 +14,7 @@ import { OneOfChains } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
 
 interface SwapFormInputProps extends TestIDProps {
-  inputName: 'input' | 'output';
+  inputName: SwapFieldName;
   label: React.ReactNode;
   value: SwapInputValue;
   error?: string;
@@ -34,7 +34,7 @@ interface SwapFormInputProps extends TestIDProps {
   parseFiatValueToAssetAmount: (
     fiatAmount?: BigNumber.Value,
     assetDecimals?: number,
-    inputName?: 'input' | 'output'
+    inputName?: SwapFieldName
   ) => BigNumber;
   testIDs?: SwapFormTestIDs;
 }

@@ -49,7 +49,7 @@ interface Props {
   parseFiatValueToAssetAmount: (
     fiatAmount?: BigNumber.Value,
     assetDecimals?: number,
-    inputName?: 'input' | 'output'
+    inputName?: SwapFieldName
   ) => BigNumber;
   onInputChange: SyncFn<SwapInputValue>;
   onOutputChange: SyncFn<SwapInputValue>;

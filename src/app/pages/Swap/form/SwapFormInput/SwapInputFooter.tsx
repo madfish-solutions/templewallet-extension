@@ -4,10 +4,11 @@ import BigNumber from 'bignumber.js';
 
 import { Button } from 'app/atoms';
 import { ConvertedInputAssetAmount } from 'app/atoms/ConvertedInputAssetAmount';
+import { SwapFieldName } from 'app/pages/Swap/form/interfaces';
 import { FiatCurrencyOptionBase } from 'lib/fiat-currency';
 
 interface SwapFooterProps {
-  inputName: 'input' | 'output';
+  inputName: SwapFieldName;
   amount?: BigNumber;
   error?: string;
   chainId: string | number;
@@ -21,7 +22,7 @@ interface SwapFooterProps {
   parseFiatValueToAssetAmount: (
     fiatAmount?: BigNumber.Value,
     assetDecimals?: number,
-    inputName?: 'input' | 'output'
+    inputName?: SwapFieldName
   ) => BigNumber;
 }
 

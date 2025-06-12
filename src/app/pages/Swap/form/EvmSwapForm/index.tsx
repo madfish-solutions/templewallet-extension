@@ -187,7 +187,7 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
   );
 
   const parseFiatValueToAssetAmount = useCallback(
-    (fiatAmount: BigNumber.Value = ZERO, assetDecimals: number = 2, inputName: 'input' | 'output' = 'input') => {
+    (fiatAmount: BigNumber.Value = ZERO, assetDecimals: number = 2, inputName: SwapFieldName = 'input') => {
       return new BigNumber(fiatAmount || '0')
         .dividedBy((inputName === 'input' ? inputAssetPrice : outputAssetPrice) ?? 1)
         .decimalPlaces(assetDecimals, BigNumber.ROUND_FLOOR);
@@ -338,15 +338,15 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
   );
 
   useEffect(() => {
-    const newAssetSlug = activeField === 'from' ? sourceAssetInfo?.assetSlug : targetAssetInfo?.assetSlug;
+    const newAssetSlug = activeField === 'input' ? sourceAssetInfo?.assetSlug : targetAssetInfo?.assetSlug;
     if (!newAssetSlug) return;
     const newAssetMetadata = getTokenMetadata(newAssetSlug);
     if (!newAssetMetadata) return;
 
     const currentFormState = getValues();
-    const amount = activeField === 'from' ? currentFormState.input.amount : currentFormState.output.amount;
+    const amount = activeField === 'input' ? currentFormState.input.amount : currentFormState.output.amount;
 
-    activeField === 'from'
+    activeField === 'input'
       ? handleInputChange({
           assetSlug: newAssetSlug,
           amount: amount

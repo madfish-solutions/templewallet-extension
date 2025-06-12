@@ -8,7 +8,7 @@ import { setTestID } from 'lib/analytics';
 import { T } from 'lib/i18n';
 
 interface SwapFieldProps {
-  inputName: 'input' | 'output';
+  inputName: SwapFieldName;
   chainId: string | number;
   assetSlug?: string;
   assetSymbol: string;
@@ -25,7 +25,7 @@ const SwapSelectTokenFace: FC<SwapFieldProps> = ({
   testId
 }) => {
   const handleSelectAssetClick = useCallback(() => {
-    onSelectAssetClick(inputName === 'input' ? 'from' : 'to');
+    onSelectAssetClick(inputName);
   }, [inputName, onSelectAssetClick]);
 
   return (

@@ -58,7 +58,7 @@ const Swap = memo<Props>(() => {
   const accountTezosAddress = useAccountAddressForTezos();
   const { filterChain } = useAssetsFilterOptionsSelector();
 
-  const [activeField, setActiveField] = useState<SwapFieldName>('from');
+  const [activeField, setActiveField] = useState<SwapFieldName>('input');
   const [selectedChainAssets, setSelectedChainAssets] = useState<SelectedChainAssets>(() => {
     const fromSlug =
       from?.chainKind && from?.chainId && from?.assetSlug
@@ -114,7 +114,7 @@ const Swap = memo<Props>(() => {
       navigate({ pathname: '/swap' }, HistoryAction.Replace);
       const selectedChainId = parseChainAssetSlug(slug)[1];
 
-      if (activeField === 'from') {
+      if (activeField === 'input') {
         const toSlug = selectedChainAssets.to;
         const toChainId = toSlug ? parseChainAssetSlug(toSlug)[1] : [null];
 
@@ -125,7 +125,7 @@ const Swap = memo<Props>(() => {
         } else {
           setSelectedChainAssets({ ...selectedChainAssets, from: slug });
         }
-      } else if (activeField === 'to') {
+      } else if (activeField === 'output') {
         const fromSlug = selectedChainAssets.from;
         const fromChainId = fromSlug ? parseChainAssetSlug(fromSlug)[1] : [null];
 

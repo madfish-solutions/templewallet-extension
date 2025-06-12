@@ -138,7 +138,7 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
 
       if (isEvmNativeTokenSlug(inputTokenSlug)) {
         const fromAmount = atomsToTokens(
-          new BigNumber(+lifiStep.action.fromAmount),
+          new BigNumber(lifiStep.action.fromAmount),
           lifiStep.action.fromToken.decimals ?? 0
         );
 
