@@ -7,7 +7,6 @@ enum Table {
   tezosActivities = 'tezosActivities',
   tezosActivitiesIntervals = 'tezosActivitiesIntervals',
   evmActivities = 'evmActivities',
-  evmActivitiesToAccounts = 'evmActivitiesToAccounts',
   evmActivitiesIntervals = 'evmActivitiesIntervals',
   evmActivityAssets = 'evmAssets'
 }
@@ -18,7 +17,7 @@ Dexie.debug = true;
 
 export const NO_TOKEN_ID_VALUE = '-1';
 
-db.version(1).stores({
+const v1Stores = {
   [Table.tezosActivities]: indexes(
     '++id',
     'account',
@@ -49,7 +48,29 @@ db.version(1).stores({
     '[chainId+account+contract+newestBlockHeight]'
   ),
   [Table.evmActivityAssets]: indexes('++id', '&[chainId+contract+tokenId]')
-});
+};
+db.version(1).stores(v1Stores);
+db.version(2)
+  .stores({
+    ...v1Stores,
+    [Table.evmActivities]: indexes(
+      '++id',
+      'account',
+      '[chainId+account+hash]',
+      '[chainId+account+blockHeight]',
+      '[chainId+account+contract+blockHeight]'
+    )
+  })
+  .upgrade(tx =>
+    tx
+      .table<DbEvmActivity>(Table.evmActivities)
+      .toCollection()
+      .modify(activity => {
+        activity.index = null;
+        activity.fee = null;
+        activity.value = null;
+      })
+  );
 
 export interface TezosActivitiesInterval extends EntityWithId {
   chainId: string;

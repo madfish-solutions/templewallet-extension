@@ -4,8 +4,12 @@ import {
   ActivityOperTransferType,
   TezosOperation,
   EvmOperation,
-  TezosActivity
+  TezosActivity,
+  EvmActivity
 } from 'lib/activity';
+import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
+
+import type { AllEtherlinkActivitiesPageParams } from './fetch-activities-with-cache';
 
 export type FaceKind = ActivityOperKindEnum | 'bundle';
 
@@ -48,4 +52,42 @@ export function getActivityFilterKind(activity: Activity): FilterKind {
 
 export function isTezosActivity(activity: Activity): activity is TezosActivity {
   return 'oldestTzktOperation' in activity;
+}
+
+export function getAllEtherlinkActivitiesPageParams(
+  activities: EvmActivity[]
+): AllEtherlinkActivitiesPageParams | undefined {
+  const lastActivity = activities.at(-1);
+
+  if (!lastActivity) return;
+
+  const tokensTransfers = activities.flatMap(({ operations, blockHeight }) =>
+    operations
+      .filter(op => op.kind === ActivityOperKindEnum.transfer && op.asset?.contract !== EVM_TOKEN_SLUG)
+      .map(op => ({ ...op, blockHeight }))
+      .reverse()
+  );
+  const lastTokenTransfer = tokensTransfers.at(-1);
+  const explicitOperationsActivities = activities.filter(({ index }) => index !== null);
+  const lastExplicitOperationActivity = explicitOperationsActivities.at(-1);
+
+  return {
+    operationsPageParams: lastExplicitOperationActivity
+      ? {
+          block_number: Number(lastExplicitOperationActivity.blockHeight),
+          fee: lastExplicitOperationActivity.fee ?? '0',
+          hash: lastExplicitOperationActivity.hash,
+          index: lastExplicitOperationActivity.index ?? 0,
+          inserted_at: lastExplicitOperationActivity.addedAt.replace(/(\.\d+)?Z$/, '.999999Z'),
+          items_count: explicitOperationsActivities.length,
+          value: lastExplicitOperationActivity.value ?? '0'
+        }
+      : undefined,
+    tokensTransfersPageParams: lastTokenTransfer
+      ? {
+          block_number: Number(lastTokenTransfer.blockHeight),
+          index: lastTokenTransfer.logIndex
+        }
+      : undefined
+  };
 }

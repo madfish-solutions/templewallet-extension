@@ -14,7 +14,12 @@ import {
 import { processLoadedEvmTokensMetadataAction, putEvmTokensMetadataAction } from '../tokens-metadata/actions';
 import { isValidFetchedEvmMetadata } from '../tokens-metadata/utils';
 
-import { loadNoCategoryEvmAssetsMetadataActions, refreshNoCategoryEvmAssetsMetadataActions } from './actions';
+import {
+  loadNoCategoryEvmAssetsMetadataActions,
+  putEvmNoCategoryAssetsMetadataAction,
+  PutEvmNoCategoryAssetsMetadataPayload,
+  refreshNoCategoryEvmAssetsMetadataActions
+} from './actions';
 import {
   NoCategoryAssetMetadata,
   NoCategoryEvmAssetsMetadataState,
@@ -24,33 +29,42 @@ import {
 const noCategoryEvmAssetsMetadataReducer = createReducer<NoCategoryEvmAssetsMetadataState>(
   noCategoryEvmAssetsMetadataInitialState,
   builder => {
+    const putNoCategoryAssetsMetadata = (
+      state: Draft<NoCategoryEvmAssetsMetadataState>,
+      { records, associatedAccountPkh }: PutEvmNoCategoryAssetsMetadataPayload
+    ) => {
+      for (const chainId in records) {
+        for (const slug in records[chainId]) {
+          const [address, id] = fromAssetSlug(slug);
+          const rawMetadata = records[chainId][slug];
+
+          if (!rawMetadata || !id) continue;
+
+          if (!state.metadataRecord[chainId]) {
+            state.metadataRecord[chainId] = {};
+          }
+          state.metadataRecord[chainId][slug] = rawMetadata;
+          state.contractsChainIds[address] = Number(chainId);
+          if (!state.accountToAssetAssociations[associatedAccountPkh]) {
+            state.accountToAssetAssociations[associatedAccountPkh] = [];
+          }
+          state.accountToAssetAssociations[associatedAccountPkh].push(slug);
+        }
+      }
+    };
+
+    builder.addCase(putEvmNoCategoryAssetsMetadataAction, (state, { payload }) => {
+      putNoCategoryAssetsMetadata(state, payload);
+    });
+
     builder.addCase(loadNoCategoryEvmAssetsMetadataActions.submit, state => {
       state.metadataLoading = true;
     });
 
-    builder.addCase(
-      loadNoCategoryEvmAssetsMetadataActions.success,
-      (state, { payload: { records, associatedAccountPkh, poolsAreEmpty } }) => {
-        for (const chainId in records) {
-          for (const slug in records[chainId]) {
-            const [address, id] = fromAssetSlug(slug);
-            const rawMetadata = records[chainId][slug];
-            if (!rawMetadata || !id) continue;
-
-            if (!state.metadataRecord[chainId]) {
-              state.metadataRecord[chainId] = {};
-            }
-            state.metadataRecord[chainId][slug] = rawMetadata;
-            state.contractsChainIds[address] = Number(chainId);
-            if (!state.accountToAssetAssociations[associatedAccountPkh]) {
-              state.accountToAssetAssociations[associatedAccountPkh] = [];
-            }
-            state.accountToAssetAssociations[associatedAccountPkh].push(slug);
-          }
-        }
-        state.metadataLoading = !poolsAreEmpty;
-      }
-    );
+    builder.addCase(loadNoCategoryEvmAssetsMetadataActions.success, (state, { payload }) => {
+      putNoCategoryAssetsMetadata(state, payload);
+      state.metadataLoading = !payload.poolsAreEmpty;
+    });
 
     builder.addCase(refreshNoCategoryEvmAssetsMetadataActions.submit, state => {
       state.metadataLoading = true;

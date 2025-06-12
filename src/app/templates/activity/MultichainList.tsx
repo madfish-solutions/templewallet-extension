@@ -1,6 +1,9 @@
 import React, { memo, useMemo } from 'react';
 
+import { dispatch } from 'app/store';
+import { putEvmNoCategoryAssetsMetadataAction } from 'app/store/evm/no-category-assets-metadata/actions';
 import { Activity, EvmActivity, TezosActivity } from 'lib/activity';
+import { isEtherlinkSupportedChainId } from 'lib/apis/etherlink';
 import { TzktApiChainId } from 'lib/apis/tzkt';
 import { isKnownChainId as isKnownTzktChainId } from 'lib/apis/tzkt/api';
 import { isTruthy } from 'lib/utils';
@@ -15,11 +18,15 @@ import {
 
 import { EvmActivityComponent, TezosActivityComponent } from './ActivityItem';
 import { ActivityListView } from './ActivityListView';
-import { fetchEvmActivitiesWithCache, fetchTezosActivitiesWithCache } from './fetch-activities-with-cache';
+import {
+  fetchEtherlinkActivitiesWithCache,
+  fetchEvmActivitiesWithCache,
+  fetchTezosActivitiesWithCache
+} from './fetch-activities-with-cache';
 import { ActivitiesDateGroup, useGroupingByDate } from './grouping-by-date';
 import { useActivitiesLoadingLogic } from './loading-logic';
 import { useAssetsFromActivitiesCheck } from './use-assets-from-activites-check';
-import { FilterKind, getActivityFilterKind, isTezosActivity } from './utils';
+import { FilterKind, getActivityFilterKind, getAllEtherlinkActivitiesPageParams, isTezosActivity } from './utils';
 
 interface Props {
   filterKind?: FilterKind;
@@ -179,20 +186,43 @@ class EvmActivityLoader {
 
       if (this.reachedTheEnd || this.lastError) return;
 
-      const olderThanBlockHeight = this.activities.at(this.activities.length - 1)?.blockHeight;
+      const lastActivity = this.activities.at(-1);
 
-      const newActivities = await fetchEvmActivitiesWithCache({
-        chainId,
-        accountAddress,
-        assetSlug: undefined,
-        olderThan: olderThanBlockHeight,
-        signal
-      });
+      if (isEtherlinkSupportedChainId(chainId)) {
+        const {
+          activities: newActivities,
+          assetsMetadata,
+          reachedTheEnd
+        } = await fetchEtherlinkActivitiesWithCache({
+          chainId,
+          accountAddress,
+          signal,
+          olderThan: getAllEtherlinkActivitiesPageParams(this.activities)
+        });
+        if (Object.keys(assetsMetadata).length) {
+          dispatch(
+            putEvmNoCategoryAssetsMetadataAction({
+              records: {
+                [chainId]: assetsMetadata
+              },
+              associatedAccountPkh: accountAddress
+            })
+          );
+        }
 
-      if (signal.aborted) return;
+        if (newActivities.length) this.activities = this.activities.concat(newActivities);
+        if (!newActivities.length || reachedTheEnd) this.reachedTheEnd = true;
+      } else {
+        const { activities: newActivities } = await fetchEvmActivitiesWithCache({
+          chainId,
+          accountAddress,
+          signal,
+          olderThan: lastActivity?.blockHeight
+        });
 
-      if (newActivities.length) this.activities = this.activities.concat(newActivities);
-      else this.reachedTheEnd = true;
+        if (newActivities.length) this.activities = this.activities.concat(newActivities);
+        else this.reachedTheEnd = true;
+      }
 
       delete this.lastError;
     } catch (error) {
@@ -223,7 +253,7 @@ class TezosActivityLoader {
 
       const lastActivity = this.activities.at(-1);
 
-      const newActivities = await fetchTezosActivitiesWithCache({
+      const { activities: newActivities } = await fetchTezosActivitiesWithCache({
         chainId,
         rpcBaseURL,
         accountAddress,

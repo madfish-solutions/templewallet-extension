@@ -4,12 +4,16 @@ import { getAddress } from 'viem';
 
 import { EvmActivity, EvmActivityAsset, EvmOperation } from 'lib/activity';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
+import { equalsIgnoreCase } from 'lib/evm/on-chain/utils/common.utils';
+import { filterUnique } from 'lib/utils';
 
-import { DbEvmActivity, DbEvmActivityAsset, NO_TOKEN_ID_VALUE } from '../db';
+import { DbEvmActivity, DbEvmActivityAsset, NO_TOKEN_ID_VALUE, evmActivityAssets } from '../db';
+
+type IdsToAssets = Partial<Record<number, DbEvmActivityAsset>>;
 
 export const toFrontEvmActivity = (
   { account, contract, operations, blockHeight, id, ...activity }: DbEvmActivity,
-  assets: Partial<Record<number, DbEvmActivityAsset>>
+  assets: IdsToAssets
 ): EvmActivity => {
   return {
     ...activity,
@@ -31,4 +35,36 @@ export const toFrontEvmActivity = (
     }),
     blockHeight: `${blockHeight}`
   };
+};
+
+export const toFrontEvmActivities = (
+  rawActivities: DbEvmActivity[],
+  idsToAssets: IdsToAssets,
+  contractAddress?: string
+) =>
+  rawActivities
+    .map(activity => {
+      if (!contractAddress) {
+        return toFrontEvmActivity(activity, idsToAssets);
+      }
+
+      const { operations, ...restProps } = toFrontEvmActivity(activity, idsToAssets);
+
+      return {
+        ...restProps,
+        operations: operations.filter(operation => equalsIgnoreCase(operation.asset?.contract, contractAddress))
+      };
+    })
+    .filter(({ operations }) => operations.length > 0);
+
+export const getRelevantAssets = async (activities: DbEvmActivity[]): Promise<IdsToAssets> => {
+  const assetsIds = filterUnique(
+    activities
+      .map(({ operations }) => operations.map(({ fkAsset }) => fkAsset))
+      .flat()
+      .filter(isDefined)
+  );
+  const assets = await evmActivityAssets.bulkGet(assetsIds);
+
+  return Object.fromEntries(assets.map((asset, i) => [assetsIds[i], asset]));
 };

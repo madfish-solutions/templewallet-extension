@@ -1,8 +1,6 @@
-import { isDefined } from '@rnw-community/shared';
 import { Collection } from 'dexie';
 
 import { EvmActivity } from 'lib/activity';
-import { filterUnique } from 'lib/utils';
 
 import {
   DbEvmActivity,
@@ -13,7 +11,7 @@ import {
   evmActivityAssets
 } from '../db';
 
-import { toFrontEvmActivity } from './utils';
+import { getRelevantAssets, toFrontEvmActivities } from './utils';
 
 interface GetEvmActivitiesIntervalParams {
   olderThanBlockHeight?: `${number}`;
@@ -28,6 +26,20 @@ export interface GetEvmActivitiesIntervalResult {
   newestBlockHeight: number;
   oldestBlockHeight: number;
 }
+
+export const getSeparateActivities = async (
+  chainId: number,
+  account: HexString,
+  hashes: string[]
+): Promise<EvmActivity[]> => {
+  const rawEvmActivities = await evmActivities
+    .where(['chainId', 'account', 'hash'])
+    .anyOf(hashes.map(hash => [chainId, account.toLowerCase(), hash]))
+    .toArray();
+  const idsToAssets = await getRelevantAssets(rawEvmActivities);
+
+  return toFrontEvmActivities(rawEvmActivities, idsToAssets);
+};
 
 export const getClosestEvmActivitiesInterval = async ({
   olderThanBlockHeight,
@@ -96,30 +108,10 @@ export const getClosestEvmActivitiesInterval = async ({
     } else {
       rawActivities = await allRawActivitiesCollection.sortBy('blockHeight');
     }
-    const assetsIds = filterUnique(
-      rawActivities
-        .map(({ operations }) => operations.map(({ fkAsset }) => fkAsset))
-        .flat()
-        .filter(isDefined)
-    );
-    const assets = await evmActivityAssets.bulkGet(assetsIds);
-    const idsToAssets = Object.fromEntries(assets.map((asset, i) => [assetsIds[i], asset]));
+    const idsToAssets = await getRelevantAssets(rawActivities);
 
     return {
-      activities: rawActivities
-        .map(activity => {
-          if (!contractAddress) {
-            return toFrontEvmActivity(activity, idsToAssets);
-          }
-
-          const { operations, ...restProps } = toFrontEvmActivity(activity, idsToAssets);
-
-          return {
-            ...restProps,
-            operations: operations.filter(operation => operation.asset?.contract.toLowerCase() === contractAddress)
-          };
-        })
-        .filter(({ operations }) => operations.length > 0),
+      activities: toFrontEvmActivities(rawActivities, idsToAssets, contractAddress),
       newestBlockHeight: searchNewestBlockHeight,
       oldestBlockHeight
     };

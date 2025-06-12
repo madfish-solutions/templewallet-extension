@@ -11,6 +11,7 @@ import {
   getIntervalLimit,
   getPointerTimestamp,
   lowerLimitTsPath,
+  lowestIntervalLimitTs,
   toFrontTezosActivity,
   upperLimitTsPath
 } from './utils';
@@ -52,11 +53,16 @@ export const getClosestTezosActivitiesInterval = async ({
       const olderThanTs = getPointerTimestamp(olderThan);
       allContractsIntervalsCollection = tezosActivitiesIntervals
         .where(['chainId', 'account', 'assetSlug', lowerLimitTsPath])
-        .between([chainId, account, '', 0], [chainId, account, '', olderThanTs], true, false);
+        .between([chainId, account, '', lowestIntervalLimitTs], [chainId, account, '', olderThanTs], true, false);
       intervalsByContractCollection = assetSlug
         ? tezosActivitiesIntervals
             .where(['chainId', 'account', 'assetSlug', lowerLimitTsPath])
-            .between([chainId, account, assetSlug, 0], [chainId, account, assetSlug, olderThanTs], true, false)
+            .between(
+              [chainId, account, assetSlug, lowestIntervalLimitTs],
+              [chainId, account, assetSlug, olderThanTs],
+              true,
+              false
+            )
         : undefined;
     } else {
       allContractsIntervalsCollection = tezosActivitiesIntervals.where({ chainId, account, assetSlug: '' });

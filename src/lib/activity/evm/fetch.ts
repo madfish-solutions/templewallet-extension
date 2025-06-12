@@ -49,7 +49,11 @@ export async function getEvmActivities(
       addedAt: firstTransfer.metadata.blockTimestamp,
       operations,
       operationsCount: operations.length,
-      blockHeight: `${Number(firstTransfer.blockNum)}`
+      blockHeight: `${Number(firstTransfer.blockNum)}`,
+      // TODO: substitute real values if necessary
+      index: null,
+      fee: null,
+      value: null
     };
   });
 }
