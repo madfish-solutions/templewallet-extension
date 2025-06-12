@@ -125,7 +125,7 @@ const makeFetchAllPagesFn =
     let allItems: T[] = [];
 
     do {
-      const { items, nextPageParams: newNextPageParams } = await refetchOnce429(() =>
+      const { items, next_page_params: newNextPageParams } = await refetchOnce429(() =>
         pageGetter({ ...params, pageParams: nextPageParams })
       );
       allItems = allItems.concat(items);

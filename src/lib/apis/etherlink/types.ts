@@ -216,7 +216,7 @@ interface EtherlinkAccountNftsPageParams {
 
 export interface ItemsWithPagination<T, P> {
   items: T[];
-  nextPageParams: P | null;
+  next_page_params: P | null;
 }
 
 export type EtherlinkOperationsResponse = ItemsWithPagination<EtherlinkTransaction, EtherlinkOperationsPageParams>;

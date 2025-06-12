@@ -9,7 +9,7 @@ import {
 } from 'lib/activity';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 
-import { AllEtherlinkActivitiesPageParams } from './fetch-activities-with-cache';
+import type { AllEtherlinkActivitiesPageParams } from './fetch-activities-with-cache';
 
 export type FaceKind = ActivityOperKindEnum | 'bundle';
 
@@ -61,10 +61,10 @@ export function getAllEtherlinkActivitiesPageParams(
 
   if (!lastActivity) return;
 
-  const tokensTransfers = activities.flatMap(({ operations, blockHeight, index }) =>
+  const tokensTransfers = activities.flatMap(({ operations, blockHeight }) =>
     operations
       .filter(op => op.kind === ActivityOperKindEnum.transfer && op.asset?.contract !== EVM_TOKEN_SLUG)
-      .map(op => ({ ...op, blockHeight, opIndex: index }))
+      .map(op => ({ ...op, blockHeight }))
       .reverse()
   );
   const lastTokenTransfer = tokensTransfers.at(-1);
@@ -79,14 +79,14 @@ export function getAllEtherlinkActivitiesPageParams(
           hash: lastExplicitOperationActivity.hash,
           index: lastExplicitOperationActivity.index ?? 0,
           inserted_at: lastExplicitOperationActivity.addedAt.replace(/(\.\d+)?Z$/, '.999999Z'),
-          items_count: activities.length,
+          items_count: explicitOperationsActivities.length,
           value: lastExplicitOperationActivity.value ?? '0'
         }
       : undefined,
     tokensTransfersPageParams: lastTokenTransfer
       ? {
           block_number: Number(lastTokenTransfer.blockHeight),
-          index: lastTokenTransfer.opIndex ?? 0
+          index: lastTokenTransfer.logIndex
         }
       : undefined
   };
