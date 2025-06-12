@@ -5,7 +5,7 @@ import clsx from 'clsx';
 import { FADABLE_CONTENT_CLASSNAME } from 'app/a11y/content-fader';
 import { PageLoader } from 'app/atoms/Loader';
 import { SuspenseContainer } from 'app/atoms/SuspenseContainer';
-import { LAYOUT_CONTAINER_CLASSNAME } from 'app/layouts/containers';
+import { FULL_PAGE_WRAP_CLASSNAME, LAYOUT_CONTAINER_CLASSNAME } from 'app/layouts/containers';
 import Unlock from 'app/pages/Unlock/Unlock';
 import { t } from 'lib/i18n';
 import { useRetryableSWR } from 'lib/swr';
@@ -17,33 +17,31 @@ import { TempleChainKind } from 'temple/types';
 import { AddAssetProvider } from './add-asset/context';
 import { AddChainDataProvider } from './add-chain/context';
 import { EvmConfirmDAppForm } from './evm-confirm-dapp-form';
+import { useIsBrowserFullscreen } from './hooks/use-is-browser-fullscreen';
 import { TezosConfirmDAppForm } from './tezos-confirm-dapp-form';
 
 const ConfirmPage = memo(() => {
   const { ready } = useTempleClient();
-
-  if (!ready) {
-    return <Unlock canImportNew={false} />;
-  }
+  const isBrowserFullscreen = useIsBrowserFullscreen();
 
   return (
-    <div
-      className={clsx(
-        LAYOUT_CONTAINER_CLASSNAME,
-        'min-h-screen flex flex-col items-center justify-center bg-white',
-        FADABLE_CONTENT_CLASSNAME
+    <div className={clsx('w-full h-full', isBrowserFullscreen && FULL_PAGE_WRAP_CLASSNAME)}>
+      {ready ? (
+        <div
+          className={clsx(
+            LAYOUT_CONTAINER_CLASSNAME,
+            'h-full bg-white',
+            isBrowserFullscreen && 'rounded-md shadow-bottom',
+            FADABLE_CONTENT_CLASSNAME
+          )}
+        >
+          <SuspenseContainer errorMessage={t('fetchingConfirmationDetails')} loader={<PageLoader stretch />}>
+            <ConfirmDAppForm />
+          </SuspenseContainer>
+        </div>
+      ) : (
+        <Unlock canImportNew={false} />
       )}
-    >
-      <SuspenseContainer
-        errorMessage={t('fetchingConfirmationDetails')}
-        loader={
-          <div className="h-screen flex flex-col">
-            <PageLoader stretch />
-          </div>
-        }
-      >
-        <ConfirmDAppForm />
-      </SuspenseContainer>
     </div>
   );
 });
