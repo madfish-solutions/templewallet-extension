@@ -6,6 +6,7 @@ import { encodeFunctionData } from 'viem';
 import { toHex } from 'viem/utils';
 
 import { Anchor, IconBase } from 'app/atoms';
+import { PageLoader } from 'app/atoms/Loader';
 import { Logo } from 'app/atoms/Logo';
 import { ActionsButtonsBox, CLOSE_ANIMATION_TIMEOUT } from 'app/atoms/PageModal';
 import { StyledButton } from 'app/atoms/StyledButton';
@@ -17,7 +18,7 @@ import { EvmReviewData, SwapReviewData } from 'app/pages/Swap/form/interfaces';
 import { parseLiFiTxRequestToViem, timeout } from 'app/pages/Swap/modals/ConfirmSwap/utils';
 import { EvmTransactionView } from 'app/templates/EvmTransactionView';
 import { toastSuccess } from 'app/toaster';
-import { erc20IncreaseAllowanceAbi } from 'lib/abi/erc20';
+import { erc20ApproveAbi } from 'lib/abi/erc20';
 import { toTokenSlug } from 'lib/assets';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { useEvmAssetBalance } from 'lib/balances/hooks';
@@ -46,11 +47,11 @@ const ApproveModal = ({ data, onClose, onReview, setLoading }: ApproveModalProps
 
   const txData = useMemo(() => {
     return encodeFunctionData({
-      abi: [erc20IncreaseAllowanceAbi],
-      functionName: 'increaseAllowance',
-      args: [lifiStep.estimate.approvalAddress as HexString, BigInt(lifiStep.action.fromAmount) - onChainAllowance]
+      abi: [erc20ApproveAbi],
+      functionName: 'approve',
+      args: [lifiStep.estimate.approvalAddress as HexString, BigInt(lifiStep.action.fromAmount)]
     });
-  }, [lifiStep.action.fromAmount, lifiStep.estimate.approvalAddress, onChainAllowance]);
+  }, [lifiStep.action.fromAmount, lifiStep.estimate.approvalAddress]);
 
   const assetSlug = useMemo(
     () => toTokenSlug(lifiStep.action.fromToken.address, 0),
@@ -65,10 +66,10 @@ const ApproveModal = ({ data, onClose, onReview, setLoading }: ApproveModalProps
   const amount = useMemo(
     () =>
       atomsToTokens(
-        new BigNumber((BigInt(lifiStep.action.fromAmount) - onChainAllowance).toString()),
+        new BigNumber(BigInt(lifiStep.action.fromAmount).toString()),
         lifiStep.action.fromToken.decimals ?? 0
       ).toString(),
-    [lifiStep.action.fromAmount, lifiStep.action.fromToken.decimals, onChainAllowance]
+    [lifiStep.action.fromAmount, lifiStep.action.fromToken.decimals]
   );
 
   const { value: balance = ZERO } = useEvmAssetBalance(assetSlug, account.address as HexString, network);
@@ -187,14 +188,17 @@ const ApproveModal = ({ data, onClose, onReview, setLoading }: ApproveModalProps
           </Anchor>
         </div>
 
-        {estimationData && (
+        {estimationData ? (
           <EvmTransactionView
             payload={payload}
             formId="swap-approve"
             error={null}
             setFinalEvmTransaction={setFinalEvmTransaction}
             onSubmit={onSubmit}
+            minAllowance={BigInt(lifiStep.action.fromAmount)}
           />
+        ) : (
+          <PageLoader />
         )}
       </div>
       <ActionsButtonsBox flexDirection="row" shouldChangeBottomShift={false}>

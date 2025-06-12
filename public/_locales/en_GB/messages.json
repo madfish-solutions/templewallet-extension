@@ -1436,7 +1436,7 @@
     "message": "3route DEX aggregator."
   },
   "noRoutesFound": {
-    "message": "No routes found"
+    "message": "No route available"
   },
   "swapCashback": {
     "message": "Cashback"

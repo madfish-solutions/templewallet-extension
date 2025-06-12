@@ -47,13 +47,25 @@ interface TezosTokenListItemProps {
   scam?: boolean;
   manageActive?: boolean;
   showTags?: boolean;
+  requiresVisibility?: boolean;
   onClick?: MouseEventHandler<TokenListItemElement>;
 }
 
 export const TezosTokenListItem = memo(
   forwardRef<TokenListItemElement, TezosTokenListItemProps>(
     (
-      { network, index, publicKeyHash, assetSlug, active, scam, manageActive = false, showTags = true, onClick },
+      {
+        network,
+        index,
+        publicKeyHash,
+        assetSlug,
+        active,
+        scam,
+        manageActive = false,
+        requiresVisibility = true,
+        showTags = true,
+        onClick
+      },
       ref
     ) => {
       const {
@@ -94,6 +106,7 @@ export const TezosTokenListItem = memo(
           index={index}
           balance={balance}
           onClick={onClick}
+          requiresVisibility={requiresVisibility}
           ref={ref}
         >
           <div className="flex items-center flex-grow gap-x-2 truncate">
@@ -330,7 +343,7 @@ const DefaultListItemLayoutHOC = <T extends TempleChainKind>(
           className={clsx(LIST_ITEM_CLASSNAME, className)}
           onClick={onClick}
           testID={AssetsSelectors.assetItemButton}
-          testIDProperties={{ key: assetSlug }}
+          testIDProperties={{ key: `${assetSlug}-${chainId}` }}
           ref={ref as ForwardedRef<HTMLAnchorElement>}
           {...setAnotherSelector('name', assetName)}
         >

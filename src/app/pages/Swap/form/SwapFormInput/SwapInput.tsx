@@ -28,7 +28,11 @@ interface SwapInputProps {
   handleFiatToggle: (evt: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
   testId?: string;
   selectTokenTestId?: string;
-  parseFiatValueToAssetAmount: (fiatAmount?: BigNumber.Value, assetDecimals?: number) => BigNumber;
+  parseFiatValueToAssetAmount: (
+    fiatAmount?: BigNumber.Value,
+    assetDecimals?: number,
+    inputName?: 'input' | 'output'
+  ) => BigNumber;
 }
 
 const SwapInput: FC<SwapInputProps> = ({

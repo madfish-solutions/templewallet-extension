@@ -1,7 +1,7 @@
 import React, { FC, useCallback } from 'react';
 
 import BigNumber from 'bignumber.js';
-import { noop } from 'lodash';
+import { isEmpty, noop } from 'lodash';
 import { Controller, useFormContext } from 'react-hook-form-v7';
 
 import { IconBase } from 'app/atoms';
@@ -38,13 +38,19 @@ interface Props {
   outputAssetSlug?: string;
   outputAssetSymbol: string;
   outputAssetDecimals: number;
+  outputAssetPrice: BigNumber;
   outputAssetBalance: BigNumber;
+  outputTokenAmount?: BigNumber;
   outputAmount?: BigNumber;
   minimumReceivedAmount?: BigNumber;
   swapParamsAreLoading: boolean;
   swapRouteSteps: number;
   setIsFiatMode?: SyncFn<boolean>;
-  parseFiatValueToAssetAmount: (fiatAmount?: BigNumber.Value, assetDecimals?: number) => BigNumber;
+  parseFiatValueToAssetAmount: (
+    fiatAmount?: BigNumber.Value,
+    assetDecimals?: number,
+    inputName?: 'input' | 'output'
+  ) => BigNumber;
   onInputChange: SyncFn<SwapInputValue>;
   onOutputChange: SyncFn<SwapInputValue>;
   onSelectAssetClick: SyncFn<SwapFieldName>;
@@ -66,7 +72,9 @@ export const BaseSwapForm: FC<Props> = ({
   outputAssetSlug,
   outputAssetSymbol,
   outputAssetDecimals,
+  outputAssetPrice,
   outputAssetBalance,
+  outputTokenAmount,
   outputAmount,
   minimumReceivedAmount,
   swapParamsAreLoading,
@@ -80,8 +88,10 @@ export const BaseSwapForm: FC<Props> = ({
   handleToggleIconClick,
   onSubmit
 }) => {
-  const { watch, handleSubmit, control, setValue, formState } = useFormContext<SwapFormValue>();
-  const { isSubmitting } = formState;
+  const { watch, handleSubmit, control, setValue, getValues, formState } = useFormContext<SwapFormValue>();
+  const { isSubmitting, submitCount, errors } = formState;
+
+  const formSubmitted = submitCount > 0;
 
   const isFiatMode = watch('isFiatMode');
 
@@ -93,16 +103,11 @@ export const BaseSwapForm: FC<Props> = ({
   const price = useAssetUSDPrice(outputAssetSlug ?? defaultSlug, network.chainId);
   const outputAmountInUSD = (price && BigNumber(price).times(outputAmount || 0)) || BigNumber(0);
 
-  const validateField = useCallback(({ assetSlug }: SwapInputValue) => {
-    if (!assetSlug) return t('assetMustBeSelected');
-
-    return true;
-  }, []);
-
   const validateInputField = useCallback(
     (props: SwapInputValue) => {
-      if (props.amount?.isLessThanOrEqualTo(0)) return t('amountMustBePositive');
+      if (props.amount?.isLessThanOrEqualTo(0) || !props.amount) return t('amountMustBePositive');
 
+      const { isFiatMode } = getValues();
       const formattedMaxAmount = isFiatMode
         ? inputTokenMaxAmount.times(inputAssetPrice).decimalPlaces(2, BigNumber.ROUND_FLOOR)
         : inputTokenMaxAmount;
@@ -115,26 +120,26 @@ export const BaseSwapForm: FC<Props> = ({
         );
       }
 
-      return validateField(props);
+      if (!props.assetSlug) return t('assetMustBeSelected');
+      return true;
     },
-    [
-      isFiatMode,
-      inputTokenMaxAmount,
-      inputAssetPrice,
-      validateField,
-      inputAssetDecimals,
-      selectedFiatCurrency.symbol,
-      inputAssetSymbol
-    ]
+    [getValues, inputTokenMaxAmount, inputAssetPrice, inputAssetDecimals, selectedFiatCurrency.symbol, inputAssetSymbol]
   );
+
+  const validateOutputField = useCallback((props: SwapInputValue) => {
+    if (!props.assetSlug) return t('assetMustBeSelected');
+    return true;
+  }, []);
 
   const handleToggleIconClickChangeFields = useCallback(() => {
     handleToggleIconClick();
     setValue('input', {
-      assetSlug: outputAssetSlug
+      assetSlug: outputAssetSlug,
+      amount: undefined
     });
     setValue('output', {
-      assetSlug: inputAssetSlug
+      assetSlug: inputAssetSlug,
+      amount: undefined
     });
     dispatch(resetSwapParamsAction());
   }, [handleToggleIconClick, inputAssetSlug, outputAssetSlug, setValue]);
@@ -146,16 +151,38 @@ export const BaseSwapForm: FC<Props> = ({
       const newShouldUseFiat = !isFiatMode;
       setIsFiatMode(newShouldUseFiat);
 
-      if (!inputTokenAmount) return;
+      if (inputTokenAmount) {
+        const amountBN = new BigNumber(inputTokenAmount);
+        const formattedAmount = newShouldUseFiat
+          ? amountBN.times(inputAssetPrice).decimalPlaces(2, BigNumber.ROUND_FLOOR)
+          : amountBN.div(inputAssetPrice).decimalPlaces(inputAssetDecimals, BigNumber.ROUND_FLOOR);
 
-      const amountBN = new BigNumber(inputTokenAmount);
-      const formattedAmount = newShouldUseFiat
-        ? amountBN.times(inputAssetPrice).decimalPlaces(2, BigNumber.ROUND_FLOOR)
-        : new BigNumber(amountBN.div(inputAssetPrice)).decimalPlaces(inputAssetDecimals, BigNumber.ROUND_FLOOR);
+        onInputChange({ assetSlug: inputAssetSlug, amount: formattedAmount });
+      }
 
-      onInputChange({ assetSlug: inputAssetSlug, amount: formattedAmount });
+      if (outputTokenAmount) {
+        const amountBN = new BigNumber(outputTokenAmount);
+        const formattedAmount = newShouldUseFiat
+          ? amountBN.times(outputAssetPrice).decimalPlaces(2, BigNumber.ROUND_FLOOR)
+          : amountBN.div(outputAssetPrice).decimalPlaces(outputAssetDecimals, BigNumber.ROUND_FLOOR);
+
+        onOutputChange({ assetSlug: outputAssetSlug, amount: formattedAmount });
+      }
     },
-    [inputTokenAmount, inputAssetDecimals, inputAssetPrice, inputAssetSlug, isFiatMode, onInputChange, setIsFiatMode]
+    [
+      inputTokenAmount,
+      inputAssetDecimals,
+      inputAssetPrice,
+      inputAssetSlug,
+      outputTokenAmount,
+      outputAssetDecimals,
+      outputAssetPrice,
+      outputAssetSlug,
+      isFiatMode,
+      onInputChange,
+      onOutputChange,
+      setIsFiatMode
+    ]
   );
 
   return (
@@ -209,6 +236,7 @@ export const BaseSwapForm: FC<Props> = ({
         <Controller
           name="output"
           control={control}
+          rules={{ validate: validateOutputField }}
           render={({ field: { value }, fieldState: { error } }) => (
             <SwapFormInput
               readOnly
@@ -221,9 +249,10 @@ export const BaseSwapForm: FC<Props> = ({
               }}
               className="mb-6"
               network={network}
-              balance={outputAssetBalance}
               assetSymbol={outputAssetSymbol}
               assetDecimals={outputAssetDecimals}
+              balance={outputAssetBalance}
+              isFiatMode={isFiatMode}
               selectedFiatCurrency={selectedFiatCurrency}
               onSelectAssetClick={onSelectAssetClick}
               parseFiatValueToAssetAmount={parseFiatValueToAssetAmount}
@@ -238,7 +267,7 @@ export const BaseSwapForm: FC<Props> = ({
         {outputAmount && (
           <div className="mb-6">
             <SwapInfoDropdown
-              showCashBack={!isEvmNetwork ?? outputAmountInUSD.gte(10)}
+              showCashBack={!isEvmNetwork && outputAmountInUSD.gte(10)}
               swapRouteSteps={swapRouteSteps}
               inputAmount={inputAmount}
               outputAmount={outputAmount}
@@ -259,6 +288,7 @@ export const BaseSwapForm: FC<Props> = ({
           size="L"
           color="primary"
           loading={swapParamsAreLoading || isSubmitting}
+          disabled={formSubmitted && !isEmpty(errors)}
           testID={SwapFormSelectors.swapButton}
         >
           <T id="review" />

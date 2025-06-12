@@ -8,6 +8,7 @@ import { TransactionRequest } from 'viem';
 
 import { CLOSE_ANIMATION_TIMEOUT } from 'app/atoms/PageModal';
 import { useLedgerApprovalModalState } from 'app/hooks/use-ledger-approval-modal-state';
+import { useEvmEstimationData } from 'app/pages/Send/hooks/use-evm-estimation-data';
 import { EvmReviewData } from 'app/pages/Swap/form/interfaces';
 import { mapToEvmEstimationDataWithFallback, parseLiFiTxRequestToViem } from 'app/pages/Swap/modals/ConfirmSwap/utils';
 import { EvmTxParamsFormData } from 'app/templates/TransactionTabs/types';
@@ -16,11 +17,13 @@ import { toastError, toastSuccess } from 'app/toaster';
 import { toTokenSlug } from 'lib/assets';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { useEvmAssetBalance } from 'lib/balances/hooks';
-import { EVM_ZERO_ADDRESS } from 'lib/constants';
+import { EVM_ZERO_ADDRESS, VITALIK_ADDRESS } from 'lib/constants';
 import { t } from 'lib/i18n';
 import { useTempleClient } from 'lib/temple/front';
+import { atomsToTokens } from 'lib/temple/helpers';
 import { TempleAccountType } from 'lib/temple/types';
 import { runConnectedLedgerOperationFlow } from 'lib/ui';
+import { isEvmNativeTokenSlug } from 'lib/utils/evm.utils';
 import { ZERO } from 'lib/utils/numbers';
 import { useGetEvmActiveBlockExplorer } from 'temple/front/ready';
 
@@ -55,9 +58,24 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
 
   const [latestSubmitError, setLatestSubmitError] = useState<string | nullish>(null);
 
+  const { value: balance = ZERO } = useEvmAssetBalance(inputTokenSlug, accountPkh, network);
+  const { data: toVitalikEstimationData } = useEvmEstimationData({
+    to: VITALIK_ADDRESS,
+    assetSlug: inputTokenSlug,
+    accountPkh,
+    network,
+    balance,
+    ethBalance,
+    toFilled: true,
+    silent: true
+  });
+
   const lifiEstimationData = useMemo(
-    () => mapToEvmEstimationDataWithFallback(lifiStep.transactionRequest!),
-    [lifiStep]
+    () => ({
+      ...mapToEvmEstimationDataWithFallback(lifiStep.transactionRequest!),
+      nonce: toVitalikEstimationData?.nonce ?? 0
+    }),
+    [lifiStep, toVitalikEstimationData]
   );
 
   const { form, tab, setTab, selectedFeeOption, handleFeeOptionSelect, feeOptions, displayedFee, getFeesPerGas } =
@@ -116,6 +134,23 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
       if (!lifiEstimationData || !feesPerGas) {
         toastError('Failed to estimate transaction.');
         return;
+      }
+
+      if (isEvmNativeTokenSlug(inputTokenSlug)) {
+        const fromAmount = atomsToTokens(
+          new BigNumber(+lifiStep.action.fromAmount),
+          lifiStep.action.fromToken.decimals ?? 0
+        );
+
+        if (
+          ethBalance
+            .minus(displayedFee ?? 0)
+            .minus(fromAmount)
+            .lte(displayedFee ?? 0)
+        ) {
+          toastError(t('balanceTooLow'));
+          return;
+        }
       }
 
       if (ethBalance.lte(displayedFee ?? 0)) {

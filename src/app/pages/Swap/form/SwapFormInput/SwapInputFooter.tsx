@@ -18,7 +18,11 @@ interface SwapFooterProps {
   isFiatMode: boolean;
   selectedFiatCurrency: FiatCurrencyOptionBase;
   handleFiatToggle: (evt: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
-  parseFiatValueToAssetAmount: (fiatAmount?: BigNumber.Value, assetDecimals?: number) => BigNumber;
+  parseFiatValueToAssetAmount: (
+    fiatAmount?: BigNumber.Value,
+    assetDecimals?: number,
+    inputName?: 'input' | 'output'
+  ) => BigNumber;
 }
 
 const SwapFooter: FC<SwapFooterProps> = ({
@@ -46,7 +50,9 @@ const SwapFooter: FC<SwapFooterProps> = ({
             assetSlug={assetSlug}
             assetSymbol={assetSymbol}
             amountValue={
-              isFiatMode ? parseFiatValueToAssetAmount(amount, assetDecimals).toString() : amount?.toString() || '0'
+              isFiatMode
+                ? parseFiatValueToAssetAmount(amount, assetDecimals, inputName).toString()
+                : amount?.toString() || '0'
             }
             toFiat={!isFiatMode}
             evm={evm}

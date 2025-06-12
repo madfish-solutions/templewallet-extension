@@ -16,7 +16,7 @@ import { useStorage } from 'lib/temple/front';
 import { ETHEREUM_MAINNET_CHAIN_ID, TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
 import { useBooleanState } from 'lib/ui/hooks';
 import { HistoryAction, navigate, useLocation } from 'lib/woozie';
-import { useAccountAddressForEvm } from 'temple/front';
+import { useAccountAddressForEvm, useAccountAddressForTezos } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
 
 import { SWAP_SLIPPAGE_TOLERANCE_STORAGE_KEY } from './constants';
@@ -55,6 +55,7 @@ const Swap = memo<Props>(() => {
   const [slippageTolerance, setSlippageTolerance] = useStorage(SWAP_SLIPPAGE_TOLERANCE_STORAGE_KEY, 0.5);
 
   const accountEvmAddress = useAccountAddressForEvm();
+  const accountTezosAddress = useAccountAddressForTezos();
   const { filterChain } = useAssetsFilterOptionsSelector();
 
   const [activeField, setActiveField] = useState<SwapFieldName>('from');
@@ -85,7 +86,7 @@ const Swap = memo<Props>(() => {
         filterChain.chainId,
         filterChain.kind === TempleChainKind.Tezos ? TEZ_TOKEN_SLUG : EVM_TOKEN_SLUG
       );
-    } else if (accountEvmAddress) {
+    } else if (accountEvmAddress && !accountTezosAddress) {
       fallbackFrom = toChainAssetSlug(TempleChainKind.EVM, ETHEREUM_MAINNET_CHAIN_ID, EVM_TOKEN_SLUG);
     } else {
       fallbackFrom = toChainAssetSlug(TempleChainKind.Tezos, TEZOS_MAINNET_CHAIN_ID, TEZ_TOKEN_SLUG);

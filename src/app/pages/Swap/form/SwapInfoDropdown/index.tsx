@@ -17,7 +17,7 @@ import { toPercentage } from 'lib/ui/utils';
 
 import RouteImgSrc from '../assets/3route.png';
 import LiFiImgSrc from '../assets/lifi.png';
-import { cashbackInfoTippyProps, feeInfoTippyProps } from '../SwapForm.tippy';
+import { cashbackInfoTippyProps, evmFeeInfoTippyProps, feeInfoTippyProps } from '../SwapForm.tippy';
 
 import { SwapExchangeRate } from './SwapExchangeRate';
 import { SwapMinimumReceived } from './SwapMinimumReceived';
@@ -46,6 +46,7 @@ export const SwapInfoDropdown = ({
   evm
 }: ISwapInfoDropdownProps) => {
   const feeInfoIconRef = useTippy<HTMLSpanElement>(feeInfoTippyProps);
+  const evmFeeInfoRef = useTippy<HTMLSpanElement>(evmFeeInfoTippyProps);
   const cashbackInfoIconRef = useTippy<HTMLSpanElement>(cashbackInfoTippyProps);
 
   const [dropdownOpened, , , toggleDropdown] = useBooleanState(false);
@@ -94,13 +95,18 @@ export const SwapInfoDropdown = ({
             {toPercentage(SWAP_CASHBACK_RATIO, undefined, Infinity)}
           </ListBlockItem>
         </div>
-        <ListBlockItem ref={feeInfoIconRef} Icon={RouteIcon} title="routingFee" divide={showCashBack}>
+        <ListBlockItem
+          ref={evm ? evmFeeInfoRef : feeInfoIconRef}
+          Icon={RouteIcon}
+          title="routingFee"
+          divide={showCashBack}
+        >
           {toPercentage(ROUTING_FEE_RATIO, undefined, Infinity)}
         </ListBlockItem>
         <ListBlockItem Icon={StackIcon} title="swapRoute" divide={true}>
           <T id={getPluralKey('steps', swapRouteSteps)} substitutions={swapRouteSteps} />
         </ListBlockItem>
-        <ListBlockItem Icon={ArrowDownIcon} title="minimumReceived" divide={true}>
+        <ListBlockItem Icon={ArrowDownIcon} title="minReceived" divide={true}>
           <SwapMinimumReceived
             minimumReceivedAmount={minimumReceivedAmount}
             outputAssetSymbol={outputAssetSymbol}

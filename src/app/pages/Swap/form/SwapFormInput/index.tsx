@@ -31,7 +31,11 @@ interface SwapFormInputProps extends TestIDProps {
   handleFiatToggle?: MouseEventHandler<HTMLButtonElement>;
   handleSetMaxAmount?: SyncFn<void>;
   onSelectAssetClick: SyncFn<SwapFieldName>;
-  parseFiatValueToAssetAmount: (fiatAmount?: BigNumber.Value, assetDecimals?: number) => BigNumber;
+  parseFiatValueToAssetAmount: (
+    fiatAmount?: BigNumber.Value,
+    assetDecimals?: number,
+    inputName?: 'input' | 'output'
+  ) => BigNumber;
   testIDs?: SwapFormTestIDs;
 }
 

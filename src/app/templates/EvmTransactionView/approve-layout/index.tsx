@@ -19,7 +19,6 @@ import { T, t } from 'lib/i18n';
 import {
   useEvmGenericAssetMetadata,
   useEvmGenericAssetsMetadataCheck,
-  useEvmGenericAssetsMetadataLoading,
   useGetEvmChainCollectibleMetadata,
   useGetEvmChainTokenOrGasMetadata,
   useGetEvmNoCategoryAssetMetadata
@@ -38,13 +37,13 @@ interface ApproveLayoutProps {
   req: EvmTransactionRequestWithSender;
   setFinalEvmTransaction: ReactSetStateFn<EvmTransactionRequestWithSender>;
   onLoadingState: SyncFn<boolean>;
-  formId: string;
+  minAllowance?: bigint;
 }
 
 const unlimitedAtomicAmountThreshold = toBigNumber(MAX_EVM_ALLOWANCE);
 
 export const ApproveLayout = memo<ApproveLayoutProps>(
-  ({ chain, req, setFinalEvmTransaction, onLoadingState, formId }) => {
+  ({ chain, req, setFinalEvmTransaction, onLoadingState, minAllowance }) => {
     const tokenAddress = req.to!;
     const txData = req.data!;
     const { from } = req;
@@ -94,7 +93,7 @@ export const ApproveLayout = memo<ApproveLayoutProps>(
         req={req}
         chain={chain}
         setFinalEvmTransaction={setFinalEvmTransaction}
-        formId={formId}
+        minAllowance={minAllowance}
       />
     ) : null;
   }
@@ -108,14 +107,13 @@ interface ApproveLayoutContentProps extends Omit<ApproveLayoutProps, 'onLoadingS
 }
 
 const ApproveLayoutContent = memo<ApproveLayoutContentProps>(
-  ({ allowancesAmountsContext, chain, req, setFinalEvmTransaction, formId }) => {
+  ({ allowancesAmountsContext, chain, req, setFinalEvmTransaction, minAllowance }) => {
     const tokenAddress = req.to!;
     const txData = req.data!;
     const { from } = req;
     const { onChainAllowance, isErc20 } = allowancesAmountsContext;
 
     const [editModalIsVisible, openEditModal, closeEditModal] = useBooleanState(false);
-    const metadataLoading = useEvmGenericAssetsMetadataLoading();
 
     const isErc20IncreaseAllowance = useMemo(() => dataMatchesAbis(txData, [erc20IncreaseAllowanceAbi]), [txData]);
     const newSuggestedAllowances = useMemo(() => {
@@ -183,10 +181,6 @@ const ApproveLayoutContent = memo<ApproveLayoutContentProps>(
       [newSuggestedAllowances]
     );
 
-    if (metadataLoading) {
-      return null;
-    }
-
     return (
       <>
         <OperationConfirmationCard title={<T id="approve" />}>
@@ -213,8 +207,8 @@ const ApproveLayoutContent = memo<ApproveLayoutContentProps>(
             chain={chain}
             from={from}
             initialAllowance={initialAllowance}
-            minAllowance={formId === 'swap-approve' ? toBigInt(initialAllowance) : onChainAllowance}
-            minInclusive={formId === 'swap-approve' ? true : !isErc20IncreaseAllowance}
+            minAllowance={minAllowance || onChainAllowance}
+            minInclusive={!isErc20IncreaseAllowance}
             onClose={closeEditModal}
             setAllowance={setAllowance}
           />
