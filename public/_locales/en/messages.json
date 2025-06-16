@@ -3936,11 +3936,11 @@
   "earnTkeyRewards": {
     "message": "Earn TKEY Rewards"
   },
-  "earnRewardsWithAds": {
-    "message": "Earn Rewards with Ads"
+  "earningMode": {
+    "message": "Earning Mode"
   },
-  "earnRewardsWithAdsDescription": {
-    "message": "By enabling this checkbox, you agree to share your wallet address and IP to receive ads and rewards in TKEY token."
+  "earningModeDescription": {
+    "message": "By enabling this checkbox, you are agreeing to activate advanced features, share your wallet address, IP to receive ads and rewards in TKEY token."
   },
   "earnTkeyRewardsDescription": {
     "message": "I agree to share my wallet address and IP to receive ads, referral links and rewards in TKEY token."
