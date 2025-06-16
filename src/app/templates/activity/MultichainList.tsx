@@ -6,6 +6,7 @@ import { Activity, EvmActivity, TezosActivity } from 'lib/activity';
 import { isEtherlinkSupportedChainId } from 'lib/apis/etherlink';
 import { TzktApiChainId } from 'lib/apis/tzkt';
 import { isKnownChainId as isKnownTzktChainId } from 'lib/apis/tzkt/api';
+import { useMemoWithCompare } from 'lib/ui/hooks';
 import { isTruthy } from 'lib/utils';
 import {
   useAccountAddressForEvm,
@@ -32,6 +33,13 @@ interface Props {
   filterKind?: FilterKind;
 }
 
+const compareByChainId = <T extends { chainId: string | number }>(prev: T[], next: T[]): boolean => {
+  if (!Array.isArray(prev) || !Array.isArray(next)) return false;
+  if (prev.length !== next.length) return false;
+
+  return prev.every((l, i) => l.chainId === next[i]?.chainId);
+};
+
 export const MultichainActivityList = memo<Props>(({ filterKind }) => {
   const tezosChains = useEnabledTezosChains();
   const evmChains = useEnabledEvmChains();
@@ -42,7 +50,7 @@ export const MultichainActivityList = memo<Props>(({ filterKind }) => {
   const tezAccAddress = useAccountAddressForTezos();
   const evmAccAddress = useAccountAddressForEvm();
 
-  const tezosLoaders = useMemo(
+  const tezosLoaders = useMemoWithCompare(
     () =>
       tezAccAddress
         ? tezosChains
@@ -53,12 +61,14 @@ export const MultichainActivityList = memo<Props>(({ filterKind }) => {
             )
             .filter(isTruthy)
         : [],
-    [tezosChains, tezAccAddress]
+    [tezosChains, tezAccAddress],
+    compareByChainId
   );
 
-  const evmLoaders = useMemo(
+  const evmLoaders = useMemoWithCompare(
     () => (evmAccAddress ? evmChains.map(chain => new EvmActivityLoader(chain.chainId, evmAccAddress)) : []),
-    [evmChains, evmAccAddress]
+    [evmChains, evmAccAddress],
+    compareByChainId
   );
 
   const { activities, isLoading, reachedTheEnd, setActivities, setIsLoading, setReachedTheEnd, loadNext } =
