@@ -2,7 +2,6 @@ import { HubConnectionBuilder } from '@microsoft/signalr';
 import axios, { AxiosError } from 'axios';
 
 import { toTokenSlug } from 'lib/assets';
-import { delay } from 'lib/utils';
 import { isTezosDcpChainId } from 'temple/networks';
 
 import { TZKT_API_BASE_URLS } from './misc';
@@ -186,24 +185,6 @@ const fetchTzktAccountAssetsPage = (
     'sort.desc': 'balance',
     'select.values': 'token.contract.address,token.tokenId,balance'
   });
-
-export async function refetchOnce429<R>(fetcher: () => Promise<R>, delayAroundInMS = 1000) {
-  try {
-    return await fetcher();
-  } catch (err: any) {
-    if (err.isAxiosError) {
-      const error: AxiosError = err;
-      if (error.response?.status === 429) {
-        await delay(delayAroundInMS);
-        const res = await fetcher();
-        await delay(delayAroundInMS);
-        return res;
-      }
-    }
-
-    throw err;
-  }
-}
 
 export const fetchTezosBalanceFromTzkt = async (account: string, chainId: TzktApiChainId) =>
   getAccountStatsFromTzkt(account, chainId).then(calcTzktAccountSpendableTezBalance);

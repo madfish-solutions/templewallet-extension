@@ -3,6 +3,8 @@ import memoizee from 'memoizee';
 import { EvmAssetStandard } from 'lib/evm/types';
 import { EvmNetworkEssentials } from 'temple/networks';
 
+import { equalsIgnoreCase } from '../utils/common.utils';
+
 import { EvmNewBlockListener, getEvmNewBlockListener } from './evm-new-block-listener';
 import { getERC1155TransferEventsListener } from './transfer-events-listeners/erc1155-transfer-events-listener';
 import { getERC20TransferEventsListener } from './transfer-events-listeners/erc20-transfer-events-listener';
@@ -39,8 +41,7 @@ class EvmAssetTransfersListener {
       unsubscribe = () => listener.unsubscribe(callback);
       listener.subscribe(callback);
     } else {
-      const wrappedCallback = (assetSlug: string) =>
-        void (assetSlug.toLowerCase() === this.assetSlug.toLowerCase() && callback());
+      const wrappedCallback = (assetSlug: string) => void (equalsIgnoreCase(assetSlug, this.assetSlug) && callback());
       unsubscribe = () => listener.unsubscribe(wrappedCallback);
       listener.subscribe(wrappedCallback);
     }

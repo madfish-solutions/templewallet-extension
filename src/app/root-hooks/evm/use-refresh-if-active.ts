@@ -3,8 +3,6 @@ import { useCallback, useEffect, useMemo } from 'react';
 import { useAssetsFilterOptionsSelector } from 'app/store/assets-filter-options/selectors';
 import { EvmBalancesSource } from 'app/store/evm/state';
 import { useTestnetModeEnabledSelector } from 'app/store/settings/selectors';
-import { ChainID } from 'lib/apis/temple/endpoints/evm/api.interfaces';
-import { isSupportedChainId } from 'lib/apis/temple/endpoints/evm/api.utils';
 import { t } from 'lib/i18n';
 import { useWindowIsActive } from 'lib/temple/front/window-is-active-context';
 import { serializeError } from 'lib/utils/serialize-error';
@@ -22,43 +20,44 @@ export interface ErrorPayload {
   error: string;
 }
 
-interface DataLoaderBase<T> {
+interface DataLoaderBase<T, C extends number> {
   type: EvmBalancesSource;
   isLoading: SyncFn<number, boolean>;
   /** This function is not triggered on getting new data or error */
   setLoading: (chainId: number, isLoading: boolean) => void;
   /** Return both fields to enable partial data application after an error */
-  getData: (publicKeyHash: HexString, chainId: ChainID) => Promise<{ data?: NonNullable<T>; error?: unknown }>;
+  getData: (publicKeyHash: HexString, chainId: C) => Promise<{ data?: NonNullable<T>; error?: unknown }>;
+  isApplicable: (chainId: number) => chainId is C;
   handleSuccess: SyncFn<SuccessPayload<NonNullable<T>>>;
   handleError: SyncFn<ErrorPayload>;
 }
 
-interface ApiDataLoader<T> extends DataLoaderBase<T> {
+export interface ApiDataLoader<T, C extends number> extends DataLoaderBase<T, C> {
   type: 'api';
 }
 
-interface OnchainDataLoader<T> extends DataLoaderBase<T> {
+export interface OnchainDataLoader<T> extends DataLoaderBase<T, number> {
   type: 'onchain';
   getData: (publicKeyHash: HexString, chainId: number) => Promise<{ data?: NonNullable<T>; error?: unknown }>;
 }
 
-export type DataLoader<T> = ApiDataLoader<T> | OnchainDataLoader<T>;
+type DataLoader<T> = ApiDataLoader<T, any> | OnchainDataLoader<T>;
 
-interface RefreshIfActiveConfig {
+interface RefreshIfActiveConfig<L extends [DataLoader<any>, ...DataLoader<any>[]]> {
   getDataTimestamp: SyncFn<number, number>;
-  loaders: [DataLoader<any>, ...DataLoader<any>[]];
+  loaders: L;
   publicKeyHash: HexString;
   syncInterval: number;
 }
 
 const validPaths = ['/send', '/swap', '/token'];
 
-export const useRefreshIfActive = ({
+export const useRefreshIfActive = <L extends [DataLoader<any>, ...DataLoader<any>[]]>({
   getDataTimestamp,
   loaders,
   publicKeyHash,
   syncInterval
-}: RefreshIfActiveConfig) => {
+}: RefreshIfActiveConfig<L>) => {
   const evmChains = useEnabledEvmChains();
   const { filterChain } = useAssetsFilterOptionsSelector();
   const isTestnetMode = useTestnetModeEnabledSelector();
@@ -94,8 +93,8 @@ export const useRefreshIfActive = ({
 
   const refreshData = useCallback(
     async (chainId: number) => {
-      for (const { type, isLoading, setLoading, getData, handleSuccess, handleError } of loaders) {
-        if (type === 'api' && (!isSupportedChainId(chainId) || isTestnetMode)) {
+      for (const { type, isLoading, setLoading, getData, handleSuccess, handleError, isApplicable } of loaders) {
+        if (!isApplicable(chainId) || (type === 'api' && isTestnetMode)) {
           continue;
         }
 
@@ -107,7 +106,7 @@ export const useRefreshIfActive = ({
 
         const startTs = Date.now();
         try {
-          const { data, error } = await getData(publicKeyHash, chainId as ChainID);
+          const { data, error } = await getData(publicKeyHash, chainId);
           if (data !== undefined) {
             handleSuccess({ chainId, data, timestamp: startTs });
           }
@@ -132,6 +131,10 @@ export const useRefreshIfActive = ({
     const firstLoadTimeouts: NodeJS.Timeout[] = [];
     const refreshIntervals: NodeJS.Timer[] = [];
     chainsToRefresh.forEach(({ chainId }) => {
+      if (!loaders.some(loader => loader.isApplicable(chainId))) {
+        return;
+      }
+
       loaders.forEach(({ setLoading }) => setLoading(chainId, false));
       firstLoadTimeouts.push(
         setTimeout(() => {

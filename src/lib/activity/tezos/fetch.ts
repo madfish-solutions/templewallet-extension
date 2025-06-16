@@ -1,5 +1,6 @@
 import type { TzktApiChainId, TzktOperation } from 'lib/apis/tzkt';
 import * as TZKT from 'lib/apis/tzkt';
+import { refetchOnce429 } from 'lib/apis/utils';
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
 import { detectTokenStandard } from 'lib/assets/standards';
 import { filterUnique } from 'lib/utils';
@@ -127,7 +128,7 @@ async function fetchOperations_Any(
 
   let newerThen: string | undefined = accOperations[accOperations.length - 1]?.timestamp;
 
-  const fa12OperationsTransactions = await TZKT.refetchOnce429(
+  const fa12OperationsTransactions = await refetchOnce429(
     () =>
       fetchIncomingOperTransactions_Fa_1_2(chainId, accountAddress, newerThen ? { newerThen } : { limit }, olderThan),
     1000
@@ -137,7 +138,7 @@ async function fetchOperations_Any(
     newerThen = fa12OperationsTransactions[accOperations.length - 1]?.timestamp;
   }
 
-  const fa2OperationsTransactions = await TZKT.refetchOnce429(
+  const fa2OperationsTransactions = await refetchOnce429(
     () => fetchIncomingOperTransactions_Fa_2(chainId, accountAddress, newerThen ? { newerThen } : { limit }, olderThan),
     1000
   );
@@ -205,7 +206,7 @@ export async function fetchOperGroupsForOperations(
 
   const groups: TempleTzktOperationsGroup[] = [];
   for (const hash of uniqueHashes) {
-    const operations = await TZKT.refetchOnce429(() => TZKT.fetchGetOperationsByHash(chainId, hash), 1000);
+    const operations = await refetchOnce429(() => TZKT.fetchGetOperationsByHash(chainId, hash), 1000);
 
     groups.push({
       hash,

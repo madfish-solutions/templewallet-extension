@@ -23,7 +23,7 @@ interface Props {
 export const EvmActivityOperationComponent = memo<Props>(
   ({ hash, operation, chain, blockExplorerUrl, status, withoutAssetIcon, withoutOperHashChip }) => {
     const assetBase = operation?.asset;
-    const assetSlug = assetBase?.contract ? toEvmAssetSlug(assetBase.contract) : undefined;
+    const assetSlug = assetBase?.contract ? toEvmAssetSlug(assetBase.contract, assetBase.tokenId) : undefined;
 
     const assetMetadata = useEvmGenericAssetMetadata(assetSlug ?? '', chain.chainId);
 
