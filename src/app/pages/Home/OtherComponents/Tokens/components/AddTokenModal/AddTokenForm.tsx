@@ -353,10 +353,6 @@ export const AddTokenForm = memo<AddTokenPageProps>(
       ]
     );
 
-    // const handleOpenConfirm = useCallback(() => {
-    //
-    // }, [])
-
     return (
       <form className="contents" onSubmit={handleSubmit(onSubmit)}>
         <div className="px-4 flex-1 overflow-y-auto">
