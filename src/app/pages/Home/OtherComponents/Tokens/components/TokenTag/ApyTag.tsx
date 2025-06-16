@@ -1,15 +1,13 @@
 import React, { FC, useMemo } from 'react';
 
 import BigNumber from 'bignumber.js';
-import classNames from 'clsx';
 
-import { Button } from 'app/atoms/Button';
+import { TagButton } from 'app/atoms/TagButton';
 import { useTokenApyRateSelector } from 'app/store/d-apps';
 import { KNOWN_TOKENS_SLUGS } from 'lib/assets/known-tokens';
 import { openLink } from 'lib/utils';
 
 import { AssetsSelectors } from '../../../Assets.selectors';
-import modStyles from '../../Tokens.module.css';
 
 interface Props {
   slug: string;
@@ -20,15 +18,6 @@ const APR = 'APR';
 const APY = 'APY';
 
 const YOUVES_TOKENS_WITH_APR = [KNOWN_TOKENS_SLUGS.UUSD, KNOWN_TOKENS_SLUGS.UBTC, KNOWN_TOKENS_SLUGS.YOU];
-
-const TAGS_CLASSNAME_RECORD: OptionalRecord = {
-  [KNOWN_TOKENS_SLUGS.KUSD]: modStyles.kusdTag,
-  [KNOWN_TOKENS_SLUGS.TZBTC]: modStyles.tzbtcTag,
-  [KNOWN_TOKENS_SLUGS.USDT]: modStyles.usdtTag,
-  [KNOWN_TOKENS_SLUGS.UUSD]: modStyles.youvesTag,
-  [KNOWN_TOKENS_SLUGS.UBTC]: modStyles.youvesTag,
-  [KNOWN_TOKENS_SLUGS.YOU]: modStyles.youvesTag
-};
 
 const YUPANA_LEND_LINK = 'https://app.yupana.finance/lending';
 const YOUVES_LINK = 'https://app.youves.com/earn';
@@ -67,13 +56,12 @@ export const TokenApyTag: FC<Props> = ({ slug, symbol }) => {
   if (!params) return null;
 
   return (
-    <Button
+    <TagButton
       onClick={params.onClick}
       testID={AssetsSelectors.assetItemApyButton}
       testIDProperties={{ slug, symbol, apyRate: params.rate }}
-      className={classNames('flex-shrink-0 p-1', modStyles.tagBase, TAGS_CLASSNAME_RECORD[slug])}
     >
-      {params.label}: {params.displayRate}%
-    </Button>
+      {params.label} {params.displayRate}%
+    </TagButton>
   );
 };

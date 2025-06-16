@@ -1,67 +1,28 @@
-import React, { memo, useCallback } from 'react';
+import React, { memo } from 'react';
 
-import clsx from 'clsx';
+import { ReactComponent as ErrorIcon } from 'app/icons/typed-msg/error.svg';
+import { t } from 'lib/i18n';
+import useTippy from 'lib/ui/useTippy';
 
-import { Button } from 'app/atoms/Button';
-import { AssetsSelectors } from 'app/pages/Home/OtherComponents/Assets.selectors';
-import { dispatch } from 'app/store';
-import { setTezosTokenStatusAction } from 'app/store/tezos/assets/actions';
-import { t, T } from 'lib/i18n';
-import { useConfirm } from 'lib/ui/dialog';
+const scamInfoTippyProps = {
+  trigger: 'mouseenter',
+  hideOnClick: false,
+  content: t('scamTokenTooltip'),
+  animation: 'shift-away-subtle',
+  maxWidth: '10rem',
+  placement: 'bottom-start' as const
+};
 
-import modStyles from '../../Tokens.module.css';
-
-interface Props {
-  assetSlug: string;
-  tezPkh: string;
-  tezosChainId: string;
-}
-
-export const ScamTag = memo<Props>(({ assetSlug, tezPkh, tezosChainId }) => {
-  const confirm = useConfirm();
-
-  const removeToken = useCallback(
-    async (slug: string) => {
-      try {
-        const confirmed = await confirm({
-          title: t('deleteScamTokenConfirmTitle'),
-          description: t('deleteScamTokenConfirmDescription'),
-          confirmButtonText: t('delete')
-        });
-
-        if (confirmed)
-          dispatch(
-            setTezosTokenStatusAction({
-              account: tezPkh,
-              chainId: tezosChainId,
-              slug,
-              status: 'removed'
-            })
-          );
-      } catch (err: any) {
-        console.error(err);
-        alert(err.message);
-      }
-    },
-    [tezPkh, tezosChainId, confirm]
-  );
-
-  const handleClick = useCallback(
-    (e: React.MouseEvent<HTMLButtonElement>) => {
-      e.preventDefault();
-      e.stopPropagation();
-      removeToken(assetSlug);
-    },
-    [assetSlug, removeToken]
-  );
+export const ScamTag = memo(({ className }: { className?: string }) => {
+  const scamInfoIconRef = useTippy<HTMLSpanElement>(scamInfoTippyProps);
 
   return (
-    <Button
-      onClick={handleClick}
-      className={clsx('flex-shrink-0 uppercase px-2 py-1', modStyles.tagBase, modStyles.scamTag)}
-      testID={AssetsSelectors.assetItemScamButton}
-    >
-      <T id="scam" />
-    </Button>
+    <span ref={scamInfoIconRef} className={className}>
+      <span className="absolute -z-1 inset-0 flex items-center justify-center">
+        <span className="w-2 h-2 bg-white rounded-full z-0" />
+      </span>
+
+      <ErrorIcon className="w-5 h-5" />
+    </span>
   );
 });
