@@ -14,18 +14,26 @@ export interface BalanceProps<T extends TempleChainKind> {
   address: T extends TempleChainKind.EVM ? HexString : string;
   children: (b: BigNumber) => ReactElement;
   assetSlug?: string;
+  forceFirstRefreshOnChain?: boolean;
 }
 
 const BalanceHOC = <T extends TempleChainKind>(
   useBalance: (
     slug: string,
     address: BalanceProps<T>['address'],
-    network: NetworkEssentials<T>
+    network: NetworkEssentials<T>,
+    forceFirstRefreshOnChain?: BalanceProps<T>['forceFirstRefreshOnChain']
   ) => { value: BigNumber | undefined },
   defaultAssetSlug: string
 ) => {
-  const Component: FC<BalanceProps<T>> = ({ network, address, children, assetSlug = defaultAssetSlug }) => {
-    const { value: balance } = useBalance(assetSlug, address, network);
+  const Component: FC<BalanceProps<T>> = ({
+    network,
+    address,
+    children,
+    assetSlug = defaultAssetSlug,
+    forceFirstRefreshOnChain
+  }) => {
+    const { value: balance } = useBalance(assetSlug, address, network, forceFirstRefreshOnChain);
     const exists = balance !== undefined;
 
     const childNode = children(balance == null ? new BigNumber(0) : balance);
