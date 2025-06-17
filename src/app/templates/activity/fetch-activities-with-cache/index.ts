@@ -257,7 +257,6 @@ export const fetchEtherlinkActivitiesWithCache = async ({
     isGenesisBlockPointer: pointer => getBlockNumberFromEtherlinkOlderThan(pointer) === 0,
     getActivities: interval => interval.activities,
     getNewOlderThan: ({ activities }) => {
-      // TODO: replace mock values
       if (activities.length === 0) {
         return {
           operationsPageParams: {
@@ -276,18 +275,18 @@ export const fetchEtherlinkActivitiesWithCache = async ({
         };
       }
 
-      const { blockHeight, hash, addedAt, operations } = activities.at(-1)!;
+      const { blockHeight, hash, addedAt, operations, fee, value } = activities.at(-1)!;
       const { logIndex } = operations.at(-1)!;
 
       return {
         operationsPageParams: {
           block_number: Number(blockHeight),
-          fee: '0',
+          fee: fee ?? '0',
           hash,
           index: logIndex,
           inserted_at: addedAt,
           items_count: 0,
-          value: '0'
+          value: value ?? '0'
         },
         tokensTransfersPageParams: {
           block_number: Number(blockHeight),
