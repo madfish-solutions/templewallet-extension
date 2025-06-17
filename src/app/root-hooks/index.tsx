@@ -26,6 +26,7 @@ import { useAccountAddressForEvm, useAccountAddressForTezos } from 'temple/front
 import { AppTezosAssetsLoading } from './assets-loading';
 import { AppTezosBalancesLoading } from './balances-loading';
 import { AppEvmBalancesLoading } from './evm/balances-loading';
+import { AppEtherlinkDataLoading } from './evm/etherlink-data-loading';
 import { AppEvmTokensExchangeRatesLoading } from './evm/tokens-exchange-rates-loading';
 import { AppEvmTokensMetadataLoading } from './evm/tokens-metadata-loading';
 import { AppTezosTokensMetadataLoading } from './metadata-loading';
@@ -117,6 +118,7 @@ const EvmAccountHooks = memo<{ publicKeyHash: HexString }>(({ publicKeyHash }) =
       {!testnetModeEnabled && <AppEvmTokensExchangeRatesLoading publicKeyHash={publicKeyHash} />}
       <AppEvmTokensMetadataLoading publicKeyHash={publicKeyHash} />
       <AppEvmBalancesLoading publicKeyHash={publicKeyHash} />
+      <AppEtherlinkDataLoading publicKeyHash={publicKeyHash} />
     </>
   );
 });
