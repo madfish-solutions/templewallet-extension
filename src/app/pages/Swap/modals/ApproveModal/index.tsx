@@ -15,7 +15,7 @@ import { ReactComponent as OutLinkIcon } from 'app/icons/base/outLink.svg';
 import { useEvmEstimationData } from 'app/pages/Send/hooks/use-evm-estimation-data';
 import LiFiImgSrc from 'app/pages/Swap/form/assets/lifi.png';
 import { EvmReviewData, SwapReviewData } from 'app/pages/Swap/form/interfaces';
-import { parseLiFiTxRequestToViem, timeout } from 'app/pages/Swap/modals/ConfirmSwap/utils';
+import { parseTxRequestToViem, timeout } from 'app/pages/Swap/modals/ConfirmSwap/utils';
 import { EvmTransactionView } from 'app/templates/EvmTransactionView';
 import { toastSuccess } from 'app/toaster';
 import { erc20ApproveAbi } from 'lib/abi/erc20';
@@ -115,7 +115,12 @@ const ApproveModal = ({ data, onClose, onReview, setLoading }: ApproveModalProps
       if (tx) {
         try {
           setLoading(true);
-          const txHash = await sendEvmTransaction(account.address as HexString, network, parseLiFiTxRequestToViem(tx));
+          const txParams = parseTxRequestToViem(tx);
+          if (!txParams) {
+            console.error('Failed to parse txParams');
+            return;
+          }
+          const txHash = await sendEvmTransaction(account.address as HexString, network, txParams);
 
           const blockExplorer = getActiveBlockExplorer(network.chainId.toString());
           setTimeout(() => {

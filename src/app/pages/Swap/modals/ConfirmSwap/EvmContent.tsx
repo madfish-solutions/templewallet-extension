@@ -1,16 +1,14 @@
 import React, { FC, useCallback, useMemo, useState } from 'react';
 
 import { LiFiStep } from '@lifi/sdk';
-import type { TransactionRequest as LiFiTxRequest } from '@lifi/types';
 import BigNumber from 'bignumber.js';
 import { FormProvider } from 'react-hook-form-v7';
-import { TransactionRequest } from 'viem';
 
 import { CLOSE_ANIMATION_TIMEOUT } from 'app/atoms/PageModal';
 import { useLedgerApprovalModalState } from 'app/hooks/use-ledger-approval-modal-state';
 import { useEvmEstimationData } from 'app/pages/Send/hooks/use-evm-estimation-data';
 import { EvmReviewData } from 'app/pages/Swap/form/interfaces';
-import { mapToEvmEstimationDataWithFallback, parseLiFiTxRequestToViem } from 'app/pages/Swap/modals/ConfirmSwap/utils';
+import { mapLiFiTxToEvmEstimationData, parseTxRequestToViem } from 'app/pages/Swap/modals/ConfirmSwap/utils';
 import { EvmTxParamsFormData } from 'app/templates/TransactionTabs/types';
 import { useEvmEstimationForm } from 'app/templates/TransactionTabs/use-evm-estimation-form';
 import { toastError, toastSuccess } from 'app/toaster';
@@ -72,7 +70,7 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
 
   const lifiEstimationData = useMemo(
     () => ({
-      ...mapToEvmEstimationDataWithFallback(lifiStep.transactionRequest!),
+      ...mapLiFiTxToEvmEstimationData(lifiStep.transactionRequest!),
       nonce: toVitalikEstimationData?.nonce ?? 0
     }),
     [lifiStep, toVitalikEstimationData]
@@ -105,12 +103,22 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
         return;
       }
 
-      const txHash = await sendEvmTransaction(accountPkh, network, {
-        ...parseLiFiTxRequestToViem(transactionRequest as LiFiTxRequest),
-        ...(gasPrice ? { gasPrice: BigInt(gasPrice) } : {}),
-        ...(gasLimit ? { gas: BigInt(gasLimit) } : {}),
+      const txParams = parseTxRequestToViem({
+        ...transactionRequest,
+        ...(gasPrice ? { gasPrice: gasPrice } : {}),
+        ...(gasLimit ? { gas: BigInt(Number(gasLimit)) } : {}),
         ...(nonce ? { nonce: Number(nonce) } : {})
-      } as TransactionRequest);
+      });
+
+      // TODO: remove after QA
+      console.log('txParams', txParams);
+
+      if (!txParams) {
+        console.error(`Failed to parse transactionRequest for step ${step.tool}`);
+        return;
+      }
+
+      const txHash = await sendEvmTransaction(accountPkh, network, txParams);
 
       const blockExplorer = getActiveBlockExplorer(network.chainId.toString());
       setTimeout(() => {
@@ -181,15 +189,16 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
       }
     },
     [
-      displayedFee,
-      lifiEstimationData,
-      ethBalance,
-      executeRouteStep,
       formState.isSubmitting,
       getFeesPerGas,
-      isLedgerAccount,
+      lifiEstimationData,
+      inputTokenSlug,
+      ethBalance,
+      displayedFee,
       lifiStep,
+      isLedgerAccount,
       setLedgerApprovalModalState,
+      executeRouteStep,
       setTab
     ]
   );

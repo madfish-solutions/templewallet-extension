@@ -23,27 +23,29 @@ interface ConfirmSwapModalProps {
 export const ConfirmSwapModal: FC<ConfirmSwapModalProps> = ({ opened, onRequestClose, reviewData, onReview }) => {
   const [evmLoading, setEvmLoading] = useState(false);
 
-  const renderEvmContent = (data: EvmReviewData) => (
-    <EvmEstimationDataProvider>
-      {evmLoading ? (
-        <PageLoader stretch />
-      ) : data.needsApproval ? (
-        <AddChainDataProvider>
-          <AddAssetProvider>
-            <ApproveModal data={data} onReview={onReview} onClose={onRequestClose} setLoading={setEvmLoading} />
-          </AddAssetProvider>
-        </AddChainDataProvider>
-      ) : (
-        <EvmContent data={data} onClose={onRequestClose} />
-      )}
-    </EvmEstimationDataProvider>
-  );
+  const renderEvmContent = (data: EvmReviewData) => () =>
+    (
+      <EvmEstimationDataProvider>
+        {evmLoading ? (
+          <PageLoader stretch />
+        ) : data.needsApproval ? (
+          <AddChainDataProvider>
+            <AddAssetProvider>
+              <ApproveModal data={data} onReview={onReview} onClose={onRequestClose} setLoading={setEvmLoading} />
+            </AddAssetProvider>
+          </AddChainDataProvider>
+        ) : (
+          <EvmContent data={data} onClose={onRequestClose} />
+        )}
+      </EvmEstimationDataProvider>
+    );
 
-  const renderTezosContent = (data: TezosReviewData) => (
-    <TezosEstimationDataProvider>
-      <TezosContent data={data} onClose={onRequestClose} />
-    </TezosEstimationDataProvider>
-  );
+  const renderTezosContent = (data: TezosReviewData) => () =>
+    (
+      <TezosEstimationDataProvider>
+        <TezosContent data={data} onClose={onRequestClose} />
+      </TezosEstimationDataProvider>
+    );
 
   const titleLeft = (data: EvmReviewData) => {
     return (

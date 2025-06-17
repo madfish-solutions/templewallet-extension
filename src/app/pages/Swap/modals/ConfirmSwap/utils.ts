@@ -3,32 +3,60 @@ import type { Address, TransactionRequest as ViemTxRequest, RpcTransactionReques
 
 import { EvmEstimationDataWithFallback } from 'lib/temple/types';
 
-export function mapToEvmEstimationDataWithFallback(tx: LiFiTxRequest): EvmEstimationDataWithFallback {
-  const gas = BigInt(tx.gasLimit!);
+export function mapLiFiTxToEvmEstimationData(tx: LiFiTxRequest): EvmEstimationDataWithFallback {
+  const gasLimitStr = 'gasLimit' in tx ? tx.gasLimit : undefined;
+  const gasPriceStr = 'gasPrice' in tx ? tx.gasPrice : undefined;
+
+  const gasLimit = gasLimitStr ? BigInt(gasLimitStr) : BigInt(0);
+  const gasPrice = gasPriceStr ? BigInt(gasPriceStr) : BigInt(0);
 
   return {
-    type: 'legacy',
-    gas,
-    estimatedFee: gas * BigInt(tx.gasPrice!),
-    gasPrice: BigInt(tx.gasPrice!),
+    estimatedFee: gasLimit * gasPrice,
     data: (tx.data ?? '0x') as HexString,
-    nonce: Number(tx.nonce ?? 0)
+    type: 'legacy',
+    gas: gasLimit,
+    gasPrice: gasPrice,
+    nonce: 0
   };
 }
 
-export function parseLiFiTxRequestToViem(tx: LiFiTxRequest | RpcTransactionRequest): ViemTxRequest {
+export function parseTxRequestToViem(tx: LiFiTxRequest | RpcTransactionRequest): ViemTxRequest | null {
   const gasLimit = 'gasLimit' in tx ? tx.gasLimit : undefined;
   const gas = 'gas' in tx ? tx.gas : undefined;
 
-  return {
+  let nonceNum: number | undefined = undefined;
+  if (typeof tx.nonce === 'number') {
+    nonceNum = tx.nonce;
+  } else if (typeof tx.nonce === 'string') {
+    const parsedNonce = Number(tx.nonce);
+    nonceNum = Number.isNaN(parsedNonce) ? undefined : parsedNonce;
+  }
+
+  const baseTx = {
     from: tx.from as Address,
     to: tx.to as Address,
     data: tx.data as HexString,
     value: tx.value ? BigInt(tx.value) : undefined,
     gas: gasLimit !== undefined ? BigInt(gasLimit) : gas !== undefined ? BigInt(gas) : undefined,
-    gasPrice: tx.gasPrice ? BigInt(tx.gasPrice) : undefined,
-    nonce: typeof tx.nonce === 'number' ? tx.nonce : undefined
+    nonce: nonceNum
   };
+
+  if (tx.maxFeePerGas && tx.maxPriorityFeePerGas) {
+    return {
+      ...baseTx,
+      maxFeePerGas: BigInt(tx.maxFeePerGas),
+      maxPriorityFeePerGas: BigInt(tx.maxPriorityFeePerGas)
+    };
+  }
+
+  if (tx.gasPrice) {
+    return {
+      ...baseTx,
+      gasPrice: BigInt(tx.gasPrice)
+    };
+  }
+
+  return null;
 }
 
 export const timeout = (duration: number): Promise<void> => {

@@ -85,6 +85,7 @@ export interface FormFieldProps extends TestIDProperty, Omit<FormFieldAttrs, 'ty
     inputSection?: string;
     input?: string;
   };
+  compactInputValue?: boolean;
   rightSideComponent?: ReactNode;
   underneathComponent?: ReactNode;
   extraFloatingInner?: ReactNode;
@@ -142,6 +143,7 @@ export const FormField = forwardRef<FormFieldElement, FormFieldProps>(
       smallPaddings = false,
       fieldWrapperBottomMargin = true,
       additionalActionButtons,
+      compactInputValue,
       copyable,
       testID,
       testIDs,
@@ -236,6 +238,7 @@ export const FormField = forwardRef<FormFieldElement, FormFieldProps>(
 
         <div className={clsx('relative flex items-stretch', fieldWrapperBottomMargin && 'mb-1')}>
           <ExtraFloatingInner
+            compactInputValue={compactInputValue}
             inputValue={value || (floatAfterPlaceholder ? placeholder : undefined)}
             innerComponent={extraFloatingInner}
             onClick={() => spareRef.current?.focus()}
@@ -326,16 +329,24 @@ interface ExtraFloatingInnerProps {
   inputValue?: string | number | readonly string[];
   innerComponent?: React.ReactNode;
   onClick?: EmptyFn;
+  compactInputValue?: boolean;
 }
 
 // input padding + textWidth + gap between text and innerComponent
-const getLeftIndent = (textWidth: number) => Math.min(12 + textWidth + 8, 226);
+const DEFAULT_INPUT_WIDTH = 226;
+const COMPACT_INPUT_WIDTH = DEFAULT_INPUT_WIDTH - 28;
+const getLeftIndent = (textWidth: number, defaultWidth: number) => Math.min(12 + textWidth + 8, defaultWidth);
 
-const ExtraFloatingInner: React.FC<ExtraFloatingInnerProps> = ({ inputValue, innerComponent, onClick }) => {
+const ExtraFloatingInner: React.FC<ExtraFloatingInnerProps> = ({
+  inputValue,
+  innerComponent,
+  onClick,
+  compactInputValue = false
+}) => {
   const measureTextWidthRef = useRef<HTMLDivElement>(null);
   const [textWidth, setTextWidth] = useState(0);
 
-  const leftIndent = getLeftIndent(textWidth);
+  const leftIndent = getLeftIndent(textWidth, compactInputValue ? COMPACT_INPUT_WIDTH : DEFAULT_INPUT_WIDTH);
 
   useLayoutEffect(() => {
     if (measureTextWidthRef.current) {
