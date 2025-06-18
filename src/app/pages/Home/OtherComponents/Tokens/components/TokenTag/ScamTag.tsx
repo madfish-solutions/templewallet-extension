@@ -9,8 +9,8 @@ const scamInfoTippyProps = {
   hideOnClick: false,
   content: t('scamTokenTooltip'),
   animation: 'shift-away-subtle',
-  maxWidth: '10rem',
-  placement: 'bottom-start' as const
+  maxWidth: '16rem',
+  placement: 'auto' as const
 };
 
 export const ScamTag = memo(({ className }: { className?: string }) => {
