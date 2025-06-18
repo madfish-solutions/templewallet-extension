@@ -4,13 +4,12 @@ import { omit } from 'lodash';
 import { FormProvider } from 'react-hook-form-v7';
 import { TransactionRequest } from 'viem';
 
-import { CLOSE_ANIMATION_TIMEOUT } from 'app/atoms/PageModal';
 import { useLedgerApprovalModalState } from 'app/hooks/use-ledger-approval-modal-state';
 import { EvmReviewData } from 'app/pages/Send/form/interfaces';
 import { useEvmEstimationData } from 'app/pages/Send/hooks/use-evm-estimation-data';
 import { EvmTxParamsFormData } from 'app/templates/TransactionTabs/types';
 import { useEvmEstimationForm } from 'app/templates/TransactionTabs/use-evm-estimation-form';
-import { toastError, toastSuccess } from 'app/toaster';
+import { toastError } from 'app/toaster';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { useEvmAssetBalance } from 'lib/balances/hooks';
 import { t } from 'lib/i18n';
@@ -18,8 +17,10 @@ import { useEvmCategorizedAssetMetadata } from 'lib/metadata';
 import { useTempleClient } from 'lib/temple/front';
 import { TempleAccountType } from 'lib/temple/types';
 import { runConnectedLedgerOperationFlow } from 'lib/ui';
+import { showTxSubmitToastWithDelay } from 'lib/ui/show-tx-submit-toast.util';
 import { ZERO } from 'lib/utils/numbers';
 import { useGetEvmActiveBlockExplorer } from 'temple/front/ready';
+import { TempleChainKind } from 'temple/types';
 
 import { buildBasicEvmSendParams } from '../../build-basic-evm-send-params';
 
@@ -107,14 +108,7 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
 
           const blockExplorer = getActiveBlockExplorer(network.chainId.toString());
 
-          setTimeout(
-            () =>
-              toastSuccess(t('transactionSubmitted'), true, {
-                hash: txHash,
-                explorerBaseUrl: blockExplorer.url + '/tx/'
-              }),
-            CLOSE_ANIMATION_TIMEOUT * 2
-          );
+          showTxSubmitToastWithDelay(TempleChainKind.EVM, txHash, blockExplorer.url);
         };
 
         if (isLedgerAccount) {

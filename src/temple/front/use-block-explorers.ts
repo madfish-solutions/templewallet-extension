@@ -291,7 +291,7 @@ const DEFAULT_BLOCK_EXPLORERS_BASE: Record<TempleChainKind, Record<string, Omit<
     [COMMON_MAINNET_CHAIN_IDS.avalanche]: [
       {
         name: 'AvaScan',
-        url: 'https://avascan.info/blockchain/c',
+        url: 'https://avascan.info/blockchain/c/',
         id: 'avascan-mainnet'
       }
     ],
@@ -340,7 +340,7 @@ const DEFAULT_BLOCK_EXPLORERS_BASE: Record<TempleChainKind, Record<string, Omit<
     [COMMON_TESTNET_CHAIN_IDS.avalanche]: [
       {
         name: 'AvaScan',
-        url: 'https://testnet.avascan.info/blockchain/c',
+        url: 'https://testnet.avascan.info/blockchain/c/',
         id: 'avascan-testnet'
       }
     ],
