@@ -332,9 +332,10 @@ interface ExtraFloatingInnerProps {
   compactInputValue?: boolean;
 }
 
-// input padding + textWidth + gap between text and innerComponent
 const DEFAULT_INPUT_WIDTH = 226;
 const COMPACT_INPUT_WIDTH = DEFAULT_INPUT_WIDTH - 28;
+
+// input padding + textWidth + gap between text and innerComponent
 const getLeftIndent = (textWidth: number, defaultWidth: number) => Math.min(12 + textWidth + 8, defaultWidth);
 
 const ExtraFloatingInner: React.FC<ExtraFloatingInnerProps> = ({
