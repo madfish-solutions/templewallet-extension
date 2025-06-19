@@ -1,4 +1,4 @@
-import React, { FC, useCallback, useEffect, useMemo, useState } from 'react';
+import React, { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { Route } from '@lifi/sdk';
 import { isDefined } from '@rnw-community/shared';
@@ -203,14 +203,25 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
     return tokensToAtoms(inputValueToUse || ZERO, inputAssetMetadata?.decimals ?? 0);
   }, [inputAssetMetadata?.decimals, inputValue.amount, isFiatMode, parseFiatValueToAssetAmount]);
 
+  const routeAbortControllerRef = useRef<AbortController | null>(null);
+
   const fetchEvmSwapRoute = useCallback(async (params: RouteParams, isAutoRefresh = false) => {
+    routeAbortControllerRef.current?.abort();
+    const controller = new AbortController();
+    routeAbortControllerRef.current = controller;
+
     if (!isAutoRefresh) setIsRouteLoading(true);
     setIsAlertVisible(false);
+
     try {
-      const data = await getEvmBestSwapRoute(params);
+      const data = await getEvmBestSwapRoute(params, controller.signal);
+      if (data === undefined) {
+        return;
+      }
       setSwapRoute(data);
       return data;
     } catch (error: unknown) {
+      if ((error as Error)?.name === 'CanceledError') return;
       console.error('EVM Swap route error:', error instanceof Error ? error.message : error);
       setSwapRoute(null);
       if (!isAutoRefresh) setIsAlertVisible(true);

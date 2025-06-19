@@ -57,29 +57,40 @@ export const useFetchLifiEvmTokensSlugs = (publicKeyHash: HexString) => {
     } finally {
       dispatch(putLifiEvmTokensMetadataLoadingAction({ isLoading: false }));
     }
-  }, [enabledLifiSupportedChains]);
+  }, [enabledLifiSupportedChains, lastFetchTime]);
 
   useEffect(() => void fetchEvmTokens(), [fetchEvmTokens]);
 
   const existingTokens = useEvmAccountTokens(publicKeyHash);
 
-  const existingSlugMap: { [chainId: number]: Set<string> } = {};
-  for (const { slug, chainId } of existingTokens) {
-    const address = slug.split('_')[0];
-    if (!existingSlugMap[chainId as number]) existingSlugMap[chainId as number] = new Set();
-    existingSlugMap[chainId as number].add(address);
-  }
+  const existingSlugMap = useMemo(() => {
+    const map: { [chainId: number]: Set<string> } = {};
+    for (const { slug, chainId, status } of existingTokens) {
+      if (status !== 'enabled') continue;
+      const address = slug.split('_')[0];
+      if (!map[chainId as number]) {
+        map[chainId as number] = new Set();
+      }
+      map[chainId as number].add(address);
+    }
+    return map;
+  }, [existingTokens]);
 
-  const filteredTokensByChain: TokensByChain = {};
-  for (const [chainIdStr, tokens] of Object.entries(lifiEvmTokensByChain)) {
-    const chainId = Number(chainIdStr);
-    const existingAddresses = existingSlugMap[chainId] || new Set();
+  const filteredTokensByChain: TokensByChain = useMemo(() => {
+    const result: TokensByChain = {};
 
-    filteredTokensByChain[chainId] = tokens.filter((token: Token) => {
-      const addr = token.address;
-      return addr && addr !== EVM_ZERO_ADDRESS && !existingAddresses.has(addr);
-    });
-  }
+    for (const [chainIdStr, tokens] of Object.entries(lifiEvmTokensByChain)) {
+      const chainId = Number(chainIdStr);
+      const existingAddresses = existingSlugMap[chainId] || new Set();
+
+      result[chainId] = tokens.filter((token: Token) => {
+        const addr = token.address;
+        return addr && addr !== EVM_ZERO_ADDRESS && !existingAddresses.has(addr);
+      });
+    }
+
+    return result;
+  }, [lifiEvmTokensByChain, existingSlugMap]);
 
   useEffect(() => {
     Object.entries(filteredTokensByChain).forEach(([chainId, chainTokens]) => {
