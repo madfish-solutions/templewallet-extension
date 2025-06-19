@@ -47,47 +47,41 @@ export const useTezosEstimationData = ({
   silent
 }: TezosEstimationInput) => {
   const estimate = useCallback(async (): Promise<TezosEstimationData | undefined> => {
-    try {
-      const isTez = isTezAsset(assetSlug);
-      const from = account.ownerAddress || accountPkh;
+    const isTez = isTezAsset(assetSlug);
+    const from = account.ownerAddress || accountPkh;
 
-      checkZeroBalance(balance, tezBalance, isTez);
+    checkZeroBalance(balance, tezBalance, isTez);
 
-      const [transferParams, manager] = await Promise.all([
-        toTransferParams(tezos, assetSlug, assetMetadata, accountPkh, to, toPenny(assetMetadata)),
-        tezos.rpc.getManagerKey(from)
-      ]);
+    const [transferParams, manager] = await Promise.all([
+      toTransferParams(tezos, assetSlug, assetMetadata, accountPkh, to, toPenny(assetMetadata)),
+      tezos.rpc.getManagerKey(from)
+    ]);
 
-      const estmtnMax = await estimateTezosMaxFee(account, isTez, tezos, from, to, balance, transferParams, manager);
+    const estmtnMax = await estimateTezosMaxFee(account, isTez, tezos, from, to, balance, transferParams, manager);
 
-      const revealFeeMutez = tezosManagerKeyHasManager(manager) ? ZERO : mutezToTz(getRevealFee(from));
-      const estimatedBaseFee = mutezToTz(estmtnMax.burnFeeMutez + estmtnMax.suggestedFeeMutez).plus(revealFeeMutez);
+    const revealFeeMutez = tezosManagerKeyHasManager(manager) ? ZERO : mutezToTz(getRevealFee(from));
+    const estimatedBaseFee = mutezToTz(estmtnMax.burnFeeMutez + estmtnMax.suggestedFeeMutez).plus(revealFeeMutez);
 
-      if (isTez ? estimatedBaseFee.isGreaterThanOrEqualTo(balance) : estimatedBaseFee.isGreaterThan(tezBalance)) {
-        if (!silent) {
-          toastError('Not enough funds');
-        }
-        return;
+    if (isTez ? estimatedBaseFee.isGreaterThanOrEqualTo(balance) : estimatedBaseFee.isGreaterThan(tezBalance)) {
+      if (!silent) {
+        toastError('Not enough funds');
       }
-
-      return {
-        baseFee: estimatedBaseFee,
-        gasFee: mutezToTz(estmtnMax.suggestedFeeMutez).plus(revealFeeMutez),
-        revealFee: revealFeeMutez,
-        estimates: [serializeEstimate(estmtnMax)]
-      };
-    } catch (err: any) {
-      console.error(err);
-
-      return undefined;
+      return;
     }
+
+    return {
+      baseFee: estimatedBaseFee,
+      gasFee: mutezToTz(estmtnMax.suggestedFeeMutez).plus(revealFeeMutez),
+      revealFee: revealFeeMutez,
+      estimates: [serializeEstimate(estmtnMax)]
+    };
   }, [tezBalance, balance, assetMetadata, to, assetSlug, tezos, accountPkh, account, silent]);
 
   return useTypedSWR(
     () => (toFilled ? ['tezos-estimation-data', assetSlug, chainId, accountPkh, to] : null),
     estimate,
     {
-      shouldRetryOnError: false,
+      onError: err => console.error(err),
       focusThrottleInterval: 10_000,
       dedupingInterval: TEZOS_BLOCK_DURATION
     }

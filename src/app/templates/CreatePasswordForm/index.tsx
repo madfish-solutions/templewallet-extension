@@ -300,8 +300,8 @@ export const CreatePasswordForm = memo<CreatePasswordFormProps>(
               control={control}
               name="getRewards"
               as={SettingsCheckbox}
-              label={<T id="earnRewardsWithAds" />}
-              tooltip={<T id="earnRewardsWithAdsDescription" />}
+              label={<T id="earningMode" />}
+              tooltip={<T id="earningModeDescription" />}
               testID={createPasswordSelectors.getRewardsCheckBox}
             />
           </div>

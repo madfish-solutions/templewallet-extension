@@ -1,8 +1,9 @@
 import React, { ComponentType, useCallback, useMemo, useState } from 'react';
 
-import { CLOSE_ANIMATION_TIMEOUT, PageModal } from 'app/atoms/PageModal';
-import { toastSuccess } from 'app/toaster';
+import { PageModal } from 'app/atoms/PageModal';
+import { showTxSubmitToastWithDelay } from 'lib/ui/show-tx-submit-toast.util';
 import { TezosNetworkEssentials } from 'temple/networks';
+import { TempleChainKind } from 'temple/types';
 
 import { TezosEarnReviewDataBase } from '../types';
 import { useBlockExplorerUrl } from '../utils';
@@ -60,15 +61,7 @@ export const EarnOperationModal = <D, R extends TezosEarnReviewDataBase>({
   const handleDataSubmit = useCallback((data: D) => setModalState({ step: EarnOperationModalStep.Confirm, data }), []);
   const handleSuccess = useCallback(
     (hash: string) => {
-      setTimeout(
-        () =>
-          toastSuccess(
-            successToastText,
-            true,
-            explorerBaseUrl ? { hash, explorerBaseUrl: explorerBaseUrl + '/' } : undefined
-          ),
-        CLOSE_ANIMATION_TIMEOUT * 2
-      );
+      showTxSubmitToastWithDelay(TempleChainKind.Tezos, hash, explorerBaseUrl, successToastText);
       onClose();
     },
     [explorerBaseUrl, onClose, successToastText]

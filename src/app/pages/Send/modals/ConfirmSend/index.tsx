@@ -26,16 +26,17 @@ export const ConfirmSendModal: FC<ConfirmSendModalProps> = ({ opened, onRequestC
     onRequestClose={onRequestClose}
     shouldChangeBottomShift={false}
   >
-    {reviewData ? (
-      isEvmReviewData(reviewData) ? (
-        <EvmEstimationDataProvider>
-          <EvmContent data={reviewData} onClose={onRequestClose} />
-        </EvmEstimationDataProvider>
-      ) : (
-        <TezosEstimationDataProvider>
-          <TezosContent data={reviewData} onClose={onRequestClose} />
-        </TezosEstimationDataProvider>
-      )
-    ) : null}
+    {reviewData
+      ? () =>
+          isEvmReviewData(reviewData) ? (
+            <EvmEstimationDataProvider>
+              <EvmContent data={reviewData} onClose={onRequestClose} />
+            </EvmEstimationDataProvider>
+          ) : (
+            <TezosEstimationDataProvider>
+              <TezosContent data={reviewData} onClose={onRequestClose} />
+            </TezosEstimationDataProvider>
+          )
+      : null}
   </PageModal>
 );

@@ -15,7 +15,7 @@ import PortalToDocumentBody from 'lib/ui/Portal';
 
 interface TxData {
   hash: string;
-  explorerBaseUrl: string;
+  blockExplorerHref: string;
 }
 
 const MAX_TOASTS_COUNT = 3;
@@ -146,7 +146,7 @@ const CustomToastBar = memo<CustomToastBarProps>(({ toast, customType, textBold 
 
       {txData && (
         <a
-          href={txData.explorerBaseUrl + txData.hash}
+          href={txData.blockExplorerHref}
           target="_blank"
           rel="noopener noreferrer"
           className="flex flex-row items-center text-font-num-bold-12 text-secondary ml-12"

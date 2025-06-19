@@ -1,11 +1,12 @@
 import React, { memo, useCallback, useMemo } from 'react';
 
-import { CLOSE_ANIMATION_TIMEOUT, PageModal } from 'app/atoms/PageModal';
-import { toastSuccess } from 'app/toaster';
-import { t, T } from 'lib/i18n';
+import { PageModal } from 'app/atoms/PageModal';
+import { T } from 'lib/i18n';
 import { NullComponent } from 'lib/ui/null-component';
+import { showTxSubmitToastWithDelay } from 'lib/ui/show-tx-submit-toast.util';
 import { AccountForTezos } from 'temple/accounts';
 import { TezosChain } from 'temple/front';
+import { TempleChainKind } from 'temple/types';
 
 import { ConfirmEarnOperationContent } from '../../components/confirm-earn-operation-content';
 import { TezosEarnReviewDataBase } from '../../types';
@@ -25,15 +26,7 @@ export const FinalizeModal = memo<FinalizeModalProps>(({ account, network, onClo
 
   const handleConfirm = useCallback(
     (hash: string) => {
-      setTimeout(
-        () =>
-          toastSuccess(
-            t('transactionSubmitted'),
-            true,
-            explorerBaseUrl ? { hash, explorerBaseUrl: explorerBaseUrl + '/' } : undefined
-          ),
-        CLOSE_ANIMATION_TIMEOUT * 2
-      );
+      showTxSubmitToastWithDelay(TempleChainKind.Tezos, hash, explorerBaseUrl);
       onClose();
     },
     [explorerBaseUrl, onClose]
