@@ -1,8 +1,12 @@
 import React, { memo, useCallback, useEffect, useMemo } from 'react';
 
+import { isDefined } from '@rnw-community/shared';
+
 import { DeadEndBoundaryError } from 'app/ErrorBoundary';
 import { buildSendPagePath } from 'app/pages/Send/build-url';
+import { ScamTokenAlert } from 'app/pages/Token/ScamTokenAlert';
 import { dispatch } from 'app/store';
+import { useMainnetTokensScamlistSelector } from 'app/store/tezos/assets/selectors';
 import { loadCollectiblesDetailsActions } from 'app/store/tezos/collectibles/actions';
 import {
   useAllCollectiblesDetailsLoadingSelector,
@@ -36,6 +40,9 @@ export const TezosContent = memo<Props>(({ chainId, assetSlug }) => {
   const details = useCollectibleDetailsSelector(assetSlug);
   const areAnyCollectiblesDetailsLoading = useAllCollectiblesDetailsLoadingSelector();
 
+  const mainnetTokensScamSlugsRecord = useMainnetTokensScamlistSelector();
+  const showScamTokenAlert = isDefined(assetSlug) && mainnetTokensScamSlugsRecord[assetSlug];
+
   if (!network || !account) throw new DeadEndBoundaryError();
 
   const accountPkh = account.address;
@@ -65,6 +72,9 @@ export const TezosContent = memo<Props>(({ chainId, assetSlug }) => {
   return (
     <BaseContent
       headerRightElement={<QuickActionsPopper assetSlug={assetSlug} network={network} />}
+      scamAlertElement={
+        showScamTokenAlert && <ScamTokenAlert isCollectible={true} tezosChainId={chainId} assetSlug={assetSlug} />
+      }
       imageElement={
         <TezosCollectiblePageImage
           assetSlug={assetSlug}

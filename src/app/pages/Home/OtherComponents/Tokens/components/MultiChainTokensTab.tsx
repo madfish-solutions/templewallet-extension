@@ -10,6 +10,7 @@ import {
 } from 'app/hooks/listing-logic/use-manageable-slugs';
 import { useAssetsViewState } from 'app/hooks/use-assets-view-state';
 import { useTokensListOptionsSelector } from 'app/store/assets-filter-options/selectors';
+import { useMainnetTokensScamlistSelector } from 'app/store/tezos/assets/selectors';
 import { PartnersPromotion, PartnersPromotionVariant } from 'app/templates/partners-promotion';
 import { EvmTokenListItem, TezosTokenListItem } from 'app/templates/TokenListItem';
 import { parseChainAssetSlug, toChainAssetSlug } from 'lib/assets/utils';
@@ -174,6 +175,7 @@ const TabContentBaseBody = memo<TabContentBaseBodyProps>(
     const promoRef = useRef<HTMLDivElement>(null);
     const firstHeaderRef = useRef<HTMLDivElement>(null);
     const firstListItemRef = useRef<TokenListItemElement>(null);
+    const mainnetTokensScamSlugsRecord = useMainnetTokensScamlistSelector();
 
     const { tokensView, getElementIndex } = useMemo(() => {
       const promoJsx = manageActive ? null : (
@@ -197,6 +199,7 @@ const TabContentBaseBody = memo<TabContentBaseBodyProps>(
             firstHeaderRef,
             buildTokensJsxArray: (slugs, firstListItemRef, indexShift) =>
               buildTokensJsxArray(
+                mainnetTokensScamSlugsRecord,
                 slugs,
                 tezosChains,
                 evmChains,
@@ -217,6 +220,7 @@ const TabContentBaseBody = memo<TabContentBaseBodyProps>(
       }
 
       const tokensJsx = buildTokensJsxArray(
+        mainnetTokensScamSlugsRecord,
         displayedSlugs,
         tezosChains,
         evmChains,
@@ -253,6 +257,7 @@ const TabContentBaseBody = memo<TabContentBaseBodyProps>(
 );
 
 function buildTokensJsxArray(
+  scamSlugs: Record<string, boolean>,
   chainSlugs: string[],
   tezosChains: StringRecord<TezosChain>,
   evmChains: StringRecord<EvmChain>,
@@ -272,6 +277,7 @@ function buildTokensJsxArray(
           index={i + indexShift}
           key={chainSlug}
           publicKeyHash={accountTezAddress}
+          scam={scamSlugs[assetSlug]}
           assetSlug={assetSlug}
           manageActive={manageActive}
           ref={i === 0 ? firstListItemRef : null}

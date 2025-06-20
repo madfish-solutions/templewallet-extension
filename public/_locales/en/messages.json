@@ -3281,13 +3281,19 @@
     "message": "Read more by the "
   },
   "deleteScamTokenConfirmTitle": {
-    "message": "Be cautious!"
+    "message": "High risk detected!"
   },
   "deleteScamTokenConfirmDescription": {
-    "message": "This token may be a scam. We strongly advise removing it from your token list to safeguard against the risk of losing funds."
+    "message": "The token contains high risk factors that are possible to lead to catastrophic losses of funds. We strongly advise delete this token from your wallet."
+  },
+  "addScamTokenWarning": {
+    "message": "The address contains high risk factors that are possible to lead to catastrophic losses of funds."
   },
   "scamTokenAlert": {
-    "message": "This token may be a SCAM!"
+    "message": "High risk detected!"
+  },
+  "scamTokenTooltip": {
+    "message": "The token contains high risk factors that are possible to lead to catastrophic losses of funds."
   },
   "deleteTokenConfirm": {
     "message": "Are you sure you want to delete this token?"

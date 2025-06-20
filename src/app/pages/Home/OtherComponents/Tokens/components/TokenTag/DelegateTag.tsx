@@ -1,8 +1,6 @@
 import React, { memo, useCallback, useMemo } from 'react';
 
-import clsx from 'clsx';
-
-import { Button } from 'app/atoms/Button';
+import { TagButton } from 'app/atoms/TagButton';
 import { HomeSelectors } from 'app/pages/Home/selectors';
 import { AnalyticsEventCategory, useAnalytics } from 'lib/analytics';
 import { TEZOS_APY } from 'lib/constants';
@@ -12,7 +10,6 @@ import { navigate } from 'lib/woozie';
 import { TezosNetworkEssentials } from 'temple/networks';
 
 import { AssetsSelectors } from '../../../Assets.selectors';
-import modStyles from '../../Tokens.module.css';
 
 interface Props {
   network: TezosNetworkEssentials;
@@ -38,24 +35,14 @@ export const DelegateTezosTag = memo<Props>(({ network, pkh }) => {
   return useMemo(
     () =>
       myBakerPkh ? (
-        <Button
-          onClick={handleTagClick}
-          className={clsx(COMMON_CLASS_NAMES, 'inline-flex items-center')}
-          testID={AssetsSelectors.assetItemApyButton}
-        >
+        <TagButton onClick={handleTagClick} testID={AssetsSelectors.assetItemApyButton}>
           <T id="tezosApy" substitutions={String(TEZOS_APY)} />
-        </Button>
+        </TagButton>
       ) : (
-        <Button
-          onClick={handleTagClick}
-          className={clsx(COMMON_CLASS_NAMES, 'uppercase')}
-          testID={AssetsSelectors.assetItemDelegateButton}
-        >
+        <TagButton onClick={handleTagClick} testID={AssetsSelectors.assetItemDelegateButton}>
           <T id="notDelegated" />
-        </Button>
+        </TagButton>
       ),
     [handleTagClick, myBakerPkh]
   );
 });
-
-const COMMON_CLASS_NAMES = clsx('flex-shrink-0 px-1.5 py-1 bg-secondary hover:bg-secondary-hover', modStyles.tagBase);

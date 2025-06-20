@@ -18,7 +18,7 @@ interface Props {
 export const TokenTag = memo<Props>(({ network, tezPkh, assetSlug, assetSymbol, scam }) => {
   if (isTezAsset(assetSlug)) return <DelegateTezosTag network={network} pkh={tezPkh} />;
 
-  if (scam) return <ScamTag assetSlug={assetSlug} tezPkh={tezPkh} tezosChainId={network.chainId} />;
+  if (scam) return <ScamTag className="-ml-1.5" />;
 
   return <TokenApyTag slug={assetSlug} symbol={assetSymbol} />;
 });

@@ -6,6 +6,7 @@ import clsx from 'clsx';
 import { IconBase, ToggleSwitch } from 'app/atoms';
 import { useIsItemVisible } from 'app/atoms/visibility-tracking-infinite-scroll';
 import { ReactComponent as DeleteIcon } from 'app/icons/base/delete.svg';
+import { ScamTag } from 'app/pages/Home/OtherComponents/Tokens/components/TokenTag/ScamTag';
 import { dispatch } from 'app/store';
 import { setEvmTokenStatusAction } from 'app/store/evm/assets/actions';
 import { useStoredEvmTokenSelector } from 'app/store/evm/assets/selectors';
@@ -35,7 +36,7 @@ import { toExploreAssetLink } from '../pages/Home/OtherComponents/Tokens/utils';
 
 const LIST_ITEM_CLASSNAME = clsx(
   'flex items-center gap-x-1 p-2 rounded-lg',
-  'hover:bg-secondary-low transition ease-in-out duration-200 focus:outline-none'
+  'transition ease-in-out duration-200 focus:outline-none'
 );
 
 interface TezosTokenListItemProps {
@@ -76,6 +77,8 @@ export const TezosTokenListItem = memo(
             assetSlug={assetSlug}
             assetSymbol={assetSymbol}
             assetName={assetName}
+            className={clsx('focus:bg-secondary-low', scam ? 'hover:bg-error-low' : 'hover:bg-secondary-low')}
+            scam={scam}
             checked={checked}
             network={network}
             index={index}
@@ -89,7 +92,7 @@ export const TezosTokenListItem = memo(
         <DefaultTezosListItemLayout
           assetSlug={assetSlug}
           assetName={assetName}
-          className={active ? 'focus:bg-secondary-low' : undefined}
+          className={clsx(active && 'focus:bg-secondary-low', scam ? 'hover:bg-error-low' : 'hover:bg-secondary-low')}
           network={network}
           index={index}
           balance={balance}
@@ -149,7 +152,7 @@ export const EvmTokenListItem = memo(
             assetSlug={assetSlug}
             assetSymbol={assetSymbol}
             assetName={assetName}
-            className="focus:bg-secondary-low"
+            className="focus:bg-secondary-low, hover:bg-secondary-low"
             checked={checked}
             network={network}
             index={index}
@@ -163,7 +166,7 @@ export const EvmTokenListItem = memo(
         <DefaultEvmListItemLayout
           assetSlug={assetSlug}
           assetName={assetName}
-          className="focus:bg-secondary-low"
+          className="focus:bg-secondary-low, hover:bg-secondary-low"
           network={network}
           index={index}
           balance={balance}
@@ -184,6 +187,7 @@ interface ManageActiveListItemLayoutProps<T extends TempleChainKind> {
   assetSymbol: string;
   assetName: string;
   className?: string;
+  scam?: boolean;
   checked: boolean;
   network: NetworkEssentials<T>;
   index?: number;
@@ -209,7 +213,10 @@ const ManageActiveListItemLayoutHOC = <T extends TempleChainKind>(
 ) =>
   memo(
     forwardRef<TokenListItemElement, ManageActiveListItemLayoutProps<T>>(
-      ({ assetSlug, assetSymbol, assetName, className, checked, network, index, publicKeyHash, onClick }, ref) => {
+      (
+        { assetSlug, assetSymbol, assetName, className, scam, checked, network, index, publicKeyHash, onClick },
+        ref
+      ) => {
         const { chainId } = network;
         const [deleteModalOpened, setDeleteModalOpened, setDeleteModalClosed] = useBooleanState(false);
         const isUnmanageable = UNMANAGABLE_TOKENS_SLUGS[networkKind].includes(assetSlug);
@@ -238,7 +245,10 @@ const ManageActiveListItemLayoutHOC = <T extends TempleChainKind>(
 
                   <div className="flex-grow flex gap-x-2 items-center overflow-hidden">
                     <div className="flex-grow flex flex-col gap-y-1 overflow-hidden">
-                      <div className="text-font-medium truncate">{assetSymbol}</div>
+                      <div className="flex items-center gap-0.5">
+                        <div className="text-font-medium truncate">{assetSymbol}</div>
+                        {scam && <ScamTag />}
+                      </div>
 
                       <div className="text-font-description items-center text-grey-1 truncate">{assetName}</div>
                     </div>

@@ -8,6 +8,7 @@ import {
 } from 'app/hooks/listing-logic/use-tezos-chain-collectibles-listing-logic';
 import { useAssetsViewState } from 'app/hooks/use-assets-view-state';
 import { useCollectiblesListOptionsSelector } from 'app/store/assets-filter-options/selectors';
+import { useMainnetTokensScamlistSelector } from 'app/store/tezos/assets/selectors';
 import { CollectiblesListItemElement } from 'lib/ui/collectibles-list';
 import { useMemoWithCompare } from 'lib/ui/hooks';
 import { TezosChain, useTezosChainByChainId } from 'temple/front';
@@ -87,6 +88,7 @@ interface TabContentBaseProps {
 const TabContentBase = memo<TabContentBaseProps>(({ network, publicKeyHash, allSlugsSorted, manageActive }) => {
   const { isInSearchMode, displayedSlugs, isSyncing, loadNext, searchValue, setSearchValue } =
     useTezosChainCollectiblesListingLogic(allSlugsSorted, network);
+  const mainnetTokensScamSlugsRecord = useMainnetTokensScamlistSelector();
 
   const { chainId } = network;
   const { blur, showInfo } = useCollectiblesListOptionsSelector();
@@ -101,11 +103,12 @@ const TabContentBase = memo<TabContentBaseProps>(({ network, publicKeyHash, allS
         adultBlur={blur}
         areDetailsShown={showInfo}
         manageActive={manageActive}
+        scam={mainnetTokensScamSlugsRecord[slug]}
         index={index}
         ref={ref}
       />
     ),
-    [blur, chainId, manageActive, publicKeyHash, showInfo]
+    [blur, chainId, mainnetTokensScamSlugsRecord, manageActive, publicKeyHash, showInfo]
   );
 
   return (
