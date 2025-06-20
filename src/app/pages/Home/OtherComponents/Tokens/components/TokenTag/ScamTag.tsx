@@ -9,7 +9,7 @@ const scamInfoTippyProps = {
   hideOnClick: false,
   content: t('scamTokenTooltip'),
   animation: 'shift-away-subtle',
-  maxWidth: '16rem',
+  maxWidth: '12rem',
   placement: 'auto' as const
 };
 
