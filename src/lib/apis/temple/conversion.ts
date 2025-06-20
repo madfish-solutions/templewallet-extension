@@ -28,3 +28,7 @@ export function getRefLink(userId: string) {
     .get<{ id: string }>('/v1/ref-link', { params: { userId } })
     .then(({ data }) => `${EnvVars.CONVERSION_API_URL}/share/${data.id}`);
 }
+
+export function getReferrersCount(userId: string) {
+  return conversionApi.get<{ count: number }>(`/v1/referrers-count/${userId}`).then(({ data }) => data.count);
+}

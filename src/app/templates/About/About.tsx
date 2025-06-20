@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useState } from 'react';
+import React, { memo, useCallback, useMemo, useState } from 'react';
 
 import { FadeTransition } from 'app/a11y/FadeTransition';
 import { CopyButton, IconBase } from 'app/atoms';
@@ -16,10 +16,11 @@ import { ReactComponent as TelegramIcon } from 'app/icons/monochrome/telegram.sv
 import { ReactComponent as XSocialIcon } from 'app/icons/monochrome/x-social.svg';
 import { ReactComponent as YoutubeIcon } from 'app/icons/monochrome/youtube.svg';
 import { toastError } from 'app/toaster';
-import { getRefLink } from 'lib/apis/temple';
+import { getRefLink, getReferrersCount } from 'lib/apis/temple';
 import { PRIVACY_POLICY_URL, TERMS_OF_USE_URL } from 'lib/constants';
 import { EnvVars } from 'lib/env';
 import { T, t } from 'lib/i18n';
+import { useTypedSWR } from 'lib/swr';
 
 import { AboutSelectors } from './About.selectors';
 import { LinkProps } from './links-group-item';
@@ -109,6 +110,8 @@ export const About = memo(() => {
       toastError('Failed to generate referral link');
     }
   }, [registerReferralWalletIfPossible, userId]);
+  const fetchReferrersCount = useMemo(() => (userId ? () => getReferrersCount(userId) : null), [userId]);
+  const { data: referrersCount } = useTypedSWR(['referrersCount', userId], fetchReferrersCount, { suspense: false });
 
   return (
     <FadeTransition>
@@ -154,6 +157,9 @@ export const About = memo(() => {
           <TextButton color="blue" onClick={generateRefLink}>
             Share
           </TextButton>
+        )}
+        {referrersCount !== undefined && (
+          <p className="text-font-description text-grey-1">You have {referrersCount} referrers</p>
         )}
       </div>
     </FadeTransition>
