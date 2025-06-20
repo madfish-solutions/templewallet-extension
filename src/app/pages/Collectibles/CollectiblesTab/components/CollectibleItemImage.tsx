@@ -2,9 +2,10 @@ import React, { memo, useMemo } from 'react';
 
 import { isDefined } from '@rnw-community/shared';
 import clsx from 'clsx';
+import { isString } from 'lodash';
 
 import { useCollectibleIsAdultSelector } from 'app/store/tezos/collectibles/selectors';
-import { buildCollectibleImagesStack, buildEvmCollectibleIconSources } from 'lib/images-uri';
+import { buildCollectibleImagesStack, buildEvmCollectibleIconSources, buildHttpLinkFromUri } from 'lib/images-uri';
 import type { TokenMetadata } from 'lib/metadata';
 import { EvmCollectibleMetadata } from 'lib/metadata/types';
 import { ImageStacked } from 'lib/ui/ImageStacked';
@@ -19,6 +20,7 @@ interface TezosCollectibleItemImageProps {
   adultBlur: boolean;
   areDetailsLoading: boolean;
   mime?: string | null;
+  extraSrc?: string;
   containerElemRef: React.RefObject<Element>;
   className?: string;
   shouldUseBlurredBg?: boolean;
@@ -32,6 +34,7 @@ export const TezosCollectibleItemImage = memo<TezosCollectibleItemImageProps>(
     adultBlur,
     areDetailsLoading,
     mime,
+    extraSrc,
     className,
     shouldUseBlurredBg = false,
     manageActive = false
@@ -40,7 +43,16 @@ export const TezosCollectibleItemImage = memo<TezosCollectibleItemImageProps>(
     const isAdultFlagLoading = areDetailsLoading && !isDefined(isAdultContent);
     const shouldShowBlur = isAdultContent && adultBlur;
 
-    const sources = useMemo(() => (isDefined(metadata) ? buildCollectibleImagesStack(metadata) : []), [metadata]);
+    const sources = useMemo(() => {
+      if (!isDefined(metadata)) return [];
+
+      const baseSources = buildCollectibleImagesStack(metadata);
+      if (extraSrc !== undefined) {
+        baseSources.unshift(extraSrc);
+      }
+
+      return baseSources;
+    }, [metadata, extraSrc]);
 
     const isAudioCollectible = useMemo(() => Boolean(mime && mime.startsWith('audio')), [mime]);
 
@@ -77,12 +89,20 @@ interface EvmCollectibleItemImageProps {
 
 export const EvmCollectibleItemImage = memo<EvmCollectibleItemImageProps>(
   ({ metadata, className, shouldUseBlurredBg = false }) => {
-    const sources = useMemo(() => (isDefined(metadata) ? buildEvmCollectibleIconSources(metadata) : []), [metadata]);
+    const sources = useMemo(() => [buildHttpLinkFromUri(metadata?.image)].filter(isString), [metadata?.image]);
+    const sourcesWithCompressedFallback = useMemo(
+      () => (metadata ? buildEvmCollectibleIconSources(metadata) : []),
+      [metadata]
+    );
 
     return (
       <>
         {shouldUseBlurredBg && (
-          <ImageStacked sources={sources} loading="lazy" className="absolute w-full h-full object-cover blur-sm" />
+          <ImageStacked
+            sources={sourcesWithCompressedFallback}
+            loading="lazy"
+            className="absolute w-full h-full object-cover blur-sm"
+          />
         )}
         <ImageStacked
           sources={sources}
