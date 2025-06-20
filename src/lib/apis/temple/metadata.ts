@@ -79,7 +79,7 @@ const buildApiUrl = (chainId: string) => {
 
   if (!chainName) throw new Error('Unknown Chain ID to Temple Metadata service');
 
-  if (IS_STAGE_ENV) return `http://localhost:3000`;
+  if (IS_STAGE_ENV) return `https://metadata-api-${chainName}.stage.madfish.xyz`;
 
   return `https://metadata-api-${chainName}.prod.templewallet.com`;
 };
