@@ -80,9 +80,17 @@ export enum EvmOperationKind {
   Mint = 'Mint',
   Send = 'Send',
   Approval = 'Approval',
-  Transfer = 'Transfer',
+  ApprovalForAll = 'ApprovalForAll',
   Other = 'Other'
 }
+
+const abiDetectionTypesEntries = [
+  [EvmOperationKind.Send, transferAbis],
+  [EvmOperationKind.DeployContract, deployContractAbis],
+  [EvmOperationKind.Mint, mintAbis],
+  [EvmOperationKind.Approval, approveAbis],
+  [EvmOperationKind.ApprovalForAll, approvalForAllAbis]
+] as const;
 
 export const getOperationKind = (tx: TransactionSerializable) => {
   if (!tx.to) {
@@ -93,24 +101,10 @@ export const getOperationKind = (tx: TransactionSerializable) => {
     return tx.value && tx.value > BigInt(0) ? EvmOperationKind.Send : EvmOperationKind.Other;
   }
 
-  if (dataMatchesAbis(tx.data, transferAbis)) {
-    return EvmOperationKind.Send;
-  }
-
-  if (dataMatchesAbis(tx.data, deployContractAbis)) {
-    return EvmOperationKind.DeployContract;
-  }
-
-  if (dataMatchesAbis(tx.data, mintAbis)) {
-    return EvmOperationKind.Mint;
-  }
-
-  if (dataMatchesAbis(tx.data, approveAbis)) {
-    return EvmOperationKind.Approval;
-  }
-
-  if (dataMatchesAbis(tx.data, approvalForAllAbis)) {
-    return EvmOperationKind.Transfer;
+  for (const [kind, abis] of abiDetectionTypesEntries) {
+    if (dataMatchesAbis(tx.data, abis)) {
+      return kind;
+    }
   }
 
   return EvmOperationKind.Other;
