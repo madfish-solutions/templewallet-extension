@@ -79,7 +79,7 @@ jobs:
           BITMEDIA_970_90_PLACEMENT_ID: ${{ vars.BITMEDIA_970_90_PLACEMENT_ID }}
           TEMPLE_ADS_ORIGIN_PASSPHRASE: ${{ vars.TEMPLE_ADS_ORIGIN_PASSPHRASE }}
           TAKE_ADS_TOKEN: ${{ secrets.TAKE_ADS_TOKEN }}
-          CONVERSION_VERIFICATION_URL: ${{ vars.CONVERSION_VERIFICATION_URL }}
+          CONVERSION_API_URL: ${{ vars.CONVERSION_API_URL }}
           GOOGLE_AUTH_PAGE_URL: ${{ vars.GOOGLE_AUTH_PAGE_URL }}
 
       - name: Install dependencies and code quality

@@ -5,7 +5,7 @@ import { useAdsImpressionsLinking } from 'app/hooks/use-ads-impressions-linking'
 import { useAdvertisingLoading } from 'app/hooks/use-advertising.hook';
 import { useAssetsMigrations } from 'app/hooks/use-assets-migrations';
 import { useCollectiblesDetailsLoading } from 'app/hooks/use-collectibles-details-loading';
-import { useConversionTracking } from 'app/hooks/use-conversion-tracking';
+import { useConversionVerification } from 'app/hooks/use-conversion-verification';
 import { useTokensApyLoading } from 'app/hooks/use-load-tokens-apy.hook';
 import { useLongRefreshLoading } from 'app/hooks/use-long-refresh-loading.hook';
 import { useMetadataRefresh } from 'app/hooks/use-metadata-refresh';
@@ -34,13 +34,24 @@ import { useChainIDsCheck } from './use-chain-ids-check';
 export const AppRootHooks = memo(() => {
   const { ready } = useTempleClient();
 
-  return ready ? <AppReadyRootHooks /> : null;
+  return (
+    <>
+      <ConstantAppRootHooks />
+      {ready ? <AppReadyRootHooks /> : null}
+    </>
+  );
 });
 
 export const ConfirmWindowRootHooks = memo(() => {
   const { ready } = useTempleClient();
 
   return ready ? <ConfirmWindowReadyRootHooks /> : null;
+});
+
+const ConstantAppRootHooks = memo(() => {
+  useConversionVerification();
+
+  return null;
 });
 
 const AppReadyRootHooks = memo(() => {
@@ -62,7 +73,6 @@ const AppReadyRootHooks = memo(() => {
 
   useUserAnalyticsAndAdsSettings();
   useStorageAnalytics();
-  useConversionTracking();
   useAdsImpressionsLinking();
 
   useChainIDsCheck();

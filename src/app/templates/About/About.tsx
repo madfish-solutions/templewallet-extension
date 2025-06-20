@@ -1,16 +1,22 @@
-import React, { memo } from 'react';
+import React, { memo, useCallback, useState } from 'react';
 
 import { FadeTransition } from 'app/a11y/FadeTransition';
+import { CopyButton, IconBase } from 'app/atoms';
 import { VerticalLines } from 'app/atoms/Lines';
 import { Logo } from 'app/atoms/Logo';
 import { SettingsCellSingle } from 'app/atoms/SettingsCell';
 import { SettingsCellGroup } from 'app/atoms/SettingsCellGroup';
+import { TextButton } from 'app/atoms/TextButton';
+import { useReferralUserId, useRegisterReferralWalletIfPossible } from 'app/hooks/use-conversion-verification';
+import { ReactComponent as CopyIcon } from 'app/icons/base/copy.svg';
 import { ReactComponent as DiscordIcon } from 'app/icons/monochrome/discord.svg';
 import { ReactComponent as KnowledgeBaseIcon } from 'app/icons/monochrome/knowledge-base.svg';
 import { ReactComponent as RedditIcon } from 'app/icons/monochrome/reddit.svg';
 import { ReactComponent as TelegramIcon } from 'app/icons/monochrome/telegram.svg';
 import { ReactComponent as XSocialIcon } from 'app/icons/monochrome/x-social.svg';
 import { ReactComponent as YoutubeIcon } from 'app/icons/monochrome/youtube.svg';
+import { toastError } from 'app/toaster';
+import { getRefLink } from 'lib/apis/temple';
 import { PRIVACY_POLICY_URL, TERMS_OF_USE_URL } from 'lib/constants';
 import { EnvVars } from 'lib/env';
 import { T, t } from 'lib/i18n';
@@ -90,6 +96,19 @@ const COMMUNITY_LINKS: LinkProps[] = [
 export const About = memo(() => {
   const branch = EnvVars.TEMPLE_WALLET_DEVELOPMENT_BRANCH_NAME;
   const version = process.env.VERSION;
+  const [refLink, setRefLink] = useState<string | null>(null);
+  const [userId] = useReferralUserId();
+  const registerReferralWalletIfPossible = useRegisterReferralWalletIfPossible();
+
+  const generateRefLink = useCallback(async () => {
+    try {
+      const currentUserId = userId ?? (await registerReferralWalletIfPossible());
+      setRefLink(await getRefLink(currentUserId!));
+    } catch (error) {
+      console.error(error);
+      toastError('Failed to generate referral link');
+    }
+  }, [registerReferralWalletIfPossible, userId]);
 
   return (
     <FadeTransition>
@@ -126,6 +145,16 @@ export const About = memo(() => {
         </SettingsCellGroup>
         <LinksGroupView group={{ title: t('links'), links: LINKS }} />
         <LinksGroupView group={{ title: t('community'), links: COMMUNITY_LINKS }} />
+        {refLink ? (
+          <CopyButton text={refLink} className="text-secondary flex text-font-description-bold items-center">
+            <span>Copy the link to share</span>
+            <IconBase size={12} Icon={CopyIcon} />
+          </CopyButton>
+        ) : (
+          <TextButton color="blue" onClick={generateRefLink}>
+            Share
+          </TextButton>
+        )}
       </div>
     </FadeTransition>
   );
