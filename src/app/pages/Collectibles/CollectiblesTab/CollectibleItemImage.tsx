@@ -16,6 +16,7 @@ import { CollectibleImageLoader } from '../components/CollectibleImageLoader';
 interface Props {
   assetSlug: string;
   metadata?: TokenMetadata;
+  extraSrc?: string;
   adultBlur: boolean;
   areDetailsLoading: boolean;
   mime?: string | null;
@@ -23,12 +24,21 @@ interface Props {
 }
 
 export const CollectibleItemImage = memo<Props>(
-  ({ assetSlug, metadata, adultBlur, areDetailsLoading, mime, containerElemRef }) => {
+  ({ assetSlug, metadata, extraSrc, adultBlur, areDetailsLoading, mime, containerElemRef }) => {
     const isAdultContent = useCollectibleIsAdultSelector(assetSlug);
     const isAdultFlagLoading = areDetailsLoading && !isDefined(isAdultContent);
     const shouldShowBlur = isAdultContent && adultBlur;
 
-    const sources = useMemo(() => (metadata ? buildCollectibleImagesStack(metadata) : []), [metadata]);
+    const sources = useMemo(() => {
+      if (!isDefined(metadata)) return [];
+
+      const baseSources = buildCollectibleImagesStack(metadata);
+      if (extraSrc !== undefined) {
+        baseSources.push(extraSrc);
+      }
+
+      return baseSources;
+    }, [metadata, extraSrc]);
 
     const isAudioCollectible = useMemo(() => Boolean(mime && mime.startsWith('audio')), [mime]);
 

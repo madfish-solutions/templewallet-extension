@@ -1,6 +1,8 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import { useDidUpdate } from 'lib/ui/hooks';
+
+const isBase64Source = (src?: string) => !!src && src.startsWith('data:image/');
 
 /**
  * @arg sources // Memoize
@@ -40,6 +42,10 @@ export const useImagesStackLoading = (sources: string[]) => {
 
     setIndex(index + 1);
   }, [isStackFailed, sources.length, index]);
+
+  useEffect(() => {
+    setIsLoading(!isBase64Source(sources[0]));
+  }, [sources]);
 
   return {
     src,

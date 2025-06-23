@@ -14,6 +14,7 @@ import { useCollectibleMetadataSelector } from 'app/store/collectibles-metadata/
 import { setAnotherSelector, setTestID } from 'lib/analytics';
 import { objktCurrencies } from 'lib/apis/objkt';
 import { T } from 'lib/i18n';
+import { buildObjktCollectibleArtifactUri } from 'lib/images-uri';
 import { getAssetName } from 'lib/metadata';
 import { atomsToTokens } from 'lib/temple/helpers';
 import { Link } from 'lib/woozie';
@@ -104,6 +105,7 @@ export const CollectibleItem = memo<Props>(
           <CollectibleItemImage
             assetSlug={assetSlug}
             metadata={metadata}
+            extraSrc={details?.objktArtifactUri && buildObjktCollectibleArtifactUri(details?.objktArtifactUri)}
             adultBlur={adultBlur}
             areDetailsLoading={areDetailsLoading && details === undefined}
             mime={details?.mime}

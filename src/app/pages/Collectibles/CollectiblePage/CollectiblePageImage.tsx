@@ -87,6 +87,7 @@ export const CollectiblePageImage = memo<Props>(
       <AssetImage
         metadata={metadata}
         fullViewCollectible
+        extraSrc={objktArtifactUri && buildObjktCollectibleArtifactUri(objktArtifactUri)}
         loader={<CollectibleImageLoader large />}
         fallback={<CollectibleImageFallback large />}
         className={className}
