@@ -1,5 +1,7 @@
 import React, { FC, useMemo } from 'react';
 
+import { isDefined } from '@rnw-community/shared';
+
 import { buildTokenImagesStack, buildCollectibleImagesStack } from 'lib/images-uri';
 import { AssetMetadataBase, isCollectibleTokenMetadata } from 'lib/metadata';
 import { ImageStacked, ImageStackedProps } from 'lib/ui/ImageStacked';
@@ -7,12 +9,14 @@ import { ImageStacked, ImageStackedProps } from 'lib/ui/ImageStacked';
 export interface AssetImageProps
   extends Pick<ImageStackedProps, 'loader' | 'fallback' | 'className' | 'style' | 'onStackLoaded' | 'onStackFailed'> {
   metadata?: AssetMetadataBase;
+  extraSrc?: string;
   size?: number;
   fullViewCollectible?: boolean;
 }
 
 export const AssetImage: FC<AssetImageProps> = ({
   metadata,
+  extraSrc,
   className,
   size,
   fullViewCollectible,
@@ -23,11 +27,16 @@ export const AssetImage: FC<AssetImageProps> = ({
   onStackFailed
 }) => {
   const sources = useMemo(() => {
-    if (metadata && isCollectibleTokenMetadata(metadata))
-      return buildCollectibleImagesStack(metadata, fullViewCollectible);
+    if (isDefined(metadata) && isCollectibleTokenMetadata(metadata)) {
+      const baseSources = buildCollectibleImagesStack(metadata, fullViewCollectible);
+      if (extraSrc !== undefined) {
+        baseSources.push(extraSrc);
+      }
 
+      return baseSources;
+    }
     return buildTokenImagesStack(metadata?.thumbnailUri);
-  }, [metadata, fullViewCollectible]);
+  }, [metadata, fullViewCollectible, extraSrc]);
 
   const styleMemo: React.CSSProperties = useMemo(
     () => ({
