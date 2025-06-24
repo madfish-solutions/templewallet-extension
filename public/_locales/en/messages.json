@@ -1252,6 +1252,9 @@
   "routingFeeTooltip": {
     "message": "For choosing the most profitable exchange route among Tezos DEXes. \n\nDEXes commissions are not included."
   },
+  "routingFeeTooltipEvm": {
+    "message": "For choosing the most profitable exchange route among DEXes."
+  },
   "delegated": {
     "message": "Delegated"
   },
@@ -2712,6 +2715,9 @@
   "minimumReceived": {
     "message": "Minimum Received"
   },
+  "minReceived": {
+    "message": "Min.received"
+  },
   "scam": {
     "message": "Scam"
   },
@@ -3858,7 +3864,7 @@
     "message": "Submitting exchange"
   },
   "noRoutesFound": {
-    "message": "No routes found"
+    "message": "No route available"
   },
   "swapCashback": {
     "message": "Cashback"

@@ -35,8 +35,9 @@ export const ImageStacked: FC<ImageStackedProps> = ({
       isLoading
         ? {
             // (i) Cannot set `display: isLoading ? 'none' | 'contents' : undefined`; - `onLoad` won't fire
-            width: 0,
-            height: 0
+            width: size,
+            height: size,
+            position: 'absolute'
           }
         : {
             width: size,
@@ -63,9 +64,8 @@ export const ImageStacked: FC<ImageStackedProps> = ({
 
   return (
     <>
-      <img {...imgProps} src={src} style={styleMemo} onLoad={onLoadLocal} onError={onFail} />
-
       {isLoading ? loader ?? null : null}
+      <img {...imgProps} src={src} style={styleMemo} onLoad={onLoadLocal} onError={onFail} alt={'token logo'} />
     </>
   );
 };

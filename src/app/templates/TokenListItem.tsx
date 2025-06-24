@@ -10,6 +10,7 @@ import { ScamTag } from 'app/pages/Home/OtherComponents/Tokens/components/TokenT
 import { dispatch } from 'app/store';
 import { setEvmTokenStatusAction } from 'app/store/evm/assets/actions';
 import { useStoredEvmTokenSelector } from 'app/store/evm/assets/selectors';
+import { useLifiEvmTokenMetadataSelector } from 'app/store/evm/swap-lifi-metadata/selectors';
 import { setTezosTokenStatusAction } from 'app/store/tezos/assets/actions';
 import { useStoredTezosTokenSelector } from 'app/store/tezos/assets/selectors';
 import { EvmAssetIconWithNetwork, TezosAssetIconWithNetwork } from 'app/templates/AssetIcon';
@@ -48,13 +49,25 @@ interface TezosTokenListItemProps {
   scam?: boolean;
   manageActive?: boolean;
   showTags?: boolean;
+  requiresVisibility?: boolean;
   onClick?: MouseEventHandler<TokenListItemElement>;
 }
 
 export const TezosTokenListItem = memo(
   forwardRef<TokenListItemElement, TezosTokenListItemProps>(
     (
-      { network, index, publicKeyHash, assetSlug, active, scam, manageActive = false, showTags = true, onClick },
+      {
+        network,
+        index,
+        publicKeyHash,
+        assetSlug,
+        active,
+        scam,
+        manageActive = false,
+        requiresVisibility = true,
+        showTags = true,
+        onClick
+      },
       ref
     ) => {
       const {
@@ -97,6 +110,7 @@ export const TezosTokenListItem = memo(
           index={index}
           balance={balance}
           onClick={onClick}
+          requiresVisibility={requiresVisibility}
           ref={ref}
         >
           <div className="flex items-center flex-grow gap-x-2 truncate">
@@ -125,12 +139,14 @@ interface EvmTokenListItemProps {
   assetSlug: string;
   manageActive?: boolean;
   onClick?: MouseEventHandler<TokenListItemElement>;
+  requiresVisibility?: boolean;
 }
 
 export const EvmTokenListItem = memo(
   forwardRef<TokenListItemElement, EvmTokenListItemProps>(
-    ({ network, index, publicKeyHash, assetSlug, manageActive = false, onClick }, ref) => {
+    ({ network, index, publicKeyHash, assetSlug, manageActive = false, requiresVisibility = true, onClick }, ref) => {
       const { chainId } = network;
+      const lifiTokenMetadata = useLifiEvmTokenMetadataSelector(chainId, assetSlug);
 
       const {
         value: balance = ZERO,
@@ -141,10 +157,10 @@ export const EvmTokenListItem = memo(
 
       const checked = getAssetStatus(rawBalance, storedToken?.status) === 'enabled';
 
-      if (metadata == null) return null;
+      if (metadata == null && lifiTokenMetadata == null) return null;
 
-      const assetSymbol = getAssetSymbol(metadata);
-      const assetName = getTokenName(metadata);
+      const assetSymbol = getAssetSymbol(metadata?.decimals ? metadata : lifiTokenMetadata);
+      const assetName = getTokenName(metadata?.decimals ? metadata : lifiTokenMetadata);
 
       if (manageActive)
         return (
@@ -171,6 +187,7 @@ export const EvmTokenListItem = memo(
           index={index}
           balance={balance}
           onClick={onClick}
+          requiresVisibility={requiresVisibility}
           ref={ref}
         >
           <div className={clsx('flex-grow text-font-medium', balance.lt(ASSET_HUGE_AMOUNT) && 'truncate')}>
@@ -316,16 +333,22 @@ interface DefaultListItemLayoutProps<T extends TempleChainKind> {
   index?: number;
   balance: BigNumber;
   onClick?: MouseEventHandler<TokenListItemElement>;
+  requiresVisibility?: boolean;
 }
 
 const DefaultListItemLayoutHOC = <T extends TempleChainKind>(
   networkKind: T,
-  AssetIconWithNetwork: FC<{ chainId: ChainId<T>; assetSlug: string; className?: string }>
+  AssetIconWithNetwork: FC<{
+    chainId: ChainId<T>;
+    assetSlug: string;
+    className?: string;
+  }>
 ) =>
   forwardRef<TokenListItemElement, PropsWithChildren<DefaultListItemLayoutProps<T>>>(
-    ({ children, assetSlug, assetName, className, network, index, balance, onClick }, ref) => {
+    ({ children, assetSlug, assetName, className, network, index, balance, onClick, requiresVisibility }, ref) => {
       const { chainId } = network;
       const isVisible = useIsItemVisible(index);
+      const visible = !requiresVisibility || isVisible;
 
       return (
         <Link
@@ -333,11 +356,11 @@ const DefaultListItemLayoutHOC = <T extends TempleChainKind>(
           className={clsx(LIST_ITEM_CLASSNAME, className)}
           onClick={onClick}
           testID={AssetsSelectors.assetItemButton}
-          testIDProperties={{ key: assetSlug }}
+          testIDProperties={{ key: `${assetSlug}-${chainId}` }}
           ref={ref as ForwardedRef<HTMLAnchorElement>}
           {...setAnotherSelector('name', assetName)}
         >
-          {isVisible ? (
+          {visible ? (
             <>
               <AssetIconWithNetwork chainId={chainId} assetSlug={assetSlug} className="shrink-0" />
 

@@ -1,3 +1,5 @@
+import { mockLifiEvmTokensMetadataState } from 'app/store/evm/swap-lifi-metadata/state.mock';
+
 import { mockABTestingState } from './ab-testing/state.mock';
 import { mockAccountsInitializationState } from './accounts-initialization/state.mock';
 import { mockAdvertisingState } from './advertising/state.mock';
@@ -51,6 +53,7 @@ export const mockRootState: RootState = {
   evmAssets: mockEvmAssetsState,
   evmBalances: mockEvmBalancesState,
   evmTokensMetadata: mockEvmTokensMetadataState,
+  lifiEvmTokensMetadata: mockLifiEvmTokensMetadataState,
   evmCollectiblesMetadata: mockEvmCollectiblesMetadataState,
   evmTokensExchangeRates: mockEvmTokensExchangeRatesState,
   evmNoCategoryAssetMetadata: mockNoCategoryEvmAssetsMetadataState,
