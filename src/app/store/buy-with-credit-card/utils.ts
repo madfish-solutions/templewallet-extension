@@ -40,6 +40,7 @@ const isMoonpayTez = (metadata: MoonPayCryptoCurrency['metadata']) => metadata.n
 const polygonCodes = ['pol_polygon', 'pol'];
 
 const getMoonpayTokenIconUrl = (tokenCode: string) => {
+  if (tokenCode.includes('usdt')) return `${MOONPAY_ICONS_BASE_URL}usdt.svg`;
   if (polygonCodes.includes(tokenCode)) return `${MOONPAY_ICONS_BASE_URL}matic.svg`;
 
   return `${MOONPAY_ICONS_BASE_URL + tokenCode}.svg`;

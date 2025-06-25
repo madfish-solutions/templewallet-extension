@@ -7,7 +7,7 @@ import { Route3Token } from 'lib/apis/route3/fetch-route3-tokens';
 import { Route3SwapHops, Route3LiquidityBakingHops } from 'lib/route3/interfaces';
 import { getSwapTransferParams } from 'lib/utils/swap.utils';
 
-export const useGetSwapTransferParams = (tezos: TezosToolkit, publicKeyHash: string) =>
+export const useGetTezosSwapTransferParams = (tezos: TezosToolkit, publicKeyHash: string) =>
   useCallback(
     async (
       fromRoute3Token: Route3Token,

@@ -15,6 +15,7 @@ export interface NetworkPopperProps {
   selectedOption: FilterChain;
   onOptionSelect: SyncFn<FilterChain>;
   children: (props: PopperAnchorProps & { selectedOptionName: string }) => ReactElement;
+  supportedChainIds?: number[];
 }
 
 export type Network = OneOfChains | TID;

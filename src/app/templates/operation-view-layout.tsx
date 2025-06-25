@@ -38,13 +38,13 @@ export const OperationViewLayout = <T extends TxParamsFormData>({
           <BalancesChangesView balancesChanges={filteredBalancesChanges} chain={network} />
         </div>
       )}
-      {!expensesViewIsVisible && (otherDataLoading || metadataLoading) && (
+      {someBalancesChanges && (otherDataLoading || metadataLoading) && (
         <div className="flex justify-center items-center">
           <Loader size="L" trackVariant="dark" className="text-secondary" />
         </div>
       )}
 
-      <div className="flex flex-col">
+      <div className="flex flex-col mt-4">
         <AccountCard account={sendingAccount} isCurrent={false} attractSelf={false} showRadioOnHover={false} />
 
         <TransactionTabs<T> network={network} {...restProps} />

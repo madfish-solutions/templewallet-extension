@@ -17,5 +17,5 @@ export async function checkIfShouldReplaceReferrals() {
 
   const value = await fetchFromStorage<boolean>(REPLACE_REFERRALS_ENABLED);
 
-  return value ?? IS_MISES_BROWSER;
+  return value && IS_MISES_BROWSER;
 }

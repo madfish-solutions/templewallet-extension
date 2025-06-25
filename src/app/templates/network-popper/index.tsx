@@ -10,7 +10,15 @@ import { NetworkDropdown } from './dropdown';
 import { NetworkPopperProps } from './types';
 
 export const NetworkPopper = memo<NetworkPopperProps>(
-  ({ selectedOption, showAllNetworksOption, chainKind, placement = 'bottom-end', onOptionSelect, children }) => {
+  ({
+    selectedOption,
+    showAllNetworksOption,
+    chainKind,
+    placement = 'bottom-end',
+    onOptionSelect,
+    supportedChainIds,
+    children
+  }) => {
     const allTezosChains = useAllTezosChains();
     const allEvmChains = useAllEvmChains();
 
@@ -30,6 +38,7 @@ export const NetworkPopper = memo<NetworkPopperProps>(
         strategy="fixed"
         popup={popperProps => (
           <NetworkDropdown
+            supportedChainIds={supportedChainIds}
             showAllNetworksOption={showAllNetworksOption}
             selectedOption={selectedOption}
             onOptionSelect={onOptionSelect}

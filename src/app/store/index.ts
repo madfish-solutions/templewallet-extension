@@ -25,7 +25,9 @@ export const SLICES_BLACKLIST = [
   'evmTokensExchangeRates' as const,
   'currency' as const,
   'evmNoCategoryAssetMetadata' as const,
-  'noCategoryAssetMetadata' as const
+  'lifiEvmTokensMetadata' as const,
+  'noCategoryAssetMetadata' as const,
+  'swap' as const
 ];
 
 const persistConfigBlacklist: (keyof RootState)[] = SLICES_BLACKLIST;
