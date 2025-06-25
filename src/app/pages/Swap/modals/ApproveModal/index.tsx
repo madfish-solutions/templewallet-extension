@@ -8,7 +8,7 @@ import { toHex } from 'viem/utils';
 import { Anchor, IconBase } from 'app/atoms';
 import { PageLoader } from 'app/atoms/Loader';
 import { Logo } from 'app/atoms/Logo';
-import { ActionsButtonsBox, CLOSE_ANIMATION_TIMEOUT } from 'app/atoms/PageModal';
+import { ActionsButtonsBox } from 'app/atoms/PageModal';
 import { StyledButton } from 'app/atoms/StyledButton';
 import { ReactComponent as LinkIcon } from 'app/icons/base/link.svg';
 import { ReactComponent as OutLinkIcon } from 'app/icons/base/outLink.svg';
@@ -17,15 +17,15 @@ import LiFiImgSrc from 'app/pages/Swap/form/assets/lifi.png';
 import { EvmReviewData, SwapReviewData } from 'app/pages/Swap/form/interfaces';
 import { parseTxRequestToViem, timeout } from 'app/pages/Swap/modals/ConfirmSwap/utils';
 import { EvmTransactionView } from 'app/templates/EvmTransactionView';
-import { toastSuccess } from 'app/toaster';
 import { erc20ApproveAbi } from 'lib/abi/erc20';
 import { toTokenSlug } from 'lib/assets';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { useEvmAssetBalance } from 'lib/balances/hooks';
-import { t, T } from 'lib/i18n';
+import { T } from 'lib/i18n';
 import { useTempleClient } from 'lib/temple/front';
 import { atomsToTokens } from 'lib/temple/helpers';
 import { EvmTransactionRequestWithSender, TempleEvmDAppTransactionPayload } from 'lib/temple/types';
+import { showTxSubmitToastWithDelay } from 'lib/ui/show-tx-submit-toast.util';
 import { ZERO } from 'lib/utils/numbers';
 import { useGetEvmActiveBlockExplorer } from 'temple/front/ready';
 import { TempleChainKind } from 'temple/types';
@@ -123,12 +123,8 @@ const ApproveModal = ({ data, onClose, onReview, setLoading }: ApproveModalProps
           const txHash = await sendEvmTransaction(account.address as HexString, network, txParams);
 
           const blockExplorer = getActiveBlockExplorer(network.chainId.toString());
-          setTimeout(() => {
-            toastSuccess(t('transactionSubmitted'), true, {
-              hash: txHash,
-              explorerBaseUrl: blockExplorer.url + '/tx/'
-            });
-          }, CLOSE_ANIMATION_TIMEOUT * 2);
+
+          showTxSubmitToastWithDelay(TempleChainKind.EVM, txHash, blockExplorer.url);
 
           await timeout(1000);
           setLoading(false);

@@ -1,7 +1,6 @@
 import React, { memo } from 'react';
 
 import { FadeTransition } from 'app/a11y/FadeTransition';
-
 import { IS_MISES_BROWSER } from 'lib/env';
 
 import { PartnersPromotionSettings } from './partners-promotion-settings';

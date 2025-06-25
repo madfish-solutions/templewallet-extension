@@ -4,14 +4,13 @@ import { LiFiStep } from '@lifi/sdk';
 import BigNumber from 'bignumber.js';
 import { FormProvider } from 'react-hook-form-v7';
 
-import { CLOSE_ANIMATION_TIMEOUT } from 'app/atoms/PageModal';
 import { useLedgerApprovalModalState } from 'app/hooks/use-ledger-approval-modal-state';
 import { useEvmEstimationData } from 'app/pages/Send/hooks/use-evm-estimation-data';
 import { EvmReviewData } from 'app/pages/Swap/form/interfaces';
 import { mapLiFiTxToEvmEstimationData, parseTxRequestToViem } from 'app/pages/Swap/modals/ConfirmSwap/utils';
 import { EvmTxParamsFormData } from 'app/templates/TransactionTabs/types';
 import { useEvmEstimationForm } from 'app/templates/TransactionTabs/use-evm-estimation-form';
-import { toastError, toastSuccess } from 'app/toaster';
+import { toastError } from 'app/toaster';
 import { toTokenSlug } from 'lib/assets';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { useEvmAssetBalance } from 'lib/balances/hooks';
@@ -21,9 +20,11 @@ import { useTempleClient } from 'lib/temple/front';
 import { atomsToTokens } from 'lib/temple/helpers';
 import { TempleAccountType } from 'lib/temple/types';
 import { runConnectedLedgerOperationFlow } from 'lib/ui';
+import { showTxSubmitToastWithDelay } from 'lib/ui/show-tx-submit-toast.util';
 import { isEvmNativeTokenSlug } from 'lib/utils/evm.utils';
 import { ZERO } from 'lib/utils/numbers';
 import { useGetEvmActiveBlockExplorer } from 'temple/front/ready';
+import { TempleChainKind } from 'temple/types';
 
 import { BaseContent } from './BaseContent';
 
@@ -121,12 +122,8 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
       const txHash = await sendEvmTransaction(accountPkh, network, txParams);
 
       const blockExplorer = getActiveBlockExplorer(network.chainId.toString());
-      setTimeout(() => {
-        toastSuccess(t('transactionSubmitted'), true, {
-          hash: txHash,
-          explorerBaseUrl: blockExplorer.url + '/tx/'
-        });
-      }, CLOSE_ANIMATION_TIMEOUT * 2);
+
+      showTxSubmitToastWithDelay(TempleChainKind.EVM, txHash, blockExplorer.url);
 
       onConfirm?.();
       onClose?.();
