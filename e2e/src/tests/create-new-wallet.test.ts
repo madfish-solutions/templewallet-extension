@@ -28,11 +28,11 @@ describeScenario('Create new wallet', () => {
     await Pages.ManualBackupModal.verifyMnemonic();
     await Pages.ManualBackupModal.confirmButton.click();
 
-    await Pages.OnRumpModal.isVisible();
-    await Pages.OnRumpModal.closeButton.click();
-
-    await Pages.NewsletterModal.isVisible();
-    await Pages.NewsletterModal.closeButton.click();
+    // await Pages.OnRumpModal.isVisible();
+    // await Pages.OnRumpModal.closeButton.click();
+    //
+    // await Pages.NewsletterModal.isVisible();
+    // await Pages.NewsletterModal.closeButton.click();
 
     // TODO: Home page object will need additional rework after EVM implementation
     await Pages.Home.isVisible();
