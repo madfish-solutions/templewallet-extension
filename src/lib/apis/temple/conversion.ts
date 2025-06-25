@@ -7,28 +7,39 @@ const conversionApi = axios.create({
   withCredentials: true
 });
 
+interface ConversionAccount {
+  id: string;
+  tezosAddress: string | null;
+  evmAddress: string | null;
+  referralLinkId: string | null;
+  createdAt: string;
+  extras: unknown;
+  referralId: string | null;
+  referralTezosAddress: string | null;
+  referralEvmAddress: string | null;
+  referralExtras: unknown;
+}
+
+export function fetchConversionAccount() {
+  return conversionApi.get<ConversionAccount>('/v1/me').then(response => response.data);
+}
+
 export function fetchConversionInformation() {
+  return conversionApi.get<{ linkId: string; name: string }>('/v1/verify').then(response => response.data);
+}
+
+export function registerWallet(tezosAddress: string, evmAddress: string) {
   return conversionApi
-    .get<{ linkId: string; name: string; userId: string }>('/v1/verify')
+    .post<{ message: string }>('/v1/register-wallet', { tezosAddress, evmAddress })
     .then(response => response.data);
 }
 
-export function registerWallet(tezosAddress: string, evmAddress: string, userId?: string | null) {
+export function getRefLink() {
   return conversionApi
-    .post<{ message: string; userId: string }>('/v1/register-wallet', {
-      tezosAddress,
-      evmAddress,
-      id: userId
-    })
-    .then(response => response.data);
-}
-
-export function getRefLink(userId: string) {
-  return conversionApi
-    .get<{ id: string }>('/v1/ref-link', { params: { userId } })
+    .get<{ id: string }>('/v1/ref-link')
     .then(({ data }) => `${EnvVars.CONVERSION_API_URL}/share/${data.id}`);
 }
 
-export function getReferrersCount(userId: string) {
-  return conversionApi.get<{ count: number }>(`/v1/referrers-count/${userId}`).then(({ data }) => data.count);
+export function getReferrersCount() {
+  return conversionApi.get<{ count: number }>(`/v1/referrers-count`).then(({ data }) => data.count);
 }

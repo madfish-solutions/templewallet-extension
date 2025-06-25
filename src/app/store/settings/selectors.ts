@@ -6,8 +6,6 @@ export const useAnalyticsEnabledSelector = () => useSelector(({ settings }) => s
 
 export const useOnRampAssetSelector = () => useSelector(({ settings }) => settings.onRampAsset);
 
-export const useIsConversionTrackedSelector = () => useSelector(({ settings }) => settings.isConversionTracked);
-
 export const useIsPendingReactivateAdsSelector = () => useSelector(({ settings }) => settings.pendingReactivateAds);
 
 export const useIsAdsImpressionsLinkedSelector = () => useSelector(({ settings }) => settings.adsImpressionsLinked);

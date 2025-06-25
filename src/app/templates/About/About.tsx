@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useMemo, useState } from 'react';
+import React, { memo, useCallback, useState } from 'react';
 
 import { FadeTransition } from 'app/a11y/FadeTransition';
 import { CopyButton, IconBase } from 'app/atoms';
@@ -7,7 +7,6 @@ import { Logo } from 'app/atoms/Logo';
 import { SettingsCellSingle } from 'app/atoms/SettingsCell';
 import { SettingsCellGroup } from 'app/atoms/SettingsCellGroup';
 import { TextButton } from 'app/atoms/TextButton';
-import { useReferralUserId, useRegisterReferralWalletIfPossible } from 'app/hooks/use-conversion-verification';
 import { ReactComponent as CopyIcon } from 'app/icons/base/copy.svg';
 import { ReactComponent as DiscordIcon } from 'app/icons/monochrome/discord.svg';
 import { ReactComponent as KnowledgeBaseIcon } from 'app/icons/monochrome/knowledge-base.svg';
@@ -19,6 +18,7 @@ import { toastError } from 'app/toaster';
 import { getRefLink, getReferrersCount } from 'lib/apis/temple';
 import { PRIVACY_POLICY_URL, TERMS_OF_USE_URL } from 'lib/constants';
 import { EnvVars } from 'lib/env';
+import { REFERRERS_COUNTER_SYNC_INTERVAL } from 'lib/fixed-times';
 import { T, t } from 'lib/i18n';
 import { useTypedSWR } from 'lib/swr';
 
@@ -98,20 +98,19 @@ export const About = memo(() => {
   const branch = EnvVars.TEMPLE_WALLET_DEVELOPMENT_BRANCH_NAME;
   const version = process.env.VERSION;
   const [refLink, setRefLink] = useState<string | null>(null);
-  const [userId] = useReferralUserId();
-  const registerReferralWalletIfPossible = useRegisterReferralWalletIfPossible();
 
   const generateRefLink = useCallback(async () => {
     try {
-      const currentUserId = userId ?? (await registerReferralWalletIfPossible());
-      setRefLink(await getRefLink(currentUserId!));
+      setRefLink(await getRefLink());
     } catch (error) {
       console.error(error);
       toastError('Failed to generate referral link');
     }
-  }, [registerReferralWalletIfPossible, userId]);
-  const fetchReferrersCount = useMemo(() => (userId ? () => getReferrersCount(userId) : null), [userId]);
-  const { data: referrersCount } = useTypedSWR(['referrersCount', userId], fetchReferrersCount, { suspense: false });
+  }, []);
+  const { data: referrersCount } = useTypedSWR(['referrersCount'], getReferrersCount, {
+    suspense: false,
+    refreshInterval: REFERRERS_COUNTER_SYNC_INTERVAL
+  });
 
   return (
     <FadeTransition>
