@@ -5,10 +5,17 @@ import clsx from 'clsx';
 import { ReactComponent as DangerIcon } from 'app/icons/danger.svg';
 import { t, T } from 'lib/i18n';
 import { getOnlineStatus } from 'lib/ui/get-online-status';
+import { HistoryAction, navigate } from 'lib/woozie';
 
 export class BoundaryError extends Error {
   constructor(public readonly message: string, public readonly beforeTryAgain: EmptyFn) {
     super(message);
+  }
+}
+
+export class DeadEndBoundaryError extends BoundaryError {
+  constructor() {
+    super('🚧 🛠️ 🔜 🏗️', () => navigate('/', HistoryAction.Push));
   }
 }
 
@@ -76,7 +83,7 @@ interface ErrorBoundaryContentProps {
   onTryAgainClick: EmptyFn;
 }
 
-export const ErrorBoundaryContent = memo<ErrorBoundaryContentProps>(({ errorMessage, className, onTryAgainClick }) => (
+const ErrorBoundaryContent = memo<ErrorBoundaryContentProps>(({ errorMessage, className, onTryAgainClick }) => (
   <div className={clsx('w-full flex items-center justify-center', className)}>
     <div className="max-w-xs p-4 flex flex-col items-center text-red-600">
       <DangerIcon className="h-16 w-auto stroke-current" />

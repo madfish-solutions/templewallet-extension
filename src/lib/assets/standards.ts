@@ -1,4 +1,5 @@
 import { HttpResponseError } from '@taquito/http-utils';
+import type { MichelsonV1ExpressionExtended } from '@taquito/rpc';
 import { TezosToolkit, WalletContract, Contract, ChainIds } from '@taquito/taquito';
 import retry from 'async-retry';
 
@@ -24,6 +25,7 @@ const FA2_ENTRYPOINTS_SCHEMA = [
   ['update_operators', 'list', 'or']
 ];
 
+/** TODO: Consider running this through back-end */
 export const detectTokenStandard = async (
   tezos: TezosToolkit,
   contract: string | Contract | WalletContract
@@ -45,7 +47,7 @@ export const detectTokenStandard = async (
   }
 };
 
-export const assertFa2TokenDefined = async (tezos: TezosToolkit, contract: WalletContract, tokenId = 0) => {
+export const assertFa2TokenDefined = async (tezos: TezosToolkit, contract: WalletContract, tokenId = '0') => {
   const chainId = (await tezos.rpc.getChainId()) as ChainIds;
 
   try {
@@ -65,17 +67,19 @@ export const assertFa2TokenDefined = async (tezos: TezosToolkit, contract: Walle
 export class NotMatchingStandardError extends Error {}
 export class IncorrectTokenIdError extends NotMatchingStandardError {}
 
-const isEntrypointsMatched = (entrypoints: Record<string, any>, schema: string[][]) => {
+const isEntrypointsMatched = (entrypoints: StringRecord<MichelsonV1ExpressionExtended>, schema: string[][]) => {
   try {
     for (const [name, prim, ...args] of schema) {
       const entry = entrypoints[name];
-      if (
-        !entry ||
-        entry.prim !== prim ||
-        entry.args.length !== args.length ||
-        args.some((arg, i) => arg !== entry.args[i]?.prim)
-      ) {
+
+      if (!entry || entry.prim !== prim || !entry.args || entry.args.length !== args.length) {
         return false;
+      }
+
+      for (let i = 0; i < args.length; i++) {
+        const arg = args[i];
+        const entryArg = entry.args[i];
+        if (!entryArg || !('prim' in entryArg) || arg !== entryArg.prim) return false;
       }
     }
 

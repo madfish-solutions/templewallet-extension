@@ -2,9 +2,9 @@ import { HubConnectionBuilder } from '@microsoft/signalr';
 import axios, { AxiosError } from 'axios';
 
 import { toTokenSlug } from 'lib/assets';
-import { TempleChainId } from 'lib/temple/types';
-import { delay } from 'lib/utils';
+import { isTezosDcpChainId } from 'temple/networks';
 
+import { TZKT_API_BASE_URLS } from './misc';
 import {
   TzktOperation,
   TzktOperationType,
@@ -13,20 +13,13 @@ import {
   allInt32ParameterKeys,
   TzktGetRewardsParams,
   TzktGetRewardsResponse,
-  TzktRelatedContract,
   TzktAccount,
-  TzktHubConnection
+  TzktHubConnection,
+  TzktCycle,
+  TzktProtocol,
+  TzktSetDelegateParamsOperation
 } from './types';
 import { calcTzktAccountSpendableTezBalance } from './utils';
-
-const TZKT_API_BASE_URLS = {
-  [TempleChainId.Mainnet]: 'https://api.tzkt.io/v1',
-  [TempleChainId.Mumbai]: 'https://api.mumbainet.tzkt.io/v1',
-  [TempleChainId.Nairobi]: 'https://api.nairobinet.tzkt.io/v1',
-  [TempleChainId.Ghostnet]: 'https://api.ghostnet.tzkt.io/v1',
-  [TempleChainId.Dcp]: 'https://explorer-api.tlnt.net/v1',
-  [TempleChainId.DcpTest]: 'https://explorer-api.test.tlnt.net/v1'
-};
 
 export type TzktApiChainId = keyof typeof TZKT_API_BASE_URLS;
 
@@ -36,13 +29,8 @@ export function isKnownChainId(chainId?: string | null): chainId is TzktApiChain
   return chainId != null && KNOWN_CHAIN_IDS.includes(chainId);
 }
 
-export const createWsConnection = (chainId: string): TzktHubConnection | undefined => {
-  if (isKnownChainId(chainId)) {
-    return new HubConnectionBuilder().withUrl(`${TZKT_API_BASE_URLS[chainId]}/ws`).build();
-  }
-
-  return undefined;
-};
+export const createTzktWsConnection = (chainId: TzktApiChainId): TzktHubConnection | null =>
+  isTezosDcpChainId(chainId) ? null : new HubConnectionBuilder().withUrl(`${TZKT_API_BASE_URLS[chainId]}/ws`).build();
 
 const api = axios.create({
   adapter: 'fetch'
@@ -106,21 +94,25 @@ export const fetchGetOperationsByHash = (
   } = {}
 ) => fetchGet<TzktOperation[]>(chainId, `/operations/${hash}`, params);
 
+type OperationSortParams = {
+  [key in `sort${'' | '.desc'}`]?: 'id' | 'level';
+};
+
 type GetOperationsTransactionsParams = GetOperationsBaseParams & {
   [key in `anyof.sender.target${'' | '.initiator'}`]?: string;
 } & {
   [key in `amount${'' | '.ne'}`]?: string;
 } & {
   [key in `parameter.${'to' | 'in' | '[*].in' | '[*].txs.[*].to_'}`]?: string;
-} & {
-  [key in `sort${'' | '.desc'}`]?: 'id' | 'level';
-};
+} & OperationSortParams;
 
 export const fetchGetOperationsTransactions = (chainId: TzktApiChainId, params: GetOperationsTransactionsParams) =>
   fetchGet<TzktOperation[]>(chainId, `/operations/transactions`, params);
 
-export const getOneUserContracts = (chainId: TzktApiChainId, accountAddress: string) =>
-  fetchGet<TzktRelatedContract[]>(chainId, `/accounts/${accountAddress}/contracts`);
+export const fetchSetDelegateParametersOperations = (
+  chainId: TzktApiChainId,
+  params: GetOperationsBaseParams & OperationSortParams
+) => fetchGet<TzktSetDelegateParamsOperation[]>(chainId, '/operations/set_delegate_parameters', params);
 
 export const getDelegatorRewards = (
   chainId: TzktApiChainId,
@@ -140,6 +132,10 @@ export const getDelegatorRewards = (
   });
 
 const TZKT_MAX_QUERY_ITEMS_LIMIT = 10_000;
+
+export const getCycles = (chainId: TzktApiChainId) => fetchGet<TzktCycle[]>(chainId, '/cycles', {});
+
+export const getProtocol = (chainId: TzktApiChainId) => fetchGet<TzktProtocol>(chainId, '/protocols/current');
 
 /**
  * @arg fungible // `null` for unknown fungibility only
@@ -189,24 +185,6 @@ const fetchTzktAccountAssetsPage = (
     'sort.desc': 'balance',
     'select.values': 'token.contract.address,token.tokenId,balance'
   });
-
-export async function refetchOnce429<R>(fetcher: () => Promise<R>, delayAroundInMS = 1000) {
-  try {
-    return await fetcher();
-  } catch (err: any) {
-    if (err.isAxiosError) {
-      const error: AxiosError = err;
-      if (error.response?.status === 429) {
-        await delay(delayAroundInMS);
-        const res = await fetcher();
-        await delay(delayAroundInMS);
-        return res;
-      }
-    }
-
-    throw err;
-  }
-}
 
 export const fetchTezosBalanceFromTzkt = async (account: string, chainId: TzktApiChainId) =>
   getAccountStatsFromTzkt(account, chainId).then(calcTzktAccountSpendableTezBalance);

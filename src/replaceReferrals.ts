@@ -1,8 +1,9 @@
-import { checkIfShouldReplaceReferrals, throttleAsyncCalls } from 'content-scripts/utils';
+import { checkIfShouldReplaceReferrals } from 'content-scripts/utils';
 import { importExtensionAdsReferralsModule } from 'lib/ads/import-extension-ads-module';
 import type { ReferralsRulesResponse } from 'lib/apis/ads-api';
 import { browser } from 'lib/browser';
 import { ContentScriptType } from 'lib/constants';
+import { throttleAsyncCalls } from 'lib/utils/functions';
 
 let interval: NodeJS.Timer;
 

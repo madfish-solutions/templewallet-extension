@@ -2,35 +2,40 @@ import React, { FC, useCallback, useEffect, useMemo } from 'react';
 
 import { localForger } from '@taquito/local-forging';
 import classNames from 'clsx';
-import { useDispatch } from 'react-redux';
 
 import { Alert, FormSubmitButton, FormSecondaryButton } from 'app/atoms';
-import ConfirmLedgerOverlay from 'app/atoms/ConfirmLedgerOverlay';
-import Logo from 'app/atoms/Logo';
+import { Logo } from 'app/atoms/Logo';
 import SubTitle from 'app/atoms/SubTitle';
 import { useAppEnv } from 'app/env';
+import { useLedgerApprovalModalState } from 'app/hooks/use-ledger-approval-modal-state';
 import { ReactComponent as CodeAltIcon } from 'app/icons/code-alt.svg';
 import { ReactComponent as EyeIcon } from 'app/icons/eye.svg';
 import { ReactComponent as HashIcon } from 'app/icons/hash.svg';
-import { setOnRampPossibilityAction } from 'app/store/settings/actions';
+import OperationsBanner from 'app/icons/OperationsBanner/OperationsBanner';
+import { dispatch } from 'app/store';
+import { setOnRampAssetAction } from 'app/store/settings/actions';
 import AccountBanner from 'app/templates/AccountBanner';
 import ExpensesView, { ModifyFeeAndLimit } from 'app/templates/ExpensesView/ExpensesView';
 import NetworkBanner from 'app/templates/NetworkBanner';
-import OperationsBanner from 'app/templates/OperationsBanner/OperationsBanner';
 import RawPayloadView from 'app/templates/RawPayloadView';
 import ViewsSwitcher from 'app/templates/ViewsSwitcher/ViewsSwitcher';
 import { ViewsSwitcherItemProps } from 'app/templates/ViewsSwitcher/ViewsSwitcherItem';
+import { TEZOS_CHAIN_ASSET_SLUG } from 'lib/apis/wert';
 import { toTokenSlug } from 'lib/assets';
 import { T, t } from 'lib/i18n';
 import { useRetryableSWR } from 'lib/swr';
-import { useChainIdValue, useNetwork, useRelevantAccounts, tryParseExpenses } from 'lib/temple/front';
-import { TempleAccountType, TempleChainId, TempleConfirmationPayload } from 'lib/temple/types';
+import { tryParseExpenses } from 'lib/temple/front';
+import { TempleAccountType, TempleConfirmationPayload } from 'lib/temple/types';
+import { runConnectedLedgerOperationFlow } from 'lib/ui';
 import { useSafeState } from 'lib/ui/hooks';
 import { isTruthy } from 'lib/utils';
+import { findAccountForTezos } from 'temple/accounts';
+import { useTezosChainIdLoadingValue, useRelevantAccounts } from 'temple/front';
 
 import { InternalConfirmationSelectors } from './InternalConfirmation.selectors';
+import { LedgerApprovalModal } from './ledger-approval-modal';
 
-type InternalConfiramtionProps = {
+type InternalConfirmationProps = {
   payload: TempleConfirmationPayload;
   onConfirm: (confirmed: boolean, modifiedTotalFee?: number, modifiedStorageLimit?: number) => Promise<void>;
   error?: any;
@@ -38,10 +43,8 @@ type InternalConfiramtionProps = {
 
 const MIN_GAS_FEE = 0;
 
-const InternalConfirmation: FC<InternalConfiramtionProps> = ({ payload, onConfirm, error: payloadError }) => {
-  const { rpcBaseURL: currentNetworkRpc } = useNetwork();
+const InternalConfirmation: FC<InternalConfirmationProps> = ({ payload, onConfirm, error: payloadError }) => {
   const { popup } = useAppEnv();
-  const dispatch = useDispatch();
 
   const getContentToParse = useCallback(async () => {
     switch (payload.type) {
@@ -61,20 +64,24 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({ payload, onConfir
   }, [payload]);
   const { data: contentToParse } = useRetryableSWR(['content-to-parse'], getContentToParse, { suspense: true });
 
-  const networkRpc = payload.type === 'operations' ? payload.networkRpc : currentNetworkRpc;
+  const networkRpc = payload.networkRpc;
 
-  const chainId = useChainIdValue(networkRpc, true)!;
-  const mainnet = chainId === TempleChainId.Mainnet;
+  // TODO: `payload.chainId`
+  const tezosChainId = useTezosChainIdLoadingValue(networkRpc, true)!;
 
-  const allAccounts = useRelevantAccounts();
+  const tezosNetwork = useMemo(() => ({ chainId: tezosChainId, rpcBaseURL: networkRpc }), [tezosChainId, networkRpc]);
+
+  const relevantAccounts = useRelevantAccounts(tezosChainId);
   const account = useMemo(
-    () => allAccounts.find(a => a.publicKeyHash === payload.sourcePkh)!,
-    [allAccounts, payload.sourcePkh]
+    () => findAccountForTezos(relevantAccounts, payload.sourcePkh)!,
+    [relevantAccounts, payload.sourcePkh]
   );
+
   const rawExpensesData = useMemo(
-    () => tryParseExpenses(contentToParse!, account.publicKeyHash),
-    [contentToParse, account.publicKeyHash]
+    () => tryParseExpenses(contentToParse!, account.address),
+    [contentToParse, account.address]
   );
+
   const expensesData = useMemo(() => {
     return rawExpensesData.map(({ expenses, ...restProps }) => ({
       expenses: expenses.map(({ tokenAddress, tokenId, ...restProps }) => ({
@@ -87,7 +94,10 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({ payload, onConfir
 
   useEffect(() => {
     try {
-      const { errorDetails, errors, name } = payloadError.error[0];
+      const { errorDetails, errors, name, message } = payloadError.error[0];
+      if (message?.includes('empty_implicit_contract') && message?.includes(payload.sourcePkh)) {
+        dispatch(setOnRampAssetAction(TEZOS_CHAIN_ASSET_SLUG));
+      }
       if (
         payload.type !== 'operations' ||
         !errorDetails.toLowerCase().includes('estimation') ||
@@ -104,10 +114,10 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({ payload, onConfir
       });
 
       if (tezBalanceTooLow) {
-        dispatch(setOnRampPossibilityAction(true));
+        dispatch(setOnRampAssetAction(TEZOS_CHAIN_ASSET_SLUG));
       }
     } catch {}
-  }, [dispatch, payload.sourcePkh, payload.type, payloadError]);
+  }, [payload.sourcePkh, payload.type, payloadError]);
 
   const signPayloadFormats: ViewsSwitcherItemProps[] = useMemo(() => {
     if (payload.type === 'operations') {
@@ -176,20 +186,39 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({ payload, onConfir
     (payload.type === 'operations' && payload.opParams && payload.opParams[0].storageLimit) || 0
   );
 
+  const { ledgerApprovalModalState, setLedgerApprovalModalState, handleLedgerModalClose } =
+    useLedgerApprovalModalState();
+  const isLedgerOperation = account.type === TempleAccountType.Ledger;
+
   const gasFeeError = useMemo(() => modifiedTotalFeeValue <= MIN_GAS_FEE, [modifiedTotalFeeValue]);
 
   const confirm = useCallback(
     async (confirmed: boolean) => {
-      setError(null);
+      const doOperation = async () => {
+        setError(null);
+        await onConfirm(confirmed, modifiedTotalFeeValue - revealFee, modifiedStorageLimitValue);
+      };
 
       try {
-        await onConfirm(confirmed, modifiedTotalFeeValue - revealFee, modifiedStorageLimitValue);
+        if (isLedgerOperation) {
+          await runConnectedLedgerOperationFlow(doOperation, setLedgerApprovalModalState, true);
+        } else {
+          await doOperation();
+        }
       } catch (err) {
         console.error(err);
         setError(err);
       }
     },
-    [onConfirm, setError, modifiedTotalFeeValue, modifiedStorageLimitValue, revealFee]
+    [
+      setError,
+      onConfirm,
+      modifiedTotalFeeValue,
+      revealFee,
+      modifiedStorageLimitValue,
+      isLedgerOperation,
+      setLedgerApprovalModalState
+    ]
   );
 
   const handleConfirmClick = useCallback(async () => {
@@ -235,7 +264,7 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({ payload, onConfir
     <div className={classNames('h-full w-full max-w-sm mx-auto flex flex-col', !popup && 'justify-center px-2')}>
       <div className={classNames('flex flex-col items-center justify-center', popup && 'flex-1')}>
         <div className="flex items-center my-4">
-          <Logo hasTitle />
+          <Logo className="my-1.5" type="icon-title" />
         </div>
       </div>
 
@@ -263,9 +292,9 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({ payload, onConfir
             />
           ) : (
             <>
-              <AccountBanner account={account} labelIndent="sm" className="w-full mb-4" />
+              <AccountBanner account={account} className="w-full mb-4" smallLabelIndent />
 
-              <NetworkBanner rpc={payload.type === 'operations' ? payload.networkRpc : currentNetworkRpc} />
+              <NetworkBanner network={tezosNetwork} />
 
               {signPayloadFormats.length > 1 && (
                 <div className="w-full flex justify-end mb-3 items-center">
@@ -307,11 +336,11 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({ payload, onConfir
 
               {spFormat.key === 'preview' && (
                 <ExpensesView
+                  tezosNetwork={tezosNetwork}
                   expenses={expensesData}
                   error={payloadError}
                   estimates={payload.type === 'operations' ? payload.estimates : undefined}
                   modifyFeeAndLimit={modifyFeeAndLimit}
-                  mainnet={mainnet}
                   gasFeeError={gasFeeError}
                 />
               )}
@@ -349,7 +378,7 @@ const InternalConfirmation: FC<InternalConfiramtionProps> = ({ payload, onConfir
           </div>
         </div>
 
-        <ConfirmLedgerOverlay displayed={confirming && account.type === TempleAccountType.Ledger} />
+        <LedgerApprovalModal state={ledgerApprovalModalState} onClose={handleLedgerModalClose} />
       </div>
     </div>
   );

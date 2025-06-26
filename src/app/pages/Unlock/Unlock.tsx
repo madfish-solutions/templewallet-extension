@@ -1,34 +1,44 @@
 import React, { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-import classNames from 'clsx';
 import { OnSubmit, useForm } from 'react-hook-form';
 import { useDispatch } from 'react-redux';
 
-import { Alert, FormField, FormSubmitButton } from 'app/atoms';
-import SimplePageLayout from 'app/layouts/SimplePageLayout';
+import { FormField, IconBase } from 'app/atoms';
+import { StyledButton } from 'app/atoms/StyledButton';
+import { TextButton } from 'app/atoms/TextButton';
+import { ReactComponent as LockFillIcon } from 'app/icons/base/lock_fill.svg';
+import { PlanetsBgPageLayout } from 'app/layouts/planets-bg-page-layout';
 import { getUserTestingGroupNameActions } from 'app/store/ab-testing/actions';
 import { useUserTestingGroupNameSelector } from 'app/store/ab-testing/selectors';
 import { useFormAnalytics } from 'lib/analytics';
 import { ABTestGroup } from 'lib/apis/temple';
+import { DEFAULT_PASSWORD_INPUT_PLACEHOLDER } from 'lib/constants';
 import { USER_ACTION_TIMEOUT } from 'lib/fixed-times';
 import { T, t } from 'lib/i18n';
 import { useTempleClient } from 'lib/temple/front';
+import { loadBackupCredentials } from 'lib/temple/front/mnemonic-to-backup-keeper';
 import { TempleSharedStorageKey } from 'lib/temple/types';
+import { useShakeOnErrorTrigger } from 'lib/ui/hooks/use-shake-on-error-trigger';
 import { useLocalStorage } from 'lib/ui/local-storage';
 import { delay } from 'lib/utils';
-import { Link } from 'lib/woozie';
 
+import { ForgotPasswordModal } from './forgot-password-modal';
+import { ResetExtensionModal } from './reset-extension-modal';
 import { UnlockSelectors } from './Unlock.selectors';
 
 interface UnlockProps {
   canImportNew?: boolean;
 }
 
-type FormData = {
+interface FormData {
   password: string;
-};
+}
 
-const SUBMIT_ERROR_TYPE = 'submit-error';
+enum PageModalName {
+  ForgotPassword = 'ForgotPassword',
+  ResetExtension = 'ResetExtension'
+}
+
 const LOCK_TIME = 2 * USER_ACTION_TIMEOUT;
 const LAST_ATTEMPT = 3;
 
@@ -47,6 +57,7 @@ const Unlock: FC<UnlockProps> = ({ canImportNew = true }) => {
   const dispatch = useDispatch();
   const formAnalytics = useFormAnalytics('UnlockWallet');
 
+  const [pageModalName, setPageModalName] = useState<PageModalName | null>(null);
   const [attempt, setAttempt] = useLocalStorage<number>(TempleSharedStorageKey.PasswordAttempts, 1);
   const [timelock, setTimeLock] = useLocalStorage<number>(TempleSharedStorageKey.TimeLock, 0);
   const lockLevel = LOCK_TIME * Math.floor(attempt / 3);
@@ -70,6 +81,18 @@ const Unlock: FC<UnlockProps> = ({ canImportNew = true }) => {
   const { register, handleSubmit, errors, setError, clearError, formState } = useForm<FormData>();
   const submitting = formState.isSubmitting;
 
+  const passwordShakeTrigger = useShakeOnErrorTrigger(formState.submitCount, errors.password);
+
+  const setPasswordErrorMessage = useCallback(
+    async (message: string) => {
+      // Human delay.
+      await delay();
+
+      setError('password', 'submit-error', message);
+    },
+    [setError]
+  );
+
   const onSubmit = useCallback<OnSubmit<FormData>>(
     async ({ password }) => {
       if (submitting) return;
@@ -79,32 +102,57 @@ const Unlock: FC<UnlockProps> = ({ canImportNew = true }) => {
       try {
         if (attempt > LAST_ATTEMPT) await delay(Math.random() * 2000 + 1000);
         await unlock(password);
+        await loadBackupCredentials(password);
 
         formAnalytics.trackSubmitSuccess();
         setAttempt(1);
       } catch (err: any) {
         formAnalytics.trackSubmitFail();
-        if (attempt >= LAST_ATTEMPT) setTimeLock(Date.now());
-        setAttempt(attempt + 1);
-        setTimeleft(getTimeLeft(Date.now(), LOCK_TIME * Math.floor((attempt + 1) / 3)));
 
         console.error(err);
 
-        // Human delay.
-        await delay();
-        setError('password', SUBMIT_ERROR_TYPE, err.message);
-        focusPasswordField();
+        if (attempt >= LAST_ATTEMPT) {
+          setTimeLock(Date.now());
+          await setPasswordErrorMessage(
+            t(attempt === LAST_ATTEMPT ? 'walletTemporarilyBlockedError' : 'incorrectPasswordWalletBlockedError')
+          );
+        }
+
+        setAttempt(attempt + 1);
+        setTimeleft(getTimeLeft(Date.now(), LOCK_TIME * Math.floor((attempt + 1) / 3)));
+
+        if (attempt < LAST_ATTEMPT) {
+          await setPasswordErrorMessage(
+            t('incorrectPasswordAttemptError', [String(LAST_ATTEMPT - attempt), String(LAST_ATTEMPT)])
+          );
+          focusPasswordField();
+        }
       }
     },
-    [submitting, clearError, setError, unlock, focusPasswordField, formAnalytics, attempt, setAttempt, setTimeLock]
+    [
+      submitting,
+      clearError,
+      formAnalytics,
+      attempt,
+      unlock,
+      setAttempt,
+      setPasswordErrorMessage,
+      focusPasswordField,
+      setTimeLock
+    ]
   );
+
+  const handleForgotPasswordClick = useCallback(() => setPageModalName(PageModalName.ForgotPassword), []);
+  const handleModalClose = useCallback(() => setPageModalName(null), []);
+  const handleForgotPasswordContinueClick = useCallback(() => setPageModalName(PageModalName.ResetExtension), []);
 
   const isDisabled = useMemo(() => Date.now() - timelock <= lockLevel, [timelock, lockLevel]);
 
   useEffect(() => {
     const interval = setInterval(() => {
-      if (Date.now() - timelock > lockLevel) {
+      if (timelock > 0 && Date.now() - timelock > lockLevel) {
         setTimeLock(0);
+        clearError('password');
       }
       setTimeleft(getTimeLeft(timelock, lockLevel));
     }, 1_000);
@@ -112,71 +160,59 @@ const Unlock: FC<UnlockProps> = ({ canImportNew = true }) => {
     return () => {
       clearInterval(interval);
     };
-  }, [timelock, lockLevel, setTimeLock]);
+  }, [timelock, lockLevel, setTimeLock, clearError]);
 
   return (
-    <SimplePageLayout
-      title={
-        <>
-          <T id="unlockWallet" />
-          <br />
-          <span style={{ fontSize: '0.9em' }}>
-            <T id="toContinue" />
-          </span>
-        </>
-      }
-    >
-      {isDisabled && (
-        <Alert
-          type="error"
-          title={t('error')}
-          description={`${t('unlockPasswordErrorDelay')} ${timeleft}`}
-          className="mt-6"
-        />
-      )}
-      <form ref={formRef} className="w-full max-w-sm mx-auto my-8" onSubmit={handleSubmit(onSubmit)}>
-        <FormField
-          ref={register({ required: t('required') })}
-          label={t('password')}
-          labelDescription={t('unlockPasswordInputDescription')}
-          id="unlock-password"
-          type="password"
-          name="password"
-          placeholder="********"
-          errorCaption={errors.password && errors.password.message}
-          containerClassName="mb-4"
-          autoFocus
-          disabled={isDisabled}
-          testID={UnlockSelectors.passwordInput}
-        />
+    <>
+      <PlanetsBgPageLayout showTestnetModeIndicator={false}>
+        <form ref={formRef} className="w-full flex flex-col items-center mb-4" onSubmit={handleSubmit(onSubmit)}>
+          <p className="text-font-regular-bold text-center mb-0.5">
+            <T id="welcomeBack" />
+          </p>
+          <p className="text-font-description text-center text-grey-1 mb-5">
+            <T id="enterPasswordToUnlock" />
+          </p>
+          <div className="w-full flex-1 flex flex-col">
+            <FormField
+              ref={register({ required: t('required') })}
+              id="unlock-password"
+              type="password"
+              name="password"
+              placeholder={DEFAULT_PASSWORD_INPUT_PLACEHOLDER}
+              errorCaption={errors.password && errors.password.message}
+              shakeTrigger={passwordShakeTrigger}
+              additionalActionButtons={isDisabled && <IconBase Icon={LockFillIcon} className="text-grey-3" />}
+              revealForbidden={isDisabled}
+              containerClassName="mb-3"
+              autoFocus
+              disabled={isDisabled}
+              testID={UnlockSelectors.passwordInput}
+            />
 
-        <FormSubmitButton disabled={isDisabled} loading={submitting} testID={UnlockSelectors.unlockButton}>
-          {t('unlock')}
-        </FormSubmitButton>
-
-        {canImportNew && (
-          <div className="my-6">
-            <h3 className="text-sm font-light text-gray-600">
-              <T id="importNewAccountTitle" />
-            </h3>
-
-            <Link
-              to="/import-wallet"
-              className={classNames(
-                'text-primary-orange',
-                'text-sm font-semibold',
-                'transition duration-200 ease-in-out',
-                'opacity-75 hover:opacity-100 focus:opacity-100',
-                'hover:underline'
-              )}
-              testID={UnlockSelectors.importWalletUsingSeedPhrase}
+            <StyledButton
+              color="primary"
+              size="L"
+              type="submit"
+              disabled={isDisabled}
+              loading={submitting}
+              testID={UnlockSelectors.unlockButton}
             >
-              <T id="importWalletUsingSeedPhrase" />
-            </Link>
+              {isDisabled ? timeleft : t('unlock')}
+            </StyledButton>
           </div>
-        )}
-      </form>
-    </SimplePageLayout>
+          {canImportNew && (
+            <TextButton color="grey" onClick={handleForgotPasswordClick} className="mt-12">
+              <T id="forgotPasswordQuestion" />
+            </TextButton>
+          )}
+        </form>
+      </PlanetsBgPageLayout>
+
+      {pageModalName === PageModalName.ForgotPassword && (
+        <ForgotPasswordModal onClose={handleModalClose} onContinueClick={handleForgotPasswordContinueClick} />
+      )}
+      {pageModalName === PageModalName.ResetExtension && <ResetExtensionModal onClose={handleModalClose} />}
+    </>
   );
 };
 

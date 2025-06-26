@@ -1,5 +1,6 @@
 import memoizee from 'memoizee';
 import browser, { Runtime } from 'webextension-polyfill';
+import { ValidationError } from 'yup';
 
 import { getStoredAppInstallIdentity } from 'app/storage/app-install-id';
 import { importExtensionAdsReferralsModule } from 'lib/ads/import-extension-ads-module';
@@ -17,8 +18,12 @@ import { BACKGROUND_IS_WORKER, EnvVars } from 'lib/env';
 import { fetchFromStorage } from 'lib/storage';
 import { encodeMessage, encryptMessage, getSenderId, MessageType, Response } from 'lib/temple/beacon';
 import { clearAsyncStorages } from 'lib/temple/reset';
-import { TempleMessageType, TempleRequest, TempleResponse } from 'lib/temple/types';
+import { StoredHDAccount, TempleMessageType, TempleRequest, TempleResponse } from 'lib/temple/types';
 import { getTrackedCashbackServiceDomain, getTrackedUrl } from 'lib/utils/url-track/url-track.utils';
+import { EVMErrorCodes } from 'temple/evm/constants';
+import { ErrorWithCode } from 'temple/evm/types';
+import { parseTransactionRequest } from 'temple/evm/utils';
+import { TempleChainKind } from 'temple/types';
 
 import * as Actions from './actions';
 import * as Analytics from './analytics';
@@ -45,7 +50,7 @@ const processRequestWithErrorsLogged = (...args: Parameters<typeof processReques
   });
 
 const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<TempleResponse | void> => {
-  switch (req?.type) {
+  switch (req.type) {
     case TempleMessageType.SendTrackEventRequest:
       await Analytics.trackEvent(req);
       return { type: TempleMessageType.SendTrackEventResponse };
@@ -61,6 +66,14 @@ const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<T
         state
       };
 
+    case TempleMessageType.SendEvmTransactionRequest:
+      const txHash = await Actions.sendEvmTransaction(
+        req.accountPkh,
+        req.network,
+        parseTransactionRequest(req.txParams)
+      );
+      return { type: TempleMessageType.SendEvmTransactionResponse, txHash };
+
     case TempleMessageType.NewWalletRequest:
       const accountPkh = await Actions.registerNewWallet(req.password, req.mnemonic);
       return { type: TempleMessageType.NewWalletResponse, accountPkh };
@@ -73,52 +86,65 @@ const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<T
       await Actions.lock();
       return { type: TempleMessageType.LockResponse };
 
+    case TempleMessageType.FindFreeHDAccountIndexRequest:
+      const responsePayload = await Actions.findFreeHDAccountIndex(req.walletId);
+      return {
+        type: TempleMessageType.FindFreeHDAccountIndexResponse,
+        ...responsePayload
+      };
+
     case TempleMessageType.CreateAccountRequest:
-      await Actions.createHDAccount(req.name);
+      await Actions.createHDAccount(req.walletId, req.name, req.hdIndex);
       return { type: TempleMessageType.CreateAccountResponse };
 
     case TempleMessageType.RevealPublicKeyRequest:
-      const publicKey = await Actions.revealPublicKey(req.accountPublicKeyHash);
+      const publicKey = await Actions.revealPublicKey(req.accountAddress);
       return {
         type: TempleMessageType.RevealPublicKeyResponse,
         publicKey
       };
 
     case TempleMessageType.RevealPrivateKeyRequest:
-      const privateKey = await Actions.revealPrivateKey(req.accountPublicKeyHash, req.password);
+      const privateKey = await Actions.revealPrivateKey(req.address, req.password);
       return {
         type: TempleMessageType.RevealPrivateKeyResponse,
         privateKey
       };
 
     case TempleMessageType.RevealMnemonicRequest:
-      const mnemonic = await Actions.revealMnemonic(req.password);
+      const mnemonic = await Actions.revealMnemonic(req.walletId, req.password);
       return {
         type: TempleMessageType.RevealMnemonicResponse,
         mnemonic
       };
 
     case TempleMessageType.GenerateSyncPayloadRequest:
-      const payload = await Actions.generateSyncPayload(req.password);
+      const payload = await Actions.generateSyncPayload(req.password, req.walletId);
       return {
         type: TempleMessageType.GenerateSyncPayloadResponse,
         payload
       };
 
     case TempleMessageType.RemoveAccountRequest:
-      await Actions.removeAccount(req.accountPublicKeyHash, req.password);
+      await Actions.removeAccount(req.id, req.password);
       return {
         type: TempleMessageType.RemoveAccountResponse
       };
 
     case TempleMessageType.EditAccountRequest:
-      await Actions.editAccount(req.accountPublicKeyHash, req.name);
+      await Actions.editAccount(req.id, req.name);
       return {
         type: TempleMessageType.EditAccountResponse
       };
 
+    case TempleMessageType.SetAccountHiddenRequest:
+      await Actions.setAccountHidden(req.id, req.value);
+      return {
+        type: TempleMessageType.SetAccountHiddenResponse
+      };
+
     case TempleMessageType.ImportAccountRequest:
-      await Actions.importAccount(req.privateKey, req.encPassword);
+      await Actions.importAccount(req.chain, req.privateKey, req.encPassword);
       return {
         type: TempleMessageType.ImportAccountResponse
       };
@@ -129,26 +155,26 @@ const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<T
         type: TempleMessageType.ImportMnemonicAccountResponse
       };
 
-    case TempleMessageType.ImportFundraiserAccountRequest:
-      await Actions.importFundraiserAccount(req.email, req.password, req.mnemonic);
-      return {
-        type: TempleMessageType.ImportFundraiserAccountResponse
-      };
-
-    case TempleMessageType.ImportManagedKTAccountRequest:
-      await Actions.importManagedKTAccount(req.address, req.chainId, req.owner);
-      return {
-        type: TempleMessageType.ImportManagedKTAccountResponse
-      };
-
     case TempleMessageType.ImportWatchOnlyAccountRequest:
-      await Actions.importWatchOnlyAccount(req.address, req.chainId);
+      await Actions.importWatchOnlyAccount(req.chain, req.address, req.chainId);
       return {
         type: TempleMessageType.ImportWatchOnlyAccountResponse
       };
 
+    case TempleMessageType.GetLedgerTezosPkRequest:
+      return {
+        type: TempleMessageType.GetLedgerTezosPkResponse,
+        publicKey: await Actions.getLedgerTezosPk(req.derivationPath, req.derivationType)
+      };
+
+    case TempleMessageType.GetLedgerEVMPkRequest:
+      return {
+        type: TempleMessageType.GetLedgerEVMPkResponse,
+        publicKey: await Actions.getLedgerEVMPk(req.derivationPath)
+      };
+
     case TempleMessageType.CreateLedgerAccountRequest:
-      await Actions.createLedgerAccount(req.name, req.derivationPath, req.derivationType);
+      await Actions.createLedgerAccount(req.input);
       return {
         type: TempleMessageType.CreateLedgerAccountResponse
       };
@@ -159,33 +185,55 @@ const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<T
         type: TempleMessageType.UpdateSettingsResponse
       };
 
+    case TempleMessageType.RemoveHdWalletRequest:
+      await Actions.removeHdWallet(req.id, req.password);
+      return {
+        type: TempleMessageType.RemoveHdWalletResponse
+      };
+
+    case TempleMessageType.RemoveAccountsByTypeRequest:
+      await Actions.removeAccountsByType(req.accountsType, req.password);
+      return {
+        type: TempleMessageType.RemoveAccountsByTypeResponse
+      };
+
+    case TempleMessageType.CreateOrImportWalletRequest:
+      await Actions.createOrImportWallet(req.mnemonic);
+      return {
+        type: TempleMessageType.CreateOrImportWalletResponse
+      };
+
     case TempleMessageType.OperationsRequest:
-      const { opHash } = await Actions.sendOperations(port, req.id, req.sourcePkh, req.networkRpc, req.opParams);
+      const { opHash } = await Actions.sendOperations(
+        port,
+        req.id,
+        req.sourcePkh,
+        req.networkRpc,
+        req.opParams,
+        req.straightaway
+      );
       return {
         type: TempleMessageType.OperationsResponse,
         opHash
       };
 
     case TempleMessageType.SignRequest:
-      const result = await Actions.sign(port, req.id, req.sourcePkh, req.bytes, req.watermark);
+      const result = await Actions.sign(port, req.id, req.sourcePkh, req.networkRpc, req.bytes, req.watermark);
       return {
         type: TempleMessageType.SignResponse,
         result
       };
 
-    case TempleMessageType.DAppGetAllSessionsRequest:
-      const allSessions = await Actions.getAllDAppSessions();
-      return {
-        type: TempleMessageType.DAppGetAllSessionsResponse,
-        sessions: allSessions
-      };
-
     case TempleMessageType.DAppRemoveSessionRequest:
-      const sessions = await Actions.removeDAppSession(req.origin);
+      const sessions = await Actions.removeDAppSession(req.origins);
       return {
         type: TempleMessageType.DAppRemoveSessionResponse,
         sessions
       };
+
+    case TempleMessageType.DAppSwitchEvmChainRequest:
+      await Actions.switchEvmChain(req.origin, req.chainId, true);
+      return { type: TempleMessageType.DAppSwitchEvmChainResponse };
 
     case TempleMessageType.Acknowledge: {
       if (req.payload !== 'PING' && req.payload !== 'ping' && req.beacon) {
@@ -223,49 +271,97 @@ const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<T
     }
 
     case TempleMessageType.PageRequest:
-      const dAppEnabled = await Actions.isDAppEnabled();
-      if (dAppEnabled) {
-        if (req.payload === 'PING') {
-          return {
-            type: TempleMessageType.PageResponse,
-            payload: 'PONG'
-          };
-        } else if (req.beacon && req.payload === 'ping') {
-          return {
-            type: TempleMessageType.PageResponse,
-            payload: 'pong'
-          };
-        }
+      const dAppEnabled = await Actions.canInteractWithDApps();
 
-        if (!req.beacon) {
-          const resPayload = await Actions.processDApp(req.origin, req.payload);
-          return {
-            type: TempleMessageType.PageResponse,
-            payload: resPayload ?? null
-          };
-        } else {
-          const res = await Actions.processBeacon(req.origin, req.payload, req.encrypted);
-          return {
-            type: TempleMessageType.PageResponse,
-            payload: res?.payload ?? null,
-            encrypted: res?.encrypted
-          };
-        }
+      if (!dAppEnabled && req.chainType === TempleChainKind.EVM) {
+        return {
+          type: TempleMessageType.PageResponse,
+          payload: {
+            error: {
+              code: EVMErrorCodes.NOT_AUTHORIZED,
+              message: 'DApp interaction is disabled'
+            }
+          }
+        };
       }
-      break;
+
+      if (!dAppEnabled) {
+        return;
+      }
+
+      if (req.chainType === TempleChainKind.EVM) {
+        let resPayload: any;
+        try {
+          resPayload = { data: await Actions.processEvmDApp(req.origin, req.payload, req.chainId, req.iconUrl) };
+        } catch (e) {
+          console.error(e);
+          if (e instanceof ErrorWithCode) {
+            resPayload = {
+              error: {
+                code: e.code,
+                message: e.message
+              }
+            };
+          } else if (e instanceof ValidationError) {
+            resPayload = {
+              error: {
+                code: EVMErrorCodes.INVALID_PARAMS,
+                message: e.message
+              }
+            };
+          } else {
+            resPayload = {
+              error: {
+                code: EVMErrorCodes.INTERNAL_ERROR,
+                message: e instanceof Error ? e.message : 'Unknown error'
+              }
+            };
+          }
+        }
+
+        return { type: TempleMessageType.PageResponse, payload: resPayload };
+      }
+
+      if (req.payload === 'PING') {
+        return {
+          type: TempleMessageType.PageResponse,
+          payload: 'PONG'
+        };
+      } else if (req.beacon && req.payload === 'ping') {
+        return {
+          type: TempleMessageType.PageResponse,
+          payload: 'pong'
+        };
+      }
+
+      if (!req.beacon) {
+        const resPayload = await Actions.processDApp(req.origin, req.payload);
+        return {
+          type: TempleMessageType.PageResponse,
+          payload: resPayload ?? null
+        };
+      } else {
+        const res = await Actions.processBeacon(req.origin, req.payload, req.encrypted);
+        return {
+          type: TempleMessageType.PageResponse,
+          payload: res?.payload ?? null,
+          encrypted: res?.encrypted
+        };
+      }
+
+    case TempleMessageType.ResetExtensionRequest:
+      await Actions.resetExtension(req.password);
+      return {
+        type: TempleMessageType.ResetExtensionResponse
+      };
+
+    case TempleMessageType.SetWindowPopupStateRequest:
+      Actions.setWindowPopupOpened(req.windowId, req.opened);
+
+      return {
+        type: TempleMessageType.SetWindowPopupStateResponse
+      };
   }
-};
-
-const getAdsViewerPkh = async (): Promise<string | undefined> => {
-  const accountPkhFromStorage = await fetchFromStorage<string>(ADS_VIEWER_ADDRESS_STORAGE_KEY);
-
-  if (accountPkhFromStorage) {
-    return accountPkhFromStorage;
-  }
-
-  const frontState = await Actions.getFrontState();
-
-  return frontState.accounts[0]?.publicKeyHash;
 };
 
 browser.runtime.onMessage.addListener(async msg => {
@@ -274,14 +370,11 @@ browser.runtime.onMessage.addListener(async msg => {
       case ContentScriptType.UpdateAdsRules:
         await updateRulesStorage();
         return;
+
       case E2eMessageType.ResetRequest:
         return clearAsyncStorages().then(() => ({ type: E2eMessageType.ResetResponse }));
-    }
 
-    const accountPkh = await getAdsViewerPkh();
-
-    switch (msg?.type) {
-      case ContentScriptType.ExternalLinksActivity: {
+      case ContentScriptType.ExternalLinksActivity:
         const trackedCashbackServiceDomain = getTrackedCashbackServiceDomain(msg.url);
 
         if (trackedCashbackServiceDomain) {
@@ -291,14 +384,16 @@ browser.runtime.onMessage.addListener(async msg => {
         const trackedUrl = getTrackedUrl(msg.url);
 
         if (trackedUrl) {
+          const accountPkh = await getAdsViewerPkh();
           await Analytics.client.track('External links activity', { url: trackedUrl, accountPkh });
         }
 
         break;
-      }
 
       case ContentScriptType.ExternalAdsActivity: {
         const urlDomain = new URL(msg.url).hostname;
+        const accountPkh = await getAdsViewerPkh();
+
         if (accountPkh) await postAdImpression(accountPkh, msg.provider, { urlDomain });
         else {
           const identity = await getStoredAppInstallIdentity();
@@ -326,6 +421,8 @@ browser.runtime.onMessage.addListener(async msg => {
 
       case ContentScriptType.ReferralClick: {
         const { urlDomain, pageDomain } = msg;
+        const accountPkh = await getAdsViewerPkh();
+
         if (accountPkh) await postReferralClick(accountPkh, undefined, { urlDomain, pageDomain });
         else {
           const identity = await getStoredAppInstallIdentity();
@@ -342,6 +439,18 @@ browser.runtime.onMessage.addListener(async msg => {
 
   return;
 });
+
+async function getAdsViewerPkh() {
+  const accountPkhFromStorage = await fetchFromStorage<string>(ADS_VIEWER_ADDRESS_STORAGE_KEY);
+
+  if (accountPkhFromStorage) {
+    return accountPkhFromStorage;
+  }
+
+  const frontState = await Actions.getFrontState();
+
+  return (frontState.accounts[0] as StoredHDAccount | undefined)?.tezosAddress;
+}
 
 const getReferralsRules = memoizee(fetchReferralsRules, {
   promise: true,

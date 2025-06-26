@@ -1,5 +1,5 @@
 import { dispatch } from 'app/store';
-import { AssetToPut, putTokensAsIsAction, putCollectiblesAsIsAction } from 'app/store/assets/actions';
+import { AssetToPut, putTokensAsIsAction, putCollectiblesAsIsAction } from 'app/store/tezos/assets/actions';
 import { isCollectible, TokenMetadata } from 'lib/metadata';
 import * as Repo from 'lib/temple/repo';
 

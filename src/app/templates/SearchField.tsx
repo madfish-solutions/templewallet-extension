@@ -1,98 +1,83 @@
-import React, { FC, InputHTMLAttributes, useCallback, useRef, useState } from 'react';
+import React, { FocusEvent, forwardRef, InputHTMLAttributes, memo, useCallback, useRef } from 'react';
 
 import { emptyFn } from '@rnw-community/shared';
-import classNames from 'clsx';
+import clsx from 'clsx';
 
+import { IconBase } from 'app/atoms';
 import CleanButton, { CLEAN_BUTTON_ID } from 'app/atoms/CleanButton';
-import { ReactComponent as SearchIcon } from 'app/icons/search.svg';
+import { ReactComponent as SearchIcon } from 'app/icons/base/search.svg';
 import { setTestID, TestIDProps } from 'lib/analytics';
+import { useFocusHandlers } from 'lib/ui/hooks/use-focus-handlers';
 
-export interface SearchFieldProps extends InputHTMLAttributes<HTMLInputElement>, TestIDProps {
+const shouldHandleBlur = (e: FocusEvent) => e.relatedTarget?.id !== CLEAN_BUTTON_ID;
+
+interface Props extends InputHTMLAttributes<HTMLInputElement>, TestIDProps {
   value: string;
   onValueChange: (value: string) => void;
   bottomOffset?: string;
+  /** @deprecated */
   containerClassName?: string;
-  searchIconClassName?: string;
-  searchIconWrapperClassName?: string;
-  cleanButtonClassName?: string;
-  cleanButtonIconClassName?: string;
-  searchIconStyle?: React.CSSProperties;
-  cleanButtonStyle?: React.CSSProperties;
-  cleanButtonIconStyle?: React.CSSProperties;
   onCleanButtonClick?: () => void;
 }
 
-const SearchField: FC<SearchFieldProps> = ({
-  bottomOffset = '0.45rem',
-  className,
-  containerClassName,
-  value,
-  onValueChange,
-  onFocus = emptyFn,
-  onBlur = emptyFn,
-  onCleanButtonClick = emptyFn,
-  searchIconClassName,
-  searchIconWrapperClassName,
-  cleanButtonClassName,
-  searchIconStyle,
-  cleanButtonIconClassName,
-  cleanButtonStyle,
-  cleanButtonIconStyle,
-  testID,
-  ...rest
-}) => {
-  const inputRef = useRef<HTMLInputElement | null>(null);
-  const [focused, setFocused] = useState(false);
-
-  const handleChange = useCallback(
-    (evt: React.ChangeEvent<HTMLInputElement>) => {
-      onValueChange(evt.target.value);
+const SearchField = forwardRef<HTMLDivElement, Props>(
+  (
+    {
+      bottomOffset = '0.45rem',
+      className,
+      containerClassName,
+      value,
+      placeholder,
+      disabled,
+      onValueChange,
+      onFocus = emptyFn,
+      onBlur = emptyFn,
+      onCleanButtonClick = emptyFn,
+      testID,
+      ...rest
     },
-    [onValueChange]
-  );
+    ref
+  ) => {
+    const inputLocalRef = useRef<HTMLInputElement | null>(null);
+    const {
+      isFocused: focused,
+      onFocus: handleFocus,
+      onBlur: handleBlur,
+      setIsFocused
+    } = useFocusHandlers(onFocus, onBlur, undefined, shouldHandleBlur);
 
-  const handleFocus = useCallback(
-    (evt: React.FocusEvent<HTMLInputElement>) => {
-      setFocused(true);
-      onFocus(evt);
-    },
-    [onFocus]
-  );
+    const handleChange = useCallback(
+      (evt: React.ChangeEvent<HTMLInputElement>) => {
+        onValueChange(evt.target.value);
+      },
+      [onValueChange]
+    );
 
-  const handleBlur = useCallback(
-    (evt: React.FocusEvent<HTMLInputElement>) => {
-      if (evt.relatedTarget?.id === CLEAN_BUTTON_ID) {
-        return;
+    const handleClean = useCallback(() => {
+      if (value) {
+        inputLocalRef.current?.focus();
+        onValueChange('');
+      } else {
+        inputLocalRef.current?.blur();
+        setIsFocused(false);
       }
 
-      setFocused(false);
-      onBlur(evt);
-    },
-    [onBlur]
-  );
+      onCleanButtonClick();
+    }, [onCleanButtonClick, onValueChange, setIsFocused, value]);
 
-  const handleClean = useCallback(() => {
-    if (value) {
-      inputRef.current?.focus();
-      onValueChange('');
-    } else {
-      inputRef.current?.blur();
-      setFocused(false);
-    }
+    const notEmpty = Boolean(focused || value);
 
-    onCleanButtonClick();
-  }, [onCleanButtonClick, onValueChange, value]);
-
-  return (
-    <div className={classNames('w-full flex flex-col', containerClassName)}>
-      <div className="relative flex items-stretch">
+    return (
+      <div ref={ref} className={clsx('group relative', containerClassName)}>
         <input
-          ref={inputRef}
+          ref={inputLocalRef}
           type="text"
-          className={classNames('appearance-none w-full py-2 pl-8 pr-8 text-sm leading-tight', className)}
+          className={clsx('appearance-none w-full py-2 px-8 text-font-description', className)}
           value={value}
           spellCheck={false}
           autoComplete="off"
+          placeholder={focused ? undefined : placeholder}
+          disabled={disabled}
           onFocus={handleFocus}
           onBlur={handleBlur}
           onChange={handleChange}
@@ -100,28 +85,47 @@ const SearchField: FC<SearchFieldProps> = ({
           {...rest}
         />
 
-        <div
-          className={classNames(
-            'absolute left-0 top-0 bottom-0 flex items-center pointer-events-none',
-            searchIconWrapperClassName
+        <IconBase
+          Icon={SearchIcon}
+          size={12}
+          className={clsx(
+            'absolute left-3 top-2 pointer-events-none',
+            !disabled && 'group-hover:text-primary',
+            notEmpty ? 'text-primary' : 'text-grey-1'
           )}
-        >
-          <SearchIcon style={searchIconStyle} className={classNames('stroke-current', searchIconClassName)} />
-        </div>
+        />
 
-        {focused && (
-          <CleanButton
-            bottomOffset={bottomOffset}
-            className={cleanButtonClassName}
-            iconClassName={cleanButtonIconClassName}
-            style={cleanButtonStyle}
-            iconStyle={cleanButtonIconStyle}
-            onClick={handleClean}
-          />
-        )}
+        {notEmpty && <CleanButton className="absolute right-3 bottom-2" onClick={handleClean} />}
       </div>
-    </div>
-  );
-};
+    );
+  }
+);
 
-export default SearchField;
+interface SearchBarFieldProps extends Props {
+  defaultRightMargin?: boolean;
+}
+
+export const SearchBarField = memo(
+  forwardRef<HTMLDivElement, SearchBarFieldProps>(
+    (
+      { className, placeholder = 'Search', defaultRightMargin = true, containerClassName, value, disabled, ...rest },
+      ref
+    ) => (
+      <SearchField
+        ref={ref}
+        value={value}
+        disabled={disabled}
+        className={clsx(
+          'bg-input-low rounded-lg',
+          'placeholder-grey-1 caret-primary',
+          !disabled && 'hover:placeholder-text',
+          'transition ease-in-out duration-200',
+          className
+        )}
+        containerClassName={clsx('flex-1', defaultRightMargin && 'mr-2', containerClassName)}
+        placeholder={placeholder}
+        {...rest}
+      />
+    )
+  )
+);

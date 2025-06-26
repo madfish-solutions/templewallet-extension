@@ -6,7 +6,6 @@ import classNames from 'clsx';
 import { createRoot } from 'react-dom/client';
 import browser from 'webextension-polyfill';
 
-import 'lib/lock-up/run-checks';
 import 'lib/ledger/proxy/foreground';
 import 'lib/keep-bg-worker-alive/script';
 

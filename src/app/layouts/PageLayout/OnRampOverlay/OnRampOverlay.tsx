@@ -1,153 +1,139 @@
-import React, { memo, useCallback, useState } from 'react';
+import React, { memo, useCallback, useMemo, useState } from 'react';
 
-import classNames from 'clsx';
 import browser from 'webextension-polyfill';
 
-import { Button } from 'app/atoms';
-import { OverlayCloseButton } from 'app/atoms/OverlayCloseButton';
-import Spinner from 'app/atoms/Spinner/Spinner';
-import { useAppEnv } from 'app/env';
-import { ReactComponent as ArrowRightIcon } from 'app/icons/arrow-right.svg';
+import { Anchor, IconBase } from 'app/atoms';
+import { PageLoader } from 'app/atoms/Loader';
+import { CloseButton } from 'app/atoms/PageModal';
+import { ReactComponent as OutLinkIcon } from 'app/icons/base/outLink.svg';
+import { ReactComponent as ApplePayIcon } from 'app/icons/payment-options/apple-pay.svg';
+import { ReactComponent as MastercardIcon } from 'app/icons/payment-options/mastercard.svg';
+import { ReactComponent as VisaIcon } from 'app/icons/payment-options/visa.svg';
 import { ReactComponent as SmileWithDollarIcon } from 'app/icons/smile-with-dollar.svg';
 import { ReactComponent as SmileWithGlassesIcon } from 'app/icons/smile-with-glasses.svg';
 import { ReactComponent as SmileIcon } from 'app/icons/smile.svg';
-import ContentContainer from 'app/layouts/ContentContainer';
-import { useOnboardingProgress } from 'app/pages/Onboarding/hooks/useOnboardingProgress.hook';
 import { dispatch } from 'app/store';
-import { setOnRampPossibilityAction } from 'app/store/settings/actions';
-import { useOnRampPossibilitySelector } from 'app/store/settings/selectors';
+import { setOnRampAssetAction } from 'app/store/settings/actions';
+import { useOnRampAssetSelector } from 'app/store/settings/selectors';
+import { getWertLink, wertCommodityEvmChainIdMap } from 'lib/apis/wert';
+import { parseChainAssetSlug } from 'lib/assets/utils';
 import { T } from 'lib/i18n/react';
-import { useAccount } from 'lib/temple/front';
+import { getAccountAddressForChain } from 'temple/accounts';
+import { useAccount } from 'temple/front';
+import { TempleChainKind } from 'temple/types';
 
-import OnRampOverlayBgPopupImg from './assets/on-ramp-overlay-bg-popup.png';
-import OnRampOverlayBgImg from './assets/on-ramp-overlay-bg.png';
 import { OnRampOverlaySelectors } from './OnRampOverlay.selectors';
 import { OnRampSmileButton } from './OnRampSmileButton/OnRampSmileButton';
-import { getWertLink } from './utils/getWertLink.util';
 
 export const OnRampOverlay = memo(() => {
+  const account = useAccount();
+  const onRampAsset = useOnRampAssetSelector();
+  const isOnRampPossibility = Boolean(onRampAsset);
+
   const [isLinkLoading, setIsLinkLoading] = useState(false);
 
-  const { publicKeyHash } = useAccount();
-  const { popup } = useAppEnv();
-  const isOnRampPossibility = useOnRampPossibilitySelector();
-  const { onboardingCompleted } = useOnboardingProgress();
+  const tokenSymbol = useMemo(() => {
+    if (!onRampAsset) return;
 
-  const close = useCallback(() => dispatch(setOnRampPossibilityAction(false)), []);
+    const [chainKind, chainId] = parseChainAssetSlug(onRampAsset);
+
+    if (chainKind === TempleChainKind.Tezos) return 'TEZ';
+    return wertCommodityEvmChainIdMap[chainId]?.commodity;
+  }, [onRampAsset]);
+
+  const close = useCallback(() => {
+    setIsLinkLoading(false);
+    dispatch(setOnRampAssetAction(null));
+  }, []);
 
   const handleRedirect = useCallback(
     async (amount?: number) => {
+      if (!onRampAsset) return;
+
       try {
         setIsLinkLoading(true);
 
-        const url = await getWertLink(publicKeyHash, amount);
+        const [chainKind] = parseChainAssetSlug(onRampAsset);
+
+        const accountAddress = getAccountAddressForChain(account, chainKind);
+
+        if (!accountAddress) throw new Error();
+        const url = await getWertLink(accountAddress, onRampAsset, amount);
+
+        close();
 
         await browser.tabs.create({ url });
       } catch {
-        // do nothing
-      } finally {
-        setIsLinkLoading(false);
         close();
       }
     },
-    [close, publicKeyHash]
+    [account, close, onRampAsset]
   );
 
-  if (!isOnRampPossibility || !onboardingCompleted) return null;
+  if (!isOnRampPossibility) return null;
 
   return (
-    <div className="fixed inset-0 z-40 flex flex-col items-center justify-center bg-gray-700 bg-opacity-20">
-      <ContentContainer
-        className={classNames('overflow-y-scroll py-4', popup ? 'h-full px-4' : 'px-5')}
-        padding={false}
-      >
-        <div
-          className={classNames(
-            'relative flex flex-col text-center bg-white shadow-lg bg-no-repeat rounded-md p-6',
-            popup && 'h-full'
-          )}
-          style={{
-            backgroundImage: `url(${popup ? OnRampOverlayBgPopupImg : OnRampOverlayBgImg})`,
-            maxHeight: popup ? 'unset' : '34.25rem'
-          }}
-        >
-          <OverlayCloseButton testID={OnRampOverlaySelectors.closeButton} onClick={close} />
-
-          {isLinkLoading ? (
-            <div className="flex justify-center my-60">
-              <Spinner theme="gray" className="w-20" />
-            </div>
-          ) : (
-            <>
-              <h1 className="font-inter font-normal text-gray-910 mt-25" style={{ fontSize: '1.438rem' }}>
-                <T id="jumpInTezos" />
-              </h1>
-
-              <p
-                className={classNames('font-inter font-normal text-gray-700 mt-4', !popup && 'px-10')}
-                style={{ fontSize: '1.063rem' }}
-              >
-                <T
-                  id="onRampDesription"
-                  substitutions={[
-                    <span className="font-semibold">
-                      <T id="creditCard" />
-                    </span>
-                  ]}
-                />
-              </p>
-
-              <div className={classNames('flex flex-row justify-between mt-8', !popup && 'px-14')}>
-                <OnRampSmileButton
-                  SmileIcon={SmileIcon}
-                  amount={50}
-                  onClick={() => handleRedirect(50)}
-                  testID={OnRampOverlaySelectors.fiftyDollarButton}
-                />
-                <OnRampSmileButton
-                  SmileIcon={SmileWithGlassesIcon}
-                  amount={100}
-                  className="hover:shadow hover:opacity-90 hover:bg-orange-500 bg-orange-500"
-                  titleClassName="text-primary-white"
-                  onClick={() => handleRedirect(100)}
-                  testID={OnRampOverlaySelectors.oneHundredDollarButton}
-                />
-                <OnRampSmileButton
-                  SmileIcon={SmileWithDollarIcon}
-                  amount={200}
-                  onClick={() => handleRedirect(200)}
-                  testID={OnRampOverlaySelectors.twoHundredDollarButton}
-                />
-              </div>
-
-              <Button
-                className={classNames(
-                  'w-32',
-                  'mt-4 font-inter text-gray-600',
-                  'text-sm font-medium rounded',
-                  'flex flex-row justify-center items-center self-center',
-                  'hover:bg-gray-100 cursor-pointer'
-                )}
-                style={{ width: '9.438rem', height: '2.063rem' }}
-                onClick={() => handleRedirect()}
-                testID={OnRampOverlaySelectors.customAmountButton}
-              >
-                <T id="customAmount" />
-                <ArrowRightIcon className="ml-2 h-3 w-auto stroke-current stroke-2" />
-              </Button>
-
-              <p
-                className={classNames(
-                  'font-inter font-normal mt-auto px-5 text-xs text-gray-600',
-                  popup ? 'mt-29' : 'pt-29'
-                )}
-              >
-                <T id="thirdParty" />
-              </p>
-            </>
-          )}
+    <div className="fixed inset-0 z-overlay-promo flex flex-col items-center justify-center bg-black bg-opacity-15 backdrop-blur-xs">
+      <div className="w-88 h-[19.375rem] relative flex flex-col text-center bg-white shadow-bottom rounded-8 px-3 py-4">
+        <div className="absolute top-3 right-3">
+          <CloseButton onClick={close} />
         </div>
-      </ContentContainer>
+
+        {isLinkLoading ? (
+          <PageLoader stretch />
+        ) : (
+          <>
+            <h1 className="text-font-regular-bold my-1">
+              <T id="insufficientBalanceForGas" substitutions={[tokenSymbol]} />
+            </h1>
+
+            <p className="text-font-medium text-grey-1 mb-1">
+              <T id="topupBalanceDescription" />
+            </p>
+
+            <div className="flex flex-row justify-center items-center py-4 gap-x-2">
+              <OnRampSmileButton
+                SmileIcon={SmileIcon}
+                amount={50}
+                onClick={() => handleRedirect(50)}
+                testID={OnRampOverlaySelectors.fiftyDollarButton}
+              />
+              <OnRampSmileButton
+                SmileIcon={SmileWithGlassesIcon}
+                amount={100}
+                accentColors
+                onClick={() => handleRedirect(100)}
+                testID={OnRampOverlaySelectors.oneHundredDollarButton}
+              />
+              <OnRampSmileButton
+                SmileIcon={SmileWithDollarIcon}
+                amount={200}
+                onClick={() => handleRedirect(200)}
+                testID={OnRampOverlaySelectors.twoHundredDollarButton}
+              />
+            </div>
+
+            <Anchor
+              className="flex items-center self-center text-secondary text-font-description-bold cursor-pointer"
+              onClick={() => handleRedirect()}
+              testID={OnRampOverlaySelectors.customAmountButton}
+            >
+              <T id="customAmount" />
+              <IconBase Icon={OutLinkIcon} className="text-secondary" />
+            </Anchor>
+
+            <p className="text-font-small mt-3 mb-2 text-grey-1">
+              <T id="thirdParty" />
+            </p>
+
+            <div className="flex items-center self-center mb-1 gap-x-2">
+              <VisaIcon />
+              <MastercardIcon />
+              <ApplePayIcon />
+            </div>
+          </>
+        )}
+      </div>
     </div>
   );
 });

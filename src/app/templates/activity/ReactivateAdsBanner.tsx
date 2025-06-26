@@ -10,6 +10,7 @@ import { useSafeState } from 'lib/ui/hooks';
 import bgImageSrc from './reactivate-ads-banner-bg.png';
 import { ActivitySelectors } from './selectors';
 
+// ts-prune-ignore-next
 export const ReactivateAdsBanner = memo(() => {
   const [modalOpened, setModalOpened] = useSafeState(false);
 

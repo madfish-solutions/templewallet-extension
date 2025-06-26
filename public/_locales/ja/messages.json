@@ -2,9 +2,6 @@
   "appName": {
     "message": "テンプル - テゾスウォレット"
   },
-  "showIncomingTransactions": {
-    "message": "受け取り予定の取引を表示"
-  },
   "appDesc": {
     "message": "🔐💰テゾスブロックチェーン用のクリプトカレンシーウォレットをブラウザ用のWeb拡張機能として提供"
   },
@@ -13,12 +10,6 @@
   },
   "createAccount": {
     "message": "アカウントを作成"
-  },
-  "faucetFileTitle": {
-    "message": "フォーセットファイル"
-  },
-  "faucetFile": {
-    "message": "フォーセットファイル"
   },
   "settings": {
     "message": "設定"
@@ -29,21 +20,6 @@
   "maximiseView": {
     "message": "表示を最大化"
   },
-  "selectFileOfFormat": {
-    "message": "$format$ファイルを選択",
-    "placeholders": {
-      "format": {
-        "content": "$1"
-      }
-    }
-  },
-  "authorizedDApps": {
-    "message": "認証済みDApps",
-    "description": "DApps = Decentralized Applications"
-  },
-  "clickIconToResetPermissions": {
-    "message": "Xアイコンをクリックして権限をリセットします。"
-  },
   "versionLabel": {
     "message": "バージョン: $version$",
     "placeholders": {
@@ -53,36 +29,9 @@
     }
   },
   "branchName": {
-    "message": "branch: $branch$",
+    "message": "Branch: $branch$",
     "placeholders": {
       "branch": {
-        "content": "$1"
-      }
-    }
-  },
-  "madeWithLove": {
-    "message": "$companyName$が$loveIcon$で作成",
-    "placeholders": {
-      "loveIcon": {
-        "content": "$1"
-      },
-      "companyName": {
-        "content": "$2"
-      }
-    }
-  },
-  "feeInputDescription": {
-    "message": "このオペレーションの基本手数料: $fee$\n追加 - 確認を高速化します",
-    "placeholders": {
-      "fee": {
-        "content": "$1"
-      }
-    }
-  },
-  "resetPermissionsConfirmation": {
-    "message": "$origin$?\nの権限をリセットしますか？",
-    "placeholders": {
-      "origin": {
         "content": "$1"
       }
     }
@@ -111,87 +60,6 @@
   "networks": {
     "message": "ネットワーク"
   },
-  "back": {
-    "message": "戻る"
-  },
-  "addNewToken": {
-    "message": "新しいトークンを追加"
-  },
-  "hideSomeToken": {
-    "message": "トークン「$tokenName$」を非表示にする",
-    "placeholders": {
-      "tokenName": {
-        "content": "$1"
-      }
-    }
-  },
-  "copySomeTokenAddress": {
-    "message": "「$tokenSymbol$」アドレスをコピー",
-    "placeholders": {
-      "tokenSymbol": {
-        "content": "$1"
-      }
-    }
-  },
-  "copySomeTokenId": {
-    "message": "「$tokenSymbol$」IDをコピー",
-    "placeholders": {
-      "tokenSymbol": {
-        "content": "$1"
-      }
-    }
-  },
-  "originLabel": {
-    "message": "オリジン: $origin$",
-    "placeholders": {
-      "origin": {
-        "content": "$1"
-      }
-    }
-  },
-  "networkLabel": {
-    "message": "ネットワーク: $network$",
-    "placeholders": {
-      "network": {
-        "content": "$1"
-      }
-    }
-  },
-  "pkhLabel": {
-    "message": "アカウント: $pkh$",
-    "placeholders": {
-      "pkh": {
-        "content": "$1"
-      }
-    }
-  },
-  "minDelegationAmountDescription": {
-    "message": "あなたの現在の残高は、このベーカーの最小委任額よりも少ないです。つまり、残高が$minAmount$未満である間は、支払いはありません。",
-    "placeholders": {
-      "minAmount": {
-        "content": "$1"
-      }
-    }
-  },
-  "recommendedBakersDescription": {
-    "message": "このリストは$link$によって提供されています",
-    "placeholders": {
-      "link": {
-        "content": "$1"
-      }
-    }
-  },
-  "highestIsBetter": {
-    "message": "高ければ高いほど良い"
-  },
-  "unlockWalletPrompt": {
-    "message": "既存のウォレットから何かを保存したい場合は、 $link$、アンロックします。",
-    "placeholders": {
-      "link": {
-        "content": "$1"
-      }
-    }
-  },
   "acceptTermsInputDescription": {
     "message": "$termsOfUsageLink$ and $privacyPolicyLink$\nを読んだうえで同意しました",
     "placeholders": {
@@ -203,23 +71,8 @@
       }
     }
   },
-  "copiedTokenAddress": {
-    "message": "コピーしました"
-  },
-  "copiedTokenId": {
-    "message": "コピーしました"
-  },
-  "delegatedTo": {
-    "message": "委任先:"
-  },
-  "delegatingMotivation": {
-    "message": "残高に利息を得るなら、ベーカーへの資金委任が非常にお勧めです"
-  },
   "reDelegate": {
     "message": "再委任"
-  },
-  "delegateNow": {
-    "message": "今すぐ委任"
   },
   "cancel": {
     "message": "キャンセル"
@@ -230,30 +83,8 @@
   "edit": {
     "message": "編集"
   },
-  "useCoinSwitch": {
-    "message": "CoinSwitchを使用",
-    "description": "CoinSwitch = https://coinswitch.co/"
-  },
-  "tezosFaucet": {
-    "message": "テゾスフォーセット"
-  },
-  "tezosFaucetAlpha": {
-    "message": "テゾスフォーセット（アルファ）"
-  },
-  "depositToWallet": {
-    "message": "自分のウォレットに入金"
-  },
-  "depositToWalletDescription": {
-    "message": "ウォレットに入金するための入金方法をクリックしてください。フォーセットを使うと無料のコインが入手できます！"
-  },
   "addToken": {
     "message": "トークンを追加"
-  },
-  "contractNotAvailable": {
-    "message": "このアドレスでのコントラクトは利用できません。このネットワーク上に存在しますか？"
-  },
-  "noTransferMethod": {
-    "message": "送金方法がありません"
   },
   "tokenDoesNotMatchStandard": {
     "message": "提供されたトークンコントラクトは標準、$standard$と一致しません",
@@ -265,9 +96,6 @@
   },
   "error": {
     "message": "エラー"
-  },
-  "tokenType": {
-    "message": "トークンの種類"
   },
   "tokenId": {
     "message": "トークンID"
@@ -342,16 +170,13 @@
     "message": "アイコンURL"
   },
   "optionalComment": {
-    "message": "（任意）"
+    "message": "任意"
   },
   "iconURLInputDescription": {
     "message": "トークンロゴ用画像URL"
   },
   "invalidAddress": {
     "message": "無効なアドレス"
-  },
-  "contractNotExistOnNetwork": {
-    "message": "このスマートコントラクトは現在のネットワークには存在しません"
   },
   "onlyKTContractAddressAllowed": {
     "message": "KTのみ...コントラクトアドレス可",
@@ -363,20 +188,11 @@
   "alert": {
     "message": "アラート"
   },
-  "accountNameInputTitle": {
+  "accountOrGroupNameInputTitle": {
     "message": "1～16文字、特殊文字なし"
   },
   "defaultAccountName": {
     "message": "アカウント、$accountNumber$",
-    "placeholders": {
-      "accountNumber": {
-        "content": "$1"
-      }
-    }
-  },
-  "defaultManagedKTAccountName": {
-    "message": "管理されたKT $accountNumber$",
-    "description": "KT not translated",
     "placeholders": {
       "accountNumber": {
         "content": "$1"
@@ -390,9 +206,6 @@
         "content": "$1"
       }
     }
-  },
-  "accountsToRemoveConstraint": {
-    "message": "階層的決定性アカウントは削除できません。"
   },
   "doNotSharePrivateKey": {
     "message": "この文字セットを誰とも<b>共有しないでください</b>！現在のアカウントを乗っ取られる恐れがあります。"
@@ -474,10 +287,6 @@
   "tryAgain": {
     "message": "もう一度お試しください"
   },
-  "tezosMainnet": {
-    "message": "テゾスメインネット",
-    "description": "Mainnet = main network"
-  },
   "templeWalletOptions": {
     "message": "テンプルウォレット | オプション"
   },
@@ -551,14 +360,8 @@
   "send": {
     "message": "送る"
   },
-  "baking": {
-    "message": "ベーキング"
-  },
   "operations": {
     "message": "オペレーション"
-  },
-  "delegationInfoWhileMessage": {
-    "message": "委任情報を取得中または処理中"
   },
   "operationHistoryWhileMessage": {
     "message": "オペレーション履歴を取得中または処理中"
@@ -569,20 +372,8 @@
   "mnemonic": {
     "message": "ニーモニック"
   },
-  "fundraiser": {
-    "message": "ファンドレイザー"
-  },
-  "privateKeyInputDescription": {
-    "message": "インポートするアカウントの秘密鍵。"
-  },
-  "privateKeyInputPlaceholder": {
-    "message": "例: edsk3wfiPMu..."
-  },
   "password": {
     "message": "パスワード"
-  },
-  "isPrivateKeyEncrypted": {
-    "message": "秘密鍵は暗号化されていますか？"
   },
   "customDerivationPath": {
     "message": "カスタム導出パス"
@@ -628,14 +419,6 @@
   "smthWentWrong": {
     "message": "不具合が発生しました"
   },
-  "faucetFileInputPrompt": {
-    "message": "ファイルをドラッグ＆ドロップするか、下の領域をクリックして手動で選択してください。$link$からダウンロードできます。",
-    "placeholders": {
-      "link": {
-        "content": "$1"
-      }
-    }
-  },
   "processing": {
     "message": "処理中..."
   },
@@ -654,43 +437,18 @@
   "revealPrivateKey": {
     "message": "秘密鍵を表示"
   },
-  "revealPrivateKeyDescription": {
-    "message": "「アカウントのエクスポート」としても知られ、選択したアカウントの秘密鍵を表示します。"
-  },
   "revealSeedPhrase": {
     "message": "シードフレーズを表示"
-  },
-  "revealSeedPhraseDescription": {
-    "message": "「ウォレットのエクスポート」としても知られ、他のデバイスでウォレットやアカウントにアクセスするには、このシードフレーズが必要な場合があります。"
   },
   "dApps": {
     "message": "DApps",
     "description": "DApps = Decentralized Applications"
-  },
-  "dAppsDescription": {
-    "message": "このセクションでは、テンプルウォレットをサポートする分散型アプリケーションとのインタラクションを有効にすることができます。"
-  },
-  "networksDescription": {
-    "message": "このセクションでは、カスタムテゾスネットワークの追加や削除を行うことができます。",
-    "description": "Tezos = blockchain name (https://tezos.com/)"
-  },
-  "activateAccount": {
-    "message": "アカウントをアクティベート"
-  },
-  "activateAccountDescription": {
-    "message": "ICO/ファンドレイザーやテストネットフォーセットアカウントに必要な場合があります。"
   },
   "removeAccount": {
     "message": "アカウントを削除"
   },
   "removeAccountDescription": {
     "message": "このセクションを使用して、選択したアカウントを削除します。インポートしたアカウントのみ削除することができます。"
-  },
-  "about": {
-    "message": "概要"
-  },
-  "aboutDescription": {
-    "message": "テンプルウォレットのメタ情報を表示するには、このセクションを使用します。"
   },
   "unlockWallet": {
     "message": "ウォレットをアンロック"
@@ -723,44 +481,11 @@
   "website": {
     "message": "ウェブサイト"
   },
-  "repo": {
-    "message": "レポジトリ"
-  },
   "privacyPolicy": {
     "message": "プライバシーポリシー"
   },
   "termsOfUse": {
     "message": "利用規約"
-  },
-  "contact": {
-    "message": "お問合せ"
-  },
-  "accountAlreadyActivated": {
-    "message": "アカウントはすでにアクティベートされています。"
-  },
-  "accountActivated": {
-    "message": "アカウントのアクティベートに成功しました！"
-  },
-  "failureSecretMayBeInvalid": {
-    "message": "失敗しました。提供された秘密が無効であるために発生した可能性があります。"
-  },
-  "accountToBeActivated": {
-    "message": "アクティベートするアカウント。"
-  },
-  "ifYouWantToActivateAnotherAccount": {
-    "message": "別のアカウントを有効にしたい場合は、右上のドロップダウンから選択してください。"
-  },
-  "activateAccountSecret": {
-    "message": "秘密"
-  },
-  "activateAccountSecretDescription": {
-    "message": "ファンドレイザーアカウントまたはフォーセットの「秘密」フィールド"
-  },
-  "activateAccountSecretPlaceholder": {
-    "message": "例: n4hs7sd3..."
-  },
-  "activate": {
-    "message": "アクティベート"
   },
   "minimalFeeDescription": {
     "message": "最少"
@@ -832,26 +557,11 @@
   "delegation": {
     "message": "委任"
   },
-  "customBaker": {
-    "message": "ベーカー"
-  },
-  "bakerInputDescription": {
-    "message": "登録したベーカーのアドレス"
-  },
-  "bakerInputPlaceholder": {
-    "message": "例: tz1a9w1S7hN5s..."
-  },
-  "minDelegationAmountTitle": {
-    "message": "最少委任額"
-  },
   "unknownBakerTitle": {
     "message": "不明なベーカー"
   },
   "unknownBakerDescription": {
     "message": "提供されたアドレスは、ベーカーとして知られていません！資金は自己責任でのみ委任してください。"
-  },
-  "recommendedBakers": {
-    "message": "推奨ベーカーに委任"
   },
   "sortBy": {
     "message": "並び替え順"
@@ -888,23 +598,6 @@
   "minimalFeeGreaterThanBalance": {
     "message": "この取引の手数料最小額は残高を上回っています。"
   },
-  "alreadyDelegatedFundsToBaker": {
-    "message": "すでにこのベーカーに資金を委任しました。再委任はできません。"
-  },
-  "bakerNotRegistered": {
-    "message": "指定したベーカーは登録されていません。"
-  },
-  "unableToPerformActionToBaker": {
-    "message": "提供されたベーカーに$action$できません。",
-    "placeholders": {
-      "action": {
-        "content": "$1"
-      }
-    }
-  },
-  "estimateDelegation": {
-    "message": "委任を見積もる"
-  },
   "thisMayHappenBecause": {
     "message": "以下の理由が考えられます:"
   },
@@ -918,9 +611,6 @@
   },
   "networkOrOtherIssue": {
     "message": "ネットワークまたは他の技術的な問題"
-  },
-  "unableToDelegateToKTAddress": {
-    "message": "KTに委任できません...コントラクトアドレス"
   },
   "confirmAction": {
     "message": "$action$を確定",
@@ -1057,7 +747,12 @@
     "message": "m/44'/1729'/<account_index>'/0'"
   },
   "derivationPathExample2": {
-    "message": "例: m/44'/1729'/..."
+    "message": "例: $derivationPath$",
+    "placeholders": {
+      "derivationPath": {
+        "content": "$1"
+      }
+    }
   },
   "keepSeedPhraseSecret": {
     "message": "秘密にしてください。"
@@ -1267,14 +962,11 @@
   "upload": {
     "message": "アップロード"
   },
-  "languageAndCountry": {
+  "language": {
     "message": "言語"
   },
   "generalSettings": {
     "message": "一般"
-  },
-  "generalSettingsDescription": {
-    "message": "ここでは、言語設定や表示モードを管理することができます。"
   },
   "swapNoun": {
     "message": "スワップ"
@@ -1361,9 +1053,6 @@
   "disabledForWatchOnlyAccount": {
     "message": "監視専用アカウントには無効"
   },
-  "activationOperationType": {
-    "message": "アクティベーション"
-  },
   "youAreNotContractManager": {
     "message": "あなたはコントラクトマネージャーではありません"
   },
@@ -1375,9 +1064,6 @@
   },
   "contractAddressInputPlaceholder": {
     "message": "例: KT1a9w1S7hN5s..."
-  },
-  "addKnownManagedContract": {
-    "message": "既知の管理されたコントラクトを追加"
   },
   "clickOnContractToImport": {
     "message": "インポートしたいコントラクトをクリック"
@@ -1424,9 +1110,6 @@
   "popupSettingsDescription": {
     "message": "ここでは、拡張機能パネルのプラグインのアイコンをクリックすると表示されるポップアップを設定します。"
   },
-  "managedContract": {
-    "message": "管理されたコントラクト"
-  },
   "referredByTokenContractNotFound": {
     "message": "トークンコントラクトで参照されるコントラクト、$address$は見つかりませんでした。",
     "placeholders": {
@@ -1451,9 +1134,6 @@
         "content": "$1"
       }
     }
-  },
-  "invalidManagedContract": {
-    "message": "管理されたコントラクトが無効です"
   },
   "someMethodNotDefinedInContract": {
     "message": "「$name$」メソッドはコントラクトで定義されていません。",
@@ -1618,14 +1298,5 @@
   },
   "invalidJsonInput": {
     "message": "無効なJSON"
-  },
-  "notFaucetJson": {
-    "message": "フォーセットのJSONではありません"
-  },
-  "faucetJson": {
-    "message": "フォーセットのJSON"
-  },
-  "faucetJsonDescription": {
-    "message": "ファイルを追加する代わりに、ここにJSONを貼り付けることができます。"
   }
 }

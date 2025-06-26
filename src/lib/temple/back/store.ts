@@ -1,7 +1,7 @@
 import { createStore, createEvent } from 'effector';
 
-import { NETWORKS } from 'lib/temple/networks';
-import { TempleState, TempleStatus, TempleAccount, TempleSettings } from 'lib/temple/types';
+import { TempleState, TempleStatus, StoredAccount, TempleSettings, FocusLocation } from 'lib/temple/types';
+import { DEFAULT_PROMISES_QUEUE_COUNTERS, PromisesQueueCounters } from 'lib/utils';
 
 import { Vault } from './vault';
 
@@ -14,13 +14,8 @@ interface UnlockedStoreState extends StoreState {
   vault: Vault;
 }
 
-export function toFront({ status, accounts, networks, settings }: StoreState): TempleState {
-  return {
-    status,
-    accounts,
-    networks,
-    settings
-  };
+export function toFront({ inited, vault, ...restProps }: StoreState): TempleState {
+  return restProps;
 }
 
 /**
@@ -33,13 +28,21 @@ export const locked = createEvent('Locked');
 
 export const unlocked = createEvent<{
   vault: Vault;
-  accounts: TempleAccount[];
+  accounts: StoredAccount[];
   settings: TempleSettings;
 }>('Unlocked');
 
-export const accountsUpdated = createEvent<TempleAccount[]>('Accounts updated');
+export const accountsUpdated = createEvent<StoredAccount[]>('Accounts updated');
 
 export const settingsUpdated = createEvent<TempleSettings>('Settings updated');
+
+export const dAppQueueCountersUpdated = createEvent<PromisesQueueCounters>('DApp queue counters updated');
+
+export const focusLocationChanged = createEvent<FocusLocation | null>('Focus location changed');
+
+export const popupOpened = createEvent<number | null>('Popup opened');
+
+export const popupClosed = createEvent<number | null>('Popup closed');
 
 /**
  * Store
@@ -50,27 +53,31 @@ export const store = createStore<StoreState>({
   vault: null,
   status: TempleStatus.Idle,
   accounts: [],
-  networks: [],
-  settings: null
+  settings: null,
+  dAppQueueCounters: DEFAULT_PROMISES_QUEUE_COUNTERS,
+  focusLocation: null,
+  windowsWithPopups: []
 })
   .on(inited, (state, vaultExist) => ({
     ...state,
     inited: true,
-    status: vaultExist ? TempleStatus.Locked : TempleStatus.Idle,
-    networks: NETWORKS
+    status: vaultExist ? TempleStatus.Locked : TempleStatus.Idle
   }))
-  .on(locked, () => ({
+  .on(locked, ({ focusLocation, windowsWithPopups }) => ({
     // Attention!
     // Security stuff!
-    // Don't merge new state to exisitng!
+    // Don't merge new state to existing!
     // Build a new state from scratch
     // Reset all properties!
+    // Exceptions: focusLocation, windowsWithPopups
     inited: true,
     vault: null,
     status: TempleStatus.Locked,
     accounts: [],
-    networks: NETWORKS,
-    settings: null
+    settings: null,
+    dAppQueueCounters: DEFAULT_PROMISES_QUEUE_COUNTERS,
+    focusLocation,
+    windowsWithPopups
   }))
   .on(unlocked, (state, { vault, accounts, settings }) => ({
     ...state,
@@ -86,6 +93,22 @@ export const store = createStore<StoreState>({
   .on(settingsUpdated, (state, settings) => ({
     ...state,
     settings
+  }))
+  .on(dAppQueueCountersUpdated, (state, dAppQueueCounters) => ({
+    ...state,
+    dAppQueueCounters
+  }))
+  .on(focusLocationChanged, (state, focusLocation) => ({
+    ...state,
+    focusLocation
+  }))
+  .on(popupOpened, (state, windowId) => ({
+    ...state,
+    windowsWithPopups: state.windowsWithPopups.filter(prevWindowId => prevWindowId !== windowId).concat(windowId)
+  }))
+  .on(popupClosed, (state, windowId) => ({
+    ...state,
+    windowsWithPopups: state.windowsWithPopups.filter(prevWindowId => prevWindowId !== windowId)
   }));
 
 /**

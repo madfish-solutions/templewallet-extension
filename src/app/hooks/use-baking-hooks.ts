@@ -4,7 +4,7 @@ import memoizee from 'memoizee';
 
 import { BAKING_STAKE_SYNC_INTERVAL } from 'lib/fixed-times';
 import { useRetryableSWR } from 'lib/swr';
-import { loadFastRpcClient } from 'lib/temple/helpers';
+import { getTezosFastRpcClient } from 'temple/tezos';
 
 const COMMON_SWR_KEY = 'BAKING';
 const COMMON_SWR_OPTIONS = {
@@ -12,39 +12,25 @@ const COMMON_SWR_OPTIONS = {
   refreshInterval: BAKING_STAKE_SYNC_INTERVAL
 };
 
-export const useStakedAmount = (rpcUrl: string, accountPkh: string) =>
+export const useStakedAmount = (rpcUrl: string, accountPkh: string, suspense?: boolean) =>
   useRetryableSWR(
     [COMMON_SWR_KEY, 'get-staked', rpcUrl, accountPkh],
     () =>
-      loadFastRpcClient(rpcUrl)
+      getTezosFastRpcClient(rpcUrl)
         .getStakedBalance(accountPkh)
         .catch(error => processIsStakingNotSupportedEndpointError(error, null)),
-    COMMON_SWR_OPTIONS
+    { ...COMMON_SWR_OPTIONS, suspense }
   );
 
 export const useUnstakeRequests = (rpcUrl: string, accountPkh: string, suspense?: boolean) =>
   useRetryableSWR(
     [COMMON_SWR_KEY, 'get-unstake-requests', rpcUrl, accountPkh],
     () =>
-      loadFastRpcClient(rpcUrl)
+      getTezosFastRpcClient(rpcUrl)
         .getUnstakeRequests(accountPkh)
         .catch(error => processIsStakingNotSupportedEndpointError(error, null)),
     { ...COMMON_SWR_OPTIONS, suspense }
   );
-
-export const useManagableTezosStakeInfo = (rpcURL: string, accountPkh: string) => {
-  const stakedSwr = useStakedAmount(rpcURL, accountPkh);
-  const requestsSwr = useUnstakeRequests(rpcURL, accountPkh);
-
-  const requests = requestsSwr.data;
-  const requestsN = requests ? requests.finalizable.length + requests.unfinalizable.requests.length : 0;
-
-  const mayManage: boolean = stakedSwr.data?.gt(0) || Boolean(requestsN);
-
-  const isLoading = stakedSwr.isLoading || requestsSwr.isLoading;
-
-  return { mayManage, isLoading, requestsN };
-};
 
 export interface StakingCyclesInfo {
   blocks_per_cycle: number;
@@ -58,7 +44,7 @@ export const useStakingCyclesInfo = (rpcUrl: string) =>
 
 const getCyclesInfo = memoizee(
   async (rpcUrl: string): Promise<StakingCyclesInfo | null> => {
-    const rpc = loadFastRpcClient(rpcUrl);
+    const rpc = getTezosFastRpcClient(rpcUrl);
 
     const { blocks_per_cycle, consensus_rights_delay, max_slashing_period, minimal_block_delay } =
       await rpc.getConstants();
@@ -76,7 +62,7 @@ export const useBlockLevelInfo = (rpcUrl: string) => {
   const { data } = useRetryableSWR(
     [COMMON_SWR_KEY, 'get-level-info', rpcUrl],
     () =>
-      loadFastRpcClient(rpcUrl)
+      getTezosFastRpcClient(rpcUrl)
         .getBlockMetadata()
         .then(m => m.level_info),
     COMMON_SWR_OPTIONS
@@ -84,46 +70,6 @@ export const useBlockLevelInfo = (rpcUrl: string) => {
 
   return data;
 };
-
-export const useIsStakingNotSupported = (rpcUrl: string, bakerPkh: string | nullish) =>
-  useRetryableSWR(
-    [COMMON_SWR_KEY, 'is-staking-not-supported', rpcUrl, bakerPkh ?? 'by-chain'],
-    () =>
-      Promise.all([
-        getIsStakingNotSupportedByChain(rpcUrl),
-        bakerPkh ? getIsStakingNotSupportedByBaker(rpcUrl, bakerPkh) : false
-      ]).then(([res1, res2]) => res1 || res2),
-    COMMON_SWR_OPTIONS
-  );
-
-const getIsStakingNotSupportedByChain = memoizee(
-  async (rpcUrl: string) => {
-    const rpc = loadFastRpcClient(rpcUrl);
-
-    let launchCycle: number | null;
-    try {
-      launchCycle = await rpc.getAdaptiveIssuanceLaunchCycle();
-      if (launchCycle == null) return true;
-    } catch (error) {
-      return processIsStakingNotSupportedEndpointError(error, true);
-    }
-
-    const { level_info } = await rpc.getBlockMetadata();
-
-    if (level_info == null) return false;
-
-    return level_info.cycle < launchCycle;
-  },
-  { promise: true }
-);
-
-const getIsStakingNotSupportedByBaker = memoizee(
-  (rpcUrl: string, bakerPkh: string) =>
-    loadFastRpcClient(rpcUrl)
-      .getDelegateLimitOfStakingOverBakingIsPositive(bakerPkh)
-      .catch(error => processIsStakingNotSupportedEndpointError(error, true)),
-  { promise: true, normalizer: ([rpcUrl, bakerPkh]) => `${bakerPkh}@${rpcUrl}` }
-);
 
 const processIsStakingNotSupportedEndpointError = <T>(error: unknown, fallbackVal: T): T => {
   if (error instanceof HttpResponseError && error.status === 404) return fallbackVal;

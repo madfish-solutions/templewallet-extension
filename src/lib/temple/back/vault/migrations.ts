@@ -1,19 +1,40 @@
-import * as Bip39 from 'bip39';
+import { nanoid } from 'nanoid';
 
+import {
+  ADS_VIEWER_ADDRESS_STORAGE_KEY,
+  CUSTOM_TEZOS_NETWORKS_STORAGE_KEY,
+  ACCOUNT_PKH_STORAGE_KEY,
+  CUSTOM_NETWORKS_SNAPSHOT_STORAGE_KEY,
+  WALLETS_SPECS_STORAGE_KEY
+} from 'lib/constants';
+import { moveValueInStorage, putToStorage, removeFromStorage } from 'lib/storage';
 import * as Passworder from 'lib/temple/passworder';
-import { TempleAccount, TempleAccountType, TempleContact, TempleSettings } from 'lib/temple/types';
+import { StoredAccount, TempleAccountType, TempleContact, TempleSettings, WalletSpecs } from 'lib/temple/types';
+import { isTruthy } from 'lib/utils';
+import { StoredTezosNetwork } from 'temple/networks';
+import { loadTezosChainId } from 'temple/tezos';
+import { TempleChainKind } from 'temple/types';
 
-import { seedToHDPrivateKey, generateCheck, fetchNewAccountName, getPublicKeyAndHash } from './misc';
+import { fetchMessage } from './helpers';
+import {
+  generateCheck,
+  fetchNewAccountName,
+  mnemonicToTezosAccountCreds,
+  mnemonicToEvmAccountCreds,
+  buildEncryptAndSaveManyForAccount
+} from './misc';
 import {
   encryptAndSaveMany,
   encryptAndSaveManyLegacy,
+  fetchAndDecryptOne,
   fetchAndDecryptOneLegacy,
-  getPlain,
+  getPlainLegacy,
   removeManyLegacy
 } from './safe-storage';
 import {
   checkStrgKey,
   mnemonicStrgKey,
+  walletMnemonicStrgKey,
   accPrivKeyStrgKey,
   accPubKeyStrgKey,
   accountsStrgKey,
@@ -27,7 +48,7 @@ export const MIGRATIONS = [
 
     const [mnemonic, accounts] = await Promise.all([
       fetchAndDecryptOneLegacy<string>(mnemonicStrgKey, passKey),
-      fetchAndDecryptOneLegacy<TempleAccount[]>(accountsStrgKey, passKey)
+      fetchAndDecryptOneLegacy<StoredAccount[]>(accountsStrgKey, passKey)
     ]);
     const migratedAccounts = accounts.map(acc =>
       acc.type === TempleAccountType.HD
@@ -38,23 +59,21 @@ export const MIGRATIONS = [
         : acc
     );
 
-    const seed = Bip39.mnemonicToSeedSync(mnemonic);
     const hdAccIndex = 0;
-    const accPrivateKey = seedToHDPrivateKey(seed, hdAccIndex);
-    const [accPublicKey, accPublicKeyHash] = await getPublicKeyAndHash(accPrivateKey);
+    const tezosAcc = await mnemonicToTezosAccountCreds(mnemonic, hdAccIndex);
 
-    const newInitialAccount: TempleAccount = {
+    const newInitialAccount: LegacyTypes.TempleAccount = {
       type: TempleAccountType.HD,
-      name: await fetchNewAccountName(accounts),
-      publicKeyHash: accPublicKeyHash,
+      name: await fetchNewAccountName(accounts, TempleAccountType.HD),
+      publicKeyHash: tezosAcc.publicKey,
       hdIndex: hdAccIndex
     };
     const newAccounts = [newInitialAccount, ...migratedAccounts];
 
     await encryptAndSaveManyLegacy(
       [
-        [accPrivKeyStrgKey(accPublicKeyHash), accPrivateKey],
-        [accPubKeyStrgKey(accPublicKeyHash), accPublicKey],
+        [accPrivKeyStrgKey(tezosAcc.address), tezosAcc.privateKey],
+        [accPubKeyStrgKey(tezosAcc.address), tezosAcc.publicKey],
         [accountsStrgKey, newAccounts]
       ],
       passKey
@@ -64,7 +83,7 @@ export const MIGRATIONS = [
   // [2] Add hdIndex prop to HD Accounts
   async (password: string) => {
     const passKey = await Passworder.generateKeyLegacy(password);
-    const accounts = await fetchAndDecryptOneLegacy<TempleAccount[]>(accountsStrgKey, passKey);
+    const accounts = await fetchAndDecryptOneLegacy<StoredAccount[]>(accountsStrgKey, passKey);
 
     let hdAccIndex = 0;
     const newAccounts = accounts.map(acc =>
@@ -103,12 +122,12 @@ export const MIGRATIONS = [
 
     const [mnemonic, accounts, settings] = await Promise.all([
       fetchLegacySafe<string>(mnemonicStrgKey),
-      fetchLegacySafe<TempleAccount[]>(accountsStrgKey),
+      fetchLegacySafe<LegacyTypes.TempleAccount[]>(accountsStrgKey),
       fetchLegacySafe<TempleSettings>(settingsStrgKey)
     ]);
 
     // Address book contacts migration
-    const contacts = await getPlain<TempleContact[]>('contacts');
+    const contacts = await getPlainLegacy<TempleContact[]>('contacts');
 
     const accountsStrgKeys = accounts!
       .map(acc => [accPrivKeyStrgKey(acc.publicKeyHash), accPubKeyStrgKey(acc.publicKeyHash)])
@@ -130,5 +149,139 @@ export const MIGRATIONS = [
 
     // Remove old
     await removeManyLegacy([...toSave.map(([key]) => key), 'contacts']);
+  },
+
+  // [5] Extend data formats for EVM support
+  async (password: string) => {
+    console.log('VAULT.MIGRATIONS: EVM migration started');
+    const passKey = await Passworder.generateKey(password);
+
+    /* ACCOUNTS */
+
+    const accounts = await fetchAndDecryptOne<LegacyTypes.TempleAccount[]>(accountsStrgKey, passKey);
+    const mnemonic = await fetchAndDecryptOne<string>(mnemonicStrgKey, passKey);
+
+    const toEncryptAndSave: [string, any][] = [];
+    const walletId = nanoid();
+    const hdWalletName = await fetchMessage('hdWalletDefaultName', 'A');
+
+    const newAccounts = accounts.map<StoredAccount>(account => {
+      const tezosAddress = account.publicKeyHash;
+      const id = nanoid();
+
+      switch (account.type) {
+        case TempleAccountType.HD:
+          const evmAcc = mnemonicToEvmAccountCreds(mnemonic, account.hdIndex);
+          toEncryptAndSave.push(...buildEncryptAndSaveManyForAccount(evmAcc));
+
+          return { ...account, id, tezosAddress, evmAddress: evmAcc.address, walletId };
+        case TempleAccountType.Imported:
+          return { ...account, id, address: tezosAddress, chain: TempleChainKind.Tezos };
+        case TempleAccountType.WatchOnly:
+          return { ...account, id, address: tezosAddress, chain: TempleChainKind.Tezos };
+        case TempleAccountType.Ledger:
+          return { ...account, id, address: tezosAddress, chain: TempleChainKind.Tezos };
+        case TempleAccountType.ManagedKT:
+          return { ...account, id, tezosAddress };
+      }
+
+      return account;
+    });
+
+    toEncryptAndSave.push([accountsStrgKey, newAccounts], [walletMnemonicStrgKey(walletId), mnemonic]);
+    await putToStorage<StringRecord<WalletSpecs>>(WALLETS_SPECS_STORAGE_KEY, {
+      [walletId]: { name: hdWalletName, createdAt: Date.now() }
+    });
+
+    moveValueInStorage(ACCOUNT_PKH_STORAGE_KEY, ADS_VIEWER_ADDRESS_STORAGE_KEY);
+
+    /* NETWORKS */
+
+    const settings = await fetchAndDecryptOne<TempleSettings>(settingsStrgKey, passKey).catch(() => null);
+
+    type LegacyStoredTezosNetwork = Omit<StoredTezosNetwork, 'chain'>;
+
+    if (settings) {
+      settings.customTezosNetworks = []; // No custom networks till we can get chain IDs for them
+      delete settings.customNetworks;
+      toEncryptAndSave.push([settingsStrgKey, settings]);
+    }
+
+    // Taking a chance to migrate the list of manually-added user's Tezos networks (with chain IDs).
+    // (!) Internet connection would have to be available during this.
+    if (settings?.customNetworks?.length)
+      Promise.all(
+        settings.customNetworks.map((network: LegacyStoredTezosNetwork) =>
+          loadTezosChainId(network.rpcBaseURL, 30_000)
+            .then<StoredTezosNetwork>(chainId => {
+              delete network.type;
+              return { ...network, chain: TempleChainKind.Tezos, chainId };
+            })
+            .catch(err => {
+              console.error(err);
+              return null;
+            })
+        )
+      ).then(networks => {
+        const migratedNetworks = networks.filter(isTruthy);
+        if (!migratedNetworks.length) return;
+
+        putToStorage<StoredTezosNetwork[]>(CUSTOM_TEZOS_NETWORKS_STORAGE_KEY, migratedNetworks);
+
+        const newSettings: typeof settings = { ...settings, customTezosNetworks: migratedNetworks };
+
+        return encryptAndSaveMany([[settingsStrgKey, newSettings]], passKey);
+      });
+
+    await encryptAndSaveMany(toEncryptAndSave, passKey);
+
+    /* CLEAN-UP */
+
+    removeFromStorage(['network_id', 'tokens_base_metadata', 'block_explorer', CUSTOM_NETWORKS_SNAPSHOT_STORAGE_KEY]);
+
+    console.log('VAULT.MIGRATIONS: EVM migration finished');
   }
 ];
+
+namespace LegacyTypes {
+  export type TempleAccount =
+    | TempleHDAccount
+    | TempleImportedAccount
+    | TempleLedgerAccount
+    | TempleManagedKTAccount
+    | TempleWatchOnlyAccount;
+
+  interface TempleLedgerAccount extends TempleAccountBase {
+    type: TempleAccountType.Ledger;
+    derivationPath: string;
+  }
+
+  interface TempleImportedAccount extends TempleAccountBase {
+    type: TempleAccountType.Imported;
+  }
+
+  interface TempleHDAccount extends TempleAccountBase {
+    type: TempleAccountType.HD;
+    hdIndex: number;
+  }
+
+  interface TempleManagedKTAccount extends TempleAccountBase {
+    type: TempleAccountType.ManagedKT;
+    chainId: string;
+    owner: string;
+  }
+
+  interface TempleWatchOnlyAccount extends TempleAccountBase {
+    type: TempleAccountType.WatchOnly;
+    chainId?: string;
+  }
+
+  interface TempleAccountBase {
+    type: TempleAccountType;
+    name: string;
+    publicKeyHash: string;
+    hdIndex?: number;
+    derivationPath?: string;
+    derivationType?: 0 | 1 | 2 | 3;
+  }
+}

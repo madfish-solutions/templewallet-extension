@@ -1,37 +1,37 @@
 import { nanoid } from '@reduxjs/toolkit';
 
-import { MAX_SHOW_AGREEMENTS_COUNTER, RECENT_TERMS_VERSION } from 'lib/constants';
 import { IS_MISES_BROWSER } from 'lib/env';
 
-export enum BalanceMode {
-  Fiat = 'fiat',
-  Gas = 'gas'
-}
+type ChainAssetSlug = string;
 
 export interface SettingsState {
   userId: string;
   isAnalyticsEnabled: boolean;
-  balanceMode: BalanceMode;
-  isOnRampPossibility: boolean;
   isConversionTracked: boolean;
   pendingReactivateAds: boolean;
   adsImpressionsLinked: boolean;
-  acceptedTermsVersion: number;
   referralLinksEnabled: boolean;
-  showAgreementsCounter: number;
-  shouldShowTermsOfUseUpdateOverlay: boolean;
+  isTestnetModeEnabled: boolean;
+  onRampAsset: ChainAssetSlug | null;
+  /** @deprecated */
+  isOnRampPossibility?: boolean;
+  /** @deprecated */
+  acceptedTermsVersion?: number;
+  /** @deprecated */
+  showAgreementsCounter?: number;
+  /** @deprecated */
+  shouldShowTermsOfUseUpdateOverlay?: boolean;
+  /** @deprecated */
+  balanceMode?: 'fiat' | 'gas';
 }
 
 export const settingsInitialState: SettingsState = {
   userId: nanoid(),
   isAnalyticsEnabled: false,
-  balanceMode: BalanceMode.Fiat,
-  isOnRampPossibility: false,
   isConversionTracked: false,
   pendingReactivateAds: false,
   adsImpressionsLinked: false,
-  acceptedTermsVersion: IS_MISES_BROWSER ? RECENT_TERMS_VERSION : 0,
   referralLinksEnabled: IS_MISES_BROWSER,
-  showAgreementsCounter: IS_MISES_BROWSER ? MAX_SHOW_AGREEMENTS_COUNTER : 0,
-  shouldShowTermsOfUseUpdateOverlay: true
+  isTestnetModeEnabled: false,
+  onRampAsset: null
 };

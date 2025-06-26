@@ -1,4 +1,4 @@
-import browser from 'webextension-polyfill';
+import { TEZOS_DCP_GAS_ICON_SRC, TEZOS_GAS_ICON_SRC } from 'lib/assets/defaults';
 
 import type { AssetMetadataBase } from './types';
 
@@ -6,19 +6,12 @@ export const TEZOS_METADATA: AssetMetadataBase = {
   decimals: 6,
   symbol: 'TEZ',
   name: 'Tezos',
-  thumbnailUri: browser.runtime.getURL('misc/token-logos/tez.svg')
+  thumbnailUri: TEZOS_GAS_ICON_SRC
 };
 
 export const FILM_METADATA: AssetMetadataBase = {
   decimals: 6,
   symbol: 'FILM',
   name: 'FILM',
-  thumbnailUri: browser.runtime.getURL('misc/token-logos/film.png')
-};
-
-export const EMPTY_BASE_METADATA: AssetMetadataBase = {
-  decimals: 0,
-  symbol: '',
-  name: '',
-  thumbnailUri: ''
+  thumbnailUri: TEZOS_DCP_GAS_ICON_SRC
 };

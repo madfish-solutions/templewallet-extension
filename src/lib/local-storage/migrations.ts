@@ -1,5 +1,10 @@
 import { isNotEmptyString } from '@rnw-community/shared';
 
+import { AUTOLOCK_TIME_STORAGE_KEY, NEVER_AUTOLOCK_VALUE } from 'lib/constants';
+import { DEFAULT_WALLET_AUTOLOCK_TIME } from 'lib/fixed-times';
+import { putToStorage } from 'lib/storage';
+import { TempleSharedStorageKey } from 'lib/temple/types';
+
 import { migrate } from './migrator';
 
 migrate([
@@ -21,5 +26,17 @@ migrate([
   {
     name: '1.19.1',
     up: () => localStorage.removeItem('useledgerlive')
+  },
+  {
+    name: '2.0.0',
+    up: () => {
+      const rawIsLocked = localStorage.getItem(TempleSharedStorageKey.LockUpEnabled);
+      localStorage.removeItem(TempleSharedStorageKey.LockUpEnabled);
+
+      putToStorage(
+        AUTOLOCK_TIME_STORAGE_KEY,
+        rawIsLocked === 'true' || rawIsLocked === null ? DEFAULT_WALLET_AUTOLOCK_TIME : NEVER_AUTOLOCK_VALUE
+      ).catch(e => console.error(e));
+    }
   }
 ]);

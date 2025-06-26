@@ -14,10 +14,10 @@ import { getHypelabBannerAd } from './get-hypelab-ad';
 import { useChildAdElementRef } from './use-child-ad-element-ref';
 
 export const HypelabImagePromotion: FC<Omit<SingleProviderPromotionProps, 'variant'>> = ({
+  accountPkh,
   isVisible,
   pageName,
   onAdRectSeen,
-  onClose,
   onError,
   onReady
 }) => {
@@ -78,7 +78,7 @@ export const HypelabImagePromotion: FC<Omit<SingleProviderPromotionProps, 'varia
 
   return (
     <ImagePromotionView
-      onClose={onClose}
+      accountPkh={accountPkh}
       href={currentAd?.cta_url ?? '#'}
       isVisible={isVisible}
       providerTitle={AdsProviderTitle.HypeLab}
@@ -91,7 +91,7 @@ export const HypelabImagePromotion: FC<Omit<SingleProviderPromotionProps, 'varia
         <Banner
           placement={EnvVars.HYPELAB_SMALL_PLACEMENT_SLUG}
           // @ts-expect-error
-          class="rounded-xl overflow-hidden"
+          class="rounded overflow-hidden"
           onReady={handleReady}
           onError={onError}
         />

@@ -1,22 +1,28 @@
 import React, { FC, useMemo } from 'react';
 
 import { ShortcutAccountSelectStateProvider } from 'app/hooks/use-account-select-shortcut';
+import { AssetsViewStateProvider } from 'app/hooks/use-assets-view-state';
 import { usePushNotifications } from 'app/hooks/use-push-notifications';
-import { CustomRpcContext } from 'lib/analytics';
+import { CustomEvmChainIdContext, CustomTezosChainIdContext } from 'lib/analytics';
+import { ReadyTempleProvider } from 'temple/front/ready';
 
-import { NewBlockTriggersProvider } from './chain';
 import { TempleClientProvider, useTempleClient } from './client';
-import { ReadyTempleProvider, useNetwork } from './ready';
+import { ToastsContextProvider } from './toasts-context';
+import { WindowIsActiveProvider } from './window-is-active-context';
 
 export const TempleProvider: FC<PropsWithChildren> = ({ children }) => {
   usePushNotifications();
 
   return (
-    <CustomRpcContext.Provider value={undefined}>
-      <TempleClientProvider>
-        <ConditionalReadyTemple>{children}</ConditionalReadyTemple>
-      </TempleClientProvider>
-    </CustomRpcContext.Provider>
+    <CustomTezosChainIdContext.Provider value={undefined}>
+      <CustomEvmChainIdContext.Provider value={undefined}>
+        <TempleClientProvider>
+          <ToastsContextProvider>
+            <ConditionalReadyTemple>{children}</ConditionalReadyTemple>
+          </ToastsContextProvider>
+        </TempleClientProvider>
+      </CustomEvmChainIdContext.Provider>
+    </CustomTezosChainIdContext.Provider>
   );
 };
 
@@ -27,21 +33,15 @@ const ConditionalReadyTemple: FC<PropsWithChildren> = ({ children }) => {
     () =>
       ready ? (
         <ReadyTempleProvider>
-          <WalletRpcProvider>
-            <NewBlockTriggersProvider>
-              <ShortcutAccountSelectStateProvider>{children}</ShortcutAccountSelectStateProvider>
-            </NewBlockTriggersProvider>
-          </WalletRpcProvider>
+          <AssetsViewStateProvider>
+            <ShortcutAccountSelectStateProvider>
+              <WindowIsActiveProvider>{children}</WindowIsActiveProvider>
+            </ShortcutAccountSelectStateProvider>
+          </AssetsViewStateProvider>
         </ReadyTempleProvider>
       ) : (
         <>{children}</>
       ),
     [children, ready]
   );
-};
-
-const WalletRpcProvider: FC<PropsWithChildren> = ({ children }) => {
-  const network = useNetwork();
-
-  return <CustomRpcContext.Provider value={network.rpcBaseURL}>{children}</CustomRpcContext.Provider>;
 };

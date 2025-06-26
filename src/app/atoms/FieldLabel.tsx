@@ -4,18 +4,26 @@ import clsx from 'clsx';
 
 interface Props {
   className: string;
+  labelContainerClassName?: string;
   label: ReactNode;
   description?: ReactNode;
   warning?: ReactNode;
   id?: string;
 }
 
-export const FieldLabel: React.FC<Props> = ({ label, className, description, warning, id }) => (
-  <label className={clsx(className, 'leading-tight flex flex-col')} htmlFor={id}>
-    <div className="text-base font-semibold text-gray-700">{label}</div>
+export const FieldLabel: React.FC<Props> = ({
+  label,
+  labelContainerClassName,
+  className,
+  description,
+  warning,
+  id
+}) => (
+  <label className={clsx(className, 'text-font-description flex flex-col')} htmlFor={id}>
+    <span className={clsx('font-semibold', labelContainerClassName)}>{label}</span>
 
-    {description && <div className="mt-1 text-xs font-light text-gray-600 max-w-9/10">{description}</div>}
+    {description && <span className="mt-1 text-grey-1">{description}</span>}
 
-    {warning && <div className="mt-1 text-xs font-medium text-red-600 max-w-9/10">{warning}</div>}
+    {warning && <span className="mt-1 font-medium text-error">{warning}</span>}
   </label>
 );

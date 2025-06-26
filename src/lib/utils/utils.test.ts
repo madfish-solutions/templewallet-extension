@@ -1,4 +1,4 @@
-import { isTruthy, createQueue, delay, fifoResolve } from './index';
+import { isTruthy, PromisesQueue, delay, fifoResolve, PromisesQueueCounters } from './index';
 
 /** See: https://developer.mozilla.org/en-US/docs/Glossary/Falsy */
 const ALL_FALSY_VALUES = [false, 0, -0, BigInt(0), '', NaN, null, undefined];
@@ -17,33 +17,50 @@ describe('isTruthy', () => {
 
 describe('Queue', () => {
   it('queue', async () => {
-    const enqueue = createQueue();
+    const queue = new PromisesQueue();
 
     const result: number[] = [];
+    const newEmittedCounters: PromisesQueueCounters[] = [];
+    queue.on(PromisesQueue.COUNTERS_CHANGE_EVENT_NAME, counters => newEmittedCounters.push(counters));
     await Promise.all([
-      enqueue(() =>
+      queue.enqueue(() =>
         withDelay(300, () => {
+          expect(queue.counters).toEqual({ length: 4, maxLength: 4 });
+          expect(newEmittedCounters.splice(0, newEmittedCounters.length)).toEqual([
+            { length: 1, maxLength: 1 },
+            { length: 2, maxLength: 2 },
+            { length: 3, maxLength: 3 },
+            { length: 4, maxLength: 4 }
+          ]);
           result.push(1);
         })
       ),
-      enqueue(() =>
+      queue.enqueue(() =>
         withDelay(200, () => {
+          expect(queue.counters).toEqual({ length: 3, maxLength: 4 });
+          expect(newEmittedCounters.splice(0, newEmittedCounters.length)).toEqual([{ length: 3, maxLength: 4 }]);
           result.push(2);
         })
       ),
-      enqueue(() =>
+      queue.enqueue(() =>
         withDelay(100, () => {
+          expect(queue.counters).toEqual({ length: 2, maxLength: 4 });
+          expect(newEmittedCounters.splice(0, newEmittedCounters.length)).toEqual([{ length: 2, maxLength: 4 }]);
           result.push(3);
         })
       ),
-      enqueue(() =>
+      queue.enqueue(() =>
         withDelay(0, () => {
+          expect(queue.counters).toEqual({ length: 1, maxLength: 4 });
+          expect(newEmittedCounters.splice(0, newEmittedCounters.length)).toEqual([{ length: 1, maxLength: 4 }]);
           result.push(4);
         })
       )
     ]);
 
     expect(result).toStrictEqual([1, 2, 3, 4]);
+    expect(newEmittedCounters.splice(0, newEmittedCounters.length)).toEqual([{ length: 0, maxLength: 0 }]);
+    expect(queue.counters).toEqual({ length: 0, maxLength: 0 });
   });
 });
 

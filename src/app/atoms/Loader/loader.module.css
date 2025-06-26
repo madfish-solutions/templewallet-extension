@@ -1,0 +1,9 @@
+.trackLight {
+  --track-opacity: 0.25;
+  --track-color: white;
+}
+
+.trackDark {
+  --track-opacity: 0.05;
+  --track-color: black;
+}

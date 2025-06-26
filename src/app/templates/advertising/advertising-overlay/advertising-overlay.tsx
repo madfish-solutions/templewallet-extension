@@ -6,7 +6,7 @@ import { useDispatch } from 'react-redux';
 
 import { Anchor, Button } from 'app/atoms';
 import { useAppEnv } from 'app/env';
-import ContentContainer from 'app/layouts/ContentContainer';
+import { LAYOUT_CONTAINER_CLASSNAME } from 'app/layouts/containers';
 import { skipAdvertisingPromotionAction } from 'app/store/advertising/actions';
 import { useActivePromotionSelector, useIsNewPromotionAvailableSelector } from 'app/store/advertising/selectors';
 import { T } from 'lib/i18n/react';
@@ -32,12 +32,18 @@ export const AdvertisingOverlay: FC = () => {
   return ready && isNewPromotionAvailable && isDefined(activePromotion) ? (
     <>
       <Button
-        className={'fixed left-0 right-0 top-0 bottom-0 opacity-20 bg-gray-700 z-50'}
+        className="fixed inset-0 opacity-20 bg-gray-700 z-overlay-promo"
         onClick={handleSkipPress}
         testID={`${analyticsEventPrefix}_SKIP`}
       />
 
-      <ContentContainer className={classNames('fixed z-50 max-h-full overflow-y-auto', popupClassName)} padding={false}>
+      <div
+        className={classNames(
+          LAYOUT_CONTAINER_CLASSNAME,
+          'fixed z-overlay-promo max-h-full overflow-y-auto',
+          popupClassName
+        )}
+      >
         <Anchor
           className="flex items-center justify-center m-auto"
           style={{
@@ -69,7 +75,7 @@ export const AdvertisingOverlay: FC = () => {
         >
           <T id="skipAd" />
         </Button>
-      </ContentContainer>
+      </div>
     </>
   ) : null;
 };

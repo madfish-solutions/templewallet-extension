@@ -1,138 +1,91 @@
-import retry from 'async-retry';
-import { ElementHandle } from 'puppeteer';
+import { Locator } from '@playwright/test';
+import { ElementHandle } from 'playwright';
 
-import { BrowserContext } from '../classes/browser-context.class';
+import { CustomBrowserContext } from '../classes/browser-context.class';
 
-import { MEDIUM_TIMEOUT } from './timing.utils';
+import { SHORT_TIMEOUT } from './timing.utils';
 
-type OtherSelectors = Record<string, string>;
+const buildTestIDSelector = (testID: string) => `[data-testid="${testID}"]`;
 
-export const findElement = async (
-  testID: string,
-  otherSelectors?: OtherSelectors,
-  timeout = MEDIUM_TIMEOUT,
-  errorTitle?: string
-) => {
-  const selector = buildSelector(testID, otherSelectors);
+export const findElement = async (testID: string) => {
+  const selector = buildTestIDSelector(testID);
 
-  return await findElementBySelectors(selector, timeout, errorTitle);
+  return await findElementBySelector(selector);
 };
 
-export const findElementBySelectors = async (selectors: string, timeout = MEDIUM_TIMEOUT, errorTitle?: string) => {
-  const element = await BrowserContext.page.waitForSelector(selectors, { visible: true, timeout }).catch(error => {
-    if (errorTitle && error instanceof Error) {
-      error.message = `${errorTitle}\n` + error.message;
-    }
-    throw error;
-  });
+export const findElementBySelector = async (selectors: string) => {
+  const element = CustomBrowserContext.page.getByTestId(selectors);
 
   if (!element) throw new Error(`${selectors} not found`);
 
   return element;
 };
 
-export const findElements = async (testID: string) => {
+export const findElements = async (testID: string, count?: number) => {
   const selector = buildTestIDSelector(testID);
 
-  const elements = await BrowserContext.page.$$(selector);
+  const elements = await CustomBrowserContext.page.$$(selector);
 
   if (!elements.length) throw new Error(`None of "${testID}" elements were found`);
+  if (count && elements.length !== count)
+    throw new Error(`Expected ${count} '${testID}' elements, but got ${elements.length}`);
 
   return elements;
 };
 
-class PageElement {
-  constructor(public selector: string) {}
-
-  createChildElement(testID: string, otherSelectors?: OtherSelectors) {
-    const childSelector = buildSelector(testID, otherSelectors);
-    const selectors = buildChildSelector(this.selector, childSelector);
-
-    return new PageElement(selectors);
-  }
-
-  findElement(timeout?: number, errorTitle?: string) {
-    return findElementBySelectors(this.selector, timeout, errorTitle);
-  }
-
-  waitForDisplayed(timeout?: number, errorTitle?: string) {
-    return this.findElement(timeout, errorTitle);
-  }
-
-  async click(timeout?: number, errorTitle?: string) {
-    const element = await this.findElement(timeout, errorTitle);
-    await element.click();
-  }
-
-  async type(text: string) {
-    const element = await this.findElement();
-    await element.type(text);
-  }
-
-  async getText() {
-    const element = await this.findElement();
-    return getElementText(element);
-  }
-
-  async waitForText(expectedText: string, timeout = MEDIUM_TIMEOUT) {
-    if (timeout <= 0) {
-      const element = await this.findElement(timeout);
-      const text = await getElementText(element);
-      return text === expectedText;
-    }
-
-    return await retry(
-      async () => {
-        const element = await this.findElement(timeout);
-        const text = await getElementText(element);
-
-        if (text === expectedText) return true;
-
-        throw new Error(`Waiting for expected text in \`${this.selector}\` timed out (${timeout} ms)`);
-      },
-      { maxRetryTime: timeout }
-    );
-  }
-}
-
-export const createPageElement = (testID: string, otherSelectors?: OtherSelectors, notSelectors?: OtherSelectors) => {
-  let selector = buildSelector(testID, otherSelectors);
-  if (notSelectors) selector += buildNotSelector(notSelectors);
-
+export const createPageElement = (selector: string) => {
+  buildTestIDSelector(selector);
   return new PageElement(selector);
 };
 
-export const getElementText = (element: ElementHandle) =>
-  element.evaluate(innerElement => {
-    if (innerElement instanceof HTMLInputElement) {
-      return innerElement.value;
-    }
+export class PageElement {
+  constructor(public selector: string) {}
 
-    const textContent = innerElement.textContent?.replace(/\n/g, ' ');
+  async findElement(errorTitle?: string): Promise<Locator> {
+    return findElementBySelector(this.selector).catch(error => {
+      if (errorTitle && error instanceof Error) {
+        error.message = `${errorTitle}\n` + error.message;
+      }
+      throw error;
+    });
+  }
 
-    if (textContent == null) {
-      throw new Error("Element's content is not text!");
-    }
+  async findElements(count?: number, errorTitle?: string): Promise<ElementHandle<SVGElement | HTMLElement>[]> {
+    return findElements(this.selector, count).catch(error => {
+      if (errorTitle && error instanceof Error) {
+        error.message = `${errorTitle}\n` + error.message;
+      }
+      throw error;
+    });
+  }
 
-    return textContent;
-  });
+  async waitForDisplayed(timeout = SHORT_TIMEOUT, state?: 'attached' | 'detached' | 'visible' | 'hidden') {
+    const element = await this.findElement();
+    return element.waitFor({ timeout, state });
+  }
 
-const buildTestIDSelector = (testID: string) => `[data-testid="${testID}"]`;
+  async click(clickCount?: number, delay?: number) {
+    const element = await this.findElement();
+    return await element.click({ clickCount: clickCount, delay: delay });
+  }
 
-const buildSelectorPairs = (selectors: OtherSelectors) => {
-  return Object.entries(selectors).map(([key, val]) =>
-    val ? (`data-${key}="${val}"` as const) : (`data-${key}` as const)
-  );
-};
+  async focus(timeout?: number) {
+    const element = await this.findElement();
+    return await element.focus({ timeout: timeout });
+  }
 
-export const buildSelector = (testID: string, otherSelectors?: OtherSelectors) => {
-  const pairs = buildSelectorPairs({ ...otherSelectors, testid: testID });
-  return `[${pairs.join('][')}]`;
-};
+  async fill(text: string, force?: boolean, noWaitAfter?: boolean, timeout?: number) {
+    const element = await this.findElement();
+    return await element.fill(text, { force, noWaitAfter, timeout });
+  }
 
-const buildNotSelector = (notSelectors: OtherSelectors) => {
-  const pairs = buildSelectorPairs(notSelectors);
-  return `:not([${pairs.join(']):not([')}])`;
-};
+  async getText(timeout?: number) {
+    const element = await this.findElement();
+    return await element.textContent({ timeout });
+  }
 
-const buildChildSelector = (parentSelector: string, childSelector: string) => `${parentSelector} ${childSelector}`;
+  async getValue(timeout?: number) {
+    const element = await this.findElement();
+    return await element.innerText({ timeout });
+  }
+}

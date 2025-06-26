@@ -24,11 +24,14 @@ export enum FiatCurrenciesEnum {
   ZAR = 'ZAR'
 }
 
-export interface FiatCurrencyOption {
+export interface FiatCurrencyOptionBase {
   name: FiatCurrenciesEnum;
-  fullname: string;
   apiLabel: string;
   symbol: string;
+}
+
+export interface FiatCurrencyOption extends FiatCurrencyOptionBase {
+  fullname: string;
 }
 
 export interface CoingeckoFiatInterface {

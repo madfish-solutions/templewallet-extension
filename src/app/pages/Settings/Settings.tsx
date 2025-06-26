@@ -1,264 +1,210 @@
-import React, { FC, useMemo } from 'react';
+import React, { FC, ReactNode, memo, useMemo, useState, useCallback, MouseEventHandler } from 'react';
 
-import clsx from 'clsx';
-
-import { ReactComponent as AdditionalIcon } from 'app/icons/additional.svg';
-import { ReactComponent as AppsIcon } from 'app/icons/apps.svg';
-import { ReactComponent as ContactBookIcon } from 'app/icons/contact-book.svg';
-import { ReactComponent as ExtensionIcon } from 'app/icons/extension.svg';
-import { ReactComponent as HelpIcon } from 'app/icons/help.svg';
-import { ReactComponent as KeyIcon } from 'app/icons/key.svg';
-import { ReactComponent as MinusIcon } from 'app/icons/minus.svg';
-import { ReactComponent as OkIcon } from 'app/icons/ok.svg';
-import { ReactComponent as SettingsIcon } from 'app/icons/settings.svg';
-import { ReactComponent as SignalAltIcon } from 'app/icons/signal-alt.svg';
-import { ReactComponent as StickerIcon } from 'app/icons/sticker.svg';
-import { ReactComponent as SyncIcon } from 'app/icons/sync.svg';
+import { IconBase } from 'app/atoms';
+import { AccountAvatar } from 'app/atoms/AccountAvatar';
+import { SettingsCellSingle } from 'app/atoms/SettingsCell';
+import { SettingsCellGroup } from 'app/atoms/SettingsCellGroup';
+import { StyledButton } from 'app/atoms/StyledButton';
+import { ReactComponent as AdditionalFeaturesIcon } from 'app/icons/base/additional.svg';
+import { ReactComponent as AddressBookIcon } from 'app/icons/base/addressbook.svg';
+import { ReactComponent as BrowseIcon } from 'app/icons/base/browse.svg';
+import { ReactComponent as ChevronRightIcon } from 'app/icons/base/chevron_right.svg';
+import { ReactComponent as ExitIcon } from 'app/icons/base/exit.svg';
+import { ReactComponent as InfoIcon } from 'app/icons/base/info.svg';
+import { ReactComponent as LinkIcon } from 'app/icons/base/link.svg';
+import { ReactComponent as LockIcon } from 'app/icons/base/lock.svg';
+import { ReactComponent as ManageIcon } from 'app/icons/base/manage.svg';
+import { ReactComponent as RefreshIcon } from 'app/icons/base/refresh.svg';
 import PageLayout from 'app/layouts/PageLayout';
-import About from 'app/templates/About/About';
-import ActivateAccount from 'app/templates/ActivateAccount/ActivateAccount';
-import AddressBook from 'app/templates/AddressBook/AddressBook';
+import { About } from 'app/templates/About/About';
+import { AccountsManagement } from 'app/templates/AccountsManagement';
+import { AddressBook } from 'app/templates/AddressBook';
 import { AdvancedFeatures } from 'app/templates/AdvancedFeatures';
-import CustomNetworksSettings from 'app/templates/CustomNetworkSettings/CustomNetworksSettings';
-import DAppSettings from 'app/templates/DAppSettings/DAppSettings';
-import HelpAndCommunity from 'app/templates/HelpAndCommunity';
-import RemoveAccount from 'app/templates/RemoveAccount/RemoveAccount';
-import RevealSecret from 'app/templates/RevealSecrets/RevealSecret';
+import { NetworksSettings } from 'app/templates/NetworksSettings';
+import { SecuritySettings } from 'app/templates/SecuritySettings';
 import GeneralSettings from 'app/templates/SettingsGeneral';
 import SyncSettings from 'app/templates/Synchronization/SyncSettings';
+import { SyncUnavailableModal } from 'app/templates/Synchronization/SyncUnavailableModal';
 import { TID, T } from 'lib/i18n';
+import { TempleAccountType } from 'lib/temple/types';
+import { useBooleanState } from 'lib/ui/hooks';
+import { SettingsTabProps } from 'lib/ui/settings-tab-props';
 import { Link } from 'lib/woozie';
+import { useAccount } from 'temple/front';
 
+import { DAppsSettings } from './DApps';
+import { ResetExtensionModal } from './reset-extension-modal';
 import { SettingsSelectors } from './Settings.selectors';
 
-type SettingsProps = {
+interface SettingsProps {
   tabSlug?: string | null;
-};
-
-const RevealPrivateKey: FC = () => <RevealSecret reveal="private-key" />;
-const RevealSeedPhrase: FC = () => <RevealSecret reveal="seed-phrase" />;
+}
 
 interface Tab {
   slug: string;
   titleI18nKey: TID;
-  Icon: React.FC<React.SVGProps<SVGSVGElement>>;
-  fillIcon?: boolean;
-  Component: React.FC;
-  color: string;
-  descriptionI18nKey: TID;
+  Icon: FC;
+  noPadding?: true;
+  Component: FC<SettingsTabProps>;
   testID?: SettingsSelectors;
 }
 
-const TABS: Tab[] = [
-  {
-    slug: 'general-settings',
-    titleI18nKey: 'generalSettings',
-    Icon: SettingsIcon,
-    Component: GeneralSettings,
-    color: '#667EEA',
-    descriptionI18nKey: 'generalSettingsDescription',
-    testID: SettingsSelectors.generalButton
-  },
-  {
-    slug: 'synchronization',
-    titleI18nKey: 'synchronization',
-    Icon: SyncIcon,
-    Component: SyncSettings,
-    color: '#7ED9A7',
-    descriptionI18nKey: 'synchronizationSettingsDescription',
-    testID: SettingsSelectors.synchronizationButton
-  },
-  {
-    slug: 'address-book',
-    titleI18nKey: 'addressBook',
-    Icon: ContactBookIcon,
-    Component: AddressBook,
-    color: '#d53f8c',
-    descriptionI18nKey: 'addressBookDescription',
-    testID: SettingsSelectors.addressBookButton
-  },
-  {
-    slug: 'reveal-private-key',
-    titleI18nKey: 'revealPrivateKey',
-    Icon: KeyIcon,
-    Component: RevealPrivateKey,
-    color: '#3182CE',
-    descriptionI18nKey: 'revealPrivateKeyDescription',
-    testID: SettingsSelectors.revealPrivateKeyButton
-  },
-  {
-    slug: 'reveal-seed-phrase',
-    titleI18nKey: 'revealSeedPhrase',
-    Icon: StickerIcon,
-    Component: RevealSeedPhrase,
-    color: '#F6AD55',
-    descriptionI18nKey: 'revealSeedPhraseDescription',
-    testID: SettingsSelectors.revealSeedPhraseButton
-  },
-  {
-    slug: 'dapps',
-    titleI18nKey: 'authorizedDApps',
-    Icon: AppsIcon,
-    Component: DAppSettings,
-    color: '#9F7AEA',
-    descriptionI18nKey: 'dAppsDescription',
-    testID: SettingsSelectors.dAppsButton
-  },
-  {
-    slug: 'networks',
-    titleI18nKey: 'networks',
-    Icon: SignalAltIcon,
-    Component: CustomNetworksSettings,
-    color: '#F6C90E',
-    descriptionI18nKey: 'networksDescription',
-    testID: SettingsSelectors.networksButton
-  },
-  {
-    slug: 'advanced-features',
-    titleI18nKey: 'advancedFeatures',
-    Icon: AdditionalIcon,
-    Component: AdvancedFeatures,
-    color: '#88E0E6',
-    fillIcon: true,
-    descriptionI18nKey: 'advancedFeaturesDescription',
-    testID: SettingsSelectors.advancedFeaturesButton
-  },
-  {
-    slug: 'activate-account',
-    titleI18nKey: 'activateAccount',
-    Icon: OkIcon,
-    Component: ActivateAccount,
-    color: 'rgb(131, 179, 0)',
-    descriptionI18nKey: 'activateAccountDescription',
-    testID: SettingsSelectors.activateAccountButton
-  },
-  {
-    slug: 'remove-account',
-    titleI18nKey: 'removeAccount',
-    Icon: MinusIcon,
-    Component: RemoveAccount,
-    color: 'rgb(245, 101, 101)',
-    descriptionI18nKey: 'removeAccountDescription',
-    testID: SettingsSelectors.removeAccountButton
-  },
-  {
-    slug: 'about',
-    titleI18nKey: 'about',
-    Icon: ExtensionIcon,
-    Component: About,
-    color: '#A0AEC0',
-    descriptionI18nKey: 'aboutDescription',
-    testID: SettingsSelectors.aboutButton
-  },
-  {
-    slug: 'help-and-community',
-    titleI18nKey: 'helpAndCommunity',
-    Icon: HelpIcon,
-    Component: HelpAndCommunity,
-    color: '#38B2AC',
-    descriptionI18nKey: 'helpAndCommunityDescription'
-  }
+const DefaultSettingsIconHOC = (Icon: React.FC<React.SVGProps<SVGSVGElement>>) =>
+  memo(() => <IconBase size={16} Icon={Icon} className="text-primary" />);
+
+const SYNC_PAGE_SLUG = 'synchronization';
+
+const TABS_GROUPS: Tab[][] = [
+  [
+    {
+      slug: 'accounts-management',
+      titleI18nKey: 'accountsManagement',
+      Icon: memo(() => {
+        const { id } = useAccount();
+
+        return <AccountAvatar size={24} seed={id} />;
+      }),
+      noPadding: true,
+      Component: AccountsManagement,
+      testID: SettingsSelectors.accountsManagementButton
+    }
+  ],
+  [
+    {
+      slug: 'general-settings',
+      titleI18nKey: 'generalSettings',
+      Icon: DefaultSettingsIconHOC(ManageIcon),
+      Component: GeneralSettings,
+      testID: SettingsSelectors.generalButton
+    },
+    {
+      slug: 'networks',
+      titleI18nKey: 'networks',
+      Icon: DefaultSettingsIconHOC(BrowseIcon),
+      Component: NetworksSettings,
+      testID: SettingsSelectors.networksButton
+    },
+    {
+      slug: 'security-and-privacy',
+      titleI18nKey: 'securityAndPrivacy',
+      Icon: DefaultSettingsIconHOC(LockIcon),
+      Component: SecuritySettings,
+      testID: SettingsSelectors.securityAndPrivacyButton
+    }
+  ],
+  [
+    {
+      slug: 'address-book',
+      titleI18nKey: 'addressBook',
+      Icon: DefaultSettingsIconHOC(AddressBookIcon),
+      Component: AddressBook,
+      noPadding: true,
+      testID: SettingsSelectors.addressBookButton
+    },
+    {
+      slug: 'dapps',
+      titleI18nKey: 'connectedDApps',
+      Icon: DefaultSettingsIconHOC(LinkIcon),
+      Component: DAppsSettings,
+      noPadding: true,
+      testID: SettingsSelectors.dAppsButton
+    },
+    {
+      slug: 'additional-settings',
+      titleI18nKey: 'advancedFeatures',
+      Icon: DefaultSettingsIconHOC(AdditionalFeaturesIcon),
+      Component: AdvancedFeatures,
+      testID: SettingsSelectors.advancedFeaturesButton
+    },
+    {
+      slug: SYNC_PAGE_SLUG,
+      titleI18nKey: 'templeSync',
+      Icon: DefaultSettingsIconHOC(RefreshIcon),
+      Component: SyncSettings,
+      noPadding: true,
+      testID: SettingsSelectors.synchronizationButton
+    }
+  ],
+  [
+    {
+      slug: 'about',
+      titleI18nKey: 'aboutAndSupport',
+      Icon: DefaultSettingsIconHOC(InfoIcon),
+      Component: About,
+      testID: SettingsSelectors.aboutButton
+    }
+  ]
 ];
 
-const Settings: FC<SettingsProps> = ({ tabSlug }) => {
+const TABS = TABS_GROUPS.flat();
+
+const Settings = memo<SettingsProps>(({ tabSlug }) => {
+  const { type: currentAccountType } = useAccount();
   const activeTab = useMemo(() => TABS.find(t => t.slug === tabSlug) || null, [tabSlug]);
+  const [headerChildren, setHeaderChildren] = useState<ReactNode>(null);
+  const [extensionModalOpened, openResetExtensionModal, closeResetExtensionModal] = useBooleanState(false);
+  const [syncUnavailableModalOpened, openSyncUnavailableModal, closeSyncUnavailableModal] = useBooleanState(false);
+
+  const handleSyncCellClick = useCallback<MouseEventHandler<HTMLAnchorElement>>(
+    e => {
+      if (currentAccountType !== TempleAccountType.HD) {
+        e.preventDefault();
+        openSyncUnavailableModal();
+      }
+    },
+    [currentAccountType, openSyncUnavailableModal]
+  );
 
   return (
     <PageLayout
-      pageTitle={
-        <>
-          <SettingsIcon className="mr-1 h-4 w-auto stroke-current" />
-          <T id="settings" />
-        </>
-      }
+      pageTitle={<T id={activeTab?.titleI18nKey ?? 'settings'} />}
+      headerChildren={headerChildren}
+      contentPadding={!activeTab?.noPadding}
     >
-      <div className="py-4">
-        {activeTab && (
-          <>
-            <h1 className="mb-2 flex items-center justify-center text-2xl font-light text-gray-700 text-center">
-              {(() => {
-                const { Icon, color, titleI18nKey } = activeTab;
-                return (
-                  <T id={titleI18nKey}>
-                    {message => (
-                      <>
-                        <Icon
-                          className="mr-2 h-8 w-auto"
-                          style={activeTab.fillIcon ? { fill: color } : { stroke: color }}
-                        />
-                        {message}
-                      </>
-                    )}
-                  </T>
-                );
-              })()}
-            </h1>
+      {extensionModalOpened && <ResetExtensionModal onClose={closeResetExtensionModal} />}
 
-            <hr className="mb-6" />
-          </>
-        )}
+      {syncUnavailableModalOpened && <SyncUnavailableModal onClose={closeSyncUnavailableModal} />}
 
-        <div>
-          {activeTab ? (
-            <activeTab.Component />
-          ) : (
-            <ul className="md:grid md:grid-cols-2 md:gap-x-8 md:gap-y-10">
-              {TABS.map(({ fillIcon, slug, titleI18nKey, descriptionI18nKey, Icon, color, testID }, i) => {
-                const first = i === 0;
-                const linkTo = `/settings/${slug}`;
+      {activeTab ? (
+        <activeTab.Component setHeaderChildren={setHeaderChildren} />
+      ) : (
+        <div className="flex flex-col gap-4">
+          {TABS_GROUPS.map((tabs, i) => (
+            <SettingsCellGroup key={i}>
+              {tabs.map(({ slug, titleI18nKey, Icon, testID }, j) => (
+                <SettingsCellSingle
+                  Component={Link}
+                  to={`/settings/${slug}`}
+                  key={slug}
+                  cellIcon={<Icon />}
+                  cellName={<T id={titleI18nKey} />}
+                  onClick={slug === SYNC_PAGE_SLUG ? handleSyncCellClick : undefined}
+                  isLast={j === tabs.length - 1}
+                  testID={testID}
+                >
+                  <IconBase size={16} Icon={ChevronRightIcon} className="text-primary" />
+                </SettingsCellSingle>
+              ))}
+            </SettingsCellGroup>
+          ))}
 
-                return (
-                  <Link to={linkTo} key={slug} className={clsx(!first && 'mt-10 md:mt-0 block')} testID={testID}>
-                    <div className="flex">
-                      <div className="ml-2 flex-shrink-0">
-                        <div
-                          className={clsx(
-                            'block',
-                            'h-12 w-12',
-                            'border-2 border-white border-opacity-25',
-                            'rounded-full',
-                            'flex items-center justify-center',
-                            'text-white',
-                            'transition ease-in-out duration-200',
-                            'opacity-90 hover:opacity-100 focus:opacity-100'
-                          )}
-                          style={{ backgroundColor: color }}
-                        >
-                          <Icon className={clsx('h-8 w-8', fillIcon ? 'fill-current' : 'stroke-current')} />
-                        </div>
-                      </div>
+          <div className="mt-2 flex justify-center">
+            <StyledButton
+              size="S"
+              color="red-low"
+              className="!bg-transparent flex items-center !px-0 py-1 gap-0.5"
+              onClick={openResetExtensionModal}
+              testID={SettingsSelectors.resetExtensionButton}
+            >
+              <T id="resetExtension" />
 
-                      <div className="ml-4">
-                        <T id={titleI18nKey}>
-                          {message => (
-                            <div
-                              className={clsx(
-                                'text-lg leading-6 font-medium',
-                                'filter-brightness-75',
-                                'hover:underline focus:underline',
-                                'transition ease-in-out duration-200'
-                              )}
-                              style={{ color }}
-                            >
-                              {message}
-                            </div>
-                          )}
-                        </T>
-
-                        <T id={descriptionI18nKey}>
-                          {message => <p className="mt-1 text-sm font-light leading-5 text-gray-600">{message}</p>}
-                        </T>
-                      </div>
-                    </div>
-                  </Link>
-                );
-              })}
-            </ul>
-          )}
+              <IconBase size={12} Icon={ExitIcon} />
+            </StyledButton>
+          </div>
         </div>
-      </div>
+      )}
     </PageLayout>
   );
-};
+});
 
 export default Settings;

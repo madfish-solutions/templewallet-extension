@@ -3,24 +3,20 @@ import React, { FC } from 'react';
 import { usePartnersPromotionSettings } from 'app/hooks/use-partners-promotion-settings';
 import { T } from 'lib/i18n';
 
-import { EnablingSetting } from '../EnablingSetting';
-import { SettingsGeneralSelectors } from '../SettingsGeneral/selectors';
+import { EnablingSetting } from '../enabling-setting';
+
+import { AdvancedFeaturesSelectors } from './selectors';
 
 export const PartnersPromotionSettings: FC = () => {
   const { isEnabled, setEnabled } = usePartnersPromotionSettings();
 
   return (
     <EnablingSetting
-      titleI18nKey="partnersPromoSettings"
-      descriptionI18nKey="partnersPromoDescription"
-      descriptionSubstitutions={
-        <span className="font-semibold">
-          <T id="rewards" />
-        </span>
-      }
+      title={<T id="partnersPromoSettings" />}
+      description={<T id="partnersPromoDescription" />}
       enabled={isEnabled}
       onChange={setEnabled}
-      testID={SettingsGeneralSelectors.partnersPromotion}
+      testID={AdvancedFeaturesSelectors.partnersPromotion}
     />
   );
 };

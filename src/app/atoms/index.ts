@@ -1,6 +1,8 @@
-export { default as Divider } from './Divider';
-
 export { Alert } from './Alert';
+
+export { CaptionAlert } from './CaptionAlert';
+
+export { default as Divider } from './Divider';
 
 export { Anchor } from './Anchor';
 
@@ -12,38 +14,38 @@ export { default as Money } from './Money';
 
 export { default as Name } from './Name';
 
-export { default as Identicon } from './Identicon';
+export { Identicon } from './Identicon';
+
+export { IconBase } from './IconBase';
 
 export { default as HashShortView } from './HashShortView';
 
-export { HashChip } from './HashChip';
+export { OldStyleHashChip } from './OldStyleHashChip';
 
-export { ExternalLinkChip } from './ExternalLinkChip';
+export { Lines } from './Lines';
 
-export { default as SubTitle } from './SubTitle';
-
-export type { FileInputProps } from './FileInput';
-export { FileInput } from './FileInput';
+export { Loader } from './Loader';
 
 export { PASSWORD_ERROR_CAPTION, FormField } from './FormField';
 
-export { default as Checkbox } from './Checkbox';
+export { ToggleSwitch } from './ToggleSwitch';
 
 export { FormSubmitButton } from './FormSubmitButton';
 
 export { FormSecondaryButton } from './FormSecondaryButton';
 
-export type { FormCheckboxProps } from './FormCheckbox';
-export { FormCheckbox } from './FormCheckbox';
-
 export { SyncSpinner } from './SyncSpinner';
 
 export { NoSpaceField } from './NoSpaceField';
 
-export { TabSwitcher } from './TabSwitcher';
-
 export { Stepper } from './Stepper/Stepper';
 
-export { DataPlaceholder } from './DataPlaceholder';
-
 export { PageTitle } from './PageTitle';
+
+export { default as AccountTypeBadge } from './AccountTypeBadge';
+
+export { QRCode } from './QRCode';
+
+export { CopyButton } from './CopyButton';
+
+export * from './ledger-image';

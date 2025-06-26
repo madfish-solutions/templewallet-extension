@@ -1,0 +1,121 @@
+@import '~inter-ui/inter.css';
+
+@import '~@fontsource/rubik/300.css';
+@import '~@fontsource/rubik/400.css';
+@import '~@fontsource/rubik/500.css';
+@import '~@fontsource/rubik/600.css';
+
+/* TEXT */
+
+.text-font-small {
+  @apply text-xxxs;
+}
+
+.text-font-description {
+  @apply text-xs;
+}
+
+.text-font-medium {
+  @apply text-sm;
+}
+
+.\!text-font-medium {
+  @apply text-sm !important;
+}
+
+.text-font-regular {
+  @apply text-base;
+}
+
+/* TEXT-BOLD */
+
+.text-font-small-bold {
+  @apply text-font-small font-semibold;
+}
+
+.text-font-description-bold {
+  @apply text-font-description font-semibold;
+}
+
+.text-font-medium-bold {
+  @apply text-font-medium font-semibold;
+}
+
+.text-font-regular-bold {
+  @apply text-font-regular font-semibold;
+}
+
+/* HEADLINE */
+
+.text-font-h {
+  @apply font-semibold;
+}
+
+.text-font-h1 {
+  @apply text-font-h text-2xl-plus;
+}
+
+.text-font-h2 {
+  @apply text-font-h text-2xl;
+}
+
+.text-font-h3 {
+  @apply text-font-h text-xl leading-8;
+}
+
+/* NUMBERS */
+
+.text-font-num {
+  @apply font-rubik;
+}
+
+.text-font-num-10 {
+  @apply text-font-num text-xxxs;
+}
+
+.text-font-num-12 {
+  @apply text-font-num text-xs;
+}
+
+.text-font-num-14 {
+  @apply text-font-num text-sm;
+}
+
+.text-font-num-16 {
+  @apply text-font-num text-base;
+}
+
+.text-font-num-24 {
+  @apply text-font-num text-2xl leading-9;
+}
+
+.text-font-num-32 {
+  @apply text-font-num text-2xl-plus;
+}
+
+
+/* NUMBERS-BOLD */
+
+.text-font-num-bold-10 {
+  @apply text-font-num-10 font-medium;
+}
+
+.text-font-num-bold-12 {
+  @apply text-font-num-12 font-medium;
+}
+
+.text-font-num-bold-14 {
+  @apply text-font-num-14 font-medium;
+}
+
+.text-font-num-bold-16 {
+  @apply text-font-num-16 font-medium;
+}
+
+.text-font-num-bold-24 {
+  @apply text-font-num-24 font-medium;
+}
+
+.text-font-num-bold-32 {
+  @apply text-font-num-32 font-medium;
+}

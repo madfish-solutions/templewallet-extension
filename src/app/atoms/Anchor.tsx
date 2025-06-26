@@ -2,13 +2,13 @@ import * as React from 'react';
 
 import { AnalyticsEventCategory, setTestID, TestIDProps, useAnalytics } from 'lib/analytics';
 
-interface Props
+export interface AnchorProps
   extends React.PropsWithRef<React.DetailedHTMLProps<React.AnchorHTMLAttributes<HTMLAnchorElement>, HTMLAnchorElement>>,
     TestIDProps {
   treatAsButton?: boolean;
 }
 
-export const Anchor = React.forwardRef<HTMLAnchorElement, Props>(
+export const Anchor = React.forwardRef<HTMLAnchorElement, AnchorProps>(
   (
     { target = '_blank', rel = 'noopener noreferrer', testID, testIDProperties, treatAsButton, onClick, ...props },
     ref

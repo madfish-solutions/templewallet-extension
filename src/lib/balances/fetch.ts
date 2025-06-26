@@ -16,7 +16,7 @@ export const fetchRawBalance = async (tezos: TezosToolkit, assetSlug: string, ac
       return ZERO;
     });
 
-  let nat = new BigNumber(0);
+  let nat = ZERO;
 
   const contract = await loadContract(tezos, asset.contract, false);
 

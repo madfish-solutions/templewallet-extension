@@ -1,25 +1,25 @@
 import React, { FC, memo, useCallback, useMemo, useState } from 'react';
 
-import { Estimate } from '@taquito/taquito';
 import BigNumber from 'bignumber.js';
 import classNames from 'clsx';
 import { Collapse } from 'react-collapse';
 
-import { HashChip, Money, Identicon } from 'app/atoms';
+import { OldStyleHashChip, Money, Identicon } from 'app/atoms';
 import PlainAssetInput from 'app/atoms/PlainAssetInput';
 import { ReactComponent as ChevronDownIcon } from 'app/icons/chevron-down.svg';
 import { ReactComponent as ClipboardIcon } from 'app/icons/clipboard.svg';
 import InFiat from 'app/templates/InFiat';
 import { setTestID } from 'lib/analytics';
-import { TEZ_TOKEN_SLUG } from 'lib/assets';
-import { useGasToken } from 'lib/assets/hooks';
+import { TEZ_TOKEN_SLUG, getTezosGasSymbol } from 'lib/assets';
 import { TProps, T, t } from 'lib/i18n';
-import { useAssetMetadata, getAssetSymbol } from 'lib/metadata';
+import { useCategorizedTezosAssetMetadata, getAssetSymbol } from 'lib/metadata';
 import { RawOperationAssetExpense, RawOperationExpenses } from 'lib/temple/front';
 import { mutezToTz, tzToMutez } from 'lib/temple/helpers';
+import { SerializedEstimate } from 'lib/temple/types';
+import { TezosNetworkEssentials } from 'temple/networks';
 
-import OperationsBanner from '../OperationsBanner/OperationsBanner';
-import { OperationsBannerSelectors } from '../OperationsBanner/OperationsBanner.selectors';
+import OperationsBanner from '../../icons/OperationsBanner/OperationsBanner';
+import { OperationsBannerSelectors } from '../../icons/OperationsBanner/OperationsBanner.selectors';
 
 import styles from './ExpensesView.module.css';
 
@@ -31,14 +31,14 @@ type OperationExpenses = Omit<RawOperationExpenses, 'expenses'> & {
   expenses: OperationAssetExpense[];
 };
 
-type ExpensesViewProps = {
+interface ExpensesViewProps {
+  tezosNetwork: TezosNetworkEssentials;
   expenses?: OperationExpenses[];
-  estimates?: Estimate[];
-  mainnet?: boolean;
+  estimates?: SerializedEstimate[];
   modifyFeeAndLimit?: ModifyFeeAndLimit;
   gasFeeError?: boolean;
   error?: any;
-};
+}
 
 export interface ModifyFeeAndLimit {
   totalFee: number;
@@ -50,14 +50,14 @@ export interface ModifyFeeAndLimit {
 const MAX_GAS_FEE = 1000;
 
 const ExpensesView: FC<ExpensesViewProps> = ({
+  tezosNetwork,
   expenses,
   estimates,
-  mainnet,
   modifyFeeAndLimit,
   gasFeeError,
   error
 }) => {
-  const { symbol } = useGasToken();
+  const symbol = getTezosGasSymbol(tezosNetwork.chainId);
   const [showDetails, setShowDetails] = useState(false);
 
   const toggleShowDetails = useCallback(() => setShowDetails(prevValue => !prevValue), []);
@@ -74,7 +74,7 @@ const ExpensesView: FC<ExpensesViewProps> = ({
           storageFeeMutez = storageFeeMutez.plus(
             Math.ceil(
               (i === 0 ? modifyFeeAndLimit.storageLimit ?? e.storageLimit : e.storageLimit) *
-                (e as any).minimalFeePerStorageByteMutez
+                Number(e.minimalFeePerStorageByteMutez)
             )
           );
           i++;
@@ -162,7 +162,12 @@ const ExpensesView: FC<ExpensesViewProps> = ({
                   )}
                 </div>
 
-                <InFiat volume={value} roundingMode={BigNumber.ROUND_UP} mainnet={mainnet}>
+                <InFiat
+                  chainId={tezosNetwork.chainId}
+                  assetSlug={TEZ_TOKEN_SLUG}
+                  volume={value}
+                  roundingMode={BigNumber.ROUND_UP}
+                >
                   {({ balance, symbol }) => (
                     <div className="flex">
                       <span className="opacity-75">(</span>
@@ -204,7 +209,7 @@ const ExpensesView: FC<ExpensesViewProps> = ({
         ))}
       </div>
     );
-  }, [modifyFeeAndLimit, estimates, gasFeeError, mainnet, symbol]);
+  }, [modifyFeeAndLimit, estimates, gasFeeError, symbol, tezosNetwork.chainId]);
 
   if (!expenses) {
     return null;
@@ -220,7 +225,12 @@ const ExpensesView: FC<ExpensesViewProps> = ({
         style={{ height: gasFeeError ? '10rem' : '11rem' }}
       >
         {expenses.map((item, index, arr) => (
-          <ExpenseViewItem key={index} item={item} last={index === arr.length - 1} mainnet={mainnet} />
+          <ExpenseViewItem
+            key={index}
+            tezosChainId={tezosNetwork.chainId}
+            item={item}
+            last={index === arr.length - 1}
+          />
         ))}
 
         {modifyFeeAndLimit && (
@@ -281,13 +291,13 @@ const ExpensesView: FC<ExpensesViewProps> = ({
 
 export default ExpensesView;
 
-type ExpenseViewItemProps = {
+interface ExpenseViewItemProps {
+  tezosChainId: string;
   item: OperationExpenses;
   last: boolean;
-  mainnet?: boolean;
-};
+}
 
-const ExpenseViewItem: FC<ExpenseViewItemProps> = ({ item, last, mainnet }) => {
+const ExpenseViewItem: FC<ExpenseViewItemProps> = ({ tezosChainId, item, last }) => {
   const operationTypeLabel = useMemo(() => {
     switch (item.type) {
       // TODO: add translations for other operations types
@@ -312,7 +322,7 @@ const ExpenseViewItem: FC<ExpenseViewItemProps> = ({ item, last, mainnet }) => {
 
   const { iconHash, iconType, argumentDisplayProps } = useMemo<{
     iconHash: string;
-    iconType: 'bottts' | 'jdenticon';
+    iconType: 'botttsneutral' | 'jdenticon';
     argumentDisplayProps?: OperationArgumentDisplayProps;
   }>(() => {
     const receivers = [
@@ -328,7 +338,7 @@ const ExpenseViewItem: FC<ExpenseViewItemProps> = ({ item, last, mainnet }) => {
       case 'transfer':
         return {
           iconHash: item.expenses[0]?.to || 'unknown',
-          iconType: 'bottts',
+          iconType: 'botttsneutral',
           argumentDisplayProps: {
             i18nKey: 'transferToSmb',
             arg: receivers
@@ -349,7 +359,7 @@ const ExpenseViewItem: FC<ExpenseViewItemProps> = ({ item, last, mainnet }) => {
         if (item.delegate) {
           return {
             iconHash: item.delegate,
-            iconType: 'bottts',
+            iconType: 'botttsneutral',
             argumentDisplayProps: {
               i18nKey: 'delegationToSmb',
               arg: [item.delegate]
@@ -400,17 +410,17 @@ const ExpenseViewItem: FC<ExpenseViewItemProps> = ({ item, last, mainnet }) => {
             .map((expense, index, arr) => (
               <span key={index}>
                 <OperationVolumeDisplay
+                  tezosChainId={tezosChainId}
                   expense={expense}
                   volume={item.amount}
                   withdrawal={withdrawal}
-                  mainnet={mainnet}
                 />
                 {index === arr.length - 1 ? null : ',\u00a0'}
               </span>
             ))}
 
           {item.expenses.length === 0 && item.amount && new BigNumber(item.amount).isGreaterThan(0) ? (
-            <OperationVolumeDisplay volume={item.amount!} mainnet={mainnet} />
+            <OperationVolumeDisplay tezosChainId={tezosChainId} volume={item.amount!} />
           ) : null}
         </div>
       </div>
@@ -431,7 +441,7 @@ const OperationArgumentDisplay = memo<OperationArgumentDisplayProps>(({ i18nKey,
         {arg.map((value, index) => (
           <span key={index}>
             &nbsp;
-            <HashChip className="text-blue-600 opacity-75" key={index} hash={value} type="link" />
+            <OldStyleHashChip className="text-blue-600 opacity-75" key={index} hash={value} type="link" />
             {index === arg.length - 1 ? null : ','}
           </span>
         ))}
@@ -440,15 +450,15 @@ const OperationArgumentDisplay = memo<OperationArgumentDisplayProps>(({ i18nKey,
   />
 ));
 
-type OperationVolumeDisplayProps = {
+interface OperationVolumeDisplayProps {
+  tezosChainId: string;
   expense?: OperationAssetExpense;
   volume?: number;
   withdrawal?: boolean;
-  mainnet?: boolean;
-};
+}
 
-const OperationVolumeDisplay = memo<OperationVolumeDisplayProps>(({ expense, volume, mainnet }) => {
-  const metadata = useAssetMetadata(expense?.assetSlug ?? TEZ_TOKEN_SLUG);
+const OperationVolumeDisplay = memo<OperationVolumeDisplayProps>(({ tezosChainId, expense, volume }) => {
+  const metadata = useCategorizedTezosAssetMetadata(expense?.assetSlug ?? TEZ_TOKEN_SLUG, tezosChainId);
 
   const finalVolume = expense ? expense.amount.div(10 ** (metadata?.decimals || 0)) : volume;
 
@@ -463,7 +473,7 @@ const OperationVolumeDisplay = memo<OperationVolumeDisplayProps>(({ expense, vol
       </span>
 
       {expense?.assetSlug && (
-        <InFiat volume={finalVolume || 0} assetSlug={expense.assetSlug} mainnet={mainnet}>
+        <InFiat volume={finalVolume || 0} chainId={tezosChainId} assetSlug={expense.assetSlug}>
           {({ balance, symbol }) => (
             <div className="text-xs text-gray-500 ml-1 flex items-baseline">
               ({balance}

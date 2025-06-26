@@ -2,9 +2,6 @@
   "appName": {
     "message": "Temple - Tezos 錢包"
   },
-  "showIncomingTransactions": {
-    "message": "顯示新進交易"
-  },
   "appDesc": {
     "message": "🔐💰這是 Tezos 區塊鏈加密貨幣錢包，是一項瀏覽器網頁擴充功能。 "
   },
@@ -13,12 +10,6 @@
   },
   "createAccount": {
     "message": "建立一個帳戶"
-  },
-  "faucetFileTitle": {
-    "message": "水龍頭檔案"
-  },
-  "faucetFile": {
-    "message": "水龍頭檔案"
   },
   "settings": {
     "message": "設定"
@@ -29,21 +20,6 @@
   "maximiseView": {
     "message": "將畫面最大化"
   },
-  "selectFileOfFormat": {
-    "message": "選取 $format$ 檔案",
-    "placeholders": {
-      "format": {
-        "content": "$1"
-      }
-    }
-  },
-  "authorizedDApps": {
-    "message": "授權的分散式應用程式",
-    "description": "DApps = Decentralized Applications"
-  },
-  "clickIconToResetPermissions": {
-    "message": "點擊 X 圖示重新設定權限。"
-  },
   "versionLabel": {
     "message": "版本：$version$",
     "placeholders": {
@@ -53,36 +29,9 @@
     }
   },
   "branchName": {
-    "message": "branch: $branch$",
+    "message": "Branch: $branch$",
     "placeholders": {
       "branch": {
-        "content": "$1"
-      }
-    }
-  },
-  "madeWithLove": {
-    "message": "$companyName$ 以 $loveIcon$ 製作",
-    "placeholders": {
-      "loveIcon": {
-        "content": "$1"
-      },
-      "companyName": {
-        "content": "$2"
-      }
-    }
-  },
-  "feeInputDescription": {
-    "message": "此操作的基本費用：$fee$\n其他 - 加速確認",
-    "placeholders": {
-      "fee": {
-        "content": "$1"
-      }
-    }
-  },
-  "resetPermissionsConfirmation": {
-    "message": "是否確定重設 $origin$ 的\n權限？",
-    "placeholders": {
-      "origin": {
         "content": "$1"
       }
     }
@@ -111,87 +60,6 @@
   "networks": {
     "message": "網路"
   },
-  "back": {
-    "message": "返回"
-  },
-  "addNewToken": {
-    "message": "新增新代幣"
-  },
-  "hideSomeToken": {
-    "message": "隱藏「$tokenName$」代幣",
-    "placeholders": {
-      "tokenName": {
-        "content": "$1"
-      }
-    }
-  },
-  "copySomeTokenAddress": {
-    "message": "複製「$tokenSymbol$」地址",
-    "placeholders": {
-      "tokenSymbol": {
-        "content": "$1"
-      }
-    }
-  },
-  "copySomeTokenId": {
-    "message": "複製「$tokenSymbol$」ID",
-    "placeholders": {
-      "tokenSymbol": {
-        "content": "$1"
-      }
-    }
-  },
-  "originLabel": {
-    "message": "來源：$origin$",
-    "placeholders": {
-      "origin": {
-        "content": "$1"
-      }
-    }
-  },
-  "networkLabel": {
-    "message": "網路：$network$",
-    "placeholders": {
-      "network": {
-        "content": "$1"
-      }
-    }
-  },
-  "pkhLabel": {
-    "message": "帳戶：$pkh$",
-    "placeholders": {
-      "pkh": {
-        "content": "$1"
-      }
-    }
-  },
-  "minDelegationAmountDescription": {
-    "message": "您目前的餘額低於此烘焙師的最低委託金額。這代表當餘額低於 $minAmount$ 即無法支出。",
-    "placeholders": {
-      "minAmount": {
-        "content": "$1"
-      }
-    }
-  },
-  "recommendedBakersDescription": {
-    "message": "此清單由 $link$ 提供",
-    "placeholders": {
-      "link": {
-        "content": "$1"
-      }
-    }
-  },
-  "highestIsBetter": {
-    "message": "金額愈高愈好"
-  },
-  "unlockWalletPrompt": {
-    "message": "如果您想從現有的錢包保留東西 - $link$ 並解鎖。",
-    "placeholders": {
-      "link": {
-        "content": "$1"
-      }
-    }
-  },
   "acceptTermsInputDescription": {
     "message": "\n我已閱讀並同意 \n$termsOfUsageLink$ 和 $privacyPolicyLink$",
     "placeholders": {
@@ -203,23 +71,8 @@
       }
     }
   },
-  "copiedTokenAddress": {
-    "message": "已複製"
-  },
-  "copiedTokenId": {
-    "message": "已複製"
-  },
-  "delegatedTo": {
-    "message": "委託予："
-  },
-  "delegatingMotivation": {
-    "message": "將您的基金委託給烘焙師是利用餘額賺取利息的絕佳方法"
-  },
   "reDelegate": {
     "message": "重新委託"
-  },
-  "delegateNow": {
-    "message": "立即委託"
   },
   "cancel": {
     "message": "取消"
@@ -230,30 +83,8 @@
   "edit": {
     "message": "編輯"
   },
-  "useCoinSwitch": {
-    "message": "使用 CoinSwitch",
-    "description": "CoinSwitch = https://coinswitch.co/"
-  },
-  "tezosFaucet": {
-    "message": "Tezos 水龍頭"
-  },
-  "tezosFaucetAlpha": {
-    "message": "Tezos 水龍頭 (Alpha)"
-  },
-  "depositToWallet": {
-    "message": "存款到您的錢包"
-  },
-  "depositToWalletDescription": {
-    "message": "點擊存款方式，將錢存進您的錢包。使用水龍頭獲得免費錢幣！"
-  },
   "addToken": {
     "message": "新增代幣"
-  },
-  "contractNotAvailable": {
-    "message": "無法取得此地址上的合約。您是否確定這個網路上存在此合約？"
-  },
-  "noTransferMethod": {
-    "message": "無轉帳方式"
   },
   "tokenDoesNotMatchStandard": {
     "message": "提供的代幣合約與 $standard$ 標準不相符",
@@ -265,9 +96,6 @@
   },
   "error": {
     "message": "錯誤"
-  },
-  "tokenType": {
-    "message": "代幣類型"
   },
   "tokenId": {
     "message": "代幣 ID"
@@ -342,16 +170,13 @@
     "message": "圖示網址"
   },
   "optionalComment": {
-    "message": "(自選)"
+    "message": "自選"
   },
   "iconURLInputDescription": {
     "message": "代幣標誌的影像網址。"
   },
   "invalidAddress": {
     "message": "無效的地址"
-  },
-  "contractNotExistOnNetwork": {
-    "message": "目前的網路上不存在此智慧合約"
   },
   "onlyKTContractAddressAllowed": {
     "message": "僅允許 KT… 合約地址",
@@ -363,20 +188,11 @@
   "alert": {
     "message": "警告"
   },
-  "accountNameInputTitle": {
+  "accountOrGroupNameInputTitle": {
     "message": "1-16 個字元，無特殊字元"
   },
   "defaultAccountName": {
     "message": "帳戶 $accountNumber$",
-    "placeholders": {
-      "accountNumber": {
-        "content": "$1"
-      }
-    }
-  },
-  "defaultManagedKTAccountName": {
-    "message": "受管理的 KT $accountNumber$",
-    "description": "KT not translated",
     "placeholders": {
       "accountNumber": {
         "content": "$1"
@@ -390,9 +206,6 @@
         "content": "$1"
       }
     }
-  },
-  "accountsToRemoveConstraint": {
-    "message": "分層確定性帳戶無法移除。"
   },
   "doNotSharePrivateKey": {
     "message": "<b>請勿</b>向任何人分享這組字元！他人可使用此組字元竊取您目前的帳戶。"
@@ -474,10 +287,6 @@
   "tryAgain": {
     "message": "再試一次"
   },
-  "tezosMainnet": {
-    "message": "Tezos 主網路",
-    "description": "Mainnet = main network"
-  },
   "templeWalletOptions": {
     "message": "Temple 錢包 | 選項"
   },
@@ -551,14 +360,8 @@
   "send": {
     "message": "傳送"
   },
-  "baking": {
-    "message": "烘焙"
-  },
   "operations": {
     "message": "操作"
-  },
-  "delegationInfoWhileMessage": {
-    "message": "正在擷取或處理您的委託資料"
   },
   "operationHistoryWhileMessage": {
     "message": "正在擷取或處理操作記錄"
@@ -569,20 +372,8 @@
   "mnemonic": {
     "message": "助記詞"
   },
-  "fundraiser": {
-    "message": "資金籌募者"
-  },
-  "privateKeyInputDescription": {
-    "message": "您要匯入的帳戶的秘密金鑰。"
-  },
-  "privateKeyInputPlaceholder": {
-    "message": "例如 edsk3wfiPMu..."
-  },
   "password": {
     "message": "密碼"
-  },
-  "isPrivateKeyEncrypted": {
-    "message": "您的私密金鑰為加密格式嗎？"
   },
   "customDerivationPath": {
     "message": "自訂衍生路徑"
@@ -628,14 +419,6 @@
   "smthWentWrong": {
     "message": "發生錯誤"
   },
-  "faucetFileInputPrompt": {
-    "message": "拖放檔案，或點擊以下區域手動選擇檔案。您可以從 $link$ 下載。",
-    "placeholders": {
-      "link": {
-        "content": "$1"
-      }
-    }
-  },
   "processing": {
     "message": "正在處理……"
   },
@@ -654,43 +437,18 @@
   "revealPrivateKey": {
     "message": "顯示私密金鑰"
   },
-  "revealPrivateKeyDescription": {
-    "message": "也稱為「匯出帳戶」，這會顯示所選取帳戶的私密金鑰。"
-  },
   "revealSeedPhrase": {
     "message": "顯示助記詞"
-  },
-  "revealSeedPhraseDescription": {
-    "message": "也稱為「匯出錢包」，您可能需要此助記詞，才能透過其他裝置存取您的錢包和帳戶。"
   },
   "dApps": {
     "message": "分散式應用程式",
     "description": "DApps = Decentralized Applications"
-  },
-  "dAppsDescription": {
-    "message": "在此區段，您可以啟用與支援 Temple 錢包的分散式應用程式互動的能力。"
-  },
-  "networksDescription": {
-    "message": "在此區段，您可以新增或刪除自訂的 Tezos 網路。",
-    "description": "Tezos = blockchain name (https://tezos.com/)"
-  },
-  "activateAccount": {
-    "message": "啟用帳戶"
-  },
-  "activateAccountDescription": {
-    "message": "ICO/資金籌募者或測試網路水龍頭帳戶可能需要。"
   },
   "removeAccount": {
     "message": "移除帳戶"
   },
   "removeAccountDescription": {
     "message": "使用此區段移除您選取的帳戶。只能移除匯入的帳戶。"
-  },
-  "about": {
-    "message": "關於"
-  },
-  "aboutDescription": {
-    "message": "使用此區段檢視 Temple 錢包的元資料。"
   },
   "unlockWallet": {
     "message": "解鎖錢包"
@@ -723,44 +481,11 @@
   "website": {
     "message": "網站"
   },
-  "repo": {
-    "message": "存放庫"
-  },
   "privacyPolicy": {
     "message": "隱私政策"
   },
   "termsOfUse": {
     "message": "使用條款"
-  },
-  "contact": {
-    "message": "聯絡我們"
-  },
-  "accountAlreadyActivated": {
-    "message": "您的帳戶已啟用。"
-  },
-  "accountActivated": {
-    "message": "您的帳戶已成功啟用！"
-  },
-  "failureSecretMayBeInvalid": {
-    "message": "失敗。可能因為所提供的秘密金鑰無效"
-  },
-  "accountToBeActivated": {
-    "message": "帳戶將啟用。"
-  },
-  "ifYouWantToActivateAnotherAccount": {
-    "message": "如果您想啟用另一個帳戶，請在右上角下拉選單選取該帳戶。"
-  },
-  "activateAccountSecret": {
-    "message": "秘密金鑰"
-  },
-  "activateAccountSecretDescription": {
-    "message": "資金籌募者帳戶或水龍頭的「秘密金鑰」欄位"
-  },
-  "activateAccountSecretPlaceholder": {
-    "message": "例如 n4hs7sd3..."
-  },
-  "activate": {
-    "message": "啟用"
   },
   "minimalFeeDescription": {
     "message": "最小金額"
@@ -832,26 +557,11 @@
   "delegation": {
     "message": "委託"
   },
-  "customBaker": {
-    "message": "烘焙師"
-  },
-  "bakerInputDescription": {
-    "message": "已註冊烘焙師的地址。"
-  },
-  "bakerInputPlaceholder": {
-    "message": "例如 tz1a9w1S7hN5s…"
-  },
-  "minDelegationAmountTitle": {
-    "message": "最低委託金額"
-  },
   "unknownBakerTitle": {
     "message": "未知的烘焙師"
   },
   "unknownBakerDescription": {
     "message": "所提供的地址並不是我們已知的烘焙師！若向此地址委託資金，您須自行承擔風險。"
-  },
-  "recommendedBakers": {
-    "message": "委託給推薦的烘焙師"
   },
   "sortBy": {
     "message": "排序方式"
@@ -888,23 +598,6 @@
   "minimalFeeGreaterThanBalance": {
     "message": "此交易的最低費用高於您的餘額。"
   },
-  "alreadyDelegatedFundsToBaker": {
-    "message": "已將資金委託給此烘焙師。無法重新委託。"
-  },
-  "bakerNotRegistered": {
-    "message": "指定的烘焙師尚未註冊。"
-  },
-  "unableToPerformActionToBaker": {
-    "message": "無法向所提供的烘焙師進行 $action$。",
-    "placeholders": {
-      "action": {
-        "content": "$1"
-      }
-    }
-  },
-  "estimateDelegation": {
-    "message": "評估委託"
-  },
   "thisMayHappenBecause": {
     "message": "可能發生的原因為："
   },
@@ -918,9 +611,6 @@
   },
   "networkOrOtherIssue": {
     "message": "網路或其他技術問題。"
-  },
-  "unableToDelegateToKTAddress": {
-    "message": "無法委託至 KT... 合約地址"
   },
   "confirmAction": {
     "message": "確認 $action$",
@@ -1057,7 +747,12 @@
     "message": "m/44'/1729'/<account_index>'/0'"
   },
   "derivationPathExample2": {
-    "message": "例如 m/44'/1729'/…"
+    "message": "例如 $derivationPath$",
+    "placeholders": {
+      "derivationPath": {
+        "content": "$1"
+      }
+    }
   },
   "keepSeedPhraseSecret": {
     "message": "請小心保管。"
@@ -1267,14 +962,11 @@
   "upload": {
     "message": "上傳"
   },
-  "languageAndCountry": {
+  "language": {
     "message": "語言"
   },
   "generalSettings": {
     "message": "一般"
-  },
-  "generalSettingsDescription": {
-    "message": "您可以在此管理語言偏好和顯示模式。"
   },
   "swapNoun": {
     "message": "交換"
@@ -1361,9 +1053,6 @@
   "disabledForWatchOnlyAccount": {
     "message": "僅可查看的帳戶已停用"
   },
-  "activationOperationType": {
-    "message": "啟用"
-  },
   "youAreNotContractManager": {
     "message": "您不是合約管理員"
   },
@@ -1375,9 +1064,6 @@
   },
   "contractAddressInputPlaceholder": {
     "message": "例如 KT1a9w1S7hN5s…"
-  },
-  "addKnownManagedContract": {
-    "message": "新增已知的受管理合約"
   },
   "clickOnContractToImport": {
     "message": "點擊您要匯入的合約。"
@@ -1424,9 +1110,6 @@
   "popupSettingsDescription": {
     "message": "您可在此設定彈跳式視窗，在擴充功能面板的外掛程式圖示上點擊時便會出現此視窗。"
   },
-  "managedContract": {
-    "message": "受管理的合約"
-  },
   "referredByTokenContractNotFound": {
     "message": "找不到代幣合約轉址的合約 $address$。",
     "placeholders": {
@@ -1451,9 +1134,6 @@
         "content": "$1"
       }
     }
-  },
-  "invalidManagedContract": {
-    "message": "無效的受管理合約"
   },
   "someMethodNotDefinedInContract": {
     "message": "合約內未定義「$name$」方式。",
@@ -1618,14 +1298,5 @@
   },
   "invalidJsonInput": {
     "message": "無效的 JSON"
-  },
-  "notFaucetJson": {
-    "message": "非水龍頭 JSON"
-  },
-  "faucetJson": {
-    "message": "水龍頭 JSON"
-  },
-  "faucetJsonDescription": {
-    "message": "您可在此貼上 JSON，不須新增檔案"
   }
 }

@@ -73,7 +73,7 @@ describe('Beacon', () => {
   describe('removeDAppPublicKey', () => {
     it('called with correct data', async () => {
       await removeDAppPublicKey(MOCK_ORIGINAL_KEY);
-      expect(mockBrowserStorageLocal.remove).toBeCalledWith([MOCK_MODIFIED_KEY]);
+      expect(mockBrowserStorageLocal.remove).toBeCalledWith(MOCK_MODIFIED_KEY);
     });
   });
   describe('getDAppPublicKey', () => {

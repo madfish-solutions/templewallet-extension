@@ -1,12 +1,15 @@
-import React, { FC, HTMLAttributes, memo, useCallback, useMemo, useRef } from 'react';
+import React, { FC, HTMLAttributes, memo, useCallback, useMemo } from 'react';
 
 import BigNumber from 'bignumber.js';
-import classNames from 'clsx';
+import clsx from 'clsx';
+import { Placement } from 'tippy.js';
 
+import { useRichFormatTooltip } from 'app/hooks/use-rich-format-tooltip';
+import { toastSuccess } from 'app/toaster';
 import { AnalyticsEventCategory, setTestID, TestIDProps, useAnalytics } from 'lib/analytics';
+import { ASSET_HUGE_AMOUNT } from 'lib/constants';
 import { getNumberSymbols, toLocalFixed, toLocalFormat, toShortened, t } from 'lib/i18n';
 import useCopyToClipboard from 'lib/ui/useCopyToClipboard';
-import useTippy, { TippyInstance, UseTippyOptions } from 'lib/ui/useTippy';
 
 interface MoneyProps extends TestIDProps {
   children: number | string | BigNumber;
@@ -15,7 +18,10 @@ interface MoneyProps extends TestIDProps {
   roundingMode?: BigNumber.RoundingMode;
   shortened?: boolean;
   smallFractionFont?: boolean;
+  /** To show the '+' sign */
+  withSign?: boolean;
   tooltip?: boolean;
+  tooltipPlacement?: Placement;
 }
 
 const DEFAULT_CRYPTO_DECIMALS = 6;
@@ -29,7 +35,9 @@ const Money = memo<MoneyProps>(
     roundingMode = BigNumber.ROUND_DOWN,
     shortened,
     smallFractionFont = true,
+    withSign,
     tooltip = true,
+    tooltipPlacement,
     testID,
     testIDProperties
   }) => {
@@ -49,7 +57,7 @@ const Money = memo<MoneyProps>(
 
     const indexOfDecimal = result.indexOf(decimal) === -1 ? result.indexOf('.') : result.indexOf(decimal);
 
-    const tippyClassName = classNames(
+    const tippyClassName = clsx(
       'px-px -mr-px rounded truncate',
       tooltip && 'cursor-pointer hover:bg-black hover:bg-opacity-5 transition ease-in-out duration-200'
     );
@@ -60,7 +68,9 @@ const Money = memo<MoneyProps>(
           tooltip={tooltip}
           result={result}
           className={tippyClassName}
+          tooltipPlacement={tooltipPlacement}
           bn={bn}
+          withSign={withSign}
           testID={testID}
           testIDProperties={testIDProperties}
         />
@@ -71,11 +81,13 @@ const Money = memo<MoneyProps>(
       return (
         <MoneyWithoutFormat
           tooltip={tooltip}
+          tooltipPlacement={tooltipPlacement}
           className={tippyClassName}
           bn={bn}
           cryptoDecimals={cryptoDecimals}
           roundingMode={roundingMode}
           smallFractionFont={smallFractionFont}
+          withSign={withSign}
           testID={testID}
           testIDProperties={testIDProperties}
         />
@@ -85,12 +97,14 @@ const Money = memo<MoneyProps>(
     return (
       <MoneyWithFormat
         tooltip={tooltip}
+        tooltipPlacement={tooltipPlacement}
         result={result}
         className={tippyClassName}
         bn={bn}
         isFiat={fiat}
         indexOfDecimal={indexOfDecimal}
         smallFractionFont={smallFractionFont}
+        withSign={withSign}
         testID={testID}
         testIDProperties={testIDProperties}
       />
@@ -105,16 +119,29 @@ interface JustMoneyProps extends TestIDProps {
   bn: BigNumber;
   className: string;
   result: string;
+  withSign?: boolean;
+  tooltipPlacement?: Placement;
 }
 
-const JustMoney: FC<JustMoneyProps> = ({ tooltip, bn, className, result, testID, testIDProperties }) => (
+const JustMoney: FC<JustMoneyProps> = ({
+  tooltip,
+  bn,
+  className,
+  result,
+  withSign,
+  tooltipPlacement,
+  testID,
+  testIDProperties
+}) => (
   <FullAmountTippy
     enabled={tooltip}
     fullAmount={bn}
     className={className}
+    tooltipPlacement={tooltipPlacement}
     testID={testID}
     testIDProperties={testIDProperties}
   >
+    {withSign && bn.isPositive() && '+'}
     {result}
   </FullAmountTippy>
 );
@@ -124,6 +151,8 @@ interface MoneyAnyFormatPropsBase extends TestIDProps {
   bn: BigNumber;
   className: string;
   smallFractionFont: boolean;
+  withSign?: boolean;
+  tooltipPlacement?: Placement;
 }
 
 interface MoneyWithoutFormatProps extends MoneyAnyFormatPropsBase {
@@ -152,6 +181,8 @@ const MoneyWithoutFormat: FC<MoneyWithoutFormatProps> = ({
   cryptoDecimals,
   roundingMode,
   smallFractionFont,
+  withSign,
+  tooltipPlacement,
   testID,
   testIDProperties
 }) => {
@@ -170,10 +201,12 @@ const MoneyWithoutFormat: FC<MoneyWithoutFormatProps> = ({
       enabled={tooltip}
       fullAmount={bn}
       className={className}
+      tooltipPlacement={tooltipPlacement}
       showAmountTooltip
       testID={testID}
       testIDProperties={testIDProperties}
     >
+      {withSign && bn.isPositive() && '+'}
       {result.slice(0, indexOfDecimal + 1)}
       <span style={{ fontSize: smallFractionFont ? '0.9em' : undefined }}>
         {result.slice(indexOfDecimal + 1, result.length)}
@@ -196,6 +229,8 @@ const MoneyWithFormat: FC<MoneyWithFormatProps> = ({
   indexOfDecimal,
   isFiat,
   smallFractionFont,
+  withSign,
+  tooltipPlacement,
   testID,
   testIDProperties
 }) => {
@@ -212,9 +247,11 @@ const MoneyWithFormat: FC<MoneyWithFormatProps> = ({
       enabled={tooltip}
       fullAmount={fullAmount}
       className={className}
+      tooltipPlacement={tooltipPlacement}
       testID={testID}
       testIDProperties={testIDProperties}
     >
+      {withSign && bn.isPositive() && '+'}
       {result.slice(0, indexOfDecimal + 1)}
       <span style={{ fontSize: smallFractionFont ? '0.9em' : undefined }}>
         {result.slice(indexOfDecimal + 1, result.length)}
@@ -226,6 +263,7 @@ const MoneyWithFormat: FC<MoneyWithFormatProps> = ({
 interface FullAmountTippyProps extends HTMLAttributes<HTMLSpanElement>, TestIDProps {
   fullAmount: BigNumber;
   showAmountTooltip?: boolean;
+  tooltipPlacement?: Placement;
   enabled?: boolean;
 }
 
@@ -233,47 +271,37 @@ const FullAmountTippy: FC<FullAmountTippyProps> = ({
   fullAmount,
   onClick,
   showAmountTooltip,
+  tooltipPlacement = 'top',
   enabled = true,
   testID,
   testIDProperties,
+  className,
   ...rest
 }) => {
   const fullAmountStr = useMemo(() => toLocalFixed(fullAmount), [fullAmount]);
+  const { fieldRef, copy } = useCopyToClipboard();
+  const isHugeAmount = fullAmount.gte(ASSET_HUGE_AMOUNT);
 
-  const { fieldRef, copy, copied, setCopied } = useCopyToClipboard();
-
-  const tippyContent = useMemo(() => {
-    if (copied) {
-      return t('copiedHash');
-    }
-    return showAmountTooltip ? fullAmountStr : t('copyHashToClipboard');
-  }, [copied, showAmountTooltip, fullAmountStr]);
-
-  const tippyInstanceRef = useRef<TippyInstance>();
-  const tippyProps = useMemo<UseTippyOptions>(
+  const tooltipProps = useMemo(
     () => ({
       trigger: 'mouseenter',
-      hideOnClick: false,
-      content: tippyContent,
+      hideOnClick: true,
       animation: 'shift-away-subtle',
-      onCreate(instance) {
-        tippyInstanceRef.current = instance;
-        instance.enable();
-      },
-      onTrigger(instance) {
-        !showAmountTooltip && instance.disable();
-      },
-      onUntrigger(instance) {
-        !showAmountTooltip && instance.disable();
-      },
-      onHidden() {
-        setCopied(false);
-      }
+      placement: tooltipPlacement
     }),
-    [tippyContent, showAmountTooltip, setCopied]
+    [tooltipPlacement]
   );
 
-  const ref = useTippy<HTMLSpanElement>(tippyProps);
+  const tooltipWrapperFactory = useCallback(() => {
+    const element = document.createElement('span');
+    if (isHugeAmount) {
+      element.style.overflowWrap = 'break-word';
+    }
+    element.style.maxWidth = '20rem';
+
+    return element;
+  }, [isHugeAmount]);
+  const ref = useRichFormatTooltip<HTMLSpanElement>(tooltipProps, tooltipWrapperFactory, fullAmountStr);
 
   const { trackEvent } = useAnalytics();
 
@@ -282,29 +310,30 @@ const FullAmountTippy: FC<FullAmountTippyProps> = ({
       evt.preventDefault();
       evt.stopPropagation();
 
-      if (!showAmountTooltip) {
-        tippyInstanceRef.current?.enable();
-        tippyInstanceRef.current?.show();
-      }
-
       copy();
+      toastSuccess(t('copiedHash'));
 
       testID && trackEvent(testID, AnalyticsEventCategory.ButtonPress, testIDProperties);
 
       onClick?.(evt);
     },
-    [copy, onClick, showAmountTooltip, trackEvent, testID, testIDProperties]
+    [copy, onClick, trackEvent, testID, testIDProperties]
   );
 
   return (
-    <div className="contents" {...setTestID(testID)}>
+    <div className={isHugeAmount ? 'flex' : 'contents'} {...setTestID(testID)}>
       {enabled ? (
         <>
-          <span ref={ref} onClick={handleClick} {...rest} />
+          <span
+            className={clsx(className, isHugeAmount && 'overflow-hidden text-ellipsis')}
+            ref={showAmountTooltip ? ref : undefined}
+            onClick={handleClick}
+            {...rest}
+          />
           <input ref={fieldRef} value={fullAmountStr} readOnly className="sr-only" />
         </>
       ) : (
-        <span {...rest} />
+        <span className={clsx(className, isHugeAmount && 'overflow-hidden text-ellipsis')} {...rest} />
       )}
     </div>
   );

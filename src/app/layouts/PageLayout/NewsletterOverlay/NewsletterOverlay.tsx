@@ -8,15 +8,15 @@ import { object, string } from 'yup';
 import { OverlayCloseButton } from 'app/atoms/OverlayCloseButton';
 import Spinner from 'app/atoms/Spinner/Spinner';
 import { useAppEnv } from 'app/env';
-import ContentContainer from 'app/layouts/ContentContainer';
-import { useOnboardingProgress } from 'app/pages/Onboarding/hooks/useOnboardingProgress.hook';
+import { LAYOUT_CONTAINER_CLASSNAME } from 'app/layouts/containers';
 import { shouldShowNewsletterModalAction } from 'app/store/newsletter/newsletter-actions';
 import { useShouldShowNewsletterModalSelector } from 'app/store/newsletter/newsletter-selectors';
-import { useOnRampPossibilitySelector } from 'app/store/settings/selectors';
+import { useOnRampAssetSelector } from 'app/store/settings/selectors';
 import { setTestID } from 'lib/analytics';
 import { newsletterApi } from 'lib/apis/newsletter';
 import { useYupValidationResolver } from 'lib/form/use-yup-validation-resolver';
-import { t } from 'lib/i18n/react';
+import { T } from 'lib/i18n/react';
+import { useTempleClient } from 'lib/temple/front';
 import { useLocation } from 'lib/woozie';
 import { HOME_PAGE_PATH } from 'lib/woozie/config';
 
@@ -31,14 +31,16 @@ const validationSchema = object().shape({
   email: string().required('Required field').email('Must be a valid email')
 });
 
+// ts-prune-ignore-next
 export const NewsletterOverlay = memo(() => {
   const dispatch = useDispatch();
   const { popup } = useAppEnv();
   const { pathname } = useLocation();
 
-  const { onboardingCompleted } = useOnboardingProgress();
+  const { ready } = useTempleClient();
   const shouldShowNewsletterModal = useShouldShowNewsletterModalSelector();
-  const isOnRampPossibility = useOnRampPossibilitySelector();
+  const onRampAsset = useOnRampAssetSelector();
+  const isOnRampPossibility = Boolean(onRampAsset);
 
   const validationResolver = useYupValidationResolver<FormValues>(validationSchema);
 
@@ -80,22 +82,18 @@ export const NewsletterOverlay = memo(() => {
     return 'Subscribe';
   }, [successSubscribing, isLoading]);
 
-  if (!shouldShowNewsletterModal || !onboardingCompleted || isOnRampPossibility || pathname !== HOME_PAGE_PATH)
-    return null;
+  // TODO: remove 'ready' condition and add 'onboardingCompleted' condition when onboarding is reimplemented
+  if (!shouldShowNewsletterModal || !ready || isOnRampPossibility || pathname !== HOME_PAGE_PATH) return null;
 
   return (
-    <div className="fixed inset-0 z-40 flex flex-col items-center justify-center bg-gray-700 bg-opacity-20">
-      <ContentContainer
-        className={classNames('overflow-y-scroll py-4', popup ? 'h-full px-4' : 'px-5')}
-        padding={false}
-      >
+    <div className="fixed inset-0 z-overlay-promo flex flex-col items-center justify-center bg-gray-700 bg-opacity-20">
+      <div className={classNames(LAYOUT_CONTAINER_CLASSNAME, 'overflow-y-scroll py-4', popup && 'h-full px-4')}>
         <form
           onSubmit={handleSubmit(onSubmit)}
           className={classNames(
             'relative flex flex-col justify-center text-center bg-orange-100 shadow-lg bg-no-repeat rounded-md',
-            popup ? 'p-4' : 'px-13 py-18'
+            popup ? 'p-4 h-full' : 'px-8 py-18'
           )}
-          style={{ height: popup ? '100%' : '700px' }}
         >
           <OverlayCloseButton testID={NewsletterOverlaySelectors.closeButton} onClick={close} />
 
@@ -107,9 +105,13 @@ export const NewsletterOverlay = memo(() => {
           />
 
           <div className="flex flex-col w-full max-w-sm mx-auto">
-            <h1 className="mb-1 font-inter text-base text-gray-910 text-left">{t('subscribeToNewsletter')}</h1>
+            <h1 className="mb-1 font-inter text-base text-gray-910 text-left">
+              <T id="subscribeToNewsletter" />
+            </h1>
 
-            <span className="mb-1 text-xs text-left text-gray-600">{t('keepLatestNews')}</span>
+            <span className="mb-1 text-xs text-left text-gray-600">
+              <T id="keepLatestNews" />
+            </span>
 
             <div className="w-full mb-4">
               <input
@@ -135,7 +137,7 @@ export const NewsletterOverlay = memo(() => {
             </button>
           </div>
         </form>
-      </ContentContainer>
+      </div>
     </div>
   );
 });

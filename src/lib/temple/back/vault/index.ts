@@ -1,61 +1,107 @@
+import type Eth from '@ledgerhq/hw-app-eth';
 import { HttpResponseError } from '@taquito/http-utils';
 import { DerivationType } from '@taquito/ledger-signer';
 import { localForger } from '@taquito/local-forging';
 import { CompositeForger, RpcForger, Signer, TezosOperationError, TezosToolkit } from '@taquito/taquito';
 import * as TaquitoUtils from '@taquito/utils';
 import * as Bip39 from 'bip39';
+import { nanoid } from 'nanoid';
+import { createWalletClient, LocalAccount, PrivateKeyAccount, TransactionRequest, TypedDataDefinition } from 'viem';
+import { privateKeyToAccount } from 'viem/accounts';
 import type * as WasmThemisPackageInterface from 'wasm-themis';
 
-import { formatOpParamsBeforeSend, loadFastRpcClient, michelEncoder } from 'lib/temple/helpers';
+import {
+  ACCOUNT_ALREADY_EXISTS_ERR_MSG,
+  ACCOUNT_NAME_COLLISION_ERR_MSG,
+  AT_LEAST_ONE_HD_ACCOUNT_ERR_MSG,
+  DEFAULT_EVM_DERIVATION_PATH,
+  DEFAULT_TEZOS_DERIVATION_PATH,
+  WALLETS_SPECS_STORAGE_KEY
+} from 'lib/constants';
+import { fetchFromStorage as getPlain, putToStorage as savePlain } from 'lib/storage';
+import { deleteEvmActivitiesByAddress, deleteTezosActivitiesByAddress } from 'lib/temple/activity/repo';
+import {
+  fetchNewGroupName,
+  formatOpParamsBeforeSend,
+  getSameGroupAccounts,
+  isNameCollision,
+  toExcelColumnName
+} from 'lib/temple/helpers';
 import * as Passworder from 'lib/temple/passworder';
 import { clearAsyncStorages } from 'lib/temple/reset';
-import { TempleAccount, TempleAccountType, TempleSettings } from 'lib/temple/types';
+import {
+  SaveLedgerAccountInput,
+  StoredAccount,
+  TempleAccountType,
+  TempleSettings,
+  WalletSpecs
+} from 'lib/temple/types';
+import { delay, isTruthy } from 'lib/utils';
+import { getAccountAddressForChain, getAccountAddressForEvm, getAccountAddressForTezos } from 'temple/accounts';
+import { TypedDataV1, typedV1SignatureHash } from 'temple/evm/typed-data-v1';
+import { getCustomViemChain, getViemTransportForNetwork } from 'temple/evm/utils';
+import { EvmChain } from 'temple/front';
+import { michelEncoder, getTezosFastRpcClient } from 'temple/tezos';
+import { TempleChainKind } from 'temple/types';
 
 import { createLedgerSigner } from '../ledger';
 import { PublicError } from '../PublicError';
 
-import { transformHttpResponseError } from './helpers';
+import { makeEvmAccount } from './evm-ledger';
+import { fetchMessage, transformHttpResponseError } from './helpers';
 import { MIGRATIONS } from './migrations';
 import {
-  seedToHDPrivateKey,
-  seedToPrivateKey,
-  deriveSeed,
-  generateCheck,
-  fetchNewAccountName,
+  buildEncryptAndSaveManyForAccount,
+  canRemoveAccounts,
   concatAccount,
   createMemorySigner,
-  getMainDerivationPath,
-  getPublicKeyAndHash,
+  deriveSeed,
+  fetchNewAccountName,
+  generateCheck,
+  isEvmDerivationPath,
+  mnemonicToEvmAccountCreds,
+  mnemonicToTezosAccountCreds,
+  privateKeyToEvmAccountCreds,
+  privateKeyToTezosAccountCreds,
+  seedToPrivateKey,
   withError
 } from './misc';
 import {
   encryptAndSaveMany,
   fetchAndDecryptOne,
   fetchAndDecryptOneLegacy,
-  getPlain,
+  getPlainLegacy,
   isStored,
   isStoredLegacy,
   removeMany,
   removeManyLegacy,
-  savePlain
+  savePlainLegacy
 } from './safe-storage';
 import * as SessionStore from './session-store';
 import {
-  checkStrgKey,
-  migrationLevelStrgKey,
-  mnemonicStrgKey,
+  accountsStrgKey,
   accPrivKeyStrgKey,
   accPubKeyStrgKey,
-  accountsStrgKey,
+  checkStrgKey,
+  legacyMigrationLevelStrgKey,
+  migrationLevelStrgKey,
   settingsStrgKey,
-  legacyMigrationLevelStrgKey
+  walletMnemonicStrgKey
 } from './storage-keys';
 
 const TEMPLE_SYNC_PREFIX = 'templesync';
 const DEFAULT_SETTINGS: TempleSettings = {};
 const libthemisWasmSrc = '/wasm/libthemis.wasm';
 
+interface RemoveAccountEventPayload {
+  tezosAddress?: string;
+  evmAddress?: string;
+}
+
 export class Vault {
+  static removeAccountsListeners: SyncFn<RemoveAccountEventPayload[]>[] = [];
+  private static ethApp: Eth | null = null;
+
   static async isExist() {
     const stored = await isStored(checkStrgKey);
     if (stored) return stored;
@@ -97,17 +143,22 @@ export class Vault {
       if (!mnemonic) {
         mnemonic = Bip39.generateMnemonic(128);
       }
-      const seed = Bip39.mnemonicToSeedSync(mnemonic);
 
       const hdAccIndex = 0;
-      const accPrivateKey = seedToHDPrivateKey(seed, hdAccIndex);
-      const [accPublicKey, accPublicKeyHash] = await getPublicKeyAndHash(accPrivateKey);
 
-      const initialAccount: TempleAccount = {
+      const tezosAcc = await mnemonicToTezosAccountCreds(mnemonic, hdAccIndex);
+      const evmAcc = mnemonicToEvmAccountCreds(mnemonic, hdAccIndex);
+
+      const walletId = nanoid();
+      const walletName = await fetchMessage('hdWalletDefaultName', 'A');
+      const initialAccount: StoredAccount = {
+        id: nanoid(),
         type: TempleAccountType.HD,
-        name: 'Account 1',
-        publicKeyHash: accPublicKeyHash,
-        hdIndex: hdAccIndex
+        name: await fetchMessage('defaultAccountName', '1'),
+        hdIndex: hdAccIndex,
+        tezosAddress: tezosAcc.address,
+        evmAddress: evmAcc.address,
+        walletId
       };
       const newAccounts = [initialAccount];
 
@@ -120,16 +171,19 @@ export class Vault {
       await encryptAndSaveMany(
         [
           [checkStrgKey, generateCheck()],
-          [mnemonicStrgKey, mnemonic],
-          [accPrivKeyStrgKey(accPublicKeyHash), accPrivateKey],
-          [accPubKeyStrgKey(accPublicKeyHash), accPublicKey],
+          [walletMnemonicStrgKey(walletId), mnemonic],
+          ...buildEncryptAndSaveManyForAccount(tezosAcc),
+          ...buildEncryptAndSaveManyForAccount(evmAcc),
           [accountsStrgKey, newAccounts]
         ],
         passKey
       );
+      await savePlain<StringRecord<WalletSpecs>>(WALLETS_SPECS_STORAGE_KEY, {
+        [walletId]: { name: walletName, createdAt: Date.now() }
+      });
       await savePlain(migrationLevelStrgKey, MIGRATIONS.length);
 
-      return accPublicKeyHash;
+      return tezosAcc.address;
     });
   }
 
@@ -146,7 +200,7 @@ export class Vault {
         return fetchAndDecryptOneLegacy<number>(legacyMigrationLevelStrgKey, legacyPassKey);
       });
     } else {
-      const saved = await getPlain<number>(migrationLevelStrgKey);
+      const saved = await getPlainLegacy<number>(migrationLevelStrgKey);
 
       migrationLevel = saved ?? 0;
 
@@ -191,16 +245,18 @@ export class Vault {
         await removeManyLegacy([legacyMigrationLevelStrgKey]);
       }
 
-      await savePlain(migrationLevelStrgKey, MIGRATIONS.length);
+      await savePlainLegacy(migrationLevelStrgKey, MIGRATIONS.length);
     }
   }
 
-  static async revealMnemonic(password: string) {
+  static async revealMnemonic(walletId: string, password: string) {
     const { passKey } = await Vault.toValidPassKey(password);
-    return withError('Failed to reveal seed phrase', () => fetchAndDecryptOne<string>(mnemonicStrgKey, passKey));
+    return withError('Failed to reveal seed phrase', () =>
+      fetchAndDecryptOne<string>(walletMnemonicStrgKey(walletId), passKey)
+    );
   }
 
-  static async generateSyncPayload(password: string) {
+  static async generateSyncPayload(password: string, walletId: string) {
     let WasmThemis: typeof WasmThemisPackageInterface;
     try {
       WasmThemis = await import('wasm-themis');
@@ -212,11 +268,11 @@ export class Vault {
     const { passKey } = await Vault.toValidPassKey(password);
     return withError('Failed to generate sync payload', async () => {
       const [mnemonic, allAccounts] = await Promise.all([
-        fetchAndDecryptOne<string>(mnemonicStrgKey, passKey),
-        fetchAndDecryptOne<TempleAccount[]>(accountsStrgKey, passKey)
+        fetchAndDecryptOne<string>(walletMnemonicStrgKey(walletId), passKey),
+        fetchAndDecryptOne<StoredAccount[]>(accountsStrgKey, passKey)
       ]);
 
-      const hdAccounts = allAccounts.filter(acc => acc.type === TempleAccountType.HD);
+      const hdAccounts = getSameGroupAccounts(allAccounts, TempleAccountType.HD, walletId);
 
       const data = [mnemonic, hdAccounts.length];
 
@@ -228,30 +284,127 @@ export class Vault {
     });
   }
 
-  static async revealPrivateKey(accPublicKeyHash: string, password: string) {
+  static async revealPrivateKey(address: string, password: string) {
     const { passKey } = await Vault.toValidPassKey(password);
-    return withError('Failed to reveal private key', async () => {
-      const privateKeySeed = await fetchAndDecryptOne<string>(accPrivKeyStrgKey(accPublicKeyHash), passKey);
-      const signer = await createMemorySigner(privateKeySeed);
-      return signer.secretKey();
+    return withError('Failed to reveal private key', () =>
+      fetchAndDecryptOne<string>(accPrivKeyStrgKey(address), passKey)
+    );
+  }
+
+  private static async getEthApp() {
+    if (Vault.ethApp) {
+      return Vault.ethApp;
+    }
+
+    const Eth = await import('@ledgerhq/hw-app-eth').then(m => m.default);
+    const TransportWebHID = await import('@ledgerhq/hw-transport-webhid').then(m => m.default);
+    const transport = await TransportWebHID.create();
+    Vault.ethApp = new Eth(transport);
+
+    return Vault.ethApp;
+  }
+
+  private static async clearEthApp() {
+    if (Vault.ethApp) {
+      await Vault.ethApp.transport.close().catch(e => console.error(e));
+      Vault.ethApp = null;
+    }
+  }
+
+  private static async removeAccountsKeys(accounts: StoredAccount[]) {
+    const accAddresses = Object.values(TempleChainKind)
+      .map(chain => accounts.map(acc => getAccountAddressForChain(acc, chain)))
+      .flat()
+      .filter(isTruthy);
+
+    await removeMany(accAddresses.map(address => [accPrivKeyStrgKey(address), accPubKeyStrgKey(address)]).flat());
+    Vault.removeAccountsListeners.forEach(fn =>
+      fn(
+        accounts.map(account => ({
+          tezosAddress: getAccountAddressForTezos(account),
+          evmAddress: getAccountAddressForEvm(account)
+        }))
+      )
+    );
+  }
+
+  static async removeAccount(id: string, password: string) {
+    const { passKey } = await Vault.toValidPassKey(password);
+    return withError('Failed to remove account', async doThrow => {
+      const allAccounts = await fetchAndDecryptOne<StoredAccount[]>(accountsStrgKey, passKey);
+      const acc = allAccounts.find(a => a.id === id);
+
+      if (!acc) {
+        throw doThrow();
+      }
+
+      if (!canRemoveAccounts(allAccounts, [acc])) {
+        throw new PublicError(AT_LEAST_ONE_HD_ACCOUNT_ERR_MSG);
+      }
+
+      const tezosAddress = getAccountAddressForTezos(acc);
+      const evmAddress = getAccountAddressForEvm(acc);
+      const newAccounts = allAccounts.filter(currentAccount => currentAccount.id !== id);
+      const allHdWalletsEntries = Object.entries(
+        (await getPlain<StringRecord<WalletSpecs>>(WALLETS_SPECS_STORAGE_KEY)) ?? {}
+      );
+      const newWalletsSpecs = Object.fromEntries(
+        allHdWalletsEntries.filter(([walletId]) =>
+          newAccounts.some(acc => acc.type === TempleAccountType.HD && acc.walletId === walletId)
+        )
+      );
+      await encryptAndSaveMany([[accountsStrgKey, newAccounts]], passKey);
+      await savePlain(WALLETS_SPECS_STORAGE_KEY, newWalletsSpecs);
+      await Vault.removeAccountsKeys([acc]);
+      if (tezosAddress) {
+        await deleteTezosActivitiesByAddress(tezosAddress);
+      }
+      if (evmAddress) {
+        await deleteEvmActivitiesByAddress(evmAddress);
+      }
+
+      return { newAccounts, newWalletsSpecs };
     });
   }
 
-  static async removeAccount(accPublicKeyHash: string, password: string) {
+  static async removeHdWallet(id: string, password: string) {
     const { passKey } = await Vault.toValidPassKey(password);
-    return withError('Failed to remove account', async doThrow => {
-      const allAccounts = await fetchAndDecryptOne<TempleAccount[]>(accountsStrgKey, passKey);
-      const acc = allAccounts.find(a => a.publicKeyHash === accPublicKeyHash);
-      if (!acc || acc.type === TempleAccountType.HD) {
-        doThrow();
+
+    return withError('Failed to remove HD group', async doThrow => {
+      const walletsSpecs = (await getPlain<StringRecord<WalletSpecs>>(WALLETS_SPECS_STORAGE_KEY)) ?? {};
+
+      if (!(id in walletsSpecs)) {
+        throw doThrow();
       }
 
-      const newAllAcounts = allAccounts.filter(currentAccount => currentAccount.publicKeyHash !== accPublicKeyHash);
-      await encryptAndSaveMany([[accountsStrgKey, newAllAcounts]], passKey);
+      const allAccounts = await fetchAndDecryptOne<StoredAccount[]>(accountsStrgKey, passKey);
+      const accountsToRemove: StoredAccount[] = getSameGroupAccounts(allAccounts, TempleAccountType.HD, id);
 
-      await removeMany([accPrivKeyStrgKey(accPublicKeyHash), accPubKeyStrgKey(accPublicKeyHash)]);
+      if (!canRemoveAccounts(allAccounts, accountsToRemove)) {
+        throw new PublicError(AT_LEAST_ONE_HD_ACCOUNT_ERR_MSG);
+      }
 
-      return newAllAcounts;
+      const newAccounts = allAccounts.filter(acc => !accountsToRemove.includes(acc));
+      const { [id]: oldGroupName, ...newWalletsSpecs } = walletsSpecs;
+      await encryptAndSaveMany([[accountsStrgKey, newAccounts]], passKey);
+      await savePlain<StringRecord<WalletSpecs>>(WALLETS_SPECS_STORAGE_KEY, newWalletsSpecs);
+      await Vault.removeAccountsKeys(accountsToRemove);
+
+      return { newAccounts, newWalletsSpecs };
+    });
+  }
+
+  static async removeAccountsByType(type: Exclude<TempleAccountType, TempleAccountType.HD>, password: string) {
+    const { passKey } = await Vault.toValidPassKey(password);
+
+    return withError('Failed to remove accounts', async () => {
+      const allAccounts = await fetchAndDecryptOne<StoredAccount[]>(accountsStrgKey, passKey);
+      const accountsToRemove = allAccounts.filter(acc => acc.type === type);
+      const newAccounts = allAccounts.filter(acc => acc.type !== type);
+      await encryptAndSaveMany([[accountsStrgKey, newAccounts]], passKey);
+      await Vault.removeAccountsKeys(accountsToRemove);
+
+      return newAccounts;
     });
   }
 
@@ -282,16 +435,34 @@ export class Vault {
     });
   }
 
+  static async reset(password: string) {
+    await Vault.assertValidPassword(password);
+    await Vault.forgetSession();
+    await clearAsyncStorages();
+  }
+
+  static subscribeToRemoveAccounts(fn: SyncFn<RemoveAccountEventPayload[]>) {
+    Vault.removeAccountsListeners.push(fn);
+  }
+
+  static unsubscribeFromRemoveAccounts(fn: SyncFn<RemoveAccountEventPayload[]>) {
+    Vault.removeAccountsListeners = Vault.removeAccountsListeners.filter(f => f !== fn);
+  }
+
   constructor(private passKey: CryptoKey) {}
 
-  revealPublicKey(accPublicKeyHash: string) {
+  revealPublicKey(accountAddress: string) {
     return withError('Failed to reveal public key', () =>
-      fetchAndDecryptOne<string>(accPubKeyStrgKey(accPublicKeyHash), this.passKey)
+      fetchAndDecryptOne<string>(accPubKeyStrgKey(accountAddress), this.passKey)
     );
   }
 
   fetchAccounts() {
-    return fetchAndDecryptOne<TempleAccount[]>(accountsStrgKey, this.passKey);
+    return fetchAndDecryptOne<StoredAccount[]>(accountsStrgKey, this.passKey);
+  }
+
+  async fetchWalletsSpecs() {
+    return (await getPlain<StringRecord<WalletSpecs>>(WALLETS_SPECS_STORAGE_KEY)) ?? {};
   }
 
   async fetchSettings() {
@@ -302,78 +473,206 @@ export class Vault {
     return saved ? { ...DEFAULT_SETTINGS, ...saved } : DEFAULT_SETTINGS;
   }
 
-  async createHDAccount(name?: string, hdAccIndex?: number): Promise<TempleAccount[]> {
-    return withError('Failed to create account', async () => {
-      const [mnemonic, allAccounts] = await Promise.all([
-        fetchAndDecryptOne<string>(mnemonicStrgKey, this.passKey),
-        this.fetchAccounts()
+  async findFreeHDAccountIndex(walletId: string) {
+    return withError('Failed to find free HD account index', async doThrow => {
+      const [mnemonic, allAccounts, walletsSpecs] = await Promise.all([
+        fetchAndDecryptOne<string>(walletMnemonicStrgKey(walletId), this.passKey),
+        this.fetchAccounts(),
+        this.fetchWalletsSpecs()
       ]);
 
-      const seed = Bip39.mnemonicToSeedSync(mnemonic);
+      if (!(walletId in walletsSpecs)) {
+        throw doThrow();
+      }
+
+      const sameGroupHDAccounts = getSameGroupAccounts(allAccounts, TempleAccountType.HD, walletId);
+      const startHdIndex = Math.max(-1, ...sameGroupHDAccounts.map(a => a.hdIndex)) + 1;
+      let firstSkippedAccount: StoredAccount | undefined;
+      for (let skipsCount = 0; ; skipsCount++) {
+        const hdIndex = startHdIndex + skipsCount;
+        const tezosAcc = await mnemonicToTezosAccountCreds(mnemonic, hdIndex);
+        const evmAcc = mnemonicToEvmAccountCreds(mnemonic, hdIndex);
+        const sameAddressAccount = allAccounts.find(acc => {
+          if (acc.type === TempleAccountType.HD) {
+            return false;
+          }
+
+          const chain = 'chain' in acc ? acc.chain : TempleChainKind.Tezos;
+
+          return chain === TempleChainKind.Tezos
+            ? getAccountAddressForTezos(acc) === tezosAcc.address
+            : getAccountAddressForEvm(acc) === evmAcc.address;
+        });
+
+        if (sameAddressAccount && !firstSkippedAccount) {
+          firstSkippedAccount = sameAddressAccount;
+        } else if (!sameAddressAccount) {
+          return { hdIndex, firstSkippedAccount };
+        }
+      }
+    });
+  }
+
+  async createHDAccount(walletId: string, name?: string, hdAccIndex?: number): Promise<StoredAccount[]> {
+    return withError('Failed to create account', async doThrow => {
+      const [mnemonic, allAccounts, walletsSpecs] = await Promise.all([
+        fetchAndDecryptOne<string>(walletMnemonicStrgKey(walletId), this.passKey),
+        this.fetchAccounts(),
+        this.fetchWalletsSpecs()
+      ]);
+
+      if (!(walletId in walletsSpecs)) {
+        throw doThrow();
+      }
 
       if (!hdAccIndex) {
-        const allHDAccounts = allAccounts.filter(a => a.type === TempleAccountType.HD);
-        hdAccIndex = allHDAccounts.length;
+        hdAccIndex = (await this.findFreeHDAccountIndex(walletId)).hdIndex;
       }
 
-      const accPrivateKey = seedToHDPrivateKey(seed, hdAccIndex);
-      const [accPublicKey, accPublicKeyHash] = await getPublicKeyAndHash(accPrivateKey);
-      const accName = name || (await fetchNewAccountName(allAccounts));
+      const tezosAcc = await mnemonicToTezosAccountCreds(mnemonic, hdAccIndex);
+      const evmAcc = mnemonicToEvmAccountCreds(mnemonic, hdAccIndex);
+      const sameAddressAccount = allAccounts.find(acc => {
+        if (acc.type === TempleAccountType.HD) {
+          return false;
+        }
 
-      if (allAccounts.some(a => a.publicKeyHash === accPublicKeyHash)) {
-        return this.createHDAccount(accName, hdAccIndex + 1);
+        const chain = 'chain' in acc ? acc.chain : TempleChainKind.Tezos;
+
+        return chain === TempleChainKind.Tezos
+          ? getAccountAddressForTezos(acc) === tezosAcc.address
+          : getAccountAddressForEvm(acc) === evmAcc.address;
+      });
+
+      if (sameAddressAccount) {
+        throw new PublicError(ACCOUNT_ALREADY_EXISTS_ERR_MSG);
       }
 
-      const newAccount: TempleAccount = {
+      const accName = name ?? (await fetchNewAccountName(allAccounts, TempleAccountType.HD, walletId));
+
+      if (isNameCollision(allAccounts, TempleAccountType.HD, accName, walletId)) {
+        throw new PublicError(ACCOUNT_NAME_COLLISION_ERR_MSG);
+      }
+
+      const newAccount: StoredAccount = {
+        id: nanoid(),
         type: TempleAccountType.HD,
         name: accName,
-        publicKeyHash: accPublicKeyHash,
-        hdIndex: hdAccIndex
+        hdIndex: hdAccIndex,
+        tezosAddress: tezosAcc.address,
+        evmAddress: evmAcc.address,
+        walletId
       };
-      const newAllAcounts = concatAccount(allAccounts, newAccount);
+
+      const newAllAccounts = concatAccount(allAccounts, newAccount);
 
       await encryptAndSaveMany(
         [
-          [accPrivKeyStrgKey(accPublicKeyHash), accPrivateKey],
-          [accPubKeyStrgKey(accPublicKeyHash), accPublicKey],
-          [accountsStrgKey, newAllAcounts]
+          ...buildEncryptAndSaveManyForAccount(tezosAcc),
+          ...buildEncryptAndSaveManyForAccount(evmAcc),
+          [accountsStrgKey, newAllAccounts]
         ],
         this.passKey
       );
 
-      return newAllAcounts;
+      return newAllAccounts;
     });
   }
 
-  async importAccount(accPrivateKey: string, encPassword?: string) {
+  async createOrImportWallet(mnemonic?: string) {
+    return withError('Failed to create wallet', async () => {
+      if (!mnemonic) {
+        mnemonic = Bip39.generateMnemonic(128);
+      }
+
+      const hdAccIndex = 0;
+
+      const walletsSpecs = await this.fetchWalletsSpecs();
+      const groupsMnemonics = await Promise.all(
+        Object.keys(walletsSpecs).map(walletId =>
+          fetchAndDecryptOne<string>(walletMnemonicStrgKey(walletId), this.passKey)
+        )
+      );
+
+      if (groupsMnemonics.some(m => m === mnemonic)) {
+        throw new PublicError('This wallet is already imported');
+      }
+
+      const allAccounts = await this.fetchAccounts();
+      const tezosAcc = await mnemonicToTezosAccountCreds(mnemonic, hdAccIndex);
+      const evmAcc = mnemonicToEvmAccountCreds(mnemonic, hdAccIndex);
+
+      const walletId = nanoid();
+      const walletName = await fetchNewGroupName(walletsSpecs, i =>
+        fetchMessage('hdWalletDefaultName', toExcelColumnName(i))
+      );
+      const accountToReplace = allAccounts.find(acc => {
+        if (acc.type === TempleAccountType.HD) {
+          return false;
+        }
+
+        const chain = 'chain' in acc ? acc.chain : TempleChainKind.Tezos;
+
+        return chain === TempleChainKind.Tezos
+          ? getAccountAddressForTezos(acc) === tezosAcc.address
+          : getAccountAddressForEvm(acc) === evmAcc.address;
+      });
+      const newAccount: StoredAccount = {
+        id: nanoid(),
+        type: TempleAccountType.HD,
+        name: accountToReplace?.name ?? (await fetchMessage('defaultAccountName', '1')),
+        hdIndex: hdAccIndex,
+        tezosAddress: tezosAcc.address,
+        evmAddress: evmAcc.address,
+        walletId
+      };
+
+      const newAccounts = concatAccount(allAccounts, newAccount);
+      const newWalletsSpecs: StringRecord<WalletSpecs> = {
+        ...walletsSpecs,
+        [walletId]: { name: walletName, createdAt: Date.now() }
+      };
+
+      await encryptAndSaveMany(
+        [
+          [walletMnemonicStrgKey(walletId), mnemonic],
+          ...buildEncryptAndSaveManyForAccount(tezosAcc),
+          ...buildEncryptAndSaveManyForAccount(evmAcc),
+          [accountsStrgKey, newAccounts]
+        ],
+        this.passKey
+      );
+      await savePlain<StringRecord<WalletSpecs>>(WALLETS_SPECS_STORAGE_KEY, newWalletsSpecs);
+
+      return { newAccounts, newWalletsSpecs };
+    });
+  }
+
+  async importAccount(chain: TempleChainKind, accPrivateKey: string, encPassword?: string) {
     const errMessage = 'Failed to import account.\nThis may happen because provided Key is invalid';
 
     return withError(errMessage, async () => {
       const allAccounts = await this.fetchAccounts();
-      const signer = await createMemorySigner(accPrivateKey, encPassword);
-      const [realAccPrivateKey, accPublicKey, accPublicKeyHash] = await Promise.all([
-        signer.secretKey(),
-        signer.publicKey(),
-        signer.publicKeyHash()
-      ]);
 
-      const newAccount: TempleAccount = {
+      const accCreds =
+        chain === TempleChainKind.EVM
+          ? privateKeyToEvmAccountCreds(accPrivateKey)
+          : await privateKeyToTezosAccountCreds(accPrivateKey, encPassword);
+
+      const newAccount: StoredAccount = {
+        id: nanoid(),
         type: TempleAccountType.Imported,
-        name: await fetchNewAccountName(allAccounts),
-        publicKeyHash: accPublicKeyHash
+        chain,
+        name: await fetchNewAccountName(allAccounts, TempleAccountType.Imported),
+        address: accCreds.address
       };
-      const newAllAcounts = concatAccount(allAccounts, newAccount);
+      const newAllAccounts = concatAccount(allAccounts, newAccount);
 
       await encryptAndSaveMany(
-        [
-          [accPrivKeyStrgKey(accPublicKeyHash), realAccPrivateKey],
-          [accPubKeyStrgKey(accPublicKeyHash), accPublicKey],
-          [accountsStrgKey, newAllAcounts]
-        ],
+        [...buildEncryptAndSaveManyForAccount(accCreds), [accountsStrgKey, newAllAccounts]],
         this.passKey
       );
 
-      return newAllAcounts;
+      return newAllAccounts;
     });
   }
 
@@ -390,110 +689,161 @@ export class Vault {
         seed = deriveSeed(seed, derivationPath);
       }
 
-      const privateKey = seedToPrivateKey(seed);
-      return this.importAccount(privateKey);
+      // TODO: Loose chain from derivation, when importing accounts is reworked
+      const chain = derivationPath && isEvmDerivationPath(derivationPath) ? TempleChainKind.EVM : TempleChainKind.Tezos;
+      const privateKey = seedToPrivateKey(seed, chain);
+      return this.importAccount(chain, privateKey);
     });
   }
 
-  async importFundraiserAccount(email: string, password: string, mnemonic: string) {
-    return withError('Failed to import fundraiser account', async () => {
-      const seed = Bip39.mnemonicToSeedSync(mnemonic, `${email}${password}`);
-      const privateKey = seedToPrivateKey(seed);
-      return this.importAccount(privateKey);
-    });
-  }
-
-  async importManagedKTAccount(accPublicKeyHash: string, chainId: string, owner: string) {
-    return withError('Failed to import Managed KT account', async () => {
-      const allAccounts = await this.fetchAccounts();
-      const newAccount: TempleAccount = {
-        type: TempleAccountType.ManagedKT,
-        name: await fetchNewAccountName(
-          allAccounts.filter(({ type }) => type === TempleAccountType.ManagedKT),
-          'defaultManagedKTAccountName'
-        ),
-        publicKeyHash: accPublicKeyHash,
-        chainId,
-        owner
-      };
-      const newAllAcounts = concatAccount(allAccounts, newAccount);
-
-      await encryptAndSaveMany([[accountsStrgKey, newAllAcounts]], this.passKey);
-
-      return newAllAcounts;
-    });
-  }
-
-  async importWatchOnlyAccount(accPublicKeyHash: string, chainId?: string) {
+  async importWatchOnlyAccount(chain: TempleChainKind, address: string, chainId?: string) {
     return withError('Failed to import Watch Only account', async () => {
       const allAccounts = await this.fetchAccounts();
-      const newAccount: TempleAccount = {
+      const newAccount: StoredAccount = {
+        id: nanoid(),
         type: TempleAccountType.WatchOnly,
         name: await fetchNewAccountName(
-          allAccounts.filter(({ type }) => type === TempleAccountType.WatchOnly),
+          allAccounts,
+          TempleAccountType.WatchOnly,
+          undefined,
           'defaultWatchOnlyAccountName'
         ),
-        publicKeyHash: accPublicKeyHash,
+        address,
+        chain,
         chainId
       };
-      const newAllAcounts = concatAccount(allAccounts, newAccount);
+      const newAllAccounts = concatAccount(allAccounts, newAccount);
 
-      await encryptAndSaveMany([[accountsStrgKey, newAllAcounts]], this.passKey);
+      await encryptAndSaveMany([[accountsStrgKey, newAllAccounts]], this.passKey);
 
-      return newAllAcounts;
+      return newAllAccounts;
     });
   }
 
-  async createLedgerAccount(name: string, derivationPath?: string, derivationType?: DerivationType) {
-    return withError('Failed to connect Ledger account', async () => {
-      if (!derivationPath) derivationPath = getMainDerivationPath(0);
-
-      const { signer, cleanup } = await createLedgerSigner(derivationPath, derivationType);
-
+  async getLedgerTezosPk(derivationPath = DEFAULT_TEZOS_DERIVATION_PATH, derivationType?: DerivationType) {
+    return withError('Failed to connect get Ledger account public key hash', async () => {
+      let cleanup: EmptyFn | undefined;
       try {
-        const accPublicKey = await signer.publicKey();
-        const accPublicKeyHash = await signer.publicKeyHash();
+        const { signer, cleanup: cleanSigner } = await createLedgerSigner(derivationPath, derivationType);
+        cleanup = cleanSigner;
 
-        const newAccount: TempleAccount = {
-          type: TempleAccountType.Ledger,
-          name,
-          publicKeyHash: accPublicKeyHash,
-          derivationPath,
-          derivationType
-        };
+        const result = await signer.publicKey();
+
+        return result;
+      } catch (e: any) {
+        throw new PublicError(e.message);
+      } finally {
+        cleanup?.();
+      }
+    });
+  }
+
+  async getLedgerEVMPk(derivationPath = DEFAULT_EVM_DERIVATION_PATH) {
+    return withError('Failed to connect get Ledger account public key hash', async (): Promise<HexString> => {
+      try {
+        const ethApp = await Vault.getEthApp();
+        const { publicKey } = await ethApp.getAddress(derivationPath);
+
+        return `0x${publicKey}`;
+      } catch (e: any) {
+        await Vault.clearEthApp();
+        throw new PublicError(e.message);
+      }
+    });
+  }
+
+  async createLedgerAccount(input: SaveLedgerAccountInput) {
+    return withError('Failed to create Ledger account', async () => {
+      try {
         const allAccounts = await this.fetchAccounts();
-        const newAllAcounts = concatAccount(allAccounts, newAccount);
+
+        if (isNameCollision(allAccounts, TempleAccountType.Ledger, input.name)) {
+          throw new PublicError(ACCOUNT_NAME_COLLISION_ERR_MSG);
+        }
+
+        const { publicKey, ...storedAccountProps } = input;
+        const newAccount: StoredAccount = {
+          id: nanoid(),
+          type: TempleAccountType.Ledger,
+          ...storedAccountProps
+        };
+        const newAllAccounts = concatAccount(allAccounts, newAccount);
 
         await encryptAndSaveMany(
           [
-            [accPubKeyStrgKey(accPublicKeyHash), accPublicKey],
-            [accountsStrgKey, newAllAcounts]
+            [accPubKeyStrgKey(input.address), publicKey],
+            [accountsStrgKey, newAllAccounts]
           ],
           this.passKey
         );
 
-        return newAllAcounts;
-      } finally {
-        cleanup();
+        return newAllAccounts;
+      } catch (e: any) {
+        throw new PublicError(e.message);
       }
     });
   }
 
-  async editAccountName(accPublicKeyHash: string, name: string) {
+  async setAccountHidden(id: string, value: boolean) {
+    return withError('Failed to set account visibility', async () => {
+      const allAccounts = await this.fetchAccounts();
+      const newAllAccounts = allAccounts.map(acc => (acc.id === id ? { ...acc, hidden: value } : acc));
+      await encryptAndSaveMany([[accountsStrgKey, newAllAccounts]], this.passKey);
+
+      return newAllAccounts;
+    });
+  }
+
+  async editAccountName(id: string, name: string) {
     return withError('Failed to edit account name', async () => {
       const allAccounts = await this.fetchAccounts();
-      if (!allAccounts.some(acc => acc.publicKeyHash === accPublicKeyHash)) {
+      const account = allAccounts.find(acc => acc.id === id);
+
+      if (!account) {
         throw new PublicError('Account not found');
       }
 
-      if (allAccounts.some(acc => acc.publicKeyHash !== accPublicKeyHash && acc.name === name)) {
-        throw new PublicError('Account with same name already exist');
+      if (
+        isNameCollision(
+          allAccounts.filter(acc => acc.id !== id),
+          account.type,
+          name,
+          account.type === TempleAccountType.HD ? account.walletId : undefined
+        )
+      ) {
+        throw new PublicError(ACCOUNT_NAME_COLLISION_ERR_MSG);
       }
 
-      const newAllAcounts = allAccounts.map(acc => (acc.publicKeyHash === accPublicKeyHash ? { ...acc, name } : acc));
-      await encryptAndSaveMany([[accountsStrgKey, newAllAcounts]], this.passKey);
+      const newAllAccounts = allAccounts.map(acc => (acc.id === id ? { ...acc, name } : acc));
+      await encryptAndSaveMany([[accountsStrgKey, newAllAccounts]], this.passKey);
 
-      return newAllAcounts;
+      return newAllAccounts;
+    });
+  }
+
+  async editGroupName(id: string, name: string) {
+    return withError('Failed to edit group name', async () => {
+      const walletsSpecs = await this.fetchWalletsSpecs();
+
+      if (!(id in walletsSpecs)) {
+        throw new PublicError('Group not found');
+      }
+
+      if (
+        Object.entries(walletsSpecs).some(
+          ([walletId, { name: currentName }]) => walletId !== id && currentName === name
+        )
+      ) {
+        throw new PublicError('Group with this name already exists');
+      }
+
+      const newWalletsSpecs: StringRecord<WalletSpecs> = {
+        ...walletsSpecs,
+        [id]: { name, createdAt: walletsSpecs[id].createdAt }
+      };
+      await savePlain<StringRecord<WalletSpecs>>(WALLETS_SPECS_STORAGE_KEY, newWalletsSpecs);
+
+      return newWalletsSpecs;
     });
   }
 
@@ -515,10 +865,28 @@ export class Vault {
     );
   }
 
+  async signEvmTypedData(accPublicKeyHash: string, typedData: TypedDataDefinition | TypedDataV1) {
+    return this.withSigningEvmAccount(accPublicKeyHash, async account => {
+      if (Array.isArray(typedData)) {
+        if (!account.sign) {
+          throw new PublicError('Ledger cannot sign V1 typed data');
+        }
+
+        return account.sign({ hash: `0x${typedV1SignatureHash(typedData).toString('hex')}` });
+      }
+
+      return account.signTypedData(typedData);
+    });
+  }
+
+  async signEvmMessage(accPublicKeyHash: string, message: string) {
+    return this.withSigningEvmAccount(accPublicKeyHash, async account => account.signMessage({ message }));
+  }
+
   async sendOperations(accPublicKeyHash: string, rpc: string, opParams: any[]) {
     return this.withSigner(accPublicKeyHash, async signer => {
       const batch = await withError('Failed to send operations', async () => {
-        const tezos = new TezosToolkit(loadFastRpcClient(rpc));
+        const tezos = new TezosToolkit(getTezosFastRpcClient(rpc));
         tezos.setSignerProvider(signer);
         tezos.setForgerProvider(new CompositeForger([tezos.getFactory(RpcForger)(), localForger]));
         tezos.setPackerProvider(michelEncoder);
@@ -554,9 +922,66 @@ export class Vault {
     }
   }
 
+  private async withSigningEvmAccount<T>(
+    accPublicKeyHash: string,
+    factory: (account: PrivateKeyAccount | LocalAccount) => Promise<T>,
+    preventLedgerRetry = false
+  ): Promise<T> {
+    try {
+      const allAccounts = await this.fetchAccounts();
+      const acc = allAccounts.find(acc => getAccountAddressForEvm(acc) === accPublicKeyHash);
+      if (!acc) {
+        throw new PublicError('Account not found');
+      }
+
+      if (acc.type === TempleAccountType.WatchOnly) {
+        throw new Error('Cannot sign Watch-only account');
+      }
+
+      const handleLedgerConnectError = async (e: unknown) => {
+        const { TransportError } = await import('@ledgerhq/errors');
+        await Vault.clearEthApp();
+
+        if (e instanceof TransportError && e.message === 'Invalid channel' && !preventLedgerRetry) {
+          await delay(2000);
+
+          return this.withSigningEvmAccount(accPublicKeyHash, factory, true);
+        }
+
+        throw e;
+      };
+
+      let account: PrivateKeyAccount | LocalAccount;
+      if (acc.type === TempleAccountType.Ledger) {
+        try {
+          account = await makeEvmAccount(await Vault.getEthApp(), acc.derivationPath);
+        } catch (e) {
+          return handleLedgerConnectError(e);
+        }
+      } else {
+        const privateKey = await fetchAndDecryptOne<string>(accPrivKeyStrgKey(accPublicKeyHash), this.passKey);
+        account = privateKeyToAccount(privateKey as HexString);
+      }
+
+      try {
+        return await factory(account);
+      } catch (e) {
+        if (acc.type !== TempleAccountType.Ledger) {
+          throw e;
+        }
+
+        return handleLedgerConnectError(e);
+      }
+    } catch (err: any) {
+      console.error(err);
+
+      throw new Error(err.details ?? err.message);
+    }
+  }
+
   private async getSigner(accPublicKeyHash: string): Promise<{ signer: Signer; cleanup: () => void }> {
     const allAccounts = await this.fetchAccounts();
-    const acc = allAccounts.find(a => a.publicKeyHash === accPublicKeyHash);
+    const acc = allAccounts.find(acc => getAccountAddressForTezos(acc) === accPublicKeyHash);
     if (!acc) {
       throw new PublicError('Account not found');
     }
@@ -574,5 +999,21 @@ export class Vault {
         const signer = await createMemorySigner(privateKey);
         return { signer, cleanup: () => {} };
     }
+  }
+
+  async sendEvmTransaction(
+    accPublicKeyHash: string,
+    network: Pick<EvmChain, 'chainId' | 'name' | 'currency' | 'rpcBaseURL'>,
+    txParams: TransactionRequest
+  ) {
+    return this.withSigningEvmAccount(accPublicKeyHash, async account => {
+      const client = createWalletClient({
+        account,
+        chain: getCustomViemChain(network),
+        transport: getViemTransportForNetwork(network)
+      });
+
+      return await client.sendTransaction(txParams);
+    });
   }
 }

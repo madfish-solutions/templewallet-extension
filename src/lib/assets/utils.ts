@@ -1,14 +1,61 @@
 import BigNumber from 'bignumber.js';
+import { getAddress } from 'viem';
 
 import type { AssetMetadataBase } from 'lib/metadata';
+import type { ChainId } from 'temple/front/chains';
+import { isTezosDcpChainId } from 'temple/networks';
+import { TempleChainKind } from 'temple/types';
 
+import { TEZ_TOKEN_SLUG, EVM_TOKEN_SLUG, TEZOS_SYMBOL, TEZOS_DCP_SYMBOL } from './defaults';
 import type { Asset, FA2Token } from './types';
 
-export const TEZ_TOKEN_SLUG = 'tez' as const;
+const CHAIN_SLUG_SEPARATOR = ':';
 
-export const toTokenSlug = (contract: string, id: string | number = 0) => `${contract}_${id}`;
+export const getTezosGasSymbol = (chainId: string) => (isTezosDcpChainId(chainId) ? TEZOS_DCP_SYMBOL : TEZOS_SYMBOL);
 
-export const fromAssetSlug = (slug: string) => slug.split('_') as [contract: string, tokenId?: string];
+export const toTokenSlug = (contract: string, id?: string | number) => `${contract}_${id || '0'}`;
+
+export const toTezosAssetSlug = (contract: string, id?: string) =>
+  contract === TEZ_TOKEN_SLUG ? TEZ_TOKEN_SLUG : toTokenSlug(contract, id);
+
+export const toEvmAssetSlug = (contract: string, id?: string) =>
+  contract === EVM_TOKEN_SLUG ? EVM_TOKEN_SLUG : toTokenSlug(getAddress(contract), id);
+
+export const fromAssetSlug = <T = string>(slug: string) => slug.split('_') as [contract: T, tokenId?: string];
+
+export const toChainAssetSlug = (chainKind: TempleChainKind, chainId: number | string, assetSlug: string) =>
+  `${chainKind}${CHAIN_SLUG_SEPARATOR}${chainId}${CHAIN_SLUG_SEPARATOR}${assetSlug}`;
+
+/** @deprecated Use `parseChainAssetSlug` */
+export const fromChainAssetSlug = <T = string | number>(
+  chainAssetSlug: string
+): [chainKind: string, chainId: T, assetSlug: string] => {
+  const [chainKind, chainId = '', assetSlug = ''] = chainAssetSlug.split(CHAIN_SLUG_SEPARATOR);
+
+  const convertedChainId = (chainKind === TempleChainKind.Tezos ? chainId : Number(chainId)) as unknown as T;
+
+  return [chainKind, convertedChainId, assetSlug];
+};
+
+type ParseChainReturnType<T extends TempleChainKind> = [chainKind: T, chainId: ChainId<T>, assetSlug: string];
+
+export function parseChainAssetSlug<T extends TempleChainKind>(
+  chainAssetSlug: string,
+  chainKind?: T
+): ParseChainReturnType<T> {
+  const [_chainKind, chainId = '', assetSlug = ''] = chainAssetSlug.split(CHAIN_SLUG_SEPARATOR);
+
+  switch (chainKind) {
+    case TempleChainKind.EVM:
+      return [TempleChainKind.EVM as T, Number(chainId), assetSlug];
+    case TempleChainKind.Tezos:
+      return [TempleChainKind.Tezos as T, chainId, assetSlug];
+    default:
+      if (_chainKind === TempleChainKind.EVM) return [TempleChainKind.EVM as T, Number(chainId), assetSlug];
+
+      return [TempleChainKind.Tezos as T, chainId, assetSlug];
+  }
+}
 
 export const tokenToSlug = <T extends { address: string; id?: string | number }>({ address, id }: T) => {
   return toTokenSlug(address, id);

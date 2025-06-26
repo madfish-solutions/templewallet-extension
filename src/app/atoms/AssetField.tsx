@@ -3,6 +3,7 @@ import React, { ComponentProps, forwardRef, ReactNode, useCallback, useEffect, u
 import BigNumber from 'bignumber.js';
 
 import { FormField } from 'app/atoms';
+import { useFocusHandlers } from 'lib/ui/hooks/use-focus-handlers';
 
 interface AssetFieldProps extends Omit<ComponentProps<typeof FormField>, 'onChange'> {
   value?: number | string;
@@ -10,6 +11,7 @@ interface AssetFieldProps extends Omit<ComponentProps<typeof FormField>, 'onChan
   max?: number;
   assetSymbol?: ReactNode;
   assetDecimals?: number;
+  onlyInteger?: boolean;
   onChange?: (v?: string) => void;
 }
 
@@ -21,6 +23,7 @@ const AssetField = forwardRef<HTMLInputElement, AssetFieldProps>(
       max = Number.MAX_SAFE_INTEGER,
       assetSymbol,
       assetDecimals = 6,
+      onlyInteger = false,
       onChange,
       onFocus,
       onBlur,
@@ -28,22 +31,27 @@ const AssetField = forwardRef<HTMLInputElement, AssetFieldProps>(
     },
     ref
   ) => {
-    const valueStr = useMemo(() => (value === undefined ? '' : new BigNumber(value).toFixed()), [value]);
+    const valueStr = useMemo(
+      () => (value === undefined || value === '' ? '' : new BigNumber(value).toFixed()),
+      [value]
+    );
 
     const [localValue, setLocalValue] = useState(valueStr);
-    const [focused, setFocused] = useState(false);
+
+    const { isFocused, onFocus: handleFocus, onBlur: handleBlur } = useFocusHandlers(onFocus, onBlur);
 
     useEffect(() => {
-      if (!focused) {
+      if (!isFocused) {
         setLocalValue(valueStr);
       }
-    }, [setLocalValue, focused, valueStr]);
+    }, [setLocalValue, isFocused, valueStr]);
 
     const handleChange = useCallback(
       (evt: React.ChangeEvent<HTMLInputElement> & React.ChangeEvent<HTMLTextAreaElement>) => {
         let val = evt.target.value.replace(/ /g, '').replace(/,/g, '.');
-        let numVal = new BigNumber(val || 0);
         const indexOfDot = val.indexOf('.');
+        if (indexOfDot !== -1 && onlyInteger) return;
+        let numVal = new BigNumber(val || 0);
         if (indexOfDot !== -1 && val.length - indexOfDot > assetDecimals + 1) {
           val = val.substring(0, indexOfDot + assetDecimals + 1);
           numVal = new BigNumber(val);
@@ -51,38 +59,10 @@ const AssetField = forwardRef<HTMLInputElement, AssetFieldProps>(
 
         if (!numVal.isNaN() && numVal.isGreaterThanOrEqualTo(min) && numVal.isLessThanOrEqualTo(max)) {
           setLocalValue(val);
-          if (onChange) {
-            onChange(val !== '' ? numVal.toFixed() : undefined);
-          }
+          onChange?.(val !== '' ? numVal.toFixed() : undefined);
         }
       },
-      [assetDecimals, setLocalValue, min, max, onChange]
-    );
-
-    const handleFocus = useCallback(
-      (evt: React.FocusEvent<HTMLInputElement> & React.FocusEvent<HTMLTextAreaElement>) => {
-        setFocused(true);
-        if (onFocus) {
-          onFocus(evt);
-          if (evt.defaultPrevented) {
-            return;
-          }
-        }
-      },
-      [setFocused, onFocus]
-    );
-
-    const handleBlur = useCallback(
-      (evt: React.FocusEvent<HTMLInputElement> & React.FocusEvent<HTMLTextAreaElement>) => {
-        setFocused(false);
-        if (onBlur) {
-          onBlur(evt);
-          if (evt.defaultPrevented) {
-            return;
-          }
-        }
-      },
-      [setFocused, onBlur]
+      [onlyInteger, assetDecimals, min, max, onChange]
     );
 
     return (
@@ -93,7 +73,7 @@ const AssetField = forwardRef<HTMLInputElement, AssetFieldProps>(
         onChange={handleChange}
         onFocus={handleFocus}
         onBlur={handleBlur}
-        extraInner={assetSymbol}
+        extraRightInner={assetSymbol}
         {...rest}
       />
     );

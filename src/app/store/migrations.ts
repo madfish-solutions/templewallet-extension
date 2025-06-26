@@ -1,13 +1,14 @@
 import { cloneDeep } from 'lodash';
 import type { MigrationManifest, PersistedState } from 'redux-persist';
 
+import { TEZOS_CHAIN_ASSET_SLUG } from 'lib/apis/wert';
 import { toTokenSlug } from 'lib/assets';
 import { IS_MISES_BROWSER } from 'lib/env';
-import { isCollectible } from 'lib/metadata';
+import { isCollectible } from 'lib/metadata/utils';
 
-import { collectiblesMetadataInitialState } from './collectibles-metadata/state';
 import type { RootState } from './root-state.type';
 import { DEFAULT_SWAP_PARAMS } from './swap/state.mock';
+import { collectiblesMetadataInitialState } from './tezos/collectibles-metadata/state';
 
 import type { SLICES_BLACKLIST } from './index';
 
@@ -17,7 +18,7 @@ type MakePropertiesOptional<T, K extends keyof T> = {
 
 /** Blacklisted slices are not rehydrated */
 type TypedPersistedRootState = Exclude<PersistedState, undefined> &
-  MakePropertiesOptional<RootState, typeof SLICES_BLACKLIST[number]>;
+  MakePropertiesOptional<RootState, (typeof SLICES_BLACKLIST)[number]>;
 
 export const MIGRATIONS: MigrationManifest = {
   '2': (persistedState: PersistedState) => {
@@ -89,15 +90,16 @@ export const MIGRATIONS: MigrationManifest = {
     if (!persistedState) return persistedState;
 
     const typedPersistedState = persistedState as TypedPersistedRootState;
+
     const newState: TypedPersistedRootState = {
       ...typedPersistedState,
       swap: {
-        ...typedPersistedState.swap,
+        ...(typedPersistedState.swap ?? {}),
         swapParams: {
           data: DEFAULT_SWAP_PARAMS,
           isLoading: false
         }
-      }
+      } as TypedPersistedRootState['swap']
     };
 
     return newState;
@@ -115,6 +117,24 @@ export const MIGRATIONS: MigrationManifest = {
       settings: {
         ...typedPersistedState.settings,
         referralLinksEnabled: false
+      }
+    };
+
+    return newState;
+  },
+
+  '6': (persistedState: PersistedState) => {
+    if (!persistedState) return persistedState;
+
+    const typedPersistedState = persistedState as TypedPersistedRootState;
+
+    if (!typedPersistedState.settings.isOnRampPossibility) return persistedState;
+
+    const newState: TypedPersistedRootState = {
+      ...typedPersistedState,
+      settings: {
+        ...typedPersistedState.settings,
+        onRampAsset: TEZOS_CHAIN_ASSET_SLUG
       }
     };
 

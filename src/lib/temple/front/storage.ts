@@ -1,6 +1,5 @@
-import { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { SetStateAction, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-import { isDefined } from '@rnw-community/shared';
 import browser, { Storage } from 'webextension-polyfill';
 
 import { fetchFromStorage, putToStorage } from 'lib/storage';
@@ -15,9 +14,12 @@ export function useStorage<T = any>(key: string, fallback?: T) {
     revalidateOnFocus: false,
     revalidateOnReconnect: false
   });
+
   useEffect(() => onStorageChanged(key, mutate), [key, mutate]);
+
   const value = fallback === undefined ? data : data ?? fallback;
   const valueRef = useRef(value);
+
   useEffect(() => {
     valueRef.current = value;
   }, [value]);
@@ -29,16 +31,13 @@ export function useStorage<T = any>(key: string, fallback?: T) {
     },
     [key]
   );
+
   return useMemo(() => [value, setValue], [value, setValue]);
 }
 
-export function usePassiveStorage<T = any>(key: string): [T | null | undefined, Dispatch<SetStateAction<T>>];
-export function usePassiveStorage<T = any>(
-  key: string,
-  fallback: T,
-  shouldPutFallback?: boolean
-): [T, Dispatch<SetStateAction<T>>];
-export function usePassiveStorage<T = any>(key: string, fallback?: T, shouldPutFallback = false) {
+export function usePassiveStorage<T = any>(key: string): [T | null | undefined, SyncFn<T>];
+export function usePassiveStorage<T = any>(key: string, fallback: T): [T, SyncFn<T>];
+export function usePassiveStorage<T = any>(key: string, fallback?: T) {
   const { data } = useRetryableSWR<T | null, unknown, string>(key, fetchFromStorage, {
     suspense: true,
     revalidateOnFocus: false,
@@ -48,12 +47,6 @@ export function usePassiveStorage<T = any>(key: string, fallback?: T, shouldPutF
   const finalData = fallback === undefined ? data : data ?? fallback;
 
   const [value, setValue] = useState(finalData);
-
-  useEffect(() => {
-    if (!isDefined(data) && isDefined(fallback) && shouldPutFallback) {
-      putToStorage(key, fallback);
-    }
-  }, [data, fallback, key, shouldPutFallback]);
 
   useDidUpdate(() => {
     setValue(finalData);
@@ -72,16 +65,15 @@ export function usePassiveStorage<T = any>(key: string, fallback?: T, shouldPutF
 }
 
 function onStorageChanged<T = any>(key: string, callback: (newValue: T) => void) {
-  const handleChanged = (
-    changes: {
-      [s: string]: Storage.StorageChange;
-    },
-    areaName: string
-  ) => {
-    if (areaName === 'local' && key in changes) {
-      callback(changes[key].newValue);
+  const handleChanged = ((changes: { [s: string]: Storage.StorageChange }) => {
+    if (key in changes) {
+      callback(changes[key].newValue as any);
     }
-  };
-  browser.storage.onChanged.addListener(handleChanged);
-  return () => browser.storage.onChanged.removeListener(handleChanged);
+  }) as unknown as (changes: Storage.StorageAreaOnChangedChangesType) => void;
+
+  // (!) Do not sub to all storages at once (via `browser.storage.onChanged`).
+  // See: https://bugzilla.mozilla.org/show_bug.cgi?id=1838448#c14
+  browser.storage.local.onChanged.addListener(handleChanged);
+
+  return () => browser.storage.local.onChanged.removeListener(handleChanged);
 }

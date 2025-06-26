@@ -1,6 +1,6 @@
 import browser from 'webextension-polyfill';
 
-import FallbackSrc from './assets/token-fallback.png';
+import FallbackSrc from './assets/token-fallback.svg?url';
 
 export const TOKEN_FALLBACK_ICON_SRC = FallbackSrc;
 

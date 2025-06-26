@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef } from 'react';
 
 export const useScrollIntoView = <E extends Element>(condition = true, options?: ScrollIntoViewOptions) => {
-  const elemRef = useRef<E | null>(null);
+  const elemRef = useRef<E>(null);
 
   useEffect(() => {
     if (condition)

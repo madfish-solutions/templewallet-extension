@@ -1,32 +1,24 @@
-import React, { FC } from 'react';
+import React, { memo } from 'react';
 
-import { NotificationsSettings } from 'lib/notifications/components';
+import { FadeTransition } from 'app/a11y/FadeTransition';
 
-import AnalyticsSettings from './Components/AnalyticsSettings';
-import BlockExplorerSelect from './Components/BlockExplorerSelect';
-import FiatCurrencySelect from './Components/FiatCurrencySelect';
-import LocaleSelect from './Components/LocaleSelect';
-import LockUpSettings from './Components/LockUpSettings';
-import PopupSettings from './Components/PopupSettings';
+import { FiatCurrencySelect } from './components/fiat-currency-select';
+import { LocaleSelect } from './components/locale-select';
+import { NotificationsSettings } from './components/notifications-settings';
+import { PopupSettings } from './components/popup-settings';
 
-const GeneralSettings: FC = () => {
-  return (
-    <div className="w-full max-w-sm mx-auto my-8">
+const GeneralSettings = memo(() => (
+  <FadeTransition>
+    <div className="w-full flex flex-col gap-4">
       <LocaleSelect />
 
       <FiatCurrencySelect />
 
-      <BlockExplorerSelect />
-
       <PopupSettings />
-
-      <LockUpSettings />
-
-      <AnalyticsSettings />
 
       <NotificationsSettings />
     </div>
-  );
-};
+  </FadeTransition>
+));
 
 export default GeneralSettings;

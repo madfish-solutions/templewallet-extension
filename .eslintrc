@@ -1,18 +1,34 @@
 {
+  "root": true,
+
   "extends": [
-    "react-app",
+    "eslint:recommended",
+    "plugin:@typescript-eslint/strict",
+    "plugin:jsx-a11y/strict",
+    "plugin:react/recommended",
+    "plugin:react-hooks/recommended",
     "plugin:import/errors",
     "plugin:import/warnings",
     "plugin:import/typescript"
   ],
-  "plugins": ["import", "prettier", "no-type-assertion"],
-  "parser": "@typescript-eslint/parser",
+
+  "plugins": ["import", "prettier", "@typescript-eslint", "no-type-assertion", "react", "react-hooks", "jsx-a11y"],
+
+  "ignorePatterns": "src/**/*.embed.js",
+
   "overrides": [{
-    "files": ["*.ts", "*.tsx"],
+    "files": ["**/*.ts?(x)"],
+
+    "parser": "@typescript-eslint/parser",
     "parserOptions": {
-      "project": ["./tsconfig.json", "./e2e/tsconfig.json", "./webpack/tsconfig.json"]
+      "ecmaVersion": 2020,
+
+      // typescript-eslint specific options
+      "project": ["tsconfig.json", "e2e/tsconfig.json", "webpack/tsconfig.json"],
+      "warnOnUnsupportedTypeScriptVersion": true
     }
   }],
+
   "settings": {
     "import/resolver": {
       "typescript": {
@@ -21,12 +37,24 @@
       "node": {
         "extensions": [".d.ts"]
       }
+    },
+    "react": {
+      "version": "detect"
     }
   },
-  "ignorePatterns": "src/**/*.embed.js",
+
   "rules": {
     "prettier/prettier": "error",
+
     "prefer-const": "error",
+    "no-undef": "off",
+    "no-unused-vars": "off",
+    "no-empty": "warn",
+    "no-case-declarations": "off",
+    "prefer-rest-params": "off",
+    "no-async-promise-executor": "off",
+    "no-prototype-builtins": "warn",
+
     "import/no-duplicates": "error",
     "import/no-named-as-default": "off",
     "import/no-named-as-default-member": "off",
@@ -51,12 +79,41 @@
         "newlines-between": "always"
       }
     ],
+
     "no-type-assertion/no-type-assertion": "warn",
+
+    "@typescript-eslint/no-non-null-assertion": "off",
+    "@typescript-eslint/no-explicit-any": "off",
     "@typescript-eslint/await-thenable": "error",
     "@typescript-eslint/prefer-ts-expect-error": "error",
+    "@typescript-eslint/no-unused-vars": "off",
+    "@typescript-eslint/ban-ts-comment": "off",
+    "@typescript-eslint/unified-signatures": "off",
+    "@typescript-eslint/switch-exhaustiveness-check": "warn",
+    "@typescript-eslint/no-namespace": "off",
+    "@typescript-eslint/no-invalid-void-type": "off",
+    "@typescript-eslint/ban-types": "warn",
+    "@typescript-eslint/no-dynamic-delete": "off",
+    "@typescript-eslint/prefer-literal-enum-member": "off",
+    "@typescript-eslint/no-unnecessary-boolean-literal-compare": "off",
+
+    "react/prop-types": "off",
+    "react/display-name": "off",
     "react-hooks/rules-of-hooks": "warn",
     "react-hooks/exhaustive-deps": ["warn", {
-      "additionalHooks": "(useMemoWithCompare|useDidUpdate)"
-    }]
+      "additionalHooks": "(useMemoWithCompare|useDidUpdate|useInterval)"
+    }],
+    "react/jsx-key": "warn",
+    "react/no-unescaped-entities": "off",
+
+    "jsx-a11y/no-autofocus": "off",
+    "jsx-a11y/click-events-have-key-events": "off",
+    "jsx-a11y/no-noninteractive-element-interactions": "off",
+    "jsx-a11y/label-has-associated-control": "off",
+    "jsx-a11y/alt-text": "off",
+    "jsx-a11y/no-static-element-interactions": "off",
+    "jsx-a11y/media-has-caption": "warn",
+    "jsx-a11y/no-noninteractive-tabindex": "off",
+    "jsx-a11y/tabindex-no-positive": "off"
   }
 }

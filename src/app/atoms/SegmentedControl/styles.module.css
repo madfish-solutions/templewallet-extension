@@ -1,0 +1,67 @@
+.controlsContainer {
+  --highlight-width: auto;
+  --highlight-x-pos: 0;
+
+  display: flex;
+}
+
+.controls {
+  flex: 1;
+  display: inline-flex;
+  justify-content: space-between;
+  background: #E4E4E4;
+  border-radius: 5px;
+  padding: 2px;
+  overflow: hidden;
+  position: relative;
+}
+
+.controls input {
+  opacity: 0;
+  margin: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  position: absolute;
+  width: 100%;
+  cursor: pointer;
+  height: 100%;
+}
+
+.segment {
+  flex: 1;
+  position: relative;
+  text-align: center;
+  z-index: 1;
+}
+
+.segment label {
+  cursor: pointer;
+  display: block;
+  font-family: 'Rubik', sans-serif;
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 500;
+  padding: 4px;
+  transition: color 0.5s ease;
+}
+
+.segment.active label {
+  color: #FF5B00;
+}
+
+.controls::before {
+  content: "";
+  background: #fff;
+  border-radius: 5px;
+  width: var(--highlight-width);
+  box-shadow: 0 2px 8px 0 #00000014;
+  transform: translateX(var(--highlight-x-pos));
+  transition: transform 0.3s ease, width 0.3s ease;
+  position: absolute;
+  top: 2px;
+  bottom: 2px;
+  left: 0;
+  z-index: 0;
+}

@@ -6,17 +6,28 @@ import autoMergeLevel2 from 'redux-persist/lib/stateReconciler/autoMergeLevel2';
 import { IS_DEV_ENV } from 'lib/env';
 import { storageConfig } from 'lib/store';
 
-import { sanitizeCollectiblesMetadataForDevTools } from './collectibles-metadata/state';
 import { MIGRATIONS } from './migrations';
 import { epicMiddleware, rootEpic } from './root-state.epics';
 import { rootReducer } from './root-state.reducer';
 import type { RootState } from './root-state.type';
+import { sanitizeCollectiblesMetadataForDevTools } from './tezos/collectibles-metadata/state';
 
 export const SLICES_BLACKLIST = [
+  'cryptoExchange' as const,
   'buyWithCreditCard' as const,
   'collectibles' as const,
   'assets' as const,
-  'collectiblesMetadata' as const
+  'collectiblesMetadata' as const,
+  'evmLoading' as const,
+  'evmAssets' as const,
+  'evmTokensMetadata' as const,
+  'evmCollectiblesMetadata' as const,
+  'evmTokensExchangeRates' as const,
+  'currency' as const,
+  'evmNoCategoryAssetMetadata' as const,
+  'lifiEvmTokensMetadata' as const,
+  'noCategoryAssetMetadata' as const,
+  'swap' as const
 ];
 
 const persistConfigBlacklist: (keyof RootState)[] = SLICES_BLACKLIST;
@@ -24,7 +35,7 @@ const persistConfigBlacklist: (keyof RootState)[] = SLICES_BLACKLIST;
 const persistedReducer = persistReducer<RootState>(
   {
     key: 'temple-root',
-    version: 5,
+    version: 6,
     ...storageConfig,
     stateReconciler: autoMergeLevel2,
     blacklist: persistConfigBlacklist,
