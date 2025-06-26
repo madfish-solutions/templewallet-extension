@@ -10,9 +10,13 @@ import {
 import { TransactionRequest } from 'viem';
 import browser, { Runtime } from 'webextension-polyfill';
 
-import { CUSTOM_TEZOS_NETWORKS_STORAGE_KEY } from 'lib/constants';
+import {
+  CONVERSION_CHECKED_STORAGE_KEY,
+  CUSTOM_TEZOS_NETWORKS_STORAGE_KEY,
+  REFERRAL_WALLET_REGISTERED_STORAGE_KEY
+} from 'lib/constants';
 import { BACKGROUND_IS_WORKER } from 'lib/env';
-import { putToStorage } from 'lib/storage';
+import { putToStorage, removeFromStorage } from 'lib/storage';
 import { addLocalOperation } from 'lib/temple/activity';
 import * as Beacon from 'lib/temple/beacon';
 import { buildFinalTezosOpParams } from 'lib/temple/helpers';
@@ -691,7 +695,12 @@ type ProcessedBeaconMessage = {
 };
 
 export function resetExtension(password: string) {
-  return withUnlocked(async () => Vault.reset(password));
+  return withUnlocked(async () =>
+    Promise.all([
+      Vault.reset(password),
+      removeFromStorage([CONVERSION_CHECKED_STORAGE_KEY, REFERRAL_WALLET_REGISTERED_STORAGE_KEY])
+    ])
+  );
 }
 
 export async function processBeacon(
