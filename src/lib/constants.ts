@@ -10,8 +10,9 @@ export enum ContentScriptType {
   ExternalAdsActivity = 'ExternalAdsActivity',
   UpdateAdsRules = 'UpdateAdsRules',
   FetchReferralsRules = 'FetchReferralsRules',
-  FetchReferrals = 'FetchReferrals',
-  ReferralClick = 'ReferralClick'
+  FetchTakeAdsReferrals = 'FetchTakeAdsReferrals',
+  ReferralClick = 'ReferralClick',
+  FetchTempleReferralLinkItems = 'FetchTempleReferralLinkItems'
 }
 
 export const APP_TITLE = 'Temple Wallet';

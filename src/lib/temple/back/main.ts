@@ -8,13 +8,14 @@ import { updateRulesStorage } from 'lib/ads/update-rules-storage';
 import {
   fetchReferralsAffiliateLinks,
   fetchReferralsRules,
+  fetchTempleReferralLinkItems,
   postAdImpression,
   postAnonymousAdImpression,
   postReferralClick
 } from 'lib/apis/ads-api';
 import { ADS_VIEWER_ADDRESS_STORAGE_KEY, ContentScriptType } from 'lib/constants';
 import { E2eMessageType } from 'lib/e2e/types';
-import { BACKGROUND_IS_WORKER, EnvVars } from 'lib/env';
+import { BACKGROUND_IS_WORKER, EnvVars, IS_FIREFOX_BROWSER, IS_MISES_BROWSER } from 'lib/env';
 import { fetchFromStorage } from 'lib/storage';
 import { encodeMessage, encryptMessage, getSenderId, MessageType, Response } from 'lib/temple/beacon';
 import { clearAsyncStorages } from 'lib/temple/reset';
@@ -408,7 +409,15 @@ browser.runtime.onMessage.addListener(async msg => {
         return await getReferralsRules();
       }
 
-      case ContentScriptType.FetchReferrals: {
+      case ContentScriptType.FetchTempleReferralLinkItems: {
+        let browser = 'chrome';
+        if (IS_FIREFOX_BROWSER) browser = 'firefox';
+        if (IS_MISES_BROWSER) browser = 'mises';
+
+        return await getTempleReferralLinkItems(browser);
+      }
+
+      case ContentScriptType.FetchTakeAdsReferrals: {
         if (BACKGROUND_IS_WORKER) {
           const { buildTakeadsClient } = await importExtensionAdsReferralsModule();
           const takeads = buildTakeadsClient(EnvVars.TAKE_ADS_TOKEN);
@@ -420,15 +429,15 @@ browser.runtime.onMessage.addListener(async msg => {
       }
 
       case ContentScriptType.ReferralClick: {
-        const { urlDomain, pageDomain } = msg;
+        const { urlDomain, pageDomain, provider } = msg;
         const accountPkh = await getAdsViewerPkh();
 
-        if (accountPkh) await postReferralClick(accountPkh, undefined, { urlDomain, pageDomain });
+        if (accountPkh) await postReferralClick(accountPkh, undefined, { urlDomain, pageDomain, provider });
         else {
           const identity = await getStoredAppInstallIdentity();
           if (!identity) throw new Error('App identity not found');
           const installId = identity.publicKeyHash;
-          await postReferralClick(undefined, installId, { urlDomain, pageDomain });
+          await postReferralClick(undefined, installId, { urlDomain, pageDomain, provider });
         }
         break;
       }
@@ -452,8 +461,12 @@ async function getAdsViewerPkh() {
   return (frontState.accounts[0] as StoredHDAccount | undefined)?.tezosAddress;
 }
 
-const getReferralsRules = memoizee(fetchReferralsRules, {
+const DEFAULT_MEMO_CONFIG = {
   promise: true,
   max: 1,
   maxAge: 5 * 60_000
-});
+};
+
+const getReferralsRules = memoizee(fetchReferralsRules, DEFAULT_MEMO_CONFIG);
+
+const getTempleReferralLinkItems = memoizee(fetchTempleReferralLinkItems, DEFAULT_MEMO_CONFIG);
