@@ -8,6 +8,8 @@ export const IS_MISES_BROWSER =
   // @ts-expect-error
   navigator.userAgentData?.brands?.some(b => b.brand === 'Mises') || navigator.userAgent.includes('CriOS/');
 
+export const IS_FIREFOX_BROWSER = navigator.userAgent.toLowerCase().includes('firefox');
+
 export const IS_DEV_ENV = process.env.NODE_ENV === 'development';
 
 const IS_DEV_GITHUB_ACTION_RUN_ENV = process.env.GITHUB_ACTION_RUN_ENV === 'development';
