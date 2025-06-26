@@ -21,10 +21,10 @@ const dummyImageSrc =
   'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==';
 
 export const HypelabTextPromotion: FC<Omit<SingleProviderPromotionProps, 'variant'>> = ({
+  accountPkh,
   isVisible,
   pageName,
   onAdRectSeen,
-  onClose,
   onReady,
   onError
 }) => {
@@ -57,6 +57,7 @@ export const HypelabTextPromotion: FC<Omit<SingleProviderPromotionProps, 'varian
       </a>
 
       <TextPromotionView
+        accountPkh={accountPkh}
         href={ctaUrl || '/'}
         imageSrc={iconUrl || dummyImageSrc}
         isVisible={isVisible}
@@ -66,7 +67,6 @@ export const HypelabTextPromotion: FC<Omit<SingleProviderPromotionProps, 'varian
         pageName={pageName}
         onAdRectSeen={onAdRectSeen}
         onImageError={onError}
-        onClose={onClose}
       />
     </Native>
   );

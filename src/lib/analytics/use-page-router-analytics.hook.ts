@@ -4,7 +4,7 @@ import { fromAssetSlug } from 'lib/assets';
 
 import { useAnalytics } from './use-analytics.hook';
 
-const pageRoutesWithToken = ['/explore', '/send', '/collectible'];
+const pageRoutesWithToken = ['/send', '/token', '/collectible'];
 const pageRoutesWithQueryParams = ['/swap'];
 
 export const usePageRouterAnalytics = (pathname: string, search: string, isContextReady: boolean) => {
@@ -16,10 +16,11 @@ export const usePageRouterAnalytics = (pathname: string, search: string, isConte
     }
 
     if (pageRoutesWithToken.some(route => pathname.startsWith(route))) {
-      const [, route = '', tokenSlug = 'tez'] = pathname.split('/');
+      const [, route = '', chainId = '', tokenSlug = 'tez'] = pathname.split('/');
       const [tokenAddress, tokenId] = fromAssetSlug(tokenSlug);
 
       return void pageEvent(`/${route}`, search, {
+        chainId,
         tokenAddress,
         tokenId
       });

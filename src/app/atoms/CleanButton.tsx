@@ -1,33 +1,30 @@
-import React, { FC, HTMLAttributes, useMemo } from 'react';
+import React, { memo, useMemo } from 'react';
 
-import classNames from 'clsx';
+import clsx from 'clsx';
 
-import { ReactComponent as CloseIcon } from 'app/icons/close.svg';
-import { t } from 'lib/i18n';
+import { ReactComponent as CleanIcon } from 'app/icons/base/x_circle_fill.svg';
+import { T, t } from 'lib/i18n';
 import useTippy from 'lib/ui/useTippy';
 
-type CleanButtonProps = HTMLAttributes<HTMLButtonElement> & {
-  bottomOffset?: string;
-  iconClassName?: string;
-  iconStyle?: React.CSSProperties;
-};
+import { IconBase, Size } from './IconBase';
+
+interface Props {
+  className?: string;
+  size?: Size;
+  showText?: boolean;
+  onClick: EmptyFn;
+}
 
 export const CLEAN_BUTTON_ID = 'CLEAN_BUTTON_ID';
 
-const CleanButton: FC<CleanButtonProps> = ({
-  bottomOffset = '0.4rem',
-  className,
-  iconClassName,
-  style = {},
-  iconStyle = {},
-  ...rest
-}) => {
+const CleanButton = memo<Props>(({ className, size = 12, showText, onClick }) => {
   const tippyProps = useMemo(
     () => ({
       trigger: 'mouseenter',
       hideOnClick: false,
       content: t('clean'),
-      animation: 'shift-away-subtle'
+      animation: 'shift-away-subtle',
+      placement: 'bottom' as const
     }),
     []
   );
@@ -37,25 +34,20 @@ const CleanButton: FC<CleanButtonProps> = ({
   return (
     <button
       id={CLEAN_BUTTON_ID}
-      ref={buttonRef}
+      ref={showText ? undefined : buttonRef}
       type="button"
-      className={classNames(
-        'absolute',
-        'border rounded-full shadow-sm hover:shadow',
-        'bg-white',
-        'p-px',
-        'flex items-center',
-        'text-xs text-gray-700',
-        'transition ease-in-out duration-200',
-        className
-      )}
-      style={{ right: '0.4rem', bottom: bottomOffset, ...style }}
+      className={clsx(className, 'flex items-center ease-in-out duration-200', showText && 'px-1 py-0.5')}
       tabIndex={-1}
-      {...rest}
+      onClick={onClick}
     >
-      <CloseIcon className={classNames('w-auto h-4 stroke-current', iconClassName)} style={iconStyle} />
+      {showText && (
+        <span className="text-font-description-bold text-grey-1">
+          <T id="clear" />
+        </span>
+      )}
+      <IconBase Icon={CleanIcon} size={size} className="text-grey-2" />
     </button>
   );
-};
+});
 
 export default CleanButton;

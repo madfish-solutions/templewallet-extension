@@ -1,18 +1,19 @@
-import React, { memo, useMemo, useState } from 'react';
+import React, { FC, memo, ReactNode, useMemo, useState } from 'react';
 
 import browser from 'webextension-polyfill';
 
+import { FormSubmitButton } from 'app/atoms';
 import { AppUpdateDetails, useStoredAppUpdateDetails } from 'app/storage/app-update/use-value.hook';
 import { EmojiInlineIcon } from 'lib/icons/emoji';
 import { useDidMount } from 'lib/ui/hooks';
-
-import { Banner } from './Banner';
+import { useIntersectionObserver } from 'lib/ui/use-intersection-observer';
 
 interface Props {
-  popup?: boolean;
+  stickyBarRef: React.RefObject<HTMLDivElement>;
 }
 
-export const UpdateAppBanner = memo<Props>(({ popup }) => {
+// ts-prune-ignore-next
+export const UpdateAppBanner: FC<Props> = ({ stickyBarRef }) => {
   const [storedUpdateDetails, setStoredUpdateDetails] = useStoredAppUpdateDetails();
 
   const [checkedUpdateDetails, setCheckedUpdateDetails] = useState<AppUpdateDetails>();
@@ -44,7 +45,7 @@ export const UpdateAppBanner = memo<Props>(({ popup }) => {
   if (!onUpdateButtonPress) return null;
 
   return (
-    <Banner
+    <BannerBase
       title="Update your Temple Wallet extension!"
       description={
         <>
@@ -55,8 +56,41 @@ export const UpdateAppBanner = memo<Props>(({ popup }) => {
         </>
       }
       actionName="Update now"
-      popup={popup}
+      stickyBarRef={stickyBarRef}
       onActionClick={onUpdateButtonPress}
     />
+  );
+};
+
+interface BannerBaseProps {
+  title: ReactNode;
+  description: ReactChildren;
+  actionName: ReactNode;
+  stickyBarRef: React.RefObject<HTMLDivElement>;
+  onActionClick?: EmptyFn;
+}
+
+const BannerBase = memo<BannerBaseProps>(({ title, description, actionName, stickyBarRef, onActionClick }) => {
+  const [stickyBarHeight, setStickyBarHeight] = useState(0);
+
+  useIntersectionObserver(stickyBarRef, entry => void setStickyBarHeight(entry.boundingClientRect.height), {});
+
+  const style = useMemo(
+    () => ({
+      top: stickyBarHeight + 12
+    }),
+    [stickyBarHeight]
+  );
+
+  return (
+    <div className="sticky z-25 flex flex-col p-3 mb-3 bg-white rounded-md shadow-lg" style={style}>
+      <h5 className="text-sm font-inter font-medium leading-4 text-gray-910">{title}</h5>
+
+      <p className="mt-1 text-xs font-inter leading-5 text-gray-700">{description}</p>
+
+      <FormSubmitButton slim className="mt-3" onClick={onActionClick}>
+        {actionName}
+      </FormSubmitButton>
+    </div>
   );
 });

@@ -2,20 +2,24 @@ import type { Action } from 'redux';
 import { combineEpics, createEpicMiddleware } from 'redux-observable';
 import { catchError } from 'rxjs/operators';
 
-import { notificationsEpics } from 'lib/notifications';
-
 import { abTestingEpics } from './ab-testing/epics';
+import { accountsInitializationEpics } from './accounts-initialization/epics';
 import { advertisingEpics } from './advertising/epics';
-import { assetsEpics } from './assets/epics';
-import { balancesEpics } from './balances/epics';
 import { buyWithCreditCardEpics } from './buy-with-credit-card/epics';
-import { collectiblesEpics } from './collectibles/epics';
-import { collectiblesMetadataEpics } from './collectibles-metadata/epics';
+import { cryptoExchangeEpics } from './crypto-exchange/epics';
 import { currencyEpics } from './currency/epics';
+import { evmBalancesEpics } from './evm/balances/epics';
+import { evmNoCategoryAssetsMetadataEpics } from './evm/no-category-assets-metadata/epics';
+import { notificationsEpics } from './notifications/epics';
 import { rewardsEpics } from './rewards/epics';
 import type { RootState } from './root-state.type';
 import { swapEpics } from './swap/epics';
-import { tokensMetadataEpics } from './tokens-metadata/epics';
+import { assetsEpics } from './tezos/assets/epics';
+import { balancesEpics } from './tezos/balances/epics';
+import { collectiblesEpics } from './tezos/collectibles/epics';
+import { collectiblesMetadataEpics } from './tezos/collectibles-metadata/epics';
+import { tezosNoCategoryAssetsMetadataEpics } from './tezos/no-category-assets-metadata/epics';
+import { tokensMetadataEpics } from './tezos/tokens-metadata/epics';
 
 const allEpics = combineEpics(
   currencyEpics,
@@ -26,10 +30,15 @@ const allEpics = combineEpics(
   assetsEpics,
   tokensMetadataEpics,
   collectiblesMetadataEpics,
+  tezosNoCategoryAssetsMetadataEpics,
+  evmNoCategoryAssetsMetadataEpics,
   abTestingEpics,
+  cryptoExchangeEpics,
   buyWithCreditCardEpics,
   collectiblesEpics,
-  rewardsEpics
+  rewardsEpics,
+  evmBalancesEpics,
+  accountsInitializationEpics
 );
 
 export const epicMiddleware = createEpicMiddleware<Action, Action, RootState>();

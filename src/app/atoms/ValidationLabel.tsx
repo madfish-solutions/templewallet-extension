@@ -8,11 +8,11 @@ interface ValidationLabelProps {
 }
 
 const statusesClassNames = {
-  default: 'border-gray-300 bg-gray-200 text-gray-600',
-  success: 'border-green-500 bg-opacity-15 bg-green-500 text-green-500',
-  error: 'border-red-600 bg-red-700 bg-opacity-15 text-red-600'
+  default: 'border-lines bg-grey-4 text-grey-1',
+  success: 'border-success bg-success-low text-success',
+  error: 'border-error bg-error-low text-error'
 };
 
 export const ValidationLabel = memo<ValidationLabelProps>(({ text, status }) => (
-  <div className={clsx('px-3 py-0.5 rounded border-0.5 text-xs leading-5', statusesClassNames[status])}>{text}</div>
+  <div className={clsx('px-3 py-1 rounded border-0.5 text-font-small', statusesClassNames[status])}>{text}</div>
 ));

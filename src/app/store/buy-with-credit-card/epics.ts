@@ -51,9 +51,9 @@ const updatePairLimitsEpic: Epic<Action, Action, RootState> = (action$, state$) 
     ofType(updatePairLimitsActions.submit),
     withLatestFrom(state$),
     switchMap(([{ payload }, rootState]) => {
-      const { fiatSymbol, cryptoSymbol } = payload;
+      const { fiatSymbol, cryptoSlug } = payload;
       const { currencies } = rootState.buyWithCreditCard;
-      const currentLimits = rootState.buyWithCreditCard.pairLimits[fiatSymbol]?.[cryptoSymbol];
+      const currentLimits = rootState.buyWithCreditCard.pairLimits[fiatSymbol]?.[cryptoSlug];
 
       return forkJoin(
         allTopUpProviderIds.map(providerId => {
@@ -66,7 +66,7 @@ const updatePairLimitsEpic: Epic<Action, Action, RootState> = (action$, state$) 
             return of(createEntity(undefined, false, PAIR_NOT_FOUND_MESSAGE));
 
           const fiatCurrency = fiatCurrencies.find(({ code }) => code === fiatSymbol);
-          const cryptoCurrency = cryptoCurrencies.find(({ code }) => code === cryptoSymbol);
+          const cryptoCurrency = cryptoCurrencies.find(({ slug }) => slug === cryptoSlug);
 
           if (isDefined(fiatCurrency) && isDefined(cryptoCurrency)) {
             return from(getUpdatedFiatLimits(fiatCurrency, cryptoCurrency, providerId));
@@ -78,7 +78,7 @@ const updatePairLimitsEpic: Epic<Action, Action, RootState> = (action$, state$) 
         map(([moonPayData, utorgData]) =>
           updatePairLimitsActions.success({
             fiatSymbol,
-            cryptoSymbol,
+            cryptoSlug,
             limits: {
               [TopUpProviderId.MoonPay]: moonPayData,
               [TopUpProviderId.Utorg]: utorgData

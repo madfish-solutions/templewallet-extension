@@ -1,12 +1,13 @@
-import React, { Dispatch, FC, SetStateAction, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { FC, FocusEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { emptyFn } from '@rnw-community/shared';
 import bip39WordList from 'bip39/src/wordlists/english.json';
-import classNames from 'clsx';
+import clsx from 'clsx';
 import debounce from 'debounce-promise';
 
 import { FormField, FormFieldElement } from 'app/atoms/FormField';
 import type { TestIDProperty } from 'lib/analytics';
+import { useFocusHandlers } from 'lib/ui/hooks/use-focus-handlers';
 
 export interface SeedWordInputProps extends TestIDProperty {
   id: number;
@@ -15,7 +16,7 @@ export interface SeedWordInputProps extends TestIDProperty {
   submitted: boolean;
   revealRef: unknown;
   onReveal: EmptyFn;
-  setWordSpellingErrorsCount: Dispatch<SetStateAction<number>>;
+  setWordSpellingErrorsCount: ReactSetStateFn<number>;
   onSeedWordChange: (index: number, value: string) => void;
   value?: string;
   onChange?: (e: React.ChangeEvent<FormFieldElement>) => void;
@@ -38,11 +39,20 @@ export const SeedWordInput: FC<SeedWordInputProps> = ({
 }) => {
   const variantsRef = useRef<Array<HTMLButtonElement | null>>([]);
 
-  const [isBlur, setIsBlur] = useState(true);
   const [isWordSpellingError, setIsWordSpellingError] = useState(false);
 
   const [showAutoComplete, setShowAutoComplete] = useState(false);
   const [focusedVariantIndex, setFocusedVariantIndex] = useState(-1);
+
+  const shouldHandleBlur = useCallback((e: FocusEvent) => !checkRelatedTarget(id, e.relatedTarget?.id), [id]);
+  const unsetFocusedVariantIndex = useCallback(() => setFocusedVariantIndex(-1), []);
+  const {
+    isFocused,
+    onFocus: handleFocus,
+    onBlur: handleBlur,
+    setIsFocused
+  } = useFocusHandlers(undefined, unsetFocusedVariantIndex, undefined, shouldHandleBlur);
+  const isBlur = !isFocused;
 
   const autoCompleteVariants = useMemo(
     () => (value ? bip39WordList.filter(word => word.startsWith(value)).slice(0, 3) : null),
@@ -51,7 +61,7 @@ export const SeedWordInput: FC<SeedWordInputProps> = ({
 
   const debouncedSetIsWordSpellingError = useMemo(() => debounce(setIsWordSpellingError, 200), []);
 
-  const errorCaption = (submitted && !value) || isWordSpellingError;
+  const warning = (submitted && !value) || isWordSpellingError;
 
   useEffect(() => {
     if (isWordSpellingError) {
@@ -105,9 +115,9 @@ export const SeedWordInput: FC<SeedWordInputProps> = ({
         onSeedWordChange(id, variant);
         inputsRef.current[id]!.value = variant;
       }
-      setIsBlur(true);
+      setIsFocused(false);
     },
-    [id, inputsRef, onSeedWordChange]
+    [id, inputsRef, onSeedWordChange, setIsFocused]
   );
 
   const handleVariantClick = useCallback(
@@ -116,18 +126,6 @@ export const SeedWordInput: FC<SeedWordInputProps> = ({
       setValueToVariant(variant);
     },
     [setValueToVariant]
-  );
-
-  const handleBlur = useCallback(
-    (e: React.FocusEvent) => {
-      if (checkRelatedTarget(id, e.relatedTarget?.id)) {
-        return;
-      }
-
-      setIsBlur(true);
-      setFocusedVariantIndex(-1);
-    },
-    [id]
   );
 
   const handleInputKeyDown = useCallback(
@@ -190,18 +188,20 @@ export const SeedWordInput: FC<SeedWordInputProps> = ({
 
   const setInputRef = useCallback((el: FormFieldElement | null) => (inputsRef.current[id] = el), [id, inputsRef]);
 
-  const handleFocus = useCallback(() => setIsBlur(false), []);
-
   return (
     <div className="flex flex-col relative">
-      <label htmlFor={id.toString()} className="self-center text-gray-500">
-        <p style={{ fontSize: 14 }}>{`#${id + 1}`}</p>
-      </label>
-
       <FormField
+        className={clsx('!text-font-medium rounded-md !caret-secondary', !isBlur && 'border border-secondary')}
+        extraLeftInner={
+          <div className="absolute flex items-center inset-y-0 pointer-events-none ml-2">
+            <span className="text-font-medium text-grey-2">{id + 1}.</span>
+          </div>
+        }
+        extraLeftInnerWrapper="none"
         ref={setInputRef}
         type="password"
         id={id.toString()}
+        warning={warning}
         onChange={onChange}
         onBlur={handleBlur}
         value={value}
@@ -212,23 +212,25 @@ export const SeedWordInput: FC<SeedWordInputProps> = ({
         autoComplete="off"
         smallPaddings
         fieldWrapperBottomMargin={false}
+        reserveSpaceForError={false}
         testID={testID}
-        errorCaption={errorCaption}
-        style={{ backgroundColor: 'white' }}
         onKeyDown={handleInputKeyDown}
       />
       {showAutoComplete && autoCompleteVariants && autoCompleteVariants.length > 0 && (
-        <div className="w-full rounded-md bg-gray-100 text-gray-700 text-lg leading-tight absolute left-0 z-50 px-2 pb-2 top-18 shadow-lg flex flex-col">
+        <div
+          className={clsx(
+            'w-full rounded-md bg-white shadow-bottom text-font-description absolute left-0 z-dropdown p-2',
+            'top-12 shadow-lg flex flex-col'
+          )}
+        >
           {autoCompleteVariants.map((variant, index) => (
             <button
               key={variant}
               id="autoCompleteVariant"
               ref={el => (variantsRef.current[index] = el)}
-              className={classNames(
-                'mt-2 px-3 py-2 w-full text-left rounded text-gray-600',
-                'hover:text-gray-910 hover:bg-gray-200',
-                'focus:text-gray-910 focus:bg-gray-200 focus:outline-none',
-                index === 0 && focusedVariantIndex === -1 && 'text-gray-910 bg-gray-200'
+              className={clsx(
+                'px-2 py-2.5 w-full text-left rounded-md',
+                'hover:bg-secondary-low focus:bg-secondary-low focus:outline-none'
               )}
               onClick={e => handleVariantClick(e, variant)}
               onBlur={handleBlur}

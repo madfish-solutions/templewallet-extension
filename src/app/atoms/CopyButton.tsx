@@ -1,102 +1,71 @@
-import React, { FC, HTMLAttributes, useMemo } from 'react';
+import React, { FC, HTMLAttributes, MouseEventHandler, useCallback, useMemo } from 'react';
 
-import classNames from 'clsx';
+import clsx from 'clsx';
 
-import { AnalyticsEventCategory, setTestID, TestIDProps, useAnalytics } from 'lib/analytics';
+import { toastSuccess } from 'app/toaster';
+import { AnalyticsEventCategory, TestIDProps, setTestID, useAnalytics } from 'lib/analytics';
 import { t } from 'lib/i18n';
 import useCopyToClipboard from 'lib/ui/useCopyToClipboard';
 import useTippy from 'lib/ui/useTippy';
 
-const TEXT_SHADES = {
-  500: 'text-gray-500',
-  600: 'text-gray-600',
-  700: 'text-gray-700'
-};
+export interface CopyButtonProps extends HTMLAttributes<HTMLButtonElement>, TestIDProps {
+  text: string;
+  isSecret?: boolean;
+  shouldShowTooltip?: boolean;
+}
 
-const BG_SHADES = {
-  100: 'bg-gray-100 hover:bg-gray-200',
-  200: 'bg-gray-200 hover:bg-gray-300'
-};
-
-export type CopyButtonProps = HTMLAttributes<HTMLButtonElement> &
-  TestIDProps & {
-    bgShade?: 100 | 200;
-    rounded?: 'sm' | 'base';
-    text: string;
-    small?: boolean;
-    type?: 'button' | 'link';
-    textShade?: 500 | 600 | 700;
-  };
-
-const CopyButton: FC<CopyButtonProps> = ({
-  bgShade = 100,
-  children,
+export const CopyButton: FC<CopyButtonProps> = ({
   text,
-  small = false,
-  className,
-  type = 'button',
-  rounded = 'sm',
-  textShade = 600,
   testID,
   testIDProperties,
+  shouldShowTooltip,
+  children,
+  isSecret,
+  className,
+  onClick,
   ...rest
 }) => {
   const { trackEvent } = useAnalytics();
-  const { fieldRef, copy, copied, setCopied } = useCopyToClipboard();
+  const { fieldRef, copy } = useCopyToClipboard();
 
   const tippyProps = useMemo(
     () => ({
       trigger: 'mouseenter',
-      hideOnClick: false,
-      content: copied ? t('copiedHash') : t('copyHashToClipboard'),
+      hideOnClick: true,
+      content: t('copyHashToClipboard'),
       animation: 'shift-away-subtle',
-      onHidden() {
-        setCopied(false);
-      }
+      placement: 'bottom-end' as const
     }),
-    [copied, setCopied]
+    []
   );
 
   const buttonRef = useTippy<HTMLButtonElement>(tippyProps);
 
-  const handleCopyPress = () => {
-    testID && trackEvent(testID, AnalyticsEventCategory.ButtonPress, testIDProperties);
+  const handleCopyPress = useCallback<MouseEventHandler<HTMLButtonElement>>(
+    e => {
+      testID && trackEvent(testID, AnalyticsEventCategory.ButtonPress, testIDProperties);
 
-    return copy();
-  };
-
-  const classNameMemo = useMemo(
-    () =>
-      type === 'button'
-        ? classNames(
-            'font-tnum leading-none select-none',
-            'transition ease-in-out duration-300',
-            rounded === 'base' ? 'rounded' : 'rounded-sm',
-            small ? 'text-xs p-1' : 'text-sm py-1 px-2',
-            BG_SHADES[bgShade],
-            TEXT_SHADES[textShade],
-            className
-          )
-        : classNames('hover:underline', className),
-    [type, className, rounded, small, bgShade, textShade]
+      copy();
+      toastSuccess(t('copiedHash'));
+      onClick?.(e);
+    },
+    [copy, testID, testIDProperties, trackEvent]
   );
 
   return (
     <>
       <button
-        ref={buttonRef}
+        ref={shouldShowTooltip ? buttonRef : undefined}
         type="button"
-        className={classNameMemo}
-        {...rest}
+        className={clsx('w-fit', className)}
         onClick={handleCopyPress}
+        {...rest}
         {...setTestID(testID)}
       >
         {children}
       </button>
 
-      <input ref={fieldRef} value={text} readOnly className="sr-only" />
+      <input type={isSecret ? 'password' : 'text'} ref={fieldRef} value={text} readOnly className="sr-only" />
     </>
   );
 };
-
-export default CopyButton;

@@ -4,12 +4,10 @@
 
 import BigNumber from 'bignumber.js';
 
-import { DEFAULT_DERIVATION_PATH } from 'app/defaults';
+import { DEFAULT_TEZOS_DERIVATION_PATH } from 'lib/constants';
 
 import * as FrontHelpers from '../front/helpers';
 import * as Helpers from '../helpers';
-
-let address: string;
 
 describe('Helpers', () => {
   it('atomsToTokens', async () => {
@@ -51,45 +49,6 @@ describe('Helpers', () => {
     });
   });
 
-  it('isAddressValid', async () => {
-    address = 'asdasdasd';
-    expect(Helpers.isAddressValid(address)).toBeFalsy();
-
-    address = 'tz1asdasd';
-    expect(Helpers.isAddressValid(address)).toBeFalsy();
-
-    address = 'tz1ZfrERcALBwmAqwonRXYVQBDT9BjNjBHJu';
-    expect(Helpers.isAddressValid(address)).toBeTruthy();
-
-    address = 'tz2Ch1abG7FNiibmV26Uzgdsnfni9XGrk5wD';
-    expect(Helpers.isAddressValid(address)).toBeTruthy();
-
-    address = 'tz3Lfm6CyfSTZ7EgMckptZZGiPxzs9GK59At';
-    expect(Helpers.isAddressValid(address)).toBeTruthy();
-
-    address = 'KT1EyH6KR9STvgiet4ahrtBf7WCnmJovvJa1';
-    expect(Helpers.isAddressValid(address)).toBeTruthy();
-  });
-
-  it('isKTAddress', async () => {
-    address = 'tz3Lfm6CyfSTZ7EgMckptZZGiPxzs9GK59At';
-    expect(Helpers.isKTAddress(address)).toBeFalsy();
-
-    address = 'KT1EyH6KR9STvgiet4ahrtBf7WCnmJovvJa1';
-    expect(Helpers.isKTAddress(address)).toBeTruthy();
-  });
-
-  it('isKTAddress', async () => {
-    address = 'asdasd';
-    expect(FrontHelpers.validateContractAddress(address)).toBe('Translated<invalidAddress>');
-
-    address = 'tz3Lfm6CyfSTZ7EgMckptZZGiPxzs9GK59At';
-    expect(FrontHelpers.validateContractAddress(address)).toBe('Translated<onlyKTContractAddressAllowed>');
-
-    address = 'KT1EyH6KR9STvgiet4ahrtBf7WCnmJovvJa1';
-    expect(FrontHelpers.validateContractAddress(address)).toBeTruthy();
-  });
-
   it('mutezToTz & tzToMutez', async () => {
     expect(Helpers.mutezToTz(1_000_000).toFixed()).toBe('1');
     expect(Helpers.tzToMutez(1).toFixed()).toBe('1000000');
@@ -107,6 +66,6 @@ describe('Helpers', () => {
     expect(FrontHelpers.validateDerivationPath("44'/1729'/0'/0'")).toBe('Translated<derivationPathMustStartWithM>');
     expect(FrontHelpers.validateDerivationPath("m44'/1729'/0'/0'")).toBe('Translated<derivationSeparatorMustBeSlash>');
     expect(FrontHelpers.validateDerivationPath("m/44'/asd'/0'/0'")).toBe('Translated<invalidPath>');
-    expect(FrontHelpers.validateDerivationPath(DEFAULT_DERIVATION_PATH)).toBeTruthy();
+    expect(FrontHelpers.validateDerivationPath(DEFAULT_TEZOS_DERIVATION_PATH)).toBeTruthy();
   });
 });

@@ -2,108 +2,82 @@ import React, { forwardRef, InputHTMLAttributes, useCallback, useEffect, useMemo
 
 import clsx from 'clsx';
 
-import { ReactComponent as OkIcon } from 'app/icons/checkbox-ok.svg';
+import { ReactComponent as CheckmarkEmptyIcon } from 'app/icons/base/checkmark_empty.svg';
+import { ReactComponent as CheckmarkFilledIcon } from 'app/icons/base/checkmark_fill.svg';
 import { TestIDProps, setTestID, useAnalytics, AnalyticsEventCategory } from 'lib/analytics';
-import { blurHandler, checkedHandler, focusHandler } from 'lib/ui/inputHandlers';
+import { useFocusHandlers } from 'lib/ui/hooks/use-focus-handlers';
+import { checkedHandler } from 'lib/ui/inputHandlers';
+
+import { IconBase } from './IconBase';
 
 export interface CheckboxProps
   extends TestIDProps,
-    Pick<InputHTMLAttributes<HTMLInputElement>, 'name' | 'checked' | 'className' | 'onFocus' | 'onBlur' | 'onClick'> {
-  overrideClassNames?: string;
+    Pick<
+      InputHTMLAttributes<HTMLInputElement>,
+      'name' | 'checked' | 'className' | 'onFocus' | 'onBlur' | 'onClick' | 'disabled'
+    > {
   errored?: boolean;
   onChange?: (checked: boolean, event: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
-const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
-  (
-    {
-      overrideClassNames,
-      errored = false,
-      className,
-      checked,
-      onChange,
-      onFocus,
-      onBlur,
-      testID,
-      testIDProperties,
-      ...rest
+interface Props extends CheckboxProps {
+  overrideClassNames?: string;
+}
+
+export const Checkbox = forwardRef<HTMLInputElement, Props>((props, ref) => {
+  const { overrideClassNames, errored = false, className, testID, disabled, ...rest } = props;
+
+  const { localChecked, localFocused, handleChange, handleFocus, handleBlur } = useCheckboxHooks(props);
+
+  const containerClassName = useMemo(
+    () =>
+      clsx(
+        'flex justify-center items-center flex-shrink-0 transition ease-in-out duration-200 disable-outline-for-click',
+        localFocused && 'shadow-outline',
+        !disabled && 'cursor-pointer'
+      ),
+    [localFocused, disabled]
+  );
+
+  return (
+    <div className={containerClassName} {...setTestID(testID)}>
+      <input
+        {...rest}
+        disabled={disabled}
+        ref={ref}
+        type="checkbox"
+        className={clsx('sr-only', className)}
+        checked={localChecked}
+        onChange={handleChange}
+        onFocus={handleFocus}
+        onBlur={handleBlur}
+      />
+
+      <IconBase size={16} Icon={localChecked ? CheckmarkFilledIcon : CheckmarkEmptyIcon} className="text-primary" />
+    </div>
+  );
+});
+
+export const useCheckboxHooks = ({ checked, onChange, onFocus, onBlur, testID, testIDProperties }: CheckboxProps) => {
+  const [localChecked, setLocalChecked] = useState(() => checked ?? false);
+
+  const { trackEvent } = useAnalytics();
+
+  useEffect(() => {
+    setLocalChecked(prevChecked => checked ?? prevChecked);
+  }, [setLocalChecked, checked]);
+
+  const handleChange = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      const { checked: toChecked } = event.target;
+      checkedHandler(event, onChange && (() => onChange(toChecked, event)), setLocalChecked);
+
+      testID && trackEvent(testID, AnalyticsEventCategory.CheckboxChange, { toChecked, ...testIDProperties });
     },
-    ref
-  ) => {
-    const [localChecked, setLocalChecked] = useState(() => checked ?? false);
+    [onChange, setLocalChecked, trackEvent, testID, testIDProperties]
+  );
 
-    const { trackEvent } = useAnalytics();
+  const { isFocused: localFocused, onFocus: handleFocus, onBlur: handleBlur } = useFocusHandlers(onFocus, onBlur);
 
-    useEffect(() => {
-      setLocalChecked(prevChecked => checked ?? prevChecked);
-    }, [setLocalChecked, checked]);
-
-    const handleChange = useCallback(
-      (event: React.ChangeEvent<HTMLInputElement>) => {
-        const { checked: toChecked } = event.target;
-        checkedHandler(event, onChange && (() => onChange(toChecked, event)), setLocalChecked);
-
-        testID && trackEvent(testID, AnalyticsEventCategory.CheckboxChange, { toChecked, ...testIDProperties });
-      },
-      [onChange, setLocalChecked, trackEvent, testID, testIDProperties]
-    );
-
-    /**
-     * Focus handling
-     */
-    const [localFocused, setLocalFocused] = useState(false);
-
-    const handleFocus = useCallback(
-      (e: React.FocusEvent<HTMLInputElement>) => focusHandler(e, onFocus!, setLocalFocused),
-      [onFocus, setLocalFocused]
-    );
-    const handleBlur = useCallback(
-      (e: React.FocusEvent<HTMLInputElement>) => blurHandler(e, onBlur!, setLocalFocused),
-      [onBlur, setLocalFocused]
-    );
-
-    const classNameMemo = useMemo(
-      () =>
-        clsx(
-          'flex justify-center items-center flex-shrink-0',
-          'text-white border overflow-hidden',
-          'transition ease-in-out duration-200 disable-outline-for-click',
-          localChecked ? 'bg-primary-orange' : 'bg-black-40',
-          localFocused && 'shadow-outline',
-          (() => {
-            switch (true) {
-              case localChecked:
-                return 'border-primary-orange';
-              case localFocused:
-                return 'border-primary-orange-focused';
-              case errored:
-                return 'border-red-400';
-              default:
-                return 'border-gray-400';
-            }
-          })(),
-          overrideClassNames || 'h-6 w-6 rounded'
-        ),
-      [localChecked, localFocused, errored, overrideClassNames]
-    );
-
-    return (
-      <div className={classNameMemo} {...setTestID(testID)}>
-        <input
-          ref={ref}
-          type="checkbox"
-          className={clsx('sr-only', className)}
-          checked={localChecked}
-          onChange={handleChange}
-          onFocus={handleFocus}
-          onBlur={handleBlur}
-          {...rest}
-        />
-
-        <OkIcon className={clsx('h-4/6 w-4/6 stroke-current pointer-events-none', localChecked ? 'block' : 'hidden')} />
-      </div>
-    );
-  }
-);
-
-export default Checkbox;
+  return { localChecked, localFocused, handleChange, handleFocus, handleBlur };
+};

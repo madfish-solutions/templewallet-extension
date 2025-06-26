@@ -1,30 +1,210 @@
-import React, { FC, HTMLAttributes, memo, useCallback, useState } from 'react';
+import React, { HTMLAttributes, memo, useCallback, useMemo, useState } from 'react';
 
 import classNames from 'clsx';
+import browser from 'webextension-polyfill';
 
-type FlagProps = {
+const atlasCountriesCodes = [
+  'ae',
+  'af',
+  'al',
+  'am',
+  'ao',
+  'ar',
+  'au',
+  'aw',
+  'az',
+  'ba',
+  'bb',
+  'bd',
+  'bg',
+  'bh',
+  'bi',
+  'bm',
+  'bn',
+  'bo',
+  'br',
+  'bs',
+  'bt',
+  'bw',
+  'by',
+  'bz',
+  'ca',
+  'cd',
+  'ch',
+  'cl',
+  'cn',
+  'co',
+  'cr',
+  'cu',
+  'cv',
+  'cz',
+  'de',
+  'dj',
+  'dk',
+  'do',
+  'dz',
+  'eg',
+  'er',
+  'et',
+  'eu',
+  'fj',
+  'fk',
+  'fr',
+  'gb',
+  'ge',
+  'gh',
+  'gi',
+  'gm',
+  'gn',
+  'gt',
+  'gy',
+  'hk',
+  'hn',
+  'hr',
+  'ht',
+  'hu',
+  'id',
+  'il',
+  'in',
+  'iq',
+  'ir',
+  'is',
+  'jm',
+  'jo',
+  'jp',
+  'kg',
+  'kh',
+  'km',
+  'ke',
+  'kp',
+  'kr',
+  'kw',
+  'ky',
+  'kz',
+  'la',
+  'lb',
+  'lk',
+  'lr',
+  'ls',
+  'ly',
+  'ma',
+  'md',
+  'mg',
+  'mk',
+  'mm',
+  'mn',
+  'mo',
+  'mr',
+  'mu',
+  'mv',
+  'mw',
+  'mx',
+  'my',
+  'mz',
+  'na',
+  'ng',
+  'ni',
+  'no',
+  'np',
+  'nz',
+  'om',
+  'pa',
+  'pe',
+  'pg',
+  'ph',
+  'pk',
+  'pl',
+  'pt',
+  'py',
+  'qa',
+  'ro',
+  'rs',
+  'ru',
+  'rw',
+  'sa',
+  'sb',
+  'sc',
+  'sd',
+  'se',
+  'sg',
+  'sh',
+  'so',
+  'sr',
+  'ss',
+  'st',
+  'sv',
+  'sy',
+  'sz',
+  'th',
+  'tj',
+  'tm',
+  'tn',
+  'to',
+  'tr',
+  'tt',
+  'tw',
+  'tz',
+  'ua',
+  'ug',
+  'us',
+  'uy',
+  've',
+  'vn',
+  'vu',
+  'ws',
+  'ye',
+  'za',
+  'zm',
+  'zw'
+];
+const atlasRowSize = 12;
+const imageWidth = 40;
+const imageHeight = 30;
+
+interface FlagProps {
   alt: string;
+  countryCode?: string;
   className?: string;
   src?: string;
-};
+}
 
-const Flag: FC<FlagProps> = props => {
-  const { alt, className, src } = props;
+export const Flag = memo<FlagProps>(({ alt, className, countryCode, src }) => {
   const [error, setError] = useState(false);
+
+  const bgFromAtlasStyle = useMemo(() => {
+    if (src || !countryCode) {
+      return undefined;
+    }
+
+    const index = atlasCountriesCodes.indexOf(countryCode);
+
+    if (index === -1) {
+      return undefined;
+    }
+
+    const row = Math.floor(index / atlasRowSize);
+    const col = index % atlasRowSize;
+
+    return {
+      backgroundImage: `url(${browser.runtime.getURL('/misc/country-flags/atlas.png')})`,
+      backgroundPosition: `${-(col * imageWidth) / 2}px ${-(row * imageHeight) / 2}px`,
+      backgroundSize: `${atlasRowSize * 1.25}rem`
+    };
+  }, [countryCode, src]);
 
   const handleError = useCallback(() => {
     setError(true);
   }, [setError]);
 
-  if (!src) {
-    return <FlagStub className="w-6 h-auto" />;
-  }
-
   return (
-    <div className={classNames('w-6 flex justify-center items-center', className)} style={{ height: '1.3125rem' }}>
-      {src ? (
+    <div className={classNames('w-6 h-6 flex justify-center items-center', className)}>
+      {src || bgFromAtlasStyle ? (
         <>
-          <img alt={alt} className={classNames({ hidden: error })} src={src} onError={handleError} />
+          {src ? (
+            <img alt={alt} className={classNames({ hidden: error }, 'w-5 h-auto')} src={src} onError={handleError} />
+          ) : (
+            <div className="w-5 aspect-[4/3]" style={bgFromAtlasStyle} />
+          )}
           {error && <FlagStub className="w-6 h-auto" />}
         </>
       ) : (
@@ -32,9 +212,7 @@ const Flag: FC<FlagProps> = props => {
       )}
     </div>
   );
-};
-
-export default Flag;
+});
 
 const FlagStub = memo((props: HTMLAttributes<unknown>) => (
   <svg

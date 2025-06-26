@@ -1,4 +1,4 @@
-import { BrowserContext } from '../classes/browser-context.class';
+import { CustomBrowserContext } from '../classes/browser-context.class';
 
 import { envVars } from './env.utils';
 
@@ -93,9 +93,9 @@ export const iSelectTokensNames = {
 };
 
 export const clearDataFromCurrentInput = async () => {
-  await BrowserContext.page.keyboard.press('End');
-  await BrowserContext.page.keyboard.down('Shift');
-  await BrowserContext.page.keyboard.press('Home');
-  await BrowserContext.page.keyboard.up('Shift');
-  await BrowserContext.page.keyboard.press('Backspace');
+  await CustomBrowserContext.page.keyboard.press('End');
+  await CustomBrowserContext.page.keyboard.down('Shift');
+  await CustomBrowserContext.page.keyboard.press('Home');
+  await CustomBrowserContext.page.keyboard.up('Shift');
+  await CustomBrowserContext.page.keyboard.press('Backspace');
 };

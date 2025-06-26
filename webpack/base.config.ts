@@ -6,6 +6,7 @@
 import ESLintPlugin from 'eslint-webpack-plugin';
 import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 import * as path from 'path';
+import postcssPresetEnv from 'postcss-preset-env';
 import ForkTsCheckerWebpackPlugin from 'react-dev-utils/ForkTsCheckerWebpackPlugin';
 import getCSSModuleLocalIdent from 'react-dev-utils/getCSSModuleLocalIdent';
 import ModuleNotFoundPlugin from 'react-dev-utils/ModuleNotFoundPlugin';
@@ -13,6 +14,7 @@ import resolve from 'resolve';
 import TerserPlugin from 'terser-webpack-plugin';
 import WebPack from 'webpack';
 
+import { Config as SvgrLoaderOptions } from '../node_modules/@svgr/core/dist';
 import packageJSON from '../package.json';
 import tsConfig from '../tsconfig.json';
 
@@ -45,6 +47,8 @@ const CSS_MODULE_REGEX = /\.module\.css$/;
 export const buildBaseConfig = (): WebPack.Configuration & Pick<WebPack.WebpackOptionsNormalized, 'devServer'> => ({
   mode: WEBPACK_MODE,
   bail: PRODUCTION_ENV,
+  /** Will pick-up on `.browserslistrc` */
+  target: 'browserslist',
   devtool: SOURCE_MAP && 'inline-cheap-module-source-map',
 
   output: {
@@ -77,7 +81,7 @@ export const buildBaseConfig = (): WebPack.Configuration & Pick<WebPack.WebpackO
 
     alias: {
       /*
-        Exports of `punycode@2.1.1/punycode.js` & `punycode@2.1.1/punycode.es6.js` are different.
+        Exports of `punycode@2.3.0/punycode.js` & `punycode@2.3.0/punycode.es6.js` are different.
         We need the former ones (e.g. `idna-uts46-hx` relies on it).
       */
       punycode$: require.resolve('punycode/punycode.js')
@@ -105,69 +109,33 @@ export const buildBaseConfig = (): WebPack.Configuration & Pick<WebPack.WebpackO
               }
             }
           },
+          // # SVGs. See: https://react-svgr.com/docs/webpack
           {
-            test: /\.svg$/,
-            issuer: {
-              and: [/\.(ts|tsx|js|jsx|md|mdx)$/]
-            },
+            test: /\.svg$/i,
+            type: 'asset/resource',
+            resourceQuery: /url/ // *.svg?url
+          },
+          {
+            test: /\.svg$/i,
+            issuer: /\.tsx?$/,
+            resourceQuery: { not: /url/ }, // exclude react component if *.svg?url
             use: [
               {
                 loader: require.resolve('@svgr/webpack'),
-                options: {
-                  prettier: false,
-                  svgo: false,
-                  svgoConfig: {
-                    plugins: [{ removeViewBox: false }]
-                  },
-                  titleProp: true,
-                  ref: true
-                }
-              },
-              {
-                /* `type: 'asset/resource'` is not applicable here - WebPack bug. Had to go with `file-loader` */
-                loader: require.resolve('file-loader'),
-                options: {
-                  name: 'media/[hash:8].[ext]'
-                }
+                options: svgrLoaderOptions
               }
             ]
           },
-          // Process application JS with Babel.
-          // The preset includes JSX, Flow, TypeScript, and some ESnext features.
           {
-            test: /\.(js|mjs|jsx|ts|tsx)$/,
-            include: PATHS.SOURCE,
-            loader: require.resolve('babel-loader'),
+            test: /\.(ts|mts|cts|tsx)$/,
+            loader: require.resolve('ts-loader'),
             options: {
-              customize: require.resolve('babel-preset-react-app/webpack-overrides'),
-              // This is a feature of `babel-loader` for webpack (not Babel itself).
-              // It enables caching results in ./node_modules/.cache/babel-loader/
-              // directory for faster rebuilds.
-              cacheDirectory: true,
-              // See #6846 for context on why cacheCompression is disabled
-              cacheCompression: false,
-              compact: PRODUCTION_ENV
-            }
-          },
-          // Process any JS outside of the app with Babel.
-          // Unlike the application JS, we only compile the standard ES features.
-          {
-            test: /\.(js|mjs|cjs)$/,
-            exclude: /@babel(?:\/|\\{1,2})runtime/,
-            loader: require.resolve('babel-loader'),
-            options: {
-              babelrc: false,
-              configFile: false,
-              compact: false,
-              presets: [[require.resolve('babel-preset-react-app/dependencies'), { helpers: true }]],
-              cacheDirectory: true,
-              // See #6846 for context on why cacheCompression is disabled
-              cacheCompression: false,
-              // Babel sourcemaps are needed for debugging into node_modules
-              // code.  Without the options below, debuggers like VSCode
-              // show incorrect code and set breakpoints on the wrong lines.
-              sourceMaps: SOURCE_MAP,
-              inputSourceMap: SOURCE_MAP
+              transpileOnly: true,
+              compilerOptions: {
+                target: 'ESNext',
+                removeComments: PRODUCTION_ENV,
+                sourceMap: SOURCE_MAP
+              }
             }
           },
           // "postcss" loader applies autoprefixer to our CSS.
@@ -180,10 +148,7 @@ export const buildBaseConfig = (): WebPack.Configuration & Pick<WebPack.WebpackO
           {
             test: CSS_REGEX,
             exclude: CSS_MODULE_REGEX,
-            use: getStyleLoaders({
-              importLoaders: 1,
-              sourceMap: SOURCE_MAP
-            }),
+            use: getStyleLoaders(),
             // Don't consider CSS imports dead code even if the
             // containing package claims to have no side effects.
             // Remove this when webpack adds a warning or an error for this.
@@ -194,13 +159,7 @@ export const buildBaseConfig = (): WebPack.Configuration & Pick<WebPack.WebpackO
           // using the extension .module.css
           {
             test: CSS_MODULE_REGEX,
-            use: getStyleLoaders({
-              importLoaders: 1,
-              sourceMap: SOURCE_MAP,
-              modules: {
-                getLocalIdent: getCSSModuleLocalIdent
-              }
-            })
+            use: getStyleLoaders(true)
           },
           // "file" loader makes sure those assets get served by WebpackDevServer.
           // When you `import` an asset, you get its (virtual) filename.
@@ -212,8 +171,8 @@ export const buildBaseConfig = (): WebPack.Configuration & Pick<WebPack.WebpackO
             // Exclude `js` files to keep "css" loader working as it injects
             // its runtime that would otherwise be processed through "file" loader.
             // Also exclude `html` and `json` extensions so they get processed
-            // by webpacks internal loaders.
-            exclude: [/\.(js|mjs|cjs|jsx|ts|tsx)$/, /\.html$/, /\.json$/]
+            // by webpacks internal loaders & `svg` extensions to be processed (as assets) differently (above).
+            exclude: [/\.(js|mjs|cjs|jsx|ts|tsx)$/, /\.html$/, /\.json$/, /\.svg$/]
           }
           // ** STOP ** Are you adding a new loader?
           // Make sure to add the new loader(s) before the "file" loader.
@@ -296,9 +255,6 @@ export const buildBaseConfig = (): WebPack.Configuration & Pick<WebPack.WebpackO
           { file: '**/src/setupProxy.*' },
           { file: '**/src/setupTests.*' }
         ]
-      },
-      logger: {
-        infrastructure: 'silent'
       }
     }),
 
@@ -307,8 +263,9 @@ export const buildBaseConfig = (): WebPack.Configuration & Pick<WebPack.WebpackO
       formatter: require.resolve('react-dev-utils/eslintFormatter'),
       eslintPath: require.resolve('eslint'),
       resolvePluginsRelativeTo: PATHS.CWD,
-      cache: true,
+      cache: DEVELOPMENT_ENV,
       cacheLocation: path.resolve(PATHS.NODE_MODULES, '.cache/.eslintcache'),
+      lintDirtyModulesOnly: DEVELOPMENT_ENV,
       failOnError: true,
       quiet: true
     })
@@ -333,7 +290,7 @@ export const buildBaseConfig = (): WebPack.Configuration & Pick<WebPack.WebpackO
             ecma: 2017 // ES8
           },
           compress: {
-            ecma: 5,
+            ecma: 2017,
             /*
               Disabled because of an issue with Uglify breaking seemingly valid code:
               https://github.com/facebook/create-react-app/issues/2376
@@ -350,13 +307,13 @@ export const buildBaseConfig = (): WebPack.Configuration & Pick<WebPack.WebpackO
             inline: 2,
             drop_console: DROP_CONSOLE_IN_PROD && PRODUCTION_ENV
           },
-          mangle: {
-            safari10: true
-          },
+          // mangle: {
+          //   safari10: true
+          // },
           keep_classnames: false,
           keep_fnames: false,
           output: {
-            ecma: 5,
+            ecma: 2017,
             comments: false,
             /*
               Turned on because emoji and regex is not minified properly using default
@@ -374,7 +331,17 @@ export const buildBaseConfig = (): WebPack.Configuration & Pick<WebPack.WebpackO
   performance: false
 });
 
-function getStyleLoaders(cssOptions = {}) {
+function getStyleLoaders(module = false) {
+  const extraCssOptions = module
+    ? {
+        modules: {
+          namedExport: false,
+          exportLocalsConvention: 'as-is',
+          getLocalIdent: getCSSModuleLocalIdent
+        }
+      }
+    : undefined;
+
   return [
     {
       loader: MiniCssExtractPlugin.loader,
@@ -384,19 +351,22 @@ function getStyleLoaders(cssOptions = {}) {
     },
     {
       loader: require.resolve('css-loader'),
-      options: cssOptions
+      options: {
+        importLoaders: 1,
+        sourceMap: SOURCE_MAP,
+        ...extraCssOptions
+      }
     },
     {
       loader: require.resolve('postcss-loader'),
       options: {
+        sourceMap: SOURCE_MAP,
         postcssOptions: {
           ident: 'postcss',
           plugins: [
             require('postcss-flexbugs-fixes'),
-            require('postcss-preset-env')({
-              autoprefixer: {
-                flexbox: 'no-2009'
-              },
+            postcssPresetEnv({
+              autoprefixer: {},
               stage: 3
             }),
             require('tailwindcss'),
@@ -407,3 +377,14 @@ function getStyleLoaders(cssOptions = {}) {
     }
   ].filter(Boolean);
 }
+
+/** See: https://react-svgr.com/docs/options */
+const svgrLoaderOptions: SvgrLoaderOptions = {
+  typescript: true,
+  exportType: 'named',
+  prettier: false,
+  svgo: false,
+  titleProp: true,
+  ref: true,
+  memo: true
+};

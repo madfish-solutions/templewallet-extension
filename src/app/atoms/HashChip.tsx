@@ -1,11 +1,13 @@
-import React, { ComponentProps, FC, HTMLAttributes } from 'react';
+import React, { ComponentProps, FC } from 'react';
 
-import CopyButton, { CopyButtonProps } from './CopyButton';
+import clsx from 'clsx';
+
+import { getStyledButtonColorsClassNames } from 'lib/ui/use-styled-button-or-link-props';
+
+import { CopyButton, CopyButtonProps } from './CopyButton';
 import HashShortView from './HashShortView';
 
-type HashChipProps = HTMLAttributes<HTMLButtonElement> &
-  ComponentProps<typeof HashShortView> &
-  Pick<CopyButtonProps, 'small' | 'type' | 'bgShade' | 'rounded' | 'textShade'>;
+type HashChipProps = Omit<CopyButtonProps, 'text'> & ComponentProps<typeof HashShortView>;
 
 export const HashChip: FC<HashChipProps> = ({
   hash,
@@ -13,10 +15,19 @@ export const HashChip: FC<HashChipProps> = ({
   trimAfter,
   firstCharsCount,
   lastCharsCount,
-  type = 'button',
+  className,
   ...rest
 }) => (
-  <CopyButton text={hash} type={type} {...rest}>
+  <CopyButton
+    text={hash}
+    className={clsx(
+      getStyledButtonColorsClassNames('secondary-low'),
+      'select-none transition ease-in-out duration-300',
+      'text-font-description px-1 py-0.5 rounded',
+      className
+    )}
+    {...rest}
+  >
     <HashShortView
       hash={hash}
       trimAfter={trimAfter}

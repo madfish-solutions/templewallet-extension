@@ -1,17 +1,9 @@
-import { Browser, Page } from 'puppeteer';
-import { PuppeteerScreenRecorder } from 'puppeteer-screen-recorder';
+import { BrowserContext, Page } from '@playwright/test';
 
-import { envVars } from '../utils/env.utils';
-
-export class BrowserContext {
-  public static EXTENSION_ID: string;
-  public static browser: Browser;
+// eslint-disable-next-line @typescript-eslint/no-extraneous-class
+export class CustomBrowserContext {
+  public static EXTENSION_URL: string;
+  public static browser: BrowserContext;
   public static page: Page;
-  public static seedPhrase = envVars.DEFAULT_HD_ACCOUNT_SEED_PHRASE;
-  public static password = envVars.DEFAULT_PASSWORD;
-  public static recorder: PuppeteerScreenRecorder;
-  public static resetPrivates = () => {
-    BrowserContext.seedPhrase = envVars.DEFAULT_HD_ACCOUNT_SEED_PHRASE;
-    BrowserContext.password = envVars.DEFAULT_PASSWORD;
-  };
+  public static SEED_PHRASE: string;
 }

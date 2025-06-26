@@ -5,19 +5,13 @@ import clsx from 'clsx';
 import { FormSubmitButton } from 'app/atoms';
 import { OverlayCloseButton } from 'app/atoms/OverlayCloseButton';
 import { useAppEnv } from 'app/env';
-import ContentContainer from 'app/layouts/ContentContainer';
 import { useOnboardingProgress } from 'app/pages/Onboarding/hooks/useOnboardingProgress.hook';
 import { dispatch } from 'app/store';
 import { useShouldShowNewsletterModalSelector } from 'app/store/newsletter/newsletter-selectors';
 import { togglePartnersPromotionAction } from 'app/store/partners-promotion/actions';
 import { useShouldShowPartnersPromoSelector } from 'app/store/partners-promotion/selectors';
-import { setPendingReactivateAdsAction, setShowAgreementsCounterAction } from 'app/store/settings/actions';
-import {
-  useIsPendingReactivateAdsSelector,
-  useOnRampPossibilitySelector,
-  useShouldShowTermsOfUseUpdateOverlaySelector
-} from 'app/store/settings/selectors';
-import { MAX_SHOW_AGREEMENTS_COUNTER } from 'lib/constants';
+import { setPendingReactivateAdsAction } from 'app/store/settings/actions';
+import { useIsPendingReactivateAdsSelector, useOnRampAssetSelector } from 'app/store/settings/selectors';
 import { EmojiInlineIcon } from 'lib/icons/emoji';
 import { useLocation } from 'lib/woozie';
 import { HOME_PAGE_PATH } from 'lib/woozie/config';
@@ -38,30 +32,24 @@ export const ReactivateAdsOverlay = memo<Props>(({ onClose }) => {
 
   const shouldShowPartnersPromo = useShouldShowPartnersPromoSelector();
   const isPendingReactivateAds = useIsPendingReactivateAdsSelector();
-  const shouldShowTermsOfUseOverlay = useShouldShowTermsOfUseUpdateOverlaySelector();
 
   const { onboardingCompleted } = useOnboardingProgress();
   const shouldShowNewsletterModal = useShouldShowNewsletterModalSelector();
-  const isOnRampPossibility = useOnRampPossibilitySelector();
+  const onRampAsset = useOnRampAssetSelector();
+  const isOnRampPossibility = Boolean(onRampAsset);
   const { pathname } = useLocation();
 
-  const preventFutureAdsOverlayShow = useCallback(() => {
-    dispatch(setPendingReactivateAdsAction(false));
-    dispatch(setShowAgreementsCounterAction(MAX_SHOW_AGREEMENTS_COUNTER));
-  }, []);
-
-  const close = onClose ?? preventFutureAdsOverlayShow;
+  const close = onClose ?? (() => void dispatch(setPendingReactivateAdsAction(false)));
 
   const reactivate = useCallback(() => {
     dispatch(togglePartnersPromotionAction(true));
-    preventFutureAdsOverlayShow();
     onClose?.();
-  }, [onClose, preventFutureAdsOverlayShow]);
+  }, [onClose]);
 
   const btnTestIDProperties = useMemo(() => ({ forcedModal }), [forcedModal]);
 
   // Never showing if ads are enabled
-  if (shouldShowPartnersPromo || shouldShowTermsOfUseOverlay) return null;
+  if (shouldShowPartnersPromo) return null;
 
   if (
     forcedModal &&
@@ -75,8 +63,8 @@ export const ReactivateAdsOverlay = memo<Props>(({ onClose }) => {
     return null;
 
   return (
-    <div className="fixed inset-0 z-40 flex flex-col items-center justify-center bg-gray-700 bg-opacity-20">
-      <ContentContainer className={clsx('overflow-y-scroll py-4', popup ? 'h-full px-4' : 'px-5')} padding={false}>
+    <div className="fixed inset-0 z-overlay-promo flex flex-col items-center justify-center bg-gray-700 bg-opacity-20">
+      <div className={clsx('w-full max-w-screen-sm mx-auto overflow-y-scroll py-4', popup ? 'h-full px-4' : 'px-5')}>
         <div
           className={clsx(
             'relative flex flex-col bg-white shadow-lg rounded-md overflow-x-hidden',
@@ -168,7 +156,7 @@ export const ReactivateAdsOverlay = memo<Props>(({ onClose }) => {
             receive ads and rewards in TKEY token
           </p>
         </div>
-      </ContentContainer>
+      </div>
     </div>
   );
 });

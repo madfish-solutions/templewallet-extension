@@ -23,14 +23,15 @@ export const ScrollBackUpButton = memo(() => {
 
   const onClick = useCallback(() => void document.documentElement.scrollIntoView({ behavior: 'smooth' }), []);
 
+  if (!shown) return null;
+
   return (
     <Button
       className={clsx(
         'sticky bottom-6',
         'mt-5 mx-auto flex items-center text-gray-600 py-1 px-2 text-sm leading-5 select-none',
-        'bg-white hover:bg-gray-200 rounded shadow-lg',
-        'transition ease-in-out duration-100',
-        shown ? 'cursor-pointer' : 'opacity-0 pointer-events-none'
+        'bg-white hover:bg-gray-200 rounded shadow-lg cursor-pointer',
+        'transition ease-in-out duration-100'
       )}
       onClick={onClick}
       testID="SCROLL_BACK_UP"

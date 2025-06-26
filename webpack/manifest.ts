@@ -70,6 +70,7 @@ const buildManifestV3 = (vendor: string): Manifest.WebExtensionManifest => {
 
     permissions: PERMISSIONS,
     host_permissions: HOST_PERMISSIONS,
+    optional_permissions: ['clipboardRead'],
 
     content_security_policy: {
       extension_pages: "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'"
@@ -94,6 +95,7 @@ const buildManifestV2 = (vendor: string): Manifest.WebExtensionManifest => {
     ...buildManifestCommons(vendor),
 
     permissions: [...PERMISSIONS, ...HOST_PERMISSIONS],
+    optional_permissions: ['clipboardRead'],
 
     /** `blob:` was added due to 3D-models not working in Firefox otherwise. See:
      * https://github.com/madfish-solutions/templewallet-extension/commit/7f170d058e9d628709f0da0759cfee44a0667480
@@ -138,8 +140,8 @@ const buildManifestCommons = (vendor: string): Omit<Manifest.WebExtensionManifes
     // Public key to fixate extension ID
     key: envFilesData._MANIFEST_KEY_,
 
-    name: 'Temple - Tezos Wallet',
-    short_name: 'Temple - Tezos Wallet',
+    name: 'Temple Wallet',
+    short_name: 'Temple Wallet',
 
     icons: {
       '16': 'misc/icon-16.png',
@@ -148,7 +150,7 @@ const buildManifestCommons = (vendor: string): Omit<Manifest.WebExtensionManifes
       '128': 'misc/icon-128.png'
     },
 
-    description: '__MSG_appDesc__',
+    description: 'Seamless and secure multichain wallet for Tezos & EVM blockchains.',
 
     default_locale: 'en',
 
@@ -172,7 +174,7 @@ const buildManifestCommons = (vendor: string): Omit<Manifest.WebExtensionManifes
     }),
 
     ...withVendors('chrome')({ minimum_chrome_version: '103' }),
-    ...withVendors('opera')({ minimum_opera_version: '36' }),
+    ...withVendors('opera')({ minimum_opera_version: '70' }),
 
     ...withVendors('chrome', 'opera')({ options_page: 'options.html' }),
 
@@ -184,7 +186,7 @@ const buildManifestCommons = (vendor: string): Omit<Manifest.WebExtensionManifes
           /* For some URLs from `HOST_PERMISSIONS` & active tabs (with `activeTab` permission) */
           'https://*/*'
         ],
-        js: ['scripts/contentScript.js'],
+        js: ['scripts/main.js'],
         run_at: 'document_start' as const,
         all_frames: true
       },
@@ -194,6 +196,13 @@ const buildManifestCommons = (vendor: string): Omit<Manifest.WebExtensionManifes
         js: ['scripts/replaceAds.js', 'scripts/replaceReferrals.js'],
         run_at: 'document_start' as const,
         all_frames: false
+      },
+      {
+        matches: ['http://*/*', 'https://*/*'],
+        js: ['scripts/inpage.js'],
+        run_at: 'document_start' as const,
+        all_frames: true,
+        world: 'MAIN'
       }
     ].filter(isTruthy)
   };
@@ -203,7 +212,7 @@ const buildBrowserAction = (vendor: string) => {
   const withVendors = makeWithVendors(vendor);
 
   return {
-    default_title: 'Temple - Tezos Wallet',
+    default_title: 'Temple Wallet',
     ...withVendors('chrome', 'firefox', 'opera')({ default_popup: 'popup.html' }),
     default_icon: {
       '16': 'misc/icon-16.png',

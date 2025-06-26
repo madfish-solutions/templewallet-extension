@@ -1,130 +1,263 @@
-import React, { ComponentProps, FC } from 'react';
+import React, { memo, useCallback, useMemo, useState } from 'react';
 
-import classNames from 'clsx';
-
-import Logo from 'app/atoms/Logo';
+import { IconBase } from 'app/atoms';
+import { Lines } from 'app/atoms/Lines';
+import { PageModal } from 'app/atoms/PageModal';
+import { SocialButton } from 'app/atoms/SocialButton';
+import { StyledButton } from 'app/atoms/StyledButton';
+import { SuspenseContainer } from 'app/atoms/SuspenseContainer';
 import { useABTestingLoading } from 'app/hooks/use-ab-testing-loading';
-import { ReactComponent as EntranceIcon } from 'app/icons/entrance.svg';
-import { ReactComponent as FolderAddIcon } from 'app/icons/folder-add.svg';
-import { ReactComponent as LedgerNanoIcon } from 'app/misc/ledger.svg';
-import { TestIDProps } from 'lib/analytics';
-import { TID, T } from 'lib/i18n';
-import { Link } from 'lib/woozie';
+import { ReactComponent as ImportedIcon } from 'app/icons/base/imported.svg';
+import { ReactComponent as PlusIcon } from 'app/icons/base/plus.svg';
+import GoogleIconSrc from 'app/icons/google-logo.png';
+import { PlanetsBgPageLayout } from 'app/layouts/planets-bg-page-layout';
+import { CreatePasswordForm } from 'app/templates/CreatePasswordForm';
+import { GoogleBackupStatusModalContent } from 'app/templates/google-backup-status-modal-content';
+import { ImportSeedForm } from 'app/templates/ImportSeedForm';
+import { t, T, TID } from 'lib/i18n';
+import type { EncryptedBackupObject } from 'lib/temple/backup';
+import { useTempleClient } from 'lib/temple/front';
+import { useInitToastMessage } from 'lib/temple/front/toasts-context';
+import { goBack, navigate, useLocation } from 'lib/woozie';
 
+import { DecryptBackup } from './decrypt-backup';
+import { GoogleAuth } from './google-auth';
 import { WelcomeSelectors } from './Welcome.selectors';
 
-interface TSign extends TestIDProps {
-  key: string;
-  linkTo: string;
-  filled: boolean;
-  Icon: ImportedSVGComponent;
-  titleI18nKey: TID;
-  descriptionI18nKey: TID;
+enum WalletCreationStage {
+  NotStarted = 'not-started',
+  GoogleAuth = 'google-auth',
+  GoogleBackupReading = 'google-backup-reading',
+  GoogleBackupStatus = 'google-backup-status',
+  ManualImport = 'manual-import',
+  CreatePassword = 'create-password'
 }
 
-const SIGNS: TSign[] = [
-  {
-    key: 'import',
-    linkTo: '/import-wallet',
-    filled: false,
-    Icon: ({ className, ...rest }: ComponentProps<typeof EntranceIcon>) => (
-      <EntranceIcon className={classNames('transform rotate-90', className)} {...rest} />
-    ),
-    titleI18nKey: 'importExistingWallet',
-    descriptionI18nKey: 'importExistingWalletDescription',
-    testID: WelcomeSelectors.importExistingWallet
-  },
-  {
-    key: 'create',
-    linkTo: '/create-wallet',
-    filled: true,
-    Icon: FolderAddIcon,
-    titleI18nKey: 'createNewWallet',
-    descriptionI18nKey: 'createNewWalletDescription',
-    testID: WelcomeSelectors.createNewWallet
-  }
-];
+interface WalletCreationStateBase {
+  stage: WalletCreationStage;
+}
 
-const Welcome: FC = () => {
+interface WalletCreationNotStartedState extends WalletCreationStateBase {
+  stage: WalletCreationStage.NotStarted;
+}
+
+interface WalletCreationGoogleAuthState extends WalletCreationStateBase {
+  stage: WalletCreationStage.GoogleAuth;
+}
+
+interface WalletCreationGoogleBackupReadingState extends WalletCreationStateBase {
+  stage: WalletCreationStage.GoogleBackupReading;
+  backupContent: EncryptedBackupObject;
+}
+
+interface WalletCreationGoogleBackupStatusState extends WalletCreationStateBase {
+  stage: WalletCreationStage.GoogleBackupStatus;
+  success: boolean;
+  mnemonic: string;
+  password: string;
+}
+
+interface WalletCreationManualImportState extends WalletCreationStateBase {
+  stage: WalletCreationStage.ManualImport;
+}
+
+interface WalletCreationCreatePasswordState extends WalletCreationStateBase {
+  stage: WalletCreationStage.CreatePassword;
+  mnemonic?: string;
+  backupPassword?: string;
+  importType?: 'manual' | 'google';
+}
+
+type WalletCreationState =
+  | WalletCreationNotStartedState
+  | WalletCreationGoogleAuthState
+  | WalletCreationGoogleBackupReadingState
+  | WalletCreationGoogleBackupStatusState
+  | WalletCreationManualImportState
+  | WalletCreationCreatePasswordState;
+
+const stageModalTitleI18nKeys: Record<WalletCreationStage, TID | null> = {
+  [WalletCreationStage.NotStarted]: null,
+  [WalletCreationStage.GoogleAuth]: 'continueWithGoogle',
+  [WalletCreationStage.GoogleBackupReading]: 'continueWithGoogle',
+  [WalletCreationStage.GoogleBackupStatus]: 'backupToGoogle',
+  [WalletCreationStage.ManualImport]: 'importExistingWallet',
+  [WalletCreationStage.CreatePassword]: 'createPassword'
+};
+
+const Welcome = memo(() => {
   useABTestingLoading();
+  const { setGoogleAuthToken, setSuppressReady } = useTempleClient();
+  const [, setInitToast] = useInitToastMessage();
+  const { historyPosition } = useLocation();
+
+  const [walletCreationState, setWalletCreationState] = useState<WalletCreationState>({
+    stage: WalletCreationStage.NotStarted
+  });
+  const stage = walletCreationState.stage;
+  const titleI18nKey = stageModalTitleI18nKeys[walletCreationState.stage];
+
+  const handleBackupFinish = useCallback(() => {
+    setInitToast(t('yourWalletIsReady'));
+    setSuppressReady(false);
+    navigate('/loading');
+  }, [setInitToast, setSuppressReady]);
+  const closeModal = useCallback(() => {
+    if (historyPosition !== 0) {
+      goBack();
+
+      return;
+    }
+
+    if (stage === WalletCreationStage.GoogleBackupStatus) {
+      handleBackupFinish();
+    } else {
+      setWalletCreationState({ stage: WalletCreationStage.NotStarted });
+      setGoogleAuthToken(undefined);
+    }
+  }, [handleBackupFinish, historyPosition, setGoogleAuthToken, stage]);
+
+  const goToGoogleAuth = useCallback(() => {
+    setWalletCreationState({ stage: WalletCreationStage.GoogleAuth });
+    setGoogleAuthToken(undefined);
+  }, [setGoogleAuthToken]);
+  const handleGoBack = useMemo(() => {
+    switch (stage) {
+      case WalletCreationStage.GoogleBackupReading:
+        return goToGoogleAuth;
+      case WalletCreationStage.CreatePassword:
+        const { importType, mnemonic } = walletCreationState;
+
+        if (importType === 'manual') {
+          return () => setWalletCreationState({ stage: WalletCreationStage.ManualImport });
+        }
+
+        if (importType === 'google' && !mnemonic) {
+          return goToGoogleAuth;
+        }
+
+        return undefined;
+      default:
+        return undefined;
+    }
+  }, [goToGoogleAuth, stage, walletCreationState]);
+
+  const goToBackupReading = useCallback((backupContent: EncryptedBackupObject) => {
+    setWalletCreationState({
+      stage: WalletCreationStage.GoogleBackupReading,
+      backupContent
+    });
+  }, []);
+  const handleReadGoogleBackup = useCallback(
+    (mnemonic?: string, backupPassword?: string) =>
+      setWalletCreationState({
+        stage: WalletCreationStage.CreatePassword,
+        mnemonic,
+        backupPassword,
+        importType: 'google'
+      }),
+    []
+  );
+  const handleBackupSuccess = useCallback(
+    () =>
+      setWalletCreationState(state =>
+        state.stage === WalletCreationStage.GoogleBackupStatus ? { ...state, success: true } : state
+      ),
+    []
+  );
+  const handleSeedPhraseSubmit = useCallback(
+    (mnemonic: string) =>
+      setWalletCreationState({ stage: WalletCreationStage.CreatePassword, mnemonic, importType: 'manual' }),
+    []
+  );
+  const onCreateWalletClick = useCallback(
+    () => setWalletCreationState({ stage: WalletCreationStage.CreatePassword }),
+    []
+  );
+  const goToManualImport = useCallback(() => setWalletCreationState({ stage: WalletCreationStage.ManualImport }), []);
+  const handleNewBackupState = useCallback(
+    (mnemonic: string, password: string, success: boolean) =>
+      setWalletCreationState({ stage: WalletCreationStage.GoogleBackupStatus, mnemonic, password, success }),
+    []
+  );
 
   return (
-    <div
-      className={classNames(
-        'w-full max-w-screen-md mx-auto',
-        'min-h-screen flex flex-col items-center justify-center',
-        'px-4 pt-4 pb-36'
-      )}
-    >
-      <div className="mb-6 text-2xl text-gray-600 font-light">
-        <T id="welcomeTo" />
-      </div>
+    <>
+      <PageModal
+        title={titleI18nKey && t(titleI18nKey)}
+        opened={stage !== WalletCreationStage.NotStarted}
+        onGoBack={handleGoBack}
+        onRequestClose={closeModal}
+      >
+        <SuspenseContainer>
+          {stage === WalletCreationStage.GoogleAuth && (
+            <GoogleAuth onMissingBackup={handleReadGoogleBackup} onBackupContent={goToBackupReading} />
+          )}
+          {stage === WalletCreationStage.GoogleBackupReading && (
+            <DecryptBackup next={handleReadGoogleBackup} backupContent={walletCreationState.backupContent} />
+          )}
+          {stage === WalletCreationStage.GoogleBackupStatus && (
+            <GoogleBackupStatusModalContent
+              {...walletCreationState}
+              onSuccess={handleBackupSuccess}
+              onFinish={handleBackupFinish}
+            />
+          )}
+          {stage === WalletCreationStage.ManualImport && <ImportSeedForm next={handleSeedPhraseSubmit} />}
+          {stage === WalletCreationStage.CreatePassword && (
+            <CreatePasswordForm {...walletCreationState} onNewBackupState={handleNewBackupState} />
+          )}
+        </SuspenseContainer>
+      </PageModal>
 
-      <Logo hasTitle style={{ height: 70 }} />
+      <PlanetsBgPageLayout containerClassName="pb-8">
+        <div className="flex flex-col items-center mb-9">
+          <p className="text-font-regular-bold text-center mb-0.5">
+            <T id="welcomeTo" /> Temple
+          </p>
+          <p className="text-font-description text-center text-grey-1 mb-1">
+            <T id="chooseTheBestWayToStart" />
+          </p>
+        </div>
 
-      <div className={classNames('w-full mt-8 mb-4 flex items-stretch')}>
-        {SIGNS.map(({ key, linkTo, filled, Icon, titleI18nKey, descriptionI18nKey, testID }) => (
-          <div key={key} className={classNames('w-1/2', 'p-4')}>
-            <Link
-              to={linkTo}
-              className={classNames(
-                'relative block',
-                'w-full pb-2/3',
-                'bg-primary-orange',
-                'overflow-hidden rounded-lg',
-                'transition duration-300 ease-in-out',
-                'transform hover:scale-110 focus:scale-110',
-                'shadow-md hover:shadow-lg focus:shadow-lg'
-              )}
-              testID={testID}
-            >
-              <div className="absolute inset-0 p-1">
-                <div
-                  className={classNames(
-                    'w-full h-full py-4 px-6',
-                    'overflow-hidden rounded-md',
-                    'flex flex-col justify-center',
-                    filled ? 'text-white' : 'shadow-inner bg-primary-orange-lighter text-primary-orange',
-                    'text-shadow-black-orange'
-                  )}
-                >
-                  <Icon className="self-center transform scale-125 stroke-current" />
+        <div className="flex flex-col gap-4">
+          <SocialButton className="w-full" testID={WelcomeSelectors.continueWithGoogle} onClick={goToGoogleAuth}>
+            <img src={GoogleIconSrc} alt="" className="h-6 w-auto p-1" />
+            <span className="text-font-regular-bold">
+              <T id="continueWithGoogle" />
+            </span>
+          </SocialButton>
 
-                  <h1 className="text-xl font-semibold text-center">
-                    <T id={titleI18nKey} />
-                  </h1>
+          <Lines type="or" />
 
-                  <p
-                    className={classNames(
-                      'mt-2 text-center text-xs',
-                      filled ? 'text-primary-orange-lighter' : 'text-primary-orange'
-                    )}
-                  >
-                    <T id={descriptionI18nKey} />
-                  </p>
-                </div>
-              </div>
-            </Link>
-          </div>
-        ))}
-      </div>
-
-      <div className="mt-12 mb-4 text-base text-gray-600 font-light">
-        <p className="mb-2 text-lg">Create the Temple wallet account and you may:</p>
-
-        <p className="mb-1 flex items-center">
-          <span className="text-lg pr-2">•</span>work with your{' '}
-          <LedgerNanoIcon className="ml-2 mr-1" style={{ width: 'auto', height: '0.5rem' }} /> Ledger device
-        </p>
-        <p className="mb-1 flex items-center">
-          <span className="text-lg pr-2">•</span>send and receive any Tezos based tokens
-        </p>
-        <p className="mb-1 flex items-center">
-          <span className="text-lg pr-2">•</span>connect and interact with Tezos dApps
-        </p>
-      </div>
-    </div>
+          <StyledButton
+            className="w-full flex justify-center gap-0.5"
+            size="L"
+            color="primary"
+            testID={WelcomeSelectors.createNewWallet}
+            onClick={onCreateWalletClick}
+          >
+            <IconBase Icon={PlusIcon} size={16} />
+            <span>
+              <T id="createNewWallet" />
+            </span>
+          </StyledButton>
+          <StyledButton
+            className="w-full flex justify-center gap-0.5"
+            size="L"
+            color="secondary"
+            testID={WelcomeSelectors.importExistingWallet}
+            onClick={goToManualImport}
+          >
+            <IconBase Icon={ImportedIcon} size={16} />
+            <span>
+              <T id="importExistingWallet" />
+            </span>
+          </StyledButton>
+        </div>
+      </PlanetsBgPageLayout>
+    </>
   );
-};
+});
 
 export default Welcome;

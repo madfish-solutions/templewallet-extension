@@ -1,39 +1,50 @@
 import { useCallback, useMemo } from 'react';
 
+import { ChainIds } from '@taquito/taquito';
 import retry from 'async-retry';
-import BigNumber from 'bignumber.js';
 import useSWR, { unstable_serialize, useSWRConfig } from 'swr';
 
 import { BoundaryError } from 'app/ErrorBoundary';
 import { BakingBadBaker, bakingBadGetBaker, getAllBakersBakingBad } from 'lib/apis/baking-bad';
 import { getAccountStatsFromTzkt, isKnownChainId, TzktRewardsEntry, TzktAccountType } from 'lib/apis/tzkt';
+import { TzktCycle, TzktProtocol, TzktSetDelegateParamsOperation } from 'lib/apis/tzkt/types';
 import { t } from 'lib/i18n';
 import { useRetryableSWR } from 'lib/swr';
-import type { ReactiveTezosToolkit } from 'lib/temple/front';
 import { getOnlineStatus } from 'lib/ui/get-online-status';
+import { TezosNetworkEssentials } from 'temple/networks';
+import { getReadOnlyTezos } from 'temple/tezos';
 
-import { useChainId, useNetwork, useTezos } from './ready';
+import { mutezToTz } from '../helpers';
 
 function getDelegateCacheKey(
-  tezos: ReactiveTezosToolkit,
+  rpcUrl: string,
   address: string,
   chainId: string | nullish,
   shouldPreventErrorPropagation: boolean
 ) {
-  return unstable_serialize(['delegate', tezos.checksum, address, chainId, shouldPreventErrorPropagation]);
+  return ['delegate', rpcUrl, address, chainId, shouldPreventErrorPropagation];
 }
 
-export function useDelegate(address: string, suspense = true, shouldPreventErrorPropagation = true) {
-  const tezos = useTezos();
-  const chainId = useChainId(suspense);
+export function useDelegate(
+  address: string,
+  network: TezosNetworkEssentials,
+  suspense = true,
+  shouldPreventErrorPropagation = true
+) {
+  const { rpcBaseURL, chainId } = network;
+
   const { cache: swrCache } = useSWRConfig();
 
   const resetDelegateCache = useCallback(() => {
-    swrCache.delete(getDelegateCacheKey(tezos, address, chainId, shouldPreventErrorPropagation));
-  }, [address, tezos, chainId, swrCache, shouldPreventErrorPropagation]);
+    swrCache.delete(
+      unstable_serialize(getDelegateCacheKey(rpcBaseURL, address, chainId, shouldPreventErrorPropagation))
+    );
+  }, [address, rpcBaseURL, chainId, swrCache, shouldPreventErrorPropagation]);
 
   const getDelegate = useCallback(async () => {
     try {
+      const tezos = getReadOnlyTezos(rpcBaseURL);
+
       return await retry(
         async () => {
           const freshChainId = chainId ?? (await tezos.rpc.getChainId());
@@ -67,9 +78,9 @@ export function useDelegate(address: string, suspense = true, shouldPreventError
         resetDelegateCache
       );
     }
-  }, [chainId, tezos, address, shouldPreventErrorPropagation, resetDelegateCache]);
+  }, [chainId, rpcBaseURL, address, shouldPreventErrorPropagation, resetDelegateCache]);
 
-  return useSWR(['delegate', tezos.checksum, address, chainId, shouldPreventErrorPropagation], getDelegate, {
+  return useSWR(getDelegateCacheKey(rpcBaseURL, address, chainId, shouldPreventErrorPropagation), getDelegate, {
     dedupingInterval: 20_000,
     suspense
   });
@@ -79,212 +90,290 @@ export type Baker = BakingBadBaker & {
   logo?: string;
 };
 
-export function useKnownBaker(address: string | null, suspense = true) {
-  const net = useNetwork();
+/** returns cats avatars for unknown baker addresses */
+export const getBakerLogoUrl = (bakerAddress: string) => `https://services.tzkt.io/v1/avatars/${bakerAddress}`;
+
+const toBakerWithLogo = (baker: BakingBadBaker) => ({
+  ...baker,
+  logo: getBakerLogoUrl(baker.address)
+});
+
+export function useKnownBaker(address: string | null, chainId: string, suspense = true) {
+  const isMainnet = chainId === ChainIds.MAINNET;
+
   const fetchBaker = useCallback(async (): Promise<Baker | null> => {
     if (!address) return null;
     try {
       const bakingBadBaker = await bakingBadGetBaker({ address });
 
-      if (bakingBadBaker) {
-        return {
-          ...bakingBadBaker,
-          logo: `https://services.tzkt.io/v1/avatars/${bakingBadBaker.address}`
-        };
-      }
-
-      return null;
+      return bakingBadBaker ? toBakerWithLogo(bakingBadBaker) : null;
     } catch (_err) {
       return null;
     }
   }, [address]);
-  return useRetryableSWR(net.type === 'main' && address ? ['baker', address] : null, fetchBaker, {
+
+  return useRetryableSWR(isMainnet && address ? ['baker', address] : null, fetchBaker, {
     refreshInterval: 120_000,
     dedupingInterval: 60_000,
     suspense
   });
 }
 
-export function useKnownBakers(suspense = true) {
-  const net = useNetwork();
-  const { data: bakers } = useRetryableSWR(net.type === 'main' ? 'all-bakers' : null, getAllBakersBakingBad, {
+export function useKnownBakers(chainId: string, suspense = true) {
+  const isMainnet = chainId === ChainIds.MAINNET;
+
+  const { data: bakers } = useRetryableSWR(isMainnet ? 'all-bakers' : null, getAllBakersBakingBad, {
     refreshInterval: 120_000,
     dedupingInterval: 60_000,
     suspense
   });
 
-  return useMemo(() => (bakers && bakers.length > 1 ? bakers : null), [bakers]);
+  return useMemo(() => (bakers && bakers.length > 1 ? bakers.map(baker => toBakerWithLogo(baker)) : null), [bakers]);
 }
 
-type RewardsStatsCalculationParams = {
+interface RewardsStatsCalculationParams
+  extends Pick<TzktSetDelegateParamsOperation, 'limitOfStakingOverBaking' | 'edgeOfBakingOverStaking'> {
   rewardsEntry: TzktRewardsEntry;
-  bakerDetails: Baker | null | undefined;
-  currentCycle: number | undefined;
-} & Record<
-  | 'fallbackRewardPerOwnBlock'
-  | 'fallbackRewardPerEndorsement'
-  | 'fallbackRewardPerFutureBlock'
-  | 'fallbackRewardPerFutureEndorsement',
-  BigNumber
->;
+  cycle: TzktCycle;
+  protocol: TzktProtocol;
+  delegationFee: number;
+  minDelegation: number;
+}
 
-function getBakingEfficiency({ rewardsEntry }: RewardsStatsCalculationParams) {
+function sumFields<K extends string, T extends Record<K, number>>(
+  item: T,
+  positiveSummands: K[],
+  negativeSummands: K[]
+) {
+  return (
+    positiveSummands.reduce((sum, key) => sum + item[key], 0) -
+    negativeSummands.reduce((sum, key) => sum + item[key], 0)
+  );
+}
+
+export function getRewardsStats({
+  rewardsEntry,
+  cycle,
+  protocol,
+  limitOfStakingOverBaking,
+  edgeOfBakingOverStaking,
+  delegationFee: delegationFeeRatio,
+  minDelegation
+}: RewardsStatsCalculationParams) {
+  limitOfStakingOverBaking /= 1e6;
+  edgeOfBakingOverStaking /= 1e9;
   const {
-    ownBlockRewards,
-    extraBlockRewards,
-    futureBlockRewards,
-    endorsementRewards,
-    futureEndorsementRewards,
-    ownBlocks,
-    futureBlocks,
     futureEndorsements,
     endorsements,
-    ownBlockFees,
-    extraBlockFees,
-    revelationRewards,
-    doubleBakingRewards,
-    doubleEndorsingRewards,
+    missedEndorsements,
+    futureBlocks,
+    blocks,
+    missedBlocks,
     missedEndorsementRewards,
-    missedExtraBlockRewards,
-    missedExtraBlockFees,
     missedOwnBlockFees,
-    missedOwnBlockRewards
-  } = rewardsEntry;
-  const totalFutureRewards = new BigNumber(futureEndorsementRewards).plus(futureBlockRewards);
-  const totalCurrentRewards = new BigNumber(extraBlockRewards)
-    .plus(ownBlockRewards)
-    .plus(endorsementRewards)
-    .plus(doubleEndorsingRewards)
-    .plus(ownBlockFees)
-    .plus(extraBlockFees)
-    .plus(revelationRewards)
-    .plus(doubleBakingRewards);
-  const totalRewards = totalFutureRewards.plus(totalCurrentRewards);
-
-  const fullEfficiencyIncome = new BigNumber(4e7)
-    .multipliedBy(new BigNumber(ownBlocks).plus(futureBlocks))
-    .plus(new BigNumber(1.25e6).multipliedBy(new BigNumber(endorsements).plus(futureEndorsements)));
-  const totalLost = new BigNumber(missedEndorsementRewards)
-    .plus(missedExtraBlockFees)
-    .plus(missedExtraBlockRewards)
-    .plus(missedOwnBlockFees)
-    .plus(missedOwnBlockRewards);
-  const totalGain = totalRewards.minus(totalLost).minus(fullEfficiencyIncome);
-  return new BigNumber(1).plus(totalGain.div(fullEfficiencyIncome));
-}
-
-type CycleStatus = 'unlocked' | 'locked' | 'future' | 'inProgress';
-
-export function getRewardsStats(params: RewardsStatsCalculationParams) {
-  const { rewardsEntry, bakerDetails, currentCycle } = params;
-  const {
-    cycle,
-    balance,
-    ownBlockRewards,
-    extraBlockRewards,
+    missedOwnBlocks,
+    missedOwnBlockRewards,
     futureBlockRewards,
-    endorsementRewards,
     futureEndorsementRewards,
-    stakingBalance,
-    expectedBlocks,
-    expectedEndorsements,
+    ownBlockRewards,
+    ownBlocks,
     ownBlockFees,
-    extraBlockFees,
-    revelationRewards,
-    doubleBakingRewards,
-    doubleEndorsingRewards
+    doubleBakingLostStaked,
+    doubleEndorsingLostStaked,
+    doublePreendorsingLostStaked,
+    endorsementRewards,
+    bakerStakedBalance,
+    bakerDelegatedBalance,
+    externalStakedBalance,
+    bakingPower,
+    externalDelegatedBalance,
+    delegatedBalance,
+    stakedBalance,
+    doubleBakingLostExternalStaked,
+    doubleEndorsingLostExternalStaked,
+    doublePreendorsingLostExternalStaked
   } = rewardsEntry;
+  const {
+    blockReward: legacyBlockReward,
+    endorsementReward: legacyEndorsementReward,
+    endorsersPerBlock,
+    consensusThreshold
+  } = protocol.constants;
 
-  const totalFutureRewards = new BigNumber(futureEndorsementRewards).plus(futureBlockRewards);
-  const totalCurrentRewards = new BigNumber(extraBlockRewards)
-    .plus(endorsementRewards)
-    .plus(ownBlockRewards)
-    .plus(ownBlockFees)
-    .plus(extraBlockFees)
-    .plus(revelationRewards)
-    .plus(doubleBakingRewards)
-    .plus(doubleEndorsingRewards);
-  const cycleStatus: CycleStatus = (() => {
-    switch (true) {
-      case totalFutureRewards.eq(0) && (currentCycle === undefined || cycle <= currentCycle - 6):
-        return 'unlocked';
-      case totalFutureRewards.eq(0):
-        return 'locked';
-      case totalCurrentRewards.eq(0):
-        return 'future';
-      default:
-        return 'inProgress';
-    }
-  })();
-  const totalRewards = totalFutureRewards.plus(totalCurrentRewards);
-  const rewards = totalRewards.multipliedBy(balance).div(stakingBalance);
-  let luck = expectedBlocks + expectedEndorsements > 0 ? new BigNumber(-1) : new BigNumber(0);
-  if (totalFutureRewards.plus(totalCurrentRewards).gt(0)) {
-    luck = calculateLuck(params, totalRewards);
+  let blockReward: number;
+  let blockBonusPerSlot: number;
+  let endorsementRewardPerSlot: number;
+  if ('endorsementRewardPerSlot' in cycle) {
+    blockReward = cycle.blockReward;
+    blockBonusPerSlot = cycle.blockBonusPerSlot;
+    endorsementRewardPerSlot = cycle.endorsementRewardPerSlot;
+  } else {
+    blockReward = legacyBlockReward[0];
+    blockBonusPerSlot = legacyBlockReward[1];
+    endorsementRewardPerSlot = legacyEndorsementReward[0];
   }
-  const bakerFeePart = bakerDetails?.delegation.fee ?? 0;
-  const bakerFee = rewards.multipliedBy(bakerFeePart);
+
+  const rewardsPerBlock = blockReward + blockBonusPerSlot * (endorsersPerBlock - consensusThreshold);
+  const assignedRewards =
+    (futureBlocks + blocks + missedBlocks) * rewardsPerBlock +
+    (futureEndorsements + endorsements + missedEndorsements) * endorsementRewardPerSlot;
+
+  const earnedRewards = sumFields(
+    rewardsEntry,
+    [
+      'blockRewardsDelegated',
+      'blockRewardsStakedOwn',
+      'blockRewardsStakedEdge',
+      'blockRewardsStakedShared',
+      'endorsementRewardsDelegated',
+      'endorsementRewardsStakedOwn',
+      'endorsementRewardsStakedEdge',
+      'endorsementRewardsStakedShared',
+      'blockFees'
+    ],
+    []
+  );
+  const extraRewards = sumFields(
+    rewardsEntry,
+    [
+      'doubleBakingRewards',
+      'doubleEndorsingRewards',
+      'doublePreendorsingRewards',
+      'vdfRevelationRewardsDelegated',
+      'vdfRevelationRewardsStakedOwn',
+      'vdfRevelationRewardsStakedEdge',
+      'vdfRevelationRewardsStakedShared',
+      'nonceRevelationRewardsDelegated',
+      'nonceRevelationRewardsStakedOwn',
+      'nonceRevelationRewardsStakedEdge',
+      'nonceRevelationRewardsStakedShared'
+    ],
+    [
+      'doubleBakingLostStaked',
+      'doubleBakingLostUnstaked',
+      'doubleBakingLostExternalStaked',
+      'doubleBakingLostExternalUnstaked',
+      'doubleEndorsingLostStaked',
+      'doubleEndorsingLostUnstaked',
+      'doubleEndorsingLostExternalStaked',
+      'doubleEndorsingLostExternalUnstaked',
+      'doublePreendorsingLostStaked',
+      'doublePreendorsingLostUnstaked',
+      'doublePreendorsingLostExternalStaked',
+      'doublePreendorsingLostExternalUnstaked',
+      'nonceRevelationLosses'
+    ]
+  );
+
+  const futureRewards = futureBlockRewards + futureEndorsementRewards;
+  const totalRewards = earnedRewards + extraRewards;
+
+  // TODO: figure out the meaning of variables with obfuscated names here and below
+  const k = sumFields(
+    rewardsEntry,
+    [
+      'blockRewardsDelegated',
+      'endorsementRewardsDelegated',
+      'vdfRevelationRewardsDelegated',
+      'nonceRevelationRewardsDelegated',
+      'doubleBakingRewards',
+      'doubleEndorsingRewards',
+      'doublePreendorsingRewards',
+      'blockFees'
+    ],
+    []
+  );
+  const y = sumFields(
+    rewardsEntry,
+    [
+      'doubleBakingLostUnstaked',
+      'doubleBakingLostExternalUnstaked',
+      'doubleEndorsingLostUnstaked',
+      'doubleEndorsingLostExternalUnstaked',
+      'doublePreendorsingLostUnstaked',
+      'doublePreendorsingLostExternalUnstaked',
+      'nonceRevelationLosses'
+    ],
+    []
+  );
+  const stakedEdgeRewards = sumFields(
+    rewardsEntry,
+    [
+      'blockRewardsStakedEdge',
+      'endorsementRewardsStakedEdge',
+      'vdfRevelationRewardsStakedEdge',
+      'nonceRevelationRewardsStakedEdge'
+    ],
+    []
+  );
+  const stakedSharedRewards = sumFields(
+    rewardsEntry,
+    [
+      'blockRewardsStakedShared',
+      'endorsementRewardsStakedShared',
+      'vdfRevelationRewardsStakedShared',
+      'nonceRevelationRewardsStakedShared'
+    ],
+    []
+  );
+  const stakedEdgeRewardsShare =
+    stakedEdgeRewards > 0 ? stakedEdgeRewards / (stakedEdgeRewards + stakedSharedRewards) : 0;
+  const doubleOperationsStakedLoss = doubleBakingLostStaked + doubleEndorsingLostStaked + doublePreendorsingLostStaked;
+  const j = doubleOperationsStakedLoss * (1 - stakedEdgeRewardsShare);
+  const E = doubleOperationsStakedLoss - j;
+
+  let P = 0,
+    L = 0,
+    S = 0,
+    b = 0;
+  if (futureRewards > 0) {
+    const Vt = bakerStakedBalance * limitOfStakingOverBaking;
+    const at = bakerStakedBalance + Math.min(externalStakedBalance, Vt);
+    const N = (futureRewards * at) / bakingPower;
+    P = futureRewards - N;
+    L = (N * bakerStakedBalance) / at;
+    S = (N - L) * edgeOfBakingOverStaking;
+    b = N - L - S;
+  }
+
+  const T = Math.max(0, +P + k - y);
+  const x = T * delegationFeeRatio;
+  const w =
+    bakerDelegatedBalance + externalDelegatedBalance > 0
+      ? delegatedBalance / (bakerDelegatedBalance + externalDelegatedBalance)
+      : 0;
+  const delegationRewardsAreSent = delegatedBalance / 1e6 >= minDelegation;
+
+  const delegationFee = delegationRewardsAreSent ? Math.round(x * w) : 0;
+  const Ft = Math.max(0, +S + stakedEdgeRewards - E);
+  const stakedBalanceRatio = externalStakedBalance > 0 ? stakedBalance / externalStakedBalance : 0;
+  const stakingFee = Math.round(Ft * stakedBalanceRatio);
+  const bakerFeeMutez = stakingFee + delegationFee;
+  const doubleOperationsExternalStakedLoss =
+    doubleBakingLostExternalStaked + doubleEndorsingLostExternalStaked + doublePreendorsingLostExternalStaked;
+  const tt = Math.max(0, +S + b + stakedEdgeRewards - E + stakedSharedRewards - doubleOperationsExternalStakedLoss);
+  const stakingReward = Math.round(tt * stakedBalanceRatio);
+  const delegationReward = delegationRewardsAreSent ? Math.round(T * w) : 0;
+
+  const rewards = stakingReward + delegationReward;
+  const bakerFeeRatio = bakerFeeMutez / rewards;
+
   return {
-    balance,
-    rewards,
-    luck,
-    bakerFeePart,
-    bakerFee,
-    cycleStatus,
-    efficiency: getBakingEfficiency(params)
+    cycle: cycle.index,
+    delegated: mutezToTz(delegatedBalance),
+    bakerFeeRatio: Number.isFinite(bakerFeeRatio) ? bakerFeeRatio : delegationFeeRatio,
+    bakerFee: mutezToTz(bakerFeeMutez),
+    expectedPayout: mutezToTz(rewards - bakerFeeMutez),
+    efficiency: assignedRewards === 0 ? 1 : totalRewards / assignedRewards,
+    ownBlockRewards: mutezToTz(ownBlockRewards),
+    ownBlocks,
+    ownBlockFees: mutezToTz(ownBlockFees),
+    missedOwnBlockRewards: mutezToTz(missedOwnBlockRewards),
+    missedOwnBlocks,
+    missedOwnBlockFees: mutezToTz(missedOwnBlockFees),
+    endorsementRewards: mutezToTz(endorsementRewards),
+    endorsements,
+    missedEndorsements,
+    missedEndorsementRewards: mutezToTz(missedEndorsementRewards)
   };
 }
-
-const calculateLuck = (params: RewardsStatsCalculationParams, totalRewards: BigNumber) => {
-  const {
-    rewardsEntry,
-    fallbackRewardPerOwnBlock,
-    fallbackRewardPerEndorsement,
-    fallbackRewardPerFutureBlock,
-    fallbackRewardPerFutureEndorsement
-  } = params;
-  const {
-    ownBlockRewards,
-    futureBlockRewards,
-    endorsementRewards,
-    futureEndorsementRewards,
-    expectedBlocks,
-    expectedEndorsements,
-    ownBlocks,
-    futureBlocks,
-    futureEndorsements,
-    endorsements
-  } = rewardsEntry;
-  const rewardPerOwnBlock = ownBlocks === 0 ? fallbackRewardPerOwnBlock : new BigNumber(ownBlockRewards).div(ownBlocks);
-  const rewardPerEndorsement =
-    endorsements === 0 ? fallbackRewardPerEndorsement : new BigNumber(endorsementRewards).div(endorsements);
-  const asIfNoFutureExpectedBlockRewards = new BigNumber(expectedBlocks).multipliedBy(rewardPerOwnBlock);
-  const asIfNoFutureExpectedEndorsementRewards = new BigNumber(expectedEndorsements).multipliedBy(rewardPerEndorsement);
-  const asIfNoFutureExpectedRewards = asIfNoFutureExpectedBlockRewards.plus(asIfNoFutureExpectedEndorsementRewards);
-
-  const rewardPerFutureBlock =
-    futureBlocks === 0 ? fallbackRewardPerFutureBlock : new BigNumber(futureBlockRewards).div(futureBlocks);
-  const rewardPerFutureEndorsement =
-    futureEndorsements === 0
-      ? fallbackRewardPerFutureEndorsement
-      : new BigNumber(futureEndorsementRewards).div(futureEndorsements);
-  const asIfNoCurrentExpectedBlockRewards = new BigNumber(expectedBlocks).multipliedBy(rewardPerFutureBlock);
-  const asIfNoCurrentExpectedEndorsementRewards = new BigNumber(expectedEndorsements).multipliedBy(
-    rewardPerFutureEndorsement
-  );
-  const asIfNoCurrentExpectedRewards = asIfNoCurrentExpectedBlockRewards.plus(asIfNoCurrentExpectedEndorsementRewards);
-
-  const weights =
-    endorsements + futureEndorsements === 0
-      ? { current: ownBlocks, future: futureBlocks }
-      : { current: endorsements, future: futureEndorsements };
-  const totalExpectedRewards =
-    weights.current + weights.future === 0
-      ? new BigNumber(0)
-      : asIfNoFutureExpectedRewards
-          .multipliedBy(weights.current)
-          .plus(asIfNoCurrentExpectedRewards.multipliedBy(weights.future))
-          .div(new BigNumber(weights.current).plus(weights.future));
-
-  return totalRewards.minus(totalExpectedRewards).div(totalExpectedRewards);
-};

@@ -1,5 +1,6 @@
 import React, { memo } from 'react';
 
+import { FadeTransition } from 'app/a11y/FadeTransition';
 import { IS_MISES_BROWSER } from 'lib/env';
 
 import { PartnersPromotionSettings } from './partners-promotion-settings';
@@ -7,10 +8,12 @@ import { ReferralLinksSettings } from './referral-links-settings';
 
 export const AdvancedFeatures = memo(() => {
   return (
-    <div className="w-full max-w-sm mx-auto my-8">
-      <PartnersPromotionSettings />
+    <FadeTransition>
+      <div className="w-full flex flex-col gap-4">
+        <PartnersPromotionSettings />
 
-      {IS_MISES_BROWSER && <ReferralLinksSettings />}
-    </div>
+        {IS_MISES_BROWSER && <ReferralLinksSettings />}
+      </div>
+    </FadeTransition>
   );
 });

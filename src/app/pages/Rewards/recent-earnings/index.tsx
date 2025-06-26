@@ -8,7 +8,6 @@ import {
 } from 'app/store/rewards/selectors';
 import { toMonthYearIndex } from 'lib/apis/ads-api';
 import { t, T } from 'lib/i18n';
-import { useAccountPkh } from 'lib/temple/front';
 
 import { Section } from '../section';
 import { RewardsPageSelectors } from '../selectors';
@@ -17,11 +16,11 @@ import { getMonthName } from '../utils';
 import { StatsCard } from './stats-card';
 
 interface Props {
+  accountPkh: string;
   statsDate: Date;
 }
 
-export const RecentEarnings = memo<Props>(({ statsDate }) => {
-  const accountPkh = useAccountPkh();
+export const RecentEarnings = memo<Props>(({ accountPkh, statsDate }) => {
   const rpForToday = useRpForTodaySelector(accountPkh);
   const rpForTodayError = useRpForTodayErrorSelector(accountPkh);
   const rpForMonth = useRpForMonthSelector(accountPkh, toMonthYearIndex(statsDate));

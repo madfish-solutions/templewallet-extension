@@ -1,9 +1,6 @@
 {
   "appName": {
-    "message": "Temple - Tezos Wallet"
-  },
-  "showIncomingTransactions": {
-    "message": "Show Incoming Transactions"
+    "message": "Temple Wallet"
   },
   "appDesc": {
     "message": "🔐💰Cryptocurrency wallet for Tezos blockchain as Web Extension for your Browser."
@@ -17,12 +14,6 @@
   "importAccount": {
     "message": "Import account"
   },
-  "faucetFileTitle": {
-    "message": "Faucet File"
-  },
-  "faucetFile": {
-    "message": "Faucet file"
-  },
   "settings": {
     "message": "Settings"
   },
@@ -30,25 +21,10 @@
     "message": "Open new tab"
   },
   "maximiseView": {
-    "message": "Maximise view"
-  },
-  "selectFileOfFormat": {
-    "message": "Select $format$ file",
-    "placeholders": {
-      "format": {
-        "content": "$1"
-      }
-    }
-  },
-  "authorizedDApps": {
-    "message": "Authorized DApps",
-    "description": "DApps = Decentralized Applications"
-  },
-  "clickIconToResetPermissions": {
-    "message": "Click on the X icon to reset permissions."
+    "message": "View Full Screen"
   },
   "versionLabel": {
-    "message": "version: $version$",
+    "message": "Version: $version$",
     "placeholders": {
       "version": {
         "content": "$1"
@@ -56,36 +32,9 @@
     }
   },
   "branchName": {
-    "message": "branch: $branch$",
+    "message": "Branch: $branch$",
     "placeholders": {
       "branch": {
-        "content": "$1"
-      }
-    }
-  },
-  "madeWithLove": {
-    "message": "Made with $loveIcon$ by $companyName$",
-    "placeholders": {
-      "loveIcon": {
-        "content": "$1"
-      },
-      "companyName": {
-        "content": "$2"
-      }
-    }
-  },
-  "feeInputDescription": {
-    "message": "Base Fee for this operation is: $fee$\nAdditional - speeds up its confirmation",
-    "placeholders": {
-      "fee": {
-        "content": "$1"
-      }
-    }
-  },
-  "resetPermissionsConfirmation": {
-    "message": "Are you sure you want to reset permissions for\n$origin$?",
-    "placeholders": {
-      "origin": {
         "content": "$1"
       }
     }
@@ -102,17 +51,6 @@
   "copyHashToClipboard": {
     "message": "Copy to clipboard"
   },
-  "showInGasOrFiat": {
-    "message": "Show in $gasToken$/$fiatCurrency$",
-    "placeholders": {
-      "gasToken": {
-        "content": "$1"
-      },
-      "fiatCurrency": {
-        "content": "$2"
-      }
-    }
-  },
   "accounts": {
     "message": "Accounts"
   },
@@ -125,87 +63,6 @@
   "networks": {
     "message": "Networks"
   },
-  "back": {
-    "message": "Back"
-  },
-  "addNewToken": {
-    "message": "Add new Token"
-  },
-  "hideSomeToken": {
-    "message": "Hide \"$tokenName$\" token",
-    "placeholders": {
-      "tokenName": {
-        "content": "$1"
-      }
-    }
-  },
-  "copySomeTokenAddress": {
-    "message": "Copy \"$tokenSymbol$\" address",
-    "placeholders": {
-      "tokenSymbol": {
-        "content": "$1"
-      }
-    }
-  },
-  "copySomeTokenId": {
-    "message": "Copy \"$tokenSymbol$\" ID",
-    "placeholders": {
-      "tokenSymbol": {
-        "content": "$1"
-      }
-    }
-  },
-  "originLabel": {
-    "message": "Origin: $origin$",
-    "placeholders": {
-      "origin": {
-        "content": "$1"
-      }
-    }
-  },
-  "networkLabel": {
-    "message": "Network: $network$",
-    "placeholders": {
-      "network": {
-        "content": "$1"
-      }
-    }
-  },
-  "pkhLabel": {
-    "message": "Account: $pkh$",
-    "placeholders": {
-      "pkh": {
-        "content": "$1"
-      }
-    }
-  },
-  "minDelegationAmountDescription": {
-    "message": "Your current balance is less than a minimal delegation amount of this baker. That means while the balance is less than $minAmount$ - there will be no payouts.",
-    "placeholders": {
-      "minAmount": {
-        "content": "$1"
-      }
-    }
-  },
-  "recommendedBakersDescription": {
-    "message": "This list is powered by $link$",
-    "placeholders": {
-      "link": {
-        "content": "$1"
-      }
-    }
-  },
-  "highestIsBetter": {
-    "message": "the higher the better"
-  },
-  "unlockWalletPrompt": {
-    "message": "If you want to save something from already existing wallet - $link$ and unlock it.",
-    "placeholders": {
-      "link": {
-        "content": "$1"
-      }
-    }
-  },
   "acceptTermsInputDescription": {
     "message": "I have read and agree to\nthe $termsOfUsageLink$ and $privacyPolicyLink$",
     "placeholders": {
@@ -217,23 +74,8 @@
       }
     }
   },
-  "copiedTokenAddress": {
-    "message": "Copied"
-  },
-  "copiedTokenId": {
-    "message": "Copied"
-  },
-  "delegatedTo": {
-    "message": "Delegated to:"
-  },
-  "delegatingMotivation": {
-    "message": "Delegating your funds to bakers is a great way of earning interest on your balance"
-  },
   "reDelegate": {
     "message": "Re-delegate"
-  },
-  "delegateNow": {
-    "message": "Delegate now"
   },
   "cancel": {
     "message": "Cancel"
@@ -244,30 +86,8 @@
   "edit": {
     "message": "Edit"
   },
-  "useCoinSwitch": {
-    "message": "Use CoinSwitch",
-    "description": "CoinSwitch = https://coinswitch.co/"
-  },
-  "tezosFaucet": {
-    "message": "Tezos Faucet"
-  },
-  "tezosFaucetAlpha": {
-    "message": "Tezos Faucet (Alpha)"
-  },
-  "depositToWallet": {
-    "message": "Deposit to your wallet"
-  },
-  "depositToWalletDescription": {
-    "message": "Click on deposit method to get money on your wallet. Use faucet to get free coins!"
-  },
   "addToken": {
     "message": "Add Asset"
-  },
-  "contractNotAvailable": {
-    "message": "The contract at this address is not available. Does it exist on this network?"
-  },
-  "noTransferMethod": {
-    "message": "No transfer method"
   },
   "tokenDoesNotMatchStandard": {
     "message": "Provided asset contract doesn't match $standard$ standard",
@@ -279,9 +99,6 @@
   },
   "error": {
     "message": "Error"
-  },
-  "tokenType": {
-    "message": "Token type"
   },
   "tokenId": {
     "message": "Token ID"
@@ -356,16 +173,13 @@
     "message": "Icon URL"
   },
   "optionalComment": {
-    "message": "(optional)"
+    "message": "Optional"
   },
   "iconURLInputDescription": {
     "message": "Image URL for asset logo."
   },
   "invalidAddress": {
     "message": "Invalid address"
-  },
-  "contractNotExistOnNetwork": {
-    "message": "This smart contract doesn't exist on current network"
   },
   "onlyKTContractAddressAllowed": {
     "message": "Only KT... contract address allowed",
@@ -377,20 +191,11 @@
   "alert": {
     "message": "Alert"
   },
-  "accountNameInputTitle": {
+  "accountOrGroupNameInputTitle": {
     "message": "1-16 characters, no special"
   },
   "defaultAccountName": {
     "message": "Account $accountNumber$",
-    "placeholders": {
-      "accountNumber": {
-        "content": "$1"
-      }
-    }
-  },
-  "defaultManagedKTAccountName": {
-    "message": "Managed KT $accountNumber$",
-    "description": "KT not translated",
     "placeholders": {
       "accountNumber": {
         "content": "$1"
@@ -406,7 +211,7 @@
     }
   },
   "accountsToRemoveConstraint": {
-    "message": "Hierarchical Deterministic accounts cannot be removed."
+    "message": "The only Hierarchical Deterministic account cannot be removed."
   },
   "doNotSharePrivateKey": {
     "message": "<b>DO NOT share</b> this set of chars with anyone! It can be used to steal your current account."
@@ -496,10 +301,6 @@
   "tryAgain": {
     "message": "Try again"
   },
-  "tezosMainnet": {
-    "message": "Tezos Mainnet",
-    "description": "Mainnet = main network"
-  },
   "templeWalletOptions": {
     "message": "Temple Wallet | Options"
   },
@@ -536,7 +337,7 @@
     }
   },
   "maximalAmount": {
-    "message": "Maximal: $amount$",
+    "message": "Max: $amount$",
     "placeholders": {
       "amount": {
         "content": "$1"
@@ -576,14 +377,8 @@
   "send": {
     "message": "Send"
   },
-  "baking": {
-    "message": "Baking"
-  },
   "operations": {
     "message": "Operations"
-  },
-  "delegationInfoWhileMessage": {
-    "message": "fetching or processing your delegation info"
   },
   "operationHistoryWhileMessage": {
     "message": "fetching or processing operation history"
@@ -594,20 +389,11 @@
   "mnemonic": {
     "message": "Mnemonic"
   },
-  "fundraiser": {
-    "message": "Fundraiser"
-  },
-  "privateKeyInputDescription": {
-    "message": "The Secret key of the Account you want to import."
-  },
   "privateKeyInputPlaceholder": {
-    "message": "e.g. edsk3wfiPMu..."
+    "message": "Paste or input your private key"
   },
   "password": {
     "message": "Password"
-  },
-  "isPrivateKeyEncrypted": {
-    "message": "Is your private key in encrypted format?"
   },
   "customDerivationPath": {
     "message": "Custom derivation path"
@@ -653,14 +439,6 @@
   "smthWentWrong": {
     "message": "Something went wrong"
   },
-  "faucetFileInputPrompt": {
-    "message": "Drag & drop a file or select it manually by clicking on the area below. You can download it from $link$.",
-    "placeholders": {
-      "link": {
-        "content": "$1"
-      }
-    }
-  },
   "processing": {
     "message": "Processing..."
   },
@@ -679,43 +457,18 @@
   "revealPrivateKey": {
     "message": "Reveal Private Key"
   },
-  "revealPrivateKeyDescription": {
-    "message": "Also known as \"Export Account\", reveals private key for your selected account."
-  },
   "revealSeedPhrase": {
     "message": "Reveal Seed Phrase"
-  },
-  "revealSeedPhraseDescription": {
-    "message": "Also known as \"Export Wallet\", you may need this seed phrase to access your wallet and accounts on other devices."
   },
   "dApps": {
     "message": "DApps",
     "description": "DApps = Decentralized Applications"
-  },
-  "dAppsDescription": {
-    "message": "In this section you can enable ability to interact with decentralized applications that support Temple Wallet."
-  },
-  "networksDescription": {
-    "message": "In this section you can add or delete custom Tezos networks.",
-    "description": "Tezos = blockchain name (https://tezos.com/)"
-  },
-  "activateAccount": {
-    "message": "Activate Account"
-  },
-  "activateAccountDescription": {
-    "message": "It may be necessary for ICO/Fundraiser or testnet faucet accounts."
   },
   "removeAccount": {
     "message": "Remove Account"
   },
   "removeAccountDescription": {
     "message": "Use this section to remove your selected account. Only imported accounts can be removed."
-  },
-  "about": {
-    "message": "About"
-  },
-  "aboutDescription": {
-    "message": "Use this section to view meta info about Temple Wallet."
   },
   "unlockWallet": {
     "message": "Unlock the Wallet"
@@ -746,7 +499,7 @@
     "message": "Import existing Wallet"
   },
   "importExistingWalletDescription": {
-    "message": "Already have a wallet? Import it using your seed phrase or encrypted keystore file"
+    "message": "Already have a wallet? Import it using your seed phrase"
   },
   "links": {
     "message": "Links"
@@ -755,43 +508,13 @@
     "message": "Website"
   },
   "repo": {
-    "message": "Repository"
+    "message": "GitHub Repository"
   },
   "privacyPolicy": {
     "message": "Privacy Policy"
   },
   "termsOfUse": {
     "message": "Terms of Use"
-  },
-  "contact": {
-    "message": "Contact"
-  },
-  "accountAlreadyActivated": {
-    "message": "Your Account already activated."
-  },
-  "accountActivated": {
-    "message": "Your account successfully activated!"
-  },
-  "failureSecretMayBeInvalid": {
-    "message": "Failed. This may happen because provided Secret is invalid"
-  },
-  "accountToBeActivated": {
-    "message": "Account to be activated."
-  },
-  "ifYouWantToActivateAnotherAccount": {
-    "message": "If you want to activate another account - please, select it in the top-right dropdown."
-  },
-  "activateAccountSecret": {
-    "message": "Secret"
-  },
-  "activateAccountSecretDescription": {
-    "message": "'secret' field from Fundraiser Account or Faucet"
-  },
-  "activateAccountSecretPlaceholder": {
-    "message": "e.g. n4hs7sd3..."
-  },
-  "activate": {
-    "message": "Activate"
   },
   "minimalFeeDescription": {
     "message": "Minimal"
@@ -815,10 +538,10 @@
     "message": "Click on area to select another asset or token."
   },
   "disable": {
-    "message": "disable"
+    "message": "Disable"
   },
   "enable": {
-    "message": "enable"
+    "message": "Enable"
   },
   "dAppsCheckmarkPrompt": {
     "message": "Click on the checkmark to $action$ DApps interaction feature",
@@ -863,26 +586,11 @@
   "delegation": {
     "message": "Delegation"
   },
-  "customBaker": {
-    "message": "Custom Baker"
-  },
-  "bakerInputDescription": {
-    "message": "Address of a registered baker."
-  },
-  "bakerInputPlaceholder": {
-    "message": "e.g. tz1a9w1S7hN5s..."
-  },
-  "minDelegationAmountTitle": {
-    "message": "Minimal delegation amount"
-  },
   "unknownBakerTitle": {
     "message": "Unknown baker"
   },
   "unknownBakerDescription": {
     "message": "Provided address is not known to us as a baker! Only delegate funds to it at your own risk."
-  },
-  "recommendedBakers": {
-    "message": "Delegate to Recommended Bakers"
   },
   "sortBy": {
     "message": "Sort by"
@@ -928,23 +636,6 @@
   "minimalFeeGreaterThanBalance": {
     "message": "Minimal fee for this transaction is greater than your balance."
   },
-  "alreadyDelegatedFundsToBaker": {
-    "message": "Already delegated funds to this baker. Re-delegation is not possible."
-  },
-  "bakerNotRegistered": {
-    "message": "Specified baker is not registered."
-  },
-  "unableToPerformActionToBaker": {
-    "message": "Unable to $action$ to the provided Baker.",
-    "placeholders": {
-      "action": {
-        "content": "$1"
-      }
-    }
-  },
-  "estimateDelegation": {
-    "message": "Estimate delegation"
-  },
   "thisMayHappenBecause": {
     "message": "This may happen because:"
   },
@@ -958,9 +649,6 @@
   },
   "networkOrOtherIssue": {
     "message": "Network or other technical issue."
-  },
-  "unableToDelegateToKTAddress": {
-    "message": "Unable to delegate to KT... contract address"
   },
   "confirmAction": {
     "message": "Confirm $action$",
@@ -1097,7 +785,12 @@
     "message": "m/44'/1729'/<account_index>'/0'"
   },
   "derivationPathExample2": {
-    "message": "e.g. m/44'/1729'/..."
+    "message": "e.g. $derivationPath$",
+    "placeholders": {
+      "derivationPath": {
+        "content": "$1"
+      }
+    }
   },
   "keepSeedPhraseSecret": {
     "message": "Keep it in secret."
@@ -1209,7 +902,7 @@
     "message": "Must be unique"
   },
   "addNetwork": {
-    "message": "Add network"
+    "message": "Add Network"
   },
   "currentNetworks": {
     "message": "Current networks"
@@ -1307,14 +1000,11 @@
   "upload": {
     "message": "Upload"
   },
-  "languageAndCountry": {
+  "language": {
     "message": "Language"
   },
   "generalSettings": {
     "message": "General"
-  },
-  "generalSettingsDescription": {
-    "message": "Here you can manage languages preferences and display mode."
   },
   "swapNoun": {
     "message": "Swap"
@@ -1398,9 +1088,6 @@
   "disabledForWatchOnlyAccount": {
     "message": "Disabled for watch-only account"
   },
-  "activationOperationType": {
-    "message": "Activation"
-  },
   "youAreNotContractManager": {
     "message": "You are not a contract manager"
   },
@@ -1412,9 +1099,6 @@
   },
   "contractAddressInputPlaceholder": {
     "message": "e.g. KT1a9w1S7hN5s..."
-  },
-  "addKnownManagedContract": {
-    "message": "Add known Managed contract"
   },
   "clickOnContractToImport": {
     "message": "Click on Contract you want to import."
@@ -1456,13 +1140,10 @@
     }
   },
   "popupSettings": {
-    "message": "Popup mode"
+    "message": "Pop-up Mode"
   },
   "popupSettingsDescription": {
-    "message": "Here you can configure the popup which appears on plugin's icon click in extensions panel."
-  },
-  "managedContract": {
-    "message": "Managed Contract"
+    "message": "Here you can configure the pop-up which appears on plugin's icon click in extensions panel."
   },
   "referredByTokenContractNotFound": {
     "message": "Contract $address$, which is referred by token contract to, was not found.",
@@ -1488,9 +1169,6 @@
         "content": "$1"
       }
     }
-  },
-  "invalidManagedContract": {
-    "message": "Invalid managed contract"
   },
   "someMethodNotDefinedInContract": {
     "message": "'$name$' method isn't defined in contract.",
@@ -1656,15 +1334,6 @@
   "invalidJsonInput": {
     "message": "Invalid JSON"
   },
-  "notFaucetJson": {
-    "message": "Not a faucet JSON"
-  },
-  "faucetJson": {
-    "message": "Faucet JSON"
-  },
-  "faucetJsonDescription": {
-    "message": "You can paste JSON here instead of adding file"
-  },
   "unknownErrorFromRPC": {
     "message": "Failed to send request to $url$. Invalid request provided or RPC node is temporarily unreachable.",
     "placeholders": {
@@ -1766,11 +1435,8 @@
   "swapRoute3Link": {
     "message": "3route DEX aggregator."
   },
-  "searchingTheBestRoute": {
-    "message": "Searching the best route"
-  },
   "noRoutesFound": {
-    "message": "No routes found"
+    "message": "No route available"
   },
   "swapCashback": {
     "message": "Cashback"

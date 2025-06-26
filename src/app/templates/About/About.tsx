@@ -1,19 +1,25 @@
-import React, { FC } from 'react';
+import React, { memo } from 'react';
 
-import { Anchor } from 'app/atoms/Anchor';
-import Logo from 'app/atoms/Logo';
-import SubTitle from 'app/atoms/SubTitle';
+import { FadeTransition } from 'app/a11y/FadeTransition';
+import { VerticalLines } from 'app/atoms/Lines';
+import { Logo } from 'app/atoms/Logo';
+import { SettingsCellSingle } from 'app/atoms/SettingsCell';
+import { SettingsCellGroup } from 'app/atoms/SettingsCellGroup';
+import { ReactComponent as DiscordIcon } from 'app/icons/monochrome/discord.svg';
+import { ReactComponent as KnowledgeBaseIcon } from 'app/icons/monochrome/knowledge-base.svg';
+import { ReactComponent as RedditIcon } from 'app/icons/monochrome/reddit.svg';
+import { ReactComponent as TelegramIcon } from 'app/icons/monochrome/telegram.svg';
+import { ReactComponent as XSocialIcon } from 'app/icons/monochrome/x-social.svg';
+import { ReactComponent as YoutubeIcon } from 'app/icons/monochrome/youtube.svg';
 import { PRIVACY_POLICY_URL, TERMS_OF_USE_URL } from 'lib/constants';
 import { EnvVars } from 'lib/env';
-import { TID, T } from 'lib/i18n';
+import { T, t } from 'lib/i18n';
 
 import { AboutSelectors } from './About.selectors';
+import { LinkProps } from './links-group-item';
+import { LinksGroupView } from './links-group-view';
 
-const LINKS: {
-  key: TID;
-  link: string;
-  testID: string;
-}[] = [
+const LINKS: LinkProps[] = [
   {
     key: 'website',
     link: 'https://templewallet.com',
@@ -33,79 +39,94 @@ const LINKS: {
     key: 'termsOfUse',
     link: TERMS_OF_USE_URL,
     testID: AboutSelectors.termsOfUseLink
-  },
-  {
-    key: 'contact',
-    link: 'https://templewallet.com/contact',
-    testID: AboutSelectors.contactLink
   }
 ];
 
-const About: FC = () => (
-  <div className="flex flex-col items-center my-8">
-    <div className="flex items-center justify-center">
-      <Logo style={{ height: 60 }} />
+const COMMUNITY_LINKS: LinkProps[] = [
+  {
+    key: 'knowledgeBase',
+    link: 'https://madfish.crunch.help/en/temple-wallet',
+    testID: AboutSelectors.knowledgeBaseLink,
+    Icon: KnowledgeBaseIcon
+  },
+  {
+    key: 'featureRequest',
+    link: 'https://madfish.canny.io/feature-requests',
+    testID: AboutSelectors.featureRequestLink,
+    Icon: KnowledgeBaseIcon
+  },
+  {
+    key: 'xSocial',
+    link: 'https://x.com/madfishofficial',
+    testID: AboutSelectors.xSocialLink,
+    Icon: XSocialIcon
+  },
+  {
+    key: 'telegram',
+    link: 'https://t.me/MadFishCommunity',
+    testID: AboutSelectors.telegramLink,
+    Icon: TelegramIcon
+  },
+  {
+    key: 'discord',
+    link: 'https://www.madfish.solutions/discord',
+    testID: AboutSelectors.discordLink,
+    Icon: DiscordIcon
+  },
+  {
+    key: 'reddit',
+    link: 'https://www.reddit.com/r/MadFishCommunity',
+    testID: AboutSelectors.redditLink,
+    Icon: RedditIcon
+  },
+  {
+    key: 'youtube',
+    link: 'https://www.youtube.com/channel/UCUp80EXfJEigks3xU5hiwyA',
+    testID: AboutSelectors.youtubeLink,
+    Icon: YoutubeIcon
+  }
+];
 
-      <div className="ml-4">
-        <h4 className="text-xl font-semibold text-gray-700">
-          <T id="appName" />
-        </h4>
+export const About = memo(() => {
+  const branch = EnvVars.TEMPLE_WALLET_DEVELOPMENT_BRANCH_NAME;
+  const version = process.env.VERSION;
 
-        <p className="text-sm font-light text-gray-800">
-          <T
-            id="versionLabel"
-            substitutions={[
-              <span className="font-bold" key="version">
-                {process.env.VERSION}
-              </span>
-            ]}
+  return (
+    <FadeTransition>
+      <div className="flex flex-col gap-4">
+        <SettingsCellGroup>
+          <SettingsCellSingle
+            Component="div"
+            isLast
+            className="p-4 gap-3"
+            cellIcon={<Logo type="icon" />}
+            wrapCellName={false}
+            cellName={
+              <div className="flex flex-col gap-1">
+                <p className="text-font-medium-bold">
+                  <T id="appName" />
+                </p>
+                <div className="inline-flex flex-wrap gap-1.5 text-font-description text-grey-1">
+                  <span>
+                    <T id="versionLabel" substitutions={version} />
+                  </span>
+                  {/* `branch` is equal to `version` in releases */}
+                  {branch && branch !== version && (
+                    <>
+                      <VerticalLines className="py-0.5" />
+                      <span>
+                        <T id="branchName" substitutions={branch} />
+                      </span>
+                    </>
+                  )}
+                </div>
+              </div>
+            }
           />
-        </p>
-        <p className="text-sm font-light text-gray-800 max-w-xs">
-          <T
-            id="branchName"
-            substitutions={[
-              <span className="font-bold" key="branch">
-                {EnvVars.TEMPLE_WALLET_DEVELOPMENT_BRANCH_NAME}
-              </span>
-            ]}
-          />
-        </p>
+        </SettingsCellGroup>
+        <LinksGroupView group={{ title: t('links'), links: LINKS }} />
+        <LinksGroupView group={{ title: t('community'), links: COMMUNITY_LINKS }} />
       </div>
-    </div>
-
-    <p className="mt-6 text-base font-light text-gray-600">
-      <T
-        id="madeWithLove"
-        substitutions={[
-          <span role="img" aria-label="love" key="heart">
-            ❤️
-          </span>,
-          <Anchor
-            href="https://madfish.solutions"
-            key="link"
-            className="font-normal hover:underline"
-            style={{ color: '#98c630' }}
-            testID={AboutSelectors.madFishLink}
-          >
-            Madfish.Solutions
-          </Anchor>
-        ]}
-      />
-    </p>
-
-    <SubTitle className="mt-10 mb-2">
-      <T id="links" />
-    </SubTitle>
-
-    <div className="text-center">
-      {LINKS.map(({ key, link, testID }) => (
-        <Anchor key={key} href={link} className="block mb-2 text-base text-blue-600 hover:underline" testID={testID}>
-          <T id={key} />
-        </Anchor>
-      ))}
-    </div>
-  </div>
-);
-
-export default About;
+    </FadeTransition>
+  );
+});

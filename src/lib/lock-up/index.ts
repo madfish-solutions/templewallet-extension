@@ -1,12 +1,13 @@
-import { TempleSharedStorageKey } from 'lib/temple/types';
-import { useLocalStorage } from 'lib/ui/local-storage';
+import { AUTOLOCK_TIME_STORAGE_KEY } from 'lib/constants';
+import { DEFAULT_WALLET_AUTOLOCK_TIME } from 'lib/fixed-times';
+import { fetchFromStorage } from 'lib/storage';
+import { useStorage } from 'lib/temple/front/storage';
 
-const STORAGE_KEY = TempleSharedStorageKey.LockUpEnabled;
-const DEFAULT_VALUE = true;
+export const getLockUpTimeout = async () =>
+  (await fetchFromStorage<number>(AUTOLOCK_TIME_STORAGE_KEY)) ?? DEFAULT_WALLET_AUTOLOCK_TIME;
 
-export const getIsLockUpEnabled = () => {
-  const stored = localStorage.getItem(STORAGE_KEY);
-  return stored ? stored === 'true' : DEFAULT_VALUE;
+export const useLockUpTimeout = () => {
+  const [newVersionTimeout, setNewVersionTimeout] = useStorage<number>(AUTOLOCK_TIME_STORAGE_KEY);
+
+  return [newVersionTimeout ?? DEFAULT_WALLET_AUTOLOCK_TIME, setNewVersionTimeout] as const;
 };
-
-export const useIsLockUpEnabled = () => useLocalStorage(STORAGE_KEY, DEFAULT_VALUE);

@@ -1,51 +1,33 @@
 import React, { FC, FunctionComponent, SVGProps } from 'react';
 
-import classNames from 'clsx';
+import clsx from 'clsx';
 
 import { Button } from 'app/atoms';
-import { useAppEnv } from 'app/env';
 import { TestIDProps } from 'lib/analytics';
 
 interface OnRumpSmileButtonProps extends TestIDProps {
   SmileIcon: FunctionComponent<SVGProps<SVGSVGElement>>;
   amount: number;
-  className?: string;
-  titleClassName?: string;
+  accentColors?: boolean;
   onClick?: EmptyFn;
 }
 
-export const OnRampSmileButton: FC<OnRumpSmileButtonProps> = ({
-  SmileIcon,
-  amount,
-  className,
-  titleClassName,
-  onClick,
-  testID
-}) => {
-  const { popup } = useAppEnv();
-
+export const OnRampSmileButton: FC<OnRumpSmileButtonProps> = ({ SmileIcon, amount, accentColors, onClick, testID }) => {
   return (
     <Button
-      className={classNames(
-        'flex flex-col',
+      className={clsx(
+        'flex flex-col w-24 h-23',
         'justify-center items-center',
-        'bg-white rounded-lg',
-        'shadow-md hover:bg-gray-100',
+        'rounded-10 shadow-md',
         'transition ease-in-out duration-200',
         'cursor-pointer',
-        className
+        accentColors ? 'hover:shadow hover:opacity-90 hover:bg-primary-hover bg-primary' : 'bg-white hover:bg-gray-100'
       )}
-      style={{ height: '5.438rem', width: popup ? '5.5rem' : '8.75rem' }}
       onClick={onClick}
       testID={testID}
     >
-      <SmileIcon className="w-7 h-auto" />
-      <p
-        className={classNames('font-inter font-semibold text-orange-500 mt-1', titleClassName)}
-        style={{ fontSize: '1.188rem' }}
-      >
-        {amount}$
-      </p>
+      <SmileIcon className="w-7 h-7" />
+      <p className={clsx('text-font-num-bold-16 mt-1', accentColors ? 'text-white' : 'text-primary')}>{amount}$</p>
     </Button>
   );
 };

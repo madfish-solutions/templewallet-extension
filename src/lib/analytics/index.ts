@@ -1,6 +1,6 @@
 export { AnalyticsEventEnum, AnalyticsEventCategory } from 'lib/temple/analytics-types';
 
-export { CustomRpcContext } from './custom-rpc.context';
+export { CustomTezosChainIdContext, CustomEvmChainIdContext } from './custom-rpc.context';
 
 export { useAnalytics } from './use-analytics.hook';
 export { useFormAnalytics } from './use-form-analytics.hook';

@@ -1,9 +1,7 @@
 export type {
   TzktOperation,
   TzktTokenTransfer,
-  TzktRelatedContract,
   TzktRewardsEntry,
-  TzktAlias,
   TzktOperationType,
   TzktTransactionOperation
 } from './types';
@@ -14,22 +12,20 @@ export {
   TzktSubscriptionMethod,
   TzktSubscriptionChannel
 } from './types';
-export type { TzktAccountsSubscriptionMessage, TzktTokenBalancesSubscriptionMessage, TzktHubConnection } from './types';
+export type { TzktAccountsSubscriptionMessage, TzktTokenBalancesSubscriptionMessage } from './types';
 
 export type { TzktApiChainId } from './api';
 export {
   isKnownChainId,
-  createWsConnection,
+  createTzktWsConnection,
   getAccountStatsFromTzkt,
   getDelegatorRewards,
-  getOneUserContracts,
   fetchTzktAccountAssets,
   fetchTezosBalanceFromTzkt,
   fetchAllAssetsBalancesFromTzkt,
   fetchGetOperationsTransactions,
   fetchGetAccountOperations,
-  fetchGetOperationsByHash,
-  refetchOnce429
+  fetchGetOperationsByHash
 } from './api';
 
 export { calcTzktAccountSpendableTezBalance } from './utils';

@@ -1,6 +1,9 @@
 import React, { memo, useEffect, useRef } from 'react';
 
+// TODO: Implement through WebPack asset loader
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const starAnimationVideo = require('./star_animation.webm');
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const starAnimationPoster = require('./star_animation_poster.gif');
 
 interface Props {

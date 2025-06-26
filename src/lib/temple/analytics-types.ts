@@ -23,7 +23,7 @@ export enum AnalyticsEventEnum {
 export interface TempleSendTrackEventRequest extends TempleMessageBase {
   type: TempleMessageType.SendTrackEventRequest;
   userId: string;
-  rpc: string | undefined;
+  chainId?: string;
   event: string;
   category: AnalyticsEventCategory;
   properties?: object;
@@ -36,7 +36,7 @@ export interface TempleSendTrackEventResponse extends TempleMessageBase {
 export interface TempleSendPageEventRequest extends TempleMessageBase {
   type: TempleMessageType.SendPageEventRequest;
   userId: string;
-  rpc: string | undefined;
+  chainId?: string;
   path: string;
   search: string;
   additionalProperties: object;

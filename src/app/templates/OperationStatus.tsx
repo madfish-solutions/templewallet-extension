@@ -2,27 +2,27 @@ import React, { FC, ReactNode, useEffect, useMemo } from 'react';
 
 import type { WalletOperation } from '@taquito/taquito';
 
-import { HashChip, Alert } from 'app/atoms';
+import { OldStyleHashChip, Alert } from 'app/atoms';
 import { setTestID } from 'lib/analytics';
 import { T, t } from 'lib/i18n';
-import { useTezos, useBlockTriggers } from 'lib/temple/front';
-import { CONFIRMATION_TIMED_OUT_ERROR_MSG } from 'lib/temple/operation';
 import { useSafeState } from 'lib/ui/hooks';
+import { TezosNetworkEssentials } from 'temple/networks';
+import { getReadOnlyTezos, confirmTezosOperation, TEZOS_CONFIRMATION_TIMED_OUT_ERROR_MSG } from 'temple/tezos';
 
 import { OpenInExplorerChip } from './OpenInExplorerChip';
 import { OperationStatusSelectors } from './OperationStatus.selectors';
 
 interface OperationStatusProps {
+  network: TezosNetworkEssentials;
+  operation: WalletOperation;
   className?: string;
   closable?: boolean;
   onClose?: () => void;
   typeTitle: string;
-  operation: WalletOperation;
 }
 
-const OperationStatus: FC<OperationStatusProps> = ({ typeTitle, operation, className, closable, onClose }) => {
-  const tezos = useTezos();
-  const { confirmOperationAndTriggerNewBlock } = useBlockTriggers();
+const OperationStatus: FC<OperationStatusProps> = ({ network, typeTitle, operation, className, closable, onClose }) => {
+  const { rpcBaseURL, chainId } = network;
 
   const hash = useMemo(
     () =>
@@ -38,12 +38,12 @@ const OperationStatus: FC<OperationStatusProps> = ({ typeTitle, operation, class
           <T id="operationHash" />:{' '}
         </div>
 
-        <HashChip hash={hash} firstCharsCount={10} lastCharsCount={7} small key="hash" className="mx-2" />
+        <OldStyleHashChip hash={hash} firstCharsCount={10} lastCharsCount={7} small key="hash" className="mx-2" />
 
-        <OpenInExplorerChip hash={hash} small />
+        <OpenInExplorerChip entityType="tx" tezosChainId={chainId} hash={hash} small />
       </div>
     ),
-    [hash]
+    [hash, chainId]
   );
 
   const [alert, setAlert] = useSafeState<{
@@ -63,7 +63,7 @@ const OperationStatus: FC<OperationStatusProps> = ({ typeTitle, operation, class
   }));
 
   useEffect(() => {
-    confirmOperationAndTriggerNewBlock(tezos, hash)
+    confirmTezosOperation(getReadOnlyTezos(rpcBaseURL), hash)
       .then(() => {
         setAlert(a => ({
           ...a,
@@ -81,12 +81,12 @@ const OperationStatus: FC<OperationStatusProps> = ({ typeTitle, operation, class
           type: 'error',
           title: t('error'),
           description:
-            err?.message === CONFIRMATION_TIMED_OUT_ERROR_MSG
+            err?.message === TEZOS_CONFIRMATION_TIMED_OUT_ERROR_MSG
               ? t('timedOutOperationConfirmation')
               : err?.message || 'Operation confirmation failed'
         });
       });
-  }, [confirmOperationAndTriggerNewBlock, tezos, hash, setAlert, descFooter, typeTitle]);
+  }, [rpcBaseURL, hash, setAlert, descFooter, typeTitle]);
 
   return (
     <Alert

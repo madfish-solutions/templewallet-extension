@@ -16,7 +16,6 @@ import {
 } from 'app/store/rewards/selectors';
 import { parseMonthYearIndex, RpStatsResponse, toMonthYearIndex } from 'lib/apis/ads-api';
 import { T, t } from 'lib/i18n';
-import { useAccountPkh } from 'lib/temple/front';
 
 import { Section } from '../section';
 import { RewardsPageSelectors } from '../selectors';
@@ -26,12 +25,12 @@ import { formatRpAmount, getMonthName } from '../utils';
 const firstMonthWithCompleteStatsIndex = toMonthYearIndex(7, 2024);
 
 interface Props {
+  accountPkh: string;
   statsDate: Date;
 }
 
-export const LifetimeEarnings = memo<Props>(({ statsDate }) => {
+export const LifetimeEarnings = memo<Props>(({ accountPkh, statsDate }) => {
   const dispatch = useDispatch();
-  const accountPkh = useAccountPkh();
   const earliestLoadedMonthYearIndex = useEarliestLoadedMonthYearIndex(accountPkh);
   const rpForMonthsLoading = useRpForMonthsLoadingSelector(accountPkh);
   const rpForMonthsError = useRpForMonthsErrorSelector(accountPkh);

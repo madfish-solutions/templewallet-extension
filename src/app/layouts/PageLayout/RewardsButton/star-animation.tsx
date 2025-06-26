@@ -53,6 +53,7 @@ export const StarAnimation = memo<Props>(({ loop }) => {
         width={ORIGINAL_IMG_SIZE}
         height={ORIGINAL_IMG_SIZE}
         aria-hidden
+        // eslint-disable-next-line jsx-a11y/no-interactive-element-to-noninteractive-role
         role="presentation"
         className={clsx(
           isAnimated && 'hidden',

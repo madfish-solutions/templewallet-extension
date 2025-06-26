@@ -1,58 +1,78 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-import {
-  WalletProvider,
-  createOriginationOperation,
-  createSetDelegateOperation,
-  createIncreasePaidStorageOperation,
-  createTransferTicketOperation,
-  createTransferOperation,
-  WalletDelegateParams,
-  WalletOriginateParams,
-  WalletIncreasePaidStorageParams,
-  WalletTransferParams,
-  WalletStakeParams,
-  WalletUnstakeParams,
-  WalletFinalizeUnstakeParams,
-  Signer,
-  WalletTransferTicketParams
-} from '@taquito/taquito';
-import { buf2hex } from '@taquito/utils';
 import constate from 'constate';
-import { nanoid } from 'nanoid';
-import toBuffer from 'typedarray-to-buffer';
+import { omit } from 'lodash';
+import { TransactionRequest, formatTransactionRequest } from 'viem';
+import browser from 'webextension-polyfill';
 
-import { IntercomClient } from 'lib/intercom';
+import { WALLETS_SPECS_STORAGE_KEY } from 'lib/constants';
 import { useRetryableSWR } from 'lib/swr';
 import { clearLocalStorage } from 'lib/temple/reset';
 import {
   TempleConfirmationPayload,
   TempleMessageType,
   TempleStatus,
-  TempleRequest,
-  TempleResponse,
   TempleNotification,
   TempleSettings,
-  DerivationType
+  DerivationType,
+  TempleAccountType,
+  WalletSpecs,
+  EvmTransactionRequestWithSender,
+  SaveLedgerAccountInput
 } from 'lib/temple/types';
+import { useDidMount } from 'lib/ui/hooks';
+import { DEFAULT_PROMISES_QUEUE_COUNTERS } from 'lib/utils';
+import type { EvmChain } from 'temple/front';
+import {
+  intercomClient,
+  makeIntercomRequest as request,
+  assertResponse,
+  getAccountPublicKey,
+  makeIntercomRequest
+} from 'temple/front/intercom-client';
+import { getPendingConfirmationId, resetPendingConfirmationId } from 'temple/front/pending-confirm';
+import { TempleChainKind } from 'temple/types';
 
-type Confirmation = {
+import { getShouldBeLockedOnStartup } from './lock';
+import { useStorage } from './storage';
+
+interface Confirmation {
   id: string;
   payload: TempleConfirmationPayload;
   error?: any;
-};
-
-export const intercom = new IntercomClient();
+}
 
 export const [TempleClientProvider, useTempleClient] = constate(() => {
   /**
    * State
    */
 
+  const didMountRef = useRef(false);
+  useDidMount(() => void (didMountRef.current = true));
+
   const fetchState = useCallback(async () => {
-    const res = await request({ type: TempleMessageType.GetStateRequest });
+    const res = await makeIntercomRequest({ type: TempleMessageType.GetStateRequest });
     assertResponse(res.type === TempleMessageType.GetStateResponse);
-    return res.state;
+
+    if (didMountRef.current || res.state.status !== TempleStatus.Ready) {
+      return { state: res.state, shouldLockOnStartup: false };
+    }
+
+    const isLocked = await getShouldBeLockedOnStartup();
+
+    return {
+      state: isLocked
+        ? {
+            status: TempleStatus.Locked,
+            accounts: [],
+            settings: null,
+            dAppQueueCounters: DEFAULT_PROMISES_QUEUE_COUNTERS,
+            focusLocation: { tabId: null, windowId: null },
+            windowsWithPopups: []
+          }
+        : res.state,
+      shouldLockOnStartup: isLocked
+    };
   }, []);
 
   const { data, mutate } = useRetryableSWR('state', fetchState, {
@@ -61,48 +81,50 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
     revalidateOnFocus: false,
     revalidateOnReconnect: false
   });
-  const state = data!;
+  const state = data!.state;
 
   const [confirmation, setConfirmation] = useState<Confirmation | null>(null);
-  const confirmationIdRef = useRef<string | null>(null);
-  const resetConfirmation = useCallback(() => {
-    confirmationIdRef.current = null;
-    setConfirmation(null);
-  }, [setConfirmation]);
+  const [googleAuthToken, setGoogleAuthToken] = useState<string>();
 
   useEffect(() => {
-    return intercom.subscribe((msg: TempleNotification) => {
+    return intercomClient.subscribe((msg: TempleNotification) => {
       switch (msg?.type) {
         case TempleMessageType.StateUpdated:
           mutate();
           break;
 
         case TempleMessageType.ConfirmationRequested:
-          if (msg.id === confirmationIdRef.current) {
+          if (msg.id === getPendingConfirmationId()) {
             setConfirmation({ id: msg.id, payload: msg.payload, error: msg.error });
           }
           break;
 
         case TempleMessageType.ConfirmationExpired:
-          if (msg.id === confirmationIdRef.current) {
-            resetConfirmation();
+          if (msg.id === getPendingConfirmationId()) {
+            resetPendingConfirmationId();
+            setConfirmation(null);
           }
           break;
       }
     });
-  }, [mutate, setConfirmation, resetConfirmation]);
+  }, [mutate, setConfirmation]);
 
   /**
    * Aliases
    */
 
-  const { status, networks: defaultNetworks, accounts, settings } = state;
+  const [suppressReady, setSuppressReady] = useState(false);
+  const { status, accounts, settings, dAppQueueCounters, focusLocation, windowsWithPopups } = state;
   const idle = status === TempleStatus.Idle;
   const locked = status === TempleStatus.Locked;
-  const ready = status === TempleStatus.Ready;
+  const ready = status === TempleStatus.Ready && !suppressReady;
 
-  const customNetworks = useMemo(() => settings?.customNetworks ?? [], [settings]);
-  const networks = useMemo(() => [...defaultNetworks, ...customNetworks], [defaultNetworks, customNetworks]);
+  const [walletsSpecs, setWalletsSpecs] = useStorage<StringRecord<WalletSpecs>>(WALLETS_SPECS_STORAGE_KEY, {});
+
+  const [customTezosNetworks, customEvmNetworks] = useMemo(
+    () => [settings?.customTezosNetworks ?? [], settings?.customEvmNetworks ?? []],
+    [settings]
+  );
 
   /**
    * Actions
@@ -135,63 +157,85 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
     assertResponse(res.type === TempleMessageType.LockResponse);
   }, []);
 
-  const createAccount = useCallback(async (name?: string) => {
+  const findFreeHdIndex = useCallback(async (walletId: string) => {
+    const res = await request({
+      type: TempleMessageType.FindFreeHDAccountIndexRequest,
+      walletId
+    });
+    assertResponse(res.type === TempleMessageType.FindFreeHDAccountIndexResponse);
+    return omit(res, 'type');
+  }, []);
+
+  const createAccount = useCallback(async (walletId: string, name?: string) => {
     const res = await request({
       type: TempleMessageType.CreateAccountRequest,
+      walletId,
       name
     });
     assertResponse(res.type === TempleMessageType.CreateAccountResponse);
   }, []);
 
-  const revealPrivateKey = useCallback(async (accountPublicKeyHash: string, password: string) => {
+  const revealPrivateKey = useCallback(async (address: string, password: string) => {
     const res = await request({
       type: TempleMessageType.RevealPrivateKeyRequest,
-      accountPublicKeyHash,
+      address,
       password
     });
     assertResponse(res.type === TempleMessageType.RevealPrivateKeyResponse);
     return res.privateKey;
   }, []);
 
-  const revealMnemonic = useCallback(async (password: string) => {
+  const revealMnemonic = useCallback(async (walletId: string, password: string) => {
     const res = await request({
       type: TempleMessageType.RevealMnemonicRequest,
+      walletId,
       password
     });
     assertResponse(res.type === TempleMessageType.RevealMnemonicResponse);
     return res.mnemonic;
   }, []);
 
-  const generateSyncPayload = useCallback(async (password: string) => {
+  const generateSyncPayload = useCallback(async (password: string, walletId: string) => {
     const res = await request({
       type: TempleMessageType.GenerateSyncPayloadRequest,
-      password
+      password,
+      walletId
     });
     assertResponse(res.type === TempleMessageType.GenerateSyncPayloadResponse);
     return res.payload;
   }, []);
 
-  const removeAccount = useCallback(async (accountPublicKeyHash: string, password: string) => {
+  const removeAccount = useCallback(async (id: string, password: string) => {
     const res = await request({
       type: TempleMessageType.RemoveAccountRequest,
-      accountPublicKeyHash,
+      id,
       password
     });
     assertResponse(res.type === TempleMessageType.RemoveAccountResponse);
   }, []);
 
-  const editAccountName = useCallback(async (accountPublicKeyHash: string, name: string) => {
+  const setAccountHidden = useCallback(async (id: string, value: boolean) => {
+    const res = await request({
+      type: TempleMessageType.SetAccountHiddenRequest,
+      id,
+      value
+    });
+    assertResponse(res.type === TempleMessageType.SetAccountHiddenResponse);
+  }, []);
+
+  const editAccountName = useCallback(async (id: string, name: string) => {
     const res = await request({
       type: TempleMessageType.EditAccountRequest,
-      accountPublicKeyHash,
+      id,
       name
     });
     assertResponse(res.type === TempleMessageType.EditAccountResponse);
   }, []);
 
-  const importAccount = useCallback(async (privateKey: string, encPassword?: string) => {
+  const importAccount = useCallback(async (chain: TempleChainKind, privateKey: string, encPassword?: string) => {
     const res = await request({
       type: TempleMessageType.ImportAccountRequest,
+      chain,
       privateKey,
       encPassword
     });
@@ -208,47 +252,44 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
     assertResponse(res.type === TempleMessageType.ImportMnemonicAccountResponse);
   }, []);
 
-  const importFundraiserAccount = useCallback(async (email: string, password: string, mnemonic: string) => {
-    const res = await request({
-      type: TempleMessageType.ImportFundraiserAccountRequest,
-      email,
-      password,
-      mnemonic
-    });
-    assertResponse(res.type === TempleMessageType.ImportFundraiserAccountResponse);
-  }, []);
-
-  const importKTManagedAccount = useCallback(async (address: string, chainId: string, owner: string) => {
-    const res = await request({
-      type: TempleMessageType.ImportManagedKTAccountRequest,
-      address,
-      chainId,
-      owner
-    });
-    assertResponse(res.type === TempleMessageType.ImportManagedKTAccountResponse);
-  }, []);
-
-  const importWatchOnlyAccount = useCallback(async (address: string, chainId?: string) => {
+  const importWatchOnlyAccount = useCallback(async (chain: TempleChainKind, address: string, chainId?: string) => {
     const res = await request({
       type: TempleMessageType.ImportWatchOnlyAccountRequest,
       address,
+      chain,
       chainId
     });
     assertResponse(res.type === TempleMessageType.ImportWatchOnlyAccountResponse);
   }, []);
 
-  const createLedgerAccount = useCallback(
-    async (name: string, derivationType?: DerivationType, derivationPath?: string) => {
-      const res = await request({
-        type: TempleMessageType.CreateLedgerAccountRequest,
-        name,
-        derivationPath,
-        derivationType
-      });
-      assertResponse(res.type === TempleMessageType.CreateLedgerAccountResponse);
-    },
-    []
-  );
+  const getLedgerTezosPk = useCallback(async (derivationType?: DerivationType, derivationPath?: string) => {
+    const res = await request({
+      type: TempleMessageType.GetLedgerTezosPkRequest,
+      derivationPath,
+      derivationType
+    });
+    assertResponse(res.type === TempleMessageType.GetLedgerTezosPkResponse);
+
+    return res.publicKey;
+  }, []);
+
+  const getLedgerEVMPk = useCallback(async (derivationPath?: string) => {
+    const res = await request({
+      type: TempleMessageType.GetLedgerEVMPkRequest,
+      derivationPath
+    });
+    assertResponse(res.type === TempleMessageType.GetLedgerEVMPkResponse);
+
+    return res.publicKey;
+  }, []);
+
+  const createLedgerAccount = useCallback(async (input: SaveLedgerAccountInput) => {
+    const res = await request({
+      type: TempleMessageType.CreateLedgerAccountRequest,
+      input
+    });
+    assertResponse(res.type === TempleMessageType.CreateLedgerAccountResponse);
+  }, []);
 
   const updateSettings = useCallback(async (newSettings: Partial<TempleSettings>) => {
     const res = await request({
@@ -257,6 +298,47 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
     });
     assertResponse(res.type === TempleMessageType.UpdateSettingsResponse);
   }, []);
+
+  const removeHdGroup = useCallback(async (id: string, password: string) => {
+    const res = await request({
+      type: TempleMessageType.RemoveHdWalletRequest,
+      id,
+      password
+    });
+    assertResponse(res.type === TempleMessageType.RemoveHdWalletResponse);
+  }, []);
+
+  const removeAccountsByType = useCallback(
+    async (type: Exclude<TempleAccountType, TempleAccountType.HD>, password: string) => {
+      const res = await request({
+        type: TempleMessageType.RemoveAccountsByTypeRequest,
+        accountsType: type,
+        password
+      });
+      assertResponse(res.type === TempleMessageType.RemoveAccountsByTypeResponse);
+    },
+    []
+  );
+
+  const createOrImportWallet = useCallback(async (mnemonic?: string) => {
+    const res = await request({
+      type: TempleMessageType.CreateOrImportWalletRequest,
+      mnemonic
+    });
+    assertResponse(res.type === TempleMessageType.CreateOrImportWalletResponse);
+  }, []);
+
+  const editHdGroupName = useCallback(
+    (id: string, name: string) =>
+      setWalletsSpecs(prevSpecs => ({
+        ...prevSpecs,
+        [id]: {
+          ...prevSpecs[id],
+          name: name.trim()
+        }
+      })),
+    [setWalletsSpecs]
+  );
 
   const confirmInternal = useCallback(
     async (id: string, confirmed: boolean, modifiedTotalFee?: number, modifiedStorageLimit?: number) => {
@@ -287,19 +369,32 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
       id,
       confirmed,
       accountPublicKeyHash: pkh,
-      accountPublicKey: confirmed ? await getPublicKey(pkh) : ''
+      accountPublicKey: confirmed ? await getAccountPublicKey(pkh) : ''
     });
     assertResponse(res.type === TempleMessageType.DAppPermConfirmationResponse);
   }, []);
 
-  const confirmDAppOperation = useCallback(
+  const confirmTezosDAppOperation = useCallback(
     async (id: string, confirmed: boolean, modifiedTotalFee?: number, modifiedStorageLimit?: number) => {
       const res = await request({
-        type: TempleMessageType.DAppOpsConfirmationRequest,
+        type: TempleMessageType.DAppTezosOpsConfirmationRequest,
         id,
         confirmed,
         modifiedTotalFee,
         modifiedStorageLimit
+      });
+      assertResponse(res.type === TempleMessageType.DAppOpsConfirmationResponse);
+    },
+    []
+  );
+
+  const confirmEvmDAppOperation = useCallback(
+    async (id: string, confirmed: boolean, modifiedReq: EvmTransactionRequestWithSender) => {
+      const res = await request({
+        type: TempleMessageType.DAppEvmOpsConfirmationRequest,
+        id,
+        confirmed,
+        modifiedReq
       });
       assertResponse(res.type === TempleMessageType.DAppOpsConfirmationResponse);
     },
@@ -315,248 +410,137 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
     assertResponse(res.type === TempleMessageType.DAppSignConfirmationResponse);
   }, []);
 
-  const createTaquitoWallet = useCallback(
-    (sourcePkh: string, networkRpc: string) =>
-      new TaquitoWallet(sourcePkh, networkRpc, {
-        onBeforeSend: id => {
-          confirmationIdRef.current = id;
-        }
-      }),
-    []
-  );
-
-  const createTaquitoSigner = useCallback(
-    (sourcePkh: string) =>
-      new TempleSigner(sourcePkh, id => {
-        confirmationIdRef.current = id;
-      }),
-    []
-  );
-
-  const getAllDAppSessions = useCallback(async () => {
-    const res = await request({
-      type: TempleMessageType.DAppGetAllSessionsRequest
-    });
-    assertResponse(res.type === TempleMessageType.DAppGetAllSessionsResponse);
-    return res.sessions;
-  }, []);
-
-  const removeDAppSession = useCallback(async (origin: string) => {
+  const removeDAppSession = useCallback(async (origins: string[]) => {
     const res = await request({
       type: TempleMessageType.DAppRemoveSessionRequest,
-      origin
+      origins
     });
     assertResponse(res.type === TempleMessageType.DAppRemoveSessionResponse);
     return res.sessions;
   }, []);
+
+  const confirmDAppEvmAssetAdding = useCallback(async (id: string, confirmed: boolean) => {
+    const res = await request({
+      type: TempleMessageType.DAppAddEvmAssetRequest,
+      id,
+      confirmed
+    });
+    assertResponse(res.type === TempleMessageType.DAppAddEvmAssetResponse);
+  }, []);
+
+  const confirmDAppEvmChainAdding = useCallback(async (id: string, confirmed: boolean, testnet: boolean) => {
+    const res = await request({
+      type: TempleMessageType.DAppAddEvmChainRequest,
+      id,
+      confirmed,
+      testnet
+    });
+    assertResponse(res.type === TempleMessageType.DAppAddEvmChainResponse);
+  }, []);
+
+  const switchDAppEvmChain = useCallback(async (origin: string, chainId: number) => {
+    const res = await request({
+      type: TempleMessageType.DAppSwitchEvmChainRequest,
+      origin,
+      chainId
+    });
+    assertResponse(res.type === TempleMessageType.DAppSwitchEvmChainResponse);
+  }, []);
+
+  const sendEvmTransaction = useCallback(
+    async (accountPkh: HexString, network: EvmChain, txParams: TransactionRequest) => {
+      const res = await request({
+        type: TempleMessageType.SendEvmTransactionRequest,
+        accountPkh,
+        network,
+        txParams: formatTransactionRequest(txParams)
+      });
+      assertResponse(res.type === TempleMessageType.SendEvmTransactionResponse);
+
+      return res.txHash;
+    },
+    []
+  );
+
+  const resetExtension = useCallback(async (password: string) => {
+    const res = await request({
+      type: TempleMessageType.ResetExtensionRequest,
+      password
+    });
+    assertResponse(res.type === TempleMessageType.ResetExtensionResponse);
+    localStorage.clear();
+    browser.runtime.reload();
+  }, []);
+
+  const setWindowPopupState = useCallback(async (windowId: number | null, opened: boolean) => {
+    const res = await request({
+      type: TempleMessageType.SetWindowPopupStateRequest,
+      windowId,
+      opened
+    });
+    assertResponse(res.type === TempleMessageType.SetWindowPopupStateResponse);
+  }, []);
+
+  useEffect(() => void (data?.shouldLockOnStartup && lock()), [data?.shouldLockOnStartup, lock]);
 
   return {
     state,
 
     // Aliases
     status,
-    defaultNetworks,
-    customNetworks,
-    networks,
+    customTezosNetworks,
+    customEvmNetworks,
     accounts,
+    walletsSpecs,
     settings,
     idle,
     locked,
     ready,
+    dAppQueueCounters,
+    focusLocation,
+    windowsWithPopups,
 
     // Misc
     confirmation,
-    resetConfirmation,
+    googleAuthToken,
+    setGoogleAuthToken,
+    setSuppressReady,
 
     // Actions
     registerWallet,
     unlock,
     lock,
+    findFreeHdIndex,
     createAccount,
     revealPrivateKey,
     revealMnemonic,
     generateSyncPayload,
     removeAccount,
+    setAccountHidden,
     editAccountName,
     importAccount,
     importMnemonicAccount,
-    importFundraiserAccount,
-    importKTManagedAccount,
     importWatchOnlyAccount,
     createLedgerAccount,
+    getLedgerTezosPk,
+    getLedgerEVMPk,
     updateSettings,
+    removeHdGroup,
+    removeAccountsByType,
+    createOrImportWallet,
+    editHdGroupName,
     confirmInternal,
     getDAppPayload,
     confirmDAppPermission,
-    confirmDAppOperation,
+    confirmTezosDAppOperation,
+    confirmEvmDAppOperation,
     confirmDAppSign,
-    createTaquitoWallet,
-    createTaquitoSigner,
-    getAllDAppSessions,
-    removeDAppSession
+    removeDAppSession,
+    confirmDAppEvmAssetAdding,
+    confirmDAppEvmChainAdding,
+    switchDAppEvmChain,
+    sendEvmTransaction,
+    resetExtension,
+    setWindowPopupState
   };
 });
-
-type TaquitoWalletOps = {
-  onBeforeSend?: (id: string) => void;
-};
-
-class TaquitoWallet implements WalletProvider {
-  constructor(private pkh: string, private rpc: string, private opts: TaquitoWalletOps = {}) {}
-
-  async getPKH() {
-    return this.pkh;
-  }
-
-  getPK() {
-    return getPublicKey(this.pkh);
-  }
-
-  async mapTransferTicketParamsToWalletParams(params: () => Promise<WalletTransferTicketParams>) {
-    const walletParams = await params();
-    return withoutFeesOverride(walletParams, await createTransferTicketOperation(walletParams));
-  }
-
-  async mapIncreasePaidStorageWalletParams(params: () => Promise<WalletIncreasePaidStorageParams>) {
-    const walletParams = await params();
-    return withoutFeesOverride(walletParams, await createIncreasePaidStorageOperation(walletParams));
-  }
-
-  async mapTransferParamsToWalletParams(params: () => Promise<WalletTransferParams>) {
-    const walletParams = await params();
-    return withoutFeesOverride(walletParams, await createTransferOperation(walletParams));
-  }
-
-  async mapOriginateParamsToWalletParams(params: () => Promise<WalletOriginateParams>) {
-    const walletParams = await params();
-    return withoutFeesOverride(walletParams, await createOriginationOperation(walletParams));
-  }
-
-  async mapDelegateParamsToWalletParams(params: () => Promise<WalletDelegateParams>) {
-    const walletParams = await params();
-    return withoutFeesOverride(walletParams, await createSetDelegateOperation(walletParams as any));
-  }
-
-  async mapStakeParamsToWalletParams(params: () => Promise<WalletStakeParams>) {
-    const walletParams = await params();
-    return withoutFeesOverride(walletParams, await createTransferOperation(walletParams as any));
-  }
-
-  async mapUnstakeParamsToWalletParams(params: () => Promise<WalletUnstakeParams>) {
-    const walletParams = await params();
-    return withoutFeesOverride(walletParams, await createTransferOperation(walletParams as any));
-  }
-
-  async mapFinalizeUnstakeParamsToWalletParams(params: () => Promise<WalletFinalizeUnstakeParams>) {
-    const walletParams = await params();
-    return withoutFeesOverride(walletParams, await createTransferOperation(walletParams as any));
-  }
-
-  async sendOperations(opParams: any[]) {
-    const id = nanoid();
-    if (this.opts.onBeforeSend) {
-      this.opts.onBeforeSend(id);
-    }
-    const res = await request({
-      type: TempleMessageType.OperationsRequest,
-      id,
-      sourcePkh: this.pkh,
-      networkRpc: this.rpc,
-      opParams: opParams.map(formatOpParams)
-    });
-    assertResponse(res.type === TempleMessageType.OperationsResponse);
-    return res.opHash;
-  }
-
-  async sign(): Promise<string> {
-    throw new Error('Cannot sign');
-  }
-}
-
-class TempleSigner implements Signer {
-  constructor(private pkh: string, private onBeforeSign?: (id: string) => void) {}
-
-  async publicKeyHash() {
-    return this.pkh;
-  }
-
-  async publicKey(): Promise<string> {
-    return getPublicKey(this.pkh);
-  }
-
-  async secretKey(): Promise<string> {
-    throw new Error('Secret key cannot be exposed');
-  }
-
-  async sign(bytes: string, watermark?: Uint8Array) {
-    const id = nanoid();
-    if (this.onBeforeSign) {
-      this.onBeforeSign(id);
-    }
-    const res = await request({
-      type: TempleMessageType.SignRequest,
-      sourcePkh: this.pkh,
-      id,
-      bytes,
-      watermark: watermark ? buf2hex(toBuffer(watermark)) : undefined
-    });
-    assertResponse(res.type === TempleMessageType.SignResponse);
-    return res.result;
-  }
-}
-
-function formatOpParams(op: any) {
-  switch (op.kind) {
-    case 'origination':
-      return {
-        ...op,
-        mutez: true // The balance was already converted from Tez (ꜩ) to Mutez (uꜩ)
-      };
-    case 'transaction':
-      const { destination, amount, parameters, ...txRest } = op;
-      return {
-        ...txRest,
-        to: destination,
-        amount: +amount,
-        mutez: true,
-        parameter: parameters
-      };
-    default:
-      return op;
-  }
-}
-
-async function getPublicKey(accountPublicKeyHash: string) {
-  const res = await request({
-    type: TempleMessageType.RevealPublicKeyRequest,
-    accountPublicKeyHash
-  });
-  assertResponse(res.type === TempleMessageType.RevealPublicKeyResponse);
-  return res.publicKey;
-}
-
-export async function request<T extends TempleRequest>(req: T) {
-  const res = await intercom.request(req);
-  assertResponse('type' in res);
-  return res as TempleResponse;
-}
-
-export function assertResponse(condition: any): asserts condition {
-  if (!condition) {
-    throw new Error('Invalid response recieved');
-  }
-}
-
-function withoutFeesOverride<T>(params: any, op: T): T {
-  try {
-    const { fee, gasLimit, storageLimit } = params;
-    return {
-      ...op,
-      fee,
-      gas_limit: gasLimit,
-      storage_limit: storageLimit
-    };
-  } catch {
-    return params;
-  }
-}

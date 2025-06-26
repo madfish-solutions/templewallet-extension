@@ -1,6 +1,6 @@
 import browser from 'webextension-polyfill';
 
-import { buildSwapPageUrlQuery } from 'app/pages/Swap/utils/build-url-query';
+import { buildSwapPagePath } from 'app/pages/Swap/build-url-query';
 import {
   ADS_META_SEARCH_PARAM_NAME,
   AD_CATEGORIES_PARAM_NAME,
@@ -11,6 +11,7 @@ import {
   THEME_COLOR_SEARCH_PARAM_NAME
 } from 'lib/constants';
 import { APP_VERSION, EnvVars, IS_MISES_BROWSER } from 'lib/env';
+import { TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
 import { isTruthy } from 'lib/utils';
 
 import { importExtensionAdsModule } from './import-extension-ads-module';
@@ -52,9 +53,9 @@ interface AdsStackIframeURLParams {
 const smallTkeyInpageAdUrl = browser.runtime.getURL(`/misc/ad-banners/small-tkey-inpage-ad.png`);
 const tkeyInpageAdUrl = browser.runtime.getURL(`/misc/ad-banners/tkey-inpage-ad.png`);
 
-const swapTkeyUrl = `${browser.runtime.getURL('fullpage.html')}#/swap?${buildSwapPageUrlQuery(
-  'tez',
-  'KT1VaEsVNiBoA56eToEK6n6BcPgh1tdx9eXi_0',
+const swapTkeyUrl = `${browser.runtime.getURL('fullpage.html')}#${buildSwapPagePath(
+  { chainKind: 'tezos', chainId: TEZOS_MAINNET_CHAIN_ID, assetSlug: 'tez' },
+  { chainKind: 'tezos', chainId: TEZOS_MAINNET_CHAIN_ID, assetSlug: 'KT1VaEsVNiBoA56eToEK6n6BcPgh1tdx9eXi_0' },
   true
 )}`;
 

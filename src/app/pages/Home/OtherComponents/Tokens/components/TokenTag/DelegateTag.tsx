@@ -1,20 +1,23 @@
 import React, { memo, useCallback, useMemo } from 'react';
 
-import classNames from 'clsx';
-
-import { Button } from 'app/atoms/Button';
-import { HomeSelectors } from 'app/pages/Home/Home.selectors';
+import { TagButton } from 'app/atoms/TagButton';
+import { HomeSelectors } from 'app/pages/Home/selectors';
 import { AnalyticsEventCategory, useAnalytics } from 'lib/analytics';
+import { TEZOS_APY } from 'lib/constants';
 import { T } from 'lib/i18n';
-import { useAccount, useDelegate } from 'lib/temple/front';
+import { useDelegate } from 'lib/temple/front';
 import { navigate } from 'lib/woozie';
+import { TezosNetworkEssentials } from 'temple/networks';
 
 import { AssetsSelectors } from '../../../Assets.selectors';
-import modStyles from '../../Tokens.module.css';
 
-export const DelegateTezosTag = memo(() => {
-  const acc = useAccount();
-  const { data: myBakerPkh } = useDelegate(acc.publicKeyHash);
+interface Props {
+  network: TezosNetworkEssentials;
+  pkh: string;
+}
+
+export const DelegateTezosTag = memo<Props>(({ network, pkh }) => {
+  const { data: myBakerPkh } = useDelegate(pkh, network, false);
   const { trackEvent } = useAnalytics();
 
   const handleTagClick = useCallback(
@@ -22,36 +25,24 @@ export const DelegateTezosTag = memo(() => {
       e.preventDefault();
       e.stopPropagation();
       trackEvent(HomeSelectors.delegateButton, AnalyticsEventCategory.ButtonPress);
-      navigate('/explore/tez/?tab=delegation');
+      navigate({
+        pathname: `/earn-tez/${network.chainId}`
+      });
     },
-    [trackEvent]
+    [network.chainId, trackEvent]
   );
 
-  const NotDelegatedButton = useMemo(
-    () => (
-      <Button
-        onClick={handleTagClick}
-        className={classNames('uppercase ml-2 px-1.5 py-1', modStyles.tagBase, modStyles.delegateTag)}
-        testID={AssetsSelectors.assetItemDelegateButton}
-      >
-        <T id="notDelegated" />
-      </Button>
-    ),
-    [handleTagClick]
+  return useMemo(
+    () =>
+      myBakerPkh ? (
+        <TagButton onClick={handleTagClick} testID={AssetsSelectors.assetItemApyButton}>
+          <T id="tezosApy" substitutions={String(TEZOS_APY)} />
+        </TagButton>
+      ) : (
+        <TagButton onClick={handleTagClick} testID={AssetsSelectors.assetItemDelegateButton}>
+          <T id="notDelegated" />
+        </TagButton>
+      ),
+    [handleTagClick, myBakerPkh]
   );
-
-  const TezosDelegated = useMemo(
-    () => (
-      <Button
-        onClick={handleTagClick}
-        className={classNames('inline-flex items-center px-1.5 ml-2 py-1', modStyles.tagBase, modStyles.delegateTag)}
-        testID={AssetsSelectors.assetItemApyButton}
-      >
-        APY: 5.6%
-      </Button>
-    ),
-    [handleTagClick]
-  );
-
-  return myBakerPkh ? TezosDelegated : NotDelegatedButton;
 });

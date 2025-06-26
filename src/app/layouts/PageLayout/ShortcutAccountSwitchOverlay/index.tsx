@@ -1,21 +1,23 @@
 import React, { useCallback, useMemo, useState, useEffect, useRef, KeyboardEventHandler, memo } from 'react';
 
-import classNames from 'clsx';
+import clsx from 'clsx';
 import CSSTransition from 'react-transition-group/CSSTransition';
 import useOnClickOutside from 'use-onclickoutside';
 
-import Divider from 'app/atoms/Divider';
+import { Name } from 'app/atoms';
+import { AccLabel } from 'app/atoms/AccLabel';
+import { EmptyState } from 'app/atoms/EmptyState';
 import { useAccountSelectShortcut } from 'app/hooks/use-account-select-shortcut';
 import { useModalScrollLock } from 'app/hooks/use-modal-scroll-lock';
-import { ReactComponent as SadSearchIcon } from 'app/icons/sad-search.svg';
-import SearchField from 'app/templates/SearchField';
-import { useGasToken } from 'lib/assets/hooks';
+import { AccountsManagementSelectors } from 'app/templates/AccountsManagement/selectors';
+import { SearchBarField } from 'app/templates/SearchField';
 import { searchHotkey } from 'lib/constants';
 import { T, t } from 'lib/i18n';
-import { useAccount, useRelevantAccounts, useSetAccountPkh } from 'lib/temple/front';
 import Portal from 'lib/ui/Portal';
-import { searchAndFilterItems } from 'lib/utils/search-items';
 import { HistoryAction, navigate } from 'lib/woozie';
+import { useCurrentAccountId, useChangeAccount, useVisibleAccounts } from 'temple/front';
+import { searchAndFilterAccounts } from 'temple/front/accounts';
+import { useAccountsGroups } from 'temple/front/groups';
 
 import { AccountItem } from './AccountItem';
 
@@ -27,41 +29,33 @@ export const ShortcutAccountSwitchOverlay = memo(() => {
   useModalScrollLock(opened, accountSwitchRef);
   useOnClickOutside(accountSwitchRef, () => setOpened(false));
 
-  const allAccounts = useRelevantAccounts();
-  const account = useAccount();
-  const setAccountPkh = useSetAccountPkh();
-  const { assetName: gasTokenName } = useGasToken();
+  const currentAccountId = useCurrentAccountId();
+  const allAccounts = useVisibleAccounts();
+  const setAccountId = useChangeAccount();
 
   const [searchValue, setSearchValue] = useState('');
   const [focusedAccountItemIndex, setFocusedAccountItemIndex] = useState(0);
 
-  const filteredAccounts = useMemo(() => {
-    if (searchValue.length === 0) {
-      return allAccounts;
-    }
+  const filteredAccounts = useMemo(
+    () => (searchValue.length ? searchAndFilterAccounts(allAccounts, searchValue) : allAccounts),
+    [searchValue, allAccounts]
+  );
+  const filteredGroups = useAccountsGroups(filteredAccounts);
 
-    return searchAndFilterItems(
-      allAccounts,
-      searchValue.toLowerCase(),
-      [
-        { name: 'name', weight: 1 },
-        { name: 'publicKeyHash', weight: 0.25 }
-      ],
-      null,
-      0.35
-    );
-  }, [searchValue, allAccounts]);
+  const flattenedFilteredAccounts = useMemo(() => {
+    return filteredGroups.flatMap(group => group.accounts);
+  }, [filteredGroups]);
 
   const handleAccountClick = useCallback(
-    (publicKeyHash: string) => {
-      const selected = publicKeyHash === account.publicKeyHash;
+    (id: string) => {
+      const selected = id === currentAccountId;
       if (!selected) {
-        setAccountPkh(publicKeyHash);
+        setAccountId(id);
       }
       setOpened(false);
       navigate('/', HistoryAction.Replace);
     },
-    [account, setAccountPkh, setOpened]
+    [currentAccountId, setAccountId, setOpened]
   );
 
   const handleCleanButtonClick = useCallback(() => {
@@ -80,8 +74,10 @@ export const ShortcutAccountSwitchOverlay = memo(() => {
       if (e.key === 'Enter') {
         e.preventDefault();
 
-        const focusedAccountPkh = filteredAccounts[focusedAccountItemIndex].publicKeyHash;
-        handleAccountClick(focusedAccountPkh);
+        const focusedAccount = flattenedFilteredAccounts[focusedAccountItemIndex];
+        if (focusedAccount) {
+          handleAccountClick(focusedAccount.id);
+        }
 
         return;
       }
@@ -104,9 +100,7 @@ export const ShortcutAccountSwitchOverlay = memo(() => {
       if (e.key === 'ArrowUp' || (e.key === 'Tab' && e['shiftKey'])) {
         e.preventDefault();
 
-        if (focusedAccountItemIndex > 0) {
-          setFocusedAccountItemIndex(prev => prev - 1);
-        }
+        setFocusedAccountItemIndex(prev => (prev === 0 ? flattenedFilteredAccounts.length - 1 : prev - 1));
 
         return;
       }
@@ -114,12 +108,10 @@ export const ShortcutAccountSwitchOverlay = memo(() => {
       if (e.key === 'ArrowDown' || e.key === 'Tab') {
         e.preventDefault();
 
-        if (focusedAccountItemIndex >= 0 && focusedAccountItemIndex < filteredAccounts.length - 1) {
-          setFocusedAccountItemIndex(prev => prev + 1);
-        }
+        setFocusedAccountItemIndex(prev => (prev === flattenedFilteredAccounts.length - 1 ? 0 : prev + 1));
       }
     },
-    [filteredAccounts, focusedAccountItemIndex, handleAccountClick, opened, searchValue, setOpened]
+    [flattenedFilteredAccounts, focusedAccountItemIndex, handleAccountClick, opened, searchValue, setOpened]
   );
 
   useEffect(() => {
@@ -141,64 +133,56 @@ export const ShortcutAccountSwitchOverlay = memo(() => {
         }}
         unmountOnExit
       >
-        <div className="fixed inset-0 z-50 w-full h-full bg-black bg-opacity-20">
+        <div className="fixed inset-0 z-overlay-promo flex flex-col items-center justify-center bg-black bg-opacity-15 backdrop-blur-xs">
           <div
             ref={accountSwitchRef}
             tabIndex={0}
-            className="absolute top-1/2 left-1/2 border rounded-md bg-gray-910 border-gray-850 p-2 w-64 focus:outline-none"
-            style={{ transform: 'translate(-50%, -50%)' }}
+            className="mx-auto rounded-8 bg-white w-88"
             onKeyDown={handleKeyPress}
           >
-            <SearchField
-              autoFocus
-              value={searchValue}
-              className={classNames(
-                'py-2 pl-8 pr-8',
-                'bg-transparent',
-                'focus:outline-none',
-                'transition ease-in-out duration-200',
-                'rounded-md rounded-b-none',
-                'text-gray-500 placeholder-gray-600 text-sm leading-tight'
-              )}
-              placeholder={t('searchAccount', [searchHotkey])}
-              searchIconClassName="h-5 w-auto text-gray-600 stroke-current"
-              searchIconWrapperClassName="px-2"
-              cleanButtonClassName="border-gray-600"
-              cleanButtonIconClassName="text-gray-600 stroke-current"
-              cleanButtonStyle={{ backgroundColor: 'transparent' }}
-              onValueChange={handleSearchValueChange}
-              onCleanButtonClick={handleCleanButtonClick}
-            />
-
-            <Divider className="bg-gray-700 -mx-2" />
-
-            <div className="py-2">
-              <div className="overflow-y-auto overscroll-contain h-63 px-2 -mx-2">
-                <div className="flex flex-col">
-                  {filteredAccounts.length === 0 ? (
-                    <div className="h-63 flex justify-center items-center">
-                      <SadSearchIcon />
-                    </div>
-                  ) : (
-                    filteredAccounts.map((acc, index) => (
-                      <AccountItem
-                        key={acc.publicKeyHash}
-                        account={acc}
-                        focused={focusedAccountItemIndex === index}
-                        gasTokenName={gasTokenName}
-                        arrayIndex={index}
-                        itemsArrayRef={accountItemsRef}
-                        onClick={() => handleAccountClick(acc.publicKeyHash)}
-                      />
-                    ))
-                  )}
-                </div>
-              </div>
+            <div className="p-3 border-b-0.5 border-lines">
+              <SearchBarField
+                autoFocus
+                defaultRightMargin={false}
+                value={searchValue}
+                className={'focus:outline-none focus:ring-0 focus:border-transparent'}
+                placeholder={t('searchAccount', [searchHotkey])}
+                onValueChange={handleSearchValueChange}
+                testID={AccountsManagementSelectors.searchField}
+                onCleanButtonClick={handleCleanButtonClick}
+              />
             </div>
 
-            <Divider className="bg-gray-700 mb-2 -mx-2" />
-
-            <p className="text-center text-gray-500 text-xs font-normal font-inter">
+            <div className="overflow-y-auto overscroll-contain h-[22.5rem]">
+              {filteredGroups.length === 0 ? (
+                <div className="flex-1 flex items-center justify-center h-full">
+                  <EmptyState />
+                </div>
+              ) : (
+                filteredGroups.map((group, index) => (
+                  <div key={group.id} className={clsx(index === 0 && 'mt-3', 'flex flex-col mb-4 px-3')}>
+                    <div className="flex items-center justify-between">
+                      <Name className="p-1 text-font-description-bold">{group.name}</Name>
+                      <AccLabel type={group.type} />
+                    </div>
+                    <div className="flex flex-col gap-y-3 mt-2">
+                      {group.accounts.map(account => (
+                        <AccountItem
+                          key={account.id}
+                          account={account}
+                          focused={flattenedFilteredAccounts[focusedAccountItemIndex]?.id === account.id}
+                          onAccountSelect={handleAccountClick}
+                          searchValue={searchValue}
+                          arrayIndex={filteredAccounts.findIndex(a => a.id === account.id)}
+                          itemsArrayRef={accountItemsRef}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+            <p className="text-center text-grey-1 text-xs border-t-0.5 border-lines p-3 ">
               <T id="shortcutSwitchAccountOverlayNavigation" />
             </p>
           </div>

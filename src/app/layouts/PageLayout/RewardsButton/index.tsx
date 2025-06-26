@@ -7,6 +7,7 @@ import { Link } from 'lib/woozie';
 import { FirefoxStarAnimation } from './firefox-star-animation';
 import { StarAnimation } from './star-animation';
 
+// @ts-prune-ignore-next // TODO: Apply in new design // TestID was 'Page Layout/Rewards Button'
 export const RewardsButton = memo<TestIDProps>(props => {
   const [isHovered, setIsHovered] = useState(false);
 

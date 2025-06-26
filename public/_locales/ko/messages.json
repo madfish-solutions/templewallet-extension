@@ -1,7 +1,4 @@
 {
-  "showIncomingTransactions": {
-    "message": "앞으로의 거래 표시"
-  },
   "appName": {
     "message": "타노스 - 테조스 지갑"
   },
@@ -14,12 +11,6 @@
   "createAccount": {
     "message": "계정 만들기"
   },
-  "faucetFileTitle": {
-    "message": "수도꼭지 파일"
-  },
-  "faucetFile": {
-    "message": "수도꼭지 파일"
-  },
   "settings": {
     "message": "설정"
   },
@@ -28,21 +19,6 @@
   },
   "maximiseView": {
     "message": "화면 최대화"
-  },
-  "selectFileOfFormat": {
-    "message": "$format$ 파일 선택",
-    "placeholders": {
-      "format": {
-        "content": "$1"
-      }
-    }
-  },
-  "authorizedDApps": {
-    "message": "인증된 분산 앱",
-    "description": "DApps = Decentralized Applications"
-  },
-  "clickIconToResetPermissions": {
-    "message": "X 아이콘을 클릭하여 접근 권한을 초기화하세요."
   },
   "versionLabel": {
     "message": "버전: $version$",
@@ -53,36 +29,9 @@
     }
   },
   "branchName": {
-    "message": "branch: $branch$",
+    "message": "Branch: $branch$",
     "placeholders": {
       "branch": {
-        "content": "$1"
-      }
-    }
-  },
-  "madeWithLove": {
-    "message": "$companyName$ 옆에 $loveIcon$ 포함하여 제작",
-    "placeholders": {
-      "loveIcon": {
-        "content": "$1"
-      },
-      "companyName": {
-        "content": "$2"
-      }
-    }
-  },
-  "feeInputDescription": {
-    "message": "이 운영에 대한 기본 비용은 $fee$입니다\n추가 - 확인에 따라 속도 상승",
-    "placeholders": {
-      "fee": {
-        "content": "$1"
-      }
-    }
-  },
-  "resetPermissionsConfirmation": {
-    "message": "$origin$에 대한 접근 권한을 정말로 초기화하시겠습니까?",
-    "placeholders": {
-      "origin": {
         "content": "$1"
       }
     }
@@ -111,87 +60,6 @@
   "networks": {
     "message": "네트워크"
   },
-  "back": {
-    "message": "뒤로"
-  },
-  "addNewToken": {
-    "message": "새 토큰 추가"
-  },
-  "hideSomeToken": {
-    "message": "\"$tokenName$\" 토큰 숨기기",
-    "placeholders": {
-      "tokenName": {
-        "content": "$1"
-      }
-    }
-  },
-  "copySomeTokenAddress": {
-    "message": "\"$tokenSymbol$\" 주소 복사",
-    "placeholders": {
-      "tokenSymbol": {
-        "content": "$1"
-      }
-    }
-  },
-  "copySomeTokenId": {
-    "message": "\"tokenSymbol$\" ID 복사",
-    "placeholders": {
-      "tokenSymbol": {
-        "content": "$1"
-      }
-    }
-  },
-  "originLabel": {
-    "message": "원금: $origin$",
-    "placeholders": {
-      "origin": {
-        "content": "$1"
-      }
-    }
-  },
-  "networkLabel": {
-    "message": "네트워크: $network$",
-    "placeholders": {
-      "network": {
-        "content": "$1"
-      }
-    }
-  },
-  "pkhLabel": {
-    "message": "계정: $pkh$",
-    "placeholders": {
-      "pkh": {
-        "content": "$1"
-      }
-    }
-  },
-  "minDelegationAmountDescription": {
-    "message": "현재 잔액이 이 베이커의 최소 위임 금액보다 적습니다. 잔액이 $minAmount$ 미만으로 지불금이 없다는 뜻입니다.",
-    "placeholders": {
-      "minAmount": {
-        "content": "$1"
-      }
-    }
-  },
-  "recommendedBakersDescription": {
-    "message": "이 목록은 $link$이(가) 지원합니다",
-    "placeholders": {
-      "link": {
-        "content": "$1"
-      }
-    }
-  },
-  "highestIsBetter": {
-    "message": "높을수록 좋습니다"
-  },
-  "unlockWalletPrompt": {
-    "message": "기존 지갑에 있던 것을 저장하고자 한다면 $link$하여 이를 잠금 해제하세요.",
-    "placeholders": {
-      "link": {
-        "content": "$1"
-      }
-    }
-  },
   "acceptTermsInputDescription": {
     "message": "본인은 $termsOfUsageLink$ 및 $privacyPolicyLink$를 읽고 이에 동의합니다",
     "placeholders": {
@@ -203,23 +71,8 @@
       }
     }
   },
-  "copiedTokenAddress": {
-    "message": "복사되었습니다"
-  },
-  "copiedTokenId": {
-    "message": "복사되었습니다"
-  },
-  "delegatedTo": {
-    "message": "위임 대상자:"
-  },
-  "delegatingMotivation": {
-    "message": "자금을 베이커에게 위임하는 것이 잔액에 대한 이자를 벌 수 있는 좋은 방법입니다."
-  },
   "reDelegate": {
     "message": "재위임"
-  },
-  "delegateNow": {
-    "message": "지금 위임하기"
   },
   "cancel": {
     "message": "취소"
@@ -230,30 +83,8 @@
   "edit": {
     "message": "편집"
   },
-  "useCoinSwitch": {
-    "message": "CoinSwitch 사용",
-    "description": "CoinSwitch = https://coinswitch.co/"
-  },
-  "tezosFaucet": {
-    "message": "테조스 수도꼭지"
-  },
-  "tezosFaucetAlpha": {
-    "message": "테조스 수도꼭지(알파)"
-  },
-  "depositToWallet": {
-    "message": "지갑에 입금"
-  },
-  "depositToWalletDescription": {
-    "message": "지갑으로 돈을 받기 위한 입금 방법을 클릭하세요. 수도꼭지를 활용하여 무료 코인을 받으세요!"
-  },
   "addToken": {
     "message": "토큰 추가"
-  },
-  "contractNotAvailable": {
-    "message": "이 주소로 된 계약은 사용할 수 없습니다. 이 네트워크에 존재하는 것이 맞습니가?"
-  },
-  "noTransferMethod": {
-    "message": "송금 방법 없음"
   },
   "tokenDoesNotMatchStandard": {
     "message": "입력한 토큰 계약이 $standard$ 기준과 일치하지 않습니다",
@@ -265,9 +96,6 @@
   },
   "error": {
     "message": "오류"
-  },
-  "tokenType": {
-    "message": "토큰 유형"
   },
   "tokenId": {
     "message": "토큰 ID"
@@ -342,16 +170,13 @@
     "message": "아이콘 URL"
   },
   "optionalComment": {
-    "message": "(선택)"
+    "message": "선택"
   },
   "iconURLInputDescription": {
     "message": "토큰 로고용 이미지 URL입니다."
   },
   "invalidAddress": {
     "message": "유효하지 않은 주소"
-  },
-  "contractNotExistOnNetwork": {
-    "message": "이 스마트 계약은 현재 네트워크에 존재하지 않습니다"
   },
   "onlyKTContractAddressAllowed": {
     "message": "KT... 계약 주소만 허용됨",
@@ -363,20 +188,11 @@
   "alert": {
     "message": "경고"
   },
-  "accountNameInputTitle": {
+  "accountOrGroupNameInputTitle": {
     "message": "1-16글자, 특수문자 제외"
   },
   "defaultAccountName": {
     "message": "계정 $계정수$",
-    "placeholders": {
-      "accountNumber": {
-        "content": "$1"
-      }
-    }
-  },
-  "defaultManagedKTAccountName": {
-    "message": "관리 대상 KT $계정수$",
-    "description": "KT not translated",
     "placeholders": {
       "accountNumber": {
         "content": "$1"
@@ -390,9 +206,6 @@
         "content": "$1"
       }
     }
-  },
-  "accountsToRemoveConstraint": {
-    "message": "계층적 구조(HD) 계정은 제거할 수 없습니다."
   },
   "doNotSharePrivateKey": {
     "message": "누구와도 이 글자 세트를 <b>공유하지 마세요!</b> 현재 계정을 도난 당할 수 있습니다."
@@ -474,10 +287,6 @@
   "tryAgain": {
     "message": "다시 시도하기"
   },
-  "tezosMainnet": {
-    "message": "테조스 메인넷(Tezos Mainnet)",
-    "description": "Mainnet = main network"
-  },
   "templeWalletOptions": {
     "message": "템플 지갑 | 옵션"
   },
@@ -551,14 +360,8 @@
   "send": {
     "message": "전송"
   },
-  "baking": {
-    "message": "베이킹"
-  },
   "operations": {
     "message": "운영"
-  },
-  "delegationInfoWhileMessage": {
-    "message": "위임 정보를 불러오거나 처리하는 중"
   },
   "operationHistoryWhileMessage": {
     "message": "운영 내역을 불러오거나 처리하는 중"
@@ -569,20 +372,8 @@
   "mnemonic": {
     "message": "니모닉"
   },
-  "fundraiser": {
-    "message": "펀드레이저"
-  },
-  "privateKeyInputDescription": {
-    "message": "불러오고자 하는 계정의 비밀 키입니다."
-  },
-  "privateKeyInputPlaceholder": {
-    "message": "예) edsk3wfiPMu..."
-  },
   "password": {
     "message": "비밀번호"
-  },
-  "isPrivateKeyEncrypted": {
-    "message": "비공개 키가 암호화된 포맷으로 되어 있나요?"
   },
   "customDerivationPath": {
     "message": "맞춤형 도출 경로"
@@ -628,14 +419,6 @@
   "smthWentWrong": {
     "message": "문제가 발생했습니다"
   },
-  "faucetFileInputPrompt": {
-    "message": "파일을 드래그 및 드롭 하거나 아래 영역을 클릭하여 수동으로 선택하세요. $link$에서 다운로드 할 수 있습니다.",
-    "placeholders": {
-      "link": {
-        "content": "$1"
-      }
-    }
-  },
   "processing": {
     "message": "처리 중..."
   },
@@ -654,43 +437,18 @@
   "revealPrivateKey": {
     "message": "비공개 키 공개"
   },
-  "revealPrivateKeyDescription": {
-    "message": "\"계정 내보내기\"라고도 하는데, 선택한 계정의 비공개 키가 공개됩니다"
-  },
   "revealSeedPhrase": {
     "message": "비밀 문구 공개"
-  },
-  "revealSeedPhraseDescription": {
-    "message": "\"지갑 내보내기\"라고도 하는데, 다른 기기에서 지갑 및 계정에 액세스 하려면 이 비밀 문구가 있어야 합니다."
   },
   "dApps": {
     "message": "분산 앱",
     "description": "DApps = Decentralized Applications"
-  },
-  "dAppsDescription": {
-    "message": "이 섹션에서 타노스 지갑을 지원하는 분산 애플리케이션과 상호 소통하는 기능을 활성화할 수 있습니다."
-  },
-  "networksDescription": {
-    "message": "이 섹션에서 맞춤형 테조스 네트워크를 추가하거나 삭제할 수 있습니다.",
-    "description": "Tezos = blockchain name (https://tezos.com/)"
-  },
-  "activateAccount": {
-    "message": "계정 활성화"
-  },
-  "activateAccountDescription": {
-    "message": "ICO/펀드레이져 혹은 테스트네트 수도꼭지 계정은 이것이 필수입니다"
   },
   "removeAccount": {
     "message": "계정 제거"
   },
   "removeAccountDescription": {
     "message": "이 섹션을 활용하여 선택한 계정을 제거하세요. 불러온 계정만 제거할 수 있습니다."
-  },
-  "about": {
-    "message": "정보"
-  },
-  "aboutDescription": {
-    "message": "이 섹션을 활용하여 타노스 지갑에 관한 메타 징보를 확인하세요."
   },
   "unlockWallet": {
     "message": "지갑 잠금 해제"
@@ -723,44 +481,11 @@
   "website": {
     "message": "웹사이트"
   },
-  "repo": {
-    "message": "저장소"
-  },
   "privacyPolicy": {
     "message": "개인정보 보호정책"
   },
   "termsOfUse": {
     "message": "사용약관"
-  },
-  "contact": {
-    "message": "연락처"
-  },
-  "accountAlreadyActivated": {
-    "message": "계정이 이미 활성화되었습니다."
-  },
-  "accountActivated": {
-    "message": "계정 활성화 성공!"
-  },
-  "failureSecretMayBeInvalid": {
-    "message": "실패. 입력한 보안 정보가 유효하지 않을 때 발생할 수 있습니다"
-  },
-  "accountToBeActivated": {
-    "message": "활성화할 계정입니다."
-  },
-  "ifYouWantToActivateAnotherAccount": {
-    "message": "다른 계정을 활성화하고자 한다면 우측 상담 드롭다운에서 해당 계정을 선택하세요."
-  },
-  "activateAccountSecret": {
-    "message": "보안 정보"
-  },
-  "activateAccountSecretDescription": {
-    "message": "펀드레이져 계정 혹은 수도꼭지의 '보안' 필드"
-  },
-  "activateAccountSecretPlaceholder": {
-    "message": "예) n4hs7sd3..."
-  },
-  "activate": {
-    "message": "활성화"
   },
   "minimalFeeDescription": {
     "message": "최소"
@@ -832,26 +557,11 @@
   "delegation": {
     "message": "위임"
   },
-  "customBaker": {
-    "message": "베이커"
-  },
-  "bakerInputDescription": {
-    "message": "등록한 베이커의 주소입니다."
-  },
-  "bakerInputPlaceholder": {
-    "message": "예 tz1a9w1S7hN5s..."
-  },
-  "minDelegationAmountTitle": {
-    "message": "최소 위임 계정"
-  },
   "unknownBakerTitle": {
     "message": "알 수 없는 베이커"
   },
   "unknownBakerDescription": {
     "message": "입력한 주소는 베이커로서 저희가 알 수 없는 주소입니다! 자금을 위임하시되, 위험 부담은 회원님에게 있습니다."
-  },
-  "recommendedBakers": {
-    "message": "추천 베이커로 위임"
   },
   "sortBy": {
     "message": "정렬 기준"
@@ -888,23 +598,6 @@
   "minimalFeeGreaterThanBalance": {
     "message": "이 송금 건에 대한 최소 비용이 잔액보다 큽니다."
   },
-  "alreadyDelegatedFundsToBaker": {
-    "message": "자금을 이 베이커에게 이미 위임했습니다. 재위임은 불가합니다."
-  },
-  "bakerNotRegistered": {
-    "message": "지정된 베이커가 등록되지 않았습니다."
-  },
-  "unableToPerformActionToBaker": {
-    "message": "입력한 베이커로 $action$할 수 없습니다.",
-    "placeholders": {
-      "action": {
-        "content": "$1"
-      }
-    }
-  },
-  "estimateDelegation": {
-    "message": "위임 예상"
-  },
   "thisMayHappenBecause": {
     "message": "증상 발생 원인:"
   },
@@ -918,9 +611,6 @@
   },
   "networkOrOtherIssue": {
     "message": "네트워크 혹은 기타 기술적인 문제입니다."
-  },
-  "unableToDelegateToKTAddress": {
-    "message": "계약 주소인...KT로 위임할 수 없습니다"
   },
   "confirmAction": {
     "message": "$action$ 확인",
@@ -1057,7 +747,12 @@
     "message": "m/44'/1729'/<계정 지수>'/0'"
   },
   "derivationPathExample2": {
-    "message": "예) m/44'/1729'/..."
+    "message": "예) $derivationPath$",
+    "placeholders": {
+      "derivationPath": {
+        "content": "$1"
+      }
+    }
   },
   "keepSeedPhraseSecret": {
     "message": "보안을 유지하세요."
@@ -1267,14 +962,11 @@
   "upload": {
     "message": "업로드"
   },
-  "languageAndCountry": {
+  "language": {
     "message": "언어"
   },
   "generalSettings": {
     "message": "일반"
-  },
-  "generalSettingsDescription": {
-    "message": "여기에서 선호하는 언어와 디스플레이 모드를 관리할 수 있습니다."
   },
   "swapNoun": {
     "message": "스왑"
@@ -1361,9 +1053,6 @@
   "disabledForWatchOnlyAccount": {
     "message": "보기 전용 계정에서는 비활성화됨"
   },
-  "activationOperationType": {
-    "message": "활성화"
-  },
   "youAreNotContractManager": {
     "message": "회원님은 계약 관리자가 아닙니다"
   },
@@ -1375,9 +1064,6 @@
   },
   "contractAddressInputPlaceholder": {
     "message": "예) KT1a9w1S7hN5s..."
-  },
-  "addKnownManagedContract": {
-    "message": "알려진 관리 계약 추가"
   },
   "clickOnContractToImport": {
     "message": "가져오고자 하는 계약서를 클릭하세요."
@@ -1424,9 +1110,6 @@
   "popupSettingsDescription": {
     "message": "익스텐션 패널의 플러그인 아이콘 클릭에 나타나는 팝업을 여기에서 설정할 수 있습니다."
   },
-  "managedContract": {
-    "message": "관리 대상 계약"
-  },
   "referredByTokenContractNotFound": {
     "message": "토큰 계약이 참조하는 계약 $address$를 찾을 수 없습니다.",
     "placeholders": {
@@ -1451,9 +1134,6 @@
         "content": "$1"
       }
     }
-  },
-  "invalidManagedContract": {
-    "message": "유효하지 않은 관리 계약"
   },
   "someMethodNotDefinedInContract": {
     "message": "'$name$' 방법은 계약에 명시되어 있지 않습니다.",
@@ -1618,14 +1298,5 @@
   },
   "invalidJsonInput": {
     "message": "유효하지 않은 JSON"
-  },
-  "notFaucetJson": {
-    "message": "수도꼭지 JSON이 아님"
-  },
-  "faucetJson": {
-    "message": "수도꼭지 JSON"
-  },
-  "faucetJsonDescription": {
-    "message": "파일 추가 대신 여기에 JSON을 붙여넣기 할 수 있습니다"
   }
 }

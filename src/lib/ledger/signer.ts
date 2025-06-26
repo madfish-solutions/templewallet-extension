@@ -5,12 +5,14 @@ import * as sodium from 'libsodium-wrappers';
 import { crypto_sign_verify_detached, crypto_generichash } from 'libsodium-wrappers';
 import toBuffer from 'typedarray-to-buffer';
 
-import { toLedgerError } from './helpers';
+import { DEFAULT_TEZOS_DERIVATION_PATH } from 'lib/constants';
+
+import { isPkRetrievalError, isPkhRetrievalError, toLedgerError } from './helpers';
 
 export class TempleLedgerSigner extends LedgerSigner {
   constructor(
     transport: LedgerTransport,
-    path: string = "44'/1729'/0'/0'",
+    path: string = DEFAULT_TEZOS_DERIVATION_PATH,
     prompt: boolean = true,
     derivationType: DerivationType = DerivationType.ED25519,
     private accPublicKey?: string,
@@ -20,21 +22,24 @@ export class TempleLedgerSigner extends LedgerSigner {
   }
 
   async publicKey() {
-    return (
-      this.accPublicKey ??
-      super.publicKey().catch(err => {
-        throw toLedgerError(err);
-      })
-    );
+    return this.accPublicKey ?? this.withErrorCauseThrow(() => super.publicKey(), isPkRetrievalError);
   }
 
   async publicKeyHash() {
-    return (
-      this.accPublicKeyHash ??
-      super.publicKeyHash().catch(err => {
-        throw toLedgerError(err);
-      })
-    );
+    return this.accPublicKeyHash ?? this.withErrorCauseThrow(() => super.publicKeyHash(), isPkhRetrievalError);
+  }
+
+  private async withErrorCauseThrow<T extends Error & { cause?: any }, R>(
+    fn: () => Promise<R>,
+    isExpectedError: (error: unknown) => error is T
+  ) {
+    return fn().catch(err => {
+      if (isExpectedError(err) && err.cause instanceof Error) {
+        throw err.cause;
+      }
+
+      throw err;
+    });
   }
 
   async sign(bytes: string, watermark?: Uint8Array) {

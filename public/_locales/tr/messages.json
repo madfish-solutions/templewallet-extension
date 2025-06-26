@@ -1,9 +1,6 @@
 {
   "appName": {
-    "message": "Temple - Tezos Wallet"
-  },
-  "showIncomingTransactions": {
-    "message": "Gelen İşlemleri Göster"
+    "message": "Temple Wallet"
   },
   "appDesc": {
     "message": "Tarayıcınızda Web Uzantısı olarak Tezos blokzinciri için kripto para cüzdanı."
@@ -14,12 +11,6 @@
   "importAccount": {
     "message": "Hesabı içe aktar"
   },
-  "faucetFileTitle": {
-    "message": "Faucet (Musluk) Dosyası"
-  },
-  "faucetFile": {
-    "message": "Faucet (Musluk) dosyası"
-  },
   "settings": {
     "message": "Ayarlar"
   },
@@ -29,26 +20,8 @@
   "maximiseView": {
     "message": "Görünümü büyüt"
   },
-  "selectFile": {
-    "message": "Dosya seç"
-  },
-  "selectFileOfFormat": {
-    "message": "$format$ dosyası seç",
-    "placeholders": {
-      "format": {
-        "content": "$1"
-      }
-    }
-  },
-  "authorizedDApps": {
-    "message": "İzin Verilen DApps",
-    "description": "DApps = Decentralized Applications"
-  },
-  "clickIconToResetPermissions": {
-    "message": "İzinleri sıfırlamak için X simgesine tıklayın."
-  },
   "versionLabel": {
-    "message": "sürüm: $version$",
+    "message": "Sürüm: $version$",
     "placeholders": {
       "version": {
         "content": "$1"
@@ -56,36 +29,9 @@
     }
   },
   "branchName": {
-    "message": "branch: $branch$",
+    "message": "Branch: $branch$",
     "placeholders": {
       "branch": {
-        "content": "$1"
-      }
-    }
-  },
-  "madeWithLove": {
-    "message": "$companyName$ tarafından $loveIcon$ ile oluşturulmuştur",
-    "placeholders": {
-      "loveIcon": {
-        "content": "$1"
-      },
-      "companyName": {
-        "content": "$2"
-      }
-    }
-  },
-  "feeInputDescription": {
-    "message": "Bu işlem için Taban Ücret: $fee$\nEk - konfirmasyonu hızlandırır",
-    "placeholders": {
-      "fee": {
-        "content": "$1"
-      }
-    }
-  },
-  "resetPermissionsConfirmation": {
-    "message": "$origin$ için izinleri sıfırlamak\nistediğinizden emin misiniz?",
-    "placeholders": {
-      "origin": {
         "content": "$1"
       }
     }
@@ -114,87 +60,6 @@
   "networks": {
     "message": "Ağlar"
   },
-  "back": {
-    "message": "Geri"
-  },
-  "addNewToken": {
-    "message": "Yeni Token Ekle"
-  },
-  "hideSomeToken": {
-    "message": "\"$tokenName$\" token'ını gizle",
-    "placeholders": {
-      "tokenName": {
-        "content": "$1"
-      }
-    }
-  },
-  "copySomeTokenAddress": {
-    "message": "\"$tokenSymbol$\" adresini kopyala",
-    "placeholders": {
-      "tokenSymbol": {
-        "content": "$1"
-      }
-    }
-  },
-  "copySomeTokenId": {
-    "message": "\"$tokenSymbol$\" kimliğini kopyala",
-    "placeholders": {
-      "tokenSymbol": {
-        "content": "$1"
-      }
-    }
-  },
-  "originLabel": {
-    "message": "Köken: $origin$",
-    "placeholders": {
-      "origin": {
-        "content": "$1"
-      }
-    }
-  },
-  "networkLabel": {
-    "message": "Ağ: $network$",
-    "placeholders": {
-      "network": {
-        "content": "$1"
-      }
-    }
-  },
-  "pkhLabel": {
-    "message": "Hesap: $pkh$",
-    "placeholders": {
-      "pkh": {
-        "content": "$1"
-      }
-    }
-  },
-  "minDelegationAmountDescription": {
-    "message": "Mevcut bakiyeniz, bu fırıncının minimum delegasyon miktarının altında. Bu durumda, bakiyeniz $minAmount$ tutarının altında olduğunda ödeme yapılmayacaktır.",
-    "placeholders": {
-      "minAmount": {
-        "content": "$1"
-      }
-    }
-  },
-  "recommendedBakersDescription": {
-    "message": "Bu liste $link$ tarafından desteklenir",
-    "placeholders": {
-      "link": {
-        "content": "$1"
-      }
-    }
-  },
-  "highestIsBetter": {
-    "message": "ne kadar yüksek o kadar iyi"
-  },
-  "unlockWalletPrompt": {
-    "message": "Zaten mevcut olan cüzdandan bir şey kaydetmek istiyorsanız - $link$ ve kilidini açın.",
-    "placeholders": {
-      "link": {
-        "content": "$1"
-      }
-    }
-  },
   "acceptTermsInputDescription": {
     "message": "$termsOfUsageLink$ ve $privacyPolicyLink$ belgelerini\nokudum ve kabul ediyorum",
     "placeholders": {
@@ -206,23 +71,8 @@
       }
     }
   },
-  "copiedTokenAddress": {
-    "message": "Kopyalandı"
-  },
-  "copiedTokenId": {
-    "message": "Kopyalandı"
-  },
-  "delegatedTo": {
-    "message": "Gönderilen:"
-  },
-  "delegatingMotivation": {
-    "message": "Fonlarınızı fırıncılara devretmek, bakiyeniz üzerinden faiz getirisi kazanmak için mükemmel bir yoldur."
-  },
   "reDelegate": {
     "message": "Yeniden devret"
-  },
-  "delegateNow": {
-    "message": "Şimdi devret"
   },
   "cancel": {
     "message": "İptal"
@@ -233,33 +83,8 @@
   "edit": {
     "message": "Düzenle"
   },
-  "useCoinSwitch": {
-    "message": "CoinSwitch Kullan",
-    "description": "CoinSwitch = https://coinswitch.co/"
-  },
-  "tezosFaucet": {
-    "message": "Tezos Faucet"
-  },
-  "tezosFaucetAlpha": {
-    "message": "Tezos Faucet (Alfa)"
-  },
-  "depositToWallet": {
-    "message": "Cüzdana yükleme yap"
-  },
-  "depositToWalletDescription": {
-    "message": "Cüzdanınıza para yüklemek için yatırma yöntemine tıklayın. Bedava koin almak için musluğu kullanın!"
-  },
   "addToken": {
     "message": "Varlık Ekle"
-  },
-  "addAsset": {
-    "message": "Varlık Ekle"
-  },
-  "contractNotAvailable": {
-    "message": "Bu adresteki sözleşme kullanılabilir değil. Bu ağda var mı?"
-  },
-  "noTransferMethod": {
-    "message": "Transfer yöntemi yok"
   },
   "tokenDoesNotMatchStandard": {
     "message": "Verilen varlık sözleşme $standard$ standardı ile eşleşmiyor",
@@ -271,9 +96,6 @@
   },
   "error": {
     "message": "Hata"
-  },
-  "tokenType": {
-    "message": "Token tipi"
   },
   "tokenId": {
     "message": "Token Kimliği"
@@ -360,16 +182,13 @@
     "message": "Simge URL'si"
   },
   "optionalComment": {
-    "message": "(isteğe bağlı)"
+    "message": "İsteğe bağlı"
   },
   "iconURLInputDescription": {
     "message": "Varlık logosu için görüntü URL'si."
   },
   "invalidAddress": {
     "message": "Geçersiz adres"
-  },
-  "contractNotExistOnNetwork": {
-    "message": "Bu akıllı sözleşme mevcut ağda yok"
   },
   "onlyKTContractAddressAllowed": {
     "message": "Yalnızca KT... sözleşme adresine izin verilir",
@@ -381,20 +200,11 @@
   "alert": {
     "message": "Uyarı"
   },
-  "accountNameInputTitle": {
+  "accountOrGroupNameInputTitle": {
     "message": "1-16 karakter, özel karakter yok"
   },
   "defaultAccountName": {
     "message": "Hesap $accountNumber$",
-    "placeholders": {
-      "accountNumber": {
-        "content": "$1"
-      }
-    }
-  },
-  "defaultManagedKTAccountName": {
-    "message": "Yönetilen KT $accountNumber$",
-    "description": "KT not translated",
     "placeholders": {
       "accountNumber": {
         "content": "$1"
@@ -408,9 +218,6 @@
         "content": "$1"
       }
     }
-  },
-  "accountsToRemoveConstraint": {
-    "message": "Hiyerarşik Belirleyici hesaplar kaldırılamıyor."
   },
   "doNotSharePrivateKey": {
     "message": "Bu karakter dizisini kimseyle <b>PAYLAŞMAYIN</b>! Mevcut hesabınızı çalmak için kullanılabilir."
@@ -492,10 +299,6 @@
   "tryAgain": {
     "message": "Yeniden dene"
   },
-  "tezosMainnet": {
-    "message": "Tezos Mainnet",
-    "description": "Mainnet = main network"
-  },
   "templeWalletOptions": {
     "message": "Temple Wallet | Seçenekler"
   },
@@ -569,14 +372,8 @@
   "send": {
     "message": "Gönder"
   },
-  "baking": {
-    "message": "Fırınlama"
-  },
   "operations": {
     "message": "İşlemler"
-  },
-  "delegationInfoWhileMessage": {
-    "message": "delegasyon bilgileriniz alınıyor ya da işleniyor"
   },
   "operationHistoryWhileMessage": {
     "message": "işlem geçmişi alınıyor ya da işleniyor"
@@ -587,20 +384,8 @@
   "mnemonic": {
     "message": "Anımsatıcı ifade"
   },
-  "fundraiser": {
-    "message": "Fon toplama"
-  },
-  "privateKeyInputDescription": {
-    "message": "İçe aktarmak istediğiniz Hesabın Gizli anahtarı."
-  },
-  "privateKeyInputPlaceholder": {
-    "message": "ör. edsk3wfiPMu..."
-  },
   "password": {
     "message": "Parola"
-  },
-  "isPrivateKeyEncrypted": {
-    "message": "Özel anahtarınız şifreli mi?"
   },
   "customDerivationPath": {
     "message": "Özel türev yolu"
@@ -646,14 +431,6 @@
   "smthWentWrong": {
     "message": "Bir hata oluştu"
   },
-  "faucetFileInputPrompt": {
-    "message": "Bir dosyayı sürükleyip bırakın ya da aşağıdaki alana tıklayarak manuel olarak seçin. $link$ adresinden indirebilirsiniz.",
-    "placeholders": {
-      "link": {
-        "content": "$1"
-      }
-    }
-  },
   "processing": {
     "message": "İşleniyor..."
   },
@@ -690,43 +467,18 @@
   "revealPrivateKey": {
     "message": "Özel Anahtarı Göster"
   },
-  "revealPrivateKeyDescription": {
-    "message": "\"Hesabı Dışa Aktar\" olarak da bilinen bu özellik, seçtiğiniz hesap için özel anahtarı gösterir."
-  },
   "revealSeedPhrase": {
     "message": "Kurtarma Sözcüğünü Göster"
-  },
-  "revealSeedPhraseDescription": {
-    "message": "\"Cüzdanı Dışa Aktar\" olarak da bilinir; başka cihazlarda hesaplarınıza ve cüzdanınıza erişmek için bu kurtarma sözcüğüne ihtiyacınız olabilir."
   },
   "dApps": {
     "message": "DApps",
     "description": "DApps = Decentralized Applications"
-  },
-  "dAppsDescription": {
-    "message": "Bu bölümde, Temple Wallet'i destekleyen merkezi olmayan uygulamalarla etkileşim kurabilmeyi etkinleştirebilirsiniz."
-  },
-  "networksDescription": {
-    "message": "Bu bölümde, özel Tezos ağları ekleyebilir ya da silebilirsiniz.",
-    "description": "Tezos = blockchain name (https://tezos.com/)"
-  },
-  "activateAccount": {
-    "message": "Hesabı Etkinleştir"
-  },
-  "activateAccountDescription": {
-    "message": "ICO/Fon Toplama ya da testnet musluk hesapları için gerekli olabilir."
   },
   "removeAccount": {
     "message": "Hesabı Kaldır"
   },
   "removeAccountDescription": {
     "message": "Seçtiğiniz hesabı kaldırmak için bu bölümü kullanın. Yalnızca içe aktarılmış olan hesaplar kaldırılabilir."
-  },
-  "about": {
-    "message": "Hakkında"
-  },
-  "aboutDescription": {
-    "message": "Temple Wallet hakkında meta verileri görüntülemek için bu bölümü kullanın."
   },
   "unlockWallet": {
     "message": "Cüzdan Kilidini Aç"
@@ -762,44 +514,11 @@
   "website": {
     "message": "Web Sitesi"
   },
-  "repo": {
-    "message": "Depo"
-  },
   "privacyPolicy": {
     "message": "Gizlilik Politikası"
   },
   "termsOfUse": {
     "message": "Kullanım Koşulları"
-  },
-  "contact": {
-    "message": "İletişim"
-  },
-  "accountAlreadyActivated": {
-    "message": "Hesabınız zaten etkinleştirildi."
-  },
-  "accountActivated": {
-    "message": "Hesabınız başarılı şekilde etkinleştirildi!"
-  },
-  "failureSecretMayBeInvalid": {
-    "message": "Başarısız. Bunun nedeni sağladığınız Gizli Anahtarın geçersiz olması olabilir."
-  },
-  "accountToBeActivated": {
-    "message": "Hesap etkinleştirilecek."
-  },
-  "ifYouWantToActivateAnotherAccount": {
-    "message": "Başka bir hesabı etkinleştirmek istiyorsanız lütfen sağ üst açılır menüden seçin."
-  },
-  "activateAccountSecret": {
-    "message": "Gizli Anahtar"
-  },
-  "activateAccountSecretDescription": {
-    "message": "Fon Toplama Hesabı ya da Musluk'ta 'gizli anahtar' alanı"
-  },
-  "activateAccountSecretPlaceholder": {
-    "message": "ör. n4hs7sd3..."
-  },
-  "activate": {
-    "message": "Etkinleştir"
   },
   "minimalFeeDescription": {
     "message": "En az"
@@ -823,10 +542,10 @@
     "message": "Başka bir varlık ya da token seçmek için alana tıklayın."
   },
   "disable": {
-    "message": "devre dışı bırak"
+    "message": "Devre dışı bırak"
   },
   "enable": {
-    "message": "etkinleştir"
+    "message": "Etkinleştir"
   },
   "dAppsCheckmarkPrompt": {
     "message": "DApps etkileşim özelliğine yönelik $action$ için onay işaretine tıklayın",
@@ -871,29 +590,11 @@
   "delegation": {
     "message": "Delegasyon"
   },
-  "customBaker": {
-    "message": "Fırıncı"
-  },
-  "bakerInputDescription": {
-    "message": "Kayıtlı bir fırıncının adresi."
-  },
-  "bakerInputDescriptionWithDomain": {
-    "message": "Kayıtlı bir fırıncının adresi ya da etki alanı adı."
-  },
-  "bakerInputPlaceholder": {
-    "message": "ör. tz1a9w1S7hN5s..."
-  },
-  "minDelegationAmountTitle": {
-    "message": "En düşük delegasyon miktarı"
-  },
   "unknownBakerTitle": {
     "message": "Bilinmeyen fırıncı"
   },
   "unknownBakerDescription": {
     "message": "Verilen adres sistemimizde fırıncı olarak görünmüyor! Bu adrese fon devretme riskinin sorumluluğu size aittir."
-  },
-  "recommendedBakers": {
-    "message": "Önerilen Fırıncılara Devret"
   },
   "sortBy": {
     "message": "Sıralama ölçütü"
@@ -939,23 +640,6 @@
   "minimalFeeGreaterThanBalance": {
     "message": "Bu işlem için en düşük ücret bakiyenizin üzerindedir."
   },
-  "alreadyDelegatedFundsToBaker": {
-    "message": "Bu fırıncıya zaten fon devredildi. Yeniden delegasyon mümkün değil."
-  },
-  "bakerNotRegistered": {
-    "message": "Belirtilen fırıncı kayıtlı değil."
-  },
-  "unableToPerformActionToBaker": {
-    "message": "Sağlanan Fırıncı için $action$ işlemi gerçekleştirilemiyor.",
-    "placeholders": {
-      "action": {
-        "content": "$1"
-      }
-    }
-  },
-  "estimateDelegation": {
-    "message": "Delegasyon tahmini"
-  },
   "thisMayHappenBecause": {
     "message": "Bunun nedeni şunlar olabilir:"
   },
@@ -969,9 +653,6 @@
   },
   "networkOrOtherIssue": {
     "message": "Ağ sorunu veya başka bir teknik sorun."
-  },
-  "unableToDelegateToKTAddress": {
-    "message": "KT... sözleşme adresine devredilemiyor"
   },
   "confirmAction": {
     "message": "$action$ işlemini onayla",
@@ -1028,24 +709,6 @@
   },
   "file": {
     "message": "Dosya"
-  },
-  "keystoreFile": {
-    "message": "Anahtar Deposu Dosyası"
-  },
-  "keystoreFileFieldDescription": {
-    "message": "Şifreli bir anahtar deposu dosyasından (.tez) cüzdanınızı içe aktarın."
-  },
-  "filePassword": {
-    "message": "Dosya Parolası"
-  },
-  "filePasswordInputDescription": {
-    "message": "Lütfen anahtar deposu dosyası için bir parola girin"
-  },
-  "fileInputPrompt": {
-    "message": "Bir dosya seçin veya buraya sürükleyin"
-  },
-  "useKeystorePassword": {
-    "message": "Uzantı parolası olarak Dosya Parolasını kullanın"
   },
   "create": {
     "message": "Oluştur"
@@ -1144,7 +807,12 @@
     "message": "m/44'/1729'/<account_index>'/0'"
   },
   "derivationPathExample2": {
-    "message": "ör. m/44'/1729'/..."
+    "message": "ör. $derivationPath$",
+    "placeholders": {
+      "derivationPath": {
+        "content": "$1"
+      }
+    }
   },
   "keepSeedPhraseSecret": {
     "message": "Kimseyle paylaşmayın."
@@ -1357,14 +1025,11 @@
   "upload": {
     "message": "Yükle"
   },
-  "languageAndCountry": {
+  "language": {
     "message": "Dil"
   },
   "generalSettings": {
     "message": "Genel"
-  },
-  "generalSettingsDescription": {
-    "message": "Dil tercihlerini ve ekran modunu buradan yönetebilirsiniz."
   },
   "swapNoun": {
     "message": "Takas"
@@ -1462,9 +1127,6 @@
   "disabledForWatchOnlyAccount": {
     "message": "Salt izlenir hesap için devre dışı bırakıldı"
   },
-  "activationOperationType": {
-    "message": "Aktivasyon"
-  },
   "youAreNotContractManager": {
     "message": "Sözleşme yöneticisi değilsiniz"
   },
@@ -1476,9 +1138,6 @@
   },
   "contractAddressInputPlaceholder": {
     "message": "ör. KT1a9w1S7hN5s..."
-  },
-  "addKnownManagedContract": {
-    "message": "Bilinen Yönetilen sözleşme ekle"
   },
   "clickOnContractToImport": {
     "message": "İçe aktarmak istediğiniz Sözleşmeye tıklayın."
@@ -1531,9 +1190,6 @@
   "analyticsSettingsDescription": {
     "message": "Burada, ürünü iyileştirmemize yardımcı olacak anonim analizler göndermeyi yapılandırabilirsiniz."
   },
-  "managedContract": {
-    "message": "Yönetilen Sözleşme"
-  },
   "referredByTokenContractNotFound": {
     "message": "Token sözleşmesinin başvurduğu sözleşme $address$ bulunamadı.",
     "placeholders": {
@@ -1558,9 +1214,6 @@
         "content": "$1"
       }
     }
-  },
-  "invalidManagedContract": {
-    "message": "Geçersiz yönetilen sözleşme"
   },
   "someMethodNotDefinedInContract": {
     "message": "'$name$' yöntemi sözleşmede tanımlı değil.",
@@ -1729,15 +1382,6 @@
   "invalidJsonInput": {
     "message": "Geçersiz JSON"
   },
-  "notFaucetJson": {
-    "message": "Musluk JSON'u değil"
-  },
-  "faucetJson": {
-    "message": "Musluk JSON'u"
-  },
-  "faucetJsonDescription": {
-    "message": "Dosya eklemek yerine buraya JSON'u yapıştırabilirsiniz"
-  },
   "unknownErrorFromRPC": {
     "message": "İstek $url$ adresine gönderilemedi. İstek geçersiz ya da RPC düğümüne geçici olarak erişilemiyor.",
     "placeholders": {
@@ -1789,7 +1433,7 @@
     "message": "Slipaj toleransı"
   },
   "minimumReceived": {
-    "message": "Alınan minimum"
+    "message": "Alınan Minimum"
   },
   "inputOutputAssetsCannotBeSame": {
     "message": "Giriş ve çıkış varlıkları aynı olamaz"
@@ -1801,18 +1445,6 @@
         "content": "$1"
       }
     }
-  },
-  "helpAndCommunity": {
-    "message": "Yardım ve Topluluk"
-  },
-  "communityResourcesTitle": {
-    "message": "Dilediğiniz zaman Temple Wallet hakkında ek bilgi bulabilir ya da sonraki kaynaklarla ilgili yardım isteyebilirsiniz."
-  },
-  "helpAndCommunityDescription": {
-    "message": "Topluluğumuzun bir parçası olmak istiyorsanız ya da yardıma ihtiyacınız varsa bu bölümü kullanın."
-  },
-  "joinPrompt": {
-    "message": "Aramıza katılmaktan ve sorularınızı sormaktan çekinmeyin "
   },
   "blockExplorer": {
     "message": "Blokzinciri gezgini"
@@ -2005,9 +1637,6 @@
   "addressBook": {
     "message": "Adres Defteri"
   },
-  "addressBookDescription": {
-    "message": "Kişilerinizi ekleyin, çıkarın ve yönetin."
-  },
   "addNewContact": {
     "message": "Yeni kişi"
   },
@@ -2091,33 +1720,14 @@
   "newTopUp": {
     "message": "Yeni Doldurma"
   },
-  "exchangeDetails": {
-    "message": "Alım satım bilgilerini girin"
-  },
-  "exchangeDetailsDescription": {
-    "message": "TEZ or USDT Tezos bakiyenizi anında $number$ kripto para ile doldurun",
-    "placeholders": {
-      "number": {
-        "content": "$1"
-      }
-    }
-  },
   "privacyAndPolicyLinks": {
-    "message": "Doldur seçeneğine tıklayarak $termsOfUse$ \nve $privacyPolicy$ hükümlerini kabul etmiş olursunuz",
+    "message": "Doldur seçeneğine tıklayarak $termsOfUse$ ve $privacyPolicy$ hükümlerini kabul etmiş olursunuz",
     "placeholders": {
       "termsOfUse": {
         "content": "$1"
       },
       "privacyPolicy": {
         "content": "$2"
-      }
-    }
-  },
-  "depositAddressText": {
-    "message": "Yatırma $depositAddress$ adresi:",
-    "placeholders": {
-      "depositAddress": {
-        "content": "$1"
       }
     }
   },
@@ -2134,19 +1744,19 @@
     "message": "Bir işlem başına gönder"
   },
   "youGet": {
-    "message": "Aldığınız:"
+    "message": "Aldığınız"
   },
   "fixedRate": {
     "message": "Sabit oran:"
   },
   "transactionId": {
-    "message": "İşlem Kimliği:"
+    "message": "İşlem Kimliği"
   },
   "atomDepositMemo": {
     "message": "Atom Yatırma Notu"
   },
   "recipientAddress": {
-    "message": "Alıcı adresi:"
+    "message": "Alıcı adresi"
   },
   "recipientXtzAddress": {
     "message": "Alıcı XTZ adresi:"
@@ -2158,10 +1768,7 @@
     "message": "Gönderdiğiniz:"
   },
   "sendTime": {
-    "message": "Gönderme saati:"
-  },
-  "completedDescription": {
-    "message": "Lütfen cüzdanınızdaki fonu kontrol edin.\nAlım satım işlemi tamamlandı."
+    "message": "Gönderme saati"
   },
   "completed": {
     "message": "Tamamlandı"
@@ -2206,9 +1813,6 @@
   },
   "deleteCollectibleConfirm": {
     "message": "Bu koleksiyonluğu silmek istediğinizden emin misiniz?"
-  },
-  "zeroCollectibleText": {
-    "message": "Henüz koleksiyonluğunuz yok!\nŞimdi bir tane edinmek için iyi bir zaman"
   },
   "min": {
     "message": "En az:"

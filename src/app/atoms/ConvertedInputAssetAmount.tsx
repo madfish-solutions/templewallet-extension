@@ -3,38 +3,48 @@ import React, { memo } from 'react';
 import BigNumber from 'bignumber.js';
 
 import InFiat from 'app/templates/InFiat';
-import { T } from 'lib/i18n';
-import { AssetMetadataBase, getAssetSymbol } from 'lib/metadata';
+
+import Money from './Money';
 
 interface Props {
+  chainId: string | number;
   assetSlug: string;
-  assetMetadata?: AssetMetadataBase;
+  assetSymbol?: string;
   amountValue: string;
   toFiat: boolean;
+  evm?: boolean;
 }
 
-export const ConvertedInputAssetAmount = memo<Props>(({ assetSlug, assetMetadata, amountValue, toFiat }) => {
-  if (toFiat)
-    return (
-      <InFiat assetSlug={assetSlug} volume={amountValue} roundingMode={BigNumber.ROUND_FLOOR}>
-        {({ balance, symbol }) => (
-          <div className="-mb-3 flex">
-            <span className="mr-1">≈</span>
-            <span className="font-normal text-gray-700 mr-1 flex items-baseline">
-              {balance}
-              <span className="pr-px">{symbol}</span>
-            </span>{' '}
-            <T id="inFiat" />
-          </div>
-        )}
-      </InFiat>
-    );
+export const ConvertedInputAssetAmount = memo<Props>(
+  ({ chainId, assetSlug, assetSymbol, amountValue, toFiat, evm }) => {
+    if (toFiat)
+      return (
+        <InFiat
+          chainId={chainId}
+          assetSlug={assetSlug}
+          volume={amountValue}
+          smallFractionFont={false}
+          roundingMode={BigNumber.ROUND_FLOOR}
+          evm={evm}
+        >
+          {({ balance, symbol }) => (
+            <div className="flex items-baseline text-font-num-12 text-grey-1">
+              <span>≈</span>
+              <span className="mx-1">{balance}</span>
+              <span>{symbol}</span>
+            </div>
+          )}
+        </InFiat>
+      );
 
-  return (
-    <div className="-mb-3 flex">
-      <span className="mr-1">≈</span>
-      <span className="font-normal text-gray-700 mr-1">{amountValue}</span>{' '}
-      <T id="inAsset" substitutions={getAssetSymbol(assetMetadata, true)} />
-    </div>
-  );
-});
+    return (
+      <div className="flex items-baseline text-font-num-12 text-grey-1">
+        <span className="mr-0.5">≈</span>
+        <Money smallFractionFont={false} tooltipPlacement="bottom">
+          {amountValue}
+        </Money>
+        <span className="ml-1 truncate">{assetSymbol}</span>
+      </div>
+    );
+  }
+);

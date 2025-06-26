@@ -1,14 +1,9 @@
 import { t } from 'lib/i18n';
-import { TempleAccount, TempleAccountType } from 'lib/temple/types';
-
-export const OP_STACK_PREVIEW_SIZE = 2;
+import { TempleAccountType } from 'lib/temple/types';
 
 export class ArtificialError extends Error {}
-export class NotEnoughFundsError extends ArtificialError {}
-export class ZeroBalanceError extends NotEnoughFundsError {}
-export class ZeroTEZBalanceError extends NotEnoughFundsError {}
 
-export const ACCOUNT_NAME_PATTERN = /[^\s-].{0,16}$/;
+export const ACCOUNT_OR_GROUP_NAME_PATTERN = /^[^!@#$%^&*()_+\-=\]{};':"\\|,.<>?]{1,16}$/;
 
 export const PASSWORD_PATTERN = new RegExp(
   [
@@ -33,14 +28,15 @@ export const passwordValidationRegexes: Record<keyof PasswordValidation, RegExp>
 export const URL_PATTERN =
   /(^(https:\/\/)?[\w.-]+(?:\.[\w.-]+)+[\w\-._~:/?#[\]@!$&'()*+,;=.]+$)|(^http(s)?:\/\/localhost:[0-9]+$)/;
 
-export const DEFAULT_DERIVATION_PATH = "m/44'/1729'/0'/0'";
-
 export function formatMnemonic(m: string) {
   return m.replace(/\n/g, ' ').trim();
 }
 
-export function getAccountBadgeTitle(account: Pick<TempleAccount, 'type'>) {
-  switch (account.type) {
+export function getAccountBadgeTitle(accountType: TempleAccountType) {
+  switch (accountType) {
+    case TempleAccountType.HD:
+      return t('hdAccount');
+
     case TempleAccountType.Imported:
       return t('importedAccount');
 

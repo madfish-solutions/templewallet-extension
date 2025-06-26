@@ -9,6 +9,7 @@ export interface ImageStackedProps extends React.ImgHTMLAttributes<HTMLImageElem
    * (i) Don't let empty string (`''`) get inside. Filter to not get endless loader.
    */
   sources: string[];
+  size?: number;
   loader?: JSX.Element;
   fallback?: JSX.Element;
   pauseRender?: boolean;
@@ -18,6 +19,7 @@ export interface ImageStackedProps extends React.ImgHTMLAttributes<HTMLImageElem
 
 export const ImageStacked: FC<ImageStackedProps> = ({
   sources,
+  size,
   loader,
   fallback,
   style,
@@ -33,11 +35,16 @@ export const ImageStacked: FC<ImageStackedProps> = ({
       isLoading
         ? {
             // (i) Cannot set `display: isLoading ? 'none' | 'contents' : undefined`; - `onLoad` won't fire
-            width: 0,
-            height: 0
+            width: size,
+            height: size,
+            position: 'absolute'
           }
-        : style,
-    [style, isLoading]
+        : {
+            width: size,
+            height: size,
+            ...style
+          },
+    [style, isLoading, size]
   );
 
   const onStackLoadedRef = useRef(onStackLoaded);
@@ -57,9 +64,8 @@ export const ImageStacked: FC<ImageStackedProps> = ({
 
   return (
     <>
-      <img {...imgProps} src={src} style={styleMemo} onLoad={onLoadLocal} onError={onFail} />
-
       {isLoading ? loader ?? null : null}
+      <img {...imgProps} src={src} style={styleMemo} onLoad={onLoadLocal} onError={onFail} alt={'token logo'} />
     </>
   );
 };

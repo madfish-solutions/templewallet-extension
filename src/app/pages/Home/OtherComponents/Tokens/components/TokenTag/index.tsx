@@ -1,26 +1,24 @@
-import React from 'react';
+import React, { memo } from 'react';
 
-import { TokenApyInfo } from 'app/hooks/use-token-apy.hook';
 import { isTezAsset } from 'lib/assets';
-import { isTruthy } from 'lib/utils';
+import { TezosNetworkEssentials } from 'temple/networks';
 
 import { TokenApyTag } from './ApyTag';
 import { DelegateTezosTag } from './DelegateTag';
 import { ScamTag } from './ScamTag';
 
-interface TokenTagProps {
+interface Props {
+  network: TezosNetworkEssentials;
+  tezPkh: string;
   assetSlug: string;
   assetSymbol: string;
-  apyInfo?: TokenApyInfo;
   scam?: boolean;
 }
 
-export const TokenTag: React.FC<TokenTagProps> = ({ assetSlug, assetSymbol, apyInfo, scam }) => {
-  if (isTezAsset(assetSlug)) return <DelegateTezosTag />;
+export const TokenTag = memo<Props>(({ network, tezPkh, assetSlug, assetSymbol, scam }) => {
+  if (isTezAsset(assetSlug)) return <DelegateTezosTag network={network} pkh={tezPkh} />;
 
-  if (isTruthy(scam)) return <ScamTag assetSlug={assetSlug} />;
+  if (scam) return <ScamTag className="-ml-1.5" />;
 
-  if (isTruthy(apyInfo)) return <TokenApyTag slug={assetSlug} symbol={assetSymbol} apyInfo={apyInfo} />;
-
-  return null;
-};
+  return <TokenApyTag slug={assetSlug} symbol={assetSymbol} />;
+});

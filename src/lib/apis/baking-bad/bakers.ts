@@ -8,6 +8,13 @@ export const bakingBadGetBaker = buildQuery<BakingBadGetBakerParams, BakingBadGe
   []
 );
 
+export const bakingBadGetBakerStory = buildQuery<BakingBadGetBakerParams, BakingBadStoryResponse>(
+  api,
+  'GET',
+  ({ address }) => `/story/${address}`,
+  []
+);
+
 const bakingBadGetKnownBakers = buildQuery<BakingBadGetBakersParams, BakingBadBaker[]>(api, 'GET', '/bakers', [
   'status',
   'staking',
@@ -65,3 +72,22 @@ export interface BakingBadBaker {
 }
 
 type BakingBadGetBakerResponse = BakingBadBaker | null;
+
+interface BakingBadStoryEntrypoint<T> {
+  cycle: number;
+  value: T;
+}
+
+export interface BakingBadStory {
+  address: string;
+  name: BakingBadStoryEntrypoint<string>[];
+  status: BakingBadStoryEntrypoint<BakerStatus>[];
+  delegationEnabled: BakingBadStoryEntrypoint<boolean>[];
+  delegationFee: BakingBadStoryEntrypoint<number>[];
+  delegationMinBalance: BakingBadStoryEntrypoint<number>[];
+  stakingEnabled: BakingBadStoryEntrypoint<boolean>[];
+  stakingFee: BakingBadStoryEntrypoint<number>[];
+  stakingLimit: BakingBadStoryEntrypoint<number>[];
+}
+
+type BakingBadStoryResponse = BakingBadStory | null;

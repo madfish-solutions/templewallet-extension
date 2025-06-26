@@ -3,7 +3,7 @@ import { TokenMetadata, tzip12 } from '@taquito/tzip12';
 import { DEFAULT_HANDLERS, MetadataInterface, MetadataProvider, tzip16 } from '@taquito/tzip16';
 import retry from 'async-retry';
 
-import { isValidContractAddress } from 'lib/temple/helpers';
+import { isValidTezosContractAddress } from 'lib/tezos';
 import { assert } from 'lib/utils';
 
 import type { TokenMetadataOnChain, DetailedTokenMetdataOnChain } from './types';
@@ -71,7 +71,7 @@ export async function fetchTokenMetadata(
   tokenId: string,
   detailed: boolean = false
 ): Promise<DetailedTokenMetdataOnChain | null> {
-  if (!isValidContractAddress(contractAddress)) {
+  if (!isValidTezosContractAddress(contractAddress)) {
     throw new Error('Invalid contract address');
   }
 

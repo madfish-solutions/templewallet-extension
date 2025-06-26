@@ -5,8 +5,8 @@ import { useReferralLinksEnabledSelector } from 'app/store/settings/selectors';
 import { useAnalytics } from 'lib/analytics';
 import { REPLACE_REFERRALS_ENABLED, WEBSITES_ANALYTICS_ENABLED } from 'lib/constants';
 import { AnalyticsEventCategory } from 'lib/temple/analytics-types';
-import { useAccountPkh } from 'lib/temple/front';
 import { usePassiveStorage } from 'lib/temple/front/storage';
+import { useAccountAddressForTezos } from 'temple/front';
 
 export const useUserAnalyticsAndAdsSettings = () => {
   const { trackEvent } = useAnalytics();
@@ -17,7 +17,7 @@ export const useUserAnalyticsAndAdsSettings = () => {
   const [, setIsReplaceReferralsEnabled] = usePassiveStorage(REPLACE_REFERRALS_ENABLED);
 
   const prevAdsEnabledRef = useRef(isAdsEnabled);
-  const accountPkh = useAccountPkh();
+  const accountPkh = useAccountAddressForTezos();
 
   useEffect(() => {
     setIsWebsitesAnalyticsEnabled(isAdsEnabled);

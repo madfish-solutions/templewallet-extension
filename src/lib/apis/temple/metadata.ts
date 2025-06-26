@@ -3,17 +3,17 @@ import { chunk } from 'lodash';
 import memoizee from 'memoizee';
 
 import { IS_STAGE_ENV } from 'lib/env';
-import { TempleChainId } from 'lib/temple/types';
+import { TempleTezosChainId } from 'lib/temple/types';
 
 const LOCAL_METADATA_API_URL = process.env.LOCAL_METADATA_API_URL;
 
 if (LOCAL_METADATA_API_URL) console.warn(`process.env.LOCAL_METADATA_API_URL found. Will use it for metadata loading.`);
 
 const API_CHAIN_NAMES = {
-  [TempleChainId.Mainnet]: 'mainnet',
-  [TempleChainId.Ghostnet]: 'ghostnet',
-  [TempleChainId.Dcp]: 'dcp',
-  [TempleChainId.DcpTest]: 'dcptest'
+  [TempleTezosChainId.Mainnet]: 'mainnet',
+  [TempleTezosChainId.Ghostnet]: 'ghostnet',
+  [TempleTezosChainId.Dcp]: 'dcp',
+  [TempleTezosChainId.DcpTest]: 'dcptest'
 };
 
 type MetadataApiChainId = keyof typeof API_CHAIN_NAMES;
@@ -34,7 +34,7 @@ export interface TokenMetadataResponse {
 
 export const fetchOneTokenMetadata = (chainId: MetadataApiChainId, address: string, id: string) =>
   getApi(chainId)
-    .get<TokenMetadataResponse>(`/metadata/${address}/${id}`)
+    .get<TokenMetadataResponse>(`/metadata/${address}/${id || '0'}`)
     .then(({ data }) => (data.name === 'Unknown Token' ? undefined : data));
 
 export const METADATA_API_LOAD_CHUNK_SIZE = 50;

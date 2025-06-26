@@ -4,11 +4,15 @@ import { useUpdatableRef } from './hooks';
 
 const IS_SUPPORTED = 'IntersectionObserver' in window;
 
+/**
+ * Memoize rootMargin to avoid unnecessary Intersection Observer re-creations.
+ */
 export const useIntersectionObserver = (
   elemRef: RefObject<Element>,
-  callback: (intersecting: boolean) => void,
+  callback: (entry: IntersectionObserverEntry) => void,
+  init: Omit<IntersectionObserverInit, 'rootMargin'>,
   predicate = true,
-  init: IntersectionObserverInit
+  rootMargin?: string
 ) => {
   const callbackRef = useUpdatableRef(callback);
 
@@ -18,25 +22,16 @@ export const useIntersectionObserver = (
 
     if (!canDetect) return;
 
-    const observer = new IntersectionObserver(([entry]) => {
-      callbackRef.current(entry.isIntersecting);
-    }, init);
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        callbackRef.current(entry);
+      },
+      { ...init, rootMargin }
+    );
 
     observer.observe(elem);
 
     return () => void observer.unobserve(elem);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [predicate]);
+  }, [rootMargin, predicate]);
 };
-
-export const useIntersectionByOffsetObserver = (
-  elemRef: RefObject<Element>,
-  callback: (intersecting: boolean) => void,
-  predicate = true,
-  verticalOffset = 0,
-  root: Document | Element | null = document
-) =>
-  useIntersectionObserver(elemRef, callback, predicate, {
-    root,
-    rootMargin: verticalOffset ? `${verticalOffset}px 0px ${verticalOffset}px 0px` : '0px'
-  });

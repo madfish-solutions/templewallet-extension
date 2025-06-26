@@ -2,9 +2,6 @@
   "appName": {
     "message": "Temple - Tezos钱包"
   },
-  "showIncomingTransactions": {
-    "message": "显示进账交易"
-  },
   "appDesc": {
     "message": "🔐💰浏览器扩展程序，适用于Tezos区块链的数字加密货币钱包。"
   },
@@ -13,12 +10,6 @@
   },
   "createAccount": {
     "message": "创建一个帐户"
-  },
-  "faucetFileTitle": {
-    "message": "Faucet文件"
-  },
-  "faucetFile": {
-    "message": "Faucet文件"
   },
   "settings": {
     "message": "设置"
@@ -29,21 +20,6 @@
   "maximiseView": {
     "message": "最大化视图"
   },
-  "selectFileOfFormat": {
-    "message": "选择$format$文件",
-    "placeholders": {
-      "format": {
-        "content": "$1"
-      }
-    }
-  },
-  "authorizedDApps": {
-    "message": "授权DApps",
-    "description": "DApps = Decentralized Applications"
-  },
-  "clickIconToResetPermissions": {
-    "message": "点击X图标来重置权限。"
-  },
   "versionLabel": {
     "message": "版本：$version$",
     "placeholders": {
@@ -53,36 +29,9 @@
     }
   },
   "branchName": {
-    "message": "branch: $branch$",
+    "message": "Branch: $branch$",
     "placeholders": {
       "branch": {
-        "content": "$1"
-      }
-    }
-  },
-  "madeWithLove": {
-    "message": "$companyName$的用$loveIcon$之作",
-    "placeholders": {
-      "loveIcon": {
-        "content": "$1"
-      },
-      "companyName": {
-        "content": "$2"
-      }
-    }
-  },
-  "feeInputDescription": {
-    "message": "此操作的基本费用为：$fee$\n附加 - 加快其确认流程",
-    "placeholders": {
-      "fee": {
-        "content": "$1"
-      }
-    }
-  },
-  "resetPermissionsConfirmation": {
-    "message": "确定要为\n$origin$重置权限吗？",
-    "placeholders": {
-      "origin": {
         "content": "$1"
       }
     }
@@ -111,87 +60,6 @@
   "networks": {
     "message": "网络"
   },
-  "back": {
-    "message": "返回"
-  },
-  "addNewToken": {
-    "message": "添加新代币"
-  },
-  "hideSomeToken": {
-    "message": "隐藏“$tokenName$”代币",
-    "placeholders": {
-      "tokenName": {
-        "content": "$1"
-      }
-    }
-  },
-  "copySomeTokenAddress": {
-    "message": "复制“$tokenSymbol$”地址",
-    "placeholders": {
-      "tokenSymbol": {
-        "content": "$1"
-      }
-    }
-  },
-  "copySomeTokenId": {
-    "message": "复制“$tokenSymbol$”ID",
-    "placeholders": {
-      "tokenSymbol": {
-        "content": "$1"
-      }
-    }
-  },
-  "originLabel": {
-    "message": "原点：$origin$",
-    "placeholders": {
-      "origin": {
-        "content": "$1"
-      }
-    }
-  },
-  "networkLabel": {
-    "message": "网络：$network$",
-    "placeholders": {
-      "network": {
-        "content": "$1"
-      }
-    }
-  },
-  "pkhLabel": {
-    "message": "账户：$pkh$",
-    "placeholders": {
-      "pkh": {
-        "content": "$1"
-      }
-    }
-  },
-  "minDelegationAmountDescription": {
-    "message": "您的当前余额低于此面包店的最低委托额。这表示当余额低于$minAmount$时，将不会有付款。",
-    "placeholders": {
-      "minAmount": {
-        "content": "$1"
-      }
-    }
-  },
-  "recommendedBakersDescription": {
-    "message": "此列表由$link$提供技术支持",
-    "placeholders": {
-      "link": {
-        "content": "$1"
-      }
-    }
-  },
-  "highestIsBetter": {
-    "message": "越高越好"
-  },
-  "unlockWalletPrompt": {
-    "message": "如果您想保存现有钱包中的某些数据——$link$并解锁。",
-    "placeholders": {
-      "link": {
-        "content": "$1"
-      }
-    }
-  },
   "acceptTermsInputDescription": {
     "message": "我已阅读并同意\n$termsOfUsageLink$和$privacyPolicyLink$",
     "placeholders": {
@@ -203,23 +71,8 @@
       }
     }
   },
-  "copiedTokenAddress": {
-    "message": "已复制"
-  },
-  "copiedTokenId": {
-    "message": "已复制"
-  },
-  "delegatedTo": {
-    "message": "已委托给："
-  },
-  "delegatingMotivation": {
-    "message": "将资金委托给面包店是用您的余额赚利息的好办法。"
-  },
   "reDelegate": {
     "message": "重新委托"
-  },
-  "delegateNow": {
-    "message": "立即委托"
   },
   "cancel": {
     "message": "取消"
@@ -230,30 +83,8 @@
   "edit": {
     "message": "编辑"
   },
-  "useCoinSwitch": {
-    "message": "使用CoinSwitch",
-    "description": "CoinSwitch = https://coinswitch.co/"
-  },
-  "tezosFaucet": {
-    "message": "Tezos Faucet"
-  },
-  "tezosFaucetAlpha": {
-    "message": "Tezos Faucet (Alpha)"
-  },
-  "depositToWallet": {
-    "message": "存入您的钱包"
-  },
-  "depositToWalletDescription": {
-    "message": "点击存款方式来将钱存入您的钱包。使用Faucet可获取免费代币！"
-  },
   "addToken": {
     "message": "添加代币"
-  },
-  "contractNotAvailable": {
-    "message": "此地址的合约不可用。它在此网络上吗？"
-  },
-  "noTransferMethod": {
-    "message": "无转账方式"
   },
   "tokenDoesNotMatchStandard": {
     "message": "提供的代币合约不符合$standard$标准",
@@ -265,9 +96,6 @@
   },
   "error": {
     "message": "错误"
-  },
-  "tokenType": {
-    "message": "代币类型"
   },
   "tokenId": {
     "message": "代币ID"
@@ -342,16 +170,13 @@
     "message": "图标URL"
   },
   "optionalComment": {
-    "message": "（选填）"
+    "message": "选填"
   },
   "iconURLInputDescription": {
     "message": "代币标志图片URL。"
   },
   "invalidAddress": {
     "message": "地址无效"
-  },
-  "contractNotExistOnNetwork": {
-    "message": "此智能合约不在当前网络上"
   },
   "onlyKTContractAddressAllowed": {
     "message": "仅可使用KT……合约地址",
@@ -363,20 +188,11 @@
   "alert": {
     "message": "提示"
   },
-  "accountNameInputTitle": {
+  "accountOrGroupNameInputTitle": {
     "message": "1-16个字符，无特殊字符"
   },
   "defaultAccountName": {
     "message": "账户$accountNumber$",
-    "placeholders": {
-      "accountNumber": {
-        "content": "$1"
-      }
-    }
-  },
-  "defaultManagedKTAccountName": {
-    "message": "有人管理的KT$accountNumber$",
-    "description": "KT not translated",
     "placeholders": {
       "accountNumber": {
         "content": "$1"
@@ -390,9 +206,6 @@
         "content": "$1"
       }
     }
-  },
-  "accountsToRemoveConstraint": {
-    "message": "分层确定性账户无法移除。"
   },
   "doNotSharePrivateKey": {
     "message": "<b>切勿分享</b>此组字符给任何人！它可用于窃取您当前的账户。"
@@ -474,10 +287,6 @@
   "tryAgain": {
     "message": "重试"
   },
-  "tezosMainnet": {
-    "message": "Tezos主网",
-    "description": "Mainnet = main network"
-  },
   "templeWalletOptions": {
     "message": "Temple钱包 | 选项"
   },
@@ -551,14 +360,8 @@
   "send": {
     "message": "发送"
   },
-  "baking": {
-    "message": "烘焙"
-  },
   "operations": {
     "message": "操作"
-  },
-  "delegationInfoWhileMessage": {
-    "message": "正在获取或处理您的委托信息"
   },
   "operationHistoryWhileMessage": {
     "message": "正在获取或处理操作历史记录"
@@ -569,20 +372,8 @@
   "mnemonic": {
     "message": "助记符"
   },
-  "fundraiser": {
-    "message": "资金筹集活动"
-  },
-  "privateKeyInputDescription": {
-    "message": "您要导入的账户的密钥。"
-  },
-  "privateKeyInputPlaceholder": {
-    "message": "例如：edsk3wfiPMu..."
-  },
   "password": {
     "message": "密码"
-  },
-  "isPrivateKeyEncrypted": {
-    "message": "您的私钥是加密格式的吗？"
   },
   "customDerivationPath": {
     "message": "自定义衍生路径"
@@ -628,14 +419,6 @@
   "smthWentWrong": {
     "message": "出错了"
   },
-  "faucetFileInputPrompt": {
-    "message": "拖放一个文件或点击下方区域来手动选择。您可以从$link$下载下来。",
-    "placeholders": {
-      "link": {
-        "content": "$1"
-      }
-    }
-  },
   "processing": {
     "message": "正在处理…"
   },
@@ -654,31 +437,12 @@
   "revealPrivateKey": {
     "message": "显示私钥"
   },
-  "revealPrivateKeyDescription": {
-    "message": "也称为“导出账户”，显示所选账户的私钥。"
-  },
   "revealSeedPhrase": {
     "message": "显示助记词"
-  },
-  "revealSeedPhraseDescription": {
-    "message": "也称为“导出钱包”，您可能需要此助记词来在其他设备上访问您的钱包和账户。"
   },
   "dApps": {
     "message": "DApp",
     "description": "DApps = Decentralized Applications"
-  },
-  "dAppsDescription": {
-    "message": "在此处，您可以获得与支持Temple钱包的去中心化应用互动的能力。"
-  },
-  "networksDescription": {
-    "message": "在此处，您可以添加或删除自定义Tezos网络。",
-    "description": "Tezos = blockchain name (https://tezos.com/)"
-  },
-  "activateAccount": {
-    "message": "激活账户"
-  },
-  "activateAccountDescription": {
-    "message": "这对于ICO/资金筹集活动或Testnet Faucet账户可能是必要的。"
   },
   "removeAccount": {
     "message": "移除账户"
@@ -688,9 +452,6 @@
   },
   "about": {
     "message": "关于"
-  },
-  "aboutDescription": {
-    "message": "使用此板块来查看关于Temple钱包的元信息。"
   },
   "unlockWallet": {
     "message": "解锁钱包"
@@ -723,44 +484,11 @@
   "website": {
     "message": "网站"
   },
-  "repo": {
-    "message": "知识库"
-  },
   "privacyPolicy": {
     "message": "隐私政策"
   },
   "termsOfUse": {
     "message": "使用条款"
-  },
-  "contact": {
-    "message": "联系方式"
-  },
-  "accountAlreadyActivated": {
-    "message": "您的账户已激活。"
-  },
-  "accountActivated": {
-    "message": "您的账户已成功激活！"
-  },
-  "failureSecretMayBeInvalid": {
-    "message": "失败。发生这种情况可能是因为提供的密钥无效"
-  },
-  "accountToBeActivated": {
-    "message": "账户待激活。"
-  },
-  "ifYouWantToActivateAnotherAccount": {
-    "message": "如需激活其他账户——请在右上角下拉菜单中选择。"
-  },
-  "activateAccountSecret": {
-    "message": "密钥"
-  },
-  "activateAccountSecretDescription": {
-    "message": "来自资金筹集账户或Faucet的“secret”字段"
-  },
-  "activateAccountSecretPlaceholder": {
-    "message": "例如：n4hs7sd3..."
-  },
-  "activate": {
-    "message": "激活"
   },
   "minimalFeeDescription": {
     "message": "最小"
@@ -832,26 +560,11 @@
   "delegation": {
     "message": "委托"
   },
-  "customBaker": {
-    "message": "面包店"
-  },
-  "bakerInputDescription": {
-    "message": "已注册面包店的地址。"
-  },
-  "bakerInputPlaceholder": {
-    "message": "例如：tz1a9w1S7hN5s..."
-  },
-  "minDelegationAmountTitle": {
-    "message": "最小委托额"
-  },
   "unknownBakerTitle": {
     "message": "未知面包店"
   },
   "unknownBakerDescription": {
     "message": "提供的地址对于我们而言不是面包店的地址！如需向其委托资金，请自担风险。"
-  },
-  "recommendedBakers": {
-    "message": "委托给推荐的面包店"
   },
   "sortBy": {
     "message": "排序条件"
@@ -888,23 +601,6 @@
   "minimalFeeGreaterThanBalance": {
     "message": "此交易的最低费用高于您的余额。"
   },
-  "alreadyDelegatedFundsToBaker": {
-    "message": "已委托资金给此面包店。无法再次委托。"
-  },
-  "bakerNotRegistered": {
-    "message": "指定的面包店未注册。"
-  },
-  "unableToPerformActionToBaker": {
-    "message": "无法$action$给提供的面包店。",
-    "placeholders": {
-      "action": {
-        "content": "$1"
-      }
-    }
-  },
-  "estimateDelegation": {
-    "message": "预估委托"
-  },
   "thisMayHappenBecause": {
     "message": "发生这种情况可能是因为："
   },
@@ -918,9 +614,6 @@
   },
   "networkOrOtherIssue": {
     "message": "网络或其他技术问题。"
-  },
-  "unableToDelegateToKTAddress": {
-    "message": "无法委托给KT……合约地址"
   },
   "confirmAction": {
     "message": "确认$action$",
@@ -1057,7 +750,12 @@
     "message": "m/44'/1729'/<account_index>'/0'"
   },
   "derivationPathExample2": {
-    "message": "例如：m/44'/1729'/…"
+    "message": "例如：$derivationPath$",
+    "placeholders": {
+      "derivationPath": {
+        "content": "$1"
+      }
+    }
   },
   "keepSeedPhraseSecret": {
     "message": "请保密。"
@@ -1267,14 +965,11 @@
   "upload": {
     "message": "上传"
   },
-  "languageAndCountry": {
+  "language": {
     "message": "语言"
   },
   "generalSettings": {
     "message": "通用"
-  },
-  "generalSettingsDescription": {
-    "message": "在此处您可以管理语言偏好和显示模式。"
   },
   "swapNoun": {
     "message": "交换"
@@ -1361,9 +1056,6 @@
   "disabledForWatchOnlyAccount": {
     "message": "已为仅供查看账户禁用"
   },
-  "activationOperationType": {
-    "message": "激活"
-  },
   "youAreNotContractManager": {
     "message": "您不是合约管理员"
   },
@@ -1375,9 +1067,6 @@
   },
   "contractAddressInputPlaceholder": {
     "message": "例如：KT1a9w1S7hN5s..."
-  },
-  "addKnownManagedContract": {
-    "message": "添加已知的有人管理的合约"
   },
   "clickOnContractToImport": {
     "message": "点击要导入的合约。"
@@ -1424,9 +1113,6 @@
   "popupSettingsDescription": {
     "message": "在此处，您可以配置出现在插件的图标点击扩展面板上的弹窗。"
   },
-  "managedContract": {
-    "message": "有人管理的合约"
-  },
   "referredByTokenContractNotFound": {
     "message": "代币合约中引用的合约$address$未找到。",
     "placeholders": {
@@ -1451,9 +1137,6 @@
         "content": "$1"
       }
     }
-  },
-  "invalidManagedContract": {
-    "message": "该有人管理的合约是无效的"
   },
   "someMethodNotDefinedInContract": {
     "message": "“$name$”方式未在合约中定义。",
@@ -1618,14 +1301,5 @@
   },
   "invalidJsonInput": {
     "message": "JSON无效"
-  },
-  "notFaucetJson": {
-    "message": "不是Faucet JSON"
-  },
-  "faucetJson": {
-    "message": "Faucet JSON"
-  },
-  "faucetJsonDescription": {
-    "message": "您可以通过在此粘贴JSON来代替添加文件"
   }
 }

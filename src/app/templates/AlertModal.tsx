@@ -1,26 +1,24 @@
-import React, { FC } from 'react';
+import React, { memo } from 'react';
 
-import { FormSubmitButton } from 'app/atoms';
-import ModalWithTitle, { ModalWithTitleProps } from 'app/templates/ModalWithTitle';
-import { t } from 'lib/i18n';
+import { ActionModal, ActionModalButton, ActionModalButtonsContainer, ActionModalProps } from 'app/atoms/action-modal';
+import { T } from 'lib/i18n';
 
-export type AlertModalProps = ModalWithTitleProps;
+import { DialogBody } from './DialogBody';
 
-const AlertModal: FC<AlertModalProps> = props => {
-  const { onRequestClose, children, ...restProps } = props;
+export interface AlertModalProps extends ActionModalProps {
+  description?: ActionModalProps['children'];
+  isOpen: boolean;
+}
 
-  return (
-    <ModalWithTitle {...restProps} onRequestClose={onRequestClose}>
-      <div className="flex flex-col">
-        <div className="mb-8">{children}</div>
-        <div className="flex justify-end">
-          <FormSubmitButton type="button" onClick={onRequestClose}>
-            {t('ok')}
-          </FormSubmitButton>
-        </div>
-      </div>
-    </ModalWithTitle>
-  );
-};
-
-export default AlertModal;
+export const AlertModal = memo<AlertModalProps>(({ children, description, isOpen, onClose, ...restProps }) =>
+  isOpen ? (
+    <ActionModal {...restProps} onClose={onClose}>
+      <DialogBody description={description}>{children}</DialogBody>
+      <ActionModalButtonsContainer>
+        <ActionModalButton color="primary" type="button" onClick={onClose}>
+          <T id="okGotIt" />
+        </ActionModalButton>
+      </ActionModalButtonsContainer>
+    </ActionModal>
+  ) : null
+);

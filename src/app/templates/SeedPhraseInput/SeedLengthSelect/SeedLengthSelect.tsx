@@ -1,13 +1,16 @@
-import React, { FC, useCallback, useEffect, useRef, useState } from 'react';
+import React, { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-import classNames from 'clsx';
+import clsx from 'clsx';
 
-import { ReactComponent as SelectArrowDownIcon } from 'app/icons/select-arrow-down.svg';
-import { ImportAccountSelectors } from 'app/pages/ImportAccount/selectors';
-import { setTestID } from 'lib/analytics';
-import { t } from 'lib/i18n';
+import { IconBase } from 'app/atoms';
+import { StyledButton } from 'app/atoms/StyledButton';
+import { ReactComponent as CompactDownIcon } from 'app/icons/base/compact_down.svg';
+import { ImportAccountSelectors } from 'app/templates/ImportAccountModal/selectors';
+import { T } from 'lib/i18n';
+import { useBooleanState } from 'lib/ui/hooks';
 
-import { SeedLengthOption } from './SeedLengthOption/SeedLengthOption';
+import { getOptionLabel } from './get-option-label';
+import { SeedLengthOption } from './SeedLengthOption';
 
 interface SeedLengthSelectProps {
   options: Array<string>;
@@ -18,7 +21,7 @@ interface SeedLengthSelectProps {
 
 export const SeedLengthSelect: FC<SeedLengthSelectProps> = ({ options, currentOption, defaultOption, onChange }) => {
   const [selectedOption, setSelectedOption] = useState(defaultOption ?? '');
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, , close, toggleOpen] = useBooleanState(false);
 
   const selectRef = useRef<HTMLDivElement>(null);
 
@@ -31,7 +34,7 @@ export const SeedLengthSelect: FC<SeedLengthSelectProps> = ({ options, currentOp
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (selectRef.current && !selectRef.current.contains(event.target as Node)) {
-        setIsOpen(false);
+        close();
       }
     };
     window.addEventListener('mousedown', handleClickOutside);
@@ -39,42 +42,39 @@ export const SeedLengthSelect: FC<SeedLengthSelectProps> = ({ options, currentOp
     return () => {
       window.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [selectRef]);
+  }, [close, selectRef]);
 
   const handleClick = useCallback(
     (option: string) => {
-      setIsOpen(false);
+      close();
       setSelectedOption(option);
       onChange(option);
     },
-    [onChange]
+    [close, onChange]
   );
 
+  const optionLabel = useMemo(() => getOptionLabel(selectedOption), [selectedOption]);
+
   return (
-    <div
-      ref={selectRef}
-      className={classNames('absolute right-0 z-10 text-gray-700 border-2 rounded-md bg-white cursor-pointer')}
-    >
-      <div className={classNames('flex flex-row justify-around p-2')} onClick={() => setIsOpen(!isOpen)}>
-        <span style={{ fontSize: 13 }} {...setTestID(ImportAccountSelectors.mnemonicDropDownButton)}>
-          {t('seedInputNumberOfWords', [`${selectedOption}`])}{' '}
-        </span>
-        <SelectArrowDownIcon
-          className={classNames('ml-1 transition ease-in-out duration-75', isOpen && 'transform rotate-180')}
-        />
-      </div>
-      <ul className={classNames(!isOpen && 'hidden')}>
-        {options.map(option => {
-          return (
-            <SeedLengthOption
-              key={option}
-              option={option}
-              selectedOption={selectedOption}
-              onClick={handleClick}
-              onChange={setSelectedOption}
-            />
-          );
-        })}
+    <div ref={selectRef} className="relative">
+      <StyledButton
+        size="S"
+        active={isOpen}
+        color="secondary-low"
+        className="flex items-center"
+        onClick={toggleOpen}
+        testID={ImportAccountSelectors.mnemonicDropDownButton}
+      >
+        <span>{optionLabel}</span>
+        <IconBase size={12} Icon={CompactDownIcon} />
+      </StyledButton>
+      <ul className={clsx(!isOpen && 'hidden', 'z-1 absolute right-0 top-7 bg-white shadow-bottom p-2 w-[154px]')}>
+        <li className="mx-2 my-2.5 text-font-small-bold text-grey-1">
+          <T id="mySeedPhraseIs" />
+        </li>
+        {options.map(option => (
+          <SeedLengthOption key={option} option={option} selectedOption={selectedOption} onClick={handleClick} />
+        ))}
       </ul>
     </div>
   );

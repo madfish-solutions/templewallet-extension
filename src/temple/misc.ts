@@ -1,0 +1,3 @@
+import { EVM_DEFAULT_NETWORKS, TEZOS_DEFAULT_NETWORKS } from './networks';
+
+export const MAX_MEMOIZED_TOOLKITS = Math.max(TEZOS_DEFAULT_NETWORKS.length, EVM_DEFAULT_NETWORKS.length) * 2;

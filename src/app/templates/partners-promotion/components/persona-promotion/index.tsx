@@ -8,7 +8,6 @@ import { AdsProviderTitle } from 'lib/ads';
 import { getPersonaAdClient, PERSONA_STAGING_ADS_BANNER_UNIT_ID } from 'lib/ads/persona';
 import { AnalyticsEventCategory, useAnalytics } from 'lib/analytics';
 import { EnvVars } from 'lib/env';
-import { useAccountPkh } from 'lib/temple/front';
 
 import { PartnersPromotionSelectors } from '../../selectors';
 import { PartnersPromotionVariant, SingleProviderPromotionProps } from '../../types';
@@ -43,83 +42,83 @@ const getAdProperties = (adRoot: HTMLDivElement): AdProperties => {
   };
 };
 
-export const PersonaPromotion = memo<Props>(({ id, isVisible, pageName, onReady, onError, onAdRectSeen, onClose }) => {
-  const accountPkh = useAccountPkh();
+export const PersonaPromotion = memo<Props>(
+  ({ id, isVisible, pageName, accountPkh, onReady, onError, onAdRectSeen }) => {
+    const containerId = `persona-ad-${id}`;
 
-  const containerId = `persona-ad-${id}`;
+    const ref = useRef<HTMLDivElement>(null);
 
-  const ref = useRef<HTMLDivElement>(null);
-
-  const { href, backgroundAssetUrl, backgroundAssetType } = useElementValue(
-    ref,
-    getAdProperties,
-    DEFAULT_AD_PROPERTIES,
-    adPropsObservationOptions
-  );
-
-  const { trackEvent } = useAnalytics();
-
-  const onClick = useCallback(() => {
-    if (!href) {
-      console.error('Persona ad href not found');
-      return;
-    }
-
-    trackEvent(
-      PartnersPromotionSelectors.promoLink,
-      AnalyticsEventCategory.LinkPress,
-      buildAdClickAnalyticsProperties(
-        PartnersPromotionVariant.Image,
-        AdsProviderTitle.Persona,
-        pageName,
-        accountPkh,
-        href
-      )
+    const { href, backgroundAssetUrl, backgroundAssetType } = useElementValue(
+      ref,
+      getAdProperties,
+      DEFAULT_AD_PROPERTIES,
+      adPropsObservationOptions
     );
-  }, [href, trackEvent, pageName, accountPkh]);
 
-  useAdRectObservation(ref, onAdRectSeen, isVisible);
+    const { trackEvent } = useAnalytics();
 
-  const injectAd = useCallback(async () => {
-    const { client, environment } = await getPersonaAdClient(accountPkh);
-    const adUnitId =
-      environment === 'staging' ? PERSONA_STAGING_ADS_BANNER_UNIT_ID : EnvVars.PERSONA_ADS_BANNER_UNIT_ID;
-
-    await client.showBannerAd(
-      // @ts-expect-error // for missung `adConfig` prop
-      { adUnitId, containerId },
-      errorMsg => {
-        throw new Error(String(errorMsg));
+    const onClick = useCallback(() => {
+      if (!href) {
+        console.error('Persona ad href not found');
+        return;
       }
+
+      trackEvent(
+        PartnersPromotionSelectors.promoLink,
+        AnalyticsEventCategory.LinkPress,
+        buildAdClickAnalyticsProperties(
+          PartnersPromotionVariant.Image,
+          AdsProviderTitle.Persona,
+          pageName,
+          accountPkh,
+          href
+        )
+      );
+    }, [href, trackEvent, pageName, accountPkh]);
+
+    useAdRectObservation(ref, onAdRectSeen, isVisible);
+
+    const injectAd = useCallback(async () => {
+      const { client, environment } = await getPersonaAdClient(accountPkh);
+      const adUnitId =
+        environment === 'staging' ? PERSONA_STAGING_ADS_BANNER_UNIT_ID : EnvVars.PERSONA_ADS_BANNER_UNIT_ID;
+
+      await client.showBannerAd(
+        // @ts-expect-error // for missung `adConfig` prop
+        { adUnitId, containerId },
+        errorMsg => {
+          throw new Error(String(errorMsg));
+        }
+      );
+    }, [accountPkh, containerId]);
+
+    useEffect(
+      () =>
+        void injectAd().then(onReady, err => {
+          console.error(err);
+          onError();
+        }),
+      [injectAd, onReady, onError]
     );
-  }, [accountPkh, containerId]);
 
-  useEffect(
-    () =>
-      void injectAd().then(onReady, err => {
-        console.error(err);
-        onError();
-      }),
-    [injectAd, onReady, onError]
-  );
-
-  return (
-    <ImagePromotionView
-      onClose={onClose}
-      href={href}
-      isVisible={isVisible}
-      providerTitle={AdsProviderTitle.HypeLab}
-      pageName={pageName}
-      onAdRectSeen={onAdRectSeen}
-      backgroundAssetUrl={backgroundAssetUrl}
-      backgroundAssetType={backgroundAssetType}
-    >
-      <div
-        ref={ref}
-        id={containerId}
-        onClick={onClick}
-        className={clsx('h-full rounded-xl overflow-hidden', ModStyles.container)}
-      />
-    </ImagePromotionView>
-  );
-});
+    return (
+      <ImagePromotionView
+        href={href}
+        isVisible={isVisible}
+        providerTitle={AdsProviderTitle.HypeLab}
+        pageName={pageName}
+        accountPkh={accountPkh}
+        onAdRectSeen={onAdRectSeen}
+        backgroundAssetUrl={backgroundAssetUrl}
+        backgroundAssetType={backgroundAssetType}
+      >
+        <div
+          ref={ref}
+          id={containerId}
+          onClick={onClick}
+          className={clsx('h-full rounded overflow-hidden', ModStyles.container)}
+        />
+      </ImagePromotionView>
+    );
+  }
+);

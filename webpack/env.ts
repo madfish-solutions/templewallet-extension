@@ -31,16 +31,15 @@ export const RELOADER_PORTS = {
   PAGES: 9092
 };
 
-export const ALL_VENDORS = ['chrome', 'brave', 'firefox', 'opera', 'safari'] as const;
+export const ALL_VENDORS = ['chrome', 'brave', 'firefox', 'opera'] as const;
 
-export type Vendor = typeof ALL_VENDORS[number];
+export type Vendor = (typeof ALL_VENDORS)[number];
 
 const MANIFEST_VERSION_BY_VENDORS: Record<Vendor, 2 | 3> = {
   chrome: 3,
   brave: 3,
   firefox: 2,
-  opera: 3,
-  safari: 2
+  opera: 3
 };
 
 export const getManifestVersion = (vendor: string) => MANIFEST_VERSION_BY_VENDORS[vendor as Vendor] || 2;

@@ -4,7 +4,7 @@ import { getMessage } from './core';
 import { toList } from './helpers';
 import { TID, Substitutions } from './types';
 
-export type ReactSubstitutions = ReactNode | ReactNode[];
+type ReactSubstitutions = ReactNode | ReactNode[];
 
 export type TProps = {
   id: TID;

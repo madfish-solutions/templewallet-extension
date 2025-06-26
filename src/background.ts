@@ -10,13 +10,7 @@ import {
   removeStoredAppUpdateDetails
 } from 'app/storage/app-update';
 import { updateRulesStorage } from 'lib/ads/update-rules-storage';
-import {
-  ACCOUNT_PKH_STORAGE_KEY,
-  MAX_OPEN_EXTENSION_TAB_ACTIONS_COUNTER,
-  OPEN_EXTENSION_TAB_ACTIONS_COUNTER_STORAGE_KEY
-} from 'lib/constants';
-import { EnvVars, IS_MISES_BROWSER } from 'lib/env';
-import { fetchFromStorage, putToStorage } from 'lib/storage';
+import { EnvVars } from 'lib/env';
 import { start } from 'lib/temple/back/main';
 import { generateKeyPair } from 'lib/utils/ecdsa';
 
@@ -25,46 +19,16 @@ import PackageJSON from '../package.json';
 browser.runtime.onInstalled.addListener(({ reason }) => {
   if (reason === 'install') {
     prepareAppIdentity().finally(openFullPage);
-
-    putToStorage(OPEN_EXTENSION_TAB_ACTIONS_COUNTER_STORAGE_KEY, MAX_OPEN_EXTENSION_TAB_ACTIONS_COUNTER).catch(error =>
-      console.error(error)
-    );
+    return;
   }
 
-  if (reason === 'update') {
-    getStoredAppUpdateDetails()
-      .then(details => {
-        let fullPageIsOpened = false;
-        if (details) {
-          removeStoredAppUpdateDetails();
-
-          if (details.triggeredManually) {
-            openFullPage();
-            fullPageIsOpened = true;
-          }
-        }
-
-        return Promise.all([
-          fetchFromStorage<string>(ACCOUNT_PKH_STORAGE_KEY),
-          fetchFromStorage<number>(OPEN_EXTENSION_TAB_ACTIONS_COUNTER_STORAGE_KEY),
-          Promise.resolve(fullPageIsOpened)
-        ]);
-      })
-      .then(([accountPkh, counter, fullPageIsOpened]) => {
-        if (fullPageIsOpened) {
-          return putToStorage(OPEN_EXTENSION_TAB_ACTIONS_COUNTER_STORAGE_KEY, MAX_OPEN_EXTENSION_TAB_ACTIONS_COUNTER);
-        }
-
-        if ((counter ?? 0) >= MAX_OPEN_EXTENSION_TAB_ACTIONS_COUNTER || !accountPkh || IS_MISES_BROWSER) {
-          return;
-        }
-
-        openFullPage();
-
-        return putToStorage(OPEN_EXTENSION_TAB_ACTIONS_COUNTER_STORAGE_KEY, MAX_OPEN_EXTENSION_TAB_ACTIONS_COUNTER);
-      })
-      .catch(error => console.error(error));
-  }
+  if (reason === 'update')
+    getStoredAppUpdateDetails().then(details => {
+      if (details) {
+        removeStoredAppUpdateDetails();
+        if (details.triggeredManually) openFullPage();
+      }
+    });
 });
 
 browser.runtime.onUpdateAvailable.addListener(newManifest => {
@@ -72,12 +36,6 @@ browser.runtime.onUpdateAvailable.addListener(newManifest => {
 });
 
 start();
-
-if (process.env.TARGET_BROWSER === 'safari') {
-  browser.browserAction.onClicked.addListener(() => {
-    openFullPage();
-  });
-}
 
 function openFullPage() {
   browser.tabs.create({

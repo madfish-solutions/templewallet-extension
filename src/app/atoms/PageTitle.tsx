@@ -1,13 +1,16 @@
-import React, { FC } from 'react';
+import React, { memo } from 'react';
+
+import { IconBase } from './IconBase';
 
 interface Props {
-  icon: JSX.Element;
   title: string;
+  Icon?: ImportedSVGComponent;
 }
 
-export const PageTitle: FC<Props> = ({ icon, title }) => (
-  <div className="flex flex-row items-center">
-    {icon}
-    <span className="font-normal text-sm ml-1">{title}</span>
-  </div>
-);
+export const PageTitle = memo<Props>(({ Icon, title }) => (
+  <>
+    {Icon && <IconBase Icon={Icon} className="mr-1" />}
+
+    <span className="text-font-regular-bold">{title}</span>
+  </>
+));

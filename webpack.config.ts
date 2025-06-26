@@ -29,9 +29,10 @@ import {
   MAX_JS_CHUNK_SIZE_IN_BYTES,
   IS_CORE_BUILD
 } from './webpack/env';
-import usePagesLiveReload from './webpack/live-reload';
 import { buildManifest } from './webpack/manifest';
 import { PATHS, IFRAMES } from './webpack/paths';
+// import { CheckUnusedFilesPlugin } from './webpack/plugins/check-unused';
+import usePagesLiveReload from './webpack/plugins/live-reload';
 import { isTruthy } from './webpack/utils';
 
 const ExtensionReloaderMV3 = ExtensionReloaderMV3BadlyTyped as ExtensionReloaderMV3Type;
@@ -51,11 +52,6 @@ const HTML_TEMPLATES = PAGES_NAMES.map(name => {
     return { name, filename: `iframes/${filename}`, path };
   })
 );
-
-const CONTENT_SCRIPTS = ['contentScript', !IS_CORE_BUILD && 'replaceAds', !IS_CORE_BUILD && 'replaceReferrals'].filter(
-  isTruthy
-);
-if (BACKGROUND_IS_WORKER) CONTENT_SCRIPTS.push('keepBackgroundWorkerAlive');
 
 const mainConfig = (() => {
   const config = buildBaseConfig();
@@ -142,9 +138,13 @@ const mainConfig = (() => {
         ]
       }),
 
-      new SaveRemoteFilePlugin([
+      /** TODO: Type def */
+      new (SaveRemoteFilePlugin as any)([
         { url: 'https://api.hypelab.com/v1/scripts/hp-sdk.js?v=0', filepath: 'scripts/hypelab.embed.js', hash: false }
       ]),
+
+      // TODO: Enable, when Swap route hops SVGs are used again
+      // new CheckUnusedFilesPlugin(['src/**/*.svg'], PRODUCTION_ENV),
 
       new CreateFileWebpack({
         path: PATHS.OUTPUT,
@@ -187,7 +187,8 @@ const scriptsConfig = (() => {
       : 'module'; // Required for dynamic imports `import()`
 
   config.entry = {
-    contentScript: Path.join(PATHS.SOURCE, 'contentScript.ts')
+    main: Path.join(PATHS.SOURCE, 'content-scripts/main.ts'),
+    inpage: Path.join(PATHS.SOURCE, 'content-scripts/inpage.ts')
   };
   if (!IS_CORE_BUILD) {
     config.entry.replaceAds = Path.join(PATHS.SOURCE, 'replaceAds.ts');

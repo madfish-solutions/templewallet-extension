@@ -2,9 +2,9 @@
   "include": ["./src"],
   "compilerOptions": {
     "baseUrl": "./src",
-    "target": "es5",
+    "target": "ES2017",
     "lib": ["dom", "dom.iterable", "esnext"],
-    "allowJs": true,
+    "allowJs": false,
     "skipLibCheck": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,

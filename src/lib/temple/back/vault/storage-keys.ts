@@ -4,6 +4,7 @@ enum StorageEntity {
   Check = 'check',
   MigrationLevel = 'migration',
   Mnemonic = 'mnemonic',
+  WalletMnemonic = 'walletmnemonic',
   AccPrivKey = 'accprivkey',
   AccPubKey = 'accpubkey',
   Accounts = 'accounts',
@@ -13,7 +14,9 @@ enum StorageEntity {
 
 export const checkStrgKey = createStorageKey(StorageEntity.Check);
 export const migrationLevelStrgKey = createStorageKey(StorageEntity.MigrationLevel);
+/** @deprecated */
 export const mnemonicStrgKey = createStorageKey(StorageEntity.Mnemonic);
+export const walletMnemonicStrgKey = createDynamicStorageKey(StorageEntity.WalletMnemonic);
 export const accPrivKeyStrgKey = createDynamicStorageKey(StorageEntity.AccPrivKey);
 export const accPubKeyStrgKey = createDynamicStorageKey(StorageEntity.AccPubKey);
 export const accountsStrgKey = createStorageKey(StorageEntity.Accounts);

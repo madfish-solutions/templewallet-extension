@@ -1,9 +1,7 @@
 import React, {
-  Dispatch,
   memo,
   ReactElement,
   RefObject,
-  SetStateAction,
   useCallback,
   useEffect,
   useLayoutEffect,
@@ -20,17 +18,17 @@ import { isTruthy } from 'lib/utils';
 
 export interface PopperRenderProps {
   opened: boolean;
-  setOpened: Dispatch<SetStateAction<boolean>>;
+  setOpened: ReactSetStateFn<boolean>;
   toggleOpened: () => void;
 }
 type RenderProp<P> = (props: P) => ReactElement;
 
-interface PopperAnchorProps extends PopperRenderProps {
+export interface PopperAnchorProps extends PopperRenderProps {
   ref: RefObject<HTMLButtonElement>;
 }
 
-export type PopperPopup = RenderProp<PopperRenderProps>;
-export type PopperChildren = RenderProp<PopperAnchorProps>;
+type PopperPopup = RenderProp<PopperRenderProps>;
+type PopperChildren = RenderProp<PopperAnchorProps>;
 
 type PopperProps = Partial<Options> & {
   popup: PopperPopup;
@@ -128,7 +126,7 @@ const Popper = memo<PopperProps>(({ popup, children, fallbackPlacementsEnabled =
       {triggerNode}
 
       <Portal>
-        <div ref={popupRef} className="z-40" style={style}>
+        <div ref={popupRef} className="z-dropdown" style={style}>
           {popupNode}
         </div>
       </Portal>

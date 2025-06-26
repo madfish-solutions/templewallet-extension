@@ -1,55 +1,82 @@
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
+
+import { isString } from 'lodash';
 
 import { getMessage } from 'lib/i18n';
 import { TempleContact } from 'lib/temple/types';
+import { getAccountAddressForEvm, getAccountAddressForTezos } from 'temple/accounts';
+import { useAllAccounts, useSettings } from 'temple/front/ready';
 
 import { useTempleClient } from './client';
-import { useFilteredContacts } from './use-filtered-contacts.hook';
 
 export function useContactsActions() {
   const { updateSettings } = useTempleClient();
-  const { contacts, allContacts } = useFilteredContacts();
+  const { contacts } = useSettings();
+  const allAccounts = useAllAccounts();
+
+  const allAccountsAddresses = useMemo(
+    () => allAccounts.flatMap(acc => [getAccountAddressForEvm(acc), getAccountAddressForTezos(acc)].filter(isString)),
+    [allAccounts]
+  );
+
+  const contactsWithFallback = useMemo(() => contacts ?? [], [contacts]);
 
   const addContact = useCallback(
-    async (cToAdd: TempleContact) => {
-      if (allContacts.some(c => c.address === cToAdd.address)) {
-        throw new Error(getMessage('contactWithTheSameAddressAlreadyExists'));
-      }
+    async (contactToAdd: TempleContact) => {
+      checkForContactDuplication(contactsWithFallback, allAccountsAddresses, contactToAdd.address);
 
       await updateSettings({
-        contacts: [cToAdd, ...contacts]
+        contacts: [contactToAdd, ...contactsWithFallback]
       });
     },
-    [contacts, allContacts, updateSettings]
+    [allAccountsAddresses, contactsWithFallback, updateSettings]
+  );
+
+  const editContact = useCallback(
+    async (address: string, editedData: Pick<TempleContact, 'name' | 'address'>) => {
+      if (address !== editedData.address) {
+        checkForContactDuplication(contactsWithFallback, allAccountsAddresses, editedData.address);
+      }
+
+      const newContacts = [...contactsWithFallback];
+
+      const index = contactsWithFallback.findIndex(c => c.address === address);
+
+      if (index === -1) {
+        throw new Error('Failed to find a contact to edit');
+      }
+
+      const currentContact = contactsWithFallback[index];
+
+      newContacts[index] = { ...currentContact, ...editedData };
+
+      await updateSettings({
+        contacts: newContacts
+      });
+    },
+    [allAccountsAddresses, contactsWithFallback, updateSettings]
   );
 
   const removeContact = useCallback(
     (address: string) =>
       updateSettings({
-        contacts: contacts.filter(c => c.address !== address)
+        contacts: contactsWithFallback.filter(c => c.address !== address)
       }),
-    [contacts, updateSettings]
-  );
-
-  const getContact = useCallback(
-    (address: string) => allContacts.find(c => c.address === address) ?? null,
-    [allContacts]
+    [contactsWithFallback, updateSettings]
   );
 
   return {
     addContact,
-    removeContact,
-    getContact
+    editContact,
+    removeContact
   };
 }
 
-const CONTACT_FIELDS_TO_SEARCH = ['name', 'address'] as const;
-
-export function searchContacts<T extends TempleContact>(contacts: T[], searchValue: string) {
-  if (!searchValue) return contacts;
-
-  const loweredSearchValue = searchValue.toLowerCase();
-  return contacts.filter(c =>
-    CONTACT_FIELDS_TO_SEARCH.some(field => c[field].toLowerCase().includes(loweredSearchValue))
-  );
-}
+const checkForContactDuplication = (contacts: TempleContact[], allAccountsAddresses: string[], address: string) => {
+  if (contacts.some(c => c.address === address)) {
+    throw new Error(getMessage('contactWithTheSameAddressAlreadyExists'));
+  }
+  if (allAccountsAddresses.some(a => a === address)) {
+    throw new Error(getMessage('accountWithTheSameAddressAlreadyExists'));
+  }
+};

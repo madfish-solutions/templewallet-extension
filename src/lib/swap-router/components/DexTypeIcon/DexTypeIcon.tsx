@@ -1,6 +1,6 @@
 import React, { FC } from 'react';
 
-import { AssetIcon } from 'app/templates/AssetIcon';
+import { TezosAssetIcon } from 'app/templates/AssetIcon';
 import { Route3DexTypeEnum } from 'lib/apis/route3/fetch-route3-dexes';
 
 import { ReactComponent as CtezIcon } from './icons/ctez-icon.svg';
@@ -64,6 +64,6 @@ export const DexTypeIcon: FC<Props> = ({ dexType }) => {
       return <img src={KordLogoSrc} height={20} width={20} alt="Kord logo" />;
 
     default:
-      return <AssetIcon assetSlug="" size={24} />;
+      return <TezosAssetIcon tezosChainId="" assetSlug="" size={24} />;
   }
 };

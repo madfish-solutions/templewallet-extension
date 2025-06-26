@@ -15,7 +15,7 @@ interface LocationState {
   // Misc props
   host?: string;
   hostname?: string;
-  href?: string;
+  href: string;
   origin?: string;
   port?: string;
   protocol?: string;

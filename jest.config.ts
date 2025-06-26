@@ -4,18 +4,17 @@
  */
 
 const config = {
+  testMatch: [ "**/__tests__/**/*.[jt]s?(x)", "**/*.@(spec|test).[jt]s?(x)", "!**/e2e/**" ],
   coverageProvider: 'v8',
-  moduleNameMapper: {
-    '^app/(.*)$': '<rootDir>/src/app/$1',
-    '^lib/(.*)$': '<rootDir>/src/lib/$1'
-  },
+  // To have Jest respect `baseUrl`:
+  moduleDirectories: ['node_modules', 'src'],
   testEnvironment: 'jsdom',
   transform: {
     '.+\\.ts$': 'ts-jest',
     '.+\\.tsx$': 'ts-jest'
   },
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx'],
-  setupFiles: ['dotenv/config', '@temple-wallet/jest-webextension-mock'],
+  setupFiles: ['dotenv/config', '@temple-wallet/jest-webextension-mock', 'fake-indexeddb/auto'],
   setupFilesAfterEnv: ['./jest.setup.js']
 };
 

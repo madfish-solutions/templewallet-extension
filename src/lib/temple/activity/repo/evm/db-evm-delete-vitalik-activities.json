@@ -1,0 +1,68 @@
+[
+  {
+    "chain": "evm",
+    "hash": "0x4e574e6dbb0dd72d00d1d8467c8fea3dc2d800e7d2ba69f6d9613037d788f8d7",
+    "addedAt": "2025-02-10T17:28:23.000Z",
+    "operationsCount": 1,
+    "chainId": 1,
+    "blockHeight": 21817611,
+    "operations": [
+      {
+        "kind": 1,
+        "type": 3,
+        "fromAddress": "0xc97dfc795b046653df9d06f022e7676190b5f406",
+        "toAddress": "0xab5801a7d398351b8be11c439e05c5b3259aec9b",
+        "logIndex": 483,
+        "amountSigned": "87500000000000000",
+        "fkAsset": 3
+      }
+    ],
+    "index": null,
+    "fee": null,
+    "value": null
+  },
+  {
+    "chain": "evm",
+    "hash": "0xe1ce1a5f880f27f465a32b4ea531d27c75b111f30612659dbde3347b707ecdd7",
+    "addedAt": "2025-02-10T13:56:49.000Z",
+    "operationsCount": 1,
+    "chainId": 10,
+    "blockHeight": 131798516,
+    "operations": [
+      {
+        "kind": 1,
+        "type": 3,
+        "fromAddress": "0xbe09893cafe9d2cc02a1ad60853f2c835c3056ae",
+        "toAddress": "0xab5801a7d398351b8be11c439e05c5b3259aec9b",
+        "logIndex": 276,
+        "amountSigned": "12367120000000000000000",
+        "fkAsset": 2
+      }
+    ],
+    "index": null,
+    "fee": null,
+    "value": null
+  },
+  {
+    "chain": "evm",
+    "hash": "0xeec73d93e54505416de0b3f33bc5e85c0bc4fda02c8b888cebf51d5c10275f85",
+    "addedAt": "2025-02-10T09:50:47.000Z",
+    "operationsCount": 1,
+    "chainId": 1,
+    "blockHeight": 21815333,
+    "operations": [
+      {
+        "kind": 1,
+        "type": 3,
+        "fromAddress": "0xc97dfc795b046653df9d06f022e7676190b5f406",
+        "toAddress": "0xab5801a7d398351b8be11c439e05c5b3259aec9b",
+        "logIndex": 674,
+        "amountSigned": "75000000000000000",
+        "fkAsset": 3
+      }
+    ],
+    "index": null,
+    "fee": null,
+    "value": null
+  }
+]

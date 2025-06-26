@@ -7,33 +7,71 @@ import {
   TempleDAppRequest,
   TempleDAppResponse
 } from '@temple-wallet/dapp/dist/types';
+import { TransactionRequest } from 'viem';
 import browser, { Runtime } from 'webextension-polyfill';
 
+import { CUSTOM_TEZOS_NETWORKS_STORAGE_KEY } from 'lib/constants';
 import { BACKGROUND_IS_WORKER } from 'lib/env';
+import { putToStorage } from 'lib/storage';
 import { addLocalOperation } from 'lib/temple/activity';
 import * as Beacon from 'lib/temple/beacon';
-import { loadChainId } from 'lib/temple/helpers';
+import { buildFinalTezosOpParams } from 'lib/temple/helpers';
 import {
   TempleState,
   TempleMessageType,
   TempleRequest,
   TempleSettings,
-  TempleSharedStorageKey
+  TempleAccountType,
+  SaveLedgerAccountInput
 } from 'lib/temple/types';
-import { createQueue, delay } from 'lib/utils';
+import { PromisesQueue, PromisesQueueCounters, delay } from 'lib/utils';
+import { EVMErrorCodes, evmRpcMethodsNames, GET_DEFAULT_WEB3_PARAMS_METHOD_NAME } from 'temple/evm/constants';
+import { ErrorWithCode } from 'temple/evm/types';
+import { parseTransactionRequest } from 'temple/evm/utils';
+import { EvmChain } from 'temple/front';
+import { loadTezosChainId } from 'temple/tezos';
+import { TempleChainKind } from 'temple/types';
 
 import {
   getCurrentPermission,
+  init as initTezos,
   requestPermission,
   requestOperation,
   requestSign,
   requestBroadcast,
-  getAllDApps,
-  removeDApp
+  removeDApps as removeTezDApps
 } from './dapp';
 import { intercom } from './defaults';
 import type { DryRunResult } from './dryrun';
-import { buildFinalOpParmas, dryRunOpParams } from './dryrun';
+import { dryRunOpParams } from './dryrun';
+import {
+  connectEvm,
+  getDefaultWeb3Params,
+  getEvmPermissions,
+  requestEvmPermissions,
+  requestEvmPersonalSign,
+  requestEvmTypedSign,
+  revokeEvmPermissions,
+  switchChain,
+  removeDApps as removeEvmDApps,
+  init as initEvm,
+  recoverEvmMessageAddress,
+  handleEvmRpcRequest,
+  sendEvmTransactionAfterConfirm,
+  addChain,
+  addAsset
+} from './evm-dapp';
+import {
+  addEthAssetPayloadValidationSchema,
+  addEthChainPayloadValidationSchema,
+  ethChangePermissionsPayloadValidationSchema,
+  ethOldSignTypedDataValidationSchema,
+  ethPersonalSignPayloadValidationSchema,
+  ethSignTypedDataValidationSchema,
+  personalSignRecoverPayloadValidationSchema,
+  sendTransactionPayloadValidationSchema,
+  switchEthChainPayloadValidationSchema
+} from './evm-validation-schemas';
 import {
   toFront,
   store,
@@ -43,17 +81,34 @@ import {
   accountsUpdated,
   settingsUpdated,
   withInited,
-  withUnlocked
+  withUnlocked,
+  dAppQueueCountersUpdated,
+  focusLocationChanged,
+  popupClosed,
+  popupOpened
 } from './store';
 import { Vault } from './vault';
 
-const ACCOUNT_NAME_PATTERN = /^.{0,16}$/;
+export { switchChain as switchEvmChain } from './evm-dapp';
+
+const ACCOUNT_OR_GROUP_NAME_PATTERN = /^.{1,16}$/;
 const AUTODECLINE_AFTER = 60_000;
 const BEACON_ID = `temple_wallet_${browser.runtime.id}`;
 let initLocked = false;
 
-const enqueueDApp = createQueue();
-const enqueueUnlock = createQueue();
+const dAppQueue = new PromisesQueue();
+const unlockQueue = new PromisesQueue();
+
+dAppQueue.on(PromisesQueue.COUNTERS_CHANGE_EVENT_NAME, (counters: PromisesQueueCounters) => {
+  dAppQueueCountersUpdated(counters);
+});
+
+const castWindowId = (windowId: number | nullish) =>
+  windowId === browser.windows.WINDOW_ID_NONE ? null : windowId ?? null;
+const onFocusLocationError = (error: unknown) => {
+  console.error(error);
+  focusLocationChanged(null);
+};
 
 export async function init() {
   const vaultExist = await Vault.isExist();
@@ -63,12 +118,49 @@ export async function init() {
     initLocked = false;
     locked();
   }
+
+  try {
+    const onActiveTabChanged = (windowId?: number | null, tabId?: number | null) => {
+      focusLocationChanged({
+        windowId: castWindowId(windowId),
+        tabId: tabId === browser.tabs.TAB_ID_NONE ? null : tabId ?? null
+      });
+    };
+    const onActiveWindowChanged = async (windowId?: number) => {
+      const newWindowId = castWindowId(windowId);
+      if (newWindowId === null) {
+        onActiveTabChanged();
+      } else {
+        try {
+          onActiveTabChanged(
+            newWindowId,
+            (await browser.windows.get(newWindowId, { populate: true })).tabs?.find(tab => tab.active)?.id
+          );
+        } catch (e) {
+          onFocusLocationError(e);
+        }
+      }
+    };
+
+    const initialWindow = await browser.windows.getCurrent({ populate: true });
+    const initialTabId = initialWindow.tabs?.find(tab => tab.active)?.id;
+    onActiveWindowChanged(initialWindow.id);
+    onActiveTabChanged(initialWindow.id, initialTabId);
+
+    browser.tabs.onActivated.addListener(({ windowId, tabId }) => onActiveTabChanged(windowId, tabId));
+    browser.windows.onFocusChanged.addListener(onActiveWindowChanged);
+  } catch (e) {
+    onFocusLocationError(e);
+  }
+
+  initEvm();
+  initTezos();
 }
 
 export async function getFrontState(): Promise<TempleState> {
   const state = store.getState();
   if (state.inited) {
-    if (BACKGROUND_IS_WORKER) return await enqueueUnlock(async () => toFront(store.getState()));
+    if (BACKGROUND_IS_WORKER) return await unlockQueue.enqueue(async () => toFront(store.getState()));
     else return toFront(state);
   } else {
     await delay(10);
@@ -77,17 +169,14 @@ export async function getFrontState(): Promise<TempleState> {
   }
 }
 
-export async function isDAppEnabled() {
-  const bools = await Promise.all([
-    Vault.isExist(),
-    (async () => {
-      const key = TempleSharedStorageKey.DAppEnabled;
-      const items = await browser.storage.local.get([key]);
-      return key in items ? items[key] : true;
-    })()
-  ]);
+export function canInteractWithDApps() {
+  return Vault.isExist();
+}
 
-  return bools.every(Boolean);
+export function sendEvmTransaction(accountPkh: HexString, network: EvmChain, txParams: TransactionRequest) {
+  return withUnlocked(async ({ vault }) => {
+    return await vault.sendEvmTransaction(accountPkh, network, txParams);
+  });
 }
 
 export function registerNewWallet(password: string, mnemonic?: string) {
@@ -114,7 +203,7 @@ export async function lock() {
 
 export function unlock(password: string) {
   return withInited(() =>
-    enqueueUnlock(async () => {
+    unlockQueue.enqueue(async () => {
       const vault = await Vault.setup(password, BACKGROUND_IS_WORKER);
       const accounts = await vault.fetchAccounts();
       const settings = await vault.fetchSettings();
@@ -124,7 +213,7 @@ export function unlock(password: string) {
 }
 
 export async function unlockFromSession() {
-  await enqueueUnlock(async () => {
+  await unlockQueue.enqueue(async () => {
     const vault = await Vault.recoverFromSession();
     if (vault == null) return;
     const accounts = await vault.fetchAccounts();
@@ -133,58 +222,69 @@ export async function unlockFromSession() {
   });
 }
 
-export function createHDAccount(name?: string) {
+export function findFreeHDAccountIndex(walletId: string) {
+  return withUnlocked(({ vault }) => vault.findFreeHDAccountIndex(walletId));
+}
+
+export function createHDAccount(walletId: string, name?: string, hdIndex?: number) {
   return withUnlocked(async ({ vault }) => {
     if (name) {
       name = name.trim();
-      if (!ACCOUNT_NAME_PATTERN.test(name)) {
-        throw new Error('Invalid name. It should be: 1-16 characters, without special');
+      if (!ACCOUNT_OR_GROUP_NAME_PATTERN.test(name)) {
+        throw new Error('Invalid name. It should be 1-16 characters');
       }
     }
 
-    const updatedAccounts = await vault.createHDAccount(name);
+    const updatedAccounts = await vault.createHDAccount(walletId, name, hdIndex);
     accountsUpdated(updatedAccounts);
   });
 }
 
-export function revealMnemonic(password: string) {
-  return withUnlocked(() => Vault.revealMnemonic(password));
+export function revealMnemonic(walletId: string, password: string) {
+  return withUnlocked(() => Vault.revealMnemonic(walletId, password));
 }
 
-export function generateSyncPayload(password: string) {
-  return withUnlocked(() => Vault.generateSyncPayload(password));
+export function generateSyncPayload(password: string, walletId: string) {
+  return withUnlocked(() => Vault.generateSyncPayload(password, walletId));
 }
 
-export function revealPrivateKey(accPublicKeyHash: string, password: string) {
-  return withUnlocked(() => Vault.revealPrivateKey(accPublicKeyHash, password));
+export function revealPrivateKey(address: string, password: string) {
+  return withUnlocked(() => Vault.revealPrivateKey(address, password));
 }
 
-export function revealPublicKey(accPublicKeyHash: string) {
-  return withUnlocked(({ vault }) => vault.revealPublicKey(accPublicKeyHash));
+export function revealPublicKey(accountAddress: string) {
+  return withUnlocked(({ vault }) => vault.revealPublicKey(accountAddress));
 }
 
-export function removeAccount(accPublicKeyHash: string, password: string) {
+export function removeAccount(id: string, password: string) {
   return withUnlocked(async () => {
-    const updatedAccounts = await Vault.removeAccount(accPublicKeyHash, password);
+    const { newAccounts } = await Vault.removeAccount(id, password);
+    accountsUpdated(newAccounts);
+  });
+}
+
+export function setAccountHidden(id: string, value: boolean) {
+  return withUnlocked(async ({ vault }) => {
+    const updatedAccounts = await vault.setAccountHidden(id, value);
     accountsUpdated(updatedAccounts);
   });
 }
 
-export function editAccount(accPublicKeyHash: string, name: string) {
+export function editAccount(id: string, name: string) {
   return withUnlocked(async ({ vault }) => {
     name = name.trim();
-    if (!ACCOUNT_NAME_PATTERN.test(name)) {
-      throw new Error('Invalid name. It should be: 1-16 characters, without special');
+    if (!ACCOUNT_OR_GROUP_NAME_PATTERN.test(name)) {
+      throw new Error('Invalid name. It should be 1-16 characters');
     }
 
-    const updatedAccounts = await vault.editAccountName(accPublicKeyHash, name);
+    const updatedAccounts = await vault.editAccountName(id, name);
     accountsUpdated(updatedAccounts);
   });
 }
 
-export function importAccount(privateKey: string, encPassword?: string) {
+export function importAccount(chain: TempleChainKind, privateKey: string, encPassword?: string) {
   return withUnlocked(async ({ vault }) => {
-    const updatedAccounts = await vault.importAccount(privateKey, encPassword);
+    const updatedAccounts = await vault.importAccount(chain, privateKey, encPassword);
     accountsUpdated(updatedAccounts);
   });
 }
@@ -196,30 +296,24 @@ export function importMnemonicAccount(mnemonic: string, password?: string, deriv
   });
 }
 
-export function importFundraiserAccount(email: string, password: string, mnemonic: string) {
+export function importWatchOnlyAccount(chain: TempleChainKind, address: string, chainId?: string) {
   return withUnlocked(async ({ vault }) => {
-    const updatedAccounts = await vault.importFundraiserAccount(email, password, mnemonic);
+    const updatedAccounts = await vault.importWatchOnlyAccount(chain, address, chainId);
     accountsUpdated(updatedAccounts);
   });
 }
 
-export function importManagedKTAccount(address: string, chainId: string, owner: string) {
-  return withUnlocked(async ({ vault }) => {
-    const updatedAccounts = await vault.importManagedKTAccount(address, chainId, owner);
-    accountsUpdated(updatedAccounts);
-  });
+export function getLedgerEVMPk(derivationPath?: string) {
+  return withUnlocked(async ({ vault }) => await vault.getLedgerEVMPk(derivationPath));
 }
 
-export function importWatchOnlyAccount(address: string, chainId?: string) {
-  return withUnlocked(async ({ vault }) => {
-    const updatedAccounts = await vault.importWatchOnlyAccount(address, chainId);
-    accountsUpdated(updatedAccounts);
-  });
+export function getLedgerTezosPk(derivationPath?: string, derivationType?: DerivationType) {
+  return withUnlocked(async ({ vault }) => await vault.getLedgerTezosPk(derivationPath, derivationType));
 }
 
-export function createLedgerAccount(name: string, derivationPath?: string, derivationType?: DerivationType) {
+export function createLedgerAccount(input: SaveLedgerAccountInput) {
   return withUnlocked(async ({ vault }) => {
-    const updatedAccounts = await vault.createLedgerAccount(name, derivationPath, derivationType);
+    const updatedAccounts = await vault.createLedgerAccount(input);
     accountsUpdated(updatedAccounts);
   });
 }
@@ -227,17 +321,39 @@ export function createLedgerAccount(name: string, derivationPath?: string, deriv
 export function updateSettings(settings: Partial<TempleSettings>) {
   return withUnlocked(async ({ vault }) => {
     const updatedSettings = await vault.updateSettings(settings);
-    createCustomNetworksSnapshot(updatedSettings);
+
+    putToStorage(CUSTOM_TEZOS_NETWORKS_STORAGE_KEY, updatedSettings.customTezosNetworks);
+
     settingsUpdated(updatedSettings);
   });
 }
 
-export function getAllDAppSessions() {
-  return getAllDApps();
+export function removeHdWallet(id: string, password: string) {
+  return withUnlocked(async () => {
+    const { newAccounts } = await Vault.removeHdWallet(id, password);
+    accountsUpdated(newAccounts);
+  });
 }
 
-export function removeDAppSession(origin: string) {
-  return removeDApp(origin);
+export function removeAccountsByType(type: Exclude<TempleAccountType, TempleAccountType.HD>, password: string) {
+  return withUnlocked(async () => {
+    const newAccounts = await Vault.removeAccountsByType(type, password);
+    accountsUpdated(newAccounts);
+  });
+}
+
+export function createOrImportWallet(mnemonic?: string) {
+  return withUnlocked(async ({ vault }) => {
+    const { newAccounts } = await vault.createOrImportWallet(mnemonic);
+    accountsUpdated(newAccounts);
+  });
+}
+
+export async function removeDAppSession(origins: string[]) {
+  return {
+    [TempleChainKind.Tezos]: await removeTezDApps(origins),
+    [TempleChainKind.EVM]: await removeEvmDApps(origins)
+  };
 }
 
 export function sendOperations(
@@ -245,9 +361,10 @@ export function sendOperations(
   id: string,
   sourcePkh: string,
   networkRpc: string,
-  opParams: any[]
+  opParams: any[],
+  straightaway?: boolean
 ): Promise<{ opHash: string }> {
-  return withUnlocked(async () => {
+  return withUnlocked(async ({ vault }) => {
     const sourcePublicKey = await revealPublicKey(sourcePkh);
     const dryRunResult = await dryRunOpParams({
       opParams,
@@ -256,12 +373,24 @@ export function sendOperations(
       sourcePublicKey
     });
     if (dryRunResult && dryRunResult.result) {
-      opParams = (dryRunResult.result as any).opParams;
+      opParams = dryRunResult.result.opParams;
     }
 
-    return new Promise((resolve, reject) =>
-      promisableUnlock(resolve, reject, port, id, sourcePkh, networkRpc, opParams, dryRunResult)
-    );
+    return new Promise(async (resolve, reject) => {
+      if (straightaway) {
+        try {
+          const op = await vault.sendOperations(sourcePkh, networkRpc, opParams);
+
+          await safeAddLocalOperation(networkRpc, op);
+
+          resolve({ opHash: op.hash });
+        } catch (err: any) {
+          reject(err);
+        }
+      } else {
+        return promisableUnlock(resolve, reject, port, id, sourcePkh, networkRpc, opParams, dryRunResult);
+      }
+    });
   });
 }
 
@@ -300,13 +429,14 @@ const promisableUnlock = async (
 
   const stopRequestListening = intercom.onRequest(async (req: TempleRequest, reqPort) => {
     if (reqPort === port && req?.type === TempleMessageType.ConfirmationRequest && req?.id === id) {
-      if (req.confirmed) {
+      const { confirmed, modifiedStorageLimit, modifiedTotalFee } = req;
+      if (confirmed) {
         try {
           const op = await withUnlocked(({ vault }) =>
             vault.sendOperations(
               sourcePkh,
               networkRpc,
-              buildFinalOpParmas(opParams, req.modifiedTotalFee, req.modifiedStorageLimit)
+              buildFinalTezosOpParams(opParams, modifiedTotalFee, modifiedStorageLimit)
             )
           );
 
@@ -342,13 +472,20 @@ const promisableUnlock = async (
 
 const safeAddLocalOperation = async (networkRpc: string, op: any) => {
   try {
-    const chainId = await loadChainId(networkRpc);
+    const chainId = await loadTezosChainId(networkRpc);
     await addLocalOperation(chainId, op.hash, op.results);
   } catch {}
   return undefined;
 };
 
-export function sign(port: Runtime.Port, id: string, sourcePkh: string, bytes: string, watermark?: string) {
+export function sign(
+  port: Runtime.Port,
+  id: string,
+  sourcePkh: string,
+  networkRpc: string,
+  bytes: string,
+  watermark?: string
+) {
   return withUnlocked(
     () =>
       new Promise(async (resolve, reject) => {
@@ -358,6 +495,7 @@ export function sign(port: Runtime.Port, id: string, sourcePkh: string, bytes: s
           payload: {
             type: 'sign',
             sourcePkh,
+            networkRpc,
             bytes,
             watermark
           }
@@ -406,17 +544,104 @@ export async function processDApp(origin: string, req: TempleDAppRequest): Promi
       return withInited(() => getCurrentPermission(origin));
 
     case TempleDAppMessageType.PermissionRequest:
-      return withInited(() => enqueueDApp(() => requestPermission(origin, req)));
+      return withInited(() => dAppQueue.enqueue(() => requestPermission(origin, req)));
 
     case TempleDAppMessageType.OperationRequest:
-      return withInited(() => enqueueDApp(() => requestOperation(origin, req)));
+      return withInited(() => dAppQueue.enqueue(() => requestOperation(origin, req)));
 
     case TempleDAppMessageType.SignRequest:
-      return withInited(() => enqueueDApp(() => requestSign(origin, req)));
+      return withInited(() => dAppQueue.enqueue(() => requestSign(origin, req)));
 
     case TempleDAppMessageType.BroadcastRequest:
       return withInited(() => requestBroadcast(origin, req));
   }
+}
+
+interface EvmRequestPayload {
+  method: string;
+  params: unknown;
+}
+
+export async function processEvmDApp(origin: string, payload: EvmRequestPayload, chainId: string, iconUrl?: string) {
+  const { method, params } = payload;
+  let methodHandler: () => Promise<any>;
+  let requiresConfirm = true;
+
+  switch (method) {
+    case GET_DEFAULT_WEB3_PARAMS_METHOD_NAME:
+      methodHandler = () => getDefaultWeb3Params(origin);
+      requiresConfirm = false;
+      break;
+    case evmRpcMethodsNames.eth_requestAccounts:
+      methodHandler = () => connectEvm(origin, chainId, iconUrl);
+      break;
+    case evmRpcMethodsNames.wallet_watchAsset:
+      const validatedParams = addEthAssetPayloadValidationSchema.validateSync(params);
+      methodHandler = () => addAsset(origin, chainId, validatedParams);
+      break;
+    case evmRpcMethodsNames.wallet_addEthereumChain:
+      const [chainMetadata] = addEthChainPayloadValidationSchema.validateSync(params);
+      methodHandler = () => addChain(origin, chainId, chainMetadata);
+      break;
+    case evmRpcMethodsNames.wallet_switchEthereumChain:
+      const [{ chainId: destinationChainId }] = switchEthChainPayloadValidationSchema.validateSync(params);
+      methodHandler = () => switchChain(origin, destinationChainId, false);
+      requiresConfirm = false;
+      break;
+    case evmRpcMethodsNames.eth_signTypedData:
+    case evmRpcMethodsNames.eth_signTypedData_v1:
+      const [oldTypedData, oldTypedSignerPkh] = ethOldSignTypedDataValidationSchema.validateSync(params);
+      methodHandler = () => requestEvmTypedSign(origin, oldTypedSignerPkh, chainId, oldTypedData, iconUrl);
+      break;
+    case evmRpcMethodsNames.eth_signTypedData_v3:
+    case evmRpcMethodsNames.eth_signTypedData_v4:
+      const [typedSignerPkh, typedData] = ethSignTypedDataValidationSchema.validateSync(params);
+      methodHandler = () => requestEvmTypedSign(origin, typedSignerPkh, chainId, typedData, iconUrl);
+      break;
+    case evmRpcMethodsNames.personal_sign:
+      const [personalSignData, personalSignerPkh] = ethPersonalSignPayloadValidationSchema.validateSync(params);
+      methodHandler = () =>
+        requestEvmPersonalSign(
+          origin,
+          personalSignerPkh,
+          chainId,
+          Buffer.from(personalSignData.slice(2), 'hex').toString('utf8'),
+          iconUrl
+        );
+      break;
+    case evmRpcMethodsNames.wallet_getPermissions:
+      methodHandler = () => getEvmPermissions(origin);
+      requiresConfirm = false;
+      break;
+    case evmRpcMethodsNames.wallet_requestPermissions:
+      const [requestPermissionsPayload] = ethChangePermissionsPayloadValidationSchema.validateSync(params);
+      methodHandler = () => requestEvmPermissions(origin, chainId, requestPermissionsPayload, iconUrl);
+      break;
+    case evmRpcMethodsNames.wallet_revokePermissions:
+      const [revokePermissionsPayload] = ethChangePermissionsPayloadValidationSchema.validateSync(params);
+      methodHandler = () => revokeEvmPermissions(origin, revokePermissionsPayload);
+      break;
+    case evmRpcMethodsNames.personal_ecRecover:
+      const [message, signature] = personalSignRecoverPayloadValidationSchema.validateSync(params);
+      methodHandler = () => recoverEvmMessageAddress(message, signature);
+      requiresConfirm = false;
+      break;
+    case evmRpcMethodsNames.wallet_sendTransaction:
+    case evmRpcMethodsNames.eth_sendTransaction:
+      let req: TransactionRequest;
+      try {
+        req = parseTransactionRequest(sendTransactionPayloadValidationSchema.validateSync(params)[0]);
+      } catch (e: any) {
+        throw new ErrorWithCode(EVMErrorCodes.INVALID_PARAMS, e.message ?? 'Invalid transaction request');
+      }
+      methodHandler = () => sendEvmTransactionAfterConfirm(origin, chainId, req, iconUrl);
+      break;
+    default:
+      methodHandler = () => handleEvmRpcRequest(origin, payload, chainId);
+      requiresConfirm = false;
+  }
+
+  return requiresConfirm ? withInited(() => dAppQueue.enqueue(methodHandler)) : methodHandler();
 }
 
 export async function getBeaconMessage(origin: string, msg: string, encrypted = false) {
@@ -465,6 +690,10 @@ type ProcessedBeaconMessage = {
   encrypted?: boolean;
 };
 
+export function resetExtension(password: string) {
+  return withUnlocked(async () => Vault.reset(password));
+}
+
 export async function processBeacon(
   origin: string,
   msg: string,
@@ -480,7 +709,7 @@ export async function processBeacon(
 
   // Process Disconnect
   if (req.type === Beacon.MessageType.Disconnect) {
-    await removeDApp(origin);
+    await removeTezDApps([origin]);
     return;
   }
 
@@ -579,7 +808,7 @@ const getTempleReq = (req: Beacon.Request): TempleDAppRequest | void => {
 
       return {
         type: TempleDAppMessageType.PermissionRequest,
-        network: network as any,
+        network: network,
         appMeta: req.appMetadata,
         force: true
       };
@@ -622,7 +851,7 @@ const formatTempleReq = async (
           return {
             ...resBase,
             type: Beacon.MessageType.PermissionResponse,
-            publicKey: (templeRes as any).publicKey,
+            publicKey: templeRes.publicKey,
             network: (req as Beacon.PermissionRequest).network,
             scopes: [Beacon.PermissionScope.OPERATION_REQUEST, Beacon.PermissionScope.SIGN]
           };
@@ -653,16 +882,6 @@ const formatTempleReq = async (
 
   throw new Error(Beacon.ErrorType.UNKNOWN_ERROR);
 };
-
-async function createCustomNetworksSnapshot(settings: TempleSettings) {
-  try {
-    if (settings.customNetworks) {
-      await browser.storage.local.set({
-        custom_networks_snapshot: settings.customNetworks
-      });
-    }
-  } catch {}
-}
 
 function getErrorData(err: any) {
   return err instanceof TezosOperationError ? err.errors.map(({ contract_code, ...rest }: any) => rest) : undefined;
@@ -698,3 +917,11 @@ const close = (
   } catch (_err) {}
   return innerClosing;
 };
+
+export function setWindowPopupOpened(windowId: number | null, opened: boolean) {
+  if (opened) {
+    popupOpened(windowId);
+  } else {
+    popupClosed(windowId);
+  }
+}

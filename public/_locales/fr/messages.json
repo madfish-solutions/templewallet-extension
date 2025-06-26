@@ -2,9 +2,6 @@
   "appName": {
     "message": "Temple - Portefeuille Tezos"
   },
-  "showIncomingTransactions": {
-    "message": "Afficher les transactions entrantes"
-  },
   "appDesc": {
     "message": "🔐💰Portefeuille de cryptomonnaie pour le blockchain Tezos en tant qu'extension Web pour votre navigateur."
   },
@@ -13,12 +10,6 @@
   },
   "createAccount": {
     "message": "Créer un compte"
-  },
-  "faucetFileTitle": {
-    "message": "Fichier Faucet"
-  },
-  "faucetFile": {
-    "message": "Fichier Faucet"
   },
   "settings": {
     "message": "Paramètres"
@@ -29,23 +20,8 @@
   "maximiseView": {
     "message": "Maximiser la vue"
   },
-  "selectFileOfFormat": {
-    "message": "Sélectionner un fichier $format$",
-    "placeholders": {
-      "format": {
-        "content": "$1"
-      }
-    }
-  },
-  "authorizedDApps": {
-    "message": "Applications décentralisées autorisées",
-    "description": "DApps = Decentralized Applications"
-  },
-  "clickIconToResetPermissions": {
-    "message": "Cliquez sur l'icône X pour réinitialiser les permissions."
-  },
   "versionLabel": {
-    "message": "version : $version$",
+    "message": "Version : $version$",
     "placeholders": {
       "version": {
         "content": "$1"
@@ -53,36 +29,9 @@
     }
   },
   "branchName": {
-    "message": "branch: $branch$",
+    "message": "Branch: $branch$",
     "placeholders": {
       "branch": {
-        "content": "$1"
-      }
-    }
-  },
-  "madeWithLove": {
-    "message": "Créée avec $loveIcon$ par $companyName$",
-    "placeholders": {
-      "loveIcon": {
-        "content": "$1"
-      },
-      "companyName": {
-        "content": "$2"
-      }
-    }
-  },
-  "feeInputDescription": {
-    "message": "Frais de base pour cette opération : $fee$\nSupplémentaires - accélère sa confirmation",
-    "placeholders": {
-      "fee": {
-        "content": "$1"
-      }
-    }
-  },
-  "resetPermissionsConfirmation": {
-    "message": "Voulez-vous vraiment réinitialiser les permissions pour $origin$ ?",
-    "placeholders": {
-      "origin": {
         "content": "$1"
       }
     }
@@ -111,87 +60,6 @@
   "networks": {
     "message": "Réseaux"
   },
-  "back": {
-    "message": "Retour"
-  },
-  "addNewToken": {
-    "message": "Ajouter un nouveau jeton"
-  },
-  "hideSomeToken": {
-    "message": "Masquer le jeton « $tokenName$ »",
-    "placeholders": {
-      "tokenName": {
-        "content": "$1"
-      }
-    }
-  },
-  "copySomeTokenAddress": {
-    "message": "Copier l'adresse « $tokenSymbol$ »",
-    "placeholders": {
-      "tokenSymbol": {
-        "content": "$1"
-      }
-    }
-  },
-  "copySomeTokenId": {
-    "message": "Copier l'ID « $tokenSymbol$ »",
-    "placeholders": {
-      "tokenSymbol": {
-        "content": "$1"
-      }
-    }
-  },
-  "originLabel": {
-    "message": "Origine : $origin$",
-    "placeholders": {
-      "origin": {
-        "content": "$1"
-      }
-    }
-  },
-  "networkLabel": {
-    "message": "Réseau : $network$",
-    "placeholders": {
-      "network": {
-        "content": "$1"
-      }
-    }
-  },
-  "pkhLabel": {
-    "message": "Compte : $pkh$",
-    "placeholders": {
-      "pkh": {
-        "content": "$1"
-      }
-    }
-  },
-  "minDelegationAmountDescription": {
-    "message": "Votre solde actuel est inférieur au montant minimum de délégation de ce baker. Cela signifie que tant que le solde est inférieur à $minAmount$, il n'y aura pas de dividendes.",
-    "placeholders": {
-      "minAmount": {
-        "content": "$1"
-      }
-    }
-  },
-  "recommendedBakersDescription": {
-    "message": "Cette liste est alimentée par $link$",
-    "placeholders": {
-      "link": {
-        "content": "$1"
-      }
-    }
-  },
-  "highestIsBetter": {
-    "message": "plus c'est haut, mieux c'est"
-  },
-  "unlockWalletPrompt": {
-    "message": "Si vous voulez enregistrer quelque chose provenant d'un portefeuille existant - $link$ et débloquez-le.",
-    "placeholders": {
-      "link": {
-        "content": "$1"
-      }
-    }
-  },
   "acceptTermsInputDescription": {
     "message": "J'ai lu et j'accepter\nles $termsOfUsageLink$ et la $privacyPolicyLink$",
     "placeholders": {
@@ -203,23 +71,8 @@
       }
     }
   },
-  "copiedTokenAddress": {
-    "message": "Copiée"
-  },
-  "copiedTokenId": {
-    "message": "Copié"
-  },
-  "delegatedTo": {
-    "message": "Délégué à :"
-  },
-  "delegatingMotivation": {
-    "message": "Déléguer vos fonds à des bakers est un excellent moyen de gagner des intérêts sur votre solde"
-  },
   "reDelegate": {
     "message": "Redéléguer"
-  },
-  "delegateNow": {
-    "message": "Déléguer maintenant"
   },
   "cancel": {
     "message": "Annuler"
@@ -230,30 +83,8 @@
   "edit": {
     "message": "Modifier"
   },
-  "useCoinSwitch": {
-    "message": "Utiliser CoinSwitch",
-    "description": "CoinSwitch = https://coinswitch.co/"
-  },
-  "tezosFaucet": {
-    "message": "Faucet Tezos"
-  },
-  "tezosFaucetAlpha": {
-    "message": "Faucet Tezos (Alpha)"
-  },
-  "depositToWallet": {
-    "message": "Dépôt dans votre portefeuille"
-  },
-  "depositToWalletDescription": {
-    "message": "Cliquez sur méthode de dépôt pour recevoir de l'argent dans votre portefeuille. Utilisez le faucet (robinet) pour obtenir des pièces gratuites !"
-  },
   "addToken": {
     "message": "Ajouter un jeton"
-  },
-  "contractNotAvailable": {
-    "message": "Le contrat lié à cette adresse est indisponible. Existe-il sur ce réseau ?"
-  },
-  "noTransferMethod": {
-    "message": "Aucune méthode de transfert"
   },
   "tokenDoesNotMatchStandard": {
     "message": "Le contrat de jeton fourni ne correspond pas au standard $standard$",
@@ -265,9 +96,6 @@
   },
   "error": {
     "message": "Erreur"
-  },
-  "tokenType": {
-    "message": "Type de jeton"
   },
   "tokenId": {
     "message": "ID de jeton"
@@ -342,16 +170,13 @@
     "message": "URL d'icône"
   },
   "optionalComment": {
-    "message": "(facultatif)"
+    "message": "Facultatif"
   },
   "iconURLInputDescription": {
     "message": "URL d'image pour le logo du jeton."
   },
   "invalidAddress": {
     "message": "Adresse invalide"
-  },
-  "contractNotExistOnNetwork": {
-    "message": "Ce contrat intelligent n'existe pas sur le réseau actuel"
   },
   "onlyKTContractAddressAllowed": {
     "message": "Seules les adresses de contrat KT… sont autorisées",
@@ -363,20 +188,11 @@
   "alert": {
     "message": "Alerte"
   },
-  "accountNameInputTitle": {
+  "accountOrGroupNameInputTitle": {
     "message": "1 à 16 caractères, aucun caractère spécial"
   },
   "defaultAccountName": {
     "message": "Compte $accountNumber$",
-    "placeholders": {
-      "accountNumber": {
-        "content": "$1"
-      }
-    }
-  },
-  "defaultManagedKTAccountName": {
-    "message": "$accountNumber$ KT géré",
-    "description": "KT not translated",
     "placeholders": {
       "accountNumber": {
         "content": "$1"
@@ -390,9 +206,6 @@
         "content": "$1"
       }
     }
-  },
-  "accountsToRemoveConstraint": {
-    "message": "Les comptes déterministes et hiérarchiques ne peuvent pas être retirés."
   },
   "doNotSharePrivateKey": {
     "message": "<b>NE PARTAGEZ</b> cet ensemble de caractères avec personne ! Il peut servir à dérober votre compte actuel."
@@ -474,10 +287,6 @@
   "tryAgain": {
     "message": "Réessayer"
   },
-  "tezosMainnet": {
-    "message": "Mainnet Tezos",
-    "description": "Mainnet = main network"
-  },
   "templeWalletOptions": {
     "message": "Portefeuille Temple | Options"
   },
@@ -551,14 +360,8 @@
   "send": {
     "message": "Envoyer"
   },
-  "baking": {
-    "message": "Baking"
-  },
   "operations": {
     "message": "Opérations"
-  },
-  "delegationInfoWhileMessage": {
-    "message": "récupération ou traitement de vos informations de délégation"
   },
   "operationHistoryWhileMessage": {
     "message": "récupération ou traitement de l'historique des opérations"
@@ -569,20 +372,8 @@
   "mnemonic": {
     "message": "Mnémonique"
   },
-  "fundraiser": {
-    "message": "Levée de fonds"
-  },
-  "privateKeyInputDescription": {
-    "message": "La clé secrète du compte que vous voulez importer."
-  },
-  "privateKeyInputPlaceholder": {
-    "message": "p. ex. edsk3wfiPMu…"
-  },
   "password": {
     "message": "Mot de passe"
-  },
-  "isPrivateKeyEncrypted": {
-    "message": "Votre clé privée est-elle au format chiffré ?"
   },
   "customDerivationPath": {
     "message": "Chemin de dérivation personnalisée"
@@ -628,14 +419,6 @@
   "smthWentWrong": {
     "message": "Quelque chose s'est mal passé"
   },
-  "faucetFileInputPrompt": {
-    "message": "Faites glisser et déposez un fichier ou sélectionnez-le manuellement en cliquant sur la zone ci-dessous. Vous pouvez le télécharger à partir de $link$.",
-    "placeholders": {
-      "link": {
-        "content": "$1"
-      }
-    }
-  },
   "processing": {
     "message": "Traitement…"
   },
@@ -654,43 +437,18 @@
   "revealPrivateKey": {
     "message": "Révéler la clé privée"
   },
-  "revealPrivateKeyDescription": {
-    "message": "Connu aussi comme « Exporter le compte », révèle la clé privée pour votre compte sélectionné."
-  },
   "revealSeedPhrase": {
     "message": "Révéler la phrase mnémonique"
-  },
-  "revealSeedPhraseDescription": {
-    "message": "Connu aussi comme « Exporter le compte », vous pourriez avoir besoin de cette phrase mnémonique pour accéder à votre portefeuille et vos comptes sur d'autres appareils."
   },
   "dApps": {
     "message": "Applications décentralisées",
     "description": "DApps = Decentralized Applications"
-  },
-  "dAppsDescription": {
-    "message": "Dans cette section, vous pouvez activer la possibilité d'interagir avec les applications décentralisées qui prennent en charge le portefeuille Temple."
-  },
-  "networksDescription": {
-    "message": "Dans cette section, vous pouvez ajouter ou supprimer des réseaux Tezos personnalisés.",
-    "description": "Tezos = blockchain name (https://tezos.com/)"
-  },
-  "activateAccount": {
-    "message": "Activer le compte"
-  },
-  "activateAccountDescription": {
-    "message": "Cela pourrait être nécessaire pou les comptes ICO/levée de fond ou faucet testnet."
   },
   "removeAccount": {
     "message": "Retirer le compte"
   },
   "removeAccountDescription": {
     "message": "Utilisez cette section pour retirer votre compte sélectionné. Seuls les comptes importés peuvent être retirés."
-  },
-  "about": {
-    "message": "À propos"
-  },
-  "aboutDescription": {
-    "message": "Utilisez cette section pour afficher les méta-informations concernant le portefeuille Temple."
   },
   "unlockWallet": {
     "message": "Déverrouiller le portefeuille"
@@ -723,44 +481,11 @@
   "website": {
     "message": "Site web"
   },
-  "repo": {
-    "message": "Référentiel"
-  },
   "privacyPolicy": {
     "message": "Politique de confidentialité"
   },
   "termsOfUse": {
     "message": "Conditions d'utilisation"
-  },
-  "contact": {
-    "message": "Contact"
-  },
-  "accountAlreadyActivated": {
-    "message": "Votre compte a déjà été activé."
-  },
-  "accountActivated": {
-    "message": "Votre compte a bien été activé !"
-  },
-  "failureSecretMayBeInvalid": {
-    "message": "Échec. Cela peut se produire si le Secret fourni est invalide"
-  },
-  "accountToBeActivated": {
-    "message": "Compte à activer."
-  },
-  "ifYouWantToActivateAnotherAccount": {
-    "message": "Si vous voulez activer un autre compte, veuillez le sélectionner dans le menu déroulant en haut à droite."
-  },
-  "activateAccountSecret": {
-    "message": "Secret"
-  },
-  "activateAccountSecretDescription": {
-    "message": "Champ « secret » du compte de levée de fonds ou du faucet"
-  },
-  "activateAccountSecretPlaceholder": {
-    "message": "p. ex. n4hs7sd3…"
-  },
-  "activate": {
-    "message": "Activer"
   },
   "minimalFeeDescription": {
     "message": "Minimum"
@@ -784,10 +509,10 @@
     "message": "Cliquez sur une zone pour sélectionner un autre actif ou jeton."
   },
   "disable": {
-    "message": "désactiver"
+    "message": "Désactiver"
   },
   "enable": {
-    "message": "activer"
+    "message": "Activer"
   },
   "dAppsCheckmarkPrompt": {
     "message": "Cliquez sur la coce pour $action$ la fonctionnalité interactions des applications décentralisées",
@@ -832,26 +557,11 @@
   "delegation": {
     "message": "Délégation"
   },
-  "customBaker": {
-    "message": "Baker"
-  },
-  "bakerInputDescription": {
-    "message": "Adresse d'un baker inscrit."
-  },
-  "bakerInputPlaceholder": {
-    "message": "p. ex. tz1a9w1S7hN5s…"
-  },
-  "minDelegationAmountTitle": {
-    "message": "Montant minimum de délégation"
-  },
   "unknownBakerTitle": {
     "message": "Baker inconnu"
   },
   "unknownBakerDescription": {
     "message": "Nous ne connaissons pas l'adresse fournie en tant que baker ! Ne lui déléguez vos fonds qu'à vos risques et périls."
-  },
-  "recommendedBakers": {
-    "message": "Déléguer aux bakers recommandés"
   },
   "sortBy": {
     "message": "Trier par"
@@ -897,23 +607,6 @@
   "minimalFeeGreaterThanBalance": {
     "message": "Les frais minimaux pour cette transaction sont supérieurs à votre solde."
   },
-  "alreadyDelegatedFundsToBaker": {
-    "message": "Vous avez déjà délégué des fonds à ce baker. Impossible de déléguer de nouveau."
-  },
-  "bakerNotRegistered": {
-    "message": "Le baker spécifié n'est pas inscrit."
-  },
-  "unableToPerformActionToBaker": {
-    "message": "Impossible de $action$ au Baker fourni.",
-    "placeholders": {
-      "action": {
-        "content": "$1"
-      }
-    }
-  },
-  "estimateDelegation": {
-    "message": "Estimer la délégation"
-  },
   "thisMayHappenBecause": {
     "message": "Cela pourrait se produire à cause de :"
   },
@@ -927,9 +620,6 @@
   },
   "networkOrOtherIssue": {
     "message": "Problème réseau ou autre problème technique."
-  },
-  "unableToDelegateToKTAddress": {
-    "message": "Impossible de déléguer à l'adresse de contrat KT…"
   },
   "confirmAction": {
     "message": "Confirmer $action$",
@@ -1066,7 +756,12 @@
     "message": "m/44'/1729'/<account_index>'/0'"
   },
   "derivationPathExample2": {
-    "message": "p. ex. m/44'/1729'/…"
+    "message": "p. ex. $derivationPath$",
+    "placeholders": {
+      "derivationPath": {
+        "content": "$1"
+      }
+    }
   },
   "keepSeedPhraseSecret": {
     "message": "Gardez-la secrète."
@@ -1276,14 +971,11 @@
   "upload": {
     "message": "Téléverser"
   },
-  "languageAndCountry": {
+  "language": {
     "message": "Langue"
   },
   "generalSettings": {
     "message": "Général"
-  },
-  "generalSettingsDescription": {
-    "message": "Vous pouvez gérer ici les préférences de langue et le mode d'affichage."
   },
   "swapNoun": {
     "message": "Échanger"
@@ -1370,9 +1062,6 @@
   "disabledForWatchOnlyAccount": {
     "message": "Désactivé(e) pour un compte « surveiller seulement »"
   },
-  "activationOperationType": {
-    "message": "Activation"
-  },
   "youAreNotContractManager": {
     "message": "Vous n'êtes un gestionnaire de contrat"
   },
@@ -1384,9 +1073,6 @@
   },
   "contractAddressInputPlaceholder": {
     "message": "p. ex. KT1a9w1S7hN5s…"
-  },
-  "addKnownManagedContract": {
-    "message": "Ajouter un contrat géré connu"
   },
   "clickOnContractToImport": {
     "message": "Cliquez sur le contrat que vous voulez importer."
@@ -1433,9 +1119,6 @@
   "popupSettingsDescription": {
     "message": "Vous pouvez configurer ici la pop-up qui apparaît en cliquant sur l'icône du plug-in dans le panneau des extensions."
   },
-  "managedContract": {
-    "message": "Contrat géré"
-  },
   "referredByTokenContractNotFound": {
     "message": "Le contrat $address$, renvoyé par le contrat du jeton, est introuvable.",
     "placeholders": {
@@ -1460,9 +1143,6 @@
         "content": "$1"
       }
     }
-  },
-  "invalidManagedContract": {
-    "message": "Contrat géré invalide"
   },
   "someMethodNotDefinedInContract": {
     "message": "La méthode « $name$ » n'est pas définie dans le contrat.",
@@ -1627,14 +1307,5 @@
   },
   "invalidJsonInput": {
     "message": "JSON invalide"
-  },
-  "notFaucetJson": {
-    "message": "N'est pas un JSON faucet"
-  },
-  "faucetJson": {
-    "message": "JSON faucet"
-  },
-  "faucetJsonDescription": {
-    "message": "Vous pouvez coller du JSON ici au lieu d'ajouter un fichier"
   }
 }
