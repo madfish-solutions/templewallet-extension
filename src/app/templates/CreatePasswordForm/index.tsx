@@ -26,6 +26,7 @@ import {
   PRIVACY_POLICY_URL,
   REPLACE_REFERRALS_ENABLED,
   SHOULD_BACKUP_MNEMONIC_STORAGE_KEY,
+  SHOULD_DISABLE_NOT_ACTIVE_NETWORKS_STORAGE_KEY,
   TERMS_OF_USE_URL,
   WEBSITES_ANALYTICS_ENABLED
 } from 'lib/constants';
@@ -142,6 +143,7 @@ export const CreatePasswordForm = memo<CreatePasswordFormProps>(
           dispatch(setOnRampAssetAction(mnemonicToImport ? null : TEZOS_CHAIN_ASSET_SLUG));
 
           if (mnemonicToImport) {
+            await putToStorage(SHOULD_DISABLE_NOT_ACTIVE_NETWORKS_STORAGE_KEY, true);
             setInitToast(t(backupPassword ? 'yourWalletIsReady' : 'importSuccessful'));
             navigate('/loading');
           } else if (!googleAuthToken) {
