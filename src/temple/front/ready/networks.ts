@@ -34,9 +34,10 @@ export function useReadyTempleTezosNetworks(customTezosNetworks: StoredTezosNetw
   const [tezosChainsSpecs] = useTezosChainsSpecs();
 
   const makeChain = useCallback(
-    (baseProps: ChainBaseProps<TezosChain>) => ({
+    (baseProps: ChainBaseProps<TezosChain>, specs?: TezosChainSpecs) => ({
       ...baseProps,
-      kind: TempleChainKind.Tezos as const
+      kind: TempleChainKind.Tezos as const,
+      currencySymbol: specs?.currencySymbol
     }),
     []
   );
