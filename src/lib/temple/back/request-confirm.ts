@@ -116,7 +116,7 @@ async function createConfirmationWindow(confirmationId: string) {
   }
 }
 
-/** Position window near the top right edge of lastFocused window */
+/** Position window within the top right edge of lastFocused window */
 async function getTopRightPositionForWindow(width: number, _height: number): Promise<[number, number] | undefined> {
   const lastFocused = await browser.windows.getLastFocused().catch(() => void 0);
 
