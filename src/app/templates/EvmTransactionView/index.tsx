@@ -31,17 +31,19 @@ interface EvmTransactionViewProps {
   formId: string;
   error: any;
   setFinalEvmTransaction: ReactSetStateFn<EvmTransactionRequestWithSender>;
-  onSubmit: EmptyFn;
+  onSubmit: (tx?: EvmTransactionRequestWithSender) => void;
+  minAllowance?: bigint;
 }
 
 export const EvmTransactionView = memo<EvmTransactionViewProps>(
-  ({ payload, formId, error, setFinalEvmTransaction, onSubmit }) => (
+  ({ payload, formId, error, setFinalEvmTransaction, onSubmit, minAllowance }) => (
     <EvmEstimationDataProvider>
       <EvmTransactionViewBody
         error={error}
         payload={payload}
         formId={formId}
         setFinalEvmTransaction={setFinalEvmTransaction}
+        minAllowance={minAllowance}
         onSubmit={onSubmit}
       />
     </EvmEstimationDataProvider>
@@ -49,7 +51,7 @@ export const EvmTransactionView = memo<EvmTransactionViewProps>(
 );
 
 const EvmTransactionViewBody = memo<EvmTransactionViewProps>(
-  ({ payload, formId, error, setFinalEvmTransaction, onSubmit }) => {
+  ({ payload, formId, error, setFinalEvmTransaction, onSubmit, minAllowance }) => {
     const chains = useAllEvmChains();
     const { chainId, req, estimationData: serializedEstimationData, error: estimationError } = payload;
     const parsedChainId = Number(chainId);
@@ -84,6 +86,7 @@ const EvmTransactionViewBody = memo<EvmTransactionViewProps>(
       displayedFee,
       getFeesPerGas
     } = useEvmEstimationForm(estimationData, txSerializable, sendingAccount, parsedChainId, true);
+
     const { formState } = form;
     const metadataLoading = useEvmGenericAssetsMetadataLoading();
 
@@ -107,7 +110,7 @@ const EvmTransactionViewBody = memo<EvmTransactionViewProps>(
           ...(nonce ? { nonce: Number(nonce) } : {})
         } as TransactionRequest;
         setFinalEvmTransaction({ ...formatTransactionRequest(finalTransaction), from: txRequest.from });
-        onSubmit();
+        onSubmit({ ...formatTransactionRequest(finalTransaction), from: txRequest.from });
       },
       [estimationData, formState.isSubmitting, getFeesPerGas, onSubmit, txRequest, setFinalEvmTransaction]
     );
@@ -124,6 +127,7 @@ const EvmTransactionViewBody = memo<EvmTransactionViewProps>(
             req={req}
             setFinalEvmTransaction={setFinalEvmTransaction}
             onLoadingState={setApprovesLoading}
+            minAllowance={minAllowance}
           />
         )}
 

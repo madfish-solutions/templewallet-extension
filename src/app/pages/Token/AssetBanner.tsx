@@ -10,8 +10,8 @@ import InFiat from 'app/templates/InFiat';
 import { setAnotherSelector, setTestID } from 'lib/analytics';
 import { t } from 'lib/i18n';
 import {
-  getTokenName,
   getAssetSymbol,
+  getTokenName,
   useCategorizedTezosAssetMetadata,
   useEvmCategorizedAssetMetadata
 } from 'lib/metadata';
@@ -55,6 +55,8 @@ const AssetBannerHOC = <T extends TempleChainKind>({
     const assetName = getTokenName(assetMetadata);
     const assetSymbol = getAssetSymbol(assetMetadata);
 
+    const isEVM = chainKind === TempleChainKind.EVM;
+
     return (
       <>
         <div className="flex items-center gap-x-1">
@@ -62,22 +64,21 @@ const AssetBannerHOC = <T extends TempleChainKind>({
 
           <NamesComp assetName={assetName} network={network} />
 
-          <TokenPrice assetSlug={assetSlug} chainId={chainId} forEVM={chainKind === TempleChainKind.EVM} />
+          <TokenPrice assetSlug={assetSlug} chainId={chainId} forEVM={isEVM} />
         </div>
 
         <div className="flex flex-col">
-          <Balance network={network} address={accountAddress} assetSlug={assetSlug}>
+          <Balance
+            network={network}
+            address={accountAddress}
+            assetSlug={assetSlug}
+            forceFirstRefreshOnChain={isEVM ? true : undefined}
+          >
             {balance => (
               <>
                 <AmountComp balance={balance} assetSymbol={assetSymbol} />
 
-                <InFiat
-                  chainId={chainId}
-                  assetSlug={assetSlug}
-                  volume={balance}
-                  smallFractionFont={false}
-                  evm={chainKind === TempleChainKind.EVM}
-                >
+                <InFiat chainId={chainId} assetSlug={assetSlug} volume={balance} smallFractionFont={false} evm={isEVM}>
                   {({ balance, symbol }) => <FiatValueComp balance={balance} symbol={symbol} />}
                 </InFiat>
               </>

@@ -32,7 +32,7 @@ export const TokenPrice = memo<Props>(({ assetSlug, chainId, forEVM }) => {
   const tooltipWrapperRef = useTippy<HTMLSpanElement>(basicTooltipProps);
 
   return (
-    <div className="h-6 flex items-center px-2 py-1 gap-x-1 bg-grey-4 border border-lines rounded-lg">
+    <div className="h-6 min-w-23 flex items-center px-2.5 py-1 gap-x-1 bg-grey-4 border border-lines rounded-lg">
       <span
         ref={tooltipWrapperRef}
         className={clsx(

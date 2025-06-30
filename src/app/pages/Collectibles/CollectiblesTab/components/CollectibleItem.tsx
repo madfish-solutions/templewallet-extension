@@ -6,6 +6,7 @@ import { IconBase, ToggleSwitch } from 'app/atoms';
 import { EvmNetworkLogo, NetworkLogoPropsBase, TezosNetworkLogo } from 'app/atoms/NetworkLogo';
 import { useIsItemVisible } from 'app/atoms/visibility-tracking-infinite-scroll';
 import { ReactComponent as DeleteIcon } from 'app/icons/base/delete.svg';
+import { ScamTag } from 'app/pages/Home/OtherComponents/Tokens/components/TokenTag/ScamTag';
 import { dispatch } from 'app/store';
 import { setEvmCollectibleStatusAction } from 'app/store/evm/assets/actions';
 import { useStoredEvmCollectibleSelector } from 'app/store/evm/assets/selectors';
@@ -58,12 +59,13 @@ interface TezosCollectibleItemProps {
   adultBlur: boolean;
   areDetailsShown: boolean;
   manageActive?: boolean;
+  scam?: boolean;
   index?: number;
 }
 
 export const TezosCollectibleItem = memo(
   forwardRef<CollectiblesListItemElement, TezosCollectibleItemProps>(
-    ({ assetSlug, accountPkh, tezosChainId, adultBlur, areDetailsShown, manageActive = false, index }, ref) => {
+    ({ assetSlug, accountPkh, tezosChainId, adultBlur, areDetailsShown, scam, manageActive = false, index }, ref) => {
       const metadata = useCollectibleMetadataSelector(assetSlug);
       const wrapperElemRef = useRef<HTMLDivElement>(null);
       const balanceAtomic = useBalanceSelector(accountPkh, tezosChainId, assetSlug);
@@ -99,6 +101,7 @@ export const TezosCollectibleItem = memo(
             areDetailsLoading={areDetailsLoading && details === undefined}
             extraSrc={details?.objktArtifactUri && buildObjktCollectibleArtifactUri(details?.objktArtifactUri)}
             mime={details?.mime}
+            scam={scam}
             index={index}
             ref={ref}
           />
@@ -117,6 +120,7 @@ export const TezosCollectibleItem = memo(
           areDetailsLoading={areDetailsLoading && details === undefined}
           extraSrc={details?.objktArtifactUri && buildObjktCollectibleArtifactUri(details?.objktArtifactUri)}
           mime={details?.mime}
+          scam={scam}
           index={index}
           ref={ref}
         />
@@ -184,8 +188,7 @@ export const EvmCollectibleItem = memo(
 
 const MANAGE_ACTIVE_ITEM_CLASSNAME = clsx(
   'flex items-center justify-between w-full overflow-hidden p-2 rounded-8',
-  'hover:bg-secondary-low transition ease-in-out duration-200 focus:outline-none',
-  'focus:bg-secondary-low'
+  'transition ease-in-out duration-200 focus:outline-none'
 );
 
 interface ManageCollectibleListItemLayoutProps<T extends TempleChainKind> {
@@ -196,6 +199,7 @@ interface ManageCollectibleListItemLayoutProps<T extends TempleChainKind> {
   collectionName: string;
   checked: boolean;
   index?: number;
+  scam?: boolean;
   publicKeyHash: PublicKeyHash<T>;
   metadata?: CollectibleMetadata<T>;
 }
@@ -229,6 +233,7 @@ const ManageCollectibleListItemLayoutHOC = <
           checked,
           index,
           publicKeyHash,
+          scam,
           metadata,
           ...restProps
         },
@@ -248,7 +253,14 @@ const ManageCollectibleListItemLayoutHOC = <
 
         return (
           <>
-            <div className={MANAGE_ACTIVE_ITEM_CLASSNAME} ref={ref as RefObject<HTMLDivElement>}>
+            <div
+              className={clsx(
+                MANAGE_ACTIVE_ITEM_CLASSNAME,
+                'focus:bg-secondary-low',
+                scam ? 'hover:bg-error-low' : 'hover:bg-secondary-low'
+              )}
+              ref={ref as RefObject<HTMLDivElement>}
+            >
               <div className="flex items-center gap-x-1.5">
                 <div
                   ref={wrapperElemRef}
@@ -281,7 +293,10 @@ const ManageCollectibleListItemLayoutHOC = <
                 <div className="flex flex-col max-w-44">
                   {isVisible ? (
                     <>
-                      <div className="text-font-medium mb-1 truncate">{assetName}</div>
+                      <div className="flex items-start gap-0.5">
+                        <div className="text-font-medium mb-1 truncate">{assetName}</div>
+                        {scam && <ScamTag />}
+                      </div>
                       <div className="flex text-font-description items-center text-grey-1 truncate">
                         {collectionName}
                       </div>
@@ -355,6 +370,7 @@ interface DefaultCollectibleListItemLayoutProps<T extends TempleChainKind> {
   metadata?: CollectibleMetadata<T>;
   areDetailsShown: boolean;
   metadatasLoading: boolean;
+  scam?: boolean;
   index?: number;
 }
 
@@ -380,6 +396,7 @@ const DefaultCollectibleListItemLayoutHOC = <
         chainId,
         areDetailsShown,
         metadatasLoading,
+        scam,
         index,
         ...restProps
       },
@@ -402,9 +419,15 @@ const DefaultCollectibleListItemLayoutHOC = <
             style={ImgStyle}
             className={clsx(
               'relative flex items-center justify-center bg-grey-4 rounded-8 overflow-hidden',
-              isVisible && 'border-2 border-transparent group-hover:border-secondary'
+              isVisible && 'border-2 border-transparent',
+              scam && isVisible ? 'hover:bg-error' : 'group-hover:border-secondary'
             )}
           >
+            {scam && (
+              <div className="absolute z-50 top-1.5 left-1.5 ">
+                <ScamTag />
+              </div>
+            )}
             {!isVisible && (
               <>
                 <div className="w-full h-full z-1 bg-grey-3" />

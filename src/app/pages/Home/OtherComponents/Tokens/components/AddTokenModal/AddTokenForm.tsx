@@ -11,11 +11,13 @@ import { NetworkSelectButton } from 'app/atoms/NetworkSelectButton';
 import { ActionsButtonsBox } from 'app/atoms/PageModal/actions-buttons-box';
 import Spinner from 'app/atoms/Spinner/Spinner';
 import { StyledButton } from 'app/atoms/StyledButton';
+import { ReactComponent as ErrorIcon } from 'app/icons/typed-msg/error.svg';
 import { dispatch } from 'app/store';
 import { putNewEvmCollectibleAction, putNewEvmTokenAction } from 'app/store/evm/assets/actions';
 import { putEvmCollectiblesMetadataAction } from 'app/store/evm/collectibles-metadata/actions';
 import { putEvmTokensMetadataAction } from 'app/store/evm/tokens-metadata/actions';
 import { putCollectiblesAsIsAction, putTokensAsIsAction } from 'app/store/tezos/assets/actions';
+import { useMainnetTokensScamlistSelector } from 'app/store/tezos/assets/selectors';
 import { putCollectiblesMetadataAction } from 'app/store/tezos/collectibles-metadata/actions';
 import { putTokensMetadataAction } from 'app/store/tezos/tokens-metadata/actions';
 import { toastError, toastSuccess } from 'app/toaster';
@@ -36,6 +38,7 @@ import { TokenMetadataNotFoundError } from 'lib/metadata/on-chain';
 import { EvmCollectibleMetadata, EvmTokenMetadata } from 'lib/metadata/types';
 import { loadContract } from 'lib/temple/contract';
 import { useToastsContainerBottomShift } from 'lib/temple/front/toasts-context';
+import { useConfirm } from 'lib/ui/dialog';
 import { useSafeState, useUpdatableRef } from 'lib/ui/hooks';
 import { navigate } from 'lib/woozie';
 import { OneOfChains, useAccountAddressForEvm, useAccountAddressForTezos, useAllTezosChains } from 'temple/front';
@@ -95,6 +98,9 @@ export const AddTokenForm = memo<AddTokenPageProps>(
 
     const isTezosChainSelected = selectedNetwork.kind === TempleChainKind.Tezos;
 
+    const mainnetTokensScamSlugsRecord = useMainnetTokensScamlistSelector();
+    const confirm = useConfirm();
+
     const accountTezAddress = useAccountAddressForTezos();
     const accountEvmAddress = useAccountAddressForEvm();
 
@@ -110,6 +116,8 @@ export const AddTokenForm = memo<AddTokenPageProps>(
     const contractAddress = watch('address') || '';
     const tokenIdWithoutFallback = watch('id');
     const tokenId = tokenIdWithoutFallback || '0';
+
+    const showScamTokenAlert = mainnetTokensScamSlugsRecord[toTokenSlug(contractAddress, tokenId)];
 
     const formValid = useMemo(() => {
       if (!contractAddress) return false;
@@ -235,6 +243,15 @@ export const AddTokenForm = memo<AddTokenPageProps>(
     const onSubmit = useCallback(
       async ({ address, id = '0' }: FormData) => {
         if (formState.isSubmitting) return;
+
+        const confirmed = await confirm({
+          hasCancelButton: false,
+          confirmButtonColor: 'red-low',
+          confirmButtonText: t('continue'),
+          title: t('scamTokenAlert'),
+          description: t('scamTokenTooltip')
+        });
+        if (!confirmed) return;
 
         formAnalytics.trackSubmit();
 
@@ -407,6 +424,22 @@ export const AddTokenForm = memo<AddTokenPageProps>(
               hidden: !bottomSectionVisible || processing
             })}
           >
+            {showScamTokenAlert && (
+              <div className="p-4 mb-4 rounded-md flex items-center justify-between bg-error-low">
+                <span className="flex items-start">
+                  <ErrorIcon className="shrink-0 w-6 h-6" />
+
+                  <div className="ml-1 flex flex-col gap-0.5">
+                    <p className="text-font-description-bold">
+                      <T id="scamTokenAlert" />
+                    </p>
+                    <p className="text-font-description">
+                      <T id="addScamTokenWarning" />
+                    </p>
+                  </div>
+                </span>
+              </div>
+            )}
             <TokenInfo
               name={isTezosChainSelected ? tezMetadataRef.current?.name : evmMetadataRef.current?.name}
               decimals={isTezosChainSelected ? tezMetadataRef.current?.decimals : evmMetadataRef.current?.decimals}

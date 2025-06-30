@@ -127,6 +127,7 @@ export const EditModal = memo<EditModalProps>(
         <AssetField
           {...field}
           extraFloatingInner={displayedSymbol}
+          compactInputValue={true}
           assetDecimals={decimals}
           readOnly={isUnlimited}
           placeholder={isUnlimited ? t('unlimited') : '0'}

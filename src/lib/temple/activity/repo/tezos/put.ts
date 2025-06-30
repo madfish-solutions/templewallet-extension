@@ -271,7 +271,7 @@ const overwriteTezosActivitiesByAssetSlug = async ({
       .first();
 
     if (newerAllContractsIntersectingInterval) {
-      const newOlderThan = newerAllContractsIntersectingInterval!.lowerLimit;
+      const newOlderThan = newerAllContractsIntersectingInterval.lowerLimit;
 
       return overwriteTezosActivitiesByAssetSlug({
         chainId,

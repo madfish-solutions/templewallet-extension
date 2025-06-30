@@ -30,6 +30,7 @@ import {
 
 import { useSendFormControl } from '../context';
 import { useTezosEstimationData } from '../hooks/use-tezos-estimation-data';
+import { showEstimationError } from '../utils';
 
 import { BaseForm } from './BaseForm';
 import { ReviewData, SendFormData } from './interfaces';
@@ -219,7 +220,7 @@ export const TezosForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, o
       if (formState.isSubmitting) return;
 
       if (estimationError) {
-        toastError('Failed to estimate transaction.');
+        showEstimationError(estimationDataError);
         return;
       }
 

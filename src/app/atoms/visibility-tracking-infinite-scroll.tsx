@@ -1,6 +1,6 @@
-import React, { FC, useCallback, useEffect, useRef, useState } from 'react';
+import React, { FC, createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 
-import constate from 'constate';
+import { noop } from 'lodash';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { useDebounce } from 'use-debounce';
 
@@ -15,12 +15,31 @@ const debounceOptions = {
   equalityFn: (a: ListItemsVisibility, b: ListItemsVisibility) => a.bottom === b.bottom && a.top === b.top
 };
 
-const [InfiniteScrollVisibilityContextProvider, useInfiniteScrollVisibilityContext] = constate(() => {
+interface InfiniteScrollVisibilityContextValue {
+  listItemsVisibility: { top: number; bottom: number };
+  setListItemsVisibility: (v: { top: number; bottom: number }) => void;
+}
+
+const defaultContext: InfiniteScrollVisibilityContextValue = {
+  listItemsVisibility: { top: 0, bottom: Infinity },
+  setListItemsVisibility: noop
+};
+
+const InfiniteScrollVisibilityContext = createContext<InfiniteScrollVisibilityContextValue>(defaultContext);
+
+const useInfiniteScrollVisibilityContext = () => useContext(InfiniteScrollVisibilityContext);
+
+const InfiniteScrollVisibilityContextProvider: FC<PropsWithChildren> = ({ children }) => {
   const [listItemsVisibility, setListItemsVisibility] = useState({ top: 0, bottom: Infinity });
   const [listItemsVisibilityDebounced] = useDebounce(listItemsVisibility, 50, debounceOptions);
 
-  return { listItemsVisibility: listItemsVisibilityDebounced, setListItemsVisibility };
-});
+  const value = {
+    listItemsVisibility: listItemsVisibilityDebounced,
+    setListItemsVisibility
+  };
+
+  return <InfiniteScrollVisibilityContext.Provider value={value}>{children}</InfiniteScrollVisibilityContext.Provider>;
+};
 
 export interface VisibilityTrackingInfiniteScrollProps
   extends PropsWithChildren<Omit<SimpleInfiniteScrollProps, 'onScroll'>> {

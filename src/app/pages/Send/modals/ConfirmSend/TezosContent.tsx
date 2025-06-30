@@ -3,17 +3,14 @@ import React, { FC, useCallback, useState } from 'react';
 import { OpKind, TransferParams, WalletParamsWithKind } from '@taquito/taquito';
 import { FormProvider } from 'react-hook-form-v7';
 
-import { CLOSE_ANIMATION_TIMEOUT } from 'app/atoms/PageModal';
 import { useLedgerApprovalModalState } from 'app/hooks/use-ledger-approval-modal-state';
 import { TezosReviewData } from 'app/pages/Send/form/interfaces';
 import { useTezosEstimationData } from 'app/pages/Send/hooks/use-tezos-estimation-data';
 import { TezosTxParamsFormData } from 'app/templates/TransactionTabs/types';
 import { useTezosEstimationForm } from 'app/templates/TransactionTabs/use-tezos-estimation-form';
-import { toastError, toastSuccess } from 'app/toaster';
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
 import { toTransferParams } from 'lib/assets/contract.utils';
 import { useTezosAssetBalance } from 'lib/balances';
-import { t } from 'lib/i18n';
 import { useCategorizedTezosAssetMetadata } from 'lib/metadata';
 import { transferImplicit, transferToContract } from 'lib/michelson';
 import { useTypedSWR } from 'lib/swr';
@@ -22,9 +19,13 @@ import { tzToMutez } from 'lib/temple/helpers';
 import { TempleAccountType } from 'lib/temple/types';
 import { isTezosContractAddress } from 'lib/tezos';
 import { runConnectedLedgerOperationFlow } from 'lib/ui';
+import { showTxSubmitToastWithDelay } from 'lib/ui/show-tx-submit-toast.util';
 import { ZERO } from 'lib/utils/numbers';
 import { getTezosToolkitWithSigner } from 'temple/front';
 import { useGetTezosActiveBlockExplorer } from 'temple/front/ready';
+import { TempleChainKind } from 'temple/types';
+
+import { showEstimationError } from '../../utils';
 
 import { BaseContent } from './BaseContent';
 
@@ -53,7 +54,7 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
 
   const tezos = getTezosToolkitWithSigner(rpcBaseURL, account.ownerAddress || accountPkh, true);
 
-  const { data: estimationData } = useTezosEstimationData({
+  const { data: estimationData, error: estimationError } = useTezosEstimationData({
     to,
     tezos,
     chainId,
@@ -118,8 +119,8 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
       try {
         if (formState.isSubmitting) return;
 
-        if (!estimationData || !displayedFeeOptions) {
-          toastError('Failed to estimate transaction.');
+        if (!estimationData || estimationError) {
+          showEstimationError(estimationError);
 
           return;
         }
@@ -141,11 +142,7 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
 
           const blockExplorer = getActiveBlockExplorer(network.chainId);
 
-          setTimeout(
-            () =>
-              toastSuccess(t('transactionSubmitted'), true, { hash: txHash, explorerBaseUrl: blockExplorer.url + '/' }),
-            CLOSE_ANIMATION_TIMEOUT * 2
-          );
+          showTxSubmitToastWithDelay(TempleChainKind.Tezos, txHash, blockExplorer.url);
         };
 
         if (isLedgerAccount) {
@@ -161,18 +158,19 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
       }
     },
     [
-      displayedFeeOptions,
-      estimationData,
       formState.isSubmitting,
+      estimationData,
+      displayedFeeOptions,
       isLedgerAccount,
-      setLedgerApprovalModalState,
+      estimationError,
+      submitOperation,
+      tezos,
+      onConfirm,
+      onClose,
       getActiveBlockExplorer,
       network.chainId,
-      onClose,
-      onConfirm,
-      setTab,
-      submitOperation,
-      tezos
+      setLedgerApprovalModalState,
+      setTab
     ]
   );
 

@@ -91,9 +91,8 @@ const TezosTokenPage: FC<TezosTokenPageProps> = ({ chainId, assetSlug }) => {
       </PageModal>
 
       <PageLayout {...pageProps} contentPadding={false}>
-        {showScamTokenAlert && <ScamTokenAlert />}
-
         <div className="flex flex-col p-4 gap-y-3 bg-white">
+          {showScamTokenAlert && <ScamTokenAlert isCollectible={false} tezosChainId={chainId} assetSlug={assetSlug} />}
           <TezosAssetBanner chainId={chainId} assetSlug={assetSlug} />
 
           <ExploreActionButtonsBar

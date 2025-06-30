@@ -6,9 +6,11 @@ import clsx from 'clsx';
 import { IconBase, ToggleSwitch } from 'app/atoms';
 import { useIsItemVisible } from 'app/atoms/visibility-tracking-infinite-scroll';
 import { ReactComponent as DeleteIcon } from 'app/icons/base/delete.svg';
+import { ScamTag } from 'app/pages/Home/OtherComponents/Tokens/components/TokenTag/ScamTag';
 import { dispatch } from 'app/store';
 import { setEvmTokenStatusAction } from 'app/store/evm/assets/actions';
 import { useStoredEvmTokenSelector } from 'app/store/evm/assets/selectors';
+import { useLifiEvmTokenMetadataSelector } from 'app/store/evm/swap-lifi-metadata/selectors';
 import { setTezosTokenStatusAction } from 'app/store/tezos/assets/actions';
 import { useStoredTezosTokenSelector } from 'app/store/tezos/assets/selectors';
 import { EvmAssetIconWithNetwork, TezosAssetIconWithNetwork } from 'app/templates/AssetIcon';
@@ -35,7 +37,7 @@ import { toExploreAssetLink } from '../pages/Home/OtherComponents/Tokens/utils';
 
 const LIST_ITEM_CLASSNAME = clsx(
   'flex items-center gap-x-1 p-2 rounded-lg',
-  'hover:bg-secondary-low transition ease-in-out duration-200 focus:outline-none'
+  'transition ease-in-out duration-200 focus:outline-none'
 );
 
 interface TezosTokenListItemProps {
@@ -47,13 +49,25 @@ interface TezosTokenListItemProps {
   scam?: boolean;
   manageActive?: boolean;
   showTags?: boolean;
+  requiresVisibility?: boolean;
   onClick?: MouseEventHandler<TokenListItemElement>;
 }
 
 export const TezosTokenListItem = memo(
   forwardRef<TokenListItemElement, TezosTokenListItemProps>(
     (
-      { network, index, publicKeyHash, assetSlug, active, scam, manageActive = false, showTags = true, onClick },
+      {
+        network,
+        index,
+        publicKeyHash,
+        assetSlug,
+        active,
+        scam,
+        manageActive = false,
+        requiresVisibility = true,
+        showTags = true,
+        onClick
+      },
       ref
     ) => {
       const {
@@ -76,6 +90,8 @@ export const TezosTokenListItem = memo(
             assetSlug={assetSlug}
             assetSymbol={assetSymbol}
             assetName={assetName}
+            className={clsx('focus:bg-secondary-low', scam ? 'hover:bg-error-low' : 'hover:bg-secondary-low')}
+            scam={scam}
             checked={checked}
             network={network}
             index={index}
@@ -89,11 +105,12 @@ export const TezosTokenListItem = memo(
         <DefaultTezosListItemLayout
           assetSlug={assetSlug}
           assetName={assetName}
-          className={active ? 'focus:bg-secondary-low' : undefined}
+          className={clsx(active && 'focus:bg-secondary-low', scam ? 'hover:bg-error-low' : 'hover:bg-secondary-low')}
           network={network}
           index={index}
           balance={balance}
           onClick={onClick}
+          requiresVisibility={requiresVisibility}
           ref={ref}
         >
           <div className="flex items-center flex-grow gap-x-2 truncate">
@@ -122,12 +139,14 @@ interface EvmTokenListItemProps {
   assetSlug: string;
   manageActive?: boolean;
   onClick?: MouseEventHandler<TokenListItemElement>;
+  requiresVisibility?: boolean;
 }
 
 export const EvmTokenListItem = memo(
   forwardRef<TokenListItemElement, EvmTokenListItemProps>(
-    ({ network, index, publicKeyHash, assetSlug, manageActive = false, onClick }, ref) => {
+    ({ network, index, publicKeyHash, assetSlug, manageActive = false, requiresVisibility = true, onClick }, ref) => {
       const { chainId } = network;
+      const lifiTokenMetadata = useLifiEvmTokenMetadataSelector(chainId, assetSlug);
 
       const {
         value: balance = ZERO,
@@ -138,10 +157,10 @@ export const EvmTokenListItem = memo(
 
       const checked = getAssetStatus(rawBalance, storedToken?.status) === 'enabled';
 
-      if (metadata == null) return null;
+      if (metadata == null && lifiTokenMetadata == null) return null;
 
-      const assetSymbol = getAssetSymbol(metadata);
-      const assetName = getTokenName(metadata);
+      const assetSymbol = getAssetSymbol(metadata?.decimals ? metadata : lifiTokenMetadata);
+      const assetName = getTokenName(metadata?.decimals ? metadata : lifiTokenMetadata);
 
       if (manageActive)
         return (
@@ -149,7 +168,7 @@ export const EvmTokenListItem = memo(
             assetSlug={assetSlug}
             assetSymbol={assetSymbol}
             assetName={assetName}
-            className="focus:bg-secondary-low"
+            className="focus:bg-secondary-low, hover:bg-secondary-low"
             checked={checked}
             network={network}
             index={index}
@@ -163,11 +182,12 @@ export const EvmTokenListItem = memo(
         <DefaultEvmListItemLayout
           assetSlug={assetSlug}
           assetName={assetName}
-          className="focus:bg-secondary-low"
+          className="focus:bg-secondary-low, hover:bg-secondary-low"
           network={network}
           index={index}
           balance={balance}
           onClick={onClick}
+          requiresVisibility={requiresVisibility}
           ref={ref}
         >
           <div className={clsx('flex-grow text-font-medium', balance.lt(ASSET_HUGE_AMOUNT) && 'truncate')}>
@@ -184,6 +204,7 @@ interface ManageActiveListItemLayoutProps<T extends TempleChainKind> {
   assetSymbol: string;
   assetName: string;
   className?: string;
+  scam?: boolean;
   checked: boolean;
   network: NetworkEssentials<T>;
   index?: number;
@@ -209,7 +230,10 @@ const ManageActiveListItemLayoutHOC = <T extends TempleChainKind>(
 ) =>
   memo(
     forwardRef<TokenListItemElement, ManageActiveListItemLayoutProps<T>>(
-      ({ assetSlug, assetSymbol, assetName, className, checked, network, index, publicKeyHash, onClick }, ref) => {
+      (
+        { assetSlug, assetSymbol, assetName, className, scam, checked, network, index, publicKeyHash, onClick },
+        ref
+      ) => {
         const { chainId } = network;
         const [deleteModalOpened, setDeleteModalOpened, setDeleteModalClosed] = useBooleanState(false);
         const isUnmanageable = UNMANAGABLE_TOKENS_SLUGS[networkKind].includes(assetSlug);
@@ -238,7 +262,10 @@ const ManageActiveListItemLayoutHOC = <T extends TempleChainKind>(
 
                   <div className="flex-grow flex gap-x-2 items-center overflow-hidden">
                     <div className="flex-grow flex flex-col gap-y-1 overflow-hidden">
-                      <div className="text-font-medium truncate">{assetSymbol}</div>
+                      <div className="flex items-center gap-0.5">
+                        <div className="text-font-medium truncate">{assetSymbol}</div>
+                        {scam && <ScamTag />}
+                      </div>
 
                       <div className="text-font-description items-center text-grey-1 truncate">{assetName}</div>
                     </div>
@@ -306,16 +333,22 @@ interface DefaultListItemLayoutProps<T extends TempleChainKind> {
   index?: number;
   balance: BigNumber;
   onClick?: MouseEventHandler<TokenListItemElement>;
+  requiresVisibility?: boolean;
 }
 
 const DefaultListItemLayoutHOC = <T extends TempleChainKind>(
   networkKind: T,
-  AssetIconWithNetwork: FC<{ chainId: ChainId<T>; assetSlug: string; className?: string }>
+  AssetIconWithNetwork: FC<{
+    chainId: ChainId<T>;
+    assetSlug: string;
+    className?: string;
+  }>
 ) =>
   forwardRef<TokenListItemElement, PropsWithChildren<DefaultListItemLayoutProps<T>>>(
-    ({ children, assetSlug, assetName, className, network, index, balance, onClick }, ref) => {
+    ({ children, assetSlug, assetName, className, network, index, balance, onClick, requiresVisibility }, ref) => {
       const { chainId } = network;
       const isVisible = useIsItemVisible(index);
+      const visible = !requiresVisibility || isVisible;
 
       return (
         <Link
@@ -323,11 +356,11 @@ const DefaultListItemLayoutHOC = <T extends TempleChainKind>(
           className={clsx(LIST_ITEM_CLASSNAME, className)}
           onClick={onClick}
           testID={AssetsSelectors.assetItemButton}
-          testIDProperties={{ key: assetSlug }}
+          testIDProperties={{ key: `${assetSlug}-${chainId}` }}
           ref={ref as ForwardedRef<HTMLAnchorElement>}
           {...setAnotherSelector('name', assetName)}
         >
-          {isVisible ? (
+          {visible ? (
             <>
               <AssetIconWithNetwork chainId={chainId} assetSlug={assetSlug} className="shrink-0" />
 

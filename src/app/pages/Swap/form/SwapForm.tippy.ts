@@ -10,6 +10,15 @@ export const feeInfoTippyProps = {
   placement: 'top-start' as const
 };
 
+export const evmFeeInfoTippyProps = {
+  trigger: 'mouseenter',
+  hideOnClick: false,
+  content: t('routingFeeTooltipEvm'),
+  animation: 'shift-away-subtle',
+  maxWidth: '16rem',
+  placement: 'top-start' as const
+};
+
 export const cashbackInfoTippyProps = {
   trigger: 'mouseenter',
   hideOnClick: false,

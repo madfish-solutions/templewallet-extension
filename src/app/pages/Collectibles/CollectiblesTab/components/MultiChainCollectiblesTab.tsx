@@ -3,6 +3,7 @@ import React, { memo, useCallback } from 'react';
 import { useAccountCollectiblesListingLogic } from 'app/hooks/listing-logic/use-account-collectibles-listing-logic';
 import { useAssetsViewState } from 'app/hooks/use-assets-view-state';
 import { useCollectiblesListOptionsSelector } from 'app/store/assets-filter-options/selectors';
+import { useMainnetTokensScamlistSelector } from 'app/store/tezos/assets/selectors';
 import { parseChainAssetSlug } from 'lib/assets/utils';
 import { CollectiblesListItemElement } from 'lib/ui/collectibles-list';
 import { TempleChainKind } from 'temple/types';
@@ -19,6 +20,7 @@ interface MultiChainCollectiblesTabProps {
 export const MultiChainCollectiblesTab = memo<MultiChainCollectiblesTabProps>(
   ({ accountTezAddress, accountEvmAddress }) => {
     const { blur, showInfo } = useCollectiblesListOptionsSelector();
+    const mainnetTokensScamSlugsRecord = useMainnetTokensScamlistSelector();
 
     const { manageActive } = useAssetsViewState();
 
@@ -41,6 +43,7 @@ export const MultiChainCollectiblesTab = memo<MultiChainCollectiblesTabProps>(
               adultBlur={blur}
               areDetailsShown={showInfo}
               manageActive={manageActive}
+              scam={mainnetTokensScamSlugsRecord[slug]}
               index={index}
               ref={ref}
             />
@@ -60,7 +63,7 @@ export const MultiChainCollectiblesTab = memo<MultiChainCollectiblesTabProps>(
           />
         );
       },
-      [accountEvmAddress, accountTezAddress, blur, manageActive, showInfo]
+      [accountEvmAddress, accountTezAddress, blur, mainnetTokensScamSlugsRecord, manageActive, showInfo]
     );
 
     return (

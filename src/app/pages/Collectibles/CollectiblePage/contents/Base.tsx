@@ -16,6 +16,7 @@ import { CollectiblesSelectors } from '../selectors';
 interface CollectiblePageLayoutProps {
   headerRightElement: ReactNode;
   imageElement: ReactNode;
+  scamAlertElement?: ReactNode;
   collectibleName: string;
   collectionDetailsElement: ReactNode;
   onSend: EmptyFn;
@@ -30,6 +31,7 @@ interface CollectiblePageLayoutProps {
 export const BaseContent: FC<CollectiblePageLayoutProps> = ({
   headerRightElement,
   imageElement,
+  scamAlertElement,
   collectibleName,
   collectionDetailsElement,
   onSend,
@@ -47,6 +49,12 @@ export const BaseContent: FC<CollectiblePageLayoutProps> = ({
 
   return (
     <PageLayout headerRightElem={headerRightElement}>
+      {scamAlertElement && (
+        <>
+          {scamAlertElement}
+          <span className="mb-4" />
+        </>
+      )}
       <ImageContainer>{imageElement}</ImageContainer>
 
       <div
