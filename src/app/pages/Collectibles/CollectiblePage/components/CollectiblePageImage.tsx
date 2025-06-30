@@ -103,6 +103,7 @@ export const TezosCollectiblePageImage = memo<TezosCollectiblePageImageProps>(
         />
         <TezosAssetImageStacked
           metadata={metadata}
+          extraSrc={objktArtifactUri && buildObjktCollectibleArtifactUri(objktArtifactUri)}
           fullViewCollectible
           loader={<CollectibleImageLoader large />}
           fallback={<CollectibleImageFallback large />}
