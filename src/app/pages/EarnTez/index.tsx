@@ -6,7 +6,7 @@ import { DeadEndBoundaryError } from 'app/ErrorBoundary';
 import { ReactComponent as ActivityIcon } from 'app/icons/base/activity.svg';
 import PageLayout from 'app/layouts/PageLayout';
 import { isKnownChainId } from 'lib/apis/tzkt';
-import { getTezosGasMetadata } from 'lib/metadata';
+import { useTezosGasMetadata } from 'lib/metadata';
 import { useDelegate } from 'lib/temple/front';
 import { TempleAccountType } from 'lib/temple/types';
 import { useBooleanState } from 'lib/ui/hooks';
@@ -30,7 +30,7 @@ export const EarnTezPage = memo<Props>(({ tezosChainId }) => {
   const account = useAccountForTezos();
   const [bakerAddress, setBakerAddress] = useState<string | null>();
   const [rewardsModalIsOpen, openRewardsModal, closeRewardsModal] = useBooleanState(false);
-  const { symbol } = getTezosGasMetadata(tezosChainId);
+  const { symbol } = useTezosGasMetadata(tezosChainId);
 
   if (!account) throw new DeadEndBoundaryError();
 

@@ -21,7 +21,7 @@ import { TEZ_TOKEN_SLUG, toPenny } from 'lib/assets';
 import { useTezosAssetBalance } from 'lib/balances';
 import { TEZOS_BLOCK_DURATION } from 'lib/fixed-times';
 import { t, T, toShortened } from 'lib/i18n';
-import { getTezosGasMetadata } from 'lib/metadata';
+import { useTezosGasMetadata } from 'lib/metadata';
 import { useTypedSWR } from 'lib/swr';
 import { useKnownBaker } from 'lib/temple/front';
 import { mutezToTz } from 'lib/temple/helpers';
@@ -60,7 +60,7 @@ export const TezosStakingList = memo<Props>(
     const { address: accountPkh } = account;
     const { rpcBaseURL, chainId } = network;
     const { data: baker } = useKnownBaker(bakerPkh, network.chainId, true);
-    const gasTokenMetadata = getTezosGasMetadata(chainId);
+    const gasTokenMetadata = useTezosGasMetadata(chainId);
     const { symbol } = gasTokenMetadata;
     const { data: stakedData, mutate: updateStakedAmount } = useStakedAmount(rpcBaseURL, accountPkh, true);
     const { data: requests, mutate: updateUnstakeRequests } = useUnstakeRequests(rpcBaseURL, accountPkh, true);

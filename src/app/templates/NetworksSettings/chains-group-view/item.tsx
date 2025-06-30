@@ -1,4 +1,6 @@
-import React, { memo } from 'react';
+import React, { memo, useMemo } from 'react';
+
+import clsx from 'clsx';
 
 import { IconBase } from 'app/atoms';
 import { EvmNetworkLogo, TezosNetworkLogo } from 'app/atoms/NetworkLogo';
@@ -21,15 +23,9 @@ interface ChainsGroupItemProps {
 export const ChainsGroupItem = memo<ChainsGroupItemProps>(({ item, isLast }) => (
   <SettingsCellSingle
     isLast={isLast}
-    cellIcon={
-      item.kind === TempleChainKind.EVM ? (
-        <EvmNetworkLogo chainId={item.chainId} size={24} />
-      ) : (
-        <TezosNetworkLogo chainId={item.chainId} size={24} />
-      )
-    }
+    cellIcon={<ChainIcon item={item} />}
     cellName={
-      <ShortenedTextWithTooltip className="text-font-medium-bold flex-1">
+      <ShortenedTextWithTooltip className={clsx('text-font-medium-bold flex-1', item.disabled && 'text-grey-3')}>
         {item.nameI18nKey ? t(item.nameI18nKey) : item.name}
       </ShortenedTextWithTooltip>
     }
@@ -42,3 +38,15 @@ export const ChainsGroupItem = memo<ChainsGroupItemProps>(({ item, isLast }) => 
     <IconBase size={16} className="text-primary" Icon={ChevronRightIcon} />
   </SettingsCellSingle>
 ));
+
+const ChainIcon = memo<{ item: OneOfChains }>(({ item }) => {
+  const { chainId, kind, disabled } = item;
+
+  const commonProps = useMemo(() => ({ size: 24, className: clsx(disabled && 'opacity-65') }), [disabled]);
+
+  return kind === TempleChainKind.EVM ? (
+    <EvmNetworkLogo chainId={chainId} {...commonProps} />
+  ) : (
+    <TezosNetworkLogo chainId={chainId} {...commonProps} />
+  );
+});

@@ -10,7 +10,7 @@ import AssetField from 'app/atoms/AssetField';
 import { StyledButton } from 'app/atoms/StyledButton';
 import { PageModalScrollViewWithActions } from 'app/templates/page-modal-scroll-view-with-actions';
 import { T, t, toLocalFixed } from 'lib/i18n';
-import { getTezosGasMetadata } from 'lib/metadata';
+import { useTezosGasMetadata } from 'lib/metadata';
 import { shouldDisableSubmitButton } from 'lib/ui/should-disable-submit-button';
 import { TezosNetworkEssentials } from 'temple/networks';
 
@@ -52,7 +52,7 @@ export const AmountInputContent: FC<AmountInputContentProps> = ({
   const { control, handleSubmit, formState, trigger, setValue } = useForm<FormValues>({
     defaultValues: { amount: '' }
   });
-  const { symbol: tezSymbol, decimals: tezDecimals } = getTezosGasMetadata(network.chainId);
+  const { symbol: tezSymbol, decimals: tezDecimals } = useTezosGasMetadata(network.chainId);
 
   const validateAmount = useCallback(
     (amount: string) => {

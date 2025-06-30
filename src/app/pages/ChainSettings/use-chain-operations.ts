@@ -11,12 +11,13 @@ import { loadEvmChainId } from 'temple/evm';
 import { OneOfChains, useAllEvmChains, useAllTezosChains, useTempleNetworksActions } from 'temple/front';
 import { useChainBlockExplorers } from 'temple/front/use-block-explorers';
 import { useChainSpecs } from 'temple/front/use-chains-specs';
-import { StoredEvmNetwork, StoredTezosNetwork } from 'temple/networks';
+import { DEFAULT_EVM_CURRENCY, StoredEvmNetwork, StoredTezosNetwork } from 'temple/networks';
 import { loadTezosChainId } from 'temple/tezos';
 import { TempleChainKind } from 'temple/types';
 
 import { CreateUrlEntityModalFormValues } from './manage-url-entities-view/create-modal';
 import { EditUrlEntityModalFormValues } from './manage-url-entities-view/edit-modal';
+import { EditNetworkFormValues } from './types';
 
 export const useChainOperations = (chainKind: TempleChainKind, chainId: string | number) => {
   const evmChains = useAllEvmChains();
@@ -166,6 +167,29 @@ export const useChainOperations = (chainKind: TempleChainKind, chainId: string |
     [activeBlockExplorerId, defaultBlockExplorerId, replaceBlockExplorer, setActiveExplorerId]
   );
 
+  const updateChain = useCallback(
+    async ({ name, symbol, testnet }: EditNetworkFormValues) => {
+      if (chainKind === TempleChainKind.Tezos) {
+        await setChainSpecs((prevSpecs: TezosChainSpecs) => ({
+          ...prevSpecs,
+          name,
+          testnet,
+          currencySymbol: symbol
+        }));
+      } else {
+        await setChainSpecs((prevSpecs: EvmChainSpecs) => ({
+          ...prevSpecs,
+          name,
+          testnet,
+          currency: prevSpecs.currency
+            ? { ...prevSpecs.currency, symbol }
+            : { ...DEFAULT_EVM_CURRENCY, name: symbol, symbol }
+        }));
+      }
+    },
+    [chainKind, setChainSpecs]
+  );
+
   const removeRpc = useCallback(
     (id: string) => (chainKind === TempleChainKind.Tezos ? removeTezosNetworks([id]) : removeEvmNetworks([id])),
     [chainKind, removeEvmNetworks, removeTezosNetworks]
@@ -187,6 +211,7 @@ export const useChainOperations = (chainKind: TempleChainKind, chainId: string |
     addExplorer,
     updateRpc,
     updateExplorer,
+    updateChain,
     removeRpc,
     removeBlockExplorer,
     removeChain

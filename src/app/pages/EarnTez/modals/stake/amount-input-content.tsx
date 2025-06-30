@@ -6,7 +6,7 @@ import { TEZ_TOKEN_SLUG, toPenny } from 'lib/assets';
 import { useTezosAssetBalance } from 'lib/balances';
 import { RECOMMENDED_ADD_TEZ_GAS_FEE } from 'lib/constants';
 import { T } from 'lib/i18n';
-import { getTezosGasMetadata } from 'lib/metadata';
+import { useTezosGasMetadata } from 'lib/metadata';
 import { getTezosMaxAmountToken } from 'lib/utils/get-tezos-max-amount-token';
 import { ZERO } from 'lib/utils/numbers';
 import { AccountForTezos } from 'temple/accounts';
@@ -36,7 +36,8 @@ export const StakeAmountInputContent = memo<AmountInputContentProps>(({ account,
 
   const { value: tezBalance = ZERO } = useTezosAssetBalance(TEZ_TOKEN_SLUG, accountPkh, network);
 
-  const penny = useMemo(() => toPenny(getTezosGasMetadata(chainId)), [chainId]);
+  const tezGasMetadata = useTezosGasMetadata(chainId);
+  const penny = useMemo(() => toPenny(tezGasMetadata), [tezGasMetadata]);
 
   const stakingEstimationInput = useMemo(
     () => ({

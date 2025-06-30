@@ -6,7 +6,7 @@ import { Anchor, IconBase, Money } from 'app/atoms';
 import { useStakedAmount } from 'app/hooks/use-baking-hooks';
 import { ReactComponent as OutLinkIcon } from 'app/icons/base/outLink.svg';
 import { T, t, toShortened } from 'lib/i18n';
-import { getTezosGasMetadata } from 'lib/metadata';
+import { useTezosGasMetadata } from 'lib/metadata';
 import { Baker, useKnownBaker } from 'lib/temple/front';
 import { useBooleanState } from 'lib/ui/hooks';
 import { toPercentage } from 'lib/ui/utils';
@@ -63,7 +63,7 @@ export const BakerCard = memo(
 
     useOnTezosBlock(rpcBaseURL, () => void mutate());
 
-    const { symbol } = getTezosGasMetadata(chainId);
+    const { symbol } = useTezosGasMetadata(chainId);
 
     const stakedAtomic = useMemo(() => stakedData?.toNumber() || 0, [stakedData]);
 

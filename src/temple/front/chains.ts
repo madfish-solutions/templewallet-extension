@@ -38,6 +38,7 @@ export interface ChainBase {
 export interface TezosChain extends BasicTezosChain, ChainBase {
   rpc: StoredTezosNetwork;
   allRpcs: StoredTezosNetwork[];
+  currencySymbol?: string;
 }
 
 export interface EvmChain extends BasicEvmChain, ChainBase {

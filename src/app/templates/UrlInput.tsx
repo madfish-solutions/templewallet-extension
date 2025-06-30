@@ -17,7 +17,7 @@ interface UrlInputProps<K extends string, T extends Record<K, string>> {
   name: K;
   label: ReactNode;
   formReturn: UseFormReturn<T>;
-  urlsToExclude: string[];
+  urlsToExclude?: string[];
   disabled?: boolean;
   isEditable: boolean;
   id: string;
@@ -122,7 +122,7 @@ export const UrlInput = <K extends string, T extends Record<K, string>>({
               required: required && t('required'),
               pattern: { value: URL_PATTERN, message: t('mustBeValidURL') },
               validate: (value: PathValue<T, Path<T>>) =>
-                urlsToExclude.includes(value as string) ? t('mustBeUnique') : true,
+                urlsToExclude?.includes(value as string) ? t('mustBeUnique') : true,
               onChange: handleChange,
               onBlur: updateShowErrorOnBlur
             }

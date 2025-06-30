@@ -11,7 +11,7 @@ import { ReactComponent as ChevronRightIcon } from 'app/icons/base/chevron_right
 import { ChartListItem } from 'app/templates/chart-list-item';
 import InFiat from 'app/templates/InFiat';
 import { t, T } from 'lib/i18n';
-import { getAssetSymbol, getTezosGasMetadata } from 'lib/metadata';
+import { getAssetSymbol, useGetTezosGasMetadata } from 'lib/metadata';
 import { TEMPLE_TOKEN } from 'lib/route3/constants';
 import { OneOfChains } from 'temple/front/chains';
 import { TempleChainKind } from 'temple/types';
@@ -100,10 +100,11 @@ interface FeesInfoProps {
 
 const FeesInfo: FC<FeesInfoProps> = ({ network, assetSlug, amount = '0.00', goToFeeTab }) => {
   const isEvm = network.kind === TempleChainKind.EVM;
+  const getTezosGasMetadata = useGetTezosGasMetadata();
 
   const nativeAssetSymbol = useMemo(
     () => getAssetSymbol(isEvm ? network.currency : getTezosGasMetadata(network.chainId)),
-    [isEvm, network]
+    [getTezosGasMetadata, isEvm, network]
   );
 
   return (

@@ -7,7 +7,7 @@ import { formatEther } from 'viem';
 import { FadeTransition } from 'app/a11y/FadeTransition';
 import AssetField from 'app/atoms/AssetField';
 import { t, T } from 'lib/i18n';
-import { getTezosGasMetadata } from 'lib/metadata';
+import { useTezosGasMetadata } from 'lib/metadata';
 import {
   DisplayedFeeOptions,
   FeeOptionLabel,
@@ -107,7 +107,7 @@ const EvmContent: FC<ContentProps<TempleChainKind.EVM>> = ({ selectedOption, onO
 const TezosContent: FC<ContentProps<TempleChainKind.Tezos>> = ({ network, selectedOption, onOptionSelect }) => {
   const { control, formState } = useFormContext<TezosTxParamsFormData>();
   const { data } = useTezosEstimationDataState();
-  const { decimals: gasDecimals, symbol: gasSymbol } = getTezosGasMetadata(network.chainId);
+  const { decimals: gasDecimals, symbol: gasSymbol } = useTezosGasMetadata(network.chainId);
 
   const gasFeeFallback = useMemo(() => {
     if (!data || !selectedOption) return '';
