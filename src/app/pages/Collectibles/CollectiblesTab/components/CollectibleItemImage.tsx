@@ -48,7 +48,7 @@ export const TezosCollectibleItemImage = memo<TezosCollectibleItemImageProps>(
 
       const baseSources = buildCollectibleImagesStack(metadata);
       if (extraSrc !== undefined) {
-        baseSources.unshift(extraSrc);
+        baseSources.push(extraSrc);
       }
 
       return baseSources;
