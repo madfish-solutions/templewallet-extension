@@ -93,7 +93,7 @@ async function createConfirmationWindow(confirmationId: string) {
   const height = isWin ? CONFIRM_WINDOW_HEIGHT + 17 : CONFIRM_WINDOW_HEIGHT;
   const width = isWin ? CONFIRM_WINDOW_WIDTH + 16 : CONFIRM_WINDOW_WIDTH;
 
-  const [top, left] = (await getCenterPositionForWindow(width, height)) || [];
+  const [top, left] = (await getTopRightPositionForWindow(width, height)) || [];
 
   const options: browser.Windows.CreateCreateDataType = {
     type: 'popup',
@@ -116,14 +116,14 @@ async function createConfirmationWindow(confirmationId: string) {
   }
 }
 
-/** Position window in the center of lastFocused window */
-async function getCenterPositionForWindow(width: number, height: number): Promise<[number, number] | undefined> {
+/** Position window near the top right edge of lastFocused window */
+async function getTopRightPositionForWindow(width: number, _height: number): Promise<[number, number] | undefined> {
   const lastFocused = await browser.windows.getLastFocused().catch(() => void 0);
 
   if (lastFocused == null || lastFocused.width == null) return;
 
-  const top = Math.round(lastFocused.top! + lastFocused.height! / 2 - height / 2);
-  const left = Math.round(lastFocused.left! + lastFocused.width! / 2 - width / 2);
+  const top = Math.round(lastFocused.top!);
+  const left = Math.round(lastFocused.left! + lastFocused.width! - width);
 
   return [top, left];
 }
