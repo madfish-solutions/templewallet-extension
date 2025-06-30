@@ -12,6 +12,7 @@ import { serializeError } from 'lib/utils/serialize-error';
 import { getViemPublicClient } from 'temple/evm';
 import { EVMErrorCodes, evmRpcMethodsNames } from 'temple/evm/constants';
 import { estimate } from 'temple/evm/estimate';
+import { getEvmChainsRpcUrls, setEvmChainsRpcUrls } from 'temple/evm/evm-chains-rpc-urls';
 import { ChangePermissionsPayload, ErrorWithCode } from 'temple/evm/types';
 import { parseTransactionRequest, serializeBigints } from 'temple/evm/utils';
 import { DEFAULT_EVM_CURRENCY, EVM_DEFAULT_NETWORKS } from 'temple/networks';
@@ -46,7 +47,8 @@ import {
   networkSupportsEIP1559,
   removeDApps,
   requestConfirm,
-  setDApp
+  setDApp,
+  switchChain
 } from './utils';
 
 export async function getDefaultWeb3Params(origin: string) {
@@ -514,6 +516,13 @@ export const addChain = async (origin: string, currentChainId: string, params: A
                   });
                 }
               }
+
+              const rpcUrls = await getEvmChainsRpcUrls();
+              await setEvmChainsRpcUrls({
+                ...rpcUrls,
+                [chainIdNum]: (rpcUrls[chainIdNum] ?? []).concat(rpcUrl)
+              });
+              await switchChain(origin, chainIdNum, true);
             });
 
             resolve(null);
