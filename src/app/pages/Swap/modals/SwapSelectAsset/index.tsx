@@ -66,7 +66,7 @@ export const SwapSelectAssetModal = memo<SelectTokenModalProps>(
       } else {
         setLocalFilterChain(filterChain);
       }
-    }, [activeField, chainKind, evmNetwork, filterChain]);
+    }, [activeField, chainKind, filterChain]);
 
     const assetsList = useMemo(() => {
       if (isFilterChain(localFilterChain) && localFilterChain?.kind === TempleChainKind.Tezos && accountTezAddress)

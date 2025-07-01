@@ -1,4 +1,4 @@
-import React, { memo, MouseEvent, useCallback, useMemo, useState } from 'react';
+import React, { memo, MouseEvent, useCallback, useMemo } from 'react';
 
 import { isDefined } from '@rnw-community/shared';
 
@@ -45,7 +45,7 @@ export const TezosChainAssetsList = memo<Props>(
     );
 
     const rawTokensSortPredicate = useTezosChainAccountTokensSortPredicate(publicKeyHash, chainId, showFavorites);
-    const [tokensSortPredicate] = useState(() => rawTokensSortPredicate);
+    const tokensSortPredicate = useMemo(() => rawTokensSortPredicate, [chainId]);
 
     const getAssetMetadata = useGetChainTokenOrGasMetadata(chainId);
 

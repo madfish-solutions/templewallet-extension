@@ -95,9 +95,7 @@ export const NetworkDropdown = memo<NetworkDropdownProps>(
 
           {filteredNetworks.map(network => (
             <NetworkOption
-              key={
-                typeof network === 'string' ? (network === ALL_NETWORKS ? ALL_NETWORKS : FAVORITES) : network.chainId
-              }
+              key={typeof network === 'string' ? network : network.chainId}
               network={network}
               activeNetwork={selectedOption}
               attractSelf={attractSelectedNetwork}

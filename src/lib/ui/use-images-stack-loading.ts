@@ -1,16 +1,13 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
+import { isEqual } from 'lodash';
+
 const usePrevious = <T>(value: T): T | undefined => {
   const ref = useRef<T>();
   useEffect(() => {
     ref.current = value;
-  });
+  }, [value]);
   return ref.current;
-};
-
-const arraysEqual = (a?: string[], b?: string[]) => {
-  if (!a || !b) return false;
-  return a.length === b.length && a.every((val, i) => val === b[i]);
 };
 
 /**
@@ -24,10 +21,10 @@ export const useImagesStackLoading = (sources: string[]) => {
   const prevSources = usePrevious(sources);
 
   useEffect(() => {
-    if (!arraysEqual(prevSources, sources)) {
+    if (!isEqual(prevSources, sources)) {
       const hasSources = sources.length > 0;
       setIndex(hasSources ? 0 : -1);
-      setIsLoading(hasSources);
+      setIsLoading(false);
       setIsStackFailed(!hasSources);
     }
   }, [sources, prevSources]);
@@ -37,15 +34,18 @@ export const useImagesStackLoading = (sources: string[]) => {
   }, []);
 
   const onFail = useCallback(() => {
-    const nextIndex = index + 1;
-    if (nextIndex < sources.length) {
-      setIndex(nextIndex);
-      setIsLoading(true);
-    } else {
-      setIsLoading(false);
-      setIsStackFailed(true);
-    }
-  }, [index, sources.length]);
+    setIndex(prevIndex => {
+      const nextIndex = prevIndex + 1;
+      if (nextIndex < sources.length) {
+        setIsLoading(true);
+        return nextIndex;
+      } else {
+        setIsLoading(false);
+        setIsStackFailed(true);
+        return prevIndex;
+      }
+    });
+  }, [sources.length]);
 
   return {
     src: sources[index],

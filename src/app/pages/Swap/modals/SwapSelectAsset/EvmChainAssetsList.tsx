@@ -1,4 +1,4 @@
-import React, { memo, useMemo, MouseEvent, useCallback, useState } from 'react';
+import React, { memo, useMemo, MouseEvent, useCallback } from 'react';
 
 import clsx from 'clsx';
 import { FixedSizeList as List, ListChildComponentProps } from 'react-window';
@@ -52,7 +52,7 @@ export const EvmChainAssetsList = memo<Props>(({ chainId, activeField, publicKey
   const tokensSlugs = useEnabledEvmChainAccountTokenSlugs(publicKeyHash, chainId);
 
   const rawTokensSortPredicate = useEvmChainTokensSortPredicate(publicKeyHash, chainId, showFavorites);
-  const [tokensSortPredicate] = useState(() => rawTokensSortPredicate);
+  const tokensSortPredicate = useMemo(() => rawTokensSortPredicate, [chainId]);
 
   const evmChainAssetsSlugs = useMemo(() => {
     const gasTokensSlugs: string[] = [EVM_TOKEN_SLUG];
