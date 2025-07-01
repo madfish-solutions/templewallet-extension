@@ -20,7 +20,7 @@ import { importExtensionAdsModule } from './import-extension-ads-module';
 // build runs without errors.
 interface AdSource {
   shouldNotUseStrictContainerLimits?: boolean;
-  providerName: 'Temple' | 'Persona' | 'HypeLab' | 'SmartyAds' | 'Bitmedia';
+  providerName: 'Temple' | 'Persona' | 'HypeLab' | 'Bitmedia';
   native?: boolean;
   slug: string;
   categories?: string[];
@@ -125,38 +125,6 @@ const buildNativeAdsMeta = (containerWidth: number, containerHeight: number) =>
   ].filter(isTruthy);
 
 const bannerAdsMetaBase: (AdMetadata | false)[] = [
-  {
-    source: {
-      providerName: 'SmartyAds' as const,
-      native: false,
-      slug: EnvVars.SMARTY_970_250_PLACEMENT_ID,
-      categories: ['other']
-    },
-    dimensions: {
-      width: 970,
-      height: 250,
-      minContainerWidth: 969,
-      minContainerHeight: 249,
-      maxContainerWidth: Infinity,
-      maxContainerHeight: 500
-    }
-  },
-  {
-    source: {
-      providerName: 'SmartyAds' as const,
-      native: false,
-      slug: EnvVars.SMARTY_970_90_PLACEMENT_ID,
-      categories: ['other']
-    },
-    dimensions: {
-      width: 970,
-      height: 90,
-      minContainerWidth: 969,
-      minContainerHeight: 89,
-      maxContainerWidth: Infinity,
-      maxContainerHeight: 300
-    }
-  },
   isTruthy(EnvVars.BITMEDIA_970_90_PLACEMENT_ID) && {
     source: {
       providerName: 'Bitmedia' as const,
@@ -167,22 +135,6 @@ const bannerAdsMetaBase: (AdMetadata | false)[] = [
       width: 970,
       height: 90,
       minContainerWidth: 969,
-      minContainerHeight: 89,
-      maxContainerWidth: Infinity,
-      maxContainerHeight: 300
-    }
-  },
-  {
-    source: {
-      providerName: 'SmartyAds' as const,
-      native: false,
-      slug: EnvVars.SMARTY_728_90_PLACEMENT_ID,
-      categories: ['other']
-    },
-    dimensions: {
-      width: 728,
-      height: 90,
-      minContainerWidth: 727,
       minContainerHeight: 89,
       maxContainerWidth: Infinity,
       maxContainerHeight: 300
@@ -250,22 +202,6 @@ const bannerAdsMetaBase: (AdMetadata | false)[] = [
       maxContainerHeight: 300
     }
   },
-  {
-    source: {
-      providerName: 'SmartyAds' as const,
-      native: false,
-      slug: EnvVars.SMARTY_300_600_PLACEMENT_ID,
-      categories: ['other']
-    },
-    dimensions: {
-      width: 300,
-      height: 600,
-      minContainerWidth: 299,
-      minContainerHeight: 599,
-      maxContainerWidth: 600,
-      maxContainerHeight: Infinity
-    }
-  },
   isTruthy(EnvVars.BITMEDIA_300_600_PLACEMENT_ID) && {
     source: {
       providerName: 'Bitmedia' as const,
@@ -278,22 +214,6 @@ const bannerAdsMetaBase: (AdMetadata | false)[] = [
       minContainerWidth: 299,
       minContainerHeight: 599,
       maxContainerWidth: 600,
-      maxContainerHeight: Infinity
-    }
-  },
-  {
-    source: {
-      providerName: 'SmartyAds' as const,
-      native: false,
-      slug: EnvVars.SMARTY_160_600_PLACEMENT_ID,
-      categories: ['other']
-    },
-    dimensions: {
-      width: 160,
-      height: 600,
-      minContainerWidth: 159,
-      minContainerHeight: 599,
-      maxContainerWidth: 360,
       maxContainerHeight: Infinity
     }
   },
@@ -312,22 +232,6 @@ const bannerAdsMetaBase: (AdMetadata | false)[] = [
       maxContainerHeight: Infinity
     }
   },
-  {
-    source: {
-      providerName: 'SmartyAds' as const,
-      native: false,
-      slug: EnvVars.SMARTY_336_280_PLACEMENT_ID,
-      categories: ['other']
-    },
-    dimensions: {
-      width: 336,
-      height: 280,
-      minContainerWidth: 335,
-      minContainerHeight: 279,
-      maxContainerWidth: 728,
-      maxContainerHeight: 480
-    }
-  },
   isTruthy(EnvVars.BITMEDIA_336_280_PLACEMENT_ID) && {
     source: {
       providerName: 'Bitmedia' as const,
@@ -341,22 +245,6 @@ const bannerAdsMetaBase: (AdMetadata | false)[] = [
       minContainerHeight: 279,
       maxContainerWidth: 728,
       maxContainerHeight: 480
-    }
-  },
-  {
-    source: {
-      providerName: 'SmartyAds' as const,
-      native: false,
-      slug: EnvVars.SMARTY_300_250_PLACEMENT_ID,
-      categories: ['other']
-    },
-    dimensions: {
-      width: 300,
-      height: 250,
-      minContainerWidth: 299,
-      minContainerHeight: 249,
-      maxContainerWidth: 700,
-      maxContainerHeight: Infinity
     }
   },
   {
@@ -420,22 +308,6 @@ const bannerAdsMetaBase: (AdMetadata | false)[] = [
       maxContainerHeight: Infinity
     }
   },
-  {
-    source: {
-      providerName: 'SmartyAds' as const,
-      native: false,
-      slug: EnvVars.SMARTY_320_100_PLACEMENT_ID,
-      categories: ['other']
-    },
-    dimensions: {
-      width: 320,
-      height: 100,
-      minContainerWidth: 319,
-      minContainerHeight: 99,
-      maxContainerWidth: 420,
-      maxContainerHeight: 200
-    }
-  },
   isTruthy(EnvVars.BITMEDIA_320_100_PLACEMENT_ID) && {
     source: {
       providerName: 'Bitmedia' as const,
@@ -464,23 +336,6 @@ const bannerAdsMetaBase: (AdMetadata | false)[] = [
       minContainerHeight: 99,
       maxContainerWidth: 400,
       maxContainerHeight: 200
-    }
-  },
-  {
-    source: {
-      providerName: 'SmartyAds' as const,
-      native: false,
-      slug: EnvVars.SMARTY_320_50_PLACEMENT_ID,
-      categories: ['other'],
-      shouldNotUseStrictContainerLimits: true
-    },
-    dimensions: {
-      width: 320,
-      height: 50,
-      minContainerWidth: 319,
-      minContainerHeight: 49,
-      maxContainerWidth: 420,
-      maxContainerHeight: 130
     }
   },
   {
