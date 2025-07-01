@@ -56,7 +56,7 @@ export const ImageStacked: FC<ImageStackedProps> = ({
 
   useEffect(() => {
     if (isStackFailed && onStackFailed) onStackFailed();
-  }, [isStackFailed]);
+  }, [isStackFailed, onStackFailed]);
 
   if (pauseRender) return null;
 
@@ -64,8 +64,8 @@ export const ImageStacked: FC<ImageStackedProps> = ({
 
   return (
     <>
-      {isLoading ? loader ?? null : null}
       <img {...imgProps} src={src} style={styleMemo} onLoad={onLoadLocal} onError={onFail} alt={'token logo'} />
+      {isLoading ? loader ?? null : null}
     </>
   );
 };

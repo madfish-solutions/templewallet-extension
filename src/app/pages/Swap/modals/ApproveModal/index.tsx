@@ -126,7 +126,7 @@ const ApproveModal = ({ data, onClose, onReview, setLoading }: ApproveModalProps
           setTimeout(() => {
             toastSuccess(t('transactionSubmitted'), true, {
               hash: txHash,
-              explorerBaseUrl: blockExplorer.url + '/tx/'
+              blockExplorerHref: blockExplorer.url + '/tx/'
             });
           }, CLOSE_ANIMATION_TIMEOUT * 2);
 

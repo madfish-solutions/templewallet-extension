@@ -110,9 +110,6 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
         ...(nonce ? { nonce: Number(nonce) } : {})
       });
 
-      // TODO: remove after QA
-      console.log('txParams', txParams);
-
       if (!txParams) {
         console.error(`Failed to parse transactionRequest for step ${step.tool}`);
         return;
@@ -123,8 +120,8 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
       const blockExplorer = getActiveBlockExplorer(network.chainId.toString());
       setTimeout(() => {
         toastSuccess(t('transactionSubmitted'), true, {
-          hash: txHash,
-          explorerBaseUrl: blockExplorer.url + '/tx/'
+          blockExplorerHref: blockExplorer.url + '/tx/',
+          hash: txHash
         });
       }, CLOSE_ANIMATION_TIMEOUT * 2);
 

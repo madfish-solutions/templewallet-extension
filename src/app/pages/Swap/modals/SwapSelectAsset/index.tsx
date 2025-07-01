@@ -7,9 +7,11 @@ import { PageLoader } from 'app/atoms/Loader';
 import { PageModal } from 'app/atoms/PageModal';
 import { ReactComponent as CompactDown } from 'app/icons/base/compact_down.svg';
 import { SwapFieldName } from 'app/pages/Swap/form/interfaces';
+import { isFilterChain } from 'app/pages/Swap/form/utils';
 import { useAssetsFilterOptionsSelector } from 'app/store/assets-filter-options/selectors';
 import { FilterChain } from 'app/store/assets-filter-options/state';
 import { NetworkPopper } from 'app/templates/network-popper';
+import { FAVORITES } from 'app/templates/network-popper/constants';
 import { SearchBarField } from 'app/templates/SearchField';
 import { LifiSupportedChains } from 'lib/apis/temple/endpoints/evm/api.interfaces';
 import { t } from 'lib/i18n';
@@ -41,7 +43,7 @@ export const SwapSelectAssetModal = memo<SelectTokenModalProps>(
 
     const { filterChain } = useAssetsFilterOptionsSelector();
 
-    const [localFilterChain, setLocalFilterChain] = useState(filterChain);
+    const [localFilterChain, setLocalFilterChain] = useState<FilterChain | string>(filterChain);
 
     const accountTezAddress = useAccountAddressForTezos();
     const accountEvmAddress = useAccountAddressForEvm();
@@ -64,36 +66,38 @@ export const SwapSelectAssetModal = memo<SelectTokenModalProps>(
       } else {
         setLocalFilterChain(filterChain);
       }
-    }, [activeField, chainKind, evmNetwork, filterChain, tezosNetwork]);
+    }, [activeField, chainKind, evmNetwork, filterChain]);
 
     const assetsList = useMemo(() => {
-      if (localFilterChain?.kind === TempleChainKind.Tezos && accountTezAddress)
+      if (isFilterChain(localFilterChain) && localFilterChain?.kind === TempleChainKind.Tezos && accountTezAddress)
         return (
           <TezosChainAssetsList
             chainId={localFilterChain.chainId}
-            filterZeroBalances={activeField === 'input'}
+            activeField={activeField}
             publicKeyHash={accountTezAddress}
             searchValue={searchValueDebounced}
             onAssetSelect={handleAssetSelect}
           />
         );
 
-      if (localFilterChain?.kind === TempleChainKind.EVM && accountEvmAddress)
+      if (isFilterChain(localFilterChain) && localFilterChain?.kind === TempleChainKind.EVM && accountEvmAddress)
         return (
           <EvmChainAssetsList
             chainId={localFilterChain.chainId}
-            filterZeroBalances={activeField === 'input'}
+            activeField={activeField}
             publicKeyHash={accountEvmAddress}
             searchValue={searchValueDebounced}
             onAssetSelect={handleAssetSelect}
           />
         );
 
-      if (!localFilterChain && accountTezAddress && accountEvmAddress)
+      if ((!localFilterChain || localFilterChain === FAVORITES) && accountTezAddress && accountEvmAddress)
         return (
           <MultiChainAssetsList
+            activeField={activeField}
             accountTezAddress={accountTezAddress}
             accountEvmAddress={accountEvmAddress}
+            showOnlyFavorites={localFilterChain === FAVORITES}
             searchValue={searchValueDebounced}
             onAssetSelect={handleAssetSelect}
           />
@@ -102,14 +106,21 @@ export const SwapSelectAssetModal = memo<SelectTokenModalProps>(
       return null;
     }, [localFilterChain, accountTezAddress, activeField, searchValueDebounced, handleAssetSelect, accountEvmAddress]);
 
-    const handleFilterOptionSelect = useCallback((filterChain: FilterChain) => setLocalFilterChain(filterChain), []);
+    const handleFilterOptionSelect = useCallback(
+      (filterChain: FilterChain | string) => setLocalFilterChain(filterChain),
+      []
+    );
 
     return (
       <PageModal title="Select Token" opened={opened} onRequestClose={onRequestClose}>
         <div className="flex flex-col px-4 pt-4 pb-3">
           <div className="flex justify-between items-center mb-1">
             <span className="text-font-description-bold">{t('filterByNetwork')}</span>
-            <FilterNetworkPopper selectedOption={localFilterChain} onOptionSelect={handleFilterOptionSelect} />
+            <FilterNetworkPopper
+              showFavoritesOption={activeField === 'output'}
+              selectedOption={localFilterChain}
+              onOptionSelect={handleFilterOptionSelect}
+            />
           </div>
 
           <SearchBarField
@@ -127,29 +138,33 @@ export const SwapSelectAssetModal = memo<SelectTokenModalProps>(
 );
 
 interface FilterNetworkPopperProps {
-  selectedOption: FilterChain;
-  onOptionSelect: (filterChain: FilterChain) => void;
+  selectedOption: FilterChain | string;
+  onOptionSelect: (filterChain: FilterChain | string) => void;
+  showFavoritesOption: boolean;
 }
 
-const FilterNetworkPopper = memo<FilterNetworkPopperProps>(({ selectedOption, onOptionSelect }) => (
-  <NetworkPopper
-    selectedOption={selectedOption}
-    onOptionSelect={onOptionSelect}
-    showAllNetworksOption
-    supportedChainIds={LifiSupportedChains}
-  >
-    {({ ref, toggleOpened, selectedOptionName }) => (
-      <Button
-        ref={ref}
-        className="flex items-center py-0.5 px-1 text-font-description-bold rounded text-secondary hover:bg-secondary-low"
-        onClick={toggleOpened}
-      >
-        <span>{selectedOptionName}</span>
-        <IconBase Icon={CompactDown} size={12} />
-      </Button>
-    )}
-  </NetworkPopper>
-));
+const FilterNetworkPopper = memo<FilterNetworkPopperProps>(
+  ({ selectedOption, onOptionSelect, showFavoritesOption }) => (
+    <NetworkPopper
+      selectedOption={selectedOption}
+      onOptionSelect={onOptionSelect}
+      showAllNetworksOption
+      showFavoritesOption={showFavoritesOption}
+      supportedChainIds={LifiSupportedChains}
+    >
+      {({ ref, toggleOpened, selectedOptionName }) => (
+        <Button
+          ref={ref}
+          className="flex items-center py-0.5 px-1 text-font-description-bold rounded text-secondary hover:bg-secondary-low"
+          onClick={toggleOpened}
+        >
+          <span>{selectedOptionName}</span>
+          <IconBase Icon={CompactDown} size={12} />
+        </Button>
+      )}
+    </NetworkPopper>
+  )
+);
 
 const SpinnerSection: FC = () => (
   <div className="flex justify-center my-8">

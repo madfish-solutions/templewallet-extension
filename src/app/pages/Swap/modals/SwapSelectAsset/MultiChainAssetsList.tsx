@@ -1,7 +1,8 @@
-import React, { memo, useMemo, MouseEvent, useCallback, RefObject } from 'react';
+import React, { memo, useMemo, MouseEvent, useCallback, RefObject, useState } from 'react';
 
 import { getSlugFromChainSlug } from 'app/hooks/listing-logic/utils';
 import { TokensListView } from 'app/pages/Send/modals/SelectAsset/tokens-list-view';
+import { SwapFieldName } from 'app/pages/Swap/form/interfaces';
 import { useEvmTokensMetadataRecordSelector } from 'app/store/evm/tokens-metadata/selectors';
 import { EvmTokenListItem, TezosTokenListItem } from 'app/templates/TokenListItem';
 import { EVM_TOKEN_SLUG, TEZ_TOKEN_SLUG } from 'lib/assets/defaults';
@@ -16,21 +17,26 @@ import { useAllEvmChains, useAllTezosChains, useEnabledEvmChains, useEnabledTezo
 import { TempleChainKind } from 'temple/types';
 
 interface Props {
+  activeField: SwapFieldName;
   accountTezAddress: string;
   accountEvmAddress: HexString;
+  showOnlyFavorites?: boolean;
   searchValue: string;
   onAssetSelect: (e: MouseEvent, chainSlug: string) => void;
 }
 
 export const MultiChainAssetsList = memo<Props>(
-  ({ accountTezAddress, accountEvmAddress, searchValue, onAssetSelect }) => {
+  ({ accountTezAddress, activeField, accountEvmAddress, showOnlyFavorites, searchValue, onAssetSelect }) => {
     const tezTokensSlugs = useEnabledTezosAccountTokenSlugs(accountTezAddress);
     const evmTokensSlugs = useEnabledEvmAccountTokenSlugs(accountEvmAddress);
 
     const enabledTezChains = useEnabledTezosChains();
     const enabledEvmChains = useEnabledEvmChains();
 
-    const tokensSortPredicate = useAccountTokensSortPredicate(accountTezAddress, accountEvmAddress);
+    const showFavorites = useMemo(() => activeField === 'output', [activeField]);
+
+    const rawTokensSortPredicate = useAccountTokensSortPredicate(accountTezAddress, accountEvmAddress, showFavorites);
+    const [tokensSortPredicate] = useState(() => rawTokensSortPredicate);
 
     const enabledAssetsSlugs = useMemo(
       () =>
@@ -87,6 +93,8 @@ export const MultiChainAssetsList = memo<Props>(
               publicKeyHash={accountTezAddress}
               assetSlug={assetSlug}
               showTags={false}
+              showFavoritesMark={showFavorites}
+              showOnlyFavorites={showOnlyFavorites}
               onClick={e => onAssetSelect(e, chainSlug)}
               ref={ref}
             />
@@ -100,12 +108,14 @@ export const MultiChainAssetsList = memo<Props>(
             network={evmChains[chainId]!}
             assetSlug={assetSlug}
             publicKeyHash={accountEvmAddress}
+            showFavoritesMark={showFavorites}
+            showOnlyFavorites={showOnlyFavorites}
             onClick={e => onAssetSelect(e, chainSlug)}
             ref={ref}
           />
         );
       },
-      [accountEvmAddress, accountTezAddress, evmChains, onAssetSelect, tezosChains]
+      [accountEvmAddress, accountTezAddress, evmChains, onAssetSelect, showFavorites, showOnlyFavorites, tezosChains]
     );
 
     return (

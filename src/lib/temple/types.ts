@@ -157,6 +157,7 @@ export interface TempleSettings {
   customTezosNetworks?: StoredTezosNetwork[];
   customEvmNetworks?: StoredEvmNetwork[];
   contacts?: TempleContact[];
+  favoriteTokens?: string[];
   /** @deprecated */
   customNetworks?: StoredTezosNetwork[];
 }

@@ -1,4 +1,4 @@
-import React, { FC, ForwardedRef, forwardRef, memo, MouseEventHandler, useCallback } from 'react';
+import React, { FC, ForwardedRef, forwardRef, memo, MouseEventHandler, useCallback, useMemo } from 'react';
 
 import BigNumber from 'bignumber.js';
 import clsx from 'clsx';
@@ -6,6 +6,8 @@ import clsx from 'clsx';
 import { IconBase, ToggleSwitch } from 'app/atoms';
 import { useIsItemVisible } from 'app/atoms/visibility-tracking-infinite-scroll';
 import { ReactComponent as DeleteIcon } from 'app/icons/base/delete.svg';
+import { ReactComponent as StarIcon } from 'app/icons/star.svg';
+import { ReactComponent as StarFillIcon } from 'app/icons/starfill.svg';
 import { ScamTag } from 'app/pages/Home/OtherComponents/Tokens/components/TokenTag/ScamTag';
 import { dispatch } from 'app/store';
 import { setEvmTokenStatusAction } from 'app/store/evm/assets/actions';
@@ -19,6 +21,7 @@ import { setAnotherSelector } from 'lib/analytics';
 import { TEMPLE_TOKEN_SLUG } from 'lib/assets';
 import { EVM_TOKEN_SLUG, TEZ_TOKEN_SLUG } from 'lib/assets/defaults';
 import { getAssetStatus } from 'lib/assets/hooks/utils';
+import { toChainAssetSlug } from 'lib/assets/utils';
 import { useEvmTokenBalance, useTezosAssetBalance } from 'lib/balances/hooks';
 import { ASSET_HUGE_AMOUNT } from 'lib/constants';
 import { getTokenName, getAssetSymbol } from 'lib/metadata';
@@ -27,6 +30,7 @@ import { TokenListItemElement } from 'lib/ui/tokens-list';
 import { ZERO } from 'lib/utils/numbers';
 import { Link } from 'lib/woozie';
 import { ChainId, PublicKeyHash } from 'temple/front/chains';
+import { useFavoriteTokens } from 'temple/front/use-favorite-tokens';
 import { EvmNetworkEssentials, NetworkEssentials, TezosNetworkEssentials } from 'temple/networks';
 import { TempleChainKind } from 'temple/types';
 
@@ -49,6 +53,8 @@ interface TezosTokenListItemProps {
   scam?: boolean;
   manageActive?: boolean;
   showTags?: boolean;
+  showFavoritesMark?: boolean;
+  showOnlyFavorites?: boolean;
   requiresVisibility?: boolean;
   onClick?: MouseEventHandler<TokenListItemElement>;
 }
@@ -66,6 +72,8 @@ export const TezosTokenListItem = memo(
         manageActive = false,
         requiresVisibility = true,
         showTags = true,
+        showFavoritesMark = false,
+        showOnlyFavorites = false,
         onClick
       },
       ref
@@ -107,6 +115,8 @@ export const TezosTokenListItem = memo(
           assetName={assetName}
           className={clsx(active && 'focus:bg-secondary-low', scam ? 'hover:bg-error-low' : 'hover:bg-secondary-low')}
           network={network}
+          showFavoritesMark={showFavoritesMark}
+          showOnlyFavorites={showOnlyFavorites}
           index={index}
           balance={balance}
           onClick={onClick}
@@ -138,13 +148,28 @@ interface EvmTokenListItemProps {
   publicKeyHash: HexString;
   assetSlug: string;
   manageActive?: boolean;
+  showFavoritesMark?: boolean;
+  showOnlyFavorites?: boolean;
   onClick?: MouseEventHandler<TokenListItemElement>;
   requiresVisibility?: boolean;
 }
 
 export const EvmTokenListItem = memo(
   forwardRef<TokenListItemElement, EvmTokenListItemProps>(
-    ({ network, index, publicKeyHash, assetSlug, manageActive = false, requiresVisibility = true, onClick }, ref) => {
+    (
+      {
+        network,
+        index,
+        publicKeyHash,
+        assetSlug,
+        manageActive = false,
+        requiresVisibility = true,
+        showFavoritesMark = false,
+        showOnlyFavorites = false,
+        onClick
+      },
+      ref
+    ) => {
       const { chainId } = network;
       const lifiTokenMetadata = useLifiEvmTokenMetadataSelector(chainId, assetSlug);
 
@@ -184,6 +209,8 @@ export const EvmTokenListItem = memo(
           assetName={assetName}
           className="focus:bg-secondary-low, hover:bg-secondary-low"
           network={network}
+          showFavoritesMark={showFavoritesMark}
+          showOnlyFavorites={showOnlyFavorites}
           index={index}
           balance={balance}
           onClick={onClick}
@@ -334,6 +361,8 @@ interface DefaultListItemLayoutProps<T extends TempleChainKind> {
   balance: BigNumber;
   onClick?: MouseEventHandler<TokenListItemElement>;
   requiresVisibility?: boolean;
+  showFavoritesMark?: boolean;
+  showOnlyFavorites: boolean;
 }
 
 const DefaultListItemLayoutHOC = <T extends TempleChainKind>(
@@ -345,10 +374,33 @@ const DefaultListItemLayoutHOC = <T extends TempleChainKind>(
   }>
 ) =>
   forwardRef<TokenListItemElement, PropsWithChildren<DefaultListItemLayoutProps<T>>>(
-    ({ children, assetSlug, assetName, className, network, index, balance, onClick, requiresVisibility }, ref) => {
+    (
+      {
+        children,
+        assetSlug,
+        assetName,
+        className,
+        network,
+        index,
+        balance,
+        onClick,
+        requiresVisibility,
+        showFavoritesMark,
+        showOnlyFavorites
+      },
+      ref
+    ) => {
       const { chainId } = network;
       const isVisible = useIsItemVisible(index);
       const visible = !requiresVisibility || isVisible;
+
+      const { addFavoriteToken, removeFavoriteToken, isFavorite } = useFavoriteTokens();
+      const chainAssetSlug = useMemo(() => toChainAssetSlug(networkKind, chainId, assetSlug), [assetSlug, chainId]);
+      const isFavoriteToken = useMemo(() => isFavorite(chainAssetSlug), [chainAssetSlug, isFavorite]);
+
+      if (showOnlyFavorites && !isFavoriteToken) {
+        return null;
+      }
 
       return (
         <Link
@@ -388,6 +440,24 @@ const DefaultListItemLayoutHOC = <T extends TempleChainKind>(
                   />
                 </div>
               </div>
+              {showFavoritesMark && (
+                <button
+                  type="button"
+                  className="p-0.5 rounded-full bg-grey-4 ml-3"
+                  onClick={e => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    if (isFavorite(chainAssetSlug)) {
+                      void removeFavoriteToken(chainAssetSlug);
+                    } else {
+                      void addFavoriteToken(chainAssetSlug);
+                    }
+                  }}
+                  aria-label={isFavorite(chainAssetSlug) ? 'Remove from favorites' : 'Add to favorites'}
+                >
+                  {isFavorite(chainAssetSlug) ? <StarFillIcon /> : <StarIcon />}
+                </button>
+              )}
             </>
           ) : (
             <>
