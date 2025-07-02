@@ -4,7 +4,6 @@ import { lifiEvmTokensMetadataPersistedReducer } from 'app/store/evm/swap-lifi-m
 
 import { abTestingReducer } from './ab-testing/reducers';
 import { accountsInitializationReducer } from './accounts-initialization/reducers';
-import { advertisingReducer } from './advertising/reducers';
 import { assetsFilterOptionsReducer } from './assets-filter-options/reducer';
 import { buyWithCreditCardReducer } from './buy-with-credit-card/reducers';
 import { cryptoExchangePersistedReducer } from './crypto-exchange/reducers';
@@ -32,7 +31,6 @@ import { tokensMetadataReducer } from './tezos/tokens-metadata/reducers';
 
 const rootStateReducersMap = {
   settings: settingsPersistedReducer,
-  advertising: advertisingReducer,
   currency: currencyPersistedReducer,
   notifications: notificationsReducer,
   dApps: dAppsReducer,

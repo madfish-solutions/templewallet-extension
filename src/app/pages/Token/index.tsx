@@ -11,7 +11,6 @@ import { ContentContainer } from 'app/layouts/containers';
 import PageLayout, { PageLayoutProps } from 'app/layouts/PageLayout';
 import { useMainnetTokensScamlistSelector } from 'app/store/tezos/assets/selectors';
 import { ActivityListContainer, EvmActivityList, TezosActivityList } from 'app/templates/activity';
-import { AdvertisingBanner } from 'app/templates/advertising/advertising-banner/advertising-banner';
 import { ExploreActionButtonsBar } from 'app/templates/ExploreActionButtons';
 import { isTezAsset, TEMPLE_TOKEN_SLUG } from 'lib/assets';
 import { useEvmCategorizedAssetMetadata, useCategorizedTezosAssetMetadata } from 'lib/metadata';
@@ -69,12 +68,7 @@ const TezosTokenPage: FC<TezosTokenPageProps> = ({ chainId, assetSlug }) => {
   const pageProps = useMemo<PageLayoutProps>(
     () => ({
       pageTitle: <TezosPageTitle tezosChainId={chainId} assetSlug={assetSlug} />,
-      headerRightElem: (
-        <>
-          <AdvertisingBanner />
-          <IconBase Icon={InfoSvg} className="text-primary cursor-pointer" onClick={setInfoModalOpen} />
-        </>
-      )
+      headerRightElem: <IconBase Icon={InfoSvg} className="text-primary cursor-pointer" onClick={setInfoModalOpen} />
     }),
     [setInfoModalOpen, assetSlug, chainId]
   );
@@ -128,14 +122,9 @@ const EvmTokenPage: FC<EvmTokenPageProps> = ({ chainId, assetSlug }) => {
   const pageProps = useMemo<PageLayoutProps>(
     () => ({
       pageTitle: <EvmPageTitle evmChainId={chainId} assetSlug={assetSlug} />,
-      headerRightElem: (
-        <>
-          <AdvertisingBanner />
-          <IconBase Icon={InfoSvg} className="text-primary cursor-pointer" onClick={setInfoModalOpen} />
-        </>
-      )
+      headerRightElem: <IconBase Icon={InfoSvg} className="text-primary cursor-pointer" onClick={setInfoModalOpen} />
     }),
-    [assetSlug, chainId]
+    [assetSlug, chainId, setInfoModalOpen]
   );
 
   return (

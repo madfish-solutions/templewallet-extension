@@ -9,7 +9,6 @@ import { SuspenseContainer } from 'app/atoms/SuspenseContainer';
 import { useAppEnv } from 'app/env';
 import { useScrollEdgesVisibility } from 'app/hooks/use-scroll-edges-visibility';
 import { useTestnetModeEnabledSelector } from 'app/store/settings/selectors';
-import { AdvertisingOverlay } from 'app/templates/advertising/advertising-overlay/advertising-overlay';
 import { SHOULD_BACKUP_MNEMONIC_STORAGE_KEY } from 'lib/constants';
 import { IS_MISES_BROWSER } from 'lib/env';
 import { T } from 'lib/i18n';
@@ -118,7 +117,6 @@ const PageLayout: FC<PropsWithChildren<PageLayoutProps>> = ({
         </ContentPaper>
       </div>
 
-      <AdvertisingOverlay />
       <ConfirmationOverlay />
       <ChangelogOverlay />
       {!shouldBackupMnemonic && ready && (
