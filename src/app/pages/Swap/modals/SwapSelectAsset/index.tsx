@@ -16,6 +16,7 @@ import { SearchBarField } from 'app/templates/SearchField';
 import { LifiSupportedChains } from 'lib/apis/temple/endpoints/evm/api.interfaces';
 import { t } from 'lib/i18n';
 import { ETHEREUM_MAINNET_CHAIN_ID } from 'lib/temple/types';
+import { useMemoWithCompare } from 'lib/ui/hooks';
 import { useAccountAddressForEvm, useAccountAddressForTezos, useTezosMainnetChain } from 'temple/front';
 import { useEvmChainByChainId } from 'temple/front/chains';
 import { TempleChainKind } from 'temple/types';
@@ -41,6 +42,9 @@ export const SwapSelectAssetModal = memo<SelectTokenModalProps>(
     const evmNetwork = useEvmChainByChainId((chainId as number) || ETHEREUM_MAINNET_CHAIN_ID)!;
     const tezosNetwork = useTezosMainnetChain();
 
+    const stableEvmNetwork = useMemoWithCompare(() => evmNetwork, [evmNetwork]);
+    const stableTezosNetwork = useMemoWithCompare(() => tezosNetwork, [tezosNetwork]);
+
     const { filterChain } = useAssetsFilterOptionsSelector();
 
     const [localFilterChain, setLocalFilterChain] = useState<FilterChain | string>(filterChain);
@@ -61,12 +65,14 @@ export const SwapSelectAssetModal = memo<SelectTokenModalProps>(
     );
 
     useEffect(() => {
-      if (activeField === 'output') {
-        setLocalFilterChain(chainKind === TempleChainKind.EVM ? evmNetwork : tezosNetwork);
-      } else {
-        setLocalFilterChain(filterChain);
+      if (opened) {
+        if (activeField === 'output') {
+          setLocalFilterChain(chainKind === TempleChainKind.EVM ? stableEvmNetwork : stableTezosNetwork);
+        } else {
+          setLocalFilterChain(filterChain);
+        }
       }
-    }, [activeField, chainKind, filterChain]);
+    }, [activeField, chainKind, stableEvmNetwork, filterChain, opened, stableTezosNetwork]);
 
     const assetsList = useMemo(() => {
       if (isFilterChain(localFilterChain) && localFilterChain?.kind === TempleChainKind.Tezos && accountTezAddress)
@@ -113,25 +119,29 @@ export const SwapSelectAssetModal = memo<SelectTokenModalProps>(
 
     return (
       <PageModal title="Select Token" opened={opened} onRequestClose={onRequestClose}>
-        <div className="flex flex-col px-4 pt-4 pb-3">
-          <div className="flex justify-between items-center mb-1">
-            <span className="text-font-description-bold">{t('filterByNetwork')}</span>
-            <FilterNetworkPopper
-              showFavoritesOption={activeField === 'output'}
-              selectedOption={localFilterChain}
-              onOptionSelect={handleFilterOptionSelect}
-            />
-          </div>
+        {() => (
+          <>
+            <div className="flex flex-col px-4 pt-4 pb-3">
+              <div className="flex justify-between items-center mb-1">
+                <span className="text-font-description-bold">{t('filterByNetwork')}</span>
+                <FilterNetworkPopper
+                  showFavoritesOption={activeField === 'output'}
+                  selectedOption={localFilterChain}
+                  onOptionSelect={handleFilterOptionSelect}
+                />
+              </div>
 
-          <SearchBarField
-            value={searchValue}
-            placeholder="Token name"
-            defaultRightMargin={false}
-            onValueChange={setSearchValue}
-          />
-        </div>
+              <SearchBarField
+                value={searchValue}
+                placeholder="Token name"
+                defaultRightMargin={false}
+                onValueChange={setSearchValue}
+              />
+            </div>
 
-        <Suspense fallback={<SpinnerSection />}>{assetsList}</Suspense>
+            <Suspense fallback={<SpinnerSection />}>{assetsList}</Suspense>
+          </>
+        )}
       </PageModal>
     );
   }
