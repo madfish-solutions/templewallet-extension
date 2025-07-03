@@ -65,12 +65,13 @@ export const SwapSelectAssetModal = memo<SelectTokenModalProps>(
     );
 
     useEffect(() => {
-      if (opened) {
-        if (activeField === 'output') {
-          setLocalFilterChain(chainKind === TempleChainKind.EVM ? stableEvmNetwork : stableTezosNetwork);
-        } else {
-          setLocalFilterChain(filterChain);
-        }
+      if (!opened) {
+        return;
+      }
+      if (activeField === 'output') {
+        setLocalFilterChain(chainKind === TempleChainKind.EVM ? stableEvmNetwork : stableTezosNetwork);
+      } else {
+        setLocalFilterChain(filterChain);
       }
     }, [activeField, chainKind, stableEvmNetwork, filterChain, opened, stableTezosNetwork]);
 
