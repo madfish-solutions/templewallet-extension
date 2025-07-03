@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo } from 'react';
 
 import { useRawEvmAccountBalancesSelector } from 'app/store/evm/balances/selectors';
 import {
@@ -11,7 +11,7 @@ import { DEFAULT_EVM_CHAINS_SPECS, EvmChainSpecs } from 'lib/temple/chains-specs
 import { useStorage } from 'lib/temple/front';
 import { ETHEREUM_MAINNET_CHAIN_ID } from 'lib/temple/types';
 import { isEvmNativeTokenSlug } from 'lib/utils/evm.utils';
-import { useAccountAddressForEvm } from 'temple/front';
+import { useAccountAddressForEvm, useEnabledEvmChains } from 'temple/front';
 import { useEvmChainsSpecs } from 'temple/front/use-chains-specs';
 
 const chainIdsToDisableCandidates = Object.entries(DEFAULT_EVM_CHAINS_SPECS)
@@ -20,21 +20,26 @@ const chainIdsToDisableCandidates = Object.entries(DEFAULT_EVM_CHAINS_SPECS)
 
 export const useDisableInactiveNetworks = () => {
   const evmAddress = useAccountAddressForEvm();
+  const enabledEvmChains = useEnabledEvmChains();
   const [shouldDisable, setShouldDisable] = useStorage<boolean>(SHOULD_DISABLE_NOT_ACTIVE_NETWORKS_STORAGE_KEY, false);
   const [, setEvmChainsSpecs] = useEvmChainsSpecs();
-  const evmBalancesLoadingStates = useAllEvmChainsBalancesLoadingStatesSelector();
-  const rawEvmAccountBalances = useRawEvmAccountBalancesSelector(evmAddress ?? EVM_ZERO_ADDRESS);
+
   const evmTokensMetadata = useEvmTokensMetadataRecordSelector();
   const evmTokensMetadataLoading = useEvmTokensMetadataLoadingSelector();
 
+  const rawEvmAccountBalances = useRawEvmAccountBalancesSelector(evmAddress ?? EVM_ZERO_ADDRESS);
+  const evmBalancesLoadingStates = useAllEvmChainsBalancesLoadingStatesSelector();
   const evmBalancesLoading = useMemo(
     () => Object.values(evmBalancesLoadingStates).some(({ onchain, api }) => onchain.isLoading || api.isLoading),
     [evmBalancesLoadingStates]
   );
-  const evmBalancesWereLoaded = useWentTrueToFalse(evmBalancesLoading);
+  const evmBalancesInitialized = useMemo(
+    () => enabledEvmChains.every(({ chainId }) => rawEvmAccountBalances[chainId] !== undefined),
+    [enabledEvmChains, rawEvmAccountBalances]
+  );
 
   useEffect(() => {
-    if (!evmTokensMetadataLoading && evmBalancesWereLoaded && shouldDisable) {
+    if (shouldDisable && !evmTokensMetadataLoading && !evmBalancesLoading && evmBalancesInitialized) {
       setEvmChainsSpecs(prevSpecs => ({
         ...prevSpecs,
         ...Object.fromEntries(
@@ -53,27 +58,13 @@ export const useDisableInactiveNetworks = () => {
       setShouldDisable(false);
     }
   }, [
-    shouldDisable,
-    setShouldDisable,
-    rawEvmAccountBalances,
+    evmBalancesInitialized,
     evmBalancesLoading,
-    setEvmChainsSpecs,
+    evmTokensMetadata,
     evmTokensMetadataLoading,
-    evmBalancesWereLoaded,
-    evmTokensMetadata
+    rawEvmAccountBalances,
+    setEvmChainsSpecs,
+    setShouldDisable,
+    shouldDisable
   ]);
-};
-
-const useWentTrueToFalse = (value: boolean) => {
-  const prevValueRef = useRef(value);
-  const [wentTrueToFalse, setWentTrueToFalse] = useState(false);
-
-  useEffect(() => {
-    if (prevValueRef.current && !value) {
-      setWentTrueToFalse(true);
-    }
-    prevValueRef.current = value;
-  }, [value]);
-
-  return wentTrueToFalse;
 };
