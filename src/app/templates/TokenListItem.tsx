@@ -443,7 +443,7 @@ const DefaultListItemLayoutHOC = <T extends TempleChainKind>(
               {showFavoritesMark && (
                 <button
                   type="button"
-                  className="p-0.5 rounded-full bg-grey-4 ml-3"
+                  className="ml-2"
                   onClick={e => {
                     e.preventDefault();
                     e.stopPropagation();
