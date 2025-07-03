@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { Token } from '@lifi/sdk';
 
@@ -32,8 +32,13 @@ export const useFetchLifiEvmTokensSlugs = (publicKeyHash: HexString) => {
     [enabledChains]
   );
 
+  const prevEnabledLifiSupportedChainsRef = useRef<typeof enabledLifiSupportedChains>();
+
   const fetchEvmTokens = useCallback(async () => {
-    if (Date.now() - (lastFetchTime ?? 0) < LIFI_METADATA_SYNC_INTERVAL) {
+    const chainsChanged =
+      JSON.stringify(prevEnabledLifiSupportedChainsRef.current) !== JSON.stringify(enabledLifiSupportedChains);
+
+    if (!chainsChanged && Date.now() - (lastFetchTime ?? 0) < LIFI_METADATA_SYNC_INTERVAL) {
       return;
     }
 
@@ -59,7 +64,10 @@ export const useFetchLifiEvmTokensSlugs = (publicKeyHash: HexString) => {
     }
   }, [enabledLifiSupportedChains, lastFetchTime]);
 
-  useEffect(() => void fetchEvmTokens(), [fetchEvmTokens]);
+  useEffect(() => {
+    void fetchEvmTokens();
+    prevEnabledLifiSupportedChainsRef.current = enabledLifiSupportedChains;
+  }, [fetchEvmTokens, enabledLifiSupportedChains]);
 
   const existingTokens = useEvmAccountTokens(publicKeyHash);
 

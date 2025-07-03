@@ -1,7 +1,8 @@
-import React, { memo, useMemo, MouseEvent, useCallback, RefObject } from 'react';
+import React, { memo, useMemo, MouseEvent, useCallback, RefObject, useState } from 'react';
 
 import { getSlugFromChainSlug } from 'app/hooks/listing-logic/utils';
 import { TokensListView } from 'app/pages/Send/modals/SelectAsset/tokens-list-view';
+import { SwapFieldName } from 'app/pages/Swap/form/interfaces';
 import { useEvmTokensMetadataRecordSelector } from 'app/store/evm/tokens-metadata/selectors';
 import { EvmTokenListItem, TezosTokenListItem } from 'app/templates/TokenListItem';
 import { EVM_TOKEN_SLUG, TEZ_TOKEN_SLUG } from 'lib/assets/defaults';
@@ -13,36 +14,48 @@ import { useGetTokenOrGasMetadata } from 'lib/metadata';
 import { useMemoWithCompare } from 'lib/ui/hooks';
 import { TokenListItemElement } from 'lib/ui/tokens-list';
 import { useAllEvmChains, useAllTezosChains, useEnabledEvmChains, useEnabledTezosChains } from 'temple/front';
+import { useSettings } from 'temple/front/ready';
 import { TempleChainKind } from 'temple/types';
 
 interface Props {
+  activeField: SwapFieldName;
   accountTezAddress: string;
   accountEvmAddress: HexString;
+  showOnlyFavorites?: boolean;
   searchValue: string;
   onAssetSelect: (e: MouseEvent, chainSlug: string) => void;
 }
 
 export const MultiChainAssetsList = memo<Props>(
-  ({ accountTezAddress, accountEvmAddress, searchValue, onAssetSelect }) => {
+  ({ accountTezAddress, activeField, accountEvmAddress, showOnlyFavorites, searchValue, onAssetSelect }) => {
     const tezTokensSlugs = useEnabledTezosAccountTokenSlugs(accountTezAddress);
     const evmTokensSlugs = useEnabledEvmAccountTokenSlugs(accountEvmAddress);
 
+    const { favoriteTokens = [] } = useSettings();
     const enabledTezChains = useEnabledTezosChains();
     const enabledEvmChains = useEnabledEvmChains();
 
-    const tokensSortPredicate = useAccountTokensSortPredicate(accountTezAddress, accountEvmAddress);
+    const showFavoritesMark = useMemo(() => activeField === 'output', [activeField]);
 
-    const enabledAssetsSlugs = useMemo(
-      () =>
-        enabledTezChains
-          .map(chain => toChainAssetSlug(TempleChainKind.Tezos, chain.chainId, TEZ_TOKEN_SLUG))
-          .concat(
-            enabledEvmChains.map(chain => toChainAssetSlug(TempleChainKind.EVM, chain.chainId, EVM_TOKEN_SLUG)),
-            tezTokensSlugs,
-            evmTokensSlugs
-          ),
-      [enabledTezChains, enabledEvmChains, tezTokensSlugs, evmTokensSlugs]
+    const rawTokensSortPredicate = useAccountTokensSortPredicate(
+      accountTezAddress,
+      accountEvmAddress,
+      showFavoritesMark
     );
+    const [tokensSortPredicate] = useState(() => rawTokensSortPredicate);
+
+    const enabledAssetsSlugs = useMemo(() => {
+      if (showOnlyFavorites) {
+        return favoriteTokens;
+      }
+      return enabledTezChains
+        .map(chain => toChainAssetSlug(TempleChainKind.Tezos, chain.chainId, TEZ_TOKEN_SLUG))
+        .concat(
+          enabledEvmChains.map(chain => toChainAssetSlug(TempleChainKind.EVM, chain.chainId, EVM_TOKEN_SLUG)),
+          tezTokensSlugs,
+          evmTokensSlugs
+        );
+    }, [showOnlyFavorites, favoriteTokens, enabledTezChains, enabledEvmChains, tezTokensSlugs, evmTokensSlugs]);
 
     const enabledAssetsSlugsSorted = useMemoWithCompare(
       () => enabledAssetsSlugs.sort(tokensSortPredicate),
@@ -87,6 +100,8 @@ export const MultiChainAssetsList = memo<Props>(
               publicKeyHash={accountTezAddress}
               assetSlug={assetSlug}
               showTags={false}
+              showFavoritesMark={showFavoritesMark}
+              showOnlyFavorites={showOnlyFavorites}
               onClick={e => onAssetSelect(e, chainSlug)}
               ref={ref}
             />
@@ -100,12 +115,22 @@ export const MultiChainAssetsList = memo<Props>(
             network={evmChains[chainId]!}
             assetSlug={assetSlug}
             publicKeyHash={accountEvmAddress}
+            showFavoritesMark={showFavoritesMark}
+            showOnlyFavorites={showOnlyFavorites}
             onClick={e => onAssetSelect(e, chainSlug)}
             ref={ref}
           />
         );
       },
-      [accountEvmAddress, accountTezAddress, evmChains, onAssetSelect, tezosChains]
+      [
+        accountEvmAddress,
+        accountTezAddress,
+        evmChains,
+        onAssetSelect,
+        showFavoritesMark,
+        showOnlyFavorites,
+        tezosChains
+      ]
     );
 
     return (
