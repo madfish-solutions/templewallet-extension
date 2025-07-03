@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect } from 'react';
 
 import { isAxiosError } from 'axios';
 
@@ -13,8 +13,8 @@ export const useConversionVerification = () => {
   const { fullPage } = useAppEnv();
   const { accounts, ready } = useTempleClient();
 
-  const [conversionChecked, setConversionChecked] = useStorageVariable<boolean>(CONVERSION_CHECKED_STORAGE_KEY);
-  const [referralWalletRegistered, setReferralWalletRegistered] = useStorageVariable<boolean>(
+  const [conversionChecked, setConversionChecked] = useStorage<boolean>(CONVERSION_CHECKED_STORAGE_KEY);
+  const [referralWalletRegistered, setReferralWalletRegistered] = useStorage<boolean>(
     REFERRAL_WALLET_REGISTERED_STORAGE_KEY
   );
   const firstHdAccount = useMemoWithCompare(
@@ -55,28 +55,4 @@ export const useConversionVerification = () => {
     setConversionChecked,
     setReferralWalletRegistered
   ]);
-};
-
-const useStorageVariable = <T>(key: string) => {
-  const [valueFromStorage, putToStorage] = useStorage<T>(key);
-  const [localValue, setLocalValue] = useState(valueFromStorage ?? null);
-
-  const setValue = useCallback(
-    (newValue: NonNullable<T>) =>
-      putToStorage(newValue)
-        .then(() => setLocalValue(newValue))
-        .catch(e => console.error(e)),
-    [putToStorage]
-  );
-
-  useEffect(() => {
-    // Vault.registerWallet function clears async storages, so we should correct the value when it turns into null
-    if (valueFromStorage != null && valueFromStorage !== localValue) {
-      setLocalValue(valueFromStorage);
-    } else if (valueFromStorage === null && localValue !== null) {
-      putToStorage(localValue);
-    }
-  }, [localValue, putToStorage, valueFromStorage]);
-
-  return [localValue, setValue] as const;
 };
