@@ -449,10 +449,13 @@ export const addChain = async (origin: string, currentChainId: string, params: A
             await withUnlocked(async ({ vault }) => {
               const chainIdNum = Number(chainMetadata.chainId);
 
-              const prevStoredSpecs = await fetchFromStorage(EVM_CHAINS_SPECS_STORAGE_KEY);
-              const prevSpecsWithFallback = prevStoredSpecs ?? {};
+              const prevStoredSpecs = await fetchFromStorage<OptionalRecord<EvmChainSpecs>>(
+                EVM_CHAINS_SPECS_STORAGE_KEY
+              );
+              const prevSpecsWithFallback = prevStoredSpecs ?? DEFAULT_EVM_CHAINS_SPECS;
+              const prevChainSpecs = prevSpecsWithFallback[chainIdNum];
 
-              if (!prevSpecsWithFallback[chainIdNum] && !DEFAULT_EVM_CHAINS_SPECS[chainIdNum]) {
+              if (!prevChainSpecs) {
                 const newChainSpec: EvmChainSpecs = {
                   name: chainMetadata.name,
                   currency: {
@@ -466,6 +469,11 @@ export const addChain = async (origin: string, currentChainId: string, params: A
                 await putToStorage(EVM_CHAINS_SPECS_STORAGE_KEY, {
                   ...prevSpecsWithFallback,
                   [chainIdNum]: newChainSpec
+                });
+              } else if (prevChainSpecs.disabled) {
+                await putToStorage(EVM_CHAINS_SPECS_STORAGE_KEY, {
+                  ...prevSpecsWithFallback,
+                  [chainIdNum]: { ...prevChainSpecs, disabled: false }
                 });
               }
 
