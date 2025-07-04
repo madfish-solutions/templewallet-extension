@@ -12,6 +12,12 @@ import { serializeError } from 'lib/utils/serialize-error';
 import { getViemPublicClient } from 'temple/evm';
 import { EVMErrorCodes, evmRpcMethodsNames } from 'temple/evm/constants';
 import { estimate } from 'temple/evm/estimate';
+import {
+  getActiveEvmChainsRpcUrls,
+  getEvmChainsRpcUrls,
+  setActiveEvmChainsRpcUrls,
+  setEvmChainsRpcUrls
+} from 'temple/evm/evm-chains-rpc-urls';
 import { ChangePermissionsPayload, ErrorWithCode } from 'temple/evm/types';
 import { parseTransactionRequest, serializeBigints } from 'temple/evm/utils';
 import { DEFAULT_EVM_CURRENCY, EVM_DEFAULT_NETWORKS } from 'temple/networks';
@@ -46,7 +52,8 @@ import {
   networkSupportsEIP1559,
   removeDApps,
   requestConfirm,
-  setDApp
+  setDApp,
+  switchChain
 } from './utils';
 
 export async function getDefaultWeb3Params(origin: string) {
@@ -447,10 +454,13 @@ export const addChain = async (origin: string, currentChainId: string, params: A
             await withUnlocked(async ({ vault }) => {
               const chainIdNum = Number(chainMetadata.chainId);
 
-              const prevStoredSpecs = await fetchFromStorage(EVM_CHAINS_SPECS_STORAGE_KEY);
-              const prevSpecsWithFallback = prevStoredSpecs ?? {};
+              const prevStoredSpecs = await fetchFromStorage<OptionalRecord<EvmChainSpecs>>(
+                EVM_CHAINS_SPECS_STORAGE_KEY
+              );
+              const prevSpecsWithFallback = prevStoredSpecs ?? DEFAULT_EVM_CHAINS_SPECS;
+              const prevChainSpecs = prevSpecsWithFallback[chainIdNum];
 
-              if (!prevSpecsWithFallback[chainIdNum] && !DEFAULT_EVM_CHAINS_SPECS[chainIdNum]) {
+              if (!prevChainSpecs) {
                 const newChainSpec: EvmChainSpecs = {
                   name: chainMetadata.name,
                   currency: {
@@ -464,6 +474,11 @@ export const addChain = async (origin: string, currentChainId: string, params: A
                 await putToStorage(EVM_CHAINS_SPECS_STORAGE_KEY, {
                   ...prevSpecsWithFallback,
                   [chainIdNum]: newChainSpec
+                });
+              } else if (prevChainSpecs.disabled) {
+                await putToStorage(EVM_CHAINS_SPECS_STORAGE_KEY, {
+                  ...prevSpecsWithFallback,
+                  [chainIdNum]: { ...prevChainSpecs, disabled: false }
                 });
               }
 
@@ -514,6 +529,18 @@ export const addChain = async (origin: string, currentChainId: string, params: A
                   });
                 }
               }
+
+              const rpcUrls = await getEvmChainsRpcUrls();
+              await setEvmChainsRpcUrls({
+                ...rpcUrls,
+                [chainIdNum]: (rpcUrls[chainIdNum] ?? []).concat(rpcUrl)
+              });
+              const activeRpcUrls = await getActiveEvmChainsRpcUrls();
+              await setActiveEvmChainsRpcUrls({
+                ...activeRpcUrls,
+                [chainIdNum]: activeRpcUrls[chainIdNum] ?? rpcUrl
+              });
+              await switchChain(origin, chainIdNum, true);
             });
 
             resolve(null);
