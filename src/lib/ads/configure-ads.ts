@@ -20,6 +20,8 @@ import { TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
 import { isTruthy } from 'lib/utils';
 import { TempleChainKind, type AdsViewerData } from 'temple/types';
 
+// TODO: Fetch them from CDN for ads data
+import evmChainsNames from './evm-chains-names.json';
 import { importExtensionAdsModule } from './import-extension-ads-module';
 
 // Four interfaces below are copied from '@temple-wallet/extension-ads' to avoid importing it to ensure that a core
@@ -439,6 +441,7 @@ export const configureAds = async () => {
   const adsViewerData = await fetchFromStorage<AdsViewerData>(ADS_VIEWER_DATA_STORAGE_KEY);
   const dAppSession =
     typeof window === 'undefined' ? undefined : await getDApp(TempleChainKind.EVM, window.location.origin);
+  const chainId = dAppSession?.chainId ?? 1;
   originalConfigureAds({
     adsTwWindowUrl: EnvVars.HYPELAB_ADS_WINDOW_URL,
     swapTkeyUrl,
@@ -454,6 +457,9 @@ export const configureAds = async () => {
     isMisesBrowser: IS_MISES_BROWSER,
     pickNextAdMetadata,
     evmAccountAddress: adsViewerData?.evmAddress,
-    chainName: `0x${dAppSession?.chainId.toString(16) ?? 1}`
+    chainName:
+      chainId in evmChainsNames
+        ? evmChainsNames[String(chainId) as keyof typeof evmChainsNames]
+        : `0x${chainId.toString(16)}`
   });
 };
