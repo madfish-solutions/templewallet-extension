@@ -1,6 +1,7 @@
 import browser from 'webextension-polyfill';
 
 import { buildSwapPagePath } from 'app/pages/Swap/build-url-query';
+import { getDApp } from 'app/storage/dapps';
 import {
   ADS_META_SEARCH_PARAM_NAME,
   ADS_VIEWER_DATA_STORAGE_KEY,
@@ -17,7 +18,7 @@ import { APP_VERSION, EnvVars, IS_MISES_BROWSER } from 'lib/env';
 import { fetchFromStorage } from 'lib/storage';
 import { TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
 import { isTruthy } from 'lib/utils';
-import type { AdsViewerData } from 'temple/types';
+import { TempleChainKind, type AdsViewerData } from 'temple/types';
 
 import { importExtensionAdsModule } from './import-extension-ads-module';
 
@@ -436,6 +437,8 @@ const pickNextAdMetadata = (
 export const configureAds = async () => {
   const { configureAds: originalConfigureAds } = await importExtensionAdsModule();
   const adsViewerData = await fetchFromStorage<AdsViewerData>(ADS_VIEWER_DATA_STORAGE_KEY);
+  const dAppSession =
+    typeof window === 'undefined' ? undefined : await getDApp(TempleChainKind.EVM, window.location.origin);
   originalConfigureAds({
     adsTwWindowUrl: EnvVars.HYPELAB_ADS_WINDOW_URL,
     swapTkeyUrl,
@@ -451,8 +454,6 @@ export const configureAds = async () => {
     isMisesBrowser: IS_MISES_BROWSER,
     pickNextAdMetadata,
     evmAccountAddress: adsViewerData?.evmAddress,
-    chainName:
-      // @ts-expect-error
-      (typeof window === 'undefined' ? undefined : await window.ethereum?.request?.({ method: 'eth_chainId' })) ?? '0x1'
+    chainName: `0x${dAppSession?.chainId.toString(16) ?? 1}`
   });
 };
