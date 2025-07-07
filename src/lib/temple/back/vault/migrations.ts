@@ -240,6 +240,11 @@ export const MIGRATIONS = [
     removeFromStorage(['network_id', 'tokens_base_metadata', 'block_explorer', CUSTOM_NETWORKS_SNAPSHOT_STORAGE_KEY]);
 
     console.log('VAULT.MIGRATIONS: EVM migration finished');
+  },
+
+  // [6] Prepare to extend public accounts data
+  async () => {
+    await removeFromStorage(ADS_VIEWER_ADDRESS_STORAGE_KEY);
   }
 ];
 

@@ -1,6 +1,7 @@
 import { getPersonaAdClient, PERSONA_STAGING_ADS_BANNER_UNIT_ID } from 'lib/ads/persona';
-import { ADS_VIEWER_ADDRESS_STORAGE_KEY } from 'lib/constants';
+import { ADS_VIEWER_DATA_STORAGE_KEY } from 'lib/constants';
 import { fetchFromStorage } from 'lib/storage';
+import type { AdsViewerData } from 'temple/types';
 
 const CONTAINER_ID = 'container';
 
@@ -8,8 +9,8 @@ const usp = new URLSearchParams(window.location.search);
 const id = usp.get('id');
 const slug = usp.get('slug') ?? PERSONA_STAGING_ADS_BANNER_UNIT_ID;
 
-fetchFromStorage<string>(ADS_VIEWER_ADDRESS_STORAGE_KEY)
-  .then(accountPkhFromStorage => getPersonaAdClient(accountPkhFromStorage))
+fetchFromStorage<AdsViewerData>(ADS_VIEWER_DATA_STORAGE_KEY)
+  .then(account => getPersonaAdClient(account?.tezosAddress ?? null))
   .then(({ client }) => {
     return client.showBannerAd(
       // @ts-expect-error // for missung `adConfig` prop

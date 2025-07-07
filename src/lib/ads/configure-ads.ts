@@ -3,16 +3,21 @@ import browser from 'webextension-polyfill';
 import { buildSwapPagePath } from 'app/pages/Swap/build-url-query';
 import {
   ADS_META_SEARCH_PARAM_NAME,
+  ADS_VIEWER_DATA_STORAGE_KEY,
   AD_CATEGORIES_PARAM_NAME,
+  CHAIN_NAME_SEARCH_PARAM_NAME,
   ContentScriptType,
+  EVM_ACCOUNT_SEARCH_PARAM_NAME,
   FONT_SIZE_SEARCH_PARAM_NAME,
   LINE_HEIGHT_SEARCH_PARAM_NAME,
   ORIGIN_SEARCH_PARAM_NAME,
   THEME_COLOR_SEARCH_PARAM_NAME
 } from 'lib/constants';
 import { APP_VERSION, EnvVars, IS_MISES_BROWSER } from 'lib/env';
+import { fetchFromStorage } from 'lib/storage';
 import { TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
 import { isTruthy } from 'lib/utils';
+import type { AdsViewerData } from 'temple/types';
 
 import { importExtensionAdsModule } from './import-extension-ads-module';
 
@@ -48,6 +53,8 @@ interface AdsStackIframeURLParams {
   themeColor?: string;
   fontSize?: number;
   lineHeight?: number;
+  evmAccountAddress?: string;
+  chainName?: string;
 }
 
 const smallTkeyInpageAdUrl = browser.runtime.getURL(`/misc/ad-banners/small-tkey-inpage-ad.png`);
@@ -63,7 +70,9 @@ const searchParamsNames = {
   id: 'id',
   themeColor: THEME_COLOR_SEARCH_PARAM_NAME,
   fontSize: FONT_SIZE_SEARCH_PARAM_NAME,
-  lineHeight: LINE_HEIGHT_SEARCH_PARAM_NAME
+  lineHeight: LINE_HEIGHT_SEARCH_PARAM_NAME,
+  evmAccountAddress: EVM_ACCOUNT_SEARCH_PARAM_NAME,
+  chainName: CHAIN_NAME_SEARCH_PARAM_NAME
 };
 
 const getAdsStackIframeURL = ({
@@ -426,6 +435,7 @@ const pickNextAdMetadata = (
 
 export const configureAds = async () => {
   const { configureAds: originalConfigureAds } = await importExtensionAdsModule();
+  const adsViewerData = await fetchFromStorage<AdsViewerData>(ADS_VIEWER_DATA_STORAGE_KEY);
   originalConfigureAds({
     adsTwWindowUrl: EnvVars.HYPELAB_ADS_WINDOW_URL,
     swapTkeyUrl,
@@ -439,6 +449,10 @@ export const configureAds = async () => {
     extVersion: APP_VERSION,
     templePassphrase: EnvVars.TEMPLE_ADS_ORIGIN_PASSPHRASE,
     isMisesBrowser: IS_MISES_BROWSER,
-    pickNextAdMetadata
+    pickNextAdMetadata,
+    evmAccountAddress: adsViewerData?.evmAddress,
+    chainName:
+      // @ts-expect-error
+      (typeof window === 'undefined' ? undefined : await window.ethereum?.request?.({ method: 'eth_chainId' })) ?? '0x1'
   });
 };

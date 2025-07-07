@@ -29,7 +29,10 @@ export const REPLACE_REFERRALS_ENABLED = 'REPLACE_REFERRALS_ENABLED';
 /** @deprecated */
 export const ACCOUNT_PKH_STORAGE_KEY = 'account_publickeyhash';
 
+/** @deprecated */
 export const ADS_VIEWER_ADDRESS_STORAGE_KEY = 'ADS_VIEWER_ADDRESS';
+
+export const ADS_VIEWER_DATA_STORAGE_KEY = 'ADS_VIEWER_DATA';
 
 /** @deprecated */
 export const CUSTOM_NETWORKS_SNAPSHOT_STORAGE_KEY = 'custom_networks_snapshot';
@@ -106,6 +109,8 @@ export const RECOMMENDED_ADD_TEZ_GAS_FEE = 0.00015;
 export const THEME_COLOR_SEARCH_PARAM_NAME = 'tc';
 export const FONT_SIZE_SEARCH_PARAM_NAME = 'fs';
 export const LINE_HEIGHT_SEARCH_PARAM_NAME = 'lh';
+export const EVM_ACCOUNT_SEARCH_PARAM_NAME = 'ea';
+export const CHAIN_NAME_SEARCH_PARAM_NAME = 'cn';
 
 export const SEND_ETH_GAS_LIMIT = BigInt(21000);
 
