@@ -141,7 +141,12 @@ export const EditUrlEntityModal = <T extends UrlEntityBase>({
                   color="primary"
                   type="submit"
                   loading={isSubmitting}
-                  disabled={shouldDisableSubmitButton({ errors, formState, otherErrors: [submitError] })}
+                  disabled={shouldDisableSubmitButton({
+                    errors,
+                    formState,
+                    otherErrors: [submitError],
+                    disableWhileSubmitting: false
+                  })}
                   testID={ChainSettingsSelectors.saveButton}
                 >
                   <T id="save" />

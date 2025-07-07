@@ -85,7 +85,6 @@ export const EditChainModal = memo<EditChainModalProps>(({ chain, onClose, onSub
                   disabled={shouldDisableSubmitButton({
                     errors,
                     formState,
-                    errorsBeforeSubmitFields: ['name'],
                     otherErrors: [submitError],
                     disableWhileSubmitting: false
                   })}
