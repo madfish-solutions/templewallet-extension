@@ -73,7 +73,19 @@ export const useEvmEstimationForm = (
     defaultValues.gasPrice ? null : 'mid'
   );
 
-  const feeOptions = useEvmFeeOptions(debouncedGasLimit, estimationData);
+  const feeOptions = useEvmFeeOptions(
+    debouncedGasLimit,
+    basicParams && fullEstimationData
+      ? fullEstimationData.type === 'eip1559'
+        ? {
+            ...fullEstimationData,
+            ...(basicParams.maxFeePerGas ? { maxFeePerGas: basicParams.maxFeePerGas } : {}),
+            ...(basicParams.maxPriorityFeePerGas ? { maxPriorityFeePerGas: basicParams.maxPriorityFeePerGas } : {})
+          }
+        : fullEstimationData
+      : fullEstimationData
+  );
+
   const { setData } = useEvmEstimationDataState();
 
   useEffect(() => {

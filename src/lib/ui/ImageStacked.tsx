@@ -65,7 +65,7 @@ export const ImageStacked: FC<ImageStackedProps> = ({
   return (
     <>
       {isLoading ? loader ?? null : null}
-      <img {...imgProps} src={src} style={styleMemo} onLoad={onLoadLocal} onError={onFail} alt={'token logo'} />
+      <img {...imgProps} src={src} style={styleMemo} onLoad={onLoadLocal} onError={onFail} />
     </>
   );
 };

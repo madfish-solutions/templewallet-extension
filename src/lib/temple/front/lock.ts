@@ -21,14 +21,18 @@ export async function getShouldBeLockedOnStartup() {
     getLockUpTimeout()
   ]);
   const shouldLockByTimeout = closureTimestamp && Date.now() - closureTimestamp >= autoLockTime;
+  console.log('closureTimestamp', Date.now() - closureTimestamp)
+  console.log('autoLockTime', autoLockTime)
 
   return shouldLockByTimeout || shouldBackupMnemonic;
 }
 
-window.addEventListener(
-  'pagehide',
+document.addEventListener(
+  'visibilitychange',
   () => {
-    if (isSinglePageOpened()) localStorage.setItem(CLOSURE_STORAGE_KEY, Date.now().toString());
+    if (document.visibilityState === 'hidden' && isSinglePageOpened()) {
+      localStorage.setItem(CLOSURE_STORAGE_KEY, Date.now().toString());
+    }
   },
   true
 );

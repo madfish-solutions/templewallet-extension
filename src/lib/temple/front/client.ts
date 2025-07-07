@@ -54,7 +54,7 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
     const res = await makeIntercomRequest({ type: TempleMessageType.GetStateRequest });
     assertResponse(res.type === TempleMessageType.GetStateResponse);
 
-    if (didMountRef.current || res.state.status !== TempleStatus.Ready) {
+    if (res.state.status !== TempleStatus.Ready) {
       return { state: res.state, shouldLockOnStartup: false };
     }
 

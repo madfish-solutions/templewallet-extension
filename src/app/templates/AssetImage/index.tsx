@@ -48,7 +48,7 @@ export const EvmAssetImage = memo<EvmAssetImageProps>(({ Loader, Fallback, metad
 
   const storedMetadata = useEvmGenericAssetMetadata(assetSlug, evmChainId);
   const lifiMetadata = useLifiEvmTokenMetadataSelector(evmChainId, assetSlug);
-  const metadata = metadataOverrides ?? storedMetadata?.decimals ? storedMetadata : lifiMetadata;
+  const metadata = metadataOverrides ?? storedMetadata?.address ? storedMetadata : lifiMetadata;
 
   return (
     <EvmAssetImageStacked
