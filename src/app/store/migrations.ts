@@ -124,19 +124,58 @@ export const MIGRATIONS: MigrationManifest = {
   },
 
   '6': (persistedState: PersistedState) => {
-    if (!persistedState) return persistedState;
+    if (!persistedState) {
+      return persistedState;
+    }
 
-    const typedPersistedState = persistedState as TypedPersistedRootState;
+    const state = persistedState as TypedPersistedRootState;
 
-    if (!typedPersistedState.settings.isOnRampPossibility) return persistedState;
+    const onRampMigrationNeeded = state.settings.isOnRampPossibility;
+    const showInfoRaw = localStorage.getItem('collectibles-grid:show-items-details');
+    const blurRaw = localStorage.getItem('collectibles:adult-blur');
+    const localStorageMigrationNeeded = showInfoRaw !== null || blurRaw !== null;
 
-    const newState: TypedPersistedRootState = {
-      ...typedPersistedState,
-      settings: {
-        ...typedPersistedState.settings,
-        onRampAsset: TEZOS_CHAIN_ASSET_SLUG
+    if (!onRampMigrationNeeded && !localStorageMigrationNeeded) {
+      return state;
+    }
+
+    let newState = { ...state };
+
+    if (onRampMigrationNeeded) {
+      newState = {
+        ...newState,
+        settings: {
+          ...newState.settings,
+          onRampAsset: TEZOS_CHAIN_ASSET_SLUG
+        }
+      };
+    }
+
+    if (localStorageMigrationNeeded) {
+      const showInfo =
+        showInfoRaw !== null ? showInfoRaw === 'true' : newState.assetsFilterOptions.collectiblesListOptions.showInfo;
+
+      const blur = blurRaw !== null ? blurRaw === 'true' : newState.assetsFilterOptions.collectiblesListOptions.blur;
+
+      newState = {
+        ...newState,
+        assetsFilterOptions: {
+          ...newState.assetsFilterOptions,
+          collectiblesListOptions: {
+            ...newState.assetsFilterOptions.collectiblesListOptions,
+            showInfo,
+            blur
+          }
+        }
+      };
+
+      if (showInfoRaw !== null) {
+        localStorage.removeItem('collectibles-grid:show-items-details');
       }
-    };
+      if (blurRaw !== null) {
+        localStorage.removeItem('collectibles:adult-blur');
+      }
+    }
 
     return newState;
   }

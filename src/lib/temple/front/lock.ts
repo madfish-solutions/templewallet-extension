@@ -6,7 +6,7 @@ import { SHOULD_BACKUP_MNEMONIC_STORAGE_KEY } from 'lib/constants';
 import { getLockUpTimeout } from 'lib/lock-up';
 import { fetchFromStorage } from 'lib/storage';
 
-const CLOSURE_STORAGE_KEY = 'last-page-closure-timestamp';
+export const CLOSURE_STORAGE_KEY = 'last-page-closure-timestamp';
 
 const isSinglePageOpened = () => getOpenedTemplePagesN() === 1;
 
@@ -21,8 +21,6 @@ export async function getShouldBeLockedOnStartup() {
     getLockUpTimeout()
   ]);
   const shouldLockByTimeout = closureTimestamp && Date.now() - closureTimestamp >= autoLockTime;
-  console.log('closureTimestamp', Date.now() - closureTimestamp)
-  console.log('autoLockTime', autoLockTime)
 
   return shouldLockByTimeout || shouldBackupMnemonic;
 }

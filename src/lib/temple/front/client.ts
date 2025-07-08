@@ -33,7 +33,7 @@ import {
 import { getPendingConfirmationId, resetPendingConfirmationId } from 'temple/front/pending-confirm';
 import { TempleChainKind } from 'temple/types';
 
-import { getShouldBeLockedOnStartup } from './lock';
+import { CLOSURE_STORAGE_KEY, getShouldBeLockedOnStartup } from './lock';
 import { useStorage } from './storage';
 
 interface Confirmation {
@@ -78,7 +78,7 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
   const { data, mutate } = useRetryableSWR('state', fetchState, {
     suspense: true,
     shouldRetryOnError: false,
-    revalidateOnFocus: false,
+    revalidateOnFocus: true,
     revalidateOnReconnect: false
   });
   const state = data!.state;
@@ -148,6 +148,7 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
       password
     });
     assertResponse(res.type === TempleMessageType.UnlockResponse);
+    localStorage.removeItem(CLOSURE_STORAGE_KEY);
   }, []);
 
   const lock = useCallback(async () => {

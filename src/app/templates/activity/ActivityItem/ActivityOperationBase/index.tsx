@@ -53,6 +53,8 @@ export const ActivityOperationBaseComponent = memo<Props>(
         : toTezosAssetSlug(asset.contract, asset.tokenId)
       : null;
 
+    // console.log('assetSlug', assetSlug)
+
     const amountJsx = useMemo<ReactNode>(() => {
       if (!asset) return null;
 

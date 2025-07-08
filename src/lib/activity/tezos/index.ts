@@ -25,6 +25,8 @@ export function parseTezosOperationsGroup(
 
   const { hash, addedAt, operations: preOperations, oldestTzktOperation, status } = preActivity;
 
+  console.log(preOperations);
+
   const operations = preOperations.map<TezosOperation>(oper => parseTezosPreActivityOperation(oper, address));
 
   return {
@@ -57,18 +59,12 @@ function parseTezosPreActivityOperation(preOperation: TezosPreActivityOperation,
           spenderAddress: preOperation.to.at(0)!.address
         };
 
-      if (preOperation.subtype !== 'transfer' || isZero(preOperation.amountSigned))
-        return {
-          kind: ActivityOperKindEnum.interaction,
-          withAddress: preOperation.destination.address
-        };
-
       // subtype === 'transfer' below
 
       const fromAddress = preOperation.from.address;
       const toAddress = preOperation.to.at(0)!.address;
 
-      if (preOperation.from.address === address)
+      if (preOperation.from.address === address) {
         return {
           kind: ActivityOperKindEnum.transfer,
           type:
@@ -78,6 +74,7 @@ function parseTezosPreActivityOperation(preOperation: TezosPreActivityOperation,
           fromAddress,
           toAddress
         };
+      }
 
       if (preOperation.to.some(member => member.address === address))
         return {
@@ -108,14 +105,10 @@ function parseTezosPreActivityOperation(preOperation: TezosPreActivityOperation,
     };
   })();
 
-  if (!preOperation.contract) return operationBase;
-
   if (isTransferActivityOperKind(operationBase.kind) || operationBase.kind === ActivityOperKindEnum.approve) {
-    operationBase.assetSlug = toTezosAssetSlug(preOperation.contract, tokenId);
+    operationBase.assetSlug = toTezosAssetSlug(preOperation.contract ?? 'tez', tokenId);
     operationBase.amountSigned = preOperation.amountSigned;
   }
 
   return operationBase;
 }
-
-const isZero = (val: string) => Number(val) === 0;

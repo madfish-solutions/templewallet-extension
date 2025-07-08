@@ -312,6 +312,7 @@ const overwriteTezosActivitiesByAssetSlug = async ({
       olderThan,
       oldestPointer
     });
+    console.log('handleIntervalsJoins', activities)
     await insertActivities({ activities, account, assetSlug });
   };
 
