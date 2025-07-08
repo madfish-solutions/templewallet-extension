@@ -78,7 +78,7 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
   const { data, mutate } = useRetryableSWR('state', fetchState, {
     suspense: true,
     shouldRetryOnError: false,
-    revalidateOnFocus: true,
+    revalidateOnFocus: false,
     revalidateOnReconnect: false
   });
   const state = data!.state;

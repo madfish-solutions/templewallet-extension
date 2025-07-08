@@ -25,8 +25,6 @@ export function parseTezosOperationsGroup(
 
   const { hash, addedAt, operations: preOperations, oldestTzktOperation, status } = preActivity;
 
-  console.log(preOperations);
-
   const operations = preOperations.map<TezosOperation>(oper => parseTezosPreActivityOperation(oper, address));
 
   return {
@@ -64,7 +62,7 @@ function parseTezosPreActivityOperation(preOperation: TezosPreActivityOperation,
       const fromAddress = preOperation.from.address;
       const toAddress = preOperation.to.at(0)!.address;
 
-      if (preOperation.from.address === address) {
+      if (preOperation.from.address === address)
         return {
           kind: ActivityOperKindEnum.transfer,
           type:
@@ -74,7 +72,6 @@ function parseTezosPreActivityOperation(preOperation: TezosPreActivityOperation,
           fromAddress,
           toAddress
         };
-      }
 
       if (preOperation.to.some(member => member.address === address))
         return {

@@ -22,7 +22,6 @@ interface Props {
 
 export const TezosActivityOperationComponent = memo<Props>(
   ({ hash, operation, chain, blockExplorerUrl, status, withoutAssetIcon, withoutOperHashChip }) => {
-    // console.log('operation', operation)
     const assetSlug = operation?.assetSlug;
     const assetMetadata = useGenericTezosAssetMetadata(assetSlug ?? '', chain.chainId);
 
@@ -30,8 +29,6 @@ export const TezosActivityOperationComponent = memo<Props>(
       () => (assetSlug ? buildTezosOperationAsset(assetSlug, assetMetadata, operation.amountSigned) : undefined),
       [assetMetadata, operation, assetSlug]
     );
-
-    // console.log('asset', asset)
 
     const addressChip = useMemo(
       () => (withoutOperHashChip && operation ? <OperAddressChip operation={operation} /> : null),
