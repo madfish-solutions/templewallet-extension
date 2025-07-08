@@ -44,7 +44,7 @@ type InternalConfirmationProps = {
 const MIN_GAS_FEE = 0;
 
 const InternalConfirmation: FC<InternalConfirmationProps> = ({ payload, onConfirm, error: payloadError }) => {
-  const { popup } = useAppEnv();
+  const { fullPage } = useAppEnv();
 
   const getContentToParse = useCallback(async () => {
     switch (payload.type) {
@@ -261,8 +261,8 @@ const InternalConfirmation: FC<InternalConfirmationProps> = ({ payload, onConfir
   );
 
   return (
-    <div className={classNames('h-full w-full max-w-sm mx-auto flex flex-col', !popup && 'justify-center px-2')}>
-      <div className={classNames('flex flex-col items-center justify-center', popup && 'flex-1')}>
+    <div className={classNames('h-full w-full max-w-sm mx-auto flex flex-col', fullPage && 'justify-center px-2')}>
+      <div className={classNames('flex flex-col items-center justify-center', !fullPage && 'flex-1')}>
         <div className="flex items-center my-4">
           <Logo className="my-1.5" type="icon-title" />
         </div>
@@ -271,7 +271,7 @@ const InternalConfirmation: FC<InternalConfirmationProps> = ({ payload, onConfir
       <div
         className={classNames(
           'flex flex-col relative bg-white shadow-md overflow-y-auto',
-          popup ? 'border-t border-gray-200' : 'rounded-md'
+          fullPage ? 'rounded-md' : 'border-t border-gray-200'
         )}
         style={{ height: '34rem' }}
       >

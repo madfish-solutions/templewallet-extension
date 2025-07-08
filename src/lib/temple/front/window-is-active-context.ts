@@ -4,6 +4,7 @@ import constate from 'constate';
 import browser from 'webextension-polyfill';
 
 import { useAppEnv } from 'app/env';
+import { IS_GOOGLE_CHROME_BROWSER } from 'lib/env';
 import { useTypedSWR } from 'lib/swr';
 
 import { useTempleClient } from './client';
@@ -15,9 +16,10 @@ const getThisWindowLocation = () =>
   }));
 
 export const [WindowIsActiveProvider, useWindowIsActive] = constate(() => {
-  const { popup } = useAppEnv();
+  const { fullPage, popup, sidebar } = useAppEnv();
   const { data: thisWindowLocation } = useTypedSWR('window-location', getThisWindowLocation);
-  const { focusLocation, windowsWithPopups, setWindowPopupState } = useTempleClient();
+  const { focusLocation, windowsWithPopups, windowsWithSidebars, setWindowPopupState, setWindowSidebarState } =
+    useTempleClient();
   const [visibilityState, setVisibilityState] = useState<DocumentVisibilityState>(() => document.visibilityState);
 
   useEffect(() => {
@@ -28,7 +30,15 @@ export const [WindowIsActiveProvider, useWindowIsActive] = constate(() => {
     if (!browser.extension.getViews({ type: 'popup', windowId: thisWindowLocation.windowId }).length) {
       setWindowPopupState(thisWindowLocation.windowId, false);
     }
-  }, [thisWindowLocation, setWindowPopupState]);
+
+    if (IS_GOOGLE_CHROME_BROWSER) {
+      chrome.sidePanel.getOptions({}).then(options => {
+        if (!options.enabled) {
+          setWindowSidebarState(thisWindowLocation.windowId, false);
+        }
+      });
+    }
+  }, [thisWindowLocation, setWindowPopupState, setWindowSidebarState]);
 
   useEffect(() => {
     if (!thisWindowLocation) return;
@@ -39,16 +49,24 @@ export const [WindowIsActiveProvider, useWindowIsActive] = constate(() => {
       setWindowPopupState(thisWindowId, true);
     }
 
+    if (sidebar) {
+      setWindowSidebarState(thisWindowId, true);
+    }
+
     const visibilityListener = () => {
       setVisibilityState(document.visibilityState);
+      const newIsVisible = document.visibilityState === 'visible';
       if (popup) {
-        setWindowPopupState(thisWindowId, document.visibilityState === 'visible');
+        setWindowPopupState(thisWindowId, newIsVisible);
+      }
+      if (sidebar) {
+        setWindowSidebarState(thisWindowId, newIsVisible);
       }
     };
     document.addEventListener('visibilitychange', visibilityListener);
 
     return () => document.removeEventListener('visibilitychange', visibilityListener);
-  }, [popup, setWindowPopupState, thisWindowLocation]);
+  }, [popup, setWindowPopupState, setWindowSidebarState, sidebar, thisWindowLocation]);
 
   if (thisWindowLocation === undefined) {
     return true;
@@ -63,8 +81,10 @@ export const [WindowIsActiveProvider, useWindowIsActive] = constate(() => {
 
   return (
     documentIsVisible &&
-    (popup
-      ? thisWindowId === focusLocation.windowId
-      : !windowsWithPopups.includes(thisWindowId) && tabId === focusLocation.tabId)
+    (fullPage
+      ? !windowsWithPopups.includes(thisWindowId) &&
+        !windowsWithSidebars?.includes(thisWindowId) &&
+        tabId === focusLocation.tabId
+      : thisWindowId === focusLocation.windowId)
   );
 });

@@ -44,6 +44,10 @@ export const popupOpened = createEvent<number | null>('Popup opened');
 
 export const popupClosed = createEvent<number | null>('Popup closed');
 
+export const sidebarOpened = createEvent<number | null>('Sidebar opened');
+
+export const sidebarClosed = createEvent<number | null>('Sidebar closed');
+
 /**
  * Store
  */
@@ -56,20 +60,21 @@ export const store = createStore<StoreState>({
   settings: null,
   dAppQueueCounters: DEFAULT_PROMISES_QUEUE_COUNTERS,
   focusLocation: null,
-  windowsWithPopups: []
+  windowsWithPopups: [],
+  windowsWithSidebars: []
 })
   .on(inited, (state, vaultExist) => ({
     ...state,
     inited: true,
     status: vaultExist ? TempleStatus.Locked : TempleStatus.Idle
   }))
-  .on(locked, ({ focusLocation, windowsWithPopups }) => ({
+  .on(locked, ({ focusLocation, windowsWithPopups, windowsWithSidebars }) => ({
     // Attention!
     // Security stuff!
     // Don't merge new state to existing!
     // Build a new state from scratch
     // Reset all properties!
-    // Exceptions: focusLocation, windowsWithPopups
+    // Exceptions: focusLocation, windowsWithPopups, windowsWithSidebars
     inited: true,
     vault: null,
     status: TempleStatus.Locked,
@@ -77,7 +82,8 @@ export const store = createStore<StoreState>({
     settings: null,
     dAppQueueCounters: DEFAULT_PROMISES_QUEUE_COUNTERS,
     focusLocation,
-    windowsWithPopups
+    windowsWithPopups,
+    windowsWithSidebars
   }))
   .on(unlocked, (state, { vault, accounts, settings }) => ({
     ...state,
@@ -109,6 +115,14 @@ export const store = createStore<StoreState>({
   .on(popupClosed, (state, windowId) => ({
     ...state,
     windowsWithPopups: state.windowsWithPopups.filter(prevWindowId => prevWindowId !== windowId)
+  }))
+  .on(sidebarOpened, (state, windowId) => ({
+    ...state,
+    windowsWithSidebars: state.windowsWithSidebars.filter(prevWindowId => prevWindowId !== windowId).concat(windowId)
+  }))
+  .on(sidebarClosed, (state, windowId) => ({
+    ...state,
+    windowsWithSidebars: state.windowsWithSidebars.filter(prevWindowId => prevWindowId !== windowId)
   }));
 
 /**

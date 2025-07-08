@@ -41,6 +41,7 @@ export const buildManifest = (vendor: string) => {
 
 const buildManifestV3 = (vendor: string): Manifest.WebExtensionManifest => {
   const commons = buildManifestCommons(vendor);
+  const withVendors = makeWithVendors(vendor);
 
   commons.content_scripts!.push({
     matches: [
@@ -76,7 +77,9 @@ const buildManifestV3 = (vendor: string): Manifest.WebExtensionManifest => {
       extension_pages: "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'"
     },
 
-    action: buildBrowserAction(vendor),
+    action: buildBrowserAction(vendor, 'popup'),
+    sidebar_action: buildBrowserAction(vendor, 'sidebar'),
+    ...withVendors('chrome', 'opera')({ side_panel: { default_path: 'sidebar.html' } }),
 
     options_ui: OPTIONS_UI,
 
@@ -105,7 +108,8 @@ const buildManifestV2 = (vendor: string): Manifest.WebExtensionManifest => {
     // Required for dynamic imports `import()`
     web_accessible_resources: WEB_ACCCESSIBLE_RESOURSES,
 
-    browser_action: buildBrowserAction(vendor),
+    browser_action: buildBrowserAction(vendor, 'popup'),
+    sidebar_action: buildBrowserAction(vendor, 'sidebar'),
 
     options_ui: {
       ...OPTIONS_UI,
@@ -121,7 +125,7 @@ const buildManifestV2 = (vendor: string): Manifest.WebExtensionManifest => {
 
 const AUTHOR_URL = 'https://madfish.solutions';
 
-const PERMISSIONS = ['storage', 'unlimitedStorage', 'clipboardWrite', 'activeTab'];
+const PERMISSIONS = ['storage', 'unlimitedStorage', 'clipboardWrite', 'activeTab', 'sidePanel'];
 
 const HOST_PERMISSIONS: string[] = ['http://localhost:8732/'];
 
@@ -208,12 +212,21 @@ const buildManifestCommons = (vendor: string): Omit<Manifest.WebExtensionManifes
   };
 };
 
-const buildBrowserAction = (vendor: string) => {
+type PopupActionManifest = Manifest.ActionManifest;
+type SidebarActionManifest = Manifest.WebExtensionManifestSidebarActionType;
+
+function buildBrowserAction(vendor: string, action: 'popup'): PopupActionManifest;
+function buildBrowserAction(vendor: string, action: 'sidebar'): SidebarActionManifest;
+function buildBrowserAction(vendor: string, action: 'popup' | 'sidebar'): PopupActionManifest | SidebarActionManifest {
   const withVendors = makeWithVendors(vendor);
 
   return {
     default_title: 'Temple Wallet',
-    ...withVendors('chrome', 'firefox', 'opera')({ default_popup: 'popup.html' }),
+    ...withVendors(
+      'chrome',
+      'firefox',
+      'opera'
+    )(action === 'popup' ? { default_popup: 'popup.html' } : { default_panel: 'sidebar.html' }),
     default_icon: {
       '16': 'misc/icon-16.png',
       '19': 'misc/icon-19.png',
@@ -223,7 +236,7 @@ const buildBrowserAction = (vendor: string) => {
     ...withVendors('chrome', 'opera')({ chrome_style: false }),
     ...withVendors('firefox')({ browser_style: false })
   };
-};
+}
 
 const makeWithVendors = (vendor: string) => {
   return (...vendors: Vendor[]) => {

@@ -92,7 +92,7 @@ export const ExploreActionButtonsBar = memo<Props>(
     }, [additionalButtonType, chainId, labelClassName]);
 
     return (
-      <div className={clsx('flex justify-between gap-x-2 h-13.5', className)}>
+      <div className={clsx('grid grid-cols-5 gap-x-2 h-13.5', className)}>
         <ActionButton
           labelI18nKey="receive"
           Icon={ReceiveIcon}
@@ -164,7 +164,7 @@ const ActionButton = memo<ActionButtonProps>(
     const commonButtonProps = useMemo(
       () => ({
         className: clsx(
-          'flex-1 flex flex-col gap-y-0.5 p-2 items-center justify-center rounded-lg',
+          'flex flex-col gap-y-0.5 p-2 items-center justify-center rounded-lg',
           disabled
             ? 'bg-disable text-grey-2'
             : 'bg-primary-low text-primary hover:bg-primary-hover-low hover:text-primary-hover'
