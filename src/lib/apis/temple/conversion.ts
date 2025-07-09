@@ -41,5 +41,5 @@ export function getRefLink() {
 }
 
 export function getReferrersCount() {
-  return conversionApi.get<{ count: number }>(`/v1/referrers-count`).then(({ data }) => data.count);
+  return conversionApi.get<{ count: string }>(`/v1/referrers-count`).then(({ data }) => data.count);
 }
