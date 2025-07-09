@@ -75,14 +75,12 @@ export const useEvmEstimationForm = (
 
   const feeOptions = useEvmFeeOptions(
     debouncedGasLimit,
-    basicParams && fullEstimationData
-      ? fullEstimationData.type === 'eip1559'
-        ? {
-            ...fullEstimationData,
-            ...(basicParams.maxFeePerGas ? { maxFeePerGas: basicParams.maxFeePerGas } : {}),
-            ...(basicParams.maxPriorityFeePerGas ? { maxPriorityFeePerGas: basicParams.maxPriorityFeePerGas } : {})
-          }
-        : fullEstimationData
+    basicParams && fullEstimationData?.type === 'eip1559'
+      ? {
+          ...fullEstimationData,
+          ...(basicParams.maxFeePerGas ? { maxFeePerGas: basicParams.maxFeePerGas } : {}),
+          ...(basicParams.maxPriorityFeePerGas ? { maxPriorityFeePerGas: basicParams.maxPriorityFeePerGas } : {})
+        }
       : fullEstimationData
   );
 

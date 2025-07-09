@@ -139,15 +139,12 @@ export const MIGRATIONS: MigrationManifest = {
       return state;
     }
 
-    let newState = { ...state };
+    const newState = { ...state };
 
     if (onRampMigrationNeeded) {
-      newState = {
-        ...newState,
-        settings: {
-          ...newState.settings,
-          onRampAsset: TEZOS_CHAIN_ASSET_SLUG
-        }
+      newState.settings = {
+        ...newState.settings,
+        onRampAsset: TEZOS_CHAIN_ASSET_SLUG
       };
     }
 
@@ -157,15 +154,12 @@ export const MIGRATIONS: MigrationManifest = {
 
       const blur = blurRaw !== null ? blurRaw === 'true' : newState.assetsFilterOptions.collectiblesListOptions.blur;
 
-      newState = {
-        ...newState,
-        assetsFilterOptions: {
-          ...newState.assetsFilterOptions,
-          collectiblesListOptions: {
-            ...newState.assetsFilterOptions.collectiblesListOptions,
-            showInfo,
-            blur
-          }
+      newState.assetsFilterOptions = {
+        ...newState.assetsFilterOptions,
+        collectiblesListOptions: {
+          ...newState.assetsFilterOptions.collectiblesListOptions,
+          showInfo,
+          blur
         }
       };
 
