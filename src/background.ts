@@ -10,6 +10,7 @@ import {
   removeStoredAppUpdateDetails
 } from 'app/storage/app-update';
 import { updateRulesStorage } from 'lib/ads/update-rules-storage';
+import { SIDE_VIEW_WAS_FORCED_STORAGE_KEY } from 'lib/constants';
 import { EnvVars, IS_GOOGLE_CHROME_BROWSER } from 'lib/env';
 import { fetchFromStorage, putToStorage } from 'lib/storage';
 import { start } from 'lib/temple/back/main';
@@ -70,7 +71,6 @@ async function prepareAppIdentity() {
   });
 }
 
-const SIDE_VIEW_WAS_FORCED_STORAGE_KEY = 'side-view-was-forced';
 if (IS_GOOGLE_CHROME_BROWSER) {
   (async () => {
     try {

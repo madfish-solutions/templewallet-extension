@@ -76,7 +76,6 @@ export function useActiveTabUrlOrigin() {
   const tab = useActiveTab();
 
   return useMemo(() => {
-    console.log('ebota 2', tab, tabsOrigins);
     const rawUrl = tab ? tab.url ?? tabsOrigins[tab.id ?? browser.tabs.TAB_ID_NONE] : undefined;
     const url = rawUrl ? new URL(rawUrl) : null;
 

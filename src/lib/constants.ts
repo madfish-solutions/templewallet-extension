@@ -79,6 +79,8 @@ export const SHOULD_BACKUP_MNEMONIC_STORAGE_KEY = 'SHOULD_BACKUP_MNEMONIC';
 
 export const AUTOLOCK_TIME_STORAGE_KEY = 'AUTOLOCK_TIME';
 
+export const SIDE_VIEW_WAS_FORCED_STORAGE_KEY = 'SIDE_VIEW_WAS_FORCED';
+
 // Browser storage cannot set a value to Infinity
 export const NEVER_AUTOLOCK_VALUE = Number.MAX_SAFE_INTEGER;
 

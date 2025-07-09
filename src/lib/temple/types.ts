@@ -468,9 +468,7 @@ export enum TempleMessageType {
   ResetExtensionRequest = 'RESET_EXTENSION_REQUEST',
   ResetExtensionResponse = 'RESET_EXTENSION_RESPONSE',
   SetWindowPopupStateRequest = 'SET_WINDOW_POPUP_STATE_REQUEST',
-  SetWindowPopupStateResponse = 'SET_WINDOW_POPUP_STATE_RESPONSE',
-  SetWindowSidebarStateRequest = 'SET_WINDOW_SIDEBAR_STATE_REQUEST',
-  SetWindowSidebarStateResponse = 'SET_WINDOW_SIDEBAR_STATE_RESPONSE'
+  SetWindowPopupStateResponse = 'SET_WINDOW_POPUP_STATE_RESPONSE'
 }
 
 export type TempleNotification =

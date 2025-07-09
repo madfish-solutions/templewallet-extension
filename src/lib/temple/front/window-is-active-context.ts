@@ -15,7 +15,7 @@ const getThisWindowLocation = () =>
   }));
 
 export const [WindowIsActiveProvider, useWindowIsActive] = constate(() => {
-  const { fullPage, popup, sidebar } = useAppEnv();
+  const { fullPage, popup } = useAppEnv();
   const { data: thisWindowLocation } = useTypedSWR('window-location', getThisWindowLocation);
   const { focusLocation, windowsWithPopups, setWindowPopupState } = useTempleClient();
   const [visibilityState, setVisibilityState] = useState<DocumentVisibilityState>(() => document.visibilityState);
@@ -41,15 +41,14 @@ export const [WindowIsActiveProvider, useWindowIsActive] = constate(() => {
 
     const visibilityListener = () => {
       setVisibilityState(document.visibilityState);
-      const newIsVisible = document.visibilityState === 'visible';
       if (popup) {
-        setWindowPopupState(thisWindowId, newIsVisible);
+        setWindowPopupState(thisWindowId, document.visibilityState === 'visible');
       }
     };
     document.addEventListener('visibilitychange', visibilityListener);
 
     return () => document.removeEventListener('visibilitychange', visibilityListener);
-  }, [popup, setWindowPopupState, sidebar, thisWindowLocation]);
+  }, [popup, setWindowPopupState, thisWindowLocation]);
 
   if (thisWindowLocation === undefined) {
     return true;
