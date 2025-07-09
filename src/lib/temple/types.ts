@@ -38,7 +38,7 @@ export interface TempleState {
   settings: TempleSettings | null;
   focusLocation: FocusLocation | null;
   windowsWithPopups: (number | null)[];
-  windowsWithSidebars: (number | null)[];
+  tabsOrigins: Partial<Record<number, string>>;
 }
 
 export const TEZOS_MAINNET_CHAIN_ID = 'NetXdQprcVkpaWU';
@@ -524,8 +524,7 @@ export type TempleRequest =
   | TempleSendPageEventRequest
   | TempleSendEvmTransactionRequest
   | TempleResetExtensionRequest
-  | TempleSetWindowPopupStateRequest
-  | TempleSetWindowSidebarStateRequest;
+  | TempleSetWindowPopupStateRequest;
 
 export type TempleResponse =
   | TempleGetStateResponse
@@ -568,8 +567,7 @@ export type TempleResponse =
   | TempleSendPageEventResponse
   | TempleSendEvmTransactionResponse
   | TempleResetExtensionResponse
-  | TempleSetWindowPopupStateResponse
-  | TempleSetWindowSidebarStateResponse;
+  | TempleSetWindowPopupStateResponse;
 
 export interface TempleMessageBase {
   type: TempleMessageType;
@@ -1055,16 +1053,6 @@ interface TempleSetWindowPopupStateRequest extends TempleMessageBase {
 
 interface TempleSetWindowPopupStateResponse extends TempleMessageBase {
   type: TempleMessageType.SetWindowPopupStateResponse;
-}
-
-interface TempleSetWindowSidebarStateRequest extends TempleMessageBase {
-  type: TempleMessageType.SetWindowSidebarStateRequest;
-  windowId: number | null;
-  opened: boolean;
-}
-
-interface TempleSetWindowSidebarStateResponse extends TempleMessageBase {
-  type: TempleMessageType.SetWindowSidebarStateResponse;
 }
 
 export type EvmTransactionRequestWithSender = RpcTransactionRequest & { from: HexString };

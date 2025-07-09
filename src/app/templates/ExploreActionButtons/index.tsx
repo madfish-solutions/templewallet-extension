@@ -92,7 +92,7 @@ export const ExploreActionButtonsBar = memo<Props>(
     }, [additionalButtonType, chainId, labelClassName]);
 
     return (
-      <div className={clsx('grid grid-cols-5 gap-x-2 h-13.5', className)}>
+      <div className={clsx('grid gap-x-2 h-13.5', additionalButton ? 'grid-cols-5' : 'grid-cols-4', className)}>
         <ActionButton
           labelI18nKey="receive"
           Icon={ReceiveIcon}

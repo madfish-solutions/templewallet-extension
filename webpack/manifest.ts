@@ -77,9 +77,8 @@ const buildManifestV3 = (vendor: string): Manifest.WebExtensionManifest => {
       extension_pages: "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'"
     },
 
-    action: buildBrowserAction(vendor, 'popup'),
-    sidebar_action: buildBrowserAction(vendor, 'sidebar'),
-    ...withVendors('chrome', 'opera')({ side_panel: { default_path: 'sidebar.html' } }),
+    action: buildBrowserAction(vendor),
+    ...withVendors('chrome')({ side_panel: { default_path: 'sidebar.html' } }),
 
     options_ui: OPTIONS_UI,
 
@@ -108,8 +107,7 @@ const buildManifestV2 = (vendor: string): Manifest.WebExtensionManifest => {
     // Required for dynamic imports `import()`
     web_accessible_resources: WEB_ACCCESSIBLE_RESOURSES,
 
-    browser_action: buildBrowserAction(vendor, 'popup'),
-    sidebar_action: buildBrowserAction(vendor, 'sidebar'),
+    browser_action: buildBrowserAction(vendor),
 
     options_ui: {
       ...OPTIONS_UI,
@@ -212,21 +210,12 @@ const buildManifestCommons = (vendor: string): Omit<Manifest.WebExtensionManifes
   };
 };
 
-type PopupActionManifest = Manifest.ActionManifest;
-type SidebarActionManifest = Manifest.WebExtensionManifestSidebarActionType;
-
-function buildBrowserAction(vendor: string, action: 'popup'): PopupActionManifest;
-function buildBrowserAction(vendor: string, action: 'sidebar'): SidebarActionManifest;
-function buildBrowserAction(vendor: string, action: 'popup' | 'sidebar'): PopupActionManifest | SidebarActionManifest {
+const buildBrowserAction = (vendor: string) => {
   const withVendors = makeWithVendors(vendor);
 
   return {
     default_title: 'Temple Wallet',
-    ...withVendors(
-      'chrome',
-      'firefox',
-      'opera'
-    )(action === 'popup' ? { default_popup: 'popup.html' } : { default_panel: 'sidebar.html' }),
+    ...withVendors('chrome', 'firefox', 'opera')({ default_popup: 'popup.html' }),
     default_icon: {
       '16': 'misc/icon-16.png',
       '19': 'misc/icon-19.png',
@@ -236,7 +225,7 @@ function buildBrowserAction(vendor: string, action: 'popup' | 'sidebar'): PopupA
     ...withVendors('chrome', 'opera')({ chrome_style: false }),
     ...withVendors('firefox')({ browser_style: false })
   };
-}
+};
 
 const makeWithVendors = (vendor: string) => {
   return (...vendors: Vendor[]) => {

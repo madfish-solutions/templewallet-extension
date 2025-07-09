@@ -14,6 +14,7 @@ import {
   popupOpened,
   settingsUpdated,
   store,
+  tabOriginUpdated,
   unlocked
 } from './store';
 import { Vault } from './vault';
@@ -93,5 +94,22 @@ describe('Store tests', () => {
     popupClosed(3);
     popupClosed(1);
     expect(store.getState().windowsWithPopups).toEqual([2]);
+  });
+  it('Tab origin updated event', () => {
+    store.getState().tabsOrigins[1] = 'https://example.com';
+
+    expect(store.getState().tabsOrigins).toEqual({
+      1: 'https://example.com'
+    });
+
+    tabOriginUpdated({ tabId: 1, origin: 'https://new-origin.com' });
+    expect(store.getState().tabsOrigins).toEqual({
+      1: 'https://new-origin.com'
+    });
+    tabOriginUpdated({ tabId: 2, origin: 'https://another-origin.com' });
+    expect(store.getState().tabsOrigins).toEqual({
+      1: 'https://new-origin.com',
+      2: 'https://another-origin.com'
+    });
   });
 });

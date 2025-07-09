@@ -44,9 +44,7 @@ export const popupOpened = createEvent<number | null>('Popup opened');
 
 export const popupClosed = createEvent<number | null>('Popup closed');
 
-export const sidebarOpened = createEvent<number | null>('Sidebar opened');
-
-export const sidebarClosed = createEvent<number | null>('Sidebar closed');
+export const tabOriginUpdated = createEvent<{ tabId: number; origin: string }>('Tab origin updated');
 
 /**
  * Store
@@ -61,20 +59,20 @@ export const store = createStore<StoreState>({
   dAppQueueCounters: DEFAULT_PROMISES_QUEUE_COUNTERS,
   focusLocation: null,
   windowsWithPopups: [],
-  windowsWithSidebars: []
+  tabsOrigins: {}
 })
   .on(inited, (state, vaultExist) => ({
     ...state,
     inited: true,
     status: vaultExist ? TempleStatus.Locked : TempleStatus.Idle
   }))
-  .on(locked, ({ focusLocation, windowsWithPopups, windowsWithSidebars }) => ({
+  .on(locked, ({ focusLocation, windowsWithPopups, tabsOrigins }) => ({
     // Attention!
     // Security stuff!
     // Don't merge new state to existing!
     // Build a new state from scratch
     // Reset all properties!
-    // Exceptions: focusLocation, windowsWithPopups, windowsWithSidebars
+    // Exceptions: focusLocation, windowsWithPopups, tabsOrigins
     inited: true,
     vault: null,
     status: TempleStatus.Locked,
@@ -83,7 +81,7 @@ export const store = createStore<StoreState>({
     dAppQueueCounters: DEFAULT_PROMISES_QUEUE_COUNTERS,
     focusLocation,
     windowsWithPopups,
-    windowsWithSidebars
+    tabsOrigins
   }))
   .on(unlocked, (state, { vault, accounts, settings }) => ({
     ...state,
@@ -116,13 +114,12 @@ export const store = createStore<StoreState>({
     ...state,
     windowsWithPopups: state.windowsWithPopups.filter(prevWindowId => prevWindowId !== windowId)
   }))
-  .on(sidebarOpened, (state, windowId) => ({
+  .on(tabOriginUpdated, (state, { tabId, origin }) => ({
     ...state,
-    windowsWithSidebars: state.windowsWithSidebars.filter(prevWindowId => prevWindowId !== windowId).concat(windowId)
-  }))
-  .on(sidebarClosed, (state, windowId) => ({
-    ...state,
-    windowsWithSidebars: state.windowsWithSidebars.filter(prevWindowId => prevWindowId !== windowId)
+    tabsOrigins: {
+      ...state.tabsOrigins,
+      [tabId]: origin
+    }
   }));
 
 /**
