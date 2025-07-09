@@ -1,4 +1,4 @@
-import React, { FC, ForwardedRef, forwardRef, memo, MouseEventHandler, useCallback, useMemo } from 'react';
+import React, { FC, ForwardedRef, forwardRef, memo, MouseEventHandler, useCallback } from 'react';
 
 import BigNumber from 'bignumber.js';
 import clsx from 'clsx';
@@ -394,9 +394,20 @@ const DefaultListItemLayoutHOC = <T extends TempleChainKind>(
       const isVisible = useIsItemVisible(index);
       const visible = !requiresVisibility || isVisible;
 
-      const { addFavoriteToken, removeFavoriteToken, isFavorite } = useFavoriteTokens();
-      const chainAssetSlug = useMemo(() => toChainAssetSlug(networkKind, chainId, assetSlug), [assetSlug, chainId]);
-      const isFavoriteToken = useMemo(() => isFavorite(chainAssetSlug), [chainAssetSlug, isFavorite]);
+      const chainAssetSlug = toChainAssetSlug(networkKind, chainId, assetSlug);
+
+      const { toggleFavoriteToken, isFavorite } = useFavoriteTokens();
+      const isFavoriteToken = isFavorite(chainAssetSlug);
+
+      const handleFavoriteClick = useCallback<MouseEventHandler<HTMLButtonElement>>(
+        e => {
+          e.preventDefault();
+          e.stopPropagation();
+
+          toggleFavoriteToken(chainAssetSlug);
+        },
+        [chainAssetSlug, toggleFavoriteToken]
+      );
 
       if (showOnlyFavorites && !isFavoriteToken) {
         return null;
@@ -443,19 +454,11 @@ const DefaultListItemLayoutHOC = <T extends TempleChainKind>(
               {showFavoritesMark && (
                 <button
                   type="button"
-                  className="ml-2"
-                  onClick={e => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    if (isFavorite(chainAssetSlug)) {
-                      void removeFavoriteToken(chainAssetSlug);
-                    } else {
-                      void addFavoriteToken(chainAssetSlug);
-                    }
-                  }}
-                  aria-label={isFavorite(chainAssetSlug) ? 'Remove from favorites' : 'Add to favorites'}
+                  className="px-2 py-2.5 h-full z-10"
+                  onClick={handleFavoriteClick}
+                  aria-label={isFavoriteToken ? 'Remove from favorites' : 'Add to favorites'}
                 >
-                  {isFavorite(chainAssetSlug) ? <StarFillIcon /> : <StarIcon />}
+                  {isFavoriteToken ? <StarFillIcon /> : <StarIcon />}
                 </button>
               )}
             </>

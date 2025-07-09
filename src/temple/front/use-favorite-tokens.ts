@@ -1,38 +1,26 @@
 import { useCallback } from 'react';
 
-import { useTempleClient } from 'lib/temple/front/client';
-import { useSettings } from 'temple/front/ready';
+import { useDispatch } from 'react-redux';
+
+import { toggleFavoriteTokenAction } from 'app/store/settings/actions';
+import { useFavoriteTokensSelector } from 'app/store/settings/selectors';
 
 export function useFavoriteTokens() {
-  const { updateSettings } = useTempleClient();
-  const { favoriteTokens = [] } = useSettings();
+  const dispatch = useDispatch();
+  const favoriteTokens = useFavoriteTokensSelector();
 
-  const addFavoriteToken = useCallback(
-    async (tokenId: string) => {
-      if (!favoriteTokens.includes(tokenId)) {
-        await updateSettings({
-          favoriteTokens: [tokenId, ...favoriteTokens]
-        });
-      }
+  const toggleFavoriteToken = useCallback(
+    (tokenId: string) => {
+      dispatch(toggleFavoriteTokenAction(tokenId));
     },
-    [favoriteTokens, updateSettings]
-  );
-
-  const removeFavoriteToken = useCallback(
-    async (tokenId: string) => {
-      await updateSettings({
-        favoriteTokens: favoriteTokens.filter(id => id !== tokenId)
-      });
-    },
-    [favoriteTokens, updateSettings]
+    [dispatch]
   );
 
   const isFavorite = useCallback((tokenId: string) => favoriteTokens.includes(tokenId), [favoriteTokens]);
 
   return {
     favoriteTokens,
-    addFavoriteToken,
-    removeFavoriteToken,
+    toggleFavoriteToken,
     isFavorite
   };
 }

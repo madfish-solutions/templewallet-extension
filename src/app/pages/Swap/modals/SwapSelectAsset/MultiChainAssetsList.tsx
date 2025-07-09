@@ -14,7 +14,7 @@ import { useGetTokenOrGasMetadata } from 'lib/metadata';
 import { useMemoWithCompare } from 'lib/ui/hooks';
 import { TokenListItemElement } from 'lib/ui/tokens-list';
 import { useAllEvmChains, useAllTezosChains, useEnabledEvmChains, useEnabledTezosChains } from 'temple/front';
-import { useSettings } from 'temple/front/ready';
+import { useFavoriteTokens } from 'temple/front/use-favorite-tokens';
 import { TempleChainKind } from 'temple/types';
 
 interface Props {
@@ -31,7 +31,7 @@ export const MultiChainAssetsList = memo<Props>(
     const tezTokensSlugs = useEnabledTezosAccountTokenSlugs(accountTezAddress);
     const evmTokensSlugs = useEnabledEvmAccountTokenSlugs(accountEvmAddress);
 
-    const { favoriteTokens = [] } = useSettings();
+    const { favoriteTokens = [] } = useFavoriteTokens();
     const enabledTezChains = useEnabledTezosChains();
     const enabledEvmChains = useEnabledEvmChains();
 
@@ -46,7 +46,7 @@ export const MultiChainAssetsList = memo<Props>(
 
     const enabledAssetsSlugs = useMemo(() => {
       if (showOnlyFavorites) {
-        return favoriteTokens;
+        return [...favoriteTokens];
       }
       return enabledTezChains
         .map(chain => toChainAssetSlug(TempleChainKind.Tezos, chain.chainId, TEZ_TOKEN_SLUG))

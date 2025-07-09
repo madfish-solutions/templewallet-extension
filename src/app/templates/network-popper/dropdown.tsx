@@ -13,7 +13,7 @@ import {
   useEnabledEvmChains,
   useEnabledTezosChains
 } from 'temple/front';
-import { useSettings } from 'temple/front/ready';
+import { useFavoriteTokens } from 'temple/front/use-favorite-tokens';
 import { TempleChainKind } from 'temple/types';
 
 import { SearchBarField } from '../SearchField';
@@ -38,7 +38,7 @@ export const NetworkDropdown = memo<NetworkDropdownProps>(
     const accountTezAddress = useAccountAddressForTezos();
     const accountEvmAddress = useAccountAddressForEvm();
 
-    const { favoriteTokens = [] } = useSettings();
+    const { favoriteTokens = [] } = useFavoriteTokens();
     const tezosChains = useEnabledTezosChains();
     const evmChainsUnfiltered = useEnabledEvmChains();
 

@@ -10,7 +10,8 @@ import {
   setOnRampAssetAction,
   setPendingReactivateAdsAction,
   setReferralLinksEnabledAction,
-  setIsTestnetModeEnabledAction
+  setIsTestnetModeEnabledAction,
+  toggleFavoriteTokenAction
 } from './actions';
 import { SettingsState, settingsInitialState } from './state';
 
@@ -41,6 +42,15 @@ const settingsReducer = createReducer<SettingsState>(settingsInitialState, build
 
   builder.addCase(setIsTestnetModeEnabledAction, (state, { payload }) => {
     state.isTestnetModeEnabled = payload;
+  });
+  builder.addCase(toggleFavoriteTokenAction, (state, { payload: tokenSlug }) => {
+    const newFavoriteTokens = new Set(state.favoriteTokens);
+    if (newFavoriteTokens.has(tokenSlug)) {
+      newFavoriteTokens.delete(tokenSlug);
+    } else {
+      newFavoriteTokens.add(tokenSlug);
+    }
+    state.favoriteTokens = Array.from(newFavoriteTokens);
   });
 });
 
