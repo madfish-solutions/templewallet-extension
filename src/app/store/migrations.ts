@@ -130,45 +130,35 @@ export const MIGRATIONS: MigrationManifest = {
 
     const state = persistedState as TypedPersistedRootState;
 
-    const onRampMigrationNeeded = state.settings.isOnRampPossibility;
     const showInfoRaw = localStorage.getItem('collectibles-grid:show-items-details');
     const blurRaw = localStorage.getItem('collectibles:adult-blur');
-    const localStorageMigrationNeeded = showInfoRaw !== null || blurRaw !== null;
-
-    if (!onRampMigrationNeeded && !localStorageMigrationNeeded) {
-      return state;
-    }
 
     const newState = { ...state };
 
-    if (onRampMigrationNeeded) {
+    if (state.settings.isOnRampPossibility) {
       newState.settings = {
         ...newState.settings,
         onRampAsset: TEZOS_CHAIN_ASSET_SLUG
       };
     }
 
-    if (localStorageMigrationNeeded) {
-      const showInfo =
-        showInfoRaw !== null ? showInfoRaw === 'true' : newState.assetsFilterOptions.collectiblesListOptions.showInfo;
+    const showInfo = showInfoRaw === 'true';
+    const blur = blurRaw !== 'false';
 
-      const blur = blurRaw !== null ? blurRaw === 'true' : newState.assetsFilterOptions.collectiblesListOptions.blur;
-
-      newState.assetsFilterOptions = {
-        ...newState.assetsFilterOptions,
-        collectiblesListOptions: {
-          ...newState.assetsFilterOptions.collectiblesListOptions,
-          showInfo,
-          blur
-        }
-      };
-
-      if (showInfoRaw !== null) {
-        localStorage.removeItem('collectibles-grid:show-items-details');
+    newState.assetsFilterOptions = {
+      ...newState?.assetsFilterOptions,
+      collectiblesListOptions: {
+        ...newState?.assetsFilterOptions?.collectiblesListOptions,
+        showInfo,
+        blur
       }
-      if (blurRaw !== null) {
-        localStorage.removeItem('collectibles:adult-blur');
-      }
+    };
+
+    if (showInfoRaw !== null) {
+      localStorage.removeItem('collectibles-grid:show-items-details');
+    }
+    if (blurRaw !== null) {
+      localStorage.removeItem('collectibles:adult-blur');
     }
 
     return newState;

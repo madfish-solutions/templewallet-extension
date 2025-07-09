@@ -203,43 +203,38 @@ export const MIGRATIONS = [
 
     // Taking a chance to migrate the list of manually-added user's Tezos networks (with chain IDs).
     // (!) Internet connection would have to be available during this.
-    if (settings?.customNetworks?.length) {
-      // Migrate customNetworks to customTezosNetworks
-      const legacyNetworks: LegacyStoredTezosNetwork[] = [...settings.customNetworks];
-      try {
-        const migratedNetworks = (
-          await Promise.all(
-            legacyNetworks.map(network =>
-              loadTezosChainId(network.rpcBaseURL, 30_000)
-                .then<StoredTezosNetwork>(chainId => {
-                  const { type, ...rest } = network;
-                  return { ...rest, chain: TempleChainKind.Tezos, chainId };
-                })
-                .catch(err => {
-                  console.error(err);
-                  return null;
-                })
-            )
-          )
-        ).filter(isTruthy);
+    if (settings && settings.customNetworks?.length) {
+      const networks = await Promise.all(
+        settings.customNetworks.map((network: LegacyStoredTezosNetwork) =>
+          loadTezosChainId(network.rpcBaseURL, 30_000)
+            .then<StoredTezosNetwork | null>(chainId => {
+              delete network.type;
+              return { ...network, chain: TempleChainKind.Tezos, chainId };
+            })
+            .catch(err => {
+              console.error(err);
+              return null;
+            })
+        )
+      );
 
-        if (migratedNetworks.length) {
-          await putToStorage<StoredTezosNetwork[]>(CUSTOM_TEZOS_NETWORKS_STORAGE_KEY, migratedNetworks);
-          settings.customTezosNetworks = migratedNetworks;
-        } else {
-          settings.customTezosNetworks = [];
-        }
-      } catch (err) {
+      const migratedNetworks = networks.filter(isTruthy);
+
+      if (migratedNetworks.length) {
+        await putToStorage<StoredTezosNetwork[]>(CUSTOM_TEZOS_NETWORKS_STORAGE_KEY, migratedNetworks);
+        settings.customTezosNetworks = migratedNetworks;
+      }
+    }
+
+    if (settings) {
+      if (!settings.customTezosNetworks) {
         settings.customTezosNetworks = [];
       }
       delete settings.customNetworks;
-
-      await encryptAndSaveMany([[settingsStrgKey, settings]], passKey);
-    } else if (settings) {
-      settings.customTezosNetworks = [];
-      delete settings.customNetworks;
-      await encryptAndSaveMany([[settingsStrgKey, settings]], passKey);
+      toEncryptAndSave.push([settingsStrgKey, settings]);
     }
+
+    await encryptAndSaveMany(toEncryptAndSave, passKey);
 
     /* CLEAN-UP */
 
