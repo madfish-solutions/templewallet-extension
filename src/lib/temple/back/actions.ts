@@ -86,7 +86,9 @@ import {
   focusLocationChanged,
   popupClosed,
   popupOpened,
-  tabOriginUpdated
+  tabOriginUpdated,
+  sidebarOpened,
+  sidebarClosed
 } from './store';
 import { Vault } from './vault';
 
@@ -924,6 +926,14 @@ export function setWindowPopupOpened(windowId: number | null, opened: boolean) {
     popupOpened(windowId);
   } else {
     popupClosed(windowId);
+  }
+}
+
+export function setWindowSidebarOpened(windowId: number | null, opened: boolean) {
+  if (opened) {
+    sidebarOpened(windowId);
+  } else {
+    sidebarClosed(windowId);
   }
 }
 

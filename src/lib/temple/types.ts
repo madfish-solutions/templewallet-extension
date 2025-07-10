@@ -38,6 +38,7 @@ export interface TempleState {
   settings: TempleSettings | null;
   focusLocation: FocusLocation | null;
   windowsWithPopups: (number | null)[];
+  windowsWithSidebars: (number | null)[];
   tabsOrigins: Partial<Record<number, string>>;
 }
 
@@ -468,7 +469,9 @@ export enum TempleMessageType {
   ResetExtensionRequest = 'RESET_EXTENSION_REQUEST',
   ResetExtensionResponse = 'RESET_EXTENSION_RESPONSE',
   SetWindowPopupStateRequest = 'SET_WINDOW_POPUP_STATE_REQUEST',
-  SetWindowPopupStateResponse = 'SET_WINDOW_POPUP_STATE_RESPONSE'
+  SetWindowPopupStateResponse = 'SET_WINDOW_POPUP_STATE_RESPONSE',
+  SetWindowSidebarStateRequest = 'SET_WINDOW_SIDEBAR_STATE_REQUEST',
+  SetWindowSidebarStateResponse = 'SET_WINDOW_SIDEBAR_STATE_RESPONSE'
 }
 
 export type TempleNotification =
@@ -522,7 +525,8 @@ export type TempleRequest =
   | TempleSendPageEventRequest
   | TempleSendEvmTransactionRequest
   | TempleResetExtensionRequest
-  | TempleSetWindowPopupStateRequest;
+  | TempleSetWindowPopupStateRequest
+  | TempleSetWindowSidebarStateRequest;
 
 export type TempleResponse =
   | TempleGetStateResponse
@@ -565,7 +569,8 @@ export type TempleResponse =
   | TempleSendPageEventResponse
   | TempleSendEvmTransactionResponse
   | TempleResetExtensionResponse
-  | TempleSetWindowPopupStateResponse;
+  | TempleSetWindowPopupStateResponse
+  | TempleSetWindowSidebarStateResponse;
 
 export interface TempleMessageBase {
   type: TempleMessageType;
@@ -1051,6 +1056,16 @@ interface TempleSetWindowPopupStateRequest extends TempleMessageBase {
 
 interface TempleSetWindowPopupStateResponse extends TempleMessageBase {
   type: TempleMessageType.SetWindowPopupStateResponse;
+}
+
+interface TempleSetWindowSidebarStateRequest extends TempleMessageBase {
+  type: TempleMessageType.SetWindowSidebarStateRequest;
+  windowId: number | null;
+  opened: boolean;
+}
+
+interface TempleSetWindowSidebarStateResponse extends TempleMessageBase {
+  type: TempleMessageType.SetWindowSidebarStateResponse;
 }
 
 export type EvmTransactionRequestWithSender = RpcTransactionRequest & { from: HexString };

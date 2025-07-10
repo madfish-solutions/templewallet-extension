@@ -13,6 +13,8 @@ import {
   popupClosed,
   popupOpened,
   settingsUpdated,
+  sidebarClosed,
+  sidebarOpened,
   store,
   tabOriginUpdated,
   unlocked
@@ -94,6 +96,18 @@ describe('Store tests', () => {
     popupClosed(3);
     popupClosed(1);
     expect(store.getState().windowsWithPopups).toEqual([2]);
+  });
+  it('Sidebar opened event', () => {
+    store.getState().windowsWithSidebars = [1, 2];
+    sidebarOpened(3);
+    sidebarOpened(1);
+    expect(store.getState().windowsWithSidebars).toEqual([1, 2, 3]);
+  });
+  it('Sidebar closed event', () => {
+    store.getState().windowsWithSidebars = [1, 2, 3];
+    sidebarClosed(2);
+    sidebarClosed(4);
+    expect(store.getState().windowsWithSidebars).toEqual([1, 3]);
   });
   it('Tab origin updated event', () => {
     store.getState().tabsOrigins[1] = 'https://example.com';

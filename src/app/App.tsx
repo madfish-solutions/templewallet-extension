@@ -1,4 +1,4 @@
-import React, { PropsWithChildren, ComponentProps, FC, Suspense } from 'react';
+import React, { PropsWithChildren, ComponentProps, FC, Suspense, useMemo } from 'react';
 
 import 'lib/local-storage/migrations';
 import 'lib/ledger/proxy/foreground';
@@ -10,11 +10,11 @@ import BootAnimation from 'app/a11y/BootAnimation';
 import DisableOutlinesForClick from 'app/a11y/DisableOutlinesForClick';
 import RootSuspenseFallback from 'app/a11y/RootSuspenseFallback';
 import ConfirmPage from 'app/ConfirmPage';
-import { AppEnvProvider } from 'app/env';
+import { AppEnvProvider, WindowType } from 'app/env';
 import ErrorBoundary from 'app/ErrorBoundary';
 import Dialogs from 'app/layouts/Dialogs';
 import { PageRouter } from 'app/PageRouter';
-import { TempleProvider } from 'lib/temple/front';
+import { TempleProvider, useTempleClient } from 'lib/temple/front';
 import { DialogsProvider } from 'lib/ui/dialog';
 import * as Woozie from 'lib/woozie';
 
@@ -43,17 +43,11 @@ export const App: FC<Props> = ({ env }) => (
           <AwaitFonts>
             <BootAnimation>
               {env.confirmWindow ? (
-                <>
-                  <ConfirmWindowRootHooks />
-                  <ConfirmPage />
-                  <ToasterProvider />
-                </>
+                <ConfirmContent />
+              ) : env.windowType === WindowType.Sidebar ? (
+                <SidebarContent />
               ) : (
-                <>
-                  <AppRootHooks />
-                  <PageRouter />
-                  <ToasterProvider />
-                </>
+                <MainAppContent />
               )}
             </BootAnimation>
           </AwaitFonts>
@@ -61,6 +55,35 @@ export const App: FC<Props> = ({ env }) => (
       </Suspense>
     </DialogsProvider>
   </ErrorBoundary>
+);
+
+const SidebarContent = () => {
+  const { dAppQueueCounters } = useTempleClient();
+  const location = Woozie.useLocation();
+
+  const isConfirmation = useMemo(() => {
+    const searchParams = new URLSearchParams(location.search);
+
+    return dAppQueueCounters.length && searchParams.has('id') && searchParams.size === 1 && location.pathname === '/';
+  }, [dAppQueueCounters.length, location.pathname, location.search]);
+
+  return isConfirmation ? <ConfirmContent /> : <MainAppContent />;
+};
+
+const ConfirmContent = () => (
+  <>
+    <ConfirmWindowRootHooks />
+    <ConfirmPage />
+    <ToasterProvider />
+  </>
+);
+
+const MainAppContent = () => (
+  <>
+    <AppRootHooks />
+    <PageRouter />
+    <ToasterProvider />
+  </>
 );
 
 const AppProvider: FC<Props> = ({ children, env }) => (
