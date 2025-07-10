@@ -13,14 +13,13 @@ import { V2IntroductionModal } from 'app/templates/AppHeader/V2IntroductionModal
 import Popper from 'lib/ui/Popper';
 import { useAccount } from 'temple/front';
 
-import { APP_VERSION } from '../../../lib/env';
 import { AccountsModal } from '../AccountsModal';
 
 import MenuDropdown from './MenuDropdown';
 
 export const AppHeader = memo(() => {
   const account = useAccount();
-  console.log(APP_VERSION);
+
   const {
     value: accountsModalIsOpen,
     setTrue: openAccountsModal,
