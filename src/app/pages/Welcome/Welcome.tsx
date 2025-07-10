@@ -11,6 +11,7 @@ import { ReactComponent as ImportedIcon } from 'app/icons/base/imported.svg';
 import { ReactComponent as PlusIcon } from 'app/icons/base/plus.svg';
 import GoogleIconSrc from 'app/icons/google-logo.png';
 import { PlanetsBgPageLayout } from 'app/layouts/planets-bg-page-layout';
+import { useShouldShowV2IntroModal } from 'app/templates/AppHeader/V2IntroductionModal/hooks/use-should-show-v2-intro-modal';
 import { CreatePasswordForm } from 'app/templates/CreatePasswordForm';
 import { GoogleBackupStatusModalContent } from 'app/templates/google-backup-status-modal-content';
 import { ImportSeedForm } from 'app/templates/ImportSeedForm';
@@ -90,6 +91,8 @@ const Welcome = memo(() => {
   const { setGoogleAuthToken, setSuppressReady } = useTempleClient();
   const [, setInitToast] = useInitToastMessage();
   const { historyPosition } = useLocation();
+
+  useShouldShowV2IntroModal(false);
 
   const [walletCreationState, setWalletCreationState] = useState<WalletCreationState>({
     stage: WalletCreationStage.NotStarted

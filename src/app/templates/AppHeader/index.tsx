@@ -9,16 +9,18 @@ import { Button } from 'app/atoms/Button';
 import { useSearchParamsBoolean } from 'app/hooks/use-search-params-boolean';
 import { ReactComponent as BurgerIcon } from 'app/icons/base/menu.svg';
 import { HomeSelectors } from 'app/pages/Home/selectors';
+import { V2IntroductionModal } from 'app/templates/AppHeader/V2IntroductionModal';
 import Popper from 'lib/ui/Popper';
 import { useAccount } from 'temple/front';
 
+import { APP_VERSION } from '../../../lib/env';
 import { AccountsModal } from '../AccountsModal';
 
 import MenuDropdown from './MenuDropdown';
 
 export const AppHeader = memo(() => {
   const account = useAccount();
-
+  console.log(APP_VERSION);
   const {
     value: accountsModalIsOpen,
     setTrue: openAccountsModal,
@@ -57,6 +59,8 @@ export const AppHeader = memo(() => {
           </Button>
         )}
       </Popper>
+
+      <V2IntroductionModal />
     </div>
   );
 });
