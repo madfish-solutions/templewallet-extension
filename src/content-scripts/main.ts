@@ -73,7 +73,7 @@ if (window.frameElement === null) {
     if (oldHref === newHref) return;
 
     browser.runtime.sendMessage({
-      type: ContentScriptType.ExternalPageLoaded,
+      type: ContentScriptType.ExternalPageLocation,
       url: newHref
     });
     oldHref = newHref;

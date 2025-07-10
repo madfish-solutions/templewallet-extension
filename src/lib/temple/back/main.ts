@@ -397,7 +397,7 @@ browser.runtime.onMessage.addListener(async (msg, sender) => {
 
         break;
 
-      case ContentScriptType.ExternalPageLoaded:
+      case ContentScriptType.ExternalPageLocation:
         const senderTabId = sender.tab?.id;
         const senderTabUrl = sender.tab?.url;
         if (senderTabId !== undefined && senderTabId !== browser.tabs.TAB_ID_NONE && senderTabUrl) {

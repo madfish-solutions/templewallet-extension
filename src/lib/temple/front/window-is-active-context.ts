@@ -28,7 +28,7 @@ export const [WindowIsActiveProvider, useWindowIsActive] = constate(() => {
     if (!browser.extension.getViews({ type: 'popup', windowId: thisWindowLocation.windowId }).length) {
       setWindowPopupState(thisWindowLocation.windowId, false);
     }
-  }, [thisWindowLocation, setWindowPopupState, setWindowSidebarState]);
+  }, [thisWindowLocation, setWindowPopupState]);
 
   useEffect(() => {
     if (!thisWindowLocation) return;

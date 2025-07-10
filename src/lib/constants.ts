@@ -7,7 +7,7 @@ import {
 
 export enum ContentScriptType {
   ExternalLinksActivity = 'ExternalLinksActivity',
-  ExternalPageLoaded = 'ExternalPageLoaded',
+  ExternalPageLocation = 'ExternalPageLocation',
   ExternalAdsActivity = 'ExternalAdsActivity',
   UpdateAdsRules = 'UpdateAdsRules',
   FetchReferralsRules = 'FetchReferralsRules',
