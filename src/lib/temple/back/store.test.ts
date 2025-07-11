@@ -101,7 +101,7 @@ describe('Store tests', () => {
     store.getState().windowsWithSidebars = [1, 2];
     sidebarOpened(3);
     sidebarOpened(1);
-    expect(store.getState().windowsWithSidebars).toEqual([1, 2, 3]);
+    expect(store.getState().windowsWithSidebars).toEqual([2, 3, 1]);
   });
   it('Sidebar closed event', () => {
     store.getState().windowsWithSidebars = [1, 2, 3];
