@@ -3039,8 +3039,8 @@
   "resetAll": {
     "message": "Reset All"
   },
-  "hideZeroBalance": {
-    "message": "Hide 0 balance"
+  "hideSmallBalance": {
+    "message": "Hide small balance"
   },
   "groupByNetwork": {
     "message": "Group by network"

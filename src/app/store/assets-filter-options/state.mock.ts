@@ -5,7 +5,7 @@ import { AssetsFilterOptionsStateInterface } from './state';
 export const mockAssetsFilterOptionsState = mockPersistedState<AssetsFilterOptionsStateInterface>({
   filterChain: null,
   tokensListOptions: {
-    hideZeroBalance: false,
+    hideSmallBalance: false,
     groupByNetwork: false
   },
   collectiblesListOptions: {

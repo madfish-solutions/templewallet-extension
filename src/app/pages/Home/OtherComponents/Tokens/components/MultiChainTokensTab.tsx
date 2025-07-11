@@ -53,12 +53,12 @@ export const MultiChainTokensTab = memo<Props>(props => {
 
 const TabContent: FC = () => {
   const { accountTezAddress, accountEvmAddress } = useContext(MultiChainTokensTabContext);
-  const { hideZeroBalance, groupByNetwork } = useTokensListOptionsSelector();
+  const { hideSmallBalance, groupByNetwork } = useTokensListOptionsSelector();
 
   const { enabledChainsSlugsSorted, enabledChainsSlugsSortedGrouped } = useAccountTokensForListing(
     accountTezAddress,
     accountEvmAddress,
-    hideZeroBalance,
+    hideSmallBalance,
     groupByNetwork
   );
 
@@ -74,10 +74,10 @@ const TabContent: FC = () => {
 
 const TabContentWithManageActive: FC = () => {
   const { accountTezAddress, accountEvmAddress } = useContext(MultiChainTokensTabContext);
-  const { hideZeroBalance, groupByNetwork } = useTokensListOptionsSelector();
+  const { hideSmallBalance, groupByNetwork } = useTokensListOptionsSelector();
 
   const { enabledChainsSlugsSorted, enabledChainsSlugsSortedGrouped, tezTokens, evmTokens, tokensSortPredicate } =
-    useAccountTokensForListing(accountTezAddress, accountEvmAddress, hideZeroBalance, groupByNetwork);
+    useAccountTokensForListing(accountTezAddress, accountEvmAddress, hideSmallBalance, groupByNetwork);
 
   const tokensChainsSlugs = useMemo(
     () =>

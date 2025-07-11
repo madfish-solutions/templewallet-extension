@@ -47,11 +47,11 @@ export const EvmTokensTab = memo<Props>(props => {
 
 const TabContent: FC = () => {
   const { publicKeyHash } = useContext(EvmTokensTabContext);
-  const { hideZeroBalance, groupByNetwork } = useTokensListOptionsSelector();
+  const { hideSmallBalance, groupByNetwork } = useTokensListOptionsSelector();
 
   const { enabledChainSlugsSorted, enabledChainSlugsSortedGrouped } = useEvmAccountTokensForListing(
     publicKeyHash,
-    hideZeroBalance,
+    hideSmallBalance,
     groupByNetwork
   );
 
@@ -67,10 +67,10 @@ const TabContent: FC = () => {
 
 const TabContentWithManageActive: FC = () => {
   const { publicKeyHash } = useContext(EvmTokensTabContext);
-  const { hideZeroBalance, groupByNetwork } = useTokensListOptionsSelector();
+  const { hideSmallBalance, groupByNetwork } = useTokensListOptionsSelector();
 
   const { enabledChainSlugsSorted, enabledChainSlugsSortedGrouped, tokens, tokensSortPredicate } =
-    useEvmAccountTokensForListing(publicKeyHash, hideZeroBalance, groupByNetwork);
+    useEvmAccountTokensForListing(publicKeyHash, hideSmallBalance, groupByNetwork);
 
   const allChainsSlugs = useMemo(
     () =>

@@ -139,5 +139,23 @@ export const MIGRATIONS: MigrationManifest = {
     };
 
     return newState;
+  },
+  '7': (persistedState: PersistedState) => {
+    if (!persistedState) return persistedState;
+
+    const typedPersistedState = persistedState as TypedPersistedRootState;
+
+    const newState: TypedPersistedRootState = {
+      ...typedPersistedState,
+      assetsFilterOptions: {
+        ...typedPersistedState.assetsFilterOptions,
+        tokensListOptions: {
+          ...typedPersistedState.assetsFilterOptions.tokensListOptions,
+          hideSmallBalance: typedPersistedState.assetsFilterOptions.tokensListOptions.hideZeroBalance ?? false
+        }
+      }
+    };
+
+    return newState;
   }
 };

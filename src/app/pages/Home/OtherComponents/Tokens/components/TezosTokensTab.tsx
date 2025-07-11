@@ -48,11 +48,11 @@ export const TezosTokensTab = memo<Props>(props => {
 
 const TabContent: FC = () => {
   const { publicKeyHash } = useContext(TezosTokensTabContext);
-  const { hideZeroBalance, groupByNetwork } = useTokensListOptionsSelector();
+  const { hideSmallBalance, groupByNetwork } = useTokensListOptionsSelector();
 
   const { enabledChainSlugsSorted, enabledChainSlugsSortedGrouped } = useTezosAccountTokensForListing(
     publicKeyHash,
-    hideZeroBalance,
+    hideSmallBalance,
     groupByNetwork
   );
 
@@ -68,10 +68,10 @@ const TabContent: FC = () => {
 
 const TabContentWithManageActive: FC = () => {
   const { publicKeyHash } = useContext(TezosTokensTabContext);
-  const { hideZeroBalance, groupByNetwork } = useTokensListOptionsSelector();
+  const { hideSmallBalance, groupByNetwork } = useTokensListOptionsSelector();
 
   const { enabledChainSlugsSorted, enabledChainSlugsSortedGrouped, tokens, tokensSortPredicate } =
-    useTezosAccountTokensForListing(publicKeyHash, hideZeroBalance, groupByNetwork);
+    useTezosAccountTokensForListing(publicKeyHash, hideSmallBalance, groupByNetwork);
 
   const allTezosTokensSlugs = useMemo(
     () =>
