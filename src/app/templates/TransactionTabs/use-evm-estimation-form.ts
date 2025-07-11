@@ -60,7 +60,13 @@ export const useEvmEstimationForm = (
   }, [basicParams, fullEstimationData]);
 
   const form = useForm<EvmTxParamsFormData>({ mode: 'onChange', defaultValues });
-  const { watch, setValue, formState } = form;
+  const { watch, setValue, formState, reset } = form;
+
+  useEffect(() => {
+    if (!formState.isDirty) {
+      reset(defaultValues);
+    }
+  }, [defaultValues, reset, formState.isDirty]);
 
   const gasPriceValue = watch('gasPrice');
 

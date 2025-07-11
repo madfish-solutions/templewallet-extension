@@ -170,12 +170,12 @@ function useChains<T extends OneOfChains>(
 
   const enabledChains = useMemo(
     () =>
-      Object.values(allChains).filter(
-        chain => !chain.disabled && (testnetModeEnabled ? chain.testnet : !chain.testnet)
-      ),
+      Object.values(allChains).filter(chain => {
+        const isTestnet = chain.testnet !== false;
+        return !chain.disabled && (testnetModeEnabled ? isTestnet : !isTestnet);
+      }),
     [allChains, testnetModeEnabled]
   );
-
   return { allChains, enabledChains };
 }
 
