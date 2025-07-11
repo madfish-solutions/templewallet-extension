@@ -190,7 +190,8 @@ function useEvmAssetRawBalance(
   address: HexString,
   network: EvmNetworkEssentials,
   assetStandard?: EvmAssetStandard,
-  forceFirstRefreshOnChain = false
+  forceFirstRefreshOnChain = false,
+  forceOnChainRefresh = false
 ): {
   value: string | undefined;
   isSyncing: boolean;
@@ -214,8 +215,8 @@ function useEvmAssetRawBalance(
       return true;
     }
 
-    return testnetModeEnabled || loadingFromApiError;
-  }, [address, chainId, currentAccountAddress, loadingFromApiError, testnetModeEnabled]);
+    return testnetModeEnabled || loadingFromApiError || forceOnChainRefresh;
+  }, [address, chainId, currentAccountAddress, forceOnChainRefresh, loadingFromApiError, testnetModeEnabled]);
 
   const evmTransfersListener = useMemo(
     () =>
@@ -236,7 +237,7 @@ function useEvmAssetRawBalance(
 
   useInterval(
     () => {
-      if (usingOnchainRequests || (forceFirstRefreshOnChain && refreshOnChainDoneRef.current)) {
+      if (usingOnchainRequests || (forceFirstRefreshOnChain && !refreshOnChainDoneRef.current)) {
         refreshBalanceOnChain();
       }
     },
@@ -261,7 +262,8 @@ export function useEvmAssetBalance(
   assetSlug: string,
   address: HexString,
   network: EvmNetworkEssentials,
-  forceFirstRefreshOnChain = false
+  forceFirstRefreshOnChain = false,
+  forceOnChainRefresh = false
 ) {
   const metadata = useEvmGenericAssetMetadata(assetSlug, network.chainId);
 
@@ -270,7 +272,14 @@ export function useEvmAssetBalance(
     isSyncing,
     error,
     refresh
-  } = useEvmAssetRawBalance(assetSlug, address, network, metadata?.standard, forceFirstRefreshOnChain);
+  } = useEvmAssetRawBalance(
+    assetSlug,
+    address,
+    network,
+    metadata?.standard,
+    forceFirstRefreshOnChain,
+    forceOnChainRefresh
+  );
 
   const value = useMemo(
     () => (rawValue && metadata ? atomsToTokens(new BigNumber(rawValue), metadata.decimals ?? 0) : undefined),

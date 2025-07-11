@@ -1,4 +1,4 @@
-import React, { FC, memo, useCallback, useEffect, useMemo, useRef } from 'react';
+import React, { FC, memo, useCallback, useMemo, useRef } from 'react';
 
 import { isEqual, omit } from 'lodash';
 
@@ -41,10 +41,6 @@ export const AssetsFilterOptions = memo(() => {
   );
 
   const containerRef = useRef(null);
-
-  useEffect(() => {
-    if (filterChain) dispatch(setTokensGroupByNetworkFilterOption(false));
-  }, [filterChain]);
 
   const handleResetAllClick = useCallback(() => dispatch(resetTokensFilterOptions()), []);
 
