@@ -36,7 +36,8 @@ export const ImageStacked: FC<ImageStackedProps> = ({
         ? {
             // (i) Cannot set `display: isLoading ? 'none' | 'contents' : undefined`; - `onLoad` won't fire
             width: size,
-            height: size
+            height: size,
+            position: 'absolute'
           }
         : {
             width: size,
@@ -55,7 +56,7 @@ export const ImageStacked: FC<ImageStackedProps> = ({
 
   useEffect(() => {
     if (isStackFailed && onStackFailed) onStackFailed();
-  }, [isStackFailed, onStackFailed]);
+  }, [isStackFailed]);
 
   if (pauseRender) return null;
 
@@ -63,11 +64,15 @@ export const ImageStacked: FC<ImageStackedProps> = ({
 
   return (
     <>
-      {isLoading ? (
-        loader ?? null
-      ) : (
-        <img {...imgProps} src={src} style={styleMemo} onLoad={onLoadLocal} onError={onFail} />
-      )}
+      {isLoading ? loader ?? null : null}
+      <img
+        {...imgProps}
+        alt={isLoading ? '' : imgProps.alt}
+        src={src}
+        style={styleMemo}
+        onLoad={onLoadLocal}
+        onError={onFail}
+      />
     </>
   );
 };

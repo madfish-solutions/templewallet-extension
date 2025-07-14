@@ -1,10 +1,11 @@
 import { useEffect } from 'react';
 
 import { useUserIdSelector } from 'app/store/settings/selectors';
-import { ADS_VIEWER_ADDRESS_STORAGE_KEY, ANALYTICS_USER_ID_STORAGE_KEY } from 'lib/constants';
+import { ADS_VIEWER_DATA_STORAGE_KEY, ANALYTICS_USER_ID_STORAGE_KEY } from 'lib/constants';
 import { usePassiveStorage } from 'lib/temple/front/storage';
+import { AdsViewerData } from 'temple/types';
 
-import { useAdsViewerPkh } from './use-ads-viewer-pkh';
+import { useAdsViewerPkh } from './use-ads-viewer-addresses';
 
 export const useUserIdAccountPkhSync = () => {
   // User ID
@@ -20,11 +21,18 @@ export const useUserIdAccountPkhSync = () => {
 
   // ADs viewer address
 
-  const adsViewerAddress = useAdsViewerPkh();
+  const { tezosAddress, evmAddress } = useAdsViewerPkh();
 
-  const [adsViewerAddressStored, setAdsViewerAddress] = usePassiveStorage<string>(ADS_VIEWER_ADDRESS_STORAGE_KEY);
+  const [adsViewerData, setAdsViewerData] = usePassiveStorage<AdsViewerData>(ADS_VIEWER_DATA_STORAGE_KEY);
 
   useEffect(() => {
-    if (adsViewerAddressStored !== adsViewerAddress) setAdsViewerAddress(adsViewerAddress);
-  }, [adsViewerAddressStored, adsViewerAddress, setAdsViewerAddress]);
+    const { tezosAddress: storedTezosAddress, evmAddress: storedEvmAddress } = adsViewerData ?? {};
+
+    if (tezosAddress !== storedTezosAddress || evmAddress !== storedEvmAddress) {
+      setAdsViewerData({
+        tezosAddress,
+        evmAddress
+      });
+    }
+  }, [adsViewerData, evmAddress, setAdsViewerData, tezosAddress]);
 };

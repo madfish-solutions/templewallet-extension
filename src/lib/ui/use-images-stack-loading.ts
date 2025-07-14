@@ -1,54 +1,63 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 
-import { isEqual } from 'lodash';
+import { useDidUpdate } from 'lib/ui/hooks';
 
-const usePrevious = <T>(value: T): T | undefined => {
-  const ref = useRef<T>();
-  useEffect(() => {
-    ref.current = value;
-  }, [value]);
-  return ref.current;
-};
+// Utility to shallow-compare arrays
+const arraysEqual = (a: string[], b: string[]) => a.length === b.length && a.every((val, i) => val === b[i]);
 
 /**
  * @arg sources // Memoize
  */
 export const useImagesStackLoading = (sources: string[]) => {
-  const [index, setIndex] = useState(() => (sources.length > 0 ? 0 : -1));
-  const [isLoading, setIsLoading] = useState(() => sources.length > 0);
-  const [isStackFailed, setIsStackFailed] = useState(() => sources.length === 0);
+  const emptyStack = sources.length < 1;
 
-  const prevSources = usePrevious(sources);
+  const prevSourcesRef = useRef<string[]>([]);
 
-  useEffect(() => {
-    if (!isEqual(prevSources, sources)) {
-      const hasSources = sources.length > 0;
-      setIndex(hasSources ? 0 : -1);
-      setIsLoading(false);
-      setIsStackFailed(!hasSources);
-    }
-  }, [sources, prevSources]);
+  const [isLoading, setIsLoading] = useState(!emptyStack);
+  const [isStackFailed, setIsStackFailed] = useState(emptyStack);
 
-  const onSuccess = useCallback(() => {
-    setIsLoading(false);
-  }, []);
+  useDidUpdate(() => {
+    const sameSources = arraysEqual(prevSourcesRef.current, sources);
 
-  const onFail = useCallback(() => {
-    setIndex(prevIndex => {
-      const nextIndex = prevIndex + 1;
-      if (nextIndex < sources.length) {
+    if (!sameSources) {
+      prevSourcesRef.current = sources;
+
+      if (sources.length > 0) {
+        setIndex(0);
         setIsLoading(true);
-        return nextIndex;
+        setIsStackFailed(false);
       } else {
+        setIndex(-1);
         setIsLoading(false);
         setIsStackFailed(true);
-        return prevIndex;
       }
-    });
-  }, [sources.length]);
+    }
+  }, [sources]);
+
+  const [index, setIndex] = useState(emptyStack ? -1 : 0);
+
+  const src = sources[index] as string | undefined;
+
+  const onSuccess = useCallback(() => void setIsLoading(false), []);
+
+  const onFail = useCallback(() => {
+    if (isStackFailed) {
+      return;
+    }
+
+    if (index + 1 === sources.length) {
+      setIndex(-1);
+      setIsLoading(false);
+      setIsStackFailed(true);
+
+      return;
+    }
+
+    setIndex(index + 1);
+  }, [isStackFailed, sources.length, index]);
 
   return {
-    src: sources[index],
+    src,
     isLoading,
     isStackFailed,
     onSuccess,
