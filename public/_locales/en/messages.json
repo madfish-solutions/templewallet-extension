@@ -1926,6 +1926,12 @@
   "addNetwork": {
     "message": "Add Network"
   },
+  "editNetwork": {
+    "message": "Edit Network"
+  },
+  "failedToUpdateNetwork": {
+    "message": "Failed to update network"
+  },
   "currentNetworks": {
     "message": "Current networks"
   },

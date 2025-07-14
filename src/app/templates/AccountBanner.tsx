@@ -6,7 +6,7 @@ import { AccountTypeBadge, Money, Name } from 'app/atoms';
 import { AccountAvatar } from 'app/atoms/AccountAvatar';
 import { BalanceProps, EvmBalance, TezosBalance } from 'app/templates/Balance';
 import { t } from 'lib/i18n';
-import { getTezosGasMetadata, TEZOS_METADATA, useEvmGasMetadata } from 'lib/metadata';
+import { useTezosGasMetadata, TEZOS_METADATA, useEvmGasMetadata } from 'lib/metadata';
 import { StoredAccount } from 'lib/temple/types';
 import { AccountForChain, getAccountAddressForEvm, getAccountAddressForTezos } from 'temple/accounts';
 import { DEFAULT_EVM_CURRENCY, EvmNetworkEssentials, NetworkEssentials, TezosNetworkEssentials } from 'temple/networks';
@@ -119,7 +119,7 @@ const AccountAddressViewHOC = <T extends TempleChainKind>(
   );
 };
 
-const TezosAddressView = AccountAddressViewHOC(TezosBalance, getTezosGasMetadata, TEZOS_METADATA.symbol);
+const TezosAddressView = AccountAddressViewHOC(TezosBalance, useTezosGasMetadata, TEZOS_METADATA.symbol);
 const EvmAddressView = AccountAddressViewHOC(EvmBalance, useEvmGasMetadata, DEFAULT_EVM_CURRENCY.symbol);
 
 const AccountBannerAddress = memo<AccountBannerAddressProps>(({ address }) => {
