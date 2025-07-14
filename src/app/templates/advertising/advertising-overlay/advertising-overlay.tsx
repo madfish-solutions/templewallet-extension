@@ -13,14 +13,14 @@ import { T } from 'lib/i18n/react';
 import { useTempleClient } from 'lib/temple/front';
 
 export const AdvertisingOverlay: FC = () => {
-  const { popup } = useAppEnv();
+  const { fullPage } = useAppEnv();
   const { ready } = useTempleClient();
   const dispatch = useDispatch();
   const activePromotion = useActivePromotionSelector();
   const isNewPromotionAvailable = useIsNewPromotionAvailableSelector();
 
-  const popupClassName = popup ? 'inset-0' : 'top-1/2 left-1/2 transform -translate-y-1/2 -translate-x-1/2';
-  const analyticsEventPrefix = `${activePromotion?.name}_${popup ? 'POPUP' : 'FULLPAGE'}`;
+  const popupClassName = fullPage ? 'top-1/2 left-1/2 transform -translate-y-1/2 -translate-x-1/2' : 'inset-0';
+  const analyticsEventPrefix = `${activePromotion?.name}_${fullPage ? 'FULLPAGE' : 'POPUP'}`;
 
   const handleSkipPress = () => {
     dispatch(skipAdvertisingPromotionAction());
@@ -47,9 +47,9 @@ export const AdvertisingOverlay: FC = () => {
         <Anchor
           className="flex items-center justify-center m-auto"
           style={{
-            width: popup ? 360 : 600,
-            height: popup ? 600 : 700,
-            borderRadius: popup ? 0 : 4,
+            width: fullPage ? 600 : 360,
+            height: fullPage ? 700 : 600,
+            borderRadius: fullPage ? 4 : 0,
             backgroundColor: '#E5F2FF'
           }}
           href={activePromotion.url}
@@ -59,7 +59,7 @@ export const AdvertisingOverlay: FC = () => {
         >
           <img
             alt={activePromotion.name}
-            src={popup ? activePromotion.popupBannerUrl : activePromotion.fullPageBannerUrl}
+            src={fullPage ? activePromotion.fullPageBannerUrl : activePromotion.popupBannerUrl}
           />
         </Anchor>
 
@@ -68,7 +68,7 @@ export const AdvertisingOverlay: FC = () => {
             'absolute top-0 right-3 px-3 py-2 hover:opacity-50',
             'font-inter font-medium text-sm text-white self-end mt-3',
             'rounded bg-blue-500',
-            popup ? 'mr-1' : 'mr-6'
+            fullPage ? 'mr-6' : 'mr-1'
           )}
           onClick={handleSkipPress}
           testID={`${analyticsEventPrefix}_SKIP`}

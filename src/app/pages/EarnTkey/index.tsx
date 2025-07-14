@@ -41,8 +41,8 @@ const tkeyCoinAnimationOptions = {
 };
 
 export const EarnTkeyPage = memo(() => {
-  const { popup } = useAppEnv();
-  const [shouldCastShadow, setShouldCastShadow] = useState(popup);
+  const { fullPage } = useAppEnv();
+  const [shouldCastShadow, setShouldCastShadow] = useState(!fullPage);
 
   const isEnabled = useShouldShowPartnersPromoSelector();
 

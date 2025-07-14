@@ -3,6 +3,7 @@ import { FC, useCallback, useLayoutEffect, useRef } from 'react';
 import constate from 'constate';
 import browser from 'webextension-polyfill';
 
+import { IS_GOOGLE_CHROME_BROWSER } from 'lib/env';
 import { createUrl } from 'lib/woozie';
 
 type AppEnvironment = {
@@ -12,7 +13,8 @@ type AppEnvironment = {
 
 export enum WindowType {
   Popup,
-  FullPage
+  FullPage,
+  Sidebar
 }
 
 type BackHandler = () => void;
@@ -20,6 +22,7 @@ type BackHandler = () => void;
 export const [AppEnvProvider, useAppEnv] = constate((env: AppEnvironment) => {
   const fullPage = env.windowType === WindowType.FullPage;
   const popup = env.windowType === WindowType.Popup;
+  const sidebar = env.windowType === WindowType.Sidebar;
   const confirmWindow = env.confirmWindow ?? false;
 
   const handlerRef = useRef<BackHandler>();
@@ -47,6 +50,7 @@ export const [AppEnvProvider, useAppEnv] = constate((env: AppEnvironment) => {
   return {
     fullPage,
     popup,
+    sidebar,
     confirmWindow,
     onBack,
     registerBackHandler
@@ -54,14 +58,14 @@ export const [AppEnvProvider, useAppEnv] = constate((env: AppEnvironment) => {
 });
 
 export const OpenInFullPage: FC = () => {
-  const appEnv = useAppEnv();
+  const { fullPage } = useAppEnv();
 
   useLayoutEffect(() => {
     openInFullPage();
-    if (appEnv.popup) {
+    if (!fullPage) {
       window.close();
     }
-  }, [appEnv.popup]);
+  }, [fullPage]);
 
   return null;
 };
@@ -74,4 +78,38 @@ export function openInFullPage() {
   browser.tabs.create({
     url: browser.runtime.getURL(url)
   });
+}
+
+export function openInSidebar() {
+  if (IS_GOOGLE_CHROME_BROWSER) {
+    return browser.windows
+      .getCurrent()
+      .then(currentWindow =>
+        currentWindow.id === undefined ? Promise.resolve() : chrome.sidePanel.open({ windowId: currentWindow.id })
+      );
+  }
+
+  throw new Error('Not supported in this browser yet');
+}
+
+export function openPopup() {
+  return browser.action.openPopup();
+}
+
+export function setIsSidebarByDefault(isSidebar: boolean) {
+  if (IS_GOOGLE_CHROME_BROWSER) {
+    return chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: isSidebar });
+  }
+
+  throw new Error('Not supported in this browser yet');
+}
+
+export async function getIsSidebarByDefault() {
+  if (IS_GOOGLE_CHROME_BROWSER) {
+    const { openPanelOnActionClick = false } = await chrome.sidePanel.getPanelBehavior();
+
+    return openPanelOnActionClick;
+  }
+
+  return false;
 }

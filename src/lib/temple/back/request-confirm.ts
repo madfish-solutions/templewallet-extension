@@ -1,9 +1,11 @@
 import { identity } from 'lodash';
 import browser, { Runtime } from 'webextension-polyfill';
 
+import { IS_GOOGLE_CHROME_BROWSER } from 'lib/env';
 import { TempleDAppPayload, TempleMessageType, TempleRequest } from 'lib/temple/types';
 
 import { intercom } from './defaults';
+import { sidebarClosed, store } from './store';
 
 export interface RequestConfirmParams<T extends TempleDAppPayload> {
   id: string;
@@ -25,6 +27,8 @@ export async function requestConfirm<T extends TempleDAppPayload>({
   handleIntercomRequest
 }: RequestConfirmParams<T>) {
   let closing = false;
+  let stopViewClosedListening: EmptyFn | undefined;
+  let closeView: (() => Promise<void>) | undefined;
   const close = async () => {
     if (closing) return;
     closing = true;
@@ -32,9 +36,9 @@ export async function requestConfirm<T extends TempleDAppPayload>({
     try {
       stopTimeout();
       stopRequestListening();
-      stopWinRemovedListening();
+      stopViewClosedListening?.();
 
-      await closeWindow();
+      await closeView?.();
     } catch (_err) {}
   };
 
@@ -63,24 +67,39 @@ export async function requestConfirm<T extends TempleDAppPayload>({
     }
   });
 
-  const confirmWin = await createConfirmationWindow(id);
-
-  const closeWindow = async () => {
-    if (confirmWin.id) {
-      const win = await browser.windows.get(confirmWin.id);
-      if (win.id) {
-        await browser.windows.remove(win.id);
+  const sidePanelAvailable =
+    IS_GOOGLE_CHROME_BROWSER && (await chrome.sidePanel.getPanelBehavior()).openPanelOnActionClick;
+  const windowId = await browser.windows.getCurrent().then(w => w.id);
+  const sidePanelOpened = windowId !== undefined && store.getState().windowsWithSidebars.includes(windowId);
+  if (sidePanelAvailable && sidePanelOpened) {
+    await chrome.sidePanel.setOptions({ path: browser.runtime.getURL(`sidebar.html#?id=${id}`) });
+    const sub = store.watch(sidebarClosed, (_, closedSidebarWindowId) => {
+      if (closedSidebarWindowId === windowId) {
+        declineAndClose();
       }
-    }
-  };
+    });
+    stopViewClosedListening = () => sub.unsubscribe();
+    closeView = () => chrome.sidePanel.setOptions({ path: browser.runtime.getURL('sidebar.html') });
+  } else {
+    const confirmWin = await createConfirmationWindow(id);
 
-  const handleWinRemoved = (winId: number) => {
-    if (winId === confirmWin?.id) {
-      declineAndClose();
-    }
-  };
-  browser.windows.onRemoved.addListener(handleWinRemoved);
-  const stopWinRemovedListening = () => browser.windows.onRemoved.removeListener(handleWinRemoved);
+    closeView = async () => {
+      if (confirmWin.id) {
+        const win = await browser.windows.get(confirmWin.id);
+        if (win.id) {
+          await browser.windows.remove(win.id);
+        }
+      }
+    };
+
+    const handleWinRemoved = (winId: number) => {
+      if (winId === confirmWin?.id) {
+        declineAndClose();
+      }
+    };
+    browser.windows.onRemoved.addListener(handleWinRemoved);
+    stopViewClosedListening = () => browser.windows.onRemoved.removeListener(handleWinRemoved);
+  }
 
   // Decline after timeout
   const t = setTimeout(declineAndClose, AUTODECLINE_AFTER);

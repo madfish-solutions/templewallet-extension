@@ -85,7 +85,10 @@ import {
   dAppQueueCountersUpdated,
   focusLocationChanged,
   popupClosed,
-  popupOpened
+  popupOpened,
+  tabOriginUpdated,
+  sidebarOpened,
+  sidebarClosed
 } from './store';
 import { Vault } from './vault';
 
@@ -924,4 +927,16 @@ export function setWindowPopupOpened(windowId: number | null, opened: boolean) {
   } else {
     popupClosed(windowId);
   }
+}
+
+export function setWindowSidebarOpened(windowId: number | null, opened: boolean) {
+  if (opened) {
+    sidebarOpened(windowId);
+  } else {
+    sidebarClosed(windowId);
+  }
+}
+
+export function setTabOrigin(tabId: number, origin: string) {
+  tabOriginUpdated({ tabId, origin });
 }

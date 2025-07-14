@@ -65,6 +65,22 @@ if (window.frameElement === null) {
       setInterval(trackUrlChange, TRACK_URL_CHANGE_INTERVAL);
     }
   });
+
+  let oldHref = '';
+  const sendNewLocation = () => {
+    const newHref = window.location.href;
+
+    if (oldHref === newHref) return;
+
+    browser.runtime.sendMessage({
+      type: ContentScriptType.ExternalPageLocation,
+      url: newHref
+    });
+    oldHref = newHref;
+  };
+  sendNewLocation();
+
+  setInterval(sendNewLocation, 1000);
 }
 
 const SENDER = {

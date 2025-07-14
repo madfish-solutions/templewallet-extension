@@ -34,7 +34,7 @@ const validationSchema = object().shape({
 // ts-prune-ignore-next
 export const NewsletterOverlay = memo(() => {
   const dispatch = useDispatch();
-  const { popup } = useAppEnv();
+  const { fullPage } = useAppEnv();
   const { pathname } = useLocation();
 
   const { ready } = useTempleClient();
@@ -87,12 +87,12 @@ export const NewsletterOverlay = memo(() => {
 
   return (
     <div className="fixed inset-0 z-overlay-promo flex flex-col items-center justify-center bg-gray-700 bg-opacity-20">
-      <div className={classNames(LAYOUT_CONTAINER_CLASSNAME, 'overflow-y-scroll py-4', popup && 'h-full px-4')}>
+      <div className={classNames(LAYOUT_CONTAINER_CLASSNAME, 'overflow-y-scroll py-4', !fullPage && 'h-full px-4')}>
         <form
           onSubmit={handleSubmit(onSubmit)}
           className={classNames(
             'relative flex flex-col justify-center text-center bg-orange-100 shadow-lg bg-no-repeat rounded-md',
-            popup ? 'p-4 h-full' : 'px-8 py-18'
+            fullPage ? 'px-8 py-18' : 'p-4 h-full'
           )}
         >
           <OverlayCloseButton testID={NewsletterOverlaySelectors.closeButton} onClick={close} />

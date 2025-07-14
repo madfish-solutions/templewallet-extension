@@ -220,6 +220,10 @@ module.exports = {
         ...breakpoints(theme('screens'))
       }),
 
+      screens: {
+        normal: '384px'
+      },
+
       margin: (theme, { negative }) => ({
         ...theme('spacing'),
         ...negative(theme('spacing'))

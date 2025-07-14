@@ -68,7 +68,9 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
             settings: null,
             dAppQueueCounters: DEFAULT_PROMISES_QUEUE_COUNTERS,
             focusLocation: { tabId: null, windowId: null },
-            windowsWithPopups: []
+            windowsWithPopups: [],
+            windowsWithSidebars: [],
+            tabsOrigins: {}
           }
         : res.state,
       shouldLockOnStartup: isLocked
@@ -114,7 +116,16 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
    */
 
   const [suppressReady, setSuppressReady] = useState(false);
-  const { status, accounts, settings, dAppQueueCounters, focusLocation, windowsWithPopups } = state;
+  const {
+    status,
+    accounts,
+    settings,
+    dAppQueueCounters,
+    focusLocation,
+    windowsWithPopups,
+    tabsOrigins,
+    windowsWithSidebars
+  } = state;
   const idle = status === TempleStatus.Idle;
   const locked = status === TempleStatus.Locked;
   const ready = status === TempleStatus.Ready && !suppressReady;
@@ -481,6 +492,15 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
     assertResponse(res.type === TempleMessageType.SetWindowPopupStateResponse);
   }, []);
 
+  const setWindowSidebarState = useCallback(async (windowId: number | null, opened: boolean) => {
+    const res = await request({
+      type: TempleMessageType.SetWindowSidebarStateRequest,
+      windowId,
+      opened
+    });
+    assertResponse(res.type === TempleMessageType.SetWindowSidebarStateResponse);
+  }, []);
+
   useEffect(() => void (data?.shouldLockOnStartup && lock()), [data?.shouldLockOnStartup, lock]);
 
   return {
@@ -499,6 +519,8 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
     dAppQueueCounters,
     focusLocation,
     windowsWithPopups,
+    tabsOrigins,
+    windowsWithSidebars,
 
     // Misc
     confirmation,
@@ -541,6 +563,7 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
     switchDAppEvmChain,
     sendEvmTransaction,
     resetExtension,
-    setWindowPopupState
+    setWindowPopupState,
+    setWindowSidebarState
   };
 });

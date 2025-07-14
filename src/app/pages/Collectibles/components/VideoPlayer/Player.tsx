@@ -72,7 +72,7 @@ export const Player = forwardRef<HTMLVideoElement | HTMLAudioElement, Props>(
     const [setControlsTimeout] = useTimeout();
     const [setKeyActionVolumeTimeout] = useTimeout();
 
-    const { popup } = useAppEnv();
+    const { fullPage } = useAppEnv();
 
     /**
      * TOGGLE SHOWING CONTROLS
@@ -484,7 +484,7 @@ export const Player = forwardRef<HTMLVideoElement | HTMLAudioElement, Props>(
               <Skip onSkip={skipHandler} />
             </div>
             <div>
-              <Fullscreen isFullscreen={fullscreenState} disabled={popup} onToggle={toggleFullscreenHandler} />
+              <Fullscreen isFullscreen={fullscreenState} disabled={!fullPage} onToggle={toggleFullscreenHandler} />
             </div>
           </div>
         </div>
