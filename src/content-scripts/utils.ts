@@ -19,14 +19,12 @@ export async function checkIfShouldReplaceTakeAdsReferrals() {
 
   const value = await fetchFromStorage<boolean>(REPLACE_REFERRALS_ENABLED);
 
-  // TODO: Revert after test
-  // return value && IS_MISES_BROWSER;
-  return value;
+  return value && IS_MISES_BROWSER;
 }
 
 export async function checkIfShouldReplaceTempleReferrals() {
   if (window.frameElement) return false; // Prevents the scripts from running in an Iframe
 
-  // TODO: Set to "false" after test, for now it's unclear when this feature will be enabled
-  return true;
+  // For now, it's unclear when this feature will be enabled
+  return false;
 }
