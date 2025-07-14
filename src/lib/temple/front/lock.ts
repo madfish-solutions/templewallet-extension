@@ -6,7 +6,7 @@ import { SHOULD_BACKUP_MNEMONIC_STORAGE_KEY } from 'lib/constants';
 import { getLockUpTimeout } from 'lib/lock-up';
 import { fetchFromStorage } from 'lib/storage';
 
-const CLOSURE_STORAGE_KEY = 'last-page-closure-timestamp';
+export const CLOSURE_STORAGE_KEY = 'last-page-closure-timestamp';
 
 const isSinglePageOpened = () => getOpenedTemplePagesN() === 1;
 
@@ -25,10 +25,12 @@ export async function getShouldBeLockedOnStartup() {
   return shouldLockByTimeout || shouldBackupMnemonic;
 }
 
-window.addEventListener(
-  'pagehide',
+document.addEventListener(
+  'visibilitychange',
   () => {
-    if (isSinglePageOpened()) localStorage.setItem(CLOSURE_STORAGE_KEY, Date.now().toString());
+    if (document.visibilityState === 'hidden' && isSinglePageOpened()) {
+      localStorage.setItem(CLOSURE_STORAGE_KEY, Date.now().toString());
+    }
   },
   true
 );

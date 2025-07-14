@@ -70,9 +70,7 @@ export const TextPromotionView = memo<Props>(
               <div className="bg-secondary text-white text-font-small-bold px-1 py-0.5 rounded">AD</div>
             </div>
 
-            {contentText && (
-              <span className="text-font-description-regular text-grey-1 line-clamp-2">{contentText}</span>
-            )}
+            {contentText && <span className="text-font-description text-grey-1 line-clamp-2">{contentText}</span>}
           </div>
         </div>
       </Anchor>
