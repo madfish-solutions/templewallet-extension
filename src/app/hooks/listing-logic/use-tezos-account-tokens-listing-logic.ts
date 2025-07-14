@@ -1,16 +1,14 @@
 import { useCallback } from 'react';
 
-import { isDefined } from '@rnw-community/shared';
-
+import { useTezosUsdToTokenRatesSelector } from 'app/store/currency/selectors';
 import { useAreAssetsLoading } from 'app/store/tezos/assets/selectors';
-import { useBalancesAtomicRecordSelector } from 'app/store/tezos/balances/selectors';
-import { getKeyForBalancesRecord } from 'app/store/tezos/balances/utils';
 import { useTokensMetadataLoadingSelector } from 'app/store/tezos/tokens-metadata/selectors';
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
 import { useTezosAccountTokens } from 'lib/assets/hooks/tokens';
 import { searchTezosAssetsWithNoMeta } from 'lib/assets/search.utils';
 import { useTezosAccountTokensSortPredicate } from 'lib/assets/use-sorting';
 import { parseChainAssetSlug } from 'lib/assets/utils';
+import { useGetTezosAccountTokenOrGasBalanceWithDecimals } from 'lib/balances/hooks';
 import { useGetTokenOrGasMetadata } from 'lib/metadata';
 import { useEnabledTezosChains } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
@@ -19,27 +17,36 @@ import {
   makeUseChainKindAccountTokensForListing,
   makeUseChainKindAccountTokensListingLogic
 } from './make-use-chain-kind-account-tokens-listing-logic';
+import { useIsBigBalance } from './use-is-big-balance';
 
-const useIsNonZeroBalance = (publicKeyHash: string) => {
-  const balancesRecord = useBalancesAtomicRecordSelector();
+const useIsTezosBigBalance = (publicKeyHash: string) => {
+  const getBalanceWithDecimals = useGetTezosAccountTokenOrGasBalanceWithDecimals(publicKeyHash);
+  const tezosUsdToTokenRates = useTezosUsdToTokenRatesSelector();
 
-  return useCallback(
+  const getBalance = useCallback(
     (chainSlug: string) => {
-      const [_, chainId, assetSlug] = parseChainAssetSlug(chainSlug, TempleChainKind.Tezos);
-      const key = getKeyForBalancesRecord(publicKeyHash, chainId);
+      const [, chainId, assetSlug] = parseChainAssetSlug(chainSlug, TempleChainKind.Tezos);
 
-      const balance = balancesRecord[key]?.data[assetSlug];
-      return isDefined(balance) && balance !== '0';
+      return getBalanceWithDecimals(chainId, assetSlug);
     },
-    [balancesRecord, publicKeyHash]
+    [getBalanceWithDecimals]
   );
+  const getUsdToTokenRate = useCallback(
+    (chainSlug: string) => {
+      const [, , assetSlug] = parseChainAssetSlug(chainSlug, TempleChainKind.Tezos);
+
+      return tezosUsdToTokenRates?.[assetSlug];
+    },
+    [tezosUsdToTokenRates]
+  );
+  return useIsBigBalance(getBalance, getUsdToTokenRate);
 };
 
 export const useTezosAccountTokensForListing = makeUseChainKindAccountTokensForListing<TempleChainKind.Tezos>({
   useAccountTokens: useTezosAccountTokens,
   useEnabledChains: useEnabledTezosChains,
   useTokensSortPredicate: useTezosAccountTokensSortPredicate,
-  useIsNonZeroBalance,
+  useIsBigBalance: useIsTezosBigBalance,
   chainKind: TempleChainKind.Tezos,
   gasTokenSlug: TEZ_TOKEN_SLUG
 });

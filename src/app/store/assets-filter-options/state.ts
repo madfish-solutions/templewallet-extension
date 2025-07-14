@@ -5,7 +5,9 @@ export type FilterChain = BasicChain | null;
 export interface AssetsFilterOptionsStateInterface {
   filterChain: FilterChain;
   tokensListOptions: {
-    hideZeroBalance: boolean;
+    /** @deprecated */
+    hideZeroBalance?: boolean;
+    hideSmallBalance: boolean;
     groupByNetwork: boolean;
   };
   collectiblesListOptions: {
@@ -17,7 +19,7 @@ export interface AssetsFilterOptionsStateInterface {
 export const AssetsFilterOptionsInitialState: AssetsFilterOptionsStateInterface = {
   filterChain: null,
   tokensListOptions: {
-    hideZeroBalance: false,
+    hideSmallBalance: false,
     groupByNetwork: false
   },
   collectiblesListOptions: {

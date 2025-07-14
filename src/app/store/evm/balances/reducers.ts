@@ -11,7 +11,7 @@ import { getTokenSlugBalanceRecords, prepareAssigning } from './utils';
 export const evmBalancesReducer = createReducer<EvmBalancesStateInterface>(EvmBalancesInitialState, builder => {
   builder.addCase(processLoadedEvmAssetsBalancesAction, (state, { payload }) => {
     const { balancesAtomic, dataTimestamps } = state;
-    const { publicKeyHash, chainId, data } = payload;
+    const { publicKeyHash, chainId, data, assetsToPreventBalanceErase } = payload;
     prepareAssigning(state, publicKeyHash);
 
     const { balances: newBalances, timestamps: newTimestamps } = getTokenSlugBalanceRecords(
@@ -19,7 +19,8 @@ export const evmBalancesReducer = createReducer<EvmBalancesStateInterface>(EvmBa
       chainId,
       new Date(data.updated_at).getTime(),
       dataTimestamps[publicKeyHash][chainId],
-      balancesAtomic[publicKeyHash][chainId]
+      balancesAtomic[publicKeyHash][chainId],
+      assetsToPreventBalanceErase
     );
     balancesAtomic[publicKeyHash][chainId] = newBalances;
     dataTimestamps[publicKeyHash][chainId] = newTimestamps;

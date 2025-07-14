@@ -6,8 +6,8 @@ export const resetTokensFilterOptions = createAction('assets-filter-options/RESE
 
 export const setAssetsFilterChain = createAction<FilterChain>('assets-filter-options/SET_ASSETS_FILTER_CHAIN_ID');
 
-export const setTokensHideZeroBalanceFilterOption = createAction<boolean>(
-  'assets-filter-options/SET_TOKENS_HIDE_ZERO_BALANCE_FILTER_OPTION'
+export const setTokensHideSmallBalanceFilterOption = createAction<boolean>(
+  'assets-filter-options/SET_TOKENS_HIDE_SMALL_BALANCE_FILTER_OPTION'
 );
 
 export const setTokensGroupByNetworkFilterOption = createAction<boolean>(

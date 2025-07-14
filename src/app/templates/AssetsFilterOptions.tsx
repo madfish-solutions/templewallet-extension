@@ -1,6 +1,6 @@
-import React, { FC, memo, useCallback, useEffect, useMemo, useRef } from 'react';
+import React, { FC, memo, useCallback, useMemo, useRef } from 'react';
 
-import { isEqual } from 'lodash';
+import { isEqual, omit } from 'lodash';
 
 import { FadeTransition } from 'app/a11y/FadeTransition';
 import { Divider, IconBase, ToggleSwitch } from 'app/atoms';
@@ -13,32 +13,39 @@ import {
   setCollectiblesBlurFilterOption,
   setCollectiblesShowInfoFilterOption,
   setTokensGroupByNetworkFilterOption,
-  setTokensHideZeroBalanceFilterOption
+  setTokensHideSmallBalanceFilterOption
 } from 'app/store/assets-filter-options/actions';
 import { useAssetsFilterOptionsSelector } from 'app/store/assets-filter-options/selectors';
 import { AssetsFilterOptionsInitialState } from 'app/store/assets-filter-options/state';
+import { useTestnetModeEnabledSelector } from 'app/store/settings/selectors';
 import { NetworkSelectModal } from 'app/templates/NetworkSelectModal';
 import { T, TID } from 'lib/i18n';
 import { useBooleanState } from 'lib/ui/hooks';
 
 export const AssetsFilterOptions = memo(() => {
   const options = useAssetsFilterOptionsSelector();
+  const testnetModeEnabled = useTestnetModeEnabledSelector();
   const { filterChain, tokensListOptions, collectiblesListOptions } = options;
 
   const [networksModalOpened, setNetworksModalOpen, setNetworksModalClosed] = useBooleanState(false);
 
-  const isNonDefaultOption = useMemo(() => !isEqual(options, AssetsFilterOptionsInitialState), [options]);
+  const isNonDefaultOption = useMemo(
+    () =>
+      testnetModeEnabled
+        ? !isEqual(
+            omit(options, 'tokensListOptions.hideSmallBalance'),
+            omit(AssetsFilterOptionsInitialState, 'tokensListOptions.hideSmallBalance')
+          )
+        : !isEqual(options, AssetsFilterOptionsInitialState),
+    [options, testnetModeEnabled]
+  );
 
   const containerRef = useRef(null);
 
-  useEffect(() => {
-    if (filterChain) dispatch(setTokensGroupByNetworkFilterOption(false));
-  }, [filterChain]);
-
   const handleResetAllClick = useCallback(() => dispatch(resetTokensFilterOptions()), []);
 
-  const handleTokensHideZeroBalanceChange = useCallback(
-    (checked: boolean) => dispatch(setTokensHideZeroBalanceFilterOption(checked)),
+  const handleTokensHideSmallBalanceChange = useCallback(
+    (checked: boolean) => dispatch(setTokensHideSmallBalanceFilterOption(checked)),
     []
   );
   const handleTokensGroupByNetworkChange = useCallback(
@@ -77,15 +84,22 @@ export const AssetsFilterOptions = memo(() => {
         <NetworkSelectButton selectedChain={filterChain} onClick={setNetworksModalOpen} />
 
         <TogglesContainer labelTitle="tokensList">
-          <div className="flex justify-between items-center p-3">
-            <span className="text-font-medium-bold">
-              <T id="hideZeroBalance" />
-            </span>
+          {!testnetModeEnabled && (
+            <>
+              <div className="flex justify-between items-center p-3">
+                <span className="text-font-medium-bold">
+                  <T id="hideSmallBalance" />
+                </span>
 
-            <ToggleSwitch checked={tokensListOptions.hideZeroBalance} onChange={handleTokensHideZeroBalanceChange} />
-          </div>
+                <ToggleSwitch
+                  checked={tokensListOptions.hideSmallBalance}
+                  onChange={handleTokensHideSmallBalanceChange}
+                />
+              </div>
 
-          <Divider thinest />
+              <Divider thinest />
+            </>
+          )}
 
           <div className="flex justify-between items-center p-3">
             <span className="text-font-medium-bold">

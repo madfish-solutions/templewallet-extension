@@ -48,21 +48,21 @@ export const EvmChainTokensTab = memo<Props>(({ chainId, publicKeyHash, accountI
 
 const TabContent: FC = () => {
   const { publicKeyHash, network } = useContext(TezosChainTokensTabContext);
-  const { hideZeroBalance } = useTokensListOptionsSelector();
+  const { hideSmallBalance } = useTokensListOptionsSelector();
 
-  const { enabledSlugsSorted } = useEvmChainAccountTokensForListing(publicKeyHash, network.chainId, hideZeroBalance);
+  const { enabledSlugsSorted } = useEvmChainAccountTokensForListing(publicKeyHash, network.chainId, hideSmallBalance);
 
   return <TabContentBase allSlugsSorted={enabledSlugsSorted} manageActive={false} />;
 };
 
 const TabContentWithManageActive: FC = () => {
   const { publicKeyHash, network } = useContext(TezosChainTokensTabContext);
-  const { hideZeroBalance } = useTokensListOptionsSelector();
+  const { hideSmallBalance } = useTokensListOptionsSelector();
 
   const { enabledSlugsSorted, tokens, tokensSortPredicate } = useEvmChainAccountTokensForListing(
     publicKeyHash,
     network.chainId,
-    hideZeroBalance
+    hideSmallBalance
   );
 
   const storedSlugs = useMemo(

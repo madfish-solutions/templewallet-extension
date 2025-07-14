@@ -1632,7 +1632,7 @@
     }
   },
   "showInfo": { "message": "Деталі" },
-  "hideZeroBalance": { "message": "Сховати нульові баланси" },
+  "hideSmallBalance": { "message": "Сховати низькі баланси" },
   "creator": { "message": "Автор:" },
   "creators": { "message": "Автори:" },
   "unknownError": {

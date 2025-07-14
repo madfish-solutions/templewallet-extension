@@ -1,8 +1,10 @@
-import { memo, useCallback, useMemo } from 'react';
+import React, { FC, memo, useCallback, useMemo } from 'react';
 
 import { dispatch } from 'app/store';
 import { setEvmBalancesLoadingState } from 'app/store/evm/actions';
 import { processLoadedEvmAssetsAction } from 'app/store/evm/assets/actions';
+import { useRawEvmAccountCollectiblesSelector, useRawEvmAccountTokensSelector } from 'app/store/evm/assets/selectors';
+import { ChainIdTokenSlugsAssetsRecord } from 'app/store/evm/assets/state';
 import {
   processLoadedEvmAssetsBalancesAction,
   processLoadedOnchainBalancesAction
@@ -15,8 +17,11 @@ import { isEtherlinkSupportedChainId } from 'lib/apis/etherlink';
 import { getEvmBalances } from 'lib/apis/temple/endpoints/evm';
 import { BalancesResponse, ChainID } from 'lib/apis/temple/endpoints/evm/api.interfaces';
 import { isSupportedChainId } from 'lib/apis/temple/endpoints/evm/api.utils';
+import { useEvmAssetBalance } from 'lib/balances/hooks';
 import { EVM_BALANCES_SYNC_INTERVAL } from 'lib/fixed-times';
 import { useUpdatableRef } from 'lib/ui/hooks';
+import { useEnabledEvmChains } from 'temple/front';
+import { EvmNetworkEssentials } from 'temple/networks';
 
 import { useGetBalancesFromChain } from './use-get-balances-from-chain';
 import {
@@ -35,6 +40,47 @@ export const AppEvmBalancesLoading = memo<{ publicKeyHash: HexString }>(({ publi
   const isTestnetMode = useTestnetModeEnabledSelector();
   const loadingStates = useAllEvmChainsBalancesLoadingStatesSelector();
   const balancesTimestamps = useEvmAccountBalancesTimestampsSelector(publicKeyHash);
+
+  const storedTokens = useRawEvmAccountTokensSelector(publicKeyHash);
+  const storedCollectibles = useRawEvmAccountCollectiblesSelector(publicKeyHash);
+  const enabledEvmChains = useEnabledEvmChains();
+  const enabledEvmChainsByIds = useMemo(
+    () => Object.fromEntries(enabledEvmChains.map(chain => [chain.chainId, chain])),
+    [enabledEvmChains]
+  );
+  const manualAssetsByChainId = useMemo(() => {
+    const result: Record<number, { network: EvmNetworkEssentials; assetsSlugs: string[] }> = {};
+    const pushManualAssetSlugs = (assets: ChainIdTokenSlugsAssetsRecord) => {
+      for (const chainId in assets) {
+        const chainAssets = assets[chainId];
+        const network = enabledEvmChainsByIds[Number(chainId)];
+
+        if (!chainAssets || !network) continue;
+
+        if (!result[chainId]) {
+          result[chainId] = { network, assetsSlugs: [] };
+        }
+
+        for (const assetSlug in chainAssets) {
+          const asset = chainAssets[assetSlug];
+          if (asset?.manual) {
+            result[chainId].assetsSlugs.push(assetSlug);
+          }
+        }
+      }
+    };
+    pushManualAssetSlugs(storedTokens);
+    pushManualAssetSlugs(storedCollectibles);
+
+    return result;
+  }, [enabledEvmChainsByIds, storedCollectibles, storedTokens]);
+  const manualAssets = useMemo(
+    () =>
+      Object.values(manualAssetsByChainId).flatMap(({ network, assetsSlugs }) =>
+        assetsSlugs.map(assetSlug => ({ network, assetSlug }))
+      ),
+    [manualAssetsByChainId]
+  );
 
   const loadingStatesRef = useUpdatableRef(loadingStates);
   const balancesTimestampsRef = useUpdatableRef(balancesTimestamps);
@@ -76,10 +122,17 @@ export const AppEvmBalancesLoading = memo<{ publicKeyHash: HexString }>(({ publi
   const handleApiSuccess = useCallback(
     ({ chainId, data }: SuccessPayload<BalancesResponse>) => {
       dispatch(processLoadedEvmAssetsAction({ publicKeyHash, chainId, data }));
-      dispatch(processLoadedEvmAssetsBalancesAction({ publicKeyHash, chainId, data }));
+      dispatch(
+        processLoadedEvmAssetsBalancesAction({
+          publicKeyHash,
+          chainId,
+          data,
+          assetsToPreventBalanceErase: manualAssetsByChainId[chainId]?.assetsSlugs
+        })
+      );
       setLoadingApi(chainId, false);
     },
-    [publicKeyHash, setLoadingApi]
+    [manualAssetsByChainId, publicKeyHash, setLoadingApi]
   );
   const handleOnchainSuccess = useCallback(
     ({ chainId, data, timestamp }: SuccessPayload<StringRecord>) => {
@@ -153,5 +206,28 @@ export const AppEvmBalancesLoading = memo<{ publicKeyHash: HexString }>(({ publi
     syncInterval: EVM_BALANCES_SYNC_INTERVAL
   });
 
-  return null;
+  return isTestnetMode ? null : (
+    <>
+      {manualAssets.map(({ network, assetSlug }) => (
+        <OnChainBalanceLoader
+          key={`${network.chainId}-${assetSlug}`}
+          assetSlug={assetSlug}
+          address={publicKeyHash}
+          network={network}
+        />
+      ))}
+    </>
+  );
 });
+
+interface OnChainBalanceLoaderProps {
+  assetSlug: string;
+  address: HexString;
+  network: EvmNetworkEssentials;
+}
+
+const OnChainBalanceLoader: FC<OnChainBalanceLoaderProps> = ({ assetSlug, address, network }) => {
+  useEvmAssetBalance(assetSlug, address, network, true, true);
+
+  return null;
+};

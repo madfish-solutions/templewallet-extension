@@ -2,7 +2,7 @@ import { createReducer } from '@reduxjs/toolkit';
 
 import {
   setAssetsFilterChain,
-  setTokensHideZeroBalanceFilterOption,
+  setTokensHideSmallBalanceFilterOption,
   setTokensGroupByNetworkFilterOption,
   resetTokensFilterOptions,
   setCollectiblesBlurFilterOption,
@@ -19,8 +19,8 @@ export const assetsFilterOptionsReducer = createReducer<AssetsFilterOptionsState
       state.filterChain = payload;
     });
 
-    builder.addCase(setTokensHideZeroBalanceFilterOption, (state, { payload }) => {
-      state.tokensListOptions.hideZeroBalance = payload;
+    builder.addCase(setTokensHideSmallBalanceFilterOption, (state, { payload }) => {
+      state.tokensListOptions.hideSmallBalance = payload;
     });
     builder.addCase(setTokensGroupByNetworkFilterOption, (state, { payload }) => {
       state.tokensListOptions.groupByNetwork = payload;
