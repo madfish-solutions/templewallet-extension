@@ -11,3 +11,8 @@ export const TempleChainTitle: Record<TempleChainKind, string> = {
 };
 
 export type AssetsAmounts = StringRecord<{ atomicAmount: BigNumber; isNft?: boolean }>;
+
+export interface AdsViewerData {
+  tezosAddress: string;
+  evmAddress: string;
+}
