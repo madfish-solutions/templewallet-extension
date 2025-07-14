@@ -3,7 +3,7 @@ import React, { forwardRef, memo, MouseEventHandler, useCallback, useEffect, use
 import clsx from 'clsx';
 import { useDispatch } from 'react-redux';
 
-import { useAdsViewerPkh } from 'app/hooks/use-ads-viewer-pkh';
+import { useAdsViewerPkh } from 'app/hooks/use-ads-viewer-addresses';
 import { hidePromotionAction } from 'app/store/partners-promotion/actions';
 import {
   useShouldShowPartnersPromoSelector,
@@ -41,7 +41,7 @@ export const PartnersPromotion = memo(
   forwardRef<HTMLDivElement, PartnersPromotionProps>(
     ({ variant, id, pageName, withPersonaProvider, className }, ref) => {
       const isImageAd = variant === PartnersPromotionVariant.Image;
-      const adsViewerAddress = useAdsViewerPkh();
+      const { tezosAddress: adsViewerAddress } = useAdsViewerPkh();
       const dispatch = useDispatch();
       const hiddenAt = usePromotionHidingTimestampSelector(id);
       const shouldShowPartnersPromo = useShouldShowPartnersPromoSelector();

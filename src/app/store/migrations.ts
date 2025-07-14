@@ -124,19 +124,42 @@ export const MIGRATIONS: MigrationManifest = {
   },
 
   '6': (persistedState: PersistedState) => {
-    if (!persistedState) return persistedState;
+    if (!persistedState) {
+      return persistedState;
+    }
 
-    const typedPersistedState = persistedState as TypedPersistedRootState;
+    const state = persistedState as TypedPersistedRootState;
 
-    if (!typedPersistedState.settings.isOnRampPossibility) return persistedState;
+    const showInfoRaw = localStorage.getItem('collectibles-grid:show-items-details');
+    const blurRaw = localStorage.getItem('collectibles:adult-blur');
 
-    const newState: TypedPersistedRootState = {
-      ...typedPersistedState,
-      settings: {
-        ...typedPersistedState.settings,
+    const newState = { ...state };
+
+    if (state.settings.isOnRampPossibility) {
+      newState.settings = {
+        ...newState.settings,
         onRampAsset: TEZOS_CHAIN_ASSET_SLUG
+      };
+    }
+
+    const showInfo = showInfoRaw === 'true';
+    const blur = blurRaw !== 'false';
+
+    newState.assetsFilterOptions = {
+      ...newState?.assetsFilterOptions,
+      collectiblesListOptions: {
+        ...newState?.assetsFilterOptions?.collectiblesListOptions,
+        showInfo,
+        blur
       }
     };
+
+    if (showInfoRaw !== null) {
+      localStorage.removeItem('collectibles-grid:show-items-details');
+    }
+    if (blurRaw !== null) {
+      localStorage.removeItem('collectibles:adult-blur');
+    }
 
     return newState;
   },

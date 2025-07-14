@@ -1,5 +1,6 @@
 import React, { useCallback, useState } from 'react';
 
+import clsx from 'clsx';
 import { Controller, useForm } from 'react-hook-form-v7';
 
 import { FormField, IconBase, ToggleSwitch } from 'app/atoms';
@@ -140,7 +141,12 @@ export const EditUrlEntityModal = <T extends UrlEntityBase>({
                   color="primary"
                   type="submit"
                   loading={isSubmitting}
-                  disabled={shouldDisableSubmitButton({ errors, formState, otherErrors: [submitError] })}
+                  disabled={shouldDisableSubmitButton({
+                    errors,
+                    formState,
+                    otherErrors: [submitError],
+                    disableWhileSubmitting: false
+                  })}
                   testID={ChainSettingsSelectors.saveButton}
                 >
                   <T id="save" />
@@ -148,11 +154,11 @@ export const EditUrlEntityModal = <T extends UrlEntityBase>({
               )
             }}
           >
-            <SettingsCellGroup className="mb-4">
+            <SettingsCellGroup className={clsx('mb-4', !canChangeActiveState && 'hidden')}>
               <SettingsCellSingle cellName={<T id={activeI18nKey} />} Component="div">
                 <Controller
                   control={control}
-                  disabled={!canChangeActiveState || isSubmitting}
+                  disabled={isSubmitting}
                   name="isActive"
                   render={({ field }) => <ToggleSwitch {...field} checked={field.value} testID={activeSwitchTestID} />}
                 />

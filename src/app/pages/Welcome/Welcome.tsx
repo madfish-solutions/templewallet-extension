@@ -7,6 +7,7 @@ import { SocialButton } from 'app/atoms/SocialButton';
 import { StyledButton } from 'app/atoms/StyledButton';
 import { SuspenseContainer } from 'app/atoms/SuspenseContainer';
 import { useABTestingLoading } from 'app/hooks/use-ab-testing-loading';
+import { useShouldShowV2IntroModal } from 'app/hooks/use-should-show-v2-intro-modal';
 import { ReactComponent as ImportedIcon } from 'app/icons/base/imported.svg';
 import { ReactComponent as PlusIcon } from 'app/icons/base/plus.svg';
 import GoogleIconSrc from 'app/icons/google-logo.png';
@@ -90,6 +91,8 @@ const Welcome = memo(() => {
   const { setGoogleAuthToken, setSuppressReady } = useTempleClient();
   const [, setInitToast] = useInitToastMessage();
   const { historyPosition } = useLocation();
+
+  useShouldShowV2IntroModal(false);
 
   const [walletCreationState, setWalletCreationState] = useState<WalletCreationState>({
     stage: WalletCreationStage.NotStarted
