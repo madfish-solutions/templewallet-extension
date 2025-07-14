@@ -5,7 +5,8 @@ import {
   CUSTOM_TEZOS_NETWORKS_STORAGE_KEY,
   ACCOUNT_PKH_STORAGE_KEY,
   CUSTOM_NETWORKS_SNAPSHOT_STORAGE_KEY,
-  WALLETS_SPECS_STORAGE_KEY
+  WALLETS_SPECS_STORAGE_KEY,
+  SHOULD_DISABLE_NOT_ACTIVE_NETWORKS_STORAGE_KEY
 } from 'lib/constants';
 import { moveValueInStorage, putToStorage, removeFromStorage } from 'lib/storage';
 import * as Passworder from 'lib/temple/passworder';
@@ -235,6 +236,7 @@ export const MIGRATIONS = [
     }
 
     await encryptAndSaveMany(toEncryptAndSave, passKey);
+    await putToStorage(SHOULD_DISABLE_NOT_ACTIVE_NETWORKS_STORAGE_KEY, true);
 
     /* CLEAN-UP */
 
