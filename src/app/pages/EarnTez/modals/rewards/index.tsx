@@ -11,7 +11,7 @@ import { getDelegatorRewards, isKnownChainId } from 'lib/apis/tzkt';
 import { fetchSetDelegateParametersOperations, getCycles, getProtocol } from 'lib/apis/tzkt/api';
 import { TzktProtocol, TzktSetDelegateParamsOperation } from 'lib/apis/tzkt/types';
 import { T } from 'lib/i18n';
-import { getTezosGasMetadata } from 'lib/metadata';
+import { useTezosGasMetadata } from 'lib/metadata';
 import { useRetryableSWR } from 'lib/swr';
 import { getRewardsStats } from 'lib/temple/front';
 import { AccountForTezos } from 'temple/accounts';
@@ -78,7 +78,7 @@ const PageModalContent = memo<Omit<RewardsModalProps, 'onClose' | 'isOpen'>>(({ 
     (index: number) => setActiveItemIndex(prevIndex => (prevIndex === index ? -1 : index)),
     []
   );
-  const { symbol: tezSymbol } = getTezosGasMetadata(chainId);
+  const { symbol: tezSymbol } = useTezosGasMetadata(chainId);
 
   const getBakingHistory = useCallback(
     async ([, accountPkh, , chainId]: [string, string, string | nullish, string]) => {

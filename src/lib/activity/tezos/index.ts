@@ -57,12 +57,6 @@ function parseTezosPreActivityOperation(preOperation: TezosPreActivityOperation,
           spenderAddress: preOperation.to.at(0)!.address
         };
 
-      if (preOperation.subtype !== 'transfer' || isZero(preOperation.amountSigned))
-        return {
-          kind: ActivityOperKindEnum.interaction,
-          withAddress: preOperation.destination.address
-        };
-
       // subtype === 'transfer' below
 
       const fromAddress = preOperation.from.address;
@@ -108,14 +102,10 @@ function parseTezosPreActivityOperation(preOperation: TezosPreActivityOperation,
     };
   })();
 
-  if (!preOperation.contract) return operationBase;
-
   if (isTransferActivityOperKind(operationBase.kind) || operationBase.kind === ActivityOperKindEnum.approve) {
-    operationBase.assetSlug = toTezosAssetSlug(preOperation.contract, tokenId);
+    operationBase.assetSlug = toTezosAssetSlug(preOperation.contract ?? 'tez', tokenId);
     operationBase.amountSigned = preOperation.amountSigned;
   }
 
   return operationBase;
 }
-
-const isZero = (val: string) => Number(val) === 0;
