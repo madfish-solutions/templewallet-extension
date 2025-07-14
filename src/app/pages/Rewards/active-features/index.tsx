@@ -2,7 +2,7 @@ import React, { memo } from 'react';
 
 import { usePartnersPromotionSettings } from 'app/hooks/use-partners-promotion-settings';
 import { useReferralLinksSettings } from 'app/hooks/use-referral-links-settings';
-//import { IS_MISES_BROWSER } from 'lib/env';
+import { IS_MISES_BROWSER } from 'lib/env';
 import { t, T } from 'lib/i18n';
 
 import { Section } from '../section';
@@ -28,17 +28,17 @@ export const ActiveFeatures = memo(() => {
         buttonTestID={RewardsPageSelectors.disableAdsButton}
       />
 
-      {/*For testing*/}
-      {/*{IS_MISES_BROWSER &&*/}
-      <FeatureItem
-        Icon={ReferralsIcon}
-        enabled={referralEnabled}
-        setEnabled={setReferralEnabled}
-        name={<T id="referralLinks" />}
-        description={<T id="referralLinksFeatureDescription" />}
-        tooltip={t('referralLinksFeatureTooltip')}
-        buttonTestID={RewardsPageSelectors.disableReferralLinksButton}
-      />
+      {IS_MISES_BROWSER && (
+        <FeatureItem
+          Icon={ReferralsIcon}
+          enabled={referralEnabled}
+          setEnabled={setReferralEnabled}
+          name={<T id="referralLinks" />}
+          description={<T id="referralLinksFeatureDescription" />}
+          tooltip={t('referralLinksFeatureTooltip')}
+          buttonTestID={RewardsPageSelectors.disableReferralLinksButton}
+        />
+      )}
     </Section>
   );
 });
