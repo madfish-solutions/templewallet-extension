@@ -72,7 +72,9 @@ const EvmTransactionViewBody = memo<EvmTransactionViewProps>(
         ? deserializeEstimationData(serializedEstimationData)
         : { gasPrice: BigInt(serializedEstimationData.gasPrice), type: serializedEstimationData.type };
     }, [serializedEstimationData]);
+
     const { txRequest, txSerializable } = useMemo(() => parseEvmTxRequest(payload), [payload]);
+
     const operationKind = useMemo(() => getOperationKind(txSerializable), [txSerializable]);
     const {
       balancesChanges,

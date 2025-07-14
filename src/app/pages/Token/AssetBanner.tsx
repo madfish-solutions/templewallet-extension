@@ -115,7 +115,7 @@ const NamesComp: FC<{ assetName: string; network: OneOfChains }> = ({ assetName,
   return (
     <div className="flex-grow flex flex-col gap-y-1 pr-6">
       <span
-        className="text-font-medium-bold"
+        className="text-font-medium-bold truncate max-w-44"
         {...setTestID(TokenPageSelectors.tokenName)}
         {...setAnotherSelector('name', assetName)}
       >

@@ -166,6 +166,10 @@ export class TempleWeb3Provider extends EventEmitter {
     this.listenToTypedMessage(isSwitchChainMessage, ({ chainId }) => this.updateChainId(toHex(chainId)));
   }
 
+  get selectedAddress() {
+    return this.accounts[0];
+  }
+
   // @ts-expect-error
   request: EIP1193RequestFn<KnownMethods> = async params => {
     switch (params.method) {
