@@ -6,6 +6,7 @@ import { Button, IconBase } from 'app/atoms';
 import { PageLoader } from 'app/atoms/Loader';
 import { PageModal } from 'app/atoms/PageModal';
 import { ReactComponent as CompactDown } from 'app/icons/base/compact_down.svg';
+import { isFilterChain } from 'app/pages/Swap/form/utils';
 import { useAssetsFilterOptionsSelector } from 'app/store/assets-filter-options/selectors';
 import { FilterChain } from 'app/store/assets-filter-options/state';
 import { NetworkPopper } from 'app/templates/network-popper';
@@ -32,7 +33,7 @@ export const SelectAssetModal = memo<SelectTokenModalProps>(({ onAssetSelect, op
 
   const { filterChain } = useAssetsFilterOptionsSelector();
 
-  const [localFilterChain, setLocalFilterChain] = useState(filterChain);
+  const [localFilterChain, setLocalFilterChain] = useState<FilterChain | string>(filterChain);
 
   const accountTezAddress = useAccountAddressForTezos();
   const accountEvmAddress = useAccountAddressForEvm();
@@ -50,7 +51,7 @@ export const SelectAssetModal = memo<SelectTokenModalProps>(({ onAssetSelect, op
   );
 
   const AssetsList = useMemo(() => {
-    if (localFilterChain?.kind === TempleChainKind.Tezos && accountTezAddress)
+    if (isFilterChain(localFilterChain) && localFilterChain?.kind === TempleChainKind.Tezos && accountTezAddress)
       return (
         <TezosChainAssetsList
           chainId={localFilterChain.chainId}
@@ -60,7 +61,7 @@ export const SelectAssetModal = memo<SelectTokenModalProps>(({ onAssetSelect, op
         />
       );
 
-    if (localFilterChain?.kind === TempleChainKind.EVM && accountEvmAddress)
+    if (isFilterChain(localFilterChain) && localFilterChain?.kind === TempleChainKind.EVM && accountEvmAddress)
       return (
         <EvmChainAssetsList
           chainId={localFilterChain.chainId}
@@ -101,7 +102,10 @@ export const SelectAssetModal = memo<SelectTokenModalProps>(({ onAssetSelect, op
     return null;
   }, [accountEvmAddress, accountTezAddress, localFilterChain, handleAssetSelect, searchValueDebounced]);
 
-  const handleFilterOptionSelect = useCallback((filterChain: FilterChain) => setLocalFilterChain(filterChain), []);
+  const handleFilterOptionSelect = useCallback(
+    (filterChain: FilterChain | string) => setLocalFilterChain(filterChain),
+    []
+  );
 
   return (
     <PageModal title="Select Token" opened={opened} onRequestClose={onRequestClose}>
@@ -129,8 +133,8 @@ export const SelectAssetModal = memo<SelectTokenModalProps>(({ onAssetSelect, op
 });
 
 interface FilterNetworkPopperProps {
-  selectedOption: FilterChain;
-  onOptionSelect: (filterChain: FilterChain) => void;
+  selectedOption: FilterChain | string;
+  onOptionSelect: (filterChain: FilterChain | string) => void;
 }
 
 const FilterNetworkPopper = memo<FilterNetworkPopperProps>(({ selectedOption, onOptionSelect }) => (
