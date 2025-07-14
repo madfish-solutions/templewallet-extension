@@ -3,6 +3,8 @@ import { importExtensionAdsModule } from 'lib/ads/import-extension-ads-module';
 import {
   ADS_META_SEARCH_PARAM_NAME,
   AD_CATEGORIES_PARAM_NAME,
+  CHAIN_NAME_SEARCH_PARAM_NAME,
+  EVM_ACCOUNT_SEARCH_PARAM_NAME,
   FONT_SIZE_SEARCH_PARAM_NAME,
   LINE_HEIGHT_SEARCH_PARAM_NAME,
   ORIGIN_SEARCH_PARAM_NAME,
@@ -19,6 +21,8 @@ const rawLineHeight = usp.get(LINE_HEIGHT_SEARCH_PARAM_NAME);
 const origin = usp.get(ORIGIN_SEARCH_PARAM_NAME) ?? window.location.href;
 const adsMetadataIds = usp.getAll(ADS_META_SEARCH_PARAM_NAME).map(value => JSON.parse(value));
 const adCategories = usp.getAll(AD_CATEGORIES_PARAM_NAME);
+const evmAccountAddress = usp.get(EVM_ACCOUNT_SEARCH_PARAM_NAME) ?? undefined;
+const chainName = usp.get(CHAIN_NAME_SEARCH_PARAM_NAME) ?? undefined;
 
 configureAds()
   .then(() => importExtensionAdsModule())
@@ -35,7 +39,9 @@ configureAds()
       hypelabBlacklistedCampaignsSlugs: blacklistedHypelabCampaignsSlugs,
       themeColor: rawThemeColor ?? undefined,
       fontSize: rawFontSize ? Number(rawFontSize) : undefined,
-      lineHeight: rawLineHeight ? Number(rawLineHeight) : undefined
+      lineHeight: rawLineHeight ? Number(rawLineHeight) : undefined,
+      evmAccountAddress,
+      chainName
     });
   })
   .catch(error => console.error(error));
