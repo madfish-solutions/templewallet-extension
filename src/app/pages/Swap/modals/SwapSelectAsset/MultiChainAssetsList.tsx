@@ -3,6 +3,7 @@ import React, { memo, useMemo, MouseEvent, useCallback, RefObject, useState } fr
 import { getSlugFromChainSlug } from 'app/hooks/listing-logic/utils';
 import { TokensListView } from 'app/pages/Send/modals/SelectAsset/tokens-list-view';
 import { SwapFieldName } from 'app/pages/Swap/form/interfaces';
+import { useLifiEvmTokensMetadataRecordSelector } from 'app/store/evm/swap-lifi-metadata/selectors';
 import { useEvmTokensMetadataRecordSelector } from 'app/store/evm/tokens-metadata/selectors';
 import { EvmTokenListItem, TezosTokenListItem } from 'app/templates/TokenListItem';
 import { EVM_TOKEN_SLUG, TEZ_TOKEN_SLUG } from 'lib/assets/defaults';
@@ -67,11 +68,14 @@ export const MultiChainAssetsList = memo<Props>(
 
     const getTezMetadata = useGetTokenOrGasMetadata();
     const evmMetadata = useEvmTokensMetadataRecordSelector();
+    const lifiMetadata = useLifiEvmTokensMetadataRecordSelector();
 
     const getEvmMetadata = useCallback(
       (chainId: number, slug: string) =>
-        slug === EVM_TOKEN_SLUG ? evmChains[chainId]?.currency : evmMetadata[chainId]?.[slug],
-      [evmChains, evmMetadata]
+        slug === EVM_TOKEN_SLUG
+          ? evmChains[chainId]?.currency
+          : evmMetadata[chainId]?.[slug] ?? lifiMetadata[chainId]?.[slug],
+      [evmChains, evmMetadata, lifiMetadata]
     );
 
     const searchedSlugs = useMemo(
