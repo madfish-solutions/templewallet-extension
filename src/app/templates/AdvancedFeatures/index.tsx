@@ -11,6 +11,7 @@ export const AdvancedFeatures = memo(() => {
     <FadeTransition>
       <div className="w-full flex flex-col gap-4">
         <PartnersPromotionSettings />
+
         {IS_MISES_BROWSER && <ReferralLinksSettings />}
       </div>
     </FadeTransition>
