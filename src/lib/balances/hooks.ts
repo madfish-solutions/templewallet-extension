@@ -237,7 +237,7 @@ function useEvmAssetRawBalance(
 
   useInterval(
     () => {
-      if (usingOnchainRequests || (forceFirstRefreshOnChain && !refreshOnChainDoneRef.current)) {
+      if (usingOnchainRequests || (forceFirstRefreshOnChain && refreshOnChainDoneRef.current)) {
         refreshBalanceOnChain();
       }
     },

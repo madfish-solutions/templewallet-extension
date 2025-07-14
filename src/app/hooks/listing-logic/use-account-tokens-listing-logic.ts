@@ -41,7 +41,7 @@ export const useAccountTokensForListing = (
   const tokensSortPredicate = useAccountTokensSortPredicate(accountTezAddress, accountEvmAddress);
 
   const getTezBalance = useGetTezosAccountTokenOrGasBalanceWithDecimals(accountTezAddress);
-  const mainnetUsdToTokenRates = useTezosUsdToTokenRatesSelector();
+  const mainnetTezUsdToTokenRates = useTezosUsdToTokenRatesSelector();
   const getEvmBalance = useGetEvmTokenBalanceWithDecimals(accountEvmAddress);
   const evmUsdToTokenRates = useEvmUsdToTokenRatesSelector();
 
@@ -60,10 +60,10 @@ export const useAccountTokensForListing = (
       const [chainKind, chainId, slug] = parseChainAssetSlug(chainSlug);
 
       return chainKind === TempleChainKind.Tezos
-        ? mainnetUsdToTokenRates[slug]
+        ? mainnetTezUsdToTokenRates[slug]
         : evmUsdToTokenRates[chainId as number]?.[slug];
     },
-    [evmUsdToTokenRates, mainnetUsdToTokenRates]
+    [evmUsdToTokenRates, mainnetTezUsdToTokenRates]
   );
   const isBigBalance = useIsBigBalance(getBalance, getExchangeRate);
 
