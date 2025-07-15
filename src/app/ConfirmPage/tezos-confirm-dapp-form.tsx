@@ -2,11 +2,12 @@ import React, { memo, useCallback, useMemo, useRef } from 'react';
 
 import { CustomTezosChainIdContext } from 'lib/analytics';
 import { useTempleClient } from 'lib/temple/front/client';
-import { StoredAccount, TempleTezosDAppPayload } from 'lib/temple/types';
+import { StoredAccount, TempleTezosDAppPayload, TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
 import { getAccountForTezos, isAccountOfActableType } from 'temple/accounts';
 import { useAllAccounts, useTezosChainIdLoadingValue } from 'temple/front';
 
 import { ConfirmDAppForm, ConfirmDAppFormContentProps } from './confirm-dapp-form';
+import { useTrackDappInteraction } from './hooks/use-track-dapp-interaction';
 import { TezosPayloadContent } from './payload-content';
 
 interface TezosConfirmDAppFormProps {
@@ -16,6 +17,8 @@ interface TezosConfirmDAppFormProps {
 
 export const TezosConfirmDAppForm = memo<TezosConfirmDAppFormProps>(({ payload, id }) => {
   const { confirmDAppPermission, confirmTezosDAppOperation, confirmDAppSign } = useTempleClient();
+
+  const { trackDappInteraction } = useTrackDappInteraction(payload);
 
   const allAccountsStored = useAllAccounts();
   const allAccounts = useMemo(
@@ -60,6 +63,9 @@ export const TezosConfirmDAppForm = memo<TezosConfirmDAppFormProps>(({ payload, 
   const handleConfirm = useCallback(
     async (confirmed: boolean, selectedAccount: StoredAccount) => {
       const accountPkh = getAccountForTezos(selectedAccount)!.address;
+
+      await trackDappInteraction(tezosChainId === TEZOS_MAINNET_CHAIN_ID ? 'Tezos' : 'Ghostnet');
+
       switch (payload.type) {
         case 'connect':
           return confirmDAppPermission(id, confirmed, accountPkh);
@@ -76,7 +82,16 @@ export const TezosConfirmDAppForm = memo<TezosConfirmDAppFormProps>(({ payload, 
           return confirmDAppSign(id, confirmed);
       }
     },
-    [payload.type, confirmDAppPermission, id, confirmTezosDAppOperation, revealFee, confirmDAppSign]
+    [
+      trackDappInteraction,
+      payload,
+      tezosChainId,
+      confirmDAppPermission,
+      id,
+      confirmTezosDAppOperation,
+      revealFee,
+      confirmDAppSign
+    ]
   );
 
   const renderPayload = useCallback(
