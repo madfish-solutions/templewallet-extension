@@ -63,7 +63,11 @@ export const EvmConfirmDAppForm = memo<EvmConfirmDAppFormProps>(({ payload, id }
     async (confirmed: boolean, selectedAccount: StoredAccount) => {
       const accountPkh = getAccountForEvm(selectedAccount)!.address;
 
-      await trackDappInteraction(payload.type === 'add_chain' ? payload.metadata.name : evmChains[chainId].name);
+      const isAddChainPayload = payload.type === 'add_chain';
+      await trackDappInteraction(
+        isAddChainPayload ? payload.metadata.name : evmChains[chainId].name,
+        isAddChainPayload ? undefined : evmChains[chainId].testnet
+      );
 
       switch (payload.type) {
         case 'connect':

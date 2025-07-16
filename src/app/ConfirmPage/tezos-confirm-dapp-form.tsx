@@ -64,7 +64,8 @@ export const TezosConfirmDAppForm = memo<TezosConfirmDAppFormProps>(({ payload, 
     async (confirmed: boolean, selectedAccount: StoredAccount) => {
       const accountPkh = getAccountForTezos(selectedAccount)!.address;
 
-      await trackDappInteraction(tezosChainId === TEZOS_MAINNET_CHAIN_ID ? 'Tezos' : 'Ghostnet');
+      const isTestnet = tezosChainId !== TEZOS_MAINNET_CHAIN_ID;
+      await trackDappInteraction(isTestnet ? 'Ghostnet' : 'Tezos', isTestnet);
 
       switch (payload.type) {
         case 'connect':
