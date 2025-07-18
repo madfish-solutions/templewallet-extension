@@ -89,15 +89,39 @@ export const SwapSelectAssetModal = memo<SelectTokenModalProps>(
           />
         );
 
-      if (!localFilterChain && accountTezAddress && accountEvmAddress)
-        return (
-          <MultiChainAssetsList
-            accountTezAddress={accountTezAddress}
-            accountEvmAddress={accountEvmAddress}
-            searchValue={searchValueDebounced}
-            onAssetSelect={handleAssetSelect}
-          />
-        );
+      if (!localFilterChain) {
+        if (accountTezAddress && accountEvmAddress)
+          return (
+            <MultiChainAssetsList
+              accountTezAddress={accountTezAddress}
+              accountEvmAddress={accountEvmAddress}
+              searchValue={searchValueDebounced}
+              onAssetSelect={handleAssetSelect}
+            />
+          );
+
+        if (accountTezAddress)
+          return (
+            <TezosChainAssetsList
+              chainId={tezosNetwork.chainId}
+              filterZeroBalances={activeField === 'input'}
+              publicKeyHash={accountTezAddress}
+              searchValue={searchValueDebounced}
+              onAssetSelect={handleAssetSelect}
+            />
+          );
+
+        if (accountEvmAddress)
+          return (
+            <EvmChainAssetsList
+              chainId={evmNetwork.chainId}
+              filterZeroBalances={activeField === 'input'}
+              publicKeyHash={accountEvmAddress}
+              searchValue={searchValueDebounced}
+              onAssetSelect={handleAssetSelect}
+            />
+          );
+      }
 
       return null;
     }, [localFilterChain, accountTezAddress, activeField, searchValueDebounced, handleAssetSelect, accountEvmAddress]);
