@@ -14,7 +14,7 @@ import { ReactComponent as RedditIcon } from 'app/icons/monochrome/reddit.svg';
 import { ReactComponent as TelegramIcon } from 'app/icons/monochrome/telegram.svg';
 import { ReactComponent as XSocialIcon } from 'app/icons/monochrome/x-social.svg';
 import { ReactComponent as YoutubeIcon } from 'app/icons/monochrome/youtube.svg';
-import { fetchConversionAccount, getRefLink, getReferrersCount } from 'lib/apis/temple';
+import { fetchConversionAccount, getRefLink, getReferralsCount } from 'lib/apis/temple';
 import { PRIVACY_POLICY_URL, TERMS_OF_USE_URL } from 'lib/constants';
 import { EnvVars } from 'lib/env';
 import { REFERRERS_COUNTER_SYNC_INTERVAL } from 'lib/fixed-times';
@@ -99,7 +99,7 @@ export const About = memo(() => {
 
   const { data: conversionAccount } = useTypedSWR(['conversionAccount'], fetchConversionAccount, { suspense: false });
   const { data: refLink } = useTypedSWR(['refLink'], getRefLink, { suspense: false });
-  const { data: referrersCount } = useTypedSWR(['referrersCount'], getReferrersCount, {
+  const { data: referralsCount } = useTypedSWR(['referralsCount'], getReferralsCount, {
     suspense: false,
     refreshInterval: REFERRERS_COUNTER_SYNC_INTERVAL
   });
@@ -139,7 +139,7 @@ export const About = memo(() => {
         </SettingsCellGroup>
         <LinksGroupView group={{ title: t('links'), links: LINKS }} />
         <LinksGroupView group={{ title: t('community'), links: COMMUNITY_LINKS }} />
-        {refLink && conversionAccount && referrersCount !== undefined ? (
+        {refLink && conversionAccount && referralsCount !== undefined ? (
           <>
             <CopyButton text={refLink} className="text-secondary flex text-font-description-bold items-center">
               <span>Copy the link to share</span>
@@ -155,7 +155,7 @@ export const About = memo(() => {
                 EVM payout address: <HashChip hash={conversionAccount.evmAddress} />
               </p>
             )}
-            <p className="text-font-description text-grey-1">You have {referrersCount} referrers</p>
+            <p className="text-font-description text-grey-1">You have {referralsCount} referrals</p>
           </>
         ) : (
           <Loader trackVariant="dark" size="S" />
