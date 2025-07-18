@@ -6,6 +6,7 @@ import { useDispatch } from 'react-redux';
 import { FormField, IconBase } from 'app/atoms';
 import { StyledButton } from 'app/atoms/StyledButton';
 import { TextButton } from 'app/atoms/TextButton';
+import { useShouldShowV2IntroModal } from 'app/hooks/use-should-show-v2-intro-modal';
 import { ReactComponent as LockFillIcon } from 'app/icons/base/lock_fill.svg';
 import { PlanetsBgPageLayout } from 'app/layouts/planets-bg-page-layout';
 import { getUserTestingGroupNameActions } from 'app/store/ab-testing/actions';
@@ -56,6 +57,8 @@ const Unlock: FC<UnlockProps> = ({ canImportNew = true }) => {
   const { unlock } = useTempleClient();
   const dispatch = useDispatch();
   const formAnalytics = useFormAnalytics('UnlockWallet');
+
+  useShouldShowV2IntroModal(true);
 
   const [pageModalName, setPageModalName] = useState<PageModalName | null>(null);
   const [attempt, setAttempt] = useLocalStorage<number>(TempleSharedStorageKey.PasswordAttempts, 1);

@@ -13,7 +13,8 @@ import browser, { Runtime } from 'webextension-polyfill';
 import {
   CONVERSION_CHECKED_STORAGE_KEY,
   CUSTOM_TEZOS_NETWORKS_STORAGE_KEY,
-  REFERRAL_WALLET_REGISTERED_STORAGE_KEY
+  REFERRAL_WALLET_REGISTERED_STORAGE_KEY,
+  SHOULD_DISABLE_NOT_ACTIVE_NETWORKS_STORAGE_KEY
 } from 'lib/constants';
 import { BACKGROUND_IS_WORKER } from 'lib/env';
 import { putToStorage, removeFromStorage } from 'lib/storage';
@@ -698,7 +699,11 @@ export function resetExtension(password: string) {
   return withUnlocked(async () =>
     Promise.all([
       Vault.reset(password),
-      removeFromStorage([CONVERSION_CHECKED_STORAGE_KEY, REFERRAL_WALLET_REGISTERED_STORAGE_KEY])
+      removeFromStorage([
+        CONVERSION_CHECKED_STORAGE_KEY,
+        REFERRAL_WALLET_REGISTERED_STORAGE_KEY,
+        SHOULD_DISABLE_NOT_ACTIVE_NETWORKS_STORAGE_KEY
+      ])
     ])
   );
 }

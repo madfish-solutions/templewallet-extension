@@ -17,7 +17,9 @@ interface ChainSpecsBase {
   testnet?: boolean;
 }
 
-export interface TezosChainSpecs extends ChainSpecsBase {}
+export interface TezosChainSpecs extends ChainSpecsBase {
+  currencySymbol?: string;
+}
 
 export interface EvmChainSpecs extends ChainSpecsBase {
   currency?: EvmNativeTokenMetadata;
