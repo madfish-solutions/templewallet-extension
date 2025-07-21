@@ -7,15 +7,7 @@ import type { BalancesStateInterface } from './state';
 
 export const getKeyForBalancesRecord = (publicKeyHash: string, chainId: string) => `${publicKeyHash}_${chainId}`;
 
-export const parseKeyForBalancesRecord = (key: string) => {
-  const [publicKeyHash, chainId] = key.split('_');
-
-  if (!publicKeyHash || !chainId) {
-    throw new Error(`Invalid key for balances record: ${key}`);
-  }
-
-  return { publicKeyHash, chainId };
-};
+export const parseKeyForBalancesRecord = (key: string) => key.split('_') as [publicKeyHash: string, chainId?: string];
 
 export const retrieveBalancesRecord = (
   state: Draft<BalancesStateInterface>,
