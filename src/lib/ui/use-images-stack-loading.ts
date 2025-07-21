@@ -1,9 +1,7 @@
 import { useCallback, useRef, useState } from 'react';
 
 import { useDidUpdate } from 'lib/ui/hooks';
-
-// Utility to shallow-compare arrays
-const arraysEqual = (a: string[], b: string[]) => a.length === b.length && a.every((val, i) => val === b[i]);
+import { areStringArraysEqual } from 'lib/utils/are-string-arrays-equal';
 
 /**
  * @arg sources // Memoize
@@ -17,7 +15,7 @@ export const useImagesStackLoading = (sources: string[]) => {
   const [isStackFailed, setIsStackFailed] = useState(emptyStack);
 
   useDidUpdate(() => {
-    const sameSources = arraysEqual(prevSourcesRef.current, sources);
+    const sameSources = areStringArraysEqual(prevSourcesRef.current, sources);
 
     if (!sameSources) {
       prevSourcesRef.current = sources;
