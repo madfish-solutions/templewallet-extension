@@ -35,9 +35,9 @@ export const useAccountsInitializedSync = () => {
 
       const tezosAddress = getAccountAddressForTezos(account);
       for (const key in rawTezBalances) {
-        const [publicKeyHash, chainId] = parseKeyForBalancesRecord(key);
+        const [publicKeyHash] = parseKeyForBalancesRecord(key);
 
-        if (publicKeyHash !== tezosAddress || !chainId) {
+        if (publicKeyHash !== tezosAddress) {
           continue;
         }
 
