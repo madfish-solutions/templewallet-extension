@@ -12,8 +12,9 @@ export interface NetworkPopperProps {
   placement?: Placement;
   chainKind?: TempleChainKind;
   showAllNetworksOption: boolean;
-  selectedOption: FilterChain;
-  onOptionSelect: SyncFn<FilterChain>;
+  showFavoritesOption?: boolean;
+  selectedOption: FilterChain | string;
+  onOptionSelect: SyncFn<FilterChain | string>;
   children: (props: PopperAnchorProps & { selectedOptionName: string }) => ReactElement;
   supportedChainIds?: number[];
 }
