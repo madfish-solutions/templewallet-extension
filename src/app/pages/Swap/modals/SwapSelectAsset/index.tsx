@@ -21,6 +21,7 @@ import { TempleChainKind } from 'temple/types';
 import { EvmChainAssetsList } from './EvmChainAssetsList';
 import { MultiChainAssetsList } from './MultiChainAssetsList';
 import { TezosChainAssetsList } from './TezosChainAssetsList';
+import { AllEvmChainsAssetsList } from './AllEvmChainsAssetsList';
 
 interface SelectTokenModalProps {
   activeField: SwapFieldName;
@@ -113,10 +114,8 @@ export const SwapSelectAssetModal = memo<SelectTokenModalProps>(
 
         if (accountEvmAddress)
           return (
-            <EvmChainAssetsList
-              chainId={evmNetwork.chainId}
-              filterZeroBalances={activeField === 'input'}
-              publicKeyHash={accountEvmAddress}
+            <AllEvmChainsAssetsList
+              accountEvmAddress={accountEvmAddress}
               searchValue={searchValueDebounced}
               onAssetSelect={handleAssetSelect}
             />
