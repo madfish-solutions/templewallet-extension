@@ -209,6 +209,9 @@ export const MIGRATIONS = [
         settings.customNetworks.map((network: LegacyStoredTezosNetwork) =>
           loadTezosChainId(network.rpcBaseURL, 30_000)
             .then<StoredTezosNetwork | null>(chainId => {
+              // Some old protocols (e.g. Mumbainet) RPCs may return object as a response
+              if (typeof chainId !== 'string') return null;
+
               delete network.type;
               return { ...network, chain: TempleChainKind.Tezos, chainId };
             })
