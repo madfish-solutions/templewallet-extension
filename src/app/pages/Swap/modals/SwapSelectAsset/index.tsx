@@ -18,10 +18,10 @@ import { useAccountAddressForEvm, useAccountAddressForTezos, useTezosMainnetChai
 import { useEvmChainByChainId } from 'temple/front/chains';
 import { TempleChainKind } from 'temple/types';
 
+import { AllEvmChainsAssetsList } from './AllEvmChainsAssetsList';
 import { EvmChainAssetsList } from './EvmChainAssetsList';
 import { MultiChainAssetsList } from './MultiChainAssetsList';
 import { TezosChainAssetsList } from './TezosChainAssetsList';
-import { AllEvmChainsAssetsList } from './AllEvmChainsAssetsList';
 
 interface SelectTokenModalProps {
   activeField: SwapFieldName;
