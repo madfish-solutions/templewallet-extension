@@ -176,7 +176,7 @@ export const ActivityOperationBaseComponent = memo<Props>(
 
     return (
       <div className="z-1 relative group flex gap-x-2 p-2 rounded-lg hover:bg-secondary-low">
-        <div className="relative shrink-0 self-center flex items-center justify-center flex items-start w-10 h-10">
+        <div className="relative shrink-0 flex items-center justify-center w-10 h-10">
           {kind === 'bundle' ? (
             <BundleIconsStack withoutAssetIcon={withoutAssetIcon} isNFT={isNFT}>
               {faceIconJsx}

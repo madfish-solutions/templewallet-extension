@@ -111,9 +111,6 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
         ...(nonce ? { nonce: Number(nonce) } : {})
       });
 
-      // TODO: remove after QA
-      console.log('txParams', txParams);
-
       if (!txParams) {
         console.error(`Failed to parse transactionRequest for step ${step.tool}`);
         return;
