@@ -9,7 +9,10 @@ import {
   usePreservedOrderSlugsToManage
 } from 'app/hooks/listing-logic/use-manageable-slugs';
 import { useAssetsViewState } from 'app/hooks/use-assets-view-state';
-import { useTokensListOptionsSelector } from 'app/store/assets-filter-options/selectors';
+import {
+  useGroupByNetworkBehaviorSelector,
+  useTokensListOptionsSelector
+} from 'app/store/assets-filter-options/selectors';
 import { useMainnetTokensScamlistSelector } from 'app/store/tezos/assets/selectors';
 import { PartnersPromotion, PartnersPromotionVariant } from 'app/templates/partners-promotion';
 import { EvmTokenListItem, TezosTokenListItem } from 'app/templates/TokenListItem';
@@ -53,12 +56,13 @@ export const MultiChainTokensTab = memo<Props>(props => {
 
 const TabContent: FC = () => {
   const { accountTezAddress, accountEvmAddress } = useContext(MultiChainTokensTabContext);
-  const { hideZeroBalance, groupByNetwork } = useTokensListOptionsSelector();
+  const groupByNetwork = useGroupByNetworkBehaviorSelector();
+  const { hideSmallBalance } = useTokensListOptionsSelector();
 
   const { enabledChainsSlugsSorted, enabledChainsSlugsSortedGrouped } = useAccountTokensForListing(
     accountTezAddress,
     accountEvmAddress,
-    hideZeroBalance,
+    hideSmallBalance,
     groupByNetwork
   );
 
@@ -74,10 +78,11 @@ const TabContent: FC = () => {
 
 const TabContentWithManageActive: FC = () => {
   const { accountTezAddress, accountEvmAddress } = useContext(MultiChainTokensTabContext);
-  const { hideZeroBalance, groupByNetwork } = useTokensListOptionsSelector();
+  const groupByNetwork = useGroupByNetworkBehaviorSelector();
+  const { hideSmallBalance } = useTokensListOptionsSelector();
 
   const { enabledChainsSlugsSorted, enabledChainsSlugsSortedGrouped, tezTokens, evmTokens, tokensSortPredicate } =
-    useAccountTokensForListing(accountTezAddress, accountEvmAddress, hideZeroBalance, groupByNetwork);
+    useAccountTokensForListing(accountTezAddress, accountEvmAddress, hideSmallBalance, groupByNetwork);
 
   const tokensChainsSlugs = useMemo(
     () =>
