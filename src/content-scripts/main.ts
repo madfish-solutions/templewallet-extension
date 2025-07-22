@@ -250,7 +250,7 @@ function send(msg: TemplePageMessage | BeaconPageMessage, targetOrigin: string) 
   window.postMessage(msg, targetOrigin);
 }
 
-const TRACK_BEACON_DISCONNECTION_INTERVAL = 5000;
+const TRACK_BEACON_DISCONNECTION_INTERVAL = 1000;
 function beaconIsConnected() {
   try {
     const activeAccountId = localStorage.getItem('beacon:active-account');

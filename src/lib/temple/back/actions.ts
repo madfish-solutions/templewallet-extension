@@ -10,9 +10,9 @@ import {
 import { TransactionRequest } from 'viem';
 import browser, { Runtime } from 'webextension-polyfill';
 
-import { CUSTOM_TEZOS_NETWORKS_STORAGE_KEY } from 'lib/constants';
+import { CUSTOM_TEZOS_NETWORKS_STORAGE_KEY, SHOULD_DISABLE_NOT_ACTIVE_NETWORKS_STORAGE_KEY } from 'lib/constants';
 import { BACKGROUND_IS_WORKER } from 'lib/env';
-import { putToStorage } from 'lib/storage';
+import { putToStorage, removeFromStorage } from 'lib/storage';
 import { addLocalOperation } from 'lib/temple/activity';
 import * as Beacon from 'lib/temple/beacon';
 import { buildFinalTezosOpParams } from 'lib/temple/helpers';
@@ -648,12 +648,11 @@ export async function processEvmDApp(origin: string, payload: EvmRequestPayload,
 }
 
 export async function getBeaconMessage(origin: string, msg: string, encrypted = false) {
-  let recipientPubKey: string | null = null;
+  const recipientPubKey = await Beacon.getDAppPublicKey(origin);
   let payload = null;
 
   if (encrypted) {
     try {
-      recipientPubKey = await Beacon.getDAppPublicKey(origin);
       if (!recipientPubKey) throw new Error('<stub>');
 
       try {
@@ -694,7 +693,9 @@ type ProcessedBeaconMessage = {
 };
 
 export function resetExtension(password: string) {
-  return withUnlocked(async () => Vault.reset(password));
+  return withUnlocked(async () =>
+    Promise.all([Vault.reset(password), removeFromStorage(SHOULD_DISABLE_NOT_ACTIVE_NETWORKS_STORAGE_KEY)])
+  );
 }
 
 export async function processBeacon(
@@ -739,7 +740,6 @@ export async function processBeacon(
   }
 
   const res = await getBeaconResponse(req, resBase, origin);
-  // const res = null;
 
   const resMsg = Beacon.encodeMessage<Beacon.Response>(res);
   if (encrypted && recipientPubKey) {

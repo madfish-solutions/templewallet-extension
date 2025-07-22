@@ -8,6 +8,7 @@ import { isCollectible } from 'lib/metadata/utils';
 
 import type { RootState } from './root-state.type';
 import { DEFAULT_SWAP_PARAMS } from './swap/state.mock';
+import { parseKeyForBalancesRecord } from './tezos/balances/utils';
 import { collectiblesMetadataInitialState } from './tezos/collectibles-metadata/state';
 
 import type { SLICES_BLACKLIST } from './index';
@@ -122,19 +123,74 @@ export const MIGRATIONS: MigrationManifest = {
 
     return newState;
   },
-
+  // v1 => v2 migrations
   '6': (persistedState: PersistedState) => {
+    if (!persistedState) {
+      return persistedState;
+    }
+
+    const state = persistedState as TypedPersistedRootState;
+
+    const showInfoRaw = localStorage.getItem('collectibles-grid:show-items-details');
+    const blurRaw = localStorage.getItem('collectibles:adult-blur');
+
+    const newState = { ...state };
+
+    if (state.settings.isOnRampPossibility) {
+      newState.settings = {
+        ...newState.settings,
+        onRampAsset: TEZOS_CHAIN_ASSET_SLUG
+      };
+    }
+
+    const showInfo = showInfoRaw === 'true';
+    const blur = blurRaw !== 'false';
+
+    newState.assetsFilterOptions = {
+      ...newState?.assetsFilterOptions,
+      collectiblesListOptions: {
+        ...newState?.assetsFilterOptions?.collectiblesListOptions,
+        showInfo,
+        blur
+      }
+    };
+
+    if (showInfoRaw !== null) {
+      localStorage.removeItem('collectibles-grid:show-items-details');
+    }
+    if (blurRaw !== null) {
+      localStorage.removeItem('collectibles:adult-blur');
+    }
+
+    // Remove invalid balances keys (e.g. "tz1X9JwX9CHPF7eG9QNcdCuh3iCvkbDcgQbb_")
+    if (state.balances?.balancesAtomic) {
+      const invalidKeys: string[] = [];
+
+      Object.keys(newState.balances?.balancesAtomic).forEach(key => {
+        const [publicKeyHash, chainId] = parseKeyForBalancesRecord<string | undefined>(key);
+        if (!publicKeyHash || !chainId) invalidKeys.push(key);
+      });
+
+      invalidKeys.forEach(key => {
+        delete newState.balances?.balancesAtomic[key];
+      });
+    }
+
+    return newState;
+  },
+  '7': (persistedState: PersistedState) => {
     if (!persistedState) return persistedState;
 
     const typedPersistedState = persistedState as TypedPersistedRootState;
 
-    if (!typedPersistedState.settings.isOnRampPossibility) return persistedState;
-
     const newState: TypedPersistedRootState = {
       ...typedPersistedState,
-      settings: {
-        ...typedPersistedState.settings,
-        onRampAsset: TEZOS_CHAIN_ASSET_SLUG
+      assetsFilterOptions: {
+        ...typedPersistedState.assetsFilterOptions,
+        tokensListOptions: {
+          ...typedPersistedState.assetsFilterOptions.tokensListOptions,
+          hideSmallBalance: typedPersistedState.assetsFilterOptions.tokensListOptions.hideZeroBalance ?? false
+        }
       }
     };
 

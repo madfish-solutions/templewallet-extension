@@ -12,7 +12,7 @@ import {
   postAnonymousAdImpression,
   postReferralClick
 } from 'lib/apis/ads-api';
-import { ADS_VIEWER_ADDRESS_STORAGE_KEY, ContentScriptType } from 'lib/constants';
+import { ADS_VIEWER_DATA_STORAGE_KEY, ContentScriptType } from 'lib/constants';
 import { E2eMessageType } from 'lib/e2e/types';
 import { BACKGROUND_IS_WORKER, EnvVars } from 'lib/env';
 import { fetchFromStorage } from 'lib/storage';
@@ -23,7 +23,7 @@ import { getTrackedCashbackServiceDomain, getTrackedUrl } from 'lib/utils/url-tr
 import { EVMErrorCodes } from 'temple/evm/constants';
 import { ErrorWithCode } from 'temple/evm/types';
 import { parseTransactionRequest } from 'temple/evm/utils';
-import { TempleChainKind } from 'temple/types';
+import { AdsViewerData, TempleChainKind } from 'temple/types';
 
 import * as Actions from './actions';
 import * as Analytics from './analytics';
@@ -261,9 +261,14 @@ const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<T
           type: MessageType.Acknowledge
         };
 
+        const pubKey = res?.type === MessageType.HandshakeRequest && res.publicKey ? res.publicKey : recipientPubKey;
+        if (!pubKey) {
+          throw new Error('DApp public key not found.');
+        }
+
         return {
           type: TempleMessageType.Acknowledge,
-          payload: await encryptMessage(encodeMessage<Response>(response), recipientPubKey ?? ''),
+          payload: await encryptMessage(encodeMessage<Response>(response), pubKey),
           encrypted: true
         };
       }
@@ -391,7 +396,7 @@ browser.runtime.onMessage.addListener(async (msg, sender) => {
         const trackedUrl = getTrackedUrl(msg.url);
 
         if (trackedUrl) {
-          const accountPkh = await getAdsViewerPkh();
+          const { tezosAddress: accountPkh } = await getAdsViewerCredentials();
           await Analytics.client.track('External links activity', { url: trackedUrl, accountPkh });
         }
 
@@ -411,7 +416,7 @@ browser.runtime.onMessage.addListener(async (msg, sender) => {
 
       case ContentScriptType.ExternalAdsActivity: {
         const urlDomain = new URL(msg.url).hostname;
-        const accountPkh = await getAdsViewerPkh();
+        const { tezosAddress: accountPkh } = await getAdsViewerCredentials();
 
         if (accountPkh) await postAdImpression(accountPkh, msg.provider, { urlDomain });
         else {
@@ -440,7 +445,7 @@ browser.runtime.onMessage.addListener(async (msg, sender) => {
 
       case ContentScriptType.ReferralClick: {
         const { urlDomain, pageDomain } = msg;
-        const accountPkh = await getAdsViewerPkh();
+        const { tezosAddress: accountPkh } = await getAdsViewerCredentials();
 
         if (accountPkh) await postReferralClick(accountPkh, undefined, { urlDomain, pageDomain });
         else {
@@ -459,16 +464,17 @@ browser.runtime.onMessage.addListener(async (msg, sender) => {
   return;
 });
 
-async function getAdsViewerPkh() {
-  const accountPkhFromStorage = await fetchFromStorage<string>(ADS_VIEWER_ADDRESS_STORAGE_KEY);
+async function getAdsViewerCredentials() {
+  const credentialsFromStorage = await fetchFromStorage<AdsViewerData>(ADS_VIEWER_DATA_STORAGE_KEY);
 
-  if (accountPkhFromStorage) {
-    return accountPkhFromStorage;
+  if (credentialsFromStorage) {
+    return credentialsFromStorage;
   }
 
-  const frontState = await Actions.getFrontState();
+  const { accounts } = await Actions.getFrontState();
+  const { tezosAddress, evmAddress } = (accounts[0] as StoredHDAccount | undefined) ?? {};
 
-  return (frontState.accounts[0] as StoredHDAccount | undefined)?.tezosAddress;
+  return { tezosAddress, evmAddress };
 }
 
 const getReferralsRules = memoizee(fetchReferralsRules, {

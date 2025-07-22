@@ -30,7 +30,10 @@ export const REPLACE_REFERRALS_ENABLED = 'REPLACE_REFERRALS_ENABLED';
 /** @deprecated */
 export const ACCOUNT_PKH_STORAGE_KEY = 'account_publickeyhash';
 
+/** @deprecated */
 export const ADS_VIEWER_ADDRESS_STORAGE_KEY = 'ADS_VIEWER_ADDRESS';
+
+export const ADS_VIEWER_DATA_STORAGE_KEY = 'ADS_VIEWER_DATA';
 
 /** @deprecated */
 export const CUSTOM_NETWORKS_SNAPSHOT_STORAGE_KEY = 'custom_networks_snapshot';
@@ -77,9 +80,13 @@ export const ACCOUNT_EXISTS_SHOWN_WARNINGS_STORAGE_KEY = 'ACCOUNT_EXISTS_SHOWN_W
 
 export const SHOULD_BACKUP_MNEMONIC_STORAGE_KEY = 'SHOULD_BACKUP_MNEMONIC';
 
+export const SHOULD_SHOW_V2_INTRO_MODAL_STORAGE_KEY = 'SHOULD_SHOW_V2_INTRO_MODAL';
+
 export const AUTOLOCK_TIME_STORAGE_KEY = 'AUTOLOCK_TIME';
 
 export const SIDE_VIEW_WAS_FORCED_STORAGE_KEY = 'SIDE_VIEW_WAS_FORCED';
+
+export const SHOULD_DISABLE_NOT_ACTIVE_NETWORKS_STORAGE_KEY = 'SHOULD_DISABLE_NOT_ACTIVE_NETWORKS';
 
 // Browser storage cannot set a value to Infinity
 export const NEVER_AUTOLOCK_VALUE = Number.MAX_SAFE_INTEGER;
@@ -109,6 +116,8 @@ export const RECOMMENDED_ADD_TEZ_GAS_FEE = 0.00015;
 export const THEME_COLOR_SEARCH_PARAM_NAME = 'tc';
 export const FONT_SIZE_SEARCH_PARAM_NAME = 'fs';
 export const LINE_HEIGHT_SEARCH_PARAM_NAME = 'lh';
+export const EVM_ACCOUNT_SEARCH_PARAM_NAME = 'ea';
+export const CHAIN_NAME_SEARCH_PARAM_NAME = 'cn';
 
 export const SEND_ETH_GAS_LIMIT = BigInt(21000);
 

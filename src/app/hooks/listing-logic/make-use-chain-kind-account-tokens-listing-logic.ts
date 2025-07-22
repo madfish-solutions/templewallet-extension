@@ -22,7 +22,7 @@ interface TokensForListingHookFactoryConfig<T extends TempleChainKind> {
   useAccountTokens: SyncFn<PublicKeyHash<T>, AccountToken[]>;
   useEnabledChains: SyncFn<void, ChainOfKind<T>[]>;
   useTokensSortPredicate: SyncFn<PublicKeyHash<T>, (a: string, b: string) => number>;
-  useIsNonZeroBalance: SyncFn<PublicKeyHash<T>, (chainSlug: string) => boolean>;
+  useIsBigBalance: SyncFn<PublicKeyHash<T>, (chainSlug: string) => boolean>;
   chainKind: T;
   gasTokenSlug: string;
 }
@@ -44,19 +44,19 @@ export const makeUseChainKindAccountTokensForListing = <T extends TempleChainKin
   useAccountTokens,
   useEnabledChains,
   useTokensSortPredicate,
-  useIsNonZeroBalance,
+  useIsBigBalance,
   chainKind,
   gasTokenSlug
 }: TokensForListingHookFactoryConfig<T>) => {
   const useChainKindAccountTokensForListing = (
     publicKeyHash: PublicKeyHash<T>,
-    filterZeroBalances: boolean,
+    filterSmallBalances: boolean,
     groupingEnabled: boolean
   ) => {
     const tokens = useAccountTokens(publicKeyHash);
     const enabledChains = useEnabledChains();
     const tokensSortPredicate = useTokensSortPredicate(publicKeyHash);
-    const isNonZeroBalance = useIsNonZeroBalance(publicKeyHash);
+    const isBigBalance = useIsBigBalance(publicKeyHash);
 
     const enabledSlugs = useMemo(() => {
       const gasSlugs = enabledChains.map(chain => toChainAssetSlug(chainKind, chain.chainId, gasTokenSlug));
@@ -68,10 +68,10 @@ export const makeUseChainKindAccountTokensForListing = <T extends TempleChainKin
       return gasSlugs.concat(enabledTokensSlugs);
     }, [tokens, enabledChains]);
     const enabledChainSlugsSorted = useMemoWithCompare(() => {
-      const enabledSlugsFiltered = filterZeroBalances ? enabledSlugs.filter(isNonZeroBalance) : enabledSlugs;
+      const enabledSlugsFiltered = filterSmallBalances ? enabledSlugs.filter(isBigBalance) : enabledSlugs;
 
       return enabledSlugsFiltered.sort(tokensSortPredicate);
-    }, [enabledSlugs, isNonZeroBalance, tokensSortPredicate, filterZeroBalances]);
+    }, [enabledSlugs, isBigBalance, tokensSortPredicate, filterSmallBalances]);
     const enabledChainSlugsSortedGrouped = useMemoWithCompare(() => {
       if (!groupingEnabled) return null;
 

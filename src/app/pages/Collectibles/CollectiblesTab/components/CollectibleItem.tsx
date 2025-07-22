@@ -27,6 +27,7 @@ import { DeleteAssetModal } from 'app/templates/remove-asset-modal/delete-asset-
 import { setAnotherSelector, setTestID } from 'lib/analytics';
 import { getAssetStatus } from 'lib/assets/hooks/utils';
 import { useEvmAssetBalance } from 'lib/balances/hooks';
+import { buildObjktCollectibleArtifactUri } from 'lib/images-uri';
 import { getTokenName } from 'lib/metadata';
 import { CollectibleMetadata } from 'lib/metadata/types';
 import { getCollectibleName, getCollectionName } from 'lib/metadata/utils';
@@ -94,6 +95,7 @@ export const TezosCollectibleItem = memo(
             metadata={metadata}
             adultBlur={adultBlur}
             areDetailsLoading={areDetailsLoading && details === undefined}
+            extraSrc={details?.objktArtifactUri && buildObjktCollectibleArtifactUri(details?.objktArtifactUri)}
             mime={details?.mime}
             scam={scam}
             index={index}
@@ -112,6 +114,7 @@ export const TezosCollectibleItem = memo(
           metadatasLoading={metadatasLoading}
           adultBlur={adultBlur}
           areDetailsLoading={areDetailsLoading && details === undefined}
+          extraSrc={details?.objktArtifactUri && buildObjktCollectibleArtifactUri(details?.objktArtifactUri)}
           mime={details?.mime}
           scam={scam}
           index={index}
@@ -331,6 +334,7 @@ const ManageTezosListItemLayout = ManageCollectibleListItemLayoutHOC<
     adultBlur: boolean;
     areDetailsLoading: boolean;
     mime: string | nullish;
+    extraSrc?: string;
     wrapperElemRef: RefObject<HTMLDivElement>;
   }
 >(
@@ -469,6 +473,7 @@ const DefaultTezosListItemLayout = DefaultCollectibleListItemLayoutHOC<
     adultBlur: boolean;
     areDetailsLoading: boolean;
     mime: string | nullish;
+    extraSrc?: string;
     wrapperElemRef: RefObject<HTMLDivElement>;
   }
 >(

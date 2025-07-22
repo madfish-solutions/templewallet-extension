@@ -41,9 +41,7 @@ const SwapSelectTokenFace: FC<SwapFieldProps> = ({
             ) : (
               <EvmAssetIconWithNetwork evmChainId={chainId} assetSlug={assetSlug} size={32} />
             )}
-            <span className="text-text text-xs font-semibold overflow-hidden max-w-10 text-ellipsis">
-              {assetSymbol}
-            </span>
+            <span className="text-font-description-bold max-w-9 truncate">{assetSymbol}</span>
           </div>
           <IconBase Icon={CompactDown} className="text-primary" />
         </Button>

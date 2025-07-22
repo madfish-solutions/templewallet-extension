@@ -394,7 +394,7 @@ export async function removeDApps(origins: string[]) {
       const pubKey = await Beacon.getDAppPublicKey(origin);
 
       if (!pubKey) {
-        throw new Error('Public key not found');
+        throw new Error('DApp public key not found.');
       }
 
       return [origin, await Beacon.encryptMessage(messageBeforeEncryption, pubKey)];
