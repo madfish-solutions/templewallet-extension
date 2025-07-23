@@ -18,10 +18,10 @@
     "message": "Settings"
   },
   "openNewTab": {
-    "message": "Open new tab"
+    "message": "New tab"
   },
   "maximiseView": {
-    "message": "View Full Screen"
+    "message": "Full Screen"
   },
   "versionLabel": {
     "message": "Version: $version$",

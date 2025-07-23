@@ -19,6 +19,7 @@ import { TempleChainKind } from 'temple/types';
 
 import { ActivityPage } from './pages/Activity';
 import { ChainSettings } from './pages/ChainSettings';
+import { Dapps } from './pages/Dapps';
 import { EarnTezPage } from './pages/EarnTez';
 import { EarnTkeyPage } from './pages/EarnTkey';
 import { ImportWallet } from './pages/ImportWallet';
@@ -99,6 +100,7 @@ const ROUTE_MAP = Woozie.createMap<RouteContext>([
   ['/market', onlyReady(() => <Market />)],
   ['/attention', onlyReady(onlyInFullPage(() => <AttentionPage />))],
   ['/notifications', onlyReady(() => <Notifications />)],
+  ['/dapps', onlyReady(() => <Dapps />)],
   ['/account/:id', onlyReady(({ id }) => <AccountSettings id={id!} />)],
   ['/rewards', onlyReady(() => <RewardsPage />)],
   ['*', () => <Woozie.Redirect to="/" />]

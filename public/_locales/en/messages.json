@@ -32,14 +32,16 @@
     "message": "Settings"
   },
   "openNewTab": {
-    "message": "Open new tab"
+    "message": "New tab"
   },
   "maximiseView": {
-    "message": "View Full Screen"
+    "message": "Full Screen"
   },
-  "connectedDApps": {
-    "message": "Connected Dapps",
-    "description": "Dapps = Decentralized Applications"
+  "dapps": {
+    "message": "Dapps"
+  },
+  "connections": {
+    "message": "Connections"
   },
   "description": {
     "message": "Description"
@@ -83,6 +85,9 @@
   },
   "lock": {
     "message": "Lock"
+  },
+  "lockWallet": {
+    "message": "Lock Wallet"
   },
   "importedAccount": {
     "message": "Imported"

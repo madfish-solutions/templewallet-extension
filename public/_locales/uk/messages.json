@@ -20,9 +20,8 @@
   "maximiseView": {
     "message": "Збільшити огляд"
   },
-  "connectedDApps": {
-    "message": "Підключені Dapp`ки",
-    "description": "Dapps = децентралізовані додатки"
+  "connections": {
+    "message": "Підключення"
   },
   "versionLabel": {
     "message": "Версія: $version$",
