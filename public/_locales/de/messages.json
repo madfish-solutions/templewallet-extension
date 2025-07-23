@@ -471,8 +471,8 @@
     "message": "Seed-Phrase freigeben"
   },
   "dApps": {
-    "message": "DApps",
-    "description": "DApps = Decentralized Applications"
+    "message": "Dapps",
+    "description": "Dapps = Decentralized Applications"
   },
   "removeAccount": {
     "message": "Konto entfernen"

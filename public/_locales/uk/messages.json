@@ -453,8 +453,8 @@
     "message": "Розкрийте Сід Фразу"
   },
   "dApps": {
-    "message": "DApps",
-    "description": "DApps = Decentralized Applications"
+    "message": "Dapps",
+    "description": "Dapps = Decentralized Applications"
   },
   "removeAccount": {
     "message": "Видалити Аккаунт"

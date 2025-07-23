@@ -77,7 +77,7 @@ const MenuDropdown = memo<PopperRenderProps>(({ opened, setOpened }) => {
       {
         key: 'dapps',
         Icon: ExploreIcon,
-        children: <T id="dapps" />,
+        children: <T id="dApps" />,
         linkTo: '/dapps',
         testID: MenuDropdownSelectors.dappsButton,
         onClick: closeDropdown

@@ -471,8 +471,8 @@
     "message": "Kurtarma Sözcüğünü Göster"
   },
   "dApps": {
-    "message": "DApps",
-    "description": "DApps = Decentralized Applications"
+    "message": "Dapps",
+    "description": "Dapps = Decentralized Applications"
   },
   "removeAccount": {
     "message": "Hesabı Kaldır"

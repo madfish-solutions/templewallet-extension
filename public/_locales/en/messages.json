@@ -37,9 +37,6 @@
   "maximiseView": {
     "message": "Full Screen"
   },
-  "dapps": {
-    "message": "Dapps"
-  },
   "connections": {
     "message": "Connections"
   },
@@ -794,8 +791,8 @@
     "message": "Reveal Seed Phrase"
   },
   "dApps": {
-    "message": "DApps",
-    "description": "DApps = Decentralized Applications"
+    "message": "Dapps",
+    "description": "Dapps = Decentralized Applications"
   },
   "removeAccount": {
     "message": "Remove Account"
