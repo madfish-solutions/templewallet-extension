@@ -12,7 +12,7 @@ import {
   toHex,
   toRlp
 } from 'viem';
-import { serializeAuthorizationList } from 'viem/experimental';
+import { serializeAuthorizationList } from 'viem/utils';
 
 interface LedgerSignature {
   v: number | string;

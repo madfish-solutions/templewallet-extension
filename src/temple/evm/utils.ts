@@ -8,10 +8,13 @@ import {
   Chain,
   Transport,
   http,
-  fallback
+  fallback,
+  AuthorizationList,
+  RpcAuthorizationList,
+  HttpTransport,
+  FallbackTransport
 } from 'viem';
 import * as ViemChains from 'viem/chains';
-import type { AuthorizationList, RpcAuthorizationList } from 'viem/experimental';
 
 import { EvmEstimationDataWithFallback, SerializedEvmEstimationDataWithFallback } from 'lib/temple/types';
 import type { EvmChain } from 'temple/front';
@@ -174,7 +177,7 @@ export const getCustomViemChain = (network: PartiallyRequired<EvmChain, 'chainId
   nativeCurrency: network.currency ?? DEFAULT_EVM_CURRENCY
 });
 
-export const getViemTransportForNetwork = (network: EvmNetworkEssentials): Transport => {
+export const getViemTransportForNetwork = (network: EvmNetworkEssentials): HttpTransport | FallbackTransport => {
   const fallbackRpcs = EVM_FALLBACK_RPC_URLS[network.chainId];
 
   if (!fallbackRpcs) return http(network.rpcBaseURL, DEFAULT_TRANSPORT_CONFIG);
