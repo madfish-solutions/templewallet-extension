@@ -1,39 +1,27 @@
-import React, { useMemo } from 'react';
+import React, { memo, useMemo } from 'react';
 
-import classNames from 'clsx';
-
-import { useAppEnv } from 'app/env';
+import { IdenticonInitials } from 'app/atoms/Identicon';
 import { ImageStacked } from 'lib/ui/ImageStacked';
 
-type DAppIconProps = {
+const DEFAULT_CLASSNAMES = 'w-9 h-9 rounded-full';
+
+interface DAppIconProps {
   name: string;
   logo: string;
-  className?: string;
-};
+}
 
-export const DAppIcon: React.FC<DAppIconProps> = ({ name, logo, className }) => {
-  const { popup } = useAppEnv();
-
-  const sources = useMemo(() => (logo ? [logo] : []), []);
-
-  const fallbackElement = useMemo(() => <span className="text-gray-700 text-xs">{name}</span>, [name]);
+export const DAppIcon = memo<DAppIconProps>(({ name, logo }) => {
+  const fallbackElement = useMemo(() => <IdenticonInitials value={name} className={DEFAULT_CLASSNAMES} />, [name]);
 
   return (
-    <div
-      className={classNames(
-        'bg-white border border-gray-300 rounded-2xl flex justify-center items-center p-4',
-        !popup && 'w-20 h-20',
-        className
-      )}
-      style={popup ? { width: '4.5rem', height: '4.5rem' } : undefined}
-    >
+    <div className="flex justify-center items-center w-10 h-10">
       <ImageStacked
-        sources={sources}
-        className="rounded-2xl"
+        sources={[logo]}
+        className={DEFAULT_CLASSNAMES}
         alt={name}
         loader={fallbackElement}
         fallback={fallbackElement}
       />
     </div>
   );
-};
+});

@@ -2767,8 +2767,11 @@
   "tvl": {
     "message": "TVL"
   },
-  "promoted": {
-    "message": "Promoted"
+  "featured": {
+    "message": "Featured"
+  },
+  "exploreAll": {
+    "message": "Explore All"
   },
   "searchDApps": {
     "message": "Search DApps"

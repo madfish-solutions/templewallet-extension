@@ -1,15 +1,15 @@
 import { templeWalletApi } from './templewallet.api';
 
-enum DappEnum {
+export enum DappEnum {
   Exchanges = 'Exchanges',
   Marketplaces = 'Marketplaces',
-  Games = 'Games',
   DeFi = 'DeFi',
   Collectibles = 'Collectibles',
+  Games = 'Games',
   Other = 'Other'
 }
 
-interface CustomDAppInfo {
+export interface CustomDAppInfo {
   name: string;
   dappUrl: string;
   type: DappEnum;
@@ -22,4 +22,4 @@ interface CustomDAppsInfo {
   dApps: CustomDAppInfo[];
 }
 
-export const getDApps = () => templeWalletApi.get<CustomDAppsInfo>('/dapps').then(res => res.data);
+export const getDAppsList = () => templeWalletApi.get<CustomDAppsInfo>('/dapps').then(res => res.data);
