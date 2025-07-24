@@ -108,7 +108,7 @@ export const Dapps = () => {
   }, [matchingDApps]);
 
   return (
-    <PageLayout pageTitle={<PageTitle title={t('dApps')} />} contentClassName="!pb-4">
+    <PageLayout pageTitle={<PageTitle title={t('dApps')} />} contentClassName="!pb-8">
       {isLoading ? (
         <PageLoader stretch />
       ) : (
