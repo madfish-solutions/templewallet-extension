@@ -1,8 +1,9 @@
 import React, { memo, useMemo } from 'react';
 
-import { Berrachain, Ethereum, Polygon } from '@temple-wallet/everstake-wallet-sdk';
+import { Berrachain, Ethereum, Polygon, setApiUrl } from '@temple-wallet/everstake-wallet-sdk';
 
 import { useTestnetModeEnabledSelector } from 'app/store/settings/selectors';
+import { EnvVars } from 'lib/env';
 import { getViemTransportForNetwork } from 'temple/evm/utils';
 import { useAccountAddressForEvm } from 'temple/front';
 import { useEvmChainByChainId } from 'temple/front/chains';
@@ -10,6 +11,8 @@ import { useEvmChainByChainId } from 'temple/front/chains';
 import { BerrachainContent } from './berrachain';
 import { EthereumContent } from './ethereum';
 import { PolygonContent } from './polygon';
+
+setApiUrl(`${EnvVars.TEMPLE_WALLET_API_URL}/api/evm`);
 
 export const StakeEvmPageContent = memo(() => {
   const evmAccountAddress = useAccountAddressForEvm();

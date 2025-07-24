@@ -1,7 +1,7 @@
 import React, { memo, useCallback, useMemo, useState } from 'react';
 
 import {
-  CreateToken,
+  createToken,
   Polygon,
   POLYGON_MIN_AMOUNT,
   POLYGON_WITHDRAW_EPOCH_DELAY,
@@ -23,7 +23,7 @@ import { getStakingAPR } from './utils';
 
 const minPolAmount = POLYGON_MIN_AMOUNT.shiftedBy(-18);
 
-const getAuthToken = async () => await CreateToken('Temple Wallet', 'SDK');
+const getAuthToken = async () => await createToken('Temple Wallet', 'SDK');
 
 export const PolygonContent = memo<{ accountAddress: HexString; polygonSdk: Polygon }>(
   ({ accountAddress, polygonSdk }) => {

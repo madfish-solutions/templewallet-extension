@@ -1,7 +1,11 @@
 import React, { memo, useCallback, useMemo, useState } from 'react';
 
-import { Ethereum, EthTransaction, WalletSDKError } from '@temple-wallet/everstake-wallet-sdk';
-import axios from 'axios';
+import {
+  Ethereum,
+  EthTransaction,
+  getEthValidatorsQueueStats,
+  WalletSDKError
+} from '@temple-wallet/everstake-wallet-sdk';
 import { BigNumber } from 'bignumber.js';
 
 import AssetField from 'app/atoms/AssetField';
@@ -15,16 +19,6 @@ import { useEvmChainByChainId } from 'temple/front/chains';
 
 import { SOURCE_ID } from './constants';
 import { getStakingAPR } from './utils';
-
-const getMainnetValidatorsQueueStats = () =>
-  axios
-    .get<
-      Record<
-        'validator_activation_time' | 'validator_adding_delay' | 'validator_exit_time' | 'validator_withdraw_time',
-        number
-      >
-    >('https://eth-api-b2c.everstake.one/api/v1/validators/queue')
-    .then(res => res.data);
 
 export const EthereumContent = memo<{ accountAddress: HexString; ethereumSdk: Ethereum }>(
   ({ accountAddress, ethereumSdk }) => {
@@ -94,7 +88,7 @@ export const EthereumContent = memo<{ accountAddress: HexString; ethereumSdk: Et
     });
     const { data: validatorsQueueStats } = useTypedSWR(
       testnetModeEnabled ? null : 'validators-queue-stats',
-      getMainnetValidatorsQueueStats,
+      getEthValidatorsQueueStats,
       { revalidateOnFocus: false, refreshInterval: 60000 }
     );
     const { data: apr } = useTypedSWR(testnetModeEnabled ? null : 'ethereum-apr', () => getStakingAPR('ethereum'), {
