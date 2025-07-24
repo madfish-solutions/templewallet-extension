@@ -1,5 +1,6 @@
 import React, { useCallback, useMemo, useState } from 'react';
 
+import clsx from 'clsx';
 import { useDebounce } from 'use-debounce';
 
 import { PageTitle } from 'app/atoms';
@@ -57,7 +58,7 @@ export const Dapps = () => {
 
   const [searchValueDebounced] = useDebounce(searchValue, 300);
   const inSearch = isSearchStringApplicable(searchValueDebounced);
-  console.log(inSearch);
+  const shouldHideFeatured = inSearch || selectedTags.length > 0;
 
   const handleTagClick = useCallback((name: DappEnum) => {
     setSelectedTags(prevSelectedTags => {
@@ -120,34 +121,41 @@ export const Dapps = () => {
             onValueChange={setSearchValue}
           />
 
-          <div className="mt-4 flex flex-wrap gap-2">
+          <div className="my-4 flex flex-wrap gap-2">
             {USED_TAGS.map(tag => (
               <Tag key={tag} name={tag} onClick={handleTagClick} selected={selectedTags.includes(tag)} />
             ))}
           </div>
 
-          <div className="flex justify-start items-center gap-x-1 mt-4 mb-1">
-            <Lottie
-              isClickToPauseDisabled
-              options={fireAnimationOptions}
-              height={16}
-              width={16}
-              style={{ margin: 0, cursor: 'default' }}
-            />
-            <span className="text-font-description-bold py-1">
-              <T id="featured" />
-            </span>
-          </div>
+          <div
+            className={clsx(
+              'overflow-hidden transition-all duration-300 ease-in-out',
+              shouldHideFeatured ? 'h-0 opacity-0' : 'h-[164px] opacity-100'
+            )}
+          >
+            <div className="flex justify-start items-center gap-x-1 mb-1">
+              <Lottie
+                isClickToPauseDisabled
+                options={fireAnimationOptions}
+                height={16}
+                width={16}
+                style={{ margin: 0, cursor: 'default' }}
+              />
+              <span className="text-font-description-bold py-1">
+                <T id="featured" />
+              </span>
+            </div>
 
-          <div className="flex gap-x-2">
-            {featuredDApps.slice(0, 3).map(dAppProps => (
-              <FeaturedDappItem {...dAppProps} key={dAppProps.slug} />
-            ))}
-          </div>
+            <div className="flex gap-x-2">
+              {featuredDApps.slice(0, 3).map(dAppProps => (
+                <FeaturedDappItem {...dAppProps} key={dAppProps.slug} />
+              ))}
+            </div>
 
-          <p className="text-font-description-bold py-1 mt-4 mb-1">
-            <T id="exploreAll" />
-          </p>
+            <p className="text-font-description-bold py-1 mt-4 mb-1">
+              <T id="exploreAll" />
+            </p>
+          </div>
 
           <div className="flex flex-col gap-y-3">{allDappsView}</div>
         </div>
