@@ -5,6 +5,7 @@ import { useDebounce } from 'use-debounce';
 import { PageTitle } from 'app/atoms';
 import { PageLoader } from 'app/atoms/Loader';
 import PageLayout from 'app/layouts/PageLayout';
+import { PartnersPromotion, PartnersPromotionVariant } from 'app/templates/partners-promotion';
 import { SearchBarField } from 'app/templates/SearchField';
 import { getDAppsList, DappEnum } from 'lib/apis/temple/endpoints/get-dapps-list';
 import { DAPPS_LIST_SYNC_INTERVAL } from 'lib/fixed-times';
@@ -15,6 +16,7 @@ import { isSearchStringApplicable } from 'lib/utils/search-items';
 
 import { DappItem, FeaturedDappItem } from './components/DappItem';
 import { Tag } from './components/Tag';
+import { DAPPS_PAGE_NAME } from './constants';
 import fireAnimation from './fire-animation.json';
 
 const USED_TAGS = Object.values(DappEnum);
@@ -84,6 +86,27 @@ export const Dapps = () => {
     );
   }, [dApps, searchValueDebounced, selectedTags]);
 
+  const allDappsView = useMemo(() => {
+    const dappsJsx = matchingDApps.map(dAppProps => <DappItem {...dAppProps} key={dAppProps.slug} />);
+
+    const promoJsx = (
+      <PartnersPromotion
+        id="promo-dapp-item"
+        key="promo-dapp-item"
+        variant={PartnersPromotionVariant.Text}
+        pageName={DAPPS_PAGE_NAME}
+      />
+    );
+
+    if (matchingDApps.length < 5) {
+      dappsJsx.push(promoJsx);
+    } else {
+      dappsJsx.splice(1, 0, promoJsx);
+    }
+
+    return dappsJsx;
+  }, [matchingDApps]);
+
   return (
     <PageLayout pageTitle={<PageTitle title={t('dApps')} />} contentClassName="!pb-4">
       {isLoading ? (
@@ -126,11 +149,7 @@ export const Dapps = () => {
             <T id="exploreAll" />
           </p>
 
-          <div className="flex flex-col gap-y-3">
-            {matchingDApps.map(dAppProps => (
-              <DappItem {...dAppProps} key={dAppProps.slug} />
-            ))}
-          </div>
+          <div className="flex flex-col gap-y-3">{allDappsView}</div>
         </div>
       )}
     </PageLayout>
