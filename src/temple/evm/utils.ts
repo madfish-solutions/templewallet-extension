@@ -6,7 +6,6 @@ import {
   type TransactionRequest,
   extractChain,
   Chain,
-  Transport,
   http,
   fallback,
   AuthorizationList,
