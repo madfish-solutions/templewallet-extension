@@ -24,7 +24,17 @@ import { NetworkPopperProps, Network } from './types';
 interface NetworkDropdownProps extends Omit<NetworkPopperProps, 'children'>, PopperRenderProps {}
 
 export const NetworkDropdown = memo<NetworkDropdownProps>(
-  ({ opened, setOpened, selectedOption, showAllNetworksOption, chainKind, onOptionSelect, supportedChainIds }) => {
+  ({
+    opened,
+    setOpened,
+    selectedOption,
+    showAllNetworksOption,
+    showOnlyEvmNetworks,
+    chainKind,
+    onOptionSelect,
+    supportedChainIds,
+    availableChainIds
+  }) => {
     const accountTezAddress = useAccountAddressForTezos();
     const accountEvmAddress = useAccountAddressForEvm();
 
@@ -32,10 +42,11 @@ export const NetworkDropdown = memo<NetworkDropdownProps>(
     const evmChainsUnfiltered = useEnabledEvmChains();
 
     const evmChains = useMemo(() => {
-      if (!supportedChainIds) return evmChainsUnfiltered;
+      const filterBy = availableChainIds ?? supportedChainIds;
+      if (!filterBy) return evmChainsUnfiltered;
 
-      return evmChainsUnfiltered.filter(chain => supportedChainIds.includes(Number(chain.chainId)));
-    }, [evmChainsUnfiltered, supportedChainIds]);
+      return evmChainsUnfiltered.filter(chain => filterBy.includes(Number(chain.chainId)));
+    }, [evmChainsUnfiltered, availableChainIds, supportedChainIds]);
 
     const [searchValue, setSearchValue] = useState('');
     const [searchValueDebounced] = useDebounce(searchValue, 300);
@@ -50,10 +61,20 @@ export const NetworkDropdown = memo<NetworkDropdownProps>(
     const networks = useMemo(() => {
       const generalOptions: Network[] = showAllNetworksOption ? [ALL_NETWORKS] : [];
 
-      return generalOptions
-        .concat(accountTezAddress && (!chainKind || chainKind === TempleChainKind.Tezos) ? tezosChains : [])
-        .concat(accountEvmAddress && (!chainKind || chainKind === TempleChainKind.EVM) ? evmChains : []);
-    }, [accountEvmAddress, accountTezAddress, chainKind, evmChains, showAllNetworksOption, tezosChains]);
+      const includeTezos =
+        accountTezAddress && !showOnlyEvmNetworks && (!chainKind || chainKind === TempleChainKind.Tezos);
+      const includeEvm = accountEvmAddress && (!chainKind || chainKind === TempleChainKind.EVM);
+
+      return generalOptions.concat(includeTezos ? tezosChains : []).concat(includeEvm ? evmChains : []);
+    }, [
+      accountEvmAddress,
+      accountTezAddress,
+      chainKind,
+      evmChains,
+      showAllNetworksOption,
+      tezosChains,
+      showOnlyEvmNetworks
+    ]);
 
     const filteredNetworks = useMemo(
       () => (searchValueDebounced.length ? searchAndFilterChains(networks, searchValueDebounced) : networks),
@@ -61,7 +82,7 @@ export const NetworkDropdown = memo<NetworkDropdownProps>(
     );
 
     return (
-      <ActionsDropdownPopup title={<T id="selectNetwork" />} opened={opened} style={{ width: 196, height: 340 }}>
+      <ActionsDropdownPopup title={<T id="selectNetwork" />} opened={opened} style={{ width: 196, maxHeight: 340 }}>
         <div className="mb-1">
           <SearchBarField value={searchValue} defaultRightMargin={false} onValueChange={setSearchValue} />
         </div>

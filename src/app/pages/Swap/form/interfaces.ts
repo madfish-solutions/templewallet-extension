@@ -30,6 +30,12 @@ interface TezosSwapReviewData {
   };
 }
 
+export interface ChainAssetInfo {
+  networkKind: string;
+  chainId: number | string;
+  assetSlug: string;
+}
+
 export type SwapFieldName = 'input' | 'output';
 
 export type EvmReviewData = GenericEvmReviewData<EvmSwapReviewData>;

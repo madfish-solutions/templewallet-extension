@@ -15,3 +15,6 @@ export const useLifiEvmTokenMetadataSelector = (chainId: number, tokenSlug: stri
 
 export const useLifiEvmMetadataLastFetchTimeSelector = () =>
   useSelector(({ lifiEvmTokensMetadata }) => lifiEvmTokensMetadata.lastFetchTime);
+
+export const useLifiSupportedChainIdsSelector = () =>
+  useSelector(({ lifiEvmTokensMetadata }) => lifiEvmTokensMetadata.supportedChainIds);

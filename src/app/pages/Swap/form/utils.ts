@@ -1,12 +1,18 @@
+import { ChainAssetInfo } from 'app/pages/Swap/form/interfaces';
 import { SwapFormValue } from 'app/pages/Swap/form/SwapForm.form';
 
-export function getDefaultSwapFormValues(sourceAssetSlug?: string, targetAssetSlug?: string): SwapFormValue {
+export function getDefaultSwapFormValues(
+  sourceAssetInfo: ChainAssetInfo | null,
+  targetAssetInfo?: ChainAssetInfo | null
+): SwapFormValue {
   return {
     input: {
-      assetSlug: sourceAssetSlug
+      assetSlug: sourceAssetInfo?.assetSlug,
+      chainId: sourceAssetInfo?.chainId
     },
     output: {
-      assetSlug: targetAssetSlug
+      assetSlug: targetAssetInfo?.assetSlug,
+      chainId: targetAssetInfo?.chainId
     },
     isFiatMode: false
   };

@@ -45,7 +45,7 @@ export const TezosChainAssetsList = memo<Props>(
     const assetsSlugs = useMemoWithCompare<string[]>(() => {
       const gasTokensSlugs: string[] = [TEZ_TOKEN_SLUG];
 
-      return gasTokensSlugs.concat(Array.from(route3tokensSlugs).sort(tokensSortPredicate));
+      return gasTokensSlugs.concat(Array.from(route3tokensSlugs)).sort(tokensSortPredicate);
     }, [tokensSortPredicate, route3tokensSlugs]);
 
     const filteredAssets = useMemo(() => {

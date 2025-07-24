@@ -1,12 +1,13 @@
 import React, { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-import { Route } from '@lifi/sdk';
+import { ChainId, Route } from '@lifi/sdk';
 import { isDefined } from '@rnw-community/shared';
 import BigNumber from 'bignumber.js';
 import { FormProvider, useForm } from 'react-hook-form-v7';
 
 import { DeadEndBoundaryError } from 'app/ErrorBoundary';
 import { BaseSwapForm } from 'app/pages/Swap/form/BaseSwapForm';
+import { useFetchLifiEvmTokensSlugs } from 'app/pages/Swap/form/hooks';
 import { SwapFormValue, SwapInputValue } from 'app/pages/Swap/form/SwapForm.form';
 import { getDefaultSwapFormValues } from 'app/pages/Swap/form/utils';
 import { useLifiEvmTokenMetadataSelector } from 'app/store/evm/swap-lifi-metadata/selectors';
@@ -22,7 +23,7 @@ import { useEvmAssetBalance } from 'lib/balances/hooks';
 import { EVM_ZERO_ADDRESS } from 'lib/constants';
 import { useAssetFiatCurrencyPrice } from 'lib/fiat-currency';
 import { t } from 'lib/i18n';
-import { getAssetSymbol, useGetEvmChainAssetMetadata } from 'lib/metadata';
+import { getAssetSymbol, useGetEvmGasOrTokenMetadata } from 'lib/metadata';
 import { atomsToTokens, tokensToAtoms } from 'lib/temple/helpers';
 import { useInterval } from 'lib/ui/hooks';
 import { isEvmNativeTokenSlug } from 'lib/utils/evm.utils';
@@ -31,13 +32,7 @@ import { getViemPublicClient } from 'temple/evm';
 import { useAccountForEvm } from 'temple/front';
 import { useEvmChainByChainId } from 'temple/front/chains';
 
-import { EvmReviewData, SwapFieldName } from '../interfaces';
-
-interface ChainAssetInfo {
-  networkName: string;
-  chainId: number;
-  assetSlug: string;
-}
+import { ChainAssetInfo, EvmReviewData, SwapFieldName } from '../interfaces';
 
 interface EvmSwapFormProps {
   chainId: number;
@@ -61,8 +56,7 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
   handleToggleIconClick
 }) => {
   const account = useAccountForEvm();
-  const network = useEvmChainByChainId(chainId);
-  if (!account || !network) throw new DeadEndBoundaryError();
+  if (!account) throw new DeadEndBoundaryError();
 
   const publicKeyHash = account.address as HexString;
 
@@ -75,15 +69,15 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
 
   const [isAlertVisible, setIsAlertVisible] = useState(false);
 
-  const getTokenMetadata = useGetEvmChainAssetMetadata(chainId);
+  const getTokenMetadata = useGetEvmGasOrTokenMetadata();
   const formAnalytics = useFormAnalytics('SwapForm');
 
   const sourceAssetInfo = useMemo<ChainAssetInfo | null>(() => {
     if (!selectedChainAssets.from) return null;
 
-    const [networkName, chainId, assetSlug] = parseChainAssetSlug(selectedChainAssets.from);
+    const [networkKind, chainId, assetSlug] = parseChainAssetSlug(selectedChainAssets.from);
     return {
-      networkName,
+      networkKind,
       chainId: Number(chainId),
       assetSlug
     };
@@ -92,18 +86,35 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
   const targetAssetInfo = useMemo<ChainAssetInfo | null>(() => {
     if (!selectedChainAssets.to) return null;
 
-    const [networkName, chainId, assetSlug] = parseChainAssetSlug(selectedChainAssets.to);
+    const [networkKind, chainId, assetSlug] = parseChainAssetSlug(selectedChainAssets.to);
     return {
-      networkName,
+      networkKind,
       chainId: Number(chainId),
       assetSlug
     };
   }, [selectedChainAssets.to]);
 
+  const inputNetwork = useEvmChainByChainId((sourceAssetInfo?.chainId as number) || ChainId.ETH);
+  const outputNetwork = useEvmChainByChainId((targetAssetInfo?.chainId as number) || ChainId.ETH);
+
+  if (!inputNetwork || !outputNetwork) throw new DeadEndBoundaryError();
+
   const defaultValues = useMemo(
-    () => getDefaultSwapFormValues(sourceAssetInfo?.assetSlug, targetAssetInfo?.assetSlug),
-    [sourceAssetInfo?.assetSlug, targetAssetInfo?.assetSlug]
+    () => getDefaultSwapFormValues(sourceAssetInfo, targetAssetInfo),
+    [sourceAssetInfo, targetAssetInfo]
   );
+
+  const tokenContract = useMemo(() => {
+    const assetSlug = sourceAssetInfo?.assetSlug ?? targetAssetInfo?.assetSlug;
+
+    if (!assetSlug) {
+      throw new Error('Either sourceAssetInfo or targetAssetInfo must be defined');
+    }
+
+    return isEvmNativeTokenSlug(assetSlug) ? EVM_ZERO_ADDRESS : fromAssetSlug(assetSlug)[0];
+  }, [sourceAssetInfo?.assetSlug, targetAssetInfo?.assetSlug]);
+
+  useFetchLifiEvmTokensSlugs({ fromChain: chainId, fromToken: tokenContract });
 
   const form = useForm<SwapFormValue>({
     defaultValues,
@@ -120,31 +131,43 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
   const { value: inputTokenBalance = ZERO } = useEvmAssetBalance(
     inputValue.assetSlug ?? EVM_TOKEN_SLUG,
     publicKeyHash,
-    network
+    inputNetwork
   );
   const { value: outputTokenBalance = ZERO } = useEvmAssetBalance(
     outputValue.assetSlug ?? EVM_TOKEN_SLUG,
     publicKeyHash,
-    network
+    outputNetwork
   );
 
-  const storedInputTokenMetadata = useEvmTokenMetadataSelector(chainId, inputValue.assetSlug ?? EVM_TOKEN_SLUG);
-  const storedOutputTokenMetadata = useEvmTokenMetadataSelector(chainId, outputValue.assetSlug ?? EVM_TOKEN_SLUG);
-  const lifiInputTokenMetadata = useLifiEvmTokenMetadataSelector(chainId, inputValue.assetSlug ?? EVM_TOKEN_SLUG);
-  const lifiOutputTokenMetadata = useLifiEvmTokenMetadataSelector(chainId, outputValue.assetSlug ?? EVM_TOKEN_SLUG);
+  const storedInputTokenMetadata = useEvmTokenMetadataSelector(
+    (sourceAssetInfo?.chainId as number) || chainId,
+    inputValue.assetSlug ?? EVM_TOKEN_SLUG
+  );
+  const storedOutputTokenMetadata = useEvmTokenMetadataSelector(
+    (targetAssetInfo?.chainId as number) || chainId,
+    outputValue.assetSlug ?? EVM_TOKEN_SLUG
+  );
+  const lifiInputTokenMetadata = useLifiEvmTokenMetadataSelector(
+    (sourceAssetInfo?.chainId as number) || chainId,
+    inputValue.assetSlug ?? EVM_TOKEN_SLUG
+  );
+  const lifiOutputTokenMetadata = useLifiEvmTokenMetadataSelector(
+    (targetAssetInfo?.chainId as number) || chainId,
+    outputValue.assetSlug ?? EVM_TOKEN_SLUG
+  );
 
   const inputAssetMetadata = isEvmNativeTokenSlug(inputValue.assetSlug ?? EVM_TOKEN_SLUG)
-    ? network.currency
+    ? inputNetwork.currency
     : storedInputTokenMetadata ?? lifiInputTokenMetadata;
   const outputAssetMetadata = isEvmNativeTokenSlug(outputValue.assetSlug ?? EVM_TOKEN_SLUG)
-    ? network.currency
+    ? outputNetwork.currency
     : storedOutputTokenMetadata ?? lifiOutputTokenMetadata;
 
   const inputAssetSymbol = useMemo(() => getAssetSymbol(inputAssetMetadata), [inputAssetMetadata]);
   const outputAssetSymbol = useMemo(() => getAssetSymbol(outputAssetMetadata), [outputAssetMetadata]);
 
-  const inputAssetPrice = useAssetFiatCurrencyPrice(inputValue.assetSlug ?? '', network.chainId, true);
-  const outputAssetPrice = useAssetFiatCurrencyPrice(outputValue.assetSlug ?? '', network.chainId, true);
+  const inputAssetPrice = useAssetFiatCurrencyPrice(inputValue.assetSlug ?? '', inputNetwork.chainId, true);
+  const outputAssetPrice = useAssetFiatCurrencyPrice(outputValue.assetSlug ?? '', outputNetwork.chainId, true);
 
   const resetForm = useCallback(() => void reset(defaultValues), [defaultValues, reset]);
 
@@ -155,16 +178,15 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
       clearErrors('input');
 
       if (
-        newInputValue.assetSlug &&
-        (newInputValue.assetSlug === currentFormState.output.assetSlug ||
-          sourceAssetInfo?.chainId !== targetAssetInfo?.chainId)
+        newInputValue.assetSlug === currentFormState.output.assetSlug &&
+        newInputValue.chainId === currentFormState.output.chainId
       ) {
-        setValue('output', { assetSlug: undefined, amount: undefined });
+        setValue('output', { assetSlug: undefined, chainId: undefined, amount: undefined });
         setSwapRoute(null);
         return;
       }
     },
-    [clearErrors, getValues, setValue, sourceAssetInfo?.chainId, targetAssetInfo?.chainId]
+    [clearErrors, getValues, setValue]
   );
 
   const handleOutputChange = useCallback(
@@ -174,16 +196,15 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
       clearErrors('output');
 
       if (
-        newOutputValue.assetSlug &&
-        (newOutputValue.assetSlug === currentFormState.input.assetSlug ||
-          sourceAssetInfo?.chainId !== targetAssetInfo?.chainId)
+        newOutputValue.assetSlug === currentFormState.input.assetSlug &&
+        newOutputValue.chainId === currentFormState.input.chainId
       ) {
-        setValue('input', { assetSlug: undefined, amount: undefined });
+        setValue('input', { assetSlug: undefined, chainId: undefined, amount: undefined });
         setSwapRoute(null);
         return;
       }
     },
-    [clearErrors, getValues, setValue, sourceAssetInfo?.chainId, targetAssetInfo?.chainId]
+    [clearErrors, getValues, setValue]
   );
 
   const parseFiatValueToAssetAmount = useCallback(
@@ -246,11 +267,12 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
         : fromAssetSlug(targetAssetInfo.assetSlug)[0];
 
       const params: RouteParams = {
-        fromChain: sourceAssetInfo.chainId,
-        toChain: targetAssetInfo.chainId,
+        fromChain: sourceAssetInfo.chainId as number,
+        toChain: targetAssetInfo.chainId as number,
         fromToken,
         toToken,
         amount: atomsInputValue.toString(),
+        // amountForGas: atomsInputValue.div(10).toString(),
         fromAddress: publicKeyHash,
         slippage: slippageTolerance / 100
       };
@@ -312,7 +334,7 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
         ? atomicAmount.times(outputAssetPrice).decimalPlaces(2, BigNumber.ROUND_FLOOR)
         : atomicAmount;
 
-      handleOutputChange({ assetSlug: outputValue.assetSlug, amount: formattedAmount });
+      handleOutputChange({ assetSlug: outputValue.assetSlug, chainId: outputValue.chainId, amount: formattedAmount });
     }
   }, [
     swapRoute,
@@ -321,7 +343,8 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
     outputAssetPrice,
     isFiatMode,
     handleOutputChange,
-    getValues
+    getValues,
+    outputValue.chainId
   ]);
 
   const inputTokenMaxAmount = useMemo(() => {
@@ -335,11 +358,11 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
         ? inputTokenMaxAmount.times(inputAssetPrice).decimalPlaces(2, BigNumber.ROUND_FLOOR)
         : inputTokenMaxAmount;
 
-      handleInputChange({ assetSlug: inputValue.assetSlug, amount: formattedMaxAmount });
+      handleInputChange({ assetSlug: inputValue.assetSlug, chainId: inputValue.chainId, amount: formattedMaxAmount });
     }
-  }, [handleInputChange, inputAssetPrice, inputTokenMaxAmount, inputValue.assetSlug, isFiatMode]);
+  }, [handleInputChange, inputAssetPrice, inputTokenMaxAmount, inputValue.assetSlug, inputValue.chainId, isFiatMode]);
 
-  const evmToolkit = useMemo(() => getViemPublicClient(network), [network]);
+  const evmToolkit = useMemo(() => getViemPublicClient(inputNetwork), [inputNetwork]);
 
   const getMinimumReceivedAmount = useCallback(
     (outputAmount: BigNumber | undefined) => {
@@ -349,9 +372,9 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
   );
 
   useEffect(() => {
-    const newAssetSlug = activeField === 'input' ? sourceAssetInfo?.assetSlug : targetAssetInfo?.assetSlug;
-    if (!newAssetSlug) return;
-    const newAssetMetadata = getTokenMetadata(newAssetSlug);
+    const newAssetInfo = activeField === 'input' ? sourceAssetInfo : targetAssetInfo;
+    if (!newAssetInfo) return;
+    const newAssetMetadata = getTokenMetadata(newAssetInfo.chainId as number, newAssetInfo.assetSlug);
     if (!newAssetMetadata) return;
 
     const currentFormState = getValues();
@@ -359,11 +382,13 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
 
     activeField === 'input'
       ? handleInputChange({
-          assetSlug: newAssetSlug,
+          assetSlug: newAssetInfo.assetSlug,
+          chainId: newAssetInfo.chainId,
           amount: amount
         })
       : handleOutputChange({
-          assetSlug: newAssetSlug,
+          assetSlug: newAssetInfo.assetSlug,
+          chainId: newAssetInfo.chainId,
           amount: amount
         });
   }, [
@@ -373,8 +398,8 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
     handleInputChange,
     handleOutputChange,
     isFiatMode,
-    sourceAssetInfo?.assetSlug,
-    targetAssetInfo?.assetSlug
+    sourceAssetInfo,
+    targetAssetInfo
   ]);
 
   const onSubmit = useCallback(async () => {
@@ -430,7 +455,7 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
 
       onReview({
         account,
-        network,
+        network: inputNetwork,
         needsApproval: !allowanceSufficient,
         neededApproval: !allowanceSufficient,
         onChainAllowance,
@@ -452,19 +477,20 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
     formState.isSubmitting,
     inputValue.assetSlug,
     outputValue.assetSlug,
+    outputValue.amount,
     getValues,
     inputAssetMetadata?.symbol,
     sourceAssetInfo?.chainId,
     outputAssetMetadata?.symbol,
-    outputAssetMetadata?.decimals,
     targetAssetInfo?.chainId,
     getAndSetSwapRoute,
     evmToolkit,
     formAnalytics,
     onReview,
     account,
-    network,
+    inputNetwork,
     resetForm,
+    getMinimumReceivedAmount,
     outputAssetSymbol
   ]);
 
@@ -493,7 +519,7 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
   return (
     <FormProvider {...form}>
       <BaseSwapForm
-        network={network}
+        isEvmNetwork
         inputAssetSlug={inputValue.assetSlug}
         inputAssetSymbol={inputAssetSymbol}
         inputAssetDecimals={inputAssetMetadata?.decimals ?? 0}
@@ -501,6 +527,7 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
         inputAssetBalance={inputTokenBalance}
         inputTokenAmount={inputValue.amount}
         inputAmount={estimatedTokensFromAmount}
+        inputChainId={inputValue.chainId}
         inputTokenMaxAmount={inputTokenMaxAmount}
         outputAssetSlug={outputValue.assetSlug}
         outputAssetSymbol={outputAssetSymbol}
@@ -509,6 +536,7 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
         outputAssetBalance={outputTokenBalance}
         outputTokenAmount={outputValue.amount}
         outputAmount={estimatedTokensToAmount}
+        outputChainId={outputValue.chainId}
         minimumReceivedAmount={tokensToAtoms(
           getMinimumReceivedAmount(outputValue.amount),
           outputAssetMetadata?.decimals ?? 0

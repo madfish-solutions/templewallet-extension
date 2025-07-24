@@ -131,13 +131,14 @@ const useGetterBySlug = <T>(input: GetterBySlugInput<T>, fallbackValueFn?: SyncF
 export const useGetEvmGasOrTokenMetadata = () => {
   const evmChains = useAllEvmChains();
   const tokensMetadata = useEvmTokensMetadataRecordSelector();
+  const lifiMetadata = useLifiEvmTokensMetadataRecordSelector();
   const getterFn = useCallback(
     (input: EvmTokenMetadataRecord, chainId: number, slug: string) =>
       isEvmNativeTokenSlug(slug) ? evmChains[chainId]?.currency : input[chainId]?.[slug],
     [evmChains]
   );
 
-  return useGetter(tokensMetadata, getterFn);
+  return useGetter({ ...tokensMetadata, ...lifiMetadata }, getterFn);
 };
 
 export const useGetEvmChainTokenOrGasMetadata = (chainId: number) => {

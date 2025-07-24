@@ -1246,6 +1246,9 @@
   "fee": {
     "message": "Fee"
   },
+  "bridge": {
+    "message": "bridge"
+  },
   "routingFee": {
     "message": "Routing Fee"
   },
@@ -2678,8 +2681,14 @@
   "via": {
     "message": "Via"
   },
+  "route": {
+    "message": "Route"
+  },
   "swapRoute": {
     "message": "Swap route"
+  },
+  "estimatedTime": {
+    "message": "Estimated time"
   },
   "exchangeRate": {
     "message": "Exchange rate"
