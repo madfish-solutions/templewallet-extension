@@ -1,4 +1,4 @@
-import React, { FC, useCallback } from 'react';
+import React, { FC, useCallback, useState } from 'react';
 
 import clsx from 'clsx';
 
@@ -28,36 +28,30 @@ const FIRE_ANIMATION_OPTIONS = {
   }
 } as const;
 
-interface DappsState {
-  searchValue: string;
-  selectedTags: DappEnum[];
-}
-
 export const Dapps: FC = () => {
+  const [searchValue, setSearchValue] = useState('');
+  const [selectedTags, setSelectedTags] = useState<DappEnum[]>([]);
+
   const { dApps, isLoading } = useDappsData();
-  const [state, setState] = React.useState<DappsState>({
-    searchValue: '',
-    selectedTags: []
-  });
-
-  const handleSearchChange = useCallback((value: string) => {
-    setState(prev => ({ ...prev, searchValue: value }));
-  }, []);
-
-  const handleTagClick = useCallback((name: DappEnum) => {
-    setState(prev => ({
-      ...prev,
-      selectedTags: prev.selectedTags.includes(name)
-        ? prev.selectedTags.filter(tag => tag !== name)
-        : [...prev.selectedTags, name]
-    }));
-  }, []);
 
   const { inSearch, shouldIncludeFeatured, featuredDApps, matchingDApps } = useFilteredDapps(
     dApps,
-    state.searchValue,
-    state.selectedTags
+    searchValue,
+    selectedTags
   );
+
+  const handleTagClick = useCallback((name: DappEnum) => {
+    setSelectedTags(prevSelectedTags => {
+      const tagIndex = prevSelectedTags.indexOf(name);
+      const newSelectedTags = [...prevSelectedTags];
+      if (tagIndex === -1) {
+        newSelectedTags.push(name);
+      } else {
+        newSelectedTags.splice(tagIndex, 1);
+      }
+      return newSelectedTags;
+    });
+  }, []);
 
   return (
     <PageLayout pageTitle={<PageTitle title={t('dApps')} />} contentClassName="!pb-8">
@@ -67,10 +61,10 @@ export const Dapps: FC = () => {
         <div className="flex flex-col flex-grow">
           <div className="mb-4">
             <SearchBarField
-              value={state.searchValue}
+              value={searchValue}
               placeholder="Search dapps"
               defaultRightMargin={false}
-              onValueChange={handleSearchChange}
+              onValueChange={setSearchValue}
             />
           </div>
 
@@ -81,7 +75,7 @@ export const Dapps: FC = () => {
             )}
           >
             {TAGS.map(tag => (
-              <Tag key={tag} name={tag} onClick={handleTagClick} selected={state.selectedTags.includes(tag)} />
+              <Tag key={tag} name={tag} onClick={handleTagClick} selected={selectedTags.includes(tag)} />
             ))}
           </div>
 
