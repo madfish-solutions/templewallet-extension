@@ -54,7 +54,7 @@ export const Dapps: FC = () => {
   }, []);
 
   return (
-    <PageLayout pageTitle={<PageTitle title={t('dApps')} />} contentClassName="overscroll-none !pb-8">
+    <PageLayout pageTitle={<PageTitle title={t('dApps')} />} contentClassName="!pb-8">
       {isLoading ? (
         <PageLoader stretch />
       ) : (
