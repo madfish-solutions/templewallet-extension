@@ -13,7 +13,7 @@ import { ReactComponent as WarningIcon } from 'app/icons/typed-msg/warning.svg';
 import { useToastsContainerBottomShift } from 'lib/temple/front/toasts-context';
 import PortalToDocumentBody from 'lib/ui/Portal';
 
-interface TxData {
+export interface TxData {
   hash: string;
   blockExplorerHref: string;
 }
