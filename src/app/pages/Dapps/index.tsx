@@ -54,7 +54,7 @@ export const Dapps: FC = () => {
   }, []);
 
   return (
-    <PageLayout pageTitle={<PageTitle title={t('dApps')} />} contentClassName="!pb-8">
+    <PageLayout pageTitle={<PageTitle title={t('dApps')} />} contentClassName="overscroll-none !pb-8">
       {isLoading ? (
         <PageLoader stretch />
       ) : (
@@ -71,7 +71,7 @@ export const Dapps: FC = () => {
           <div
             className={clsx(
               'flex flex-wrap gap-2 overflow-hidden transition-all duration-300 ease-in-out',
-              inSearch ? 'h-0 mb-0 opacity-0' : 'mb-4 opacity-100'
+              inSearch ? 'h-0 mb-0 opacity-0' : 'h-[58px] mb-4 opacity-100'
             )}
           >
             {TAGS.map(tag => (
