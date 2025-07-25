@@ -261,9 +261,14 @@ const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<T
           type: MessageType.Acknowledge
         };
 
+        const pubKey = res?.type === MessageType.HandshakeRequest && res.publicKey ? res.publicKey : recipientPubKey;
+        if (!pubKey) {
+          throw new Error('DApp public key not found.');
+        }
+
         return {
           type: TempleMessageType.Acknowledge,
-          payload: await encryptMessage(encodeMessage<Response>(response), recipientPubKey ?? ''),
+          payload: await encryptMessage(encodeMessage<Response>(response), pubKey),
           encrypted: true
         };
       }

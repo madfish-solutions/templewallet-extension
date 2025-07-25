@@ -18,6 +18,7 @@ import { useAccountAddressForEvm, useAccountAddressForTezos, useTezosMainnetChai
 import { useEvmChainByChainId } from 'temple/front/chains';
 import { TempleChainKind } from 'temple/types';
 
+import { AllEvmChainsAssetsList } from './AllEvmChainsAssetsList';
 import { EvmChainAssetsList } from './EvmChainAssetsList';
 import { MultiChainAssetsList } from './MultiChainAssetsList';
 import { TezosChainAssetsList } from './TezosChainAssetsList';
@@ -89,15 +90,37 @@ export const SwapSelectAssetModal = memo<SelectTokenModalProps>(
           />
         );
 
-      if (!localFilterChain && accountTezAddress && accountEvmAddress)
-        return (
-          <MultiChainAssetsList
-            accountTezAddress={accountTezAddress}
-            accountEvmAddress={accountEvmAddress}
-            searchValue={searchValueDebounced}
-            onAssetSelect={handleAssetSelect}
-          />
-        );
+      if (!localFilterChain) {
+        if (accountTezAddress && accountEvmAddress)
+          return (
+            <MultiChainAssetsList
+              accountTezAddress={accountTezAddress}
+              accountEvmAddress={accountEvmAddress}
+              searchValue={searchValueDebounced}
+              onAssetSelect={handleAssetSelect}
+            />
+          );
+
+        if (accountTezAddress)
+          return (
+            <TezosChainAssetsList
+              chainId={tezosNetwork.chainId}
+              filterZeroBalances={activeField === 'input'}
+              publicKeyHash={accountTezAddress}
+              searchValue={searchValueDebounced}
+              onAssetSelect={handleAssetSelect}
+            />
+          );
+
+        if (accountEvmAddress)
+          return (
+            <AllEvmChainsAssetsList
+              accountEvmAddress={accountEvmAddress}
+              searchValue={searchValueDebounced}
+              onAssetSelect={handleAssetSelect}
+            />
+          );
+      }
 
       return null;
     }, [localFilterChain, accountTezAddress, activeField, searchValueDebounced, handleAssetSelect, accountEvmAddress]);

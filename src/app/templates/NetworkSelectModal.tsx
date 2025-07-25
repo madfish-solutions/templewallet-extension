@@ -10,11 +10,14 @@ import { EvmNetworkLogo, TezosNetworkLogo } from 'app/atoms/NetworkLogo';
 import { PageModal } from 'app/atoms/PageModal';
 import { RadioButton } from 'app/atoms/RadioButton';
 import { TotalEquity } from 'app/atoms/TotalEquity';
+import { useGetEvmChainAccountTotalBalance } from 'app/hooks/total-balance/use-evm-account-total-balance';
+import { useTezosTotalBalance } from 'app/hooks/total-balance/use-tezos-total-balance';
 import { ReactComponent as Browse } from 'app/icons/base/browse.svg';
 import { ReactComponent as PlusIcon } from 'app/icons/base/plus.svg';
 import { dispatch } from 'app/store';
 import { setAssetsFilterChain } from 'app/store/assets-filter-options/actions';
 import { FilterChain } from 'app/store/assets-filter-options/state';
+import { useTestnetModeEnabledSelector } from 'app/store/settings/selectors';
 import { SearchBarField } from 'app/templates/SearchField';
 import { T } from 'lib/i18n';
 import { searchAndFilterChains } from 'lib/ui/search-networks';
@@ -68,14 +71,32 @@ interface ContentProps {
 export const NetworkSelectModalContent = memo<ContentProps>(({ opened, selectedNetwork, handleNetworkSelect }) => {
   const accountTezAddress = useAccountAddressForTezos();
   const accountEvmAddress = useAccountAddressForEvm();
+  const testnetModeEnabled = useTestnetModeEnabledSelector();
 
   const tezosChains = useEnabledTezosChains();
   const evmChains = useEnabledEvmChains();
 
-  const networks = useMemo(
-    () => [...(accountTezAddress ? tezosChains : []), ...(accountEvmAddress ? evmChains : [])],
-    [accountEvmAddress, accountTezAddress, evmChains, tezosChains]
+  const totalTezBalanceInDollar = useTezosTotalBalance(accountTezAddress ?? '');
+  const getEvmChainAccountTotalBalance = useGetEvmChainAccountTotalBalance(accountEvmAddress ?? '0x');
+  const getChainTotalBalance = useCallback(
+    (chain: OneOfChains) =>
+      chain.kind === TempleChainKind.Tezos ? totalTezBalanceInDollar : getEvmChainAccountTotalBalance(chain.chainId),
+    [getEvmChainAccountTotalBalance, totalTezBalanceInDollar]
   );
+
+  const networks = useMemo(() => {
+    const tezNetworks: OneOfChains[] = accountTezAddress ? tezosChains : [];
+
+    const allNetworks = tezNetworks.concat(accountEvmAddress ? evmChains : []);
+
+    if (!testnetModeEnabled) {
+      allNetworks.sort(
+        (aNetwork, bNetwork) => Number(getChainTotalBalance(bNetwork)) - Number(getChainTotalBalance(aNetwork))
+      );
+    }
+
+    return allNetworks;
+  }, [accountEvmAddress, accountTezAddress, evmChains, getChainTotalBalance, testnetModeEnabled, tezosChains]);
 
   const [searchValue, setSearchValue] = useState('');
   const [searchValueDebounced] = useDebounce(searchValue, 300);
