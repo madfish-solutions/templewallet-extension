@@ -37,7 +37,7 @@ import { isTruthy } from './webpack/utils';
 
 const ExtensionReloaderMV3 = ExtensionReloaderMV3BadlyTyped as ExtensionReloaderMV3Type;
 
-const PAGES_NAMES = ['popup', 'fullpage', 'confirm', 'options'];
+const PAGES_NAMES = ['popup', 'fullpage', 'confirm', 'options', 'sidebar'];
 
 const HTML_TEMPLATES = PAGES_NAMES.map(name => {
   const filename = `${name}.html`;

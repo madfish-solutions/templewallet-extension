@@ -8,7 +8,7 @@ import { useActivePromotionSelector } from 'app/store/advertising/selectors';
 
 export const AdvertisingBanner: FC = () => {
   const activePromotion = useActivePromotionSelector();
-  const { popup } = useAppEnv();
+  const { fullPage } = useAppEnv();
 
   if (!isDefined(activePromotion)) return null;
 
@@ -17,16 +17,16 @@ export const AdvertisingBanner: FC = () => {
       className="flex items-center justify-center mr-3"
       style={{
         height: 28,
-        paddingLeft: popup ? 4 : 8,
-        paddingRight: popup ? 4 : 8,
+        paddingLeft: fullPage ? 8 : 4,
+        paddingRight: fullPage ? 8 : 4,
         borderRadius: 4,
         backgroundColor: '#E5F2FF'
       }}
       href={activePromotion.url}
-      testID={`${activePromotion?.name}_${popup ? 'POPUP' : 'FULLPAGE'}_LOGO`}
+      testID={`${activePromotion?.name}_${fullPage ? 'FULLPAGE' : 'POPUP'}_LOGO`}
       treatAsButton={true}
     >
-      <img alt={activePromotion.name} src={popup ? activePromotion.popupLogoUrl : activePromotion.fullPageLogoUrl} />
+      <img alt={activePromotion.name} src={fullPage ? activePromotion.fullPageLogoUrl : activePromotion.popupLogoUrl} />
     </Anchor>
   );
 };

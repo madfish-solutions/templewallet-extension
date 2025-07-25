@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html
+  lang=""
+  class="no-scrollbar<% if (process.env.TARGET_BROWSER === "firefox") { %> overflow-x-hidden<% } %>"
+  <% if (process.env.TARGET_BROWSER === "firefox") { %> style="width: 384px"<% } %>
+>
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+    />
+    <title>Temple Wallet</title>
+  </head>
+
+  <body
+    class="bg-document"
+    <% if (process.env.TARGET_BROWSER === "firefox") { %> style="width: 384px"<% } %>
+  >
+    <div id="root"></div>
+  </body>
+</html>

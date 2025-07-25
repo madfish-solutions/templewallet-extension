@@ -1,6 +1,7 @@
 import React, { memo, useCallback, useState } from 'react';
 
 import { TestIDProps } from 'lib/analytics';
+import { IS_FIREFOX } from 'lib/env';
 import { T } from 'lib/i18n';
 import { Link } from 'lib/woozie';
 
@@ -23,11 +24,7 @@ export const RewardsButton = memo<TestIDProps>(props => {
       {...props}
     >
       <div className="flex items-center gap-1 relative">
-        {process.env.TARGET_BROWSER === 'firefox' ? (
-          <FirefoxStarAnimation loop={isHovered} />
-        ) : (
-          <StarAnimation loop={isHovered} />
-        )}
+        {IS_FIREFOX ? <FirefoxStarAnimation loop={isHovered} /> : <StarAnimation loop={isHovered} />}
         <T id="rewards" />
       </div>
     </Link>

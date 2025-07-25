@@ -3,6 +3,7 @@ import React, { forwardRef, HTMLAttributes, useImperativeHandle, useRef, useStat
 import clsx from 'clsx';
 import CSSTransition from 'react-transition-group/CSSTransition';
 
+import { IS_FIREFOX } from 'lib/env';
 import { useDidUpdate } from 'lib/ui/hooks';
 import { PORTAL_EVENTS_LEAK_GUARD } from 'lib/ui/Portal';
 
@@ -57,7 +58,7 @@ const DropdownWrapper = forwardRef<HTMLDivElement, Props>(
           ref={localRef}
           className={clsx(
             'rounded-md overflow-hidden',
-            process.env.TARGET_BROWSER === 'firefox' && 'grayscale-firefox-fix',
+            IS_FIREFOX && 'grayscale-firefox-fix',
             DESIGN_CLASS_NAMES[design],
             className
           )}

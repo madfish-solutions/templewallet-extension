@@ -45,11 +45,7 @@ import { toCollectibleLink } from '../utils';
 import { TezosCollectibleItemImage, EvmCollectibleItemImage } from './CollectibleItemImage';
 
 // Fixed sizes to improve large grid performance
-const ImgContainerStyle = { width: '7rem', height: '7rem' };
-const ImgWithDetailsContainerStyle = { width: '7rem', height: '8.25rem' };
-const ImgStyle = { width: '7rem', height: '7rem' };
 const manageImgStyle = { width: '2.625rem', height: '2.625rem' };
-const DetailsStyle = { width: '7rem', height: '1.25rem' };
 const NETWORK_IMAGE_DEFAULT_SIZE = 16;
 
 interface TezosCollectibleItemProps {
@@ -409,16 +405,14 @@ const DefaultCollectibleListItemLayoutHOC = <
         <Link
           to={toCollectibleLink(chainKind, chainId, assetSlug)}
           className={clsx('flex flex-col overflow-hidden group', isVisible ? 'rounded-8' : 'rounded-t-8', className)}
-          style={areDetailsShown ? ImgWithDetailsContainerStyle : ImgContainerStyle}
           testID={CollectibleTabSelectors.collectibleItem}
           testIDProperties={{ assetSlug: assetSlug }}
           ref={ref as RefObject<HTMLAnchorElement>}
         >
           <div
             ref={wrapperElemRef}
-            style={ImgStyle}
             className={clsx(
-              'relative flex items-center justify-center bg-grey-4 rounded-8 overflow-hidden',
+              'relative flex items-center justify-center bg-grey-4 rounded-8 overflow-hidden w-full aspect-square',
               isVisible && 'border-2 border-transparent',
               scam && isVisible ? 'hover:bg-error' : 'group-hover:border-secondary'
             )}
@@ -457,8 +451,7 @@ const DefaultCollectibleListItemLayoutHOC = <
 
           {areDetailsShown && isVisible && (
             <div
-              style={DetailsStyle}
-              className="pt-1 text-font-description truncate"
+              className="pt-1 w-full text-font-description truncate h-5"
               {...setTestID(CollectibleTabSelectors.collectibleName)}
               {...setAnotherSelector('name', assetName)}
             >
@@ -466,7 +459,7 @@ const DefaultCollectibleListItemLayoutHOC = <
             </div>
           )}
           {areDetailsShown && !isVisible && (
-            <div style={DetailsStyle} className="pt-1">
+            <div className="pt-1 w-full h-5">
               <div className="w-full h-4 bg-grey-3 rounded" />
             </div>
           )}

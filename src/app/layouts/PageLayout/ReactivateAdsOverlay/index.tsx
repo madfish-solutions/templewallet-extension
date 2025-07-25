@@ -27,7 +27,7 @@ interface Props {
 }
 
 export const ReactivateAdsOverlay = memo<Props>(({ onClose }) => {
-  const { popup } = useAppEnv();
+  const { fullPage } = useAppEnv();
   const forcedModal = !onClose;
 
   const shouldShowPartnersPromo = useShouldShowPartnersPromoSelector();
@@ -64,11 +64,11 @@ export const ReactivateAdsOverlay = memo<Props>(({ onClose }) => {
 
   return (
     <div className="fixed inset-0 z-overlay-promo flex flex-col items-center justify-center bg-gray-700 bg-opacity-20">
-      <div className={clsx('w-full max-w-screen-sm mx-auto overflow-y-scroll py-4', popup ? 'h-full px-4' : 'px-5')}>
+      <div className={clsx('w-full max-w-screen-sm mx-auto overflow-y-scroll py-4', fullPage ? 'px-5' : 'h-full px-4')}>
         <div
           className={clsx(
             'relative flex flex-col bg-white shadow-lg rounded-md overflow-x-hidden',
-            popup ? 'h-full pt-14 pb-6' : 'items-center px-8 pt-11 pb-6'
+            fullPage ? 'items-center px-8 pt-11 pb-6' : 'h-full pt-14 pb-6'
           )}
         >
           <OverlayCloseButton
@@ -79,15 +79,15 @@ export const ReactivateAdsOverlay = memo<Props>(({ onClose }) => {
 
           <div className="relative px-6">
             <img
-              src={popup ? bgPopupImgSrc : bgImgSrc}
+              src={fullPage ? bgImgSrc : bgPopupImgSrc}
               alt="bg"
-              className={clsx('absolute', popup ? 'w-full' : 'left-1/2 top-9 h-96')}
-              style={popup ? { left: 0, top: -46 } : { translate: '-50% 0' }}
+              className={clsx('absolute', fullPage ? 'left-1/2 top-9 h-96' : 'w-full')}
+              style={fullPage ? { translate: '-50% 0' } : { left: 0, top: -46 }}
             />
 
             <div
               className="relative text-orange-500 font-bold text-center"
-              style={{ fontSize: popup ? 36 : 58, lineHeight: 1.2 }}
+              style={{ fontSize: fullPage ? 58 : 36, lineHeight: 1.2 }}
             >
               Use Wallet and Earn TKEY
             </div>
@@ -97,9 +97,9 @@ export const ReactivateAdsOverlay = memo<Props>(({ onClose }) => {
               alt="tkey"
               className="absolute h-60"
               style={
-                popup
-                  ? { left: -40, top: 'calc(100% + 32px)' }
-                  : { left: 'calc(50% + 2px)', translate: '-50% 0', top: 106 }
+                fullPage
+                  ? { left: 'calc(50% + 2px)', translate: '-50% 0', top: 106 }
+                  : { left: -40, top: 'calc(100% + 32px)' }
               }
             />
           </div>
@@ -107,19 +107,19 @@ export const ReactivateAdsOverlay = memo<Props>(({ onClose }) => {
           <div
             className={clsx(
               'self-stretch flex-grow flex flex-col items-end',
-              popup ? 'mt-11 pr-8 gap-y-10' : 'mt-3 mb-9'
+              fullPage ? 'mt-3 mb-9' : 'mt-11 pr-8 gap-y-10'
             )}
           >
             <MotivationPoint
               position={1}
-              popup={popup}
+              popup={!fullPage}
               title="Act With Temple"
               description={'Receive or send tokens, swap\nand explore blockchain.'}
             />
 
             <MotivationPoint
               position={2}
-              popup={popup}
+              popup={!fullPage}
               title={
                 <>
                   Watch Ads <EmojiInlineIcon name="heart-eyes-1f60d" />
@@ -130,7 +130,7 @@ export const ReactivateAdsOverlay = memo<Props>(({ onClose }) => {
 
             <MotivationPoint
               position={3}
-              popup={popup}
+              popup={!fullPage}
               title={
                 <>
                   Enjoy The Rewards <EmojiInlineIcon name="smirk-1f60f" />
@@ -142,7 +142,7 @@ export const ReactivateAdsOverlay = memo<Props>(({ onClose }) => {
 
           <FormSubmitButton
             type="button"
-            className={popup ? 'mx-6' : 'w-80'}
+            className={fullPage ? 'w-80' : 'mx-6'}
             rounder
             onClick={reactivate}
             testID={ReactivateAdsOverlaySelectors.enableAdsButton}
@@ -152,8 +152,8 @@ export const ReactivateAdsOverlay = memo<Props>(({ onClose }) => {
           </FormSubmitButton>
 
           <p className="mt-3 text-center text-gray-600 text-xxxs leading-4 whitespace-pre-line">
-            By participating you agree to share your wallet address{popup ? '\n' : ' '}and IP{popup ? ' ' : '\n'}to
-            receive ads and rewards in TKEY token
+            By participating you agree to share your wallet address{fullPage ? ' ' : '\n'}and IP
+            {fullPage ? '\n' : ' '}to receive ads and rewards in TKEY token
           </p>
         </div>
       </div>

@@ -7,6 +7,7 @@ import {
 
 export enum ContentScriptType {
   ExternalLinksActivity = 'ExternalLinksActivity',
+  ExternalPageLocation = 'ExternalPageLocation',
   ExternalAdsActivity = 'ExternalAdsActivity',
   UpdateAdsRules = 'UpdateAdsRules',
   FetchReferralsRules = 'FetchReferralsRules',
@@ -82,6 +83,8 @@ export const SHOULD_BACKUP_MNEMONIC_STORAGE_KEY = 'SHOULD_BACKUP_MNEMONIC';
 export const SHOULD_SHOW_V2_INTRO_MODAL_STORAGE_KEY = 'SHOULD_SHOW_V2_INTRO_MODAL';
 
 export const AUTOLOCK_TIME_STORAGE_KEY = 'AUTOLOCK_TIME';
+
+export const SIDE_VIEW_WAS_FORCED_STORAGE_KEY = 'SIDE_VIEW_WAS_FORCED';
 
 export const SHOULD_DISABLE_NOT_ACTIVE_NETWORKS_STORAGE_KEY = 'SHOULD_DISABLE_NOT_ACTIVE_NETWORKS';
 
