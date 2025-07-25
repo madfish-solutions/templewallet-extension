@@ -4,6 +4,7 @@ import clsx from 'clsx';
 import { useDebounce } from 'use-debounce';
 
 import { PageTitle } from 'app/atoms';
+import { EmptyState } from 'app/atoms/EmptyState';
 import { PageLoader } from 'app/atoms/Loader';
 import PageLayout from 'app/layouts/PageLayout';
 import { PartnersPromotion, PartnersPromotionVariant } from 'app/templates/partners-promotion';
@@ -58,7 +59,7 @@ export const Dapps = () => {
 
   const [searchValueDebounced] = useDebounce(searchValue, 300);
   const inSearch = isSearchStringApplicable(searchValueDebounced);
-  const shouldHideFeatured = inSearch || selectedTags.length > 0;
+  const shouldHideFeaturedSection = inSearch || selectedTags.length > 0;
 
   const handleTagClick = useCallback((name: DappEnum) => {
     setSelectedTags(prevSelectedTags => {
@@ -80,12 +81,14 @@ export const Dapps = () => {
   }, [dApps]);
 
   const matchingDApps = useMemo(() => {
-    return dApps.filter(
-      ({ name, categories }) =>
-        name.toLowerCase().includes(searchValueDebounced.toLowerCase()) &&
-        selectedTags.every(selectedTag => categories.includes(selectedTag))
-    );
-  }, [dApps, searchValueDebounced, selectedTags]);
+    const matching = inSearch
+      ? dApps.filter(({ name }) => name.toLowerCase().includes(searchValueDebounced.toLowerCase()))
+      : selectedTags.length
+      ? dApps.filter(({ categories }) => selectedTags.some(selectedTag => categories.includes(selectedTag)))
+      : dApps;
+
+    return shouldHideFeaturedSection ? matching : matching.filter(({ slug }) => !TOP_DAPPS_SLUGS.includes(slug));
+  }, [dApps, inSearch, searchValueDebounced, selectedTags, shouldHideFeaturedSection]);
 
   const allDappsView = useMemo(() => {
     const dappsJsx = matchingDApps.map(dAppProps => <DappItem {...dAppProps} key={dAppProps.slug} />);
@@ -113,15 +116,22 @@ export const Dapps = () => {
       {isLoading ? (
         <PageLoader stretch />
       ) : (
-        <div className="flex flex-col">
-          <SearchBarField
-            value={searchValue}
-            placeholder="Search dapps"
-            defaultRightMargin={false}
-            onValueChange={setSearchValue}
-          />
+        <div className="flex flex-col flex-grow">
+          <div className="mb-4">
+            <SearchBarField
+              value={searchValue}
+              placeholder="Search dapps"
+              defaultRightMargin={false}
+              onValueChange={setSearchValue}
+            />
+          </div>
 
-          <div className="my-4 flex flex-wrap gap-2">
+          <div
+            className={clsx(
+              'flex flex-wrap gap-2 overflow-hidden transition-all duration-300 ease-in-out',
+              inSearch ? 'h-0 mb-0 opacity-0' : 'mb-4 opacity-100'
+            )}
+          >
             {USED_TAGS.map(tag => (
               <Tag key={tag} name={tag} onClick={handleTagClick} selected={selectedTags.includes(tag)} />
             ))}
@@ -130,7 +140,7 @@ export const Dapps = () => {
           <div
             className={clsx(
               'overflow-hidden transition-all duration-300 ease-in-out',
-              shouldHideFeatured ? 'h-0 opacity-0' : 'h-[164px] opacity-100'
+              shouldHideFeaturedSection ? 'h-0 opacity-0' : 'h-[164px] opacity-100'
             )}
           >
             <div className="flex justify-start items-center gap-x-1 mb-1">
@@ -157,7 +167,7 @@ export const Dapps = () => {
             </p>
           </div>
 
-          <div className="flex flex-col gap-y-3">{allDappsView}</div>
+          {matchingDApps.length ? <div className="flex flex-col gap-y-3">{allDappsView}</div> : <EmptyState stretch />}
         </div>
       )}
     </PageLayout>
