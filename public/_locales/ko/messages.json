@@ -442,7 +442,7 @@
   },
   "dApps": {
     "message": "분산 앱",
-    "description": "DApps = Decentralized Applications"
+    "description": "Dapps = Decentralized Applications"
   },
   "removeAccount": {
     "message": "계정 제거"

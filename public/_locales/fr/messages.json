@@ -442,7 +442,7 @@
   },
   "dApps": {
     "message": "Applications décentralisées",
-    "description": "DApps = Decentralized Applications"
+    "description": "Dapps = Decentralized Applications"
   },
   "removeAccount": {
     "message": "Retirer le compte"
