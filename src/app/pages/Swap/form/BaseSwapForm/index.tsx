@@ -1,5 +1,6 @@
 import React, { FC, useCallback } from 'react';
 
+import { StepToolDetails } from '@lifi/sdk';
 import BigNumber from 'bignumber.js';
 import { isEmpty, noop } from 'lodash';
 import { Controller, useFormContext } from 'react-hook-form-v7';
@@ -46,6 +47,13 @@ interface Props {
   minimumReceivedAmount?: BigNumber;
   swapParamsAreLoading: boolean;
   swapRouteSteps: number;
+  bridgeInfo?: StepToolDetails;
+  executionTime?: string;
+  priceImpact?: number;
+  eligibleForExtraGas?: boolean;
+  enabledExtraGas?: boolean;
+  outputNetworkName?: string;
+  setEnabledExtraGas?: SyncFn<boolean>;
   setIsFiatMode?: SyncFn<boolean>;
   parseFiatValueToAssetAmount: (
     fiatAmount?: BigNumber.Value,
@@ -82,6 +90,13 @@ export const BaseSwapForm: FC<Props> = ({
   minimumReceivedAmount,
   swapParamsAreLoading,
   swapRouteSteps,
+  bridgeInfo,
+  executionTime,
+  priceImpact,
+  eligibleForExtraGas,
+  enabledExtraGas,
+  outputNetworkName,
+  setEnabledExtraGas,
   setIsFiatMode = noop,
   parseFiatValueToAssetAmount,
   onInputChange,
@@ -203,8 +218,11 @@ export const BaseSwapForm: FC<Props> = ({
               label={<T id="from" />}
               value={value}
               error={error?.message}
-              onChange={value => {
-                onInputChange(value);
+              onChange={partialUpdate => {
+                onInputChange({
+                  ...value,
+                  ...partialUpdate
+                });
               }}
               isEvmNetwork={isEvmNetwork}
               chainId={inputChainId}
@@ -270,19 +288,27 @@ export const BaseSwapForm: FC<Props> = ({
             />
           )}
         />
-
         {outputAmount && (
           <div className="mb-6">
             {isEvmNetwork ? (
-              <EvmSwapInfoDropdown
-                swapRouteSteps={swapRouteSteps}
-                inputAmount={inputAmount}
-                outputAmount={outputAmount}
-                inputAssetSymbol={inputAssetSymbol}
-                outputAssetSymbol={outputAssetSymbol}
-                outputAssetDecimals={outputAssetDecimals}
-                minimumReceivedAmount={minimumReceivedAmount}
-              />
+              !swapParamsAreLoading && (
+                <EvmSwapInfoDropdown
+                  swapRouteSteps={swapRouteSteps}
+                  inputAmount={inputAmount}
+                  outputAmount={outputAmount}
+                  inputAssetSymbol={inputAssetSymbol}
+                  outputAssetSymbol={outputAssetSymbol}
+                  outputAssetDecimals={outputAssetDecimals}
+                  minimumReceivedAmount={minimumReceivedAmount}
+                  setEnabledExtraGas={setEnabledExtraGas}
+                  bridgeInfo={bridgeInfo}
+                  enabledExtraGas={enabledExtraGas}
+                  executionTime={executionTime}
+                  priceImpact={priceImpact}
+                  eligibleForExtraGas={eligibleForExtraGas}
+                  outputNetworkName={outputNetworkName}
+                />
+              )
             ) : (
               <TezosSwapInfoDropdown
                 showCashBack={outputAmountInUSD.gte(10)}
@@ -298,7 +324,6 @@ export const BaseSwapForm: FC<Props> = ({
           </div>
         )}
       </form>
-
       <ActionsButtonsBox className="mt-auto">
         <StyledButton
           type="submit"

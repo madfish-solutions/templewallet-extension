@@ -7,6 +7,7 @@ import { FormProvider } from 'react-hook-form-v7';
 import { useLedgerApprovalModalState } from 'app/hooks/use-ledger-approval-modal-state';
 import { useEvmEstimationData } from 'app/pages/Send/hooks/use-evm-estimation-data';
 import { EvmReviewData } from 'app/pages/Swap/form/interfaces';
+import { formatDuration, getBufferedExecutionDuration } from 'app/pages/Swap/form/utils';
 import { mapLiFiTxToEvmEstimationData, parseTxRequestToViem } from 'app/pages/Swap/modals/ConfirmSwap/utils';
 import { EvmTxParamsFormData } from 'app/templates/TransactionTabs/types';
 import { useEvmEstimationForm } from 'app/templates/TransactionTabs/use-evm-estimation-form';
@@ -17,7 +18,7 @@ import { useEvmAssetBalance } from 'lib/balances/hooks';
 import { EVM_ZERO_ADDRESS, VITALIK_ADDRESS } from 'lib/constants';
 import { t } from 'lib/i18n';
 import { useTempleClient } from 'lib/temple/front';
-import { atomsToTokens } from 'lib/temple/helpers';
+import { atomsToTokens, tokensToAtoms } from 'lib/temple/helpers';
 import { TempleAccountType } from 'lib/temple/types';
 import { runConnectedLedgerOperationFlow } from 'lib/ui';
 import { showTxSubmitToastWithDelay } from 'lib/ui/show-tx-submit-toast.util';
@@ -34,7 +35,7 @@ interface EvmContentProps {
 }
 
 export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
-  const { account, network, minimumReceived, onConfirm, lifiStep } = data;
+  const { account, network, minimumReceived, onConfirm, lifiStep, bridgeInfo } = data;
 
   const accountPkh = account.address as HexString;
   const isLedgerAccount = account.type === TempleAccountType.Ledger;
@@ -84,17 +85,56 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
     useLedgerApprovalModalState();
 
   const balancesChanges = useMemo(() => {
-    return {
+    const input = {
       [inputTokenSlug]: {
         atomicAmount: new BigNumber(-lifiStep.estimate.fromAmount),
         isNft: false
-      },
+      }
+    };
+
+    const output = {
       [outputTokenSlug]: {
-        atomicAmount: new BigNumber(+lifiStep.estimate.toAmount),
+        atomicAmount: new BigNumber(lifiStep.estimate.toAmount),
         isNft: false
       }
     };
-  }, [inputTokenSlug, lifiStep.estimate.fromAmount, lifiStep.estimate.toAmount, outputTokenSlug]);
+
+    if (bridgeInfo?.destinationChainGasTokenAmount?.gt(0) && bridgeInfo?.outputNetwork?.currency.address) {
+      output[bridgeInfo.outputNetwork.currency.address] = {
+        atomicAmount: tokensToAtoms(
+          bridgeInfo.destinationChainGasTokenAmount,
+          bridgeInfo.outputNetwork.currency.decimals
+        ),
+        isNft: false
+      };
+    }
+
+    return [input, output];
+  }, [
+    bridgeInfo?.destinationChainGasTokenAmount,
+    bridgeInfo?.outputNetwork?.currency.address,
+    bridgeInfo?.outputNetwork?.currency.decimals,
+    inputTokenSlug,
+    lifiStep.estimate.fromAmount,
+    lifiStep.estimate.toAmount,
+    outputTokenSlug
+  ]);
+
+  const bridgeData = useMemo(() => {
+    if (!bridgeInfo?.outputNetwork || !bridgeInfo.inputNetwork) return undefined;
+    const info = {
+      inputNetwork: bridgeInfo?.inputNetwork,
+      outputNetwork: bridgeInfo?.outputNetwork,
+      executionTime: formatDuration(getBufferedExecutionDuration(lifiStep?.estimate?.executionDuration)),
+      destinationChainGasTokenAmount: bridgeInfo?.destinationChainGasTokenAmount
+    };
+    return bridgeInfo?.inputNetwork?.chainId !== bridgeInfo?.outputNetwork?.chainId ? info : undefined;
+  }, [
+    bridgeInfo?.destinationChainGasTokenAmount,
+    bridgeInfo?.inputNetwork,
+    bridgeInfo?.outputNetwork,
+    lifiStep?.estimate?.executionDuration
+  ]);
 
   const executeRouteStep = useCallback(
     async (step: LiFiStep, { gasPrice, gasLimit, nonce }: Partial<EvmTxParamsFormData>) => {
@@ -121,14 +161,14 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
 
       const txHash = await sendEvmTransaction(accountPkh, network, txParams);
 
-      const blockExplorer = getActiveBlockExplorer(network.chainId.toString());
+      const blockExplorer = getActiveBlockExplorer(network.chainId.toString(), !!bridgeData);
 
       showTxSubmitToastWithDelay(TempleChainKind.EVM, txHash, blockExplorer.url);
 
       onConfirm?.();
       onClose?.();
     },
-    [accountPkh, network, sendEvmTransaction, getActiveBlockExplorer, onConfirm, onClose]
+    [sendEvmTransaction, accountPkh, network, getActiveBlockExplorer, bridgeData, onConfirm, onClose]
   );
 
   const onSubmit = useCallback(
@@ -219,6 +259,7 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
         onSubmit={onSubmit}
         someBalancesChanges={true}
         filteredBalancesChanges={balancesChanges}
+        bridgeData={bridgeData}
       />
     </FormProvider>
   );

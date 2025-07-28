@@ -10,15 +10,16 @@ export const ListBlockItem = forwardRef<
     divide?: boolean;
     Icon?: ImportedSVGComponent;
     tooltipText?: string;
+    substitutions?: string[];
   }>
->(({ Icon, title, divide = true, children }, ref) => (
+>(({ Icon, title, divide = true, children, substitutions }, ref) => (
   <>
-    {divide && <Divider thinest />}
+    {divide && <Divider />}
     <div className="flex items-center justify-between min-h-12">
       <span ref={ref} className="flex gap-0.5 items-center cursor-pointer">
-        {Icon && <IconBase Icon={Icon} className="text-grey-1" />}
+        {Icon ? <IconBase Icon={Icon} className="text-grey-1" /> : <span className="w-6 h-6" />}
         <span className="text-font-description text-grey-1">
-          <T id={title} />
+          <T id={title} substitutions={substitutions} />
         </span>
       </span>
       <span className="p-1 text-font-num-12">{children}</span>

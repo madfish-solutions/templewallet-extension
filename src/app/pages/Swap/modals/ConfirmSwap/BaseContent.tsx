@@ -1,5 +1,6 @@
 import React from 'react';
 
+import BigNumber from 'bignumber.js';
 import { SubmitHandler, useFormContext } from 'react-hook-form-v7';
 
 import { FadeTransition } from 'app/a11y/FadeTransition';
@@ -11,10 +12,10 @@ import { CurrentAccount } from 'app/templates/current-account';
 import { LedgerApprovalModal } from 'app/templates/ledger-approval-modal';
 import { TransactionTabs } from 'app/templates/TransactionTabs';
 import { Tab, TxParamsFormData } from 'app/templates/TransactionTabs/types';
-import { t, T } from 'lib/i18n';
+import { T } from 'lib/i18n';
 import { DisplayedFeeOptions, FeeOptionLabel } from 'lib/temple/front/estimation-data-providers';
 import { LedgerOperationState } from 'lib/ui';
-import { OneOfChains } from 'temple/front';
+import { EvmChain, OneOfChains } from 'temple/front';
 
 interface BaseContentProps<T extends TxParamsFormData> {
   ledgerApprovalModalState: LedgerOperationState;
@@ -34,6 +35,13 @@ interface BaseContentProps<T extends TxParamsFormData> {
     amount: string;
     symbol: string;
   };
+  bridgeData?: {
+    inputNetwork: EvmChain;
+    outputNetwork: EvmChain;
+    executionTime: string;
+    destinationChainGasTokenAmount?: BigNumber;
+  };
+  cashbackInTkey?: string;
   displayedFee?: string;
   displayedStorageFee?: string;
   displayedFeeOptions?: DisplayedFeeOptions;
@@ -54,9 +62,11 @@ export const BaseContent = <T extends TxParamsFormData>({
   onCancel,
   onLedgerModalClose,
   minimumReceived,
+  cashbackInTkey,
   displayedFee,
   displayedStorageFee,
-  displayedFeeOptions
+  displayedFeeOptions,
+  bridgeData
 }: BaseContentProps<T>) => {
   const { formState } = useFormContext<T>();
 
@@ -66,7 +76,7 @@ export const BaseContent = <T extends TxParamsFormData>({
         <div className="my-4">
           {someBalancesChanges ? (
             <FadeTransition>
-              <BalancesChangesView title={t('swapDetails')} balancesChanges={filteredBalancesChanges} chain={network} />
+              <BalancesChangesView balancesChanges={filteredBalancesChanges} chain={network} bridgeData={bridgeData} />
             </FadeTransition>
           ) : (
             <div className="flex justify-center items-center py-4">
@@ -89,7 +99,9 @@ export const BaseContent = <T extends TxParamsFormData>({
           displayedFee={displayedFee}
           displayedStorageFee={displayedStorageFee}
           displayedFeeOptions={displayedFeeOptions}
+          cashbackInTkey={cashbackInTkey}
           minimumReceived={minimumReceived}
+          bridgeData={bridgeData}
           formId="confirm-form"
           tabsName="confirm-send-tabs"
         />

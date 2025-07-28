@@ -11,7 +11,7 @@ import useTippy, { UseTippyOptions } from 'lib/ui/useTippy';
 import { EvmChain, TezosChain } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
 
-import { EvmAssetIcon, TezosAssetIcon } from '../AssetIcon';
+import { EvmAssetIcon, EvmAssetIconWithNetwork, TezosAssetIcon } from '../AssetIcon';
 import { ShortenedTextWithTooltip } from '../shortened-text-with-tooltip';
 
 const CollectibleIconFallback = memo<{ size?: number }>(({ size = 24 }) => (
@@ -31,8 +31,8 @@ export const OperationConfirmationCard: FC<PropsWithChildren<OperationConfirmati
   children
 }) => (
   <div className="bg-white p-4 shadow-bottom rounded-lg flex flex-col gap-3">
-    <p className="text-font-description-bold text-grey-1">{title}</p>
-    <div className="flex flex-col gap-2">{children}</div>
+    {title && <p className="text-font-description-bold text-grey-1">{title}</p>}
+    <div className="flex flex-col gap-1">{children}</div>
   </div>
 );
 
@@ -50,6 +50,7 @@ interface OperationConfirmationCardRowProps {
   volume: BigNumber | string;
   symbol?: string;
   rightContent?: ReactNode;
+  bridge: boolean;
 }
 
 const unknownTokenTippyOptions: UseTippyOptions = {
@@ -60,33 +61,45 @@ const unknownTokenTippyOptions: UseTippyOptions = {
 };
 
 export const OperationConfirmationCardRow = memo<OperationConfirmationCardRowProps>(
-  ({ chain, assetSlug, variant, amountClassName, volume, symbol, rightContent }) => {
+  ({ chain, assetSlug, variant, amountClassName, volume, symbol, rightContent, bridge }) => {
     const allCollectibles = variant === OperationConfirmationCardRowVariant.AllCollectibles;
     const isCollectible = allCollectibles || variant === OperationConfirmationCardRowVariant.Collectible;
     const tippyRef = useTippy<HTMLSpanElement>(unknownTokenTippyOptions);
     const Fallback = isCollectible ? CollectibleIconFallback : TokenIconFallback;
 
-    const icon = useMemo(
-      () =>
-        chain.kind === TempleChainKind.EVM ? (
-          <EvmAssetIcon
+    const icon = useMemo(() => {
+      const size = allCollectibles ? 36 : 24;
+
+      if (chain.kind === TempleChainKind.EVM) {
+        return bridge ? (
+          <EvmAssetIconWithNetwork
             evmChainId={chain.chainId}
             assetSlug={assetSlug}
-            size={allCollectibles ? 36 : 24}
+            size={size}
             Loader={Fallback}
             Fallback={Fallback}
           />
         ) : (
-          <TezosAssetIcon
-            tezosChainId={chain.chainId}
+          <EvmAssetIcon
+            evmChainId={chain.chainId}
             assetSlug={assetSlug}
-            size={allCollectibles ? 36 : 24}
+            size={size}
             Loader={Fallback}
             Fallback={Fallback}
           />
-        ),
-      [Fallback, allCollectibles, assetSlug, chain.chainId, chain.kind]
-    );
+        );
+      }
+
+      return (
+        <TezosAssetIcon
+          tezosChainId={chain.chainId}
+          assetSlug={assetSlug}
+          size={size}
+          Loader={Fallback}
+          Fallback={Fallback}
+        />
+      );
+    }, [Fallback, allCollectibles, assetSlug, bridge, chain.chainId, chain.kind]);
 
     return (
       <div className={clsx('flex items-center', allCollectibles ? 'gap-2' : 'gap-1')}>
@@ -124,7 +137,7 @@ const DisplayVolume = memo<Pick<OperationConfirmationCardRowProps, 'volume'>>(({
   typeof volume === 'string' ? (
     <ShortenedTextWithTooltip>{volume}</ShortenedTextWithTooltip>
   ) : (
-    <Money withSign={false} smallFractionFont={false} tooltipPlacement="bottom">
+    <Money withSign={true} smallFractionFont={false} tooltipPlacement="bottom">
       {volume}
     </Money>
   )

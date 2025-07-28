@@ -1,11 +1,13 @@
 import { LiFiStep } from '@lifi/sdk';
 import { WalletParamsWithKind } from '@taquito/taquito';
 import { BatchWalletOperation } from '@taquito/taquito/dist/types/wallet/batch-operation';
+import BigNumber from 'bignumber.js';
 
 import {
   EvmReviewData as GenericEvmReviewData,
   TezosReviewData as GenericTezosReviewData
 } from 'lib/temple/front/estimation-data-providers';
+import { EvmChain } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
 
 interface EvmSwapReviewData {
@@ -18,6 +20,11 @@ interface EvmSwapReviewData {
     symbol: string;
   };
   lifiStep: LiFiStep;
+  bridgeInfo?: {
+    destinationChainGasTokenAmount?: BigNumber;
+    inputNetwork?: EvmChain;
+    outputNetwork?: EvmChain;
+  };
 }
 
 interface TezosSwapReviewData {

@@ -1247,7 +1247,7 @@
     "message": "Fee"
   },
   "bridge": {
-    "message": "bridge"
+    "message": "Bridge"
   },
   "routingFee": {
     "message": "Routing Fee"
@@ -1257,6 +1257,9 @@
   },
   "routingFeeTooltipEvm": {
     "message": "For choosing the most profitable exchange route among DEXes."
+  },
+  "extraGasInfoTooltipEvm": {
+    "message": "Receive a portion of your bridged amount as gas on the destination network - just enough for your next transaction."
   },
   "delegated": {
     "message": "Delegated"
@@ -2741,6 +2744,17 @@
       }
     }
   },
+  "extraGasOnNetwork": {
+    "message": "Extra gas on $network$",
+    "placeholders": {
+      "network": {
+        "content": "$1"
+      }
+    }
+  },
+  "extraGas": {
+    "message": "Extra gas"
+  },
   "community": {
     "message": "Community"
   },
@@ -3877,6 +3891,12 @@
   },
   "swapCashback": {
     "message": "Cashback"
+  },
+  "networkFrom": {
+    "message": "Network from"
+  },
+  "networkTo": {
+    "message": "Network to"
   },
   "swapCashbackDescription": {
     "message": "Swap more than 10$$ and receive $text$% from the swapped amount in the TKEY token as a cashback",

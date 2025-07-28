@@ -171,8 +171,6 @@ const Swap = memo<Props>(() => {
     [setSettingsModalClosed, setSlippageTolerance]
   );
 
-  console.log('selectedChainAssets', selectedChainAssets)
-
   return (
     <PageLayout
       pageTitle={<PageTitle title={t('swap')} />}

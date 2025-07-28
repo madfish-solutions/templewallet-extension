@@ -1,13 +1,18 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 
+import { StepToolDetails } from '@lifi/sdk';
 import BigNumber from 'bignumber.js';
 import clsx from 'clsx';
 
-import { IconBase } from 'app/atoms';
+import { IconBase, ToggleSwitch } from 'app/atoms';
 import { ReactComponent as ArrowDownIcon } from 'app/icons/base/arrow_down.svg';
+import { ReactComponent as BridgeIcon } from 'app/icons/base/bridge.svg';
 import { ReactComponent as ChevronUpIcon } from 'app/icons/base/chevron_up.svg';
+import { ReactComponent as ClockIcon } from 'app/icons/base/clock.svg';
+import { ReactComponent as ExtraGasIcon } from 'app/icons/base/extra-gas.svg';
+import { ReactComponent as FeeIcon } from 'app/icons/base/fee.svg';
+import { ReactComponent as PriceImpactIcon } from 'app/icons/base/price-impact.svg';
 import { ReactComponent as RouteIcon } from 'app/icons/base/route.svg';
-import { ReactComponent as StackIcon } from 'app/icons/base/stack.svg';
 import { ListBlockItem } from 'app/pages/Swap/form/SwapInfoDropdown/ListBlockItem';
 import { getPluralKey, T } from 'lib/i18n';
 import { ROUTING_FEE_RATIO } from 'lib/route3/constants';
@@ -16,7 +21,7 @@ import useTippy from 'lib/ui/useTippy';
 import { toPercentage } from 'lib/ui/utils';
 
 import LiFiImgSrc from '../assets/lifi.png';
-import { evmFeeInfoTippyProps } from '../SwapForm.tippy';
+import { evmFeeInfoTippyProps, extraGasInfoTippyProps } from '../SwapForm.tippy';
 
 import { SwapExchangeRate } from './SwapExchangeRate';
 import { SwapMinimumReceived } from './SwapMinimumReceived';
@@ -29,6 +34,13 @@ interface IEvmSwapInfoDropdownProps {
   outputAssetSymbol: string;
   outputAssetDecimals: number;
   minimumReceivedAmount?: BigNumber;
+  bridgeInfo?: StepToolDetails;
+  executionTime?: string;
+  priceImpact?: number;
+  eligibleForExtraGas?: boolean;
+  outputNetworkName?: string;
+  enabledExtraGas?: boolean;
+  setEnabledExtraGas?: SyncFn<boolean>;
 }
 
 export const EvmSwapInfoDropdown = ({
@@ -38,11 +50,21 @@ export const EvmSwapInfoDropdown = ({
   inputAssetSymbol,
   outputAssetSymbol,
   outputAssetDecimals,
-  minimumReceivedAmount
+  minimumReceivedAmount,
+  bridgeInfo,
+  executionTime,
+  priceImpact,
+  eligibleForExtraGas,
+  outputNetworkName,
+  enabledExtraGas,
+  setEnabledExtraGas
 }: IEvmSwapInfoDropdownProps) => {
   const feeInfoIconRef = useTippy<HTMLSpanElement>(evmFeeInfoTippyProps);
+  const extraGasIconRef = useTippy<HTMLSpanElement>(extraGasInfoTippyProps);
 
   const [dropdownOpened, , , toggleDropdown] = useBooleanState(false);
+
+  const positivePriceImpact = useMemo(() => priceImpact && priceImpact < 0, [priceImpact]);
 
   return (
     <div className="p-4 bg-white rounded-8 shadow-md">
@@ -73,28 +95,45 @@ export const EvmSwapInfoDropdown = ({
       </div>
 
       <div className={clsx('mt-2', dropdownOpened ? 'block' : 'hidden')}>
-        <ListBlockItem ref={feeInfoIconRef} Icon={RouteIcon} title="bridge" divide={false}>
-          BridgeName
+        <ListBlockItem Icon={BridgeIcon} title="bridge" divide={false}>
+          <div className="flex gap-1 align-center items-center">
+            {bridgeInfo?.name} <img src={bridgeInfo?.logoURI} className="w-6 h-6" alt="bridge logo" />
+          </div>
         </ListBlockItem>
-        <ListBlockItem Icon={StackIcon} title="route" divide={true}>
+        <ListBlockItem Icon={RouteIcon} title="route">
           <T id={getPluralKey('steps', swapRouteSteps)} substitutions={swapRouteSteps} />
         </ListBlockItem>
-        <ListBlockItem Icon={StackIcon} title="estimatedTime" divide={true}>
-          ≈ 15 min
+        <ListBlockItem Icon={ClockIcon} title="estimatedTime">
+          ≈ {executionTime}
         </ListBlockItem>
-        <ListBlockItem Icon={StackIcon} title="priceImpact" divide={true}>
-          0.99%
+        <ListBlockItem Icon={PriceImpactIcon} title="priceImpact">
+          <span className={positivePriceImpact ? 'text-success' : 'text-error'}>
+            {positivePriceImpact ? '+' : '-'}
+            {toPercentage(priceImpact?.toFixed(4), undefined, Infinity)}
+          </span>
         </ListBlockItem>
-        <ListBlockItem ref={feeInfoIconRef} Icon={RouteIcon} title="routingFee" divide={false}>
+        <ListBlockItem ref={feeInfoIconRef} Icon={FeeIcon} title="routingFee">
           {toPercentage(ROUTING_FEE_RATIO, undefined, Infinity)}
         </ListBlockItem>
-        <ListBlockItem Icon={ArrowDownIcon} title="minReceived" divide={true}>
+        <ListBlockItem Icon={ArrowDownIcon} title="minReceived">
           <SwapMinimumReceived
             minimumReceivedAmount={minimumReceivedAmount}
             outputAssetSymbol={outputAssetSymbol}
             outputAssetDecimals={outputAssetDecimals}
           />
         </ListBlockItem>
+        {eligibleForExtraGas && (
+          <ListBlockItem
+            ref={extraGasIconRef}
+            Icon={ExtraGasIcon}
+            title="extraGasOnNetwork"
+            substitutions={[outputNetworkName ?? 'Ethereum']}
+          >
+            <div className="flex justify-between items-center">
+              <ToggleSwitch small checked={enabledExtraGas} onChange={setEnabledExtraGas} />
+            </div>
+          </ListBlockItem>
+        )}
       </div>
     </div>
   );

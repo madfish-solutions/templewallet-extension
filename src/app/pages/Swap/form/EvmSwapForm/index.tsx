@@ -9,7 +9,7 @@ import { DeadEndBoundaryError } from 'app/ErrorBoundary';
 import { BaseSwapForm } from 'app/pages/Swap/form/BaseSwapForm';
 import { useFetchLifiEvmTokensSlugs } from 'app/pages/Swap/form/hooks';
 import { SwapFormValue, SwapInputValue } from 'app/pages/Swap/form/SwapForm.form';
-import { getDefaultSwapFormValues } from 'app/pages/Swap/form/utils';
+import { formatDuration, getBufferedExecutionDuration, getDefaultSwapFormValues } from 'app/pages/Swap/form/utils';
 import { useLifiEvmTokenMetadataSelector } from 'app/store/evm/swap-lifi-metadata/selectors';
 import { useEvmTokenMetadataSelector } from 'app/store/evm/tokens-metadata/selectors';
 import { toastError } from 'app/toaster';
@@ -68,6 +68,7 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
   );
 
   const [isAlertVisible, setIsAlertVisible] = useState(false);
+  const [enabledExtraGas, setEnabledExtraGas] = useState(false);
 
   const getTokenMetadata = useGetEvmGasOrTokenMetadata();
   const formAnalytics = useFormAnalytics('SwapForm');
@@ -166,10 +167,19 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
   const inputAssetSymbol = useMemo(() => getAssetSymbol(inputAssetMetadata), [inputAssetMetadata]);
   const outputAssetSymbol = useMemo(() => getAssetSymbol(outputAssetMetadata), [outputAssetMetadata]);
 
+  const destinationGasTokenAssetPrice = useAssetFiatCurrencyPrice(
+    outputNetwork.currency.address,
+    outputNetwork.chainId,
+    true
+  );
   const inputAssetPrice = useAssetFiatCurrencyPrice(inputValue.assetSlug ?? '', inputNetwork.chainId, true);
   const outputAssetPrice = useAssetFiatCurrencyPrice(outputValue.assetSlug ?? '', outputNetwork.chainId, true);
 
-  const resetForm = useCallback(() => void reset(defaultValues), [defaultValues, reset]);
+  const resetForm = useCallback(() => {
+    setSwapRoute(null);
+    setEnabledExtraGas(false);
+    void reset(defaultValues);
+  }, [defaultValues, reset]);
 
   const handleInputChange = useCallback(
     (newInputValue: SwapInputValue) => {
@@ -208,13 +218,52 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
   );
 
   const parseFiatValueToAssetAmount = useCallback(
-    (fiatAmount: BigNumber.Value = ZERO, assetDecimals: number = 2, inputName: SwapFieldName = 'input') => {
-      return new BigNumber(fiatAmount || '0')
-        .dividedBy((inputName === 'input' ? inputAssetPrice : outputAssetPrice) ?? 1)
-        .decimalPlaces(assetDecimals, BigNumber.ROUND_FLOOR);
+    (
+      fiatAmount: BigNumber.Value = ZERO,
+      assetDecimals: number = 2,
+      inputName: SwapFieldName = 'input',
+      assetPriceOverride?: BigNumber.Value
+    ) => {
+      const price = assetPriceOverride ?? (inputName === 'input' ? inputAssetPrice : outputAssetPrice) ?? 1;
+
+      return new BigNumber(fiatAmount || '0').dividedBy(price).decimalPlaces(assetDecimals, BigNumber.ROUND_FLOOR);
     },
     [inputAssetPrice, outputAssetPrice]
   );
+
+  const oneDollarWorthOfDestinationChainGasToken = useMemo(() => {
+    const value = parseFiatValueToAssetAmount(
+      1,
+      outputNetwork.currency.decimals,
+      'output',
+      destinationGasTokenAssetPrice
+    );
+    return tokensToAtoms(value, outputNetwork.currency.decimals);
+  }, [parseFiatValueToAssetAmount, outputNetwork.currency.decimals, destinationGasTokenAssetPrice]);
+
+  const eligibleForExtraGas = useMemo(() => {
+    const inputValueToUse = isFiatMode
+      ? parseFiatValueToAssetAmount(inputValue.amount, inputAssetMetadata?.decimals)
+      : inputValue.amount;
+
+    const inputUSD =
+      (inputValueToUse && inputValueToUse.times(inputAssetPrice).decimalPlaces(2, BigNumber.ROUND_FLOOR)) || ZERO;
+
+    const sendAmountIsGreaterThanDollar = inputUSD !== undefined && inputUSD.isGreaterThan(1);
+    const destinationTokenIsNotGasToken = outputValue.assetSlug !== EVM_TOKEN_SLUG;
+    const notTheSameChain = outputValue.chainId !== inputValue.chainId;
+
+    return sendAmountIsGreaterThanDollar && destinationTokenIsNotGasToken && notTheSameChain;
+  }, [
+    inputAssetMetadata?.decimals,
+    inputAssetPrice,
+    inputValue.amount,
+    inputValue.chainId,
+    isFiatMode,
+    outputValue.assetSlug,
+    outputValue.chainId,
+    parseFiatValueToAssetAmount
+  ]);
 
   const atomsInputValue = useMemo(() => {
     const inputValueToUse = isFiatMode
@@ -226,13 +275,13 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
 
   const routeAbortControllerRef = useRef<AbortController | null>(null);
 
-  const fetchEvmSwapRoute = useCallback(async (params: RouteParams, isAutoRefresh = false) => {
+  const fetchEvmSwapRoute = useCallback(async (params: RouteParams) => {
     routeAbortControllerRef.current?.abort();
     const controller = new AbortController();
     routeAbortControllerRef.current = controller;
 
-    if (!isAutoRefresh) setIsRouteLoading(true);
     setIsAlertVisible(false);
+    setIsRouteLoading(true);
 
     try {
       const data = await getEvmBestSwapRoute(params, controller.signal);
@@ -240,71 +289,63 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
         return;
       }
       setSwapRoute(data);
+      setIsRouteLoading(false);
       return data;
     } catch (error: unknown) {
       if ((error as Error)?.name === 'CanceledError') return;
       console.error('EVM Swap route error:', error instanceof Error ? error.message : error);
+
       setSwapRoute(null);
-      if (!isAutoRefresh) setIsAlertVisible(true);
+      setIsRouteLoading(false);
+      setIsAlertVisible(true);
+      setEnabledExtraGas(false);
+
       throw error;
-    } finally {
-      if (!isAutoRefresh) setIsRouteLoading(false);
     }
   }, []);
 
-  const getAndSetSwapRoute = useCallback(
-    async (isAutoRefresh = false) => {
-      if (!sourceAssetInfo || !targetAssetInfo || !inputValue.amount || new BigNumber(inputValue.amount).isZero()) {
-        setSwapRoute(null);
-        return;
-      }
-
-      const fromToken = isEvmNativeTokenSlug(sourceAssetInfo.assetSlug)
-        ? EVM_ZERO_ADDRESS
-        : fromAssetSlug(sourceAssetInfo.assetSlug)[0];
-      const toToken = isEvmNativeTokenSlug(targetAssetInfo.assetSlug)
-        ? EVM_ZERO_ADDRESS
-        : fromAssetSlug(targetAssetInfo.assetSlug)[0];
-
-      const params: RouteParams = {
-        fromChain: sourceAssetInfo.chainId as number,
-        toChain: targetAssetInfo.chainId as number,
-        fromToken,
-        toToken,
-        amount: atomsInputValue.toString(),
-        // amountForGas: atomsInputValue.div(10).toString(),
-        fromAddress: publicKeyHash,
-        slippage: slippageTolerance / 100
-      };
-
-      return fetchEvmSwapRoute(params, isAutoRefresh);
-    },
-    [
-      sourceAssetInfo,
-      targetAssetInfo,
-      inputValue.amount,
-      atomsInputValue,
-      publicKeyHash,
-      slippageTolerance,
-      fetchEvmSwapRoute
-    ]
-  );
-
-  useEffect(() => {
-    if (!inputValue.amount || new BigNumber(inputValue.amount).isLessThanOrEqualTo(0)) {
+  const getAndSetSwapRoute = useCallback(async () => {
+    if (!sourceAssetInfo || !targetAssetInfo || !inputValue.amount || new BigNumber(inputValue.amount).isZero()) {
       setSwapRoute(null);
       return;
     }
-    if (sourceAssetInfo?.assetSlug && targetAssetInfo?.assetSlug) {
-      void getAndSetSwapRoute();
-    }
+
+    const fromToken = isEvmNativeTokenSlug(sourceAssetInfo.assetSlug)
+      ? EVM_ZERO_ADDRESS
+      : fromAssetSlug(sourceAssetInfo.assetSlug)[0];
+    const toToken = isEvmNativeTokenSlug(targetAssetInfo.assetSlug)
+      ? EVM_ZERO_ADDRESS
+      : fromAssetSlug(targetAssetInfo.assetSlug)[0];
+
+    const params: RouteParams = {
+      fromChain: sourceAssetInfo.chainId as number,
+      toChain: targetAssetInfo.chainId as number,
+      fromToken,
+      toToken,
+      amount: atomsInputValue.toString(),
+      amountForGas:
+        enabledExtraGas && eligibleForExtraGas ? oneDollarWorthOfDestinationChainGasToken.toString() : undefined,
+      fromAddress: publicKeyHash,
+      slippage: slippageTolerance / 100
+    };
+
+    return fetchEvmSwapRoute(params);
   }, [
+    atomsInputValue,
+    eligibleForExtraGas,
+    enabledExtraGas,
+    fetchEvmSwapRoute,
     inputValue.amount,
-    sourceAssetInfo?.assetSlug,
-    targetAssetInfo?.assetSlug,
+    oneDollarWorthOfDestinationChainGasToken,
+    publicKeyHash,
     slippageTolerance,
-    getAndSetSwapRoute
+    sourceAssetInfo,
+    targetAssetInfo
   ]);
+
+  useEffect(() => {
+    void getAndSetSwapRoute();
+  }, [getAndSetSwapRoute]);
 
   useInterval(
     () => {
@@ -316,7 +357,7 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
         !isRouteLoading &&
         !formState.isSubmitting
       ) {
-        getAndSetSwapRoute(true).catch(error => {
+        getAndSetSwapRoute().catch(error => {
           console.error('Error during auto-refresh:', error);
         });
       }
@@ -406,21 +447,7 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
     if (formState.isSubmitting) return;
     if (!inputValue.assetSlug || !outputValue.assetSlug) return;
 
-    let latestRoute: Route | undefined;
-    try {
-      latestRoute = await getAndSetSwapRoute(false);
-      if (!latestRoute) {
-        setIsAlertVisible(true);
-        return;
-      }
-    } catch (error) {
-      console.error('Error refetching route on submit:', error);
-      return;
-    }
-
-    const finalLifiStep = latestRoute?.steps?.[0]?.type === 'lifi' ? latestRoute?.steps[0] : undefined;
-
-    if (!finalLifiStep) {
+    if (!lifiStep) {
       setIsAlertVisible(true);
       return;
     }
@@ -428,14 +455,14 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
     let allowanceSufficient = true;
     let onChainAllowance = toBigInt(ZERO);
 
-    if (EVM_ZERO_ADDRESS !== finalLifiStep.action.fromToken.address) {
-      const requiredAllowance = BigInt(finalLifiStep.action.fromAmount);
+    if (EVM_ZERO_ADDRESS !== lifiStep.action.fromToken.address) {
+      const requiredAllowance = BigInt(lifiStep.action.fromAmount);
 
       onChainAllowance = await evmToolkit.readContract({
-        address: finalLifiStep.action.fromToken.address as HexString,
+        address: lifiStep.action.fromToken.address as HexString,
         abi: [erc20AllowanceAbi],
         functionName: 'allowance',
-        args: [finalLifiStep.action.fromAddress as HexString, finalLifiStep.estimate.approvalAddress as HexString]
+        args: [lifiStep.action.fromAddress as HexString, lifiStep.estimate.approvalAddress as HexString]
       });
 
       allowanceSufficient = onChainAllowance >= requiredAllowance;
@@ -464,7 +491,15 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
           amount: getMinimumReceivedAmount(outputValue.amount).toString(),
           symbol: outputAssetSymbol
         },
-        lifiStep: finalLifiStep
+        lifiStep,
+        bridgeInfo: {
+          destinationChainGasTokenAmount:
+            enabledExtraGas && eligibleForExtraGas
+              ? atomsToTokens(oneDollarWorthOfDestinationChainGasToken, outputNetwork.currency.decimals)
+              : undefined,
+          inputNetwork,
+          outputNetwork
+        }
       });
 
       formAnalytics.trackSubmitSuccess(analyticsProperties);
@@ -478,12 +513,12 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
     inputValue.assetSlug,
     outputValue.assetSlug,
     outputValue.amount,
+    lifiStep,
     getValues,
     inputAssetMetadata?.symbol,
     sourceAssetInfo?.chainId,
     outputAssetMetadata?.symbol,
     targetAssetInfo?.chainId,
-    getAndSetSwapRoute,
     evmToolkit,
     formAnalytics,
     onReview,
@@ -491,7 +526,11 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
     inputNetwork,
     resetForm,
     getMinimumReceivedAmount,
-    outputAssetSymbol
+    outputAssetSymbol,
+    enabledExtraGas,
+    eligibleForExtraGas,
+    oneDollarWorthOfDestinationChainGasToken,
+    outputNetwork
   ]);
 
   useEffect(() => {
@@ -515,6 +554,13 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
         : undefined,
     [lifiStep, outputAssetMetadata?.decimals]
   );
+
+  const priceImpact = useMemo(() => {
+    const toAmountUSD = enabledExtraGas ? Number(swapRoute?.toAmountUSD) + 1 : Number(swapRoute?.toAmountUSD);
+    return swapRoute?.toAmountUSD !== undefined && swapRoute?.fromAmountUSD !== undefined
+      ? 1 - toAmountUSD / Number(swapRoute.fromAmountUSD)
+      : 0;
+  }, [enabledExtraGas, swapRoute?.fromAmountUSD, swapRoute?.toAmountUSD]);
 
   return (
     <FormProvider {...form}>
@@ -543,8 +589,15 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
         )}
         swapParamsAreLoading={isRouteLoading}
         swapRouteSteps={lifiStep?.includedSteps.length ?? 0}
+        bridgeInfo={lifiStep?.toolDetails}
+        executionTime={formatDuration(getBufferedExecutionDuration(lifiStep?.estimate?.executionDuration))}
+        priceImpact={priceImpact}
+        eligibleForExtraGas={eligibleForExtraGas}
+        enabledExtraGas={enabledExtraGas}
+        outputNetworkName={outputNetwork?.name || 'Ethereum'}
         setIsFiatMode={v => setValue('isFiatMode', v)}
         parseFiatValueToAssetAmount={parseFiatValueToAssetAmount}
+        setEnabledExtraGas={setEnabledExtraGas}
         onInputChange={handleInputChange}
         onOutputChange={handleOutputChange}
         onSelectAssetClick={onSelectAssetClick}

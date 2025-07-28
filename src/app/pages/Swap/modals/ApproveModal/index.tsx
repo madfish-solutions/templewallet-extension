@@ -40,7 +40,7 @@ interface ApproveModalProps {
 const LIFI = 'https://li.fi/';
 
 const ApproveModal = ({ data, onClose, onReview, setLoading }: ApproveModalProps) => {
-  const { lifiStep, account, network, minimumReceived, onConfirm, neededApproval, onChainAllowance } = data;
+  const { lifiStep, account, network, minimumReceived, onConfirm, neededApproval, onChainAllowance, bridgeInfo } = data;
 
   const { sendEvmTransaction } = useTempleClient();
   const getActiveBlockExplorer = useGetEvmActiveBlockExplorer();
@@ -137,7 +137,8 @@ const ApproveModal = ({ data, onClose, onReview, setLoading }: ApproveModalProps
             onChainAllowance,
             onConfirm,
             minimumReceived,
-            lifiStep
+            lifiStep,
+            bridgeInfo
           });
         } catch (err: any) {
           console.error(err);
@@ -149,6 +150,7 @@ const ApproveModal = ({ data, onClose, onReview, setLoading }: ApproveModalProps
     },
     [
       account,
+      bridgeInfo,
       getActiveBlockExplorer,
       lifiStep,
       minimumReceived,
