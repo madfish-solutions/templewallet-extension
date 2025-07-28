@@ -70,7 +70,7 @@ export const Dapps: FC = () => {
 
           <div
             className={clsx(
-              'flex flex-wrap gap-2 overflow-hidden transition-all duration-300 ease-in-out',
+              'flex flex-wrap gap-2 transition-all duration-300 ease-in-out',
               inSearch ? 'h-0 mb-0 opacity-0' : 'h-[58px] mb-4 opacity-100'
             )}
           >
@@ -81,7 +81,7 @@ export const Dapps: FC = () => {
 
           <div
             className={clsx(
-              'overflow-hidden transition-all duration-300 ease-in-out',
+              'transition-all duration-300 ease-in-out',
               shouldIncludeFeatured ? 'h-0 opacity-0' : 'h-[164px] opacity-100'
             )}
           >

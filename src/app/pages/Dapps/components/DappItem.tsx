@@ -15,7 +15,8 @@ type DAppItemProps = CustomDAppInfo;
 export const FeaturedDappItem = memo<DAppItemProps>(({ dappUrl, name, logo }) => (
   <Anchor
     className={clsx(
-      'flex flex-col w-28 h-23 relative group',
+      'flex flex-col relative group',
+      'min-w-[6rem] flex-1 p-3',
       'justify-center items-center rounded-8 shadow-bottom',
       'bg-white border-0.5 border-transparent hover:border-lines',
       'transition ease-in-out duration-200'
@@ -27,7 +28,7 @@ export const FeaturedDappItem = memo<DAppItemProps>(({ dappUrl, name, logo }) =>
     treatAsButton={true}
   >
     <DAppIcon name={name} logo={logo} />
-    <p className="text-font-medium mt-2 max-w-20 truncate">{name}</p>
+    <p className="text-font-medium mt-2 text-center truncate w-full">{name}</p>
 
     <IconBase
       Icon={OutLinkIcon}
@@ -54,7 +55,7 @@ export const DappItem = memo<DAppItemProps>(({ slug, dappUrl, name, logo, catego
     <div className="flex gap-x-2">
       <DAppIcon name={name} logo={logo} />
       <div className="flex flex-col gap-y-1">
-        <p className="text-font-medium max-w-56 truncate">{name}</p>
+        <p className="text-font-medium max-w-48 truncate">{name}</p>
         <div className="flex flex-wrap gap-2">
           {categories.map(category => (
             <ItemTag key={`${slug}_${category}`} name={category} />
