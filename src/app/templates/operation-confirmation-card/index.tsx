@@ -50,7 +50,7 @@ interface OperationConfirmationCardRowProps {
   volume: BigNumber | string;
   symbol?: string;
   rightContent?: ReactNode;
-  bridge: boolean;
+  bridge?: boolean;
 }
 
 const unknownTokenTippyOptions: UseTippyOptions = {

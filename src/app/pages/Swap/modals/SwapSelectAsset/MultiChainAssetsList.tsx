@@ -168,7 +168,7 @@ export const MultiChainAssetsList = memo<Props>(
   }
 );
 
-export const TokenListItemRenderer = ({ index, style, data }: ListChildComponentProps<ItemData>) => {
+const TokenListItemRenderer = ({ index, style, data }: ListChildComponentProps<ItemData>) => {
   const { searchedSlugs, tezosPublicKeyHash, evmPublicKeyHash, tezosChains, evmChains, onAssetSelect } = data;
   const slug = searchedSlugs[index];
   const [chainKind, chainId, assetSlug] = parseChainAssetSlug(slug);

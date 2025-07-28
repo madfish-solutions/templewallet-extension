@@ -111,7 +111,7 @@ export const EvmChainAssetsList = memo<Props>(
   }
 );
 
-export const TokenListItemRenderer = ({ index, style, data }: ListChildComponentProps<ItemData>) => {
+const TokenListItemRenderer = ({ index, style, data }: ListChildComponentProps<ItemData>) => {
   const { searchedSlugs, publicKeyHash, network, onAssetSelect, chainId } = data;
   const slug = searchedSlugs[index];
 

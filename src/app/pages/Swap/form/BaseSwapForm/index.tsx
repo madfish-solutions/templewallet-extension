@@ -22,9 +22,10 @@ import { toChainAssetSlug } from 'lib/assets/utils';
 import { useFiatCurrency } from 'lib/fiat-currency';
 import { useAssetUSDPrice } from 'lib/fiat-currency/core';
 import { t, T, toLocalFixed } from 'lib/i18n';
+import { TempleChainKind } from 'temple/types';
 
 import { SwapFormValue, SwapInputValue } from '../SwapForm.form';
-import { SwapFormSelectors, SwapFormFromInputSelectors, SwapFormToInputSelectors } from '../SwapForm.selectors';
+import { SwapFormFromInputSelectors, SwapFormSelectors, SwapFormToInputSelectors } from '../SwapForm.selectors';
 import SwapFormInput from '../SwapFormInput';
 
 interface Props {
@@ -198,12 +199,16 @@ export const BaseSwapForm: FC<Props> = ({
   const onInvalidSubmit = useCallback<SubmitErrorHandler<SwapFormValue>>(
     errors => {
       if (errors.input?.message?.includes(t('maximalAmount')) && inputAssetSlug) {
-        const chainAssetSlug = toChainAssetSlug(network.kind, network.chainId, inputAssetSlug);
+        const chainAssetSlug = toChainAssetSlug(
+          isEvmNetwork ? TempleChainKind.EVM : TempleChainKind.Tezos,
+          inputChainId!,
+          inputAssetSlug
+        );
 
         isWertSupportedChainAssetSlug(chainAssetSlug) && dispatch(setOnRampAssetAction(chainAssetSlug));
       }
     },
-    [inputAssetSlug, network.chainId, network.kind]
+    [inputAssetSlug, inputChainId, isEvmNetwork]
   );
 
   return (
