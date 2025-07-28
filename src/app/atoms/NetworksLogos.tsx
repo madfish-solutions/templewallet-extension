@@ -22,12 +22,24 @@ export const TezNetworkLogo = memo<NetworkLogoProps>(props => (
   <NetworkLogoBase src={TezosIconSrc} alt="Tezos" {...props} />
 ));
 
+const networksLogosPropsPart = [
+  { src: OptimismIconSrc, alt: 'Optimism' },
+  { src: PolygonIconSrc, alt: 'Polygon' },
+  { src: BinanceSmartChainIconSrc, alt: 'BSC' },
+  { src: EthereumIconSrc, alt: 'ETH' }
+];
+
 export const EvmNetworksLogos = memo<NetworkLogoProps>(({ size = 24 }) => (
   <div className="flex">
-    <NetworkLogoBase size={size} src={OptimismIconSrc} alt="Optimism" />
-    <NetworkLogoBase size={size} src={PolygonIconSrc} alt="Polygon" style={{ marginLeft: (-7 * size) / 12 }} />
-    <NetworkLogoBase size={size} src={BinanceSmartChainIconSrc} alt="BSC" style={{ marginLeft: (-7 * size) / 12 }} />
-    <NetworkLogoBase size={size} src={EthereumIconSrc} alt="ETH" style={{ marginLeft: (-7 * size) / 12 }} />
+    {networksLogosPropsPart.map(({ src, alt }, index) => (
+      <NetworkLogoBase
+        key={alt}
+        size={size}
+        src={src}
+        alt={alt}
+        style={{ marginLeft: index > 0 ? (-7 * size) / 12 : 0 }}
+      />
+    ))}
   </div>
 ));
 

@@ -148,13 +148,14 @@ const GroupActionsDropdown = memo<PopperRenderProps & GroupActionsPopperProps>(
           onClick: goToWatchOnlyModal
         }
       } as const;
+      const { labelI18nKey, onClick } = importActionPropsByType[group.type];
 
       return [
         {
           key: 'import',
-          children: t(importActionPropsByType[group.type].labelI18nKey),
+          children: t(labelI18nKey),
           Icon: ImportedIcon,
-          onClick: importActionPropsByType[group.type].onClick,
+          onClick,
           testID: AccountManagementSelectors.importAccount
         },
         deleteGroupAction
