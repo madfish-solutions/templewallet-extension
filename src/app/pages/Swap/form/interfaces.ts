@@ -1,4 +1,4 @@
-import { LiFiStep } from '@lifi/sdk';
+import { LiFiStep, StepToolDetails } from '@lifi/sdk';
 import { WalletParamsWithKind } from '@taquito/taquito';
 import { BatchWalletOperation } from '@taquito/taquito/dist/types/wallet/batch-operation';
 import BigNumber from 'bignumber.js';
@@ -9,6 +9,14 @@ import {
 } from 'lib/temple/front/estimation-data-providers';
 import { EvmChain } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
+
+export type BridgeDetails = {
+  tool?: StepToolDetails;
+  executionTime: string;
+  priceImpact: number;
+  protocolFee?: string;
+  gasTokenSymbol: string;
+};
 
 interface EvmSwapReviewData {
   needsApproval: boolean;
@@ -21,6 +29,7 @@ interface EvmSwapReviewData {
   };
   lifiStep: LiFiStep;
   bridgeInfo?: {
+    protocolFee?: string;
     destinationChainGasTokenAmount?: BigNumber;
     inputNetwork?: EvmChain;
     outputNetwork?: EvmChain;

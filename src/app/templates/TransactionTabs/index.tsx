@@ -42,6 +42,7 @@ export interface TransactionTabsProps<T extends TxParamsFormData> {
     inputNetwork: EvmChain;
     outputNetwork: EvmChain;
     executionTime: string;
+    protocolFee?: string;
     destinationChainGasTokenAmount?: BigNumber;
   };
   children?: ReactNode;

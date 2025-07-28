@@ -3,6 +3,7 @@ import React, { memo, useMemo, MouseEvent, useCallback } from 'react';
 import { isDefined } from '@rnw-community/shared';
 import { FixedSizeList as List, ListChildComponentProps } from 'react-window';
 
+import { EmptyState } from 'app/atoms/EmptyState';
 import { PageLoader } from 'app/atoms/Loader';
 import { getSlugFromChainSlug } from 'app/hooks/listing-logic/utils';
 import { ITEM_HEIGHT } from 'app/pages/Swap/modals/SwapSelectAsset/EvmChainAssetsList';
@@ -28,7 +29,6 @@ import {
   useEnabledTezosChains
 } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
-import { EmptyState } from 'app/atoms/EmptyState';
 
 interface Props {
   filterZeroBalances: boolean;
@@ -139,7 +139,7 @@ export const MultiChainAssetsList = memo<Props>(
       [enabledAssetsSlugsSorted, getEvmMetadata, getTezMetadata, searchValue]
     );
 
-    if (isLoading) return <PageLoader stretch />;
+    if (isLoading && !filterZeroBalances) return <PageLoader stretch />;
     if (searchedSlugs.length === 0) return <EmptyState />;
 
     const itemData: ItemData = {

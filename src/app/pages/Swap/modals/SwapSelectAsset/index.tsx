@@ -29,12 +29,11 @@ interface SelectTokenModalProps {
   onAssetSelect: (chainSlug: string) => void;
   opened: boolean;
   onRequestClose: EmptyFn;
-  chainId?: number | string | null;
   chainKind: TempleChainKind.EVM | TempleChainKind.Tezos | null;
 }
 
 export const SwapSelectAssetModal = memo<SelectTokenModalProps>(
-  ({ activeField, onAssetSelect, opened, onRequestClose, chainId, chainKind }) => {
+  ({ activeField, onAssetSelect, opened, onRequestClose, chainKind }) => {
     const [searchValue, setSearchValue] = useState('');
     const [searchValueDebounced] = useDebounce(searchValue, 300);
     const metadataRecord = useLifiEvmTokensMetadataRecordSelector();

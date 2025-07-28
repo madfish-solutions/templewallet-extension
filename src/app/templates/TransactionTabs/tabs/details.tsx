@@ -33,6 +33,7 @@ interface Props {
     inputNetwork: EvmChain;
     outputNetwork: EvmChain;
     executionTime: string;
+    protocolFee?: string;
     destinationChainGasTokenAmount?: BigNumber;
   };
 }
@@ -94,9 +95,6 @@ export const DetailsTab: FC<Props> = ({
             amount={bridgeData.destinationChainGasTokenAmount.toString()}
             symbol={bridgeData.outputNetwork.currency.name}
           />
-          // <ChartListItem title={<T id="extraGas" />}>
-          //   {bridgeData.destinationChainGasTokenAmount.toString()} {bridgeData.outputNetwork.currency.name}
-          // </ChartListItem>
         )}
 
         {(isDefined(destinationName) || isDefined(destinationValue)) && (
@@ -107,6 +105,14 @@ export const DetailsTab: FC<Props> = ({
 
         {isDefined(cashbackInTkey) && (
           <SwapInfoRow title={t('swapCashback')} amount={cashbackInTkey} symbol={TEMPLE_TOKEN.symbol} />
+        )}
+
+        {bridgeData?.protocolFee && (
+          <ChartListItem title={<T id="protocolFee" />}>
+            <div className="flex flex-row items-center">
+              <FeesInfo network={network} assetSlug={nativeAssetSlug} amount={bridgeData.protocolFee} />
+            </div>
+          </ChartListItem>
         )}
 
         <ChartListItem title={<T id="gasFee" />} bottomSeparator={Boolean(displayedStorageFee)}>
@@ -135,7 +141,7 @@ export const DetailsTab: FC<Props> = ({
 interface FeesInfoProps {
   network: OneOfChains;
   assetSlug: string;
-  goToFeeTab: EmptyFn;
+  goToFeeTab?: EmptyFn;
   amount?: string;
 }
 
@@ -172,7 +178,7 @@ const FeesInfo: FC<FeesInfoProps> = ({ network, assetSlug, amount = '0.00', goTo
           {nativeAssetSymbol}
         </span>
       </div>
-      <IconBase Icon={ChevronRightIcon} className="text-primary cursor-pointer" onClick={goToFeeTab} />
+      {goToFeeTab && <IconBase Icon={ChevronRightIcon} className="text-primary cursor-pointer" onClick={goToFeeTab} />}
     </>
   );
 };

@@ -202,7 +202,6 @@ const Swap = memo<Props>(() => {
         onAssetSelect={handleAssetSelect}
         opened={selectAssetModalOpened}
         onRequestClose={setSelectAssetModalClosed}
-        chainId={activeChainId}
         chainKind={activeChainKind}
       />
       <SwapSettingsModal

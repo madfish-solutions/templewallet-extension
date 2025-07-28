@@ -84,8 +84,6 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
     };
   }, [estimationData, lifiStep.transactionRequest]);
 
-  console.log('lifiEstimationData', lifiEstimationData);
-
   const { form, tab, setTab, selectedFeeOption, handleFeeOptionSelect, feeOptions, displayedFee, getFeesPerGas } =
     useEvmEstimationForm(lifiEstimationData, null, account, network.chainId);
   const { formState } = form;
@@ -134,6 +132,7 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
       inputNetwork: bridgeInfo?.inputNetwork,
       outputNetwork: bridgeInfo?.outputNetwork,
       executionTime: formatDuration(getBufferedExecutionDuration(lifiStep?.estimate?.executionDuration)),
+      protocolFee: bridgeInfo?.protocolFee,
       destinationChainGasTokenAmount: bridgeInfo?.destinationChainGasTokenAmount
     };
     return bridgeInfo?.inputNetwork?.chainId !== bridgeInfo?.outputNetwork?.chainId ? info : undefined;

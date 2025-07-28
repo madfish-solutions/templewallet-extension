@@ -1258,6 +1258,9 @@
   "routingFeeTooltipEvm": {
     "message": "For choosing the most profitable exchange route among DEXes."
   },
+  "protocolFeeTooltip": {
+    "message": "Bridge protocol fee for token cross-chain transfer."
+  },
   "extraGasInfoTooltipEvm": {
     "message": "Receive a portion of your bridged amount as gas on the destination network - just enough for your next transaction."
   },
@@ -2693,6 +2696,9 @@
   "estimatedTime": {
     "message": "Estimated time"
   },
+  "protocolFee": {
+    "message": "Protocol fee"
+  },
   "exchangeRate": {
     "message": "Exchange rate"
   },
@@ -2838,6 +2844,9 @@
   },
   "storageFee": {
     "message": "Storage fee"
+  },
+  "protocolFee": {
+    "message": "Protocol fee"
   },
   "templeWalletFeeWarning": {
     "message": "Temple Wallet doesn't apply any fees to exchanges for now but it may apply in the future."

@@ -1,6 +1,5 @@
 import React, { FC, useCallback } from 'react';
 
-import { StepToolDetails } from '@lifi/sdk';
 import BigNumber from 'bignumber.js';
 import { isEmpty, noop } from 'lodash';
 import { Controller, useFormContext } from 'react-hook-form-v7';
@@ -9,7 +8,7 @@ import { IconBase } from 'app/atoms';
 import { ActionsButtonsBox } from 'app/atoms/PageModal';
 import { StyledButton } from 'app/atoms/StyledButton';
 import { ReactComponent as SwapIcon } from 'app/icons/base/swap.svg';
-import { SwapFieldName } from 'app/pages/Swap/form/interfaces';
+import { BridgeDetails, SwapFieldName } from 'app/pages/Swap/form/interfaces';
 import { EvmSwapInfoDropdown } from 'app/pages/Swap/form/SwapInfoDropdown/EvmSwapInfoDropdown';
 import { TezosSwapInfoDropdown } from 'app/pages/Swap/form/SwapInfoDropdown/TezosSwapInfoDropdown';
 import { dispatch } from 'app/store';
@@ -47,9 +46,7 @@ interface Props {
   minimumReceivedAmount?: BigNumber;
   swapParamsAreLoading: boolean;
   swapRouteSteps: number;
-  bridgeInfo?: StepToolDetails;
-  executionTime?: string;
-  priceImpact?: number;
+  bridgeDetails?: BridgeDetails;
   setIsFiatMode?: SyncFn<boolean>;
   parseFiatValueToAssetAmount: (
     fiatAmount?: BigNumber.Value,
@@ -86,9 +83,7 @@ export const BaseSwapForm: FC<Props> = ({
   minimumReceivedAmount,
   swapParamsAreLoading,
   swapRouteSteps,
-  bridgeInfo,
-  executionTime,
-  priceImpact,
+  bridgeDetails,
   setIsFiatMode = noop,
   parseFiatValueToAssetAmount,
   onInputChange,
@@ -292,9 +287,7 @@ export const BaseSwapForm: FC<Props> = ({
                   outputAssetSymbol={outputAssetSymbol}
                   outputAssetDecimals={outputAssetDecimals}
                   minimumReceivedAmount={minimumReceivedAmount}
-                  bridgeInfo={bridgeInfo}
-                  executionTime={executionTime}
-                  priceImpact={priceImpact}
+                  bridgeDetails={bridgeDetails}
                 />
               )
             ) : (

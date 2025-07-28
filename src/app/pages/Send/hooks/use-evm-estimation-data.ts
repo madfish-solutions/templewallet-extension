@@ -36,7 +36,6 @@ export const useEvmEstimationData = ({
   silent
 }: EvmEstimationInput) => {
   const assetMetadata = useEvmCategorizedAssetMetadata(assetSlug, network.chainId);
-  console.log('amount', amount)
 
   const estimate = useCallback(async () => {
     try {
