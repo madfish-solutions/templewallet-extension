@@ -68,7 +68,6 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
   );
 
   const [isAlertVisible, setIsAlertVisible] = useState(false);
-  const [enabledExtraGas, setEnabledExtraGas] = useState(false);
 
   const getTokenMetadata = useGetEvmGasOrTokenMetadata();
   const formAnalytics = useFormAnalytics('SwapForm');
@@ -177,7 +176,6 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
 
   const resetForm = useCallback(() => {
     setSwapRoute(null);
-    setEnabledExtraGas(false);
     void reset(defaultValues);
   }, [defaultValues, reset]);
 
@@ -241,30 +239,6 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
     return tokensToAtoms(value, outputNetwork.currency.decimals);
   }, [parseFiatValueToAssetAmount, outputNetwork.currency.decimals, destinationGasTokenAssetPrice]);
 
-  const eligibleForExtraGas = useMemo(() => {
-    const inputValueToUse = isFiatMode
-      ? parseFiatValueToAssetAmount(inputValue.amount, inputAssetMetadata?.decimals)
-      : inputValue.amount;
-
-    const inputUSD =
-      (inputValueToUse && inputValueToUse.times(inputAssetPrice).decimalPlaces(2, BigNumber.ROUND_FLOOR)) || ZERO;
-
-    const sendAmountIsGreaterThanDollar = inputUSD !== undefined && inputUSD.isGreaterThan(1);
-    const destinationTokenIsNotGasToken = outputValue.assetSlug !== EVM_TOKEN_SLUG;
-    const notTheSameChain = outputValue.chainId !== inputValue.chainId;
-
-    return sendAmountIsGreaterThanDollar && destinationTokenIsNotGasToken && notTheSameChain;
-  }, [
-    inputAssetMetadata?.decimals,
-    inputAssetPrice,
-    inputValue.amount,
-    inputValue.chainId,
-    isFiatMode,
-    outputValue.assetSlug,
-    outputValue.chainId,
-    parseFiatValueToAssetAmount
-  ]);
-
   const atomsInputValue = useMemo(() => {
     const inputValueToUse = isFiatMode
       ? parseFiatValueToAssetAmount(inputValue.amount, inputAssetMetadata?.decimals)
@@ -298,7 +272,6 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
       setSwapRoute(null);
       setIsRouteLoading(false);
       setIsAlertVisible(true);
-      setEnabledExtraGas(false);
 
       throw error;
     }
@@ -323,8 +296,7 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
       fromToken,
       toToken,
       amount: atomsInputValue.toString(),
-      amountForGas:
-        enabledExtraGas && eligibleForExtraGas ? oneDollarWorthOfDestinationChainGasToken.toString() : undefined,
+      amountForGas: undefined,
       fromAddress: publicKeyHash,
       slippage: slippageTolerance / 100
     };
@@ -332,11 +304,8 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
     return fetchEvmSwapRoute(params);
   }, [
     atomsInputValue,
-    eligibleForExtraGas,
-    enabledExtraGas,
     fetchEvmSwapRoute,
     inputValue.amount,
-    oneDollarWorthOfDestinationChainGasToken,
     publicKeyHash,
     slippageTolerance,
     sourceAssetInfo,
@@ -493,10 +462,6 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
         },
         lifiStep,
         bridgeInfo: {
-          destinationChainGasTokenAmount:
-            enabledExtraGas && eligibleForExtraGas
-              ? atomsToTokens(oneDollarWorthOfDestinationChainGasToken, outputNetwork.currency.decimals)
-              : undefined,
           inputNetwork,
           outputNetwork
         }
@@ -527,8 +492,6 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
     resetForm,
     getMinimumReceivedAmount,
     outputAssetSymbol,
-    enabledExtraGas,
-    eligibleForExtraGas,
     oneDollarWorthOfDestinationChainGasToken,
     outputNetwork
   ]);
@@ -542,7 +505,7 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
   const estimatedTokensFromAmount = useMemo(
     () =>
       isDefined(lifiStep?.estimate.fromAmount)
-        ? atomsToTokens(new BigNumber(+lifiStep.estimate.fromAmount), inputAssetMetadata?.decimals ?? 0)
+        ? atomsToTokens(new BigNumber(lifiStep.estimate.fromAmount), inputAssetMetadata?.decimals ?? 0)
         : undefined,
     [lifiStep, inputAssetMetadata?.decimals]
   );
@@ -550,17 +513,17 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
   const estimatedTokensToAmount = useMemo(
     () =>
       isDefined(lifiStep?.estimate.toAmount)
-        ? atomsToTokens(new BigNumber(+lifiStep.estimate.toAmount), outputAssetMetadata?.decimals ?? 0)
+        ? atomsToTokens(new BigNumber(lifiStep.estimate.toAmount), outputAssetMetadata?.decimals ?? 0)
         : undefined,
     [lifiStep, outputAssetMetadata?.decimals]
   );
 
   const priceImpact = useMemo(() => {
-    const toAmountUSD = enabledExtraGas ? Number(swapRoute?.toAmountUSD) + 1 : Number(swapRoute?.toAmountUSD);
+    const toAmountUSD = Number(swapRoute?.toAmountUSD);
     return swapRoute?.toAmountUSD !== undefined && swapRoute?.fromAmountUSD !== undefined
       ? 1 - toAmountUSD / Number(swapRoute.fromAmountUSD)
       : 0;
-  }, [enabledExtraGas, swapRoute?.fromAmountUSD, swapRoute?.toAmountUSD]);
+  }, [swapRoute?.fromAmountUSD, swapRoute?.toAmountUSD]);
 
   return (
     <FormProvider {...form}>
@@ -592,12 +555,8 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
         bridgeInfo={lifiStep?.toolDetails}
         executionTime={formatDuration(getBufferedExecutionDuration(lifiStep?.estimate?.executionDuration))}
         priceImpact={priceImpact}
-        eligibleForExtraGas={eligibleForExtraGas}
-        enabledExtraGas={enabledExtraGas}
-        outputNetworkName={outputNetwork?.name || 'Ethereum'}
         setIsFiatMode={v => setValue('isFiatMode', v)}
         parseFiatValueToAssetAmount={parseFiatValueToAssetAmount}
-        setEnabledExtraGas={setEnabledExtraGas}
         onInputChange={handleInputChange}
         onOutputChange={handleOutputChange}
         onSelectAssetClick={onSelectAssetClick}

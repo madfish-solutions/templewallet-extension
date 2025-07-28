@@ -4,12 +4,11 @@ import { StepToolDetails } from '@lifi/sdk';
 import BigNumber from 'bignumber.js';
 import clsx from 'clsx';
 
-import { IconBase, ToggleSwitch } from 'app/atoms';
+import { IconBase } from 'app/atoms';
 import { ReactComponent as ArrowDownIcon } from 'app/icons/base/arrow_down.svg';
 import { ReactComponent as BridgeIcon } from 'app/icons/base/bridge.svg';
 import { ReactComponent as ChevronUpIcon } from 'app/icons/base/chevron_up.svg';
 import { ReactComponent as ClockIcon } from 'app/icons/base/clock.svg';
-import { ReactComponent as ExtraGasIcon } from 'app/icons/base/extra-gas.svg';
 import { ReactComponent as FeeIcon } from 'app/icons/base/fee.svg';
 import { ReactComponent as PriceImpactIcon } from 'app/icons/base/price-impact.svg';
 import { ReactComponent as RouteIcon } from 'app/icons/base/route.svg';
@@ -21,7 +20,7 @@ import useTippy from 'lib/ui/useTippy';
 import { toPercentage } from 'lib/ui/utils';
 
 import LiFiImgSrc from '../assets/lifi.png';
-import { evmFeeInfoTippyProps, extraGasInfoTippyProps } from '../SwapForm.tippy';
+import { evmFeeInfoTippyProps } from '../SwapForm.tippy';
 
 import { SwapExchangeRate } from './SwapExchangeRate';
 import { SwapMinimumReceived } from './SwapMinimumReceived';
@@ -38,7 +37,6 @@ interface IEvmSwapInfoDropdownProps {
   executionTime?: string;
   priceImpact?: number;
   eligibleForExtraGas?: boolean;
-  outputNetworkName?: string;
   enabledExtraGas?: boolean;
   setEnabledExtraGas?: SyncFn<boolean>;
 }
@@ -53,14 +51,9 @@ export const EvmSwapInfoDropdown = ({
   minimumReceivedAmount,
   bridgeInfo,
   executionTime,
-  priceImpact,
-  eligibleForExtraGas,
-  outputNetworkName,
-  enabledExtraGas,
-  setEnabledExtraGas
+  priceImpact
 }: IEvmSwapInfoDropdownProps) => {
   const feeInfoIconRef = useTippy<HTMLSpanElement>(evmFeeInfoTippyProps);
-  const extraGasIconRef = useTippy<HTMLSpanElement>(extraGasInfoTippyProps);
 
   const [dropdownOpened, , , toggleDropdown] = useBooleanState(false);
 
@@ -122,18 +115,6 @@ export const EvmSwapInfoDropdown = ({
             outputAssetDecimals={outputAssetDecimals}
           />
         </ListBlockItem>
-        {eligibleForExtraGas && (
-          <ListBlockItem
-            ref={extraGasIconRef}
-            Icon={ExtraGasIcon}
-            title="extraGasOnNetwork"
-            substitutions={[outputNetworkName ?? 'Ethereum']}
-          >
-            <div className="flex justify-between items-center">
-              <ToggleSwitch small checked={enabledExtraGas} onChange={setEnabledExtraGas} />
-            </div>
-          </ListBlockItem>
-        )}
       </div>
     </div>
   );

@@ -15,7 +15,7 @@ import { toastError } from 'app/toaster';
 import { toTokenSlug } from 'lib/assets';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { useEvmAssetBalance } from 'lib/balances/hooks';
-import { EVM_ZERO_ADDRESS, VITALIK_ADDRESS } from 'lib/constants';
+import { EVM_ZERO_ADDRESS } from 'lib/constants';
 import { t } from 'lib/i18n';
 import { useTempleClient } from 'lib/temple/front';
 import { atomsToTokens, tokensToAtoms } from 'lib/temple/helpers';
@@ -59,24 +59,32 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
   const [latestSubmitError, setLatestSubmitError] = useState<string | nullish>(null);
 
   const { value: balance = ZERO } = useEvmAssetBalance(inputTokenSlug, accountPkh, network);
-  const { data: toVitalikEstimationData } = useEvmEstimationData({
-    to: VITALIK_ADDRESS,
+
+  const { data: estimationData } = useEvmEstimationData({
+    to: (lifiStep?.transactionRequest?.to as HexString) ?? '0x',
     assetSlug: inputTokenSlug,
     accountPkh,
     network,
     balance,
     ethBalance,
     toFilled: true,
+    amount: atomsToTokens(
+      new BigNumber(lifiStep.estimate.fromAmount),
+      lifiStep.action.fromToken.decimals ?? 0
+    ).toString(),
     silent: true
   });
 
-  const lifiEstimationData = useMemo(
-    () => ({
-      ...mapLiFiTxToEvmEstimationData(lifiStep.transactionRequest!),
-      nonce: toVitalikEstimationData?.nonce ?? 0
-    }),
-    [lifiStep, toVitalikEstimationData]
-  );
+  const lifiEstimationData = useMemo(() => {
+    if (!estimationData) return mapLiFiTxToEvmEstimationData(lifiStep.transactionRequest!);
+
+    return {
+      ...estimationData,
+      data: lifiStep.transactionRequest?.data as HexString
+    };
+  }, [estimationData, lifiStep.transactionRequest]);
+
+  console.log('lifiEstimationData', lifiEstimationData);
 
   const { form, tab, setTab, selectedFeeOption, handleFeeOptionSelect, feeOptions, displayedFee, getFeesPerGas } =
     useEvmEstimationForm(lifiEstimationData, null, account, network.chainId);

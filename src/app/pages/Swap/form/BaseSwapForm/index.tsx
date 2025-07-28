@@ -50,10 +50,6 @@ interface Props {
   bridgeInfo?: StepToolDetails;
   executionTime?: string;
   priceImpact?: number;
-  eligibleForExtraGas?: boolean;
-  enabledExtraGas?: boolean;
-  outputNetworkName?: string;
-  setEnabledExtraGas?: SyncFn<boolean>;
   setIsFiatMode?: SyncFn<boolean>;
   parseFiatValueToAssetAmount: (
     fiatAmount?: BigNumber.Value,
@@ -93,10 +89,6 @@ export const BaseSwapForm: FC<Props> = ({
   bridgeInfo,
   executionTime,
   priceImpact,
-  eligibleForExtraGas,
-  enabledExtraGas,
-  outputNetworkName,
-  setEnabledExtraGas,
   setIsFiatMode = noop,
   parseFiatValueToAssetAmount,
   onInputChange,
@@ -300,13 +292,9 @@ export const BaseSwapForm: FC<Props> = ({
                   outputAssetSymbol={outputAssetSymbol}
                   outputAssetDecimals={outputAssetDecimals}
                   minimumReceivedAmount={minimumReceivedAmount}
-                  setEnabledExtraGas={setEnabledExtraGas}
                   bridgeInfo={bridgeInfo}
-                  enabledExtraGas={enabledExtraGas}
                   executionTime={executionTime}
                   priceImpact={priceImpact}
-                  eligibleForExtraGas={eligibleForExtraGas}
-                  outputNetworkName={outputNetworkName}
                 />
               )
             ) : (

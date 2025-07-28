@@ -61,12 +61,12 @@ export const ConfirmSwapModal: FC<ConfirmSwapModalProps> = ({ opened, onRequestC
   const title = useMemo(() => {
     if (!reviewData) return '';
 
-    if (isSwapEvmReviewData(reviewData) && reviewData?.bridgeInfo) {
-      return 'Bridge Preview';
-    }
-
     if (isSwapEvmReviewData(reviewData) && reviewData.needsApproval) {
       return 'Approve';
+    }
+
+    if (isSwapEvmReviewData(reviewData) && reviewData?.bridgeInfo) {
+      return 'Bridge Preview';
     }
 
     return 'Swap Preview';

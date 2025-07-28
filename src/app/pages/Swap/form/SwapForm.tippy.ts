@@ -19,15 +19,6 @@ export const evmFeeInfoTippyProps = {
   placement: 'top-start' as const
 };
 
-export const extraGasInfoTippyProps = {
-  trigger: 'mouseenter',
-  hideOnClick: false,
-  content: t('extraGasInfoTooltipEvm'),
-  animation: 'shift-away-subtle',
-  maxWidth: '16rem',
-  placement: 'top-start' as const
-};
-
 export const cashbackInfoTippyProps = {
   trigger: 'mouseenter',
   hideOnClick: false,
