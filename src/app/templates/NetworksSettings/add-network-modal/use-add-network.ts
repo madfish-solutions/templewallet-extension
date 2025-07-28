@@ -107,7 +107,10 @@ export const useAddNetwork = (
           await Promise.all([
             setTezosChainsSpecs(prev => ({
               ...prev,
-              [chainId]: commonChainSpecs
+              [chainId]: {
+                ...commonChainSpecs,
+                currencySymbol: symbol
+              }
             })),
             addTezosNetwork({
               ...commonNetworkProps,

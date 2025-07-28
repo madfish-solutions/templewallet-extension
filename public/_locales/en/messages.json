@@ -1935,6 +1935,12 @@
   "addNetwork": {
     "message": "Add Network"
   },
+  "editNetwork": {
+    "message": "Edit Network"
+  },
+  "failedToUpdateNetwork": {
+    "message": "Failed to update network"
+  },
   "currentNetworks": {
     "message": "Current networks"
   },
@@ -3071,8 +3077,8 @@
   "resetAll": {
     "message": "Reset All"
   },
-  "hideZeroBalance": {
-    "message": "Hide 0 balance"
+  "hideSmallBalance": {
+    "message": "Hide small balance"
   },
   "groupByNetwork": {
     "message": "Group by network"
@@ -4147,6 +4153,15 @@
   },
   "enterYourPassword": {
     "message": "Enter your password"
+  },
+  "evmUpdateHere": {
+    "message": "EVM update is here!"
+  },
+  "evmUpdateDescription": {
+    "message": "Wow! Your wallet is looking different now! But wait, it does not just look different - it feels different!\n\nWonder why? The full support of EVM blockchains is here. Enjoy using not only Tezos but also feeling the power of Etherlink and other EVM chains (Ethereum, BNB, Arbitrum, and hundreds more). \n\nAre you curious what has changed? The link below will help you get the detailed information."
+  },
+  "aboutUpdate": {
+    "message": "About update"
   },
   "accounts_one": {
     "message": "$amount$ account",

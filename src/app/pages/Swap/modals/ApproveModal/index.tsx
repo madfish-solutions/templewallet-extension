@@ -10,6 +10,7 @@ import { PageLoader } from 'app/atoms/Loader';
 import { Logo } from 'app/atoms/Logo';
 import { ActionsButtonsBox } from 'app/atoms/PageModal';
 import { StyledButton } from 'app/atoms/StyledButton';
+import { useLedgerApprovalModalState } from 'app/hooks/use-ledger-approval-modal-state';
 import { ReactComponent as LinkIcon } from 'app/icons/base/link.svg';
 import { ReactComponent as OutLinkIcon } from 'app/icons/base/outLink.svg';
 import { useEvmEstimationData } from 'app/pages/Send/hooks/use-evm-estimation-data';
@@ -17,6 +18,7 @@ import LiFiImgSrc from 'app/pages/Swap/form/assets/lifi.png';
 import { EvmReviewData, SwapReviewData } from 'app/pages/Swap/form/interfaces';
 import { parseTxRequestToViem, timeout } from 'app/pages/Swap/modals/ConfirmSwap/utils';
 import { EvmTransactionView } from 'app/templates/EvmTransactionView';
+import { LedgerApprovalModal } from 'app/templates/ledger-approval-modal';
 import { erc20ApproveAbi } from 'lib/abi/erc20';
 import { toTokenSlug } from 'lib/assets';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
@@ -24,7 +26,8 @@ import { useEvmAssetBalance } from 'lib/balances/hooks';
 import { T } from 'lib/i18n';
 import { useTempleClient } from 'lib/temple/front';
 import { atomsToTokens } from 'lib/temple/helpers';
-import { EvmTransactionRequestWithSender, TempleEvmDAppTransactionPayload } from 'lib/temple/types';
+import { EvmTransactionRequestWithSender, TempleAccountType, TempleEvmDAppTransactionPayload } from 'lib/temple/types';
+import { runConnectedLedgerOperationFlow } from 'lib/ui';
 import { showTxSubmitToastWithDelay } from 'lib/ui/show-tx-submit-toast.util';
 import { ZERO } from 'lib/utils/numbers';
 import { useGetEvmActiveBlockExplorer } from 'temple/front/ready';
@@ -34,16 +37,21 @@ interface ApproveModalProps {
   data: EvmReviewData;
   onClose: EmptyFn;
   onReview: (data: SwapReviewData) => void;
-  setLoading: (arg0: boolean) => void;
 }
 
 const LIFI = 'https://li.fi/';
 
-const ApproveModal = ({ data, onClose, onReview, setLoading }: ApproveModalProps) => {
-  const { lifiStep, account, network, minimumReceived, onConfirm, neededApproval, onChainAllowance, bridgeInfo } = data;
+const ApproveModal = ({ data, onClose, onReview }: ApproveModalProps) => {
+  const { lifiStep, account, network, minimumReceived, onConfirm, neededApproval, onChainAllowance } = data;
+
+  const [loading, setLoading] = useState(false);
 
   const { sendEvmTransaction } = useTempleClient();
   const getActiveBlockExplorer = useGetEvmActiveBlockExplorer();
+
+  const isLedgerAccount = account.type === TempleAccountType.Ledger;
+  const { ledgerApprovalModalState, setLedgerApprovalModalState, handleLedgerModalClose } =
+    useLedgerApprovalModalState();
 
   const txData = useMemo(() => {
     return encodeFunctionData({
@@ -112,46 +120,50 @@ const ApproveModal = ({ data, onClose, onReview, setLoading }: ApproveModalProps
 
   const onSubmit = useCallback(
     async (tx?: EvmTransactionRequestWithSender) => {
-      if (tx) {
-        try {
-          setLoading(true);
-          const txParams = parseTxRequestToViem(tx);
-          if (!txParams) {
-            console.error('Failed to parse txParams');
-            return;
-          }
-          const txHash = await sendEvmTransaction(account.address as HexString, network, txParams);
+      if (!tx) return;
 
-          const blockExplorer = getActiveBlockExplorer(network.chainId.toString());
-
-          showTxSubmitToastWithDelay(TempleChainKind.EVM, txHash, blockExplorer.url);
-
-          await timeout(1000);
-          setLoading(false);
-
-          onReview({
-            account,
-            network,
-            needsApproval: false,
-            neededApproval,
-            onChainAllowance,
-            onConfirm,
-            minimumReceived,
-            lifiStep,
-            bridgeInfo
-          });
-        } catch (err: any) {
-          console.error(err);
-          setLatestSubmitError(err.message);
-        } finally {
-          setLoading(false);
+      const doOperation = async () => {
+        setLoading(true);
+        const txParams = parseTxRequestToViem(tx);
+        if (!txParams) {
+          console.error('Failed to parse txParams');
+          return;
         }
+
+        const txHash = await sendEvmTransaction(account.address as HexString, network, txParams);
+        const blockExplorer = getActiveBlockExplorer(network.chainId.toString());
+        showTxSubmitToastWithDelay(TempleChainKind.EVM, txHash, blockExplorer.url);
+        await timeout(1000);
+
+        onReview({
+          account,
+          network,
+          needsApproval: false,
+          neededApproval,
+          onChainAllowance,
+          onConfirm,
+          minimumReceived,
+          lifiStep
+        });
+      };
+
+      try {
+        if (isLedgerAccount) {
+          await runConnectedLedgerOperationFlow(doOperation, setLedgerApprovalModalState, true);
+        } else {
+          await doOperation();
+        }
+      } catch (err: any) {
+        console.error(err);
+        setLatestSubmitError(err.message);
+      } finally {
+        setLoading(false);
       }
     },
     [
       account,
-      bridgeInfo,
       getActiveBlockExplorer,
+      isLedgerAccount,
       lifiStep,
       minimumReceived,
       neededApproval,
@@ -160,9 +172,13 @@ const ApproveModal = ({ data, onClose, onReview, setLoading }: ApproveModalProps
       onConfirm,
       onReview,
       sendEvmTransaction,
-      setLoading
+      setLedgerApprovalModalState
     ]
   );
+
+  if (loading && !isLedgerAccount) {
+    return <PageLoader stretch />;
+  }
 
   return (
     <>
@@ -213,6 +229,8 @@ const ApproveModal = ({ data, onClose, onReview, setLoading }: ApproveModalProps
           <T id={latestSubmitError ? 'retry' : 'confirm'} />
         </StyledButton>
       </ActionsButtonsBox>
+
+      <LedgerApprovalModal state={ledgerApprovalModalState} onClose={handleLedgerModalClose} />
     </>
   );
 };

@@ -2,7 +2,7 @@ import React, { FC, useCallback } from 'react';
 
 import BigNumber from 'bignumber.js';
 import { isEmpty, noop } from 'lodash';
-import { Controller, useFormContext } from 'react-hook-form-v7';
+import { Controller, SubmitErrorHandler, useFormContext } from 'react-hook-form-v7';
 
 import { IconBase } from 'app/atoms';
 import { ActionsButtonsBox } from 'app/atoms/PageModal';
@@ -12,10 +12,13 @@ import { BridgeDetails, SwapFieldName } from 'app/pages/Swap/form/interfaces';
 import { EvmSwapInfoDropdown } from 'app/pages/Swap/form/SwapInfoDropdown/EvmSwapInfoDropdown';
 import { TezosSwapInfoDropdown } from 'app/pages/Swap/form/SwapInfoDropdown/TezosSwapInfoDropdown';
 import { dispatch } from 'app/store';
+import { setOnRampAssetAction } from 'app/store/settings/actions';
 import { resetSwapParamsAction } from 'app/store/swap/actions';
 import { setTestID } from 'lib/analytics';
+import { isWertSupportedChainAssetSlug } from 'lib/apis/wert';
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
+import { toChainAssetSlug } from 'lib/assets/utils';
 import { useFiatCurrency } from 'lib/fiat-currency';
 import { useAssetUSDPrice } from 'lib/fiat-currency/core';
 import { t, T, toLocalFixed } from 'lib/i18n';
@@ -192,9 +195,24 @@ export const BaseSwapForm: FC<Props> = ({
     ]
   );
 
+  const onInvalidSubmit = useCallback<SubmitErrorHandler<SwapFormValue>>(
+    errors => {
+      if (errors.input?.message?.includes(t('maximalAmount')) && inputAssetSlug) {
+        const chainAssetSlug = toChainAssetSlug(network.kind, network.chainId, inputAssetSlug);
+
+        isWertSupportedChainAssetSlug(chainAssetSlug) && dispatch(setOnRampAssetAction(chainAssetSlug));
+      }
+    },
+    [inputAssetSlug, network.chainId, network.kind]
+  );
+
   return (
     <>
-      <form id="swap-form" className="flex-1 pt-4 px-4 flex flex-col overflow-y-auto" onSubmit={handleSubmit(onSubmit)}>
+      <form
+        id="swap-form"
+        className="flex-1 pt-4 px-4 flex flex-col overflow-y-auto"
+        onSubmit={handleSubmit(onSubmit, onInvalidSubmit)}
+      >
         <Controller
           name="input"
           control={control}

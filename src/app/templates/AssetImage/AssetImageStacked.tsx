@@ -1,4 +1,4 @@
-import React, { FC, useMemo } from 'react';
+import React, { FC } from 'react';
 
 import {
   buildTokenImagesStack,
@@ -9,7 +9,9 @@ import {
 import { AssetMetadataBase, isTezosCollectibleMetadata } from 'lib/metadata';
 import { EvmAssetMetadataBase } from 'lib/metadata/types';
 import { isEvmCollectibleMetadata } from 'lib/metadata/utils';
+import { useMemoWithCompare } from 'lib/ui/hooks';
 import { ImageStacked, ImageStackedProps } from 'lib/ui/ImageStacked';
+import { areStringArraysEqual } from 'lib/utils/are-string-arrays-equal';
 
 interface AssetImageStackedPropsBase extends Omit<ImageStackedProps, 'pauseRender' | 'sources'> {
   extraSrc?: string;
@@ -26,16 +28,20 @@ export const TezosAssetImageStacked: FC<TezosAssetImageStackedProps> = ({
   extraSrc,
   ...rest
 }) => {
-  const sources = useMemo(() => {
-    const sources =
-      metadata && isTezosCollectibleMetadata(metadata)
-        ? buildCollectibleImagesStack(metadata, fullViewCollectible)
-        : buildTokenImagesStack(metadata?.thumbnailUri);
+  const sources = useMemoWithCompare(
+    () => {
+      const sources =
+        metadata && isTezosCollectibleMetadata(metadata)
+          ? buildCollectibleImagesStack(metadata, fullViewCollectible)
+          : buildTokenImagesStack(metadata?.thumbnailUri);
 
-    if (extraSrc) sources.push(extraSrc);
+      if (extraSrc) sources.push(extraSrc);
 
-    return sources;
-  }, [metadata, fullViewCollectible, extraSrc]);
+      return sources;
+    },
+    [metadata, fullViewCollectible, extraSrc],
+    areStringArraysEqual
+  );
 
   return <ImageStacked sources={sources} alt={metadata?.name} {...rest} />;
 };
@@ -46,17 +52,21 @@ export interface EvmAssetImageStackedProps extends AssetImageStackedPropsBase {
 }
 
 export const EvmAssetImageStacked: FC<EvmAssetImageStackedProps> = ({ evmChainId, metadata, extraSrc, ...rest }) => {
-  const sources = useMemo(() => {
-    if (!metadata) return extraSrc ? [extraSrc] : [];
+  const sources = useMemoWithCompare(
+    () => {
+      if (!metadata) return extraSrc ? [extraSrc] : [];
 
-    if (isEvmCollectibleMetadata(metadata)) {
-      const baseSources = buildEvmCollectibleIconSources(metadata);
-      return extraSrc ? [...baseSources, extraSrc] : baseSources;
-    }
-    if (extraSrc) return [extraSrc];
+      if (isEvmCollectibleMetadata(metadata)) {
+        const baseSources = buildEvmCollectibleIconSources(metadata);
+        return extraSrc ? [...baseSources, extraSrc] : baseSources;
+      }
+      if (extraSrc) return [extraSrc];
 
-    return buildEvmTokenIconSources(metadata, evmChainId);
-  }, [evmChainId, metadata, extraSrc]);
+      return buildEvmTokenIconSources(metadata, evmChainId);
+    },
+    [evmChainId, metadata, extraSrc],
+    areStringArraysEqual
+  );
 
   return <ImageStacked sources={sources} alt={metadata?.name} {...rest} />;
 };

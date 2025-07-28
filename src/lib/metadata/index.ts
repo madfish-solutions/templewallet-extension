@@ -75,13 +75,32 @@ export { isCollectible, isTezosCollectibleMetadata, getAssetSymbol, getTokenName
 
 export { TEZOS_METADATA };
 
-export const getTezosGasMetadata = (chainId: string) => (isTezosDcpChainId(chainId) ? FILM_METADATA : TEZOS_METADATA);
+export const useGetTezosGasMetadata = () => {
+  const allTezosChains = useAllTezosChains();
+
+  return useCallback(
+    (chainId: string) => {
+      const metadataBase = isTezosDcpChainId(chainId) ? FILM_METADATA : TEZOS_METADATA;
+      const currencySymbolFromChain = allTezosChains[chainId]?.currencySymbol;
+
+      return { ...metadataBase, symbol: currencySymbolFromChain ?? metadataBase.symbol };
+    },
+    [allTezosChains]
+  );
+};
+
+export const useTezosGasMetadata = (chainId: string) => {
+  const getTezosGasMetadata = useGetTezosGasMetadata();
+
+  return getTezosGasMetadata(chainId);
+};
 
 export const useEvmGasMetadata = (chainId: number) => useEvmTokenMetadataSelector(chainId, EVM_TOKEN_SLUG);
 
 export const useCategorizedTezosAssetMetadata = (slug: string, tezosChainId: string): AssetMetadataBase | undefined => {
   const tokenMetadata = useTokenMetadataSelector(slug);
   const collectibleMetadata = useCollectibleMetadataSelector(slug);
+  const getTezosGasMetadata = useGetTezosGasMetadata();
 
   return isTezAsset(slug) ? getTezosGasMetadata(tezosChainId) : tokenMetadata || collectibleMetadata;
 };
@@ -223,21 +242,23 @@ export const useGetTokenMetadata = () => {
 
 export const useGetChainTokenOrGasMetadata = (tezosChainId: string) => {
   const getTokenMetadata = useGetTokenMetadata();
+  const getTezosGasMetadata = useGetTezosGasMetadata();
 
   return useCallback(
     (slug: string): AssetMetadataBase | undefined =>
       isTezAsset(slug) ? getTezosGasMetadata(tezosChainId) : getTokenMetadata(slug),
-    [getTokenMetadata, tezosChainId]
+    [getTezosGasMetadata, getTokenMetadata, tezosChainId]
   );
 };
 
 export const useGetTokenOrGasMetadata = () => {
   const getTokenMetadata = useGetTokenMetadata();
+  const getTezosGasMetadata = useGetTezosGasMetadata();
 
   return useCallback(
     (chainId: string, slug: string): AssetMetadataBase | undefined =>
       isTezAsset(slug) ? getTezosGasMetadata(chainId) : getTokenMetadata(slug),
-    [getTokenMetadata]
+    [getTezosGasMetadata, getTokenMetadata]
   );
 };
 

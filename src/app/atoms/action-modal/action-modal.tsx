@@ -16,6 +16,7 @@ import { useTestnetModeEnabledSelector } from 'app/store/settings/selectors';
 import actionModalStyles from './action-modal.module.css';
 
 export interface ActionModalProps {
+  hasHeader?: boolean;
   hasCloseButton?: boolean;
   onClose?: EmptyFn;
   children?: ReactChildren;
@@ -26,7 +27,16 @@ export interface ActionModalProps {
 }
 
 export const ActionModal = memo<ActionModalProps>(
-  ({ onClose, children, hasCloseButton = true, title, headerClassName, contentClassName, className }) => {
+  ({
+    onClose,
+    children,
+    hasHeader = true,
+    hasCloseButton = true,
+    title,
+    headerClassName,
+    contentClassName,
+    className
+  }) => {
     const { fullPage, confirmWindow } = useAppEnv();
     const testnetModeEnabled = useTestnetModeEnabledSelector();
 
@@ -47,14 +57,16 @@ export const ActionModal = memo<ActionModalProps>(
         )}
         onRequestClose={onClose}
       >
-        <div className={clsx('relative p-3 border-b-0.5 border-lines w-modal', contentClassName)}>
-          <h1 className={clsx('text-center text-font-regular-bold mx-12', headerClassName)}>{title}</h1>
-          {hasCloseButton && (
-            <Button className="absolute top-3 right-3" onClick={onClose}>
-              <IconBase Icon={CloseIcon} size={16} className="text-grey-2" />
-            </Button>
-          )}
-        </div>
+        {hasHeader && (
+          <div className={clsx('relative p-3 border-b-0.5 border-lines w-modal', contentClassName)}>
+            <h1 className={clsx('text-center text-font-regular-bold mx-12', headerClassName)}>{title}</h1>
+            {hasCloseButton && (
+              <Button className="absolute top-3 right-3" onClick={onClose}>
+                <IconBase Icon={CloseIcon} className="text-grey-2" />
+              </Button>
+            )}
+          </div>
+        )}
         {children}
       </CustomModal>
     );

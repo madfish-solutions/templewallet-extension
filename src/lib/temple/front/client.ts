@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import constate from 'constate';
 import { omit } from 'lodash';
@@ -20,7 +20,6 @@ import {
   EvmTransactionRequestWithSender,
   SaveLedgerAccountInput
 } from 'lib/temple/types';
-import { useDidMount } from 'lib/ui/hooks';
 import { DEFAULT_PROMISES_QUEUE_COUNTERS } from 'lib/utils';
 import type { EvmChain } from 'temple/front';
 import {
@@ -33,7 +32,7 @@ import {
 import { getPendingConfirmationId, resetPendingConfirmationId } from 'temple/front/pending-confirm';
 import { TempleChainKind } from 'temple/types';
 
-import { getShouldBeLockedOnStartup } from './lock';
+import { CLOSURE_STORAGE_KEY, getShouldBeLockedOnStartup } from './lock';
 import { useStorage } from './storage';
 
 interface Confirmation {
@@ -47,14 +46,11 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
    * State
    */
 
-  const didMountRef = useRef(false);
-  useDidMount(() => void (didMountRef.current = true));
-
   const fetchState = useCallback(async () => {
     const res = await makeIntercomRequest({ type: TempleMessageType.GetStateRequest });
     assertResponse(res.type === TempleMessageType.GetStateResponse);
 
-    if (didMountRef.current || res.state.status !== TempleStatus.Ready) {
+    if (res.state.status !== TempleStatus.Ready) {
       return { state: res.state, shouldLockOnStartup: false };
     }
 
@@ -148,6 +144,7 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
       password
     });
     assertResponse(res.type === TempleMessageType.UnlockResponse);
+    localStorage.removeItem(CLOSURE_STORAGE_KEY);
   }, []);
 
   const lock = useCallback(async () => {

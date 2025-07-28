@@ -1,8 +1,7 @@
-import React, { FC, useMemo, useState } from 'react';
+import React, { FC, useMemo } from 'react';
 
 import clsx from 'clsx';
 
-import { PageLoader } from 'app/atoms/Loader';
 import { PageModal } from 'app/atoms/PageModal';
 import { AddAssetProvider } from 'app/ConfirmPage/add-asset/context';
 import { AddChainDataProvider } from 'app/ConfirmPage/add-chain/context';
@@ -21,17 +20,13 @@ interface ConfirmSwapModalProps {
 }
 
 export const ConfirmSwapModal: FC<ConfirmSwapModalProps> = ({ opened, onRequestClose, reviewData, onReview }) => {
-  const [evmLoading, setEvmLoading] = useState(false);
-
   const renderEvmContent = (data: EvmReviewData) => () =>
     (
       <EvmEstimationDataProvider>
-        {evmLoading ? (
-          <PageLoader stretch />
-        ) : data.needsApproval ? (
+        {data.needsApproval ? (
           <AddChainDataProvider>
             <AddAssetProvider>
-              <ApproveModal data={data} onReview={onReview} onClose={onRequestClose} setLoading={setEvmLoading} />
+              <ApproveModal data={data} onReview={onReview} onClose={onRequestClose} />
             </AddAssetProvider>
           </AddChainDataProvider>
         ) : (

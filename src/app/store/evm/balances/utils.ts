@@ -14,7 +14,8 @@ export const getTokenSlugBalanceRecords = (
   chainId: number,
   updatedAt: number,
   prevTimestamps: StringRecord<number> = {},
-  prevBalances: AssetSlugBalanceRecord = {}
+  prevBalances: AssetSlugBalanceRecord = {},
+  assetsToPreventBalanceErase: string[] = []
 ) => {
   const applyBalance = (
     balances: AssetSlugBalanceRecord,
@@ -52,7 +53,12 @@ export const getTokenSlugBalanceRecords = (
 
       return acc;
     },
-    { balances: {}, timestamps: {} }
+    {
+      balances: Object.fromEntries(assetsToPreventBalanceErase.map(tokenSlug => [tokenSlug, prevBalances[tokenSlug]])),
+      timestamps: Object.fromEntries(
+        assetsToPreventBalanceErase.map(tokenSlug => [tokenSlug, prevTimestamps[tokenSlug]])
+      )
+    }
   );
 };
 

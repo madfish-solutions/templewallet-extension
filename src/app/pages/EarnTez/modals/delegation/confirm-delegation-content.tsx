@@ -11,7 +11,7 @@ import { TextButton } from 'app/atoms/TextButton';
 import { setOnRampAssetAction } from 'app/store/settings/actions';
 import { TEZOS_CHAIN_ASSET_SLUG } from 'lib/apis/wert';
 import { T } from 'lib/i18n';
-import { getTezosGasMetadata } from 'lib/metadata';
+import { useTezosGasMetadata } from 'lib/metadata';
 import { ZERO } from 'lib/utils/numbers';
 
 import { BakerCard } from '../../components/baker-card';
@@ -71,7 +71,7 @@ const TxTabsInnerContent: ConfirmEarnOperationContentProps<ReviewData>['TxTabsIn
   ({ reviewData, estimationData, tezBalance }) => {
     const { baker, network } = reviewData;
     const dispatch = useDispatch();
-    const { symbol: tezSymbol } = getTezosGasMetadata(network.chainId);
+    const { symbol: tezSymbol } = useTezosGasMetadata(network.chainId);
 
     const openWertPopup = useCallback(() => void dispatch(setOnRampAssetAction(TEZOS_CHAIN_ASSET_SLUG)), [dispatch]);
     const delegatedAmount = useMemo(
