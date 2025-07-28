@@ -10,6 +10,7 @@ import { useAllAccounts, useAllEvmChains } from 'temple/front';
 import { useAddAsset } from './add-asset/context';
 import { useAddChainDataState } from './add-chain/context';
 import { ConfirmDAppForm, ConfirmDAppFormContentProps } from './confirm-dapp-form';
+import { useTrackDappInteraction } from './hooks/use-track-dapp-interaction';
 import { EvmPayloadContent } from './payload-content';
 
 interface EvmConfirmDAppFormProps {
@@ -20,6 +21,8 @@ interface EvmConfirmDAppFormProps {
 export const EvmConfirmDAppForm = memo<EvmConfirmDAppFormProps>(({ payload, id }) => {
   const { confirmDAppPermission, confirmDAppSign, confirmEvmDAppOperation, confirmDAppEvmChainAdding } =
     useTempleClient();
+
+  const { trackDappInteraction } = useTrackDappInteraction(payload);
 
   const [finalEvmTransaction, setFinalEvmTransaction] = useState<EvmTransactionRequestWithSender>(() =>
     payload.type === 'confirm_operations' ? payload.req : { to: EVM_ZERO_ADDRESS, from: EVM_ZERO_ADDRESS }
@@ -49,13 +52,23 @@ export const EvmConfirmDAppForm = memo<EvmConfirmDAppFormProps>(({ payload, id }
   const chainId = Number(payload.chainId);
 
   const network = useMemo(
-    () => ({ chainId, rpcBaseURL: payload.type === 'add_chain' ? '' : evmChains[chainId].rpcBaseURL }),
+    () => ({
+      chainId,
+      rpcBaseURL: payload.type === 'add_chain' ? '' : evmChains[chainId].rpcBaseURL
+    }),
     [chainId, evmChains, payload.type]
   );
 
   const handleConfirm = useCallback(
     async (confirmed: boolean, selectedAccount: StoredAccount) => {
       const accountPkh = getAccountForEvm(selectedAccount)!.address;
+
+      const isAddChainPayload = payload.type === 'add_chain';
+      await trackDappInteraction(
+        isAddChainPayload ? payload.metadata.name : evmChains[chainId].name,
+        isAddChainPayload ? undefined : evmChains[chainId].testnet
+      );
+
       switch (payload.type) {
         case 'connect':
           return confirmDAppPermission(id, confirmed, accountPkh);
@@ -73,7 +86,10 @@ export const EvmConfirmDAppForm = memo<EvmConfirmDAppFormProps>(({ payload, id }
       }
     },
     [
+      trackDappInteraction,
       payload,
+      evmChains,
+      chainId,
       confirmDAppPermission,
       id,
       confirmAssetAdding,
