@@ -3434,10 +3434,10 @@
   dependencies:
     nanoid "^3.1.25"
 
-"@temple-wallet/everstake-wallet-sdk@^4.0.0":
-  version "4.0.0"
-  resolved "https://registry.yarnpkg.com/@temple-wallet/everstake-wallet-sdk/-/everstake-wallet-sdk-4.0.0.tgz#4453d42d42b20365d3a3d837dd13f22b9d50c718"
-  integrity sha512-8a+QAc+U0mlLzvM/uIFPLemHZDbYvM03N+MYl6W7BSScKqwKa18Fqp/uv/U8glav6RZsERID4qy3Zm/jKGNBjA==
+"@temple-wallet/everstake-wallet-sdk@^4.0.3":
+  version "4.0.3"
+  resolved "https://registry.yarnpkg.com/@temple-wallet/everstake-wallet-sdk/-/everstake-wallet-sdk-4.0.3.tgz#da37a1f20a673939173fbf4825786f4f45be17a5"
+  integrity sha512-UuLcrpaaN7RRjAE1/B7LASYiyUkl7IFQcrvcVIjReirB+lexkLxoPehM5+veoaywnlb5Z1tXIP5dTk4lzhHWvg==
 
 "@temple-wallet/extension-ads@12.1.0-beta.1799.1":
   version "12.1.0-beta.1799.1"
@@ -7801,18 +7801,7 @@ form-data@^3.0.0:
     hasown "^2.0.2"
     mime-types "^2.1.35"
 
-form-data@^4.0.0:
-  version "4.0.4"
-  resolved "https://registry.yarnpkg.com/form-data/-/form-data-4.0.4.tgz#784cdcce0669a9d68e94d11ac4eea98088edd2c4"
-  integrity sha512-KrGhL9Q4zjj0kiUt5OO4Mr/A/jlI2jDYs5eHBpYHPcBEVSiipAvn2Ko2HnPe20rmcuuvMHNdZFp+4IlGTMF0Ow==
-  dependencies:
-    asynckit "^0.4.0"
-    combined-stream "^1.0.8"
-    es-set-tostringtag "^2.1.0"
-    hasown "^2.0.2"
-    mime-types "^2.1.12"
-
-form-data@^4.0.4:
+form-data@^4.0.0, form-data@^4.0.4:
   version "4.0.4"
   resolved "https://registry.yarnpkg.com/form-data/-/form-data-4.0.4.tgz#784cdcce0669a9d68e94d11ac4eea98088edd2c4"
   integrity sha512-KrGhL9Q4zjj0kiUt5OO4Mr/A/jlI2jDYs5eHBpYHPcBEVSiipAvn2Ko2HnPe20rmcuuvMHNdZFp+4IlGTMF0Ow==

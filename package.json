@@ -74,7 +74,7 @@
     "@taquito/tzip16": "22.0.0-beta.0",
     "@taquito/utils": "22.0.0-beta.0",
     "@temple-wallet/dapp": "5.0.2",
-    "@temple-wallet/everstake-wallet-sdk": "^4.0.0",
+    "@temple-wallet/everstake-wallet-sdk": "^4.0.3",
     "@temple-wallet/jest-webextension-mock": "^5.0.0",
     "@temple-wallet/save-remote-file-webpack-plugin": "^1.1.4",
     "@temple-wallet/wallet-address-validator": "^0.4.3",
