@@ -2,13 +2,13 @@ import React, { FC, ReactNode, memo, useMemo, useState, useCallback, MouseEventH
 
 import { IconBase } from 'app/atoms';
 import { AccountAvatar } from 'app/atoms/AccountAvatar';
+import { AnimatedMenuChevron } from 'app/atoms/animated-menu-chevron';
 import { SettingsCellSingle } from 'app/atoms/SettingsCell';
 import { SettingsCellGroup } from 'app/atoms/SettingsCellGroup';
 import { StyledButton } from 'app/atoms/StyledButton';
 import { ReactComponent as AdditionalFeaturesIcon } from 'app/icons/base/additional.svg';
 import { ReactComponent as AddressBookIcon } from 'app/icons/base/addressbook.svg';
 import { ReactComponent as BrowseIcon } from 'app/icons/base/browse.svg';
-import { ReactComponent as ChevronRightIcon } from 'app/icons/base/chevron_right.svg';
 import { ReactComponent as ExitIcon } from 'app/icons/base/exit.svg';
 import { ReactComponent as InfoIcon } from 'app/icons/base/info.svg';
 import { ReactComponent as LinkIcon } from 'app/icons/base/link.svg';
@@ -28,6 +28,7 @@ import { SyncUnavailableModal } from 'app/templates/Synchronization/SyncUnavaila
 import { TID, T } from 'lib/i18n';
 import { TempleAccountType } from 'lib/temple/types';
 import { useBooleanState } from 'lib/ui/hooks';
+import { useActivateAnimatedChevron } from 'lib/ui/hooks/use-activate-animated-chevron';
 import { SettingsTabProps } from 'lib/ui/settings-tab-props';
 import { Link } from 'lib/woozie';
 import { useAccount } from 'temple/front';
@@ -57,8 +58,8 @@ const SYNC_PAGE_SLUG = 'synchronization';
 const TABS_GROUPS: Tab[][] = [
   [
     {
-      slug: 'accounts-management',
-      titleI18nKey: 'accountsManagement',
+      slug: 'account-management',
+      titleI18nKey: 'accountManagement',
       Icon: memo(() => {
         const { id } = useAccount();
 
@@ -66,7 +67,7 @@ const TABS_GROUPS: Tab[][] = [
       }),
       noPadding: true,
       Component: AccountsManagement,
-      testID: SettingsSelectors.accountsManagementButton
+      testID: SettingsSelectors.accountManagementButton
     }
   ],
   [
@@ -171,19 +172,13 @@ const Settings = memo<SettingsProps>(({ tabSlug }) => {
         <div className="flex flex-col gap-4">
           {TABS_GROUPS.map((tabs, i) => (
             <SettingsCellGroup key={i}>
-              {tabs.map(({ slug, titleI18nKey, Icon, testID }, j) => (
-                <SettingsCellSingle
-                  Component={Link}
-                  to={`/settings/${slug}`}
-                  key={slug}
-                  cellIcon={<Icon />}
-                  cellName={<T id={titleI18nKey} />}
-                  onClick={slug === SYNC_PAGE_SLUG ? handleSyncCellClick : undefined}
+              {tabs.map((tabProps, j) => (
+                <SettingsTabCell
+                  {...tabProps}
+                  key={tabProps.slug}
                   isLast={j === tabs.length - 1}
-                  testID={testID}
-                >
-                  <IconBase size={16} Icon={ChevronRightIcon} className="text-primary" />
-                </SettingsCellSingle>
+                  onClick={tabProps.slug === SYNC_PAGE_SLUG ? handleSyncCellClick : undefined}
+                />
               ))}
             </SettingsCellGroup>
           ))}
@@ -204,6 +199,32 @@ const Settings = memo<SettingsProps>(({ tabSlug }) => {
         </div>
       )}
     </PageLayout>
+  );
+});
+
+interface SettingsTabCellProps extends Tab {
+  isLast: boolean;
+  onClick?: MouseEventHandler<HTMLAnchorElement>;
+}
+
+const SettingsTabCell = memo<SettingsTabCellProps>(({ slug, Icon, titleI18nKey, isLast, testID, onClick }) => {
+  const { animatedChevronRef, handleHover, handleUnhover } = useActivateAnimatedChevron();
+
+  return (
+    <SettingsCellSingle
+      Component={Link}
+      to={`/settings/${slug}`}
+      key={slug}
+      cellIcon={<Icon />}
+      cellName={<T id={titleI18nKey} />}
+      onClick={onClick}
+      onMouseEnter={handleHover}
+      onMouseLeave={handleUnhover}
+      isLast={isLast}
+      testID={testID}
+    >
+      <AnimatedMenuChevron ref={animatedChevronRef} />
+    </SettingsCellSingle>
   );
 });
 

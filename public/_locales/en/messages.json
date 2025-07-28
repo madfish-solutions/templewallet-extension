@@ -798,8 +798,8 @@
   "removeAccountDescription": {
     "message": "Use this section to remove your selected account. Only imported accounts can be removed."
   },
-  "accountsManagement": {
-    "message": "Accounts management"
+  "accountManagement": {
+    "message": "Account Management"
   },
   "securityAndPrivacy": {
     "message": "Security & Privacy"
@@ -955,7 +955,7 @@
     "message": "Import Wallet using Seed Phrase"
   },
   "ledgerConnect": {
-    "message": "Ledger connect"
+    "message": "Ledger Connect"
   },
   "connectLedger": {
     "message": "Connect Ledger",

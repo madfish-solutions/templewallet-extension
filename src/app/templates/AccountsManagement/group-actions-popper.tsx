@@ -17,7 +17,7 @@ import { isTruthy } from 'lib/utils';
 import { useHDGroups } from 'temple/front';
 
 import { AccountsAction, AccountsActionsDropdown } from './actions-dropdown';
-import { AccountsManagementSelectors } from './selectors';
+import { AccountManagementSelectors } from './selectors';
 
 export interface GroupActionsPopperProps {
   group: DisplayedGroup;
@@ -85,77 +85,80 @@ const GroupActionsDropdown = memo<PopperRenderProps & GroupActionsPopperProps>(
     ]);
 
     const actions = useMemo<AccountsAction[]>(() => {
-      switch (group.type) {
-        case TempleAccountType.HD:
-          return [
-            {
-              key: 'add-account',
-              children: t('addAccount'),
-              Icon: AddIcon,
-              onClick: addHdAccount,
-              testID: AccountsManagementSelectors.addGroupAccount
-            },
-            {
-              key: 'rename-wallet',
-              children: t('renameWallet'),
-              Icon: EditIcon,
-              onClick: () => onRenameClick(group),
-              testID: AccountsManagementSelectors.renameWallet
-            },
-            {
-              key: 'reveal-seed-phrase',
-              children: t('revealSeedPhrase'),
-              Icon: RevealEyeIcon,
-              onClick: () => onRevealSeedPhraseClick(group),
-              testID: AccountsManagementSelectors.revealSeedPhrase
-            },
-            hdGroups.length > 1 && {
-              key: 'delete-wallet',
-              children: t('deleteWallet'),
-              className: 'text-error',
-              Icon: DeleteIcon,
-              danger: true,
-              onClick: () => onDeleteClick(group),
-              testID: AccountsManagementSelectors.deleteWallet
-            }
-          ].filter(isTruthy);
-        case TempleAccountType.ManagedKT:
-          return [
-            {
-              key: 'delete-group',
-              children: t('delete'),
-              className: 'text-error',
-              Icon: DeleteIcon,
-              danger: true,
-              onClick: () => onDeleteClick(group),
-              testID: AccountsManagementSelectors.deleteGroup
-            }
-          ];
-        default:
-          return [
-            {
-              key: 'import',
-              children: t(group.type === TempleAccountType.Imported ? 'importAccount' : 'createAccount'),
-              Icon: ImportedIcon,
-              onClick:
-                group.type === TempleAccountType.Ledger
-                  ? goToLedgerConnectModal
-                  : group.type === TempleAccountType.Imported
-                  ? goToImportModal
-                  : goToWatchOnlyModal,
-              testID: AccountsManagementSelectors.importAccount
-            },
-            {
-              key: 'delete-group',
-              children: t('delete'),
-              className: 'text-error',
-              Icon: DeleteIcon,
-              danger: true,
-              onClick: () => onDeleteClick(group),
-              testID: AccountsManagementSelectors.deleteGroup
-            }
-          ];
+      if (group.type === TempleAccountType.HD) {
+        return [
+          {
+            key: 'add-account',
+            children: t('addAccount'),
+            Icon: AddIcon,
+            onClick: addHdAccount,
+            testID: AccountManagementSelectors.addGroupAccount
+          },
+          {
+            key: 'rename-wallet',
+            children: t('renameWallet'),
+            Icon: EditIcon,
+            onClick: () => onRenameClick(group),
+            testID: AccountManagementSelectors.renameWallet
+          },
+          {
+            key: 'reveal-seed-phrase',
+            children: t('revealSeedPhrase'),
+            Icon: RevealEyeIcon,
+            onClick: () => onRevealSeedPhraseClick(group),
+            testID: AccountManagementSelectors.revealSeedPhrase
+          },
+          hdGroups.length > 1 && {
+            key: 'delete-wallet',
+            children: t('deleteWallet'),
+            className: 'text-error',
+            Icon: DeleteIcon,
+            danger: true,
+            onClick: () => onDeleteClick(group),
+            testID: AccountManagementSelectors.deleteWallet
+          }
+        ].filter(isTruthy);
       }
+
+      const deleteGroupAction = {
+        key: 'delete-group',
+        children: t('delete'),
+        className: 'text-error',
+        Icon: DeleteIcon,
+        danger: true,
+        onClick: () => onDeleteClick(group),
+        testID: AccountManagementSelectors.deleteGroup
+      };
+
+      if (group.type === TempleAccountType.ManagedKT) {
+        return [deleteGroupAction];
+      }
+
+      const importActionPropsByType = {
+        [TempleAccountType.Ledger]: {
+          labelI18nKey: 'connectAccount',
+          onClick: goToLedgerConnectModal
+        },
+        [TempleAccountType.Imported]: {
+          labelI18nKey: 'importAccount',
+          onClick: goToImportModal
+        },
+        [TempleAccountType.WatchOnly]: {
+          labelI18nKey: 'createAccount',
+          onClick: goToWatchOnlyModal
+        }
+      } as const;
+
+      return [
+        {
+          key: 'import',
+          children: t(importActionPropsByType[group.type].labelI18nKey),
+          Icon: ImportedIcon,
+          onClick: importActionPropsByType[group.type].onClick,
+          testID: AccountManagementSelectors.importAccount
+        },
+        deleteGroupAction
+      ];
     }, [
       group,
       addHdAccount,
@@ -190,7 +193,7 @@ export const GroupActionsPopper: FC<GroupActionsPopperProps> = ({ group, ...rest
       <Button
         ref={ref}
         onClick={toggleOpened}
-        testID={AccountsManagementSelectors.groupActionsButton}
+        testID={AccountManagementSelectors.groupActionsButton}
         testIDProperties={{ groupType: group.type }}
       >
         <IconBase Icon={MenuCircleIcon} size={16} className="text-secondary" />

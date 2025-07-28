@@ -25,9 +25,9 @@ export const TezNetworkLogo = memo<NetworkLogoProps>(props => (
 export const EvmNetworksLogos = memo<NetworkLogoProps>(({ size = 24 }) => (
   <div className="flex">
     <NetworkLogoBase size={size} src={OptimismIconSrc} alt="Optimism" />
-    <NetworkLogoBase size={size} src={PolygonIconSrc} alt="Polygon" className="-ml-3.5" />
-    <NetworkLogoBase size={size} src={BinanceSmartChainIconSrc} alt="BSC" className="-ml-3.5" />
-    <NetworkLogoBase size={size} src={EthereumIconSrc} alt="ETH" className="-ml-3.5" />
+    <NetworkLogoBase size={size} src={PolygonIconSrc} alt="Polygon" style={{ marginLeft: (-7 * size) / 12 }} />
+    <NetworkLogoBase size={size} src={BinanceSmartChainIconSrc} alt="BSC" style={{ marginLeft: (-7 * size) / 12 }} />
+    <NetworkLogoBase size={size} src={EthereumIconSrc} alt="ETH" style={{ marginLeft: (-7 * size) / 12 }} />
   </div>
 ));
 

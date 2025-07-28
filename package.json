@@ -59,6 +59,7 @@
     "@peculiar/webcrypto": "1.1.6",
     "@personaxyz/ad-sdk": "^0.0.19",
     "@popperjs/core": "2.4.4",
+    "@react-spring/web": "^10.0.1",
     "@redux-devtools/remote": "^0.8.0",
     "@reduxjs/toolkit": "^1.8.5",
     "@rnw-community/shared": "^0.48.0",
