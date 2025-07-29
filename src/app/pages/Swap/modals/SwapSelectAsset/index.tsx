@@ -124,7 +124,8 @@ export const SwapSelectAssetModal = memo<SelectTokenModalProps>(
         if (accountEvmAddress)
           return (
             <AllEvmChainsAssetsList
-              filterZeroBalances={activeField === 'input'}
+              activeField={activeField}
+              showOnlyFavorites={localFilterChain === FAVORITES}
               accountEvmAddress={accountEvmAddress}
               searchValue={searchValueDebounced}
               onAssetSelect={handleAssetSelect}

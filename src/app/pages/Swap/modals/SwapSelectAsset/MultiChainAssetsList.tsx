@@ -33,6 +33,17 @@ import {
 import { useFavoriteTokens } from 'temple/front/use-favorite-tokens';
 import { TempleChainKind } from 'temple/types';
 
+interface ItemData {
+  searchedSlugs: string[];
+  tezosPublicKeyHash: string;
+  evmPublicKeyHash: HexString;
+  tezosChains: StringRecord<TezosChain>;
+  evmChains: StringRecord<EvmChain>;
+  showOnlyFavorites?: boolean;
+  showFavoritesMark?: boolean;
+  onAssetSelect: (e: React.MouseEvent, slug: string) => void;
+}
+
 interface Props {
   activeField: SwapFieldName;
   accountTezAddress: string;
@@ -40,15 +51,6 @@ interface Props {
   showOnlyFavorites?: boolean;
   searchValue: string;
   onAssetSelect: (e: MouseEvent, chainSlug: string) => void;
-}
-
-interface ItemData {
-  searchedSlugs: string[];
-  tezosPublicKeyHash: string;
-  evmPublicKeyHash: HexString;
-  tezosChains: StringRecord<TezosChain>;
-  evmChains: StringRecord<EvmChain>;
-  onAssetSelect: (e: React.MouseEvent, slug: string) => void;
 }
 
 export const MultiChainAssetsList = memo<Props>(
@@ -168,8 +170,10 @@ export const MultiChainAssetsList = memo<Props>(
       searchedSlugs,
       tezosPublicKeyHash: accountTezAddress,
       evmPublicKeyHash: accountEvmAddress,
-      tezosChains: tezosChains,
-      evmChains: evmChains,
+      tezosChains,
+      evmChains,
+      showOnlyFavorites,
+      showFavoritesMark,
       onAssetSelect
     };
 
@@ -191,7 +195,16 @@ export const MultiChainAssetsList = memo<Props>(
 );
 
 const TokenListItemRenderer = ({ index, style, data }: ListChildComponentProps<ItemData>) => {
-  const { searchedSlugs, tezosPublicKeyHash, evmPublicKeyHash, tezosChains, evmChains, onAssetSelect } = data;
+  const {
+    searchedSlugs,
+    tezosPublicKeyHash,
+    evmPublicKeyHash,
+    tezosChains,
+    evmChains,
+    showOnlyFavorites,
+    showFavoritesMark,
+    onAssetSelect
+  } = data;
   const slug = searchedSlugs[index];
   const [chainKind, chainId, assetSlug] = parseChainAssetSlug(slug);
 
@@ -204,6 +217,8 @@ const TokenListItemRenderer = ({ index, style, data }: ListChildComponentProps<I
           publicKeyHash={tezosPublicKeyHash}
           assetSlug={assetSlug}
           showTags={false}
+          showOnlyFavorites={showOnlyFavorites}
+          showFavoritesMark={showFavoritesMark}
           onClick={e => onAssetSelect(e, slug)}
         />
       </div>
@@ -218,6 +233,8 @@ const TokenListItemRenderer = ({ index, style, data }: ListChildComponentProps<I
         assetSlug={assetSlug}
         publicKeyHash={evmPublicKeyHash}
         requiresVisibility={false}
+        showOnlyFavorites={showOnlyFavorites}
+        showFavoritesMark={showFavoritesMark}
         onClick={e => onAssetSelect(e, slug)}
       />
     </div>
