@@ -21,6 +21,7 @@ import { useAccountAddressForEvm, useAccountAddressForTezos, useTezosMainnetChai
 import { useEvmChainByChainId } from 'temple/front/chains';
 import { TempleChainKind } from 'temple/types';
 
+import { AllEvmChainsAssetsList } from './AllEvmChainsAssetsList';
 import { EvmChainAssetsList } from './EvmChainAssetsList';
 import { MultiChainAssetsList } from './MultiChainAssetsList';
 import { TezosChainAssetsList } from './TezosChainAssetsList';
@@ -98,20 +99,50 @@ export const SwapSelectAssetModal = memo<SelectTokenModalProps>(
           />
         );
 
-      if ((!localFilterChain || localFilterChain === FAVORITES) && accountTezAddress && accountEvmAddress)
-        return (
-          <MultiChainAssetsList
-            activeField={activeField}
-            accountTezAddress={accountTezAddress}
-            accountEvmAddress={accountEvmAddress}
-            showOnlyFavorites={localFilterChain === FAVORITES}
-            searchValue={searchValueDebounced}
-            onAssetSelect={handleAssetSelect}
-          />
-        );
+      if ((!localFilterChain || localFilterChain === FAVORITES) && accountTezAddress && accountEvmAddress) {
+        if (accountTezAddress && accountEvmAddress)
+          return (
+            <MultiChainAssetsList
+              activeField={activeField}
+              accountTezAddress={accountTezAddress}
+              accountEvmAddress={accountEvmAddress}
+              showOnlyFavorites={localFilterChain === FAVORITES}
+              searchValue={searchValueDebounced}
+              onAssetSelect={handleAssetSelect}
+            />
+          );
+
+        if (accountTezAddress)
+          return (
+            <TezosChainAssetsList
+              chainId={tezosNetwork.chainId}
+              activeField={activeField}
+              publicKeyHash={accountTezAddress}
+              searchValue={searchValueDebounced}
+              onAssetSelect={handleAssetSelect}
+            />
+          );
+
+        if (accountEvmAddress)
+          return (
+            <AllEvmChainsAssetsList
+              accountEvmAddress={accountEvmAddress}
+              searchValue={searchValueDebounced}
+              onAssetSelect={handleAssetSelect}
+            />
+          );
+      }
 
       return null;
-    }, [localFilterChain, accountTezAddress, activeField, searchValueDebounced, handleAssetSelect, accountEvmAddress]);
+    }, [
+      localFilterChain,
+      accountTezAddress,
+      activeField,
+      searchValueDebounced,
+      handleAssetSelect,
+      accountEvmAddress,
+      tezosNetwork.chainId
+    ]);
 
     const handleFilterOptionSelect = useCallback(
       (filterChain: FilterChain | string) => setLocalFilterChain(filterChain),

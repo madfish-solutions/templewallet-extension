@@ -645,12 +645,11 @@ export async function processEvmDApp(origin: string, payload: EvmRequestPayload,
 }
 
 export async function getBeaconMessage(origin: string, msg: string, encrypted = false) {
-  let recipientPubKey: string | null = null;
+  const recipientPubKey = await Beacon.getDAppPublicKey(origin);
   let payload = null;
 
   if (encrypted) {
     try {
-      recipientPubKey = await Beacon.getDAppPublicKey(origin);
       if (!recipientPubKey) throw new Error('<stub>');
 
       try {
@@ -738,7 +737,6 @@ export async function processBeacon(
   }
 
   const res = await getBeaconResponse(req, resBase, origin);
-  // const res = null;
 
   const resMsg = Beacon.encodeMessage<Beacon.Response>(res);
   if (encrypted && recipientPubKey) {
