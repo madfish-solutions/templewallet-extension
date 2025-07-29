@@ -14,7 +14,10 @@ export const useLifiEvmTokensSlugs = (chainId: number) => {
   const { metadata: lifiEvmTokensMetadataRecord, isLoading } = useLifiEvmChainTokensMetadataSelector(chainId);
 
   const lifiTokenSlugs = useMemo(
-    () => Object.values(lifiEvmTokensMetadataRecord ?? []).map(token => toTokenSlug(token.address, 0)),
+    () =>
+      Object.values(lifiEvmTokensMetadataRecord ?? []).map(token => {
+        return token.address === EVM_ZERO_ADDRESS ? 'eth' : toTokenSlug(token.address, 0);
+      }),
     [lifiEvmTokensMetadataRecord]
   );
 

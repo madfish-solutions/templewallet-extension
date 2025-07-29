@@ -17,6 +17,7 @@ import {
 import { NetworkPopper } from 'app/templates/network-popper';
 import { SearchBarField } from 'app/templates/SearchField';
 import { t } from 'lib/i18n';
+import { useMemoWithCompare } from 'lib/ui/hooks';
 import { useAccountAddressForEvm, useAccountAddressForTezos, useTezosMainnetChain } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
 
@@ -63,11 +64,13 @@ export const SwapSelectAssetModal = memo<SelectTokenModalProps>(
       [onAssetSelect]
     );
 
+    const tezosNetworkMemoized = useMemoWithCompare(() => tezosNetwork, [tezosNetwork]);
+
     useEffect(() => {
       if (activeField === 'output' && opened) {
-        setLocalFilterChain(chainKind === TempleChainKind.EVM ? null : tezosNetwork);
+        setLocalFilterChain(chainKind === TempleChainKind.EVM ? null : tezosNetworkMemoized);
       }
-    }, [activeField, chainKind, opened, tezosNetwork]);
+    }, [activeField, chainKind, opened, tezosNetworkMemoized]);
 
     const assetsList = useMemo(() => {
       if (localFilterChain?.kind === TempleChainKind.Tezos && accountTezAddress)
@@ -118,6 +121,7 @@ export const SwapSelectAssetModal = memo<SelectTokenModalProps>(
         if (accountEvmAddress)
           return (
             <AllEvmChainsAssetsList
+              filterZeroBalances={activeField === 'input'}
               accountEvmAddress={accountEvmAddress}
               searchValue={searchValueDebounced}
               onAssetSelect={handleAssetSelect}
