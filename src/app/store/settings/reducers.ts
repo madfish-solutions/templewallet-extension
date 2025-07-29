@@ -5,7 +5,6 @@ import { storageConfig } from 'lib/store';
 
 import {
   setAdsImpressionsLinkedAction,
-  setConversionTrackedAction,
   setIsAnalyticsEnabledAction,
   setOnRampAssetAction,
   setPendingReactivateAdsAction,
@@ -22,10 +21,6 @@ const settingsReducer = createReducer<SettingsState>(settingsInitialState, build
 
   builder.addCase(setOnRampAssetAction, (state, { payload }) => {
     state.onRampAsset = payload;
-  });
-
-  builder.addCase(setConversionTrackedAction, state => {
-    state.isConversionTracked = true;
   });
 
   builder.addCase(setPendingReactivateAdsAction, (state, { payload }) => {
