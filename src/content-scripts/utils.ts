@@ -2,6 +2,8 @@ import { ADS_VIEWER_DATA_STORAGE_KEY, REPLACE_REFERRALS_ENABLED, WEBSITES_ANALYT
 import { IS_MISES_BROWSER } from 'lib/env';
 import { fetchFromStorage } from 'lib/storage';
 
+// TODO: Extend logic below in TW-1792: Feature distribution control
+
 export async function checkIfShouldReplaceAds() {
   if (window.frameElement) return false; // Prevents the scripts from running in an Iframe
 
@@ -12,10 +14,17 @@ export async function checkIfShouldReplaceAds() {
   return IS_MISES_BROWSER;
 }
 
-export async function checkIfShouldReplaceReferrals() {
+export async function checkIfShouldReplaceTakeAdsReferrals() {
   if (window.frameElement) return false; // Prevents the scripts from running in an Iframe
 
   const value = await fetchFromStorage<boolean>(REPLACE_REFERRALS_ENABLED);
 
   return value && IS_MISES_BROWSER;
+}
+
+export async function checkIfShouldReplaceTempleReferrals() {
+  if (window.frameElement) return false; // Prevents the scripts from running in an Iframe
+
+  // For now, it's unclear when this feature will be enabled
+  return false;
 }
