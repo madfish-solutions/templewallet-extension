@@ -40,6 +40,7 @@
   "dependencies": {
     "@airgap/beacon-types": "^4.5.1",
     "@apollo/client": "^3.7.2",
+    "@bigmi/core": "^0.4.2",
     "@dicebear/bottts-neutral": "^8.0.1",
     "@dicebear/core": "^8.0.1",
     "@firebase/app": "^0.10.1",

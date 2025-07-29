@@ -1271,6 +1271,18 @@
     eventemitter3 "^5.0.1"
     zustand "^5.0.4"
 
+"@bigmi/core@^0.4.2":
+  version "0.4.2"
+  resolved "https://registry.yarnpkg.com/@bigmi/core/-/core-0.4.2.tgz#0322b5f051b78d28a8ba4ab19a67b0b9b5fb962c"
+  integrity sha512-Lyw3hKXHb/GyBWDRuqr8XHX62kFEI6wmYQPKlKJ2d7/+ORLh7A2xxuyfjD0tJesPojpk2Q/PKv8ENn9kdqcETw==
+  dependencies:
+    "@noble/hashes" "^1.8.0"
+    bech32 "^2.0.0"
+    bitcoinjs-lib "^7.0.0-rc.0"
+    bs58 "^6.0.0"
+    eventemitter3 "^5.0.1"
+    zustand "^5.0.6"
+
 "@cspotcode/source-map-support@^0.8.0":
   version "0.8.1"
   resolved "https://registry.yarnpkg.com/@cspotcode/source-map-support/-/source-map-support-0.8.1.tgz#00629c35a688e05a88b1cda684fb9d5e73f000a1"
@@ -2427,7 +2439,7 @@
   resolved "https://registry.yarnpkg.com/@leichtgewicht/ip-codec/-/ip-codec-2.0.5.tgz#4fc56c15c580b9adb7dc3c333a134e540b44bfb1"
   integrity sha512-Vo+PSpZG2/fmgmiNzYK9qWRh8h/CHrwD0mo1h1DzL4yzHNSfWYujGTYsWGreD000gcgmZ7K4Ys6Tx9TxtsKdDw==
 
-"@lifi/sdk@^3.7.2":
+"@lifi/sdk@3.7.2":
   version "3.7.2"
   resolved "https://registry.yarnpkg.com/@lifi/sdk/-/sdk-3.7.2.tgz#ee1578dcd8788d5d75d9c10bf54f5ef9b1a13678"
   integrity sha512-MiB8/+NsNiLovoAVuhriGUrWDuHfW4POz6MU2nXeXdkZP04l+ZEp/qrMeuRf1gfRAKjpJzSighHMJM0N8FjBqg==
@@ -14214,3 +14226,8 @@ zustand@^5.0.4:
   version "5.0.5"
   resolved "https://registry.yarnpkg.com/zustand/-/zustand-5.0.5.tgz#3e236f6a953142d975336d179bc735d97db17e84"
   integrity sha512-mILtRfKW9xM47hqxGIxCv12gXusoY/xTSHBYApXozR0HmQv299whhBeeAcRy+KrPPybzosvJBCOmVjq6x12fCg==
+
+zustand@^5.0.6:
+  version "5.0.6"
+  resolved "https://registry.yarnpkg.com/zustand/-/zustand-5.0.6.tgz#a2da43d8dc3d31e314279e5baec06297bea70a5c"
+  integrity sha512-ihAqNeUVhe0MAD+X8M5UzqyZ9k3FFZLBTtqo6JLPwV53cbRB/mJwBI0PxcIgqhBBHlEs8G45OTDTMq3gNcLq3A==
