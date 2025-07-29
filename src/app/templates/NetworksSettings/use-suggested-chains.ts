@@ -13,7 +13,7 @@ export const useSuggestedChains = (isTestnetTab: boolean, searchValue: string) =
     () =>
       uniqBy(
         getViemChainsList().filter(({ id, testnet }) => !existentEvmChains[id] && isTestnetTab === (testnet ?? false)),
-        ({ id, name }) => `${id}-${name}`
+        ({ id }) => id
       ),
     [existentEvmChains, isTestnetTab]
   );

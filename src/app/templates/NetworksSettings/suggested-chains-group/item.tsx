@@ -19,7 +19,7 @@ export const SuggestedChainsGroupItem = memo<SuggestedChainsGroupItemProps>(
   ({ item, isLast, onChainSelect, searchValue }) => (
     <SettingsCellSingle
       isLast={isLast}
-      cellIcon={<EvmNetworkLogo chainId={item.id} size={24} />}
+      cellIcon={<EvmNetworkLogo chainId={item.id} chainName={item.name} size={24} />}
       cellName={
         <span className="text-font-medium-bold flex-1">
           {searchValue ? <SearchHighlightText searchValue={searchValue}>{item.name}</SearchHighlightText> : item.name}

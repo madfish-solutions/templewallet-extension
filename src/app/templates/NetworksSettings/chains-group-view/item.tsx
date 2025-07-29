@@ -45,12 +45,12 @@ export const ChainsGroupItem = memo<ChainsGroupItemProps>(({ item, isLast, searc
 });
 
 const ChainIcon = memo<{ item: OneOfChains }>(({ item }) => {
-  const { chainId, kind, disabled } = item;
+  const { chainId, kind, name, disabled } = item;
 
   const commonProps = useMemo(() => ({ size: 24, className: clsx(disabled && 'opacity-65') }), [disabled]);
 
   return kind === TempleChainKind.EVM ? (
-    <EvmNetworkLogo chainId={chainId} {...commonProps} />
+    <EvmNetworkLogo chainId={chainId} chainName={name} {...commonProps} />
   ) : (
     <TezosNetworkLogo chainId={chainId} {...commonProps} />
   );
