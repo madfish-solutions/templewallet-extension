@@ -99,7 +99,7 @@ export const SwapSelectAssetModal = memo<SelectTokenModalProps>(
           />
         );
 
-      if ((!localFilterChain || localFilterChain === FAVORITES) && accountTezAddress && accountEvmAddress) {
+      if ((!localFilterChain || localFilterChain === FAVORITES) && (accountTezAddress || accountEvmAddress)) {
         if (accountTezAddress && accountEvmAddress)
           return (
             <MultiChainAssetsList
