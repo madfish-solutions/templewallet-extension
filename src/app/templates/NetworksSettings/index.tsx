@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
+import React, { memo, useCallback, useEffect, useMemo, useState, useRef } from 'react';
 
 import { Chain as ViemChain } from 'viem';
 
@@ -14,11 +14,12 @@ import { useAllEvmChains, useAllTezosChains } from 'temple/front';
 import { isPossibleTestnetChain } from 'temple/front/chains';
 import { TempleChainKind, TempleChainTitle } from 'temple/types';
 
-import { AddNetworkModal } from './add-network-modal';
+import { AddNetworkModal, AddNetworkForm } from './add-network-modal';
 import { ChainsGroupView } from './chains-group-view';
 import { FiltersBlock } from './filters-block';
 import { SuggestedChainsGroup } from './suggested-chains-group';
 import { useSuggestedChains } from './use-suggested-chains';
+import { makeFormValues } from './utils';
 
 interface ChainsFilters {
   kind?: TempleChainKind;
@@ -109,16 +110,15 @@ export const NetworksSettings = memo<SettingsTabProps>(({ setHeaderChildren }) =
   const showSuggested = suggestedChains.length > 0;
   const showEmptyState = chainsGroups.length === 0 && (!searchValue || !showSuggested);
 
+  const addNetworkFormRef = useRef<AddNetworkForm>(null);
+
   const handleSuggestedChainSelect = useCallback(
     (chain: ViemChain) => {
+      addNetworkFormRef.current?.setFormValues(makeFormValues(chain));
       openAddNetworkModal();
     },
     [openAddNetworkModal]
   );
-
-  const handleAddNetworkModalClose = useCallback(() => {
-    closeAddNetworkModal();
-  }, [closeAddNetworkModal]);
 
   return (
     <FadeTransition>
@@ -147,7 +147,7 @@ export const NetworksSettings = memo<SettingsTabProps>(({ setHeaderChildren }) =
           )}
         </div>
       )}
-      <AddNetworkModal isOpen={isAddNetworkModalOpen} onClose={handleAddNetworkModalClose} />
+      <AddNetworkModal ref={addNetworkFormRef} isOpen={isAddNetworkModalOpen} onClose={closeAddNetworkModal} />
     </FadeTransition>
   );
 });

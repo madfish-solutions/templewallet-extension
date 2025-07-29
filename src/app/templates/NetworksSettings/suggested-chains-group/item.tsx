@@ -15,18 +15,22 @@ interface SuggestedChainsGroupItemProps {
   searchValue?: string;
 }
 
-export const SuggestedChainsGroupItem = memo<SuggestedChainsGroupItemProps>(({ item, isLast, searchValue }) => (
-  <SettingsCellSingle
-    isLast={isLast}
-    cellIcon={<EvmNetworkLogo chainId={item.id} size={24} />}
-    cellName={
-      <span className="text-font-medium-bold flex-1">
-        {searchValue ? <SearchHighlightText searchValue={searchValue}>{item.name}</SearchHighlightText> : item.name}
-      </span>
-    }
-    wrapCellName={false}
-    Component="div"
-  >
-    <IconBase size={16} className="text-primary" Icon={PlusIcon} />
-  </SettingsCellSingle>
-));
+export const SuggestedChainsGroupItem = memo<SuggestedChainsGroupItemProps>(
+  ({ item, isLast, onChainSelect, searchValue }) => (
+    <SettingsCellSingle
+      isLast={isLast}
+      cellIcon={<EvmNetworkLogo chainId={item.id} size={24} />}
+      cellName={
+        <span className="text-font-medium-bold flex-1">
+          {searchValue ? <SearchHighlightText searchValue={searchValue}>{item.name}</SearchHighlightText> : item.name}
+        </span>
+      }
+      wrapCellName={false}
+      Component="div"
+      onClick={() => onChainSelect(item)}
+      className="cursor-pointer"
+    >
+      <IconBase size={16} className="text-primary" Icon={PlusIcon} />
+    </SettingsCellSingle>
+  )
+);
