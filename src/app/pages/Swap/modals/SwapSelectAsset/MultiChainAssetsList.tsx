@@ -1,4 +1,4 @@
-import React, { memo, useMemo, MouseEvent, useCallback } from 'react';
+import React, { memo, useMemo, MouseEvent, useCallback, useState } from 'react';
 
 import { isDefined } from '@rnw-community/shared';
 import { FixedSizeList as List, ListChildComponentProps } from 'react-window';
@@ -6,8 +6,10 @@ import { FixedSizeList as List, ListChildComponentProps } from 'react-window';
 import { EmptyState } from 'app/atoms/EmptyState';
 import { PageLoader } from 'app/atoms/Loader';
 import { getSlugFromChainSlug } from 'app/hooks/listing-logic/utils';
+import { SwapFieldName } from 'app/pages/Swap/form/interfaces';
 import { ITEM_HEIGHT } from 'app/pages/Swap/modals/SwapSelectAsset/EvmChainAssetsList';
 import { useLifiEvmAllTokensSlugs } from 'app/pages/Swap/modals/SwapSelectAsset/hooks';
+import { useLifiEvmTokensMetadataRecordSelector } from 'app/store/evm/swap-lifi-metadata/selectors';
 import { useEvmTokensMetadataRecordSelector } from 'app/store/evm/tokens-metadata/selectors';
 import { useAllAccountBalancesSelector } from 'app/store/tezos/balances/selectors';
 import { EvmTokenListItem, TezosTokenListItem } from 'app/templates/TokenListItem';
@@ -28,12 +30,14 @@ import {
   useEnabledEvmChains,
   useEnabledTezosChains
 } from 'temple/front';
+import { useFavoriteTokens } from 'temple/front/use-favorite-tokens';
 import { TempleChainKind } from 'temple/types';
 
 interface Props {
-  filterZeroBalances: boolean;
+  activeField: SwapFieldName;
   accountTezAddress: string;
   accountEvmAddress: HexString;
+  showOnlyFavorites?: boolean;
   searchValue: string;
   onAssetSelect: (e: MouseEvent, chainSlug: string) => void;
 }
@@ -48,7 +52,7 @@ interface ItemData {
 }
 
 export const MultiChainAssetsList = memo<Props>(
-  ({ filterZeroBalances, accountTezAddress, accountEvmAddress, searchValue, onAssetSelect }) => {
+  ({ accountTezAddress, activeField, accountEvmAddress, showOnlyFavorites, searchValue, onAssetSelect }) => {
     const tezTokensSlugs = useEnabledTezosAccountTokenSlugs(accountTezAddress);
     const evmTokensSlugs = useEnabledEvmAccountTokenSlugs(accountEvmAddress);
     const { lifiTokenSlugs, isLoading } = useLifiEvmAllTokensSlugs();
@@ -73,12 +77,25 @@ export const MultiChainAssetsList = memo<Props>(
       [tezosBalances]
     );
 
+    const { favoriteTokens = [] } = useFavoriteTokens();
     const enabledTezChains = useEnabledTezosChains();
     const enabledEvmChains = useEnabledEvmChains();
 
-    const tokensSortPredicate = useAccountTokensSortPredicate(accountTezAddress, accountEvmAddress);
+    const filterZeroBalances = useMemo(() => activeField === 'input', [activeField]);
+    const showFavoritesMark = useMemo(() => activeField === 'output', [activeField]);
+
+    const rawTokensSortPredicate = useAccountTokensSortPredicate(
+      accountTezAddress,
+      accountEvmAddress,
+      showFavoritesMark
+    );
+    const [tokensSortPredicate] = useState(() => rawTokensSortPredicate);
 
     const enabledAssetsSlugs = useMemo(() => {
+      if (showOnlyFavorites) {
+        return [...favoriteTokens];
+      }
+
       const result: string[] = [];
 
       if (filterZeroBalances) {
@@ -99,12 +116,14 @@ export const MultiChainAssetsList = memo<Props>(
 
       return result;
     }, [
+      showOnlyFavorites,
       filterZeroBalances,
       tezTokensSlugs,
       isTezNonZeroBalance,
       evmTokensSlugs,
       isEvmNonZeroBalance,
       lifiTokenSlugs,
+      favoriteTokens,
       enabledTezChains,
       enabledEvmChains
     ]);
@@ -119,11 +138,14 @@ export const MultiChainAssetsList = memo<Props>(
 
     const getTezMetadata = useGetTokenOrGasMetadata();
     const evmMetadata = useEvmTokensMetadataRecordSelector();
+    const lifiMetadata = useLifiEvmTokensMetadataRecordSelector();
 
     const getEvmMetadata = useCallback(
       (chainId: number, slug: string) =>
-        slug === EVM_TOKEN_SLUG ? evmChains[chainId]?.currency : evmMetadata[chainId]?.[slug],
-      [evmChains, evmMetadata]
+        slug === EVM_TOKEN_SLUG
+          ? evmChains[chainId]?.currency
+          : evmMetadata[chainId]?.[slug] ?? lifiMetadata[chainId]?.[slug],
+      [evmChains, evmMetadata, lifiMetadata]
     );
 
     const searchedSlugs = useMemo(

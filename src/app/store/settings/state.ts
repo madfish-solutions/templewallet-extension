@@ -13,6 +13,7 @@ export interface SettingsState {
   referralLinksEnabled: boolean;
   isTestnetModeEnabled: boolean;
   onRampAsset: ChainAssetSlug | null;
+  favoriteTokens: string[];
   /** @deprecated */
   isOnRampPossibility?: boolean;
   /** @deprecated */
@@ -33,5 +34,6 @@ export const settingsInitialState: SettingsState = {
   adsImpressionsLinked: false,
   referralLinksEnabled: IS_MISES_BROWSER,
   isTestnetModeEnabled: false,
-  onRampAsset: null
+  onRampAsset: null,
+  favoriteTokens: []
 };

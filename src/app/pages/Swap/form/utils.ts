@@ -1,5 +1,6 @@
 import { ChainAssetInfo } from 'app/pages/Swap/form/interfaces';
 import { SwapFormValue } from 'app/pages/Swap/form/SwapForm.form';
+import { FilterChain } from 'app/store/assets-filter-options/state';
 
 export function getDefaultSwapFormValues(
   sourceAssetInfo: ChainAssetInfo | null,
@@ -41,4 +42,8 @@ export function formatDuration(seconds: number): string {
   }
 
   return `${remainingSeconds} sec`;
+}
+
+export function isFilterChain(chain: FilterChain | string): chain is FilterChain {
+  return typeof chain !== 'string';
 }

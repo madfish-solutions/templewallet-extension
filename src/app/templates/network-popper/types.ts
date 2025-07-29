@@ -13,8 +13,9 @@ export interface NetworkPopperProps {
   chainKind?: TempleChainKind;
   showAllNetworksOption: boolean;
   showOnlyEvmNetworks?: boolean;
-  selectedOption: FilterChain;
-  onOptionSelect: SyncFn<FilterChain>;
+  showFavoritesOption?: boolean;
+  selectedOption: FilterChain | string;
+  onOptionSelect: SyncFn<FilterChain | string>;
   children: (props: PopperAnchorProps & { selectedOptionName: string }) => ReactElement;
   supportedChainIds?: number[];
   availableChainIds?: number[];

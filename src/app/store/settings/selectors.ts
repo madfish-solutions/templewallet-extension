@@ -15,3 +15,5 @@ export const useIsAdsImpressionsLinkedSelector = () => useSelector(({ settings }
 export const useReferralLinksEnabledSelector = () => useSelector(({ settings }) => settings.referralLinksEnabled);
 
 export const useTestnetModeEnabledSelector = () => useSelector(({ settings }) => settings.isTestnetModeEnabled);
+
+export const useFavoriteTokensSelector = () => useSelector(({ settings }) => settings.favoriteTokens);

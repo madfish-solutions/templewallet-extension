@@ -8,6 +8,7 @@ import { PageLoader } from 'app/atoms/Loader';
 import { PageModal } from 'app/atoms/PageModal';
 import { ReactComponent as CompactDown } from 'app/icons/base/compact_down.svg';
 import { SwapFieldName } from 'app/pages/Swap/form/interfaces';
+import { isFilterChain } from 'app/pages/Swap/form/utils';
 import { useAssetsFilterOptionsSelector } from 'app/store/assets-filter-options/selectors';
 import { FilterChain } from 'app/store/assets-filter-options/state';
 import {
@@ -15,6 +16,7 @@ import {
   useLifiSupportedChainIdsSelector
 } from 'app/store/evm/swap-lifi-metadata/selectors';
 import { NetworkPopper } from 'app/templates/network-popper';
+import { FAVORITES } from 'app/templates/network-popper/constants';
 import { SearchBarField } from 'app/templates/SearchField';
 import { t } from 'lib/i18n';
 import { useMemoWithCompare } from 'lib/ui/hooks';
@@ -44,7 +46,7 @@ export const SwapSelectAssetModal = memo<SelectTokenModalProps>(
 
     const { filterChain } = useAssetsFilterOptionsSelector();
 
-    const [localFilterChain, setLocalFilterChain] = useState(filterChain);
+    const [localFilterChain, setLocalFilterChain] = useState<FilterChain | string>(filterChain);
 
     const accountTezAddress = useAccountAddressForTezos();
     const accountEvmAddress = useAccountAddressForEvm();
@@ -73,35 +75,36 @@ export const SwapSelectAssetModal = memo<SelectTokenModalProps>(
     }, [activeField, chainKind, opened, tezosNetworkMemoized]);
 
     const assetsList = useMemo(() => {
-      if (localFilterChain?.kind === TempleChainKind.Tezos && accountTezAddress)
+      if (isFilterChain(localFilterChain) && localFilterChain?.kind === TempleChainKind.Tezos && accountTezAddress)
         return (
           <TezosChainAssetsList
             chainId={localFilterChain.chainId}
-            filterZeroBalances={activeField === 'input'}
+            activeField={activeField}
             publicKeyHash={accountTezAddress}
             searchValue={searchValueDebounced}
             onAssetSelect={handleAssetSelect}
           />
         );
 
-      if (localFilterChain?.kind === TempleChainKind.EVM && accountEvmAddress)
+      if (isFilterChain(localFilterChain) && localFilterChain?.kind === TempleChainKind.EVM && accountEvmAddress)
         return (
           <EvmChainAssetsList
             chainId={localFilterChain.chainId}
-            filterZeroBalances={activeField === 'input'}
+            activeField={activeField}
             publicKeyHash={accountEvmAddress}
             searchValue={searchValueDebounced}
             onAssetSelect={handleAssetSelect}
           />
         );
 
-      if (!localFilterChain) {
+      if ((!localFilterChain || localFilterChain === FAVORITES) && (accountTezAddress || accountEvmAddress)) {
         if (accountTezAddress && accountEvmAddress)
           return (
             <MultiChainAssetsList
-              filterZeroBalances={activeField === 'input'}
+              activeField={activeField}
               accountTezAddress={accountTezAddress}
               accountEvmAddress={accountEvmAddress}
+              showOnlyFavorites={localFilterChain === FAVORITES}
               searchValue={searchValueDebounced}
               onAssetSelect={handleAssetSelect}
             />
@@ -111,7 +114,7 @@ export const SwapSelectAssetModal = memo<SelectTokenModalProps>(
           return (
             <TezosChainAssetsList
               chainId={tezosNetwork.chainId}
-              filterZeroBalances={activeField === 'input'}
+              activeField={activeField}
               publicKeyHash={accountTezAddress}
               searchValue={searchValueDebounced}
               onAssetSelect={handleAssetSelect}
@@ -131,19 +134,22 @@ export const SwapSelectAssetModal = memo<SelectTokenModalProps>(
 
       return null;
     }, [
-      localFilterChain,
+      accountEvmAddress,
       accountTezAddress,
       activeField,
-      searchValueDebounced,
       handleAssetSelect,
-      accountEvmAddress,
+      localFilterChain,
+      searchValueDebounced,
       tezosNetwork.chainId
     ]);
 
-    const handleFilterOptionSelect = useCallback((filterChain: FilterChain) => setLocalFilterChain(filterChain), []);
+    const handleFilterOptionSelect = useCallback(
+      (filterChain: FilterChain | string) => setLocalFilterChain(filterChain),
+      []
+    );
 
     const disabledNetworkPopper = useMemo(
-      () => localFilterChain?.kind === 'tezos' && activeField === 'output',
+      () => (isFilterChain(localFilterChain) && localFilterChain?.kind) === 'tezos' && activeField === 'output',
       [localFilterChain, activeField]
     );
 
@@ -164,7 +170,10 @@ export const SwapSelectAssetModal = memo<SelectTokenModalProps>(
               selectedOption={localFilterChain}
               onOptionSelect={handleFilterOptionSelect}
               disabledNetworkPopper={disabledNetworkPopper}
-              showOnlyEvmNetworks={localFilterChain?.kind !== 'tezos' && activeField === 'output'}
+              showFavoritesOption={activeField === 'output'}
+              showOnlyEvmNetworks={
+                (isFilterChain(localFilterChain) && localFilterChain?.kind) !== 'tezos' && activeField === 'output'
+              }
               availableChainIds={activeField === 'output' ? availableChainIds : undefined}
             />
           </div>
@@ -184,15 +193,23 @@ export const SwapSelectAssetModal = memo<SelectTokenModalProps>(
 );
 
 interface FilterNetworkPopperProps {
-  selectedOption: FilterChain;
-  onOptionSelect: (filterChain: FilterChain) => void;
+  selectedOption: FilterChain | string;
+  onOptionSelect: (filterChain: FilterChain | string) => void;
+  showFavoritesOption: boolean;
   availableChainIds?: number[];
   disabledNetworkPopper: boolean;
   showOnlyEvmNetworks: boolean;
 }
 
 const FilterNetworkPopper = memo<FilterNetworkPopperProps>(
-  ({ selectedOption, onOptionSelect, disabledNetworkPopper, showOnlyEvmNetworks, availableChainIds }) => {
+  ({
+    selectedOption,
+    onOptionSelect,
+    disabledNetworkPopper,
+    showOnlyEvmNetworks,
+    showFavoritesOption,
+    availableChainIds
+  }) => {
     const supportedChainIds = useLifiSupportedChainIdsSelector();
 
     return (
@@ -201,6 +218,7 @@ const FilterNetworkPopper = memo<FilterNetworkPopperProps>(
         onOptionSelect={onOptionSelect}
         showAllNetworksOption
         showOnlyEvmNetworks={showOnlyEvmNetworks}
+        showFavoritesOption={showFavoritesOption}
         supportedChainIds={supportedChainIds}
         availableChainIds={availableChainIds}
       >

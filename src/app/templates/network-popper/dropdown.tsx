@@ -13,11 +13,12 @@ import {
   useEnabledEvmChains,
   useEnabledTezosChains
 } from 'temple/front';
+import { useFavoriteTokens } from 'temple/front/use-favorite-tokens';
 import { TempleChainKind } from 'temple/types';
 
 import { SearchBarField } from '../SearchField';
 
-import { ALL_NETWORKS } from './constants';
+import { ALL_NETWORKS, FAVORITES } from './constants';
 import { NetworkOption } from './option';
 import { NetworkPopperProps, Network } from './types';
 
@@ -30,6 +31,7 @@ export const NetworkDropdown = memo<NetworkDropdownProps>(
     selectedOption,
     showAllNetworksOption,
     showOnlyEvmNetworks,
+    showFavoritesOption = false,
     chainKind,
     onOptionSelect,
     supportedChainIds,
@@ -38,6 +40,7 @@ export const NetworkDropdown = memo<NetworkDropdownProps>(
     const accountTezAddress = useAccountAddressForTezos();
     const accountEvmAddress = useAccountAddressForEvm();
 
+    const { favoriteTokens = [] } = useFavoriteTokens();
     const tezosChains = useEnabledTezosChains();
     const evmChainsUnfiltered = useEnabledEvmChains();
 
@@ -59,7 +62,11 @@ export const NetworkDropdown = memo<NetworkDropdownProps>(
     }, [opened, searchValueDebounced]);
 
     const networks = useMemo(() => {
+      const showFavorites = showFavoritesOption && favoriteTokens && favoriteTokens.length > 0;
       const generalOptions: Network[] = showAllNetworksOption ? [ALL_NETWORKS] : [];
+      if (showFavorites) {
+        generalOptions.unshift('favorites');
+      }
 
       const includeTezos =
         accountTezAddress && !showOnlyEvmNetworks && (!chainKind || chainKind === TempleChainKind.Tezos);
@@ -71,9 +78,11 @@ export const NetworkDropdown = memo<NetworkDropdownProps>(
       accountTezAddress,
       chainKind,
       evmChains,
+      favoriteTokens,
       showAllNetworksOption,
-      tezosChains,
-      showOnlyEvmNetworks
+      showFavoritesOption,
+      showOnlyEvmNetworks,
+      tezosChains
     ]);
 
     const filteredNetworks = useMemo(
@@ -92,12 +101,16 @@ export const NetworkDropdown = memo<NetworkDropdownProps>(
 
           {filteredNetworks.map(network => (
             <NetworkOption
-              key={typeof network === 'string' ? ALL_NETWORKS : network.chainId}
+              key={typeof network === 'string' ? network : network.chainId}
               network={network}
               activeNetwork={selectedOption}
               attractSelf={attractSelectedNetwork}
               onClick={() => {
-                onOptionSelect(typeof network === 'string' ? null : network);
+                if (typeof network === 'string') {
+                  onOptionSelect(network === FAVORITES ? FAVORITES : null);
+                } else {
+                  onOptionSelect(network);
+                }
                 setOpened(false);
               }}
             />

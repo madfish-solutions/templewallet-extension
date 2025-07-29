@@ -4223,6 +4223,9 @@
   "allNetworks": {
     "message": "All Networks"
   },
+  "favorites": {
+    "message": "Favorites"
+  },
   "gasPrice": {
     "message": "Gas Price"
   },
