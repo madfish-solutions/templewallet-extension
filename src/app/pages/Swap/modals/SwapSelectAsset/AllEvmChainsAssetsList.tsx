@@ -6,9 +6,10 @@ import { FixedSizeList as List, ListChildComponentProps } from 'react-window';
 import { EmptyState } from 'app/atoms/EmptyState';
 import { PageLoader } from 'app/atoms/Loader';
 import { getSlugWithChainId } from 'app/hooks/listing-logic/utils';
+import { TOKEN_ITEM_HEIGHT } from 'app/pages/Swap/constants';
 import { SwapFieldName } from 'app/pages/Swap/form/interfaces';
-import { ITEM_HEIGHT } from 'app/pages/Swap/modals/SwapSelectAsset/EvmChainAssetsList';
 import { useLifiEvmAllTokensSlugs } from 'app/pages/Swap/modals/SwapSelectAsset/hooks';
+import { useLifiEvmTokensMetadataRecordSelector } from 'app/store/evm/swap-lifi-metadata/selectors';
 import { useEvmTokensMetadataRecordSelector } from 'app/store/evm/tokens-metadata/selectors';
 import { EvmTokenListItem } from 'app/templates/TokenListItem';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
@@ -97,11 +98,14 @@ export const AllEvmChainsAssetsList = memo<Props>(
 
     const evmChains = useAllEvmChains();
     const evmMetadata = useEvmTokensMetadataRecordSelector();
+    const lifiMetadata = useLifiEvmTokensMetadataRecordSelector();
 
     const getMetadata = useCallback(
       (chainId: number, slug: string) =>
-        slug === EVM_TOKEN_SLUG ? evmChains[chainId]?.currency : evmMetadata[chainId]?.[slug],
-      [evmChains, evmMetadata]
+        slug === EVM_TOKEN_SLUG
+          ? evmChains[chainId]?.currency
+          : evmMetadata[chainId]?.[slug] ?? lifiMetadata[chainId]?.[slug],
+      [evmChains, evmMetadata, lifiMetadata]
     );
 
     const searchedSlugs = useMemo(
@@ -128,7 +132,7 @@ export const AllEvmChainsAssetsList = memo<Props>(
         height={window.innerHeight}
         itemCount={searchedSlugs.length}
         style={{ paddingBottom: 16 }}
-        itemSize={ITEM_HEIGHT}
+        itemSize={TOKEN_ITEM_HEIGHT}
         width="100%"
         itemData={itemData}
       >

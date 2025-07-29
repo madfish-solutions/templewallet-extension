@@ -1,4 +1,4 @@
-import React, { memo, useMemo, MouseEvent, useCallback } from 'react';
+import React, { memo, useMemo, MouseEvent, useCallback, useState } from 'react';
 
 import { isDefined } from '@rnw-community/shared';
 import clsx from 'clsx';
@@ -7,6 +7,7 @@ import { FixedSizeList as List, ListChildComponentProps } from 'react-window';
 import { EmptyState } from 'app/atoms/EmptyState';
 import { PageLoader } from 'app/atoms/Loader';
 import { DeadEndBoundaryError } from 'app/ErrorBoundary';
+import { TOKEN_ITEM_HEIGHT } from 'app/pages/Swap/constants';
 import { SwapFieldName } from 'app/pages/Swap/form/interfaces';
 import { useLifiEvmTokensSlugs } from 'app/pages/Swap/modals/SwapSelectAsset/hooks';
 import { useLifiEvmTokensMetadataRecordSelector } from 'app/store/evm/swap-lifi-metadata/selectors';
@@ -23,16 +24,8 @@ import { useEvmChainByChainId } from 'temple/front/chains';
 import { EvmNetworkEssentials } from 'temple/networks';
 import { TempleChainKind } from 'temple/types';
 
-interface Props {
-  chainId: number;
-  activeField: SwapFieldName;
-  publicKeyHash: HexString;
-  searchValue: string;
-  onAssetSelect: (e: MouseEvent, chainSlug: string) => void;
-}
-
 interface ItemData {
-  showFavorites: boolean;
+  showFavoritesMark: boolean;
   searchedSlugs: string[];
   publicKeyHash: HexString;
   network: EvmNetworkEssentials;
@@ -40,7 +33,13 @@ interface ItemData {
   chainId: number;
 }
 
-export const ITEM_HEIGHT = 56;
+interface Props {
+  chainId: number;
+  activeField: SwapFieldName;
+  publicKeyHash: HexString;
+  searchValue: string;
+  onAssetSelect: (e: MouseEvent, chainSlug: string) => void;
+}
 
 export const EvmChainAssetsList = memo<Props>(({ chainId, activeField, publicKeyHash, searchValue, onAssetSelect }) => {
   const network = useEvmChainByChainId(chainId);
@@ -55,11 +54,13 @@ export const EvmChainAssetsList = memo<Props>(({ chainId, activeField, publicKey
     },
     [chainId, getEvmBalance]
   );
-  const showFavorites = useMemo(() => activeField === 'output', [activeField]);
+  const showFavoritesMark = useMemo(() => activeField === 'output', [activeField]);
   const filterZeroBalances = useMemo(() => activeField === 'input', [activeField]);
 
   const tokensSlugs = useEnabledEvmChainAccountTokenSlugs(publicKeyHash, chainId);
-  const tokensSortPredicate = useEvmChainTokensSortPredicate(publicKeyHash, chainId);
+
+  const rawTokensSortPredicate = useEvmChainTokensSortPredicate(publicKeyHash, chainId, showFavoritesMark);
+  const [tokensSortPredicate] = useState(() => rawTokensSortPredicate);
 
   const evmChainAssetsSlugs = useMemo(() => {
     const gasTokensSlugs: string[] = [EVM_TOKEN_SLUG];
@@ -86,8 +87,8 @@ export const EvmChainAssetsList = memo<Props>(({ chainId, activeField, publicKey
     [evmChainAssetsSlugsSorted, getMetadata, searchValue]
   );
 
+  if (isLoading && !filterZeroBalances) return <PageLoader stretch />;
   if (searchedSlugs.length === 0) return <EmptyState />;
-  if (isLoading) return <PageLoader stretch />;
 
   const itemData: ItemData = {
     searchedSlugs,
@@ -95,7 +96,7 @@ export const EvmChainAssetsList = memo<Props>(({ chainId, activeField, publicKey
     network,
     onAssetSelect,
     chainId,
-    showFavorites
+    showFavoritesMark
   };
 
   return (
@@ -105,7 +106,7 @@ export const EvmChainAssetsList = memo<Props>(({ chainId, activeField, publicKey
       height={window.innerHeight}
       itemCount={searchedSlugs.length}
       style={{ paddingBottom: 16 }}
-      itemSize={ITEM_HEIGHT}
+      itemSize={TOKEN_ITEM_HEIGHT}
       width="100%"
       itemData={itemData}
     >
@@ -115,7 +116,7 @@ export const EvmChainAssetsList = memo<Props>(({ chainId, activeField, publicKey
 });
 
 const TokenListItemRenderer = ({ index, style, data }: ListChildComponentProps<ItemData>) => {
-  const { searchedSlugs, publicKeyHash, network, onAssetSelect, chainId, showFavorites } = data;
+  const { searchedSlugs, publicKeyHash, network, onAssetSelect, chainId, showFavoritesMark } = data;
   const slug = searchedSlugs[index];
 
   return (
@@ -126,7 +127,7 @@ const TokenListItemRenderer = ({ index, style, data }: ListChildComponentProps<I
         publicKeyHash={publicKeyHash}
         network={network}
         requiresVisibility={false}
-        showFavoritesMark={showFavorites}
+        showFavoritesMark={showFavoritesMark}
         onClick={e => onAssetSelect(e, toChainAssetSlug(TempleChainKind.EVM, chainId, slug))}
       />
     </div>

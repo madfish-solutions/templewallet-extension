@@ -6,6 +6,7 @@ import BigNumber from 'bignumber.js';
 import { FormProvider, useForm } from 'react-hook-form-v7';
 
 import { DeadEndBoundaryError } from 'app/ErrorBoundary';
+import { THRESHOLD_FOR_PROTOCOL_FEE } from 'app/pages/Swap/constants';
 import { BaseSwapForm } from 'app/pages/Swap/form/BaseSwapForm';
 import { useFetchLifiEvmTokensSlugs } from 'app/pages/Swap/form/hooks';
 import { SwapFormValue, SwapInputValue } from 'app/pages/Swap/form/SwapForm.form';
@@ -419,7 +420,7 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
       .map(fee => BigNumber(fee.amountUSD))
       .reduce((a, b) => a.plus(b), ZERO);
 
-    if (protocolFeesRawUSD.lte(0.01)) {
+    if (protocolFeesRawUSD.lte(THRESHOLD_FOR_PROTOCOL_FEE)) {
       return undefined;
     }
 
