@@ -248,6 +248,6 @@
     "follow-redirects": "^1.15.4"
   },
   "optionalDependencies": {
-    "@temple-wallet/extension-ads": "13.0.2-beta.1595.1"
+    "@temple-wallet/extension-ads": "^13.0.2"
   }
 }

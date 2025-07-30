@@ -3434,10 +3434,10 @@
   dependencies:
     nanoid "^3.1.25"
 
-"@temple-wallet/extension-ads@13.0.2-beta.1595.1":
-  version "13.0.2-beta.1595.1"
-  resolved "https://registry.yarnpkg.com/@temple-wallet/extension-ads/-/extension-ads-13.0.2-beta.1595.1.tgz#f50f38afd19e4cad47f16a25d53ded55a4ea704b"
-  integrity sha512-30BlzBVWfZrbVZR9iVTfuAL04du1P4dcBEE8pk7NzaD1wX2+m367bFNTiDGr335PrxiVvJZ+1w2nWjJ/mdMoCA==
+"@temple-wallet/extension-ads@^13.0.2":
+  version "13.0.2"
+  resolved "https://registry.yarnpkg.com/@temple-wallet/extension-ads/-/extension-ads-13.0.2.tgz#bdc077e4e2f21c8177939904536ee80950d088ea"
+  integrity sha512-Bk57NfFSIxz/oyngVrsHy54Wgfo9D2p90urpPhiLwGMpwOVzYwBV5z10LS/Vws24/U4R7ulG+KJ+ctcM0NqAqQ==
   dependencies:
     axios "^1.8.4"
     crypto-js "^4.2.0"
@@ -7804,7 +7804,7 @@ form-data@^3.0.0:
     hasown "^2.0.2"
     mime-types "^2.1.35"
 
-form-data@^4.0.0:
+form-data@^4.0.0, form-data@^4.0.4:
   version "4.0.4"
   resolved "https://registry.yarnpkg.com/form-data/-/form-data-4.0.4.tgz#784cdcce0669a9d68e94d11ac4eea98088edd2c4"
   integrity sha512-KrGhL9Q4zjj0kiUt5OO4Mr/A/jlI2jDYs5eHBpYHPcBEVSiipAvn2Ko2HnPe20rmcuuvMHNdZFp+4IlGTMF0Ow==
