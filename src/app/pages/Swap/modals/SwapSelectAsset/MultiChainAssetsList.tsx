@@ -1,4 +1,4 @@
-import React, { memo, useMemo, MouseEvent, useCallback, useState } from 'react';
+import React, { memo, useMemo, MouseEvent, useCallback } from 'react';
 
 import { isDefined } from '@rnw-community/shared';
 import { FixedSizeList as List, ListChildComponentProps } from 'react-window';
@@ -8,7 +8,7 @@ import { PageLoader } from 'app/atoms/Loader';
 import { getSlugFromChainSlug } from 'app/hooks/listing-logic/utils';
 import { TOKEN_ITEM_HEIGHT } from 'app/pages/Swap/constants';
 import { SwapFieldName } from 'app/pages/Swap/form/interfaces';
-import { useLifiEvmAllTokensSlugs } from 'app/pages/Swap/modals/SwapSelectAsset/hooks';
+import { useFirstValue, useLifiEvmAllTokensSlugs } from 'app/pages/Swap/modals/SwapSelectAsset/hooks';
 import { useLifiEvmTokensMetadataRecordSelector } from 'app/store/evm/swap-lifi-metadata/selectors';
 import { useEvmTokensMetadataRecordSelector } from 'app/store/evm/tokens-metadata/selectors';
 import { useAllAccountBalancesSelector } from 'app/store/tezos/balances/selectors';
@@ -91,7 +91,7 @@ export const MultiChainAssetsList = memo<Props>(
       accountEvmAddress,
       showFavoritesMark
     );
-    const [tokensSortPredicate] = useState(() => rawTokensSortPredicate);
+    const tokensSortPredicate = useFirstValue(rawTokensSortPredicate);
 
     const enabledAssetsSlugs = useMemo(() => {
       if (showOnlyFavorites) {

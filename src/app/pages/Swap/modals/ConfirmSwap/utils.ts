@@ -62,13 +62,12 @@ export function parseTxRequestToViem(tx: LiFiTxRequest | RpcTransactionRequest):
 function parseGasPrice(gasPrice: string | number): bigint {
   if (typeof gasPrice === 'string' && gasPrice.startsWith('0x')) {
     return BigInt(gasPrice);
-  } else {
-    const gweiNumber = Number(gasPrice);
-    if (isNaN(gweiNumber) || gweiNumber < 0) {
-      throw new Error(`Invalid gasPrice value: ${gasPrice}`);
-    }
-    return BigInt(Math.floor(gweiNumber * 1e9));
   }
+  const gweiNumber = Number(gasPrice);
+  if (isNaN(gweiNumber) || gweiNumber < 0) {
+    throw new Error(`Invalid gasPrice value: ${gasPrice}`);
+  }
+  return BigInt(Math.floor(gweiNumber * 1e9));
 }
 
 export const timeout = (duration: number): Promise<void> => {

@@ -1,10 +1,11 @@
-import React, { memo, MouseEvent, useCallback, useMemo, useState } from 'react';
+import React, { memo, MouseEvent, useCallback, useMemo } from 'react';
 
 import { isDefined } from '@rnw-community/shared';
 
 import { EmptyState } from 'app/atoms/EmptyState';
 import { DeadEndBoundaryError } from 'app/ErrorBoundary';
 import { SwapFieldName } from 'app/pages/Swap/form/interfaces';
+import { useFirstValue } from 'app/pages/Swap/modals/SwapSelectAsset/hooks';
 import { useAllAccountBalancesSelector } from 'app/store/tezos/balances/selectors';
 import { TezosTokenListItem } from 'app/templates/TokenListItem';
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
@@ -45,7 +46,7 @@ export const TezosChainAssetsList = memo<Props>(
     );
 
     const rawTokensSortPredicate = useTezosChainAccountTokensSortPredicate(publicKeyHash, chainId, showFavorites);
-    const [tokensSortPredicate] = useState(() => rawTokensSortPredicate);
+    const tokensSortPredicate = useFirstValue(rawTokensSortPredicate);
 
     const getAssetMetadata = useGetChainTokenOrGasMetadata(chainId);
 

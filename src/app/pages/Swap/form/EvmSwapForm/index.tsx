@@ -264,7 +264,7 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
     }
   }, []);
 
-  const getAndSetSwapRoute = useCallback(async () => {
+  const updateSwapRoute = useCallback(async () => {
     if (!sourceAssetInfo || !targetAssetInfo || !inputValue.amount || new BigNumber(inputValue.amount).isZero()) {
       setSwapRoute(null);
       return;
@@ -282,7 +282,7 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
       toChain: targetAssetInfo.chainId as number,
       fromToken,
       toToken,
-      amount: atomsInputValue.toString(),
+      amount: atomsInputValue.toFixed(),
       amountForGas: undefined,
       fromAddress: publicKeyHash,
       slippage: slippageTolerance / 100
@@ -300,8 +300,8 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
   ]);
 
   useEffect(() => {
-    void getAndSetSwapRoute();
-  }, [getAndSetSwapRoute]);
+    void updateSwapRoute();
+  }, [updateSwapRoute]);
 
   useInterval(
     () => {
@@ -313,12 +313,12 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
         !isRouteLoading &&
         !formState.isSubmitting
       ) {
-        getAndSetSwapRoute().catch(error => {
+        updateSwapRoute().catch(error => {
           console.error('Error during auto-refresh:', error);
         });
       }
     },
-    [inputValue.amount, sourceAssetInfo, targetAssetInfo, isRouteLoading, formState.isSubmitting, getAndSetSwapRoute],
+    [inputValue.amount, sourceAssetInfo, targetAssetInfo, isRouteLoading, formState.isSubmitting, updateSwapRoute],
     AUTO_REFRESH_INTERVAL_MS,
     false
   );
@@ -400,7 +400,7 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
   ]);
 
   const protocolFee = useMemo(() => {
-    if (!lifiStep?.estimate?.feeCosts) return undefined;
+    if (!lifiStep?.estimate?.feeCosts || !lifiStep?.estimate?.fromAmountUSD || !lifiStep?.estimate?.toAmountUSD) return;
 
     const fromAmountUSD = BigNumber(Number(lifiStep.estimate.fromAmountUSD));
     const toAmountUSD = BigNumber(Number(lifiStep.estimate.toAmountUSD));
@@ -540,10 +540,19 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
   );
 
   const priceImpact = useMemo(() => {
-    const toAmountUSD = Number(swapRoute?.toAmountUSD);
-    return swapRoute?.toAmountUSD !== undefined && swapRoute?.fromAmountUSD !== undefined
-      ? 1 - toAmountUSD / Number(swapRoute.fromAmountUSD)
-      : 0;
+    const fromAmountUSD = swapRoute?.fromAmountUSD;
+    const toAmountUSD = swapRoute?.toAmountUSD;
+
+    if (fromAmountUSD !== undefined && toAmountUSD !== undefined) {
+      const from = new BigNumber(fromAmountUSD);
+      const to = new BigNumber(toAmountUSD);
+
+      if (from.isZero()) return 0;
+
+      return from.minus(to).dividedBy(from).toNumber();
+    }
+
+    return 0;
   }, [swapRoute?.fromAmountUSD, swapRoute?.toAmountUSD]);
 
   return (

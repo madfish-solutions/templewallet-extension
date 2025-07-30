@@ -1,4 +1,4 @@
-import React, { memo, useMemo, MouseEvent, useCallback, useState } from 'react';
+import React, { memo, useMemo, MouseEvent, useCallback } from 'react';
 
 import { isDefined } from '@rnw-community/shared';
 import clsx from 'clsx';
@@ -9,7 +9,7 @@ import { PageLoader } from 'app/atoms/Loader';
 import { DeadEndBoundaryError } from 'app/ErrorBoundary';
 import { TOKEN_ITEM_HEIGHT } from 'app/pages/Swap/constants';
 import { SwapFieldName } from 'app/pages/Swap/form/interfaces';
-import { useLifiEvmTokensSlugs } from 'app/pages/Swap/modals/SwapSelectAsset/hooks';
+import { useFirstValue, useLifiEvmTokensSlugs } from 'app/pages/Swap/modals/SwapSelectAsset/hooks';
 import { useLifiEvmTokensMetadataRecordSelector } from 'app/store/evm/swap-lifi-metadata/selectors';
 import { useEvmTokensMetadataRecordSelector } from 'app/store/evm/tokens-metadata/selectors';
 import { EvmTokenListItem } from 'app/templates/TokenListItem';
@@ -50,7 +50,7 @@ export const EvmChainAssetsList = memo<Props>(({ chainId, activeField, publicKey
 
   const isEvmNonZeroBalance = useCallback(
     (assetSlug: string) => {
-      return isDefined(getEvmBalance(chainId as number, assetSlug));
+      return isDefined(getEvmBalance(chainId, assetSlug));
     },
     [chainId, getEvmBalance]
   );
@@ -60,7 +60,7 @@ export const EvmChainAssetsList = memo<Props>(({ chainId, activeField, publicKey
   const tokensSlugs = useEnabledEvmChainAccountTokenSlugs(publicKeyHash, chainId);
 
   const rawTokensSortPredicate = useEvmChainTokensSortPredicate(publicKeyHash, chainId, showFavoritesMark);
-  const [tokensSortPredicate] = useState(() => rawTokensSortPredicate);
+  const tokensSortPredicate = useFirstValue(rawTokensSortPredicate);
 
   const evmChainAssetsSlugs = useMemo(() => {
     const gasTokensSlugs: string[] = [EVM_TOKEN_SLUG];

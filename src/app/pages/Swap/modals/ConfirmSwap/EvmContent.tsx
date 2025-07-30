@@ -127,7 +127,7 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
   ]);
 
   const bridgeData = useMemo(() => {
-    if (!bridgeInfo?.outputNetwork || !bridgeInfo.inputNetwork) return undefined;
+    if (!bridgeInfo?.outputNetwork || !bridgeInfo?.inputNetwork) return undefined;
     const info = {
       inputNetwork: bridgeInfo?.inputNetwork,
       outputNetwork: bridgeInfo?.outputNetwork,
@@ -140,6 +140,7 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
     bridgeInfo?.destinationChainGasTokenAmount,
     bridgeInfo?.inputNetwork,
     bridgeInfo?.outputNetwork,
+    bridgeInfo?.protocolFee,
     lifiStep?.estimate?.executionDuration
   ]);
 

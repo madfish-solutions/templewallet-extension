@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useRef } from 'react';
 
 import { useSelector } from 'app/store';
 import {
@@ -46,4 +46,9 @@ export const useLifiEvmAllTokensSlugs = () => {
     isLoading,
     lifiTokenSlugs
   };
+};
+
+export const useFirstValue = <T,>(value: T): T => {
+  const ref = useRef(value);
+  return ref.current;
 };

@@ -1,4 +1,4 @@
-import React, { memo, useMemo, MouseEvent, useCallback, useState } from 'react';
+import React, { memo, useMemo, MouseEvent, useCallback } from 'react';
 
 import { isDefined } from '@rnw-community/shared';
 import { FixedSizeList as List, ListChildComponentProps } from 'react-window';
@@ -8,7 +8,7 @@ import { PageLoader } from 'app/atoms/Loader';
 import { getSlugWithChainId } from 'app/hooks/listing-logic/utils';
 import { TOKEN_ITEM_HEIGHT } from 'app/pages/Swap/constants';
 import { SwapFieldName } from 'app/pages/Swap/form/interfaces';
-import { useLifiEvmAllTokensSlugs } from 'app/pages/Swap/modals/SwapSelectAsset/hooks';
+import { useFirstValue, useLifiEvmAllTokensSlugs } from 'app/pages/Swap/modals/SwapSelectAsset/hooks';
 import { useLifiEvmTokensMetadataRecordSelector } from 'app/store/evm/swap-lifi-metadata/selectors';
 import { useEvmTokensMetadataRecordSelector } from 'app/store/evm/tokens-metadata/selectors';
 import { EvmTokenListItem } from 'app/templates/TokenListItem';
@@ -62,25 +62,22 @@ export const AllEvmChainsAssetsList = memo<Props>(
     const showFavoritesMark = useMemo(() => activeField === 'output', [activeField]);
 
     const rawTokensSortPredicate = useEvmAccountTokensSortPredicate(accountEvmAddress, showFavoritesMark);
-    const [tokensSortPredicate] = useState(() => rawTokensSortPredicate);
+    const tokensSortPredicate = useFirstValue(rawTokensSortPredicate);
 
     const enabledAssetsSlugs = useMemo(() => {
       if (showOnlyFavorites) {
-        return [...favoriteTokens.filter(token => token.startsWith('evm'))];
+        return favoriteTokens.filter(token => token.startsWith('evm'));
       }
-      const result: string[] = [];
 
-      if (filterZeroBalances) {
-        result.push(
-          ...enabledEvmChains
+      const nativeAssets = filterZeroBalances
+        ? enabledEvmChains
             .map(chain => toChainAssetSlug(TempleChainKind.EVM, chain.chainId, EVM_TOKEN_SLUG))
             .filter(isEvmNonZeroBalance)
-        );
-      }
+        : [];
 
-      result.push(...(filterZeroBalances ? evmTokensSlugs.filter(isEvmNonZeroBalance) : lifiTokenSlugs));
+      const tokenAssets = filterZeroBalances ? evmTokensSlugs.filter(isEvmNonZeroBalance) : lifiTokenSlugs;
 
-      return result;
+      return [...nativeAssets, ...tokenAssets];
     }, [
       enabledEvmChains,
       evmTokensSlugs,
