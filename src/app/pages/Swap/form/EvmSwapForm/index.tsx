@@ -402,8 +402,8 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
   const protocolFee = useMemo(() => {
     if (!lifiStep?.estimate?.feeCosts || !lifiStep?.estimate?.fromAmountUSD || !lifiStep?.estimate?.toAmountUSD) return;
 
-    const fromAmountUSD = BigNumber(Number(lifiStep.estimate.fromAmountUSD));
-    const toAmountUSD = BigNumber(Number(lifiStep.estimate.toAmountUSD));
+    const fromAmountUSD = BigNumber(lifiStep.estimate.fromAmountUSD);
+    const toAmountUSD = BigNumber(lifiStep.estimate.toAmountUSD);
 
     const inputOutputMarginUSD = fromAmountUSD.minus(toAmountUSD);
 
