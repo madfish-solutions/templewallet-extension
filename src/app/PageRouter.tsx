@@ -30,6 +30,7 @@ import { TokenPage } from './pages/Token';
 interface RouteContext {
   popup: boolean;
   fullPage: boolean;
+  sidebar: boolean;
   ready: boolean;
   locked: boolean;
 }
@@ -125,10 +126,11 @@ export const PageRouter = memo(() => {
     () => ({
       popup: appEnv.popup,
       fullPage: appEnv.fullPage,
+      sidebar: appEnv.sidebar,
       ready: temple.ready,
       locked: temple.locked
     }),
-    [appEnv.popup, appEnv.fullPage, temple.ready, temple.locked]
+    [appEnv.popup, appEnv.fullPage, appEnv.sidebar, temple.ready, temple.locked]
   );
 
   usePageRouterAnalytics(pathname, search, ctx.ready);

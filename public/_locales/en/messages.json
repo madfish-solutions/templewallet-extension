@@ -4311,6 +4311,9 @@
   "testnetMode": {
     "message": "Testnet Mode"
   },
+  "sidebar": {
+    "message": "Sidebar"
+  },
   "disabledInTestnetMode": {
     "message": "Disabled in Testnet Mode"
   },

@@ -79,11 +79,11 @@ export const toastUniqWarning = withUniqCheck(toastWarning, getWarningToastHash)
 export const ToasterProvider = memo(() => {
   const [bottomShift] = useToastsContainerBottomShift();
 
-  const { popup, confirmWindow } = useAppEnv();
+  const { fullPage, confirmWindow } = useAppEnv();
 
   const toastsContainerStyle = useMemo(
-    () => ({ bottom: (popup ? 32 : confirmWindow ? 32 : 64) + bottomShift }),
-    [bottomShift, confirmWindow, popup]
+    () => ({ bottom: (fullPage ? (confirmWindow ? 32 : 64) : 32) + bottomShift }),
+    [bottomShift, confirmWindow, fullPage]
   );
 
   return (
