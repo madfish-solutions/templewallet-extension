@@ -40,7 +40,6 @@
   "dependencies": {
     "@airgap/beacon-types": "^4.5.1",
     "@apollo/client": "^3.7.2",
-    "@bigmi/core": "^0.4.2",
     "@dicebear/bottts-neutral": "^8.0.1",
     "@dicebear/core": "^8.0.1",
     "@firebase/app": "^0.10.1",
@@ -230,6 +229,7 @@
   },
   "devDependencies": {
     "@types/react-window": "^1.8.8",
+    "@bigmi/core": "^0.4.2",
     "fake-indexeddb": "^6.0.0",
     "source-map": "^0.7.4",
     "text-decoding": "^1.0.0"
