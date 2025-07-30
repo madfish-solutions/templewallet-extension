@@ -172,7 +172,7 @@ export const FormContent: FC<Props> = ({ setModalHeaderConfig, setModalContent }
 
         formAnalytics.trackSubmitSuccess();
       } catch (e) {
-        console.log(e);
+        console.error(e);
         formAnalytics.trackSubmitFail();
         if (axios.isAxiosError(e) && e.response && e.response.status === 422) return;
         toastError('Something went wrong! Please try again later.');

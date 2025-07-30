@@ -85,7 +85,10 @@ import {
   dAppQueueCountersUpdated,
   focusLocationChanged,
   popupClosed,
-  popupOpened
+  popupOpened,
+  tabOriginUpdated,
+  sidebarOpened,
+  sidebarClosed
 } from './store';
 import { Vault } from './vault';
 
@@ -645,12 +648,11 @@ export async function processEvmDApp(origin: string, payload: EvmRequestPayload,
 }
 
 export async function getBeaconMessage(origin: string, msg: string, encrypted = false) {
-  let recipientPubKey: string | null = null;
+  const recipientPubKey = await Beacon.getDAppPublicKey(origin);
   let payload = null;
 
   if (encrypted) {
     try {
-      recipientPubKey = await Beacon.getDAppPublicKey(origin);
       if (!recipientPubKey) throw new Error('<stub>');
 
       try {
@@ -738,7 +740,6 @@ export async function processBeacon(
   }
 
   const res = await getBeaconResponse(req, resBase, origin);
-  // const res = null;
 
   const resMsg = Beacon.encodeMessage<Beacon.Response>(res);
   if (encrypted && recipientPubKey) {
@@ -926,4 +927,16 @@ export function setWindowPopupOpened(windowId: number | null, opened: boolean) {
   } else {
     popupClosed(windowId);
   }
+}
+
+export function setWindowSidebarOpened(windowId: number | null, opened: boolean) {
+  if (opened) {
+    sidebarOpened(windowId);
+  } else {
+    sidebarClosed(windowId);
+  }
+}
+
+export function setTabOrigin(tabId: number, origin: string) {
+  tabOriginUpdated({ tabId, origin });
 }

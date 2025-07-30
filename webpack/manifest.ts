@@ -41,6 +41,7 @@ export const buildManifest = (vendor: string) => {
 
 const buildManifestV3 = (vendor: string): Manifest.WebExtensionManifest => {
   const commons = buildManifestCommons(vendor);
+  const withVendors = makeWithVendors(vendor);
 
   commons.content_scripts!.push({
     matches: [
@@ -77,6 +78,7 @@ const buildManifestV3 = (vendor: string): Manifest.WebExtensionManifest => {
     },
 
     action: buildBrowserAction(vendor),
+    ...withVendors('chrome')({ side_panel: { default_path: 'sidebar.html' } }),
 
     options_ui: OPTIONS_UI,
 
@@ -121,7 +123,7 @@ const buildManifestV2 = (vendor: string): Manifest.WebExtensionManifest => {
 
 const AUTHOR_URL = 'https://madfish.solutions';
 
-const PERMISSIONS = ['storage', 'unlimitedStorage', 'clipboardWrite', 'activeTab'];
+const PERMISSIONS = ['storage', 'unlimitedStorage', 'clipboardWrite', 'activeTab', 'sidePanel'];
 
 const HOST_PERMISSIONS: string[] = ['http://localhost:8732/'];
 

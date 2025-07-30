@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import constate from 'constate';
 import { omit } from 'lodash';
@@ -20,7 +20,6 @@ import {
   EvmTransactionRequestWithSender,
   SaveLedgerAccountInput
 } from 'lib/temple/types';
-import { useDidMount } from 'lib/ui/hooks';
 import { DEFAULT_PROMISES_QUEUE_COUNTERS } from 'lib/utils';
 import type { EvmChain } from 'temple/front';
 import {
@@ -47,9 +46,6 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
    * State
    */
 
-  const didMountRef = useRef(false);
-  useDidMount(() => void (didMountRef.current = true));
-
   const fetchState = useCallback(async () => {
     const res = await makeIntercomRequest({ type: TempleMessageType.GetStateRequest });
     assertResponse(res.type === TempleMessageType.GetStateResponse);
@@ -68,7 +64,9 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
             settings: null,
             dAppQueueCounters: DEFAULT_PROMISES_QUEUE_COUNTERS,
             focusLocation: { tabId: null, windowId: null },
-            windowsWithPopups: []
+            windowsWithPopups: [],
+            windowsWithSidebars: [],
+            tabsOrigins: {}
           }
         : res.state,
       shouldLockOnStartup: isLocked
@@ -114,7 +112,16 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
    */
 
   const [suppressReady, setSuppressReady] = useState(false);
-  const { status, accounts, settings, dAppQueueCounters, focusLocation, windowsWithPopups } = state;
+  const {
+    status,
+    accounts,
+    settings,
+    dAppQueueCounters,
+    focusLocation,
+    windowsWithPopups,
+    tabsOrigins,
+    windowsWithSidebars
+  } = state;
   const idle = status === TempleStatus.Idle;
   const locked = status === TempleStatus.Locked;
   const ready = status === TempleStatus.Ready && !suppressReady;
@@ -482,6 +489,15 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
     assertResponse(res.type === TempleMessageType.SetWindowPopupStateResponse);
   }, []);
 
+  const setWindowSidebarState = useCallback(async (windowId: number | null, opened: boolean) => {
+    const res = await request({
+      type: TempleMessageType.SetWindowSidebarStateRequest,
+      windowId,
+      opened
+    });
+    assertResponse(res.type === TempleMessageType.SetWindowSidebarStateResponse);
+  }, []);
+
   useEffect(() => void (data?.shouldLockOnStartup && lock()), [data?.shouldLockOnStartup, lock]);
 
   return {
@@ -500,6 +516,8 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
     dAppQueueCounters,
     focusLocation,
     windowsWithPopups,
+    tabsOrigins,
+    windowsWithSidebars,
 
     // Misc
     confirmation,
@@ -542,6 +560,7 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
     switchDAppEvmChain,
     sendEvmTransaction,
     resetExtension,
-    setWindowPopupState
+    setWindowPopupState,
+    setWindowSidebarState
   };
 });

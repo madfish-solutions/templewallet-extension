@@ -8,6 +8,7 @@ import { ActionsButtonsBox } from 'app/atoms/PageModal/actions-buttons-box';
 import { StyledButton } from 'app/atoms/StyledButton';
 import { ReactComponent as CompactDown } from 'app/icons/base/compact_down.svg';
 import { ReactComponent as UnlinkSvg } from 'app/icons/base/unlink.svg';
+import { isFilterChain } from 'app/pages/Swap/form/utils';
 import { isTezosDAppSession, type DAppSession } from 'app/storage/dapps';
 import { FilterChain } from 'app/store/assets-filter-options/state';
 import { useActiveTabUrlOrigin } from 'app/templates/DAppConnection/use-active-tab';
@@ -79,8 +80,8 @@ const DAppItem = memo<DAppItemProps>(({ dapp, origin, onRemoveClick, onEvmNetwor
   const evmDAppNetwork = isTezosDAppSession(dapp) ? null : evmChains[dapp.chainId];
 
   const switchDAppNetwork = useCallback(
-    (chain: FilterChain) => {
-      if (chain?.kind === TempleChainKind.EVM && evmDAppNetwork?.chainId !== chain.chainId) {
+    (chain: FilterChain | string) => {
+      if (isFilterChain(chain) && chain?.kind === TempleChainKind.EVM && evmDAppNetwork?.chainId !== chain.chainId) {
         onEvmNetworkSelect?.(origin, chain.chainId);
       }
     },

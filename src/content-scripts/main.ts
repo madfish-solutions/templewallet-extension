@@ -65,6 +65,22 @@ if (window.frameElement === null) {
       setInterval(trackUrlChange, TRACK_URL_CHANGE_INTERVAL);
     }
   });
+
+  let oldHref = '';
+  const sendNewLocation = () => {
+    const newHref = window.location.href;
+
+    if (oldHref === newHref) return;
+
+    browser.runtime.sendMessage({
+      type: ContentScriptType.ExternalPageLocation,
+      url: newHref
+    });
+    oldHref = newHref;
+  };
+  sendNewLocation();
+
+  setInterval(sendNewLocation, 1000);
 }
 
 const SENDER = {
@@ -234,7 +250,7 @@ function send(msg: TemplePageMessage | BeaconPageMessage, targetOrigin: string) 
   window.postMessage(msg, targetOrigin);
 }
 
-const TRACK_BEACON_DISCONNECTION_INTERVAL = 5000;
+const TRACK_BEACON_DISCONNECTION_INTERVAL = 1000;
 function beaconIsConnected() {
   try {
     const activeAccountId = localStorage.getItem('beacon:active-account');

@@ -10,7 +10,9 @@ import {
   removeStoredAppUpdateDetails
 } from 'app/storage/app-update';
 import { updateRulesStorage } from 'lib/ads/update-rules-storage';
-import { EnvVars } from 'lib/env';
+import { SIDE_VIEW_WAS_FORCED_STORAGE_KEY } from 'lib/constants';
+import { EnvVars, IS_GOOGLE_CHROME_BROWSER } from 'lib/env';
+import { fetchFromStorage, putToStorage } from 'lib/storage';
 import { start } from 'lib/temple/back/main';
 import { generateKeyPair } from 'lib/utils/ecdsa';
 
@@ -67,4 +69,19 @@ async function prepareAppIdentity() {
     publicKeyHash: publicKeyHash.slice(0, 32),
     ts
   });
+}
+
+if (IS_GOOGLE_CHROME_BROWSER) {
+  (async () => {
+    try {
+      const wasForced = await fetchFromStorage<boolean>(SIDE_VIEW_WAS_FORCED_STORAGE_KEY);
+
+      if (!wasForced) {
+        await chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true });
+        await putToStorage(SIDE_VIEW_WAS_FORCED_STORAGE_KEY, true);
+      }
+    } catch (e) {
+      console.error('Failed to set side panel behavior:', e);
+    }
+  })();
 }

@@ -3045,8 +3045,8 @@
   "resetAll": {
     "message": "Reset All"
   },
-  "hideZeroBalance": {
-    "message": "Hide 0 balance"
+  "hideSmallBalance": {
+    "message": "Hide small balance"
   },
   "groupByNetwork": {
     "message": "Group by network"
@@ -4185,6 +4185,9 @@
   "allNetworks": {
     "message": "All Networks"
   },
+  "favorites": {
+    "message": "Favorites"
+  },
   "gasPrice": {
     "message": "Gas Price"
   },
@@ -4307,6 +4310,9 @@
   },
   "testnetMode": {
     "message": "Testnet Mode"
+  },
+  "sidebar": {
+    "message": "Sidebar"
   },
   "disabledInTestnetMode": {
     "message": "Disabled in Testnet Mode"

@@ -8,6 +8,7 @@ import { isCollectible } from 'lib/metadata/utils';
 
 import type { RootState } from './root-state.type';
 import { DEFAULT_SWAP_PARAMS } from './swap/state.mock';
+import { parseKeyForBalancesRecord } from './tezos/balances/utils';
 import { collectiblesMetadataInitialState } from './tezos/collectibles-metadata/state';
 
 import type { SLICES_BLACKLIST } from './index';
@@ -122,7 +123,7 @@ export const MIGRATIONS: MigrationManifest = {
 
     return newState;
   },
-
+  // v1 => v2 migrations
   '6': (persistedState: PersistedState) => {
     if (!persistedState) {
       return persistedState;
@@ -160,6 +161,38 @@ export const MIGRATIONS: MigrationManifest = {
     if (blurRaw !== null) {
       localStorage.removeItem('collectibles:adult-blur');
     }
+
+    // Remove invalid balances keys (e.g. "tz1X9JwX9CHPF7eG9QNcdCuh3iCvkbDcgQbb_")
+    if (state.balances?.balancesAtomic) {
+      const invalidKeys: string[] = [];
+
+      Object.keys(newState.balances?.balancesAtomic).forEach(key => {
+        const [publicKeyHash, chainId] = parseKeyForBalancesRecord<string | undefined>(key);
+        if (!publicKeyHash || !chainId) invalidKeys.push(key);
+      });
+
+      invalidKeys.forEach(key => {
+        delete newState.balances?.balancesAtomic[key];
+      });
+    }
+
+    return newState;
+  },
+  '7': (persistedState: PersistedState) => {
+    if (!persistedState) return persistedState;
+
+    const typedPersistedState = persistedState as TypedPersistedRootState;
+
+    const newState: TypedPersistedRootState = {
+      ...typedPersistedState,
+      assetsFilterOptions: {
+        ...typedPersistedState.assetsFilterOptions,
+        tokensListOptions: {
+          ...typedPersistedState.assetsFilterOptions.tokensListOptions,
+          hideSmallBalance: typedPersistedState.assetsFilterOptions.tokensListOptions.hideZeroBalance ?? false
+        }
+      }
+    };
 
     return newState;
   }

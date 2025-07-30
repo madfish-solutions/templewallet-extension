@@ -4,6 +4,7 @@ import { isDefined } from '@rnw-community/shared';
 
 import { EmptyState } from 'app/atoms/EmptyState';
 import { DeadEndBoundaryError } from 'app/ErrorBoundary';
+import { SwapFieldName } from 'app/pages/Swap/form/interfaces';
 import { useAllAccountBalancesSelector } from 'app/store/tezos/balances/selectors';
 import { TezosTokenListItem } from 'app/templates/TokenListItem';
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
@@ -18,16 +19,20 @@ import { TempleChainKind } from 'temple/types';
 
 interface Props {
   chainId: string;
-  filterZeroBalances: boolean;
+  activeField: SwapFieldName;
   publicKeyHash: string;
   searchValue: string;
   onAssetSelect: (e: MouseEvent, chainSlug: string) => void;
 }
 
 export const TezosChainAssetsList = memo<Props>(
-  ({ chainId, filterZeroBalances, publicKeyHash, searchValue, onAssetSelect }) => {
+  ({ chainId, activeField, publicKeyHash, searchValue, onAssetSelect }) => {
     const network = useTezosChainByChainId(chainId);
     if (!network) throw new DeadEndBoundaryError();
+
+    const showFavorites = useMemo(() => activeField === 'output', [activeField]);
+    const filterZeroBalances = useMemo(() => activeField === 'input', [activeField]);
+
     const { route3tokensSlugs } = useAvailableRoute3TokensSlugs();
 
     const balances = useAllAccountBalancesSelector(publicKeyHash, chainId);
@@ -39,13 +44,15 @@ export const TezosChainAssetsList = memo<Props>(
       [balances]
     );
 
-    const tokensSortPredicate = useTezosChainAccountTokensSortPredicate(publicKeyHash, chainId);
+    const rawTokensSortPredicate = useTezosChainAccountTokensSortPredicate(publicKeyHash, chainId, showFavorites);
+    const tokensSortPredicate = useMemo(() => rawTokensSortPredicate, [chainId]);
+
     const getAssetMetadata = useGetChainTokenOrGasMetadata(chainId);
 
     const assetsSlugs = useMemoWithCompare<string[]>(() => {
       const gasTokensSlugs: string[] = [TEZ_TOKEN_SLUG];
 
-      return gasTokensSlugs.concat(Array.from(route3tokensSlugs).sort(tokensSortPredicate));
+      return gasTokensSlugs.concat(Array.from(route3tokensSlugs)).toSorted(tokensSortPredicate);
     }, [tokensSortPredicate, route3tokensSlugs]);
 
     const filteredAssets = useMemo(() => {
@@ -64,6 +71,7 @@ export const TezosChainAssetsList = memo<Props>(
             publicKeyHash={publicKeyHash}
             assetSlug={slug}
             showTags={false}
+            showFavoritesMark={showFavorites}
             requiresVisibility={false}
             onClick={e => onAssetSelect(e, toChainAssetSlug(TempleChainKind.Tezos, chainId, slug))}
           />

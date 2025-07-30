@@ -21,21 +21,36 @@ import {
 } from 'lib/balances/hooks';
 import { TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
 import { ZERO } from 'lib/utils/numbers';
+import { useFavoriteTokens } from 'temple/front/use-favorite-tokens';
 import { TempleChainKind } from 'temple/types';
 
 import { EMPTY_FROZEN_OBJ } from '../utils';
 
-import { fromChainAssetSlug } from './utils';
+import { fromChainAssetSlug, toChainAssetSlug } from './utils';
 
-export const useAccountTokensSortPredicate = (accountTezAddress: string, accountEvmAddress: HexString) => {
+export const useAccountTokensSortPredicate = (
+  accountTezAddress: string,
+  accountEvmAddress: HexString,
+  applyFavorites: boolean = false
+) => {
   const getTezBalance = useGetTezosAccountTokenOrGasBalanceWithDecimals(accountTezAddress);
   const tezMainnetUsdToTokenRates = useTezosUsdToTokenRatesSelector();
 
   const getEvmBalance = useGetEvmTokenBalanceWithDecimals(accountEvmAddress);
   const evmUsdToTokenRates = useEvmUsdToTokenRatesSelector();
 
+  const { isFavorite } = useFavoriteTokens();
+
   return useCallback(
     (aChainAssetSlug: string, bChainAssetSlug: string) => {
+      if (applyFavorites) {
+        const aFavorite = isFavorite(aChainAssetSlug);
+        const bFavorite = isFavorite(bChainAssetSlug);
+        if (aFavorite !== bFavorite) {
+          return aFavorite ? -1 : 1;
+        }
+      }
+
       const [aChainKind, aChainId, aSlug] = fromChainAssetSlug(aChainAssetSlug);
       const [bChainKind, bChainId, bSlug] = fromChainAssetSlug(bChainAssetSlug);
 
@@ -64,7 +79,6 @@ export const useAccountTokensSortPredicate = (accountTezAddress: string, account
           : evmUsdToTokenRates[Number(bChainId)]?.[bSlug]) ?? ZERO;
 
       const aEquity = aBalance.multipliedBy(aRate);
-
       const bEquity = bBalance.multipliedBy(bRate);
 
       if (aEquity.isEqualTo(bEquity)) {
@@ -73,7 +87,7 @@ export const useAccountTokensSortPredicate = (accountTezAddress: string, account
 
       return bEquity.comparedTo(aEquity);
     },
-    [getTezBalance, getEvmBalance, tezMainnetUsdToTokenRates, evmUsdToTokenRates]
+    [applyFavorites, getTezBalance, getEvmBalance, tezMainnetUsdToTokenRates, evmUsdToTokenRates, isFavorite]
   );
 };
 
@@ -105,12 +119,26 @@ export const useTezosAccountTokensSortPredicate = (publicKeyHash: string) => {
   );
 };
 
-export const useTezosChainAccountTokensSortPredicate = (publicKeyHash: string, tezosChainId: string) => {
+export const useTezosChainAccountTokensSortPredicate = (
+  publicKeyHash: string,
+  tezosChainId: string,
+  applyFavorites: boolean = false
+) => {
   const getBalance = useGetTezosChainAccountTokenOrGasBalanceWithDecimals(publicKeyHash, tezosChainId);
   const mainnetUsdToTokenRates = useTezosUsdToTokenRatesSelector();
 
+  const { isFavorite } = useFavoriteTokens();
+
   return useCallback(
     (aSlug: string, bSlug: string) => {
+      if (applyFavorites) {
+        const aFavorite = isFavorite(toChainAssetSlug(TempleChainKind.Tezos, tezosChainId, aSlug));
+        const bFavorite = isFavorite(toChainAssetSlug(TempleChainKind.Tezos, tezosChainId, bSlug));
+        if (aFavorite !== bFavorite) {
+          return aFavorite ? -1 : 1;
+        }
+      }
+
       const aBalance = getBalance(aSlug) ?? ZERO;
       const bBalance = getBalance(bSlug) ?? ZERO;
 
@@ -125,7 +153,7 @@ export const useTezosChainAccountTokensSortPredicate = (publicKeyHash: string, t
 
       return bEquity.comparedTo(aEquity);
     },
-    [getBalance, mainnetUsdToTokenRates]
+    [applyFavorites, getBalance, isFavorite, mainnetUsdToTokenRates, tezosChainId]
   );
 };
 
@@ -153,12 +181,25 @@ export const useEvmAccountTokensSortPredicate = (publicKeyHash: HexString) => {
   );
 };
 
-export const useEvmChainTokensSortPredicate = (publicKeyHash: HexString, chainId: number) => {
+export const useEvmChainTokensSortPredicate = (
+  publicKeyHash: HexString,
+  chainId: number,
+  applyFavorites: boolean = false
+) => {
   const getBalance = useGetEvmChainTokenBalanceWithDecimals(publicKeyHash, chainId);
   const usdToTokenRates = useEvmChainUsdToTokenRatesSelector(chainId);
+  const { isFavorite } = useFavoriteTokens();
 
   return useCallback(
     (aSlug: string, bSlug: string) => {
+      if (applyFavorites) {
+        const aFavorite = isFavorite(toChainAssetSlug(TempleChainKind.EVM, chainId, aSlug));
+        const bFavorite = isFavorite(toChainAssetSlug(TempleChainKind.EVM, chainId, bSlug));
+        if (aFavorite !== bFavorite) {
+          return aFavorite ? -1 : 1;
+        }
+      }
+
       const aBalance = getBalance(aSlug) ?? ZERO;
       const bBalance = getBalance(bSlug) ?? ZERO;
       const aEquity = aBalance.multipliedBy(usdToTokenRates[aSlug] ?? ZERO);
@@ -170,7 +211,7 @@ export const useEvmChainTokensSortPredicate = (publicKeyHash: HexString, chainId
 
       return bEquity.comparedTo(aEquity);
     },
-    [getBalance, usdToTokenRates]
+    [applyFavorites, chainId, getBalance, isFavorite, usdToTokenRates]
   );
 };
 

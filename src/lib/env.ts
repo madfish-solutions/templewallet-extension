@@ -8,7 +8,13 @@ export const IS_MISES_BROWSER =
   // @ts-expect-error
   navigator.userAgentData?.brands?.some(b => b.brand === 'Mises') || navigator.userAgent.includes('CriOS/');
 
+export const IS_GOOGLE_CHROME_BROWSER =
+  // @ts-expect-error
+  navigator.userAgentData?.brands?.some(b => b.brand === 'Google Chrome');
+
 export const IS_DEV_ENV = process.env.NODE_ENV === 'development';
+
+export const IS_FIREFOX = process.env.TARGET_BROWSER === 'firefox';
 
 const IS_DEV_GITHUB_ACTION_RUN_ENV = process.env.GITHUB_ACTION_RUN_ENV === 'development';
 

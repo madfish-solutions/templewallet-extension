@@ -244,14 +244,16 @@ export const AddTokenForm = memo<AddTokenPageProps>(
       async ({ address, id = '0' }: FormData) => {
         if (formState.isSubmitting) return;
 
-        const confirmed = await confirm({
-          hasCancelButton: false,
-          confirmButtonColor: 'red-low',
-          confirmButtonText: t('continue'),
-          title: t('scamTokenAlert'),
-          description: t('scamTokenTooltip')
-        });
-        if (!confirmed) return;
+        if (showScamTokenAlert) {
+          const confirmed = await confirm({
+            hasCancelButton: false,
+            confirmButtonColor: 'red-low',
+            confirmButtonText: t('continue'),
+            title: t('scamTokenAlert'),
+            description: t('scamTokenTooltip')
+          });
+          if (!confirmed) return;
+        }
 
         formAnalytics.trackSubmit();
 
@@ -349,7 +351,8 @@ export const AddTokenForm = memo<AddTokenPageProps>(
         selectedNetwork.kind,
         accountTezAddress,
         forCollectible,
-        accountEvmAddress
+        accountEvmAddress,
+        showScamTokenAlert
       ]
     );
 

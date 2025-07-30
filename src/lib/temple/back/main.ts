@@ -261,9 +261,14 @@ const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<T
           type: MessageType.Acknowledge
         };
 
+        const pubKey = res?.type === MessageType.HandshakeRequest && res.publicKey ? res.publicKey : recipientPubKey;
+        if (!pubKey) {
+          throw new Error('DApp public key not found.');
+        }
+
         return {
           type: TempleMessageType.Acknowledge,
-          payload: await encryptMessage(encodeMessage<Response>(response), recipientPubKey ?? ''),
+          payload: await encryptMessage(encodeMessage<Response>(response), pubKey),
           encrypted: true
         };
       }
@@ -361,10 +366,17 @@ const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<T
       return {
         type: TempleMessageType.SetWindowPopupStateResponse
       };
+
+    case TempleMessageType.SetWindowSidebarStateRequest:
+      Actions.setWindowSidebarOpened(req.windowId, req.opened);
+
+      return {
+        type: TempleMessageType.SetWindowSidebarStateResponse
+      };
   }
 };
 
-browser.runtime.onMessage.addListener(async msg => {
+browser.runtime.onMessage.addListener(async (msg, sender) => {
   try {
     switch (msg?.type) {
       case ContentScriptType.UpdateAdsRules:
@@ -388,6 +400,18 @@ browser.runtime.onMessage.addListener(async msg => {
           await Analytics.client.track('External links activity', { url: trackedUrl, accountPkh });
         }
 
+        break;
+
+      case ContentScriptType.ExternalPageLocation:
+        const senderTabId = sender.tab?.id;
+        const senderTabUrl = sender.tab?.url;
+        if (senderTabId !== undefined && senderTabId !== browser.tabs.TAB_ID_NONE && senderTabUrl) {
+          try {
+            Actions.setTabOrigin(senderTabId, new URL(senderTabUrl).origin);
+          } catch {
+            // Ignore errors when setting tab origin, e.g. if the URL is invalid
+          }
+        }
         break;
 
       case ContentScriptType.ExternalAdsActivity: {
