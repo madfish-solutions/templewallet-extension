@@ -481,11 +481,14 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
           symbol: outputAssetSymbol
         },
         lifiStep,
-        bridgeInfo: {
-          protocolFee,
-          inputNetwork,
-          outputNetwork
-        }
+        bridgeInfo:
+          inputNetwork.chainId !== outputNetwork.chainId
+            ? {
+                protocolFee,
+                inputNetwork,
+                outputNetwork
+              }
+            : undefined
       });
 
       formAnalytics.trackSubmitSuccess(analyticsProperties);
