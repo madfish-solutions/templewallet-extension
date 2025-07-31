@@ -41,6 +41,6 @@ migrate([
   },
   {
     name: '2.0.1',
-    up: () => localStorage.removeItem('analytics')
+    up: () => localStorage.removeItem('onboarding')
   }
 ]);
