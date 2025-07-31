@@ -3,6 +3,8 @@
 import browser from 'webextension-polyfill';
 
 import { getLockUpTimeout } from 'lib/lock-up';
+import { TempleMessageType } from 'lib/temple/types';
+import { makeIntercomRequest } from 'temple/front/intercom-client';
 
 export const CLOSURE_STORAGE_KEY = 'last-page-closure-timestamp';
 
@@ -19,11 +21,26 @@ export async function getShouldBeLockedOnStartup() {
   return closureTimestamp && Date.now() - closureTimestamp >= autoLockTime;
 }
 
+let lockTimeout: ReturnType<typeof setTimeout> | undefined;
+
 document.addEventListener(
   'visibilitychange',
-  () => {
+  async () => {
     if (document.visibilityState === 'hidden' && isSinglePageOpened()) {
-      localStorage.setItem(CLOSURE_STORAGE_KEY, Date.now().toString());
+      const closureTime = Date.now();
+      localStorage.setItem(CLOSURE_STORAGE_KEY, closureTime.toString());
+
+      const autoLockTime = await getLockUpTimeout();
+      lockTimeout = setTimeout(() => {
+        void makeIntercomRequest({ type: TempleMessageType.LockRequest });
+      }, autoLockTime);
+    }
+
+    if (document.visibilityState === 'visible') {
+      if (lockTimeout) {
+        clearTimeout(lockTimeout);
+        lockTimeout = undefined;
+      }
     }
   },
   true
