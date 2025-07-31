@@ -162,11 +162,13 @@ const FeesInfo: FC<FeesInfoProps> = ({ network, assetSlug, amount = '0.00', goTo
           assetSlug={assetSlug}
           volume={amount}
           smallFractionFont={false}
+          showTooLow={true}
           roundingMode={BigNumber.ROUND_FLOOR}
           evm={isEvm}
         >
-          {({ balance, symbol }) => (
+          {({ balance, symbol, tooLow }) => (
             <span className="pr-1 border-r-1.5 border-lines">
+              {tooLow && '> '}
               {symbol}
               {balance}
             </span>

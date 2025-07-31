@@ -6,7 +6,6 @@ import BigNumber from 'bignumber.js';
 import { FormProvider, useForm } from 'react-hook-form-v7';
 
 import { DeadEndBoundaryError } from 'app/ErrorBoundary';
-import { THRESHOLD_FOR_PROTOCOL_FEE } from 'app/pages/Swap/constants';
 import { BaseSwapForm } from 'app/pages/Swap/form/BaseSwapForm';
 import { useFetchLifiEvmTokensSlugs } from 'app/pages/Swap/form/hooks';
 import { SwapFormValue, SwapInputValue } from 'app/pages/Swap/form/SwapForm.form';
@@ -400,37 +399,17 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
   ]);
 
   const protocolFee = useMemo(() => {
-    if (!lifiStep?.estimate?.feeCosts || !lifiStep?.estimate?.fromAmountUSD || !lifiStep?.estimate?.toAmountUSD) return;
-
-    const fromAmountUSD = BigNumber(lifiStep.estimate.fromAmountUSD);
-    const toAmountUSD = BigNumber(lifiStep.estimate.toAmountUSD);
-
-    const inputOutputMarginUSD = fromAmountUSD.minus(toAmountUSD);
-
-    const totalFeesUSD = lifiStep.estimate.feeCosts
-      .map(fee => BigNumber(fee.amountUSD))
-      .reduce((a, b) => a.plus(b), ZERO);
-
-    if (inputOutputMarginUSD.minus(totalFeesUSD).isGreaterThanOrEqualTo(ZERO)) {
-      return undefined;
-    }
-
-    const protocolFeesRawUSD = lifiStep.estimate.feeCosts
-      .slice(1)
-      .map(fee => BigNumber(fee.amountUSD))
-      .reduce((a, b) => a.plus(b), ZERO);
-
-    if (protocolFeesRawUSD.lte(THRESHOLD_FOR_PROTOCOL_FEE)) {
-      return undefined;
-    }
+    if (!lifiStep?.estimate?.feeCosts) return;
 
     const protocolFeesRaw = lifiStep.estimate.feeCosts
-      .slice(1)
+      .filter(fee => !fee.included)
       .map(fee => BigNumber(fee.amount))
       .reduce((a, b) => a.plus(b), ZERO);
 
+    if (protocolFeesRaw.isZero()) return undefined;
+
     return atomsToTokens(protocolFeesRaw, inputNetwork?.currency.decimals ?? 0).toFixed();
-  }, [inputNetwork?.currency.decimals, lifiStep]);
+  }, [inputNetwork?.currency.decimals, lifiStep?.estimate?.feeCosts]);
 
   const onSubmit = useCallback(async () => {
     if (formState.isSubmitting) return;

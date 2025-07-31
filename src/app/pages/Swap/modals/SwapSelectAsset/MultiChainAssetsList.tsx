@@ -95,7 +95,7 @@ export const MultiChainAssetsList = memo<Props>(
 
     const enabledAssetsSlugs = useMemo(() => {
       if (showOnlyFavorites) {
-        return [...favoriteTokens];
+        return favoriteTokens.filter(token => token.startsWith('evm'));
       }
 
       const result: string[] = [];
