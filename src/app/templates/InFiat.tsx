@@ -10,7 +10,7 @@ import { ZERO } from 'lib/utils/numbers';
 interface OutputProps {
   balance: ReactNode;
   symbol: string;
-  tooLow: boolean;
+  tooLowSign: boolean;
   noPrice: boolean;
 }
 
@@ -23,7 +23,7 @@ interface InFiatProps extends TestIDProps {
   shortened?: boolean;
   smallFractionFont?: boolean;
   showCents?: boolean;
-  showTooLow?: boolean;
+  showLessThanSign?: boolean;
   withSign?: boolean;
   evm?: boolean;
 }
@@ -38,7 +38,7 @@ const InFiat: FC<InFiatProps> = ({
   shortened,
   smallFractionFont,
   showCents = true,
-  showTooLow = false,
+  showLessThanSign = false,
   withSign,
   testID,
   testIDProperties
@@ -71,10 +71,10 @@ const InFiat: FC<InFiatProps> = ({
         testID={testID}
         testIDProperties={testIDProperties}
       >
-        {!showTooLow ? roundedInFiat : roundedInFiat.plus(0.01)}
+        {showLessThanSign && roundedInFiat.isLessThan(0.01) ? new BigNumber(0.01) : roundedInFiat}
       </Money>
     ),
-    tooLow: roundedInFiat.isLessThan(0.01),
+    tooLowSign: roundedInFiat.isLessThan(0.01),
     symbol: selectedFiatCurrency.symbol,
     noPrice: price.isZero()
   });
