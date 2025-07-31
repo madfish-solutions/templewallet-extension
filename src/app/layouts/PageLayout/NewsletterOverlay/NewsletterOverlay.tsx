@@ -82,6 +82,7 @@ export const NewsletterOverlay = memo(() => {
     return 'Subscribe';
   }, [successSubscribing, isLoading]);
 
+  // TODO: remove 'ready' condition and add 'onboardingCompleted' condition when onboarding is reimplemented
   if (!shouldShowNewsletterModal || !ready || isOnRampPossibility || pathname !== HOME_PAGE_PATH) return null;
 
   return (
