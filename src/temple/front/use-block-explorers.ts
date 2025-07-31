@@ -295,6 +295,13 @@ const DEFAULT_BLOCK_EXPLORERS_BASE: Record<TempleChainKind, Record<string, Omit<
         id: 'avascan-mainnet'
       }
     ],
+    [COMMON_MAINNET_CHAIN_IDS.arbitrum]: [
+      {
+        name: 'ArbiScan',
+        url: 'https://arbiscan.io',
+        id: 'arbiscan-mainnet'
+      }
+    ],
     [COMMON_MAINNET_CHAIN_IDS.optimism]: [
       {
         name: 'Optimistic Ethereum',
@@ -342,6 +349,13 @@ const DEFAULT_BLOCK_EXPLORERS_BASE: Record<TempleChainKind, Record<string, Omit<
         name: 'AvaScan',
         url: 'https://testnet.avascan.info/blockchain/c/',
         id: 'avascan-testnet'
+      }
+    ],
+    [COMMON_TESTNET_CHAIN_IDS.arbitrum]: [
+      {
+        name: 'ArbiScan',
+        url: 'https://sepolia.arbiscan.io',
+        id: 'arbiscan-sepolia'
       }
     ],
     [COMMON_TESTNET_CHAIN_IDS.optimism]: [
