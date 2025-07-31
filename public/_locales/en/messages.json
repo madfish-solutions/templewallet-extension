@@ -3154,12 +3154,6 @@
   "finish": {
     "message": "Finish"
   },
-  "welcomeToOnboarding": {
-    "message": "Welcome to Onboarding"
-  },
-  "onboarding": {
-    "message": "Onboarding"
-  },
   "next": {
     "message": "Next"
   },
