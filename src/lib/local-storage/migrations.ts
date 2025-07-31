@@ -38,5 +38,9 @@ migrate([
         rawIsLocked === 'true' || rawIsLocked === null ? DEFAULT_WALLET_AUTOLOCK_TIME : NEVER_AUTOLOCK_VALUE
       ).catch(e => console.error(e));
     }
+  },
+  {
+    name: '2.0.1',
+    up: () => localStorage.removeItem('analytics')
   }
 ]);
