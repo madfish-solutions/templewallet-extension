@@ -1,8 +1,10 @@
 import React, { FC, memo, useMemo, useState } from 'react';
 
+import { compare } from 'compare-versions';
 import browser from 'webextension-polyfill';
 
 import { AppUpdateDetails, useStoredAppUpdateDetails } from 'app/storage/app-update/use-value.hook';
+import { APP_VERSION } from 'lib/env';
 import { T } from 'lib/i18n';
 import { useDidMount } from 'lib/ui/hooks';
 import { Lottie } from 'lib/ui/react-lottie';
@@ -14,7 +16,14 @@ export const UpdateAppBanner: FC = () => {
 
   const [checkedUpdateDetails, setCheckedUpdateDetails] = useState<AppUpdateDetails>();
 
+  const isStoredVersionOutdated = useMemo(
+    () => Boolean(storedUpdateDetails?.version && compare(storedUpdateDetails.version, APP_VERSION, '<=')),
+    [storedUpdateDetails]
+  );
+
   useDidMount(() => {
+    if (isStoredVersionOutdated) setStoredUpdateDetails(null);
+
     // Only available in Chrome
     void browser.runtime.requestUpdateCheck?.().then(([status, details]) => {
       if (status === 'update_available') setCheckedUpdateDetails(details);
@@ -24,7 +33,7 @@ export const UpdateAppBanner: FC = () => {
   const updateDetails = storedUpdateDetails || checkedUpdateDetails;
 
   const handleUpdate = useMemo(() => {
-    if (!updateDetails) return undefined;
+    if (!updateDetails || isStoredVersionOutdated) return;
 
     return async () => {
       await setStoredUpdateDetails({
@@ -36,7 +45,7 @@ export const UpdateAppBanner: FC = () => {
       // https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/runtime/reload
       browser.runtime.reload();
     };
-  }, [updateDetails, setStoredUpdateDetails]);
+  }, [updateDetails, isStoredVersionOutdated, setStoredUpdateDetails]);
 
   if (!handleUpdate) return null;
 
