@@ -5,6 +5,7 @@ import { EvmBalancesSource } from 'app/store/evm/state';
 import { useTestnetModeEnabledSelector } from 'app/store/settings/selectors';
 import { t } from 'lib/i18n';
 import { useWindowIsActive } from 'lib/temple/front/window-is-active-context';
+import { useMemoWithCompare } from 'lib/ui/hooks';
 import { serializeError } from 'lib/utils/serialize-error';
 import { useLocation } from 'lib/woozie';
 import { useEnabledEvmChains } from 'temple/front';
@@ -79,7 +80,7 @@ export const useRefreshIfActive = <L extends [DataLoader<any>, ...DataLoader<any
     return undefined;
   }, [pathname]);
 
-  const chainsToRefresh = useMemo(() => {
+  const chainsToRefresh = useMemoWithCompare(() => {
     if (filterChain) {
       return filterChain.kind === 'evm' ? [filterChain] : [];
     }
@@ -156,7 +157,6 @@ export const useRefreshIfActive = <L extends [DataLoader<any>, ...DataLoader<any
     loaders,
     publicKeyHash,
     getDataTimestamp,
-    evmChains,
     shouldRefresh,
     chainsToRefresh
   ]);

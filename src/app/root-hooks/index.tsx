@@ -32,6 +32,7 @@ import { AppEvmTokensMetadataLoading } from './evm/tokens-metadata-loading';
 import { AppTezosTokensMetadataLoading } from './metadata-loading';
 import { useChainIDsCheck } from './use-chain-ids-check';
 import { useDisableInactiveNetworks } from './use-disable-inactive-networks';
+import { useEnableAutodisabledNetworks } from './use-enable-autodisabled-networks';
 
 export const AppRootHooks = memo(() => {
   const { ready } = useTempleClient();
@@ -71,6 +72,7 @@ const AppReadyRootHooks = memo(() => {
   useUserIdAccountPkhSync();
   useAccountsInitializedSync();
   useDisableInactiveNetworks();
+  useEnableAutodisabledNetworks();
 
   const tezosAddress = useAccountAddressForTezos();
   const evmAddress = useAccountAddressForEvm();

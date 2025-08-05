@@ -13,6 +13,7 @@ interface ChainSpecsBase {
   activeRpcId?: string;
   activeBlockExplorerId?: string;
   disabled?: boolean;
+  disabledAutomatically?: boolean;
   name?: string;
   testnet?: boolean;
 }
