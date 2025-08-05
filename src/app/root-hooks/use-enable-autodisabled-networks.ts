@@ -58,7 +58,9 @@ export const useEnableAutodisabledNetworks = () => {
   const allEvmChains = useAllEvmChains();
   const automaticallyDisabledEvmChains = useMemoWithCompare(
     () =>
-      Object.values(allEvmChains).filter(({ disabled, disabledAutomatically }) => disabled && disabledAutomatically),
+      Object.values(allEvmChains).filter(
+        ({ disabled, disabledAutomatically }) => disabled && disabledAutomatically !== false
+      ),
     [allEvmChains]
   );
 
@@ -169,21 +171,11 @@ export const useEnableAutodisabledNetworks = () => {
             accountHasBalances = tokensBalancesEntries.some(
               ([assetSlug, balance]) => Number(balance) > 0 && tokensMetadataRecord[assetSlug]
             );
-            console.log('ebota 1', {
-              accountAddress,
-              chainId,
-              accountHasBalances,
-              balances,
-              tokensMetadata,
-              tokensMetadataRecord,
-              tokensBalancesEntries
-            });
           }
           shouldEnableChain ||= accountHasBalances;
         });
 
         if (shouldEnableChain) {
-          console.log('ebota 2', chainId);
           setEvmChainsSpecs(prevSpecs => ({
             ...prevSpecs,
             [chainId]: {
