@@ -6,7 +6,7 @@ import { fetchFromStorage, putToStorage } from 'lib/storage';
 import { useRetryableSWR } from 'lib/swr';
 import { useDidUpdate } from 'lib/ui/hooks';
 
-type StorageValueBase = string | object | number | boolean;
+type StorageValueBase = string | object | number | boolean | nullish;
 
 /**
  * Action type for setting storage values.
@@ -17,11 +17,11 @@ type StorageValueBase = string | object | number | boolean;
  * @param transientValue - The value that is going to be written into storage (may be different from stored value during
  * writing into storage)
  */
-type SetStorageAction<T extends StorageValueBase> = T | ((value: T | nullish, transientValue: T | nullish) => void);
+type SetStorageAction<T extends StorageValueBase> = T | ((value: T, transientValue: T) => void);
 
 export function useStorage<T extends StorageValueBase = any>(
   key: string
-): [T | null | undefined, (val: SetStorageAction<T>) => Promise<void>];
+): [T | nullish, (val: SetStorageAction<T>) => Promise<void>];
 export function useStorage<T extends StorageValueBase = any>(
   key: string,
   fallback: T
@@ -45,7 +45,7 @@ export function useStorage<T extends StorageValueBase = any>(key: string, fallba
   }, [value]);
   const setValue = useCallback(
     async (val: SetStorageAction<T>) => {
-      const nextValue = typeof val === 'function' ? val(valueRef.current, transientValueRef.current) : val;
+      const nextValue = typeof val === 'function' ? val(valueRef.current!, transientValueRef.current!) : val;
       transientValueRef.current = nextValue;
       await putToStorage(key, nextValue);
       valueRef.current = nextValue;
