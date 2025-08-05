@@ -9,7 +9,7 @@ export const browser = browserDefault as Browser & {
   storage: { session?: Storage.LocalStorageArea };
 };
 
-export type BrowserIdentifier = 'chrome' | 'firefox' | 'mises' | 'unknown';
+type BrowserIdentifier = 'chrome' | 'firefox' | 'mises' | 'unknown';
 
 function getBrowserIdentifier(): BrowserIdentifier {
   if (IS_MISES_BROWSER) return 'mises';
