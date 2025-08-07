@@ -2,6 +2,7 @@
 
 import browser from 'webextension-polyfill';
 
+import { NEVER_AUTOLOCK_VALUE } from 'lib/constants';
 import { getLockUpTimeout } from 'lib/lock-up';
 import { TempleMessageType } from 'lib/temple/types';
 import { makeIntercomRequest } from 'temple/front/intercom-client';
@@ -31,9 +32,12 @@ document.addEventListener(
       localStorage.setItem(CLOSURE_STORAGE_KEY, closureTime.toString());
 
       const autoLockTime = await getLockUpTimeout();
-      lockTimeout = setTimeout(() => {
-        void makeIntercomRequest({ type: TempleMessageType.LockRequest });
-      }, autoLockTime);
+
+      if (autoLockTime !== NEVER_AUTOLOCK_VALUE) {
+        lockTimeout = setTimeout(() => {
+          void makeIntercomRequest({ type: TempleMessageType.LockRequest });
+        }, autoLockTime);
+      }
     }
 
     if (document.visibilityState === 'visible') {
