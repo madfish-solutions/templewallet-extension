@@ -16,7 +16,7 @@ export async function getShouldBeLockedOnStartup() {
   const closureTimestamp = Number(localStorage.getItem(CLOSURE_STORAGE_KEY));
   const autoLockTime = await getLockUpTimeout();
 
-  return closureTimestamp && Date.now() - closureTimestamp >= autoLockTime;
+  return closureTimestamp ? Date.now() - closureTimestamp >= autoLockTime : false;
 }
 
 document.addEventListener(

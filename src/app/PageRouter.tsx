@@ -67,7 +67,7 @@ const ROUTE_MAP = Woozie.createMap<RouteContext>([
       }
     }
   ],
-  ['/loading', (_p, ctx) => (ctx.ready ? <Woozie.Redirect to={'/'} /> : <RootSuspenseFallback />)],
+  ['/loading', (_p, ctx) => (ctx.ready ? <Woozie.Redirect to="/" /> : <RootSuspenseFallback />)],
   ['/', (_p, ctx) => (ctx.ready ? <Home /> : <Welcome />)],
   ['/activity', onlyReady(() => <ActivityPage />)],
   ['/receive/:chainKind?', onlyReady(({ chainKind }) => <Receive chainKind={chainKind} />)],
