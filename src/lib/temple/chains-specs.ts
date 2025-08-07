@@ -77,6 +77,11 @@ export const DEFAULT_EVM_CHAINS_SPECS: Record<string, EvmChainSpecs & { testnet:
       symbol: 'AVAX'
     }
   },
+  [COMMON_MAINNET_CHAIN_IDS.arbitrum]: {
+    name: 'Arbitrum One',
+    testnet: false,
+    currency: DEFAULT_EVM_CURRENCY
+  },
   [COMMON_MAINNET_CHAIN_IDS.optimism]: {
     name: 'Optimism',
     testnet: false,
@@ -128,6 +133,14 @@ export const DEFAULT_EVM_CHAINS_SPECS: Record<string, EvmChainSpecs & { testnet:
       ...DEFAULT_EVM_CURRENCY,
       name: 'Avalanche Fuji',
       symbol: 'AVAX'
+    },
+    testnet: true
+  },
+  [COMMON_TESTNET_CHAIN_IDS.arbitrum]: {
+    name: 'Arbitrum Sepolia',
+    currency: {
+      ...DEFAULT_EVM_CURRENCY,
+      name: 'Sepolia Ether'
     },
     testnet: true
   },
