@@ -2489,11 +2489,11 @@
   "defaultAccount": {
     "message": "Default account (the first one)"
   },
-  "defaultNetworksGroup": {
-    "message": "Default Networks"
+  "default": {
+    "message": "Default"
   },
-  "customNetworksGroup": {
-    "message": "Custom Networks"
+  "suggested": {
+    "message": "Suggested"
   },
   "chainTestnetsGroup": {
     "message": "$chain$ Testnets",
