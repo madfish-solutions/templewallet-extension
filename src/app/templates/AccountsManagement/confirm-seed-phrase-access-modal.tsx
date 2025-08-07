@@ -15,7 +15,7 @@ import { T, t } from 'lib/i18n';
 import { useTempleClient } from 'lib/temple/front';
 import { DisplayedGroup } from 'lib/temple/types';
 
-import { AccountsManagementSelectors } from './selectors';
+import { AccountManagementSelectors } from './selectors';
 
 interface ConfirmSeedPhraseAccessModalProps {
   selectedGroup: DisplayedGroup;
@@ -65,7 +65,7 @@ export const ConfirmSeedPhraseAccessModal = memo<ConfirmSeedPhraseAccessModalPro
                   shouldShowRevealWhenEmpty
                   reserveSpaceForError={false}
                   containerClassName="mb-1"
-                  testID={AccountsManagementSelectors.passwordInput}
+                  testID={AccountManagementSelectors.passwordInput}
                 />
               )}
             />
@@ -75,7 +75,7 @@ export const ConfirmSeedPhraseAccessModal = memo<ConfirmSeedPhraseAccessModalPro
               color="primary"
               disabled={submitting}
               type="submit"
-              testID={AccountsManagementSelectors.confirmRevealSeedPhrase}
+              testID={AccountManagementSelectors.confirmRevealSeedPhrase}
             >
               <T id="revealSeedPhrase" />
             </ActionModalButton>

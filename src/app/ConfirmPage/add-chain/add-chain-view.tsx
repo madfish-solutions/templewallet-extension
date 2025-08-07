@@ -6,9 +6,9 @@ import { SettingsCheckbox } from 'app/atoms/SettingsCheckbox';
 import { ReactComponent as CopyIcon } from 'app/icons/base/copy.svg';
 import { ReactComponent as OutLinkIcon } from 'app/icons/base/outLink.svg';
 import { ChartListItem, PlainChartListItem } from 'app/templates/chart-list-item';
-import { toastSuccess } from 'app/toaster';
-import { t, T } from 'lib/i18n';
+import { T } from 'lib/i18n';
 import { EvmChainToAddMetadata } from 'lib/temple/types';
+import { useCopyText } from 'lib/ui/hooks/use-copy-text';
 
 import { useAddChainDataState } from './context';
 
@@ -26,10 +26,7 @@ export const AddChainView = memo<Props>(({ metadata }) => {
     [metadata.blockExplorerUrl]
   );
 
-  const handleCopyRpcUrl = useCallback(() => {
-    window.navigator.clipboard.writeText(metadata.rpcUrl);
-    toastSuccess(t('copiedAddress'));
-  }, [metadata.rpcUrl]);
+  const handleCopyRpcUrl = useCopyText(metadata.rpcUrl);
 
   const handleTestnetChange = useCallback((checked: boolean) => setTestnet(checked), [setTestnet]);
 

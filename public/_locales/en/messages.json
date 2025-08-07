@@ -32,14 +32,13 @@
     "message": "Settings"
   },
   "openNewTab": {
-    "message": "Open new tab"
+    "message": "New tab"
   },
   "maximiseView": {
-    "message": "View Full Screen"
+    "message": "Full Screen"
   },
-  "connectedDApps": {
-    "message": "Connected Dapps",
-    "description": "Dapps = Decentralized Applications"
+  "connections": {
+    "message": "Connections"
   },
   "description": {
     "message": "Description"
@@ -83,6 +82,9 @@
   },
   "lock": {
     "message": "Lock"
+  },
+  "lockWallet": {
+    "message": "Lock Wallet"
   },
   "importedAccount": {
     "message": "Imported"
@@ -789,8 +791,8 @@
     "message": "Reveal Seed Phrase"
   },
   "dApps": {
-    "message": "DApps",
-    "description": "DApps = Decentralized Applications"
+    "message": "Dapps",
+    "description": "Dapps = Decentralized Applications"
   },
   "removeAccount": {
     "message": "Remove Account"
@@ -798,8 +800,8 @@
   "removeAccountDescription": {
     "message": "Use this section to remove your selected account. Only imported accounts can be removed."
   },
-  "accountsManagement": {
-    "message": "Accounts management"
+  "accountManagement": {
+    "message": "Account Management"
   },
   "securityAndPrivacy": {
     "message": "Security & Privacy"
@@ -955,7 +957,7 @@
     "message": "Import Wallet using Seed Phrase"
   },
   "ledgerConnect": {
-    "message": "Ledger connect"
+    "message": "Ledger Connect"
   },
   "connectLedger": {
     "message": "Connect Ledger",
@@ -2489,11 +2491,11 @@
   "defaultAccount": {
     "message": "Default account (the first one)"
   },
-  "defaultNetworksGroup": {
-    "message": "Default Networks"
+  "default": {
+    "message": "Default"
   },
-  "customNetworksGroup": {
-    "message": "Custom Networks"
+  "suggested": {
+    "message": "Suggested"
   },
   "chainTestnetsGroup": {
     "message": "$chain$ Testnets",
@@ -2765,8 +2767,11 @@
   "tvl": {
     "message": "TVL"
   },
-  "promoted": {
-    "message": "Promoted"
+  "featured": {
+    "message": "Featured"
+  },
+  "exploreAll": {
+    "message": "Explore All"
   },
   "searchDApps": {
     "message": "Search DApps"

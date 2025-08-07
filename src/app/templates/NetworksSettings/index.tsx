@@ -1,4 +1,6 @@
-import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
+import React, { memo, useCallback, useEffect, useMemo, useState, useRef } from 'react';
+
+import { Chain as ViemChain } from 'viem';
 
 import { FadeTransition } from 'app/a11y/FadeTransition';
 import { EmptyState } from 'app/atoms/EmptyState';
@@ -12,9 +14,12 @@ import { useAllEvmChains, useAllTezosChains } from 'temple/front';
 import { isPossibleTestnetChain } from 'temple/front/chains';
 import { TempleChainKind, TempleChainTitle } from 'temple/types';
 
-import { AddNetworkModal } from './add-network-modal';
+import { AddNetworkModal, AddNetworkForm } from './add-network-modal';
 import { ChainsGroupView } from './chains-group-view';
 import { FiltersBlock } from './filters-block';
+import { SuggestedChainsGroup } from './suggested-chains-group';
+import { useSuggestedChains } from './use-suggested-chains';
+import { makeFormValues } from './utils';
 
 interface ChainsFilters {
   kind?: TempleChainKind;
@@ -38,6 +43,8 @@ export const NetworksSettings = memo<SettingsTabProps>(({ setHeaderChildren }) =
     [evmChainsRecord, tezosChainsRecord]
   );
   const matchingChains = useMemo(() => searchAndFilterChains(allChains, searchValue), [allChains, searchValue]);
+
+  const suggestedChains = useSuggestedChains(isTestnetTab, searchValue);
 
   const pickChains = useCallback(
     ({ kind, isDefault }: ChainsFilters) =>
@@ -69,11 +76,11 @@ export const NetworksSettings = memo<SettingsTabProps>(({ setHeaderChildren }) =
           ]
         : [
             {
-              title: t('defaultNetworksGroup'),
+              title: t('default'),
               chains: pickChains({ isDefault: true })
             },
             {
-              title: t('customNetworksGroup'),
+              title: t('custom'),
               chains: pickChains({ isDefault: false })
             }
           ]
@@ -100,20 +107,47 @@ export const NetworksSettings = memo<SettingsTabProps>(({ setHeaderChildren }) =
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const showSuggested = suggestedChains.length > 0;
+  const showEmptyState = chainsGroups.length === 0 && (!searchValue || !showSuggested);
+
+  const addNetworkFormRef = useRef<AddNetworkForm>(null);
+
+  const handleSuggestedChainSelect = useCallback(
+    (chain: ViemChain) => {
+      addNetworkFormRef.current?.setFormValues(makeFormValues(chain));
+      openAddNetworkModal();
+    },
+    [openAddNetworkModal]
+  );
+
   return (
     <FadeTransition>
-      {chainsGroups.length === 0 ? (
+      {showEmptyState ? (
         <div className="w-full h-full flex items-center">
           <EmptyState />
         </div>
       ) : (
         <div className="flex flex-col gap-y-4 -m-4 px-4 pb-4 overflow-y-auto">
           {chainsGroups.map((group, i) => (
-            <ChainsGroupView className={i === chainsGroups.length - 1 ? 'mb-4' : ''} key={group.title} group={group} />
+            <ChainsGroupView
+              className={i === chainsGroups.length - 1 && !showSuggested ? 'mb-4' : ''}
+              key={group.title}
+              group={group}
+              searchValue={searchValue}
+            />
           ))}
+          {showSuggested && (
+            <SuggestedChainsGroup
+              title={t('suggested')}
+              chains={suggestedChains}
+              searchValue={searchValue}
+              onChainSelect={handleSuggestedChainSelect}
+              className="mb-4"
+            />
+          )}
         </div>
       )}
-      <AddNetworkModal isOpen={isAddNetworkModalOpen} onClose={closeAddNetworkModal} />
+      <AddNetworkModal ref={addNetworkFormRef} isOpen={isAddNetworkModalOpen} onClose={closeAddNetworkModal} />
     </FadeTransition>
   );
 });

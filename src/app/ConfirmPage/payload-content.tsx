@@ -4,7 +4,7 @@ import type { Omit as StrictOmit } from 'viem';
 
 import { IconBase } from 'app/atoms';
 import { ReactComponent as UnlockFillIcon } from 'app/icons/base/unlock_fill.svg';
-import { AccountCard } from 'app/templates/AccountCard';
+import { AccountCard } from 'app/templates/account-card';
 import { EvmTransactionView } from 'app/templates/EvmTransactionView';
 import { SignPayloadView } from 'app/templates/SignPayloadView';
 import { TezosTransactionView } from 'app/templates/TezosTransactionView';
@@ -59,6 +59,7 @@ const ConnectView = memo<{ account: StoredAccount; openAccountsModal: EmptyFn }>
       attractSelf={false}
       searchValue=""
       showRadioOnHover={false}
+      alwaysShowAddresses
       onClick={openAccountsModal}
     />
     <div className="bg-white shadow-bottom rounded-lg p-4">
