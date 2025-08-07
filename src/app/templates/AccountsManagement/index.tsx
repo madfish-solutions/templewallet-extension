@@ -24,7 +24,7 @@ import { ConfirmSeedPhraseAccessModal } from './confirm-seed-phrase-access-modal
 import { DeleteWalletModal } from './delete-wallet-modal';
 import { GroupView } from './group-view';
 import { RenameWalletModal } from './rename-wallet-modal';
-import { AccountsManagementSelectors } from './selectors';
+import { AccountManagementSelectors } from './selectors';
 
 enum AccountsManagementModal {
   RenameWallet = 'rename-wallet',
@@ -210,12 +210,12 @@ export const AccountsManagement = memo<SettingsTabProps>(({ setHeaderChildren })
           value={searchValue}
           placeholder={t('searchAccount', [searchHotkey])}
           onValueChange={setSearchValue}
-          testID={AccountsManagementSelectors.searchField}
+          testID={AccountManagementSelectors.searchField}
         />
 
         <NewWalletActionsPopper
           startWalletCreation={startWalletCreation}
-          testID={AccountsManagementSelectors.newWalletActionsButton}
+          testID={AccountManagementSelectors.newWalletActionsButton}
           goToConnectLedgerModal={goToConnectLedgerModal}
           goToImportModal={goToImportWalletModal}
           goToWatchOnlyModal={goToWatchOnlyModal}

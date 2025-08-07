@@ -16,7 +16,7 @@ import { useTempleClient } from 'lib/temple/front';
 import { DisplayedGroup, TempleAccountType } from 'lib/temple/types';
 import { useHDGroups } from 'temple/front';
 
-import { AccountsManagementSelectors } from './selectors';
+import { AccountManagementSelectors } from './selectors';
 
 interface DeleteWalletModalProps {
   onClose: EmptyFn;
@@ -104,7 +104,7 @@ export const DeleteWalletModal = memo<DeleteWalletModalProps>(({ onClose, select
                   errorCaption={errors.password?.message}
                   reserveSpaceForError={false}
                   containerClassName="mb-1"
-                  testID={AccountsManagementSelectors.passwordInput}
+                  testID={AccountManagementSelectors.passwordInput}
                 />
               )}
             />
@@ -115,7 +115,7 @@ export const DeleteWalletModal = memo<DeleteWalletModalProps>(({ onClose, select
               disabled={submitting}
               onClick={onClose}
               type="button"
-              testID={AccountsManagementSelectors.cancelButton}
+              testID={AccountManagementSelectors.cancelButton}
             >
               <T id="cancel" />
             </ActionModalButton>
@@ -124,7 +124,7 @@ export const DeleteWalletModal = memo<DeleteWalletModalProps>(({ onClose, select
               color="red"
               disabled={submitting}
               type="submit"
-              testID={AccountsManagementSelectors.confirmDeleteButton}
+              testID={AccountManagementSelectors.confirmDeleteButton}
             >
               <T id="delete" />
             </ActionModalButton>

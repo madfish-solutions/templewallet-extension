@@ -16,7 +16,7 @@ import { T, t } from 'lib/i18n';
 import { useTempleClient } from 'lib/temple/front';
 import { DisplayedGroup } from 'lib/temple/types';
 
-import { AccountsManagementSelectors } from './selectors';
+import { AccountManagementSelectors } from './selectors';
 
 interface RenameWalletModalProps {
   onClose: EmptyFn;
@@ -75,7 +75,7 @@ export const RenameWalletModal = memo<RenameWalletModalProps>(({ onClose, select
                 containerClassName="mb-1.5"
                 cleanable
                 onClean={cleanWalletName}
-                testID={AccountsManagementSelectors.newWalletNameInput}
+                testID={AccountManagementSelectors.newWalletNameInput}
               />
             )}
           />
@@ -85,7 +85,7 @@ export const RenameWalletModal = memo<RenameWalletModalProps>(({ onClose, select
             color="primary"
             type="submit"
             disabled={submitting}
-            testID={AccountsManagementSelectors.saveNameButton}
+            testID={AccountManagementSelectors.saveNameButton}
           >
             <T id="save" />
           </ActionModalButton>
