@@ -4,6 +4,7 @@ import clsx from 'clsx';
 
 import { Anchor } from 'app/atoms/Anchor';
 import { useAdRectObservation } from 'app/hooks/ads/use-ad-rect-observation';
+import { DAPPS_PAGE_NAME } from 'app/pages/Dapps/constants';
 import type { AdsProviderTitle } from 'lib/ads';
 
 import { PartnersPromotionSelectors } from '../selectors';
@@ -44,6 +45,8 @@ export const TextPromotionView = memo<Props>(
       [href, providerTitle, pageName, accountPkh]
     );
 
+    const isDappsPage = pageName === DAPPS_PAGE_NAME;
+
     return (
       <Anchor
         className={clsx('rounded-lg relative w-full flex bg-grey-4 hover:bg-secondary-low', !isVisible && 'invisible')}
@@ -54,10 +57,10 @@ export const TextPromotionView = memo<Props>(
         testID={PartnersPromotionSelectors.promoLink}
         testIDProperties={testIDProperties}
       >
-        <div className="w-full flex-1 flex gap-2 p-2 pr-9">
+        <div className={clsx(isDappsPage ? 'p-3' : 'p-2', 'w-full flex-1 flex gap-2 pr-9')}>
           <div className="shrink-0">
             <img
-              className="w-10 h-auto p-1 rounded-circle"
+              className={clsx(isDappsPage ? 'p-0.5' : 'p-1', 'w-10 h-auto rounded-circle')}
               src={imageSrc}
               alt="Partners promotion"
               onError={onImageError}

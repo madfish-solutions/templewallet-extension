@@ -103,7 +103,7 @@ const TABS_GROUPS: Tab[][] = [
     },
     {
       slug: 'dapps',
-      titleI18nKey: 'connectedDApps',
+      titleI18nKey: 'connections',
       Icon: DefaultSettingsIconHOC(LinkIcon),
       Component: DAppsSettings,
       noPadding: true,
