@@ -183,6 +183,38 @@ const Welcome = memo(() => {
     []
   );
 
+  const modalContent = useMemo(() => {
+    switch (stage) {
+      case WalletCreationStage.GoogleAuth:
+        return <GoogleAuth onMissingBackup={handleReadGoogleBackup} onBackupContent={goToBackupReading} />;
+      case WalletCreationStage.GoogleBackupReading:
+        return <DecryptBackup next={handleReadGoogleBackup} backupContent={walletCreationState.backupContent} />;
+      case WalletCreationStage.GoogleBackupStatus:
+        return (
+          <GoogleBackupStatusModalContent
+            {...walletCreationState}
+            onSuccess={handleBackupSuccess}
+            onFinish={handleBackupFinish}
+          />
+        );
+      case WalletCreationStage.ManualImport:
+        return <ImportSeedForm next={handleSeedPhraseSubmit} />;
+      case WalletCreationStage.CreatePassword:
+        return <CreatePasswordForm {...walletCreationState} onNewBackupState={handleNewBackupState} />;
+      default:
+        return <></>;
+    }
+  }, [
+    stage,
+    goToBackupReading,
+    handleBackupFinish,
+    handleBackupSuccess,
+    handleNewBackupState,
+    handleReadGoogleBackup,
+    handleSeedPhraseSubmit,
+    walletCreationState
+  ]);
+
   return (
     <>
       <PageModal
@@ -191,28 +223,7 @@ const Welcome = memo(() => {
         onGoBack={handleGoBack}
         onRequestClose={closeModal}
       >
-        {() => {
-          switch (stage) {
-            case WalletCreationStage.GoogleAuth:
-              return <GoogleAuth onMissingBackup={handleReadGoogleBackup} onBackupContent={goToBackupReading} />;
-            case WalletCreationStage.GoogleBackupReading:
-              return <DecryptBackup next={handleReadGoogleBackup} backupContent={walletCreationState.backupContent} />;
-            case WalletCreationStage.GoogleBackupStatus:
-              return (
-                <GoogleBackupStatusModalContent
-                  {...walletCreationState}
-                  onSuccess={handleBackupSuccess}
-                  onFinish={handleBackupFinish}
-                />
-              );
-            case WalletCreationStage.ManualImport:
-              return <ImportSeedForm next={handleSeedPhraseSubmit} />;
-            case WalletCreationStage.CreatePassword:
-              return <CreatePasswordForm {...walletCreationState} onNewBackupState={handleNewBackupState} />;
-            default:
-              return <></>;
-          }
-        }}
+        {modalContent}
       </PageModal>
 
       <PlanetsBgPageLayout containerClassName="pb-8">
