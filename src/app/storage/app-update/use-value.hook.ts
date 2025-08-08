@@ -4,4 +4,4 @@ import { AppUpdateDetails, storageKey } from './index';
 
 export type { AppUpdateDetails };
 
-export const useStoredAppUpdateDetails = () => useStorage<AppUpdateDetails>(storageKey);
+export const useStoredAppUpdateDetails = () => useStorage<AppUpdateDetails | null>(storageKey, null);

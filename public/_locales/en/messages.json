@@ -43,6 +43,12 @@
   "description": {
     "message": "Description"
   },
+  "newVersion": {
+    "message": "New version available"
+  },
+  "clickToUpdateWallet": {
+    "message": "Click to update wallet and apply latest changes"
+  },
   "versionLabel": {
     "message": "Version: $version$",
     "placeholders": {
