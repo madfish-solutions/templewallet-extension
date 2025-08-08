@@ -1,15 +1,18 @@
 import React, { memo } from 'react';
 
-import { IconBase } from 'app/atoms';
 import { AccLabel } from 'app/atoms/AccLabel';
 import { AccountAvatar } from 'app/atoms/AccountAvatar';
+import { AnimatedMenuChevron } from 'app/atoms/animated-menu-chevron';
 import { SearchHighlightText } from 'app/atoms/SearchHighlightText';
-import { ReactComponent as ChevronRightIcon } from 'app/icons/base/chevron_right.svg';
 import { getPluralKey, t } from 'lib/i18n';
+import { StoredAccount } from 'lib/temple/types';
+import { useActivateAnimatedChevron } from 'lib/ui/hooks/use-activate-animated-chevron';
 import { Link } from 'lib/woozie';
 
+import { CopyAccountAddresses } from '../copy-account-addresses';
+
 import { GroupActionsPopper, GroupActionsPopperProps } from './group-actions-popper';
-import { AccountsManagementSelectors } from './selectors';
+import { AccountManagementSelectors } from './selectors';
 
 interface GroupViewProps extends GroupActionsPopperProps {
   searchValue: string;
@@ -32,21 +35,43 @@ export const GroupView = memo<GroupViewProps>(({ group, searchValue, ...restProp
     </div>
 
     {group.accounts.map(acc => (
-      <Link
-        to={`/account/${acc.id}`}
-        className="flex h-12 items-center justify-between border-t-0.5 border-lines px-3"
-        key={acc.id}
-        testID={AccountsManagementSelectors.accountItem}
-      >
-        <div className="flex items-center gap-2">
-          <AccountAvatar seed={acc.id} size={24} />
-
-          <div className="text-font-medium-bold leading-5">
-            <SearchHighlightText searchValue={searchValue}>{acc.name}</SearchHighlightText>
-          </div>
-        </div>
-        <IconBase Icon={ChevronRightIcon} size={16} className="text-primary" />
-      </Link>
+      <AccountView key={acc.id} account={acc} searchValue={searchValue} />
     ))}
   </div>
 ));
+
+interface AccountViewProps {
+  account: StoredAccount;
+  searchValue: string;
+}
+
+const AccountView = memo<AccountViewProps>(({ account, searchValue }) => {
+  const { animatedChevronRef, handleHover, handleUnhover } = useActivateAnimatedChevron();
+
+  return (
+    <Link
+      to={`/account/${account.id}`}
+      className="flex p-3 items-center justify-between border-t-0.5 border-lines"
+      key={account.id}
+      testID={AccountManagementSelectors.accountItem}
+      onMouseEnter={handleHover}
+      onMouseLeave={handleUnhover}
+    >
+      <div className="flex flex-col gap-2">
+        <div className="flex items-center gap-1">
+          <AccountAvatar borderColor="gray" seed={account.id} size={24} />
+
+          <div className="text-font-medium-bold">
+            <SearchHighlightText searchValue={searchValue}>{account.name}</SearchHighlightText>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <CopyAccountAddresses account={account} />
+        </div>
+      </div>
+
+      <AnimatedMenuChevron ref={animatedChevronRef} />
+    </Link>
+  );
+});

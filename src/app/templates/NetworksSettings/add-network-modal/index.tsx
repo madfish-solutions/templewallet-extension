@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { memo, useCallback, useEffect, useMemo, useRef, useState, forwardRef, useImperativeHandle } from 'react';
 
 import { noop } from 'lodash';
 import { Controller, FormProvider, useForm } from 'react-hook-form-v7';
@@ -18,12 +18,16 @@ import { shouldDisableSubmitButton } from 'lib/ui/should-disable-submit-button';
 import { useAllEvmChains, useAllTezosChains } from 'temple/front';
 
 import { NetworkSettingsSelectors } from '../selectors';
+import { NUMERIC_CHAIN_ID_REGEX, makeFormValues } from '../utils';
 
 import { NameInput } from './name-input';
 import { AddNetworkFormValues, ViemChain } from './types';
 import { useAddNetwork } from './use-add-network';
 import { useRpcSuggestedFormValues } from './use-rpc-suggested-form-values';
-import { NUMERIC_CHAIN_ID_REGEX, makeFormValues } from './utils';
+
+export interface AddNetworkForm {
+  setFormValues: SyncFn<Partial<AddNetworkFormValues>>;
+}
 
 interface AddNetworkModalProps {
   isOpen: boolean;
@@ -39,227 +43,236 @@ const defaultValues = {
   testnet: false
 };
 
-export const AddNetworkModal = memo<AddNetworkModalProps>(({ isOpen, onClose }) => {
-  const { abort, abortAndRenewSignal } = useAbortSignal();
-  const {
-    showErrorIfOnBlur: showChainIdError,
-    onBlur: updateChainIdShowErrorOnBlur,
-    onFocus: updateChainIdShowErrorOnFocus,
-    onChange: updateChainIdShowErrorOnChange
-  } = useShowErrorIfOnBlur();
-  const [submitError, setSubmitError] = useState<string | null>(null);
-  const [lastSelectedChain, setLastSelectedChain] = useState<ViemChain | null>(null);
+export const AddNetworkModal = memo(
+  forwardRef<AddNetworkForm, AddNetworkModalProps>((props, ref) => {
+    const { isOpen, onClose } = props;
+    const { abort, abortAndRenewSignal } = useAbortSignal();
+    const {
+      showErrorIfOnBlur: showChainIdError,
+      onBlur: updateChainIdShowErrorOnBlur,
+      onFocus: updateChainIdShowErrorOnFocus,
+      onChange: updateChainIdShowErrorOnChange
+    } = useShowErrorIfOnBlur();
+    const [submitError, setSubmitError] = useState<string | null>(null);
+    const [lastSelectedChain, setLastSelectedChain] = useState<ViemChain | null>(null);
 
-  const evmChains = useAllEvmChains();
-  const tezChains = useAllTezosChains();
+    const evmChains = useAllEvmChains();
+    const tezChains = useAllTezosChains();
 
-  const { namesToExclude, rpcUrlsToExclude } = useNetworksValuesToExclude();
+    const { namesToExclude, rpcUrlsToExclude } = useNetworksValuesToExclude();
 
-  const formReturn = useForm<AddNetworkFormValues>({
-    mode: 'onChange',
-    defaultValues
-  });
-  const { control, reset, formState, register, setValue, watch, handleSubmit } = formReturn;
-  const formValues = watch();
-  const { chainId, rpcUrl, symbol } = formValues;
-  const { isSubmitting, submitCount, errors } = formState;
-  const isSubmitted = submitCount > 0;
+    const formReturn = useForm<AddNetworkFormValues>({
+      mode: 'onChange',
+      defaultValues
+    });
+    const { control, reset, formState, register, setValue, watch, handleSubmit } = formReturn;
+    const formValues = watch();
+    const { chainId, rpcUrl, symbol } = formValues;
+    const { isSubmitting, submitCount, errors } = formState;
+    const isSubmitted = submitCount > 0;
 
-  const prevSuggestedFormValuesRef = useRef<Partial<AddNetworkFormValues> | null | undefined>(null);
-  const { data: suggestedFormValues, isLoading: suggestedFormValuesLoading } = useRpcSuggestedFormValues(
-    rpcUrl,
-    rpcUrlsToExclude
-  );
-  useEffect(() => {
-    if (prevSuggestedFormValuesRef.current === suggestedFormValues) {
-      return;
-    }
-
-    prevSuggestedFormValuesRef.current = suggestedFormValues;
-
-    if (suggestedFormValues) {
-      reset({ ...formValues, ...suggestedFormValues });
-    }
-  }, [formValues, reset, suggestedFormValues]);
-
-  const resetSubmitError = useCallback(() => setSubmitError(null), []);
-  const closeModal = useCallback(() => {
-    reset(defaultValues);
-    resetSubmitError();
-    abort();
-    onClose();
-  }, [abort, onClose, reset, resetSubmitError]);
-  const onSubmit = useAddNetwork(setSubmitError, lastSelectedChain, closeModal, abortAndRenewSignal);
-
-  const handleChainSelect = useCallback(
-    (chain: ViemChain) => {
-      setLastSelectedChain(chain);
-      reset(makeFormValues(chain));
-    },
-    [reset]
-  );
-
-  const makeClearFieldFn = useCallback(
-    (name: Exclude<keyof AddNetworkFormValues, 'testnet'>) => () => setValue(name, '', { shouldValidate: true }),
-    [setValue]
-  );
-  const clearChainId = useMemo(() => makeClearFieldFn('chainId'), [makeClearFieldFn]);
-  const clearSymbol = useMemo(() => makeClearFieldFn('symbol'), [makeClearFieldFn]);
-
-  const suggestedChainId = suggestedFormValues?.chainId;
-  const validateChainId = useCallback(
-    (chainId: string) => {
-      if (evmChains[chainId] || tezChains[chainId]) {
-        return t('mustBeUnique');
+    const prevSuggestedFormValuesRef = useRef<Partial<AddNetworkFormValues> | null | undefined>(null);
+    const { data: suggestedFormValues, isLoading: suggestedFormValuesLoading } = useRpcSuggestedFormValues(
+      rpcUrl,
+      rpcUrlsToExclude
+    );
+    useEffect(() => {
+      if (prevSuggestedFormValuesRef.current === suggestedFormValues) {
+        return;
       }
 
-      if (suggestedChainId) {
-        return suggestedChainId === chainId ? true : t('anotherChainIdError', suggestedChainId);
+      prevSuggestedFormValuesRef.current = suggestedFormValues;
+
+      if (suggestedFormValues) {
+        reset({ ...formValues, ...suggestedFormValues });
       }
+    }, [formValues, reset, suggestedFormValues]);
 
-      if (NUMERIC_CHAIN_ID_REGEX.test(chainId)) {
-        return true;
+    const resetSubmitError = useCallback(() => setSubmitError(null), []);
+    const closeModal = useCallback(() => {
+      reset(defaultValues);
+      resetSubmitError();
+      abort();
+      onClose();
+    }, [abort, onClose, reset, resetSubmitError]);
+    const onSubmit = useAddNetwork(setSubmitError, lastSelectedChain, closeModal, abortAndRenewSignal);
+
+    const handleChainSelect = useCallback(
+      (chain: ViemChain) => {
+        setLastSelectedChain(chain);
+        reset(makeFormValues(chain));
+      },
+      [reset]
+    );
+
+    const makeClearFieldFn = useCallback(
+      (name: Exclude<keyof AddNetworkFormValues, 'testnet'>) => () => setValue(name, '', { shouldValidate: true }),
+      [setValue]
+    );
+    const clearChainId = useMemo(() => makeClearFieldFn('chainId'), [makeClearFieldFn]);
+    const clearSymbol = useMemo(() => makeClearFieldFn('symbol'), [makeClearFieldFn]);
+
+    const suggestedChainId = suggestedFormValues?.chainId;
+    const validateChainId = useCallback(
+      (chainId: string) => {
+        if (evmChains[chainId] || tezChains[chainId]) {
+          return t('mustBeUnique');
+        }
+
+        if (suggestedChainId) {
+          return suggestedChainId === chainId ? true : t('anotherChainIdError', suggestedChainId);
+        }
+
+        if (NUMERIC_CHAIN_ID_REGEX.test(chainId)) {
+          return true;
+        }
+
+        return isValidTezosChainId(chainId) || t('invalidChainId');
+      },
+      [evmChains, suggestedChainId, tezChains]
+    );
+
+    const handleChainIdChange = useCallback(() => {
+      resetSubmitError();
+      updateChainIdShowErrorOnChange();
+    }, [resetSubmitError, updateChainIdShowErrorOnChange]);
+
+    useImperativeHandle(ref, () => ({
+      setFormValues: (values: Partial<AddNetworkFormValues>) => {
+        reset({ ...defaultValues, ...values });
       }
+    }));
 
-      return isValidTezosChainId(chainId) || t('invalidChainId');
-    },
-    [evmChains, suggestedChainId, tezChains]
-  );
+    return (
+      <PageModal opened={isOpen} onRequestClose={closeModal} title={t('addNetwork')}>
+        <FormProvider {...formReturn}>
+          <form className="flex-1 flex flex-col max-h-full" onSubmit={handleSubmit(onSubmit)}>
+            <PageModalScrollViewWithActions
+              className="py-4"
+              bottomEdgeThreshold={16}
+              actionsBoxProps={{
+                children: (
+                  <StyledButton
+                    className="w-full"
+                    size="L"
+                    color="primary"
+                    disabled={shouldDisableSubmitButton({
+                      errors,
+                      formState,
+                      errorsBeforeSubmitFields: ['rpcUrl', 'chainId'],
+                      otherErrors: [submitError],
+                      disableWhileSubmitting: false
+                    })}
+                    loading={suggestedFormValuesLoading || isSubmitting}
+                    type="submit"
+                    testID={NetworkSettingsSelectors.saveButton}
+                  >
+                    <T id="save" />
+                  </StyledButton>
+                )
+              }}
+              initialBottomEdgeVisible={false}
+            >
+              <NameInput namesToExclude={namesToExclude} onChainSelect={handleChainSelect} />
 
-  const handleChainIdChange = useCallback(() => {
-    resetSubmitError();
-    updateChainIdShowErrorOnChange();
-  }, [resetSubmitError, updateChainIdShowErrorOnChange]);
+              <div className="flex flex-col gap-4">
+                <UrlInput
+                  name="rpcUrl"
+                  label="RPC URL"
+                  formReturn={formReturn}
+                  disabled={isSubmitting}
+                  urlsToExclude={rpcUrlsToExclude}
+                  isEditable
+                  id="add-network-rpc-url"
+                  placeholder="https://rpc.link"
+                  showErrorOnBlur
+                  submitError={undefined}
+                  textarea
+                  required
+                  resetSubmitError={resetSubmitError}
+                  pasteButtonTestID={NetworkSettingsSelectors.pasteRpcUrlButton}
+                  testID={NetworkSettingsSelectors.rpcUrlInput}
+                />
 
-  return (
-    <PageModal opened={isOpen} onRequestClose={closeModal} title={t('addNetwork')}>
-      <FormProvider {...formReturn}>
-        <form className="flex-1 flex flex-col max-h-full" onSubmit={handleSubmit(onSubmit)}>
-          <PageModalScrollViewWithActions
-            className="py-4"
-            bottomEdgeThreshold={16}
-            actionsBoxProps={{
-              children: (
-                <StyledButton
-                  className="w-full"
-                  size="L"
-                  color="primary"
-                  disabled={shouldDisableSubmitButton({
-                    errors,
-                    formState,
-                    errorsBeforeSubmitFields: ['rpcUrl', 'chainId'],
-                    otherErrors: [submitError],
-                    disableWhileSubmitting: false
+                <FormField
+                  {...register('chainId', {
+                    required: t('required'),
+                    validate: validateChainId,
+                    onChange: handleChainIdChange,
+                    onBlur: updateChainIdShowErrorOnBlur
                   })}
-                  loading={suggestedFormValuesLoading || isSubmitting}
-                  type="submit"
-                  testID={NetworkSettingsSelectors.saveButton}
-                >
-                  <T id="save" />
-                </StyledButton>
-              )
-            }}
-            initialBottomEdgeVisible={false}
-          >
-            <NameInput namesToExclude={namesToExclude} onChainSelect={handleChainSelect} />
+                  cleanable={Boolean(chainId)}
+                  disabled={isSubmitting}
+                  onClean={clearChainId}
+                  onFocus={updateChainIdShowErrorOnFocus}
+                  labelContainerClassName="w-full flex justify-between items-center"
+                  label={
+                    <>
+                      <T id="chainId" />
+                      <Tooltip
+                        content={
+                          <span className="font-normal">
+                            <T id="chainIdTooltip" />
+                          </span>
+                        }
+                        size={16}
+                        className="text-grey-3"
+                        wrapperClassName="max-w-60"
+                      />
+                    </>
+                  }
+                  placeholder="1"
+                  errorCaption={showChainIdError && (submitError ?? errors.chainId?.message)}
+                  testID={NetworkSettingsSelectors.chainIdInput}
+                />
 
-            <div className="flex flex-col gap-4">
-              <UrlInput
-                name="rpcUrl"
-                label="RPC URL"
-                formReturn={formReturn}
-                disabled={isSubmitting}
-                urlsToExclude={rpcUrlsToExclude}
-                isEditable
-                id="add-network-rpc-url"
-                placeholder="https://rpc.link"
-                showErrorOnBlur
-                submitError={undefined}
-                textarea
-                required
-                resetSubmitError={resetSubmitError}
-                pasteButtonTestID={NetworkSettingsSelectors.pasteRpcUrlButton}
-                testID={NetworkSettingsSelectors.rpcUrlInput}
-              />
+                <FormField
+                  {...register('symbol', { required: t('required') })}
+                  cleanable={Boolean(symbol)}
+                  disabled={isSubmitting}
+                  onClean={clearSymbol}
+                  label={<T id="symbol" />}
+                  placeholder="ETH"
+                  errorCaption={isSubmitted && errors.symbol?.message}
+                  testID={NetworkSettingsSelectors.symbolInput}
+                />
+              </div>
 
-              <FormField
-                {...register('chainId', {
-                  required: t('required'),
-                  validate: validateChainId,
-                  onChange: handleChainIdChange,
-                  onBlur: updateChainIdShowErrorOnBlur
-                })}
-                cleanable={Boolean(chainId)}
-                disabled={isSubmitting}
-                onClean={clearChainId}
-                onFocus={updateChainIdShowErrorOnFocus}
-                labelContainerClassName="w-full flex justify-between items-center"
-                label={
-                  <>
-                    <T id="chainId" />
-                    <Tooltip
-                      content={
-                        <span className="font-normal">
-                          <T id="chainIdTooltip" />
-                        </span>
-                      }
-                      size={16}
-                      className="text-grey-3"
-                      wrapperClassName="max-w-60"
+              <div className="flex flex-col gap-4">
+                <UrlInput
+                  disabled={isSubmitting}
+                  name="explorerUrl"
+                  label={<T id="blockExplorerUrl" />}
+                  formReturn={formReturn}
+                  isEditable
+                  id="add-network-explorer-url"
+                  placeholder="https://etherscan.io"
+                  submitError={undefined}
+                  textarea={false}
+                  required={false}
+                  resetSubmitError={noop}
+                  pasteButtonTestID={NetworkSettingsSelectors.pasteExplorerUrlButton}
+                  testID={NetworkSettingsSelectors.explorerUrlInput}
+                />
+
+                <Controller
+                  control={control}
+                  name="testnet"
+                  render={({ field }) => (
+                    <SettingsCheckbox
+                      {...field}
+                      checked={field.value}
+                      disabled={isSubmitting}
+                      label={<T id="testnet" />}
+                      testID={NetworkSettingsSelectors.testnetCheckbox}
                     />
-                  </>
-                }
-                placeholder="1"
-                errorCaption={showChainIdError && (submitError ?? errors.chainId?.message)}
-                testID={NetworkSettingsSelectors.chainIdInput}
-              />
-
-              <FormField
-                {...register('symbol', { required: t('required') })}
-                cleanable={Boolean(symbol)}
-                disabled={isSubmitting}
-                onClean={clearSymbol}
-                label={<T id="symbol" />}
-                placeholder="ETH"
-                errorCaption={isSubmitted && errors.symbol?.message}
-                testID={NetworkSettingsSelectors.symbolInput}
-              />
-            </div>
-
-            <div className="flex flex-col gap-4">
-              <UrlInput
-                disabled={isSubmitting}
-                name="explorerUrl"
-                label={<T id="blockExplorerUrl" />}
-                formReturn={formReturn}
-                isEditable
-                id="add-network-explorer-url"
-                placeholder="https://etherscan.io"
-                submitError={undefined}
-                textarea={false}
-                required={false}
-                resetSubmitError={noop}
-                pasteButtonTestID={NetworkSettingsSelectors.pasteExplorerUrlButton}
-                testID={NetworkSettingsSelectors.explorerUrlInput}
-              />
-
-              <Controller
-                control={control}
-                name="testnet"
-                render={({ field }) => (
-                  <SettingsCheckbox
-                    {...field}
-                    checked={field.value}
-                    disabled={isSubmitting}
-                    label={<T id="testnet" />}
-                    testID={NetworkSettingsSelectors.testnetCheckbox}
-                  />
-                )}
-              />
-            </div>
-          </PageModalScrollViewWithActions>
-        </form>
-      </FormProvider>
-    </PageModal>
-  );
-});
+                  )}
+                />
+              </div>
+            </PageModalScrollViewWithActions>
+          </form>
+        </FormProvider>
+      </PageModal>
+    );
+  })
+);

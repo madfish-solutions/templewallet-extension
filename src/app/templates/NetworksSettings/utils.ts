@@ -1,4 +1,4 @@
-import { ViemChain } from './types';
+import { ViemChain } from './add-network-modal/types';
 
 export const NUMERIC_CHAIN_ID_REGEX = /^([0-9]+|0x[0-9a-f]+)$/i;
 
