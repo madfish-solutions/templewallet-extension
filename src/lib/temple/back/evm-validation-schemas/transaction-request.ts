@@ -5,9 +5,9 @@ import {
   TransactionRequestEIP2930,
   TransactionRequestEIP4844,
   TransactionRequestEIP7702,
-  TransactionRequestLegacy
+  TransactionRequestLegacy,
+  RpcAuthorizationList
 } from 'viem';
-import type { RpcAuthorizationList } from 'viem/experimental';
 import {
   array as arraySchema,
   ArraySchema,

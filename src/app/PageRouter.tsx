@@ -26,6 +26,7 @@ import { ImportWallet } from './pages/ImportWallet';
 import { Market } from './pages/Market';
 import { Notifications } from './pages/Notifications';
 import { RewardsPage } from './pages/Rewards';
+import { StakeEvmPage } from './pages/StakeEvm';
 import { TokenPage } from './pages/Token';
 
 interface RouteContext {
@@ -80,6 +81,7 @@ const ROUTE_MAP = Woozie.createMap<RouteContext>([
   ],
   ['/swap', onlyReady(() => <Swap />)],
   ['/earn-tez/:tezosChainId', onlyReady(({ tezosChainId }) => <EarnTezPage tezosChainId={tezosChainId!} />)],
+  ['/stake-evm', onlyReady(() => <StakeEvmPage />)],
   ['/earn-tkey', onlyReady(() => <EarnTkeyPage />)],
   [
     '/token/:chainKind?/:chainId?/:assetSlug?',

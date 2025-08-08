@@ -3479,6 +3479,11 @@
   dependencies:
     nanoid "^3.1.25"
 
+"@temple-wallet/everstake-wallet-sdk@^4.0.3":
+  version "4.0.3"
+  resolved "https://registry.yarnpkg.com/@temple-wallet/everstake-wallet-sdk/-/everstake-wallet-sdk-4.0.3.tgz#da37a1f20a673939173fbf4825786f4f45be17a5"
+  integrity sha512-UuLcrpaaN7RRjAE1/B7LASYiyUkl7IFQcrvcVIjReirB+lexkLxoPehM5+veoaywnlb5Z1tXIP5dTk4lzhHWvg==
+
 "@temple-wallet/extension-ads@12.1.0-beta.1799.1":
   version "12.1.0-beta.1799.1"
   resolved "https://registry.yarnpkg.com/@temple-wallet/extension-ads/-/extension-ads-12.1.0-beta.1799.1.tgz#624725830df9bde32aedeb01e5f9979ce2c3e704"
