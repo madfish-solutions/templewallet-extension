@@ -144,7 +144,7 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
       mnemonic
     });
     assertResponse(res.type === TempleMessageType.NewWalletResponse);
-    clearLocalStorage(['onboarding', 'analytics']);
+    clearLocalStorage(['analytics']);
 
     return res.accountPkh;
   }, []);
