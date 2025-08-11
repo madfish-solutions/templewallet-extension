@@ -235,33 +235,37 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
 
   const routeAbortControllerRef = useRef<AbortController | null>(null);
 
-  const fetchEvmSwapRoute = useCallback(async (params: RouteParams) => {
-    routeAbortControllerRef.current?.abort();
-    const controller = new AbortController();
-    routeAbortControllerRef.current = controller;
+  const fetchEvmSwapRoute = useCallback(
+    async (params: RouteParams) => {
+      routeAbortControllerRef.current?.abort();
+      const controller = new AbortController();
+      routeAbortControllerRef.current = controller;
 
-    setIsAlertVisible(false);
-    setIsRouteLoading(true);
+      setIsAlertVisible(false);
+      setIsRouteLoading(true);
 
-    try {
-      const data = await getEvmBestSwapRoute(params, controller.signal);
-      if (data === undefined) {
-        return;
+      try {
+        const data = await getEvmBestSwapRoute(params, controller.signal);
+        if (data === undefined) {
+          return;
+        }
+        setSwapRoute(data);
+        setIsRouteLoading(false);
+        return data;
+      } catch (error: unknown) {
+        if ((error as Error)?.name === 'CanceledError') return;
+        console.error('EVM Swap route error:', error instanceof Error ? error.message : error);
+
+        setSwapRoute(null);
+        setIsRouteLoading(false);
+        setIsAlertVisible(true);
+        resetForm();
+
+        throw error;
       }
-      setSwapRoute(data);
-      setIsRouteLoading(false);
-      return data;
-    } catch (error: unknown) {
-      if ((error as Error)?.name === 'CanceledError') return;
-      console.error('EVM Swap route error:', error instanceof Error ? error.message : error);
-
-      setSwapRoute(null);
-      setIsRouteLoading(false);
-      setIsAlertVisible(true);
-
-      throw error;
-    }
-  }, []);
+    },
+    [resetForm]
+  );
 
   const updateSwapRoute = useCallback(async () => {
     if (!sourceAssetInfo || !targetAssetInfo || !inputValue.amount || new BigNumber(inputValue.amount).isZero()) {
@@ -323,25 +327,16 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
   );
 
   useEffect(() => {
-    if (swapRoute && outputValue.assetSlug) {
-      const atomicAmount = atomsToTokens(new BigNumber(swapRoute.toAmount), outputAssetMetadata?.decimals ?? 0);
-      const { isFiatMode } = getValues();
+    if (swapRoute) {
+      const atomicAmount = atomsToTokens(new BigNumber(swapRoute.toAmount), swapRoute.toToken.decimals);
+      const { isFiatMode, output } = getValues();
       const formattedAmount = isFiatMode
         ? atomicAmount.times(outputAssetPrice).decimalPlaces(2, BigNumber.ROUND_FLOOR)
         : atomicAmount;
 
-      handleOutputChange({ assetSlug: outputValue.assetSlug, chainId: outputValue.chainId, amount: formattedAmount });
+      handleOutputChange({ assetSlug: output.assetSlug, chainId: output.chainId, amount: formattedAmount });
     }
-  }, [
-    swapRoute,
-    outputValue.assetSlug,
-    outputAssetMetadata?.decimals,
-    outputAssetPrice,
-    isFiatMode,
-    handleOutputChange,
-    getValues,
-    outputValue.chainId
-  ]);
+  }, [getValues, handleOutputChange, outputAssetPrice, swapRoute]);
 
   const inputTokenMaxAmount = useMemo(() => {
     if (!inputValue.assetSlug || !inputTokenBalance) return ZERO;

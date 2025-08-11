@@ -168,7 +168,7 @@ const FeesInfo: FC<FeesInfoProps> = ({ network, assetSlug, amount = '0.00', goTo
         >
           {({ balance, symbol, tooLowSign }) => (
             <span className="pr-1 border-r-1.5 border-lines">
-              {tooLowSign && '> '}
+              {tooLowSign && '< '}
               {symbol}
               {balance}
             </span>

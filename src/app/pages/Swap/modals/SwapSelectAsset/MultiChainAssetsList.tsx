@@ -14,12 +14,13 @@ import { useEvmTokensMetadataRecordSelector } from 'app/store/evm/tokens-metadat
 import { useAllAccountBalancesSelector } from 'app/store/tezos/balances/selectors';
 import { EvmTokenListItem, TezosTokenListItem } from 'app/templates/TokenListItem';
 import { EVM_TOKEN_SLUG, TEZ_TOKEN_SLUG } from 'lib/assets/defaults';
-import { useEnabledEvmAccountTokenSlugs, useEnabledTezosAccountTokenSlugs } from 'lib/assets/hooks/tokens';
+import { useEnabledEvmAccountTokenSlugs } from 'lib/assets/hooks/tokens';
 import { searchAssetsWithNoMeta } from 'lib/assets/search.utils';
 import { useAccountTokensSortPredicate } from 'lib/assets/use-sorting';
 import { parseChainAssetSlug, toChainAssetSlug } from 'lib/assets/utils';
 import { useGetEvmTokenBalanceWithDecimals } from 'lib/balances/hooks';
 import { useGetTokenOrGasMetadata } from 'lib/metadata';
+import { useAvailableRoute3TokensSlugs } from 'lib/route3/assets';
 import { TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
 import { useMemoWithCompare } from 'lib/ui/hooks';
 import {
@@ -55,9 +56,10 @@ interface Props {
 
 export const MultiChainAssetsList = memo<Props>(
   ({ accountTezAddress, activeField, accountEvmAddress, showOnlyFavorites, searchValue, onAssetSelect }) => {
-    const tezTokensSlugs = useEnabledTezosAccountTokenSlugs(accountTezAddress);
     const evmTokensSlugs = useEnabledEvmAccountTokenSlugs(accountEvmAddress);
     const { lifiTokenSlugs, isLoading } = useLifiEvmAllTokensSlugs();
+
+    const { route3tokensSlugs } = useAvailableRoute3TokensSlugs();
 
     const tezosBalances = useAllAccountBalancesSelector(accountTezAddress, TEZOS_MAINNET_CHAIN_ID);
     const getEvmBalance = useGetEvmTokenBalanceWithDecimals(accountEvmAddress);
@@ -113,14 +115,14 @@ export const MultiChainAssetsList = memo<Props>(
         );
       }
 
-      result.push(...(filterZeroBalances ? tezTokensSlugs.filter(isTezNonZeroBalance) : []));
+      result.push(...(filterZeroBalances ? route3tokensSlugs.filter(isTezNonZeroBalance) : []));
       result.push(...(filterZeroBalances ? evmTokensSlugs.filter(isEvmNonZeroBalance) : lifiTokenSlugs));
 
       return result;
     }, [
       showOnlyFavorites,
       filterZeroBalances,
-      tezTokensSlugs,
+      route3tokensSlugs,
       isTezNonZeroBalance,
       evmTokensSlugs,
       isEvmNonZeroBalance,

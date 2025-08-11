@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useRef } from 'react';
 
+import { merge } from 'lodash';
+
 import { dispatch } from 'app/store';
 import {
   useEvmCollectibleMetadataSelector,
@@ -156,8 +158,9 @@ export const useGetEvmGasOrTokenMetadata = () => {
       isEvmNativeTokenSlug(slug) ? evmChains[chainId]?.currency : input[chainId]?.[slug],
     [evmChains]
   );
+  const mergedMetadata = merge({}, tokensMetadata, lifiMetadata);
 
-  return useGetter({ ...tokensMetadata, ...lifiMetadata }, getterFn);
+  return useGetter(mergedMetadata, getterFn);
 };
 
 export const useGetEvmChainTokenOrGasMetadata = (chainId: number) => {
