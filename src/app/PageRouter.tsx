@@ -5,7 +5,6 @@ import { OpenInFullPage, useAppEnv } from 'app/env';
 import { AccountSettings } from 'app/pages/AccountSettings';
 import { CollectiblePage } from 'app/pages/Collectibles/CollectiblePage';
 import Home from 'app/pages/Home/Home';
-import AttentionPage from 'app/pages/Onboarding/pages/AttentionPage';
 import { Receive } from 'app/pages/Receive/Receive';
 import Send from 'app/pages/Send';
 import Settings from 'app/pages/Settings/Settings';
@@ -99,7 +98,6 @@ const ROUTE_MAP = Woozie.createMap<RouteContext>([
   ],
   ['/settings/:tabSlug?', onlyReady(({ tabSlug }) => <Settings tabSlug={tabSlug} />)],
   ['/market', onlyReady(() => <Market />)],
-  ['/attention', onlyReady(onlyInFullPage(() => <AttentionPage />))],
   ['/notifications', onlyReady(() => <Notifications />)],
   ['/dapps', onlyReady(() => <Dapps />)],
   ['/account/:id', onlyReady(({ id }) => <AccountSettings id={id!} />)],
@@ -142,8 +140,4 @@ export const PageRouter = memo(() => {
 
 function onlyReady(factory: RouteFactory): RouteFactory {
   return (params, ctx) => (ctx.ready ? factory(params, ctx) : Woozie.SKIP);
-}
-
-function onlyInFullPage(factory: RouteFactory): RouteFactory {
-  return (params, ctx) => (!ctx.fullPage ? <OpenInFullPage /> : factory(params, ctx));
 }

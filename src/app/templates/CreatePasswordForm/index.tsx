@@ -10,7 +10,6 @@ import { StyledButton } from 'app/atoms/StyledButton';
 import { TextButton } from 'app/atoms/TextButton';
 import { ValidationLabel } from 'app/atoms/ValidationLabel';
 import { PASSWORD_PATTERN, PasswordValidation, formatMnemonic, passwordValidationRegexes } from 'app/defaults';
-import { useOnboardingProgress } from 'app/pages/Onboarding/hooks/useOnboardingProgress.hook';
 import { dispatch } from 'app/store';
 import { togglePartnersPromotionAction } from 'app/store/partners-promotion/actions';
 import {
@@ -68,7 +67,6 @@ export const CreatePasswordForm = memo<CreatePasswordFormProps>(
   ({ mnemonic: mnemonicToImport, backupPassword, onNewBackupState }) => {
     const { googleAuthToken, registerWallet, setSuppressReady } = useTempleClient();
     const { trackEvent } = useAnalytics();
-    const { setOnboardingCompleted } = useOnboardingProgress();
     const [, setInitToast] = useInitToastMessage();
     const [backupPasswordUsed, goToBackupPassword, goToCustomPassword] = useBooleanState(false);
 
@@ -110,9 +108,6 @@ export const CreatePasswordForm = memo<CreatePasswordFormProps>(
 
     const onSubmit = useCallback(
       async (data: FormData) => {
-        // TODO: enable onboarding when it is reimplemented
-        await setOnboardingCompleted(true);
-
         if (submitting) return;
 
         try {
@@ -163,7 +158,6 @@ export const CreatePasswordForm = memo<CreatePasswordFormProps>(
         }
       },
       [
-        setOnboardingCompleted,
         submitting,
         registerWallet,
         backupPassword,
