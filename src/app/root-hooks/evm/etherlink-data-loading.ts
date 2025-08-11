@@ -1,26 +1,18 @@
 import { memo, useCallback, useMemo } from 'react';
 
-import { isEqual } from 'lodash';
-
 import { dispatch } from 'app/store';
 import { setEvmBalancesLoadingState, setEvmTokensExchangeRatesLoading } from 'app/store/evm/actions';
-import { processLoadedEvmAssetsAction } from 'app/store/evm/assets/actions';
-import {
-  processLoadedEvmAssetsBalancesAction,
-  processLoadedOnchainBalancesAction
-} from 'app/store/evm/balances/actions';
+import { processLoadedOnchainBalancesAction } from 'app/store/evm/balances/actions';
 import { useEvmAccountBalancesTimestampsSelector } from 'app/store/evm/balances/selectors';
-import { processLoadedEvmCollectiblesMetadataAction } from 'app/store/evm/collectibles-metadata/actions';
 import { useAllEvmChainsBalancesLoadingStatesSelector } from 'app/store/evm/selectors';
 import { EvmBalancesSource } from 'app/store/evm/state';
-import { processLoadedEvmExchangeRatesAction } from 'app/store/evm/tokens-exchange-rates/actions';
-import { processLoadedEvmTokensMetadataAction } from 'app/store/evm/tokens-metadata/actions';
 import { useTestnetModeEnabledSelector } from 'app/store/settings/selectors';
 import { EtherlinkChainId, isEtherlinkSupportedChainId } from 'lib/apis/etherlink';
 import { EVM_BALANCES_SYNC_INTERVAL } from 'lib/fixed-times';
 import { useUpdatableRef } from 'lib/ui/hooks';
 
 import { EtherlinkBalancesResponse, getEtherlinkBalances } from './get-etherlink-balances';
+import { makeOnEtherlinkApiSuccess } from './make-on-etherlink-api-success';
 import { useGetBalancesFromChain } from './use-get-balances-from-chain';
 import {
   ApiDataLoader,
@@ -73,37 +65,8 @@ export const AppEtherlinkDataLoading = memo<{ publicKeyHash: HexString }>(({ pub
   const setLoadingApi = useMemo(() => setLoadingFactory('api'), [setLoadingFactory]);
   const setLoadingOnChain = useMemo(() => setLoadingFactory('onchain'), [setLoadingFactory]);
 
-  const handleApiSuccess = useCallback(
-    ({ chainId, data, timestamp }: SuccessPayload<EtherlinkBalancesResponse>) => {
-      const { balanceItems, nftItems, ...restData } = data;
-      dispatch(
-        processLoadedEvmTokensMetadataAction({
-          chainId,
-          data: { ...restData, items: data.balanceItems.filter(({ supports_erc }) => isEqual(supports_erc, ['erc20'])) }
-        })
-      );
-      dispatch(
-        processLoadedEvmCollectiblesMetadataAction({
-          chainId,
-          data: {
-            ...restData,
-            updated_at: new Date(data.updated_at),
-            items: data.nftItems
-          }
-        })
-      );
-      const onlyBalancesData = { ...restData, items: data.balanceItems };
-      dispatch(processLoadedEvmAssetsAction({ publicKeyHash, chainId, data: onlyBalancesData }));
-      dispatch(
-        processLoadedEvmAssetsBalancesAction({
-          publicKeyHash,
-          chainId,
-          data: onlyBalancesData
-        })
-      );
-      dispatch(processLoadedEvmExchangeRatesAction({ chainId, data: onlyBalancesData, timestamp }));
-      setLoadingApi(chainId, false);
-    },
+  const handleApiSuccess = useMemo(
+    () => makeOnEtherlinkApiSuccess(publicKeyHash, setLoadingApi),
     [publicKeyHash, setLoadingApi]
   );
   const handleOnchainSuccess = useCallback(
