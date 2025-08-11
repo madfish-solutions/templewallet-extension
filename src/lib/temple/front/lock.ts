@@ -2,21 +2,28 @@
 
 import browser from 'webextension-polyfill';
 
+import { SHOULD_BACKUP_MNEMONIC_STORAGE_KEY } from 'lib/constants';
 import { getLockUpTimeout } from 'lib/lock-up';
+import { fetchFromStorage } from 'lib/storage';
 
 export const CLOSURE_STORAGE_KEY = 'last-page-closure-timestamp';
 
 const isSinglePageOpened = () => getOpenedTemplePagesN() === 1;
 
-export async function getShouldBeLockedOnStartup() {
+export async function getShouldBeLockedOnStartup(didMount: boolean) {
   if (!isSinglePageOpened()) {
     return false;
   }
 
   const closureTimestamp = Number(localStorage.getItem(CLOSURE_STORAGE_KEY));
-  const autoLockTime = await getLockUpTimeout();
+  const [shouldBackupMnemonic, autoLockTime] = await Promise.all([
+    fetchFromStorage<boolean>(SHOULD_BACKUP_MNEMONIC_STORAGE_KEY).catch(() => false),
+    getLockUpTimeout()
+  ]);
 
-  return closureTimestamp ? Date.now() - closureTimestamp >= autoLockTime : false;
+  const shouldLockByTimeout = closureTimestamp && Date.now() - closureTimestamp >= autoLockTime;
+
+  return shouldLockByTimeout || (!didMount && shouldBackupMnemonic);
 }
 
 document.addEventListener(
