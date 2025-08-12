@@ -458,6 +458,7 @@ export const configureAds = async () => {
     typeof window === 'undefined' ? undefined : await getDApp(TempleChainKind.EVM, window.location.origin);
   const chainId = dAppSession?.chainId ?? 1;
   originalConfigureAds({
+    hypelabPropertySlug: EnvVars.HYPELAB_EXTERNAL_PROPERTY_SLUG,
     adsTwWindowUrl: EnvVars.HYPELAB_ADS_WINDOW_URL,
     swapTkeyUrl,
     tkeyInpageAdUrl,
