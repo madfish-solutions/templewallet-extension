@@ -155,6 +155,7 @@ function useChains<T extends OneOfChains>(
         nameI18nKey,
         rpc: activeRpc,
         disabled: specs?.disabled,
+        disabledAutomatically: specs?.disabledAutomatically,
         allRpcs: networks as T['allRpcs'],
         allBlockExplorers: chainBlockExplorers,
         activeBlockExplorer:

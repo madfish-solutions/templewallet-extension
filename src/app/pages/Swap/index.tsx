@@ -52,7 +52,7 @@ const Swap = memo<Props>(() => {
       ? { chainKind: chainKindTo, chainId: chainIdTo, assetSlug: assetSlugTo }
       : undefined;
 
-  const [slippageTolerance, setSlippageTolerance] = useStorage(SWAP_SLIPPAGE_TOLERANCE_STORAGE_KEY, 0.5);
+  const [slippageTolerance, setSlippageTolerance] = useStorage<number>(SWAP_SLIPPAGE_TOLERANCE_STORAGE_KEY, 0.5);
 
   const accountEvmAddress = useAccountAddressForEvm();
   const accountTezosAddress = useAccountAddressForTezos();

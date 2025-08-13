@@ -17,7 +17,7 @@ const useSpecs = <T extends TezosChainSpecs | EvmChainSpecs>(storageKey: string,
   const totalSpecs = useMemo(() => ({ ...defaultSpecs, ...storedSpecs }), [defaultSpecs, storedSpecs]);
   const setSpecs = useCallback(
     (newSpecs: OptionalRecord<T> | ((prevSpecs: OptionalRecord<T>) => OptionalRecord<T>)) =>
-      setStoredSpecs(prevSpecs => {
+      setStoredSpecs((_, prevSpecs) => {
         const prevSpecsWithDefault = { ...defaultSpecs, ...prevSpecs };
 
         return typeof newSpecs === 'function' ? newSpecs(prevSpecsWithDefault) : newSpecs;

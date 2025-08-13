@@ -14,14 +14,14 @@ import s from './ChangelogOverlay.module.css';
 import { ChangelogOverlaySelectors } from './ChangelogOverlay.selectors';
 
 export const ChangelogOverlay: FC = () => {
-  const { popup } = useAppEnv();
+  const { fullPage } = useAppEnv();
   const { ready } = useTempleClient();
   const [lastShownVersion, setLastShownVersion] = useStorage(`last_shown_changelog_version`, APP_VERSION);
 
   const handleContinue = () => {
     setLastShownVersion(APP_VERSION);
   };
-  const popupClassName = popup ? 'inset-0' : 'top-1/2 left-1/2 transform -translate-y-1/2 -translate-x-1/2 p-12';
+  const popupClassName = fullPage ? 'top-1/2 left-1/2 transform -translate-y-1/2 -translate-x-1/2 p-12' : 'inset-0';
 
   const isNewerVersion = changelogData.find(e => e.version === APP_VERSION);
   if (!isNewerVersion) {
@@ -39,13 +39,13 @@ export const ChangelogOverlay: FC = () => {
           className={classNames(
             'bg-white shadow-lg relative',
             s.overlay_scrollbar,
-            popup ? 'pt-12 px-8' : 'pt-16 rounded-md'
+            fullPage ? 'pt-16 rounded-md' : 'pt-12 px-8'
           )}
           style={{
             backgroundColor: `#FFF2E6`,
-            minHeight: popup ? '100vh' : 200,
-            maxHeight: popup ? '100vh' : 'calc(100vh - 96px)',
-            paddingBottom: popup ? 104 : 160
+            minHeight: fullPage ? 200 : '100vh',
+            maxHeight: fullPage ? 'calc(100vh - 96px)' : '100vh',
+            paddingBottom: fullPage ? 160 : 104
           }}
         >
           <div className={classNames('flex flex-col max-w-sm mx-auto w-full')}>
@@ -72,10 +72,10 @@ export const ChangelogOverlay: FC = () => {
             <div
               className={classNames(s.overlay_ok_container)}
               style={{
-                height: popup ? 104 : 90,
-                bottom: popup ? 0 : 48,
-                left: popup ? 16 : 32,
-                right: popup ? 16 : 32
+                height: fullPage ? 90 : 104,
+                bottom: fullPage ? 48 : 0,
+                left: fullPage ? 32 : 16,
+                right: fullPage ? 32 : 16
               }}
             >
               <Button
@@ -86,7 +86,7 @@ export const ChangelogOverlay: FC = () => {
                 onClick={handleContinue}
                 testID={ChangelogOverlaySelectors.continueButton}
                 style={{
-                  width: popup ? 270 : 384
+                  width: fullPage ? 384 : 270
                 }}
               >
                 <T id="okGotIt" />

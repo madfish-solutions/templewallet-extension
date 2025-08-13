@@ -2,7 +2,6 @@ import React, { memo, useEffect } from 'react';
 
 import { useAccountsInitializedSync } from 'app/hooks/use-accounts-initialized-sync';
 import { useAdsImpressionsLinking } from 'app/hooks/use-ads-impressions-linking';
-import { useAdvertisingLoading } from 'app/hooks/use-advertising.hook';
 import { useAssetsMigrations } from 'app/hooks/use-assets-migrations';
 import { useCollectiblesDetailsLoading } from 'app/hooks/use-collectibles-details-loading';
 import { useConversionTracking } from 'app/hooks/use-conversion-tracking';
@@ -32,6 +31,7 @@ import { AppEvmTokensMetadataLoading } from './evm/tokens-metadata-loading';
 import { AppTezosTokensMetadataLoading } from './metadata-loading';
 import { useChainIDsCheck } from './use-chain-ids-check';
 import { useDisableInactiveNetworks } from './use-disable-inactive-networks';
+import { useEnableAutodisabledNetworks } from './use-enable-autodisabled-networks';
 
 export const AppRootHooks = memo(() => {
   const { ready } = useTempleClient();
@@ -54,7 +54,6 @@ const AppReadyRootHooks = memo(() => {
   useMetadataRefresh();
 
   useLongRefreshLoading();
-  useAdvertisingLoading();
   useTokensApyLoading();
 
   useEffect(() => {
@@ -71,6 +70,7 @@ const AppReadyRootHooks = memo(() => {
   useUserIdAccountPkhSync();
   useAccountsInitializedSync();
   useDisableInactiveNetworks();
+  useEnableAutodisabledNetworks();
 
   const tezosAddress = useAccountAddressForTezos();
   const evmAddress = useAccountAddressForEvm();

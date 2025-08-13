@@ -29,6 +29,7 @@ export interface ChainBase {
   name: string;
   nameI18nKey?: TID;
   disabled?: boolean;
+  disabledAutomatically?: boolean;
   allBlockExplorers: BlockExplorer[];
   activeBlockExplorer?: BlockExplorer;
   testnet?: boolean;
