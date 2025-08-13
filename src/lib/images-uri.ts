@@ -2,14 +2,9 @@ import { uniq } from 'lodash';
 
 import { isTruthy } from 'lib/utils';
 
+import chainIdsMapping from './chain-id-to-image-chain-name.json';
 import { EvmAssetStandard } from './evm/types';
 import type { TokenMetadata, EvmAssetMetadataBase, EvmCollectibleMetadata } from './metadata/types';
-import {
-  ETHEREUM_MAINNET_CHAIN_ID,
-  ETH_SEPOLIA_CHAIN_ID,
-  COMMON_MAINNET_CHAIN_IDS,
-  COMMON_TESTNET_CHAIN_IDS
-} from './temple/types';
 
 type TcInfraMediaSize = 'small' | 'medium' | 'large' | 'raw';
 type ObjktMediaTail = 'display' | 'artifact' | 'thumb288';
@@ -177,64 +172,7 @@ const buildIpfsMediaUriByInfo = (
   return;
 };
 
-const chainIdsChainNamesRecord: Record<number, string> = {
-  [ETHEREUM_MAINNET_CHAIN_ID]: 'ethereum',
-  [ETH_SEPOLIA_CHAIN_ID]: 'sepolia',
-  [COMMON_MAINNET_CHAIN_IDS.polygon]: 'polygon',
-  [COMMON_MAINNET_CHAIN_IDS.bsc]: 'smartchain',
-  [COMMON_TESTNET_CHAIN_IDS.bsc]: 'bnbt',
-  [COMMON_MAINNET_CHAIN_IDS.avalanche]: 'avalanchex',
-  [COMMON_TESTNET_CHAIN_IDS.avalanche]: 'avalanchecfuji',
-  [COMMON_MAINNET_CHAIN_IDS.optimism]: 'optimism',
-  42170: 'arbitrumnova',
-  1313161554: 'aurora',
-  81457: 'blast',
-  168587773: 'blastsepolia',
-  288: 'boba',
-  42220: 'celo',
-  61: 'classic',
-  25: 'cronos',
-  2000: 'dogechain',
-  250: 'fantom',
-  314: 'filecoin',
-  1666600000: 'harmony',
-  13371: 'immutablezkevm',
-  2222: 'kavaevm',
-  8217: 'klaytn',
-  59144: 'linea',
-  957: 'lyra',
-  169: 'manta',
-  5000: 'mantle',
-  1088: 'metis',
-  34443: 'mode',
-  1284: 'moonbeam',
-  7700: 'nativecanto',
-  204: 'opbnb',
-  11297108109: 'palm',
-  424: 'pgn',
-  1101: 'polygonzkevm',
-  369: 'pulsechain',
-  1380012617: 'rari',
-  1918988905: 'raritestnet',
-  17001: 'redstoneholesky',
-  534352: 'scroll',
-  100: 'xdai',
-  324: 'zksync',
-  787: 'acalaevm',
-  [COMMON_MAINNET_CHAIN_IDS.arbitrum]: 'arbitrum',
-  [COMMON_MAINNET_CHAIN_IDS.base]: 'base',
-  321: 'kcc',
-  4200: 'merlin',
-  82: 'meter',
-  1285: 'moonriver',
-  66: 'okc',
-  2020: 'ronin',
-  100009: 'vechain',
-  7000: 'zetachain',
-  48900: 'zircuit',
-  32769: 'zilliqa',
-  [COMMON_MAINNET_CHAIN_IDS.etherlink]: 'etherlink'
-};
+const chainIdsChainNamesRecord = chainIdsMapping as Record<string, string>;
 
 const rainbowBaseUrl = 'https://raw.githubusercontent.com/rainbow-me/assets/master/blockchains/';
 const llamaoBaseUrl = 'https://icons.llamao.fi/icons/chains/';
@@ -251,7 +189,7 @@ const getImageUrl = (source: NativeIconSource, chainName: string) => {
 };
 
 export const getEvmNativeAssetIcon = (chainId: number, size?: number, source: NativeIconSource = 'rainbow') => {
-  const chainName = chainIdsChainNamesRecord[chainId];
+  const chainName = chainIdsChainNamesRecord[chainId.toString()];
   if (!chainName) return null;
 
   const imageUrl = getImageUrl(source, chainName);
@@ -266,7 +204,7 @@ const getEvmCustomChainIconUrl = (
   metadata: EvmAssetMetadataBase,
   nativeIconSource: NativeIconSource = 'rainbow'
 ) => {
-  const chainName = chainIdsChainNamesRecord[chainId];
+  const chainName = chainIdsChainNamesRecord[chainId.toString()];
 
   if (!chainName) return null;
 

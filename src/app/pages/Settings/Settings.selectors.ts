@@ -8,7 +8,7 @@ export enum SettingsSelectors {
   networksButton = 'Settings/Networks Button',
   removeAccountButton = 'Settings/Remove Account Button',
   aboutButton = 'Settings/About Button',
-  accountsManagementButton = 'Settings/Accounts Management Button',
+  accountManagementButton = 'Settings/Account Management Button',
   advancedFeaturesButton = 'Settings/Advanced Features Button',
   securityAndPrivacyButton = 'Settings/Security and Privacy Button',
   passwordInput = 'Settings/Password Input',

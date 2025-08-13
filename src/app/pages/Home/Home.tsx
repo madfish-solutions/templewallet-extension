@@ -11,15 +11,12 @@ import { useInitToastMessage } from 'lib/temple/front/toasts-context';
 import { HistoryAction, navigate } from 'lib/woozie';
 
 import { CollectiblesTab } from '../Collectibles/CollectiblesTab';
-import { useOnboardingProgress } from '../Onboarding/hooks/useOnboardingProgress.hook';
-import Onboarding from '../Onboarding/Onboarding';
 
 import { TokensTab } from './OtherComponents/Tokens/Tokens';
 import { TotalEquityBanner } from './OtherComponents/TotalEquityBanner';
 
 const Home = memo(() => {
   const [tabSlug] = useLocationSearchParamValue('tab');
-  const { onboardingCompleted } = useOnboardingProgress();
 
   const [initToastMessage, setInitToastMessage] = useInitToastMessage();
 
@@ -36,8 +33,6 @@ const Home = memo(() => {
 
   const onTokensTabClick = useCallback(() => navigate({ search: 'tab=tokens' }, HistoryAction.Replace), []);
   const onCollectiblesTabClick = useCallback(() => navigate({ search: 'tab=collectibles' }, HistoryAction.Replace), []);
-
-  if (!onboardingCompleted) return <Onboarding />;
 
   return (
     <PageLayout Header={AppHeader} contentPadding={false}>

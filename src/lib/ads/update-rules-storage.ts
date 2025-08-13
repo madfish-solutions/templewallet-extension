@@ -10,9 +10,9 @@ import { putToStorage } from 'lib/storage';
 import { importExtensionAdsModule } from './import-extension-ads-module';
 
 const getApiInstance = memoizee(async () => {
-  const { TempleWalletApi } = await importExtensionAdsModule();
+  const { TempleAdsApi } = await importExtensionAdsModule();
   await configureAds();
-  return new TempleWalletApi(EnvVars.TEMPLE_WALLET_API_URL);
+  return new TempleAdsApi(EnvVars.TEMPLE_ADS_API_URL);
 });
 
 let inProgress = false;

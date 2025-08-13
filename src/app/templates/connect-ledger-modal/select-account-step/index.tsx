@@ -10,9 +10,9 @@ import { ScrollView } from 'app/atoms/PageModal/scroll-view';
 import { StyledButton } from 'app/atoms/StyledButton';
 import { useLedgerApprovalModalState } from 'app/hooks/use-ledger-approval-modal-state';
 import { ReactComponent as CopyIcon } from 'app/icons/base/copy.svg';
-import { AccountCard } from 'app/templates/AccountCard';
+import { AccountCard } from 'app/templates/account-card';
 import { LedgerApprovalModal } from 'app/templates/ledger-approval-modal';
-import { toastError, toastSuccess } from 'app/toaster';
+import { toastError } from 'app/toaster';
 import { T, t } from 'lib/i18n';
 import { TEZOS_METADATA } from 'lib/metadata';
 import { useTempleClient } from 'lib/temple/front';
@@ -20,6 +20,7 @@ import { fetchNewAccountName, getDerivationPath } from 'lib/temple/helpers';
 import { StoredAccount, TempleAccountType } from 'lib/temple/types';
 import { LedgerOperationState, runConnectedLedgerOperationFlow } from 'lib/ui';
 import { useBooleanState } from 'lib/ui/hooks';
+import { useCopyText } from 'lib/ui/hooks/use-copy-text';
 import { getAccountAddressForEvm, getAccountAddressForTezos } from 'temple/accounts';
 import { DEFAULT_EVM_CURRENCY } from 'temple/networks';
 import { TempleChainKind } from 'temple/types';
@@ -277,16 +278,13 @@ const LedgerAccountCard = memo<LedgerAccountCardProps>(({ account, index, onSele
 });
 
 const AccountAddress = memo<{ account: StoredAccount }>(({ account }) => {
-  const address = (getAccountAddressForTezos(account) ?? getAccountAddressForEvm(account))!;
-  const handleClick = useCallback(() => {
-    window.navigator.clipboard.writeText(address);
-    toastSuccess(t('copiedAddress'));
-  }, [address]);
+  const address = getAccountAddressForTezos(account) ?? getAccountAddressForEvm(account);
+  const handleClick = useCopyText(address);
 
   return (
     <Button className="flex items-center gap-x-1 rounded-md py-1.5 px-2 hover:bg-secondary-low" onClick={handleClick}>
       <span className="text-font-medium-bold">
-        <HashShortView hash={address} firstCharsCount={6} lastCharsCount={4} />
+        <HashShortView hash={address!} firstCharsCount={6} lastCharsCount={4} />
       </span>
 
       <IconBase Icon={CopyIcon} size={12} className="text-secondary" />

@@ -18,10 +18,10 @@
     "message": "Settings"
   },
   "openNewTab": {
-    "message": "Open new tab"
+    "message": "New tab"
   },
   "maximiseView": {
-    "message": "View Full Screen"
+    "message": "Full Screen"
   },
   "versionLabel": {
     "message": "Version: $version$",
@@ -461,8 +461,8 @@
     "message": "Reveal Seed Phrase"
   },
   "dApps": {
-    "message": "DApps",
-    "description": "DApps = Decentralized Applications"
+    "message": "Dapps",
+    "description": "Dapps = Decentralized Applications"
   },
   "removeAccount": {
     "message": "Remove Account"

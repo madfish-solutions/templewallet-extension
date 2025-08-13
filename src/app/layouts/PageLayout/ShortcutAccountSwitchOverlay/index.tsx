@@ -9,7 +9,7 @@ import { AccLabel } from 'app/atoms/AccLabel';
 import { EmptyState } from 'app/atoms/EmptyState';
 import { useAccountSelectShortcut } from 'app/hooks/use-account-select-shortcut';
 import { useModalScrollLock } from 'app/hooks/use-modal-scroll-lock';
-import { AccountsManagementSelectors } from 'app/templates/AccountsManagement/selectors';
+import { AccountManagementSelectors } from 'app/templates/AccountsManagement/selectors';
 import { SearchBarField } from 'app/templates/SearchField';
 import { searchHotkey } from 'lib/constants';
 import { T, t } from 'lib/i18n';
@@ -148,7 +148,7 @@ export const ShortcutAccountSwitchOverlay = memo(() => {
                 className={'focus:outline-none focus:ring-0 focus:border-transparent'}
                 placeholder={t('searchAccount', [searchHotkey])}
                 onValueChange={handleSearchValueChange}
-                testID={AccountsManagementSelectors.searchField}
+                testID={AccountManagementSelectors.searchField}
                 onCleanButtonClick={handleCleanButtonClick}
               />
             </div>

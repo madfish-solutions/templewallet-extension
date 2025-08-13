@@ -38,8 +38,6 @@ export { SyncSpinner } from './SyncSpinner';
 
 export { NoSpaceField } from './NoSpaceField';
 
-export { Stepper } from './Stepper/Stepper';
-
 export { PageTitle } from './PageTitle';
 
 export { default as AccountTypeBadge } from './AccountTypeBadge';

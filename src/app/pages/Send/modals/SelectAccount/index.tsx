@@ -16,9 +16,9 @@ import {
   AccountsGroupProps as GenericAccountsGroupProps
 } from 'app/templates/AccountsGroup';
 import { SearchBarField } from 'app/templates/SearchField';
-import { toastSuccess } from 'app/toaster';
-import { t, T } from 'lib/i18n';
+import { T } from 'lib/i18n';
 import { TempleContact } from 'lib/temple/types';
+import { useCopyText } from 'lib/ui/hooks/use-copy-text';
 import { useScrollIntoViewOnMount } from 'lib/ui/use-scroll-into-view';
 import { searchAndFilterItems } from 'lib/utils/search-items';
 import { getAccountAddressForEvm, getAccountAddressForTezos } from 'temple/accounts';
@@ -233,14 +233,7 @@ interface AddressProps {
 }
 
 const Address = memo<AddressProps>(({ address }) => (
-  <div
-    className="flex flex-row items-center p-0.5 cursor-pointer"
-    onClick={e => {
-      e.stopPropagation();
-      window.navigator.clipboard.writeText(address);
-      toastSuccess(t('copiedAddress'));
-    }}
-  >
+  <div className="flex flex-row items-center p-0.5 cursor-pointer" onClick={useCopyText(address, true)}>
     <span className="text-font-description text-grey-1 group-hover:text-secondary">
       <HashShortView hash={address} />
     </span>

@@ -22,7 +22,7 @@ import { navigate } from 'lib/woozie';
 import { searchAndFilterAccounts, useAccountsGroups, useCurrentAccountId, useVisibleAccounts } from 'temple/front';
 import { useSetAccountId } from 'temple/front/ready';
 
-import { AccountCard, AccountCardProps } from '../AccountCard';
+import { AccountCard, AccountCardProps } from '../account-card';
 import { ConnectLedgerModal } from '../connect-ledger-modal';
 import { CreateHDWalletModal } from '../CreateHDWalletModal';
 import { ImportAccountModal, ImportOptionSlug } from '../ImportAccountModal';
@@ -152,6 +152,11 @@ export const AccountsModalContent = memo<AccountsModalContentProps>(
       totalClose
     ]);
 
+    const handleSettingsClick = useCallback(() => {
+      onRequestClose();
+      navigate('settings/account-management');
+    }, [onRequestClose]);
+
     return (
       <>
         {submodal}
@@ -175,8 +180,8 @@ export const AccountsModalContent = memo<AccountsModalContentProps>(
               <IconButton
                 Icon={SettingsIcon}
                 color="blue"
-                onClick={() => navigate('settings/accounts-management')}
-                testID={AccountsModalSelectors.accountsManagementButton}
+                onClick={handleSettingsClick}
+                testID={AccountsModalSelectors.accountManagementButton}
               />
 
               <NewWalletActionsPopper
@@ -214,7 +219,7 @@ export const AccountsModalContent = memo<AccountsModalContentProps>(
   }
 );
 
-interface AccountsGroupProps extends Omit<GenericAccountsGroupProps, 'children'> {
+interface AccountsGroupProps extends Omit<GenericAccountsGroupProps, 'children' | 'showGroupType'> {
   currentAccountId: string;
   attractSelectedAccount: boolean;
   searchValue: string;
@@ -223,7 +228,7 @@ interface AccountsGroupProps extends Omit<GenericAccountsGroupProps, 'children'>
 
 const AccountsGroup = memo<AccountsGroupProps>(
   ({ title, accounts, currentAccountId, attractSelectedAccount, searchValue, onAccountSelect }) => (
-    <GenericAccountsGroup title={title} accounts={accounts}>
+    <GenericAccountsGroup title={title} accounts={accounts} showGroupType>
       {account => (
         <AccountOfGroup
           key={account.id}
@@ -238,15 +243,19 @@ const AccountsGroup = memo<AccountsGroupProps>(
   )
 );
 
-const AccountOfGroup = memo<AccountCardProps>(({ onClick, isCurrent, account, ...restProps }) => {
-  const setAccountId = useSetAccountId();
+const AccountOfGroup = memo<Omit<AccountCardProps, 'alwaysShowAddresses' | 'AccountName'>>(
+  ({ onClick, isCurrent, account, ...restProps }) => {
+    const setAccountId = useSetAccountId();
 
-  const handleClick = useCallback(() => {
-    if (isCurrent) return;
+    const handleClick = useCallback(() => {
+      if (isCurrent) return;
 
-    setAccountId(account.id);
-    onClick?.();
-  }, [isCurrent, account.id, onClick, setAccountId]);
+      setAccountId(account.id);
+      onClick?.();
+    }, [isCurrent, account.id, onClick, setAccountId]);
 
-  return <AccountCard {...restProps} account={account} isCurrent={isCurrent} onClick={handleClick} />;
-});
+    return (
+      <AccountCard {...restProps} account={account} isCurrent={isCurrent} alwaysShowAddresses onClick={handleClick} />
+    );
+  }
+);

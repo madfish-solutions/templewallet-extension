@@ -4,7 +4,7 @@ import { RpcClient } from '@taquito/rpc';
 import { createPublicClient, http } from 'viem';
 
 import { useAlert } from 'lib/ui';
-import { OneOfChains, useAllEvmChains, useAllTezosChains } from 'temple/front';
+import { OneOfChains, useEnabledEvmChains, useEnabledTezosChains } from 'temple/front';
 import { TempleChainTitle } from 'temple/types';
 
 /**
@@ -15,7 +15,7 @@ import { TempleChainTitle } from 'temple/types';
  * - Reload page to clear-out all runtime-memoized values by `chainId` + `rpcUrl` key
  */
 export const useChainIDsCheck = () => {
-  const tezosChains = useAllTezosChains();
+  const tezosChains = useEnabledTezosChains();
 
   const customAlert = useAlert();
 
@@ -27,7 +27,7 @@ export const useChainIDsCheck = () => {
           chain.rpcBaseURL
         }) has changed its network. (${chainId} !== ${chain.chainId})`
       }),
-    []
+    [customAlert]
   );
 
   useEffect(() => {
@@ -38,9 +38,9 @@ export const useChainIDsCheck = () => {
         if (chainId !== chain.chainId) handleChainIdMissmatch(chain, chainId);
       });
     }
-  }, [tezosChains]);
+  }, [handleChainIdMissmatch, tezosChains]);
 
-  const evmChains = useAllEvmChains();
+  const evmChains = useEnabledEvmChains();
 
   useEffect(() => {
     for (const chain of Object.values(evmChains)) {
@@ -52,5 +52,5 @@ export const useChainIDsCheck = () => {
         if (chainId !== chain.chainId) handleChainIdMissmatch(chain, chainId);
       });
     }
-  }, [evmChains]);
+  }, [evmChains, handleChainIdMissmatch]);
 };

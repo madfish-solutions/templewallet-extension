@@ -441,8 +441,8 @@
     "message": "显示助记词"
   },
   "dApps": {
-    "message": "DApp",
-    "description": "DApps = Decentralized Applications"
+    "message": "Dapp",
+    "description": "Dapps = Decentralized Applications"
   },
   "removeAccount": {
     "message": "移除账户"

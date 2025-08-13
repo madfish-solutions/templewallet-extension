@@ -5,7 +5,6 @@ import clsx from 'clsx';
 import { FormSubmitButton } from 'app/atoms';
 import { OverlayCloseButton } from 'app/atoms/OverlayCloseButton';
 import { useAppEnv } from 'app/env';
-import { useOnboardingProgress } from 'app/pages/Onboarding/hooks/useOnboardingProgress.hook';
 import { dispatch } from 'app/store';
 import { useShouldShowNewsletterModalSelector } from 'app/store/newsletter/newsletter-selectors';
 import { togglePartnersPromotionAction } from 'app/store/partners-promotion/actions';
@@ -33,7 +32,6 @@ export const ReactivateAdsOverlay = memo<Props>(({ onClose }) => {
   const shouldShowPartnersPromo = useShouldShowPartnersPromoSelector();
   const isPendingReactivateAds = useIsPendingReactivateAdsSelector();
 
-  const { onboardingCompleted } = useOnboardingProgress();
   const shouldShowNewsletterModal = useShouldShowNewsletterModalSelector();
   const onRampAsset = useOnRampAssetSelector();
   const isOnRampPossibility = Boolean(onRampAsset);
@@ -54,11 +52,7 @@ export const ReactivateAdsOverlay = memo<Props>(({ onClose }) => {
   if (
     forcedModal &&
     // Forced showing if pending & no other overlay is opened
-    (!isPendingReactivateAds ||
-      !onboardingCompleted ||
-      shouldShowNewsletterModal ||
-      isOnRampPossibility ||
-      pathname !== HOME_PAGE_PATH)
+    (!isPendingReactivateAds || shouldShowNewsletterModal || isOnRampPossibility || pathname !== HOME_PAGE_PATH)
   )
     return null;
 
