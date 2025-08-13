@@ -231,8 +231,8 @@
     "zip-a-folder": "^3"
   },
   "devDependencies": {
-    "@types/react-window": "^1.8.8",
     "@bigmi/core": "^0.4.2",
+    "@types/react-window": "^1.8.8",
     "fake-indexeddb": "^6.0.0",
     "source-map": "^0.7.4",
     "text-decoding": "^1.0.0"

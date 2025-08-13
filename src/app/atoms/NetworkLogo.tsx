@@ -13,9 +13,11 @@ import PolygonIconSrc from 'app/icons/networks/polygon.svg?url';
 import { t } from 'lib/i18n';
 import { getEvmNativeAssetIcon } from 'lib/images-uri';
 import { ETHEREUM_MAINNET_CHAIN_ID, COMMON_MAINNET_CHAIN_IDS, TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
+import { useMemoWithCompare } from 'lib/ui/hooks';
 import { ImageStacked } from 'lib/ui/ImageStacked';
 import useTippy, { UseTippyOptions } from 'lib/ui/useTippy';
 import { isTruthy } from 'lib/utils';
+import { areStringArraysEqual } from 'lib/utils/are-string-arrays-equal';
 import { useTezosChainByChainId } from 'temple/front';
 import { ChainId, useEvmChainByChainId } from 'temple/front/chains';
 import { TempleChainKind } from 'temple/types';
@@ -72,15 +74,19 @@ interface EvmNetworkLogoProps extends NetworkLogoPropsBase<TempleChainKind.EVM> 
 
 export const EvmNetworkLogo = memo<EvmNetworkLogoProps>(
   ({ chainId, size = 24, chainName, className, imgClassName, withTooltip, tooltipPlacement }) => {
-    const sources = useMemo(() => {
-      const doubleSize = size * 2;
+    const sources = useMemoWithCompare(
+      () => {
+        const doubleSize = size * 2;
 
-      return [
-        logosRecord[chainId],
-        getEvmNativeAssetIcon(chainId, doubleSize, 'llamao'),
-        getEvmNativeAssetIcon(chainId, doubleSize)
-      ].filter(isTruthy);
-    }, [chainId, size]);
+        return [
+          logosRecord[chainId],
+          getEvmNativeAssetIcon(chainId, doubleSize, 'llamao'),
+          getEvmNativeAssetIcon(chainId, doubleSize)
+        ].filter(isTruthy);
+      },
+      [chainId, size],
+      areStringArraysEqual
+    );
 
     const chain = useEvmChainByChainId(chainId);
     const networkName = useMemo(
@@ -116,6 +122,7 @@ export const EvmNetworkLogo = memo<EvmNetworkLogoProps>(
     );
   }
 );
+
 interface NetworkLogoFallbackProps {
   networkName?: string;
   size?: number;

@@ -91,7 +91,7 @@ export const EvmSwapInfoDropdown = ({
           <ListBlockItem Icon={BridgeIcon} title="bridge" divide={false}>
             <div className="flex gap-1 align-center items-center">
               {bridgeDetails.tool?.name}{' '}
-              <img src={bridgeDetails?.tool?.logoURI} className="w-6 h-6" alt="bridge logo" />
+              <img src={bridgeDetails?.tool?.logoURI} className="w-4 h-4 rounded" alt="bridge logo" />
             </div>
           </ListBlockItem>
         )}

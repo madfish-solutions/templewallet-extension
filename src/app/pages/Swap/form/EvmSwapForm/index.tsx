@@ -181,6 +181,14 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
       setValue('input', newInputValue);
       clearErrors('input');
 
+      if (!newInputValue.amount) {
+        setValue('output', {
+          assetSlug: currentFormState.output.assetSlug,
+          chainId: currentFormState.output.chainId,
+          amount: undefined
+        });
+      }
+
       if (
         newInputValue.assetSlug === currentFormState.output.assetSlug &&
         newInputValue.chainId === currentFormState.output.chainId
@@ -327,16 +335,23 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
   );
 
   useEffect(() => {
-    if (swapRoute) {
-      const atomicAmount = atomsToTokens(new BigNumber(swapRoute.toAmount), swapRoute.toToken.decimals);
-      const { isFiatMode, output } = getValues();
-      const formattedAmount = isFiatMode
-        ? atomicAmount.times(outputAssetPrice).decimalPlaces(2, BigNumber.ROUND_FLOOR)
-        : atomicAmount;
+    const { isFiatMode, output } = getValues();
 
-      handleOutputChange({ assetSlug: output.assetSlug, chainId: output.chainId, amount: formattedAmount });
+    if (isRouteLoading) {
+      handleOutputChange({ assetSlug: output.assetSlug, chainId: output.chainId, amount: undefined });
+      return;
     }
-  }, [getValues, handleOutputChange, outputAssetPrice, swapRoute]);
+
+    if (!swapRoute) return;
+
+    const atomicAmount = atomsToTokens(new BigNumber(swapRoute.toAmount), swapRoute.toToken.decimals);
+
+    const formattedAmount = isFiatMode
+      ? atomicAmount.times(outputAssetPrice).decimalPlaces(2, BigNumber.ROUND_FLOOR)
+      : atomicAmount;
+
+    handleOutputChange({ assetSlug: output.assetSlug, chainId: output.chainId, amount: formattedAmount });
+  }, [getValues, handleOutputChange, isRouteLoading, outputAssetPrice, swapRoute]);
 
   const inputTokenMaxAmount = useMemo(() => {
     if (!inputValue.assetSlug || !inputTokenBalance) return ZERO;
