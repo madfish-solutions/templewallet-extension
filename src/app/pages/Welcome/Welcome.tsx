@@ -5,7 +5,6 @@ import { Lines } from 'app/atoms/Lines';
 import { PageModal } from 'app/atoms/PageModal';
 import { SocialButton } from 'app/atoms/SocialButton';
 import { StyledButton } from 'app/atoms/StyledButton';
-import { SuspenseContainer } from 'app/atoms/SuspenseContainer';
 import { useABTestingLoading } from 'app/hooks/use-ab-testing-loading';
 import { useShouldShowV2IntroModal } from 'app/hooks/use-should-show-v2-intro-modal';
 import { ReactComponent as ImportedIcon } from 'app/icons/base/imported.svg';
@@ -184,6 +183,38 @@ const Welcome = memo(() => {
     []
   );
 
+  const modalContent = useMemo(() => {
+    switch (stage) {
+      case WalletCreationStage.GoogleAuth:
+        return <GoogleAuth onMissingBackup={handleReadGoogleBackup} onBackupContent={goToBackupReading} />;
+      case WalletCreationStage.GoogleBackupReading:
+        return <DecryptBackup next={handleReadGoogleBackup} backupContent={walletCreationState.backupContent} />;
+      case WalletCreationStage.GoogleBackupStatus:
+        return (
+          <GoogleBackupStatusModalContent
+            {...walletCreationState}
+            onSuccess={handleBackupSuccess}
+            onFinish={handleBackupFinish}
+          />
+        );
+      case WalletCreationStage.ManualImport:
+        return <ImportSeedForm next={handleSeedPhraseSubmit} />;
+      case WalletCreationStage.CreatePassword:
+        return <CreatePasswordForm {...walletCreationState} onNewBackupState={handleNewBackupState} />;
+      default:
+        return <></>;
+    }
+  }, [
+    stage,
+    goToBackupReading,
+    handleBackupFinish,
+    handleBackupSuccess,
+    handleNewBackupState,
+    handleReadGoogleBackup,
+    handleSeedPhraseSubmit,
+    walletCreationState
+  ]);
+
   return (
     <>
       <PageModal
@@ -192,25 +223,7 @@ const Welcome = memo(() => {
         onGoBack={handleGoBack}
         onRequestClose={closeModal}
       >
-        <SuspenseContainer>
-          {stage === WalletCreationStage.GoogleAuth && (
-            <GoogleAuth onMissingBackup={handleReadGoogleBackup} onBackupContent={goToBackupReading} />
-          )}
-          {stage === WalletCreationStage.GoogleBackupReading && (
-            <DecryptBackup next={handleReadGoogleBackup} backupContent={walletCreationState.backupContent} />
-          )}
-          {stage === WalletCreationStage.GoogleBackupStatus && (
-            <GoogleBackupStatusModalContent
-              {...walletCreationState}
-              onSuccess={handleBackupSuccess}
-              onFinish={handleBackupFinish}
-            />
-          )}
-          {stage === WalletCreationStage.ManualImport && <ImportSeedForm next={handleSeedPhraseSubmit} />}
-          {stage === WalletCreationStage.CreatePassword && (
-            <CreatePasswordForm {...walletCreationState} onNewBackupState={handleNewBackupState} />
-          )}
-        </SuspenseContainer>
+        {modalContent}
       </PageModal>
 
       <PlanetsBgPageLayout containerClassName="pb-8">

@@ -88,7 +88,11 @@ export function usePassiveStorage<T = any>(key: string, fallback?: T) {
 function onStorageChanged<T = any>(key: string, callback: (newValue: T) => void) {
   const handleChanged = ((changes: { [s: string]: Storage.StorageChange }) => {
     if (key in changes) {
-      callback(changes[key].newValue as any);
+      // onChanged reports newValue === undefined when a key is removed.
+      // Our fetcher uses null to mean “missing”, so normalize to null here.
+      // This keeps SWR (with suspense) from re-suspending on storage.clear(),
+      // preventing transient unmount/remount (e.g., modal flicker) during resets.
+      callback(changes[key].newValue ?? null);
     }
   }) as unknown as (changes: Storage.StorageAreaOnChangedChangesType) => void;
 

@@ -3,7 +3,6 @@ import React, { memo, useCallback, useLayoutEffect, useMemo } from 'react';
 import { generateMnemonic } from 'bip39';
 import clsx from 'clsx';
 import { Controller, useForm } from 'react-hook-form';
-import { useDispatch } from 'react-redux';
 
 import { Alert, FormField, PASSWORD_ERROR_CAPTION } from 'app/atoms';
 import { SettingsCheckbox } from 'app/atoms/SettingsCheckbox';
@@ -11,6 +10,7 @@ import { StyledButton } from 'app/atoms/StyledButton';
 import { TextButton } from 'app/atoms/TextButton';
 import { ValidationLabel } from 'app/atoms/ValidationLabel';
 import { PASSWORD_PATTERN, PasswordValidation, formatMnemonic, passwordValidationRegexes } from 'app/defaults';
+import { dispatch } from 'app/store';
 import { togglePartnersPromotionAction } from 'app/store/partners-promotion/actions';
 import {
   setIsAnalyticsEnabledAction,
@@ -69,8 +69,6 @@ export const CreatePasswordForm = memo<CreatePasswordFormProps>(
     const { trackEvent } = useAnalytics();
     const [, setInitToast] = useInitToastMessage();
     const [backupPasswordUsed, goToBackupPassword, goToCustomPassword] = useBooleanState(false);
-
-    const dispatch = useDispatch();
 
     const { control, watch, register, handleSubmit, errors, triggerValidation, formState, setValue, reset } =
       useForm<FormData>({
@@ -161,7 +159,6 @@ export const CreatePasswordForm = memo<CreatePasswordFormProps>(
       },
       [
         submitting,
-        dispatch,
         registerWallet,
         backupPassword,
         googleAuthToken,

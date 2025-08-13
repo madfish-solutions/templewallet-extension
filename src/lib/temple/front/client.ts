@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import constate from 'constate';
 import { omit } from 'lodash';
@@ -20,6 +20,7 @@ import {
   EvmTransactionRequestWithSender,
   SaveLedgerAccountInput
 } from 'lib/temple/types';
+import { useDidMount } from 'lib/ui/hooks';
 import { DEFAULT_PROMISES_QUEUE_COUNTERS } from 'lib/utils';
 import type { EvmChain } from 'temple/front';
 import {
@@ -46,6 +47,9 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
    * State
    */
 
+  const didMountRef = useRef(false);
+  useDidMount(() => void (didMountRef.current = true));
+
   const fetchState = useCallback(async () => {
     const res = await makeIntercomRequest({ type: TempleMessageType.GetStateRequest });
     assertResponse(res.type === TempleMessageType.GetStateResponse);
@@ -54,7 +58,7 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
       return { state: res.state, shouldLockOnStartup: false };
     }
 
-    const isLocked = await getShouldBeLockedOnStartup();
+    const isLocked = await getShouldBeLockedOnStartup(didMountRef.current);
 
     return {
       state: isLocked
