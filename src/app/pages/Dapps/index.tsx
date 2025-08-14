@@ -28,6 +28,9 @@ const FIRE_ANIMATION_OPTIONS = {
   }
 } as const;
 
+const TRANSITION_CLASSNAMES = 'transition-all duration-300 ease-in-out';
+const HIDDEN_OFFSCREEN_CLASSNAMES = 'h-0 opacity-0 overflow-hidden pointer-events-none';
+
 export const Dapps: FC = () => {
   const [searchValue, setSearchValue] = useState('');
   const [selectedTags, setSelectedTags] = useState<DappEnum[]>([]);
@@ -70,9 +73,11 @@ export const Dapps: FC = () => {
 
           <div
             className={clsx(
-              'flex flex-wrap gap-2 transition-all duration-300 ease-in-out',
-              inSearch ? 'h-0 mb-0 opacity-0' : 'h-[58px] mb-4 opacity-100'
+              'flex flex-wrap gap-2',
+              TRANSITION_CLASSNAMES,
+              inSearch ? clsx('mb-0', HIDDEN_OFFSCREEN_CLASSNAMES) : 'mb-4 h-[58px] opacity-100'
             )}
+            aria-hidden={inSearch}
           >
             {TAGS.map(tag => (
               <Tag key={tag} name={tag} onClick={handleTagClick} selected={selectedTags.includes(tag)} />
@@ -81,9 +86,10 @@ export const Dapps: FC = () => {
 
           <div
             className={clsx(
-              'transition-all duration-300 ease-in-out',
-              shouldIncludeFeatured ? 'h-0 opacity-0' : 'h-[164px] opacity-100'
+              TRANSITION_CLASSNAMES,
+              shouldIncludeFeatured ? HIDDEN_OFFSCREEN_CLASSNAMES : 'h-[164px] opacity-100'
             )}
+            aria-hidden={shouldIncludeFeatured}
           >
             <div className="flex justify-start items-center gap-x-1 mb-1">
               <Lottie
