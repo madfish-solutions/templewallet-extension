@@ -1,13 +1,13 @@
-import React, { memo, useCallback } from 'react';
+import React, { memo } from 'react';
 
 import clsx from 'clsx';
 
 import { IconButton } from 'app/atoms/IconButton';
 import { ReactComponent as CopyIcon } from 'app/icons/base/copy.svg';
 import { ReactComponent as QrCodeIcon } from 'app/icons/base/qr_code.svg';
-import { toastSuccess } from 'app/toaster';
-import { t, T } from 'lib/i18n';
+import { T } from 'lib/i18n';
 import { useBooleanState } from 'lib/ui/hooks';
+import { useCopyText } from 'lib/ui/hooks/use-copy-text';
 
 import { useCryptoExchangeDataState } from '../../../context';
 
@@ -22,10 +22,7 @@ export const DepositAddressBlock = memo<Props>(({ className }) => {
 
   const [isQrCodeModalOpened, openQrCodeModal, closeQrCodeModal] = useBooleanState(false);
 
-  const handleCopyButtonClick = useCallback(() => {
-    window.navigator.clipboard.writeText(exchangeData!.depositAddress);
-    toastSuccess(t('copiedAddress'));
-  }, [exchangeData]);
+  const handleCopyButtonClick = useCopyText(exchangeData?.depositAddress);
 
   if (!exchangeData) return null;
 

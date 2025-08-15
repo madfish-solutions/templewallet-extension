@@ -8,8 +8,9 @@ import { loadEvmChainId } from 'temple/evm';
 import { getViemChainsList } from 'temple/evm/utils';
 import { loadTezosChainId } from 'temple/tezos';
 
+import { makeFormValues } from '../utils';
+
 import { ViemChain } from './types';
-import { makeFormValues } from './utils';
 
 export const useRpcSuggestedFormValues = (rpcUrl: string, rpcUrlsToExclude: string[]) => {
   const [rpcUrlDebounced] = useDebounce(rpcUrl, 500);

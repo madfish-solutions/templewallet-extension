@@ -20,9 +20,8 @@
   "maximiseView": {
     "message": "Збільшити огляд"
   },
-  "connectedDApps": {
-    "message": "Підключені Dapp`ки",
-    "description": "Dapps = децентралізовані додатки"
+  "connections": {
+    "message": "Підключення"
   },
   "versionLabel": {
     "message": "Версія: $version$",
@@ -454,8 +453,8 @@
     "message": "Розкрийте Сід Фразу"
   },
   "dApps": {
-    "message": "DApps",
-    "description": "DApps = Decentralized Applications"
+    "message": "Dapps",
+    "description": "Dapps = Decentralized Applications"
   },
   "removeAccount": {
     "message": "Видалити Аккаунт"

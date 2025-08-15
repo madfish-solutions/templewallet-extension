@@ -17,8 +17,9 @@ import { useEvmChainsSpecs, useTezosChainsSpecs } from 'temple/front/use-chains-
 import { loadTezosChainId } from 'temple/tezos';
 import { TempleChainKind } from 'temple/types';
 
+import { NUMERIC_CHAIN_ID_REGEX, makeFormValues } from '../utils';
+
 import { AddNetworkFormValues, ViemChain } from './types';
-import { NUMERIC_CHAIN_ID_REGEX, makeFormValues } from './utils';
 
 export const useAddNetwork = (
   setSubmitError: SyncFn<string>,

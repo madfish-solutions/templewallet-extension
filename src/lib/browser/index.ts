@@ -3,8 +3,6 @@ import browserDefault from 'webextension-polyfill';
 
 import { IS_CHROMIUM_BROWSER, IS_FIREFOX, IS_MISES_BROWSER } from 'lib/env';
 
-export { isBrowserVersionSafe } from './info';
-
 export const browser = browserDefault as Browser & {
   storage: { session?: Storage.LocalStorageArea };
 };

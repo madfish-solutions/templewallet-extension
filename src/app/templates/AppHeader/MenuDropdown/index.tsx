@@ -12,6 +12,7 @@ import {
   useAppEnv
 } from 'app/env';
 import { useShortcutAccountSelectModalIsOpened } from 'app/hooks/use-account-select-shortcut';
+import { ReactComponent as ExploreIcon } from 'app/icons/base/explore.svg';
 import { ReactComponent as FullViewIcon } from 'app/icons/base/fullview.svg';
 import { ReactComponent as LinkIcon } from 'app/icons/base/link.svg';
 import { ReactComponent as LockIcon } from 'app/icons/base/lock.svg';
@@ -92,11 +93,19 @@ const MenuDropdown = memo<PopperRenderProps>(({ opened, setOpened }) => {
         onClick: closeDropdown
       },
       {
-        key: 'connected-dapps',
+        key: 'connections',
         Icon: LinkIcon,
-        children: <T id="connectedDApps" />,
+        children: <T id="connections" />,
         linkTo: '/settings/dapps',
         testID: MenuDropdownSelectors.connectedDAppsButton,
+        onClick: closeDropdown
+      },
+      {
+        key: 'dapps',
+        Icon: ExploreIcon,
+        children: <T id="dApps" />,
+        linkTo: '/dapps',
+        testID: MenuDropdownSelectors.dappsButton,
         onClick: closeDropdown
       },
       {
@@ -109,7 +118,7 @@ const MenuDropdown = memo<PopperRenderProps>(({ opened, setOpened }) => {
       {
         key: 'lock',
         Icon: LockIcon,
-        children: <T id="lock" />,
+        children: <T id="lockWallet" />,
         testID: MenuDropdownSelectors.logoutButton,
         onClick: lock
       }

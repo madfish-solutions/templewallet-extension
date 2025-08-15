@@ -44,7 +44,11 @@ export const useChainOperations = (chainKind: TempleChainKind, chainId: string |
 
   const setChainEnabled = useCallback(
     (newValue: boolean) =>
-      setChainSpecs((prevSpecs: TezosChainSpecs | EvmChainSpecs) => ({ ...prevSpecs, disabled: !newValue })),
+      setChainSpecs((prevSpecs: TezosChainSpecs | EvmChainSpecs) => ({
+        ...prevSpecs,
+        disabled: !newValue,
+        disabledAutomatically: false
+      })),
     [setChainSpecs]
   );
 

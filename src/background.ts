@@ -4,11 +4,7 @@ import browser from 'webextension-polyfill';
 
 import 'lib/keep-bg-worker-alive/background';
 import { putStoredAppInstallIdentity } from 'app/storage/app-install-id';
-import {
-  getStoredAppUpdateDetails,
-  putStoredAppUpdateDetails,
-  removeStoredAppUpdateDetails
-} from 'app/storage/app-update';
+import { getStoredAppUpdateDetails, putStoredAppUpdateDetails } from 'app/storage/app-update';
 import { updateRulesStorage } from 'lib/ads/update-rules-storage';
 import { SIDE_VIEW_WAS_FORCED_STORAGE_KEY } from 'lib/constants';
 import { EnvVars, IS_GOOGLE_CHROME_BROWSER } from 'lib/env';
@@ -26,10 +22,7 @@ browser.runtime.onInstalled.addListener(({ reason }) => {
 
   if (reason === 'update')
     getStoredAppUpdateDetails().then(details => {
-      if (details) {
-        removeStoredAppUpdateDetails();
-        if (details.triggeredManually) openFullPage();
-      }
+      if (details?.triggeredManually) openFullPage();
     });
 });
 
