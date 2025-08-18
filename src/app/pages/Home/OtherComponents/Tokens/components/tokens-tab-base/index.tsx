@@ -109,7 +109,7 @@ const TokensTabBaseContent: FC<PropsWithChildren<TokensTabBaseContentProps>> = (
   const accountIsInitialized = useIsAccountInitializedSelector(accountId);
   const isSyncingInitializedState = useIsAccountInitializedLoadingSelector(accountId);
 
-  if (accountIsInitialized === false && !isSyncingInitializedState && !isTestnet) {
+  if (accountIsInitialized === false && !isSyncingInitializedState && !isTestnet && !manageActive) {
     return (
       <TokensTabBaseContentWrapper>
         <UninitializedAccountContent />
