@@ -6,7 +6,7 @@ import { FixedSizeList as List, ListChildComponentProps } from 'react-window';
 import { EmptyState } from 'app/atoms/EmptyState';
 import { PageLoader } from 'app/atoms/Loader';
 import { getSlugWithChainId } from 'app/hooks/listing-logic/utils';
-import { ETHERLINK_CHAIN_ID, TOKEN_ITEM_HEIGHT } from 'app/pages/Swap/constants';
+import { TOKEN_ITEM_HEIGHT } from 'app/pages/Swap/constants';
 import { SwapFieldName } from 'app/pages/Swap/form/interfaces';
 import { useFirstValue, useLifiEvmAllTokensSlugs } from 'app/pages/Swap/modals/SwapSelectAsset/hooks';
 import { useLifiEvmTokensMetadataRecordSelector } from 'app/store/evm/swap-lifi-metadata/selectors';
@@ -18,6 +18,7 @@ import { searchEvmTokensWithNoMeta } from 'lib/assets/search.utils';
 import { useEvmAccountTokensSortPredicate } from 'lib/assets/use-sorting';
 import { parseChainAssetSlug, toChainAssetSlug } from 'lib/assets/utils';
 import { useGetEvmTokenBalanceWithDecimals } from 'lib/balances/hooks';
+import { COMMON_MAINNET_CHAIN_IDS } from 'lib/temple/types';
 import { useMemoWithCompare } from 'lib/ui/hooks';
 import { EvmChain, useAllEvmChains, useEnabledEvmChains } from 'temple/front';
 import { useFavoriteTokens } from 'temple/front/use-favorite-tokens';
@@ -53,7 +54,7 @@ export const AllEvmChainsAssetsList = memo<Props>(
         const [, chainId, assetSlug] = parseChainAssetSlug(chainSlug);
 
         // Disable Etherlink
-        if (chainId === ETHERLINK_CHAIN_ID) return false;
+        if (chainId === COMMON_MAINNET_CHAIN_IDS.etherlink) return false;
 
         return isDefined(getEvmBalance(chainId as number, assetSlug));
       },

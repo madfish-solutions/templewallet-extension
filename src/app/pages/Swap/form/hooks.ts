@@ -2,7 +2,6 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { Token } from '@lifi/sdk';
 
-import { ETHERLINK_CHAIN_ID } from 'app/pages/Swap/constants';
 import { dispatch } from 'app/store';
 import {
   putLifiEvmTokensMetadataAction,
@@ -18,10 +17,11 @@ import { toChainAssetSlug, toTokenSlug } from 'lib/assets/utils';
 import { EVM_ZERO_ADDRESS } from 'lib/constants';
 import { EvmAssetStandard } from 'lib/evm/types';
 import { LIFI_SUPPORTED_CHAIN_IDS_INTERVAL } from 'lib/fixed-times';
+import { COMMON_MAINNET_CHAIN_IDS } from 'lib/temple/types';
 import { useEnabledEvmChains } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
 
-const EXCLUDED_CHAIN_IDS = [ETHERLINK_CHAIN_ID];
+const EXCLUDED_CHAIN_IDS = [Number(COMMON_MAINNET_CHAIN_IDS.etherlink)];
 
 export const useFetchSupportedLifiChainIds = () => {
   const lastFetchTime = useLifiEvmMetadataLastFetchTimeSelector();
