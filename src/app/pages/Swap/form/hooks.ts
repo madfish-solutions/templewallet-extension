@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { Token } from '@lifi/sdk';
 
+import { ETHERLINK_CHAIN_ID } from 'app/pages/Swap/constants';
 import { dispatch } from 'app/store';
 import {
   putLifiEvmTokensMetadataAction,
@@ -20,6 +21,8 @@ import { LIFI_SUPPORTED_CHAIN_IDS_INTERVAL } from 'lib/fixed-times';
 import { useEnabledEvmChains } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
 
+const EXCLUDED_CHAIN_IDS = [ETHERLINK_CHAIN_ID];
+
 export const useFetchSupportedLifiChainIds = () => {
   const lastFetchTime = useLifiEvmMetadataLastFetchTimeSelector();
 
@@ -31,7 +34,9 @@ export const useFetchSupportedLifiChainIds = () => {
     dispatch(setLifiMetadataLastFetchTimeAction(Date.now()));
 
     try {
-      const chainIds = await getLifiSupportedChains();
+      let chainIds = await getLifiSupportedChains();
+      chainIds = chainIds.filter(id => !EXCLUDED_CHAIN_IDS.includes(id));
+
       dispatch(putLifiSupportedChainIdsAction(chainIds));
     } catch (err) {
       console.error('Failed to fetch LIFI supported chains:', err);
@@ -64,6 +69,8 @@ export const useFetchLifiEvmTokensSlugs = ({ fromChain, fromToken }: { fromChain
   useEffect(() => {
     if (Object.keys(lifiEvmConnections).length === 0) {
       enabledChains.forEach(chain => {
+        if (EXCLUDED_CHAIN_IDS.includes(chain.chainId)) return;
+
         dispatch(
           putLifiEvmTokensMetadataAction({
             chainId: chain.chainId,
@@ -82,6 +89,7 @@ export const useFetchLifiEvmTokensSlugs = ({ fromChain, fromToken }: { fromChain
       const chainId = Number(chainIdStr);
 
       if (!enabledChainIds.has(chainId)) continue;
+      if (EXCLUDED_CHAIN_IDS.includes(chainId)) continue;
 
       const existingAddresses = new Set();
 

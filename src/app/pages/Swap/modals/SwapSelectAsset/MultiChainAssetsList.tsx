@@ -6,7 +6,7 @@ import { FixedSizeList as List, ListChildComponentProps } from 'react-window';
 import { EmptyState } from 'app/atoms/EmptyState';
 import { PageLoader } from 'app/atoms/Loader';
 import { getSlugFromChainSlug } from 'app/hooks/listing-logic/utils';
-import { TOKEN_ITEM_HEIGHT } from 'app/pages/Swap/constants';
+import { ETHERLINK_CHAIN_ID, TOKEN_ITEM_HEIGHT } from 'app/pages/Swap/constants';
 import { SwapFieldName } from 'app/pages/Swap/form/interfaces';
 import { useFirstValue, useLifiEvmAllTokensSlugs } from 'app/pages/Swap/modals/SwapSelectAsset/hooks';
 import { useLifiEvmTokensMetadataRecordSelector } from 'app/store/evm/swap-lifi-metadata/selectors';
@@ -67,6 +67,10 @@ export const MultiChainAssetsList = memo<Props>(
     const isEvmNonZeroBalance = useCallback(
       (chainSlug: string) => {
         const [, chainId, assetSlug] = parseChainAssetSlug(chainSlug);
+
+        // Disable Etherlink
+        if (chainId === ETHERLINK_CHAIN_ID) return false;
+
         return isDefined(getEvmBalance(chainId as number, assetSlug));
       },
       [getEvmBalance]
