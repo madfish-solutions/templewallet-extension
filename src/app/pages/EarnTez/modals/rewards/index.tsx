@@ -40,11 +40,11 @@ export const RewardsModal = memo<RewardsModalProps>(({ account, bakerAddress, ch
 const DEFAULT_PROTOCOL: TzktProtocol = {
   hash: 'PsQuebecnLByd3JwTiGadoG4nGWi3HYiLXUjkibeFV8dCFeVMUg',
   constants: {
-    endorsersPerBlock: 7000,
+    attestersPerBlock: 7000,
     consensusThreshold: 4667,
     blocksPerCycle: 30720,
     blockReward: [0],
-    endorsementReward: [0]
+    attestationReward: [0]
   }
 };
 
@@ -91,6 +91,7 @@ const PageModalContent = memo<Omit<RewardsModalProps, 'onClose' | 'isOpen'>>(({ 
         getCycles(chainId),
         getProtocol(chainId)
       ]);
+      console.log({ rewards, cycles, protocol });
       const bakersAddresses = uniq(rewards.map(({ baker }) => baker.address));
       const setParamsOperationsValues = await Promise.all(
         bakersAddresses.map(address =>
