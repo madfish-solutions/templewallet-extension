@@ -177,6 +177,7 @@ export function getRewardsStats({
     futureAttestationRewards,
     blockRewardsDelegated,
     blockRewardsStakedOwn,
+    blockRewardsStakedEdge,
     blockRewardsStakedShared,
     blockFees,
     doubleBakingLostStaked,
@@ -184,9 +185,10 @@ export function getRewardsStats({
     doublePreendorsingLostStaked,
     attestationRewardsDelegated,
     attestationRewardsStakedOwn,
+    attestationRewardsStakedEdge,
     attestationRewardsStakedShared,
-    bakerStakedBalance,
-    bakerDelegatedBalance,
+    ownStakedBalance,
+    ownDelegatedBalance,
     externalStakedBalance,
     bakingPower,
     externalDelegatedBalance,
@@ -329,11 +331,11 @@ export function getRewardsStats({
     S = 0,
     b = 0;
   if (futureRewards > 0) {
-    const Vt = bakerStakedBalance * limitOfStakingOverBaking;
-    const at = bakerStakedBalance + Math.min(externalStakedBalance, Vt);
+    const Vt = ownStakedBalance * limitOfStakingOverBaking;
+    const at = ownStakedBalance + Math.min(externalStakedBalance, Vt);
     const N = (futureRewards * at) / bakingPower;
     P = futureRewards - N;
-    L = (N * bakerStakedBalance) / at;
+    L = (N * ownStakedBalance) / at;
     S = (N - L) * edgeOfBakingOverStaking;
     b = N - L - S;
   }
@@ -341,8 +343,8 @@ export function getRewardsStats({
   const T = Math.max(0, +P + k - y);
   const x = T * delegationFeeRatio;
   const w =
-    bakerDelegatedBalance + externalDelegatedBalance > 0
-      ? delegatedBalance / (bakerDelegatedBalance + externalDelegatedBalance)
+    ownDelegatedBalance + externalDelegatedBalance > 0
+      ? delegatedBalance / (ownDelegatedBalance + externalDelegatedBalance)
       : 0;
   const delegationRewardsAreSent = delegatedBalance / 1e6 >= minDelegation;
 
@@ -367,14 +369,19 @@ export function getRewardsStats({
     bakerFee: mutezToTz(bakerFeeMutez),
     expectedPayout: mutezToTz(rewards - bakerFeeMutez),
     efficiency: assignedRewards === 0 ? 1 : totalRewards / assignedRewards,
-    blockRewards: mutezToTz(blockRewardsDelegated + blockRewardsStakedOwn + blockRewardsStakedShared),
+    blockRewards: mutezToTz(
+      blockRewardsDelegated + blockRewardsStakedOwn + blockRewardsStakedEdge + blockRewardsStakedShared
+    ),
     blocks,
     blockFees: mutezToTz(blockFees),
     missedBlockRewards: mutezToTz(missedBlockRewards),
     missedBlocks,
     missedBlockFees: mutezToTz(missedBlockFees),
     attestationRewards: mutezToTz(
-      attestationRewardsDelegated + attestationRewardsStakedOwn + attestationRewardsStakedShared
+      attestationRewardsDelegated +
+        attestationRewardsStakedOwn +
+        attestationRewardsStakedEdge +
+        attestationRewardsStakedShared
     ),
     attestations,
     missedAttestations,

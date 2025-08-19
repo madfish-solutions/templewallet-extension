@@ -136,8 +136,8 @@ export interface TzktRewardsEntry {
     doubleBakingRewards: number;
     doubleEndorsingRewards: number;
     // The fields below are not available on Talentnet
-    bakerDelegatedBalance: number;
-    bakerStakedBalance: number;
+    ownDelegatedBalance: number;
+    ownStakedBalance: number;
     bakingPower: number;
     blockRewardsDelegated: number;
     blockRewardsStakedEdge: number;
