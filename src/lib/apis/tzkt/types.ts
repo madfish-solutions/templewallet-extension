@@ -5,6 +5,8 @@ import { HubConnection } from '@microsoft/signalr';
  */
 export type TzktOperationType = 'delegation' | 'transaction' | 'reveal' | 'origination' | 'set_delegate_parameters';
 
+export type TzktOperationRole = 'sender' | 'target' | 'initiator' | 'mention';
+
 export type TzktQuoteCurrency = 'None' | 'Btc' | 'Eur' | 'Usd' | 'Cny' | 'Jpy' | 'Krw';
 
 type TzktOperationStatus = 'applied' | 'failed' | 'backtracked' | 'skipped';
