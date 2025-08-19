@@ -90,10 +90,12 @@ export const fetchGetAccountOperations = (
   fetchGet<TzktOperation[]>(chainId, '/accounts/activity', {
     ...params,
     addresses: accountAddress,
-    ...(isDefined(params.roles) && { types: params.roles.join(',') }),
-    ...(isDefined(params.types) && { types: params.types.join(',') }),
-    ...(isDefined(params.quote) && { types: params.quote.join(',') })
+    ...joinArrayParam('roles', params.roles),
+    ...joinArrayParam('types', params.types),
+    ...joinArrayParam('quote', params.quote)
   });
+
+const joinArrayParam = (key: string, param?: string[]) => (isDefined(param) ? { [key]: param.join(',') } : {});
 
 export const fetchGetOperationsByHash = (
   chainId: TzktApiChainId,
