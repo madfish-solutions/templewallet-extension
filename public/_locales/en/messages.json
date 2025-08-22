@@ -3877,8 +3877,22 @@
   "noRoutesFound": {
     "message": "No route available"
   },
+  "estimationExpired": {
+    "message": "Estimation expired, refresh quote"
+  },
   "swapCashback": {
     "message": "Cashback"
+  },
+  "refresh": {
+    "message": "Refresh"
+  },
+  "confirmWithCountdown": {
+    "message": "Confirm ($text$s)",
+    "placeholders": {
+      "text": {
+        "content": "$1"
+      }
+    }
   },
   "swapCashbackDescription": {
     "message": "Swap more than 10$$ and receive $text$% from the swapped amount in the TKEY token as a cashback",

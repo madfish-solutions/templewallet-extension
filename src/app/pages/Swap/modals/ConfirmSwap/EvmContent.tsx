@@ -10,7 +10,7 @@ import { EvmReviewData } from 'app/pages/Swap/form/interfaces';
 import { mapLiFiTxToEvmEstimationData, parseTxRequestToViem } from 'app/pages/Swap/modals/ConfirmSwap/utils';
 import { EvmTxParamsFormData } from 'app/templates/TransactionTabs/types';
 import { useEvmEstimationForm } from 'app/templates/TransactionTabs/use-evm-estimation-form';
-import { toastError } from 'app/toaster';
+import { toastError, toastWarning } from 'app/toaster';
 import { toTokenSlug } from 'lib/assets';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { useEvmAssetBalance } from 'lib/balances/hooks';
@@ -20,6 +20,7 @@ import { useTempleClient } from 'lib/temple/front';
 import { atomsToTokens } from 'lib/temple/helpers';
 import { TempleAccountType } from 'lib/temple/types';
 import { runConnectedLedgerOperationFlow } from 'lib/ui';
+import { useInterval } from 'lib/ui/hooks';
 import { showTxSubmitToastWithDelay } from 'lib/ui/show-tx-submit-toast.util';
 import { isEvmNativeTokenSlug } from 'lib/utils/evm.utils';
 import { ZERO } from 'lib/utils/numbers';
@@ -33,8 +34,73 @@ interface EvmContentProps {
   onClose: EmptyFn;
 }
 
+const MAX_REFRESHES = 5;
+const REFRESH_INTERVAL_MS = 8000;
+
 export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
-  const { account, network, minimumReceived, onConfirm, lifiStep } = data;
+  const { account, network, minimumReceived, onConfirm, buildSwapRouteParams, fetchEvmSwapRoute, initialLifiStep } =
+    data;
+
+  const [lifiStep, setLifiStep] = useState<LiFiStep>(initialLifiStep);
+
+  const [refreshCount, setRefreshCount] = useState(0);
+  const [countdown, setCountdown] = useState(REFRESH_INTERVAL_MS / 1000);
+  const [expired, setExpired] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  const handleRefresh = useCallback(
+    async (manual = false) => {
+      if (refreshCount >= MAX_REFRESHES && !manual) {
+        toastWarning(t('estimationExpired'));
+        setExpired(true);
+        return;
+      }
+
+      setIsRefreshing(true);
+      try {
+        const params = buildSwapRouteParams();
+        if (!params) return;
+
+        const data = await fetchEvmSwapRoute(params);
+        setLifiStep(data?.steps?.[0]?.type === 'lifi' ? data?.steps[0] : initialLifiStep);
+
+        if (manual) {
+          setRefreshCount(1);
+          setExpired(false);
+          setCountdown(REFRESH_INTERVAL_MS / 1000);
+        } else {
+          const nextCount = refreshCount + 1;
+          setRefreshCount(nextCount);
+
+          if (nextCount >= MAX_REFRESHES) {
+            toastWarning(t('estimationExpired'));
+            setExpired(true);
+          } else {
+            setCountdown(REFRESH_INTERVAL_MS / 1000);
+          }
+        }
+      } catch (err) {
+        console.error('Error during refresh:', err);
+      } finally {
+        setIsRefreshing(false);
+      }
+    },
+    [buildSwapRouteParams, fetchEvmSwapRoute, initialLifiStep, refreshCount]
+  );
+
+  useInterval(
+    () => {
+      if (expired || isRefreshing) return;
+      setCountdown(prev => {
+        if (prev > 1) return prev - 1;
+        void handleRefresh();
+        return REFRESH_INTERVAL_MS / 1000;
+      });
+    },
+    [expired, handleRefresh, isRefreshing],
+    1000,
+    false
+  );
 
   const accountPkh = account.address as HexString;
   const isLedgerAccount = account.type === TempleAccountType.Ledger;
@@ -216,6 +282,10 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
         onSubmit={onSubmit}
         someBalancesChanges={true}
         filteredBalancesChanges={balancesChanges}
+        quoteRefreshCountdown={countdown}
+        isQuoteExpired={expired}
+        isQuoteRefreshing={isRefreshing || formState.isSubmitting}
+        onManualQuoteRefresh={() => handleRefresh(true)}
       />
     </FormProvider>
   );

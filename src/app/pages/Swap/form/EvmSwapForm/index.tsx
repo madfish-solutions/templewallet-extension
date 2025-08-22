@@ -46,10 +46,11 @@ interface EvmSwapFormProps {
   onSelectAssetClick: SyncFn<SwapFieldName>;
   selectedChainAssets: { from: string | null; to: string | null };
   activeField: SwapFieldName;
+  confirmSwapModalOpened: boolean;
   handleToggleIconClick: EmptyFn;
 }
 
-const AUTO_REFRESH_INTERVAL_MS = 30000; // 30 seconds
+const AUTO_REFRESH_INTERVAL_MS = 8000; // 8 seconds
 
 export const EvmSwapForm: FC<EvmSwapFormProps> = ({
   chainId,
@@ -58,6 +59,7 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
   onSelectAssetClick,
   selectedChainAssets,
   activeField,
+  confirmSwapModalOpened,
   handleToggleIconClick
 }) => {
   const account = useAccountForEvm();
@@ -205,68 +207,78 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
 
   const routeAbortControllerRef = useRef<AbortController | null>(null);
 
-  const fetchEvmSwapRoute = useCallback(async (params: RouteParams, isAutoRefresh = false) => {
+  const fetchEvmSwapRoute = useCallback(async (params: RouteParams) => {
     routeAbortControllerRef.current?.abort();
     const controller = new AbortController();
     routeAbortControllerRef.current = controller;
-
-    if (!isAutoRefresh) setIsRouteLoading(true);
-    setIsAlertVisible(false);
 
     try {
       const data = await getEvmBestSwapRoute(params, controller.signal);
       if (data === undefined) {
         return;
       }
-      setSwapRoute(data);
       return data;
     } catch (error: unknown) {
-      if ((error as Error)?.name === 'CanceledError') return;
+      if ((error as Error)?.name === 'CanceledError') return undefined;
       console.error('EVM Swap route error:', error instanceof Error ? error.message : error);
-      setSwapRoute(null);
-      if (!isAutoRefresh) setIsAlertVisible(true);
       throw error;
-    } finally {
-      if (!isAutoRefresh) setIsRouteLoading(false);
     }
   }, []);
 
-  const getAndSetSwapRoute = useCallback(
-    async (isAutoRefresh = false) => {
-      if (!sourceAssetInfo || !targetAssetInfo || !inputValue.amount || new BigNumber(inputValue.amount).isZero()) {
+  const updateSwapRoute = useCallback(
+    async (params: RouteParams) => {
+      setIsRouteLoading(true);
+      setIsAlertVisible(false);
+
+      try {
+        const data = await fetchEvmSwapRoute(params);
+        if (data === undefined) return;
+
+        setSwapRoute(data);
+        return data;
+      } catch (error) {
         setSwapRoute(null);
-        return;
+        setIsAlertVisible(true);
+        throw error;
+      } finally {
+        setIsRouteLoading(false);
       }
-
-      const fromToken = isEvmNativeTokenSlug(sourceAssetInfo.assetSlug)
-        ? EVM_ZERO_ADDRESS
-        : fromAssetSlug(sourceAssetInfo.assetSlug)[0];
-      const toToken = isEvmNativeTokenSlug(targetAssetInfo.assetSlug)
-        ? EVM_ZERO_ADDRESS
-        : fromAssetSlug(targetAssetInfo.assetSlug)[0];
-
-      const params: RouteParams = {
-        fromChain: sourceAssetInfo.chainId,
-        toChain: targetAssetInfo.chainId,
-        fromToken,
-        toToken,
-        amount: atomsInputValue.toString(),
-        fromAddress: publicKeyHash,
-        slippage: slippageTolerance / 100
-      };
-
-      return fetchEvmSwapRoute(params, isAutoRefresh);
     },
-    [
-      sourceAssetInfo,
-      targetAssetInfo,
-      inputValue.amount,
-      atomsInputValue,
-      publicKeyHash,
-      slippageTolerance,
-      fetchEvmSwapRoute
-    ]
+    [fetchEvmSwapRoute]
   );
+
+  const buildSwapRouteParams = useCallback((): RouteParams | null => {
+    if (!sourceAssetInfo || !targetAssetInfo || !inputValue.amount || new BigNumber(inputValue.amount).isZero()) {
+      return null;
+    }
+
+    const fromToken = isEvmNativeTokenSlug(sourceAssetInfo.assetSlug)
+      ? EVM_ZERO_ADDRESS
+      : fromAssetSlug(sourceAssetInfo.assetSlug)[0];
+    const toToken = isEvmNativeTokenSlug(targetAssetInfo.assetSlug)
+      ? EVM_ZERO_ADDRESS
+      : fromAssetSlug(targetAssetInfo.assetSlug)[0];
+
+    return {
+      fromChain: sourceAssetInfo.chainId,
+      toChain: targetAssetInfo.chainId,
+      fromToken,
+      toToken,
+      amount: atomsInputValue.toString(),
+      fromAddress: publicKeyHash,
+      slippage: slippageTolerance / 100
+    };
+  }, [sourceAssetInfo, targetAssetInfo, inputValue.amount, atomsInputValue, publicKeyHash, slippageTolerance]);
+
+  const getAndSetSwapRoute = useCallback(async () => {
+    const params = buildSwapRouteParams();
+    if (!params) {
+      setSwapRoute(null);
+      return;
+    }
+
+    void updateSwapRoute(params);
+  }, [buildSwapRouteParams, updateSwapRoute]);
 
   useEffect(() => {
     if (!inputValue.amount || new BigNumber(inputValue.amount).isLessThanOrEqualTo(0)) {
@@ -292,14 +304,23 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
         sourceAssetInfo &&
         targetAssetInfo &&
         !isRouteLoading &&
-        !formState.isSubmitting
+        !formState.isSubmitting &&
+        !confirmSwapModalOpened
       ) {
-        getAndSetSwapRoute(true).catch(error => {
+        getAndSetSwapRoute().catch(error => {
           console.error('Error during auto-refresh:', error);
         });
       }
     },
-    [inputValue.amount, sourceAssetInfo, targetAssetInfo, isRouteLoading, formState.isSubmitting, getAndSetSwapRoute],
+    [
+      inputValue.amount,
+      sourceAssetInfo,
+      targetAssetInfo,
+      isRouteLoading,
+      formState.isSubmitting,
+      confirmSwapModalOpened,
+      getAndSetSwapRoute
+    ],
     AUTO_REFRESH_INTERVAL_MS,
     false
   );
@@ -381,21 +402,7 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
     if (formState.isSubmitting) return;
     if (!inputValue.assetSlug || !outputValue.assetSlug) return;
 
-    let latestRoute: Route | undefined;
-    try {
-      latestRoute = await getAndSetSwapRoute(false);
-      if (!latestRoute) {
-        setIsAlertVisible(true);
-        return;
-      }
-    } catch (error) {
-      console.error('Error refetching route on submit:', error);
-      return;
-    }
-
-    const finalLifiStep = latestRoute?.steps?.[0]?.type === 'lifi' ? latestRoute?.steps[0] : undefined;
-
-    if (!finalLifiStep) {
+    if (!lifiStep) {
       setIsAlertVisible(true);
       return;
     }
@@ -403,14 +410,14 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
     let allowanceSufficient = true;
     let onChainAllowance = toBigInt(ZERO);
 
-    if (EVM_ZERO_ADDRESS !== finalLifiStep.action.fromToken.address) {
-      const requiredAllowance = BigInt(finalLifiStep.action.fromAmount);
+    if (EVM_ZERO_ADDRESS !== lifiStep.action.fromToken.address) {
+      const requiredAllowance = BigInt(lifiStep.action.fromAmount);
 
       onChainAllowance = await evmToolkit.readContract({
-        address: finalLifiStep.action.fromToken.address as HexString,
+        address: lifiStep.action.fromToken.address as HexString,
         abi: [erc20AllowanceAbi],
         functionName: 'allowance',
-        args: [finalLifiStep.action.fromAddress as HexString, finalLifiStep.estimate.approvalAddress as HexString]
+        args: [lifiStep.action.fromAddress as HexString, lifiStep.estimate.approvalAddress as HexString]
       });
 
       allowanceSufficient = onChainAllowance >= requiredAllowance;
@@ -439,7 +446,9 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
           amount: getMinimumReceivedAmount(outputValue.amount).toString(),
           symbol: outputAssetSymbol
         },
-        lifiStep: finalLifiStep
+        buildSwapRouteParams,
+        fetchEvmSwapRoute,
+        initialLifiStep: lifiStep
       });
 
       formAnalytics.trackSubmitSuccess(analyticsProperties);
@@ -452,19 +461,20 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
     formState.isSubmitting,
     inputValue.assetSlug,
     outputValue.assetSlug,
+    outputValue.amount,
+    lifiStep,
     getValues,
     inputAssetMetadata?.symbol,
     sourceAssetInfo?.chainId,
     outputAssetMetadata?.symbol,
-    outputAssetMetadata?.decimals,
     targetAssetInfo?.chainId,
-    getAndSetSwapRoute,
     evmToolkit,
     formAnalytics,
     onReview,
     account,
     network,
     resetForm,
+    getMinimumReceivedAmount,
     outputAssetSymbol
   ]);
 

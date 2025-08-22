@@ -1,7 +1,8 @@
-import { LiFiStep } from '@lifi/sdk';
+import { LiFiStep, Route } from '@lifi/sdk';
 import { WalletParamsWithKind } from '@taquito/taquito';
 import { BatchWalletOperation } from '@taquito/taquito/dist/types/wallet/batch-operation';
 
+import { RouteParams } from 'lib/apis/temple/endpoints/evm/api.interfaces';
 import {
   EvmReviewData as GenericEvmReviewData,
   TezosReviewData as GenericTezosReviewData
@@ -17,7 +18,9 @@ interface EvmSwapReviewData {
     amount: string;
     symbol: string;
   };
-  lifiStep: LiFiStep;
+  buildSwapRouteParams: () => RouteParams | null;
+  fetchEvmSwapRoute: (params: RouteParams) => Promise<Route | undefined>;
+  initialLifiStep: LiFiStep;
 }
 
 interface TezosSwapReviewData {
