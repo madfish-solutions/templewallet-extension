@@ -184,12 +184,12 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
 
       const txHash = await sendEvmTransaction(accountPkh, network, txParams);
 
+      onConfirm?.();
+      onClose?.();
+
       const blockExplorer = getActiveBlockExplorer(network.chainId.toString());
 
       showTxSubmitToastWithDelay(TempleChainKind.EVM, txHash, blockExplorer.url);
-
-      onConfirm?.();
-      onClose?.();
     },
     [accountPkh, network, sendEvmTransaction, getActiveBlockExplorer, onConfirm, onClose]
   );
