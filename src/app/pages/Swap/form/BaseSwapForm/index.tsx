@@ -1,4 +1,4 @@
-import React, { FC, useCallback, useMemo } from 'react';
+import React, { FC, useCallback } from 'react';
 
 import BigNumber from 'bignumber.js';
 import { isEmpty, noop } from 'lodash';
@@ -12,18 +12,17 @@ import { BridgeDetails, SwapFieldName } from 'app/pages/Swap/form/interfaces';
 import { EvmSwapInfoDropdown } from 'app/pages/Swap/form/SwapInfoDropdown/EvmSwapInfoDropdown';
 import { TezosSwapInfoDropdown } from 'app/pages/Swap/form/SwapInfoDropdown/TezosSwapInfoDropdown';
 import { dispatch } from 'app/store';
-import { useUserTestingGroupNameSelector } from 'app/store/ab-testing/selectors';
 import { setOnRampAssetAction } from 'app/store/settings/actions';
 import { resetSwapParamsAction } from 'app/store/swap/actions';
 import { setTestID } from 'lib/analytics';
-import { ABTestGroup } from 'lib/apis/temple/endpoints/get-ab-group';
 import { isWertSupportedChainAssetSlug } from 'lib/apis/wert';
 import { toChainAssetSlug } from 'lib/assets/utils';
 import { useFiatCurrency } from 'lib/fiat-currency';
 import { t, T, toLocalFixed } from 'lib/i18n';
-import { SWAP_CASHBACK_RATIO, SWAP_THRESHOLD_TO_GET_CASHBACK } from 'lib/route3/constants';
+import { SWAP_THRESHOLD_TO_GET_CASHBACK } from 'lib/route3/constants';
 import { TempleChainKind } from 'temple/types';
 
+import { CashbackProgress } from '../CashbackProgress';
 import { SwapFormValue, SwapInputValue } from '../SwapForm.form';
 import { SwapFormFromInputSelectors, SwapFormSelectors, SwapFormToInputSelectors } from '../SwapForm.selectors';
 import SwapFormInput from '../SwapFormInput';
@@ -107,38 +106,8 @@ export const BaseSwapForm: FC<Props> = ({
   const isFiatMode = watch('isFiatMode');
 
   const { selectedFiatCurrency } = useFiatCurrency();
-  const testGroupName = useUserTestingGroupNameSelector();
 
   const inputAmountInUSD = (inputAssetPrice && BigNumber(inputAssetPrice).times(inputAmount || 0)) || BigNumber(0);
-
-  const cashbackProgress = useMemo(() => {
-    const threshold = new BigNumber(SWAP_THRESHOLD_TO_GET_CASHBACK);
-    const usd = inputAmountInUSD;
-
-    const show = !isEvmNetwork && testGroupName === ABTestGroup.B;
-    if (!show) return { show: false } as const;
-
-    const isZero = usd.lte(0);
-    const reached = usd.gte(threshold);
-    const remaining = BigNumber.maximum(threshold.minus(usd), 0);
-    const percent = reached ? 100 : usd.div(threshold).times(100).toNumber();
-
-    let tkeyText: string | null = null;
-    if (reached && templeAssetPrice && templeAssetPrice.gt(0)) {
-      const estimatedTkey = usd.times(SWAP_CASHBACK_RATIO).div(templeAssetPrice);
-      const display = estimatedTkey.lt(0.01) ? '< 0.01' : toLocalFixed(estimatedTkey, 2);
-      tkeyText = `${display} TKEY ✓`;
-    }
-
-    return {
-      show,
-      isZero,
-      reached,
-      remaining,
-      percent: Math.max(0, Math.min(100, percent)),
-      tkeyText
-    } as const;
-  }, [inputAmountInUSD, isEvmNetwork, templeAssetPrice, testGroupName]);
 
   const validateInputField = useCallback(
     (props: SwapInputValue) => {
@@ -358,28 +327,11 @@ export const BaseSwapForm: FC<Props> = ({
           </div>
         )}
       </form>
-      {cashbackProgress.show && (
-        <div className="px-4">
-          <div className="flex items-center justify-between text-sm mb-2">
-            <div className="flex items-center gap-2">
-              <span>🎁</span>
-              <span className="font-semibold">Cashback</span>
-            </div>
-            <div className="text-grey-1">
-              {cashbackProgress.isZero && 'Swap over 10$ and get 0.3% back'}
-              {!cashbackProgress.isZero &&
-                !cashbackProgress.reached &&
-                `Only ${toLocalFixed(cashbackProgress.remaining, 2)}$ to go`}
-              {cashbackProgress.reached && cashbackProgress.tkeyText}
-            </div>
-          </div>
-          {!cashbackProgress.isZero && (
-            <div className="w-full h-1 rounded bg-[#E9E9EB]">
-              <div className="h-1 rounded bg-[#FF5B00]" style={{ width: `${cashbackProgress.percent}%` }} />
-            </div>
-          )}
-        </div>
-      )}
+      <CashbackProgress
+        isEvmNetwork={isEvmNetwork}
+        inputAmountInUSD={inputAmountInUSD}
+        templeAssetPrice={templeAssetPrice}
+      />
       <ActionsButtonsBox className="mt-auto">
         <StyledButton
           type="submit"
