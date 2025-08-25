@@ -12,6 +12,8 @@ export const IS_GOOGLE_CHROME_BROWSER =
   // @ts-expect-error
   navigator.userAgentData?.brands?.some(b => b.brand === 'Google Chrome');
 
+export const IS_CHROMIUM_BROWSER = process.env.TARGET_BROWSER === 'chrome';
+
 export const IS_DEV_ENV = process.env.NODE_ENV === 'development';
 
 export const IS_FIREFOX = process.env.TARGET_BROWSER === 'firefox';

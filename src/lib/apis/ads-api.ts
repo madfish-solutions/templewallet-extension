@@ -1,12 +1,16 @@
 import axios from 'axios';
 
+import { BROWSER_IDENTIFIER_HEADER } from 'lib/browser';
 import { APP_VERSION, EnvVars } from 'lib/env';
 
 import { withAxiosDataExtract } from './utils';
 
 const axiosClient = axios.create({
   baseURL: EnvVars.TEMPLE_ADS_API_URL,
-  adapter: 'fetch'
+  adapter: 'fetch',
+  headers: {
+    'x-temple-browser': BROWSER_IDENTIFIER_HEADER
+  }
 });
 
 interface ImpressionDetails {
@@ -138,6 +142,7 @@ export const fetchRpForMonth = withAxiosDataExtract((accountPkh: string, monthYe
 interface TekeadsAffiliateResponse {
   data: AffiliateLink[];
 }
+
 interface AffiliateLink {
   iri: string;
   trackingLink: string;
