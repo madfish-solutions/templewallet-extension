@@ -273,13 +273,13 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
         if (data === undefined) return;
 
         setSwapRoute(data);
+        setIsRouteLoading(false);
         return data;
       } catch (error) {
         setSwapRoute(null);
         setIsAlertVisible(true);
-        throw error;
-      } finally {
         setIsRouteLoading(false);
+        throw error;
       }
     },
     [fetchEvmSwapRoute]
