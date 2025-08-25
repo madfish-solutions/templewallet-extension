@@ -137,7 +137,10 @@ export function useGetActiveBlockExplorer(chainKind: TempleChainKind) {
   const getBlockExplorers = useGetBlockExplorers(chainKind);
 
   return useCallback(
-    (chainId: string) => {
+    (chainId: string, bridge = false) => {
+      if (bridge) {
+        return LIFI_BLOCK_EXPLORER;
+      }
       const chainsSpecs = chainKind === TempleChainKind.Tezos ? tezosChainsSpecsRef.current : evmChainsSpecsRef.current;
       const chainBlockExplorers = getBlockExplorers(chainId);
       const activeBlockExplorerId = chainsSpecs[chainId]?.activeBlockExplorerId;
@@ -218,6 +221,12 @@ export function makeBlockExplorerHref(
   return new URL(chainKind === TempleChainKind.Tezos ? hash : `${entityType}/${hash}`, baseUrl).href;
 }
 
+const LIFI_BLOCK_EXPLORER = {
+  name: 'LIFI',
+  url: 'https://scan.li.fi',
+  id: 'lifi'
+};
+
 const DEFAULT_BLOCK_EXPLORERS_BASE: Record<TempleChainKind, Record<string, Omit<BlockExplorer, 'default'>[]>> = {
   [TempleChainKind.Tezos]: {
     [TempleTezosChainId.Mainnet]: [
@@ -295,6 +304,13 @@ const DEFAULT_BLOCK_EXPLORERS_BASE: Record<TempleChainKind, Record<string, Omit<
         id: 'avascan-mainnet'
       }
     ],
+    [COMMON_MAINNET_CHAIN_IDS.arbitrum]: [
+      {
+        name: 'ArbiScan',
+        url: 'https://arbiscan.io',
+        id: 'arbiscan-mainnet'
+      }
+    ],
     [COMMON_MAINNET_CHAIN_IDS.optimism]: [
       {
         name: 'Optimistic Ethereum',
@@ -342,6 +358,13 @@ const DEFAULT_BLOCK_EXPLORERS_BASE: Record<TempleChainKind, Record<string, Omit<
         name: 'AvaScan',
         url: 'https://testnet.avascan.info/blockchain/c/',
         id: 'avascan-testnet'
+      }
+    ],
+    [COMMON_TESTNET_CHAIN_IDS.arbitrum]: [
+      {
+        name: 'ArbiScan',
+        url: 'https://sepolia.arbiscan.io',
+        id: 'arbiscan-sepolia'
       }
     ],
     [COMMON_TESTNET_CHAIN_IDS.optimism]: [

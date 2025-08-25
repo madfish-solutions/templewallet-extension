@@ -1,4 +1,4 @@
-import { SetStateAction, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import browser, { Storage } from 'webextension-polyfill';
 
@@ -6,9 +6,27 @@ import { fetchFromStorage, putToStorage } from 'lib/storage';
 import { useRetryableSWR } from 'lib/swr';
 import { useDidUpdate } from 'lib/ui/hooks';
 
-export function useStorage<T = any>(key: string): [T | null | undefined, (val: SetStateAction<T>) => Promise<void>];
-export function useStorage<T = any>(key: string, fallback: T): [T, (val: SetStateAction<T>) => Promise<void>];
-export function useStorage<T = any>(key: string, fallback?: T) {
+type StorageValueBase = string | object | number | boolean | nullish;
+
+/**
+ * Action type for setting storage values.
+ * Can be either a direct value or a function that receives the current storage state.
+ *
+ * @template T - The type of value being stored
+ * @param value - The current value that is stored in the storage
+ * @param transientValue - The value that is going to be written into storage (may be different from stored value during
+ * writing into storage)
+ */
+type SetStorageAction<T extends StorageValueBase> = T | ((value: T, transientValue: T) => void);
+
+export function useStorage<T extends StorageValueBase = any>(
+  key: string
+): [T | nullish, (val: SetStorageAction<T>) => Promise<void>];
+export function useStorage<T extends StorageValueBase = any>(
+  key: string,
+  fallback: T
+): [T, (val: SetStorageAction<T>) => Promise<void>];
+export function useStorage<T extends StorageValueBase = any>(key: string, fallback?: T) {
   const { data, mutate } = useRetryableSWR<T | null, unknown, string>(key, fetchFromStorage, {
     suspense: true,
     revalidateOnFocus: false,
@@ -19,13 +37,16 @@ export function useStorage<T = any>(key: string, fallback?: T) {
 
   const value = fallback === undefined ? data : data ?? fallback;
   const valueRef = useRef(value);
+  const transientValueRef = useRef(value);
 
   useEffect(() => {
     valueRef.current = value;
+    transientValueRef.current = value;
   }, [value]);
   const setValue = useCallback(
-    async (val: SetStateAction<T>) => {
-      const nextValue = typeof val === 'function' ? (val as any)(valueRef.current) : val;
+    async (val: SetStorageAction<T>) => {
+      const nextValue = typeof val === 'function' ? val(valueRef.current!, transientValueRef.current!) : val;
+      transientValueRef.current = nextValue;
       await putToStorage(key, nextValue);
       valueRef.current = nextValue;
     },
@@ -67,7 +88,11 @@ export function usePassiveStorage<T = any>(key: string, fallback?: T) {
 function onStorageChanged<T = any>(key: string, callback: (newValue: T) => void) {
   const handleChanged = ((changes: { [s: string]: Storage.StorageChange }) => {
     if (key in changes) {
-      callback(changes[key].newValue as any);
+      // onChanged reports newValue === undefined when a key is removed.
+      // Our fetcher uses null to mean “missing”, so normalize to null here.
+      // This keeps SWR (with suspense) from re-suspending on storage.clear(),
+      // preventing transient unmount/remount (e.g., modal flicker) during resets.
+      callback(changes[key].newValue ?? null);
     }
   }) as unknown as (changes: Storage.StorageAreaOnChangedChangesType) => void;
 

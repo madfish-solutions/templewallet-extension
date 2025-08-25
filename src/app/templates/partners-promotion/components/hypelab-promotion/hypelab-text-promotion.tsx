@@ -47,7 +47,7 @@ export const HypelabTextPromotion: FC<Omit<SingleProviderPromotionProps, 'varian
     <Native
       // @ts-expect-error
       class="w-full"
-      placement={EnvVars.HYPELAB_NATIVE_PLACEMENT_SLUG}
+      placement={EnvVars.HYPELAB_INTERNAL_NATIVE_PLACEMENT_SLUG}
       onError={onError}
     >
       <span className="hidden" ref={hypelabHeadlineRef} data-ref="headline" />

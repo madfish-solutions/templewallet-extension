@@ -1,12 +1,13 @@
 import React, { ReactNode, useCallback, useEffect, useRef } from 'react';
 
+import BigNumber from 'bignumber.js';
 import { SubmitHandler, useFormContext } from 'react-hook-form-v7';
 
 import { Loader } from 'app/atoms';
 import SegmentedControl from 'app/atoms/SegmentedControl';
 import { t } from 'lib/i18n';
 import { DisplayedFeeOptions, FeeOptionLabel } from 'lib/temple/front/estimation-data-providers';
-import { OneOfChains } from 'temple/front';
+import { EvmChain, OneOfChains } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
 
 import { AdvancedTab } from './tabs/advanced';
@@ -37,6 +38,13 @@ export interface TransactionTabsProps<T extends TxParamsFormData> {
     amount: string;
     symbol: string;
   };
+  bridgeData?: {
+    inputNetwork: EvmChain;
+    outputNetwork: EvmChain;
+    executionTime: string;
+    protocolFee?: string;
+    destinationChainGasTokenAmount?: BigNumber;
+  };
   children?: ReactNode;
 }
 
@@ -59,6 +67,7 @@ export const TransactionTabs = <T extends TxParamsFormData>({
   destinationValue,
   cashbackInTkey,
   minimumReceived,
+  bridgeData,
   children
 }: TransactionTabsProps<T>) => {
   const { handleSubmit } = useFormContext<T>();
@@ -143,6 +152,7 @@ export const TransactionTabs = <T extends TxParamsFormData>({
                     destinationValue={destinationValue}
                     cashbackInTkey={cashbackInTkey}
                     minimumReceived={minimumReceived}
+                    bridgeData={bridgeData}
                   />
                 );
             }

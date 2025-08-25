@@ -30,6 +30,7 @@ import { T } from 'lib/i18n';
 import { OneOfChains } from 'temple/front';
 
 import { EmptySection } from '../EmptySection';
+import { UpdateAppBanner } from '../UpdateAppBanner';
 
 import BuyWithFiatIllustrationSrc from './buy-with-fiat.png';
 import CrossChainSwapIllustrationSrc from './cross-chain-swap.png';
@@ -108,7 +109,7 @@ const TokensTabBaseContent: FC<PropsWithChildren<TokensTabBaseContentProps>> = (
   const accountIsInitialized = useIsAccountInitializedSelector(accountId);
   const isSyncingInitializedState = useIsAccountInitializedLoadingSelector(accountId);
 
-  if (accountIsInitialized === false && !isSyncingInitializedState && !isTestnet) {
+  if (accountIsInitialized === false && !isSyncingInitializedState && !isTestnet && !manageActive) {
     return (
       <TokensTabBaseContentWrapper>
         <UninitializedAccountContent />
@@ -121,14 +122,14 @@ const TokensTabBaseContent: FC<PropsWithChildren<TokensTabBaseContentProps>> = (
     (tokensCount === 0 && isSyncing && !isInSearchMode)
   ) {
     return (
-      <TokensTabBaseContentWrapper padding={false}>
+      <TokensTabBaseContentWrapper manageActive={manageActive} padding={false}>
         <PageLoader stretch />
       </TokensTabBaseContentWrapper>
     );
   }
 
   return (
-    <TokensTabBaseContentWrapper padding={tokensCount > 0}>
+    <TokensTabBaseContentWrapper manageActive={manageActive} padding={tokensCount > 0}>
       {tokensCount === 0 ? (
         <EmptySection
           forCollectibles={false}
@@ -216,10 +217,13 @@ const UninitializedAccountContent = memo(() => {
   );
 });
 
-const TokensTabBaseContentWrapper: FC<PropsWithChildren<{ padding?: boolean }>> = ({ padding, children }) => (
+const TokensTabBaseContentWrapper: FC<PropsWithChildren<{ manageActive?: boolean; padding?: boolean }>> = ({
+  manageActive,
+  padding,
+  children
+}) => (
   <ContentContainer padding={padding}>
-    {/*TODO: Update banner UI*/}
-    {/*{manageActive ? null : <UpdateAppBanner stickyBarRef={stickyBarRef} />}*/}
+    {manageActive ? null : <UpdateAppBanner />}
 
     {children}
   </ContentContainer>

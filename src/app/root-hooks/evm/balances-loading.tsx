@@ -2,13 +2,9 @@ import React, { FC, memo, useCallback, useMemo } from 'react';
 
 import { dispatch } from 'app/store';
 import { setEvmBalancesLoadingState } from 'app/store/evm/actions';
-import { processLoadedEvmAssetsAction } from 'app/store/evm/assets/actions';
 import { useRawEvmAccountCollectiblesSelector, useRawEvmAccountTokensSelector } from 'app/store/evm/assets/selectors';
 import { ChainIdTokenSlugsAssetsRecord } from 'app/store/evm/assets/state';
-import {
-  processLoadedEvmAssetsBalancesAction,
-  processLoadedOnchainBalancesAction
-} from 'app/store/evm/balances/actions';
+import { processLoadedOnchainBalancesAction } from 'app/store/evm/balances/actions';
 import { useEvmAccountBalancesTimestampsSelector } from 'app/store/evm/balances/selectors';
 import { useAllEvmChainsBalancesLoadingStatesSelector } from 'app/store/evm/selectors';
 import { EvmBalancesSource } from 'app/store/evm/state';
@@ -19,10 +15,11 @@ import { BalancesResponse, ChainID } from 'lib/apis/temple/endpoints/evm/api.int
 import { isSupportedChainId } from 'lib/apis/temple/endpoints/evm/api.utils';
 import { useEvmAssetBalance } from 'lib/balances/hooks';
 import { EVM_BALANCES_SYNC_INTERVAL } from 'lib/fixed-times';
-import { useUpdatableRef } from 'lib/ui/hooks';
+import { useMemoWithCompare, useUpdatableRef } from 'lib/ui/hooks';
 import { useEnabledEvmChains } from 'temple/front';
 import { EvmNetworkEssentials } from 'temple/networks';
 
+import { ManualAssets, makeOnEvmBalancesApiSuccess } from './make-on-evm-balances-api-success';
 import { useGetBalancesFromChain } from './use-get-balances-from-chain';
 import {
   ApiDataLoader,
@@ -48,8 +45,8 @@ export const AppEvmBalancesLoading = memo<{ publicKeyHash: HexString }>(({ publi
     () => Object.fromEntries(enabledEvmChains.map(chain => [chain.chainId, chain])),
     [enabledEvmChains]
   );
-  const manualAssetsByChainId = useMemo(() => {
-    const result: Record<number, { network: EvmNetworkEssentials; assetsSlugs: string[] }> = {};
+  const manualAssetsByChainId = useMemoWithCompare(() => {
+    const result: ManualAssets = {};
     const pushManualAssetSlugs = (assets: ChainIdTokenSlugsAssetsRecord) => {
       for (const chainId in assets) {
         const chainAssets = assets[chainId];
@@ -57,13 +54,13 @@ export const AppEvmBalancesLoading = memo<{ publicKeyHash: HexString }>(({ publi
 
         if (!chainAssets || !network) continue;
 
-        if (!result[chainId]) {
-          result[chainId] = { network, assetsSlugs: [] };
-        }
-
         for (const assetSlug in chainAssets) {
           const asset = chainAssets[assetSlug];
           if (asset?.manual) {
+            if (!result[chainId]) {
+              result[chainId] = { network, assetsSlugs: [] };
+            }
+
             result[chainId].assetsSlugs.push(assetSlug);
           }
         }
@@ -119,19 +116,8 @@ export const AppEvmBalancesLoading = memo<{ publicKeyHash: HexString }>(({ publi
   const setLoadingApi = useMemo(() => setLoadingFactory('api'), [setLoadingFactory]);
   const setLoadingOnChain = useMemo(() => setLoadingFactory('onchain'), [setLoadingFactory]);
 
-  const handleApiSuccess = useCallback(
-    ({ chainId, data }: SuccessPayload<BalancesResponse>) => {
-      dispatch(processLoadedEvmAssetsAction({ publicKeyHash, chainId, data }));
-      dispatch(
-        processLoadedEvmAssetsBalancesAction({
-          publicKeyHash,
-          chainId,
-          data,
-          assetsToPreventBalanceErase: manualAssetsByChainId[chainId]?.assetsSlugs
-        })
-      );
-      setLoadingApi(chainId, false);
-    },
+  const handleApiSuccess = useMemo(
+    () => makeOnEvmBalancesApiSuccess(publicKeyHash, manualAssetsByChainId, setLoadingApi),
     [manualAssetsByChainId, publicKeyHash, setLoadingApi]
   );
   const handleOnchainSuccess = useCallback(

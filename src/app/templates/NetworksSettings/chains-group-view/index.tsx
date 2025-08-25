@@ -14,16 +14,22 @@ interface ChainsGroup {
 interface ChainsGroupViewProps {
   className?: string;
   group: ChainsGroup;
+  searchValue?: string;
 }
 
-export const ChainsGroupView = memo<ChainsGroupViewProps>(({ className, group }) => {
+export const ChainsGroupView = memo<ChainsGroupViewProps>(({ className, group, searchValue }) => {
   const { title, chains } = group;
 
   return (
     <InputContainer className={className} header={<p className="my-1 text-font-description-bold">{title}</p>}>
       <SettingsCellGroup>
         {chains.map((chain, i) => (
-          <ChainsGroupItem key={chain.chainId} item={chain} isLast={i === chains.length - 1} />
+          <ChainsGroupItem
+            key={chain.chainId}
+            item={chain}
+            isLast={i === chains.length - 1}
+            searchValue={searchValue}
+          />
         ))}
       </SettingsCellGroup>
     </InputContainer>

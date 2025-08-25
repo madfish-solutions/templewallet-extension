@@ -13,3 +13,5 @@ export const setAdsImpressionsLinkedAction = createAction('settings/SET_ADS_IMPR
 export const setReferralLinksEnabledAction = createAction<boolean>('settings/SET_REFERRAL_LINKS_ENABLED');
 
 export const setIsTestnetModeEnabledAction = createAction<boolean>('settings/SET_IS_TESTNET_MODE_ENABLED');
+
+export const toggleFavoriteTokenAction = createAction<string>('settings/TOGGLE_FAVORITE_TOKEN');

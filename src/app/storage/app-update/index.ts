@@ -1,4 +1,4 @@
-import { fetchFromStorage, putToStorage, removeFromStorage } from 'lib/storage';
+import { fetchFromStorage, putToStorage } from 'lib/storage';
 
 export const storageKey = 'APP_UPDATE_AVAILABLE';
 
@@ -10,5 +10,3 @@ export interface AppUpdateDetails {
 export const getStoredAppUpdateDetails = () => fetchFromStorage<AppUpdateDetails>(storageKey);
 
 export const putStoredAppUpdateDetails = (value: AppUpdateDetails) => putToStorage<AppUpdateDetails>(storageKey, value);
-
-export const removeStoredAppUpdateDetails = () => removeFromStorage(storageKey);

@@ -2,7 +2,6 @@ import { mockLifiEvmTokensMetadataState } from 'app/store/evm/swap-lifi-metadata
 
 import { mockABTestingState } from './ab-testing/state.mock';
 import { mockAccountsInitializationState } from './accounts-initialization/state.mock';
-import { mockAdvertisingState } from './advertising/state.mock';
 import { mockAssetsFilterOptionsState } from './assets-filter-options/state.mock';
 import { mockBuyWithCreditCardState } from './buy-with-credit-card/state.mock';
 import { mockCryptoExchangeState } from './crypto-exchange/state.mock';
@@ -32,7 +31,6 @@ import { mockTokensMetadataState } from './tezos/tokens-metadata/state.mock';
 // ts-prune-ignore-next
 export const mockRootState: RootState = {
   settings: mockSettingsState,
-  advertising: mockAdvertisingState,
   currency: mockCurrencyState,
   notifications: mockNotificationsState,
   dApps: mockDAppsState,

@@ -1,4 +1,4 @@
-import React, { FC } from 'react';
+import React, { FC, useMemo } from 'react';
 
 import clsx from 'clsx';
 
@@ -53,9 +53,23 @@ export const ConfirmSwapModal: FC<ConfirmSwapModalProps> = ({ opened, onRequestC
     );
   };
 
+  const title = useMemo(() => {
+    if (!reviewData) return '';
+
+    if (isSwapEvmReviewData(reviewData) && reviewData.needsApproval) {
+      return 'Approve';
+    }
+
+    if (isSwapEvmReviewData(reviewData) && reviewData?.bridgeInfo) {
+      return 'Bridge Preview';
+    }
+
+    return 'Swap Preview';
+  }, [reviewData]);
+
   return (
     <PageModal
-      title={reviewData && isSwapEvmReviewData(reviewData) && reviewData.needsApproval ? 'Approve' : 'Swap Preview'}
+      title={title}
       titleLeft={
         reviewData && isSwapEvmReviewData(reviewData) && reviewData?.neededApproval ? titleLeft(reviewData) : undefined
       }

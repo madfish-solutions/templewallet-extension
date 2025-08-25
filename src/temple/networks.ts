@@ -148,6 +148,13 @@ export const EVM_FALLBACK_RPC_URLS: Record<number, string[]> = {
     'https://endpoints.omniatech.io/v1/avax/mainnet/public',
     'https://1rpc.io/avax/c'
   ],
+  [COMMON_MAINNET_CHAIN_IDS.arbitrum]: [
+    'https://arbitrum-one-rpc.publicnode.com',
+    'https://arbitrum.drpc.org',
+    'https://arb-pokt.nodies.app',
+    'https://arbitrum.meowrpc.com',
+    'https://1rpc.io/arb'
+  ],
   [COMMON_MAINNET_CHAIN_IDS.optimism]: [
     'https://optimism-rpc.publicnode.com',
     'https://mainnet.optimism.io',
@@ -182,6 +189,11 @@ export const EVM_FALLBACK_RPC_URLS: Record<number, string[]> = {
     'https://avalanche-fuji-c-chain-rpc.publicnode.com',
     'https://avalanche-fuji.drpc.org',
     'https://endpoints.omniatech.io/v1/avax/fuji/public'
+  ],
+  [COMMON_TESTNET_CHAIN_IDS.arbitrum]: [
+    'https://arbitrum-sepolia-rpc.publicnode.com',
+    'https://arbitrum-sepolia.drpc.org',
+    'https://endpoints.omniatech.io/v1/arbitrum/sepolia/public'
   ],
   [COMMON_TESTNET_CHAIN_IDS.optimism]: [
     'https://optimism-sepolia-rpc.publicnode.com',
@@ -232,6 +244,16 @@ export const EVM_DEFAULT_NETWORKS: NonEmptyArray<StoredEvmNetwork> = [
     chainId: COMMON_MAINNET_CHAIN_IDS.avalanche,
     rpcBaseURL: EVM_FALLBACK_RPC_URLS[COMMON_MAINNET_CHAIN_IDS.avalanche][0],
     color: '#ff5959',
+    default: true
+  },
+  {
+    id: 'arbitrum-mainnet',
+    name: 'Arbitrum',
+    chain: TempleChainKind.EVM,
+    chainId: COMMON_MAINNET_CHAIN_IDS.arbitrum,
+    rpcBaseURL: EVM_FALLBACK_RPC_URLS[COMMON_MAINNET_CHAIN_IDS.arbitrum][0],
+    description: 'Arbitrum Mainnet',
+    color: '#075de6',
     default: true
   },
   {
@@ -300,6 +322,16 @@ export const EVM_DEFAULT_NETWORKS: NonEmptyArray<StoredEvmNetwork> = [
     rpcBaseURL: EVM_FALLBACK_RPC_URLS[COMMON_TESTNET_CHAIN_IDS.avalanche][0],
     description: 'Avalanche Testnet',
     color: '#812e2e',
+    default: true
+  },
+  {
+    id: 'arbitrum-sepolia',
+    name: 'Arbitrum Sepolia',
+    chain: TempleChainKind.EVM,
+    chainId: COMMON_TESTNET_CHAIN_IDS.arbitrum,
+    rpcBaseURL: EVM_FALLBACK_RPC_URLS[COMMON_TESTNET_CHAIN_IDS.arbitrum][0],
+    description: 'Arbitrum Testnet',
+    color: '#0747ad',
     default: true
   },
   {

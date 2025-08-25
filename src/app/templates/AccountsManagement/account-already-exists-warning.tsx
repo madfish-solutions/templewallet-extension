@@ -11,7 +11,7 @@ import { DisplayedGroup, StoredAccount } from 'lib/temple/types';
 import { useHDGroups } from 'temple/front';
 import { getAllGroups } from 'temple/front/accounts-groups';
 
-import { AccountsManagementSelectors } from './selectors';
+import { AccountManagementSelectors } from './selectors';
 
 interface AccountAlreadyExistsWarningProps {
   newAccountGroup: DisplayedGroup;
@@ -36,7 +36,7 @@ export const AccountAlreadyExistsWarning = memo<AccountAlreadyExistsWarningProps
             color="primary"
             type="button"
             onClick={onClose}
-            testID={AccountsManagementSelectors.gotItButton}
+            testID={AccountManagementSelectors.gotItButton}
           >
             <T id="okGotIt" />
           </ActionModalButton>

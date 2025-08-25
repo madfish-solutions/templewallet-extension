@@ -6,9 +6,8 @@ import { HashShortView, IconBase } from 'app/atoms';
 import { AccountAvatar } from 'app/atoms/AccountAvatar';
 import { EvmNetworksLogos, TezNetworkLogo } from 'app/atoms/NetworksLogos';
 import { ReactComponent as CopyIcon } from 'app/icons/base/copy.svg';
-import { toastSuccess } from 'app/toaster';
-import { t } from 'lib/i18n';
 import { TempleContact } from 'lib/temple/types';
+import { useCopyText } from 'lib/ui/hooks/use-copy-text';
 
 import { isEvmContact } from '../utils';
 
@@ -44,14 +43,7 @@ interface AddressProps {
 }
 
 const Address = memo<AddressProps>(({ address }) => (
-  <div
-    className="flex flex-row items-center p-0.5 cursor-pointer"
-    onClick={e => {
-      e.stopPropagation();
-      window.navigator.clipboard.writeText(address);
-      toastSuccess(t('copiedAddress'));
-    }}
-  >
+  <div className="flex flex-row items-center p-0.5 cursor-pointer" onClick={useCopyText(address, true)}>
     <span className="text-font-description text-grey-1 group-hover:text-secondary">
       <HashShortView hash={address} />
     </span>

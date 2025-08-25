@@ -15,9 +15,9 @@ const getThisWindowLocation = () =>
   }));
 
 export const [WindowIsActiveProvider, useWindowIsActive] = constate(() => {
-  const { popup } = useAppEnv();
+  const { fullPage, popup, sidebar } = useAppEnv();
   const { data: thisWindowLocation } = useTypedSWR('window-location', getThisWindowLocation);
-  const { focusLocation, windowsWithPopups, setWindowPopupState } = useTempleClient();
+  const { focusLocation, windowsWithPopups, setWindowPopupState, setWindowSidebarState } = useTempleClient();
   const [visibilityState, setVisibilityState] = useState<DocumentVisibilityState>(() => document.visibilityState);
 
   useEffect(() => {
@@ -39,16 +39,24 @@ export const [WindowIsActiveProvider, useWindowIsActive] = constate(() => {
       setWindowPopupState(thisWindowId, true);
     }
 
+    if (sidebar) {
+      setWindowSidebarState(thisWindowId, true);
+    }
+
     const visibilityListener = () => {
       setVisibilityState(document.visibilityState);
+      const newIsVisible = document.visibilityState === 'visible';
       if (popup) {
-        setWindowPopupState(thisWindowId, document.visibilityState === 'visible');
+        setWindowPopupState(thisWindowId, newIsVisible);
+      }
+      if (sidebar) {
+        setWindowSidebarState(thisWindowId, newIsVisible);
       }
     };
     document.addEventListener('visibilitychange', visibilityListener);
 
     return () => document.removeEventListener('visibilitychange', visibilityListener);
-  }, [popup, setWindowPopupState, thisWindowLocation]);
+  }, [popup, setWindowPopupState, setWindowSidebarState, sidebar, thisWindowLocation]);
 
   if (thisWindowLocation === undefined) {
     return true;
@@ -63,8 +71,8 @@ export const [WindowIsActiveProvider, useWindowIsActive] = constate(() => {
 
   return (
     documentIsVisible &&
-    (popup
-      ? thisWindowId === focusLocation.windowId
-      : !windowsWithPopups.includes(thisWindowId) && tabId === focusLocation.tabId)
+    (fullPage
+      ? !windowsWithPopups.includes(thisWindowId) && tabId === focusLocation.tabId
+      : thisWindowId === focusLocation.windowId)
   );
 });

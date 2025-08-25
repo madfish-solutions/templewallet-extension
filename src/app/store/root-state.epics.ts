@@ -4,7 +4,6 @@ import { catchError } from 'rxjs/operators';
 
 import { abTestingEpics } from './ab-testing/epics';
 import { accountsInitializationEpics } from './accounts-initialization/epics';
-import { advertisingEpics } from './advertising/epics';
 import { buyWithCreditCardEpics } from './buy-with-credit-card/epics';
 import { cryptoExchangeEpics } from './crypto-exchange/epics';
 import { currencyEpics } from './currency/epics';
@@ -23,7 +22,6 @@ import { tokensMetadataEpics } from './tezos/tokens-metadata/epics';
 
 const allEpics = combineEpics(
   currencyEpics,
-  advertisingEpics,
   notificationsEpics,
   swapEpics,
   balancesEpics,

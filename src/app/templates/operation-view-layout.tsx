@@ -4,7 +4,7 @@ import { Loader } from 'app/atoms';
 import { StoredAccount } from 'lib/temple/types';
 import { AssetsAmounts } from 'temple/types';
 
-import { AccountCard } from './AccountCard';
+import { AccountCard } from './account-card';
 import { BalancesChangesView } from './balances-changes-view';
 import { TransactionTabs, TransactionTabsProps } from './TransactionTabs';
 import { TxParamsFormData } from './TransactionTabs/types';
@@ -35,7 +35,7 @@ export const OperationViewLayout = <T extends TxParamsFormData>({
     <>
       {someBalancesChanges && (
         <div className={expensesViewIsVisible ? undefined : 'hidden'}>
-          <BalancesChangesView balancesChanges={filteredBalancesChanges} chain={network} />
+          <BalancesChangesView balancesChanges={[filteredBalancesChanges]} chain={network} />
         </div>
       )}
       {someBalancesChanges && (otherDataLoading || metadataLoading) && (
@@ -45,7 +45,13 @@ export const OperationViewLayout = <T extends TxParamsFormData>({
       )}
 
       <div className="flex flex-col mt-4">
-        <AccountCard account={sendingAccount} isCurrent={false} attractSelf={false} showRadioOnHover={false} />
+        <AccountCard
+          account={sendingAccount}
+          isCurrent={false}
+          attractSelf={false}
+          showRadioOnHover={false}
+          alwaysShowAddresses
+        />
 
         <TransactionTabs<T> network={network} {...restProps} />
       </div>

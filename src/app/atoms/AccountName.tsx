@@ -7,9 +7,8 @@ import { ActionsDropdownPopup } from 'app/atoms/ActionsDropdown';
 import { Button } from 'app/atoms/Button';
 import Name from 'app/atoms/Name';
 import { ReactComponent as CopyIcon } from 'app/icons/base/copy.svg';
-import { toastSuccess } from 'app/toaster';
-import { t } from 'lib/i18n';
 import { StoredAccount } from 'lib/temple/types';
+import { useCopyText } from 'lib/ui/hooks/use-copy-text';
 import Popper from 'lib/ui/Popper';
 import { getAccountAddressForEvm, getAccountAddressForTezos } from 'temple/accounts';
 import { TempleChainKind, TempleChainTitle } from 'temple/types';
@@ -90,13 +89,7 @@ interface CopyAddressButtonProps {
 }
 
 const CopyAddressButton = memo<CopyAddressButtonProps>(({ chain, address, onCopy }) => (
-  <ActionListItem
-    onClick={() => {
-      window.navigator.clipboard.writeText(address);
-      onCopy();
-      toastSuccess(t('copiedAddress'));
-    }}
-  >
+  <ActionListItem onClick={useCopyText(address, false, onCopy)}>
     <div className="flex-1 flex flex-col gap-y-0.5 items-start">
       <span className="text-font-description-bold">{TempleChainTitle[chain]}</span>
 

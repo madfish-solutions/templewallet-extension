@@ -1,34 +1,31 @@
 import React, { memo, useMemo, MouseEvent, useCallback } from 'react';
 
+import { isDefined } from '@rnw-community/shared';
 import clsx from 'clsx';
 import { FixedSizeList as List, ListChildComponentProps } from 'react-window';
 
 import { EmptyState } from 'app/atoms/EmptyState';
 import { PageLoader } from 'app/atoms/Loader';
 import { DeadEndBoundaryError } from 'app/ErrorBoundary';
-import { useLifiEvmTokensSlugs } from 'app/pages/Swap/modals/SwapSelectAsset/hooks';
+import { TOKEN_ITEM_HEIGHT } from 'app/pages/Swap/constants';
+import { SwapFieldName } from 'app/pages/Swap/form/interfaces';
+import { useFirstValue, useLifiEvmTokensSlugs } from 'app/pages/Swap/modals/SwapSelectAsset/hooks';
 import { useLifiEvmTokensMetadataRecordSelector } from 'app/store/evm/swap-lifi-metadata/selectors';
 import { useEvmTokensMetadataRecordSelector } from 'app/store/evm/tokens-metadata/selectors';
 import { EvmTokenListItem } from 'app/templates/TokenListItem';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { useEnabledEvmChainAccountTokenSlugs } from 'lib/assets/hooks';
 import { searchEvmChainTokensWithNoMeta } from 'lib/assets/search.utils';
-import { useEvmAccountTokensSortPredicate } from 'lib/assets/use-sorting';
+import { useEvmChainTokensSortPredicate } from 'lib/assets/use-sorting';
 import { toChainAssetSlug } from 'lib/assets/utils';
+import { useGetEvmTokenBalanceWithDecimals } from 'lib/balances/hooks';
 import { useMemoWithCompare } from 'lib/ui/hooks';
 import { useEvmChainByChainId } from 'temple/front/chains';
 import { EvmNetworkEssentials } from 'temple/networks';
 import { TempleChainKind } from 'temple/types';
 
-interface Props {
-  chainId: number;
-  filterZeroBalances: boolean;
-  publicKeyHash: HexString;
-  searchValue: string;
-  onAssetSelect: (e: MouseEvent, chainSlug: string) => void;
-}
-
 interface ItemData {
+  showFavoritesMark: boolean;
   searchedSlugs: string[];
   publicKeyHash: HexString;
   network: EvmNetworkEssentials;
@@ -36,73 +33,90 @@ interface ItemData {
   chainId: number;
 }
 
-const ITEM_HEIGHT = 56;
+interface Props {
+  chainId: number;
+  activeField: SwapFieldName;
+  publicKeyHash: HexString;
+  searchValue: string;
+  onAssetSelect: (e: MouseEvent, chainSlug: string) => void;
+}
 
-export const EvmChainAssetsList = memo<Props>(
-  ({ chainId, filterZeroBalances, publicKeyHash, searchValue, onAssetSelect }) => {
-    const network = useEvmChainByChainId(chainId);
-    if (!network) throw new DeadEndBoundaryError();
+export const EvmChainAssetsList = memo<Props>(({ chainId, activeField, publicKeyHash, searchValue, onAssetSelect }) => {
+  const network = useEvmChainByChainId(chainId);
+  if (!network) throw new DeadEndBoundaryError();
 
-    const { lifiTokenSlugs, isLoading } = useLifiEvmTokensSlugs(chainId);
+  const { lifiTokenSlugs, isLoading } = useLifiEvmTokensSlugs(chainId);
+  const getEvmBalance = useGetEvmTokenBalanceWithDecimals(publicKeyHash);
 
-    const tokensSlugs = useEnabledEvmChainAccountTokenSlugs(publicKeyHash, chainId);
-    const tokensSortPredicate = useEvmAccountTokensSortPredicate(publicKeyHash);
+  const isEvmNonZeroBalance = useCallback(
+    (assetSlug: string) => {
+      return isDefined(getEvmBalance(chainId, assetSlug));
+    },
+    [chainId, getEvmBalance]
+  );
+  const showFavoritesMark = useMemo(() => activeField === 'output', [activeField]);
+  const filterZeroBalances = useMemo(() => activeField === 'input', [activeField]);
 
-    const evmChainAssetsSlugs = useMemo(() => {
-      const gasTokensSlugs: string[] = [EVM_TOKEN_SLUG];
+  const tokensSlugs = useEnabledEvmChainAccountTokenSlugs(publicKeyHash, chainId);
 
-      return gasTokensSlugs.concat(filterZeroBalances ? tokensSlugs : tokensSlugs.concat(lifiTokenSlugs));
-    }, [filterZeroBalances, lifiTokenSlugs, tokensSlugs]);
+  const rawTokensSortPredicate = useEvmChainTokensSortPredicate(publicKeyHash, chainId, showFavoritesMark);
+  const tokensSortPredicate = useFirstValue(rawTokensSortPredicate);
 
-    const evmChainAssetsSlugsSorted = useMemoWithCompare(
-      () => evmChainAssetsSlugs.toSorted(tokensSortPredicate),
-      [evmChainAssetsSlugs, tokensSortPredicate]
-    );
+  const evmChainAssetsSlugs = useMemo(() => {
+    const gasTokensSlugs: string[] = [EVM_TOKEN_SLUG];
 
-    const metadata = useEvmTokensMetadataRecordSelector();
-    const lifiMetadata = useLifiEvmTokensMetadataRecordSelector();
+    return filterZeroBalances ? gasTokensSlugs.concat(tokensSlugs).filter(isEvmNonZeroBalance) : lifiTokenSlugs;
+  }, [filterZeroBalances, isEvmNonZeroBalance, lifiTokenSlugs, tokensSlugs]);
 
-    const getMetadata = useCallback(
-      (slug: string) =>
-        slug === EVM_TOKEN_SLUG ? network?.currency : metadata[chainId]?.[slug] ?? lifiMetadata[chainId]?.[slug],
-      [chainId, lifiMetadata, metadata, network?.currency]
-    );
+  const evmChainAssetsSlugsSorted = useMemoWithCompare(
+    () => evmChainAssetsSlugs.toSorted(tokensSortPredicate),
+    [evmChainAssetsSlugs, tokensSortPredicate]
+  );
 
-    const searchedSlugs = useMemo(
-      () => searchEvmChainTokensWithNoMeta(searchValue, evmChainAssetsSlugsSorted, getMetadata, s => s),
-      [evmChainAssetsSlugsSorted, getMetadata, searchValue]
-    );
+  const metadata = useEvmTokensMetadataRecordSelector();
+  const lifiMetadata = useLifiEvmTokensMetadataRecordSelector();
 
-    if (searchedSlugs.length === 0) return <EmptyState />;
-    if (isLoading) return <PageLoader stretch />;
+  const getMetadata = useCallback(
+    (slug: string) =>
+      slug === EVM_TOKEN_SLUG ? network?.currency : metadata[chainId]?.[slug] ?? lifiMetadata[chainId]?.[slug],
+    [chainId, lifiMetadata, metadata, network?.currency]
+  );
 
-    const itemData: ItemData = {
-      searchedSlugs,
-      publicKeyHash,
-      network,
-      onAssetSelect,
-      chainId
-    };
+  const searchedSlugs = useMemo(
+    () => searchEvmChainTokensWithNoMeta(searchValue, evmChainAssetsSlugsSorted, getMetadata, s => s),
+    [evmChainAssetsSlugsSorted, getMetadata, searchValue]
+  );
 
-    return (
-      <List
-        overscanCount={10}
-        itemKey={index => searchedSlugs[index]}
-        height={window.innerHeight}
-        itemCount={searchedSlugs.length}
-        style={{ paddingBottom: 16 }}
-        itemSize={ITEM_HEIGHT}
-        width="100%"
-        itemData={itemData}
-      >
-        {TokenListItemRenderer}
-      </List>
-    );
-  }
-);
+  if (isLoading && !filterZeroBalances) return <PageLoader stretch />;
+  if (searchedSlugs.length === 0) return <EmptyState />;
+
+  const itemData: ItemData = {
+    searchedSlugs,
+    publicKeyHash,
+    network,
+    onAssetSelect,
+    chainId,
+    showFavoritesMark
+  };
+
+  return (
+    <List
+      overscanCount={10}
+      itemKey={index => searchedSlugs[index]}
+      height={window.innerHeight}
+      itemCount={searchedSlugs.length}
+      style={{ paddingBottom: 16 }}
+      itemSize={TOKEN_ITEM_HEIGHT}
+      width="100%"
+      itemData={itemData}
+    >
+      {TokenListItemRenderer}
+    </List>
+  );
+});
 
 const TokenListItemRenderer = ({ index, style, data }: ListChildComponentProps<ItemData>) => {
-  const { searchedSlugs, publicKeyHash, network, onAssetSelect, chainId } = data;
+  const { searchedSlugs, publicKeyHash, network, onAssetSelect, chainId, showFavoritesMark } = data;
   const slug = searchedSlugs[index];
 
   return (
@@ -113,6 +127,7 @@ const TokenListItemRenderer = ({ index, style, data }: ListChildComponentProps<I
         publicKeyHash={publicKeyHash}
         network={network}
         requiresVisibility={false}
+        showFavoritesMark={showFavoritesMark}
         onClick={e => onAssetSelect(e, toChainAssetSlug(TempleChainKind.EVM, chainId, slug))}
       />
     </div>
