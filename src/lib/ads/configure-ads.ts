@@ -108,7 +108,7 @@ const buildNativeAdsMeta = (containerWidth: number, containerHeight: number) =>
       source: {
         providerName: 'HypeLab' as const,
         native: true as const,
-        slug: IS_MISES_BROWSER ? EnvVars.HYPELAB_MISES_NATIVE_PLACEMENT_SLUG : EnvVars.HYPELAB_NATIVE_PLACEMENT_SLUG
+        slug: EnvVars.HYPELAB_EXTERNAL_NATIVE_PLACEMENT_SLUG
       },
       dimensions: {
         width: Math.max(160, containerWidth),
@@ -156,7 +156,7 @@ const bannerAdsMetaBase: (AdMetadata | false)[] = [
     source: {
       providerName: 'HypeLab' as const,
       native: false,
-      slug: IS_MISES_BROWSER ? EnvVars.HYPELAB_MISES_WIDE_PLACEMENT_SLUG : EnvVars.HYPELAB_WIDE_PLACEMENT_SLUG
+      slug: EnvVars.HYPELAB_WIDE_PLACEMENT_SLUG
     },
     dimensions: {
       width: 728,
@@ -263,7 +263,7 @@ const bannerAdsMetaBase: (AdMetadata | false)[] = [
     source: {
       providerName: 'HypeLab' as const,
       native: false,
-      slug: IS_MISES_BROWSER ? EnvVars.HYPELAB_MISES_HIGH_PLACEMENT_SLUG : EnvVars.HYPELAB_HIGH_PLACEMENT_SLUG
+      slug: EnvVars.HYPELAB_HIGH_PLACEMENT_SLUG
     },
     dimensions: {
       width: 300,
@@ -320,6 +320,21 @@ const bannerAdsMetaBase: (AdMetadata | false)[] = [
       maxContainerHeight: Infinity
     }
   },
+  {
+    source: {
+      providerName: 'HypeLab' as const,
+      native: false,
+      slug: EnvVars.HYPELAB_EXTERNAL_MEDIUM_PLACEMENT_SLUG
+    },
+    dimensions: {
+      width: 320,
+      height: 100,
+      minContainerWidth: 319,
+      minContainerHeight: 99,
+      maxContainerWidth: 420,
+      maxContainerHeight: 200
+    }
+  },
   isTruthy(EnvVars.BITMEDIA_320_100_PLACEMENT_ID) && {
     source: {
       providerName: 'Bitmedia' as const,
@@ -354,7 +369,7 @@ const bannerAdsMetaBase: (AdMetadata | false)[] = [
     source: {
       providerName: 'HypeLab' as const,
       native: false,
-      slug: IS_MISES_BROWSER ? EnvVars.HYPELAB_MISES_SMALL_PLACEMENT_SLUG : EnvVars.HYPELAB_SMALL_PLACEMENT_SLUG,
+      slug: EnvVars.HYPELAB_EXTERNAL_SMALL_PLACEMENT_SLUG,
       shouldNotUseStrictContainerLimits: true
     },
     dimensions: {
@@ -443,6 +458,7 @@ export const configureAds = async () => {
     typeof window === 'undefined' ? undefined : await getDApp(TempleChainKind.EVM, window.location.origin);
   const chainId = dAppSession?.chainId ?? 1;
   originalConfigureAds({
+    hypelabPropertySlug: EnvVars.HYPELAB_EXTERNAL_PROPERTY_SLUG,
     adsTwWindowUrl: EnvVars.HYPELAB_ADS_WINDOW_URL,
     swapTkeyUrl,
     tkeyInpageAdUrl,

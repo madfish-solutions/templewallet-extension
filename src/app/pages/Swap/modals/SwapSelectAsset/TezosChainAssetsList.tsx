@@ -5,6 +5,7 @@ import { isDefined } from '@rnw-community/shared';
 import { EmptyState } from 'app/atoms/EmptyState';
 import { DeadEndBoundaryError } from 'app/ErrorBoundary';
 import { SwapFieldName } from 'app/pages/Swap/form/interfaces';
+import { useFirstValue } from 'app/pages/Swap/modals/SwapSelectAsset/hooks';
 import { useAllAccountBalancesSelector } from 'app/store/tezos/balances/selectors';
 import { TezosTokenListItem } from 'app/templates/TokenListItem';
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
@@ -45,14 +46,14 @@ export const TezosChainAssetsList = memo<Props>(
     );
 
     const rawTokensSortPredicate = useTezosChainAccountTokensSortPredicate(publicKeyHash, chainId, showFavorites);
-    const tokensSortPredicate = useMemo(() => rawTokensSortPredicate, [chainId]);
+    const tokensSortPredicate = useFirstValue(rawTokensSortPredicate);
 
     const getAssetMetadata = useGetChainTokenOrGasMetadata(chainId);
 
     const assetsSlugs = useMemoWithCompare<string[]>(() => {
       const gasTokensSlugs: string[] = [TEZ_TOKEN_SLUG];
 
-      return gasTokensSlugs.concat(Array.from(route3tokensSlugs)).toSorted(tokensSortPredicate);
+      return gasTokensSlugs.concat(Array.from(route3tokensSlugs)).sort(tokensSortPredicate);
     }, [tokensSortPredicate, route3tokensSlugs]);
 
     const filteredAssets = useMemo(() => {

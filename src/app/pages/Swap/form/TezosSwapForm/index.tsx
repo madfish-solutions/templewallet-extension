@@ -9,7 +9,7 @@ import { FormProvider, useForm } from 'react-hook-form-v7';
 import { DeadEndBoundaryError } from 'app/ErrorBoundary';
 import { EXCHANGE_XTZ_RESERVE } from 'app/pages/Swap/constants';
 import { BaseSwapForm } from 'app/pages/Swap/form/BaseSwapForm';
-import { SwapFieldName, TezosReviewData } from 'app/pages/Swap/form/interfaces';
+import { ChainAssetInfo, SwapFieldName, TezosReviewData } from 'app/pages/Swap/form/interfaces';
 import { SwapFormValue, SwapInputValue } from 'app/pages/Swap/form/SwapForm.form';
 import { useGetTezosSwapTransferParams } from 'app/pages/Swap/form/use-swap-params';
 import { getDefaultSwapFormValues } from 'app/pages/Swap/form/utils';
@@ -74,12 +74,6 @@ interface TezosSwapFormProps {
   handleToggleIconClick: EmptyFn;
 }
 
-interface ChainAssetInfo {
-  networkName: string;
-  chainId: string;
-  assetSlug: string;
-}
-
 export const TezosSwapForm: FC<TezosSwapFormProps> = ({
   slippageTolerance,
   onReview,
@@ -113,9 +107,9 @@ export const TezosSwapForm: FC<TezosSwapFormProps> = ({
   const sourceAssetInfo = useMemo<ChainAssetInfo | null>(() => {
     if (!selectedChainAssets.from) return null;
 
-    const [networkName, chainId, assetSlug] = parseChainAssetSlug(selectedChainAssets.from);
+    const [networkKind, chainId, assetSlug] = parseChainAssetSlug(selectedChainAssets.from);
     return {
-      networkName,
+      networkKind,
       chainId: chainId.toString(),
       assetSlug
     };
@@ -124,17 +118,17 @@ export const TezosSwapForm: FC<TezosSwapFormProps> = ({
   const targetAssetInfo = useMemo<ChainAssetInfo | null>(() => {
     if (!selectedChainAssets.to) return null;
 
-    const [networkName, chainId, assetSlug] = parseChainAssetSlug(selectedChainAssets.to);
+    const [networkKind, chainId, assetSlug] = parseChainAssetSlug(selectedChainAssets.to);
     return {
-      networkName,
+      networkKind,
       chainId: chainId.toString(),
       assetSlug
     };
   }, [selectedChainAssets.to]);
 
   const defaultValues = useMemo(
-    () => getDefaultSwapFormValues(sourceAssetInfo?.assetSlug, targetAssetInfo?.assetSlug),
-    [sourceAssetInfo?.assetSlug, targetAssetInfo?.assetSlug]
+    () => getDefaultSwapFormValues(sourceAssetInfo, targetAssetInfo),
+    [sourceAssetInfo, targetAssetInfo]
   );
 
   const form = useForm<SwapFormValue>({
@@ -301,7 +295,7 @@ export const TezosSwapForm: FC<TezosSwapFormProps> = ({
       clearErrors('input');
 
       if (newInputValue.assetSlug && newInputValue.assetSlug === currentFormState.output.assetSlug) {
-        setValue('output', { assetSlug: undefined, amount: undefined });
+        setValue('output', { assetSlug: undefined, chainId: undefined, amount: undefined });
         return;
       }
 
@@ -317,7 +311,7 @@ export const TezosSwapForm: FC<TezosSwapFormProps> = ({
       clearErrors('output');
 
       if (newOutputValue.assetSlug && newOutputValue.assetSlug === currentFormState.input.assetSlug) {
-        setValue('input', { assetSlug: undefined, amount: undefined });
+        setValue('input', { assetSlug: undefined, chainId: undefined, amount: undefined });
         return;
       }
 
@@ -399,10 +393,12 @@ export const TezosSwapForm: FC<TezosSwapFormProps> = ({
     activeField === 'input'
       ? handleInputChange({
           assetSlug: newAssetSlug,
+          chainId: sourceAssetInfo?.chainId,
           amount: amount
         })
       : handleOutputChange({
           assetSlug: newAssetSlug,
+          chainId: targetAssetInfo?.chainId,
           amount: amount
         });
   }, [
@@ -413,7 +409,9 @@ export const TezosSwapForm: FC<TezosSwapFormProps> = ({
     handleOutputChange,
     isFiatMode,
     sourceAssetInfo?.assetSlug,
-    targetAssetInfo?.assetSlug
+    sourceAssetInfo?.chainId,
+    targetAssetInfo?.assetSlug,
+    targetAssetInfo?.chainId
   ]);
 
   const onSubmit = useCallback(async () => {
@@ -666,7 +664,7 @@ export const TezosSwapForm: FC<TezosSwapFormProps> = ({
         </div>
       )}
       <BaseSwapForm
-        network={network}
+        isEvmNetwork={false}
         inputAssetSlug={inputValue.assetSlug}
         inputAssetSymbol={inputAssetMetadata.symbol}
         inputAssetDecimals={inputAssetMetadata.decimals}
@@ -674,6 +672,7 @@ export const TezosSwapForm: FC<TezosSwapFormProps> = ({
         inputAssetBalance={inputTokenBalance}
         inputTokenAmount={inputValue.amount}
         inputAmount={isDefined(swapParams.data.input) ? new BigNumber(swapParams.data.input) : undefined}
+        inputChainId={inputValue.chainId}
         inputTokenMaxAmount={inputTokenMaxAmount}
         outputAssetSlug={outputValue.assetSlug}
         outputAssetSymbol={outputAssetMetadata.symbol}
@@ -682,6 +681,7 @@ export const TezosSwapForm: FC<TezosSwapFormProps> = ({
         outputAssetBalance={outputTokenBalance}
         outputTokenAmount={outputValue.amount}
         outputAmount={isDefined(swapParams.data.output) ? new BigNumber(swapParams.data.output) : undefined}
+        outputChainId={outputValue.chainId}
         minimumReceivedAmount={minimumReceivedAtomic}
         swapParamsAreLoading={swapParams.isLoading}
         swapRouteSteps={swapRouteSteps}

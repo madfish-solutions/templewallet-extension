@@ -24,6 +24,12 @@ export const useImagesStackLoading = (sources: string[]) => {
         setIndex(0);
         setIsLoading(true);
         setIsStackFailed(false);
+
+        const img = new Image();
+        img.src = sources[0];
+        if (img.complete) {
+          setIsLoading(false);
+        }
       } else {
         setIndex(-1);
         setIsLoading(false);

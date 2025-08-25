@@ -51,7 +51,8 @@ const ApproveModal = ({ data, onClose, onReview }: ApproveModalProps) => {
     minimumReceived,
     onConfirm,
     neededApproval,
-    onChainAllowance
+    onChainAllowance,
+    bridgeInfo
   } = data;
 
   const [loading, setLoading] = useState(false);
@@ -153,6 +154,7 @@ const ApproveModal = ({ data, onClose, onReview }: ApproveModalProps) => {
           onChainAllowance,
           onConfirm,
           minimumReceived,
+          bridgeInfo,
           buildSwapRouteParams,
           fetchEvmSwapRoute,
           initialLifiStep: lifiStep

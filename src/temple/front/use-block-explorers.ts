@@ -137,7 +137,10 @@ export function useGetActiveBlockExplorer(chainKind: TempleChainKind) {
   const getBlockExplorers = useGetBlockExplorers(chainKind);
 
   return useCallback(
-    (chainId: string) => {
+    (chainId: string, bridge = false) => {
+      if (bridge) {
+        return LIFI_BLOCK_EXPLORER;
+      }
       const chainsSpecs = chainKind === TempleChainKind.Tezos ? tezosChainsSpecsRef.current : evmChainsSpecsRef.current;
       const chainBlockExplorers = getBlockExplorers(chainId);
       const activeBlockExplorerId = chainsSpecs[chainId]?.activeBlockExplorerId;
@@ -217,6 +220,12 @@ export function makeBlockExplorerHref(
 ) {
   return new URL(chainKind === TempleChainKind.Tezos ? hash : `${entityType}/${hash}`, baseUrl).href;
 }
+
+const LIFI_BLOCK_EXPLORER = {
+  name: 'LIFI',
+  url: 'https://scan.li.fi',
+  id: 'lifi'
+};
 
 const DEFAULT_BLOCK_EXPLORERS_BASE: Record<TempleChainKind, Record<string, Omit<BlockExplorer, 'default'>[]>> = {
   [TempleChainKind.Tezos]: {

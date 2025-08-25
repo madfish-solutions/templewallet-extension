@@ -231,6 +231,7 @@
     "zip-a-folder": "^3"
   },
   "devDependencies": {
+    "@bigmi/core": "^0.4.2",
     "@types/react-window": "^1.8.8",
     "fake-indexeddb": "^6.0.0",
     "source-map": "^0.7.4",
@@ -250,6 +251,6 @@
     "follow-redirects": "^1.15.4"
   },
   "optionalDependencies": {
-    "@temple-wallet/extension-ads": "^13.0.2"
+    "@temple-wallet/extension-ads": "14.0.0-beta.1693.1"
   }
 }

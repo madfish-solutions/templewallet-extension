@@ -18,7 +18,7 @@ export const ChartListItem: FC<ChartListItemProps> = ({
 }) => (
   <div
     className={clsx(
-      'py-2 flex flex-row justify-between items-center',
+      'h-12 flex flex-row justify-between items-center',
       bottomSeparator && 'border-b-0.5 border-lines',
       className
     )}

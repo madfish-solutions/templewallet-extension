@@ -15,12 +15,6 @@ export const ChainIDs = [
   686868, 1992, 660279
 ] as const;
 
-export const LifiSupportedChains = [
-  1, 56, 42161, 8453, 81457, 43114, 137, 534352, 10, 59144, 324, 1101, 100, 250, 1285, 1284, 122, 288, 34443, 1088,
-  1135, 130, 1313161554, 1329, 13371, 146, 1625, 167000, 1868, 1923, 21000000, 232, 25, 252, 2741, 30, 42220, 480, 5000,
-  55244, 57073, 80094, 8217, 42793
-];
-
 export type ChainID = (typeof ChainIDs)[number];
 
 export interface BalancesResponse {
@@ -46,6 +40,7 @@ export interface RouteParams {
   amount: string;
   fromAddress: string;
   slippage: number;
+  amountForGas?: string;
 }
 
 export interface BalanceItem {

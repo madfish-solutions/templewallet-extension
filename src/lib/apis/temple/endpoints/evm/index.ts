@@ -57,8 +57,17 @@ export const getEvmBestSwapRoute = (params: RouteParams, signal?: AbortSignal) =
     }
   );
 
-export const getEvmSwapTokensMetadata = (chainIds: ChainID[]) =>
-  templeWalletApi.get<TokensByChain>('evm/swap-tokens', { params: { chainIds: chainIds.join(',') } }).then(
+export const getLifiSupportedChains = () =>
+  templeWalletApi.get<number[]>('evm/swap-chains').then(
+    res => res.data,
+    error => {
+      console.error(error);
+      throw error;
+    }
+  );
+
+export const getEvmSwapConnectionsMetadata = (fromChain: number, fromToken: string) =>
+  templeWalletApi.get<TokensByChain>('evm/swap-connections', { params: { fromChain, fromToken } }).then(
     res => res.data,
     error => {
       console.error(error);

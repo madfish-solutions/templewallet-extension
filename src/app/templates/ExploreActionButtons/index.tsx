@@ -14,9 +14,9 @@ import { ReactComponent as SendIcon } from 'app/icons/base/send.svg';
 import { ReactComponent as SwapIcon } from 'app/icons/base/swap.svg';
 import { buildSendPagePath } from 'app/pages/Send/build-url';
 import { buildSwapPagePath } from 'app/pages/Swap/build-url-query';
+import { useLifiSupportedChainIdsSelector } from 'app/store/evm/swap-lifi-metadata/selectors';
 import { useTestnetModeEnabledSelector } from 'app/store/settings/selectors';
 import { TestIDProps } from 'lib/analytics';
-import { LifiSupportedChains } from 'lib/apis/temple/endpoints/evm/api.interfaces';
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
 import { TID, T, t } from 'lib/i18n';
 import { useAvailableRoute3TokensSlugs } from 'lib/route3/assets';
@@ -42,6 +42,7 @@ export const ExploreActionButtonsBar = memo<Props>(
     const account = useAccount();
     const testnetModeEnabled = useTestnetModeEnabledSelector();
     const { route3tokensSlugs } = useAvailableRoute3TokensSlugs();
+    const supportedChainIds = useLifiSupportedChainIdsSelector();
 
     const canSend = account.type !== TempleAccountType.WatchOnly;
     const sendLink = buildSendPagePath(chainKind, chainId as string, assetSlug);
@@ -56,10 +57,10 @@ export const ExploreActionButtonsBar = memo<Props>(
         );
       }
       if (chainKind === TempleChainKind.EVM && chainId) {
-        return isDefined(assetSlug) && LifiSupportedChains.includes(+chainId);
+        return isDefined(assetSlug) && supportedChainIds.includes(+chainId);
       }
       return false;
-    }, [assetSlug, chainId, chainKind, route3tokensSlugs]);
+    }, [assetSlug, chainId, chainKind, route3tokensSlugs, supportedChainIds]);
 
     const labelClassName = additionalButtonType ? 'max-w-12' : 'max-w-15';
 

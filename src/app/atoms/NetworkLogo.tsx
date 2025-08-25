@@ -116,6 +116,7 @@ export const EvmNetworkLogo = memo<EvmNetworkLogoProps>(
     );
   }
 );
+
 interface NetworkLogoFallbackProps {
   networkName?: string;
   size?: number;
