@@ -16,12 +16,10 @@ import { setOnRampAssetAction } from 'app/store/settings/actions';
 import { resetSwapParamsAction } from 'app/store/swap/actions';
 import { setTestID } from 'lib/analytics';
 import { isWertSupportedChainAssetSlug } from 'lib/apis/wert';
-import { TEZ_TOKEN_SLUG } from 'lib/assets';
-import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { toChainAssetSlug } from 'lib/assets/utils';
 import { useFiatCurrency } from 'lib/fiat-currency';
-import { useAssetUSDPrice } from 'lib/fiat-currency/core';
 import { t, T, toLocalFixed } from 'lib/i18n';
+import { SWAP_THRESHOLD_TO_GET_CASHBACK } from 'lib/route3/constants';
 import { TempleChainKind } from 'temple/types';
 
 import { SwapFormValue, SwapInputValue } from '../SwapForm.form';
@@ -106,9 +104,7 @@ export const BaseSwapForm: FC<Props> = ({
 
   const { selectedFiatCurrency } = useFiatCurrency();
 
-  const defaultSlug = isEvmNetwork ? EVM_TOKEN_SLUG : TEZ_TOKEN_SLUG;
-  const price = useAssetUSDPrice(outputAssetSlug ?? defaultSlug, outputChainId!);
-  const outputAmountInUSD = (price && BigNumber(price).times(outputAmount || 0)) || BigNumber(0);
+  const inputAmountInUSD = (inputAssetPrice && BigNumber(inputAssetPrice).times(inputAmount || 0)) || BigNumber(0);
 
   const validateInputField = useCallback(
     (props: SwapInputValue) => {
@@ -315,7 +311,7 @@ export const BaseSwapForm: FC<Props> = ({
               )
             ) : (
               <TezosSwapInfoDropdown
-                showCashBack={outputAmountInUSD.gte(10)}
+                showCashBack={inputAmountInUSD.gte(SWAP_THRESHOLD_TO_GET_CASHBACK)}
                 swapRouteSteps={swapRouteSteps}
                 inputAmount={inputAmount}
                 outputAmount={outputAmount}
