@@ -8,9 +8,12 @@ import { useTezosUsdToTokenRatesSelector } from 'app/store/currency/selectors';
 import { useLifiEvmTokenMetadataSelector } from 'app/store/evm/swap-lifi-metadata/selectors';
 import { useEvmUsdToTokenRatesSelector } from 'app/store/evm/tokens-exchange-rates/selectors';
 import { useSelector } from 'app/store/root-state.selector';
+import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
+import { toChainAssetSlug } from 'lib/assets/utils';
 import { useStorage } from 'lib/temple/front';
 import { isTruthy } from 'lib/utils';
 import { ZERO } from 'lib/utils/numbers';
+import { TempleChainKind } from 'temple/types';
 
 import { FIAT_CURRENCIES_BASE } from './consts';
 import type { CoingeckoFiatInterface, FiatCurrencyOptionBase } from './types';
@@ -20,7 +23,9 @@ const FIAT_CURRENCY_STORAGE_KEY = 'fiat_currency';
 export function useAssetUSDPrice(slug: string, chainId: number | string, evm = false) {
   const tezosUsdToTokenRates = useTezosUsdToTokenRatesSelector();
   const evmUsdToTokenRates = useEvmUsdToTokenRatesSelector();
-  const lifiUsdToTokenRate = useLifiEvmTokenMetadataSelector(chainId as number, slug)?.priceUSD;
+
+  const processedSlug = slug === EVM_TOKEN_SLUG ? toChainAssetSlug(TempleChainKind.EVM, chainId, slug) : slug;
+  const lifiUsdToTokenRate = useLifiEvmTokenMetadataSelector(chainId as number, processedSlug)?.priceUSD;
 
   return useMemo(() => {
     let rate: number | string;

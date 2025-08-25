@@ -1,13 +1,24 @@
-import { useMemo } from 'react';
+import { useMemo, useRef } from 'react';
 
-import { useLifiEvmChainTokensMetadataSelector } from 'app/store/evm/swap-lifi-metadata/selectors';
+import { useSelector } from 'app/store';
+import {
+  useLifiEvmChainTokensMetadataSelector,
+  useLifiEvmTokensMetadataRecordSelector
+} from 'app/store/evm/swap-lifi-metadata/selectors';
 import { toTokenSlug } from 'lib/assets';
+import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
+import { toChainAssetSlug } from 'lib/assets/utils';
+import { EVM_ZERO_ADDRESS } from 'lib/constants';
+import { TempleChainKind } from 'temple/types';
 
 export const useLifiEvmTokensSlugs = (chainId: number) => {
   const { metadata: lifiEvmTokensMetadataRecord, isLoading } = useLifiEvmChainTokensMetadataSelector(chainId);
 
   const lifiTokenSlugs = useMemo(
-    () => Object.values(lifiEvmTokensMetadataRecord ?? []).map(token => toTokenSlug(token.address, 0)),
+    () =>
+      Object.values(lifiEvmTokensMetadataRecord ?? []).map(token => {
+        return token.address === EVM_ZERO_ADDRESS ? EVM_TOKEN_SLUG : toTokenSlug(token.address, 0);
+      }),
     [lifiEvmTokensMetadataRecord]
   );
 
@@ -15,4 +26,29 @@ export const useLifiEvmTokensSlugs = (chainId: number) => {
     isLoading,
     lifiTokenSlugs
   };
+};
+
+export const useLifiEvmAllTokensSlugs = () => {
+  const metadataRecord = useLifiEvmTokensMetadataRecordSelector();
+  const isLoading = useSelector(({ lifiEvmTokensMetadata }) => lifiEvmTokensMetadata.isLoading);
+
+  const lifiTokenSlugs = useMemo(() => {
+    return Object.entries(metadataRecord).flatMap(([chainIdStr, tokensBySlug]) => {
+      const chainId = Number(chainIdStr);
+      return Object.values(tokensBySlug).map(token => {
+        const evmTokenSlug = token.address === EVM_ZERO_ADDRESS ? EVM_TOKEN_SLUG : toTokenSlug(token.address, 0);
+        return toChainAssetSlug(TempleChainKind.EVM, chainId, evmTokenSlug);
+      });
+    });
+  }, [metadataRecord]);
+
+  return {
+    isLoading,
+    lifiTokenSlugs
+  };
+};
+
+export const useFirstValue = <T,>(value: T): T => {
+  const ref = useRef(value);
+  return ref.current;
 };

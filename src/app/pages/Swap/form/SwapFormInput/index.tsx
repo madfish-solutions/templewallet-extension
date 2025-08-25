@@ -1,5 +1,6 @@
 import React, { FC, MouseEventHandler } from 'react';
 
+import { ChainId } from '@lifi/sdk';
 import BigNumber from 'bignumber.js';
 import { noop } from 'lodash';
 
@@ -10,8 +11,7 @@ import SwapInputHeader from 'app/pages/Swap/form/SwapFormInput/SwapInputHeader';
 import { InputContainer } from 'app/templates/InputContainer/InputContainer';
 import { TestIDProps } from 'lib/analytics';
 import { FiatCurrencyOptionBase } from 'lib/fiat-currency';
-import { OneOfChains } from 'temple/front';
-import { TempleChainKind } from 'temple/types';
+import { TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
 
 interface SwapFormInputProps extends TestIDProps {
   inputName: SwapFieldName;
@@ -21,7 +21,8 @@ interface SwapFormInputProps extends TestIDProps {
   onChange: SyncFn<SwapInputValue>;
   readOnly?: boolean;
   className?: string;
-  network: OneOfChains;
+  isEvmNetwork: boolean;
+  chainId?: string | number;
   assetSymbol: string;
   assetDecimals: number;
   balance?: BigNumber;
@@ -52,7 +53,8 @@ const SwapFormInput: FC<SwapFormInputProps> = ({
   onChange,
   readOnly,
   className,
-  network,
+  isEvmNetwork,
+  chainId,
   assetSymbol,
   assetDecimals,
   balance,
@@ -65,8 +67,6 @@ const SwapFormInput: FC<SwapFormInputProps> = ({
   parseFiatValueToAssetAmount,
   testIDs
 }) => {
-  const isEvmNetwork = network.kind === TempleChainKind.EVM;
-
   return (
     <div className={className}>
       <InputContainer
@@ -92,7 +92,7 @@ const SwapFormInput: FC<SwapFormInputProps> = ({
           readOnly={Boolean(readOnly)}
           error={error}
           onChange={onChange}
-          chainId={network.chainId}
+          chainId={chainId ?? (isEvmNetwork ? ChainId.ETH : TEZOS_MAINNET_CHAIN_ID)}
           evm={isEvmNetwork}
           assetSlug={assetSlug}
           assetSymbol={assetSymbol}

@@ -157,12 +157,21 @@ export const useTezosChainAccountTokensSortPredicate = (
   );
 };
 
-export const useEvmAccountTokensSortPredicate = (publicKeyHash: HexString) => {
+export const useEvmAccountTokensSortPredicate = (publicKeyHash: HexString, applyFavorites: boolean = false) => {
   const getBalance = useGetEvmTokenBalanceWithDecimals(publicKeyHash);
   const usdToTokenRates = useEvmUsdToTokenRatesSelector();
+  const { isFavorite } = useFavoriteTokens();
 
   return useCallback(
     (aChainAssetSlug: string, bChainAssetSlug: string) => {
+      if (applyFavorites) {
+        const aFavorite = isFavorite(aChainAssetSlug);
+        const bFavorite = isFavorite(bChainAssetSlug);
+        if (aFavorite !== bFavorite) {
+          return aFavorite ? -1 : 1;
+        }
+      }
+
       const [_, aChainId, aSlug] = fromChainAssetSlug<number>(aChainAssetSlug);
       const [_2, bChainId, bSlug] = fromChainAssetSlug<number>(bChainAssetSlug);
 
@@ -177,7 +186,7 @@ export const useEvmAccountTokensSortPredicate = (publicKeyHash: HexString) => {
 
       return bEquity.comparedTo(aEquity);
     },
-    [getBalance, usdToTokenRates]
+    [applyFavorites, getBalance, isFavorite, usdToTokenRates]
   );
 };
 

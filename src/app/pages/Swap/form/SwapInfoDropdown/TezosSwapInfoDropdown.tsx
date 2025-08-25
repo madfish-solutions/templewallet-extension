@@ -1,28 +1,28 @@
-import React, { forwardRef } from 'react';
+import React from 'react';
 
 import BigNumber from 'bignumber.js';
 import clsx from 'clsx';
 
-import { Divider, IconBase } from 'app/atoms';
+import { IconBase } from 'app/atoms';
 import { ReactComponent as ArrowDownIcon } from 'app/icons/base/arrow_down.svg';
 import { ReactComponent as ChevronUpIcon } from 'app/icons/base/chevron_up.svg';
 import { ReactComponent as GiftIcon } from 'app/icons/base/gift.svg';
 import { ReactComponent as RouteIcon } from 'app/icons/base/route.svg';
 import { ReactComponent as StackIcon } from 'app/icons/base/stack.svg';
-import { getPluralKey, T, TID } from 'lib/i18n';
+import { ListBlockItem } from 'app/pages/Swap/form/SwapInfoDropdown/ListBlockItem';
+import { getPluralKey, T } from 'lib/i18n';
 import { ROUTING_FEE_RATIO, SWAP_CASHBACK_RATIO } from 'lib/route3/constants';
 import { useBooleanState } from 'lib/ui/hooks';
 import useTippy from 'lib/ui/useTippy';
 import { toPercentage } from 'lib/ui/utils';
 
 import RouteImgSrc from '../assets/3route.png';
-import LiFiImgSrc from '../assets/lifi.png';
-import { cashbackInfoTippyProps, evmFeeInfoTippyProps, feeInfoTippyProps } from '../SwapForm.tippy';
+import { cashbackInfoTippyProps, feeInfoTippyProps } from '../SwapForm.tippy';
 
 import { SwapExchangeRate } from './SwapExchangeRate';
 import { SwapMinimumReceived } from './SwapMinimumReceived';
 
-interface ISwapInfoDropdownProps {
+interface ITezosSwapInfoDropdownProps {
   showCashBack: boolean;
   swapRouteSteps: number;
   inputAmount?: BigNumber;
@@ -31,10 +31,9 @@ interface ISwapInfoDropdownProps {
   outputAssetSymbol: string;
   outputAssetDecimals: number;
   minimumReceivedAmount?: BigNumber;
-  evm: boolean;
 }
 
-export const SwapInfoDropdown = ({
+export const TezosSwapInfoDropdown = ({
   showCashBack,
   swapRouteSteps,
   inputAmount,
@@ -42,11 +41,9 @@ export const SwapInfoDropdown = ({
   inputAssetSymbol,
   outputAssetSymbol,
   outputAssetDecimals,
-  minimumReceivedAmount,
-  evm
-}: ISwapInfoDropdownProps) => {
+  minimumReceivedAmount
+}: ITezosSwapInfoDropdownProps) => {
   const feeInfoIconRef = useTippy<HTMLSpanElement>(feeInfoTippyProps);
-  const evmFeeInfoRef = useTippy<HTMLSpanElement>(evmFeeInfoTippyProps);
   const cashbackInfoIconRef = useTippy<HTMLSpanElement>(cashbackInfoTippyProps);
 
   const [dropdownOpened, , , toggleDropdown] = useBooleanState(false);
@@ -55,11 +52,11 @@ export const SwapInfoDropdown = ({
     <div className="p-4 bg-white rounded-8 shadow-md">
       <div onClick={toggleDropdown} className="flex justify-between items-center cursor-pointer">
         <div className="flex gap-2 items-center">
-          <img src={evm ? LiFiImgSrc : RouteImgSrc} alt={evm ? 'lifi' : '3Route'} className="w-10 h-10 rounded-8" />
+          <img src={RouteImgSrc} alt="3Route" className="w-10 h-10 rounded-8" />
 
           <div className="flex flex-col gap-1">
             <div className="flex gap-1 items-center">
-              <span className="font-semibold text-sm">{evm ? 'Li.Fi' : '3Route'}</span>
+              <span className="font-semibold text-sm">3Route</span>
               {showCashBack && (
                 <span
                   className={clsx(
@@ -95,12 +92,7 @@ export const SwapInfoDropdown = ({
             {toPercentage(SWAP_CASHBACK_RATIO, undefined, Infinity)}
           </ListBlockItem>
         </div>
-        <ListBlockItem
-          ref={evm ? evmFeeInfoRef : feeInfoIconRef}
-          Icon={RouteIcon}
-          title="routingFee"
-          divide={showCashBack}
-        >
+        <ListBlockItem ref={feeInfoIconRef} Icon={RouteIcon} title="routingFee" divide={showCashBack}>
           {toPercentage(ROUTING_FEE_RATIO, undefined, Infinity)}
         </ListBlockItem>
         <ListBlockItem Icon={StackIcon} title="swapRoute" divide={true}>
@@ -117,26 +109,3 @@ export const SwapInfoDropdown = ({
     </div>
   );
 };
-
-const ListBlockItem = forwardRef<
-  HTMLSpanElement,
-  PropsWithChildren<{
-    title: TID;
-    divide?: boolean;
-    Icon: ImportedSVGComponent;
-    tooltipText?: string;
-  }>
->(({ Icon, title, divide = true, children }, ref) => (
-  <>
-    {divide && <Divider thinest />}
-    <div className="flex items-center justify-between min-h-12">
-      <span ref={ref} className="flex gap-0.5 items-center cursor-pointer">
-        <IconBase Icon={Icon} className="text-grey-1" />
-        <span className="text-font-description text-grey-1">
-          <T id={title} />
-        </span>
-      </span>
-      <span className="p-1 text-font-num-12">{children}</span>
-    </div>
-  </>
-));

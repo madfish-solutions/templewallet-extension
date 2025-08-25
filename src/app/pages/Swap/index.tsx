@@ -112,26 +112,26 @@ const Swap = memo<Props>(() => {
   const handleAssetSelect = useCallback(
     (slug: string) => {
       navigate({ pathname: '/swap' }, HistoryAction.Replace);
-      const selectedChainId = parseChainAssetSlug(slug)[1];
+      const selectedChainKind = parseChainAssetSlug(slug)[0];
 
       if (activeField === 'input') {
         const toSlug = selectedChainAssets.to;
-        const toChainId = toSlug ? parseChainAssetSlug(toSlug)[1] : [null];
+        const toChainKind = toSlug ? parseChainAssetSlug(toSlug)[0] : [null];
 
         if (slug === toSlug) {
           setSelectedChainAssets({ to: null, from: slug });
-        } else if (toChainId && toChainId !== selectedChainId) {
+        } else if (toChainKind && toChainKind !== selectedChainKind) {
           setSelectedChainAssets({ from: slug, to: null });
         } else {
           setSelectedChainAssets({ ...selectedChainAssets, from: slug });
         }
       } else if (activeField === 'output') {
         const fromSlug = selectedChainAssets.from;
-        const fromChainId = fromSlug ? parseChainAssetSlug(fromSlug)[1] : [null];
+        const fromChainKind = fromSlug ? parseChainAssetSlug(fromSlug)[0] : [null];
 
         if (slug === fromSlug) {
           setSelectedChainAssets({ from: null, to: slug });
-        } else if (fromChainId && fromChainId !== selectedChainId) {
+        } else if (fromChainKind && fromChainKind !== selectedChainKind) {
           setSelectedChainAssets({ to: slug, from: null });
         } else {
           setSelectedChainAssets({ ...selectedChainAssets, to: slug });
@@ -202,7 +202,6 @@ const Swap = memo<Props>(() => {
         onAssetSelect={handleAssetSelect}
         opened={selectAssetModalOpened}
         onRequestClose={setSelectAssetModalClosed}
-        chainId={activeChainId}
         chainKind={activeChainKind}
       />
       <SwapSettingsModal

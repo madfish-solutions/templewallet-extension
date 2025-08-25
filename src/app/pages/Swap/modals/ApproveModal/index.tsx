@@ -42,7 +42,7 @@ interface ApproveModalProps {
 const LIFI = 'https://li.fi/';
 
 const ApproveModal = ({ data, onClose, onReview }: ApproveModalProps) => {
-  const { lifiStep, account, network, minimumReceived, onConfirm, neededApproval, onChainAllowance } = data;
+  const { lifiStep, bridgeInfo, account, network, minimumReceived, onConfirm, neededApproval, onChainAllowance } = data;
 
   const [loading, setLoading] = useState(false);
 
@@ -143,7 +143,8 @@ const ApproveModal = ({ data, onClose, onReview }: ApproveModalProps) => {
           onChainAllowance,
           onConfirm,
           minimumReceived,
-          lifiStep
+          lifiStep,
+          bridgeInfo
         });
       };
 

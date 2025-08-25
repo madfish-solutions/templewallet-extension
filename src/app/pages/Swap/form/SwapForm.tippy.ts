@@ -19,6 +19,15 @@ export const evmFeeInfoTippyProps = {
   placement: 'top-start' as const
 };
 
+export const protocolFeeInfoTippyProps = {
+  trigger: 'mouseenter',
+  hideOnClick: false,
+  content: t('protocolFeeTooltip'),
+  animation: 'shift-away-subtle',
+  maxWidth: '16rem',
+  placement: 'top-start' as const
+};
+
 export const cashbackInfoTippyProps = {
   trigger: 'mouseenter',
   hideOnClick: false,

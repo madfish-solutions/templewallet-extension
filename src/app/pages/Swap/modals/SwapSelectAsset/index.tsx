@@ -1,5 +1,6 @@
 import React, { memo, useCallback, useState, MouseEvent, Suspense, useEffect, useMemo, FC } from 'react';
 
+import clsx from 'clsx';
 import { useDebounce } from 'use-debounce';
 
 import { Button, IconBase } from 'app/atoms';
@@ -10,15 +11,16 @@ import { SwapFieldName } from 'app/pages/Swap/form/interfaces';
 import { isFilterChain } from 'app/pages/Swap/form/utils';
 import { useAssetsFilterOptionsSelector } from 'app/store/assets-filter-options/selectors';
 import { FilterChain } from 'app/store/assets-filter-options/state';
+import {
+  useLifiEvmTokensMetadataRecordSelector,
+  useLifiSupportedChainIdsSelector
+} from 'app/store/evm/swap-lifi-metadata/selectors';
 import { NetworkPopper } from 'app/templates/network-popper';
 import { FAVORITES } from 'app/templates/network-popper/constants';
 import { SearchBarField } from 'app/templates/SearchField';
-import { LifiSupportedChains } from 'lib/apis/temple/endpoints/evm/api.interfaces';
 import { t } from 'lib/i18n';
-import { ETHEREUM_MAINNET_CHAIN_ID } from 'lib/temple/types';
 import { useMemoWithCompare } from 'lib/ui/hooks';
 import { useAccountAddressForEvm, useAccountAddressForTezos, useTezosMainnetChain } from 'temple/front';
-import { useEvmChainByChainId } from 'temple/front/chains';
 import { TempleChainKind } from 'temple/types';
 
 import { AllEvmChainsAssetsList } from './AllEvmChainsAssetsList';
@@ -31,20 +33,16 @@ interface SelectTokenModalProps {
   onAssetSelect: (chainSlug: string) => void;
   opened: boolean;
   onRequestClose: EmptyFn;
-  chainId?: number | string | null;
   chainKind: TempleChainKind.EVM | TempleChainKind.Tezos | null;
 }
 
 export const SwapSelectAssetModal = memo<SelectTokenModalProps>(
-  ({ activeField, onAssetSelect, opened, onRequestClose, chainId, chainKind }) => {
+  ({ activeField, onAssetSelect, opened, onRequestClose, chainKind }) => {
     const [searchValue, setSearchValue] = useState('');
     const [searchValueDebounced] = useDebounce(searchValue, 300);
+    const metadataRecord = useLifiEvmTokensMetadataRecordSelector();
 
-    const evmNetwork = useEvmChainByChainId((chainId as number) || ETHEREUM_MAINNET_CHAIN_ID)!;
     const tezosNetwork = useTezosMainnetChain();
-
-    const stableEvmNetwork = useMemoWithCompare(() => evmNetwork, [evmNetwork]);
-    const stableTezosNetwork = useMemoWithCompare(() => tezosNetwork, [tezosNetwork]);
 
     const { filterChain } = useAssetsFilterOptionsSelector();
 
@@ -54,7 +52,10 @@ export const SwapSelectAssetModal = memo<SelectTokenModalProps>(
     const accountEvmAddress = useAccountAddressForEvm();
 
     useEffect(() => {
-      if (!opened) setSearchValue('');
+      if (!opened) {
+        setSearchValue('');
+        setLocalFilterChain(null);
+      }
     }, [opened]);
 
     const handleAssetSelect = useCallback(
@@ -65,16 +66,13 @@ export const SwapSelectAssetModal = memo<SelectTokenModalProps>(
       [onAssetSelect]
     );
 
+    const tezosNetworkMemoized = useMemoWithCompare(() => tezosNetwork, [tezosNetwork]);
+
     useEffect(() => {
-      if (!opened) {
-        return;
+      if (activeField === 'output' && opened) {
+        setLocalFilterChain(chainKind === TempleChainKind.EVM ? null : tezosNetworkMemoized);
       }
-      if (activeField === 'output') {
-        setLocalFilterChain(chainKind === TempleChainKind.EVM ? stableEvmNetwork : stableTezosNetwork);
-      } else {
-        setLocalFilterChain(filterChain);
-      }
-    }, [activeField, chainKind, stableEvmNetwork, filterChain, opened, stableTezosNetwork]);
+    }, [activeField, chainKind, opened, tezosNetworkMemoized]);
 
     const assetsList = useMemo(() => {
       if (isFilterChain(localFilterChain) && localFilterChain?.kind === TempleChainKind.Tezos && accountTezAddress)
@@ -126,6 +124,8 @@ export const SwapSelectAssetModal = memo<SelectTokenModalProps>(
         if (accountEvmAddress)
           return (
             <AllEvmChainsAssetsList
+              activeField={activeField}
+              showOnlyFavorites={localFilterChain === FAVORITES}
               accountEvmAddress={accountEvmAddress}
               searchValue={searchValueDebounced}
               onAssetSelect={handleAssetSelect}
@@ -135,12 +135,12 @@ export const SwapSelectAssetModal = memo<SelectTokenModalProps>(
 
       return null;
     }, [
-      localFilterChain,
+      accountEvmAddress,
       accountTezAddress,
       activeField,
-      searchValueDebounced,
       handleAssetSelect,
-      accountEvmAddress,
+      localFilterChain,
+      searchValueDebounced,
       tezosNetwork.chainId
     ]);
 
@@ -149,31 +149,45 @@ export const SwapSelectAssetModal = memo<SelectTokenModalProps>(
       []
     );
 
+    const disabledNetworkPopper = useMemo(
+      () => (isFilterChain(localFilterChain) && localFilterChain?.kind) === 'tezos' && activeField === 'output',
+      [localFilterChain, activeField]
+    );
+
+    const availableChainIds = useMemo(
+      () =>
+        Object.entries(metadataRecord)
+          .filter(([_, record]) => Object.keys(record).length > 0)
+          .map(([chainId]) => Number(chainId)),
+      [metadataRecord]
+    );
+
     return (
       <PageModal title="Select Token" opened={opened} onRequestClose={onRequestClose}>
-        {() => (
-          <>
-            <div className="flex flex-col px-4 pt-4 pb-3">
-              <div className="flex justify-between items-center mb-1">
-                <span className="text-font-description-bold">{t('filterByNetwork')}</span>
-                <FilterNetworkPopper
-                  showFavoritesOption={activeField === 'output'}
-                  selectedOption={localFilterChain}
-                  onOptionSelect={handleFilterOptionSelect}
-                />
-              </div>
+        <div className="flex flex-col px-4 pt-4 pb-3">
+          <div className="flex justify-between items-center mb-1">
+            <span className="text-font-description-bold">{t('filterByNetwork')}</span>
+            <FilterNetworkPopper
+              selectedOption={localFilterChain}
+              onOptionSelect={handleFilterOptionSelect}
+              disabledNetworkPopper={disabledNetworkPopper}
+              showFavoritesOption={activeField === 'output'}
+              showOnlyEvmNetworks={
+                (isFilterChain(localFilterChain) && localFilterChain?.kind) !== 'tezos' && activeField === 'output'
+              }
+              availableChainIds={activeField === 'output' ? availableChainIds : undefined}
+            />
+          </div>
 
-              <SearchBarField
-                value={searchValue}
-                placeholder="Token name"
-                defaultRightMargin={false}
-                onValueChange={setSearchValue}
-              />
-            </div>
+          <SearchBarField
+            value={searchValue}
+            placeholder="Token name"
+            defaultRightMargin={false}
+            onValueChange={setSearchValue}
+          />
+        </div>
 
-            <Suspense fallback={<SpinnerSection />}>{assetsList}</Suspense>
-          </>
-        )}
+        <Suspense fallback={<SpinnerSection />}>{assetsList}</Suspense>
       </PageModal>
     );
   }
@@ -183,29 +197,49 @@ interface FilterNetworkPopperProps {
   selectedOption: FilterChain | string;
   onOptionSelect: (filterChain: FilterChain | string) => void;
   showFavoritesOption: boolean;
+  availableChainIds?: number[];
+  disabledNetworkPopper: boolean;
+  showOnlyEvmNetworks: boolean;
 }
 
 const FilterNetworkPopper = memo<FilterNetworkPopperProps>(
-  ({ selectedOption, onOptionSelect, showFavoritesOption }) => (
-    <NetworkPopper
-      selectedOption={selectedOption}
-      onOptionSelect={onOptionSelect}
-      showAllNetworksOption
-      showFavoritesOption={showFavoritesOption}
-      supportedChainIds={LifiSupportedChains}
-    >
-      {({ ref, toggleOpened, selectedOptionName }) => (
-        <Button
-          ref={ref}
-          className="flex items-center py-0.5 px-1 text-font-description-bold rounded text-secondary hover:bg-secondary-low"
-          onClick={toggleOpened}
-        >
-          <span>{selectedOptionName}</span>
-          <IconBase Icon={CompactDown} size={12} />
-        </Button>
-      )}
-    </NetworkPopper>
-  )
+  ({
+    selectedOption,
+    onOptionSelect,
+    disabledNetworkPopper,
+    showOnlyEvmNetworks,
+    showFavoritesOption,
+    availableChainIds
+  }) => {
+    const supportedChainIds = useLifiSupportedChainIdsSelector();
+
+    return (
+      <NetworkPopper
+        selectedOption={selectedOption}
+        onOptionSelect={onOptionSelect}
+        showAllNetworksOption
+        showOnlyEvmNetworks={showOnlyEvmNetworks}
+        showFavoritesOption={showFavoritesOption}
+        supportedChainIds={supportedChainIds}
+        availableChainIds={availableChainIds}
+      >
+        {({ ref, toggleOpened, selectedOptionName }) => (
+          <Button
+            disabled={disabledNetworkPopper}
+            ref={ref}
+            className={clsx(
+              'flex items-center py-0.5 px-1 text-font-description-bold rounded',
+              disabledNetworkPopper ? 'text-disable' : 'text-secondary hover:bg-secondary-low'
+            )}
+            onClick={toggleOpened}
+          >
+            <span>{selectedOptionName}</span>
+            <IconBase Icon={CompactDown} size={12} />
+          </Button>
+        )}
+      </NetworkPopper>
+    );
+  }
 );
 
 const SpinnerSection: FC = () => (

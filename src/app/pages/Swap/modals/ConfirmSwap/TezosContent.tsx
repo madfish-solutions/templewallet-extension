@@ -3,22 +3,15 @@ import React, { FC, useCallback, useMemo, useState } from 'react';
 import BigNumber from 'bignumber.js';
 import { FormProvider } from 'react-hook-form-v7';
 
-import { FadeTransition } from 'app/a11y/FadeTransition';
-import { Loader } from 'app/atoms';
-import { ActionsButtonsBox } from 'app/atoms/PageModal';
-import { StyledButton } from 'app/atoms/StyledButton';
 import { useLedgerApprovalModalState } from 'app/hooks/use-ledger-approval-modal-state';
-import { BalancesChangesView } from 'app/templates/balances-changes-view';
-import { CurrentAccount } from 'app/templates/current-account';
-import { LedgerApprovalModal } from 'app/templates/ledger-approval-modal';
-import { TransactionTabs } from 'app/templates/TransactionTabs';
+import { BaseContent } from 'app/pages/Swap/modals/ConfirmSwap/BaseContent';
 import { TezosTxParamsFormData } from 'app/templates/TransactionTabs/types';
 import { useTezosEstimationForm } from 'app/templates/TransactionTabs/use-tezos-estimation-form';
 import { toastError } from 'app/toaster';
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
 import { useTezosAssetBalance } from 'lib/balances';
 import { TEZOS_BLOCK_DURATION } from 'lib/fixed-times';
-import { T, t } from 'lib/i18n';
+import { t } from 'lib/i18n';
 import { useTypedSWR } from 'lib/swr';
 import { mutezToTz } from 'lib/temple/helpers';
 import { TempleAccountType } from 'lib/temple/types';
@@ -100,8 +93,7 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
     displayedFeeOptions,
     displayedFee,
     displayedStorageFee,
-    balancesChanges,
-    balancesChangesLoading
+    balancesChanges
   } = useTezosEstimationForm({
     estimationData,
     basicParams: opParams,
@@ -183,59 +175,26 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
 
   return (
     <FormProvider {...form}>
-      <div className="px-4 flex flex-col flex-1 overflow-y-scroll">
-        <div className="my-4">
-          {someBalancesChanges ? (
-            <FadeTransition>
-              <BalancesChangesView title={t('swapDetails')} balancesChanges={filteredBalancesChanges} chain={network} />
-            </FadeTransition>
-          ) : (
-            <div className="flex justify-center items-center py-4">
-              <Loader size="L" trackVariant="dark" className="text-secondary" />
-            </div>
-          )}
-        </div>
-
-        <CurrentAccount />
-
-        <TransactionTabs<TezosTxParamsFormData>
-          network={network}
-          nativeAssetSlug={TEZ_TOKEN_SLUG}
-          selectedTab={tab}
-          setSelectedTab={setTab}
-          selectedFeeOption={selectedFeeOption}
-          latestSubmitError={latestSubmitError}
-          onFeeOptionSelect={handleFeeOptionSelect}
-          onSubmit={onSubmit}
-          displayedFee={displayedFee}
-          displayedStorageFee={displayedStorageFee}
-          displayedFeeOptions={displayedFeeOptions}
-          cashbackInTkey={cashbackInTkey}
-          minimumReceived={minimumReceived}
-          formId="confirm-form"
-          tabsName="confirm-send-tabs"
-        />
-      </div>
-
-      <ActionsButtonsBox flexDirection="row" shouldChangeBottomShift={false}>
-        <StyledButton size="L" className="w-full" color="primary-low" onClick={onClose}>
-          <T id="cancel" />
-        </StyledButton>
-
-        <StyledButton
-          type="submit"
-          form="confirm-form"
-          color="primary"
-          size="L"
-          className="w-full"
-          loading={formState.isSubmitting || estimationDataLoading || balancesChangesLoading}
-          disabled={!formState.isValid}
-        >
-          <T id={latestSubmitError ? 'retry' : 'confirm'} />
-        </StyledButton>
-      </ActionsButtonsBox>
-
-      <LedgerApprovalModal state={ledgerApprovalModalState} onClose={handleLedgerModalClose} />
+      <BaseContent<TezosTxParamsFormData>
+        ledgerApprovalModalState={ledgerApprovalModalState}
+        onLedgerModalClose={handleLedgerModalClose}
+        network={network}
+        nativeAssetSlug={TEZ_TOKEN_SLUG}
+        selectedTab={tab}
+        setSelectedTab={setTab}
+        latestSubmitError={latestSubmitError}
+        selectedFeeOption={selectedFeeOption}
+        onFeeOptionSelect={handleFeeOptionSelect}
+        displayedFee={displayedFee}
+        displayedFeeOptions={displayedFeeOptions}
+        displayedStorageFee={displayedStorageFee}
+        cashbackInTkey={cashbackInTkey}
+        minimumReceived={minimumReceived}
+        onCancel={onClose}
+        onSubmit={onSubmit}
+        someBalancesChanges={someBalancesChanges}
+        filteredBalancesChanges={[filteredBalancesChanges]}
+      />
     </FormProvider>
   );
 };

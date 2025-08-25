@@ -1254,6 +1254,9 @@
   "fee": {
     "message": "Fee"
   },
+  "bridge": {
+    "message": "Bridge"
+  },
   "routingFee": {
     "message": "Routing Fee"
   },
@@ -1262,6 +1265,12 @@
   },
   "routingFeeTooltipEvm": {
     "message": "For choosing the most profitable exchange route among DEXes."
+  },
+  "protocolFeeTooltip": {
+    "message": "Bridge protocol fee for token cross-chain transfer."
+  },
+  "extraGasInfoTooltipEvm": {
+    "message": "Receive a portion of your bridged amount as gas on the destination network - just enough for your next transaction."
   },
   "delegated": {
     "message": "Delegated"
@@ -2692,8 +2701,17 @@
   "via": {
     "message": "Via"
   },
+  "route": {
+    "message": "Route"
+  },
   "swapRoute": {
     "message": "Swap route"
+  },
+  "estimatedTime": {
+    "message": "Estimated time"
+  },
+  "protocolFee": {
+    "message": "Protocol fee"
   },
   "exchangeRate": {
     "message": "Exchange rate"
@@ -2745,6 +2763,17 @@
         "content": "$1"
       }
     }
+  },
+  "extraGasOnNetwork": {
+    "message": "Extra gas on $network$",
+    "placeholders": {
+      "network": {
+        "content": "$1"
+      }
+    }
+  },
+  "extraGas": {
+    "message": "Extra gas"
   },
   "community": {
     "message": "Community"
@@ -2832,6 +2861,9 @@
   },
   "storageFee": {
     "message": "Storage fee"
+  },
+  "protocolFee": {
+    "message": "Protocol fee"
   },
   "templeWalletFeeWarning": {
     "message": "Temple Wallet doesn't apply any fees to exchanges for now but it may apply in the future."
@@ -3879,6 +3911,12 @@
   },
   "swapCashback": {
     "message": "Cashback"
+  },
+  "networkFrom": {
+    "message": "Network from"
+  },
+  "networkTo": {
+    "message": "Network to"
   },
   "swapCashbackDescription": {
     "message": "Swap more than 10$$ and receive $text$% from the swapped amount in the TKEY token as a cashback",

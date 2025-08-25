@@ -6,6 +6,7 @@ import { storageConfig } from 'lib/store';
 import {
   putLifiEvmTokensMetadataAction,
   putLifiEvmTokensMetadataLoadingAction,
+  putLifiSupportedChainIdsAction,
   setLifiMetadataLastFetchTimeAction
 } from './actions';
 import { lifiEvmTokensMetadataInitialState, LifiEvmTokensMetadataState } from './state';
@@ -36,13 +37,16 @@ const lifiEvmTokensMetadataReducer = createReducer<LifiEvmTokensMetadataState>(
     builder.addCase(setLifiMetadataLastFetchTimeAction, (state, action) => {
       state.lastFetchTime = action.payload;
     });
+    builder.addCase(putLifiSupportedChainIdsAction, (state, action) => {
+      state.supportedChainIds = action.payload;
+    });
   }
 );
 
 export const lifiEvmTokensMetadataPersistedReducer = persistReducer(
   {
     key: 'root.lifiEvmTokensMetadata',
-    blacklist: ['isLoading', 'error'],
+    blacklist: ['isLoading', 'error', 'metadataRecord'],
     ...storageConfig
   },
   lifiEvmTokensMetadataReducer
