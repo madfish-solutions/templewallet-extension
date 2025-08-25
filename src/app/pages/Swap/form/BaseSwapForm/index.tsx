@@ -12,9 +12,11 @@ import { BridgeDetails, SwapFieldName } from 'app/pages/Swap/form/interfaces';
 import { EvmSwapInfoDropdown } from 'app/pages/Swap/form/SwapInfoDropdown/EvmSwapInfoDropdown';
 import { TezosSwapInfoDropdown } from 'app/pages/Swap/form/SwapInfoDropdown/TezosSwapInfoDropdown';
 import { dispatch } from 'app/store';
+import { useUserTestingGroupNameSelector } from 'app/store/ab-testing/selectors';
 import { setOnRampAssetAction } from 'app/store/settings/actions';
 import { resetSwapParamsAction } from 'app/store/swap/actions';
 import { setTestID } from 'lib/analytics';
+import { ABTestGroup } from 'lib/apis/temple';
 import { isWertSupportedChainAssetSlug } from 'lib/apis/wert';
 import { toChainAssetSlug } from 'lib/assets/utils';
 import { useFiatCurrency } from 'lib/fiat-currency';
@@ -22,7 +24,7 @@ import { t, T, toLocalFixed } from 'lib/i18n';
 import { SWAP_THRESHOLD_TO_GET_CASHBACK } from 'lib/route3/constants';
 import { TempleChainKind } from 'temple/types';
 
-import { CashbackProgress } from '../CashbackProgress';
+import { CashbackProgressBar } from '../CashbackProgressBar';
 import { SwapFormValue, SwapInputValue } from '../SwapForm.form';
 import { SwapFormFromInputSelectors, SwapFormSelectors, SwapFormToInputSelectors } from '../SwapForm.selectors';
 import SwapFormInput from '../SwapFormInput';
@@ -105,9 +107,12 @@ export const BaseSwapForm: FC<Props> = ({
 
   const isFiatMode = watch('isFiatMode');
 
+  const testGroupName = useUserTestingGroupNameSelector();
   const { selectedFiatCurrency } = useFiatCurrency();
 
   const inputAmountInUSD = (inputAssetPrice && BigNumber(inputAssetPrice).times(inputAmount || 0)) || BigNumber(0);
+
+  const shouldShowCashbackProgressBar = !isEvmNetwork && testGroupName === ABTestGroup.B;
 
   const validateInputField = useCallback(
     (props: SwapInputValue) => {
@@ -314,7 +319,7 @@ export const BaseSwapForm: FC<Props> = ({
               )
             ) : (
               <TezosSwapInfoDropdown
-                showCashBack={inputAmountInUSD.gte(SWAP_THRESHOLD_TO_GET_CASHBACK)}
+                showCashBack={!shouldShowCashbackProgressBar && inputAmountInUSD.gte(SWAP_THRESHOLD_TO_GET_CASHBACK)}
                 swapRouteSteps={swapRouteSteps}
                 inputAmount={inputAmount}
                 outputAmount={outputAmount}
@@ -327,11 +332,9 @@ export const BaseSwapForm: FC<Props> = ({
           </div>
         )}
       </form>
-      <CashbackProgress
-        isEvmNetwork={isEvmNetwork}
-        inputAmountInUSD={inputAmountInUSD}
-        templeAssetPrice={templeAssetPrice}
-      />
+      {shouldShowCashbackProgressBar && (
+        <CashbackProgressBar inputAmountInUSD={inputAmountInUSD} templeAssetPrice={templeAssetPrice} />
+      )}
       <ActionsButtonsBox className="mt-auto">
         <StyledButton
           type="submit"
