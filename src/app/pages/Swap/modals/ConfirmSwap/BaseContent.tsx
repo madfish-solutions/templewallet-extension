@@ -40,7 +40,7 @@ interface BaseContentProps<T extends TxParamsFormData> {
   quoteRefreshCountdown?: number;
   isQuoteExpired?: boolean;
   isQuoteRefreshing?: boolean;
-  onManualQuoteRefresh?: () => void;
+  onManualQuoteRefresh?: EmptyFn;
 }
 
 export const BaseContent = <T extends TxParamsFormData>({
@@ -115,7 +115,7 @@ export const BaseContent = <T extends TxParamsFormData>({
           size="L"
           className="w-full"
           loading={isQuoteRefreshing || formState.isSubmitting}
-          disabled={isQuoteRefreshing !== undefined ? isQuoteRefreshing : !formState.isValid}
+          disabled={isQuoteRefreshing === undefined ? !formState.isValid : isQuoteRefreshing}
           onClick={onManualQuoteRefresh && isQuoteExpired ? onManualQuoteRefresh : undefined}
         >
           {latestSubmitError ? (

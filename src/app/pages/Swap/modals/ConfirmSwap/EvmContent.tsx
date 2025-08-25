@@ -1,4 +1,4 @@
-import React, { FC, useCallback, useMemo, useState } from 'react';
+import React, { FC, useCallback, useEffect, useMemo, useState } from 'react';
 
 import { LiFiStep } from '@lifi/sdk';
 import BigNumber from 'bignumber.js';
@@ -88,16 +88,17 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
     [buildSwapRouteParams, fetchEvmSwapRoute, initialLifiStep, refreshCount]
   );
 
+  useEffect(() => {
+    if (expired || isRefreshing || countdown !== 0) return;
+    void handleRefresh();
+    setCountdown(REFRESH_INTERVAL_MS / 1000);
+  }, [countdown, expired, handleRefresh, isRefreshing]);
+
   useInterval(
     () => {
-      if (expired || isRefreshing) return;
-      setCountdown(prev => {
-        if (prev > 1) return prev - 1;
-        void handleRefresh();
-        return REFRESH_INTERVAL_MS / 1000;
-      });
+      setCountdown(prev => (prev > 0 ? prev - 1 : 0));
     },
-    [expired, handleRefresh, isRefreshing],
+    [],
     1000,
     false
   );

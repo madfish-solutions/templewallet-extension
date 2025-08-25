@@ -3887,9 +3887,9 @@
     "message": "Refresh"
   },
   "confirmWithCountdown": {
-    "message": "Confirm ($text$s)",
+    "message": "Confirm ($seconds$s)",
     "placeholders": {
-      "text": {
+      "seconds": {
         "content": "$1"
       }
     }
