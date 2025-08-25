@@ -215,7 +215,8 @@ export const TezosSwapForm: FC<TezosSwapFormProps> = ({
   );
 
   const inputAssetPrice = useAssetFiatCurrencyPrice(inputValue.assetSlug ?? '', network.chainId);
-  const outputAssetPrice = useAssetFiatCurrencyPrice(outputValue.assetSlug ?? '', network.chainId, true);
+  const outputAssetPrice = useAssetFiatCurrencyPrice(outputValue.assetSlug ?? '', network.chainId);
+  const templeAssetPrice = useAssetFiatCurrencyPrice(KNOWN_TOKENS_SLUGS.TEMPLE, network.chainId);
 
   const parseFiatValueToAssetAmount = useCallback(
     (fiatAmount: BigNumber.Value = ZERO, assetDecimals: number = 2, inputName: SwapFieldName = 'input') => {
@@ -685,6 +686,7 @@ export const TezosSwapForm: FC<TezosSwapFormProps> = ({
         minimumReceivedAmount={minimumReceivedAtomic}
         swapParamsAreLoading={swapParams.isLoading}
         swapRouteSteps={swapRouteSteps}
+        templeAssetPrice={templeAssetPrice}
         setIsFiatMode={v => setValue('isFiatMode', v)}
         parseFiatValueToAssetAmount={parseFiatValueToAssetAmount}
         onInputChange={handleInputChange}
