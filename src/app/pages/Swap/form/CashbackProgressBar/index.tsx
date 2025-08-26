@@ -91,7 +91,11 @@ export const CashbackProgressBar: FC<Props> = ({ visible, inputAmountInUSD, temp
       <div className="w-full h-1 rounded bg-lines">
         <div
           className="h-1 rounded bg-[linear-gradient(136deg,#FF5B00_-2.06%,#F4BE38_103.52%)]"
-          style={{ width: `${cashbackProgress.percent}%` }}
+          style={{
+            width: `${cashbackProgress.percent}%`,
+            transition: 'width 600ms cubic-bezier(0.22, 1, 0.36, 1)',
+            willChange: 'width'
+          }}
         />
       </div>
     </div>
