@@ -37,10 +37,10 @@ export const CashbackProgressBar: FC<Props> = ({ inputAmountInUSD, templeAssetPr
   }, [inputAmountInUSD, templeAssetPrice]);
 
   return (
-    <div className="px-4">
-      <div className="flex items-center justify-between text-sm mb-2">
-        <div className="flex items-center gap-2">
-          <IconBase Icon={GiftIcon} size={12} className="text-primary" />
+    <div className="pt-4 px-4 bg-white">
+      <div className="flex items-center justify-between mb-1">
+        <div className="flex items-center">
+          <IconBase Icon={GiftIcon} className="text-primary" />
           <span className="text-font-description-bold">
             <T id="swapCashback" />
           </span>
@@ -57,11 +57,10 @@ export const CashbackProgressBar: FC<Props> = ({ inputAmountInUSD, templeAssetPr
           )}
         </div>
       </div>
-      {!cashbackProgress.isZero && (
-        <div className="w-full h-1 rounded bg-lines">
-          <div className="h-1 rounded bg-primary" style={{ width: `${cashbackProgress.percent}%` }} />
-        </div>
-      )}
+
+      <div className="w-full h-1 rounded bg-lines">
+        <div className="h-1 rounded bg-primary" style={{ width: `${cashbackProgress.percent}%` }} />
+      </div>
     </div>
   );
 };
