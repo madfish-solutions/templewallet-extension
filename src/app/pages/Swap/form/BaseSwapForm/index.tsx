@@ -1,5 +1,6 @@
 import React, { FC, useCallback } from 'react';
 
+import { isDefined } from '@rnw-community/shared';
 import BigNumber from 'bignumber.js';
 import { isEmpty, noop } from 'lodash';
 import { Controller, SubmitErrorHandler, useFormContext } from 'react-hook-form-v7';
@@ -18,6 +19,7 @@ import { resetSwapParamsAction } from 'app/store/swap/actions';
 import { setTestID } from 'lib/analytics';
 import { ABTestGroup } from 'lib/apis/temple';
 import { isWertSupportedChainAssetSlug } from 'lib/apis/wert';
+import { KNOWN_TOKENS_SLUGS } from 'lib/assets/known-tokens';
 import { toChainAssetSlug } from 'lib/assets/utils';
 import { useFiatCurrency } from 'lib/fiat-currency';
 import { t, T, toLocalFixed } from 'lib/i18n';
@@ -112,7 +114,10 @@ export const BaseSwapForm: FC<Props> = ({
 
   const inputAmountInUSD = (inputAssetPrice && BigNumber(inputAssetPrice).times(inputAmount || 0)) || BigNumber(0);
 
-  const shouldShowCashbackProgressBar = !isEvmNetwork && testGroupName === ABTestGroup.B;
+  const areInputOutputAssetsDefined = isDefined(inputAssetSlug) && isDefined(outputAssetSlug);
+  const isInputTokenTempleToken = inputAssetSlug === KNOWN_TOKENS_SLUGS.TEMPLE;
+  const shouldShowCashbackProgressBar =
+    areInputOutputAssetsDefined && !isInputTokenTempleToken && !isEvmNetwork && testGroupName === ABTestGroup.B;
 
   const validateInputField = useCallback(
     (props: SwapInputValue) => {
@@ -319,7 +324,11 @@ export const BaseSwapForm: FC<Props> = ({
               )
             ) : (
               <TezosSwapInfoDropdown
-                showCashBack={!shouldShowCashbackProgressBar && inputAmountInUSD.gte(SWAP_THRESHOLD_TO_GET_CASHBACK)}
+                showCashBack={
+                  !isInputTokenTempleToken &&
+                  inputAmountInUSD.gte(SWAP_THRESHOLD_TO_GET_CASHBACK) &&
+                  testGroupName === ABTestGroup.A
+                }
                 swapRouteSteps={swapRouteSteps}
                 inputAmount={inputAmount}
                 outputAmount={outputAmount}

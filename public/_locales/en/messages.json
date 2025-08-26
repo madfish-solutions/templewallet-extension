@@ -3934,6 +3934,14 @@
       }
     }
   },
+  "onlyAmountToGo": {
+    "message": "Only $amount$$ to go",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
   "jumpInTezos": {
     "message": "Jump in Tezos right now!"
   },

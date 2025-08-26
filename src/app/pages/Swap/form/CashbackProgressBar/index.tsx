@@ -2,10 +2,21 @@ import React, { FC, useMemo } from 'react';
 
 import BigNumber from 'bignumber.js';
 
-import { IconBase } from 'app/atoms';
-import { ReactComponent as GiftIcon } from 'app/icons/base/gift.svg';
+import { ReactComponent as GradientGiftIcon } from 'app/icons/gradient-gift.svg';
 import { T, t, toLocalFixed } from 'lib/i18n';
-import { SWAP_CASHBACK_RATIO, SWAP_THRESHOLD_TO_GET_CASHBACK } from 'lib/route3/constants';
+import { SWAP_CASHBACK_RATIO, SWAP_THRESHOLD_TO_GET_CASHBACK, TEMPLE_TOKEN } from 'lib/route3/constants';
+import { Lottie } from 'lib/ui/react-lottie';
+
+import SuccessAnimation from './success-animation.json';
+
+const SUCCESS_ANIMATION_OPTIONS = {
+  loop: false,
+  autoplay: true,
+  animationData: SuccessAnimation,
+  rendererSettings: {
+    preserveAspectRatio: 'xMidYMid slice'
+  }
+} as const;
 
 interface Props {
   inputAmountInUSD: BigNumber;
@@ -37,10 +48,10 @@ export const CashbackProgressBar: FC<Props> = ({ inputAmountInUSD, templeAssetPr
   }, [inputAmountInUSD, templeAssetPrice]);
 
   return (
-    <div className="pt-4 px-4 bg-white">
+    <div className="pt-4 px-5 bg-white">
       <div className="flex items-center justify-between mb-1">
         <div className="flex items-center">
-          <IconBase Icon={GiftIcon} className="text-primary" />
+          <GradientGiftIcon className="w-6 h-6" />
           <span className="text-font-description-bold">
             <T id="swapCashback" />
           </span>
@@ -49,17 +60,27 @@ export const CashbackProgressBar: FC<Props> = ({ inputAmountInUSD, templeAssetPr
           {cashbackProgress.isZero && t('swapCashbackDescriptionShort', String(SWAP_CASHBACK_RATIO * 100))}
           {!cashbackProgress.isZero &&
             !cashbackProgress.reached &&
-            `Only ${toLocalFixed(cashbackProgress.remaining, 2)}$ to go`}
+            t('onlyAmountToGo', toLocalFixed(cashbackProgress.remaining, 2))}
           {cashbackProgress.reached && (
-            <div className="flex items-center">
-              <span>{cashbackProgress.displayEstimatedTkey + 'TKEY ✓'}</span>
+            <div className="flex items-center gap-x-0.5">
+              <span className="text-font-num-bold-12 text-text">{`${cashbackProgress.displayEstimatedTkey} ${TEMPLE_TOKEN.symbol}`}</span>
+              <Lottie
+                isClickToPauseDisabled
+                options={SUCCESS_ANIMATION_OPTIONS}
+                height={16}
+                width={16}
+                style={{ margin: 0, cursor: 'default' }}
+              />
             </div>
           )}
         </div>
       </div>
 
       <div className="w-full h-1 rounded bg-lines">
-        <div className="h-1 rounded bg-primary" style={{ width: `${cashbackProgress.percent}%` }} />
+        <div
+          className="h-1 rounded bg-[linear-gradient(136deg,#FF5B00_-2.06%,#F4BE38_103.52%)]"
+          style={{ width: `${cashbackProgress.percent}%` }}
+        />
       </div>
     </div>
   );
