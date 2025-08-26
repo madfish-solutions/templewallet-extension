@@ -3934,10 +3934,10 @@
       }
     }
   },
-  "onlyAmountToGo": {
-    "message": "Only $amount$$ to go",
+  "onlyDollarAmountToGo": {
+    "message": "Only $dollarAmount$$$ to go",
     "placeholders": {
-      "amount": {
+      "dollarAmount": {
         "content": "$1"
       }
     }

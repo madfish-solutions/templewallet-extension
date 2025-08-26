@@ -341,9 +341,11 @@ export const BaseSwapForm: FC<Props> = ({
           </div>
         )}
       </form>
-      {shouldShowCashbackProgressBar && (
-        <CashbackProgressBar inputAmountInUSD={inputAmountInUSD} templeAssetPrice={templeAssetPrice} />
-      )}
+      <CashbackProgressBar
+        visible={shouldShowCashbackProgressBar}
+        inputAmountInUSD={inputAmountInUSD}
+        templeAssetPrice={templeAssetPrice}
+      />
       <ActionsButtonsBox className="mt-auto">
         <StyledButton
           type="submit"

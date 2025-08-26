@@ -1,6 +1,7 @@
 import React, { FC, useMemo } from 'react';
 
 import BigNumber from 'bignumber.js';
+import clsx from 'clsx';
 
 import { ReactComponent as GradientGiftIcon } from 'app/icons/gradient-gift.svg';
 import { T, t, toLocalFixed } from 'lib/i18n';
@@ -18,12 +19,16 @@ const SUCCESS_ANIMATION_OPTIONS = {
   }
 } as const;
 
+const TRANSITION_CLASSNAMES = 'transition-all duration-300 ease-in-out';
+const HIDDEN_OFFSCREEN_CLASSNAMES = 'h-0 opacity-0 overflow-hidden pointer-events-none';
+
 interface Props {
+  visible: boolean;
   inputAmountInUSD: BigNumber;
   templeAssetPrice?: BigNumber;
 }
 
-export const CashbackProgressBar: FC<Props> = ({ inputAmountInUSD, templeAssetPrice }) => {
+export const CashbackProgressBar: FC<Props> = ({ visible, inputAmountInUSD, templeAssetPrice }) => {
   const cashbackProgress = useMemo(() => {
     const threshold = new BigNumber(SWAP_THRESHOLD_TO_GET_CASHBACK);
 
@@ -48,7 +53,14 @@ export const CashbackProgressBar: FC<Props> = ({ inputAmountInUSD, templeAssetPr
   }, [inputAmountInUSD, templeAssetPrice]);
 
   return (
-    <div className="pt-4 px-5 bg-white">
+    <div
+      className={clsx(
+        'pt-4 px-5 bg-white',
+        TRANSITION_CLASSNAMES,
+        visible ? 'h-12 opacity-100' : HIDDEN_OFFSCREEN_CLASSNAMES
+      )}
+      aria-hidden={!visible}
+    >
       <div className="flex items-center justify-between mb-1">
         <div className="flex items-center">
           <GradientGiftIcon className="w-6 h-6" />
@@ -60,7 +72,7 @@ export const CashbackProgressBar: FC<Props> = ({ inputAmountInUSD, templeAssetPr
           {cashbackProgress.isZero && t('swapCashbackDescriptionShort', String(SWAP_CASHBACK_RATIO * 100))}
           {!cashbackProgress.isZero &&
             !cashbackProgress.reached &&
-            t('onlyAmountToGo', toLocalFixed(cashbackProgress.remaining, 2))}
+            t('onlyDollarAmountToGo', toLocalFixed(cashbackProgress.remaining, 2))}
           {cashbackProgress.reached && (
             <div className="flex items-center gap-x-0.5">
               <span className="text-font-num-bold-12 text-text">{`${cashbackProgress.displayEstimatedTkey} ${TEMPLE_TOKEN.symbol}`}</span>
