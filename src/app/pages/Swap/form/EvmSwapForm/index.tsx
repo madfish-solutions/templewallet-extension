@@ -452,7 +452,8 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
       inputAsset: `${inputAssetMetadata?.symbol}-${sourceAssetInfo?.chainId}`,
       outputAsset: `${outputAssetMetadata?.symbol}-${targetAssetInfo?.chainId}`,
       inputAmount: currentFormState.input.amount?.toString(),
-      outputAmount: currentFormState.output.amount?.toString()
+      outputAmount: currentFormState.output.amount?.toString(),
+      ...(inputNetwork.chainId === outputNetwork.chainId && { network: inputNetwork.name })
     };
 
     try {

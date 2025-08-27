@@ -431,7 +431,8 @@ export const TezosSwapForm: FC<TezosSwapFormProps> = ({
       inputAsset: inputAssetMetadata.symbol,
       outputAsset: outputAssetMetadata.symbol,
       inputAmount: inputValue.amount?.toString(),
-      outputAmount: outputValue.amount?.toString()
+      outputAmount: outputValue.amount?.toString(),
+      network: 'Tezos'
     };
 
     formAnalytics.trackSubmit(analyticsProperties);
@@ -622,7 +623,7 @@ export const TezosSwapForm: FC<TezosSwapFormProps> = ({
         }
       });
 
-      formAnalytics.trackSubmitSuccess(analyticsProperties);
+      formAnalytics.trackSubmitSuccess({ ...analyticsProperties, cashback: isDefined(cashback) });
     } catch (err: any) {
       console.error(err);
       if (err.message !== 'Declined') {
