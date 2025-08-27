@@ -27,10 +27,10 @@ const CASHBACK_DISPLAY_AMOUNT_THRESHOLD = 0.01;
 interface Props {
   visible: boolean;
   inputAmountInUSD: BigNumber;
-  templeAssetPrice?: BigNumber;
+  templeAssetPriceInUSD: BigNumber;
 }
 
-export const CashbackProgressBar: FC<Props> = ({ visible, inputAmountInUSD, templeAssetPrice }) => {
+export const CashbackProgressBar: FC<Props> = ({ visible, inputAmountInUSD, templeAssetPriceInUSD }) => {
   const cashbackProgress = useMemo(() => {
     const threshold = new BigNumber(SWAP_THRESHOLD_TO_GET_CASHBACK);
 
@@ -40,8 +40,8 @@ export const CashbackProgressBar: FC<Props> = ({ visible, inputAmountInUSD, temp
     const percent = reached ? 100 : inputAmountInUSD.div(threshold).times(100).toNumber();
 
     let displayEstimatedTkey = '';
-    if (reached && templeAssetPrice && templeAssetPrice.gt(0)) {
-      const estimatedTkey = inputAmountInUSD.times(SWAP_CASHBACK_RATIO).div(templeAssetPrice);
+    if (reached && templeAssetPriceInUSD.gt(0)) {
+      const estimatedTkey = inputAmountInUSD.times(SWAP_CASHBACK_RATIO).div(templeAssetPriceInUSD);
       displayEstimatedTkey = estimatedTkey.lt(CASHBACK_DISPLAY_AMOUNT_THRESHOLD)
         ? `< ${toLocalFixed(CASHBACK_DISPLAY_AMOUNT_THRESHOLD, 2)}`
         : toLocalFixed(estimatedTkey, 2);
@@ -54,7 +54,7 @@ export const CashbackProgressBar: FC<Props> = ({ visible, inputAmountInUSD, temp
       percent: Math.max(0, Math.min(100, percent)),
       displayEstimatedTkey
     } as const;
-  }, [inputAmountInUSD, templeAssetPrice]);
+  }, [inputAmountInUSD, templeAssetPriceInUSD]);
 
   return (
     <div

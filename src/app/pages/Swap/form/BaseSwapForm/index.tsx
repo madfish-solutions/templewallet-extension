@@ -1,4 +1,4 @@
-import React, { FC, useCallback } from 'react';
+import React, { FC, useCallback, useMemo } from 'react';
 
 import { isDefined } from '@rnw-community/shared';
 import BigNumber from 'bignumber.js';
@@ -27,6 +27,8 @@ import { useFiatCurrency } from 'lib/fiat-currency';
 import { useAssetUSDPrice } from 'lib/fiat-currency/core';
 import { t, T, toLocalFixed } from 'lib/i18n';
 import { SWAP_THRESHOLD_TO_GET_CASHBACK } from 'lib/route3/constants';
+import { TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
+import { ZERO } from 'lib/utils/numbers';
 import { TempleChainKind } from 'temple/types';
 
 import { CashbackProgressBar } from '../CashbackProgressBar';
@@ -56,7 +58,6 @@ interface Props {
   minimumReceivedAmount?: BigNumber;
   swapParamsAreLoading: boolean;
   swapRouteSteps: number;
-  templeAssetPrice?: BigNumber;
   bridgeDetails?: BridgeDetails;
   setIsFiatMode?: SyncFn<boolean>;
   parseFiatValueToAssetAmount: (
@@ -94,7 +95,6 @@ export const BaseSwapForm: FC<Props> = ({
   minimumReceivedAmount,
   swapParamsAreLoading,
   swapRouteSteps,
-  templeAssetPrice,
   bridgeDetails,
   setIsFiatMode = noop,
   parseFiatValueToAssetAmount,
@@ -117,7 +117,16 @@ export const BaseSwapForm: FC<Props> = ({
 
   const defaultSlug = isEvmNetwork ? EVM_TOKEN_SLUG : TEZ_TOKEN_SLUG;
   const price = useAssetUSDPrice(inputAssetSlug ?? defaultSlug, inputChainId!);
-  const inputAmountInUSD = (price && BigNumber(price).times(inputAmount || 0)) || BigNumber(0);
+  const templeAssetUsdPrice = useAssetUSDPrice(KNOWN_TOKENS_SLUGS.TEMPLE, TEZOS_MAINNET_CHAIN_ID);
+
+  const getInputAmountInTokens = useCallback(
+    () => (isFiatMode ? parseFiatValueToAssetAmount(inputTokenAmount, inputAssetDecimals, 'input') : inputTokenAmount),
+    [isFiatMode, parseFiatValueToAssetAmount, inputTokenAmount, inputAssetDecimals]
+  );
+  const inputAmountInUSD = useMemo(() => {
+    const amountInTokens = getInputAmountInTokens();
+    return price ? new BigNumber(price).times(amountInTokens || 0) : ZERO;
+  }, [price, getInputAmountInTokens]);
 
   const areInputOutputAssetsDefined = isDefined(inputAssetSlug) && isDefined(outputAssetSlug);
   const isInputTokenTempleToken = inputAssetSlug === KNOWN_TOKENS_SLUGS.TEMPLE;
@@ -349,7 +358,7 @@ export const BaseSwapForm: FC<Props> = ({
       <CashbackProgressBar
         visible={shouldShowCashbackProgressBar}
         inputAmountInUSD={inputAmountInUSD}
-        templeAssetPrice={templeAssetPrice}
+        templeAssetPriceInUSD={new BigNumber(templeAssetUsdPrice ?? 0)}
       />
       <ActionsButtonsBox className="mt-auto">
         <StyledButton
