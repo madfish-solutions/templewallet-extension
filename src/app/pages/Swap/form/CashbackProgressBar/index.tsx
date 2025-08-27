@@ -22,6 +22,8 @@ const SUCCESS_ANIMATION_OPTIONS = {
 const TRANSITION_CLASSNAMES = 'transition-all duration-300 ease-in-out';
 const HIDDEN_OFFSCREEN_CLASSNAMES = 'h-0 opacity-0 overflow-hidden pointer-events-none';
 
+const CASHBACK_DISPLAY_AMOUNT_THRESHOLD = 0.01;
+
 interface Props {
   visible: boolean;
   inputAmountInUSD: BigNumber;
@@ -40,7 +42,9 @@ export const CashbackProgressBar: FC<Props> = ({ visible, inputAmountInUSD, temp
     let displayEstimatedTkey = '';
     if (reached && templeAssetPrice && templeAssetPrice.gt(0)) {
       const estimatedTkey = inputAmountInUSD.times(SWAP_CASHBACK_RATIO).div(templeAssetPrice);
-      displayEstimatedTkey = estimatedTkey.lt(0.01) ? '< 0.01' : toLocalFixed(estimatedTkey, 2);
+      displayEstimatedTkey = estimatedTkey.lt(CASHBACK_DISPLAY_AMOUNT_THRESHOLD)
+        ? `< ${toLocalFixed(CASHBACK_DISPLAY_AMOUNT_THRESHOLD, 2)}`
+        : toLocalFixed(estimatedTkey, 2);
     }
 
     return {
