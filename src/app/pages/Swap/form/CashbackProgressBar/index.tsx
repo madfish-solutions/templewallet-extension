@@ -35,7 +35,7 @@ export const CashbackProgressBar: FC<Props> = ({ visible, inputAmountInUSD, temp
     const threshold = new BigNumber(SWAP_THRESHOLD_TO_GET_CASHBACK);
 
     const isZero = inputAmountInUSD.lte(0);
-    const reached = inputAmountInUSD.gte(threshold);
+    const reached = inputAmountInUSD.decimalPlaces(2, BigNumber.ROUND_CEIL).gte(threshold);
     const remaining = BigNumber.maximum(threshold.minus(inputAmountInUSD), 0);
     const percent = reached ? 100 : inputAmountInUSD.div(threshold).times(100).toNumber();
 
