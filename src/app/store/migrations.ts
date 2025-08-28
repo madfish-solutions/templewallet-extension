@@ -80,7 +80,7 @@ export const MIGRATIONS: MigrationManifest = {
       ...typedPersistedState,
       settings: {
         ...typedPersistedState.settings,
-        pendingReactivateAds: !typedPersistedState.partnersPromotion.shouldShowPromotion
+        pendingReactivateAds: !typedPersistedState.partnersPromotion?.shouldShowPromotion
       }
     };
 
@@ -111,7 +111,7 @@ export const MIGRATIONS: MigrationManifest = {
 
     const typedPersistedState = persistedState as TypedPersistedRootState;
 
-    if (typedPersistedState.partnersPromotion.shouldShowPromotion) return persistedState;
+    if (typedPersistedState.partnersPromotion?.shouldShowPromotion) return persistedState;
 
     const newState: TypedPersistedRootState = {
       ...typedPersistedState,
