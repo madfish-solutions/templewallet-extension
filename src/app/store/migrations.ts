@@ -181,15 +181,15 @@ export const MIGRATIONS: MigrationManifest = {
   '7': (persistedState: PersistedState) => {
     if (!persistedState) return persistedState;
 
-    const typedPersistedState = persistedState as TypedPersistedRootState;
+    const state = persistedState as TypedPersistedRootState;
 
     const newState: TypedPersistedRootState = {
-      ...typedPersistedState,
+      ...state,
       assetsFilterOptions: {
-        ...typedPersistedState.assetsFilterOptions,
+        ...state.assetsFilterOptions,
         tokensListOptions: {
-          ...typedPersistedState.assetsFilterOptions.tokensListOptions,
-          hideSmallBalance: typedPersistedState.assetsFilterOptions.tokensListOptions.hideZeroBalance ?? false
+          ...state.assetsFilterOptions?.tokensListOptions,
+          hideSmallBalance: state.assetsFilterOptions?.tokensListOptions?.hideZeroBalance ?? false
         }
       }
     };
