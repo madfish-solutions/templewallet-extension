@@ -3354,8 +3354,7 @@
     "message": "Advertising"
   },
   "rewards": {
-    "message": "rewards",
-    "description": "Part of partnersPromoDescription phrase"
+    "message": "Rewards"
   },
   "partnersPromoDescription": {
     "message": "Here you can configure displaying ads in Temple Wallet and getting reward in TKEY tokens. By enabling this, you agree to share your wallet address and IP to receive tokens and view ads."
@@ -3365,6 +3364,9 @@
   },
   "referralLinksDescription": {
     "message": "Automatically receive referral links while order products and services at your favourite online stores."
+  },
+  "referralLinksHint": {
+    "message": "All your referrals connected to your first created or imported account in Temple. Make sure you backed up your wallet to prevent unnecessary losses."
   },
   "totalEquityValue": {
     "message": "Total Equity Value"

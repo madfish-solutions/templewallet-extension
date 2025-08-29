@@ -1,6 +1,6 @@
 import React, { memo, useCallback, useMemo } from 'react';
 
-import { Lines, ToggleSwitch } from 'app/atoms';
+import { Divider, ToggleSwitch } from 'app/atoms';
 import { ActionListItem, ActionListItemProps } from 'app/atoms/ActionListItem';
 import { ActionsDropdownPopup } from 'app/atoms/ActionsDropdown';
 import {
@@ -18,6 +18,7 @@ import { ReactComponent as LinkIcon } from 'app/icons/base/link.svg';
 import { ReactComponent as LockIcon } from 'app/icons/base/lock.svg';
 import { ReactComponent as SettingsIcon } from 'app/icons/base/settings.svg';
 import { NotificationsBell } from 'app/pages/Notifications/components/bell';
+import { RewardsIconWithBadge } from 'app/pages/Notifications/components/rewards';
 import { dispatch } from 'app/store';
 import { setAssetsFilterChain } from 'app/store/assets-filter-options/actions';
 import { setIsTestnetModeEnabledAction } from 'app/store/settings/actions';
@@ -82,6 +83,15 @@ const MenuDropdown = memo<PopperRenderProps>(({ opened, setOpened }) => {
         children: <T id="settings" />,
         linkTo: '/settings',
         testID: MenuDropdownSelectors.settingsButton,
+        onClick: closeDropdown,
+        withDividerAfter: true
+      },
+      {
+        key: 'rewards',
+        Icon: RewardsIconWithBadge,
+        children: <T id="rewards" />,
+        linkTo: '/rewards',
+        testID: MenuDropdownSelectors.rewardsButton,
         onClick: closeDropdown
       },
       {
@@ -90,6 +100,15 @@ const MenuDropdown = memo<PopperRenderProps>(({ opened, setOpened }) => {
         children: <T id="notifications" />,
         linkTo: '/notifications',
         testID: MenuDropdownSelectors.notificationsButton,
+        onClick: closeDropdown,
+        withDividerAfter: true
+      },
+      {
+        key: 'dapps',
+        Icon: ExploreIcon,
+        children: <T id="dApps" />,
+        linkTo: '/dapps',
+        testID: MenuDropdownSelectors.dappsButton,
         onClick: closeDropdown
       },
       {
@@ -98,14 +117,6 @@ const MenuDropdown = memo<PopperRenderProps>(({ opened, setOpened }) => {
         children: <T id="connections" />,
         linkTo: '/settings/dapps',
         testID: MenuDropdownSelectors.connectedDAppsButton,
-        onClick: closeDropdown
-      },
-      {
-        key: 'dapps',
-        Icon: ExploreIcon,
-        children: <T id="dApps" />,
-        linkTo: '/dapps',
-        testID: MenuDropdownSelectors.dappsButton,
         onClick: closeDropdown
       },
       {
@@ -129,10 +140,13 @@ const MenuDropdown = memo<PopperRenderProps>(({ opened, setOpened }) => {
   return (
     <ActionsDropdownPopup title="Menu" opened={opened} lowering={3} style={{ minWidth: 163 }}>
       {actions.map(action => (
-        <ActionListItem {...action} key={action.key} />
+        <>
+          <ActionListItem {...action} key={action.key} />
+          {action.withDividerAfter && <Divider className="bg-grey-4 px-2" />}
+        </>
       ))}
 
-      <Lines className="my-1.5" />
+      <Divider className="my-1.5 bg-grey-4 px-1.5" />
 
       {!fullPage && IS_GOOGLE_CHROME_BROWSER && (
         <label className="py-2.5 px-2 flex items-center gap-x-1">

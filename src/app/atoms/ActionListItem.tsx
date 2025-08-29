@@ -18,6 +18,7 @@ export interface ActionListItemProps extends PropsWithChildren, TestIDProps {
   testID?: string;
   active?: boolean;
   danger?: boolean;
+  withDividerAfter?: boolean;
 }
 
 export const ActionListItem: FC<ActionListItemProps> = ({
