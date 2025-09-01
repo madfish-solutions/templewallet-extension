@@ -110,10 +110,15 @@ const TezosTransactionViewBody = memo<TezosTransactionViewProps>(
       shouldRetryOnError: false
     });
 
-    const getSourcePkIsRevealed = useCallback(
-      async () => tezosManagerKeyHasManager(await tezos.rpc.getManagerKey(sourcePkh)),
-      [sourcePkh, tezos]
-    );
+    const getSourcePkIsRevealed = useCallback(async () => {
+      try {
+        return tezosManagerKeyHasManager(await tezos.rpc.getManagerKey(sourcePkh));
+      } catch (e) {
+        console.error(e);
+
+        return false;
+      }
+    }, [sourcePkh, tezos]);
     const { data: sourcePkIsRevealed } = useTypedSWR(
       ['source-pk-is-revealed', sourcePkh, networkRpc],
       getSourcePkIsRevealed,
@@ -121,7 +126,7 @@ const TezosTransactionViewBody = memo<TezosTransactionViewProps>(
         revalidateOnFocus: false,
         revalidateOnReconnect: false,
         dedupingInterval: TEZOS_BLOCK_DURATION,
-        fallbackData: false
+        suspense: true
       }
     );
 

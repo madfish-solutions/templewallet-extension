@@ -20,7 +20,7 @@ import { newsletterReducers } from './newsletter/newsletter-reducers';
 import { notificationsReducer } from './notifications/reducers';
 import { partnersPromotionPersistedReducer } from './partners-promotion/reducers';
 import { rewardsReducer } from './rewards/reducers';
-import { settingsPersistedReducer } from './settings/reducers';
+import { settingsReducer } from './settings/reducers';
 import { swapPersistedReducer } from './swap/reducers';
 import { assetsPersistedReducer } from './tezos/assets/reducer';
 import { balancesReducer } from './tezos/balances/reducers';
@@ -30,7 +30,7 @@ import { noCategoryTezosAssetsMetadataPersistedReducer } from './tezos/no-catego
 import { tokensMetadataReducer } from './tezos/tokens-metadata/reducers';
 
 const rootStateReducersMap = {
-  settings: settingsPersistedReducer,
+  settings: settingsReducer,
   currency: currencyPersistedReducer,
   notifications: notificationsReducer,
   dApps: dAppsReducer,
