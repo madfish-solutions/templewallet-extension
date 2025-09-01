@@ -1,9 +1,8 @@
 import { IS_MISES_BROWSER } from 'lib/env';
-import { mockPersistedState } from 'lib/store';
 
 import { SettingsState } from './state';
 
-export const mockSettingsState = mockPersistedState<SettingsState>({
+export const mockSettingsState: SettingsState = {
   isAnalyticsEnabled: true,
   userId: '0',
   onRampAsset: null,
@@ -13,4 +12,4 @@ export const mockSettingsState = mockPersistedState<SettingsState>({
   referralLinksEnabled: IS_MISES_BROWSER,
   isTestnetModeEnabled: false,
   favoriteTokens: []
-});
+};

@@ -80,7 +80,7 @@ export const MIGRATIONS: MigrationManifest = {
       ...typedPersistedState,
       settings: {
         ...typedPersistedState.settings,
-        pendingReactivateAds: !typedPersistedState.partnersPromotion.shouldShowPromotion
+        pendingReactivateAds: !typedPersistedState.partnersPromotion?.shouldShowPromotion
       }
     };
 
@@ -111,7 +111,7 @@ export const MIGRATIONS: MigrationManifest = {
 
     const typedPersistedState = persistedState as TypedPersistedRootState;
 
-    if (typedPersistedState.partnersPromotion.shouldShowPromotion) return persistedState;
+    if (typedPersistedState.partnersPromotion?.shouldShowPromotion) return persistedState;
 
     const newState: TypedPersistedRootState = {
       ...typedPersistedState,
@@ -181,15 +181,15 @@ export const MIGRATIONS: MigrationManifest = {
   '7': (persistedState: PersistedState) => {
     if (!persistedState) return persistedState;
 
-    const typedPersistedState = persistedState as TypedPersistedRootState;
+    const state = persistedState as TypedPersistedRootState;
 
     const newState: TypedPersistedRootState = {
-      ...typedPersistedState,
+      ...state,
       assetsFilterOptions: {
-        ...typedPersistedState.assetsFilterOptions,
+        ...state.assetsFilterOptions,
         tokensListOptions: {
-          ...typedPersistedState.assetsFilterOptions.tokensListOptions,
-          hideSmallBalance: typedPersistedState.assetsFilterOptions.tokensListOptions.hideZeroBalance ?? false
+          ...state.assetsFilterOptions?.tokensListOptions,
+          hideSmallBalance: state.assetsFilterOptions?.tokensListOptions?.hideZeroBalance ?? false
         }
       }
     };
