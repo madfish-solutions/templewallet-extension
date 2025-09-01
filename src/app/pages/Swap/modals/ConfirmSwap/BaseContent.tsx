@@ -128,7 +128,7 @@ export const BaseContent = <T extends TxParamsFormData>({
           size="L"
           className="w-full"
           loading={isQuoteRefreshing || formState.isSubmitting}
-          disabled={isQuoteRefreshing === undefined ? !formState.isValid : isQuoteRefreshing}
+          disabled={!formState.isValid}
           onClick={onManualQuoteRefresh && isQuoteExpired ? onManualQuoteRefresh : undefined}
         >
           {latestSubmitError ? (

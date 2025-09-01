@@ -60,8 +60,6 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
   const handleRefresh = useCallback(
     async (manual = false) => {
       if (refreshCount >= MAX_REFRESHES && !manual) {
-        toastWarning(t('estimationExpired'));
-        setExpired(true);
         return;
       }
 
@@ -80,13 +78,7 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
         } else {
           const nextCount = refreshCount + 1;
           setRefreshCount(nextCount);
-
-          if (nextCount >= MAX_REFRESHES) {
-            toastWarning(t('estimationExpired'));
-            setExpired(true);
-          } else {
-            setCountdown(REFRESH_INTERVAL_MS / 1000);
-          }
+          setCountdown(REFRESH_INTERVAL_MS / 1000);
         }
       } catch (err) {
         console.error('Error during refresh:', err);
@@ -99,9 +91,15 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
 
   useEffect(() => {
     if (expired || isRefreshing || countdown !== 0) return;
+
+    if (refreshCount >= MAX_REFRESHES) {
+      toastWarning(t('estimationExpired'));
+      setExpired(true);
+      return;
+    }
+
     void handleRefresh();
-    setCountdown(REFRESH_INTERVAL_MS / 1000);
-  }, [countdown, expired, handleRefresh, isRefreshing]);
+  }, [countdown, expired, handleRefresh, isRefreshing, refreshCount]);
 
   useInterval(
     () => {
