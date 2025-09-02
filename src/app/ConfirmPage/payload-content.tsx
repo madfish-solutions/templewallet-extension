@@ -198,7 +198,7 @@ const PayloadContentHOC = <
     <div className="w-full flex flex-col gap-4">
       {(() => {
         if (payload.type === 'connect') {
-          const providers = (payload as any).providers as EIP6963ProviderInfo[] | undefined;
+          const providers: EIP6963ProviderInfo[] | undefined = 'providers' in payload ? payload.providers : undefined;
           if (providers?.length && showConflict) {
             return (
               <ConnectViewConflict
