@@ -52,6 +52,7 @@ export const COMMON_MAINNET_CHAIN_IDS = {
   optimism: 10,
   arbitrum: 42161,
   base: 8453,
+  rootstock: 30,
   etherlink: 42793
 } as const;
 export const ETH_SEPOLIA_CHAIN_ID = 11155111;
@@ -62,6 +63,7 @@ export const COMMON_TESTNET_CHAIN_IDS = {
   optimism: 11155420,
   arbitrum: 421614,
   base: 84532,
+  rootstock: 31,
   etherlink: 128123
 } as const;
 
