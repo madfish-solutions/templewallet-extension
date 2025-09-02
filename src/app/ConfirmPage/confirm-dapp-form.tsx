@@ -34,6 +34,9 @@ export interface ConfirmDAppFormContentProps {
   formId: string;
   openAccountsModal: EmptyFn;
   onSubmit: EmptyFn;
+  dismissConflict?: EmptyFn;
+  conflictVisible?: boolean;
+  showConflict?: boolean;
 }
 
 interface ConfirmDAppFormProps {
@@ -191,6 +194,9 @@ export const ConfirmDAppForm = memo<ConfirmDAppFormProps>(({ accounts, payload, 
   }, [payload, error, addAssetErrorMessage]);
 
   const isOperationsConfirm = payload.type === 'confirm_operations';
+  const initialConflict =
+    payload.type === 'connect' && Array.isArray((payload as any).providers) && (payload as any).providers.length > 0;
+  const [showConflict, setShowConflict] = useSafeState(initialConflict);
 
   return (
     <PageModal
@@ -216,38 +222,42 @@ export const ConfirmDAppForm = memo<ConfirmDAppFormProps>(({ accounts, payload, 
         <>
           <PageModalScrollViewWithActions
             className="p-4 gap-4"
-            actionsBoxProps={{
-              children: [
-                <StyledButton
-                  key="cancel"
-                  size="L"
-                  color="primary-low"
-                  className="w-full"
-                  loading={isDeclining}
-                  testID={declineTestID}
-                  onClick={handleDeclineClick}
-                >
-                  <T id="cancel" />
-                </StyledButton>,
-                <StyledButton
-                  key="confirm"
-                  size="L"
-                  color="primary"
-                  className="w-full"
-                  loading={isConfirming}
-                  testID={confirmTestID}
-                  type={isOperationsConfirm ? 'submit' : 'button'}
-                  onClick={isOperationsConfirm ? undefined : handleConfirmClick}
-                  form={isOperationsConfirm ? CONFIRM_OPERATIONS_FORM_ID : undefined}
-                  disabled={confirmDisabled}
-                >
-                  {confirmButtonName}
-                </StyledButton>
-              ],
-              flexDirection: 'row'
-            }}
+            actionsBoxProps={
+              showConflict
+                ? { children: [], flexDirection: 'row' }
+                : {
+                    children: [
+                      <StyledButton
+                        key="cancel"
+                        size="L"
+                        color="primary-low"
+                        className="w-full"
+                        loading={isDeclining}
+                        testID={declineTestID}
+                        onClick={handleDeclineClick}
+                      >
+                        <T id="cancel" />
+                      </StyledButton>,
+                      <StyledButton
+                        key="confirm"
+                        size="L"
+                        color="primary"
+                        className="w-full"
+                        loading={isConfirming}
+                        testID={confirmTestID}
+                        type={isOperationsConfirm ? 'submit' : 'button'}
+                        onClick={isOperationsConfirm ? undefined : handleConfirmClick}
+                        form={isOperationsConfirm ? CONFIRM_OPERATIONS_FORM_ID : undefined}
+                        disabled={confirmDisabled}
+                      >
+                        {confirmButtonName}
+                      </StyledButton>
+                    ],
+                    flexDirection: 'row'
+                  }
+            }
           >
-            {payload.type !== 'add_asset' && (
+            {!showConflict && payload.type !== 'add_asset' && (
               <div className="mb-2 flex flex-col items-center gap-2">
                 <div className="flex gap-2 relative">
                   <div className="w-13 h-13 flex justify-center items-center bg-white shadow-card rounded">
@@ -289,7 +299,11 @@ export const ConfirmDAppForm = memo<ConfirmDAppFormProps>(({ accounts, payload, 
               selectedAccount,
               formId: CONFIRM_OPERATIONS_FORM_ID,
               onSubmit: handleConfirmClick,
-              error
+              error,
+              dismissConflict: () => {
+                setShowConflict(false);
+              },
+              showConflict
             })}
           </PageModalScrollViewWithActions>
 

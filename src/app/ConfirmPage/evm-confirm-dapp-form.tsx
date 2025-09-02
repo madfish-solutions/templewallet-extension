@@ -101,7 +101,15 @@ export const EvmConfirmDAppForm = memo<EvmConfirmDAppFormProps>(({ payload, id }
   );
 
   const renderPayload = useCallback(
-    ({ openAccountsModal, selectedAccount, formId, onSubmit, error }: ConfirmDAppFormContentProps) => (
+    ({
+      openAccountsModal,
+      selectedAccount,
+      formId,
+      onSubmit,
+      error,
+      dismissConflict,
+      showConflict
+    }: ConfirmDAppFormContentProps & { dismissConflict?: EmptyFn; showConflict?: boolean }) => (
       <EvmPayloadContent
         network={network}
         error={error}
@@ -110,6 +118,8 @@ export const EvmConfirmDAppForm = memo<EvmConfirmDAppFormProps>(({ payload, id }
         openAccountsModal={openAccountsModal}
         formId={formId}
         onSubmit={onSubmit}
+        dismissConflict={dismissConflict}
+        showConflict={showConflict}
         extraProps={{ setFinalEvmTransaction: updateFinalEvmTransaction }}
       />
     ),

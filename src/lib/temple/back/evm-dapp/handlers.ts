@@ -26,6 +26,7 @@ import { TempleChainKind } from 'temple/types';
 import {
   AddEthereumChainParameter,
   BlockExplorer,
+  EIP6963ProviderInfo,
   ETHEREUM_MAINNET_CHAIN_ID,
   EvmAssetToAddMetadata,
   EvmChainToAddMetadata,
@@ -63,7 +64,7 @@ export async function getDefaultWeb3Params(origin: string) {
   return { chainId: toHex(chainId), accounts: dApp?.pkh ? [dApp.pkh.toLowerCase()] : [] };
 }
 
-export const connectEvm = async (origin: string, chainId: string, icon?: string) => {
+export const connectEvm = async (origin: string, chainId: string, icon?: string, providers?: EIP6963ProviderInfo[]) => {
   return new Promise<HexString[]>(async (resolve, reject) => {
     await assertiveGetChainRpcURLs(Number(chainId));
     const id = nanoid();
@@ -76,7 +77,8 @@ export const connectEvm = async (origin: string, chainId: string, icon?: string)
         chainType: TempleChainKind.EVM,
         origin,
         chainId,
-        appMeta
+        appMeta,
+        providers
       },
       onDecline: () => {
         reject(new ErrorWithCode(EVMErrorCodes.USER_REJECTED_REQUEST, 'Connection declined'));

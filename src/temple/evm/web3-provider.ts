@@ -16,12 +16,12 @@ import {
   RESPONSE_FROM_BG_MSG_TYPE,
   SWITCH_CHAIN_MSG_TYPE
 } from 'lib/constants';
-import { ETHEREUM_MAINNET_CHAIN_ID } from 'lib/temple/types';
+import { EIP6963ProviderInfo, ETHEREUM_MAINNET_CHAIN_ID } from 'lib/temple/types';
 
 import {
+  EVMErrorCodes,
   evmRpcMethodsNames,
   GET_DEFAULT_WEB3_PARAMS_METHOD_NAME,
-  EVMErrorCodes,
   RETURNED_ACCOUNTS_CAVEAT_NAME
 } from './constants';
 import type { TypedDataV1 } from './typed-data-v1';
@@ -32,6 +32,7 @@ export interface PassToBgEventDetail {
   chainId: string;
   iconUrl?: string;
   requestId: string;
+  providers?: EIP6963ProviderInfo[];
 }
 
 type ExtraSignMethods = [
@@ -342,11 +343,26 @@ export class TempleWeb3Provider extends EventEmitter {
     toProviderResponse: (data: BackgroundResponseData<M>) => ProviderResponse<M>,
     requiredAccount: HexString | undefined
   ) {
+    const forwardTarget = window.__templeForwardTarget;
+    if (forwardTarget?.request && typeof forwardTarget.request === 'function') {
+      // @ts-expect-error
+      return forwardTarget.request(args);
+    }
     if (requiredAccount && !this.accounts.some(acc => acc.toLowerCase() === requiredAccount.toLowerCase())) {
       throwErrorLikeObject(EVMErrorCodes.NOT_AUTHORIZED, 'Account is not connected');
     }
 
     const requestId = uuid();
+    const otherProviders: { uuid: string; name: string; icon: string; rdns?: string }[] =
+      window.__templeOtherProviders || [];
+
+    if (
+      args.method === evmRpcMethodsNames.eth_requestAccounts &&
+      window.__templeSelectedOtherRdns &&
+      otherProviders.some(p => p.rdns === window.__templeSelectedOtherRdns)
+    ) {
+      throw makeErrorLikeObject(EVMErrorCodes.USER_REJECTED_REQUEST, 'Connection declined');
+    }
     window.dispatchEvent(
       new CustomEvent<PassToBgEventDetail>(PASS_TO_BG_EVENT, {
         detail: {
@@ -354,7 +370,8 @@ export class TempleWeb3Provider extends EventEmitter {
           origin: window.origin,
           chainId: this.chainId,
           iconUrl: await this.getIconUrl(document?.head),
-          requestId
+          requestId,
+          providers: otherProviders
         }
       })
     );
