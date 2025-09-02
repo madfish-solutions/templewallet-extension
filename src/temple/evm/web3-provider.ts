@@ -353,8 +353,7 @@ export class TempleWeb3Provider extends EventEmitter {
     }
 
     const requestId = uuid();
-    const otherProviders: { uuid: string; name: string; icon: string; rdns?: string }[] =
-      window.__templeOtherProviders || [];
+    const otherProviders: EIP6963ProviderInfo[] = window.__templeOtherProviders || [];
 
     if (
       args.method === evmRpcMethodsNames.eth_requestAccounts &&
