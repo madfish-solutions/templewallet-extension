@@ -194,9 +194,20 @@ export const ConfirmDAppForm = memo<ConfirmDAppFormProps>(({ accounts, payload, 
   }, [payload, error, addAssetErrorMessage]);
 
   const isOperationsConfirm = payload.type === 'confirm_operations';
-  const initialConflict =
-    payload.type === 'connect' && Array.isArray((payload as any).providers) && (payload as any).providers.length > 0;
-  const [showConflict, setShowConflict] = useSafeState(initialConflict);
+
+  const isConnectPayload = useCallback(
+    (p: TempleDAppPayload): p is Extract<TempleDAppPayload, { type: 'connect' }> => p.type === 'connect',
+    []
+  );
+
+  const shouldShowConflict = useMemo(() => {
+    if (!isConnectPayload(payload)) return false;
+
+    const providers = 'providers' in payload ? payload.providers : undefined;
+    return Array.isArray(providers) && providers.length > 0;
+  }, [payload, isConnectPayload]);
+
+  const [showConflict, setShowConflict] = useSafeState(shouldShowConflict);
 
   return (
     <PageModal

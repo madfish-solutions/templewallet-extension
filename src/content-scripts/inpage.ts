@@ -6,13 +6,6 @@ import { TEMPLE_SWITCH_PROVIDER_EVENT } from 'lib/constants';
 import { EIP6963ProviderInfo } from 'lib/temple/types';
 import { TempleWeb3Provider } from 'temple/evm/web3-provider';
 
-// interface TempleSwitchProviderMessage {
-//   type: 'TEMPLE_SWITCH_PROVIDER';
-//   rdns?: string;
-//   uuid?: string;
-//   autoConnect?: boolean;
-// }
-
 interface TempleSwitchProviderEvent extends CustomEvent {
   detail: {
     rdns?: string;
@@ -61,7 +54,6 @@ function handleAnnounceProvider(evt: Event) {
   const announced: EIP6963ProviderInfo | undefined = detail?.info;
   if (!announced) return;
 
-  console.log('detail', detail)
   if (announced.name === info.name && announced.rdns === info.rdns) return;
   if (!otherProviders.find(provider => provider.uuid === announced.uuid)) {
     otherProviders.push({ uuid: announced.uuid, name: announced.name, icon: announced.icon, rdns: announced.rdns });
@@ -77,41 +69,6 @@ function handleAnnounceProvider(evt: Event) {
 
 window.addEventListener('eip6963:requestProvider', announceProvider);
 window.addEventListener('eip6963:announceProvider', handleAnnounceProvider);
-
-// // Handle switch request from content-script
-// window.addEventListener('message', async (evt: MessageEvent<TempleSwitchProviderMessage>) => {
-//   if (evt.source !== window) return;
-//   const data = evt.data;
-//   if (data?.type === 'TEMPLE_SWITCH_PROVIDER') {
-//     console.log('here TEMPLE_SWITCH_PROVIDER MESSAGE')
-//     const { rdns, uuid, autoConnect } = data;
-//     const byUuid = uuid && window.__templeProvidersMapByUuid?.[uuid];
-//     const byRdns = rdns && window.__templeProvidersMapByRdns?.[rdns];
-//     const target = byUuid || byRdns || null;
-//
-//     if (target) {
-//       try {
-//         window.__templeSelectedOtherUuid = uuid;
-//         window.__templeSelectedOtherRdns = rdns;
-//         window.__templeForwardTarget = target;
-//         if (autoConnect) {
-//           try {
-//             await target.request({ method: 'eth_requestAccounts' });
-//           } catch (e1) {
-//             console.warn('target.request failed', e1);
-//             try {
-//               await window.ethereum?.request?.({ method: 'eth_requestAccounts' });
-//             } catch (e2) {
-//               console.error('window.ethereum.request failed', e2);
-//             }
-//           }
-//         }
-//       } catch (e) {
-//         /* empty */
-//       }
-//     }
-//   }
-// });
 
 document.addEventListener(TEMPLE_SWITCH_PROVIDER_EVENT, async (evt: Event) => {
   const customEvent = evt as TempleSwitchProviderEvent;
