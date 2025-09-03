@@ -18,7 +18,6 @@ interface TotalEquityProps {
   filterChain?: FilterChain;
 }
 
-/** Total balance is dollar value of displayed tokens, taken from store */
 export const TotalEquity = memo<TotalEquityProps>(({ account, currency, filterChain = null }) => {
   const accountTezAddress = getAccountAddressForTezos(account);
   const accountEvmAddress = getAccountAddressForEvm(account);
