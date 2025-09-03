@@ -17,7 +17,13 @@ import { ErrorWithCode } from 'temple/evm/types';
 import { EvmNetworkEssentials } from 'temple/networks';
 import { TempleChainKind } from 'temple/types';
 
-import { TempleEvmDAppPayload, TempleEvmDAppSignPayload, TempleMessageType } from '../../types';
+import {
+  SignEvmDataResponseMessageType,
+  TempleEvmDAppPayload,
+  TempleEvmDAppSignPayload,
+  TempleMessageType,
+  TempleSignEvmRequestBase
+} from '../../types';
 import { intercom } from '../defaults';
 import { requestConfirm as genericRequestConfirm, RequestConfirmParams } from '../request-confirm';
 import { withUnlocked } from '../store';
@@ -152,6 +158,19 @@ export function makeRequestEvmSignFunction<T extends TempleEvmDAppSignPayload>(
       });
     });
   };
+}
+
+export function makeInternalRequestEvmSignFunction<
+  T extends TempleSignEvmRequestBase,
+  ResponseType extends SignEvmDataResponseMessageType
+>(
+  responseType: ResponseType,
+  signDataWithValue: (vault: Vault, payload: T['payload'], signerPkh: HexString) => Promise<HexString>
+) {
+  return async (payload: T['payload'], signerPkh: HexString) => ({
+    type: responseType,
+    result: await withUnlocked(({ vault }) => signDataWithValue(vault, payload, signerPkh))
+  });
 }
 
 /** Throws an error if the dApp is not connected or the connected account does not match the specified one; otherwise,

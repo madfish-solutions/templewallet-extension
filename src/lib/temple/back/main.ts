@@ -224,6 +224,15 @@ const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<T
         result
       };
 
+    case TempleMessageType.SignEvmTypedDataRequest:
+      // TODO: add constraints for this request
+      console.log('oy vey 1', port, req);
+      const { result: evmSignResult } = await Actions.internalSignEvmTypedData(req.payload, req.sourcePkh);
+      return {
+        type: TempleMessageType.SignEvmTypedDataResponse,
+        result: evmSignResult
+      };
+
     case TempleMessageType.DAppRemoveSessionRequest:
       const sessions = await Actions.removeDAppSession(req.origins);
       return {

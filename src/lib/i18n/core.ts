@@ -61,7 +61,7 @@ export function getMessage(messageName: string, substitutions?: Substitutions) {
     : browser.i18n.getMessage(messageName, substitutions) ?? '';
 }
 
-function getDateFnsLocale() {
+export function getDateFnsLocale() {
   return dateFnsLocales[getCurrentLocale()] || enUS;
 }
 

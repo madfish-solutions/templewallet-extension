@@ -35,7 +35,7 @@
     "audit-deps": "node ./audit-deps.js"
   },
   "engines": {
-    "node": ">=20"
+    "node": ">=24"
   },
   "dependencies": {
     "@airgap/beacon-types": "^4.5.1",
@@ -56,6 +56,7 @@
     "@ledgerhq/hw-transport-webhid": "^6.28.6",
     "@lifi/sdk": "^3.7.2",
     "@microsoft/signalr": "^8.0.0",
+    "@nktkas/hyperliquid": "^0.24.3",
     "@peculiar/webcrypto": "1.1.6",
     "@personaxyz/ad-sdk": "^0.0.19",
     "@popperjs/core": "2.4.4",
@@ -83,6 +84,7 @@
     "@tezos-domains/taquito-client": "1.26.0",
     "@types/async-retry": "1.4.3",
     "@types/bs58check": "^2.1.0",
+    "@types/chart.js": "^4.0.1",
     "@types/chrome": "^0.0.329",
     "@types/debounce": "^1.2.1",
     "@types/debounce-promise": "3.1.4",
@@ -120,6 +122,9 @@
     "bip39": "3.0.4",
     "bs58check": "2.1.2",
     "buffer": "5.6.0",
+    "chart.js": "^4.5.0",
+    "chartjs-adapter-date-fns": "^3.0.0",
+    "chartjs-plugin-annotation": "^3.1.0",
     "clean-webpack-plugin": "4.0.0",
     "clsx": "1.1.1",
     "compare-versions": "^6.1.1",
