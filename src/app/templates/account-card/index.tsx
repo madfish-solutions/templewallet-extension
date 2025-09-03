@@ -9,6 +9,9 @@ import { AccountName as DefaultAccountName } from 'app/atoms/AccountName';
 import { RadioButton } from 'app/atoms/RadioButton';
 import { SearchHighlightText } from 'app/atoms/SearchHighlightText';
 import { TotalEquity } from 'app/atoms/TotalEquity';
+import { EquityCurrency } from 'app/atoms/TotalEquity/types';
+import { TOTAL_EQUITY_CURRENCY_STORAGE_KEY } from 'lib/constants';
+import { usePassiveStorage } from 'lib/temple/front/storage';
 import { StoredAccount } from 'lib/temple/types';
 import { useScrollIntoViewOnMount } from 'lib/ui/use-scroll-into-view';
 
@@ -99,9 +102,11 @@ export const AccountCard = memo<AccountCardProps>(
   }
 );
 
-const DefaultBalanceValue: FC<{ account: StoredAccount }> = ({ account }) => (
-  <TotalEquity account={account} currency="fiat" />
-);
+const DefaultBalanceValue: FC<{ account: StoredAccount }> = ({ account }) => {
+  const [equityCurrency] = usePassiveStorage<EquityCurrency>(TOTAL_EQUITY_CURRENCY_STORAGE_KEY, 'fiat');
+
+  return <TotalEquity account={account} currency={equityCurrency} />;
+};
 
 const SimpleAccountName = memo<{ account: StoredAccount; searchValue?: string }>(({ account, searchValue }) => (
   <Name className="text-font-medium-bold flex items-center">

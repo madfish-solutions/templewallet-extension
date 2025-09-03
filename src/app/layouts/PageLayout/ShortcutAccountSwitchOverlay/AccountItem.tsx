@@ -7,7 +7,10 @@ import { Name, Button } from 'app/atoms';
 import { AccountAvatar } from 'app/atoms/AccountAvatar';
 import { SearchHighlightText } from 'app/atoms/SearchHighlightText';
 import { TotalEquity } from 'app/atoms/TotalEquity';
+import { EquityCurrency } from 'app/atoms/TotalEquity/types';
+import { TOTAL_EQUITY_CURRENCY_STORAGE_KEY } from 'lib/constants';
 import { T } from 'lib/i18n';
+import { usePassiveStorage } from 'lib/temple/front/storage';
 import { StoredAccount } from 'lib/temple/types';
 import { useScrollIntoView } from 'lib/ui/use-scroll-into-view';
 import { combineRefs } from 'lib/ui/utils';
@@ -41,6 +44,8 @@ export const AccountItem: React.FC<AccountItemProps> = ({
 }) => {
   const elemRef = useScrollIntoView<HTMLButtonElement>(focused, scrollIntoViewOptions);
 
+  const [equityCurrency] = usePassiveStorage<EquityCurrency>(TOTAL_EQUITY_CURRENCY_STORAGE_KEY, 'fiat');
+
   return (
     <Button
       ref={combineRefs(elemRef, el => {
@@ -67,7 +72,7 @@ export const AccountItem: React.FC<AccountItemProps> = ({
           </div>
 
           <div className="text-font-num-12 text-right">
-            <TotalEquity account={account} currency="fiat" />
+            <TotalEquity account={account} currency={equityCurrency} />
           </div>
         </div>
       </div>

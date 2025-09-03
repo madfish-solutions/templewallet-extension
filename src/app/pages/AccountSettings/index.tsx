@@ -11,11 +11,14 @@ import { SettingsCellSingle } from 'app/atoms/SettingsCell';
 import { SettingsCellGroup } from 'app/atoms/SettingsCellGroup';
 import { StyledButton } from 'app/atoms/StyledButton';
 import { TotalEquity } from 'app/atoms/TotalEquity';
+import { EquityCurrency } from 'app/atoms/TotalEquity/types';
 import { useAllAccountsReactiveOnRemoval } from 'app/hooks/use-all-accounts-reactive';
 import { ReactComponent as ChevronRightIcon } from 'app/icons/base/chevron_right.svg';
 import PageLayout from 'app/layouts/PageLayout';
+import { TOTAL_EQUITY_CURRENCY_STORAGE_KEY } from 'lib/constants';
 import { T, t } from 'lib/i18n';
 import { useTempleClient } from 'lib/temple/front';
+import { usePassiveStorage } from 'lib/temple/front/storage';
 import { getDerivationPath } from 'lib/temple/helpers';
 import { TempleAccountType } from 'lib/temple/types';
 import { useAlert } from 'lib/ui';
@@ -52,6 +55,8 @@ export const AccountSettings = memo<AccountSettingsProps>(({ id }) => {
   const [currentModal, setCurrentModal] = useState<AccountSettingsModal | null>(null);
   const [privateKeysPayload, setPrivateKeysPayload] = useState<PrivateKeyPayload[]>([]);
   const shouldDisableVisibilityChange = visibilityBeingChanged || currentAccountId === id;
+
+  const [equityCurrency] = usePassiveStorage<EquityCurrency>(TOTAL_EQUITY_CURRENCY_STORAGE_KEY, 'fiat');
 
   const account = useMemo(() => allAccounts.find(({ id: accountId }) => accountId === id), [allAccounts, id]);
 
@@ -150,7 +155,7 @@ export const AccountSettings = memo<AccountSettingsProps>(({ id }) => {
                 <T id="totalBalance" />:
               </span>
               <span className="ml-1.5 text-font-num-14">
-                <TotalEquity account={account} currency="fiat" />
+                <TotalEquity account={account} currency={equityCurrency} />
               </span>
             </div>
           </div>
