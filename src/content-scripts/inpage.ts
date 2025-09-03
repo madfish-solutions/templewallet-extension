@@ -1,7 +1,7 @@
 import { v4 as uuid } from 'uuid';
 import { EIP1193Provider } from 'viem';
 
-import { templeIcon } from 'content-scripts/constants';
+import { TEMPLE_ICON } from 'content-scripts/constants';
 import { TEMPLE_SWITCH_PROVIDER_EVENT } from 'lib/constants';
 import { EIP6963ProviderInfo } from 'lib/temple/types';
 import { TempleWeb3Provider } from 'temple/evm/web3-provider';
@@ -32,7 +32,7 @@ setGlobalProvider(defaultTempleProvider);
 const info: EIP6963ProviderInfo = {
   uuid: uuid(),
   name: 'Temple Wallet',
-  icon: templeIcon,
+  icon: TEMPLE_ICON,
   rdns: 'com.templewallet'
 };
 

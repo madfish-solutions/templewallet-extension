@@ -48,6 +48,9 @@ interface ConfirmDAppFormProps {
 
 const CONFIRM_OPERATIONS_FORM_ID = 'confirm-operations-form';
 
+const isConnectPayload = (p: TempleDAppPayload): p is Extract<TempleDAppPayload, { type: 'connect' }> =>
+  p.type === 'connect';
+
 const evmOperationTitles: Record<EvmOperationKind, ReactNode> = {
   [EvmOperationKind.DeployContract]: <T id="deployContract" />,
   [EvmOperationKind.Mint]: <T id="mint" />,
@@ -195,17 +198,12 @@ export const ConfirmDAppForm = memo<ConfirmDAppFormProps>(({ accounts, payload, 
 
   const isOperationsConfirm = payload.type === 'confirm_operations';
 
-  const isConnectPayload = useCallback(
-    (p: TempleDAppPayload): p is Extract<TempleDAppPayload, { type: 'connect' }> => p.type === 'connect',
-    []
-  );
-
   const shouldShowConflict = useMemo(() => {
     if (!isConnectPayload(payload)) return false;
 
     const providers = 'providers' in payload ? payload.providers : undefined;
     return Array.isArray(providers) && providers.length > 0;
-  }, [payload, isConnectPayload]);
+  }, [payload]);
 
   const [showConflict, setShowConflict] = useSafeState(shouldShowConflict);
 

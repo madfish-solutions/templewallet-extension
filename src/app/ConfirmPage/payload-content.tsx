@@ -8,7 +8,7 @@ import { AccountCard } from 'app/templates/account-card';
 import { EvmTransactionView } from 'app/templates/EvmTransactionView';
 import { SignPayloadView } from 'app/templates/SignPayloadView';
 import { TezosTransactionView } from 'app/templates/TezosTransactionView';
-import { templeIcon } from 'content-scripts/constants';
+import { TEMPLE_ICON } from 'content-scripts/constants';
 import { t, T, TID } from 'lib/i18n';
 import { useTempleClient } from 'lib/temple/front/client';
 import {
@@ -94,14 +94,12 @@ const ConnectViewConflict = memo<{
         </p>
         <button
           type="button"
-          onClick={() => {
-            dismissConflict?.();
-          }}
+          onClick={dismissConflict}
           className="w-full text-left bg-white rounded-xl shadow-bottom border border-transparent hover:border-lines cursor-pointer"
         >
           <div className="p-3 flex items-center gap-3">
             <div className="w-9 h-9 rounded flex items-center justify-center">
-              <img src={templeIcon} alt="Temple Wallet" className="w-9 h-9 object-contain" />
+              <img src={TEMPLE_ICON} alt="Temple Wallet" className="w-9 h-9 object-contain" />
             </div>
             <div className="text-font-title">Temple Wallet</div>
           </div>
