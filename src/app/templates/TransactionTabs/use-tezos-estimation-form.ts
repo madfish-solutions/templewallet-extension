@@ -135,7 +135,7 @@ export const useTezosEstimationForm = ({
     let storageLimit: BigNumber | undefined;
 
     if (basicParams) {
-      gasFee = tzToMutez(revealFee);
+      gasFee = revealFee;
       storageLimit = ZERO;
       for (let i = 0; i < basicParams.length; i++) {
         if (gasFee === undefined && storageLimit === undefined) break;
