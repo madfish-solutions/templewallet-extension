@@ -101,9 +101,7 @@ export const TezosConfirmDAppForm = memo<TezosConfirmDAppFormProps>(({ payload, 
       selectedAccount,
       error,
       formId,
-      onSubmit,
-      dismissConflict,
-      showConflict
+      onSubmit
     }: ConfirmDAppFormContentProps & { dismissConflict?: EmptyFn; showConflict?: boolean }) => (
       <TezosPayloadContent
         network={network}
@@ -113,8 +111,6 @@ export const TezosConfirmDAppForm = memo<TezosConfirmDAppFormProps>(({ payload, 
         openAccountsModal={openAccountsModal}
         formId={formId}
         onSubmit={onSubmit}
-        dismissConflict={dismissConflict}
-        showConflict={showConflict}
         extraProps={{ setTotalFee, setStorageLimit }}
       />
     ),
