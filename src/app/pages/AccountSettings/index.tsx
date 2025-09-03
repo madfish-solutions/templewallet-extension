@@ -15,6 +15,7 @@ import { useAllAccountsReactiveOnRemoval } from 'app/hooks/use-all-accounts-reac
 import { useEquityCurrency } from 'app/hooks/use-equity-currency';
 import { ReactComponent as ChevronRightIcon } from 'app/icons/base/chevron_right.svg';
 import PageLayout from 'app/layouts/PageLayout';
+import { useAssetsFilterOptionsSelector } from 'app/store/assets-filter-options/selectors';
 import { T, t } from 'lib/i18n';
 import { useTempleClient } from 'lib/temple/front';
 import { getDerivationPath } from 'lib/temple/helpers';
@@ -54,6 +55,7 @@ export const AccountSettings = memo<AccountSettingsProps>(({ id }) => {
   const [privateKeysPayload, setPrivateKeysPayload] = useState<PrivateKeyPayload[]>([]);
   const shouldDisableVisibilityChange = visibilityBeingChanged || currentAccountId === id;
 
+  const { filterChain } = useAssetsFilterOptionsSelector();
   const { equityCurrency } = useEquityCurrency();
 
   const account = useMemo(() => allAccounts.find(({ id: accountId }) => accountId === id), [allAccounts, id]);
@@ -153,7 +155,7 @@ export const AccountSettings = memo<AccountSettingsProps>(({ id }) => {
                 <T id="totalBalance" />:
               </span>
               <span className="ml-1.5 text-font-num-14">
-                <TotalEquity account={account} currency={equityCurrency} />
+                <TotalEquity account={account} filterChain={filterChain} currency={equityCurrency} />
               </span>
             </div>
           </div>

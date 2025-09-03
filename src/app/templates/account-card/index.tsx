@@ -10,6 +10,7 @@ import { RadioButton } from 'app/atoms/RadioButton';
 import { SearchHighlightText } from 'app/atoms/SearchHighlightText';
 import { TotalEquity } from 'app/atoms/TotalEquity';
 import { useEquityCurrency } from 'app/hooks/use-equity-currency';
+import { useAssetsFilterOptionsSelector } from 'app/store/assets-filter-options/selectors';
 import { StoredAccount } from 'lib/temple/types';
 import { useScrollIntoViewOnMount } from 'lib/ui/use-scroll-into-view';
 
@@ -101,9 +102,10 @@ export const AccountCard = memo<AccountCardProps>(
 );
 
 const DefaultBalanceValue: FC<{ account: StoredAccount }> = ({ account }) => {
+  const { filterChain } = useAssetsFilterOptionsSelector();
   const { equityCurrency } = useEquityCurrency();
 
-  return <TotalEquity account={account} currency={equityCurrency} />;
+  return <TotalEquity account={account} filterChain={filterChain} currency={equityCurrency} />;
 };
 
 const SimpleAccountName = memo<{ account: StoredAccount; searchValue?: string }>(({ account, searchValue }) => (
