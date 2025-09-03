@@ -4,13 +4,11 @@ import { Button, IconBase } from 'app/atoms';
 import { ActionListItem } from 'app/atoms/ActionListItem';
 import { ActionsDropdownPopup } from 'app/atoms/ActionsDropdown';
 import { TotalEquity } from 'app/atoms/TotalEquity';
-import { EquityCurrency } from 'app/atoms/TotalEquity/types';
+import { useEquityCurrency, EquityCurrency } from 'app/hooks/use-equity-currency';
 import { ReactComponent as CompactDownIcon } from 'app/icons/base/compact_down.svg';
 import { useAssetsFilterOptionsSelector } from 'app/store/assets-filter-options/selectors';
-import { TOTAL_EQUITY_CURRENCY_STORAGE_KEY } from 'lib/constants';
 import { useFiatCurrency } from 'lib/fiat-currency';
 import { T } from 'lib/i18n';
-import { usePassiveStorage } from 'lib/temple/front/storage';
 import Popper, { PopperRenderProps } from 'lib/ui/Popper';
 import { useAccount } from 'temple/front';
 
@@ -18,10 +16,7 @@ export const TotalEquityBanner = memo(() => {
   const { filterChain } = useAssetsFilterOptionsSelector();
   const account = useAccount();
 
-  const [equityCurrency, setEquityCurrency] = usePassiveStorage<EquityCurrency>(
-    TOTAL_EQUITY_CURRENCY_STORAGE_KEY,
-    'fiat'
-  );
+  const { equityCurrency, setEquityCurrency } = useEquityCurrency();
 
   return (
     <div className="flex flex-col gap-y-0.5">
