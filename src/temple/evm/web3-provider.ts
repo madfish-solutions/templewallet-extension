@@ -141,12 +141,14 @@ const isResponseFromBgMessage = (msg: any): msg is ResponseFromBgMessage =>
 export class TempleWeb3Provider extends EventEmitter {
   private accounts: HexString[];
   private chainId: HexString;
+  readonly isEIP6963: boolean;
 
   // Other extensions do the same
   readonly isMetaMask = true;
 
-  constructor() {
+  constructor(isEIP6963 = false) {
     super();
+    this.isEIP6963 = isEIP6963;
     this.accounts = [];
     this.chainId = toHex(ETHEREUM_MAINNET_CHAIN_ID);
 
@@ -362,6 +364,7 @@ export class TempleWeb3Provider extends EventEmitter {
     ) {
       throw makeErrorLikeObject(EVMErrorCodes.USER_REJECTED_REQUEST, 'Connection declined');
     }
+
     window.dispatchEvent(
       new CustomEvent<PassToBgEventDetail>(PASS_TO_BG_EVENT, {
         detail: {
@@ -370,7 +373,7 @@ export class TempleWeb3Provider extends EventEmitter {
           chainId: this.chainId,
           iconUrl: await this.getIconUrl(document?.head),
           requestId,
-          providers: otherProviders
+          providers: this.isEIP6963 ? undefined : otherProviders
         }
       })
     );

@@ -17,18 +17,17 @@ interface TempleSwitchProviderEvent extends CustomEvent {
 declare global {
   interface Window {
     __templeOtherProviders?: EIP6963ProviderInfo[];
-    __templeProvidersMapByUuid?: Record<string, EIP1193Provider>;
     __templeProvidersMapByRdns?: Record<string, EIP1193Provider>;
-    __templeSelectedOtherUuid?: string;
     __templeSelectedOtherRdns?: string;
     __templeForwardTarget?: EIP1193Provider;
     ethereum?: EIP1193Provider;
   }
 }
 
-const provider = new TempleWeb3Provider();
+const defaultTempleProvider = new TempleWeb3Provider();
+const eip6963TempleProvider = new TempleWeb3Provider(true);
 
-setGlobalProvider(provider);
+setGlobalProvider(defaultTempleProvider);
 
 const info: EIP6963ProviderInfo = {
   uuid: uuid(),
@@ -38,7 +37,6 @@ const info: EIP6963ProviderInfo = {
 };
 
 const otherProviders: EIP6963ProviderInfo[] = [];
-const providersMapByUuid: Record<string, EIP1193Provider> = {};
 const providersMapByRdns: Record<string, EIP1193Provider> = {};
 
 interface EIP6963AnnounceProviderEvent extends CustomEvent {
@@ -60,9 +58,7 @@ function handleAnnounceProvider(evt: Event) {
     window.__templeOtherProviders = otherProviders.slice();
   }
   if (detail?.provider) {
-    if (announced.uuid) providersMapByUuid[announced.uuid] = detail.provider;
     if (announced.rdns) providersMapByRdns[announced.rdns] = detail.provider;
-    window.__templeProvidersMapByUuid = providersMapByUuid;
     window.__templeProvidersMapByRdns = providersMapByRdns;
   }
 }
@@ -73,14 +69,12 @@ window.addEventListener('eip6963:announceProvider', handleAnnounceProvider);
 document.addEventListener(TEMPLE_SWITCH_PROVIDER_EVENT, async (evt: Event) => {
   const customEvent = evt as TempleSwitchProviderEvent;
   const data = customEvent?.detail || {};
-  const { rdns, uuid, autoConnect } = data;
-  const byUuid = uuid && window.__templeProvidersMapByUuid?.[uuid];
+  const { rdns, autoConnect } = data;
   const byRdns = rdns && window.__templeProvidersMapByRdns?.[rdns];
-  const target = byUuid || byRdns || null;
+  const target = byRdns || null;
 
   if (target) {
     try {
-      window.__templeSelectedOtherUuid = uuid;
       window.__templeSelectedOtherRdns = rdns;
       window.__templeForwardTarget = target;
       if (autoConnect) {
@@ -106,7 +100,7 @@ function setGlobalProvider(providerInstance: EIP1193Provider) {
 function announceProvider() {
   window.dispatchEvent(
     new CustomEvent('eip6963:announceProvider', {
-      detail: Object.freeze({ info, provider })
+      detail: Object.freeze({ info, provider: eip6963TempleProvider })
     })
   );
 }
