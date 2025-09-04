@@ -194,28 +194,8 @@ export const TezosSwapForm: FC<TezosSwapFormProps> = ({
     ? swapParams.data.tzbtcHops.length === 0 && swapParams.data.xtzHops.length === 0
     : swapParams.data.hops.length === 0;
 
-  const getSwapWithFeeParams = useCallback(
-    (newInputValue: SwapInputValue, newOutputValue: SwapInputValue) => {
-      const { assetSlug: inputAssetSlug, amount: inputAmount } = newInputValue;
-      const outputAssetSlug = newOutputValue.assetSlug;
-      const inputTokenExchangeRate = inputAssetSlug ? allUsdToTokenRates[inputAssetSlug] : '0';
-      const inputAmountInUsd = inputAmount?.multipliedBy(inputTokenExchangeRate) ?? ZERO;
-
-      const isInputTokenTempleToken = inputAssetSlug === KNOWN_TOKENS_SLUGS.TEMPLE;
-      const isOutputTokenTempleToken = outputAssetSlug === KNOWN_TOKENS_SLUGS.TEMPLE;
-      const isSwapAmountMoreThreshold = inputAmountInUsd.isGreaterThanOrEqualTo(SWAP_THRESHOLD_TO_GET_CASHBACK);
-
-      return {
-        isInputTokenTempleToken,
-        isOutputTokenTempleToken,
-        isSwapAmountMoreThreshold
-      };
-    },
-    [allUsdToTokenRates]
-  );
-
   const inputAssetPrice = useAssetFiatCurrencyPrice(inputValue.assetSlug ?? '', network.chainId);
-  const outputAssetPrice = useAssetFiatCurrencyPrice(outputValue.assetSlug ?? '', network.chainId, true);
+  const outputAssetPrice = useAssetFiatCurrencyPrice(outputValue.assetSlug ?? '', network.chainId);
 
   const parseFiatValueToAssetAmount = useCallback(
     (fiatAmount: BigNumber.Value = ZERO, assetDecimals: number = 2, inputName: SwapFieldName = 'input') => {
@@ -224,6 +204,32 @@ export const TezosSwapForm: FC<TezosSwapFormProps> = ({
         .decimalPlaces(assetDecimals, BigNumber.ROUND_FLOOR);
     },
     [inputAssetPrice, outputAssetPrice]
+  );
+
+  const getSwapWithFeeParams = useCallback(
+    (newInputValue: SwapInputValue, newOutputValue: SwapInputValue) => {
+      const { assetSlug: inputAssetSlug, amount: inputAmount } = newInputValue;
+      const outputAssetSlug = newOutputValue.assetSlug;
+      const inputTokenUsdPrice = inputAssetSlug ? allUsdToTokenRates[inputAssetSlug] : '0';
+      const inputTokenAmount = isFiatMode
+        ? parseFiatValueToAssetAmount(inputAmount, inputAssetMetadata.decimals, 'input')
+        : inputAmount;
+      const inputAmountInUsd = inputTokenAmount?.multipliedBy(inputTokenUsdPrice) ?? ZERO;
+
+      const isInputTokenTempleToken = inputAssetSlug === KNOWN_TOKENS_SLUGS.TEMPLE;
+      const isOutputTokenTempleToken = outputAssetSlug === KNOWN_TOKENS_SLUGS.TEMPLE;
+
+      const isSwapAmountMoreThreshold = inputAmountInUsd
+        .decimalPlaces(2, BigNumber.ROUND_CEIL)
+        .gte(SWAP_THRESHOLD_TO_GET_CASHBACK);
+
+      return {
+        isInputTokenTempleToken,
+        isOutputTokenTempleToken,
+        isSwapAmountMoreThreshold
+      };
+    },
+    [allUsdToTokenRates, isFiatMode, inputAssetMetadata.decimals, parseFiatValueToAssetAmount]
   );
 
   const atomsInputValue = useMemo(() => {
@@ -430,7 +436,8 @@ export const TezosSwapForm: FC<TezosSwapFormProps> = ({
       inputAsset: inputAssetMetadata.symbol,
       outputAsset: outputAssetMetadata.symbol,
       inputAmount: inputValue.amount?.toString(),
-      outputAmount: outputValue.amount?.toString()
+      outputAmount: outputValue.amount?.toString(),
+      network: 'Tezos'
     };
 
     formAnalytics.trackSubmit(analyticsProperties);
@@ -621,7 +628,7 @@ export const TezosSwapForm: FC<TezosSwapFormProps> = ({
         }
       });
 
-      formAnalytics.trackSubmitSuccess(analyticsProperties);
+      formAnalytics.trackSubmitSuccess({ ...analyticsProperties, cashback: isDefined(cashback) });
     } catch (err: any) {
       console.error(err);
       if (err.message !== 'Declined') {
