@@ -5,6 +5,8 @@ import { HubConnection } from '@microsoft/signalr';
  */
 export type TzktOperationType = 'delegation' | 'transaction' | 'reveal' | 'origination' | 'set_delegate_parameters';
 
+export type TzktOperationRole = 'sender' | 'target' | 'initiator' | 'mention';
+
 export type TzktQuoteCurrency = 'None' | 'Btc' | 'Eur' | 'Usd' | 'Cny' | 'Jpy' | 'Krw';
 
 type TzktOperationStatus = 'applied' | 'failed' | 'backtracked' | 'skipped';
@@ -107,109 +109,69 @@ export type TzktGetRewardsParams = {
 
 export interface TzktRewardsEntry {
   cycle: number;
-  balance: number;
   baker: {
     alias?: string;
     address: string;
   };
-  stakingBalance: number;
-  expectedBlocks: number;
-  expectedEndorsements: number;
-  futureBlocks: number;
-  futureBlockRewards: number;
-  blocks: number;
-  blockRewards: number;
-  missedBlocks: number;
-  missedBlockRewards: number;
-  blockFees: number;
-  missedBlockFees: number;
-  activeStake: number;
-  selectedStake: number;
-  doublePreendorsingRewards: number;
-  doubleBakingLosses: number;
-  doubleEndorsingLosses: number;
-  doublePreendorsingLosses: number;
-  revelationLosses: number;
-  ownBlocks: number;
-  ownBlockRewards: number;
-  extraBlocks: number;
-  extraBlockRewards: number;
-  missedOwnBlocks: number;
-  missedOwnBlockRewards: number;
-  missedExtraBlocks: number;
-  missedExtraBlockRewards: number;
-  uncoveredOwnBlocks: number;
-  uncoveredOwnBlockRewards: number;
-  uncoveredExtraBlocks: number;
-  uncoveredExtraBlockRewards: number;
-  futureEndorsements: number;
-  futureEndorsementRewards: number;
-  endorsements: number;
-  endorsementRewards: number;
-  missedEndorsements: number;
-  missedEndorsementRewards: number;
-  uncoveredEndorsements: number;
-  uncoveredEndorsementRewards: number;
-  ownBlockFees: number;
-  extraBlockFees: number;
-  missedOwnBlockFees: number;
-  missedExtraBlockFees: number;
-  uncoveredOwnBlockFees: number;
-  uncoveredExtraBlockFees: number;
-  doubleBakingRewards: number;
-  doubleBakingLostDeposits: number;
-  doubleBakingLostRewards: number;
-  doubleBakingLostFees: number;
-  doubleEndorsingRewards: number;
-  doubleEndorsingLostDeposits: number;
-  doubleEndorsingLostRewards: number;
-  doubleEndorsingLostFees: number;
-  revelationRewards: number;
-  revelationLostRewards: number;
-  revelationLostFees: number;
-  quote?: TzktQuote;
-  // The fields below are not available on Talentnet
-  bakerDelegatedBalance: number;
-  bakerStakedBalance: number;
-  bakingPower: number;
-  blockRewardsDelegated: number;
-  blockRewardsLiquid: number;
-  blockRewardsStakedEdge: number;
-  blockRewardsStakedOwn: number;
-  blockRewardsStakedShared: number;
   delegatedBalance: number;
-  doubleBakingLostExternalStaked: number;
-  doubleBakingLostExternalUnstaked: number;
-  doubleBakingLostStaked: number;
-  doubleBakingLostUnstaked: number;
-  doubleEndorsingLostExternalStaked: number;
-  doubleEndorsingLostExternalUnstaked: number;
-  doubleEndorsingLostStaked: number;
-  doubleEndorsingLostUnstaked: number;
-  doublePreendorsingLostExternalStaked: number;
-  doublePreendorsingLostExternalUnstaked: number;
-  doublePreendorsingLostStaked: number;
-  doublePreendorsingLostUnstaked: number;
-  endorsementRewardsDelegated: number;
-  endorsementRewardsLiquid: number;
-  endorsementRewardsStakedEdge: number;
-  endorsementRewardsStakedOwn: number;
-  endorsementRewardsStakedShared: number;
-  externalDelegatedBalance: number;
-  externalStakedBalance: number;
-  nonceRevelationLosses: number;
-  nonceRevelationRewardsDelegated: number;
-  nonceRevelationRewardsLiquid: number;
-  nonceRevelationRewardsStakedEdge: number;
-  nonceRevelationRewardsStakedOwn: number;
-  nonceRevelationRewardsStakedShared: number;
-  stakedBalance: number;
-  totalBakingPower: number;
-  vdfRevelationRewardsDelegated: number;
-  vdfRevelationRewardsLiquid: number;
-  vdfRevelationRewardsStakedEdge: number;
-  vdfRevelationRewardsStakedOwn: number;
-  vdfRevelationRewardsStakedShared: number;
+  stakedBalance?: number;
+  stakedPseudotokens?: string;
+  quote?: TzktQuote;
+  bakerRewards: {
+    expectedBlocks: number;
+    expectedAttestations: number;
+    futureBlocks: number;
+    futureBlockRewards: number;
+    blocks: number;
+    missedBlocks: number;
+    missedBlockRewards: number;
+    blockFees: number;
+    missedBlockFees: number;
+    doublePreendorsingRewards: number;
+    futureAttestations: number;
+    futureAttestationRewards: number;
+    attestations: number;
+    missedAttestations: number;
+    missedAttestationRewards: number;
+    doubleBakingRewards: number;
+    doubleEndorsingRewards: number;
+    // The fields below are not available on Talentnet
+    ownDelegatedBalance: number;
+    ownStakedBalance: number;
+    bakingPower: number;
+    blockRewardsDelegated: number;
+    blockRewardsStakedEdge: number;
+    blockRewardsStakedOwn: number;
+    blockRewardsStakedShared: number;
+    doubleBakingLostExternalStaked: number;
+    doubleBakingLostExternalUnstaked: number;
+    doubleBakingLostStaked: number;
+    doubleBakingLostUnstaked: number;
+    doubleEndorsingLostExternalStaked: number;
+    doubleEndorsingLostExternalUnstaked: number;
+    doubleEndorsingLostStaked: number;
+    doubleEndorsingLostUnstaked: number;
+    doublePreendorsingLostExternalStaked: number;
+    doublePreendorsingLostExternalUnstaked: number;
+    doublePreendorsingLostStaked: number;
+    doublePreendorsingLostUnstaked: number;
+    attestationRewardsDelegated: number;
+    attestationRewardsStakedEdge: number;
+    attestationRewardsStakedOwn: number;
+    attestationRewardsStakedShared: number;
+    externalDelegatedBalance: number;
+    externalStakedBalance: number;
+    nonceRevelationLosses: number;
+    nonceRevelationRewardsDelegated: number;
+    nonceRevelationRewardsStakedEdge: number;
+    nonceRevelationRewardsStakedOwn: number;
+    nonceRevelationRewardsStakedShared: number;
+    totalBakingPower: number;
+    vdfRevelationRewardsDelegated: number;
+    vdfRevelationRewardsStakedEdge: number;
+    vdfRevelationRewardsStakedOwn: number;
+    vdfRevelationRewardsStakedShared: number;
+  };
 }
 
 export type TzktGetRewardsResponse = TzktRewardsEntry[] | undefined;
@@ -220,35 +182,27 @@ export interface TzktCycle {
   startTime: string;
   lastLevel: number;
   endTime: string;
-  snapshotIndex: number;
   snapshotLevel: number;
   randomSeed: string;
   totalBakers: number;
-  totalStaking: number;
-  totalDelegators: number;
-  totalDelegated: number;
-  selectedBakers: number;
-  selectedStake: number;
-  totalRolls: number;
   // The fields below are not available on Talentnet
   totalBakingPower: number;
   blockReward: number;
   blockBonusPerSlot: number;
-  endorsementRewardPerSlot: number;
+  attestationRewardPerSlot: number;
   nonceRevelationReward: number;
   vdfRevelationReward: number;
-  lbSubsidy: number;
 }
 
 /** This interface is not complete */
 export interface TzktProtocol {
   hash: string;
   constants: {
-    endorsersPerBlock: number;
+    attestersPerBlock: number;
     consensusThreshold: number;
     blocksPerCycle: number;
     blockReward: number[];
-    endorsementReward: number[];
+    attestationReward: number[];
   };
 }
 
