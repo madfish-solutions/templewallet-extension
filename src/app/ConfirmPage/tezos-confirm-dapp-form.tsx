@@ -96,7 +96,13 @@ export const TezosConfirmDAppForm = memo<TezosConfirmDAppFormProps>(({ payload, 
   );
 
   const renderPayload = useCallback(
-    ({ openAccountsModal, selectedAccount, error, formId, onSubmit }: ConfirmDAppFormContentProps) => (
+    ({
+      openAccountsModal,
+      selectedAccount,
+      error,
+      formId,
+      onSubmit
+    }: ConfirmDAppFormContentProps & { dismissConflict?: EmptyFn; showConflict?: boolean }) => (
       <TezosPayloadContent
         network={network}
         error={error}

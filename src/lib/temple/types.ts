@@ -213,6 +213,13 @@ export interface DAppMetadata extends TempleDAppMetadata {
   icon?: string;
 }
 
+export interface EIP6963ProviderInfo {
+  uuid: string;
+  name: string;
+  icon: string;
+  rdns?: string;
+}
+
 /**
  * https://eips.ethereum.org/EIPS/eip-747
  */
@@ -294,6 +301,7 @@ interface TempleTezosDAppConnectPayload extends TempleTezosDAppPayloadBase {
 
 interface TempleEvmDAppConnectPayload extends TempleEvmDAppPayloadBase {
   type: 'connect';
+  providers?: EIP6963ProviderInfo[];
 }
 
 export interface SerializedEstimate {
@@ -389,6 +397,7 @@ export enum TempleMessageType {
   TempleEvmDAppsDisconnected = 'TEMPLE_EVM_DAPPS_DISCONNECTED',
   TempleTezosDAppsDisconnected = 'TEMPLE_TEZOS_DAPPS_DISCONNECTED',
   TempleEvmChainSwitched = 'TEMPLE_SWITCH_EVM_CHAIN',
+  TempleSwitchEvmProvider = 'TEMPLE_SWITCH_EVM_PROVIDER',
   // Request-Response pairs
   GetStateRequest = 'TEMPLE_GET_STATE_REQUEST',
   GetStateResponse = 'TEMPLE_GET_STATE_RESPONSE',
@@ -461,6 +470,8 @@ export enum TempleMessageType {
   DAppAddEvmChainResponse = 'TEMPLE_DAPP_ADD_EVM_CHAIN_RESPONSE',
   DAppSwitchEvmChainRequest = 'TEMPLE_DAPP_SWITCH_EVM_CHAIN_REQUEST',
   DAppSwitchEvmChainResponse = 'TEMPLE_DAPP_SWITCH_EVM_CHAIN_RESPONSE',
+  DAppSelectOtherWalletRequest = 'TEMPLE_DAPP_SELECT_OTHER_WALLET_REQUEST',
+  DAppSelectOtherWalletResponse = 'TEMPLE_DAPP_SELECT_OTHER_WALLET_RESPONSE',
   SendTrackEventRequest = 'SEND_TRACK_EVENT_REQUEST',
   SendTrackEventResponse = 'SEND_TRACK_EVENT_RESPONSE',
   SendPageEventRequest = 'SEND_PAGE_EVENT_REQUEST',
@@ -482,7 +493,8 @@ export type TempleNotification =
   | TempleSelectedAccountChanged
   | TempleEvmDAppsDisconnected
   | TempleTezosDAppsDisconnected
-  | TempleEvmChainSwitched;
+  | TempleEvmChainSwitched
+  | TempleSwitchEvmProvider;
 
 export type TempleRequest =
   | TempleAcknowledgeRequest
@@ -522,6 +534,7 @@ export type TempleRequest =
   | TempleAddDAppEvmChainRequest
   | TempleAddDAppEvmAssetRequest
   | TempleSwitchDAppEvmChainRequest
+  | TempleSelectOtherWalletRequest
   | TempleSendTrackEventRequest
   | TempleSendPageEventRequest
   | TempleSendEvmTransactionRequest
@@ -566,6 +579,7 @@ export type TempleResponse =
   | TempleAddDAppEvmChainResponse
   | TempleAddDAppEvmAssetResponse
   | TempleSwitchDAppEvmChainResponse
+  | TempleSelectOtherWalletResponse
   | TempleSendTrackEventResponse
   | TempleSendPageEventResponse
   | TempleSendEvmTransactionResponse
@@ -612,6 +626,11 @@ interface TempleEvmChainSwitched extends TempleMessageBase {
   type: TempleMessageType.TempleEvmChainSwitched;
   origin: string;
   chainId: number;
+}
+
+interface TempleSwitchEvmProvider extends TempleMessageBase {
+  type: TempleMessageType.TempleSwitchEvmProvider;
+  origin: string;
 }
 
 interface TempleGetStateRequest extends TempleMessageBase {
@@ -926,6 +945,7 @@ interface TempleTezosPageRequest extends TemplePageRequestBase {
 interface TempleEvmPageRequest extends TemplePageRequestBase {
   chainType: TempleChainKind.EVM;
   chainId: string;
+  providers?: EIP6963ProviderInfo[];
 }
 
 type TemplePageRequest = TempleTezosPageRequest | TempleEvmPageRequest;
@@ -1038,6 +1058,17 @@ interface TempleAddDAppEvmChainResponse extends TempleMessageBase {
 
 interface TempleSwitchDAppEvmChainResponse extends TempleMessageBase {
   type: TempleMessageType.DAppSwitchEvmChainResponse;
+}
+
+interface TempleSelectOtherWalletRequest extends TempleMessageBase {
+  type: TempleMessageType.DAppSelectOtherWalletRequest;
+  origin: string;
+  rdns?: string;
+  uuid?: string;
+}
+
+interface TempleSelectOtherWalletResponse extends TempleMessageBase {
+  type: TempleMessageType.DAppSelectOtherWalletResponse;
 }
 
 interface TempleResetExtensionRequest extends TempleMessageBase {
