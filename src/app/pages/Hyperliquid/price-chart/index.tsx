@@ -11,6 +11,7 @@ import { getDateFnsLocale } from 'lib/i18n/core';
 import { useUpdatableRef } from 'lib/ui/hooks/useUpdatableRef';
 
 import { useClients } from '../clients';
+import { CandleChartInterval } from '../types';
 
 import { CandlestickController } from './controller.candlestick.js';
 import { CandlestickElement } from './element.candlestick.js';
@@ -61,7 +62,7 @@ const candlesCountByInterval = {
 
 interface PriceChartProps {
   coinName: string;
-  interval: keyof typeof fetchTimeIntervalsMins;
+  interval: CandleChartInterval;
 }
 
 const getSuggestedCanvasWidth = (candlesCount: number) => candlesCount * 12 + 50;
@@ -88,6 +89,16 @@ export const PriceChart = memo<PriceChartProps>(({ coinName, interval }) => {
   const initialCanvasWidthRef = useRef(getSuggestedCanvasWidth(candlesCountByInterval[interval]));
   const chartScrollContainerRef = useRef<HTMLDivElement>(null);
 
+  useEffect(() => {
+    const chartScrollContainer = chartScrollContainerRef.current;
+
+    if (!chartScrollContainer || !pricesLoaded) {
+      return;
+    }
+
+    chartScrollContainer.scrollTo({ left: chartScrollContainer.scrollWidth, behavior: 'instant' });
+  }, [pricesLoaded]);
+
   const generateAnnotationsConfig = useCallback(() => {
     const pricesData = pricesDataRef.current;
 
@@ -107,16 +118,6 @@ export const PriceChart = memo<PriceChartProps>(({ coinName, interval }) => {
         borderWidth: 1
       }
     };
-  }, []);
-
-  const scrollToRight = useCallback(() => {
-    const chartScrollContainer = chartScrollContainerRef.current;
-
-    if (!chartScrollContainer) {
-      return;
-    }
-
-    chartScrollContainer.scrollTo({ left: chartScrollContainer.scrollWidth, behavior: 'instant' });
   }, []);
 
   const priceChart = useMemo(() => {
@@ -185,7 +186,7 @@ export const PriceChart = memo<PriceChartProps>(({ coinName, interval }) => {
             type: 'linear',
             position: 'right',
             ticks: {
-              format: { minimumSignificantDigits: 5, maximumSignificantDigits: 5 }
+              format: { minimumSignificantDigits: 5, maximumSignificantDigits: 5, useGrouping: false }
             }
           }
         },
@@ -220,7 +221,6 @@ export const PriceChart = memo<PriceChartProps>(({ coinName, interval }) => {
             ctx.save();
             targetCtx.fillStyle = '#fbfbfb';
             targetCtx.fillRect(0, 0, targetCtx.canvas.width, targetCtx.canvas.height);
-            console.log('toofta 1', ctx.font);
             ctx.restore();
             targetCtx.drawImage(
               sourceCanvas,
@@ -243,7 +243,6 @@ export const PriceChart = memo<PriceChartProps>(({ coinName, interval }) => {
             // Normalize coordinate system to use css pixels.
 
             rectangleSetRef.current = true;
-            scrollToRight();
           }
         },
         plugins: {
@@ -273,8 +272,22 @@ export const PriceChart = memo<PriceChartProps>(({ coinName, interval }) => {
     });
 
     return chart;
-  }, [pricesLoaded, currentLocale, generateAnnotationsConfig, scrollToRight]);
+  }, [pricesLoaded, currentLocale, generateAnnotationsConfig]);
   const priceChartRef = useUpdatableRef(priceChart);
+
+  const updatePriceLabel = useCallback(() => {
+    if (!priceChartRef.current) {
+      return;
+    }
+
+    const closePrice = pricesDataRef.current?.at(-1)?.c;
+    setPriceLabelText(
+      closePrice === undefined ? '' : toLocalFixed(closePrice, Math.max(4 - Math.floor(Math.log10(closePrice)), 0))
+    );
+    setPriceLabelTop(
+      closePrice === undefined ? undefined : priceChartRef.current.scales.y.getPixelForValue(closePrice) - 8
+    );
+  }, [priceChartRef]);
 
   const updateChart = useCallback(() => {
     if (!priceChartRef.current) {
@@ -285,11 +298,9 @@ export const PriceChart = memo<PriceChartProps>(({ coinName, interval }) => {
     rectangleSetRef.current = false;
     priceChart.config.options!.plugins.annotation.annotations = generateAnnotationsConfig();
     chartContainerRef.current!.style.width = `${getSuggestedCanvasWidth(pricesDataRef.current!.length)}px`;
-    const closePrice = pricesDataRef.current?.at(-1)?.c;
-    setPriceLabelText(closePrice === undefined ? '' : toLocalFixed(closePrice, 3));
-    setPriceLabelTop(closePrice === undefined ? undefined : priceChart.scales.y.getPixelForValue(closePrice) - 8);
+    updatePriceLabel();
     priceChart.update();
-  }, [generateAnnotationsConfig, priceChartRef]);
+  }, [generateAnnotationsConfig, priceChartRef, updatePriceLabel]);
 
   useEffect(() => {
     const subState: { sub?: Subscription } = {};
@@ -304,6 +315,7 @@ export const PriceChart = memo<PriceChartProps>(({ coinName, interval }) => {
         pricesDataRef.current = candles.map(toDataRow);
         setPricesLoaded(true);
         setCandlesError(undefined);
+        updatePriceLabel();
         subState.sub = await subscription.candle({ coin: coinName, interval }, data => {
           if (data.t === pricesDataRef.current?.at(-1)?.x) {
             pricesDataRef.current[pricesDataRef.current.length - 1] = toDataRow(data);
@@ -311,7 +323,6 @@ export const PriceChart = memo<PriceChartProps>(({ coinName, interval }) => {
           } else if (pricesDataRef.current) {
             pricesDataRef.current.push(toDataRow(data));
             updateChart();
-            scrollToRight();
           }
         });
       })
@@ -326,7 +337,7 @@ export const PriceChart = memo<PriceChartProps>(({ coinName, interval }) => {
       setCandlesError(undefined);
       setPricesLoaded(false);
     };
-  }, [subscription, info, updateChart, coinName, interval, scrollToRight]);
+  }, [subscription, info, updateChart, coinName, interval, updatePriceLabel]);
 
   const scale = window.devicePixelRatio;
 
@@ -348,7 +359,7 @@ export const PriceChart = memo<PriceChartProps>(({ coinName, interval }) => {
         {priceLabelTop !== undefined && (
           <div
             className="absolute flex items-center justify-center bg-grey-2 text-grey-1 text-font-description px-px"
-            style={{ top: priceLabelTop, left: 'calc(100% - 45px)' }}
+            style={{ top: priceLabelTop, right: 2 }}
           >
             {priceLabelText}
           </div>

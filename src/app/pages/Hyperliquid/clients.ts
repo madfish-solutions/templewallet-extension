@@ -1,17 +1,28 @@
 import { useCallback, useEffect, useRef } from 'react';
 
-import { ExchangeClient, HttpTransport, InfoClient, SubscriptionClient, WebSocketTransport } from '@nktkas/hyperliquid';
+import {
+  ExchangeClient,
+  HttpTransport,
+  InfoClient,
+  SubscriptionClient,
+  WebSocketTransport,
+  WsWebData2
+} from '@nktkas/hyperliquid';
 import { AbstractViemLocalAccount } from '@nktkas/hyperliquid/script/src/signing/_signTypedData/viem';
 import { Mutex } from 'async-mutex';
 import constate from 'constate';
 import { TypedDataDefinition } from 'viem';
 
 import { useTestnetModeEnabledSelector } from 'app/store/settings/selectors';
+import { EVM_ZERO_ADDRESS } from 'lib/constants';
 import { useTypedSWR } from 'lib/swr';
 import { useTempleClient } from 'lib/temple/front';
 import { COMMON_MAINNET_CHAIN_IDS } from 'lib/temple/types';
 import { isAccountOfActableType } from 'temple/accounts';
 import { useAccountForEvm, useAllEvmChains } from 'temple/front';
+
+import { subscriptionEffectFn } from './subscription-effect-fn';
+import { HyperliquidNetworkType } from './types';
 
 class NonceManager {
   /** The last nonce used for signing transactions. */
@@ -45,6 +56,7 @@ export const [HyperliquidClientsProvider, useClients] = constate(() => {
   const testnetModeEnabled = useTestnetModeEnabledSelector();
   const { [COMMON_MAINNET_CHAIN_IDS.arbitrum]: arbitrum } = useAllEvmChains();
   const { signEvmTypedData } = useTempleClient();
+  const webData2CallbacksRef = useRef<SyncFn<WsWebData2>[]>([]);
 
   const getClients = useCallback(async () => {
     let wallet: AbstractViemLocalAccount | undefined;
@@ -55,6 +67,17 @@ export const [HyperliquidClientsProvider, useClients] = constate(() => {
         signTypedData: async params => signEvmTypedData(params as unknown as TypedDataDefinition, account)
       };
     }
+
+    const subscription = new SubscriptionClient({
+      transport: new WebSocketTransport({
+        url: testnetModeEnabled ? 'wss://api.hyperliquid-testnet.xyz/ws' : 'wss://api.hyperliquid.xyz/ws',
+        autoResubscribe: true,
+        reconnect: {
+          maxRetries: 100
+        }
+      })
+    });
+    await subscription.transport.ready();
 
     return {
       exchange: wallet
@@ -67,15 +90,7 @@ export const [HyperliquidClientsProvider, useClients] = constate(() => {
       info: new InfoClient({
         transport: new HttpTransport({ isTestnet: testnetModeEnabled })
       }),
-      subscription: new SubscriptionClient({
-        transport: new WebSocketTransport({
-          url: testnetModeEnabled ? 'wss://api.hyperliquid-testnet.xyz/ws' : 'wss://api.hyperliquid.xyz/ws',
-          autoResubscribe: true,
-          reconnect: {
-            maxRetries: 100
-          }
-        })
-      })
+      subscription
     };
   }, [evmAccount, signEvmTypedData, testnetModeEnabled]);
 
@@ -84,14 +99,27 @@ export const [HyperliquidClientsProvider, useClients] = constate(() => {
     getClients,
     { suspense: true, revalidateOnFocus: false, revalidateOnMount: true }
   );
-  const prevClientsRef = useRef<typeof clients>(clients);
 
   useEffect(() => {
-    if (prevClientsRef.current !== clients) {
-      prevClientsRef.current?.subscription?.transport.close();
-      prevClientsRef.current = clients;
-    }
-  }, [clients]);
+    if (!clients) return;
 
-  return { clients: clients!, regenerateClients: mutate };
+    return subscriptionEffectFn(() =>
+      clients.subscription.webData2(
+        { user: (evmAccount?.address as HexString | undefined) ?? EVM_ZERO_ADDRESS },
+        data => webData2CallbacksRef.current.forEach(cb => cb(data))
+      )
+    );
+  }, [clients, evmAccount?.address]);
+
+  const networkType: HyperliquidNetworkType = testnetModeEnabled ? 'testnet' : 'mainnet';
+
+  const addWebData2Listener = useCallback((cb: SyncFn<WsWebData2>) => {
+    webData2CallbacksRef.current.push(cb);
+  }, []);
+
+  const removeWebData2Listener = useCallback((cb: SyncFn<WsWebData2>) => {
+    webData2CallbacksRef.current = webData2CallbacksRef.current.filter(c => c !== cb);
+  }, []);
+
+  return { clients: clients!, regenerateClients: mutate, networkType, addWebData2Listener, removeWebData2Listener };
 });
