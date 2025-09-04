@@ -46,6 +46,10 @@ interface BaseContentProps<T extends TxParamsFormData> {
   displayedFee?: string;
   displayedStorageFee?: string;
   displayedFeeOptions?: DisplayedFeeOptions;
+  quoteRefreshCountdown?: number;
+  isQuoteExpired?: boolean;
+  isQuoteRefreshing?: boolean;
+  onManualQuoteRefresh?: EmptyFn;
 }
 
 export const BaseContent = <T extends TxParamsFormData>({
@@ -67,7 +71,11 @@ export const BaseContent = <T extends TxParamsFormData>({
   displayedFee,
   displayedStorageFee,
   displayedFeeOptions,
-  bridgeData
+  bridgeData,
+  quoteRefreshCountdown,
+  isQuoteExpired,
+  isQuoteRefreshing,
+  onManualQuoteRefresh
 }: BaseContentProps<T>) => {
   const { formState } = useFormContext<T>();
 
@@ -114,15 +122,22 @@ export const BaseContent = <T extends TxParamsFormData>({
         </StyledButton>
 
         <StyledButton
-          type="submit"
-          form="confirm-form"
+          type={onManualQuoteRefresh && isQuoteExpired ? 'button' : 'submit'}
+          form={onManualQuoteRefresh && isQuoteExpired ? undefined : 'confirm-form'}
           color="primary"
           size="L"
           className="w-full"
-          loading={formState.isSubmitting}
+          loading={isQuoteRefreshing || formState.isSubmitting}
           disabled={!formState.isValid}
+          onClick={onManualQuoteRefresh && isQuoteExpired ? onManualQuoteRefresh : undefined}
         >
-          <T id={latestSubmitError ? 'retry' : 'confirm'} />
+          {latestSubmitError ? (
+            <T id="retry" />
+          ) : isQuoteRefreshing ? null : isQuoteExpired ? (
+            <T id="refresh" />
+          ) : (
+            <T id="confirmWithCountdown" substitutions={[quoteRefreshCountdown]} />
+          )}
         </StyledButton>
       </ActionsButtonsBox>
 
