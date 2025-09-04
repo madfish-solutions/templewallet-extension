@@ -301,18 +301,16 @@ export const BaseSwapForm: FC<Props> = ({
         {outputAmount && (
           <div className="mb-6">
             {isEvmNetwork ? (
-              !swapParamsAreLoading && (
-                <EvmSwapInfoDropdown
-                  swapRouteSteps={swapRouteSteps}
-                  inputAmount={inputAmount}
-                  outputAmount={outputAmount}
-                  inputAssetSymbol={inputAssetSymbol}
-                  outputAssetSymbol={outputAssetSymbol}
-                  outputAssetDecimals={outputAssetDecimals}
-                  minimumReceivedAmount={minimumReceivedAmount}
-                  bridgeDetails={bridgeDetails}
-                />
-              )
+              <EvmSwapInfoDropdown
+                swapRouteSteps={swapRouteSteps}
+                inputAmount={inputAmount}
+                outputAmount={outputAmount}
+                inputAssetSymbol={inputAssetSymbol}
+                outputAssetSymbol={outputAssetSymbol}
+                outputAssetDecimals={outputAssetDecimals}
+                minimumReceivedAmount={minimumReceivedAmount}
+                bridgeDetails={bridgeDetails}
+              />
             ) : (
               <TezosSwapInfoDropdown
                 showCashBack={outputAmountInUSD.gte(10)}

@@ -12,14 +12,9 @@ import { ValidationLabel } from 'app/atoms/ValidationLabel';
 import { PASSWORD_PATTERN, PasswordValidation, formatMnemonic, passwordValidationRegexes } from 'app/defaults';
 import { dispatch } from 'app/store';
 import { togglePartnersPromotionAction } from 'app/store/partners-promotion/actions';
-import {
-  setIsAnalyticsEnabledAction,
-  setOnRampAssetAction,
-  setReferralLinksEnabledAction
-} from 'app/store/settings/actions';
+import { setIsAnalyticsEnabledAction, setReferralLinksEnabledAction } from 'app/store/settings/actions';
 import { toastError } from 'app/toaster';
 import { AnalyticsEventCategory, useAnalytics } from 'lib/analytics';
-import { TEZOS_CHAIN_ASSET_SLUG } from 'lib/apis/wert';
 import {
   DEFAULT_PASSWORD_INPUT_PLACEHOLDER,
   PRIVACY_POLICY_URL,
@@ -132,8 +127,6 @@ export const CreatePasswordForm = memo<CreatePasswordFormProps>(
             trackEvent('AnalyticsEnabled', AnalyticsEventCategory.General, { accountPkh }, analyticsEnabled);
             trackEvent('AdsEnabled', AnalyticsEventCategory.General, { accountPkh }, adsViewEnabled);
           }
-
-          dispatch(setOnRampAssetAction(mnemonicToImport ? null : TEZOS_CHAIN_ASSET_SLUG));
 
           if (mnemonicToImport) {
             await putToStorage(SHOULD_DISABLE_NOT_ACTIVE_NETWORKS_STORAGE_KEY, true);

@@ -21,7 +21,10 @@ export const IllustratedOption = ({
   ...restProps
 }: IllustratedOptionProps) => (
   <Button
-    className={clsx(className, 'flex items-center gap-2 p-4 rounded-lg hover:bg-grey-4 border-0.5 border-lines')}
+    className={clsx(
+      className,
+      'flex items-center gap-2 p-4 rounded-8 bg-white hover:bg-grey-4 border-0.5 border-lines'
+    )}
     testID={testID}
     {...restProps}
   >

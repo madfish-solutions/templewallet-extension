@@ -4,13 +4,13 @@ import { useEvmAccountTotalBalance } from 'app/hooks/total-balance/use-evm-accou
 import { useEvmChainTotalBalance } from 'app/hooks/total-balance/use-evm-chain-total-balance';
 import { useMultiChainTotalBalance } from 'app/hooks/total-balance/use-multi-chain-total-balance';
 import { useTezosTotalBalance } from 'app/hooks/total-balance/use-tezos-total-balance';
+import { EquityCurrency } from 'app/hooks/use-equity-currency';
 import { FilterChain } from 'app/store/assets-filter-options/state';
 import { StoredAccount, TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
 import { getAccountAddressForEvm, getAccountAddressForTezos } from 'temple/accounts';
 import { TempleChainKind } from 'temple/types';
 
 import { TotalEquityBase } from './TotalEquityBase';
-import { EquityCurrency } from './types';
 
 interface TotalEquityProps {
   account: StoredAccount;
@@ -18,7 +18,6 @@ interface TotalEquityProps {
   filterChain?: FilterChain;
 }
 
-/** Total balance is dollar value of displayed tokens, taken from store */
 export const TotalEquity = memo<TotalEquityProps>(({ account, currency, filterChain = null }) => {
   const accountTezAddress = getAccountAddressForTezos(account);
   const accountEvmAddress = getAccountAddressForEvm(account);

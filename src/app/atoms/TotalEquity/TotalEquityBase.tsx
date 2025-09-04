@@ -2,6 +2,7 @@ import React, { memo, Suspense, useMemo } from 'react';
 
 import BigNumber from 'bignumber.js';
 
+import { EquityCurrency } from 'app/hooks/use-equity-currency';
 import { useBtcToUsdRateSelector, useTezUsdToTokenRateSelector } from 'app/store/currency/selectors';
 import { useEthUsdToTokenRateSelector } from 'app/store/evm/tokens-exchange-rates/selectors';
 import { useFiatCurrency, useFiatToUsdRate } from 'lib/fiat-currency';
@@ -10,8 +11,6 @@ import { isTruthy } from 'lib/utils';
 import { ZERO } from 'lib/utils/numbers';
 
 import Money from '../Money';
-
-import { EquityCurrency } from './types';
 
 const BTC_DECIMALS = 8;
 const ETH_DECIMALS = 18;

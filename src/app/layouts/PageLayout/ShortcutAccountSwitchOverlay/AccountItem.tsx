@@ -7,6 +7,8 @@ import { Name, Button } from 'app/atoms';
 import { AccountAvatar } from 'app/atoms/AccountAvatar';
 import { SearchHighlightText } from 'app/atoms/SearchHighlightText';
 import { TotalEquity } from 'app/atoms/TotalEquity';
+import { useEquityCurrency } from 'app/hooks/use-equity-currency';
+import { useAssetsFilterOptionsSelector } from 'app/store/assets-filter-options/selectors';
 import { T } from 'lib/i18n';
 import { StoredAccount } from 'lib/temple/types';
 import { useScrollIntoView } from 'lib/ui/use-scroll-into-view';
@@ -41,6 +43,9 @@ export const AccountItem: React.FC<AccountItemProps> = ({
 }) => {
   const elemRef = useScrollIntoView<HTMLButtonElement>(focused, scrollIntoViewOptions);
 
+  const { filterChain } = useAssetsFilterOptionsSelector();
+  const { equityCurrency } = useEquityCurrency();
+
   return (
     <Button
       ref={combineRefs(elemRef, el => {
@@ -67,7 +72,7 @@ export const AccountItem: React.FC<AccountItemProps> = ({
           </div>
 
           <div className="text-font-num-12 text-right">
-            <TotalEquity account={account} currency="fiat" />
+            <TotalEquity account={account} filterChain={filterChain} currency={equityCurrency} />
           </div>
         </div>
       </div>

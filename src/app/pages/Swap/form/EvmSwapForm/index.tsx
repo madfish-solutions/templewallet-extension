@@ -336,12 +336,6 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
 
   useEffect(() => {
     const { isFiatMode, output } = getValues();
-
-    if (isRouteLoading) {
-      handleOutputChange({ assetSlug: output.assetSlug, chainId: output.chainId, amount: undefined });
-      return;
-    }
-
     if (!swapRoute) return;
 
     const atomicAmount = atomsToTokens(new BigNumber(swapRoute.toAmount), swapRoute.toToken.decimals);
@@ -351,7 +345,7 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
       : atomicAmount;
 
     handleOutputChange({ assetSlug: output.assetSlug, chainId: output.chainId, amount: formattedAmount });
-  }, [getValues, handleOutputChange, isRouteLoading, outputAssetPrice, swapRoute]);
+  }, [getValues, handleOutputChange, outputAssetPrice, swapRoute]);
 
   const inputTokenMaxAmount = useMemo(() => {
     if (!inputValue.assetSlug || !inputTokenBalance) return ZERO;

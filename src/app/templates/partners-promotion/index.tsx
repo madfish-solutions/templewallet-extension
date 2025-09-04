@@ -13,7 +13,6 @@ import { AdsProviderName, AdsProviderTitle } from 'lib/ads';
 import { postAdImpression } from 'lib/apis/ads-api';
 import { AD_HIDING_TIMEOUT } from 'lib/constants';
 import { T } from 'lib/i18n';
-import { useBooleanState } from 'lib/ui/hooks';
 
 import { CloseButton } from './components/close-button';
 import { HypelabPromotion } from './components/hypelab-promotion';
@@ -48,7 +47,6 @@ export const PartnersPromotion = memo(
 
       const isAnalyticsSentRef = useRef(false);
 
-      const [hovered, setHovered, setUnhovered] = useBooleanState(false);
       const [isHiddenTemporarily, setIsHiddenTemporarily] = useState(shouldBeHiddenTemporarily(hiddenAt));
       const [providerName, setProviderName] = useState<AdsProviderLocalName>('HypeLab');
       const [adError, setAdError] = useState(false);
@@ -101,14 +99,12 @@ export const PartnersPromotion = memo(
 
       return (
         <div
+          ref={ref}
           className={clsx(
-            'w-full relative flex flex-col items-center',
+            'group w-full relative flex flex-col items-center',
             !adIsReady && (isImageAd ? 'min-h-[101px]' : 'min-h-16'),
             className
           )}
-          onMouseEnter={setHovered}
-          onMouseLeave={setUnhovered}
-          ref={ref}
         >
           {(() => {
             switch (providerName) {
@@ -147,7 +143,10 @@ export const PartnersPromotion = memo(
             </div>
           )}
 
-          {hovered && <CloseButton onClick={handleClosePartnersPromoClick} />}
+          <CloseButton
+            className="opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto"
+            onClick={handleClosePartnersPromoClick}
+          />
         </div>
       );
     }
