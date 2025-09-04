@@ -124,7 +124,7 @@ export const TezosTokenListItem = memo(
           requiresVisibility={requiresVisibility}
           ref={ref}
         >
-          <div className="flex items-center flex-grow gap-x-2 truncate">
+          <div className="flex items-center flex-grow gap-x-2">
             <div className="text-font-medium truncate">{assetSymbol}</div>
 
             {showTags && (
@@ -220,8 +220,8 @@ export const EvmTokenListItem = memo(
           requiresVisibility={requiresVisibility}
           ref={ref}
         >
-          <div className={clsx('flex items-center flex-grow gap-x-2', balance.lt(ASSET_HUGE_AMOUNT) && 'truncate')}>
-            <div className="text-font-medium truncate">{assetSymbol}</div>
+          <div className="flex items-center flex-grow gap-x-2">
+            <div className={clsx('text-font-medium', balance.lt(ASSET_HUGE_AMOUNT) && 'truncate')}>{assetSymbol}</div>
             {showTags && <EvmIncentiveTag chainId={chainId} assetSlug={assetSlug} symbol={assetSymbol} />}
           </div>
         </DefaultEvmListItemLayout>
