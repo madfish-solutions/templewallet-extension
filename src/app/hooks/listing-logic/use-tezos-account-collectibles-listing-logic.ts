@@ -65,7 +65,12 @@ export const useTezosAccountCollectiblesListingLogic = (allSlugsSorted: string[]
   const displayedSlugs = useMemo(
     () =>
       isInSearchMode
-        ? searchTezosAssetsWithNoMeta(searchValueDebounced, allSlugsSorted, getCollectibleMetadata, getSlugWithChainId)
+        ? searchTezosAssetsWithNoMeta(
+            searchValueDebounced,
+            allSlugsSorted,
+            (_, slug) => getCollectibleMetadata(slug),
+            getSlugWithChainId
+          )
         : paginatedSlugs,
     [paginatedSlugs, allSlugsSorted, isInSearchMode, searchValueDebounced, getCollectibleMetadata]
   );
