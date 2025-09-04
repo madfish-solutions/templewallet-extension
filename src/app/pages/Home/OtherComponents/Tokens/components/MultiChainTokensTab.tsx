@@ -292,6 +292,7 @@ function buildTokensJsxArray(
 
     return (
       <EvmTokenListItem
+        showTags
         key={chainSlug}
         network={evmChains[chainId]!}
         index={i + indexShift}

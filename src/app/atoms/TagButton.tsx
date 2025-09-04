@@ -20,7 +20,7 @@ export const TagButton: FC<TagButtonProps> = ({ children, className, testID, tes
       className
     )}
     testID={testID}
-    data-test-id-properties={testIDProperties ? JSON.stringify(testIDProperties) : undefined}
+    testIDProperties={testIDProperties}
     {...rest}
   >
     {children}

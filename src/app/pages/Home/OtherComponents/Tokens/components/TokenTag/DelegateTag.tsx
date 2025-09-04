@@ -35,7 +35,11 @@ export const DelegateTezosTag = memo<Props>(({ network, pkh }) => {
   return useMemo(
     () =>
       myBakerPkh ? (
-        <TagButton onClick={handleTagClick} testID={AssetsSelectors.assetItemApyButton}>
+        <TagButton
+          onClick={handleTagClick}
+          testID={AssetsSelectors.assetItemApyButton}
+          testIDProperties={{ symbol: 'TEZ', link: '/earn-tez' }}
+        >
           <T id="tezosApy" substitutions={String(TEZOS_APY)} />
         </TagButton>
       ) : (

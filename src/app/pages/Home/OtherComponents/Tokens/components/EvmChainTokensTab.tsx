@@ -95,6 +95,7 @@ const TabContentBase = memo<TabContentBaseProps>(({ allSlugsSorted, manageActive
   const { tokensView, getElementIndex } = useMemo(() => {
     const tokensJsx = displayedSlugs.map((slug, i) => (
       <EvmTokenListItem
+        showTags
         key={slug}
         assetSlug={slug}
         publicKeyHash={publicKeyHash}
