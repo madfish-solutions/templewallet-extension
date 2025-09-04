@@ -1,6 +1,6 @@
 {
   "name": "temple-wallet",
-  "version": "2.0.3",
+  "version": "2.0.5",
   "private": true,
   "scripts": {
     "start-run": "cross-env TS_NODE_PROJECT=\"webpack/tsconfig.json\" webpack --watch --stats errors-warnings",
@@ -54,7 +54,7 @@
     "@ledgerhq/hw-transport-u2f": "5.36.0-deprecated",
     "@ledgerhq/hw-transport-webauthn": "5.36.0-deprecated",
     "@ledgerhq/hw-transport-webhid": "^6.28.6",
-    "@lifi/sdk": "^3.7.2",
+    "@lifi/sdk": "^3.11.4",
     "@microsoft/signalr": "^8.0.0",
     "@nktkas/hyperliquid": "^0.24.3",
     "@peculiar/webcrypto": "1.1.6",
@@ -236,7 +236,7 @@
     "zip-a-folder": "^3"
   },
   "devDependencies": {
-    "@bigmi/core": "^0.4.2",
+    "@bigmi/core": "^0.5.2",
     "@types/react-window": "^1.8.8",
     "fake-indexeddb": "^6.0.0",
     "source-map": "^0.7.4",

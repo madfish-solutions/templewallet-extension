@@ -2862,9 +2862,6 @@
   "storageFee": {
     "message": "Storage fee"
   },
-  "protocolFee": {
-    "message": "Protocol fee"
-  },
   "templeWalletFeeWarning": {
     "message": "Temple Wallet doesn't apply any fees to exchanges for now but it may apply in the future."
   },
