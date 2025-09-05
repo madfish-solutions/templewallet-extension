@@ -317,11 +317,12 @@ export const PriceChart = memo<PriceChartProps>(({ coinName, interval }) => {
         setCandlesError(undefined);
         updatePriceLabel();
         subState.sub = await subscription.candle({ coin: coinName, interval }, data => {
-          if (data.t === pricesDataRef.current?.at(-1)?.x) {
-            pricesDataRef.current[pricesDataRef.current.length - 1] = toDataRow(data);
+          const currentPricesData = pricesDataRef.current;
+          if (data.t === currentPricesData?.at(-1)?.x) {
+            currentPricesData[currentPricesData.length - 1] = toDataRow(data);
             updateChart();
-          } else if (pricesDataRef.current) {
-            pricesDataRef.current.push(toDataRow(data));
+          } else if (currentPricesData) {
+            currentPricesData.push(toDataRow(data));
             updateChart();
           }
         });

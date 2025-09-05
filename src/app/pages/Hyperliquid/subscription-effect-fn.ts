@@ -1,7 +1,7 @@
 import { Subscription } from '@nktkas/hyperliquid';
 import retry from 'async-retry';
 
-export const subscriptionEffectFn = (createSubscription: () => Promise<Subscription>) => {
+export const subscriptionEffectFn = (createSubscription: () => Promise<Subscription>, onSubscription?: EmptyFn) => {
   let bail: SyncFn<Error> | undefined;
   let sub: Subscription | undefined;
   retry(
@@ -11,7 +11,9 @@ export const subscriptionEffectFn = (createSubscription: () => Promise<Subscript
       return await createSubscription().then(newSub => void (sub = newSub));
     },
     { forever: true, minTimeout: 1000, maxTimeout: 10000 }
-  ).catch(console.error);
+  )
+    .then(onSubscription)
+    .catch(console.error);
 
   return () => {
     if (sub) {

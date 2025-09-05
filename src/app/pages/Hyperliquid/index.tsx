@@ -11,6 +11,7 @@ import { HyperliquidClientsProvider } from './clients';
 import { OrderBookView } from './order-book-view';
 import { PriceChart } from './price-chart';
 import { HyperliquidSelectors } from './selectors';
+import { TradesView } from './trades-view';
 import { CandleChartInterval, TradePair } from './types';
 import { useTradePairs } from './use-trade-pairs';
 
@@ -110,7 +111,10 @@ const HyperliquidPageContent = memo(() => {
         />
       </div>
       <PriceChart coinName={selectedPairWithDefault.internalName} interval={selectedIntervalWithDefault.value} />
-      <OrderBookView pair={selectedPairWithDefault} />
+      <div className="flex flex-wrap gap-4 text-font-description">
+        <OrderBookView pair={selectedPairWithDefault} />
+        <TradesView pair={selectedPairWithDefault} />
+      </div>
     </div>
   );
 });

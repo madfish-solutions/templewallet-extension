@@ -11,6 +11,7 @@ import { ZERO } from 'lib/utils/numbers';
 import { SearchKey } from 'lib/utils/search-items';
 
 import { useClients } from './clients';
+import { ScrollableTable } from './scrollable-table';
 import { HyperliquidSelectors } from './selectors';
 import { subscriptionEffectFn } from './subscription-effect-fn';
 import { TradePair } from './types';
@@ -92,8 +93,8 @@ export const OrderBookView = memo<OrderBookViewProps>(({ pair }) => {
   }
 
   return (
-    <>
-      <div className="flex gap-4">
+    <div className="flex-1 flex flex-col gap-4">
+      <div className="flex">
         <SelectWithModal
           title="Precision"
           testID={HyperliquidSelectors.orderBookPrecisionSelect}
@@ -110,8 +111,10 @@ export const OrderBookView = memo<OrderBookViewProps>(({ pair }) => {
         />
         <div className="flex-[3]" />
       </div>
-      <OrderBookTable coinName={coinName} orderBookLevels={orderBook.levels} />
-    </>
+      <div className="flex gap-4">
+        <OrderBookTable coinName={coinName} orderBookLevels={orderBook.levels} />
+      </div>
+    </div>
   );
 });
 
@@ -123,7 +126,7 @@ interface OrderBookTableProps {
 export const OrderBookTable = memo<OrderBookTableProps>(({ coinName, orderBookLevels }) => {
   const rowsProps = useMemo(() => {
     const rowsPropsPart = orderBookLevels.map(sideLevels =>
-      sideLevels.reduce<{ price: string; size: BigNumber; totalSize: BigNumber }[]>((acc, level) => {
+      sideLevels.slice(0, 12).reduce<{ price: string; size: BigNumber; totalSize: BigNumber }[]>((acc, level) => {
         const { px: price, sz } = level;
         const size = new BigNumber(sz);
         const prevTotalSize = acc.at(-1)?.totalSize ?? ZERO;
@@ -139,48 +142,45 @@ export const OrderBookTable = memo<OrderBookTableProps>(({ coinName, orderBookLe
       .map((sideRowsProps, index) =>
         sideRowsProps
           .map(({ price, size, totalSize }) => ({
-            price: toLocalFixed(price),
+            price,
             size,
             totalSize,
             totalSizePercentage: totalSize.div(maxTotalSize).times(100).toNumber()
           }))
           .sort((a, b) => (a.totalSizePercentage - b.totalSizePercentage) * (index === 0 ? 1 : -1))
+          .map(({ price, size, totalSize, totalSizePercentage }) => ({
+            key: price,
+            className: 'relative',
+            cells: [
+              { children: toLocalFixed(price) },
+              { children: toLocalFixed(size) },
+              {
+                children: (
+                  <React.Fragment key="total-size">
+                    <div
+                      className={clsx(
+                        'absolute top-0 bottom-0 left-0 opacity-15',
+                        index === 0 ? 'bg-success' : 'bg-error'
+                      )}
+                      style={{ width: `${totalSizePercentage}%` }}
+                    />
+                    {toLocalFixed(totalSize)}
+                  </React.Fragment>
+                )
+              }
+            ]
+          }))
       )
       .reverse();
   }, [orderBookLevels]);
 
+  const columns = useMemo(() => ['Price', `Size (${coinName})`, `Total Size (${coinName})`], [coinName]);
+
   return (
-    <div className="flex gap-4">
+    <>
       {rowsProps.map((sideRowsProps, index) => (
-        <table className="flex-1 text-font-description" key={index}>
-          <thead>
-            <tr>
-              <th>Price</th>
-              <th className="text-right">Size ({coinName})</th>
-              <th className="text-right">Total Size ({coinName})</th>
-            </tr>
-          </thead>
-          <tbody>
-            {sideRowsProps.map(({ price, size, totalSize, totalSizePercentage }) => (
-              <tr key={price} className="relative">
-                <td>{price}</td>
-                <td className="text-right">{toLocalFixed(size)}</td>
-                <td className="text-right">
-                  <div
-                    className={clsx(
-                      'absolute top-0 bottom-0 left-0',
-                      index === 0 ? 'bg-error' : 'bg-success',
-                      'opacity-15'
-                    )}
-                    style={{ width: `${totalSizePercentage}%` }}
-                  />
-                  {toLocalFixed(totalSize)}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <ScrollableTable className="flex-1" key={index} columns={columns} rows={sideRowsProps} />
       ))}
-    </div>
+    </>
   );
 });

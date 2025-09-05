@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import {
   ExchangeClient,
@@ -57,6 +57,7 @@ export const [HyperliquidClientsProvider, useClients] = constate(() => {
   const { [COMMON_MAINNET_CHAIN_IDS.arbitrum]: arbitrum } = useAllEvmChains();
   const { signEvmTypedData } = useTempleClient();
   const webData2CallbacksRef = useRef<SyncFn<WsWebData2>[]>([]);
+  const [subscribedToWebData2, setSubscribedToWebData2] = useState(false);
 
   const getClients = useCallback(async () => {
     let wallet: AbstractViemLocalAccount | undefined;
@@ -103,11 +104,13 @@ export const [HyperliquidClientsProvider, useClients] = constate(() => {
   useEffect(() => {
     if (!clients) return;
 
-    return subscriptionEffectFn(() =>
-      clients.subscription.webData2(
-        { user: (evmAccount?.address as HexString | undefined) ?? EVM_ZERO_ADDRESS },
-        data => webData2CallbacksRef.current.forEach(cb => cb(data))
-      )
+    return subscriptionEffectFn(
+      () =>
+        clients.subscription.webData2(
+          { user: (evmAccount?.address as HexString | undefined) ?? EVM_ZERO_ADDRESS },
+          data => webData2CallbacksRef.current.forEach(cb => cb(data))
+        ),
+      () => setSubscribedToWebData2(true)
     );
   }, [clients, evmAccount?.address]);
 
@@ -121,5 +124,12 @@ export const [HyperliquidClientsProvider, useClients] = constate(() => {
     webData2CallbacksRef.current = webData2CallbacksRef.current.filter(c => c !== cb);
   }, []);
 
-  return { clients: clients!, regenerateClients: mutate, networkType, addWebData2Listener, removeWebData2Listener };
+  return {
+    clients: clients!,
+    regenerateClients: mutate,
+    networkType,
+    addWebData2Listener,
+    removeWebData2Listener,
+    subscribedToWebData2
+  };
 });
