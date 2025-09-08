@@ -37,6 +37,7 @@ import { TempleChainKind } from 'temple/types';
 import { AssetsSelectors } from '../pages/Home/OtherComponents/Assets.selectors';
 import { CryptoBalance, FiatBalance } from '../pages/Home/OtherComponents/Tokens/components/Balance';
 import { TokenTag } from '../pages/Home/OtherComponents/Tokens/components/TokenTag';
+import { EvmIncentiveTag } from '../pages/Home/OtherComponents/Tokens/components/TokenTag/EvmIncentiveTag';
 import { toExploreAssetLink } from '../pages/Home/OtherComponents/Tokens/utils';
 
 const LIST_ITEM_CLASSNAME = clsx(
@@ -148,6 +149,7 @@ interface EvmTokenListItemProps {
   publicKeyHash: HexString;
   assetSlug: string;
   manageActive?: boolean;
+  showTags?: boolean;
   showFavoritesMark?: boolean;
   showOnlyFavorites?: boolean;
   onClick?: MouseEventHandler<TokenListItemElement>;
@@ -164,6 +166,7 @@ export const EvmTokenListItem = memo(
         assetSlug,
         manageActive = false,
         requiresVisibility = true,
+        showTags = false,
         showFavoritesMark = false,
         showOnlyFavorites = false,
         onClick
@@ -217,8 +220,9 @@ export const EvmTokenListItem = memo(
           requiresVisibility={requiresVisibility}
           ref={ref}
         >
-          <div className={clsx('flex-grow text-font-medium', balance.lt(ASSET_HUGE_AMOUNT) && 'truncate')}>
-            {assetSymbol}
+          <div className={clsx('flex items-center flex-grow gap-x-2', balance.lt(ASSET_HUGE_AMOUNT) && 'truncate')}>
+            <div className="text-font-medium truncate">{assetSymbol}</div>
+            {showTags && <EvmIncentiveTag chainId={chainId} assetSlug={assetSlug} symbol={assetSymbol} />}
           </div>
         </DefaultEvmListItemLayout>
       );
