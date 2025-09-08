@@ -41,10 +41,11 @@ interface EvmSwapFormProps {
   onSelectAssetClick: SyncFn<SwapFieldName>;
   selectedChainAssets: { from: string | null; to: string | null };
   activeField: SwapFieldName;
+  confirmSwapModalOpened: boolean;
   handleToggleIconClick: EmptyFn;
 }
 
-const AUTO_REFRESH_INTERVAL_MS = 30000; // 30 seconds
+const AUTO_REFRESH_INTERVAL_MS = 8000; // 8 seconds
 
 export const EvmSwapForm: FC<EvmSwapFormProps> = ({
   chainId,
@@ -53,6 +54,7 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
   onSelectAssetClick,
   selectedChainAssets,
   activeField,
+  confirmSwapModalOpened,
   handleToggleIconClick
 }) => {
   const account = useAccountForEvm();
@@ -243,42 +245,49 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
 
   const routeAbortControllerRef = useRef<AbortController | null>(null);
 
-  const fetchEvmSwapRoute = useCallback(
-    async (params: RouteParams) => {
-      routeAbortControllerRef.current?.abort();
-      const controller = new AbortController();
-      routeAbortControllerRef.current = controller;
+  const fetchEvmSwapRoute = useCallback(async (params: RouteParams) => {
+    routeAbortControllerRef.current?.abort();
+    const controller = new AbortController();
+    routeAbortControllerRef.current = controller;
 
-      setIsAlertVisible(false);
+    try {
+      const data = await getEvmBestSwapRoute(params, controller.signal);
+      if (data === undefined) {
+        return;
+      }
+      return data;
+    } catch (error: unknown) {
+      if ((error as Error)?.name === 'CanceledError') return undefined;
+      console.error('EVM Swap route error:', error instanceof Error ? error.message : error);
+      throw error;
+    }
+  }, []);
+
+  const updateSwapRoute = useCallback(
+    async (params: RouteParams) => {
       setIsRouteLoading(true);
+      setIsAlertVisible(false);
 
       try {
-        const data = await getEvmBestSwapRoute(params, controller.signal);
-        if (data === undefined) {
-          return;
-        }
+        const data = await fetchEvmSwapRoute(params);
+        if (data === undefined) return;
+
         setSwapRoute(data);
         setIsRouteLoading(false);
         return data;
-      } catch (error: unknown) {
-        if ((error as Error)?.name === 'CanceledError') return;
-        console.error('EVM Swap route error:', error instanceof Error ? error.message : error);
-
+      } catch (error) {
         setSwapRoute(null);
-        setIsRouteLoading(false);
         setIsAlertVisible(true);
-        resetForm();
-
+        setIsRouteLoading(false);
         throw error;
       }
     },
-    [resetForm]
+    [fetchEvmSwapRoute]
   );
 
-  const updateSwapRoute = useCallback(async () => {
+  const buildSwapRouteParams = useCallback((): RouteParams | null => {
     if (!sourceAssetInfo || !targetAssetInfo || !inputValue.amount || new BigNumber(inputValue.amount).isZero()) {
-      setSwapRoute(null);
-      return;
+      return null;
     }
 
     const fromToken = isEvmNativeTokenSlug(sourceAssetInfo.assetSlug)
@@ -288,31 +297,42 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
       ? EVM_ZERO_ADDRESS
       : fromAssetSlug(targetAssetInfo.assetSlug)[0];
 
-    const params: RouteParams = {
+    return {
       fromChain: sourceAssetInfo.chainId as number,
       toChain: targetAssetInfo.chainId as number,
       fromToken,
       toToken,
-      amount: atomsInputValue.toFixed(),
-      amountForGas: undefined,
+      amount: atomsInputValue.toString(),
       fromAddress: publicKeyHash,
       slippage: slippageTolerance / 100
     };
+  }, [sourceAssetInfo, targetAssetInfo, inputValue.amount, atomsInputValue, publicKeyHash, slippageTolerance]);
 
-    return fetchEvmSwapRoute(params);
-  }, [
-    atomsInputValue,
-    fetchEvmSwapRoute,
-    inputValue.amount,
-    publicKeyHash,
-    slippageTolerance,
-    sourceAssetInfo,
-    targetAssetInfo
-  ]);
+  const getAndSetSwapRoute = useCallback(async () => {
+    const params = buildSwapRouteParams();
+    if (!params) {
+      setSwapRoute(null);
+      return;
+    }
+
+    void updateSwapRoute(params);
+  }, [buildSwapRouteParams, updateSwapRoute]);
 
   useEffect(() => {
-    void updateSwapRoute();
-  }, [updateSwapRoute]);
+    if (!inputValue.amount || new BigNumber(inputValue.amount).isLessThanOrEqualTo(0)) {
+      setSwapRoute(null);
+      return;
+    }
+    if (sourceAssetInfo?.assetSlug && targetAssetInfo?.assetSlug) {
+      void getAndSetSwapRoute();
+    }
+  }, [
+    inputValue.amount,
+    sourceAssetInfo?.assetSlug,
+    targetAssetInfo?.assetSlug,
+    slippageTolerance,
+    getAndSetSwapRoute
+  ]);
 
   useInterval(
     () => {
@@ -322,14 +342,23 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
         sourceAssetInfo &&
         targetAssetInfo &&
         !isRouteLoading &&
-        !formState.isSubmitting
+        !formState.isSubmitting &&
+        !confirmSwapModalOpened
       ) {
-        updateSwapRoute().catch(error => {
+        getAndSetSwapRoute().catch(error => {
           console.error('Error during auto-refresh:', error);
         });
       }
     },
-    [inputValue.amount, sourceAssetInfo, targetAssetInfo, isRouteLoading, formState.isSubmitting, updateSwapRoute],
+    [
+      inputValue.amount,
+      sourceAssetInfo,
+      targetAssetInfo,
+      isRouteLoading,
+      formState.isSubmitting,
+      confirmSwapModalOpened,
+      getAndSetSwapRoute
+    ],
     AUTO_REFRESH_INTERVAL_MS,
     false
   );
@@ -469,7 +498,6 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
           amount: getMinimumReceivedAmount(outputValue.amount).toString(),
           symbol: outputAssetSymbol
         },
-        lifiStep,
         bridgeInfo:
           inputNetwork.chainId !== outputNetwork.chainId
             ? {
@@ -477,7 +505,10 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
                 inputNetwork,
                 outputNetwork
               }
-            : undefined
+            : undefined,
+        buildSwapRouteParams,
+        fetchEvmSwapRoute,
+        initialLifiStep: lifiStep
       });
 
       formAnalytics.trackSubmitSuccess(analyticsProperties);
@@ -506,7 +537,9 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
     getMinimumReceivedAmount,
     outputAssetSymbol,
     protocolFee,
-    outputNetwork
+    outputNetwork,
+    getMinimumReceivedAmount,
+    outputAssetSymbol
   ]);
 
   useEffect(() => {

@@ -14,6 +14,7 @@ interface SwapFormProps {
   slippageTolerance: number;
   onReview: SyncFn<SwapReviewData>;
   onSelectAssetClick: SyncFn<SwapFieldName>;
+  confirmSwapModalOpened: boolean;
   handleToggleIconClick: EmptyFn;
 }
 
@@ -24,6 +25,7 @@ export const SwapForm = memo<SwapFormProps>(
     selectedChainAssets,
     onSelectAssetClick,
     handleToggleIconClick,
+    confirmSwapModalOpened,
     activeField,
     chainKind,
     chainId
@@ -37,6 +39,7 @@ export const SwapForm = memo<SwapFormProps>(
           onSelectAssetClick={onSelectAssetClick}
           selectedChainAssets={selectedChainAssets}
           activeField={activeField}
+          confirmSwapModalOpened={confirmSwapModalOpened}
           handleToggleIconClick={handleToggleIconClick}
         />
       );

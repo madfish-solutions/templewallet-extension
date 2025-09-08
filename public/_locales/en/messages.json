@@ -3906,8 +3906,22 @@
   "noRoutesFound": {
     "message": "No route available"
   },
+  "estimationExpired": {
+    "message": "Estimation expired, refresh quote"
+  },
   "swapCashback": {
     "message": "Cashback"
+  },
+  "refresh": {
+    "message": "Refresh"
+  },
+  "confirmWithCountdown": {
+    "message": "Confirm ($seconds$s)",
+    "placeholders": {
+      "seconds": {
+        "content": "$1"
+      }
+    }
   },
   "networkFrom": {
     "message": "Network from"
