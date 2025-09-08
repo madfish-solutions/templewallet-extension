@@ -347,7 +347,6 @@ export class TempleWeb3Provider extends EventEmitter {
     toProviderResponse: (data: BackgroundResponseData<M>) => ProviderResponse<M>,
     requiredAccount: HexString | undefined
   ) {
-    console.log('args', args)
     const forwardTarget = window.__templeForwardTarget;
     if (forwardTarget?.request && typeof forwardTarget.request === 'function') {
       // @ts-expect-error
@@ -359,9 +358,6 @@ export class TempleWeb3Provider extends EventEmitter {
 
     const requestId = uuid();
     const otherProviders: EIP6963ProviderInfo[] = window.__templeOtherProviders || [];
-
-    console.log('otherProviders', otherProviders)
-    console.log('this.isEIP6963', this.isEIP6963)
 
     if (
       (args.method === evmRpcMethodsNames.eth_requestAccounts ||
