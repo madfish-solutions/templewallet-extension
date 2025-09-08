@@ -4,6 +4,7 @@ import { EIP1193Provider } from 'viem';
 import { TEMPLE_ICON } from 'content-scripts/constants';
 import { TEMPLE_SWITCH_PROVIDER_EVENT } from 'lib/constants';
 import { EIP6963ProviderInfo } from 'lib/temple/types';
+import { evmRpcMethodsNames } from 'temple/evm/constants';
 import { TempleWeb3Provider } from 'temple/evm/web3-provider';
 
 interface TempleSwitchProviderEvent extends CustomEvent {
@@ -24,17 +25,35 @@ declare global {
   }
 }
 
-const defaultTempleProvider = new TempleWeb3Provider();
-const eip6963TempleProvider = new TempleWeb3Provider(true);
-
-setGlobalProvider(defaultTempleProvider);
-
 const info: EIP6963ProviderInfo = {
   uuid: uuid(),
   name: 'Temple Wallet',
   icon: TEMPLE_ICON,
   rdns: 'com.templewallet'
 };
+
+function setGlobalProvider() {
+  try {
+    window.ethereum = defaultTempleProvider;
+    window.dispatchEvent(new Event('ethereum#initialized'));
+  } catch (e) {
+    console.error(e);
+  }
+}
+
+function announceProvider() {
+  window.dispatchEvent(
+    new CustomEvent('eip6963:announceProvider', {
+      detail: Object.freeze({ info, provider: eip6963TempleProvider })
+    })
+  );
+}
+
+const defaultTempleProvider = new TempleWeb3Provider();
+const eip6963TempleProvider = new TempleWeb3Provider(true);
+
+announceProvider();
+setGlobalProvider();
 
 const otherProviders: EIP6963ProviderInfo[] = [];
 const providersMapByRdns: Record<string, EIP1193Provider> = {};
@@ -79,28 +98,9 @@ document.addEventListener(TEMPLE_SWITCH_PROVIDER_EVENT, async (evt: Event) => {
       window.__templeForwardTarget = target;
       if (autoConnect) {
         try {
-          await target.request({ method: 'eth_requestAccounts' });
+          await target.request({ method: evmRpcMethodsNames.eth_requestAccounts });
         } catch (err) {}
       }
     } catch (e) {}
   }
 });
-
-announceProvider();
-
-function setGlobalProvider(providerInstance: EIP1193Provider) {
-  try {
-    window.ethereum = providerInstance;
-    window.dispatchEvent(new Event('ethereum#initialized'));
-  } catch (e) {
-    console.error(e);
-  }
-}
-
-function announceProvider() {
-  window.dispatchEvent(
-    new CustomEvent('eip6963:announceProvider', {
-      detail: Object.freeze({ info, provider: eip6963TempleProvider })
-    })
-  );
-}

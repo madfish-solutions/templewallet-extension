@@ -625,7 +625,7 @@ export async function processEvmDApp(
       break;
     case evmRpcMethodsNames.wallet_requestPermissions:
       const [requestPermissionsPayload] = ethChangePermissionsPayloadValidationSchema.validateSync(params);
-      methodHandler = () => requestEvmPermissions(origin, chainId, requestPermissionsPayload, iconUrl);
+      methodHandler = () => requestEvmPermissions(origin, chainId, requestPermissionsPayload, iconUrl, providers);
       break;
     case evmRpcMethodsNames.wallet_revokePermissions:
       const [revokePermissionsPayload] = ethChangePermissionsPayloadValidationSchema.validateSync(params);

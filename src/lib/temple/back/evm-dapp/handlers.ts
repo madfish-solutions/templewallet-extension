@@ -149,10 +149,11 @@ export const requestEvmPermissions = async (
   origin: string,
   chainId: string,
   _payload: ChangePermissionsPayload,
-  icon?: string
+  icon?: string,
+  providers?: EIP6963ProviderInfo[]
 ) => {
   // TODO: add handling other permissions than for reading accounts
-  const accounts = await connectEvm(origin, chainId, icon);
+  const accounts = await connectEvm(origin, chainId, icon, providers);
 
   return [makeReadAccountPermission(accounts[0], origin)];
 };
