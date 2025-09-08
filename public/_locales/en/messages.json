@@ -3937,6 +3937,22 @@
       }
     }
   },
+  "swapCashbackDescriptionShort": {
+    "message": "Swap over 10$$ and get $percent$% back",
+    "placeholders": {
+      "percent": {
+        "content": "$1"
+      }
+    }
+  },
+  "onlyDollarAmountToGo": {
+    "message": "Only $dollarAmount$$$ to go",
+    "placeholders": {
+      "dollarAmount": {
+        "content": "$1"
+      }
+    }
+  },
   "jumpInTezos": {
     "message": "Jump in Tezos right now!"
   },
