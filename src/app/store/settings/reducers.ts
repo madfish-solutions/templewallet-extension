@@ -1,7 +1,4 @@
 import { createReducer } from '@reduxjs/toolkit';
-import { persistReducer } from 'redux-persist';
-
-import { storageConfig } from 'lib/store';
 
 import {
   setAdsImpressionsLinkedAction,
@@ -14,7 +11,7 @@ import {
 } from './actions';
 import { SettingsState, settingsInitialState } from './state';
 
-const settingsReducer = createReducer<SettingsState>(settingsInitialState, builder => {
+export const settingsReducer = createReducer<SettingsState>(settingsInitialState, builder => {
   builder.addCase(setIsAnalyticsEnabledAction, (state, { payload }) => {
     state.isAnalyticsEnabled = payload;
   });
@@ -48,12 +45,3 @@ const settingsReducer = createReducer<SettingsState>(settingsInitialState, build
     state.favoriteTokens = Array.from(newFavoriteTokens);
   });
 });
-
-export const settingsPersistedReducer = persistReducer(
-  {
-    key: 'root.settings',
-    ...storageConfig,
-    blacklist: ['toastsContainerBottomShift']
-  },
-  settingsReducer
-);

@@ -1,4 +1,5 @@
 import { HubConnectionBuilder } from '@microsoft/signalr';
+import { isDefined } from '@rnw-community/shared';
 import axios, { AxiosError } from 'axios';
 
 import { toTokenSlug } from 'lib/assets';
@@ -18,7 +19,8 @@ import {
   TzktHubConnection,
   TzktCycle,
   TzktProtocol,
-  TzktSetDelegateParamsOperation
+  TzktSetDelegateParamsOperation,
+  TzktOperationRole
 } from './types';
 import { calcTzktAccountSpendableTezBalance } from './utils';
 
@@ -75,17 +77,26 @@ type GetOperationsBaseParams = {
 export const fetchGetAccountOperations = (
   chainId: TzktApiChainId,
   accountAddress: string,
-  params: GetOperationsBaseParams & {
-    type?: TzktOperationType | TzktOperationType[];
+  params: {
+    limit?: number;
+    lastId?: number;
+    roles?: TzktOperationRole[];
+    types?: TzktOperationType[];
     sort?: 0 | 1;
     quote?: TzktQuoteCurrency[];
-    'parameter.null'?: boolean;
+  } & {
+    [key in `timestamp.${'lt' | 'ge'}`]?: string;
   }
 ) =>
-  fetchGet<TzktOperation[]>(chainId, `/accounts/${accountAddress}/operations`, {
+  fetchGet<TzktOperation[]>(chainId, '/accounts/activity', {
     ...params,
-    type: Array.isArray(params.type) ? params.type.join(',') : params.type
+    addresses: accountAddress,
+    ...joinArrayParam('roles', params.roles),
+    ...joinArrayParam('types', params.types),
+    ...joinArrayParam('quote', params.quote)
   });
+
+const joinArrayParam = (key: string, param?: string[]) => (isDefined(param) ? { [key]: param.join(',') } : {});
 
 export const fetchGetOperationsByHash = (
   chainId: TzktApiChainId,

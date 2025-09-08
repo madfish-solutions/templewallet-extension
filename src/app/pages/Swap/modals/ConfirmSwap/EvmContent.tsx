@@ -1,4 +1,4 @@
-import React, { FC, useCallback, useMemo, useState } from 'react';
+import React, { FC, useCallback, useEffect, useMemo, useState } from 'react';
 
 import { LiFiStep } from '@lifi/sdk';
 import BigNumber from 'bignumber.js';
@@ -11,7 +11,7 @@ import { formatDuration, getBufferedExecutionDuration } from 'app/pages/Swap/for
 import { mapLiFiTxToEvmEstimationData, parseTxRequestToViem } from 'app/pages/Swap/modals/ConfirmSwap/utils';
 import { EvmTxParamsFormData } from 'app/templates/TransactionTabs/types';
 import { useEvmEstimationForm } from 'app/templates/TransactionTabs/use-evm-estimation-form';
-import { toastError } from 'app/toaster';
+import { toastError, toastWarning } from 'app/toaster';
 import { toTokenSlug } from 'lib/assets';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { useEvmAssetBalance } from 'lib/balances/hooks';
@@ -21,6 +21,7 @@ import { useTempleClient } from 'lib/temple/front';
 import { atomsToTokens, tokensToAtoms } from 'lib/temple/helpers';
 import { TempleAccountType } from 'lib/temple/types';
 import { runConnectedLedgerOperationFlow } from 'lib/ui';
+import { useInterval } from 'lib/ui/hooks';
 import { showTxSubmitToastWithDelay } from 'lib/ui/show-tx-submit-toast.util';
 import { isEvmNativeTokenSlug } from 'lib/utils/evm.utils';
 import { ZERO } from 'lib/utils/numbers';
@@ -34,8 +35,80 @@ interface EvmContentProps {
   onClose: EmptyFn;
 }
 
+const MAX_REFRESHES = 5;
+const REFRESH_INTERVAL_MS = 8000;
+
 export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
-  const { account, network, minimumReceived, onConfirm, lifiStep, bridgeInfo } = data;
+  const {
+    account,
+    network,
+    minimumReceived,
+    onConfirm,
+    buildSwapRouteParams,
+    fetchEvmSwapRoute,
+    bridgeInfo,
+    initialLifiStep
+  } = data;
+
+  const [lifiStep, setLifiStep] = useState<LiFiStep>(initialLifiStep);
+
+  const [refreshCount, setRefreshCount] = useState(0);
+  const [countdown, setCountdown] = useState(REFRESH_INTERVAL_MS / 1000);
+  const [expired, setExpired] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  const handleRefresh = useCallback(
+    async (manual = false) => {
+      if (refreshCount >= MAX_REFRESHES && !manual) {
+        return;
+      }
+
+      setIsRefreshing(true);
+      try {
+        const params = buildSwapRouteParams();
+        if (!params) return;
+
+        const data = await fetchEvmSwapRoute(params);
+        setLifiStep(data?.steps?.[0]?.type === 'lifi' ? data?.steps[0] : initialLifiStep);
+
+        if (manual) {
+          setRefreshCount(1);
+          setExpired(false);
+          setCountdown(REFRESH_INTERVAL_MS / 1000);
+        } else {
+          const nextCount = refreshCount + 1;
+          setRefreshCount(nextCount);
+          setCountdown(REFRESH_INTERVAL_MS / 1000);
+        }
+      } catch (err) {
+        console.error('Error during refresh:', err);
+      } finally {
+        setIsRefreshing(false);
+      }
+    },
+    [buildSwapRouteParams, fetchEvmSwapRoute, initialLifiStep, refreshCount]
+  );
+
+  useEffect(() => {
+    if (expired || isRefreshing || countdown !== 0) return;
+
+    if (refreshCount >= MAX_REFRESHES) {
+      toastWarning(t('estimationExpired'));
+      setExpired(true);
+      return;
+    }
+
+    void handleRefresh();
+  }, [countdown, expired, handleRefresh, isRefreshing, refreshCount]);
+
+  useInterval(
+    () => {
+      setCountdown(prev => (prev > 0 ? prev - 1 : 0));
+    },
+    [],
+    1000,
+    false
+  );
 
   const accountPkh = account.address as HexString;
   const isLedgerAccount = account.type === TempleAccountType.Ledger;
@@ -166,12 +239,12 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
 
       const txHash = await sendEvmTransaction(accountPkh, network, txParams);
 
+      onConfirm?.();
+      onClose?.();
+
       const blockExplorer = getActiveBlockExplorer(network.chainId.toString(), !!bridgeData);
 
       showTxSubmitToastWithDelay(TempleChainKind.EVM, txHash, blockExplorer.url);
-
-      onConfirm?.();
-      onClose?.();
     },
     [sendEvmTransaction, accountPkh, network, getActiveBlockExplorer, bridgeData, onConfirm, onClose]
   );
@@ -264,6 +337,10 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
         onSubmit={onSubmit}
         someBalancesChanges={true}
         filteredBalancesChanges={balancesChanges}
+        quoteRefreshCountdown={countdown}
+        isQuoteExpired={expired}
+        isQuoteRefreshing={isRefreshing || formState.isSubmitting}
+        onManualQuoteRefresh={() => handleRefresh(true)}
         bridgeData={bridgeData}
       />
     </FormProvider>
