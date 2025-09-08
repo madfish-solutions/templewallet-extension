@@ -13,6 +13,7 @@ export interface EarnOperationModalProps<D, R extends TezosEarnReviewDataBase> {
   confirmStepTitle: ReactChildren;
   successToastText: string;
   network: TezosNetworkEssentials;
+  isDirectBaker?: boolean;
   SuspenseLoader?: ComponentType<{ isInputDataStep: boolean }>;
   InputDataContent: ComponentType<{ onSubmit: SyncFn<D> }>;
   ConfirmContent: ComponentType<{ reviewData: R | undefined; onCancel: EmptyFn }>;
@@ -46,6 +47,7 @@ export const EarnOperationModal = <D, R extends TezosEarnReviewDataBase>({
   successToastText,
   network,
   SuspenseLoader,
+  isDirectBaker,
   ConfirmContent,
   InputDataContent,
   makeReviewData,
@@ -85,7 +87,7 @@ export const EarnOperationModal = <D, R extends TezosEarnReviewDataBase>({
       {modalState.step === EarnOperationModalStep.InputData ? (
         <InputDataContent onSubmit={handleDataSubmit} />
       ) : (
-        <ConfirmContent reviewData={reviewData} onCancel={goToInputData} />
+        <ConfirmContent reviewData={reviewData} onCancel={isDirectBaker ? onClose : goToInputData} />
       )}
     </PageModal>
   );

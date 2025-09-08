@@ -867,6 +867,9 @@
   "advancedFeatures": {
     "message": "Advanced Features"
   },
+  "templeBakery": {
+    "message": "Temple Bakery"
+  },
   "aboutAndSupport": {
     "message": "About & Support"
   },
@@ -2811,6 +2814,33 @@
   "searchDApps": {
     "message": "Search DApps"
   },
+  "inviteAccountTooltip": {
+    "message": "All your referrals connected to your first created or imported account in Temple. Make sure you backed up your wallet to prevent unnecessary losses."
+  },
+  "advancedFeaturesTooltip": {
+    "message": "This section display your rewards for enabled advanced features. You can manage these features anytime in the settings."
+  },
+  "yourRewards": {
+    "message": "Your rewards"
+  },
+  "passivelyEarnTkey": {
+    "message": "Passively earn TKEY rewards by using built-in advanced features and support Temple development"
+  },
+  "delegateTezFunds": {
+    "message": "Delegate your TEZ funds to our baker and earn 5.6% APY rewards in TKEY tokens on your TEZ balance"
+  },
+  "noRewardsActivity": {
+    "message": "No rewards activity yet"
+  },
+  "noDelegationRewards": {
+    "message": "No delegation rewards yet"
+  },
+  "allTime": {
+    "message": "All time"
+  },
+  "lastActivity": {
+    "message": "Last activity"
+  },
   "game": {
     "message": "Game"
   },
@@ -3367,6 +3397,18 @@
   },
   "referralLinksHint": {
     "message": "All your referrals connected to your first created or imported account in Temple. Make sure you backed up your wallet to prevent unnecessary losses."
+  },
+  "referrals": {
+    "message": "Referrals"
+  },
+  "inviteFriends": {
+    "message": "Invite friends in Temple"
+  },
+  "inviteLink": {
+    "message": "Invite Link"
+  },
+  "inviteAccount": {
+    "message": "Your invite account"
   },
   "totalEquityValue": {
     "message": "Total Equity Value"

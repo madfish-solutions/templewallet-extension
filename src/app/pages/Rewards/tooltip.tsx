@@ -2,6 +2,7 @@ import React, { memo, useMemo } from 'react';
 
 import { ReactComponent as AlertIcon } from 'app/icons/alert.svg';
 import { setTestID } from 'lib/analytics';
+import { t } from 'lib/i18n';
 import useTippy, { UseTippyOptions } from 'lib/ui/useTippy';
 
 interface RewardsTooltipProps {
@@ -31,3 +32,21 @@ export const RewardsTooltip = memo<RewardsTooltipProps>(({ placement, content, t
     </div>
   );
 });
+
+export const inviteAccountInfoTippyProps = {
+  trigger: 'mouseenter',
+  hideOnClick: false,
+  content: t('inviteAccountTooltip'),
+  animation: 'shift-away-subtle',
+  maxWidth: '14rem',
+  placement: 'top-start' as const
+};
+
+export const advancedFeaturesInfoTippyProps = {
+  trigger: 'mouseenter',
+  hideOnClick: false,
+  content: t('advancedFeaturesTooltip'),
+  animation: 'shift-away-subtle',
+  maxWidth: '16rem',
+  placement: 'top-end' as const
+};

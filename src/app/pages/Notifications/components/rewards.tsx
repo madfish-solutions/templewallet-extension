@@ -1,16 +1,15 @@
 import React, { memo } from 'react';
 
 import { IconBase } from 'app/atoms';
+import { useRewardsBadgeVisible } from 'app/hooks/use-rewards-badge';
 import { ReactComponent as GiftIcon } from 'app/icons/base/gift.svg';
-import { useNewNotificationsAmountSelector } from 'app/store/notifications/selectors';
 
 export const RewardsIconWithBadge = memo(() => {
-  const newNotificationsAmount = useNewNotificationsAmountSelector();
-  const isNewNotificationsAvailable = newNotificationsAmount > 0;
+  const rewardsBadgeVisible = useRewardsBadgeVisible();
 
   return (
     <div className="relative">
-      {isNewNotificationsAvailable && <AnimatedDot />}
+      {rewardsBadgeVisible && <AnimatedDot />}
 
       <IconBase Icon={GiftIcon} size={16} className="text-secondary" />
     </div>

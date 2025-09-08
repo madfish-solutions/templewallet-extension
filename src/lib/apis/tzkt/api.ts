@@ -10,6 +10,7 @@ import {
   TzktOperationType,
   TzktQuoteCurrency,
   TzktAccountAsset,
+  TzktTokenTransfer,
   allInt32ParameterKeys,
   TzktGetRewardsParams,
   TzktGetRewardsResponse,
@@ -220,3 +221,6 @@ const fetchAssetsBalancesFromTzktOnce = (account: string, chainId: TzktApiChainI
 
 export const getAccountStatsFromTzkt = async (account: string, chainId: TzktApiChainId) =>
   fetchGet<TzktAccount>(chainId, `/accounts/${account}`);
+
+export const fetchTokenTransfers = (chainId: TzktApiChainId, params: Record<string, any>) =>
+  fetchGet<TzktTokenTransfer[]>(chainId, '/tokens/transfers', params);

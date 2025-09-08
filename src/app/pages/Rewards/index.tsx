@@ -1,10 +1,13 @@
-import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
+import React, { memo, useCallback, useEffect, useRef } from 'react';
 
 import { capitalize, range } from 'lodash';
 
 import { Alert, PageTitle } from 'app/atoms';
 import { DeadEndBoundaryError } from 'app/ErrorBoundary';
+import { acknowledgeRewardsBadge } from 'app/hooks/use-rewards-badge';
 import PageLayout from 'app/layouts/PageLayout';
+import { ReferralsCard } from 'app/pages/Rewards/referrals-card';
+import { YourRewardsCards } from 'app/pages/Rewards/your-rewards-cards';
 import { dispatch } from 'app/store';
 import { loadManyMonthsRewardsActions, loadTodayRewardsActions } from 'app/store/rewards/actions';
 import { useRpForMonthsErrorSelector, useRpForTodayErrorSelector } from 'app/store/rewards/selectors';
@@ -14,11 +17,6 @@ import { useInterval } from 'lib/ui/hooks';
 import { ONE_DAY_MS, ONE_HOUR_MS } from 'lib/utils/numbers';
 import { useAccountAddressForTezos } from 'temple/front';
 
-import { Achievements } from './achievements';
-import { ActiveFeatures } from './active-features';
-import { LifetimeEarnings } from './lifetime-earnings';
-import { RecentEarnings } from './recent-earnings';
-
 export const RewardsPage = memo(() => {
   const accountPkh = useAccountAddressForTezos();
   if (!accountPkh) throw new DeadEndBoundaryError();
@@ -27,13 +25,9 @@ export const RewardsPage = memo(() => {
   const midnightTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const rpForTodayError = useRpForTodayErrorSelector(accountPkh);
   const rpForMonthsError = useRpForMonthsErrorSelector(accountPkh);
-  const [statsDate, setStatsDate] = useState(() => new Date());
 
   const updateStatsDate = useCallback(() => {
-    const newStatsDate = new Date();
-    setStatsDate(newStatsDate);
-
-    return newStatsDate;
+    return new Date();
   }, []);
 
   const updateRecentEarnings = useCallback(() => {
@@ -50,6 +44,8 @@ export const RewardsPage = memo(() => {
   useInterval(updateRecentEarnings, [updateRecentEarnings], ONE_HOUR_MS, false);
 
   useEffect(() => {
+    void acknowledgeRewardsBadge();
+
     const newStatsDate = updateStatsDate();
     const currentMonthYearIndex = toMonthYearIndex(newStatsDate);
     dispatch(loadTodayRewardsActions.submit({ account: accountPkh }));
@@ -83,10 +79,8 @@ export const RewardsPage = memo(() => {
           {(rpForTodayError || rpForMonthsError) && (
             <Alert type="error" description={<T id="somethingWentWrong" />} autoFocus />
           )}
-          <RecentEarnings accountPkh={accountPkh} statsDate={statsDate} />
-          <ActiveFeatures />
-          <Achievements />
-          <LifetimeEarnings accountPkh={accountPkh} statsDate={statsDate} />
+          <ReferralsCard />
+          <YourRewardsCards />
         </div>
       </div>
     </PageLayout>
