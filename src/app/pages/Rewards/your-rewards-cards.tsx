@@ -11,7 +11,7 @@ import { ReactComponent as InfoIcon } from 'app/icons/base/InfoFill.svg';
 import { DelegationModal } from 'app/pages/EarnTez/modals/delegation';
 import { TEMPLE_BAKERY_PAYOUT_ADDRESS, TEMPLE_REWARDS_PAYOUT_ADDRESS } from 'app/pages/Rewards/constants';
 import { advancedFeaturesInfoTippyProps } from 'app/pages/Rewards/tooltip';
-import { TzktApiChainId, fetchTokenTransfers } from 'lib/apis/tzkt/api';
+import { fetchTokenTransfers } from 'lib/apis/tzkt/api';
 import { PREDEFINED_TOKENS_METADATA } from 'lib/assets/known-tokens';
 import { t, T } from 'lib/i18n';
 import { TEMPLE_BAKER_ADDRESS } from 'lib/known-bakers';
@@ -84,7 +84,7 @@ export const YourRewardsCards = memo(() => {
 
       try {
         setIsTkeyLoading(true);
-        const transfers = await fetchTokenTransfers(tezosMainnet.chainId as TzktApiChainId, {
+        const transfers = await fetchTokenTransfers(TempleTezosChainId.Mainnet, {
           'sort.desc': 'id',
           to: account.address,
           from: TEMPLE_REWARDS_PAYOUT_ADDRESS,
@@ -132,7 +132,7 @@ export const YourRewardsCards = memo(() => {
 
       try {
         setIsBakeryLoading(true);
-        const transfers = await fetchTokenTransfers(tezosMainnet.chainId as TzktApiChainId, {
+        const transfers = await fetchTokenTransfers(TempleTezosChainId.Mainnet, {
           'sort.desc': 'id',
           to: account.address,
           from: TEMPLE_BAKERY_PAYOUT_ADDRESS,

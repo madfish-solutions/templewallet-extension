@@ -40,6 +40,6 @@ export function getRefLink() {
     .then(({ data }) => `${EnvVars.CONVERSION_API_URL}/share/${data.id}`);
 }
 
-export function getReferralsCount() {
-  return conversionApi.get<{ count: string }>(`/v1/referrals-count`).then(({ data }) => data.count);
+export function getReferralsCount(signal?: AbortSignal) {
+  return conversionApi.get<{ count: string }>(`/v1/referrals-count`, { signal }).then(({ data }) => data.count);
 }

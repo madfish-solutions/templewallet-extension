@@ -15,9 +15,7 @@ export const RewardsPage = memo(() => {
   const accountPkh = useAccountAddressForTezos();
   if (!accountPkh) throw new DeadEndBoundaryError();
 
-  useEffect(() => {
-    void acknowledgeRewardsBadge();
-  }, []);
+  useEffect(() => void acknowledgeRewardsBadge(), []);
 
   return (
     <PageLayout pageTitle={<PageTitle title={capitalize(t('rewards'))} />}>

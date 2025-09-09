@@ -1,10 +1,13 @@
 import { useEffect, useState } from 'react';
 
+import { isEqual } from 'lodash';
+
 import { TEMPLE_BAKERY_PAYOUT_ADDRESS, TEMPLE_REWARDS_PAYOUT_ADDRESS } from 'app/pages/Rewards/constants';
 import { getReferralsCount } from 'lib/apis/temple';
 import { fetchTokenTransfers, TzktApiChainId } from 'lib/apis/tzkt/api';
 import { REWARDS_BADGE_STATE_STORAGE_KEY } from 'lib/constants';
 import { fetchFromStorage, putToStorage } from 'lib/storage';
+import { useAbortSignal } from 'lib/ui/hooks/useAbortSignal';
 import { useAccountForTezos, useTezosMainnetChain } from 'temple/front';
 
 type BadgeState = {
@@ -16,6 +19,7 @@ type BadgeState = {
 export function useRewardsBadgeVisible() {
   const account = useAccountForTezos();
   const tezosMainnet = useTezosMainnetChain();
+  const aborter = useAbortSignal();
 
   const [state, setState] = useState<BadgeState | null>(null);
   const [visible, setVisible] = useState(false);
@@ -46,15 +50,20 @@ export function useRewardsBadgeVisible() {
     (async () => {
       try {
         const since = state.lastChecked ?? 0;
+        const signal = aborter.abortAndRenewSignal();
 
         const [transfers, referralsCountRaw] = await Promise.all([
-          fetchTokenTransfers(tezosMainnet.chainId as TzktApiChainId, {
-            'timestamp.ge': new Date(since).toISOString(),
-            to: account.address,
-            'sort.desc': 'id',
-            limit: 1
-          }),
-          getReferralsCount().catch(() => undefined)
+          fetchTokenTransfers(
+            tezosMainnet.chainId as TzktApiChainId,
+            {
+              'timestamp.ge': new Date(since).toISOString(),
+              to: account.address,
+              'sort.desc': 'id',
+              limit: 1
+            },
+            signal
+          ),
+          getReferralsCount(signal).catch(() => undefined)
         ]);
 
         if (cancelled) return;
@@ -75,7 +84,7 @@ export function useRewardsBadgeVisible() {
           lastReferralsCount: referralsCount
         };
 
-        if (JSON.stringify(state) !== JSON.stringify(nextState)) {
+        if (!isEqual(state, nextState)) {
           await putToStorage(REWARDS_BADGE_STATE_STORAGE_KEY, nextState);
           if (!cancelled) setState(nextState);
         }
@@ -84,8 +93,9 @@ export function useRewardsBadgeVisible() {
 
     return () => {
       cancelled = true;
+      aborter.abort();
     };
-  }, [account, state, tezosMainnet.chainId]);
+  }, [aborter, account, state, tezosMainnet.chainId]);
 
   return visible;
 }
