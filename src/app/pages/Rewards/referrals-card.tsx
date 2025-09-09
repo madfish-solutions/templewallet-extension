@@ -24,7 +24,7 @@ export const ReferralsCard = memo(() => {
 
   const { data: conversionAccount } = useTypedSWR(['conversionAccount'], fetchConversionAccount, { suspense: false });
   const { data: refLink } = useTypedSWR(['refLink'], getRefLink, { suspense: false });
-  const { data: referralsCount } = useTypedSWR(['referralsCount'], getReferralsCount, {
+  const { data: referralsCount } = useTypedSWR(['referralsCount'], () => getReferralsCount(), {
     suspense: false,
     refreshInterval: REFERRERS_COUNTER_SYNC_INTERVAL
   });
