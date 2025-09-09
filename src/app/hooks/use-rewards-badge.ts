@@ -4,10 +4,12 @@ import { isEqual } from 'lodash';
 
 import { TEMPLE_BAKERY_PAYOUT_ADDRESS, TEMPLE_REWARDS_PAYOUT_ADDRESS } from 'app/pages/Rewards/constants';
 import { getReferralsCount } from 'lib/apis/temple';
-import { fetchTokenTransfers, TzktApiChainId } from 'lib/apis/tzkt/api';
+import { fetchTokenTransfers } from 'lib/apis/tzkt/api';
 import { REWARDS_BADGE_STATE_STORAGE_KEY } from 'lib/constants';
 import { fetchFromStorage, putToStorage } from 'lib/storage';
+import { TempleTezosChainId } from 'lib/temple/types';
 import { useAbortSignal } from 'lib/ui/hooks/useAbortSignal';
+import { isAbortError } from 'lib/ui/is-abort-error';
 import { useAccountForTezos, useTezosMainnetChain } from 'temple/front';
 
 type BadgeState = {
@@ -54,7 +56,7 @@ export function useRewardsBadgeVisible() {
 
         const [transfers, referralsCountRaw] = await Promise.all([
           fetchTokenTransfers(
-            tezosMainnet.chainId as TzktApiChainId,
+            TempleTezosChainId.Mainnet,
             {
               'timestamp.ge': new Date(since).toISOString(),
               to: account.address,
@@ -63,7 +65,12 @@ export function useRewardsBadgeVisible() {
             },
             signal
           ),
-          getReferralsCount(signal).catch(() => undefined)
+          getReferralsCount(signal).catch(err => {
+            if (isAbortError(err)) {
+              throw err;
+            }
+            return undefined;
+          })
         ]);
 
         if (cancelled) return;
