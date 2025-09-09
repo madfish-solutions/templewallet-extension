@@ -10,25 +10,30 @@ interface Props {
   forSearch: boolean;
   manageActive: boolean;
   network?: OneOfChains;
+  shouldShowHiddenTokensHint?: boolean;
 }
 
-export const EmptySection = memo<Props>(({ forCollectibles, forSearch, manageActive, network }) => {
-  const textI18n = useMemo<TID>(
-    () => (forSearch ? 'noAssetsFound' : forCollectibles ? 'noCollectibles' : 'noTokens'),
-    [forCollectibles, forSearch]
-  );
+export const EmptySection = memo<Props>(
+  ({ forCollectibles, forSearch, manageActive, network, shouldShowHiddenTokensHint = false }) => {
+    const textI18n = useMemo<TID>(() => {
+      if (forSearch) return 'noAssetsFound';
+      if (!forCollectibles && shouldShowHiddenTokensHint) return 'hiddenTokensHint';
 
-  const commonProps = {
-    forCollectibles,
-    manageActive,
-    network
-  };
+      return forCollectibles ? 'noCollectibles' : 'noTokens';
+    }, [forCollectibles, forSearch, shouldShowHiddenTokensHint]);
 
-  return (
-    <div className="w-full h-full px-4 flex flex-col items-center">
-      {manageActive && <AddCustomTokenButton {...commonProps} className="w-full mt-4" />}
-      <EmptyState forSearch={forSearch} textI18n={textI18n} stretch />
-      {!manageActive && <AddCustomTokenButton {...commonProps} className="mb-8" />}
-    </div>
-  );
-});
+    const commonProps = {
+      forCollectibles,
+      manageActive,
+      network
+    };
+
+    return (
+      <div className="w-full h-full px-4 flex flex-col items-center">
+        {manageActive && <AddCustomTokenButton {...commonProps} className="w-full mt-4" />}
+        <EmptyState forSearch={forSearch} textI18n={textI18n} stretch />
+        {!manageActive && <AddCustomTokenButton {...commonProps} className="mb-8" />}
+      </div>
+    );
+  }
+);

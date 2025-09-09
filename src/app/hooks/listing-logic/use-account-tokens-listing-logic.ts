@@ -75,26 +75,30 @@ export const useAccountTokensForListing = (
     [enabledEvmChains, enabledTezChains]
   );
 
-  const enabledChainsSlugsFiltered = useMemo(() => {
-    const enabledChainsSlugs = gasChainsSlugs
-      .concat(
-        tezTokens
-          .filter(({ status }) => status === 'enabled')
-          .map(({ chainId, slug }) => toChainAssetSlug(TempleChainKind.Tezos, chainId, slug))
-      )
-      .concat(
-        evmTokens
-          .filter(({ status }) => status === 'enabled')
-          .map(({ chainId, slug }) => toChainAssetSlug(TempleChainKind.EVM, chainId, slug))
-      );
-
-    return filterSmallBalances ? enabledChainsSlugs.filter(isBigBalance) : enabledChainsSlugs;
-  }, [evmTokens, filterSmallBalances, gasChainsSlugs, isBigBalance, tezTokens]);
-
-  const enabledChainsSlugsSorted = useMemoWithCompare(
-    () => enabledChainsSlugsFiltered.sort(tokensSortPredicate),
-    [enabledChainsSlugsFiltered, tokensSortPredicate]
+  const enabledChainsSlugs = useMemo(
+    () =>
+      gasChainsSlugs
+        .concat(
+          tezTokens
+            .filter(({ status }) => status === 'enabled')
+            .map(({ chainId, slug }) => toChainAssetSlug(TempleChainKind.Tezos, chainId, slug))
+        )
+        .concat(
+          evmTokens
+            .filter(({ status }) => status === 'enabled')
+            .map(({ chainId, slug }) => toChainAssetSlug(TempleChainKind.EVM, chainId, slug))
+        ),
+    [evmTokens, gasChainsSlugs, tezTokens]
   );
+
+  const enabledChainsSlugsSorted = useMemoWithCompare(() => {
+    const enabledChainsSlugsFiltered = filterSmallBalances
+      ? enabledChainsSlugs.filter(isBigBalance)
+      : enabledChainsSlugs;
+
+    return enabledChainsSlugsFiltered.sort(tokensSortPredicate);
+  }, [enabledChainsSlugs, filterSmallBalances, isBigBalance, tokensSortPredicate]);
+
   const enabledChainsSlugsSortedGrouped = useMemoWithCompare(() => {
     if (!groupingEnabled) return null;
 
@@ -102,6 +106,8 @@ export const useAccountTokensForListing = (
   }, [enabledChainsSlugsSorted, groupingEnabled]);
 
   return {
+    shouldShowHiddenTokensHint:
+      filterSmallBalances && enabledChainsSlugs.length > 0 && enabledChainsSlugsSorted.length === 0,
     enabledChainsSlugsSorted,
     enabledChainsSlugsSortedGrouped,
     tezTokens,

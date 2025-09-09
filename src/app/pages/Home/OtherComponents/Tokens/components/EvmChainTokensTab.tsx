@@ -50,9 +50,19 @@ const TabContent: FC = () => {
   const { publicKeyHash, network } = useContext(TezosChainTokensTabContext);
   const { hideSmallBalance } = useTokensListOptionsSelector();
 
-  const { enabledSlugsSorted } = useEvmChainAccountTokensForListing(publicKeyHash, network.chainId, hideSmallBalance);
+  const { enabledSlugsSorted, shouldShowHiddenTokensHint } = useEvmChainAccountTokensForListing(
+    publicKeyHash,
+    network.chainId,
+    hideSmallBalance
+  );
 
-  return <TabContentBase allSlugsSorted={enabledSlugsSorted} manageActive={false} />;
+  return (
+    <TabContentBase
+      manageActive={false}
+      allSlugsSorted={enabledSlugsSorted}
+      shouldShowHiddenTokensHint={shouldShowHiddenTokensHint}
+    />
+  );
 };
 
 const TabContentWithManageActive: FC = () => {
@@ -81,11 +91,12 @@ const TabContentWithManageActive: FC = () => {
 };
 
 interface TabContentBaseProps {
-  allSlugsSorted: string[];
   manageActive: boolean;
+  allSlugsSorted: string[];
+  shouldShowHiddenTokensHint?: boolean;
 }
 
-const TabContentBase = memo<TabContentBaseProps>(({ allSlugsSorted, manageActive }) => {
+const TabContentBase = memo<TabContentBaseProps>(({ allSlugsSorted, manageActive, shouldShowHiddenTokensHint }) => {
   const { publicKeyHash, network, accountId } = useContext(TezosChainTokensTabContext);
   const { displayedSlugs, isSyncing, loadNext, searchValue, isInSearchMode, setSearchValue } =
     useEvmChainAccountTokensListingLogic(allSlugsSorted, network.chainId);
@@ -139,6 +150,7 @@ const TabContentBase = memo<TabContentBaseProps>(({ allSlugsSorted, manageActive
       isSyncing={isSyncing}
       isInSearchMode={isInSearchMode}
       network={network}
+      shouldShowHiddenTokensHint={shouldShowHiddenTokensHint}
     >
       {tokensView}
     </TokensTabBase>
