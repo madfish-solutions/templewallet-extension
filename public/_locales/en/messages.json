@@ -3906,8 +3906,22 @@
   "noRoutesFound": {
     "message": "No route available"
   },
+  "estimationExpired": {
+    "message": "Estimation expired, refresh quote"
+  },
   "swapCashback": {
     "message": "Cashback"
+  },
+  "refresh": {
+    "message": "Refresh"
+  },
+  "confirmWithCountdown": {
+    "message": "Confirm ($seconds$s)",
+    "placeholders": {
+      "seconds": {
+        "content": "$1"
+      }
+    }
   },
   "networkFrom": {
     "message": "Network from"
@@ -3919,6 +3933,22 @@
     "message": "Swap more than 10$$ and receive $text$% from the swapped amount in the TKEY token as a cashback",
     "placeholders": {
       "text": {
+        "content": "$1"
+      }
+    }
+  },
+  "swapCashbackDescriptionShort": {
+    "message": "Swap over 10$$ and get $percent$% back",
+    "placeholders": {
+      "percent": {
+        "content": "$1"
+      }
+    }
+  },
+  "onlyDollarAmountToGo": {
+    "message": "Only $dollarAmount$$$ to go",
+    "placeholders": {
+      "dollarAmount": {
         "content": "$1"
       }
     }

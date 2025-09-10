@@ -193,6 +193,7 @@ const Swap = memo<Props>(() => {
             setActiveField(field);
             setSelectAssetModalOpen();
           }}
+          confirmSwapModalOpened={confirmSwapModalOpened}
           handleToggleIconClick={handleToggleIconClick}
         />
       </Suspense>
