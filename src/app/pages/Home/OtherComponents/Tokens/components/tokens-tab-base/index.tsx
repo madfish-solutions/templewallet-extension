@@ -99,7 +99,6 @@ const TokensTabBaseContent: FC<PropsWithChildren<TokensTabBaseContentProps>> = (
   shouldShowHiddenTokensHint,
   children
 }) => {
-  console.log(shouldShowHiddenTokensHint, 'shouldShowHiddenTokensHint');
   const isTestnet = useTestnetModeEnabledSelector();
   const accountIsInitialized = useIsAccountInitializedSelector(accountId);
   const isSyncingInitializedState = useIsAccountInitializedLoadingSelector(accountId);
