@@ -4425,6 +4425,24 @@
   "earnTkeyDisclaimer": {
     "message": "By enabling ads, you agree to share your wallet address and IP\nto receive tokens and ads content."
   },
+  "earnEthHeadline": {
+    "message": "Earn 3.4-10% APR on Ethereum\nwith Everstake"
+  },
+  "nonCustodialStaking": {
+    "message": "Non-custodial staking with full control"
+  },
+  "higherRewardsSystem": {
+    "message": "Higher rewards with auto-compound system"
+  },
+  "verifiedSecurity": {
+    "message": "Verified by leading security auditors"
+  },
+  "stakeGetAirdrops": {
+    "message": "Stake and participate in airdrops"
+  },
+  "earnWithEverstakeDisclaimer": {
+    "message": "Temple integrated third-party solution powered by Everstake and not responsible for further interactions."
+  },
   "startEarning": {
     "message": "Start Earning"
   },
