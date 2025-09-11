@@ -22,7 +22,8 @@ import {
   TempleRequest,
   TempleSettings,
   TempleAccountType,
-  SaveLedgerAccountInput
+  SaveLedgerAccountInput,
+  EIP6963ProviderInfo
 } from 'lib/temple/types';
 import { PromisesQueue, PromisesQueueCounters, delay } from 'lib/utils';
 import { EVMErrorCodes, evmRpcMethodsNames, GET_DEFAULT_WEB3_PARAMS_METHOD_NAME } from 'temple/evm/constants';
@@ -565,7 +566,13 @@ interface EvmRequestPayload {
   params: unknown;
 }
 
-export async function processEvmDApp(origin: string, payload: EvmRequestPayload, chainId: string, iconUrl?: string) {
+export async function processEvmDApp(
+  origin: string,
+  payload: EvmRequestPayload,
+  chainId: string,
+  iconUrl?: string,
+  providers?: EIP6963ProviderInfo[]
+) {
   const { method, params } = payload;
   let methodHandler: () => Promise<any>;
   let requiresConfirm = true;
@@ -576,7 +583,7 @@ export async function processEvmDApp(origin: string, payload: EvmRequestPayload,
       requiresConfirm = false;
       break;
     case evmRpcMethodsNames.eth_requestAccounts:
-      methodHandler = () => connectEvm(origin, chainId, iconUrl);
+      methodHandler = () => connectEvm(origin, chainId, iconUrl, providers);
       break;
     case evmRpcMethodsNames.wallet_watchAsset:
       const validatedParams = addEthAssetPayloadValidationSchema.validateSync(params);
@@ -618,7 +625,7 @@ export async function processEvmDApp(origin: string, payload: EvmRequestPayload,
       break;
     case evmRpcMethodsNames.wallet_requestPermissions:
       const [requestPermissionsPayload] = ethChangePermissionsPayloadValidationSchema.validateSync(params);
-      methodHandler = () => requestEvmPermissions(origin, chainId, requestPermissionsPayload, iconUrl);
+      methodHandler = () => requestEvmPermissions(origin, chainId, requestPermissionsPayload, iconUrl, providers);
       break;
     case evmRpcMethodsNames.wallet_revokePermissions:
       const [revokePermissionsPayload] = ethChangePermissionsPayloadValidationSchema.validateSync(params);
