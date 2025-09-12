@@ -23,7 +23,7 @@ export const useTezosChainAccountTokensForListing = (publicKeyHash: string, chai
   const getBalance = useGetTezosChainAccountTokenOrGasBalanceWithDecimals(publicKeyHash, chainId);
   const mainnetUsdToTokenRates = useTezosUsdToTokenRatesSelector();
 
-  const leadingAssetsSlugs = useMemo(() => (chainId === TEZOS_MAINNET_CHAIN_ID ? [TEMPLE_TOKEN_SLUG] : []), [chainId]);
+  const leadingTokensSlugs = useMemo(() => (chainId === TEZOS_MAINNET_CHAIN_ID ? [TEMPLE_TOKEN_SLUG] : []), [chainId]);
 
   const tokensSortPredicate = useTezosChainAccountTokensSortPredicate(publicKeyHash, chainId);
 
@@ -32,34 +32,39 @@ export const useTezosChainAccountTokensForListing = (publicKeyHash: string, chai
   const getUsdToTokenRate = useCallback((slug: string) => mainnetUsdToTokenRates[slug], [mainnetUsdToTokenRates]);
   const isBigBalance = useIsBigBalance(getBalance, getUsdToTokenRate);
 
-  const leadingAssetsFiltered = useMemoWithCompare(
+  const leadingTokensFiltered = useMemoWithCompare(
     () =>
-      filterSmallBalances && leadingAssetsSlugs?.length
-        ? leadingAssetsSlugs.filter(isBigBalance)
-        : leadingAssetsSlugs ?? [],
-    [filterSmallBalances, leadingAssetsSlugs, isBigBalance]
+      filterSmallBalances && leadingTokensSlugs.length ? leadingTokensSlugs.filter(isBigBalance) : leadingTokensSlugs,
+    [filterSmallBalances, leadingTokensSlugs, isBigBalance]
   );
 
-  const nonLeadingTokensSlugsFiltered = useMemo(() => {
+  const nonLeadingTokensSlugs = useMemo(() => {
     const gasSlugs: string[] = [TEZ_TOKEN_SLUG];
-    const nonLeadingSlugs = gasSlugs.concat(
-      tokens.filter(({ status }) => status === 'enabled').map(({ slug }) => slug)
-    );
 
-    return filterSmallBalances ? nonLeadingSlugs.filter(isBigBalance) : nonLeadingSlugs;
-  }, [tokens, filterSmallBalances, isBigBalance]);
+    return gasSlugs.concat(tokens.filter(({ status }) => status === 'enabled').map(({ slug }) => slug));
+  }, [tokens]);
 
-  const nonLeadingTokenSlugsFilteredSorted = useMemoWithCompare(
-    () => nonLeadingTokensSlugsFiltered.sort(tokensSortPredicate),
-    [nonLeadingTokensSlugsFiltered, tokensSortPredicate]
-  );
+  const nonLeadingTokenSlugsFilteredSorted = useMemoWithCompare(() => {
+    const nonLeadingTokensSlugsFiltered = filterSmallBalances
+      ? nonLeadingTokensSlugs.filter(isBigBalance)
+      : nonLeadingTokensSlugs;
+
+    return nonLeadingTokensSlugsFiltered.sort(tokensSortPredicate);
+  }, [filterSmallBalances, isBigBalance, nonLeadingTokensSlugs, tokensSortPredicate]);
 
   const enabledTokenSlugsSorted = useMemo(
-    () => Array.from(new Set(leadingAssetsFiltered.concat(nonLeadingTokenSlugsFilteredSorted))),
-    [leadingAssetsFiltered, nonLeadingTokenSlugsFilteredSorted]
+    () => Array.from(new Set(leadingTokensFiltered.concat(nonLeadingTokenSlugsFilteredSorted))),
+    [leadingTokensFiltered, nonLeadingTokenSlugsFilteredSorted]
+  );
+
+  const unfilteredTokensCount = useMemo(
+    () => Array.from(new Set(leadingTokensSlugs.concat(nonLeadingTokensSlugs))).length,
+    [leadingTokensSlugs, nonLeadingTokensSlugs]
   );
 
   return {
+    shouldShowHiddenTokensHint:
+      filterSmallBalances && unfilteredTokensCount > 0 && enabledTokenSlugsSorted.length === 0,
     enabledTokenSlugsSorted,
     tokens,
     tokensSortPredicate

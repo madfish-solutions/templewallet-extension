@@ -49,9 +49,18 @@ export const TezosChainTokensTab = memo<Props>(({ chainId, accountId, publicKeyH
 const TabContent: FC = () => {
   const { publicKeyHash, network } = useContext(TezosChainTokensTabContext);
 
-  const { enabledTokenSlugsSorted } = useTezosChainAccountTokensForListing(publicKeyHash, network.chainId);
+  const { enabledTokenSlugsSorted, shouldShowHiddenTokensHint } = useTezosChainAccountTokensForListing(
+    publicKeyHash,
+    network.chainId
+  );
 
-  return <TabContentBase allSlugsSorted={enabledTokenSlugsSorted} manageActive={false} />;
+  return (
+    <TabContentBase
+      manageActive={false}
+      allSlugsSorted={enabledTokenSlugsSorted}
+      shouldShowHiddenTokensHint={shouldShowHiddenTokensHint}
+    />
+  );
 };
 
 const TabContentWithManageActive: FC = () => {
@@ -78,69 +87,73 @@ const TabContentWithManageActive: FC = () => {
 };
 
 interface TabContentBaseProps {
-  allSlugsSorted: string[];
   manageActive: boolean;
+  allSlugsSorted: string[];
+  shouldShowHiddenTokensHint?: boolean;
 }
 
-const TabContentBase = memo<TabContentBaseProps>(({ allSlugsSorted, manageActive }) => {
-  const { publicKeyHash, network, accountId } = useContext(TezosChainTokensTabContext);
+const TabContentBase = memo<TabContentBaseProps>(
+  ({ allSlugsSorted, manageActive, shouldShowHiddenTokensHint = false }) => {
+    const { publicKeyHash, network, accountId } = useContext(TezosChainTokensTabContext);
 
-  const promoRef = useRef<HTMLDivElement>(null);
-  const firstListItemRef = useRef<TokenListItemElement>(null);
-  const { displayedSlugs, isSyncing, loadNext, searchValue, isInSearchMode, setSearchValue } =
-    useTezosChainAccountTokensListingLogic(allSlugsSorted, network.chainId);
+    const promoRef = useRef<HTMLDivElement>(null);
+    const firstListItemRef = useRef<TokenListItemElement>(null);
+    const { displayedSlugs, isSyncing, loadNext, searchValue, isInSearchMode, setSearchValue } =
+      useTezosChainAccountTokensListingLogic(allSlugsSorted, network.chainId);
 
-  const mainnetTokensScamSlugsRecord = useMainnetTokensScamlistSelector();
+    const mainnetTokensScamSlugsRecord = useMainnetTokensScamlistSelector();
 
-  const { tokensView, getElementIndex } = useMemo(() => {
-    const tokensJsx = displayedSlugs.map((assetSlug, i) => (
-      <TezosTokenListItem
-        key={assetSlug}
-        network={network}
-        index={i}
-        publicKeyHash={publicKeyHash}
-        assetSlug={assetSlug}
-        scam={mainnetTokensScamSlugsRecord[assetSlug]}
-        manageActive={manageActive}
-        ref={i === 0 ? firstListItemRef : null}
-      />
-    ));
+    const { tokensView, getElementIndex } = useMemo(() => {
+      const tokensJsx = displayedSlugs.map((assetSlug, i) => (
+        <TezosTokenListItem
+          key={assetSlug}
+          network={network}
+          index={i}
+          publicKeyHash={publicKeyHash}
+          assetSlug={assetSlug}
+          scam={mainnetTokensScamSlugsRecord[assetSlug]}
+          manageActive={manageActive}
+          ref={i === 0 ? firstListItemRef : null}
+        />
+      ));
 
-    if (manageActive)
+      if (manageActive)
+        return {
+          tokensView: tokensJsx,
+          getElementIndex: makeGetTokenElementIndexFunction(promoRef, firstListItemRef, tokensJsx.length)
+        };
+
+      const promoJsx = (
+        <PartnersPromotion
+          id="promo-token-item"
+          key="promo-token-item"
+          variant={PartnersPromotionVariant.Text}
+          pageName="Token page"
+          ref={promoRef}
+        />
+      );
+
       return {
-        tokensView: tokensJsx,
+        tokensView: getTokensViewWithPromo(tokensJsx, promoJsx),
         getElementIndex: makeGetTokenElementIndexFunction(promoRef, firstListItemRef, tokensJsx.length)
       };
+    }, [network, displayedSlugs, publicKeyHash, mainnetTokensScamSlugsRecord, manageActive]);
 
-    const promoJsx = (
-      <PartnersPromotion
-        id="promo-token-item"
-        key="promo-token-item"
-        variant={PartnersPromotionVariant.Text}
-        pageName="Token page"
-        ref={promoRef}
-      />
+    return (
+      <TokensTabBase
+        accountId={accountId}
+        tokensCount={displayedSlugs.length}
+        searchValue={searchValue}
+        getElementIndex={getElementIndex}
+        loadNextPage={loadNext}
+        onSearchValueChange={setSearchValue}
+        isSyncing={isSyncing}
+        isInSearchMode={isInSearchMode}
+        network={network}
+        shouldShowHiddenTokensHint={shouldShowHiddenTokensHint}
+      >
+        {tokensView}
+      </TokensTabBase>
     );
-
-    return {
-      tokensView: getTokensViewWithPromo(tokensJsx, promoJsx),
-      getElementIndex: makeGetTokenElementIndexFunction(promoRef, firstListItemRef, tokensJsx.length)
-    };
-  }, [network, displayedSlugs, publicKeyHash, mainnetTokensScamSlugsRecord, manageActive]);
-
-  return (
-    <TokensTabBase
-      accountId={accountId}
-      tokensCount={displayedSlugs.length}
-      searchValue={searchValue}
-      getElementIndex={getElementIndex}
-      loadNextPage={loadNext}
-      onSearchValueChange={setSearchValue}
-      isSyncing={isSyncing}
-      isInSearchMode={isInSearchMode}
-      network={network}
-    >
-      {tokensView}
-    </TokensTabBase>
-  );
-});
+  }
+);
