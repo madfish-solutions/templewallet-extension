@@ -115,7 +115,7 @@
     "async-mutex": "^0.4.0",
     "async-retry": "1.3.3",
     "autoprefixer": "^10",
-    "axios": "^1.8.4",
+    "axios": "^1.12.0",
     "bignumber.js": "9.1.2",
     "bip39": "3.0.4",
     "bs58check": "2.1.2",
@@ -238,7 +238,7 @@
     "text-decoding": "^1.0.0"
   },
   "resolutions": {
-    "axios": "^1.8.2",
+    "axios": "^1.12.0",
     "npm-run-all/cross-spawn": "^7.0.6",
     "react-dev-utils/fork-ts-checker-webpack-plugin": "^9",
     "tslib": "^2.4.0",
