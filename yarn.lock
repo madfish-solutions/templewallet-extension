@@ -3490,8 +3490,10 @@
     elliptic "^6.6.1"
     typedarray-to-buffer "^4.0.0"
 
-"@temple-wallet/dapp@../templewallet-dapp":
+"@temple-wallet/dapp@^9.0.0":
   version "9.0.0"
+  resolved "https://registry.yarnpkg.com/@temple-wallet/dapp/-/dapp-9.0.0.tgz#5e5cf5ff37c76d8f00852a05e15af02530f2d6d2"
+  integrity sha512-rYGCviuuc/xKL39KBVFlxXsCZaUYP/V45+VPmntxqX7L+k8CJ3JIYomfPeAWqll9ZHATctBOfPdU376XTYZfaA==
   dependencies:
     nanoid "^3.1.30"
 
@@ -3530,8 +3532,10 @@
     crc "^3.8.0"
     jssha "2.3.1"
 
-"@temple-wallet/youves-sdk@../youves-sdk":
+"@temple-wallet/youves-sdk@0.0.13-beta.0":
   version "0.0.13-beta.0"
+  resolved "https://registry.yarnpkg.com/@temple-wallet/youves-sdk/-/youves-sdk-0.0.13-beta.0.tgz#456740a564b454f99e3d5e2baa82d0aac833cf74"
+  integrity sha512-eMrY576DLeDZmmDmottgT4PmtGLL7wliSem5E1z2+tFiuikYSyKxHywn9FPSRYSNm6K3c0kpeKyYymkZmFFmCg==
   dependencies:
     "@taquito/contracts-library" "^23.0.0"
     "@taquito/taquito" "^23.0.0"
