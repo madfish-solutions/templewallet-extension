@@ -1,4 +1,4 @@
-import type { TempleDAppNetwork } from '@temple-wallet/dapp/dist/types';
+import type { TempleDAppNetwork as TezosDAppNetwork } from '@temple-wallet/dapp/dist/types';
 import { WalletPermission } from 'viem';
 
 import { fetchFromStorage, putToStorage } from 'lib/storage';
@@ -7,8 +7,6 @@ import { TempleChainKind } from 'temple/types';
 
 export const tezosDAppStorageKey = 'dapp_sessions';
 export const evmDAppStorageKey = 'evm_dapp_sessions';
-
-export type TezosDAppNetwork = TempleDAppNetwork;
 
 export interface TezosDAppSession {
   network: TezosDAppNetwork;

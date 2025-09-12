@@ -15,13 +15,13 @@ import {
   TempleDAppSignRequest,
   TempleDAppSignResponse,
   TempleDAppBroadcastRequest,
-  TempleDAppBroadcastResponse
+  TempleDAppBroadcastResponse,
+  TempleDAppNetwork as TezosDAppNetwork
 } from '@temple-wallet/dapp/dist/types';
 import { nanoid } from 'nanoid';
 import { v4 as uuid } from 'uuid';
 
 import {
-  TezosDAppNetwork,
   TezosDAppSession,
   getDApp as genericGetDApp,
   setDApp as genericSetDApp,

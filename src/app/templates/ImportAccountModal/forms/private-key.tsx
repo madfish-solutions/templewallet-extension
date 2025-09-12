@@ -167,7 +167,7 @@ function toPrivateKeyWithChain(value: string): [string, TempleChainKind] {
 }
 
 const secretKeyPrefixes = [
-  'edsk',
+  PrefixV2.Ed25519Seed,
   PrefixV2.Secp256k1SecretKey,
   PrefixV2.P256SecretKey,
   PrefixV2.Ed25519EncryptedSeed,
