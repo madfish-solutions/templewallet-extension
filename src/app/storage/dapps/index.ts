@@ -8,7 +8,7 @@ import { TempleChainKind } from 'temple/types';
 export const tezosDAppStorageKey = 'dapp_sessions';
 export const evmDAppStorageKey = 'evm_dapp_sessions';
 
-export type TezosDAppNetwork = TempleDAppNetwork | 'ghostnet';
+export type TezosDAppNetwork = TempleDAppNetwork;
 
 export interface TezosDAppSession {
   network: TezosDAppNetwork;

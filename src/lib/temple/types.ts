@@ -1,3 +1,4 @@
+import type { RawSignResult } from '@taquito/core';
 import type { DerivationType } from '@taquito/ledger-signer';
 import type { TempleDAppMetadata } from '@temple-wallet/dapp/dist/types';
 import BigNumber from 'bignumber.js';
@@ -68,7 +69,8 @@ export const COMMON_TESTNET_CHAIN_IDS = {
 export enum TempleTezosChainId {
   Mainnet = TEZOS_MAINNET_CHAIN_ID,
   Ghostnet = TEZOS_GHOSTNET_CHAIN_ID,
-  Paris = 'NetXXWAHLEvre9b',
+  Rio = 'NetXPdgaoabtBth',
+  Seoul = 'NetXd56aBs1aeW3',
   Dcp = 'NetXooyhiru73tk',
   DcpTest = 'NetXZb3Lz8FsrZx'
 }
@@ -472,7 +474,9 @@ export enum TempleMessageType {
   SetWindowPopupStateRequest = 'SET_WINDOW_POPUP_STATE_REQUEST',
   SetWindowPopupStateResponse = 'SET_WINDOW_POPUP_STATE_RESPONSE',
   SetWindowSidebarStateRequest = 'SET_WINDOW_SIDEBAR_STATE_REQUEST',
-  SetWindowSidebarStateResponse = 'SET_WINDOW_SIDEBAR_STATE_RESPONSE'
+  SetWindowSidebarStateResponse = 'SET_WINDOW_SIDEBAR_STATE_RESPONSE',
+  ProvePossessionRequest = 'PROVE_POSSESSION_REQUEST',
+  ProvePossessionResponse = 'PROVE_POSSESSION_RESPONSE'
 }
 
 export type TempleNotification =
@@ -527,7 +531,8 @@ export type TempleRequest =
   | TempleSendEvmTransactionRequest
   | TempleResetExtensionRequest
   | TempleSetWindowPopupStateRequest
-  | TempleSetWindowSidebarStateRequest;
+  | TempleSetWindowSidebarStateRequest
+  | TempleProvePossessionRequest;
 
 export type TempleResponse =
   | TempleGetStateResponse
@@ -571,7 +576,8 @@ export type TempleResponse =
   | TempleSendEvmTransactionResponse
   | TempleResetExtensionResponse
   | TempleSetWindowPopupStateResponse
-  | TempleSetWindowSidebarStateResponse;
+  | TempleSetWindowSidebarStateResponse
+  | TempleProvePossessionResponse;
 
 export interface TempleMessageBase {
   type: TempleMessageType;
@@ -1067,6 +1073,16 @@ interface TempleSetWindowSidebarStateRequest extends TempleMessageBase {
 
 interface TempleSetWindowSidebarStateResponse extends TempleMessageBase {
   type: TempleMessageType.SetWindowSidebarStateResponse;
+}
+
+interface TempleProvePossessionRequest extends TempleMessageBase {
+  type: TempleMessageType.ProvePossessionRequest;
+  sourcePkh: string;
+}
+
+interface TempleProvePossessionResponse extends TempleMessageBase {
+  type: TempleMessageType.ProvePossessionResponse;
+  result: RawSignResult;
 }
 
 export type EvmTransactionRequestWithSender = RpcTransactionRequest & { from: HexString };

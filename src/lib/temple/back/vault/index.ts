@@ -856,6 +856,15 @@ export class Vault {
     });
   }
 
+  async provePossession(accPublicKeyHash: string) {
+    return withError('Failed to prove possession', () =>
+      this.withSigner(
+        accPublicKeyHash,
+        async signer => await (signer.provePossession?.() ?? Promise.reject(new PublicError('Cannot prove possession')))
+      )
+    );
+  }
+
   async sign(accPublicKeyHash: string, bytes: string, watermark?: string) {
     return withError('Failed to sign', () =>
       this.withSigner(accPublicKeyHash, async signer => {

@@ -1,6 +1,6 @@
 import React, { memo, ReactNode, useCallback, useMemo, useState } from 'react';
 
-import { Prefix } from '@taquito/utils';
+import { PrefixV2 } from '@taquito/utils';
 import { useForm } from 'react-hook-form';
 
 import { FormField } from 'app/atoms';
@@ -166,7 +166,16 @@ function toPrivateKeyWithChain(value: string): [string, TempleChainKind] {
   return [value, TempleChainKind.EVM];
 }
 
-const secretKeyPrefixes = [Prefix.EDSK, Prefix.SPSK, Prefix.P2SK, Prefix.EDESK, Prefix.SPESK, Prefix.P2ESK] as const;
+const secretKeyPrefixes = [
+  'edsk',
+  PrefixV2.Secp256k1SecretKey,
+  PrefixV2.P256SecretKey,
+  PrefixV2.Ed25519EncryptedSeed,
+  PrefixV2.Secp256k1EncryptedSecretKey,
+  PrefixV2.P256EncryptedSecretKey,
+  PrefixV2.BLS12_381SecretKey,
+  PrefixV2.BLS12_381EncryptedSecretKey
+] as const;
 type TezosSecretKey = `${(typeof secretKeyPrefixes)[number]}${string}`;
 
 const isTezosPrivateKey = (value?: string): value is TezosSecretKey =>
