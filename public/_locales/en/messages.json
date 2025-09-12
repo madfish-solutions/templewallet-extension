@@ -2135,6 +2135,9 @@
   "noTokens": {
     "message": "No tokens"
   },
+  "hiddenTokensHint": {
+    "message": "You have hidden tokens, disable\n“Hide small balances” filter to see them all"
+  },
   "noCollectibles": {
     "message": "No collectibles"
   },
