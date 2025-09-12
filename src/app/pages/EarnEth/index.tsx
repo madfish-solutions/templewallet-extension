@@ -10,20 +10,8 @@ import { EarnPromoAdvantageItem, EarnPromoLayout } from 'app/layouts/EarnPromoLa
 import { T } from 'lib/i18n';
 import { Lottie } from 'lib/ui/react-lottie';
 
-import ethCoinAnimation from './eth-coin-animation.json';
+import { ETH_COIN_ANIMATION_OPTIONS, EVERSTAKE_ETHEREUM_STAKE_UTM_LINK } from './constants';
 import { EarnEthSelectors } from './selectors';
-
-const EVERSTAKE_ETHEREUM_STAKE_UTM_LINK =
-  'https://stake.everstake.one/dashboard/stake/ethereum/?utm_source=Temple_Wallet&utm_medium=partner&utm_campaign=Temple_Wallet_campaign_Q3-25';
-
-const ethCoinAnimationOptions = {
-  loop: true,
-  autoplay: true,
-  animationData: ethCoinAnimation,
-  rendererSettings: {
-    preserveAspectRatio: 'xMidYMid slice'
-  }
-};
 
 const advantages: EarnPromoAdvantageItem[] = [
   { Icon: NoLockIcon, textI18nKey: 'nonCustodialStaking' },
@@ -40,7 +28,7 @@ export const EarnEthPage = memo(() => {
   return (
     <EarnPromoLayout
       pageTitle="Earn ETH"
-      TopVisual={<Lottie isClickToPauseDisabled options={ethCoinAnimationOptions} height={172} width={172} />}
+      TopVisual={<Lottie isClickToPauseDisabled options={ETH_COIN_ANIMATION_OPTIONS} height={172} width={172} />}
       headline={<T id="earnEthHeadline" />}
       advantages={advantages}
       advantageIconClassName="text-secondary"

@@ -4443,6 +4443,15 @@
   "earnWithEverstakeDisclaimer": {
     "message": "Temple integrated third-party solution powered by Everstake and not responsible for further interactions."
   },
+  "stakeEth": {
+    "message": "Stake ETH via Temple Wallet"
+  },
+  "stakeEthDescription": {
+    "message": "Earn 3.4–10% APR with non-custodial staking from Everstake. Enjoy higher auto-compounding rewards, top-level security and participation in airdrops.\n\nStake now or find it anytime on your ETH token."
+  },
+  "stakeWithEverstake": {
+    "message": "Stake with Everstake"
+  },
   "startEarning": {
     "message": "Start Earning"
   },
