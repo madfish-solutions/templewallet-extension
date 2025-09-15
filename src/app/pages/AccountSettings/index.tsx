@@ -19,7 +19,7 @@ import { useTempleClient } from 'lib/temple/front';
 import { getDerivationPath } from 'lib/temple/helpers';
 import { TempleAccountType } from 'lib/temple/types';
 import { useAlert } from 'lib/ui';
-import { useAllAccounts, useCurrentAccountId } from 'temple/front';
+import { useAllAccounts, useCurrentAccountId, useHDGroups } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
 
 import { ConfirmRevealPrivateKeyAccessModal } from './confirm-reveal-private-key-access-modal';
@@ -46,6 +46,7 @@ export const AccountSettings = memo<AccountSettingsProps>(({ id }) => {
   const { setAccountHidden } = useTempleClient();
   useAllAccountsReactiveOnRemoval();
   const allAccounts = useAllAccounts();
+  const hdGroups = useHDGroups();
   const [bottomEdgeIsVisible, setBottomEdgeIsVisible] = useState(true);
 
   const [visibilityBeingChanged, setVisibilityBeingChanged] = useState(false);
@@ -218,17 +219,19 @@ export const AccountSettings = memo<AccountSettingsProps>(({ id }) => {
         )}
       </div>
 
-      <ActionsButtonsBox className="sticky left-0 bottom-0" shouldCastShadow={!bottomEdgeIsVisible}>
-        <StyledButton
-          className="flex-1"
-          size="L"
-          color="red-low"
-          onClick={openRemoveAccountModal}
-          testID={AccountSettingsSelectors.removeAccount}
-        >
-          <T id="removeAccount" />
-        </StyledButton>
-      </ActionsButtonsBox>
+      {!(account.type === TempleAccountType.HD && account.hdIndex === 0 && hdGroups[0]?.id === account.walletId) && (
+        <ActionsButtonsBox className="sticky left-0 bottom-0" shouldCastShadow={!bottomEdgeIsVisible}>
+          <StyledButton
+            className="flex-1"
+            size="L"
+            color="red-low"
+            onClick={openRemoveAccountModal}
+            testID={AccountSettingsSelectors.removeAccount}
+          >
+            <T id="removeAccount" />
+          </StyledButton>
+        </ActionsButtonsBox>
+      )}
 
       {modal}
     </PageLayout>
