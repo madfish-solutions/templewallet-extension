@@ -13,6 +13,7 @@ import { TEMPLE_BAKERY_PAYOUT_ADDRESS, TEMPLE_REWARDS_PAYOUT_ADDRESS } from 'app
 import { advancedFeaturesInfoTippyProps } from 'app/pages/Rewards/tooltip';
 import { fetchTokenTransfers } from 'lib/apis/tzkt/api';
 import { PREDEFINED_TOKENS_METADATA } from 'lib/assets/known-tokens';
+import { IS_MISES_BROWSER } from 'lib/env';
 import { t, T } from 'lib/i18n';
 import { TEMPLE_BAKER_ADDRESS } from 'lib/known-bakers';
 import { useDelegate } from 'lib/temple/front';
@@ -49,6 +50,8 @@ export const YourRewardsCards = memo(() => {
 
   const { isEnabled: isAdvertisingEnabled } = usePartnersPromotionSettings();
   const { isEnabled: isReferralLinksEnabled } = useReferralLinksSettings();
+
+  const referralsEnabled = useMemo(() => isReferralLinksEnabled && IS_MISES_BROWSER, [isReferralLinksEnabled]);
 
   const monthKey = useMemo(() => {
     const d = new Date();
@@ -153,7 +156,7 @@ export const YourRewardsCards = memo(() => {
 
   return (
     <div className="flex flex-col">
-      <span className="text-font-description-bold mb-2">{t('yourRewards')}</span>
+      <span className="text-font-description-bold mb-3">{t('yourRewards')}</span>
       <div className="rounded-8 shadow-bottom mb-4">
         <Link
           to="/settings/additional-settings"
@@ -161,10 +164,10 @@ export const YourRewardsCards = memo(() => {
           onMouseEnter={handleAdvancedHover}
           onMouseLeave={handleAdvancedUnhover}
         >
-          <span className="text-base text-font-medium-bold">
+          <span className="text-font-medium-bold">
             <T id="advancedFeatures" />
           </span>
-          {!isAdvertisingEnabled && !isReferralLinksEnabled ? (
+          {!isAdvertisingEnabled && !referralsEnabled ? (
             <AnimatedMenuChevron ref={advancedChevronRef} />
           ) : (
             <IconBase ref={advancedFeaturesInfoRef} size={16} Icon={InfoIcon} className="text-grey-2" />
@@ -174,12 +177,12 @@ export const YourRewardsCards = memo(() => {
         <Divider className="bg-lines" />
 
         <div className="p-3">
-          {!isAdvertisingEnabled && !isReferralLinksEnabled ? (
-            <p className="text-font-description text-grey-1">{t('passivelyEarnTkey')}</p>
-          ) : isTkeyLoading ? (
+          {isTkeyLoading ? (
             <div className="justify-center flex py-2">
               <Loader size="L" trackVariant="dark" className="text-secondary" />
             </div>
+          ) : !isAdvertisingEnabled && !referralsEnabled ? (
+            <p className="text-font-description text-grey-1">{t('passivelyEarnTkey')}</p>
           ) : !tkeyStats || tkeyStats.total === 0 ? (
             <div className="justify-center flex py-2">
               <span className="text-font-description text-grey-2 center">{t('noRewardsActivity')}</span>
@@ -226,7 +229,7 @@ export const YourRewardsCards = memo(() => {
           onMouseLeave={handleBakeryUnhover}
           onClick={delegatedToTemple ? undefined : openTempleBakerDelegation}
         >
-          <span className="text-base text-font-medium-bold">
+          <span className="text-font-medium-bold">
             <T id="templeBakery" />
           </span>
           <AnimatedMenuChevron ref={bakeryChevronRef} />
@@ -244,7 +247,9 @@ export const YourRewardsCards = memo(() => {
               <span className="text-font-description text-grey-2 center">{t('noDelegationRewards')}</span>
             </div>
           ) : !bakeryStats || bakeryStats.total === 0 ? (
-            <p className="text-font-description text-grey-1">{t('delegateTezFunds')}</p>
+            <p className="text-font-description text-grey-1">
+              <T id="delegateTezFunds" substitutions={<span className="text-font-description-bold">5.6% APY</span>} />
+            </p>
           ) : (
             <div className="text-font-description text-grey-1 flex items-center justify-between">
               <div className="flex flex-col gap-1">

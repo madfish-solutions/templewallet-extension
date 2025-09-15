@@ -27,7 +27,9 @@ import { IS_GOOGLE_CHROME_BROWSER } from 'lib/env';
 import { T } from 'lib/i18n';
 import { useTypedSWR } from 'lib/swr';
 import { useTempleClient } from 'lib/temple/front';
+import { TempleAccountType } from 'lib/temple/types';
 import { PopperRenderProps } from 'lib/ui/Popper';
+import { useAccount } from 'temple/front';
 
 import { MenuDropdownSelectors } from './selectors';
 
@@ -38,6 +40,7 @@ interface TDropdownAction extends ActionListItemProps {
 const MenuDropdown = memo<PopperRenderProps>(({ opened, setOpened }) => {
   const { fullPage, sidebar } = useAppEnv();
   const { lock } = useTempleClient();
+  const account = useAccount();
   const testnetModeEnabled = useTestnetModeEnabledSelector();
   const { data: isSidebarByDefault } = useTypedSWR('is-sidebar-by-default', getIsSidebarByDefault, {
     fallbackData: sidebar
@@ -92,7 +95,8 @@ const MenuDropdown = memo<PopperRenderProps>(({ opened, setOpened }) => {
         children: <T id="rewards" />,
         linkTo: '/rewards',
         testID: MenuDropdownSelectors.rewardsButton,
-        onClick: closeDropdown
+        onClick: closeDropdown,
+        disabled: account.type === TempleAccountType.WatchOnly
       },
       {
         key: 'notifications',
@@ -134,7 +138,7 @@ const MenuDropdown = memo<PopperRenderProps>(({ opened, setOpened }) => {
         onClick: lock
       }
     ],
-    [fullPage, closeDropdown, handleMaximiseViewClick, lock]
+    [closeDropdown, account.type, fullPage, handleMaximiseViewClick, lock]
   );
 
   return (

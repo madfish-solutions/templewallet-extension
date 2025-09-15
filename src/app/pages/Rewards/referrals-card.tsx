@@ -1,4 +1,4 @@
-import React, { memo, useMemo } from 'react';
+import React, { memo, useCallback, useMemo } from 'react';
 
 import { IconBase, Loader, Money } from 'app/atoms';
 import { AccountAvatar } from 'app/atoms/AccountAvatar';
@@ -7,6 +7,7 @@ import { StyledButton } from 'app/atoms/StyledButton';
 import { ReactComponent as LinkIcon } from 'app/icons/base/copy.svg';
 import { ReactComponent as InfoIcon } from 'app/icons/base/InfoFill.svg';
 import { inviteAccountInfoTippyProps } from 'app/pages/Rewards/tooltip';
+import { AnalyticsEventCategory, useAnalytics } from 'lib/analytics';
 import { fetchConversionAccount, getReferralsCount, getRefLink } from 'lib/apis/temple';
 import { REFERRERS_COUNTER_SYNC_INTERVAL } from 'lib/fixed-times';
 import { t } from 'lib/i18n';
@@ -21,6 +22,7 @@ import referralsImage from './assets/referrals-image.png';
 export const ReferralsCard = memo(() => {
   const accounts = useAllAccounts();
   const inviteAccountInfoRef = useTippy<HTMLDivElement>(inviteAccountInfoTippyProps);
+  const { trackEvent } = useAnalytics();
 
   const { data: conversionAccount } = useTypedSWR(['conversionAccount'], fetchConversionAccount, { suspense: false });
   const { data: refLink } = useTypedSWR(['refLink'], getRefLink, { suspense: false });
@@ -28,6 +30,12 @@ export const ReferralsCard = memo(() => {
     suspense: false,
     refreshInterval: REFERRERS_COUNTER_SYNC_INTERVAL
   });
+
+  const onInviteLinkCopied = useCallback(() => {
+    trackEvent('CopyReferralLink', AnalyticsEventCategory.ButtonPress);
+  }, [trackEvent]);
+
+  const handleCopyInviteLink = useCopyText(refLink, false, onInviteLinkCopied);
 
   const account = useMemo(() => {
     return conversionAccount
@@ -60,7 +68,7 @@ export const ReferralsCard = memo(() => {
           </span>
         </div>
 
-        <StyledButton size="M" color="secondary" onClick={useCopyText(refLink)}>
+        <StyledButton size="M" color="secondary" onClick={handleCopyInviteLink}>
           <span className="flex items-center justify-center">
             <IconBase size={16} Icon={LinkIcon} />
             <span className="text-font-medium-bold">{t('inviteLink')}</span>

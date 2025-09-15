@@ -3,6 +3,7 @@ import { useEffect } from 'react';
 import { isAxiosError } from 'axios';
 
 import { useAppEnv } from 'app/env';
+import { AnalyticsEventCategory, useAnalytics } from 'lib/analytics';
 import { fetchConversionAccount, fetchConversionInformation, registerWallet } from 'lib/apis/temple';
 import { CONVERSION_CHECKED_STORAGE_KEY, REFERRAL_WALLET_REGISTERED_STORAGE_KEY } from 'lib/constants';
 import { useStorage, useTempleClient } from 'lib/temple/front';
@@ -12,6 +13,7 @@ import { useMemoWithCompare } from 'lib/ui/hooks';
 export const useConversionVerification = () => {
   const { fullPage } = useAppEnv();
   const { accounts, ready } = useTempleClient();
+  const { trackEvent } = useAnalytics();
 
   const [conversionChecked, setConversionChecked] = useStorage<boolean>(CONVERSION_CHECKED_STORAGE_KEY);
   const [referralWalletRegistered, setReferralWalletRegistered] = useStorage<boolean>(
@@ -43,7 +45,10 @@ export const useConversionVerification = () => {
       fetchConversionAccount().catch(e => console.error(e));
     } else if (firstHdAccount) {
       registerWallet(firstHdAccount.tezosAddress, firstHdAccount.evmAddress)
-        .then(() => setReferralWalletRegistered(true))
+        .then(() => {
+          setReferralWalletRegistered(true);
+          trackEvent('ReferralSetupCompleted', AnalyticsEventCategory.FormSubmitSuccess);
+        })
         .catch(e => console.error(e));
     }
   }, [
@@ -53,6 +58,7 @@ export const useConversionVerification = () => {
     ready,
     referralWalletRegistered,
     setConversionChecked,
-    setReferralWalletRegistered
+    setReferralWalletRegistered,
+    trackEvent
   ]);
 };

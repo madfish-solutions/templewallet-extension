@@ -6,6 +6,7 @@ import { ReactComponent as GiftIcon } from 'app/icons/base/gift.svg';
 
 export const RewardsIconWithBadge = memo(() => {
   const rewardsBadgeVisible = useRewardsBadgeVisible();
+  console.log('rewardsBadgeVisible', rewardsBadgeVisible);
 
   return (
     <div className="relative">

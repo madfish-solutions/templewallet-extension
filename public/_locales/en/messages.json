@@ -2827,7 +2827,12 @@
     "message": "Passively earn TKEY rewards by using built-in advanced features and support Temple development"
   },
   "delegateTezFunds": {
-    "message": "Delegate your TEZ funds to our baker and earn 5.6% APY rewards in TKEY tokens on your TEZ balance"
+    "message": "Delegate your TEZ funds to our baker and earn $apy$ rewards in TKEY tokens on your TEZ balance",
+    "placeholders": {
+      "apy": {
+        "content": "$1"
+      }
+    }
   },
   "noRewardsActivity": {
     "message": "No rewards activity yet"

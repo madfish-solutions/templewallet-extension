@@ -1,11 +1,10 @@
-import { useEffect, useState } from 'react';
-
-import { isEqual } from 'lodash';
+import { useEffect, useRef, useState } from 'react';
 
 import { TEMPLE_BAKERY_PAYOUT_ADDRESS, TEMPLE_REWARDS_PAYOUT_ADDRESS } from 'app/pages/Rewards/constants';
 import { getReferralsCount } from 'lib/apis/temple';
 import { fetchTokenTransfers } from 'lib/apis/tzkt/api';
 import { REWARDS_BADGE_STATE_STORAGE_KEY } from 'lib/constants';
+import { APP_VERSION } from 'lib/env';
 import { fetchFromStorage, putToStorage } from 'lib/storage';
 import { TempleTezosChainId } from 'lib/temple/types';
 import { useAbortSignal } from 'lib/ui/hooks/useAbortSignal';
@@ -16,6 +15,7 @@ type BadgeState = {
   initialized: boolean;
   lastChecked: number;
   lastReferralsCount?: number;
+  lastSeenVersion?: string;
 };
 
 export function useRewardsBadgeVisible() {
@@ -25,6 +25,7 @@ export function useRewardsBadgeVisible() {
 
   const [state, setState] = useState<BadgeState | null>(null);
   const [visible, setVisible] = useState(false);
+  const lastCheckedRef = useRef<number>(0);
 
   useEffect(() => {
     let cancelled = false;
@@ -34,9 +35,17 @@ export function useRewardsBadgeVisible() {
       const initial: BadgeState = stored ?? {
         initialized: false,
         lastChecked: 0,
-        lastReferralsCount: 0
+        lastReferralsCount: 0,
+        lastSeenVersion: undefined
       };
-      if (!cancelled) setState(initial);
+      if (!cancelled) {
+        lastCheckedRef.current = initial.lastChecked ?? 0;
+        setState(initial);
+
+        const isFirstInstall = !initial.initialized;
+        const isUpdate = initial.lastSeenVersion !== APP_VERSION;
+        setVisible(isFirstInstall || isUpdate);
+      }
     })();
 
     return () => {
@@ -51,7 +60,7 @@ export function useRewardsBadgeVisible() {
 
     (async () => {
       try {
-        const since = state.lastChecked ?? 0;
+        const since = lastCheckedRef.current ?? 0;
         const signal = aborter.abortAndRenewSignal();
 
         const [transfers, referralsCountRaw] = await Promise.all([
@@ -82,18 +91,21 @@ export function useRewardsBadgeVisible() {
         );
         const hasNewReferral = referralsCount > (state.lastReferralsCount ?? 0);
 
-        const shouldShow = !state.initialized || hasNewPayout || hasNewReferral;
+        const hasUpdateUnseen = (state.lastSeenVersion ?? undefined) !== APP_VERSION;
+        const shouldShow = !state.initialized || hasUpdateUnseen || hasNewPayout || hasNewReferral;
         setVisible(shouldShow);
 
-        const nextState: BadgeState = {
+        lastCheckedRef.current = Date.now();
+        const nextStored: BadgeState = {
           initialized: state.initialized,
-          lastChecked: Date.now(),
-          lastReferralsCount: referralsCount
+          lastChecked: lastCheckedRef.current,
+          lastReferralsCount: referralsCount,
+          lastSeenVersion: state.lastSeenVersion ?? APP_VERSION
         };
+        await putToStorage(REWARDS_BADGE_STATE_STORAGE_KEY, nextStored);
 
-        if (!isEqual(state, nextState)) {
-          await putToStorage(REWARDS_BADGE_STATE_STORAGE_KEY, nextState);
-          if (!cancelled) setState(nextState);
+        if ((state.lastReferralsCount ?? 0) !== referralsCount) {
+          if (!cancelled) setState(prev => (prev ? { ...prev, lastReferralsCount: referralsCount } : prev));
         }
       } catch {}
     })();
@@ -112,7 +124,8 @@ export async function acknowledgeRewardsBadge() {
   const nextState: BadgeState = {
     initialized: true,
     lastChecked: Date.now(),
-    lastReferralsCount: stored?.lastReferralsCount ?? 0
+    lastReferralsCount: stored?.lastReferralsCount ?? 0,
+    lastSeenVersion: APP_VERSION
   };
   await putToStorage(REWARDS_BADGE_STATE_STORAGE_KEY, nextState);
 }
