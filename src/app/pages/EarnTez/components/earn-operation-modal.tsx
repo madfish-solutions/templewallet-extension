@@ -81,7 +81,7 @@ export const EarnOperationModal = <D, R extends TezosEarnReviewDataBase>({
       opened
       suspenseLoader={SuspenseLoader ? <SuspenseLoader isInputDataStep={isInputDataStep} /> : undefined}
       titleRight={isInputDataStep ? undefined : <div />}
-      onGoBack={isInputDataStep ? undefined : (isDirectBaker ? onClose : goToInputData)}
+      onGoBack={isInputDataStep ? undefined : isDirectBaker ? onClose : goToInputData}
       onRequestClose={onClose}
     >
       {modalState.step === EarnOperationModalStep.InputData ? (
