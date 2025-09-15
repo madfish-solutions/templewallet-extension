@@ -16,6 +16,11 @@ export const getEvmTokensMetadata = (walletAddress: string, chainId: ChainID) =>
 export const getEvmCollectiblesMetadata = (walletAddress: string, chainId: ChainID) =>
   buildEvmRequest<NftAddressBalanceNftResponse>('/collectibles-metadata', walletAddress, chainId);
 
+export const fetchSpamContracts = (chainId: number, signal?: AbortSignal) =>
+  templeWalletApi
+    .get<{ contracts: string[] }>('evm/spam-contracts', { params: { chainId }, signal })
+    .then(r => r.data.contracts);
+
 export const fetchEvmTransactions = (
   walletAddress: string,
   chainId: number,
