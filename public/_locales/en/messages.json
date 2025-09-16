@@ -2135,6 +2135,9 @@
   "noTokens": {
     "message": "No tokens"
   },
+  "hiddenTokensHint": {
+    "message": "You have hidden tokens, disable\n“Hide small balances” filter to see them all"
+  },
   "noCollectibles": {
     "message": "No collectibles"
   },
@@ -2512,6 +2515,9 @@
   "suggested": {
     "message": "Suggested"
   },
+  "otherWallets": {
+    "message": "Other wallets"
+  },
   "chainTestnetsGroup": {
     "message": "$chain$ Testnets",
     "placeholders": {
@@ -2798,6 +2804,14 @@
   },
   "notWhitelistedTokenWarning": {
     "message": "Attention! One of the tokens you’re trying to exchange is not whitelisted. You can interact with them at your own risk."
+  },
+  "selectWalletCaption": {
+    "message": "Select what wallet you would like to connect with $domain$.",
+    "placeholders": {
+      "domain": {
+        "content": "$1"
+      }
+    }
   },
   "tvl": {
     "message": "TVL"
@@ -3906,8 +3920,22 @@
   "noRoutesFound": {
     "message": "No route available"
   },
+  "estimationExpired": {
+    "message": "Estimation expired, refresh quote"
+  },
   "swapCashback": {
     "message": "Cashback"
+  },
+  "refresh": {
+    "message": "Refresh"
+  },
+  "confirmWithCountdown": {
+    "message": "Confirm ($seconds$s)",
+    "placeholders": {
+      "seconds": {
+        "content": "$1"
+      }
+    }
   },
   "networkFrom": {
     "message": "Network from"
@@ -3919,6 +3947,22 @@
     "message": "Swap more than 10$$ and receive $text$% from the swapped amount in the TKEY token as a cashback",
     "placeholders": {
       "text": {
+        "content": "$1"
+      }
+    }
+  },
+  "swapCashbackDescriptionShort": {
+    "message": "Swap over 10$$ and get $percent$% back",
+    "placeholders": {
+      "percent": {
+        "content": "$1"
+      }
+    }
+  },
+  "onlyDollarAmountToGo": {
+    "message": "Only $dollarAmount$$$ to go",
+    "placeholders": {
+      "dollarAmount": {
         "content": "$1"
       }
     }

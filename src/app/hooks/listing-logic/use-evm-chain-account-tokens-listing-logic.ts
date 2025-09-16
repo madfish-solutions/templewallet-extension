@@ -34,21 +34,19 @@ export const useEvmChainAccountTokensForListing = (
   const getExchangeRate = useCallback((slug: string) => usdToTokenRates[slug], [usdToTokenRates]);
   const isBigBalance = useIsBigBalance(getBalance, getExchangeRate);
 
-  const enabledSlugsFiltered = useMemo(() => {
+  const enabledSlugs = useMemo(() => {
     const gasTokensSlugs: string[] = [EVM_TOKEN_SLUG];
-    const enabledSlugs = gasTokensSlugs.concat(
-      tokens.filter(({ status }) => status === 'enabled').map(({ slug }) => slug)
-    );
+    return gasTokensSlugs.concat(tokens.filter(({ status }) => status === 'enabled').map(({ slug }) => slug));
+  }, [tokens]);
 
-    return filterSmallBalances ? enabledSlugs.filter(isBigBalance) : enabledSlugs;
-  }, [filterSmallBalances, isBigBalance, tokens]);
+  const enabledSlugsSorted = useMemoWithCompare(() => {
+    const enabledSlugsFiltered = filterSmallBalances ? enabledSlugs.filter(isBigBalance) : enabledSlugs;
 
-  const enabledSlugsSorted = useMemoWithCompare(
-    () => enabledSlugsFiltered.sort(tokensSortPredicate),
-    [enabledSlugsFiltered, tokensSortPredicate]
-  );
+    return enabledSlugsFiltered.sort(tokensSortPredicate);
+  }, [enabledSlugs, filterSmallBalances, isBigBalance, tokensSortPredicate]);
 
   return {
+    shouldShowHiddenTokensHint: filterSmallBalances && enabledSlugs.length > 0 && enabledSlugsSorted.length === 0,
     enabledSlugsSorted,
     tokens,
     tokensSortPredicate

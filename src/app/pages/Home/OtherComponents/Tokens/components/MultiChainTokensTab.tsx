@@ -59,19 +59,16 @@ const TabContent: FC = () => {
   const groupByNetwork = useGroupByNetworkBehaviorSelector();
   const { hideSmallBalance } = useTokensListOptionsSelector();
 
-  const { enabledChainsSlugsSorted, enabledChainsSlugsSortedGrouped } = useAccountTokensForListing(
-    accountTezAddress,
-    accountEvmAddress,
-    hideSmallBalance,
-    groupByNetwork
-  );
+  const { enabledChainsSlugsSorted, enabledChainsSlugsSortedGrouped, shouldShowHiddenTokensHint } =
+    useAccountTokensForListing(accountTezAddress, accountEvmAddress, hideSmallBalance, groupByNetwork);
 
   return (
     <TabContentBase
+      manageActive={false}
+      groupByNetwork={groupByNetwork}
       allSlugsSorted={enabledChainsSlugsSorted}
       allSlugsSortedGrouped={enabledChainsSlugsSortedGrouped}
-      groupByNetwork={groupByNetwork}
-      manageActive={false}
+      shouldShowHiddenTokensHint={shouldShowHiddenTokensHint}
     />
   );
 };
@@ -127,10 +124,11 @@ interface TabContentBaseProps {
   allSlugsSortedGrouped: ChainGroupedSlugs | null;
   groupByNetwork: boolean;
   manageActive: boolean;
+  shouldShowHiddenTokensHint?: boolean;
 }
 
 const TabContentBase = memo<TabContentBaseProps>(
-  ({ allSlugsSorted, allSlugsSortedGrouped, groupByNetwork, manageActive }) => {
+  ({ allSlugsSorted, allSlugsSortedGrouped, groupByNetwork, manageActive, shouldShowHiddenTokensHint }) => {
     const {
       displayedSlugs,
       displayedGroupedSlugs,
@@ -157,6 +155,7 @@ const TabContentBase = memo<TabContentBaseProps>(
         tezosChains={tezosChains}
         evmChains={evmChains}
         manageActive={manageActive}
+        shouldShowHiddenTokensHint={shouldShowHiddenTokensHint}
       />
     );
   }
@@ -292,6 +291,7 @@ function buildTokensJsxArray(
 
     return (
       <EvmTokenListItem
+        showTags
         key={chainSlug}
         network={evmChains[chainId]!}
         index={i + indexShift}

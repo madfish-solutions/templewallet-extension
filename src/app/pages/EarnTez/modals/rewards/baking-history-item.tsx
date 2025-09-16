@@ -24,16 +24,16 @@ export interface BakingHistoryEntry {
   bakerFee: BigNumber;
   expectedPayout: BigNumber;
   efficiency: number;
-  ownBlockRewards: BigNumber;
-  ownBlocks: number;
-  ownBlockFees: BigNumber;
-  missedOwnBlockRewards: BigNumber;
-  missedOwnBlocks: number;
-  missedOwnBlockFees: BigNumber;
-  endorsementRewards: BigNumber;
-  endorsements: number;
-  missedEndorsements: number;
-  missedEndorsementRewards: BigNumber;
+  blockRewards: BigNumber;
+  blocks: number;
+  blockFees: BigNumber;
+  missedBlockRewards: BigNumber;
+  missedBlocks: number;
+  missedBlockFees: BigNumber;
+  attestationRewards: BigNumber;
+  attestations: number;
+  missedAttestations: number;
+  missedAttestationRewards: BigNumber;
   status: 'not_come' | 'in_progress' | 'finished';
 }
 
@@ -68,16 +68,16 @@ export const BakingHistoryItem = memo<BakingHistoryItemProps>(({ item, active, i
     bakerFeeRatio,
     bakerFee,
     efficiency,
-    ownBlocks,
-    ownBlockRewards,
-    ownBlockFees,
-    missedOwnBlocks,
-    missedOwnBlockFees,
-    missedOwnBlockRewards,
-    endorsements,
-    endorsementRewards,
-    missedEndorsements,
-    missedEndorsementRewards
+    blocks,
+    blockRewards,
+    blockFees,
+    missedBlocks,
+    missedBlockFees,
+    missedBlockRewards,
+    attestations,
+    attestationRewards,
+    missedAttestations,
+    missedAttestationRewards
   } = item;
 
   const handleClick = useCallback(() => onClick(index), [index, onClick]);
@@ -87,46 +87,46 @@ export const BakingHistoryItem = memo<BakingHistoryItemProps>(({ item, active, i
       [
         {
           title: t('ownBlocks'),
-          rewards: ownBlockRewards,
+          rewards: blockRewards,
           opportunityNameI18nKey: 'blocks' as const,
-          opportunitiesCount: ownBlocks,
-          fees: ownBlockFees
+          opportunitiesCount: blocks,
+          fees: blockFees
         },
         {
           title: t('missedOwnBlocks'),
-          rewards: missedOwnBlockRewards.negated(),
+          rewards: missedBlockRewards.negated(),
           opportunityNameI18nKey: 'blocks' as const,
-          opportunitiesCount: missedOwnBlocks,
-          fees: missedOwnBlockFees.negated()
+          opportunitiesCount: missedBlocks,
+          fees: missedBlockFees.negated()
         },
         {
           title: t('endorsements'),
-          rewards: endorsementRewards,
+          rewards: attestationRewards,
           opportunityNameI18nKey: 'slots' as const,
-          opportunitiesCount: endorsements,
+          opportunitiesCount: attestations,
           fees: new BigNumber(0)
         },
         {
           title: t('missedEndorsements'),
-          rewards: missedEndorsementRewards.negated(),
+          rewards: missedAttestationRewards.negated(),
           opportunityNameI18nKey: 'slots' as const,
-          opportunitiesCount: missedEndorsements,
+          opportunitiesCount: missedAttestations,
           fees: new BigNumber(0)
         }
       ]
         .filter(({ rewards, opportunitiesCount }) => !rewards.isZero() || opportunitiesCount !== 0)
         .map((entry, index, arr) => ({ ...entry, borderBottom: index !== arr.length - 1, tezSymbol })),
     [
-      endorsementRewards,
-      endorsements,
-      missedEndorsementRewards,
-      missedEndorsements,
-      missedOwnBlockFees,
-      missedOwnBlockRewards,
-      missedOwnBlocks,
-      ownBlockFees,
-      ownBlockRewards,
-      ownBlocks,
+      attestationRewards,
+      attestations,
+      blockFees,
+      blockRewards,
+      blocks,
+      missedAttestationRewards,
+      missedAttestations,
+      missedBlockFees,
+      missedBlockRewards,
+      missedBlocks,
       tezSymbol
     ]
   );

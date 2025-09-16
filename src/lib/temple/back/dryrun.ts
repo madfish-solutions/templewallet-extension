@@ -1,6 +1,7 @@
 import { localForger } from '@taquito/local-forging';
 import { ForgeOperationsParams } from '@taquito/rpc';
 import { TezosToolkit, TezosOperationError, getRevealGasLimit, getRevealFee, Estimate } from '@taquito/taquito';
+import { ProhibitedActionError } from '@taquito/utils';
 import { omit } from 'lodash';
 
 import { FEE_PER_GAS_UNIT } from 'lib/constants';
@@ -10,6 +11,8 @@ import { SerializedEstimate } from 'lib/temple/types';
 import { serializeEstimate } from 'lib/utils/serialize-estimate';
 import { getParamsWithCustomGasLimitFor3RouteSwap } from 'lib/utils/swap.utils';
 import { michelEncoder, getTezosFastRpcClient } from 'temple/tezos';
+
+import { provePossession } from './prove-possession';
 
 interface DryRunParams {
   opParams: any[];
@@ -42,9 +45,20 @@ export async function dryRunOpParams({
     const tezos = new TezosToolkit(getTezosFastRpcClient(networkRpc));
 
     let bytesToSign: string | undefined;
-    const signer = new ReadOnlySigner(sourcePkh, sourcePublicKey, digest => {
-      bytesToSign = digest;
-    });
+    const signer = new ReadOnlySigner(
+      sourcePkh,
+      sourcePublicKey,
+      digest => {
+        bytesToSign = digest;
+      },
+      () => {
+        if (!sourcePkh.startsWith('tz4')) {
+          throw new ProhibitedActionError('Only BLS keys can prove possession');
+        }
+
+        return provePossession(sourcePkh);
+      }
+    );
 
     tezos.setSignerProvider(signer);
     tezos.setPackerProvider(michelEncoder);

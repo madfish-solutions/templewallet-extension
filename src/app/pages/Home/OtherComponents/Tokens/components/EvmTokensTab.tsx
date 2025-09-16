@@ -53,18 +53,16 @@ const TabContent: FC = () => {
   const groupByNetwork = useGroupByNetworkBehaviorSelector();
   const { hideSmallBalance } = useTokensListOptionsSelector();
 
-  const { enabledChainSlugsSorted, enabledChainSlugsSortedGrouped } = useEvmAccountTokensForListing(
-    publicKeyHash,
-    hideSmallBalance,
-    groupByNetwork
-  );
+  const { enabledChainSlugsSorted, enabledChainSlugsSortedGrouped, shouldShowHiddenTokensHint } =
+    useEvmAccountTokensForListing(publicKeyHash, hideSmallBalance, groupByNetwork);
 
   return (
     <TabContentBase
+      manageActive={false}
+      groupByNetwork={groupByNetwork}
       allSlugsSorted={enabledChainSlugsSorted}
       allSlugsSortedGrouped={enabledChainSlugsSortedGrouped}
-      groupByNetwork={groupByNetwork}
-      manageActive={false}
+      shouldShowHiddenTokensHint={shouldShowHiddenTokensHint}
     />
   );
 };
@@ -115,10 +113,11 @@ interface TabContentBaseProps {
   allSlugsSortedGrouped: ChainGroupedSlugs<TempleChainKind.EVM> | null;
   groupByNetwork: boolean;
   manageActive: boolean;
+  shouldShowHiddenTokensHint?: boolean;
 }
 
 const TabContentBase = memo<TabContentBaseProps>(
-  ({ allSlugsSorted, allSlugsSortedGrouped, groupByNetwork, manageActive }) => {
+  ({ allSlugsSorted, allSlugsSortedGrouped, groupByNetwork, manageActive, shouldShowHiddenTokensHint }) => {
     const { publicKeyHash, accountId } = useContext(EvmTokensTabContext);
     const {
       displayedSlugs,
@@ -184,6 +183,7 @@ const TabContentBase = memo<TabContentBaseProps>(
 
           return (
             <EvmTokenListItem
+              showTags
               key={chainSlug}
               network={evmChains[chainId]!}
               index={i + indexShift}
@@ -208,6 +208,7 @@ const TabContentBase = memo<TabContentBaseProps>(
         isSyncing={isSyncing}
         isInSearchMode={isInSearchMode}
         network={mainnetChain}
+        shouldShowHiddenTokensHint={shouldShowHiddenTokensHint}
       >
         {tokensView}
       </TokensTabBase>

@@ -40,11 +40,11 @@ export const RewardsModal = memo<RewardsModalProps>(({ account, bakerAddress, ch
 const DEFAULT_PROTOCOL: TzktProtocol = {
   hash: 'PsQuebecnLByd3JwTiGadoG4nGWi3HYiLXUjkibeFV8dCFeVMUg',
   constants: {
-    endorsersPerBlock: 7000,
+    attestersPerBlock: 7000,
     consensusThreshold: 4667,
     blocksPerCycle: 30720,
     blockReward: [0],
-    endorsementReward: [0]
+    attestationReward: [0]
   }
 };
 
