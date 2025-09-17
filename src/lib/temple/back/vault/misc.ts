@@ -1,6 +1,6 @@
 import { isDefined } from '@rnw-community/shared';
 import { InMemorySigner } from '@taquito/signer';
-import * as TaquitoUtils from '@taquito/utils';
+import { PrefixV2, b58Encode } from '@taquito/utils';
 import * as Bip39 from 'bip39';
 import * as Ed25519 from 'ed25519-hd-key';
 import * as ViemAccounts from 'viem/accounts';
@@ -165,9 +165,7 @@ function seedToHDPrivateKey(seed: Buffer, hdAccIndex: number, chain: TempleChain
 }
 
 export function seedToPrivateKey(seed: Buffer, chain: TempleChainKind) {
-  return chain === TempleChainKind.Tezos
-    ? TaquitoUtils.b58cencode(seed.slice(0, 32), TaquitoUtils.prefix.edsk2)
-    : toHex(seed);
+  return chain === TempleChainKind.Tezos ? b58Encode(seed.slice(0, 32), PrefixV2.Ed25519Seed) : toHex(seed);
 }
 
 export function isEvmDerivationPath(derivationPath: string): derivationPath is `m/44'/60'/${string}` {

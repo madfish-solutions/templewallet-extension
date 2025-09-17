@@ -36,19 +36,19 @@ import BuyWithFiatIllustrationSrc from './buy-with-fiat.png';
 import CrossChainSwapIllustrationSrc from './cross-chain-swap.png';
 
 export interface TokensTabBaseProps {
-  tokensCount: number;
   searchValue: string;
+  onSearchValueChange: SyncFn<string>;
+  tokensCount: number;
   getElementIndex: VisibilityTrackingInfiniteScrollProps['getElementsIndexes'];
   loadNextPage: EmptyFn;
-  onSearchValueChange: (value: string) => void;
   isSyncing: boolean;
   accountId: string;
   isInSearchMode: boolean;
   network?: OneOfChains;
+  shouldShowHiddenTokensHint?: boolean;
 }
 
 export const TokensTabBase: FC<PropsWithChildren<TokensTabBaseProps>> = ({
-  tokensCount,
   searchValue,
   onSearchValueChange,
   ...restProps
@@ -72,7 +72,7 @@ export const TokensTabBase: FC<PropsWithChildren<TokensTabBaseProps>> = ({
         <AssetsFilterOptions />
       ) : (
         <FadeTransition>
-          <TokensTabBaseContent {...restProps} tokensCount={tokensCount} manageActive={manageActive} />
+          <TokensTabBaseContent {...restProps} manageActive={manageActive} />
         </FadeTransition>
       )}
 
@@ -81,14 +81,7 @@ export const TokensTabBase: FC<PropsWithChildren<TokensTabBaseProps>> = ({
   );
 };
 
-interface TokensTabBaseContentProps {
-  tokensCount: number;
-  getElementIndex: VisibilityTrackingInfiniteScrollProps['getElementsIndexes'];
-  loadNextPage: EmptyFn;
-  isSyncing: boolean;
-  accountId: string;
-  isInSearchMode: boolean;
-  network?: OneOfChains;
+interface TokensTabBaseContentProps extends Omit<TokensTabBaseProps, 'searchValue' | 'onSearchValueChange'> {
   manageActive: boolean;
 }
 
@@ -103,6 +96,7 @@ const TokensTabBaseContent: FC<PropsWithChildren<TokensTabBaseContentProps>> = (
   isInSearchMode,
   network,
   manageActive,
+  shouldShowHiddenTokensHint,
   children
 }) => {
   const isTestnet = useTestnetModeEnabledSelector();
@@ -132,10 +126,11 @@ const TokensTabBaseContent: FC<PropsWithChildren<TokensTabBaseContentProps>> = (
     <TokensTabBaseContentWrapper manageActive={manageActive} padding={tokensCount > 0}>
       {tokensCount === 0 ? (
         <EmptySection
-          forCollectibles={false}
-          manageActive={manageActive}
-          forSearch={isInSearchMode}
           network={network}
+          forCollectibles={false}
+          forSearch={isInSearchMode}
+          manageActive={manageActive}
+          shouldShowHiddenTokensHint={shouldShowHiddenTokensHint}
         />
       ) : (
         <>

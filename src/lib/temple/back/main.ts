@@ -233,6 +233,13 @@ const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<T
         result: evmSignResult
       };
 
+    case TempleMessageType.ProvePossessionRequest:
+      const proveResult = await Actions.provePossession(req.sourcePkh);
+      return {
+        type: TempleMessageType.ProvePossessionResponse,
+        result: proveResult
+      };
+
     case TempleMessageType.DAppRemoveSessionRequest:
       const sessions = await Actions.removeDAppSession(req.origins);
       return {
@@ -306,7 +313,9 @@ const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<T
       if (req.chainType === TempleChainKind.EVM) {
         let resPayload: any;
         try {
-          resPayload = { data: await Actions.processEvmDApp(req.origin, req.payload, req.chainId, req.iconUrl) };
+          resPayload = {
+            data: await Actions.processEvmDApp(req.origin, req.payload, req.chainId, req.iconUrl, req.providers)
+          };
         } catch (e) {
           console.error(e);
           if (e instanceof ErrorWithCode) {
@@ -362,6 +371,21 @@ const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<T
           encrypted: res?.encrypted
         };
       }
+
+    case TempleMessageType.DAppSelectOtherWalletRequest: {
+      try {
+        intercom.broadcast({
+          type: TempleMessageType.TempleSwitchEvmProvider,
+          origin: req.origin,
+          rdns: req.rdns,
+          uuid: req.uuid,
+          autoConnect: true
+        });
+      } catch (e) {
+        console.error(e);
+      }
+      return { type: TempleMessageType.DAppSelectOtherWalletResponse };
+    }
 
     case TempleMessageType.ResetExtensionRequest:
       await Actions.resetExtension(req.password);

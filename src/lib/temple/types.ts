@@ -1,3 +1,4 @@
+import type { RawSignResult } from '@taquito/core';
 import type { DerivationType } from '@taquito/ledger-signer';
 import type { TempleDAppMetadata } from '@temple-wallet/dapp/dist/types';
 import BigNumber from 'bignumber.js';
@@ -68,7 +69,8 @@ export const COMMON_TESTNET_CHAIN_IDS = {
 export enum TempleTezosChainId {
   Mainnet = TEZOS_MAINNET_CHAIN_ID,
   Ghostnet = TEZOS_GHOSTNET_CHAIN_ID,
-  Paris = 'NetXXWAHLEvre9b',
+  Rio = 'NetXPdgaoabtBth',
+  Seoul = 'NetXd56aBs1aeW3',
   Dcp = 'NetXooyhiru73tk',
   DcpTest = 'NetXZb3Lz8FsrZx'
 }
@@ -213,6 +215,13 @@ export interface DAppMetadata extends TempleDAppMetadata {
   icon?: string;
 }
 
+export interface EIP6963ProviderInfo {
+  uuid: string;
+  name: string;
+  icon: string;
+  rdns?: string;
+}
+
 /**
  * https://eips.ethereum.org/EIPS/eip-747
  */
@@ -294,6 +303,7 @@ interface TempleTezosDAppConnectPayload extends TempleTezosDAppPayloadBase {
 
 interface TempleEvmDAppConnectPayload extends TempleEvmDAppPayloadBase {
   type: 'connect';
+  providers?: EIP6963ProviderInfo[];
 }
 
 export interface SerializedEstimate {
@@ -389,6 +399,7 @@ export enum TempleMessageType {
   TempleEvmDAppsDisconnected = 'TEMPLE_EVM_DAPPS_DISCONNECTED',
   TempleTezosDAppsDisconnected = 'TEMPLE_TEZOS_DAPPS_DISCONNECTED',
   TempleEvmChainSwitched = 'TEMPLE_SWITCH_EVM_CHAIN',
+  TempleSwitchEvmProvider = 'TEMPLE_SWITCH_EVM_PROVIDER',
   // Request-Response pairs
   GetStateRequest = 'TEMPLE_GET_STATE_REQUEST',
   GetStateResponse = 'TEMPLE_GET_STATE_RESPONSE',
@@ -463,6 +474,8 @@ export enum TempleMessageType {
   DAppAddEvmChainResponse = 'TEMPLE_DAPP_ADD_EVM_CHAIN_RESPONSE',
   DAppSwitchEvmChainRequest = 'TEMPLE_DAPP_SWITCH_EVM_CHAIN_REQUEST',
   DAppSwitchEvmChainResponse = 'TEMPLE_DAPP_SWITCH_EVM_CHAIN_RESPONSE',
+  DAppSelectOtherWalletRequest = 'TEMPLE_DAPP_SELECT_OTHER_WALLET_REQUEST',
+  DAppSelectOtherWalletResponse = 'TEMPLE_DAPP_SELECT_OTHER_WALLET_RESPONSE',
   SendTrackEventRequest = 'SEND_TRACK_EVENT_REQUEST',
   SendTrackEventResponse = 'SEND_TRACK_EVENT_RESPONSE',
   SendPageEventRequest = 'SEND_PAGE_EVENT_REQUEST',
@@ -474,7 +487,9 @@ export enum TempleMessageType {
   SetWindowPopupStateRequest = 'SET_WINDOW_POPUP_STATE_REQUEST',
   SetWindowPopupStateResponse = 'SET_WINDOW_POPUP_STATE_RESPONSE',
   SetWindowSidebarStateRequest = 'SET_WINDOW_SIDEBAR_STATE_REQUEST',
-  SetWindowSidebarStateResponse = 'SET_WINDOW_SIDEBAR_STATE_RESPONSE'
+  SetWindowSidebarStateResponse = 'SET_WINDOW_SIDEBAR_STATE_RESPONSE',
+  ProvePossessionRequest = 'PROVE_POSSESSION_REQUEST',
+  ProvePossessionResponse = 'PROVE_POSSESSION_RESPONSE'
 }
 
 export type TempleNotification =
@@ -484,7 +499,8 @@ export type TempleNotification =
   | TempleSelectedAccountChanged
   | TempleEvmDAppsDisconnected
   | TempleTezosDAppsDisconnected
-  | TempleEvmChainSwitched;
+  | TempleEvmChainSwitched
+  | TempleSwitchEvmProvider;
 
 export type TempleRequest =
   | TempleAcknowledgeRequest
@@ -525,12 +541,14 @@ export type TempleRequest =
   | TempleAddDAppEvmChainRequest
   | TempleAddDAppEvmAssetRequest
   | TempleSwitchDAppEvmChainRequest
+  | TempleSelectOtherWalletRequest
   | TempleSendTrackEventRequest
   | TempleSendPageEventRequest
   | TempleSendEvmTransactionRequest
   | TempleResetExtensionRequest
   | TempleSetWindowPopupStateRequest
-  | TempleSetWindowSidebarStateRequest;
+  | TempleSetWindowSidebarStateRequest
+  | TempleProvePossessionRequest;
 
 export type TempleResponse =
   | TempleGetStateResponse
@@ -570,12 +588,14 @@ export type TempleResponse =
   | TempleAddDAppEvmChainResponse
   | TempleAddDAppEvmAssetResponse
   | TempleSwitchDAppEvmChainResponse
+  | TempleSelectOtherWalletResponse
   | TempleSendTrackEventResponse
   | TempleSendPageEventResponse
   | TempleSendEvmTransactionResponse
   | TempleResetExtensionResponse
   | TempleSetWindowPopupStateResponse
-  | TempleSetWindowSidebarStateResponse;
+  | TempleSetWindowSidebarStateResponse
+  | TempleProvePossessionResponse;
 
 export interface TempleMessageBase {
   type: TempleMessageType;
@@ -616,6 +636,11 @@ interface TempleEvmChainSwitched extends TempleMessageBase {
   type: TempleMessageType.TempleEvmChainSwitched;
   origin: string;
   chainId: number;
+}
+
+interface TempleSwitchEvmProvider extends TempleMessageBase {
+  type: TempleMessageType.TempleSwitchEvmProvider;
+  origin: string;
 }
 
 interface TempleGetStateRequest extends TempleMessageBase {
@@ -951,6 +976,7 @@ interface TempleTezosPageRequest extends TemplePageRequestBase {
 interface TempleEvmPageRequest extends TemplePageRequestBase {
   chainType: TempleChainKind.EVM;
   chainId: string;
+  providers?: EIP6963ProviderInfo[];
 }
 
 type TemplePageRequest = TempleTezosPageRequest | TempleEvmPageRequest;
@@ -1065,6 +1091,17 @@ interface TempleSwitchDAppEvmChainResponse extends TempleMessageBase {
   type: TempleMessageType.DAppSwitchEvmChainResponse;
 }
 
+interface TempleSelectOtherWalletRequest extends TempleMessageBase {
+  type: TempleMessageType.DAppSelectOtherWalletRequest;
+  origin: string;
+  rdns?: string;
+  uuid?: string;
+}
+
+interface TempleSelectOtherWalletResponse extends TempleMessageBase {
+  type: TempleMessageType.DAppSelectOtherWalletResponse;
+}
+
 interface TempleResetExtensionRequest extends TempleMessageBase {
   type: TempleMessageType.ResetExtensionRequest;
   password: string;
@@ -1092,6 +1129,16 @@ interface TempleSetWindowSidebarStateRequest extends TempleMessageBase {
 
 interface TempleSetWindowSidebarStateResponse extends TempleMessageBase {
   type: TempleMessageType.SetWindowSidebarStateResponse;
+}
+
+interface TempleProvePossessionRequest extends TempleMessageBase {
+  type: TempleMessageType.ProvePossessionRequest;
+  sourcePkh: string;
+}
+
+interface TempleProvePossessionResponse extends TempleMessageBase {
+  type: TempleMessageType.ProvePossessionResponse;
+  result: RawSignResult;
 }
 
 export type EvmTransactionRequestWithSender = RpcTransactionRequest & { from: HexString };

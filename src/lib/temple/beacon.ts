@@ -30,7 +30,7 @@ interface AppMetadata {
   icon?: string;
 }
 
-type NetworkType = 'mainnet' | 'custom';
+type NetworkType = 'mainnet' | 'custom' | 'rionet' | 'seoulnet';
 
 interface Network {
   type: NetworkType;

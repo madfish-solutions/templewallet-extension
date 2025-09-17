@@ -1,7 +1,13 @@
+import { RawSignResult } from '@taquito/core';
 import { Signer } from '@taquito/taquito';
 
 export class ReadOnlySigner implements Signer {
-  constructor(private pkh: string, private pk: string, private onSign?: (digest: string) => void) {}
+  constructor(
+    private pkh: string,
+    private pk: string,
+    private onSign?: (digest: string) => void,
+    public provePossession?: () => Promise<RawSignResult>
+  ) {}
 
   async publicKeyHash() {
     return this.pkh;
@@ -12,6 +18,7 @@ export class ReadOnlySigner implements Signer {
   async secretKey(): Promise<string> {
     throw new Error('Secret key cannot be exposed');
   }
+
   async sign(digest: string): Promise<{
     bytes: string;
     sig: string;

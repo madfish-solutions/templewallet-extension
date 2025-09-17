@@ -1,3 +1,4 @@
+import { RawSignResult } from '@taquito/core';
 import {
   WalletProvider,
   createOriginationOperation,
@@ -17,7 +18,7 @@ import {
   TezosToolkit
 } from '@taquito/taquito';
 import { Tzip16Module } from '@taquito/tzip16';
-import { buf2hex } from '@taquito/utils';
+import { ProhibitedActionError, buf2hex } from '@taquito/utils';
 import memoizee from 'memoizee';
 import { nanoid } from 'nanoid';
 import toBuffer from 'typedarray-to-buffer';
@@ -169,6 +170,19 @@ function formatOpParams(op: any) {
   }
 }
 
+export async function provePossession(sourcePkh: string): Promise<RawSignResult> {
+  if (!sourcePkh.startsWith('tz4')) {
+    throw new ProhibitedActionError('Only BLS keys can prove possession');
+  }
+
+  const res = await makeIntercomRequest({
+    type: TempleMessageType.ProvePossessionRequest,
+    sourcePkh
+  });
+  assertResponse(res.type === TempleMessageType.ProvePossessionResponse);
+  return res.result;
+}
+
 function withoutFeesOverride<T>(params: any, op: T): T {
   try {
     const { fee, gasLimit, storageLimit } = params;
@@ -213,5 +227,9 @@ class TempleTaquitoSigner implements Signer {
     });
     assertResponse(res.type === TempleMessageType.SignResponse);
     return res.result;
+  }
+
+  async provePossession(): Promise<RawSignResult> {
+    return provePossession(this.pkh);
   }
 }
