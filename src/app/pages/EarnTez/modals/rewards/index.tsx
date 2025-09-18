@@ -8,7 +8,7 @@ import { PageModal } from 'app/atoms/PageModal';
 import { ScrollView } from 'app/atoms/PageModal/scroll-view';
 import { BakingBadStory, bakingBadGetBakerStory } from 'lib/apis/baking-bad';
 import { getDelegatorRewards, isKnownChainId } from 'lib/apis/tzkt';
-import { fetchSetDelegateParametersOperations, getCycles, getProtocol } from 'lib/apis/tzkt/api';
+import { fetchSetDelegateParametersOperations, getCycles, getProtocol, getProtocolByCycle } from 'lib/apis/tzkt/api';
 import { TzktProtocol, TzktSetDelegateParamsOperation } from 'lib/apis/tzkt/types';
 import { T } from 'lib/i18n';
 import { useTezosGasMetadata } from 'lib/metadata';
@@ -86,11 +86,15 @@ const PageModalContent = memo<Omit<RewardsModalProps, 'onClose' | 'isOpen'>>(({ 
         return { rewards: [], cycles: {}, protocol: DEFAULT_PROTOCOL, setParamsOperations: {}, stories: {} };
       }
 
-      const [rewards, cycles, protocol] = await Promise.all([
-        getDelegatorRewards(chainId, { address: accountPkh, limit: 30 }).then(res => res || []),
-        getCycles(chainId),
-        getProtocol(chainId)
-      ]);
+      const rewards = await getDelegatorRewards(chainId, { address: accountPkh, limit: 30 }).then(res => res || []);
+      const [newestCycle] = await getCycles(chainId, undefined, 1);
+      const [cycles, protocol] =
+        rewards.length === 0
+          ? await Promise.all([getCycles(chainId), getProtocol(chainId)])
+          : await Promise.all([
+              getCycles(chainId, newestCycle.index - rewards[0].cycle, rewards[0].cycle - rewards.at(-1)!.cycle + 1),
+              getProtocolByCycle(chainId, rewards[0].cycle)
+            ]);
       const bakersAddresses = uniq(rewards.map(({ baker }) => baker.address));
       const setParamsOperationsValues = await Promise.all(
         bakersAddresses.map(address =>
@@ -121,10 +125,7 @@ const PageModalContent = memo<Omit<RewardsModalProps, 'onClose' | 'isOpen'>>(({ 
   const bakingHistory = useMemo(() => {
     const { rewards, cycles, protocol, setParamsOperations, stories } = bakingHistoryInput!;
 
-    const nowDate = new Date().toISOString();
-    const currentCycleIndex = Object.values(cycles).find(
-      ({ startTime, endTime }) => startTime <= nowDate && endTime > nowDate
-    )!.index;
+    const nowDate = new Date();
 
     return rewards.map((reward): BakingHistoryEntry => {
       const { cycle: cycleIndex, baker } = reward;
@@ -169,7 +170,11 @@ const PageModalContent = memo<Omit<RewardsModalProps, 'onClose' | 'isOpen'>>(({ 
         bakerAddress,
         bakerName,
         status:
-          cycleIndex > currentCycleIndex ? 'not_come' : cycleIndex === currentCycleIndex ? 'in_progress' : 'finished'
+          new Date(cycle.startTime) > nowDate
+            ? 'not_come'
+            : new Date(cycle.endTime) > nowDate
+            ? 'in_progress'
+            : 'finished'
       };
     });
   }, [bakingHistoryInput]);
