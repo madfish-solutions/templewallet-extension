@@ -1,6 +1,6 @@
 import { HubConnectionBuilder } from '@microsoft/signalr';
 import { isDefined } from '@rnw-community/shared';
-import axios, { AxiosError } from 'axios';
+import axios, { AxiosError, AxiosRequestConfig } from 'axios';
 
 import { toTokenSlug } from 'lib/assets';
 import { isTezosDcpChainId } from 'temple/networks';
@@ -11,6 +11,7 @@ import {
   TzktOperationType,
   TzktQuoteCurrency,
   TzktAccountAsset,
+  TzktTokenTransfer,
   allInt32ParameterKeys,
   TzktGetRewardsParams,
   TzktGetRewardsResponse,
@@ -47,10 +48,16 @@ api.interceptors.response.use(
   }
 );
 
-async function fetchGet<R>(chainId: TzktApiChainId, endpoint: string, params?: Record<string, unknown>) {
+async function fetchGet<R>(
+  chainId: TzktApiChainId,
+  endpoint: string,
+  params?: Record<string, unknown>,
+  config?: AxiosRequestConfig
+) {
   const { data } = await api.get<R>(endpoint, {
     baseURL: TZKT_API_BASE_URLS[chainId],
-    params
+    params,
+    ...config
   });
 
   return data;
@@ -235,3 +242,6 @@ const fetchAssetsBalancesFromTzktOnce = (account: string, chainId: TzktApiChainI
 
 export const getAccountStatsFromTzkt = async (account: string, chainId: TzktApiChainId) =>
   fetchGet<TzktAccount>(chainId, `/accounts/${account}`);
+
+export const fetchTokenTransfers = (chainId: TzktApiChainId, params: Record<string, any>, signal?: AbortSignal) =>
+  fetchGet<TzktTokenTransfer[]>(chainId, '/tokens/transfers', params, { signal });

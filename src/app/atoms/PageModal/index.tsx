@@ -102,7 +102,7 @@ export const PageModal: FC<PageModalProps> = ({
       testId={testID}
     >
       <div className="flex items-center p-4 border-b-0.5 border-lines">
-        {titleLeft ?? (onGoBack ? <BackButton onClick={handleGoBack} /> : <div className="w-12" />)}
+        <div className="w-12">{titleLeft ?? (onGoBack ? <BackButton onClick={handleGoBack} /> : null)}</div>
 
         <div className={clsx('flex-1 text-center text-font-regular-bold', headerClassName)}>{title}</div>
 
