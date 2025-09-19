@@ -1,5 +1,5 @@
 import { LedgerSigner, LedgerTransport, DerivationType } from '@taquito/ledger-signer';
-import { b58cdecode, b58cencode, buf2hex, hex2buf, isValidPrefix, mergebuf, prefix } from '@taquito/utils';
+import { b58DecodeAndCheckPrefix, b58Encode, buf2hex, hex2buf, mergebuf, PrefixV2 } from '@taquito/utils';
 import * as elliptic from 'elliptic';
 import * as sodium from 'libsodium-wrappers';
 import { crypto_sign_verify_detached, crypto_generichash } from 'libsodium-wrappers';
@@ -77,38 +77,40 @@ export class TempleLedgerSigner extends LedgerSigner {
 
 export type curves = 'ed' | 'p2' | 'sp';
 
-export const pref = {
+export const prefNames = {
   ed: {
-    pk: prefix['edpk'],
-    sk: prefix['edsk'],
-    pkh: prefix.tz1,
-    sig: prefix.edsig
+    pk: PrefixV2.Ed25519PublicKey,
+    sk: PrefixV2.Ed25519SecretKey,
+    pkh: PrefixV2.Ed25519PublicKeyHash,
+    sig: PrefixV2.Ed25519Signature
   },
   p2: {
-    pk: prefix['p2pk'],
-    sk: prefix['p2sk'],
-    pkh: prefix.tz3,
-    sig: prefix.p2sig
+    pk: PrefixV2.P256PublicKey,
+    sk: PrefixV2.P256SecretKey,
+    pkh: PrefixV2.P256PublicKeyHash,
+    sig: PrefixV2.P256Signature
   },
   sp: {
-    pk: prefix['sppk'],
-    sk: prefix['spsk'],
-    pkh: prefix.tz2,
-    sig: prefix.spsig
+    pk: PrefixV2.Secp256k1PublicKey,
+    sk: PrefixV2.Secp256k1SecretKey,
+    pkh: PrefixV2.Secp256k1PublicKeyHash,
+    sig: PrefixV2.Secp256k1Signature
   }
 };
 
+const validSignaturePrefixes = ['sig', 'edsig', 'spsig', 'p2sig'];
+
 export const verifySignature = (bytes: string, signature: string, publicKey: string, pkh: string) => {
   const curve = publicKey.substring(0, 2) as curves;
-  const _publicKey = new Uint8Array(toBuffer(b58cdecode(publicKey, pref[curve].pk)));
+  const _publicKey = new Uint8Array(toBuffer(b58DecodeAndCheckPrefix(publicKey, [prefNames[curve].pk], true)));
 
-  const signaturePrefix = signature.startsWith('sig') ? signature.substr(0, 3) : signature.substr(0, 5);
+  const signaturePrefix = signature.startsWith('sig') ? signature.substring(0, 3) : signature.substring(0, 5);
 
-  if (!isValidPrefix(signaturePrefix)) {
+  if (!validSignaturePrefixes.includes(signaturePrefix)) {
     throw new Error(`Unsupported signature given by remote signer: ${signature}`);
   }
 
-  const publicKeyHash = b58cencode(crypto_generichash(20, _publicKey), pref[curve].pkh);
+  const publicKeyHash = b58Encode(crypto_generichash(20, _publicKey), prefNames[curve].pkh);
   if (publicKeyHash !== pkh) {
     throw new Error(
       `Requested public key does not match the initialized public key hash: {
@@ -118,7 +120,7 @@ export const verifySignature = (bytes: string, signature: string, publicKey: str
     );
   }
 
-  const sig = new Uint8Array(getSig(signature, curve, pref));
+  const sig = new Uint8Array(getSig(signature, curve, prefNames));
 
   const bytesHash = crypto_generichash(32, hex2buf(bytes));
 
@@ -137,12 +139,12 @@ export const verifySignature = (bytes: string, signature: string, publicKey: str
   throw new Error(`Curve '${curve}' not supported`);
 };
 
-export const getSig = (signature: string, curve: any, pref: any) => {
+export const getSig = (signature: string, curve: any, prefNames: any) => {
   let sig;
   if (signature.substring(0, 3) === 'sig') {
-    sig = b58cdecode(signature, prefix.sig);
+    sig = b58DecodeAndCheckPrefix(signature, [PrefixV2.GenericSignature], true);
   } else if (signature.substring(0, 5) === `${curve}sig`) {
-    sig = b58cdecode(signature, pref[curve].sig);
+    sig = b58DecodeAndCheckPrefix(signature, [prefNames[curve].sig], true);
   } else {
     throw new Error(`Invalid signature provided: ${signature}`);
   }

@@ -661,6 +661,24 @@ describe('Vault tests', () => {
         );
       });
     });
+
+    describe('for tz4 accounts', () => {
+      it('should sign an arbitrary payload', async () => {
+        await Vault.spawn(password, defaultMnemonic);
+        const vault = await Vault.setup(password);
+        const accounts = await vault.importAccount(
+          TempleChainKind.Tezos,
+          'BLsk2zk6pBGysG9BJn4u3XNtFnJQ1wpUYz6sQMTZQdfxQaiBWkqLyh'
+        );
+        const publicKeyHash = getAccountAddressForTezos(accounts[1])!;
+        const result = await vault.sign(publicKeyHash, '1234');
+        expect(result.sig).toBe(
+          'G4s3TfXx9k8kUiyYRcpgrS1KircWudnePq5Jp8wk5TtU6wmvCvFd3gFxjyDMpj4kWwTgKpAvS4a2E8wM5iwyUnhL1ut1kWtmi7TZjdmsLRnFireNkr68NTHaFKm1YmUUk4zuCrDDGsdG'
+        );
+      });
+
+      // TODO: add other test cases when they appear in Taquito codebase
+    });
   });
 
   describe('should import an account by seed phrase', () => {

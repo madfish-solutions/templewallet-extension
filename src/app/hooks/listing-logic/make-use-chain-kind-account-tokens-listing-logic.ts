@@ -67,11 +67,13 @@ export const makeUseChainKindAccountTokensForListing = <T extends TempleChainKin
 
       return gasSlugs.concat(enabledTokensSlugs);
     }, [tokens, enabledChains]);
+
     const enabledChainSlugsSorted = useMemoWithCompare(() => {
       const enabledSlugsFiltered = filterSmallBalances ? enabledSlugs.filter(isBigBalance) : enabledSlugs;
 
       return enabledSlugsFiltered.sort(tokensSortPredicate);
     }, [enabledSlugs, isBigBalance, tokensSortPredicate, filterSmallBalances]);
+
     const enabledChainSlugsSortedGrouped = useMemoWithCompare(() => {
       if (!groupingEnabled) return null;
 
@@ -79,6 +81,8 @@ export const makeUseChainKindAccountTokensForListing = <T extends TempleChainKin
     }, [enabledChainSlugsSorted, groupingEnabled]);
 
     return {
+      shouldShowHiddenTokensHint:
+        filterSmallBalances && enabledSlugs.length > 0 && enabledChainSlugsSorted.length === 0,
       enabledChainSlugsSorted,
       enabledChainSlugsSortedGrouped,
       tokens,

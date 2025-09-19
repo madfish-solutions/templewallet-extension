@@ -15,13 +15,13 @@ import {
   TempleDAppSignRequest,
   TempleDAppSignResponse,
   TempleDAppBroadcastRequest,
-  TempleDAppBroadcastResponse
+  TempleDAppBroadcastResponse,
+  TempleDAppNetwork as TezosDAppNetwork
 } from '@temple-wallet/dapp/dist/types';
 import { nanoid } from 'nanoid';
 import { v4 as uuid } from 'uuid';
 
 import {
-  TezosDAppNetwork,
   TezosDAppSession,
   getDApp as genericGetDApp,
   setDApp as genericSetDApp,
@@ -443,18 +443,26 @@ async function requestConfirm(params: Omit<RequestConfirmParams<TempleTezosDAppP
   });
 }
 
+const dAppNetworksChainIds = {
+  mainnet: TEZOS_MAINNET_CHAIN_ID,
+  ghostnet: TempleTezosChainId.Ghostnet,
+  rionet: TempleTezosChainId.Rio,
+  seoulnet: TempleTezosChainId.Seoul
+};
 async function getNetworkRPC(net: TezosDAppNetwork) {
   if (net === 'sandbox') {
     return 'http://localhost:8732';
   }
 
-  if (net === 'mainnet') return await getActiveTempleRpcUrlByChainId(TEZOS_MAINNET_CHAIN_ID);
+  if (typeof net === 'object') {
+    return removeLastSlash(net.rpc);
+  }
 
-  if (net === 'ghostnet') return await getActiveTempleRpcUrlByChainId(TempleTezosChainId.Ghostnet);
+  if (net in dAppNetworksChainIds) {
+    return await getActiveTempleRpcUrlByChainId(dAppNetworksChainIds[net as keyof typeof dAppNetworksChainIds]);
+  }
 
-  if (typeof net === 'string') return null;
-
-  return removeLastSlash(net.rpc);
+  return null;
 }
 
 async function getAssertNetworkRPC(net: TezosDAppNetwork) {

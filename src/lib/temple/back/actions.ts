@@ -1,6 +1,6 @@
 import { DerivationType } from '@taquito/ledger-signer';
 import { TezosOperationError } from '@taquito/taquito';
-import { char2Bytes } from '@taquito/utils';
+import { stringToBytes } from '@taquito/utils';
 import {
   TempleDAppMessageType,
   TempleDAppErrorType,
@@ -27,7 +27,8 @@ import {
   TempleRequest,
   TempleSettings,
   TempleAccountType,
-  SaveLedgerAccountInput
+  SaveLedgerAccountInput,
+  EIP6963ProviderInfo
 } from 'lib/temple/types';
 import { PromisesQueue, PromisesQueueCounters, delay } from 'lib/utils';
 import { EVMErrorCodes, evmRpcMethodsNames, GET_DEFAULT_WEB3_PARAMS_METHOD_NAME } from 'temple/evm/constants';
@@ -98,6 +99,7 @@ import {
 import { Vault } from './vault';
 
 export { switchChain as switchEvmChain } from './evm-dapp';
+export { provePossession } from './prove-possession';
 
 const ACCOUNT_OR_GROUP_NAME_PATTERN = /^.{1,16}$/;
 const AUTODECLINE_AFTER = 60_000;
@@ -570,7 +572,13 @@ interface EvmRequestPayload {
   params: unknown;
 }
 
-export async function processEvmDApp(origin: string, payload: EvmRequestPayload, chainId: string, iconUrl?: string) {
+export async function processEvmDApp(
+  origin: string,
+  payload: EvmRequestPayload,
+  chainId: string,
+  iconUrl?: string,
+  providers?: EIP6963ProviderInfo[]
+) {
   const { method, params } = payload;
   let methodHandler: () => Promise<any>;
   let requiresConfirm = true;
@@ -581,7 +589,7 @@ export async function processEvmDApp(origin: string, payload: EvmRequestPayload,
       requiresConfirm = false;
       break;
     case evmRpcMethodsNames.eth_requestAccounts:
-      methodHandler = () => connectEvm(origin, chainId, iconUrl);
+      methodHandler = () => connectEvm(origin, chainId, iconUrl, providers);
       break;
     case evmRpcMethodsNames.wallet_watchAsset:
       const validatedParams = addEthAssetPayloadValidationSchema.validateSync(params);
@@ -623,7 +631,7 @@ export async function processEvmDApp(origin: string, payload: EvmRequestPayload,
       break;
     case evmRpcMethodsNames.wallet_requestPermissions:
       const [requestPermissionsPayload] = ethChangePermissionsPayloadValidationSchema.validateSync(params);
-      methodHandler = () => requestEvmPermissions(origin, chainId, requestPermissionsPayload, iconUrl);
+      methodHandler = () => requestEvmPermissions(origin, chainId, requestPermissionsPayload, iconUrl, providers);
       break;
     case evmRpcMethodsNames.wallet_revokePermissions:
       const [revokePermissionsPayload] = ethChangePermissionsPayloadValidationSchema.validateSync(params);
@@ -903,9 +911,9 @@ function getErrorData(err: any) {
 }
 
 function generateRawPayloadBytes(payload: string) {
-  const bytes = char2Bytes(Buffer.from(payload, 'utf8').toString('hex'));
+  const bytes = stringToBytes(Buffer.from(payload, 'utf8').toString('hex'));
   // https://tezostaquito.io/docs/signing/
-  return `0501${char2Bytes(String(bytes.length))}${bytes}`;
+  return `0501${stringToBytes(String(bytes.length))}${bytes}`;
 }
 
 const close = (

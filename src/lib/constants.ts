@@ -118,6 +118,8 @@ export const DISCONNECT_DAPP_MSG_TYPE = 'templeDisconnectDApp';
 
 export const SWITCH_CHAIN_MSG_TYPE = 'templeSwitchChain';
 
+export const TEMPLE_SWITCH_PROVIDER_EVENT = 'templeSwitchProvider';
+
 export const FEE_PER_GAS_UNIT = 0.1;
 export const RECOMMENDED_ADD_TEZ_GAS_FEE = 0.00015;
 

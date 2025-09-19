@@ -12,8 +12,10 @@ import { SettingsCellGroup } from 'app/atoms/SettingsCellGroup';
 import { StyledButton } from 'app/atoms/StyledButton';
 import { TotalEquity } from 'app/atoms/TotalEquity';
 import { useAllAccountsReactiveOnRemoval } from 'app/hooks/use-all-accounts-reactive';
+import { useEquityCurrency } from 'app/hooks/use-equity-currency';
 import { ReactComponent as ChevronRightIcon } from 'app/icons/base/chevron_right.svg';
 import PageLayout from 'app/layouts/PageLayout';
+import { useAssetsFilterOptionsSelector } from 'app/store/assets-filter-options/selectors';
 import { T, t } from 'lib/i18n';
 import { useTempleClient } from 'lib/temple/front';
 import { getDerivationPath } from 'lib/temple/helpers';
@@ -53,6 +55,9 @@ export const AccountSettings = memo<AccountSettingsProps>(({ id }) => {
   const [currentModal, setCurrentModal] = useState<AccountSettingsModal | null>(null);
   const [privateKeysPayload, setPrivateKeysPayload] = useState<PrivateKeyPayload[]>([]);
   const shouldDisableVisibilityChange = visibilityBeingChanged || currentAccountId === id;
+
+  const { filterChain } = useAssetsFilterOptionsSelector();
+  const { equityCurrency } = useEquityCurrency();
 
   const account = useMemo(() => allAccounts.find(({ id: accountId }) => accountId === id), [allAccounts, id]);
 
@@ -151,7 +156,7 @@ export const AccountSettings = memo<AccountSettingsProps>(({ id }) => {
                 <T id="totalBalance" />:
               </span>
               <span className="ml-1.5 text-font-num-14">
-                <TotalEquity account={account} currency="fiat" />
+                <TotalEquity account={account} filterChain={filterChain} currency={equityCurrency} />
               </span>
             </div>
           </div>

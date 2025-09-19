@@ -2138,6 +2138,9 @@
   "noTokens": {
     "message": "No tokens"
   },
+  "hiddenTokensHint": {
+    "message": "You have hidden tokens, disable\n“Hide small balances” filter to see them all"
+  },
   "noCollectibles": {
     "message": "No collectibles"
   },
@@ -2515,6 +2518,9 @@
   "suggested": {
     "message": "Suggested"
   },
+  "otherWallets": {
+    "message": "Other wallets"
+  },
   "chainTestnetsGroup": {
     "message": "$chain$ Testnets",
     "placeholders": {
@@ -2801,6 +2807,14 @@
   },
   "notWhitelistedTokenWarning": {
     "message": "Attention! One of the tokens you’re trying to exchange is not whitelisted. You can interact with them at your own risk."
+  },
+  "selectWalletCaption": {
+    "message": "Select what wallet you would like to connect with $domain$.",
+    "placeholders": {
+      "domain": {
+        "content": "$1"
+      }
+    }
   },
   "tvl": {
     "message": "TVL"

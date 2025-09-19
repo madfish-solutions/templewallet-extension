@@ -253,11 +253,18 @@ const DEFAULT_BLOCK_EXPLORERS_BASE: Record<TempleChainKind, Record<string, Omit<
         id: 'tzkt-ghostnet'
       }
     ],
-    [TempleTezosChainId.Paris]: [
+    [TempleTezosChainId.Rio]: [
       {
         name: 'TzKT',
-        url: 'https://parisnet.tzkt.io',
-        id: 'tzkt-paris'
+        url: 'https://rionet.tzkt.io',
+        id: 'tzkt-rionet'
+      }
+    ],
+    [TempleTezosChainId.Seoul]: [
+      {
+        name: 'TzKT',
+        url: 'https://seoulnet.tzkt.io',
+        id: 'tzkt-seoulnet'
       }
     ],
     [TempleTezosChainId.Dcp]: [
