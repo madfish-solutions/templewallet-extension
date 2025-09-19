@@ -44,7 +44,7 @@ export const ActionListItem: FC<ActionListItemProps> = ({
       active
         ? 'bg-grey-4'
         : disabled
-        ? 'opacity-50 cursor-not-allowed'
+        ? 'cursor-not-allowed text-disable'
         : danger
         ? 'hover:bg-error-low'
         : 'hover:bg-secondary-low',
@@ -60,7 +60,13 @@ export const ActionListItem: FC<ActionListItemProps> = ({
       : onClick,
     children: (
       <>
-        {Icon && <IconBase Icon={Icon} size={16} className={danger ? 'text-error' : 'text-secondary'} />}
+        {Icon && (
+          <IconBase
+            Icon={Icon}
+            size={16}
+            className={disabled ? 'text-disable' : danger ? 'text-error' : 'text-secondary'}
+          />
+        )}
 
         {typeof children === 'string' ? <span className="capitalize">{children}</span> : children}
       </>

@@ -27,6 +27,8 @@ import { useAccountForTezos, useTezosMainnetChain } from 'temple/front';
 export const YourRewardsCards = memo(() => {
   const tezosMainnet = useTezosMainnetChain();
   const account = useAccountForTezos();
+  const hasTezosAccount = Boolean(account);
+
   const {
     animatedChevronRef: advancedChevronRef,
     handleHover: handleAdvancedHover,
@@ -178,18 +180,18 @@ export const YourRewardsCards = memo(() => {
 
         <div className="p-3">
           {isTkeyLoading ? (
-            <div className="justify-center flex py-2">
+            <div className="justify-center items-center flex h-[42px]">
               <Loader size="L" trackVariant="dark" className="text-secondary" />
             </div>
           ) : !isAdvertisingEnabled && !referralsEnabled ? (
             <p className="text-font-description text-grey-1">{t('passivelyEarnTkey')}</p>
           ) : !tkeyStats || tkeyStats.total === 0 ? (
-            <div className="justify-center flex py-2">
+            <div className="justify-center items-center flex h-[42px]">
               <span className="text-font-description text-grey-2 center">{t('noRewardsActivity')}</span>
             </div>
           ) : (
             <div className="text-font-description text-grey-1 flex items-center justify-between">
-              <div className="flex flex-col gap-1">
+              <div className="flex flex-col gap-0.5">
                 <span className="text-font-description text-grey-1">{t('allTime')}</span>
                 <span className="text-font-num-bold-16 text-text">
                   {tkeyStats.total && (
@@ -204,7 +206,7 @@ export const YourRewardsCards = memo(() => {
                   )}
                 </span>
               </div>
-              <div className="flex flex-col items-end gap-1">
+              <div className="flex flex-col items-end gap-0.5">
                 <span className="text-font-description text-grey-1">{t('lastActivity')}</span>
                 <span className="text-font-num-bold-16 text-success">
                   {tkeyStats.lastAmount && (
@@ -221,76 +223,83 @@ export const YourRewardsCards = memo(() => {
           )}
         </div>
       </div>
-      <div className="rounded-8 shadow-bottom">
-        <Link
-          to={`/earn-tez/${tezosMainnet.chainId}`}
-          className={clsx('p-3 flex items-center justify-between')}
-          onMouseEnter={handleBakeryHover}
-          onMouseLeave={handleBakeryUnhover}
-          onClick={delegatedToTemple ? undefined : openTempleBakerDelegation}
-        >
-          <span className="text-font-medium-bold">
-            <T id="templeBakery" />
-          </span>
-          <AnimatedMenuChevron ref={bakeryChevronRef} />
-        </Link>
+      {hasTezosAccount && (
+        <>
+          <div className="rounded-8 shadow-bottom">
+            <Link
+              to={`/earn-tez/${tezosMainnet.chainId}`}
+              className={clsx('p-3 flex items-center justify-between')}
+              onMouseEnter={handleBakeryHover}
+              onMouseLeave={handleBakeryUnhover}
+              onClick={delegatedToTemple ? undefined : openTempleBakerDelegation}
+            >
+              <span className="text-font-medium-bold">
+                <T id="templeBakery" />
+              </span>
+              <AnimatedMenuChevron ref={bakeryChevronRef} />
+            </Link>
 
-        <Divider className="bg-lines" />
+            <Divider className="bg-lines" />
 
-        <div className="p-3">
-          {isBakeryLoading ? (
-            <div className="justify-center flex py-2">
-              <Loader size="L" trackVariant="dark" className="text-secondary" />
-            </div>
-          ) : delegatedToTemple && (!bakeryStats || bakeryStats.total === 0) ? (
-            <div className="justify-center flex py-2">
-              <span className="text-font-description text-grey-2 center">{t('noDelegationRewards')}</span>
-            </div>
-          ) : !bakeryStats || bakeryStats.total === 0 ? (
-            <p className="text-font-description text-grey-1">
-              <T id="delegateTezFunds" substitutions={<span className="text-font-description-bold">5.6% APY</span>} />
-            </p>
-          ) : (
-            <div className="text-font-description text-grey-1 flex items-center justify-between">
-              <div className="flex flex-col gap-1">
-                <span className="text-font-description text-grey-1">{t('allTime')}</span>
-                <span className="text-font-num-bold-16 text-text">
-                  <div className="flex flex-row items-center gap-1">
-                    <div className="w-6 h-6 flex justify-center items-center bg-text rounded-full">
-                      <Logo type={'icon'} size={14} />
-                    </div>
-                    <Money cryptoDecimals={2} smallFractionFont={false}>
-                      {bakeryStats.total}
-                    </Money>
+            <div className="p-3">
+              {isBakeryLoading ? (
+                <div className="justify-center items-center flex h-[42px]">
+                  <Loader size="L" trackVariant="dark" className="text-secondary" />
+                </div>
+              ) : delegatedToTemple && (!bakeryStats || bakeryStats.total === 0) ? (
+                <div className="justify-center items-center flex h-[42px]">
+                  <span className="text-font-description text-grey-2 center">{t('noDelegationRewards')}</span>
+                </div>
+              ) : !bakeryStats || bakeryStats.total === 0 ? (
+                <p className="text-font-description text-grey-1">
+                  <T
+                    id="delegateTezFunds"
+                    substitutions={<span className="text-font-description-bold">5.6% APY</span>}
+                  />
+                </p>
+              ) : (
+                <div className="text-font-description text-grey-1 flex items-center justify-between">
+                  <div className="flex flex-col gap-0.5">
+                    <span className="text-font-description text-grey-1">{t('allTime')}</span>
+                    <span className="text-font-num-bold-16 text-text">
+                      <div className="flex flex-row items-center gap-1">
+                        <div className="w-6 h-6 flex justify-center items-center bg-text rounded-full">
+                          <Logo type={'icon'} size={14} />
+                        </div>
+                        <Money cryptoDecimals={2} smallFractionFont={false}>
+                          {bakeryStats.total}
+                        </Money>
+                      </div>
+                    </span>
                   </div>
-                </span>
-              </div>
-              <div className="flex flex-col items-end gap-1">
-                <span className="text-font-description text-grey-1">{t('lastActivity')}</span>
-                <span className="text-font-num-bold-16 text-success">
-                  {bakeryStats.lastAmount ? (
-                    <>
-                      +
-                      <Money cryptoDecimals={2} smallFractionFont={false}>
-                        {bakeryStats.lastAmount}
-                      </Money>
-                    </>
-                  ) : (
-                    '—'
-                  )}
-                </span>
-              </div>
+                  <div className="flex flex-col items-end gap-0.5">
+                    <span className="text-font-description text-grey-1">{t('lastActivity')}</span>
+                    <span className="text-font-num-bold-16 text-success">
+                      {bakeryStats.lastAmount ? (
+                        <>
+                          +
+                          <Money cryptoDecimals={2} smallFractionFont={false}>
+                            {bakeryStats.lastAmount}
+                          </Money>
+                        </>
+                      ) : (
+                        '—'
+                      )}
+                    </span>
+                  </div>
+                </div>
+              )}
             </div>
+          </div>
+          {isDelegationOpen && account && (
+            <DelegationModal
+              network={tezosMainnet}
+              account={account}
+              directBakerPkh={TEMPLE_BAKER_ADDRESS}
+              onClose={closeDelegation}
+            />
           )}
-        </div>
-      </div>
-      {isDelegationOpen && account && (
-        <DelegationModal
-          network={tezosMainnet}
-          account={account}
-          directBakerPkh={TEMPLE_BAKER_ADDRESS}
-          onClose={closeDelegation}
-        />
+        </>
       )}
     </div>
   );

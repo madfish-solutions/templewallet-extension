@@ -4,15 +4,14 @@ import { IconBase } from 'app/atoms';
 import { useRewardsBadgeVisible } from 'app/hooks/use-rewards-badge';
 import { ReactComponent as GiftIcon } from 'app/icons/base/gift.svg';
 
-export const RewardsIconWithBadge = memo(() => {
+export const RewardsIconWithBadge = memo(({ className }: { className?: string }) => {
   const rewardsBadgeVisible = useRewardsBadgeVisible();
-  console.log('rewardsBadgeVisible', rewardsBadgeVisible);
 
   return (
     <div className="relative">
       {rewardsBadgeVisible && <AnimatedDot />}
 
-      <IconBase Icon={GiftIcon} size={16} className="text-secondary" />
+      <IconBase Icon={GiftIcon} size={16} className={className ?? 'text-secondary'} />
     </div>
   );
 });
