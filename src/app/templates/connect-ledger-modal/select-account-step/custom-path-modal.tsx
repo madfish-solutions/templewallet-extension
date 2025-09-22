@@ -9,6 +9,7 @@ import {
   ActionModalButton,
   ActionModalButtonsContainer
 } from 'app/atoms/action-modal';
+import { Tooltip } from 'app/atoms/Tooltip';
 import { T, t } from 'lib/i18n';
 import { validateDerivationPath } from 'lib/temple/front';
 import { shouldDisableSubmitButton } from 'lib/ui/should-disable-submit-button';
@@ -71,8 +72,26 @@ export const CustomPathModal = memo<CustomPathModalProps>(
               render={({ field }) => (
                 <FormField
                   {...field}
-                  label={t(allowCustomPath ? 'accountIndex' : 'indexOrDerivationPath')}
-                  labelDescription={t(allowCustomPath ? 'accountIndexDescription' : 'indexOrDerivationPathDescription')}
+                  label={
+                    allowCustomPath ? (
+                      <>
+                        <T id="indexOrDerivationPath" />
+                        <Tooltip
+                          content={
+                            <span className="font-normal">
+                              <T id="indexOrDerivationPathDescription" />
+                            </span>
+                          }
+                          size={16}
+                          className="text-grey-3"
+                          wrapperClassName="max-w-60"
+                        />
+                      </>
+                    ) : (
+                      t('accountIndex')
+                    )
+                  }
+                  labelDescription={allowCustomPath ? null : t('accountIndexDescription')}
                   id="index-or-path-input"
                   type="text"
                   placeholder={allowCustomPath ? t('indexOrDerivationPathPlaceholder') : '0'}
