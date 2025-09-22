@@ -13,6 +13,7 @@ import { Tooltip } from 'app/atoms/Tooltip';
 import { T, t } from 'lib/i18n';
 import { validateDerivationPath } from 'lib/temple/front';
 import { shouldDisableSubmitButton } from 'lib/ui/should-disable-submit-button';
+import { TempleChainKind } from 'temple/types';
 
 import { ConnectLedgerModalSelectors } from '../selectors';
 
@@ -23,19 +24,20 @@ export interface CustomPathFormData {
 interface CustomPathModalProps {
   alreadyInWalletIndexes: number[];
   alreadyInTmpListIndexes: number[];
-  allowCustomPath: boolean;
+  chain: TempleChainKind;
   onClose: SyncFn<void>;
   onSubmit: (formData: CustomPathFormData) => Promise<void>;
 }
 
 export const CustomPathModal = memo<CustomPathModalProps>(
-  ({ alreadyInWalletIndexes, alreadyInTmpListIndexes, allowCustomPath, onClose, onSubmit }) => {
+  ({ alreadyInWalletIndexes, alreadyInTmpListIndexes, chain, onClose, onSubmit }) => {
     const { control, handleSubmit, formState } = useForm<CustomPathFormData>({ defaultValues: { indexOrPath: '' } });
     const { errors } = formState;
+    const isEvm = chain === TempleChainKind.EVM;
 
     const validateIndexOrDerivationPath = useCallback(
       (rawValue: string) => {
-        if (rawValue.includes('/') && allowCustomPath) {
+        if (rawValue.includes('/')) {
           return validateDerivationPath(rawValue);
         }
 
@@ -55,7 +57,7 @@ export const CustomPathModal = memo<CustomPathModalProps>(
 
         return true;
       },
-      [allowCustomPath, alreadyInTmpListIndexes, alreadyInWalletIndexes]
+      [alreadyInTmpListIndexes, alreadyInWalletIndexes]
     );
 
     return (
@@ -73,28 +75,25 @@ export const CustomPathModal = memo<CustomPathModalProps>(
                 <FormField
                   {...field}
                   label={
-                    allowCustomPath ? (
-                      <>
-                        <T id="indexOrDerivationPath" />
-                        <Tooltip
-                          content={
-                            <span className="font-normal">
-                              <T id="indexOrDerivationPathDescription" />
-                            </span>
-                          }
-                          size={16}
-                          className="text-grey-3"
-                          wrapperClassName="max-w-60"
-                        />
-                      </>
-                    ) : (
-                      t('accountIndex')
-                    )
+                    <>
+                      <T id="indexOrDerivationPath" />
+                      <Tooltip
+                        content={
+                          <span className="font-normal">
+                            <T
+                              id={isEvm ? 'evmIndexOrDerivationPathDescription' : 'indexOrDerivationPathDescription'}
+                            />
+                          </span>
+                        }
+                        size={16}
+                        className="text-grey-3"
+                        wrapperClassName="max-w-60"
+                      />
+                    </>
                   }
-                  labelDescription={allowCustomPath ? null : t('accountIndexDescription')}
                   id="index-or-path-input"
                   type="text"
-                  placeholder={allowCustomPath ? t('indexOrDerivationPathPlaceholder') : '0'}
+                  placeholder={isEvm ? t('evmIndexOrDerivationPathPlaceholder') : t('indexOrDerivationPathPlaceholder')}
                   errorCaption={errors.indexOrPath?.message}
                   reserveSpaceForError={false}
                   containerClassName="mb-1"
