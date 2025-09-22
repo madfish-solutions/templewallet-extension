@@ -15,7 +15,7 @@ import { LedgerApprovalModal } from 'app/templates/ledger-approval-modal';
 import { toastError } from 'app/toaster';
 import { T, t } from 'lib/i18n';
 import { TEZOS_METADATA } from 'lib/metadata';
-import { useTempleClient } from 'lib/temple/front';
+import { useTempleClient, validateDerivationPath } from 'lib/temple/front';
 import { fetchNewAccountName, getDerivationPath } from 'lib/temple/helpers';
 import { StoredAccount, TempleAccountType } from 'lib/temple/types';
 import { LedgerOperationState, runConnectedLedgerOperationFlow } from 'lib/ui';
@@ -91,12 +91,12 @@ export const SelectAccountStep = memo<SelectAccountStepProps>(({ initialAccount,
   }, [accounts, activeAccountIndex, createLedgerAccount, knownLedgerAccounts, onSuccess]);
 
   const importLedgerAccount = useCallback(
-    (currentDerivationType: DerivationType, derivationIndex?: number) =>
+    (currentDerivationType: DerivationType, indexOrPath?: string | number) =>
       runConnectedLedgerOperationFlow(
         async () => {
           const newAccount = pickTezosAccounts
-            ? await getLedgerTezosAccount(currentDerivationType, derivationIndex)
-            : await getLedgerEvmAccount(derivationIndex);
+            ? await getLedgerTezosAccount(currentDerivationType, indexOrPath)
+            : await getLedgerEvmAccount(indexOrPath);
           setKnownAccountsByDerivation(prevAccounts => ({
             ...prevAccounts,
             [currentDerivationType]: prevAccounts[currentDerivationType].concat(newAccount)
@@ -135,11 +135,14 @@ export const SelectAccountStep = memo<SelectAccountStepProps>(({ initialAccount,
   }, [approveModalVisible]);
 
   const handleCustomPathModalSubmit = useCallback(
-    async ({ index: derivationIndex }: CustomPathFormData) => {
+    async ({ indexOrPath }: CustomPathFormData) => {
       if (pickTezosAccounts) {
         closeCustomPathModal();
       }
-      await importLedgerAccount(derivationType, Number(derivationIndex));
+      await importLedgerAccount(
+        derivationType,
+        validateDerivationPath(indexOrPath) === true ? indexOrPath : Number(indexOrPath)
+      );
       if (!pickTezosAccounts) {
         closeCustomPathModal();
       }
@@ -164,6 +167,7 @@ export const SelectAccountStep = memo<SelectAccountStepProps>(({ initialAccount,
 
       {customPathModalIsOpen && (
         <CustomPathModal
+          allowCustomPath={pickTezosAccounts}
           alreadyInTmpListIndexes={alreadyInTmpListIndexes}
           alreadyInWalletIndexes={alreadyInWalletIndexes}
           onClose={closeCustomPathModal}

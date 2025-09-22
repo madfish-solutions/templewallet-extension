@@ -10,29 +10,35 @@ import {
   ActionModalButtonsContainer
 } from 'app/atoms/action-modal';
 import { T, t } from 'lib/i18n';
+import { validateDerivationPath } from 'lib/temple/front';
 import { shouldDisableSubmitButton } from 'lib/ui/should-disable-submit-button';
 
 import { ConnectLedgerModalSelectors } from '../selectors';
 
 export interface CustomPathFormData {
-  index: string;
+  indexOrPath: string;
 }
 
 interface CustomPathModalProps {
   alreadyInWalletIndexes: number[];
   alreadyInTmpListIndexes: number[];
+  allowCustomPath: boolean;
   onClose: SyncFn<void>;
   onSubmit: (formData: CustomPathFormData) => Promise<void>;
 }
 
 export const CustomPathModal = memo<CustomPathModalProps>(
-  ({ alreadyInWalletIndexes, alreadyInTmpListIndexes, onClose, onSubmit }) => {
-    const { control, handleSubmit, formState } = useForm<CustomPathFormData>({ defaultValues: { index: '' } });
+  ({ alreadyInWalletIndexes, alreadyInTmpListIndexes, allowCustomPath, onClose, onSubmit }) => {
+    const { control, handleSubmit, formState } = useForm<CustomPathFormData>({ defaultValues: { indexOrPath: '' } });
     const { errors } = formState;
 
-    const validateIndex = useCallback(
-      (rawIndex: string) => {
-        const parsedIndex = parseInt(rawIndex, 10);
+    const validateIndexOrDerivationPath = useCallback(
+      (rawValue: string) => {
+        if (rawValue.includes('/') && allowCustomPath) {
+          return validateDerivationPath(rawValue);
+        }
+
+        const parsedIndex = parseInt(rawValue, 10);
 
         if (!Number.isInteger(parsedIndex) || parsedIndex < 0) {
           return t('invalidIndexError');
@@ -48,7 +54,7 @@ export const CustomPathModal = memo<CustomPathModalProps>(
 
         return true;
       },
-      [alreadyInTmpListIndexes, alreadyInWalletIndexes]
+      [allowCustomPath, alreadyInTmpListIndexes, alreadyInWalletIndexes]
     );
 
     return (
@@ -56,21 +62,21 @@ export const CustomPathModal = memo<CustomPathModalProps>(
         <form onSubmit={handleSubmit(onSubmit)}>
           <ActionModalBodyContainer>
             <Controller
-              name="index"
+              name="indexOrPath"
               control={control}
               rules={{
                 required: t('required'),
-                validate: validateIndex
+                validate: validateIndexOrDerivationPath
               }}
               render={({ field }) => (
                 <FormField
                   {...field}
-                  label={t('accountIndex')}
-                  labelDescription={t('accountIndexDescription')}
-                  id="index-input"
+                  label={t(allowCustomPath ? 'accountIndex' : 'indexOrDerivationPath')}
+                  labelDescription={t(allowCustomPath ? 'accountIndexDescription' : 'indexOrDerivationPathDescription')}
+                  id="index-or-path-input"
                   type="text"
-                  placeholder="0"
-                  errorCaption={errors.index?.message}
+                  placeholder={allowCustomPath ? t('indexOrDerivationPathPlaceholder') : '0'}
+                  errorCaption={errors.indexOrPath?.message}
                   reserveSpaceForError={false}
                   containerClassName="mb-1"
                   testID={ConnectLedgerModalSelectors.accountIndexInput}

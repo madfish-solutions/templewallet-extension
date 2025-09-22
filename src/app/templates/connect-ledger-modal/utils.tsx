@@ -33,9 +33,11 @@ export const useGetLedgerTezosAccount = () => {
   return useCallback(
     async (
       derivationType = DEFAULT_DERIVATION,
-      derivationIndex = getDefaultLedgerAccountIndex(accounts, TempleChainKind.Tezos, derivationType)
+      indexOrPath: string | number = getDefaultLedgerAccountIndex(accounts, TempleChainKind.Tezos, derivationType)
     ): Promise<TezosAccountProps> => {
-      const pk = await getLedgerTezosPk(derivationType, getDerivationPath(TempleChainKind.Tezos, derivationIndex));
+      const derivationPath =
+        typeof indexOrPath === 'string' ? indexOrPath : getDerivationPath(TempleChainKind.Tezos, indexOrPath);
+      const pk = await getLedgerTezosPk(derivationType, derivationPath);
       const pkh = getPkhfromPk(pk);
 
       return {
@@ -45,7 +47,7 @@ export const useGetLedgerTezosAccount = () => {
           .getBalance(pkh)
           .then(mutezToTz)
           .catch(() => ZERO),
-        derivationIndex,
+        derivationIndex: typeof indexOrPath === 'number' ? indexOrPath : 0,
         derivationType,
         chain: TempleChainKind.Tezos
       };
@@ -60,8 +62,12 @@ export const useGetLedgerEvmAccount = () => {
   const { accounts, getLedgerEVMPk } = useTempleClient();
 
   return useCallback(
-    async (derivationIndex = getDefaultLedgerAccountIndex(accounts, TempleChainKind.EVM)): Promise<EvmAccountProps> => {
-      const pk = await getLedgerEVMPk(getDerivationPath(TempleChainKind.EVM, derivationIndex));
+    async (
+      indexOrPath: string | number = getDefaultLedgerAccountIndex(accounts, TempleChainKind.EVM)
+    ): Promise<EvmAccountProps> => {
+      const derivationPath =
+        typeof indexOrPath === 'string' ? indexOrPath : getDerivationPath(TempleChainKind.EVM, indexOrPath);
+      const pk = await getLedgerEVMPk(derivationPath);
       const pkh = publicKeyToAddress(pk);
 
       return {
@@ -71,7 +77,7 @@ export const useGetLedgerEvmAccount = () => {
           .getBalance({ address: pkh })
           .then(atomicBalance => atomsToTokens(toBigNumber(atomicBalance), DEFAULT_EVM_CURRENCY.decimals))
           .catch(() => ZERO),
-        derivationIndex,
+        derivationIndex: typeof indexOrPath === 'number' ? indexOrPath : 0,
         chain: TempleChainKind.EVM
       };
     },
