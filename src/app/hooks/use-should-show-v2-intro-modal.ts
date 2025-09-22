@@ -20,7 +20,7 @@ export const useShouldShowIntroModals = (value: boolean) => {
   }, [value, shouldShowV2IntroModal, setShouldShowV2IntroModal]);
 
   useEffect(() => {
-    if (!isDefined(shouldShowEarnEthIntroModal) && compare(APP_VERSION, '2.0.5', '>')) {
+    if (!isDefined(shouldShowEarnEthIntroModal) && compare(APP_VERSION, '2.0.7', '>')) {
       setShouldShowEarnEthIntroModal(value);
     }
   }, [value, shouldShowEarnEthIntroModal, setShouldShowEarnEthIntroModal]);
