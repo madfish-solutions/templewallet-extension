@@ -1,9 +1,9 @@
-import { b58cdecode, hex2buf } from '@taquito/utils';
+import { b58DecodeAndCheckPrefix, hex2buf } from '@taquito/utils';
 import { crypto_generichash, ready } from 'libsodium-wrappers';
 import toBuffer from 'typedarray-to-buffer';
 
 import { toLedgerError } from './helpers';
-import { curves, getSig, pref, safeSignEdData, safeSignP2Data, safeSignSpData, verifySignature } from './signer';
+import { curves, getSig, prefNames, safeSignEdData, safeSignP2Data, safeSignSpData, verifySignature } from './signer';
 
 const PAYLOAD =
   '0501313230363136653739323037333734373236393665363732303734363836313734323037373639366336633230363236353230373336393637366536353634';
@@ -74,8 +74,10 @@ describe('Ledger Signer tests', () => {
     payload: string,
     expectedResult: boolean
   ) => {
-    const _publicKey = new Uint8Array(toBuffer(b58cdecode(PUBLIC_KEYS[curveName][accountIndex], pref[curveName].pk)));
-    const sig = new Uint8Array(getSig(SIGNATURES[curveName][accountIndex], curveName, pref));
+    const _publicKey = new Uint8Array(
+      toBuffer(b58DecodeAndCheckPrefix(PUBLIC_KEYS[curveName][accountIndex], [prefNames[curveName].pk], true))
+    );
+    const sig = new Uint8Array(getSig(SIGNATURES[curveName][accountIndex], curveName, prefNames));
     const bytesHash = crypto_generichash(32, hex2buf(payload));
     const data = fn(sig, bytesHash, _publicKey);
     expect(data).toBe(expectedResult);
@@ -113,7 +115,7 @@ describe('Ledger Signer tests', () => {
     });
     it('Get curve prefix', async () => {
       const curve = PUBLIC_KEYS.p2[0].substring(0, 2) as curves;
-      const sig = getSig(SIGNATURES.p2[0], curve, pref);
+      const sig = getSig(SIGNATURES.p2[0], curve, prefNames);
       expect(sig.byteLength).toBe(64);
     });
     it('Throw error on invalid curve', async () => {

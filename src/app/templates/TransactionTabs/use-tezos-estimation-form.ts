@@ -23,6 +23,7 @@ import { ZERO } from 'lib/utils/numbers';
 import { serializeEstimate } from 'lib/utils/serialize-estimate';
 import { AccountForChain, getAccountAddressForTezos } from 'temple/accounts';
 import { getTezosToolkitWithSigner } from 'temple/front';
+import { provePossession } from 'temple/front/tezos';
 import { getTezosFastRpcClient, michelEncoder } from 'temple/tezos';
 import { AssetsAmounts, TempleChainKind } from 'temple/types';
 
@@ -289,9 +290,14 @@ export const useTezosEstimationForm = ({
       const sourcePublicKey = await tezos.wallet.pk();
 
       let bytesToSign: string | undefined;
-      const signer = new ReadOnlySigner(accountPkh, sourcePublicKey, digest => {
-        bytesToSign = digest;
-      });
+      const signer = new ReadOnlySigner(
+        accountPkh,
+        sourcePublicKey,
+        digest => {
+          bytesToSign = digest;
+        },
+        () => provePossession(accountPkh)
+      );
 
       const readOnlyTezos = new TezosToolkit(getTezosFastRpcClient(rpcBaseURL));
       readOnlyTezos.setSignerProvider(signer);

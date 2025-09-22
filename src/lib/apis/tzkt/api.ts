@@ -144,9 +144,13 @@ export const getDelegatorRewards = (
 
 const TZKT_MAX_QUERY_ITEMS_LIMIT = 10_000;
 
-export const getCycles = (chainId: TzktApiChainId) => fetchGet<TzktCycle[]>(chainId, '/cycles', {});
+export const getCycles = (chainId: TzktApiChainId, offset?: number, limit?: number) =>
+  fetchGet<TzktCycle[]>(chainId, '/cycles', { offset, limit });
 
 export const getProtocol = (chainId: TzktApiChainId) => fetchGet<TzktProtocol>(chainId, '/protocols/current');
+
+export const getProtocolByCycle = (chainId: TzktApiChainId, cycle: number) =>
+  fetchGet<TzktProtocol>(chainId, `/protocols/cycles/${cycle}`);
 
 /**
  * @arg fungible // `null` for unknown fungibility only
