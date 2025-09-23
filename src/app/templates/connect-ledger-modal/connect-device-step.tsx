@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useMemo, useState } from 'react';
+import React, { memo, useCallback, useState } from 'react';
 
 import { DerivationType } from '@taquito/ledger-signer';
 
@@ -7,7 +7,6 @@ import { LedgerImage } from 'app/atoms';
 import { StyledButton } from 'app/atoms/StyledButton';
 import { LEDGER_USB_VENDOR_ID } from 'lib/constants';
 import { T, t } from 'lib/i18n';
-import { useTempleClient } from 'lib/temple/front';
 import { LedgerOperationState, LedgerUIConfigurationBase, makeStateToUIConfiguration } from 'lib/ui';
 import { isLedgerRejectionError } from 'lib/utils/ledger';
 import { TempleChainKind } from 'temple/types';
@@ -16,7 +15,7 @@ import { PageModalScrollViewWithActions } from '../page-modal-scroll-view-with-a
 
 import { ConnectLedgerModalSelectors } from './selectors';
 import { AccountProps } from './types';
-import { getDefaultLedgerAccountIndex, useGetLedgerEvmAccount, useGetLedgerTezosAccount } from './utils';
+import { useGetLedgerEvmAccount, useGetLedgerTezosAccount } from './utils';
 
 interface ConnectDeviceStepProps {
   onSuccess: (account: AccountProps) => void;
@@ -62,7 +61,6 @@ const stateToUIConfiguration: Record<LedgerOperationState, UIConfiguration> =
   });
 
 export const ConnectDeviceStep = memo<ConnectDeviceStepProps>(({ chainKind, onSuccess }) => {
-  const { accounts } = useTempleClient();
   const [account, setAccount] = useState<AccountProps>();
   const [connectionState, setConnectionState] = useState<LedgerOperationState>(LedgerOperationState.NotStarted);
   const [modelName, setModelName] = useState<string | null>(null);
@@ -75,7 +73,6 @@ export const ConnectDeviceStep = memo<ConnectDeviceStepProps>(({ chainKind, onSu
 
   const getLedgerTezosAccount = useGetLedgerTezosAccount();
   const getLedgerEvmAccount = useGetLedgerEvmAccount();
-  const defaultAccountIndex = useMemo(() => getDefaultLedgerAccountIndex(accounts, chainKind), [accounts, chainKind]);
 
   const connectLedger = useCallback(async () => {
     setConnectionState(LedgerOperationState.InProgress);
@@ -106,8 +103,8 @@ export const ConnectDeviceStep = memo<ConnectDeviceStepProps>(({ chainKind, onSu
       try {
         setAccount(
           chainKind === TempleChainKind.Tezos
-            ? await getLedgerTezosAccount(DerivationType.ED25519, defaultAccountIndex)
-            : await getLedgerEvmAccount(defaultAccountIndex)
+            ? await getLedgerTezosAccount(DerivationType.ED25519, 0)
+            : await getLedgerEvmAccount(0)
         );
         setConnectionState(LedgerOperationState.Success);
         setModelName(webHidDevice.productName);
@@ -122,7 +119,7 @@ export const ConnectDeviceStep = memo<ConnectDeviceStepProps>(({ chainKind, onSu
       setConnectionState(LedgerOperationState.UnableToConnect);
       setModelName(null);
     }
-  }, [chainKind, defaultAccountIndex, getLedgerEvmAccount, getLedgerTezosAccount]);
+  }, [chainKind, getLedgerEvmAccount, getLedgerTezosAccount]);
 
   const handleContinueClick = useCallback(() => onSuccess(account!), [onSuccess, account]);
 

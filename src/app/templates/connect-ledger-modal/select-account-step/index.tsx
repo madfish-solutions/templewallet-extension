@@ -27,7 +27,7 @@ import { TempleChainKind } from 'temple/types';
 
 import { ConnectLedgerModalSelectors } from '../selectors';
 import { AccountProps } from '../types';
-import { useGetLedgerEvmAccount, useGetLedgerTezosAccount, useUsedDerivationIndexes } from '../utils';
+import { useGetLedgerEvmAccount, useGetLedgerTezosAccount } from '../utils';
 
 import { CustomPathFormData, CustomPathModal } from './custom-path-modal';
 import { DerivationTypeSelector } from './derivation-type-selector';
@@ -68,7 +68,6 @@ export const SelectAccountStep = memo<SelectAccountStepProps>(({ initialAccount,
   const approveModalVisible = ledgerApprovalModalState !== LedgerOperationState.NotStarted;
   const getLedgerTezosAccount = useGetLedgerTezosAccount();
   const getLedgerEvmAccount = useGetLedgerEvmAccount();
-  const alreadyInWalletIndexes = useUsedDerivationIndexes(initialAccount.chain, derivationType);
   const alreadyInTmpListIndexes = useMemo(() => knownLedgerAccounts.map(a => a.derivationIndex), [knownLedgerAccounts]);
   const pickTezosAccounts = initialAccount.chain === TempleChainKind.Tezos;
 
@@ -169,7 +168,6 @@ export const SelectAccountStep = memo<SelectAccountStepProps>(({ initialAccount,
         <CustomPathModal
           chain={initialAccount.chain}
           alreadyInTmpListIndexes={alreadyInTmpListIndexes}
-          alreadyInWalletIndexes={alreadyInWalletIndexes}
           onClose={closeCustomPathModal}
           onSubmit={handleCustomPathModalSubmit}
         />
