@@ -91,6 +91,7 @@ export const CustomPathModal = memo<CustomPathModalProps>(
                       />
                     </>
                   }
+                  labelContainerClassName="w-full flex justify-between items-center"
                   id="index-or-path-input"
                   type="text"
                   placeholder={isEvm ? t('evmIndexOrDerivationPathPlaceholder') : t('indexOrDerivationPathPlaceholder')}
