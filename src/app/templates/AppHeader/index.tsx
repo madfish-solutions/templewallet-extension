@@ -9,6 +9,7 @@ import { Button } from 'app/atoms/Button';
 import { useSearchParamsBoolean } from 'app/hooks/use-search-params-boolean';
 import { ReactComponent as BurgerIcon } from 'app/icons/base/menu.svg';
 import { HomeSelectors } from 'app/pages/Home/selectors';
+import { EarnEthIntroModal } from 'app/templates/AppHeader/EarnEthIntroModal';
 import { V2IntroductionModal } from 'app/templates/AppHeader/V2IntroductionModal';
 import Popper from 'lib/ui/Popper';
 import { useAccount } from 'temple/front';
@@ -60,6 +61,7 @@ export const AppHeader = memo(() => {
       </Popper>
 
       <V2IntroductionModal />
+      <EarnEthIntroModal />
     </div>
   );
 });
