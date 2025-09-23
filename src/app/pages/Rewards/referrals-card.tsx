@@ -26,10 +26,14 @@ export const ReferralsCard = memo(() => {
 
   const { data: conversionAccount } = useTypedSWR(['conversionAccount'], fetchConversionAccount, { suspense: false });
   const { data: refLink } = useTypedSWR(['refLink'], getRefLink, { suspense: false });
-  const { data: referralsCount } = useTypedSWR(['referralsCount'], () => getReferralsCount(), {
-    suspense: false,
-    refreshInterval: REFERRERS_COUNTER_SYNC_INTERVAL
-  });
+  const { data: referralsCount, isLoading: isReferralsCountLoading } = useTypedSWR(
+    ['referralsCount'],
+    () => getReferralsCount(),
+    {
+      suspense: false,
+      refreshInterval: REFERRERS_COUNTER_SYNC_INTERVAL
+    }
+  );
 
   const onInviteLinkCopied = useCallback(() => {
     trackEvent('CopyReferralLink', AnalyticsEventCategory.ButtonPress);
@@ -60,10 +64,12 @@ export const ReferralsCard = memo(() => {
           </div>
 
           <span className="text-font-num-24 font-medium mr-2">
-            {referralsCount ? (
-              <Money smallFractionFont={false}>{referralsCount}</Money>
-            ) : (
+            {isReferralsCountLoading ? (
               <Loader size="L" trackVariant="dark" className="text-secondary" />
+            ) : referralsCount === undefined ? (
+              '-'
+            ) : (
+              <Money smallFractionFont={false}>{referralsCount}</Money>
             )}
           </span>
         </div>
