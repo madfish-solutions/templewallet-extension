@@ -167,7 +167,7 @@ export const SelectAccountStep = memo<SelectAccountStepProps>(({ initialAccount,
 
       {customPathModalIsOpen && (
         <CustomPathModal
-          allowCustomPath={pickTezosAccounts}
+          chain={initialAccount.chain}
           alreadyInTmpListIndexes={alreadyInTmpListIndexes}
           alreadyInWalletIndexes={alreadyInWalletIndexes}
           onClose={closeCustomPathModal}
