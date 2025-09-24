@@ -38,7 +38,8 @@ export const useGetLedgerTezosAccount = () => {
           .getBalance(pkh)
           .then(mutezToTz)
           .catch(() => ZERO),
-        derivationIndex: typeof indexOrPath === 'number' ? indexOrPath : 0,
+        index: typeof indexOrPath === 'number' ? indexOrPath : undefined,
+        derivationPath,
         derivationType,
         chain: TempleChainKind.Tezos
       };
@@ -66,7 +67,8 @@ export const useGetLedgerEvmAccount = () => {
           .getBalance({ address: pkh })
           .then(atomicBalance => atomsToTokens(toBigNumber(atomicBalance), DEFAULT_EVM_CURRENCY.decimals))
           .catch(() => ZERO),
-        derivationIndex: typeof indexOrPath === 'number' ? indexOrPath : 0,
+        index: typeof indexOrPath === 'number' ? indexOrPath : undefined,
+        derivationPath,
         chain: TempleChainKind.EVM
       };
     },
