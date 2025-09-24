@@ -9,88 +9,104 @@ import {
   ActionModalButton,
   ActionModalButtonsContainer
 } from 'app/atoms/action-modal';
+import { Tooltip } from 'app/atoms/Tooltip';
 import { T, t } from 'lib/i18n';
+import { validateDerivationPath } from 'lib/temple/front';
 import { shouldDisableSubmitButton } from 'lib/ui/should-disable-submit-button';
+import { TempleChainKind } from 'temple/types';
 
 import { ConnectLedgerModalSelectors } from '../selectors';
 
 export interface CustomPathFormData {
-  index: string;
+  indexOrPath: string;
 }
 
 interface CustomPathModalProps {
-  alreadyInWalletIndexes: number[];
   alreadyInTmpListIndexes: number[];
+  chain: TempleChainKind;
   onClose: SyncFn<void>;
   onSubmit: (formData: CustomPathFormData) => Promise<void>;
 }
 
-export const CustomPathModal = memo<CustomPathModalProps>(
-  ({ alreadyInWalletIndexes, alreadyInTmpListIndexes, onClose, onSubmit }) => {
-    const { control, handleSubmit, formState } = useForm<CustomPathFormData>({ defaultValues: { index: '' } });
-    const { errors } = formState;
+export const CustomPathModal = memo<CustomPathModalProps>(({ alreadyInTmpListIndexes, chain, onClose, onSubmit }) => {
+  const { control, handleSubmit, formState } = useForm<CustomPathFormData>({ defaultValues: { indexOrPath: '' } });
+  const { errors } = formState;
+  const isEvm = chain === TempleChainKind.EVM;
 
-    const validateIndex = useCallback(
-      (rawIndex: string) => {
-        const parsedIndex = parseInt(rawIndex, 10);
+  const validateIndexOrDerivationPath = useCallback(
+    (rawValue: string) => {
+      if (rawValue.includes('/')) {
+        return validateDerivationPath(rawValue);
+      }
 
-        if (!Number.isInteger(parsedIndex) || parsedIndex < 0) {
-          return t('invalidIndexError');
-        }
+      const parsedIndex = parseInt(rawValue, 10);
 
-        if (alreadyInWalletIndexes.includes(parsedIndex)) {
-          return t('accountAlreadyImported');
-        }
+      if (!Number.isInteger(parsedIndex) || parsedIndex < 0) {
+        return t('invalidIndexError');
+      }
 
-        if (alreadyInTmpListIndexes.includes(parsedIndex)) {
-          return t('accountAlreadyListed');
-        }
+      if (alreadyInTmpListIndexes.includes(parsedIndex)) {
+        return t('accountAlreadyListed');
+      }
 
-        return true;
-      },
-      [alreadyInTmpListIndexes, alreadyInWalletIndexes]
-    );
+      return true;
+    },
+    [alreadyInTmpListIndexes]
+  );
 
-    return (
-      <ActionModal title={<T id="customPath" />} onClose={onClose}>
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <ActionModalBodyContainer>
-            <Controller
-              name="index"
-              control={control}
-              rules={{
-                required: t('required'),
-                validate: validateIndex
-              }}
-              render={({ field }) => (
-                <FormField
-                  {...field}
-                  label={t('accountIndex')}
-                  labelDescription={t('accountIndexDescription')}
-                  id="index-input"
-                  type="text"
-                  placeholder="0"
-                  errorCaption={errors.index?.message}
-                  reserveSpaceForError={false}
-                  containerClassName="mb-1"
-                  testID={ConnectLedgerModalSelectors.accountIndexInput}
-                />
-              )}
-            />
-          </ActionModalBodyContainer>
-          <ActionModalButtonsContainer>
-            <ActionModalButton
-              color="primary"
-              disabled={shouldDisableSubmitButton({ errors, formState, disableWhileSubmitting: false })}
-              loading={formState.isSubmitting}
-              type="submit"
-              testID={ConnectLedgerModalSelectors.addCustomPathButton}
-            >
-              <T id="add" />
-            </ActionModalButton>
-          </ActionModalButtonsContainer>
-        </form>
-      </ActionModal>
-    );
-  }
-);
+  return (
+    <ActionModal title={<T id="customPath" />} onClose={onClose}>
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <ActionModalBodyContainer>
+          <Controller
+            name="indexOrPath"
+            control={control}
+            rules={{
+              required: t('required'),
+              validate: validateIndexOrDerivationPath
+            }}
+            render={({ field }) => (
+              <FormField
+                {...field}
+                label={
+                  <>
+                    <T id="indexOrDerivationPath" />
+                    <Tooltip
+                      content={
+                        <span className="font-normal">
+                          <T id={isEvm ? 'evmIndexOrDerivationPathDescription' : 'indexOrDerivationPathDescription'} />
+                        </span>
+                      }
+                      size={16}
+                      className="text-grey-3"
+                      wrapperClassName="max-w-60"
+                    />
+                  </>
+                }
+                labelContainerClassName="w-full flex justify-between items-center"
+                id="index-or-path-input"
+                type="text"
+                placeholder={isEvm ? t('evmIndexOrDerivationPathPlaceholder') : t('indexOrDerivationPathPlaceholder')}
+                errorCaption={errors.indexOrPath?.message}
+                reserveSpaceForError={false}
+                containerClassName="mb-1"
+                testID={ConnectLedgerModalSelectors.accountIndexInput}
+              />
+            )}
+          />
+        </ActionModalBodyContainer>
+        <ActionModalButtonsContainer>
+          <ActionModalButton
+            color="primary"
+            disabled={shouldDisableSubmitButton({ errors, formState, disableWhileSubmitting: false })}
+            loading={formState.isSubmitting}
+            type="submit"
+            testID={ConnectLedgerModalSelectors.addCustomPathButton}
+          >
+            <T id="add" />
+          </ActionModalButton>
+        </ActionModalButtonsContainer>
+      </form>
+    </ActionModal>
+  );
+});
