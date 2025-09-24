@@ -1,5 +1,6 @@
 import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
 
+import { isDefined } from '@rnw-community/shared';
 import { DerivationType } from '@taquito/ledger-signer';
 import { nanoid } from 'nanoid';
 
@@ -15,8 +16,8 @@ import { LedgerApprovalModal } from 'app/templates/ledger-approval-modal';
 import { toastError } from 'app/toaster';
 import { T, t } from 'lib/i18n';
 import { TEZOS_METADATA } from 'lib/metadata';
-import { useTempleClient } from 'lib/temple/front';
-import { fetchNewAccountName, getDerivationPath } from 'lib/temple/helpers';
+import { useTempleClient, validateDerivationPath } from 'lib/temple/front';
+import { fetchNewAccountName } from 'lib/temple/helpers';
 import { StoredAccount, TempleAccountType } from 'lib/temple/types';
 import { LedgerOperationState, runConnectedLedgerOperationFlow } from 'lib/ui';
 import { useBooleanState } from 'lib/ui/hooks';
@@ -27,7 +28,7 @@ import { TempleChainKind } from 'temple/types';
 
 import { ConnectLedgerModalSelectors } from '../selectors';
 import { AccountProps } from '../types';
-import { useGetLedgerEvmAccount, useGetLedgerTezosAccount, useUsedDerivationIndexes } from '../utils';
+import { useGetLedgerEvmAccount, useGetLedgerTezosAccount } from '../utils';
 
 import { CustomPathFormData, CustomPathModal } from './custom-path-modal';
 import { DerivationTypeSelector } from './derivation-type-selector';
@@ -68,19 +69,24 @@ export const SelectAccountStep = memo<SelectAccountStepProps>(({ initialAccount,
   const approveModalVisible = ledgerApprovalModalState !== LedgerOperationState.NotStarted;
   const getLedgerTezosAccount = useGetLedgerTezosAccount();
   const getLedgerEvmAccount = useGetLedgerEvmAccount();
-  const alreadyInWalletIndexes = useUsedDerivationIndexes(initialAccount.chain, derivationType);
-  const alreadyInTmpListIndexes = useMemo(() => knownLedgerAccounts.map(a => a.derivationIndex), [knownLedgerAccounts]);
+  const alreadyInTmpListIndexes = useMemo(
+    () => knownLedgerAccounts.map(a => a.index).filter(isDefined),
+    [knownLedgerAccounts]
+  );
   const pickTezosAccounts = initialAccount.chain === TempleChainKind.Tezos;
 
   const submitSelectedAccount = useCallback(async () => {
     try {
       setIsSubmitting(true);
-      const { derivationIndex, chain, ...restProps } = knownLedgerAccounts[activeAccountIndex];
+      const account = knownLedgerAccounts[activeAccountIndex];
+      const { chain, derivationPath, address, publicKey } = account;
       await createLedgerAccount({
-        ...restProps,
         chain,
-        name: await fetchNewAccountName(accounts, TempleAccountType.Ledger, i => t('defaultLedgerName', String(i))),
-        derivationPath: getDerivationPath(chain, derivationIndex)
+        derivationPath,
+        address,
+        publicKey,
+        derivationType: 'derivationType' in account ? account.derivationType : undefined,
+        name: await fetchNewAccountName(accounts, TempleAccountType.Ledger, i => t('defaultLedgerName', String(i)))
       });
       onSuccess();
     } catch (e: any) {
@@ -91,12 +97,12 @@ export const SelectAccountStep = memo<SelectAccountStepProps>(({ initialAccount,
   }, [accounts, activeAccountIndex, createLedgerAccount, knownLedgerAccounts, onSuccess]);
 
   const importLedgerAccount = useCallback(
-    (currentDerivationType: DerivationType, derivationIndex?: number) =>
+    (currentDerivationType: DerivationType, indexOrPath?: string | number) =>
       runConnectedLedgerOperationFlow(
         async () => {
           const newAccount = pickTezosAccounts
-            ? await getLedgerTezosAccount(currentDerivationType, derivationIndex)
-            : await getLedgerEvmAccount(derivationIndex);
+            ? await getLedgerTezosAccount(currentDerivationType, indexOrPath)
+            : await getLedgerEvmAccount(indexOrPath);
           setKnownAccountsByDerivation(prevAccounts => ({
             ...prevAccounts,
             [currentDerivationType]: prevAccounts[currentDerivationType].concat(newAccount)
@@ -135,11 +141,14 @@ export const SelectAccountStep = memo<SelectAccountStepProps>(({ initialAccount,
   }, [approveModalVisible]);
 
   const handleCustomPathModalSubmit = useCallback(
-    async ({ index: derivationIndex }: CustomPathFormData) => {
+    async ({ indexOrPath }: CustomPathFormData) => {
       if (pickTezosAccounts) {
         closeCustomPathModal();
       }
-      await importLedgerAccount(derivationType, Number(derivationIndex));
+      await importLedgerAccount(
+        derivationType,
+        validateDerivationPath(indexOrPath) === true ? indexOrPath : Number(indexOrPath)
+      );
       if (!pickTezosAccounts) {
         closeCustomPathModal();
       }
@@ -164,8 +173,8 @@ export const SelectAccountStep = memo<SelectAccountStepProps>(({ initialAccount,
 
       {customPathModalIsOpen && (
         <CustomPathModal
+          chain={initialAccount.chain}
           alreadyInTmpListIndexes={alreadyInTmpListIndexes}
-          alreadyInWalletIndexes={alreadyInWalletIndexes}
           onClose={closeCustomPathModal}
           onSubmit={handleCustomPathModalSubmit}
         />
@@ -242,7 +251,7 @@ const LedgerAccountCard = memo<LedgerAccountCardProps>(({ account, index, onSele
       type: TempleAccountType.Ledger,
       chain: account.chain,
       address: account.address,
-      derivationPath: getDerivationPath(TempleChainKind.Tezos, account.derivationIndex),
+      derivationPath: account.derivationPath,
       id: nanoid(),
       name: ''
     }),
@@ -265,7 +274,7 @@ const LedgerAccountCard = memo<LedgerAccountCardProps>(({ account, index, onSele
 
   return (
     <AccountCard
-      customLabelTitle={`LEDGER #${account.derivationIndex}`}
+      customLabelTitle={`LEDGER #${account.index ?? 0}`}
       account={fullAccount}
       AccountName={AccountAddress}
       BalanceValue={BalanceValue}

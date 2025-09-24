@@ -96,7 +96,7 @@ export type StoredAccount =
   | StoredManagedKTAccount
   | StoredWatchOnlyAccount;
 
-export interface StoredLedgerAccount extends StoredAccountBase {
+interface StoredLedgerAccount extends StoredAccountBase {
   type: TempleAccountType.Ledger;
   chain: TempleChainKind;
   address: string;
