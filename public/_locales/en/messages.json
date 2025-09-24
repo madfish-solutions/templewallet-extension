@@ -1092,6 +1092,21 @@
   "accountIndexDescription": {
     "message": "Enter the index of the account you would like to add"
   },
+  "indexOrDerivationPath": {
+    "message": "Index or derivation path"
+  },
+  "indexOrDerivationPathDescription": {
+    "message": "Use this field to derive account or connect old type of Tezos accounts. Custom path is needed to access accounts generated from the same seed phrase on differenet device or wallet."
+  },
+  "evmIndexOrDerivationPathDescription": {
+    "message": "Use this field to derive accounts. Custom path is needed to access accounts generated from the same seed phrase."
+  },
+  "indexOrDerivationPathPlaceholder": {
+    "message": "e.g. 1 or m/44'/1729'/1'/0'"
+  },
+  "evmIndexOrDerivationPathPlaceholder": {
+    "message": "e.g. 1 or m/44'/60'/0'/0/1"
+  },
   "invalidIndexError": {
     "message": "Must be an integer non-negative number"
   },
