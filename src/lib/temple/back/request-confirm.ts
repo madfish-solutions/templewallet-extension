@@ -74,17 +74,14 @@ export async function requestConfirm<T extends TempleDAppPayload>({
     Boolean(chrome?.sidePanel) &&
     (await chrome.sidePanel.getPanelBehavior()).openPanelOnActionClick;
 
-  const shouldUseSidePanel =
-    IS_GOOGLE_CHROME_BROWSER &&
-    Boolean(chrome?.sidePanel) &&
-    (openedSidebarWindows.length > 0 || sidePanelBehaviorEnabled);
+  const shouldUseSidePanel = openedSidebarWindows.length > 0 && sidePanelBehaviorEnabled;
 
   if (shouldUseSidePanel) {
     const targetWindowId =
       openedSidebarWindows[openedSidebarWindows.length - 1] ??
       (await browser.windows.getLastFocused().then(window => window.id));
 
-    await chrome.sidePanel.setOptions({ path: browser.runtime.getURL(`sidebar.html#?id=${id}`) });
+    await chrome.sidePanel.setOptions({ path: browser.runtime.getURL(`sidebar.html#/?id=${id}`) });
 
     if (targetWindowId !== undefined) {
       await chrome.sidePanel.open({ windowId: targetWindowId });
