@@ -41,9 +41,10 @@ import { getAccountAddressForChain, getAccountAddressForEvm, getAccountAddressFo
 import { TypedDataV1, typedV1SignatureHash } from 'temple/evm/typed-data-v1';
 import { getCustomViemChain, getViemTransportForNetwork } from 'temple/evm/utils';
 import { EvmChain } from 'temple/front';
-import { michelEncoder, getTezosFastRpcClient } from 'temple/tezos';
+import { michelEncoder, getTezosRpcClientForNetwork } from 'temple/tezos';
 import { TempleChainKind } from 'temple/types';
 
+import { TezosNetworkEssentials } from '../../../../temple/networks';
 import { createLedgerSigner } from '../ledger';
 import { PublicError } from '../PublicError';
 
@@ -892,10 +893,10 @@ export class Vault {
     return this.withSigningEvmAccount(accPublicKeyHash, async account => account.signMessage({ message }));
   }
 
-  async sendOperations(accPublicKeyHash: string, rpc: string, opParams: any[]) {
+  async sendOperations(accPublicKeyHash: string, network: TezosNetworkEssentials, opParams: any[]) {
     return this.withSigner(accPublicKeyHash, async signer => {
       const batch = await withError('Failed to send operations', async () => {
-        const tezos = new TezosToolkit(getTezosFastRpcClient(rpc));
+        const tezos = new TezosToolkit(getTezosRpcClientForNetwork(network));
         tezos.setSignerProvider(signer);
         tezos.setForgerProvider(new CompositeForger([tezos.getFactory(RpcForger)(), localForger]));
         tezos.setPackerProvider(michelEncoder);

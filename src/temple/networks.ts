@@ -57,6 +57,23 @@ const TEZOS_DCP_CHAIN_IDS: string[] = [TempleTezosChainId.Dcp, TempleTezosChainI
 
 export const isTezosDcpChainId = (chainId: string) => TEZOS_DCP_CHAIN_IDS.includes(chainId);
 
+export const TEZOS_FALLBACK_RPC_URLS: Record<string, string[]> = {
+  [TempleTezosChainId.Mainnet]: [
+    'https://prod.tcinfra.net/rpc/mainnet',
+    'https://mainnet.smartpy.io',
+    'https://mainnet.api.tez.ie',
+    'https://rpc.tzkt.io/mainnet',
+    'https://rpc.tzbeta.net',
+    'https://mainnet.tezos.ecadinfra.com'
+  ],
+  [TempleTezosChainId.Ghostnet]: [
+    'https://rpc.ghostnet.teztnets.com',
+    'https://ghostnet.smartpy.io',
+    'https://rpc.tzkt.io/ghostnet',
+    'https://ghostnet.tezos.ecadinfra.com'
+  ]
+};
+
 /** (!) Never remove Mainnet */
 export const TEZOS_DEFAULT_NETWORKS: NonEmptyArray<StoredTezosNetwork> = [
   {
@@ -64,7 +81,7 @@ export const TEZOS_DEFAULT_NETWORKS: NonEmptyArray<StoredTezosNetwork> = [
     name: 'Tezos',
     chain: TempleChainKind.Tezos,
     chainId: TempleTezosChainId.Mainnet,
-    rpcBaseURL: 'https://prod.tcinfra.net/rpc/mainnet',
+    rpcBaseURL: TEZOS_FALLBACK_RPC_URLS[TempleTezosChainId.Mainnet][0],
     description: 'Tezos mainnet',
     color: '#83b300',
     default: true
@@ -74,7 +91,7 @@ export const TEZOS_DEFAULT_NETWORKS: NonEmptyArray<StoredTezosNetwork> = [
     name: 'SmartPy',
     chain: TempleChainKind.Tezos,
     chainId: TempleTezosChainId.Mainnet,
-    rpcBaseURL: 'https://mainnet.smartpy.io',
+    rpcBaseURL: TEZOS_FALLBACK_RPC_URLS[TempleTezosChainId.Mainnet][1],
     description: 'SmartPy Mainnet',
     color: '#34D399'
   },
@@ -83,7 +100,7 @@ export const TEZOS_DEFAULT_NETWORKS: NonEmptyArray<StoredTezosNetwork> = [
     name: 'ECAD Labs',
     chain: TempleChainKind.Tezos,
     chainId: TempleTezosChainId.Mainnet,
-    rpcBaseURL: 'https://mainnet.api.tez.ie',
+    rpcBaseURL: TEZOS_FALLBACK_RPC_URLS[TempleTezosChainId.Mainnet][2],
     description: 'Highly available Tezos Mainnet nodes operated by ECAD Labs',
     color: '#047857'
   },
@@ -92,7 +109,7 @@ export const TEZOS_DEFAULT_NETWORKS: NonEmptyArray<StoredTezosNetwork> = [
     name: 'Ghostnet',
     chain: TempleChainKind.Tezos,
     chainId: TempleTezosChainId.Ghostnet,
-    rpcBaseURL: 'https://rpc.ghostnet.teztnets.com',
+    rpcBaseURL: TEZOS_FALLBACK_RPC_URLS[TempleTezosChainId.Ghostnet][0],
     description: 'Ghostnet testnet',
     color: '#131380',
     default: true

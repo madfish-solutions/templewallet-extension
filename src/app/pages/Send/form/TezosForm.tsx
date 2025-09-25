@@ -66,7 +66,7 @@ export const TezosForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, o
   const assetSymbol = useMemo(() => getAssetSymbol(assetMetadata), [assetMetadata]);
 
   const accountPkh = account.address;
-  const tezos = getTezosToolkitWithSigner(network.rpcBaseURL, account.ownerAddress || accountPkh);
+  const tezos = getTezosToolkitWithSigner(network, account.ownerAddress || accountPkh);
   const domainsClient = getTezosDomainsClient(network.chainId, network.rpcBaseURL);
 
   const formAnalytics = useFormAnalytics('SendForm');

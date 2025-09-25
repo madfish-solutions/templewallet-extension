@@ -208,7 +208,7 @@ const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<T
         port,
         req.id,
         req.sourcePkh,
-        req.networkRpc,
+        { rpcBaseURL: req.networkRpc, chainId: req.networkChainId },
         req.opParams,
         req.straightaway
       );

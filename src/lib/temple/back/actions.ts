@@ -33,6 +33,8 @@ import { EvmChain } from 'temple/front';
 import { loadTezosChainId } from 'temple/tezos';
 import { TempleChainKind } from 'temple/types';
 
+import { TezosNetworkEssentials } from '../../../temple/networks';
+
 import {
   getCurrentPermission,
   init as initTezos,
@@ -365,7 +367,7 @@ export function sendOperations(
   port: Runtime.Port,
   id: string,
   sourcePkh: string,
-  networkRpc: string,
+  network: TezosNetworkEssentials,
   opParams: any[],
   straightaway?: boolean
 ): Promise<{ opHash: string }> {
@@ -373,7 +375,7 @@ export function sendOperations(
     const sourcePublicKey = await revealPublicKey(sourcePkh);
     const dryRunResult = await dryRunOpParams({
       opParams,
-      networkRpc,
+      network,
       sourcePkh,
       sourcePublicKey
     });
@@ -384,16 +386,16 @@ export function sendOperations(
     return new Promise(async (resolve, reject) => {
       if (straightaway) {
         try {
-          const op = await vault.sendOperations(sourcePkh, networkRpc, opParams);
+          const op = await vault.sendOperations(sourcePkh, network, opParams);
 
-          await safeAddLocalOperation(networkRpc, op);
+          await safeAddLocalOperation(network.rpcBaseURL, op);
 
           resolve({ opHash: op.hash });
         } catch (err: any) {
           reject(err);
         }
       } else {
-        return promisableUnlock(resolve, reject, port, id, sourcePkh, networkRpc, opParams, dryRunResult);
+        return promisableUnlock(resolve, reject, port, id, sourcePkh, network, opParams, dryRunResult);
       }
     });
   });
@@ -405,7 +407,7 @@ const promisableUnlock = async (
   port: Runtime.Port,
   id: string,
   sourcePkh: string,
-  networkRpc: string,
+  network: TezosNetworkEssentials,
   opParams: any[],
   dryRunResult: DryRunResult | null
 ) => {
@@ -415,7 +417,7 @@ const promisableUnlock = async (
     payload: {
       type: 'operations',
       sourcePkh,
-      networkRpc,
+      networkRpc: network.rpcBaseURL,
       opParams,
       ...((dryRunResult && dryRunResult.result) ?? {})
     },
@@ -440,12 +442,12 @@ const promisableUnlock = async (
           const op = await withUnlocked(({ vault }) =>
             vault.sendOperations(
               sourcePkh,
-              networkRpc,
+              network,
               buildFinalTezosOpParams(opParams, modifiedTotalFee, modifiedStorageLimit)
             )
           );
 
-          await safeAddLocalOperation(networkRpc, op);
+          await safeAddLocalOperation(network.rpcBaseURL, op);
 
           resolve({ opHash: op.hash });
         } catch (err: any) {

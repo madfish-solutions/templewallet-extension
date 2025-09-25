@@ -883,6 +883,7 @@ interface TempleOperationsRequest extends TempleMessageBase {
   id: string;
   sourcePkh: string;
   networkRpc: string;
+  networkChainId: string;
   opParams: any[];
   /** send operations without old confirmation page */
   straightaway?: boolean;
