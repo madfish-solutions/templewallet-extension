@@ -13,9 +13,7 @@ import { useMainnetTokensScamlistSelector } from 'app/store/tezos/assets/selecto
 import { ActivityListContainer, EvmActivityList, TezosActivityList } from 'app/templates/activity';
 import { ExploreActionButtonsBar } from 'app/templates/ExploreActionButtons';
 import { isTezAsset, TEMPLE_TOKEN_SLUG } from 'lib/assets';
-import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { useEvmCategorizedAssetMetadata, useCategorizedTezosAssetMetadata } from 'lib/metadata';
-import { ETHEREUM_MAINNET_CHAIN_ID } from 'lib/temple/types';
 import { useBooleanState } from 'lib/ui/hooks';
 import { HistoryAction, navigate, useLocation } from 'lib/woozie';
 import { TempleChainKind } from 'temple/types';
@@ -129,11 +127,6 @@ const EvmTokenPage: FC<EvmTokenPageProps> = ({ chainId, assetSlug }) => {
     [assetSlug, chainId, setInfoModalOpen]
   );
 
-  const additionalButtonType = useMemo(
-    () => (assetSlug === EVM_TOKEN_SLUG && chainId === ETHEREUM_MAINNET_CHAIN_ID ? 'earn-eth' : undefined),
-    [assetSlug, chainId]
-  );
-
   return (
     <>
       <PageModal title="Token Info" opened={infoModalOpen} contentPadding onRequestClose={setInfoModalClosed}>
@@ -144,12 +137,7 @@ const EvmTokenPage: FC<EvmTokenPageProps> = ({ chainId, assetSlug }) => {
         <div className="flex flex-col p-4 gap-y-3 bg-white">
           <EvmAssetBanner chainId={chainId} assetSlug={assetSlug} />
 
-          <ExploreActionButtonsBar
-            chainKind={TempleChainKind.EVM}
-            chainId={String(chainId)}
-            assetSlug={assetSlug}
-            additionalButtonType={additionalButtonType}
-          />
+          <ExploreActionButtonsBar chainKind={TempleChainKind.EVM} chainId={String(chainId)} assetSlug={assetSlug} />
         </div>
 
         <SuspenseContainer key={`${chainId}/${assetSlug}`}>

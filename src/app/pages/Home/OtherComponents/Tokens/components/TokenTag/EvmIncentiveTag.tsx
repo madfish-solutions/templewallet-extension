@@ -1,11 +1,8 @@
 import React, { FC, useMemo } from 'react';
 
 import { TagButton } from 'app/atoms/TagButton';
-import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
-import { COMMON_MAINNET_CHAIN_IDS, ETHEREUM_MAINNET_CHAIN_ID } from 'lib/temple/types';
-import { isTruthy, openLink } from 'lib/utils';
-import { navigate } from 'lib/woozie';
-import { useEvmChainByChainId } from 'temple/front/chains';
+import { COMMON_MAINNET_CHAIN_IDS } from 'lib/temple/types';
+import { openLink } from 'lib/utils';
 
 import { AssetsSelectors } from '../../../Assets.selectors';
 
@@ -15,28 +12,19 @@ interface Props {
   symbol?: string;
 }
 
-type IncentiveInfo = { label: string; link: string; external?: boolean };
+type IncentiveInfo = { label: string; link: string };
 
 const INCENTIVE_TOKENS: Record<number, Record<string, IncentiveInfo>> = {
-  [ETHEREUM_MAINNET_CHAIN_ID]: {
-    [EVM_TOKEN_SLUG]: {
-      label: 'APR: 3.4-10%',
-      link: '/earn-eth'
-    }
-  },
   [COMMON_MAINNET_CHAIN_IDS.etherlink]: {
-    // USDC
     '0x796Ea11Fa2dD751eD01b53C372fFDB4AAa8f00F9_0': {
+      // USDC
       label: 'APY 28%',
-      link: 'https://app.applefarm.xyz/referral?code=APPLE-FARM-880788',
-      external: true
+      link: 'https://app.applefarm.xyz/referral?code=APPLE-FARM-880788'
     }
   }
 };
 
 export const EvmIncentiveTag: FC<Props> = ({ chainId, assetSlug, symbol }) => {
-  const network = useEvmChainByChainId(chainId);
-
   const incentive = useMemo(() => INCENTIVE_TOKENS[chainId]?.[assetSlug], [chainId, assetSlug]);
 
   const onClick = useMemo(() => {
@@ -45,12 +33,7 @@ export const EvmIncentiveTag: FC<Props> = ({ chainId, assetSlug, symbol }) => {
     return (e: React.MouseEvent) => {
       e.preventDefault();
       e.stopPropagation();
-
-      isTruthy(incentive.external)
-        ? openLink(incentive.link)
-        : navigate({
-            pathname: incentive.link
-          });
+      openLink(incentive.link);
     };
   }, [incentive]);
 
@@ -61,7 +44,7 @@ export const EvmIncentiveTag: FC<Props> = ({ chainId, assetSlug, symbol }) => {
       onClick={onClick}
       testID={AssetsSelectors.assetItemApyButton}
       testIDProperties={{
-        network: network?.name,
+        chainId,
         slug: assetSlug,
         symbol,
         link: incentive.link
