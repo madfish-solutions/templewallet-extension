@@ -30,7 +30,7 @@ const ConfirmPage = memo(() => {
         <div
           className={clsx(
             LAYOUT_CONTAINER_CLASSNAME,
-            'h-screen bg-white',
+            'h-screen bg-white flex flex-col',
             isBrowserFullscreen && 'rounded-md shadow-bottom',
             FADABLE_CONTENT_CLASSNAME
           )}
