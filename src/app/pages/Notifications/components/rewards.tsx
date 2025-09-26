@@ -1,0 +1,26 @@
+import React, { memo } from 'react';
+
+import { IconBase } from 'app/atoms';
+import { useRewardsBadgeVisible } from 'app/hooks/use-rewards-badge';
+import { ReactComponent as GiftIcon } from 'app/icons/base/gift.svg';
+
+export const RewardsIconWithBadge = memo(({ className }: { className?: string }) => {
+  const rewardsBadgeVisible = useRewardsBadgeVisible();
+
+  return (
+    <div className="relative">
+      {rewardsBadgeVisible && <AnimatedDot />}
+
+      <IconBase Icon={GiftIcon} size={16} className={className ?? 'text-secondary'} />
+    </div>
+  );
+});
+
+const AnimatedDot = memo(() => (
+  <div className="absolute top-1 left-0.5">
+    <span className="relative flex w-1 h-1">
+      <span className="animate-ping absolute inline-flex h-full w-full rounded-circle bg-primary-hover opacity-75" />
+      <span className="relative inline-flex rounded-circle w-1 h-1 bg-primary" />
+    </span>
+  </div>
+));

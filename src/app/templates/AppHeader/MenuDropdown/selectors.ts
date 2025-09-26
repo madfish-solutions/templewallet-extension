@@ -1,6 +1,7 @@
 export enum MenuDropdownSelectors {
   logoutButton = 'Menu Drop-down/Logout Button',
   settingsButton = 'Menu Drop-down/Settings Button',
+  rewardsButton = 'Menu Drop-down/Rewards Button',
   notificationsButton = 'Menu Drop-down/Notifications Button',
   connectedDAppsButton = 'Menu Drop-down/Connected DApps Button',
   dappsButton = 'Menu Drop-down/Dapps Button',

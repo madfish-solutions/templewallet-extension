@@ -18,6 +18,8 @@ export interface ActionListItemProps extends PropsWithChildren, TestIDProps {
   testID?: string;
   active?: boolean;
   danger?: boolean;
+  disabled?: boolean;
+  withDividerAfter?: boolean;
 }
 
 export const ActionListItem: FC<ActionListItemProps> = ({
@@ -31,17 +33,26 @@ export const ActionListItem: FC<ActionListItemProps> = ({
   testIDProperties,
   active,
   danger,
+  disabled,
   children
 }) => {
   const baseProps = {
     testID,
     testIDProperties,
     className: clsx(
-      'flex items-center py-1.5 px-2 gap-x-1 rounded-md text-font-description',
-      active ? 'bg-grey-4' : danger ? 'hover:bg-error-low' : 'hover:bg-secondary-low',
+      'flex items-center py-1.5 px-2 gap-x-1 rounded-md text-font-description w-full',
+      active
+        ? 'bg-grey-4'
+        : disabled
+        ? 'cursor-not-allowed text-disable'
+        : danger
+        ? 'hover:bg-error-low'
+        : 'hover:bg-secondary-low',
       className
     ),
-    onClick: setOpened
+    onClick: disabled
+      ? undefined
+      : setOpened
       ? () => {
           setOpened(false);
           onClick?.();
@@ -49,12 +60,22 @@ export const ActionListItem: FC<ActionListItemProps> = ({
       : onClick,
     children: (
       <>
-        {Icon && <IconBase Icon={Icon} size={16} className={danger ? 'text-error' : 'text-secondary'} />}
+        {Icon && (
+          <IconBase
+            Icon={Icon}
+            size={16}
+            className={disabled ? 'text-disable' : danger ? 'text-error' : 'text-secondary'}
+          />
+        )}
 
         {typeof children === 'string' ? <span className="capitalize">{children}</span> : children}
       </>
     )
   };
+
+  if (disabled) {
+    return <Button {...baseProps} disabled />;
+  }
 
   return externalLink ? (
     <Anchor {...baseProps} href={externalLink} />

@@ -106,29 +106,6 @@ interface RpForMonthResponse extends RpStatsResponse {
   firstActivityDate: string | null;
 }
 
-export const parseMonthYearIndex = (index: number) => {
-  const monthIndex = index % 12;
-  const year = Math.floor(index / 12);
-
-  return new Date(year, monthIndex);
-};
-
-export function toMonthYearIndex(monthIndex: number, year: number): number;
-export function toMonthYearIndex(date: Date): number;
-export function toMonthYearIndex(...args: [number, number] | [Date]) {
-  let monthIndex: number;
-  let year: number;
-  if (args.length === 2) {
-    [monthIndex, year] = args;
-  } else {
-    const date = args[0];
-    monthIndex = date.getMonth();
-    year = date.getFullYear();
-  }
-
-  return monthIndex + year * 12;
-}
-
 export const fetchRpForToday = withAxiosDataExtract((accountPkh: string) =>
   axiosClient.get<RpStatsResponse>('/rp/today', { params: { accountPkh, tzOffset: new Date().getTimezoneOffset() } })
 );
