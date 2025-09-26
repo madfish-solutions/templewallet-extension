@@ -45,7 +45,7 @@ export interface TempleState {
 
 export const TEZOS_MAINNET_CHAIN_ID = 'NetXdQprcVkpaWU';
 export const TEZOS_GHOSTNET_CHAIN_ID = 'NetXnHfVqm9iesp';
-export const TEZOS_SHADOWNET_CHAIN_ID = 'NetXsqzbfFenSTS';
+const TEZOS_SHADOWNET_CHAIN_ID = 'NetXsqzbfFenSTS';
 export const ETHEREUM_MAINNET_CHAIN_ID = 1;
 export const COMMON_MAINNET_CHAIN_IDS = {
   polygon: 137,
