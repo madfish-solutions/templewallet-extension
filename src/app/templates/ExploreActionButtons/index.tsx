@@ -33,7 +33,7 @@ interface Props {
   chainKind?: string | nullish;
   chainId?: number | string | nullish;
   assetSlug?: string | nullish;
-  additionalButtonType?: 'activity' | 'earn-tez' | 'earn-tkey' | 'earn-eth';
+  additionalButtonType?: 'activity' | 'earn-tez' | 'earn-tkey';
   className?: string;
 }
 
@@ -68,12 +68,11 @@ export const ExploreActionButtonsBar = memo<Props>(
       switch (additionalButtonType) {
         case 'earn-tez':
         case 'earn-tkey':
-        case 'earn-eth':
           return (
             <ActionButton
               labelI18nKey="earn"
               Icon={OutcomeIcon}
-              to={additionalButtonType === 'earn-tez' ? `/earn-tez/${chainId}` : `/${additionalButtonType}`}
+              to={additionalButtonType === 'earn-tez' ? `/earn-tez/${chainId}` : '/earn-tkey'}
               testID={ExploreActionButtonsSelectors.earnButton}
               labelClassName={labelClassName}
             />
