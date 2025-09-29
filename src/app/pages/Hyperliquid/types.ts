@@ -1,4 +1,9 @@
-import { SpotToken } from '@nktkas/hyperliquid';
+import {
+  PerpsClearinghouseState,
+  SpotClearinghouseState,
+  SpotToken as HlSpotToken,
+  WsL2BookParameters
+} from '@nktkas/hyperliquid';
 
 export type CandleChartInterval =
   | '1m'
@@ -26,21 +31,36 @@ interface TradePairBase {
   iconName: string;
   prevDayPx: string;
   markPx: string;
+  midPx: string;
   dayNtlVlm: number;
   type: 'spot' | 'perp';
 }
 
-interface SpotTradePair extends TradePairBase {
+interface SpotToken extends HlSpotToken {
+  displayName: string;
+}
+
+export interface SpotTradePair extends TradePairBase {
   type: 'spot';
   baseToken: SpotToken;
   quoteToken: SpotToken;
 }
 
-interface PerpTradePair extends TradePairBase {
+export interface PerpTradePair extends TradePairBase {
   type: 'perp';
   fundingRate: string;
   szDecimals: number;
   maxLeverage: number;
 }
 
+export interface AccountStates {
+  spotState: SpotClearinghouseState;
+  perpsState: PerpsClearinghouseState;
+}
+
+export const isSpotTradePair = (tradePair: TradePair): tradePair is SpotTradePair => tradePair.type === 'spot';
+export const isPerpTradePair = (tradePair: TradePair): tradePair is PerpTradePair => tradePair.type === 'perp';
+
 export type TradePair = SpotTradePair | PerpTradePair;
+
+export type OrderBookPrecision = Pick<WsL2BookParameters, 'mantissa' | 'nSigFigs'>;

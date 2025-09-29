@@ -2,7 +2,7 @@ import React, { FC } from 'react';
 
 import clsx from 'clsx';
 
-interface TableRow {
+export interface TableRow {
   key: string | number;
   className?: string;
   cells: { children: ReactChildren; className?: string }[];

@@ -225,8 +225,6 @@ const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<T
       };
 
     case TempleMessageType.SignEvmTypedDataRequest:
-      // TODO: add constraints for this request
-      console.log('oy vey 1', port, req);
       const { result: evmSignResult } = await Actions.internalSignEvmTypedData(req.payload, req.sourcePkh);
       return {
         type: TempleMessageType.SignEvmTypedDataResponse,

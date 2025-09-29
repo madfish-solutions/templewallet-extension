@@ -8,7 +8,7 @@ import { ONE_HOUR_MS } from 'lib/utils/numbers';
 
 import { useClients } from './clients';
 import { TradePair } from './types';
-import { getDisplayCoinName } from './utils';
+import { coinsNamesByNetworkType, getDisplayCoinName } from './utils';
 
 export const useTradePairs = () => {
   const {
@@ -65,15 +65,16 @@ export const useTradePairs = () => {
   const tradePairs = useMemo(() => {
     if (!tradePairsInput) return [];
 
+    const coinsNames = coinsNamesByNetworkType[networkType];
     const { spotUniverses, spotTokens, spotCtxs, perpUniverses, perpCtxs } = tradePairsInput;
     const spotCtxsByCoin = Object.fromEntries(spotCtxs.map(ctx => [ctx.coin, ctx]));
     const coinsWithPerpsNames = new Set(perpUniverses.map(u => u.name));
 
     return spotUniverses
-      .map(({ name, tokens }, index): TradePair => {
+      .map(({ name, tokens, index }): TradePair => {
         const baseToken = spotTokens[tokens[0]];
         const quoteToken = spotTokens[tokens[1]];
-        const { prevDayPx, markPx, dayNtlVlm } = spotCtxsByCoin[name];
+        const { prevDayPx, markPx, dayNtlVlm, midPx } = spotCtxsByCoin[name];
 
         return {
           id: 10000 + index,
@@ -88,10 +89,11 @@ export const useTradePairs = () => {
             quoteToken.name,
             networkType
           )}`,
-          baseToken,
-          quoteToken,
+          baseToken: { ...baseToken, displayName: coinsNames[baseToken.name] ?? baseToken.name },
+          quoteToken: { ...quoteToken, displayName: coinsNames[quoteToken.name] ?? quoteToken.name },
           prevDayPx,
           markPx,
+          midPx: midPx ?? markPx,
           dayNtlVlm: new BigNumber(dayNtlVlm).decimalPlaces(2).toNumber(),
           type: 'spot'
         };
@@ -99,7 +101,7 @@ export const useTradePairs = () => {
       .concat(
         perpUniverses
           .map(({ name, szDecimals, maxLeverage, isDelisted }, index) => {
-            const { funding, prevDayPx, markPx, dayNtlVlm } = perpCtxs[index];
+            const { funding, prevDayPx, markPx, midPx, dayNtlVlm } = perpCtxs[index];
 
             return {
               id: index,
@@ -110,6 +112,7 @@ export const useTradePairs = () => {
               name: `${name}-USD`,
               prevDayPx,
               markPx,
+              midPx: midPx ?? markPx,
               dayNtlVlm: new BigNumber(dayNtlVlm).decimalPlaces(2).toNumber(),
               type: 'perp' as const,
               fundingRate: funding,

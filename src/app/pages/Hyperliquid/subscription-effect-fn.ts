@@ -1,7 +1,11 @@
 import { Subscription } from '@nktkas/hyperliquid';
 import retry from 'async-retry';
 
-export const subscriptionEffectFn = (createSubscription: () => Promise<Subscription>, onSubscription?: EmptyFn) => {
+export const subscriptionEffectFn = (
+  createSubscription: () => Promise<Subscription>,
+  onSubscription?: EmptyFn,
+  onUnsubscribe?: EmptyFn
+) => {
   let bail: SyncFn<Error> | undefined;
   let sub: Subscription | undefined;
   retry(
@@ -18,6 +22,7 @@ export const subscriptionEffectFn = (createSubscription: () => Promise<Subscript
   return () => {
     if (sub) {
       sub.unsubscribe();
+      onUnsubscribe?.();
     } else {
       bail?.(new Error('Subscription cancelled'));
     }

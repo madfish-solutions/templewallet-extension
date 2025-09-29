@@ -1,6 +1,6 @@
-import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { memo, useCallback, useMemo } from 'react';
 
-import { Book, BookLevel, WsL2BookParameters } from '@nktkas/hyperliquid';
+import { BookLevel } from '@nktkas/hyperliquid';
 import BigNumber from 'bignumber.js';
 import clsx from 'clsx';
 
@@ -11,17 +11,15 @@ import { ZERO } from 'lib/utils/numbers';
 import { SearchKey } from 'lib/utils/search-items';
 
 import { useClients } from './clients';
+import { useOrderBook } from './order-book-provider';
 import { ScrollableTable } from './scrollable-table';
 import { HyperliquidSelectors } from './selectors';
-import { subscriptionEffectFn } from './subscription-effect-fn';
-import { TradePair } from './types';
+import { OrderBookPrecision, TradePair } from './types';
 import { getDisplayCoinName } from './utils';
 
 interface OrderBookViewProps {
   pair: TradePair;
 }
-
-type OrderBookPrecision = Pick<WsL2BookParameters, 'mantissa' | 'nSigFigs'>;
 
 const orderBookPrecisionOptions: OrderBookPrecision[] = [
   { nSigFigs: 5, mantissa: null },
@@ -37,42 +35,15 @@ const searchKeys: SearchKey<OrderBookPrecision, null>[] = [];
 const orderBookPrecisionKeyFn = ({ nSigFigs, mantissa }: OrderBookPrecision) => `${nSigFigs}-${mantissa}`;
 
 export const OrderBookView = memo<OrderBookViewProps>(({ pair }) => {
-  const internalCoinName = pair.internalName;
-  const prevInternalCoinNameRef = useRef(internalCoinName);
-  const {
-    clients: { subscription, info },
-    networkType
-  } = useClients();
+  const { precision, setPrecision, orderBook } = useOrderBook();
+  const { networkType } = useClients();
   const coinName = pair.type === 'spot' ? getDisplayCoinName(pair.baseToken.name, networkType) : pair.internalName;
-  const [orderBook, setOrderBook] = useState<Book>();
-  const orderBookWasLoaded = !!orderBook;
-  const [precision, setPrecision] = useState<OrderBookPrecision>(orderBookPrecisionOptions[0]);
-  const { nSigFigs, mantissa } = precision;
 
   const priceExponent = useMemo(() => {
     const price = orderBook?.levels[0][0]?.px;
 
     return price ? Math.floor(Math.log10(Number(price))) : undefined;
   }, [orderBook]);
-
-  useEffect(() => {
-    const loadOrderBook = () =>
-      info.l2Book({ coin: internalCoinName, nSigFigs, mantissa }).then(setOrderBook).catch(console.error);
-
-    if (prevInternalCoinNameRef.current === internalCoinName) {
-      return orderBookWasLoaded
-        ? subscriptionEffectFn(() => subscription.l2Book({ coin: internalCoinName, nSigFigs, mantissa }, setOrderBook))
-        : void loadOrderBook();
-    }
-
-    prevInternalCoinNameRef.current = internalCoinName;
-    setOrderBook(undefined);
-    void loadOrderBook();
-
-    return;
-  }, [internalCoinName, mantissa, nSigFigs, subscription, info, orderBookWasLoaded]);
-
-  useEffect(() => setOrderBook(undefined), [internalCoinName]);
 
   const PrecisionOptionName = useCallback(
     ({ option }: CellPartProps<OrderBookPrecision>) => (
@@ -88,11 +59,7 @@ export const OrderBookView = memo<OrderBookViewProps>(({ pair }) => {
     [priceExponent]
   );
 
-  if (!orderBook) {
-    return null;
-  }
-
-  return (
+  return orderBook ? (
     <div className="flex-1 flex flex-col gap-4">
       <div className="flex">
         <SelectWithModal
@@ -115,7 +82,7 @@ export const OrderBookView = memo<OrderBookViewProps>(({ pair }) => {
         <OrderBookTable coinName={coinName} orderBookLevels={orderBook.levels} />
       </div>
     </div>
-  );
+  ) : null;
 });
 
 interface OrderBookTableProps {

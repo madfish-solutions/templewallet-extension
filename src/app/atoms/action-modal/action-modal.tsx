@@ -1,4 +1,4 @@
-import React, { ReactNode, memo } from 'react';
+import React, { ReactNode, createContext, memo, useContext } from 'react';
 
 import clsx from 'clsx';
 
@@ -26,6 +26,8 @@ export interface ActionModalProps {
   className?: string;
 }
 
+export const ActionModalContext = createContext<{ overlayClassName?: string }>({});
+
 export const ActionModal = memo<ActionModalProps>(
   ({
     onClose,
@@ -40,6 +42,8 @@ export const ActionModal = memo<ActionModalProps>(
     const { fullPage, confirmWindow } = useAppEnv();
     const testnetModeEnabled = useTestnetModeEnabledSelector();
 
+    const { overlayClassName } = useContext(ActionModalContext);
+
     return (
       <CustomModal
         isOpen
@@ -53,7 +57,8 @@ export const ActionModal = memo<ActionModalProps>(
               actionModalStyles.fullPageOverlay,
               LAYOUT_CONTAINER_CLASSNAME,
               FULL_PAGE_LAYOUT_CONTAINER_CLASSNAME
-            ]
+            ],
+          overlayClassName
         )}
         onRequestClose={onClose}
       >

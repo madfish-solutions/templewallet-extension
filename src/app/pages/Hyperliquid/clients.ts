@@ -1,13 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-import {
-  ExchangeClient,
-  HttpTransport,
-  InfoClient,
-  SubscriptionClient,
-  WebSocketTransport,
-  WsWebData2
-} from '@nktkas/hyperliquid';
+import { ExchangeClient, HttpTransport, InfoClient, WsWebData2 } from '@nktkas/hyperliquid';
 import { AbstractViemLocalAccount } from '@nktkas/hyperliquid/script/src/signing/_signTypedData/viem';
 import { Mutex } from 'async-mutex';
 import constate from 'constate';
@@ -23,6 +16,7 @@ import { useAccountForEvm, useAllEvmChains } from 'temple/front';
 
 import { subscriptionEffectFn } from './subscription-effect-fn';
 import { HyperliquidNetworkType } from './types';
+import { createSubscriptionClient } from './utils';
 
 class NonceManager {
   /** The last nonce used for signing transactions. */
@@ -65,20 +59,15 @@ export const [HyperliquidClientsProvider, useClients] = constate(() => {
       const account = evmAccount.address as HexString;
       wallet = {
         address: account,
-        signTypedData: async params => signEvmTypedData(params as unknown as TypedDataDefinition, account)
+        signTypedData: async params => {
+          console.log('signTypedData', params);
+
+          return await signEvmTypedData(params as unknown as TypedDataDefinition, account);
+        }
       };
     }
 
-    const subscription = new SubscriptionClient({
-      transport: new WebSocketTransport({
-        url: testnetModeEnabled ? 'wss://api.hyperliquid-testnet.xyz/ws' : 'wss://api.hyperliquid.xyz/ws',
-        autoResubscribe: true,
-        reconnect: {
-          maxRetries: 100
-        }
-      })
-    });
-    await subscription.transport.ready();
+    const subscription = await createSubscriptionClient(testnetModeEnabled);
 
     return {
       exchange: wallet
@@ -110,7 +99,8 @@ export const [HyperliquidClientsProvider, useClients] = constate(() => {
           { user: (evmAccount?.address as HexString | undefined) ?? EVM_ZERO_ADDRESS },
           data => webData2CallbacksRef.current.forEach(cb => cb(data))
         ),
-      () => setSubscribedToWebData2(true)
+      () => setSubscribedToWebData2(true),
+      () => console.log('unsubscribed from webData2', evmAccount?.address)
     );
   }, [clients, evmAccount?.address]);
 
