@@ -74,7 +74,8 @@ export const [HyperliquidClientsProvider, useClients] = constate(() => {
         ? new ExchangeClient({
             transport: new HttpTransport({ isTestnet: testnetModeEnabled }),
             wallet,
-            nonceManager: nonceManager.getNonce.bind(nonceManager)
+            nonceManager: nonceManager.getNonce.bind(nonceManager),
+            isTestnet: testnetModeEnabled
           })
         : undefined,
       info: new InfoClient({
@@ -99,8 +100,7 @@ export const [HyperliquidClientsProvider, useClients] = constate(() => {
           { user: (evmAccount?.address as HexString | undefined) ?? EVM_ZERO_ADDRESS },
           data => webData2CallbacksRef.current.forEach(cb => cb(data))
         ),
-      () => setSubscribedToWebData2(true),
-      () => console.log('unsubscribed from webData2', evmAccount?.address)
+      () => setSubscribedToWebData2(true)
     );
   }, [clients, evmAccount?.address]);
 
