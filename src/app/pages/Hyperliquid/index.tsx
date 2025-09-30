@@ -1,6 +1,5 @@
-import React, { memo, useCallback, useEffect, useState } from 'react';
+import React, { memo, useCallback, useState } from 'react';
 
-import { PerpsClearinghouseState, SpotClearinghouseState, WsWebData2 } from '@nktkas/hyperliquid';
 import { capitalize } from 'lodash';
 
 import { ActionModalContext } from 'app/atoms/action-modal';
@@ -9,15 +8,17 @@ import PageLayout from 'app/layouts/PageLayout';
 import { CellPartProps, SelectWithModal } from 'app/templates/select-with-modal';
 import { NullComponent } from 'lib/ui/null-component';
 
-import { HyperliquidClientsProvider, useClients } from './clients';
+import { AccountStatesProvider } from './account-states-provider';
+import { HyperliquidClientsProvider } from './clients';
 import { CreateOrderForm } from './create-order-form';
+import { DepositOrWithdrawForm } from './deposit-or-withdraw-form';
 import { OrderBookProvider } from './order-book-provider';
 import { OrderBookView } from './order-book-view';
 import { PersonalStatsView } from './personal-stats-view';
 import { PriceChart } from './price-chart';
 import { HyperliquidSelectors } from './selectors';
 import { TradesView } from './trades-view';
-import { AccountStates, CandleChartInterval, TradePair } from './types';
+import { CandleChartInterval, TradePair } from './types';
 import { useTradePairs } from './use-trade-pairs';
 
 const actionModalContextValue = { overlayClassName: 'w-[48rem]' };
@@ -32,36 +33,15 @@ export const HyperliquidPage = memo(() => {
       <PageLayout pageTitle="Hyperliquid" paperClassName="w-[48rem]">
         <ActionModalContext.Provider value={actionModalContextValue}>
           <HyperliquidClientsProvider>
-            <HyperliquidPageContent />
+            <AccountStatesProvider>
+              <HyperliquidPageContent />
+            </AccountStatesProvider>
           </HyperliquidClientsProvider>
         </ActionModalContext.Provider>
       </PageLayout>
     </>
   );
 });
-
-const defaultPerpsState: PerpsClearinghouseState = {
-  marginSummary: {
-    accountValue: '0',
-    totalNtlPos: '0',
-    totalRawUsd: '0',
-    totalMarginUsed: '0'
-  },
-  crossMarginSummary: {
-    accountValue: '0',
-    totalNtlPos: '0',
-    totalRawUsd: '0',
-    totalMarginUsed: '0'
-  },
-  crossMaintenanceMarginUsed: '0',
-  withdrawable: '0',
-  assetPositions: [],
-  time: 0
-};
-
-const defaultSpotState: SpotClearinghouseState = {
-  balances: []
-};
 
 const pairSearchKeys = [{ name: 'name', weight: 1 }];
 const pairKeyFn = (pair: TradePair) => pair.id;
@@ -102,23 +82,6 @@ const HyperliquidPageContent = memo(() => {
   const selectedPairWithDefault = selectedPair ?? tradePairs[0];
   const [selectedInterval, setSelectedInterval] = useState<Interval>();
   const selectedIntervalWithDefault = selectedInterval ?? intervals[5];
-
-  const { addWebData2Listener, removeWebData2Listener } = useClients();
-  const [accountStates, setAccountStates] = useState<AccountStates>();
-  useEffect(() => {
-    const webData2Listener = ({
-      clearinghouseState: perpsState = defaultPerpsState,
-      spotState = defaultSpotState
-    }: WsWebData2) => {
-      setAccountStates({ spotState, perpsState });
-    };
-
-    addWebData2Listener(webData2Listener);
-
-    return () => {
-      removeWebData2Listener(webData2Listener);
-    };
-  }, [addWebData2Listener, removeWebData2Listener]);
 
   const PairIcon = useCallback(
     ({ option }: CellPartProps<TradePair>) => (
@@ -168,10 +131,10 @@ const HyperliquidPageContent = memo(() => {
           <OrderBookView pair={selectedPairWithDefault} />
           <TradesView pair={selectedPairWithDefault} />
         </div>
-        <PersonalStatsView accountStates={accountStates} tradePairs={tradePairs} />
+        <PersonalStatsView tradePairs={tradePairs} />
         <div className="grid grid-cols-2 gap-4">
-          <CreateOrderForm pair={selectedPairWithDefault} accountStates={accountStates} />
-          {/* <DepositOrWithdrawForm /> */}
+          <CreateOrderForm pair={selectedPairWithDefault} />
+          <DepositOrWithdrawForm />
         </div>
       </OrderBookProvider>
     </div>

@@ -11,11 +11,13 @@ import { useTypedSWR } from 'lib/swr';
 import { toPercentage } from 'lib/ui/utils';
 import { useAccountForEvm } from 'temple/front';
 
-import { useClients } from '../clients';
-import { AccountStates, TradePair } from '../types';
-import { formatPrice } from '../utils';
+import { useAccountStates } from './account-states-provider';
+import { useClients } from './clients';
+import { AccountStates, TradePair } from './types';
+import { formatPrice } from './utils';
 
-export const CreateOrderForm = memo<{ pair: TradePair; accountStates?: AccountStates }>(({ pair, accountStates }) => {
+export const CreateOrderForm = memo<{ pair: TradePair }>(({ pair }) => {
+  const { accountStates } = useAccountStates();
   const evmAccount = useAccountForEvm();
   const {
     clients: { exchange, info }
@@ -88,7 +90,7 @@ export const CreateOrderFormContent = memo<CreateOrderFormContentProps>(
     );
 
     const getFees = useCallback(async () => await infoClient.userFees({ user: evmAccount }), [infoClient, evmAccount]);
-    const { data: fees } = useTypedSWR(['hyperliquid-fees', evmAccount], getFees);
+    const { data: fees } = useTypedSWR(['hyperliquid-fees', evmAccount], getFees, { refreshInterval: 60 * 60 * 1000 });
 
     const createOrder = useCallback(
       async (isBuy: boolean) => {

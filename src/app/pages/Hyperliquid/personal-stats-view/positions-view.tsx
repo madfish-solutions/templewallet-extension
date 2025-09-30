@@ -109,7 +109,6 @@ export const ClosePositionButton = memo<ClosePositionButtonProps>(({ position, e
     const szi = new BigNumber(rawSzi);
 
     try {
-      console.log('close position', szi.toFixed(), pairIndex);
       const isBuy = szi.lt(0);
       const result = await exchangeClient.order({
         orders: [

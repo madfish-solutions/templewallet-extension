@@ -1,6 +1,6 @@
 import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-import { Candle, SubscriptionClient, WebSocketTransport } from '@nktkas/hyperliquid';
+import { Candle } from '@nktkas/hyperliquid';
 import { uniq } from 'lodash';
 
 import SegmentedControl from 'app/atoms/SegmentedControl';
@@ -9,10 +9,10 @@ import { useTypedSWR } from 'lib/swr';
 import { useMemoWithCompare } from 'lib/ui/hooks';
 import { useAccountForEvm } from 'temple/front';
 
+import { useAccountStates } from '../account-states-provider';
 import { useClients } from '../clients';
 import { subscriptionEffectFn } from '../subscription-effect-fn';
-import { AccountStates, TradePair, isPerpTradePair, isSpotTradePair } from '../types';
-import { createSubscriptionClient } from '../utils';
+import { TradePair, isPerpTradePair, isSpotTradePair } from '../types';
 
 import { BalancesView } from './balances-view';
 import { FundingHistoryView } from './funding-history-view';
@@ -24,10 +24,10 @@ type Tab = 'balances' | 'positions' | 'orders' | 'trade-history' | 'funding-hist
 
 interface PersonalStatsViewProps {
   tradePairs: TradePair[];
-  accountStates?: AccountStates;
 }
 
-export const PersonalStatsView = memo<PersonalStatsViewProps>(({ tradePairs, accountStates }) => {
+export const PersonalStatsView = memo<PersonalStatsViewProps>(({ tradePairs }) => {
+  const { accountStates } = useAccountStates();
   const evmAccount = useAccountForEvm();
   const testnetModeEnabled = useTestnetModeEnabledSelector();
   const {
@@ -81,19 +81,11 @@ export const PersonalStatsView = memo<PersonalStatsViewProps>(({ tradePairs, acc
     setLastPrices(prev => ({ ...prev, [pair]: data.c }));
   }, []);
   useEffect(() => {
-    const cancelLastPricesSubFunctions = pairsForLastPrices.map(pair => {
-      let client: SubscriptionClient<WebSocketTransport>;
-
-      return subscriptionEffectFn(
-        async () => {
-          client = await createSubscriptionClient(testnetModeEnabled);
-
-          return subscription.candle({ coin: pair, interval: '1h' }, data => updateLastPrice(pair, data));
-        },
-        undefined,
-        () => client.transport.close().catch(console.error)
-      );
-    });
+    const cancelLastPricesSubFunctions = pairsForLastPrices.map(pair =>
+      subscriptionEffectFn(() =>
+        subscription.candle({ coin: pair, interval: '1h' }, data => updateLastPrice(pair, data))
+      )
+    );
 
     return () => cancelLastPricesSubFunctions.forEach(fn => fn());
   }, [pairsForLastPrices, subscription, testnetModeEnabled, updateLastPrice]);
