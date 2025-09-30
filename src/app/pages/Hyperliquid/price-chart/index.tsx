@@ -13,8 +13,8 @@ import { useUpdatableRef } from 'lib/ui/hooks/useUpdatableRef';
 import { useClients } from '../clients';
 import { CandleChartInterval } from '../types';
 
-import { CandlestickController } from './controller.candlestick.js';
-import { CandlestickElement } from './element.candlestick.js';
+import { CandlestickController } from './controller.candlestick';
+import { CandlestickElement } from './element.candlestick';
 
 Chart.register(CandlestickController, CandlestickElement, TimeSeriesScale, LinearScale, AnnotationPlugin, Tooltip);
 

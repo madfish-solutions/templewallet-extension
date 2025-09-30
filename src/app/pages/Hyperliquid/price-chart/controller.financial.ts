@@ -1,11 +1,20 @@
-/* eslint-disable */
-import { BarController, defaults } from 'chart.js';
+import { BarController, Chart, Scale, defaults } from 'chart.js';
 import { clipArea, isNullOrUndef, unclipArea } from 'chart.js/helpers';
+
+type PriceChartAxis = 'x' | 'o' | 'h' | 'l' | 'c';
 
 /**
  * This class is based off controller.bar.js from the upstream Chart.js library
  */
 export class FinancialController extends BarController {
+  constructor(chart: Chart, datasetIndex: number) {
+    super(chart, datasetIndex);
+
+    this.getLabelAndValue = this.getLabelAndValue.bind(this);
+    this.calculateElementProperties = this.calculateElementProperties.bind(this);
+    this.draw = this.draw.bind(this);
+  }
+
   static overrides = {
     label: '',
     parsing: false,
@@ -24,14 +33,14 @@ export class FinancialController extends BarController {
         offset: true,
         ticks: {
           major: {
-            enabled: true,
+            enabled: true
           },
           source: 'data',
           maxRotation: 0,
           autoSkip: true,
           autoSkipPadding: 75,
           sampleSize: 100
-        },
+        }
       },
       y: {
         type: 'linear'
@@ -42,14 +51,15 @@ export class FinancialController extends BarController {
         intersect: false,
         mode: 'index',
         callbacks: {
-          label(ctx) {
+          label(ctx: any) {
             const point = ctx.parsed;
 
             if (!isNullOrUndef(point.y)) {
+              // @ts-expect-error
               return defaults.plugins.tooltip.callbacks.label(ctx);
             }
 
-            const {o, h, l, c} = point;
+            const { o, h, l, c } = point;
 
             return `O: ${o}  H: ${h}  L: ${l}  C: ${c}`;
           }
@@ -58,22 +68,21 @@ export class FinancialController extends BarController {
     }
   };
 
-  getLabelAndValue(index) {
-    const me = this;
-    const parsed = me.getParsed(index);
-    const axis = me._cachedMeta.iScale.axis;
+  getLabelAndValue(index: number) {
+    const parsed = this.getParsed(index) as unknown as Record<PriceChartAxis, number>;
+    const axis = this._cachedMeta.iScale!.axis as PriceChartAxis;
 
-    const {o, h, l, c} = parsed;
+    const { o, h, l, c } = parsed;
     const value = `O: ${o}  H: ${h}  L: ${l}  C: ${c}`;
 
     return {
-      label: `${me._cachedMeta.iScale.getLabelForValue(parsed[axis])}`,
+      label: `${this._cachedMeta.iScale!.getLabelForValue(parsed[axis])}`,
       value
     };
   }
 
-  getUserBounds(scale) {
-    const {min, max, minDefined, maxDefined} = scale.getUserBounds();
+  getUserBounds(scale: Scale) {
+    const { min, max, minDefined, maxDefined } = scale.getUserBounds();
     return {
       min: minDefined ? min : Number.NEGATIVE_INFINITY,
       max: maxDefined ? max : Number.POSITIVE_INFINITY
@@ -83,24 +92,24 @@ export class FinancialController extends BarController {
   /**
    * Implement this ourselves since it doesn't handle high and low values
    * https://github.com/chartjs/Chart.js/issues/7328
-   * @protected
    */
-  getMinMax(scale) {
+  protected getMinMax(scale: Scale) {
     const meta = this._cachedMeta;
-    const _parsed = meta._parsed;
-    const axis = meta.iScale.axis;
+    const _parsed = meta._parsed as Record<PriceChartAxis, number>[];
+    const axis = meta.iScale!.axis as PriceChartAxis;
+    // @ts-expect-error
     const otherScale = this._getOtherScale(scale);
-    const {min: otherMin, max: otherMax} = this.getUserBounds(otherScale);
+    const { min: otherMin, max: otherMax } = this.getUserBounds(otherScale);
 
     if (_parsed.length < 2) {
-      return {min: 0, max: 1};
+      return { min: 0, max: 1 };
     }
 
     if (scale === meta.iScale) {
-      return {min: _parsed[0][axis], max: _parsed[_parsed.length - 1][axis]};
+      return { min: _parsed[0][axis], max: _parsed[_parsed.length - 1][axis] };
     }
 
-    const newParsedData = _parsed.filter(({x}) => x >= otherMin && x < otherMax);
+    const newParsedData = _parsed.filter(({ x }) => x >= otherMin && x < otherMax);
 
     let min = Number.POSITIVE_INFINITY;
     let max = Number.NEGATIVE_INFINITY;
@@ -109,18 +118,15 @@ export class FinancialController extends BarController {
       min = Math.min(min, data.l);
       max = Math.max(max, data.h);
     }
-    return {min, max};
+    return { min, max };
   }
 
-  /**
-   * @protected
-   */
-  calculateElementProperties(index, ruler, reset, options) {
-    const me = this;
-    const vscale = me._cachedMeta.vScale;
+  protected calculateElementProperties(index: number, ruler: any, reset: boolean, options: any) {
+    const vscale = this._cachedMeta.vScale!;
     const base = vscale.getBasePixel();
-    const ipixels = me._calculateBarIndexPixels(index, ruler, options);
-    const data = me.chart.data.datasets[me.index].data[index];
+    // @ts-expect-error
+    const ipixels = this._calculateBarIndexPixels(index, ruler, options);
+    const data = this.chart.data.datasets[this.index].data[index] as unknown as Record<PriceChartAxis, number>;
     const open = vscale.getPixelForValue(data.o);
     const high = vscale.getPixelForValue(data.h);
     const low = vscale.getPixelForValue(data.l);
@@ -139,12 +145,12 @@ export class FinancialController extends BarController {
   }
 
   draw() {
-    const me = this;
-    const chart = me.chart;
-    const rects = me._cachedMeta.data;
+    const chart = this.chart;
+    const rects = this._cachedMeta.data;
     clipArea(chart.ctx, chart.chartArea);
     for (let i = 0; i < rects.length; ++i) {
-      rects[i].draw(me._ctx);
+      // @ts-expect-error
+      rects[i].draw(this._ctx);
     }
     unclipArea(chart.ctx);
   }
