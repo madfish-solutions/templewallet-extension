@@ -46,7 +46,7 @@ interface CreateOrderFormContentProps {
   accountStates: AccountStates;
 }
 
-export const CreateOrderFormContent = memo<CreateOrderFormContentProps>(
+const CreateOrderFormContent = memo<CreateOrderFormContentProps>(
   ({ pair, exchangeClient, infoClient, evmAccount, accountStates }) => {
     const { assetPositions: perpPositions } = accountStates.perpsState;
     const [inputValue, setInputValue] = useState<string | undefined>('');

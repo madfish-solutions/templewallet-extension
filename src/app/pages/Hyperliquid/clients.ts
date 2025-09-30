@@ -2,7 +2,6 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { ExchangeClient, HttpTransport, InfoClient, WsWebData2 } from '@nktkas/hyperliquid';
 import { AbstractViemLocalAccount } from '@nktkas/hyperliquid/script/src/signing/_signTypedData/viem';
-import { Mutex } from 'async-mutex';
 import constate from 'constate';
 import { TypedDataDefinition } from 'viem';
 
@@ -41,9 +40,7 @@ class NonceManager {
     return nonce;
   }
 }
-export const nonceManager = new NonceManager();
-
-export const nonceActionsMutex = new Mutex();
+const nonceManager = new NonceManager();
 
 export const [HyperliquidClientsProvider, useClients] = constate(() => {
   const evmAccount = useAccountForEvm();

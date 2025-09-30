@@ -90,7 +90,7 @@ interface OrderBookTableProps {
   orderBookLevels: [BookLevel[], BookLevel[]];
 }
 
-export const OrderBookTable = memo<OrderBookTableProps>(({ coinName, orderBookLevels }) => {
+const OrderBookTable = memo<OrderBookTableProps>(({ coinName, orderBookLevels }) => {
   const rowsProps = useMemo(() => {
     const rowsPropsPart = orderBookLevels.map(sideLevels =>
       sideLevels.slice(0, 12).reduce<{ price: string; size: BigNumber; totalSize: BigNumber }[]>((acc, level) => {

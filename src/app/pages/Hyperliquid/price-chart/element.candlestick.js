@@ -3,6 +3,7 @@ import { FinancialElement } from './element.financial';
 import { valueOrDefault } from 'chart.js/helpers';
 import { defaults } from 'chart.js';
 
+// ts-prune-ignore-next
 export class CandlestickElement extends FinancialElement {
   static id = 'candlestick';
 

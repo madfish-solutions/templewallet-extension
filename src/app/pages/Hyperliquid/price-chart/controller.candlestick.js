@@ -3,6 +3,7 @@ import { FinancialController } from './controller.financial';
 import { CandlestickElement } from './element.candlestick';
 import { BarController } from 'chart.js';
 
+// ts-prune-ignore-next
 export class CandlestickController extends FinancialController {
 
   static id = 'candlestick';

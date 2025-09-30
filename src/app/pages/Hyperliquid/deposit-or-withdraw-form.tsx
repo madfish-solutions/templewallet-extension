@@ -51,7 +51,7 @@ interface DepositOrWithdrawFormContentProps {
 
 type OperationType = 'deposit' | 'withdraw';
 
-export const DepositOrWithdrawFormContent = memo<DepositOrWithdrawFormContentProps>(
+const DepositOrWithdrawFormContent = memo<DepositOrWithdrawFormContentProps>(
   ({ evmAccount, accountStates, exchangeClient }) => {
     const { sendEvmTransaction } = useTempleClient();
     const [operationType, setOperationType] = useState<OperationType>('deposit');

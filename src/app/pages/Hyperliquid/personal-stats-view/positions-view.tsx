@@ -101,7 +101,7 @@ interface ClosePositionButtonProps {
   pair: PerpTradePair;
 }
 
-export const ClosePositionButton = memo<ClosePositionButtonProps>(({ position, exchangeClient, pair }) => {
+const ClosePositionButton = memo<ClosePositionButtonProps>(({ position, exchangeClient, pair }) => {
   const { szi: rawSzi } = position;
   const { index: pairIndex, markPx } = pair;
 
