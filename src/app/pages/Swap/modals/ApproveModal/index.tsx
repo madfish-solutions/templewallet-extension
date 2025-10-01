@@ -176,6 +176,9 @@ const ApproveModal = ({ data, onClose, onReview }: ApproveModalProps) => {
     },
     [
       account,
+      bridgeInfo,
+      buildSwapRouteParams,
+      fetchEvmSwapRoute,
       getActiveBlockExplorer,
       isLedgerAccount,
       lifiStep,

@@ -1271,6 +1271,18 @@
     eventemitter3 "^5.0.1"
     zustand "^5.0.8"
 
+"@bigmi/core@^0.5.3":
+  version "0.5.4"
+  resolved "https://registry.yarnpkg.com/@bigmi/core/-/core-0.5.4.tgz#2ef7daf53d9c4dfa644cc3510eab8517cba4af27"
+  integrity sha512-AfV+pgFe7N6KoyU0OWPrVstrxMJSL5nLODeyGGbYVfi7u6jPjOZ9b7KsOxNDlQp8ZCuQS46263VJyNiG3IsPaA==
+  dependencies:
+    "@noble/hashes" "^1.8.0"
+    bech32 "^2.0.0"
+    bitcoinjs-lib "^7.0.0-rc.0"
+    bs58 "^6.0.0"
+    eventemitter3 "^5.0.1"
+    zustand "^5.0.8"
+
 "@bitcoinerlab/secp256k1@^1.2.0":
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/@bitcoinerlab/secp256k1/-/secp256k1-1.2.0.tgz#429d043ef4218b9c71915b50172e9aa4a2a8fea4"
@@ -1893,10 +1905,10 @@
   dependencies:
     lit "^2.7.2"
 
-"@gql.tada/cli-utils@1.7.0":
-  version "1.7.0"
-  resolved "https://registry.yarnpkg.com/@gql.tada/cli-utils/-/cli-utils-1.7.0.tgz#9aa3522dc4b5e13a8ca30f1b1b8834b82d29275f"
-  integrity sha512-Jj74qfIplT+MzUUWABeUJxHF5lxiyOJpE4ENeIOwvcPAi+QYoxsKNj/aPcGAk2jK5CrP9aFtE5O7794q2rWjlQ==
+"@gql.tada/cli-utils@1.7.1":
+  version "1.7.1"
+  resolved "https://registry.yarnpkg.com/@gql.tada/cli-utils/-/cli-utils-1.7.1.tgz#2e849c4c5d7e0d4914b34d167a74e3022d0a79d1"
+  integrity sha512-wg5ysZNQxtNQm67T3laVWmZzLpGb7QfyYWZdaUD2r1OjDj5Bgftq7eQlplmH+hsdffjuUyhJw/b5XAjeE2mJtg==
   dependencies:
     "@0no-co/graphqlsp" "^1.12.13"
     "@gql.tada/internal" "1.0.8"
@@ -2434,28 +2446,28 @@
   resolved "https://registry.yarnpkg.com/@leichtgewicht/ip-codec/-/ip-codec-2.0.5.tgz#4fc56c15c580b9adb7dc3c333a134e540b44bfb1"
   integrity sha512-Vo+PSpZG2/fmgmiNzYK9qWRh8h/CHrwD0mo1h1DzL4yzHNSfWYujGTYsWGreD000gcgmZ7K4Ys6Tx9TxtsKdDw==
 
-"@lifi/sdk@^3.11.4":
-  version "3.11.4"
-  resolved "https://registry.yarnpkg.com/@lifi/sdk/-/sdk-3.11.4.tgz#266895f13fcada8c96f28880dc89ddf0342add61"
-  integrity sha512-xUQvBbytiF2NjS+Plz5yHhZfOiETp4mVXcJv/98OBB3NZVtoRy1lKo30BP7X2hwStXbdmRTU6eW51Dhp7OA7Vw==
+"@lifi/sdk@^3.12.11":
+  version "3.12.11"
+  resolved "https://registry.yarnpkg.com/@lifi/sdk/-/sdk-3.12.11.tgz#01297fd2d0efd4307ef7c0755cdc0833060cc01f"
+  integrity sha512-shjb2fxP7I9gtAqJ+ZuIyAPUpIy4G+iDl1J2FZN6R/I2Dj3Gp62utM3RqxBXIMTCo4qg6HOg7PverTRDa3PKSA==
   dependencies:
-    "@bigmi/core" "^0.5.2"
+    "@bigmi/core" "^0.5.3"
     "@bitcoinerlab/secp256k1" "^1.2.0"
-    "@lifi/types" "^17.35.0"
-    "@mysten/sui" "^1.37.5"
-    "@mysten/wallet-standard" "^0.16.13"
+    "@lifi/types" "^17.38.0"
+    "@mysten/sui" "^1.38.0"
+    "@mysten/wallet-standard" "^0.17.0"
     "@noble/curves" "^1.9.7"
     "@solana/wallet-adapter-base" "^0.9.27"
     "@solana/web3.js" "^1.98.4"
     bech32 "^2.0.0"
     bitcoinjs-lib "^7.0.0-rc.0"
     bs58 "^6.0.0"
-    viem "^2.36.0"
+    viem "^2.37.8"
 
-"@lifi/types@^17.35.0":
-  version "17.36.0"
-  resolved "https://registry.yarnpkg.com/@lifi/types/-/types-17.36.0.tgz#a1940fed5c74a33a79ac8eb86e62eff66ecabd18"
-  integrity sha512-U9liL0rft2vniZpZ5btRSNeeHMrErA7bkHi81q+cH7KmNJw4DxmtdXW+fQDGM3t+a35FBnrwRQg9LuRtdYquBA==
+"@lifi/types@^17.38.0":
+  version "17.38.0"
+  resolved "https://registry.yarnpkg.com/@lifi/types/-/types-17.38.0.tgz#b884bc25518a0d5c225ed9c0e93de284eb404863"
+  integrity sha512-dZFy/cVCr6WyBjbqpXFol9Fyo0U+mR6FlWK4URgvTQwhH0E6e+aBn6ivPndxYvLPccAiNKJlQzQvSh6ort0+rw==
   dependencies:
     viem "^2.33.2"
 
@@ -2482,45 +2494,45 @@
     node-fetch "^2.6.7"
     ws "^7.4.5"
 
-"@mysten/bcs@1.7.0":
-  version "1.7.0"
-  resolved "https://registry.yarnpkg.com/@mysten/bcs/-/bcs-1.7.0.tgz#efe765d3ba13febd26a51c2fde2575758656c0c8"
-  integrity sha512-8zE2Jzj2ai55RlVXx2pEMbbq+X3vB+uPGBvZr0F79IdTwuwcu4QdFG3PT/zHsytsvATkn+z0f2YDWhM5916u2A==
+"@mysten/bcs@1.8.0":
+  version "1.8.0"
+  resolved "https://registry.yarnpkg.com/@mysten/bcs/-/bcs-1.8.0.tgz#2d04dfc36e014cd09263d407964caf3080be3dda"
+  integrity sha512-bDoLN1nN+XPONsvpNyNyqYHndM3PKWS419GLeRnbLoWyNm4bnyD1X4luEpJLLDq400hBuXiCan4RWjofvyTUIQ==
   dependencies:
-    "@mysten/utils" "0.1.1"
+    "@mysten/utils" "0.2.0"
     "@scure/base" "^1.2.6"
 
-"@mysten/sui@1.37.5", "@mysten/sui@^1.37.5":
-  version "1.37.5"
-  resolved "https://registry.yarnpkg.com/@mysten/sui/-/sui-1.37.5.tgz#5a6b401c689cc119db34cf36d7d247c767b0fff5"
-  integrity sha512-kAKizRUdhC/gwQ7UkubbmwTno5UoA1a7Ps8R6GlPVWpCfpVM2HytmwFDOKVMA+51Qji4BaNxyq25SRpJw76fPw==
+"@mysten/sui@1.38.0", "@mysten/sui@^1.38.0":
+  version "1.38.0"
+  resolved "https://registry.yarnpkg.com/@mysten/sui/-/sui-1.38.0.tgz#2ca46e0d45ac7624d653e3ace3a4c856864102b0"
+  integrity sha512-tH6V4BJsYi5d97MOiLoOhyldrYxkm/cu8dYV52asqh1i88HrSVMbPAJ9sVoeWN2Ju+QsJ/Go4ldSjdCkaBCyJQ==
   dependencies:
     "@graphql-typed-document-node/core" "^3.2.0"
-    "@mysten/bcs" "1.7.0"
-    "@mysten/utils" "0.1.1"
+    "@mysten/bcs" "1.8.0"
+    "@mysten/utils" "0.2.0"
     "@noble/curves" "^1.9.4"
     "@noble/hashes" "^1.8.0"
     "@scure/base" "^1.2.6"
     "@scure/bip32" "^1.7.0"
     "@scure/bip39" "^1.6.0"
-    gql.tada "^1.8.12"
+    gql.tada "^1.8.13"
     graphql "^16.11.0"
-    poseidon-lite "^0.2.0"
+    poseidon-lite "0.2.1"
     valibot "^0.36.0"
 
-"@mysten/utils@0.1.1":
-  version "0.1.1"
-  resolved "https://registry.yarnpkg.com/@mysten/utils/-/utils-0.1.1.tgz#4f2e24234bcf8b6977e47fd5469f46af57de5575"
-  integrity sha512-jvhJC6/2la1QHltukQXzfyTZ+VVHxe187JjPx+mEXRUWyAo6jCSdioOQJIfaGu4K4i+37KeiydXRwV/bq/7UJQ==
+"@mysten/utils@0.2.0":
+  version "0.2.0"
+  resolved "https://registry.yarnpkg.com/@mysten/utils/-/utils-0.2.0.tgz#8c4fa3858284de84c333bc7ae09510cf54d55a54"
+  integrity sha512-CM6kJcJHX365cK6aXfFRLBiuyXc5WSBHQ43t94jqlCAIRw8umgNcTb5EnEA9n31wPAQgLDGgbG/rCUISCTJ66w==
   dependencies:
     "@scure/base" "^1.2.6"
 
-"@mysten/wallet-standard@^0.16.13":
-  version "0.16.13"
-  resolved "https://registry.yarnpkg.com/@mysten/wallet-standard/-/wallet-standard-0.16.13.tgz#d25eda014cff5276a2b460e975935fd32fb15e82"
-  integrity sha512-hoWcqD2CEtzwdGm2V40n3j1rfkJboiFiaiMdrnxjGqbZvsHYb/T31pPNmXlFq+8fi292E3NASSFjmnjiOCd5vw==
+"@mysten/wallet-standard@^0.17.0":
+  version "0.17.0"
+  resolved "https://registry.yarnpkg.com/@mysten/wallet-standard/-/wallet-standard-0.17.0.tgz#4ca2b0bf3d0701b3cfe13525a4d8470e1a44609d"
+  integrity sha512-UQ6tvqQ/lDKZhQm2d3ajky/xl+NgpYpNXYIpWfYGOLvGe4GyK6GHysMNHsRpFa+xA2yVa6w3nWO2RQ8WIy7ivA==
   dependencies:
-    "@mysten/sui" "1.37.5"
+    "@mysten/sui" "1.38.0"
     "@wallet-standard/core" "1.1.1"
 
 "@noble/ciphers@^1.3.0":
@@ -4690,6 +4702,16 @@ abitype@1.0.8, abitype@^1.0.6, abitype@^1.0.8:
   version "1.0.8"
   resolved "https://registry.yarnpkg.com/abitype/-/abitype-1.0.8.tgz#3554f28b2e9d6e9f35eb59878193eabd1b9f46ba"
   integrity sha512-ZeiI6h3GnW06uYDLx0etQtX/p8E24UaHHBj57RSjK7YBFe7iuVn07EDpOeP451D06sF27VOz9JJPlIKJmXgkEg==
+
+abitype@1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/abitype/-/abitype-1.1.0.tgz#510c5b3f92901877977af5e864841f443bf55406"
+  integrity sha512-6Vh4HcRxNMLA0puzPjM5GBgT4aAcFGKZzSgAXvuZ27shJP6NEpielTuqbBmZILR5/xd0PizkBGy5hReKz9jl5A==
+
+abitype@^1.0.9:
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/abitype/-/abitype-1.1.1.tgz#b50ed400f8bfca5452eb4033445c309d3e1117c8"
+  integrity sha512-Loe5/6tAgsBukY95eGaPSDmQHIjRZYQq8PB1MpsNccDIK8WiV+Uw6WzaIXipvaxTEL2yEB0OpEaQv3gs8pkS9Q==
 
 abort-controller@^3.0.0:
   version "3.0.0"
@@ -8206,14 +8228,14 @@ gopd@^1.2.0:
   resolved "https://registry.yarnpkg.com/gopd/-/gopd-1.2.0.tgz#89f56b8217bdbc8802bd299df6d7f1081d7e51a1"
   integrity sha512-ZUKRh6/kUFoAiTAtTYPZJ3hw9wNxx+BIBOijnlG9PnrJsCcSjs1wyyD6vJpaYtgnzDrKYRSqf3OO6Rfa93xsRg==
 
-gql.tada@^1.8.12:
-  version "1.8.12"
-  resolved "https://registry.yarnpkg.com/gql.tada/-/gql.tada-1.8.12.tgz#b3a36a299b14cc673128d477fc71917747293213"
-  integrity sha512-VuHbhYyhPN7XDc06Gl3jYWxMlqa1MLX5xbrmbBbzelX/+M5khxDsNBE7FvTEvAmx0RyLyDkEtRPWRfIdMCTKTw==
+gql.tada@^1.8.13:
+  version "1.8.13"
+  resolved "https://registry.yarnpkg.com/gql.tada/-/gql.tada-1.8.13.tgz#a724bbdaebe1d851d80bf59c5e8614956914b883"
+  integrity sha512-fYoorairdPgxtE7Sf1X9/6bSN9Kt2+PN8KLg3hcF8972qFnawwUgs1OLVU8efZMHwL7EBHhhKBhrsGPlOs2lZQ==
   dependencies:
     "@0no-co/graphql.web" "^1.0.5"
     "@0no-co/graphqlsp" "^1.12.13"
-    "@gql.tada/cli-utils" "1.7.0"
+    "@gql.tada/cli-utils" "1.7.1"
     "@gql.tada/internal" "1.0.8"
 
 graceful-fs@^4.1.2, graceful-fs@^4.1.6, graceful-fs@^4.2.0, graceful-fs@^4.2.11, graceful-fs@^4.2.4, graceful-fs@^4.2.6, graceful-fs@^4.2.9:
@@ -10592,6 +10614,20 @@ ox@0.9.1:
     abitype "^1.0.8"
     eventemitter3 "5.0.1"
 
+ox@0.9.6:
+  version "0.9.6"
+  resolved "https://registry.yarnpkg.com/ox/-/ox-0.9.6.tgz#5cf02523b6db364c10ee7f293ff1e664e0e1eab7"
+  integrity sha512-8SuCbHPvv2eZLYXrNmC0EC12rdzXQLdhnOMlHDW2wiCPLxBrOOJwX5L5E61by+UjTPOryqQiRSnjIKCI+GykKg==
+  dependencies:
+    "@adraffy/ens-normalize" "^1.11.0"
+    "@noble/ciphers" "^1.3.0"
+    "@noble/curves" "1.9.1"
+    "@noble/hashes" "^1.8.0"
+    "@scure/bip32" "^1.7.0"
+    "@scure/bip39" "^1.6.0"
+    abitype "^1.0.9"
+    eventemitter3 "5.0.1"
+
 p-limit@^2.0.0, p-limit@^2.2.0:
   version "2.3.0"
   resolved "https://registry.yarnpkg.com/p-limit/-/p-limit-2.3.0.tgz#3dd33c647a214fdfffd835933eb086da0dc21db1"
@@ -10873,7 +10909,7 @@ pkg-up@^3.1.0:
   dependencies:
     find-up "^3.0.0"
 
-poseidon-lite@^0.2.0:
+poseidon-lite@0.2.1:
   version "0.2.1"
   resolved "https://registry.yarnpkg.com/poseidon-lite/-/poseidon-lite-0.2.1.tgz#7ad98e3a3aa5b91a1fd3a61a87460e9e46fd76d6"
   integrity sha512-xIr+G6HeYfOhCuswdqcFpSX47SPhm0EpisWJ6h7fHlWwaVIvH3dLnejpatrtw6Xc6HaLrpq05y7VRfvDmDGIog==
@@ -13702,7 +13738,7 @@ viem@^2.28.4:
     ox "0.7.1"
     ws "8.18.2"
 
-viem@^2.33.2, viem@^2.36.0:
+viem@^2.33.2:
   version "2.36.0"
   resolved "https://registry.yarnpkg.com/viem/-/viem-2.36.0.tgz#e564484018c6e4432dfa936fdda4ca585008d4f7"
   integrity sha512-Xz7AkGtR43K+NY74X2lBevwfRrsXuifGUzt8QiULO47NXIcT7g3jcA4nIvl5m2OTE5v8SlzishwXmg64xOIVmQ==
@@ -13714,6 +13750,20 @@ viem@^2.33.2, viem@^2.36.0:
     abitype "1.0.8"
     isows "1.0.7"
     ox "0.9.1"
+    ws "8.18.3"
+
+viem@^2.37.8:
+  version "2.37.9"
+  resolved "https://registry.yarnpkg.com/viem/-/viem-2.37.9.tgz#6157527084c317f43e5e8a079bd8ad59802a8771"
+  integrity sha512-XXUOE5yJcjr9/M9kRoQcPMUfetwHprO9aTho6vNELjBKJIBx7rYq1fjvBw+xEnhsRjhh5lsORi6B0h8fYFB7NA==
+  dependencies:
+    "@noble/curves" "1.9.1"
+    "@noble/hashes" "1.8.0"
+    "@scure/bip32" "1.7.0"
+    "@scure/bip39" "1.6.0"
+    abitype "1.1.0"
+    isows "1.0.7"
+    ox "0.9.6"
     ws "8.18.3"
 
 vinyl-buffer@^1.0.1:

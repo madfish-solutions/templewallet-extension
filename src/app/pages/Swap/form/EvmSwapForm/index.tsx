@@ -15,7 +15,7 @@ import { useEvmTokenMetadataSelector } from 'app/store/evm/tokens-metadata/selec
 import { toastError } from 'app/toaster';
 import { erc20AllowanceAbi } from 'lib/abi/erc20';
 import { useFormAnalytics } from 'lib/analytics';
-import { getEvmBestSwapRoute } from 'lib/apis/temple/endpoints/evm';
+import { getEvmAllSwapRoutes } from 'lib/apis/temple/endpoints/evm';
 import { RouteParams } from 'lib/apis/temple/endpoints/evm/api.interfaces';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { fromAssetSlug, parseChainAssetSlug } from 'lib/assets/utils';
@@ -251,11 +251,14 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
     routeAbortControllerRef.current = controller;
 
     try {
-      const data = await getEvmBestSwapRoute(params, controller.signal);
-      if (data === undefined) {
+      const routesResponse = await getEvmAllSwapRoutes(params, controller.signal);
+
+      if (routesResponse === undefined) {
         return;
       }
-      return data;
+
+      // select the first route for now
+      return routesResponse.routes[0];
     } catch (error: unknown) {
       if ((error as Error)?.name === 'CanceledError') return undefined;
       console.error('EVM Swap route error:', error instanceof Error ? error.message : error);
