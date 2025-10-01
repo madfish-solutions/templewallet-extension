@@ -14,9 +14,9 @@ import { V2IntroductionModalSelectors } from './selectors';
 const V2_DOCS_URL =
   'https://docs.templewallet.com/blog/the-temple-wallet-tezos-evm-update-the-beginning-of-the-new-chapter/';
 
-export const V2IntroductionModal = memo<{ onClose: EmptyFn }>(({ onClose }) => {
+export const V2IntroductionModal = memo<{ onClose: () => Promise<void> }>(({ onClose }) => {
   const handleLinkClick = useCallback(async () => {
-    onClose();
+    await onClose();
     await browser.tabs.create({ url: V2_DOCS_URL });
   }, [onClose]);
 
