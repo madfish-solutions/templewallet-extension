@@ -95,6 +95,16 @@ export const TEZOS_DEFAULT_NETWORKS: NonEmptyArray<StoredTezosNetwork> = [
     description: 'SmartPy Mainnet',
     color: '#34D399'
   },
+  // TODO: Remove after test
+  {
+    id: 'smartpy-broken',
+    name: 'Broken SmartPy',
+    chain: TempleChainKind.Tezos,
+    chainId: TempleTezosChainId.Mainnet,
+    rpcBaseURL: 'https://broken.smartpy.io',
+    description: 'SmartPy Broken',
+    color: '#34D391'
+  },
   {
     id: 'tezie-mainnet',
     name: 'ECAD Labs',

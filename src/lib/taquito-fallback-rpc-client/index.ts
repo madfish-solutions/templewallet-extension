@@ -1,5 +1,15 @@
 import { HttpResponseError } from '@taquito/http-utils';
-import { EntrypointsResponse, RpcClient, RPCOptions } from '@taquito/rpc';
+import {
+  EntrypointsResponse,
+  ForgeOperationsParams,
+  PreapplyParams,
+  RpcClient,
+  RPCOptions,
+  RPCRunCodeParam,
+  RPCRunScriptViewParam,
+  RPCRunViewParam,
+  RPCSimulateOperationParam
+} from '@taquito/rpc';
 
 import { FastRpcClient } from '../taquito-fast-rpc';
 
@@ -34,6 +44,12 @@ export class FallbackRpcClient extends RpcClient {
 
     // Should be unreachable
     throw new Error('FallbackRpcClient: no RPCs available');
+  }
+
+  getRpcUrl() {
+    const total = this.clients.length;
+    const idx = this.preferredIndex % total;
+    return this.clients[idx].getRpcUrl();
   }
 
   async getChainId() {
@@ -110,6 +126,34 @@ export class FallbackRpcClient extends RpcClient {
 
   async getBlockMetadata(opts?: RPCOptions) {
     return this.callWithFallback(client => client.getBlockMetadata(opts));
+  }
+
+  async simulateOperation(op: RPCSimulateOperationParam, opts?: RPCOptions) {
+    return this.callWithFallback(client => client.simulateOperation(op, opts));
+  }
+
+  async preapplyOperations(ops: PreapplyParams, opts?: RPCOptions) {
+    return this.callWithFallback(client => client.preapplyOperations(ops, opts));
+  }
+
+  async injectOperation(signedOpBytes: string) {
+    return this.callWithFallback(client => client.injectOperation(signedOpBytes));
+  }
+
+  async forgeOperations(data: ForgeOperationsParams, opts?: RPCOptions) {
+    return this.callWithFallback(client => client.forgeOperations(data, opts));
+  }
+
+  async runCode(code: RPCRunCodeParam, opts?: RPCOptions) {
+    return this.callWithFallback(client => client.runCode(code, opts));
+  }
+
+  async runScriptView(param: RPCRunScriptViewParam, opts?: RPCOptions) {
+    return this.callWithFallback(client => client.runScriptView(param, opts));
+  }
+
+  async runView(param: RPCRunViewParam, opts?: RPCOptions) {
+    return this.callWithFallback(client => client.runView(param, opts));
   }
 }
 
