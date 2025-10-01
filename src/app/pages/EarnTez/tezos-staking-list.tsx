@@ -73,7 +73,7 @@ export const TezosStakingList = memo<Props>(
     const finalizationIsPending = unfinalizableRequests?.requests.length && unfinalizableRequests.delegate !== bakerPkh;
 
     const getCanStake = useCallback(async () => {
-      const tezos = getTezosToolkitWithSigner(rpcBaseURL, account.address);
+      const tezos = getTezosToolkitWithSigner(network, account.address);
 
       try {
         await estimateStaking(account, tezos, tezBalance, toPenny(gasTokenMetadata));

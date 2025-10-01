@@ -120,7 +120,7 @@ export const SelectBakerContent = memo<SelectBakerContentProps>(({ account, bake
     }
 
     try {
-      const tezos = getTezosToolkitWithSigner(network.rpcBaseURL, account.address);
+      const tezos = getTezosToolkitWithSigner(network, account.address);
       await getRawDelegationEstimate(account, tezos, resolvedAddress);
 
       return true;

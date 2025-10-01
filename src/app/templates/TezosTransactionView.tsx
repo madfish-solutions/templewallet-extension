@@ -17,7 +17,7 @@ import { serializeError } from 'lib/utils/serialize-error';
 import { getAccountAddressForTezos } from 'temple/accounts';
 import { TezosChain, useAllAccounts, useAllTezosChains } from 'temple/front';
 import { StoredTezosNetwork } from 'temple/networks';
-import { getReadOnlyTezos } from 'temple/tezos';
+import { getReadOnlyTezosForNetwork } from 'temple/tezos';
 import { TempleChainKind } from 'temple/types';
 
 import { OperationViewLayout } from './operation-view-layout';
@@ -50,7 +50,7 @@ export const TezosTransactionView = memo<TezosTransactionViewProps>(
 
 const TezosTransactionViewBody = memo<TezosTransactionViewProps>(
   ({ payload, formId, error: submitError, setTotalFee, setStorageLimit, onSubmit }) => {
-    const { networkRpc, opParams, sourcePkh, estimates, error: estimationError } = payload;
+    const { network, opParams, sourcePkh, estimates, error: estimationError } = payload;
     const tezosChains = useAllTezosChains();
     const accounts = useAllAccounts();
     const sendingAccount = useMemo(
@@ -72,24 +72,23 @@ const TezosTransactionViewBody = memo<TezosTransactionViewProps>(
       };
     }, [estimates, opParams.length]);
 
-    const tezos = useMemo(() => getReadOnlyTezos(networkRpc), [networkRpc]);
+    const tezos = useMemo(() => getReadOnlyTezosForNetwork(network), [network]);
 
     const getTezosChain = useCallback(async (): Promise<TezosChain> => {
       const knownTezosChain = Object.values(tezosChains).find(c =>
-        c.allRpcs.some(rpc => rpc.rpcBaseURL === networkRpc)
+        c.allRpcs.some(rpc => rpc.chainId === network.chainId)
       );
 
       if (knownTezosChain) {
         return knownTezosChain;
       }
 
-      const chainId = await tezos.rpc.getChainId();
       const rpc: StoredTezosNetwork = {
         chain: TempleChainKind.Tezos,
-        chainId,
+        chainId: network.chainId,
         id: nanoid(),
-        rpcBaseURL: networkRpc,
-        name: networkRpc,
+        rpcBaseURL: network.rpcBaseURL,
+        name: network.rpcBaseURL,
         color: '#000000'
       };
 
@@ -97,14 +96,14 @@ const TezosTransactionViewBody = memo<TezosTransactionViewProps>(
         rpc,
         allRpcs: [rpc],
         kind: TempleChainKind.Tezos,
-        chainId,
-        rpcBaseURL: networkRpc,
-        name: networkRpc,
+        chainId: network.chainId,
+        rpcBaseURL: network.rpcBaseURL,
+        name: network.rpcBaseURL,
         allBlockExplorers: [],
         default: false
       };
-    }, [networkRpc, tezosChains, tezos]);
-    const { data: chain } = useTypedSWR(['tezos-chain', networkRpc], getTezosChain, {
+    }, [network, tezosChains]);
+    const { data: chain } = useTypedSWR(['tezos-chain', network.chainId], getTezosChain, {
       suspense: true,
       revalidateOnFocus: false,
       shouldRetryOnError: false
@@ -120,7 +119,7 @@ const TezosTransactionViewBody = memo<TezosTransactionViewProps>(
       }
     }, [sourcePkh, tezos]);
     const { data: sourcePkIsRevealed } = useTypedSWR(
-      ['source-pk-is-revealed', sourcePkh, networkRpc],
+      ['source-pk-is-revealed', sourcePkh, network.chainId],
       getSourcePkIsRevealed,
       {
         revalidateOnFocus: false,
@@ -146,8 +145,7 @@ const TezosTransactionViewBody = memo<TezosTransactionViewProps>(
       estimationData,
       basicParams: opParams,
       senderAccount: sendingAccount,
-      rpcBaseURL: networkRpc,
-      chainId: chain!.chainId,
+      network,
       simulateOperation: true,
       sourcePkIsRevealed
     });

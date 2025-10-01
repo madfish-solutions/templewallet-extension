@@ -31,12 +31,11 @@ interface AmountInputContentProps {
 
 export const StakeAmountInputContent = memo<AmountInputContentProps>(({ account, bakerPkh, network, onSubmit }) => {
   const { address: accountPkh } = account;
-  const { rpcBaseURL, chainId } = network;
-  const tezos = getTezosToolkitWithSigner(rpcBaseURL, accountPkh);
+  const tezos = getTezosToolkitWithSigner(network, accountPkh);
 
   const { value: tezBalance = ZERO } = useTezosAssetBalance(TEZ_TOKEN_SLUG, accountPkh, network);
 
-  const tezGasMetadata = useTezosGasMetadata(chainId);
+  const tezGasMetadata = useTezosGasMetadata(network.chainId);
   const penny = useMemo(() => toPenny(tezGasMetadata), [tezGasMetadata]);
 
   const stakingEstimationInput = useMemo(

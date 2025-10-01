@@ -10,7 +10,7 @@ import type { EvmEstimationData, SerializedEvmEstimationData } from 'temple/evm/
 import type { TypedDataV1 } from 'temple/evm/typed-data-v1';
 import type { SerializedBigints } from 'temple/evm/utils';
 import type { EvmChain } from 'temple/front';
-import type { StoredEvmNetwork, StoredTezosNetwork } from 'temple/networks';
+import type { StoredEvmNetwork, StoredTezosNetwork, TezosNetworkEssentials } from 'temple/networks';
 import type { TempleChainKind } from 'temple/types';
 
 import type {
@@ -288,7 +288,7 @@ interface TempleDAppPayloadBase {
 }
 
 interface TempleTezosDAppPayloadBase extends TempleDAppPayloadBase {
-  networkRpc: string;
+  network: TezosNetworkEssentials;
   chainType?: TempleChainKind.Tezos;
 }
 
