@@ -108,14 +108,14 @@ export const CreatePasswordForm = memo<CreatePasswordFormProps>(
         try {
           const { analytics: analyticsEnabled, getRewards: adsViewEnabled, password } = data;
 
-          dispatch(togglePartnersPromotionAction(adsViewEnabled));
-          dispatch(setIsAnalyticsEnabledAction(analyticsEnabled));
-          dispatch(setReferralLinksEnabledAction(adsViewEnabled));
-
           const shouldBackupToGoogleAutomatically = Boolean(googleAuthToken && !mnemonicToImport);
           setSuppressReady(shouldBackupToGoogleAutomatically);
 
           const accountPkh = await registerWallet(password, formatMnemonic(seedPhrase));
+
+          dispatch(togglePartnersPromotionAction(adsViewEnabled));
+          dispatch(setIsAnalyticsEnabledAction(analyticsEnabled));
+          dispatch(setReferralLinksEnabledAction(adsViewEnabled));
 
           // registerWallet function clears async storages
           await putToStorage(REPLACE_REFERRALS_ENABLED, adsViewEnabled);

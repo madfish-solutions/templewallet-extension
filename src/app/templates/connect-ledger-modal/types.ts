@@ -7,7 +7,8 @@ interface AccountPropsBase {
   chain: TempleChainKind;
   publicKey: string;
   address: string;
-  derivationIndex: number;
+  index?: number;
+  derivationPath: string;
 }
 
 export interface TezosAccountProps extends AccountPropsBase {
