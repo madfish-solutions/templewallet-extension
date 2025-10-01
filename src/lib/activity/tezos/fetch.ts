@@ -32,7 +32,7 @@ export async function fetchOperations(
     } else if (contractAddress === LIQUIDITY_BAKING_DEX_ADDRESS) {
       return await fetchOperations_Contract(chainId, accAddress, contractAddress, pseudoLimit, olderThan);
     } else {
-      const tezos = getReadOnlyTezos(rpcUrl);
+      const tezos = getReadOnlyTezos({ rpcBaseURL: rpcUrl, chainId });
       const tokenType = await detectTokenStandard(tezos, contractAddress);
 
       if (tokenType === 'fa1.2') {

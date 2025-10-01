@@ -27,7 +27,7 @@ import { TempleMessageType } from 'lib/temple/types';
 import { makeIntercomRequest, assertResponse, getAccountPublicKey } from 'temple/front/intercom-client';
 import { MAX_MEMOIZED_TOOLKITS } from 'temple/misc';
 import { TezosNetworkEssentials } from 'temple/networks';
-import { getTezosFastRpcClient, makeTezosClientId, michelEncoder } from 'temple/tezos';
+import { getTezosRpcClient, makeTezosClientId, michelEncoder } from 'temple/tezos';
 
 import { setPendingConfirmationId } from '../pending-confirm';
 
@@ -52,7 +52,7 @@ export const getTezosToolkitWithSigner = memoizee(
   },
   {
     max: MAX_MEMOIZED_TOOLKITS,
-    normalizer: ([rpcUrl, signerPkh, straightaway]) => makeTezosClientId(rpcUrl, signerPkh, straightaway)
+    normalizer: ([network, signerPkh, straightaway]) => makeTezosClientId(network, signerPkh, straightaway)
   }
 );
 
@@ -60,7 +60,7 @@ class ReactiveTezosToolkit extends TezosToolkit {
   clientId: string;
 
   constructor(network: TezosNetworkEssentials, accountPkh: string) {
-    super(getTezosFastRpcClient(network.rpcBaseURL));
+    super(getTezosRpcClient(network));
 
     this.clientId = makeTezosClientId(network, accountPkh);
 

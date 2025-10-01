@@ -65,7 +65,7 @@ export const SelectBakerContent = memo<SelectBakerContentProps>(({ account, bake
     network
   );
   const searchValueIsDomainName = useMemo(
-    () => isTezosDomainsNameValid(debouncedSearchValue, getTezosDomainsClient(network.chainId, network.rpcBaseURL)),
+    () => isTezosDomainsNameValid(debouncedSearchValue, getTezosDomainsClient(network)),
     [debouncedSearchValue, network]
   );
   const isResolvingDomain = domainIsValidating && searchValueIsDomainName;

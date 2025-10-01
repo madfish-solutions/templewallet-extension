@@ -43,7 +43,7 @@ export function useDelegate(
 
   const getDelegate = useCallback(async () => {
     try {
-      const tezos = getReadOnlyTezos(rpcBaseURL);
+      const tezos = getReadOnlyTezos(network);
 
       return await retry(
         async () => {

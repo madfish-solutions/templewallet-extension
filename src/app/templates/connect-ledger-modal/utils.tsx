@@ -27,7 +27,7 @@ const DEFAULT_DERIVATION = DerivationType.ED25519;
 
 export const useGetLedgerTezosAccount = () => {
   const mainnetChain = useTezosChainByChainId(TempleTezosChainId.Mainnet);
-  const tezos = useMemo(() => getReadOnlyTezos(mainnetChain!.rpcBaseURL), [mainnetChain]);
+  const tezos = useMemo(() => getReadOnlyTezos(mainnetChain!), [mainnetChain]);
   const { accounts, getLedgerTezosPk } = useTempleClient();
 
   return useCallback(

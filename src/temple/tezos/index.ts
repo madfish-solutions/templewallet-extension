@@ -16,9 +16,18 @@ export const michelEncoder = new MichelCodecPacker();
 export const makeTezosClientId = (network: TezosNetworkEssentials, accountPkh: string, straightaway = false) =>
   `${accountPkh}@${JSON.stringify(network)}@${straightaway}`;
 
+export const getTezosRpcClient = memoizee(
+  (network: TezosNetworkEssentials): FallbackRpcClient => {
+    const fallbacks = TEZOS_FALLBACK_RPC_URLS[network.chainId];
+
+    return new FallbackRpcClient(uniq([network.rpcBaseURL, ...fallbacks]));
+  },
+  { max: MAX_MEMOIZED_TOOLKITS, normalizer: ([network]) => JSON.stringify(network) }
+);
+
 export const getReadOnlyTezos = memoizee(
-  (rpcUrl: string) => {
-    const tezos = new TezosToolkit(getTezosFastRpcClient(rpcUrl));
+  (network: TezosNetworkEssentials): TezosToolkit => {
+    const tezos = new TezosToolkit(getTezosRpcClient(network));
 
     tezos.setPackerProvider(michelEncoder);
     tezos.addExtension(new Tzip16Module());
@@ -28,27 +37,9 @@ export const getReadOnlyTezos = memoizee(
   { max: MAX_MEMOIZED_TOOLKITS }
 );
 
-export const getTezosFastRpcClient = memoizee((rpcUrl: string) => new FastRpcClient(rpcUrl), {
+const getTezosFastRpcClient = memoizee((rpcUrl: string) => new FastRpcClient(rpcUrl), {
   max: MAX_MEMOIZED_TOOLKITS
 });
-
-export function getTezosRpcClientForNetwork(network: TezosNetworkEssentials): FallbackRpcClient {
-  const fallbacks = TEZOS_FALLBACK_RPC_URLS[network.chainId];
-
-  return new FallbackRpcClient(uniq([network.rpcBaseURL, ...fallbacks]));
-}
-
-export const getReadOnlyTezosForNetwork = memoizee(
-  (network: TezosNetworkEssentials) => {
-    const tezos = new TezosToolkit(getTezosRpcClientForNetwork(network));
-
-    tezos.setPackerProvider(michelEncoder);
-    tezos.addExtension(new Tzip16Module());
-
-    return tezos;
-  },
-  { max: MAX_MEMOIZED_TOOLKITS }
-);
 
 export function loadTezosChainId(rpcUrl: string, timeout?: number) {
   const rpc = getTezosFastRpcClient(rpcUrl);

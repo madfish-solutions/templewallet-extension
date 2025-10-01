@@ -11,7 +11,7 @@ import { SerializedEstimate } from 'lib/temple/types';
 import { serializeEstimate } from 'lib/utils/serialize-estimate';
 import { getParamsWithCustomGasLimitFor3RouteSwap } from 'lib/utils/swap.utils';
 import { TezosNetworkEssentials } from 'temple/networks';
-import { michelEncoder, getTezosRpcClientForNetwork } from 'temple/tezos';
+import { michelEncoder, getTezosRpcClient } from 'temple/tezos';
 
 import { provePossession } from './prove-possession';
 
@@ -43,7 +43,7 @@ export async function dryRunOpParams({
   prevFailedOperationIndex = -1
 }: DryRunParams): Promise<DryRunResult | null> {
   try {
-    const tezos = new TezosToolkit(getTezosRpcClientForNetwork(network));
+    const tezos = new TezosToolkit(getTezosRpcClient(network));
 
     let bytesToSign: string | undefined;
     const signer = new ReadOnlySigner(

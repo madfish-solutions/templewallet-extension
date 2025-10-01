@@ -62,11 +62,11 @@ export const TezosStakingList = memo<Props>(
     const { data: baker } = useKnownBaker(bakerPkh, network.chainId, true);
     const gasTokenMetadata = useTezosGasMetadata(chainId);
     const { symbol } = gasTokenMetadata;
-    const { data: stakedData, mutate: updateStakedAmount } = useStakedAmount(rpcBaseURL, accountPkh, true);
-    const { data: requests, mutate: updateUnstakeRequests } = useUnstakeRequests(rpcBaseURL, accountPkh, true);
+    const { data: stakedData, mutate: updateStakedAmount } = useStakedAmount(network, accountPkh, true);
+    const { data: requests, mutate: updateUnstakeRequests } = useUnstakeRequests(network, accountPkh, true);
     const { value: tezBalance = ZERO } = useTezosAssetBalance(TEZ_TOKEN_SLUG, accountPkh, network);
-    const { data: cyclesInfo } = useStakingCyclesInfo(rpcBaseURL);
-    const blockLevelInfo = useBlockLevelInfo(rpcBaseURL);
+    const { data: cyclesInfo } = useStakingCyclesInfo(network);
+    const blockLevelInfo = useBlockLevelInfo(network);
     const blockExplorerUrl = useBlockExplorerUrl(network);
     const unfinalizableRequests = requests?.unfinalizable;
     const readyRequests = requests?.finalizable;
@@ -94,7 +94,7 @@ export const TezosStakingList = memo<Props>(
     const feePercentage = useMemo(() => toPercentage(baker?.staking.fee, '---'), [baker]);
     const estimatedApy = useMemo(() => toPercentage(baker?.staking.estimatedApy, '---'), [baker]);
 
-    useOnTezosBlock(rpcBaseURL, () => {
+    useOnTezosBlock(network, () => {
       updateStakedAmount();
       updateUnstakeRequests();
     });

@@ -39,7 +39,7 @@ export const TezosInfoModalContent = memo<TezosInfoModalProps>(({ assetSlug, cha
   // TODO: Refactor. Maybe only detect standard?
   const { data: asset } = useRetryableSWR(
     chain ? ['asset', assetSlug, chain.rpcBaseURL] : null,
-    () => fromAssetSlugWithStandardDetect(getReadOnlyTezos(chain!.rpcBaseURL), assetSlug),
+    () => fromAssetSlugWithStandardDetect(getReadOnlyTezos(chain!), assetSlug),
     { suspense: true }
   );
 

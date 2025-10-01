@@ -7,20 +7,20 @@ import {
   isKnownChainId
 } from 'lib/apis/temple';
 import { fromAssetSlug } from 'lib/assets';
+import { TezosNetworkEssentials } from 'temple/networks';
 import { getReadOnlyTezos } from 'temple/tezos';
 
 import { TokenMetadataOnChain, fetchTokenMetadata as fetchTokenMetadataOnChain } from './on-chain';
 
 export const fetchOneTokenMetadata = async (
-  rpcUrl: string,
+  network: TezosNetworkEssentials,
   address: string,
   id: string
 ): Promise<TokenMetadataResponse | undefined> => {
-  const tezos = getReadOnlyTezos(rpcUrl);
-  const chainId = await tezos.rpc.getChainId();
+  const tezos = getReadOnlyTezos(network);
 
-  if (isKnownChainId(chainId)) {
-    return await fetchOneTokenMetadataOnAPI(chainId, address, id);
+  if (isKnownChainId(network.chainId)) {
+    return await fetchOneTokenMetadataOnAPI(network.chainId, address, id);
   }
 
   const metadataOnChain = await fetchTokenMetadataOnChain(tezos, address, id);
@@ -29,16 +29,15 @@ export const fetchOneTokenMetadata = async (
 };
 
 export const fetchTokensMetadata = async (
-  rpcUrl: string,
+  network: TezosNetworkEssentials,
   slugs: string[]
 ): Promise<(TokenMetadataResponse | null)[]> => {
   if (slugs.length === 0) return [];
 
-  const tezos = getReadOnlyTezos(rpcUrl);
-  const chainId = await tezos.rpc.getChainId();
+  const tezos = getReadOnlyTezos(network);
 
-  if (isKnownChainId(chainId)) {
-    return await fetchTokensMetadataOnAPI(chainId, slugs);
+  if (isKnownChainId(network.chainId)) {
+    return await fetchTokensMetadataOnAPI(network.chainId, slugs);
   }
 
   return await Promise.all(
@@ -60,8 +59,8 @@ export const fetchTokensMetadata = async (
 const chainTokenMetadataToBase = (metadata: TokenMetadataOnChain | nullish): TokenMetadataResponse | null =>
   metadata ? pick(metadata, 'name', 'symbol', 'decimals', 'thumbnailUri', 'displayUri', 'artifactUri') : null;
 
-export const loadTokensMetadata = (rpcUrl: string, slugs: string[]) =>
-  fetchTokensMetadata(rpcUrl, slugs).then(data => reduceToMetadataRecord(slugs, data));
+export const loadTokensMetadata = (network: TezosNetworkEssentials, slugs: string[]) =>
+  fetchTokensMetadata(network, slugs).then(data => reduceToMetadataRecord(slugs, data));
 
 export type FetchedMetadataRecord = Record<string, TokenMetadataResponse | null>;
 

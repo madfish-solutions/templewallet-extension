@@ -44,7 +44,7 @@ import {
 import { isValidTezosAddress } from 'lib/tezos';
 import { isTruthy } from 'lib/utils';
 import { StoredTezosNetwork, TEZOS_DEFAULT_NETWORKS, TezosNetworkEssentials } from 'temple/networks';
-import { getTezosRpcClientForNetwork, loadTezosChainId } from 'temple/tezos';
+import { getTezosRpcClient, loadTezosChainId } from 'temple/tezos';
 import { TempleChainKind } from 'temple/types';
 
 import { intercom } from './defaults';
@@ -348,7 +348,7 @@ export async function requestBroadcast(
   }
 
   try {
-    const rpc = getTezosRpcClientForNetwork(await getAssertNetwork(dApp.network));
+    const rpc = getTezosRpcClient(await getAssertNetwork(dApp.network));
     const opHash = await rpc.injectOperation(req.signedOpBytes);
     return {
       type: TempleDAppMessageType.BroadcastResponse,

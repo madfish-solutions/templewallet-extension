@@ -25,7 +25,7 @@ import { AccountForChain, getAccountAddressForTezos } from 'temple/accounts';
 import { getTezosToolkitWithSigner } from 'temple/front';
 import { provePossession } from 'temple/front/tezos';
 import { TezosNetworkEssentials } from 'temple/networks';
-import { getTezosRpcClientForNetwork, michelEncoder } from 'temple/tezos';
+import { getTezosRpcClient, michelEncoder } from 'temple/tezos';
 import { AssetsAmounts, TempleChainKind } from 'temple/types';
 
 import { DEFAULT_INPUT_DEBOUNCE } from './constants';
@@ -298,7 +298,7 @@ export const useTezosEstimationForm = ({
         () => provePossession(accountPkh)
       );
 
-      const readOnlyTezos = new TezosToolkit(getTezosRpcClientForNetwork(network));
+      const readOnlyTezos = new TezosToolkit(getTezosRpcClient(network));
       readOnlyTezos.setSignerProvider(signer);
       readOnlyTezos.setPackerProvider(michelEncoder);
 

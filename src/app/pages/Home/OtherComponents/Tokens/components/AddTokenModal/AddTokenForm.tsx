@@ -41,7 +41,7 @@ import { useToastsContainerBottomShift } from 'lib/temple/front/toasts-context';
 import { useConfirm } from 'lib/ui/dialog';
 import { useSafeState, useUpdatableRef } from 'lib/ui/hooks';
 import { navigate } from 'lib/woozie';
-import { OneOfChains, useAccountAddressForEvm, useAccountAddressForTezos, useAllTezosChains } from 'temple/front';
+import { OneOfChains, useAccountAddressForEvm, useAccountAddressForTezos } from 'temple/front';
 import { validateEvmContractAddress } from 'temple/front/evm/helpers';
 import { validateTezosContractAddress } from 'temple/front/tezos';
 import { getReadOnlyTezos } from 'temple/tezos';
@@ -104,8 +104,6 @@ export const AddTokenForm = memo<AddTokenPageProps>(
     const accountTezAddress = useAccountAddressForTezos();
     const accountEvmAddress = useAccountAddressForEvm();
 
-    const tezosChains = useAllTezosChains();
-
     const [_, setToastsContainerBottomShift] = useToastsContainerBottomShift();
 
     const { formState, register, errors, watch, setValue, triggerValidation, clearError, handleSubmit } =
@@ -153,9 +151,7 @@ export const AddTokenForm = memo<AddTokenPageProps>(
 
       try {
         if (isTezosChainSelected) {
-          const rpcBaseURL = tezosChains[selectedNetwork.chainId]?.rpcBaseURL;
-
-          const tezos = getReadOnlyTezos(rpcBaseURL);
+          const tezos = getReadOnlyTezos(selectedNetwork);
 
           let contract: ContractAbstraction<Wallet | ContractProvider>;
           try {
@@ -171,7 +167,7 @@ export const AddTokenForm = memo<AddTokenPageProps>(
 
           if (tokenStandard === 'fa2') await assertFa2TokenDefined(tezos, contract, tokenId);
 
-          const metadata = await fetchOneTokenMetadata(rpcBaseURL, contractAddress, String(tokenId));
+          const metadata = await fetchOneTokenMetadata(selectedNetwork, contractAddress, String(tokenId));
 
           if (!metadata || !metadata.name || !metadata.symbol)
             throw new TokenMetadataNotFoundError('Failed to load token metadata');
@@ -206,16 +202,7 @@ export const AddTokenForm = memo<AddTokenPageProps>(
           processing: false
         }));
       }
-    }, [
-      formValid,
-      isTezosChainSelected,
-      tezosChains,
-      selectedNetwork,
-      tokenId,
-      contractAddress,
-      setState,
-      forCollectible
-    ]);
+    }, [formValid, isTezosChainSelected, selectedNetwork, tokenId, contractAddress, setState, forCollectible]);
 
     const loadMetadata = useDebouncedCallback(loadMetadataPure, 500);
 

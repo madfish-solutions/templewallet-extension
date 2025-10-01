@@ -22,7 +22,7 @@ interface OperationStatusProps {
 }
 
 const OperationStatus: FC<OperationStatusProps> = ({ network, typeTitle, operation, className, closable, onClose }) => {
-  const { rpcBaseURL, chainId } = network;
+  const { chainId } = network;
 
   const hash = useMemo(
     () =>
@@ -63,7 +63,7 @@ const OperationStatus: FC<OperationStatusProps> = ({ network, typeTitle, operati
   }));
 
   useEffect(() => {
-    confirmTezosOperation(getReadOnlyTezos(rpcBaseURL), hash)
+    confirmTezosOperation(getReadOnlyTezos(network), hash)
       .then(() => {
         setAlert(a => ({
           ...a,
@@ -86,7 +86,7 @@ const OperationStatus: FC<OperationStatusProps> = ({ network, typeTitle, operati
               : err?.message || 'Operation confirmation failed'
         });
       });
-  }, [rpcBaseURL, hash, setAlert, descFooter, typeTitle]);
+  }, [network, hash, setAlert, descFooter, typeTitle]);
 
   return (
     <Alert
