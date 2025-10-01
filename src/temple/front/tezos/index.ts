@@ -45,7 +45,7 @@ export const getTezosToolkitWithSigner = memoizee(
     // TODO: Do we need signer, if wallet is provided ?
     // Note: Taquito's WalletProvider already has `sign()` method - just need to implement it ?
 
-    const signer = new TempleTaquitoSigner(signerPkh, network.rpcBaseURL, setPendingConfirmationId);
+    const signer = new TempleTaquitoSigner(signerPkh, network, setPendingConfirmationId);
     tezos.setSignerProvider(signer);
 
     return tezos;
@@ -134,8 +134,7 @@ class TempleTaquitoWallet implements WalletProvider {
       type: TempleMessageType.OperationsRequest,
       id,
       sourcePkh: this.pkh,
-      networkRpc: this.network.rpcBaseURL,
-      networkChainId: this.network.chainId,
+      network: this.network,
       opParams: opParams.map(formatOpParams),
       straightaway: this.straightaway
     });
@@ -200,7 +199,11 @@ function withoutFeesOverride<T>(params: any, op: T): T {
 }
 
 class TempleTaquitoSigner implements Signer {
-  constructor(private pkh: string, private rpc: string, private onBeforeSign?: (id: string) => void) {}
+  constructor(
+    private pkh: string,
+    private network: TezosNetworkEssentials,
+    private onBeforeSign?: (id: string) => void
+  ) {}
 
   async publicKeyHash() {
     return this.pkh;
@@ -222,7 +225,7 @@ class TempleTaquitoSigner implements Signer {
     const res = await makeIntercomRequest({
       type: TempleMessageType.SignRequest,
       sourcePkh: this.pkh,
-      networkRpc: this.rpc,
+      network: this.network,
       id,
       bytes,
       watermark: watermark ? buf2hex(toBuffer(watermark)) : undefined

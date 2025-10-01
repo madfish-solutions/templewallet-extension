@@ -417,7 +417,7 @@ const promisableUnlock = async (
     payload: {
       type: 'operations',
       sourcePkh,
-      networkRpc: network.rpcBaseURL,
+      network,
       opParams,
       ...((dryRunResult && dryRunResult.result) ?? {})
     },
@@ -489,7 +489,7 @@ export function sign(
   port: Runtime.Port,
   id: string,
   sourcePkh: string,
-  networkRpc: string,
+  network: TezosNetworkEssentials,
   bytes: string,
   watermark?: string
 ) {
@@ -502,7 +502,7 @@ export function sign(
           payload: {
             type: 'sign',
             sourcePkh,
-            networkRpc,
+            network,
             bytes,
             watermark
           }

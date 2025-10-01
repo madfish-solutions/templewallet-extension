@@ -188,7 +188,7 @@ export interface TempleContact {
 interface TempleConfirmationPayloadBase {
   type: string;
   sourcePkh: string;
-  networkRpc: string;
+  network: TezosNetworkEssentials;
 }
 
 interface TempleSignConfirmationPayload extends TempleConfirmationPayloadBase {
@@ -882,8 +882,7 @@ interface TempleOperationsRequest extends TempleMessageBase {
   type: TempleMessageType.OperationsRequest;
   id: string;
   sourcePkh: string;
-  networkRpc: string;
-  networkChainId: string;
+  network: TezosNetworkEssentials;
   opParams: any[];
   /** send operations without old confirmation page */
   straightaway?: boolean;
@@ -898,7 +897,7 @@ interface TempleSignRequest extends TempleMessageBase {
   type: TempleMessageType.SignRequest;
   id: string;
   sourcePkh: string;
-  networkRpc: string;
+  network: TezosNetworkEssentials;
   bytes: string;
   watermark?: string;
 }
