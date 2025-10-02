@@ -35,10 +35,9 @@ import { EVMErrorCodes, evmRpcMethodsNames, GET_DEFAULT_WEB3_PARAMS_METHOD_NAME 
 import { ErrorWithCode } from 'temple/evm/types';
 import { parseTransactionRequest } from 'temple/evm/utils';
 import { EvmChain } from 'temple/front';
+import { TezosNetworkEssentials } from 'temple/networks';
 import { loadTezosChainId } from 'temple/tezos';
 import { TempleChainKind } from 'temple/types';
-
-import { TezosNetworkEssentials } from '../../../temple/networks';
 
 import {
   getCurrentPermission,

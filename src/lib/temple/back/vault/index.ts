@@ -41,10 +41,10 @@ import { getAccountAddressForChain, getAccountAddressForEvm, getAccountAddressFo
 import { TypedDataV1, typedV1SignatureHash } from 'temple/evm/typed-data-v1';
 import { getCustomViemChain, getViemTransportForNetwork } from 'temple/evm/utils';
 import { EvmChain } from 'temple/front';
+import { TezosNetworkEssentials } from 'temple/networks';
 import { michelEncoder, getTezosRpcClient } from 'temple/tezos';
 import { TempleChainKind } from 'temple/types';
 
-import { TezosNetworkEssentials } from '../../../../temple/networks';
 import { createLedgerSigner } from '../ledger';
 import { PublicError } from '../PublicError';
 
@@ -1007,7 +1007,10 @@ export class Vault {
       default:
         const privateKey = await fetchAndDecryptOne<string>(accPrivKeyStrgKey(accPublicKeyHash), this.passKey);
         const signer = await createMemorySigner(privateKey);
-        return { signer, cleanup: () => {} };
+        return {
+          signer,
+          cleanup: () => {}
+        };
     }
   }
 
