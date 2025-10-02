@@ -28,7 +28,7 @@ export const useUserIdAccountPkhSync = () => {
   useEffect(() => {
     const { tezosAddress: storedTezosAddress, evmAddress: storedEvmAddress } = adsViewerData ?? {};
 
-    if ((tezosAddress !== storedTezosAddress || evmAddress !== storedEvmAddress) && tezosAddress && evmAddress) {
+    if ((tezosAddress !== storedTezosAddress || evmAddress !== storedEvmAddress) && tezosAddress) {
       setAdsViewerData({
         tezosAddress,
         evmAddress
