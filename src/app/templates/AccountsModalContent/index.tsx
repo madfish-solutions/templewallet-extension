@@ -8,6 +8,7 @@ import { ScrollView } from 'app/atoms/PageModal/scroll-view';
 import { useAppEnv } from 'app/env';
 import { useShortcutAccountSelectModalIsOpened } from 'app/hooks/use-account-select-shortcut';
 import { useAllAccountsReactiveOnAddition } from 'app/hooks/use-all-accounts-reactive';
+import { useRewardsAddresses } from 'app/hooks/use-rewards-addresses';
 import { ReactComponent as SettingsIcon } from 'app/icons/base/settings.svg';
 import {
   AccountsGroup as GenericAccountsGroup,
@@ -17,7 +18,7 @@ import { NewWalletActionsPopper } from 'app/templates/NewWalletActionsPopper';
 import { SearchBarField } from 'app/templates/SearchField';
 import { searchHotkey } from 'lib/constants';
 import { t } from 'lib/i18n';
-import { StoredAccount } from 'lib/temple/types';
+import { StoredAccount, TempleAccountType } from 'lib/temple/types';
 import { navigate } from 'lib/woozie';
 import { searchAndFilterAccounts, useAccountsGroups, useCurrentAccountId, useVisibleAccounts } from 'temple/front';
 import { useSetAccountId } from 'temple/front/ready';
@@ -243,8 +244,9 @@ const AccountsGroup = memo<AccountsGroupProps>(
   )
 );
 
-const AccountOfGroup = memo<Omit<AccountCardProps, 'alwaysShowAddresses' | 'AccountName'>>(
+const AccountOfGroup = memo<Omit<AccountCardProps, 'alwaysShowAddresses' | 'isRewardsAccount' | 'AccountName'>>(
   ({ onClick, isCurrent, account, ...restProps }) => {
+    const { tezosAddress: rewardsTezosAddress, evmAddress: rewardsEvmAddress } = useRewardsAddresses();
     const setAccountId = useSetAccountId();
 
     const handleClick = useCallback(() => {
@@ -255,7 +257,18 @@ const AccountOfGroup = memo<Omit<AccountCardProps, 'alwaysShowAddresses' | 'Acco
     }, [isCurrent, account.id, onClick, setAccountId]);
 
     return (
-      <AccountCard {...restProps} account={account} isCurrent={isCurrent} alwaysShowAddresses onClick={handleClick} />
+      <AccountCard
+        {...restProps}
+        account={account}
+        isRewardsAccount={
+          account.type === TempleAccountType.HD &&
+          account.tezosAddress === rewardsTezosAddress &&
+          account.evmAddress === rewardsEvmAddress
+        }
+        isCurrent={isCurrent}
+        alwaysShowAddresses
+        onClick={handleClick}
+      />
     );
   }
 );

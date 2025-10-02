@@ -3420,6 +3420,9 @@
   "rewards": {
     "message": "Rewards"
   },
+  "rewardsAccountTooltip": {
+    "message": "This is your account for Temple rewards. All payouts for activities will be distributed to this account addresses."
+  },
   "partnersPromoDescription": {
     "message": "Here you can configure displaying ads in Temple Wallet and getting reward in TKEY tokens. By enabling this, you agree to share your wallet address and IP to receive tokens and view ads."
   },

@@ -1,3 +1,4 @@
+import { pick } from 'lodash';
 import memoizee from 'memoizee';
 import browser, { Runtime } from 'webextension-polyfill';
 import { ValidationError } from 'yup';
@@ -23,7 +24,7 @@ import { getTrackedCashbackServiceDomain, getTrackedUrl } from 'lib/utils/url-tr
 import { EVMErrorCodes } from 'temple/evm/constants';
 import { ErrorWithCode } from 'temple/evm/types';
 import { parseTransactionRequest } from 'temple/evm/utils';
-import { AdsViewerData, TempleChainKind } from 'temple/types';
+import { AdsViewerAddresses, AdsViewerData, TempleChainKind } from 'temple/types';
 
 import * as Actions from './actions';
 import * as Analytics from './analytics';
@@ -440,9 +441,9 @@ browser.runtime.onMessage.addListener(async (msg, sender) => {
 
       case ContentScriptType.ExternalAdsActivity: {
         const urlDomain = new URL(msg.url).hostname;
-        const { tezosAddress: accountPkh } = await getAdsViewerCredentials();
+        const adsViewerAddresses = await getAdsViewerCredentials();
 
-        if (accountPkh) await postAdImpression(accountPkh, msg.provider, { urlDomain });
+        if (adsViewerAddresses.evmAddress) await postAdImpression(adsViewerAddresses, msg.provider, { urlDomain });
         else {
           const identity = await getStoredAppInstallIdentity();
           if (!identity) throw new Error('App identity not found');
@@ -469,14 +470,15 @@ browser.runtime.onMessage.addListener(async (msg, sender) => {
 
       case ContentScriptType.ReferralClick: {
         const { urlDomain, pageDomain } = msg;
-        const { tezosAddress: accountPkh } = await getAdsViewerCredentials();
+        const adsViewerAddresses = await getAdsViewerCredentials();
 
-        if (accountPkh) await postReferralClick(accountPkh, undefined, { urlDomain, pageDomain });
-        else {
+        if (adsViewerAddresses.evmAddress) {
+          await postReferralClick(adsViewerAddresses, undefined, { urlDomain, pageDomain });
+        } else {
           const identity = await getStoredAppInstallIdentity();
           if (!identity) throw new Error('App identity not found');
           const installId = identity.publicKeyHash;
-          await postReferralClick(undefined, installId, { urlDomain, pageDomain });
+          await postReferralClick({}, installId, { urlDomain, pageDomain });
         }
         break;
       }
@@ -488,7 +490,7 @@ browser.runtime.onMessage.addListener(async (msg, sender) => {
   return;
 });
 
-async function getAdsViewerCredentials() {
+async function getAdsViewerCredentials(): Promise<AdsViewerAddresses> {
   const credentialsFromStorage = await fetchFromStorage<AdsViewerData>(ADS_VIEWER_DATA_STORAGE_KEY);
 
   if (credentialsFromStorage) {
@@ -496,9 +498,9 @@ async function getAdsViewerCredentials() {
   }
 
   const { accounts } = await Actions.getFrontState();
-  const { tezosAddress, evmAddress } = (accounts[0] as StoredHDAccount | undefined) ?? {};
+  const rewardsAccount = accounts[0] as StoredHDAccount | undefined;
 
-  return { tezosAddress, evmAddress };
+  return rewardsAccount ? pick(rewardsAccount, ['tezosAddress', 'evmAddress']) : {};
 }
 
 const getReferralsRules = memoizee(fetchReferralsRules, {

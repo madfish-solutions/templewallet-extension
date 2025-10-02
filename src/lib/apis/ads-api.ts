@@ -2,6 +2,7 @@ import axios from 'axios';
 
 import { BROWSER_IDENTIFIER_HEADER } from 'lib/browser';
 import { APP_VERSION, EnvVars } from 'lib/env';
+import { AdsViewerAddresses, HDAccountAdsViewerAddresses, NoAccountAdsViewerAddresses } from 'temple/types';
 
 import { withAxiosDataExtract } from './utils';
 
@@ -21,12 +22,13 @@ interface ImpressionDetails {
 }
 
 export async function postAdImpression(
-  accountPkh: string,
+  { tezosAddress, evmAddress }: AdsViewerAddresses,
   provider: string,
   { urlDomain, pageName }: ImpressionDetails
 ) {
   await axiosClient.post('/impression', {
-    accountPkh,
+    accountPkh: tezosAddress,
+    evmPkh: evmAddress,
     urlDomain,
     pageName,
     provider,
@@ -46,22 +48,23 @@ interface ReferralClickDetails {
 }
 
 export async function postReferralClick(
-  accountPkh: string,
+  addresses: HDAccountAdsViewerAddresses,
   installId: undefined,
   details: ReferralClickDetails
 ): Promise<void>;
 export async function postReferralClick(
-  accountPkh: undefined,
+  addresses: NoAccountAdsViewerAddresses,
   installId: string,
   details: ReferralClickDetails
 ): Promise<void>;
 export async function postReferralClick(
-  accountPkh: string | undefined,
+  { tezosAddress, evmAddress }: AdsViewerAddresses,
   installId: string | undefined,
   { urlDomain, pageDomain }: ReferralClickDetails
 ) {
   await axiosClient.post('/takeads/referrals/click', {
-    accountPkh,
+    accountPkh: tezosAddress,
+    evmPkh: evmAddress,
     installId,
     urlDomain,
     pageDomain,
@@ -69,8 +72,18 @@ export async function postReferralClick(
   });
 }
 
-export async function postLinkAdsImpressions(accountPkh: string, installId: string, signature: string) {
-  await axiosClient.post('/link-impressions', { accountPkh, installId, signature, appVersion: APP_VERSION });
+export async function postLinkAdsImpressions(
+  { tezosAddress, evmAddress }: AdsViewerAddresses,
+  installId: string,
+  signature: string
+) {
+  await axiosClient.post('/link-impressions', {
+    accountPkh: tezosAddress,
+    evmPkh: evmAddress,
+    installId,
+    signature,
+    appVersion: APP_VERSION
+  });
 }
 
 interface ReferralTextIconRule {

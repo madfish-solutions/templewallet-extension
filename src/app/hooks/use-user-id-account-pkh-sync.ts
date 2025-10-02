@@ -5,7 +5,7 @@ import { ADS_VIEWER_DATA_STORAGE_KEY, ANALYTICS_USER_ID_STORAGE_KEY } from 'lib/
 import { usePassiveStorage } from 'lib/temple/front/storage';
 import { AdsViewerData } from 'temple/types';
 
-import { useAdsViewerPkh } from './use-ads-viewer-addresses';
+import { useRewardsAddresses } from './use-rewards-addresses';
 
 export const useUserIdAccountPkhSync = () => {
   // User ID
@@ -21,14 +21,14 @@ export const useUserIdAccountPkhSync = () => {
 
   // ADs viewer address
 
-  const { tezosAddress, evmAddress } = useAdsViewerPkh();
+  const { tezosAddress, evmAddress } = useRewardsAddresses();
 
   const [adsViewerData, setAdsViewerData] = usePassiveStorage<AdsViewerData>(ADS_VIEWER_DATA_STORAGE_KEY);
 
   useEffect(() => {
     const { tezosAddress: storedTezosAddress, evmAddress: storedEvmAddress } = adsViewerData ?? {};
 
-    if (tezosAddress !== storedTezosAddress || evmAddress !== storedEvmAddress) {
+    if ((tezosAddress !== storedTezosAddress || evmAddress !== storedEvmAddress) && tezosAddress && evmAddress) {
       setAdsViewerData({
         tezosAddress,
         evmAddress

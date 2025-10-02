@@ -3,7 +3,7 @@ import React, { forwardRef, memo, MouseEventHandler, useCallback, useEffect, use
 import clsx from 'clsx';
 import { useDispatch } from 'react-redux';
 
-import { useAdsViewerPkh } from 'app/hooks/use-ads-viewer-addresses';
+import { useRewardsAddresses } from 'app/hooks/use-rewards-addresses';
 import { hidePromotionAction } from 'app/store/partners-promotion/actions';
 import {
   useShouldShowPartnersPromoSelector,
@@ -40,7 +40,8 @@ export const PartnersPromotion = memo(
   forwardRef<HTMLDivElement, PartnersPromotionProps>(
     ({ variant, id, pageName, withPersonaProvider, className }, ref) => {
       const isImageAd = variant === PartnersPromotionVariant.Image;
-      const { tezosAddress: adsViewerAddress } = useAdsViewerPkh();
+      const rewardsAddresses = useRewardsAddresses();
+      const evmViewerAddress = rewardsAddresses.evmAddress!;
       const dispatch = useDispatch();
       const hiddenAt = usePromotionHidingTimestampSelector(id);
       const shouldShowPartnersPromo = useShouldShowPartnersPromoSelector();
@@ -71,10 +72,10 @@ export const PartnersPromotion = memo(
       const handleAdRectSeen = useCallback(() => {
         if (isAnalyticsSentRef.current) return;
 
-        postAdImpression(adsViewerAddress, AdsProviderTitle[providerName], { pageName });
+        postAdImpression(rewardsAddresses, AdsProviderTitle[providerName], { pageName });
 
         isAnalyticsSentRef.current = true;
-      }, [providerName, pageName, adsViewerAddress]);
+      }, [providerName, pageName, rewardsAddresses]);
 
       const handleClosePartnersPromoClick = useCallback<MouseEventHandler<HTMLButtonElement>>(
         e => {
@@ -111,7 +112,7 @@ export const PartnersPromotion = memo(
               case 'HypeLab':
                 return (
                   <HypelabPromotion
-                    accountPkh={adsViewerAddress}
+                    accountPkh={evmViewerAddress}
                     variant={variant}
                     isVisible={adIsReady}
                     pageName={pageName}
@@ -123,7 +124,7 @@ export const PartnersPromotion = memo(
               case 'Persona':
                 return (
                   <PersonaPromotion
-                    accountPkh={adsViewerAddress}
+                    accountPkh={evmViewerAddress}
                     id={id}
                     isVisible={adIsReady}
                     pageName={pageName}
