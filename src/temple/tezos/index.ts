@@ -18,7 +18,7 @@ export const makeTezosClientId = (network: TezosNetworkEssentials, accountPkh: s
 
 export const getTezosRpcClient = memoizee(
   (network: TezosNetworkEssentials): FallbackRpcClient => {
-    const fallbacks = TEZOS_FALLBACK_RPC_URLS[network.chainId];
+    const fallbacks = TEZOS_FALLBACK_RPC_URLS[network.chainId] ?? [];
 
     return new FallbackRpcClient(uniq([network.rpcBaseURL, ...fallbacks]));
   },
