@@ -26,6 +26,7 @@ export const DAppConnection = memo(() => {
 
     if (dapp.network === 'mainnet') return TempleTezosChainId.Mainnet;
     if (dapp.network === 'ghostnet') return TempleTezosChainId.Ghostnet;
+    if (dapp.network === 'shadownet') return TempleTezosChainId.Shadownet;
 
     if (dapp.network === 'sandbox') return loadTezosChainId('http://localhost:8732');
 

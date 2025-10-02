@@ -7,7 +7,6 @@ type ChainAssetSlug = string;
 export interface SettingsState {
   userId: string;
   isAnalyticsEnabled: boolean;
-  isConversionTracked: boolean;
   pendingReactivateAds: boolean;
   adsImpressionsLinked: boolean;
   referralLinksEnabled: boolean;
@@ -29,7 +28,6 @@ export interface SettingsState {
 export const settingsInitialState: SettingsState = {
   userId: nanoid(),
   isAnalyticsEnabled: false,
-  isConversionTracked: false,
   pendingReactivateAds: false,
   adsImpressionsLinked: false,
   referralLinksEnabled: IS_MISES_BROWSER,

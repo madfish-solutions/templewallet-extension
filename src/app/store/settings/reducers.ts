@@ -2,7 +2,6 @@ import { createReducer } from '@reduxjs/toolkit';
 
 import {
   setAdsImpressionsLinkedAction,
-  setConversionTrackedAction,
   setIsAnalyticsEnabledAction,
   setOnRampAssetAction,
   setPendingReactivateAdsAction,
@@ -19,10 +18,6 @@ export const settingsReducer = createReducer<SettingsState>(settingsInitialState
 
   builder.addCase(setOnRampAssetAction, (state, { payload }) => {
     state.onRampAsset = payload;
-  });
-
-  builder.addCase(setConversionTrackedAction, state => {
-    state.isConversionTracked = true;
   });
 
   builder.addCase(setPendingReactivateAdsAction, (state, { payload }) => {

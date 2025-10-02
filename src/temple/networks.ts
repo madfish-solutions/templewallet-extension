@@ -96,6 +96,16 @@ export const TEZOS_DEFAULT_NETWORKS: NonEmptyArray<StoredTezosNetwork> = [
     description: 'Ghostnet testnet',
     color: '#131380',
     default: true
+  },
+  {
+    id: 'shadownet',
+    name: 'Shadownet',
+    chain: TempleChainKind.Tezos,
+    chainId: TempleTezosChainId.Shadownet,
+    rpcBaseURL: 'https://rpc.shadownet.teztnets.com',
+    description: 'Shadownet testnet',
+    color: '#4B5563',
+    default: true
   }
 ];
 
