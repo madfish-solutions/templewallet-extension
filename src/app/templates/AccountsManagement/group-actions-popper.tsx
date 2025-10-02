@@ -108,15 +108,16 @@ const GroupActionsDropdown = memo<PopperRenderProps & GroupActionsPopperProps>(
             onClick: () => onRevealSeedPhraseClick(group),
             testID: AccountManagementSelectors.revealSeedPhrase
           },
-          hdGroups.length > 1 && {
-            key: 'delete-wallet',
-            children: t('deleteWallet'),
-            className: 'text-error',
-            Icon: DeleteIcon,
-            danger: true,
-            onClick: () => onDeleteClick(group),
-            testID: AccountManagementSelectors.deleteWallet
-          }
+          hdGroups.length > 1 &&
+            hdGroups[0]?.id !== group.id && {
+              key: 'delete-wallet',
+              children: t('deleteWallet'),
+              className: 'text-error',
+              Icon: DeleteIcon,
+              danger: true,
+              onClick: () => onDeleteClick(group),
+              testID: AccountManagementSelectors.deleteWallet
+            }
         ].filter(isTruthy);
       }
 

@@ -35,7 +35,10 @@ interface FormData {
 export const DeleteWalletModal = memo<DeleteWalletModalProps>(({ onClose, selectedGroup }) => {
   const { removeAccountsByType, removeHdGroup } = useTempleClient();
   const hdGroups = useHDGroups();
-  const shouldPreventDeletion = hdGroups.length === 1 && selectedGroup.type === TempleAccountType.HD;
+  const shouldPreventDeletion = (() => {
+    if (selectedGroup.type !== TempleAccountType.HD) return false;
+    return hdGroups.length > 0 && hdGroups[0].id === selectedGroup.id;
+  })();
   const removeWarningsI18nKey = removeWarningsI18nKeys[selectedGroup.type];
 
   const deleteGroup = useCallback(

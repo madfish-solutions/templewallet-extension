@@ -13,7 +13,9 @@ import Unlock from 'app/pages/Unlock/Unlock';
 import Welcome from 'app/pages/Welcome/Welcome';
 import { usePageRouterAnalytics } from 'lib/analytics';
 import { useTempleClient } from 'lib/temple/front';
+import { TempleAccountType } from 'lib/temple/types';
 import * as Woozie from 'lib/woozie';
+import { useAccount } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
 
 import { ActivityPage } from './pages/Activity';
@@ -36,6 +38,16 @@ interface RouteContext {
 }
 
 type RouteFactory = Woozie.ResolveResult<RouteContext>;
+
+const RewardsRoute = memo(() => {
+  const account = useAccount();
+
+  if (account.type === TempleAccountType.WatchOnly) {
+    return <Woozie.Redirect to="/" />;
+  }
+
+  return <RewardsPage />;
+});
 
 const ROUTE_MAP = Woozie.createMap<RouteContext>([
   [
@@ -101,7 +113,7 @@ const ROUTE_MAP = Woozie.createMap<RouteContext>([
   ['/notifications', onlyReady(() => <Notifications />)],
   ['/dapps', onlyReady(() => <Dapps />)],
   ['/account/:id', onlyReady(({ id }) => <AccountSettings id={id!} />)],
-  ['/rewards', onlyReady(() => <RewardsPage />)],
+  ['/rewards', onlyReady(() => <RewardsRoute />)],
   ['*', () => <Woozie.Redirect to="/" />]
 ]);
 
