@@ -30,8 +30,8 @@ interface LetsExchangeModalProps {
 
 const LETS_EXCHANGE_URL = 'https://letsexchange.io/?ref_id=CtN9tIep5v36D2mb';
 
-const noBrokerFeeTagStyle = { top: '6.342369rem', left: '11.4160817rem', rotate: '2.43deg' };
-const xStocksTagStyle = { top: '4.714481rem', left: '14.779548rem', rotate: '-1.69deg' };
+const noBrokerFeeTagStyle = { top: '6.154896rem', left: '12.291082rem', rotate: '2.43deg' };
+const xStocksTagStyle = { top: '4.526980rem', left: '15.654548rem', rotate: '-1.69deg' };
 const plentyOfCryptoTagStyle = { top: '6.186811rem', left: '2.544388rem', rotate: '-2.67deg' };
 const buySellTagStyle = { top: '4.4743rem', left: '0.938939rem', rotate: '3.8deg' };
 
@@ -45,6 +45,7 @@ export const LetsExchangeModal = memo<LetsExchangeModalProps>(({ onClose, onShow
 
   return (
     <ActionModal
+      className="outline-none"
       contentClassName="pt-5 pb-1 border-none"
       title="LetsExchange in Dapps!"
       closeButtonTestID={LetsExchangeModalSelectors.closeButton}
@@ -57,11 +58,11 @@ export const LetsExchangeModal = memo<LetsExchangeModalProps>(({ onClose, onShow
         >
           <div className="absolute top-3 left-1/2 -translate-x-1/2">
             <div className="flex gap-2 relative">
-              <div className="p-2 bg-white shadow-card rounded-md">
-                <Logo size={46} type="icon" style={{ width: '46px' }} />
+              <div className="h-[3.875rem] aspect-square bg-white shadow-card rounded-md flex justify-center items-center">
+                <Logo type="icon" style={{ width: 38 }} />
               </div>
-              <div className="p-2 bg-white shadow-card rounded-md">
-                <DAppLogo size={46} icon={letsExchangeLogoSrc} origin="letsexchange.io" />
+              <div className="h-[3.875rem] aspect-square bg-white shadow-card rounded-md flex justify-center items-center">
+                <DAppLogo size={39} icon={letsExchangeLogoSrc} origin="letsexchange.io" />
               </div>
               <div
                 className={clsx(
@@ -77,7 +78,7 @@ export const LetsExchangeModal = memo<LetsExchangeModalProps>(({ onClose, onShow
           <img
             className="absolute w-11 h-auto"
             src={image10Src}
-            style={{ top: '4.453985rem', left: '12.735235rem', rotate: '-4.8deg' }}
+            style={{ top: '4.26648rem', left: '13.610235rem', rotate: '-4.8deg' }}
           />
           <FeatureTag className="px-1.5" style={noBrokerFeeTagStyle}>
             No Broker Fee
@@ -88,7 +89,7 @@ export const LetsExchangeModal = memo<LetsExchangeModalProps>(({ onClose, onShow
           <img
             className="absolute w-13 h-auto"
             src={image17Src}
-            style={{ top: '5.902746rem', left: '16.62372rem', rotate: '9.33deg' }}
+            style={{ top: '5.715246rem', left: '17.49872rem', rotate: '9.33deg' }}
           />
 
           <img
