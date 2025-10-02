@@ -44,7 +44,7 @@ const getTezosFastRpcClient = memoizee((rpcUrl: string) => new FastRpcClient(rpc
 export function loadTezosChainId(rpcUrl: string, timeout?: number) {
   const matchedChainId = Object.entries(TEZOS_FALLBACK_RPC_URLS).find(([, urls]) => urls.includes(rpcUrl))?.[0];
 
-  if (matchedChainId) return matchedChainId;
+  if (matchedChainId) return Promise.resolve(matchedChainId);
 
   const rpc = getTezosFastRpcClient(rpcUrl);
 
