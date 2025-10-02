@@ -71,6 +71,11 @@ export const TEZOS_FALLBACK_RPC_URLS: Record<string, string[]> = {
     'https://ghostnet.smartpy.io',
     'https://rpc.tzkt.io/ghostnet',
     'https://ghostnet.tezos.ecadinfra.com'
+  ],
+  [TempleTezosChainId.Shadownet]: [
+    'https://rpc.shadownet.teztnets.com',
+    'https://rpc.tzkt.io/shadownet',
+    'https://shadownet.tezos.ecadinfra.com'
   ]
 };
 
@@ -129,7 +134,7 @@ export const TEZOS_DEFAULT_NETWORKS: NonEmptyArray<StoredTezosNetwork> = [
     name: 'Shadownet',
     chain: TempleChainKind.Tezos,
     chainId: TempleTezosChainId.Shadownet,
-    rpcBaseURL: 'https://rpc.shadownet.teztnets.com',
+    rpcBaseURL: TEZOS_FALLBACK_RPC_URLS[TempleTezosChainId.Shadownet][0],
     description: 'Shadownet testnet',
     color: '#4B5563',
     default: true
