@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useEffect, useRef } from 'react';
+import React, { memo, useCallback, useEffect, useMemo, useRef } from 'react';
 
 import { isDefined } from '@rnw-community/shared';
 
@@ -73,7 +73,7 @@ const BalancesLoadingForTezosNetwork = memo<LoadingForTezosNetworkProps>(({ publ
 
   const withBlockSubscriptionForGas = !tzktSubscription.subscribedToGasUpdates || isStoredError === true;
 
-  const network: TezosNetworkEssentials = { rpcBaseURL, chainId };
+  const network = useMemo<TezosNetworkEssentials>(() => ({ rpcBaseURL, chainId }), [chainId, rpcBaseURL]);
 
   useOnTezosBlock(network, dispatchLoadGasBalanceAction, !withBlockSubscriptionForGas);
 
