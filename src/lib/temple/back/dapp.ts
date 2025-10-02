@@ -441,6 +441,7 @@ async function requestConfirm(params: Omit<RequestConfirmParams<TempleTezosDAppP
 const dAppNetworksChainIds = {
   mainnet: TEZOS_MAINNET_CHAIN_ID,
   ghostnet: TempleTezosChainId.Ghostnet,
+  shadownet: TempleTezosChainId.Shadownet,
   rionet: TempleTezosChainId.Rio,
   seoulnet: TempleTezosChainId.Seoul
 };

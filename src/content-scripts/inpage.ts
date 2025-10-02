@@ -84,6 +84,7 @@ function handleAnnounceProvider(evt: Event) {
 
 window.addEventListener('eip6963:requestProvider', announceProvider);
 window.addEventListener('eip6963:announceProvider', handleAnnounceProvider);
+window.dispatchEvent(new Event('eip6963:requestProvider'));
 
 document.addEventListener(TEMPLE_SWITCH_PROVIDER_EVENT, async (evt: Event) => {
   const customEvent = evt as TempleSwitchProviderEvent;

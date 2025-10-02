@@ -22,17 +22,28 @@ interface DelegationModalProps {
   account: AccountForTezos;
   network: TezosChain;
   bakerPkh?: string;
+  directBakerPkh?: string;
   onClose: EmptyFn;
 }
 
 type GenericModalProps = EarnOperationModalProps<string | Baker, ReviewData>;
 
-export const DelegationModal = memo<DelegationModalProps>(({ bakerPkh, account, network, onClose }) => {
+export const DelegationModal = memo<DelegationModalProps>(({ bakerPkh, directBakerPkh, account, network, onClose }) => {
   const LocalSelectBakerContent = useCallback<GenericModalProps['InputDataContent']>(
     ({ onSubmit }) => (
       <SelectBakerContent network={network} account={account} bakerPkh={bakerPkh} onSelect={onSubmit} />
     ),
     [account, bakerPkh, network]
+  );
+
+  const AutoSubmitBakerContent = useCallback<GenericModalProps['InputDataContent']>(
+    ({ onSubmit }) => {
+      if (directBakerPkh) {
+        onSubmit(directBakerPkh);
+      }
+      return null;
+    },
+    [directBakerPkh]
   );
 
   const makeReviewData = useCallback<GenericModalProps['makeReviewData']>(
@@ -56,8 +67,9 @@ export const DelegationModal = memo<DelegationModalProps>(({ bakerPkh, account, 
       confirmStepTitle={<T id="confirmAction" substitutions={<T id="delegation" />} />}
       successToastText={t('successfullyDelegated')}
       network={network}
+      isDirectBaker={!!directBakerPkh}
       SuspenseLoader={SuspenseLoader}
-      InputDataContent={LocalSelectBakerContent}
+      InputDataContent={directBakerPkh ? AutoSubmitBakerContent : LocalSelectBakerContent}
       ConfirmContent={ConfirmDelegationContent}
       makeReviewData={makeReviewData}
       onClose={onClose}

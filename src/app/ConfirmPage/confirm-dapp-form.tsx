@@ -140,11 +140,20 @@ export const ConfirmDAppForm = memo<ConfirmDAppFormProps>(({ accounts, payload, 
 
   const handleErrorAlertClose = useCallback(() => setError(null), [setError]);
 
+  const shouldShowConflict = useMemo(() => {
+    if (!isConnectPayload(payload)) return false;
+
+    const providers = 'providers' in payload ? payload.providers : undefined;
+    return Array.isArray(providers) && providers.length > 0;
+  }, [payload]);
+
+  const [showConflict, setShowConflict] = useSafeState(shouldShowConflict);
+
   const { title, confirmButtonName, confirmTestID, declineTestID, confirmDisabled } = useMemo(() => {
     switch (payload.type) {
       case 'connect':
         return {
-          title: <T id="connectAccount" />,
+          title: <T id={showConflict ? 'connectWallet' : 'connectAccount'} />,
           confirmButtonName: <T id={error ? 'retry' : 'connect'} />,
           confirmTestID: error
             ? ConfirmPageSelectors.ConnectAction_RetryButton
@@ -194,18 +203,9 @@ export const ConfirmDAppForm = memo<ConfirmDAppFormProps>(({ accounts, payload, 
           declineTestID: ConfirmPageSelectors.ConfirmOperationsAction_RejectButton
         };
     }
-  }, [payload, error, addAssetErrorMessage]);
+  }, [payload, error, addAssetErrorMessage, showConflict]);
 
   const isOperationsConfirm = payload.type === 'confirm_operations';
-
-  const shouldShowConflict = useMemo(() => {
-    if (!isConnectPayload(payload)) return false;
-
-    const providers = 'providers' in payload ? payload.providers : undefined;
-    return Array.isArray(providers) && providers.length > 0;
-  }, [payload]);
-
-  const [showConflict, setShowConflict] = useSafeState(shouldShowConflict);
 
   return (
     <PageModal
