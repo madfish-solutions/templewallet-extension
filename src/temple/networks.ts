@@ -64,7 +64,9 @@ export const TEZOS_FALLBACK_RPC_URLS: Record<string, string[]> = {
     'https://mainnet.api.tez.ie',
     'https://rpc.tzkt.io/mainnet',
     'https://rpc.tzbeta.net',
-    'https://mainnet.tezos.ecadinfra.com'
+    'https://mainnet.tezos.ecadinfra.com',
+    // TODO: Remove after test
+    'https://broken.smartpy.io'
   ],
   [TempleTezosChainId.Ghostnet]: [
     'https://rpc.ghostnet.teztnets.com',
@@ -106,7 +108,7 @@ export const TEZOS_DEFAULT_NETWORKS: NonEmptyArray<StoredTezosNetwork> = [
     name: 'Broken SmartPy',
     chain: TempleChainKind.Tezos,
     chainId: TempleTezosChainId.Mainnet,
-    rpcBaseURL: 'https://broken.smartpy.io',
+    rpcBaseURL: TEZOS_FALLBACK_RPC_URLS[TempleTezosChainId.Mainnet][6],
     description: 'SmartPy Broken',
     color: '#34D391'
   },
