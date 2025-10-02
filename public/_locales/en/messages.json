@@ -1994,6 +1994,9 @@
   "connectAccount": {
     "message": "Connect Account"
   },
+  "connectWallet": {
+    "message": "Connect Wallet"
+  },
   "confirmActionOnDevice": {
     "message": "Confirm the action on"
   },
