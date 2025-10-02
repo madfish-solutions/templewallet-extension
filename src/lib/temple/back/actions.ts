@@ -113,6 +113,8 @@ dAppQueue.on(PromisesQueue.COUNTERS_CHANGE_EVENT_NAME, (counters: PromisesQueueC
   dAppQueueCountersUpdated(counters);
 });
 
+const pendingPreEnqueueTezosKeys = new Set<string>();
+
 const castWindowId = (windowId: number | nullish) =>
   windowId === browser.windows.WINDOW_ID_NONE ? null : windowId ?? null;
 const onFocusLocationError = (error: unknown) => {
@@ -556,8 +558,18 @@ export async function processDApp(origin: string, req: TempleDAppRequest): Promi
     case TempleDAppMessageType.PermissionRequest:
       return withInited(() => dAppQueue.enqueue(() => requestPermission(origin, req)));
 
-    case TempleDAppMessageType.OperationRequest:
-      return withInited(() => dAppQueue.enqueue(() => requestOperation(origin, req)));
+    case TempleDAppMessageType.OperationRequest: {
+      const tezosKey = ['tezos_ops_pre-enqueue', origin, req.sourcePkh, JSON.stringify(req.opParams)].join('|');
+
+      if (pendingPreEnqueueTezosKeys.has(tezosKey)) {
+        throw new Error(TempleDAppErrorType.NotGranted);
+      }
+      pendingPreEnqueueTezosKeys.add(tezosKey);
+
+      const promise = withInited(() => dAppQueue.enqueue(() => requestOperation(origin, req)));
+      promise.finally(() => pendingPreEnqueueTezosKeys.delete(tezosKey));
+      return promise;
+    }
 
     case TempleDAppMessageType.SignRequest:
       return withInited(() => dAppQueue.enqueue(() => requestSign(origin, req)));
