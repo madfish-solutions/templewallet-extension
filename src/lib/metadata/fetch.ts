@@ -8,7 +8,7 @@ import {
 } from 'lib/apis/temple';
 import { fromAssetSlug } from 'lib/assets';
 import { TezosNetworkEssentials } from 'temple/networks';
-import { getReadOnlyTezos } from 'temple/tezos';
+import { getTezosReadOnlyRpcClient } from 'temple/tezos';
 
 import { TokenMetadataOnChain, fetchTokenMetadata as fetchTokenMetadataOnChain } from './on-chain';
 
@@ -17,7 +17,7 @@ export const fetchOneTokenMetadata = async (
   address: string,
   id: string
 ): Promise<TokenMetadataResponse | undefined> => {
-  const tezos = getReadOnlyTezos(network);
+  const tezos = getTezosReadOnlyRpcClient(network);
 
   if (isKnownChainId(network.chainId)) {
     return await fetchOneTokenMetadataOnAPI(network.chainId, address, id);
@@ -34,7 +34,7 @@ export const fetchTokensMetadata = async (
 ): Promise<(TokenMetadataResponse | null)[]> => {
   if (slugs.length === 0) return [];
 
-  const tezos = getReadOnlyTezos(network);
+  const tezos = getTezosReadOnlyRpcClient(network);
 
   if (isKnownChainId(network.chainId)) {
     return await fetchTokensMetadataOnAPI(network.chainId, slugs);

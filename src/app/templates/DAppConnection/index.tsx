@@ -10,7 +10,7 @@ import { useTypedSWR } from 'lib/swr';
 import { TempleTezosChainId } from 'lib/temple/types';
 import { Link } from 'lib/woozie';
 import { useAllEvmChains, useAllTezosChains } from 'temple/front';
-import { loadTezosChainId } from 'temple/tezos';
+import { loadTezosChainId } from 'temple/tezos/utils';
 import { TempleChainKind } from 'temple/types';
 
 import { useDAppsConnections } from './use-connections';

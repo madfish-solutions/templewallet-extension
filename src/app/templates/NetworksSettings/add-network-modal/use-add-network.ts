@@ -14,7 +14,7 @@ import { useTempleNetworksActions } from 'temple/front';
 import { ChainBase } from 'temple/front/chains';
 import { useBlockExplorers } from 'temple/front/use-block-explorers';
 import { useEvmChainsSpecs, useTezosChainsSpecs } from 'temple/front/use-chains-specs';
-import { loadTezosChainId } from 'temple/tezos';
+import { loadTezosChainId } from 'temple/tezos/utils';
 import { TempleChainKind } from 'temple/types';
 
 import { NUMERIC_CHAIN_ID_REGEX, makeFormValues } from '../utils';

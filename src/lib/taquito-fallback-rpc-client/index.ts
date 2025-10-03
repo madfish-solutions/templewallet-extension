@@ -11,6 +11,8 @@ import {
   RPCSimulateOperationParam
 } from '@taquito/rpc';
 
+import { getTezosFastRpcClient } from 'temple/tezos/utils';
+
 import { FastRpcClient } from '../taquito-fast-rpc';
 
 /**
@@ -23,7 +25,7 @@ export class FallbackRpcClient extends RpcClient {
 
   constructor(urls: string[]) {
     super(urls[0]);
-    this.clients = urls.map(url => new FastRpcClient(url));
+    this.clients = urls.map(url => getTezosFastRpcClient(url));
   }
 
   private async callWithFallback<T>(method: (client: FastRpcClient) => Promise<T>): Promise<T> {

@@ -20,7 +20,7 @@ import { fifoResolve } from 'lib/utils';
 import { TezosChain, useEnabledTezosChains } from 'temple/front';
 import { useEvmAddressByDomainName } from 'temple/front/evm/helpers';
 import { getTezosDomainsClient, useTezosAddressByDomainName } from 'temple/front/tezos';
-import { getReadOnlyTezos } from 'temple/tezos';
+import { getTezosReadOnlyRpcClient } from 'temple/tezos';
 import { TempleChainKind } from 'temple/types';
 
 import { ImportAccountSelectors, ImportAccountFormType } from '../selectors';
@@ -227,7 +227,7 @@ async function getTezosChainId(contractAddress: string, tezosChains: TezosChain[
     tezosChains
       .filter(({ chainId }) => dipdupSearchFailed || !Object.values(dipdupNetworksChainIds).includes(chainId))
       .map(async chain => {
-        const tezos = getReadOnlyTezos(chain);
+        const tezos = getTezosReadOnlyRpcClient(chain);
 
         await tezos.contract.at(contractAddress);
 

@@ -17,7 +17,7 @@ import { serializeError } from 'lib/utils/serialize-error';
 import { getAccountAddressForTezos } from 'temple/accounts';
 import { TezosChain, useAllAccounts, useAllTezosChains } from 'temple/front';
 import { StoredTezosNetwork } from 'temple/networks';
-import { getReadOnlyTezos } from 'temple/tezos';
+import { getTezosReadOnlyRpcClient } from 'temple/tezos';
 import { TempleChainKind } from 'temple/types';
 
 import { OperationViewLayout } from './operation-view-layout';
@@ -72,7 +72,7 @@ const TezosTransactionViewBody = memo<TezosTransactionViewProps>(
       };
     }, [estimates, opParams.length]);
 
-    const tezos = useMemo(() => getReadOnlyTezos(network), [network]);
+    const tezos = useMemo(() => getTezosReadOnlyRpcClient(network), [network]);
 
     const getTezosChain = useCallback(async (): Promise<TezosChain> => {
       const knownTezosChain = Object.values(tezosChains).find(c =>

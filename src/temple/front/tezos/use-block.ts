@@ -4,7 +4,7 @@ import { Subscription } from '@taquito/taquito';
 
 import { useUpdatableRef } from 'lib/ui/hooks';
 import { TezosNetworkEssentials } from 'temple/networks';
-import { getReadOnlyTezos } from 'temple/tezos';
+import { getTezosReadOnlyRpcClient } from 'temple/tezos';
 
 export function useOnTezosBlock(network: TezosNetworkEssentials, callback: (blockHash: string) => void, pause = false) {
   const blockHashRef = useRef<string>();
@@ -13,7 +13,7 @@ export function useOnTezosBlock(network: TezosNetworkEssentials, callback: (bloc
   useEffect(() => {
     if (pause) return;
 
-    const tezos = getReadOnlyTezos(network);
+    const tezos = getTezosReadOnlyRpcClient(network);
 
     let sub: Subscription<string>;
     spawnSub();
@@ -42,7 +42,7 @@ export const useTezosBlockLevel = (network: TezosNetworkEssentials) => {
   const [blockLevel, setBlockLevel] = useState<number>();
 
   useEffect(() => {
-    const tezos = getReadOnlyTezos(network);
+    const tezos = getTezosReadOnlyRpcClient(network);
 
     const subscription = tezos.stream.subscribeBlock('head');
 

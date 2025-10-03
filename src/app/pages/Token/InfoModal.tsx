@@ -20,7 +20,7 @@ import useTippy, { UseTippyOptions } from 'lib/ui/useTippy';
 import { isEvmNativeTokenSlug } from 'lib/utils/evm.utils';
 import { useTezosChainByChainId } from 'temple/front';
 import { BasicChain, OneOfChains, useEvmChainByChainId } from 'temple/front/chains';
-import { getReadOnlyTezos } from 'temple/tezos';
+import { getTezosReadOnlyRpcClient } from 'temple/tezos';
 import { TempleChainKind } from 'temple/types';
 
 interface TezosInfoModalProps {
@@ -39,7 +39,7 @@ export const TezosInfoModalContent = memo<TezosInfoModalProps>(({ assetSlug, cha
   // TODO: Refactor. Maybe only detect standard?
   const { data: asset } = useRetryableSWR(
     chain ? ['asset', assetSlug, chain.rpcBaseURL] : null,
-    () => fromAssetSlugWithStandardDetect(getReadOnlyTezos(chain!), assetSlug),
+    () => fromAssetSlugWithStandardDetect(getTezosReadOnlyRpcClient(chain!), assetSlug),
     { suspense: true }
   );
 

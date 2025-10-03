@@ -12,7 +12,7 @@ import { getViemPublicClient } from 'temple/evm';
 import { useTezosChainByChainId } from 'temple/front';
 import { useEvmChainByChainId } from 'temple/front/chains';
 import { DEFAULT_EVM_CURRENCY } from 'temple/networks';
-import { getReadOnlyTezos } from 'temple/tezos';
+import { getTezosReadOnlyRpcClient } from 'temple/tezos';
 import { TempleChainKind } from 'temple/types';
 
 import { EvmAccountProps, TezosAccountProps } from './types';
@@ -21,7 +21,7 @@ const DEFAULT_DERIVATION = DerivationType.ED25519;
 
 export const useGetLedgerTezosAccount = () => {
   const mainnetChain = useTezosChainByChainId(TempleTezosChainId.Mainnet);
-  const tezos = useMemo(() => getReadOnlyTezos(mainnetChain!), [mainnetChain]);
+  const tezos = useMemo(() => getTezosReadOnlyRpcClient(mainnetChain!), [mainnetChain]);
   const { getLedgerTezosPk } = useTempleClient();
 
   return useCallback(

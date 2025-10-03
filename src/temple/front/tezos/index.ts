@@ -27,7 +27,8 @@ import { TempleMessageType } from 'lib/temple/types';
 import { makeIntercomRequest, assertResponse, getAccountPublicKey } from 'temple/front/intercom-client';
 import { MAX_MEMOIZED_TOOLKITS } from 'temple/misc';
 import { TezosNetworkEssentials } from 'temple/networks';
-import { getTezosRpcClient, makeTezosClientId, michelEncoder } from 'temple/tezos';
+import { getTezosRpcClient, michelEncoder } from 'temple/tezos';
+import { makeTezosClientId } from 'temple/tezos/utils';
 
 import { setPendingConfirmationId } from '../pending-confirm';
 

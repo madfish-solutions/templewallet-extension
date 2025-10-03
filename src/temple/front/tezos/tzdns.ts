@@ -7,7 +7,7 @@ import { TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
 import { useEnabledTezosChains } from 'temple/front/ready';
 import { MAX_MEMOIZED_TOOLKITS } from 'temple/misc';
 import { TezosNetworkEssentials } from 'temple/networks';
-import { getReadOnlyTezos } from 'temple/tezos';
+import { getTezosReadOnlyRpcClient } from 'temple/tezos';
 
 export const getTezosDomainsClient = memoizee(
   (network: TezosNetworkEssentials) => {
@@ -16,7 +16,7 @@ export const getTezosDomainsClient = memoizee(
     return isTezosDomainsSupportedNetwork(networkName)
       ? new TaquitoTezosDomainsClient({
           network: networkName,
-          tezos: getReadOnlyTezos(network)
+          tezos: getTezosReadOnlyRpcClient(network)
         })
       : TaquitoTezosDomainsClient.Unsupported;
   },

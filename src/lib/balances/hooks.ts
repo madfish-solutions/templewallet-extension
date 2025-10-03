@@ -39,7 +39,7 @@ import { useInterval, useUpdatableRef } from 'lib/ui/hooks';
 import { isTruthy } from 'lib/utils';
 import { useAccountAddressForEvm, useAccountAddressForTezos, useOnTezosBlock } from 'temple/front';
 import { EvmNetworkEssentials, TezosNetworkEssentials } from 'temple/networks';
-import { getReadOnlyTezos } from 'temple/tezos';
+import { getTezosReadOnlyRpcClient } from 'temple/tezos';
 
 import { fetchRawBalance as fetchRawBalanceFromBlockchain } from './fetch';
 
@@ -139,7 +139,7 @@ function useTezosAssetRawBalance(
     () => {
       if (usingStore) return;
 
-      const tezos = getReadOnlyTezos(network);
+      const tezos = getTezosReadOnlyRpcClient(network);
 
       return fetchRawBalanceFromBlockchain(tezos, assetSlug, address).then(res => res.toString());
     },

@@ -7,7 +7,7 @@ import { setTestID } from 'lib/analytics';
 import { T, t } from 'lib/i18n';
 import { useSafeState } from 'lib/ui/hooks';
 import { TezosNetworkEssentials } from 'temple/networks';
-import { getReadOnlyTezos, confirmTezosOperation, TEZOS_CONFIRMATION_TIMED_OUT_ERROR_MSG } from 'temple/tezos';
+import { getTezosReadOnlyRpcClient, confirmTezosOperation, TEZOS_CONFIRMATION_TIMED_OUT_ERROR_MSG } from 'temple/tezos';
 
 import { OpenInExplorerChip } from './OpenInExplorerChip';
 import { OperationStatusSelectors } from './OperationStatus.selectors';
@@ -63,7 +63,7 @@ const OperationStatus: FC<OperationStatusProps> = ({ network, typeTitle, operati
   }));
 
   useEffect(() => {
-    confirmTezosOperation(getReadOnlyTezos(network), hash)
+    confirmTezosOperation(getTezosReadOnlyRpcClient(network), hash)
       .then(() => {
         setAlert(a => ({
           ...a,

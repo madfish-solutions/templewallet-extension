@@ -57,31 +57,27 @@ const TEZOS_DCP_CHAIN_IDS: string[] = [TempleTezosChainId.Dcp, TempleTezosChainI
 
 export const isTezosDcpChainId = (chainId: string) => TEZOS_DCP_CHAIN_IDS.includes(chainId);
 
+export const DEFAULT_RPC_INDEX = 0;
+
 export const TEZOS_FALLBACK_RPC_URLS: Record<string, string[]> = {
   [TempleTezosChainId.Mainnet]: [
-    'https://prod.tcinfra.net/rpc/mainnet',
+    'https://broken.smartpy.io', // TODO: Change to 'https://prod.tcinfra.net/rpc/mainnet' after test
     'https://mainnet.smartpy.io',
     'https://mainnet.api.tez.ie',
     'https://rpc.tzkt.io/mainnet',
     'https://rpc.tzbeta.net',
-    'https://mainnet.tezos.ecadinfra.com',
-    // TODO: Remove after test
-    'https://broken.smartpy.io'
+    'https://mainnet.tezos.ecadinfra.com'
   ],
   [TempleTezosChainId.Ghostnet]: [
-    'https://rpc.ghostnet.teztnets.com',
+    'https://broken.smartpy.io', // TODO: Change to 'https://rpc.ghostnet.teztnets.com' after test
     'https://ghostnet.smartpy.io',
     'https://rpc.tzkt.io/ghostnet',
-    'https://ghostnet.tezos.ecadinfra.com',
-    // TODO: Remove after test
-    'https://broken.smartpy.io'
+    'https://ghostnet.tezos.ecadinfra.com'
   ],
   [TempleTezosChainId.Shadownet]: [
-    'https://rpc.shadownet.teztnets.com',
+    'https://broken.smartpy.io', // TODO: Change to 'https://rpc.shadownet.teztnets.com' after test
     'https://rpc.tzkt.io/shadownet',
-    'https://shadownet.tezos.ecadinfra.com',
-    // TODO: Remove after test
-    'https://broken.smartpy.io'
+    'https://shadownet.tezos.ecadinfra.com'
   ]
 };
 
@@ -92,7 +88,7 @@ export const TEZOS_DEFAULT_NETWORKS: NonEmptyArray<StoredTezosNetwork> = [
     name: 'Tezos',
     chain: TempleChainKind.Tezos,
     chainId: TempleTezosChainId.Mainnet,
-    rpcBaseURL: TEZOS_FALLBACK_RPC_URLS[TempleTezosChainId.Mainnet][0],
+    rpcBaseURL: TEZOS_FALLBACK_RPC_URLS[TempleTezosChainId.Mainnet][DEFAULT_RPC_INDEX],
     description: 'Tezos mainnet',
     color: '#83b300',
     default: true
@@ -105,16 +101,6 @@ export const TEZOS_DEFAULT_NETWORKS: NonEmptyArray<StoredTezosNetwork> = [
     rpcBaseURL: TEZOS_FALLBACK_RPC_URLS[TempleTezosChainId.Mainnet][1],
     description: 'SmartPy Mainnet',
     color: '#34D399'
-  },
-  // TODO: Remove after test
-  {
-    id: 'smartpy-broken',
-    name: 'Broken SmartPy',
-    chain: TempleChainKind.Tezos,
-    chainId: TempleTezosChainId.Mainnet,
-    rpcBaseURL: TEZOS_FALLBACK_RPC_URLS[TempleTezosChainId.Mainnet][6],
-    description: 'SmartPy Broken',
-    color: '#34D391'
   },
   {
     id: 'tezie-mainnet',
@@ -130,40 +116,20 @@ export const TEZOS_DEFAULT_NETWORKS: NonEmptyArray<StoredTezosNetwork> = [
     name: 'Ghostnet',
     chain: TempleChainKind.Tezos,
     chainId: TempleTezosChainId.Ghostnet,
-    rpcBaseURL: TEZOS_FALLBACK_RPC_URLS[TempleTezosChainId.Ghostnet][0],
+    rpcBaseURL: TEZOS_FALLBACK_RPC_URLS[TempleTezosChainId.Ghostnet][DEFAULT_RPC_INDEX],
     description: 'Ghostnet testnet',
     color: '#131380',
     default: true
-  },
-  // TODO: Remove after test
-  {
-    id: 'smartpy-ghostnet-broken',
-    name: 'Broken Ghostnet',
-    chain: TempleChainKind.Tezos,
-    chainId: TempleTezosChainId.Ghostnet,
-    rpcBaseURL: TEZOS_FALLBACK_RPC_URLS[TempleTezosChainId.Ghostnet][4],
-    description: 'SmartPy Broken',
-    color: '#34D390'
   },
   {
     id: 'shadownet',
     name: 'Shadownet',
     chain: TempleChainKind.Tezos,
     chainId: TempleTezosChainId.Shadownet,
-    rpcBaseURL: TEZOS_FALLBACK_RPC_URLS[TempleTezosChainId.Shadownet][0],
+    rpcBaseURL: TEZOS_FALLBACK_RPC_URLS[TempleTezosChainId.Shadownet][DEFAULT_RPC_INDEX],
     description: 'Shadownet testnet',
     color: '#4B5563',
     default: true
-  },
-  // TODO: Remove after test
-  {
-    id: 'smartpy-shadownet-broken',
-    name: 'Broken Shadownet',
-    chain: TempleChainKind.Tezos,
-    chainId: TempleTezosChainId.Shadownet,
-    rpcBaseURL: TEZOS_FALLBACK_RPC_URLS[TempleTezosChainId.Shadownet][3],
-    description: 'SmartPy Broken',
-    color: '#34D380'
   }
 ];
 

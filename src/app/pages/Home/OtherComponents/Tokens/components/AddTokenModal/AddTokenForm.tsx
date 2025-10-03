@@ -44,7 +44,7 @@ import { navigate } from 'lib/woozie';
 import { OneOfChains, useAccountAddressForEvm, useAccountAddressForTezos } from 'temple/front';
 import { validateEvmContractAddress } from 'temple/front/evm/helpers';
 import { validateTezosContractAddress } from 'temple/front/tezos';
-import { getReadOnlyTezos } from 'temple/tezos';
+import { getTezosReadOnlyRpcClient } from 'temple/tezos';
 import { TempleChainKind } from 'temple/types';
 
 import { toExploreAssetLink } from '../../utils';
@@ -151,7 +151,7 @@ export const AddTokenForm = memo<AddTokenPageProps>(
 
       try {
         if (isTezosChainSelected) {
-          const tezos = getReadOnlyTezos(selectedNetwork);
+          const tezos = getTezosReadOnlyRpcClient(selectedNetwork);
 
           let contract: ContractAbstraction<Wallet | ContractProvider>;
           try {
