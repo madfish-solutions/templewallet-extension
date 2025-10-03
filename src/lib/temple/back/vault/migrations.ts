@@ -13,7 +13,7 @@ import * as Passworder from 'lib/temple/passworder';
 import { StoredAccount, TempleAccountType, TempleContact, TempleSettings, WalletSpecs } from 'lib/temple/types';
 import { isTruthy } from 'lib/utils';
 import { StoredTezosNetwork } from 'temple/networks';
-import { loadTezosChainId } from 'temple/tezos/utils';
+import { loadTezosChainId } from 'temple/tezos';
 import { TempleChainKind } from 'temple/types';
 
 import { fetchMessage } from './helpers';

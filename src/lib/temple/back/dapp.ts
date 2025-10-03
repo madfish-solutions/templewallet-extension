@@ -44,8 +44,7 @@ import {
 import { isValidTezosAddress } from 'lib/tezos';
 import { isTruthy } from 'lib/utils';
 import { StoredTezosNetwork, TEZOS_DEFAULT_NETWORKS, TezosNetworkEssentials } from 'temple/networks';
-import { getTezosRpcClient } from 'temple/tezos';
-import { loadTezosChainId } from 'temple/tezos/utils';
+import { getTezosRpcClient, loadTezosChainId } from 'temple/tezos';
 import { TempleChainKind } from 'temple/types';
 
 import { intercom } from './defaults';

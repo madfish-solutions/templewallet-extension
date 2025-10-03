@@ -6,7 +6,7 @@ import { useDebounce } from 'use-debounce';
 
 import { loadEvmChainId } from 'temple/evm';
 import { getViemChainsList } from 'temple/evm/utils';
-import { loadTezosChainId } from 'temple/tezos/utils';
+import { loadTezosChainId } from 'temple/tezos';
 
 import { makeFormValues } from '../utils';
 

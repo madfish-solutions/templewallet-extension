@@ -12,7 +12,7 @@ import { OneOfChains, useAllEvmChains, useAllTezosChains, useTempleNetworksActio
 import { useChainBlockExplorers } from 'temple/front/use-block-explorers';
 import { useChainSpecs } from 'temple/front/use-chains-specs';
 import { DEFAULT_EVM_CURRENCY, StoredEvmNetwork, StoredTezosNetwork } from 'temple/networks';
-import { loadTezosChainId } from 'temple/tezos/utils';
+import { loadTezosChainId } from 'temple/tezos';
 import { TempleChainKind } from 'temple/types';
 
 import { CreateUrlEntityModalFormValues } from './manage-url-entities-view/create-modal';
