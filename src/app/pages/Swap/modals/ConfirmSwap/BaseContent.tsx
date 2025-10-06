@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 
 import BigNumber from 'bignumber.js';
 import { SubmitHandler, useFormContext } from 'react-hook-form-v7';
@@ -12,10 +12,12 @@ import { CurrentAccount } from 'app/templates/current-account';
 import { LedgerApprovalModal } from 'app/templates/ledger-approval-modal';
 import { TransactionTabs } from 'app/templates/TransactionTabs';
 import { Tab, TxParamsFormData } from 'app/templates/TransactionTabs/types';
-import { T } from 'lib/i18n';
+import { T, t } from 'lib/i18n';
 import { DisplayedFeeOptions, FeeOptionLabel } from 'lib/temple/front/estimation-data-providers';
 import { LedgerOperationState } from 'lib/ui';
 import { EvmChain, OneOfChains } from 'temple/front';
+
+import { TempleChainKind } from '../../../../../temple/types';
 
 interface BaseContentProps<T extends TxParamsFormData> {
   ledgerApprovalModalState: LedgerOperationState;
@@ -79,6 +81,15 @@ export const BaseContent = <T extends TxParamsFormData>({
 }: BaseContentProps<T>) => {
   const { formState } = useFormContext<T>();
 
+  const confirmButtonText = useMemo(() => {
+    if (latestSubmitError) return t('retry');
+    if (network.kind === TempleChainKind.Tezos) return t('confirm');
+    if (isQuoteRefreshing) return null;
+    if (isQuoteExpired) return t('refresh');
+
+    return t('confirmWithCountdown', [quoteRefreshCountdown]);
+  }, [isQuoteExpired, isQuoteRefreshing, latestSubmitError, network.kind, quoteRefreshCountdown]);
+
   return (
     <>
       <div className="px-4 flex flex-col flex-1 overflow-y-scroll">
@@ -131,13 +142,7 @@ export const BaseContent = <T extends TxParamsFormData>({
           disabled={!formState.isValid}
           onClick={onManualQuoteRefresh && isQuoteExpired ? onManualQuoteRefresh : undefined}
         >
-          {latestSubmitError ? (
-            <T id="retry" />
-          ) : isQuoteRefreshing ? null : isQuoteExpired ? (
-            <T id="refresh" />
-          ) : (
-            <T id="confirmWithCountdown" substitutions={[quoteRefreshCountdown]} />
-          )}
+          {confirmButtonText}
         </StyledButton>
       </ActionsButtonsBox>
 
