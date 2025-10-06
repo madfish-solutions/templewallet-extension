@@ -159,7 +159,21 @@ export class FallbackRpcClient extends RpcClient {
   }
 }
 
+function isCounterError(error: any): boolean {
+  if (error instanceof HttpResponseError) {
+    const message = error.message || '';
+    return message.includes('counter_in_the_future') || message.includes('counter_in_the_past');
+  }
+  return false;
+}
+
 function shouldFallbackToNext(error: any): boolean {
+  if (isCounterError(error)) {
+    // Counter errors should NOT fallback - they indicate invalid operation data
+    // that needs to be rebuilt with a fresh counter, not retried on another RPC
+    return false;
+  }
+
   if (error instanceof HttpResponseError) {
     const status = error.status ?? 0;
     // Retry on rate limits, timeouts, server/unavailable, and not found (some RPCs may miss endpoints)
