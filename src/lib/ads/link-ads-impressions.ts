@@ -1,9 +1,9 @@
 import { getStoredAppInstallIdentity } from 'app/storage/app-install-id';
 import { postLinkAdsImpressions } from 'lib/apis/ads-api';
 import { signData } from 'lib/utils/ecdsa';
-import { AdsViewerAddresses } from 'temple/types';
+import { RewardsAddresses } from 'temple/types';
 
-export async function performLinkingOfAdsImpressions(adsViewerAddresses: AdsViewerAddresses) {
+export async function performLinkingOfAdsImpressions(adsViewerAddresses: RewardsAddresses) {
   const identity = await getStoredAppInstallIdentity();
   if (!identity) {
     console.warn('App identity not found');

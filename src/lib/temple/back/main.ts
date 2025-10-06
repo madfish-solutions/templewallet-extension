@@ -13,7 +13,7 @@ import {
   postAnonymousAdImpression,
   postReferralClick
 } from 'lib/apis/ads-api';
-import { ADS_VIEWER_DATA_STORAGE_KEY, ContentScriptType } from 'lib/constants';
+import { ADS_VIEWER_DATA_STORAGE_KEY, ContentScriptType, REWARDS_ACCOUNT_DATA_STORAGE_KEY } from 'lib/constants';
 import { E2eMessageType } from 'lib/e2e/types';
 import { BACKGROUND_IS_WORKER, EnvVars } from 'lib/env';
 import { fetchFromStorage } from 'lib/storage';
@@ -24,7 +24,7 @@ import { getTrackedCashbackServiceDomain, getTrackedUrl } from 'lib/utils/url-tr
 import { EVMErrorCodes } from 'temple/evm/constants';
 import { ErrorWithCode } from 'temple/evm/types';
 import { parseTransactionRequest } from 'temple/evm/utils';
-import { AdsViewerAddresses, AdsViewerData, TempleChainKind } from 'temple/types';
+import { AdsViewerData, RewardsAddresses, TempleChainKind } from 'temple/types';
 
 import * as Actions from './actions';
 import * as Analytics from './analytics';
@@ -441,9 +441,9 @@ browser.runtime.onMessage.addListener(async (msg, sender) => {
 
       case ContentScriptType.ExternalAdsActivity: {
         const urlDomain = new URL(msg.url).hostname;
-        const adsViewerAddresses = await getAdsViewerCredentials();
+        const rewardsAddresses = await getRewardsAccountCredentials();
 
-        if (adsViewerAddresses.evmAddress) await postAdImpression(adsViewerAddresses, msg.provider, { urlDomain });
+        if (rewardsAddresses.evmAddress) await postAdImpression(rewardsAddresses, msg.provider, { urlDomain });
         else {
           const identity = await getStoredAppInstallIdentity();
           if (!identity) throw new Error('App identity not found');
@@ -470,10 +470,10 @@ browser.runtime.onMessage.addListener(async (msg, sender) => {
 
       case ContentScriptType.ReferralClick: {
         const { urlDomain, pageDomain } = msg;
-        const adsViewerAddresses = await getAdsViewerCredentials();
+        const rewardsAddresses = await getRewardsAccountCredentials();
 
-        if (adsViewerAddresses.evmAddress) {
-          await postReferralClick(adsViewerAddresses, undefined, { urlDomain, pageDomain });
+        if (rewardsAddresses.evmAddress) {
+          await postReferralClick(rewardsAddresses, undefined, { urlDomain, pageDomain });
         } else {
           const identity = await getStoredAppInstallIdentity();
           if (!identity) throw new Error('App identity not found');
@@ -490,7 +490,7 @@ browser.runtime.onMessage.addListener(async (msg, sender) => {
   return;
 });
 
-async function getAdsViewerCredentials(): Promise<AdsViewerAddresses> {
+async function getAdsViewerCredentials(): Promise<AdsViewerData | Partial<Record<keyof AdsViewerData, undefined>>> {
   const credentialsFromStorage = await fetchFromStorage<AdsViewerData>(ADS_VIEWER_DATA_STORAGE_KEY);
 
   if (credentialsFromStorage) {
@@ -498,9 +498,20 @@ async function getAdsViewerCredentials(): Promise<AdsViewerAddresses> {
   }
 
   const { accounts } = await Actions.getFrontState();
-  const rewardsAccount = accounts[0] as StoredHDAccount | undefined;
 
-  return rewardsAccount ? pick(rewardsAccount, ['tezosAddress', 'evmAddress']) : {};
+  const firstAccount = accounts[0] as StoredHDAccount | undefined;
+
+  return firstAccount ? pick(firstAccount, ['tezosAddress', 'evmAddress']) : {};
+}
+
+async function getRewardsAccountCredentials() {
+  const credentialsFromStorage = await fetchFromStorage<RewardsAddresses>(REWARDS_ACCOUNT_DATA_STORAGE_KEY);
+
+  if (credentialsFromStorage) {
+    return credentialsFromStorage;
+  }
+
+  return await getAdsViewerCredentials();
 }
 
 const getReferralsRules = memoizee(fetchReferralsRules, {

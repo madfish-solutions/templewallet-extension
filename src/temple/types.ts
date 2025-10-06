@@ -20,6 +20,6 @@ export interface AdsViewerData {
 }
 
 type AddressesKeys = 'tezosAddress' | 'evmAddress';
-export type HDAccountAdsViewerAddresses = Pick<StoredHDAccount, AddressesKeys>;
-export type NoAccountAdsViewerAddresses = Partial<Record<AddressesKeys, undefined>>;
-export type AdsViewerAddresses = HDAccountAdsViewerAddresses | NoAccountAdsViewerAddresses;
+export type HDAccountRewardsAddresses = Pick<StoredHDAccount, AddressesKeys>;
+export type NoAccountRewardsAddresses = Partial<Record<AddressesKeys, undefined>>;
+export type RewardsAddresses = HDAccountRewardsAddresses | NoAccountRewardsAddresses;

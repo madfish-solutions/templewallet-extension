@@ -2,7 +2,7 @@ import axios from 'axios';
 
 import { BROWSER_IDENTIFIER_HEADER } from 'lib/browser';
 import { APP_VERSION, EnvVars } from 'lib/env';
-import { AdsViewerAddresses, HDAccountAdsViewerAddresses, NoAccountAdsViewerAddresses } from 'temple/types';
+import { RewardsAddresses, HDAccountRewardsAddresses, NoAccountRewardsAddresses } from 'temple/types';
 
 import { withAxiosDataExtract } from './utils';
 
@@ -22,7 +22,7 @@ interface ImpressionDetails {
 }
 
 export async function postAdImpression(
-  { tezosAddress, evmAddress }: AdsViewerAddresses,
+  { tezosAddress, evmAddress }: RewardsAddresses,
   provider: string,
   { urlDomain, pageName }: ImpressionDetails
 ) {
@@ -48,17 +48,17 @@ interface ReferralClickDetails {
 }
 
 export async function postReferralClick(
-  addresses: HDAccountAdsViewerAddresses,
+  addresses: HDAccountRewardsAddresses,
   installId: undefined,
   details: ReferralClickDetails
 ): Promise<void>;
 export async function postReferralClick(
-  addresses: NoAccountAdsViewerAddresses,
+  addresses: NoAccountRewardsAddresses,
   installId: string,
   details: ReferralClickDetails
 ): Promise<void>;
 export async function postReferralClick(
-  { tezosAddress, evmAddress }: AdsViewerAddresses,
+  { tezosAddress, evmAddress }: RewardsAddresses,
   installId: string | undefined,
   { urlDomain, pageDomain }: ReferralClickDetails
 ) {
@@ -73,7 +73,7 @@ export async function postReferralClick(
 }
 
 export async function postLinkAdsImpressions(
-  { tezosAddress, evmAddress }: AdsViewerAddresses,
+  { tezosAddress, evmAddress }: RewardsAddresses,
   installId: string,
   signature: string
 ) {
