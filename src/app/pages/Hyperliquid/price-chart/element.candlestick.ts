@@ -23,7 +23,7 @@ export class CandlestickElement extends FinancialElement {
     const { x, open, high, low, close } = this;
 
     // @ts-expect-error
-    let borderColors = me.options.borderColors;
+    let borderColors = this.options.borderColors;
     if (typeof borderColors === 'string') {
       borderColors = {
         up: borderColors,
@@ -72,7 +72,7 @@ export class CandlestickElement extends FinancialElement {
     }
 
     // @ts-expect-error
-    ctx.lineWidth = valueOrDefault(me.options.borderWidth, defaults.elements.candlestick.borderWidth);
+    ctx.lineWidth = valueOrDefault(this.options.borderWidth, defaults.elements.candlestick.borderWidth);
     ctx.strokeStyle = borderColor;
 
     ctx.beginPath();
@@ -82,9 +82,9 @@ export class CandlestickElement extends FinancialElement {
     ctx.lineTo(x, Math.max(open, close));
     ctx.stroke();
     // @ts-expect-error
-    ctx.fillRect(x - me.width / 2, close, me.width, open - close);
+    ctx.fillRect(x - this.width / 2, close, this.width, open - close);
     // @ts-expect-error
-    ctx.strokeRect(x - me.width / 2, close, me.width, open - close);
+    ctx.strokeRect(x - this.width / 2, close, this.width, open - close);
     ctx.closePath();
   }
 }
