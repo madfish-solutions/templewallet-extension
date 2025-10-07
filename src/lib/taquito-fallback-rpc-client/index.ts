@@ -1,3 +1,4 @@
+import { isDefined } from '@rnw-community/shared';
 import { HttpResponseError } from '@taquito/http-utils';
 import {
   EntrypointsResponse,
@@ -10,6 +11,7 @@ import {
   RPCRunViewParam,
   RPCSimulateOperationParam
 } from '@taquito/rpc';
+import { TezosOperationError } from '@taquito/taquito';
 
 import { getTezosFastRpcClient } from 'temple/tezos/utils';
 
@@ -175,14 +177,6 @@ export class FallbackRpcClient extends RpcClient {
   }
 }
 
-function isCounterError(error: any): boolean {
-  if (error instanceof HttpResponseError) {
-    const message = error.message || '';
-    return message.includes('counter_in_the_future') || message.includes('counter_in_the_past');
-  }
-  return false;
-}
-
 function shouldFallbackToNext(error: any): boolean {
   if (isCounterError(error)) {
     // Counter errors should NOT fallback - they indicate invalid operation data
@@ -190,11 +184,58 @@ function shouldFallbackToNext(error: any): boolean {
     return false;
   }
 
+  if (isNonRetryableTezosError(error)) {
+    // Known non-retryable Tezos operation errors should NOT fallback.
+    // These indicate deterministic operation failures unrelated to the specific RPC node
+    return false;
+  }
+
   if (error instanceof HttpResponseError) {
     const status = error.status ?? 0;
-    // Retry on rate limits, timeouts, server/unavailable, and not found (some RPCs may miss endpoints)
+    // Retry on rate limits, timeouts, server/unavailable, and not found
     return status === 404 || status === 408 || status === 429 || status >= 500;
   }
   // Network/transport errors -> fallback
   return true;
+}
+
+const COUNTER_ERROR_MESSAGES = ['counter_in_the_past', 'counter_in_the_future'];
+
+function isCounterError(error: any): boolean {
+  if (error instanceof HttpResponseError) {
+    return COUNTER_ERROR_MESSAGES.some(m => error.message.includes(m));
+  }
+  return false;
+}
+
+const NON_RETRYABLE_TEZ_ERROR_ID_SUBSTRINGS = [
+  'empty_implicit_contract',
+  'empty_implicit_delegated_contract',
+  'storage_exhausted',
+  'gas_exhausted',
+  'balance_too_low',
+  'subtraction_underflow'
+];
+
+function includesKnownNonRetryableTezId(id: string): boolean {
+  return NON_RETRYABLE_TEZ_ERROR_ID_SUBSTRINGS.some(substr => id.includes(substr));
+}
+
+function isNonRetryableTezosError(error: any): boolean {
+  if (error instanceof TezosOperationError) {
+    return error.errors.some(e => includesKnownNonRetryableTezId(e.id));
+  }
+
+  if (error instanceof HttpResponseError) {
+    try {
+      const parsed = JSON.parse(error.body);
+      if (Array.isArray(parsed)) {
+        return parsed.some(e => isDefined(e.id) && includesKnownNonRetryableTezId(e.id));
+      }
+    } catch {
+      // ignore parse errors
+    }
+  }
+
+  return false;
 }
