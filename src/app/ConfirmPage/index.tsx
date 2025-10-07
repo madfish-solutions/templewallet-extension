@@ -2,10 +2,9 @@ import React, { memo, useMemo } from 'react';
 
 import clsx from 'clsx';
 
-import { FADABLE_CONTENT_CLASSNAME } from 'app/a11y/content-fader';
 import { PageLoader } from 'app/atoms/Loader';
 import { SuspenseContainer } from 'app/atoms/SuspenseContainer';
-import { FULL_PAGE_WRAP_CLASSNAME, LAYOUT_CONTAINER_CLASSNAME } from 'app/layouts/containers';
+import { FULL_PAGE_WRAP_CLASSNAME } from 'app/layouts/containers';
 import Unlock from 'app/pages/Unlock/Unlock';
 import { t } from 'lib/i18n';
 import { useRetryableSWR } from 'lib/swr';
@@ -27,18 +26,9 @@ const ConfirmPage = memo(() => {
   return (
     <div className={clsx('w-full h-full', isBrowserFullscreen && FULL_PAGE_WRAP_CLASSNAME)}>
       {ready ? (
-        <div
-          className={clsx(
-            LAYOUT_CONTAINER_CLASSNAME,
-            'h-screen bg-white flex flex-col',
-            isBrowserFullscreen && 'rounded-md shadow-bottom',
-            FADABLE_CONTENT_CLASSNAME
-          )}
-        >
-          <SuspenseContainer errorMessage={t('fetchingConfirmationDetails')} loader={<PageLoader stretch />}>
-            <ConfirmDAppForm />
-          </SuspenseContainer>
-        </div>
+        <SuspenseContainer errorMessage={t('fetchingConfirmationDetails')} loader={<PageLoader stretch />}>
+          <ConfirmDAppForm />
+        </SuspenseContainer>
       ) : (
         <Unlock canImportNew={false} />
       )}
