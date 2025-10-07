@@ -106,6 +106,22 @@ export class FallbackRpcClient extends RpcClient {
     return this.callWithFallback(client => client.getDelegateLimitOfStakingOverBakingIsPositive(bakerPkh, opts));
   }
 
+  async getStakedBalance(address: string, opts?: RPCOptions) {
+    return this.callWithFallback(client => client.getStakedBalance(address, opts));
+  }
+
+  async getUnstakeRequests(address: string, opts?: RPCOptions) {
+    return this.callWithFallback(client => client.getUnstakeRequests(address, opts));
+  }
+
+  async getUnstakedFrozenBalance(address: string, opts?: RPCOptions) {
+    return this.callWithFallback(client => client.getUnstakedFrozenBalance(address, opts));
+  }
+
+  async getUnstakedFinalizableBalance(address: string, opts?: RPCOptions) {
+    return this.callWithFallback(client => client.getUnstakedFinalizableBalance(address, opts));
+  }
+
   async getBigMapExpr(id: string, expr: string, opts?: RPCOptions) {
     return this.callWithFallback(client => client.getBigMapExpr(id, expr, opts));
   }
