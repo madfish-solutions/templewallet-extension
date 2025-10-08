@@ -62,7 +62,7 @@ export const PageModal: FC<PageModalProps> = ({
   const isBrowserFullscreen = useIsBrowserFullscreen();
 
   const baseOverlayClassNames = useMemo(() => {
-    if (confirmWindow) return isBrowserFullscreen ? 'pt-9 pb-8' : null;
+    if (confirmWindow) return isBrowserFullscreen ? 'pt-13 pb-8' : 'pt-4';
 
     if (testnetModeEnabled) return fullPage ? 'pt-19 pb-8' : 'pt-10';
 
