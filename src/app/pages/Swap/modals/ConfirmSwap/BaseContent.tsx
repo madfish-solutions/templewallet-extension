@@ -16,8 +16,7 @@ import { T, t } from 'lib/i18n';
 import { DisplayedFeeOptions, FeeOptionLabel } from 'lib/temple/front/estimation-data-providers';
 import { LedgerOperationState } from 'lib/ui';
 import { EvmChain, OneOfChains } from 'temple/front';
-
-import { TempleChainKind } from '../../../../../temple/types';
+import { TempleChainKind } from 'temple/types';
 
 interface BaseContentProps<T extends TxParamsFormData> {
   ledgerApprovalModalState: LedgerOperationState;
