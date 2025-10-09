@@ -69,6 +69,21 @@ export const ConfirmSwapModal: FC<ConfirmSwapModalProps> = ({ opened, onRequestC
     setCurrentActionIndex(0);
   }, [opened, reviewData]);
 
+  const currentUserAction = useMemo(
+    () => (userActions.length > 0 ? userActions[Math.min(currentActionIndex, userActions.length - 1)] : undefined),
+    [userActions, currentActionIndex]
+  );
+  const isBridgeOperation = useMemo(
+    () =>
+      Boolean(
+        currentUserAction &&
+          currentUserAction.routeStep.action.fromChainId !== currentUserAction.routeStep.action.toChainId
+      ),
+    [currentUserAction]
+  );
+  const operationTitleSubst = isBridgeOperation ? 'Bridge' : 'Swap';
+  const operationDescSubst = isBridgeOperation ? 'bridge' : 'swap';
+
   const renderTezosContent = (data: TezosReviewData) => () =>
     (
       <TezosEstimationDataProvider>
@@ -92,14 +107,12 @@ export const ConfirmSwapModal: FC<ConfirmSwapModalProps> = ({ opened, onRequestC
 
   const title = useMemo(() => {
     if (!reviewData) return '';
-    if (isSwapEvmReviewData(reviewData) && userActions.length > 0) {
-      const current = userActions[Math.min(currentActionIndex, userActions.length - 1)];
-      if (current.type === 'approval') return 'Approve';
-      const isBridge = current.routeStep.action.fromChainId !== current.routeStep.action.toChainId;
-      return isBridge ? 'Bridge Preview' : 'Swap Preview';
+    if (isSwapEvmReviewData(reviewData) && currentUserAction) {
+      if (currentUserAction.type === 'approval') return 'Approve';
+      return isBridgeOperation ? 'Bridge Preview' : 'Swap Preview';
     }
     return 'Swap Preview';
-  }, [reviewData, userActions, currentActionIndex]);
+  }, [reviewData, currentUserAction, isBridgeOperation]);
 
   const totalSteps = useMemo(() => {
     if (!reviewData || !isSwapEvmReviewData(reviewData)) return 0;
@@ -167,28 +180,8 @@ export const ConfirmSwapModal: FC<ConfirmSwapModalProps> = ({ opened, onRequestC
         isOpen={isCancelConfirmOpen}
         onClose={() => setIsCancelConfirmOpen(false)}
         onConfirm={performCancel}
-        title={
-          <T
-            id="cancelOperationTitle"
-            substitutions={
-              userActions[Math.min(currentActionIndex, userActions.length - 1)]?.routeStep.action.fromChainId !==
-              userActions[Math.min(currentActionIndex, userActions.length - 1)]?.routeStep.action.toChainId
-                ? 'Bridge'
-                : 'Swap'
-            }
-          />
-        }
-        description={
-          <T
-            id="cancelOperationDescription"
-            substitutions={
-              userActions[Math.min(currentActionIndex, userActions.length - 1)]?.routeStep.action.fromChainId !==
-              userActions[Math.min(currentActionIndex, userActions.length - 1)]?.routeStep.action.toChainId
-                ? 'bridge'
-                : 'swap'
-            }
-          />
-        }
+        title={<T id="cancelOperationTitle" substitutions={operationTitleSubst} />}
+        description={<T id="cancelOperationDescription" substitutions={operationDescSubst} />}
         cancelButtonText={<T id="back" />}
         confirmButtonText={<T id="cancelAnyway" />}
         confirmButtonColor="red"
@@ -248,12 +241,12 @@ const ConfirmStepEvmContent = memo(
       const run = async () => {
         try {
           await retry(
-            async bail => {
-              if (cancelled) return bail(new Error('cancelled'));
+            async () => {
+              if (cancelled) return;
 
               const step = await getStepTransaction(routeStep);
 
-              if (cancelled) return bail(new Error('cancelled'));
+              if (cancelled) return;
               setRouteStepWithTransactionRequest(step);
             },
             { retries: 3, minTimeout: 1000 }
