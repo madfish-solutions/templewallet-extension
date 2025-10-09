@@ -136,6 +136,9 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
     outputNetwork
   );
 
+  const { value: sourceGasTokenBalance = ZERO } = useEvmAssetBalance(EVM_TOKEN_SLUG, publicKeyHash, inputNetwork);
+  const { value: destinationGasTokenBalance = ZERO } = useEvmAssetBalance(EVM_TOKEN_SLUG, publicKeyHash, outputNetwork);
+
   const storedInputTokenMetadata = useEvmTokenMetadataSelector(
     (sourceAssetInfo?.chainId as number) || chainId,
     inputValue.assetSlug ?? EVM_TOKEN_SLUG
@@ -485,6 +488,45 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
       toastError(t('noRoutesFound'));
     }
   }, [isAlertVisible]);
+
+  const shownInsufficientNetworksRef = useRef<Set<string>>(new Set());
+
+  useEffect(() => {
+    if (!swapRoute) {
+      shownInsufficientNetworksRef.current.clear();
+      return;
+    }
+
+    const isBridge = inputNetwork.chainId !== outputNetwork.chainId;
+    if (!isBridge) {
+      shownInsufficientNetworksRef.current.clear();
+      return;
+    }
+
+    const insufficientNetworks: string[] = [];
+    if (sourceGasTokenBalance.lte(0)) insufficientNetworks.push(inputNetwork.name);
+    if (destinationGasTokenBalance.lte(0)) insufficientNetworks.push(outputNetwork.name);
+
+    if (insufficientNetworks.length === 0) {
+      shownInsufficientNetworksRef.current.clear();
+      return;
+    }
+
+    for (const networkName of insufficientNetworks) {
+      if (!shownInsufficientNetworksRef.current.has(networkName)) {
+        toastError(`Insufficient gas balance on ${networkName}`);
+        shownInsufficientNetworksRef.current.add(networkName);
+      }
+    }
+  }, [
+    swapRoute,
+    inputNetwork.chainId,
+    inputNetwork.name,
+    outputNetwork.chainId,
+    outputNetwork.name,
+    sourceGasTokenBalance,
+    destinationGasTokenBalance
+  ]);
 
   const estimatedTokensFromAmount = useMemo(
     () =>
