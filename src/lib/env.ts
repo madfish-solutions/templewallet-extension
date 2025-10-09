@@ -8,9 +8,15 @@ export const IS_MISES_BROWSER =
   // @ts-expect-error
   navigator.userAgentData?.brands?.some(b => b.brand === 'Mises') || navigator.userAgent.includes('CriOS/');
 
-export const IS_GOOGLE_CHROME_BROWSER =
+const IS_GOOGLE_CHROME_BROWSER =
   // @ts-expect-error
   navigator.userAgentData?.brands?.some(b => b.brand === 'Google Chrome');
+
+const IS_BRAVE_BROWSER =
+  // @ts-expect-error
+  navigator.userAgentData?.brands?.some(b => b.brand === 'Brave');
+
+export const IS_SIDE_PANEL_AVAILABLE = IS_GOOGLE_CHROME_BROWSER || IS_BRAVE_BROWSER;
 
 export const IS_CHROMIUM_BROWSER = process.env.TARGET_BROWSER === 'chrome';
 
