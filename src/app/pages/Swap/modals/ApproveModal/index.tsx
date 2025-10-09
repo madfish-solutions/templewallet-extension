@@ -15,7 +15,7 @@ import { ReactComponent as LinkIcon } from 'app/icons/base/link.svg';
 import { ReactComponent as OutLinkIcon } from 'app/icons/base/outLink.svg';
 import { useEvmEstimationData } from 'app/pages/Send/hooks/use-evm-estimation-data';
 import LiFiImgSrc from 'app/pages/Swap/form/assets/lifi.png';
-import { EvmReviewData, SwapReviewData } from 'app/pages/Swap/form/interfaces';
+import { EvmStepReviewData } from 'app/pages/Swap/form/interfaces';
 import { parseTxRequestToViem, timeout } from 'app/pages/Swap/modals/ConfirmSwap/utils';
 import { EvmTransactionView } from 'app/templates/EvmTransactionView';
 import { LedgerApprovalModal } from 'app/templates/ledger-approval-modal';
@@ -34,26 +34,15 @@ import { useGetEvmActiveBlockExplorer } from 'temple/front/ready';
 import { TempleChainKind } from 'temple/types';
 
 interface ApproveModalProps {
-  data: EvmReviewData;
+  stepReviewData: EvmStepReviewData;
   onClose: EmptyFn;
-  onReview: (data: SwapReviewData) => void;
+  onStepCompleted: EmptyFn;
 }
 
 const LIFI = 'https://li.fi/';
 
-const ApproveModal = ({ data, onClose, onReview }: ApproveModalProps) => {
-  const {
-    initialLifiStep: lifiStep,
-    buildSwapRouteParams,
-    fetchEvmSwapRoute,
-    account,
-    network,
-    minimumReceived,
-    onConfirm,
-    neededApproval,
-    onChainAllowance,
-    bridgeInfo
-  } = data;
+const ApproveModal = ({ stepReviewData, onClose, onStepCompleted }: ApproveModalProps) => {
+  const { account, inputNetwork, routeStep } = stepReviewData;
 
   const [loading, setLoading] = useState(false);
 
@@ -68,37 +57,37 @@ const ApproveModal = ({ data, onClose, onReview }: ApproveModalProps) => {
     return encodeFunctionData({
       abi: [erc20ApproveAbi],
       functionName: 'approve',
-      args: [lifiStep.estimate.approvalAddress as HexString, BigInt(lifiStep.action.fromAmount)]
+      args: [routeStep.estimate.approvalAddress as HexString, BigInt(routeStep.action.fromAmount)]
     });
-  }, [lifiStep.action.fromAmount, lifiStep.estimate.approvalAddress]);
+  }, [routeStep.action.fromAmount, routeStep.estimate.approvalAddress]);
 
   const assetSlug = useMemo(
-    () => toTokenSlug(lifiStep.action.fromToken.address, 0),
-    [lifiStep.action.fromToken.address]
+    () => toTokenSlug(routeStep.action.fromToken.address, 0),
+    [routeStep.action.fromToken.address]
   );
 
   const [finalEvmTransaction, setFinalEvmTransaction] = useState<EvmTransactionRequestWithSender>({
-    from: lifiStep.action.fromAddress as HexString
+    from: routeStep.action.fromAddress as HexString
   });
   const [latestSubmitError, setLatestSubmitError] = useState<string | nullish>(null);
 
   const amount = useMemo(
     () =>
       atomsToTokens(
-        new BigNumber(BigInt(lifiStep.action.fromAmount).toString()),
-        lifiStep.action.fromToken.decimals ?? 0
+        new BigNumber(BigInt(routeStep.action.fromAmount).toString()),
+        routeStep.action.fromToken.decimals ?? 0
       ).toString(),
-    [lifiStep.action.fromAmount, lifiStep.action.fromToken.decimals]
+    [routeStep.action.fromAmount, routeStep.action.fromToken.decimals]
   );
 
-  const { value: balance = ZERO } = useEvmAssetBalance(assetSlug, account.address as HexString, network);
-  const { value: ethBalance = ZERO } = useEvmAssetBalance(EVM_TOKEN_SLUG, account.address as HexString, network);
+  const { value: balance = ZERO } = useEvmAssetBalance(assetSlug, account.address as HexString, inputNetwork);
+  const { value: ethBalance = ZERO } = useEvmAssetBalance(EVM_TOKEN_SLUG, account.address as HexString, inputNetwork);
 
   const { data: estimationData } = useEvmEstimationData({
-    to: lifiStep.estimate.approvalAddress as HexString,
+    to: routeStep.estimate.approvalAddress as HexString,
     assetSlug: assetSlug,
     accountPkh: account.address as HexString,
-    network,
+    network: inputNetwork,
     balance,
     ethBalance,
     toFilled: true,
@@ -107,27 +96,27 @@ const ApproveModal = ({ data, onClose, onReview }: ApproveModalProps) => {
 
   const request = useMemo(() => {
     return {
-      to: lifiStep.action.fromToken.address as HexString,
-      from: lifiStep.action.fromAddress as HexString,
+      to: routeStep.action.fromToken.address as HexString,
+      from: routeStep.action.fromAddress as HexString,
       data: finalEvmTransaction?.data ? finalEvmTransaction.data : txData,
       value: toHex(BigInt(0)),
       maxFeePerGas: estimationData?.maxFeePerGas !== undefined ? toHex(estimationData.maxFeePerGas) : undefined,
       gas: estimationData?.gas !== undefined ? toHex(estimationData.gas) : undefined,
       gasPrice: estimationData?.gasPrice !== undefined ? toHex(estimationData.gasPrice) : undefined
     };
-  }, [estimationData, finalEvmTransaction, lifiStep.action.fromToken.address, lifiStep.action.fromAddress, txData]);
+  }, [estimationData, finalEvmTransaction, routeStep.action.fromToken.address, routeStep.action.fromAddress, txData]);
 
   const payload = useMemo(() => {
     return {
       type: 'confirm_operations' as const,
       req: request,
       estimationData,
-      chainId: network.chainId.toString(),
+      chainId: inputNetwork.chainId.toString(),
       chainType: TempleChainKind.EVM,
       origin: LIFI,
       appMeta: { name: 'li.fi' }
     } as unknown as TempleEvmDAppTransactionPayload;
-  }, [request, estimationData, network.chainId]);
+  }, [request, estimationData, inputNetwork.chainId]);
 
   const onSubmit = useCallback(
     async (tx?: EvmTransactionRequestWithSender) => {
@@ -141,24 +130,12 @@ const ApproveModal = ({ data, onClose, onReview }: ApproveModalProps) => {
           return;
         }
 
-        const txHash = await sendEvmTransaction(account.address as HexString, network, txParams);
-        const blockExplorer = getActiveBlockExplorer(network.chainId.toString());
+        const txHash = await sendEvmTransaction(account.address as HexString, inputNetwork, txParams);
+        const blockExplorer = getActiveBlockExplorer(inputNetwork.chainId.toString());
         showTxSubmitToastWithDelay(TempleChainKind.EVM, txHash, blockExplorer.url);
         await timeout(1000);
 
-        onReview({
-          account,
-          network,
-          needsApproval: false,
-          neededApproval,
-          onChainAllowance,
-          onConfirm,
-          minimumReceived,
-          bridgeInfo,
-          buildSwapRouteParams,
-          fetchEvmSwapRoute,
-          initialLifiStep: lifiStep
-        });
+        onStepCompleted();
       };
 
       try {
@@ -175,20 +152,12 @@ const ApproveModal = ({ data, onClose, onReview }: ApproveModalProps) => {
       }
     },
     [
-      account,
-      bridgeInfo,
-      buildSwapRouteParams,
-      fetchEvmSwapRoute,
-      getActiveBlockExplorer,
-      isLedgerAccount,
-      lifiStep,
-      minimumReceived,
-      neededApproval,
-      network,
-      onChainAllowance,
-      onConfirm,
-      onReview,
       sendEvmTransaction,
+      account.address,
+      inputNetwork,
+      getActiveBlockExplorer,
+      onStepCompleted,
+      isLedgerAccount,
       setLedgerApprovalModalState
     ]
   );
@@ -231,7 +200,7 @@ const ApproveModal = ({ data, onClose, onReview }: ApproveModalProps) => {
             error={null}
             setFinalEvmTransaction={setFinalEvmTransaction}
             onSubmit={onSubmit}
-            minAllowance={BigInt(lifiStep.action.fromAmount)}
+            minAllowance={BigInt(routeStep.action.fromAmount)}
           />
         ) : (
           <PageLoader />

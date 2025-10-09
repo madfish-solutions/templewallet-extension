@@ -31,6 +31,7 @@ interface BaseContentProps<T extends TxParamsFormData> {
   onFeeOptionSelect: SyncFn<FeeOptionLabel>;
   onSubmit: SubmitHandler<T>;
   onCancel: EmptyFn;
+  submitLoadingOverride?: boolean;
   minimumReceived?: {
     amount: string;
     symbol: string;
@@ -46,10 +47,6 @@ interface BaseContentProps<T extends TxParamsFormData> {
   displayedFee?: string;
   displayedStorageFee?: string;
   displayedFeeOptions?: DisplayedFeeOptions;
-  quoteRefreshCountdown?: number;
-  isQuoteExpired?: boolean;
-  isQuoteRefreshing?: boolean;
-  onManualQuoteRefresh?: EmptyFn;
 }
 
 export const BaseContent = <T extends TxParamsFormData>({
@@ -66,16 +63,13 @@ export const BaseContent = <T extends TxParamsFormData>({
   onSubmit,
   onCancel,
   onLedgerModalClose,
+  submitLoadingOverride,
   minimumReceived,
   cashbackInTkey,
   displayedFee,
   displayedStorageFee,
   displayedFeeOptions,
-  bridgeData,
-  quoteRefreshCountdown,
-  isQuoteExpired,
-  isQuoteRefreshing,
-  onManualQuoteRefresh
+  bridgeData
 }: BaseContentProps<T>) => {
   const { formState } = useFormContext<T>();
 
@@ -122,22 +116,15 @@ export const BaseContent = <T extends TxParamsFormData>({
         </StyledButton>
 
         <StyledButton
-          type={onManualQuoteRefresh && isQuoteExpired ? 'button' : 'submit'}
-          form={onManualQuoteRefresh && isQuoteExpired ? undefined : 'confirm-form'}
+          type="submit"
+          form="confirm-form"
           color="primary"
           size="L"
           className="w-full"
-          loading={isQuoteRefreshing || formState.isSubmitting}
+          loading={submitLoadingOverride ?? formState.isSubmitting}
           disabled={!formState.isValid}
-          onClick={onManualQuoteRefresh && isQuoteExpired ? onManualQuoteRefresh : undefined}
         >
-          {latestSubmitError ? (
-            <T id="retry" />
-          ) : isQuoteRefreshing ? null : isQuoteExpired ? (
-            <T id="refresh" />
-          ) : (
-            <T id="confirmWithCountdown" substitutions={[quoteRefreshCountdown]} />
-          )}
+          <T id={latestSubmitError ? 'retry' : 'confirm'} />
         </StyledButton>
       </ActionsButtonsBox>
 

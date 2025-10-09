@@ -1284,6 +1284,9 @@
   "protocolFeeTooltip": {
     "message": "Bridge protocol fee for token cross-chain transfer."
   },
+  "bridgeToolsTooltip": {
+    "message": "This operation will be proceeded by:"
+  },
   "extraGasInfoTooltipEvm": {
     "message": "Receive a portion of your bridged amount as gas on the destination network - just enough for your next transaction."
   },
@@ -4472,5 +4475,27 @@
   },
   "approve": {
     "message": "Approve"
+  },
+  "cancelOperationTitle": {
+    "message": "Cancel $operation$?",
+    "placeholders": {
+      "operation": {
+        "content": "$1"
+      }
+    }
+  },
+  "cancelOperationDescription": {
+    "message": "Canceling now will interrupt the route - your $operation$ won’t be completed. Your funds are safe and still available in your wallet, but you’ll need to start over.",
+    "placeholders": {
+      "operation": {
+        "content": "$1"
+      }
+    }
+  },
+  "back": {
+    "message": "Back"
+  },
+  "cancelAnyway": {
+    "message": "Cancel Anyway"
   }
 }

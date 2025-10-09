@@ -1,5 +1,6 @@
 import { Route, RoutesResponse, Token } from '@lifi/sdk';
 import axios from 'axios';
+import retry from 'async-retry';
 
 import { templeWalletApi } from '../templewallet.api';
 
@@ -77,12 +78,17 @@ export const getLifiSupportedChains = () =>
   );
 
 export const getEvmSwapConnectionsMetadata = (fromChain: number, fromToken: string) =>
-  templeWalletApi.get<TokensByChain>('evm/swap-connections', { params: { fromChain, fromToken } }).then(
-    res => res.data,
-    error => {
-      console.error(error);
-      throw error;
-    }
+  retry(
+    () =>
+      templeWalletApi.get<TokensByChain>('evm/swap-connections', { params: { fromChain, fromToken } }).then(
+        res => res.data,
+        (error: any) => {
+          if (axios.isCancel(error) || error?.name === 'CanceledError') return;
+          console.error(error);
+          throw error;
+        }
+      ),
+    { retries: 3 }
   );
 
 const buildEvmRequest = <T>(
