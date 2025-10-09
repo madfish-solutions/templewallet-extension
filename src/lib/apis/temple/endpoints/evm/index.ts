@@ -1,6 +1,6 @@
-import { Route, RoutesResponse, Token } from '@lifi/sdk';
-import axios from 'axios';
+import { RoutesResponse, Token } from '@lifi/sdk';
 import retry from 'async-retry';
+import axios from 'axios';
 
 import { templeWalletApi } from '../templewallet.api';
 
@@ -47,16 +47,6 @@ interface TransactionsResponse {
   /** These depend on the blocks gap of returned transfers. */
   approvals: Log[];
 }
-
-export const getEvmBestSwapRoute = (params: RouteParams, signal?: AbortSignal) =>
-  templeWalletApi.get<Route>('evm/swap-route', { params, signal }).then(
-    res => res.data,
-    error => {
-      if (axios.isCancel(error) || error?.name === 'CanceledError') return;
-      console.error(error);
-      throw error;
-    }
-  );
 
 export const getEvmAllSwapRoutes = (params: RouteParams, signal?: AbortSignal) =>
   templeWalletApi.get<RoutesResponse>('evm/swap-routes', { params, signal }).then(
