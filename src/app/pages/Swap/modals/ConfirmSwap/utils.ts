@@ -1,6 +1,25 @@
 import type { TransactionRequest as LiFiTxRequest } from '@lifi/types';
 import type { Address, TransactionRequest as ViemTxRequest, RpcTransactionRequest } from 'viem';
 
+import { EvmEstimationDataWithFallback } from 'lib/temple/types';
+
+export function mapLiFiTxToEvmEstimationData(tx: LiFiTxRequest): EvmEstimationDataWithFallback {
+  const gasLimitStr = 'gasLimit' in tx ? tx.gasLimit : undefined;
+  const gasPriceStr = 'gasPrice' in tx ? tx.gasPrice : undefined;
+
+  const gasLimit = gasLimitStr ? BigInt(gasLimitStr) : BigInt(0);
+  const gasPrice = gasPriceStr ? BigInt(gasPriceStr) : BigInt(0);
+
+  return {
+    estimatedFee: gasLimit * gasPrice,
+    data: (tx.data ?? '0x') as HexString,
+    type: 'legacy',
+    gas: gasLimit,
+    gasPrice: gasPrice,
+    nonce: 0
+  };
+}
+
 export function parseTxRequestToViem(tx: LiFiTxRequest | RpcTransactionRequest): ViemTxRequest | null {
   const gasLimit = 'gasLimit' in tx ? tx.gasLimit : undefined;
   const gas = 'gas' in tx ? tx.gas : undefined;

@@ -10,7 +10,7 @@ import { useLedgerApprovalModalState } from 'app/hooks/use-ledger-approval-modal
 import { useEvmEstimationData } from 'app/pages/Send/hooks/use-evm-estimation-data';
 import { EvmStepReviewData } from 'app/pages/Swap/form/interfaces';
 import { formatDuration, getBufferedExecutionDuration } from 'app/pages/Swap/form/utils';
-import { parseTxRequestToViem, timeout } from 'app/pages/Swap/modals/ConfirmSwap/utils';
+import { mapLiFiTxToEvmEstimationData, parseTxRequestToViem, timeout } from 'app/pages/Swap/modals/ConfirmSwap/utils';
 import { dispatch } from 'app/store';
 import { putNewEvmTokenAction } from 'app/store/evm/assets/actions';
 import { processLoadedOnchainBalancesAction } from 'app/store/evm/balances/actions';
@@ -103,10 +103,9 @@ export const EvmContent: FC<EvmContentProps> = ({ stepReviewData, onClose, onSte
 
   const lifiEstimationData = useMemo(() => {
     if (!estimationData || !routeStep.transactionRequest) return undefined;
-
     return {
-      ...estimationData,
-      data: routeStep.transactionRequest.data as HexString
+      ...mapLiFiTxToEvmEstimationData(routeStep.transactionRequest),
+      nonce: estimationData.nonce
     };
   }, [estimationData, routeStep.transactionRequest]);
 
