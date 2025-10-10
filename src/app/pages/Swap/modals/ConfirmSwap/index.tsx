@@ -1,4 +1,4 @@
-import React, { FC, useMemo, useState, useEffect, useCallback, memo } from 'react';
+import React, { FC, useMemo, useState, useEffect, useCallback, memo, useRef } from 'react';
 
 import { getStepTransaction, LiFiStep } from '@lifi/sdk';
 import retry from 'async-retry';
@@ -59,6 +59,7 @@ export const ConfirmSwapModal: FC<ConfirmSwapModalProps> = ({ opened, onRequestC
 
   const [currentActionIndex, setCurrentActionIndex] = useState(0);
   const [isCancelConfirmOpen, setIsCancelConfirmOpen] = useState(false);
+  const cancelledRef = useRef(false);
 
   const firstExecutionActionIndex = useMemo(() => {
     const index = userActions.findIndex(a => a.type === 'execute');
@@ -67,6 +68,7 @@ export const ConfirmSwapModal: FC<ConfirmSwapModalProps> = ({ opened, onRequestC
 
   useEffect(() => {
     setCurrentActionIndex(0);
+    cancelledRef.current = false;
   }, [opened, reviewData]);
 
   const currentUserAction = useMemo(
@@ -131,6 +133,7 @@ export const ConfirmSwapModal: FC<ConfirmSwapModalProps> = ({ opened, onRequestC
   }, [currentActionIndex, onRequestClose, reviewData, userActions.length]);
 
   const performCancel = useCallback(() => {
+    cancelledRef.current = true;
     setIsCancelConfirmOpen(false);
     onRequestClose();
     if (reviewData && isSwapEvmReviewData(reviewData)) {
@@ -140,8 +143,7 @@ export const ConfirmSwapModal: FC<ConfirmSwapModalProps> = ({ opened, onRequestC
 
   const handleRequestClose = useCallback(() => {
     if (reviewData && isSwapEvmReviewData(reviewData)) {
-      // Show warning only after the first execution action
-      if (currentActionIndex > firstExecutionActionIndex) {
+      if (currentActionIndex >= firstExecutionActionIndex) {
         setIsCancelConfirmOpen(true);
         return;
       }
@@ -172,6 +174,7 @@ export const ConfirmSwapModal: FC<ConfirmSwapModalProps> = ({ opened, onRequestC
                   onStepCompleted={onStepCompleted}
                   onRequestClose={handleRequestClose}
                   performCancel={performCancel}
+                  cancelledRef={cancelledRef}
                 />
               )
             : renderTezosContent(reviewData))}
@@ -197,7 +200,8 @@ const ConfirmStepEvmContent = memo(
     mode,
     onStepCompleted,
     onRequestClose,
-    performCancel
+    performCancel,
+    cancelledRef
   }: {
     routeStep: LiFiStep;
     data: EvmReviewData;
@@ -205,8 +209,8 @@ const ConfirmStepEvmContent = memo(
     onStepCompleted: EmptyFn;
     onRequestClose: EmptyFn;
     performCancel: EmptyFn;
+    cancelledRef?: React.MutableRefObject<boolean>;
   }) => {
-    console.log('routeStep', routeStep);
     const inputNetwork = useEvmChainByChainId(routeStep.action.fromChainId);
     const outputNetwork = useEvmChainByChainId(routeStep.action.toChainId);
 
@@ -242,18 +246,18 @@ const ConfirmStepEvmContent = memo(
         try {
           await retry(
             async () => {
-              if (cancelled) return;
+              if (cancelled || cancelledRef?.current) return;
 
               const step = await getStepTransaction(routeStep);
 
-              if (cancelled) return;
+              if (cancelled || cancelledRef?.current) return;
               setRouteStepWithTransactionRequest(step);
             },
             { retries: 3, minTimeout: 1000 }
           );
         } catch (e: any) {
           console.warn(e);
-          if (!cancelled) {
+          if (!cancelled && !cancelledRef?.current) {
             toastError('Failed to prepare transaction');
             performCancel();
           }
@@ -265,7 +269,7 @@ const ConfirmStepEvmContent = memo(
       return () => {
         cancelled = true;
       };
-    }, [routeStep, mode, performCancel]);
+    }, [routeStep, mode, performCancel, cancelledRef]);
 
     return (
       <EvmEstimationDataProvider>
@@ -280,7 +284,12 @@ const ConfirmStepEvmContent = memo(
             </AddAssetProvider>
           </AddChainDataProvider>
         ) : (
-          <EvmContent stepReviewData={stepReviewData} onClose={onRequestClose} onStepCompleted={onStepCompleted} />
+          <EvmContent
+            stepReviewData={stepReviewData}
+            onClose={onRequestClose}
+            onStepCompleted={onStepCompleted}
+            cancelledRef={cancelledRef}
+          />
         )}
       </EvmEstimationDataProvider>
     );

@@ -1,4 +1,4 @@
-import React, { FC, useCallback, useMemo, useState } from 'react';
+import React, { FC, useCallback, useEffect, useMemo, useState } from 'react';
 
 import { getStatus, LiFiStep } from '@lifi/sdk';
 import retry from 'async-retry';
@@ -11,6 +11,10 @@ import { useEvmEstimationData } from 'app/pages/Send/hooks/use-evm-estimation-da
 import { EvmStepReviewData } from 'app/pages/Swap/form/interfaces';
 import { formatDuration, getBufferedExecutionDuration } from 'app/pages/Swap/form/utils';
 import { parseTxRequestToViem, timeout } from 'app/pages/Swap/modals/ConfirmSwap/utils';
+import { dispatch } from 'app/store';
+import { putNewEvmTokenAction } from 'app/store/evm/assets/actions';
+import { processLoadedOnchainBalancesAction } from 'app/store/evm/balances/actions';
+import { putEvmTokensMetadataAction } from 'app/store/evm/tokens-metadata/actions';
 import { EvmTxParamsFormData } from 'app/templates/TransactionTabs/types';
 import { useEvmEstimationForm } from 'app/templates/TransactionTabs/use-evm-estimation-form';
 import { toastError } from 'app/toaster';
@@ -18,6 +22,8 @@ import { toTokenSlug } from 'lib/assets';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { useEvmAssetBalance } from 'lib/balances/hooks';
 import { EVM_ZERO_ADDRESS } from 'lib/constants';
+import { evmOnChainBalancesRequestsExecutor } from 'lib/evm/on-chain/balance';
+import { fetchEvmTokenMetadataFromChain } from 'lib/evm/on-chain/metadata';
 import { t } from 'lib/i18n';
 import { useTempleClient } from 'lib/temple/front';
 import { atomsToTokens, tokensToAtoms } from 'lib/temple/helpers';
@@ -35,9 +41,10 @@ interface EvmContentProps {
   stepReviewData: EvmStepReviewData;
   onClose: EmptyFn;
   onStepCompleted: EmptyFn;
+  cancelledRef?: React.MutableRefObject<boolean>;
 }
 
-export const EvmContent: FC<EvmContentProps> = ({ stepReviewData, onClose, onStepCompleted }) => {
+export const EvmContent: FC<EvmContentProps> = ({ stepReviewData, onClose, onStepCompleted, cancelledRef }) => {
   const {
     account,
     inputNetwork,
@@ -68,6 +75,11 @@ export const EvmContent: FC<EvmContentProps> = ({ stepReviewData, onClose, onSte
   const getActiveBlockExplorer = useGetEvmActiveBlockExplorer();
 
   const [latestSubmitError, setLatestSubmitError] = useState<string | nullish>(null);
+  const [stepFinalized, setStepFinalized] = useState(false);
+
+  useEffect(() => {
+    setStepFinalized(false);
+  }, [routeStep]);
 
   const { value: balance = ZERO } = useEvmAssetBalance(inputTokenSlug, accountPkh, inputNetwork);
 
@@ -81,7 +93,7 @@ export const EvmContent: FC<EvmContentProps> = ({ stepReviewData, onClose, onSte
     network: inputNetwork,
     balance,
     ethBalance,
-    toFilled: isValidTxTo,
+    toFilled: isValidTxTo && !stepFinalized,
     amount: atomsToTokens(
       new BigNumber(routeStep.estimate.fromAmount),
       routeStep.action.fromToken.decimals ?? 0
@@ -158,6 +170,7 @@ export const EvmContent: FC<EvmContentProps> = ({ stepReviewData, onClose, onSte
 
   const executeRouteStep = useCallback(
     async (step: LiFiStep, { gasPrice, gasLimit, nonce }: Partial<EvmTxParamsFormData>) => {
+      if (cancelledRef?.current) return;
       const transactionRequest = step.transactionRequest;
       if (!transactionRequest) {
         console.error(`No transactionRequest found for step ${step.tool}`);
@@ -184,6 +197,7 @@ export const EvmContent: FC<EvmContentProps> = ({ stepReviewData, onClose, onSte
       await timeout(2000);
       let status;
       do {
+        if (cancelledRef?.current) return;
         const result = await retry(
           async () =>
             await getStatus({
@@ -192,7 +206,7 @@ export const EvmContent: FC<EvmContentProps> = ({ stepReviewData, onClose, onSte
               toChain: step.action.toChainId,
               bridge: step.tool
             }),
-          { retries: 2, minTimeout: 1000, factor: 2 }
+          { retries: 3, minTimeout: 2000, factor: 2 }
         );
         status = result.status;
 
@@ -207,9 +221,70 @@ export const EvmContent: FC<EvmContentProps> = ({ stepReviewData, onClose, onSte
         return;
       }
 
+      // Ensure the output token exists in the wallet for any execute step
+      try {
+        if (!isEvmNativeTokenSlug(outputTokenSlug)) {
+          for (let attempt = 0; attempt < 20; attempt++) {
+            const balance = await evmOnChainBalancesRequestsExecutor.executeRequest({
+              network: outputNetwork,
+              assetSlug: outputTokenSlug,
+              account: accountPkh,
+              throwOnTimeout: false
+            });
+
+            if (balance.gt(0)) {
+              const metadata = await fetchEvmTokenMetadataFromChain(outputNetwork, outputTokenSlug);
+
+              dispatch(
+                putNewEvmTokenAction({
+                  publicKeyHash: accountPkh,
+                  chainId: outputNetwork.chainId,
+                  assetSlug: outputTokenSlug
+                })
+              );
+
+              dispatch(
+                putEvmTokensMetadataAction({
+                  chainId: outputNetwork.chainId,
+                  records: { [outputTokenSlug]: metadata }
+                })
+              );
+
+              dispatch(
+                processLoadedOnchainBalancesAction({
+                  balances: { [outputTokenSlug]: balance.toFixed() },
+                  timestamp: Date.now(),
+                  account: accountPkh,
+                  chainId: outputNetwork.chainId
+                })
+              );
+
+              break;
+            }
+
+            await timeout(3000);
+          }
+        }
+      } catch (err) {
+        console.warn('Failed to ensure output token is added to wallet', err);
+      }
+
+      if (cancelledRef?.current) return;
+      setStepFinalized(true);
       onStepCompleted();
     },
-    [accountPkh, bridgeData, getActiveBlockExplorer, inputNetwork, onClose, onStepCompleted, sendEvmTransaction]
+    [
+      accountPkh,
+      bridgeData,
+      getActiveBlockExplorer,
+      inputNetwork,
+      onClose,
+      onStepCompleted,
+      outputNetwork,
+      outputTokenSlug,
+      sendEvmTransaction,
+      cancelledRef
+    ]
   );
 
   const onSubmit = useCallback(
@@ -246,6 +321,7 @@ export const EvmContent: FC<EvmContentProps> = ({ stepReviewData, onClose, onSte
 
       try {
         setSubmitLoading(true);
+        if (cancelledRef?.current) return;
         if (isLedgerAccount) {
           await runConnectedLedgerOperationFlow(
             () =>
@@ -280,7 +356,8 @@ export const EvmContent: FC<EvmContentProps> = ({ stepReviewData, onClose, onSte
       isLedgerAccount,
       setLedgerApprovalModalState,
       executeRouteStep,
-      setTab
+      setTab,
+      cancelledRef
     ]
   );
 
