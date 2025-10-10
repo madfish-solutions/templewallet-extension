@@ -3,6 +3,7 @@ import type { MigrationManifest, PersistedState } from 'redux-persist';
 
 import { TEZOS_CHAIN_ASSET_SLUG } from 'lib/apis/wert';
 import { toTokenSlug } from 'lib/assets';
+import { HIDE_ZERO_BALANCES_STORAGE_KEY } from 'lib/constants';
 import { IS_MISES_BROWSER } from 'lib/env';
 import { isCollectible } from 'lib/metadata/utils';
 
@@ -182,6 +183,10 @@ export const MIGRATIONS: MigrationManifest = {
     if (!persistedState) return persistedState;
 
     const state = persistedState as TypedPersistedRootState;
+    const rawHideZeroBalanceFromStorage = localStorage.getItem(HIDE_ZERO_BALANCES_STORAGE_KEY);
+    const hideZeroBalanceFromStorage = rawHideZeroBalanceFromStorage
+      ? JSON.parse(rawHideZeroBalanceFromStorage)
+      : undefined;
 
     const newState: TypedPersistedRootState = {
       ...state,
@@ -189,7 +194,8 @@ export const MIGRATIONS: MigrationManifest = {
         ...state.assetsFilterOptions,
         tokensListOptions: {
           ...state.assetsFilterOptions?.tokensListOptions,
-          hideSmallBalance: state.assetsFilterOptions?.tokensListOptions?.hideZeroBalance ?? false
+          hideSmallBalance:
+            state.assetsFilterOptions?.tokensListOptions?.hideZeroBalance ?? hideZeroBalanceFromStorage ?? false
         }
       }
     };

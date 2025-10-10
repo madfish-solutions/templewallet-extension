@@ -38,6 +38,9 @@ export const ADS_VIEWER_DATA_STORAGE_KEY = 'ADS_VIEWER_DATA';
 /** @deprecated */
 export const CUSTOM_NETWORKS_SNAPSHOT_STORAGE_KEY = 'custom_networks_snapshot';
 
+/** @deprecated */
+export const HIDE_ZERO_BALANCES_STORAGE_KEY = 'tokens-list:hide-zero-balances';
+
 export const CUSTOM_TEZOS_NETWORKS_STORAGE_KEY = 'CUSTOM_TEZOS_NETWORKS';
 
 export const TEZOS_CHAINS_SPECS_STORAGE_KEY = 'TEZOS_CHAINS_SPECS';
