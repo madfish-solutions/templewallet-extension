@@ -4,8 +4,7 @@ import { ActionModal } from 'app/atoms/action-modal/action-modal';
 import { ActionModalBodyContainer } from 'app/atoms/action-modal/action-modal-body-container';
 import { ActionModalButton } from 'app/atoms/action-modal/action-modal-button';
 import { ActionModalButtonsContainer } from 'app/atoms/action-modal/action-modal-buttons-container';
-
-import { T } from '../../lib/i18n';
+import { T } from 'lib/i18n';
 
 interface UnsecuredRpcWarningModalProps {
   opened: boolean;

@@ -57,16 +57,14 @@ export const CreateUrlEntityModal = memo(
     const { abort, abortAndRenewSignal } = useAbortSignal();
     const [submitError, setSubmitError] = useState<string | null>(null);
     const [warningOpen, setWarningOpen] = useState(false);
-    const [isCreating, setIsCreating] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const [pendingValues, setPendingValues] = useState<CreateUrlEntityModalFormValues | null>(null);
     const formReturn = useForm<CreateUrlEntityModalFormValues>({
       mode: 'onChange'
     });
     const { control, register, handleSubmit, formState, reset } = formReturn;
-    const { errors, isSubmitting, submitCount } = formState;
+    const { errors, submitCount } = formState;
     const isSubmitted = submitCount > 0;
-
-    const isLoading = isSubmitting || isCreating;
 
     const resetSubmitError = useCallback(() => setSubmitError(null), []);
     const closeModal = useCallback(() => {
@@ -79,21 +77,20 @@ export const CreateUrlEntityModal = memo(
     const performCreate = useCallback(
       async (values: CreateUrlEntityModalFormValues) => {
         try {
+          setIsSubmitting(true);
           const signal = abortAndRenewSignal();
-          setIsCreating(true);
           await createEntity(values, signal);
-          setIsCreating(false);
           closeModal();
           setTimeout(() => toastSuccess(t(successMessageI18nKey)), CLOSE_ANIMATION_TIMEOUT + 100);
         } catch (error) {
-          setIsCreating(false);
-
           if (isAbortError(error)) {
             return;
           }
 
           toastError(error instanceof Error ? error.message : String(error));
           setSubmitError(t('wrongAddress'));
+        } finally {
+          setIsSubmitting(false);
         }
       },
       [abortAndRenewSignal, closeModal, createEntity, successMessageI18nKey]
@@ -136,7 +133,7 @@ export const CreateUrlEntityModal = memo(
                   size="L"
                   color="primary"
                   type="submit"
-                  loading={isLoading}
+                  loading={isSubmitting}
                   disabled={shouldDisableSubmitButton({
                     errors,
                     formState,
@@ -156,7 +153,7 @@ export const CreateUrlEntityModal = memo(
                   required: t('required'),
                   validate: (value: string) => (namesToExclude.includes(value) ? t('mustBeUnique') : true)
                 })}
-                disabled={isLoading}
+                disabled={isSubmitting}
                 label={t('name')}
                 id="createurlentity-name"
                 placeholder={namePlaceholder}
@@ -168,7 +165,7 @@ export const CreateUrlEntityModal = memo(
                 allowHttp
                 formReturn={formReturn}
                 urlsToExclude={urlsToExclude}
-                disabled={isLoading}
+                disabled={isSubmitting}
                 isEditable
                 id="createurlentity-url"
                 placeholder={urlInputPlaceholder}
@@ -183,7 +180,7 @@ export const CreateUrlEntityModal = memo(
                 <SettingsCheckbox
                   {...field}
                   checked={field.value}
-                  disabled={isLoading}
+                  disabled={isSubmitting}
                   label={<T id={activeI18nKey} />}
                   testID={activeCheckboxTestID}
                 />
