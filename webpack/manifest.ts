@@ -78,7 +78,7 @@ const buildManifestV3 = (vendor: string): Manifest.WebExtensionManifest => {
     },
 
     action: buildBrowserAction(vendor),
-    ...withVendors('chrome', 'brave')({ side_panel: { default_path: 'sidebar.html' } }),
+    ...withVendors('chrome')({ side_panel: { default_path: 'sidebar.html' } }),
 
     options_ui: OPTIONS_UI,
 
