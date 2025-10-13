@@ -223,7 +223,7 @@ export const useEvmEstimationForm = (
   );
 
   return {
-    balancesChanges: balancesChanges!,
+    balancesChanges,
     balancesChangesLoading,
     form,
     tab,

@@ -88,7 +88,7 @@ export function useEvmAllowances(steps: LiFiStep[]): UseEvmAllowancesResult {
       try {
         const results = await Promise.all(
           stableSteps.map(async step => {
-            const network = allEvmChains[+step.action.fromChainId];
+            const network = allEvmChains[Number(step.action.fromChainId)];
             const evmToolkit = network ? getViemPublicClient(network) : undefined;
             if (!network || !evmToolkit) return { sufficient: true, allowance: toBigInt(ZERO) };
 

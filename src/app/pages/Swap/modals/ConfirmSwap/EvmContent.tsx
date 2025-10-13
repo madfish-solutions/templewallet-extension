@@ -22,7 +22,7 @@ import { toTokenSlug } from 'lib/assets';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { useEvmAssetBalance } from 'lib/balances/hooks';
 import { EVM_ZERO_ADDRESS } from 'lib/constants';
-import { evmOnChainBalancesRequestsExecutor } from 'lib/evm/on-chain/balance';
+import { fetchEvmRawBalance } from 'lib/evm/on-chain/balance';
 import { fetchEvmTokenMetadataFromChain } from 'lib/evm/on-chain/metadata';
 import { t } from 'lib/i18n';
 import { useTempleClient } from 'lib/temple/front';
@@ -103,8 +103,11 @@ export const EvmContent: FC<EvmContentProps> = ({ stepReviewData, onClose, onSte
 
   const lifiEstimationData = useMemo(() => {
     if (!estimationData || !routeStep.transactionRequest) return undefined;
+    const mappedLifiEstimation = mapLiFiTxToEvmEstimationData(routeStep.transactionRequest);
+
     return {
-      ...mapLiFiTxToEvmEstimationData(routeStep.transactionRequest),
+      ...estimationData,
+      gas: 'gas' in mappedLifiEstimation ? mappedLifiEstimation.gas : estimationData?.gas,
       nonce: estimationData.nonce
     };
   }, [estimationData, routeStep.transactionRequest]);
@@ -224,12 +227,7 @@ export const EvmContent: FC<EvmContentProps> = ({ stepReviewData, onClose, onSte
       try {
         if (!isEvmNativeTokenSlug(outputTokenSlug)) {
           for (let attempt = 0; attempt < 20; attempt++) {
-            const balance = await evmOnChainBalancesRequestsExecutor.executeRequest({
-              network: outputNetwork,
-              assetSlug: outputTokenSlug,
-              account: accountPkh,
-              throwOnTimeout: false
-            });
+            const balance = await fetchEvmRawBalance(outputNetwork, outputTokenSlug, accountPkh);
 
             if (balance.gt(0)) {
               const metadata = await fetchEvmTokenMetadataFromChain(outputNetwork, outputTokenSlug);
