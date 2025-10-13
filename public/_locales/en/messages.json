@@ -4476,6 +4476,12 @@
   "approve": {
     "message": "Approve"
   },
+  "bridgePreview": {
+    "message": "Bridge Preview"
+  },
+  "swapPreview": {
+    "message": "Swap Preview"
+  },
   "cancelOperationTitle": {
     "message": "Cancel $operation$?",
     "placeholders": {

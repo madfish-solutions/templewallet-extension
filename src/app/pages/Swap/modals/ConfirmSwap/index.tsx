@@ -13,7 +13,7 @@ import ApproveModal from 'app/pages/Swap/modals/ApproveModal';
 import { useEvmAllowances } from 'app/pages/Swap/modals/SwapSelectAsset/hooks';
 import { ConfirmationModal } from 'app/templates/ConfirmationModal/ConfirmationModal';
 import { toastError } from 'app/toaster';
-import { T } from 'lib/i18n';
+import { t, T } from 'lib/i18n';
 import { TezosEstimationDataProvider, EvmEstimationDataProvider } from 'lib/temple/front/estimation-data-providers';
 import { atomsToTokens } from 'lib/temple/helpers';
 import { useEvmChainByChainId } from 'temple/front/chains';
@@ -110,10 +110,10 @@ export const ConfirmSwapModal: FC<ConfirmSwapModalProps> = ({ opened, onRequestC
   const title = useMemo(() => {
     if (!reviewData) return '';
     if (isSwapEvmReviewData(reviewData) && currentUserAction) {
-      if (currentUserAction.type === 'approval') return 'Approve';
-      return isBridgeOperation ? 'Bridge Preview' : 'Swap Preview';
+      if (currentUserAction.type === 'approval') return t('approve');
+      return isBridgeOperation ? t('bridgePreview') : t('swapPreview');
     }
-    return 'Swap Preview';
+    return t('swapPreview');
   }, [reviewData, currentUserAction, isBridgeOperation]);
 
   const totalSteps = useMemo(() => {
