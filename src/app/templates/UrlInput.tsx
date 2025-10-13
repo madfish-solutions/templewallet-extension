@@ -5,7 +5,7 @@ import { Path, PathValue, UseFormReturn } from 'react-hook-form-v7';
 
 import { FormField, IconBase } from 'app/atoms';
 import { TextButton } from 'app/atoms/TextButton';
-import { URL_PATTERN } from 'app/defaults';
+import { createUrlPattern } from 'app/defaults';
 import { ReactComponent as LockFillIcon } from 'app/icons/base/lock_fill.svg';
 import { ReactComponent as PasteFillIcon } from 'app/icons/base/paste_fill.svg';
 import { T, t } from 'lib/i18n';
@@ -30,6 +30,7 @@ interface UrlInputProps<K extends string, T extends Record<K, string>> {
   onChange?: SyncFn<string>;
   pasteButtonTestID: string;
   testID: string;
+  allowHttp?: boolean;
 }
 
 export const UrlInput = <K extends string, T extends Record<K, string>>({
@@ -48,7 +49,8 @@ export const UrlInput = <K extends string, T extends Record<K, string>>({
   resetSubmitError,
   onChange,
   pasteButtonTestID,
-  testID
+  testID,
+  allowHttp = false
 }: UrlInputProps<K, T>) => {
   const {
     showErrorIfOnBlur,
@@ -120,7 +122,7 @@ export const UrlInput = <K extends string, T extends Record<K, string>>({
         isEditable
           ? {
               required: required && t('required'),
-              pattern: { value: URL_PATTERN, message: t('mustBeValidURL') },
+              pattern: { value: createUrlPattern(allowHttp), message: t('mustBeValidURL') },
               validate: (value: PathValue<T, Path<T>>) =>
                 urlsToExclude?.includes(value as string) ? t('mustBeUnique') : true,
               onChange: handleChange,

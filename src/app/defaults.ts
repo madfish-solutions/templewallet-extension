@@ -25,8 +25,13 @@ export const passwordValidationRegexes: Record<keyof PasswordValidation, RegExp>
   upperCase: /[A-Z]/
 };
 
-export const URL_PATTERN =
-  /(^(https?:\/\/)?[\w.-]+(?:\.[\w.-]+)+[\w\-._~:/?#[\]@!$&'()*+,;=]+$)|(^http(s)?:\/\/localhost(?::[0-9]+)?$)/;
+export function createUrlPattern(allowHttp: boolean) {
+  return new RegExp(
+    String.raw`^http${
+      allowHttp ? 's?' : 's'
+    }:\/\/([\w.-]+(?:\.[\w.-]+)+|localhost)(:[0-9]+)?(\/[\w\-._~/?#[\]@!$&'()*+,;=.]*)?$`
+  );
+}
 
 export function formatMnemonic(m: string) {
   return m.replace(/\n/g, ' ').trim();

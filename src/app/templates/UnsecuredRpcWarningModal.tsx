@@ -32,4 +32,3 @@ export const UnsecuredRpcWarningModal = memo<UnsecuredRpcWarningModalProps>(({ o
     </ActionModal>
   ) : null
 );
-
