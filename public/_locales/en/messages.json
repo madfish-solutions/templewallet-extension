@@ -3919,6 +3919,15 @@
   "swapTokenSearchInputPlaceholder": {
     "message": "Enter name or address"
   },
+  "unsecuredRpcEndpoint": {
+    "message": "Unsecured RPC endpoint"
+  },
+  "unsecuredRpcWarning": {
+    "message": "You’re going to add a custom RPC URL that does not use SSL/TLS encryption. This means your connection may be vulnerable to interception or manipulation.\n\nProceed only if you trust this endpoint."
+  },
+  "proceed": {
+    "message": "Proceed"
+  },
   "sync": {
     "message": "Sync"
   },

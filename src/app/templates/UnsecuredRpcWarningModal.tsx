@@ -5,6 +5,8 @@ import { ActionModalBodyContainer } from 'app/atoms/action-modal/action-modal-bo
 import { ActionModalButton } from 'app/atoms/action-modal/action-modal-button';
 import { ActionModalButtonsContainer } from 'app/atoms/action-modal/action-modal-buttons-container';
 
+import { T } from '../../lib/i18n';
+
 interface UnsecuredRpcWarningModalProps {
   opened: boolean;
   onCancel: EmptyFn;
@@ -13,20 +15,25 @@ interface UnsecuredRpcWarningModalProps {
 
 export const UnsecuredRpcWarningModal = memo<UnsecuredRpcWarningModalProps>(({ opened, onCancel, onProceed }) =>
   opened ? (
-    <ActionModal hasCloseButton={false} title={<span className="text-font-regular-bold">Unsecured RPC endpoint</span>}>
+    <ActionModal
+      hasCloseButton={false}
+      title={
+        <span className="text-font-regular-bold">
+          <T id="unsecuredRpcEndpoint" />
+        </span>
+      }
+    >
       <ActionModalBodyContainer>
-        <p className="text-center text-grey-1 text-font-description">
-          You’re going to add a custom RPC URL that does not use SSL/TLS encryption. This means your connection may be
-          vulnerable to interception or manipulation.
+        <p className="text-center text-grey-1 text-font-description py-1">
+          <T id="unsecuredRpcWarning" />
         </p>
-        <p className="mt-3 text-center text-grey-1 text-font-description">Proceed only if you trust this endpoint.</p>
       </ActionModalBodyContainer>
       <ActionModalButtonsContainer>
         <ActionModalButton color="primary-low" onClick={onCancel}>
-          Cancel
+          <T id="cancel" />
         </ActionModalButton>
-        <ActionModalButton color="primary" onClick={onProceed}>
-          Proceed
+        <ActionModalButton color="red" onClick={onProceed}>
+          <T id="proceed" />
         </ActionModalButton>
       </ActionModalButtonsContainer>
     </ActionModal>
