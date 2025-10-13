@@ -7,6 +7,7 @@ import { CLOSE_ANIMATION_TIMEOUT, PageModal } from 'app/atoms/PageModal';
 import { SettingsCheckbox } from 'app/atoms/SettingsCheckbox';
 import { StyledButton } from 'app/atoms/StyledButton';
 import { PageModalScrollViewWithActions } from 'app/templates/page-modal-scroll-view-with-actions';
+import { UnsecuredRpcWarningModal } from 'app/templates/UnsecuredRpcWarningModal';
 import { toastError, toastSuccess } from 'app/toaster';
 import { T, TID, t } from 'lib/i18n';
 import { useAbortSignal } from 'lib/ui/hooks';
@@ -35,6 +36,7 @@ interface CreateUrlEntityModalProps {
   onClose: EmptyFn;
   createEntity: (values: CreateUrlEntityModalFormValues, signal: AbortSignal) => Promise<void>;
   activeCheckboxTestID: string;
+  warnOnInsecureUrl?: boolean;
 }
 
 export const CreateUrlEntityModal = memo(
@@ -49,10 +51,13 @@ export const CreateUrlEntityModal = memo(
     urlInputPlaceholder,
     onClose,
     createEntity,
-    activeCheckboxTestID
+    activeCheckboxTestID,
+    warnOnInsecureUrl
   }: CreateUrlEntityModalProps) => {
     const { abort, abortAndRenewSignal } = useAbortSignal();
     const [submitError, setSubmitError] = useState<string | null>(null);
+    const [warningOpen, setWarningOpen] = useState(false);
+    const [pendingValues, setPendingValues] = useState<CreateUrlEntityModalFormValues | null>(null);
     const formReturn = useForm<CreateUrlEntityModalFormValues>({
       mode: 'onChange'
     });
@@ -68,7 +73,7 @@ export const CreateUrlEntityModal = memo(
       onClose();
     }, [abort, onClose, reset, resetSubmitError]);
 
-    const onSubmit = useCallback(
+    const performCreate = useCallback(
       async (values: CreateUrlEntityModalFormValues) => {
         try {
           const signal = abortAndRenewSignal();
@@ -86,6 +91,31 @@ export const CreateUrlEntityModal = memo(
       },
       [abortAndRenewSignal, closeModal, createEntity, successMessageI18nKey]
     );
+
+    const onSubmit = useCallback(
+      async (values: CreateUrlEntityModalFormValues) => {
+        if (warnOnInsecureUrl && values.url.startsWith('http')) {
+          setPendingValues(values);
+          setWarningOpen(true);
+          return;
+        }
+        await performCreate(values);
+      },
+      [performCreate, warnOnInsecureUrl]
+    );
+
+    const handleProceed = useCallback(() => {
+      if (pendingValues) {
+        setWarningOpen(false);
+        performCreate(pendingValues);
+        setPendingValues(null);
+      }
+    }, [pendingValues, performCreate]);
+
+    const handleCancel = useCallback(() => {
+      setWarningOpen(false);
+      setPendingValues(null);
+    }, []);
 
     return (
       <PageModal opened={opened} onRequestClose={closeModal} title={title} shouldChangeBottomShift={false}>
@@ -153,6 +183,8 @@ export const CreateUrlEntityModal = memo(
             />
           </PageModalScrollViewWithActions>
         </form>
+
+        <UnsecuredRpcWarningModal opened={warningOpen} onCancel={handleCancel} onProceed={handleProceed} />
       </PageModal>
     );
   }
