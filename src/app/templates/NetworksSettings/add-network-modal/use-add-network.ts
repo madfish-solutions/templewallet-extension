@@ -23,6 +23,7 @@ import { AddNetworkFormValues, ViemChain } from './types';
 
 export const useAddNetwork = (
   setSubmitError: SyncFn<string>,
+  setIsSubmitting: SyncFn<boolean>,
   lastSelectedChain: ViemChain | null,
   onClose: EmptyFn,
   abortAndRenewSignal: () => AbortSignal
@@ -34,6 +35,8 @@ export const useAddNetwork = (
 
   return useCallback(
     async (values: AddNetworkFormValues) => {
+      setIsSubmitting(true);
+
       const signal = abortAndRenewSignal();
       const { name, rpcUrl, chainId, symbol, explorerUrl, testnet } = values;
 
@@ -47,6 +50,7 @@ export const useAddNetwork = (
         }
       } catch (e) {
         toastError(e instanceof ArtificialError ? e.message : t('rpcDoesNotRespond'));
+        setIsSubmitting(false);
         setSubmitError(t('wrongAddress'));
 
         return;
@@ -127,7 +131,10 @@ export const useAddNetwork = (
       } catch (e) {
         const errorMessage = e instanceof Error ? e.message : String(e);
         toastError(errorMessage);
+        setIsSubmitting(false);
         setSubmitError(errorMessage);
+      } finally {
+        setIsSubmitting(false);
       }
     },
     [
@@ -139,6 +146,7 @@ export const useAddNetwork = (
       onClose,
       setEvmChainsSpecs,
       setSubmitError,
+      setIsSubmitting,
       setTezosChainsSpecs
     ]
   );
