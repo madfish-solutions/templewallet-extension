@@ -12,6 +12,7 @@ import { AccountStatesProvider } from './account-states-provider';
 import { HyperliquidClientsProvider } from './clients';
 import { CreateOrderForm } from './create-order-form';
 import { DepositOrWithdrawForm } from './deposit-or-withdraw-form';
+import { FeesStatsProvider } from './fees-stats-provider';
 import { OrderBookProvider } from './order-book-provider';
 import { OrderBookView } from './order-book-view';
 import { PersonalStatsView } from './personal-stats-view';
@@ -34,7 +35,9 @@ export const HyperliquidPage = memo(() => {
         <ActionModalContext.Provider value={actionModalContextValue}>
           <HyperliquidClientsProvider>
             <AccountStatesProvider>
-              <HyperliquidPageContent />
+              <FeesStatsProvider>
+                <HyperliquidPageContent />
+              </FeesStatsProvider>
             </AccountStatesProvider>
           </HyperliquidClientsProvider>
         </ActionModalContext.Provider>

@@ -3,6 +3,9 @@ import { useState, useEffect } from 'react';
 import { PerpsClearinghouseState, SpotClearinghouseState, WsWebData2 } from '@nktkas/hyperliquid';
 import constate from 'constate';
 
+import { useTypedSWR } from 'lib/swr';
+import { useAccountForEvm } from 'temple/front';
+
 import { useClients } from './clients';
 import { AccountStates } from './types';
 

@@ -52,3 +52,6 @@ export const formatPrice = (value: BigNumber) =>
   HYPERLIQUID_PRICE_DIGITS < value.precision()
     ? value.toFixed(Math.max(0, HYPERLIQUID_PRICE_DIGITS - value.e! - 1))
     : value.toPrecision(HYPERLIQUID_PRICE_DIGITS);
+
+export const BUILDER_FEE_UNITS = 10;
+export const BUILDER_ADDRESS = '0x019e5e9eD5354b9AFf55C67e82CaE7A779a23087';

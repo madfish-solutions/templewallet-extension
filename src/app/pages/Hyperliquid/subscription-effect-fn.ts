@@ -12,7 +12,12 @@ export const subscriptionEffectFn = (
     async newBail => {
       bail = newBail;
 
-      return await createSubscription().then(newSub => void (sub = newSub));
+      return await createSubscription()
+        .then(newSub => void (sub = newSub))
+        .catch(e => {
+          console.error(e);
+          throw e;
+        });
     },
     { forever: true, minTimeout: 1000, maxTimeout: 10000 }
   )

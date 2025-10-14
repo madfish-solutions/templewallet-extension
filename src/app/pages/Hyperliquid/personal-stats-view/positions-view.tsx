@@ -6,12 +6,13 @@ import clsx from 'clsx';
 import { capitalize } from 'lodash';
 
 import { TextButton } from 'app/atoms/TextButton';
-import { toastSuccess } from 'app/toaster';
+import { toastError, toastSuccess } from 'app/toaster';
 
 import { useClients } from '../clients';
+import { useFeesStats } from '../fees-stats-provider';
 import { ScrollableTable } from '../scrollable-table';
 import { PerpTradePair } from '../types';
-import { formatPrice } from '../utils';
+import { BUILDER_ADDRESS, BUILDER_FEE_UNITS, formatPrice } from '../utils';
 
 import { DollarValue } from './dollar-value';
 import { PnlView } from './pnl-view';
@@ -104,8 +105,9 @@ interface ClosePositionButtonProps {
 const ClosePositionButton = memo<ClosePositionButtonProps>(({ position, exchangeClient, pair }) => {
   const { szi: rawSzi } = position;
   const { index: pairIndex, markPx } = pair;
+  const { approvalIsSufficient, updateFees } = useFeesStats();
 
-  const handleClick = useCallback(async () => {
+  const handleClosePositionClick = useCallback(async () => {
     const szi = new BigNumber(rawSzi);
 
     try {
@@ -121,7 +123,11 @@ const ClosePositionButton = memo<ClosePositionButtonProps>(({ position, exchange
             r: true
           }
         ],
-        grouping: 'na'
+        grouping: 'na',
+        builder: {
+          b: BUILDER_ADDRESS,
+          f: BUILDER_FEE_UNITS
+        }
       });
       const status = result.response.data.statuses[0];
       toastSuccess(
@@ -129,12 +135,27 @@ const ClosePositionButton = memo<ClosePositionButtonProps>(({ position, exchange
       );
     } catch (e) {
       console.error(e);
+      toastError('Failed to close position');
     }
   }, [exchangeClient, markPx, pairIndex, rawSzi]);
+  const handleApproveClick = useCallback(async () => {
+    try {
+      await exchangeClient.approveBuilderFee({ builder: BUILDER_ADDRESS, maxFeeRate: `${BUILDER_FEE_UNITS / 1e3}%` });
+      await updateFees();
+      toastSuccess('Builder fee approval successful');
+    } catch (e) {
+      console.error(e);
+      toastError('Failed to approve builder fee');
+    }
+  }, [exchangeClient, updateFees]);
 
   return (
-    <TextButton color="grey" onClick={handleClick} className="whitespace-nowrap">
-      Close position
+    <TextButton
+      color="grey"
+      onClick={approvalIsSufficient ? handleClosePositionClick : handleApproveClick}
+      className="whitespace-nowrap"
+    >
+      {approvalIsSufficient ? 'Close position' : 'Approve builder fee'}
     </TextButton>
   );
 });
