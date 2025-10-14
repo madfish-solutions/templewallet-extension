@@ -131,7 +131,6 @@ export const useAddNetwork = (
       } catch (e) {
         const errorMessage = e instanceof Error ? e.message : String(e);
         toastError(errorMessage);
-        setIsSubmitting(false);
         setSubmitError(errorMessage);
       } finally {
         setIsSubmitting(false);
