@@ -253,6 +253,13 @@ const DEFAULT_BLOCK_EXPLORERS_BASE: Record<TempleChainKind, Record<string, Omit<
         id: 'tzkt-ghostnet'
       }
     ],
+    [TempleTezosChainId.Shadownet]: [
+      {
+        name: 'TzKT',
+        url: 'https://shadownet.tzkt.io',
+        id: 'tzkt-shadownet'
+      }
+    ],
     [TempleTezosChainId.Rio]: [
       {
         name: 'TzKT',

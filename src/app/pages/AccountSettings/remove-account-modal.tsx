@@ -14,7 +14,7 @@ import { DEFAULT_PASSWORD_INPUT_PLACEHOLDER } from 'lib/constants';
 import { T, t } from 'lib/i18n';
 import { useTempleClient } from 'lib/temple/front';
 import { StoredAccount, TempleAccountType } from 'lib/temple/types';
-import { useAllAccounts } from 'temple/front';
+import { useHDGroups } from 'temple/front';
 
 import { AccountSettingsSelectors } from './selectors';
 
@@ -29,13 +29,11 @@ interface FormData {
 
 export const RemoveAccountModal = memo<RemoveAccountModalProps>(({ account, onClose }) => {
   const { removeAccount } = useTempleClient();
-  const allAccounts = useAllAccounts();
-  const shouldPreventDeletion = useMemo(
-    () =>
-      account.type === TempleAccountType.HD &&
-      allAccounts.filter(({ type }) => type === TempleAccountType.HD).length === 1,
-    [account.type, allAccounts]
-  );
+  const hdGroups = useHDGroups();
+  const shouldPreventDeletion = useMemo(() => {
+    if (account.type !== TempleAccountType.HD) return false;
+    return account.hdIndex === 0 && hdGroups[0]?.id === account.walletId;
+  }, [account, hdGroups]);
 
   const deleteAccount = useCallback(
     async ({ password }: FormData) => {

@@ -1,6 +1,6 @@
 {
   "name": "temple-wallet",
-  "version": "2.0.10",
+  "version": "2.0.12",
   "private": true,
   "scripts": {
     "start-run": "cross-env TS_NODE_PROJECT=\"webpack/tsconfig.json\" webpack --watch --stats errors-warnings",
@@ -75,7 +75,7 @@
     "@taquito/tzip12": "^23.0.0",
     "@taquito/tzip16": "^23.0.0",
     "@taquito/utils": "^23.0.0",
-    "@temple-wallet/dapp": "^9.0.0",
+    "@temple-wallet/dapp": "^10.0.0",
     "@temple-wallet/jest-webextension-mock": "^5.0.0",
     "@temple-wallet/save-remote-file-webpack-plugin": "^1.1.4",
     "@temple-wallet/wallet-address-validator": "^0.4.3",
