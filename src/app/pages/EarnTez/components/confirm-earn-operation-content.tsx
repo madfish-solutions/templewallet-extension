@@ -131,12 +131,11 @@ const ConfirmEarnOperationContentBodyWrapper = <R extends TezosEarnReviewDataBas
 }: ConfirmEarnOperationContentBodyWrapperProps<R>) => {
   const { account, network, onConfirm } = data;
   const { address: accountPkh, ownerAddress } = account;
-  const { rpcBaseURL, chainId } = network;
 
   const isLedgerAccount = account.type === TempleAccountType.Ledger;
   const [latestSubmitError, setLatestSubmitError] = useState<string | nullish>(null);
 
-  const tezos = getTezosToolkitWithSigner(rpcBaseURL, ownerAddress || accountPkh, true);
+  const tezos = getTezosToolkitWithSigner(network, ownerAddress || accountPkh, true);
   const { value: tezBalance = ZERO } = useTezosAssetBalance(TEZ_TOKEN_SLUG, accountPkh, network);
   const { data: estimationData, error: estimationError } = useEstimationData(data, tezos, tezBalance);
   const displayedEstimationError = useMemo(() => serializeError(estimationError), [estimationError]);
@@ -158,8 +157,7 @@ const ConfirmEarnOperationContentBodyWrapper = <R extends TezosEarnReviewDataBas
     estimationData,
     basicParams,
     senderAccount: account,
-    rpcBaseURL,
-    chainId,
+    network,
     estimationDataLoading
   });
   const { formState } = form;

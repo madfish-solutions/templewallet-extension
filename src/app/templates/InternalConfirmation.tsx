@@ -30,7 +30,7 @@ import { runConnectedLedgerOperationFlow } from 'lib/ui';
 import { useSafeState } from 'lib/ui/hooks';
 import { isTruthy } from 'lib/utils';
 import { findAccountForTezos } from 'temple/accounts';
-import { useTezosChainIdLoadingValue, useRelevantAccounts } from 'temple/front';
+import { useRelevantAccounts } from 'temple/front';
 
 import { InternalConfirmationSelectors } from './InternalConfirmation.selectors';
 import { LedgerApprovalModal } from './ledger-approval-modal';
@@ -64,14 +64,7 @@ const InternalConfirmation: FC<InternalConfirmationProps> = ({ payload, onConfir
   }, [payload]);
   const { data: contentToParse } = useRetryableSWR(['content-to-parse'], getContentToParse, { suspense: true });
 
-  const networkRpc = payload.networkRpc;
-
-  // TODO: `payload.chainId`
-  const tezosChainId = useTezosChainIdLoadingValue(networkRpc, true)!;
-
-  const tezosNetwork = useMemo(() => ({ chainId: tezosChainId, rpcBaseURL: networkRpc }), [tezosChainId, networkRpc]);
-
-  const relevantAccounts = useRelevantAccounts(tezosChainId);
+  const relevantAccounts = useRelevantAccounts(payload.network.chainId);
   const account = useMemo(
     () => findAccountForTezos(relevantAccounts, payload.sourcePkh)!,
     [relevantAccounts, payload.sourcePkh]
@@ -294,7 +287,7 @@ const InternalConfirmation: FC<InternalConfirmationProps> = ({ payload, onConfir
             <>
               <AccountBanner account={account} className="w-full mb-4" smallLabelIndent />
 
-              <NetworkBanner network={tezosNetwork} />
+              <NetworkBanner network={payload.network} />
 
               {signPayloadFormats.length > 1 && (
                 <div className="w-full flex justify-end mb-3 items-center">
@@ -336,7 +329,7 @@ const InternalConfirmation: FC<InternalConfirmationProps> = ({ payload, onConfir
 
               {spFormat.key === 'preview' && (
                 <ExpensesView
-                  tezosNetwork={tezosNetwork}
+                  tezosNetwork={payload.network}
                   expenses={expensesData}
                   error={payloadError}
                   estimates={payload.type === 'operations' ? payload.estimates : undefined}

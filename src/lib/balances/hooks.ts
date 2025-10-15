@@ -39,7 +39,7 @@ import { useInterval, useUpdatableRef } from 'lib/ui/hooks';
 import { isTruthy } from 'lib/utils';
 import { useAccountAddressForEvm, useAccountAddressForTezos, useOnTezosBlock } from 'temple/front';
 import { EvmNetworkEssentials, TezosNetworkEssentials } from 'temple/networks';
-import { getReadOnlyTezos } from 'temple/tezos';
+import { getTezosReadOnlyRpcClient } from 'temple/tezos';
 
 import { fetchRawBalance as fetchRawBalanceFromBlockchain } from './fetch';
 
@@ -123,7 +123,7 @@ function useTezosAssetRawBalance(
 } {
   const currentAccountAddress = useAccountAddressForTezos();
 
-  const { chainId, rpcBaseURL } = network;
+  const { chainId } = network;
 
   const balances = useAllAccountBalancesEntitySelector(address, chainId);
 
@@ -135,11 +135,11 @@ function useTezosAssetRawBalance(
   const usingStore = address === currentAccountAddress && isKnownChainId(chainId);
 
   const onChainBalanceSwrRes = useTypedSWR(
-    ['tez-asset-raw-balance', rpcBaseURL, assetSlug, address],
+    ['tez-asset-raw-balance', network, assetSlug, address],
     () => {
       if (usingStore) return;
 
-      const tezos = getReadOnlyTezos(rpcBaseURL);
+      const tezos = getTezosReadOnlyRpcClient(network);
 
       return fetchRawBalanceFromBlockchain(tezos, assetSlug, address).then(res => res.toString());
     },
@@ -151,7 +151,7 @@ function useTezosAssetRawBalance(
 
   const refreshBalanceOnChain = useCallback(() => void onChainBalanceSwrRes.mutate(), [onChainBalanceSwrRes.mutate]);
 
-  useOnTezosBlock(rpcBaseURL, refreshBalanceOnChain, usingStore);
+  useOnTezosBlock(network, refreshBalanceOnChain, usingStore);
 
   if (usingStore)
     return {

@@ -87,12 +87,12 @@ export const TezosSwapForm: FC<TezosSwapFormProps> = ({
   if (!account || !network) throw new DeadEndBoundaryError();
 
   const publicKeyHash = account.address;
-  const tezos = getTezosToolkitWithSigner(network.rpcBaseURL, publicKeyHash);
+  const tezos = getTezosToolkitWithSigner(network, publicKeyHash);
 
   const { route3tokensSlugs } = useAvailableRoute3TokensSlugs();
-  useTezosTokensMetadataPresenceCheck(network.rpcBaseURL, route3tokensSlugs);
+  useTezosTokensMetadataPresenceCheck(network, route3tokensSlugs);
 
-  const blockLevel = useTezosBlockLevel(network.rpcBaseURL);
+  const blockLevel = useTezosBlockLevel(network);
   const prevBlockLevelRef = useRef(blockLevel);
   const getSwapParams = useGetTezosSwapTransferParams(tezos, publicKeyHash);
   const { data: route3Tokens } = useSwapTokensSelector();

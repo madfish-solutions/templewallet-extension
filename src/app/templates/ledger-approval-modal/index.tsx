@@ -87,6 +87,7 @@ export const LedgerApprovalModal = memo<ApprovalModalProps>(({ isSwitchingDeriva
             FULL_PAGE_LAYOUT_CONTAINER_CLASSNAME
           ]
       )}
+      shouldCloseOnOverlayClick={false}
       onRequestClose={onClose}
     >
       <div className="relative p-3 pb-6 w-modal flex flex-col items-center">

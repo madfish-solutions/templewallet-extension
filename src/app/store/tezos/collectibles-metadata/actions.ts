@@ -1,6 +1,7 @@
 import { createAction } from '@reduxjs/toolkit';
 
 import type { FetchedMetadataRecord } from 'lib/metadata/fetch';
+import { TezosNetworkEssentials } from 'temple/networks';
 
 export const putCollectiblesMetadataAction = createAction<{
   records: FetchedMetadataRecord;
@@ -8,7 +9,7 @@ export const putCollectiblesMetadataAction = createAction<{
 }>('collectibles-metadata/PUT_MULTIPLE');
 
 export const loadCollectiblesMetadataAction = createAction<{
-  rpcUrl: string;
+  network: TezosNetworkEssentials;
   slugs: string[];
 }>('collectibles-metadata/LOAD');
 

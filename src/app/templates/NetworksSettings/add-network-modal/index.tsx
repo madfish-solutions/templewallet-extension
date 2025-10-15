@@ -10,6 +10,7 @@ import { StyledButton } from 'app/atoms/StyledButton';
 import { Tooltip } from 'app/atoms/Tooltip';
 import { useNetworksValuesToExclude } from 'app/hooks/use-networks-values-to-exclude';
 import { PageModalScrollViewWithActions } from 'app/templates/page-modal-scroll-view-with-actions';
+import { UnsecuredRpcWarningModal } from 'app/templates/UnsecuredRpcWarningModal';
 import { UrlInput } from 'app/templates/UrlInput';
 import { T, t } from 'lib/i18n';
 import { isValidTezosChainId } from 'lib/tezos';
@@ -54,6 +55,9 @@ export const AddNetworkModal = memo(
       onChange: updateChainIdShowErrorOnChange
     } = useShowErrorIfOnBlur();
     const [submitError, setSubmitError] = useState<string | null>(null);
+    const [warningOpen, setWarningOpen] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [pendingValues, setPendingValues] = useState<AddNetworkFormValues | null>(null);
     const [lastSelectedChain, setLastSelectedChain] = useState<ViemChain | null>(null);
 
     const evmChains = useAllEvmChains();
@@ -68,7 +72,7 @@ export const AddNetworkModal = memo(
     const { control, reset, formState, register, setValue, watch, handleSubmit } = formReturn;
     const formValues = watch();
     const { chainId, rpcUrl, symbol } = formValues;
-    const { isSubmitting, submitCount, errors } = formState;
+    const { submitCount, errors } = formState;
     const isSubmitted = submitCount > 0;
 
     const prevSuggestedFormValuesRef = useRef<Partial<AddNetworkFormValues> | null | undefined>(null);
@@ -95,7 +99,40 @@ export const AddNetworkModal = memo(
       abort();
       onClose();
     }, [abort, onClose, reset, resetSubmitError]);
-    const onSubmit = useAddNetwork(setSubmitError, lastSelectedChain, closeModal, abortAndRenewSignal);
+
+    const performAddNetwork = useAddNetwork(
+      setSubmitError,
+      setIsSubmitting,
+      lastSelectedChain,
+      closeModal,
+      abortAndRenewSignal
+    );
+
+    const onSubmit = useCallback(
+      async (values: AddNetworkFormValues) => {
+        if (values.rpcUrl.startsWith('http://')) {
+          setPendingValues(values);
+          setWarningOpen(true);
+          return;
+        }
+
+        await performAddNetwork(values);
+      },
+      [performAddNetwork]
+    );
+
+    const handleProceed = useCallback(() => {
+      if (pendingValues) {
+        setWarningOpen(false);
+        performAddNetwork(pendingValues);
+        setPendingValues(null);
+      }
+    }, [pendingValues, performAddNetwork]);
+
+    const handleCancel = useCallback(() => {
+      setWarningOpen(false);
+      setPendingValues(null);
+    }, []);
 
     const handleChainSelect = useCallback(
       (chain: ViemChain) => {
@@ -187,6 +224,7 @@ export const AddNetworkModal = memo(
                   placeholder="https://rpc.link"
                   showErrorOnBlur
                   submitError={undefined}
+                  allowHttp
                   textarea
                   required
                   resetSubmitError={resetSubmitError}
@@ -272,6 +310,7 @@ export const AddNetworkModal = memo(
             </PageModalScrollViewWithActions>
           </form>
         </FormProvider>
+        <UnsecuredRpcWarningModal opened={warningOpen} onCancel={handleCancel} onProceed={handleProceed} />
       </PageModal>
     );
   })

@@ -6,7 +6,8 @@ import { YouvesTokensEnum } from 'lib/apis/youves/enums';
 import { youvesTokensRecord } from 'lib/apis/youves/utils';
 import { fetchApyFromYupana$ } from 'lib/apis/yupana';
 import { KNOWN_TOKENS_SLUGS } from 'lib/assets/known-tokens';
-import { getReadOnlyTezos } from 'temple/tezos';
+import { TezosNetworkEssentials } from 'temple/networks';
+import { getTezosReadOnlyRpcClient } from 'temple/tezos';
 
 import { ExchangeRateRecord } from '../currency/state';
 
@@ -25,23 +26,23 @@ export const fetchTzBtcApy$ = () => {
   return fetchApyFromYupana$('TZBTC').pipe(map(val => ({ [slug]: val })));
 };
 
-export const fetchUBTCApr$ = (rpcUrl: string) => {
+export const fetchUBTCApr$ = (network: TezosNetworkEssentials) => {
   const slug = KNOWN_TOKENS_SLUGS.UBTC;
-  const tezos = getReadOnlyTezos(rpcUrl);
+  const tezos = getTezosReadOnlyRpcClient(network);
 
   return getYouvesTokenApr$(tezos, youvesTokensRecord[YouvesTokensEnum.UBTC]).pipe(map(value => ({ [slug]: value })));
 };
 
-export const fetchUUSDCApr$ = (rpcUrl: string) => {
+export const fetchUUSDCApr$ = (network: TezosNetworkEssentials) => {
   const slug = KNOWN_TOKENS_SLUGS.UUSD;
-  const tezos = getReadOnlyTezos(rpcUrl);
+  const tezos = getTezosReadOnlyRpcClient(network);
 
   return getYouvesTokenApr$(tezos, youvesTokensRecord[YouvesTokensEnum.UUSD]).pipe(map(value => ({ [slug]: value })));
 };
 
-export const fetchYOUApr$ = (rpcUrl: string, tokenUsdExchangeRates: ExchangeRateRecord) => {
+export const fetchYOUApr$ = (network: TezosNetworkEssentials, tokenUsdExchangeRates: ExchangeRateRecord) => {
   const slug = KNOWN_TOKENS_SLUGS.YOU;
-  const tezos = getReadOnlyTezos(rpcUrl);
+  const tezos = getTezosReadOnlyRpcClient(network);
   const assetToUsdExchangeRate = new BigNumber(tokenUsdExchangeRates[slug]);
 
   return getYOUTokenApr$(tezos, assetToUsdExchangeRate, assetToUsdExchangeRate).pipe(map(value => ({ [slug]: value })));

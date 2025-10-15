@@ -1,18 +1,24 @@
-import { StoredHDAccount } from 'lib/temple/types';
+import { useEffect } from 'react';
+
 import { isAccountOfActableType } from 'temple/accounts';
-import { useAllAccounts, useAccountForTezos, useAccountForEvm } from 'temple/front';
+import { useAccountForTezos, useAccountForEvm } from 'temple/front';
+
+import { useRewardsAddresses } from './use-rewards-addresses';
 
 export const useAdsViewerPkh = () => {
-  const allAccounts = useAllAccounts();
   const accountForTezos = useAccountForTezos();
   const accountForEvm = useAccountForEvm();
-  const fallbackAccount = allAccounts[0] as StoredHDAccount | undefined;
-  const { tezosAddress: fallbackTezosAddress, evmAddress: fallbackEvmAddress } = fallbackAccount ?? {};
+  const { tezosAddress: fallbackTezosAddress, evmAddress: fallbackEvmAddress } = useRewardsAddresses();
+  const evmAddress =
+    accountForEvm && isAccountOfActableType(accountForEvm) ? accountForEvm.address : fallbackEvmAddress ?? '';
+
+  // Hypelab SDK allows only adding addresses to the list although its function is called `setWalletAddresses`
+  // @ts-expect-error
+  useEffect(() => void (evmAddress && window.__hype && (window.__hype.identity.wids = [evmAddress])), [evmAddress]);
 
   return {
     tezosAddress:
       accountForTezos && isAccountOfActableType(accountForTezos) ? accountForTezos.address : fallbackTezosAddress ?? '',
-    evmAddress:
-      accountForEvm && isAccountOfActableType(accountForEvm) ? accountForEvm.address : fallbackEvmAddress ?? ''
+    evmAddress
   };
 };

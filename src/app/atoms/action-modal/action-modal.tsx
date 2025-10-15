@@ -45,7 +45,7 @@ export const ActionModal = memo<ActionModalProps>(
     return (
       <CustomModal
         isOpen
-        className={clsx('rounded-lg', className)}
+        className={clsx('rounded-lg outline-none', className)}
         overlayClassName={clsx(
           'backdrop-blur-xs',
           testnetModeEnabled && !confirmWindow && 'mt-6 rounded-t-none',

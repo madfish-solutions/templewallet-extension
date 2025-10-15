@@ -1,1 +1,1 @@
-export const YOUVES_INDEXER_URL = 'https://youves-mainnet-indexer.prod.gke.papers.tech/v1/graphql';
+export const YOUVES_INDEXER_URL = 'https://indexer.youves.com/v1/graphql';

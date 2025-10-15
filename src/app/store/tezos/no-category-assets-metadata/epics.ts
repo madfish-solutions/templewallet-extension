@@ -22,7 +22,7 @@ const loadNoCategoryAssetsMetadataEpic: Epic = action$ =>
     ofType(loadNoCategoryTezosAssetsMetadataAction),
     toPayload(),
     concatMap(({ rpcUrl, chainId, associatedAccountPkh, slugs }) =>
-      from(loadTokensMetadata(rpcUrl, slugs)).pipe(
+      from(loadTokensMetadata({ rpcBaseURL: rpcUrl, chainId }, slugs)).pipe(
         map(records =>
           putNoCategoryAssetsMetadataAction({ records, chainId, associatedAccountPkh, resetLoading: true })
         ),
@@ -30,6 +30,8 @@ const loadNoCategoryAssetsMetadataEpic: Epic = action$ =>
       )
     )
   );
+
+const getKeyByValue = (object: StringRecord, value: string) => Object.keys(object).find(key => object[key] === value);
 
 const refreshAllAssetsMetadataEpic: Epic<Action, Action, RootState> = (action$, state$) =>
   action$.pipe(
@@ -57,7 +59,7 @@ const refreshAllAssetsMetadataEpic: Epic<Action, Action, RootState> = (action$, 
             Object.entries(slugsByRpcUrls).map(([rpcUrl, slugs]) =>
               forkJoin(
                 chunk(slugs, METADATA_API_LOAD_CHUNK_SIZE).map(slugsChunk =>
-                  loadTokensMetadata(rpcUrl, slugsChunk)
+                  loadTokensMetadata({ rpcBaseURL: rpcUrl, chainId: getKeyByValue(rpcUrls, rpcUrl)! }, slugsChunk)
                     .then(data => ({ data }))
                     .catch(e => ({ e }))
                 )

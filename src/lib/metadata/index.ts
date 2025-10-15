@@ -59,7 +59,7 @@ import { isTruthy } from 'lib/utils';
 import { isEvmNativeTokenSlug } from 'lib/utils/evm.utils';
 import { useAllEvmChains, useAllTezosChains } from 'temple/front';
 import { EvmChain, TezosChain, useEvmChainByChainId } from 'temple/front/chains';
-import { isTezosDcpChainId } from 'temple/networks';
+import { isTezosDcpChainId, TezosNetworkEssentials } from 'temple/networks';
 import { TempleChainKind } from 'temple/types';
 
 import { TEZOS_METADATA, FILM_METADATA } from './defaults';
@@ -290,21 +290,24 @@ export const useGetCategorizedAssetMetadata = (tezosChainId: string) => {
 /**
  * @param slugsToCheck // Memoize
  */
-export const useTezosTokensMetadataPresenceCheck = (rpcBaseURL: string, slugsToCheck?: string[]) => {
+export const useTezosTokensMetadataPresenceCheck = (network: TezosNetworkEssentials, slugsToCheck?: string[]) => {
   const metadataLoading = useTokensMetadataLoadingSelector();
   const getMetadata = useGetTokenMetadata();
 
-  useTezosChainAssetsMetadataPresenceCheck(rpcBaseURL, false, metadataLoading, getMetadata, slugsToCheck);
+  useTezosChainAssetsMetadataPresenceCheck(network, false, metadataLoading, getMetadata, slugsToCheck);
 };
 
 /**
  * @param slugsToCheck // Memoize
  */
-export const useTezosChainCollectiblesMetadataPresenceCheck = (rpcBaseURL: string, slugsToCheck?: string[]) => {
+export const useTezosChainCollectiblesMetadataPresenceCheck = (
+  network: TezosNetworkEssentials,
+  slugsToCheck?: string[]
+) => {
   const metadataLoading = useCollectiblesMetadataLoadingSelector();
   const getMetadata = useGetCollectibleMetadata();
 
-  useTezosChainAssetsMetadataPresenceCheck(rpcBaseURL, true, metadataLoading, getMetadata, slugsToCheck);
+  useTezosChainAssetsMetadataPresenceCheck(network, true, metadataLoading, getMetadata, slugsToCheck);
 };
 
 export const useTezosCollectiblesMetadataPresenceCheck = (chainSlugsToCheck?: string[]) => {
@@ -337,7 +340,7 @@ export const useTezosGenericAssetsMetadataCheck = (chainSlugsToCheck?: string[],
 };
 
 const useTezosChainAssetsMetadataPresenceCheck = (
-  rpcBaseURL: string,
+  network: TezosNetworkEssentials,
   ofCollectibles: boolean,
   metadataLoading: boolean,
   getMetadata: TokenMetadataGetter,
@@ -363,12 +366,12 @@ const useTezosChainAssetsMetadataPresenceCheck = (
 
       dispatch(
         (ofCollectibles ? loadCollectiblesMetadataAction : loadTokensMetadataAction)({
-          rpcUrl: rpcBaseURL,
+          network,
           slugs: missingChunk
         })
       );
     }
-  }, [ofCollectibles, slugsToCheck, getMetadata, metadataLoading, rpcBaseURL]);
+  }, [ofCollectibles, slugsToCheck, getMetadata, metadataLoading, network]);
 };
 
 const handleMissingSlugs = <T extends TezosChain | EvmChain>(
@@ -435,7 +438,12 @@ const useTezosAssetsMetadataPresenceCheck = (
             })
           );
         } else {
-          dispatch((ofCollectibles ? loadCollectiblesMetadataAction : loadTokensMetadataAction)({ rpcUrl, slugs }));
+          dispatch(
+            (ofCollectibles ? loadCollectiblesMetadataAction : loadTokensMetadataAction)({
+              network: { rpcBaseURL: rpcUrl, chainId },
+              slugs
+            })
+          );
         }
       });
     }

@@ -2,7 +2,6 @@ import { localForger } from '@taquito/local-forging';
 import { valueDecoder } from '@taquito/local-forging/dist/lib/michelson/codec';
 import { Uint8ArrayConsumer } from '@taquito/local-forging/dist/lib/uint8array-consumer';
 import { emitMicheline } from '@taquito/michel-codec';
-import { RpcClient } from '@taquito/rpc';
 import { TezosOperationError } from '@taquito/taquito';
 import {
   TempleDAppMessageType,
@@ -44,8 +43,8 @@ import {
 } from 'lib/temple/types';
 import { isValidTezosAddress } from 'lib/tezos';
 import { isTruthy } from 'lib/utils';
-import { StoredTezosNetwork, TEZOS_DEFAULT_NETWORKS } from 'temple/networks';
-import { loadTezosChainId } from 'temple/tezos';
+import { StoredTezosNetwork, TEZOS_DEFAULT_NETWORKS, TezosNetworkEssentials } from 'temple/networks';
+import { getTezosRpcClient, loadTezosChainId } from 'temple/tezos';
 import { TempleChainKind } from 'temple/types';
 
 import { intercom } from './defaults';
@@ -61,7 +60,7 @@ export async function getCurrentPermission(origin: string): Promise<TempleDAppGe
   const dApp = await getDApp(origin);
   const permission = dApp
     ? {
-        rpc: await getAssertNetworkRPC(dApp.network),
+        rpc: (await getAssertNetwork(dApp.network)).rpcBaseURL,
         pkh: dApp.pkh,
         publicKey: dApp.publicKey
       }
@@ -78,18 +77,14 @@ export async function requestPermission(
 ): Promise<TempleDAppPermissionResponse> {
   if (typeof req?.appMeta?.name !== 'string') throw new Error(TempleDAppErrorType.InvalidParams);
 
-  const networkRpc = await getNetworkRPC(req.network).then(rpcUrl => {
-    if (!rpcUrl) throw new Error(TempleDAppErrorType.InvalidParams);
-
-    return rpcUrl;
-  });
+  const network = await getAssertNetwork(req.network, TempleDAppErrorType.InvalidParams);
 
   const dApp = await getDApp(origin);
 
   if (!req.force && dApp && isNetworkEquals(req.network, dApp.network) && req.appMeta.name === dApp.appMeta.name) {
     return {
       type: TempleDAppMessageType.PermissionResponse,
-      rpc: networkRpc,
+      rpc: network.rpcBaseURL,
       pkh: dApp.pkh,
       publicKey: dApp.publicKey
     };
@@ -103,7 +98,7 @@ export async function requestPermission(
       payload: {
         type: 'connect',
         origin,
-        networkRpc,
+        network,
         appMeta: req.appMeta
       },
       onDecline: () => {
@@ -123,7 +118,7 @@ export async function requestPermission(
               type: TempleDAppMessageType.PermissionResponse,
               pkh: accountPublicKeyHash,
               publicKey: accountPublicKey,
-              rpc: networkRpc
+              rpc: network.rpcBaseURL
             });
             const broadcastMsg: TempleNotification = {
               type: TempleMessageType.SelectedAccountChanged,
@@ -170,14 +165,14 @@ export async function requestOperation(
 
   return new Promise(async (resolve, reject) => {
     const id = nanoid();
-    const networkRpc = await getAssertNetworkRPC(dApp.network);
+    const network = await getAssertNetwork(dApp.network);
 
     await requestConfirm({
       id,
       payload: {
         type: 'confirm_operations',
         origin,
-        networkRpc,
+        network,
         appMeta: dApp.appMeta,
         sourcePkh: req.sourcePkh,
         sourcePublicKey: dApp.publicKey,
@@ -187,7 +182,7 @@ export async function requestOperation(
         reject(new Error(TempleDAppErrorType.NotGranted));
       },
       handleIntercomRequest: (confirmReq, decline) =>
-        handleIntercomRequest(confirmReq, decline, id, dApp, networkRpc, req, resolve, reject)
+        handleIntercomRequest(confirmReq, decline, id, dApp, network, req, resolve, reject)
     });
   });
 }
@@ -197,7 +192,7 @@ const handleIntercomRequest = async (
   decline: () => void,
   id: string,
   dApp: TezosDAppSession,
-  networkRpc: string,
+  network: TezosNetworkEssentials,
   req: TempleDAppOperationRequest,
   resolve: any,
   reject: any
@@ -209,12 +204,12 @@ const handleIntercomRequest = async (
         const op = await withUnlocked(({ vault }) =>
           vault.sendOperations(
             dApp.pkh,
-            networkRpc,
+            network,
             buildFinalTezosOpParams(req.opParams, modifiedTotalFee, modifiedStorageLimit)
           )
         );
 
-        safeGetChain(networkRpc, op);
+        safeGetChain(network.rpcBaseURL, op);
 
         resolve({
           type: TempleDAppMessageType.OperationResponse,
@@ -272,7 +267,7 @@ const OPERATION_SIGN_PAYLOAD_PREFIX = '03';
 
 const generatePromisifySign = async (resolve: any, reject: any, dApp: TezosDAppSession, req: TempleDAppSignRequest) => {
   const id = nanoid();
-  const networkRpc = await getAssertNetworkRPC(dApp.network);
+  const network = await getAssertNetwork(dApp.network);
 
   let preview: any;
   try {
@@ -308,7 +303,7 @@ const generatePromisifySign = async (resolve: any, reject: any, dApp: TezosDAppS
     payload: {
       type: 'sign',
       origin,
-      networkRpc,
+      network,
       appMeta: dApp.appMeta,
       sourcePkh: req.sourcePkh,
       payload: req.payload,
@@ -353,7 +348,7 @@ export async function requestBroadcast(
   }
 
   try {
-    const rpc = new RpcClient(await getAssertNetworkRPC(dApp.network));
+    const rpc = getTezosRpcClient(await getAssertNetwork(dApp.network));
     const opHash = await rpc.injectOperation(req.signedOpBytes);
     return {
       type: TempleDAppMessageType.BroadcastResponse,
@@ -421,7 +416,7 @@ async function requestConfirm(params: Omit<RequestConfirmParams<TempleTezosDAppP
       if (payload.type === 'confirm_operations') {
         const dryrunResult = await dryRunOpParams({
           opParams: payload.opParams,
-          networkRpc: payload.networkRpc,
+          network: payload.network,
           sourcePkh: payload.sourcePkh,
           sourcePublicKey: payload.sourcePublicKey
         });
@@ -466,12 +461,14 @@ async function getNetworkRPC(net: TezosDAppNetwork) {
   return null;
 }
 
-async function getAssertNetworkRPC(net: TezosDAppNetwork) {
+async function getAssertNetwork(net: TezosDAppNetwork, customErrorMessage?: string): Promise<TezosNetworkEssentials> {
   const rpcUrl = await getNetworkRPC(net);
 
-  if (!rpcUrl) throw new Error('Unsupported network');
+  if (!rpcUrl) throw new Error(customErrorMessage ?? 'Unsupported network');
 
-  return rpcUrl;
+  const chainId = await loadTezosChainId(rpcUrl);
+
+  return { rpcBaseURL: rpcUrl, chainId };
 }
 
 async function getActiveTempleRpcUrlByChainId(chainId: string): Promise<string | undefined> {

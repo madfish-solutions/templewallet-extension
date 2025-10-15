@@ -3,16 +3,17 @@ import { useEffect, useRef, useState } from 'react';
 import { Subscription } from '@taquito/taquito';
 
 import { useUpdatableRef } from 'lib/ui/hooks';
-import { getReadOnlyTezos } from 'temple/tezos';
+import { TezosNetworkEssentials } from 'temple/networks';
+import { getTezosReadOnlyRpcClient } from 'temple/tezos';
 
-export function useOnTezosBlock(rpcUrl: string, callback: (blockHash: string) => void, pause = false) {
+export function useOnTezosBlock(network: TezosNetworkEssentials, callback: (blockHash: string) => void, pause = false) {
   const blockHashRef = useRef<string>();
   const callbackRef = useUpdatableRef(callback);
 
   useEffect(() => {
     if (pause) return;
 
-    const tezos = getReadOnlyTezos(rpcUrl);
+    const tezos = getTezosReadOnlyRpcClient(network);
 
     let sub: Subscription<string>;
     spawnSub();
@@ -34,14 +35,14 @@ export function useOnTezosBlock(rpcUrl: string, callback: (blockHash: string) =>
         spawnSub();
       });
     }
-  }, [pause, rpcUrl]);
+  }, [pause, network]);
 }
 
-export const useTezosBlockLevel = (rpcUrl: string) => {
+export const useTezosBlockLevel = (network: TezosNetworkEssentials) => {
   const [blockLevel, setBlockLevel] = useState<number>();
 
   useEffect(() => {
-    const tezos = getReadOnlyTezos(rpcUrl);
+    const tezos = getTezosReadOnlyRpcClient(network);
 
     const subscription = tezos.stream.subscribeBlock('head');
 
@@ -50,7 +51,7 @@ export const useTezosBlockLevel = (rpcUrl: string) => {
     });
 
     return () => subscription.close();
-  }, [rpcUrl]);
+  }, [network]);
 
   return blockLevel;
 };

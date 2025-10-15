@@ -9,6 +9,7 @@ import { Button } from 'app/atoms/Button';
 import { useSearchParamsBoolean } from 'app/hooks/use-search-params-boolean';
 import { ReactComponent as BurgerIcon } from 'app/icons/base/menu.svg';
 import { HomeSelectors } from 'app/pages/Home/selectors';
+import { EarnEthIntroModal } from 'app/templates/AppHeader/EarnEthIntroModal';
 import { V2IntroductionModal } from 'app/templates/AppHeader/V2IntroductionModal';
 import { SHOULD_OPEN_LETS_EXCHANGE_MODAL_STORAGE_KEY, SHOULD_SHOW_V2_INTRO_MODAL_STORAGE_KEY } from 'lib/constants';
 import { useStorage } from 'lib/temple/front';
@@ -28,7 +29,6 @@ export const AppHeader = memo(() => {
     setTrue: openAccountsModal,
     setFalse: closeAccountsModal
   } = useSearchParamsBoolean('accountsModal');
-
   const [shouldShowV2IntroModal, setShouldShowV2IntroModal] = useStorage(SHOULD_SHOW_V2_INTRO_MODAL_STORAGE_KEY);
 
   const [shouldOpenLetsExchangeModal, setShouldOpenLetsExchangeModal] = useStorage<boolean>(
@@ -84,9 +84,12 @@ export const AppHeader = memo(() => {
         )}
       </Popper>
 
-      {shouldShowV2IntroModal && <V2IntroductionModal onClose={handleCloseV2IntroModal} />}
-      {!shouldShowV2IntroModal && shouldShowLetsExchangeModal && (
+      {shouldShowV2IntroModal ? (
+        <V2IntroductionModal onClose={handleCloseV2IntroModal} />
+      ) : shouldShowLetsExchangeModal ? (
         <LetsExchangeModal onClose={handleCloseLetsExchangeModal} onShown={handleLetsExchangeModalShown} />
+      ) : (
+        <EarnEthIntroModal />
       )}
     </div>
   );
