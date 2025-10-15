@@ -21,6 +21,7 @@ import { TempleChainKind } from 'temple/types';
 import { ActivityPage } from './pages/Activity';
 import { ChainSettings } from './pages/ChainSettings';
 import { Dapps } from './pages/Dapps';
+import { EarnEthPage } from './pages/EarnEth';
 import { EarnTezPage } from './pages/EarnTez';
 import { EarnTkeyPage } from './pages/EarnTkey';
 import { ImportWallet } from './pages/ImportWallet';
@@ -92,6 +93,7 @@ const ROUTE_MAP = Woozie.createMap<RouteContext>([
   ['/swap', onlyReady(() => <Swap />)],
   ['/earn-tez/:tezosChainId', onlyReady(({ tezosChainId }) => <EarnTezPage tezosChainId={tezosChainId!} />)],
   ['/earn-tkey', onlyReady(() => <EarnTkeyPage />)],
+  ['/earn-eth', onlyReady(() => <EarnEthPage />)],
   [
     '/token/:chainKind?/:chainId?/:assetSlug?',
     onlyReady(({ chainKind, chainId, assetSlug }) => (

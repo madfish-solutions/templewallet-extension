@@ -37,6 +37,7 @@ interface ManageUrlEntitiesViewProps<T> {
   activeSwitchTestID: string;
   activeCheckboxTestID: string;
   hideDefaultUrlEntityText?: string;
+  warnOnInsecureUrl?: boolean;
 }
 
 export const ManageUrlEntitiesView = <T extends UrlEntityBase>({
@@ -60,7 +61,8 @@ export const ManageUrlEntitiesView = <T extends UrlEntityBase>({
   addButtonTestID,
   itemTestID,
   activeSwitchTestID,
-  activeCheckboxTestID
+  activeCheckboxTestID,
+  warnOnInsecureUrl
 }: ManageUrlEntitiesViewProps<T>) => {
   const [entityToEdit, setEntityToEdit] = useState<T | null>(null);
   const [createModalOpen, openCreateModal, closeCreateModal] = useBooleanState(false);
@@ -161,6 +163,7 @@ export const ManageUrlEntitiesView = <T extends UrlEntityBase>({
         onClose={closeCreateModal}
         createEntity={createEntity}
         activeCheckboxTestID={activeCheckboxTestID}
+        warnOnInsecureUrl={warnOnInsecureUrl}
       />
     </>
   );

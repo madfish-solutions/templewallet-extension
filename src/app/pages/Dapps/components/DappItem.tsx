@@ -16,7 +16,7 @@ export const FeaturedDappItem = memo<DAppItemProps>(({ dappUrl, name, logo }) =>
   <Anchor
     className={clsx(
       'flex flex-col relative group',
-      'min-w-[6rem] flex-1 p-3',
+      'min-w-[6rem] flex-1 py-3',
       'justify-center items-center rounded-8 shadow-bottom',
       'bg-white border-0.5 border-transparent hover:border-lines',
       'transition ease-in-out duration-200'

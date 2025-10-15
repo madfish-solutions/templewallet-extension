@@ -5,7 +5,7 @@ import { useDebounce } from 'use-debounce';
 import { CustomDAppInfo, DappEnum } from 'lib/apis/temple/endpoints/get-dapps-list';
 import { isSearchStringApplicable } from 'lib/utils/search-items';
 
-const FEATURED_DAPPS_SLUGS = ['quipuswap', 'objkt.com', 'youves'];
+const FEATURED_DAPPS_SLUGS = ['quipuswap', 'letsexchange', 'youves'];
 
 export const useFilteredDapps = (dApps: CustomDAppInfo[], searchValue: string, selectedTags: DappEnum[]) => {
   const [searchValueDebounced] = useDebounce(searchValue, 300);
