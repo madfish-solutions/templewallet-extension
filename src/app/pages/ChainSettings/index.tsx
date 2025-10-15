@@ -113,6 +113,7 @@ const ChainExistentSettings = memo<ChainExistentSettingsProps>(
             itemTestID={ChainSettingsSelectors.rpcEndpointItem}
             activeSwitchTestID={ChainSettingsSelectors.activeRpcSwitch}
             activeCheckboxTestID={ChainSettingsSelectors.activeRpcCheckbox}
+            warnOnInsecureUrl
           />
 
           <ManageUrlEntitiesView<BlockExplorer>
