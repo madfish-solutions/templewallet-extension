@@ -6,7 +6,7 @@ import 'lib/keep-bg-worker-alive/background';
 import { putStoredAppInstallIdentity } from 'app/storage/app-install-id';
 import { getStoredAppUpdateDetails, putStoredAppUpdateDetails } from 'app/storage/app-update';
 import { updateRulesStorage } from 'lib/ads/update-rules-storage';
-import { SIDE_VIEW_WAS_FORCED_STORAGE_KEY } from 'lib/constants';
+import { SHOULD_OPEN_LETS_EXCHANGE_MODAL_STORAGE_KEY, SIDE_VIEW_WAS_FORCED_STORAGE_KEY } from 'lib/constants';
 import { EnvVars, IS_SIDE_PANEL_AVAILABLE } from 'lib/env';
 import { fetchFromStorage, putToStorage } from 'lib/storage';
 import { start } from 'lib/temple/back/main';
@@ -21,9 +21,11 @@ browser.runtime.onInstalled.addListener(({ reason }) => {
   }
 
   if (reason === 'update')
-    getStoredAppUpdateDetails().then(details => {
-      if (details?.triggeredManually) openFullPage();
-    });
+    Promise.all([getStoredAppUpdateDetails(), putToStorage(SHOULD_OPEN_LETS_EXCHANGE_MODAL_STORAGE_KEY, true)]).then(
+      ([details]) => {
+        if (details?.triggeredManually) openFullPage();
+      }
+    );
 });
 
 browser.runtime.onUpdateAvailable.addListener(newManifest => {
