@@ -208,7 +208,7 @@ const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<T
         port,
         req.id,
         req.sourcePkh,
-        req.networkRpc,
+        req.network,
         req.opParams,
         req.straightaway
       );
@@ -218,7 +218,7 @@ const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<T
       };
 
     case TempleMessageType.SignRequest:
-      const result = await Actions.sign(port, req.id, req.sourcePkh, req.networkRpc, req.bytes, req.watermark);
+      const result = await Actions.sign(port, req.id, req.sourcePkh, req.network, req.bytes, req.watermark);
       return {
         type: TempleMessageType.SignResponse,
         result

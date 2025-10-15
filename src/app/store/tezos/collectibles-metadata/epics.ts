@@ -15,8 +15,8 @@ const loadCollectiblesMetadataEpic: Epic = action$ =>
   action$.pipe(
     ofType(loadCollectiblesMetadataAction),
     toPayload(),
-    switchMap(({ rpcUrl, slugs }) =>
-      from(loadTokensMetadata(rpcUrl, slugs)).pipe(
+    switchMap(({ network, slugs }) =>
+      from(loadTokensMetadata(network, slugs)).pipe(
         map(records => putCollectiblesMetadataAction({ records, resetLoading: true })),
         catchError(() => of(resetCollectiblesMetadataLoadingAction()))
       )
