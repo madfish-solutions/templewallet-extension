@@ -139,6 +139,7 @@ const ConnectViewDefault = memo<{
   return (
     <div className="flex flex-col gap-4">
       <AccountCard
+        showCompactDownIcon
         account={account}
         isCurrent={false}
         attractSelf={false}

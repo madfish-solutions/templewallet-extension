@@ -14,14 +14,16 @@ import { PageLayoutSelectors } from './selectors';
 export interface DefaultHeaderProps {
   pageTitle?: ReactNode;
   step?: number;
-  setStep?: (step: number) => void;
-  headerRightElem?: React.ReactNode;
+  setStep?: SyncFn<number>;
+  headerLeftElem?: ReactNode;
+  headerRightElem?: ReactNode;
+  shouldShowBackButton?: boolean;
 }
 
 const HEADER_IS_STICKY = true;
 
 export const DefaultHeader = memo<PropsWithChildren<DefaultHeaderProps>>(
-  ({ children, pageTitle, step, setStep, headerRightElem }) => {
+  ({ children, pageTitle, step, setStep, headerLeftElem, headerRightElem, shouldShowBackButton = true }) => {
     const { historyPosition, pathname } = useLocation();
 
     const inHome = pathname === '/';
@@ -66,9 +68,11 @@ export const DefaultHeader = memo<PropsWithChildren<DefaultHeaderProps>>(
           )}
         >
           <div className="flex-1 flex items-center">
-            <Button className="block" onClick={onBackClick} testID={PageLayoutSelectors.backButton}>
-              <IconBase Icon={ChevronLeftIcon} className="text-grey-2" />
-            </Button>
+            {headerLeftElem ?? shouldShowBackButton ? (
+              <Button className="block" onClick={onBackClick} testID={PageLayoutSelectors.backButton}>
+                <IconBase Icon={ChevronLeftIcon} className="text-grey-2" />
+              </Button>
+            ) : null}
           </div>
 
           {pageTitle && (
