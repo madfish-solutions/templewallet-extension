@@ -41,7 +41,6 @@ export const AppHeader = memo(() => {
     }
   }, [shouldOpenLetsExchangeModal, setShouldShowLetsExchangeModal]);
 
-  const handleCloseV2IntroModal = useCallback(() => setShouldShowV2IntroModal(false), [setShouldShowV2IntroModal]);
   const handleLetsExchangeModalShown = useCallback(
     () => setShouldOpenLetsExchangeModal(false),
     [setShouldOpenLetsExchangeModal]
@@ -85,7 +84,7 @@ export const AppHeader = memo(() => {
       </Popper>
 
       {shouldShowV2IntroModal ? (
-        <V2IntroductionModal onClose={handleCloseV2IntroModal} />
+        <V2IntroductionModal setShouldShowV2IntroModal={setShouldShowV2IntroModal} />
       ) : shouldShowLetsExchangeModal ? (
         <LetsExchangeModal onClose={handleCloseLetsExchangeModal} onShown={handleLetsExchangeModalShown} />
       ) : (
