@@ -33,6 +33,7 @@ import { showTxSubmitToastWithDelay } from 'lib/ui/show-tx-submit-toast.util';
 import { isEvmNativeTokenSlug } from 'lib/utils/evm.utils';
 import { ZERO } from 'lib/utils/numbers';
 import { useGetEvmActiveBlockExplorer } from 'temple/front/ready';
+import { makeBlockExplorerHref } from 'temple/front/use-block-explorers';
 import { TempleChainKind } from 'temple/types';
 
 import { BaseContent } from './BaseContent';
@@ -86,7 +87,11 @@ export const EvmContent: FC<EvmContentProps> = ({ stepReviewData, onClose, onSte
   const txTo = routeStep?.transactionRequest?.to as HexString | undefined;
   const isValidTxTo = Boolean(txTo && isAddress(txTo));
 
-  const { data: estimationData } = useEvmEstimationData({
+  const {
+    data: estimationData,
+    error: estimationError,
+    isLoading: estimationLoading
+  } = useEvmEstimationData({
     to: (isValidTxTo ? txTo : accountPkh) as HexString,
     assetSlug: inputTokenSlug,
     accountPkh,
@@ -182,7 +187,7 @@ export const EvmContent: FC<EvmContentProps> = ({ stepReviewData, onClose, onSte
       const txParams = parseTxRequestToViem({
         ...transactionRequest,
         ...(gasPrice ? { gasPrice: gasPrice } : {}),
-        ...(gasLimit ? { gas: BigInt(Number(gasLimit)) } : {}),
+        ...(gasLimit ? { gasLimit } : {}),
         ...(nonce ? { nonce: Number(nonce) } : {})
       });
 
@@ -212,14 +217,14 @@ export const EvmContent: FC<EvmContentProps> = ({ stepReviewData, onClose, onSte
         );
         status = result.status;
 
-        console.log(`Transaction status for ${txHash}:`, status);
-
         await new Promise(resolve => setTimeout(resolve, 5000));
       } while (status !== 'DONE' && status !== 'FAILED');
 
       if (status === 'FAILED') {
-        console.error(`Transaction ${txHash} failed`);
-        onClose();
+        toastError('Transaction failed', true, {
+          hash: txHash,
+          blockExplorerHref: makeBlockExplorerHref(blockExplorer.url, txHash, 'tx', TempleChainKind.EVM)
+        });
         return;
       }
 
@@ -275,7 +280,6 @@ export const EvmContent: FC<EvmContentProps> = ({ stepReviewData, onClose, onSte
       bridgeData,
       getActiveBlockExplorer,
       inputNetwork,
-      onClose,
       onStepCompleted,
       outputNetwork,
       outputTokenSlug,
@@ -290,6 +294,7 @@ export const EvmContent: FC<EvmContentProps> = ({ stepReviewData, onClose, onSte
 
       const feesPerGas = getFeesPerGas(gasPrice);
       if (!lifiEstimationData || !feesPerGas) {
+        if (estimationLoading || !estimationError) return;
         toastError('Failed to estimate transaction.');
         return;
       }
@@ -354,7 +359,9 @@ export const EvmContent: FC<EvmContentProps> = ({ stepReviewData, onClose, onSte
       setLedgerApprovalModalState,
       executeRouteStep,
       setTab,
-      cancelledRef
+      cancelledRef,
+      estimationLoading,
+      estimationError
     ]
   );
 

@@ -250,8 +250,12 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
     try {
       const routesResponse = await getEvmAllSwapRoutes(params, controller.signal);
 
-      if (routesResponse === undefined || routesResponse.routes.length === 0) {
-        return;
+      if (routesResponse === undefined) {
+        return undefined;
+      }
+
+      if (routesResponse.routes.length === 0) {
+        return null;
       }
 
       // select the first route for now
@@ -270,11 +274,15 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
 
       try {
         const data = await fetchEvmSwapRoute(params);
-        if (data === undefined) return;
+        if (data) {
+          setSwapRoute(data);
+          setIsRouteLoading(false);
+          return data;
+        }
 
-        setSwapRoute(data);
-        setIsRouteLoading(false);
-        return data;
+        setSwapRoute(null);
+        setIsAlertVisible(data === null);
+        return;
       } catch (error) {
         setSwapRoute(null);
         setIsAlertVisible(true);

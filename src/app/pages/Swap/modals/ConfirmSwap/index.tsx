@@ -29,33 +29,39 @@ interface ConfirmSwapModalProps {
 }
 
 export const ConfirmSwapModal: FC<ConfirmSwapModalProps> = ({ opened, onRequestClose, reviewData }) => {
-  const { allowanceSufficient } = useEvmAllowances(
+  const { allowanceSufficient, loading: allowancesLoading } = useEvmAllowances(
     reviewData && isSwapEvmReviewData(reviewData) ? reviewData.swapRoute.steps : []
   );
-  const totalApprovalsNeeded = allowanceSufficient.filter(sufficient => !sufficient).length;
 
   const evmSteps = useMemo(() => {
     if (!reviewData || !isSwapEvmReviewData(reviewData)) return [];
     return reviewData.swapRoute.steps;
   }, [reviewData]);
 
-  const needsApprovalByIndex = useMemo(
-    () => (reviewData && isSwapEvmReviewData(reviewData) ? allowanceSufficient.map(sufficient => !sufficient) : []),
-    [reviewData, allowanceSufficient]
-  );
+  const [userActions, setUserActions] = useState<
+    Array<{ type: 'approval' | 'execute'; stepIndex: number; routeStep: LiFiStep }>
+  >([]);
+  const [actionsInitialized, setActionsInitialized] = useState(false);
 
-  const userActions = useMemo(
-    () =>
-      evmSteps.flatMap((step, stepIndex) =>
-        needsApprovalByIndex[stepIndex]
-          ? [
-              { type: 'approval' as const, stepIndex, routeStep: step },
-              { type: 'execute' as const, stepIndex, routeStep: step }
-            ]
-          : [{ type: 'execute' as const, stepIndex, routeStep: step }]
-      ),
-    [evmSteps, needsApprovalByIndex]
-  );
+  useEffect(() => {
+    if (actionsInitialized) return;
+    if (!reviewData || !isSwapEvmReviewData(reviewData)) return;
+    if (allowancesLoading) return;
+    if (allowanceSufficient.length !== evmSteps.length) return;
+
+    const needsApprovalByIndex = allowanceSufficient.map(sufficient => !sufficient);
+    const actions = evmSteps.flatMap((step, stepIndex) =>
+      needsApprovalByIndex[stepIndex]
+        ? [
+            { type: 'approval' as const, stepIndex, routeStep: step },
+            { type: 'execute' as const, stepIndex, routeStep: step }
+          ]
+        : [{ type: 'execute' as const, stepIndex, routeStep: step }]
+    );
+
+    setUserActions(actions);
+    setActionsInitialized(true);
+  }, [actionsInitialized, reviewData, evmSteps, allowanceSufficient, allowancesLoading]);
 
   const [currentActionIndex, setCurrentActionIndex] = useState(0);
   const [isCancelConfirmOpen, setIsCancelConfirmOpen] = useState(false);
@@ -69,6 +75,8 @@ export const ConfirmSwapModal: FC<ConfirmSwapModalProps> = ({ opened, onRequestC
   useEffect(() => {
     setCurrentActionIndex(0);
     cancelledRef.current = false;
+    setActionsInitialized(false);
+    setUserActions([]);
   }, [opened, reviewData]);
 
   const currentUserAction = useMemo(
@@ -116,11 +124,6 @@ export const ConfirmSwapModal: FC<ConfirmSwapModalProps> = ({ opened, onRequestC
     return t('swapPreview');
   }, [reviewData, currentUserAction, isBridgeOperation]);
 
-  const totalSteps = useMemo(() => {
-    if (!reviewData || !isSwapEvmReviewData(reviewData)) return 0;
-    return totalApprovalsNeeded + reviewData.swapRoute.steps.length;
-  }, [reviewData, totalApprovalsNeeded]);
-
   const onStepCompleted = useCallback(() => {
     if (currentActionIndex < userActions.length - 1) {
       setCurrentActionIndex(i => i + 1);
@@ -143,7 +146,7 @@ export const ConfirmSwapModal: FC<ConfirmSwapModalProps> = ({ opened, onRequestC
 
   const handleRequestClose = useCallback(() => {
     if (reviewData && isSwapEvmReviewData(reviewData)) {
-      if (currentActionIndex >= firstExecutionActionIndex) {
+      if (currentActionIndex > firstExecutionActionIndex) {
         setIsCancelConfirmOpen(true);
         return;
       }
@@ -156,8 +159,8 @@ export const ConfirmSwapModal: FC<ConfirmSwapModalProps> = ({ opened, onRequestC
       <PageModal
         title={title}
         titleLeft={
-          reviewData && isSwapEvmReviewData(reviewData) && totalSteps > 1
-            ? titleLeftProgress(Math.min(currentActionIndex + 1, totalSteps), totalSteps)
+          reviewData && isSwapEvmReviewData(reviewData) && userActions.length > 1
+            ? titleLeftProgress(Math.min(currentActionIndex + 1, userActions.length), userActions.length)
             : undefined
         }
         opened={opened}
