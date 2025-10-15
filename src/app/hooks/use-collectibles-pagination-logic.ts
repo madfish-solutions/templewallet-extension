@@ -9,10 +9,11 @@ import { useDidMount, useDidUpdate } from 'lib/ui/hooks';
 import { setNavigateSearchParams } from 'lib/woozie';
 import { createLocationState } from 'lib/woozie/location';
 import { useAllTezosChains } from 'temple/front';
+import { TezosNetworkEssentials } from 'temple/networks';
 
 export const ITEMS_PER_PAGE = 30;
 
-export const useTezosChainCollectiblesPaginationLogic = (allSlugsSorted: string[], rpcBaseURL: string) => {
+export const useTezosChainCollectiblesPaginationLogic = (allSlugsSorted: string[], network: TezosNetworkEssentials) => {
   const initialAmountParam = useMemo(() => {
     const { search } = createLocationState();
     const usp = new URLSearchParams(search);
@@ -48,7 +49,7 @@ export const useTezosChainCollectiblesPaginationLogic = (allSlugsSorted: string[
         .filter(slug => !allMeta.get(slug));
 
       if (slugsWithoutMeta.length)
-        await loadTokensMetadata(rpcBaseURL, slugsWithoutMeta)
+        await loadTokensMetadata(network, slugsWithoutMeta)
           .then(
             records => {
               dispatch(putCollectiblesMetadataAction({ records }));
@@ -66,7 +67,7 @@ export const useTezosChainCollectiblesPaginationLogic = (allSlugsSorted: string[
 
       setNavigateSearchParams({ amount: String(size) });
     },
-    [allSlugsSorted, slugs.length, allMeta, rpcBaseURL]
+    [allSlugsSorted, slugs.length, allMeta, network]
   );
 
   useDidMount(() => {
@@ -144,7 +145,7 @@ export const useTezosAccountCollectiblesPaginationLogic = (allChainSlugsSorted: 
         for (const chainId of uniqChainIds) {
           if (!tezosChains[chainId]) continue;
 
-          await loadTokensMetadata(tezosChains[chainId].rpcBaseURL, slugsWithoutMeta)
+          await loadTokensMetadata(tezosChains[chainId], slugsWithoutMeta)
             .then(
               records => {
                 dispatch(putCollectiblesMetadataAction({ records }));

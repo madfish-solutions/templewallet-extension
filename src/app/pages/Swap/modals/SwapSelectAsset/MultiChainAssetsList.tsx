@@ -116,7 +116,13 @@ export const MultiChainAssetsList = memo<Props>(
         );
       }
 
-      result.push(...(filterZeroBalances ? route3tokensSlugs.filter(isTezNonZeroBalance) : []));
+      result.push(
+        ...(filterZeroBalances
+          ? route3tokensSlugs
+              .map(slug => toChainAssetSlug(TempleChainKind.Tezos, TEZOS_MAINNET_CHAIN_ID, slug))
+              .filter(isTezNonZeroBalance)
+          : [])
+      );
       result.push(...(filterZeroBalances ? evmTokensSlugs.filter(isEvmNonZeroBalance) : lifiTokenSlugs));
 
       return result;

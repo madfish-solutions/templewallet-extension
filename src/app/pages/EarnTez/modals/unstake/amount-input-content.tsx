@@ -26,7 +26,7 @@ interface AmountInputContentProps {
 export const UnstakeAmountInputContent = memo<AmountInputContentProps>(({ account, bakerPkh, network, onSubmit }) => {
   const { address: accountPkh } = account;
 
-  const { data: stakedAtomicAmount } = useStakedAmount(network.rpcBaseURL, accountPkh, true);
+  const { data: stakedAtomicAmount } = useStakedAmount(network, accountPkh, true);
 
   const maxAmount = useMemo(() => mutezToTz(stakedAtomicAmount ?? ZERO), [stakedAtomicAmount]);
 

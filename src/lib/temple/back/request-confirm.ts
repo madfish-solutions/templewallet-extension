@@ -1,7 +1,7 @@
 import { identity } from 'lodash';
 import browser, { Runtime } from 'webextension-polyfill';
 
-import { IS_GOOGLE_CHROME_BROWSER } from 'lib/env';
+import { IS_SIDE_PANEL_AVAILABLE } from 'lib/env';
 import { TempleDAppPayload, TempleMessageType, TempleRequest } from 'lib/temple/types';
 
 import { intercom } from './defaults';
@@ -67,14 +67,28 @@ export async function requestConfirm<T extends TempleDAppPayload>({
     }
   });
 
-  const sidePanelAvailable =
-    IS_GOOGLE_CHROME_BROWSER && (await chrome.sidePanel.getPanelBehavior()).openPanelOnActionClick;
-  const windowId = await browser.windows.getCurrent().then(w => w.id);
-  const sidePanelOpened = windowId !== undefined && store.getState().windowsWithSidebars.includes(windowId);
-  if (sidePanelAvailable && sidePanelOpened) {
-    await chrome.sidePanel.setOptions({ path: browser.runtime.getURL(`sidebar.html#?id=${id}`) });
+  const openedSidebarWindows = store.getState().windowsWithSidebars.filter(Boolean) as number[];
+
+  const sidePanelBehaviorEnabled =
+    IS_SIDE_PANEL_AVAILABLE &&
+    Boolean(chrome?.sidePanel) &&
+    (await chrome.sidePanel.getPanelBehavior()).openPanelOnActionClick;
+
+  const shouldUseSidePanel = openedSidebarWindows.length > 0 && sidePanelBehaviorEnabled;
+
+  if (shouldUseSidePanel) {
+    const targetWindowId =
+      openedSidebarWindows[openedSidebarWindows.length - 1] ??
+      (await browser.windows.getLastFocused().then(window => window.id));
+
+    await chrome.sidePanel.setOptions({ path: browser.runtime.getURL(`sidebar.html#/?id=${id}`) });
+
+    if (targetWindowId !== undefined) {
+      await chrome.sidePanel.open({ windowId: targetWindowId });
+    }
+
     const sub = store.watch(sidebarClosed, (_, closedSidebarWindowId) => {
-      if (closedSidebarWindowId === windowId) {
+      if (closedSidebarWindowId === (targetWindowId ?? null)) {
         declineAndClose();
       }
     });

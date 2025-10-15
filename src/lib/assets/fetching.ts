@@ -11,9 +11,11 @@ import { isCollectible } from 'lib/metadata/utils';
 export const loadAccountTokens = (account: string, chainId: TzktApiChainId, rpcUrl: string, knownMeta: MetadataMap) =>
   Promise.all([
     // Fetching assets known to be FTs, not checking metadata
-    fetchTzktAccountAssets(account, chainId, true).then(data => finishTokensLoading(data, rpcUrl, knownMeta)),
+    fetchTzktAccountAssets(account, chainId, true).then(data => finishTokensLoading(data, rpcUrl, chainId, knownMeta)),
     // Fetching unknowns only, checking metadata to filter for FTs
-    fetchTzktAccountUnknownAssets(account, chainId).then(data => finishTokensLoading(data, rpcUrl, knownMeta, true))
+    fetchTzktAccountUnknownAssets(account, chainId).then(data =>
+      finishTokensLoading(data, rpcUrl, chainId, knownMeta, true)
+    )
   ]).then(
     ([data1, data2]) => mergeLoadedAssetsData(data1, data2),
     error => {
@@ -47,6 +49,7 @@ const fetchTzktAccountUnknownAssets = memoizee(
 const finishTokensLoading = async (
   data: TzktAccountAssetSelectedParams[],
   rpcUrl: string,
+  chainId: TzktApiChainId,
   knownMeta: MetadataMap,
   fungibleByMetaCheck = false
 ) => {
@@ -55,7 +58,7 @@ const finishTokensLoading = async (
     return knownMeta.has(slug) ? acc : acc.concat(slug);
   }, []);
 
-  const newMetadatas = await fetchTokensMetadata(rpcUrl, slugsWithoutMeta).catch(err => {
+  const newMetadatas = await fetchTokensMetadata({ rpcBaseURL: rpcUrl, chainId }, slugsWithoutMeta).catch(err => {
     console.error(err);
   });
 

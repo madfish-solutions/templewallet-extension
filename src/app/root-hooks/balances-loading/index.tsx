@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useEffect, useRef } from 'react';
+import React, { memo, useCallback, useEffect, useMemo, useRef } from 'react';
 
 import { isDefined } from '@rnw-community/shared';
 
@@ -9,6 +9,7 @@ import { TzktApiChainId, isKnownChainId } from 'lib/apis/tzkt';
 import { useDidUpdate, useMemoWithCompare } from 'lib/ui/hooks';
 import { isTruthy } from 'lib/utils';
 import { useEnabledTezosChains, useOnTezosBlock } from 'temple/front';
+import { TezosNetworkEssentials } from 'temple/networks';
 
 import { useTzktSubscription } from './use-tzkt-subscription';
 
@@ -72,7 +73,9 @@ const BalancesLoadingForTezosNetwork = memo<LoadingForTezosNetworkProps>(({ publ
 
   const withBlockSubscriptionForGas = !tzktSubscription.subscribedToGasUpdates || isStoredError === true;
 
-  useOnTezosBlock(rpcBaseURL, dispatchLoadGasBalanceAction, !withBlockSubscriptionForGas);
+  const network = useMemo<TezosNetworkEssentials>(() => ({ rpcBaseURL, chainId }), [chainId, rpcBaseURL]);
+
+  useOnTezosBlock(network, dispatchLoadGasBalanceAction, !withBlockSubscriptionForGas);
 
   // Assets
 
@@ -86,7 +89,7 @@ const BalancesLoadingForTezosNetwork = memo<LoadingForTezosNetworkProps>(({ publ
 
   const withBlockSubscriptionForAssets = !tzktSubscription.subscribedToTokensUpdates || isStoredError === true;
 
-  useOnTezosBlock(rpcBaseURL, dispatchLoadAssetsBalancesActions, !withBlockSubscriptionForAssets);
+  useOnTezosBlock(network, dispatchLoadAssetsBalancesActions, !withBlockSubscriptionForAssets);
 
   return null;
 });

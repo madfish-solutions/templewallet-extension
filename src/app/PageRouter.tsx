@@ -13,12 +13,15 @@ import Unlock from 'app/pages/Unlock/Unlock';
 import Welcome from 'app/pages/Welcome/Welcome';
 import { usePageRouterAnalytics } from 'lib/analytics';
 import { useTempleClient } from 'lib/temple/front';
+import { TempleAccountType } from 'lib/temple/types';
 import * as Woozie from 'lib/woozie';
+import { useAccount } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
 
 import { ActivityPage } from './pages/Activity';
 import { ChainSettings } from './pages/ChainSettings';
 import { Dapps } from './pages/Dapps';
+import { EarnEthPage } from './pages/EarnEth';
 import { EarnTezPage } from './pages/EarnTez';
 import { EarnTkeyPage } from './pages/EarnTkey';
 import { ImportWallet } from './pages/ImportWallet';
@@ -36,6 +39,16 @@ interface RouteContext {
 }
 
 type RouteFactory = Woozie.ResolveResult<RouteContext>;
+
+const RewardsRoute = memo(() => {
+  const account = useAccount();
+
+  if (account.type === TempleAccountType.WatchOnly) {
+    return <Woozie.Redirect to="/" />;
+  }
+
+  return <RewardsPage />;
+});
 
 const ROUTE_MAP = Woozie.createMap<RouteContext>([
   [
@@ -80,6 +93,7 @@ const ROUTE_MAP = Woozie.createMap<RouteContext>([
   ['/swap', onlyReady(() => <Swap />)],
   ['/earn-tez/:tezosChainId', onlyReady(({ tezosChainId }) => <EarnTezPage tezosChainId={tezosChainId!} />)],
   ['/earn-tkey', onlyReady(() => <EarnTkeyPage />)],
+  ['/earn-eth', onlyReady(() => <EarnEthPage />)],
   [
     '/token/:chainKind?/:chainId?/:assetSlug?',
     onlyReady(({ chainKind, chainId, assetSlug }) => (
@@ -101,7 +115,7 @@ const ROUTE_MAP = Woozie.createMap<RouteContext>([
   ['/notifications', onlyReady(() => <Notifications />)],
   ['/dapps', onlyReady(() => <Dapps />)],
   ['/account/:id', onlyReady(({ id }) => <AccountSettings id={id!} />)],
-  ['/rewards', onlyReady(() => <RewardsPage />)],
+  ['/rewards', onlyReady(() => <RewardsRoute />)],
   ['*', () => <Woozie.Redirect to="/" />]
 ]);
 

@@ -12,7 +12,7 @@ import { t } from 'lib/i18n';
 import { useRetryableSWR } from 'lib/swr';
 import { getOnlineStatus } from 'lib/ui/get-online-status';
 import { TezosNetworkEssentials } from 'temple/networks';
-import { getReadOnlyTezos } from 'temple/tezos';
+import { getTezosReadOnlyRpcClient } from 'temple/tezos';
 
 import { mutezToTz } from '../helpers';
 
@@ -43,7 +43,7 @@ export function useDelegate(
 
   const getDelegate = useCallback(async () => {
     try {
-      const tezos = getReadOnlyTezos(rpcBaseURL);
+      const tezos = getTezosReadOnlyRpcClient(network);
 
       return await retry(
         async () => {

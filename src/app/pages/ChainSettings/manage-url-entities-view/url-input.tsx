@@ -15,6 +15,7 @@ interface UrlInputProps<T extends { url: string }> {
   placeholder: string;
   submitError: string | null;
   resetSubmitError: EmptyFn;
+  allowHttp?: boolean;
 }
 
 export const UrlInput = <T extends { url: string }>({
@@ -25,7 +26,8 @@ export const UrlInput = <T extends { url: string }>({
   id,
   placeholder,
   submitError,
-  resetSubmitError
+  resetSubmitError,
+  allowHttp
 }: UrlInputProps<T>) => (
   <GenericUrlInput
     name="url"
@@ -37,6 +39,7 @@ export const UrlInput = <T extends { url: string }>({
     id={id}
     placeholder={placeholder}
     submitError={submitError}
+    allowHttp={allowHttp}
     textarea
     required
     resetSubmitError={resetSubmitError}

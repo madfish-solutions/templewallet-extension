@@ -867,6 +867,9 @@
   "advancedFeatures": {
     "message": "Advanced Features"
   },
+  "templeBakery": {
+    "message": "Temple Bakery"
+  },
   "aboutAndSupport": {
     "message": "About & Support"
   },
@@ -1994,6 +1997,9 @@
   "connectAccount": {
     "message": "Connect Account"
   },
+  "connectWallet": {
+    "message": "Connect Wallet"
+  },
   "confirmActionOnDevice": {
     "message": "Confirm the action on"
   },
@@ -2843,6 +2849,38 @@
   "searchDApps": {
     "message": "Search DApps"
   },
+  "inviteAccountTooltip": {
+    "message": "All your referrals connected to your first created or imported account in Temple. Make sure you backed up your wallet to prevent unnecessary losses."
+  },
+  "advancedFeaturesTooltip": {
+    "message": "This section display your rewards for enabled advanced features. You can manage these features anytime in the settings."
+  },
+  "yourRewards": {
+    "message": "Your rewards"
+  },
+  "passivelyEarnTkey": {
+    "message": "Passively earn TKEY rewards by using built-in advanced features and support Temple development"
+  },
+  "delegateTezFunds": {
+    "message": "Delegate your TEZ funds to our baker and earn $apy$ rewards in TKEY tokens on your TEZ balance",
+    "placeholders": {
+      "apy": {
+        "content": "$1"
+      }
+    }
+  },
+  "noRewardsActivity": {
+    "message": "No rewards activity yet"
+  },
+  "noDelegationRewards": {
+    "message": "No delegation rewards yet"
+  },
+  "allTime": {
+    "message": "All time"
+  },
+  "lastActivity": {
+    "message": "Last activity"
+  },
   "game": {
     "message": "Game"
   },
@@ -3383,8 +3421,10 @@
     "message": "Advertising"
   },
   "rewards": {
-    "message": "rewards",
-    "description": "Part of partnersPromoDescription phrase"
+    "message": "Rewards"
+  },
+  "rewardsAccountTooltip": {
+    "message": "This is your account for Temple rewards. All payouts for activities will be distributed to this account addresses."
   },
   "partnersPromoDescription": {
     "message": "Here you can configure displaying ads in Temple Wallet and getting reward in TKEY tokens. By enabling this, you agree to share your wallet address and IP to receive tokens and view ads."
@@ -3394,6 +3434,21 @@
   },
   "referralLinksDescription": {
     "message": "Automatically receive referral links while order products and services at your favourite online stores."
+  },
+  "referralLinksHint": {
+    "message": "All your referrals connected to your first created or imported account in Temple. Make sure you backed up your wallet to prevent unnecessary losses."
+  },
+  "referrals": {
+    "message": "Referrals"
+  },
+  "inviteFriends": {
+    "message": "Invite friends in Temple"
+  },
+  "inviteLink": {
+    "message": "Invite Link"
+  },
+  "inviteAccount": {
+    "message": "Your invite account"
   },
   "totalEquityValue": {
     "message": "Total Equity Value"
@@ -3869,6 +3924,15 @@
   },
   "swapTokenSearchInputPlaceholder": {
     "message": "Enter name or address"
+  },
+  "unsecuredRpcEndpoint": {
+    "message": "Unsecured RPC endpoint"
+  },
+  "unsecuredRpcWarning": {
+    "message": "You’re going to add a custom RPC URL that does not use SSL/TLS encryption. This means your connection may be vulnerable to interception or manipulation.\n\nProceed only if you trust this endpoint."
+  },
+  "proceed": {
+    "message": "Proceed"
   },
   "sync": {
     "message": "Sync"
@@ -4445,6 +4509,33 @@
   },
   "earnTkeyDisclaimer": {
     "message": "By enabling ads, you agree to share your wallet address and IP\nto receive tokens and ads content."
+  },
+  "earnEthHeadline": {
+    "message": "Earn 3.4-10% APR on Ethereum\nwith Everstake"
+  },
+  "nonCustodialStaking": {
+    "message": "Non-custodial staking with full control"
+  },
+  "higherRewardsSystem": {
+    "message": "Higher rewards with auto-compound system"
+  },
+  "verifiedSecurity": {
+    "message": "Verified by leading security auditors"
+  },
+  "stakeGetAirdrops": {
+    "message": "Stake and participate in airdrops"
+  },
+  "earnWithEverstakeDisclaimer": {
+    "message": "Temple integrated third-party solution powered by Everstake and not responsible for further interactions."
+  },
+  "stakeEth": {
+    "message": "Stake ETH via Temple Wallet"
+  },
+  "stakeEthDescription": {
+    "message": "Earn 3.4–10% APR with non-custodial staking from Everstake. Enjoy higher auto-compounding rewards, top-level security and participation in airdrops.\n\nStake now or find it anytime on your ETH token."
+  },
+  "stakeWithEverstake": {
+    "message": "Stake with Everstake"
   },
   "startEarning": {
     "message": "Start Earning"

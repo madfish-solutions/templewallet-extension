@@ -3502,10 +3502,10 @@
     elliptic "^6.6.1"
     typedarray-to-buffer "^4.0.0"
 
-"@temple-wallet/dapp@^9.0.0":
-  version "9.0.0"
-  resolved "https://registry.yarnpkg.com/@temple-wallet/dapp/-/dapp-9.0.0.tgz#5e5cf5ff37c76d8f00852a05e15af02530f2d6d2"
-  integrity sha512-rYGCviuuc/xKL39KBVFlxXsCZaUYP/V45+VPmntxqX7L+k8CJ3JIYomfPeAWqll9ZHATctBOfPdU376XTYZfaA==
+"@temple-wallet/dapp@^10.0.0":
+  version "10.0.0"
+  resolved "https://registry.yarnpkg.com/@temple-wallet/dapp/-/dapp-10.0.0.tgz#5aa52cd5984d0e71c084d98f7c5165131d0702f7"
+  integrity sha512-ZO6jLhydjFn6Vol8ermCM9+73Zldokv76ePDGAjdtYcfQ5WlPh5nda76IOMuC1/gBPyhXEBh1CKifJnldqIMig==
   dependencies:
     nanoid "^3.1.30"
 

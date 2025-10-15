@@ -26,7 +26,9 @@ import toBuffer from 'typedarray-to-buffer';
 import { TempleMessageType } from 'lib/temple/types';
 import { makeIntercomRequest, assertResponse, getAccountPublicKey } from 'temple/front/intercom-client';
 import { MAX_MEMOIZED_TOOLKITS } from 'temple/misc';
-import { getTezosFastRpcClient, makeTezosClientId, michelEncoder } from 'temple/tezos';
+import { TezosNetworkEssentials } from 'temple/networks';
+import { getTezosRpcClient, michelEncoder } from 'temple/tezos';
+import { makeTezosClientId } from 'temple/tezos/utils';
 
 import { setPendingConfirmationId } from '../pending-confirm';
 
@@ -35,33 +37,33 @@ export { useOnTezosBlock, useTezosBlockLevel } from './use-block';
 export { isTezosDomainsNameValid, getTezosDomainsClient, useTezosAddressByDomainName } from './tzdns';
 
 export const getTezosToolkitWithSigner = memoizee(
-  (rpcUrl: string, signerPkh: string, straightaway?: boolean) => {
-    const tezos = new ReactiveTezosToolkit(rpcUrl, signerPkh);
+  (network: TezosNetworkEssentials, signerPkh: string, straightaway?: boolean) => {
+    const tezos = new ReactiveTezosToolkit(network, signerPkh);
 
-    const wallet = new TempleTaquitoWallet(signerPkh, rpcUrl, setPendingConfirmationId, straightaway);
+    const wallet = new TempleTaquitoWallet(signerPkh, network, setPendingConfirmationId, straightaway);
     tezos.setWalletProvider(wallet);
 
     // TODO: Do we need signer, if wallet is provided ?
     // Note: Taquito's WalletProvider already has `sign()` method - just need to implement it ?
 
-    const signer = new TempleTaquitoSigner(signerPkh, rpcUrl, setPendingConfirmationId);
+    const signer = new TempleTaquitoSigner(signerPkh, network, setPendingConfirmationId);
     tezos.setSignerProvider(signer);
 
     return tezos;
   },
   {
     max: MAX_MEMOIZED_TOOLKITS,
-    normalizer: ([rpcUrl, signerPkh, straightaway]) => makeTezosClientId(rpcUrl, signerPkh, straightaway)
+    normalizer: ([network, signerPkh, straightaway]) => makeTezosClientId(network, signerPkh, straightaway)
   }
 );
 
 class ReactiveTezosToolkit extends TezosToolkit {
   clientId: string;
 
-  constructor(rpcUrl: string, accountPkh: string) {
-    super(getTezosFastRpcClient(rpcUrl));
+  constructor(network: TezosNetworkEssentials, accountPkh: string) {
+    super(getTezosRpcClient(network));
 
-    this.clientId = makeTezosClientId(rpcUrl, accountPkh);
+    this.clientId = makeTezosClientId(network, accountPkh);
 
     this.setPackerProvider(michelEncoder);
     this.addExtension(new Tzip16Module());
@@ -71,7 +73,7 @@ class ReactiveTezosToolkit extends TezosToolkit {
 class TempleTaquitoWallet implements WalletProvider {
   constructor(
     private pkh: string,
-    private rpc: string,
+    private network: TezosNetworkEssentials,
     private onBeforeSend?: (id: string) => void,
     private straightaway?: boolean
   ) {}
@@ -133,7 +135,7 @@ class TempleTaquitoWallet implements WalletProvider {
       type: TempleMessageType.OperationsRequest,
       id,
       sourcePkh: this.pkh,
-      networkRpc: this.rpc,
+      network: this.network,
       opParams: opParams.map(formatOpParams),
       straightaway: this.straightaway
     });
@@ -198,7 +200,11 @@ function withoutFeesOverride<T>(params: any, op: T): T {
 }
 
 class TempleTaquitoSigner implements Signer {
-  constructor(private pkh: string, private rpc: string, private onBeforeSign?: (id: string) => void) {}
+  constructor(
+    private pkh: string,
+    private network: TezosNetworkEssentials,
+    private onBeforeSign?: (id: string) => void
+  ) {}
 
   async publicKeyHash() {
     return this.pkh;
@@ -220,7 +226,7 @@ class TempleTaquitoSigner implements Signer {
     const res = await makeIntercomRequest({
       type: TempleMessageType.SignRequest,
       sourcePkh: this.pkh,
-      networkRpc: this.rpc,
+      network: this.network,
       id,
       bytes,
       watermark: watermark ? buf2hex(toBuffer(watermark)) : undefined

@@ -10,7 +10,12 @@ import {
 import { TransactionRequest } from 'viem';
 import browser, { Runtime } from 'webextension-polyfill';
 
-import { CUSTOM_TEZOS_NETWORKS_STORAGE_KEY, SHOULD_DISABLE_NOT_ACTIVE_NETWORKS_STORAGE_KEY } from 'lib/constants';
+import {
+  CONVERSION_CHECKED_STORAGE_KEY,
+  CUSTOM_TEZOS_NETWORKS_STORAGE_KEY,
+  REFERRAL_WALLET_REGISTERED_STORAGE_KEY,
+  SHOULD_DISABLE_NOT_ACTIVE_NETWORKS_STORAGE_KEY
+} from 'lib/constants';
 import { BACKGROUND_IS_WORKER } from 'lib/env';
 import { putToStorage, removeFromStorage } from 'lib/storage';
 import { addLocalOperation } from 'lib/temple/activity';
@@ -30,6 +35,7 @@ import { EVMErrorCodes, evmRpcMethodsNames, GET_DEFAULT_WEB3_PARAMS_METHOD_NAME 
 import { ErrorWithCode } from 'temple/evm/types';
 import { parseTransactionRequest } from 'temple/evm/utils';
 import { EvmChain } from 'temple/front';
+import { TezosNetworkEssentials } from 'temple/networks';
 import { loadTezosChainId } from 'temple/tezos';
 import { TempleChainKind } from 'temple/types';
 
@@ -107,6 +113,8 @@ const unlockQueue = new PromisesQueue();
 dAppQueue.on(PromisesQueue.COUNTERS_CHANGE_EVENT_NAME, (counters: PromisesQueueCounters) => {
   dAppQueueCountersUpdated(counters);
 });
+
+const pendingPreEnqueueTezosKeys = new Set<string>();
 
 const castWindowId = (windowId: number | nullish) =>
   windowId === browser.windows.WINDOW_ID_NONE ? null : windowId ?? null;
@@ -365,7 +373,7 @@ export function sendOperations(
   port: Runtime.Port,
   id: string,
   sourcePkh: string,
-  networkRpc: string,
+  network: TezosNetworkEssentials,
   opParams: any[],
   straightaway?: boolean
 ): Promise<{ opHash: string }> {
@@ -373,7 +381,7 @@ export function sendOperations(
     const sourcePublicKey = await revealPublicKey(sourcePkh);
     const dryRunResult = await dryRunOpParams({
       opParams,
-      networkRpc,
+      network,
       sourcePkh,
       sourcePublicKey
     });
@@ -384,16 +392,16 @@ export function sendOperations(
     return new Promise(async (resolve, reject) => {
       if (straightaway) {
         try {
-          const op = await vault.sendOperations(sourcePkh, networkRpc, opParams);
+          const op = await vault.sendOperations(sourcePkh, network, opParams);
 
-          await safeAddLocalOperation(networkRpc, op);
+          await safeAddLocalOperation(network.rpcBaseURL, op);
 
           resolve({ opHash: op.hash });
         } catch (err: any) {
           reject(err);
         }
       } else {
-        return promisableUnlock(resolve, reject, port, id, sourcePkh, networkRpc, opParams, dryRunResult);
+        return promisableUnlock(resolve, reject, port, id, sourcePkh, network, opParams, dryRunResult);
       }
     });
   });
@@ -405,7 +413,7 @@ const promisableUnlock = async (
   port: Runtime.Port,
   id: string,
   sourcePkh: string,
-  networkRpc: string,
+  network: TezosNetworkEssentials,
   opParams: any[],
   dryRunResult: DryRunResult | null
 ) => {
@@ -415,7 +423,7 @@ const promisableUnlock = async (
     payload: {
       type: 'operations',
       sourcePkh,
-      networkRpc,
+      network,
       opParams,
       ...((dryRunResult && dryRunResult.result) ?? {})
     },
@@ -440,12 +448,12 @@ const promisableUnlock = async (
           const op = await withUnlocked(({ vault }) =>
             vault.sendOperations(
               sourcePkh,
-              networkRpc,
+              network,
               buildFinalTezosOpParams(opParams, modifiedTotalFee, modifiedStorageLimit)
             )
           );
 
-          await safeAddLocalOperation(networkRpc, op);
+          await safeAddLocalOperation(network.rpcBaseURL, op);
 
           resolve({ opHash: op.hash });
         } catch (err: any) {
@@ -487,7 +495,7 @@ export function sign(
   port: Runtime.Port,
   id: string,
   sourcePkh: string,
-  networkRpc: string,
+  network: TezosNetworkEssentials,
   bytes: string,
   watermark?: string
 ) {
@@ -500,7 +508,7 @@ export function sign(
           payload: {
             type: 'sign',
             sourcePkh,
-            networkRpc,
+            network,
             bytes,
             watermark
           }
@@ -551,8 +559,18 @@ export async function processDApp(origin: string, req: TempleDAppRequest): Promi
     case TempleDAppMessageType.PermissionRequest:
       return withInited(() => dAppQueue.enqueue(() => requestPermission(origin, req)));
 
-    case TempleDAppMessageType.OperationRequest:
-      return withInited(() => dAppQueue.enqueue(() => requestOperation(origin, req)));
+    case TempleDAppMessageType.OperationRequest: {
+      const tezosKey = ['tezos_ops_pre-enqueue', origin, req.sourcePkh, JSON.stringify(req.opParams)].join('|');
+
+      if (pendingPreEnqueueTezosKeys.has(tezosKey)) {
+        throw new Error(TempleDAppErrorType.NotGranted);
+      }
+      pendingPreEnqueueTezosKeys.add(tezosKey);
+
+      const promise = withInited(() => dAppQueue.enqueue(() => requestOperation(origin, req)));
+      promise.finally(() => pendingPreEnqueueTezosKeys.delete(tezosKey));
+      return promise;
+    }
 
     case TempleDAppMessageType.SignRequest:
       return withInited(() => dAppQueue.enqueue(() => requestSign(origin, req)));
@@ -702,7 +720,14 @@ type ProcessedBeaconMessage = {
 
 export function resetExtension(password: string) {
   return withUnlocked(async () =>
-    Promise.all([Vault.reset(password), removeFromStorage(SHOULD_DISABLE_NOT_ACTIVE_NETWORKS_STORAGE_KEY)])
+    Promise.all([
+      Vault.reset(password),
+      removeFromStorage([
+        CONVERSION_CHECKED_STORAGE_KEY,
+        REFERRAL_WALLET_REGISTERED_STORAGE_KEY,
+        SHOULD_DISABLE_NOT_ACTIVE_NETWORKS_STORAGE_KEY
+      ])
+    ])
   );
 }
 

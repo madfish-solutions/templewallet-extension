@@ -10,7 +10,7 @@ import type { EvmEstimationData, SerializedEvmEstimationData } from 'temple/evm/
 import type { TypedDataV1 } from 'temple/evm/typed-data-v1';
 import type { SerializedBigints } from 'temple/evm/utils';
 import type { EvmChain } from 'temple/front';
-import type { StoredEvmNetwork, StoredTezosNetwork } from 'temple/networks';
+import type { StoredEvmNetwork, StoredTezosNetwork, TezosNetworkEssentials } from 'temple/networks';
 import type { TempleChainKind } from 'temple/types';
 
 import type {
@@ -45,6 +45,7 @@ export interface TempleState {
 
 export const TEZOS_MAINNET_CHAIN_ID = 'NetXdQprcVkpaWU';
 export const TEZOS_GHOSTNET_CHAIN_ID = 'NetXnHfVqm9iesp';
+const TEZOS_SHADOWNET_CHAIN_ID = 'NetXsqzbfFenSTS';
 export const ETHEREUM_MAINNET_CHAIN_ID = 1;
 export const COMMON_MAINNET_CHAIN_IDS = {
   polygon: 137,
@@ -69,6 +70,7 @@ export const COMMON_TESTNET_CHAIN_IDS = {
 export enum TempleTezosChainId {
   Mainnet = TEZOS_MAINNET_CHAIN_ID,
   Ghostnet = TEZOS_GHOSTNET_CHAIN_ID,
+  Shadownet = TEZOS_SHADOWNET_CHAIN_ID,
   Rio = 'NetXPdgaoabtBth',
   Seoul = 'NetXd56aBs1aeW3',
   Dcp = 'NetXooyhiru73tk',
@@ -188,7 +190,7 @@ export interface TempleContact {
 interface TempleConfirmationPayloadBase {
   type: string;
   sourcePkh: string;
-  networkRpc: string;
+  network: TezosNetworkEssentials;
 }
 
 interface TempleSignConfirmationPayload extends TempleConfirmationPayloadBase {
@@ -288,7 +290,7 @@ interface TempleDAppPayloadBase {
 }
 
 interface TempleTezosDAppPayloadBase extends TempleDAppPayloadBase {
-  networkRpc: string;
+  network: TezosNetworkEssentials;
   chainType?: TempleChainKind.Tezos;
 }
 
@@ -882,7 +884,7 @@ interface TempleOperationsRequest extends TempleMessageBase {
   type: TempleMessageType.OperationsRequest;
   id: string;
   sourcePkh: string;
-  networkRpc: string;
+  network: TezosNetworkEssentials;
   opParams: any[];
   /** send operations without old confirmation page */
   straightaway?: boolean;
@@ -897,7 +899,7 @@ interface TempleSignRequest extends TempleMessageBase {
   type: TempleMessageType.SignRequest;
   id: string;
   sourcePkh: string;
-  networkRpc: string;
+  network: TezosNetworkEssentials;
   bytes: string;
   watermark?: string;
 }

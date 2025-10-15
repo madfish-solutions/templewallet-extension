@@ -48,10 +48,10 @@ export const BakerCard = memo(
     baker: bakerOrAddress,
     onClick
   }: BakerCardProps) => {
-    const { rpcBaseURL, chainId } = network;
+    const { chainId } = network;
 
     const [hovered, setHovered, setUnhovered] = useBooleanState(false);
-    const { data: stakedData, mutate } = useStakedAmount(rpcBaseURL, accountPkh);
+    const { data: stakedData, mutate } = useStakedAmount(network, accountPkh);
     const bakerPkh = getBakerAddress(bakerOrAddress);
     const bakerFromProps = typeof bakerOrAddress === 'object' ? bakerOrAddress : undefined;
     const explorerHref = useBlockExplorerHref(TempleChainKind.Tezos, chainId, 'address', bakerPkh);
@@ -61,7 +61,7 @@ export const BakerCard = memo(
       !bakerFromProps
     );
 
-    useOnTezosBlock(rpcBaseURL, () => void mutate());
+    useOnTezosBlock(network, () => void mutate());
 
     const { symbol } = useTezosGasMetadata(chainId);
 

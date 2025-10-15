@@ -16,7 +16,7 @@ import {
 import { useTezosMainnetChain } from 'temple/front';
 
 export const useTokensApyLoading = () => {
-  const { rpcBaseURL } = useTezosMainnetChain();
+  const chain = useTezosMainnetChain();
   const usdToTokenRates = useTezosUsdToTokenRatesSelector();
 
   const [tokensApy, setTokensApy] = useState({});
@@ -26,15 +26,15 @@ export const useTokensApyLoading = () => {
       fetchTzBtcApy$(),
       fetchKUSDApy$(),
       fetchUSDTApy$(),
-      fetchUUSDCApr$(rpcBaseURL),
-      fetchUBTCApr$(rpcBaseURL),
-      fetchYOUApr$(rpcBaseURL, usdToTokenRates)
+      fetchUUSDCApr$(chain),
+      fetchUBTCApr$(chain),
+      fetchYOUApr$(chain, usdToTokenRates)
     ]).subscribe(responses => {
       setTokensApy(Object.assign({}, ...responses));
     });
 
     return () => subscription.unsubscribe();
-  }, [usdToTokenRates, rpcBaseURL]);
+  }, [usdToTokenRates, chain]);
 
   useEffect(() => {
     dispatch(loadTokensApyActions.success(tokensApy));

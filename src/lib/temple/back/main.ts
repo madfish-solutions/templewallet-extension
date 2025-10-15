@@ -1,3 +1,4 @@
+import { pick } from 'lodash';
 import memoizee from 'memoizee';
 import browser, { Runtime } from 'webextension-polyfill';
 import { ValidationError } from 'yup';
@@ -12,7 +13,7 @@ import {
   postAnonymousAdImpression,
   postReferralClick
 } from 'lib/apis/ads-api';
-import { ADS_VIEWER_DATA_STORAGE_KEY, ContentScriptType } from 'lib/constants';
+import { ADS_VIEWER_DATA_STORAGE_KEY, ContentScriptType, REWARDS_ACCOUNT_DATA_STORAGE_KEY } from 'lib/constants';
 import { E2eMessageType } from 'lib/e2e/types';
 import { BACKGROUND_IS_WORKER, EnvVars } from 'lib/env';
 import { fetchFromStorage } from 'lib/storage';
@@ -23,7 +24,7 @@ import { getTrackedCashbackServiceDomain, getTrackedUrl } from 'lib/utils/url-tr
 import { EVMErrorCodes } from 'temple/evm/constants';
 import { ErrorWithCode } from 'temple/evm/types';
 import { parseTransactionRequest } from 'temple/evm/utils';
-import { AdsViewerData, TempleChainKind } from 'temple/types';
+import { AdsViewerData, RewardsAddresses, TempleChainKind } from 'temple/types';
 
 import * as Actions from './actions';
 import * as Analytics from './analytics';
@@ -208,7 +209,7 @@ const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<T
         port,
         req.id,
         req.sourcePkh,
-        req.networkRpc,
+        req.network,
         req.opParams,
         req.straightaway
       );
@@ -218,7 +219,7 @@ const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<T
       };
 
     case TempleMessageType.SignRequest:
-      const result = await Actions.sign(port, req.id, req.sourcePkh, req.networkRpc, req.bytes, req.watermark);
+      const result = await Actions.sign(port, req.id, req.sourcePkh, req.network, req.bytes, req.watermark);
       return {
         type: TempleMessageType.SignResponse,
         result
@@ -440,9 +441,9 @@ browser.runtime.onMessage.addListener(async (msg, sender) => {
 
       case ContentScriptType.ExternalAdsActivity: {
         const urlDomain = new URL(msg.url).hostname;
-        const { tezosAddress: accountPkh } = await getAdsViewerCredentials();
+        const rewardsAddresses = await getRewardsAccountCredentials();
 
-        if (accountPkh) await postAdImpression(accountPkh, msg.provider, { urlDomain });
+        if (rewardsAddresses.evmAddress) await postAdImpression(rewardsAddresses, msg.provider, { urlDomain });
         else {
           const identity = await getStoredAppInstallIdentity();
           if (!identity) throw new Error('App identity not found');
@@ -469,14 +470,15 @@ browser.runtime.onMessage.addListener(async (msg, sender) => {
 
       case ContentScriptType.ReferralClick: {
         const { urlDomain, pageDomain } = msg;
-        const { tezosAddress: accountPkh } = await getAdsViewerCredentials();
+        const rewardsAddresses = await getRewardsAccountCredentials();
 
-        if (accountPkh) await postReferralClick(accountPkh, undefined, { urlDomain, pageDomain });
-        else {
+        if (rewardsAddresses.evmAddress) {
+          await postReferralClick(rewardsAddresses, undefined, { urlDomain, pageDomain });
+        } else {
           const identity = await getStoredAppInstallIdentity();
           if (!identity) throw new Error('App identity not found');
           const installId = identity.publicKeyHash;
-          await postReferralClick(undefined, installId, { urlDomain, pageDomain });
+          await postReferralClick({}, installId, { urlDomain, pageDomain });
         }
         break;
       }
@@ -488,7 +490,7 @@ browser.runtime.onMessage.addListener(async (msg, sender) => {
   return;
 });
 
-async function getAdsViewerCredentials() {
+async function getAdsViewerCredentials(): Promise<AdsViewerData | Partial<Record<keyof AdsViewerData, undefined>>> {
   const credentialsFromStorage = await fetchFromStorage<AdsViewerData>(ADS_VIEWER_DATA_STORAGE_KEY);
 
   if (credentialsFromStorage) {
@@ -496,9 +498,20 @@ async function getAdsViewerCredentials() {
   }
 
   const { accounts } = await Actions.getFrontState();
-  const { tezosAddress, evmAddress } = (accounts[0] as StoredHDAccount | undefined) ?? {};
 
-  return { tezosAddress, evmAddress };
+  const firstAccount = accounts[0] as StoredHDAccount | undefined;
+
+  return firstAccount ? pick(firstAccount, ['tezosAddress', 'evmAddress']) : {};
+}
+
+async function getRewardsAccountCredentials() {
+  const credentialsFromStorage = await fetchFromStorage<RewardsAddresses>(REWARDS_ACCOUNT_DATA_STORAGE_KEY);
+
+  if (credentialsFromStorage) {
+    return credentialsFromStorage;
+  }
+
+  return await getAdsViewerCredentials();
 }
 
 const getReferralsRules = memoizee(fetchReferralsRules, {
