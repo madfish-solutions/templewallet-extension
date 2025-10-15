@@ -4,7 +4,7 @@ import { CustomTezosChainIdContext } from 'lib/analytics';
 import { useTempleClient } from 'lib/temple/front/client';
 import { StoredAccount, TempleTezosDAppPayload, TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
 import { getAccountForTezos, isAccountOfActableType } from 'temple/accounts';
-import { useAllAccounts, useTezosChainIdLoadingValue } from 'temple/front';
+import { useAllAccounts } from 'temple/front';
 
 import { ConfirmDAppForm, ConfirmDAppFormContentProps } from './confirm-dapp-form';
 import { useTrackDappInteraction } from './hooks/use-track-dapp-interaction';
@@ -24,13 +24,6 @@ export const TezosConfirmDAppForm = memo<TezosConfirmDAppFormProps>(({ payload, 
   const allAccounts = useMemo(
     () => allAccountsStored.filter(acc => isAccountOfActableType(acc) && getAccountForTezos(acc)),
     [allAccountsStored]
-  );
-
-  const tezosChainId = useTezosChainIdLoadingValue(payload.networkRpc, true)!;
-
-  const network = useMemo(
-    () => ({ chainId: tezosChainId, rpcBaseURL: payload.networkRpc }),
-    [tezosChainId, payload.networkRpc]
   );
 
   const revealFee = useMemo(() => {
@@ -64,7 +57,7 @@ export const TezosConfirmDAppForm = memo<TezosConfirmDAppFormProps>(({ payload, 
     async (confirmed: boolean, selectedAccount: StoredAccount) => {
       const accountPkh = getAccountForTezos(selectedAccount)!.address;
 
-      const isTestnet = tezosChainId !== TEZOS_MAINNET_CHAIN_ID;
+      const isTestnet = payload.network.chainId !== TEZOS_MAINNET_CHAIN_ID;
       await trackDappInteraction(isTestnet ? 'Ghostnet' : 'Tezos', isTestnet);
 
       switch (payload.type) {
@@ -83,16 +76,7 @@ export const TezosConfirmDAppForm = memo<TezosConfirmDAppFormProps>(({ payload, 
           return confirmDAppSign(id, confirmed);
       }
     },
-    [
-      trackDappInteraction,
-      payload,
-      tezosChainId,
-      confirmDAppPermission,
-      id,
-      confirmTezosDAppOperation,
-      revealFee,
-      confirmDAppSign
-    ]
+    [trackDappInteraction, payload, confirmDAppPermission, id, confirmTezosDAppOperation, revealFee, confirmDAppSign]
   );
 
   const renderPayload = useCallback(
@@ -104,7 +88,7 @@ export const TezosConfirmDAppForm = memo<TezosConfirmDAppFormProps>(({ payload, 
       onSubmit
     }: ConfirmDAppFormContentProps & { dismissConflict?: EmptyFn; showConflict?: boolean }) => (
       <TezosPayloadContent
-        network={network}
+        network={payload.network}
         error={error}
         account={selectedAccount}
         payload={payload}
@@ -114,11 +98,11 @@ export const TezosConfirmDAppForm = memo<TezosConfirmDAppFormProps>(({ payload, 
         extraProps={{ setTotalFee, setStorageLimit }}
       />
     ),
-    [network, payload, setTotalFee, setStorageLimit]
+    [payload, setTotalFee, setStorageLimit]
   );
 
   return (
-    <CustomTezosChainIdContext.Provider value={tezosChainId}>
+    <CustomTezosChainIdContext.Provider value={payload.network.chainId}>
       <ConfirmDAppForm accounts={allAccounts} payload={payload} onConfirm={handleConfirm}>
         {renderPayload}
       </ConfirmDAppForm>

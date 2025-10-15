@@ -23,7 +23,7 @@ import { dispatch } from 'app/store';
 import { setAssetsFilterChain } from 'app/store/assets-filter-options/actions';
 import { setIsTestnetModeEnabledAction } from 'app/store/settings/actions';
 import { useTestnetModeEnabledSelector } from 'app/store/settings/selectors';
-import { IS_GOOGLE_CHROME_BROWSER } from 'lib/env';
+import { IS_SIDE_PANEL_AVAILABLE } from 'lib/env';
 import { T } from 'lib/i18n';
 import { useTypedSWR } from 'lib/swr';
 import { useTempleClient } from 'lib/temple/front';
@@ -152,7 +152,7 @@ const MenuDropdown = memo<PopperRenderProps>(({ opened, setOpened }) => {
 
       <Divider className="my-1.5 bg-grey-4 px-1.5" />
 
-      {!fullPage && IS_GOOGLE_CHROME_BROWSER && (
+      {!fullPage && IS_SIDE_PANEL_AVAILABLE && (
         <label className="py-2.5 px-2 flex items-center gap-x-1">
           <span className="flex-1 text-font-description">
             <T id="sidebar" />
