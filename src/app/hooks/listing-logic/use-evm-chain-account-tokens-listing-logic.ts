@@ -1,60 +1,52 @@
 import { useCallback, useMemo } from 'react';
 
-import { isDefined } from '@rnw-community/shared';
-
-import { useRawEvmChainAccountBalancesSelector } from 'app/store/evm/balances/selectors';
 import {
   useEvmChainBalancesLoadingSelector,
   useEvmTokensExchangeRatesLoading,
   useEvmTokensMetadataLoadingSelector
 } from 'app/store/evm/selectors';
+import { useEvmChainUsdToTokenRatesSelector } from 'app/store/evm/tokens-exchange-rates/selectors';
 import { useEvmTokensMetadataRecordSelector } from 'app/store/evm/tokens-metadata/selectors';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { useEvmChainAccountTokens } from 'lib/assets/hooks/tokens';
 import { searchEvmChainTokensWithNoMeta } from 'lib/assets/search.utils';
 import { useEvmChainTokensSortPredicate } from 'lib/assets/use-sorting';
+import { useGetEvmChainTokenBalanceWithDecimals } from 'lib/balances/hooks';
 import { useMemoWithCompare } from 'lib/ui/hooks';
 import { useEvmChainByChainId } from 'temple/front/chains';
 
 import { useSimpleAssetsPaginationLogic } from '../use-simple-assets-pagination-logic';
 
+import { useIsBigBalance } from './use-is-big-balance';
 import { useCommonAssetsListingLogic } from './utils';
 
 export const useEvmChainAccountTokensForListing = (
   publicKeyHash: HexString,
   chainId: number,
-  filterZeroBalances: boolean
+  filterSmallBalances: boolean
 ) => {
+  const getBalance = useGetEvmChainTokenBalanceWithDecimals(publicKeyHash, chainId);
+  const usdToTokenRates = useEvmChainUsdToTokenRatesSelector(chainId);
   const tokensSortPredicate = useEvmChainTokensSortPredicate(publicKeyHash, chainId);
 
   const tokens = useEvmChainAccountTokens(publicKeyHash, chainId);
 
-  const balances = useRawEvmChainAccountBalancesSelector(publicKeyHash, chainId);
+  const getExchangeRate = useCallback((slug: string) => usdToTokenRates[slug], [usdToTokenRates]);
+  const isBigBalance = useIsBigBalance(getBalance, getExchangeRate);
 
-  const isNonZeroBalance = useCallback(
-    (slug: string) => {
-      const balance = balances[slug];
-
-      return isDefined(balance) && balance !== '0';
-    },
-    [balances]
-  );
-
-  const enabledSlugsFiltered = useMemo(() => {
+  const enabledSlugs = useMemo(() => {
     const gasTokensSlugs: string[] = [EVM_TOKEN_SLUG];
-    const enabledSlugs = gasTokensSlugs.concat(
-      tokens.filter(({ status }) => status === 'enabled').map(({ slug }) => slug)
-    );
+    return gasTokensSlugs.concat(tokens.filter(({ status }) => status === 'enabled').map(({ slug }) => slug));
+  }, [tokens]);
 
-    return filterZeroBalances ? enabledSlugs.filter(isNonZeroBalance) : enabledSlugs;
-  }, [filterZeroBalances, isNonZeroBalance, tokens]);
+  const enabledSlugsSorted = useMemoWithCompare(() => {
+    const enabledSlugsFiltered = filterSmallBalances ? enabledSlugs.filter(isBigBalance) : enabledSlugs;
 
-  const enabledSlugsSorted = useMemoWithCompare(
-    () => enabledSlugsFiltered.sort(tokensSortPredicate),
-    [enabledSlugsFiltered, tokensSortPredicate]
-  );
+    return enabledSlugsFiltered.sort(tokensSortPredicate);
+  }, [enabledSlugs, filterSmallBalances, isBigBalance, tokensSortPredicate]);
 
   return {
+    shouldShowHiddenTokensHint: filterSmallBalances && enabledSlugs.length > 0 && enabledSlugsSorted.length === 0,
     enabledSlugsSorted,
     tokens,
     tokensSortPredicate

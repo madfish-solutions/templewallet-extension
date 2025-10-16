@@ -2,6 +2,7 @@ import type { AccountInfo } from '@airgap/beacon-types/dist/esm';
 import { TemplePageMessage, TemplePageMessageType } from '@temple-wallet/dapp/dist/types';
 import browser from 'webextension-polyfill';
 
+import { getIntercom } from 'intercom-client';
 import {
   APP_TITLE,
   ContentScriptType,
@@ -9,14 +10,13 @@ import {
   PASS_TO_BG_EVENT,
   RESPONSE_FROM_BG_MSG_TYPE,
   SWITCH_CHAIN_MSG_TYPE,
+  TEMPLE_SWITCH_PROVIDER_EVENT,
   WEBSITES_ANALYTICS_ENABLED
 } from 'lib/constants';
 import { serealizeError } from 'lib/intercom/helpers';
 import { TempleMessageType, TempleNotification, TempleResponse } from 'lib/temple/types';
 import type { PassToBgEventDetail } from 'temple/evm/web3-provider';
 import { TempleChainKind } from 'temple/types';
-
-import { getIntercom } from '../intercom-client';
 
 const TRACK_URL_CHANGE_INTERVAL = 5000;
 
@@ -65,6 +65,22 @@ if (window.frameElement === null) {
       setInterval(trackUrlChange, TRACK_URL_CHANGE_INTERVAL);
     }
   });
+
+  let oldHref = '';
+  const sendNewLocation = () => {
+    const newHref = window.location.href;
+
+    if (oldHref === newHref) return;
+
+    browser.runtime.sendMessage({
+      type: ContentScriptType.ExternalPageLocation,
+      url: newHref
+    });
+    oldHref = newHref;
+  };
+  sendNewLocation();
+
+  setInterval(sendNewLocation, 1000);
 }
 
 const SENDER = {
@@ -98,11 +114,31 @@ getIntercom().subscribe((msg?: TempleNotification) => {
       if (origin === window.origin) {
         window.postMessage({ type: SWITCH_CHAIN_MSG_TYPE, ...chainSwitchPayload }, window.origin);
       }
+      break;
+    case TempleMessageType.TempleSwitchEvmProvider:
+      if (msg.origin === window.origin) {
+        try {
+          const evt = new CustomEvent(TEMPLE_SWITCH_PROVIDER_EVENT, {
+            detail: { ...msg },
+            bubbles: true,
+            composed: true
+          });
+          document.dispatchEvent(evt);
+        } catch {}
+      }
+      break;
   }
 });
 
 window.addEventListener(PASS_TO_BG_EVENT, evt => {
-  const { origin, args: payload, chainId, iconUrl, requestId } = (evt as CustomEvent<PassToBgEventDetail>).detail;
+  const {
+    origin,
+    args: payload,
+    chainId,
+    iconUrl,
+    requestId,
+    providers
+  } = (evt as CustomEvent<PassToBgEventDetail>).detail;
   getIntercom()
     .request({
       type: TempleMessageType.PageRequest,
@@ -110,7 +146,8 @@ window.addEventListener(PASS_TO_BG_EVENT, evt => {
       iconUrl,
       payload,
       chainId,
-      chainType: TempleChainKind.EVM
+      chainType: TempleChainKind.EVM,
+      providers
     })
     .then((res: TempleResponse) => {
       if (res?.type === TempleMessageType.PageResponse && res.payload) {
@@ -234,7 +271,7 @@ function send(msg: TemplePageMessage | BeaconPageMessage, targetOrigin: string) 
   window.postMessage(msg, targetOrigin);
 }
 
-const TRACK_BEACON_DISCONNECTION_INTERVAL = 5000;
+const TRACK_BEACON_DISCONNECTION_INTERVAL = 1000;
 function beaconIsConnected() {
   try {
     const activeAccountId = localStorage.getItem('beacon:active-account');

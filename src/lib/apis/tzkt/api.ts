@@ -1,5 +1,6 @@
 import { HubConnectionBuilder } from '@microsoft/signalr';
-import axios, { AxiosError } from 'axios';
+import { isDefined } from '@rnw-community/shared';
+import axios, { AxiosError, AxiosRequestConfig } from 'axios';
 
 import { toTokenSlug } from 'lib/assets';
 import { isTezosDcpChainId } from 'temple/networks';
@@ -10,6 +11,7 @@ import {
   TzktOperationType,
   TzktQuoteCurrency,
   TzktAccountAsset,
+  TzktTokenTransfer,
   allInt32ParameterKeys,
   TzktGetRewardsParams,
   TzktGetRewardsResponse,
@@ -17,7 +19,8 @@ import {
   TzktHubConnection,
   TzktCycle,
   TzktProtocol,
-  TzktSetDelegateParamsOperation
+  TzktSetDelegateParamsOperation,
+  TzktOperationRole
 } from './types';
 import { calcTzktAccountSpendableTezBalance } from './utils';
 
@@ -45,10 +48,16 @@ api.interceptors.response.use(
   }
 );
 
-async function fetchGet<R>(chainId: TzktApiChainId, endpoint: string, params?: Record<string, unknown>) {
+async function fetchGet<R>(
+  chainId: TzktApiChainId,
+  endpoint: string,
+  params?: Record<string, unknown>,
+  config?: AxiosRequestConfig
+) {
   const { data } = await api.get<R>(endpoint, {
     baseURL: TZKT_API_BASE_URLS[chainId],
-    params
+    params,
+    ...config
   });
 
   return data;
@@ -74,17 +83,26 @@ type GetOperationsBaseParams = {
 export const fetchGetAccountOperations = (
   chainId: TzktApiChainId,
   accountAddress: string,
-  params: GetOperationsBaseParams & {
-    type?: TzktOperationType | TzktOperationType[];
+  params: {
+    limit?: number;
+    lastId?: number;
+    roles?: TzktOperationRole[];
+    types?: TzktOperationType[];
     sort?: 0 | 1;
     quote?: TzktQuoteCurrency[];
-    'parameter.null'?: boolean;
+  } & {
+    [key in `timestamp.${'lt' | 'ge'}`]?: string;
   }
 ) =>
-  fetchGet<TzktOperation[]>(chainId, `/accounts/${accountAddress}/operations`, {
+  fetchGet<TzktOperation[]>(chainId, '/accounts/activity', {
     ...params,
-    type: Array.isArray(params.type) ? params.type.join(',') : params.type
+    addresses: accountAddress,
+    ...joinArrayParam('roles', params.roles),
+    ...joinArrayParam('types', params.types),
+    ...joinArrayParam('quote', params.quote)
   });
+
+const joinArrayParam = (key: string, param?: string[]) => (isDefined(param) ? { [key]: param.join(',') } : {});
 
 export const fetchGetOperationsByHash = (
   chainId: TzktApiChainId,
@@ -133,9 +151,13 @@ export const getDelegatorRewards = (
 
 const TZKT_MAX_QUERY_ITEMS_LIMIT = 10_000;
 
-export const getCycles = (chainId: TzktApiChainId) => fetchGet<TzktCycle[]>(chainId, '/cycles', {});
+export const getCycles = (chainId: TzktApiChainId, offset?: number, limit?: number) =>
+  fetchGet<TzktCycle[]>(chainId, '/cycles', { offset, limit });
 
 export const getProtocol = (chainId: TzktApiChainId) => fetchGet<TzktProtocol>(chainId, '/protocols/current');
+
+export const getProtocolByCycle = (chainId: TzktApiChainId, cycle: number) =>
+  fetchGet<TzktProtocol>(chainId, `/protocols/cycles/${cycle}`);
 
 /**
  * @arg fungible // `null` for unknown fungibility only
@@ -220,3 +242,6 @@ const fetchAssetsBalancesFromTzktOnce = (account: string, chainId: TzktApiChainI
 
 export const getAccountStatsFromTzkt = async (account: string, chainId: TzktApiChainId) =>
   fetchGet<TzktAccount>(chainId, `/accounts/${account}`);
+
+export const fetchTokenTransfers = (chainId: TzktApiChainId, params: Record<string, any>, signal?: AbortSignal) =>
+  fetchGet<TzktTokenTransfer[]>(chainId, '/tokens/transfers', params, { signal });

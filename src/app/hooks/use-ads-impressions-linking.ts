@@ -4,15 +4,15 @@ import { useIsAdsImpressionsLinkedSelector } from 'app/store/settings/selectors'
 import { performLinkingOfAdsImpressions } from 'lib/ads/link-ads-impressions';
 import { useDidMount } from 'lib/ui/hooks';
 
-import { useAdsViewerPkh } from './use-ads-viewer-addresses';
+import { useRewardsAddresses } from './use-rewards-addresses';
 
 export const useAdsImpressionsLinking = () => {
   const linked = useIsAdsImpressionsLinkedSelector();
-  const { tezosAddress: accountPkh } = useAdsViewerPkh();
+  const adsViewerAddresses = useRewardsAddresses();
 
   useDidMount(() => {
     if (linked) return;
 
-    performLinkingOfAdsImpressions(accountPkh).then(() => void dispatch(setAdsImpressionsLinkedAction()));
+    performLinkingOfAdsImpressions(adsViewerAddresses).then(() => void dispatch(setAdsImpressionsLinkedAction()));
   });
 };

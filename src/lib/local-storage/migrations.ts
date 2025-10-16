@@ -2,7 +2,7 @@ import { isNotEmptyString } from '@rnw-community/shared';
 
 import { AUTOLOCK_TIME_STORAGE_KEY, NEVER_AUTOLOCK_VALUE } from 'lib/constants';
 import { DEFAULT_WALLET_AUTOLOCK_TIME } from 'lib/fixed-times';
-import { putToStorage } from 'lib/storage';
+import { fetchFromStorage, putToStorage } from 'lib/storage';
 import { TempleSharedStorageKey } from 'lib/temple/types';
 
 import { migrate } from './migrator';
@@ -29,14 +29,20 @@ migrate([
   },
   {
     name: '2.0.0',
-    up: () => {
+    up: async () => {
       const rawIsLocked = localStorage.getItem(TempleSharedStorageKey.LockUpEnabled);
       localStorage.removeItem(TempleSharedStorageKey.LockUpEnabled);
 
+      const existingAutoLock = await fetchFromStorage<number>(AUTOLOCK_TIME_STORAGE_KEY);
+      if (existingAutoLock !== null) return;
       putToStorage(
         AUTOLOCK_TIME_STORAGE_KEY,
         rawIsLocked === 'true' || rawIsLocked === null ? DEFAULT_WALLET_AUTOLOCK_TIME : NEVER_AUTOLOCK_VALUE
       ).catch(e => console.error(e));
     }
+  },
+  {
+    name: '2.0.1',
+    up: () => localStorage.removeItem('onboarding')
   }
 ]);

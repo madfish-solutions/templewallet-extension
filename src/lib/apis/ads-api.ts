@@ -1,12 +1,17 @@
 import axios from 'axios';
 
+import { BROWSER_IDENTIFIER_HEADER } from 'lib/browser';
 import { APP_VERSION, EnvVars } from 'lib/env';
+import { RewardsAddresses, HDAccountRewardsAddresses, NoAccountRewardsAddresses } from 'temple/types';
 
 import { withAxiosDataExtract } from './utils';
 
 const axiosClient = axios.create({
   baseURL: EnvVars.TEMPLE_ADS_API_URL,
-  adapter: 'fetch'
+  adapter: 'fetch',
+  headers: {
+    'x-temple-browser': BROWSER_IDENTIFIER_HEADER
+  }
 });
 
 interface ImpressionDetails {
@@ -17,12 +22,13 @@ interface ImpressionDetails {
 }
 
 export async function postAdImpression(
-  accountPkh: string,
+  { tezosAddress, evmAddress }: RewardsAddresses,
   provider: string,
   { urlDomain, pageName }: ImpressionDetails
 ) {
   await axiosClient.post('/impression', {
-    accountPkh,
+    accountPkh: tezosAddress,
+    evmPkh: evmAddress,
     urlDomain,
     pageName,
     provider,
@@ -43,17 +49,17 @@ interface ReferralClickDetails {
 }
 
 export async function postReferralClick(
-  accountPkh: string,
+  addresses: HDAccountRewardsAddresses,
   installId: undefined,
   details: ReferralClickDetails
 ): Promise<void>;
 export async function postReferralClick(
-  accountPkh: undefined,
+  addresses: NoAccountRewardsAddresses,
   installId: string,
   details: ReferralClickDetails
 ): Promise<void>;
 export async function postReferralClick(
-  accountPkh: string | undefined,
+  { tezosAddress, evmAddress }: RewardsAddresses,
   installId: string | undefined,
   { urlDomain, pageDomain, provider }: ReferralClickDetails
 ) {
@@ -61,7 +67,8 @@ export async function postReferralClick(
   // It can handle clicks from different providers
   await axiosClient.post('/takeads/referrals/click', {
     provider,
-    accountPkh,
+    accountPkh: tezosAddress,
+    evmPkh: evmAddress,
     installId,
     urlDomain,
     pageDomain,
@@ -69,8 +76,18 @@ export async function postReferralClick(
   });
 }
 
-export async function postLinkAdsImpressions(accountPkh: string, installId: string, signature: string) {
-  await axiosClient.post('/link-impressions', { accountPkh, installId, signature, appVersion: APP_VERSION });
+export async function postLinkAdsImpressions(
+  { tezosAddress, evmAddress }: RewardsAddresses,
+  installId: string,
+  signature: string
+) {
+  await axiosClient.post('/link-impressions', {
+    accountPkh: tezosAddress,
+    evmPkh: evmAddress,
+    installId,
+    signature,
+    appVersion: APP_VERSION
+  });
 }
 
 interface ReferralTextIconRule {
@@ -115,29 +132,6 @@ interface RpForMonthResponse extends RpStatsResponse {
   firstActivityDate: string | null;
 }
 
-export const parseMonthYearIndex = (index: number) => {
-  const monthIndex = index % 12;
-  const year = Math.floor(index / 12);
-
-  return new Date(year, monthIndex);
-};
-
-export function toMonthYearIndex(monthIndex: number, year: number): number;
-export function toMonthYearIndex(date: Date): number;
-export function toMonthYearIndex(...args: [number, number] | [Date]) {
-  let monthIndex: number;
-  let year: number;
-  if (args.length === 2) {
-    [monthIndex, year] = args;
-  } else {
-    const date = args[0];
-    monthIndex = date.getMonth();
-    year = date.getFullYear();
-  }
-
-  return monthIndex + year * 12;
-}
-
 export const fetchRpForToday = withAxiosDataExtract((accountPkh: string) =>
   axiosClient.get<RpStatsResponse>('/rp/today', { params: { accountPkh, tzOffset: new Date().getTimezoneOffset() } })
 );
@@ -151,6 +145,7 @@ export const fetchRpForMonth = withAxiosDataExtract((accountPkh: string, monthYe
 interface TekeadsAffiliateResponse {
   data: AffiliateLink[];
 }
+
 interface AffiliateLink {
   iri: string;
   trackingLink: string;

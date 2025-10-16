@@ -9,7 +9,10 @@ import {
   usePreservedOrderSlugsToManage
 } from 'app/hooks/listing-logic/use-manageable-slugs';
 import { useAssetsViewState } from 'app/hooks/use-assets-view-state';
-import { useTokensListOptionsSelector } from 'app/store/assets-filter-options/selectors';
+import {
+  useGroupByNetworkBehaviorSelector,
+  useTokensListOptionsSelector
+} from 'app/store/assets-filter-options/selectors';
 import { PartnersPromotion, PartnersPromotionVariant } from 'app/templates/partners-promotion';
 import { EvmTokenListItem } from 'app/templates/TokenListItem';
 import { parseChainAssetSlug, toChainAssetSlug } from 'lib/assets/utils';
@@ -47,30 +50,30 @@ export const EvmTokensTab = memo<Props>(props => {
 
 const TabContent: FC = () => {
   const { publicKeyHash } = useContext(EvmTokensTabContext);
-  const { hideZeroBalance, groupByNetwork } = useTokensListOptionsSelector();
+  const groupByNetwork = useGroupByNetworkBehaviorSelector();
+  const { hideSmallBalance } = useTokensListOptionsSelector();
 
-  const { enabledChainSlugsSorted, enabledChainSlugsSortedGrouped } = useEvmAccountTokensForListing(
-    publicKeyHash,
-    hideZeroBalance,
-    groupByNetwork
-  );
+  const { enabledChainSlugsSorted, enabledChainSlugsSortedGrouped, shouldShowHiddenTokensHint } =
+    useEvmAccountTokensForListing(publicKeyHash, hideSmallBalance, groupByNetwork);
 
   return (
     <TabContentBase
+      manageActive={false}
+      groupByNetwork={groupByNetwork}
       allSlugsSorted={enabledChainSlugsSorted}
       allSlugsSortedGrouped={enabledChainSlugsSortedGrouped}
-      groupByNetwork={groupByNetwork}
-      manageActive={false}
+      shouldShowHiddenTokensHint={shouldShowHiddenTokensHint}
     />
   );
 };
 
 const TabContentWithManageActive: FC = () => {
   const { publicKeyHash } = useContext(EvmTokensTabContext);
-  const { hideZeroBalance, groupByNetwork } = useTokensListOptionsSelector();
+  const groupByNetwork = useGroupByNetworkBehaviorSelector();
+  const { hideSmallBalance } = useTokensListOptionsSelector();
 
   const { enabledChainSlugsSorted, enabledChainSlugsSortedGrouped, tokens, tokensSortPredicate } =
-    useEvmAccountTokensForListing(publicKeyHash, hideZeroBalance, groupByNetwork);
+    useEvmAccountTokensForListing(publicKeyHash, hideSmallBalance, groupByNetwork);
 
   const allChainsSlugs = useMemo(
     () =>
@@ -110,10 +113,11 @@ interface TabContentBaseProps {
   allSlugsSortedGrouped: ChainGroupedSlugs<TempleChainKind.EVM> | null;
   groupByNetwork: boolean;
   manageActive: boolean;
+  shouldShowHiddenTokensHint?: boolean;
 }
 
 const TabContentBase = memo<TabContentBaseProps>(
-  ({ allSlugsSorted, allSlugsSortedGrouped, groupByNetwork, manageActive }) => {
+  ({ allSlugsSorted, allSlugsSortedGrouped, groupByNetwork, manageActive, shouldShowHiddenTokensHint }) => {
     const { publicKeyHash, accountId } = useContext(EvmTokensTabContext);
     const {
       displayedSlugs,
@@ -179,6 +183,7 @@ const TabContentBase = memo<TabContentBaseProps>(
 
           return (
             <EvmTokenListItem
+              showTags
               key={chainSlug}
               network={evmChains[chainId]!}
               index={i + indexShift}
@@ -203,6 +208,7 @@ const TabContentBase = memo<TabContentBaseProps>(
         isSyncing={isSyncing}
         isInSearchMode={isInSearchMode}
         network={mainnetChain}
+        shouldShowHiddenTokensHint={shouldShowHiddenTokensHint}
       >
         {tokensView}
       </TokensTabBase>

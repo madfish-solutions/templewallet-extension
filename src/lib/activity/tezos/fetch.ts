@@ -4,7 +4,7 @@ import { refetchOnce429 } from 'lib/apis/utils';
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
 import { detectTokenStandard } from 'lib/assets/standards';
 import { filterUnique } from 'lib/utils';
-import { getReadOnlyTezos } from 'temple/tezos';
+import { getTezosReadOnlyRpcClient } from 'temple/tezos';
 
 import type { TempleTzktOperationsGroup, TezosActivityOlderThan } from './types';
 
@@ -29,10 +29,10 @@ export async function fetchOperations(
 
     if (assetSlug === TEZ_TOKEN_SLUG) {
       return await fetchOperations_TEZ(chainId, accAddress, pseudoLimit, olderThan);
-    } else if (assetSlug === LIQUIDITY_BAKING_DEX_ADDRESS) {
-      return await fetchOperations_Contract(chainId, accAddress, pseudoLimit, olderThan);
+    } else if (contractAddress === LIQUIDITY_BAKING_DEX_ADDRESS) {
+      return await fetchOperations_Contract(chainId, accAddress, contractAddress, pseudoLimit, olderThan);
     } else {
-      const tezos = getReadOnlyTezos(rpcUrl);
+      const tezos = getTezosReadOnlyRpcClient({ rpcBaseURL: rpcUrl, chainId });
       const tokenType = await detectTokenStandard(tezos, contractAddress);
 
       if (tokenType === 'fa1.2') {
@@ -63,15 +63,16 @@ const fetchOperations_TEZ = (
 const fetchOperations_Contract = (
   chainId: TzktApiChainId,
   accountAddress: string,
+  contractAddress: string,
   pseudoLimit: number,
   olderThan?: TezosActivityOlderThan
 ) =>
-  TZKT.fetchGetAccountOperations(chainId, accountAddress, {
-    type: 'transaction',
-    limit: pseudoLimit,
-    sort: 1,
+  TZKT.fetchGetOperationsTransactions(chainId, {
+    target: contractAddress,
     initiator: accountAddress,
+    limit: pseudoLimit,
     entrypoint: 'mintOrBurn',
+    'sort.desc': 'level',
     'level.lt': olderThan?.oldestTzktOperation.level
   });
 
@@ -120,7 +121,7 @@ async function fetchOperations_Any(
   const limit = pseudoLimit;
 
   const accOperations = await TZKT.fetchGetAccountOperations(chainId, accountAddress, {
-    type: ['delegation', 'origination', 'transaction'],
+    types: ['delegation', 'origination', 'transaction'],
     ...buildOlderThanParam(olderThan),
     limit,
     sort: 1

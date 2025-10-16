@@ -8,8 +8,6 @@ export { Anchor } from './Anchor';
 
 export { Button } from './Button';
 
-export { default as Spinner } from './Spinner/Spinner';
-
 export { default as Money } from './Money';
 
 export { default as Name } from './Name';
@@ -21,8 +19,6 @@ export { IconBase } from './IconBase';
 export { default as HashShortView } from './HashShortView';
 
 export { OldStyleHashChip } from './OldStyleHashChip';
-
-export { Lines } from './Lines';
 
 export { Loader } from './Loader';
 
@@ -37,8 +33,6 @@ export { FormSecondaryButton } from './FormSecondaryButton';
 export { SyncSpinner } from './SyncSpinner';
 
 export { NoSpaceField } from './NoSpaceField';
-
-export { Stepper } from './Stepper/Stepper';
 
 export { PageTitle } from './PageTitle';
 

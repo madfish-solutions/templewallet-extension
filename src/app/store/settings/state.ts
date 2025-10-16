@@ -7,12 +7,12 @@ type ChainAssetSlug = string;
 export interface SettingsState {
   userId: string;
   isAnalyticsEnabled: boolean;
-  isConversionTracked: boolean;
   pendingReactivateAds: boolean;
   adsImpressionsLinked: boolean;
   referralLinksEnabled: boolean;
   isTestnetModeEnabled: boolean;
   onRampAsset: ChainAssetSlug | null;
+  favoriteTokens: string[];
   /** @deprecated */
   isOnRampPossibility?: boolean;
   /** @deprecated */
@@ -28,10 +28,10 @@ export interface SettingsState {
 export const settingsInitialState: SettingsState = {
   userId: nanoid(),
   isAnalyticsEnabled: false,
-  isConversionTracked: false,
   pendingReactivateAds: false,
   adsImpressionsLinked: false,
   referralLinksEnabled: IS_MISES_BROWSER,
   isTestnetModeEnabled: false,
-  onRampAsset: null
+  onRampAsset: null,
+  favoriteTokens: []
 };

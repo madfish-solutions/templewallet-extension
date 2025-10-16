@@ -30,7 +30,7 @@ import { runConnectedLedgerOperationFlow } from 'lib/ui';
 import { useSafeState } from 'lib/ui/hooks';
 import { isTruthy } from 'lib/utils';
 import { findAccountForTezos } from 'temple/accounts';
-import { useTezosChainIdLoadingValue, useRelevantAccounts } from 'temple/front';
+import { useRelevantAccounts } from 'temple/front';
 
 import { InternalConfirmationSelectors } from './InternalConfirmation.selectors';
 import { LedgerApprovalModal } from './ledger-approval-modal';
@@ -44,7 +44,7 @@ type InternalConfirmationProps = {
 const MIN_GAS_FEE = 0;
 
 const InternalConfirmation: FC<InternalConfirmationProps> = ({ payload, onConfirm, error: payloadError }) => {
-  const { popup } = useAppEnv();
+  const { fullPage } = useAppEnv();
 
   const getContentToParse = useCallback(async () => {
     switch (payload.type) {
@@ -64,14 +64,7 @@ const InternalConfirmation: FC<InternalConfirmationProps> = ({ payload, onConfir
   }, [payload]);
   const { data: contentToParse } = useRetryableSWR(['content-to-parse'], getContentToParse, { suspense: true });
 
-  const networkRpc = payload.networkRpc;
-
-  // TODO: `payload.chainId`
-  const tezosChainId = useTezosChainIdLoadingValue(networkRpc, true)!;
-
-  const tezosNetwork = useMemo(() => ({ chainId: tezosChainId, rpcBaseURL: networkRpc }), [tezosChainId, networkRpc]);
-
-  const relevantAccounts = useRelevantAccounts(tezosChainId);
+  const relevantAccounts = useRelevantAccounts(payload.network.chainId);
   const account = useMemo(
     () => findAccountForTezos(relevantAccounts, payload.sourcePkh)!,
     [relevantAccounts, payload.sourcePkh]
@@ -261,8 +254,8 @@ const InternalConfirmation: FC<InternalConfirmationProps> = ({ payload, onConfir
   );
 
   return (
-    <div className={classNames('h-full w-full max-w-sm mx-auto flex flex-col', !popup && 'justify-center px-2')}>
-      <div className={classNames('flex flex-col items-center justify-center', popup && 'flex-1')}>
+    <div className={classNames('h-full w-full max-w-sm mx-auto flex flex-col', fullPage && 'justify-center px-2')}>
+      <div className={classNames('flex flex-col items-center justify-center', !fullPage && 'flex-1')}>
         <div className="flex items-center my-4">
           <Logo className="my-1.5" type="icon-title" />
         </div>
@@ -271,7 +264,7 @@ const InternalConfirmation: FC<InternalConfirmationProps> = ({ payload, onConfir
       <div
         className={classNames(
           'flex flex-col relative bg-white shadow-md overflow-y-auto',
-          popup ? 'border-t border-gray-200' : 'rounded-md'
+          fullPage ? 'rounded-md' : 'border-t border-gray-200'
         )}
         style={{ height: '34rem' }}
       >
@@ -294,7 +287,7 @@ const InternalConfirmation: FC<InternalConfirmationProps> = ({ payload, onConfir
             <>
               <AccountBanner account={account} className="w-full mb-4" smallLabelIndent />
 
-              <NetworkBanner network={tezosNetwork} />
+              <NetworkBanner network={payload.network} />
 
               {signPayloadFormats.length > 1 && (
                 <div className="w-full flex justify-end mb-3 items-center">
@@ -336,7 +329,7 @@ const InternalConfirmation: FC<InternalConfirmationProps> = ({ payload, onConfir
 
               {spFormat.key === 'preview' && (
                 <ExpensesView
-                  tezosNetwork={tezosNetwork}
+                  tezosNetwork={payload.network}
                   expenses={expensesData}
                   error={payloadError}
                   estimates={payload.type === 'operations' ? payload.estimates : undefined}

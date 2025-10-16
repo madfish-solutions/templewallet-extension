@@ -101,7 +101,7 @@ const EarnTezPageContent = memo<EarnTezPageContentProps>(({ chainId, onBakerAddr
   const { data: myBakerPkh, mutate: updateBakerPkh } = useDelegate(accountPkh, network, true, false);
   useEffect(() => void (myBakerPkh !== undefined && onBakerAddress(myBakerPkh)), [myBakerPkh, onBakerAddress]);
 
-  useOnTezosBlock(network.rpcBaseURL, () => void updateBakerPkh());
+  useOnTezosBlock(network, () => void updateBakerPkh());
 
   return (
     <>

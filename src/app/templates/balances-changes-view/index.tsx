@@ -18,7 +18,7 @@ import { EvmCollectibleMetadata, EvmNativeTokenMetadata, EvmTokenMetadata } from
 import { EvmChain, OneOfChains, TezosChain } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
 
-import { BalancesChangesViewLayout } from './layout';
+import { BalancesChangesViewLayout, GroupedBalancesChangesViewLayout } from './layout';
 import { BalancesChangesViewProps } from './types';
 
 function BalancesChangesViewHOC<
@@ -31,9 +31,39 @@ function BalancesChangesViewHOC<
   useNoCategoryMetadataGetter: (chainId: C['chainId']) => (assetSlug: string) => TM | CM | undefined,
   useGenericAssetsMetadataCheck: (chainSlugsToCheck: string[]) => void
 ) {
-  return memo<BalancesChangesViewProps<C>>(({ title, balancesChanges, chain }) => {
+  return memo<BalancesChangesViewProps<C>>(({ title, balancesChanges, chain, bridgeData }) => {
     const { chainId } = chain;
     const getCollectibleMetadata = useCollectibleMetadataGetter(chainId);
+
+    const inputChanges = { ...balancesChanges[0] };
+    const outputChanges = Object.assign({}, ...balancesChanges.slice(1));
+
+    const inputRows = useOperationConfirmationCardRowsPropsPart(
+      bridgeData ? (bridgeData.inputNetwork as C) : chain,
+      inputChanges,
+      useTokenOrGasMetadataGetter,
+      useCollectibleMetadataGetter,
+      useNoCategoryMetadataGetter,
+      useGenericAssetsMetadataCheck
+    );
+
+    const outputRows = useOperationConfirmationCardRowsPropsPart(
+      bridgeData ? (bridgeData.outputNetwork as C) : chain,
+      outputChanges,
+      useTokenOrGasMetadataGetter,
+      useCollectibleMetadataGetter,
+      useNoCategoryMetadataGetter,
+      useGenericAssetsMetadataCheck
+    );
+
+    const fallbackRows = useOperationConfirmationCardRowsPropsPart(
+      chain,
+      { ...inputChanges, ...outputChanges },
+      useTokenOrGasMetadataGetter,
+      useCollectibleMetadataGetter,
+      useNoCategoryMetadataGetter,
+      useGenericAssetsMetadataCheck
+    );
 
     const allAssetsAreCollectibles = useMemo(
       () =>
@@ -41,19 +71,14 @@ function BalancesChangesViewHOC<
       [balancesChanges, getCollectibleMetadata]
     );
 
-    const rows = useOperationConfirmationCardRowsPropsPart(
-      chain,
-      balancesChanges,
-      useTokenOrGasMetadataGetter,
-      useCollectibleMetadataGetter,
-      useNoCategoryMetadataGetter,
-      useGenericAssetsMetadataCheck
-    );
+    if (bridgeData) {
+      return <GroupedBalancesChangesViewLayout rows={[...inputRows, ...outputRows]} />;
+    }
 
     return (
       <BalancesChangesViewLayout
         title={title ?? (allAssetsAreCollectibles ? <T id="estimatedTxDetails" /> : <T id="transactionInfo" />)}
-        rows={rows}
+        rows={fallbackRows}
       />
     );
   });
@@ -76,10 +101,10 @@ const EvmBalancesChangesView = BalancesChangesViewHOC<
   useEvmGenericAssetsMetadataCheck
 );
 
-export const BalancesChangesView = memo<BalancesChangesViewProps>(({ chain, ...rest }) => {
+export const BalancesChangesView = memo<BalancesChangesViewProps>(({ chain, bridgeData, ...rest }) => {
   if (chain.kind === TempleChainKind.Tezos) {
-    return <TezosBalancesChangesView {...rest} chain={chain} />;
+    return <TezosBalancesChangesView {...rest} chain={chain} bridgeData={bridgeData} />;
   }
 
-  return <EvmBalancesChangesView {...rest} chain={chain} />;
+  return <EvmBalancesChangesView {...rest} chain={chain} bridgeData={bridgeData} />;
 });

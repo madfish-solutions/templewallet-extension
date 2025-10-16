@@ -12,7 +12,7 @@ import { t } from 'lib/i18n';
 import { useRetryableSWR } from 'lib/swr';
 import { getOnlineStatus } from 'lib/ui/get-online-status';
 import { TezosNetworkEssentials } from 'temple/networks';
-import { getReadOnlyTezos } from 'temple/tezos';
+import { getTezosReadOnlyRpcClient } from 'temple/tezos';
 
 import { mutezToTz } from '../helpers';
 
@@ -43,7 +43,7 @@ export function useDelegate(
 
   const getDelegate = useCallback(async () => {
     try {
-      const tezos = getReadOnlyTezos(rpcBaseURL);
+      const tezos = getTezosReadOnlyRpcClient(network);
 
       return await retry(
         async () => {
@@ -162,79 +162,83 @@ export function getRewardsStats({
 }: RewardsStatsCalculationParams) {
   limitOfStakingOverBaking /= 1e6;
   edgeOfBakingOverStaking /= 1e9;
+  const { delegatedBalance, stakedBalance, bakerRewards } = rewardsEntry;
   const {
-    futureEndorsements,
-    endorsements,
-    missedEndorsements,
+    futureAttestations,
+    attestations,
+    missedAttestations,
     futureBlocks,
     blocks,
     missedBlocks,
-    missedEndorsementRewards,
-    missedOwnBlockFees,
-    missedOwnBlocks,
-    missedOwnBlockRewards,
+    missedAttestationRewards,
+    missedBlockFees,
+    missedBlockRewards,
     futureBlockRewards,
-    futureEndorsementRewards,
-    ownBlockRewards,
-    ownBlocks,
-    ownBlockFees,
+    futureAttestationRewards,
+    blockRewardsDelegated,
+    blockRewardsStakedOwn,
+    blockRewardsStakedEdge,
+    blockRewardsStakedShared,
+    blockFees,
     doubleBakingLostStaked,
     doubleEndorsingLostStaked,
     doublePreendorsingLostStaked,
-    endorsementRewards,
-    bakerStakedBalance,
-    bakerDelegatedBalance,
+    attestationRewardsDelegated,
+    attestationRewardsStakedOwn,
+    attestationRewardsStakedEdge,
+    attestationRewardsStakedShared,
+    ownStakedBalance,
+    ownDelegatedBalance,
     externalStakedBalance,
     bakingPower,
     externalDelegatedBalance,
-    delegatedBalance,
-    stakedBalance,
     doubleBakingLostExternalStaked,
     doubleEndorsingLostExternalStaked,
     doublePreendorsingLostExternalStaked
-  } = rewardsEntry;
+  } = bakerRewards;
+
   const {
     blockReward: legacyBlockReward,
-    endorsementReward: legacyEndorsementReward,
-    endorsersPerBlock,
+    attestationReward: legacyEndorsementReward,
+    attestersPerBlock,
     consensusThreshold
   } = protocol.constants;
 
   let blockReward: number;
   let blockBonusPerSlot: number;
-  let endorsementRewardPerSlot: number;
-  if ('endorsementRewardPerSlot' in cycle) {
+  let attestationRewardPerSlot: number;
+  if ('attestationRewardPerSlot' in cycle) {
     blockReward = cycle.blockReward;
     blockBonusPerSlot = cycle.blockBonusPerSlot;
-    endorsementRewardPerSlot = cycle.endorsementRewardPerSlot;
+    attestationRewardPerSlot = cycle.attestationRewardPerSlot;
   } else {
     blockReward = legacyBlockReward[0];
     blockBonusPerSlot = legacyBlockReward[1];
-    endorsementRewardPerSlot = legacyEndorsementReward[0];
+    attestationRewardPerSlot = legacyEndorsementReward[0];
   }
 
-  const rewardsPerBlock = blockReward + blockBonusPerSlot * (endorsersPerBlock - consensusThreshold);
+  const rewardsPerBlock = blockReward + blockBonusPerSlot * (attestersPerBlock - consensusThreshold);
   const assignedRewards =
     (futureBlocks + blocks + missedBlocks) * rewardsPerBlock +
-    (futureEndorsements + endorsements + missedEndorsements) * endorsementRewardPerSlot;
+    (futureAttestations + attestations + missedAttestations) * attestationRewardPerSlot;
 
   const earnedRewards = sumFields(
-    rewardsEntry,
+    bakerRewards,
     [
       'blockRewardsDelegated',
       'blockRewardsStakedOwn',
       'blockRewardsStakedEdge',
       'blockRewardsStakedShared',
-      'endorsementRewardsDelegated',
-      'endorsementRewardsStakedOwn',
-      'endorsementRewardsStakedEdge',
-      'endorsementRewardsStakedShared',
+      'attestationRewardsDelegated',
+      'attestationRewardsStakedOwn',
+      'attestationRewardsStakedEdge',
+      'attestationRewardsStakedShared',
       'blockFees'
     ],
     []
   );
   const extraRewards = sumFields(
-    rewardsEntry,
+    bakerRewards,
     [
       'doubleBakingRewards',
       'doubleEndorsingRewards',
@@ -265,15 +269,15 @@ export function getRewardsStats({
     ]
   );
 
-  const futureRewards = futureBlockRewards + futureEndorsementRewards;
+  const futureRewards = futureBlockRewards + futureAttestationRewards;
   const totalRewards = earnedRewards + extraRewards;
 
   // TODO: figure out the meaning of variables with obfuscated names here and below
   const k = sumFields(
-    rewardsEntry,
+    bakerRewards,
     [
       'blockRewardsDelegated',
-      'endorsementRewardsDelegated',
+      'attestationRewardsDelegated',
       'vdfRevelationRewardsDelegated',
       'nonceRevelationRewardsDelegated',
       'doubleBakingRewards',
@@ -284,7 +288,7 @@ export function getRewardsStats({
     []
   );
   const y = sumFields(
-    rewardsEntry,
+    bakerRewards,
     [
       'doubleBakingLostUnstaked',
       'doubleBakingLostExternalUnstaked',
@@ -297,20 +301,20 @@ export function getRewardsStats({
     []
   );
   const stakedEdgeRewards = sumFields(
-    rewardsEntry,
+    bakerRewards,
     [
       'blockRewardsStakedEdge',
-      'endorsementRewardsStakedEdge',
+      'attestationRewardsStakedEdge',
       'vdfRevelationRewardsStakedEdge',
       'nonceRevelationRewardsStakedEdge'
     ],
     []
   );
   const stakedSharedRewards = sumFields(
-    rewardsEntry,
+    bakerRewards,
     [
       'blockRewardsStakedShared',
-      'endorsementRewardsStakedShared',
+      'attestationRewardsStakedShared',
       'vdfRevelationRewardsStakedShared',
       'nonceRevelationRewardsStakedShared'
     ],
@@ -327,11 +331,11 @@ export function getRewardsStats({
     S = 0,
     b = 0;
   if (futureRewards > 0) {
-    const Vt = bakerStakedBalance * limitOfStakingOverBaking;
-    const at = bakerStakedBalance + Math.min(externalStakedBalance, Vt);
+    const Vt = ownStakedBalance * limitOfStakingOverBaking;
+    const at = ownStakedBalance + Math.min(externalStakedBalance, Vt);
     const N = (futureRewards * at) / bakingPower;
     P = futureRewards - N;
-    L = (N * bakerStakedBalance) / at;
+    L = (N * ownStakedBalance) / at;
     S = (N - L) * edgeOfBakingOverStaking;
     b = N - L - S;
   }
@@ -339,14 +343,14 @@ export function getRewardsStats({
   const T = Math.max(0, +P + k - y);
   const x = T * delegationFeeRatio;
   const w =
-    bakerDelegatedBalance + externalDelegatedBalance > 0
-      ? delegatedBalance / (bakerDelegatedBalance + externalDelegatedBalance)
+    ownDelegatedBalance + externalDelegatedBalance > 0
+      ? delegatedBalance / (ownDelegatedBalance + externalDelegatedBalance)
       : 0;
   const delegationRewardsAreSent = delegatedBalance / 1e6 >= minDelegation;
 
   const delegationFee = delegationRewardsAreSent ? Math.round(x * w) : 0;
   const Ft = Math.max(0, +S + stakedEdgeRewards - E);
-  const stakedBalanceRatio = externalStakedBalance > 0 ? stakedBalance / externalStakedBalance : 0;
+  const stakedBalanceRatio = stakedBalance && externalStakedBalance > 0 ? stakedBalance / externalStakedBalance : 0;
   const stakingFee = Math.round(Ft * stakedBalanceRatio);
   const bakerFeeMutez = stakingFee + delegationFee;
   const doubleOperationsExternalStakedLoss =
@@ -365,15 +369,22 @@ export function getRewardsStats({
     bakerFee: mutezToTz(bakerFeeMutez),
     expectedPayout: mutezToTz(rewards - bakerFeeMutez),
     efficiency: assignedRewards === 0 ? 1 : totalRewards / assignedRewards,
-    ownBlockRewards: mutezToTz(ownBlockRewards),
-    ownBlocks,
-    ownBlockFees: mutezToTz(ownBlockFees),
-    missedOwnBlockRewards: mutezToTz(missedOwnBlockRewards),
-    missedOwnBlocks,
-    missedOwnBlockFees: mutezToTz(missedOwnBlockFees),
-    endorsementRewards: mutezToTz(endorsementRewards),
-    endorsements,
-    missedEndorsements,
-    missedEndorsementRewards: mutezToTz(missedEndorsementRewards)
+    blockRewards: mutezToTz(
+      blockRewardsDelegated + blockRewardsStakedOwn + blockRewardsStakedEdge + blockRewardsStakedShared
+    ),
+    blocks,
+    blockFees: mutezToTz(blockFees),
+    missedBlockRewards: mutezToTz(missedBlockRewards),
+    missedBlocks,
+    missedBlockFees: mutezToTz(missedBlockFees),
+    attestationRewards: mutezToTz(
+      attestationRewardsDelegated +
+        attestationRewardsStakedOwn +
+        attestationRewardsStakedEdge +
+        attestationRewardsStakedShared
+    ),
+    attestations,
+    missedAttestations,
+    missedAttestationRewards: mutezToTz(missedAttestationRewards)
   };
 }

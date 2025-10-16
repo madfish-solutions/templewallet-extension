@@ -48,21 +48,31 @@ export const EvmChainTokensTab = memo<Props>(({ chainId, publicKeyHash, accountI
 
 const TabContent: FC = () => {
   const { publicKeyHash, network } = useContext(TezosChainTokensTabContext);
-  const { hideZeroBalance } = useTokensListOptionsSelector();
+  const { hideSmallBalance } = useTokensListOptionsSelector();
 
-  const { enabledSlugsSorted } = useEvmChainAccountTokensForListing(publicKeyHash, network.chainId, hideZeroBalance);
+  const { enabledSlugsSorted, shouldShowHiddenTokensHint } = useEvmChainAccountTokensForListing(
+    publicKeyHash,
+    network.chainId,
+    hideSmallBalance
+  );
 
-  return <TabContentBase allSlugsSorted={enabledSlugsSorted} manageActive={false} />;
+  return (
+    <TabContentBase
+      manageActive={false}
+      allSlugsSorted={enabledSlugsSorted}
+      shouldShowHiddenTokensHint={shouldShowHiddenTokensHint}
+    />
+  );
 };
 
 const TabContentWithManageActive: FC = () => {
   const { publicKeyHash, network } = useContext(TezosChainTokensTabContext);
-  const { hideZeroBalance } = useTokensListOptionsSelector();
+  const { hideSmallBalance } = useTokensListOptionsSelector();
 
   const { enabledSlugsSorted, tokens, tokensSortPredicate } = useEvmChainAccountTokensForListing(
     publicKeyHash,
     network.chainId,
-    hideZeroBalance
+    hideSmallBalance
   );
 
   const storedSlugs = useMemo(
@@ -81,11 +91,12 @@ const TabContentWithManageActive: FC = () => {
 };
 
 interface TabContentBaseProps {
-  allSlugsSorted: string[];
   manageActive: boolean;
+  allSlugsSorted: string[];
+  shouldShowHiddenTokensHint?: boolean;
 }
 
-const TabContentBase = memo<TabContentBaseProps>(({ allSlugsSorted, manageActive }) => {
+const TabContentBase = memo<TabContentBaseProps>(({ allSlugsSorted, manageActive, shouldShowHiddenTokensHint }) => {
   const { publicKeyHash, network, accountId } = useContext(TezosChainTokensTabContext);
   const { displayedSlugs, isSyncing, loadNext, searchValue, isInSearchMode, setSearchValue } =
     useEvmChainAccountTokensListingLogic(allSlugsSorted, network.chainId);
@@ -95,6 +106,7 @@ const TabContentBase = memo<TabContentBaseProps>(({ allSlugsSorted, manageActive
   const { tokensView, getElementIndex } = useMemo(() => {
     const tokensJsx = displayedSlugs.map((slug, i) => (
       <EvmTokenListItem
+        showTags
         key={slug}
         assetSlug={slug}
         publicKeyHash={publicKeyHash}
@@ -138,6 +150,7 @@ const TabContentBase = memo<TabContentBaseProps>(({ allSlugsSorted, manageActive
       isSyncing={isSyncing}
       isInSearchMode={isInSearchMode}
       network={network}
+      shouldShowHiddenTokensHint={shouldShowHiddenTokensHint}
     >
       {tokensView}
     </TokensTabBase>

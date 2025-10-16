@@ -41,6 +41,7 @@ export const buildManifest = (vendor: string) => {
 
 const buildManifestV3 = (vendor: string): Manifest.WebExtensionManifest => {
   const commons = buildManifestCommons(vendor);
+  const withVendors = makeWithVendors(vendor);
 
   commons.content_scripts!.push({
     matches: [
@@ -68,8 +69,8 @@ const buildManifestV3 = (vendor: string): Manifest.WebExtensionManifest => {
       }
     ],
 
-    permissions: PERMISSIONS,
-    host_permissions: HOST_PERMISSIONS,
+    permissions: [...COMMON_PERMISSIONS, 'sidePanel'],
+    host_permissions: COMMON_HOST_PERMISSIONS,
     optional_permissions: ['clipboardRead'],
 
     content_security_policy: {
@@ -77,6 +78,7 @@ const buildManifestV3 = (vendor: string): Manifest.WebExtensionManifest => {
     },
 
     action: buildBrowserAction(vendor),
+    ...withVendors('chrome')({ side_panel: { default_path: 'sidebar.html' } }),
 
     options_ui: OPTIONS_UI,
 
@@ -94,7 +96,7 @@ const buildManifestV2 = (vendor: string): Manifest.WebExtensionManifest => {
 
     ...buildManifestCommons(vendor),
 
-    permissions: [...PERMISSIONS, ...HOST_PERMISSIONS],
+    permissions: [...COMMON_PERMISSIONS, ...COMMON_HOST_PERMISSIONS],
     optional_permissions: ['clipboardRead'],
 
     /** `blob:` was added due to 3D-models not working in Firefox otherwise. See:
@@ -121,9 +123,9 @@ const buildManifestV2 = (vendor: string): Manifest.WebExtensionManifest => {
 
 const AUTHOR_URL = 'https://madfish.solutions';
 
-const PERMISSIONS = ['storage', 'unlimitedStorage', 'clipboardWrite', 'activeTab'];
+const COMMON_PERMISSIONS = ['storage', 'unlimitedStorage', 'clipboardWrite', 'activeTab'];
 
-const HOST_PERMISSIONS: string[] = ['http://localhost:8732/'];
+const COMMON_HOST_PERMISSIONS: string[] = ['http://localhost:8732/'];
 
 const OPTIONS_UI = {
   page: 'options.html',

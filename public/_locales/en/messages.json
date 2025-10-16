@@ -32,17 +32,22 @@
     "message": "Settings"
   },
   "openNewTab": {
-    "message": "Open new tab"
+    "message": "New tab"
   },
   "maximiseView": {
-    "message": "View Full Screen"
+    "message": "Full Screen"
   },
-  "connectedDApps": {
-    "message": "Connected Dapps",
-    "description": "Dapps = Decentralized Applications"
+  "connections": {
+    "message": "Connections"
   },
   "description": {
     "message": "Description"
+  },
+  "newVersion": {
+    "message": "New version available"
+  },
+  "clickToUpdateWallet": {
+    "message": "Click to update wallet and apply latest changes"
   },
   "versionLabel": {
     "message": "Version: $version$",
@@ -83,6 +88,9 @@
   },
   "lock": {
     "message": "Lock"
+  },
+  "lockWallet": {
+    "message": "Lock Wallet"
   },
   "importedAccount": {
     "message": "Imported"
@@ -789,8 +797,8 @@
     "message": "Reveal Seed Phrase"
   },
   "dApps": {
-    "message": "DApps",
-    "description": "DApps = Decentralized Applications"
+    "message": "Dapps",
+    "description": "Dapps = Decentralized Applications"
   },
   "removeAccount": {
     "message": "Remove Account"
@@ -798,8 +806,8 @@
   "removeAccountDescription": {
     "message": "Use this section to remove your selected account. Only imported accounts can be removed."
   },
-  "accountsManagement": {
-    "message": "Accounts management"
+  "accountManagement": {
+    "message": "Account Management"
   },
   "securityAndPrivacy": {
     "message": "Security & Privacy"
@@ -858,6 +866,9 @@
   },
   "advancedFeatures": {
     "message": "Advanced Features"
+  },
+  "templeBakery": {
+    "message": "Temple Bakery"
   },
   "aboutAndSupport": {
     "message": "About & Support"
@@ -955,7 +966,7 @@
     "message": "Import Wallet using Seed Phrase"
   },
   "ledgerConnect": {
-    "message": "Ledger connect"
+    "message": "Ledger Connect"
   },
   "connectLedger": {
     "message": "Connect Ledger",
@@ -1083,6 +1094,21 @@
   },
   "accountIndexDescription": {
     "message": "Enter the index of the account you would like to add"
+  },
+  "indexOrDerivationPath": {
+    "message": "Index or derivation path"
+  },
+  "indexOrDerivationPathDescription": {
+    "message": "Use this field to derive account or connect old type of Tezos accounts. Custom path is needed to access accounts generated from the same seed phrase on differenet device or wallet."
+  },
+  "evmIndexOrDerivationPathDescription": {
+    "message": "Use this field to derive accounts. Custom path is needed to access accounts generated from the same seed phrase."
+  },
+  "indexOrDerivationPathPlaceholder": {
+    "message": "e.g. 1 or m/44'/1729'/1'/0'"
+  },
+  "evmIndexOrDerivationPathPlaceholder": {
+    "message": "e.g. 1 or m/44'/60'/0'/0/1"
   },
   "invalidIndexError": {
     "message": "Must be an integer non-negative number"
@@ -1246,6 +1272,9 @@
   "fee": {
     "message": "Fee"
   },
+  "bridge": {
+    "message": "Bridge"
+  },
   "routingFee": {
     "message": "Routing Fee"
   },
@@ -1254,6 +1283,12 @@
   },
   "routingFeeTooltipEvm": {
     "message": "For choosing the most profitable exchange route among DEXes."
+  },
+  "protocolFeeTooltip": {
+    "message": "Bridge protocol fee for token cross-chain transfer."
+  },
+  "extraGasInfoTooltipEvm": {
+    "message": "Receive a portion of your bridged amount as gas on the destination network - just enough for your next transaction."
   },
   "delegated": {
     "message": "Delegated"
@@ -1959,6 +1994,9 @@
   "connectAccount": {
     "message": "Connect Account"
   },
+  "connectWallet": {
+    "message": "Connect Wallet"
+  },
   "confirmActionOnDevice": {
     "message": "Confirm the action on"
   },
@@ -2117,6 +2155,9 @@
   },
   "noTokens": {
     "message": "No tokens"
+  },
+  "hiddenTokensHint": {
+    "message": "You have hidden tokens, disable\n“Hide small balances” filter to see them all"
   },
   "noCollectibles": {
     "message": "No collectibles"
@@ -2489,11 +2530,14 @@
   "defaultAccount": {
     "message": "Default account (the first one)"
   },
-  "defaultNetworksGroup": {
-    "message": "Default Networks"
+  "default": {
+    "message": "Default"
   },
-  "customNetworksGroup": {
-    "message": "Custom Networks"
+  "suggested": {
+    "message": "Suggested"
+  },
+  "otherWallets": {
+    "message": "Other wallets"
   },
   "chainTestnetsGroup": {
     "message": "$chain$ Testnets",
@@ -2684,8 +2728,17 @@
   "via": {
     "message": "Via"
   },
+  "route": {
+    "message": "Route"
+  },
   "swapRoute": {
     "message": "Swap route"
+  },
+  "estimatedTime": {
+    "message": "Estimated time"
+  },
+  "protocolFee": {
+    "message": "Protocol fee"
   },
   "exchangeRate": {
     "message": "Exchange rate"
@@ -2738,6 +2791,17 @@
       }
     }
   },
+  "extraGasOnNetwork": {
+    "message": "Extra gas on $network$",
+    "placeholders": {
+      "network": {
+        "content": "$1"
+      }
+    }
+  },
+  "extraGas": {
+    "message": "Extra gas"
+  },
   "community": {
     "message": "Community"
   },
@@ -2762,14 +2826,57 @@
   "notWhitelistedTokenWarning": {
     "message": "Attention! One of the tokens you’re trying to exchange is not whitelisted. You can interact with them at your own risk."
   },
+  "selectWalletCaption": {
+    "message": "Select what wallet you would like to connect with $domain$.",
+    "placeholders": {
+      "domain": {
+        "content": "$1"
+      }
+    }
+  },
   "tvl": {
     "message": "TVL"
   },
-  "promoted": {
-    "message": "Promoted"
+  "featured": {
+    "message": "Featured"
+  },
+  "exploreAll": {
+    "message": "Explore All"
   },
   "searchDApps": {
     "message": "Search DApps"
+  },
+  "inviteAccountTooltip": {
+    "message": "All your referrals connected to your first created or imported account in Temple. Make sure you backed up your wallet to prevent unnecessary losses."
+  },
+  "advancedFeaturesTooltip": {
+    "message": "This section display your rewards for enabled advanced features. You can manage these features anytime in the settings."
+  },
+  "yourRewards": {
+    "message": "Your rewards"
+  },
+  "passivelyEarnTkey": {
+    "message": "Passively earn TKEY rewards by using built-in advanced features and support Temple development"
+  },
+  "delegateTezFunds": {
+    "message": "Delegate your TEZ funds to our baker and earn $apy$ rewards in TKEY tokens on your TEZ balance",
+    "placeholders": {
+      "apy": {
+        "content": "$1"
+      }
+    }
+  },
+  "noRewardsActivity": {
+    "message": "No rewards activity yet"
+  },
+  "noDelegationRewards": {
+    "message": "No delegation rewards yet"
+  },
+  "allTime": {
+    "message": "All time"
+  },
+  "lastActivity": {
+    "message": "Last activity"
   },
   "game": {
     "message": "Game"
@@ -3045,8 +3152,8 @@
   "resetAll": {
     "message": "Reset All"
   },
-  "hideZeroBalance": {
-    "message": "Hide 0 balance"
+  "hideSmallBalance": {
+    "message": "Hide small balance"
   },
   "groupByNetwork": {
     "message": "Group by network"
@@ -3153,12 +3260,6 @@
   },
   "finish": {
     "message": "Finish"
-  },
-  "welcomeToOnboarding": {
-    "message": "Welcome to Onboarding"
-  },
-  "onboarding": {
-    "message": "Onboarding"
   },
   "next": {
     "message": "Next"
@@ -3317,8 +3418,10 @@
     "message": "Advertising"
   },
   "rewards": {
-    "message": "rewards",
-    "description": "Part of partnersPromoDescription phrase"
+    "message": "Rewards"
+  },
+  "rewardsAccountTooltip": {
+    "message": "This is your account for Temple rewards. All payouts for activities will be distributed to this account addresses."
   },
   "partnersPromoDescription": {
     "message": "Here you can configure displaying ads in Temple Wallet and getting reward in TKEY tokens. By enabling this, you agree to share your wallet address and IP to receive tokens and view ads."
@@ -3328,6 +3431,21 @@
   },
   "referralLinksDescription": {
     "message": "Automatically receive referral links while order products and services at your favourite online stores."
+  },
+  "referralLinksHint": {
+    "message": "All your referrals connected to your first created or imported account in Temple. Make sure you backed up your wallet to prevent unnecessary losses."
+  },
+  "referrals": {
+    "message": "Referrals"
+  },
+  "inviteFriends": {
+    "message": "Invite friends in Temple"
+  },
+  "inviteLink": {
+    "message": "Invite Link"
+  },
+  "inviteAccount": {
+    "message": "Your invite account"
   },
   "totalEquityValue": {
     "message": "Total Equity Value"
@@ -3804,6 +3922,15 @@
   "swapTokenSearchInputPlaceholder": {
     "message": "Enter name or address"
   },
+  "unsecuredRpcEndpoint": {
+    "message": "Unsecured RPC endpoint"
+  },
+  "unsecuredRpcWarning": {
+    "message": "You’re going to add a custom RPC URL that does not use SSL/TLS encryption. This means your connection may be vulnerable to interception or manipulation.\n\nProceed only if you trust this endpoint."
+  },
+  "proceed": {
+    "message": "Proceed"
+  },
   "sync": {
     "message": "Sync"
   },
@@ -3872,13 +3999,49 @@
   "noRoutesFound": {
     "message": "No route available"
   },
+  "estimationExpired": {
+    "message": "Estimation expired, refresh quote"
+  },
   "swapCashback": {
     "message": "Cashback"
+  },
+  "refresh": {
+    "message": "Refresh"
+  },
+  "confirmWithCountdown": {
+    "message": "Confirm ($seconds$s)",
+    "placeholders": {
+      "seconds": {
+        "content": "$1"
+      }
+    }
+  },
+  "networkFrom": {
+    "message": "Network from"
+  },
+  "networkTo": {
+    "message": "Network to"
   },
   "swapCashbackDescription": {
     "message": "Swap more than 10$$ and receive $text$% from the swapped amount in the TKEY token as a cashback",
     "placeholders": {
       "text": {
+        "content": "$1"
+      }
+    }
+  },
+  "swapCashbackDescriptionShort": {
+    "message": "Swap over 10$$ and get $percent$% back",
+    "placeholders": {
+      "percent": {
+        "content": "$1"
+      }
+    }
+  },
+  "onlyDollarAmountToGo": {
+    "message": "Only $dollarAmount$$$ to go",
+    "placeholders": {
+      "dollarAmount": {
         "content": "$1"
       }
     }
@@ -4185,6 +4348,9 @@
   "allNetworks": {
     "message": "All Networks"
   },
+  "favorites": {
+    "message": "Favorites"
+  },
   "gasPrice": {
     "message": "Gas Price"
   },
@@ -4308,6 +4474,9 @@
   "testnetMode": {
     "message": "Testnet Mode"
   },
+  "sidebar": {
+    "message": "Sidebar"
+  },
   "disabledInTestnetMode": {
     "message": "Disabled in Testnet Mode"
   },
@@ -4337,6 +4506,33 @@
   },
   "earnTkeyDisclaimer": {
     "message": "By enabling ads, you agree to share your wallet address and IP\nto receive tokens and ads content."
+  },
+  "earnEthHeadline": {
+    "message": "Earn 3.4-10% APR on Ethereum\nwith Everstake"
+  },
+  "nonCustodialStaking": {
+    "message": "Non-custodial staking with full control"
+  },
+  "higherRewardsSystem": {
+    "message": "Higher rewards with auto-compound system"
+  },
+  "verifiedSecurity": {
+    "message": "Verified by leading security auditors"
+  },
+  "stakeGetAirdrops": {
+    "message": "Stake and participate in airdrops"
+  },
+  "earnWithEverstakeDisclaimer": {
+    "message": "Temple integrated third-party solution powered by Everstake and not responsible for further interactions."
+  },
+  "stakeEth": {
+    "message": "Stake ETH via Temple Wallet"
+  },
+  "stakeEthDescription": {
+    "message": "Earn 3.4–10% APR with non-custodial staking from Everstake. Enjoy higher auto-compounding rewards, top-level security and participation in airdrops.\n\nStake now or find it anytime on your ETH token."
+  },
+  "stakeWithEverstake": {
+    "message": "Stake with Everstake"
   },
   "startEarning": {
     "message": "Start Earning"

@@ -9,7 +9,10 @@ import {
   useTezosAccountTokensListingLogic
 } from 'app/hooks/listing-logic/use-tezos-account-tokens-listing-logic';
 import { useAssetsViewState } from 'app/hooks/use-assets-view-state';
-import { useTokensListOptionsSelector } from 'app/store/assets-filter-options/selectors';
+import {
+  useGroupByNetworkBehaviorSelector,
+  useTokensListOptionsSelector
+} from 'app/store/assets-filter-options/selectors';
 import { useMainnetTokensScamlistSelector } from 'app/store/tezos/assets/selectors';
 import { PartnersPromotion, PartnersPromotionVariant } from 'app/templates/partners-promotion';
 import { TezosTokenListItem } from 'app/templates/TokenListItem';
@@ -48,30 +51,30 @@ export const TezosTokensTab = memo<Props>(props => {
 
 const TabContent: FC = () => {
   const { publicKeyHash } = useContext(TezosTokensTabContext);
-  const { hideZeroBalance, groupByNetwork } = useTokensListOptionsSelector();
+  const groupByNetwork = useGroupByNetworkBehaviorSelector();
+  const { hideSmallBalance } = useTokensListOptionsSelector();
 
-  const { enabledChainSlugsSorted, enabledChainSlugsSortedGrouped } = useTezosAccountTokensForListing(
-    publicKeyHash,
-    hideZeroBalance,
-    groupByNetwork
-  );
+  const { enabledChainSlugsSorted, enabledChainSlugsSortedGrouped, shouldShowHiddenTokensHint } =
+    useTezosAccountTokensForListing(publicKeyHash, hideSmallBalance, groupByNetwork);
 
   return (
     <TabContentBase
+      manageActive={false}
+      groupByNetwork={groupByNetwork}
       allSlugsSorted={enabledChainSlugsSorted}
       allSlugsSortedGrouped={enabledChainSlugsSortedGrouped}
-      groupByNetwork={groupByNetwork}
-      manageActive={false}
+      shouldShowHiddenTokensHint={shouldShowHiddenTokensHint}
     />
   );
 };
 
 const TabContentWithManageActive: FC = () => {
   const { publicKeyHash } = useContext(TezosTokensTabContext);
-  const { hideZeroBalance, groupByNetwork } = useTokensListOptionsSelector();
+  const groupByNetwork = useGroupByNetworkBehaviorSelector();
+  const { hideSmallBalance } = useTokensListOptionsSelector();
 
   const { enabledChainSlugsSorted, enabledChainSlugsSortedGrouped, tokens, tokensSortPredicate } =
-    useTezosAccountTokensForListing(publicKeyHash, hideZeroBalance, groupByNetwork);
+    useTezosAccountTokensForListing(publicKeyHash, hideSmallBalance, groupByNetwork);
 
   const allTezosTokensSlugs = useMemo(
     () =>
@@ -111,10 +114,11 @@ interface TabContentBaseProps {
   allSlugsSortedGrouped: ChainGroupedSlugs<TempleChainKind.Tezos> | null;
   groupByNetwork: boolean;
   manageActive: boolean;
+  shouldShowHiddenTokensHint?: boolean;
 }
 
 const TabContentBase = memo<TabContentBaseProps>(
-  ({ allSlugsSorted, allSlugsSortedGrouped, groupByNetwork, manageActive }) => {
+  ({ allSlugsSorted, allSlugsSortedGrouped, groupByNetwork, manageActive, shouldShowHiddenTokensHint }) => {
     const { publicKeyHash, accountId } = useContext(TezosTokensTabContext);
     const promoRef = useRef<HTMLDivElement>(null);
     const firstHeaderRef = useRef<HTMLDivElement>(null);
@@ -206,6 +210,7 @@ const TabContentBase = memo<TabContentBaseProps>(
         isSyncing={isSyncing}
         isInSearchMode={isInSearchMode}
         network={mainnetChain}
+        shouldShowHiddenTokensHint={shouldShowHiddenTokensHint}
       >
         {tokensView}
       </TokensTabBase>

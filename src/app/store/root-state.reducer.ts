@@ -4,7 +4,6 @@ import { lifiEvmTokensMetadataPersistedReducer } from 'app/store/evm/swap-lifi-m
 
 import { abTestingReducer } from './ab-testing/reducers';
 import { accountsInitializationReducer } from './accounts-initialization/reducers';
-import { advertisingReducer } from './advertising/reducers';
 import { assetsFilterOptionsReducer } from './assets-filter-options/reducer';
 import { buyWithCreditCardReducer } from './buy-with-credit-card/reducers';
 import { cryptoExchangePersistedReducer } from './crypto-exchange/reducers';
@@ -21,7 +20,7 @@ import { newsletterReducers } from './newsletter/newsletter-reducers';
 import { notificationsReducer } from './notifications/reducers';
 import { partnersPromotionPersistedReducer } from './partners-promotion/reducers';
 import { rewardsReducer } from './rewards/reducers';
-import { settingsPersistedReducer } from './settings/reducers';
+import { settingsReducer } from './settings/reducers';
 import { swapPersistedReducer } from './swap/reducers';
 import { assetsPersistedReducer } from './tezos/assets/reducer';
 import { balancesReducer } from './tezos/balances/reducers';
@@ -31,8 +30,7 @@ import { noCategoryTezosAssetsMetadataPersistedReducer } from './tezos/no-catego
 import { tokensMetadataReducer } from './tezos/tokens-metadata/reducers';
 
 const rootStateReducersMap = {
-  settings: settingsPersistedReducer,
-  advertising: advertisingReducer,
+  settings: settingsReducer,
   currency: currencyPersistedReducer,
   notifications: notificationsReducer,
   dApps: dAppsReducer,

@@ -18,6 +18,7 @@ interface ProcessLoadedEvmTokensBalancesActionPayload {
   publicKeyHash: HexString;
   chainId: number;
   data: BalancesResponse;
+  assetsToPreventBalanceErase?: string[];
 }
 
 interface LoadOnChainBalanceSuccessPayload {

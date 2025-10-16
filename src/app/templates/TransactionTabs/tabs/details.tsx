@@ -13,7 +13,7 @@ import InFiat from 'app/templates/InFiat';
 import { t, T } from 'lib/i18n';
 import { getAssetSymbol, useGetTezosGasMetadata } from 'lib/metadata';
 import { TEMPLE_TOKEN } from 'lib/route3/constants';
-import { OneOfChains } from 'temple/front/chains';
+import { EvmChain, OneOfChains } from 'temple/front/chains';
 import { TempleChainKind } from 'temple/types';
 
 interface Props {
@@ -29,6 +29,13 @@ interface Props {
     amount: string;
     symbol: string;
   };
+  bridgeData?: {
+    inputNetwork: EvmChain;
+    outputNetwork: EvmChain;
+    executionTime: string;
+    protocolFee?: string;
+    destinationChainGasTokenAmount?: BigNumber;
+  };
 }
 
 export const DetailsTab: FC<Props> = ({
@@ -40,23 +47,55 @@ export const DetailsTab: FC<Props> = ({
   displayedStorageFee,
   cashbackInTkey,
   minimumReceived,
-  goToFeeTab
+  goToFeeTab,
+  bridgeData
 }) => {
   const { kind: chainKind, chainId } = network;
 
   return (
     <FadeTransition>
       <div className="flex flex-col px-4 py-2 mb-6 rounded-lg shadow-bottom border-0.5 border-transparent">
-        <ChartListItem title={<T id="network" />}>
-          <div className="flex flex-row items-center">
-            <span className="p-1 text-font-description-bold">{network.name}</span>
-            {chainKind === TempleChainKind.EVM ? (
-              <EvmNetworkLogo chainId={chainId} />
-            ) : (
-              <TezosNetworkLogo chainId={chainId} />
-            )}
-          </div>
-        </ChartListItem>
+        {bridgeData ? (
+          <>
+            <ChartListItem title={<T id="networkFrom" />}>
+              <div className="flex flex-row items-center">
+                <span className="p-1 text-font-num-12">{bridgeData.inputNetwork.name}</span>
+                <EvmNetworkLogo chainId={bridgeData.inputNetwork.chainId} size={16} />
+              </div>
+            </ChartListItem>
+            <ChartListItem title={<T id="networkTo" />}>
+              <div className="flex flex-row items-center">
+                <span className="p-1 text-font-num-12">{bridgeData.outputNetwork.name}</span>
+                <EvmNetworkLogo chainId={bridgeData?.outputNetwork.chainId} size={16} />
+              </div>
+            </ChartListItem>
+          </>
+        ) : (
+          <ChartListItem title={<T id="network" />}>
+            <div className="flex flex-row items-center">
+              <span className="p-1 text-font-num-12">{network.name}</span>
+              {chainKind === TempleChainKind.EVM ? (
+                <EvmNetworkLogo chainId={chainId} size={16} />
+              ) : (
+                <TezosNetworkLogo chainId={chainId} size={16} />
+              )}
+            </div>
+          </ChartListItem>
+        )}
+
+        {bridgeData?.executionTime && (
+          <ChartListItem title={<T id="estimatedTime" />}>
+            <span className="p-1 text-font-num-12">≈ {bridgeData.executionTime} </span>
+          </ChartListItem>
+        )}
+
+        {bridgeData?.destinationChainGasTokenAmount && (
+          <SwapInfoRow
+            title={t('extraGas')}
+            amount={bridgeData.destinationChainGasTokenAmount.toString()}
+            symbol={bridgeData.outputNetwork.currency.name}
+          />
+        )}
 
         {(isDefined(destinationName) || isDefined(destinationValue)) && (
           <ChartListItem title={destinationName}>{destinationValue}</ChartListItem>
@@ -66,6 +105,14 @@ export const DetailsTab: FC<Props> = ({
 
         {isDefined(cashbackInTkey) && (
           <SwapInfoRow title={t('swapCashback')} amount={cashbackInTkey} symbol={TEMPLE_TOKEN.symbol} />
+        )}
+
+        {bridgeData?.protocolFee && (
+          <ChartListItem title={<T id="protocolFee" />}>
+            <div className="flex flex-row items-center">
+              <FeesInfo network={network} assetSlug={nativeAssetSlug} amount={bridgeData.protocolFee} />
+            </div>
+          </ChartListItem>
         )}
 
         <ChartListItem title={<T id="gasFee" />} bottomSeparator={Boolean(displayedStorageFee)}>
@@ -94,7 +141,7 @@ export const DetailsTab: FC<Props> = ({
 interface FeesInfoProps {
   network: OneOfChains;
   assetSlug: string;
-  goToFeeTab: EmptyFn;
+  goToFeeTab?: EmptyFn;
   amount?: string;
 }
 
@@ -109,17 +156,19 @@ const FeesInfo: FC<FeesInfoProps> = ({ network, assetSlug, amount = '0.00', goTo
 
   return (
     <>
-      <div className="p-1 text-font-num-bold-12">
+      <div className="p-1 text-font-num-12">
         <InFiat
           chainId={network.chainId}
           assetSlug={assetSlug}
           volume={amount}
           smallFractionFont={false}
+          showLessThanSign={true}
           roundingMode={BigNumber.ROUND_FLOOR}
           evm={isEvm}
         >
-          {({ balance, symbol }) => (
+          {({ balance, symbol, tooLowSign }) => (
             <span className="pr-1 border-r-1.5 border-lines">
+              {tooLowSign && '< '}
               {symbol}
               {balance}
             </span>
@@ -132,7 +181,7 @@ const FeesInfo: FC<FeesInfoProps> = ({ network, assetSlug, amount = '0.00', goTo
           {nativeAssetSymbol}
         </span>
       </div>
-      <IconBase Icon={ChevronRightIcon} className="text-primary cursor-pointer" onClick={goToFeeTab} />
+      {goToFeeTab && <IconBase Icon={ChevronRightIcon} className="text-primary cursor-pointer" onClick={goToFeeTab} />}
     </>
   );
 };
@@ -145,7 +194,7 @@ interface SwapInfoRowProps {
 
 const SwapInfoRow: FC<SwapInfoRowProps> = ({ title, amount, symbol }) => (
   <ChartListItem title={title}>
-    <span className="p-1 text-font-num-bold-12">
+    <span className="p-1 text-font-num-12">
       <Money smallFractionFont={false} tooltipPlacement="bottom">
         {amount}
       </Money>{' '}

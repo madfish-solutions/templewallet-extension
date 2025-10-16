@@ -1,6 +1,7 @@
 import { localForger } from '@taquito/local-forging';
 import { ForgeOperationsParams } from '@taquito/rpc';
 import { TezosToolkit, TezosOperationError, getRevealGasLimit, getRevealFee, Estimate } from '@taquito/taquito';
+import { ProhibitedActionError } from '@taquito/utils';
 import { omit } from 'lodash';
 
 import { FEE_PER_GAS_UNIT } from 'lib/constants';
@@ -9,11 +10,14 @@ import { ReadOnlySigner } from 'lib/temple/read-only-signer';
 import { SerializedEstimate } from 'lib/temple/types';
 import { serializeEstimate } from 'lib/utils/serialize-estimate';
 import { getParamsWithCustomGasLimitFor3RouteSwap } from 'lib/utils/swap.utils';
-import { michelEncoder, getTezosFastRpcClient } from 'temple/tezos';
+import { TezosNetworkEssentials } from 'temple/networks';
+import { michelEncoder, getTezosRpcClient } from 'temple/tezos';
+
+import { provePossession } from './prove-possession';
 
 interface DryRunParams {
   opParams: any[];
-  networkRpc: string;
+  network: TezosNetworkEssentials;
   sourcePkh: string;
   sourcePublicKey: string;
   attemptCounter?: number;
@@ -32,19 +36,30 @@ export interface DryRunResult {
 
 export async function dryRunOpParams({
   opParams,
-  networkRpc,
+  network,
   sourcePkh,
   sourcePublicKey,
   attemptCounter = 0,
   prevFailedOperationIndex = -1
 }: DryRunParams): Promise<DryRunResult | null> {
   try {
-    const tezos = new TezosToolkit(getTezosFastRpcClient(networkRpc));
+    const tezos = new TezosToolkit(getTezosRpcClient(network));
 
     let bytesToSign: string | undefined;
-    const signer = new ReadOnlySigner(sourcePkh, sourcePublicKey, digest => {
-      bytesToSign = digest;
-    });
+    const signer = new ReadOnlySigner(
+      sourcePkh,
+      sourcePublicKey,
+      digest => {
+        bytesToSign = digest;
+      },
+      () => {
+        if (!sourcePkh.startsWith('tz4')) {
+          throw new ProhibitedActionError('Only BLS keys can prove possession');
+        }
+
+        return provePossession(sourcePkh);
+      }
+    );
 
     tezos.setSignerProvider(signer);
     tezos.setPackerProvider(michelEncoder);
@@ -80,7 +95,7 @@ export async function dryRunOpParams({
             if (attemptCounter < 3) {
               return dryRunOpParams({
                 opParams: newOpParams,
-                networkRpc,
+                network,
                 sourcePkh,
                 sourcePublicKey,
                 attemptCounter: failedOperationIndex > prevFailedOperationIndex ? 0 : attemptCounter + 1,

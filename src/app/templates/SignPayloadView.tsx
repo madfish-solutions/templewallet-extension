@@ -14,7 +14,7 @@ import { getAccountAddressForEvm, getAccountAddressForTezos } from 'temple/accou
 import { useAllAccounts } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
 
-import { AccountCard } from './AccountCard';
+import { AccountCard } from './account-card';
 
 interface SignPayloadViewProps {
   payload: TempleEvmDAppSignPayload | TempleTezosDAppSignPayload;
@@ -53,6 +53,7 @@ export const SignPayloadView = memo<SignPayloadViewProps>(({ payload }) => {
         attractSelf={false}
         searchValue=""
         showRadioOnHover={false}
+        alwaysShowAddresses
       />
 
       <div className="rounded-lg p-4 bg-white shadow-bottom flex flex-col gap-2">

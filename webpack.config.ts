@@ -37,7 +37,7 @@ import { isTruthy } from './webpack/utils';
 
 const ExtensionReloaderMV3 = ExtensionReloaderMV3BadlyTyped as ExtensionReloaderMV3Type;
 
-const PAGES_NAMES = ['popup', 'fullpage', 'confirm', 'options'];
+const PAGES_NAMES = ['popup', 'fullpage', 'confirm', 'options', 'sidebar'];
 
 const HTML_TEMPLATES = PAGES_NAMES.map(name => {
   const filename = `${name}.html`;
@@ -177,14 +177,7 @@ const mainConfig = (() => {
 const scriptsConfig = (() => {
   const config = buildBaseConfig();
 
-  config.output!.chunkFormat =
-    TARGET_BROWSER === 'firefox'
-      ? /* Dynamic imports do not work in Firefox for Content Scripts.
-         * See: https://bugzilla.mozilla.org/show_bug.cgi?id=1536094
-         * Neither chunks loading method seem to work.
-         */
-        false
-      : 'module'; // Required for dynamic imports `import()`
+  config.output!.chunkFormat = 'module'; // Required for dynamic imports `import()`
 
   config.entry = {
     main: Path.join(PATHS.SOURCE, 'content-scripts/main.ts'),

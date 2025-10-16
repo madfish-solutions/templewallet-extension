@@ -3,7 +3,6 @@ import React, { memo, useCallback, useLayoutEffect, useMemo } from 'react';
 import { generateMnemonic } from 'bip39';
 import clsx from 'clsx';
 import { Controller, useForm } from 'react-hook-form';
-import { useDispatch } from 'react-redux';
 
 import { Alert, FormField, PASSWORD_ERROR_CAPTION } from 'app/atoms';
 import { SettingsCheckbox } from 'app/atoms/SettingsCheckbox';
@@ -11,16 +10,11 @@ import { StyledButton } from 'app/atoms/StyledButton';
 import { TextButton } from 'app/atoms/TextButton';
 import { ValidationLabel } from 'app/atoms/ValidationLabel';
 import { PASSWORD_PATTERN, PasswordValidation, formatMnemonic, passwordValidationRegexes } from 'app/defaults';
-import { useOnboardingProgress } from 'app/pages/Onboarding/hooks/useOnboardingProgress.hook';
+import { dispatch } from 'app/store';
 import { togglePartnersPromotionAction } from 'app/store/partners-promotion/actions';
-import {
-  setIsAnalyticsEnabledAction,
-  setOnRampAssetAction,
-  setReferralLinksEnabledAction
-} from 'app/store/settings/actions';
+import { setIsAnalyticsEnabledAction, setReferralLinksEnabledAction } from 'app/store/settings/actions';
 import { toastError } from 'app/toaster';
 import { AnalyticsEventCategory, useAnalytics } from 'lib/analytics';
-import { TEZOS_CHAIN_ASSET_SLUG } from 'lib/apis/wert';
 import {
   DEFAULT_PASSWORD_INPUT_PLACEHOLDER,
   PRIVACY_POLICY_URL,
@@ -68,11 +62,8 @@ export const CreatePasswordForm = memo<CreatePasswordFormProps>(
   ({ mnemonic: mnemonicToImport, backupPassword, onNewBackupState }) => {
     const { googleAuthToken, registerWallet, setSuppressReady } = useTempleClient();
     const { trackEvent } = useAnalytics();
-    const { setOnboardingCompleted } = useOnboardingProgress();
     const [, setInitToast] = useInitToastMessage();
     const [backupPasswordUsed, goToBackupPassword, goToCustomPassword] = useBooleanState(false);
-
-    const dispatch = useDispatch();
 
     const { control, watch, register, handleSubmit, errors, triggerValidation, formState, setValue, reset } =
       useForm<FormData>({
@@ -112,22 +103,19 @@ export const CreatePasswordForm = memo<CreatePasswordFormProps>(
 
     const onSubmit = useCallback(
       async (data: FormData) => {
-        // TODO: enable onboarding when it is reimplemented
-        await setOnboardingCompleted(true);
-
         if (submitting) return;
 
         try {
           const { analytics: analyticsEnabled, getRewards: adsViewEnabled, password } = data;
 
-          dispatch(togglePartnersPromotionAction(adsViewEnabled));
-          dispatch(setIsAnalyticsEnabledAction(analyticsEnabled));
-          dispatch(setReferralLinksEnabledAction(adsViewEnabled));
-
           const shouldBackupToGoogleAutomatically = Boolean(googleAuthToken && !mnemonicToImport);
           setSuppressReady(shouldBackupToGoogleAutomatically);
 
           const accountPkh = await registerWallet(password, formatMnemonic(seedPhrase));
+
+          dispatch(togglePartnersPromotionAction(adsViewEnabled));
+          dispatch(setIsAnalyticsEnabledAction(analyticsEnabled));
+          dispatch(setReferralLinksEnabledAction(adsViewEnabled));
 
           // registerWallet function clears async storages
           await putToStorage(REPLACE_REFERRALS_ENABLED, adsViewEnabled);
@@ -139,8 +127,6 @@ export const CreatePasswordForm = memo<CreatePasswordFormProps>(
             trackEvent('AnalyticsEnabled', AnalyticsEventCategory.General, { accountPkh }, analyticsEnabled);
             trackEvent('AdsEnabled', AnalyticsEventCategory.General, { accountPkh }, adsViewEnabled);
           }
-
-          dispatch(setOnRampAssetAction(mnemonicToImport ? null : TEZOS_CHAIN_ASSET_SLUG));
 
           if (mnemonicToImport) {
             await putToStorage(SHOULD_DISABLE_NOT_ACTIVE_NETWORKS_STORAGE_KEY, true);
@@ -165,9 +151,7 @@ export const CreatePasswordForm = memo<CreatePasswordFormProps>(
         }
       },
       [
-        setOnboardingCompleted,
         submitting,
-        dispatch,
         registerWallet,
         backupPassword,
         googleAuthToken,

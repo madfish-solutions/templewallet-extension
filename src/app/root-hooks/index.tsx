@@ -2,10 +2,9 @@ import React, { memo, useEffect } from 'react';
 
 import { useAccountsInitializedSync } from 'app/hooks/use-accounts-initialized-sync';
 import { useAdsImpressionsLinking } from 'app/hooks/use-ads-impressions-linking';
-import { useAdvertisingLoading } from 'app/hooks/use-advertising.hook';
 import { useAssetsMigrations } from 'app/hooks/use-assets-migrations';
 import { useCollectiblesDetailsLoading } from 'app/hooks/use-collectibles-details-loading';
-import { useConversionTracking } from 'app/hooks/use-conversion-tracking';
+import { useConversionVerification } from 'app/hooks/use-conversion-verification';
 import { useTokensApyLoading } from 'app/hooks/use-load-tokens-apy.hook';
 import { useLongRefreshLoading } from 'app/hooks/use-long-refresh-loading.hook';
 import { useMetadataRefresh } from 'app/hooks/use-metadata-refresh';
@@ -14,7 +13,7 @@ import { useNoCategoryTezosAssetsLoading } from 'app/hooks/use-no-category-tezos
 import { useStorageAnalytics } from 'app/hooks/use-storage-analytics';
 import { useUserAnalyticsAndAdsSettings } from 'app/hooks/use-user-analytics-and-ads-settings.hook';
 import { useUserIdAccountPkhSync } from 'app/hooks/use-user-id-account-pkh-sync';
-import { useFetchLifiEvmTokensSlugs } from 'app/pages/Swap/form/hooks';
+import { useFetchSupportedLifiChainIds } from 'app/pages/Swap/form/hooks';
 import { dispatch } from 'app/store';
 import { useTestnetModeEnabledSelector } from 'app/store/settings/selectors';
 import { loadSwapDexesAction, loadSwapTokensAction } from 'app/store/swap/actions';
@@ -32,17 +31,29 @@ import { AppEvmTokensMetadataLoading } from './evm/tokens-metadata-loading';
 import { AppTezosTokensMetadataLoading } from './metadata-loading';
 import { useChainIDsCheck } from './use-chain-ids-check';
 import { useDisableInactiveNetworks } from './use-disable-inactive-networks';
+import { useEnableAutodisabledNetworks } from './use-enable-autodisabled-networks';
 
 export const AppRootHooks = memo(() => {
   const { ready } = useTempleClient();
 
-  return ready ? <AppReadyRootHooks /> : null;
+  return (
+    <>
+      <ConstantAppRootHooks />
+      {ready ? <AppReadyRootHooks /> : null}
+    </>
+  );
 });
 
 export const ConfirmWindowRootHooks = memo(() => {
   const { ready } = useTempleClient();
 
   return ready ? <ConfirmWindowReadyRootHooks /> : null;
+});
+
+const ConstantAppRootHooks = memo(() => {
+  useConversionVerification();
+
+  return null;
 });
 
 const AppReadyRootHooks = memo(() => {
@@ -54,7 +65,6 @@ const AppReadyRootHooks = memo(() => {
   useMetadataRefresh();
 
   useLongRefreshLoading();
-  useAdvertisingLoading();
   useTokensApyLoading();
 
   useEffect(() => {
@@ -64,13 +74,14 @@ const AppReadyRootHooks = memo(() => {
 
   useUserAnalyticsAndAdsSettings();
   useStorageAnalytics();
-  useConversionTracking();
+  useConversionVerification();
   useAdsImpressionsLinking();
 
   useChainIDsCheck();
   useUserIdAccountPkhSync();
   useAccountsInitializedSync();
   useDisableInactiveNetworks();
+  useEnableAutodisabledNetworks();
 
   const tezosAddress = useAccountAddressForTezos();
   const evmAddress = useAccountAddressForEvm();
@@ -112,7 +123,7 @@ const TezosAccountHooks = memo<{ publicKeyHash: string }>(({ publicKeyHash }) =>
 
 const EvmAccountHooks = memo<{ publicKeyHash: HexString }>(({ publicKeyHash }) => {
   useNoCategoryEvmAssetsLoading(publicKeyHash);
-  useFetchLifiEvmTokensSlugs(publicKeyHash);
+  useFetchSupportedLifiChainIds();
   const testnetModeEnabled = useTestnetModeEnabledSelector();
 
   return (

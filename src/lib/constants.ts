@@ -7,6 +7,7 @@ import {
 
 export enum ContentScriptType {
   ExternalLinksActivity = 'ExternalLinksActivity',
+  ExternalPageLocation = 'ExternalPageLocation',
   ExternalAdsActivity = 'ExternalAdsActivity',
   UpdateAdsRules = 'UpdateAdsRules',
   FetchReferralsRules = 'FetchReferralsRules',
@@ -35,8 +36,13 @@ export const ADS_VIEWER_ADDRESS_STORAGE_KEY = 'ADS_VIEWER_ADDRESS';
 
 export const ADS_VIEWER_DATA_STORAGE_KEY = 'ADS_VIEWER_DATA';
 
+export const REWARDS_ACCOUNT_DATA_STORAGE_KEY = 'REWARDS_ACCOUNT_DATA';
+
 /** @deprecated */
 export const CUSTOM_NETWORKS_SNAPSHOT_STORAGE_KEY = 'custom_networks_snapshot';
+
+/** @deprecated */
+export const HIDE_ZERO_BALANCES_STORAGE_KEY = 'tokens-list:hide-zero-balances';
 
 export const CUSTOM_TEZOS_NETWORKS_STORAGE_KEY = 'CUSTOM_TEZOS_NETWORKS';
 
@@ -82,9 +88,23 @@ export const SHOULD_BACKUP_MNEMONIC_STORAGE_KEY = 'SHOULD_BACKUP_MNEMONIC';
 
 export const SHOULD_SHOW_V2_INTRO_MODAL_STORAGE_KEY = 'SHOULD_SHOW_V2_INTRO_MODAL';
 
+export const SHOULD_OPEN_LETS_EXCHANGE_MODAL_STORAGE_KEY = 'SHOULD_OPEN_LETS_EXCHANGE_MODAL';
+
+export const SHOULD_SHOW_EARN_ETH_INTRO_MODAL_STORAGE_KEY = 'SHOULD_SHOW_EARN_ETH_INTRO_MODAL';
+
 export const AUTOLOCK_TIME_STORAGE_KEY = 'AUTOLOCK_TIME';
 
+export const REFERRAL_WALLET_REGISTERED_STORAGE_KEY = 'REFERRAL_WALLET_REGISTERED';
+
+export const CONVERSION_CHECKED_STORAGE_KEY = 'CONVERSION_CHECKED';
+
+export const SIDE_VIEW_WAS_FORCED_STORAGE_KEY = 'SIDE_VIEW_WAS_FORCED';
+
+export const REWARDS_BADGE_STATE_STORAGE_KEY = 'REWARDS_BADGE_STATE';
+
 export const SHOULD_DISABLE_NOT_ACTIVE_NETWORKS_STORAGE_KEY = 'SHOULD_DISABLE_NOT_ACTIVE_NETWORKS';
+
+export const ACCOUNTS_FOR_REENABLING_NETWORKS_STORAGE_KEY = 'ACCOUNTS_FOR_REENABLING_NETWORKS';
 
 // Browser storage cannot set a value to Infinity
 export const NEVER_AUTOLOCK_VALUE = Number.MAX_SAFE_INTEGER;
@@ -107,6 +127,8 @@ export const RESPONSE_FROM_BG_MSG_TYPE = 'templeResponseFromBackground';
 export const DISCONNECT_DAPP_MSG_TYPE = 'templeDisconnectDApp';
 
 export const SWITCH_CHAIN_MSG_TYPE = 'templeSwitchChain';
+
+export const TEMPLE_SWITCH_PROVIDER_EVENT = 'templeSwitchProvider';
 
 export const FEE_PER_GAS_UNIT = 0.1;
 export const RECOMMENDED_ADD_TEZ_GAS_FEE = 0.00015;

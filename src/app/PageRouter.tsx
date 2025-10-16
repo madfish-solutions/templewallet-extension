@@ -5,7 +5,6 @@ import { OpenInFullPage, useAppEnv } from 'app/env';
 import { AccountSettings } from 'app/pages/AccountSettings';
 import { CollectiblePage } from 'app/pages/Collectibles/CollectiblePage';
 import Home from 'app/pages/Home/Home';
-import AttentionPage from 'app/pages/Onboarding/pages/AttentionPage';
 import { Receive } from 'app/pages/Receive/Receive';
 import Send from 'app/pages/Send';
 import Settings from 'app/pages/Settings/Settings';
@@ -14,11 +13,15 @@ import Unlock from 'app/pages/Unlock/Unlock';
 import Welcome from 'app/pages/Welcome/Welcome';
 import { usePageRouterAnalytics } from 'lib/analytics';
 import { useTempleClient } from 'lib/temple/front';
+import { TempleAccountType } from 'lib/temple/types';
 import * as Woozie from 'lib/woozie';
+import { useAccount } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
 
 import { ActivityPage } from './pages/Activity';
 import { ChainSettings } from './pages/ChainSettings';
+import { Dapps } from './pages/Dapps';
+import { EarnEthPage } from './pages/EarnEth';
 import { EarnTezPage } from './pages/EarnTez';
 import { EarnTkeyPage } from './pages/EarnTkey';
 import { ImportWallet } from './pages/ImportWallet';
@@ -30,11 +33,22 @@ import { TokenPage } from './pages/Token';
 interface RouteContext {
   popup: boolean;
   fullPage: boolean;
+  sidebar: boolean;
   ready: boolean;
   locked: boolean;
 }
 
 type RouteFactory = Woozie.ResolveResult<RouteContext>;
+
+const RewardsRoute = memo(() => {
+  const account = useAccount();
+
+  if (account.type === TempleAccountType.WatchOnly) {
+    return <Woozie.Redirect to="/" />;
+  }
+
+  return <RewardsPage />;
+});
 
 const ROUTE_MAP = Woozie.createMap<RouteContext>([
   [
@@ -66,7 +80,7 @@ const ROUTE_MAP = Woozie.createMap<RouteContext>([
       }
     }
   ],
-  ['/loading', (_p, ctx) => (ctx.ready ? <Woozie.Redirect to={'/'} /> : <RootSuspenseFallback />)],
+  ['/loading', (_p, ctx) => (ctx.ready ? <Woozie.Redirect to="/" /> : <RootSuspenseFallback />)],
   ['/', (_p, ctx) => (ctx.ready ? <Home /> : <Welcome />)],
   ['/activity', onlyReady(() => <ActivityPage />)],
   ['/receive/:chainKind?', onlyReady(({ chainKind }) => <Receive chainKind={chainKind} />)],
@@ -79,6 +93,7 @@ const ROUTE_MAP = Woozie.createMap<RouteContext>([
   ['/swap', onlyReady(() => <Swap />)],
   ['/earn-tez/:tezosChainId', onlyReady(({ tezosChainId }) => <EarnTezPage tezosChainId={tezosChainId!} />)],
   ['/earn-tkey', onlyReady(() => <EarnTkeyPage />)],
+  ['/earn-eth', onlyReady(() => <EarnEthPage />)],
   [
     '/token/:chainKind?/:chainId?/:assetSlug?',
     onlyReady(({ chainKind, chainId, assetSlug }) => (
@@ -97,10 +112,10 @@ const ROUTE_MAP = Woozie.createMap<RouteContext>([
   ],
   ['/settings/:tabSlug?', onlyReady(({ tabSlug }) => <Settings tabSlug={tabSlug} />)],
   ['/market', onlyReady(() => <Market />)],
-  ['/attention', onlyReady(onlyInFullPage(() => <AttentionPage />))],
   ['/notifications', onlyReady(() => <Notifications />)],
+  ['/dapps', onlyReady(() => <Dapps />)],
   ['/account/:id', onlyReady(({ id }) => <AccountSettings id={id!} />)],
-  ['/rewards', onlyReady(() => <RewardsPage />)],
+  ['/rewards', onlyReady(() => <RewardsRoute />)],
   ['*', () => <Woozie.Redirect to="/" />]
 ]);
 
@@ -125,10 +140,11 @@ export const PageRouter = memo(() => {
     () => ({
       popup: appEnv.popup,
       fullPage: appEnv.fullPage,
+      sidebar: appEnv.sidebar,
       ready: temple.ready,
       locked: temple.locked
     }),
-    [appEnv.popup, appEnv.fullPage, temple.ready, temple.locked]
+    [appEnv.popup, appEnv.fullPage, appEnv.sidebar, temple.ready, temple.locked]
   );
 
   usePageRouterAnalytics(pathname, search, ctx.ready);
@@ -138,8 +154,4 @@ export const PageRouter = memo(() => {
 
 function onlyReady(factory: RouteFactory): RouteFactory {
   return (params, ctx) => (ctx.ready ? factory(params, ctx) : Woozie.SKIP);
-}
-
-function onlyInFullPage(factory: RouteFactory): RouteFactory {
-  return (params, ctx) => (!ctx.fullPage ? <OpenInFullPage /> : factory(params, ctx));
 }

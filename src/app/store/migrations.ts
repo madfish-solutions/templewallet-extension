@@ -3,11 +3,13 @@ import type { MigrationManifest, PersistedState } from 'redux-persist';
 
 import { TEZOS_CHAIN_ASSET_SLUG } from 'lib/apis/wert';
 import { toTokenSlug } from 'lib/assets';
+import { HIDE_ZERO_BALANCES_STORAGE_KEY } from 'lib/constants';
 import { IS_MISES_BROWSER } from 'lib/env';
 import { isCollectible } from 'lib/metadata/utils';
 
 import type { RootState } from './root-state.type';
 import { DEFAULT_SWAP_PARAMS } from './swap/state.mock';
+import { parseKeyForBalancesRecord } from './tezos/balances/utils';
 import { collectiblesMetadataInitialState } from './tezos/collectibles-metadata/state';
 
 import type { SLICES_BLACKLIST } from './index';
@@ -79,7 +81,7 @@ export const MIGRATIONS: MigrationManifest = {
       ...typedPersistedState,
       settings: {
         ...typedPersistedState.settings,
-        pendingReactivateAds: !typedPersistedState.partnersPromotion.shouldShowPromotion
+        pendingReactivateAds: !typedPersistedState.partnersPromotion?.shouldShowPromotion
       }
     };
 
@@ -110,7 +112,7 @@ export const MIGRATIONS: MigrationManifest = {
 
     const typedPersistedState = persistedState as TypedPersistedRootState;
 
-    if (typedPersistedState.partnersPromotion.shouldShowPromotion) return persistedState;
+    if (typedPersistedState.partnersPromotion?.shouldShowPromotion) return persistedState;
 
     const newState: TypedPersistedRootState = {
       ...typedPersistedState,
@@ -122,7 +124,7 @@ export const MIGRATIONS: MigrationManifest = {
 
     return newState;
   },
-
+  // v1 => v2 migrations
   '6': (persistedState: PersistedState) => {
     if (!persistedState) {
       return persistedState;
@@ -160,6 +162,43 @@ export const MIGRATIONS: MigrationManifest = {
     if (blurRaw !== null) {
       localStorage.removeItem('collectibles:adult-blur');
     }
+
+    // Remove invalid balances keys (e.g. "tz1X9JwX9CHPF7eG9QNcdCuh3iCvkbDcgQbb_")
+    if (state.balances?.balancesAtomic) {
+      const invalidKeys: string[] = [];
+
+      Object.keys(newState.balances?.balancesAtomic).forEach(key => {
+        const [publicKeyHash, chainId] = parseKeyForBalancesRecord<string | undefined>(key);
+        if (!publicKeyHash || !chainId) invalidKeys.push(key);
+      });
+
+      invalidKeys.forEach(key => {
+        delete newState.balances?.balancesAtomic[key];
+      });
+    }
+
+    return newState;
+  },
+  '7': (persistedState: PersistedState) => {
+    if (!persistedState) return persistedState;
+
+    const state = persistedState as TypedPersistedRootState;
+    const rawHideZeroBalanceFromStorage = localStorage.getItem(HIDE_ZERO_BALANCES_STORAGE_KEY);
+    const hideZeroBalanceFromStorage = rawHideZeroBalanceFromStorage
+      ? JSON.parse(rawHideZeroBalanceFromStorage)
+      : undefined;
+
+    const newState: TypedPersistedRootState = {
+      ...state,
+      assetsFilterOptions: {
+        ...state.assetsFilterOptions,
+        tokensListOptions: {
+          ...state.assetsFilterOptions?.tokensListOptions,
+          hideSmallBalance:
+            state.assetsFilterOptions?.tokensListOptions?.hideZeroBalance ?? hideZeroBalanceFromStorage ?? false
+        }
+      }
+    };
 
     return newState;
   }

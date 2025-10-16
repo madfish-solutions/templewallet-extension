@@ -17,11 +17,13 @@ import { useEvmChainsSpecs, useTezosChainsSpecs } from 'temple/front/use-chains-
 import { loadTezosChainId } from 'temple/tezos';
 import { TempleChainKind } from 'temple/types';
 
+import { NUMERIC_CHAIN_ID_REGEX, makeFormValues } from '../utils';
+
 import { AddNetworkFormValues, ViemChain } from './types';
-import { NUMERIC_CHAIN_ID_REGEX, makeFormValues } from './utils';
 
 export const useAddNetwork = (
   setSubmitError: SyncFn<string>,
+  setIsSubmitting: SyncFn<boolean>,
   lastSelectedChain: ViemChain | null,
   onClose: EmptyFn,
   abortAndRenewSignal: () => AbortSignal
@@ -33,6 +35,8 @@ export const useAddNetwork = (
 
   return useCallback(
     async (values: AddNetworkFormValues) => {
+      setIsSubmitting(true);
+
       const signal = abortAndRenewSignal();
       const { name, rpcUrl, chainId, symbol, explorerUrl, testnet } = values;
 
@@ -46,6 +50,7 @@ export const useAddNetwork = (
         }
       } catch (e) {
         toastError(e instanceof ArtificialError ? e.message : t('rpcDoesNotRespond'));
+        setIsSubmitting(false);
         setSubmitError(t('wrongAddress'));
 
         return;
@@ -127,6 +132,8 @@ export const useAddNetwork = (
         const errorMessage = e instanceof Error ? e.message : String(e);
         toastError(errorMessage);
         setSubmitError(errorMessage);
+      } finally {
+        setIsSubmitting(false);
       }
     },
     [
@@ -138,6 +145,7 @@ export const useAddNetwork = (
       onClose,
       setEvmChainsSpecs,
       setSubmitError,
+      setIsSubmitting,
       setTezosChainsSpecs
     ]
   );

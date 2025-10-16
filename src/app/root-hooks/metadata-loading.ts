@@ -44,7 +44,7 @@ export const AppTezosTokensMetadataLoading = memo<{ publicKeyHash: string }>(({ 
           dispatch(setTokensMetadataLoadingAction(true));
         }
 
-        return loadTokensMetadata(chain.rpcBaseURL, slugsWithoutMeta).then(
+        return loadTokensMetadata(chain, slugsWithoutMeta).then(
           fetchedMetadata => void dispatch(putTokensMetadataAction({ records: fetchedMetadata })),
           error => void console.error(error)
         );

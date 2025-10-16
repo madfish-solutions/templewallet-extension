@@ -6,8 +6,6 @@ export const useAnalyticsEnabledSelector = () => useSelector(({ settings }) => s
 
 export const useOnRampAssetSelector = () => useSelector(({ settings }) => settings.onRampAsset);
 
-export const useIsConversionTrackedSelector = () => useSelector(({ settings }) => settings.isConversionTracked);
-
 export const useIsPendingReactivateAdsSelector = () => useSelector(({ settings }) => settings.pendingReactivateAds);
 
 export const useIsAdsImpressionsLinkedSelector = () => useSelector(({ settings }) => settings.adsImpressionsLinked);
@@ -15,3 +13,5 @@ export const useIsAdsImpressionsLinkedSelector = () => useSelector(({ settings }
 export const useReferralLinksEnabledSelector = () => useSelector(({ settings }) => settings.referralLinksEnabled);
 
 export const useTestnetModeEnabledSelector = () => useSelector(({ settings }) => settings.isTestnetModeEnabled);
+
+export const useFavoriteTokensSelector = () => useSelector(({ settings }) => settings.favoriteTokens);

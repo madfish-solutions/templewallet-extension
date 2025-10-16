@@ -30,24 +30,25 @@ import { T } from 'lib/i18n';
 import { OneOfChains } from 'temple/front';
 
 import { EmptySection } from '../EmptySection';
+import { UpdateAppBanner } from '../UpdateAppBanner';
 
 import BuyWithFiatIllustrationSrc from './buy-with-fiat.png';
 import CrossChainSwapIllustrationSrc from './cross-chain-swap.png';
 
 export interface TokensTabBaseProps {
-  tokensCount: number;
   searchValue: string;
+  onSearchValueChange: SyncFn<string>;
+  tokensCount: number;
   getElementIndex: VisibilityTrackingInfiniteScrollProps['getElementsIndexes'];
   loadNextPage: EmptyFn;
-  onSearchValueChange: (value: string) => void;
   isSyncing: boolean;
   accountId: string;
   isInSearchMode: boolean;
   network?: OneOfChains;
+  shouldShowHiddenTokensHint?: boolean;
 }
 
 export const TokensTabBase: FC<PropsWithChildren<TokensTabBaseProps>> = ({
-  tokensCount,
   searchValue,
   onSearchValueChange,
   ...restProps
@@ -71,7 +72,7 @@ export const TokensTabBase: FC<PropsWithChildren<TokensTabBaseProps>> = ({
         <AssetsFilterOptions />
       ) : (
         <FadeTransition>
-          <TokensTabBaseContent {...restProps} tokensCount={tokensCount} manageActive={manageActive} />
+          <TokensTabBaseContent {...restProps} manageActive={manageActive} />
         </FadeTransition>
       )}
 
@@ -80,14 +81,7 @@ export const TokensTabBase: FC<PropsWithChildren<TokensTabBaseProps>> = ({
   );
 };
 
-interface TokensTabBaseContentProps {
-  tokensCount: number;
-  getElementIndex: VisibilityTrackingInfiniteScrollProps['getElementsIndexes'];
-  loadNextPage: EmptyFn;
-  isSyncing: boolean;
-  accountId: string;
-  isInSearchMode: boolean;
-  network?: OneOfChains;
+interface TokensTabBaseContentProps extends Omit<TokensTabBaseProps, 'searchValue' | 'onSearchValueChange'> {
   manageActive: boolean;
 }
 
@@ -102,13 +96,14 @@ const TokensTabBaseContent: FC<PropsWithChildren<TokensTabBaseContentProps>> = (
   isInSearchMode,
   network,
   manageActive,
+  shouldShowHiddenTokensHint,
   children
 }) => {
   const isTestnet = useTestnetModeEnabledSelector();
   const accountIsInitialized = useIsAccountInitializedSelector(accountId);
   const isSyncingInitializedState = useIsAccountInitializedLoadingSelector(accountId);
 
-  if (accountIsInitialized === false && !isSyncingInitializedState && !isTestnet) {
+  if (accountIsInitialized === false && !isSyncingInitializedState && !isTestnet && !manageActive) {
     return (
       <TokensTabBaseContentWrapper>
         <UninitializedAccountContent />
@@ -121,20 +116,21 @@ const TokensTabBaseContent: FC<PropsWithChildren<TokensTabBaseContentProps>> = (
     (tokensCount === 0 && isSyncing && !isInSearchMode)
   ) {
     return (
-      <TokensTabBaseContentWrapper padding={false}>
+      <TokensTabBaseContentWrapper manageActive={manageActive} padding={false}>
         <PageLoader stretch />
       </TokensTabBaseContentWrapper>
     );
   }
 
   return (
-    <TokensTabBaseContentWrapper padding={tokensCount > 0}>
+    <TokensTabBaseContentWrapper manageActive={manageActive} padding={tokensCount > 0}>
       {tokensCount === 0 ? (
         <EmptySection
-          forCollectibles={false}
-          manageActive={manageActive}
-          forSearch={isInSearchMode}
           network={network}
+          forCollectibles={false}
+          forSearch={isInSearchMode}
+          manageActive={manageActive}
+          shouldShowHiddenTokensHint={shouldShowHiddenTokensHint}
         />
       ) : (
         <>
@@ -216,10 +212,13 @@ const UninitializedAccountContent = memo(() => {
   );
 });
 
-const TokensTabBaseContentWrapper: FC<PropsWithChildren<{ padding?: boolean }>> = ({ padding, children }) => (
+const TokensTabBaseContentWrapper: FC<PropsWithChildren<{ manageActive?: boolean; padding?: boolean }>> = ({
+  manageActive,
+  padding,
+  children
+}) => (
   <ContentContainer padding={padding}>
-    {/*TODO: Update banner UI*/}
-    {/*{manageActive ? null : <UpdateAppBanner stickyBarRef={stickyBarRef} />}*/}
+    {manageActive ? null : <UpdateAppBanner />}
 
     {children}
   </ContentContainer>

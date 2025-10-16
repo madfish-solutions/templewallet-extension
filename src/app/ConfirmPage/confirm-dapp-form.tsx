@@ -1,19 +1,19 @@
-import React, { ReactNode, memo, useCallback, useMemo } from 'react';
+import React, { ReactNode, memo, useCallback, useMemo, useState } from 'react';
 
 import clsx from 'clsx';
 
 import { Alert, Anchor, IconBase } from 'app/atoms';
 import DAppLogo from 'app/atoms/DAppLogo';
 import { Logo } from 'app/atoms/Logo';
-import { CloseButton, PageModal } from 'app/atoms/PageModal';
+import { ActionsButtonsBox } from 'app/atoms/PageModal';
 import { ProgressAndNumbers } from 'app/atoms/ProgressAndNumbers';
 import { StyledButton } from 'app/atoms/StyledButton';
 import { useLedgerApprovalModalState } from 'app/hooks/use-ledger-approval-modal-state';
 import { ReactComponent as LinkIcon } from 'app/icons/base/link.svg';
 import { ReactComponent as OutLinkIcon } from 'app/icons/base/outLink.svg';
-import { AccountsModalContent } from 'app/templates/AccountsModalContent';
+import PageLayout from 'app/layouts/PageLayout';
+import { AccountsModal } from 'app/templates/AccountsModal';
 import { LedgerApprovalModal } from 'app/templates/ledger-approval-modal';
-import { PageModalScrollViewWithActions } from 'app/templates/page-modal-scroll-view-with-actions';
 import { EvmOperationKind, getOperationKind } from 'lib/evm/on-chain/transactions';
 import { parseEvmTxRequest } from 'lib/evm/on-chain/utils/parse-evm-tx-request';
 import { T, t } from 'lib/i18n';
@@ -34,6 +34,9 @@ export interface ConfirmDAppFormContentProps {
   formId: string;
   openAccountsModal: EmptyFn;
   onSubmit: EmptyFn;
+  dismissConflict?: EmptyFn;
+  conflictVisible?: boolean;
+  showConflict?: boolean;
 }
 
 interface ConfirmDAppFormProps {
@@ -44,6 +47,9 @@ interface ConfirmDAppFormProps {
 }
 
 const CONFIRM_OPERATIONS_FORM_ID = 'confirm-operations-form';
+
+const isConnectPayload = (p: TempleDAppPayload): p is Extract<TempleDAppPayload, { type: 'connect' }> =>
+  p.type === 'connect';
 
 const evmOperationTitles: Record<EvmOperationKind, ReactNode> = {
   [EvmOperationKind.DeployContract]: <T id="deployContract" />,
@@ -68,6 +74,8 @@ export const ConfirmDAppForm = memo<ConfirmDAppFormProps>(({ accounts, payload, 
   const [error, setError] = useSafeState<any>(null);
   const { ledgerApprovalModalState, setLedgerApprovalModalState, handleLedgerModalClose } =
     useLedgerApprovalModalState();
+
+  const [bottomEdgeIsVisible, setBottomEdgeIsVisible] = useState(true);
 
   const { errorMessage: addAssetErrorMessage } = useAddAsset();
 
@@ -134,11 +142,20 @@ export const ConfirmDAppForm = memo<ConfirmDAppFormProps>(({ accounts, payload, 
 
   const handleErrorAlertClose = useCallback(() => setError(null), [setError]);
 
+  const shouldShowConflict = useMemo(() => {
+    if (!isConnectPayload(payload)) return false;
+
+    const providers = 'providers' in payload ? payload.providers : undefined;
+    return Array.isArray(providers) && providers.length > 0;
+  }, [payload]);
+
+  const [showConflict, setShowConflict] = useSafeState(shouldShowConflict);
+
   const { title, confirmButtonName, confirmTestID, declineTestID, confirmDisabled } = useMemo(() => {
     switch (payload.type) {
       case 'connect':
         return {
-          title: <T id="connectAccount" />,
+          title: <T id={showConflict ? 'connectWallet' : 'connectAccount'} />,
           confirmButtonName: <T id={error ? 'retry' : 'connect'} />,
           confirmTestID: error
             ? ConfirmPageSelectors.ConnectAction_RetryButton
@@ -188,114 +205,118 @@ export const ConfirmDAppForm = memo<ConfirmDAppFormProps>(({ accounts, payload, 
           declineTestID: ConfirmPageSelectors.ConfirmOperationsAction_RejectButton
         };
     }
-  }, [payload, error, addAssetErrorMessage]);
+  }, [payload, error, addAssetErrorMessage, showConflict]);
 
   const isOperationsConfirm = payload.type === 'confirm_operations';
 
   return (
-    <PageModal
-      title={title}
-      opened
-      titleLeft={
+    <PageLayout
+      pageTitle={title}
+      headerLeftElem={
         shouldShowProgress ? (
           <ProgressAndNumbers progress={totalRequestsCount - requestsLeft + 1} total={totalRequestsCount} />
         ) : null
       }
-      titleRight={accountsModalIsOpen ? <CloseButton onClick={closeAccountsModal} /> : <div />}
-      animated={false}
-      onRequestClose={closeAccountsModal}
+      shouldShowBackButton={false}
+      contentPadding={false}
+      contentClassName="!bg-white"
+      onBottomEdgeVisibilityChange={setBottomEdgeIsVisible}
+      bottomEdgeThreshold={16}
     >
-      {accountsModalIsOpen ? (
-        <AccountsModalContent
-          accounts={accounts}
-          currentAccountId={selectedAccountId}
-          opened
-          onRequestClose={closeAccountsModal}
-        />
-      ) : (
-        <>
-          <PageModalScrollViewWithActions
-            className="p-4 gap-4"
-            actionsBoxProps={{
-              children: [
-                <StyledButton
-                  key="cancel"
-                  size="L"
-                  color="primary-low"
-                  className="w-full"
-                  loading={isDeclining}
-                  testID={declineTestID}
-                  onClick={handleDeclineClick}
-                >
-                  <T id="cancel" />
-                </StyledButton>,
-                <StyledButton
-                  key="confirm"
-                  size="L"
-                  color="primary"
-                  className="w-full"
-                  loading={isConfirming}
-                  testID={confirmTestID}
-                  type={isOperationsConfirm ? 'submit' : 'button'}
-                  onClick={isOperationsConfirm ? undefined : handleConfirmClick}
-                  form={isOperationsConfirm ? CONFIRM_OPERATIONS_FORM_ID : undefined}
-                  disabled={confirmDisabled}
-                >
-                  {confirmButtonName}
-                </StyledButton>
-              ],
-              flexDirection: 'row'
-            }}
-          >
-            {payload.type !== 'add_asset' && (
-              <div className="mb-2 flex flex-col items-center gap-2">
-                <div className="flex gap-2 relative">
-                  <div className="w-13 h-13 flex justify-center items-center bg-white shadow-card rounded">
-                    <Logo size={30} type="icon" />
-                  </div>
-                  <div className="w-13 h-13 flex justify-center items-center bg-white shadow-card rounded">
-                    <DAppLogo size={30} icon={payload.appMeta.icon} origin={payload.origin} />
-                  </div>
-                  <div
-                    className={clsx(
-                      'w-5 h-5 rounded-full bg-grey-4 flex justify-center items-center',
-                      'absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2'
-                    )}
-                  >
-                    <IconBase Icon={LinkIcon} size={12} className="text-grey-1" />
-                  </div>
-                </div>
-
-                <Anchor className="flex pl-1 items-center" href={payload.origin}>
-                  <span className="text-font-description-bold">{payload.appMeta.name}</span>
-                  <IconBase Icon={OutLinkIcon} size={16} className="text-secondary" />
-                </Anchor>
+      <div className="flex-1 p-4 gap-4">
+        {!showConflict && payload.type !== 'add_asset' && (
+          <div className="mb-2 flex flex-col items-center gap-2">
+            <div className="flex gap-2 relative">
+              <div className="w-13 h-13 flex justify-center items-center bg-white shadow-card rounded">
+                <Logo size={30} type="icon" />
               </div>
-            )}
+              <div className="w-13 h-13 flex justify-center items-center bg-white shadow-card rounded">
+                <DAppLogo size={30} icon={payload.appMeta.icon} origin={payload.origin} />
+              </div>
+              <div
+                className={clsx(
+                  'w-5 h-5 rounded-full bg-grey-4 flex justify-center items-center',
+                  'absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2'
+                )}
+              >
+                <IconBase Icon={LinkIcon} size={12} className="text-grey-1" />
+              </div>
+            </div>
 
-            {error && !isOperationsConfirm && (
-              <Alert
-                closable
-                onClose={handleErrorAlertClose}
-                type="error"
-                title="Error"
-                description={error?.message ?? t('smthWentWrong')}
-                autoFocus
-              />
-            )}
+            <Anchor className="flex pl-1 items-center" href={payload.origin}>
+              <span className="text-font-description-bold">{payload.appMeta.name}</span>
+              <IconBase Icon={OutLinkIcon} size={16} className="text-secondary" />
+            </Anchor>
+          </div>
+        )}
 
-            {children({
-              openAccountsModal,
-              selectedAccount,
-              formId: CONFIRM_OPERATIONS_FORM_ID,
-              onSubmit: handleConfirmClick,
-              error
-            })}
-          </PageModalScrollViewWithActions>
+        {error && !isOperationsConfirm && (
+          <Alert
+            closable
+            onClose={handleErrorAlertClose}
+            type="error"
+            title="Error"
+            description={error?.message ?? t('smthWentWrong')}
+            autoFocus
+          />
+        )}
 
-          <LedgerApprovalModal state={ledgerApprovalModalState} onClose={handleLedgerModalClose} />
-        </>
+        {children({
+          openAccountsModal,
+          selectedAccount,
+          formId: CONFIRM_OPERATIONS_FORM_ID,
+          onSubmit: handleConfirmClick,
+          error,
+          dismissConflict: () => {
+            setShowConflict(false);
+          },
+          showConflict
+        })}
+      </div>
+
+      {!showConflict && (
+        <ActionsButtonsBox
+          flexDirection="row"
+          className="sticky left-0 bottom-0"
+          shouldCastShadow={!bottomEdgeIsVisible}
+        >
+          <StyledButton
+            key="cancel"
+            size="L"
+            color="primary-low"
+            className="w-full"
+            loading={isDeclining}
+            testID={declineTestID}
+            onClick={handleDeclineClick}
+          >
+            <T id="cancel" />
+          </StyledButton>
+
+          <StyledButton
+            key="confirm"
+            size="L"
+            color="primary"
+            className="w-full"
+            loading={isConfirming}
+            testID={confirmTestID}
+            type={isOperationsConfirm ? 'submit' : 'button'}
+            onClick={isOperationsConfirm ? undefined : handleConfirmClick}
+            form={isOperationsConfirm ? CONFIRM_OPERATIONS_FORM_ID : undefined}
+            disabled={confirmDisabled}
+          >
+            {confirmButtonName}
+          </StyledButton>
+        </ActionsButtonsBox>
       )}
-    </PageModal>
+
+      <AccountsModal
+        accounts={accounts}
+        currentAccountId={selectedAccountId}
+        opened={accountsModalIsOpen}
+        onRequestClose={closeAccountsModal}
+      />
+
+      <LedgerApprovalModal state={ledgerApprovalModalState} onClose={handleLedgerModalClose} />
+    </PageLayout>
   );
 });

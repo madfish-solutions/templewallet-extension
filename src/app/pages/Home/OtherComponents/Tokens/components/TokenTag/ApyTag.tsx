@@ -50,7 +50,7 @@ export const TokenApyTag: FC<Props> = ({ slug, symbol }) => {
       openLink(link);
     };
 
-    return { rate, displayRate, label, onClick };
+    return { rate, displayRate, label, onClick, link };
   }, [rate, slug]);
 
   if (!params) return null;
@@ -59,9 +59,9 @@ export const TokenApyTag: FC<Props> = ({ slug, symbol }) => {
     <TagButton
       onClick={params.onClick}
       testID={AssetsSelectors.assetItemApyButton}
-      testIDProperties={{ slug, symbol, apyRate: params.rate }}
+      testIDProperties={{ slug, symbol, apyRate: params.rate, link: params.link }}
     >
-      {params.label} {params.displayRate}%
+      {params.label}: {params.displayRate}%
     </TagButton>
   );
 };

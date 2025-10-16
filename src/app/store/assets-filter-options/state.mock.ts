@@ -1,15 +1,13 @@
-import { mockPersistedState } from 'lib/store';
-
 import { AssetsFilterOptionsStateInterface } from './state';
 
-export const mockAssetsFilterOptionsState = mockPersistedState<AssetsFilterOptionsStateInterface>({
+export const mockAssetsFilterOptionsState: AssetsFilterOptionsStateInterface = {
   filterChain: null,
   tokensListOptions: {
-    hideZeroBalance: false,
+    hideSmallBalance: false,
     groupByNetwork: false
   },
   collectiblesListOptions: {
     blur: false,
     showInfo: false
   }
-});
+};

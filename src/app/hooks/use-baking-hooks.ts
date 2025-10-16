@@ -4,7 +4,8 @@ import memoizee from 'memoizee';
 
 import { BAKING_STAKE_SYNC_INTERVAL } from 'lib/fixed-times';
 import { useRetryableSWR } from 'lib/swr';
-import { getTezosFastRpcClient } from 'temple/tezos';
+import { TezosNetworkEssentials } from 'temple/networks';
+import { getTezosRpcClient } from 'temple/tezos';
 
 const COMMON_SWR_KEY = 'BAKING';
 const COMMON_SWR_OPTIONS = {
@@ -12,21 +13,21 @@ const COMMON_SWR_OPTIONS = {
   refreshInterval: BAKING_STAKE_SYNC_INTERVAL
 };
 
-export const useStakedAmount = (rpcUrl: string, accountPkh: string, suspense?: boolean) =>
+export const useStakedAmount = (network: TezosNetworkEssentials, accountPkh: string, suspense?: boolean) =>
   useRetryableSWR(
-    [COMMON_SWR_KEY, 'get-staked', rpcUrl, accountPkh],
+    [COMMON_SWR_KEY, 'get-staked', network, accountPkh],
     () =>
-      getTezosFastRpcClient(rpcUrl)
+      getTezosRpcClient(network)
         .getStakedBalance(accountPkh)
         .catch(error => processIsStakingNotSupportedEndpointError(error, null)),
     { ...COMMON_SWR_OPTIONS, suspense }
   );
 
-export const useUnstakeRequests = (rpcUrl: string, accountPkh: string, suspense?: boolean) =>
+export const useUnstakeRequests = (network: TezosNetworkEssentials, accountPkh: string, suspense?: boolean) =>
   useRetryableSWR(
-    [COMMON_SWR_KEY, 'get-unstake-requests', rpcUrl, accountPkh],
+    [COMMON_SWR_KEY, 'get-unstake-requests', network, accountPkh],
     () =>
-      getTezosFastRpcClient(rpcUrl)
+      getTezosRpcClient(network)
         .getUnstakeRequests(accountPkh)
         .catch(error => processIsStakingNotSupportedEndpointError(error, null)),
     { ...COMMON_SWR_OPTIONS, suspense }
@@ -39,12 +40,12 @@ export interface StakingCyclesInfo {
   cooldownCyclesNumber: number;
 }
 
-export const useStakingCyclesInfo = (rpcUrl: string) =>
-  useRetryableSWR([COMMON_SWR_KEY, 'get-cycles-info', rpcUrl], () => getCyclesInfo(rpcUrl), COMMON_SWR_OPTIONS);
+export const useStakingCyclesInfo = (network: TezosNetworkEssentials) =>
+  useRetryableSWR([COMMON_SWR_KEY, 'get-cycles-info', network], () => getCyclesInfo(network), COMMON_SWR_OPTIONS);
 
 const getCyclesInfo = memoizee(
-  async (rpcUrl: string): Promise<StakingCyclesInfo | null> => {
-    const rpc = getTezosFastRpcClient(rpcUrl);
+  async (network: TezosNetworkEssentials): Promise<StakingCyclesInfo | null> => {
+    const rpc = getTezosRpcClient(network);
 
     const { blocks_per_cycle, consensus_rights_delay, max_slashing_period, minimal_block_delay } =
       await rpc.getConstants();
@@ -55,14 +56,18 @@ const getCyclesInfo = memoizee(
 
     return { blocks_per_cycle, minimal_block_delay, cooldownCyclesNumber };
   },
-  { promise: true, max: 10 }
+  {
+    promise: true,
+    max: 10,
+    normalizer: ([network]) => JSON.stringify(network)
+  }
 );
 
-export const useBlockLevelInfo = (rpcUrl: string) => {
+export const useBlockLevelInfo = (network: TezosNetworkEssentials) => {
   const { data } = useRetryableSWR(
-    [COMMON_SWR_KEY, 'get-level-info', rpcUrl],
+    [COMMON_SWR_KEY, 'get-level-info', network],
     () =>
-      getTezosFastRpcClient(rpcUrl)
+      getTezosRpcClient(network)
         .getBlockMetadata()
         .then(m => m.level_info),
     COMMON_SWR_OPTIONS

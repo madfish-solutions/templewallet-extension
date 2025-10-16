@@ -4,6 +4,7 @@ import clsx from 'clsx';
 import { useDispatch } from 'react-redux';
 
 import { useAdsViewerPkh } from 'app/hooks/use-ads-viewer-addresses';
+import { useRewardsAddresses } from 'app/hooks/use-rewards-addresses';
 import { hidePromotionAction } from 'app/store/partners-promotion/actions';
 import {
   useShouldShowPartnersPromoSelector,
@@ -13,7 +14,6 @@ import { AdsProviderName, AdsProviderTitle } from 'lib/ads';
 import { postAdImpression } from 'lib/apis/ads-api';
 import { AD_HIDING_TIMEOUT } from 'lib/constants';
 import { T } from 'lib/i18n';
-import { useBooleanState } from 'lib/ui/hooks';
 
 import { CloseButton } from './components/close-button';
 import { HypelabPromotion } from './components/hypelab-promotion';
@@ -41,14 +41,14 @@ export const PartnersPromotion = memo(
   forwardRef<HTMLDivElement, PartnersPromotionProps>(
     ({ variant, id, pageName, withPersonaProvider, className }, ref) => {
       const isImageAd = variant === PartnersPromotionVariant.Image;
-      const { tezosAddress: adsViewerAddress } = useAdsViewerPkh();
+      const rewardsAddresses = useRewardsAddresses();
+      const { evmAddress: evmViewerAddress } = useAdsViewerPkh();
       const dispatch = useDispatch();
       const hiddenAt = usePromotionHidingTimestampSelector(id);
       const shouldShowPartnersPromo = useShouldShowPartnersPromoSelector();
 
       const isAnalyticsSentRef = useRef(false);
 
-      const [hovered, setHovered, setUnhovered] = useBooleanState(false);
       const [isHiddenTemporarily, setIsHiddenTemporarily] = useState(shouldBeHiddenTemporarily(hiddenAt));
       const [providerName, setProviderName] = useState<AdsProviderLocalName>('HypeLab');
       const [adError, setAdError] = useState(false);
@@ -73,10 +73,10 @@ export const PartnersPromotion = memo(
       const handleAdRectSeen = useCallback(() => {
         if (isAnalyticsSentRef.current) return;
 
-        postAdImpression(adsViewerAddress, AdsProviderTitle[providerName], { pageName });
+        postAdImpression(rewardsAddresses, AdsProviderTitle[providerName], { pageName });
 
         isAnalyticsSentRef.current = true;
-      }, [providerName, pageName, adsViewerAddress]);
+      }, [providerName, pageName, rewardsAddresses]);
 
       const handleClosePartnersPromoClick = useCallback<MouseEventHandler<HTMLButtonElement>>(
         e => {
@@ -101,21 +101,19 @@ export const PartnersPromotion = memo(
 
       return (
         <div
+          ref={ref}
           className={clsx(
-            'w-full relative flex flex-col items-center',
+            'group w-full relative flex flex-col items-center',
             !adIsReady && (isImageAd ? 'min-h-[101px]' : 'min-h-16'),
             className
           )}
-          onMouseEnter={setHovered}
-          onMouseLeave={setUnhovered}
-          ref={ref}
         >
           {(() => {
             switch (providerName) {
               case 'HypeLab':
                 return (
                   <HypelabPromotion
-                    accountPkh={adsViewerAddress}
+                    accountPkh={evmViewerAddress}
                     variant={variant}
                     isVisible={adIsReady}
                     pageName={pageName}
@@ -127,7 +125,7 @@ export const PartnersPromotion = memo(
               case 'Persona':
                 return (
                   <PersonaPromotion
-                    accountPkh={adsViewerAddress}
+                    accountPkh={evmViewerAddress}
                     id={id}
                     isVisible={adIsReady}
                     pageName={pageName}
@@ -147,7 +145,10 @@ export const PartnersPromotion = memo(
             </div>
           )}
 
-          {hovered && <CloseButton onClick={handleClosePartnersPromoClick} />}
+          <CloseButton
+            className="opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto"
+            onClick={handleClosePartnersPromoClick}
+          />
         </div>
       );
     }

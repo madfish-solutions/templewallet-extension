@@ -1,30 +1,23 @@
 import { createReducer } from '@reduxjs/toolkit';
-import { persistReducer } from 'redux-persist';
-
-import { storageConfig } from 'lib/store';
 
 import {
   setAdsImpressionsLinkedAction,
-  setConversionTrackedAction,
   setIsAnalyticsEnabledAction,
   setOnRampAssetAction,
   setPendingReactivateAdsAction,
   setReferralLinksEnabledAction,
-  setIsTestnetModeEnabledAction
+  setIsTestnetModeEnabledAction,
+  toggleFavoriteTokenAction
 } from './actions';
 import { SettingsState, settingsInitialState } from './state';
 
-const settingsReducer = createReducer<SettingsState>(settingsInitialState, builder => {
+export const settingsReducer = createReducer<SettingsState>(settingsInitialState, builder => {
   builder.addCase(setIsAnalyticsEnabledAction, (state, { payload }) => {
     state.isAnalyticsEnabled = payload;
   });
 
   builder.addCase(setOnRampAssetAction, (state, { payload }) => {
     state.onRampAsset = payload;
-  });
-
-  builder.addCase(setConversionTrackedAction, state => {
-    state.isConversionTracked = true;
   });
 
   builder.addCase(setPendingReactivateAdsAction, (state, { payload }) => {
@@ -42,13 +35,13 @@ const settingsReducer = createReducer<SettingsState>(settingsInitialState, build
   builder.addCase(setIsTestnetModeEnabledAction, (state, { payload }) => {
     state.isTestnetModeEnabled = payload;
   });
+  builder.addCase(toggleFavoriteTokenAction, (state, { payload: tokenSlug }) => {
+    const newFavoriteTokens = new Set(state.favoriteTokens);
+    if (newFavoriteTokens.has(tokenSlug)) {
+      newFavoriteTokens.delete(tokenSlug);
+    } else {
+      newFavoriteTokens.add(tokenSlug);
+    }
+    state.favoriteTokens = Array.from(newFavoriteTokens);
+  });
 });
-
-export const settingsPersistedReducer = persistReducer(
-  {
-    key: 'root.settings',
-    ...storageConfig,
-    blacklist: ['toastsContainerBottomShift']
-  },
-  settingsReducer
-);

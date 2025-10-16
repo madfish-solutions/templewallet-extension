@@ -12,10 +12,13 @@ export interface NetworkPopperProps {
   placement?: Placement;
   chainKind?: TempleChainKind;
   showAllNetworksOption: boolean;
-  selectedOption: FilterChain;
-  onOptionSelect: SyncFn<FilterChain>;
+  showOnlyEvmNetworks?: boolean;
+  showFavoritesOption?: boolean;
+  selectedOption: FilterChain | string;
+  onOptionSelect: SyncFn<FilterChain | string>;
   children: (props: PopperAnchorProps & { selectedOptionName: string }) => ReactElement;
   supportedChainIds?: number[];
+  availableChainIds?: number[];
 }
 
 export type Network = OneOfChains | TID;

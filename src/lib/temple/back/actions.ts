@@ -1,6 +1,6 @@
 import { DerivationType } from '@taquito/ledger-signer';
 import { TezosOperationError } from '@taquito/taquito';
-import { char2Bytes } from '@taquito/utils';
+import { stringToBytes } from '@taquito/utils';
 import {
   TempleDAppMessageType,
   TempleDAppErrorType,
@@ -10,7 +10,12 @@ import {
 import { TransactionRequest } from 'viem';
 import browser, { Runtime } from 'webextension-polyfill';
 
-import { CUSTOM_TEZOS_NETWORKS_STORAGE_KEY, SHOULD_DISABLE_NOT_ACTIVE_NETWORKS_STORAGE_KEY } from 'lib/constants';
+import {
+  CONVERSION_CHECKED_STORAGE_KEY,
+  CUSTOM_TEZOS_NETWORKS_STORAGE_KEY,
+  REFERRAL_WALLET_REGISTERED_STORAGE_KEY,
+  SHOULD_DISABLE_NOT_ACTIVE_NETWORKS_STORAGE_KEY
+} from 'lib/constants';
 import { BACKGROUND_IS_WORKER } from 'lib/env';
 import { putToStorage, removeFromStorage } from 'lib/storage';
 import { addLocalOperation } from 'lib/temple/activity';
@@ -22,13 +27,15 @@ import {
   TempleRequest,
   TempleSettings,
   TempleAccountType,
-  SaveLedgerAccountInput
+  SaveLedgerAccountInput,
+  EIP6963ProviderInfo
 } from 'lib/temple/types';
 import { PromisesQueue, PromisesQueueCounters, delay } from 'lib/utils';
 import { EVMErrorCodes, evmRpcMethodsNames, GET_DEFAULT_WEB3_PARAMS_METHOD_NAME } from 'temple/evm/constants';
 import { ErrorWithCode } from 'temple/evm/types';
 import { parseTransactionRequest } from 'temple/evm/utils';
 import { EvmChain } from 'temple/front';
+import { TezosNetworkEssentials } from 'temple/networks';
 import { loadTezosChainId } from 'temple/tezos';
 import { TempleChainKind } from 'temple/types';
 
@@ -85,11 +92,15 @@ import {
   dAppQueueCountersUpdated,
   focusLocationChanged,
   popupClosed,
-  popupOpened
+  popupOpened,
+  tabOriginUpdated,
+  sidebarOpened,
+  sidebarClosed
 } from './store';
 import { Vault } from './vault';
 
 export { switchChain as switchEvmChain } from './evm-dapp';
+export { provePossession } from './prove-possession';
 
 const ACCOUNT_OR_GROUP_NAME_PATTERN = /^.{1,16}$/;
 const AUTODECLINE_AFTER = 60_000;
@@ -102,6 +113,8 @@ const unlockQueue = new PromisesQueue();
 dAppQueue.on(PromisesQueue.COUNTERS_CHANGE_EVENT_NAME, (counters: PromisesQueueCounters) => {
   dAppQueueCountersUpdated(counters);
 });
+
+const pendingPreEnqueueTezosKeys = new Set<string>();
 
 const castWindowId = (windowId: number | nullish) =>
   windowId === browser.windows.WINDOW_ID_NONE ? null : windowId ?? null;
@@ -360,7 +373,7 @@ export function sendOperations(
   port: Runtime.Port,
   id: string,
   sourcePkh: string,
-  networkRpc: string,
+  network: TezosNetworkEssentials,
   opParams: any[],
   straightaway?: boolean
 ): Promise<{ opHash: string }> {
@@ -368,7 +381,7 @@ export function sendOperations(
     const sourcePublicKey = await revealPublicKey(sourcePkh);
     const dryRunResult = await dryRunOpParams({
       opParams,
-      networkRpc,
+      network,
       sourcePkh,
       sourcePublicKey
     });
@@ -379,16 +392,16 @@ export function sendOperations(
     return new Promise(async (resolve, reject) => {
       if (straightaway) {
         try {
-          const op = await vault.sendOperations(sourcePkh, networkRpc, opParams);
+          const op = await vault.sendOperations(sourcePkh, network, opParams);
 
-          await safeAddLocalOperation(networkRpc, op);
+          await safeAddLocalOperation(network.rpcBaseURL, op);
 
           resolve({ opHash: op.hash });
         } catch (err: any) {
           reject(err);
         }
       } else {
-        return promisableUnlock(resolve, reject, port, id, sourcePkh, networkRpc, opParams, dryRunResult);
+        return promisableUnlock(resolve, reject, port, id, sourcePkh, network, opParams, dryRunResult);
       }
     });
   });
@@ -400,7 +413,7 @@ const promisableUnlock = async (
   port: Runtime.Port,
   id: string,
   sourcePkh: string,
-  networkRpc: string,
+  network: TezosNetworkEssentials,
   opParams: any[],
   dryRunResult: DryRunResult | null
 ) => {
@@ -410,7 +423,7 @@ const promisableUnlock = async (
     payload: {
       type: 'operations',
       sourcePkh,
-      networkRpc,
+      network,
       opParams,
       ...((dryRunResult && dryRunResult.result) ?? {})
     },
@@ -435,12 +448,12 @@ const promisableUnlock = async (
           const op = await withUnlocked(({ vault }) =>
             vault.sendOperations(
               sourcePkh,
-              networkRpc,
+              network,
               buildFinalTezosOpParams(opParams, modifiedTotalFee, modifiedStorageLimit)
             )
           );
 
-          await safeAddLocalOperation(networkRpc, op);
+          await safeAddLocalOperation(network.rpcBaseURL, op);
 
           resolve({ opHash: op.hash });
         } catch (err: any) {
@@ -482,7 +495,7 @@ export function sign(
   port: Runtime.Port,
   id: string,
   sourcePkh: string,
-  networkRpc: string,
+  network: TezosNetworkEssentials,
   bytes: string,
   watermark?: string
 ) {
@@ -495,7 +508,7 @@ export function sign(
           payload: {
             type: 'sign',
             sourcePkh,
-            networkRpc,
+            network,
             bytes,
             watermark
           }
@@ -546,8 +559,18 @@ export async function processDApp(origin: string, req: TempleDAppRequest): Promi
     case TempleDAppMessageType.PermissionRequest:
       return withInited(() => dAppQueue.enqueue(() => requestPermission(origin, req)));
 
-    case TempleDAppMessageType.OperationRequest:
-      return withInited(() => dAppQueue.enqueue(() => requestOperation(origin, req)));
+    case TempleDAppMessageType.OperationRequest: {
+      const tezosKey = ['tezos_ops_pre-enqueue', origin, req.sourcePkh, JSON.stringify(req.opParams)].join('|');
+
+      if (pendingPreEnqueueTezosKeys.has(tezosKey)) {
+        throw new Error(TempleDAppErrorType.NotGranted);
+      }
+      pendingPreEnqueueTezosKeys.add(tezosKey);
+
+      const promise = withInited(() => dAppQueue.enqueue(() => requestOperation(origin, req)));
+      promise.finally(() => pendingPreEnqueueTezosKeys.delete(tezosKey));
+      return promise;
+    }
 
     case TempleDAppMessageType.SignRequest:
       return withInited(() => dAppQueue.enqueue(() => requestSign(origin, req)));
@@ -562,7 +585,13 @@ interface EvmRequestPayload {
   params: unknown;
 }
 
-export async function processEvmDApp(origin: string, payload: EvmRequestPayload, chainId: string, iconUrl?: string) {
+export async function processEvmDApp(
+  origin: string,
+  payload: EvmRequestPayload,
+  chainId: string,
+  iconUrl?: string,
+  providers?: EIP6963ProviderInfo[]
+) {
   const { method, params } = payload;
   let methodHandler: () => Promise<any>;
   let requiresConfirm = true;
@@ -573,7 +602,7 @@ export async function processEvmDApp(origin: string, payload: EvmRequestPayload,
       requiresConfirm = false;
       break;
     case evmRpcMethodsNames.eth_requestAccounts:
-      methodHandler = () => connectEvm(origin, chainId, iconUrl);
+      methodHandler = () => connectEvm(origin, chainId, iconUrl, providers);
       break;
     case evmRpcMethodsNames.wallet_watchAsset:
       const validatedParams = addEthAssetPayloadValidationSchema.validateSync(params);
@@ -615,7 +644,7 @@ export async function processEvmDApp(origin: string, payload: EvmRequestPayload,
       break;
     case evmRpcMethodsNames.wallet_requestPermissions:
       const [requestPermissionsPayload] = ethChangePermissionsPayloadValidationSchema.validateSync(params);
-      methodHandler = () => requestEvmPermissions(origin, chainId, requestPermissionsPayload, iconUrl);
+      methodHandler = () => requestEvmPermissions(origin, chainId, requestPermissionsPayload, iconUrl, providers);
       break;
     case evmRpcMethodsNames.wallet_revokePermissions:
       const [revokePermissionsPayload] = ethChangePermissionsPayloadValidationSchema.validateSync(params);
@@ -645,12 +674,11 @@ export async function processEvmDApp(origin: string, payload: EvmRequestPayload,
 }
 
 export async function getBeaconMessage(origin: string, msg: string, encrypted = false) {
-  let recipientPubKey: string | null = null;
+  const recipientPubKey = await Beacon.getDAppPublicKey(origin);
   let payload = null;
 
   if (encrypted) {
     try {
-      recipientPubKey = await Beacon.getDAppPublicKey(origin);
       if (!recipientPubKey) throw new Error('<stub>');
 
       try {
@@ -692,7 +720,14 @@ type ProcessedBeaconMessage = {
 
 export function resetExtension(password: string) {
   return withUnlocked(async () =>
-    Promise.all([Vault.reset(password), removeFromStorage(SHOULD_DISABLE_NOT_ACTIVE_NETWORKS_STORAGE_KEY)])
+    Promise.all([
+      Vault.reset(password),
+      removeFromStorage([
+        CONVERSION_CHECKED_STORAGE_KEY,
+        REFERRAL_WALLET_REGISTERED_STORAGE_KEY,
+        SHOULD_DISABLE_NOT_ACTIVE_NETWORKS_STORAGE_KEY
+      ])
+    ])
   );
 }
 
@@ -738,7 +773,6 @@ export async function processBeacon(
   }
 
   const res = await getBeaconResponse(req, resBase, origin);
-  // const res = null;
 
   const resMsg = Beacon.encodeMessage<Beacon.Response>(res);
   if (encrypted && recipientPubKey) {
@@ -890,9 +924,9 @@ function getErrorData(err: any) {
 }
 
 function generateRawPayloadBytes(payload: string) {
-  const bytes = char2Bytes(Buffer.from(payload, 'utf8').toString('hex'));
+  const bytes = stringToBytes(Buffer.from(payload, 'utf8').toString('hex'));
   // https://tezostaquito.io/docs/signing/
-  return `0501${char2Bytes(String(bytes.length))}${bytes}`;
+  return `0501${stringToBytes(String(bytes.length))}${bytes}`;
 }
 
 const close = (
@@ -926,4 +960,16 @@ export function setWindowPopupOpened(windowId: number | null, opened: boolean) {
   } else {
     popupClosed(windowId);
   }
+}
+
+export function setWindowSidebarOpened(windowId: number | null, opened: boolean) {
+  if (opened) {
+    sidebarOpened(windowId);
+  } else {
+    sidebarClosed(windowId);
+  }
+}
+
+export function setTabOrigin(tabId: number, origin: string) {
+  tabOriginUpdated({ tabId, origin });
 }

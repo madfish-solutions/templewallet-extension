@@ -57,6 +57,30 @@ const TEZOS_DCP_CHAIN_IDS: string[] = [TempleTezosChainId.Dcp, TempleTezosChainI
 
 export const isTezosDcpChainId = (chainId: string) => TEZOS_DCP_CHAIN_IDS.includes(chainId);
 
+export const DEFAULT_RPC_INDEX = 0;
+
+export const TEZOS_FALLBACK_RPC_URLS: Record<string, string[]> = {
+  [TempleTezosChainId.Mainnet]: [
+    'https://prod.tcinfra.net/rpc/mainnet',
+    'https://mainnet.smartpy.io',
+    'https://mainnet.api.tez.ie',
+    'https://rpc.tzkt.io/mainnet',
+    'https://rpc.tzbeta.net',
+    'https://mainnet.tezos.ecadinfra.com'
+  ],
+  [TempleTezosChainId.Ghostnet]: [
+    'https://rpc.ghostnet.teztnets.com',
+    'https://ghostnet.smartpy.io',
+    'https://rpc.tzkt.io/ghostnet',
+    'https://ghostnet.tezos.ecadinfra.com'
+  ],
+  [TempleTezosChainId.Shadownet]: [
+    'https://rpc.shadownet.teztnets.com',
+    'https://rpc.tzkt.io/shadownet',
+    'https://shadownet.tezos.ecadinfra.com'
+  ]
+};
+
 /** (!) Never remove Mainnet */
 export const TEZOS_DEFAULT_NETWORKS: NonEmptyArray<StoredTezosNetwork> = [
   {
@@ -64,7 +88,7 @@ export const TEZOS_DEFAULT_NETWORKS: NonEmptyArray<StoredTezosNetwork> = [
     name: 'Tezos',
     chain: TempleChainKind.Tezos,
     chainId: TempleTezosChainId.Mainnet,
-    rpcBaseURL: 'https://prod.tcinfra.net/rpc/mainnet',
+    rpcBaseURL: TEZOS_FALLBACK_RPC_URLS[TempleTezosChainId.Mainnet][DEFAULT_RPC_INDEX],
     description: 'Tezos mainnet',
     color: '#83b300',
     default: true
@@ -74,7 +98,7 @@ export const TEZOS_DEFAULT_NETWORKS: NonEmptyArray<StoredTezosNetwork> = [
     name: 'SmartPy',
     chain: TempleChainKind.Tezos,
     chainId: TempleTezosChainId.Mainnet,
-    rpcBaseURL: 'https://mainnet.smartpy.io',
+    rpcBaseURL: TEZOS_FALLBACK_RPC_URLS[TempleTezosChainId.Mainnet][1],
     description: 'SmartPy Mainnet',
     color: '#34D399'
   },
@@ -83,7 +107,7 @@ export const TEZOS_DEFAULT_NETWORKS: NonEmptyArray<StoredTezosNetwork> = [
     name: 'ECAD Labs',
     chain: TempleChainKind.Tezos,
     chainId: TempleTezosChainId.Mainnet,
-    rpcBaseURL: 'https://mainnet.api.tez.ie',
+    rpcBaseURL: TEZOS_FALLBACK_RPC_URLS[TempleTezosChainId.Mainnet][2],
     description: 'Highly available Tezos Mainnet nodes operated by ECAD Labs',
     color: '#047857'
   },
@@ -92,9 +116,19 @@ export const TEZOS_DEFAULT_NETWORKS: NonEmptyArray<StoredTezosNetwork> = [
     name: 'Ghostnet',
     chain: TempleChainKind.Tezos,
     chainId: TempleTezosChainId.Ghostnet,
-    rpcBaseURL: 'https://rpc.ghostnet.teztnets.com',
+    rpcBaseURL: TEZOS_FALLBACK_RPC_URLS[TempleTezosChainId.Ghostnet][DEFAULT_RPC_INDEX],
     description: 'Ghostnet testnet',
     color: '#131380',
+    default: true
+  },
+  {
+    id: 'shadownet',
+    name: 'Shadownet',
+    chain: TempleChainKind.Tezos,
+    chainId: TempleTezosChainId.Shadownet,
+    rpcBaseURL: TEZOS_FALLBACK_RPC_URLS[TempleTezosChainId.Shadownet][DEFAULT_RPC_INDEX],
+    description: 'Shadownet testnet',
+    color: '#4B5563',
     default: true
   }
 ];
@@ -148,6 +182,13 @@ export const EVM_FALLBACK_RPC_URLS: Record<number, string[]> = {
     'https://endpoints.omniatech.io/v1/avax/mainnet/public',
     'https://1rpc.io/avax/c'
   ],
+  [COMMON_MAINNET_CHAIN_IDS.arbitrum]: [
+    'https://arbitrum-one-rpc.publicnode.com',
+    'https://arbitrum.drpc.org',
+    'https://arb-pokt.nodies.app',
+    'https://arbitrum.meowrpc.com',
+    'https://1rpc.io/arb'
+  ],
   [COMMON_MAINNET_CHAIN_IDS.optimism]: [
     'https://optimism-rpc.publicnode.com',
     'https://mainnet.optimism.io',
@@ -182,6 +223,11 @@ export const EVM_FALLBACK_RPC_URLS: Record<number, string[]> = {
     'https://avalanche-fuji-c-chain-rpc.publicnode.com',
     'https://avalanche-fuji.drpc.org',
     'https://endpoints.omniatech.io/v1/avax/fuji/public'
+  ],
+  [COMMON_TESTNET_CHAIN_IDS.arbitrum]: [
+    'https://arbitrum-sepolia-rpc.publicnode.com',
+    'https://arbitrum-sepolia.drpc.org',
+    'https://endpoints.omniatech.io/v1/arbitrum/sepolia/public'
   ],
   [COMMON_TESTNET_CHAIN_IDS.optimism]: [
     'https://optimism-sepolia-rpc.publicnode.com',
@@ -232,6 +278,16 @@ export const EVM_DEFAULT_NETWORKS: NonEmptyArray<StoredEvmNetwork> = [
     chainId: COMMON_MAINNET_CHAIN_IDS.avalanche,
     rpcBaseURL: EVM_FALLBACK_RPC_URLS[COMMON_MAINNET_CHAIN_IDS.avalanche][0],
     color: '#ff5959',
+    default: true
+  },
+  {
+    id: 'arbitrum-mainnet',
+    name: 'Arbitrum',
+    chain: TempleChainKind.EVM,
+    chainId: COMMON_MAINNET_CHAIN_IDS.arbitrum,
+    rpcBaseURL: EVM_FALLBACK_RPC_URLS[COMMON_MAINNET_CHAIN_IDS.arbitrum][0],
+    description: 'Arbitrum Mainnet',
+    color: '#075de6',
     default: true
   },
   {
@@ -300,6 +356,16 @@ export const EVM_DEFAULT_NETWORKS: NonEmptyArray<StoredEvmNetwork> = [
     rpcBaseURL: EVM_FALLBACK_RPC_URLS[COMMON_TESTNET_CHAIN_IDS.avalanche][0],
     description: 'Avalanche Testnet',
     color: '#812e2e',
+    default: true
+  },
+  {
+    id: 'arbitrum-sepolia',
+    name: 'Arbitrum Sepolia',
+    chain: TempleChainKind.EVM,
+    chainId: COMMON_TESTNET_CHAIN_IDS.arbitrum,
+    rpcBaseURL: EVM_FALLBACK_RPC_URLS[COMMON_TESTNET_CHAIN_IDS.arbitrum][0],
+    description: 'Arbitrum Testnet',
+    color: '#0747ad',
     default: true
   },
   {

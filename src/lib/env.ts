@@ -4,13 +4,17 @@ export const APP_VERSION = PackageJSON.version;
 
 // Detects the Mises browser or a Chromium-based browser on iOS (e.g., Chrome on iPhone/iPad, which includes 'CriOS' in userAgent).
 // Mises supports desktop extensions on mobile, so it's treated as compatible in this context.
-export const IS_MISES_BROWSER =
-  // @ts-expect-error
-  navigator.userAgentData?.brands?.some(b => b.brand === 'Mises') || navigator.userAgent.includes('CriOS/');
+export const IS_MISES_BROWSER = hasUserAgentBrand('Mises') || navigator.userAgent.includes('CriOS/');
+
+export const IS_SIDE_PANEL_AVAILABLE = hasUserAgentBrand('Google Chrome', 'Brave');
+
+export const IS_CHROMIUM_BROWSER = process.env.TARGET_BROWSER === 'chrome';
 
 export const IS_FIREFOX_BROWSER = navigator.userAgent.toLowerCase().includes('firefox');
 
 export const IS_DEV_ENV = process.env.NODE_ENV === 'development';
+
+export const IS_FIREFOX = process.env.TARGET_BROWSER === 'firefox';
 
 const IS_DEV_GITHUB_ACTION_RUN_ENV = process.env.GITHUB_ACTION_RUN_ENV === 'development';
 
@@ -35,16 +39,16 @@ export const EnvVars = {
   TEMPLE_FIREBASE_MESSAGING_VAPID_KEY: process.env.TEMPLE_FIREBASE_MESSAGING_VAPID_KEY!,
   TEMPLE_WALLET_DEVELOPMENT_BRANCH_NAME: process.env.TEMPLE_WALLET_DEVELOPMENT_BRANCH_NAME!,
   HYPELAB_API_URL: process.env.HYPELAB_API_URL!,
-  HYPELAB_MISES_SMALL_PLACEMENT_SLUG: process.env.HYPELAB_MISES_SMALL_PLACEMENT_SLUG!,
-  HYPELAB_SMALL_PLACEMENT_SLUG: process.env.HYPELAB_SMALL_PLACEMENT_SLUG!,
-  HYPELAB_MISES_HIGH_PLACEMENT_SLUG: process.env.HYPELAB_MISES_HIGH_PLACEMENT_SLUG!,
   HYPELAB_HIGH_PLACEMENT_SLUG: process.env.HYPELAB_HIGH_PLACEMENT_SLUG!,
-  HYPELAB_MISES_WIDE_PLACEMENT_SLUG: process.env.HYPELAB_MISES_WIDE_PLACEMENT_SLUG!,
   HYPELAB_WIDE_PLACEMENT_SLUG: process.env.HYPELAB_WIDE_PLACEMENT_SLUG!,
-  HYPELAB_MISES_NATIVE_PLACEMENT_SLUG: process.env.HYPELAB_MISES_NATIVE_PLACEMENT_SLUG!,
-  HYPELAB_NATIVE_PLACEMENT_SLUG: process.env.HYPELAB_NATIVE_PLACEMENT_SLUG!,
+  HYPELAB_INTERNAL_NATIVE_PLACEMENT_SLUG: process.env.HYPELAB_INTERNAL_NATIVE_PLACEMENT_SLUG!,
   HYPELAB_PROPERTY_SLUG: process.env.HYPELAB_PROPERTY_SLUG!,
+  HYPELAB_EXTERNAL_PROPERTY_SLUG: process.env.HYPELAB_EXTERNAL_PROPERTY_SLUG!,
   HYPELAB_ADS_WINDOW_URL: process.env.HYPELAB_ADS_WINDOW_URL!,
+  HYPELAB_INTERNAL_MEDIUM_PLACEMENT_SLUG: process.env.HYPELAB_INTERNAL_MEDIUM_PLACEMENT_SLUG!,
+  HYPELAB_EXTERNAL_MEDIUM_PLACEMENT_SLUG: process.env.HYPELAB_EXTERNAL_MEDIUM_PLACEMENT_SLUG!,
+  HYPELAB_EXTERNAL_SMALL_PLACEMENT_SLUG: process.env.HYPELAB_EXTERNAL_SMALL_PLACEMENT_SLUG!,
+  HYPELAB_EXTERNAL_NATIVE_PLACEMENT_SLUG: process.env.HYPELAB_EXTERNAL_NATIVE_PLACEMENT_SLUG!,
   PERSONA_ADS_API_KEY: process.env.PERSONA_ADS_API_KEY!,
   PERSONA_ADS_ENABLED: process.env.PERSONA_ADS_ENABLED === 'true',
   PERSONA_ADS_MISES_BANNER_UNIT_ID: process.env.PERSONA_ADS_MISES_BANNER_UNIT_ID!,
@@ -56,7 +60,7 @@ export const EnvVars = {
   PERSONA_ADS_MISES_SQUARISH_BANNER_UNIT_ID: process.env.PERSONA_ADS_MISES_SQUARISH_BANNER_UNIT_ID!,
   PERSONA_ADS_SQUARISH_BANNER_UNIT_ID: process.env.PERSONA_ADS_SQUARISH_BANNER_UNIT_ID!,
   TEMPLE_ADS_ORIGIN_PASSPHRASE: process.env.TEMPLE_ADS_ORIGIN_PASSPHRASE!,
-  CONVERSION_VERIFICATION_URL: process.env.CONVERSION_VERIFICATION_URL!,
+  CONVERSION_API_URL: process.env.CONVERSION_API_URL!,
   BITMEDIA_320_50_PLACEMENT_ID: process.env.BITMEDIA_320_50_PLACEMENT_ID!,
   BITMEDIA_320_100_PLACEMENT_ID: process.env.BITMEDIA_320_100_PLACEMENT_ID!,
   BITMEDIA_300_250_PLACEMENT_ID: process.env.BITMEDIA_300_250_PLACEMENT_ID!,
@@ -72,3 +76,11 @@ export const EnvVars = {
   TAKE_ADS_TOKEN: process.env.TAKE_ADS_TOKEN!,
   GOOGLE_AUTH_PAGE_URL: process.env.GOOGLE_AUTH_PAGE_URL!
 } as const;
+
+const ALL_BRANDS = ['Google Chrome', 'Brave', 'Mises'] as const;
+type Brand = (typeof ALL_BRANDS)[number];
+
+function hasUserAgentBrand(...brands: Brand[]): boolean {
+  // @ts-expect-error
+  return navigator.userAgentData?.brands?.some(b => brands.includes(b.brand)) ?? false;
+}

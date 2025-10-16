@@ -23,7 +23,9 @@ import { ZERO } from 'lib/utils/numbers';
 import { serializeEstimate } from 'lib/utils/serialize-estimate';
 import { AccountForChain, getAccountAddressForTezos } from 'temple/accounts';
 import { getTezosToolkitWithSigner } from 'temple/front';
-import { getTezosFastRpcClient, michelEncoder } from 'temple/tezos';
+import { provePossession } from 'temple/front/tezos';
+import { TezosNetworkEssentials } from 'temple/networks';
+import { getTezosRpcClient, michelEncoder } from 'temple/tezos';
 import { AssetsAmounts, TempleChainKind } from 'temple/types';
 
 import { DEFAULT_INPUT_DEBOUNCE } from './constants';
@@ -36,8 +38,7 @@ interface TezosEstimationFormHookParams {
   estimationData: TezosEstimationData | undefined;
   basicParams: WalletParamsWithKind[] | undefined;
   senderAccount: StoredAccount | AccountForChain<TempleChainKind.Tezos>;
-  rpcBaseURL: string;
-  chainId: string;
+  network: TezosNetworkEssentials;
   simulateOperation?: boolean;
   sourcePkIsRevealed?: boolean;
   estimationDataLoading?: boolean;
@@ -47,8 +48,7 @@ export const useTezosEstimationForm = ({
   estimationData,
   basicParams,
   senderAccount,
-  rpcBaseURL,
-  chainId,
+  network,
   simulateOperation,
   sourcePkIsRevealed = true,
   estimationDataLoading = false
@@ -64,7 +64,7 @@ export const useTezosEstimationForm = ({
     [senderAccount]
   );
   const sender = ownerAddress || accountPkh;
-  const tezos = getTezosToolkitWithSigner(rpcBaseURL, sender, true);
+  const tezos = getTezosToolkitWithSigner(network, sender, true);
   const estimates = estimationData?.estimates;
   const params$ = useMemo(() => new BehaviorSubject<ForgeParams | null>(null), []);
   const [balancesChanges, setBalancesChanges] = useSafeState<AssetsAmounts>({});
@@ -82,12 +82,12 @@ export const useTezosEstimationForm = ({
           return EMPTY;
         }
 
-        return from(tezos.rpc.simulateOperation({ operation, chain_id: chainId })).pipe(
+        return from(tezos.rpc.simulateOperation({ operation, chain_id: network.chainId })).pipe(
           catchError(e => {
             console.error(e);
 
             return from(
-              tezos.rpc.simulateOperation({ operation: { contents: operation.contents }, chain_id: chainId })
+              tezos.rpc.simulateOperation({ operation: { contents: operation.contents }, chain_id: network.chainId })
             );
           }),
           switchMap(response => {
@@ -128,14 +128,14 @@ export const useTezosEstimationForm = ({
     });
 
     return () => sub.unsubscribe();
-  }, [accountPkh, params$, tezos.rpc, chainId, setBalancesChangesLoading, setBalancesChanges]);
+  }, [accountPkh, params$, tezos.rpc, network.chainId, setBalancesChangesLoading, setBalancesChanges]);
 
   const defaultValues = useMemo(() => {
     let gasFee: BigNumber | undefined;
     let storageLimit: BigNumber | undefined;
 
     if (basicParams) {
-      gasFee = tzToMutez(revealFee);
+      gasFee = revealFee;
       storageLimit = ZERO;
       for (let i = 0; i < basicParams.length; i++) {
         if (gasFee === undefined && storageLimit === undefined) break;
@@ -289,11 +289,16 @@ export const useTezosEstimationForm = ({
       const sourcePublicKey = await tezos.wallet.pk();
 
       let bytesToSign: string | undefined;
-      const signer = new ReadOnlySigner(accountPkh, sourcePublicKey, digest => {
-        bytesToSign = digest;
-      });
+      const signer = new ReadOnlySigner(
+        accountPkh,
+        sourcePublicKey,
+        digest => {
+          bytesToSign = digest;
+        },
+        () => provePossession(accountPkh)
+      );
 
-      const readOnlyTezos = new TezosToolkit(getTezosFastRpcClient(rpcBaseURL));
+      const readOnlyTezos = new TezosToolkit(getTezosRpcClient(network));
       readOnlyTezos.setSignerProvider(signer);
       readOnlyTezos.setPackerProvider(michelEncoder);
 
@@ -322,7 +327,7 @@ export const useTezosEstimationForm = ({
     accountPkh,
     displayedFeeOptions,
     debouncedGasFee,
-    rpcBaseURL,
+    network,
     setValue,
     debouncedStorageLimit,
     trySignOperation,

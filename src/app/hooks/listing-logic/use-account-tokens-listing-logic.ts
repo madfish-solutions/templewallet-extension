@@ -1,19 +1,17 @@
 import { useCallback, useMemo } from 'react';
 
-import { isDefined } from '@rnw-community/shared';
-
-import { useRawEvmAccountBalancesSelector } from 'app/store/evm/balances/selectors';
+import { useTezosUsdToTokenRatesSelector } from 'app/store/currency/selectors';
 import { useEvmTokensExchangeRatesLoading, useEvmTokensMetadataLoadingSelector } from 'app/store/evm/selectors';
+import { useEvmUsdToTokenRatesSelector } from 'app/store/evm/tokens-exchange-rates/selectors';
 import { useEvmTokensMetadataRecordSelector } from 'app/store/evm/tokens-metadata/selectors';
 import { useAreAssetsLoading } from 'app/store/tezos/assets/selectors';
-import { useBalancesAtomicRecordSelector } from 'app/store/tezos/balances/selectors';
-import { getKeyForBalancesRecord } from 'app/store/tezos/balances/utils';
 import { useTokensMetadataLoadingSelector } from 'app/store/tezos/tokens-metadata/selectors';
 import { EVM_TOKEN_SLUG, TEZ_TOKEN_SLUG } from 'lib/assets/defaults';
 import { useEvmAccountTokens, useTezosAccountTokens } from 'lib/assets/hooks/tokens';
 import { searchAssetsWithNoMeta } from 'lib/assets/search.utils';
 import { useAccountTokensSortPredicate } from 'lib/assets/use-sorting';
 import { parseChainAssetSlug, toChainAssetSlug } from 'lib/assets/utils';
+import { useGetEvmTokenBalanceWithDecimals, useGetTezosAccountTokenOrGasBalanceWithDecimals } from 'lib/balances/hooks';
 import { useGetTokenOrGasMetadata } from 'lib/metadata';
 import { useMemoWithCompare } from 'lib/ui/hooks';
 import { groupByToEntries } from 'lib/utils/group-by-to-entries';
@@ -25,12 +23,13 @@ import { useGroupedAssetsPaginationLogic } from '../use-group-assets-pagination-
 import { useSimpleAssetsPaginationLogic } from '../use-simple-assets-pagination-logic';
 
 import { useEvmBalancesAreLoading } from './use-evm-balances-loading-state';
+import { useIsBigBalance } from './use-is-big-balance';
 import { getSlugFromChainSlug, useCommonAssetsListingLogic } from './utils';
 
 export const useAccountTokensForListing = (
   accountTezAddress: string,
   accountEvmAddress: HexString,
-  filterZeroBalances = false,
+  filterSmallBalances = false,
   groupingEnabled = false
 ) => {
   const tezTokens = useTezosAccountTokens(accountTezAddress);
@@ -41,21 +40,32 @@ export const useAccountTokensForListing = (
 
   const tokensSortPredicate = useAccountTokensSortPredicate(accountTezAddress, accountEvmAddress);
 
-  const tezBalances = useBalancesAtomicRecordSelector();
-  const evmBalances = useRawEvmAccountBalancesSelector(accountEvmAddress);
+  const getTezBalance = useGetTezosAccountTokenOrGasBalanceWithDecimals(accountTezAddress);
+  const mainnetTezUsdToTokenRates = useTezosUsdToTokenRatesSelector();
+  const getEvmBalance = useGetEvmTokenBalanceWithDecimals(accountEvmAddress);
+  const evmUsdToTokenRates = useEvmUsdToTokenRatesSelector();
 
-  const isNonZeroBalance = useCallback(
+  const getBalance = useCallback(
     (chainSlug: string) => {
       const [chainKind, chainId, slug] = parseChainAssetSlug(chainSlug);
 
-      const balance =
-        chainKind === TempleChainKind.Tezos
-          ? tezBalances[getKeyForBalancesRecord(accountTezAddress, chainId as string)]?.data[slug]
-          : evmBalances[chainId as number]?.[slug];
-      return isDefined(balance) && balance !== '0';
+      return chainKind === TempleChainKind.Tezos
+        ? getTezBalance(chainId as string, slug)
+        : getEvmBalance(chainId as number, slug);
     },
-    [accountTezAddress, tezBalances, evmBalances]
+    [getEvmBalance, getTezBalance]
   );
+  const getExchangeRate = useCallback(
+    (chainSlug: string) => {
+      const [chainKind, chainId, slug] = parseChainAssetSlug(chainSlug);
+
+      return chainKind === TempleChainKind.Tezos
+        ? mainnetTezUsdToTokenRates[slug]
+        : evmUsdToTokenRates[chainId as number]?.[slug];
+    },
+    [evmUsdToTokenRates, mainnetTezUsdToTokenRates]
+  );
+  const isBigBalance = useIsBigBalance(getBalance, getExchangeRate);
 
   const gasChainsSlugs = useMemo(
     () => [
@@ -65,26 +75,30 @@ export const useAccountTokensForListing = (
     [enabledEvmChains, enabledTezChains]
   );
 
-  const enabledChainsSlugsFiltered = useMemo(() => {
-    const enabledChainsSlugs = gasChainsSlugs
-      .concat(
-        tezTokens
-          .filter(({ status }) => status === 'enabled')
-          .map(({ chainId, slug }) => toChainAssetSlug(TempleChainKind.Tezos, chainId, slug))
-      )
-      .concat(
-        evmTokens
-          .filter(({ status }) => status === 'enabled')
-          .map(({ chainId, slug }) => toChainAssetSlug(TempleChainKind.EVM, chainId, slug))
-      );
-
-    return filterZeroBalances ? enabledChainsSlugs.filter(isNonZeroBalance) : enabledChainsSlugs;
-  }, [evmTokens, filterZeroBalances, gasChainsSlugs, isNonZeroBalance, tezTokens]);
-
-  const enabledChainsSlugsSorted = useMemoWithCompare(
-    () => enabledChainsSlugsFiltered.sort(tokensSortPredicate),
-    [enabledChainsSlugsFiltered, tokensSortPredicate]
+  const enabledChainsSlugs = useMemo(
+    () =>
+      gasChainsSlugs
+        .concat(
+          tezTokens
+            .filter(({ status }) => status === 'enabled')
+            .map(({ chainId, slug }) => toChainAssetSlug(TempleChainKind.Tezos, chainId, slug))
+        )
+        .concat(
+          evmTokens
+            .filter(({ status }) => status === 'enabled')
+            .map(({ chainId, slug }) => toChainAssetSlug(TempleChainKind.EVM, chainId, slug))
+        ),
+    [evmTokens, gasChainsSlugs, tezTokens]
   );
+
+  const enabledChainsSlugsSorted = useMemoWithCompare(() => {
+    const enabledChainsSlugsFiltered = filterSmallBalances
+      ? enabledChainsSlugs.filter(isBigBalance)
+      : enabledChainsSlugs;
+
+    return enabledChainsSlugsFiltered.sort(tokensSortPredicate);
+  }, [enabledChainsSlugs, filterSmallBalances, isBigBalance, tokensSortPredicate]);
+
   const enabledChainsSlugsSortedGrouped = useMemoWithCompare(() => {
     if (!groupingEnabled) return null;
 
@@ -92,6 +106,8 @@ export const useAccountTokensForListing = (
   }, [enabledChainsSlugsSorted, groupingEnabled]);
 
   return {
+    shouldShowHiddenTokensHint:
+      filterSmallBalances && enabledChainsSlugs.length > 0 && enabledChainsSlugsSorted.length === 0,
     enabledChainsSlugsSorted,
     enabledChainsSlugsSortedGrouped,
     tezTokens,

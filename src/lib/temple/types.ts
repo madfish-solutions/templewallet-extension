@@ -1,3 +1,4 @@
+import type { RawSignResult } from '@taquito/core';
 import type { DerivationType } from '@taquito/ledger-signer';
 import type { TempleDAppMetadata } from '@temple-wallet/dapp/dist/types';
 import BigNumber from 'bignumber.js';
@@ -9,7 +10,7 @@ import type { EvmEstimationData, SerializedEvmEstimationData } from 'temple/evm/
 import type { TypedDataV1 } from 'temple/evm/typed-data-v1';
 import type { SerializedBigints } from 'temple/evm/utils';
 import type { EvmChain } from 'temple/front';
-import type { StoredEvmNetwork, StoredTezosNetwork } from 'temple/networks';
+import type { StoredEvmNetwork, StoredTezosNetwork, TezosNetworkEssentials } from 'temple/networks';
 import type { TempleChainKind } from 'temple/types';
 
 import type {
@@ -38,10 +39,13 @@ export interface TempleState {
   settings: TempleSettings | null;
   focusLocation: FocusLocation | null;
   windowsWithPopups: (number | null)[];
+  windowsWithSidebars: (number | null)[];
+  tabsOrigins: Partial<Record<number, string>>;
 }
 
 export const TEZOS_MAINNET_CHAIN_ID = 'NetXdQprcVkpaWU';
 export const TEZOS_GHOSTNET_CHAIN_ID = 'NetXnHfVqm9iesp';
+const TEZOS_SHADOWNET_CHAIN_ID = 'NetXsqzbfFenSTS';
 export const ETHEREUM_MAINNET_CHAIN_ID = 1;
 export const COMMON_MAINNET_CHAIN_IDS = {
   polygon: 137,
@@ -58,6 +62,7 @@ export const COMMON_TESTNET_CHAIN_IDS = {
   bsc: 97,
   avalanche: 43113,
   optimism: 11155420,
+  arbitrum: 421614,
   base: 84532,
   etherlink: 128123
 } as const;
@@ -65,7 +70,9 @@ export const COMMON_TESTNET_CHAIN_IDS = {
 export enum TempleTezosChainId {
   Mainnet = TEZOS_MAINNET_CHAIN_ID,
   Ghostnet = TEZOS_GHOSTNET_CHAIN_ID,
-  Paris = 'NetXXWAHLEvre9b',
+  Shadownet = TEZOS_SHADOWNET_CHAIN_ID,
+  Rio = 'NetXPdgaoabtBth',
+  Seoul = 'NetXd56aBs1aeW3',
   Dcp = 'NetXooyhiru73tk',
   DcpTest = 'NetXZb3Lz8FsrZx'
 }
@@ -91,7 +98,7 @@ export type StoredAccount =
   | StoredManagedKTAccount
   | StoredWatchOnlyAccount;
 
-export interface StoredLedgerAccount extends StoredAccountBase {
+interface StoredLedgerAccount extends StoredAccountBase {
   type: TempleAccountType.Ledger;
   chain: TempleChainKind;
   address: string;
@@ -183,7 +190,7 @@ export interface TempleContact {
 interface TempleConfirmationPayloadBase {
   type: string;
   sourcePkh: string;
-  networkRpc: string;
+  network: TezosNetworkEssentials;
 }
 
 interface TempleSignConfirmationPayload extends TempleConfirmationPayloadBase {
@@ -208,6 +215,13 @@ export type TempleConfirmationPayload = TempleSignConfirmationPayload | TempleOp
 
 export interface DAppMetadata extends TempleDAppMetadata {
   icon?: string;
+}
+
+export interface EIP6963ProviderInfo {
+  uuid: string;
+  name: string;
+  icon: string;
+  rdns?: string;
 }
 
 /**
@@ -276,7 +290,7 @@ interface TempleDAppPayloadBase {
 }
 
 interface TempleTezosDAppPayloadBase extends TempleDAppPayloadBase {
-  networkRpc: string;
+  network: TezosNetworkEssentials;
   chainType?: TempleChainKind.Tezos;
 }
 
@@ -291,6 +305,7 @@ interface TempleTezosDAppConnectPayload extends TempleTezosDAppPayloadBase {
 
 interface TempleEvmDAppConnectPayload extends TempleEvmDAppPayloadBase {
   type: 'connect';
+  providers?: EIP6963ProviderInfo[];
 }
 
 export interface SerializedEstimate {
@@ -386,6 +401,7 @@ export enum TempleMessageType {
   TempleEvmDAppsDisconnected = 'TEMPLE_EVM_DAPPS_DISCONNECTED',
   TempleTezosDAppsDisconnected = 'TEMPLE_TEZOS_DAPPS_DISCONNECTED',
   TempleEvmChainSwitched = 'TEMPLE_SWITCH_EVM_CHAIN',
+  TempleSwitchEvmProvider = 'TEMPLE_SWITCH_EVM_PROVIDER',
   // Request-Response pairs
   GetStateRequest = 'TEMPLE_GET_STATE_REQUEST',
   GetStateResponse = 'TEMPLE_GET_STATE_RESPONSE',
@@ -458,6 +474,8 @@ export enum TempleMessageType {
   DAppAddEvmChainResponse = 'TEMPLE_DAPP_ADD_EVM_CHAIN_RESPONSE',
   DAppSwitchEvmChainRequest = 'TEMPLE_DAPP_SWITCH_EVM_CHAIN_REQUEST',
   DAppSwitchEvmChainResponse = 'TEMPLE_DAPP_SWITCH_EVM_CHAIN_RESPONSE',
+  DAppSelectOtherWalletRequest = 'TEMPLE_DAPP_SELECT_OTHER_WALLET_REQUEST',
+  DAppSelectOtherWalletResponse = 'TEMPLE_DAPP_SELECT_OTHER_WALLET_RESPONSE',
   SendTrackEventRequest = 'SEND_TRACK_EVENT_REQUEST',
   SendTrackEventResponse = 'SEND_TRACK_EVENT_RESPONSE',
   SendPageEventRequest = 'SEND_PAGE_EVENT_REQUEST',
@@ -467,7 +485,11 @@ export enum TempleMessageType {
   ResetExtensionRequest = 'RESET_EXTENSION_REQUEST',
   ResetExtensionResponse = 'RESET_EXTENSION_RESPONSE',
   SetWindowPopupStateRequest = 'SET_WINDOW_POPUP_STATE_REQUEST',
-  SetWindowPopupStateResponse = 'SET_WINDOW_POPUP_STATE_RESPONSE'
+  SetWindowPopupStateResponse = 'SET_WINDOW_POPUP_STATE_RESPONSE',
+  SetWindowSidebarStateRequest = 'SET_WINDOW_SIDEBAR_STATE_REQUEST',
+  SetWindowSidebarStateResponse = 'SET_WINDOW_SIDEBAR_STATE_RESPONSE',
+  ProvePossessionRequest = 'PROVE_POSSESSION_REQUEST',
+  ProvePossessionResponse = 'PROVE_POSSESSION_RESPONSE'
 }
 
 export type TempleNotification =
@@ -477,7 +499,8 @@ export type TempleNotification =
   | TempleSelectedAccountChanged
   | TempleEvmDAppsDisconnected
   | TempleTezosDAppsDisconnected
-  | TempleEvmChainSwitched;
+  | TempleEvmChainSwitched
+  | TempleSwitchEvmProvider;
 
 export type TempleRequest =
   | TempleAcknowledgeRequest
@@ -517,11 +540,14 @@ export type TempleRequest =
   | TempleAddDAppEvmChainRequest
   | TempleAddDAppEvmAssetRequest
   | TempleSwitchDAppEvmChainRequest
+  | TempleSelectOtherWalletRequest
   | TempleSendTrackEventRequest
   | TempleSendPageEventRequest
   | TempleSendEvmTransactionRequest
   | TempleResetExtensionRequest
-  | TempleSetWindowPopupStateRequest;
+  | TempleSetWindowPopupStateRequest
+  | TempleSetWindowSidebarStateRequest
+  | TempleProvePossessionRequest;
 
 export type TempleResponse =
   | TempleGetStateResponse
@@ -560,11 +586,14 @@ export type TempleResponse =
   | TempleAddDAppEvmChainResponse
   | TempleAddDAppEvmAssetResponse
   | TempleSwitchDAppEvmChainResponse
+  | TempleSelectOtherWalletResponse
   | TempleSendTrackEventResponse
   | TempleSendPageEventResponse
   | TempleSendEvmTransactionResponse
   | TempleResetExtensionResponse
-  | TempleSetWindowPopupStateResponse;
+  | TempleSetWindowPopupStateResponse
+  | TempleSetWindowSidebarStateResponse
+  | TempleProvePossessionResponse;
 
 export interface TempleMessageBase {
   type: TempleMessageType;
@@ -605,6 +634,11 @@ interface TempleEvmChainSwitched extends TempleMessageBase {
   type: TempleMessageType.TempleEvmChainSwitched;
   origin: string;
   chainId: number;
+}
+
+interface TempleSwitchEvmProvider extends TempleMessageBase {
+  type: TempleMessageType.TempleSwitchEvmProvider;
+  origin: string;
 }
 
 interface TempleGetStateRequest extends TempleMessageBase {
@@ -850,7 +884,7 @@ interface TempleOperationsRequest extends TempleMessageBase {
   type: TempleMessageType.OperationsRequest;
   id: string;
   sourcePkh: string;
-  networkRpc: string;
+  network: TezosNetworkEssentials;
   opParams: any[];
   /** send operations without old confirmation page */
   straightaway?: boolean;
@@ -865,7 +899,7 @@ interface TempleSignRequest extends TempleMessageBase {
   type: TempleMessageType.SignRequest;
   id: string;
   sourcePkh: string;
-  networkRpc: string;
+  network: TezosNetworkEssentials;
   bytes: string;
   watermark?: string;
 }
@@ -919,6 +953,7 @@ interface TempleTezosPageRequest extends TemplePageRequestBase {
 interface TempleEvmPageRequest extends TemplePageRequestBase {
   chainType: TempleChainKind.EVM;
   chainId: string;
+  providers?: EIP6963ProviderInfo[];
 }
 
 type TemplePageRequest = TempleTezosPageRequest | TempleEvmPageRequest;
@@ -1033,6 +1068,17 @@ interface TempleSwitchDAppEvmChainResponse extends TempleMessageBase {
   type: TempleMessageType.DAppSwitchEvmChainResponse;
 }
 
+interface TempleSelectOtherWalletRequest extends TempleMessageBase {
+  type: TempleMessageType.DAppSelectOtherWalletRequest;
+  origin: string;
+  rdns?: string;
+  uuid?: string;
+}
+
+interface TempleSelectOtherWalletResponse extends TempleMessageBase {
+  type: TempleMessageType.DAppSelectOtherWalletResponse;
+}
+
 interface TempleResetExtensionRequest extends TempleMessageBase {
   type: TempleMessageType.ResetExtensionRequest;
   password: string;
@@ -1050,6 +1096,26 @@ interface TempleSetWindowPopupStateRequest extends TempleMessageBase {
 
 interface TempleSetWindowPopupStateResponse extends TempleMessageBase {
   type: TempleMessageType.SetWindowPopupStateResponse;
+}
+
+interface TempleSetWindowSidebarStateRequest extends TempleMessageBase {
+  type: TempleMessageType.SetWindowSidebarStateRequest;
+  windowId: number | null;
+  opened: boolean;
+}
+
+interface TempleSetWindowSidebarStateResponse extends TempleMessageBase {
+  type: TempleMessageType.SetWindowSidebarStateResponse;
+}
+
+interface TempleProvePossessionRequest extends TempleMessageBase {
+  type: TempleMessageType.ProvePossessionRequest;
+  sourcePkh: string;
+}
+
+interface TempleProvePossessionResponse extends TempleMessageBase {
+  type: TempleMessageType.ProvePossessionResponse;
+  result: RawSignResult;
 }
 
 export type EvmTransactionRequestWithSender = RpcTransactionRequest & { from: HexString };

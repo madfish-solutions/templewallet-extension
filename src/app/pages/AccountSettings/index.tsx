@@ -12,14 +12,16 @@ import { SettingsCellGroup } from 'app/atoms/SettingsCellGroup';
 import { StyledButton } from 'app/atoms/StyledButton';
 import { TotalEquity } from 'app/atoms/TotalEquity';
 import { useAllAccountsReactiveOnRemoval } from 'app/hooks/use-all-accounts-reactive';
+import { useEquityCurrency } from 'app/hooks/use-equity-currency';
 import { ReactComponent as ChevronRightIcon } from 'app/icons/base/chevron_right.svg';
 import PageLayout from 'app/layouts/PageLayout';
+import { useAssetsFilterOptionsSelector } from 'app/store/assets-filter-options/selectors';
 import { T, t } from 'lib/i18n';
 import { useTempleClient } from 'lib/temple/front';
 import { getDerivationPath } from 'lib/temple/helpers';
 import { TempleAccountType } from 'lib/temple/types';
 import { useAlert } from 'lib/ui';
-import { useAllAccounts, useCurrentAccountId } from 'temple/front';
+import { useAllAccounts, useCurrentAccountId, useHDGroups } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
 
 import { ConfirmRevealPrivateKeyAccessModal } from './confirm-reveal-private-key-access-modal';
@@ -46,12 +48,16 @@ export const AccountSettings = memo<AccountSettingsProps>(({ id }) => {
   const { setAccountHidden } = useTempleClient();
   useAllAccountsReactiveOnRemoval();
   const allAccounts = useAllAccounts();
+  const hdGroups = useHDGroups();
   const [bottomEdgeIsVisible, setBottomEdgeIsVisible] = useState(true);
 
   const [visibilityBeingChanged, setVisibilityBeingChanged] = useState(false);
   const [currentModal, setCurrentModal] = useState<AccountSettingsModal | null>(null);
   const [privateKeysPayload, setPrivateKeysPayload] = useState<PrivateKeyPayload[]>([]);
   const shouldDisableVisibilityChange = visibilityBeingChanged || currentAccountId === id;
+
+  const { filterChain } = useAssetsFilterOptionsSelector();
+  const { equityCurrency } = useEquityCurrency();
 
   const account = useMemo(() => allAccounts.find(({ id: accountId }) => accountId === id), [allAccounts, id]);
 
@@ -150,7 +156,7 @@ export const AccountSettings = memo<AccountSettingsProps>(({ id }) => {
                 <T id="totalBalance" />:
               </span>
               <span className="ml-1.5 text-font-num-14">
-                <TotalEquity account={account} currency="fiat" />
+                <TotalEquity account={account} filterChain={filterChain} currency={equityCurrency} />
               </span>
             </div>
           </div>
@@ -218,17 +224,19 @@ export const AccountSettings = memo<AccountSettingsProps>(({ id }) => {
         )}
       </div>
 
-      <ActionsButtonsBox className="sticky left-0 bottom-0" shouldCastShadow={!bottomEdgeIsVisible}>
-        <StyledButton
-          className="flex-1"
-          size="L"
-          color="red-low"
-          onClick={openRemoveAccountModal}
-          testID={AccountSettingsSelectors.removeAccount}
-        >
-          <T id="removeAccount" />
-        </StyledButton>
-      </ActionsButtonsBox>
+      {!(account.type === TempleAccountType.HD && account.hdIndex === 0 && hdGroups[0]?.id === account.walletId) && (
+        <ActionsButtonsBox className="sticky left-0 bottom-0" shouldCastShadow={!bottomEdgeIsVisible}>
+          <StyledButton
+            className="flex-1"
+            size="L"
+            color="red-low"
+            onClick={openRemoveAccountModal}
+            testID={AccountSettingsSelectors.removeAccount}
+          >
+            <T id="removeAccount" />
+          </StyledButton>
+        </ActionsButtonsBox>
+      )}
 
       {modal}
     </PageLayout>
