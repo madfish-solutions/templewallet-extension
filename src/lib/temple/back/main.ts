@@ -16,7 +16,7 @@ import {
 } from 'lib/apis/ads-api';
 import { ADS_VIEWER_DATA_STORAGE_KEY, ContentScriptType, REWARDS_ACCOUNT_DATA_STORAGE_KEY } from 'lib/constants';
 import { E2eMessageType } from 'lib/e2e/types';
-import { BACKGROUND_IS_WORKER, EnvVars, IS_FIREFOX_BROWSER, IS_MISES_BROWSER } from 'lib/env';
+import { BACKGROUND_IS_WORKER, EnvVars, IS_FIREFOX, IS_MISES_BROWSER } from 'lib/env';
 import { fetchFromStorage } from 'lib/storage';
 import { encodeMessage, encryptMessage, getSenderId, MessageType, Response } from 'lib/temple/beacon';
 import { clearAsyncStorages } from 'lib/temple/reset';
@@ -460,7 +460,7 @@ browser.runtime.onMessage.addListener(async (msg, sender) => {
 
       case ContentScriptType.FetchTempleReferralLinkItems: {
         let browser = 'chrome';
-        if (IS_FIREFOX_BROWSER) browser = 'firefox';
+        if (IS_FIREFOX) browser = 'firefox';
         if (IS_MISES_BROWSER) browser = 'mises';
 
         return await getTempleReferralLinkItems(browser);

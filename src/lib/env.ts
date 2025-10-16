@@ -10,8 +10,6 @@ export const IS_SIDE_PANEL_AVAILABLE = hasUserAgentBrand('Google Chrome', 'Brave
 
 export const IS_CHROMIUM_BROWSER = process.env.TARGET_BROWSER === 'chrome';
 
-export const IS_FIREFOX_BROWSER = navigator.userAgent.toLowerCase().includes('firefox');
-
 export const IS_DEV_ENV = process.env.NODE_ENV === 'development';
 
 export const IS_FIREFOX = process.env.TARGET_BROWSER === 'firefox';
