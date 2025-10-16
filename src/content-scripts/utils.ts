@@ -2,8 +2,6 @@ import { ADS_VIEWER_DATA_STORAGE_KEY, REPLACE_REFERRALS_ENABLED, WEBSITES_ANALYT
 import { IS_MISES_BROWSER } from 'lib/env';
 import { fetchFromStorage } from 'lib/storage';
 
-// TODO: Extend logic below in TW-1792: Feature distribution control
-
 export async function checkIfShouldReplaceAds() {
   if (window.frameElement) return false; // Prevents the scripts from running in an Iframe
 
