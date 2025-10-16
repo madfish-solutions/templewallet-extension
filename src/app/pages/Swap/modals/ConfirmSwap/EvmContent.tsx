@@ -77,6 +77,7 @@ export const EvmContent: FC<EvmContentProps> = ({ stepReviewData, onClose, onSte
 
   const [latestSubmitError, setLatestSubmitError] = useState<string | nullish>(null);
   const [stepFinalized, setStepFinalized] = useState(false);
+  const [submitLoading, setSubmitLoading] = useState(false);
 
   useEffect(() => {
     setStepFinalized(false);
@@ -98,9 +99,9 @@ export const EvmContent: FC<EvmContentProps> = ({ stepReviewData, onClose, onSte
     network: inputNetwork,
     balance,
     ethBalance,
-    toFilled: isValidTxTo && !stepFinalized,
+    toFilled: isValidTxTo && !stepFinalized && !submitLoading,
     amount: atomsToTokens(
-      new BigNumber(routeStep.estimate.fromAmount),
+      new BigNumber(routeStep.action.fromAmount),
       routeStep.action.fromToken.decimals ?? 0
     ).toString(),
     silent: false
@@ -122,7 +123,6 @@ export const EvmContent: FC<EvmContentProps> = ({ stepReviewData, onClose, onSte
   const { formState } = form;
   const { ledgerApprovalModalState, setLedgerApprovalModalState, handleLedgerModalClose } =
     useLedgerApprovalModalState();
-  const [submitLoading, setSubmitLoading] = useState(false);
 
   const balancesChanges = useMemo(() => {
     const input = {
@@ -201,7 +201,6 @@ export const EvmContent: FC<EvmContentProps> = ({ stepReviewData, onClose, onSte
       const blockExplorer = getActiveBlockExplorer(inputNetwork.chainId.toString(), !!bridgeData);
       showTxSubmitToastWithDelay(TempleChainKind.EVM, txHash, blockExplorer.url);
 
-      await timeout(2000);
       let status;
       do {
         if (cancelledRef?.current) return;
@@ -213,11 +212,11 @@ export const EvmContent: FC<EvmContentProps> = ({ stepReviewData, onClose, onSte
               toChain: step.action.toChainId,
               bridge: step.tool
             }),
-          { retries: 3, minTimeout: 2000, factor: 2 }
+          { retries: 5, minTimeout: 2000 }
         );
         status = result.status;
 
-        await new Promise(resolve => setTimeout(resolve, 5000));
+        await new Promise(resolve => setTimeout(resolve, 3000));
       } while (status !== 'DONE' && status !== 'FAILED');
 
       if (status === 'FAILED') {
@@ -322,6 +321,7 @@ export const EvmContent: FC<EvmContentProps> = ({ stepReviewData, onClose, onSte
       }
 
       try {
+        setLatestSubmitError(null);
         setSubmitLoading(true);
         if (cancelledRef?.current) return;
         if (isLedgerAccount) {
