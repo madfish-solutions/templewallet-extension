@@ -21,11 +21,13 @@ browser.runtime.onInstalled.addListener(({ reason }) => {
   }
 
   if (reason === 'update')
-    Promise.all([getStoredAppUpdateDetails(), putToStorage(SHOULD_OPEN_LETS_EXCHANGE_MODAL_STORAGE_KEY, true)]).then(
-      ([details]) => {
-        if (details?.triggeredManually) openFullPage();
-      }
-    );
+    Promise.all([
+      getStoredAppUpdateDetails(),
+      fetchFromStorage<boolean>(SHOULD_OPEN_LETS_EXCHANGE_MODAL_STORAGE_KEY)
+    ]).then(([details, shouldOpenLetsExchangeModal]) => {
+      if (details?.triggeredManually) openFullPage();
+      if (shouldOpenLetsExchangeModal === null) putToStorage(SHOULD_OPEN_LETS_EXCHANGE_MODAL_STORAGE_KEY, true);
+    });
 });
 
 browser.runtime.onUpdateAvailable.addListener(newManifest => {
