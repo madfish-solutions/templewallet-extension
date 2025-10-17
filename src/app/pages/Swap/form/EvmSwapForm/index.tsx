@@ -15,7 +15,7 @@ import { useLifiEvmTokenMetadataSelector } from 'app/store/evm/swap-lifi-metadat
 import { useEvmTokenMetadataSelector } from 'app/store/evm/tokens-metadata/selectors';
 import { toastError } from 'app/toaster';
 import { useFormAnalytics } from 'lib/analytics';
-import { getEvmAllSwapRoutes } from 'lib/apis/temple/endpoints/evm';
+import { getEvmAllSwapRoutes, getEvmSwapQuote } from 'lib/apis/temple/endpoints/evm';
 import { RouteParams } from 'lib/apis/temple/endpoints/evm/api.interfaces';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { fromAssetSlug, parseChainAssetSlug } from 'lib/assets/utils';
@@ -64,6 +64,7 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
   const [swapRoute, setSwapRoute] = useState<Route | null>(null);
   const [isRouteLoading, setIsRouteLoading] = useState(false);
   const [isAlertVisible, setIsAlertVisible] = useState(false);
+  const isRouteLoadingRef = useRef(false);
 
   const getTokenMetadata = useGetEvmGasOrTokenMetadata();
 
@@ -248,6 +249,12 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
     routeAbortControllerRef.current = controller;
 
     try {
+      const quoteResponse = await getEvmSwapQuote(params, controller.signal);
+
+      if (quoteResponse !== undefined) {
+        return quoteResponse;
+      }
+
       const routesResponse = await getEvmAllSwapRoutes(params, controller.signal);
 
       if (routesResponse === undefined) {
@@ -269,6 +276,8 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
 
   const updateSwapRoute = useCallback(
     async (params: RouteParams) => {
+      if (isRouteLoadingRef.current) return;
+      isRouteLoadingRef.current = true;
       setIsRouteLoading(true);
       setIsAlertVisible(false);
 
@@ -277,16 +286,20 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
         if (data) {
           setSwapRoute(data);
           setIsRouteLoading(false);
+          isRouteLoadingRef.current = false;
           return data;
         }
 
         setSwapRoute(null);
         setIsAlertVisible(data === null);
+        setIsRouteLoading(false);
+        isRouteLoadingRef.current = false;
         return;
       } catch (error) {
         setSwapRoute(null);
         setIsAlertVisible(true);
         setIsRouteLoading(false);
+        isRouteLoadingRef.current = false;
         throw error;
       }
     },
@@ -310,7 +323,7 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
       toChain: targetAssetInfo.chainId as number,
       fromToken,
       toToken,
-      amount: atomsInputValue.toString(),
+      amount: atomsInputValue.toFixed(),
       fromAddress: publicKeyHash,
       slippage: slippageTolerance / 100
     };
@@ -349,7 +362,7 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
         new BigNumber(inputValue.amount).isGreaterThan(0) &&
         sourceAssetInfo &&
         targetAssetInfo &&
-        !isRouteLoading &&
+        !isRouteLoadingRef.current &&
         !formState.isSubmitting &&
         !confirmSwapModalOpened
       ) {
@@ -362,7 +375,6 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
       inputValue.amount,
       sourceAssetInfo,
       targetAssetInfo,
-      isRouteLoading,
       formState.isSubmitting,
       confirmSwapModalOpened,
       getAndSetSwapRoute

@@ -43,9 +43,16 @@ interface EvmContentProps {
   onClose: EmptyFn;
   onStepCompleted: EmptyFn;
   cancelledRef?: React.MutableRefObject<boolean>;
+  skipStatusWait?: boolean;
 }
 
-export const EvmContent: FC<EvmContentProps> = ({ stepReviewData, onClose, onStepCompleted, cancelledRef }) => {
+export const EvmContent: FC<EvmContentProps> = ({
+  stepReviewData,
+  onClose,
+  onStepCompleted,
+  cancelledRef,
+  skipStatusWait
+}) => {
   const {
     account,
     inputNetwork,
@@ -201,20 +208,33 @@ export const EvmContent: FC<EvmContentProps> = ({ stepReviewData, onClose, onSte
       const blockExplorer = getActiveBlockExplorer(inputNetwork.chainId.toString(), !!bridgeData);
       showTxSubmitToastWithDelay(TempleChainKind.EVM, txHash, blockExplorer.url);
 
+      if (skipStatusWait) {
+        if (cancelledRef?.current) return;
+        setStepFinalized(true);
+        onStepCompleted();
+        return;
+      }
+
       let status;
       do {
         if (cancelledRef?.current) return;
-        const result = await retry(
-          async () =>
-            await getStatus({
-              txHash,
-              fromChain: step.action.fromChainId,
-              toChain: step.action.toChainId,
-              bridge: step.tool
-            }),
-          { retries: 5, minTimeout: 2000 }
-        );
-        status = result.status;
+        try {
+          const result = await retry(
+            async () =>
+              await getStatus({
+                txHash,
+                fromChain: step.action.fromChainId,
+                toChain: step.action.toChainId,
+                bridge: step.tool
+              }),
+            { retries: 5, minTimeout: 2000 }
+          );
+          status = result.status;
+        } catch (_err) {
+          throw new Error(
+            'This transaction wasn’t confirmed because the gas price is to low and didn’t meet network demand. Increase it to speed up confirmation and try again.'
+          );
+        }
 
         await new Promise(resolve => setTimeout(resolve, 3000));
       } while (status !== 'DONE' && status !== 'FAILED');
@@ -283,7 +303,8 @@ export const EvmContent: FC<EvmContentProps> = ({ stepReviewData, onClose, onSte
       outputNetwork,
       outputTokenSlug,
       sendEvmTransaction,
-      cancelledRef
+      cancelledRef,
+      skipStatusWait
     ]
   );
 

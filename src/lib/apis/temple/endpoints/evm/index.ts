@@ -1,4 +1,4 @@
-import { RoutesResponse, Token } from '@lifi/sdk';
+import { Route, RoutesResponse, Token } from '@lifi/sdk';
 import retry from 'async-retry';
 import axios from 'axios';
 
@@ -53,6 +53,17 @@ export const getEvmAllSwapRoutes = (params: RouteParams, signal?: AbortSignal) =
     res => res.data,
     error => {
       if (axios.isCancel(error) || error?.name === 'CanceledError') return;
+      console.error(error);
+      throw error;
+    }
+  );
+
+export const getEvmSwapQuote = (params: RouteParams, signal?: AbortSignal) =>
+  templeWalletApi.get<Route>('evm/swap-route', { params, signal }).then(
+    res => res.data,
+    error => {
+      if (axios.isCancel(error) || error?.name === 'CanceledError') return;
+      if (axios.isAxiosError(error) && error.response?.status === 404) return;
       console.error(error);
       throw error;
     }
