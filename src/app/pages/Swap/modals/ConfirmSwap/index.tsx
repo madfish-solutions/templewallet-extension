@@ -7,14 +7,16 @@ import { AddAssetProvider } from 'app/ConfirmPage/add-asset/context';
 import { AddChainDataProvider } from 'app/ConfirmPage/add-chain/context';
 import { DeadEndBoundaryError } from 'app/ErrorBoundary';
 import { getProtocolFeeForRouteStep } from 'app/pages/Swap/form/EvmSwapForm/utils';
-import { EvmReviewData, isSwapEvmReviewData, SwapReviewData, TezosReviewData } from 'app/pages/Swap/form/interfaces';
+import { isSwapEvmReviewData, SwapReviewData, TezosReviewData } from 'app/pages/Swap/form/interfaces';
 import ApproveModal from 'app/pages/Swap/modals/ApproveModal';
 import { useEvmAllowances } from 'app/pages/Swap/modals/SwapSelectAsset/hooks';
 import { ConfirmationModal } from 'app/templates/ConfirmationModal/ConfirmationModal';
 import { t, T } from 'lib/i18n';
 import { TezosEstimationDataProvider, EvmEstimationDataProvider } from 'lib/temple/front/estimation-data-providers';
 import { atomsToTokens } from 'lib/temple/helpers';
+import { AccountForChain } from 'temple/accounts';
 import { useEvmChainByChainId } from 'temple/front/chains';
+import { TempleChainKind } from 'temple/types';
 
 import { EvmContent } from './EvmContent';
 import { usePrefetchEvmStepTransactions } from './hooks/usePrefetchEvmStepTransactions';
@@ -85,12 +87,7 @@ export const ConfirmSwapModal: FC<ConfirmSwapModalProps> = ({ opened, onRequestC
     return index === -1 ? 0 : index;
   }, [userActions]);
 
-  const lastExecuteActionIndex = useMemo(() => {
-    for (let i = userActions.length - 1; i >= 0; i--) {
-      if (userActions[i]?.type === 'execute') return i;
-    }
-    return -1;
-  }, [userActions]);
+  const lastExecuteActionIndex = useMemo(() => userActions.findLastIndex(a => a?.type === 'execute'), [userActions]);
 
   useEffect(() => {
     setCurrentActionIndex(0);
@@ -103,6 +100,25 @@ export const ConfirmSwapModal: FC<ConfirmSwapModalProps> = ({ opened, onRequestC
     () => (userActions.length > 0 ? userActions[Math.min(currentActionIndex, userActions.length - 1)] : undefined),
     [userActions, currentActionIndex]
   );
+
+  const clampedActionIndex = useMemo(
+    () => (userActions.length > 0 ? Math.min(currentActionIndex, userActions.length - 1) : 0),
+    [currentActionIndex, userActions.length]
+  );
+
+  const prefetchedStepTx = useMemo(
+    () => (currentUserAction ? prefetchedStepsByIndex[currentUserAction.stepIndex] ?? null : null),
+    [currentUserAction, prefetchedStepsByIndex]
+  );
+
+  const skipStatusWait = useMemo(
+    () =>
+      Boolean(
+        currentUserAction && currentUserAction.type === 'execute' && clampedActionIndex === lastExecuteActionIndex
+      ),
+    [currentUserAction, clampedActionIndex, lastExecuteActionIndex]
+  );
+
   const isBridgeOperation = useMemo(
     () =>
       Boolean(
@@ -111,6 +127,7 @@ export const ConfirmSwapModal: FC<ConfirmSwapModalProps> = ({ opened, onRequestC
       ),
     [currentUserAction]
   );
+
   const operationTitleSubst = isBridgeOperation ? 'Bridge' : 'Swap';
   const operationDescSubst = isBridgeOperation ? 'bridge' : 'swap';
 
@@ -194,20 +211,13 @@ export const ConfirmSwapModal: FC<ConfirmSwapModalProps> = ({ opened, onRequestC
           (isSwapEvmReviewData(reviewData)
             ? userActions.length > 0 && (
                 <ConfirmStepEvmContent
-                  routeStep={userActions[Math.min(currentActionIndex, userActions.length - 1)].routeStep}
-                  data={reviewData}
-                  mode={userActions[Math.min(currentActionIndex, userActions.length - 1)].type}
+                  account={reviewData.account}
+                  mode={currentUserAction?.type}
                   onStepCompleted={onStepCompleted}
                   onRequestClose={handleRequestClose}
                   cancelledRef={cancelledRef}
-                  skipStatusWait={
-                    userActions.length > 0 &&
-                    userActions[Math.min(currentActionIndex, userActions.length - 1)].type === 'execute' &&
-                    Math.min(currentActionIndex, userActions.length - 1) === lastExecuteActionIndex
-                  }
-                  prefetchedStepTx={
-                    prefetchedStepsByIndex[userActions[Math.min(currentActionIndex, userActions.length - 1)].stepIndex]
-                  }
+                  prefetchedStepTx={prefetchedStepTx}
+                  skipStatusWait={skipStatusWait}
                 />
               )
             : renderTezosContent(reviewData))}
@@ -228,8 +238,7 @@ export const ConfirmSwapModal: FC<ConfirmSwapModalProps> = ({ opened, onRequestC
 
 const ConfirmStepEvmContent = memo(
   ({
-    routeStep,
-    data,
+    account,
     mode,
     onStepCompleted,
     onRequestClose,
@@ -237,41 +246,37 @@ const ConfirmStepEvmContent = memo(
     prefetchedStepTx,
     skipStatusWait
   }: {
-    routeStep: LiFiStep;
-    data: EvmReviewData;
-    mode: 'approval' | 'execute';
+    account: AccountForChain<TempleChainKind.EVM>;
+    mode?: 'approval' | 'execute';
     onStepCompleted: EmptyFn;
     onRequestClose: EmptyFn;
     cancelledRef?: React.MutableRefObject<boolean>;
-    prefetchedStepTx?: LiFiStep;
+    prefetchedStepTx: LiFiStep | null;
     skipStatusWait?: boolean;
   }) => {
-    const inputNetwork = useEvmChainByChainId(routeStep.action.fromChainId);
-    const outputNetwork = useEvmChainByChainId(routeStep.action.toChainId);
+    if (!prefetchedStepTx) throw new DeadEndBoundaryError();
+
+    const inputNetwork = useEvmChainByChainId(prefetchedStepTx.action.fromChainId);
+    const outputNetwork = useEvmChainByChainId(prefetchedStepTx.action.toChainId);
 
     if (!inputNetwork || !outputNetwork) throw new DeadEndBoundaryError();
 
-    const [routeStepWithTransactionRequest, setRouteStepWithTransactionRequest] = useState<LiFiStep | null>(
-      prefetchedStepTx ?? null
-    );
-
-    useEffect(() => {
-      setRouteStepWithTransactionRequest(prefetchedStepTx ?? null);
-    }, [routeStep, mode, prefetchedStepTx]);
-
     const stepReviewData = useMemo(
       () => ({
-        account: data.account,
+        account,
         inputNetwork,
         outputNetwork,
-        protocolFee: getProtocolFeeForRouteStep(routeStep, inputNetwork),
+        protocolFee: getProtocolFeeForRouteStep(prefetchedStepTx, inputNetwork),
         minimumReceived: {
-          amount: atomsToTokens(routeStep.estimate.toAmountMin, routeStep.action.toToken.decimals).toString(),
-          symbol: routeStep.action.toToken.symbol
+          amount: atomsToTokens(
+            prefetchedStepTx.estimate.toAmountMin,
+            prefetchedStepTx.action.toToken.decimals
+          ).toString(),
+          symbol: prefetchedStepTx.action.toToken.symbol
         },
-        routeStep: mode === 'execute' ? routeStepWithTransactionRequest ?? routeStep : routeStep
+        routeStep: prefetchedStepTx
       }),
-      [data.account, inputNetwork, outputNetwork, routeStep, routeStepWithTransactionRequest, mode]
+      [account, inputNetwork, outputNetwork, prefetchedStepTx]
     );
 
     return (

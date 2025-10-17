@@ -47,23 +47,23 @@ export function usePrefetchEvmStepTransactions(args: {
     const prefetchStepTransactions = async () => {
       try {
         const stepTxResults = await Promise.all(
-          steps.map(async (step, idx) => {
+          steps.map(async (step, index) => {
             try {
               if (isCancelled || cancelledRef.current || !opened) {
-                return { idx, step } as const;
+                return { index, step };
               }
               const updated = await getStepTransaction(step);
               if (isCancelled || cancelledRef.current || !opened) {
-                return { idx, step: null } as const;
+                return { index, step: null };
               }
-              return { idx, step: updated } as const;
+              return { index, step: updated };
             } catch {
               if (!isCancelled && !cancelledRef.current && opened && !prefetchErrorHandledRef.current) {
                 prefetchErrorHandledRef.current = true;
                 toastError('Failed to prepare transaction');
                 onRequestClose();
               }
-              return { idx, step: null } as const;
+              return { index, step: null };
             }
           })
         );
@@ -71,7 +71,7 @@ export function usePrefetchEvmStepTransactions(args: {
         if (isCancelled || cancelledRef.current || !opened) return;
 
         const nextPrefetched: Record<number, LiFiStep> = {};
-        for (const r of stepTxResults) if (r.step) nextPrefetched[r.idx] = r.step;
+        for (const result of stepTxResults) if (result.step) nextPrefetched[result.index] = result.step;
         setPrefetchedStepsByIndex(nextPrefetched);
       } catch (e) {
         console.warn(e);
@@ -83,10 +83,10 @@ export function usePrefetchEvmStepTransactions(args: {
     return () => {
       isCancelled = true;
     };
-  }, [opened, actionsInitialized, steps, cancelledRef]);
+  }, [opened, actionsInitialized, steps, cancelledRef, onRequestClose]);
 
   const stepsToCheckForGas = useMemo(() => {
-    return steps.map((s, i) => prefetchedStepsByIndex[i] ?? s);
+    return steps.map((step, index) => prefetchedStepsByIndex[index] ?? step);
   }, [steps, prefetchedStepsByIndex]);
 
   useEffect(() => {
@@ -153,5 +153,5 @@ export function usePrefetchEvmStepTransactions(args: {
     };
   }, [opened, actionsInitialized, stepsToCheckForGas, allEvmChains, getGasBalance, cancelledRef]);
 
-  return { prefetchedStepsByIndex, progressionBlocked } as const;
+  return { prefetchedStepsByIndex, progressionBlocked };
 }
