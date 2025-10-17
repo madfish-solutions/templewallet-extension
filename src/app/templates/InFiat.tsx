@@ -15,7 +15,7 @@ interface OutputProps {
 }
 
 interface InFiatProps extends TestIDProps {
-  volume: BigNumber | number | string;
+  volume: BigNumber.Value;
   chainId: number | string;
   assetSlug: string;
   children: (output: OutputProps) => ReactElement;

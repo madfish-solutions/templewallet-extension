@@ -24,6 +24,7 @@ import { Dapps } from './pages/Dapps';
 import { EarnEthPage } from './pages/EarnEth';
 import { EarnTezPage } from './pages/EarnTez';
 import { EarnTkeyPage } from './pages/EarnTkey';
+import { HyperliquidPage } from './pages/Hyperliquid';
 import { ImportWallet } from './pages/ImportWallet';
 import { Market } from './pages/Market';
 import { Notifications } from './pages/Notifications';
@@ -116,6 +117,7 @@ const ROUTE_MAP = Woozie.createMap<RouteContext>([
   ['/dapps', onlyReady(() => <Dapps />)],
   ['/account/:id', onlyReady(({ id }) => <AccountSettings id={id!} />)],
   ['/rewards', onlyReady(() => <RewardsRoute />)],
+  ['/hyperliquid', onlyReady(() => <HyperliquidPage />)],
   ['*', () => <Woozie.Redirect to="/" />]
 ]);
 

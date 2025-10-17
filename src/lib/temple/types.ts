@@ -453,6 +453,8 @@ export enum TempleMessageType {
   OperationsResponse = 'TEMPLE_OPERATIONS_RESPONSE',
   SignRequest = 'TEMPLE_SIGN_REQUEST',
   SignResponse = 'TEMPLE_SIGN_RESPONSE',
+  SignEvmTypedDataRequest = 'TEMPLE_SIGN_EVM_TYPED_DATA_REQUEST',
+  SignEvmTypedDataResponse = 'TEMPLE_SIGN_EVM_TYPED_DATA_RESPONSE',
   ConfirmationRequest = 'TEMPLE_CONFIRMATION_REQUEST',
   ConfirmationResponse = 'TEMPLE_CONFIRMATION_RESPONSE',
   PageRequest = 'TEMPLE_PAGE_REQUEST',
@@ -524,6 +526,7 @@ export type TempleRequest =
   | TempleCreateLedgerAccountRequest
   | TempleOperationsRequest
   | TempleSignRequest
+  | TempleSignEvmTypedDataRequest
   | TempleConfirmationRequest
   | TempleRemoveAccountRequest
   | TempleRemoveHdWalletRequest
@@ -571,6 +574,7 @@ export type TempleResponse =
   | TempleCreateLedgerAccountResponse
   | TempleOperationsResponse
   | TempleSignResponse
+  | TempleSignEvmResponse
   | TempleConfirmationResponse
   | TempleRemoveAccountResponse
   | TempleRemoveHdWalletResponse
@@ -907,6 +911,27 @@ interface TempleSignRequest extends TempleMessageBase {
 interface TempleSignResponse extends TempleMessageBase {
   type: TempleMessageType.SignResponse;
   result: any;
+}
+
+// Add values to these unions when necessary
+type SignEvmDataRequestMessageType = TempleMessageType.SignEvmTypedDataRequest;
+export type SignEvmDataResponseMessageType = TempleMessageType.SignEvmTypedDataResponse;
+
+export interface TempleSignEvmRequestBase extends TempleMessageBase {
+  // Add values to this union when necessary
+  type: SignEvmDataRequestMessageType;
+  payload: unknown;
+  sourcePkh: HexString;
+}
+
+interface TempleSignEvmResponse extends TempleMessageBase {
+  type: SignEvmDataResponseMessageType;
+  result: HexString;
+}
+
+export interface TempleSignEvmTypedDataRequest extends TempleSignEvmRequestBase {
+  type: TempleMessageType.SignEvmTypedDataRequest;
+  payload: TypedDataDefinition | TypedDataV1;
 }
 
 interface TempleConfirmationRequest extends TempleMessageBase {

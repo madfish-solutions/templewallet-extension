@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import constate from 'constate';
 import { omit } from 'lodash';
-import { TransactionRequest, formatTransactionRequest } from 'viem';
+import { TransactionRequest, TypedDataDefinition, formatTransactionRequest } from 'viem';
 import browser from 'webextension-polyfill';
 
 import { WALLETS_SPECS_STORAGE_KEY } from 'lib/constants';
@@ -22,6 +22,7 @@ import {
 } from 'lib/temple/types';
 import { useDidMount } from 'lib/ui/hooks';
 import { DEFAULT_PROMISES_QUEUE_COUNTERS } from 'lib/utils';
+import { TypedDataV1 } from 'temple/evm/typed-data-v1';
 import type { EvmChain } from 'temple/front';
 import {
   intercomClient,
@@ -502,6 +503,16 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
     assertResponse(res.type === TempleMessageType.SetWindowSidebarStateResponse);
   }, []);
 
+  const signEvmTypedData = useCallback(async (payload: TypedDataDefinition | TypedDataV1, sourcePkh: HexString) => {
+    const res = await request({
+      type: TempleMessageType.SignEvmTypedDataRequest,
+      payload,
+      sourcePkh
+    });
+    assertResponse(res.type === TempleMessageType.SignEvmTypedDataResponse);
+    return res.result;
+  }, []);
+
   useEffect(() => void (data?.shouldLockOnStartup && lock()), [data?.shouldLockOnStartup, lock]);
 
   return {
@@ -565,6 +576,7 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
     sendEvmTransaction,
     resetExtension,
     setWindowPopupState,
-    setWindowSidebarState
+    setWindowSidebarState,
+    signEvmTypedData
   };
 });

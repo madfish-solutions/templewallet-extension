@@ -226,6 +226,13 @@ const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<T
         result
       };
 
+    case TempleMessageType.SignEvmTypedDataRequest:
+      const { result: evmSignResult } = await Actions.internalSignEvmTypedData(req.payload, req.sourcePkh);
+      return {
+        type: TempleMessageType.SignEvmTypedDataResponse,
+        result: evmSignResult
+      };
+
     case TempleMessageType.ProvePossessionRequest:
       const proveResult = await Actions.provePossession(req.sourcePkh);
       return {

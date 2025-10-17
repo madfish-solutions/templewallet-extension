@@ -99,7 +99,7 @@ import {
 } from './store';
 import { Vault } from './vault';
 
-export { switchChain as switchEvmChain } from './evm-dapp';
+export { switchChain as switchEvmChain, internalSignEvmTypedData } from './evm-dapp';
 export { provePossession } from './prove-possession';
 
 const ACCOUNT_OR_GROUP_NAME_PATTERN = /^.{1,16}$/;

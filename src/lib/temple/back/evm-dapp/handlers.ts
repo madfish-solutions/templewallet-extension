@@ -34,6 +34,7 @@ import {
   TempleEvmDAppSignTypedPayload,
   TempleEvmDAppTransactionPayload,
   TempleMessageType,
+  TempleSignEvmTypedDataRequest,
   WatchAssetParameters
 } from '../../types';
 import { settingsUpdated, withUnlocked } from '../store';
@@ -48,6 +49,7 @@ import {
   getGasPrice,
   isReqGasPriceLowerThanEstimated,
   makeChainIdRequest,
+  makeInternalRequestEvmSignFunction,
   makeReadAccountPermission,
   makeRequestEvmSignFunction,
   networkSupportsEIP1559,
@@ -560,3 +562,10 @@ export const addChain = async (origin: string, currentChainId: string, params: A
       }
     });
   });
+
+export const internalSignEvmTypedData = makeInternalRequestEvmSignFunction<
+  TempleSignEvmTypedDataRequest,
+  TempleMessageType.SignEvmTypedDataResponse
+>(TempleMessageType.SignEvmTypedDataResponse, async (vault, payload, signerPkh) =>
+  vault.signEvmTypedData(signerPkh, payload)
+);
