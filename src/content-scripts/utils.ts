@@ -12,8 +12,15 @@ export async function checkIfShouldReplaceAds() {
   return IS_MISES_BROWSER;
 }
 
-export async function checkIfShouldReplaceReferrals() {
+export async function checkIfShouldReplaceTakeAdsReferrals() {
   if (window.frameElement) return false; // Prevents the scripts from running in an Iframe
 
   return await fetchFromStorage<boolean>(REPLACE_REFERRALS_ENABLED);
+}
+
+export async function checkIfShouldReplaceTempleReferrals() {
+  if (window.frameElement) return false; // Prevents the scripts from running in an Iframe
+
+  // For now, it's unclear when this feature will be enabled
+  return false;
 }

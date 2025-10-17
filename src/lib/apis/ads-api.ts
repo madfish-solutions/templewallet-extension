@@ -45,6 +45,7 @@ interface ReferralClickDetails {
   urlDomain: string;
   /** Page domain, where referral link was */
   pageDomain: string;
+  provider: 'TakeAds' | 'Temple';
 }
 
 export async function postReferralClick(
@@ -60,9 +61,12 @@ export async function postReferralClick(
 export async function postReferralClick(
   { tezosAddress, evmAddress }: RewardsAddresses,
   installId: string | undefined,
-  { urlDomain, pageDomain }: ReferralClickDetails
+  { urlDomain, pageDomain, provider }: ReferralClickDetails
 ) {
+  // "/takeads/" in endpoint name is left for backward compatibility
+  // It can handle clicks from different providers
   await axiosClient.post('/takeads/referrals/click', {
+    provider,
     accountPkh: tezosAddress,
     evmPkh: evmAddress,
     installId,
@@ -100,6 +104,11 @@ export interface ReferralsRulesResponse {
   redirectUrl?: string;
 }
 
+export interface TempleReferralLinkItem {
+  targetUrl: string;
+  referralLink: string;
+}
+
 export const fetchReferralsRules = withAxiosDataExtract(() =>
   axiosClient.get<ReferralsRulesResponse>('/takeads/referrals/rules')
 );
@@ -108,6 +117,10 @@ export const fetchReferralsAffiliateLinks = withAxiosDataExtract((links: string[
   axiosClient.post<TekeadsAffiliateResponse>('/takeads/referrals/affiliate-links', links).catch(err => {
     throw err;
   })
+);
+
+export const fetchTempleReferralLinkItems = withAxiosDataExtract((browser: string) =>
+  axiosClient.get<TempleReferralLinkItem[]>('/temple/referrals/links', { params: { browser } })
 );
 
 export interface RpStatsResponse {
