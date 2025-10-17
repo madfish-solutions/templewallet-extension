@@ -106,7 +106,7 @@ export const EvmContent: FC<EvmContentProps> = ({
     network: inputNetwork,
     balance,
     ethBalance,
-    toFilled: isValidTxTo && !stepFinalized && !submitLoading,
+    toFilled: isValidTxTo && !stepFinalized && !submitLoading && !cancelledRef?.current,
     amount: atomsToTokens(
       new BigNumber(routeStep.action.fromAmount),
       routeStep.action.fromToken.decimals ?? 0

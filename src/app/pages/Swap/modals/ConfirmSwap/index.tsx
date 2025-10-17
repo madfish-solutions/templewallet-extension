@@ -211,6 +211,7 @@ export const ConfirmSwapModal: FC<ConfirmSwapModalProps> = ({ opened, onRequestC
           (isSwapEvmReviewData(reviewData)
             ? userActions.length > 0 && (
                 <ConfirmStepEvmContent
+                  routeStep={userActions[Math.min(currentActionIndex, userActions.length - 1)].routeStep}
                   account={reviewData.account}
                   mode={currentUserAction?.type}
                   onStepCompleted={onStepCompleted}
@@ -238,6 +239,7 @@ export const ConfirmSwapModal: FC<ConfirmSwapModalProps> = ({ opened, onRequestC
 
 const ConfirmStepEvmContent = memo(
   ({
+    routeStep,
     account,
     mode,
     onStepCompleted,
@@ -246,6 +248,7 @@ const ConfirmStepEvmContent = memo(
     prefetchedStepTx,
     skipStatusWait
   }: {
+    routeStep: LiFiStep;
     account: AccountForChain<TempleChainKind.EVM>;
     mode?: 'approval' | 'execute';
     onStepCompleted: EmptyFn;
@@ -254,29 +257,32 @@ const ConfirmStepEvmContent = memo(
     prefetchedStepTx: LiFiStep | null;
     skipStatusWait?: boolean;
   }) => {
-    if (!prefetchedStepTx) throw new DeadEndBoundaryError();
-
-    const inputNetwork = useEvmChainByChainId(prefetchedStepTx.action.fromChainId);
-    const outputNetwork = useEvmChainByChainId(prefetchedStepTx.action.toChainId);
+    const inputNetwork = useEvmChainByChainId(routeStep.action.fromChainId);
+    const outputNetwork = useEvmChainByChainId(routeStep.action.toChainId);
 
     if (!inputNetwork || !outputNetwork) throw new DeadEndBoundaryError();
+
+    const [routeStepWithTransactionRequest, setRouteStepWithTransactionRequest] = useState<LiFiStep | null>(
+      prefetchedStepTx ?? null
+    );
+
+    useEffect(() => {
+      setRouteStepWithTransactionRequest(prefetchedStepTx ?? null);
+    }, [routeStep, mode, prefetchedStepTx]);
 
     const stepReviewData = useMemo(
       () => ({
         account,
         inputNetwork,
         outputNetwork,
-        protocolFee: getProtocolFeeForRouteStep(prefetchedStepTx, inputNetwork),
+        protocolFee: getProtocolFeeForRouteStep(routeStep, inputNetwork),
         minimumReceived: {
-          amount: atomsToTokens(
-            prefetchedStepTx.estimate.toAmountMin,
-            prefetchedStepTx.action.toToken.decimals
-          ).toString(),
-          symbol: prefetchedStepTx.action.toToken.symbol
+          amount: atomsToTokens(routeStep.estimate.toAmountMin, routeStep.action.toToken.decimals).toString(),
+          symbol: routeStep.action.toToken.symbol
         },
-        routeStep: prefetchedStepTx
+        routeStep: mode === 'execute' ? routeStepWithTransactionRequest ?? routeStep : routeStep
       }),
-      [account, inputNetwork, outputNetwork, prefetchedStepTx]
+      [account, inputNetwork, mode, outputNetwork, routeStep, routeStepWithTransactionRequest]
     );
 
     return (
