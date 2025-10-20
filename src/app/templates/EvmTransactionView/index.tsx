@@ -123,16 +123,6 @@ const EvmTransactionViewBody = memo<EvmTransactionViewProps>(
 
     return (
       <FormProvider {...form}>
-        {operationKind === EvmOperationKind.Approval && (
-          <ApproveLayout
-            chain={chain}
-            req={req}
-            setFinalEvmTransaction={setFinalEvmTransaction}
-            onLoadingState={setApprovesLoading}
-            minAllowance={minAllowance}
-          />
-        )}
-
         <OperationViewLayout
           network={chain}
           nativeAssetSlug={EVM_TOKEN_SLUG}
@@ -153,6 +143,18 @@ const EvmTransactionViewBody = memo<EvmTransactionViewProps>(
           balancesChanges={balancesChanges}
           metadataLoading={metadataLoading}
           otherDataLoading={balancesChangesLoading || approvesLoading}
+          renderApproveLayout={footer =>
+            operationKind === EvmOperationKind.Approval ? (
+              <ApproveLayout
+                chain={chain}
+                req={req}
+                setFinalEvmTransaction={setFinalEvmTransaction}
+                onLoadingState={setApprovesLoading}
+                minAllowance={minAllowance}
+                footer={footer}
+              />
+            ) : undefined
+          }
         />
       </FormProvider>
     );

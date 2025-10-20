@@ -191,5 +191,5 @@ export const FeeSummary: FC<FeeSummaryProps> = ({
 
   if (embedded) return content;
 
-  return <div className="flex flex-col px-4 py-2 mb-4 rounded-lg shadow-bottom bg-white">{content}</div>;
+  return <div className="flex flex-col px-4 py-2 rounded-lg shadow-bottom bg-white">{content}</div>;
 };

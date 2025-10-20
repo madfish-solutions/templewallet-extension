@@ -1,9 +1,10 @@
-import React, { memo, useCallback, useEffect, useMemo } from 'react';
+import React, { memo, useCallback, useEffect, useMemo, ReactNode } from 'react';
 
 import BigNumber from 'bignumber.js';
 import { decodeFunctionData, encodeFunctionData } from 'viem';
 
 import { IconBase } from 'app/atoms';
+import Divider from 'app/atoms/Divider';
 import { StyledButton } from 'app/atoms/StyledButton';
 import { useOperationConfirmationCardRowsPropsPart } from 'app/hooks/use-operation-confirmation-card-rows-props-part';
 import { ReactComponent as EditIcon } from 'app/icons/base/edit.svg';
@@ -38,12 +39,13 @@ interface ApproveLayoutProps {
   setFinalEvmTransaction: ReactSetStateFn<EvmTransactionRequestWithSender>;
   onLoadingState: SyncFn<boolean>;
   minAllowance?: bigint;
+  footer?: ReactNode;
 }
 
 const unlimitedAtomicAmountThreshold = toBigNumber(MAX_EVM_ALLOWANCE);
 
 export const ApproveLayout = memo<ApproveLayoutProps>(
-  ({ chain, req, setFinalEvmTransaction, onLoadingState, minAllowance }) => {
+  ({ chain, req, setFinalEvmTransaction, onLoadingState, minAllowance, footer }) => {
     const tokenAddress = req.to!;
     const txData = req.data!;
     const { from } = req;
@@ -94,6 +96,7 @@ export const ApproveLayout = memo<ApproveLayoutProps>(
         chain={chain}
         setFinalEvmTransaction={setFinalEvmTransaction}
         minAllowance={minAllowance}
+        footer={footer}
       />
     ) : null;
   }
@@ -107,7 +110,7 @@ interface ApproveLayoutContentProps extends Omit<ApproveLayoutProps, 'onLoadingS
 }
 
 const ApproveLayoutContent = memo<ApproveLayoutContentProps>(
-  ({ allowancesAmountsContext, chain, req, setFinalEvmTransaction, minAllowance }) => {
+  ({ allowancesAmountsContext, chain, req, setFinalEvmTransaction, minAllowance, footer }) => {
     const tokenAddress = req.to!;
     const txData = req.data!;
     const { from } = req;
@@ -199,6 +202,9 @@ const ApproveLayoutContent = memo<ApproveLayoutContentProps>(
               ) : undefined
             }
           />
+
+          <Divider className="my-2" />
+          {footer}
         </OperationConfirmationCard>
 
         {editModalIsVisible && (
