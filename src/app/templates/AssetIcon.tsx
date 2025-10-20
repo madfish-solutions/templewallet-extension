@@ -90,7 +90,7 @@ export const EvmAssetIconWithNetwork = memo<EvmAssetImageProps>(
 
     return (
       <div
-        className={clsx('flex items-center justify-center relative')}
+        className={clsx('flex items-center justify-center relative', className)}
         style={{ width: size ? size + 8 : ICON_DEFAULT_SIZE, height: size ? size + 8 : ICON_DEFAULT_SIZE, ...style }}
       >
         <EvmAssetIcon

@@ -21,7 +21,7 @@ interface FeesInfoProps {
   goToFeeTab?: EmptyFn;
 }
 
-const FeesInfo: FC<FeesInfoProps> = ({ network, assetSlug, amount = '0.00', goToFeeTab }) => {
+const FeesInfo = ({ network, assetSlug, amount = '0.00', goToFeeTab }: FeesInfoProps) => {
   const isEvm = network.kind === TempleChainKind.EVM;
   const getTezosGasMetadata = useGetTezosGasMetadata();
 

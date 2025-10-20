@@ -33,17 +33,17 @@ export const OperationViewLayout = <T extends TxParamsFormData>({
     [balancesChanges]
   );
   const someBalancesChanges = useMemo(() => Object.keys(filteredBalancesChanges).length > 0, [filteredBalancesChanges]);
-  const expensesViewIsVisible = someBalancesChanges && !metadataLoading;
-  const showStandaloneFeeSummary =
-    !someBalancesChanges && !renderApproveLayout && !otherDataLoading && !metadataLoading;
-  const showLoader = someBalancesChanges && (otherDataLoading || metadataLoading);
+  const showStandaloneFeeSummary = useMemo(
+    () => !someBalancesChanges && !renderApproveLayout && !otherDataLoading && !metadataLoading,
+    [metadataLoading, otherDataLoading, renderApproveLayout, someBalancesChanges]
+  );
 
   const goToFeeTab = useCallback(() => setSelectedTab('fee'), [setSelectedTab]);
 
   return (
     <>
       {someBalancesChanges ? (
-        <div className={expensesViewIsVisible ? undefined : 'hidden'}>
+        <div className={someBalancesChanges && !metadataLoading ? undefined : 'hidden'}>
           <BalancesChangesView
             balancesChanges={[filteredBalancesChanges]}
             chain={network}
@@ -86,7 +86,7 @@ export const OperationViewLayout = <T extends TxParamsFormData>({
           />
         )
       )}
-      {showLoader && (
+      {someBalancesChanges && (otherDataLoading || metadataLoading) && (
         <div className="flex justify-center items-center">
           <Loader size="L" trackVariant="dark" className="text-secondary" />
         </div>
