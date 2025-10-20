@@ -36,7 +36,21 @@ export const OperationViewLayout = <T extends TxParamsFormData>({
     <>
       {someBalancesChanges && (
         <div className={expensesViewIsVisible ? undefined : 'hidden'}>
-          <BalancesChangesView balancesChanges={[filteredBalancesChanges]} chain={network} />
+          <BalancesChangesView
+            balancesChanges={[filteredBalancesChanges]}
+            chain={network}
+            footer={
+              <FeeSummary
+                network={network}
+                assetSlug={restProps.nativeAssetSlug}
+                gasFee={restProps.displayedFee}
+                storageFee={restProps.displayedStorageFee}
+                protocolFee={restProps.bridgeData?.protocolFee}
+                onOpenFeeTab={() => restProps.setSelectedTab('fee')}
+                embedded
+              />
+            }
+          />
         </div>
       )}
       {someBalancesChanges && (otherDataLoading || metadataLoading) && (
@@ -44,15 +58,7 @@ export const OperationViewLayout = <T extends TxParamsFormData>({
           <Loader size="L" trackVariant="dark" className="text-secondary" />
         </div>
       )}
-
-      <FeeSummary
-        network={network}
-        assetSlug={restProps.nativeAssetSlug}
-        gasFee={restProps.displayedFee}
-        storageFee={restProps.displayedStorageFee}
-        protocolFee={restProps.bridgeData?.protocolFee}
-        onOpenFeeTab={() => restProps.setSelectedTab('fee')}
-      />
+      
 
       <div className="flex flex-col mt-4">
         <AccountCard

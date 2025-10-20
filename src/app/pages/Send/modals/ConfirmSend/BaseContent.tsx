@@ -77,15 +77,22 @@ export const BaseContent = <T extends TxParamsFormData>({
   return (
     <>
       <div className="px-4 flex flex-col flex-1 overflow-y-scroll">
-        <BalancesChangesView balancesChanges={balancesChanges} chain={network} />
-
-        <FeeSummary
-          network={network}
-          assetSlug={assetSlug}
-          gasFee={displayedFee}
-          storageFee={displayedStorageFee}
-          onOpenFeeTab={goToFeeTab}
-        />
+        <div className="my-4">
+          <BalancesChangesView
+            balancesChanges={balancesChanges}
+            chain={network}
+            footer={
+              <FeeSummary
+                network={network}
+                assetSlug={assetSlug}
+                gasFee={displayedFee}
+                storageFee={displayedStorageFee}
+                onOpenFeeTab={goToFeeTab}
+                embedded
+              />
+            }
+          />
+        </div>
         <CurrentAccount />
 
         <TransactionTabs<T>

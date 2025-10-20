@@ -31,7 +31,7 @@ function BalancesChangesViewHOC<
   useNoCategoryMetadataGetter: (chainId: C['chainId']) => (assetSlug: string) => TM | CM | undefined,
   useGenericAssetsMetadataCheck: (chainSlugsToCheck: string[]) => void
 ) {
-  return memo<BalancesChangesViewProps<C>>(({ title, balancesChanges, chain, bridgeData }) => {
+  return memo<BalancesChangesViewProps<C>>(({ title, balancesChanges, chain, bridgeData, footer }) => {
     const { chainId } = chain;
     const getCollectibleMetadata = useCollectibleMetadataGetter(chainId);
 
@@ -72,13 +72,14 @@ function BalancesChangesViewHOC<
     );
 
     if (bridgeData) {
-      return <GroupedBalancesChangesViewLayout rows={[...inputRows, ...outputRows]} />;
+      return <GroupedBalancesChangesViewLayout rows={[...inputRows, ...outputRows]} footer={footer} />;
     }
 
     return (
       <BalancesChangesViewLayout
         title={title ?? (allAssetsAreCollectibles ? <T id="estimatedTxDetails" /> : <T id="simulatedResult" />)}
         rows={fallbackRows}
+        footer={footer}
       />
     );
   });

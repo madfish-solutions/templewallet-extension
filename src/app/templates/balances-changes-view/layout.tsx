@@ -2,6 +2,7 @@ import React, { ReactNode, memo } from 'react';
 
 import BigNumber from 'bignumber.js';
 
+import Divider from 'app/atoms/Divider';
 import { T } from 'lib/i18n';
 import { OneOfChains } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
@@ -25,10 +26,12 @@ interface BalancesChangesViewRowProps {
 interface BalancesChangesViewLayoutProps {
   title?: ReactNode;
   rows: BalancesChangesViewRowProps[];
+  footer?: ReactNode;
 }
 
 interface GroupedBalancesChangesViewLayoutProps {
   rows: BalancesChangesViewRowProps[];
+  footer?: ReactNode;
 }
 
 const BalancesChangesViewRow = memo<BalancesChangesViewRowProps>(
@@ -72,20 +75,32 @@ const BalancesChangesViewRow = memo<BalancesChangesViewRowProps>(
   }
 );
 
-export const GroupedBalancesChangesViewLayout = ({ rows }: GroupedBalancesChangesViewLayoutProps) => (
+export const GroupedBalancesChangesViewLayout = ({ rows, footer }: GroupedBalancesChangesViewLayoutProps) => (
   <OperationConfirmationCard title={undefined}>
     {rows.map((props, index) => (
       <React.Fragment key={index}>
         <BalancesChangesViewRow {...props} bridge={true} />
       </React.Fragment>
     ))}
+    {footer && (
+      <>
+        <Divider className="my-2" />
+        {footer}
+      </>
+    )}
   </OperationConfirmationCard>
 );
 
-export const BalancesChangesViewLayout = memo<BalancesChangesViewLayoutProps>(({ title, rows }) => (
+export const BalancesChangesViewLayout = memo<BalancesChangesViewLayoutProps>(({ title, rows, footer }) => (
   <OperationConfirmationCard title={title}>
     {rows.map((props, index) => (
       <BalancesChangesViewRow key={index} {...props} />
     ))}
+    {footer && (
+      <>
+        <Divider className="my-2" />
+        {footer}
+      </>
+    )}
   </OperationConfirmationCard>
 ));

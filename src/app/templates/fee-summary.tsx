@@ -77,6 +77,7 @@ interface FeeSummaryProps {
   storageFee?: string;
   protocolFee?: string;
   onOpenFeeTab?: EmptyFn;
+  embedded?: boolean;
 }
 
 export const FeeSummary: FC<FeeSummaryProps> = ({
@@ -85,7 +86,8 @@ export const FeeSummary: FC<FeeSummaryProps> = ({
   gasFee,
   storageFee,
   protocolFee,
-  onOpenFeeTab
+  onOpenFeeTab,
+  embedded = false
 }) => {
   const total = useMemo(() => {
     const values = [gasFee, storageFee, protocolFee].filter((value): value is string => Boolean(value));
@@ -112,19 +114,20 @@ export const FeeSummary: FC<FeeSummaryProps> = ({
 
   const tooltipContent = (
     <div className="text-white">
-      <div className="text-font-14 mb-2">Total fee amount:</div>
+      <div className="text-font-14 mb-2">{t('totalFeeAmount')}</div>
       {gasFee && (
         <div className="flex items-center justify-between gap-4">
           <div className="text-font-14">{t('gasFee')}</div>
           <div className="text-right whitespace-nowrap">
-            <span className="mr-2">
+            <span className="pr-1 border-r-1.5 border-grey-1">
               <Money fiat smallFractionFont={false}>
                 {toFiat(gasFee)}
               </Money>{' '}
               {selectedFiatCurrency.symbol}
             </span>
-            <span className="opacity-70 mx-1">|</span>
-            <Money smallFractionFont={false}>{gasFee}</Money> {nativeSymbol}
+            <span className="pl-1">
+              <Money smallFractionFont={false}>{gasFee}</Money> {nativeSymbol}
+            </span>
           </div>
         </div>
       )}
@@ -134,14 +137,15 @@ export const FeeSummary: FC<FeeSummaryProps> = ({
             <T id="protocolFee" />
           </div>
           <div className="text-right whitespace-nowrap">
-            <span className="mr-2">
+            <span className="pr-1 border-r-1.5 border-grey-1">
               <Money fiat smallFractionFont={false}>
                 {toFiat(protocolFee)}
               </Money>{' '}
               {selectedFiatCurrency.symbol}
             </span>
-            <span className="opacity-70 mx-1">|</span>
-            <Money smallFractionFont={false}>{protocolFee}</Money> {nativeSymbol}
+            <span className="pl-1">
+              <Money smallFractionFont={false}>{protocolFee}</Money> {nativeSymbol}
+            </span>
           </div>
         </div>
       )}
@@ -151,38 +155,41 @@ export const FeeSummary: FC<FeeSummaryProps> = ({
             <T id="storageFee" />
           </div>
           <div className="text-right whitespace-nowrap">
-            <span className="mr-2">
+            <span className="pr-1 border-r-1.5 border-grey-1">
               <Money fiat smallFractionFont={false}>
                 {toFiat(storageFee)}
               </Money>{' '}
               {selectedFiatCurrency.symbol}
             </span>
-            <span className="opacity-70 mx-1">|</span>
-            <Money smallFractionFont={false}>{storageFee}</Money> {nativeSymbol}
+            <span className="pl-1">
+              <Money smallFractionFont={false}>{storageFee}</Money> {nativeSymbol}
+            </span>
           </div>
         </div>
       )}
     </div>
   );
 
-  return (
-    <div className="flex flex-col px-4 py-3 mb-4 rounded-lg shadow-bottom border-0.5 border-transparent bg-white">
-      <div className="flex flex-row items-center justify-between">
-        <p className="p-1 text-grey-1 text-font-description-bold">Total fee</p>
+  const content = (
+    <div className="flex flex-row items-center justify-between">
+      <p className="p-1 text-grey-1 text-font-description-bold">{t('totalFee')}</p>
 
-        <div className="flex flex-row items-center">
-          <Tippy {...totalFeesInfoTippyProps} content={tooltipContent}>
-            <span className="flex items-center justify-center">
-              {network.kind === TempleChainKind.EVM ? (
-                <EvmNetworkLogo chainId={network.chainId} size={16} />
-              ) : (
-                <TezosNetworkLogo chainId={network.chainId} size={16} />
-              )}
-            </span>
-          </Tippy>
-          <FeesInfo network={network} assetSlug={assetSlug} amount={total.toString()} goToFeeTab={onOpenFeeTab} />
-        </div>
+      <div className="flex flex-row items-center py-2">
+        <Tippy {...totalFeesInfoTippyProps} content={tooltipContent}>
+          <span className="flex items-center justify-center cursor-pointer">
+            {network.kind === TempleChainKind.EVM ? (
+              <EvmNetworkLogo chainId={network.chainId} size={16} />
+            ) : (
+              <TezosNetworkLogo chainId={network.chainId} size={16} />
+            )}
+          </span>
+        </Tippy>
+        <FeesInfo network={network} assetSlug={assetSlug} amount={total.toFixed()} goToFeeTab={onOpenFeeTab} />
       </div>
     </div>
   );
+
+  if (embedded) return content;
+
+  return <div className="flex flex-col px-4 py-2 mb-4 rounded-lg shadow-bottom bg-white">{content}</div>;
 };

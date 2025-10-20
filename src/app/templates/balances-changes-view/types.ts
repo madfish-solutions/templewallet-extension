@@ -1,4 +1,5 @@
 import BigNumber from 'bignumber.js';
+import { ReactNode } from 'react';
 
 import { EvmChain, OneOfChains } from 'temple/front';
 import { AssetsAmounts } from 'temple/types';
@@ -7,6 +8,7 @@ export interface BalancesChangesViewProps<C extends OneOfChains = OneOfChains> {
   balancesChanges: AssetsAmounts[];
   chain: C;
   title?: string;
+  footer?: ReactNode;
   bridgeData?: {
     inputNetwork: EvmChain;
     outputNetwork: EvmChain;

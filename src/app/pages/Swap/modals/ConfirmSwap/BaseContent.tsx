@@ -98,7 +98,22 @@ export const BaseContent = <T extends TxParamsFormData>({
         <div className="my-4">
           {someBalancesChanges ? (
             <FadeTransition>
-              <BalancesChangesView balancesChanges={filteredBalancesChanges} chain={network} bridgeData={bridgeData} />
+              <BalancesChangesView
+                balancesChanges={filteredBalancesChanges}
+                chain={network}
+                bridgeData={bridgeData}
+                footer={
+                  <FeeSummary
+                    network={network}
+                    assetSlug={nativeAssetSlug}
+                    gasFee={displayedFee}
+                    storageFee={displayedStorageFee}
+                    protocolFee={bridgeData?.protocolFee}
+                    onOpenFeeTab={goToFeeTab}
+                    embedded
+                  />
+                }
+              />
             </FadeTransition>
           ) : (
             <div className="flex justify-center items-center py-4">
@@ -106,15 +121,6 @@ export const BaseContent = <T extends TxParamsFormData>({
             </div>
           )}
         </div>
-
-        <FeeSummary
-          network={network}
-          assetSlug={nativeAssetSlug}
-          gasFee={displayedFee}
-          storageFee={displayedStorageFee}
-          protocolFee={bridgeData?.protocolFee}
-          onOpenFeeTab={goToFeeTab}
-        />
 
         <CurrentAccount />
 

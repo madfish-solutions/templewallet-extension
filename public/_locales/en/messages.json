@@ -1827,6 +1827,12 @@
   "estimatedTxDetails": {
     "message": "Est. transaction details"
   },
+  "totalFeeAmount": {
+    "message": "Total fee amount:"
+  },
+  "totalFee": {
+    "message": "Total fee:"
+  },
   "noValue": {
     "message": "No value"
   },
