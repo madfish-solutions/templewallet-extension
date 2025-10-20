@@ -84,19 +84,19 @@ const EvmAssetIconPlaceholder: EvmAssetImageProps['Fallback'] = memo(({ metadata
 );
 
 export const EvmAssetIconWithNetwork = memo<EvmAssetImageProps>(
-  ({ assetSlug, evmChainId, className, style, ...props }) => {
+  ({ assetSlug, evmChainId, className, style, size, ...props }) => {
     const network = useEvmChainByChainId(evmChainId);
     const metadata = useEvmGenericAssetMetadata(assetSlug, evmChainId);
 
     return (
       <div
-        className={clsx('flex items-center justify-center relative', className)}
-        style={{ width: ICON_DEFAULT_SIZE, height: ICON_DEFAULT_SIZE, ...style }}
+        className={clsx('flex items-center justify-center relative')}
+        style={{ width: size ? size + 8 : ICON_DEFAULT_SIZE, height: size ? size + 8 : ICON_DEFAULT_SIZE, ...style }}
       >
         <EvmAssetIcon
           assetSlug={assetSlug}
           evmChainId={evmChainId}
-          size={isEvmCollectible(metadata) ? COLLECTIBLE_IMAGE_DEFAULT_SIZE : TOKEN_IMAGE_DEFAULT_SIZE}
+          size={size ?? (isEvmCollectible(metadata) ? COLLECTIBLE_IMAGE_DEFAULT_SIZE : TOKEN_IMAGE_DEFAULT_SIZE)}
           className={isEvmCollectible(metadata) ? 'rounded-8' : 'rounded-full'}
           {...props}
         />

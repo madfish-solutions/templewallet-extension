@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useCallback, useMemo } from 'react';
 
 import BigNumber from 'bignumber.js';
 import { SubmitHandler, useFormContext } from 'react-hook-form-v7';
@@ -9,6 +9,7 @@ import { ActionsButtonsBox } from 'app/atoms/PageModal/actions-buttons-box';
 import { StyledButton } from 'app/atoms/StyledButton';
 import { BalancesChangesView } from 'app/templates/balances-changes-view';
 import { CurrentAccount } from 'app/templates/current-account';
+import { FeeSummary } from 'app/templates/fee-summary';
 import { LedgerApprovalModal } from 'app/templates/ledger-approval-modal';
 import { TransactionTabs } from 'app/templates/TransactionTabs';
 import { Tab, TxParamsFormData } from 'app/templates/TransactionTabs/types';
@@ -80,6 +81,8 @@ export const BaseContent = <T extends TxParamsFormData>({
 }: BaseContentProps<T>) => {
   const { formState } = useFormContext<T>();
 
+  const goToFeeTab = useCallback(() => setSelectedTab('fee'), [setSelectedTab]);
+
   const confirmButtonText = useMemo(() => {
     if (latestSubmitError) return t('retry');
     if (network.kind === TempleChainKind.Tezos) return t('confirm');
@@ -104,6 +107,15 @@ export const BaseContent = <T extends TxParamsFormData>({
           )}
         </div>
 
+        <FeeSummary
+          network={network}
+          assetSlug={nativeAssetSlug}
+          gasFee={displayedFee}
+          storageFee={displayedStorageFee}
+          protocolFee={bridgeData?.protocolFee}
+          onOpenFeeTab={goToFeeTab}
+        />
+
         <CurrentAccount />
 
         <TransactionTabs<T>
@@ -115,8 +127,6 @@ export const BaseContent = <T extends TxParamsFormData>({
           latestSubmitError={latestSubmitError}
           onFeeOptionSelect={onFeeOptionSelect}
           onSubmit={onSubmit}
-          displayedFee={displayedFee}
-          displayedStorageFee={displayedStorageFee}
           displayedFeeOptions={displayedFeeOptions}
           cashbackInTkey={cashbackInTkey}
           minimumReceived={minimumReceived}

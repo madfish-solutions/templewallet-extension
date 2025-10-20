@@ -77,7 +77,7 @@ function BalancesChangesViewHOC<
 
     return (
       <BalancesChangesViewLayout
-        title={title ?? (allAssetsAreCollectibles ? <T id="estimatedTxDetails" /> : <T id="transactionInfo" />)}
+        title={title ?? (allAssetsAreCollectibles ? <T id="estimatedTxDetails" /> : <T id="simulatedResult" />)}
         rows={fallbackRows}
       />
     );

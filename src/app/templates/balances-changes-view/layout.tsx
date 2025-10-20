@@ -2,7 +2,6 @@ import React, { ReactNode, memo } from 'react';
 
 import BigNumber from 'bignumber.js';
 
-import { Divider } from 'app/atoms';
 import { T } from 'lib/i18n';
 import { OneOfChains } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
@@ -78,7 +77,6 @@ export const GroupedBalancesChangesViewLayout = ({ rows }: GroupedBalancesChange
     {rows.map((props, index) => (
       <React.Fragment key={index}>
         <BalancesChangesViewRow {...props} bridge={true} />
-        {index !== rows.length - 1 && <Divider />}
       </React.Fragment>
     ))}
   </OperationConfirmationCard>

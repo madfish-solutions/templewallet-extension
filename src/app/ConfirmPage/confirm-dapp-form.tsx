@@ -1,7 +1,5 @@
 import React, { ReactNode, memo, useCallback, useMemo, useState } from 'react';
 
-import clsx from 'clsx';
-
 import { Alert, Anchor, IconBase } from 'app/atoms';
 import DAppLogo from 'app/atoms/DAppLogo';
 import { Logo } from 'app/atoms/Logo';
@@ -219,28 +217,16 @@ export const ConfirmDAppForm = memo<ConfirmDAppFormProps>(({ accounts, payload, 
       }
       shouldShowBackButton={false}
       contentPadding={false}
-      contentClassName="!bg-white"
       onBottomEdgeVisibilityChange={setBottomEdgeIsVisible}
       bottomEdgeThreshold={16}
     >
       <div className="flex-1 p-4 gap-4">
         {!showConflict && payload.type !== 'add_asset' && (
-          <div className="mb-2 flex flex-col items-center gap-2">
-            <div className="flex gap-2 relative">
-              <div className="w-13 h-13 flex justify-center items-center bg-white shadow-card rounded">
-                <Logo size={30} type="icon" />
-              </div>
-              <div className="w-13 h-13 flex justify-center items-center bg-white shadow-card rounded">
-                <DAppLogo size={30} icon={payload.appMeta.icon} origin={payload.origin} />
-              </div>
-              <div
-                className={clsx(
-                  'w-5 h-5 rounded-full bg-grey-4 flex justify-center items-center',
-                  'absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2'
-                )}
-              >
-                <IconBase Icon={LinkIcon} size={12} className="text-grey-1" />
-              </div>
+          <div className="mb-4 mx-3 flex items-center justify-between">
+            <div className="flex items-center">
+              <Logo size={22} type="icon" />
+              <IconBase Icon={LinkIcon} size={12} className="text-black -ml-1" />
+              <DAppLogo size={24} icon={payload.appMeta.icon} origin={payload.origin} />
             </div>
 
             <Anchor className="flex pl-1 items-center" href={payload.origin}>

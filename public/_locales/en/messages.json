@@ -1821,6 +1821,9 @@
   "transactionInfo": {
     "message": "Transaction info"
   },
+  "simulatedResult": {
+    "message": "Simulated result"
+  },
   "estimatedTxDetails": {
     "message": "Est. transaction details"
   },

@@ -1,17 +1,20 @@
-import React from 'react';
+import React, { useCallback, useMemo } from 'react';
 
+import BigNumber from 'bignumber.js';
 import { SubmitHandler, useFormContext } from 'react-hook-form-v7';
 
 import { HashChip } from 'app/atoms/HashChip';
 import { ActionsButtonsBox } from 'app/atoms/PageModal/actions-buttons-box';
 import { StyledButton } from 'app/atoms/StyledButton';
+import { BalancesChangesView } from 'app/templates/balances-changes-view';
 import { CurrentAccount } from 'app/templates/current-account';
+import { FeeSummary } from 'app/templates/fee-summary';
 import { LedgerApprovalModal } from 'app/templates/ledger-approval-modal';
-import { OneAssetHeader } from 'app/templates/one-asset-header';
 import { TransactionTabs } from 'app/templates/TransactionTabs';
 import { Tab, TxParamsFormData } from 'app/templates/TransactionTabs/types';
 import { T } from 'lib/i18n';
 import { DisplayedFeeOptions, FeeOptionLabel } from 'lib/temple/front/estimation-data-providers';
+import { tokensToAtoms } from 'lib/temple/helpers';
 import { LedgerOperationState } from 'lib/ui';
 import { OneOfChains } from 'temple/front';
 
@@ -32,6 +35,7 @@ interface BaseContentProps<T extends TxParamsFormData> {
   displayedFee?: string;
   displayedStorageFee?: string;
   displayedFeeOptions?: DisplayedFeeOptions;
+  decimals?: number;
 }
 
 export const BaseContent = <T extends TxParamsFormData>({
@@ -50,15 +54,38 @@ export const BaseContent = <T extends TxParamsFormData>({
   onLedgerModalClose,
   displayedFee,
   displayedStorageFee,
-  displayedFeeOptions
+  displayedFeeOptions,
+  decimals
 }: BaseContentProps<T>) => {
   const { formState } = useFormContext<T>();
+
+  const goToFeeTab = useCallback(() => setSelectedTab('fee'), [setSelectedTab]);
+
+  const balancesChanges = useMemo(() => {
+    const atomic = tokensToAtoms(new BigNumber(amount || 0), decimals ?? 0).negated();
+
+    return [
+      {
+        [assetSlug]: {
+          atomicAmount: atomic,
+          isNft: false
+        }
+      }
+    ];
+  }, [decimals, assetSlug, amount]);
 
   return (
     <>
       <div className="px-4 flex flex-col flex-1 overflow-y-scroll">
-        <OneAssetHeader network={network} assetSlug={assetSlug} amount={amount} className="my-4" />
+        <BalancesChangesView balancesChanges={balancesChanges} chain={network} />
 
+        <FeeSummary
+          network={network}
+          assetSlug={assetSlug}
+          gasFee={displayedFee}
+          storageFee={displayedStorageFee}
+          onOpenFeeTab={goToFeeTab}
+        />
         <CurrentAccount />
 
         <TransactionTabs<T>
@@ -70,8 +97,6 @@ export const BaseContent = <T extends TxParamsFormData>({
           latestSubmitError={latestSubmitError}
           onFeeOptionSelect={onFeeOptionSelect}
           onSubmit={onSubmit}
-          displayedFee={displayedFee}
-          displayedStorageFee={displayedStorageFee}
           displayedFeeOptions={displayedFeeOptions}
           formId="confirm-form"
           tabsName="confirm-send-tabs"
