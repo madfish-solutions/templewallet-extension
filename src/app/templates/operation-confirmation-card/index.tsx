@@ -30,9 +30,9 @@ export const OperationConfirmationCard: FC<PropsWithChildren<OperationConfirmati
   title,
   children
 }) => (
-  <div className="bg-white p-4 shadow-bottom rounded-lg flex flex-col gap-3">
+  <div className="bg-white p-4 pb-2 shadow-bottom rounded-lg flex flex-col gap-3">
     {title && <p className="text-font-description-bold text-grey-1">{title}</p>}
-    <div className="flex flex-col gap-1">{children}</div>
+    <div className="flex flex-col gap-2">{children}</div>
   </div>
 );
 
@@ -51,6 +51,7 @@ interface OperationConfirmationCardRowProps {
   symbol?: string;
   rightContent?: ReactNode;
   bridge?: boolean;
+  withSign?: boolean;
 }
 
 const unknownTokenTippyOptions: UseTippyOptions = {
@@ -61,7 +62,7 @@ const unknownTokenTippyOptions: UseTippyOptions = {
 };
 
 export const OperationConfirmationCardRow = memo<OperationConfirmationCardRowProps>(
-  ({ chain, assetSlug, variant, amountClassName, volume, symbol, rightContent, bridge }) => {
+  ({ chain, assetSlug, variant, amountClassName, volume, symbol, rightContent, bridge, withSign }) => {
     const allCollectibles = variant === OperationConfirmationCardRowVariant.AllCollectibles;
     const isCollectible = allCollectibles || variant === OperationConfirmationCardRowVariant.Collectible;
     const tippyRef = useTippy<HTMLSpanElement>(unknownTokenTippyOptions);
@@ -107,12 +108,12 @@ export const OperationConfirmationCardRow = memo<OperationConfirmationCardRowPro
         <div className={clsx('flex flex-1 gap-1 items-center text-font-num-bold-16 min-w-0', amountClassName)}>
           {isCollectible ? (
             <>
-              <DisplayVolume volume={volume} />
+              <DisplayVolume volume={volume} withSign={withSign} />
               <ShortenedTextWithTooltip>{symbol ?? t('unknownToken')}</ShortenedTextWithTooltip>
             </>
           ) : (
             <>
-              <DisplayVolume volume={volume} />
+              <DisplayVolume volume={volume} withSign={withSign} />
 
               <span className="whitespace-nowrap">
                 {symbol ??
@@ -133,11 +134,11 @@ export const OperationConfirmationCardRow = memo<OperationConfirmationCardRowPro
   }
 );
 
-const DisplayVolume = memo<Pick<OperationConfirmationCardRowProps, 'volume'>>(({ volume }) =>
+const DisplayVolume = memo<Pick<OperationConfirmationCardRowProps, 'volume' | 'withSign'>>(({ volume, withSign }) =>
   typeof volume === 'string' ? (
     <ShortenedTextWithTooltip>{volume}</ShortenedTextWithTooltip>
   ) : (
-    <Money withSign={true} smallFractionFont={false} tooltipPlacement="bottom">
+    <Money withSign={withSign ?? true} smallFractionFont={false} tooltipPlacement="bottom">
       {volume}
     </Money>
   )

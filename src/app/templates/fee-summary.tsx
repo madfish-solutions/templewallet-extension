@@ -113,19 +113,19 @@ export const FeeSummary: FC<FeeSummaryProps> = ({
   );
 
   const tooltipContent = (
-    <div className="text-white">
-      <div className="text-font-14 mb-2">{t('totalFeeAmount')}</div>
+    <div className="text-white w-52">
+      <div className="text-font-description mb-2">{t('totalFeeAmount')}</div>
       {gasFee && (
         <div className="flex items-center justify-between gap-4">
-          <div className="text-font-14">{t('gasFee')}</div>
+          <div className="text-font-description">{t('gasFee')}</div>
           <div className="text-right whitespace-nowrap">
-            <span className="pr-1 border-r-1.5 border-grey-1">
+            <span className="text-font-num-12 pr-2 border-r-1.5 border-grey-1">
               <Money fiat smallFractionFont={false}>
                 {toFiat(gasFee)}
               </Money>{' '}
               {selectedFiatCurrency.symbol}
             </span>
-            <span className="pl-1">
+            <span className="pl-1 text-font-num-12">
               <Money smallFractionFont={false}>{gasFee}</Money> {nativeSymbol}
             </span>
           </div>
@@ -133,17 +133,17 @@ export const FeeSummary: FC<FeeSummaryProps> = ({
       )}
       {protocolFee && (
         <div className="flex items-center justify-between gap-4 mt-1">
-          <div className="text-font-14">
+          <div className="text-font-description">
             <T id="protocolFee" />
           </div>
           <div className="text-right whitespace-nowrap">
-            <span className="pr-1 border-r-1.5 border-grey-1">
+            <span className="text-font-num-12 pr-2 border-r-1 border-grey-1">
               <Money fiat smallFractionFont={false}>
                 {toFiat(protocolFee)}
               </Money>{' '}
               {selectedFiatCurrency.symbol}
             </span>
-            <span className="pl-1">
+            <span className="pl-1 text-font-num-12">
               <Money smallFractionFont={false}>{protocolFee}</Money> {nativeSymbol}
             </span>
           </div>
@@ -151,17 +151,17 @@ export const FeeSummary: FC<FeeSummaryProps> = ({
       )}
       {storageFee && (
         <div className="flex items-center justify-between gap-4 mt-1">
-          <div className="text-font-14">
+          <div className="text-font-description">
             <T id="storageFee" />
           </div>
           <div className="text-right whitespace-nowrap">
-            <span className="pr-1 border-r-1.5 border-grey-1">
+            <span className="text-font-num-12 pr-2 border-r-1.5 border-grey-1">
               <Money fiat smallFractionFont={false}>
                 {toFiat(storageFee)}
               </Money>{' '}
               {selectedFiatCurrency.symbol}
             </span>
-            <span className="pl-1">
+            <span className="pl-1 text-font-num-12">
               <Money smallFractionFont={false}>{storageFee}</Money> {nativeSymbol}
             </span>
           </div>

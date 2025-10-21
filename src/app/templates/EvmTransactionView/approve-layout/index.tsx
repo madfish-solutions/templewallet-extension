@@ -191,6 +191,7 @@ const ApproveLayoutContent = memo<ApproveLayoutContentProps>(
             chain={chain}
             assetSlug={assetSlug}
             variant={variant}
+            withSign={false}
             volume={volume.isFinite() ? volume : t('unlimited')}
             symbol={symbol}
             rightContent={
@@ -203,7 +204,7 @@ const ApproveLayoutContent = memo<ApproveLayoutContentProps>(
             }
           />
 
-          <Divider className="my-2" />
+          <Divider />
           {footer}
         </OperationConfirmationCard>
 

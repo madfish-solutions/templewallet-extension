@@ -137,7 +137,15 @@ const EvmTransactionViewBody = memo<EvmTransactionViewProps>(
           displayedFeeOptions={feeOptions?.displayed}
           formId={formId}
           tabsName="confirm-send-tabs"
-          destinationName={req.to ? <T id="interactionWith" /> : null}
+          destinationName={
+            req.to ? (
+              operationKind === EvmOperationKind.Approval ? (
+                <T id="approvedTo" />
+              ) : (
+                <T id="interactionWith" />
+              )
+            ) : null
+          }
           destinationValue={req.to ? <HashChip hash={req.to} /> : null}
           sendingAccount={sendingAccount}
           balancesChanges={balancesChanges}

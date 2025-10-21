@@ -33,12 +33,26 @@ export const OperationViewLayout = <T extends TxParamsFormData>({
     [balancesChanges]
   );
   const someBalancesChanges = useMemo(() => Object.keys(filteredBalancesChanges).length > 0, [filteredBalancesChanges]);
-  const showStandaloneFeeSummary = useMemo(
-    () => !someBalancesChanges && !renderApproveLayout && !otherDataLoading && !metadataLoading,
-    [metadataLoading, otherDataLoading, renderApproveLayout, someBalancesChanges]
+  const goToFeeTab = useCallback(() => setSelectedTab('fee'), [setSelectedTab]);
+
+  const footer = (
+    <FeeSummary
+      network={network}
+      assetSlug={restProps.nativeAssetSlug}
+      gasFee={restProps.displayedFee}
+      storageFee={restProps.displayedStorageFee}
+      protocolFee={restProps.bridgeData?.protocolFee}
+      onOpenFeeTab={goToFeeTab}
+      embedded
+    />
   );
 
-  const goToFeeTab = useCallback(() => setSelectedTab('fee'), [setSelectedTab]);
+  const approveLayoutEl = !someBalancesChanges && renderApproveLayout ? renderApproveLayout(footer) : null;
+
+  const showStandaloneFeeSummary = useMemo(
+    () => !someBalancesChanges && !approveLayoutEl && !otherDataLoading && !metadataLoading,
+    [metadataLoading, otherDataLoading, approveLayoutEl, someBalancesChanges]
+  );
 
   return (
     <>
@@ -60,20 +74,8 @@ export const OperationViewLayout = <T extends TxParamsFormData>({
             }
           />
         </div>
-      ) : renderApproveLayout ? (
-        <div className={!metadataLoading ? undefined : 'hidden'}>
-          {renderApproveLayout(
-            <FeeSummary
-              network={network}
-              assetSlug={restProps.nativeAssetSlug}
-              gasFee={restProps.displayedFee}
-              storageFee={restProps.displayedStorageFee}
-              protocolFee={restProps.bridgeData?.protocolFee}
-              onOpenFeeTab={goToFeeTab}
-              embedded
-            />
-          )}
-        </div>
+      ) : approveLayoutEl ? (
+        <div className={!metadataLoading ? undefined : 'hidden'}>{approveLayoutEl}</div>
       ) : (
         showStandaloneFeeSummary && (
           <FeeSummary

@@ -1831,7 +1831,7 @@
     "message": "Total fee amount:"
   },
   "totalFee": {
-    "message": "Total fee:"
+    "message": "Total fee"
   },
   "noValue": {
     "message": "No value"
@@ -2933,7 +2933,7 @@
     }
   },
   "gasFee": {
-    "message": "Gas Fee"
+    "message": "Gas fee"
   },
   "storageFee": {
     "message": "Storage fee"
@@ -4494,6 +4494,9 @@
   },
   "interactionWith": {
     "message": "Interaction With"
+  },
+  "approvedTo": {
+    "message": "Approved to"
   },
   "earn": {
     "message": "Earn"

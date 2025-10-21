@@ -57,7 +57,7 @@ export const ConfirmSwapModal: FC<ConfirmSwapModalProps> = ({ opened, onRequestC
     if (!reviewData) return '';
 
     if (isSwapEvmReviewData(reviewData) && reviewData.needsApproval) {
-      return 'Approve';
+      return 'Approval';
     }
 
     if (isSwapEvmReviewData(reviewData) && reviewData?.bridgeInfo) {

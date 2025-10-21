@@ -225,7 +225,7 @@ export const ConfirmDAppForm = memo<ConfirmDAppFormProps>(({ accounts, payload, 
           <div className="mb-4 mx-3 flex items-center justify-between">
             <div className="flex items-center">
               <Logo size={22} type="icon" />
-              <IconBase Icon={LinkIcon} size={12} className="text-black -ml-1" />
+              <IconBase Icon={LinkIcon} size={12} className="text-black -ml-1 mr-0.5" />
               <DAppLogo size={24} icon={payload.appMeta.icon} origin={payload.origin} />
             </div>
 

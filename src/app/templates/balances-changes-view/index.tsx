@@ -72,7 +72,13 @@ function BalancesChangesViewHOC<
     );
 
     if (bridgeData) {
-      return <GroupedBalancesChangesViewLayout rows={[...inputRows, ...outputRows]} footer={footer} />;
+      return (
+        <GroupedBalancesChangesViewLayout
+          title={<T id="simulatedResult" />}
+          rows={[...inputRows, ...outputRows]}
+          footer={footer}
+        />
+      );
     }
 
     return (

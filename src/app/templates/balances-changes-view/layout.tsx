@@ -30,6 +30,7 @@ interface BalancesChangesViewLayoutProps {
 }
 
 interface GroupedBalancesChangesViewLayoutProps {
+  title?: ReactNode;
   rows: BalancesChangesViewRowProps[];
   footer?: ReactNode;
 }
@@ -75,8 +76,8 @@ const BalancesChangesViewRow = memo<BalancesChangesViewRowProps>(
   }
 );
 
-export const GroupedBalancesChangesViewLayout = ({ rows, footer }: GroupedBalancesChangesViewLayoutProps) => (
-  <OperationConfirmationCard title={undefined}>
+export const GroupedBalancesChangesViewLayout = ({ title, rows, footer }: GroupedBalancesChangesViewLayoutProps) => (
+  <OperationConfirmationCard title={title}>
     {rows.map((props, index) => (
       <React.Fragment key={index}>
         <BalancesChangesViewRow {...props} bridge={true} />
@@ -84,7 +85,7 @@ export const GroupedBalancesChangesViewLayout = ({ rows, footer }: GroupedBalanc
     ))}
     {footer && (
       <>
-        <Divider className="my-2" />
+        <Divider />
         {footer}
       </>
     )}
@@ -98,7 +99,7 @@ export const BalancesChangesViewLayout = memo<BalancesChangesViewLayoutProps>(({
     ))}
     {footer && (
       <>
-        <Divider className="my-2" />
+        <Divider />
         {footer}
       </>
     )}
