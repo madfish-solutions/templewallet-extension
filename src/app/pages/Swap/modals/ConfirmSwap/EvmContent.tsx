@@ -111,7 +111,7 @@ export const EvmContent: FC<EvmContentProps> = ({
       new BigNumber(routeStep.action.fromAmount),
       routeStep.action.fromToken.decimals ?? 0
     ).toString(),
-    silent: false
+    silent: true
   });
 
   const lifiEstimationData = useMemo(() => {

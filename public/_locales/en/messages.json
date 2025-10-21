@@ -2693,6 +2693,14 @@
   "balanceTooLow": {
     "message": "Gas token balance is too low"
   },
+  "InsufficientBalance": {
+    "message": "Insufficient gas balance on $chain$",
+    "placeholders": {
+      "chain": {
+        "content": "$1"
+      }
+    }
+  },
   "swap": {
     "message": "Swap"
   },

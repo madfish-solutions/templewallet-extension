@@ -1,6 +1,7 @@
 import React, { FC, useMemo, useState, useEffect, useCallback, memo, useRef } from 'react';
 
-import { LiFiStep } from '@lifi/sdk';
+import { getStepTransaction, LiFiStep } from '@lifi/sdk';
+import retry from 'async-retry';
 
 import { PageModal } from 'app/atoms/PageModal';
 import { AddAssetProvider } from 'app/ConfirmPage/add-asset/context';
@@ -11,6 +12,7 @@ import { isSwapEvmReviewData, SwapReviewData, TezosReviewData } from 'app/pages/
 import ApproveModal from 'app/pages/Swap/modals/ApproveModal';
 import { useEvmAllowances } from 'app/pages/Swap/modals/SwapSelectAsset/hooks';
 import { ConfirmationModal } from 'app/templates/ConfirmationModal/ConfirmationModal';
+import { toastError } from 'app/toaster';
 import { t, T } from 'lib/i18n';
 import { TezosEstimationDataProvider, EvmEstimationDataProvider } from 'lib/temple/front/estimation-data-providers';
 import { atomsToTokens } from 'lib/temple/helpers';
@@ -73,13 +75,12 @@ export const ConfirmSwapModal: FC<ConfirmSwapModalProps> = ({ opened, onRequestC
     [reviewData]
   );
 
-  const { prefetchedStepsByIndex, progressionBlocked } = usePrefetchEvmStepTransactions({
+  const { progressionBlocked } = usePrefetchEvmStepTransactions({
     opened,
     actionsInitialized,
     steps: evmSteps,
     senderAddress,
-    cancelledRef,
-    onRequestClose
+    cancelledRef
   });
 
   const firstExecutionActionIndex = useMemo(() => {
@@ -104,11 +105,6 @@ export const ConfirmSwapModal: FC<ConfirmSwapModalProps> = ({ opened, onRequestC
   const clampedActionIndex = useMemo(
     () => (userActions.length > 0 ? Math.min(currentActionIndex, userActions.length - 1) : 0),
     [currentActionIndex, userActions.length]
-  );
-
-  const prefetchedStepTx = useMemo(
-    () => (currentUserAction ? prefetchedStepsByIndex[currentUserAction.stepIndex] ?? null : null),
-    [currentUserAction, prefetchedStepsByIndex]
   );
 
   const skipStatusWait = useMemo(
@@ -217,7 +213,6 @@ export const ConfirmSwapModal: FC<ConfirmSwapModalProps> = ({ opened, onRequestC
                   onStepCompleted={onStepCompleted}
                   onRequestClose={handleRequestClose}
                   cancelledRef={cancelledRef}
-                  prefetchedStepTx={prefetchedStepTx}
                   skipStatusWait={skipStatusWait}
                 />
               )
@@ -245,7 +240,6 @@ const ConfirmStepEvmContent = memo(
     onStepCompleted,
     onRequestClose,
     cancelledRef,
-    prefetchedStepTx,
     skipStatusWait
   }: {
     routeStep: LiFiStep;
@@ -254,7 +248,6 @@ const ConfirmStepEvmContent = memo(
     onStepCompleted: EmptyFn;
     onRequestClose: EmptyFn;
     cancelledRef?: React.MutableRefObject<boolean>;
-    prefetchedStepTx: LiFiStep | null;
     skipStatusWait?: boolean;
   }) => {
     const inputNetwork = useEvmChainByChainId(routeStep.action.fromChainId);
@@ -262,16 +255,10 @@ const ConfirmStepEvmContent = memo(
 
     if (!inputNetwork || !outputNetwork) throw new DeadEndBoundaryError();
 
-    const [routeStepWithTransactionRequest, setRouteStepWithTransactionRequest] = useState<LiFiStep | null>(
-      prefetchedStepTx ?? null
-    );
+    const [routeStepWithTransactionRequest, setRouteStepWithTransactionRequest] = useState<LiFiStep | null>(null);
 
-    useEffect(() => {
-      setRouteStepWithTransactionRequest(prefetchedStepTx ?? null);
-    }, [routeStep, mode, prefetchedStepTx]);
-
-    const stepReviewData = useMemo(
-      () => ({
+    const stepReviewData = useMemo(() => {
+      const base = {
         account,
         inputNetwork,
         outputNetwork,
@@ -279,11 +266,48 @@ const ConfirmStepEvmContent = memo(
         minimumReceived: {
           amount: atomsToTokens(routeStep.estimate.toAmountMin, routeStep.action.toToken.decimals).toString(),
           symbol: routeStep.action.toToken.symbol
-        },
-        routeStep: mode === 'execute' ? routeStepWithTransactionRequest ?? routeStep : routeStep
-      }),
-      [account, inputNetwork, mode, outputNetwork, routeStep, routeStepWithTransactionRequest]
-    );
+        }
+      } as const;
+
+      if (mode === 'execute') {
+        const safeExecuteStep = routeStepWithTransactionRequest ?? { ...routeStep, transactionRequest: undefined };
+        return { ...base, routeStep: safeExecuteStep };
+      }
+
+      return { ...base, routeStep };
+    }, [account, inputNetwork, mode, outputNetwork, routeStep, routeStepWithTransactionRequest]);
+
+    useEffect(() => {
+      if (mode !== 'execute') return;
+      let cancelled = false;
+
+      const run = async () => {
+        try {
+          await retry(
+            async () => {
+              if (cancelled || cancelledRef?.current) return;
+
+              const step = await getStepTransaction(routeStep);
+
+              if (cancelled || cancelledRef?.current) return;
+              setRouteStepWithTransactionRequest(step);
+            },
+            { retries: 3, minTimeout: 2000, factor: 1 }
+          );
+        } catch (e: any) {
+          console.warn(e);
+          if (!cancelled && !cancelledRef?.current) {
+            toastError('Failed to prepare transaction');
+          }
+        }
+      };
+
+      void run();
+
+      return () => {
+        cancelled = true;
+      };
+    }, [routeStep, mode, cancelledRef]);
 
     return (
       <EvmEstimationDataProvider>

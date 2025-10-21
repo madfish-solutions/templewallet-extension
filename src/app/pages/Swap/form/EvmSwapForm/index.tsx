@@ -137,9 +137,6 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
     outputNetwork
   );
 
-  const { value: sourceGasTokenBalance = ZERO } = useEvmAssetBalance(EVM_TOKEN_SLUG, publicKeyHash, inputNetwork);
-  const { value: destinationGasTokenBalance = ZERO } = useEvmAssetBalance(EVM_TOKEN_SLUG, publicKeyHash, outputNetwork);
-
   const storedInputTokenMetadata = useEvmTokenMetadataSelector(
     (sourceAssetInfo?.chainId as number) || chainId,
     inputValue.assetSlug ?? EVM_TOKEN_SLUG
@@ -242,6 +239,7 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
   }, [inputAssetMetadata?.decimals, inputValue.amount, isFiatMode, parseFiatValueToAssetAmount]);
 
   const routeAbortControllerRef = useRef<AbortController | null>(null);
+  const latestRequestIdRef = useRef(0);
 
   const fetchEvmSwapRoute = useCallback(async (params: RouteParams) => {
     routeAbortControllerRef.current?.abort();
@@ -265,7 +263,6 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
         return null;
       }
 
-      // select the first route for now
       return routesResponse.routes[0];
     } catch (error: unknown) {
       if ((error as Error)?.name === 'CanceledError') return undefined;
@@ -276,13 +273,14 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
 
   const updateSwapRoute = useCallback(
     async (params: RouteParams) => {
-      if (isRouteLoadingRef.current) return;
+      const requestId = ++latestRequestIdRef.current;
       isRouteLoadingRef.current = true;
       setIsRouteLoading(true);
       setIsAlertVisible(false);
 
       try {
         const data = await fetchEvmSwapRoute(params);
+        if (requestId !== latestRequestIdRef.current) return;
         if (data) {
           setSwapRoute(data);
           setIsRouteLoading(false);
@@ -296,6 +294,7 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
         isRouteLoadingRef.current = false;
         return;
       } catch (error) {
+        if (requestId !== latestRequestIdRef.current) return;
         setSwapRoute(null);
         setIsAlertVisible(true);
         setIsRouteLoading(false);
@@ -508,45 +507,6 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
       toastError(t('noRoutesFound'));
     }
   }, [isAlertVisible]);
-
-  const shownInsufficientNetworksRef = useRef<Set<string>>(new Set());
-
-  useEffect(() => {
-    if (!swapRoute) {
-      shownInsufficientNetworksRef.current.clear();
-      return;
-    }
-
-    const isBridge = inputNetwork.chainId !== outputNetwork.chainId;
-    if (!isBridge) {
-      shownInsufficientNetworksRef.current.clear();
-      return;
-    }
-
-    const insufficientNetworks: string[] = [];
-    if (sourceGasTokenBalance.lte(0)) insufficientNetworks.push(inputNetwork.name);
-    if (destinationGasTokenBalance.lte(0)) insufficientNetworks.push(outputNetwork.name);
-
-    if (insufficientNetworks.length === 0) {
-      shownInsufficientNetworksRef.current.clear();
-      return;
-    }
-
-    for (const networkName of insufficientNetworks) {
-      if (!shownInsufficientNetworksRef.current.has(networkName)) {
-        toastError(`Insufficient gas balance on ${networkName}`);
-        shownInsufficientNetworksRef.current.add(networkName);
-      }
-    }
-  }, [
-    swapRoute,
-    inputNetwork.chainId,
-    inputNetwork.name,
-    outputNetwork.chainId,
-    outputNetwork.name,
-    sourceGasTokenBalance,
-    destinationGasTokenBalance
-  ]);
 
   const estimatedTokensFromAmount = useMemo(
     () =>

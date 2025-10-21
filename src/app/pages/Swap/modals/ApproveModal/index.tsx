@@ -91,7 +91,8 @@ const ApproveModal = ({ stepReviewData, onClose, onStepCompleted }: ApproveModal
     balance,
     ethBalance,
     toFilled: true,
-    amount
+    amount,
+    silent: true
   });
 
   const request = useMemo(() => {

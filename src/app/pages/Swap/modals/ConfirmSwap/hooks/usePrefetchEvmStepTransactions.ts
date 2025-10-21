@@ -9,6 +9,7 @@ import { useGetEvmTokenBalanceWithDecimals } from 'lib/balances/hooks';
 import { EVM_ZERO_ADDRESS } from 'lib/constants';
 import { t } from 'lib/i18n';
 import { atomsToTokens } from 'lib/temple/helpers';
+import { useMemoWithCompare } from 'lib/ui/hooks';
 import { useAllEvmChains } from 'temple/front';
 
 export function usePrefetchEvmStepTransactions(args: {
@@ -17,9 +18,9 @@ export function usePrefetchEvmStepTransactions(args: {
   steps: LiFiStep[];
   senderAddress?: string;
   cancelledRef: React.MutableRefObject<boolean>;
-  onRequestClose: EmptyFn;
 }) {
-  const { opened, actionsInitialized, steps, senderAddress, cancelledRef, onRequestClose } = args;
+  const { opened, actionsInitialized, steps, senderAddress, cancelledRef } = args;
+  const stableSteps = useMemoWithCompare(() => steps, [steps]);
 
   const allEvmChains = useAllEvmChains();
   const getGasBalance = useGetEvmTokenBalanceWithDecimals(senderAddress as HexString);
@@ -29,6 +30,7 @@ export function usePrefetchEvmStepTransactions(args: {
 
   const prefetchErrorHandledRef = useRef(false);
   const shownInsufficientGasRef = useRef(false);
+  const inflightByKeyRef = useRef<Record<string, Promise<LiFiStep | null> | undefined>>({});
 
   useEffect(() => {
     setPrefetchedStepsByIndex({});
@@ -40,19 +42,42 @@ export function usePrefetchEvmStepTransactions(args: {
   useEffect(() => {
     if (!opened) return;
     if (!actionsInitialized) return;
-    if (!steps || steps.length === 0) return;
+    if (!stableSteps || stableSteps.length === 0) return;
 
     let isCancelled = false;
 
     const prefetchStepTransactions = async () => {
       try {
         const stepTxResults = await Promise.all(
-          steps.map(async (step, index) => {
+          stableSteps.map(async (step, index) => {
             try {
               if (isCancelled || cancelledRef.current || !opened) {
                 return { index, step };
               }
-              const updated = await getStepTransaction(step);
+              const key = `${index}:${step.id}`;
+              if (inflightByKeyRef.current[key]) {
+                const res = await inflightByKeyRef.current[key];
+                if (isCancelled || cancelledRef.current || !opened) return { index, step: null };
+                return { index, step: res };
+              }
+              const promise = (async () => {
+                try {
+                  const updatedInner = await getStepTransaction(step);
+                  if (isCancelled || cancelledRef.current || !opened) {
+                    return null;
+                  }
+                  return updatedInner;
+                } catch {
+                  if (!isCancelled && !cancelledRef.current && opened && !prefetchErrorHandledRef.current) {
+                    prefetchErrorHandledRef.current = true;
+                    toastError('Failed to prepare transaction');
+                  }
+                  return null;
+                }
+              })();
+              inflightByKeyRef.current[key] = promise;
+              const updated = await promise;
+              delete inflightByKeyRef.current[key];
               if (isCancelled || cancelledRef.current || !opened) {
                 return { index, step: null };
               }
@@ -61,7 +86,6 @@ export function usePrefetchEvmStepTransactions(args: {
               if (!isCancelled && !cancelledRef.current && opened && !prefetchErrorHandledRef.current) {
                 prefetchErrorHandledRef.current = true;
                 toastError('Failed to prepare transaction');
-                onRequestClose();
               }
               return { index, step: null };
             }
@@ -83,11 +107,11 @@ export function usePrefetchEvmStepTransactions(args: {
     return () => {
       isCancelled = true;
     };
-  }, [opened, actionsInitialized, steps, cancelledRef, onRequestClose]);
+  }, [opened, actionsInitialized, stableSteps, cancelledRef]);
 
   const stepsToCheckForGas = useMemo(() => {
-    return steps.map((step, index) => prefetchedStepsByIndex[index] ?? step);
-  }, [steps, prefetchedStepsByIndex]);
+    return stableSteps.map((step, index) => prefetchedStepsByIndex[index] ?? step);
+  }, [stableSteps, prefetchedStepsByIndex]);
 
   useEffect(() => {
     if (!opened) return;
@@ -104,6 +128,7 @@ export function usePrefetchEvmStepTransactions(args: {
           const step = stepsToCheckForGas[i];
           const chain = allEvmChains[step.action.fromChainId];
           if (!chain) continue;
+          const chainName = chain.name ?? chain.currency?.name ?? String(chain.chainId);
 
           const balanceAtomic = getGasBalance(chain.chainId, EVM_TOKEN_SLUG);
           const gasCosts = step.estimate.gasCosts;
@@ -121,15 +146,30 @@ export function usePrefetchEvmStepTransactions(args: {
 
           const isNativeInput = step.action.fromToken.address === EVM_ZERO_ADDRESS;
           if (isNativeInput) {
+            const isFromAmountProvidedByPrev = stableSteps
+              .slice(0, i)
+              .some(
+                prev =>
+                  prev.action.toChainId === step.action.fromChainId &&
+                  prev.action.toToken.address === step.action.fromToken.address
+              );
+
             const fromAmountTokens = atomsToTokens(
               new BigNumber(step.action.fromAmount),
               step.action.fromToken.decimals ?? 0
             );
 
-            if (balanceTokens.minus(feeTokens).minus(fromAmountTokens).lte(feeTokens)) {
+            if (isFromAmountProvidedByPrev) {
+              if (balanceTokens.lt(feeTokens)) {
+                shownInsufficientGasRef.current = true;
+                setProgressionBlocked(true);
+                toastError(t('InsufficientBalance', chainName));
+                break;
+              }
+            } else if (balanceTokens.lt(fromAmountTokens.plus(feeTokens))) {
               shownInsufficientGasRef.current = true;
               setProgressionBlocked(true);
-              toastError(t('balanceTooLow'));
+              toastError(t('InsufficientBalance', chainName));
               break;
             }
           }
@@ -137,7 +177,7 @@ export function usePrefetchEvmStepTransactions(args: {
           if (balanceTokens.lte(feeTokens)) {
             shownInsufficientGasRef.current = true;
             setProgressionBlocked(true);
-            toastError(t('balanceTooLow'));
+            toastError(t('InsufficientBalance', chainName));
             break;
           }
         }
@@ -151,7 +191,7 @@ export function usePrefetchEvmStepTransactions(args: {
     return () => {
       isCancelled = true;
     };
-  }, [opened, actionsInitialized, stepsToCheckForGas, allEvmChains, getGasBalance, cancelledRef]);
+  }, [opened, actionsInitialized, stepsToCheckForGas, stableSteps, allEvmChains, getGasBalance, cancelledRef]);
 
   return { prefetchedStepsByIndex, progressionBlocked };
 }
