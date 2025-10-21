@@ -205,8 +205,9 @@ export const ConfirmSwapModal: FC<ConfirmSwapModalProps> = ({ opened, onRequestC
         shouldChangeBottomShift={false}
       >
         {reviewData &&
-          (isSwapEvmReviewData(reviewData)
-            ? userActions.length > 0 && (
+          (() =>
+            isSwapEvmReviewData(reviewData) ? (
+              userActions.length > 0 ? (
                 <ConfirmStepEvmContent
                   routeStep={userActions[Math.min(currentActionIndex, userActions.length - 1)].routeStep}
                   account={reviewData.account}
@@ -216,8 +217,12 @@ export const ConfirmSwapModal: FC<ConfirmSwapModalProps> = ({ opened, onRequestC
                   cancelledRef={cancelledRef}
                   skipStatusWait={skipStatusWait}
                 />
+              ) : (
+                <></>
               )
-            : renderTezosContent(reviewData))}
+            ) : (
+              renderTezosContent(reviewData)()
+            ))}
       </PageModal>
       <ConfirmationModal
         isOpen={isCancelConfirmOpen}
@@ -308,7 +313,7 @@ const ConfirmStepEvmContent = memo(
       return () => {
         cancelled = true;
       };
-    }, [routeStep, mode, cancelledRef]);
+    }, [cancelledRef, mode, routeStep]);
 
     return (
       <EvmEstimationDataProvider>
