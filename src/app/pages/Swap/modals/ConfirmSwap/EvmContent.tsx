@@ -1,6 +1,6 @@
 import React, { FC, useCallback, useEffect, useMemo, useState } from 'react';
 
-import { getStatus, LiFiStep } from '@lifi/sdk';
+import { LiFiStep } from '@lifi/sdk';
 import retry from 'async-retry';
 import BigNumber from 'bignumber.js';
 import { FormProvider } from 'react-hook-form-v7';
@@ -18,6 +18,7 @@ import { putEvmTokensMetadataAction } from 'app/store/evm/tokens-metadata/action
 import { EvmTxParamsFormData } from 'app/templates/TransactionTabs/types';
 import { useEvmEstimationForm } from 'app/templates/TransactionTabs/use-evm-estimation-form';
 import { toastError } from 'app/toaster';
+import { getEvmSwapStatus } from 'lib/apis/temple/endpoints/evm';
 import { toTokenSlug } from 'lib/assets';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { useEvmAssetBalance } from 'lib/balances/hooks';
@@ -221,7 +222,7 @@ export const EvmContent: FC<EvmContentProps> = ({
         try {
           const result = await retry(
             async () =>
-              await getStatus({
+              await getEvmSwapStatus({
                 txHash,
                 fromChain: step.action.fromChainId,
                 toChain: step.action.toChainId,

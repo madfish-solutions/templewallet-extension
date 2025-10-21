@@ -1,4 +1,4 @@
-import { Route, RoutesResponse, Token } from '@lifi/sdk';
+import { Route, RoutesResponse, Token, LiFiStep, StatusResponse, GetStatusRequest } from '@lifi/sdk';
 import retry from 'async-retry';
 import axios from 'axios';
 
@@ -90,6 +90,24 @@ export const getEvmSwapConnectionsMetadata = (fromChain: number, fromToken: stri
         }
       ),
     { retries: 3 }
+  );
+
+export const getEvmStepTransaction = (step: LiFiStep, signal?: AbortSignal): Promise<LiFiStep> =>
+  templeWalletApi.post<LiFiStep>('evm/swap-step-transaction', step, { signal }).then(
+    res => res.data,
+    error => {
+      console.error(error);
+      throw error;
+    }
+  );
+
+export const getEvmSwapStatus = (params: GetStatusRequest, signal?: AbortSignal): Promise<StatusResponse> =>
+  templeWalletApi.get<StatusResponse>('evm/swap-status', { params, signal }).then(
+    res => res.data,
+    error => {
+      console.error(error);
+      throw error;
+    }
   );
 
 const buildEvmRequest = <T>(

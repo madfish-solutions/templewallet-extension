@@ -1,6 +1,6 @@
 import React, { FC, useMemo, useState, useEffect, useCallback, memo, useRef } from 'react';
 
-import { getStepTransaction, LiFiStep } from '@lifi/sdk';
+import { LiFiStep } from '@lifi/sdk';
 import retry from 'async-retry';
 
 import { PageModal } from 'app/atoms/PageModal';
@@ -13,6 +13,7 @@ import ApproveModal from 'app/pages/Swap/modals/ApproveModal';
 import { useEvmAllowances } from 'app/pages/Swap/modals/SwapSelectAsset/hooks';
 import { ConfirmationModal } from 'app/templates/ConfirmationModal/ConfirmationModal';
 import { toastError } from 'app/toaster';
+import { getEvmStepTransaction } from 'lib/apis/temple/endpoints/evm';
 import { t, T } from 'lib/i18n';
 import { TezosEstimationDataProvider, EvmEstimationDataProvider } from 'lib/temple/front/estimation-data-providers';
 import { atomsToTokens } from 'lib/temple/helpers';
@@ -287,7 +288,7 @@ const ConfirmStepEvmContent = memo(
             async () => {
               if (cancelled || cancelledRef?.current) return;
 
-              const step = await getStepTransaction(routeStep);
+              const step = await getEvmStepTransaction(routeStep);
 
               if (cancelled || cancelledRef?.current) return;
               setRouteStepWithTransactionRequest(step);

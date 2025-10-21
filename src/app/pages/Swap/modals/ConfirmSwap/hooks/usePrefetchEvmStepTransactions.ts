@@ -1,9 +1,10 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 
-import { getStepTransaction, LiFiStep } from '@lifi/sdk';
+import { LiFiStep } from '@lifi/sdk';
 import BigNumber from 'bignumber.js';
 
 import { toastError } from 'app/toaster';
+import { getEvmStepTransaction } from 'lib/apis/temple/endpoints/evm';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { useGetEvmTokenBalanceWithDecimals } from 'lib/balances/hooks';
 import { EVM_ZERO_ADDRESS } from 'lib/constants';
@@ -51,7 +52,7 @@ export function usePrefetchEvmStepTransactions(args: {
         const stepTxResults = await Promise.all(
           stableSteps.map(async (step, index) => {
             try {
-              if (isCancelled || cancelledRef.current || !opened) {
+              if (step.transactionRequest || isCancelled || cancelledRef.current || !opened) {
                 return { index, step };
               }
               const key = `${index}:${step.id}`;
@@ -60,9 +61,9 @@ export function usePrefetchEvmStepTransactions(args: {
                 if (isCancelled || cancelledRef.current || !opened) return { index, step: null };
                 return { index, step: res };
               }
-              const promise = (async () => {
+              const promise: Promise<LiFiStep | null> = (async () => {
                 try {
-                  const updatedInner = await getStepTransaction(step);
+                  const updatedInner = await getEvmStepTransaction(step);
                   if (isCancelled || cancelledRef.current || !opened) {
                     return null;
                   }
