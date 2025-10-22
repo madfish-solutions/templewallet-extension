@@ -121,7 +121,7 @@ export function usePrefetchEvmStepTransactions(args: {
     const blockProgression = (chainName: string) => {
       shownInsufficientGasRef.current = true;
       setProgressionBlocked(true);
-      toastError(t('InsufficientBalance', chainName));
+      toastError(t('insufficientGasBalanceOnChain', chainName));
     };
 
     const previousStepsProvideFromAmount = (index: number, step: LiFiStep) =>
