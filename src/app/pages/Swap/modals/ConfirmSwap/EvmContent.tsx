@@ -129,7 +129,7 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
   const { value: ethBalance = ZERO } = useEvmAssetBalance(EVM_TOKEN_SLUG, accountPkh, network);
   const getActiveBlockExplorer = useGetEvmActiveBlockExplorer();
 
-  const [latestSubmitError, setLatestSubmitError] = useState<string | nullish>(null);
+  const [latestSubmitError, setLatestSubmitError] = useState<unknown>(null);
 
   const { value: balance = ZERO } = useEvmAssetBalance(inputTokenSlug, accountPkh, network);
 
@@ -299,7 +299,7 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
       } catch (err: any) {
         console.error(err);
 
-        setLatestSubmitError(err.message);
+        setLatestSubmitError(err);
         setTab('error');
       }
     },

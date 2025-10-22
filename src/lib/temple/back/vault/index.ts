@@ -99,6 +99,12 @@ interface RemoveAccountEventPayload {
   evmAddress?: string;
 }
 
+class ErrorWithInternalErrors extends Error {
+  constructor(message: string, public errors: any[]) {
+    super(message);
+  }
+}
+
 export class Vault {
   static removeAccountsListeners: SyncFn<RemoveAccountEventPayload[]>[] = [];
   private static ethApp: Eth | null = null;
@@ -985,7 +991,7 @@ export class Vault {
     } catch (err: any) {
       console.error(err);
 
-      throw new Error(err.details ?? err.message);
+      throw new ErrorWithInternalErrors(err.details ?? err.message, [err]);
     }
   }
 

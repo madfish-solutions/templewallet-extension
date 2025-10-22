@@ -44,7 +44,7 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
   const assetMetadata = useEvmCategorizedAssetMetadata(assetSlug, network.chainId);
   const getActiveBlockExplorer = useGetEvmActiveBlockExplorer();
 
-  const [latestSubmitError, setLatestSubmitError] = useState<string | nullish>(null);
+  const [latestSubmitError, setLatestSubmitError] = useState<unknown>(null);
 
   const { data: estimationData } = useEvmEstimationData({
     to: to as HexString,
@@ -119,7 +119,7 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
       } catch (err: any) {
         console.error(err);
 
-        setLatestSubmitError(err.message);
+        setLatestSubmitError(err);
         setTab('error');
       }
     },

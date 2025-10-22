@@ -45,7 +45,7 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
   const accountPkh = account.address;
   const isLedgerAccount = account.type === TempleAccountType.Ledger;
 
-  const [latestSubmitError, setLatestSubmitError] = useState<string | nullish>(null);
+  const [latestSubmitError, setLatestSubmitError] = useState<unknown>(null);
 
   const { value: balance = ZERO } = useTezosAssetBalance(assetSlug, accountPkh, network);
   const { value: tezBalance = ZERO } = useTezosAssetBalance(TEZ_TOKEN_SLUG, accountPkh, network);
@@ -152,7 +152,7 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
       } catch (err: any) {
         console.error(err);
 
-        setLatestSubmitError(err.errors ? JSON.stringify(err.errors) : err.message);
+        setLatestSubmitError(err);
         setTab('error');
       }
     },

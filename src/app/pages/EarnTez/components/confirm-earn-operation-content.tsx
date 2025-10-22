@@ -23,7 +23,6 @@ import { TezosEstimationData, TezosEstimationDataProvider } from 'lib/temple/fro
 import { TempleAccountType } from 'lib/temple/types';
 import { runConnectedLedgerOperationFlow } from 'lib/ui';
 import { ZERO } from 'lib/utils/numbers';
-import { serializeError } from 'lib/utils/serialize-error';
 import { getTezosToolkitWithSigner } from 'temple/front';
 
 import { TezosEarnReviewDataBase } from '../types';
@@ -133,12 +132,11 @@ const ConfirmEarnOperationContentBodyWrapper = <R extends TezosEarnReviewDataBas
   const { address: accountPkh, ownerAddress } = account;
 
   const isLedgerAccount = account.type === TempleAccountType.Ledger;
-  const [latestSubmitError, setLatestSubmitError] = useState<string | nullish>(null);
+  const [latestSubmitError, setLatestSubmitError] = useState<unknown>(null);
 
   const tezos = getTezosToolkitWithSigner(network, ownerAddress || accountPkh, true);
   const { value: tezBalance = ZERO } = useTezosAssetBalance(TEZ_TOKEN_SLUG, accountPkh, network);
   const { data: estimationData, error: estimationError } = useEstimationData(data, tezos, tezBalance);
-  const displayedEstimationError = useMemo(() => serializeError(estimationError), [estimationError]);
 
   const localGetBasicParams = useCallback(() => getBasicParams(data, tezos), [data, getBasicParams, tezos]);
   const { data: basicParams } = useTypedSWR(getBasicParamsSWRKey(data), localGetBasicParams);
@@ -194,7 +192,7 @@ const ConfirmEarnOperationContentBodyWrapper = <R extends TezosEarnReviewDataBas
       } catch (err: any) {
         console.error(err);
 
-        setLatestSubmitError(err.errors ? JSON.stringify(err.errors) : err.message);
+        setLatestSubmitError(err);
         setTab('error');
       }
     },
@@ -228,7 +226,7 @@ const ConfirmEarnOperationContentBodyWrapper = <R extends TezosEarnReviewDataBas
             setSelectedTab={setTab}
             selectedFeeOption={selectedFeeOption}
             latestSubmitError={latestSubmitError}
-            estimationError={displayedEstimationError}
+            estimationError={estimationError}
             onFeeOptionSelect={handleFeeOptionSelect}
             onSubmit={onSubmit}
             displayedFee={displayedFee}

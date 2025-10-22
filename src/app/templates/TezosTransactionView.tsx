@@ -13,7 +13,6 @@ import { TezosEstimationDataProvider } from 'lib/temple/front/estimation-data-pr
 import { mutezToTz, tzToMutez } from 'lib/temple/helpers';
 import { TempleTezosDAppOperationsPayload } from 'lib/temple/types';
 import { tezosManagerKeyHasManager } from 'lib/tezos';
-import { serializeError } from 'lib/utils/serialize-error';
 import { getAccountAddressForTezos } from 'temple/accounts';
 import { TezosChain, useAllAccounts, useAllTezosChains } from 'temple/front';
 import { StoredTezosNetwork } from 'temple/networks';
@@ -167,9 +166,6 @@ const TezosTransactionViewBody = memo<TezosTransactionViewProps>(
       [getFeeParams, onSubmit, setStorageLimit, setTotalFee]
     );
 
-    const displayedEstimationError = useMemo(() => serializeError(estimationError), [estimationError]);
-    const displayedSubmitError = useMemo(() => serializeError(submitError), [submitError]);
-
     return (
       <FormProvider {...form}>
         <OperationViewLayout
@@ -178,8 +174,8 @@ const TezosTransactionViewBody = memo<TezosTransactionViewProps>(
           selectedTab={tab}
           setSelectedTab={setTab}
           selectedFeeOption={selectedFeeOption}
-          latestSubmitError={displayedSubmitError}
-          estimationError={displayedEstimationError}
+          latestSubmitError={submitError}
+          estimationError={estimationError}
           onFeeOptionSelect={handleFeeOptionSelect}
           onSubmit={handleSubmit}
           displayedFee={displayedFee}

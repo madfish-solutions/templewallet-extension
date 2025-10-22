@@ -14,7 +14,6 @@ import { T } from 'lib/i18n';
 import { useEvmGenericAssetsMetadataLoading } from 'lib/metadata';
 import { EvmEstimationDataProvider } from 'lib/temple/front/estimation-data-providers';
 import { EvmTransactionRequestWithSender, TempleEvmDAppTransactionPayload } from 'lib/temple/types';
-import { serializeError } from 'lib/utils/serialize-error';
 import { getAccountAddressForEvm } from 'temple/accounts';
 import { deserializeEstimationData } from 'temple/evm/estimate';
 import { isEvmEstimationData, isSerializedEvmEstimationData } from 'temple/evm/utils';
@@ -117,8 +116,6 @@ const EvmTransactionViewBody = memo<EvmTransactionViewProps>(
       [estimationData, formState.isSubmitting, getFeesPerGas, onSubmit, txRequest, setFinalEvmTransaction]
     );
 
-    const displayedEstimationError = useMemo(() => serializeError(estimationError), [estimationError]);
-    const displayedSubmitError = useMemo(() => serializeError(error), [error]);
     const [approvesLoading, setApprovesLoading] = useState(operationKind === EvmOperationKind.Approval);
 
     return (
@@ -139,8 +136,8 @@ const EvmTransactionViewBody = memo<EvmTransactionViewProps>(
           selectedTab={tab}
           setSelectedTab={setTab}
           selectedFeeOption={selectedFeeOption}
-          latestSubmitError={displayedSubmitError}
-          estimationError={displayedEstimationError}
+          latestSubmitError={error}
+          estimationError={estimationError}
           onFeeOptionSelect={handleFeeOptionSelect}
           onSubmit={handleSubmit}
           displayedFee={displayedFee}

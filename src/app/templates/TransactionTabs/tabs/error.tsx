@@ -6,25 +6,25 @@ import { FadeTransition } from 'app/a11y/FadeTransition';
 import { CaptionAlert, CopyButton, IconBase, NoSpaceField } from 'app/atoms';
 import { ReactComponent as CopyIcon } from 'app/icons/base/copy.svg';
 import { t } from 'lib/i18n';
+import { getHumanErrorMessage } from 'lib/temple/error-messages';
+import { serializeError } from 'lib/utils/serialize-error';
 
 interface ErrorTabProps {
   isEvm: boolean;
-  submitError: string | nullish;
-  estimationError: string | nullish;
+  submitError: unknown;
+  estimationError: unknown;
 }
 
 export const ErrorTab = memo<ErrorTabProps>(({ isEvm, submitError, estimationError }) => {
-  const message = submitError || estimationError;
+  const error = submitError || estimationError;
+  const message = useMemo(() => serializeError(error), [error]);
+  const humanErrorMessage = useMemo(() => getHumanErrorMessage(error), [error]);
   const showEstimationErrorMessage = !submitError && estimationError;
-  const parsedError = useMemo(() => {
-    try {
-      if (isEvm || !message) return null;
-
-      return JSON.parse(message);
-    } catch {
-      return null;
-    }
-  }, [isEvm, message]);
+  const errorJson = isEvm
+    ? null
+    : typeof error === 'object' && error !== null && 'errors' in error
+    ? error.errors
+    : error;
 
   if (!message) return null;
 
@@ -33,7 +33,7 @@ export const ErrorTab = memo<ErrorTabProps>(({ isEvm, submitError, estimationErr
       <CaptionAlert
         type="error"
         title={showEstimationErrorMessage ? t('txCouldNotBeEstimated') : undefined}
-        message={t(showEstimationErrorMessage ? 'txCouldNotBeEstimatedDescription' : 'genericTxError')}
+        message={humanErrorMessage}
         textClassName="mt-1"
       />
 
@@ -45,10 +45,10 @@ export const ErrorTab = memo<ErrorTabProps>(({ isEvm, submitError, estimationErr
         </CopyButton>
       </div>
 
-      {parsedError ? (
+      {errorJson ? (
         <div className="w-full h-44 p-3 mb-3 bg-input-low rounded-lg overflow-scroll">
           <ReactJson
-            src={parsedError}
+            src={errorJson}
             name={null}
             iconStyle="square"
             indentWidth={4}

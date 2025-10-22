@@ -1,0 +1,347 @@
+{
+  "cannotAffordGas": {
+    "cause": {
+      "details": "gas required exceeds allowance (0)",
+      "metaMessages": [
+        "URL: https://1rpc.io/sepolia",
+        "Request body: {\"method\":\"eth_estimateGas\",\"params\":[{\"from\":\"0x4d85a924b1b137abf7acb9b0c07355a97460637e\",\"maxFeePerGas\":\"0xf4242\",\"maxPriorityFeePerGas\":\"0xf4236\",\"nonce\":\"0x53\",\"to\":\"0x0c54FcCd2e384b4BB6f2E405Bf5Cbc15a017AaFb\",\"value\":\"0xf5e3121fd596b92\"}]}"
+      ],
+      "shortMessage": "Missing or invalid parameters.\nDouble check you have provided the correct parameters.",
+      "version": "2.30.2",
+      "name": "InvalidInputRpcError",
+      "code": -32000
+    },
+    "details": "gas required exceeds allowance (0)",
+    "shortMessage": "Missing or invalid parameters.\nDouble check you have provided the correct parameters.",
+    "message": "Missing or invalid parameters.\nDouble check you have provided the correct parameters.\n\nURL: https://1rpc.io/sepolia\nRequest body: {\"method\":\"eth_estimateGas\",\"params\":[{\"from\":\"0x4d85a924b1b137abf7acb9b0c07355a97460637e\",\"maxFeePerGas\":\"0xf4242\",\"maxPriorityFeePerGas\":\"0xf4236\",\"nonce\":\"0x53\",\"to\":\"0x0c54FcCd2e384b4BB6f2E405Bf5Cbc15a017AaFb\",\"value\":\"0xf5e3121fd596b92\"}]}\n \nEstimate Gas Arguments:\n  from:                  0x4d85a924b1b137abf7acb9b0c07355a97460637e\n  to:                    0x0c54FcCd2e384b4BB6f2E405Bf5Cbc15a017AaFb\n  value:                 1.107376580433898386 ETH\n  maxFeePerGas:          0.001000002 gwei\n  maxPriorityFeePerGas:  0.00099999 gwei\n  nonce:                 83\n\nDetails: gas required exceeds allowance (0)\nVersion: viem@2.30.2",
+    "name": "EstimateGasExecutionError",
+    "metaMessages": [
+      "URL: https://1rpc.io/sepolia",
+      "Request body: {\"method\":\"eth_estimateGas\",\"params\":[{\"from\":\"0x4d85a924b1b137abf7acb9b0c07355a97460637e\",\"maxFeePerGas\":\"0xf4242\",\"maxPriorityFeePerGas\":\"0xf4236\",\"nonce\":\"0x53\",\"to\":\"0x0c54FcCd2e384b4BB6f2E405Bf5Cbc15a017AaFb\",\"value\":\"0xf5e3121fd596b92\"}]}",
+      " ",
+      "Estimate Gas Arguments:",
+      "  from:                  0x4d85a924b1b137abf7acb9b0c07355a97460637e\n  to:                    0x0c54FcCd2e384b4BB6f2E405Bf5Cbc15a017AaFb\n  value:                 1.107376580433898386 ETH\n  maxFeePerGas:          0.001000002 gwei\n  maxPriorityFeePerGas:  0.00099999 gwei\n  nonce:                 83"
+    ]
+  },
+  "gasTokenAmountGtBalance": {
+    "cause": {
+      "details": "insufficient funds for gas * price + value: have 1107376580433898387 want 2000000000000000000",
+      "metaMessages": [
+        "This error could arise when the account does not have enough funds to:",
+        " - pay for the total gas fee,",
+        " - pay for the value to send.",
+        " ",
+        "The cost of the transaction is calculated as `gas * gas fee + value`, where:",
+        " - `gas` is the amount of gas needed for transaction to execute,",
+        " - `gas fee` is the gas fee,",
+        " - `value` is the amount of ether to send to the recipient."
+      ],
+      "shortMessage": "The total cost (gas * gas fee + value) of executing this transaction exceeds the balance of the account.",
+      "version": "2.30.2",
+      "name": "InsufficientFundsError"
+    },
+    "details": "insufficient funds for gas * price + value: have 1107376580433898387 want 2000000000000000000",
+    "shortMessage": "The total cost (gas * gas fee + value) of executing this transaction exceeds the balance of the account.",
+    "message": "The total cost (gas * gas fee + value) of executing this transaction exceeds the balance of the account.\n\nThis error could arise when the account does not have enough funds to:\n - pay for the total gas fee,\n - pay for the value to send.\n \nThe cost of the transaction is calculated as `gas * gas fee + value`, where:\n - `gas` is the amount of gas needed for transaction to execute,\n - `gas fee` is the gas fee,\n - `value` is the amount of ether to send to the recipient.\n \nEstimate Gas Arguments:\n  from:                  0x4d85a924b1b137abf7acb9b0c07355a97460637e\n  to:                    0x0c54FcCd2e384b4BB6f2E405Bf5Cbc15a017AaFb\n  value:                 2 ETH\n  maxFeePerGas:          0.00100001 gwei\n  maxPriorityFeePerGas:  0.001 gwei\n  nonce:                 83\n\nDetails: insufficient funds for gas * price + value: have 1107376580433898387 want 2000000000000000000\nVersion: viem@2.30.2",
+    "name": "EstimateGasExecutionError",
+    "metaMessages": [
+      "This error could arise when the account does not have enough funds to:",
+      " - pay for the total gas fee,",
+      " - pay for the value to send.",
+      " ",
+      "The cost of the transaction is calculated as `gas * gas fee + value`, where:",
+      " - `gas` is the amount of gas needed for transaction to execute,",
+      " - `gas fee` is the gas fee,",
+      " - `value` is the amount of ether to send to the recipient.",
+      " ",
+      "Estimate Gas Arguments:",
+      "  from:                  0x4d85a924b1b137abf7acb9b0c07355a97460637e\n  to:                    0x0c54FcCd2e384b4BB6f2E405Bf5Cbc15a017AaFb\n  value:                 2 ETH\n  maxFeePerGas:          0.00100001 gwei\n  maxPriorityFeePerGas:  0.001 gwei\n  nonce:                 83"
+    ]
+  },
+  "gasTokenAmountGtBalanceLegacy": {
+    "cause": {
+      "details": "rpc error: code = Unknown desc = insufficient balance for transfer",
+      "metaMessages": [
+        "URL: https://evm.testnet.kava.io",
+        "Request body: {\"method\":\"eth_estimateGas\",\"params\":[{\"from\":\"0x4d85a924b1b137abf7acb9b0c07355a97460637e\",\"gasPrice\":\"0x47868c00\",\"nonce\":\"0x1f\",\"to\":\"0x0c54FcCd2e384b4BB6f2E405Bf5Cbc15a017AaFb\",\"value\":\"0x8a7a0dfdda915600\"}]}"
+      ],
+      "shortMessage": "Missing or invalid parameters.\nDouble check you have provided the correct parameters.",
+      "version": "2.30.2",
+      "name": "InvalidInputRpcError",
+      "code": -32000
+    },
+    "details": "rpc error: code = Unknown desc = insufficient balance for transfer",
+    "shortMessage": "Missing or invalid parameters.\nDouble check you have provided the correct parameters.",
+    "message": "Missing or invalid parameters.\nDouble check you have provided the correct parameters.\n\nURL: https://evm.testnet.kava.io\nRequest body: {\"method\":\"eth_estimateGas\",\"params\":[{\"from\":\"0x4d85a924b1b137abf7acb9b0c07355a97460637e\",\"gasPrice\":\"0x47868c00\",\"nonce\":\"0x1f\",\"to\":\"0x0c54FcCd2e384b4BB6f2E405Bf5Cbc15a017AaFb\",\"value\":\"0x8a7a0dfdda915600\"}]}\n \nEstimate Gas Arguments:\n  from:      0x4d85a924b1b137abf7acb9b0c07355a97460637e\n  to:        0x0c54FcCd2e384b4BB6f2E405Bf5Cbc15a017AaFb\n  value:     9.9783033083376 KAVA\n  gasPrice:  1.2 gwei\n  nonce:     31\n\nDetails: rpc error: code = Unknown desc = insufficient balance for transfer\nVersion: viem@2.30.2",
+    "name": "EstimateGasExecutionError",
+    "metaMessages": [
+      "URL: https://evm.testnet.kava.io",
+      "Request body: {\"method\":\"eth_estimateGas\",\"params\":[{\"from\":\"0x4d85a924b1b137abf7acb9b0c07355a97460637e\",\"gasPrice\":\"0x47868c00\",\"nonce\":\"0x1f\",\"to\":\"0x0c54FcCd2e384b4BB6f2E405Bf5Cbc15a017AaFb\",\"value\":\"0x8a7a0dfdda915600\"}]}",
+      " ",
+      "Estimate Gas Arguments:",
+      "  from:      0x4d85a924b1b137abf7acb9b0c07355a97460637e\n  to:        0x0c54FcCd2e384b4BB6f2E405Bf5Cbc15a017AaFb\n  value:     9.9783033083376 KAVA\n  gasPrice:  1.2 gwei\n  nonce:     31"
+    ]
+  },
+  "insufficientFundsOnSubmitError": {
+    "message": "failed to check sender balance: sender balance < tx cost (0 < 25200000000000): insufficient funds: insufficient funds",
+    "name": "IntercomError"
+  },
+  "unknownExecutionError": {
+    "cause": {
+      "details": "EVM error: InvalidFEOpcode",
+      "metaMessages": [
+        "URL: https://sepolia.drpc.org",
+        "Request body: {\"method\":\"eth_estimateGas\",\"params\":[{\"from\":\"0x4d85a924b1b137abf7acb9b0c07355a97460637e\",\"maxFeePerGas\":\"0xf424a\",\"maxPriorityFeePerGas\":\"0xf4240\",\"nonce\":\"0x54\",\"to\":\"0x0938B83052Ad006f03fE919B7bE9E16683EDFE90\",\"value\":\"0x0\"}]}"
+      ],
+      "shortMessage": "Transaction creation failed.",
+      "version": "2.30.2",
+      "name": "TransactionRejectedRpcError",
+      "code": -32003
+    },
+    "details": "EVM error: InvalidFEOpcode",
+    "shortMessage": "Transaction creation failed.",
+    "message": "Transaction creation failed.\n\nURL: https://sepolia.drpc.org\nRequest body: {\"method\":\"eth_estimateGas\",\"params\":[{\"from\":\"0x4d85a924b1b137abf7acb9b0c07355a97460637e\",\"maxFeePerGas\":\"0xf424a\",\"maxPriorityFeePerGas\":\"0xf4240\",\"nonce\":\"0x54\",\"to\":\"0x0938B83052Ad006f03fE919B7bE9E16683EDFE90\",\"value\":\"0x0\"}]}\n \nEstimate Gas Arguments:\n  from:                  0x4d85a924b1b137abf7acb9b0c07355a97460637e\n  to:                    0x0938B83052Ad006f03fE919B7bE9E16683EDFE90\n  value:                 0 ETH\n  maxFeePerGas:          0.00100001 gwei\n  maxPriorityFeePerGas:  0.001 gwei\n  nonce:                 84\n\nDetails: EVM error: InvalidFEOpcode\nVersion: viem@2.30.2",
+    "name": "EstimateGasExecutionError",
+    "metaMessages": [
+      "URL: https://sepolia.drpc.org",
+      "Request body: {\"method\":\"eth_estimateGas\",\"params\":[{\"from\":\"0x4d85a924b1b137abf7acb9b0c07355a97460637e\",\"maxFeePerGas\":\"0xf424a\",\"maxPriorityFeePerGas\":\"0xf4240\",\"nonce\":\"0x54\",\"to\":\"0x0938B83052Ad006f03fE919B7bE9E16683EDFE90\",\"value\":\"0x0\"}]}",
+      " ",
+      "Estimate Gas Arguments:",
+      "  from:                  0x4d85a924b1b137abf7acb9b0c07355a97460637e\n  to:                    0x0938B83052Ad006f03fE919B7bE9E16683EDFE90\n  value:                 0 ETH\n  maxFeePerGas:          0.00100001 gwei\n  maxPriorityFeePerGas:  0.001 gwei\n  nonce:                 84"
+    ]
+  },
+  "erc20AmountExceedsBalanceError": {
+    "cause": {
+      "details": "execution reverted: ERC20: transfer amount exceeds balance",
+      "shortMessage": "Execution reverted with reason: ERC20: transfer amount exceeds balance.",
+      "version": "2.30.2",
+      "name": "ExecutionRevertedError"
+    },
+    "details": "execution reverted: ERC20: transfer amount exceeds balance",
+    "shortMessage": "Execution reverted with reason: ERC20: transfer amount exceeds balance.",
+    "message": "Execution reverted with reason: ERC20: transfer amount exceeds balance.\n\nEstimate Gas Arguments:\n  from:                  0x4D85A924B1b137abf7acb9B0c07355a97460637E\n  to:                    0xD427a9Ca3f708725e18b2B214e9e0676Cc387D7a\n  data:                  0xa9059cbb0000000000000000000000002f318c334780961fb129d2a6c30d0763d9a5c970000000000000000000000000000000000000000000000000000000000000ea60\n  maxFeePerGas:          0.00100001 gwei\n  maxPriorityFeePerGas:  0.001 gwei\n  nonce:                 84\n\nDetails: execution reverted: ERC20: transfer amount exceeds balance\nVersion: viem@2.30.2",
+    "name": "EstimateGasExecutionError",
+    "metaMessages": [
+      "Estimate Gas Arguments:",
+      "  from:                  0x4D85A924B1b137abf7acb9B0c07355a97460637E\n  to:                    0xD427a9Ca3f708725e18b2B214e9e0676Cc387D7a\n  data:                  0xa9059cbb0000000000000000000000002f318c334780961fb129d2a6c30d0763d9a5c970000000000000000000000000000000000000000000000000000000000000ea60\n  maxFeePerGas:          0.00100001 gwei\n  maxPriorityFeePerGas:  0.001 gwei\n  nonce:                 84"
+    ],
+    "data": "0x08c379a00000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000002645524332303a207472616e7366657220616d6f756e7420657863656564732062616c616e63650000000000000000000000000000000000000000000000000000"
+  },
+  "erc20AmountExceedsOthersBalanceError": {
+    "cause": {
+      "details": "execution reverted: ERC20: transfer amount exceeds balance",
+      "shortMessage": "Execution reverted with reason: ERC20: transfer amount exceeds balance.",
+      "version": "2.30.2",
+      "name": "ExecutionRevertedError"
+    },
+    "details": "execution reverted: ERC20: transfer amount exceeds balance",
+    "shortMessage": "Execution reverted with reason: ERC20: transfer amount exceeds balance.",
+    "message": "Execution reverted with reason: ERC20: transfer amount exceeds balance.\n\nEstimate Gas Arguments:\n  from:                  0x06Ddc7c314603Fdae66F10d676aC8F9ac94127dc\n  to:                    0xD427a9Ca3f708725e18b2B214e9e0676Cc387D7a\n  data:                  0x23b872dd0000000000000000000000004d85a924b1b137abf7acb9b0c07355a97460637e00000000000000000000000006ddc7c314603fdae66f10d676ac8f9ac94127dc000000000000000000000000000000000000000000000000000000000000ea60\n  maxFeePerGas:          0.00100001 gwei\n  maxPriorityFeePerGas:  0.001 gwei\n  nonce:                 11\n\nDetails: execution reverted: ERC20: transfer amount exceeds balance\nVersion: viem@2.30.2",
+    "name": "EstimateGasExecutionError",
+    "metaMessages": [
+      "Estimate Gas Arguments:",
+      "  from:                  0x06Ddc7c314603Fdae66F10d676aC8F9ac94127dc\n  to:                    0xD427a9Ca3f708725e18b2B214e9e0676Cc387D7a\n  data:                  0x23b872dd0000000000000000000000004d85a924b1b137abf7acb9b0c07355a97460637e00000000000000000000000006ddc7c314603fdae66f10d676ac8f9ac94127dc000000000000000000000000000000000000000000000000000000000000ea60\n  maxFeePerGas:          0.00100001 gwei\n  maxPriorityFeePerGas:  0.001 gwei\n  nonce:                 11"
+    ],
+    "data": "0x08c379a00000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000002645524332303a207472616e7366657220616d6f756e7420657863656564732062616c616e63650000000000000000000000000000000000000000000000000000"
+  },
+  "erc20TransferZeroAddressDestinationError": {
+    "cause": {
+      "details": "execution reverted: ERC20: transfer to the zero address",
+      "shortMessage": "Execution reverted with reason: ERC20: transfer to the zero address.",
+      "version": "2.30.2",
+      "name": "ExecutionRevertedError"
+    },
+    "details": "execution reverted: ERC20: transfer to the zero address",
+    "shortMessage": "Execution reverted with reason: ERC20: transfer to the zero address.",
+    "message": "Execution reverted with reason: ERC20: transfer to the zero address.\n\nEstimate Gas Arguments:\n  from:                  0x4D85A924B1b137abf7acb9B0c07355a97460637E\n  to:                    0xD427a9Ca3f708725e18b2B214e9e0676Cc387D7a\n  data:                  0xa9059cbb00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000003a98\n  maxFeePerGas:          0.001000001 gwei\n  maxPriorityFeePerGas:  0.000999991 gwei\n  nonce:                 84\n\nDetails: execution reverted: ERC20: transfer to the zero address\nVersion: viem@2.30.2",
+    "name": "EstimateGasExecutionError",
+    "metaMessages": [
+      "Estimate Gas Arguments:",
+      "  from:                  0x4D85A924B1b137abf7acb9B0c07355a97460637E\n  to:                    0xD427a9Ca3f708725e18b2B214e9e0676Cc387D7a\n  data:                  0xa9059cbb00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000003a98\n  maxFeePerGas:          0.001000001 gwei\n  maxPriorityFeePerGas:  0.000999991 gwei\n  nonce:                 84"
+    ],
+    "data": "0x08c379a00000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000002345524332303a207472616e7366657220746f20746865207a65726f20616464726573730000000000000000000000000000000000000000000000000000000000"
+  },
+  "erc20ApproveZeroAddressDestinationError": {
+    "cause": {
+      "details": "execution reverted: ERC20: approve to the zero address",
+      "shortMessage": "Execution reverted with reason: ERC20: approve to the zero address.",
+      "version": "2.30.2",
+      "name": "ExecutionRevertedError"
+    },
+    "details": "execution reverted: ERC20: approve to the zero address",
+    "shortMessage": "Execution reverted with reason: ERC20: approve to the zero address.",
+    "message": "Execution reverted with reason: ERC20: approve to the zero address.\n\nEstimate Gas Arguments:\n  from:                  0x4D85A924B1b137abf7acb9B0c07355a97460637E\n  to:                    0xD427a9Ca3f708725e18b2B214e9e0676Cc387D7a\n  data:                  0x095ea7b300000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000003a98\n  maxFeePerGas:          0.001000012 gwei\n  maxPriorityFeePerGas:  0.001 gwei\n  nonce:                 85\n\nDetails: execution reverted: ERC20: approve to the zero address\nVersion: viem@2.30.2",
+    "name": "EstimateGasExecutionError",
+    "metaMessages": [
+      "Estimate Gas Arguments:",
+      "  from:                  0x4D85A924B1b137abf7acb9B0c07355a97460637E\n  to:                    0xD427a9Ca3f708725e18b2B214e9e0676Cc387D7a\n  data:                  0x095ea7b300000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000003a98\n  maxFeePerGas:          0.001000012 gwei\n  maxPriorityFeePerGas:  0.001 gwei\n  nonce:                 85"
+    ],
+    "data": "0x08c379a00000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000002245524332303a20617070726f766520746f20746865207a65726f2061646472657373000000000000000000000000000000000000000000000000000000000000"
+  },
+  "erc20InsufficientAllowanceError": {
+    "cause": {
+      "details": "execution reverted: ERC20: insufficient allowance",
+      "shortMessage": "Execution reverted with reason: ERC20: insufficient allowance.",
+      "version": "2.30.2",
+      "name": "ExecutionRevertedError"
+    },
+    "details": "execution reverted: ERC20: insufficient allowance",
+    "shortMessage": "Execution reverted with reason: ERC20: insufficient allowance.",
+    "message": "Execution reverted with reason: ERC20: insufficient allowance.\n\nEstimate Gas Arguments:\n  from:                  0x06Ddc7c314603Fdae66F10d676aC8F9ac94127dc\n  to:                    0xD427a9Ca3f708725e18b2B214e9e0676Cc387D7a\n  data:                  0x23b872dd0000000000000000000000004d85a924b1b137abf7acb9b0c07355a97460637e00000000000000000000000006ddc7c314603fdae66f10d676ac8f9ac94127dc000000000000000000000000000000000000000000000000000000000000ee48\n  maxFeePerGas:          0.00100001 gwei\n  maxPriorityFeePerGas:  0.001 gwei\n  nonce:                 11\n\nDetails: execution reverted: ERC20: insufficient allowance\nVersion: viem@2.30.2",
+    "name": "EstimateGasExecutionError",
+    "metaMessages": [
+      "Estimate Gas Arguments:",
+      "  from:                  0x06Ddc7c314603Fdae66F10d676aC8F9ac94127dc\n  to:                    0xD427a9Ca3f708725e18b2B214e9e0676Cc387D7a\n  data:                  0x23b872dd0000000000000000000000004d85a924b1b137abf7acb9b0c07355a97460637e00000000000000000000000006ddc7c314603fdae66f10d676ac8f9ac94127dc000000000000000000000000000000000000000000000000000000000000ee48\n  maxFeePerGas:          0.00100001 gwei\n  maxPriorityFeePerGas:  0.001 gwei\n  nonce:                 11"
+    ],
+    "data": "0x08c379a00000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000001d45524332303a20696e73756666696369656e7420616c6c6f77616e6365000000"
+  },
+  "erc721TransferToZeroAddressError": {
+    "cause": {
+      "details": "execution reverted: ERC721: transfer to the zero address",
+      "shortMessage": "Execution reverted with reason: ERC721: transfer to the zero address.",
+      "version": "2.30.2",
+      "name": "ExecutionRevertedError"
+    },
+    "details": "execution reverted: ERC721: transfer to the zero address",
+    "shortMessage": "Execution reverted with reason: ERC721: transfer to the zero address.",
+    "message": "Execution reverted with reason: ERC721: transfer to the zero address.\n\nEstimate Gas Arguments:\n  from:                  0x4D85A924B1b137abf7acb9B0c07355a97460637E\n  to:                    0x1AC7a179FaE27384b7465743Af0b60ffD3673BA4\n  data:                  0x23b872dd0000000000000000000000004d85a924b1b137abf7acb9b0c07355a97460637e00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001\n  maxFeePerGas:          0.001000013 gwei\n  maxPriorityFeePerGas:  0.001 gwei\n  nonce:                 87\n\nDetails: execution reverted: ERC721: transfer to the zero address\nVersion: viem@2.30.2",
+    "name": "EstimateGasExecutionError",
+    "metaMessages": [
+      "Estimate Gas Arguments:",
+      "  from:                  0x4D85A924B1b137abf7acb9B0c07355a97460637E\n  to:                    0x1AC7a179FaE27384b7465743Af0b60ffD3673BA4\n  data:                  0x23b872dd0000000000000000000000004d85a924b1b137abf7acb9b0c07355a97460637e00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001\n  maxFeePerGas:          0.001000013 gwei\n  maxPriorityFeePerGas:  0.001 gwei\n  nonce:                 87"
+    ],
+    "data": "0x08c379a0000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000244552433732313a207472616e7366657220746f20746865207a65726f206164647265737300000000000000000000000000000000000000000000000000000000"
+  },
+  "erc721ApproveToCurrentOwnerError": {
+    "cause": {
+      "details": "execution reverted: ERC721: approval to current owner",
+      "shortMessage": "Execution reverted with reason: ERC721: approval to current owner.",
+      "version": "2.30.2",
+      "name": "ExecutionRevertedError"
+    },
+    "details": "execution reverted: ERC721: approval to current owner",
+    "shortMessage": "Execution reverted with reason: ERC721: approval to current owner.",
+    "message": "Execution reverted with reason: ERC721: approval to current owner.\n\nEstimate Gas Arguments:\n  from:                  0x4D85A924B1b137abf7acb9B0c07355a97460637E\n  to:                    0x1AC7a179FaE27384b7465743Af0b60ffD3673BA4\n  data:                  0x095ea7b30000000000000000000000004d85a924b1b137abf7acb9b0c07355a97460637e0000000000000000000000000000000000000000000000000000000000000001\n  maxFeePerGas:          0.001000012 gwei\n  maxPriorityFeePerGas:  0.001 gwei\n  nonce:                 87\n\nDetails: execution reverted: ERC721: approval to current owner\nVersion: viem@2.30.2",
+    "name": "EstimateGasExecutionError",
+    "metaMessages": [
+      "Estimate Gas Arguments:",
+      "  from:                  0x4D85A924B1b137abf7acb9B0c07355a97460637E\n  to:                    0x1AC7a179FaE27384b7465743Af0b60ffD3673BA4\n  data:                  0x095ea7b30000000000000000000000004d85a924b1b137abf7acb9b0c07355a97460637e0000000000000000000000000000000000000000000000000000000000000001\n  maxFeePerGas:          0.001000012 gwei\n  maxPriorityFeePerGas:  0.001 gwei\n  nonce:                 87"
+    ],
+    "data": "0x08c379a0000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000214552433732313a20617070726f76616c20746f2063757272656e74206f776e657200000000000000000000000000000000000000000000000000000000000000"
+  },
+  "erc721InvalidTokenIdError": {
+    "cause": {
+      "details": "execution reverted: ERC721: invalid token ID",
+      "shortMessage": "Execution reverted with reason: ERC721: invalid token ID.",
+      "version": "2.30.2",
+      "name": "ExecutionRevertedError"
+    },
+    "details": "execution reverted: ERC721: invalid token ID",
+    "shortMessage": "Execution reverted with reason: ERC721: invalid token ID.",
+    "message": "Execution reverted with reason: ERC721: invalid token ID.\n\nEstimate Gas Arguments:\n  from:                  0x06Ddc7c314603Fdae66F10d676aC8F9ac94127dc\n  to:                    0x1AC7a179FaE27384b7465743Af0b60ffD3673BA4\n  data:                  0x23b872dd00000000000000000000000006ddc7c314603fdae66f10d676ac8f9ac94127dc0000000000000000000000002f318c334780961fb129d2a6c30d0763d9a5c97000000000000000000000000000000000000000000000000000000000000003e8\n  maxFeePerGas:          0.001000012 gwei\n  maxPriorityFeePerGas:  0.001 gwei\n  nonce:                 11\n\nDetails: execution reverted: ERC721: invalid token ID\nVersion: viem@2.30.2",
+    "name": "EstimateGasExecutionError",
+    "metaMessages": [
+      "Estimate Gas Arguments:",
+      "  from:                  0x06Ddc7c314603Fdae66F10d676aC8F9ac94127dc\n  to:                    0x1AC7a179FaE27384b7465743Af0b60ffD3673BA4\n  data:                  0x23b872dd00000000000000000000000006ddc7c314603fdae66f10d676ac8f9ac94127dc0000000000000000000000002f318c334780961fb129d2a6c30d0763d9a5c97000000000000000000000000000000000000000000000000000000000000003e8\n  maxFeePerGas:          0.001000012 gwei\n  maxPriorityFeePerGas:  0.001 gwei\n  nonce:                 11"
+    ],
+    "data": "0x08c379a0000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000184552433732313a20696e76616c696420746f6b656e2049440000000000000000"
+  },
+  "erc1155InvalidArrayLengthError": {
+    "cause": {
+      "details": "execution reverted",
+      "shortMessage": "Execution reverted for an unknown reason.",
+      "version": "2.30.2",
+      "name": "ExecutionRevertedError"
+    },
+    "details": "execution reverted",
+    "shortMessage": "Execution reverted for an unknown reason.",
+    "message": "Execution reverted for an unknown reason.\n\nEstimate Gas Arguments:\n  from:                  0x253C35f10766E8A5115c89AB8cE50282FdC1ceC8\n  to:                    0xbd176E60DEF79f956E91F97e0cE54E6fC4Ac83aD\n  data:                  0x1f7fdffa000000000000000000000000253c35f10766e8a5115c89ab8ce50282fdc1cec800000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000016000000000000000000000000000000000000000000000000000000000000000030000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000030000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000\n  maxFeePerGas:          0.001000012 gwei\n  maxPriorityFeePerGas:  0.001 gwei\n  nonce:                 45\n\nDetails: execution reverted\nVersion: viem@2.30.2",
+    "name": "EstimateGasExecutionError",
+    "metaMessages": [
+      "Estimate Gas Arguments:",
+      "  from:                  0x253C35f10766E8A5115c89AB8cE50282FdC1ceC8\n  to:                    0xbd176E60DEF79f956E91F97e0cE54E6fC4Ac83aD\n  data:                  0x1f7fdffa000000000000000000000000253c35f10766e8a5115c89ab8ce50282fdc1cec800000000000000000000000000000000000000000000000000000000000000800000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000016000000000000000000000000000000000000000000000000000000000000000030000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000030000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000\n  maxFeePerGas:          0.001000012 gwei\n  maxPriorityFeePerGas:  0.001 gwei\n  nonce:                 45"
+    ],
+    "data": "0x5b05999100000000000000000000000000000000000000000000000000000000000000030000000000000000000000000000000000000000000000000000000000000002"
+  },
+  "erc1155InvalidReceiverError": {
+    "cause": {
+      "details": "execution reverted",
+      "shortMessage": "Execution reverted for an unknown reason.",
+      "version": "2.30.2",
+      "name": "ExecutionRevertedError"
+    },
+    "details": "execution reverted",
+    "shortMessage": "Execution reverted for an unknown reason.",
+    "message": "Execution reverted for an unknown reason.\n\nEstimate Gas Arguments:\n  from:                  0x253C35f10766E8A5115c89AB8cE50282FdC1ceC8\n  to:                    0xbd176E60DEF79f956E91F97e0cE54E6fC4Ac83aD\n  data:                  0x2eb2c2d6000000000000000000000000253c35f10766e8a5115c89ab8ce50282fdc1cec8000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000a000000000000000000000000000000000000000000000000000000000000000e0000000000000000000000000000000000000000000000000000000000000012000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000\n  maxFeePerGas:          0.001000012 gwei\n  maxPriorityFeePerGas:  0.001 gwei\n  nonce:                 45\n\nDetails: execution reverted\nVersion: viem@2.30.2",
+    "name": "EstimateGasExecutionError",
+    "metaMessages": [
+      "Estimate Gas Arguments:",
+      "  from:                  0x253C35f10766E8A5115c89AB8cE50282FdC1ceC8\n  to:                    0xbd176E60DEF79f956E91F97e0cE54E6fC4Ac83aD\n  data:                  0x2eb2c2d6000000000000000000000000253c35f10766e8a5115c89ab8ce50282fdc1cec8000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000a000000000000000000000000000000000000000000000000000000000000000e0000000000000000000000000000000000000000000000000000000000000012000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000000\n  maxFeePerGas:          0.001000012 gwei\n  maxPriorityFeePerGas:  0.001 gwei\n  nonce:                 45"
+    ],
+    "data": "0x57f447ce0000000000000000000000000000000000000000000000000000000000000000"
+  },
+  "erc1155InvalidOperatorError": {
+    "cause": {
+      "details": "execution reverted",
+      "shortMessage": "Execution reverted for an unknown reason.",
+      "version": "2.30.2",
+      "name": "ExecutionRevertedError"
+    },
+    "details": "execution reverted",
+    "shortMessage": "Execution reverted for an unknown reason.",
+    "message": "Execution reverted for an unknown reason.\n\nEstimate Gas Arguments:\n  from:                  0x253C35f10766E8A5115c89AB8cE50282FdC1ceC8\n  to:                    0xbd176E60DEF79f956E91F97e0cE54E6fC4Ac83aD\n  data:                  0xa22cb46500000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001\n  maxFeePerGas:          0.001000003 gwei\n  maxPriorityFeePerGas:  0.00099999 gwei\n  nonce:                 45\n\nDetails: execution reverted\nVersion: viem@2.30.2",
+    "name": "EstimateGasExecutionError",
+    "metaMessages": [
+      "Estimate Gas Arguments:",
+      "  from:                  0x253C35f10766E8A5115c89AB8cE50282FdC1ceC8\n  to:                    0xbd176E60DEF79f956E91F97e0cE54E6fC4Ac83aD\n  data:                  0xa22cb46500000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001\n  maxFeePerGas:          0.001000003 gwei\n  maxPriorityFeePerGas:  0.00099999 gwei\n  nonce:                 45"
+    ],
+    "data": "0xced3e1000000000000000000000000000000000000000000000000000000000000000000"
+  },
+  "erc1155InsufficientBalanceError": {
+    "cause": {
+      "details": "execution reverted",
+      "shortMessage": "Execution reverted for an unknown reason.",
+      "version": "2.30.2",
+      "name": "ExecutionRevertedError"
+    },
+    "details": "execution reverted",
+    "shortMessage": "Execution reverted for an unknown reason.",
+    "message": "Execution reverted for an unknown reason.\n\nEstimate Gas Arguments:\n  from:                  0x253C35f10766E8A5115c89AB8cE50282FdC1ceC8\n  to:                    0xbd176E60DEF79f956E91F97e0cE54E6fC4Ac83aD\n  data:                  0x2eb2c2d6000000000000000000000000253c35f10766e8a5115c89ab8ce50282fdc1cec80000000000000000000000004d85a924b1b137abf7acb9b0c07355a97460637e00000000000000000000000000000000000000000000000000000000000000a000000000000000000000000000000000000000000000000000000000000000e0000000000000000000000000000000000000000000000000000000000000012000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000003e80000000000000000000000000000000000000000000000000000000000000000\n  maxFeePerGas:          0.001000012 gwei\n  maxPriorityFeePerGas:  0.001 gwei\n  nonce:                 45\n\nDetails: execution reverted\nVersion: viem@2.30.2",
+    "name": "EstimateGasExecutionError",
+    "metaMessages": [
+      "Estimate Gas Arguments:",
+      "  from:                  0x253C35f10766E8A5115c89AB8cE50282FdC1ceC8\n  to:                    0xbd176E60DEF79f956E91F97e0cE54E6fC4Ac83aD\n  data:                  0x2eb2c2d6000000000000000000000000253c35f10766e8a5115c89ab8ce50282fdc1cec80000000000000000000000004d85a924b1b137abf7acb9b0c07355a97460637e00000000000000000000000000000000000000000000000000000000000000a000000000000000000000000000000000000000000000000000000000000000e0000000000000000000000000000000000000000000000000000000000000012000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000003e80000000000000000000000000000000000000000000000000000000000000000\n  maxFeePerGas:          0.001000012 gwei\n  maxPriorityFeePerGas:  0.001 gwei\n  nonce:                 45"
+    ],
+    "data": "0x03dee4c5000000000000000000000000253c35f10766e8a5115c89ab8ce50282fdc1cec8000000000000000000000000000000000000000000000000000000000000002800000000000000000000000000000000000000000000000000000000000003e80000000000000000000000000000000000000000000000000000000000000001"
+  },
+  "requestFailedError": {
+    "cause": {
+      "details": "Failed to fetch",
+      "metaMessages": [
+        "URL: https://1rpc.io/sepolia",
+        "Request body: {\"method\":\"eth_sendRawTransaction\",\"params\":[\"0x02f87283aa36a710830f4240830f424a825208944d85a924b1b137abf7acb9b0c07355a97460637e874a9906577e5d6f80c001a037ea1fc0f0251071cec4f1da6f9563f1f8f38518613fab58ef0b2138f277a6ffa0567001da36be04133a55f07c04d9daa2adcbc82eeb54c93a613fe26a13a58470\"]}"
+      ],
+      "shortMessage": "HTTP request failed.",
+      "version": "2.30.2",
+      "name": "HttpRequestError",
+      "body": {
+        "method": "eth_sendRawTransaction",
+        "params": [
+          "0x02f87283aa36a710830f4240830f424a825208944d85a924b1b137abf7acb9b0c07355a97460637e874a9906577e5d6f80c001a037ea1fc0f0251071cec4f1da6f9563f1f8f38518613fab58ef0b2138f277a6ffa0567001da36be04133a55f07c04d9daa2adcbc82eeb54c93a613fe26a13a58470"
+        ]
+      },
+      "url": "https://1rpc.io/sepolia"
+    },
+    "details": "Failed to fetch",
+    "metaMessages": [
+      "URL: https://1rpc.io/sepolia",
+      "Request body: {\"method\":\"eth_sendRawTransaction\",\"params\":[\"0x02f87283aa36a710830f4240830f424a825208944d85a924b1b137abf7acb9b0c07355a97460637e874a9906577e5d6f80c001a037ea1fc0f0251071cec4f1da6f9563f1f8f38518613fab58ef0b2138f277a6ffa0567001da36be04133a55f07c04d9daa2adcbc82eeb54c93a613fe26a13a58470\"]}",
+      " ",
+      "Request Arguments:",
+      "  from:                  0x06Ddc7c314603Fdae66F10d676aC8F9ac94127dc\n  to:                    0x4D85A924B1b137abf7acb9B0c07355a97460637E\n  value:                 0.020997400793341295 ETH\n  data:                  0x\n  gas:                   21000\n  maxFeePerGas:          0.00100001 gwei\n  maxPriorityFeePerGas:  0.001 gwei\n  nonce:                 16"
+    ],
+    "shortMessage": "HTTP request failed.",
+    "version": "2.30.2",
+    "name": "TransactionExecutionError"
+  }
+}

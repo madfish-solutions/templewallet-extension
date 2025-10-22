@@ -4546,11 +4546,71 @@
   "txCouldNotBeEstimated": {
     "message": "Transaction could not be estimated"
   },
-  "txCouldNotBeEstimatedDescription": {
-    "message": "Fee estimation isn't available. Default values are used, but the transaction may fail. Please retry or adjust transaction parameters manually."
+  "lowBalanceError": {
+    "message": "Looks like your wallet is running low. Top up balance and try again."
   },
-  "genericTxError": {
-    "message": "Something’s not right. Please review a message."
+  "blockchainLoadError": {
+    "message": "Looks like the blockchain is heavily loaded. Wait a bit and try again."
+  },
+  "lowGasBalanceError": {
+    "message": "Gas balance is not enough to complete transaction. Top up and retry."
+  },
+  "gasExhaustedError": {
+    "message": "Could not estimate gas. Specify the gas limit manually to continue."
+  },
+  "storageExhaustedError": {
+    "message": "Could not estimate storage limit. Specify the storage limit manually to continue."
+  },
+  "feeTooLowError": {
+    "message": "Fee is too low, blockchain says: \"No tip, no trip\". Add more fee and try again."
+  },
+  "notThisCycleError": {
+    "message": "Cannot do it now, please try again in the next cycle."
+  },
+  "invalidParamsError": {
+    "message": "The blockchain didn't like these parameters. Some details may be invalid or incomplete."
+  },
+  "timeoutError": {
+    "message": "The transaction is taking longer than expected. Check network status or try again."
+  },
+  "fullySlashedDelegateError": {
+    "message": "The delegate has been fully slashed, change the delegate to be able to stake."
+  },
+  "unregisteredDelegateError": {
+    "message": "This delegate is not registered, choose another one."
+  },
+  "delegateAlreadyActiveError": {
+    "message": "The delegate is already active."
+  },
+  "delegateEmptyError": {
+    "message": "The delegate is empty, deposit sufficient amount of TEZ to continue."
+  },
+  "delegateUnchangedError": {
+    "message": "This is the current delegate, choose another one."
+  },
+  "tmpForbiddenDelegateError": {
+    "message": "The delegate has committed too many misbehaviours, choose another one."
+  },
+  "executionFailedError": {
+    "message": "The transaction failed during execution. Review the transaction details."
+  },
+  "networkError": {
+    "message": "Unable to connect to the network. Please retry or switch endpoint."
+  },
+  "nonceTooHighError": {
+    "message": "Transaction nonce is too high. Reset your account or wait for pending transactions."
+  },
+  "nonceTooLowError": {
+    "message": "Transaction nonce is too low. Reset your account or wait for pending transactions."
+  },
+  "allowanceTooLowError": {
+    "message": "Token allowance is insufficient. Increase the allowance and try again."
+  },
+  "unsafeAllowanceChangeError": {
+    "message": "Token allowance is non-zero. Reset it to zero and try again."
+  },
+  "unknownTxError": {
+    "message": "The blockchain just said '¯\\_(ツ)_/¯'. Review details or try again (maybe it will work)."
   },
   "deployContract": {
     "message": "Deploy Contract"
