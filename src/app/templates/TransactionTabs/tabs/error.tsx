@@ -3,9 +3,10 @@ import React, { memo, useMemo } from 'react';
 import ReactJson from 'react-json-view';
 
 import { FadeTransition } from 'app/a11y/FadeTransition';
-import { CaptionAlert, CopyButton, IconBase, NoSpaceField } from 'app/atoms';
+import { Anchor, CaptionAlert, CopyButton, IconBase, NoSpaceField } from 'app/atoms';
 import { ReactComponent as CopyIcon } from 'app/icons/base/copy.svg';
-import { t } from 'lib/i18n';
+import { ReactComponent as OutLinkIcon } from 'app/icons/base/outLink.svg';
+import { T, t } from 'lib/i18n';
 import { getHumanErrorMessage } from 'lib/temple/error-messages';
 import { serializeError } from 'lib/utils/serialize-error';
 
@@ -35,7 +36,22 @@ export const ErrorTab = memo<ErrorTabProps>(({ isEvm, submitError, estimationErr
         title={showEstimationErrorMessage ? t('txCouldNotBeEstimated') : undefined}
         message={humanErrorMessage}
         textClassName="mt-1"
-      />
+      >
+        <div className="flex items-center text-font-description mt-0.5">
+          <T
+            id="getHelpLink"
+            substitutions={
+              <Anchor
+                href="https://docs.templewallet.com"
+                className="text-secondary px-1 py-0.5 flex items-center font-semibold"
+              >
+                <T id="support" />
+                <IconBase size={16} className="-m-1 -ml-0.5" Icon={OutLinkIcon} />
+              </Anchor>
+            }
+          />
+        </div>
+      </CaptionAlert>
 
       <div className="mt-3 mb-1 flex flex-row justify-between items-center">
         <p className="p-1 text-font-description-bold">Error Message</p>

@@ -1595,6 +1595,14 @@
   "notEnoughFunds": {
     "message": "Not enough funds"
   },
+  "getHelpLink": {
+    "message": "Get help: $link$",
+    "placeholders": {
+      "link": {
+        "content": "$1"
+      }
+    }
+  },
   "notEnoughCurrencyFunds": {
     "message": "Not enough $currency$ funds",
     "placeholders": {
