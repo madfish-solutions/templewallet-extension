@@ -39,7 +39,7 @@ import { TempleChainKind } from 'temple/types';
 
 import { BaseContent } from './BaseContent';
 
-export interface EvmContentProps {
+interface EvmContentProps {
   stepReviewData: EvmStepReviewData;
   onClose: EmptyFn;
   onStepCompleted: EmptyFn;

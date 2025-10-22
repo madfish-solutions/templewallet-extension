@@ -33,7 +33,7 @@ import { ZERO } from 'lib/utils/numbers';
 import { useGetEvmActiveBlockExplorer } from 'temple/front/ready';
 import { TempleChainKind } from 'temple/types';
 
-export interface ApproveModalProps {
+interface ApproveModalProps {
   stepReviewData: EvmStepReviewData;
   onClose: EmptyFn;
   onStepCompleted: EmptyFn;
