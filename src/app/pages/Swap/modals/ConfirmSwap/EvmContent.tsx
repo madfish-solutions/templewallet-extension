@@ -39,12 +39,13 @@ import { TempleChainKind } from 'temple/types';
 
 import { BaseContent } from './BaseContent';
 
-interface EvmContentProps {
+export interface EvmContentProps {
   stepReviewData: EvmStepReviewData;
   onClose: EmptyFn;
   onStepCompleted: EmptyFn;
   cancelledRef?: React.MutableRefObject<boolean>;
   skipStatusWait?: boolean;
+  submitDisabled?: boolean;
 }
 
 export const EvmContent: FC<EvmContentProps> = ({
@@ -52,7 +53,8 @@ export const EvmContent: FC<EvmContentProps> = ({
   onClose,
   onStepCompleted,
   cancelledRef,
-  skipStatusWait
+  skipStatusWait,
+  submitDisabled
 }) => {
   const {
     account,
@@ -237,7 +239,7 @@ export const EvmContent: FC<EvmContentProps> = ({
           );
         }
 
-        await new Promise(resolve => setTimeout(resolve, 3000));
+        await new Promise(resolve => setTimeout(resolve, 5000));
       } while (status !== 'DONE' && status !== 'FAILED');
 
       if (status === 'FAILED') {
@@ -311,6 +313,7 @@ export const EvmContent: FC<EvmContentProps> = ({
 
   const onSubmit = useCallback(
     async ({ gasPrice, gasLimit, nonce }: EvmTxParamsFormData) => {
+      if (submitDisabled) return;
       if (formState.isSubmitting) return;
 
       const feesPerGas = getFeesPerGas(gasPrice);
@@ -370,6 +373,7 @@ export const EvmContent: FC<EvmContentProps> = ({
       }
     },
     [
+      submitDisabled,
       formState.isSubmitting,
       getFeesPerGas,
       lifiEstimationData,
@@ -408,6 +412,7 @@ export const EvmContent: FC<EvmContentProps> = ({
         filteredBalancesChanges={balancesChanges}
         bridgeData={bridgeData}
         submitLoadingOverride={submitLoading}
+        submitDisabled={submitDisabled}
       />
     </FormProvider>
   );

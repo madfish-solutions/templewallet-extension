@@ -216,6 +216,7 @@ export const ConfirmSwapModal: FC<ConfirmSwapModalProps> = ({ opened, onRequestC
                   onRequestClose={handleRequestClose}
                   cancelledRef={cancelledRef}
                   skipStatusWait={skipStatusWait}
+                  submitDisabled={progressionBlocked}
                 />
               ) : (
                 <></>
@@ -246,7 +247,8 @@ const ConfirmStepEvmContent = memo(
     onStepCompleted,
     onRequestClose,
     cancelledRef,
-    skipStatusWait
+    skipStatusWait,
+    submitDisabled
   }: {
     routeStep: LiFiStep;
     account: AccountForChain<TempleChainKind.EVM>;
@@ -255,6 +257,7 @@ const ConfirmStepEvmContent = memo(
     onRequestClose: EmptyFn;
     cancelledRef?: React.MutableRefObject<boolean>;
     skipStatusWait?: boolean;
+    submitDisabled?: boolean;
   }) => {
     const inputNetwork = useEvmChainByChainId(routeStep.action.fromChainId);
     const outputNetwork = useEvmChainByChainId(routeStep.action.toChainId);
@@ -324,6 +327,7 @@ const ConfirmStepEvmContent = memo(
                 stepReviewData={stepReviewData}
                 onClose={onRequestClose}
                 onStepCompleted={onStepCompleted}
+                submitDisabled={submitDisabled}
               />
             </AddAssetProvider>
           </AddChainDataProvider>
@@ -334,6 +338,7 @@ const ConfirmStepEvmContent = memo(
             onStepCompleted={onStepCompleted}
             cancelledRef={cancelledRef}
             skipStatusWait={skipStatusWait}
+            submitDisabled={submitDisabled}
           />
         )}
       </EvmEstimationDataProvider>

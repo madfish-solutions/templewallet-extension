@@ -47,6 +47,7 @@ interface BaseContentProps<T extends TxParamsFormData> {
   displayedFee?: string;
   displayedStorageFee?: string;
   displayedFeeOptions?: DisplayedFeeOptions;
+  submitDisabled?: boolean;
 }
 
 export const BaseContent = <T extends TxParamsFormData>({
@@ -69,7 +70,8 @@ export const BaseContent = <T extends TxParamsFormData>({
   displayedFee,
   displayedStorageFee,
   displayedFeeOptions,
-  bridgeData
+  bridgeData,
+  submitDisabled
 }: BaseContentProps<T>) => {
   const { formState } = useFormContext<T>();
 
@@ -122,7 +124,7 @@ export const BaseContent = <T extends TxParamsFormData>({
           size="L"
           className="w-full"
           loading={submitLoadingOverride ?? formState.isSubmitting}
-          disabled={!formState.isValid}
+          disabled={!formState.isValid || Boolean(submitDisabled)}
         >
           <T id={latestSubmitError ? 'retry' : 'confirm'} />
         </StyledButton>

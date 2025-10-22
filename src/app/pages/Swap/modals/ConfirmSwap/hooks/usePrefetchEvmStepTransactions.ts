@@ -43,7 +43,7 @@ export function usePrefetchEvmStepTransactions(args: {
   useEffect(() => {
     if (!opened) return;
     if (!actionsInitialized) return;
-    if (!stableSteps || stableSteps.length === 0) return;
+    if (!stableSteps || stableSteps.length <= 1) return;
 
     let isCancelled = false;
 

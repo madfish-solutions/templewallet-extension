@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { FC, useCallback, useMemo, useState } from 'react';
 
 import BigNumber from 'bignumber.js';
 import clsx from 'clsx';
@@ -33,15 +33,16 @@ import { ZERO } from 'lib/utils/numbers';
 import { useGetEvmActiveBlockExplorer } from 'temple/front/ready';
 import { TempleChainKind } from 'temple/types';
 
-interface ApproveModalProps {
+export interface ApproveModalProps {
   stepReviewData: EvmStepReviewData;
   onClose: EmptyFn;
   onStepCompleted: EmptyFn;
+  submitDisabled?: boolean;
 }
 
 const LIFI = 'https://li.fi/';
 
-const ApproveModal = ({ stepReviewData, onClose, onStepCompleted }: ApproveModalProps) => {
+const ApproveModal: FC<ApproveModalProps> = ({ stepReviewData, onClose, onStepCompleted, submitDisabled }) => {
   const { account, inputNetwork, routeStep } = stepReviewData;
 
   const [loading, setLoading] = useState(false);
@@ -121,6 +122,7 @@ const ApproveModal = ({ stepReviewData, onClose, onStepCompleted }: ApproveModal
 
   const onSubmit = useCallback(
     async (tx?: EvmTransactionRequestWithSender) => {
+      if (submitDisabled) return;
       if (!tx) return;
 
       const doOperation = async () => {
@@ -159,7 +161,8 @@ const ApproveModal = ({ stepReviewData, onClose, onStepCompleted }: ApproveModal
       getActiveBlockExplorer,
       onStepCompleted,
       isLedgerAccount,
-      setLedgerApprovalModalState
+      setLedgerApprovalModalState,
+      submitDisabled
     ]
   );
 
@@ -212,7 +215,14 @@ const ApproveModal = ({ stepReviewData, onClose, onStepCompleted }: ApproveModal
           <T id="cancel" />
         </StyledButton>
 
-        <StyledButton type="submit" form="swap-approve" color="primary" size="L" className="w-full">
+        <StyledButton
+          type="submit"
+          form="swap-approve"
+          color="primary"
+          size="L"
+          className="w-full"
+          disabled={Boolean(submitDisabled)}
+        >
           <T id={latestSubmitError ? 'retry' : 'confirm'} />
         </StyledButton>
       </ActionsButtonsBox>
