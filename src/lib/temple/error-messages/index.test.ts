@@ -19,7 +19,8 @@ import {
   erc1155InvalidArrayLengthError,
   erc1155InvalidOperatorError,
   erc1155InsufficientBalanceError,
-  requestFailedError as requestFailedErrorEvm
+  requestFailedError as requestFailedErrorEvm,
+  erc1155MissingApprovalForAllError
 } from './mocks/serialized-evm-errors.json';
 import {
   transferFromEmptyAccountError,
@@ -47,7 +48,8 @@ import {
   fa2DirectTransferInsufficientBalanceError,
   fa2MixedTransfersInsufficientBalanceError,
   fa2MixedTransfersInsufficientBalanceError2,
-  emptyImplicitDelegatedContractError
+  emptyImplicitDelegatedContractError,
+  fa2NotApprovedTransferError
 } from './mocks/serialized-tez-errors.json';
 
 import { getHumanErrorMessage } from './index';
@@ -59,9 +61,9 @@ describe('getHumanErrorMessage', () => {
       expect(getHumanErrorMessage(insufficientFundsOnSubmitError)).toBe(ERROR_MESSAGES.lowGasBalance);
     });
 
-    it('should return the message about low balance when trying to send more ETH than the balance', () => {
-      expect(getHumanErrorMessage(gasTokenAmountGtBalance)).toBe(ERROR_MESSAGES.balance);
-      expect(getHumanErrorMessage(gasTokenAmountGtBalanceLegacy)).toBe(ERROR_MESSAGES.balance);
+    it('should return the message about low gas balance when trying to send more ETH than the balance', () => {
+      expect(getHumanErrorMessage(gasTokenAmountGtBalance)).toBe(ERROR_MESSAGES.lowGasBalance);
+      expect(getHumanErrorMessage(gasTokenAmountGtBalanceLegacy)).toBe(ERROR_MESSAGES.lowGasBalance);
     });
 
     it('should return the message about execution failure when the transaction fails for an unknown reason', () => {
@@ -119,6 +121,10 @@ describe('getHumanErrorMessage', () => {
 
       it('should return the message about insufficient balance when ERC1155InsufficientBalance error is thrown', () => {
         expect(getHumanErrorMessage(erc1155InsufficientBalanceError)).toBe(ERROR_MESSAGES.balance);
+      });
+
+      it('should return the message with a piece of advice to approve all necessary tokens when trying to spend not approved tokens', () => {
+        expect(getHumanErrorMessage(erc1155MissingApprovalForAllError)).toBe(ERROR_MESSAGES.notApproved);
       });
     });
   });
@@ -202,6 +208,10 @@ describe('getHumanErrorMessage', () => {
 
         it('should return the message about low balance when trying to send more FA2 tokens than the balance', () => {
           expect(getHumanErrorMessage(fa2DirectTransferInsufficientBalanceError)).toBe(ERROR_MESSAGES.balance);
+        });
+
+        it('should return the message with a piece of advice to approve all necessary tokens when trying to spend not approved tokens', () => {
+          expect(getHumanErrorMessage(fa2NotApprovedTransferError)).toBe(ERROR_MESSAGES.notApproved);
         });
 
         it('should return the message about execution failure when at least one of transfers is not from the initiator', () => {

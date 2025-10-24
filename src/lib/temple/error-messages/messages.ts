@@ -7,8 +7,6 @@ export const ERROR_MESSAGES = {
   balance: t('lowBalanceError'),
   blockchainLoad: t('blockchainLoadError'),
   lowGasBalance: t('lowGasBalanceError'),
-  gasExhausted: t('gasExhaustedError'),
-  storageExhausted: t('storageExhaustedError'),
   feeTooLow: t('feeTooLowError'),
   notThisCycle: t('notThisCycleError'),
   invalidParams: t('invalidParamsError'),
@@ -16,7 +14,6 @@ export const ERROR_MESSAGES = {
   fullySlashedDelegate: t('fullySlashedDelegateError'),
   unregisteredDelegate: t('unregisteredDelegateError'),
   delegateAlreadyActive: t('delegateAlreadyActiveError'),
-  delegateEmpty: t('delegateEmptyError'),
   delegateUnchanged: t('delegateUnchangedError'),
   tmpForbiddenDelegate: t('tmpForbiddenDelegateError'),
   executionFailed: t('executionFailedError'),
@@ -24,6 +21,7 @@ export const ERROR_MESSAGES = {
   nonceTooHigh: t('nonceTooHighError'),
   nonceTooLow: t('nonceTooLowError'),
   allowanceTooLow: t('allowanceTooLowError'),
+  notApproved: t('notApprovedError'),
   default: t('unknownTxError'),
   unsafeAllowanceChange: t('unsafeAllowanceChangeError')
 } as const;

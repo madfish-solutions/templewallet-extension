@@ -4563,12 +4563,6 @@
   "lowGasBalanceError": {
     "message": "Gas balance is not enough to complete transaction. Top up and retry."
   },
-  "gasExhaustedError": {
-    "message": "Could not estimate gas. Specify the gas limit manually to continue."
-  },
-  "storageExhaustedError": {
-    "message": "Could not estimate storage limit. Specify the storage limit manually to continue."
-  },
   "feeTooLowError": {
     "message": "Fee is too low, blockchain says: \"No tip, no trip\". Add more fee and try again."
   },
@@ -4585,19 +4579,16 @@
     "message": "The delegate has been fully slashed, change the delegate to be able to stake."
   },
   "unregisteredDelegateError": {
-    "message": "This delegate is not registered, choose another one."
+    "message": "This delegate is not registered. Choose another one."
   },
   "delegateAlreadyActiveError": {
     "message": "The delegate is already active."
   },
-  "delegateEmptyError": {
-    "message": "The delegate is empty, deposit sufficient amount of TEZ to continue."
-  },
   "delegateUnchangedError": {
-    "message": "This is the current delegate, choose another one."
+    "message": "This is the current delegate. Choose another one."
   },
   "tmpForbiddenDelegateError": {
-    "message": "The delegate has committed too many misbehaviours, choose another one."
+    "message": "The delegate has committed too many misbehaviours. Choose another one."
   },
   "executionFailedError": {
     "message": "The transaction failed during execution. Review the transaction details."
@@ -4613,6 +4604,9 @@
   },
   "allowanceTooLowError": {
     "message": "Token allowance is insufficient. Increase the allowance and try again."
+  },
+  "notApprovedError": {
+    "message": "Not all tokens are approved. Please approve spending all necessary tokens and try again."
   },
   "unsafeAllowanceChangeError": {
     "message": "Token allowance is non-zero. Reset it to zero and try again."

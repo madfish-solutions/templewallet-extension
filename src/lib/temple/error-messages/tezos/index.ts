@@ -23,11 +23,16 @@ const TEZOS_ERROR_PATTERNS: Partial<Record<ErrorMessageKey, string[]>> = {
     'cannot_pay_storage_fee',
     'empty_implicit_contract',
     'balance_too_low',
-    'empty_implicit_delegated_contract'
+    'empty_implicit_delegated_contract',
+    'empty_delegate_account'
   ],
-  gasExhausted: ['gas_exhausted.operation'],
-  storageExhausted: ['storage_exhausted.operation'],
-  feeTooLow: ['fees_too_low', 'cannot_serialize_storage', 'cannot_serialize_failure'],
+  feeTooLow: [
+    'fees_too_low',
+    'cannot_serialize_storage',
+    'cannot_serialize_failure',
+    'gas_exhausted.operation',
+    'storage_exhausted.operation'
+  ],
   notThisCycle: ['stake_info_already_set'],
   invalidParams: [
     'invalid',
@@ -35,8 +40,6 @@ const TEZOS_ERROR_PATTERNS: Partial<Record<ErrorMessageKey, string[]>> = {
     'missing',
     'cannot_parse',
     'illformedViewType',
-    'viewNotFound',
-    'viewedContractHasNoScript',
     'gas_limit_too_high',
     'unknown_primitive_name',
     'entrypoint_name_too_long',
@@ -50,12 +53,12 @@ const TEZOS_ERROR_PATTERNS: Partial<Record<ErrorMessageKey, string[]>> = {
     'proposals_contain_duplicate',
     'already_proposed',
     'invalid_nonzero_transaction_amount',
-    'block.multiple_revelation'
+    'block.multiple_revelation',
+    'bad_contract_parameter'
   ],
   fullySlashedDelegate: ['cannot_stake_on_fully_slashed_delegate'],
   unregisteredDelegate: ['manager.unregistered_delegate'],
   delegateAlreadyActive: ['delegate.already_active'],
-  delegateEmpty: ['empty_delegate_account'],
   delegateUnchanged: ['delegate.unchanged'],
   tmpForbiddenDelegate: ['temporarily_forbidden_delegate'],
   executionFailed: [
@@ -76,8 +79,19 @@ const TEZOS_ERROR_PATTERNS: Partial<Record<ErrorMessageKey, string[]>> = {
     'timestamp_sub',
     'non_existing_contract',
     'failure'
-  ]
+  ],
+  nonceTooHigh: ['counter_in_the_future'],
+  nonceTooLow: ['counter_in_the_past']
 };
+
+const PARAMETER_VALIDATION_ERROR_NAMES = [
+  'InvalidAddressError',
+  'InvalidStakingAddressError',
+  'InvalidFinalizeUnstakeAmountError',
+  'InvalidAmountError',
+  'InvalidContractAddressError',
+  'InvalidOperationKindError'
+] as const;
 
 // TODO: Add extra fields when necessary
 type TezosGenericOperationErrorWithExtraFields = TezosGenericOperationError & {
@@ -94,8 +108,12 @@ type SerializedTezosOperationError = Pick<
   'errors' | 'operationsWithResults' | 'errorDetails' | 'name' | 'message'
 >;
 
+interface SerializedParameterValidationError {
+  name: (typeof PARAMETER_VALIDATION_ERROR_NAMES)[number];
+}
+
 interface SerializedDryRunError {
-  error: (SerializedTezosOperationError | SerializedHttpResponseError)[];
+  error: (SerializedTezosOperationError | SerializedHttpResponseError | SerializedParameterValidationError)[];
 }
 
 function isSerializedHttpResponseError(error: unknown): error is SerializedHttpResponseError {
@@ -106,12 +124,25 @@ function isSerializedTezosOperationError(error: unknown): error is SerializedTez
   return isObject(error) && 'name' in error && error.name === 'TezosOperationError';
 }
 
+function isSerializedParameterValidationError(error: unknown): error is SerializedParameterValidationError {
+  return (
+    isObject(error) &&
+    'name' in error &&
+    PARAMETER_VALIDATION_ERROR_NAMES.includes(error.name as SerializedParameterValidationError['name'])
+  );
+}
+
 export function isSerializedDryRunError(error: unknown): error is SerializedDryRunError {
   return (
     isObject(error) &&
     'error' in error &&
     Array.isArray(error.error) &&
-    error.error.every(err => isSerializedHttpResponseError(err) || isSerializedTezosOperationError(err))
+    error.error.every(
+      err =>
+        isSerializedHttpResponseError(err) ||
+        isSerializedTezosOperationError(err) ||
+        isSerializedParameterValidationError(err)
+    )
   );
 }
 
@@ -202,6 +233,11 @@ export const getHumanTezosErrorMessage = (
       const { errors, operationsWithResults, errorDetails } = serializedTezosOperationError;
 
       return getHumanTezosErrorMessage(new TezosOperationError(errors, errorDetails, operationsWithResults));
+    }
+
+    const serializedParameterValidationError = error.error.find(isSerializedParameterValidationError);
+    if (serializedParameterValidationError) {
+      return ERROR_MESSAGES.invalidParams;
     }
 
     return ERROR_MESSAGES.default;

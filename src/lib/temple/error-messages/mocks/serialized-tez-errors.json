@@ -7428,5 +7428,611 @@
         "isError": true
       }
     ]
+  },
+  "fa2NotApprovedTransferError": {
+    "error": [
+      {
+        "errors": [
+          {
+            "kind": "temporary",
+            "id": "proto.023-PtSeouLo.michelson_v1.runtime_error",
+            "contract_handle": "KT1VaEsVNiBoA56eToEK6n6BcPgh1tdx9eXi",
+            "contract_code": "Deprecated"
+          },
+          {
+            "kind": "temporary",
+            "id": "proto.023-PtSeouLo.michelson_v1.script_rejected",
+            "location": 325,
+            "with": { "string": "FA2_NOT_OPERATOR" }
+          }
+        ],
+        "errorDetails": "Error occurred during estimation",
+        "operationsWithResults": [
+          {
+            "kind": "transaction",
+            "source": "tz1L7QjtFG4KJBMZ8tppwMmTjMGwqxPFCSXM",
+            "fee": "0",
+            "counter": "67861993",
+            "gas_limit": "1040000",
+            "storage_limit": "0",
+            "amount": "0",
+            "destination": "KT1V5XKmeypanMS9pR65REpqmVejWBZURuuT",
+            "parameters": {
+              "entrypoint": "execute",
+              "value": {
+                "prim": "Pair",
+                "args": [
+                  { "int": "138" },
+                  {
+                    "prim": "Pair",
+                    "args": [
+                      { "int": "3" },
+                      {
+                        "prim": "Pair",
+                        "args": [
+                          { "int": "437093" },
+                          {
+                            "prim": "Pair",
+                            "args": [
+                              { "string": "tz1L7QjtFG4KJBMZ8tppwMmTjMGwqxPFCSXM" },
+                              {
+                                "prim": "Pair",
+                                "args": [
+                                  [
+                                    {
+                                      "prim": "Elt",
+                                      "args": [
+                                        { "int": "0" },
+                                        {
+                                          "prim": "Pair",
+                                          "args": [
+                                            { "int": "650" },
+                                            {
+                                              "prim": "Pair",
+                                              "args": [
+                                                { "int": "0" },
+                                                {
+                                                  "prim": "Pair",
+                                                  "args": [
+                                                    { "int": "19474805116153596050" },
+                                                    { "prim": "Pair", "args": [{ "int": "0" }, { "bytes": "" }] }
+                                                  ]
+                                                }
+                                              ]
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "prim": "Elt",
+                                      "args": [
+                                        { "int": "1" },
+                                        {
+                                          "prim": "Pair",
+                                          "args": [
+                                            { "int": "92" },
+                                            {
+                                              "prim": "Pair",
+                                              "args": [
+                                                { "int": "7" },
+                                                {
+                                                  "prim": "Pair",
+                                                  "args": [
+                                                    { "int": "0" },
+                                                    { "prim": "Pair", "args": [{ "int": "0" }, { "bytes": "" }] }
+                                                  ]
+                                                }
+                                              ]
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  ],
+                                  { "int": "0" }
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            "metadata": {
+              "operation_result": {
+                "status": "backtracked",
+                "storage": [
+                  [
+                    { "prim": "False" },
+                    { "prim": "False" },
+                    {
+                      "prim": "Some",
+                      "args": [
+                        [
+                          [
+                            { "int": "138" },
+                            { "int": "3" },
+                            { "int": "437093" },
+                            { "bytes": "0000052da2ac410875702072797e437a3cc46244571d" },
+                            [
+                              {
+                                "prim": "Elt",
+                                "args": [
+                                  { "int": "0" },
+                                  [
+                                    { "int": "650" },
+                                    { "int": "0" },
+                                    { "int": "19474805116153596050" },
+                                    { "int": "0" },
+                                    { "bytes": "" }
+                                  ]
+                                ]
+                              },
+                              {
+                                "prim": "Elt",
+                                "args": [
+                                  { "int": "1" },
+                                  [{ "int": "92" }, { "int": "7" }, { "int": "0" }, { "int": "0" }, { "bytes": "" }]
+                                ]
+                              }
+                            ],
+                            { "int": "0" }
+                          ],
+                          { "int": "19474805116153596050" },
+                          { "int": "0" },
+                          { "int": "0" },
+                          [],
+                          { "int": "0" },
+                          { "int": "0" },
+                          { "int": "1" }
+                        ]
+                      ]
+                    },
+                    {
+                      "prim": "Pair",
+                      "args": [{ "int": "0" }, { "bytes": "00016d70da2dc7aff9ea87ad5714964e0d06718a3f13" }]
+                    },
+                    { "int": "528776" },
+                    { "bytes": "00016d70da2dc7aff9ea87ad5714964e0d06718a3f13" },
+                    { "prim": "None" },
+                    { "int": "40" },
+                    { "prim": "Some", "args": [{ "bytes": "01b5521d410d00570ada9bbfc1a4604b68c3bbb36d00" }] },
+                    { "prim": "None" }
+                  ],
+                  { "int": "528777" },
+                  { "int": "528778" },
+                  { "bytes": "00016d70da2dc7aff9ea87ad5714964e0d06718a3f13" }
+                ],
+                "consumed_milligas": "4085574",
+                "storage_size": "164942",
+                "lazy_storage_diff": [
+                  { "kind": "big_map", "id": "528778", "diff": { "action": "update", "updates": [] } },
+                  { "kind": "big_map", "id": "528777", "diff": { "action": "update", "updates": [] } },
+                  { "kind": "big_map", "id": "528776", "diff": { "action": "update", "updates": [] } }
+                ]
+              },
+              "internal_operation_results": [
+                {
+                  "kind": "transaction",
+                  "source": "KT1V5XKmeypanMS9pR65REpqmVejWBZURuuT",
+                  "nonce": 2,
+                  "amount": "0",
+                  "destination": "KT1VaEsVNiBoA56eToEK6n6BcPgh1tdx9eXi",
+                  "parameters": {
+                    "entrypoint": "transfer",
+                    "value": [
+                      {
+                        "prim": "Pair",
+                        "args": [
+                          { "bytes": "0000052da2ac410875702072797e437a3cc46244571d" },
+                          [
+                            {
+                              "prim": "Pair",
+                              "args": [
+                                { "bytes": "01e0d2b0c72e6767ff58e09b4ceb6b77b8ad6e922d00" },
+                                { "prim": "Pair", "args": [{ "int": "0" }, { "int": "19474805116153596050" }] }
+                              ]
+                            }
+                          ]
+                        ]
+                      }
+                    ]
+                  },
+                  "result": {
+                    "status": "failed",
+                    "errors": [
+                      {
+                        "kind": "temporary",
+                        "id": "proto.023-PtSeouLo.michelson_v1.runtime_error",
+                        "contract_handle": "KT1VaEsVNiBoA56eToEK6n6BcPgh1tdx9eXi",
+                        "contract_code": "Deprecated"
+                      },
+                      {
+                        "kind": "temporary",
+                        "id": "proto.023-PtSeouLo.michelson_v1.script_rejected",
+                        "location": 325,
+                        "with": { "string": "FA2_NOT_OPERATOR" }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "kind": "transaction",
+                  "source": "KT1V5XKmeypanMS9pR65REpqmVejWBZURuuT",
+                  "nonce": 0,
+                  "amount": "0",
+                  "destination": "KT1Hb4pGSB7k9QmW7NPjBd4D18njqh4atLdY",
+                  "parameters": {
+                    "entrypoint": "tokenToTezPayment",
+                    "value": {
+                      "prim": "Pair",
+                      "args": [
+                        { "prim": "Pair", "args": [{ "int": "19474805116153596050" }, { "int": "1" }] },
+                        { "bytes": "01e0d2b0c72e6767ff58e09b4ceb6b77b8ad6e922d00" }
+                      ]
+                    }
+                  },
+                  "result": { "status": "skipped" }
+                },
+                {
+                  "kind": "transaction",
+                  "source": "KT1V5XKmeypanMS9pR65REpqmVejWBZURuuT",
+                  "nonce": 1,
+                  "amount": "0",
+                  "destination": "KT1V5XKmeypanMS9pR65REpqmVejWBZURuuT",
+                  "parameters": { "entrypoint": "tick", "value": { "prim": "Unit" } },
+                  "result": { "status": "skipped" }
+                }
+              ]
+            }
+          },
+          {
+            "kind": "transaction",
+            "source": "tz1L7QjtFG4KJBMZ8tppwMmTjMGwqxPFCSXM",
+            "fee": "0",
+            "counter": "67861994",
+            "gas_limit": "15000",
+            "storage_limit": "0",
+            "amount": "0",
+            "destination": "KT1VaEsVNiBoA56eToEK6n6BcPgh1tdx9eXi",
+            "parameters": {
+              "entrypoint": "update_operators",
+              "value": [
+                {
+                  "prim": "Right",
+                  "args": [
+                    {
+                      "prim": "Pair",
+                      "args": [
+                        { "string": "tz1L7QjtFG4KJBMZ8tppwMmTjMGwqxPFCSXM" },
+                        {
+                          "prim": "Pair",
+                          "args": [{ "string": "KT1V5XKmeypanMS9pR65REpqmVejWBZURuuT" }, { "int": "0" }]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            "metadata": { "operation_result": { "status": "skipped" } }
+          }
+        ],
+        "name": "TezosOperationError",
+        "lastError": {
+          "kind": "temporary",
+          "id": "proto.023-PtSeouLo.michelson_v1.script_rejected",
+          "location": 325,
+          "with": { "string": "FA2_NOT_OPERATOR" }
+        },
+        "message": "FA2_NOT_OPERATOR",
+        "isError": true
+      },
+      {
+        "errors": [
+          {
+            "kind": "temporary",
+            "id": "proto.023-PtSeouLo.michelson_v1.runtime_error",
+            "contract_handle": "KT1VaEsVNiBoA56eToEK6n6BcPgh1tdx9eXi",
+            "contract_code": "Deprecated"
+          },
+          {
+            "kind": "temporary",
+            "id": "proto.023-PtSeouLo.michelson_v1.script_rejected",
+            "location": 325,
+            "with": { "string": "FA2_NOT_OPERATOR" }
+          }
+        ],
+        "errorDetails": "Error occurred during estimation",
+        "operationsWithResults": [
+          {
+            "kind": "transaction",
+            "source": "tz1L7QjtFG4KJBMZ8tppwMmTjMGwqxPFCSXM",
+            "fee": "0",
+            "counter": "67861993",
+            "gas_limit": "1040000",
+            "storage_limit": "0",
+            "amount": "0",
+            "destination": "KT1V5XKmeypanMS9pR65REpqmVejWBZURuuT",
+            "parameters": {
+              "entrypoint": "execute",
+              "value": {
+                "prim": "Pair",
+                "args": [
+                  { "int": "138" },
+                  {
+                    "prim": "Pair",
+                    "args": [
+                      { "int": "3" },
+                      {
+                        "prim": "Pair",
+                        "args": [
+                          { "int": "437093" },
+                          {
+                            "prim": "Pair",
+                            "args": [
+                              { "string": "tz1L7QjtFG4KJBMZ8tppwMmTjMGwqxPFCSXM" },
+                              {
+                                "prim": "Pair",
+                                "args": [
+                                  [
+                                    {
+                                      "prim": "Elt",
+                                      "args": [
+                                        { "int": "0" },
+                                        {
+                                          "prim": "Pair",
+                                          "args": [
+                                            { "int": "650" },
+                                            {
+                                              "prim": "Pair",
+                                              "args": [
+                                                { "int": "0" },
+                                                {
+                                                  "prim": "Pair",
+                                                  "args": [
+                                                    { "int": "19474805116153596050" },
+                                                    { "prim": "Pair", "args": [{ "int": "0" }, { "bytes": "" }] }
+                                                  ]
+                                                }
+                                              ]
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "prim": "Elt",
+                                      "args": [
+                                        { "int": "1" },
+                                        {
+                                          "prim": "Pair",
+                                          "args": [
+                                            { "int": "92" },
+                                            {
+                                              "prim": "Pair",
+                                              "args": [
+                                                { "int": "7" },
+                                                {
+                                                  "prim": "Pair",
+                                                  "args": [
+                                                    { "int": "0" },
+                                                    { "prim": "Pair", "args": [{ "int": "0" }, { "bytes": "" }] }
+                                                  ]
+                                                }
+                                              ]
+                                            }
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  ],
+                                  { "int": "0" }
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            "metadata": {
+              "operation_result": {
+                "status": "backtracked",
+                "storage": [
+                  [
+                    { "prim": "False" },
+                    { "prim": "False" },
+                    {
+                      "prim": "Some",
+                      "args": [
+                        [
+                          [
+                            { "int": "138" },
+                            { "int": "3" },
+                            { "int": "437093" },
+                            { "bytes": "0000052da2ac410875702072797e437a3cc46244571d" },
+                            [
+                              {
+                                "prim": "Elt",
+                                "args": [
+                                  { "int": "0" },
+                                  [
+                                    { "int": "650" },
+                                    { "int": "0" },
+                                    { "int": "19474805116153596050" },
+                                    { "int": "0" },
+                                    { "bytes": "" }
+                                  ]
+                                ]
+                              },
+                              {
+                                "prim": "Elt",
+                                "args": [
+                                  { "int": "1" },
+                                  [{ "int": "92" }, { "int": "7" }, { "int": "0" }, { "int": "0" }, { "bytes": "" }]
+                                ]
+                              }
+                            ],
+                            { "int": "0" }
+                          ],
+                          { "int": "19474805116153596050" },
+                          { "int": "0" },
+                          { "int": "0" },
+                          [],
+                          { "int": "0" },
+                          { "int": "0" },
+                          { "int": "1" }
+                        ]
+                      ]
+                    },
+                    {
+                      "prim": "Pair",
+                      "args": [{ "int": "0" }, { "bytes": "00016d70da2dc7aff9ea87ad5714964e0d06718a3f13" }]
+                    },
+                    { "int": "528776" },
+                    { "bytes": "00016d70da2dc7aff9ea87ad5714964e0d06718a3f13" },
+                    { "prim": "None" },
+                    { "int": "40" },
+                    { "prim": "Some", "args": [{ "bytes": "01b5521d410d00570ada9bbfc1a4604b68c3bbb36d00" }] },
+                    { "prim": "None" }
+                  ],
+                  { "int": "528777" },
+                  { "int": "528778" },
+                  { "bytes": "00016d70da2dc7aff9ea87ad5714964e0d06718a3f13" }
+                ],
+                "consumed_milligas": "4085574",
+                "storage_size": "164942",
+                "lazy_storage_diff": [
+                  { "kind": "big_map", "id": "528778", "diff": { "action": "update", "updates": [] } },
+                  { "kind": "big_map", "id": "528777", "diff": { "action": "update", "updates": [] } },
+                  { "kind": "big_map", "id": "528776", "diff": { "action": "update", "updates": [] } }
+                ]
+              },
+              "internal_operation_results": [
+                {
+                  "kind": "transaction",
+                  "source": "KT1V5XKmeypanMS9pR65REpqmVejWBZURuuT",
+                  "nonce": 2,
+                  "amount": "0",
+                  "destination": "KT1VaEsVNiBoA56eToEK6n6BcPgh1tdx9eXi",
+                  "parameters": {
+                    "entrypoint": "transfer",
+                    "value": [
+                      {
+                        "prim": "Pair",
+                        "args": [
+                          { "bytes": "0000052da2ac410875702072797e437a3cc46244571d" },
+                          [
+                            {
+                              "prim": "Pair",
+                              "args": [
+                                { "bytes": "01e0d2b0c72e6767ff58e09b4ceb6b77b8ad6e922d00" },
+                                { "prim": "Pair", "args": [{ "int": "0" }, { "int": "19474805116153596050" }] }
+                              ]
+                            }
+                          ]
+                        ]
+                      }
+                    ]
+                  },
+                  "result": {
+                    "status": "failed",
+                    "errors": [
+                      {
+                        "kind": "temporary",
+                        "id": "proto.023-PtSeouLo.michelson_v1.runtime_error",
+                        "contract_handle": "KT1VaEsVNiBoA56eToEK6n6BcPgh1tdx9eXi",
+                        "contract_code": "Deprecated"
+                      },
+                      {
+                        "kind": "temporary",
+                        "id": "proto.023-PtSeouLo.michelson_v1.script_rejected",
+                        "location": 325,
+                        "with": { "string": "FA2_NOT_OPERATOR" }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "kind": "transaction",
+                  "source": "KT1V5XKmeypanMS9pR65REpqmVejWBZURuuT",
+                  "nonce": 0,
+                  "amount": "0",
+                  "destination": "KT1Hb4pGSB7k9QmW7NPjBd4D18njqh4atLdY",
+                  "parameters": {
+                    "entrypoint": "tokenToTezPayment",
+                    "value": {
+                      "prim": "Pair",
+                      "args": [
+                        { "prim": "Pair", "args": [{ "int": "19474805116153596050" }, { "int": "1" }] },
+                        { "bytes": "01e0d2b0c72e6767ff58e09b4ceb6b77b8ad6e922d00" }
+                      ]
+                    }
+                  },
+                  "result": { "status": "skipped" }
+                },
+                {
+                  "kind": "transaction",
+                  "source": "KT1V5XKmeypanMS9pR65REpqmVejWBZURuuT",
+                  "nonce": 1,
+                  "amount": "0",
+                  "destination": "KT1V5XKmeypanMS9pR65REpqmVejWBZURuuT",
+                  "parameters": { "entrypoint": "tick", "value": { "prim": "Unit" } },
+                  "result": { "status": "skipped" }
+                }
+              ]
+            }
+          },
+          {
+            "kind": "transaction",
+            "source": "tz1L7QjtFG4KJBMZ8tppwMmTjMGwqxPFCSXM",
+            "fee": "0",
+            "counter": "67861994",
+            "gas_limit": "15000",
+            "storage_limit": "0",
+            "amount": "0",
+            "destination": "KT1VaEsVNiBoA56eToEK6n6BcPgh1tdx9eXi",
+            "parameters": {
+              "entrypoint": "update_operators",
+              "value": [
+                {
+                  "prim": "Right",
+                  "args": [
+                    {
+                      "prim": "Pair",
+                      "args": [
+                        { "string": "tz1L7QjtFG4KJBMZ8tppwMmTjMGwqxPFCSXM" },
+                        {
+                          "prim": "Pair",
+                          "args": [{ "string": "KT1V5XKmeypanMS9pR65REpqmVejWBZURuuT" }, { "int": "0" }]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            "metadata": { "operation_result": { "status": "skipped" } }
+          }
+        ],
+        "name": "TezosOperationError",
+        "lastError": {
+          "kind": "temporary",
+          "id": "proto.023-PtSeouLo.michelson_v1.script_rejected",
+          "location": 325,
+          "with": { "string": "FA2_NOT_OPERATOR" }
+        },
+        "message": "FA2_NOT_OPERATOR",
+        "isError": true
+      }
+    ]
   }
 }

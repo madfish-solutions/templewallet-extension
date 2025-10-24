@@ -45,6 +45,8 @@ export const getTransferErrorMessage = ({
       } catch {
         return ERROR_MESSAGES.executionFailed;
       }
+    case 'FA2_NOT_OPERATOR':
+      return ERROR_MESSAGES.notApproved;
     default:
       const kebabCaseErrorMnemonic = kebabCase(errorMnemonic);
 

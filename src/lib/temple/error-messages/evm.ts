@@ -2,8 +2,9 @@ import {
   BaseError as ViemBaseError,
   ContractFunctionExecutionError,
   EstimateGasExecutionError,
+  HttpRequestError,
+  TimeoutError,
   TransactionExecutionError,
-  InsufficientFundsError,
   IntrinsicGasTooHighError,
   IntrinsicGasTooLowError,
   NonceTooHighError,
@@ -31,7 +32,8 @@ const ERC1155_ERROR_MESSAGES: Record<string, string> = {
   ERC1155InvalidReceiver: ERROR_MESSAGES.invalidParams,
   ERC1155InvalidApprover: ERROR_MESSAGES.invalidParams,
   ERC1155InvalidOperator: ERROR_MESSAGES.invalidParams,
-  ERC1155InvalidArrayLength: ERROR_MESSAGES.invalidParams
+  ERC1155InvalidArrayLength: ERROR_MESSAGES.invalidParams,
+  ERC1155MissingApprovalForAll: ERROR_MESSAGES.notApproved
 };
 
 const ERC20_TRANSFER_BALANCE_ERROR_PATTERN = 'ERC20: transfer amount exceeds balance';
@@ -43,8 +45,8 @@ const ERC20_TRANSFER_BALANCE_ERROR_PATTERN = 'ERC20: transfer amount exceeds bal
 const REVERT_REASON_PATTERNS: Record<string, string> = {
   'The total cost (gas * gas fee + value) of executing this transaction exceeds the balance of the account':
     ERROR_MESSAGES.lowGasBalance,
-  'insufficient funds for gas * price + value': ERROR_MESSAGES.balance,
-  'insufficient balance for transfer': ERROR_MESSAGES.balance,
+  'insufficient funds for gas * price + value': ERROR_MESSAGES.lowGasBalance,
+  'insufficient balance for transfer': ERROR_MESSAGES.lowGasBalance,
   'gas required exceeds allowance': ERROR_MESSAGES.lowGasBalance,
 
   // ERC20 errors
@@ -206,15 +208,20 @@ function extractEvmTransactionParams(error: any): Record<'from' | 'to' | 'data',
   return from && to && data ? { from, to, data } : null;
 }
 
-const networkErrorNames = ['HttpRequestError', 'TimeoutError'];
+const errorHasName = (error: SerializedViemError, name: string) =>
+  error.name === name || (error.cause as any)?.name === name;
 
 /**
  * Handles viem-specific errors
  */
 export const getHumanEvmErrorMessage = (error: ViemBaseError | SerializedViemError) => {
   // Handle specific viem error types
-  if (error instanceof InsufficientFundsError) {
-    return ERROR_MESSAGES.balance;
+  if (error instanceof HttpRequestError) {
+    return ERROR_MESSAGES.networkError;
+  }
+
+  if (error instanceof TimeoutError) {
+    return ERROR_MESSAGES.timeout;
   }
 
   if (error instanceof NonceTooHighError) {
@@ -245,8 +252,20 @@ export const getHumanEvmErrorMessage = (error: ViemBaseError | SerializedViemErr
     error instanceof RpcRequestError ||
     isSerializedViemError(error)
   ) {
-    if (networkErrorNames.includes(error.name) || networkErrorNames.includes((error.cause as any)?.name)) {
+    if (errorHasName(error, 'HttpRequestError')) {
       return ERROR_MESSAGES.networkError;
+    }
+
+    if (errorHasName(error, 'TimeoutError')) {
+      return ERROR_MESSAGES.timeout;
+    }
+
+    if (errorHasName(error, 'NonceTooLowError')) {
+      return ERROR_MESSAGES.nonceTooLow;
+    }
+
+    if (errorHasName(error, 'NonceTooHighError')) {
+      return ERROR_MESSAGES.nonceTooHigh;
     }
 
     // Fallback to extracting revert reason from error message
