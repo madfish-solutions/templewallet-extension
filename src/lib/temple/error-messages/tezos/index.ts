@@ -191,7 +191,6 @@ export const getHumanTezosErrorMessage = (
     );
 
     if (!scriptRejectedError) {
-      // Check each error category in order of priority
       for (const [key, patterns] of Object.entries(TEZOS_ERROR_PATTERNS)) {
         if (hasErrorPattern(error, patterns) && key in ERROR_MESSAGES) {
           return ERROR_MESSAGES[key as ErrorMessageKey];
@@ -204,7 +203,6 @@ export const getHumanTezosErrorMessage = (
     const parseResult = parseFailedTransaction(error.operationsWithResults, scriptRejectedError.with);
 
     if (!isContractInteractionParseFailedTransactionResult(parseResult)) {
-      // TODO: handle delegations, staking, etc.
       return ERROR_MESSAGES.executionFailed;
     }
 
@@ -249,13 +247,11 @@ export const getHumanTezosErrorMessage = (
     return getHumanTezosErrorMessage(tezosOperationError);
   }
 
-  // Check for network connectivity issues
   const status = Number(error.status);
   if (status === 0 || status >= 500) {
     return ERROR_MESSAGES.networkError;
   }
 
-  // Check for client errors that might indicate parameter issues
   if (status >= 400 && status < 500) {
     return ERROR_MESSAGES.invalidParams;
   }

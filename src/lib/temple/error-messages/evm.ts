@@ -38,10 +38,6 @@ const ERC1155_ERROR_MESSAGES: Record<string, string> = {
 
 const ERC20_TRANSFER_BALANCE_ERROR_PATTERN = 'ERC20: transfer amount exceeds balance';
 
-/**
- * Common revert reason patterns for legacy string-based errors
- * Used for ERC20, ERC721, and other contracts that use string revert reasons
- */
 const REVERT_REASON_PATTERNS: Record<string, string> = {
   'The total cost (gas * gas fee + value) of executing this transaction exceeds the balance of the account':
     ERROR_MESSAGES.lowGasBalance,
@@ -99,7 +95,6 @@ export function isSerializedViemError(error: unknown): error is SerializedViemEr
  * Only ERC1155 has custom error definitions in the ABI
  */
 function decodeErc1155Error(error: { data?: unknown }): string | null {
-  // Check if error has data to decode
   const errorData = error.data;
 
   if (!errorData || typeof errorData !== 'string' || !errorData.startsWith('0x')) {
@@ -113,17 +108,15 @@ function decodeErc1155Error(error: { data?: unknown }): string | null {
     });
 
     if (decoded) {
-      // Check if we have a mapped message for this error
       const errorMessage = ERC1155_ERROR_MESSAGES[decoded.errorName];
       if (errorMessage) {
         return errorMessage;
       }
 
-      // If no specific mapping, return a formatted error
       return ERROR_MESSAGES.executionFailed;
     }
   } catch {
-    // Error decoding failed, return default error message
+    // Error decoding failed
   }
 
   return null;
@@ -137,17 +130,14 @@ function extractEvmRevertReason(error: any): string | null {
     return null;
   }
 
-  // Try to get the revert reason from viem error
   if (error.details) {
     return error.details;
   }
 
-  // Check for shortMessage
   if (error.shortMessage) {
     return error.shortMessage;
   }
 
-  // Check metaMessages array
   if (Array.isArray(error.metaMessages) && error.metaMessages.length > 0) {
     const revertMsg = error.metaMessages.find(
       (msg: string) => msg.includes('Reverted') || msg.includes('reverted') || msg.includes('Error:')
@@ -157,11 +147,9 @@ function extractEvmRevertReason(error: any): string | null {
     }
   }
 
-  // Try to extract from error message
   if (error.message) {
     const message = error.message;
 
-    // Look for common revert reason patterns
     const revertMatch = message.match(/reverted with reason string ['"](.+?)['"]/i);
     if (revertMatch) {
       return revertMatch[1];
@@ -215,7 +203,6 @@ const errorHasName = (error: SerializedViemError, name: string) =>
  * Handles viem-specific errors
  */
 export const getHumanEvmErrorMessage = (error: ViemBaseError | SerializedViemError) => {
-  // Handle specific viem error types
   if (error instanceof HttpRequestError) {
     return ERROR_MESSAGES.networkError;
   }
@@ -244,7 +231,6 @@ export const getHumanEvmErrorMessage = (error: ViemBaseError | SerializedViemErr
     return ERROR_MESSAGES.feeTooLow;
   }
 
-  // Handle contract execution errors
   if (
     error instanceof ContractFunctionExecutionError ||
     error instanceof TransactionExecutionError ||
@@ -268,14 +254,12 @@ export const getHumanEvmErrorMessage = (error: ViemBaseError | SerializedViemErr
       return ERROR_MESSAGES.nonceTooHigh;
     }
 
-    // Fallback to extracting revert reason from error message
     const revertReason = extractEvmRevertReason(error);
 
     if (!revertReason) {
       return ERROR_MESSAGES.executionFailed;
     }
 
-    // Check against known revert reason patterns
     for (const [pattern, message] of Object.entries(REVERT_REASON_PATTERNS)) {
       if (!revertReason.includes(pattern)) {
         continue;
@@ -316,7 +300,6 @@ export const getHumanEvmErrorMessage = (error: ViemBaseError | SerializedViemErr
     return ERROR_MESSAGES.executionFailed;
   }
 
-  // Check error name for other viem errors
   const errorName = (error as ViemBaseError).name?.toLowerCase() || '';
 
   if (errorName.includes('fee') || errorName.includes('gasprice')) {

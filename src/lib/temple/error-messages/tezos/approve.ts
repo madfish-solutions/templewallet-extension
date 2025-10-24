@@ -22,7 +22,6 @@ export const getApproveErrorMessage = ({
 
   const kebabCaseErrorMnemonic = kebabCase(errorMnemonic);
 
-  // TODO: implement
   return kebabCaseErrorMnemonic.includes('unsafe-allowance-change') && isDirectApprove
     ? ERROR_MESSAGES.unsafeAllowanceChange
     : ERROR_MESSAGES.executionFailed;

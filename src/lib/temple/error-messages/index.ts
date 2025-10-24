@@ -16,7 +16,6 @@ import { getHumanTezosErrorMessage, isSerializedDryRunError } from './tezos';
  */
 export function getHumanErrorMessage(error: unknown): string {
   try {
-    // Handle viem errors first (most specific)
     if (error instanceof ViemBaseError || isSerializedViemError(error)) {
       return getHumanEvmErrorMessage(error);
     }
@@ -33,11 +32,9 @@ export function getHumanErrorMessage(error: unknown): string {
     return ERROR_MESSAGES.default;
   }
 
-  // Handle generic Error objects
   if (isObject(error) && 'message' in error && typeof error.message === 'string') {
     const message = error.message.toLowerCase();
 
-    // Check for network-related error messages
     if (
       message.includes('network') ||
       message.includes('connection') ||
@@ -49,7 +46,6 @@ export function getHumanErrorMessage(error: unknown): string {
       return ERROR_MESSAGES.networkError;
     }
 
-    // Check for nonce-related error messages
     if (message.includes('nonce')) {
       if (message.includes('too low') || message.includes('already')) {
         return ERROR_MESSAGES.nonceTooLow;
@@ -60,7 +56,6 @@ export function getHumanErrorMessage(error: unknown): string {
       return ERROR_MESSAGES.invalidParams;
     }
 
-    // Check for gas-related error messages
     if (message.includes('gas') || (message.includes('tx cost') && message.includes('insufficient funds'))) {
       if (message.includes('too high')) {
         return ERROR_MESSAGES.invalidParams;
@@ -71,7 +66,6 @@ export function getHumanErrorMessage(error: unknown): string {
       return ERROR_MESSAGES.lowGasBalance;
     }
 
-    // Check for balance-related error messages
     if (
       message.includes('balance') ||
       message.includes('insufficient') ||
@@ -81,12 +75,10 @@ export function getHumanErrorMessage(error: unknown): string {
       return ERROR_MESSAGES.balance;
     }
 
-    // Check for fee-related error messages
     if (message.includes('fee')) {
       return ERROR_MESSAGES.feeTooLow;
     }
 
-    // Check for parameter-related error messages
     if (
       message.includes('parameter') ||
       message.includes('invalid') ||
@@ -96,12 +88,10 @@ export function getHumanErrorMessage(error: unknown): string {
       return ERROR_MESSAGES.invalidParams;
     }
 
-    // Check for revert/rejection messages
     if (message.includes('revert') || message.includes('reject') || message.includes('failed')) {
       return ERROR_MESSAGES.executionFailed;
     }
   }
 
-  // Default fallback message
   return ERROR_MESSAGES.default;
 }
