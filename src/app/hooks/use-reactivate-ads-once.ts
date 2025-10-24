@@ -4,11 +4,10 @@ import { dispatch } from 'app/store';
 import { togglePartnersPromotionAction } from 'app/store/partners-promotion/actions';
 import { useShouldShowPartnersPromoSelector } from 'app/store/partners-promotion/selectors';
 import { postReactivationCheck } from 'lib/apis/ads-api';
+import { REACTIVATION_APPLIED_AT_KEY } from 'lib/constants';
 import { usePassiveStorage } from 'lib/temple/front/storage';
 import { getAccountAddressForTezos } from 'temple/accounts';
 import { useAllAccounts } from 'temple/front';
-
-const REACTIVATION_APPLIED_AT_KEY = 'ADS_REACTIVATION_APPLIED_AT';
 
 export function useReactivateAdsOnce() {
   const isEnabled = useShouldShowPartnersPromoSelector();
