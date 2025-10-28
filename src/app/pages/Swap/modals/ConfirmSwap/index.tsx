@@ -152,7 +152,7 @@ export const ConfirmSwapModal: FC<ConfirmSwapModalProps> = ({ opened, onRequestC
   const title = useMemo(() => {
     if (!reviewData) return '';
     if (isSwapEvmReviewData(reviewData) && currentUserAction) {
-      if (currentUserAction.type === 'approval') return t('approve');
+      if (currentUserAction.type === 'approval') return t('approval');
       return isBridgeOperation ? t('bridgePreview') : t('swapPreview');
     }
     return t('swapPreview');

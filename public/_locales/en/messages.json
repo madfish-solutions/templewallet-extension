@@ -1824,8 +1824,17 @@
   "transactionInfo": {
     "message": "Transaction info"
   },
+  "simulatedResult": {
+    "message": "Simulated result"
+  },
   "estimatedTxDetails": {
     "message": "Est. transaction details"
+  },
+  "totalFeeAmount": {
+    "message": "Total fee amount:"
+  },
+  "totalFee": {
+    "message": "Total fee"
   },
   "noValue": {
     "message": "No value"
@@ -2935,7 +2944,7 @@
     }
   },
   "gasFee": {
-    "message": "Gas Fee"
+    "message": "Gas fee"
   },
   "storageFee": {
     "message": "Storage fee"
@@ -4496,6 +4505,9 @@
   },
   "interactionWith": {
     "message": "Interaction With"
+  },
+  "approvedTo": {
+    "message": "Approved to"
   },
   "earn": {
     "message": "Earn"

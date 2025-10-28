@@ -61,7 +61,7 @@ export const DEFAULT_RPC_INDEX = 0;
 
 export const TEZOS_FALLBACK_RPC_URLS: Record<string, string[]> = {
   [TempleTezosChainId.Mainnet]: [
-    'https://broken.smartpy.io', // TODO: Change to 'https://prod.tcinfra.net/rpc/mainnet' after test
+    'https://prod.tcinfra.net/rpc/mainnet',
     'https://mainnet.smartpy.io',
     'https://mainnet.api.tez.ie',
     'https://rpc.tzkt.io/mainnet',
@@ -69,13 +69,13 @@ export const TEZOS_FALLBACK_RPC_URLS: Record<string, string[]> = {
     'https://mainnet.tezos.ecadinfra.com'
   ],
   [TempleTezosChainId.Ghostnet]: [
-    'https://broken.smartpy.io', // TODO: Change to 'https://rpc.ghostnet.teztnets.com' after test
+    'https://rpc.ghostnet.teztnets.com',
     'https://ghostnet.smartpy.io',
     'https://rpc.tzkt.io/ghostnet',
     'https://ghostnet.tezos.ecadinfra.com'
   ],
   [TempleTezosChainId.Shadownet]: [
-    'https://broken.smartpy.io', // TODO: Change to 'https://rpc.shadownet.teztnets.com' after test
+    'https://rpc.shadownet.teztnets.com',
     'https://rpc.tzkt.io/shadownet',
     'https://shadownet.tezos.ecadinfra.com'
   ]

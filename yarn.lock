@@ -1893,10 +1893,10 @@
   dependencies:
     lit "^2.7.2"
 
-"@gql.tada/cli-utils@1.7.1":
-  version "1.7.1"
-  resolved "https://registry.yarnpkg.com/@gql.tada/cli-utils/-/cli-utils-1.7.1.tgz#2e849c4c5d7e0d4914b34d167a74e3022d0a79d1"
-  integrity sha512-wg5ysZNQxtNQm67T3laVWmZzLpGb7QfyYWZdaUD2r1OjDj5Bgftq7eQlplmH+hsdffjuUyhJw/b5XAjeE2mJtg==
+"@gql.tada/cli-utils@1.7.0":
+  version "1.7.0"
+  resolved "https://registry.yarnpkg.com/@gql.tada/cli-utils/-/cli-utils-1.7.0.tgz#9aa3522dc4b5e13a8ca30f1b1b8834b82d29275f"
+  integrity sha512-Jj74qfIplT+MzUUWABeUJxHF5lxiyOJpE4ENeIOwvcPAi+QYoxsKNj/aPcGAk2jK5CrP9aFtE5O7794q2rWjlQ==
   dependencies:
     "@0no-co/graphqlsp" "^1.12.13"
     "@gql.tada/internal" "1.0.8"
@@ -2453,9 +2453,9 @@
     viem "^2.36.0"
 
 "@lifi/types@^17.35.0":
-  version "17.44.1"
-  resolved "https://registry.yarnpkg.com/@lifi/types/-/types-17.44.1.tgz#4e7a716222167ceb3654b0bbd84512ca58bc108b"
-  integrity sha512-UWvp88nZhBV1zgaSYLo5j+m8ftsIhlWcf25YbgpzozUytiZnX6lsqQnO+6H/BiR7YK3xPAGH3VMZkZiIiEWZFg==
+  version "17.36.0"
+  resolved "https://registry.yarnpkg.com/@lifi/types/-/types-17.36.0.tgz#a1940fed5c74a33a79ac8eb86e62eff66ecabd18"
+  integrity sha512-U9liL0rft2vniZpZ5btRSNeeHMrErA7bkHi81q+cH7KmNJw4DxmtdXW+fQDGM3t+a35FBnrwRQg9LuRtdYquBA==
   dependencies:
     viem "^2.33.2"
 
@@ -2490,18 +2490,10 @@
     "@mysten/utils" "0.1.1"
     "@scure/base" "^1.2.6"
 
-"@mysten/bcs@1.9.1":
-  version "1.9.1"
-  resolved "https://registry.yarnpkg.com/@mysten/bcs/-/bcs-1.9.1.tgz#cd991805aacb4da9148967a54b22ee0348833fea"
-  integrity sha512-EJejUrgv/FSjrssJw47/QQkK6FS2/4+YjDyQxHa2AbrCdENs252G7Owu2chapSwT3CXQVhmknECpFRkGMWOw9Q==
-  dependencies:
-    "@mysten/utils" "0.2.0"
-    "@scure/base" "^1.2.6"
-
-"@mysten/sui@1.37.6":
-  version "1.37.6"
-  resolved "https://registry.yarnpkg.com/@mysten/sui/-/sui-1.37.6.tgz#1bb1797e64657a44ebdcbbee66778a173b65de56"
-  integrity sha512-7ut5tWuXx9OIE+DQ2D5hd22UB8j8K4/F2Lx3R8Ej/JMwkm6cpgbF5FKNu0vYqehxiFEktMnq2YzzajxmlFHNPw==
+"@mysten/sui@1.37.5", "@mysten/sui@^1.37.5":
+  version "1.37.5"
+  resolved "https://registry.yarnpkg.com/@mysten/sui/-/sui-1.37.5.tgz#5a6b401c689cc119db34cf36d7d247c767b0fff5"
+  integrity sha512-kAKizRUdhC/gwQ7UkubbmwTno5UoA1a7Ps8R6GlPVWpCfpVM2HytmwFDOKVMA+51Qji4BaNxyq25SRpJw76fPw==
   dependencies:
     "@graphql-typed-document-node/core" "^3.2.0"
     "@mysten/bcs" "1.7.0"
@@ -2513,28 +2505,7 @@
     "@scure/bip39" "^1.6.0"
     gql.tada "^1.8.12"
     graphql "^16.11.0"
-    poseidon-lite "0.2.1"
-    valibot "^0.36.0"
-
-"@mysten/sui@^1.37.5":
-  version "1.43.1"
-  resolved "https://registry.yarnpkg.com/@mysten/sui/-/sui-1.43.1.tgz#23bcfddd357752bbc2aee6d0e604ebb405502fb1"
-  integrity sha512-DWD5q+19gi7c+gxtIfqgGlTFAIQlo4jB4bZcEE4SR8Z2hlnY2JK2CYllKSXAkDl9WpIjAe5In9uoQwuzyQ1t+Q==
-  dependencies:
-    "@graphql-typed-document-node/core" "^3.2.0"
-    "@mysten/bcs" "1.9.1"
-    "@mysten/utils" "0.2.0"
-    "@noble/curves" "=1.9.4"
-    "@noble/hashes" "^1.8.0"
-    "@protobuf-ts/grpcweb-transport" "^2.11.1"
-    "@protobuf-ts/runtime" "^2.11.1"
-    "@protobuf-ts/runtime-rpc" "^2.11.1"
-    "@scure/base" "^1.2.6"
-    "@scure/bip32" "^1.7.0"
-    "@scure/bip39" "^1.6.0"
-    gql.tada "^1.8.13"
-    graphql "^16.11.0"
-    poseidon-lite "0.2.1"
+    poseidon-lite "^0.2.0"
     valibot "^0.36.0"
 
 "@mysten/utils@0.1.1":
@@ -2544,19 +2515,12 @@
   dependencies:
     "@scure/base" "^1.2.6"
 
-"@mysten/utils@0.2.0":
-  version "0.2.0"
-  resolved "https://registry.yarnpkg.com/@mysten/utils/-/utils-0.2.0.tgz#8c4fa3858284de84c333bc7ae09510cf54d55a54"
-  integrity sha512-CM6kJcJHX365cK6aXfFRLBiuyXc5WSBHQ43t94jqlCAIRw8umgNcTb5EnEA9n31wPAQgLDGgbG/rCUISCTJ66w==
-  dependencies:
-    "@scure/base" "^1.2.6"
-
 "@mysten/wallet-standard@^0.16.13":
-  version "0.16.14"
-  resolved "https://registry.yarnpkg.com/@mysten/wallet-standard/-/wallet-standard-0.16.14.tgz#f933b63155275fa6cb5ed738e80539560160b2f7"
-  integrity sha512-LJoDQUD+217RdRbkQLiKYYjkNtN6GhGpIN/X3wboUf3w5pdvBc4k/vS1Yi6GFv5xbgl/ge7wzC4Ac+h3orY2oQ==
+  version "0.16.13"
+  resolved "https://registry.yarnpkg.com/@mysten/wallet-standard/-/wallet-standard-0.16.13.tgz#d25eda014cff5276a2b460e975935fd32fb15e82"
+  integrity sha512-hoWcqD2CEtzwdGm2V40n3j1rfkJboiFiaiMdrnxjGqbZvsHYb/T31pPNmXlFq+8fi292E3NASSFjmnjiOCd5vw==
   dependencies:
-    "@mysten/sui" "1.37.6"
+    "@mysten/sui" "1.37.5"
     "@wallet-standard/core" "1.1.1"
 
 "@noble/ciphers@^1.3.0":
@@ -2575,13 +2539,6 @@
   version "1.9.6"
   resolved "https://registry.yarnpkg.com/@noble/curves/-/curves-1.9.6.tgz#b45ebedca85bb75782f6be7e7f120f0c423c99e0"
   integrity sha512-GIKz/j99FRthB8icyJQA51E8Uk5hXmdyThjgQXRKiv9h0zeRlzSCLIzFw6K1LotZ3XuB7yzlf76qk7uBmTdFqA==
-  dependencies:
-    "@noble/hashes" "1.8.0"
-
-"@noble/curves@=1.9.4":
-  version "1.9.4"
-  resolved "https://registry.yarnpkg.com/@noble/curves/-/curves-1.9.4.tgz#a748c6837ee7854a558cc3b951aedd87a5e7d6a5"
-  integrity sha512-2bKONnuM53lINoDrSmK8qP8W271ms7pygDhZt4SiLOoLwBtoHqeCFi6RG42V8zd3mLHuJFhU/Bmaqo4nX0/kBw==
   dependencies:
     "@noble/hashes" "1.8.0"
 
@@ -2712,25 +2669,10 @@
   resolved "https://registry.yarnpkg.com/@popperjs/core/-/core-2.4.4.tgz#11d5db19bd178936ec89cd84519c4de439574398"
   integrity sha512-1oO6+dN5kdIA3sKPZhRGJTfGVP4SWV6KqlMOwry4J3HfyD68sl/3KmG7DeYUzvN+RbhXDnv/D8vNNB8168tAMg==
 
-"@protobuf-ts/grpcweb-transport@^2.11.1":
-  version "2.11.1"
-  resolved "https://registry.yarnpkg.com/@protobuf-ts/grpcweb-transport/-/grpcweb-transport-2.11.1.tgz#63a8a0d6043851fec14de4b091121377d2549683"
-  integrity sha512-1W4utDdvOB+RHMFQ0soL4JdnxjXV+ddeGIUg08DvZrA8Ms6k5NN6GBFU2oHZdTOcJVpPrDJ02RJlqtaoCMNBtw==
-  dependencies:
-    "@protobuf-ts/runtime" "^2.11.1"
-    "@protobuf-ts/runtime-rpc" "^2.11.1"
-
-"@protobuf-ts/runtime-rpc@^2.11.1":
-  version "2.11.1"
-  resolved "https://registry.yarnpkg.com/@protobuf-ts/runtime-rpc/-/runtime-rpc-2.11.1.tgz#a6eb2f384bceae8d23a01d0b0e37faf0af36c179"
-  integrity sha512-4CqqUmNA+/uMz00+d3CYKgElXO9VrEbucjnBFEjqI4GuDrEQ32MaI3q+9qPBvIGOlL4PmHXrzM32vBPWRhQKWQ==
-  dependencies:
-    "@protobuf-ts/runtime" "^2.11.1"
-
-"@protobuf-ts/runtime@^2.11.1":
-  version "2.11.1"
-  resolved "https://registry.yarnpkg.com/@protobuf-ts/runtime/-/runtime-2.11.1.tgz#ee2bf2fac6e2d8deac0ca63471a77481548e5553"
-  integrity sha512-KuDaT1IfHkugM2pyz+FwiY80ejWrkH1pAtOBOZFuR6SXEFTsnb/jiQWQ1rCIrcKx2BtyxnxW6BWwsVSA/Ie+WQ==
+"@popperjs/core@^2.9.0":
+  version "2.11.8"
+  resolved "https://registry.yarnpkg.com/@popperjs/core/-/core-2.11.8.tgz#6b79032e760a0899cd4204710beede972a3a185f"
+  integrity sha512-P1st0aksCrn9sGZhp8GMYwBnQsbvAWsZAX44oXNNvLHGqAOcoVxmjZiohstwQ7SqKnbR47akdNi+uleWD8+g6A==
 
 "@react-spring/animated@~10.0.1":
   version "10.0.1"
@@ -3560,10 +3502,10 @@
   dependencies:
     nanoid "^3.1.30"
 
-"@temple-wallet/extension-ads@14.0.0-beta.1693.1":
-  version "14.0.0-beta.1693.1"
-  resolved "https://registry.yarnpkg.com/@temple-wallet/extension-ads/-/extension-ads-14.0.0-beta.1693.1.tgz#c0a46feef9f499304661cd01511f9a2023c0c015"
-  integrity sha512-3+MPpGQHVrXrsdgHsO/71lgLtDCK6R6oBU24CPIWzzgz4rrVVYynlXFwtHb81OLbitBN3x7qjT5K/bya2r5mpA==
+"@temple-wallet/extension-ads@15.0.0":
+  version "15.0.0"
+  resolved "https://registry.yarnpkg.com/@temple-wallet/extension-ads/-/extension-ads-15.0.0.tgz#3a867fcaeb0f3e6ac817c4865e79b9edbcc006f9"
+  integrity sha512-U/HUw4+GU6rnkr2F+XFLJbgzOOrkMYDIXkOBDZb6HGlhhoMn3SH1f9D9cr1zjv5PBeTD+XqFxCgwxvIHzaI50g==
   dependencies:
     axios "^1.8.4"
     crypto-js "^4.2.0"
@@ -3655,6 +3597,13 @@
     "@tezos-domains/core" "^1.26.0"
     bignumber.js "^9.1.0"
     node-cache "^5.1.2"
+
+"@tippyjs/react@^4.2.6":
+  version "4.2.6"
+  resolved "https://registry.yarnpkg.com/@tippyjs/react/-/react-4.2.6.tgz#971677a599bf663f20bb1c60a62b9555b749cc71"
+  integrity sha512-91RicDR+H7oDSyPycI13q3b7o4O60wa2oRbjlz2fyRLmHImc4vyDwuUP8NtZaN0VARJY5hybvDYrFzhY9+Lbyw==
+  dependencies:
+    tippy.js "^6.3.1"
 
 "@tootallnate/once@1":
   version "1.1.2"
@@ -4753,16 +4702,6 @@ abitype@1.0.8, abitype@^1.0.6, abitype@^1.0.8:
   version "1.0.8"
   resolved "https://registry.yarnpkg.com/abitype/-/abitype-1.0.8.tgz#3554f28b2e9d6e9f35eb59878193eabd1b9f46ba"
   integrity sha512-ZeiI6h3GnW06uYDLx0etQtX/p8E24UaHHBj57RSjK7YBFe7iuVn07EDpOeP451D06sF27VOz9JJPlIKJmXgkEg==
-
-abitype@1.1.0:
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/abitype/-/abitype-1.1.0.tgz#510c5b3f92901877977af5e864841f443bf55406"
-  integrity sha512-6Vh4HcRxNMLA0puzPjM5GBgT4aAcFGKZzSgAXvuZ27shJP6NEpielTuqbBmZILR5/xd0PizkBGy5hReKz9jl5A==
-
-abitype@^1.0.9:
-  version "1.1.1"
-  resolved "https://registry.yarnpkg.com/abitype/-/abitype-1.1.1.tgz#b50ed400f8bfca5452eb4033445c309d3e1117c8"
-  integrity sha512-Loe5/6tAgsBukY95eGaPSDmQHIjRZYQq8PB1MpsNccDIK8WiV+Uw6WzaIXipvaxTEL2yEB0OpEaQv3gs8pkS9Q==
 
 abort-controller@^3.0.0:
   version "3.0.0"
@@ -8279,14 +8218,14 @@ gopd@^1.2.0:
   resolved "https://registry.yarnpkg.com/gopd/-/gopd-1.2.0.tgz#89f56b8217bdbc8802bd299df6d7f1081d7e51a1"
   integrity sha512-ZUKRh6/kUFoAiTAtTYPZJ3hw9wNxx+BIBOijnlG9PnrJsCcSjs1wyyD6vJpaYtgnzDrKYRSqf3OO6Rfa93xsRg==
 
-gql.tada@^1.8.12, gql.tada@^1.8.13:
-  version "1.8.13"
-  resolved "https://registry.yarnpkg.com/gql.tada/-/gql.tada-1.8.13.tgz#a724bbdaebe1d851d80bf59c5e8614956914b883"
-  integrity sha512-fYoorairdPgxtE7Sf1X9/6bSN9Kt2+PN8KLg3hcF8972qFnawwUgs1OLVU8efZMHwL7EBHhhKBhrsGPlOs2lZQ==
+gql.tada@^1.8.12:
+  version "1.8.12"
+  resolved "https://registry.yarnpkg.com/gql.tada/-/gql.tada-1.8.12.tgz#b3a36a299b14cc673128d477fc71917747293213"
+  integrity sha512-VuHbhYyhPN7XDc06Gl3jYWxMlqa1MLX5xbrmbBbzelX/+M5khxDsNBE7FvTEvAmx0RyLyDkEtRPWRfIdMCTKTw==
   dependencies:
     "@0no-co/graphql.web" "^1.0.5"
     "@0no-co/graphqlsp" "^1.12.13"
-    "@gql.tada/cli-utils" "1.7.1"
+    "@gql.tada/cli-utils" "1.7.0"
     "@gql.tada/internal" "1.0.8"
 
 graceful-fs@^4.1.2, graceful-fs@^4.1.6, graceful-fs@^4.2.0, graceful-fs@^4.2.11, graceful-fs@^4.2.4, graceful-fs@^4.2.6, graceful-fs@^4.2.9:
@@ -10665,20 +10604,6 @@ ox@0.9.1:
     abitype "^1.0.8"
     eventemitter3 "5.0.1"
 
-ox@0.9.6:
-  version "0.9.6"
-  resolved "https://registry.yarnpkg.com/ox/-/ox-0.9.6.tgz#5cf02523b6db364c10ee7f293ff1e664e0e1eab7"
-  integrity sha512-8SuCbHPvv2eZLYXrNmC0EC12rdzXQLdhnOMlHDW2wiCPLxBrOOJwX5L5E61by+UjTPOryqQiRSnjIKCI+GykKg==
-  dependencies:
-    "@adraffy/ens-normalize" "^1.11.0"
-    "@noble/ciphers" "^1.3.0"
-    "@noble/curves" "1.9.1"
-    "@noble/hashes" "^1.8.0"
-    "@scure/bip32" "^1.7.0"
-    "@scure/bip39" "^1.6.0"
-    abitype "^1.0.9"
-    eventemitter3 "5.0.1"
-
 p-limit@^2.0.0, p-limit@^2.2.0:
   version "2.3.0"
   resolved "https://registry.yarnpkg.com/p-limit/-/p-limit-2.3.0.tgz#3dd33c647a214fdfffd835933eb086da0dc21db1"
@@ -10960,7 +10885,7 @@ pkg-up@^3.1.0:
   dependencies:
     find-up "^3.0.0"
 
-poseidon-lite@0.2.1:
+poseidon-lite@^0.2.0:
   version "0.2.1"
   resolved "https://registry.yarnpkg.com/poseidon-lite/-/poseidon-lite-0.2.1.tgz#7ad98e3a3aa5b91a1fd3a61a87460e9e46fd76d6"
   integrity sha512-xIr+G6HeYfOhCuswdqcFpSX47SPhm0EpisWJ6h7fHlWwaVIvH3dLnejpatrtw6Xc6HaLrpq05y7VRfvDmDGIog==
@@ -13187,6 +13112,13 @@ tippy.js@6.2.6:
   dependencies:
     "@popperjs/core" "^2.4.4"
 
+tippy.js@^6.3.1:
+  version "6.3.7"
+  resolved "https://registry.yarnpkg.com/tippy.js/-/tippy.js-6.3.7.tgz#8ccfb651d642010ed9a32ff29b0e9e19c5b8c61c"
+  integrity sha512-E1d3oP2emgJ9dRQZdf3Kkn0qJgI6ZLpyS5z6ZkY1DF3kaQaBsGZsndEpHwx+eC+tYM41HaSNvNtLx8tU57FzTQ==
+  dependencies:
+    "@popperjs/core" "^2.9.0"
+
 tmp-promise@^3.0.3:
   version "3.0.3"
   resolved "https://registry.yarnpkg.com/tmp-promise/-/tmp-promise-3.0.3.tgz#60a1a1cc98c988674fcbfd23b6e3367bdeac4ce7"
@@ -13789,7 +13721,7 @@ viem@^2.28.4:
     ox "0.7.1"
     ws "8.18.2"
 
-viem@^2.33.2:
+viem@^2.33.2, viem@^2.36.0:
   version "2.36.0"
   resolved "https://registry.yarnpkg.com/viem/-/viem-2.36.0.tgz#e564484018c6e4432dfa936fdda4ca585008d4f7"
   integrity sha512-Xz7AkGtR43K+NY74X2lBevwfRrsXuifGUzt8QiULO47NXIcT7g3jcA4nIvl5m2OTE5v8SlzishwXmg64xOIVmQ==
@@ -13801,20 +13733,6 @@ viem@^2.33.2:
     abitype "1.0.8"
     isows "1.0.7"
     ox "0.9.1"
-    ws "8.18.3"
-
-viem@^2.36.0:
-  version "2.38.3"
-  resolved "https://registry.yarnpkg.com/viem/-/viem-2.38.3.tgz#316905584d60188d3a921fc3960e55e9e46cb3f4"
-  integrity sha512-By2TutLv07iNHHtWqHHzjGipevYsfGqT7KQbGEmqLco1qTJxKnvBbSviqiu6/v/9REV6Q/FpmIxf2Z7/l5AbcQ==
-  dependencies:
-    "@noble/curves" "1.9.1"
-    "@noble/hashes" "1.8.0"
-    "@scure/bip32" "1.7.0"
-    "@scure/bip39" "1.6.0"
-    abitype "1.1.0"
-    isows "1.0.7"
-    ox "0.9.6"
     ws "8.18.3"
 
 vinyl-buffer@^1.0.1:

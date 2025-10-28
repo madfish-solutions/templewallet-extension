@@ -1,7 +1,6 @@
 import React, { FC, useCallback, useMemo, useState } from 'react';
 
 import BigNumber from 'bignumber.js';
-import clsx from 'clsx';
 import { encodeFunctionData } from 'viem';
 import { toHex } from 'viem/utils';
 
@@ -172,25 +171,13 @@ const ApproveModal: FC<ApproveModalProps> = ({ stepReviewData, onClose, onStepCo
 
   return (
     <>
-      <div className="px-4 flex flex-col flex-1 overflow-y-scroll">
-        <div className="mb-2 flex flex-col items-center gap-2 my-4">
-          <div className="flex gap-2 relative">
-            <div className="w-13 h-13 flex justify-center items-center bg-white shadow-card rounded">
-              <Logo size={30} type="icon" />
-            </div>
-            <div className="w-13 h-13 flex justify-center items-center bg-white shadow-card rounded">
-              <img src={LiFiImgSrc} alt="lifi" className="w-8 h-8" />
-            </div>
-            <div
-              className={clsx(
-                'w-5 h-5 rounded-full bg-grey-4 flex justify-center items-center',
-                'absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2'
-              )}
-            >
-              <IconBase Icon={LinkIcon} size={12} className="text-grey-1" />
-            </div>
+      <div className="px-4 flex flex-col flex-1 overflow-y-scroll bg-background">
+        <div className="my-4 mx-3 flex items-center justify-between">
+          <div className="flex items-center">
+            <Logo size={22} type="icon" />
+            <IconBase Icon={LinkIcon} size={12} className="text-black -ml-1 mr-0.5" />
+            <img src={LiFiImgSrc} alt="lifi" className="w-6 h-6" />
           </div>
-
           <Anchor className="flex pl-1 items-center" href={LIFI}>
             <span className="text-font-description-bold">{'li.fi'}</span>
             <IconBase Icon={OutLinkIcon} size={16} className="text-secondary" />
