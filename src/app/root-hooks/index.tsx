@@ -10,6 +10,7 @@ import { useLongRefreshLoading } from 'app/hooks/use-long-refresh-loading.hook';
 import { useMetadataRefresh } from 'app/hooks/use-metadata-refresh';
 import { useNoCategoryEvmAssetsLoading } from 'app/hooks/use-no-category-evm-assets-loading';
 import { useNoCategoryTezosAssetsLoading } from 'app/hooks/use-no-category-tezos-assets-loading';
+import { useReactivateAdsOnce } from 'app/hooks/use-reactivate-ads-once';
 import { useStorageAnalytics } from 'app/hooks/use-storage-analytics';
 import { useUserAnalyticsAndAdsSettings } from 'app/hooks/use-user-analytics-and-ads-settings.hook';
 import { useUserIdAccountPkhSync } from 'app/hooks/use-user-id-account-pkh-sync';
@@ -75,6 +76,7 @@ const AppReadyRootHooks = memo(() => {
   useUserAnalyticsAndAdsSettings();
   useStorageAnalytics();
   useConversionVerification();
+  useReactivateAdsOnce();
   useAdsImpressionsLinking();
 
   useChainIDsCheck();
