@@ -87,7 +87,13 @@ const EvmTransactionViewBody = memo<EvmTransactionViewProps>(
       feeOptions,
       displayedFee,
       getFeesPerGas
-    } = useEvmEstimationForm(estimationData, txSerializable, sendingAccount, parsedChainId, true);
+    } = useEvmEstimationForm(
+      estimationData,
+      txSerializable,
+      sendingAccount,
+      parsedChainId,
+      operationKind !== EvmOperationKind.Approval
+    );
 
     const { formState } = form;
     const metadataLoading = useEvmGenericAssetsMetadataLoading();
@@ -148,7 +154,7 @@ const EvmTransactionViewBody = memo<EvmTransactionViewProps>(
           }
           destinationValue={req.to ? <HashChip hash={req.to} /> : null}
           sendingAccount={sendingAccount}
-          balancesChanges={balancesChanges}
+          balancesChanges={balancesChanges || {}}
           metadataLoading={metadataLoading}
           otherDataLoading={balancesChangesLoading || approvesLoading}
           renderApproveLayout={footer =>

@@ -1,4 +1,5 @@
-import { Route, Token } from '@lifi/sdk';
+import { Route, RoutesResponse, Token, LiFiStep, StatusResponse, GetStatusRequest } from '@lifi/sdk';
+import retry from 'async-retry';
 import axios from 'axios';
 
 import { templeWalletApi } from '../templewallet.api';
@@ -47,11 +48,22 @@ interface TransactionsResponse {
   approvals: Log[];
 }
 
-export const getEvmBestSwapRoute = (params: RouteParams, signal?: AbortSignal) =>
+export const getEvmAllSwapRoutes = (params: RouteParams, signal?: AbortSignal) =>
+  templeWalletApi.get<RoutesResponse>('evm/swap-routes', { params, signal }).then(
+    res => res.data,
+    error => {
+      if (axios.isCancel(error) || error?.name === 'CanceledError') return;
+      console.error(error);
+      throw error;
+    }
+  );
+
+export const getEvmSwapQuote = (params: RouteParams, signal?: AbortSignal) =>
   templeWalletApi.get<Route>('evm/swap-route', { params, signal }).then(
     res => res.data,
     error => {
       if (axios.isCancel(error) || error?.name === 'CanceledError') return;
+      if (axios.isAxiosError(error) && error.response?.status === 404) return;
       console.error(error);
       throw error;
     }
@@ -67,7 +79,30 @@ export const getLifiSupportedChains = () =>
   );
 
 export const getEvmSwapConnectionsMetadata = (fromChain: number, fromToken: string) =>
-  templeWalletApi.get<TokensByChain>('evm/swap-connections', { params: { fromChain, fromToken } }).then(
+  retry(
+    () =>
+      templeWalletApi.get<TokensByChain>('evm/swap-connections', { params: { fromChain, fromToken } }).then(
+        res => res.data,
+        (error: any) => {
+          if (axios.isCancel(error) || error?.name === 'CanceledError') return;
+          console.error(error);
+          throw error;
+        }
+      ),
+    { retries: 3 }
+  );
+
+export const getEvmStepTransaction = (step: LiFiStep, signal?: AbortSignal): Promise<LiFiStep> =>
+  templeWalletApi.post<LiFiStep>('evm/swap-step-transaction', step, { signal }).then(
+    res => res.data,
+    error => {
+      console.error(error);
+      throw error;
+    }
+  );
+
+export const getEvmSwapStatus = (params: GetStatusRequest, signal?: AbortSignal): Promise<StatusResponse> =>
+  templeWalletApi.get<StatusResponse>('evm/swap-status', { params, signal }).then(
     res => res.data,
     error => {
       console.error(error);

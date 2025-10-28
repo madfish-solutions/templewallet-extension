@@ -2434,7 +2434,7 @@
   resolved "https://registry.yarnpkg.com/@leichtgewicht/ip-codec/-/ip-codec-2.0.5.tgz#4fc56c15c580b9adb7dc3c333a134e540b44bfb1"
   integrity sha512-Vo+PSpZG2/fmgmiNzYK9qWRh8h/CHrwD0mo1h1DzL4yzHNSfWYujGTYsWGreD000gcgmZ7K4Ys6Tx9TxtsKdDw==
 
-"@lifi/sdk@^3.11.4":
+"@lifi/sdk@3.11.4":
   version "3.11.4"
   resolved "https://registry.yarnpkg.com/@lifi/sdk/-/sdk-3.11.4.tgz#266895f13fcada8c96f28880dc89ddf0342add61"
   integrity sha512-xUQvBbytiF2NjS+Plz5yHhZfOiETp4mVXcJv/98OBB3NZVtoRy1lKo30BP7X2hwStXbdmRTU6eW51Dhp7OA7Vw==

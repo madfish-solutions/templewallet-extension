@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback } from 'react';
 
 import BigNumber from 'bignumber.js';
 import { SubmitHandler, useFormContext } from 'react-hook-form-v7';
@@ -13,11 +13,10 @@ import { FeeSummary } from 'app/templates/fee-summary';
 import { LedgerApprovalModal } from 'app/templates/ledger-approval-modal';
 import { TransactionTabs } from 'app/templates/TransactionTabs';
 import { Tab, TxParamsFormData } from 'app/templates/TransactionTabs/types';
-import { T, t } from 'lib/i18n';
+import { T } from 'lib/i18n';
 import { DisplayedFeeOptions, FeeOptionLabel } from 'lib/temple/front/estimation-data-providers';
 import { LedgerOperationState } from 'lib/ui';
 import { EvmChain, OneOfChains } from 'temple/front';
-import { TempleChainKind } from 'temple/types';
 
 interface BaseContentProps<T extends TxParamsFormData> {
   ledgerApprovalModalState: LedgerOperationState;
@@ -33,6 +32,7 @@ interface BaseContentProps<T extends TxParamsFormData> {
   onFeeOptionSelect: SyncFn<FeeOptionLabel>;
   onSubmit: SubmitHandler<T>;
   onCancel: EmptyFn;
+  submitLoadingOverride?: boolean;
   minimumReceived?: {
     amount: string;
     symbol: string;
@@ -48,10 +48,7 @@ interface BaseContentProps<T extends TxParamsFormData> {
   displayedFee?: string;
   displayedStorageFee?: string;
   displayedFeeOptions?: DisplayedFeeOptions;
-  quoteRefreshCountdown?: number;
-  isQuoteExpired?: boolean;
-  isQuoteRefreshing?: boolean;
-  onManualQuoteRefresh?: EmptyFn;
+  submitDisabled?: boolean;
 }
 
 export const BaseContent = <T extends TxParamsFormData>({
@@ -68,29 +65,18 @@ export const BaseContent = <T extends TxParamsFormData>({
   onSubmit,
   onCancel,
   onLedgerModalClose,
+  submitLoadingOverride,
   minimumReceived,
   cashbackInTkey,
   displayedFee,
   displayedStorageFee,
   displayedFeeOptions,
   bridgeData,
-  quoteRefreshCountdown,
-  isQuoteExpired,
-  isQuoteRefreshing,
-  onManualQuoteRefresh
+  submitDisabled
 }: BaseContentProps<T>) => {
   const { formState } = useFormContext<T>();
 
   const goToFeeTab = useCallback(() => setSelectedTab('fee'), [setSelectedTab]);
-
-  const confirmButtonText = useMemo(() => {
-    if (latestSubmitError) return t('retry');
-    if (network.kind === TempleChainKind.Tezos) return t('confirm');
-    if (isQuoteRefreshing) return null;
-    if (isQuoteExpired) return t('refresh');
-
-    return t('confirmWithCountdown', [quoteRefreshCountdown]);
-  }, [isQuoteExpired, isQuoteRefreshing, latestSubmitError, network.kind, quoteRefreshCountdown]);
 
   return (
     <>
@@ -148,16 +134,15 @@ export const BaseContent = <T extends TxParamsFormData>({
         </StyledButton>
 
         <StyledButton
-          type={onManualQuoteRefresh && isQuoteExpired ? 'button' : 'submit'}
-          form={onManualQuoteRefresh && isQuoteExpired ? undefined : 'confirm-form'}
+          type="submit"
+          form="confirm-form"
           color="primary"
           size="L"
           className="w-full"
-          loading={isQuoteRefreshing || formState.isSubmitting}
-          disabled={!formState.isValid}
-          onClick={onManualQuoteRefresh && isQuoteExpired ? onManualQuoteRefresh : undefined}
+          loading={submitLoadingOverride ?? formState.isSubmitting}
+          disabled={!formState.isValid || Boolean(submitDisabled)}
         >
-          {confirmButtonText}
+          <T id={latestSubmitError ? 'retry' : 'confirm'} />
         </StyledButton>
       </ActionsButtonsBox>
 

@@ -117,9 +117,12 @@ export const useGenericTezosAssetMetadata = (slug: string, tezosChainId: string)
 export const useEvmCategorizedAssetMetadata = (slug: string, evmChainId: number): EvmAssetMetadata | undefined => {
   const network = useEvmChainByChainId(evmChainId);
   const tokenMetadata = useEvmTokenMetadataSelector(evmChainId, slug);
+  const { metadata: lifiTokensMetadata } = useLifiEvmChainTokensMetadataSelector(evmChainId);
   const collectibleMetadata = useEvmCollectibleMetadataSelector(evmChainId, slug);
 
-  return isEvmNativeTokenSlug(slug) ? network?.currency : tokenMetadata || collectibleMetadata;
+  return isEvmNativeTokenSlug(slug)
+    ? network?.currency
+    : tokenMetadata || lifiTokensMetadata?.[slug] || collectibleMetadata;
 };
 
 export const useEvmGenericAssetMetadata = (slug: string, evmChainId: number): EvmAssetMetadata | undefined => {
