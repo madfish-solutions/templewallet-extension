@@ -81,6 +81,7 @@
     "@temple-wallet/youves-sdk": "0.0.13-beta.0",
     "@tezos-domains/core": "1.26.0",
     "@tezos-domains/taquito-client": "1.26.0",
+    "@tippyjs/react": "^4.2.6",
     "@types/async-retry": "1.4.3",
     "@types/bs58check": "^2.1.0",
     "@types/chrome": "^0.0.329",

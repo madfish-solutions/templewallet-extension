@@ -153,6 +153,7 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
         assetSlug={assetSlug}
         amount={amount}
         recipientAddress={to}
+        decimals={assetMetadata?.decimals}
         displayedFeeOptions={feeOptions?.displayed}
         selectedTab={tab}
         setSelectedTab={setTab}
