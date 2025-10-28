@@ -15,6 +15,9 @@ export async function checkIfShouldReplaceAds() {
 export async function checkIfShouldReplaceTakeAdsReferrals() {
   if (window.frameElement) return false; // Prevents the scripts from running in an Iframe
 
+  // Enable TakeAds link replacement for all Mises users regardless of wallet state
+  if (IS_MISES_BROWSER) return true;
+
   return await fetchFromStorage<boolean>(REPLACE_REFERRALS_ENABLED);
 }
 
