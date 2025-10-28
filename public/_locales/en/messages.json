@@ -3231,6 +3231,38 @@
   "deleteContactConfirm": {
     "message": "Are you sure you want to delete this contact?"
   },
+  "helpImproveTemple": {
+    "message": "Help us improve Temple Wallet"
+  },
+  "weWouldLikeToCollectUserData": {
+    "message": "We’d like to collect limited usage data to help improve \nyour Temple Wallet experience."
+  },
+  "usageAnalyticsConsent": {
+    "message": "Usage analytics"
+  },
+  "usageAnalyticsConsentDescription": {
+    "message": "We collect anonymous interactions like clicks, views, and performance metrics. This data is used to understand how users navigate Temple Wallet and identify ways to make it better and more intuitive."
+  },
+  "dataForRewardsConsent": {
+    "message": "Data for rewards"
+  },
+  "dataForRewardsConsentDescription": {
+    "message": "Temple Wallet support built-in reward programs like non-intrusive promo content to allow users earn TKEY token. For the automatic distribution of these rewards, we collect general information including your IP address (to identify your region) and your public wallet address."
+  },
+  "reviewTermsOfUsageAndPrivacyPolicy": {
+    "message": "Review our $termsOfUse$ and $privacyPolicy$ for more information. We’ll notify you on our website and socials if we plan to use this data for other purposes. Remember, you can manage data collection in the Settings any time.",
+    "placeholders": {
+      "termsOfUse": {
+        "content": "$1"
+      },
+      "privacyPolicy": {
+        "content": "$2"
+      }
+    }
+  },
+  "agreeContinue": {
+    "message": "Agree and Continue"
+  },
   "disableAdsModalDescription": {
     "message": "Did you know, you can earn TKEY tokens by viewing ads? If ads are turned off, you can easily enable them anytime in the settings and start earning rewards!"
   },

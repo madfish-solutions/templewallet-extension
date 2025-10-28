@@ -20,6 +20,7 @@ import { t, T, TID } from 'lib/i18n';
 import type { EncryptedBackupObject } from 'lib/temple/backup';
 import { useTempleClient } from 'lib/temple/front';
 import { useInitToastMessage } from 'lib/temple/front/toasts-context';
+import { useBooleanState } from 'lib/ui/hooks';
 import { goBack, navigate, useLocation } from 'lib/woozie';
 
 import { DataCollectionAgreement } from './data-collection-agreement';
@@ -96,8 +97,9 @@ const Welcome = memo(() => {
 
   useShouldShowIntroModals(false);
 
+  const [consentShownOnce, setConsentShownOnce] = useBooleanState(false);
   const [consent] = useFirefoxDataConsent();
-  const shouldShowDataConsent = IS_FIREFOX && (!consent || !consent.hasResponded);
+  const shouldShowDataConsent = IS_FIREFOX && (!consent || !consent.hasResponded) && !consentShownOnce;
 
   const [walletCreationState, setWalletCreationState] = useState<WalletCreationState>({
     stage: WalletCreationStage.NotStarted
@@ -222,7 +224,7 @@ const Welcome = memo(() => {
   ]);
 
   if (shouldShowDataConsent) {
-    return <DataCollectionAgreement />;
+    return <DataCollectionAgreement onConsent={setConsentShownOnce} />;
   }
 
   return (
