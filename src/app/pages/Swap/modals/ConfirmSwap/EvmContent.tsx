@@ -1,164 +1,135 @@
 import React, { FC, useCallback, useEffect, useMemo, useState } from 'react';
 
 import { LiFiStep } from '@lifi/sdk';
+import retry from 'async-retry';
 import BigNumber from 'bignumber.js';
 import { FormProvider } from 'react-hook-form-v7';
+import { isAddress } from 'viem';
 
 import { useLedgerApprovalModalState } from 'app/hooks/use-ledger-approval-modal-state';
 import { useEvmEstimationData } from 'app/pages/Send/hooks/use-evm-estimation-data';
-import { EvmReviewData } from 'app/pages/Swap/form/interfaces';
+import { EvmStepReviewData } from 'app/pages/Swap/form/interfaces';
 import { formatDuration, getBufferedExecutionDuration } from 'app/pages/Swap/form/utils';
-import { mapLiFiTxToEvmEstimationData, parseTxRequestToViem } from 'app/pages/Swap/modals/ConfirmSwap/utils';
+import { mapLiFiTxToEvmEstimationData, parseTxRequestToViem, timeout } from 'app/pages/Swap/modals/ConfirmSwap/utils';
+import { dispatch } from 'app/store';
+import { putNewEvmTokenAction } from 'app/store/evm/assets/actions';
+import { processLoadedOnchainBalancesAction } from 'app/store/evm/balances/actions';
+import { putEvmTokensMetadataAction } from 'app/store/evm/tokens-metadata/actions';
 import { EvmTxParamsFormData } from 'app/templates/TransactionTabs/types';
 import { useEvmEstimationForm } from 'app/templates/TransactionTabs/use-evm-estimation-form';
-import { toastError, toastWarning } from 'app/toaster';
+import { toastError } from 'app/toaster';
+import { getEvmSwapStatus } from 'lib/apis/temple/endpoints/evm';
 import { toTokenSlug } from 'lib/assets';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { useEvmAssetBalance } from 'lib/balances/hooks';
 import { EVM_ZERO_ADDRESS } from 'lib/constants';
+import { fetchEvmRawBalance } from 'lib/evm/on-chain/balance';
+import { fetchEvmTokenMetadataFromChain } from 'lib/evm/on-chain/metadata';
 import { t } from 'lib/i18n';
 import { useTempleClient } from 'lib/temple/front';
 import { atomsToTokens, tokensToAtoms } from 'lib/temple/helpers';
 import { TempleAccountType } from 'lib/temple/types';
 import { runConnectedLedgerOperationFlow } from 'lib/ui';
-import { useInterval } from 'lib/ui/hooks';
 import { showTxSubmitToastWithDelay } from 'lib/ui/show-tx-submit-toast.util';
 import { isEvmNativeTokenSlug } from 'lib/utils/evm.utils';
 import { ZERO } from 'lib/utils/numbers';
 import { useGetEvmActiveBlockExplorer } from 'temple/front/ready';
+import { makeBlockExplorerHref } from 'temple/front/use-block-explorers';
 import { TempleChainKind } from 'temple/types';
 
 import { BaseContent } from './BaseContent';
 
 interface EvmContentProps {
-  data: EvmReviewData;
+  stepReviewData: EvmStepReviewData;
   onClose: EmptyFn;
+  onStepCompleted: EmptyFn;
+  cancelledRef?: React.MutableRefObject<boolean>;
+  skipStatusWait?: boolean;
+  submitDisabled?: boolean;
 }
 
-const MAX_REFRESHES = 5;
-const REFRESH_INTERVAL_MS = 8000;
-
-export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
+export const EvmContent: FC<EvmContentProps> = ({
+  stepReviewData,
+  onClose,
+  onStepCompleted,
+  cancelledRef,
+  skipStatusWait,
+  submitDisabled
+}) => {
   const {
     account,
-    network,
+    inputNetwork,
+    outputNetwork,
+    protocolFee,
+    destinationChainGasTokenAmount,
     minimumReceived,
-    onConfirm,
-    buildSwapRouteParams,
-    fetchEvmSwapRoute,
-    bridgeInfo,
-    initialLifiStep
-  } = data;
-
-  const [lifiStep, setLifiStep] = useState<LiFiStep>(initialLifiStep);
-
-  const [refreshCount, setRefreshCount] = useState(0);
-  const [countdown, setCountdown] = useState(REFRESH_INTERVAL_MS / 1000);
-  const [expired, setExpired] = useState(false);
-  const [isRefreshing, setIsRefreshing] = useState(false);
-
-  const handleRefresh = useCallback(
-    async (manual = false) => {
-      if (refreshCount >= MAX_REFRESHES && !manual) {
-        return;
-      }
-
-      setIsRefreshing(true);
-      try {
-        const params = buildSwapRouteParams();
-        if (!params) return;
-
-        const data = await fetchEvmSwapRoute(params);
-        setLifiStep(data?.steps?.[0]?.type === 'lifi' ? data?.steps[0] : initialLifiStep);
-
-        if (manual) {
-          setRefreshCount(1);
-          setExpired(false);
-          setCountdown(REFRESH_INTERVAL_MS / 1000);
-        } else {
-          const nextCount = refreshCount + 1;
-          setRefreshCount(nextCount);
-          setCountdown(REFRESH_INTERVAL_MS / 1000);
-        }
-      } catch (err) {
-        console.error('Error during refresh:', err);
-      } finally {
-        setIsRefreshing(false);
-      }
-    },
-    [buildSwapRouteParams, fetchEvmSwapRoute, initialLifiStep, refreshCount]
-  );
-
-  useEffect(() => {
-    if (expired || isRefreshing || countdown !== 0) return;
-
-    if (refreshCount >= MAX_REFRESHES) {
-      toastWarning(t('estimationExpired'));
-      setExpired(true);
-      return;
-    }
-
-    void handleRefresh();
-  }, [countdown, expired, handleRefresh, isRefreshing, refreshCount]);
-
-  useInterval(
-    () => {
-      setCountdown(prev => (prev > 0 ? prev - 1 : 0));
-    },
-    [],
-    1000,
-    false
-  );
+    routeStep
+  } = stepReviewData;
 
   const accountPkh = account.address as HexString;
   const isLedgerAccount = account.type === TempleAccountType.Ledger;
 
   const inputTokenSlug = useMemo(() => {
-    return EVM_ZERO_ADDRESS === lifiStep.action.fromToken.address
+    return EVM_ZERO_ADDRESS === routeStep.action.fromToken.address
       ? EVM_TOKEN_SLUG
-      : toTokenSlug(lifiStep.action.fromToken.address, 0);
-  }, [lifiStep.action.fromToken.address]);
+      : toTokenSlug(routeStep.action.fromToken.address, 0);
+  }, [routeStep.action.fromToken.address]);
 
   const outputTokenSlug = useMemo(() => {
-    return EVM_ZERO_ADDRESS === lifiStep.action.toToken.address
+    return EVM_ZERO_ADDRESS === routeStep.action.toToken.address
       ? EVM_TOKEN_SLUG
-      : toTokenSlug(lifiStep.action.toToken.address, 0);
-  }, [lifiStep.action.toToken.address]);
+      : toTokenSlug(routeStep.action.toToken.address, 0);
+  }, [routeStep.action.toToken.address]);
 
   const { sendEvmTransaction } = useTempleClient();
-  const { value: ethBalance = ZERO } = useEvmAssetBalance(EVM_TOKEN_SLUG, accountPkh, network);
+  const { value: ethBalance = ZERO } = useEvmAssetBalance(EVM_TOKEN_SLUG, accountPkh, inputNetwork);
   const getActiveBlockExplorer = useGetEvmActiveBlockExplorer();
 
   const [latestSubmitError, setLatestSubmitError] = useState<unknown>(null);
+  const [stepFinalized, setStepFinalized] = useState(false);
+  const [submitLoading, setSubmitLoading] = useState(false);
 
-  const { value: balance = ZERO } = useEvmAssetBalance(inputTokenSlug, accountPkh, network);
+  useEffect(() => {
+    setStepFinalized(false);
+  }, [routeStep]);
 
-  const { data: estimationData } = useEvmEstimationData({
-    to: (lifiStep?.transactionRequest?.to as HexString) ?? '0x',
+  const { value: balance = ZERO } = useEvmAssetBalance(inputTokenSlug, accountPkh, inputNetwork);
+
+  const txTo = routeStep?.transactionRequest?.to as HexString | undefined;
+  const isValidTxTo = Boolean(txTo && isAddress(txTo));
+
+  const {
+    data: estimationData,
+    error: estimationError,
+    isLoading: estimationLoading
+  } = useEvmEstimationData({
+    to: (isValidTxTo ? txTo : accountPkh) as HexString,
     assetSlug: inputTokenSlug,
     accountPkh,
-    network,
+    network: inputNetwork,
     balance,
     ethBalance,
-    toFilled: true,
+    toFilled: isValidTxTo && !stepFinalized && !submitLoading && !cancelledRef?.current,
     amount: atomsToTokens(
-      new BigNumber(lifiStep.estimate.fromAmount),
-      lifiStep.action.fromToken.decimals ?? 0
+      new BigNumber(routeStep.action.fromAmount),
+      routeStep.action.fromToken.decimals ?? 0
     ).toString(),
     silent: true
   });
 
   const lifiEstimationData = useMemo(() => {
-    if (!estimationData) return mapLiFiTxToEvmEstimationData(lifiStep.transactionRequest!);
+    if (!estimationData || !routeStep.transactionRequest) return undefined;
+    const mappedLifiEstimation = mapLiFiTxToEvmEstimationData(routeStep.transactionRequest);
 
     return {
       ...estimationData,
-      data: lifiStep.transactionRequest?.data as HexString
+      gas: 'gas' in mappedLifiEstimation ? mappedLifiEstimation.gas : estimationData?.gas,
+      nonce: estimationData.nonce
     };
-  }, [estimationData, lifiStep.transactionRequest]);
+  }, [estimationData, routeStep.transactionRequest]);
 
   const { form, tab, setTab, selectedFeeOption, handleFeeOptionSelect, feeOptions, displayedFee, getFeesPerGas } =
-    useEvmEstimationForm(lifiEstimationData, null, account, network.chainId);
+    useEvmEstimationForm(lifiEstimationData, null, account, inputNetwork.chainId);
   const { formState } = form;
   const { ledgerApprovalModalState, setLedgerApprovalModalState, handleLedgerModalClose } =
     useLedgerApprovalModalState();
@@ -166,59 +137,57 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
   const balancesChanges = useMemo(() => {
     const input = {
       [inputTokenSlug]: {
-        atomicAmount: new BigNumber(-lifiStep.estimate.fromAmount),
+        atomicAmount: new BigNumber(-routeStep.estimate.fromAmount),
         isNft: false
       }
     };
 
     const output = {
       [outputTokenSlug]: {
-        atomicAmount: new BigNumber(lifiStep.estimate.toAmount),
+        atomicAmount: new BigNumber(routeStep.estimate.toAmount),
         isNft: false
       }
     };
 
-    if (bridgeInfo?.destinationChainGasTokenAmount?.gt(0) && bridgeInfo?.outputNetwork?.currency.address) {
-      output[bridgeInfo.outputNetwork.currency.address] = {
-        atomicAmount: tokensToAtoms(
-          bridgeInfo.destinationChainGasTokenAmount,
-          bridgeInfo.outputNetwork.currency.decimals
-        ),
+    if (destinationChainGasTokenAmount?.gt(0) && outputNetwork?.currency.address) {
+      output[outputNetwork.currency.address] = {
+        atomicAmount: tokensToAtoms(destinationChainGasTokenAmount, outputNetwork.currency.decimals),
         isNft: false
       };
     }
 
     return [input, output];
   }, [
-    bridgeInfo?.destinationChainGasTokenAmount,
-    bridgeInfo?.outputNetwork?.currency.address,
-    bridgeInfo?.outputNetwork?.currency.decimals,
+    destinationChainGasTokenAmount,
+    outputNetwork?.currency.address,
+    outputNetwork?.currency.decimals,
     inputTokenSlug,
-    lifiStep.estimate.fromAmount,
-    lifiStep.estimate.toAmount,
+    routeStep.estimate.fromAmount,
+    routeStep.estimate.toAmount,
     outputTokenSlug
   ]);
 
   const bridgeData = useMemo(() => {
-    if (!bridgeInfo?.outputNetwork || !bridgeInfo?.inputNetwork) return undefined;
+    if (!outputNetwork || !inputNetwork) return undefined;
     const info = {
-      inputNetwork: bridgeInfo?.inputNetwork,
-      outputNetwork: bridgeInfo?.outputNetwork,
-      executionTime: formatDuration(getBufferedExecutionDuration(lifiStep?.estimate?.executionDuration)),
-      protocolFee: bridgeInfo?.protocolFee,
-      destinationChainGasTokenAmount: bridgeInfo?.destinationChainGasTokenAmount
+      inputNetwork,
+      outputNetwork,
+      executionTime: formatDuration(getBufferedExecutionDuration(routeStep?.estimate?.executionDuration)),
+      protocolFee,
+      destinationChainGasTokenAmount: destinationChainGasTokenAmount
     };
-    return bridgeInfo?.inputNetwork?.chainId !== bridgeInfo?.outputNetwork?.chainId ? info : undefined;
+    return inputNetwork?.chainId !== outputNetwork?.chainId ? info : undefined;
   }, [
-    bridgeInfo?.destinationChainGasTokenAmount,
-    bridgeInfo?.inputNetwork,
-    bridgeInfo?.outputNetwork,
-    bridgeInfo?.protocolFee,
-    lifiStep?.estimate?.executionDuration
+    destinationChainGasTokenAmount,
+    inputNetwork,
+    outputNetwork,
+    protocolFee,
+    routeStep?.estimate?.executionDuration
   ]);
 
   const executeRouteStep = useCallback(
     async (step: LiFiStep, { gasPrice, gasLimit, nonce }: Partial<EvmTxParamsFormData>) => {
+      if (cancelledRef?.current) return;
       const transactionRequest = step.transactionRequest;
       if (!transactionRequest) {
         console.error(`No transactionRequest found for step ${step.tool}`);
@@ -228,7 +197,7 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
       const txParams = parseTxRequestToViem({
         ...transactionRequest,
         ...(gasPrice ? { gasPrice: gasPrice } : {}),
-        ...(gasLimit ? { gas: BigInt(Number(gasLimit)) } : {}),
+        ...(gasLimit ? { gasLimit } : {}),
         ...(nonce ? { nonce: Number(nonce) } : {})
       });
 
@@ -237,32 +206,127 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
         return;
       }
 
-      const txHash = await sendEvmTransaction(accountPkh, network, txParams);
+      const txHash = await sendEvmTransaction(accountPkh, inputNetwork, txParams);
 
-      onConfirm?.();
-      onClose?.();
-
-      const blockExplorer = getActiveBlockExplorer(network.chainId.toString(), !!bridgeData);
-
+      const blockExplorer = getActiveBlockExplorer(inputNetwork.chainId.toString(), !!bridgeData);
       showTxSubmitToastWithDelay(TempleChainKind.EVM, txHash, blockExplorer.url);
+
+      if (skipStatusWait) {
+        if (cancelledRef?.current) return;
+        setStepFinalized(true);
+        onStepCompleted();
+        return;
+      }
+
+      let status;
+      do {
+        if (cancelledRef?.current) return;
+        try {
+          const result = await retry(
+            async () =>
+              await getEvmSwapStatus({
+                txHash,
+                fromChain: step.action.fromChainId,
+                toChain: step.action.toChainId,
+                bridge: step.tool
+              }),
+            { retries: 5, minTimeout: 2000 }
+          );
+          status = result.status;
+        } catch (_err) {
+          throw new Error(
+            'This transaction wasn’t confirmed because the gas price is to low and didn’t meet network demand. Increase it to speed up confirmation and try again.'
+          );
+        }
+
+        await new Promise(resolve => setTimeout(resolve, 5000));
+      } while (status !== 'DONE' && status !== 'FAILED');
+
+      if (status === 'FAILED') {
+        toastError('Transaction failed', true, {
+          hash: txHash,
+          blockExplorerHref: makeBlockExplorerHref(blockExplorer.url, txHash, 'tx', TempleChainKind.EVM)
+        });
+        return;
+      }
+
+      // Ensure the output token exists in the wallet for any execute step
+      try {
+        if (!isEvmNativeTokenSlug(outputTokenSlug)) {
+          for (let attempt = 0; attempt < 20; attempt++) {
+            const balance = await fetchEvmRawBalance(outputNetwork, outputTokenSlug, accountPkh);
+
+            if (balance.gt(0)) {
+              const metadata = await fetchEvmTokenMetadataFromChain(outputNetwork, outputTokenSlug);
+
+              dispatch(
+                putNewEvmTokenAction({
+                  publicKeyHash: accountPkh,
+                  chainId: outputNetwork.chainId,
+                  assetSlug: outputTokenSlug
+                })
+              );
+
+              dispatch(
+                putEvmTokensMetadataAction({
+                  chainId: outputNetwork.chainId,
+                  records: { [outputTokenSlug]: metadata }
+                })
+              );
+
+              dispatch(
+                processLoadedOnchainBalancesAction({
+                  balances: { [outputTokenSlug]: balance.toFixed() },
+                  timestamp: Date.now(),
+                  account: accountPkh,
+                  chainId: outputNetwork.chainId
+                })
+              );
+
+              break;
+            }
+
+            await timeout(3000);
+          }
+        }
+      } catch (err) {
+        console.warn('Failed to ensure output token is added to wallet', err);
+      }
+
+      if (cancelledRef?.current) return;
+      setStepFinalized(true);
+      onStepCompleted();
     },
-    [sendEvmTransaction, accountPkh, network, getActiveBlockExplorer, bridgeData, onConfirm, onClose]
+    [
+      accountPkh,
+      bridgeData,
+      getActiveBlockExplorer,
+      inputNetwork,
+      onStepCompleted,
+      outputNetwork,
+      outputTokenSlug,
+      sendEvmTransaction,
+      cancelledRef,
+      skipStatusWait
+    ]
   );
 
   const onSubmit = useCallback(
     async ({ gasPrice, gasLimit, nonce }: EvmTxParamsFormData) => {
+      if (submitDisabled) return;
       if (formState.isSubmitting) return;
 
       const feesPerGas = getFeesPerGas(gasPrice);
       if (!lifiEstimationData || !feesPerGas) {
+        if (estimationLoading || !estimationError) return;
         toastError('Failed to estimate transaction.');
         return;
       }
 
       if (isEvmNativeTokenSlug(inputTokenSlug)) {
         const fromAmount = atomsToTokens(
-          new BigNumber(lifiStep.action.fromAmount),
-          lifiStep.action.fromToken.decimals ?? 0
+          new BigNumber(routeStep.action.fromAmount),
+          routeStep.action.fromToken.decimals ?? 0
         );
 
         if (
@@ -282,10 +346,13 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
       }
 
       try {
+        setLatestSubmitError(null);
+        setSubmitLoading(true);
+        if (cancelledRef?.current) return;
         if (isLedgerAccount) {
           await runConnectedLedgerOperationFlow(
             () =>
-              executeRouteStep(lifiStep, {
+              executeRouteStep(routeStep, {
                 gasPrice,
                 gasLimit,
                 nonce
@@ -294,27 +361,33 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
             true
           );
         } else {
-          await executeRouteStep(lifiStep, { gasPrice, gasLimit, nonce });
+          await executeRouteStep(routeStep, { gasPrice, gasLimit, nonce });
         }
       } catch (err: any) {
         console.error(err);
 
         setLatestSubmitError(err);
         setTab('error');
+      } finally {
+        setSubmitLoading(false);
       }
     },
     [
+      submitDisabled,
       formState.isSubmitting,
       getFeesPerGas,
       lifiEstimationData,
       inputTokenSlug,
       ethBalance,
       displayedFee,
-      lifiStep,
+      routeStep,
       isLedgerAccount,
       setLedgerApprovalModalState,
       executeRouteStep,
-      setTab
+      setTab,
+      cancelledRef,
+      estimationLoading,
+      estimationError
     ]
   );
 
@@ -323,7 +396,7 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
       <BaseContent<EvmTxParamsFormData>
         ledgerApprovalModalState={ledgerApprovalModalState}
         onLedgerModalClose={handleLedgerModalClose}
-        network={network}
+        network={inputNetwork}
         nativeAssetSlug={EVM_TOKEN_SLUG}
         selectedTab={tab}
         setSelectedTab={setTab}
@@ -337,11 +410,9 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
         onSubmit={onSubmit}
         someBalancesChanges={true}
         filteredBalancesChanges={balancesChanges}
-        quoteRefreshCountdown={countdown}
-        isQuoteExpired={expired}
-        isQuoteRefreshing={isRefreshing || formState.isSubmitting}
-        onManualQuoteRefresh={() => handleRefresh(true)}
         bridgeData={bridgeData}
+        submitLoadingOverride={submitLoading}
+        submitDisabled={submitDisabled}
       />
     </FormProvider>
   );

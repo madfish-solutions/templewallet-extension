@@ -142,6 +142,14 @@ export const fetchRpForMonth = withAxiosDataExtract((accountPkh: string, monthYe
   })
 );
 
+export async function postReactivationCheck(tezos: string[]): Promise<{ eligible: boolean }> {
+  const { data } = await axiosClient.post<{ eligible: boolean }>('/reactivation/check', {
+    tezos,
+    appVersion: APP_VERSION
+  });
+  return data;
+}
+
 interface TekeadsAffiliateResponse {
   data: AffiliateLink[];
 }

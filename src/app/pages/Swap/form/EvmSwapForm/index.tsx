@@ -7,15 +7,15 @@ import { FormProvider, useForm } from 'react-hook-form-v7';
 
 import { DeadEndBoundaryError } from 'app/ErrorBoundary';
 import { BaseSwapForm } from 'app/pages/Swap/form/BaseSwapForm';
+import { getProtocolFeeForRouteStep } from 'app/pages/Swap/form/EvmSwapForm/utils';
 import { useFetchLifiEvmTokensSlugs } from 'app/pages/Swap/form/hooks';
 import { SwapFormValue, SwapInputValue } from 'app/pages/Swap/form/SwapForm.form';
 import { formatDuration, getBufferedExecutionDuration, getDefaultSwapFormValues } from 'app/pages/Swap/form/utils';
 import { useLifiEvmTokenMetadataSelector } from 'app/store/evm/swap-lifi-metadata/selectors';
 import { useEvmTokenMetadataSelector } from 'app/store/evm/tokens-metadata/selectors';
 import { toastError } from 'app/toaster';
-import { erc20AllowanceAbi } from 'lib/abi/erc20';
 import { useFormAnalytics } from 'lib/analytics';
-import { getEvmBestSwapRoute } from 'lib/apis/temple/endpoints/evm';
+import { getEvmAllSwapRoutes, getEvmSwapQuote } from 'lib/apis/temple/endpoints/evm';
 import { RouteParams } from 'lib/apis/temple/endpoints/evm/api.interfaces';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { fromAssetSlug, parseChainAssetSlug } from 'lib/assets/utils';
@@ -27,8 +27,7 @@ import { getAssetSymbol, useGetEvmGasOrTokenMetadata } from 'lib/metadata';
 import { atomsToTokens, tokensToAtoms } from 'lib/temple/helpers';
 import { useInterval } from 'lib/ui/hooks';
 import { isEvmNativeTokenSlug } from 'lib/utils/evm.utils';
-import { toBigInt, ZERO } from 'lib/utils/numbers';
-import { getViemPublicClient } from 'temple/evm';
+import { ZERO } from 'lib/utils/numbers';
 import { useAccountForEvm } from 'temple/front';
 import { useEvmChainByChainId } from 'temple/front/chains';
 
@@ -45,7 +44,7 @@ interface EvmSwapFormProps {
   handleToggleIconClick: EmptyFn;
 }
 
-const AUTO_REFRESH_INTERVAL_MS = 8000; // 8 seconds
+const AUTO_REFRESH_INTERVAL_MS = 60000; // 60 seconds
 
 export const EvmSwapForm: FC<EvmSwapFormProps> = ({
   chainId,
@@ -64,12 +63,8 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
 
   const [swapRoute, setSwapRoute] = useState<Route | null>(null);
   const [isRouteLoading, setIsRouteLoading] = useState(false);
-  const lifiStep = useMemo(
-    () => (swapRoute?.steps?.[0]?.type === 'lifi' ? swapRoute?.steps[0] : undefined),
-    [swapRoute]
-  );
-
   const [isAlertVisible, setIsAlertVisible] = useState(false);
+  const isRouteLoadingRef = useRef(false);
 
   const getTokenMetadata = useGetEvmGasOrTokenMetadata();
 
@@ -244,6 +239,7 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
   }, [inputAssetMetadata?.decimals, inputValue.amount, isFiatMode, parseFiatValueToAssetAmount]);
 
   const routeAbortControllerRef = useRef<AbortController | null>(null);
+  const latestRequestIdRef = useRef(0);
 
   const fetchEvmSwapRoute = useCallback(async (params: RouteParams) => {
     routeAbortControllerRef.current?.abort();
@@ -251,11 +247,23 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
     routeAbortControllerRef.current = controller;
 
     try {
-      const data = await getEvmBestSwapRoute(params, controller.signal);
-      if (data === undefined) {
-        return;
+      const quoteResponse = await getEvmSwapQuote(params, controller.signal);
+
+      if (quoteResponse !== undefined) {
+        return quoteResponse;
       }
-      return data;
+
+      const routesResponse = await getEvmAllSwapRoutes(params, controller.signal);
+
+      if (routesResponse === undefined) {
+        return undefined;
+      }
+
+      if (routesResponse.routes.length === 0) {
+        return null;
+      }
+
+      return routesResponse.routes[0];
     } catch (error: unknown) {
       if ((error as Error)?.name === 'CanceledError') return undefined;
       console.error('EVM Swap route error:', error instanceof Error ? error.message : error);
@@ -265,20 +273,32 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
 
   const updateSwapRoute = useCallback(
     async (params: RouteParams) => {
+      const requestId = ++latestRequestIdRef.current;
+      isRouteLoadingRef.current = true;
       setIsRouteLoading(true);
       setIsAlertVisible(false);
 
       try {
         const data = await fetchEvmSwapRoute(params);
-        if (data === undefined) return;
+        if (requestId !== latestRequestIdRef.current) return;
+        if (data) {
+          setSwapRoute(data);
+          setIsRouteLoading(false);
+          isRouteLoadingRef.current = false;
+          return data;
+        }
 
-        setSwapRoute(data);
+        setSwapRoute(null);
+        setIsAlertVisible(data === null);
         setIsRouteLoading(false);
-        return data;
+        isRouteLoadingRef.current = false;
+        return;
       } catch (error) {
+        if (requestId !== latestRequestIdRef.current) return;
         setSwapRoute(null);
         setIsAlertVisible(true);
         setIsRouteLoading(false);
+        isRouteLoadingRef.current = false;
         throw error;
       }
     },
@@ -302,7 +322,7 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
       toChain: targetAssetInfo.chainId as number,
       fromToken,
       toToken,
-      amount: atomsInputValue.toString(),
+      amount: atomsInputValue.toFixed(),
       fromAddress: publicKeyHash,
       slippage: slippageTolerance / 100
     };
@@ -341,7 +361,7 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
         new BigNumber(inputValue.amount).isGreaterThan(0) &&
         sourceAssetInfo &&
         targetAssetInfo &&
-        !isRouteLoading &&
+        !isRouteLoadingRef.current &&
         !formState.isSubmitting &&
         !confirmSwapModalOpened
       ) {
@@ -354,7 +374,6 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
       inputValue.amount,
       sourceAssetInfo,
       targetAssetInfo,
-      isRouteLoading,
       formState.isSubmitting,
       confirmSwapModalOpened,
       getAndSetSwapRoute
@@ -390,8 +409,6 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
       handleInputChange({ assetSlug: inputValue.assetSlug, chainId: inputValue.chainId, amount: formattedMaxAmount });
     }
   }, [handleInputChange, inputAssetPrice, inputTokenMaxAmount, inputValue.assetSlug, inputValue.chainId, isFiatMode]);
-
-  const evmToolkit = useMemo(() => getViemPublicClient(inputNetwork), [inputNetwork]);
 
   const getMinimumReceivedAmount = useCallback(
     (outputAmount: BigNumber | undefined) => {
@@ -431,42 +448,13 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
     targetAssetInfo
   ]);
 
-  const protocolFee = useMemo(() => {
-    if (!lifiStep?.estimate?.feeCosts) return;
-
-    const protocolFeesRaw = lifiStep.estimate.feeCosts
-      .filter(fee => !fee.included)
-      .map(fee => BigNumber(fee.amount))
-      .reduce((a, b) => a.plus(b), ZERO);
-
-    if (protocolFeesRaw.isZero()) return undefined;
-
-    return atomsToTokens(protocolFeesRaw, inputNetwork?.currency.decimals ?? 0).toFixed();
-  }, [inputNetwork?.currency.decimals, lifiStep?.estimate?.feeCosts]);
-
   const onSubmit = useCallback(async () => {
     if (formState.isSubmitting) return;
     if (!inputValue.assetSlug || !outputValue.assetSlug) return;
 
-    if (!lifiStep) {
+    if (!swapRoute) {
       setIsAlertVisible(true);
       return;
-    }
-
-    let allowanceSufficient = true;
-    let onChainAllowance = toBigInt(ZERO);
-
-    if (EVM_ZERO_ADDRESS !== lifiStep.action.fromToken.address) {
-      const requiredAllowance = BigInt(lifiStep.action.fromAmount);
-
-      onChainAllowance = await evmToolkit.readContract({
-        address: lifiStep.action.fromToken.address as HexString,
-        abi: [erc20AllowanceAbi],
-        functionName: 'allowance',
-        args: [lifiStep.action.fromAddress as HexString, lifiStep.estimate.approvalAddress as HexString]
-      });
-
-      allowanceSufficient = onChainAllowance >= requiredAllowance;
     }
 
     const currentFormState = getValues();
@@ -476,7 +464,8 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
       outputAsset: `${outputAssetMetadata?.symbol}-${targetAssetInfo?.chainId}`,
       inputAmount: currentFormState.input.amount?.toString(),
       outputAmount: currentFormState.output.amount?.toString(),
-      ...(inputNetwork.chainId === outputNetwork.chainId && { network: inputNetwork.name })
+      networkFrom: inputNetwork.name,
+      networkTo: outputNetwork.name
     };
 
     try {
@@ -485,25 +474,8 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
       onReview({
         account,
         network: inputNetwork,
-        needsApproval: !allowanceSufficient,
-        neededApproval: !allowanceSufficient,
-        onChainAllowance,
-        onConfirm: resetForm,
-        minimumReceived: {
-          amount: getMinimumReceivedAmount(outputValue.amount).toString(),
-          symbol: outputAssetSymbol
-        },
-        bridgeInfo:
-          inputNetwork.chainId !== outputNetwork.chainId
-            ? {
-                protocolFee,
-                inputNetwork,
-                outputNetwork
-              }
-            : undefined,
-        buildSwapRouteParams,
-        fetchEvmSwapRoute,
-        initialLifiStep: lifiStep
+        handleResetForm: resetForm,
+        swapRoute: swapRoute
       });
 
       formAnalytics.trackSubmitSuccess(analyticsProperties);
@@ -513,28 +485,21 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
       formAnalytics.trackSubmitFail(analyticsProperties);
     }
   }, [
+    account,
+    formAnalytics,
     formState.isSubmitting,
-    inputValue.assetSlug,
-    outputValue.assetSlug,
-    outputValue.amount,
-    lifiStep,
     getValues,
     inputAssetMetadata?.symbol,
-    sourceAssetInfo?.chainId,
-    outputAssetMetadata?.symbol,
-    targetAssetInfo?.chainId,
-    evmToolkit,
-    formAnalytics,
-    onReview,
-    account,
     inputNetwork,
+    inputValue.assetSlug,
+    onReview,
+    outputAssetMetadata?.symbol,
+    outputNetwork.name,
+    outputValue.assetSlug,
     resetForm,
-    getMinimumReceivedAmount,
-    outputAssetSymbol,
-    protocolFee,
-    outputNetwork,
-    getMinimumReceivedAmount,
-    outputAssetSymbol
+    sourceAssetInfo?.chainId,
+    swapRoute,
+    targetAssetInfo?.chainId
   ]);
 
   useEffect(() => {
@@ -545,18 +510,18 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
 
   const estimatedTokensFromAmount = useMemo(
     () =>
-      isDefined(lifiStep?.estimate.fromAmount)
-        ? atomsToTokens(new BigNumber(+lifiStep.estimate.fromAmount), inputAssetMetadata?.decimals ?? 0)
+      isDefined(swapRoute?.fromAmount)
+        ? atomsToTokens(new BigNumber(+swapRoute.fromAmount), inputAssetMetadata?.decimals ?? 0)
         : undefined,
-    [lifiStep, inputAssetMetadata?.decimals]
+    [inputAssetMetadata?.decimals, swapRoute?.fromAmount]
   );
 
   const estimatedTokensToAmount = useMemo(
     () =>
-      isDefined(lifiStep?.estimate.toAmount)
-        ? atomsToTokens(new BigNumber(+lifiStep.estimate.toAmount), outputAssetMetadata?.decimals ?? 0)
+      isDefined(swapRoute?.toAmount)
+        ? atomsToTokens(new BigNumber(+swapRoute.toAmount), outputAssetMetadata?.decimals ?? 0)
         : undefined,
-    [lifiStep, outputAssetMetadata?.decimals]
+    [outputAssetMetadata?.decimals, swapRoute?.toAmount]
   );
 
   const priceImpact = useMemo(() => {
@@ -574,6 +539,22 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
 
     return 0;
   }, [swapRoute?.fromAmountUSD, swapRoute?.toAmountUSD]);
+
+  const bridgeDetails = useMemo(() => {
+    if (inputNetwork.chainId === outputNetwork.chainId || !swapRoute) return;
+
+    return {
+      tools: swapRoute.steps.map(step => step.toolDetails),
+      executionTime: formatDuration(
+        swapRoute.steps
+          .map(step => getBufferedExecutionDuration(step?.estimate?.executionDuration))
+          .reduce((sum, seconds) => sum + seconds, 0)
+      ),
+      priceImpact,
+      protocolFee: getProtocolFeeForRouteStep(swapRoute.steps[0], inputNetwork),
+      gasTokenSymbol: inputNetwork.currency.symbol
+    };
+  }, [inputNetwork, outputNetwork.chainId, priceImpact, swapRoute]);
 
   return (
     <FormProvider {...form}>
@@ -601,18 +582,8 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
           outputAssetMetadata?.decimals ?? 0
         )}
         swapParamsAreLoading={isRouteLoading}
-        swapRouteSteps={lifiStep?.includedSteps.length ?? 0}
-        bridgeDetails={
-          inputNetwork.chainId !== outputNetwork.chainId
-            ? {
-                tool: lifiStep?.toolDetails,
-                executionTime: formatDuration(getBufferedExecutionDuration(lifiStep?.estimate?.executionDuration)),
-                priceImpact,
-                protocolFee,
-                gasTokenSymbol: inputNetwork.currency.symbol
-              }
-            : undefined
-        }
+        swapRouteSteps={swapRoute?.steps.length ?? 1}
+        bridgeDetails={bridgeDetails}
         setIsFiatMode={v => setValue('isFiatMode', v)}
         parseFiatValueToAssetAmount={parseFiatValueToAssetAmount}
         onInputChange={handleInputChange}

@@ -22,7 +22,7 @@ export interface LoadOnChainBalancePayload {
   throwOnTimeout?: boolean;
 }
 
-const fetchEvmRawBalance = async (
+export const fetchEvmRawBalance = async (
   network: EvmNetworkEssentials,
   assetSlug: string,
   account: HexString,

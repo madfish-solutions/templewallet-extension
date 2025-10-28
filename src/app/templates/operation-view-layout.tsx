@@ -1,6 +1,7 @@
-import React, { useMemo } from 'react';
+import React, { useCallback, useMemo, ReactNode } from 'react';
 
 import { Loader } from 'app/atoms';
+import { FeeSummary } from 'app/templates/fee-summary';
 import { StoredAccount } from 'lib/temple/types';
 import { AssetsAmounts } from 'temple/types';
 
@@ -14,6 +15,7 @@ interface OperationViewLayoutProps<T extends TxParamsFormData> extends Transacti
   balancesChanges: AssetsAmounts;
   otherDataLoading: boolean;
   metadataLoading: boolean;
+  renderApproveLayout?: (footer: ReactNode) => ReactNode;
 }
 
 export const OperationViewLayout = <T extends TxParamsFormData>({
@@ -22,6 +24,8 @@ export const OperationViewLayout = <T extends TxParamsFormData>({
   otherDataLoading,
   metadataLoading,
   network,
+  renderApproveLayout,
+  setSelectedTab,
   ...restProps
 }: OperationViewLayoutProps<T>) => {
   const filteredBalancesChanges = useMemo(
@@ -29,14 +33,60 @@ export const OperationViewLayout = <T extends TxParamsFormData>({
     [balancesChanges]
   );
   const someBalancesChanges = useMemo(() => Object.keys(filteredBalancesChanges).length > 0, [filteredBalancesChanges]);
-  const expensesViewIsVisible = someBalancesChanges && !metadataLoading;
+  const goToFeeTab = useCallback(() => setSelectedTab('fee'), [setSelectedTab]);
+
+  const footer = (
+    <FeeSummary
+      network={network}
+      assetSlug={restProps.nativeAssetSlug}
+      gasFee={restProps.displayedFee}
+      storageFee={restProps.displayedStorageFee}
+      protocolFee={restProps.bridgeData?.protocolFee}
+      onOpenFeeTab={goToFeeTab}
+      embedded
+    />
+  );
+
+  const approveLayoutEl = !someBalancesChanges && renderApproveLayout ? renderApproveLayout(footer) : null;
+
+  const showStandaloneFeeSummary = useMemo(
+    () => !someBalancesChanges && !approveLayoutEl && !otherDataLoading && !metadataLoading,
+    [metadataLoading, otherDataLoading, approveLayoutEl, someBalancesChanges]
+  );
 
   return (
     <>
-      {someBalancesChanges && (
-        <div className={expensesViewIsVisible ? undefined : 'hidden'}>
-          <BalancesChangesView balancesChanges={[filteredBalancesChanges]} chain={network} />
+      {someBalancesChanges ? (
+        <div className={someBalancesChanges && !metadataLoading ? undefined : 'hidden'}>
+          <BalancesChangesView
+            balancesChanges={[filteredBalancesChanges]}
+            chain={network}
+            footer={
+              <FeeSummary
+                network={network}
+                assetSlug={restProps.nativeAssetSlug}
+                gasFee={restProps.displayedFee}
+                storageFee={restProps.displayedStorageFee}
+                protocolFee={restProps.bridgeData?.protocolFee}
+                onOpenFeeTab={goToFeeTab}
+                embedded
+              />
+            }
+          />
         </div>
+      ) : approveLayoutEl ? (
+        <div className={!metadataLoading ? undefined : 'hidden'}>{approveLayoutEl}</div>
+      ) : (
+        showStandaloneFeeSummary && (
+          <FeeSummary
+            network={network}
+            assetSlug={restProps.nativeAssetSlug}
+            gasFee={restProps.displayedFee}
+            storageFee={restProps.displayedStorageFee}
+            protocolFee={restProps.bridgeData?.protocolFee}
+            onOpenFeeTab={goToFeeTab}
+          />
+        )
       )}
       {someBalancesChanges && (otherDataLoading || metadataLoading) && (
         <div className="flex justify-center items-center">
@@ -53,7 +103,7 @@ export const OperationViewLayout = <T extends TxParamsFormData>({
           alwaysShowAddresses
         />
 
-        <TransactionTabs<T> network={network} {...restProps} />
+        <TransactionTabs<T> network={network} setSelectedTab={setSelectedTab} {...restProps} />
       </div>
     </>
   );

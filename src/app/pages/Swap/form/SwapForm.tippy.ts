@@ -26,3 +26,12 @@ export const protocolFeeInfoTippyProps = {
   maxWidth: '16rem',
   placement: 'top-start' as const
 };
+
+export const toolsInfoTippyProps = {
+  trigger: 'mouseenter',
+  hideOnClick: false,
+  content: t('bridgeToolsTooltip'),
+  animation: 'shift-away-subtle',
+  maxWidth: '12rem',
+  placement: 'top-start' as const
+};

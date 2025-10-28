@@ -86,7 +86,13 @@ const EvmTransactionViewBody = memo<EvmTransactionViewProps>(
       feeOptions,
       displayedFee,
       getFeesPerGas
-    } = useEvmEstimationForm(estimationData, txSerializable, sendingAccount, parsedChainId, true);
+    } = useEvmEstimationForm(
+      estimationData,
+      txSerializable,
+      sendingAccount,
+      parsedChainId,
+      operationKind !== EvmOperationKind.Approval
+    );
 
     const { formState } = form;
     const metadataLoading = useEvmGenericAssetsMetadataLoading();
@@ -120,16 +126,6 @@ const EvmTransactionViewBody = memo<EvmTransactionViewProps>(
 
     return (
       <FormProvider {...form}>
-        {operationKind === EvmOperationKind.Approval && (
-          <ApproveLayout
-            chain={chain}
-            req={req}
-            setFinalEvmTransaction={setFinalEvmTransaction}
-            onLoadingState={setApprovesLoading}
-            minAllowance={minAllowance}
-          />
-        )}
-
         <OperationViewLayout
           network={chain}
           nativeAssetSlug={EVM_TOKEN_SLUG}
@@ -144,12 +140,32 @@ const EvmTransactionViewBody = memo<EvmTransactionViewProps>(
           displayedFeeOptions={feeOptions?.displayed}
           formId={formId}
           tabsName="confirm-send-tabs"
-          destinationName={req.to ? <T id="interactionWith" /> : null}
+          destinationName={
+            req.to ? (
+              operationKind === EvmOperationKind.Approval ? (
+                <T id="approvedTo" />
+              ) : (
+                <T id="interactionWith" />
+              )
+            ) : null
+          }
           destinationValue={req.to ? <HashChip hash={req.to} /> : null}
           sendingAccount={sendingAccount}
-          balancesChanges={balancesChanges}
+          balancesChanges={balancesChanges || {}}
           metadataLoading={metadataLoading}
           otherDataLoading={balancesChangesLoading || approvesLoading}
+          renderApproveLayout={footer =>
+            operationKind === EvmOperationKind.Approval ? (
+              <ApproveLayout
+                chain={chain}
+                req={req}
+                setFinalEvmTransaction={setFinalEvmTransaction}
+                onLoadingState={setApprovesLoading}
+                minAllowance={minAllowance}
+                footer={footer}
+              />
+            ) : undefined
+          }
         />
       </FormProvider>
     );

@@ -56,8 +56,10 @@ export const toastSuccess = withToastsLimit((title: string, textBold?: boolean, 
   ))
 );
 // @ts-prune-ignore-next
-export const toastError = withToastsLimit((title, textBold?) =>
-  toast.custom(toast => <CustomToastBar toast={{ ...toast, message: title }} customType="error" textBold={textBold} />)
+export const toastError = withToastsLimit((title, textBold?, txData?: TxData) =>
+  toast.custom(toast => (
+    <CustomToastBar toast={{ ...toast, message: title }} customType="error" textBold={textBold} txData={txData} />
+  ))
 );
 // @ts-prune-ignore-next
 export const toastInfo = withToastsLimit((title, textBold?) =>

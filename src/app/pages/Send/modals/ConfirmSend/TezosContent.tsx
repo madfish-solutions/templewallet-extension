@@ -182,6 +182,7 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
         assetSlug={assetSlug}
         amount={amount}
         recipientAddress={to}
+        decimals={assetMetadata.decimals}
         displayedFeeOptions={displayedFeeOptions}
         displayedFee={displayedFee}
         selectedTab={tab}

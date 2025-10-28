@@ -15,14 +15,14 @@ import { ReactComponent as PriceImpactIcon } from 'app/icons/base/price-impact.s
 import { ReactComponent as RouteIcon } from 'app/icons/base/route.svg';
 import { BridgeDetails } from 'app/pages/Swap/form/interfaces';
 import { ListBlockItem } from 'app/pages/Swap/form/SwapInfoDropdown/ListBlockItem';
-import { getPluralKey, T } from 'lib/i18n';
+import { getPluralKey, T, t } from 'lib/i18n';
 import { ROUTING_FEE_RATIO } from 'lib/route3/constants';
 import { useBooleanState } from 'lib/ui/hooks';
 import useTippy from 'lib/ui/useTippy';
 import { toPercentage } from 'lib/ui/utils';
 
 import LiFiImgSrc from '../assets/lifi.png';
-import { evmFeeInfoTippyProps, protocolFeeInfoTippyProps } from '../SwapForm.tippy';
+import { evmFeeInfoTippyProps, protocolFeeInfoTippyProps, toolsInfoTippyProps } from '../SwapForm.tippy';
 
 import { SwapExchangeRate } from './SwapExchangeRate';
 import { SwapMinimumReceived } from './SwapMinimumReceived';
@@ -58,6 +58,15 @@ export const EvmSwapInfoDropdown = ({
     [bridgeDetails?.priceImpact]
   );
 
+  const tools = useMemo(() => bridgeDetails?.tools ?? [], [bridgeDetails]);
+
+  const toolsInfoContent = useMemo(
+    () => `${t('bridgeToolsTooltip')} ${tools.map(tool => tool.name).join(', ')}.`,
+    [tools]
+  );
+  const toolsInfoProps = useMemo(() => ({ ...toolsInfoTippyProps, content: toolsInfoContent }), [toolsInfoContent]);
+  const toolsInfoIconRef = useTippy<HTMLDivElement>(toolsInfoProps);
+
   return (
     <div className="p-4 bg-white rounded-8 shadow-md">
       <div onClick={toggleDropdown} className="flex justify-between items-center cursor-pointer">
@@ -87,14 +96,46 @@ export const EvmSwapInfoDropdown = ({
       </div>
 
       <div className={clsx('mt-2', dropdownOpened ? 'block' : 'hidden')}>
-        {bridgeDetails?.tool && (
+        {tools.length > 0 && (
           <ListBlockItem Icon={BridgeIcon} title="bridge" divide={false}>
-            <div className="flex gap-1 align-center items-center">
-              {bridgeDetails.tool?.name}{' '}
-              <img src={bridgeDetails?.tool?.logoURI} className="w-4 h-4 rounded" alt="bridge logo" />
+            <div ref={toolsInfoIconRef} className="flex gap-1 items-center">
+              {tools.length === 1 ? (
+                <>
+                  {tools[0].name} <img src={tools[0].logoURI} className="w-4 h-4 rounded" alt="bridge logo" />
+                </>
+              ) : tools.length === 2 ? (
+                <>
+                  {tools[0].name} + {tools[1].name}
+                  <div className="relative w-6 h-4 ml-1">
+                    <img src={tools[0].logoURI} className="absolute top-0 left-0 w-4 h-4 rounded" alt="bridge logo 1" />
+                    <img
+                      src={tools[1].logoURI}
+                      className="absolute top-0 right-0 w-4 h-4 rounded"
+                      alt="bridge logo 2"
+                    />
+                  </div>
+                </>
+              ) : (
+                <>
+                  {tools[0].name} + {tools.length - 1}
+                  <div className="relative w-8 h-4 ml-1">
+                    {tools.slice(0, 3).map((tool, i) => (
+                      <img
+                        key={tool.key ?? tool.name}
+                        src={tool.logoURI}
+                        className={`absolute w-4 h-4 rounded ${
+                          i === 0 ? 'top-0 left-0' : i === 1 ? 'top-0 left-1/2 -translate-x-1/2' : 'top-0 right-0'
+                        }`}
+                        alt={`bridge logo ${i + 1}`}
+                      />
+                    ))}
+                  </div>
+                </>
+              )}
             </div>
           </ListBlockItem>
         )}
+
         {bridgeDetails?.protocolFee && (
           <ListBlockItem ref={protocolFeeInfoIconRef} Icon={DollarIcon} title="protocolFee">
             <Money smallFractionFont={false} fiat={false}>
