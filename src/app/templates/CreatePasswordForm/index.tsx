@@ -10,6 +10,7 @@ import { StyledButton } from 'app/atoms/StyledButton';
 import { TextButton } from 'app/atoms/TextButton';
 import { ValidationLabel } from 'app/atoms/ValidationLabel';
 import { PASSWORD_PATTERN, PasswordValidation, formatMnemonic, passwordValidationRegexes } from 'app/defaults';
+import { useFirefoxDataConsent } from 'app/pages/Welcome/data-collection-agreement/use-firefox-data-consent.hook';
 import { dispatch } from 'app/store';
 import { togglePartnersPromotionAction } from 'app/store/partners-promotion/actions';
 import { setIsAnalyticsEnabledAction, setReferralLinksEnabledAction } from 'app/store/settings/actions';
@@ -66,13 +67,25 @@ export const CreatePasswordForm = memo<CreatePasswordFormProps>(
     const [, setInitToast] = useInitToastMessage();
     const [backupPasswordUsed, goToBackupPassword, goToCustomPassword] = useBooleanState(false);
 
+    const [consent] = useFirefoxDataConsent();
+
+    const defaultCheckboxValues = useMemo(() => {
+      if (consent && consent.hasResponded) {
+        return {
+          analytics: consent.agreed,
+          getRewards: consent.agreed
+        };
+      }
+
+      return { analytics: true, getRewards: true };
+    }, [consent]);
+
     const { control, watch, register, handleSubmit, errors, triggerValidation, formState, setValue, reset } =
       useForm<FormData>({
         defaultValues: {
           password: '',
           repeatPassword: '',
-          analytics: true,
-          getRewards: true
+          ...defaultCheckboxValues
         },
         mode: 'onChange'
       });

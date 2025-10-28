@@ -11,15 +11,18 @@ import { ReactComponent as ImportedIcon } from 'app/icons/base/imported.svg';
 import { ReactComponent as PlusIcon } from 'app/icons/base/plus.svg';
 import GoogleIconSrc from 'app/icons/google-logo.png';
 import { PlanetsBgPageLayout } from 'app/layouts/planets-bg-page-layout';
+import { useFirefoxDataConsent } from 'app/pages/Welcome/data-collection-agreement/use-firefox-data-consent.hook';
 import { CreatePasswordForm } from 'app/templates/CreatePasswordForm';
 import { GoogleBackupStatusModalContent } from 'app/templates/google-backup-status-modal-content';
 import { ImportSeedForm } from 'app/templates/ImportSeedForm';
+import { IS_FIREFOX } from 'lib/env';
 import { t, T, TID } from 'lib/i18n';
 import type { EncryptedBackupObject } from 'lib/temple/backup';
 import { useTempleClient } from 'lib/temple/front';
 import { useInitToastMessage } from 'lib/temple/front/toasts-context';
 import { goBack, navigate, useLocation } from 'lib/woozie';
 
+import { DataCollectionAgreement } from './data-collection-agreement';
 import { DecryptBackup } from './decrypt-backup';
 import { GoogleAuth } from './google-auth';
 import { WelcomeSelectors } from './Welcome.selectors';
@@ -92,6 +95,9 @@ const Welcome = memo(() => {
   const { historyPosition } = useLocation();
 
   useShouldShowIntroModals(false);
+
+  const [consent] = useFirefoxDataConsent();
+  const shouldShowDataConsent = IS_FIREFOX && (!consent || !consent.hasResponded);
 
   const [walletCreationState, setWalletCreationState] = useState<WalletCreationState>({
     stage: WalletCreationStage.NotStarted
@@ -214,6 +220,10 @@ const Welcome = memo(() => {
     handleSeedPhraseSubmit,
     walletCreationState
   ]);
+
+  if (shouldShowDataConsent) {
+    return <DataCollectionAgreement />;
+  }
 
   return (
     <>
