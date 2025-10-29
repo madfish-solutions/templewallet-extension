@@ -47,9 +47,25 @@ const getCyclesInfo = memoizee(
   async (network: TezosNetworkEssentials): Promise<StakingCyclesInfo | null> => {
     const rpc = getTezosRpcClient(network);
 
-    const { blocks_per_cycle, minimal_block_delay, unstake_finalization_delay } = await rpc.getConstants();
+    const {
+      blocks_per_cycle,
+      minimal_block_delay,
+      unstake_finalization_delay,
+      consensus_rights_delay,
+      slashing_delay,
+      max_slashing_period
+    } = await rpc.getConstants();
 
-    const cooldownCyclesNumber = unstake_finalization_delay + 1;
+    const fallbackSlashing = slashing_delay ?? max_slashing_period;
+    const finalizationDelay =
+      unstake_finalization_delay ??
+      (consensus_rights_delay != null && fallbackSlashing != null ? consensus_rights_delay + fallbackSlashing : null);
+
+    if (finalizationDelay == null) {
+      return null;
+    }
+
+    const cooldownCyclesNumber = finalizationDelay + 1;
 
     return { blocks_per_cycle, minimal_block_delay, cooldownCyclesNumber };
   },
