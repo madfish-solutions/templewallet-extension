@@ -271,7 +271,7 @@ const UnstakeRequestItem = memo<UnstakeRequestItemProps>(
     const endCycle = useMemo(() => {
       if (!cyclesInfo) return;
 
-      return cycle + cyclesInfo.cooldownCyclesNumber - /* Accounting for current cycle*/ 1;
+      return cycle + cyclesInfo.cooldownCyclesNumber;
     }, [cycle, cyclesInfo]);
 
     const cooldownTime = useMemo(() => {
@@ -279,7 +279,7 @@ const UnstakeRequestItem = memo<UnstakeRequestItemProps>(
 
       const { blocks_per_cycle, minimal_block_delay } = cyclesInfo;
 
-      const fullCyclesLeft = endCycle - blockLevelInfo.cycle;
+      const fullCyclesLeft = endCycle - blockLevelInfo.cycle - /* Accounting for current cycle*/ 1;
       const blocksLeftInCurrentCycle = blocks_per_cycle - blockLevelInfo.cycle_position;
 
       const blocksLeft = blocks_per_cycle * fullCyclesLeft + blocksLeftInCurrentCycle;
