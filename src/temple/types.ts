@@ -1,5 +1,7 @@
 import BigNumber from 'bignumber.js';
 
+import { StoredHDAccount } from 'lib/temple/types';
+
 export enum TempleChainKind {
   Tezos = 'tezos',
   EVM = 'evm'
@@ -16,3 +18,8 @@ export interface AdsViewerData {
   tezosAddress: string;
   evmAddress: string;
 }
+
+type AddressesKeys = 'tezosAddress' | 'evmAddress';
+export type HDAccountRewardsAddresses = Pick<StoredHDAccount, AddressesKeys>;
+export type NoAccountRewardsAddresses = Partial<Record<AddressesKeys, undefined>>;
+export type RewardsAddresses = HDAccountRewardsAddresses | NoAccountRewardsAddresses;

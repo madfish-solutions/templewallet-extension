@@ -1,4 +1,4 @@
-import React, { ReactNode, useCallback, useEffect, useRef } from 'react';
+import React, { ReactNode, useEffect, useRef } from 'react';
 
 import BigNumber from 'bignumber.js';
 import { SubmitHandler, useFormContext } from 'react-hook-form-v7';
@@ -57,8 +57,6 @@ export const TransactionTabs = <T extends TxParamsFormData>({
   latestSubmitError,
   onFeeOptionSelect,
   onSubmit,
-  displayedFee,
-  displayedStorageFee,
   displayedFeeOptions,
   estimationError,
   formId,
@@ -73,7 +71,6 @@ export const TransactionTabs = <T extends TxParamsFormData>({
   const { handleSubmit } = useFormContext<T>();
   const errorTabRef = useRef<HTMLDivElement>(null);
   const isEvm = network.kind === TempleChainKind.EVM;
-  const goToFeeTab = useCallback(() => setSelectedTab('fee'), [setSelectedTab]);
 
   const error = latestSubmitError || estimationError;
   const prevErrorRef = useRef<string | nullish>(null);
@@ -144,10 +141,6 @@ export const TransactionTabs = <T extends TxParamsFormData>({
                 return (
                   <DetailsTab
                     network={network}
-                    nativeAssetSlug={nativeAssetSlug}
-                    displayedFee={displayedFee}
-                    displayedStorageFee={displayedStorageFee}
-                    goToFeeTab={goToFeeTab}
                     destinationName={destinationName}
                     destinationValue={destinationValue}
                     cashbackInTkey={cashbackInTkey}

@@ -21,7 +21,7 @@ import { parseChainAssetSlug, toChainAssetSlug } from 'lib/assets/utils';
 import { useGetEvmTokenBalanceWithDecimals } from 'lib/balances/hooks';
 import { useGetTokenOrGasMetadata } from 'lib/metadata';
 import { useAvailableRoute3TokensSlugs } from 'lib/route3/assets';
-import { COMMON_MAINNET_CHAIN_IDS, TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
+import { TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
 import { useMemoWithCompare } from 'lib/ui/hooks';
 import {
   EvmChain,
@@ -67,9 +67,6 @@ export const MultiChainAssetsList = memo<Props>(
     const isEvmNonZeroBalance = useCallback(
       (chainSlug: string) => {
         const [, chainId, assetSlug] = parseChainAssetSlug(chainSlug);
-
-        // Disable Etherlink
-        if (chainId === COMMON_MAINNET_CHAIN_IDS.etherlink) return false;
 
         return isDefined(getEvmBalance(chainId as number, assetSlug));
       },
@@ -119,7 +116,13 @@ export const MultiChainAssetsList = memo<Props>(
         );
       }
 
-      result.push(...(filterZeroBalances ? route3tokensSlugs.filter(isTezNonZeroBalance) : []));
+      result.push(
+        ...(filterZeroBalances
+          ? route3tokensSlugs
+              .map(slug => toChainAssetSlug(TempleChainKind.Tezos, TEZOS_MAINNET_CHAIN_ID, slug))
+              .filter(isTezNonZeroBalance)
+          : [])
+      );
       result.push(...(filterZeroBalances ? evmTokensSlugs.filter(isEvmNonZeroBalance) : lifiTokenSlugs));
 
       return result;

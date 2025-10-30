@@ -18,7 +18,6 @@ import { searchEvmTokensWithNoMeta } from 'lib/assets/search.utils';
 import { useEvmAccountTokensSortPredicate } from 'lib/assets/use-sorting';
 import { parseChainAssetSlug, toChainAssetSlug } from 'lib/assets/utils';
 import { useGetEvmTokenBalanceWithDecimals } from 'lib/balances/hooks';
-import { COMMON_MAINNET_CHAIN_IDS } from 'lib/temple/types';
 import { useMemoWithCompare } from 'lib/ui/hooks';
 import { EvmChain, useAllEvmChains, useEnabledEvmChains } from 'temple/front';
 import { useFavoriteTokens } from 'temple/front/use-favorite-tokens';
@@ -52,9 +51,6 @@ export const AllEvmChainsAssetsList = memo<Props>(
     const isEvmNonZeroBalance = useCallback(
       (chainSlug: string) => {
         const [, chainId, assetSlug] = parseChainAssetSlug(chainSlug);
-
-        // Disable Etherlink
-        if (chainId === COMMON_MAINNET_CHAIN_IDS.etherlink) return false;
 
         return isDefined(getEvmBalance(chainId as number, assetSlug));
       },

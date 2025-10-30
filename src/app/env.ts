@@ -3,7 +3,7 @@ import { FC, useCallback, useLayoutEffect, useRef } from 'react';
 import constate from 'constate';
 import browser from 'webextension-polyfill';
 
-import { IS_GOOGLE_CHROME_BROWSER } from 'lib/env';
+import { IS_SIDE_PANEL_AVAILABLE } from 'lib/env';
 import { createUrl } from 'lib/woozie';
 
 type AppEnvironment = {
@@ -81,7 +81,7 @@ export function openInFullPage() {
 }
 
 export function openInSidebar() {
-  if (IS_GOOGLE_CHROME_BROWSER) {
+  if (IS_SIDE_PANEL_AVAILABLE) {
     return browser.windows
       .getCurrent()
       .then(currentWindow =>
@@ -97,7 +97,7 @@ export function openPopup() {
 }
 
 export function setIsSidebarByDefault(isSidebar: boolean) {
-  if (IS_GOOGLE_CHROME_BROWSER) {
+  if (IS_SIDE_PANEL_AVAILABLE) {
     return chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: isSidebar });
   }
 
@@ -105,7 +105,7 @@ export function setIsSidebarByDefault(isSidebar: boolean) {
 }
 
 export async function getIsSidebarByDefault() {
-  if (IS_GOOGLE_CHROME_BROWSER) {
+  if (IS_SIDE_PANEL_AVAILABLE) {
     const { openPanelOnActionClick = false } = await chrome.sidePanel.getPanelBehavior();
 
     return openPanelOnActionClick;

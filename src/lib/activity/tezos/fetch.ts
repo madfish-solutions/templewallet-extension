@@ -4,7 +4,7 @@ import { refetchOnce429 } from 'lib/apis/utils';
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
 import { detectTokenStandard } from 'lib/assets/standards';
 import { filterUnique } from 'lib/utils';
-import { getReadOnlyTezos } from 'temple/tezos';
+import { getTezosReadOnlyRpcClient } from 'temple/tezos';
 
 import type { TempleTzktOperationsGroup, TezosActivityOlderThan } from './types';
 
@@ -32,7 +32,7 @@ export async function fetchOperations(
     } else if (contractAddress === LIQUIDITY_BAKING_DEX_ADDRESS) {
       return await fetchOperations_Contract(chainId, accAddress, contractAddress, pseudoLimit, olderThan);
     } else {
-      const tezos = getReadOnlyTezos(rpcUrl);
+      const tezos = getTezosReadOnlyRpcClient({ rpcBaseURL: rpcUrl, chainId });
       const tokenType = await detectTokenStandard(tezos, contractAddress);
 
       if (tokenType === 'fa1.2') {

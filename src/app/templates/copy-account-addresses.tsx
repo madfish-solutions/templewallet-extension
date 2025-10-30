@@ -35,13 +35,9 @@ const CopyAddressButton = memo<{ address?: string; chainKind: TempleChainKind; t
     const handleClick = useCopyText(address, true);
 
     return address ? (
-      <Button
-        className="flex gap-0.5 py-0.5 items-center hover:text-secondary self-end"
-        testID={testID}
-        onClick={handleClick}
-      >
+      <Button className="flex gap-0.5 py-0.5 items-center self-end" testID={testID} onClick={handleClick}>
         {chainKind === TempleChainKind.Tezos ? <TezNetworkLogo size={16} /> : <EvmNetworksLogos size={16} />}
-        <span className="text-font-description">
+        <span className="text-font-description text-grey-1 hover:text-secondary">
           <HashShortView hash={address} firstCharsCount={2} lastCharsCount={4} />
         </span>
       </Button>

@@ -11,8 +11,9 @@ export enum ContentScriptType {
   ExternalAdsActivity = 'ExternalAdsActivity',
   UpdateAdsRules = 'UpdateAdsRules',
   FetchReferralsRules = 'FetchReferralsRules',
-  FetchReferrals = 'FetchReferrals',
-  ReferralClick = 'ReferralClick'
+  FetchTakeAdsReferrals = 'FetchTakeAdsReferrals',
+  ReferralClick = 'ReferralClick',
+  FetchTempleReferralLinkItems = 'FetchTempleReferralLinkItems'
 }
 
 export const APP_TITLE = 'Temple Wallet';
@@ -34,6 +35,8 @@ export const ACCOUNT_PKH_STORAGE_KEY = 'account_publickeyhash';
 export const ADS_VIEWER_ADDRESS_STORAGE_KEY = 'ADS_VIEWER_ADDRESS';
 
 export const ADS_VIEWER_DATA_STORAGE_KEY = 'ADS_VIEWER_DATA';
+
+export const REWARDS_ACCOUNT_DATA_STORAGE_KEY = 'REWARDS_ACCOUNT_DATA';
 
 /** @deprecated */
 export const CUSTOM_NETWORKS_SNAPSHOT_STORAGE_KEY = 'custom_networks_snapshot';
@@ -84,6 +87,10 @@ export const ACCOUNT_EXISTS_SHOWN_WARNINGS_STORAGE_KEY = 'ACCOUNT_EXISTS_SHOWN_W
 export const SHOULD_BACKUP_MNEMONIC_STORAGE_KEY = 'SHOULD_BACKUP_MNEMONIC';
 
 export const SHOULD_SHOW_V2_INTRO_MODAL_STORAGE_KEY = 'SHOULD_SHOW_V2_INTRO_MODAL';
+
+export const FIREFOX_DATA_CONSENT_STORAGE_KEY = 'FIREFOX_DATA_CONSENT_STORAGE_KEY';
+
+export const SHOULD_OPEN_LETS_EXCHANGE_MODAL_STORAGE_KEY = 'SHOULD_OPEN_LETS_EXCHANGE_MODAL';
 
 export const SHOULD_SHOW_EARN_ETH_INTRO_MODAL_STORAGE_KEY = 'SHOULD_SHOW_EARN_ETH_INTRO_MODAL';
 
@@ -149,3 +156,5 @@ export const EVM_ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
 export const VITALIK_ADDRESS = '0xAb5801a7D398351b8bE11C439e05C5B3259aeC9B';
 
 export const ASSET_HUGE_AMOUNT = 1e18;
+
+export const REACTIVATION_APPLIED_AT_KEY = 'ADS_REACTIVATION_APPLIED_AT';

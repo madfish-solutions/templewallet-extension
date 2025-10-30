@@ -27,7 +27,7 @@ const INCENTIVE_TOKENS: Record<number, Record<string, IncentiveInfo>> = {
   [COMMON_MAINNET_CHAIN_IDS.etherlink]: {
     // USDC
     '0x796Ea11Fa2dD751eD01b53C372fFDB4AAa8f00F9_0': {
-      label: 'APY 28%',
+      label: 'APY: 28%',
       link: 'https://app.applefarm.xyz/referral?code=APPLE-FARM-880788',
       external: true
     }

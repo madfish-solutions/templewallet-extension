@@ -1,10 +1,15 @@
 import { useCallback, useEffect, useMemo } from 'react';
 
+import { useAppEnv } from 'app/env';
+import { useLocationSearchParamValue } from 'app/hooks/use-location';
 import { useTestnetModeEnabledSelector } from 'app/store/settings/selectors';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { EvmAssetStandard } from 'lib/evm/types';
 import { EvmNativeTokenMetadata } from 'lib/metadata/types';
+import { useRetryableSWR } from 'lib/swr';
 import { EvmChainSpecs, TezosChainSpecs } from 'lib/temple/chains-specs';
+import { useTempleClient } from 'lib/temple/front/client';
+import { TempleDAppPayload } from 'lib/temple/types';
 import {
   ActiveChainsRpcUrls,
   ChainsRpcUrls,
@@ -56,6 +61,33 @@ export function useReadyTempleTezosNetworks(customTezosNetworks: StoredTezosNetw
 }
 
 export function useReadyTempleEvmNetworks(customEvmNetworks: StoredEvmNetwork[]) {
+  const { getDAppPayload } = useTempleClient();
+  const [confirmationId] = useLocationSearchParamValue('id');
+  const { confirmWindow } = useAppEnv();
+
+  const getDAppPayloadIfConfirmation = useCallback(async () => {
+    if (confirmationId && confirmWindow) {
+      try {
+        return await getDAppPayload(confirmationId);
+      } catch (e) {
+        return null;
+      }
+    }
+
+    return null;
+  }, [confirmationId, confirmWindow, getDAppPayload]);
+
+  const { data: dAppPayload } = useRetryableSWR<TempleDAppPayload | null, unknown, string[]>(
+    ['networks-dapp-payload', confirmationId ?? ''],
+    getDAppPayloadIfConfirmation,
+    {
+      shouldRetryOnError: false,
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false
+    }
+  );
+  const shouldPreventUrlsOverwrite = dAppPayload === undefined || dAppPayload?.type === 'add_chain';
+
   const allEvmNetworks = useMemo<typeof EVM_DEFAULT_NETWORKS>(
     () => [...EVM_DEFAULT_NETWORKS, ...customEvmNetworks],
     [customEvmNetworks]
@@ -80,6 +112,10 @@ export function useReadyTempleEvmNetworks(customEvmNetworks: StoredEvmNetwork[])
   );
 
   useEffect(() => {
+    if (shouldPreventUrlsOverwrite) {
+      return;
+    }
+
     setEvmChainsRpcUrls(
       // `enabledChains` are filtered by `testnetModeEnabled`, which is harmful here
       Object.values(allChains)
@@ -103,7 +139,7 @@ export function useReadyTempleEvmNetworks(customEvmNetworks: StoredEvmNetwork[])
           {}
         )
     );
-  }, [allChains]);
+  }, [allChains, shouldPreventUrlsOverwrite]);
 
   return {
     allEvmChains: allChains,

@@ -1,7 +1,7 @@
 import { identity } from 'lodash';
 import browser, { Runtime } from 'webextension-polyfill';
 
-import { IS_GOOGLE_CHROME_BROWSER } from 'lib/env';
+import { IS_SIDE_PANEL_AVAILABLE } from 'lib/env';
 import { TempleDAppPayload, TempleMessageType, TempleRequest } from 'lib/temple/types';
 
 import { intercom } from './defaults';
@@ -70,7 +70,7 @@ export async function requestConfirm<T extends TempleDAppPayload>({
   const openedSidebarWindows = store.getState().windowsWithSidebars.filter(Boolean) as number[];
 
   const sidePanelBehaviorEnabled =
-    IS_GOOGLE_CHROME_BROWSER &&
+    IS_SIDE_PANEL_AVAILABLE &&
     Boolean(chrome?.sidePanel) &&
     (await chrome.sidePanel.getPanelBehavior()).openPanelOnActionClick;
 

@@ -52,7 +52,7 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
 
   const getActiveBlockExplorer = useGetTezosActiveBlockExplorer();
 
-  const tezos = getTezosToolkitWithSigner(rpcBaseURL, account.ownerAddress || accountPkh, true);
+  const tezos = getTezosToolkitWithSigner(network, account.ownerAddress || accountPkh, true);
 
   const { data: estimationData, error: estimationError } = useTezosEstimationData({
     to,
@@ -106,8 +106,7 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
     estimationData,
     basicParams: basicSendParams,
     senderAccount: account,
-    rpcBaseURL,
-    chainId
+    network
   });
   const { formState } = form;
 
@@ -183,6 +182,7 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
         assetSlug={assetSlug}
         amount={amount}
         recipientAddress={to}
+        decimals={assetMetadata.decimals}
         displayedFeeOptions={displayedFeeOptions}
         displayedFee={displayedFee}
         selectedTab={tab}

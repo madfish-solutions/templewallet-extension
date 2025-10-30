@@ -2,6 +2,7 @@ import axios from 'axios';
 
 import { BROWSER_IDENTIFIER_HEADER } from 'lib/browser';
 import { APP_VERSION, EnvVars } from 'lib/env';
+import { RewardsAddresses, HDAccountRewardsAddresses, NoAccountRewardsAddresses } from 'temple/types';
 
 import { withAxiosDataExtract } from './utils';
 
@@ -21,12 +22,13 @@ interface ImpressionDetails {
 }
 
 export async function postAdImpression(
-  accountPkh: string,
+  { tezosAddress, evmAddress }: RewardsAddresses,
   provider: string,
   { urlDomain, pageName }: ImpressionDetails
 ) {
   await axiosClient.post('/impression', {
-    accountPkh,
+    accountPkh: tezosAddress,
+    evmPkh: evmAddress,
     urlDomain,
     pageName,
     provider,
@@ -43,25 +45,30 @@ interface ReferralClickDetails {
   urlDomain: string;
   /** Page domain, where referral link was */
   pageDomain: string;
+  provider: 'TakeAds' | 'Temple';
 }
 
 export async function postReferralClick(
-  accountPkh: string,
+  addresses: HDAccountRewardsAddresses,
   installId: undefined,
   details: ReferralClickDetails
 ): Promise<void>;
 export async function postReferralClick(
-  accountPkh: undefined,
+  addresses: NoAccountRewardsAddresses,
   installId: string,
   details: ReferralClickDetails
 ): Promise<void>;
 export async function postReferralClick(
-  accountPkh: string | undefined,
+  { tezosAddress, evmAddress }: RewardsAddresses,
   installId: string | undefined,
-  { urlDomain, pageDomain }: ReferralClickDetails
+  { urlDomain, pageDomain, provider }: ReferralClickDetails
 ) {
+  // "/takeads/" in endpoint name is left for backward compatibility
+  // It can handle clicks from different providers
   await axiosClient.post('/takeads/referrals/click', {
-    accountPkh,
+    provider,
+    accountPkh: tezosAddress,
+    evmPkh: evmAddress,
     installId,
     urlDomain,
     pageDomain,
@@ -69,8 +76,18 @@ export async function postReferralClick(
   });
 }
 
-export async function postLinkAdsImpressions(accountPkh: string, installId: string, signature: string) {
-  await axiosClient.post('/link-impressions', { accountPkh, installId, signature, appVersion: APP_VERSION });
+export async function postLinkAdsImpressions(
+  { tezosAddress, evmAddress }: RewardsAddresses,
+  installId: string,
+  signature: string
+) {
+  await axiosClient.post('/link-impressions', {
+    accountPkh: tezosAddress,
+    evmPkh: evmAddress,
+    installId,
+    signature,
+    appVersion: APP_VERSION
+  });
 }
 
 interface ReferralTextIconRule {
@@ -87,6 +104,11 @@ export interface ReferralsRulesResponse {
   redirectUrl?: string;
 }
 
+export interface TempleReferralLinkItem {
+  targetUrl: string;
+  referralLink: string;
+}
+
 export const fetchReferralsRules = withAxiosDataExtract(() =>
   axiosClient.get<ReferralsRulesResponse>('/takeads/referrals/rules')
 );
@@ -95,6 +117,10 @@ export const fetchReferralsAffiliateLinks = withAxiosDataExtract((links: string[
   axiosClient.post<TekeadsAffiliateResponse>('/takeads/referrals/affiliate-links', links).catch(err => {
     throw err;
   })
+);
+
+export const fetchTempleReferralLinkItems = withAxiosDataExtract((browser: string) =>
+  axiosClient.get<TempleReferralLinkItem[]>('/temple/referrals/links', { params: { browser } })
 );
 
 export interface RpStatsResponse {
@@ -115,6 +141,14 @@ export const fetchRpForMonth = withAxiosDataExtract((accountPkh: string, monthYe
     params: { accountPkh, monthYearIndex, tzOffset: new Date().getTimezoneOffset() }
   })
 );
+
+export async function postReactivationCheck(tezos: string[]): Promise<{ eligible: boolean }> {
+  const { data } = await axiosClient.post<{ eligible: boolean }>('/reactivation/check', {
+    tezos,
+    appVersion: APP_VERSION
+  });
+  return data;
+}
 
 interface TekeadsAffiliateResponse {
   data: AffiliateLink[];

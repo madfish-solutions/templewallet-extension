@@ -4,13 +4,9 @@ export const APP_VERSION = PackageJSON.version;
 
 // Detects the Mises browser or a Chromium-based browser on iOS (e.g., Chrome on iPhone/iPad, which includes 'CriOS' in userAgent).
 // Mises supports desktop extensions on mobile, so it's treated as compatible in this context.
-export const IS_MISES_BROWSER =
-  // @ts-expect-error
-  navigator.userAgentData?.brands?.some(b => b.brand === 'Mises') || navigator.userAgent.includes('CriOS/');
+export const IS_MISES_BROWSER = hasUserAgentBrand('Mises') || navigator.userAgent.includes('CriOS/');
 
-export const IS_GOOGLE_CHROME_BROWSER =
-  // @ts-expect-error
-  navigator.userAgentData?.brands?.some(b => b.brand === 'Google Chrome');
+export const IS_SIDE_PANEL_AVAILABLE = hasUserAgentBrand('Google Chrome', 'Brave');
 
 export const IS_CHROMIUM_BROWSER = process.env.TARGET_BROWSER === 'chrome';
 
@@ -78,3 +74,11 @@ export const EnvVars = {
   TAKE_ADS_TOKEN: process.env.TAKE_ADS_TOKEN!,
   GOOGLE_AUTH_PAGE_URL: process.env.GOOGLE_AUTH_PAGE_URL!
 } as const;
+
+const ALL_BRANDS = ['Google Chrome', 'Brave', 'Mises'] as const;
+type Brand = (typeof ALL_BRANDS)[number];
+
+function hasUserAgentBrand(...brands: Brand[]): boolean {
+  // @ts-expect-error
+  return navigator.userAgentData?.brands?.some(b => brands.includes(b.brand)) ?? false;
+}

@@ -20,7 +20,6 @@ const V2_DOCS_URL =
 
 export const V2IntroductionModal = memo(({ setShouldShowV2IntroModal }: V2IntroductionModalProps) => {
   const handleClose = useCallback(() => setShouldShowV2IntroModal(false), [setShouldShowV2IntroModal]);
-
   const handleLinkClick = useCallback(async () => {
     await handleClose();
     await browser.tabs.create({ url: V2_DOCS_URL });

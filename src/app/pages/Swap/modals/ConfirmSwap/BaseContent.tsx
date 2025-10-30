@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 
 import BigNumber from 'bignumber.js';
 import { SubmitHandler, useFormContext } from 'react-hook-form-v7';
@@ -9,6 +9,7 @@ import { ActionsButtonsBox } from 'app/atoms/PageModal/actions-buttons-box';
 import { StyledButton } from 'app/atoms/StyledButton';
 import { BalancesChangesView } from 'app/templates/balances-changes-view';
 import { CurrentAccount } from 'app/templates/current-account';
+import { FeeSummary } from 'app/templates/fee-summary';
 import { LedgerApprovalModal } from 'app/templates/ledger-approval-modal';
 import { TransactionTabs } from 'app/templates/TransactionTabs';
 import { Tab, TxParamsFormData } from 'app/templates/TransactionTabs/types';
@@ -31,6 +32,7 @@ interface BaseContentProps<T extends TxParamsFormData> {
   onFeeOptionSelect: SyncFn<FeeOptionLabel>;
   onSubmit: SubmitHandler<T>;
   onCancel: EmptyFn;
+  submitLoadingOverride?: boolean;
   minimumReceived?: {
     amount: string;
     symbol: string;
@@ -46,10 +48,7 @@ interface BaseContentProps<T extends TxParamsFormData> {
   displayedFee?: string;
   displayedStorageFee?: string;
   displayedFeeOptions?: DisplayedFeeOptions;
-  quoteRefreshCountdown?: number;
-  isQuoteExpired?: boolean;
-  isQuoteRefreshing?: boolean;
-  onManualQuoteRefresh?: EmptyFn;
+  submitDisabled?: boolean;
 }
 
 export const BaseContent = <T extends TxParamsFormData>({
@@ -66,18 +65,18 @@ export const BaseContent = <T extends TxParamsFormData>({
   onSubmit,
   onCancel,
   onLedgerModalClose,
+  submitLoadingOverride,
   minimumReceived,
   cashbackInTkey,
   displayedFee,
   displayedStorageFee,
   displayedFeeOptions,
   bridgeData,
-  quoteRefreshCountdown,
-  isQuoteExpired,
-  isQuoteRefreshing,
-  onManualQuoteRefresh
+  submitDisabled
 }: BaseContentProps<T>) => {
   const { formState } = useFormContext<T>();
+
+  const goToFeeTab = useCallback(() => setSelectedTab('fee'), [setSelectedTab]);
 
   return (
     <>
@@ -85,7 +84,22 @@ export const BaseContent = <T extends TxParamsFormData>({
         <div className="my-4">
           {someBalancesChanges ? (
             <FadeTransition>
-              <BalancesChangesView balancesChanges={filteredBalancesChanges} chain={network} bridgeData={bridgeData} />
+              <BalancesChangesView
+                balancesChanges={filteredBalancesChanges}
+                chain={network}
+                bridgeData={bridgeData}
+                footer={
+                  <FeeSummary
+                    network={network}
+                    assetSlug={nativeAssetSlug}
+                    gasFee={displayedFee}
+                    storageFee={displayedStorageFee}
+                    protocolFee={bridgeData?.protocolFee}
+                    onOpenFeeTab={goToFeeTab}
+                    embedded
+                  />
+                }
+              />
             </FadeTransition>
           ) : (
             <div className="flex justify-center items-center py-4">
@@ -105,8 +119,6 @@ export const BaseContent = <T extends TxParamsFormData>({
           latestSubmitError={latestSubmitError}
           onFeeOptionSelect={onFeeOptionSelect}
           onSubmit={onSubmit}
-          displayedFee={displayedFee}
-          displayedStorageFee={displayedStorageFee}
           displayedFeeOptions={displayedFeeOptions}
           cashbackInTkey={cashbackInTkey}
           minimumReceived={minimumReceived}
@@ -122,22 +134,15 @@ export const BaseContent = <T extends TxParamsFormData>({
         </StyledButton>
 
         <StyledButton
-          type={onManualQuoteRefresh && isQuoteExpired ? 'button' : 'submit'}
-          form={onManualQuoteRefresh && isQuoteExpired ? undefined : 'confirm-form'}
+          type="submit"
+          form="confirm-form"
           color="primary"
           size="L"
           className="w-full"
-          loading={isQuoteRefreshing || formState.isSubmitting}
-          disabled={!formState.isValid}
-          onClick={onManualQuoteRefresh && isQuoteExpired ? onManualQuoteRefresh : undefined}
+          loading={submitLoadingOverride ?? formState.isSubmitting}
+          disabled={!formState.isValid || Boolean(submitDisabled)}
         >
-          {latestSubmitError ? (
-            <T id="retry" />
-          ) : isQuoteRefreshing ? null : isQuoteExpired ? (
-            <T id="refresh" />
-          ) : (
-            <T id="confirmWithCountdown" substitutions={[quoteRefreshCountdown]} />
-          )}
+          <T id={latestSubmitError ? 'retry' : 'confirm'} />
         </StyledButton>
       </ActionsButtonsBox>
 

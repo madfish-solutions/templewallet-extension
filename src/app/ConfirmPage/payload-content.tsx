@@ -139,6 +139,7 @@ const ConnectViewDefault = memo<{
   return (
     <div className="flex flex-col gap-4">
       <AccountCard
+        showCompactDownIcon
         account={account}
         isCurrent={false}
         attractSelf={false}
@@ -193,7 +194,7 @@ const PayloadContentHOC = <
     dismissConflict,
     showConflict
   }) => (
-    <div className="w-full flex flex-col gap-4">
+    <div className="w-full flex flex-col">
       {(() => {
         if (payload.type === 'connect') {
           const providers: EIP6963ProviderInfo[] | undefined = 'providers' in payload ? payload.providers : undefined;

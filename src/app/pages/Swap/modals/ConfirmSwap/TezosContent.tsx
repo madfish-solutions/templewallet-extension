@@ -33,7 +33,7 @@ interface TezosContentProps {
 
 export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
   const { opParams, account, network, cashbackInTkey, minimumReceived, onConfirm } = data;
-  const { rpcBaseURL, chainId } = network;
+  const { chainId } = network;
 
   const accountPkh = account.address;
   const isLedgerAccount = account.type === TempleAccountType.Ledger;
@@ -44,7 +44,7 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
 
   const getActiveBlockExplorer = useGetTezosActiveBlockExplorer();
 
-  const tezos = getTezosToolkitWithSigner(rpcBaseURL, account.ownerAddress || accountPkh, true);
+  const tezos = getTezosToolkitWithSigner(network, account.ownerAddress || accountPkh, true);
 
   const estimate = useCallback(async () => {
     try {
@@ -100,8 +100,7 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
     senderAccount: account,
     simulateOperation: true,
     estimationDataLoading,
-    rpcBaseURL,
-    chainId
+    network
   });
   const { formState } = form;
 

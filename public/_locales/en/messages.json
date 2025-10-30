@@ -1287,6 +1287,9 @@
   "protocolFeeTooltip": {
     "message": "Bridge protocol fee for token cross-chain transfer."
   },
+  "bridgeToolsTooltip": {
+    "message": "This operation will be proceeded by:"
+  },
   "extraGasInfoTooltipEvm": {
     "message": "Receive a portion of your bridged amount as gas on the destination network - just enough for your next transaction."
   },
@@ -1821,8 +1824,17 @@
   "transactionInfo": {
     "message": "Transaction info"
   },
+  "simulatedResult": {
+    "message": "Simulated result"
+  },
   "estimatedTxDetails": {
     "message": "Est. transaction details"
+  },
+  "totalFeeAmount": {
+    "message": "Total fee amount:"
+  },
+  "totalFee": {
+    "message": "Total fee"
   },
   "noValue": {
     "message": "No value"
@@ -2690,6 +2702,14 @@
   "balanceTooLow": {
     "message": "Gas token balance is too low"
   },
+  "insufficientGasBalanceOnChain": {
+    "message": "Insufficient gas balance on $chain$",
+    "placeholders": {
+      "chain": {
+        "content": "$1"
+      }
+    }
+  },
   "swap": {
     "message": "Swap"
   },
@@ -2924,7 +2944,7 @@
     }
   },
   "gasFee": {
-    "message": "Gas Fee"
+    "message": "Gas fee"
   },
   "storageFee": {
     "message": "Storage fee"
@@ -3211,6 +3231,38 @@
   "deleteContactConfirm": {
     "message": "Are you sure you want to delete this contact?"
   },
+  "helpImproveTemple": {
+    "message": "Help us improve Temple Wallet"
+  },
+  "weWouldLikeToCollectUserData": {
+    "message": "We’d like to collect limited usage data to help improve \nyour Temple Wallet experience."
+  },
+  "usageAnalyticsConsent": {
+    "message": "Usage analytics"
+  },
+  "usageAnalyticsConsentDescription": {
+    "message": "We collect anonymous interactions like clicks, views, and performance metrics. This data is used to understand how users navigate Temple Wallet and identify ways to make it better and more intuitive."
+  },
+  "dataForRewardsConsent": {
+    "message": "Data for rewards"
+  },
+  "dataForRewardsConsentDescription": {
+    "message": "Temple Wallet support built-in reward programs like non-intrusive promo content to allow users earn TKEY token. For the automatic distribution of these rewards, we collect general information including your IP address (to identify your region) and your public wallet address."
+  },
+  "reviewTermsOfUsageAndPrivacyPolicy": {
+    "message": "Review our $termsOfUse$ and $privacyPolicy$ for more information. We’ll notify you on our website and socials if we plan to use this data for other purposes. Remember, you can manage data collection in the Settings any time.",
+    "placeholders": {
+      "termsOfUse": {
+        "content": "$1"
+      },
+      "privacyPolicy": {
+        "content": "$2"
+      }
+    }
+  },
+  "agreeContinue": {
+    "message": "Agree and Continue"
+  },
   "disableAdsModalDescription": {
     "message": "Did you know, you can earn TKEY tokens by viewing ads? If ads are turned off, you can easily enable them anytime in the settings and start earning rewards!"
   },
@@ -3419,6 +3471,9 @@
   },
   "rewards": {
     "message": "Rewards"
+  },
+  "rewardsAccountTooltip": {
+    "message": "This is your account for Temple rewards. All payouts for activities will be distributed to this account addresses."
   },
   "partnersPromoDescription": {
     "message": "Here you can configure displaying ads in Temple Wallet and getting reward in TKEY tokens. By enabling this, you agree to share your wallet address and IP to receive tokens and view ads."
@@ -3918,6 +3973,15 @@
   },
   "swapTokenSearchInputPlaceholder": {
     "message": "Enter name or address"
+  },
+  "unsecuredRpcEndpoint": {
+    "message": "Unsecured RPC endpoint"
+  },
+  "unsecuredRpcWarning": {
+    "message": "You’re going to add a custom RPC URL that does not use SSL/TLS encryption. This means your connection may be vulnerable to interception or manipulation.\n\nProceed only if you trust this endpoint."
+  },
+  "proceed": {
+    "message": "Proceed"
   },
   "sync": {
     "message": "Sync"
@@ -4474,6 +4538,9 @@
   "interactionWith": {
     "message": "Interaction With"
   },
+  "approvedTo": {
+    "message": "Approved to"
+  },
   "earn": {
     "message": "Earn"
   },
@@ -4551,5 +4618,33 @@
   },
   "approve": {
     "message": "Approve"
+  },
+  "bridgePreview": {
+    "message": "Bridge Preview"
+  },
+  "swapPreview": {
+    "message": "Swap Preview"
+  },
+  "cancelOperationTitle": {
+    "message": "Cancel $operation$?",
+    "placeholders": {
+      "operation": {
+        "content": "$1"
+      }
+    }
+  },
+  "cancelOperationDescription": {
+    "message": "Canceling now will interrupt the route - your $operation$ won’t be completed. Your funds are safe and still available in your wallet, but you’ll need to start over.",
+    "placeholders": {
+      "operation": {
+        "content": "$1"
+      }
+    }
+  },
+  "back": {
+    "message": "Back"
+  },
+  "cancelAnyway": {
+    "message": "Cancel Anyway"
   }
 }

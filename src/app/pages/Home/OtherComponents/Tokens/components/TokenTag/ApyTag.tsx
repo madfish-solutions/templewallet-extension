@@ -61,7 +61,7 @@ export const TokenApyTag: FC<Props> = ({ slug, symbol }) => {
       testID={AssetsSelectors.assetItemApyButton}
       testIDProperties={{ slug, symbol, apyRate: params.rate, link: params.link }}
     >
-      {params.label} {params.displayRate}%
+      {params.label}: {params.displayRate}%
     </TagButton>
   );
 };

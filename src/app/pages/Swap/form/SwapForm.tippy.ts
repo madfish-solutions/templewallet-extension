@@ -1,5 +1,4 @@
 import { t } from 'lib/i18n';
-import { SWAP_CASHBACK_RATIO } from 'lib/route3/constants';
 
 export const feeInfoTippyProps = {
   trigger: 'mouseenter',
@@ -28,11 +27,11 @@ export const protocolFeeInfoTippyProps = {
   placement: 'top-start' as const
 };
 
-export const cashbackInfoTippyProps = {
+export const toolsInfoTippyProps = {
   trigger: 'mouseenter',
   hideOnClick: false,
-  content: t('swapCashbackDescription', String(SWAP_CASHBACK_RATIO * 100)),
+  content: t('bridgeToolsTooltip'),
   animation: 'shift-away-subtle',
-  maxWidth: '16rem',
+  maxWidth: '12rem',
   placement: 'top-start' as const
 };

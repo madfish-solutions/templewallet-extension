@@ -2,6 +2,7 @@ import { createAction } from '@reduxjs/toolkit';
 
 import type { WhitelistResponseToken } from 'lib/apis/temple';
 import type { FetchedMetadataRecord } from 'lib/metadata/fetch';
+import { TezosNetworkEssentials } from 'temple/networks';
 
 export const putTokensMetadataAction = createAction<{
   records: FetchedMetadataRecord;
@@ -13,7 +14,7 @@ export const addWhitelistTokensMetadataAction = createAction<WhitelistResponseTo
 );
 
 export const loadTokensMetadataAction = createAction<{
-  rpcUrl: string;
+  network: TezosNetworkEssentials;
   slugs: string[];
 }>('tokens-metadata/LOAD');
 

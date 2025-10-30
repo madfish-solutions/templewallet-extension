@@ -39,7 +39,7 @@ export const useTezosChainCollectiblesListingLogic = (allSlugsSorted: string[], 
     slugs: paginatedSlugs,
     isLoading: pageIsLoading,
     loadNext
-  } = useTezosChainCollectiblesPaginationLogic(allSlugsSorted, network.rpcBaseURL);
+  } = useTezosChainCollectiblesPaginationLogic(allSlugsSorted, network);
 
   const assetsAreLoading = useAreAssetsLoading('collectibles');
   const metadatasLoading = useCollectiblesMetadataLoadingSelector();
@@ -57,7 +57,7 @@ export const useTezosChainCollectiblesListingLogic = (allSlugsSorted: string[], 
     return pageIsLoading ? undefined : allSlugsSorted.slice(paginatedSlugs.length + ITEMS_PER_PAGE * 2);
   }, [isInSearchMode, pageIsLoading, allSlugsSorted, paginatedSlugs.length]);
 
-  useTezosChainCollectiblesMetadataPresenceCheck(network.rpcBaseURL, metaToCheckAndLoad);
+  useTezosChainCollectiblesMetadataPresenceCheck(network, metaToCheckAndLoad);
 
   const getCollectibleMetadata = useGetCollectibleMetadata();
 

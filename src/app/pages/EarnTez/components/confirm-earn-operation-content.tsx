@@ -9,6 +9,7 @@ import { FadeTransition } from 'app/a11y/FadeTransition';
 import { ActionModalButton } from 'app/atoms/action-modal';
 import { useLedgerApprovalModalState } from 'app/hooks/use-ledger-approval-modal-state';
 import { CurrentAccount } from 'app/templates/current-account';
+import { FeeSummary } from 'app/templates/fee-summary';
 import { LedgerApprovalModal } from 'app/templates/ledger-approval-modal';
 import { PageModalScrollViewWithActions } from 'app/templates/page-modal-scroll-view-with-actions';
 import { TransactionTabs } from 'app/templates/TransactionTabs';
@@ -131,12 +132,11 @@ const ConfirmEarnOperationContentBodyWrapper = <R extends TezosEarnReviewDataBas
 }: ConfirmEarnOperationContentBodyWrapperProps<R>) => {
   const { account, network, onConfirm } = data;
   const { address: accountPkh, ownerAddress } = account;
-  const { rpcBaseURL, chainId } = network;
 
   const isLedgerAccount = account.type === TempleAccountType.Ledger;
   const [latestSubmitError, setLatestSubmitError] = useState<string | nullish>(null);
 
-  const tezos = getTezosToolkitWithSigner(rpcBaseURL, ownerAddress || accountPkh, true);
+  const tezos = getTezosToolkitWithSigner(network, ownerAddress || accountPkh, true);
   const { value: tezBalance = ZERO } = useTezosAssetBalance(TEZ_TOKEN_SLUG, accountPkh, network);
   const { data: estimationData, error: estimationError } = useEstimationData(data, tezos, tezBalance);
   const displayedEstimationError = useMemo(() => serializeError(estimationError), [estimationError]);
@@ -158,8 +158,7 @@ const ConfirmEarnOperationContentBodyWrapper = <R extends TezosEarnReviewDataBas
     estimationData,
     basicParams,
     senderAccount: account,
-    rpcBaseURL,
-    chainId,
+    network,
     estimationDataLoading
   });
   const { formState } = form;
@@ -215,11 +214,20 @@ const ConfirmEarnOperationContentBodyWrapper = <R extends TezosEarnReviewDataBas
 
   const topElement = useMemo(() => renderTopElement(data), [data, renderTopElement]);
 
+  const goToFeeTab = useCallback(() => setTab('fee'), [setTab]);
+
   return (
     <FormProvider {...form}>
       <div className="flex flex-col pt-4">
         {topElement != null && <div className="mb-6 flex flex-col">{topElement}</div>}
 
+        <FeeSummary
+          network={network}
+          assetSlug={TEZ_TOKEN_SLUG}
+          gasFee={displayedFee}
+          storageFee={displayedStorageFee}
+          onOpenFeeTab={goToFeeTab}
+        />
         <CurrentAccount />
 
         <div className="flex flex-col">
@@ -233,8 +241,6 @@ const ConfirmEarnOperationContentBodyWrapper = <R extends TezosEarnReviewDataBas
             estimationError={displayedEstimationError}
             onFeeOptionSelect={handleFeeOptionSelect}
             onSubmit={onSubmit}
-            displayedFee={displayedFee}
-            displayedStorageFee={displayedStorageFee}
             displayedFeeOptions={displayedFeeOptions}
             formId={formId}
             tabsName={`${formId}-tabs`}

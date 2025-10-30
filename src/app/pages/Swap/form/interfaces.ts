@@ -1,42 +1,40 @@
-import { LiFiStep, StepToolDetails, Route } from '@lifi/sdk';
+import { StepToolDetails, Route, LiFiStep } from '@lifi/sdk';
 import { WalletParamsWithKind } from '@taquito/taquito';
 import { BatchWalletOperation } from '@taquito/taquito/dist/types/wallet/batch-operation';
 import BigNumber from 'bignumber.js';
 
-import { RouteParams } from 'lib/apis/temple/endpoints/evm/api.interfaces';
 import {
   EvmReviewData as GenericEvmReviewData,
   TezosReviewData as GenericTezosReviewData
 } from 'lib/temple/front/estimation-data-providers';
+import { AccountForChain } from 'temple/accounts';
 import { EvmChain } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
 
 export type BridgeDetails = {
-  tool?: StepToolDetails;
+  tools: StepToolDetails[];
   executionTime: string;
   priceImpact: number;
   protocolFee?: string;
   gasTokenSymbol: string;
 };
 
-interface EvmSwapReviewData {
-  needsApproval: boolean;
-  neededApproval: boolean;
-  onChainAllowance: bigint;
-  onConfirm: EmptyFn;
+export interface EvmStepReviewData {
+  account: AccountForChain<TempleChainKind.EVM>;
+  inputNetwork: EvmChain;
+  outputNetwork: EvmChain;
+  protocolFee?: string;
+  destinationChainGasTokenAmount?: BigNumber;
   minimumReceived: {
     amount: string;
     symbol: string;
   };
-  buildSwapRouteParams: () => RouteParams | null;
-  fetchEvmSwapRoute: (params: RouteParams) => Promise<Route | undefined>;
-  initialLifiStep: LiFiStep;
-  bridgeInfo?: {
-    protocolFee?: string;
-    destinationChainGasTokenAmount?: BigNumber;
-    inputNetwork?: EvmChain;
-    outputNetwork?: EvmChain;
-  };
+  routeStep: LiFiStep;
+}
+
+interface EvmSwapReviewData {
+  handleResetForm: EmptyFn;
+  swapRoute: Route;
 }
 
 interface TezosSwapReviewData {

@@ -20,7 +20,7 @@ import { fifoResolve } from 'lib/utils';
 import { TezosChain, useEnabledTezosChains } from 'temple/front';
 import { useEvmAddressByDomainName } from 'temple/front/evm/helpers';
 import { getTezosDomainsClient, useTezosAddressByDomainName } from 'temple/front/tezos';
-import { getReadOnlyTezos } from 'temple/tezos';
+import { getTezosReadOnlyRpcClient } from 'temple/tezos';
 import { TempleChainKind } from 'temple/types';
 
 import { ImportAccountSelectors, ImportAccountFormType } from '../selectors';
@@ -35,10 +35,7 @@ export const WatchOnlyForm = memo<ImportAccountFormProps>(({ onSuccess }) => {
 
   const tezosChains = useEnabledTezosChains();
   const domainsClients = useMemo(
-    () =>
-      tezosChains
-        .map(chain => getTezosDomainsClient(chain.chainId, chain.rpcBaseURL))
-        .filter(client => client.isSupported),
+    () => tezosChains.map(chain => getTezosDomainsClient(chain)).filter(client => client.isSupported),
     [tezosChains]
   );
 
@@ -229,12 +226,12 @@ async function getTezosChainId(contractAddress: string, tezosChains: TezosChain[
   const rpcContractSearchResults = await Promise.allSettled(
     tezosChains
       .filter(({ chainId }) => dipdupSearchFailed || !Object.values(dipdupNetworksChainIds).includes(chainId))
-      .map(async ({ rpcBaseURL, chainId }) => {
-        const tezos = getReadOnlyTezos(rpcBaseURL);
+      .map(async chain => {
+        const tezos = getTezosReadOnlyRpcClient(chain);
 
         await tezos.contract.at(contractAddress);
 
-        return chainId;
+        return chain.chainId;
       })
   );
 

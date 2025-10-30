@@ -13,11 +13,9 @@ import { BridgeDetails, SwapFieldName } from 'app/pages/Swap/form/interfaces';
 import { EvmSwapInfoDropdown } from 'app/pages/Swap/form/SwapInfoDropdown/EvmSwapInfoDropdown';
 import { TezosSwapInfoDropdown } from 'app/pages/Swap/form/SwapInfoDropdown/TezosSwapInfoDropdown';
 import { dispatch } from 'app/store';
-import { useUserTestingGroupNameSelector } from 'app/store/ab-testing/selectors';
 import { setOnRampAssetAction } from 'app/store/settings/actions';
 import { resetSwapParamsAction } from 'app/store/swap/actions';
 import { setTestID } from 'lib/analytics';
-import { ABTestGroup } from 'lib/apis/temple';
 import { isWertSupportedChainAssetSlug } from 'lib/apis/wert';
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
@@ -26,7 +24,6 @@ import { toChainAssetSlug } from 'lib/assets/utils';
 import { useFiatCurrency } from 'lib/fiat-currency';
 import { useAssetUSDPrice } from 'lib/fiat-currency/core';
 import { t, T, toLocalFixed } from 'lib/i18n';
-import { SWAP_THRESHOLD_TO_GET_CASHBACK } from 'lib/route3/constants';
 import { TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
 import { ZERO } from 'lib/utils/numbers';
 import { TempleChainKind } from 'temple/types';
@@ -112,7 +109,6 @@ export const BaseSwapForm: FC<Props> = ({
 
   const isFiatMode = watch('isFiatMode');
 
-  const testGroupName = useUserTestingGroupNameSelector();
   const { selectedFiatCurrency } = useFiatCurrency();
 
   const defaultSlug = isEvmNetwork ? EVM_TOKEN_SLUG : TEZ_TOKEN_SLUG;
@@ -130,8 +126,7 @@ export const BaseSwapForm: FC<Props> = ({
 
   const areInputOutputAssetsDefined = isDefined(inputAssetSlug) && isDefined(outputAssetSlug);
   const isInputTokenTempleToken = inputAssetSlug === KNOWN_TOKENS_SLUGS.TEMPLE;
-  const shouldShowCashbackProgressBar =
-    areInputOutputAssetsDefined && !isInputTokenTempleToken && !isEvmNetwork && testGroupName === ABTestGroup.B;
+  const shouldShowCashbackProgressBar = areInputOutputAssetsDefined && !isInputTokenTempleToken && !isEvmNetwork;
 
   const validateInputField = useCallback(
     (props: SwapInputValue) => {
@@ -336,11 +331,6 @@ export const BaseSwapForm: FC<Props> = ({
               />
             ) : (
               <TezosSwapInfoDropdown
-                showCashBack={
-                  !isInputTokenTempleToken &&
-                  inputAmountInUSD.gte(SWAP_THRESHOLD_TO_GET_CASHBACK) &&
-                  testGroupName === ABTestGroup.A
-                }
                 swapRouteSteps={swapRouteSteps}
                 inputAmount={inputAmount}
                 outputAmount={outputAmount}
