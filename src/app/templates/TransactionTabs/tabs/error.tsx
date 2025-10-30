@@ -26,7 +26,6 @@ export const ErrorTab = memo<ErrorTabProps>(({ isEvm, submitError, estimationErr
     : typeof error === 'object' && error !== null && 'errors' in error
     ? error.errors
     : error;
-  console.log('ebota 1', errorJson);
 
   if (!message) return null;
 
