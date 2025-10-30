@@ -86,7 +86,6 @@ export function useReadyTempleEvmNetworks(customEvmNetworks: StoredEvmNetwork[])
       revalidateOnReconnect: false
     }
   );
-  console.log('oy vey 1', dAppPayload);
   const shouldPreventUrlsOverwrite = dAppPayload === undefined || dAppPayload?.type === 'add_chain';
 
   const allEvmNetworks = useMemo<typeof EVM_DEFAULT_NETWORKS>(
