@@ -1318,9 +1318,9 @@
     "message": "Unstaking takes 4 days to complete. Once 4 days have passed, your tez will become available as part of your spendable balance"
   },
   "unstakeInProgressTooltip": {
-    "message": "Unstaking takes $cycles$ days to complete. Once $cycles$ days have passed, your TEZ will become available as part of your spendable balance",
+    "message": "Unstaking takes $daysCount$ days to complete. Once $daysCount$ days have passed, your TEZ will become available as part of your spendable balance",
     "placeholders": {
-      "cycles": {
+      "daysCount": {
         "content": "$1"
       }
     }
