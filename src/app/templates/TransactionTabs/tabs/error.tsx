@@ -20,12 +20,13 @@ export const ErrorTab = memo<ErrorTabProps>(({ isEvm, submitError, estimationErr
   const error = submitError || estimationError;
   const message = useMemo(() => serializeError(error), [error]);
   const humanErrorMessage = useMemo(() => getHumanErrorMessage(error), [error]);
-  const showEstimationErrorMessage = !submitError && estimationError;
+  const showEstimationErrorMessage = !submitError && Boolean(estimationError);
   const errorJson = isEvm
     ? null
     : typeof error === 'object' && error !== null && 'errors' in error
     ? error.errors
     : error;
+  console.log('ebota 1', errorJson);
 
   if (!message) return null;
 

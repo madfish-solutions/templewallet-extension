@@ -8,6 +8,8 @@ export const ERROR_MESSAGES = {
   blockchainLoad: t('blockchainLoadError'),
   lowGasBalance: t('lowGasBalanceError'),
   feeTooLow: t('feeTooLowError'),
+  gasLimitTooLow: t('gasLimitTooLowError'),
+  storageLimitTooLow: t('storageLimitTooLowError'),
   notThisCycle: t('notThisCycleError'),
   invalidParams: t('invalidParamsError'),
   timeout: t('timeoutError'),

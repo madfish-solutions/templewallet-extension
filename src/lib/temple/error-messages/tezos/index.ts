@@ -26,13 +26,9 @@ const TEZOS_ERROR_PATTERNS: Partial<Record<ErrorMessageKey, string[]>> = {
     'empty_implicit_delegated_contract',
     'empty_delegate_account'
   ],
-  feeTooLow: [
-    'fees_too_low',
-    'cannot_serialize_storage',
-    'cannot_serialize_failure',
-    'gas_exhausted.operation',
-    'storage_exhausted.operation'
-  ],
+  feeTooLow: ['fees_too_low', 'cannot_serialize_storage', 'cannot_serialize_failure'],
+  gasLimitTooLow: ['gas_exhausted.operation'],
+  storageLimitTooLow: ['storage_exhausted.operation'],
   notThisCycle: ['stake_info_already_set'],
   invalidParams: [
     'invalid',

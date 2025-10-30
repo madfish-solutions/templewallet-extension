@@ -484,24 +484,6 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
     browser.runtime.reload();
   }, []);
 
-  const setWindowPopupState = useCallback(async (windowId: number | null, opened: boolean) => {
-    const res = await request({
-      type: TempleMessageType.SetWindowPopupStateRequest,
-      windowId,
-      opened
-    });
-    assertResponse(res.type === TempleMessageType.SetWindowPopupStateResponse);
-  }, []);
-
-  const setWindowSidebarState = useCallback(async (windowId: number | null, opened: boolean) => {
-    const res = await request({
-      type: TempleMessageType.SetWindowSidebarStateRequest,
-      windowId,
-      opened
-    });
-    assertResponse(res.type === TempleMessageType.SetWindowSidebarStateResponse);
-  }, []);
-
   useEffect(() => void (data?.shouldLockOnStartup && lock()), [data?.shouldLockOnStartup, lock]);
 
   return {
@@ -563,8 +545,6 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
     confirmDAppEvmChainAdding,
     switchDAppEvmChain,
     sendEvmTransaction,
-    resetExtension,
-    setWindowPopupState,
-    setWindowSidebarState
+    resetExtension
   };
 });

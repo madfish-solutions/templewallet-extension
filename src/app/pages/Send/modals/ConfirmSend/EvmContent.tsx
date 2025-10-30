@@ -9,10 +9,8 @@ import { EvmReviewData } from 'app/pages/Send/form/interfaces';
 import { useEvmEstimationData } from 'app/pages/Send/hooks/use-evm-estimation-data';
 import { EvmTxParamsFormData } from 'app/templates/TransactionTabs/types';
 import { useEvmEstimationForm } from 'app/templates/TransactionTabs/use-evm-estimation-form';
-import { toastError } from 'app/toaster';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { useEvmAssetBalance } from 'lib/balances/hooks';
-import { t } from 'lib/i18n';
 import { useEvmCategorizedAssetMetadata } from 'lib/metadata';
 import { useTempleClient } from 'lib/temple/front';
 import { TempleAccountType } from 'lib/temple/types';
@@ -46,7 +44,7 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
 
   const [latestSubmitError, setLatestSubmitError] = useState<unknown>(null);
 
-  const { data: estimationData } = useEvmEstimationData({
+  const { data: estimationData, error: estimationError } = useEvmEstimationData({
     to: to as HexString,
     assetSlug,
     accountPkh,
@@ -57,11 +55,29 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
     amount
   });
 
-  const { form, tab, setTab, selectedFeeOption, handleFeeOptionSelect, feeOptions, displayedFee, getFeesPerGas } =
-    useEvmEstimationForm(estimationData, null, account, network.chainId);
+  const {
+    form,
+    tab,
+    setTab,
+    selectedFeeOption,
+    handleFeeOptionSelect,
+    feeOptions,
+    displayedFee,
+    getFeesPerGas,
+    assertCustomFeesPerGasNotTooLow
+  } = useEvmEstimationForm(estimationData, null, account, network.chainId);
   const { formState } = form;
   const { ledgerApprovalModalState, setLedgerApprovalModalState, handleLedgerModalClose } =
     useLedgerApprovalModalState();
+
+  const onSubmitError = useCallback(
+    (err: unknown) => {
+      console.error(err);
+      setLatestSubmitError(err);
+      setTab('error');
+    },
+    [setLatestSubmitError, setTab]
+  );
 
   const onSubmit = useCallback(
     async ({ gasPrice, gasLimit, nonce }: EvmTxParamsFormData) => {
@@ -74,13 +90,15 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
       }
 
       if (!estimationData || !feesPerGas) {
-        toastError('Failed to estimate transaction.');
+        onSubmitError(estimationError);
 
         return;
       }
 
-      if (ethBalance.lte(displayedFee ?? 0)) {
-        toastError(t('balanceTooLow'));
+      try {
+        assertCustomFeesPerGasNotTooLow(feesPerGas);
+      } catch (e) {
+        onSubmitError(e);
 
         return;
       }
@@ -117,10 +135,7 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
           await doOperation();
         }
       } catch (err: any) {
-        console.error(err);
-
-        setLatestSubmitError(err);
-        setTab('error');
+        onSubmitError(err);
       }
     },
     [
@@ -128,8 +143,7 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
       getFeesPerGas,
       assetMetadata,
       estimationData,
-      displayedFee,
-      ethBalance,
+      estimationError,
       accountPkh,
       to,
       amount,
@@ -140,7 +154,8 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
       onClose,
       getActiveBlockExplorer,
       setLedgerApprovalModalState,
-      setTab
+      onSubmitError,
+      assertCustomFeesPerGasNotTooLow
     ]
   );
 

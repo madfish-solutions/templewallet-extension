@@ -15,7 +15,6 @@ import { PageModalScrollViewWithActions } from 'app/templates/page-modal-scroll-
 import { TransactionTabs } from 'app/templates/TransactionTabs';
 import { TezosTxParamsFormData } from 'app/templates/TransactionTabs/types';
 import { useTezosEstimationForm } from 'app/templates/TransactionTabs/use-tezos-estimation-form';
-import { toastError } from 'app/toaster';
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
 import { useTezosAssetBalance } from 'lib/balances';
 import { T } from 'lib/i18n';
@@ -151,7 +150,8 @@ const ConfirmEarnOperationContentBodyWrapper = <R extends TezosEarnReviewDataBas
     submitOperation,
     displayedFeeOptions,
     displayedFee,
-    displayedStorageFee
+    displayedStorageFee,
+    assertCustomGasFeeNotTooLow
   } = useTezosEstimationForm({
     estimationData,
     basicParams,
@@ -168,13 +168,30 @@ const ConfirmEarnOperationContentBodyWrapper = <R extends TezosEarnReviewDataBas
   const { ledgerApprovalModalState, setLedgerApprovalModalState, handleLedgerModalClose } =
     useLedgerApprovalModalState();
 
+  const onSubmitError = useCallback(
+    (err: unknown) => {
+      console.error(err);
+      setLatestSubmitError(err);
+      setTab('error');
+    },
+    [setLatestSubmitError, setTab]
+  );
+
   const onSubmit = useCallback(
     async ({ gasFee, storageLimit }: TezosTxParamsFormData) => {
       try {
         if (formState.isSubmitting) return;
 
+        try {
+          assertCustomGasFeeNotTooLow(gasFee);
+        } catch (e) {
+          onSubmitError(e);
+
+          return;
+        }
+
         if (!estimationData || !displayedFeeOptions) {
-          toastError('Failed to estimate transaction.');
+          onSubmitError(estimationError);
 
           return;
         }
@@ -191,22 +208,21 @@ const ConfirmEarnOperationContentBodyWrapper = <R extends TezosEarnReviewDataBas
           await doOperation();
         }
       } catch (err: any) {
-        console.error(err);
-
-        setLatestSubmitError(err);
-        setTab('error');
+        onSubmitError(err);
       }
     },
     [
       displayedFeeOptions,
       estimationData,
+      estimationError,
       formState.isSubmitting,
       isLedgerAccount,
       setLedgerApprovalModalState,
       onConfirm,
-      setTab,
+      onSubmitError,
       submitOperation,
-      tezos
+      tezos,
+      assertCustomGasFeeNotTooLow
     ]
   );
 

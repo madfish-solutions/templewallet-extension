@@ -4,7 +4,6 @@ import BigNumber from 'bignumber.js';
 import { nanoid } from 'nanoid';
 import { FormProvider } from 'react-hook-form-v7';
 
-import { toastError } from 'app/toaster';
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
 import { TEZOS_BLOCK_DURATION } from 'lib/fixed-times';
 import { useTezosGenericAssetsMetadataLoading } from 'lib/metadata';
@@ -27,16 +26,18 @@ interface TezosTransactionViewProps {
   payload: TempleTezosDAppOperationsPayload;
   formId: string;
   error: any;
+  setError: SyncFn<any>;
   setTotalFee: SyncFn<number>;
   setStorageLimit: SyncFn<number>;
   onSubmit: EmptyFn;
 }
 
 export const TezosTransactionView = memo<TezosTransactionViewProps>(
-  ({ payload, formId, error, setTotalFee, setStorageLimit, onSubmit }) => (
+  ({ payload, formId, error, setError, setTotalFee, setStorageLimit, onSubmit }) => (
     <TezosEstimationDataProvider>
       <TezosTransactionViewBody
         error={error}
+        setError={setError}
         payload={payload}
         formId={formId}
         setTotalFee={setTotalFee}
@@ -48,7 +49,7 @@ export const TezosTransactionView = memo<TezosTransactionViewProps>(
 );
 
 const TezosTransactionViewBody = memo<TezosTransactionViewProps>(
-  ({ payload, formId, error: submitError, setTotalFee, setStorageLimit, onSubmit }) => {
+  ({ payload, formId, error: submitError, setError: setSubmitError, setTotalFee, setStorageLimit, onSubmit }) => {
     const { network, opParams, sourcePkh, estimates, error: estimationError } = payload;
     const tezosChains = useAllTezosChains();
     const accounts = useAllAccounts();
@@ -139,7 +140,8 @@ const TezosTransactionViewBody = memo<TezosTransactionViewProps>(
       handleFeeOptionSelect,
       displayedFeeOptions,
       displayedFee,
-      displayedStorageFee
+      displayedStorageFee,
+      assertCustomGasFeeNotTooLow
     } = useTezosEstimationForm({
       estimationData,
       basicParams: opParams,
@@ -153,9 +155,15 @@ const TezosTransactionViewBody = memo<TezosTransactionViewProps>(
       ({ gasFee: customGasFee, storageLimit: customStorageLimit }: TezosTxParamsFormData) => {
         const { gasFee, storageLimit } = getFeeParams(customGasFee, customStorageLimit);
 
-        if (!gasFee) {
-          toastError('Failed to estimate transaction.');
+        try {
+          assertCustomGasFeeNotTooLow(gasFee);
+        } catch (e) {
+          setSubmitError(e);
 
+          return;
+        }
+
+        if (!gasFee) {
           return;
         }
 
@@ -163,7 +171,7 @@ const TezosTransactionViewBody = memo<TezosTransactionViewProps>(
         setStorageLimit(storageLimit.toNumber());
         onSubmit();
       },
-      [getFeeParams, onSubmit, setStorageLimit, setTotalFee]
+      [getFeeParams, onSubmit, setStorageLimit, setTotalFee, setSubmitError, assertCustomGasFeeNotTooLow]
     );
 
     return (

@@ -1,15 +1,7 @@
 import type Eth from '@ledgerhq/hw-app-eth';
-import { HttpResponseError } from '@taquito/http-utils';
 import { DerivationType } from '@taquito/ledger-signer';
 import { localForger } from '@taquito/local-forging';
-import {
-  CompositeForger,
-  OperationBatch,
-  RpcForger,
-  Signer,
-  TezosOperationError,
-  TezosToolkit
-} from '@taquito/taquito';
+import { CompositeForger, OperationBatch, RpcForger, Signer, TezosToolkit } from '@taquito/taquito';
 import * as TaquitoUtils from '@taquito/utils';
 import * as Bip39 from 'bip39';
 import { nanoid } from 'nanoid';
@@ -56,7 +48,7 @@ import { createLedgerSigner } from '../ledger';
 import { PublicError } from '../PublicError';
 
 import { makeEvmAccount } from './evm-ledger';
-import { fetchMessage, transformHttpResponseError } from './helpers';
+import { fetchMessage } from './helpers';
 import { MIGRATIONS } from './migrations';
 import {
   buildEncryptAndSaveManyForAccount,
@@ -909,26 +901,11 @@ export class Vault {
         tezos.setForgerProvider(new CompositeForger([tezos.getFactory(RpcForger)(), localForger]));
         tezos.setPackerProvider(michelEncoder);
         batch = tezos.contract.batch(opParams.map(operation => formatOpParamsBeforeSend(operation, accPublicKeyHash)));
-      } catch (err: any) {
-        throw new PublicError('Failed to send operations', [err]);
-      }
 
-      try {
         return await batch.send();
       } catch (err: any) {
         console.error(err);
-
-        switch (true) {
-          case err instanceof PublicError:
-          case err instanceof TezosOperationError:
-            throw err;
-
-          case err instanceof HttpResponseError:
-            throw await transformHttpResponseError(err);
-
-          default:
-            throw new Error(`Failed to send operations. ${err.message}`);
-        }
+        throw new PublicError('Failed to send operations', [err]);
       }
     });
   }

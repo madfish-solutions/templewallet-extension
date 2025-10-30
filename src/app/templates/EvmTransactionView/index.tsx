@@ -5,7 +5,6 @@ import { FormProvider } from 'react-hook-form-v7';
 import { TransactionRequest, formatTransactionRequest } from 'viem';
 
 import { HashChip } from 'app/atoms/HashChip';
-import { toastError } from 'app/toaster';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { EvmOperationKind, getOperationKind } from 'lib/evm/on-chain/transactions';
 import { equalsIgnoreCase } from 'lib/evm/on-chain/utils/common.utils';
@@ -29,16 +28,18 @@ interface EvmTransactionViewProps {
   payload: TempleEvmDAppTransactionPayload;
   formId: string;
   error: any;
+  setError: SyncFn<any>;
   setFinalEvmTransaction: ReactSetStateFn<EvmTransactionRequestWithSender>;
   onSubmit: (tx?: EvmTransactionRequestWithSender) => void;
   minAllowance?: bigint;
 }
 
 export const EvmTransactionView = memo<EvmTransactionViewProps>(
-  ({ payload, formId, error, setFinalEvmTransaction, onSubmit, minAllowance }) => (
+  ({ payload, formId, error, setError, setFinalEvmTransaction, onSubmit, minAllowance }) => (
     <EvmEstimationDataProvider>
       <EvmTransactionViewBody
         error={error}
+        setError={setError}
         payload={payload}
         formId={formId}
         setFinalEvmTransaction={setFinalEvmTransaction}
@@ -50,7 +51,7 @@ export const EvmTransactionView = memo<EvmTransactionViewProps>(
 );
 
 const EvmTransactionViewBody = memo<EvmTransactionViewProps>(
-  ({ payload, formId, error, setFinalEvmTransaction, onSubmit, minAllowance }) => {
+  ({ payload, formId, error, setFinalEvmTransaction, setError, onSubmit, minAllowance }) => {
     const chains = useAllEvmChains();
     const { chainId, req, estimationData: serializedEstimationData, error: estimationError } = payload;
     const parsedChainId = Number(chainId);
@@ -85,7 +86,8 @@ const EvmTransactionViewBody = memo<EvmTransactionViewProps>(
       handleFeeOptionSelect,
       feeOptions,
       displayedFee,
-      getFeesPerGas
+      getFeesPerGas,
+      assertCustomFeesPerGasNotTooLow
     } = useEvmEstimationForm(
       estimationData,
       txSerializable,
@@ -103,9 +105,15 @@ const EvmTransactionViewBody = memo<EvmTransactionViewProps>(
 
         const feesPerGas = getFeesPerGas(gasPrice);
 
-        if (!feesPerGas) {
-          toastError('Failed to get fees.');
+        try {
+          assertCustomFeesPerGasNotTooLow(feesPerGas);
+        } catch (e) {
+          setError(e);
 
+          return;
+        }
+
+        if (!feesPerGas) {
           return;
         }
 
@@ -119,7 +127,16 @@ const EvmTransactionViewBody = memo<EvmTransactionViewProps>(
         setFinalEvmTransaction({ ...formatTransactionRequest(finalTransaction), from: txRequest.from });
         onSubmit({ ...formatTransactionRequest(finalTransaction), from: txRequest.from });
       },
-      [estimationData, formState.isSubmitting, getFeesPerGas, onSubmit, txRequest, setFinalEvmTransaction]
+      [
+        formState.isSubmitting,
+        getFeesPerGas,
+        txRequest,
+        estimationData,
+        setFinalEvmTransaction,
+        onSubmit,
+        assertCustomFeesPerGasNotTooLow,
+        setError
+      ]
     );
 
     const [approvesLoading, setApprovesLoading] = useState(operationKind === EvmOperationKind.Approval);

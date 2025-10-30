@@ -25,8 +25,6 @@ import { getTezosToolkitWithSigner } from 'temple/front';
 import { useGetTezosActiveBlockExplorer } from 'temple/front/ready';
 import { TempleChainKind } from 'temple/types';
 
-import { showEstimationError } from '../../utils';
-
 import { BaseContent } from './BaseContent';
 
 interface TezosContentProps {
@@ -101,7 +99,8 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
     submitOperation,
     displayedFeeOptions,
     displayedFee,
-    displayedStorageFee
+    displayedStorageFee,
+    assertCustomGasFeeNotTooLow
   } = useTezosEstimationForm({
     estimationData,
     basicParams: basicSendParams,
@@ -113,13 +112,30 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
   const { ledgerApprovalModalState, setLedgerApprovalModalState, handleLedgerModalClose } =
     useLedgerApprovalModalState();
 
+  const onSubmitError = useCallback(
+    (err: unknown) => {
+      console.error(err);
+      setLatestSubmitError(err);
+      setTab('error');
+    },
+    [setLatestSubmitError, setTab]
+  );
+
   const onSubmit = useCallback(
     async ({ gasFee, storageLimit }: TezosTxParamsFormData) => {
       try {
         if (formState.isSubmitting) return;
 
+        try {
+          assertCustomGasFeeNotTooLow(gasFee);
+        } catch (e) {
+          onSubmitError(e);
+
+          return;
+        }
+
         if (!estimationData || estimationError) {
-          showEstimationError(estimationError);
+          onSubmitError(estimationError);
 
           return;
         }
@@ -150,10 +166,7 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
           await doOperation();
         }
       } catch (err: any) {
-        console.error(err);
-
-        setLatestSubmitError(err);
-        setTab('error');
+        onSubmitError(err);
       }
     },
     [
@@ -169,7 +182,8 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
       getActiveBlockExplorer,
       network.chainId,
       setLedgerApprovalModalState,
-      setTab
+      onSubmitError,
+      assertCustomGasFeeNotTooLow
     ]
   );
 

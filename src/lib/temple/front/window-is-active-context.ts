@@ -1,62 +1,26 @@
 import { useEffect, useState } from 'react';
 
 import constate from 'constate';
-import browser from 'webextension-polyfill';
 
 import { useAppEnv } from 'app/env';
-import { useTypedSWR } from 'lib/swr';
+import { useThisWindowLocation } from 'app/hooks/use-this-window-location';
 
 import { useTempleClient } from './client';
 
-const getThisWindowLocation = () =>
-  Promise.all([browser.windows.getCurrent(), browser.tabs.getCurrent()]).then(([window, tab]) => ({
-    windowId: window.id ?? null,
-    tabId: tab?.id ?? null
-  }));
-
 export const [WindowIsActiveProvider, useWindowIsActive] = constate(() => {
   const { fullPage, popup, sidebar } = useAppEnv();
-  const { data: thisWindowLocation } = useTypedSWR('window-location', getThisWindowLocation);
-  const { focusLocation, windowsWithPopups, setWindowPopupState, setWindowSidebarState } = useTempleClient();
+  const { data: thisWindowLocation } = useThisWindowLocation();
+  const { focusLocation, windowsWithPopups } = useTempleClient();
   const [visibilityState, setVisibilityState] = useState<DocumentVisibilityState>(() => document.visibilityState);
-
-  useEffect(() => {
-    if (!thisWindowLocation?.windowId) {
-      return;
-    }
-
-    if (!browser.extension.getViews({ type: 'popup', windowId: thisWindowLocation.windowId }).length) {
-      setWindowPopupState(thisWindowLocation.windowId, false);
-    }
-  }, [thisWindowLocation, setWindowPopupState]);
 
   useEffect(() => {
     if (!thisWindowLocation) return;
 
-    const { windowId: thisWindowId } = thisWindowLocation;
-
-    if (popup) {
-      setWindowPopupState(thisWindowId, true);
-    }
-
-    if (sidebar) {
-      setWindowSidebarState(thisWindowId, true);
-    }
-
-    const visibilityListener = () => {
-      setVisibilityState(document.visibilityState);
-      const newIsVisible = document.visibilityState === 'visible';
-      if (popup) {
-        setWindowPopupState(thisWindowId, newIsVisible);
-      }
-      if (sidebar) {
-        setWindowSidebarState(thisWindowId, newIsVisible);
-      }
-    };
+    const visibilityListener = () => setVisibilityState(document.visibilityState);
     document.addEventListener('visibilitychange', visibilityListener);
 
     return () => document.removeEventListener('visibilitychange', visibilityListener);
-  }, [popup, setWindowPopupState, setWindowSidebarState, sidebar, thisWindowLocation]);
+  }, [popup, sidebar, thisWindowLocation]);
 
   if (thisWindowLocation === undefined) {
     return true;

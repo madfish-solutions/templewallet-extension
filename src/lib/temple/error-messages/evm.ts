@@ -26,7 +26,7 @@ import { ERROR_MESSAGES } from './messages';
 /**
  * Mapping of ERC1155 custom error names (from ABI) to human-readable messages
  */
-const ERC1155_ERROR_MESSAGES: Record<string, string> = {
+const ERC1155_ERROR_MESSAGES: StringRecord = {
   ERC1155InsufficientBalance: ERROR_MESSAGES.balance,
   ERC1155InvalidSender: ERROR_MESSAGES.invalidParams,
   ERC1155InvalidReceiver: ERROR_MESSAGES.invalidParams,
@@ -38,12 +38,15 @@ const ERC1155_ERROR_MESSAGES: Record<string, string> = {
 
 const ERC20_TRANSFER_BALANCE_ERROR_PATTERN = 'ERC20: transfer amount exceeds balance';
 
-const REVERT_REASON_PATTERNS: Record<string, string> = {
+const REVERT_REASON_PATTERNS: StringRecord = {
   'The total cost (gas * gas fee + value) of executing this transaction exceeds the balance of the account':
     ERROR_MESSAGES.lowGasBalance,
-  'insufficient funds for gas * price + value': ERROR_MESSAGES.lowGasBalance,
-  'insufficient balance for transfer': ERROR_MESSAGES.lowGasBalance,
+  'insufficient funds': ERROR_MESSAGES.lowGasBalance,
+  'insufficient balance': ERROR_MESSAGES.lowGasBalance,
   'gas required exceeds allowance': ERROR_MESSAGES.lowGasBalance,
+  'priority fee too low': ERROR_MESSAGES.gasLimitTooLow,
+  'intrinsic gas too low': ERROR_MESSAGES.gasLimitTooLow,
+  'transaction underpriced': ERROR_MESSAGES.feeTooLow,
 
   // ERC20 errors
   [ERC20_TRANSFER_BALANCE_ERROR_PATTERN]: ERROR_MESSAGES.balance,
@@ -297,7 +300,9 @@ export const getHumanEvmErrorMessage = (error: ViemBaseError | SerializedViemErr
       }
     }
 
-    return ERROR_MESSAGES.executionFailed;
+    const data = extractEvmTransactionHexValueFromMessage(error.message, 'data');
+
+    return data === '0x' ? ERROR_MESSAGES.default : ERROR_MESSAGES.executionFailed;
   }
 
   const errorName = (error as ViemBaseError).name?.toLowerCase() || '';

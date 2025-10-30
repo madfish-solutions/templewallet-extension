@@ -1595,9 +1595,6 @@
       }
     }
   },
-  "notEnoughFunds": {
-    "message": "Not enough funds"
-  },
   "getHelpLink": {
     "message": "Get help: $link$",
     "placeholders": {
@@ -2706,9 +2703,6 @@
   },
   "emptyImplicitContract": {
     "message": "Your account is empty. Deposit any tez amount on this account to activate it"
-  },
-  "balanceTooLow": {
-    "message": "Gas token balance is too low"
   },
   "insufficientGasBalanceOnChain": {
     "message": "Insufficient gas balance on $chain$",
@@ -4620,6 +4614,12 @@
   },
   "feeTooLowError": {
     "message": "Fee is too low, blockchain says: \"No tip, no trip\". Add more fee and try again."
+  },
+  "gasLimitTooLowError": {
+    "message": "Gas limit is too low, increase it at the \"Fee\" tab and try again."
+  },
+  "storageLimitTooLowError": {
+    "message": "Storage limit is too low, increase it at the \"Fee\" tab and try again."
   },
   "notThisCycleError": {
     "message": "Cannot do it now, please try again in the next cycle."

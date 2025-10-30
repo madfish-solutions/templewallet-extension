@@ -34,7 +34,7 @@ export const isRpcUnregisteredDelegateError = (err: any) => err?.id.includes('un
 export const estimateDelegation = makeEstimateOperation<[string | nullish], [string]>(
   getRawDelegationEstimate,
   args => {
-    if (!args) {
+    if (!args[0]) {
       throw new Error('No delegate address provided');
     }
   },

@@ -623,9 +623,6 @@
       }
     }
   },
-  "notEnoughFunds": {
-    "message": "Недостатньо коштів"
-  },
   "notEnoughCurrencyFunds": {
     "message": "Не достатньо коштів у $currency$",
     "placeholders": {
@@ -1357,9 +1354,6 @@
   },
   "emptyImplicitContract": {
     "message": "Ваш аккаунт порожній. Внесіть будь-яку суму tez на цей рахунок, щоб активувати його"
-  },
-  "balanceTooLow": {
-    "message": "Gas token баланс дуже низький"
   },
   "swap": {
     "message": "Обміняти"

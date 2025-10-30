@@ -31,6 +31,7 @@ import {
   EIP6963ProviderInfo
 } from 'lib/temple/types';
 import { PromisesQueue, PromisesQueueCounters, delay } from 'lib/utils';
+import { getOutOfTabWindowFromPortName } from 'lib/utils/out-of-tab-window';
 import { EVMErrorCodes, evmRpcMethodsNames, GET_DEFAULT_WEB3_PARAMS_METHOD_NAME } from 'temple/evm/constants';
 import { ErrorWithCode } from 'temple/evm/types';
 import { parseTransactionRequest } from 'temple/evm/utils';
@@ -133,6 +134,33 @@ export async function init() {
   }
 
   try {
+    browser.runtime.onConnect.addListener(port => {
+      const window = getOutOfTabWindowFromPortName(port.name);
+
+      if (!window) {
+        return;
+      }
+
+      const { windowId, type } = window;
+      if (type === 'sidebar') {
+        sidebarOpened(windowId);
+      } else {
+        popupOpened(windowId);
+      }
+
+      const portPingListener = (message: unknown) => void (message === 'ping' && port.postMessage('pong'));
+      port.onMessage.addListener(portPingListener);
+
+      port.onDisconnect.addListener(() => {
+        if (type === 'sidebar') {
+          sidebarClosed(windowId);
+        } else {
+          popupClosed(windowId);
+        }
+        port.onMessage.removeListener(portPingListener);
+      });
+    });
+
     const onActiveTabChanged = (windowId?: number | null, tabId?: number | null) => {
       focusLocationChanged({
         windowId: castWindowId(windowId),
@@ -953,22 +981,6 @@ const close = (
   } catch (_err) {}
   return innerClosing;
 };
-
-export function setWindowPopupOpened(windowId: number | null, opened: boolean) {
-  if (opened) {
-    popupOpened(windowId);
-  } else {
-    popupClosed(windowId);
-  }
-}
-
-export function setWindowSidebarOpened(windowId: number | null, opened: boolean) {
-  if (opened) {
-    sidebarOpened(windowId);
-  } else {
-    sidebarClosed(windowId);
-  }
-}
 
 export function setTabOrigin(tabId: number, origin: string) {
   tabOriginUpdated({ tabId, origin });

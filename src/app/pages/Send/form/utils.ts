@@ -53,8 +53,3 @@ export const estimateTezosMaxFee = async (
   }
   return estmtnMax;
 };
-
-export const getBaseFeeError = (baseFee: BigNumber | undefined, estimateBaseFeeError: any) =>
-  baseFee instanceof Error ? baseFee : estimateBaseFeeError;
-
-export const getFeeError = (estimating: boolean, feeError: any) => (!estimating ? feeError : null);

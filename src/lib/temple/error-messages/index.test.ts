@@ -4,7 +4,9 @@ import { ERROR_MESSAGES } from './messages';
 import {
   cannotAffordGas,
   gasTokenAmountGtBalance,
+  gasTokenAmountGtBalance2,
   gasTokenAmountGtBalanceLegacy,
+  txUnderpriceError,
   unknownExecutionError,
   insufficientFundsOnSubmitError,
   erc20AmountExceedsBalanceError,
@@ -63,11 +65,16 @@ describe('getHumanErrorMessage', () => {
 
     it('should return the message about low gas balance when trying to send more ETH than the balance', () => {
       expect(getHumanErrorMessage(gasTokenAmountGtBalance)).toBe(ERROR_MESSAGES.lowGasBalance);
+      expect(getHumanErrorMessage(gasTokenAmountGtBalance2)).toBe(ERROR_MESSAGES.lowGasBalance);
       expect(getHumanErrorMessage(gasTokenAmountGtBalanceLegacy)).toBe(ERROR_MESSAGES.lowGasBalance);
     });
 
     it('should return the message about execution failure when the transaction fails for an unknown reason', () => {
       expect(getHumanErrorMessage(unknownExecutionError)).toBe(ERROR_MESSAGES.executionFailed);
+    });
+
+    it('should return the message about fee too low when the transaction is underpriced', () => {
+      expect(getHumanErrorMessage(txUnderpriceError)).toBe(ERROR_MESSAGES.feeTooLow);
     });
 
     describe('ERC20 errors', () => {

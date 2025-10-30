@@ -385,20 +385,6 @@ const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<T
       return {
         type: TempleMessageType.ResetExtensionResponse
       };
-
-    case TempleMessageType.SetWindowPopupStateRequest:
-      Actions.setWindowPopupOpened(req.windowId, req.opened);
-
-      return {
-        type: TempleMessageType.SetWindowPopupStateResponse
-      };
-
-    case TempleMessageType.SetWindowSidebarStateRequest:
-      Actions.setWindowSidebarOpened(req.windowId, req.opened);
-
-      return {
-        type: TempleMessageType.SetWindowSidebarStateResponse
-      };
   }
 };
 
