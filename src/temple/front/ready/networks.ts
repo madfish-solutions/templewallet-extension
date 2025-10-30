@@ -81,13 +81,13 @@ export function useReadyTempleEvmNetworks(customEvmNetworks: StoredEvmNetwork[])
     ['networks-dapp-payload', confirmationId ?? ''],
     getDAppPayloadIfConfirmation,
     {
-      suspense: true,
       shouldRetryOnError: false,
       revalidateOnFocus: false,
       revalidateOnReconnect: false
     }
   );
-  const isAddChainPayload = dAppPayload?.type === 'add_chain';
+  console.log('oy vey 1', dAppPayload);
+  const shouldPreventUrlsOverwrite = dAppPayload === undefined || dAppPayload?.type === 'add_chain';
 
   const allEvmNetworks = useMemo<typeof EVM_DEFAULT_NETWORKS>(
     () => [...EVM_DEFAULT_NETWORKS, ...customEvmNetworks],
@@ -113,7 +113,7 @@ export function useReadyTempleEvmNetworks(customEvmNetworks: StoredEvmNetwork[])
   );
 
   useEffect(() => {
-    if (isAddChainPayload) {
+    if (shouldPreventUrlsOverwrite) {
       return;
     }
 
@@ -140,7 +140,7 @@ export function useReadyTempleEvmNetworks(customEvmNetworks: StoredEvmNetwork[])
           {}
         )
     );
-  }, [allChains]);
+  }, [allChains, shouldPreventUrlsOverwrite]);
 
   return {
     allEvmChains: allChains,
