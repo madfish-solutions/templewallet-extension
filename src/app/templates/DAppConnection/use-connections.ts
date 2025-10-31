@@ -9,10 +9,17 @@ import { TempleChainKind } from 'temple/types';
 
 import { useActiveTabUrlOrigin } from './use-active-tab';
 
-function getDApps<T extends TempleChainKind>(sessions: DAppsSessionsRecord<T> | nullish, address?: string) {
+function getDAppsByAddress<T extends TempleChainKind>(sessions: DAppsSessionsRecord<T> | nullish, address?: string) {
   const entries = Object.entries(sessions || {});
 
   return address ? entries.filter(([, ds]) => ds.pkh === address) : entries;
+}
+
+function getDAppByOrigin<T extends TempleChainKind>(
+  sessions: DAppsSessionsRecord<T> | nullish,
+  origin: string | nullish
+) {
+  return Object.entries(sessions || {}).find(([o]) => o === origin);
 }
 
 export function useDAppsConnections() {
@@ -24,12 +31,17 @@ export function useDAppsConnections() {
   const [evmDappsSessions] = useStoredEvmDappsSessions();
 
   const dapps = useMemo(() => {
-    const tezosDApps: [string, DAppSession][] = getDApps(tezosDappsSessions, tezAddress);
+    const tezosDApps: [string, DAppSession][] = getDAppsByAddress(tezosDappsSessions, tezAddress);
 
-    return tezosDApps.concat(getDApps(evmDappsSessions, evmAddress));
+    return tezosDApps.concat(getDAppsByAddress(evmDappsSessions, evmAddress));
   }, [evmAddress, evmDappsSessions, tezAddress, tezosDappsSessions]);
 
   const activeTabOrigin = useActiveTabUrlOrigin();
+
+  const currentTabDApp = useMemo(
+    () => getDAppByOrigin(tezosDappsSessions, activeTabOrigin) || getDAppByOrigin(evmDappsSessions, activeTabOrigin),
+    [activeTabOrigin, evmDappsSessions, tezosDappsSessions]
+  );
 
   const activeDApp = useMemo(
     () => (activeTabOrigin ? dapps.find(([origin]) => origin === activeTabOrigin) : null),
@@ -43,5 +55,5 @@ export function useDAppsConnections() {
 
   const disconnectOne = useCallback((origin: string) => disconnectDApps([origin]), [disconnectDApps]);
 
-  return { dapps, activeDApp, disconnectDApps, disconnectOne, switchDAppEvmChain };
+  return { dapps, activeDApp, currentTabDApp, disconnectDApps, disconnectOne, switchDAppEvmChain };
 }

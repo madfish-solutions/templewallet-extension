@@ -99,7 +99,8 @@ import {
 } from './store';
 import { Vault } from './vault';
 
-export { switchChain as switchEvmChain } from './evm-dapp';
+export { switchTezosAccount } from './dapp';
+export { switchChain as switchEvmChain, switchAccount as switchEvmAccount } from './evm-dapp';
 export { provePossession } from './prove-possession';
 
 const ACCOUNT_OR_GROUP_NAME_PATTERN = /^.{1,16}$/;

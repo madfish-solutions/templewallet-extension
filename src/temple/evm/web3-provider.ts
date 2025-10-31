@@ -14,6 +14,7 @@ import {
   DISCONNECT_DAPP_MSG_TYPE,
   PASS_TO_BG_EVENT,
   RESPONSE_FROM_BG_MSG_TYPE,
+  SWITCH_EVM_ACCOUNT_MSG_TYPE,
   SWITCH_CHAIN_MSG_TYPE
 } from 'lib/constants';
 import { EIP6963ProviderInfo, ETHEREUM_MAINNET_CHAIN_ID } from 'lib/temple/types';
@@ -130,11 +131,18 @@ interface ResponseFromBgMessage {
   requestId: string;
 }
 
+interface SwitchAccountMessage {
+  type: typeof SWITCH_EVM_ACCOUNT_MSG_TYPE;
+  account: HexString;
+}
+
 const isTypedMessage = (msg: any): msg is { type: string } => typeof msg === 'object' && msg && 'type' in msg;
 const isDisconnectDAppMessage = (msg: any): msg is DisconnectDAppMessage =>
   isTypedMessage(msg) && msg.type === DISCONNECT_DAPP_MSG_TYPE;
 const isSwitchChainMessage = (msg: any): msg is SwitchChainMessage =>
   isTypedMessage(msg) && msg.type === SWITCH_CHAIN_MSG_TYPE;
+const isSwitchAccountMessage = (msg: any): msg is SwitchAccountMessage =>
+  isTypedMessage(msg) && msg.type === SWITCH_EVM_ACCOUNT_MSG_TYPE;
 const isResponseFromBgMessage = (msg: any): msg is ResponseFromBgMessage =>
   isTypedMessage(msg) && msg.type === RESPONSE_FROM_BG_MSG_TYPE;
 
@@ -155,6 +163,7 @@ export class TempleWeb3Provider extends EventEmitter {
     this.chainId = toHex(ETHEREUM_MAINNET_CHAIN_ID);
 
     this.handleDisconnect = this.handleDisconnect.bind(this);
+    this.handleSwitchAccount = this.handleSwitchAccount.bind(this);
     this.handleRequest(
       { method: GET_DEFAULT_WEB3_PARAMS_METHOD_NAME, params: null },
       ({ chainId, accounts }) => {
@@ -168,6 +177,7 @@ export class TempleWeb3Provider extends EventEmitter {
       undefined
     ).catch(error => console.error(error));
     this.listenToTypedMessage(isDisconnectDAppMessage, this.handleDisconnect);
+    this.listenToTypedMessage(isSwitchAccountMessage, this.handleSwitchAccount);
     this.listenToTypedMessage(isSwitchChainMessage, ({ chainId }) => this.updateChainId(toHex(chainId)));
   }
 
@@ -326,6 +336,12 @@ export class TempleWeb3Provider extends EventEmitter {
 
   private handleDisconnect() {
     this.updateAccounts([]);
+  }
+
+  private handleSwitchAccount(args: SwitchAccountMessage) {
+    if (!this.accounts.some(acc => acc.toLowerCase() === args.account.toLowerCase())) {
+      this.updateAccounts([args.account]);
+    }
   }
 
   private updateAccounts(accounts: HexString[]) {
