@@ -446,6 +446,8 @@ export async function switchTezosAccount(origin: string, account: string, public
     messagePayload: await Beacon.encryptMessage(messageBeforeEncryption, pubKey),
     origin
   });
+
+  // TODO: implement checking that a dApp accepted the new account when dApps become ready to handle account switching
 }
 
 async function requestConfirm(params: Omit<RequestConfirmParams<TempleTezosDAppPayload>, 'transformPayload'>) {
