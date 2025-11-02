@@ -13,7 +13,7 @@ import { EvmAssetStandard } from '../types';
 
 import { equalsIgnoreCase } from './utils/common.utils';
 
-export interface MulticallBalanceRequest {
+interface MulticallBalanceRequest {
   assetSlug: string;
   standard: EvmAssetStandard;
 }
