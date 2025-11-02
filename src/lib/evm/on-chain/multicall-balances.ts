@@ -97,7 +97,7 @@ export const fetchBalancesViaMulticall = async (
       return;
     }
 
-    failed[assetSlug] = response.error instanceof Error ? response.error : new Error(String(response.error));
+    failed[assetSlug] = response.error;
   });
 
   return { balances, failed };
@@ -116,7 +116,7 @@ const parseResult = (standard: EvmAssetStandard, value: unknown, account: HexStr
       if (typeof value !== 'string') {
         throw new Error('Unexpected multicall result type for ERC721');
       }
-      return equalsIgnoreCase(value as HexString, account) ? ONE : ZERO;
+      return equalsIgnoreCase(value, account) ? ONE : ZERO;
     }
     default:
       return ZERO;

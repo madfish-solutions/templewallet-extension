@@ -53,5 +53,3 @@ export const getMulticallCallOptions = (chainId: number) => {
 
   return { batchSize };
 };
-
-

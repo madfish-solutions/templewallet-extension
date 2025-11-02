@@ -13,6 +13,8 @@ import { useUpdatableRef } from 'lib/ui/hooks';
 import { isEvmNativeTokenSlug } from 'lib/utils/evm.utils';
 import { useEnabledEvmChains } from 'temple/front';
 
+type TokenStandard = Exclude<EvmAssetStandard, EvmAssetStandard.NATIVE>;
+
 export const useGetBalancesFromChain = (publicKeyHash: HexString, apiIsApplicable: (chainId: number) => boolean) => {
   const chains = useEnabledEvmChains();
   const rawBalances = useRawEvmAccountBalancesSelector(publicKeyHash);
@@ -41,10 +43,7 @@ export const useGetBalancesFromChain = (publicKeyHash: HexString, apiIsApplicabl
       const descriptors = assetsSlugs.map(assetSlug => ({
         assetSlug,
         standard: (evmTokensMetadataRef.current[chainId]?.[assetSlug]?.standard ??
-          evmCollectiblesMetadataRef.current[chainId]?.[assetSlug]?.standard) as Exclude<
-          EvmAssetStandard,
-          EvmAssetStandard.NATIVE
-        >
+          evmCollectiblesMetadataRef.current[chainId]?.[assetSlug]?.standard) as TokenStandard
       }));
 
       const batchableRequests = descriptors.filter(
@@ -124,6 +123,8 @@ export const useGetBalancesFromChain = (publicKeyHash: HexString, apiIsApplicabl
       if (dataIsEmpty) {
         return { error };
       }
+
+      console.log('Successfully loaded balances from chain: ', { chainId, balances });
 
       return {
         data: balances,
