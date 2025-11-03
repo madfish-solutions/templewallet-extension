@@ -14,6 +14,7 @@ import { evmBalancesReducer } from './evm/balances/reducers';
 import { evmCollectiblesMetadataPersistedReducer } from './evm/collectibles-metadata/reducers';
 import { noCategoryEvmAssetsMetadataPersistedReducer } from './evm/no-category-assets-metadata/reducers';
 import { evmLoadingReducer } from './evm/reducer';
+import { pendingEvmSwapsPersistedReducer } from './evm/pending-swaps/reducers';
 import { evmTokensExchangeRatesPersistedReducer } from './evm/tokens-exchange-rates/reducers';
 import { evmTokensMetadataPersistedReducer } from './evm/tokens-metadata/reducers';
 import { newsletterReducers } from './newsletter/newsletter-reducers';
@@ -50,6 +51,7 @@ const rootStateReducersMap = {
   evmLoading: evmLoadingReducer,
   evmAssets: evmAssetsPersistedReducer,
   evmBalances: evmBalancesReducer,
+  pendingEvmSwaps: pendingEvmSwapsPersistedReducer,
   lifiEvmTokensMetadata: lifiEvmTokensMetadataPersistedReducer,
   evmTokensMetadata: evmTokensMetadataPersistedReducer,
   evmTokensExchangeRates: evmTokensExchangeRatesPersistedReducer,

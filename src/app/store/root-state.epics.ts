@@ -9,6 +9,7 @@ import { cryptoExchangeEpics } from './crypto-exchange/epics';
 import { currencyEpics } from './currency/epics';
 import { evmBalancesEpics } from './evm/balances/epics';
 import { evmNoCategoryAssetsMetadataEpics } from './evm/no-category-assets-metadata/epics';
+import { pendingEvmSwapsEpics } from './evm/pending-swaps/epics';
 import { notificationsEpics } from './notifications/epics';
 import { rewardsEpics } from './rewards/epics';
 import type { RootState } from './root-state.type';
@@ -36,6 +37,7 @@ const allEpics = combineEpics(
   collectiblesEpics,
   rewardsEpics,
   evmBalancesEpics,
+  pendingEvmSwapsEpics,
   accountsInitializationEpics
 );
 

@@ -14,6 +14,7 @@ import { mapLiFiTxToEvmEstimationData, parseTxRequestToViem, timeout } from 'app
 import { dispatch } from 'app/store';
 import { putNewEvmTokenAction } from 'app/store/evm/assets/actions';
 import { processLoadedOnchainBalancesAction } from 'app/store/evm/balances/actions';
+import { addPendingEvmSwapAction, monitorPendingSwapsAction } from 'app/store/evm/pending-swaps/actions';
 import { putEvmTokensMetadataAction } from 'app/store/evm/tokens-metadata/actions';
 import { EvmTxParamsFormData } from 'app/templates/TransactionTabs/types';
 import { useEvmEstimationForm } from 'app/templates/TransactionTabs/use-evm-estimation-form';
@@ -211,6 +212,23 @@ export const EvmContent: FC<EvmContentProps> = ({
       const blockExplorer = getActiveBlockExplorer(inputNetwork.chainId.toString(), !!bridgeData);
       showTxSubmitToastWithDelay(TempleChainKind.EVM, txHash, blockExplorer.url);
 
+      // Add to pending swaps monitoring - will continue even if user closes page
+      dispatch(
+        addPendingEvmSwapAction({
+          txHash,
+          accountPkh,
+          fromChainId: step.action.fromChainId,
+          toChainId: step.action.toChainId,
+          bridge: step.tool,
+          inputTokenSlug,
+          outputTokenSlug,
+          outputNetworkChainId: outputNetwork.chainId
+        })
+      );
+
+      // Trigger immediate monitoring
+      dispatch(monitorPendingSwapsAction());
+
       if (skipStatusWait) {
         if (cancelledRef?.current) return;
         setStepFinalized(true);
@@ -302,6 +320,7 @@ export const EvmContent: FC<EvmContentProps> = ({
       bridgeData,
       getActiveBlockExplorer,
       inputNetwork,
+      inputTokenSlug,
       onStepCompleted,
       outputNetwork,
       outputTokenSlug,
