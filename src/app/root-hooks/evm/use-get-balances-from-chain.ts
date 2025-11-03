@@ -67,13 +67,12 @@ export const useGetBalancesFromChain = (publicKeyHash: HexString, apiIsApplicabl
         }
       }
 
-      const fallbackSlugs = new Set<string>();
-      descriptors.forEach(({ assetSlug, standard }) => {
-        if (!standard || isEvmNativeTokenSlug(assetSlug)) {
-          fallbackSlugs.add(assetSlug);
-        }
-      });
-      Object.keys(multicallFailures).forEach(assetSlug => fallbackSlugs.add(assetSlug));
+      const fallbackSlugs = new Set([
+        ...descriptors
+          .filter(({ assetSlug, standard }) => !standard || isEvmNativeTokenSlug(assetSlug))
+          .map(d => d.assetSlug),
+        ...Object.keys(multicallFailures)
+      ]);
 
       const fallbackRequests = Array.from(fallbackSlugs).map(assetSlug => ({
         assetSlug,
@@ -123,8 +122,6 @@ export const useGetBalancesFromChain = (publicKeyHash: HexString, apiIsApplicabl
       if (dataIsEmpty) {
         return { error };
       }
-
-      console.log('Successfully loaded balances from chain: ', { chainId, balances });
 
       return {
         data: balances,

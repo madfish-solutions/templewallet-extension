@@ -85,7 +85,6 @@ export const AppEvmBalancesLoading = memo<{ publicKeyHash: HexString }>(({ publi
       const network = enabledEvmChainsByIds[chainId];
 
       if (!network) {
-        console.warn(`GoldRush freshness check skipped: network ${chainId} not enabled`);
         return false;
       }
 
@@ -104,7 +103,7 @@ export const AppEvmBalancesLoading = memo<{ publicKeyHash: HexString }>(({ publi
         return delta <= 30_000;
       } catch (err) {
         console.warn('Failed to verify GoldRush freshness', err);
-        return true;
+        return false;
       }
     },
     [enabledEvmChainsByIds]
@@ -180,10 +179,7 @@ export const AppEvmBalancesLoading = memo<{ publicKeyHash: HexString }>(({ publi
       getEvmBalances(walletAddress, chainId)
         .then(async data => {
           if (!(await isGoldrushDataFresh(data, chainId))) {
-            console.warn('GoldRush returned stale balances, falling back to on-chain fetch', {
-              chainId,
-              updatedAt: data.updated_at
-            });
+            console.warn(`GoldRush returned stale balances for chain ${chainId}, falling back to on-chain fetch`);
 
             return { error: new Error('GoldRush data is stale') };
           }

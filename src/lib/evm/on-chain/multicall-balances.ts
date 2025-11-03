@@ -1,3 +1,4 @@
+import { isDefined } from '@rnw-community/shared';
 import BigNumber from 'bignumber.js';
 import { erc20Abi, erc721Abi } from 'viem';
 
@@ -104,6 +105,10 @@ export const fetchBalancesViaMulticall = async (
 };
 
 const parseResult = (standard: EvmAssetStandard, value: unknown, account: HexString): BigNumber => {
+  if (!isDefined(value)) {
+    return ZERO;
+  }
+
   switch (standard) {
     case EvmAssetStandard.ERC20:
     case EvmAssetStandard.ERC1155: {
