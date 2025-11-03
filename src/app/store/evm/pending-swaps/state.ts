@@ -1,3 +1,5 @@
+import { StatusMessage } from '@lifi/sdk';
+
 import { EvmNetworkEssentials } from 'temple/networks';
 
 export interface PendingEvmSwap {
@@ -13,12 +15,14 @@ export interface PendingEvmSwap {
   outputTokenSlug: string;
   outputNetwork: EvmNetworkEssentials;
 
+  blockExplorerUrl: string;
+
   submittedAt: number;
   lastCheckedAt: number;
   checkAttempts: number;
   balanceFetchAttempts: number;
 
-  status: 'pending' | 'done' | 'failed' | 'balance_confirmed';
+  status: StatusMessage;
 }
 
 export interface PendingEvmSwapsState {

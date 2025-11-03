@@ -28,6 +28,7 @@ import { showTxSubmitToastWithDelay } from 'lib/ui/show-tx-submit-toast.util';
 import { isEvmNativeTokenSlug } from 'lib/utils/evm.utils';
 import { ZERO } from 'lib/utils/numbers';
 import { useGetEvmActiveBlockExplorer } from 'temple/front/ready';
+import { makeBlockExplorerHref } from 'temple/front/use-block-explorers';
 import { TempleChainKind } from 'temple/types';
 
 import { BaseContent } from './BaseContent';
@@ -214,7 +215,8 @@ export const EvmContent: FC<EvmContentProps> = ({
           outputNetwork: {
             chainId: outputNetwork.chainId,
             rpcBaseURL: outputNetwork.rpcBaseURL
-          }
+          },
+          blockExplorerUrl: makeBlockExplorerHref(blockExplorer.url, txHash, 'tx', TempleChainKind.EVM)
         })
       );
 

@@ -1,12 +1,13 @@
 import retry from 'async-retry';
 import { Action } from 'redux';
 import { Epic, combineEpics } from 'redux-observable';
-import { catchError, concat, delay, filter, from, map, mergeMap, of, repeat, switchMap, withLatestFrom } from 'rxjs';
+import { catchError, concat, delay, filter, from, map, mergeMap, of, repeat, withLatestFrom } from 'rxjs';
 import { ofType } from 'ts-action-operators';
 
 import type { RootState } from 'app/store/root-state.type';
+import { toastError } from 'app/toaster';
 import { getEvmSwapStatus } from 'lib/apis/temple/endpoints/evm';
-import { fetchEvmRawBalance } from 'lib/evm/on-chain/balance';
+import { fetchEvmNativeBalance, fetchEvmRawBalance } from 'lib/evm/on-chain/balance';
 import { fetchEvmTokenMetadataFromChain } from 'lib/evm/on-chain/metadata';
 import { isEvmNativeTokenSlug } from 'lib/utils/evm.utils';
 
@@ -19,20 +20,23 @@ import {
   updatePendingSwapStatusAction,
   incrementSwapCheckAttemptsAction,
   removePendingEvmSwapAction,
-  ensureOutputBalanceAction
+  ensureOutputBalanceAction,
+  cleanupOutdatedSwapsAction
 } from './actions';
 import { selectAllPendingSwaps } from './selectors';
 
-const MONITOR_INTERVAL = 10_000; // 10 seconds
-const MAX_CHECK_ATTEMPTS = 100; // Stop checking after ~16 minutes
+const MONITOR_INTERVAL = 10_000;
+const MAX_CHECK_ATTEMPTS = 100;
 const MAX_BALANCE_ATTEMPTS = 20;
-const BALANCE_CHECK_INTERVAL = 3000;
+const BALANCE_CHECK_INTERVAL = 3_000;
+const SAME_CHAIN_BALANCE_CHECK_INTERVAL = 1_000;
+export const MAX_PENDING_SWAP_AGE = 24 * 60 * 60 * 1000; // 24 hours
 
 const monitorPendingSwapsEpic: Epic<Action, Action, RootState> = (action$, state$) =>
   action$.pipe(
     ofType(monitorPendingSwapsAction),
     withLatestFrom(state$),
-    switchMap(([, state]) => {
+    mergeMap(([, state]) => {
       const pendingSwaps = selectAllPendingSwaps(state);
 
       if (pendingSwaps.length === 0) {
@@ -60,28 +64,34 @@ const monitorPendingSwapsEpic: Epic<Action, Action, RootState> = (action$, state
           ).pipe(
             mergeMap(result => {
               const actions = [incrementSwapCheckAttemptsAction({ txHash: swap.txHash })];
+              const { status } = result;
 
-              if (result.status === 'DONE') {
+              if (status === 'DONE') {
                 return from([
                   ...actions,
                   updatePendingSwapStatusAction({
                     txHash: swap.txHash,
-                    status: 'done',
+                    status: 'DONE',
                     lastCheckedAt: Date.now()
                   }),
                   ensureOutputBalanceAction({ swap })
                 ]);
               }
 
-              if (result.status === 'FAILED') {
+              if (status === 'FAILED') {
                 const immediateActions = [
                   ...actions,
                   updatePendingSwapStatusAction({
                     txHash: swap.txHash,
-                    status: 'failed',
+                    status: 'FAILED',
                     lastCheckedAt: Date.now()
                   })
                 ];
+
+                toastError('Swap transaction failed', true, {
+                  hash: swap.txHash,
+                  blockExplorerHref: swap.blockExplorerUrl
+                });
 
                 return concat(
                   from(immediateActions),
@@ -112,14 +122,36 @@ const ensureOutputBalanceEpic: Epic<Action, Action, RootState> = action$ =>
         (async () => {
           const actionsToDispatch = [];
 
-          if (isEvmNativeTokenSlug(swap.outputTokenSlug)) {
-            return [removePendingEvmSwapAction({ txHash: swap.txHash })];
-          }
-
           if (!outputNetwork) {
             console.error('Output network not found');
             return [removePendingEvmSwapAction({ txHash: swap.txHash })];
           }
+
+          // For native tokens, just verify balance increased
+          if (isEvmNativeTokenSlug(swap.outputTokenSlug)) {
+            try {
+              const balance = await fetchEvmNativeBalance(swap.accountPkh, outputNetwork);
+
+              if (balance.gt(0)) {
+                actionsToDispatch.push(
+                  processLoadedOnchainBalancesAction({
+                    balances: { [swap.outputTokenSlug]: balance.toFixed() },
+                    timestamp: Date.now(),
+                    account: swap.accountPkh,
+                    chainId: outputNetwork.chainId
+                  })
+                );
+              }
+            } catch (error) {
+              console.warn('Failed to fetch native balance:', error);
+            }
+
+            return [...actionsToDispatch, removePendingEvmSwapAction({ txHash: swap.txHash })];
+          }
+
+          // Optimize balance check interval for same-chain swaps
+          const isSameChain = swap.fromChainId === swap.toChainId;
+          const checkInterval = isSameChain ? SAME_CHAIN_BALANCE_CHECK_INTERVAL : BALANCE_CHECK_INTERVAL;
 
           for (let attempt = 0; attempt < MAX_BALANCE_ATTEMPTS; attempt++) {
             try {
@@ -154,7 +186,7 @@ const ensureOutputBalanceEpic: Epic<Action, Action, RootState> = action$ =>
             }
 
             // Wait before next attempt
-            await new Promise(resolve => setTimeout(resolve, BALANCE_CHECK_INTERVAL));
+            await new Promise(resolve => setTimeout(resolve, checkInterval));
           }
 
           console.warn(`Could not confirm balance for swap ${swap.txHash} after ${MAX_BALANCE_ATTEMPTS} attempts`);
@@ -171,19 +203,59 @@ const ensureOutputBalanceEpic: Epic<Action, Action, RootState> = action$ =>
   );
 
 const periodicMonitorTriggerEpic: Epic<Action, Action, RootState> = (_, state$) =>
-  of(null).pipe(
-    delay(MONITOR_INTERVAL),
-    repeat(),
+  concat(
+    // Emit immediately on startup
+    of(null).pipe(
+      withLatestFrom(state$),
+      filter(([, state]) => {
+        const pendingSwaps = selectAllPendingSwaps(state);
+        return pendingSwaps.length > 0;
+      }),
+      map(() => monitorPendingSwapsAction())
+    ),
+    // Then repeat every MONITOR_INTERVAL
+    of(null).pipe(
+      delay(MONITOR_INTERVAL),
+      repeat(),
+      withLatestFrom(state$),
+      filter(([, state]) => {
+        const pendingSwaps = selectAllPendingSwaps(state);
+        return pendingSwaps.length > 0;
+      }),
+      map(() => monitorPendingSwapsAction())
+    )
+  );
+
+const cleanupOutdatedSwapsEpic: Epic<Action, Action, RootState> = (action$, state$) =>
+  action$.pipe(
+    ofType(cleanupOutdatedSwapsAction),
     withLatestFrom(state$),
-    filter(([, state]) => {
+    mergeMap(([, state]) => {
       const pendingSwaps = selectAllPendingSwaps(state);
-      return pendingSwaps.length > 0;
-    }),
-    map(() => monitorPendingSwapsAction())
+      const now = Date.now();
+      const outdatedSwaps = pendingSwaps.filter(swap => {
+        const age = now - swap.submittedAt;
+        return age > MAX_PENDING_SWAP_AGE;
+      });
+
+      if (outdatedSwaps.length > 0) {
+        console.log(`Cleaning up ${outdatedSwaps.length} outdated pending swaps`);
+        return from(
+          outdatedSwaps.map(swap =>
+            removePendingEvmSwapAction({
+              txHash: swap.txHash
+            })
+          )
+        );
+      }
+
+      return of();
+    })
   );
 
 export const pendingEvmSwapsEpics = combineEpics(
   monitorPendingSwapsEpic,
   ensureOutputBalanceEpic,
-  periodicMonitorTriggerEpic
+  periodicMonitorTriggerEpic,
+  cleanupOutdatedSwapsEpic
 );

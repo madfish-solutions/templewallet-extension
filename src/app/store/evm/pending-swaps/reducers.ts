@@ -23,11 +23,12 @@ const pendingEvmSwapsReducer = createReducer(pendingEvmSwapsInitialState, builde
       inputTokenSlug: payload.inputTokenSlug,
       outputTokenSlug: payload.outputTokenSlug,
       outputNetwork: payload.outputNetwork,
+      blockExplorerUrl: payload.blockExplorerUrl,
       submittedAt: Date.now(),
       lastCheckedAt: Date.now(),
       checkAttempts: 0,
       balanceFetchAttempts: 0,
-      status: 'pending'
+      status: 'PENDING'
     };
   });
 

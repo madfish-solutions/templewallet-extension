@@ -14,11 +14,12 @@ export interface AddPendingSwapPayload {
   inputTokenSlug: string;
   outputTokenSlug: string;
   outputNetwork: EvmNetworkEssentials;
+  blockExplorerUrl: string;
 }
 
 export interface UpdateSwapStatusPayload {
   txHash: HexString;
-  status: 'done' | 'failed';
+  status: 'DONE' | 'FAILED';
   lastCheckedAt: number;
 }
 
@@ -49,6 +50,8 @@ export const ensureOutputBalanceAction = createAction<EnsureOutputBalancePayload
 export const removePendingEvmSwapAction = createAction<RemovePendingSwapPayload>('evm/pending-swaps/REMOVE');
 
 export const monitorPendingSwapsAction = createAction('evm/pending-swaps/MONITOR');
+
+export const cleanupOutdatedSwapsAction = createAction('evm/pending-swaps/CLEANUP_OUTDATED');
 
 export const checkSwapStatusActions = createActions<{ txHash: HexString }, { txHash: HexString; status: string }>(
   'evm/pending-swaps/CHECK_STATUS'

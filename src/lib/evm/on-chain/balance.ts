@@ -84,7 +84,7 @@ export const fetchEvmRawBalance = async (
   }
 };
 
-const fetchEvmNativeBalance = async (address: HexString, network: EvmNetworkEssentials) => {
+export const fetchEvmNativeBalance = async (address: HexString, network: EvmNetworkEssentials) => {
   const publicClient = getViemPublicClient(network);
 
   try {
