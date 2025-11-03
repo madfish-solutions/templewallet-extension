@@ -1,9 +1,9 @@
 import retry from 'async-retry';
+import { Action } from 'redux';
 import { Epic, combineEpics } from 'redux-observable';
-import { catchError, delay, filter, from, map, mergeMap, of, repeat, switchMap, withLatestFrom } from 'rxjs';
+import { catchError, concat, delay, filter, from, map, mergeMap, of, repeat, switchMap, withLatestFrom } from 'rxjs';
 import { ofType } from 'ts-action-operators';
 
-import { dispatch } from 'app/store';
 import type { RootState } from 'app/store/root-state.type';
 import { getEvmSwapStatus } from 'lib/apis/temple/endpoints/evm';
 import { fetchEvmRawBalance } from 'lib/evm/on-chain/balance';
@@ -18,37 +18,34 @@ import {
   monitorPendingSwapsAction,
   updatePendingSwapStatusAction,
   incrementSwapCheckAttemptsAction,
-  removePendingEvmSwapAction
+  removePendingEvmSwapAction,
+  ensureOutputBalanceAction
 } from './actions';
 import { selectAllPendingSwaps } from './selectors';
-import { getEvmNetworkEssentialsByChainId } from './utils';
 
 const MONITOR_INTERVAL = 10_000; // 10 seconds
 const MAX_CHECK_ATTEMPTS = 100; // Stop checking after ~16 minutes
 const MAX_BALANCE_ATTEMPTS = 20;
 const BALANCE_CHECK_INTERVAL = 3000;
 
-// Epic that monitors all pending swaps
-const monitorPendingSwapsEpic: Epic = (action$, state$) =>
+const monitorPendingSwapsEpic: Epic<Action, Action, RootState> = (action$, state$) =>
   action$.pipe(
     ofType(monitorPendingSwapsAction),
     withLatestFrom(state$),
     switchMap(([, state]) => {
-      const pendingSwaps = selectAllPendingSwaps(state as RootState);
+      const pendingSwaps = selectAllPendingSwaps(state);
 
       if (pendingSwaps.length === 0) {
-        return of(); // No swaps to monitor
+        return of();
       }
 
       return from(pendingSwaps).pipe(
         mergeMap(swap => {
-          // Skip if too many attempts
           if (swap.checkAttempts >= MAX_CHECK_ATTEMPTS) {
             console.warn(`Swap ${swap.txHash} exceeded max check attempts, removing`);
             return of(removePendingEvmSwapAction({ txHash: swap.txHash }));
           }
 
-          // Check swap status
           return from(
             retry(
               async () =>
@@ -65,31 +62,31 @@ const monitorPendingSwapsEpic: Epic = (action$, state$) =>
               const actions = [incrementSwapCheckAttemptsAction({ txHash: swap.txHash })];
 
               if (result.status === 'DONE') {
-                actions.push(
+                return from([
+                  ...actions,
                   updatePendingSwapStatusAction({
                     txHash: swap.txHash,
                     status: 'done',
                     lastCheckedAt: Date.now()
-                  })
-                );
-
-                // Trigger balance check
-                return from([...actions, { type: 'ENSURE_OUTPUT_BALANCE', swap }]);
+                  }),
+                  ensureOutputBalanceAction({ swap })
+                ]);
               }
 
               if (result.status === 'FAILED') {
-                actions.push(
+                const immediateActions = [
+                  ...actions,
                   updatePendingSwapStatusAction({
                     txHash: swap.txHash,
                     status: 'failed',
                     lastCheckedAt: Date.now()
                   })
-                );
+                ];
 
-                // Remove after marking as failed
-                setTimeout(() => {
-                  dispatch(removePendingEvmSwapAction({ txHash: swap.txHash }));
-                }, 5000);
+                return concat(
+                  from(immediateActions),
+                  of(removePendingEvmSwapAction({ txHash: swap.txHash })).pipe(delay(5000))
+                );
               }
 
               return from(actions);
@@ -104,64 +101,53 @@ const monitorPendingSwapsEpic: Epic = (action$, state$) =>
     })
   );
 
-// Epic to ensure output token balance is present
-const ensureOutputBalanceEpic: Epic = action$ =>
+const ensureOutputBalanceEpic: Epic<Action, Action, RootState> = action$ =>
   action$.pipe(
-    filter((action: any) => action.type === 'ENSURE_OUTPUT_BALANCE'),
-    mergeMap((action: any) => {
-      const { swap } = action;
+    ofType(ensureOutputBalanceAction),
+    mergeMap(action => {
+      const { swap } = action.payload;
+      const { outputNetwork } = swap;
 
       return from(
         (async () => {
+          const actionsToDispatch = [];
+
           if (isEvmNativeTokenSlug(swap.outputTokenSlug)) {
-            // Native token, just remove the pending swap
-            dispatch(removePendingEvmSwapAction({ txHash: swap.txHash }));
-            return;
+            return [removePendingEvmSwapAction({ txHash: swap.txHash })];
           }
 
-          const outputNetwork = getEvmNetworkEssentialsByChainId(swap.outputNetworkChainId);
           if (!outputNetwork) {
             console.error('Output network not found');
-            dispatch(removePendingEvmSwapAction({ txHash: swap.txHash }));
-            return;
+            return [removePendingEvmSwapAction({ txHash: swap.txHash })];
           }
 
-          // Try to fetch balance up to MAX_BALANCE_ATTEMPTS times
           for (let attempt = 0; attempt < MAX_BALANCE_ATTEMPTS; attempt++) {
             try {
               const balance = await fetchEvmRawBalance(outputNetwork, swap.outputTokenSlug, swap.accountPkh);
 
               if (balance.gt(0)) {
-                // Fetch metadata and dispatch actions
                 const metadata = await fetchEvmTokenMetadataFromChain(outputNetwork, swap.outputTokenSlug);
 
-                dispatch(
+                actionsToDispatch.push(
                   putNewEvmTokenAction({
                     publicKeyHash: swap.accountPkh,
                     chainId: outputNetwork.chainId,
                     assetSlug: swap.outputTokenSlug
-                  })
-                );
-
-                dispatch(
+                  }),
                   putEvmTokensMetadataAction({
                     chainId: outputNetwork.chainId,
                     records: { [swap.outputTokenSlug]: metadata }
-                  })
-                );
-
-                dispatch(
+                  }),
                   processLoadedOnchainBalancesAction({
                     balances: { [swap.outputTokenSlug]: balance.toFixed() },
                     timestamp: Date.now(),
                     account: swap.accountPkh,
                     chainId: outputNetwork.chainId
-                  })
+                  }),
+                  removePendingEvmSwapAction({ txHash: swap.txHash })
                 );
 
-                // Successfully found balance, remove from pending
-                dispatch(removePendingEvmSwapAction({ txHash: swap.txHash }));
-                return;
+                return actionsToDispatch;
               }
             } catch (error) {
               console.warn(`Attempt ${attempt + 1} failed to fetch balance:`, error);
@@ -171,29 +157,26 @@ const ensureOutputBalanceEpic: Epic = action$ =>
             await new Promise(resolve => setTimeout(resolve, BALANCE_CHECK_INTERVAL));
           }
 
-          // Max attempts reached, remove anyway
           console.warn(`Could not confirm balance for swap ${swap.txHash} after ${MAX_BALANCE_ATTEMPTS} attempts`);
-          dispatch(removePendingEvmSwapAction({ txHash: swap.txHash }));
+          return [removePendingEvmSwapAction({ txHash: swap.txHash })];
         })()
       ).pipe(
-        map(() => ({ type: 'BALANCE_CHECK_COMPLETE' })),
+        mergeMap(actions => from(actions)),
         catchError(error => {
           console.error('Error ensuring output balance:', error);
-          dispatch(removePendingEvmSwapAction({ txHash: swap.txHash }));
-          return of({ type: 'BALANCE_CHECK_ERROR' });
+          return of(removePendingEvmSwapAction({ txHash: swap.txHash }));
         })
       );
     })
   );
 
-// Epic that triggers monitoring at regular intervals when there are pending swaps
-const periodicMonitorTriggerEpic: Epic = (_, state$) =>
+const periodicMonitorTriggerEpic: Epic<Action, Action, RootState> = (_, state$) =>
   of(null).pipe(
     delay(MONITOR_INTERVAL),
     repeat(),
     withLatestFrom(state$),
     filter(([, state]) => {
-      const pendingSwaps = selectAllPendingSwaps(state as RootState);
+      const pendingSwaps = selectAllPendingSwaps(state);
       return pendingSwaps.length > 0;
     }),
     map(() => monitorPendingSwapsAction())

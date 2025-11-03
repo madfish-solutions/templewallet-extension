@@ -1,3 +1,5 @@
+import { EvmNetworkEssentials } from 'temple/networks';
+
 export interface PendingEvmSwap {
   id: string; // txHash
   txHash: HexString;
@@ -9,7 +11,7 @@ export interface PendingEvmSwap {
 
   inputTokenSlug: string;
   outputTokenSlug: string;
-  outputNetworkChainId: number;
+  outputNetwork: EvmNetworkEssentials;
 
   submittedAt: number;
   lastCheckedAt: number;

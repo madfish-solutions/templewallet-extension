@@ -1,6 +1,9 @@
 import { createAction } from '@reduxjs/toolkit';
 
 import { createActions } from 'lib/store';
+import { EvmNetworkEssentials } from 'temple/networks';
+
+import { PendingEvmSwap } from './state';
 
 export interface AddPendingSwapPayload {
   txHash: HexString;
@@ -10,13 +13,17 @@ export interface AddPendingSwapPayload {
   bridge: string;
   inputTokenSlug: string;
   outputTokenSlug: string;
-  outputNetworkChainId: number;
+  outputNetwork: EvmNetworkEssentials;
 }
 
 export interface UpdateSwapStatusPayload {
   txHash: HexString;
   status: 'done' | 'failed';
   lastCheckedAt: number;
+}
+
+export interface EnsureOutputBalancePayload {
+  swap: PendingEvmSwap;
 }
 
 export interface IncrementCheckAttemptsPayload {
@@ -33,6 +40,10 @@ export const updatePendingSwapStatusAction = createAction<UpdateSwapStatusPayloa
 
 export const incrementSwapCheckAttemptsAction = createAction<IncrementCheckAttemptsPayload>(
   'evm/pending-swaps/INCREMENT_CHECK_ATTEMPTS'
+);
+
+export const ensureOutputBalanceAction = createAction<EnsureOutputBalancePayload>(
+  'evm/pending-swaps/ENSURE_OUTPUT_BALANCE'
 );
 
 export const removePendingEvmSwapAction = createAction<RemovePendingSwapPayload>('evm/pending-swaps/REMOVE');

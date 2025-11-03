@@ -22,7 +22,7 @@ const pendingEvmSwapsReducer = createReducer(pendingEvmSwapsInitialState, builde
       bridge: payload.bridge,
       inputTokenSlug: payload.inputTokenSlug,
       outputTokenSlug: payload.outputTokenSlug,
-      outputNetworkChainId: payload.outputNetworkChainId,
+      outputNetwork: payload.outputNetwork,
       submittedAt: Date.now(),
       lastCheckedAt: Date.now(),
       checkAttempts: 0,
