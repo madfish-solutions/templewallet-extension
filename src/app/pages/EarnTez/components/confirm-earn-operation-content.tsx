@@ -157,7 +157,8 @@ const ConfirmEarnOperationContentBodyWrapper = <R extends TezosEarnReviewDataBas
     basicParams,
     senderAccount: account,
     network,
-    estimationDataLoading
+    estimationDataLoading,
+    isEstimationError: Boolean(estimationError)
   });
   const { formState } = form;
   useEffect(

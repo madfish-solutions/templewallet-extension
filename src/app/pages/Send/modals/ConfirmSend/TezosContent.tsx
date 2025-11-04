@@ -105,7 +105,8 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
     estimationData,
     basicParams: basicSendParams,
     senderAccount: account,
-    network
+    network,
+    isEstimationError: Boolean(estimationError)
   });
   const { formState } = form;
 

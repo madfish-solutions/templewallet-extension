@@ -148,7 +148,8 @@ const TezosTransactionViewBody = memo<TezosTransactionViewProps>(
       senderAccount: sendingAccount,
       network,
       simulateOperation: true,
-      sourcePkIsRevealed
+      sourcePkIsRevealed,
+      isEstimationError: Boolean(estimationError)
     });
 
     const handleSubmit = useCallback(

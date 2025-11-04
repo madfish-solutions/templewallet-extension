@@ -91,7 +91,8 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
     senderAccount: account,
     simulateOperation: true,
     estimationDataLoading,
-    network
+    network,
+    isEstimationError: Boolean(estimationError)
   });
   const { formState } = form;
 

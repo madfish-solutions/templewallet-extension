@@ -36,6 +36,7 @@ const SEND_TEZ_TO_NON_EMPTY_ESTIMATE = new Estimate(169000, 0, 155, 250, 100);
 
 interface TezosEstimationFormHookParams {
   estimationData: TezosEstimationData | undefined;
+  isEstimationError?: boolean;
   basicParams: WalletParamsWithKind[] | undefined;
   senderAccount: StoredAccount | AccountForChain<TempleChainKind.Tezos>;
   network: TezosNetworkEssentials;
@@ -51,7 +52,8 @@ export const useTezosEstimationForm = ({
   network,
   simulateOperation,
   sourcePkIsRevealed = true,
-  estimationDataLoading = false
+  estimationDataLoading = false,
+  isEstimationError = false
 }: TezosEstimationFormHookParams) => {
   const ownerAddress =
     'ownerAddress' in senderAccount
@@ -107,7 +109,9 @@ export const useTezosEstimationForm = ({
             return of(getBalancesChanges(response.contents, accountPkh));
           }),
           catchError(e => {
-            toastError(e.message);
+            if (!isEstimationError) {
+              toastError(e.message);
+            }
 
             try {
               return of(getBalancesChanges(operation.contents, accountPkh));
@@ -128,7 +132,15 @@ export const useTezosEstimationForm = ({
     });
 
     return () => sub.unsubscribe();
-  }, [accountPkh, params$, tezos.rpc, network.chainId, setBalancesChangesLoading, setBalancesChanges]);
+  }, [
+    accountPkh,
+    params$,
+    tezos.rpc,
+    network.chainId,
+    setBalancesChangesLoading,
+    setBalancesChanges,
+    isEstimationError
+  ]);
 
   const defaultValues = useMemo(() => {
     let gasFee: BigNumber | undefined;
