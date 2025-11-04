@@ -1,6 +1,7 @@
 import React, { FC, useMemo, useState, useEffect, useCallback, memo, useRef } from 'react';
 
 import { LiFiStep } from '@lifi/sdk';
+import { isDefined } from '@rnw-community/shared';
 import retry from 'async-retry';
 
 import { PageModal } from 'app/atoms/PageModal';
@@ -25,11 +26,19 @@ import { EvmContent } from './EvmContent';
 import { usePrefetchEvmStepTransactions } from './hooks/usePrefetchEvmStepTransactions';
 import { TezosContent } from './TezosContent';
 
+type UserActionType = 'approve' | 'execute';
+
+interface UserAction {
+  type: UserActionType;
+  stepIndex: number;
+  routeStep: LiFiStep;
+}
+
 interface ConfirmSwapModalProps {
   opened: boolean;
   onRequestClose: EmptyFn;
   reviewData?: SwapReviewData;
-  onReview: (data: SwapReviewData) => void;
+  onReview: SyncFn<SwapReviewData>;
 }
 
 export const ConfirmSwapModal: FC<ConfirmSwapModalProps> = ({ opened, onRequestClose, reviewData }) => {
@@ -42,9 +51,7 @@ export const ConfirmSwapModal: FC<ConfirmSwapModalProps> = ({ opened, onRequestC
     return reviewData.swapRoute.steps;
   }, [reviewData]);
 
-  const [userActions, setUserActions] = useState<
-    Array<{ type: 'approval' | 'execute'; stepIndex: number; routeStep: LiFiStep }>
-  >([]);
+  const [userActions, setUserActions] = useState<Array<UserAction>>([]);
   const [actionsInitialized, setActionsInitialized] = useState(false);
 
   useEffect(() => {
@@ -54,13 +61,13 @@ export const ConfirmSwapModal: FC<ConfirmSwapModalProps> = ({ opened, onRequestC
     if (allowanceSufficient.length !== evmSteps.length) return;
 
     const needsApprovalByIndex = allowanceSufficient.map(sufficient => !sufficient);
-    const actions = evmSteps.flatMap((step, stepIndex) =>
+    const actions = evmSteps.flatMap<UserAction>((step, stepIndex) =>
       needsApprovalByIndex[stepIndex]
         ? [
-            { type: 'approval' as const, stepIndex, routeStep: step },
-            { type: 'execute' as const, stepIndex, routeStep: step }
+            { type: 'approve', stepIndex, routeStep: step },
+            { type: 'execute', stepIndex, routeStep: step }
           ]
-        : [{ type: 'execute' as const, stepIndex, routeStep: step }]
+        : [{ type: 'execute', stepIndex, routeStep: step }]
     );
 
     setUserActions(actions);
@@ -98,32 +105,24 @@ export const ConfirmSwapModal: FC<ConfirmSwapModalProps> = ({ opened, onRequestC
     setUserActions([]);
   }, [opened, reviewData]);
 
-  const currentUserAction = useMemo(
-    () => (userActions.length > 0 ? userActions[Math.min(currentActionIndex, userActions.length - 1)] : undefined),
-    [userActions, currentActionIndex]
-  );
+  const currentUserAction = useMemo(() => {
+    if (userActions.length <= 0) return { index: 0, value: undefined };
 
-  const clampedActionIndex = useMemo(
-    () => (userActions.length > 0 ? Math.min(currentActionIndex, userActions.length - 1) : 0),
-    [currentActionIndex, userActions.length]
-  );
+    const clampedIndex = Math.min(currentActionIndex, userActions.length - 1);
+
+    return { index: clampedIndex, value: userActions[clampedIndex] };
+  }, [currentActionIndex, userActions]);
 
   const skipStatusWait = useMemo(
-    () =>
-      Boolean(
-        currentUserAction && currentUserAction.type === 'execute' && clampedActionIndex === lastExecuteActionIndex
-      ),
-    [currentUserAction, clampedActionIndex, lastExecuteActionIndex]
+    () => currentUserAction?.value?.type === 'execute' && currentUserAction.index === lastExecuteActionIndex,
+    [currentUserAction, lastExecuteActionIndex]
   );
 
-  const isBridgeOperation = useMemo(
-    () =>
-      Boolean(
-        currentUserAction &&
-          currentUserAction.routeStep.action.fromChainId !== currentUserAction.routeStep.action.toChainId
-      ),
-    [currentUserAction]
-  );
+  const isBridgeOperation = useMemo(() => {
+    const action = currentUserAction?.value?.routeStep.action;
+
+    return action?.fromChainId !== action?.toChainId;
+  }, [currentUserAction]);
 
   const operationTitleSubst = isBridgeOperation ? 'Bridge' : 'Swap';
   const operationDescSubst = isBridgeOperation ? 'bridge' : 'swap';
@@ -152,7 +151,7 @@ export const ConfirmSwapModal: FC<ConfirmSwapModalProps> = ({ opened, onRequestC
   const title = useMemo(() => {
     if (!reviewData) return '';
     if (isSwapEvmReviewData(reviewData) && currentUserAction) {
-      if (currentUserAction.type === 'approval') return t('approval');
+      if (currentUserAction?.value?.type === 'approve') return t('approval');
       return isBridgeOperation ? t('bridgePreview') : t('swapPreview');
     }
     return t('swapPreview');
@@ -207,11 +206,10 @@ export const ConfirmSwapModal: FC<ConfirmSwapModalProps> = ({ opened, onRequestC
         {reviewData &&
           (() =>
             isSwapEvmReviewData(reviewData) ? (
-              userActions.length > 0 ? (
-                <ConfirmStepEvmContent
-                  routeStep={userActions[Math.min(currentActionIndex, userActions.length - 1)].routeStep}
+              isDefined(currentUserAction.value) ? (
+                <ConfirmEvmUserAction
+                  userAction={currentUserAction.value}
                   account={reviewData.account}
-                  mode={currentUserAction?.type}
                   onStepCompleted={onStepCompleted}
                   onRequestClose={handleRequestClose}
                   cancelledRef={cancelledRef}
@@ -239,26 +237,20 @@ export const ConfirmSwapModal: FC<ConfirmSwapModalProps> = ({ opened, onRequestC
   );
 };
 
-const ConfirmStepEvmContent = memo(
-  ({
-    routeStep,
-    account,
-    mode,
-    onStepCompleted,
-    onRequestClose,
-    cancelledRef,
-    skipStatusWait,
-    submitDisabled
-  }: {
-    routeStep: LiFiStep;
-    account: AccountForChain<TempleChainKind.EVM>;
-    mode?: 'approval' | 'execute';
-    onStepCompleted: EmptyFn;
-    onRequestClose: EmptyFn;
-    cancelledRef?: React.MutableRefObject<boolean>;
-    skipStatusWait?: boolean;
-    submitDisabled?: boolean;
-  }) => {
+interface ConfirmEvmUserActionProps {
+  userAction: UserAction;
+  account: AccountForChain<TempleChainKind.EVM>;
+  onStepCompleted: EmptyFn;
+  onRequestClose: EmptyFn;
+  cancelledRef?: React.MutableRefObject<boolean>;
+  skipStatusWait?: boolean;
+  submitDisabled?: boolean;
+}
+
+const ConfirmEvmUserAction = memo<ConfirmEvmUserActionProps>(
+  ({ userAction, account, onStepCompleted, onRequestClose, cancelledRef, skipStatusWait, submitDisabled }) => {
+    const { type, routeStep } = userAction;
+
     const inputNetwork = useEvmChainByChainId(routeStep.action.fromChainId);
     const outputNetwork = useEvmChainByChainId(routeStep.action.toChainId);
 
@@ -278,16 +270,16 @@ const ConfirmStepEvmContent = memo(
         }
       } as const;
 
-      if (mode === 'execute') {
+      if (type === 'execute') {
         const safeExecuteStep = routeStepWithTransactionRequest ?? { ...routeStep, transactionRequest: undefined };
         return { ...base, routeStep: safeExecuteStep };
       }
 
       return { ...base, routeStep };
-    }, [account, inputNetwork, mode, outputNetwork, routeStep, routeStepWithTransactionRequest]);
+    }, [account, inputNetwork, type, outputNetwork, routeStep, routeStepWithTransactionRequest]);
 
     useEffect(() => {
-      if (mode !== 'execute') return;
+      if (type !== 'execute') return;
       let cancelled = false;
 
       const run = async () => {
@@ -316,11 +308,11 @@ const ConfirmStepEvmContent = memo(
       return () => {
         cancelled = true;
       };
-    }, [cancelledRef, mode, routeStep]);
+    }, [cancelledRef, type, routeStep]);
 
     return (
       <EvmEstimationDataProvider>
-        {mode === 'approval' ? (
+        {type === 'approve' ? (
           <AddChainDataProvider>
             <AddAssetProvider>
               <ApproveModal
