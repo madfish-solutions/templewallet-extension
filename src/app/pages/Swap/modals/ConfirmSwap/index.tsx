@@ -89,6 +89,8 @@ export const ConfirmSwapModal: FC<ConfirmSwapModalProps> = ({ opened, onRequestC
     return index === -1 ? 0 : index;
   }, [userActions]);
 
+  const lastExecuteActionIndex = useMemo(() => userActions.findLastIndex(a => a?.type === 'execute'), [userActions]);
+
   useEffect(() => {
     setCurrentActionIndex(0);
     cancelledRef.current = false;
@@ -99,6 +101,19 @@ export const ConfirmSwapModal: FC<ConfirmSwapModalProps> = ({ opened, onRequestC
   const currentUserAction = useMemo(
     () => (userActions.length > 0 ? userActions[Math.min(currentActionIndex, userActions.length - 1)] : undefined),
     [userActions, currentActionIndex]
+  );
+
+  const clampedActionIndex = useMemo(
+    () => (userActions.length > 0 ? Math.min(currentActionIndex, userActions.length - 1) : 0),
+    [currentActionIndex, userActions.length]
+  );
+
+  const skipStatusWait = useMemo(
+    () =>
+      Boolean(
+        currentUserAction && currentUserAction.type === 'execute' && clampedActionIndex === lastExecuteActionIndex
+      ),
+    [currentUserAction, clampedActionIndex, lastExecuteActionIndex]
   );
 
   const isBridgeOperation = useMemo(
@@ -200,6 +215,7 @@ export const ConfirmSwapModal: FC<ConfirmSwapModalProps> = ({ opened, onRequestC
                   onStepCompleted={onStepCompleted}
                   onRequestClose={handleRequestClose}
                   cancelledRef={cancelledRef}
+                  skipStatusWait={skipStatusWait}
                   submitDisabled={progressionBlocked}
                 />
               ) : (
@@ -231,6 +247,7 @@ const ConfirmStepEvmContent = memo(
     onStepCompleted,
     onRequestClose,
     cancelledRef,
+    skipStatusWait,
     submitDisabled
   }: {
     routeStep: LiFiStep;
@@ -239,6 +256,7 @@ const ConfirmStepEvmContent = memo(
     onStepCompleted: EmptyFn;
     onRequestClose: EmptyFn;
     cancelledRef?: React.MutableRefObject<boolean>;
+    skipStatusWait?: boolean;
     submitDisabled?: boolean;
   }) => {
     const inputNetwork = useEvmChainByChainId(routeStep.action.fromChainId);
@@ -319,6 +337,7 @@ const ConfirmStepEvmContent = memo(
             onClose={onRequestClose}
             onStepCompleted={onStepCompleted}
             cancelledRef={cancelledRef}
+            skipStatusWait={skipStatusWait}
             submitDisabled={submitDisabled}
           />
         )}

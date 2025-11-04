@@ -1,6 +1,7 @@
 import React, { FC, useCallback, useEffect, useMemo, useState } from 'react';
 
 import { LiFiStep } from '@lifi/sdk';
+import retry from 'async-retry';
 import BigNumber from 'bignumber.js';
 import { FormProvider } from 'react-hook-form-v7';
 import { isAddress } from 'viem';
@@ -9,16 +10,21 @@ import { useLedgerApprovalModalState } from 'app/hooks/use-ledger-approval-modal
 import { useEvmEstimationData } from 'app/pages/Send/hooks/use-evm-estimation-data';
 import { EvmStepReviewData } from 'app/pages/Swap/form/interfaces';
 import { formatDuration, getBufferedExecutionDuration } from 'app/pages/Swap/form/utils';
-import { mapLiFiTxToEvmEstimationData, parseTxRequestToViem } from 'app/pages/Swap/modals/ConfirmSwap/utils';
+import { mapLiFiTxToEvmEstimationData, parseTxRequestToViem, timeout } from 'app/pages/Swap/modals/ConfirmSwap/utils';
 import { dispatch } from 'app/store';
-import { addPendingEvmSwapAction, monitorPendingSwapsAction } from 'app/store/evm/pending-swaps/actions';
+import { putNewEvmTokenAction } from 'app/store/evm/assets/actions';
+import { processLoadedOnchainBalancesAction } from 'app/store/evm/balances/actions';
+import { putEvmTokensMetadataAction } from 'app/store/evm/tokens-metadata/actions';
 import { EvmTxParamsFormData } from 'app/templates/TransactionTabs/types';
 import { useEvmEstimationForm } from 'app/templates/TransactionTabs/use-evm-estimation-form';
 import { toastError } from 'app/toaster';
+import { getEvmSwapStatus } from 'lib/apis/temple/endpoints/evm';
 import { toTokenSlug } from 'lib/assets';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { useEvmAssetBalance } from 'lib/balances/hooks';
 import { EVM_ZERO_ADDRESS } from 'lib/constants';
+import { fetchEvmRawBalance } from 'lib/evm/on-chain/balance';
+import { fetchEvmTokenMetadataFromChain } from 'lib/evm/on-chain/metadata';
 import { t } from 'lib/i18n';
 import { useTempleClient } from 'lib/temple/front';
 import { atomsToTokens, tokensToAtoms } from 'lib/temple/helpers';
@@ -38,6 +44,7 @@ interface EvmContentProps {
   onClose: EmptyFn;
   onStepCompleted: EmptyFn;
   cancelledRef?: React.MutableRefObject<boolean>;
+  skipStatusWait?: boolean;
   submitDisabled?: boolean;
 }
 
@@ -46,6 +53,7 @@ export const EvmContent: FC<EvmContentProps> = ({
   onClose,
   onStepCompleted,
   cancelledRef,
+  skipStatusWait,
   submitDisabled
 }) => {
   const {
@@ -203,40 +211,103 @@ export const EvmContent: FC<EvmContentProps> = ({
       const blockExplorer = getActiveBlockExplorer(inputNetwork.chainId.toString(), !!bridgeData);
       showTxSubmitToastWithDelay(TempleChainKind.EVM, txHash, blockExplorer.url);
 
-      dispatch(
-        addPendingEvmSwapAction({
-          txHash,
-          accountPkh,
-          fromChainId: step.action.fromChainId,
-          toChainId: step.action.toChainId,
-          bridge: step.tool,
-          inputTokenSlug,
-          outputTokenSlug,
-          outputNetwork: {
-            chainId: outputNetwork.chainId,
-            rpcBaseURL: outputNetwork.rpcBaseURL
-          },
-          blockExplorerUrl: makeBlockExplorerHref(blockExplorer.url, txHash, 'tx', TempleChainKind.EVM)
-        })
-      );
+      if (skipStatusWait) {
+        if (cancelledRef?.current) return;
+        setStepFinalized(true);
+        onStepCompleted();
+        return;
+      }
 
-      dispatch(monitorPendingSwapsAction());
+      let status;
+      do {
+        if (cancelledRef?.current) return;
+        try {
+          const result = await retry(
+            async () =>
+              await getEvmSwapStatus({
+                txHash,
+                fromChain: step.action.fromChainId,
+                toChain: step.action.toChainId,
+                bridge: step.tool
+              }),
+            { retries: 5, minTimeout: 2000 }
+          );
+          status = result.status;
+        } catch (_err) {
+          throw new Error(
+            'This transaction wasn’t confirmed because the gas price is to low and didn’t meet network demand. Increase it to speed up confirmation and try again.'
+          );
+        }
+
+        await new Promise(resolve => setTimeout(resolve, 5000));
+      } while (status !== 'DONE' && status !== 'FAILED');
+
+      if (status === 'FAILED') {
+        toastError('Transaction failed', true, {
+          hash: txHash,
+          blockExplorerHref: makeBlockExplorerHref(blockExplorer.url, txHash, 'tx', TempleChainKind.EVM)
+        });
+        return;
+      }
+
+      // Ensure the output token exists in the wallet for any execute step
+      try {
+        if (!isEvmNativeTokenSlug(outputTokenSlug)) {
+          for (let attempt = 0; attempt < 20; attempt++) {
+            const balance = await fetchEvmRawBalance(outputNetwork, outputTokenSlug, accountPkh);
+
+            if (balance.gt(0)) {
+              const metadata = await fetchEvmTokenMetadataFromChain(outputNetwork, outputTokenSlug);
+
+              dispatch(
+                putNewEvmTokenAction({
+                  publicKeyHash: accountPkh,
+                  chainId: outputNetwork.chainId,
+                  assetSlug: outputTokenSlug
+                })
+              );
+
+              dispatch(
+                putEvmTokensMetadataAction({
+                  chainId: outputNetwork.chainId,
+                  records: { [outputTokenSlug]: metadata }
+                })
+              );
+
+              dispatch(
+                processLoadedOnchainBalancesAction({
+                  balances: { [outputTokenSlug]: balance.toFixed() },
+                  timestamp: Date.now(),
+                  account: accountPkh,
+                  chainId: outputNetwork.chainId
+                })
+              );
+
+              break;
+            }
+
+            await timeout(3000);
+          }
+        }
+      } catch (err) {
+        console.warn('Failed to ensure output token is added to wallet', err);
+      }
 
       if (cancelledRef?.current) return;
       setStepFinalized(true);
       onStepCompleted();
     },
     [
-      accountPkh,
-      bridgeData,
-      getActiveBlockExplorer,
-      inputNetwork,
-      inputTokenSlug,
-      onStepCompleted,
-      outputNetwork,
-      outputTokenSlug,
+      cancelledRef,
       sendEvmTransaction,
-      cancelledRef
+      accountPkh,
+      inputNetwork,
+      getActiveBlockExplorer,
+      bridgeData,
+      skipStatusWait,
+      onStepCompleted,
+      outputTokenSlug,
+      outputNetwork
     ]
   );
 
