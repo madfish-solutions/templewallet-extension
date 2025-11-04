@@ -30,7 +30,7 @@ const MAX_CHECK_ATTEMPTS = 100;
 const MAX_BALANCE_ATTEMPTS = 20;
 const BALANCE_CHECK_INTERVAL = 3_000;
 const SAME_CHAIN_BALANCE_CHECK_INTERVAL = 1_000;
-export const MAX_PENDING_SWAP_AGE = 24 * 60 * 60 * 1000; // 24 hours
+const MAX_PENDING_SWAP_AGE = 24 * 60 * 60 * 1000; // 24 hours
 
 const monitorPendingSwapsEpic: Epic<Action, Action, RootState> = (action$, state$) =>
   action$.pipe(

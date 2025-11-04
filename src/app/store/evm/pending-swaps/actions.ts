@@ -5,7 +5,7 @@ import { EvmNetworkEssentials } from 'temple/networks';
 
 import { PendingEvmSwap } from './state';
 
-export interface AddPendingSwapPayload {
+interface AddPendingSwapPayload {
   txHash: HexString;
   accountPkh: HexString;
   fromChainId: number;
@@ -17,21 +17,21 @@ export interface AddPendingSwapPayload {
   blockExplorerUrl: string;
 }
 
-export interface UpdateSwapStatusPayload {
+interface UpdateSwapStatusPayload {
   txHash: HexString;
   status: 'DONE' | 'FAILED';
   lastCheckedAt: number;
 }
 
-export interface EnsureOutputBalancePayload {
+interface EnsureOutputBalancePayload {
   swap: PendingEvmSwap;
 }
 
-export interface IncrementCheckAttemptsPayload {
+interface IncrementCheckAttemptsPayload {
   txHash: HexString;
 }
 
-export interface RemovePendingSwapPayload {
+interface RemovePendingSwapPayload {
   txHash: HexString;
 }
 
