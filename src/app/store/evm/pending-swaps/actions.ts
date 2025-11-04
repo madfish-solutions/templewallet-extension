@@ -1,6 +1,5 @@
 import { createAction } from '@reduxjs/toolkit';
 
-import { createActions } from 'lib/store';
 import { EvmNetworkEssentials } from 'temple/networks';
 
 import { PendingEvmSwap } from './state';
@@ -52,7 +51,3 @@ export const removePendingEvmSwapAction = createAction<RemovePendingSwapPayload>
 export const monitorPendingSwapsAction = createAction('evm/pending-swaps/MONITOR');
 
 export const cleanupOutdatedSwapsAction = createAction('evm/pending-swaps/CLEANUP_OUTDATED');
-
-export const checkSwapStatusActions = createActions<{ txHash: HexString }, { txHash: HexString; status: string }>(
-  'evm/pending-swaps/CHECK_STATUS'
-);
