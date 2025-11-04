@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useRef } from 'react';
+import React, { memo, useEffect } from 'react';
 
 import { IconBase } from 'app/atoms';
 import DAppLogo from 'app/atoms/DAppLogo';
@@ -22,6 +22,7 @@ import {
 import { loadTezosChainId } from 'temple/tezos';
 import { TempleChainKind } from 'temple/types';
 
+import { useDAppConnectionRefs } from './dapp-connection-refs';
 import { SwitchAccountModal } from './switch-account-modal';
 import { useActiveTabUrlOrigin } from './use-active-tab';
 import { useDAppsConnections } from './use-connections';
@@ -33,9 +34,7 @@ export const DAppConnection = memo(() => {
   const evmAddress = useAccountAddressForEvm();
   const accountIsActable = isAccountOfActableType(useAccount());
   const activeTabOrigin = useActiveTabUrlOrigin();
-  const prevTezAddressRef = useRef(tezAddress);
-  const prevEvmAddressRef = useRef(evmAddress);
-  const prevActiveTabOriginRef = useRef(activeTabOrigin);
+  const { prevTezAddressRef, prevEvmAddressRef, prevActiveTabOriginRef } = useDAppConnectionRefs();
   const [switchAccountModalVisible, openSwitchAccountModal, closeSwitchAccountModal] = useBooleanState(false);
 
   useEffect(() => {
@@ -61,6 +60,7 @@ export const DAppConnection = memo(() => {
       accountIsActable &&
       // TODO: switch account for tezos dapps too when they become ready
       !isTezosDAppSession(dapp) &&
+      dAppChainAccountAddress &&
       dAppChainAccountAddress !== dapp.pkh
     ) {
       openSwitchAccountModal();
@@ -72,7 +72,10 @@ export const DAppConnection = memo(() => {
     activeTabOrigin,
     openSwitchAccountModal,
     accountIsActable,
-    closeSwitchAccountModal
+    closeSwitchAccountModal,
+    prevTezAddressRef,
+    prevEvmAddressRef,
+    prevActiveTabOriginRef
   ]);
 
   return (

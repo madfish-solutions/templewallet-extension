@@ -5,6 +5,7 @@ import { SuspenseContainer } from 'app/atoms/SuspenseContainer';
 import { useLocationSearchParamValue } from 'app/hooks/use-location';
 import PageLayout from 'app/layouts/PageLayout';
 import { AppHeader } from 'app/templates/AppHeader';
+import { DAppConnectionRefsProvider } from 'app/templates/DAppConnection/dapp-connection-refs';
 import { ExploreActionButtonsBar } from 'app/templates/ExploreActionButtons';
 import { toastSuccess } from 'app/toaster';
 import { useInitToastMessage } from 'lib/temple/front/toasts-context';
@@ -49,7 +50,11 @@ const Home = memo(() => {
         />
       </div>
 
-      <SuspenseContainer>{tabSlug === 'collectibles' ? <CollectiblesTab /> : <TokensTab />}</SuspenseContainer>
+      <SuspenseContainer>
+        <DAppConnectionRefsProvider>
+          {tabSlug === 'collectibles' ? <CollectiblesTab /> : <TokensTab />}
+        </DAppConnectionRefsProvider>
+      </SuspenseContainer>
     </PageLayout>
   );
 });
