@@ -1,4 +1,4 @@
-import React, { FC, useMemo } from 'react';
+import React, { FC, memo, useMemo } from 'react';
 
 import { isDefined } from '@rnw-community/shared';
 
@@ -37,20 +37,23 @@ export const ConfirmSwapModal: FC<ConfirmSwapModalProps> = ({ opened, onRequestC
 
   const title = useMemo(() => {
     if (!reviewData) return '';
+
     if (isSwapEvmReviewData(reviewData) && currentUserAction) {
       if (currentUserAction?.value?.type === 'approve') return t('approval');
+
       return t(isBridgeOperation ? 'bridgePreview' : 'swapPreview');
     }
+
     return t('swapPreview');
   }, [reviewData, currentUserAction, isBridgeOperation]);
 
-  const titleLeft = useMemo(
-    () =>
-      reviewData && isSwapEvmReviewData(reviewData) && userActions.length > 1
-        ? titleLeftProgress(Math.min(currentActionIndex + 1, userActions.length), userActions.length)
-        : undefined,
-    [currentActionIndex, reviewData, userActions.length]
-  );
+  const titleLeft = useMemo(() => {
+    if (!reviewData || !isSwapEvmReviewData(reviewData) || userActions.length < 2) return;
+
+    const currentStep = Math.min(currentActionIndex + 1, userActions.length);
+
+    return <TitleLeftProgress current={currentStep} total={userActions.length} />;
+  }, [currentActionIndex, reviewData, userActions.length]);
 
   return (
     <>
@@ -97,7 +100,12 @@ export const ConfirmSwapModal: FC<ConfirmSwapModalProps> = ({ opened, onRequestC
   );
 };
 
-const titleLeftProgress = (current: number, total: number) => (
+interface TitleLeftProgressProps {
+  current: number;
+  total: number;
+}
+
+const TitleLeftProgress = memo<TitleLeftProgressProps>(({ current, total }) => (
   <div className="w-12 mx-auto text-center">
     <div className="text-font-num-bold-14 text-grey-1">
       {current}/{total}
@@ -109,7 +117,7 @@ const titleLeftProgress = (current: number, total: number) => (
       ></div>
     </div>
   </div>
-);
+));
 
 const getOperationTitle = (isBridge: boolean, lowercase?: boolean) => {
   const text = t(isBridge ? 'bridge' : 'swap');
