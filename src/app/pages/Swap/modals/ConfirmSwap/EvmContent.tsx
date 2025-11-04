@@ -298,16 +298,16 @@ export const EvmContent: FC<EvmContentProps> = ({
       onStepCompleted();
     },
     [
-      cancelledRef,
-      sendEvmTransaction,
       accountPkh,
-      inputNetwork,
-      getActiveBlockExplorer,
       bridgeData,
-      skipStatusWait,
+      getActiveBlockExplorer,
+      inputNetwork,
       onStepCompleted,
+      outputNetwork,
       outputTokenSlug,
-      outputNetwork
+      sendEvmTransaction,
+      cancelledRef,
+      skipStatusWait
     ]
   );
 
