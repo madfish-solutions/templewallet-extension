@@ -555,8 +555,6 @@ export type TempleRequest =
   | TempleSendPageEventRequest
   | TempleSendEvmTransactionRequest
   | TempleResetExtensionRequest
-  | TempleSetWindowPopupStateRequest
-  | TempleSetWindowSidebarStateRequest
   | TempleProvePossessionRequest;
 
 export type TempleResponse =
@@ -603,8 +601,6 @@ export type TempleResponse =
   | TempleSendPageEventResponse
   | TempleSendEvmTransactionResponse
   | TempleResetExtensionResponse
-  | TempleSetWindowPopupStateResponse
-  | TempleSetWindowSidebarStateResponse
   | TempleProvePossessionResponse;
 
 export interface TempleMessageBase {
@@ -1131,26 +1127,6 @@ interface TempleResetExtensionRequest extends TempleMessageBase {
 
 interface TempleResetExtensionResponse extends TempleMessageBase {
   type: TempleMessageType.ResetExtensionResponse;
-}
-
-interface TempleSetWindowPopupStateRequest extends TempleMessageBase {
-  type: TempleMessageType.SetWindowPopupStateRequest;
-  windowId: number | null;
-  opened: boolean;
-}
-
-interface TempleSetWindowPopupStateResponse extends TempleMessageBase {
-  type: TempleMessageType.SetWindowPopupStateResponse;
-}
-
-interface TempleSetWindowSidebarStateRequest extends TempleMessageBase {
-  type: TempleMessageType.SetWindowSidebarStateRequest;
-  windowId: number | null;
-  opened: boolean;
-}
-
-interface TempleSetWindowSidebarStateResponse extends TempleMessageBase {
-  type: TempleMessageType.SetWindowSidebarStateResponse;
 }
 
 interface TempleProvePossessionRequest extends TempleMessageBase {

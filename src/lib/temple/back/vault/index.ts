@@ -1,8 +1,7 @@
 import type Eth from '@ledgerhq/hw-app-eth';
-import { HttpResponseError } from '@taquito/http-utils';
 import { DerivationType } from '@taquito/ledger-signer';
 import { localForger } from '@taquito/local-forging';
-import { CompositeForger, RpcForger, Signer, TezosOperationError, TezosToolkit } from '@taquito/taquito';
+import { CompositeForger, OperationBatch, RpcForger, Signer, TezosToolkit } from '@taquito/taquito';
 import * as TaquitoUtils from '@taquito/utils';
 import * as Bip39 from 'bip39';
 import { nanoid } from 'nanoid';
@@ -49,7 +48,7 @@ import { createLedgerSigner } from '../ledger';
 import { PublicError } from '../PublicError';
 
 import { makeEvmAccount } from './evm-ledger';
-import { fetchMessage, transformHttpResponseError } from './helpers';
+import { fetchMessage } from './helpers';
 import { MIGRATIONS } from './migrations';
 import {
   buildEncryptAndSaveManyForAccount,
@@ -895,30 +894,18 @@ export class Vault {
 
   async sendOperations(accPublicKeyHash: string, network: TezosNetworkEssentials, opParams: any[]) {
     return this.withSigner(accPublicKeyHash, async signer => {
-      const batch = await withError('Failed to send operations', async () => {
+      let batch: OperationBatch;
+      try {
         const tezos = new TezosToolkit(getTezosRpcClient(network));
         tezos.setSignerProvider(signer);
         tezos.setForgerProvider(new CompositeForger([tezos.getFactory(RpcForger)(), localForger]));
         tezos.setPackerProvider(michelEncoder);
-        return tezos.contract.batch(opParams.map(operation => formatOpParamsBeforeSend(operation, accPublicKeyHash)));
-      });
+        batch = tezos.contract.batch(opParams.map(operation => formatOpParamsBeforeSend(operation, accPublicKeyHash)));
 
-      try {
         return await batch.send();
       } catch (err: any) {
         console.error(err);
-
-        switch (true) {
-          case err instanceof PublicError:
-          case err instanceof TezosOperationError:
-            throw err;
-
-          case err instanceof HttpResponseError:
-            throw await transformHttpResponseError(err);
-
-          default:
-            throw new Error(`Failed to send operations. ${err.message}`);
-        }
+        throw new PublicError('Failed to send operations', [err]);
       }
     });
   }
@@ -985,7 +972,7 @@ export class Vault {
     } catch (err: any) {
       console.error(err);
 
-      throw new Error(err.details ?? err.message);
+      throw new PublicError(err.details ?? err.message, [err]);
     }
   }
 

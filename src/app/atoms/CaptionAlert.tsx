@@ -15,6 +15,7 @@ interface Props {
   title?: string;
   className?: string;
   textClassName?: string;
+  children?: ReactChildren;
 }
 
 const TYPE_CLASSES: Record<CaptionAlertType, string> = {
@@ -24,20 +25,16 @@ const TYPE_CLASSES: Record<CaptionAlertType, string> = {
   warning: 'bg-warning-low'
 };
 
-/** Refer to `./Alert` for existing functionality */
-export const CaptionAlert = memo<Props>(({ type, message, title, className, textClassName }) => {
-  const Icon = (() => {
-    switch (type) {
-      case 'success':
-        return SuccessIcon;
-      case 'warning':
-        return WarningIcon;
-      case 'error':
-        return ErrorIcon;
-    }
+const ICONS: Record<CaptionAlertType, ImportedSVGComponent> = {
+  success: SuccessIcon,
+  error: ErrorIcon,
+  info: InfoIcon,
+  warning: WarningIcon
+};
 
-    return InfoIcon;
-  })();
+/** Refer to `./Alert` for existing functionality */
+export const CaptionAlert = memo<Props>(({ type, message, title, className, textClassName, children }) => {
+  const Icon = ICONS[type];
 
   return (
     <div className={clsx('flex items-start p-3 gap-x-1 rounded-md', TYPE_CLASSES[type], className)}>
@@ -46,6 +43,7 @@ export const CaptionAlert = memo<Props>(({ type, message, title, className, text
       <div className="flex-1">
         {title && <p className="text-font-description-bold">{title}</p>}
         <p className={clsx('text-font-description', textClassName)}>{message}</p>
+        {children}
       </div>
     </div>
   );

@@ -4,6 +4,7 @@ import { transform } from 'lodash';
 import { useForm } from 'react-hook-form-v7';
 import { useDebounce } from 'use-debounce';
 import {
+  FeeCapTooLowError,
   FeeValuesEIP1559,
   FeeValuesLegacy,
   TransactionSerializable,
@@ -222,6 +223,26 @@ export const useEvmEstimationForm = (
     { revalidateOnFocus: false, revalidateOnReconnect: false, dedupingInterval: 10000, fallbackData: {} }
   );
 
+  const assertCustomFeesPerGasNotTooLow = useCallback(
+    (value: FeeValuesEIP1559 | FeeValuesLegacy | nullish) => {
+      if (!value || !feeOptions) return;
+
+      const minCustomFeesPerGas = feeOptions.gasPrice.slow;
+
+      if (value.maxPriorityFeePerGas) {
+        const { maxFeePerGas: minFeePerGas, maxPriorityFeePerGas: minPriorityFeePerGas } =
+          minCustomFeesPerGas as FeeValuesEIP1559;
+
+        if (value.maxPriorityFeePerGas < minPriorityFeePerGas || value.maxFeePerGas < minFeePerGas) {
+          throw new FeeCapTooLowError();
+        }
+      } else if (value.gasPrice && value.gasPrice < (minCustomFeesPerGas as FeeValuesLegacy).gasPrice) {
+        throw new FeeCapTooLowError();
+      }
+    },
+    [feeOptions]
+  );
+
   return {
     balancesChanges,
     balancesChangesLoading,
@@ -232,7 +253,8 @@ export const useEvmEstimationForm = (
     handleFeeOptionSelect,
     feeOptions,
     displayedFee,
-    getFeesPerGas
+    getFeesPerGas,
+    assertCustomFeesPerGasNotTooLow
   };
 };
 

@@ -30,11 +30,10 @@ import {
 
 import { useSendFormControl } from '../context';
 import { useTezosEstimationData } from '../hooks/use-tezos-estimation-data';
-import { showEstimationError } from '../utils';
 
 import { BaseForm } from './BaseForm';
 import { ReviewData, SendFormData } from './interfaces';
-import { getBaseFeeError, getFeeError, getMaxAmountFiat } from './utils';
+import { getMaxAmountFiat } from './utils';
 
 interface Props {
   chainId: string;
@@ -109,11 +108,7 @@ export const TezosForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, o
     return false;
   }, [allAccounts, contacts, toFilled, toResolved]);
 
-  const {
-    data: estimationData,
-    error: estimationDataError,
-    isValidating: estimating
-  } = useTezosEstimationData({
+  const { data: estimationData, isValidating: estimating } = useTezosEstimationData({
     to: toResolved,
     tezos,
     chainId,
@@ -135,12 +130,9 @@ export const TezosForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, o
     balance,
     tezBalance,
     assetMetadata,
-    toFilled: true,
-    silent: true
+    toFilled: true
   });
 
-  const feeError = getBaseFeeError(estimationData?.baseFee, estimationDataError);
-  const estimationError = getFeeError(estimating, feeError);
   const tezosGasMetadata = useTezosGasMetadata(chainId);
 
   const maxAmount = useMemo(() => {
@@ -214,11 +206,6 @@ export const TezosForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, o
     async ({ amount }: SendFormData) => {
       if (formState.isSubmitting) return;
 
-      if (estimationError) {
-        showEstimationError(estimationDataError);
-        return;
-      }
-
       formAnalytics.trackSubmit();
 
       try {
@@ -245,7 +232,6 @@ export const TezosForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, o
     [
       account,
       assetSlug,
-      estimationError,
       formAnalytics,
       formState.isSubmitting,
       network,

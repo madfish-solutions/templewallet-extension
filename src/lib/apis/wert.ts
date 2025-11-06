@@ -20,19 +20,17 @@ const WERT_SUPPORTED_EVM_CHAIN_IDS = [
 ];
 
 export const isWertSupportedChainAssetSlug = (chainAssetSlug: string) => {
-  const [chainKind, chainId, assetSlug] = parseChainAssetSlug(chainAssetSlug);
-
-  if (chainKind === TempleChainKind.Tezos && assetSlug === TEZ_TOKEN_SLUG) {
-    return true;
-  } else if (
-    chainKind === TempleChainKind.EVM &&
-    WERT_SUPPORTED_EVM_CHAIN_IDS.includes(Number(chainId)) &&
-    assetSlug === EVM_TOKEN_SLUG
-  ) {
+  if (chainAssetSlug === TEZOS_CHAIN_ASSET_SLUG) {
     return true;
   }
 
-  return false;
+  const [chainKind, chainId, assetSlug] = parseChainAssetSlug(chainAssetSlug);
+
+  return (
+    chainKind === TempleChainKind.EVM &&
+    WERT_SUPPORTED_EVM_CHAIN_IDS.includes(Number(chainId)) &&
+    assetSlug === EVM_TOKEN_SLUG
+  );
 };
 
 export const getWertLink = async (address: string, chainAssetSlug: string, amount = 0) => {
