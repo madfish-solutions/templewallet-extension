@@ -14,19 +14,11 @@ import { pendingEvmSwapsInitialState, PendingEvmSwapsState } from './state';
 const pendingEvmSwapsReducer = createReducer(pendingEvmSwapsInitialState, builder => {
   builder.addCase(addPendingEvmSwapAction, (state, { payload }) => {
     state.swaps[payload.txHash] = {
+      ...payload,
       id: payload.txHash,
-      txHash: payload.txHash,
-      accountPkh: payload.accountPkh,
-      fromChainId: payload.fromChainId,
-      toChainId: payload.toChainId,
-      bridge: payload.bridge,
-      inputTokenSlug: payload.inputTokenSlug,
-      outputTokenSlug: payload.outputTokenSlug,
-      outputNetwork: payload.outputNetwork,
-      blockExplorerUrl: payload.blockExplorerUrl,
       submittedAt: Date.now(),
       lastCheckedAt: Date.now(),
-      checkAttempts: 0,
+      statusCheckAttempts: 0,
       balanceFetchAttempts: 0,
       status: 'PENDING'
     };
@@ -40,16 +32,16 @@ const pendingEvmSwapsReducer = createReducer(pendingEvmSwapsInitialState, builde
     }
   });
 
-  builder.addCase(incrementSwapCheckAttemptsAction, (state, { payload }) => {
-    const swap = state.swaps[payload.txHash];
+  builder.addCase(incrementSwapCheckAttemptsAction, (state, { payload: txHash }) => {
+    const swap = state.swaps[txHash];
     if (swap) {
-      swap.checkAttempts += 1;
+      swap.statusCheckAttempts += 1;
       swap.lastCheckedAt = Date.now();
     }
   });
 
-  builder.addCase(removePendingEvmSwapAction, (state, { payload }) => {
-    delete state.swaps[payload.txHash];
+  builder.addCase(removePendingEvmSwapAction, (state, { payload: txHash }) => {
+    delete state.swaps[txHash];
   });
 });
 

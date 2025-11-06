@@ -14,6 +14,7 @@ import { mapLiFiTxToEvmEstimationData, parseTxRequestToViem } from 'app/pages/Sw
 import { dispatch } from 'app/store';
 import { putNewEvmTokenAction } from 'app/store/evm/assets/actions';
 import { processLoadedOnchainBalancesAction } from 'app/store/evm/balances/actions';
+import { addPendingEvmSwapAction, monitorPendingSwapsAction } from 'app/store/evm/pending-swaps/actions';
 import { putEvmTokensMetadataAction } from 'app/store/evm/tokens-metadata/actions';
 import { EvmTxParamsFormData } from 'app/templates/TransactionTabs/types';
 import { useEvmEstimationForm } from 'app/templates/TransactionTabs/use-evm-estimation-form';
@@ -214,6 +215,28 @@ export const EvmContent: FC<EvmContentProps> = ({
 
       if (skipStatusWait) {
         if (cancelledRef?.current) return;
+
+        dispatch(
+          addPendingEvmSwapAction({
+            txHash,
+            accountPkh,
+            inputTokenSlug,
+            outputTokenSlug,
+            inputNetwork: {
+              chainId: inputNetwork.chainId,
+              rpcBaseURL: inputNetwork.rpcBaseURL
+            },
+            outputNetwork: {
+              chainId: outputNetwork.chainId,
+              rpcBaseURL: outputNetwork.rpcBaseURL
+            },
+            blockExplorerUrl: makeBlockExplorerHref(blockExplorer.url, txHash, 'tx', TempleChainKind.EVM),
+            bridge: step.tool
+          })
+        );
+
+        dispatch(monitorPendingSwapsAction());
+
         setStepFinalized(true);
         onStepCompleted();
         return;

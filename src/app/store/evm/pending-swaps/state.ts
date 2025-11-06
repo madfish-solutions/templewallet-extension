@@ -2,26 +2,23 @@ import { StatusMessage } from '@lifi/sdk';
 
 import { EvmNetworkEssentials } from 'temple/networks';
 
-export interface PendingEvmSwap {
-  id: string; // txHash
+export interface PendingEvmSwapBase {
   txHash: HexString;
   accountPkh: HexString;
-
-  fromChainId: number;
-  toChainId: number;
-  bridge: string;
-
   inputTokenSlug: string;
   outputTokenSlug: string;
+  inputNetwork: EvmNetworkEssentials;
   outputNetwork: EvmNetworkEssentials;
-
   blockExplorerUrl: string;
+  bridge: string;
+}
 
+export interface PendingEvmSwap extends PendingEvmSwapBase {
+  id: string; // txHash
   submittedAt: number;
   lastCheckedAt: number;
-  checkAttempts: number;
+  statusCheckAttempts: number;
   balanceFetchAttempts: number;
-
   status: StatusMessage;
 }
 
