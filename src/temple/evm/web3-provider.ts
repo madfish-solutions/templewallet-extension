@@ -1,5 +1,5 @@
-import EventEmitter from 'events';
 import memoizee from 'memoizee';
+import EventEmitter from 'node:events';
 import { v4 as uuid } from 'uuid';
 import type {
   EIP1193Parameters,
@@ -18,6 +18,7 @@ import {
   SWITCH_CHAIN_MSG_TYPE
 } from 'lib/constants';
 import { EIP6963ProviderInfo, ETHEREUM_MAINNET_CHAIN_ID } from 'lib/temple/types';
+import { defaultStrSortPredicate } from 'lib/utils/sorting';
 
 import {
   EVMErrorCodes,
@@ -164,7 +165,14 @@ export class TempleWeb3Provider extends EventEmitter {
 
     this.handleDisconnect = this.handleDisconnect.bind(this);
     this.handleSwitchAccount = this.handleSwitchAccount.bind(this);
-    this.handleRequest(
+    this.initializeAccountsList = this.initializeAccountsList.bind(this);
+    this.listenToTypedMessage(isDisconnectDAppMessage, this.handleDisconnect);
+    this.listenToTypedMessage(isSwitchAccountMessage, this.handleSwitchAccount);
+    this.listenToTypedMessage(isSwitchChainMessage, ({ chainId }) => this.updateChainId(toHex(chainId)));
+  }
+
+  initializeAccountsList() {
+    return this.handleRequest(
       { method: GET_DEFAULT_WEB3_PARAMS_METHOD_NAME, params: null },
       ({ chainId, accounts }) => {
         this.updateChainId(chainId);
@@ -176,9 +184,6 @@ export class TempleWeb3Provider extends EventEmitter {
       identity,
       undefined
     ).catch(error => console.error(error));
-    this.listenToTypedMessage(isDisconnectDAppMessage, this.handleDisconnect);
-    this.listenToTypedMessage(isSwitchAccountMessage, this.handleSwitchAccount);
-    this.listenToTypedMessage(isSwitchChainMessage, ({ chainId }) => this.updateChainId(toHex(chainId)));
   }
 
   get selectedAddress() {
@@ -259,7 +264,7 @@ export class TempleWeb3Provider extends EventEmitter {
   }
 
   // @ts-expect-error
-  private handleRpcRequest: PublicClient['request'] = async args => {
+  private readonly handleRpcRequest: PublicClient['request'] = async args => {
     return this.handleRequest<any>(args as RequestParameters, noop, identity, undefined);
   };
 
@@ -345,7 +350,10 @@ export class TempleWeb3Provider extends EventEmitter {
   }
 
   private updateAccounts(accounts: HexString[]) {
-    if (JSON.stringify(this.accounts.toSorted()) === JSON.stringify(accounts.toSorted())) {
+    if (
+      JSON.stringify(this.accounts.toSorted(defaultStrSortPredicate)) ===
+      JSON.stringify(accounts.toSorted(defaultStrSortPredicate))
+    ) {
       return;
     }
 
@@ -384,11 +392,11 @@ export class TempleWeb3Provider extends EventEmitter {
       throw makeErrorLikeObject(EVMErrorCodes.USER_REJECTED_REQUEST, 'Connection declined');
     }
 
-    window.dispatchEvent(
+    globalThis.dispatchEvent(
       new CustomEvent<PassToBgEventDetail>(PASS_TO_BG_EVENT, {
         detail: {
           args,
-          origin: window.origin,
+          origin: globalThis.origin,
           chainId: this.chainId,
           iconUrl: await this.getIconUrl(document?.head),
           requestId,
@@ -427,7 +435,7 @@ export class TempleWeb3Provider extends EventEmitter {
 
   private listenToTypedMessage<T>(typeguard: (msg: any) => msg is T, callback: SyncFn<T>) {
     const listener = (evt: MessageEvent<any>) => {
-      if (evt.origin === window.origin && typeguard(evt.data)) {
+      if (evt.origin === globalThis.origin && typeguard(evt.data)) {
         callback(evt.data);
       }
     };
@@ -438,7 +446,7 @@ export class TempleWeb3Provider extends EventEmitter {
     return removeListener;
   }
 
-  private getIconUrl = memoizee(
+  private readonly getIconUrl = memoizee(
     // A page may not have a head element
     async (head: HTMLHeadElement | undefined) => {
       const iconsTags = Array.from(head?.querySelectorAll('link[rel*="icon"]') ?? []) as HTMLLinkElement[];

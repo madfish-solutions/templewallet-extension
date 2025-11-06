@@ -35,14 +35,14 @@ const info: EIP6963ProviderInfo = {
 function setGlobalProvider() {
   try {
     window.ethereum = defaultTempleProvider;
-    window.dispatchEvent(new Event('ethereum#initialized'));
+    globalThis.dispatchEvent(new Event('ethereum#initialized'));
   } catch (e) {
     console.error(e);
   }
 }
 
 function announceProvider() {
-  window.dispatchEvent(
+  globalThis.dispatchEvent(
     new CustomEvent('eip6963:announceProvider', {
       detail: Object.freeze({ info, provider: eip6963TempleProvider })
     })
@@ -50,7 +50,9 @@ function announceProvider() {
 }
 
 const defaultTempleProvider = new TempleWeb3Provider();
+defaultTempleProvider.initializeAccountsList();
 const eip6963TempleProvider = new TempleWeb3Provider(true);
+eip6963TempleProvider.initializeAccountsList();
 
 announceProvider();
 setGlobalProvider();
@@ -72,7 +74,7 @@ function handleAnnounceProvider(evt: Event) {
   if (!announced) return;
 
   if (announced.name === info.name && announced.rdns === info.rdns) return;
-  if (!otherProviders.find(provider => provider.uuid === announced.uuid)) {
+  if (!otherProviders.some(provider => provider.uuid === announced.uuid)) {
     otherProviders.push({ uuid: announced.uuid, name: announced.name, icon: announced.icon, rdns: announced.rdns });
     window.__templeOtherProviders = otherProviders.slice();
   }
@@ -82,9 +84,9 @@ function handleAnnounceProvider(evt: Event) {
   }
 }
 
-window.addEventListener('eip6963:requestProvider', announceProvider);
-window.addEventListener('eip6963:announceProvider', handleAnnounceProvider);
-window.dispatchEvent(new Event('eip6963:requestProvider'));
+globalThis.addEventListener('eip6963:requestProvider', announceProvider);
+globalThis.addEventListener('eip6963:announceProvider', handleAnnounceProvider);
+globalThis.dispatchEvent(new Event('eip6963:requestProvider'));
 
 document.addEventListener(TEMPLE_SWITCH_PROVIDER_EVENT, async (evt: Event) => {
   const customEvent = evt as TempleSwitchProviderEvent;
@@ -102,6 +104,8 @@ document.addEventListener(TEMPLE_SWITCH_PROVIDER_EVENT, async (evt: Event) => {
           await target.request({ method: evmRpcMethodsNames.eth_requestAccounts });
         } catch (err) {}
       }
-    } catch (e) {}
+    } catch (e) {
+      console.error(e);
+    }
   }
 });

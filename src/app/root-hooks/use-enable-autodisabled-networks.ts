@@ -21,6 +21,7 @@ import {
 } from 'lib/constants';
 import { useStorage } from 'lib/temple/front/storage';
 import { useMemoWithCompare } from 'lib/ui/hooks';
+import { defaultStrSortPredicate } from 'lib/utils/sorting';
 import { getAccountAddressForEvm, isAccountOfActableType } from 'temple/accounts';
 import { useAllAccounts, useAllEvmChains } from 'temple/front';
 import { useEvmChainsSpecs } from 'temple/front/use-chains-specs';
@@ -51,7 +52,7 @@ export const useEnableAutodisabledNetworks = () => {
         .filter(isAccountOfActableType)
         .map(account => getAccountAddressForEvm(account))
         .filter((x): x is HexString => typeof x === 'string')
-        .sort(),
+        .sort(defaultStrSortPredicate),
     [allAccounts]
   );
   const prevActableEvmAccountsAddressesRef = useRef(actableEvmAccountsAddresses);
