@@ -10,6 +10,7 @@ import BinanceSmartChainIconSrc from 'app/icons/networks/bsc.svg?url';
 import EthereumIconSrc from 'app/icons/networks/ethereum.svg?url';
 import OptimismIconSrc from 'app/icons/networks/optimism.svg?url';
 import PolygonIconSrc from 'app/icons/networks/polygon.svg?url';
+import RootstockIconSrc from 'app/icons/networks/rootstock.svg?url';
 import { t } from 'lib/i18n';
 import { getEvmNativeAssetIcon } from 'lib/images-uri';
 import { ETHEREUM_MAINNET_CHAIN_ID, COMMON_MAINNET_CHAIN_IDS, TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
@@ -30,7 +31,8 @@ const logosRecord: Record<number, string> = {
   [COMMON_MAINNET_CHAIN_IDS.optimism]: OptimismIconSrc,
   [COMMON_MAINNET_CHAIN_IDS.base]: BaseIconSrc,
   [COMMON_MAINNET_CHAIN_IDS.avalanche]: AvalancheIconSrc,
-  [COMMON_MAINNET_CHAIN_IDS.arbitrum]: ArbitrumIconSrc
+  [COMMON_MAINNET_CHAIN_IDS.arbitrum]: ArbitrumIconSrc,
+  [COMMON_MAINNET_CHAIN_IDS.rootstock]: RootstockIconSrc
 };
 
 export interface NetworkLogoPropsBase<T extends TempleChainKind> {
