@@ -204,6 +204,11 @@ export const EVM_FALLBACK_RPC_URLS: Record<number, string[]> = {
     'https://base.meowrpc.com',
     'https://base-pokt.nodies.app'
   ],
+  [COMMON_MAINNET_CHAIN_IDS.rootstock]: [
+    'https://public-node.rsk.co',
+    'https://mycrypto.rsk.co',
+    'https://rootstock-mainnet.public.blastapi.io'
+  ],
   [ETH_SEPOLIA_CHAIN_ID]: [
     'https://ethereum-sepolia-rpc.publicnode.com',
     'https://sepolia.drpc.org',
@@ -238,6 +243,10 @@ export const EVM_FALLBACK_RPC_URLS: Record<number, string[]> = {
     'https://base-sepolia-rpc.publicnode.com',
     'https://base-sepolia.drpc.org',
     'https://sepolia.base.org'
+  ],
+   [COMMON_TESTNET_CHAIN_IDS.rootstock]: [
+    'https://public-node.testnet.rsk.co',
+    'https://mycrypto.testnet.rsk.co'
   ]
 };
 
@@ -311,6 +320,16 @@ export const EVM_DEFAULT_NETWORKS: NonEmptyArray<StoredEvmNetwork> = [
     default: true
   },
   {
+    id: 'rootstock-mainnet',
+    name: 'Rootstock',
+    chain: TempleChainKind.EVM,
+    chainId: COMMON_MAINNET_CHAIN_IDS.rootstock,
+    rpcBaseURL: EVM_FALLBACK_RPC_URLS[COMMON_MAINNET_CHAIN_IDS.rootstock][0],
+    description: 'Rootstock Mainnet',
+    color: '#ff9100',
+    default: true
+  },
+  {
     id: 'etherlink-mainnet',
     name: 'Etherlink',
     chain: TempleChainKind.EVM,
@@ -346,6 +365,16 @@ export const EVM_DEFAULT_NETWORKS: NonEmptyArray<StoredEvmNetwork> = [
     rpcBaseURL: EVM_FALLBACK_RPC_URLS[COMMON_TESTNET_CHAIN_IDS.bsc][0],
     description: 'Binance Smart Chain Testnet',
     color: '#867000',
+    default: true
+  },
+  {
+    id: 'rootstock-testnet',
+    name: 'Rootstock',
+    chain: TempleChainKind.EVM,
+    chainId: COMMON_TESTNET_CHAIN_IDS.rootstock,
+    rpcBaseURL: EVM_FALLBACK_RPC_URLS[COMMON_TESTNET_CHAIN_IDS.rootstock][0],
+    description: 'Rootstock Testnet',
+    color: '#ff9100',
     default: true
   },
   {

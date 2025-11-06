@@ -73,6 +73,15 @@ export const DEFAULT_EVM_CHAINS_SPECS: Record<string, EvmChainSpecs & { testnet:
       symbol: 'BNB'
     }
   },
+  [COMMON_MAINNET_CHAIN_IDS.rootstock]: {
+    name: 'Rootstock',
+    testnet: false,
+    currency: {
+      ...DEFAULT_EVM_CURRENCY,
+      name: 'RBTC',
+      symbol: 'RBTC'
+    }
+  },
   [COMMON_MAINNET_CHAIN_IDS.avalanche]: {
     name: 'Avalanche',
     testnet: false,
@@ -129,6 +138,15 @@ export const DEFAULT_EVM_CHAINS_SPECS: Record<string, EvmChainSpecs & { testnet:
       ...DEFAULT_EVM_CURRENCY,
       name: 'BNB',
       symbol: 'tBNB'
+    },
+    testnet: true
+  },
+  [COMMON_TESTNET_CHAIN_IDS.rootstock]: {
+    name: 'Rootstock',
+    currency: {
+      ...DEFAULT_EVM_CURRENCY,
+      name: 'tRBTC',
+      symbol: 'tRBTC'
     },
     testnet: true
   },
