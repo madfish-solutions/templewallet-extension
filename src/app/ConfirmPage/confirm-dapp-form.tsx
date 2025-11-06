@@ -29,6 +29,7 @@ import { ConfirmPageSelectors } from './selectors';
 export interface ConfirmDAppFormContentProps {
   selectedAccount: StoredAccount;
   error: any;
+  setError: SyncFn<any>;
   formId: string;
   openAccountsModal: EmptyFn;
   onSubmit: EmptyFn;
@@ -253,6 +254,7 @@ export const ConfirmDAppForm = memo<ConfirmDAppFormProps>(({ accounts, payload, 
           formId: CONFIRM_OPERATIONS_FORM_ID,
           onSubmit: handleConfirmClick,
           error,
+          setError,
           dismissConflict: () => {
             setShowConflict(false);
           },

@@ -25,8 +25,6 @@ import { getTezosToolkitWithSigner } from 'temple/front';
 import { useGetTezosActiveBlockExplorer } from 'temple/front/ready';
 import { TempleChainKind } from 'temple/types';
 
-import { showEstimationError } from '../../utils';
-
 import { BaseContent } from './BaseContent';
 
 interface TezosContentProps {
@@ -45,7 +43,7 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
   const accountPkh = account.address;
   const isLedgerAccount = account.type === TempleAccountType.Ledger;
 
-  const [latestSubmitError, setLatestSubmitError] = useState<string | nullish>(null);
+  const [latestSubmitError, setLatestSubmitError] = useState<unknown>(null);
 
   const { value: balance = ZERO } = useTezosAssetBalance(assetSlug, accountPkh, network);
   const { value: tezBalance = ZERO } = useTezosAssetBalance(TEZ_TOKEN_SLUG, accountPkh, network);
@@ -101,25 +99,44 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
     submitOperation,
     displayedFeeOptions,
     displayedFee,
-    displayedStorageFee
+    displayedStorageFee,
+    assertCustomGasFeeNotTooLow
   } = useTezosEstimationForm({
     estimationData,
     basicParams: basicSendParams,
     senderAccount: account,
-    network
+    network,
+    isEstimationError: Boolean(estimationError)
   });
   const { formState } = form;
 
   const { ledgerApprovalModalState, setLedgerApprovalModalState, handleLedgerModalClose } =
     useLedgerApprovalModalState();
 
+  const onSubmitError = useCallback(
+    (err: unknown) => {
+      console.error(err);
+      setLatestSubmitError(err);
+      setTab('error');
+    },
+    [setLatestSubmitError, setTab]
+  );
+
   const onSubmit = useCallback(
     async ({ gasFee, storageLimit }: TezosTxParamsFormData) => {
       try {
         if (formState.isSubmitting) return;
 
+        try {
+          assertCustomGasFeeNotTooLow(gasFee);
+        } catch (e) {
+          onSubmitError(e);
+
+          return;
+        }
+
         if (!estimationData || estimationError) {
-          showEstimationError(estimationError);
+          onSubmitError(estimationError);
 
           return;
         }
@@ -150,10 +167,7 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
           await doOperation();
         }
       } catch (err: any) {
-        console.error(err);
-
-        setLatestSubmitError(err.errors ? JSON.stringify(err.errors) : err.message);
-        setTab('error');
+        onSubmitError(err);
       }
     },
     [
@@ -169,7 +183,8 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
       getActiveBlockExplorer,
       network.chainId,
       setLedgerApprovalModalState,
-      setTab
+      onSubmitError,
+      assertCustomGasFeeNotTooLow
     ]
   );
 

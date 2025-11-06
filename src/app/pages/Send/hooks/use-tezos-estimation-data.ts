@@ -3,7 +3,6 @@ import { useCallback } from 'react';
 import { getRevealFee, TezosToolkit } from '@taquito/taquito';
 import BigNumber from 'bignumber.js';
 
-import { toastError } from 'app/toaster';
 import { isTezAsset, toPenny } from 'lib/assets';
 import { toTransferParams } from 'lib/assets/contract.utils';
 import { TEZOS_BLOCK_DURATION } from 'lib/fixed-times';
@@ -30,7 +29,6 @@ interface TezosEstimationInput {
   tezBalance: BigNumber;
   assetMetadata: AssetMetadataBase;
   toFilled?: boolean;
-  silent?: boolean;
 }
 
 export const useTezosEstimationData = ({
@@ -43,8 +41,7 @@ export const useTezosEstimationData = ({
   balance,
   tezBalance,
   assetMetadata,
-  toFilled,
-  silent
+  toFilled
 }: TezosEstimationInput) => {
   const estimate = useCallback(async (): Promise<TezosEstimationData | undefined> => {
     const isTez = isTezAsset(assetSlug);
@@ -62,20 +59,13 @@ export const useTezosEstimationData = ({
     const revealFeeMutez = tezosManagerKeyHasManager(manager) ? ZERO : mutezToTz(getRevealFee(from));
     const estimatedBaseFee = mutezToTz(estmtnMax.burnFeeMutez + estmtnMax.suggestedFeeMutez).plus(revealFeeMutez);
 
-    if (isTez ? estimatedBaseFee.isGreaterThanOrEqualTo(balance) : estimatedBaseFee.isGreaterThan(tezBalance)) {
-      if (!silent) {
-        toastError('Not enough funds');
-      }
-      return;
-    }
-
     return {
       baseFee: estimatedBaseFee,
       gasFee: mutezToTz(estmtnMax.suggestedFeeMutez).plus(revealFeeMutez),
       revealFee: revealFeeMutez,
       estimates: [serializeEstimate(estmtnMax)]
     };
-  }, [tezBalance, balance, assetMetadata, to, assetSlug, tezos, accountPkh, account, silent]);
+  }, [tezBalance, balance, assetMetadata, to, assetSlug, tezos, accountPkh, account]);
 
   return useTypedSWR(
     () => (toFilled ? ['tezos-estimation-data', assetSlug, chainId, accountPkh, to] : null),

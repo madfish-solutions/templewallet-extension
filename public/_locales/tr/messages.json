@@ -617,9 +617,6 @@
       }
     }
   },
-  "notEnoughFunds": {
-    "message": "Yeterli fon yok"
-  },
   "notEnoughCurrencyFunds": {
     "message": "Yeterli $currency$ fonu yok",
     "placeholders": {
@@ -1392,9 +1389,6 @@
   },
   "emptyImplicitContract": {
     "message": "Hesabınız boş. Etkinleştirmek için bu hesaba herhangi bir tutarda tez yatırın"
-  },
-  "balanceTooLow": {
-    "message": "Gas token bakiyesi çok düşük"
   },
   "swap": {
     "message": "Takas"

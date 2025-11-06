@@ -16,10 +16,7 @@ export const useDelegationEstimationData = (
   tezBalance: BigNumber
 ) => {
   const bakerPkh = getBakerAddress(baker);
-  const estimate = useCallback(
-    () => estimateDelegation(account, tezos, tezBalance, bakerPkh),
-    [account, bakerPkh, tezBalance, tezos]
-  );
+  const estimate = useCallback(() => estimateDelegation(account, tezos, bakerPkh), [account, bakerPkh, tezos]);
 
   return useTypedSWR(
     ['estimate-delegation', bakerPkh, account.address, network.chainId, tezBalance.toFixed()],

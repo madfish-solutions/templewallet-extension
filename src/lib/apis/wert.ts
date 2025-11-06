@@ -21,11 +21,11 @@ const WERT_SUPPORTED_EVM_CHAIN_IDS = [
 ];
 
 export const isWertSupportedChainAssetSlug = (chainAssetSlug: string) => {
-  const [chainKind, chainId, assetSlug] = parseChainAssetSlug(chainAssetSlug);
-
-  if (chainKind === TempleChainKind.Tezos && assetSlug === TEZ_TOKEN_SLUG && chainId === TEZOS_MAINNET_CHAIN_ID) {
+  if (chainAssetSlug === TEZOS_CHAIN_ASSET_SLUG) {
     return true;
   }
+
+  const [chainKind, chainId, assetSlug] = parseChainAssetSlug(chainAssetSlug);
 
   return (
     chainKind === TempleChainKind.EVM &&

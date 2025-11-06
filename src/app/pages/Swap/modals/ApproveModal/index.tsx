@@ -23,6 +23,7 @@ import { toTokenSlug } from 'lib/assets';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { useEvmAssetBalance } from 'lib/balances/hooks';
 import { T } from 'lib/i18n';
+import { getHumanErrorMessage } from 'lib/temple/error-messages';
 import { useTempleClient } from 'lib/temple/front';
 import { atomsToTokens } from 'lib/temple/helpers';
 import { EvmTransactionRequestWithSender, TempleAccountType, TempleEvmDAppTransactionPayload } from 'lib/temple/types';
@@ -165,6 +166,8 @@ const ApproveModal: FC<ApproveModalProps> = ({ stepReviewData, onClose, onStepCo
     ]
   );
 
+  const handleSubmitError = useCallback((error: unknown) => setLatestSubmitError(getHumanErrorMessage(error)), []);
+
   if (loading && !isLedgerAccount) {
     return <PageLoader stretch />;
   }
@@ -189,6 +192,7 @@ const ApproveModal: FC<ApproveModalProps> = ({ stepReviewData, onClose, onStepCo
             payload={payload}
             formId="swap-approve"
             error={null}
+            setError={handleSubmitError}
             setFinalEvmTransaction={setFinalEvmTransaction}
             onSubmit={onSubmit}
             minAllowance={BigInt(routeStep.action.fromAmount)}

@@ -578,9 +578,6 @@
       }
     }
   },
-  "notEnoughFunds": {
-    "message": "资金不足"
-  },
   "notEnoughCurrencyFunds": {
     "message": "$currency$资金不足",
     "placeholders": {

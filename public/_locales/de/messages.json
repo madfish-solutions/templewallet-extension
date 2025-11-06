@@ -617,9 +617,6 @@
       }
     }
   },
-  "notEnoughFunds": {
-    "message": "Nicht genügend Gelder"
-  },
   "notEnoughCurrencyFunds": {
     "message": "Nicht genügend $currency$-Gelder",
     "placeholders": {
@@ -1392,9 +1389,6 @@
   },
   "emptyImplicitContract": {
     "message": "Ihr Konto ist leer. Zahlen Sie einen beliebigen Tez-Betrag auf dieses Konto ein, um es zu aktivieren"
-  },
-  "balanceTooLow": {
-    "message": "Gas-Token-Guthaben zu niedrig"
   },
   "swap": {
     "message": "Wechseln"

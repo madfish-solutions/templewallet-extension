@@ -1,5 +1,15 @@
+import { pick } from 'lodash';
 import { nanoid } from 'nanoid';
-import { formatTransactionRequest, getAddress, Hash, recoverMessageAddress, toHex, TransactionRequest } from 'viem';
+import {
+  formatTransactionRequest,
+  getAddress,
+  Hash,
+  recoverMessageAddress,
+  toHex,
+  TransactionRequest,
+  EstimateGasExecutionError,
+  RpcRequestError
+} from 'viem';
 
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { BLOCKCHAIN_EXPLORERS_OVERRIDES_STORAGE_KEY, EVM_CHAINS_SPECS_STORAGE_KEY } from 'lib/constants';
@@ -30,6 +40,7 @@ import {
   ETHEREUM_MAINNET_CHAIN_ID,
   EvmAssetToAddMetadata,
   EvmChainToAddMetadata,
+  EvmTransactionRequestWithSender,
   TempleEvmDAppPersonalSignPayload,
   TempleEvmDAppSignTypedPayload,
   TempleEvmDAppTransactionPayload,
@@ -277,7 +288,7 @@ export const sendEvmTransactionAfterConfirm = async (
     console.error(e);
   }
   let estimationData: TempleEvmDAppTransactionPayload['estimationData'];
-  let error: string | null | undefined;
+  let error: unknown;
 
   try {
     const estimation = await estimate({ rpcBaseURL, chainId: parsedChainId }, modifiedReq);
@@ -300,15 +311,52 @@ export const sendEvmTransactionAfterConfirm = async (
     } catch (e) {
       console.error(e);
     }
-    error = serializeError(e);
+    if (e instanceof EstimateGasExecutionError) {
+      let errorToHandle: Record<string, unknown> = pick(e, [
+        'cause',
+        'details',
+        'shortMessage',
+        'message',
+        'name',
+        'metaMessages'
+      ]);
+      const errorWithData = e.walk(err => 'data' in (err as Error)) || e.walk();
+      if (errorWithData instanceof RpcRequestError) {
+        errorToHandle = { ...errorToHandle, data: errorWithData.data };
+      }
+      error = errorToHandle;
+    } else {
+      const serializedError = serializeError(e);
+      try {
+        error = serializedError && JSON.parse(serializedError);
+      } catch {
+        error = serializedError;
+      }
+    }
   }
 
   return new Promise<Hash>(async (resolve, reject) => {
+    let req: EvmTransactionRequestWithSender;
+
+    try {
+      req = { ...formatTransactionRequest(modifiedReq), from: sourcePkh };
+    } catch (e) {
+      console.error(e);
+      reject(
+        new ErrorWithCode(
+          EVMErrorCodes.INVALID_PARAMS,
+          e instanceof Error ? e.message : serializeError(e) ?? 'Invalid transaction request'
+        )
+      );
+
+      return;
+    }
+
     await requestConfirm({
       id,
       payload: {
         type: 'confirm_operations',
-        req: { ...formatTransactionRequest(modifiedReq), from: sourcePkh },
+        req,
         chainId,
         chainType: TempleChainKind.EVM,
         origin,

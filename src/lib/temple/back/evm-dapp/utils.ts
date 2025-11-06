@@ -81,6 +81,22 @@ export async function switchChain(origin: string, destinationChainId: number, is
   return toHex(destinationChainId);
 }
 
+export async function switchAccount(origin: string, account: HexString) {
+  const dApp = await getDApp(origin);
+
+  if (!dApp) {
+    throw new ErrorWithCode(EVMErrorCodes.NOT_AUTHORIZED, 'DApp not found');
+  }
+
+  await setDApp(origin, { ...dApp, pkh: account });
+
+  intercom.broadcast({
+    type: TempleMessageType.TempleEvmAccountSwitched,
+    origin,
+    account: account.toLowerCase() as HexString
+  });
+}
+
 export async function requestConfirm(params: Omit<RequestConfirmParams<TempleEvmDAppPayload>, 'transformPayload'>) {
   return genericRequestConfirm(params);
 }

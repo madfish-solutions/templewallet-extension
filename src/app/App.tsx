@@ -19,6 +19,7 @@ import { DialogsProvider } from 'lib/ui/dialog';
 import * as Woozie from 'lib/woozie';
 
 import { LoadHypelabScript } from './load-hypelab-script';
+import { RegisterOpenedWindow } from './register-opened-window';
 import { AppRootHooks, ConfirmWindowRootHooks } from './root-hooks';
 import { StoreProvider } from './store/provider';
 import { ToasterProvider } from './toaster';
@@ -51,6 +52,8 @@ export const App: FC<Props> = ({ env }) => (
               )}
             </BootAnimation>
           </AwaitFonts>
+
+          <RegisterOpenedWindow />
         </AppProvider>
       </Suspense>
     </DialogsProvider>

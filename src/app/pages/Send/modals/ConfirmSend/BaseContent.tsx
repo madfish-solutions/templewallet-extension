@@ -27,7 +27,7 @@ interface BaseContentProps<T extends TxParamsFormData> {
   selectedTab: Tab;
   setSelectedTab: SyncFn<Tab>;
   selectedFeeOption: FeeOptionLabel | nullish;
-  latestSubmitError: string | nullish;
+  latestSubmitError: unknown;
   onFeeOptionSelect: SyncFn<FeeOptionLabel>;
   onSubmit: SubmitHandler<T>;
   onCancel: EmptyFn;
