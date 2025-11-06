@@ -208,11 +208,13 @@ export const TezosForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, o
 
       const actualAmount = shouldUseFiat ? toAssetAmount(amount) : amount;
 
-      formAnalytics.trackSubmit({
+      const analyticsPayload = {
         network: network.name,
         inputAsset: assetSymbol,
         inputAmount: String(actualAmount)
-      });
+      };
+
+      formAnalytics.trackSubmit(analyticsPayload);
 
       try {
         onReview({
@@ -224,19 +226,11 @@ export const TezosForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, o
           onConfirm: resetForm
         });
 
-        formAnalytics.trackSubmitSuccess({
-          network: network.name,
-          inputAsset: assetSymbol,
-          inputAmount: String(actualAmount)
-        });
+        formAnalytics.trackSubmitSuccess(analyticsPayload);
       } catch (err: any) {
         console.error(err);
 
-        formAnalytics.trackSubmitFail({
-          network: network.name,
-          inputAsset: assetSymbol,
-          inputAmount: String(actualAmount)
-        });
+        formAnalytics.trackSubmitFail(analyticsPayload);
 
         toastError('Oops, Something went wrong!');
       }
