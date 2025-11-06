@@ -32,6 +32,7 @@ interface PageModalProps extends TestIDProps {
   onRequestClose?: EmptyFn;
   animated?: boolean;
   contentPadding?: boolean;
+  miniVersion?: boolean;
   suspenseLoader?: ReactNode;
   suspenseErrorMessage?: string;
   shouldChangeBottomShift?: boolean;
@@ -53,6 +54,7 @@ export const PageModal: FC<PageModalProps> = ({
   animated = true,
   contentPadding = false,
   shouldChangeBottomShift = true,
+  miniVersion = false,
   suspenseLoader,
   suspenseErrorMessage
 }) => {
@@ -81,7 +83,7 @@ export const PageModal: FC<PageModalProps> = ({
       htmlOpenClassName="overflow-hidden" // Disabling page scroll and/or bounce behind modal
       bodyOpenClassName={ACTIVATE_CONTENT_FADER_CLASSNAME}
       overlayClassName={{
-        base: clsx('fixed z-modal-page inset-0', baseOverlayClassNames),
+        base: clsx('fixed z-modal-page', baseOverlayClassNames, miniVersion ? 'left-0 right-0 bottom-0' : 'inset-0'),
         afterOpen: '',
         beforeClose: ''
       }}
@@ -89,7 +91,8 @@ export const PageModal: FC<PageModalProps> = ({
         base: clsx(
           LAYOUT_CONTAINER_CLASSNAME,
           FULL_PAGE_WRAP_OVERLAY_CLASSNAME,
-          'h-full flex flex-col bg-white overflow-hidden focus:outline-none',
+          'h-full flex flex-col bg-white focus:outline-none',
+          !miniVersion && 'overflow-hidden',
           fullPage ? 'rounded-lg' : 'rounded-t-lg',
           ModStyles.base,
           animated && 'ease-out duration-300'
@@ -101,15 +104,17 @@ export const PageModal: FC<PageModalProps> = ({
       onRequestClose={onRequestClose}
       testId={testID}
     >
-      <div className="flex items-center p-4 border-b-0.5 border-lines">
-        <div className="w-12">{titleLeft ?? (onGoBack ? <BackButton onClick={handleGoBack} /> : null)}</div>
+      {!miniVersion && (
+        <div className="flex items-center p-4 border-b-0.5 border-lines">
+          <div className="w-12">{titleLeft ?? (onGoBack ? <BackButton onClick={handleGoBack} /> : null)}</div>
 
-        <div className={clsx('flex-1 text-center text-font-regular-bold', headerClassName)}>{title}</div>
+          <div className={clsx('flex-1 text-center text-font-regular-bold', headerClassName)}>{title}</div>
 
-        <div className="w-12 flex justify-end">{titleRight ?? <CloseButton onClick={onRequestClose} />}</div>
-      </div>
+          <div className="w-12 flex justify-end">{titleRight ?? <CloseButton onClick={onRequestClose} />}</div>
+        </div>
+      )}
 
-      <div className={clsx('flex-grow flex flex-col overflow-hidden', contentPadding && 'p-4')}>
+      <div className={clsx('flex-grow flex flex-col', !miniVersion && 'overflow-hidden', contentPadding && 'p-4')}>
         <SuspenseContainer loader={suspenseLoader} errorMessage={suspenseErrorMessage}>
           {typeof children === 'function' ? (opened ? children() : null) : children}
         </SuspenseContainer>

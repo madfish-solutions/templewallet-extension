@@ -1,10 +1,8 @@
-import React, { HTMLAttributes, memo, useCallback, useMemo } from 'react';
+import React, { HTMLAttributes, memo } from 'react';
 
 import clsx from 'clsx';
-import { throttle } from 'lodash';
 
-import { useToastsContainerBottomShift } from 'lib/temple/front/toasts-context';
-import { useWillUnmount } from 'lib/ui/hooks/useWillUnmount';
+import { useBottomShiftChangingElement } from 'app/hooks/use-bottom-shift-changing-element';
 
 export interface ActionsButtonsBoxProps extends HTMLAttributes<HTMLDivElement> {
   shouldCastShadow?: boolean;
@@ -22,40 +20,7 @@ export const ActionsButtonsBox = memo<ActionsButtonsBoxProps>(
     shouldChangeBottomShift = true,
     ...restProps
   }) => {
-    const [_, setToastsContainerBottomShift] = useToastsContainerBottomShift();
-
-    useWillUnmount(() => {
-      if (shouldChangeBottomShift) void setToastsContainerBottomShift(0);
-    });
-
-    const resizeObserver = useMemo(
-      () =>
-        new ResizeObserver(
-          throttle<ResizeObserverCallback>(entries => {
-            const borderBoxSize = entries.find(entry => entry.borderBoxSize[0])?.borderBoxSize[0];
-
-            if (borderBoxSize && shouldChangeBottomShift) {
-              setToastsContainerBottomShift(borderBoxSize.blockSize - 24);
-            }
-          }, 100)
-        ),
-      [setToastsContainerBottomShift, shouldChangeBottomShift]
-    );
-
-    const rootRef = useCallback(
-      (node: HTMLDivElement | null) => {
-        resizeObserver.disconnect();
-
-        if (node && shouldChangeBottomShift) {
-          resizeObserver.observe(node);
-
-          const { height } = node.getBoundingClientRect();
-
-          setToastsContainerBottomShift(height - 24);
-        }
-      },
-      [resizeObserver, setToastsContainerBottomShift, shouldChangeBottomShift]
-    );
+    const rootRef = useBottomShiftChangingElement(shouldChangeBottomShift);
 
     return (
       <div

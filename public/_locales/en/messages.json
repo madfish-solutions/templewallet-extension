@@ -4646,5 +4646,41 @@
   },
   "cancelAnyway": {
     "message": "Cancel Anyway"
+  },
+  "accountNotConnectedWarning": {
+    "message": "$accountName$ was not connected to $dAppOrigin$",
+    "placeholders": {
+      "accountName": {
+        "content": "$1"
+      },
+      "dAppOrigin": {
+        "content": "$2"
+      }
+    }
+  },
+  "connectedAccountToDApp": {
+    "message": "$accountName$ connected to $dAppOrigin$",
+    "placeholders": {
+      "accountName": {
+        "content": "$1"
+      },
+      "dAppOrigin": {
+        "content": "$2"
+      }
+    }
+  },
+  "connectSomeAccountToDAppQuestion": {
+    "message": "Connect $accountName$ to $dAppName$?",
+    "placeholders": {
+      "accountName": {
+        "content": "$1"
+      },
+      "dAppName": {
+        "content": "$2"
+      }
+    }
+  },
+  "currentAccountNotConnectedToDApp": {
+    "message": "Current account isn’t connected to Dapp"
   }
 }
