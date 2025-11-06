@@ -10,7 +10,7 @@ import { useLedgerApprovalModalState } from 'app/hooks/use-ledger-approval-modal
 import { useEvmEstimationData } from 'app/pages/Send/hooks/use-evm-estimation-data';
 import { EvmStepReviewData } from 'app/pages/Swap/form/interfaces';
 import { formatDuration, getBufferedExecutionDuration } from 'app/pages/Swap/form/utils';
-import { mapLiFiTxToEvmEstimationData, parseTxRequestToViem, timeout } from 'app/pages/Swap/modals/ConfirmSwap/utils';
+import { mapLiFiTxToEvmEstimationData, parseTxRequestToViem } from 'app/pages/Swap/modals/ConfirmSwap/utils';
 import { dispatch } from 'app/store';
 import { putNewEvmTokenAction } from 'app/store/evm/assets/actions';
 import { processLoadedOnchainBalancesAction } from 'app/store/evm/balances/actions';
@@ -31,6 +31,7 @@ import { atomsToTokens, tokensToAtoms } from 'lib/temple/helpers';
 import { TempleAccountType } from 'lib/temple/types';
 import { runConnectedLedgerOperationFlow } from 'lib/ui';
 import { showTxSubmitToastWithDelay } from 'lib/ui/show-tx-submit-toast.util';
+import { delay } from 'lib/utils';
 import { isEvmNativeTokenSlug } from 'lib/utils/evm.utils';
 import { ZERO } from 'lib/utils/numbers';
 import { useGetEvmActiveBlockExplorer } from 'temple/front/ready';
@@ -239,7 +240,7 @@ export const EvmContent: FC<EvmContentProps> = ({
           );
         }
 
-        await new Promise(resolve => setTimeout(resolve, 5000));
+        await delay(5000);
       } while (status !== 'DONE' && status !== 'FAILED');
 
       if (status === 'FAILED') {
@@ -286,7 +287,7 @@ export const EvmContent: FC<EvmContentProps> = ({
               break;
             }
 
-            await timeout(3000);
+            await delay(3000);
           }
         }
       } catch (err) {

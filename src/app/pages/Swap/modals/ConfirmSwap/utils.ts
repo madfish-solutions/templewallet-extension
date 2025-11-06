@@ -69,9 +69,3 @@ function parseGasPrice(gasPrice: string | number): bigint {
   }
   return BigInt(Math.floor(gweiNumber * 1e9));
 }
-
-export const timeout = (duration: number): Promise<void> => {
-  return new Promise(resolve => {
-    setTimeout(resolve, duration);
-  });
-};
