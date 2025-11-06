@@ -173,9 +173,13 @@ export const EvmForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, onR
     async ({ amount }: SendFormData) => {
       if (formState.isSubmitting) return;
 
-      formAnalytics.trackSubmit();
-
       const actualAmount = shouldUseFiat ? toAssetAmount(amount) : amount;
+
+      formAnalytics.trackSubmit({
+        network: network.name,
+        inputAsset: assetSymbol,
+        inputAmount: String(actualAmount)
+      });
 
       onReview({
         account,
@@ -186,11 +190,16 @@ export const EvmForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, onR
         onConfirm: resetForm
       });
 
-      formAnalytics.trackSubmitSuccess();
+      formAnalytics.trackSubmitSuccess({
+        network: network.name,
+        inputAsset: assetSymbol,
+        inputAmount: String(actualAmount)
+      });
     },
     [
       account,
       assetSlug,
+      assetSymbol,
       formAnalytics,
       formState.isSubmitting,
       network,
