@@ -53,10 +53,8 @@ const monitorPendingSwapsEpic: Epic<Action, Action, RootState> = (action$, state
             retry(
               async () =>
                 await getEvmSwapStatus({
-                  txHash: swap.txHash,
-                  fromChain: swap.inputNetwork.chainId,
-                  toChain: swap.outputNetwork.chainId,
-                  bridge: swap.bridge
+                  ...swap.statusCheckParams,
+                  txHash: swap.txHash
                 }),
               { retries: 3, minTimeout: 2_000 }
             )

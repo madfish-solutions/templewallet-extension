@@ -1,16 +1,16 @@
-import { StatusMessage } from '@lifi/sdk';
+import { StatusMessage, GetStatusRequest } from '@lifi/sdk';
 
 import { EvmNetworkEssentials } from 'temple/networks';
 
 export interface PendingEvmSwapBase {
   txHash: HexString;
   accountPkh: HexString;
-  inputTokenSlug: string;
+  initialInputTokenSlug: string;
+  initialInputNetwork: EvmNetworkEssentials;
   outputTokenSlug: string;
-  inputNetwork: EvmNetworkEssentials;
   outputNetwork: EvmNetworkEssentials;
   blockExplorerUrl: string;
-  bridge: string;
+  statusCheckParams: Omit<GetStatusRequest, 'txHash'>;
 }
 
 export interface PendingEvmSwap extends PendingEvmSwapBase {

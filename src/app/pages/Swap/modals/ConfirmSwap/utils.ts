@@ -3,6 +3,10 @@ import type { Address, TransactionRequest as ViemTxRequest, RpcTransactionReques
 
 import { EvmEstimationDataWithFallback } from 'lib/temple/types';
 
+import { toTokenSlug } from '../../../../../lib/assets';
+import { EVM_TOKEN_SLUG } from '../../../../../lib/assets/defaults';
+import { EVM_ZERO_ADDRESS } from '../../../../../lib/constants';
+
 export function mapLiFiTxToEvmEstimationData(tx: LiFiTxRequest): EvmEstimationDataWithFallback {
   const gasLimitStr = 'gasLimit' in tx ? tx.gasLimit : undefined;
   const gasPriceStr = 'gasPrice' in tx ? tx.gasPrice : undefined;
@@ -57,6 +61,10 @@ export function parseTxRequestToViem(tx: LiFiTxRequest | RpcTransactionRequest):
   }
 
   return null;
+}
+
+export function getTokenSlugFromLifiAddress(address: string) {
+  return EVM_ZERO_ADDRESS === address ? EVM_TOKEN_SLUG : toTokenSlug(address, 0);
 }
 
 function parseGasPrice(gasPrice: string | number): bigint {

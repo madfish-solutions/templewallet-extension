@@ -23,6 +23,7 @@ export const ConfirmSwapModal: FC<ConfirmSwapModalProps> = ({ opened, onRequestC
   const {
     userActions,
     currentUserAction,
+    firstExecuteAction,
     progressionBlocked,
     skipStatusWait,
     cancelledRef,
@@ -69,8 +70,9 @@ export const ConfirmSwapModal: FC<ConfirmSwapModalProps> = ({ opened, onRequestC
             isSwapEvmReviewData(reviewData) ? (
               isDefined(currentUserAction.value) ? (
                 <ConfirmEvmUserAction
-                  userAction={currentUserAction.value}
                   account={reviewData.account}
+                  userAction={currentUserAction.value}
+                  firstExecuteAction={firstExecuteAction.value}
                   onStepCompleted={onStepCompleted}
                   onRequestClose={handleRequestClose}
                   cancelledRef={cancelledRef}

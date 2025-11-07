@@ -58,11 +58,6 @@ export const useEvmUserActions = (opened: boolean, onRequestClose: EmptyFn, revi
     cancelledRef
   });
 
-  const firstExecutionActionIndex = useMemo(() => {
-    const index = userActions.findIndex(a => a.type === 'execute');
-    return index === -1 ? 0 : index;
-  }, [userActions]);
-
   const lastExecuteActionIndex = useMemo(() => userActions.findLastIndex(a => a?.type === 'execute'), [userActions]);
 
   useEffect(() => {
@@ -79,6 +74,13 @@ export const useEvmUserActions = (opened: boolean, onRequestClose: EmptyFn, revi
 
     return { index: clampedIndex, value: userActions[clampedIndex] };
   }, [currentActionIndex, userActions]);
+
+  const firstExecuteAction = useMemo(() => {
+    const index = userActions.findIndex(a => a.type === 'execute');
+    const fallbackIndex = index === -1 ? 0 : index;
+
+    return { index: fallbackIndex, value: userActions[fallbackIndex] };
+  }, [userActions]);
 
   const skipStatusWait = useMemo(
     () => currentUserAction?.value?.type === 'execute' && currentUserAction.index === lastExecuteActionIndex,
@@ -116,17 +118,18 @@ export const useEvmUserActions = (opened: boolean, onRequestClose: EmptyFn, revi
 
   const handleRequestClose = useCallback(() => {
     if (reviewData && isSwapEvmReviewData(reviewData)) {
-      if (currentActionIndex > firstExecutionActionIndex) {
+      if (currentActionIndex > firstExecuteAction.index) {
         setCancelConfirmOpened();
         return;
       }
     }
     performCancel();
-  }, [reviewData, performCancel, currentActionIndex, firstExecutionActionIndex, setCancelConfirmOpened]);
+  }, [reviewData, performCancel, currentActionIndex, firstExecuteAction.index, setCancelConfirmOpened]);
 
   return {
     userActions,
     currentUserAction,
+    firstExecuteAction,
     progressionBlocked,
     skipStatusWait,
     cancelledRef,

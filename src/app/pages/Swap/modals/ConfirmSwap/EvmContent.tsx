@@ -10,7 +10,11 @@ import { useLedgerApprovalModalState } from 'app/hooks/use-ledger-approval-modal
 import { useEvmEstimationData } from 'app/pages/Send/hooks/use-evm-estimation-data';
 import { EvmStepReviewData } from 'app/pages/Swap/form/interfaces';
 import { formatDuration, getBufferedExecutionDuration } from 'app/pages/Swap/form/utils';
-import { mapLiFiTxToEvmEstimationData, parseTxRequestToViem } from 'app/pages/Swap/modals/ConfirmSwap/utils';
+import {
+  getTokenSlugFromLifiAddress,
+  mapLiFiTxToEvmEstimationData,
+  parseTxRequestToViem
+} from 'app/pages/Swap/modals/ConfirmSwap/utils';
 import { dispatch } from 'app/store';
 import { putNewEvmTokenAction } from 'app/store/evm/assets/actions';
 import { processLoadedOnchainBalancesAction } from 'app/store/evm/balances/actions';
@@ -20,10 +24,8 @@ import { EvmTxParamsFormData } from 'app/templates/TransactionTabs/types';
 import { useEvmEstimationForm } from 'app/templates/TransactionTabs/use-evm-estimation-form';
 import { toastError } from 'app/toaster';
 import { getEvmSwapStatus } from 'lib/apis/temple/endpoints/evm';
-import { toTokenSlug } from 'lib/assets';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { useEvmAssetBalance } from 'lib/balances/hooks';
-import { EVM_ZERO_ADDRESS } from 'lib/constants';
 import { fetchEvmRawBalance } from 'lib/evm/on-chain/balance';
 import { fetchEvmTokenMetadataFromChain } from 'lib/evm/on-chain/metadata';
 import { t } from 'lib/i18n';
@@ -40,9 +42,11 @@ import { makeBlockExplorerHref } from 'temple/front/use-block-explorers';
 import { TempleChainKind } from 'temple/types';
 
 import { BaseContent } from './BaseContent';
+import { InitialInputData } from './types';
 
 interface EvmContentProps {
   stepReviewData: EvmStepReviewData;
+  initialInputData: InitialInputData;
   onClose: EmptyFn;
   onStepCompleted: EmptyFn;
   cancelledRef?: React.MutableRefObject<boolean>;
@@ -52,6 +56,7 @@ interface EvmContentProps {
 
 export const EvmContent: FC<EvmContentProps> = ({
   stepReviewData,
+  initialInputData,
   onClose,
   onStepCompleted,
   cancelledRef,
@@ -71,17 +76,15 @@ export const EvmContent: FC<EvmContentProps> = ({
   const accountPkh = account.address as HexString;
   const isLedgerAccount = account.type === TempleAccountType.Ledger;
 
-  const inputTokenSlug = useMemo(() => {
-    return EVM_ZERO_ADDRESS === routeStep.action.fromToken.address
-      ? EVM_TOKEN_SLUG
-      : toTokenSlug(routeStep.action.fromToken.address, 0);
-  }, [routeStep.action.fromToken.address]);
+  const inputTokenSlug = useMemo(
+    () => getTokenSlugFromLifiAddress(routeStep.action.fromToken.address),
+    [routeStep.action.fromToken.address]
+  );
 
-  const outputTokenSlug = useMemo(() => {
-    return EVM_ZERO_ADDRESS === routeStep.action.toToken.address
-      ? EVM_TOKEN_SLUG
-      : toTokenSlug(routeStep.action.toToken.address, 0);
-  }, [routeStep.action.toToken.address]);
+  const outputTokenSlug = useMemo(
+    () => getTokenSlugFromLifiAddress(routeStep.action.toToken.address),
+    [routeStep.action.toToken.address]
+  );
 
   const { sendEvmTransaction } = useTempleClient();
   const { value: ethBalance = ZERO } = useEvmAssetBalance(EVM_TOKEN_SLUG, accountPkh, inputNetwork);
@@ -213,6 +216,12 @@ export const EvmContent: FC<EvmContentProps> = ({
       const blockExplorer = getActiveBlockExplorer(inputNetwork.chainId.toString(), !!bridgeData);
       showTxSubmitToastWithDelay(TempleChainKind.EVM, txHash, blockExplorer.url);
 
+      const statusCheckParams = {
+        fromChain: step.action.fromChainId,
+        toChain: step.action.toChainId,
+        bridge: step.tool
+      };
+
       if (skipStatusWait) {
         if (cancelledRef?.current) return;
 
@@ -220,18 +229,15 @@ export const EvmContent: FC<EvmContentProps> = ({
           addPendingEvmSwapAction({
             txHash,
             accountPkh,
-            inputTokenSlug,
             outputTokenSlug,
-            inputNetwork: {
-              chainId: inputNetwork.chainId,
-              rpcBaseURL: inputNetwork.rpcBaseURL
-            },
             outputNetwork: {
               chainId: outputNetwork.chainId,
               rpcBaseURL: outputNetwork.rpcBaseURL
             },
+            initialInputTokenSlug: initialInputData.tokenSlug,
+            initialInputNetwork: initialInputData.network,
             blockExplorerUrl: makeBlockExplorerHref(blockExplorer.url, txHash, 'tx', TempleChainKind.EVM),
-            bridge: step.tool
+            statusCheckParams
           })
         );
 
@@ -249,10 +255,8 @@ export const EvmContent: FC<EvmContentProps> = ({
           const result = await retry(
             async () =>
               await getEvmSwapStatus({
-                txHash,
-                fromChain: step.action.fromChainId,
-                toChain: step.action.toChainId,
-                bridge: step.tool
+                ...statusCheckParams,
+                txHash
               }),
             { retries: 5, minTimeout: 2000 }
           );
@@ -322,16 +326,17 @@ export const EvmContent: FC<EvmContentProps> = ({
       onStepCompleted();
     },
     [
-      accountPkh,
-      bridgeData,
-      getActiveBlockExplorer,
-      inputNetwork,
-      onStepCompleted,
-      outputNetwork,
-      outputTokenSlug,
-      sendEvmTransaction,
       cancelledRef,
-      skipStatusWait
+      sendEvmTransaction,
+      accountPkh,
+      inputNetwork,
+      getActiveBlockExplorer,
+      bridgeData,
+      skipStatusWait,
+      onStepCompleted,
+      inputTokenSlug,
+      outputTokenSlug,
+      outputNetwork
     ]
   );
 

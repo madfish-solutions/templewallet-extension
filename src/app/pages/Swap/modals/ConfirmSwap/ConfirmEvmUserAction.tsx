@@ -17,11 +17,13 @@ import { useEvmChainByChainId } from 'temple/front/chains';
 import { TempleChainKind } from 'temple/types';
 
 import { EvmContent } from './EvmContent';
-import { UserAction } from './types';
+import { InitialInputData, UserAction } from './types';
+import { getTokenSlugFromLifiAddress } from './utils';
 
 interface ConfirmEvmUserActionProps {
-  userAction: UserAction;
   account: AccountForChain<TempleChainKind.EVM>;
+  userAction: UserAction;
+  firstExecuteAction: UserAction;
   onStepCompleted: EmptyFn;
   onRequestClose: EmptyFn;
   cancelledRef?: React.MutableRefObject<boolean>;
@@ -30,13 +32,24 @@ interface ConfirmEvmUserActionProps {
 }
 
 export const ConfirmEvmUserAction = memo<ConfirmEvmUserActionProps>(
-  ({ userAction, account, onStepCompleted, onRequestClose, cancelledRef, skipStatusWait, submitDisabled }) => {
+  ({
+    account,
+    userAction,
+    firstExecuteAction,
+    onStepCompleted,
+    onRequestClose,
+    cancelledRef,
+    skipStatusWait,
+    submitDisabled
+  }) => {
     const { type, routeStep } = userAction;
 
     const inputNetwork = useEvmChainByChainId(routeStep.action.fromChainId);
     const outputNetwork = useEvmChainByChainId(routeStep.action.toChainId);
 
-    if (!inputNetwork || !outputNetwork) throw new DeadEndBoundaryError();
+    const initialInputNetwork = useEvmChainByChainId(firstExecuteAction.routeStep.action.fromChainId);
+
+    if (!inputNetwork || !outputNetwork || !initialInputNetwork) throw new DeadEndBoundaryError();
 
     const [routeStepWithTransactionRequest, setRouteStepWithTransactionRequest] = useState<LiFiStep | null>(null);
 
@@ -59,6 +72,17 @@ export const ConfirmEvmUserAction = memo<ConfirmEvmUserActionProps>(
 
       return { ...base, routeStep };
     }, [account, inputNetwork, type, outputNetwork, routeStep, routeStepWithTransactionRequest]);
+
+    const initialInputData = useMemo<InitialInputData>(
+      () => ({
+        tokenSlug: getTokenSlugFromLifiAddress(firstExecuteAction.routeStep.action.fromToken.address),
+        network: {
+          chainId: initialInputNetwork.chainId,
+          rpcBaseURL: initialInputNetwork.rpcBaseURL
+        }
+      }),
+      [firstExecuteAction.routeStep.action.fromToken.address, initialInputNetwork]
+    );
 
     useEffect(() => {
       if (type !== 'execute') return;
@@ -108,11 +132,12 @@ export const ConfirmEvmUserAction = memo<ConfirmEvmUserActionProps>(
         ) : (
           <EvmContent
             stepReviewData={stepReviewData}
-            onClose={onRequestClose}
+            initialInputData={initialInputData}
             onStepCompleted={onStepCompleted}
             cancelledRef={cancelledRef}
             skipStatusWait={skipStatusWait}
             submitDisabled={submitDisabled}
+            onClose={onRequestClose}
           />
         )}
       </EvmEstimationDataProvider>
