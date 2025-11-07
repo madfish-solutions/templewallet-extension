@@ -9,6 +9,7 @@ import { DeadEndBoundaryError } from 'app/ErrorBoundary';
 import { useEvmCollectibleMetadataSelector } from 'app/store/evm/collectibles-metadata/selectors';
 import { useEvmTokenMetadataSelector } from 'app/store/evm/tokens-metadata/selectors';
 import { useFormAnalytics } from 'lib/analytics';
+import { fromAssetSlug } from 'lib/assets';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { useEvmAssetBalance } from 'lib/balances/hooks';
 import { VITALIK_ADDRESS } from 'lib/constants';
@@ -174,10 +175,18 @@ export const EvmForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, onR
       if (formState.isSubmitting) return;
 
       const actualAmount = shouldUseFiat ? toAssetAmount(amount) : amount;
+      const contract = isEvmNativeTokenSlug(assetSlug)
+        ? assetSlug
+        : (() => {
+            const [contractAddress] = fromAssetSlug<HexString>(assetSlug);
+            return contractAddress;
+          })();
+
       const analyticsPayload = {
         network: network.name,
         inputAsset: assetSymbol,
-        inputAmount: String(actualAmount)
+        inputAmount: String(actualAmount),
+        contract
       };
 
       formAnalytics.trackSubmit(analyticsPayload);

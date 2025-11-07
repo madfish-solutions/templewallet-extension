@@ -7,7 +7,7 @@ import { FormProvider, useForm } from 'react-hook-form-v7';
 import { DeadEndBoundaryError } from 'app/ErrorBoundary';
 import { toastError } from 'app/toaster';
 import { useFormAnalytics } from 'lib/analytics';
-import { isTezAsset, TEZ_TOKEN_SLUG, toPenny } from 'lib/assets';
+import { isTezAsset, TEZ_TOKEN_SLUG, toPenny, fromAssetSlug } from 'lib/assets';
 import { useTezosAssetBalance } from 'lib/balances';
 import { RECOMMENDED_ADD_TEZ_GAS_FEE, TEZ_BURN_ADDRESS } from 'lib/constants';
 import { useAssetFiatCurrencyPrice } from 'lib/fiat-currency';
@@ -208,10 +208,18 @@ export const TezosForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, o
 
       const actualAmount = shouldUseFiat ? toAssetAmount(amount) : amount;
 
+      const contract = isTezAsset(assetSlug)
+        ? assetSlug
+        : (() => {
+            const [contractAddress] = fromAssetSlug(assetSlug);
+            return contractAddress;
+          })();
+
       const analyticsPayload = {
         network: network.name,
         inputAsset: assetSymbol,
-        inputAmount: String(actualAmount)
+        inputAmount: String(actualAmount),
+        contract
       };
 
       formAnalytics.trackSubmit(analyticsPayload);
