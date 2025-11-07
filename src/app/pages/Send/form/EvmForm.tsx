@@ -176,7 +176,7 @@ export const EvmForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, onR
 
       const actualAmount = shouldUseFiat ? toAssetAmount(amount) : amount;
       const contract = isEvmNativeTokenSlug(assetSlug)
-        ? assetSlug
+        ? 'gas'
         : (() => {
             const [contractAddress] = fromAssetSlug<HexString>(assetSlug);
             return contractAddress;

@@ -209,7 +209,7 @@ export const TezosForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, o
       const actualAmount = shouldUseFiat ? toAssetAmount(amount) : amount;
 
       const contract = isTezAsset(assetSlug)
-        ? assetSlug
+        ? 'gas'
         : (() => {
             const [contractAddress] = fromAssetSlug(assetSlug);
             return contractAddress;
