@@ -1,5 +1,5 @@
+import EventEmitter from 'events';
 import memoizee from 'memoizee';
-import EventEmitter from 'node:events';
 import { v4 as uuid } from 'uuid';
 import type {
   EIP1193Parameters,
