@@ -1315,12 +1315,12 @@
     "message": "Changing the baker will automatically unstake all the existing staked balance. This balance will be finalizable after 4 cycles."
   },
   "newUnstakeInfo": {
-    "message": "Your unstake will be finalizable after 4 cycles. After that, you will need to finalize unstaked balances to make them spendable."
+    "message": "Unstaking takes 4 days to complete. Once 4 days have passed, your tez will become available as part of your spendable balance"
   },
   "unstakeInProgressTooltip": {
-    "message": "Unstake requests will be processed after $cycles$ validation cycles end. Finalize your unstaked TEZ here after cooldown period ends.",
+    "message": "Unstaking takes $daysCount$ days to complete. Once $daysCount$ days have passed, your TEZ will become available as part of your spendable balance",
     "placeholders": {
-      "cycles": {
+      "daysCount": {
         "content": "$1"
       }
     }
@@ -1376,7 +1376,7 @@
     "message": "Pending finalization"
   },
   "pendingFinalizationDescription": {
-    "message": "You have unstake requests with another baker. Wait for few cycles until it's ready to be finalized."
+    "message": "You have unstake requests with another baker. You must wait until the unstaking process is completed before you can stake again."
   },
   "finalizeUnstake": {
     "message": "Finalize Unstake"
