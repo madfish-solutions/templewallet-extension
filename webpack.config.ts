@@ -140,11 +140,7 @@ const mainConfig = (() => {
 
       /** TODO: Type def */
       new (SaveRemoteFilePlugin as any)([
-        {
-          url: 'https://r2.ixncdn.com/up/script_asset/7e7f552c9f.js',
-          filepath: 'scripts/hypelab.embed.js',
-          hash: false
-        }
+        { url: 'https://api.hypelab.com/v1/scripts/hp-sdk.js?v=0', filepath: 'scripts/hypelab.embed.js', hash: false }
       ]),
 
       // TODO: Enable, when Swap route hops SVGs are used again
