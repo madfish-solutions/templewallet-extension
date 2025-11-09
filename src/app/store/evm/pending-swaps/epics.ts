@@ -11,7 +11,6 @@ import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { fetchEvmRawBalance } from 'lib/evm/on-chain/balance';
 import { fetchEvmTokenMetadataFromChain } from 'lib/evm/on-chain/metadata';
 import { EvmAssetStandard } from 'lib/evm/types';
-import { delay as timeout } from 'lib/utils';
 import { isEvmNativeTokenSlug } from 'lib/utils/evm.utils';
 import { EvmNetworkEssentials } from 'temple/networks';
 
@@ -155,6 +154,7 @@ const updateBalancesAfterSwapEpic: Epic<Action, Action, RootState> = action$ =>
           // networks are the same or input token is native
           const refreshItems = [
             { network: initialInputNetwork, slug: initialInputTokenSlug },
+            { network: outputNetwork, slug: outputTokenSlug },
             { network: initialInputNetwork, slug: EVM_TOKEN_SLUG },
             { network: outputNetwork, slug: EVM_TOKEN_SLUG }
           ];
@@ -171,40 +171,21 @@ const updateBalancesAfterSwapEpic: Epic<Action, Action, RootState> = action$ =>
           }
 
           try {
-            for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
-              const balance = await fetchEvmRawBalance(
-                outputNetwork,
-                outputTokenSlug,
-                accountPkh,
-                EvmAssetStandard.ERC20
-              );
+            const metadata = await fetchEvmTokenMetadataFromChain(outputNetwork, outputTokenSlug);
+            actionsToDispatch.push(
+              putNewEvmTokenAction({
+                publicKeyHash: accountPkh,
+                chainId: outputNetwork.chainId,
+                assetSlug: outputTokenSlug
+              }),
+              putEvmTokensMetadataAction({
+                chainId: outputNetwork.chainId,
+                records: { [outputTokenSlug]: metadata }
+              }),
+              removePendingEvmSwapAction(txHash)
+            );
 
-              if (balance.gt(0)) {
-                const metadata = await fetchEvmTokenMetadataFromChain(outputNetwork, outputTokenSlug);
-                actionsToDispatch.push(
-                  putNewEvmTokenAction({
-                    publicKeyHash: accountPkh,
-                    chainId: outputNetwork.chainId,
-                    assetSlug: outputTokenSlug
-                  }),
-                  putEvmTokensMetadataAction({
-                    chainId: outputNetwork.chainId,
-                    records: { [outputTokenSlug]: metadata }
-                  }),
-                  processLoadedOnchainBalancesAction({
-                    balances: { [outputTokenSlug]: balance.toFixed() },
-                    timestamp: Date.now(),
-                    account: accountPkh,
-                    chainId: outputNetwork.chainId
-                  }),
-                  removePendingEvmSwapAction(txHash)
-                );
-
-                return actionsToDispatch;
-              }
-
-              await timeout(3000);
-            }
+            return actionsToDispatch;
           } catch (error) {
             console.warn('Failed to ensure output token is present after successful swap: ', error);
           }
