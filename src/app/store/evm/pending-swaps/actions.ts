@@ -16,7 +16,9 @@ export const updatePendingSwapStatusAction = createAction<UpdateSwapStatusPayloa
 
 export const incrementSwapCheckAttemptsAction = createAction<TxHash>('evm/pending-swaps/INCREMENT_CHECK_ATTEMPTS');
 
-export const ensureOutputBalanceAction = createAction<PendingEvmSwap>('evm/pending-swaps/ENSURE_OUTPUT_BALANCE');
+export const updateBalancesAfterSwapAction = createAction<PendingEvmSwap>(
+  'evm/pending-swaps/UPDATE_BALANCES_AFTER_SWAP'
+);
 
 export const removePendingEvmSwapAction = createAction<TxHash>('evm/pending-swaps/REMOVE');
 

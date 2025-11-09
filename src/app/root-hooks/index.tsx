@@ -64,7 +64,6 @@ const AppReadyRootHooks = memo(() => {
   useDidMount(() => void dispatch(loadTokensWhitelistActions.submit()));
   useDidMount(() => void dispatch(loadTokensScamlistActions.submit()));
 
-  // Cleanup outdated pending swaps after app initialization
   useDidMount(() => void dispatch(cleanupOutdatedSwapsAction()));
 
   useMetadataRefresh();

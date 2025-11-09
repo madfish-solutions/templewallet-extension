@@ -18,7 +18,6 @@ export interface PendingEvmSwap extends PendingEvmSwapBase {
   submittedAt: number;
   lastCheckedAt: number;
   statusCheckAttempts: number;
-  balanceFetchAttempts: number;
   status: StatusMessage;
 }
 

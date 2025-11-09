@@ -41,6 +41,8 @@ import { useGetEvmActiveBlockExplorer } from 'temple/front/ready';
 import { makeBlockExplorerHref } from 'temple/front/use-block-explorers';
 import { TempleChainKind } from 'temple/types';
 
+import { EvmAssetStandard } from '../../../../../lib/evm/types';
+
 import { BaseContent } from './BaseContent';
 import { InitialInputData } from './types';
 
@@ -279,7 +281,12 @@ export const EvmContent: FC<EvmContentProps> = ({
       try {
         if (!isEvmNativeTokenSlug(outputTokenSlug)) {
           for (let attempt = 0; attempt < 20; attempt++) {
-            const balance = await fetchEvmRawBalance(outputNetwork, outputTokenSlug, accountPkh);
+            const balance = await fetchEvmRawBalance(
+              outputNetwork,
+              outputTokenSlug,
+              accountPkh,
+              EvmAssetStandard.ERC20
+            );
 
             if (balance.gt(0)) {
               const metadata = await fetchEvmTokenMetadataFromChain(outputNetwork, outputTokenSlug);

@@ -19,7 +19,6 @@ const pendingEvmSwapsReducer = createReducer(pendingEvmSwapsInitialState, builde
       submittedAt: Date.now(),
       lastCheckedAt: Date.now(),
       statusCheckAttempts: 0,
-      balanceFetchAttempts: 0,
       status: 'PENDING'
     };
   });
