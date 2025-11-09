@@ -146,7 +146,7 @@ const updateBalancesAfterSwapEpic: Epic<Action, Action, RootState> = action$ =>
 
           // Deduplicate balance refreshes when both
           // networks are the same or input token is native
-          const refreshItems: Array<{ network: EvmNetworkEssentials; slug: string }> = [
+          const refreshItems = [
             { network: initialInputNetwork, slug: initialInputTokenSlug },
             { network: initialInputNetwork, slug: EVM_TOKEN_SLUG },
             { network: outputNetwork, slug: EVM_TOKEN_SLUG }
@@ -199,7 +199,7 @@ const updateBalancesAfterSwapEpic: Epic<Action, Action, RootState> = action$ =>
               await timeout(3000);
             }
           } catch (error) {
-            console.warn('Failed to fetch output balance: ', error);
+            console.warn('Failed to ensure output token is present after successful swap: ', error);
           }
 
           return [removePendingEvmSwapAction(txHash), ...actionsToDispatch];
@@ -207,7 +207,7 @@ const updateBalancesAfterSwapEpic: Epic<Action, Action, RootState> = action$ =>
       ).pipe(
         mergeMap(actions => from(actions)),
         catchError(error => {
-          console.error('Error ensuring output balance: ', error);
+          console.error('Failed to update balances after successful swap: ', error);
           return of(removePendingEvmSwapAction(txHash));
         })
       );
@@ -251,7 +251,6 @@ const cleanupOutdatedSwapsEpic: Epic<Action, Action, RootState> = (action$, stat
       });
 
       if (outdatedSwaps.length > 0) {
-        console.log(`Cleaning up ${outdatedSwaps.length} outdated pending swaps`);
         return from(outdatedSwaps.map(({ txHash }) => removePendingEvmSwapAction(txHash)));
       }
 
