@@ -144,13 +144,20 @@ const updateBalancesAfterSwapEpic: Epic<Action, Action, RootState> = action$ =>
             }
           };
 
-          await processSingleShotBalance(initialInputNetwork, initialInputTokenSlug);
-
-          if (!isEvmNativeTokenSlug(initialInputTokenSlug)) {
-            await processSingleShotBalance(initialInputNetwork, EVM_TOKEN_SLUG);
+          // Deduplicate balance refreshes when both
+          // networks are the same or input token is native
+          const refreshItems: Array<{ network: EvmNetworkEssentials; slug: string }> = [
+            { network: initialInputNetwork, slug: initialInputTokenSlug },
+            { network: initialInputNetwork, slug: EVM_TOKEN_SLUG },
+            { network: outputNetwork, slug: EVM_TOKEN_SLUG }
+          ];
+          const seen = new Set<string>();
+          for (const { network, slug } of refreshItems) {
+            const key = `${network.chainId}:${slug}`;
+            if (seen.has(key)) continue;
+            seen.add(key);
+            await processSingleShotBalance(network, slug);
           }
-
-          await processSingleShotBalance(outputNetwork, EVM_TOKEN_SLUG);
 
           if (isEvmNativeTokenSlug(outputTokenSlug)) {
             return [...actionsToDispatch, removePendingEvmSwapAction(txHash)];
