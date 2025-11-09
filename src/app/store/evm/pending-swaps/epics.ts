@@ -1,7 +1,7 @@
 import retry from 'async-retry';
 import { Action } from 'redux';
 import { combineEpics, Epic } from 'redux-observable';
-import { catchError, concat, delay, filter, from, map, mergeMap, of, withLatestFrom, timer } from 'rxjs';
+import { catchError, concat, delay, exhaustMap, filter, from, map, mergeMap, of, withLatestFrom, timer } from 'rxjs';
 import { ofType } from 'ts-action-operators';
 
 import type { RootState } from 'app/store/root-state.type';
@@ -37,7 +37,7 @@ const monitorPendingSwapsEpic: Epic<Action, Action, RootState> = (action$, state
   action$.pipe(
     ofType(monitorPendingSwapsAction),
     withLatestFrom(state$),
-    mergeMap(([, state]) => {
+    exhaustMap(([, state]) => {
       const pendingSwaps = selectAllPendingSwaps(state);
 
       if (pendingSwaps.length === 0) {
