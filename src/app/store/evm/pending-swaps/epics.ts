@@ -5,7 +5,7 @@ import { catchError, concat, delay, filter, from, map, mergeMap, of, withLatestF
 import { ofType } from 'ts-action-operators';
 
 import type { RootState } from 'app/store/root-state.type';
-import { toastError } from 'app/toaster';
+import { toastError, toastSuccess } from 'app/toaster';
 import { getEvmSwapStatus } from 'lib/apis/temple/endpoints/evm';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { fetchEvmRawBalance } from 'lib/evm/on-chain/balance';
@@ -69,7 +69,7 @@ const monitorPendingSwapsEpic: Epic<Action, Action, RootState> = (action$, state
               const { status } = result;
 
               if (status === 'DONE') {
-                return from([
+                const immediateActions = [
                   ...actions,
                   updatePendingSwapStatusAction({
                     txHash: swap.txHash,
@@ -77,7 +77,14 @@ const monitorPendingSwapsEpic: Epic<Action, Action, RootState> = (action$, state
                     lastCheckedAt: Date.now()
                   }),
                   updateBalancesAfterSwapAction(swap)
-                ]);
+                ];
+
+                toastSuccess('Swap transaction completed', true, {
+                  hash: swap.txHash,
+                  blockExplorerHref: swap.blockExplorerUrl
+                });
+
+                return from(immediateActions);
               }
 
               if (status === 'FAILED') {
