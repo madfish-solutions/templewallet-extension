@@ -1,7 +1,7 @@
 import retry from 'async-retry';
 import { Action } from 'redux';
 import { combineEpics, Epic } from 'redux-observable';
-import { catchError, concat, delay, filter, from, map, mergeMap, of, repeat, withLatestFrom } from 'rxjs';
+import { catchError, concat, delay, filter, from, map, mergeMap, of, withLatestFrom, timer } from 'rxjs';
 import { ofType } from 'ts-action-operators';
 
 import type { RootState } from 'app/store/root-state.type';
@@ -29,9 +29,9 @@ import {
 } from './actions';
 import { selectAllPendingSwaps } from './utils';
 
+const MAX_ATTEMPTS = 20;
 const MONITOR_INTERVAL = 10_000;
-const MAX_ATTEMPTS = 10;
-const MAX_PENDING_SWAP_AGE = 60 * 60 * 1_000; // 1 hour
+const MAX_PENDING_SWAP_AGE = 10 * 60 * 1_000; // 10 minutes
 
 const monitorPendingSwapsEpic: Epic<Action, Action, RootState> = (action$, state$) =>
   action$.pipe(
@@ -101,7 +101,7 @@ const monitorPendingSwapsEpic: Epic<Action, Action, RootState> = (action$, state
               return from(actions);
             }),
             catchError(error => {
-              console.error(`Error checking swap ${swap.txHash}: `, error);
+              console.error(`Failed to check swap status ${swap.txHash}: `, error);
               return of(incrementSwapCheckAttemptsAction(swap.txHash));
             })
           );
@@ -215,27 +215,13 @@ const updateBalancesAfterSwapEpic: Epic<Action, Action, RootState> = action$ =>
   );
 
 const periodicMonitorTriggerEpic: Epic<Action, Action, RootState> = (_, state$) =>
-  concat(
-    // Emit immediately on startup
-    of(null).pipe(
-      withLatestFrom(state$),
-      filter(([, state]) => {
-        const pendingSwaps = selectAllPendingSwaps(state);
-        return pendingSwaps.length > 0;
-      }),
-      map(() => monitorPendingSwapsAction())
-    ),
-    // Then repeat every MONITOR_INTERVAL
-    of(null).pipe(
-      delay(MONITOR_INTERVAL),
-      repeat(),
-      withLatestFrom(state$),
-      filter(([, state]) => {
-        const pendingSwaps = selectAllPendingSwaps(state);
-        return pendingSwaps.length > 0;
-      }),
-      map(() => monitorPendingSwapsAction())
-    )
+  timer(100, MONITOR_INTERVAL).pipe(
+    withLatestFrom(state$),
+    filter(([_, state]) => {
+      const pendingSwaps = selectAllPendingSwaps(state);
+      return pendingSwaps.length > 0;
+    }),
+    map(monitorPendingSwapsAction)
   );
 
 const cleanupOutdatedSwapsEpic: Epic<Action, Action, RootState> = (action$, state$) =>
