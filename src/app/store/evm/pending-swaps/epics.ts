@@ -27,9 +27,8 @@ import {
 import { selectAllPendingSwaps } from './utils';
 
 const MONITOR_INTERVAL = 10_000;
-const MAX_CHECK_ATTEMPTS = 100;
-const MAX_BALANCE_ATTEMPTS = 20;
-const MAX_PENDING_SWAP_AGE = 24 * 60 * 60 * 1_000; // 24 hours
+const MAX_CHECK_ATTEMPTS = 10;
+const MAX_PENDING_SWAP_AGE = 60 * 60 * 1_000; // 1 hour
 
 const monitorPendingSwapsEpic: Epic<Action, Action, RootState> = (action$, state$) =>
   action$.pipe(
@@ -115,11 +114,6 @@ const ensureOutputBalanceEpic: Epic<Action, Action, RootState> = action$ =>
         (async () => {
           const actionsToDispatch = [];
 
-          if (!outputNetwork) {
-            console.error('Output network not found');
-            return [removePendingEvmSwapAction(txHash)];
-          }
-
           if (isEvmNativeTokenSlug(outputTokenSlug)) {
             try {
               const balance = await fetchEvmNativeBalance(accountPkh, outputNetwork);
@@ -141,7 +135,7 @@ const ensureOutputBalanceEpic: Epic<Action, Action, RootState> = action$ =>
             return [...actionsToDispatch, removePendingEvmSwapAction(txHash)];
           }
 
-          for (let attempt = 0; attempt < MAX_BALANCE_ATTEMPTS; attempt++) {
+          for (let attempt = 0; attempt < MAX_CHECK_ATTEMPTS; attempt++) {
             try {
               const balance = await fetchEvmRawBalance(outputNetwork, outputTokenSlug, accountPkh);
 
@@ -176,7 +170,7 @@ const ensureOutputBalanceEpic: Epic<Action, Action, RootState> = action$ =>
             await timeout(3_000);
           }
 
-          console.warn(`Could not confirm balance for swap ${txHash} after ${MAX_BALANCE_ATTEMPTS} attempts`);
+          console.warn(`Could not confirm balance for swap ${txHash} after ${MAX_CHECK_ATTEMPTS} attempts`);
           return [removePendingEvmSwapAction(txHash)];
         })()
       ).pipe(

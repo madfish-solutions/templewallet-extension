@@ -230,10 +230,7 @@ export const EvmContent: FC<EvmContentProps> = ({
             txHash,
             accountPkh,
             outputTokenSlug,
-            outputNetwork: {
-              chainId: outputNetwork.chainId,
-              rpcBaseURL: outputNetwork.rpcBaseURL
-            },
+            outputNetwork,
             initialInputTokenSlug: initialInputData.tokenSlug,
             initialInputNetwork: initialInputData.network,
             blockExplorerUrl: makeBlockExplorerHref(blockExplorer.url, txHash, 'tx', TempleChainKind.EVM),
