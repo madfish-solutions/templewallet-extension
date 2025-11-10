@@ -130,15 +130,11 @@ const buildBalanceUpdateAction = async (
   network: EvmNetworkEssentials,
   slug: string,
   accountPkh: HexString,
-  timestamp: number
+  timestamp: number,
+  standard?: EvmAssetStandard
 ) => {
   try {
-    const balance = await fetchEvmRawBalance(
-      network,
-      slug,
-      accountPkh,
-      isEvmNativeTokenSlug(slug) ? EvmAssetStandard.NATIVE : EvmAssetStandard.ERC20
-    );
+    const balance = await fetchEvmRawBalance(network, slug, accountPkh, standard);
     return processLoadedOnchainBalancesAction({
       balances: { [slug]: balance.toFixed() },
       timestamp,
@@ -176,7 +172,8 @@ const updateBalancesAfterSwapEpic: Epic<Action, Action, RootState> = action$ =>
             const key = `${network.chainId}:${slug}`;
             if (seen.has(key)) continue;
             seen.add(key);
-            const action = await buildBalanceUpdateAction(network, slug, accountPkh, now);
+            const standard = isEvmNativeTokenSlug(slug) ? EvmAssetStandard.NATIVE : EvmAssetStandard.ERC20;
+            const action = await buildBalanceUpdateAction(network, slug, accountPkh, now, standard);
             if (action) actionsToDispatch.push(action);
           }
 
