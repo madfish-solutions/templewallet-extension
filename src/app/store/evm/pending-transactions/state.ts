@@ -2,8 +2,10 @@ import { StatusMessage, GetStatusRequest } from '@lifi/sdk';
 
 import { EvmNetworkEssentials } from 'temple/networks';
 
+type TxHash = HexString;
+
 export interface PendingEvmSwapBase {
-  txHash: HexString;
+  txHash: TxHash;
   accountPkh: HexString;
   initialInputTokenSlug: string;
   initialInputNetwork: EvmNetworkEssentials;
@@ -14,7 +16,6 @@ export interface PendingEvmSwapBase {
 }
 
 export interface PendingEvmSwap extends PendingEvmSwapBase {
-  id: string; // txHash
   submittedAt: number;
   lastCheckedAt: number;
   statusCheckAttempts: number;
@@ -22,7 +23,7 @@ export interface PendingEvmSwap extends PendingEvmSwapBase {
 }
 
 export interface PendingEvmSwapsState {
-  swaps: Record<string, PendingEvmSwap>; // keyed by txHash
+  swaps: Record<TxHash, PendingEvmSwap>;
 }
 
 export const pendingEvmSwapsInitialState: PendingEvmSwapsState = {

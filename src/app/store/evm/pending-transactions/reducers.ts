@@ -15,7 +15,6 @@ const pendingEvmSwapsReducer = createReducer(pendingEvmSwapsInitialState, builde
   builder.addCase(addPendingEvmSwapAction, (state, { payload }) => {
     state.swaps[payload.txHash] = {
       ...payload,
-      id: payload.txHash,
       submittedAt: Date.now(),
       lastCheckedAt: Date.now(),
       statusCheckAttempts: 0,
