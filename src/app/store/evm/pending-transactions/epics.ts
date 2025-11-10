@@ -3,6 +3,7 @@ import { Action } from 'redux';
 import { combineEpics, Epic } from 'redux-observable';
 import { catchError, concat, delay, exhaustMap, filter, from, map, mergeMap, of, withLatestFrom, interval } from 'rxjs';
 import { ofType } from 'ts-action-operators';
+import { WaitForTransactionReceiptTimeoutError } from 'viem';
 
 import type { RootState } from 'app/store/root-state.type';
 import { toastError, toastSuccess } from 'app/toaster';
@@ -34,11 +35,13 @@ import {
 import { selectAllPendingSwaps, selectAllPendingTransfers } from './utils';
 
 const MAX_ATTEMPTS = 20;
-const MONITOR_INTERVAL = 10_000;
+
+const SWAP_MONITOR_INTERVAL = 10_000;
+const TRANSFER_MONITOR_INTERVAL = 4_000;
 
 const ONE_MINUTE = 60 * 1_000;
 const MAX_PENDING_SWAP_AGE = 10 * ONE_MINUTE;
-const MAX_PENDING_TRANSFER_AGE = 5 * ONE_MINUTE;
+const MAX_PENDING_TRANSFER_AGE = 2 * ONE_MINUTE;
 
 const monitorPendingSwapsEpic: Epic<Action, Action, RootState> = (action$, state$) =>
   action$.pipe(
@@ -75,7 +78,7 @@ const monitorPendingSwapsEpic: Epic<Action, Action, RootState> = (action$, state
               const actions = [incrementSwapCheckAttemptsAction(swap.txHash)];
               const { status } = result;
 
-              const toastParams = {
+              const commonToastParams = {
                 hash: swap.txHash,
                 blockExplorerHref: swap.blockExplorerUrl
               };
@@ -91,7 +94,7 @@ const monitorPendingSwapsEpic: Epic<Action, Action, RootState> = (action$, state
                   updateBalancesAfterSwapAction(swap)
                 ];
 
-                toastSuccess('Swap completed', true, toastParams);
+                toastSuccess('Swap completed', true, commonToastParams);
 
                 return from(immediateActions);
               }
@@ -106,7 +109,7 @@ const monitorPendingSwapsEpic: Epic<Action, Action, RootState> = (action$, state
                   })
                 ];
 
-                toastError('Swap failed', true, toastParams);
+                toastError('Swap failed', true, commonToastParams);
 
                 return concat(from(immediateActions), of(removePendingEvmSwapAction(swap.txHash)).pipe(delay(5000)));
               }
@@ -214,7 +217,7 @@ const updateBalancesAfterSwapEpic: Epic<Action, Action, RootState> = action$ =>
   );
 
 const periodicSwapMonitorTriggerEpic: Epic<Action, Action, RootState> = (_, state$) =>
-  interval(MONITOR_INTERVAL).pipe(
+  interval(SWAP_MONITOR_INTERVAL).pipe(
     withLatestFrom(state$),
     filter(([_, state]) => {
       const pendingSwaps = selectAllPendingSwaps(state);
@@ -244,23 +247,22 @@ const monitorPendingTransfersEpic: Epic<Action, Action, RootState> = (action$, s
           }
 
           const client = getViemPublicClient(transfer.network);
+          const commonToastParams = {
+            hash: transfer.txHash,
+            blockExplorerHref: transfer.blockExplorerUrl
+          };
+
           return from(
-            (async () =>
-              await client.waitForTransactionReceipt({
-                hash: transfer.txHash,
-                pollingInterval: MONITOR_INTERVAL,
-                timeout: MAX_PENDING_TRANSFER_AGE
-              }))()
+            client.waitForTransactionReceipt({
+              hash: transfer.txHash,
+              pollingInterval: TRANSFER_MONITOR_INTERVAL,
+              timeout: MAX_PENDING_TRANSFER_AGE
+            })
           ).pipe(
             mergeMap(receipt => {
               const status = receipt.status === 'success' ? 'DONE' : 'FAILED';
-              const toastParams = {
-                hash: transfer.txHash,
-                blockExplorerHref: transfer.blockExplorerUrl
-              };
-
               if (status === 'DONE') {
-                toastSuccess('Transfer completed', true, toastParams);
+                toastSuccess('Transfer completed', true, commonToastParams);
 
                 return from([
                   updatePendingTransferStatusAction({
@@ -272,7 +274,7 @@ const monitorPendingTransfersEpic: Epic<Action, Action, RootState> = (action$, s
                 ]);
               }
 
-              toastError('Transfer failed', true, toastParams);
+              toastError('Transfer failed', true, commonToastParams);
 
               return concat(
                 from([
@@ -286,9 +288,23 @@ const monitorPendingTransfersEpic: Epic<Action, Action, RootState> = (action$, s
               );
             }),
             catchError(error => {
-              console.error(`Failed to check transfer status ${transfer.txHash}: `, error);
-              // keep monitoring alive by doing nothing; waitForTransactionReceipt handles polling
-              return of();
+              if (error instanceof WaitForTransactionReceiptTimeoutError) {
+                console.warn(error.shortMessage);
+                return of(removePendingEvmTransferAction(transfer.txHash));
+              }
+
+              toastError('Transfer failed', true, commonToastParams);
+
+              return concat(
+                from([
+                  updatePendingTransferStatusAction({
+                    txHash: transfer.txHash,
+                    status: 'FAILED',
+                    lastCheckedAt: Date.now()
+                  })
+                ]),
+                of(removePendingEvmTransferAction(transfer.txHash)).pipe(delay(5000))
+              );
             })
           );
         })
