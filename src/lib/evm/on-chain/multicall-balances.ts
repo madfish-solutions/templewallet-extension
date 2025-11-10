@@ -7,7 +7,6 @@ import { fromAssetSlug } from 'lib/assets';
 import { delay } from 'lib/utils';
 import { ONE, ZERO } from 'lib/utils/numbers';
 import { getViemPublicClient } from 'temple/evm';
-import { getMulticallCallOptions } from 'temple/evm/multicall-config';
 import { EvmNetworkEssentials } from 'temple/networks';
 
 import { EvmAssetStandard } from '../types';
@@ -70,8 +69,7 @@ export const fetchBalancesViaMulticall = async (
   const executeMulticall = () =>
     publicClient.multicall({
       allowFailure: true,
-      contracts,
-      ...getMulticallCallOptions(network.chainId)
+      contracts
     });
 
   const responses = throwOnTimeout

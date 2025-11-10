@@ -50,8 +50,8 @@ export const useGetBalancesFromChain = (publicKeyHash: HexString, apiIsApplicabl
         descriptor => isDefined(descriptor.standard) && !isEvmNativeTokenSlug(descriptor.assetSlug)
       );
 
-      let multicallBalances: Record<string, string> = {};
-      let multicallFailures: Record<string, Error> = {};
+      let multicallBalances: StringRecord = {};
+      let multicallFailures: StringRecord<Error> = {};
 
       if (batchableRequests.length > 0) {
         try {
@@ -60,7 +60,7 @@ export const useGetBalancesFromChain = (publicKeyHash: HexString, apiIsApplicabl
           multicallFailures = result.failed;
         } catch (err) {
           console.warn('Multicall balance batch failed, retrying sequentially', err);
-          multicallFailures = batchableRequests.reduce<Record<string, Error>>((acc, { assetSlug }) => {
+          multicallFailures = batchableRequests.reduce<StringRecord<Error>>((acc, { assetSlug }) => {
             acc[assetSlug] = err instanceof Error ? err : new Error(String(err));
             return acc;
           }, {});
@@ -93,7 +93,7 @@ export const useGetBalancesFromChain = (publicKeyHash: HexString, apiIsApplicabl
         )
       );
 
-      const balances: Record<string, string> = { ...multicallBalances };
+      const balances: StringRecord = { ...multicallBalances };
       let firstError: Error | undefined;
 
       fallbackResults.forEach((result, index) => {

@@ -47,9 +47,3 @@ const MULTICALL_OPTIONS_BY_CHAIN: Partial<Record<number, MulticallBatchOptions>>
 export const getMulticallBatchOptions = (chainId: number): MulticallBatchOptions => {
   return MULTICALL_OPTIONS_BY_CHAIN[chainId] ?? DEFAULT_MULTICALL_OPTIONS;
 };
-
-export const getMulticallCallOptions = (chainId: number) => {
-  const { batchSize } = getMulticallBatchOptions(chainId);
-
-  return { batchSize };
-};

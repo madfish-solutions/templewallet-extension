@@ -34,7 +34,7 @@ import {
 } from './actions';
 import { selectAllPendingSwaps, selectAllPendingTransfers } from './utils';
 
-const MAX_ATTEMPTS = 20;
+const MAX_SWAP_STATUS_CHECK_ATTEMPTS = 20;
 
 const SWAP_MONITOR_INTERVAL = 10_000;
 const TRANSFER_MONITOR_INTERVAL = 4_000;
@@ -60,7 +60,7 @@ const monitorPendingSwapsEpic: Epic<Action, Action, RootState> = (action$, state
             return of(updateBalancesAfterSwapAction(swap));
           }
 
-          if (swap.status === 'FAILED' || swap.statusCheckAttempts >= MAX_ATTEMPTS) {
+          if (swap.status === 'FAILED' || swap.statusCheckAttempts >= MAX_SWAP_STATUS_CHECK_ATTEMPTS) {
             return of(removePendingEvmSwapAction(swap.txHash));
           }
 
