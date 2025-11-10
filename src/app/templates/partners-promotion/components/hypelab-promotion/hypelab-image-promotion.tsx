@@ -123,7 +123,7 @@ export const HypelabImagePromotion: FC<Omit<SingleProviderPromotionProps, 'varia
         <iframe
           title="Ad"
           sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"
-          className="block border-none overflow-hidden"
+          className="block border-none rounded overflow-hidden"
           style={adSize}
           src={iframeSrc}
           ref={hypelabIframeRef}
