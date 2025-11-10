@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useEffect, useMemo, useState, useRef } from 'react';
+import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { Chain as ViemChain } from 'viem';
 
@@ -6,6 +6,7 @@ import { FadeTransition } from 'app/a11y/FadeTransition';
 import { EmptyState } from 'app/atoms/EmptyState';
 import { useSearchParamsBoolean } from 'app/hooks/use-search-params-boolean';
 import { t } from 'lib/i18n';
+import { MAIN_CHAINS_IDS } from 'lib/constants';
 import { COMMON_MAINNET_CHAIN_IDS, ETHEREUM_MAINNET_CHAIN_ID, TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
 import { useBooleanState } from 'lib/ui/hooks';
 import { searchAndFilterChains } from 'lib/ui/search-networks';
@@ -14,7 +15,7 @@ import { OneOfChains, useAllEvmChains, useAllTezosChains } from 'temple/front';
 import { isPossibleTestnetChain } from 'temple/front/chains';
 import { TempleChainKind, TempleChainTitle } from 'temple/types';
 
-import { AddNetworkModal, AddNetworkForm } from './add-network-modal';
+import { AddNetworkForm, AddNetworkModal } from './add-network-modal';
 import { ChainsGroupView } from './chains-group-view';
 import { FiltersBlock } from './filters-block';
 import { SuggestedChainsGroup } from './suggested-chains-group';
@@ -45,9 +46,8 @@ export const NetworksSettings = memo<SettingsTabProps>(({ setHeaderChildren }) =
     return [...Object.values(tezosChainsRecord), ...Object.values(evmChainsRecord)].sort((a, b) => {
       const diff = priority(a) - priority(b);
       if (diff !== 0) return diff;
-      const an = (a.nameI18nKey ? t(a.nameI18nKey) : a.name) ?? '';
-      const bn = (b.nameI18nKey ? t(b.nameI18nKey) : b.name) ?? '';
-      return String(an).localeCompare(String(bn));
+
+      return MAIN_CHAINS_IDS.indexOf(b.chainId) - MAIN_CHAINS_IDS.indexOf(a.chainId);
     });
   }, [evmChainsRecord, tezosChainsRecord]);
   const matchingChains = useMemo(() => searchAndFilterChains(allChains, searchValue), [allChains, searchValue]);
