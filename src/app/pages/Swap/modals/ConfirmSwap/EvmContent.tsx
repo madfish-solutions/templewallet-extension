@@ -28,6 +28,7 @@ import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { useEvmAssetBalance } from 'lib/balances/hooks';
 import { fetchEvmRawBalance } from 'lib/evm/on-chain/balance';
 import { fetchEvmTokenMetadataFromChain } from 'lib/evm/on-chain/metadata';
+import { EvmAssetStandard } from 'lib/evm/types';
 import { t } from 'lib/i18n';
 import { useTempleClient } from 'lib/temple/front';
 import { atomsToTokens, tokensToAtoms } from 'lib/temple/helpers';
@@ -40,8 +41,6 @@ import { ZERO } from 'lib/utils/numbers';
 import { useGetEvmActiveBlockExplorer } from 'temple/front/ready';
 import { makeBlockExplorerHref } from 'temple/front/use-block-explorers';
 import { TempleChainKind } from 'temple/types';
-
-import { EvmAssetStandard } from '../../../../../lib/evm/types';
 
 import { BaseContent } from './BaseContent';
 import { InitialInputData } from './types';
@@ -338,9 +337,9 @@ export const EvmContent: FC<EvmContentProps> = ({
       bridgeData,
       skipStatusWait,
       onStepCompleted,
-      inputTokenSlug,
       outputTokenSlug,
-      outputNetwork
+      outputNetwork,
+      initialInputData
     ]
   );
 

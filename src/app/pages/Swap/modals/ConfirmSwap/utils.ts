@@ -1,11 +1,10 @@
 import type { TransactionRequest as LiFiTxRequest } from '@lifi/types';
 import type { Address, TransactionRequest as ViemTxRequest, RpcTransactionRequest } from 'viem';
 
+import { toTokenSlug } from 'lib/assets';
+import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
+import { EVM_ZERO_ADDRESS } from 'lib/constants';
 import { EvmEstimationDataWithFallback } from 'lib/temple/types';
-
-import { toTokenSlug } from '../../../../../lib/assets';
-import { EVM_TOKEN_SLUG } from '../../../../../lib/assets/defaults';
-import { EVM_ZERO_ADDRESS } from '../../../../../lib/constants';
 
 export function mapLiFiTxToEvmEstimationData(tx: LiFiTxRequest): EvmEstimationDataWithFallback {
   const gasLimitStr = 'gasLimit' in tx ? tx.gasLimit : undefined;
