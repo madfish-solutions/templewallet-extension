@@ -31,7 +31,7 @@ export const makeEstimateOperation =
     assertArgs: (args: T) => asserts args is U,
     handleError: (error: any) => TezosEstimationData
   ) =>
-  async (account: AccountForTezos, tezos: TezosToolkit, balance: BigNumber, ...args: T) => {
+  async (account: AccountForTezos, tezos: TezosToolkit, ...args: T) => {
     assertArgs(args);
 
     try {
@@ -46,10 +46,6 @@ export const makeEstimateOperation =
       const revealFeeMutez =
         tezosManagerKeyHasManager(manager) || ownerAddress ? ZERO : mutezToTz(getRevealFee(accountPkh));
       const estimatedBaseFee = mutezToTz(burnFeeMutez + suggestedFeeMutez).plus(revealFeeMutez);
-
-      if (estimatedBaseFee.isGreaterThanOrEqualTo(balance)) {
-        throw new Error('Not enough funds');
-      }
 
       return {
         baseFee: estimatedBaseFee,
@@ -80,10 +76,7 @@ export const makeUseEstimationData = <T extends unknown[], U extends T, D extend
   const estimateOperation = makeEstimateOperation(makeGetRawOperationEstimate(getParams), assertArgs, handleError);
 
   const useEstimationData = (data: MinEstimationData<D>, tezos: TezosToolkit, tezBalance: BigNumber) => {
-    const estimate = useCallback(
-      () => estimateOperation(data.account, tezos, tezBalance, ...makeRestArgs(data)),
-      [data, tezBalance, tezos]
-    );
+    const estimate = useCallback(() => estimateOperation(data.account, tezos, ...makeRestArgs(data)), [data, tezos]);
 
     const result = useTypedSWR(makeSWRKey(data, data.account, tezBalance), estimate);
 

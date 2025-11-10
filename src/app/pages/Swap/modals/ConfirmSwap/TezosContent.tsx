@@ -7,17 +7,13 @@ import { useLedgerApprovalModalState } from 'app/hooks/use-ledger-approval-modal
 import { BaseContent } from 'app/pages/Swap/modals/ConfirmSwap/BaseContent';
 import { TezosTxParamsFormData } from 'app/templates/TransactionTabs/types';
 import { useTezosEstimationForm } from 'app/templates/TransactionTabs/use-tezos-estimation-form';
-import { toastError } from 'app/toaster';
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
-import { useTezosAssetBalance } from 'lib/balances';
 import { TEZOS_BLOCK_DURATION } from 'lib/fixed-times';
-import { t } from 'lib/i18n';
 import { useTypedSWR } from 'lib/swr';
 import { mutezToTz } from 'lib/temple/helpers';
 import { TempleAccountType } from 'lib/temple/types';
 import { runConnectedLedgerOperationFlow } from 'lib/ui';
 import { showTxSubmitToastWithDelay } from 'lib/ui/show-tx-submit-toast.util';
-import { ZERO } from 'lib/utils/numbers';
 import { serializeEstimate } from 'lib/utils/serialize-estimate';
 import { getParamsWithCustomGasLimitFor3RouteSwap } from 'lib/utils/swap.utils';
 import { getTezosToolkitWithSigner } from 'temple/front';
@@ -38,9 +34,7 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
   const accountPkh = account.address;
   const isLedgerAccount = account.type === TempleAccountType.Ledger;
 
-  const [latestSubmitError, setLatestSubmitError] = useState<string | nullish>(null);
-
-  const { value: tezBalance = ZERO } = useTezosAssetBalance(TEZ_TOKEN_SLUG, accountPkh, network);
+  const [latestSubmitError, setLatestSubmitError] = useState<unknown>(null);
 
   const getActiveBlockExplorer = useGetTezosActiveBlockExplorer();
 
@@ -57,10 +51,6 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
         BigNumber.sum(...estimates.map(est => est.suggestedFeeMutez + est.burnFeeMutez))
       );
 
-      if (estimatedBaseFee.isGreaterThanOrEqualTo(tezBalance)) {
-        throw new Error(t('balanceTooLow'));
-      }
-
       return {
         estimates: estimates.map(serializeEstimate),
         baseFee: estimatedBaseFee,
@@ -71,17 +61,17 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
       console.error(err);
       return;
     }
-  }, [tezos, opParams, tezBalance, account.ownerAddress, accountPkh]);
+  }, [tezos, opParams, account.ownerAddress, accountPkh]);
 
-  const { data: estimationData, isLoading: estimationDataLoading } = useTypedSWR(
-    () => ['tezos-estimation-data', chainId, accountPkh, opParams],
-    estimate,
-    {
-      shouldRetryOnError: false,
-      focusThrottleInterval: 10_000,
-      dedupingInterval: TEZOS_BLOCK_DURATION
-    }
-  );
+  const {
+    data: estimationData,
+    isLoading: estimationDataLoading,
+    error: estimationError
+  } = useTypedSWR(() => ['tezos-estimation-data', chainId, accountPkh, opParams], estimate, {
+    shouldRetryOnError: false,
+    focusThrottleInterval: 10_000,
+    dedupingInterval: TEZOS_BLOCK_DURATION
+  });
 
   const {
     form,
@@ -93,14 +83,16 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
     displayedFeeOptions,
     displayedFee,
     displayedStorageFee,
-    balancesChanges
+    balancesChanges,
+    assertCustomGasFeeNotTooLow
   } = useTezosEstimationForm({
     estimationData,
     basicParams: opParams,
     senderAccount: account,
     simulateOperation: true,
     estimationDataLoading,
-    network
+    network,
+    isEstimationError: Boolean(estimationError)
   });
   const { formState } = form;
 
@@ -113,13 +105,30 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
   const { ledgerApprovalModalState, setLedgerApprovalModalState, handleLedgerModalClose } =
     useLedgerApprovalModalState();
 
+  const onSubmitError = useCallback(
+    (err: unknown) => {
+      console.error(err);
+      setLatestSubmitError(err);
+      setTab('error');
+    },
+    [setLatestSubmitError, setTab]
+  );
+
   const onSubmit = useCallback(
     async ({ gasFee, storageLimit }: TezosTxParamsFormData) => {
       try {
         if (formState.isSubmitting) return;
 
+        try {
+          assertCustomGasFeeNotTooLow(gasFee);
+        } catch (e) {
+          onSubmitError(e);
+
+          return;
+        }
+
         if (!estimationData || !displayedFeeOptions) {
-          toastError('Failed to estimate transaction.');
+          onSubmitError(estimationError);
 
           return;
         }
@@ -150,15 +159,14 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
           await doOperation();
         }
       } catch (err: any) {
-        console.error(err);
-
-        setLatestSubmitError(err.errors ? JSON.stringify(err.errors) : err.message);
-        setTab('error');
+        onSubmitError(err);
       }
     },
     [
       displayedFeeOptions,
       estimationData,
+      estimationError,
+      assertCustomGasFeeNotTooLow,
       formState.isSubmitting,
       isLedgerAccount,
       setLedgerApprovalModalState,
@@ -166,7 +174,7 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
       network.chainId,
       onClose,
       onConfirm,
-      setTab,
+      onSubmitError,
       submitOperation,
       tezos
     ]

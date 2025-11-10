@@ -459,6 +459,25 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
     assertResponse(res.type === TempleMessageType.DAppSwitchEvmChainResponse);
   }, []);
 
+  const switchDAppEvmAccount = useCallback(async (origin: string, account: HexString) => {
+    const res = await request({
+      type: TempleMessageType.DAppSwitchEvmAccountRequest,
+      origin,
+      account
+    });
+    assertResponse(res.type === TempleMessageType.DAppSwitchEvmAccountResponse);
+  }, []);
+
+  const switchDAppTezosAccount = useCallback(async (origin: string, account: string) => {
+    const res = await request({
+      type: TempleMessageType.DAppSwitchTezosAccountRequest,
+      origin,
+      account,
+      publicKey: await getAccountPublicKey(account)
+    });
+    assertResponse(res.type === TempleMessageType.DAppSwitchTezosAccountResponse);
+  }, []);
+
   const sendEvmTransaction = useCallback(
     async (accountPkh: HexString, network: EvmChain, txParams: TransactionRequest) => {
       const res = await request({
@@ -482,24 +501,6 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
     assertResponse(res.type === TempleMessageType.ResetExtensionResponse);
     localStorage.clear();
     browser.runtime.reload();
-  }, []);
-
-  const setWindowPopupState = useCallback(async (windowId: number | null, opened: boolean) => {
-    const res = await request({
-      type: TempleMessageType.SetWindowPopupStateRequest,
-      windowId,
-      opened
-    });
-    assertResponse(res.type === TempleMessageType.SetWindowPopupStateResponse);
-  }, []);
-
-  const setWindowSidebarState = useCallback(async (windowId: number | null, opened: boolean) => {
-    const res = await request({
-      type: TempleMessageType.SetWindowSidebarStateRequest,
-      windowId,
-      opened
-    });
-    assertResponse(res.type === TempleMessageType.SetWindowSidebarStateResponse);
   }, []);
 
   useEffect(() => void (data?.shouldLockOnStartup && lock()), [data?.shouldLockOnStartup, lock]);
@@ -562,9 +563,9 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
     confirmDAppEvmAssetAdding,
     confirmDAppEvmChainAdding,
     switchDAppEvmChain,
+    switchDAppEvmAccount,
+    switchDAppTezosAccount,
     sendEvmTransaction,
-    resetExtension,
-    setWindowPopupState,
-    setWindowSidebarState
+    resetExtension
   };
 });

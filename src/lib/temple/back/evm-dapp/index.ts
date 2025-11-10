@@ -1,3 +1,3 @@
 export * from './handlers';
 export { init } from './init';
-export { removeDApps, switchChain } from './utils';
+export { removeDApps, switchChain, switchAccount } from './utils';

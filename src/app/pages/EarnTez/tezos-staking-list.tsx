@@ -17,8 +17,7 @@ import {
 } from 'app/hooks/use-baking-hooks';
 import { useRichFormatTooltip } from 'app/hooks/use-rich-format-tooltip';
 import { ReactComponent as OutLinkIcon } from 'app/icons/base/outLink.svg';
-import { TEZ_TOKEN_SLUG, toPenny } from 'lib/assets';
-import { useTezosAssetBalance } from 'lib/balances';
+import { toPenny } from 'lib/assets';
 import { TEZOS_BLOCK_DURATION } from 'lib/fixed-times';
 import { t, T, toShortened } from 'lib/i18n';
 import { useTezosGasMetadata } from 'lib/metadata';
@@ -27,7 +26,6 @@ import { useKnownBaker } from 'lib/temple/front';
 import { mutezToTz } from 'lib/temple/helpers';
 import { Lottie } from 'lib/ui/react-lottie';
 import { toPercentage } from 'lib/ui/utils';
-import { ZERO } from 'lib/utils/numbers';
 import { AccountForTezos } from 'temple/accounts';
 import { getTezosToolkitWithSigner, useOnTezosBlock } from 'temple/front';
 import { TezosNetworkEssentials } from 'temple/networks';
@@ -64,7 +62,6 @@ export const TezosStakingList = memo<Props>(
     const { symbol } = gasTokenMetadata;
     const { data: stakedData, mutate: updateStakedAmount } = useStakedAmount(network, accountPkh, true);
     const { data: requests, mutate: updateUnstakeRequests } = useUnstakeRequests(network, accountPkh, true);
-    const { value: tezBalance = ZERO } = useTezosAssetBalance(TEZ_TOKEN_SLUG, accountPkh, network);
     const { data: cyclesInfo } = useStakingCyclesInfo(network);
     const blockLevelInfo = useBlockLevelInfo(network);
     const blockExplorerUrl = useBlockExplorerUrl(network);
@@ -76,13 +73,13 @@ export const TezosStakingList = memo<Props>(
       const tezos = getTezosToolkitWithSigner(network, account.address);
 
       try {
-        await estimateStaking(account, tezos, tezBalance, toPenny(gasTokenMetadata));
+        await estimateStaking(account, tezos, toPenny(gasTokenMetadata));
 
         return true;
       } catch (e) {
         return !isStakingNotAcceptedError(e);
       }
-    }, [account, gasTokenMetadata, rpcBaseURL, tezBalance]);
+    }, [account, gasTokenMetadata, network]);
     const { data: stakingEnabledFromRpc } = useTypedSWR(
       baker ? null : ['can-stake', accountPkh, rpcBaseURL, bakerPkh],
       getCanStake,
@@ -271,7 +268,7 @@ const UnstakeRequestItem = memo<UnstakeRequestItemProps>(
     const endCycle = useMemo(() => {
       if (!cyclesInfo) return;
 
-      return cycle + cyclesInfo.cooldownCyclesNumber - /* Accounting for current cycle*/ 1;
+      return cycle + cyclesInfo.cooldownCyclesNumber;
     }, [cycle, cyclesInfo]);
 
     const cooldownTime = useMemo(() => {
@@ -279,7 +276,7 @@ const UnstakeRequestItem = memo<UnstakeRequestItemProps>(
 
       const { blocks_per_cycle, minimal_block_delay } = cyclesInfo;
 
-      const fullCyclesLeft = endCycle - blockLevelInfo.cycle;
+      const fullCyclesLeft = endCycle - blockLevelInfo.cycle - /* Accounting for current cycle*/ 1;
       const blocksLeftInCurrentCycle = blocks_per_cycle - blockLevelInfo.cycle_position;
 
       const blocksLeft = blocks_per_cycle * fullCyclesLeft + blocksLeftInCurrentCycle;

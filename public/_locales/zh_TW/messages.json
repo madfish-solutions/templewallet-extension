@@ -575,9 +575,6 @@
       }
     }
   },
-  "notEnoughFunds": {
-    "message": "資金不足"
-  },
   "notEnoughCurrencyFunds": {
     "message": "$currency$ 資金不足",
     "placeholders": {

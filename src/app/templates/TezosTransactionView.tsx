@@ -4,7 +4,6 @@ import BigNumber from 'bignumber.js';
 import { nanoid } from 'nanoid';
 import { FormProvider } from 'react-hook-form-v7';
 
-import { toastError } from 'app/toaster';
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
 import { TEZOS_BLOCK_DURATION } from 'lib/fixed-times';
 import { useTezosGenericAssetsMetadataLoading } from 'lib/metadata';
@@ -13,7 +12,6 @@ import { TezosEstimationDataProvider } from 'lib/temple/front/estimation-data-pr
 import { mutezToTz, tzToMutez } from 'lib/temple/helpers';
 import { TempleTezosDAppOperationsPayload } from 'lib/temple/types';
 import { tezosManagerKeyHasManager } from 'lib/tezos';
-import { serializeError } from 'lib/utils/serialize-error';
 import { getAccountAddressForTezos } from 'temple/accounts';
 import { TezosChain, useAllAccounts, useAllTezosChains } from 'temple/front';
 import { StoredTezosNetwork } from 'temple/networks';
@@ -28,16 +26,18 @@ interface TezosTransactionViewProps {
   payload: TempleTezosDAppOperationsPayload;
   formId: string;
   error: any;
+  setError: SyncFn<any>;
   setTotalFee: SyncFn<number>;
   setStorageLimit: SyncFn<number>;
   onSubmit: EmptyFn;
 }
 
 export const TezosTransactionView = memo<TezosTransactionViewProps>(
-  ({ payload, formId, error, setTotalFee, setStorageLimit, onSubmit }) => (
+  ({ payload, formId, error, setError, setTotalFee, setStorageLimit, onSubmit }) => (
     <TezosEstimationDataProvider>
       <TezosTransactionViewBody
         error={error}
+        setError={setError}
         payload={payload}
         formId={formId}
         setTotalFee={setTotalFee}
@@ -49,7 +49,7 @@ export const TezosTransactionView = memo<TezosTransactionViewProps>(
 );
 
 const TezosTransactionViewBody = memo<TezosTransactionViewProps>(
-  ({ payload, formId, error: submitError, setTotalFee, setStorageLimit, onSubmit }) => {
+  ({ payload, formId, error: submitError, setError: setSubmitError, setTotalFee, setStorageLimit, onSubmit }) => {
     const { network, opParams, sourcePkh, estimates, error: estimationError } = payload;
     const tezosChains = useAllTezosChains();
     const accounts = useAllAccounts();
@@ -140,23 +140,31 @@ const TezosTransactionViewBody = memo<TezosTransactionViewProps>(
       handleFeeOptionSelect,
       displayedFeeOptions,
       displayedFee,
-      displayedStorageFee
+      displayedStorageFee,
+      assertCustomGasFeeNotTooLow
     } = useTezosEstimationForm({
       estimationData,
       basicParams: opParams,
       senderAccount: sendingAccount,
       network,
       simulateOperation: true,
-      sourcePkIsRevealed
+      sourcePkIsRevealed,
+      isEstimationError: Boolean(estimationError)
     });
 
     const handleSubmit = useCallback(
       ({ gasFee: customGasFee, storageLimit: customStorageLimit }: TezosTxParamsFormData) => {
         const { gasFee, storageLimit } = getFeeParams(customGasFee, customStorageLimit);
 
-        if (!gasFee) {
-          toastError('Failed to estimate transaction.');
+        try {
+          assertCustomGasFeeNotTooLow(gasFee);
+        } catch (e) {
+          setSubmitError(e);
 
+          return;
+        }
+
+        if (!gasFee) {
           return;
         }
 
@@ -164,11 +172,8 @@ const TezosTransactionViewBody = memo<TezosTransactionViewProps>(
         setStorageLimit(storageLimit.toNumber());
         onSubmit();
       },
-      [getFeeParams, onSubmit, setStorageLimit, setTotalFee]
+      [getFeeParams, onSubmit, setStorageLimit, setTotalFee, setSubmitError, assertCustomGasFeeNotTooLow]
     );
-
-    const displayedEstimationError = useMemo(() => serializeError(estimationError), [estimationError]);
-    const displayedSubmitError = useMemo(() => serializeError(submitError), [submitError]);
 
     return (
       <FormProvider {...form}>
@@ -178,8 +183,8 @@ const TezosTransactionViewBody = memo<TezosTransactionViewProps>(
           selectedTab={tab}
           setSelectedTab={setTab}
           selectedFeeOption={selectedFeeOption}
-          latestSubmitError={displayedSubmitError}
-          estimationError={displayedEstimationError}
+          latestSubmitError={submitError}
+          estimationError={estimationError}
           onFeeOptionSelect={handleFeeOptionSelect}
           onSubmit={handleSubmit}
           displayedFee={displayedFee}

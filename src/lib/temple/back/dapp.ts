@@ -17,6 +17,7 @@ import {
   TempleDAppBroadcastResponse,
   TempleDAppNetwork as TezosDAppNetwork
 } from '@temple-wallet/dapp/dist/types';
+import { capitalize } from 'lodash';
 import { nanoid } from 'nanoid';
 import { v4 as uuid } from 'uuid';
 
@@ -407,6 +408,46 @@ export async function removeDApps(origins: string[]) {
   });
 
   return result;
+}
+
+export async function switchTezosAccount(origin: string, account: string, publicKey: string) {
+  const dApp = await getDApp(origin);
+
+  if (!dApp) {
+    throw new Error(`Could not find dApp for origin ${origin}`);
+  }
+
+  const rpcUrl = await getNetworkRPC(dApp.network);
+  const messageBeforeEncryption = Beacon.encodeMessage({
+    id: uuid(),
+    version: '4',
+    senderId: await Beacon.getSenderId(),
+    type: 'change_account_request',
+    address: account,
+    walletType: 'implicit',
+    publicKey,
+    network: {
+      type: typeof dApp.network === 'string' ? dApp.network : 'custom',
+      name: typeof dApp.network === 'string' ? capitalize(dApp.network) : dApp.network.name,
+      rpcUrl: rpcUrl ?? undefined
+    },
+    scopes: [Beacon.PermissionScope.OPERATION_REQUEST, Beacon.PermissionScope.SIGN]
+  });
+  const pubKey = await Beacon.getDAppPublicKey(origin);
+
+  if (!pubKey) {
+    throw new Error('DApp public key not found.');
+  }
+
+  await setDApp(origin, { ...dApp, pkh: account, publicKey });
+
+  intercom.broadcast({
+    type: TempleMessageType.TempleTezosAccountSwitched,
+    messagePayload: await Beacon.encryptMessage(messageBeforeEncryption, pubKey),
+    origin
+  });
+
+  // TODO: implement checking that a dApp accepted the new account when dApps become ready to handle account switching
 }
 
 async function requestConfirm(params: Omit<RequestConfirmParams<TempleTezosDAppPayload>, 'transformPayload'>) {

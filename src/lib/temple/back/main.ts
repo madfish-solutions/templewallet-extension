@@ -244,6 +244,14 @@ const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<T
       await Actions.switchEvmChain(req.origin, req.chainId, true);
       return { type: TempleMessageType.DAppSwitchEvmChainResponse };
 
+    case TempleMessageType.DAppSwitchEvmAccountRequest:
+      await Actions.switchEvmAccount(req.origin, req.account);
+      return { type: TempleMessageType.DAppSwitchEvmAccountResponse };
+
+    case TempleMessageType.DAppSwitchTezosAccountRequest:
+      await Actions.switchTezosAccount(req.origin, req.account, req.publicKey);
+      return { type: TempleMessageType.DAppSwitchTezosAccountResponse };
+
     case TempleMessageType.Acknowledge: {
       if (req.payload !== 'PING' && req.payload !== 'ping' && req.beacon) {
         const {
@@ -384,20 +392,6 @@ const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<T
       await Actions.resetExtension(req.password);
       return {
         type: TempleMessageType.ResetExtensionResponse
-      };
-
-    case TempleMessageType.SetWindowPopupStateRequest:
-      Actions.setWindowPopupOpened(req.windowId, req.opened);
-
-      return {
-        type: TempleMessageType.SetWindowPopupStateResponse
-      };
-
-    case TempleMessageType.SetWindowSidebarStateRequest:
-      Actions.setWindowSidebarOpened(req.windowId, req.opened);
-
-      return {
-        type: TempleMessageType.SetWindowSidebarStateResponse
       };
   }
 };

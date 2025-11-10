@@ -83,10 +83,6 @@ export async function requestConfirm<T extends TempleDAppPayload>({
 
     await chrome.sidePanel.setOptions({ path: browser.runtime.getURL(`sidebar.html#/?id=${id}`) });
 
-    if (targetWindowId !== undefined) {
-      await chrome.sidePanel.open({ windowId: targetWindowId });
-    }
-
     const sub = store.watch(sidebarClosed, (_, closedSidebarWindowId) => {
       if (closedSidebarWindowId === (targetWindowId ?? null)) {
         declineAndClose();

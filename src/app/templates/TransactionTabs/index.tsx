@@ -22,13 +22,13 @@ export interface TransactionTabsProps<T extends TxParamsFormData> {
   selectedTab: Tab;
   setSelectedTab: SyncFn<Tab>;
   selectedFeeOption: FeeOptionLabel | nullish;
-  latestSubmitError: string | nullish;
+  latestSubmitError: unknown;
   onFeeOptionSelect: SyncFn<FeeOptionLabel>;
   onSubmit: SubmitHandler<T>;
   displayedFee?: string;
   displayedStorageFee?: string;
   displayedFeeOptions?: DisplayedFeeOptions;
-  estimationError?: string | nullish;
+  estimationError?: unknown;
   formId: string;
   tabsName: string;
   destinationName?: ReactNode;
@@ -73,7 +73,7 @@ export const TransactionTabs = <T extends TxParamsFormData>({
   const isEvm = network.kind === TempleChainKind.EVM;
 
   const error = latestSubmitError || estimationError;
-  const prevErrorRef = useRef<string | nullish>(null);
+  const prevErrorRef = useRef<unknown>(null);
   useEffect(() => {
     if (error && error !== prevErrorRef.current) {
       setSelectedTab('error');
@@ -101,15 +101,7 @@ export const TransactionTabs = <T extends TxParamsFormData>({
             ref: useRef<HTMLDivElement>(null)
           },
           { label: 'Advanced', value: 'advanced', ref: useRef<HTMLDivElement>(null) },
-          ...(latestSubmitError || estimationError
-            ? [
-                {
-                  label: t('error'),
-                  value: 'error' as const,
-                  ref: errorTabRef
-                }
-              ]
-            : [])
+          ...(error ? [{ label: t('error'), value: 'error' as const, ref: errorTabRef }] : [])
         ]}
       />
 

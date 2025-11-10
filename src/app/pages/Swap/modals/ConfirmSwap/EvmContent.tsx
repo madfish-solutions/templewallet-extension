@@ -29,7 +29,6 @@ import { useEvmAssetBalance } from 'lib/balances/hooks';
 import { fetchEvmRawBalance } from 'lib/evm/on-chain/balance';
 import { fetchEvmTokenMetadataFromChain } from 'lib/evm/on-chain/metadata';
 import { EvmAssetStandard } from 'lib/evm/types';
-import { t } from 'lib/i18n';
 import { useTempleClient } from 'lib/temple/front';
 import { atomsToTokens, tokensToAtoms } from 'lib/temple/helpers';
 import { TempleAccountType } from 'lib/temple/types';
@@ -91,7 +90,7 @@ export const EvmContent: FC<EvmContentProps> = ({
   const { value: ethBalance = ZERO } = useEvmAssetBalance(EVM_TOKEN_SLUG, accountPkh, inputNetwork);
   const getActiveBlockExplorer = useGetEvmActiveBlockExplorer();
 
-  const [latestSubmitError, setLatestSubmitError] = useState<string | nullish>(null);
+  const [latestSubmitError, setLatestSubmitError] = useState<unknown>(null);
   const [stepFinalized, setStepFinalized] = useState(false);
   const [submitLoading, setSubmitLoading] = useState(false);
 
@@ -134,8 +133,17 @@ export const EvmContent: FC<EvmContentProps> = ({
     };
   }, [estimationData, routeStep.transactionRequest]);
 
-  const { form, tab, setTab, selectedFeeOption, handleFeeOptionSelect, feeOptions, displayedFee, getFeesPerGas } =
-    useEvmEstimationForm(lifiEstimationData, null, account, inputNetwork.chainId);
+  const {
+    form,
+    tab,
+    setTab,
+    selectedFeeOption,
+    handleFeeOptionSelect,
+    feeOptions,
+    displayedFee,
+    getFeesPerGas,
+    assertCustomFeesPerGasNotTooLow
+  } = useEvmEstimationForm(lifiEstimationData, null, account, inputNetwork.chainId);
   const { formState } = form;
   const { ledgerApprovalModalState, setLedgerApprovalModalState, handleLedgerModalClose } =
     useLedgerApprovalModalState();
@@ -343,6 +351,15 @@ export const EvmContent: FC<EvmContentProps> = ({
     ]
   );
 
+  const onSubmitError = useCallback(
+    (err: unknown) => {
+      console.error(err);
+      setLatestSubmitError(err);
+      setTab('error');
+    },
+    [setLatestSubmitError, setTab]
+  );
+
   const onSubmit = useCallback(
     async ({ gasPrice, gasLimit, nonce }: EvmTxParamsFormData) => {
       if (submitDisabled) return;
@@ -350,30 +367,18 @@ export const EvmContent: FC<EvmContentProps> = ({
 
       const feesPerGas = getFeesPerGas(gasPrice);
       if (!lifiEstimationData || !feesPerGas) {
-        if (estimationLoading || !estimationError) return;
-        toastError('Failed to estimate transaction.');
+        if (!estimationLoading && estimationError) {
+          onSubmitError(estimationError);
+        }
+
         return;
       }
 
-      if (isEvmNativeTokenSlug(inputTokenSlug)) {
-        const fromAmount = atomsToTokens(
-          new BigNumber(routeStep.action.fromAmount),
-          routeStep.action.fromToken.decimals ?? 0
-        );
+      try {
+        assertCustomFeesPerGasNotTooLow(feesPerGas);
+      } catch (e) {
+        onSubmitError(e);
 
-        if (
-          ethBalance
-            .minus(displayedFee ?? 0)
-            .minus(fromAmount)
-            .lte(displayedFee ?? 0)
-        ) {
-          toastError(t('balanceTooLow'));
-          return;
-        }
-      }
-
-      if (ethBalance.lte(displayedFee ?? 0)) {
-        toastError(t('balanceTooLow'));
         return;
       }
 
@@ -396,10 +401,7 @@ export const EvmContent: FC<EvmContentProps> = ({
           await executeRouteStep(routeStep, { gasPrice, gasLimit, nonce });
         }
       } catch (err: any) {
-        console.error(err);
-
-        setLatestSubmitError(err.message);
-        setTab('error');
+        onSubmitError(err);
       } finally {
         setSubmitLoading(false);
       }
@@ -409,17 +411,15 @@ export const EvmContent: FC<EvmContentProps> = ({
       formState.isSubmitting,
       getFeesPerGas,
       lifiEstimationData,
-      inputTokenSlug,
-      ethBalance,
-      displayedFee,
       routeStep,
       isLedgerAccount,
       setLedgerApprovalModalState,
       executeRouteStep,
-      setTab,
+      onSubmitError,
       cancelledRef,
       estimationLoading,
-      estimationError
+      estimationError,
+      assertCustomFeesPerGasNotTooLow
     ]
   );
 

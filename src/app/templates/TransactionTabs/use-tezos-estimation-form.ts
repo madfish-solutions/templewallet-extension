@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { ForgeParams, localForger } from '@taquito/local-forging';
-import { Estimate, TezosToolkit, WalletParamsWithKind, getRevealFee } from '@taquito/taquito';
+import { Estimate, TezosOperationError, TezosToolkit, WalletParamsWithKind, getRevealFee } from '@taquito/taquito';
 import BigNumber from 'bignumber.js';
 import { useForm } from 'react-hook-form-v7';
 import { BehaviorSubject, EMPTY, catchError, from, of, switchMap } from 'rxjs';
@@ -36,6 +36,7 @@ const SEND_TEZ_TO_NON_EMPTY_ESTIMATE = new Estimate(169000, 0, 155, 250, 100);
 
 interface TezosEstimationFormHookParams {
   estimationData: TezosEstimationData | undefined;
+  isEstimationError?: boolean;
   basicParams: WalletParamsWithKind[] | undefined;
   senderAccount: StoredAccount | AccountForChain<TempleChainKind.Tezos>;
   network: TezosNetworkEssentials;
@@ -51,7 +52,8 @@ export const useTezosEstimationForm = ({
   network,
   simulateOperation,
   sourcePkIsRevealed = true,
-  estimationDataLoading = false
+  estimationDataLoading = false,
+  isEstimationError = false
 }: TezosEstimationFormHookParams) => {
   const ownerAddress =
     'ownerAddress' in senderAccount
@@ -107,7 +109,9 @@ export const useTezosEstimationForm = ({
             return of(getBalancesChanges(response.contents, accountPkh));
           }),
           catchError(e => {
-            toastError(e.message);
+            if (!isEstimationError) {
+              toastError(e.message);
+            }
 
             try {
               return of(getBalancesChanges(operation.contents, accountPkh));
@@ -128,7 +132,15 @@ export const useTezosEstimationForm = ({
     });
 
     return () => sub.unsubscribe();
-  }, [accountPkh, params$, tezos.rpc, network.chainId, setBalancesChangesLoading, setBalancesChanges]);
+  }, [
+    accountPkh,
+    params$,
+    tezos.rpc,
+    network.chainId,
+    setBalancesChangesLoading,
+    setBalancesChanges,
+    isEstimationError
+  ]);
 
   const defaultValues = useMemo(() => {
     let gasFee: BigNumber | undefined;
@@ -366,6 +378,21 @@ export const useTezosEstimationForm = ({
     [totalDefaultStorageLimit, displayedFeeOptions, selectedFeeOption]
   );
 
+  const assertCustomGasFeeNotTooLow = useCallback(
+    (value: BigNumber.Value | nullish) => {
+      if (value == null || !displayedFeeOptions) return;
+
+      if (new BigNumber(value).div(displayedFeeOptions.slow).lt('0.8')) {
+        throw new TezosOperationError(
+          [{ kind: 'permanent', id: 'proto.023-PtSeouLo.prefilter.fees_too_low' }],
+          'Fees are too low',
+          []
+        );
+      }
+    },
+    [displayedFeeOptions]
+  );
+
   return {
     balancesChanges,
     balancesChangesLoading,
@@ -378,6 +405,7 @@ export const useTezosEstimationForm = ({
     submitOperation,
     displayedFeeOptions,
     displayedFee,
-    displayedStorageFee
+    displayedStorageFee,
+    assertCustomGasFeeNotTooLow
   };
 };

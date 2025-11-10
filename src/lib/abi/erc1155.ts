@@ -265,6 +265,17 @@ export const erc1155Abi = [
     type: 'error'
   },
   {
+    inputs: [
+      {
+        internalType: 'address',
+        name: 'account',
+        type: 'address'
+      }
+    ],
+    name: 'OwnableUnauthorizedAccount',
+    type: 'error'
+  },
+  {
     anonymous: false,
     inputs: [
       {
