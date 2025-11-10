@@ -222,27 +222,6 @@ const periodicMonitorTriggerEpic: Epic<Action, Action, RootState> = (_, state$) 
     map(monitorPendingSwapsAction)
   );
 
-const cleanupOutdatedSwapsEpic: Epic<Action, Action, RootState> = (action$, state$) =>
-  action$.pipe(
-    ofType(cleanupOutdatedSwapsAction),
-    withLatestFrom(state$),
-    mergeMap(([, state]) => {
-      const pendingSwaps = selectAllPendingSwaps(state);
-      const now = Date.now();
-      const outdatedSwaps = pendingSwaps.filter(swap => {
-        const age = now - swap.submittedAt;
-        return age > MAX_PENDING_SWAP_AGE;
-      });
-
-      if (outdatedSwaps.length > 0) {
-        return from(outdatedSwaps.map(({ txHash }) => removePendingEvmSwapAction(txHash)));
-      }
-
-      return of();
-    })
-  );
-
-// Transfers monitoring using viem waitForTransactionReceipt
 const monitorPendingTransfersEpic: Epic<Action, Action, RootState> = (action$, state$) =>
   action$.pipe(
     ofType(monitorPendingTransfersAction),
@@ -331,7 +310,7 @@ const updateBalancesAfterTransferEpic: Epic<Action, Action, RootState> = action$
           const processSingleShotBalance = async (slug: string) => {
             try {
               const balance = await fetchEvmRawBalance(
-                network as EvmNetworkEssentials,
+                network,
                 slug,
                 accountPkh,
                 isEvmNativeTokenSlug(slug) ? EvmAssetStandard.NATIVE : EvmAssetStandard.ERC20
@@ -349,7 +328,6 @@ const updateBalancesAfterTransferEpic: Epic<Action, Action, RootState> = action$
             }
           };
 
-          // Refresh asset & native gas token
           const refreshSlugs = new Set<string>([assetSlug, EVM_TOKEN_SLUG]);
           for (const slug of refreshSlugs) {
             await processSingleShotBalance(slug);
@@ -375,6 +353,26 @@ const periodicTransfersMonitorTriggerEpic: Epic<Action, Action, RootState> = (_,
       return pendingTransfers.length > 0;
     }),
     map(monitorPendingTransfersAction)
+  );
+
+const cleanupOutdatedSwapsEpic: Epic<Action, Action, RootState> = (action$, state$) =>
+  action$.pipe(
+    ofType(cleanupOutdatedSwapsAction),
+    withLatestFrom(state$),
+    mergeMap(([, state]) => {
+      const pendingSwaps = selectAllPendingSwaps(state);
+      const now = Date.now();
+      const outdatedSwaps = pendingSwaps.filter(swap => {
+        const age = now - swap.submittedAt;
+        return age > MAX_PENDING_SWAP_AGE;
+      });
+
+      if (outdatedSwaps.length > 0) {
+        return from(outdatedSwaps.map(({ txHash }) => removePendingEvmSwapAction(txHash)));
+      }
+
+      return of();
+    })
   );
 
 const cleanupOutdatedTransfersEpic: Epic<Action, Action, RootState> = (action$, state$) =>
