@@ -4,28 +4,41 @@ import { EvmNetworkEssentials } from 'temple/networks';
 
 type TxHash = HexString;
 
-export interface PendingEvmSwapBase {
-  txHash: TxHash;
-  accountPkh: HexString;
-  initialInputTokenSlug: string;
-  initialInputNetwork: EvmNetworkEssentials;
-  outputTokenSlug: string;
-  outputNetwork: EvmNetworkEssentials;
-  blockExplorerUrl: string;
-  statusCheckParams: Omit<GetStatusRequest, 'txHash'>;
-}
-
-export interface PendingEvmSwap extends PendingEvmSwapBase {
+interface MonitorStates {
   submittedAt: number;
   lastCheckedAt: number;
   statusCheckAttempts: number;
   status: StatusMessage;
 }
 
-export interface PendingEvmSwapsState {
+interface Common {
+  txHash: TxHash;
+  accountPkh: HexString;
+  blockExplorerUrl: string;
+}
+
+export interface PendingEvmSwapBase extends Common {
+  initialInputTokenSlug: string;
+  initialInputNetwork: EvmNetworkEssentials;
+  outputTokenSlug: string;
+  outputNetwork: EvmNetworkEssentials;
+  statusCheckParams: Omit<GetStatusRequest, 'txHash'>;
+}
+
+export interface PendingEvmTransferBase extends Common {
+  assetSlug: string;
+  network: EvmNetworkEssentials;
+}
+
+export type PendingEvmSwap = PendingEvmSwapBase & MonitorStates;
+export type PendingEvmTransfer = PendingEvmTransferBase & MonitorStates;
+
+export interface PendingEvmTransactionsState {
+  transfers: Record<TxHash, PendingEvmTransfer>;
   swaps: Record<TxHash, PendingEvmSwap>;
 }
 
-export const pendingEvmSwapsInitialState: PendingEvmSwapsState = {
+export const pendingEvmTransactionsInitialState: PendingEvmTransactionsState = {
+  transfers: {},
   swaps: {}
 };

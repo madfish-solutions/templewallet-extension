@@ -7,11 +7,17 @@ import {
   addPendingEvmSwapAction,
   updatePendingSwapStatusAction,
   incrementSwapCheckAttemptsAction,
-  removePendingEvmSwapAction
+  removePendingEvmSwapAction,
+  addPendingEvmTransferAction,
+  updatePendingTransferStatusAction,
+  incrementTransferCheckAttemptsAction,
+  removePendingEvmTransferAction
 } from './actions';
-import { pendingEvmSwapsInitialState, PendingEvmSwapsState } from './state';
+import { pendingEvmTransactionsInitialState, PendingEvmTransactionsState } from './state';
 
-const pendingEvmSwapsReducer = createReducer(pendingEvmSwapsInitialState, builder => {
+const pendingEvmTransactionsReducer = createReducer(pendingEvmTransactionsInitialState, builder => {
+  // Swaps
+
   builder.addCase(addPendingEvmSwapAction, (state, { payload }) => {
     state.swaps[payload.txHash] = {
       ...payload,
@@ -41,12 +47,44 @@ const pendingEvmSwapsReducer = createReducer(pendingEvmSwapsInitialState, builde
   builder.addCase(removePendingEvmSwapAction, (state, { payload: txHash }) => {
     delete state.swaps[txHash];
   });
+
+  // Transfers
+
+  builder.addCase(addPendingEvmTransferAction, (state, { payload }) => {
+    state.transfers[payload.txHash] = {
+      ...payload,
+      submittedAt: Date.now(),
+      lastCheckedAt: Date.now(),
+      statusCheckAttempts: 0,
+      status: 'PENDING'
+    };
+  });
+
+  builder.addCase(updatePendingTransferStatusAction, (state, { payload }) => {
+    const transfer = state.transfers[payload.txHash];
+    if (transfer) {
+      transfer.status = payload.status;
+      transfer.lastCheckedAt = payload.lastCheckedAt;
+    }
+  });
+
+  builder.addCase(incrementTransferCheckAttemptsAction, (state, { payload: txHash }) => {
+    const transfer = state.transfers[txHash];
+    if (transfer) {
+      transfer.statusCheckAttempts += 1;
+      transfer.lastCheckedAt = Date.now();
+    }
+  });
+
+  builder.addCase(removePendingEvmTransferAction, (state, { payload: txHash }) => {
+    delete state.transfers[txHash];
+  });
 });
 
-export const pendingEvmSwapsPersistedReducer = persistReducer<PendingEvmSwapsState>(
+export const pendingEvmTransactionsPersistedReducer = persistReducer<PendingEvmTransactionsState>(
   {
-    key: 'root.evm.pendingSwaps',
+    key: 'root.evm.pendingTransactions',
     ...storageConfig
   },
-  pendingEvmSwapsReducer
+  pendingEvmTransactionsReducer
 );

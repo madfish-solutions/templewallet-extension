@@ -7,6 +7,8 @@ import { TransactionRequest } from 'viem';
 import { useLedgerApprovalModalState } from 'app/hooks/use-ledger-approval-modal-state';
 import { EvmReviewData } from 'app/pages/Send/form/interfaces';
 import { useEvmEstimationData } from 'app/pages/Send/hooks/use-evm-estimation-data';
+import { dispatch } from 'app/store';
+import { addPendingEvmTransferAction, monitorPendingTransfersAction } from 'app/store/evm/pending-transactions/actions';
 import { EvmTxParamsFormData } from 'app/templates/TransactionTabs/types';
 import { useEvmEstimationForm } from 'app/templates/TransactionTabs/use-evm-estimation-form';
 import { toastError } from 'app/toaster';
@@ -20,6 +22,7 @@ import { runConnectedLedgerOperationFlow } from 'lib/ui';
 import { showTxSubmitToastWithDelay } from 'lib/ui/show-tx-submit-toast.util';
 import { ZERO } from 'lib/utils/numbers';
 import { useGetEvmActiveBlockExplorer } from 'temple/front/ready';
+import { makeBlockExplorerHref } from 'temple/front/use-block-explorers';
 import { TempleChainKind } from 'temple/types';
 
 import { buildBasicEvmSendParams } from '../../build-basic-evm-send-params';
@@ -109,6 +112,17 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
           const blockExplorer = getActiveBlockExplorer(network.chainId.toString());
 
           showTxSubmitToastWithDelay(TempleChainKind.EVM, txHash, blockExplorer.url);
+
+          dispatch(
+            addPendingEvmTransferAction({
+              txHash,
+              accountPkh,
+              assetSlug,
+              network,
+              blockExplorerUrl: makeBlockExplorerHref(blockExplorer.url, txHash, 'tx', TempleChainKind.EVM)
+            })
+          );
+          dispatch(monitorPendingTransfersAction());
         };
 
         if (isLedgerAccount) {
