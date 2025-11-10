@@ -10,7 +10,6 @@ import {
   removePendingEvmSwapAction,
   addPendingEvmTransferAction,
   updatePendingTransferStatusAction,
-  incrementTransferCheckAttemptsAction,
   removePendingEvmTransferAction
 } from './actions';
 import { pendingEvmTransactionsInitialState, PendingEvmTransactionsState } from './state';
@@ -55,7 +54,6 @@ const pendingEvmTransactionsReducer = createReducer(pendingEvmTransactionsInitia
       ...payload,
       submittedAt: Date.now(),
       lastCheckedAt: Date.now(),
-      statusCheckAttempts: 0,
       status: 'PENDING'
     };
   });
@@ -65,14 +63,6 @@ const pendingEvmTransactionsReducer = createReducer(pendingEvmTransactionsInitia
     if (transfer) {
       transfer.status = payload.status;
       transfer.lastCheckedAt = payload.lastCheckedAt;
-    }
-  });
-
-  builder.addCase(incrementTransferCheckAttemptsAction, (state, { payload: txHash }) => {
-    const transfer = state.transfers[txHash];
-    if (transfer) {
-      transfer.statusCheckAttempts += 1;
-      transfer.lastCheckedAt = Date.now();
     }
   });
 

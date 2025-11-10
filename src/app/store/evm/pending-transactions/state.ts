@@ -7,7 +7,6 @@ type TxHash = HexString;
 interface MonitorStates {
   submittedAt: number;
   lastCheckedAt: number;
-  statusCheckAttempts: number;
   status: StatusMessage;
 }
 
@@ -30,7 +29,10 @@ export interface PendingEvmTransferBase extends Common {
   network: EvmNetworkEssentials;
 }
 
-export type PendingEvmSwap = PendingEvmSwapBase & MonitorStates;
+export type PendingEvmSwap = PendingEvmSwapBase &
+  MonitorStates & {
+    statusCheckAttempts: number;
+  };
 export type PendingEvmTransfer = PendingEvmTransferBase & MonitorStates;
 
 export interface PendingEvmTransactionsState {

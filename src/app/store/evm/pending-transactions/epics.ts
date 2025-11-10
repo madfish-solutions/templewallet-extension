@@ -1,7 +1,7 @@
 import retry from 'async-retry';
 import { Action } from 'redux';
 import { combineEpics, Epic } from 'redux-observable';
-import { catchError, concat, delay, exhaustMap, filter, from, map, mergeMap, of, withLatestFrom, timer } from 'rxjs';
+import { catchError, concat, delay, exhaustMap, filter, from, map, mergeMap, of, withLatestFrom, interval } from 'rxjs';
 import { ofType } from 'ts-action-operators';
 
 import type { RootState } from 'app/store/root-state.type';
@@ -20,7 +20,6 @@ import { processLoadedOnchainBalancesAction } from '../balances/actions';
 import { putEvmTokensMetadataAction } from '../tokens-metadata/actions';
 
 import {
-  cleanupOutdatedSwapsAction,
   incrementSwapCheckAttemptsAction,
   monitorPendingSwapsAction,
   removePendingEvmSwapAction,
@@ -30,8 +29,7 @@ import {
   updatePendingTransferStatusAction,
   updateBalancesAfterTransferAction,
   removePendingEvmTransferAction,
-  incrementTransferCheckAttemptsAction,
-  cleanupOutdatedTransfersAction
+  cleanupOutdatedEvmPendingTxWithInitialMonitorTriggerAction
 } from './actions';
 import { selectAllPendingSwaps, selectAllPendingTransfers } from './utils';
 
@@ -77,6 +75,11 @@ const monitorPendingSwapsEpic: Epic<Action, Action, RootState> = (action$, state
               const actions = [incrementSwapCheckAttemptsAction(swap.txHash)];
               const { status } = result;
 
+              const toastParams = {
+                hash: swap.txHash,
+                blockExplorerHref: swap.blockExplorerUrl
+              };
+
               if (status === 'DONE') {
                 const immediateActions = [
                   ...actions,
@@ -88,10 +91,7 @@ const monitorPendingSwapsEpic: Epic<Action, Action, RootState> = (action$, state
                   updateBalancesAfterSwapAction(swap)
                 ];
 
-                toastSuccess('Swap completed', true, {
-                  hash: swap.txHash,
-                  blockExplorerHref: swap.blockExplorerUrl
-                });
+                toastSuccess('Swap completed', true, toastParams);
 
                 return from(immediateActions);
               }
@@ -106,10 +106,7 @@ const monitorPendingSwapsEpic: Epic<Action, Action, RootState> = (action$, state
                   })
                 ];
 
-                toastError('Swap failed', true, {
-                  hash: swap.txHash,
-                  blockExplorerHref: swap.blockExplorerUrl
-                });
+                toastError('Swap failed', true, toastParams);
 
                 return concat(from(immediateActions), of(removePendingEvmSwapAction(swap.txHash)).pipe(delay(5000)));
               }
@@ -126,6 +123,31 @@ const monitorPendingSwapsEpic: Epic<Action, Action, RootState> = (action$, state
     })
   );
 
+const buildBalanceUpdateAction = async (
+  network: EvmNetworkEssentials,
+  slug: string,
+  accountPkh: HexString,
+  timestamp: number
+) => {
+  try {
+    const balance = await fetchEvmRawBalance(
+      network,
+      slug,
+      accountPkh,
+      isEvmNativeTokenSlug(slug) ? EvmAssetStandard.NATIVE : EvmAssetStandard.ERC20
+    );
+    return processLoadedOnchainBalancesAction({
+      balances: { [slug]: balance.toFixed() },
+      timestamp,
+      account: accountPkh,
+      chainId: network.chainId
+    });
+  } catch (error) {
+    console.warn(`Failed to fetch balance for ${slug} on ${network.chainId}: `, error);
+    return null;
+  }
+};
+
 const updateBalancesAfterSwapEpic: Epic<Action, Action, RootState> = action$ =>
   action$.pipe(
     ofType(updateBalancesAfterSwapAction),
@@ -135,30 +157,8 @@ const updateBalancesAfterSwapEpic: Epic<Action, Action, RootState> = action$ =>
 
       return from(
         (async () => {
-          const actionsToDispatch: Action[] = [];
           const now = Date.now();
-
-          const processSingleShotBalance = async (network: EvmNetworkEssentials, slug: string) => {
-            try {
-              const balance = await fetchEvmRawBalance(
-                network,
-                slug,
-                accountPkh,
-                isEvmNativeTokenSlug(slug) ? EvmAssetStandard.NATIVE : EvmAssetStandard.ERC20
-              );
-
-              actionsToDispatch.push(
-                processLoadedOnchainBalancesAction({
-                  balances: { [slug]: balance.toFixed() },
-                  timestamp: now,
-                  account: accountPkh,
-                  chainId: network.chainId
-                })
-              );
-            } catch (error) {
-              console.warn(`Failed to fetch balance for ${slug} on ${network.chainId}: `, error);
-            }
-          };
+          const actionsToDispatch: Action[] = [];
 
           // Deduplicate balance refreshes when both
           // networks are the same or input token is native
@@ -173,7 +173,8 @@ const updateBalancesAfterSwapEpic: Epic<Action, Action, RootState> = action$ =>
             const key = `${network.chainId}:${slug}`;
             if (seen.has(key)) continue;
             seen.add(key);
-            await processSingleShotBalance(network, slug);
+            const action = await buildBalanceUpdateAction(network, slug, accountPkh, now);
+            if (action) actionsToDispatch.push(action);
           }
 
           if (isEvmNativeTokenSlug(outputTokenSlug)) {
@@ -212,8 +213,8 @@ const updateBalancesAfterSwapEpic: Epic<Action, Action, RootState> = action$ =>
     })
   );
 
-const periodicMonitorTriggerEpic: Epic<Action, Action, RootState> = (_, state$) =>
-  timer(100, MONITOR_INTERVAL).pipe(
+const periodicSwapMonitorTriggerEpic: Epic<Action, Action, RootState> = (_, state$) =>
+  interval(MONITOR_INTERVAL).pipe(
     withLatestFrom(state$),
     filter(([_, state]) => {
       const pendingSwaps = selectAllPendingSwaps(state);
@@ -238,7 +239,7 @@ const monitorPendingTransfersEpic: Epic<Action, Action, RootState> = (action$, s
             return of(updateBalancesAfterTransferAction(transfer));
           }
 
-          if (transfer.status === 'FAILED' || transfer.statusCheckAttempts >= MAX_ATTEMPTS) {
+          if (transfer.status === 'FAILED') {
             return of(removePendingEvmTransferAction(transfer.txHash));
           }
 
@@ -247,19 +248,21 @@ const monitorPendingTransfersEpic: Epic<Action, Action, RootState> = (action$, s
             (async () =>
               await client.waitForTransactionReceipt({
                 hash: transfer.txHash,
-                timeout: 3_000,
-                pollingInterval: 1_000
+                pollingInterval: MONITOR_INTERVAL,
+                timeout: MAX_PENDING_TRANSFER_AGE
               }))()
           ).pipe(
             mergeMap(receipt => {
-              const actions: Action[] = [incrementTransferCheckAttemptsAction(transfer.txHash)];
-              if (!receipt) {
-                return from(actions);
-              }
               const status = receipt.status === 'success' ? 'DONE' : 'FAILED';
+              const toastParams = {
+                hash: transfer.txHash,
+                blockExplorerHref: transfer.blockExplorerUrl
+              };
+
               if (status === 'DONE') {
+                toastSuccess('Transfer completed', true, toastParams);
+
                 return from([
-                  ...actions,
                   updatePendingTransferStatusAction({
                     txHash: transfer.txHash,
                     status: 'DONE',
@@ -269,14 +272,10 @@ const monitorPendingTransfersEpic: Epic<Action, Action, RootState> = (action$, s
                 ]);
               }
 
-              // FAILED
-              toastError('Transfer failed', true, {
-                hash: transfer.txHash,
-                blockExplorerHref: transfer.blockExplorerUrl
-              });
+              toastError('Transfer failed', true, toastParams);
+
               return concat(
                 from([
-                  ...actions,
                   updatePendingTransferStatusAction({
                     txHash: transfer.txHash,
                     status: 'FAILED',
@@ -288,7 +287,8 @@ const monitorPendingTransfersEpic: Epic<Action, Action, RootState> = (action$, s
             }),
             catchError(error => {
               console.error(`Failed to check transfer status ${transfer.txHash}: `, error);
-              return of(incrementTransferCheckAttemptsAction(transfer.txHash));
+              // keep monitoring alive by doing nothing; waitForTransactionReceipt handles polling
+              return of();
             })
           );
         })
@@ -307,30 +307,10 @@ const updateBalancesAfterTransferEpic: Epic<Action, Action, RootState> = action$
           const now = Date.now();
           const actionsToDispatch: Action[] = [];
 
-          const processSingleShotBalance = async (slug: string) => {
-            try {
-              const balance = await fetchEvmRawBalance(
-                network,
-                slug,
-                accountPkh,
-                isEvmNativeTokenSlug(slug) ? EvmAssetStandard.NATIVE : EvmAssetStandard.ERC20
-              );
-              actionsToDispatch.push(
-                processLoadedOnchainBalancesAction({
-                  balances: { [slug]: balance.toFixed() },
-                  timestamp: now,
-                  account: accountPkh,
-                  chainId: network.chainId
-                })
-              );
-            } catch (error) {
-              console.warn(`Failed to fetch balance for ${slug} on ${network.chainId}: `, error);
-            }
-          };
-
           const refreshSlugs = new Set<string>([assetSlug, EVM_TOKEN_SLUG]);
           for (const slug of refreshSlugs) {
-            await processSingleShotBalance(slug);
+            const action = await buildBalanceUpdateAction(network, slug, accountPkh, now);
+            if (action) actionsToDispatch.push(action);
           }
 
           return [...actionsToDispatch, removePendingEvmTransferAction(txHash)];
@@ -345,58 +325,38 @@ const updateBalancesAfterTransferEpic: Epic<Action, Action, RootState> = action$
     })
   );
 
-const periodicTransfersMonitorTriggerEpic: Epic<Action, Action, RootState> = (_, state$) =>
-  timer(100, MONITOR_INTERVAL).pipe(
-    withLatestFrom(state$),
-    filter(([_, state]) => {
-      const pendingTransfers = selectAllPendingTransfers(state);
-      return pendingTransfers.length > 0;
-    }),
-    map(monitorPendingTransfersAction)
-  );
-
-const cleanupOutdatedSwapsEpic: Epic<Action, Action, RootState> = (action$, state$) =>
+const cleanupOutdatedEvmPendingTransactionsEpic: Epic<Action, Action, RootState> = (action$, state$) =>
   action$.pipe(
-    ofType(cleanupOutdatedSwapsAction),
+    ofType(cleanupOutdatedEvmPendingTxWithInitialMonitorTriggerAction),
     withLatestFrom(state$),
     mergeMap(([, state]) => {
       const pendingSwaps = selectAllPendingSwaps(state);
-      const now = Date.now();
-      const outdatedSwaps = pendingSwaps.filter(swap => {
-        const age = now - swap.submittedAt;
-        return age > MAX_PENDING_SWAP_AGE;
-      });
-
-      if (outdatedSwaps.length > 0) {
-        return from(outdatedSwaps.map(({ txHash }) => removePendingEvmSwapAction(txHash)));
-      }
-
-      return of();
-    })
-  );
-
-const cleanupOutdatedTransfersEpic: Epic<Action, Action, RootState> = (action$, state$) =>
-  action$.pipe(
-    ofType(cleanupOutdatedTransfersAction),
-    withLatestFrom(state$),
-    mergeMap(([, state]) => {
       const pendingTransfers = selectAllPendingTransfers(state);
       const now = Date.now();
-      const outdated = pendingTransfers.filter(item => now - item.submittedAt > MAX_PENDING_TRANSFER_AGE);
-      if (outdated.length > 0) {
-        return from(outdated.map(({ txHash }) => removePendingEvmTransferAction(txHash)));
+
+      const outdatedSwaps = pendingSwaps.filter(swap => now - swap.submittedAt > MAX_PENDING_SWAP_AGE);
+      const outdatedTransfers = pendingTransfers.filter(tr => now - tr.submittedAt > MAX_PENDING_TRANSFER_AGE);
+
+      const removalActions: Action[] = [
+        ...outdatedSwaps.map(({ txHash }) => removePendingEvmSwapAction(txHash)),
+        ...outdatedTransfers.map(({ txHash }) => removePendingEvmTransferAction(txHash))
+      ];
+
+      const monitorActions: Action[] = [monitorPendingSwapsAction(), monitorPendingTransfersAction()];
+
+      if (removalActions.length > 0) {
+        return concat(from(removalActions), from(monitorActions));
       }
-      return of();
+
+      return from(monitorActions);
     })
   );
 
 export const pendingEvmSwapsEpics = combineEpics(
   monitorPendingSwapsEpic,
   updateBalancesAfterSwapEpic,
-  periodicMonitorTriggerEpic,
-  cleanupOutdatedSwapsEpic,
+  periodicSwapMonitorTriggerEpic,
   monitorPendingTransfersEpic,
   updateBalancesAfterTransferEpic,
-  periodicTransfersMonitorTriggerEpic,
-  cleanupOutdatedTransfersEpic
+  cleanupOutdatedEvmPendingTransactionsEpic
 );

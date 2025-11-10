@@ -16,7 +16,7 @@ import { useUserAnalyticsAndAdsSettings } from 'app/hooks/use-user-analytics-and
 import { useUserIdAccountPkhSync } from 'app/hooks/use-user-id-account-pkh-sync';
 import { useFetchSupportedLifiChainIds } from 'app/pages/Swap/form/hooks';
 import { dispatch } from 'app/store';
-import { cleanupOutdatedSwapsAction } from 'app/store/evm/pending-transactions/actions';
+import { cleanupOutdatedEvmPendingTxWithInitialMonitorTriggerAction } from 'app/store/evm/pending-transactions/actions';
 import { useTestnetModeEnabledSelector } from 'app/store/settings/selectors';
 import { loadSwapDexesAction, loadSwapTokensAction } from 'app/store/swap/actions';
 import { loadTokensWhitelistActions, loadTokensScamlistActions } from 'app/store/tezos/assets/actions';
@@ -64,7 +64,7 @@ const AppReadyRootHooks = memo(() => {
   useDidMount(() => void dispatch(loadTokensWhitelistActions.submit()));
   useDidMount(() => void dispatch(loadTokensScamlistActions.submit()));
 
-  useDidMount(() => void dispatch(cleanupOutdatedSwapsAction()));
+  useDidMount(() => void dispatch(cleanupOutdatedEvmPendingTxWithInitialMonitorTriggerAction()));
 
   useMetadataRefresh();
 
