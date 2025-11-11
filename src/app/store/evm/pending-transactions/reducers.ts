@@ -16,8 +16,6 @@ import {
 import { pendingEvmTransactionsInitialState, PendingEvmTransactionsState } from './state';
 
 const pendingEvmTransactionsReducer = createReducer(pendingEvmTransactionsInitialState, builder => {
-  // Swaps
-
   builder.addCase(addPendingEvmSwapAction, (state, { payload }) => {
     state.swaps[payload.txHash] = {
       ...payload,
@@ -55,8 +53,6 @@ const pendingEvmTransactionsReducer = createReducer(pendingEvmTransactionsInitia
   builder.addCase(removePendingEvmSwapAction, (state, { payload: txHash }) => {
     delete state.swaps[txHash];
   });
-
-  // Transfers
 
   builder.addCase(addPendingEvmTransferAction, (state, { payload }) => {
     state.transfers[payload.txHash] = {
