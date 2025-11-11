@@ -30,14 +30,15 @@ import {
   updatePendingTransferStatusAction,
   updateBalancesAfterTransferAction,
   removePendingEvmTransferAction,
-  cleanupOutdatedEvmPendingTxWithInitialMonitorTriggerAction
+  cleanupOutdatedEvmPendingTxWithInitialMonitorTriggerAction,
+  disableSwapCheckStatusRetriesAction
 } from './actions';
 import { selectAllPendingSwaps, selectAllPendingTransfers } from './utils';
 
-const MAX_SWAP_STATUS_CHECK_ATTEMPTS = 20;
+const MAX_SWAP_STATUS_CHECK_ATTEMPTS = 50;
 
-const SWAP_MONITOR_INTERVAL = 10_000;
-const TRANSFER_MONITOR_INTERVAL = 4_000;
+const LONG_MONITOR_INTERVAL = 12_000;
+const SHORT_MONITOR_INTERVAL = 4_000;
 
 const ONE_MINUTE = 60 * 1_000;
 const MAX_PENDING_SWAP_AGE = 10 * ONE_MINUTE;
@@ -71,7 +72,7 @@ const monitorPendingSwapsEpic: Epic<Action, Action, RootState> = (action$, state
                   ...swap.statusCheckParams,
                   txHash: swap.txHash
                 }),
-              { retries: 3, minTimeout: 2_000 }
+              swap.retriesEnabled ? { retries: 2, minTimeout: SHORT_MONITOR_INTERVAL } : { retries: 0 }
             )
           ).pipe(
             mergeMap(result => {
@@ -117,7 +118,15 @@ const monitorPendingSwapsEpic: Epic<Action, Action, RootState> = (action$, state
               return from(actions);
             }),
             catchError(error => {
-              console.error(`Failed to check swap status ${swap.txHash}: `, error);
+              if (error?.status === 400 && swap.statusCheckAttempts > 5) {
+                console.warn(`LIFI is unable to identify transaction: ${swap.txHash}, disabling additional retries`);
+                return concat(
+                  of(incrementSwapCheckAttemptsAction(swap.txHash)),
+                  of(disableSwapCheckStatusRetriesAction(swap.txHash))
+                );
+              }
+
+              console.warn(`Failed to check pending swap status ${swap.txHash}: `, error);
               return of(incrementSwapCheckAttemptsAction(swap.txHash));
             })
           );
@@ -214,7 +223,7 @@ const updateBalancesAfterSwapEpic: Epic<Action, Action, RootState> = action$ =>
   );
 
 const periodicSwapMonitorTriggerEpic: Epic<Action, Action, RootState> = (_, state$) =>
-  interval(SWAP_MONITOR_INTERVAL).pipe(
+  interval(LONG_MONITOR_INTERVAL).pipe(
     withLatestFrom(state$),
     filter(([_, state]) => {
       const pendingSwaps = selectAllPendingSwaps(state);
@@ -252,7 +261,7 @@ const monitorPendingTransfersEpic: Epic<Action, Action, RootState> = (action$, s
           return from(
             client.waitForTransactionReceipt({
               hash: transfer.txHash,
-              pollingInterval: TRANSFER_MONITOR_INTERVAL,
+              pollingInterval: SHORT_MONITOR_INTERVAL,
               timeout: MAX_PENDING_TRANSFER_AGE
             })
           ).pipe(

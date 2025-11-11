@@ -20,6 +20,10 @@ export const incrementSwapCheckAttemptsAction = createAction<TxHash>(
   'evm/pending-transactions/INCREMENT_SWAP_CHECK_ATTEMPTS'
 );
 
+export const disableSwapCheckStatusRetriesAction = createAction<TxHash>(
+  'evm/pending-transactions/SWAP_DISABLE_RETRIES'
+);
+
 export const updateBalancesAfterSwapAction = createAction<PendingEvmSwap>(
   'evm/pending-transactions/UPDATE_BALANCES_AFTER_SWAP'
 );

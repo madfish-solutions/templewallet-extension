@@ -123,6 +123,8 @@ export const useGetBalancesFromChain = (publicKeyHash: HexString, apiIsApplicabl
         return { error };
       }
 
+      console.info(`Successfully fetched balances from node for chainId: ${network.chainId}`);
+
       return {
         data: balances,
         error

@@ -32,6 +32,7 @@ export interface PendingEvmTransferBase extends Common {
 export type PendingEvmSwap = PendingEvmSwapBase &
   MonitorStates & {
     statusCheckAttempts: number;
+    retriesEnabled: boolean;
   };
 export type PendingEvmTransfer = PendingEvmTransferBase & MonitorStates;
 

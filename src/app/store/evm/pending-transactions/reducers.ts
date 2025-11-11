@@ -10,7 +10,8 @@ import {
   removePendingEvmSwapAction,
   addPendingEvmTransferAction,
   updatePendingTransferStatusAction,
-  removePendingEvmTransferAction
+  removePendingEvmTransferAction,
+  disableSwapCheckStatusRetriesAction
 } from './actions';
 import { pendingEvmTransactionsInitialState, PendingEvmTransactionsState } from './state';
 
@@ -23,6 +24,7 @@ const pendingEvmTransactionsReducer = createReducer(pendingEvmTransactionsInitia
       submittedAt: Date.now(),
       lastCheckedAt: Date.now(),
       statusCheckAttempts: 0,
+      retriesEnabled: true,
       status: 'PENDING'
     };
   });
@@ -40,6 +42,13 @@ const pendingEvmTransactionsReducer = createReducer(pendingEvmTransactionsInitia
     if (swap) {
       swap.statusCheckAttempts += 1;
       swap.lastCheckedAt = Date.now();
+    }
+  });
+
+  builder.addCase(disableSwapCheckStatusRetriesAction, (state, { payload: txHash }) => {
+    const swap = state.swaps[txHash];
+    if (swap) {
+      swap.retriesEnabled = false;
     }
   });
 

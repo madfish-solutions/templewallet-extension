@@ -179,7 +179,7 @@ export const AppEvmBalancesLoading = memo<{ publicKeyHash: HexString }>(({ publi
       getEvmBalances(walletAddress, chainId)
         .then(async data => {
           if (!(await isGoldrushDataFresh(data, chainId))) {
-            console.warn(`GoldRush returned stale balances for chain ${chainId}, falling back to on-chain fetch`);
+            console.warn(`GoldRush returned stale balances for chain ${chainId}, falling back to node fetch`);
 
             return { error: new Error('GoldRush data is stale') };
           }
