@@ -10,6 +10,7 @@ import { StyledButton } from 'app/atoms/StyledButton';
 import { TextButton } from 'app/atoms/TextButton';
 import { ValidationLabel } from 'app/atoms/ValidationLabel';
 import { PASSWORD_PATTERN, PasswordValidation, formatMnemonic, passwordValidationRegexes } from 'app/defaults';
+import { setIsSidebarByDefault } from 'app/env';
 import { useFirefoxDataConsent } from 'app/pages/Welcome/data-collection-agreement/use-firefox-data-consent.hook';
 import { dispatch } from 'app/store';
 import { togglePartnersPromotionAction } from 'app/store/partners-promotion/actions';
@@ -23,13 +24,15 @@ import {
   SHOULD_BACKUP_MNEMONIC_STORAGE_KEY,
   SHOULD_DISABLE_NOT_ACTIVE_NETWORKS_STORAGE_KEY,
   SHOULD_OPEN_LETS_EXCHANGE_MODAL_STORAGE_KEY,
+  SIDE_VIEW_WAS_FORCED_STORAGE_KEY,
   TERMS_OF_USE_URL,
   WEBSITES_ANALYTICS_ENABLED
 } from 'lib/constants';
+import { IS_SIDE_PANEL_AVAILABLE } from 'lib/env';
 import { T, TID, t } from 'lib/i18n';
 import { putToStorage } from 'lib/storage';
 import { writeGoogleDriveBackup } from 'lib/temple/backup';
-import { useTempleClient } from 'lib/temple/front';
+import { useStorage, useTempleClient } from 'lib/temple/front';
 import { setBackupCredentials } from 'lib/temple/front/mnemonic-to-backup-keeper';
 import { useInitToastMessage } from 'lib/temple/front/toasts-context';
 import { useBooleanState } from 'lib/ui/hooks';
@@ -66,6 +69,8 @@ export const CreatePasswordForm = memo<CreatePasswordFormProps>(
     const { trackEvent } = useAnalytics();
     const [, setInitToast] = useInitToastMessage();
     const [backupPasswordUsed, goToBackupPassword, goToCustomPassword] = useBooleanState(false);
+
+    const [_, setSideViewWasForced] = useStorage(SIDE_VIEW_WAS_FORCED_STORAGE_KEY);
 
     const [consent] = useFirefoxDataConsent();
 
@@ -143,6 +148,11 @@ export const CreatePasswordForm = memo<CreatePasswordFormProps>(
             trackEvent('AdsEnabled', AnalyticsEventCategory.General, { accountPkh }, adsViewEnabled);
           }
 
+          if (IS_SIDE_PANEL_AVAILABLE) {
+            await setIsSidebarByDefault(true);
+            await setSideViewWasForced(true);
+          }
+
           if (mnemonicToImport) {
             await putToStorage(SHOULD_DISABLE_NOT_ACTIVE_NETWORKS_STORAGE_KEY, true);
             setInitToast(t(backupPassword ? 'yourWalletIsReady' : 'importSuccessful'));
@@ -167,14 +177,15 @@ export const CreatePasswordForm = memo<CreatePasswordFormProps>(
       },
       [
         submitting,
-        registerWallet,
-        backupPassword,
         googleAuthToken,
-        seedPhrase,
         mnemonicToImport,
         setSuppressReady,
+        registerWallet,
+        seedPhrase,
         trackEvent,
+        setSideViewWasForced,
         setInitToast,
+        backupPassword,
         onNewBackupState
       ]
     );
