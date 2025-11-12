@@ -28,38 +28,35 @@ export const getTokenSlugBalanceRecords = (
     timestamps[tokenSlug] = Math.max(prevTimestamp, updatedAt);
   };
 
-  return data.reduce<{ balances: AssetSlugBalanceRecord; timestamps: StringRecord<number> }>(
-    (acc, currentValue) => {
-      const { balances, timestamps } = acc;
-      const contractAddress = getAddress(currentValue.contract_address);
+  const getRecord = <T>(prevRecord: StringRecord<T>) =>
+    Object.fromEntries(assetsToPreventBalanceErase.map(tokenSlug => [tokenSlug, prevRecord[tokenSlug]]));
 
-      if (currentValue.nft_data) {
-        for (const nftItem of currentValue.nft_data) {
-          if (!isPositiveCollectibleBalance(nftItem)) continue;
+  const balances: AssetSlugBalanceRecord = getRecord(prevBalances);
+  const timestamps: StringRecord<number> = getRecord<number>(prevTimestamps);
 
-          applyBalance(balances, timestamps, toTokenSlug(contractAddress, nftItem.token_id), nftItem.token_balance);
-        }
+  for (const currentValue of data) {
+    const contractAddress = getAddress(currentValue.contract_address);
 
-        return acc;
+    if (currentValue.nft_data) {
+      for (const nftItem of currentValue.nft_data) {
+        if (!isPositiveCollectibleBalance(nftItem)) continue;
+
+        applyBalance(balances, timestamps, toTokenSlug(contractAddress, nftItem.token_id), nftItem.token_balance);
       }
 
-      if (!isPositiveTokenBalance(currentValue)) return acc;
-
-      if (isNativeTokenAddress(chainId, currentValue.contract_address)) {
-        applyBalance(balances, timestamps, EVM_TOKEN_SLUG, currentValue.balance);
-      } else {
-        applyBalance(balances, timestamps, toTokenSlug(contractAddress), currentValue.balance);
-      }
-
-      return acc;
-    },
-    {
-      balances: Object.fromEntries(assetsToPreventBalanceErase.map(tokenSlug => [tokenSlug, prevBalances[tokenSlug]])),
-      timestamps: Object.fromEntries(
-        assetsToPreventBalanceErase.map(tokenSlug => [tokenSlug, prevTimestamps[tokenSlug]])
-      )
+      continue;
     }
-  );
+
+    if (!isPositiveTokenBalance(currentValue)) continue;
+
+    if (isNativeTokenAddress(chainId, currentValue.contract_address)) {
+      applyBalance(balances, timestamps, EVM_TOKEN_SLUG, currentValue.balance);
+    } else {
+      applyBalance(balances, timestamps, toTokenSlug(contractAddress), currentValue.balance);
+    }
+  }
+
+  return { balances, timestamps };
 };
 
 export const prepareAssigning = (state: Draft<EvmBalancesStateInterface>, account: HexString, chainId?: number) => {
