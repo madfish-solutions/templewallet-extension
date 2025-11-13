@@ -11,9 +11,11 @@ import {
   usePromotionHidingTimestampSelector
 } from 'app/store/partners-promotion/selectors';
 import { AdsProviderName, AdsProviderTitle } from 'lib/ads';
-import { postAdImpression } from 'lib/apis/ads-api';
+import { fetchEnableInternalHypelabAds, postAdImpression } from 'lib/apis/ads-api';
 import { AD_HIDING_TIMEOUT } from 'lib/constants';
+import { ENABLE_INTERNAL_HYPELAB_ADS_SYNC_INTERVAL } from 'lib/fixed-times';
 import { T } from 'lib/i18n';
+import { useTypedSWR } from 'lib/swr';
 
 import { CloseButton } from './components/close-button';
 import { HypelabPromotion } from './components/hypelab-promotion';
@@ -24,7 +26,7 @@ export { PartnersPromotionVariant } from './types';
 
 interface PartnersPromotionProps {
   variant: PartnersPromotionVariant;
-  /** For distinguishing the ads that should be hidden temporarily */
+  /** For distinguishing the ads that should be hidden by timeout */
   id: string;
   pageName: string;
   withPersonaProvider?: boolean;
@@ -33,7 +35,7 @@ interface PartnersPromotionProps {
 
 type AdsProviderLocalName = Exclude<AdsProviderName, 'Temple'>;
 
-const shouldBeHiddenTemporarily = (hiddenAt: number) => {
+const shouldBeHiddenByTimeout = (hiddenAt: number) => {
   return Date.now() - hiddenAt < AD_HIDING_TIMEOUT;
 };
 
@@ -49,18 +51,18 @@ export const PartnersPromotion = memo(
 
       const isAnalyticsSentRef = useRef(false);
 
-      const [isHiddenTemporarily, setIsHiddenTemporarily] = useState(shouldBeHiddenTemporarily(hiddenAt));
+      const [isHiddenByTimeout, setIsHiddenByTimeout] = useState(shouldBeHiddenByTimeout(hiddenAt));
       const [providerName, setProviderName] = useState<AdsProviderLocalName>('HypeLab');
       const [adError, setAdError] = useState(false);
       const [adIsReady, setAdIsReady] = useState(false);
 
       useEffect(() => {
-        const newIsHiddenTemporarily = shouldBeHiddenTemporarily(hiddenAt);
-        setIsHiddenTemporarily(newIsHiddenTemporarily);
+        const newIsHiddenTemporarily = shouldBeHiddenByTimeout(hiddenAt);
+        setIsHiddenByTimeout(newIsHiddenTemporarily);
 
         if (newIsHiddenTemporarily) {
           const timeout = setTimeout(
-            () => setIsHiddenTemporarily(false),
+            () => setIsHiddenByTimeout(false),
             Math.max(Date.now() - hiddenAt + AD_HIDING_TIMEOUT, 0)
           );
 
@@ -94,6 +96,35 @@ export const PartnersPromotion = memo(
       const handlePersonaError = useCallback(() => setAdError(true), []);
 
       const handleAdReady = useCallback(() => setAdIsReady(true), []);
+
+      const { data: enableInternalHypelabAds, isLoading: isLoadingEnableInternalHypelabAds } = useTypedSWR(
+        'enable-internal-hypelab-ads',
+        fetchEnableInternalHypelabAds,
+        {
+          revalidateOnFocus: false,
+          revalidateOnMount: true,
+          revalidateOnReconnect: false,
+          refreshInterval: ENABLE_INTERNAL_HYPELAB_ADS_SYNC_INTERVAL
+        }
+      );
+      const prevEnableInternalHypelabAdsRef = useRef(enableInternalHypelabAds);
+
+      const isHiddenTemporarily =
+        isHiddenByTimeout ||
+        (isLoadingEnableInternalHypelabAds && enableInternalHypelabAds === undefined && providerName === 'HypeLab');
+
+      useEffect(() => {
+        const prevEnableInternalHypelabAds = prevEnableInternalHypelabAdsRef.current;
+        prevEnableInternalHypelabAdsRef.current = enableInternalHypelabAds;
+        if (enableInternalHypelabAds === false && providerName === 'HypeLab') {
+          handleHypelabError();
+        }
+        if (prevEnableInternalHypelabAds === false && enableInternalHypelabAds) {
+          setAdIsReady(false);
+          setProviderName('HypeLab');
+          setAdError(false);
+        }
+      }, [enableInternalHypelabAds, handleHypelabError, providerName]);
 
       if (!shouldShowPartnersPromo || adError || isHiddenTemporarily) {
         return null;
