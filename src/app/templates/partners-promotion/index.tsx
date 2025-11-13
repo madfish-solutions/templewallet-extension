@@ -57,10 +57,10 @@ export const PartnersPromotion = memo(
       const [adIsReady, setAdIsReady] = useState(false);
 
       useEffect(() => {
-        const newIsHiddenTemporarily = shouldBeHiddenByTimeout(hiddenAt);
-        setIsHiddenByTimeout(newIsHiddenTemporarily);
+        const newIsHiddenByTimeout = shouldBeHiddenByTimeout(hiddenAt);
+        setIsHiddenByTimeout(newIsHiddenByTimeout);
 
-        if (newIsHiddenTemporarily) {
+        if (newIsHiddenByTimeout) {
           const timeout = setTimeout(
             () => setIsHiddenByTimeout(false),
             Math.max(Date.now() - hiddenAt + AD_HIDING_TIMEOUT, 0)
