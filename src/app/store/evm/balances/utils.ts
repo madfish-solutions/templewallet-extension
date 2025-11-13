@@ -16,7 +16,7 @@ export const getTokenSlugBalanceRecords = (
   prevTimestamps: StringRecord<number> = {},
   prevBalances: AssetSlugBalanceRecord = {},
   assetsToPreventBalanceErase: string[] = [],
-  allowSkewMs: 4_000
+  allowSkewMs: number = 4_000
 ) => {
   const applyBalance = (
     balances: AssetSlugBalanceRecord,
