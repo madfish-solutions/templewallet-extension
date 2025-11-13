@@ -85,6 +85,7 @@
     "@types/async-retry": "1.4.3",
     "@types/bs58check": "^2.1.0",
     "@types/chrome": "^0.0.329",
+    "@types/crypto-js": "^4.2.2",
     "@types/debounce": "^1.2.1",
     "@types/debounce-promise": "3.1.4",
     "@types/elliptic": "6.4.14",
