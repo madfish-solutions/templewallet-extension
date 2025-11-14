@@ -84,23 +84,20 @@ export const AppEvmBalancesLoading = memo<{ publicKeyHash: HexString }>(({ publi
     async (data: BalancesResponse, chainId: number) => {
       const network = enabledEvmChainsByIds[chainId];
 
-      if (!network) {
+      if (!network || !data.chain_tip_signed_at) {
         return false;
       }
 
       try {
-        const updatedAtMs = new Date(data.updated_at).getTime();
-        if (Number.isNaN(updatedAtMs)) {
-          return false;
-        }
+        const latestApiIndexedBlockTimestamp = new Date(data.chain_tip_signed_at).getTime();
 
         const publicClient = getViemPublicClient(network);
         const latestBlock = await publicClient.getBlock();
         const latestTimestampMs = Number(latestBlock.timestamp) * 1000;
 
-        const delta = Math.abs(latestTimestampMs - updatedAtMs);
+        const delta = Math.abs(latestTimestampMs - latestApiIndexedBlockTimestamp);
 
-        return delta <= 30_000;
+        return delta <= EVM_BALANCES_SYNC_INTERVAL * 3;
       } catch (err) {
         console.warn('Failed to verify GoldRush freshness', err);
         return false;

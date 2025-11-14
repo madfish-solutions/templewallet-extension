@@ -15,8 +15,7 @@ export const getTokenSlugBalanceRecords = (
   updatedAt: number,
   prevTimestamps: StringRecord<number> = {},
   prevBalances: AssetSlugBalanceRecord = {},
-  assetsToPreventBalanceErase: string[] = [],
-  allowSkewMs: number = 4_000
+  assetsToPreventBalanceErase: string[] = []
 ) => {
   const applyBalance = (
     balances: AssetSlugBalanceRecord,
@@ -25,9 +24,7 @@ export const getTokenSlugBalanceRecords = (
     balance: string
   ) => {
     const prevTimestamp = prevTimestamps[tokenSlug] ?? 0;
-    const isPrevFresh = prevTimestamp + allowSkewMs >= updatedAt;
-
-    balances[tokenSlug] = isPrevFresh ? prevBalances[tokenSlug] : balance;
+    balances[tokenSlug] = prevTimestamp >= updatedAt ? prevBalances[tokenSlug] : balance;
     timestamps[tokenSlug] = Math.max(prevTimestamp, updatedAt);
   };
 
