@@ -9,13 +9,13 @@ import { useEvmTokensMetadataRecordSelector } from 'app/store/evm/tokens-metadat
 import { EVM_ZERO_ADDRESS, SHOULD_DISABLE_NOT_ACTIVE_NETWORKS_STORAGE_KEY } from 'lib/constants';
 import { DEFAULT_EVM_CHAINS_SPECS, EvmChainSpecs } from 'lib/temple/chains-specs';
 import { useStorage } from 'lib/temple/front';
-import { ETHEREUM_MAINNET_CHAIN_ID } from 'lib/temple/types';
+import { COMMON_MAINNET_CHAIN_IDS } from 'lib/temple/types';
 import { isEvmNativeTokenSlug } from 'lib/utils/evm.utils';
 import { useAccountAddressForEvm, useEnabledEvmChains } from 'temple/front';
 import { useEvmChainsSpecs } from 'temple/front/use-chains-specs';
 
 const chainIdsToDisableCandidates = Object.entries(DEFAULT_EVM_CHAINS_SPECS)
-  .filter(([chainId, { testnet }]) => !testnet && Number(chainId) !== ETHEREUM_MAINNET_CHAIN_ID)
+  .filter(([chainId, { testnet }]) => !testnet && Number(chainId) !== COMMON_MAINNET_CHAIN_IDS.etherlink)
   .map(([chainId]) => Number(chainId));
 
 export const useDisableInactiveNetworks = () => {

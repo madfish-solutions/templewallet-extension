@@ -9,6 +9,7 @@ import { DeadEndBoundaryError } from 'app/ErrorBoundary';
 import { useEvmCollectibleMetadataSelector } from 'app/store/evm/collectibles-metadata/selectors';
 import { useEvmTokenMetadataSelector } from 'app/store/evm/tokens-metadata/selectors';
 import { useFormAnalytics } from 'lib/analytics';
+import { fromAssetSlug } from 'lib/assets';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { useEvmAssetBalance } from 'lib/balances/hooks';
 import { VITALIK_ADDRESS } from 'lib/constants';
@@ -173,9 +174,22 @@ export const EvmForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, onR
     async ({ amount }: SendFormData) => {
       if (formState.isSubmitting) return;
 
-      formAnalytics.trackSubmit();
-
       const actualAmount = shouldUseFiat ? toAssetAmount(amount) : amount;
+      const contract = isEvmNativeTokenSlug(assetSlug)
+        ? 'gas'
+        : (() => {
+            const [contractAddress] = fromAssetSlug<HexString>(assetSlug);
+            return contractAddress;
+          })();
+
+      const analyticsPayload = {
+        network: network.name,
+        inputAsset: assetSymbol,
+        inputAmount: String(actualAmount),
+        contract
+      };
+
+      formAnalytics.trackSubmit(analyticsPayload);
 
       onReview({
         account,
@@ -185,12 +199,12 @@ export const EvmForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, onR
         to: toResolved,
         onConfirm: resetForm
       });
-
-      formAnalytics.trackSubmitSuccess();
+      formAnalytics.trackSubmitSuccess(analyticsPayload);
     },
     [
       account,
       assetSlug,
+      assetSymbol,
       formAnalytics,
       formState.isSubmitting,
       network,

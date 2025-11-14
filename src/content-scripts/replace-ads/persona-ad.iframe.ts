@@ -42,5 +42,11 @@ fetchFromStorage<AdsViewerData>(ADS_VIEWER_DATA_STORAGE_KEY)
 const postMessage = (message: object) =>
   window.parent.postMessage(
     JSON.stringify({ ...message, id }),
-    '*' // This is required
+    (() => {
+      try {
+        return document.referrer ? new URL(document.referrer).origin : window.origin;
+      } catch {
+        return window.origin;
+      }
+    })()
   );

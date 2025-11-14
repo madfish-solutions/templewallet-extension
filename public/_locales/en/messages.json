@@ -2491,15 +2491,6 @@
   "actionConfirmation": {
     "message": "Confirm the action"
   },
-  "adsEnabledAlertTitle": {
-    "message": "Earn TKEY & Support Temple"
-  },
-  "adsEnabledAlertDescription": {
-    "message": "Congrats, you've started earning TKEY tokens!\nBy enabling this feature, you agreed to share your Wallet address and IP to receive tokens and view ads. You can turn ads off or on anytime in the settings."
-  },
-  "disableAdsModalTitle": {
-    "message": "Disable advertising?"
-  },
   "hideAd": {
     "message": "Hide Ad"
   },
@@ -3269,13 +3260,13 @@
     "message": "Did you know, you can earn TKEY tokens by viewing ads? If ads are turned off, you can easily enable them anytime in the settings and start earning rewards!"
   },
   "enablePartnersPromotionConfirm": {
-    "message": "Earn TKEY & Support Temple"
+    "message": "Earning TKEY has started"
   },
   "thanksForSupportingTemple": {
     "message": "Thanks for supporting Temple"
   },
   "enablePartnersPromotionDescriptionConfirm": {
-    "message": "Congrats, you've started earning TKEY tokens!\nBy enabling this feature, you agreed to share your Wallet address and IP to receive tokens and view ads. You can turn ads off or on anytime in the settings."
+    "message": "Congrats, you've started earning TKEY tokens! Note, rewards are paid automatically each month. Track your performance on Rewards page, and you can always opt out of promo content and data sharing here, in the settings. "
   },
   "ownAccount": {
     "message": "Own"
@@ -3469,7 +3460,7 @@
     "message": "Auto-Lock"
   },
   "partnersPromoSettings": {
-    "message": "Advertising"
+    "message": "Promo content"
   },
   "rewards": {
     "message": "Rewards"
@@ -3478,7 +3469,7 @@
     "message": "This is your account for Temple rewards. All payouts for activities will be distributed to this account addresses."
   },
   "partnersPromoDescription": {
-    "message": "Here you can configure displaying ads in Temple Wallet and getting reward in TKEY tokens. By enabling this, you agree to share your wallet address and IP to receive tokens and view ads."
+    "message": "Enable non-intrusive promo ads in your wallet and browser, join Temple rewards program and get paid in TKEY. If active, you agree to share your wallet address and IP to receive content and rewards."
   },
   "referralLinks": {
     "message": "Referral Links"
@@ -4163,10 +4154,10 @@
     "message": "Properties"
   },
   "closePartnersPromotion": {
-    "message": "Disable advertising?"
+    "message": "Disable promo and earning?"
   },
   "closePartnersPromoConfirm": {
-    "message": "Did you know, you can earn TKEY tokens by viewing ads? If ads are turned off, you can easily enable them anytime in the settings and start earning rewards!"
+    "message": "Disabling promo content will stop your TKEY rewards earning and sharing your data to the reward system. You can turn this back on anytime here, in Settings."
   },
   "earnTkeyRewards": {
     "message": "Earn TKEY Rewards"
