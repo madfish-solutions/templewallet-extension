@@ -8,6 +8,7 @@ import { MAX_MEMOIZED_TOOLKITS } from '../misc';
 import { EvmNetworkEssentials } from '../networks';
 
 import { DEFAULT_TRANSPORT_CONFIG } from './constants';
+import { getMulticallBatchOptions } from './multicall-config';
 import { getCustomViemChain, getViemChainByChainId, getViemTransportForNetwork } from './utils';
 
 export type ChainPublicClient = PublicClient<Transport, Pick<Chain, 'id' | 'name' | 'nativeCurrency' | 'rpcUrls'>>;
@@ -18,7 +19,10 @@ export const getViemPublicClient = memoizee(
 
     return createPublicClient({
       chain: isDefined(viemChain) ? viemChain : getCustomViemChain(network),
-      transport: getViemTransportForNetwork(network)
+      transport: getViemTransportForNetwork(network),
+      batch: {
+        multicall: getMulticallBatchOptions(network.chainId)
+      }
     });
   },
   {

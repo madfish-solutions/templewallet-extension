@@ -16,6 +16,7 @@ import { isSupportedChainId } from 'lib/apis/temple/endpoints/evm/api.utils';
 import { useEvmAssetBalance } from 'lib/balances/hooks';
 import { EVM_BALANCES_SYNC_INTERVAL } from 'lib/fixed-times';
 import { useMemoWithCompare, useUpdatableRef } from 'lib/ui/hooks';
+import { getViemPublicClient } from 'temple/evm';
 import { useEnabledEvmChains } from 'temple/front';
 import { EvmNetworkEssentials } from 'temple/networks';
 
@@ -77,6 +78,32 @@ export const AppEvmBalancesLoading = memo<{ publicKeyHash: HexString }>(({ publi
         assetsSlugs.map(assetSlug => ({ network, assetSlug }))
       ),
     [manualAssetsByChainId]
+  );
+
+  const isGoldrushDataFresh = useCallback(
+    async (data: BalancesResponse, chainId: number) => {
+      const network = enabledEvmChainsByIds[chainId];
+
+      if (!network || !data.chain_tip_signed_at) {
+        return false;
+      }
+
+      try {
+        const latestApiIndexedBlockTimestamp = new Date(data.chain_tip_signed_at).getTime();
+
+        const publicClient = getViemPublicClient(network);
+        const latestBlock = await publicClient.getBlock();
+        const latestTimestampMs = Number(latestBlock.timestamp) * 1000;
+
+        const delta = Math.abs(latestTimestampMs - latestApiIndexedBlockTimestamp);
+
+        return delta <= EVM_BALANCES_SYNC_INTERVAL * 3;
+      } catch (err) {
+        console.warn('Failed to verify GoldRush freshness', err);
+        return false;
+      }
+    },
+    [enabledEvmChainsByIds]
   );
 
   const loadingStatesRef = useUpdatableRef(loadingStates);
@@ -147,9 +174,17 @@ export const AppEvmBalancesLoading = memo<{ publicKeyHash: HexString }>(({ publi
   const getEvmBalancesFromApi = useCallback(
     (walletAddress: string, chainId: ChainID) =>
       getEvmBalances(walletAddress, chainId)
-        .then(data => ({ data }))
+        .then(async data => {
+          if (!(await isGoldrushDataFresh(data, chainId))) {
+            console.warn(`GoldRush returned stale balances for chain ${chainId}, falling back to node fetch`);
+
+            return { error: new Error('GoldRush data is stale') };
+          }
+
+          return { data };
+        })
         .catch(error => ({ error })),
-    []
+    [isGoldrushDataFresh]
   );
   const getEvmBalancesFromChain = useGetBalancesFromChain(publicKeyHash, isSupportedChainId);
 
