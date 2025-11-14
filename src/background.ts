@@ -10,6 +10,7 @@ import { SHOULD_OPEN_LETS_EXCHANGE_MODAL_STORAGE_KEY, SIDE_VIEW_WAS_FORCED_STORA
 import { EnvVars, IS_SIDE_PANEL_AVAILABLE } from 'lib/env';
 import { fetchFromStorage, putToStorage } from 'lib/storage';
 import { start } from 'lib/temple/back/main';
+import { Vault } from 'lib/temple/back/vault';
 import { generateKeyPair } from 'lib/utils/ecdsa';
 
 import PackageJSON from '../package.json';
@@ -71,9 +72,14 @@ async function prepareAppIdentity() {
 if (IS_SIDE_PANEL_AVAILABLE) {
   (async () => {
     try {
-      const wasForced = await fetchFromStorage<boolean>(SIDE_VIEW_WAS_FORCED_STORAGE_KEY);
+      const [wasForced, vaultExists] = await Promise.all([
+        fetchFromStorage<boolean>(SIDE_VIEW_WAS_FORCED_STORAGE_KEY),
+        Vault.isExist()
+      ]);
 
-      if (!wasForced) {
+      // Forces side view after update from
+      // version, where it wasn't available
+      if (vaultExists && !wasForced) {
         await chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true });
         await putToStorage(SIDE_VIEW_WAS_FORCED_STORAGE_KEY, true);
       }
