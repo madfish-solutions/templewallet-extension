@@ -135,6 +135,7 @@ export const CreatePasswordForm = memo<CreatePasswordFormProps>(
           await putToStorage(REPLACE_REFERRALS_ENABLED, adsViewEnabled);
           await putToStorage(WEBSITES_ANALYTICS_ENABLED, adsViewEnabled);
           await putToStorage(SHOULD_OPEN_LETS_EXCHANGE_MODAL_STORAGE_KEY, false);
+          await putToStorage(SHOULD_DISABLE_NOT_ACTIVE_NETWORKS_STORAGE_KEY, true);
 
           if (adsViewEnabled && analyticsEnabled) {
             trackEvent('AnalyticsAndAdsEnabled', AnalyticsEventCategory.General, { accountPkh }, true);
@@ -144,7 +145,6 @@ export const CreatePasswordForm = memo<CreatePasswordFormProps>(
           }
 
           if (mnemonicToImport) {
-            await putToStorage(SHOULD_DISABLE_NOT_ACTIVE_NETWORKS_STORAGE_KEY, true);
             setInitToast(t(backupPassword ? 'yourWalletIsReady' : 'importSuccessful'));
             navigate('/loading');
           } else if (!googleAuthToken) {
