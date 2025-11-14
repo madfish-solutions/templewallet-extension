@@ -1,16 +1,13 @@
 import React, { FC, useCallback, useEffect, useMemo, useState } from 'react';
 
-import { LiFiStep } from '@lifi/sdk';
+import { LiFiStep, StatusResponse } from '@lifi/sdk';
 import retry from 'async-retry';
 import BigNumber from 'bignumber.js';
 import { FormProvider } from 'react-hook-form-v7';
-import { isAddress } from 'viem';
+import { TransactionRequest, isAddress } from 'viem';
 
 import { useLedgerApprovalModalState } from 'app/hooks/use-ledger-approval-modal-state';
 import { useEvmEstimationData } from 'app/pages/Send/hooks/use-evm-estimation-data';
-import { EvmStepReviewData } from 'app/pages/Swap/form/interfaces';
-import { formatDuration, getBufferedExecutionDuration } from 'app/pages/Swap/form/utils';
-import { mapLiFiTxToEvmEstimationData, parseTxRequestToViem, timeout } from 'app/pages/Swap/modals/ConfirmSwap/utils';
 import { dispatch } from 'app/store';
 import { putNewEvmTokenAction } from 'app/store/evm/assets/actions';
 import { processLoadedOnchainBalancesAction } from 'app/store/evm/balances/actions';
@@ -32,11 +29,22 @@ import { runConnectedLedgerOperationFlow } from 'lib/ui';
 import { showTxSubmitToastWithDelay } from 'lib/ui/show-tx-submit-toast.util';
 import { isEvmNativeTokenSlug } from 'lib/utils/evm.utils';
 import { ZERO } from 'lib/utils/numbers';
+import { getViemPublicClient } from 'temple/evm';
 import { useGetEvmActiveBlockExplorer } from 'temple/front/ready';
 import { makeBlockExplorerHref } from 'temple/front/use-block-explorers';
-import { TempleChainKind } from 'temple/types';
+import { AssetsAmounts, TempleChainKind } from 'temple/types';
+
+import {
+  EvmStepReviewData,
+  Route3EvmRoute,
+  getCommonStepProps,
+  isLifiStep,
+  isRoute3EvmStep
+} from '../../form/interfaces';
+import { formatDuration, getBufferedExecutionDuration } from '../../form/utils';
 
 import { BaseContent } from './BaseContent';
+import { mapLiFiTxToEvmEstimationData, parseTxRequestToViem, timeout } from './utils';
 
 interface EvmContentProps {
   stepReviewData: EvmStepReviewData;
@@ -46,6 +54,11 @@ interface EvmContentProps {
   skipStatusWait?: boolean;
   submitDisabled?: boolean;
 }
+
+const swapNotConfirmedError = new Error(
+  `This transaction wasn’t confirmed because the gas price is to low and didn’t meet network demand. Increase it to \
+speed up confirmation and try again.`
+);
 
 export const EvmContent: FC<EvmContentProps> = ({
   stepReviewData,
@@ -64,21 +77,18 @@ export const EvmContent: FC<EvmContentProps> = ({
     minimumReceived,
     routeStep
   } = stepReviewData;
+  const { fromAmount, fromToken, toToken, txDestination: txTo } = getCommonStepProps(routeStep);
 
   const accountPkh = account.address as HexString;
   const isLedgerAccount = account.type === TempleAccountType.Ledger;
 
   const inputTokenSlug = useMemo(() => {
-    return EVM_ZERO_ADDRESS === routeStep.action.fromToken.address
-      ? EVM_TOKEN_SLUG
-      : toTokenSlug(routeStep.action.fromToken.address, 0);
-  }, [routeStep.action.fromToken.address]);
+    return EVM_ZERO_ADDRESS === fromToken.address ? EVM_TOKEN_SLUG : toTokenSlug(fromToken.address, 0);
+  }, [fromToken.address]);
 
   const outputTokenSlug = useMemo(() => {
-    return EVM_ZERO_ADDRESS === routeStep.action.toToken.address
-      ? EVM_TOKEN_SLUG
-      : toTokenSlug(routeStep.action.toToken.address, 0);
-  }, [routeStep.action.toToken.address]);
+    return EVM_ZERO_ADDRESS === toToken.address ? EVM_TOKEN_SLUG : toTokenSlug(toToken.address, 0);
+  }, [toToken.address]);
 
   const { sendEvmTransaction } = useTempleClient();
   const { value: ethBalance = ZERO } = useEvmAssetBalance(EVM_TOKEN_SLUG, accountPkh, inputNetwork);
@@ -94,7 +104,6 @@ export const EvmContent: FC<EvmContentProps> = ({
 
   const { value: balance = ZERO } = useEvmAssetBalance(inputTokenSlug, accountPkh, inputNetwork);
 
-  const txTo = routeStep?.transactionRequest?.to as HexString | undefined;
   const isValidTxTo = Boolean(txTo && isAddress(txTo));
 
   const {
@@ -109,23 +118,32 @@ export const EvmContent: FC<EvmContentProps> = ({
     balance,
     ethBalance,
     toFilled: isValidTxTo && !stepFinalized && !submitLoading && !cancelledRef?.current,
-    amount: atomsToTokens(
-      new BigNumber(routeStep.action.fromAmount),
-      routeStep.action.fromToken.decimals ?? 0
-    ).toString(),
+    amount: atomsToTokens(fromAmount, fromToken.decimals ?? 0).toFixed(),
     silent: true
   });
 
   const lifiEstimationData = useMemo(() => {
-    if (!estimationData || !routeStep.transactionRequest) return undefined;
-    const mappedLifiEstimation = mapLiFiTxToEvmEstimationData(routeStep.transactionRequest);
+    let gas: bigint | undefined;
+
+    if (!estimationData) return undefined;
+
+    if (isLifiStep(routeStep)) {
+      if (!routeStep.transactionRequest) return undefined;
+
+      const mappedLifiEstimation = mapLiFiTxToEvmEstimationData(routeStep.transactionRequest);
+      if ('gas' in mappedLifiEstimation) {
+        gas = mappedLifiEstimation.gas;
+      }
+    } else {
+      gas = BigInt(routeStep.gas);
+    }
 
     return {
       ...estimationData,
-      gas: 'gas' in mappedLifiEstimation ? mappedLifiEstimation.gas : estimationData?.gas,
+      gas: gas ?? estimationData?.gas,
       nonce: estimationData.nonce
     };
-  }, [estimationData, routeStep.transactionRequest]);
+  }, [estimationData, routeStep]);
 
   const {
     form,
@@ -143,24 +161,29 @@ export const EvmContent: FC<EvmContentProps> = ({
     useLedgerApprovalModalState();
 
   const balancesChanges = useMemo(() => {
-    const input = {
-      [inputTokenSlug]: {
-        atomicAmount: new BigNumber(-routeStep.estimate.fromAmount),
-        isNft: false
-      }
-    };
+    let input: AssetsAmounts;
+    let output: AssetsAmounts;
+    if (isLifiStep(routeStep)) {
+      input = {
+        [inputTokenSlug]: { atomicAmount: new BigNumber(-routeStep.estimate.fromAmount), isNft: false }
+      };
 
-    const output = {
-      [outputTokenSlug]: {
-        atomicAmount: new BigNumber(routeStep.estimate.toAmount),
-        isNft: false
-      }
-    };
+      output = {
+        [outputTokenSlug]: { atomicAmount: new BigNumber(routeStep.estimate.toAmount), isNft: false }
+      };
 
-    if (destinationChainGasTokenAmount?.gt(0) && outputNetwork?.currency.address) {
-      output[outputNetwork.currency.address] = {
-        atomicAmount: tokensToAtoms(destinationChainGasTokenAmount, outputNetwork.currency.decimals),
-        isNft: false
+      if (destinationChainGasTokenAmount?.gt(0) && outputNetwork?.currency.address) {
+        output[outputNetwork.currency.address] = {
+          atomicAmount: tokensToAtoms(destinationChainGasTokenAmount, outputNetwork.currency.decimals),
+          isNft: false
+        };
+      }
+    } else {
+      input = {
+        [inputTokenSlug]: { atomicAmount: new BigNumber(-routeStep.fromAmount), isNft: false }
+      };
+      output = {
+        [outputTokenSlug]: { atomicAmount: new BigNumber(routeStep.toAmount), isNft: false }
       };
     }
 
@@ -170,47 +193,56 @@ export const EvmContent: FC<EvmContentProps> = ({
     outputNetwork?.currency.address,
     outputNetwork?.currency.decimals,
     inputTokenSlug,
-    routeStep.estimate.fromAmount,
-    routeStep.estimate.toAmount,
+    routeStep,
     outputTokenSlug
   ]);
 
   const bridgeData = useMemo(() => {
-    if (!outputNetwork || !inputNetwork) return undefined;
+    if (!outputNetwork || !inputNetwork || isRoute3EvmStep(routeStep)) return undefined;
     const info = {
       inputNetwork,
       outputNetwork,
-      executionTime: formatDuration(getBufferedExecutionDuration(routeStep?.estimate?.executionDuration)),
+      executionTime: formatDuration(getBufferedExecutionDuration(routeStep.estimate?.executionDuration)),
       protocolFee,
       destinationChainGasTokenAmount: destinationChainGasTokenAmount
     };
     return inputNetwork?.chainId !== outputNetwork?.chainId ? info : undefined;
-  }, [
-    destinationChainGasTokenAmount,
-    inputNetwork,
-    outputNetwork,
-    protocolFee,
-    routeStep?.estimate?.executionDuration
-  ]);
+  }, [destinationChainGasTokenAmount, inputNetwork, outputNetwork, protocolFee, routeStep]);
 
   const executeRouteStep = useCallback(
-    async (step: LiFiStep, { gasPrice, gasLimit, nonce }: Partial<EvmTxParamsFormData>) => {
+    async (step: LiFiStep | Route3EvmRoute, { gasPrice, gasLimit, nonce }: Partial<EvmTxParamsFormData>) => {
       if (cancelledRef?.current) return;
-      const transactionRequest = step.transactionRequest;
-      if (!transactionRequest) {
-        console.error(`No transactionRequest found for step ${step.tool}`);
-        return;
+
+      let txParams: TransactionRequest | null = null;
+      if (isLifiStep(step)) {
+        const transactionRequest = step.transactionRequest;
+        if (!transactionRequest) {
+          console.error(`No transactionRequest found for step ${step.tool}`);
+          return;
+        }
+
+        txParams = parseTxRequestToViem({
+          ...transactionRequest,
+          ...(gasPrice ? { gasPrice } : {}),
+          ...(gasLimit ? { gasLimit } : {}),
+          ...(nonce ? { nonce: Number(nonce) } : {})
+        });
+      } else {
+        const { fromAddress, txDestination, gas, txData, fromAmount, fromToken } = step;
+        txParams = {
+          from: fromAddress,
+          to: txDestination,
+          gas: BigInt(gas),
+          data: txData,
+          value: BigInt(fromToken.address === EVM_ZERO_ADDRESS ? fromAmount : '0'),
+          ...(gasPrice ? { gasPrice: BigInt(gasPrice) } : {}),
+          ...(gasLimit ? { gasLimit: BigInt(gasLimit) } : {}),
+          ...(nonce ? { nonce: Number(nonce) } : {})
+        };
       }
 
-      const txParams = parseTxRequestToViem({
-        ...transactionRequest,
-        ...(gasPrice ? { gasPrice: gasPrice } : {}),
-        ...(gasLimit ? { gasLimit } : {}),
-        ...(nonce ? { nonce: Number(nonce) } : {})
-      });
-
       if (!txParams) {
-        console.error(`Failed to parse transactionRequest for step ${step.tool}`);
+        console.error(`Failed to parse transactionRequest for step ${isLifiStep(step) ? step.tool : '3Route'}`);
         return;
       }
 
@@ -226,29 +258,42 @@ export const EvmContent: FC<EvmContentProps> = ({
         return;
       }
 
-      let status;
-      do {
-        if (cancelledRef?.current) return;
+      let status: StatusResponse['status'];
+      if (isLifiStep(step)) {
+        do {
+          if (cancelledRef?.current) return;
+          try {
+            const result = await retry(
+              async () =>
+                await getEvmSwapStatus({
+                  txHash,
+                  fromChain: step.action.fromChainId,
+                  toChain: step.action.toChainId,
+                  bridge: step.tool
+                }),
+              { retries: 5, minTimeout: 2000 }
+            );
+            status = result.status;
+          } catch {
+            throw swapNotConfirmedError;
+          }
+
+          await new Promise(resolve => setTimeout(resolve, 5000));
+        } while (status !== 'DONE' && status !== 'FAILED');
+      } else {
+        const evmToolkit = getViemPublicClient(inputNetwork);
         try {
-          const result = await retry(
-            async () =>
-              await getEvmSwapStatus({
-                txHash,
-                fromChain: step.action.fromChainId,
-                toChain: step.action.toChainId,
-                bridge: step.tool
-              }),
+          status = await retry(
+            async () => {
+              const result = await evmToolkit.waitForTransactionReceipt({ hash: txHash });
+              return result.status === 'success' ? 'DONE' : 'FAILED';
+            },
             { retries: 5, minTimeout: 2000 }
           );
-          status = result.status;
-        } catch (_err) {
-          throw new Error(
-            'This transaction wasn’t confirmed because the gas price is to low and didn’t meet network demand. Increase it to speed up confirmation and try again.'
-          );
+        } catch {
+          throw swapNotConfirmedError;
         }
-
-        await new Promise(resolve => setTimeout(resolve, 5000));
-      } while (status !== 'DONE' && status !== 'FAILED');
+      }
 
       if (status === 'FAILED') {
         toastError('Transaction failed', true, {

@@ -58,6 +58,11 @@ export interface EvmNativeTokenMetadata
   address: typeof EVM_TOKEN_SLUG;
 }
 
+export interface Route3EvmTokenMetadata extends EvmTokenMetadata {
+  priceUSD?: string;
+  logoURI?: string;
+}
+
 export interface LifiEvmTokenMetadata extends EvmTokenMetadata {
   priceUSD: string;
   logoURI?: string;

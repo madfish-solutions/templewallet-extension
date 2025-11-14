@@ -4,6 +4,7 @@ import { TempleToken } from 'lib/assets/known-tokens';
 export const ROUTE3_CONTRACT = 'KT1V5XKmeypanMS9pR65REpqmVejWBZURuuT';
 export const LIQUIDITY_BAKING_PROXY_CONTRACT = 'KT1DJRF7pTocLsoVgA9KQPBtrDrbzNUceSFK';
 export const ROUTING_FEE_ADDRESS = 'tz1UbRzhYjQKTtWYvGUWcRtVT4fN3NESDVYT';
+export const ROUTING_FEE_EVM_ADDRESS = '0x3d7F458494A020dB3280e6f1C182B6b69862ce25';
 
 export const ROUTING_FEE_RATIO = 0.006;
 export const SWAP_CASHBACK_RATIO = 0.003;
