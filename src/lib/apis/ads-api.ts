@@ -150,6 +150,10 @@ export async function postReactivationCheck(tezos: string[]): Promise<{ eligible
   return data;
 }
 
+export const fetchEnableInternalHypelabAds = withAxiosDataExtract(() =>
+  axiosClient.get<boolean>(`/ads-rules/${APP_VERSION}/enable-internal-hypelab-ads`)
+);
+
 interface TekeadsAffiliateResponse {
   data: AffiliateLink[];
 }
