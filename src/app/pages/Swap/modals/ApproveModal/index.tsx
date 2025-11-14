@@ -13,9 +13,6 @@ import { useLedgerApprovalModalState } from 'app/hooks/use-ledger-approval-modal
 import { ReactComponent as LinkIcon } from 'app/icons/base/link.svg';
 import { ReactComponent as OutLinkIcon } from 'app/icons/base/outLink.svg';
 import { useEvmEstimationData } from 'app/pages/Send/hooks/use-evm-estimation-data';
-import LiFiImgSrc from 'app/pages/Swap/form/assets/lifi.png';
-import { EvmStepReviewData } from 'app/pages/Swap/form/interfaces';
-import { parseTxRequestToViem, timeout } from 'app/pages/Swap/modals/ConfirmSwap/utils';
 import { EvmTransactionView } from 'app/templates/EvmTransactionView';
 import { LedgerApprovalModal } from 'app/templates/ledger-approval-modal';
 import { erc20ApproveAbi } from 'lib/abi/erc20';
@@ -26,12 +23,22 @@ import { T } from 'lib/i18n';
 import { getHumanErrorMessage } from 'lib/temple/error-messages';
 import { useTempleClient } from 'lib/temple/front';
 import { atomsToTokens } from 'lib/temple/helpers';
-import { EvmTransactionRequestWithSender, TempleAccountType, TempleEvmDAppTransactionPayload } from 'lib/temple/types';
+import {
+  EvmTransactionRequestWithSender,
+  SerializedEvmEstimationDataWithFallback,
+  TempleAccountType,
+  TempleEvmDAppTransactionPayload
+} from 'lib/temple/types';
 import { runConnectedLedgerOperationFlow } from 'lib/ui';
 import { showTxSubmitToastWithDelay } from 'lib/ui/show-tx-submit-toast.util';
 import { ZERO } from 'lib/utils/numbers';
 import { useGetEvmActiveBlockExplorer } from 'temple/front/ready';
 import { TempleChainKind } from 'temple/types';
+
+import Route3ImgSrc from '../../form/assets/3route.png';
+import LiFiImgSrc from '../../form/assets/lifi.png';
+import { EvmStepReviewData, getCommonStepProps, isLifiStep } from '../../form/interfaces';
+import { parseTxRequestToViem, timeout } from '../ConfirmSwap/utils';
 
 interface ApproveModalProps {
   stepReviewData: EvmStepReviewData;
@@ -40,10 +47,13 @@ interface ApproveModalProps {
   submitDisabled?: boolean;
 }
 
-const LIFI = 'https://li.fi/';
-
 const ApproveModal: FC<ApproveModalProps> = ({ stepReviewData, onClose, onStepCompleted, submitDisabled }) => {
   const { account, inputNetwork, routeStep } = stepReviewData;
+  const currentStepIsLifi = isLifiStep(routeStep);
+  const appName = currentStepIsLifi ? 'li.fi' : '3Route';
+  const appUrl = currentStepIsLifi ? 'https://li.fi/' : 'https://3route.io/';
+  const accountAddress = account.address as HexString;
+  const { approvalAddress, fromAmount, fromToken, fromAddress } = getCommonStepProps(routeStep);
 
   const [loading, setLoading] = useState(false);
 
@@ -58,36 +68,29 @@ const ApproveModal: FC<ApproveModalProps> = ({ stepReviewData, onClose, onStepCo
     return encodeFunctionData({
       abi: [erc20ApproveAbi],
       functionName: 'approve',
-      args: [routeStep.estimate.approvalAddress as HexString, BigInt(routeStep.action.fromAmount)]
+      args: [approvalAddress as HexString, BigInt(fromAmount)]
     });
-  }, [routeStep.action.fromAmount, routeStep.estimate.approvalAddress]);
+  }, [fromAmount, approvalAddress]);
 
-  const assetSlug = useMemo(
-    () => toTokenSlug(routeStep.action.fromToken.address, 0),
-    [routeStep.action.fromToken.address]
-  );
+  const assetSlug = useMemo(() => toTokenSlug(fromToken.address, 0), [fromToken.address]);
 
   const [finalEvmTransaction, setFinalEvmTransaction] = useState<EvmTransactionRequestWithSender>({
-    from: routeStep.action.fromAddress as HexString
+    from: fromAddress as HexString
   });
   const [latestSubmitError, setLatestSubmitError] = useState<string | nullish>(null);
 
   const amount = useMemo(
-    () =>
-      atomsToTokens(
-        new BigNumber(BigInt(routeStep.action.fromAmount).toString()),
-        routeStep.action.fromToken.decimals ?? 0
-      ).toString(),
-    [routeStep.action.fromAmount, routeStep.action.fromToken.decimals]
+    () => atomsToTokens(new BigNumber(fromAmount), fromToken.decimals ?? 0).toFixed(),
+    [fromAmount, fromToken.decimals]
   );
 
-  const { value: balance = ZERO } = useEvmAssetBalance(assetSlug, account.address as HexString, inputNetwork);
-  const { value: ethBalance = ZERO } = useEvmAssetBalance(EVM_TOKEN_SLUG, account.address as HexString, inputNetwork);
+  const { value: balance = ZERO } = useEvmAssetBalance(assetSlug, accountAddress, inputNetwork);
+  const { value: ethBalance = ZERO } = useEvmAssetBalance(EVM_TOKEN_SLUG, accountAddress, inputNetwork);
 
   const { data: estimationData } = useEvmEstimationData({
-    to: routeStep.estimate.approvalAddress as HexString,
+    to: approvalAddress as HexString,
     assetSlug: assetSlug,
-    accountPkh: account.address as HexString,
+    accountPkh: accountAddress,
     network: inputNetwork,
     balance,
     ethBalance,
@@ -98,27 +101,27 @@ const ApproveModal: FC<ApproveModalProps> = ({ stepReviewData, onClose, onStepCo
 
   const request = useMemo(() => {
     return {
-      to: routeStep.action.fromToken.address as HexString,
-      from: routeStep.action.fromAddress as HexString,
+      to: fromToken.address as HexString,
+      from: fromAddress as HexString,
       data: finalEvmTransaction?.data ? finalEvmTransaction.data : txData,
       value: toHex(BigInt(0)),
-      maxFeePerGas: estimationData?.maxFeePerGas !== undefined ? toHex(estimationData.maxFeePerGas) : undefined,
-      gas: estimationData?.gas !== undefined ? toHex(estimationData.gas) : undefined,
-      gasPrice: estimationData?.gasPrice !== undefined ? toHex(estimationData.gasPrice) : undefined
+      maxFeePerGas: estimationData?.maxFeePerGas === undefined ? undefined : toHex(estimationData.maxFeePerGas),
+      gas: estimationData?.gas === undefined ? undefined : toHex(estimationData.gas),
+      gasPrice: estimationData?.gasPrice === undefined ? undefined : toHex(estimationData.gasPrice)
     };
-  }, [estimationData, finalEvmTransaction, routeStep.action.fromToken.address, routeStep.action.fromAddress, txData]);
+  }, [estimationData, finalEvmTransaction, fromToken.address, fromAddress, txData]);
 
-  const payload = useMemo(() => {
+  const payload = useMemo<TempleEvmDAppTransactionPayload>(() => {
     return {
       type: 'confirm_operations' as const,
-      req: request,
-      estimationData,
+      req: request as EvmTransactionRequestWithSender,
+      estimationData: estimationData as SerializedEvmEstimationDataWithFallback | undefined,
       chainId: inputNetwork.chainId.toString(),
       chainType: TempleChainKind.EVM,
-      origin: LIFI,
-      appMeta: { name: 'li.fi' }
-    } as unknown as TempleEvmDAppTransactionPayload;
-  }, [request, estimationData, inputNetwork.chainId]);
+      origin: appUrl,
+      appMeta: { name: appName }
+    };
+  }, [request, estimationData, inputNetwork.chainId, appUrl, appName]);
 
   const onSubmit = useCallback(
     async (tx?: EvmTransactionRequestWithSender) => {
@@ -179,10 +182,10 @@ const ApproveModal: FC<ApproveModalProps> = ({ stepReviewData, onClose, onStepCo
           <div className="flex items-center">
             <Logo size={22} type="icon" />
             <IconBase Icon={LinkIcon} size={12} className="text-black -ml-1 mr-0.5" />
-            <img src={LiFiImgSrc} alt="lifi" className="w-6 h-6" />
+            <img src={currentStepIsLifi ? LiFiImgSrc : Route3ImgSrc} alt={appName} className="w-6 h-6" />
           </div>
-          <Anchor className="flex pl-1 items-center" href={LIFI}>
-            <span className="text-font-description-bold">{'li.fi'}</span>
+          <Anchor className="flex pl-1 items-center" href={appUrl}>
+            <span className="text-font-description-bold">{appName}</span>
             <IconBase Icon={OutLinkIcon} size={16} className="text-secondary" />
           </Anchor>
         </div>
@@ -195,7 +198,7 @@ const ApproveModal: FC<ApproveModalProps> = ({ stepReviewData, onClose, onStepCo
             setError={handleSubmitError}
             setFinalEvmTransaction={setFinalEvmTransaction}
             onSubmit={onSubmit}
-            minAllowance={BigInt(routeStep.action.fromAmount)}
+            minAllowance={BigInt(fromAmount)}
           />
         ) : (
           <PageLoader />

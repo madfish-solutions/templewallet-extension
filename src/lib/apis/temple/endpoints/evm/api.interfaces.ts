@@ -210,3 +210,39 @@ interface NftExternalData {
   external_url: string;
   attributes: NftCollectionAttribute[];
 }
+
+export interface Route3EvmTokenWithPrice {
+  address: HexString;
+  symbol: string;
+  name: string;
+  decimals: number;
+  logoURI?: string;
+  tags: string[] | null;
+  priceUSD?: string;
+}
+
+export interface Route3EvmRouteRequest {
+  src: string;
+  dst: string;
+  amount: string;
+  from: HexString;
+  slippage: string;
+  referrer?: HexString;
+  fee?: string;
+}
+
+export interface Route3EvmRoute {
+  fromAmount: string;
+  fromAmountUSD: string;
+  toAmount: string;
+  toAmountUSD: string;
+  fromAddress: HexString;
+  fromToken: Route3EvmTokenWithPrice;
+  toToken: Route3EvmTokenWithPrice;
+  stepsCount: number;
+  txDestination: HexString;
+  txData: HexString;
+  gas: string;
+  gasPrice: string;
+  toAmountMin: string;
+}

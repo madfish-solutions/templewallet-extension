@@ -4,6 +4,10 @@ import { LiFiStep } from '@lifi/sdk';
 
 import { useSelector } from 'app/store';
 import {
+  use3RouteEvmChainTokensMetadataSelector,
+  use3RouteEvmTokensMetadataRecordSelector
+} from 'app/store/evm/swap-3route-metadata/selectors';
+import {
   useLifiEvmChainTokensMetadataSelector,
   useLifiEvmTokensMetadataRecordSelector
 } from 'app/store/evm/swap-lifi-metadata/selectors';
@@ -17,6 +21,8 @@ import { toBigInt, ZERO } from 'lib/utils/numbers';
 import { getViemPublicClient } from 'temple/evm';
 import { useAllEvmChains } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
+
+import { Route3EvmRoute, getCommonStepProps } from '../../form/interfaces';
 
 export const useLifiEvmTokensSlugs = (chainId: number) => {
   const { metadata: lifiEvmTokensMetadataRecord, isLoading } = useLifiEvmChainTokensMetadataSelector(chainId);
@@ -32,6 +38,23 @@ export const useLifiEvmTokensSlugs = (chainId: number) => {
   return {
     isLoading,
     lifiTokenSlugs
+  };
+};
+
+export const use3RouteEvmTokensSlugs = (chainId: number) => {
+  const { metadata: route3EvmTokensMetadataRecord, isLoading } = use3RouteEvmChainTokensMetadataSelector(chainId);
+
+  const route3EvmTokenSlugs = useMemo(
+    () =>
+      Object.values(route3EvmTokensMetadataRecord ?? []).map(token => {
+        return token.address === EVM_ZERO_ADDRESS ? EVM_TOKEN_SLUG : toTokenSlug(token.address, 0);
+      }),
+    [route3EvmTokensMetadataRecord]
+  );
+
+  return {
+    isLoading,
+    route3EvmTokenSlugs
   };
 };
 
@@ -55,6 +78,30 @@ export const useLifiEvmAllTokensSlugs = () => {
   };
 };
 
+export const use3RouteEvmAllTokensSlugs = () => {
+  const metadataRecord = use3RouteEvmTokensMetadataRecordSelector();
+  const isLoading = useSelector(({ route3EvmTokensMetadata }) => route3EvmTokensMetadata.isLoading);
+
+  const route3EvmTokenSlugs = useMemo(
+    () =>
+      Object.entries(metadataRecord).flatMap(([chainIdStr, tokensBySlug]) =>
+        Object.values(tokensBySlug).map(token =>
+          toChainAssetSlug(
+            TempleChainKind.EVM,
+            Number(chainIdStr),
+            token.address === EVM_ZERO_ADDRESS ? EVM_TOKEN_SLUG : toTokenSlug(token.address, 0)
+          )
+        )
+      ),
+    [metadataRecord]
+  );
+
+  return {
+    isLoading,
+    route3EvmTokenSlugs
+  };
+};
+
 export const useFirstValue = <T,>(value: T): T => {
   const ref = useRef(value);
   return ref.current;
@@ -67,7 +114,7 @@ interface UseEvmAllowancesResult {
   error?: unknown;
 }
 
-export function useEvmAllowances(steps: LiFiStep[]): UseEvmAllowancesResult {
+export function useEvmAllowances(steps: LiFiStep[] | Route3EvmRoute[]): UseEvmAllowancesResult {
   const allEvmChains = useAllEvmChains();
 
   const [allowanceSufficient, setAllowanceSufficient] = useState<boolean[]>([]);
@@ -88,25 +135,25 @@ export function useEvmAllowances(steps: LiFiStep[]): UseEvmAllowancesResult {
       try {
         const results = await Promise.all(
           stableSteps.map(async step => {
-            const network = allEvmChains[Number(step.action.fromChainId)];
+            const { fromChainId, fromToken, fromAmount, fromAddress, approvalAddress } = getCommonStepProps(step);
+            const network = allEvmChains[fromChainId];
             const evmToolkit = network ? getViemPublicClient(network) : undefined;
+
             if (!network || !evmToolkit) return { sufficient: true, allowance: toBigInt(ZERO) };
 
-            if (EVM_ZERO_ADDRESS === step.action.fromToken.address) {
+            if (EVM_ZERO_ADDRESS === fromToken.address) {
               return { sufficient: true, allowance: toBigInt(ZERO) };
             }
 
-            const requiredAllowance = BigInt(step.action.fromAmount);
-
             const onChainAllowance = await evmToolkit.readContract({
-              address: step.action.fromToken.address as HexString,
+              address: fromToken.address as HexString,
               abi: [erc20AllowanceAbi],
               functionName: 'allowance',
-              args: [step.action.fromAddress as HexString, step.estimate.approvalAddress as HexString]
+              args: [fromAddress as HexString, approvalAddress as HexString]
             });
 
             return {
-              sufficient: onChainAllowance >= requiredAllowance,
+              sufficient: onChainAllowance >= BigInt(fromAmount),
               allowance: onChainAllowance
             };
           })

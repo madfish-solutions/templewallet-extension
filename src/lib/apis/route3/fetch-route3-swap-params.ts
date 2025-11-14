@@ -13,7 +13,10 @@ import {
 import { ROUTE3_BASE_URL } from './route3.api';
 
 const parser = (origJSON: string): ReturnType<(typeof JSON)['parse']> => {
-  const stringedJSON = origJSON.replace(/(input|output|tokenInAmount|tokenOutAmount)":\s*([-+Ee0-9.]+)/g, '$1":"$2"');
+  const stringedJSON = origJSON.replaceAll(
+    /(input|output|tokenInAmount|tokenOutAmount)":\s*([-+Ee0-9.]+)/g,
+    '$1":"$2"'
+  );
 
   return JSON.parse(stringedJSON);
 };
