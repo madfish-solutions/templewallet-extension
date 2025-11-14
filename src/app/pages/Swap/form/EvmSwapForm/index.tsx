@@ -20,7 +20,7 @@ import { EVM_ZERO_ADDRESS } from 'lib/constants';
 import { useAssetFiatCurrencyPrice } from 'lib/fiat-currency';
 import { t } from 'lib/i18n';
 import { getAssetSymbol, useGetEvmGasOrTokenMetadata } from 'lib/metadata';
-import { ROUTING_FEE_EVM_ADDRESS } from 'lib/route3/constants';
+import { ROUTING_FEE_EVM_ADDRESS, ROUTING_FEE_RATIO } from 'lib/route3/constants';
 import { atomsToTokens, tokensToAtoms } from 'lib/temple/helpers';
 import { ETHERLINK_MAINNET_CHAIN_ID } from 'lib/temple/types';
 import { useInterval } from 'lib/ui/hooks';
@@ -263,7 +263,7 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
               from: publicKeyHash,
               slippage: (params.slippage * 100).toString(),
               referrer: ROUTING_FEE_EVM_ADDRESS,
-              fee: '0.6'
+              fee: (ROUTING_FEE_RATIO * 100).toString()
             });
           } catch (error) {
             console.error('Error fetching 3Route EVM swap route:', error);

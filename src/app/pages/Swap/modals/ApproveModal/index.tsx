@@ -105,9 +105,9 @@ const ApproveModal: FC<ApproveModalProps> = ({ stepReviewData, onClose, onStepCo
       from: fromAddress as HexString,
       data: finalEvmTransaction?.data ? finalEvmTransaction.data : txData,
       value: toHex(BigInt(0)),
-      maxFeePerGas: estimationData?.maxFeePerGas === undefined ? undefined : toHex(estimationData.maxFeePerGas),
-      gas: estimationData?.gas === undefined ? undefined : toHex(estimationData.gas),
-      gasPrice: estimationData?.gasPrice === undefined ? undefined : toHex(estimationData.gasPrice)
+      maxFeePerGas: toOptionalHex(estimationData?.maxFeePerGas),
+      gas: toOptionalHex(estimationData?.gas),
+      gasPrice: toOptionalHex(estimationData?.gasPrice)
     };
   }, [estimationData, finalEvmTransaction, fromToken.address, fromAddress, txData]);
 
@@ -227,3 +227,5 @@ const ApproveModal: FC<ApproveModalProps> = ({ stepReviewData, onClose, onStepCo
 };
 
 export default ApproveModal;
+
+const toOptionalHex = (value: bigint | undefined) => (value === undefined ? undefined : toHex(value));
