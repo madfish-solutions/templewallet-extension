@@ -28,6 +28,8 @@ export interface BalancesResponse {
   quote_currency: string;
   /** * The timestamp when the response was generated. Useful to show data staleness to users. */
   updated_at: string;
+  /** * The timestamp of the latest signed block at the time this response was provided. */
+  chain_tip_signed_at?: string;
   /** * List of response items. */
   items: BalanceItem[];
 }
