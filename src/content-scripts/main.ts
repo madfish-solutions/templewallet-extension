@@ -180,6 +180,7 @@ window.addEventListener(
   'message',
   evt => {
     if (evt.source !== window) return;
+    if (evt.origin !== window.origin) return;
 
     const isTempleRequest = evt.data?.type === TemplePageMessageType.Request;
     const isBeaconRequest =

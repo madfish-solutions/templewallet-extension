@@ -17,7 +17,7 @@ export const evmBalancesReducer = createReducer<EvmBalancesStateInterface>(EvmBa
     const { balances: newBalances, timestamps: newTimestamps } = getTokenSlugBalanceRecords(
       data.items,
       chainId,
-      new Date(data.updated_at).getTime(),
+      new Date(data.chain_tip_signed_at ?? data.updated_at).getTime(),
       dataTimestamps[publicKeyHash][chainId],
       balancesAtomic[publicKeyHash][chainId],
       assetsToPreventBalanceErase
