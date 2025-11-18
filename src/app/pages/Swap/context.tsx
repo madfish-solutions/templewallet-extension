@@ -10,9 +10,7 @@ export interface SwapFormControl {
 export const SwapFormControlContext = createContext<MutableRefObject<SwapFormControl | null> | null>(null);
 
 export const useSwapFormControl = () => {
-  const ctx = useContext(SwapFormControlContext);
-  if (!ctx) {
-    throw new Error('SwapFormControlContext is not provided');
-  }
-  return ctx;
+  const context = useContext(SwapFormControlContext);
+  if (!context) throw new Error('SwapFormControlContext must be used within a SwapFormControlContext.Provider');
+  return context;
 };

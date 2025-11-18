@@ -105,7 +105,7 @@ const Send = memo<Props>(({ chainKind, chainId, assetSlug }) => {
         to: storedPending.to,
         amount: storedPending.amount,
         onConfirm: () => formControlRef.current?.resetForm()
-      } as ReviewData);
+      });
       setConfirmSendModalOpen();
       clearPending(PENDING_SEND_STORAGE_KEY);
 
@@ -120,7 +120,7 @@ const Send = memo<Props>(({ chainKind, chainId, assetSlug }) => {
       to: storedPending.to,
       amount: storedPending.amount,
       onConfirm: () => formControlRef.current?.resetForm()
-    } as ReviewData);
+    });
     setConfirmSendModalOpen();
     clearPending(PENDING_SEND_STORAGE_KEY);
   }, [

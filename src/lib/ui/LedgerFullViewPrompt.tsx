@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 
 import { LedgerImage, LedgerImageState, LedgerImageVariant } from 'app/atoms';
 import { PageModal } from 'app/atoms/PageModal';
@@ -13,14 +13,17 @@ export interface LedgerFullViewPromptModalProps {
 }
 
 export const LedgerFullViewPromptModal: React.FC<LedgerFullViewPromptModalProps> = ({ opened, onClose, onProceed }) => {
-  const promptSteps: React.ReactNode[] = [
-    'Check if your Ledger is plugged in',
-    <span key={1}>
-      Enable <span className="font-semibold">smart contract data</span> or{' '}
-      <span className="font-semibold">blind signing</span>
-    </span>,
-    'Continue in full screen mode'
-  ];
+  const promptSteps = useMemo(
+    () => [
+      'Check if your Ledger is plugged in',
+      <span key="step-2">
+        Enable <span className="font-semibold">smart contract data</span> or{' '}
+        <span className="font-semibold">blind signing</span>
+      </span>,
+      'Continue in full screen mode'
+    ],
+    []
+  );
 
   return (
     <PageModal
