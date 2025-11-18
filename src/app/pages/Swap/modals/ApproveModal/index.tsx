@@ -31,6 +31,7 @@ import {
 } from 'lib/temple/types';
 import { runConnectedLedgerOperationFlow } from 'lib/ui';
 import { showTxSubmitToastWithDelay } from 'lib/ui/show-tx-submit-toast.util';
+import { delay } from 'lib/utils';
 import { ZERO } from 'lib/utils/numbers';
 import { useGetEvmActiveBlockExplorer } from 'temple/front/ready';
 import { TempleChainKind } from 'temple/types';
@@ -38,7 +39,7 @@ import { TempleChainKind } from 'temple/types';
 import Route3ImgSrc from '../../form/assets/3route.png';
 import LiFiImgSrc from '../../form/assets/lifi.png';
 import { EvmStepReviewData, getCommonStepProps, isLifiStep } from '../../form/interfaces';
-import { parseTxRequestToViem, timeout } from '../ConfirmSwap/utils';
+import { parseTxRequestToViem } from '../ConfirmSwap/utils';
 
 interface ApproveModalProps {
   stepReviewData: EvmStepReviewData;
@@ -139,7 +140,7 @@ const ApproveModal: FC<ApproveModalProps> = ({ stepReviewData, onClose, onStepCo
         const txHash = await sendEvmTransaction(account.address as HexString, inputNetwork, txParams);
         const blockExplorer = getActiveBlockExplorer(inputNetwork.chainId.toString());
         showTxSubmitToastWithDelay(TempleChainKind.EVM, txHash, blockExplorer.url);
-        await timeout(1000);
+        await delay(1000);
 
         onStepCompleted();
       };

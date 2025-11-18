@@ -12,8 +12,6 @@ import {
   useLifiEvmTokensMetadataRecordSelector
 } from 'app/store/evm/swap-lifi-metadata/selectors';
 import { erc20AllowanceAbi } from 'lib/abi/erc20';
-import { toTokenSlug } from 'lib/assets';
-import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { toChainAssetSlug } from 'lib/assets/utils';
 import { EVM_ZERO_ADDRESS } from 'lib/constants';
 import { useMemoWithCompare } from 'lib/ui/hooks';
@@ -23,12 +21,14 @@ import { useAllEvmChains } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
 
 import { Route3EvmRoute, getCommonStepProps } from '../../form/interfaces';
+import { getTokenSlugFromEvmDexTokenAddress } from '../../utils';
 
 export const useLifiEvmTokensSlugs = (chainId: number) => {
   const { metadata: lifiEvmTokensMetadataRecord, isLoading } = useLifiEvmChainTokensMetadataSelector(chainId);
 
   const lifiTokenSlugs = useMemo(
-    () => Object.values(lifiEvmTokensMetadataRecord ?? []).map(token => toGasOrErc20TokenSlug(token.address)),
+    () =>
+      Object.values(lifiEvmTokensMetadataRecord ?? []).map(token => getTokenSlugFromEvmDexTokenAddress(token.address)),
     [lifiEvmTokensMetadataRecord]
   );
 
@@ -42,7 +42,10 @@ export const use3RouteEvmTokensSlugs = (chainId: number) => {
   const { metadata: route3EvmTokensMetadataRecord, isLoading } = use3RouteEvmChainTokensMetadataSelector(chainId);
 
   const route3EvmTokenSlugs = useMemo(
-    () => Object.values(route3EvmTokensMetadataRecord ?? []).map(token => toGasOrErc20TokenSlug(token.address)),
+    () =>
+      Object.values(route3EvmTokensMetadataRecord ?? []).map(token =>
+        getTokenSlugFromEvmDexTokenAddress(token.address)
+      ),
     [route3EvmTokensMetadataRecord]
   );
 
@@ -62,7 +65,7 @@ export const useLifiEvmAllTokensSlugs = () => {
         const chainId = Number(chainIdStr);
 
         return Object.values(tokensBySlug).map(token =>
-          toChainAssetSlug(TempleChainKind.EVM, chainId, toGasOrErc20TokenSlug(token.address))
+          toChainAssetSlug(TempleChainKind.EVM, chainId, getTokenSlugFromEvmDexTokenAddress(token.address))
         );
       }),
     [metadataRecord]
@@ -84,7 +87,7 @@ export const use3RouteEvmAllTokensSlugs = () => {
         const chainId = Number(chainIdStr);
 
         return Object.values(tokensBySlug).map(token =>
-          toChainAssetSlug(TempleChainKind.EVM, chainId, toGasOrErc20TokenSlug(token.address))
+          toChainAssetSlug(TempleChainKind.EVM, chainId, getTokenSlugFromEvmDexTokenAddress(token.address))
         );
       }),
     [metadataRecord]
@@ -173,6 +176,3 @@ export function useEvmAllowances(steps: LiFiStep[] | Route3EvmRoute[]): UseEvmAl
 
   return { allowanceSufficient, onChainAllowances, loading, error };
 }
-
-const toGasOrErc20TokenSlug = (address: HexString) =>
-  address === EVM_ZERO_ADDRESS ? EVM_TOKEN_SLUG : toTokenSlug(address, 0);
