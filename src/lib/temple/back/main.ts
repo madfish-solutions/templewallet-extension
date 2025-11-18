@@ -30,6 +30,7 @@ import { AdsViewerData, RewardsAddresses, TempleChainKind } from 'temple/types';
 import * as Actions from './actions';
 import * as Analytics from './analytics';
 import { intercom } from './defaults';
+import { markConfirmationWindowDetached } from './request-confirm';
 import { store, toFront } from './store';
 
 const frontStore = store.map(toFront);
@@ -225,6 +226,10 @@ const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<T
         type: TempleMessageType.SignResponse,
         result
       };
+
+    case TempleMessageType.ConfirmationWindowDetachRequest:
+      markConfirmationWindowDetached(req.id);
+      return { type: TempleMessageType.ConfirmationWindowDetachResponse };
 
     case TempleMessageType.ProvePossessionRequest:
       const proveResult = await Actions.provePossession(req.sourcePkh);
