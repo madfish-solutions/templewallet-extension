@@ -13,7 +13,7 @@ interface SwapFooterProps {
   error?: string;
   chainId: string | number;
   evm: boolean;
-  assetSlug: string;
+  assetSlug?: string;
   assetSymbol: string;
   assetDecimals: number;
   isFiatMode: boolean;
@@ -45,7 +45,7 @@ const SwapFooter: FC<SwapFooterProps> = ({
       <div className="flex-1 flex items-center">
         {error ? (
           <span className="text-font-description text-error whitespace-nowrap overflow-ellipsis">{error}</span>
-        ) : (
+        ) : assetSlug ? (
           <ConvertedInputAssetAmount
             chainId={chainId}
             assetSlug={assetSlug}
@@ -58,7 +58,7 @@ const SwapFooter: FC<SwapFooterProps> = ({
             toFiat={!isFiatMode}
             evm={evm}
           />
-        )}
+        ) : null}
       </div>
       {inputName === 'input' && (
         <Button
