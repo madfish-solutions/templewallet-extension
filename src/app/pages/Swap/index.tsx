@@ -1,10 +1,11 @@
-import React, { memo, Suspense, useCallback, useMemo, useState } from 'react';
+import React, { memo, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { IconBase } from 'app/atoms';
 import { PageLoader } from 'app/atoms/Loader';
 import { PageTitle } from 'app/atoms/PageTitle';
 import { ReactComponent as ManageIcon } from 'app/icons/base/manage.svg';
 import PageLayout from 'app/layouts/PageLayout';
+import { SwapFormControlContext, SwapFormControl } from 'app/pages/Swap/context';
 import { SwapForm } from 'app/pages/Swap/form/Form';
 import { SwapSelectAssetModal } from 'app/pages/Swap/modals/SwapSelectAsset';
 import { useAssetsFilterOptionsSelector } from 'app/store/assets-filter-options/selectors';
@@ -13,14 +14,23 @@ import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { parseChainAssetSlug, toChainAssetSlug } from 'lib/assets/utils';
 import { t } from 'lib/i18n';
 import { useStorage } from 'lib/temple/front';
-import { ETHEREUM_MAINNET_CHAIN_ID, TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
+import { ETHEREUM_MAINNET_CHAIN_ID, TEZOS_MAINNET_CHAIN_ID, TempleAccountType } from 'lib/temple/types';
 import { useBooleanState } from 'lib/ui/hooks';
+import { LEDGER_WEBHID_PENDING_PREFIX, useLedgerWebHidFullViewGuard } from 'lib/ui/ledger-webhid-guard';
+import { LedgerFullViewPromptModal } from 'lib/ui/LedgerFullViewPrompt';
 import { HistoryAction, navigate, useLocation } from 'lib/woozie';
-import { useAccountAddressForEvm, useAccountAddressForTezos } from 'temple/front';
+import { useAccountAddressForEvm, useAccountAddressForTezos, useAccountForEvm, useAccountForTezos } from 'temple/front';
+import { useEvmChainByChainId, useTezosChainByChainId } from 'temple/front/chains';
 import { TempleChainKind } from 'temple/types';
 
 import { SWAP_SLIPPAGE_TOLERANCE_STORAGE_KEY } from './constants';
-import { SwapFieldName, SwapReviewData } from './form/interfaces';
+import {
+  SwapFieldName,
+  SwapReviewData,
+  isSwapEvmReviewData,
+  SelectedChainAssets,
+  PendingSwapReview
+} from './form/interfaces';
 import { ConfirmSwapModal } from './modals/ConfirmSwap';
 import { SwapSettingsModal } from './modals/SwapSettings';
 
@@ -35,9 +45,11 @@ interface Props {
   to?: ChainSlug;
 }
 
-type SelectedChainAssets = { from: string; to: string | null } | { from: string | null; to: string };
+const PENDING_SWAP_STORAGE_KEY = `${LEDGER_WEBHID_PENDING_PREFIX}:swap`;
 
 const Swap = memo<Props>(() => {
+  const formControlRef = useRef<SwapFormControl | null>(null);
+  const { guard, readPending, clearPending, ledgerPromptProps } = useLedgerWebHidFullViewGuard();
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
   const [chainKindFrom, chainIdFrom, assetSlugFrom] = (searchParams.get('from') || '').split('/');
@@ -109,6 +121,62 @@ const Swap = memo<Props>(() => {
 
   const [reviewData, setReviewData] = useState<SwapReviewData>();
 
+  const evmAccount = useAccountForEvm();
+  const tezosAccount = useAccountForTezos();
+
+  const storedPending = useMemo(() => readPending<PendingSwapReview>(PENDING_SWAP_STORAGE_KEY), [readPending]);
+  const pendingEvmChainId = storedPending?.kind === TempleChainKind.EVM ? storedPending.chainId : undefined;
+  const pendingTezosChainId = storedPending?.kind === TempleChainKind.Tezos ? storedPending.chainId : undefined;
+  const evmNetworkForPending = useEvmChainByChainId(pendingEvmChainId ?? 0);
+  const tezosNetworkForPending = useTezosChainByChainId(pendingTezosChainId ?? '');
+
+  useEffect(() => {
+    if (!storedPending) return;
+
+    setSelectedChainAssets(storedPending.selectedChainAssets);
+
+    if (storedPending.kind === TempleChainKind.EVM) {
+      if (!evmAccount || !evmNetworkForPending) return;
+
+      setReviewData({
+        account: evmAccount,
+        network: evmNetworkForPending,
+        swapRoute: storedPending.swapRoute,
+        handleResetForm: () => formControlRef.current?.resetForm?.()
+      });
+      setConfirmSwapModalOpen();
+      clearPending(PENDING_SWAP_STORAGE_KEY);
+
+      return;
+    }
+
+    if (!tezosAccount || !tezosNetworkForPending) return;
+
+    setReviewData({
+      account: tezosAccount,
+      network: tezosNetworkForPending,
+      opParams: storedPending.opParams,
+      cashbackInTkey: storedPending.cashbackInTkey,
+      minimumReceived: storedPending.minimumReceived,
+      onConfirm: operation => {
+        formControlRef.current?.resetForm?.();
+        formControlRef.current?.setTezosOperation?.(operation);
+      }
+    });
+    setConfirmSwapModalOpen();
+    clearPending(PENDING_SWAP_STORAGE_KEY);
+  }, [
+    storedPending,
+    evmAccount,
+    tezosAccount,
+    evmNetworkForPending,
+    tezosNetworkForPending,
+    clearPending,
+    setConfirmSwapModalOpen,
+    formControlRef,
+    setSelectedChainAssets
+  ]);
+
   const handleAssetSelect = useCallback(
     (slug: string) => {
       navigate({ pathname: '/swap' }, HistoryAction.Replace);
@@ -155,12 +223,48 @@ const Swap = memo<Props>(() => {
     }
   }, [selectedChainAssets]);
 
+  const buildPendingReview = useCallback(
+    (data: SwapReviewData): PendingSwapReview =>
+      isSwapEvmReviewData(data)
+        ? {
+            kind: TempleChainKind.EVM,
+            chainId: data.network.chainId,
+            swapRoute: data.swapRoute,
+            selectedChainAssets
+          }
+        : {
+            kind: TempleChainKind.Tezos,
+            chainId: data.network.chainId,
+            opParams: data.opParams,
+            cashbackInTkey: data.cashbackInTkey,
+            minimumReceived: data.minimumReceived,
+            selectedChainAssets
+          },
+    [selectedChainAssets]
+  );
+
   const handleReview = useCallback(
     (data: SwapReviewData) => {
       setReviewData(data);
-      setConfirmSwapModalOpen();
+
+      const proceed = async () => {
+        if (data.account.type === TempleAccountType.Ledger) {
+          const persistable = buildPendingReview(data);
+          const redirected = await guard(data.account.type, {
+            persist: {
+              key: PENDING_SWAP_STORAGE_KEY,
+              data: persistable
+            }
+          });
+          if (redirected) return;
+        }
+
+        setConfirmSwapModalOpen();
+      };
+
+      void proceed();
     },
-    [setConfirmSwapModalOpen]
+    [buildPendingReview, guard, setConfirmSwapModalOpen]
   );
 
   const handleConfirmSlippageTolerance = useCallback(
@@ -182,20 +286,22 @@ const Swap = memo<Props>(() => {
       }
     >
       <Suspense fallback={<PageLoader stretch />}>
-        <SwapForm
-          chainKind={activeChainKind}
-          chainId={activeChainId}
-          activeField={activeField}
-          selectedChainAssets={selectedChainAssets}
-          slippageTolerance={slippageTolerance}
-          onReview={handleReview}
-          onSelectAssetClick={(field: SwapFieldName) => {
-            setActiveField(field);
-            setSelectAssetModalOpen();
-          }}
-          confirmSwapModalOpened={confirmSwapModalOpened}
-          handleToggleIconClick={handleToggleIconClick}
-        />
+        <SwapFormControlContext.Provider value={formControlRef}>
+          <SwapForm
+            chainKind={activeChainKind}
+            chainId={activeChainId}
+            activeField={activeField}
+            selectedChainAssets={selectedChainAssets}
+            slippageTolerance={slippageTolerance}
+            onReview={handleReview}
+            onSelectAssetClick={(field: SwapFieldName) => {
+              setActiveField(field);
+              setSelectAssetModalOpen();
+            }}
+            confirmSwapModalOpened={confirmSwapModalOpened}
+            handleToggleIconClick={handleToggleIconClick}
+          />
+        </SwapFormControlContext.Provider>
       </Suspense>
 
       <SwapSelectAssetModal
@@ -217,6 +323,7 @@ const Swap = memo<Props>(() => {
         reviewData={reviewData}
         onReview={handleReview}
       />
+      <LedgerFullViewPromptModal {...ledgerPromptProps} />
     </PageLayout>
   );
 });

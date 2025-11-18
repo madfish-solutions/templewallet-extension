@@ -63,3 +63,21 @@ export type SwapReviewData = TezosReviewData | EvmReviewData;
 
 export const isSwapEvmReviewData = (data: SwapReviewData): data is EvmReviewData =>
   data.network.kind === TempleChainKind.EVM;
+
+export type SelectedChainAssets = { from: string; to: string | null } | { from: string | null; to: string };
+
+export type PendingSwapReview =
+  | {
+      kind: TempleChainKind.EVM;
+      chainId: number;
+      swapRoute: Route;
+      selectedChainAssets: SelectedChainAssets;
+    }
+  | {
+      kind: TempleChainKind.Tezos;
+      chainId: string;
+      opParams: WalletParamsWithKind[];
+      cashbackInTkey?: string;
+      minimumReceived: { amount: string; symbol: string };
+      selectedChainAssets: SelectedChainAssets;
+    };

@@ -1,4 +1,4 @@
-import React, { memo, Suspense, useCallback, useRef, useState } from 'react';
+import React, { memo, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { PageTitle } from 'app/atoms';
 import { PageLoader } from 'app/atoms/Loader';
@@ -12,15 +12,19 @@ import {
   ETH_SEPOLIA_CHAIN_ID,
   ETHEREUM_MAINNET_CHAIN_ID,
   TEZOS_GHOSTNET_CHAIN_ID,
-  TEZOS_MAINNET_CHAIN_ID
+  TEZOS_MAINNET_CHAIN_ID,
+  TempleAccountType
 } from 'lib/temple/types';
 import { useBooleanState } from 'lib/ui/hooks';
-import { useAccountAddressForEvm } from 'temple/front';
+import { LEDGER_WEBHID_PENDING_PREFIX, useLedgerWebHidFullViewGuard } from 'lib/ui/ledger-webhid-guard';
+import { LedgerFullViewPromptModal } from 'lib/ui/LedgerFullViewPrompt';
+import { useAccountAddressForEvm, useAccountForTezos, useAccountForEvm } from 'temple/front';
+import { useTezosChainByChainId, useEvmChainByChainId } from 'temple/front/chains';
 import { TempleChainKind } from 'temple/types';
 
 import { SendFormControl, SendFormControlContext } from './context';
 import { Form } from './form';
-import { ReviewData } from './form/interfaces';
+import { PendingSendReview, ReviewData } from './form/interfaces';
 import { ConfirmSendModal } from './modals/ConfirmSend';
 import { SelectAssetModal } from './modals/SelectAsset';
 
@@ -30,7 +34,10 @@ interface Props {
   assetSlug?: string | null;
 }
 
+const PENDING_SEND_STORAGE_KEY = `${LEDGER_WEBHID_PENDING_PREFIX}:send`;
+
 const Send = memo<Props>(({ chainKind, chainId, assetSlug }) => {
+  const { guard, readPending, clearPending, ledgerPromptProps } = useLedgerWebHidFullViewGuard();
   const accountEvmAddress = useAccountAddressForEvm();
   const { filterChain } = useAssetsFilterOptionsSelector();
   const testnetModeEnabled = useTestnetModeEnabledSelector();
@@ -67,8 +74,64 @@ const Send = memo<Props>(({ chainKind, chainId, assetSlug }) => {
 
   const [selectAssetModalOpened, setSelectAssetModalOpen, setSelectAssetModalClosed] = useBooleanState(false);
   const [confirmSendModalOpened, setConfirmSendModalOpen, setConfirmSendModalClosed] = useBooleanState(false);
-
   const [reviewData, setReviewData] = useState<ReviewData>();
+
+  const storedPending = useMemo(() => readPending<PendingSendReview>(PENDING_SEND_STORAGE_KEY), [readPending]);
+  const pendingEvmChainId = useMemo(
+    () => (storedPending?.kind === TempleChainKind.EVM ? Number(storedPending.chainId) : undefined),
+    [storedPending]
+  );
+  const pendingTezosChainId = useMemo(
+    () => (storedPending?.kind === TempleChainKind.Tezos ? String(storedPending.chainId) : undefined),
+    [storedPending]
+  );
+  const evmNetworkForPending = useEvmChainByChainId(pendingEvmChainId ?? 0);
+  const tezosNetworkForPending = useTezosChainByChainId(pendingTezosChainId ?? '');
+  const evmAccount = useAccountForEvm();
+  const tezosAccount = useAccountForTezos();
+
+  useEffect(() => {
+    if (!storedPending) return;
+
+    const fallbackSlug = toChainAssetSlug(storedPending.kind, String(storedPending.chainId), storedPending.assetSlug);
+    setSelectedChainAssetSlug(storedPending.selectedChainAssetSlug ?? fallbackSlug);
+
+    if (storedPending.kind === TempleChainKind.EVM) {
+      if (!evmNetworkForPending || !evmAccount) return;
+      setReviewData({
+        account: evmAccount,
+        network: evmNetworkForPending,
+        assetSlug: storedPending.assetSlug,
+        to: storedPending.to,
+        amount: storedPending.amount,
+        onConfirm: () => formControlRef.current?.resetForm()
+      } as ReviewData);
+      setConfirmSendModalOpen();
+      clearPending(PENDING_SEND_STORAGE_KEY);
+
+      return;
+    }
+
+    if (!tezosNetworkForPending || !tezosAccount) return;
+    setReviewData({
+      account: tezosAccount,
+      network: tezosNetworkForPending,
+      assetSlug: storedPending.assetSlug,
+      to: storedPending.to,
+      amount: storedPending.amount,
+      onConfirm: () => formControlRef.current?.resetForm()
+    } as ReviewData);
+    setConfirmSendModalOpen();
+    clearPending(PENDING_SEND_STORAGE_KEY);
+  }, [
+    storedPending,
+    evmNetworkForPending,
+    tezosNetworkForPending,
+    evmAccount,
+    tezosAccount,
+    setConfirmSendModalOpen,
+    clearPending
+  ]);
 
   const handleAssetSelect = useCallback(
     (slug: string) => {
@@ -80,11 +143,29 @@ const Send = memo<Props>(({ chainKind, chainId, assetSlug }) => {
   );
 
   const handleReview = useCallback(
-    (data: ReviewData) => {
+    async (data: ReviewData) => {
       setReviewData(data);
+
+      if (data.account.type === TempleAccountType.Ledger) {
+        const redirected = await guard(data.account.type, {
+          persist: {
+            key: PENDING_SEND_STORAGE_KEY,
+            data: {
+              kind: data.network.kind,
+              chainId: data.network.chainId,
+              assetSlug: data.assetSlug,
+              to: data.to,
+              amount: data.amount,
+              selectedChainAssetSlug
+            }
+          }
+        });
+        if (redirected) return;
+      }
+
       setConfirmSendModalOpen();
     },
-    [setConfirmSendModalOpen]
+    [guard, selectedChainAssetSlug, setConfirmSendModalOpen]
   );
 
   return (
@@ -109,6 +190,7 @@ const Send = memo<Props>(({ chainKind, chainId, assetSlug }) => {
         onRequestClose={setConfirmSendModalClosed}
         reviewData={reviewData}
       />
+      <LedgerFullViewPromptModal {...ledgerPromptProps} />
     </PageLayout>
   );
 });

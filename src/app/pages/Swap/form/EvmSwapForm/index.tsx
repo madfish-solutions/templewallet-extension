@@ -6,6 +6,7 @@ import BigNumber from 'bignumber.js';
 import { FormProvider, useForm } from 'react-hook-form-v7';
 
 import { DeadEndBoundaryError } from 'app/ErrorBoundary';
+import { useSwapFormControl } from 'app/pages/Swap/context';
 import { BaseSwapForm } from 'app/pages/Swap/form/BaseSwapForm';
 import { getProtocolFeeForRouteStep } from 'app/pages/Swap/form/EvmSwapForm/utils';
 import { useFetchLifiEvmTokensSlugs } from 'app/pages/Swap/form/hooks';
@@ -60,6 +61,7 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
   if (!account) throw new DeadEndBoundaryError();
 
   const publicKeyHash = account.address as HexString;
+  const swapFormControl = useSwapFormControl();
 
   const [swapRoute, setSwapRoute] = useState<Route | null>(null);
   const [isRouteLoading, setIsRouteLoading] = useState(false);
@@ -171,6 +173,20 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
     setSwapRoute(null);
     void reset(defaultValues);
   }, [defaultValues, reset]);
+
+  useEffect(() => {
+    if (!swapFormControl) return;
+    const next = { ...(swapFormControl.current ?? {}), resetForm };
+    swapFormControl.current = next;
+
+    return () => {
+      if (swapFormControl.current?.resetForm === resetForm) {
+        const updated = { ...(swapFormControl.current ?? {}) };
+        delete updated.resetForm;
+        swapFormControl.current = updated;
+      }
+    };
+  }, [swapFormControl, resetForm]);
 
   const handleInputChange = useCallback(
     (newInputValue: SwapInputValue) => {
