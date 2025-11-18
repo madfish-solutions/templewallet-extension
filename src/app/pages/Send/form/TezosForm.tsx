@@ -7,7 +7,7 @@ import { FormProvider, useForm } from 'react-hook-form-v7';
 import { DeadEndBoundaryError } from 'app/ErrorBoundary';
 import { toastError } from 'app/toaster';
 import { useFormAnalytics } from 'lib/analytics';
-import { isTezAsset, TEZ_TOKEN_SLUG, toPenny } from 'lib/assets';
+import { isTezAsset, TEZ_TOKEN_SLUG, toPenny, fromAssetSlug } from 'lib/assets';
 import { useTezosAssetBalance } from 'lib/balances';
 import { RECOMMENDED_ADD_TEZ_GAS_FEE, TEZ_BURN_ADDRESS } from 'lib/constants';
 import { useAssetFiatCurrencyPrice } from 'lib/fiat-currency';
@@ -30,11 +30,10 @@ import {
 
 import { useSendFormControl } from '../context';
 import { useTezosEstimationData } from '../hooks/use-tezos-estimation-data';
-import { showEstimationError } from '../utils';
 
 import { BaseForm } from './BaseForm';
 import { ReviewData, SendFormData } from './interfaces';
-import { getBaseFeeError, getFeeError, getMaxAmountFiat } from './utils';
+import { getMaxAmountFiat } from './utils';
 
 interface Props {
   chainId: string;
@@ -109,11 +108,7 @@ export const TezosForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, o
     return false;
   }, [allAccounts, contacts, toFilled, toResolved]);
 
-  const {
-    data: estimationData,
-    error: estimationDataError,
-    isValidating: estimating
-  } = useTezosEstimationData({
+  const { data: estimationData, isValidating: estimating } = useTezosEstimationData({
     to: toResolved,
     tezos,
     chainId,
@@ -135,12 +130,9 @@ export const TezosForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, o
     balance,
     tezBalance,
     assetMetadata,
-    toFilled: true,
-    silent: true
+    toFilled: true
   });
 
-  const feeError = getBaseFeeError(estimationData?.baseFee, estimationDataError);
-  const estimationError = getFeeError(estimating, feeError);
   const tezosGasMetadata = useTezosGasMetadata(chainId);
 
   const maxAmount = useMemo(() => {
@@ -214,16 +206,25 @@ export const TezosForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, o
     async ({ amount }: SendFormData) => {
       if (formState.isSubmitting) return;
 
-      if (estimationError) {
-        showEstimationError(estimationDataError);
-        return;
-      }
+      const actualAmount = shouldUseFiat ? toAssetAmount(amount) : amount;
 
-      formAnalytics.trackSubmit();
+      const contract = isTezAsset(assetSlug)
+        ? 'gas'
+        : (() => {
+            const [contractAddress] = fromAssetSlug(assetSlug);
+            return contractAddress;
+          })();
+
+      const analyticsPayload = {
+        network: network.name,
+        inputAsset: assetSymbol,
+        inputAmount: String(actualAmount),
+        contract
+      };
+
+      formAnalytics.trackSubmit(analyticsPayload);
 
       try {
-        const actualAmount = shouldUseFiat ? toAssetAmount(amount) : amount;
-
         onReview({
           account,
           assetSlug,
@@ -233,11 +234,11 @@ export const TezosForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, o
           onConfirm: resetForm
         });
 
-        formAnalytics.trackSubmitSuccess();
+        formAnalytics.trackSubmitSuccess(analyticsPayload);
       } catch (err: any) {
         console.error(err);
 
-        formAnalytics.trackSubmitFail();
+        formAnalytics.trackSubmitFail(analyticsPayload);
 
         toastError('Oops, Something went wrong!');
       }
@@ -245,7 +246,7 @@ export const TezosForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, o
     [
       account,
       assetSlug,
-      estimationError,
+      assetSymbol,
       formAnalytics,
       formState.isSubmitting,
       network,

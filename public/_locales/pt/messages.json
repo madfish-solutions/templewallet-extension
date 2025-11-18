@@ -617,9 +617,6 @@
       }
     }
   },
-  "notEnoughFunds": {
-    "message": "Não há fundos suficientes"
-  },
   "notEnoughCurrencyFunds": {
     "message": "Não há fundos de $currency$ suficientes",
     "placeholders": {
@@ -1392,9 +1389,6 @@
   },
   "emptyImplicitContract": {
     "message": "A sua conta está vazia. Deposite qualquer montante tez nesta conta para ativá-la"
-  },
-  "balanceTooLow": {
-    "message": "Saldo gas token baixo"
   },
   "swap": {
     "message": "Trocar"

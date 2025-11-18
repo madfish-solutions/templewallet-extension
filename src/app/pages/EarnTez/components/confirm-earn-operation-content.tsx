@@ -15,7 +15,6 @@ import { PageModalScrollViewWithActions } from 'app/templates/page-modal-scroll-
 import { TransactionTabs } from 'app/templates/TransactionTabs';
 import { TezosTxParamsFormData } from 'app/templates/TransactionTabs/types';
 import { useTezosEstimationForm } from 'app/templates/TransactionTabs/use-tezos-estimation-form';
-import { toastError } from 'app/toaster';
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
 import { useTezosAssetBalance } from 'lib/balances';
 import { T } from 'lib/i18n';
@@ -24,7 +23,6 @@ import { TezosEstimationData, TezosEstimationDataProvider } from 'lib/temple/fro
 import { TempleAccountType } from 'lib/temple/types';
 import { runConnectedLedgerOperationFlow } from 'lib/ui';
 import { ZERO } from 'lib/utils/numbers';
-import { serializeError } from 'lib/utils/serialize-error';
 import { getTezosToolkitWithSigner } from 'temple/front';
 
 import { TezosEarnReviewDataBase } from '../types';
@@ -134,12 +132,11 @@ const ConfirmEarnOperationContentBodyWrapper = <R extends TezosEarnReviewDataBas
   const { address: accountPkh, ownerAddress } = account;
 
   const isLedgerAccount = account.type === TempleAccountType.Ledger;
-  const [latestSubmitError, setLatestSubmitError] = useState<string | nullish>(null);
+  const [latestSubmitError, setLatestSubmitError] = useState<unknown>(null);
 
   const tezos = getTezosToolkitWithSigner(network, ownerAddress || accountPkh, true);
   const { value: tezBalance = ZERO } = useTezosAssetBalance(TEZ_TOKEN_SLUG, accountPkh, network);
   const { data: estimationData, error: estimationError } = useEstimationData(data, tezos, tezBalance);
-  const displayedEstimationError = useMemo(() => serializeError(estimationError), [estimationError]);
 
   const localGetBasicParams = useCallback(() => getBasicParams(data, tezos), [data, getBasicParams, tezos]);
   const { data: basicParams } = useTypedSWR(getBasicParamsSWRKey(data), localGetBasicParams);
@@ -153,13 +150,15 @@ const ConfirmEarnOperationContentBodyWrapper = <R extends TezosEarnReviewDataBas
     submitOperation,
     displayedFeeOptions,
     displayedFee,
-    displayedStorageFee
+    displayedStorageFee,
+    assertCustomGasFeeNotTooLow
   } = useTezosEstimationForm({
     estimationData,
     basicParams,
     senderAccount: account,
     network,
-    estimationDataLoading
+    estimationDataLoading,
+    isEstimationError: Boolean(estimationError)
   });
   const { formState } = form;
   useEffect(
@@ -170,13 +169,30 @@ const ConfirmEarnOperationContentBodyWrapper = <R extends TezosEarnReviewDataBas
   const { ledgerApprovalModalState, setLedgerApprovalModalState, handleLedgerModalClose } =
     useLedgerApprovalModalState();
 
+  const onSubmitError = useCallback(
+    (err: unknown) => {
+      console.error(err);
+      setLatestSubmitError(err);
+      setTab('error');
+    },
+    [setLatestSubmitError, setTab]
+  );
+
   const onSubmit = useCallback(
     async ({ gasFee, storageLimit }: TezosTxParamsFormData) => {
       try {
         if (formState.isSubmitting) return;
 
+        try {
+          assertCustomGasFeeNotTooLow(gasFee);
+        } catch (e) {
+          onSubmitError(e);
+
+          return;
+        }
+
         if (!estimationData || !displayedFeeOptions) {
-          toastError('Failed to estimate transaction.');
+          onSubmitError(estimationError);
 
           return;
         }
@@ -193,22 +209,21 @@ const ConfirmEarnOperationContentBodyWrapper = <R extends TezosEarnReviewDataBas
           await doOperation();
         }
       } catch (err: any) {
-        console.error(err);
-
-        setLatestSubmitError(err.errors ? JSON.stringify(err.errors) : err.message);
-        setTab('error');
+        onSubmitError(err);
       }
     },
     [
       displayedFeeOptions,
       estimationData,
+      estimationError,
       formState.isSubmitting,
       isLedgerAccount,
       setLedgerApprovalModalState,
       onConfirm,
-      setTab,
+      onSubmitError,
       submitOperation,
-      tezos
+      tezos,
+      assertCustomGasFeeNotTooLow
     ]
   );
 
@@ -238,7 +253,7 @@ const ConfirmEarnOperationContentBodyWrapper = <R extends TezosEarnReviewDataBas
             setSelectedTab={setTab}
             selectedFeeOption={selectedFeeOption}
             latestSubmitError={latestSubmitError}
-            estimationError={displayedEstimationError}
+            estimationError={estimationError}
             onFeeOptionSelect={handleFeeOptionSelect}
             onSubmit={onSubmit}
             displayedFeeOptions={displayedFeeOptions}

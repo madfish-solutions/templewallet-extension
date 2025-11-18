@@ -584,9 +584,6 @@
       }
     }
   },
-  "notEnoughFunds": {
-    "message": "Fonds insuffisants"
-  },
   "notEnoughCurrencyFunds": {
     "message": "fonds $currency$ insuffisants",
     "placeholders": {

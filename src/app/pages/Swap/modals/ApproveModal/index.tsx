@@ -15,7 +15,7 @@ import { ReactComponent as OutLinkIcon } from 'app/icons/base/outLink.svg';
 import { useEvmEstimationData } from 'app/pages/Send/hooks/use-evm-estimation-data';
 import LiFiImgSrc from 'app/pages/Swap/form/assets/lifi.png';
 import { EvmStepReviewData } from 'app/pages/Swap/form/interfaces';
-import { parseTxRequestToViem, timeout } from 'app/pages/Swap/modals/ConfirmSwap/utils';
+import { parseTxRequestToViem } from 'app/pages/Swap/modals/ConfirmSwap/utils';
 import { EvmTransactionView } from 'app/templates/EvmTransactionView';
 import { LedgerApprovalModal } from 'app/templates/ledger-approval-modal';
 import { erc20ApproveAbi } from 'lib/abi/erc20';
@@ -23,11 +23,13 @@ import { toTokenSlug } from 'lib/assets';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { useEvmAssetBalance } from 'lib/balances/hooks';
 import { T } from 'lib/i18n';
+import { getHumanErrorMessage } from 'lib/temple/error-messages';
 import { useTempleClient } from 'lib/temple/front';
 import { atomsToTokens } from 'lib/temple/helpers';
 import { EvmTransactionRequestWithSender, TempleAccountType, TempleEvmDAppTransactionPayload } from 'lib/temple/types';
 import { runConnectedLedgerOperationFlow } from 'lib/ui';
 import { showTxSubmitToastWithDelay } from 'lib/ui/show-tx-submit-toast.util';
+import { delay } from 'lib/utils';
 import { ZERO } from 'lib/utils/numbers';
 import { useGetEvmActiveBlockExplorer } from 'temple/front/ready';
 import { TempleChainKind } from 'temple/types';
@@ -135,7 +137,7 @@ const ApproveModal: FC<ApproveModalProps> = ({ stepReviewData, onClose, onStepCo
         const txHash = await sendEvmTransaction(account.address as HexString, inputNetwork, txParams);
         const blockExplorer = getActiveBlockExplorer(inputNetwork.chainId.toString());
         showTxSubmitToastWithDelay(TempleChainKind.EVM, txHash, blockExplorer.url);
-        await timeout(1000);
+        await delay(1000);
 
         onStepCompleted();
       };
@@ -165,6 +167,8 @@ const ApproveModal: FC<ApproveModalProps> = ({ stepReviewData, onClose, onStepCo
     ]
   );
 
+  const handleSubmitError = useCallback((error: unknown) => setLatestSubmitError(getHumanErrorMessage(error)), []);
+
   if (loading && !isLedgerAccount) {
     return <PageLoader stretch />;
   }
@@ -189,6 +193,7 @@ const ApproveModal: FC<ApproveModalProps> = ({ stepReviewData, onClose, onStepCo
             payload={payload}
             formId="swap-approve"
             error={null}
+            setError={handleSubmitError}
             setFinalEvmTransaction={setFinalEvmTransaction}
             onSubmit={onSubmit}
             minAllowance={BigInt(routeStep.action.fromAmount)}

@@ -40,6 +40,7 @@ interface OperationViewPropsBase<T extends TempleChainKind> {
   network: NetworkEssentials<T>;
   payload: DAppOperationsPayload<T>;
   error: any;
+  setError: SyncFn<any>;
   formId: string;
   onSubmit: EmptyFn;
 }
@@ -190,6 +191,7 @@ const PayloadContentHOC = <
     formId,
     onSubmit,
     openAccountsModal,
+    setError,
     extraProps,
     dismissConflict,
     showConflict
@@ -221,6 +223,7 @@ const PayloadContentHOC = <
               network={network}
               payload={payload}
               error={error}
+              setError={setError}
               formId={formId}
               onSubmit={onSubmit}
               {...extraProps}

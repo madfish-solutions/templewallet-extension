@@ -106,6 +106,15 @@ export const DEFAULT_EVM_CHAINS_SPECS: Record<string, EvmChainSpecs & { testnet:
       symbol: 'XTZ'
     }
   },
+  [COMMON_MAINNET_CHAIN_IDS.rootstock]: {
+    name: 'Rootstock',
+    testnet: false,
+    currency: {
+      ...DEFAULT_EVM_CURRENCY,
+      name: 'Rootstock Bitcoin',
+      symbol: 'RBTC'
+    }
+  },
   [ETH_SEPOLIA_CHAIN_ID]: {
     name: 'Ethereum Sepolia',
     currency: {
@@ -171,6 +180,15 @@ export const DEFAULT_EVM_CHAINS_SPECS: Record<string, EvmChainSpecs & { testnet:
       ...DEFAULT_EVM_CURRENCY,
       name: 'Ghostnet Tezos',
       symbol: 'XTZ'
+    },
+    testnet: true
+  },
+  [COMMON_TESTNET_CHAIN_IDS.rootstock]: {
+    name: 'Rootstock',
+    currency: {
+      ...DEFAULT_EVM_CURRENCY,
+      name: 'Rootstock Bitcoin',
+      symbol: 'tRBTC'
     },
     testnet: true
   }

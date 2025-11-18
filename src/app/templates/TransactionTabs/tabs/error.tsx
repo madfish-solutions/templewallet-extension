@@ -3,28 +3,29 @@ import React, { memo, useMemo } from 'react';
 import ReactJson from 'react-json-view';
 
 import { FadeTransition } from 'app/a11y/FadeTransition';
-import { CaptionAlert, CopyButton, IconBase, NoSpaceField } from 'app/atoms';
+import { Anchor, CaptionAlert, CopyButton, IconBase, NoSpaceField } from 'app/atoms';
 import { ReactComponent as CopyIcon } from 'app/icons/base/copy.svg';
-import { t } from 'lib/i18n';
+import { ReactComponent as OutLinkIcon } from 'app/icons/base/outLink.svg';
+import { T, t } from 'lib/i18n';
+import { getHumanErrorMessage } from 'lib/temple/error-messages';
+import { serializeError } from 'lib/utils/serialize-error';
 
 interface ErrorTabProps {
   isEvm: boolean;
-  submitError: string | nullish;
-  estimationError: string | nullish;
+  submitError: unknown;
+  estimationError: unknown;
 }
 
 export const ErrorTab = memo<ErrorTabProps>(({ isEvm, submitError, estimationError }) => {
-  const message = submitError || estimationError;
-  const showEstimationErrorMessage = !submitError && estimationError;
-  const parsedError = useMemo(() => {
-    try {
-      if (isEvm || !message) return null;
-
-      return JSON.parse(message);
-    } catch {
-      return null;
-    }
-  }, [isEvm, message]);
+  const error = submitError || estimationError;
+  const message = useMemo(() => serializeError(error), [error]);
+  const humanErrorMessage = useMemo(() => getHumanErrorMessage(error), [error]);
+  const showEstimationErrorMessage = !submitError && Boolean(estimationError);
+  const errorJson = isEvm
+    ? null
+    : typeof error === 'object' && error !== null && 'errors' in error
+    ? error.errors
+    : error;
 
   if (!message) return null;
 
@@ -33,9 +34,24 @@ export const ErrorTab = memo<ErrorTabProps>(({ isEvm, submitError, estimationErr
       <CaptionAlert
         type="error"
         title={showEstimationErrorMessage ? t('txCouldNotBeEstimated') : undefined}
-        message={t(showEstimationErrorMessage ? 'txCouldNotBeEstimatedDescription' : 'genericTxError')}
+        message={humanErrorMessage}
         textClassName="mt-1"
-      />
+      >
+        <div className="flex items-center text-font-description mt-0.5">
+          <T
+            id="getHelpLink"
+            substitutions={
+              <Anchor
+                href="https://docs.templewallet.com"
+                className="text-secondary px-1 py-0.5 flex items-center font-semibold"
+              >
+                <T id="support" />
+                <IconBase size={16} className="-m-1 -ml-0.5" Icon={OutLinkIcon} />
+              </Anchor>
+            }
+          />
+        </div>
+      </CaptionAlert>
 
       <div className="mt-3 mb-1 flex flex-row justify-between items-center">
         <p className="p-1 text-font-description-bold">Error Message</p>
@@ -45,10 +61,10 @@ export const ErrorTab = memo<ErrorTabProps>(({ isEvm, submitError, estimationErr
         </CopyButton>
       </div>
 
-      {parsedError ? (
+      {errorJson ? (
         <div className="w-full h-44 p-3 mb-3 bg-input-low rounded-lg overflow-scroll">
           <ReactJson
-            src={parsedError}
+            src={errorJson}
             name={null}
             iconStyle="square"
             indentWidth={4}

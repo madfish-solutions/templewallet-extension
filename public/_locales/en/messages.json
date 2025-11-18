@@ -1315,12 +1315,12 @@
     "message": "Changing the baker will automatically unstake all the existing staked balance. This balance will be finalizable after 4 cycles."
   },
   "newUnstakeInfo": {
-    "message": "Your unstake will be finalizable after 4 cycles. After that, you will need to finalize unstaked balances to make them spendable."
+    "message": "Unstaking takes 4 days to complete. Once 4 days have passed, your tez will become available as part of your spendable balance"
   },
   "unstakeInProgressTooltip": {
-    "message": "Unstake requests will be processed after $cycles$ validation cycles end. Finalize your unstaked TEZ here after cooldown period ends.",
+    "message": "Unstaking takes $daysCount$ days to complete. Once $daysCount$ days have passed, your TEZ will become available as part of your spendable balance",
     "placeholders": {
-      "cycles": {
+      "daysCount": {
         "content": "$1"
       }
     }
@@ -1376,7 +1376,7 @@
     "message": "Pending finalization"
   },
   "pendingFinalizationDescription": {
-    "message": "You have unstake requests with another baker. Wait for few cycles until it's ready to be finalized."
+    "message": "You have unstake requests with another baker. You must wait until the unstaking process is completed before you can stake again."
   },
   "finalizeUnstake": {
     "message": "Finalize Unstake"
@@ -1595,8 +1595,13 @@
       }
     }
   },
-  "notEnoughFunds": {
-    "message": "Not enough funds"
+  "getHelpLink": {
+    "message": "Get help: $link$",
+    "placeholders": {
+      "link": {
+        "content": "$1"
+      }
+    }
   },
   "notEnoughCurrencyFunds": {
     "message": "Not enough $currency$ funds",
@@ -2486,15 +2491,6 @@
   "actionConfirmation": {
     "message": "Confirm the action"
   },
-  "adsEnabledAlertTitle": {
-    "message": "Earn TKEY & Support Temple"
-  },
-  "adsEnabledAlertDescription": {
-    "message": "Congrats, you've started earning TKEY tokens!\nBy enabling this feature, you agreed to share your Wallet address and IP to receive tokens and view ads. You can turn ads off or on anytime in the settings."
-  },
-  "disableAdsModalTitle": {
-    "message": "Disable advertising?"
-  },
   "hideAd": {
     "message": "Hide Ad"
   },
@@ -2698,9 +2694,6 @@
   },
   "emptyImplicitContract": {
     "message": "Your account is empty. Deposit any tez amount on this account to activate it"
-  },
-  "balanceTooLow": {
-    "message": "Gas token balance is too low"
   },
   "insufficientGasBalanceOnChain": {
     "message": "Insufficient gas balance on $chain$",
@@ -3267,13 +3260,13 @@
     "message": "Did you know, you can earn TKEY tokens by viewing ads? If ads are turned off, you can easily enable them anytime in the settings and start earning rewards!"
   },
   "enablePartnersPromotionConfirm": {
-    "message": "Earn TKEY & Support Temple"
+    "message": "Earning TKEY has started"
   },
   "thanksForSupportingTemple": {
     "message": "Thanks for supporting Temple"
   },
   "enablePartnersPromotionDescriptionConfirm": {
-    "message": "Congrats, you've started earning TKEY tokens!\nBy enabling this feature, you agreed to share your Wallet address and IP to receive tokens and view ads. You can turn ads off or on anytime in the settings."
+    "message": "Congrats, you've started earning TKEY tokens! Note, rewards are paid automatically each month. Track your performance on Rewards page, and you can always opt out of promo content and data sharing here, in the settings. "
   },
   "ownAccount": {
     "message": "Own"
@@ -3467,7 +3460,7 @@
     "message": "Auto-Lock"
   },
   "partnersPromoSettings": {
-    "message": "Advertising"
+    "message": "Promo content"
   },
   "rewards": {
     "message": "Rewards"
@@ -3476,7 +3469,7 @@
     "message": "This is your account for Temple rewards. All payouts for activities will be distributed to this account addresses."
   },
   "partnersPromoDescription": {
-    "message": "Here you can configure displaying ads in Temple Wallet and getting reward in TKEY tokens. By enabling this, you agree to share your wallet address and IP to receive tokens and view ads."
+    "message": "Enable non-intrusive promo ads in your wallet and browser, join Temple rewards program and get paid in TKEY. If active, you agree to share your wallet address and IP to receive content and rewards."
   },
   "referralLinks": {
     "message": "Referral Links"
@@ -4161,10 +4154,10 @@
     "message": "Properties"
   },
   "closePartnersPromotion": {
-    "message": "Disable advertising?"
+    "message": "Disable promo and earning?"
   },
   "closePartnersPromoConfirm": {
-    "message": "Did you know, you can earn TKEY tokens by viewing ads? If ads are turned off, you can easily enable them anytime in the settings and start earning rewards!"
+    "message": "Disabling promo content will stop your TKEY rewards earning and sharing your data to the reward system. You can turn this back on anytime here, in Settings."
   },
   "earnTkeyRewards": {
     "message": "Earn TKEY Rewards"
@@ -4601,11 +4594,71 @@
   "txCouldNotBeEstimated": {
     "message": "Transaction could not be estimated"
   },
-  "txCouldNotBeEstimatedDescription": {
-    "message": "Fee estimation isn't available. Default values are used, but the transaction may fail. Please retry or adjust transaction parameters manually."
+  "lowBalanceError": {
+    "message": "Looks like your wallet is running low. Top up balance and try again."
   },
-  "genericTxError": {
-    "message": "Something’s not right. Please review a message."
+  "blockchainLoadError": {
+    "message": "Looks like the blockchain is heavily loaded. Wait a bit and try again."
+  },
+  "lowGasBalanceError": {
+    "message": "Gas balance is not enough to complete transaction. Top up and retry."
+  },
+  "feeTooLowError": {
+    "message": "Fee is too low, blockchain says: \"No tip, no trip\". Add more fee and try again."
+  },
+  "gasLimitTooLowError": {
+    "message": "Gas limit is too low, increase it at the \"Fee\" tab and try again."
+  },
+  "storageLimitTooLowError": {
+    "message": "Storage limit is too low, increase it at the \"Fee\" tab and try again."
+  },
+  "notThisCycleError": {
+    "message": "Cannot do it now, please try again in the next cycle."
+  },
+  "invalidParamsError": {
+    "message": "The blockchain didn't like these parameters. Some details may be invalid or incomplete."
+  },
+  "timeoutError": {
+    "message": "The transaction is taking longer than expected. Check network status or try again."
+  },
+  "fullySlashedDelegateError": {
+    "message": "The delegate has been fully slashed, change the delegate to be able to stake."
+  },
+  "unregisteredDelegateError": {
+    "message": "This delegate is not registered. Choose another one."
+  },
+  "delegateAlreadyActiveError": {
+    "message": "The delegate is already active."
+  },
+  "delegateUnchangedError": {
+    "message": "This is the current delegate. Choose another one."
+  },
+  "tmpForbiddenDelegateError": {
+    "message": "The delegate has committed too many misbehaviours. Choose another one."
+  },
+  "executionFailedError": {
+    "message": "The transaction failed during execution. Review the transaction details."
+  },
+  "networkError": {
+    "message": "Unable to connect to the network. Please retry or switch endpoint."
+  },
+  "nonceTooHighError": {
+    "message": "Transaction nonce is too high. Reset your account or wait for pending transactions."
+  },
+  "nonceTooLowError": {
+    "message": "Transaction nonce is too low. Reset your account or wait for pending transactions."
+  },
+  "allowanceTooLowError": {
+    "message": "Token allowance is insufficient. Increase the allowance and try again."
+  },
+  "notApprovedError": {
+    "message": "Not all tokens are approved. Please approve spending all necessary tokens and try again."
+  },
+  "unsafeAllowanceChangeError": {
+    "message": "Token allowance is non-zero. Reset it to zero and try again."
+  },
+  "unknownTxError": {
+    "message": "The blockchain just said '¯\\_(ツ)_/¯'. Review details or try again (maybe it will work)."
   },
   "deployContract": {
     "message": "Deploy Contract"
@@ -4646,5 +4699,41 @@
   },
   "cancelAnyway": {
     "message": "Cancel Anyway"
+  },
+  "accountNotConnectedWarning": {
+    "message": "$accountName$ was not connected to $dAppOrigin$",
+    "placeholders": {
+      "accountName": {
+        "content": "$1"
+      },
+      "dAppOrigin": {
+        "content": "$2"
+      }
+    }
+  },
+  "connectedAccountToDApp": {
+    "message": "$accountName$ connected to $dAppOrigin$",
+    "placeholders": {
+      "accountName": {
+        "content": "$1"
+      },
+      "dAppOrigin": {
+        "content": "$2"
+      }
+    }
+  },
+  "connectSomeAccountToDAppQuestion": {
+    "message": "Connect $accountName$ to $dAppName$?",
+    "placeholders": {
+      "accountName": {
+        "content": "$1"
+      },
+      "dAppName": {
+        "content": "$2"
+      }
+    }
+  },
+  "currentAccountNotConnectedToDApp": {
+    "message": "Current account isn’t connected to Dapp"
   }
 }

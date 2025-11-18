@@ -54,7 +54,13 @@ export const getGoogleAuthToken = async (
       clearLoadTimeout();
     };
 
+    const allowedOrigin = new URL(EnvVars.GOOGLE_AUTH_PAGE_URL).origin;
+
     function messagesListener(e: MessageEvent) {
+      if (e.origin !== allowedOrigin) return;
+      const iframeWindow = googleAuthIframeRef.current?.contentWindow;
+      if (iframeWindow && e.source !== iframeWindow) return;
+
       switch (e.data?.type) {
         case AuthEventType.AuthRequest:
           const { access_token, scope } = e.data.response;

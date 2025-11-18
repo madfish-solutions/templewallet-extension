@@ -9,6 +9,7 @@ import {
   DISCONNECT_DAPP_MSG_TYPE,
   PASS_TO_BG_EVENT,
   RESPONSE_FROM_BG_MSG_TYPE,
+  SWITCH_EVM_ACCOUNT_MSG_TYPE,
   SWITCH_CHAIN_MSG_TYPE,
   TEMPLE_SWITCH_PROVIDER_EVENT,
   WEBSITES_ANALYTICS_ENABLED
@@ -115,6 +116,24 @@ getIntercom().subscribe((msg?: TempleNotification) => {
         window.postMessage({ type: SWITCH_CHAIN_MSG_TYPE, ...chainSwitchPayload }, window.origin);
       }
       break;
+    case TempleMessageType.TempleEvmAccountSwitched:
+      const { origin: accountSwitchOrigin, account } = msg;
+      if (accountSwitchOrigin === window.origin) {
+        window.postMessage({ type: SWITCH_EVM_ACCOUNT_MSG_TYPE, account }, window.origin);
+      }
+      break;
+    case TempleMessageType.TempleTezosAccountSwitched:
+      const { messagePayload, origin: tezosAccountSwitchOrigin } = msg;
+      if (window.origin === tezosAccountSwitchOrigin) {
+        send(
+          {
+            message: { target: BeaconMessageTarget.Page, encryptedPayload: messagePayload },
+            sender: { id: SENDER.id }
+          },
+          window.origin
+        );
+      }
+      break;
     case TempleMessageType.TempleSwitchEvmProvider:
       if (msg.origin === window.origin) {
         try {
@@ -161,6 +180,7 @@ window.addEventListener(
   'message',
   evt => {
     if (evt.source !== window) return;
+    if (evt.origin !== window.origin) return;
 
     const isTempleRequest = evt.data?.type === TemplePageMessageType.Request;
     const isBeaconRequest =

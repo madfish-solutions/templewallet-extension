@@ -1,6 +1,8 @@
 // Original: node_modules/viem/utils/signature/hashTypedData.ts
 import { AbiParameter, encodeAbiParameters, keccak256, toHex } from 'viem';
 
+import { defaultStrSortPredicate } from 'lib/utils/sorting';
+
 interface MessageTypeProperty {
   name: string;
   type: string;
@@ -18,16 +20,20 @@ function findTypeDependencies(
 ): Set<string> {
   const match = primaryType_.match(/^\w*/u);
   const primaryType = match?.[0];
-  if (results.has(primaryType!) || types[primaryType!] === undefined) {
+  if (primaryType === undefined || results.has(primaryType) || types[primaryType] === undefined) {
     return results;
   }
 
-  results.add(primaryType!);
+  results.add(primaryType);
 
-  for (const field of types[primaryType!]) {
+  for (const field of types[primaryType]) {
     findTypeDependencies({ primaryType: field.type, types }, results);
   }
   return results;
+}
+
+function stringifyMessageTypePropertiesList(messageTypeProperties: readonly MessageTypeProperty[]) {
+  return messageTypeProperties.map(({ name, type }) => `${type} ${name}`).join(',');
 }
 
 function encodeType({
@@ -41,9 +47,9 @@ function encodeType({
   const unsortedDeps = findTypeDependencies({ primaryType, types });
   unsortedDeps.delete(primaryType);
 
-  const deps = [primaryType, ...Array.from(unsortedDeps).sort()];
+  const deps = [primaryType, ...Array.from(unsortedDeps).sort(defaultStrSortPredicate)];
   for (const type of deps) {
-    result += `${type}(${types[type].map(({ name, type: t }) => `${t} ${name}`).join(',')})`;
+    result += `${type}(${stringifyMessageTypePropertiesList(types[type])})`;
   }
 
   return result;
@@ -83,7 +89,7 @@ function encodeField({
 
   if (type === 'string') return [{ type: 'bytes32' }, keccak256(toHex(value))];
 
-  if (type.lastIndexOf(']') === type.length - 1) {
+  if (type.endsWith(']')) {
     const parsedType = type.slice(0, type.lastIndexOf('['));
     const typeValuePairs = (value as [AbiParameter, any][]).map(item =>
       encodeField({

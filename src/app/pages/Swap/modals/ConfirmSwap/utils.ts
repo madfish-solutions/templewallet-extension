@@ -1,6 +1,9 @@
 import type { TransactionRequest as LiFiTxRequest } from '@lifi/types';
 import type { Address, TransactionRequest as ViemTxRequest, RpcTransactionRequest } from 'viem';
 
+import { toTokenSlug } from 'lib/assets';
+import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
+import { EVM_ZERO_ADDRESS } from 'lib/constants';
 import { EvmEstimationDataWithFallback } from 'lib/temple/types';
 
 export function mapLiFiTxToEvmEstimationData(tx: LiFiTxRequest): EvmEstimationDataWithFallback {
@@ -59,6 +62,10 @@ export function parseTxRequestToViem(tx: LiFiTxRequest | RpcTransactionRequest):
   return null;
 }
 
+export function getTokenSlugFromLifiAddress(address: string) {
+  return EVM_ZERO_ADDRESS === address ? EVM_TOKEN_SLUG : toTokenSlug(address, 0);
+}
+
 function parseGasPrice(gasPrice: string | number): bigint {
   if (typeof gasPrice === 'string' && gasPrice.startsWith('0x')) {
     return BigInt(gasPrice);
@@ -69,9 +76,3 @@ function parseGasPrice(gasPrice: string | number): bigint {
   }
   return BigInt(Math.floor(gweiNumber * 1e9));
 }
-
-export const timeout = (duration: number): Promise<void> => {
-  return new Promise(resolve => {
-    setTimeout(resolve, duration);
-  });
-};

@@ -1,8 +1,8 @@
 import {
-  ETHEREUM_MAINNET_CHAIN_ID,
-  ETH_SEPOLIA_CHAIN_ID,
   TEZOS_MAINNET_CHAIN_ID,
-  TempleTezosChainId
+  TempleTezosChainId,
+  COMMON_MAINNET_CHAIN_IDS,
+  COMMON_TESTNET_CHAIN_IDS
 } from './temple/types';
 
 export enum ContentScriptType {
@@ -115,11 +115,11 @@ export const DEFAULT_SEED_PHRASE_WORDS_AMOUNT = 12;
 
 export const DEFAULT_PASSWORD_INPUT_PLACEHOLDER = '••••••••••';
 
-export const MAIN_CHAINS_IDS = [
+export const MAIN_CHAINS_IDS: Array<string | number> = [
   TEZOS_MAINNET_CHAIN_ID,
-  ETHEREUM_MAINNET_CHAIN_ID,
   TempleTezosChainId.Ghostnet,
-  ETH_SEPOLIA_CHAIN_ID
+  COMMON_MAINNET_CHAIN_IDS.etherlink,
+  COMMON_TESTNET_CHAIN_IDS.etherlink
 ];
 
 export const PASS_TO_BG_EVENT = 'templePassToBackground';
@@ -127,6 +127,8 @@ export const PASS_TO_BG_EVENT = 'templePassToBackground';
 export const RESPONSE_FROM_BG_MSG_TYPE = 'templeResponseFromBackground';
 
 export const DISCONNECT_DAPP_MSG_TYPE = 'templeDisconnectDApp';
+
+export const SWITCH_EVM_ACCOUNT_MSG_TYPE = 'templeSwitchEvmAccount';
 
 export const SWITCH_CHAIN_MSG_TYPE = 'templeSwitchChain';
 

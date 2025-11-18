@@ -1,6 +1,6 @@
 import { MutableRefObject, useCallback, useEffect, useRef } from 'react';
 
-import { BannerElement, NativeElement } from '@hypelab/sdk-react';
+import type { BannerElement, NativeElement } from '@hypelab/sdk-react';
 
 import { useElementValue } from 'app/hooks/ads/use-element-value';
 
@@ -14,7 +14,9 @@ export function useChildAdElementRef<T extends BannerElement | NativeElement>(
 
   const adElement = useElementValue(parentRef, getAdElement, null, deepChildrenObserverOptions);
   const adElementRef = useRef<T | null>(null);
-  useEffect(() => void (adElementRef.current = adElement as T | null), [adElement]);
+  useEffect(() => {
+    adElementRef.current = adElement as T | null;
+  }, [adElement]);
 
   return adElementRef;
 }

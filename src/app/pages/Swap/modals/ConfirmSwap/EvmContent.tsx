@@ -10,27 +10,31 @@ import { useLedgerApprovalModalState } from 'app/hooks/use-ledger-approval-modal
 import { useEvmEstimationData } from 'app/pages/Send/hooks/use-evm-estimation-data';
 import { EvmStepReviewData } from 'app/pages/Swap/form/interfaces';
 import { formatDuration, getBufferedExecutionDuration } from 'app/pages/Swap/form/utils';
-import { mapLiFiTxToEvmEstimationData, parseTxRequestToViem, timeout } from 'app/pages/Swap/modals/ConfirmSwap/utils';
+import {
+  getTokenSlugFromLifiAddress,
+  mapLiFiTxToEvmEstimationData,
+  parseTxRequestToViem
+} from 'app/pages/Swap/modals/ConfirmSwap/utils';
 import { dispatch } from 'app/store';
 import { putNewEvmTokenAction } from 'app/store/evm/assets/actions';
 import { processLoadedOnchainBalancesAction } from 'app/store/evm/balances/actions';
+import { addPendingEvmSwapAction, monitorPendingSwapsAction } from 'app/store/evm/pending-transactions/actions';
 import { putEvmTokensMetadataAction } from 'app/store/evm/tokens-metadata/actions';
 import { EvmTxParamsFormData } from 'app/templates/TransactionTabs/types';
 import { useEvmEstimationForm } from 'app/templates/TransactionTabs/use-evm-estimation-form';
 import { toastError } from 'app/toaster';
 import { getEvmSwapStatus } from 'lib/apis/temple/endpoints/evm';
-import { toTokenSlug } from 'lib/assets';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { useEvmAssetBalance } from 'lib/balances/hooks';
-import { EVM_ZERO_ADDRESS } from 'lib/constants';
 import { fetchEvmRawBalance } from 'lib/evm/on-chain/balance';
 import { fetchEvmTokenMetadataFromChain } from 'lib/evm/on-chain/metadata';
-import { t } from 'lib/i18n';
+import { EvmAssetStandard } from 'lib/evm/types';
 import { useTempleClient } from 'lib/temple/front';
 import { atomsToTokens, tokensToAtoms } from 'lib/temple/helpers';
 import { TempleAccountType } from 'lib/temple/types';
 import { runConnectedLedgerOperationFlow } from 'lib/ui';
 import { showTxSubmitToastWithDelay } from 'lib/ui/show-tx-submit-toast.util';
+import { delay } from 'lib/utils';
 import { isEvmNativeTokenSlug } from 'lib/utils/evm.utils';
 import { ZERO } from 'lib/utils/numbers';
 import { useGetEvmActiveBlockExplorer } from 'temple/front/ready';
@@ -38,9 +42,11 @@ import { makeBlockExplorerHref } from 'temple/front/use-block-explorers';
 import { TempleChainKind } from 'temple/types';
 
 import { BaseContent } from './BaseContent';
+import { InitialInputData } from './types';
 
 interface EvmContentProps {
   stepReviewData: EvmStepReviewData;
+  initialInputData: InitialInputData;
   onClose: EmptyFn;
   onStepCompleted: EmptyFn;
   cancelledRef?: React.MutableRefObject<boolean>;
@@ -50,6 +56,7 @@ interface EvmContentProps {
 
 export const EvmContent: FC<EvmContentProps> = ({
   stepReviewData,
+  initialInputData,
   onClose,
   onStepCompleted,
   cancelledRef,
@@ -69,23 +76,21 @@ export const EvmContent: FC<EvmContentProps> = ({
   const accountPkh = account.address as HexString;
   const isLedgerAccount = account.type === TempleAccountType.Ledger;
 
-  const inputTokenSlug = useMemo(() => {
-    return EVM_ZERO_ADDRESS === routeStep.action.fromToken.address
-      ? EVM_TOKEN_SLUG
-      : toTokenSlug(routeStep.action.fromToken.address, 0);
-  }, [routeStep.action.fromToken.address]);
+  const inputTokenSlug = useMemo(
+    () => getTokenSlugFromLifiAddress(routeStep.action.fromToken.address),
+    [routeStep.action.fromToken.address]
+  );
 
-  const outputTokenSlug = useMemo(() => {
-    return EVM_ZERO_ADDRESS === routeStep.action.toToken.address
-      ? EVM_TOKEN_SLUG
-      : toTokenSlug(routeStep.action.toToken.address, 0);
-  }, [routeStep.action.toToken.address]);
+  const outputTokenSlug = useMemo(
+    () => getTokenSlugFromLifiAddress(routeStep.action.toToken.address),
+    [routeStep.action.toToken.address]
+  );
 
   const { sendEvmTransaction } = useTempleClient();
   const { value: ethBalance = ZERO } = useEvmAssetBalance(EVM_TOKEN_SLUG, accountPkh, inputNetwork);
   const getActiveBlockExplorer = useGetEvmActiveBlockExplorer();
 
-  const [latestSubmitError, setLatestSubmitError] = useState<string | nullish>(null);
+  const [latestSubmitError, setLatestSubmitError] = useState<unknown>(null);
   const [stepFinalized, setStepFinalized] = useState(false);
   const [submitLoading, setSubmitLoading] = useState(false);
 
@@ -128,8 +133,17 @@ export const EvmContent: FC<EvmContentProps> = ({
     };
   }, [estimationData, routeStep.transactionRequest]);
 
-  const { form, tab, setTab, selectedFeeOption, handleFeeOptionSelect, feeOptions, displayedFee, getFeesPerGas } =
-    useEvmEstimationForm(lifiEstimationData, null, account, inputNetwork.chainId);
+  const {
+    form,
+    tab,
+    setTab,
+    selectedFeeOption,
+    handleFeeOptionSelect,
+    feeOptions,
+    displayedFee,
+    getFeesPerGas,
+    assertCustomFeesPerGasNotTooLow
+  } = useEvmEstimationForm(lifiEstimationData, null, account, inputNetwork.chainId);
   const { formState } = form;
   const { ledgerApprovalModalState, setLedgerApprovalModalState, handleLedgerModalClose } =
     useLedgerApprovalModalState();
@@ -211,8 +225,30 @@ export const EvmContent: FC<EvmContentProps> = ({
       const blockExplorer = getActiveBlockExplorer(inputNetwork.chainId.toString(), !!bridgeData);
       showTxSubmitToastWithDelay(TempleChainKind.EVM, txHash, blockExplorer.url);
 
+      const statusCheckParams = {
+        fromChain: step.action.fromChainId,
+        toChain: step.action.toChainId,
+        bridge: step.tool
+      };
+
       if (skipStatusWait) {
         if (cancelledRef?.current) return;
+
+        dispatch(
+          addPendingEvmSwapAction({
+            txHash,
+            accountPkh,
+            outputTokenSlug,
+            outputNetwork,
+            initialInputTokenSlug: initialInputData.tokenSlug,
+            initialInputNetwork: initialInputData.network,
+            blockExplorerUrl: makeBlockExplorerHref(blockExplorer.url, txHash, 'tx', TempleChainKind.EVM),
+            statusCheckParams
+          })
+        );
+
+        dispatch(monitorPendingSwapsAction());
+
         setStepFinalized(true);
         onStepCompleted();
         return;
@@ -225,10 +261,8 @@ export const EvmContent: FC<EvmContentProps> = ({
           const result = await retry(
             async () =>
               await getEvmSwapStatus({
-                txHash,
-                fromChain: step.action.fromChainId,
-                toChain: step.action.toChainId,
-                bridge: step.tool
+                ...statusCheckParams,
+                txHash
               }),
             { retries: 5, minTimeout: 2000 }
           );
@@ -239,7 +273,7 @@ export const EvmContent: FC<EvmContentProps> = ({
           );
         }
 
-        await new Promise(resolve => setTimeout(resolve, 5000));
+        await delay(5000);
       } while (status !== 'DONE' && status !== 'FAILED');
 
       if (status === 'FAILED') {
@@ -254,7 +288,12 @@ export const EvmContent: FC<EvmContentProps> = ({
       try {
         if (!isEvmNativeTokenSlug(outputTokenSlug)) {
           for (let attempt = 0; attempt < 20; attempt++) {
-            const balance = await fetchEvmRawBalance(outputNetwork, outputTokenSlug, accountPkh);
+            const balance = await fetchEvmRawBalance(
+              outputNetwork,
+              outputTokenSlug,
+              accountPkh,
+              EvmAssetStandard.ERC20
+            );
 
             if (balance.gt(0)) {
               const metadata = await fetchEvmTokenMetadataFromChain(outputNetwork, outputTokenSlug);
@@ -286,7 +325,7 @@ export const EvmContent: FC<EvmContentProps> = ({
               break;
             }
 
-            await timeout(3000);
+            await delay(3000);
           }
         }
       } catch (err) {
@@ -298,17 +337,27 @@ export const EvmContent: FC<EvmContentProps> = ({
       onStepCompleted();
     },
     [
-      accountPkh,
-      bridgeData,
-      getActiveBlockExplorer,
-      inputNetwork,
-      onStepCompleted,
-      outputNetwork,
-      outputTokenSlug,
-      sendEvmTransaction,
       cancelledRef,
-      skipStatusWait
+      sendEvmTransaction,
+      accountPkh,
+      inputNetwork,
+      getActiveBlockExplorer,
+      bridgeData,
+      skipStatusWait,
+      onStepCompleted,
+      outputTokenSlug,
+      outputNetwork,
+      initialInputData
     ]
+  );
+
+  const onSubmitError = useCallback(
+    (err: unknown) => {
+      console.error(err);
+      setLatestSubmitError(err);
+      setTab('error');
+    },
+    [setLatestSubmitError, setTab]
   );
 
   const onSubmit = useCallback(
@@ -318,30 +367,18 @@ export const EvmContent: FC<EvmContentProps> = ({
 
       const feesPerGas = getFeesPerGas(gasPrice);
       if (!lifiEstimationData || !feesPerGas) {
-        if (estimationLoading || !estimationError) return;
-        toastError('Failed to estimate transaction.');
+        if (!estimationLoading && estimationError) {
+          onSubmitError(estimationError);
+        }
+
         return;
       }
 
-      if (isEvmNativeTokenSlug(inputTokenSlug)) {
-        const fromAmount = atomsToTokens(
-          new BigNumber(routeStep.action.fromAmount),
-          routeStep.action.fromToken.decimals ?? 0
-        );
+      try {
+        assertCustomFeesPerGasNotTooLow(feesPerGas);
+      } catch (e) {
+        onSubmitError(e);
 
-        if (
-          ethBalance
-            .minus(displayedFee ?? 0)
-            .minus(fromAmount)
-            .lte(displayedFee ?? 0)
-        ) {
-          toastError(t('balanceTooLow'));
-          return;
-        }
-      }
-
-      if (ethBalance.lte(displayedFee ?? 0)) {
-        toastError(t('balanceTooLow'));
         return;
       }
 
@@ -364,10 +401,7 @@ export const EvmContent: FC<EvmContentProps> = ({
           await executeRouteStep(routeStep, { gasPrice, gasLimit, nonce });
         }
       } catch (err: any) {
-        console.error(err);
-
-        setLatestSubmitError(err.message);
-        setTab('error');
+        onSubmitError(err);
       } finally {
         setSubmitLoading(false);
       }
@@ -377,17 +411,15 @@ export const EvmContent: FC<EvmContentProps> = ({
       formState.isSubmitting,
       getFeesPerGas,
       lifiEstimationData,
-      inputTokenSlug,
-      ethBalance,
-      displayedFee,
       routeStep,
       isLedgerAccount,
       setLedgerApprovalModalState,
       executeRouteStep,
-      setTab,
+      onSubmitError,
       cancelledRef,
       estimationLoading,
-      estimationError
+      estimationError,
+      assertCustomFeesPerGasNotTooLow
     ]
   );
 
