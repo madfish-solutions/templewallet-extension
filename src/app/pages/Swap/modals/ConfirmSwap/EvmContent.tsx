@@ -124,7 +124,7 @@ export const EvmContent: FC<EvmContentProps> = ({
     silent: true
   });
 
-  const lifiEstimationData = useMemo(() => {
+  const providerEstimationData = useMemo(() => {
     let gas: bigint | undefined;
 
     if (!estimationData) return undefined;
@@ -157,7 +157,7 @@ export const EvmContent: FC<EvmContentProps> = ({
     displayedFee,
     getFeesPerGas,
     assertCustomFeesPerGasNotTooLow
-  } = useEvmEstimationForm(lifiEstimationData, null, account, inputNetwork.chainId);
+  } = useEvmEstimationForm(providerEstimationData, null, account, inputNetwork.chainId);
   const { formState } = form;
   const { ledgerApprovalModalState, setLedgerApprovalModalState, handleLedgerModalClose } =
     useLedgerApprovalModalState();
@@ -405,7 +405,7 @@ export const EvmContent: FC<EvmContentProps> = ({
       if (formState.isSubmitting) return;
 
       const feesPerGas = getFeesPerGas(gasPrice);
-      if (!lifiEstimationData || !feesPerGas) {
+      if (!providerEstimationData || !feesPerGas) {
         if (!estimationLoading && estimationError) {
           onSubmitError(estimationError);
         }
@@ -449,7 +449,7 @@ export const EvmContent: FC<EvmContentProps> = ({
       submitDisabled,
       formState.isSubmitting,
       getFeesPerGas,
-      lifiEstimationData,
+      providerEstimationData,
       routeStep,
       isLedgerAccount,
       setLedgerApprovalModalState,
