@@ -12,6 +12,7 @@ import { ScamTag } from 'app/pages/Home/OtherComponents/Tokens/components/TokenT
 import { dispatch } from 'app/store';
 import { setEvmTokenStatusAction } from 'app/store/evm/assets/actions';
 import { useStoredEvmTokenSelector } from 'app/store/evm/assets/selectors';
+import { use3RouteEvmTokenMetadataSelector } from 'app/store/evm/swap-3route-metadata/selectors';
 import { useLifiEvmTokenMetadataSelector } from 'app/store/evm/swap-lifi-metadata/selectors';
 import { setTezosTokenStatusAction } from 'app/store/tezos/assets/actions';
 import { useStoredTezosTokenSelector } from 'app/store/tezos/assets/selectors';
@@ -175,6 +176,8 @@ export const EvmTokenListItem = memo(
     ) => {
       const { chainId } = network;
       const lifiTokenMetadata = useLifiEvmTokenMetadataSelector(chainId, assetSlug);
+      const route3EvmTokenMetadata = use3RouteEvmTokenMetadataSelector(chainId, assetSlug);
+      const dexTokenMetadata = lifiTokenMetadata ?? route3EvmTokenMetadata;
 
       const {
         value: balance = ZERO,
@@ -185,10 +188,10 @@ export const EvmTokenListItem = memo(
 
       const checked = getAssetStatus(rawBalance, storedToken?.status) === 'enabled';
 
-      if (metadata == null && lifiTokenMetadata == null) return null;
+      if (metadata == null && dexTokenMetadata == null) return null;
 
-      const assetSymbol = getAssetSymbol(metadata?.decimals ? metadata : lifiTokenMetadata);
-      const assetName = getTokenName(metadata?.decimals ? metadata : lifiTokenMetadata);
+      const assetSymbol = getAssetSymbol(metadata?.decimals ? metadata : dexTokenMetadata);
+      const assetName = getTokenName(metadata?.decimals ? metadata : dexTokenMetadata);
 
       if (manageActive)
         return (

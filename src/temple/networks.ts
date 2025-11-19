@@ -8,7 +8,8 @@ import {
   ETH_SEPOLIA_CHAIN_ID,
   COMMON_MAINNET_CHAIN_IDS,
   TempleTezosChainId,
-  COMMON_TESTNET_CHAIN_IDS
+  COMMON_TESTNET_CHAIN_IDS,
+  ETHERLINK_MAINNET_CHAIN_ID
 } from 'lib/temple/types';
 
 import { TempleChainKind } from './types';
@@ -324,7 +325,7 @@ export const EVM_DEFAULT_NETWORKS: NonEmptyArray<StoredEvmNetwork> = [
     id: 'etherlink-mainnet',
     name: 'Etherlink',
     chain: TempleChainKind.EVM,
-    chainId: COMMON_MAINNET_CHAIN_IDS.etherlink,
+    chainId: ETHERLINK_MAINNET_CHAIN_ID,
     rpcBaseURL: ETHERLINK_RPC_URL,
     description: 'Etherlink Mainnet',
     color: '#207449',

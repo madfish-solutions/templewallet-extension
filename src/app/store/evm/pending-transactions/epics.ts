@@ -65,13 +65,22 @@ const monitorPendingSwapsEpic: Epic<Action, Action, RootState> = (action$, state
             return of(removePendingEvmSwapAction(swap.txHash));
           }
 
+          const { provider, ...statusCheckParams } = swap.statusCheckParams;
+
           return from(
             retry(
-              async () =>
-                await getEvmSwapStatus({
-                  ...swap.statusCheckParams,
-                  txHash: swap.txHash
-                }),
+              async () => {
+                if (provider === 'lifi' || provider === undefined) {
+                  return await getEvmSwapStatus({ ...statusCheckParams, txHash: swap.txHash });
+                }
+
+                const evmToolkit = getViemPublicClient(swap.initialInputNetwork);
+                const result = await evmToolkit.waitForTransactionReceipt({ hash: swap.txHash });
+
+                return {
+                  status: result.status === 'success' ? 'DONE' : 'FAILED'
+                };
+              },
               swap.retriesEnabled ? { retries: 2, minTimeout: SHORT_MONITOR_INTERVAL } : { retries: 0 }
             )
           ).pipe(
