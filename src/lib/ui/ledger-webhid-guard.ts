@@ -26,7 +26,7 @@ export function useLedgerWebHidFullViewGuard() {
 
   const [promptOpened, setPromptOpened] = useState(false);
 
-  const promptResolverRef = useRef<(value: boolean) => void>();
+  const promptResolverRef = useRef<SyncFn<boolean>>();
 
   const showPrompt = useCallback(
     () =>
@@ -138,7 +138,7 @@ export function useLedgerWebHidFullViewGuard() {
       if (devices && devices.length > 0) return;
 
       await hid.requestDevice({
-        filters: [{ vendorId: LEDGER_USB_VENDOR_ID as any as number }]
+        filters: [{ vendorId: Number(LEDGER_USB_VENDOR_ID) }]
       });
     } catch (e) {
       console.error(e);

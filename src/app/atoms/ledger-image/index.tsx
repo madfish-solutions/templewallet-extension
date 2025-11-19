@@ -6,7 +6,7 @@ import failTezHcImage from './assets/fail-tez-hc.png';
 import failTezImage from './assets/fail-tez.png';
 import failYellowTezHcImage from './assets/fail-yellow-tez-hc.png';
 import failYellowTezImage from './assets/fail-yellow-tez.png';
-import lookingTezHcImage from './assets/lookign-tez-hc.png';
+import lookingTezHcImage from './assets/looking-tez-hc.png';
 import lookingTezImage from './assets/looking-tez.png';
 import successTezHcImage from './assets/success-tez-hc.png';
 import successTezImage from './assets/success-tez.png';
