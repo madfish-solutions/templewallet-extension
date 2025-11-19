@@ -254,8 +254,13 @@ export const EvmContent: FC<EvmContentProps> = ({
       showTxSubmitToastWithDelay(TempleChainKind.EVM, txHash, blockExplorer.url);
 
       const statusCheckParams = isLifiStep(step)
-        ? { fromChain: step.action.fromChainId, toChain: step.action.toChainId, bridge: step.tool }
-        : { fromChain: ETHERLINK_MAINNET_CHAIN_ID, toChain: ETHERLINK_MAINNET_CHAIN_ID };
+        ? {
+            fromChain: step.action.fromChainId,
+            toChain: step.action.toChainId,
+            bridge: step.tool,
+            provider: 'lifi' as const
+          }
+        : { fromChain: ETHERLINK_MAINNET_CHAIN_ID, toChain: ETHERLINK_MAINNET_CHAIN_ID, provider: '3route' as const };
 
       if (skipStatusWait) {
         if (cancelledRef?.current) return;

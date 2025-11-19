@@ -21,7 +21,7 @@ export interface PendingEvmSwapBase extends Common {
   initialInputNetwork: EvmNetworkEssentials;
   outputTokenSlug: string;
   outputNetwork: EvmNetworkEssentials;
-  statusCheckParams: Omit<GetStatusRequest, 'txHash'>;
+  statusCheckParams: Omit<GetStatusRequest, 'txHash'> & { provider?: 'lifi' | '3route' };
 }
 
 export interface PendingEvmTransferBase extends Common {

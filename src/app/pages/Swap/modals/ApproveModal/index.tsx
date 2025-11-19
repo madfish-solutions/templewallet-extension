@@ -1,6 +1,5 @@
 import React, { FC, useCallback, useMemo, useState } from 'react';
 
-import BigNumber from 'bignumber.js';
 import { encodeFunctionData } from 'viem';
 import { toHex } from 'viem/utils';
 
@@ -12,17 +11,13 @@ import { StyledButton } from 'app/atoms/StyledButton';
 import { useLedgerApprovalModalState } from 'app/hooks/use-ledger-approval-modal-state';
 import { ReactComponent as LinkIcon } from 'app/icons/base/link.svg';
 import { ReactComponent as OutLinkIcon } from 'app/icons/base/outLink.svg';
-import { useEvmEstimationData } from 'app/pages/Send/hooks/use-evm-estimation-data';
 import { EvmTransactionView } from 'app/templates/EvmTransactionView';
 import { LedgerApprovalModal } from 'app/templates/ledger-approval-modal';
 import { erc20ApproveAbi } from 'lib/abi/erc20';
 import { toTokenSlug } from 'lib/assets';
-import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
-import { useEvmAssetBalance } from 'lib/balances/hooks';
 import { T } from 'lib/i18n';
 import { getHumanErrorMessage } from 'lib/temple/error-messages';
 import { useTempleClient } from 'lib/temple/front';
-import { atomsToTokens } from 'lib/temple/helpers';
 import {
   EvmTransactionRequestWithSender,
   SerializedEvmEstimationDataWithFallback,
@@ -32,7 +27,6 @@ import {
 import { runConnectedLedgerOperationFlow } from 'lib/ui';
 import { showTxSubmitToastWithDelay } from 'lib/ui/show-tx-submit-toast.util';
 import { delay } from 'lib/utils';
-import { ZERO } from 'lib/utils/numbers';
 import { useGetEvmActiveBlockExplorer } from 'temple/front/ready';
 import { TempleChainKind } from 'temple/types';
 
@@ -40,6 +34,8 @@ import Route3ImgSrc from '../../form/assets/3route.png';
 import LiFiImgSrc from '../../form/assets/lifi.png';
 import { EvmStepReviewData, getCommonStepProps, isLifiStep } from '../../form/interfaces';
 import { parseTxRequestToViem } from '../ConfirmSwap/utils';
+
+import { useEstimationData } from './use-estimation-data';
 
 interface ApproveModalProps {
   stepReviewData: EvmStepReviewData;
@@ -80,24 +76,11 @@ const ApproveModal: FC<ApproveModalProps> = ({ stepReviewData, onClose, onStepCo
   });
   const [latestSubmitError, setLatestSubmitError] = useState<string | nullish>(null);
 
-  const amount = useMemo(
-    () => atomsToTokens(new BigNumber(fromAmount), fromToken.decimals ?? 0).toFixed(),
-    [fromAmount, fromToken.decimals]
-  );
-
-  const { value: balance = ZERO } = useEvmAssetBalance(assetSlug, accountAddress, inputNetwork);
-  const { value: ethBalance = ZERO } = useEvmAssetBalance(EVM_TOKEN_SLUG, accountAddress, inputNetwork);
-
-  const { data: estimationData } = useEvmEstimationData({
-    to: approvalAddress as HexString,
-    assetSlug: assetSlug,
+  const { data: estimationData } = useEstimationData({
+    assetSlug,
     accountPkh: accountAddress,
     network: inputNetwork,
-    balance,
-    ethBalance,
-    toFilled: true,
-    amount,
-    silent: true
+    txData: finalEvmTransaction?.data ?? txData
   });
 
   const request = useMemo(() => {
