@@ -1,5 +1,6 @@
 import React, { FC } from 'react';
 
+import { isDefined } from '@rnw-community/shared';
 import BigNumber from 'bignumber.js';
 
 import { Button } from 'app/atoms';
@@ -13,7 +14,7 @@ interface SwapFooterProps {
   error?: string;
   chainId: string | number;
   evm: boolean;
-  assetSlug: string;
+  assetSlug?: string;
   assetSymbol: string;
   assetDecimals: number;
   isFiatMode: boolean;
@@ -40,15 +41,17 @@ const SwapFooter: FC<SwapFooterProps> = ({
   handleFiatToggle,
   parseFiatValueToAssetAmount
 }) => {
+  const shouldShowConvertedAmount = (isFiatMode && isDefined(assetSlug)) || !isFiatMode;
+
   return (
     <div className="flex justify-between items-center gap-2 min-h-6">
       <div className="flex-1 flex items-center">
         {error ? (
           <span className="text-font-description text-error whitespace-nowrap overflow-ellipsis">{error}</span>
-        ) : (
+        ) : shouldShowConvertedAmount ? (
           <ConvertedInputAssetAmount
             chainId={chainId}
-            assetSlug={assetSlug}
+            assetSlug={assetSlug || ''}
             assetSymbol={assetSymbol}
             amountValue={
               isFiatMode
@@ -58,7 +61,7 @@ const SwapFooter: FC<SwapFooterProps> = ({
             toFiat={!isFiatMode}
             evm={evm}
           />
-        )}
+        ) : null}
       </div>
       {inputName === 'input' && (
         <Button
