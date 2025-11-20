@@ -153,6 +153,7 @@ export const useEnableAutodisabledNetworks = () => {
         );
         let shouldEnableChain = false;
         const accountsChainBalancesChecked: StringRecord<boolean> = {};
+        const chainsToEnable = new Set<number>();
         accountsTokensResults.forEach((result, index) => {
           const accountAddress = newAccountsForReenabling[index];
           accountsChainBalancesChecked[accountAddress] = result.status === 'fulfilled';
@@ -211,22 +212,15 @@ export const useEnableAutodisabledNetworks = () => {
         });
 
         if (shouldEnableChain) {
-          setEvmChainsSpecs(prevSpecs => ({
-            ...prevSpecs,
-            [chainId]: {
-              ...prevSpecs[chainId],
-              disabled: false,
-              disabledAutomatically: false
-            }
-          }));
+          chainsToEnable.add(chainId);
         }
 
-        return accountsChainBalancesChecked;
+        return { accountsChainBalancesChecked, chainsToEnable };
       })
     )
       .then(accountsChainBalancesCheckedByChain => {
         const accountsChainsWithCheckedBalances = accountsChainBalancesCheckedByChain.reduce<StringRecord<number[]>>(
-          (acc, balances, index) => {
+          (acc, { accountsChainBalancesChecked: balances }, index) => {
             const chain = automaticallyDisabledEvmChains[index];
             const { chainId } = chain;
 
@@ -241,11 +235,30 @@ export const useEnableAutodisabledNetworks = () => {
           },
           {}
         );
+        const chainsToEnable = accountsChainBalancesCheckedByChain.reduce((acc, { chainsToEnable }) => {
+          chainsToEnable.forEach(chainId => acc.add(chainId));
+
+          return acc;
+        }, new Set<number>());
         const accountsWithAllCheckedBalances = Object.entries(accountsChainsWithCheckedBalances)
           .filter(([, chainIds]) => chainIds.length === automaticallyDisabledEvmChains.length)
           .map(([accountAddress]) => accountAddress as HexString);
 
-        return setAccountsForReenabling(prevAccounts => difference(prevAccounts, accountsWithAllCheckedBalances));
+        return Promise.all([
+          setAccountsForReenabling(prevAccounts => difference(prevAccounts, accountsWithAllCheckedBalances)),
+          setEvmChainsSpecs(prevSpecs => {
+            const newSpecs = { ...prevSpecs };
+            chainsToEnable.forEach(chainId => {
+              newSpecs[chainId] = {
+                ...newSpecs[chainId],
+                disabled: false,
+                disabledAutomatically: false
+              };
+            });
+
+            return newSpecs;
+          })
+        ]);
       })
       .finally(() => {
         loadingNetworksToEnableRef.current = false;

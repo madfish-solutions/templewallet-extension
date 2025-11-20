@@ -308,7 +308,6 @@ var HypeLab;
               this.updatePosition(),
                 (0, o.style)(this, { display: 'none' }),
                 yield this.requestBid();
-              console.log('getDisconnected', getDisconnected());
 
               if (!getDisconnected()) {
                 this.refreshTimer = setInterval(() => this.requestBid(), 3e4);
@@ -1651,28 +1650,6 @@ var HypeLab;
             this.removeIntersectionObserver();
             this.refreshTimer && clearInterval(this.refreshTimer);
           }
-          /*
-          connectedCallback() {
-            this.disconnected = false;
-            const getDisconnected = () => this.disconnected;
-
-            return i(this, void 0, void 0, function* () {
-              this.updatePosition(),
-                (0, o.style)(this, { display: 'none' }),
-                yield this.requestBid();
-              console.log('getDisconnected', getDisconnected());
-
-              if (!getDisconnected()) {
-                this.refreshTimer = setInterval(() => this.requestBid(), 3e4);
-              }
-            });
-          }
-          disconnectedCallback() {
-            this.disconnected = true;
-            this.removeIntersectionObserver();
-            this.refreshTimer && clearInterval(this.refreshTimer);
-          }
-          */
           requestBid() {
             const e = Object.create(null, { requestBid: { get: () => super.requestBid } });
             return i(this, void 0, void 0, function* () {
