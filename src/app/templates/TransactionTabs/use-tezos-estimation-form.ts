@@ -232,21 +232,28 @@ export const useTezosEstimationForm = ({
       if (!displayedFeeOptions || !basicParams) return;
 
       let paramsWithEstimates = null;
+      const hasReveal = revealFee.gt(0) && estimates && estimates.length > basicParams.length;
+
       if (!estimationDataLoading && estimates) {
+        const estimateOffset = hasReveal ? 1 : 0;
         paramsWithEstimates = basicParams.map((param, index) => ({
           ...param,
-          gasLimit: param.gasLimit || estimates[index].gasLimit,
-          storageLimit: param.storageLimit || estimates[index].storageLimit
+          gasLimit: param.gasLimit || estimates[index + estimateOffset].gasLimit,
+          storageLimit: param.storageLimit || estimates[index + estimateOffset].storageLimit
         }));
       }
 
-      return buildFinalTezosOpParams(
-        paramsWithEstimates || basicParams,
+      const finalParams = paramsWithEstimates || basicParams;
+
+      const result = buildFinalTezosOpParams(
+        finalParams,
         tzToMutez(gasFee || displayedFeeOptions[selectedFeeOption || 'mid'])
           .minus(tzToMutez(revealFee))
           .toNumber(),
         storageLimit ? Number(storageLimit) : totalDefaultStorageLimit.toNumber()
       );
+
+      return result;
     },
     [basicParams, estimates, estimationDataLoading, selectedFeeOption, totalDefaultStorageLimit]
   );
