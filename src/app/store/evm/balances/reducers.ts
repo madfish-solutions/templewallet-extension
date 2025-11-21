@@ -3,7 +3,8 @@ import { createReducer } from '@reduxjs/toolkit';
 import {
   loadEvmBalanceOnChainActions,
   processLoadedEvmAssetsBalancesAction,
-  processLoadedOnchainBalancesAction
+  processLoadedOnchainBalancesAction,
+  markEvmBalancesInitiallyLoadedAction
 } from './actions';
 import { EvmBalancesInitialState, EvmBalancesStateInterface } from './state';
 import { getTokenSlugBalanceRecords, prepareAssigning } from './utils';
@@ -53,5 +54,9 @@ export const evmBalancesReducer = createReducer<EvmBalancesStateInterface>(EvmBa
         chainTimestamps[assetSlug] = timestamp;
       }
     }
+  });
+
+  builder.addCase(markEvmBalancesInitiallyLoadedAction, (state, { payload: { chainId } }) => {
+    state.initiallyLoadedChains[chainId] = true;
   });
 });

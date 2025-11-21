@@ -28,28 +28,30 @@ export const AppTezosTokensMetadataLoading = memo<{ publicKeyHash: string }>(({ 
 
     let willLoad = false;
 
-    Promise.allSettled(
-      tezosChains.map(chain => {
-        const key = getAccountAssetsStoreKey(publicKeyHash, chain.chainId);
-        const tokensRecord = allTokens[key];
-        const slugs = tokensRecord ? Object.keys(tokensRecord) : [];
-        const slugsWithoutMeta = slugs.filter(slug => !getMetadata(slug) && !checkedRef.current.includes(slug));
+    const fetchers = tezosChains.flatMap(chain => {
+      const key = getAccountAssetsStoreKey(publicKeyHash, chain.chainId);
+      const tokensRecord = allTokens[key];
+      const slugs = tokensRecord ? Object.keys(tokensRecord) : [];
+      const slugsWithoutMeta = slugs.filter(slug => !getMetadata(slug) && !checkedRef.current.includes(slug));
 
-        if (!slugsWithoutMeta.length) return null;
+      if (!slugsWithoutMeta.length) return [];
 
-        checkedRef.current = checkedRef.current.concat(slugsWithoutMeta);
+      checkedRef.current = checkedRef.current.concat(slugsWithoutMeta);
 
-        if (!willLoad) {
-          willLoad = true;
-          dispatch(setTokensMetadataLoadingAction(true));
-        }
+      if (!willLoad) {
+        willLoad = true;
+        dispatch(setTokensMetadataLoadingAction(true));
+      }
 
-        return loadTokensMetadata(chain, slugsWithoutMeta).then(
-          fetchedMetadata => void dispatch(putTokensMetadataAction({ records: fetchedMetadata })),
-          error => void console.error(error)
-        );
-      })
-    ).then(() => void dispatch(setTokensMetadataLoadingAction(false)));
+      const fetcher = loadTokensMetadata(chain, slugsWithoutMeta).then(
+        fetchedMetadata => void dispatch(putTokensMetadataAction({ records: fetchedMetadata })),
+        error => void console.error(error)
+      );
+
+      return [fetcher];
+    });
+
+    Promise.allSettled(fetchers).then(() => void dispatch(setTokensMetadataLoadingAction(false)));
   }, [tezosChains, allTokens, publicKeyHash]);
 
   return null;

@@ -22,3 +22,6 @@ export const useRawEvmAssetBalanceSelector = (
   chainId: number,
   assetSlug: string
 ): string | undefined => useSelector(state => state.evmBalances.balancesAtomic[accountAddress]?.[chainId]?.[assetSlug]);
+
+export const useEvmBalancesInitiallyLoadedChainsSelector = (): Record<number, boolean> =>
+  useSelector(state => state.evmBalances.initiallyLoadedChains);
