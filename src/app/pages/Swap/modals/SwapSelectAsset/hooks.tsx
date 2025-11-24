@@ -4,8 +4,8 @@ import { LiFiStep } from '@lifi/sdk';
 
 import { useSelector } from 'app/store';
 import {
-  useLifiEvmChainTokensMetadataSelector,
-  useLifiEvmTokensMetadataRecordSelector
+  useLifiConnectedEvmChainTokensMetadataSelector,
+  useLifiConnectedEvmTokensMetadataRecordSelector
 } from 'app/store/evm/swap-lifi-metadata/selectors';
 import { erc20AllowanceAbi } from 'lib/abi/erc20';
 import { toTokenSlug } from 'lib/assets';
@@ -19,7 +19,7 @@ import { useAllEvmChains } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
 
 export const useLifiEvmTokensSlugs = (chainId: number) => {
-  const { metadata: lifiEvmTokensMetadataRecord, isLoading } = useLifiEvmChainTokensMetadataSelector(chainId);
+  const { metadata: lifiEvmTokensMetadataRecord, isLoading } = useLifiConnectedEvmChainTokensMetadataSelector(chainId);
 
   const lifiTokenSlugs = useMemo(
     () =>
@@ -36,7 +36,7 @@ export const useLifiEvmTokensSlugs = (chainId: number) => {
 };
 
 export const useLifiEvmAllTokensSlugs = () => {
-  const metadataRecord = useLifiEvmTokensMetadataRecordSelector();
+  const metadataRecord = useLifiConnectedEvmTokensMetadataRecordSelector();
   const isLoading = useSelector(({ lifiEvmTokensMetadata }) => lifiEvmTokensMetadata.isLoading);
 
   const lifiTokenSlugs = useMemo(() => {
