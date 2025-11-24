@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { Semaphore } from 'async-mutex';
 import { difference, isEqual, uniq } from 'lodash';
@@ -19,11 +19,13 @@ import { toTokenSlug } from 'lib/assets';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import {
   ACCOUNTS_FOR_REENABLING_NETWORKS_STORAGE_KEY,
-  SHOULD_DISABLE_NOT_ACTIVE_NETWORKS_STORAGE_KEY
+  SHOULD_DISABLE_NOT_ACTIVE_NETWORKS_STORAGE_KEY,
+  SHOULD_PROMOTE_ROOTSTOCK_STORAGE_KEY
 } from 'lib/constants';
 import { evmOnChainBalancesRequestsExecutor } from 'lib/evm/on-chain/balance';
 import { EvmAssetStandard } from 'lib/evm/types';
 import { useStorage } from 'lib/temple/front/storage';
+import { COMMON_MAINNET_CHAIN_IDS } from 'lib/temple/types';
 import { useMemoWithCompare } from 'lib/ui/hooks';
 import { defaultStrSortPredicate } from 'lib/utils/sorting';
 import { getAccountAddressForEvm, isAccountOfActableType } from 'temple/accounts';
@@ -45,6 +47,8 @@ export const useEnableAutodisabledNetworks = () => {
   );
   const visibleEvmTokensMetadataLoading = useEvmTokensMetadataLoadingSelector();
   const [shouldDisable] = useStorage<boolean>(SHOULD_DISABLE_NOT_ACTIVE_NETWORKS_STORAGE_KEY, false);
+  const [shouldPromoteRootstock] = useStorage<boolean>(SHOULD_PROMOTE_ROOTSTOCK_STORAGE_KEY);
+  const [rootstockWasPromoted, setRootstockWasPromoted] = useState(false);
   const [accountsForReenabling, setAccountsForReenabling] = useStorage<HexString[]>(
     ACCOUNTS_FOR_REENABLING_NETWORKS_STORAGE_KEY,
     []
@@ -78,11 +82,29 @@ export const useEnableAutodisabledNetworks = () => {
 
   useEffect(() => {
     if (
+      shouldPromoteRootstock &&
+      automaticallyDisabledEvmChains.some(({ chainId }) => chainId === COMMON_MAINNET_CHAIN_IDS.rootstock)
+    ) {
+      setEvmChainsSpecs(prevSpecs => ({
+        ...prevSpecs,
+        [COMMON_MAINNET_CHAIN_IDS.rootstock]: {
+          ...prevSpecs[COMMON_MAINNET_CHAIN_IDS.rootstock],
+          disabled: false,
+          disabledAutomatically: false
+        }
+      }));
+      setRootstockWasPromoted(true);
+
+      return;
+    }
+
+    if (
       shouldDisable ||
       automaticallyDisabledEvmChains.length === 0 ||
       visibleEvmBalancesLoading ||
       visibleEvmTokensMetadataLoading ||
-      loadingNetworksToEnableRef.current
+      loadingNetworksToEnableRef.current ||
+      shouldPromoteRootstock == null
     ) {
       return;
     }
@@ -274,6 +296,8 @@ export const useEnableAutodisabledNetworks = () => {
     setEvmChainsSpecs,
     shouldDisable,
     actableEvmAccountsAddresses,
-    waitForRequestsLimit
+    waitForRequestsLimit,
+    shouldPromoteRootstock,
+    rootstockWasPromoted
   ]);
 };
