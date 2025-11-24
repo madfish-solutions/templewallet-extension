@@ -1,6 +1,6 @@
 import React, { FC, useEffect, useRef } from 'react';
 
-import { Native } from '@hypelab/sdk-react';
+import { Native, NativeElement } from '@hypelab/sdk-react';
 
 import { useAdTimeout } from 'app/hooks/ads/use-ad-timeout';
 import { useElementValue } from 'app/hooks/ads/use-element-value';
@@ -9,6 +9,8 @@ import { EnvVars } from 'lib/env';
 
 import { SingleProviderPromotionProps } from '../../types';
 import { TextPromotionView } from '../text-promotion-view';
+
+import { useChildAdElementRef } from './use-child-ad-element-ref';
 
 const getInnerText = (element: HTMLSpanElement) => element.innerText;
 const getLinkHref = (element: HTMLAnchorElement) => element.href;
@@ -32,6 +34,8 @@ export const HypelabTextPromotion: FC<Omit<SingleProviderPromotionProps, 'varian
   const hypelabBodyRef = useRef<HTMLSpanElement>(null);
   const hypelabCtaLinkRef = useRef<HTMLAnchorElement>(null);
   const hypelabIconRef = useRef<HTMLImageElement>(null);
+  const hypelabNativeParentRef = useRef<HTMLDivElement>(null);
+  const hypelabNativeElementRef = useChildAdElementRef(hypelabNativeParentRef, 'hype-native');
 
   const headlineText = useElementValue(hypelabHeadlineRef, getInnerText, '', innerTextObserverOptions);
   const bodyText = useElementValue(hypelabBodyRef, getInnerText, '', innerTextObserverOptions);
@@ -41,33 +45,65 @@ export const HypelabTextPromotion: FC<Omit<SingleProviderPromotionProps, 'varian
 
   useAdTimeout(adIsReady, onError);
 
-  useEffect(() => void (adIsReady && onReady()), [adIsReady, onReady]);
+  useEffect(() => {
+    if (adIsReady) {
+      onReady();
+    }
+  }, [adIsReady, onReady]);
+
+  useEffect(() => {
+    // Ad refreshing isn't stopped by `@hypelab/sdk-react` itself
+    let ad = hypelabNativeElementRef.current as NativeElement | null;
+    let adCheckInterval: NodeJS.Timeout | null = null;
+
+    if (!ad) {
+      adCheckInterval = setInterval(() => {
+        ad = hypelabNativeElementRef.current as NativeElement | null;
+        if (ad) {
+          clearInterval(adCheckInterval!);
+        }
+      }, 20);
+    }
+
+    return () => {
+      if (adCheckInterval) {
+        clearInterval(adCheckInterval);
+      }
+
+      if (ad) {
+        // @ts-expect-error
+        ad.disconnectedCallback();
+      }
+    };
+  }, [hypelabNativeElementRef]);
 
   return (
-    <Native
-      // @ts-expect-error
-      class="w-full"
-      placement={EnvVars.HYPELAB_INTERNAL_NATIVE_PLACEMENT_SLUG}
-      onError={onError}
-    >
-      <span className="hidden" ref={hypelabHeadlineRef} data-ref="headline" />
-      <span className="hidden" ref={hypelabBodyRef} data-ref="body" />
-      <a className="hidden" ref={hypelabCtaLinkRef} href="/" data-ref="ctaLink">
-        <img className="hidden" ref={hypelabIconRef} data-ref="icon" alt="" />
-      </a>
+    <div className="w-full" ref={hypelabNativeParentRef}>
+      <Native
+        // @ts-expect-error
+        class="w-full"
+        placement={EnvVars.HYPELAB_INTERNAL_NATIVE_PLACEMENT_SLUG}
+        onError={onError}
+      >
+        <span className="hidden" ref={hypelabHeadlineRef} data-ref="headline" />
+        <span className="hidden" ref={hypelabBodyRef} data-ref="body" />
+        <a className="hidden" ref={hypelabCtaLinkRef} href="/" data-ref="ctaLink">
+          <img className="hidden" ref={hypelabIconRef} data-ref="icon" alt="" />
+        </a>
 
-      <TextPromotionView
-        accountPkh={accountPkh}
-        href={ctaUrl || '/'}
-        imageSrc={iconUrl || dummyImageSrc}
-        isVisible={isVisible}
-        headline={headlineText}
-        contentText={bodyText}
-        providerTitle={AdsProviderTitle.HypeLab}
-        pageName={pageName}
-        onAdRectSeen={onAdRectSeen}
-        onImageError={onError}
-      />
-    </Native>
+        <TextPromotionView
+          accountPkh={accountPkh}
+          href={ctaUrl || '/'}
+          imageSrc={iconUrl || dummyImageSrc}
+          isVisible={isVisible}
+          headline={headlineText}
+          contentText={bodyText}
+          providerTitle={AdsProviderTitle.HypeLab}
+          pageName={pageName}
+          onAdRectSeen={onAdRectSeen}
+          onImageError={onError}
+        />
+      </Native>
+    </div>
   );
 };

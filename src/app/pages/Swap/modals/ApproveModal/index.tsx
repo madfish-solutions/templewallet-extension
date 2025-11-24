@@ -15,7 +15,7 @@ import { ReactComponent as OutLinkIcon } from 'app/icons/base/outLink.svg';
 import { useEvmEstimationData } from 'app/pages/Send/hooks/use-evm-estimation-data';
 import LiFiImgSrc from 'app/pages/Swap/form/assets/lifi.png';
 import { EvmStepReviewData } from 'app/pages/Swap/form/interfaces';
-import { parseTxRequestToViem, timeout } from 'app/pages/Swap/modals/ConfirmSwap/utils';
+import { parseTxRequestToViem } from 'app/pages/Swap/modals/ConfirmSwap/utils';
 import { EvmTransactionView } from 'app/templates/EvmTransactionView';
 import { LedgerApprovalModal } from 'app/templates/ledger-approval-modal';
 import { erc20ApproveAbi } from 'lib/abi/erc20';
@@ -31,6 +31,7 @@ import { runConnectedLedgerOperationFlow, LedgerOperationState } from 'lib/ui';
 import { useLedgerWebHidFullViewGuard } from 'lib/ui/ledger-webhid-guard';
 import { LedgerFullViewPromptModal } from 'lib/ui/LedgerFullViewPrompt';
 import { showTxSubmitToastWithDelay } from 'lib/ui/show-tx-submit-toast.util';
+import { delay } from 'lib/utils';
 import { ZERO } from 'lib/utils/numbers';
 import { useGetEvmActiveBlockExplorer } from 'temple/front/ready';
 import { TempleChainKind } from 'temple/types';
@@ -139,7 +140,7 @@ const ApproveModal: FC<ApproveModalProps> = ({ stepReviewData, onClose, onStepCo
         const txHash = await sendEvmTransaction(account.address as HexString, inputNetwork, txParams);
         const blockExplorer = getActiveBlockExplorer(inputNetwork.chainId.toString());
         showTxSubmitToastWithDelay(TempleChainKind.EVM, txHash, blockExplorer.url);
-        await timeout(1000);
+        await delay(1000);
 
         onStepCompleted();
       };

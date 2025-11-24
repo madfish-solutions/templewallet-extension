@@ -49,3 +49,5 @@ video-rep
 
 #private package config
 .npmrc
+
+.scannerwork

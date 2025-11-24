@@ -16,7 +16,8 @@ const WERT_SUPPORTED_EVM_CHAIN_IDS = [
   COMMON_MAINNET_CHAIN_IDS.polygon,
   COMMON_MAINNET_CHAIN_IDS.base,
   COMMON_MAINNET_CHAIN_IDS.avalanche,
-  COMMON_MAINNET_CHAIN_IDS.arbitrum
+  COMMON_MAINNET_CHAIN_IDS.arbitrum,
+  COMMON_MAINNET_CHAIN_IDS.rootstock
 ];
 
 export const isWertSupportedChainAssetSlug = (chainAssetSlug: string) => {
@@ -59,7 +60,8 @@ export const wertCommodityEvmChainIdMap: Record<string | number, WertCommodity> 
   [COMMON_MAINNET_CHAIN_IDS.polygon]: { commodity: 'POL', network: 'polygon' },
   [COMMON_MAINNET_CHAIN_IDS.base]: { commodity: 'ETH', network: 'base' },
   [COMMON_MAINNET_CHAIN_IDS.avalanche]: { commodity: 'AVAX', network: 'avalanche' },
-  [COMMON_MAINNET_CHAIN_IDS.arbitrum]: { commodity: 'ETH', network: 'arbitrum' }
+  [COMMON_MAINNET_CHAIN_IDS.arbitrum]: { commodity: 'ETH', network: 'arbitrum' },
+  [COMMON_MAINNET_CHAIN_IDS.rootstock]: { commodity: 'RBTC', network: 'rootstock' }
 };
 
 const TEZOS_WERT_COMMODITY: WertCommodity = {

@@ -346,6 +346,13 @@ const DEFAULT_BLOCK_EXPLORERS_BASE: Record<TempleChainKind, Record<string, Omit<
         id: 'etherlink-mainnet'
       }
     ],
+    [COMMON_MAINNET_CHAIN_IDS.rootstock]: [
+      {
+        name: 'Rootstock Mainnet explorer',
+        url: 'https://explorer.rootstock.io',
+        id: 'rootstock-mainnet'
+      }
+    ],
     [ETH_SEPOLIA_CHAIN_ID]: [
       {
         name: 'Etherscan',
@@ -400,6 +407,13 @@ const DEFAULT_BLOCK_EXPLORERS_BASE: Record<TempleChainKind, Record<string, Omit<
         name: 'Etherlink Testnet explorer',
         url: 'https://testnet.explorer.etherlink.com',
         id: 'etherlink-ghostnet'
+      }
+    ],
+    [COMMON_TESTNET_CHAIN_IDS.rootstock]: [
+      {
+        name: 'Rootstock Testnet explorer',
+        url: 'https://explorer.testnet.rootstock.io',
+        id: 'rootstock-testnet'
       }
     ]
   }

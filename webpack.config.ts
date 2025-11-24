@@ -3,7 +3,6 @@
   https://github.com/facebook/create-react-app/blob/main/packages/react-scripts/config/webpack.config.js
 */
 
-import SaveRemoteFilePlugin from '@temple-wallet/save-remote-file-webpack-plugin';
 import { CleanWebpackPlugin } from 'clean-webpack-plugin';
 import CopyWebpackPlugin from 'copy-webpack-plugin';
 import CreateFileWebpack from 'create-file-webpack';
@@ -134,14 +133,10 @@ const mainConfig = (() => {
             Using `asset/resource` rule type with `webworker` target isn't working.
             See: https://github.com/vercel/next.js/issues/22581
           */
-          { from: PATHS.LIBTHEMIS_WASM_FILE, to: PATHS.OUTPUT_WASM }
+          { from: PATHS.LIBTHEMIS_WASM_FILE, to: PATHS.OUTPUT_WASM },
+          { from: PATHS.HYPELAB_EMBED_FILE, to: PATHS.OUTPUT_HYPELAB_EMBED }
         ]
       }),
-
-      /** TODO: Type def */
-      new (SaveRemoteFilePlugin as any)([
-        { url: 'https://api.hypelab.com/v1/scripts/hp-sdk.js?v=0', filepath: 'scripts/hypelab.embed.js', hash: false }
-      ]),
 
       // TODO: Enable, when Swap route hops SVGs are used again
       // new CheckUnusedFilesPlugin(['src/**/*.svg'], PRODUCTION_ENV),
