@@ -22,14 +22,6 @@ export const useLifiConnectedEvmTokenMetadataSelector = (
 ): LifiEvmTokenMetadata | undefined =>
   useSelector(({ lifiEvmTokensMetadata }) => lifiEvmTokensMetadata.connectedTokensMetadataRecord[chainId]?.[tokenSlug]);
 
-export const useLifiEnabledNetworksEvmTokenMetadataSelector = (
-  chainId: number,
-  tokenSlug: string
-): LifiEvmTokenMetadata | undefined =>
-  useSelector(
-    ({ lifiEvmTokensMetadata }) => lifiEvmTokensMetadata.enabledChainsTokensMetadataRecord[chainId]?.[tokenSlug]
-  );
-
 export const useLifiEvmTokenMetadataSelector = (chainId: number, tokenSlug: string): LifiEvmTokenMetadata | undefined =>
   useSelector(
     ({ lifiEvmTokensMetadata }) =>
