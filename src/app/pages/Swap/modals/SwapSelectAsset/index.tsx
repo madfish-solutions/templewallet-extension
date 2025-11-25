@@ -12,7 +12,7 @@ import { isFilterChain } from 'app/pages/Swap/form/utils';
 import { useAssetsFilterOptionsSelector } from 'app/store/assets-filter-options/selectors';
 import { FilterChain } from 'app/store/assets-filter-options/state';
 import {
-  useLifiEvmTokensMetadataRecordSelector,
+  useLifiConnectedEvmTokensMetadataRecordSelector,
   useLifiSupportedChainIdsSelector
 } from 'app/store/evm/swap-lifi-metadata/selectors';
 import { NetworkPopper } from 'app/templates/network-popper';
@@ -40,7 +40,7 @@ export const SwapSelectAssetModal = memo<SelectTokenModalProps>(
   ({ activeField, onAssetSelect, opened, onRequestClose, chainKind }) => {
     const [searchValue, setSearchValue] = useState('');
     const [searchValueDebounced] = useDebounce(searchValue, 300);
-    const metadataRecord = useLifiEvmTokensMetadataRecordSelector();
+    const metadataRecord = useLifiConnectedEvmTokensMetadataRecordSelector();
 
     const tezosNetwork = useTezosMainnetChain();
 

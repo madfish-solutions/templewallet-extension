@@ -659,13 +659,7 @@ export async function processEvmDApp(
     case evmRpcMethodsNames.personal_sign:
       const [personalSignData, personalSignerPkh] = ethPersonalSignPayloadValidationSchema.validateSync(params);
       methodHandler = () =>
-        requestEvmPersonalSign(
-          origin,
-          personalSignerPkh,
-          chainId,
-          Buffer.from(personalSignData.slice(2), 'hex').toString('utf8'),
-          iconUrl
-        );
+        requestEvmPersonalSign(origin, personalSignerPkh, chainId, { raw: personalSignData }, iconUrl);
       break;
     case evmRpcMethodsNames.wallet_getPermissions:
       methodHandler = () => getEvmPermissions(origin);

@@ -7,7 +7,8 @@ export type TokenSlugTokenMetadataRecord = StringRecord<LifiEvmTokenMetadata>;
 export type LifiEvmTokenMetadataRecord = Record<ChainId, TokenSlugTokenMetadataRecord>;
 
 export interface LifiEvmTokensMetadataState {
-  metadataRecord: LifiEvmTokenMetadataRecord;
+  connectedTokensMetadataRecord: LifiEvmTokenMetadataRecord;
+  enabledChainsTokensMetadataRecord: LifiEvmTokenMetadataRecord;
   supportedChainIds: number[];
   lastFetchTime?: number;
   isLoading: boolean;
@@ -15,7 +16,8 @@ export interface LifiEvmTokensMetadataState {
 }
 
 export const lifiEvmTokensMetadataInitialState: LifiEvmTokensMetadataState = {
-  metadataRecord: {},
+  connectedTokensMetadataRecord: {},
+  enabledChainsTokensMetadataRecord: {},
   supportedChainIds: [],
   lastFetchTime: undefined,
   isLoading: false,
