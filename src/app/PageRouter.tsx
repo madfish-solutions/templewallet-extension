@@ -25,6 +25,7 @@ import { EarnEthPage } from './pages/EarnEth';
 import { EarnTezPage } from './pages/EarnTez';
 import { EarnTkeyPage } from './pages/EarnTkey';
 import { ImportWallet } from './pages/ImportWallet';
+import { KoloCardPage } from './pages/KoloCard';
 import { Market } from './pages/Market';
 import { Notifications } from './pages/Notifications';
 import { RewardsPage } from './pages/Rewards';
@@ -115,6 +116,7 @@ const ROUTE_MAP = Woozie.createMap<RouteContext>([
   ['/notifications', onlyReady(() => <Notifications />)],
   ['/dapps', onlyReady(() => <Dapps />)],
   ['/account/:id', onlyReady(({ id }) => <AccountSettings id={id!} />)],
+  ['/kolo-card', onlyReady(() => <KoloCardPage />)],
   ['/rewards', onlyReady(() => <RewardsRoute />)],
   ['*', () => <Woozie.Redirect to="/" />]
 ]);
