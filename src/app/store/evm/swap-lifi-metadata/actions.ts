@@ -2,13 +2,17 @@ import { createAction } from '@reduxjs/toolkit';
 
 import { LifiEvmTokenMetadata } from 'lib/metadata/types';
 
-interface putLifiEvmTokensMetadataActionActionPayload {
+interface PutLifiEvmTokensMetadataActionPayload {
   chainId: number;
   records: Record<string, LifiEvmTokenMetadata | undefined>;
 }
 
-export const putLifiEvmTokensMetadataAction = createAction<putLifiEvmTokensMetadataActionActionPayload>(
-  'evm/swap-lifi-metadata/PUT_LIFI_TOKENS_METADATA_ACTION'
+export const putLifiEnabledNetworksEvmTokensMetadataAction = createAction<PutLifiEvmTokensMetadataActionPayload>(
+  'evm/swap-lifi-metadata/PUT_LIFI_ENABLED_NETWORKS_TOKENS_METADATA_ACTION'
+);
+
+export const putLifiConnectedEvmTokensMetadataAction = createAction<PutLifiEvmTokensMetadataActionPayload>(
+  'evm/swap-lifi-metadata/PUT_LIFI_CONNECTED_TOKENS_METADATA_ACTION'
 );
 
 export const putLifiEvmTokensMetadataLoadingAction = createAction<{ isLoading?: boolean; error?: any }>(

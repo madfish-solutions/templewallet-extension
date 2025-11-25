@@ -5,7 +5,14 @@ import { CompositeForger, OperationBatch, RpcForger, Signer, TezosToolkit } from
 import * as TaquitoUtils from '@taquito/utils';
 import * as Bip39 from 'bip39';
 import { nanoid } from 'nanoid';
-import { createWalletClient, LocalAccount, PrivateKeyAccount, TransactionRequest, TypedDataDefinition } from 'viem';
+import {
+  createWalletClient,
+  LocalAccount,
+  PrivateKeyAccount,
+  SignableMessage,
+  TransactionRequest,
+  TypedDataDefinition
+} from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
 import type * as WasmThemisPackageInterface from 'wasm-themis';
 
@@ -888,7 +895,7 @@ export class Vault {
     });
   }
 
-  async signEvmMessage(accPublicKeyHash: string, message: string) {
+  async signEvmMessage(accPublicKeyHash: string, message: SignableMessage) {
     return this.withSigningEvmAccount(accPublicKeyHash, async account => account.signMessage({ message }));
   }
 
