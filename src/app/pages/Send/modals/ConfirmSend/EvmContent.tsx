@@ -169,7 +169,8 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
       getActiveBlockExplorer,
       setLedgerApprovalModalState,
       onSubmitError,
-      assertCustomFeesPerGasNotTooLow
+      assertCustomFeesPerGasNotTooLow,
+      assetSlug
     ]
   );
 

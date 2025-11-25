@@ -570,6 +570,14 @@
       }
     }
   },
+  "minimalAmount": {
+    "message": "Min: $amount$",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
   "amountMustBePositive": {
     "message": "Must be positive"
   },
@@ -1357,6 +1365,9 @@
   "estimatedApy": {
     "message": "Est. APY"
   },
+  "estimatedApr": {
+    "message": "Est. APR"
+  },
   "selectBaker": {
     "message": "Select Baker"
   },
@@ -1591,6 +1602,14 @@
     "message": "Insufficient $tokenSymbol$ for gas",
     "placeholders": {
       "tokenSymbol": {
+        "content": "$1"
+      }
+    }
+  },
+  "insufficientAssetBalance": {
+    "message": "Insufficient $assetSymbol$ balance",
+    "placeholders": {
+      "assetSymbol": {
         "content": "$1"
       }
     }
@@ -4735,5 +4754,40 @@
   },
   "currentAccountNotConnectedToDApp": {
     "message": "Current account isn’t connected to Dapp"
+  },
+  "addNetworkToContinue": {
+    "message": "Add $network$ to continue",
+    "placeholders": {
+      "network": {
+        "content": "$1"
+      }
+    }
+  },
+  "enableNetworkToContinue": {
+    "message": "Enable $network$ to continue",
+    "placeholders": {
+      "network": {
+        "content": "$1"
+      }
+    }
+  },
+  "activation": {
+    "message": "Activation"
+  },
+  "activationTimeTooltip": {
+    "message": "Time from deposit to start receving rewards. Your deposit will be shown as pending until your stake becomes active.\n\nActivation time: ≈$activationTime$.",
+    "placeholders": {
+      "activationTime": {
+        "content": "$1"
+      }
+    }
+  },
+  "currencyStaking": {
+    "message": "$currency$ Staking",
+    "placeholders": {
+      "currency": {
+        "content": "$1"
+      }
+    }
   }
 }

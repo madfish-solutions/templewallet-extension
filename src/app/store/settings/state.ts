@@ -12,6 +12,7 @@ export interface SettingsState {
   referralLinksEnabled: boolean;
   isTestnetModeEnabled: boolean;
   onRampAsset: ChainAssetSlug | null;
+  onRampTitle?: string;
   favoriteTokens: string[];
   /** @deprecated */
   isOnRampPossibility?: boolean;

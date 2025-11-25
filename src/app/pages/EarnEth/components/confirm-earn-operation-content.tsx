@@ -1,63 +1,69 @@
-import React, { ComponentType, useCallback, useEffect, useMemo, useState } from 'react';
+import React, { ComponentType, useCallback, useEffect, useState } from 'react';
 
-import { TezosToolkit, WalletParamsWithKind } from '@taquito/taquito';
 import BigNumber from 'bignumber.js';
+import { omit } from 'lodash';
 import { FormProvider } from 'react-hook-form-v7';
 import { SWRResponse } from 'swr';
+import { TransactionRequest } from 'viem';
 
 import { FadeTransition } from 'app/a11y/FadeTransition';
 import { ActionModalButton } from 'app/atoms/action-modal';
 import { useLedgerApprovalModalState } from 'app/hooks/use-ledger-approval-modal-state';
+import { dispatch } from 'app/store';
+import { addPendingEvmTransferAction, monitorPendingTransfersAction } from 'app/store/evm/pending-transactions/actions';
 import { BalancesChangesView } from 'app/templates/balances-changes-view';
 import { CurrentAccount } from 'app/templates/current-account';
 import { FeeSummary } from 'app/templates/fee-summary';
 import { LedgerApprovalModal } from 'app/templates/ledger-approval-modal';
 import { PageModalScrollViewWithActions } from 'app/templates/page-modal-scroll-view-with-actions';
 import { TransactionTabs } from 'app/templates/TransactionTabs';
-import { TezosTxParamsFormData } from 'app/templates/TransactionTabs/types';
-import { useTezosEstimationForm } from 'app/templates/TransactionTabs/use-tezos-estimation-form';
-import { TEZ_TOKEN_SLUG } from 'lib/assets';
-import { useTezosAssetBalance } from 'lib/balances';
-import { t, T } from 'lib/i18n';
+import { EvmTxParamsFormData } from 'app/templates/TransactionTabs/types';
+import { useEvmEstimationForm } from 'app/templates/TransactionTabs/use-evm-estimation-form';
+import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
+import { useEvmAssetBalance } from 'lib/balances/hooks';
+import { T } from 'lib/i18n';
 import { useTypedSWR } from 'lib/swr';
-import { TezosEstimationData, TezosEstimationDataProvider } from 'lib/temple/front/estimation-data-providers';
+import { useTempleClient } from 'lib/temple/front';
+import { EvmEstimationDataProvider } from 'lib/temple/front/estimation-data-providers';
 import { TempleAccountType } from 'lib/temple/types';
 import { runConnectedLedgerOperationFlow } from 'lib/ui';
 import { ZERO } from 'lib/utils/numbers';
-import { getTezosToolkitWithSigner } from 'temple/front';
-import { AssetsAmounts } from 'temple/types';
+import { EvmEstimationData } from 'temple/evm/estimate';
+import { useGetEvmActiveBlockExplorer } from 'temple/front/ready';
+import { makeBlockExplorerHref } from 'temple/front/use-block-explorers';
+import { EvmNetworkEssentials } from 'temple/networks';
+import { AssetsAmounts, TempleChainKind } from 'temple/types';
 
-import { TezosEarnReviewDataBase } from '../types';
+import { EthEarnReviewDataBase } from '../types';
 
-interface TxTabsInnerContentProps<R extends TezosEarnReviewDataBase> {
+interface TxTabsInnerContentProps<R extends EthEarnReviewDataBase> {
   reviewData: R;
-  tezBalance: BigNumber;
-  estimationData?: TezosEstimationData;
+  ethBalance: BigNumber;
+  estimationData?: EvmEstimationData;
 }
 
-export interface RenderTopElementProps<R extends TezosEarnReviewDataBase> {
-  reviewData: R;
-  displayedFee: string | undefined;
-  displayedStorageFee: string | undefined;
-  goToFeeTab: EmptyFn;
-}
-
-export interface ConfirmEarnOperationContentProps<R extends TezosEarnReviewDataBase> {
+interface ConfirmEarnOperationContentProps<R extends EthEarnReviewDataBase> {
   getBasicParamsSWRKey: (reviewData: R) => string[];
   formId: string;
   balancesChanges: AssetsAmounts[];
   reviewData?: R;
-  TopElement?: ComponentType<RenderTopElementProps<R>>;
   cancelTestID: string;
   confirmTestID: string;
   confirmText?: ReactChildren;
   TxTabsInnerContent?: ComponentType<TxTabsInnerContentProps<R>>;
-  getBasicParams: (reviewData: R, tezos: TezosToolkit) => Promise<WalletParamsWithKind[]>;
-  useEstimationData: (reviewData: R, tezos: TezosToolkit, tezBalance: BigNumber) => SWRResponse<TezosEstimationData>;
+  getBasicParams: (
+    reviewData: R,
+    network: EvmNetworkEssentials
+  ) => Promise<Pick<TransactionRequest, 'from' | 'to' | 'value' | 'data'>>;
+  useEstimationData: (
+    reviewData: R,
+    network: EvmNetworkEssentials,
+    ethBalance: BigNumber
+  ) => SWRResponse<EvmEstimationData>;
   onCancel: EmptyFn;
 }
 
-export const ConfirmEarnOperationContent = <R extends TezosEarnReviewDataBase>({
+export const ConfirmEarnOperationContent = <R extends EthEarnReviewDataBase>({
   reviewData,
   cancelTestID,
   confirmTestID,
@@ -98,7 +104,7 @@ export const ConfirmEarnOperationContent = <R extends TezosEarnReviewDataBase>({
           )
         }}
       >
-        <TezosEstimationDataProvider>
+        <EvmEstimationDataProvider>
           {reviewData ? (
             <ConfirmEarnOperationContentBodyWrapper
               formId={formId}
@@ -107,16 +113,15 @@ export const ConfirmEarnOperationContent = <R extends TezosEarnReviewDataBase>({
               {...restProps}
             />
           ) : null}
-        </TezosEstimationDataProvider>
+        </EvmEstimationDataProvider>
       </PageModalScrollViewWithActions>
     </FadeTransition>
   );
 };
 
-interface ConfirmEarnOperationContentBodyWrapperProps<R extends TezosEarnReviewDataBase>
+interface ConfirmEarnOperationContentBodyWrapperProps<R extends EthEarnReviewDataBase>
   extends Pick<
     ConfirmEarnOperationContentProps<R>,
-    | 'TopElement'
     | 'getBasicParamsSWRKey'
     | 'getBasicParams'
     | 'useEstimationData'
@@ -128,28 +133,27 @@ interface ConfirmEarnOperationContentBodyWrapperProps<R extends TezosEarnReviewD
   setLoading: SyncFn<boolean>;
 }
 
-const ConfirmEarnOperationContentBodyWrapper = <R extends TezosEarnReviewDataBase>({
+const ConfirmEarnOperationContentBodyWrapper = <R extends EthEarnReviewDataBase>({
   getBasicParamsSWRKey,
   TxTabsInnerContent,
   data,
-  formId,
-  TopElement,
   balancesChanges,
+  formId,
   getBasicParams,
   useEstimationData,
   setLoading
 }: ConfirmEarnOperationContentBodyWrapperProps<R>) => {
   const { account, network, onConfirm } = data;
-  const { address: accountPkh, ownerAddress } = account;
+  const { address: accountPkh } = account;
 
   const isLedgerAccount = account.type === TempleAccountType.Ledger;
   const [latestSubmitError, setLatestSubmitError] = useState<unknown>(null);
 
-  const tezos = getTezosToolkitWithSigner(network, ownerAddress || accountPkh, true);
-  const { value: tezBalance = ZERO } = useTezosAssetBalance(TEZ_TOKEN_SLUG, accountPkh, network);
-  const { data: estimationData, error: estimationError } = useEstimationData(data, tezos, tezBalance);
+  const { sendEvmTransaction } = useTempleClient();
+  const { value: gasTokenBalance = ZERO } = useEvmAssetBalance(EVM_TOKEN_SLUG, accountPkh as HexString, network);
+  const { data: estimationData, error: estimationError } = useEstimationData(data, network, gasTokenBalance);
 
-  const localGetBasicParams = useCallback(() => getBasicParams(data, tezos), [data, getBasicParams, tezos]);
+  const localGetBasicParams = useCallback(() => getBasicParams(data, network), [data, getBasicParams, network]);
   const { data: basicParams } = useTypedSWR(getBasicParamsSWRKey(data), localGetBasicParams);
   const estimationDataLoading = !estimationData && !estimationError;
   const {
@@ -158,19 +162,11 @@ const ConfirmEarnOperationContentBodyWrapper = <R extends TezosEarnReviewDataBas
     setTab,
     selectedFeeOption,
     handleFeeOptionSelect,
-    submitOperation,
-    displayedFeeOptions,
+    feeOptions,
     displayedFee,
-    displayedStorageFee,
-    assertCustomGasFeeNotTooLow
-  } = useTezosEstimationForm({
-    estimationData,
-    basicParams,
-    senderAccount: account,
-    network,
-    estimationDataLoading,
-    isEstimationError: Boolean(estimationError)
-  });
+    getFeesPerGas,
+    assertCustomFeesPerGasNotTooLow
+  } = useEvmEstimationForm(estimationData, basicParams, account, network.chainId);
   const { formState } = form;
   useEffect(
     () => setLoading(estimationDataLoading || formState.isSubmitting),
@@ -179,6 +175,7 @@ const ConfirmEarnOperationContentBodyWrapper = <R extends TezosEarnReviewDataBas
 
   const { ledgerApprovalModalState, setLedgerApprovalModalState, handleLedgerModalClose } =
     useLedgerApprovalModalState();
+  const getActiveBlockExplorer = useGetEvmActiveBlockExplorer();
 
   const onSubmitError = useCallback(
     (err: unknown) => {
@@ -190,28 +187,52 @@ const ConfirmEarnOperationContentBodyWrapper = <R extends TezosEarnReviewDataBas
   );
 
   const onSubmit = useCallback(
-    async ({ gasFee, storageLimit }: TezosTxParamsFormData) => {
+    async ({ gasPrice, gasLimit, nonce }: EvmTxParamsFormData) => {
+      if (formState.isSubmitting || !basicParams) return;
+
+      const feesPerGas = getFeesPerGas(gasPrice);
+
+      if (!estimationData || !feesPerGas) {
+        onSubmitError(estimationError);
+
+        return;
+      }
+
       try {
-        if (formState.isSubmitting) return;
+        assertCustomFeesPerGasNotTooLow(feesPerGas);
+      } catch (e) {
+        onSubmitError(e);
 
-        try {
-          assertCustomGasFeeNotTooLow(gasFee);
-        } catch (e) {
-          onSubmitError(e);
+        return;
+      }
 
-          return;
-        }
-
-        if (!estimationData || !displayedFeeOptions) {
-          onSubmitError(estimationError);
-
-          return;
-        }
+      try {
+        const { value, to: txDestination } = basicParams;
 
         const doOperation = async () => {
-          const op = await submitOperation(tezos, gasFee, storageLimit, estimationData.revealFee, displayedFeeOptions);
+          const txHash = await sendEvmTransaction(accountPkh as HexString, network, {
+            to: txDestination,
+            value,
+            ...omit(estimationData, 'estimatedFee'),
+            ...feesPerGas,
+            ...(gasLimit ? { gas: BigInt(gasLimit) } : {}),
+            ...(nonce ? { nonce: Number(nonce) } : {})
+          } as TransactionRequest);
 
-          onConfirm(op!.opHash);
+          onConfirm(txHash);
+
+          const blockExplorer = getActiveBlockExplorer(network.chainId.toString());
+
+          dispatch(
+            addPendingEvmTransferAction({
+              txHash,
+              accountPkh: accountPkh as HexString,
+              assetSlug: EVM_TOKEN_SLUG,
+              network,
+              blockExplorerUrl: makeBlockExplorerHref(blockExplorer.url, txHash, 'tx', TempleChainKind.EVM)
+            })
+          );
+          dispatch(monitorPendingTransfersAction());
         };
 
         if (isLedgerAccount) {
@@ -224,64 +245,50 @@ const ConfirmEarnOperationContentBodyWrapper = <R extends TezosEarnReviewDataBas
       }
     },
     [
-      displayedFeeOptions,
+      accountPkh,
+      assertCustomFeesPerGasNotTooLow,
+      basicParams,
       estimationData,
       estimationError,
       formState.isSubmitting,
+      getActiveBlockExplorer,
+      getFeesPerGas,
       isLedgerAccount,
-      setLedgerApprovalModalState,
+      network,
       onConfirm,
       onSubmitError,
-      submitOperation,
-      tezos,
-      assertCustomGasFeeNotTooLow
+      sendEvmTransaction,
+      setLedgerApprovalModalState
     ]
   );
 
   const goToFeeTab = useCallback(() => setTab('fee'), [setTab]);
 
-  const topElement = useMemo(
-    () =>
-      TopElement ? (
-        <TopElement
-          displayedFee={displayedFee}
-          displayedStorageFee={displayedStorageFee}
-          reviewData={data}
-          goToFeeTab={goToFeeTab}
-        />
-      ) : (
+  return (
+    <FormProvider {...form}>
+      <div className="flex flex-col">
         <div className="my-4">
           <BalancesChangesView
             balancesChanges={balancesChanges}
-            title={t('simulatedResult')}
             chain={network}
             footer={
               <FeeSummary
                 network={network}
-                assetSlug={TEZ_TOKEN_SLUG}
+                assetSlug={EVM_TOKEN_SLUG}
                 gasFee={displayedFee}
-                storageFee={displayedStorageFee}
                 onOpenFeeTab={goToFeeTab}
                 embedded
               />
             }
           />
         </div>
-      ),
-    [balancesChanges, data, displayedFee, displayedStorageFee, goToFeeTab, network, TopElement]
-  );
-
-  return (
-    <FormProvider {...form}>
-      <div className="flex flex-col">
-        {topElement}
 
         <CurrentAccount />
 
         <div className="flex flex-col">
-          <TransactionTabs<TezosTxParamsFormData>
+          <TransactionTabs<EvmTxParamsFormData>
             network={network}
-            nativeAssetSlug={TEZ_TOKEN_SLUG}
+            nativeAssetSlug={EVM_TOKEN_SLUG}
             selectedTab={tab}
             setSelectedTab={setTab}
             selectedFeeOption={selectedFeeOption}
@@ -289,14 +296,14 @@ const ConfirmEarnOperationContentBodyWrapper = <R extends TezosEarnReviewDataBas
             estimationError={estimationError}
             onFeeOptionSelect={handleFeeOptionSelect}
             onSubmit={onSubmit}
-            displayedFeeOptions={displayedFeeOptions}
+            displayedFeeOptions={feeOptions?.displayed}
             formId={formId}
             tabsName={`${formId}-tabs`}
             destinationName={null}
             destinationValue={null}
           >
             {TxTabsInnerContent ? (
-              <TxTabsInnerContent reviewData={data} tezBalance={tezBalance} estimationData={estimationData} />
+              <TxTabsInnerContent reviewData={data} ethBalance={gasTokenBalance} estimationData={estimationData} />
             ) : null}
           </TransactionTabs>
         </div>

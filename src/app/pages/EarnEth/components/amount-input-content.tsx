@@ -2,7 +2,7 @@ import React, { FC, ReactNode, useCallback, useEffect } from 'react';
 
 import BigNumber from 'bignumber.js';
 import clsx from 'clsx';
-import { Controller, useForm } from 'react-hook-form-v7';
+import { Controller, SubmitErrorHandler, useForm } from 'react-hook-form-v7';
 
 import { FadeTransition } from 'app/a11y/FadeTransition';
 import { Button, Money } from 'app/atoms';
@@ -10,11 +10,14 @@ import AssetField from 'app/atoms/AssetField';
 import { StyledButton } from 'app/atoms/StyledButton';
 import { PageModalScrollViewWithActions } from 'app/templates/page-modal-scroll-view-with-actions';
 import { T, t, toLocalFixed } from 'lib/i18n';
-import { useTezosGasMetadata } from 'lib/metadata';
+import { useEvmGasMetadata } from 'lib/metadata';
 import { shouldDisableSubmitButton } from 'lib/ui/should-disable-submit-button';
-import { TezosNetworkEssentials } from 'temple/networks';
+import { ZERO } from 'lib/utils/numbers';
+import { DEFAULT_EVM_CURRENCY, EvmNetworkEssentials } from 'temple/networks';
 
-import { BakerCard } from './baker-card';
+import { EthStakingStats } from '../types';
+
+import { ProviderCard } from './provider-card';
 
 interface AmountInputContentProps {
   formId: string;
@@ -22,13 +25,16 @@ interface AmountInputContentProps {
   submitButtonLabel: ReactNode;
   maxAmountLabel: ReactNode;
   maxAmount: BigNumber;
+  minAmount?: BigNumber;
   maxAmountLabelValue?: BigNumber;
   maxButtonTestID: string;
   amountInputTestID: string;
-  network: TezosNetworkEssentials;
-  bakerPkh: string;
-  accountPkh: string;
+  placeholder: string;
+  network: EvmNetworkEssentials;
+  stats: EthStakingStats;
   onSubmit: SyncFn<FormValues>;
+  onExceedMaxAmount?: EmptyFn;
+  onBelowMinAmount?: EmptyFn;
   children?: ReactNode;
 }
 
@@ -43,27 +49,34 @@ export const AmountInputContent: FC<AmountInputContentProps> = ({
   maxAmount,
   maxAmountLabel,
   maxAmountLabelValue = maxAmount,
+  minAmount = ZERO,
   maxButtonTestID,
   amountInputTestID,
+  placeholder,
   network,
-  bakerPkh,
-  accountPkh,
   onSubmit,
-  children
+  onExceedMaxAmount,
+  onBelowMinAmount,
+  children,
+  stats
 }) => {
-  const { control, handleSubmit, formState, trigger, setValue } = useForm<FormValues>({
+  const { control, handleSubmit, formState, trigger, setValue, getValues } = useForm<FormValues>({
     defaultValues: { amount: '' }
   });
-  const { symbol: tezSymbol, decimals: tezDecimals } = useTezosGasMetadata(network.chainId);
+  const { decimals: ethDecimals, symbol: ethSymbol } = useEvmGasMetadata(network.chainId) ?? DEFAULT_EVM_CURRENCY;
 
   const validateAmount = useCallback(
     (amount: string) => {
       if (!amount) return t('required');
       if (Number(amount) === 0) return t('amountMustBePositive');
 
+      const parsedAmount = new BigNumber(amount);
+
+      if (parsedAmount.isLessThan(minAmount)) return t('minimalAmount', toLocalFixed(minAmount));
+
       return new BigNumber(amount).isLessThanOrEqualTo(maxAmount) || t('maximalAmount', toLocalFixed(maxAmount, 6));
     },
-    [maxAmount]
+    [maxAmount, minAmount]
   );
 
   const maxAmountStr = maxAmount?.toString();
@@ -78,6 +91,17 @@ export const AmountInputContent: FC<AmountInputContentProps> = ({
     () => setValue('amount', maxAmountStr, { shouldValidate: true }),
     [setValue, maxAmountStr]
   );
+
+  const handleInvalidSubmit = useCallback<SubmitErrorHandler<FormValues>>(() => {
+    const parsedAmount = new BigNumber(getValues('amount'));
+
+    if (parsedAmount.isGreaterThan(maxAmount)) {
+      onExceedMaxAmount?.();
+    }
+    if (parsedAmount.isLessThan(minAmount)) {
+      onBelowMinAmount?.();
+    }
+  }, [onExceedMaxAmount, maxAmount, getValues, onBelowMinAmount, minAmount]);
 
   return (
     <FadeTransition>
@@ -103,19 +127,13 @@ export const AmountInputContent: FC<AmountInputContentProps> = ({
           )
         }}
       >
-        <form id={formId} onSubmit={handleSubmit(onSubmit)} className="flex flex-col">
+        <form id={formId} onSubmit={handleSubmit(onSubmit, handleInvalidSubmit)} className="flex flex-col">
           {children}
 
           <p className="mt-1 mb-2 text-font-description-bold">
-            <T id="bakerInfo" />
+            <T id="provider" />
           </p>
-          <BakerCard
-            baker={bakerPkh}
-            className="mb-6"
-            network={network}
-            accountPkh={accountPkh}
-            metricsType="staking"
-          />
+          <ProviderCard className="mb-6" stats={stats} />
 
           <div className="flex flex-col gap-1">
             <div className="flex my-1 justify-between gap-1">
@@ -127,7 +145,7 @@ export const AmountInputContent: FC<AmountInputContentProps> = ({
                 <Money fiat={false} smallFractionFont={false} tooltipPlacement="top">
                   {maxAmountLabelValue}
                 </Money>{' '}
-                {tezSymbol}
+                {ethSymbol}
               </div>
             </div>
             <Controller
@@ -137,10 +155,10 @@ export const AmountInputContent: FC<AmountInputContentProps> = ({
               render={({ field, fieldState, formState }) => (
                 <AssetField
                   {...field}
-                  extraFloatingInner={tezSymbol}
-                  assetDecimals={tezDecimals}
+                  extraFloatingInner={ethSymbol}
+                  assetDecimals={ethDecimals}
                   readOnly={false}
-                  placeholder="0.00"
+                  placeholder={placeholder}
                   errorCaption={formState.submitCount > 0 ? fieldState.error?.message : undefined}
                   cleanable
                   floatAfterPlaceholder
