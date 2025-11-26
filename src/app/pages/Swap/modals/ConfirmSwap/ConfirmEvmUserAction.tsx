@@ -16,9 +16,11 @@ import { AccountForChain } from 'temple/accounts';
 import { useEvmChainByChainId } from 'temple/front/chains';
 import { TempleChainKind } from 'temple/types';
 
+import { Route3EvmRoute, getCommonStepProps, isLifiStep } from '../../form/interfaces';
+import { getTokenSlugFromEvmDexTokenAddress } from '../../utils';
+
 import { EvmContent } from './EvmContent';
 import { InitialInputData, UserAction } from './types';
-import { getTokenSlugFromLifiAddress } from './utils';
 
 interface ConfirmEvmUserActionProps {
   account: AccountForChain<TempleChainKind.EVM>;
@@ -43,25 +45,29 @@ export const ConfirmEvmUserAction = memo<ConfirmEvmUserActionProps>(
     submitDisabled
   }) => {
     const { type, routeStep } = userAction;
+    const { fromChainId: firstActionFromChainId } = getCommonStepProps(firstExecuteAction.routeStep);
+    const { fromChainId, fromToken, toChainId, toAmountMin, toToken } = getCommonStepProps(routeStep);
 
-    const inputNetwork = useEvmChainByChainId(routeStep.action.fromChainId);
-    const outputNetwork = useEvmChainByChainId(routeStep.action.toChainId);
+    const inputNetwork = useEvmChainByChainId(fromChainId);
+    const outputNetwork = useEvmChainByChainId(toChainId);
 
-    const initialInputNetwork = useEvmChainByChainId(firstExecuteAction.routeStep.action.fromChainId);
+    const initialInputNetwork = useEvmChainByChainId(firstActionFromChainId);
 
     if (!inputNetwork || !outputNetwork || !initialInputNetwork) throw new DeadEndBoundaryError();
 
-    const [routeStepWithTransactionRequest, setRouteStepWithTransactionRequest] = useState<LiFiStep | null>(null);
+    const [routeStepWithTransactionRequest, setRouteStepWithTransactionRequest] = useState<
+      LiFiStep | Route3EvmRoute | null
+    >(null);
 
     const stepReviewData = useMemo(() => {
       const base = {
         account,
         inputNetwork,
         outputNetwork,
-        protocolFee: getProtocolFeeForRouteStep(routeStep, inputNetwork),
+        protocolFee: isLifiStep(routeStep) ? getProtocolFeeForRouteStep(routeStep, inputNetwork) : undefined,
         minimumReceived: {
-          amount: atomsToTokens(routeStep.estimate.toAmountMin, routeStep.action.toToken.decimals).toString(),
-          symbol: routeStep.action.toToken.symbol
+          amount: atomsToTokens(toAmountMin, toToken.decimals).toString(),
+          symbol: toToken.symbol
         }
       } as const;
 
@@ -71,17 +77,17 @@ export const ConfirmEvmUserAction = memo<ConfirmEvmUserActionProps>(
       }
 
       return { ...base, routeStep };
-    }, [account, inputNetwork, type, outputNetwork, routeStep, routeStepWithTransactionRequest]);
+    }, [account, inputNetwork, outputNetwork, routeStep, toAmountMin, toToken, type, routeStepWithTransactionRequest]);
 
     const initialInputData = useMemo<InitialInputData>(
       () => ({
-        tokenSlug: getTokenSlugFromLifiAddress(firstExecuteAction.routeStep.action.fromToken.address),
+        tokenSlug: getTokenSlugFromEvmDexTokenAddress(fromToken.address),
         network: {
           chainId: initialInputNetwork.chainId,
           rpcBaseURL: initialInputNetwork.rpcBaseURL
         }
       }),
-      [firstExecuteAction.routeStep.action.fromToken.address, initialInputNetwork]
+      [fromToken.address, initialInputNetwork]
     );
 
     useEffect(() => {
@@ -94,7 +100,7 @@ export const ConfirmEvmUserAction = memo<ConfirmEvmUserActionProps>(
             async () => {
               if (cancelled || cancelledRef?.current) return;
 
-              const step = await getEvmStepTransaction(routeStep);
+              const step = isLifiStep(routeStep) ? await getEvmStepTransaction(routeStep) : routeStep;
 
               if (cancelled || cancelledRef?.current) return;
               setRouteStepWithTransactionRequest(step);

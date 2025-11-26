@@ -5,7 +5,15 @@ import axios from 'axios';
 import { templeWalletApi } from '../templewallet.api';
 
 import { AssetTransfersWithMetadataResult, Log } from './alchemy';
-import { BalancesResponse, ChainID, NftAddressBalanceNftResponse, RouteParams } from './api.interfaces';
+import {
+  BalancesResponse,
+  ChainID,
+  NftAddressBalanceNftResponse,
+  Route3EvmRouteRequest,
+  Route3EvmRoute,
+  Route3EvmTokenWithPrice,
+  RouteParams
+} from './api.interfaces';
 
 export const getEvmBalances = (walletAddress: string, chainId: ChainID) =>
   buildEvmRequest<BalancesResponse>('/balances', walletAddress, chainId);
@@ -116,6 +124,24 @@ export const getEvmStepTransaction = (step: LiFiStep, signal?: AbortSignal): Pro
 
 export const getEvmSwapStatus = (params: GetStatusRequest, signal?: AbortSignal): Promise<StatusResponse> =>
   templeWalletApi.get<StatusResponse>('evm/swap-status', { params, signal }).then(
+    res => res.data,
+    error => {
+      console.error(error);
+      throw error;
+    }
+  );
+
+export const get3RouteEvmTokens = () =>
+  templeWalletApi.get<StringRecord<Route3EvmTokenWithPrice>>('evm/3route-tokens').then(
+    res => res.data,
+    error => {
+      console.error(error);
+      throw error;
+    }
+  );
+
+export const get3RouteEvmSwap = (params: Route3EvmRouteRequest) =>
+  templeWalletApi.get<Route3EvmRoute>('evm/3route-swap', { params }).then(
     res => res.data,
     error => {
       console.error(error);

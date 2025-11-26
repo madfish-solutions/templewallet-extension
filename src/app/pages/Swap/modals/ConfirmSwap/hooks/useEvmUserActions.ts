@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-import { isSwapEvmReviewData, SwapReviewData } from 'app/pages/Swap/form/interfaces';
+import { isLifiStep, isSwapEvmReviewData, SwapReviewData } from 'app/pages/Swap/form/interfaces';
 import { useBooleanState } from 'lib/ui/hooks';
 
 import { useEvmAllowances } from '../../SwapSelectAsset/hooks';
@@ -9,14 +9,12 @@ import { UserAction } from '../types';
 import { usePrefetchEvmStepTransactions } from './usePrefetchEvmStepTransactions';
 
 export const useEvmUserActions = (opened: boolean, onRequestClose: EmptyFn, reviewData?: SwapReviewData) => {
-  const { allowanceSufficient, loading: allowancesLoading } = useEvmAllowances(
-    reviewData && isSwapEvmReviewData(reviewData) ? reviewData.swapRoute.steps : []
-  );
-
   const evmSteps = useMemo(() => {
     if (!reviewData || !isSwapEvmReviewData(reviewData)) return [];
-    return reviewData.swapRoute.steps;
+
+    return 'steps' in reviewData.swapRoute ? reviewData.swapRoute.steps : [reviewData.swapRoute];
   }, [reviewData]);
+  const { allowanceSufficient, loading: allowancesLoading } = useEvmAllowances(evmSteps);
 
   const [userActions, setUserActions] = useState<Array<UserAction>>([]);
   const [actionsInitialized, setActionsInitialized] = useState(false);
@@ -88,9 +86,13 @@ export const useEvmUserActions = (opened: boolean, onRequestClose: EmptyFn, revi
   );
 
   const isBridgeOperation = useMemo(() => {
-    const action = currentUserAction?.value?.routeStep.action;
+    const routeStep = currentUserAction?.value?.routeStep;
 
-    return action?.fromChainId !== action?.toChainId;
+    if (!routeStep || !isLifiStep(routeStep)) return false;
+
+    const { fromChainId, toChainId } = routeStep.action;
+
+    return fromChainId !== toChainId;
   }, [currentUserAction]);
 
   const onStepCompleted = useCallback(() => {

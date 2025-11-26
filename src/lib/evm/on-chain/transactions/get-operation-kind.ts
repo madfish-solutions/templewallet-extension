@@ -38,7 +38,7 @@ import {
 const deployContractAbis = [erc721SeaCreateCloneAbi, erc1155SeaCreateCloneAbi, raribleCreateTokenAbi] as const;
 
 // Parsing transaction data with erc20ApproveAbi and erc721ApproveAbi returns the same results
-const approveAbis = [erc20ApproveAbi, erc20IncreaseAllowanceAbi] as const;
+export const approveAbis = [erc20ApproveAbi, erc20IncreaseAllowanceAbi] as const;
 
 const approvalForAllAbis = [erc721SetApprovalForAllAbi, erc1155SetApprovalForAllAbi] as const;
 

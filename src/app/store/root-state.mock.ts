@@ -13,6 +13,7 @@ import { mockEvmCollectiblesMetadataState } from './evm/collectibles-metadata/st
 import { mockNoCategoryEvmAssetsMetadataState } from './evm/no-category-assets-metadata/state.mock';
 import { mockPendingEvmTransactionsState } from './evm/pending-transactions/state.mock';
 import { mockEvmLoadingState } from './evm/state.mock';
+import { mockRoute3EvmTokensMetadataState } from './evm/swap-3route-metadata/state.mock';
 import { mockEvmTokensExchangeRatesState } from './evm/tokens-exchange-rates/state.mock';
 import { mockEvmTokensMetadataState } from './evm/tokens-metadata/state.mock';
 import { mockNewsletterState } from './newsletter/newsletter-state.mock';
@@ -58,5 +59,6 @@ export const mockRootState: RootState = {
   evmTokensExchangeRates: mockEvmTokensExchangeRatesState,
   evmNoCategoryAssetMetadata: mockNoCategoryEvmAssetsMetadataState,
   assetsFilterOptions: mockAssetsFilterOptionsState,
-  accountsInitialization: mockAccountsInitializationState
+  accountsInitialization: mockAccountsInitializationState,
+  route3EvmTokensMetadata: mockRoute3EvmTokensMetadataState
 };

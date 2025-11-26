@@ -11,7 +11,8 @@ import {
   ETHEREUM_MAINNET_CHAIN_ID,
   ETH_SEPOLIA_CHAIN_ID,
   TempleTezosChainId,
-  BlockExplorer
+  BlockExplorer,
+  ETHERLINK_MAINNET_CHAIN_ID
 } from 'lib/temple/types';
 import { useUpdatableRef } from 'lib/ui/hooks';
 import { EMPTY_FROZEN_OBJ } from 'lib/utils';
@@ -339,7 +340,7 @@ const DEFAULT_BLOCK_EXPLORERS_BASE: Record<TempleChainKind, Record<string, Omit<
         id: 'basescan-mainnet'
       }
     ],
-    [COMMON_MAINNET_CHAIN_IDS.etherlink]: [
+    [ETHERLINK_MAINNET_CHAIN_ID]: [
       {
         name: 'Etherlink explorer',
         url: 'https://explorer.etherlink.com',
