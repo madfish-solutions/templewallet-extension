@@ -9,7 +9,7 @@ import { EmptyState } from 'app/atoms/EmptyState';
 import { PageLoader } from 'app/atoms/Loader';
 import { DeadEndBoundaryError } from 'app/ErrorBoundary';
 import { use3RouteEvmTokensMetadataRecordSelector } from 'app/store/evm/swap-3route-metadata/selectors';
-import { useLifiEvmTokensMetadataRecordSelector } from 'app/store/evm/swap-lifi-metadata/selectors';
+import { useLifiConnectedEvmTokensMetadataRecordSelector } from 'app/store/evm/swap-lifi-metadata/selectors';
 import { useEvmTokensMetadataRecordSelector } from 'app/store/evm/tokens-metadata/selectors';
 import { EvmTokenListItem } from 'app/templates/TokenListItem';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
@@ -81,7 +81,7 @@ export const EvmChainAssetsList = memo<Props>(({ chainId, activeField, publicKey
   );
 
   const metadata = useEvmTokensMetadataRecordSelector();
-  const lifiMetadata = useLifiEvmTokensMetadataRecordSelector();
+  const lifiMetadata = useLifiConnectedEvmTokensMetadataRecordSelector();
   const route3EvmMetadata = use3RouteEvmTokensMetadataRecordSelector();
 
   const getMetadata = useCallback(

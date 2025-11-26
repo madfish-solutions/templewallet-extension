@@ -8,8 +8,8 @@ import {
   use3RouteEvmTokensMetadataRecordSelector
 } from 'app/store/evm/swap-3route-metadata/selectors';
 import {
-  useLifiEvmChainTokensMetadataSelector,
-  useLifiEvmTokensMetadataRecordSelector
+  useLifiConnectedEvmChainTokensMetadataSelector,
+  useLifiConnectedEvmTokensMetadataRecordSelector
 } from 'app/store/evm/swap-lifi-metadata/selectors';
 import { erc20AllowanceAbi } from 'lib/abi/erc20';
 import { toChainAssetSlug } from 'lib/assets/utils';
@@ -24,7 +24,7 @@ import { Route3EvmRoute, getCommonStepProps } from '../../form/interfaces';
 import { getTokenSlugFromEvmDexTokenAddress } from '../../utils';
 
 export const useLifiEvmTokensSlugs = (chainId: number) => {
-  const { metadata: lifiEvmTokensMetadataRecord, isLoading } = useLifiEvmChainTokensMetadataSelector(chainId);
+  const { metadata: lifiEvmTokensMetadataRecord, isLoading } = useLifiConnectedEvmChainTokensMetadataSelector(chainId);
 
   const lifiTokenSlugs = useMemo(
     () =>
@@ -56,7 +56,7 @@ export const use3RouteEvmTokensSlugs = (chainId: number) => {
 };
 
 export const useLifiEvmAllTokensSlugs = () => {
-  const metadataRecord = useLifiEvmTokensMetadataRecordSelector();
+  const metadataRecord = useLifiConnectedEvmTokensMetadataRecordSelector();
   const isLoading = useSelector(({ lifiEvmTokensMetadata }) => lifiEvmTokensMetadata.isLoading);
 
   const lifiTokenSlugs = useMemo(

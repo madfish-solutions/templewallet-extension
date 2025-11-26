@@ -30,8 +30,11 @@ import { useAccountForEvm } from 'temple/front';
 import { useEvmChainByChainId } from 'temple/front/chains';
 import { TempleChainKind } from 'temple/types';
 
-import { BaseSwapForm } from '../BaseSwapForm';
-import { useFetch3RouteEvmTokensSlugs, useFetchLifiEvmTokensSlugs } from '../hooks';
+import { BaseSwapForm } from '../../form/BaseSwapForm';
+import { getProtocolFeeForRouteStep } from '../../form/EvmSwapForm/utils';
+import { useFetchLifiEvmTokensSlugs, useFetch3RouteEvmTokensSlugs } from '../../form/hooks';
+import { SwapFormValue, SwapInputValue } from '../../form/SwapForm.form';
+import { formatDuration, getBufferedExecutionDuration, getDefaultSwapFormValues } from '../../form/utils';
 import {
   ChainAssetInfo,
   EvmReviewData,
@@ -40,10 +43,6 @@ import {
   Route3EvmRoute,
   SwapFieldName
 } from '../interfaces';
-import { SwapFormValue, SwapInputValue } from '../SwapForm.form';
-import { formatDuration, getBufferedExecutionDuration, getDefaultSwapFormValues } from '../utils';
-
-import { getProtocolFeeForRouteStep } from './utils';
 
 interface EvmSwapFormProps {
   chainId: number;

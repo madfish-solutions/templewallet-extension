@@ -8,8 +8,6 @@ import { Button, IconBase } from 'app/atoms';
 import { PageLoader } from 'app/atoms/Loader';
 import { PageModal } from 'app/atoms/PageModal';
 import { ReactComponent as CompactDown } from 'app/icons/base/compact_down.svg';
-import { SwapFieldName } from 'app/pages/Swap/form/interfaces';
-import { isFilterChain } from 'app/pages/Swap/form/utils';
 import { useAssetsFilterOptionsSelector } from 'app/store/assets-filter-options/selectors';
 import { FilterChain } from 'app/store/assets-filter-options/state';
 import {
@@ -17,7 +15,7 @@ import {
   use3RouteEvmTokensMetadataRecordSelector
 } from 'app/store/evm/swap-3route-metadata/selectors';
 import {
-  useLifiEvmTokensMetadataRecordSelector,
+  useLifiConnectedEvmTokensMetadataRecordSelector,
   useLifiSupportedChainIdsSelector
 } from 'app/store/evm/swap-lifi-metadata/selectors';
 import { NetworkPopper } from 'app/templates/network-popper';
@@ -27,6 +25,9 @@ import { t } from 'lib/i18n';
 import { useMemoWithCompare } from 'lib/ui/hooks';
 import { useAccountAddressForEvm, useAccountAddressForTezos, useTezosMainnetChain } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
+
+import { SwapFieldName } from '../../form/interfaces';
+import { isFilterChain } from '../../form/utils';
 
 import { AllEvmChainsAssetsList } from './AllEvmChainsAssetsList';
 import { EvmChainAssetsList } from './EvmChainAssetsList';
@@ -45,7 +46,7 @@ export const SwapSelectAssetModal = memo<SelectTokenModalProps>(
   ({ activeField, onAssetSelect, opened, onRequestClose, chainKind }) => {
     const [searchValue, setSearchValue] = useState('');
     const [searchValueDebounced] = useDebounce(searchValue, 300);
-    const lifiMetadataRecord = useLifiEvmTokensMetadataRecordSelector();
+    const lifiMetadataRecord = useLifiConnectedEvmTokensMetadataRecordSelector();
     const route3MetadataRecord = use3RouteEvmTokensMetadataRecordSelector();
 
     const tezosNetwork = useTezosMainnetChain();

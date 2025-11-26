@@ -1,9 +1,10 @@
-import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { Semaphore } from 'async-mutex';
 import { difference, isEqual, uniq } from 'lodash';
 
 import { dispatch } from 'app/store';
+import { loadEvmBalanceOnChainActions } from 'app/store/evm/balances/actions';
 import { useAllRawEvmBalancesSelector } from 'app/store/evm/balances/selectors';
 import {
   useAllEvmChainsBalancesLoadingStatesSelector,
@@ -13,13 +14,18 @@ import { processLoadedEvmTokensMetadataAction } from 'app/store/evm/tokens-metad
 import { useEvmTokensMetadataRecordSelector } from 'app/store/evm/tokens-metadata/selectors';
 import { isEtherlinkSupportedChainId } from 'lib/apis/etherlink';
 import { getEvmTokensMetadata } from 'lib/apis/temple/endpoints/evm';
-import { ChainID } from 'lib/apis/temple/endpoints/evm/api.interfaces';
+import { isSupportedChainId } from 'lib/apis/temple/endpoints/evm/api.utils';
 import { toTokenSlug } from 'lib/assets';
+import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import {
   ACCOUNTS_FOR_REENABLING_NETWORKS_STORAGE_KEY,
-  SHOULD_DISABLE_NOT_ACTIVE_NETWORKS_STORAGE_KEY
+  SHOULD_DISABLE_NOT_ACTIVE_NETWORKS_STORAGE_KEY,
+  SHOULD_PROMOTE_ROOTSTOCK_STORAGE_KEY
 } from 'lib/constants';
+import { evmOnChainBalancesRequestsExecutor } from 'lib/evm/on-chain/balance';
+import { EvmAssetStandard } from 'lib/evm/types';
 import { useStorage } from 'lib/temple/front/storage';
+import { COMMON_MAINNET_CHAIN_IDS } from 'lib/temple/types';
 import { useMemoWithCompare } from 'lib/ui/hooks';
 import { defaultStrSortPredicate } from 'lib/utils/sorting';
 import { getAccountAddressForEvm, isAccountOfActableType } from 'temple/accounts';
@@ -41,6 +47,8 @@ export const useEnableAutodisabledNetworks = () => {
   );
   const visibleEvmTokensMetadataLoading = useEvmTokensMetadataLoadingSelector();
   const [shouldDisable] = useStorage<boolean>(SHOULD_DISABLE_NOT_ACTIVE_NETWORKS_STORAGE_KEY, false);
+  const [shouldPromoteRootstock] = useStorage<boolean>(SHOULD_PROMOTE_ROOTSTOCK_STORAGE_KEY);
+  const [rootstockWasPromoted, setRootstockWasPromoted] = useState(false);
   const [accountsForReenabling, setAccountsForReenabling] = useStorage<HexString[]>(
     ACCOUNTS_FOR_REENABLING_NETWORKS_STORAGE_KEY,
     []
@@ -74,11 +82,29 @@ export const useEnableAutodisabledNetworks = () => {
 
   useEffect(() => {
     if (
+      shouldPromoteRootstock &&
+      automaticallyDisabledEvmChains.some(({ chainId }) => chainId === COMMON_MAINNET_CHAIN_IDS.rootstock)
+    ) {
+      setEvmChainsSpecs(prevSpecs => ({
+        ...prevSpecs,
+        [COMMON_MAINNET_CHAIN_IDS.rootstock]: {
+          ...prevSpecs[COMMON_MAINNET_CHAIN_IDS.rootstock],
+          disabled: false,
+          disabledAutomatically: false
+        }
+      }));
+      setRootstockWasPromoted(true);
+
+      return;
+    }
+
+    if (
       shouldDisable ||
       automaticallyDisabledEvmChains.length === 0 ||
       visibleEvmBalancesLoading ||
       visibleEvmTokensMetadataLoading ||
-      loadingNetworksToEnableRef.current
+      loadingNetworksToEnableRef.current ||
+      shouldPromoteRootstock == null
     ) {
       return;
     }
@@ -120,17 +146,36 @@ export const useEnableAutodisabledNetworks = () => {
               return { balances: { type: 'etherlink', value: balances } } as const;
             }
 
-            await waitForRequestsLimit();
-            const balancesResponse = await getEvmTokensMetadata(accountAddress, chainId as ChainID);
+            if (isSupportedChainId(chainId)) {
+              await waitForRequestsLimit();
+              const balancesResponse = await getEvmTokensMetadata(accountAddress, chainId);
+
+              return {
+                balances: { type: 'evm', value: balancesResponse } as const,
+                tokensMetadata: { type: 'evm', value: balancesResponse } as const
+              };
+            }
 
             return {
-              balances: { type: 'evm', value: balancesResponse } as const,
-              tokensMetadata: { type: 'evm', value: balancesResponse } as const
+              balances: {
+                type: 'onchain',
+                value: {
+                  updateTs: Date.now(),
+                  balance: await evmOnChainBalancesRequestsExecutor.executeRequest({
+                    account: accountAddress,
+                    network: chain,
+                    assetSlug: EVM_TOKEN_SLUG,
+                    assetStandard: EvmAssetStandard.NATIVE,
+                    throwOnTimeout: true
+                  })
+                }
+              } as const
             };
           })
         );
         let shouldEnableChain = false;
         const accountsChainBalancesChecked: StringRecord<boolean> = {};
+        const chainsToEnable = new Set<number>();
         accountsTokensResults.forEach((result, index) => {
           const accountAddress = newAccountsForReenabling[index];
           accountsChainBalancesChecked[accountAddress] = result.status === 'fulfilled';
@@ -150,6 +195,18 @@ export const useEnableAutodisabledNetworks = () => {
 
             const { balanceItems } = balances.value;
             accountHasBalances = balanceItems.some(({ balance = '0' }) => Number(balance) > 0);
+          } else if (balances.type === 'onchain') {
+            const { balance, updateTs } = balances.value;
+            accountHasBalances = balance.gt(0);
+            dispatch(
+              loadEvmBalanceOnChainActions.success({
+                network: chain,
+                assetSlug: EVM_TOKEN_SLUG,
+                account: accountAddress,
+                balance,
+                timestamp: updateTs
+              })
+            );
           } else {
             if (balances.type === 'evm') {
               makeOnEvmBalancesApiSuccess(accountAddress)({
@@ -177,22 +234,15 @@ export const useEnableAutodisabledNetworks = () => {
         });
 
         if (shouldEnableChain) {
-          setEvmChainsSpecs(prevSpecs => ({
-            ...prevSpecs,
-            [chainId]: {
-              ...prevSpecs[chainId],
-              disabled: false,
-              disabledAutomatically: false
-            }
-          }));
+          chainsToEnable.add(chainId);
         }
 
-        return accountsChainBalancesChecked;
+        return { accountsChainBalancesChecked, chainsToEnable };
       })
     )
       .then(accountsChainBalancesCheckedByChain => {
         const accountsChainsWithCheckedBalances = accountsChainBalancesCheckedByChain.reduce<StringRecord<number[]>>(
-          (acc, balances, index) => {
+          (acc, { accountsChainBalancesChecked: balances }, index) => {
             const chain = automaticallyDisabledEvmChains[index];
             const { chainId } = chain;
 
@@ -207,11 +257,30 @@ export const useEnableAutodisabledNetworks = () => {
           },
           {}
         );
+        const chainsToEnable = accountsChainBalancesCheckedByChain.reduce((acc, { chainsToEnable }) => {
+          chainsToEnable.forEach(chainId => acc.add(chainId));
+
+          return acc;
+        }, new Set<number>());
         const accountsWithAllCheckedBalances = Object.entries(accountsChainsWithCheckedBalances)
           .filter(([, chainIds]) => chainIds.length === automaticallyDisabledEvmChains.length)
           .map(([accountAddress]) => accountAddress as HexString);
 
-        return setAccountsForReenabling(prevAccounts => difference(prevAccounts, accountsWithAllCheckedBalances));
+        return Promise.all([
+          setAccountsForReenabling(prevAccounts => difference(prevAccounts, accountsWithAllCheckedBalances)),
+          setEvmChainsSpecs(prevSpecs => {
+            const newSpecs = { ...prevSpecs };
+            chainsToEnable.forEach(chainId => {
+              newSpecs[chainId] = {
+                ...newSpecs[chainId],
+                disabled: false,
+                disabledAutomatically: false
+              };
+            });
+
+            return newSpecs;
+          })
+        ]);
       })
       .finally(() => {
         loadingNetworksToEnableRef.current = false;
@@ -227,6 +296,8 @@ export const useEnableAutodisabledNetworks = () => {
     setEvmChainsSpecs,
     shouldDisable,
     actableEvmAccountsAddresses,
-    waitForRequestsLimit
+    waitForRequestsLimit,
+    shouldPromoteRootstock,
+    rootstockWasPromoted
   ]);
 };

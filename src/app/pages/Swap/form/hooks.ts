@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { Token } from '@lifi/sdk';
+import { intersection } from 'lodash';
 
 import { dispatch } from 'app/store';
 import {
@@ -9,17 +10,23 @@ import {
   set3RouteEvmMetadataLastFetchTimeAction
 } from 'app/store/evm/swap-3route-metadata/actions';
 import {
-  putLifiEvmTokensMetadataAction,
+  putLifiConnectedEvmTokensMetadataAction,
+  putLifiEnabledNetworksEvmTokensMetadataAction,
   putLifiEvmTokensMetadataLoadingAction,
   putLifiSupportedChainIdsAction,
   setLifiMetadataLastFetchTimeAction
 } from 'app/store/evm/swap-lifi-metadata/actions';
-import { useLifiEvmMetadataLastFetchTimeSelector } from 'app/store/evm/swap-lifi-metadata/selectors';
+import {
+  useLifiEvmMetadataLastFetchTimeSelector,
+  useLifiSupportedChainIdsSelector
+} from 'app/store/evm/swap-lifi-metadata/selectors';
 import { TokenSlugTokenMetadataRecord } from 'app/store/evm/swap-lifi-metadata/state';
+import { processLoadedEvmExchangeRatesAction } from 'app/store/evm/tokens-exchange-rates/actions';
 import {
   get3RouteEvmTokens,
   getEvmSwapConnectionsMetadata,
   getLifiSupportedChains,
+  getLifiSwapTokens,
   TokensByChain
 } from 'lib/apis/temple/endpoints/evm';
 import { Route3EvmTokenWithPrice } from 'lib/apis/temple/endpoints/evm/api.interfaces';
@@ -30,7 +37,8 @@ import { equalsIgnoreCase } from 'lib/evm/on-chain/utils/common.utils';
 import { EvmAssetStandard } from 'lib/evm/types';
 import { LIFI_SUPPORTED_CHAIN_IDS_INTERVAL } from 'lib/fixed-times';
 import { ETHERLINK_MAINNET_CHAIN_ID } from 'lib/temple/types';
-import { useEnabledEvmChains } from 'temple/front';
+import { useInterval } from 'lib/ui/hooks';
+import { EvmChain, useEnabledEvmChains } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
 
 interface FetchTokensSlugsPayload {
@@ -58,6 +66,40 @@ export const useFetchSupportedLifiChainIds = () => {
   useEffect(() => void fetchLifiSupportedChainIds(), [fetchLifiSupportedChainIds]);
 };
 
+export const useLifiTokensMetadataSync = () => {
+  const supportedChainIds = useLifiSupportedChainIdsSelector();
+  const enabledChains = useEnabledEvmChains();
+  const chainsToSync = useMemo(
+    () =>
+      intersection(
+        supportedChainIds,
+        enabledChains.map(({ chainId }) => chainId)
+      ),
+    [supportedChainIds, enabledChains]
+  );
+
+  useInterval(
+    async () => {
+      handleTokensByChain(
+        normalizeTokensByChain(await getLifiSwapTokens(chainsToSync), enabledChains),
+        (chainId, records) => {
+          dispatch(putLifiEnabledNetworksEvmTokensMetadataAction({ chainId, records }));
+          dispatch(
+            processLoadedEvmExchangeRatesAction({
+              chainId,
+              data: { lifiItems: Object.values(records) },
+              timestamp: Date.now()
+            })
+          );
+        }
+      );
+    },
+    [chainsToSync, enabledChains],
+    300_000,
+    true
+  );
+};
+
 export const useFetchLifiEvmTokensSlugs = ({ fromChain, fromToken }: FetchTokensSlugsPayload) => {
   const [lifiEvmConnections, setLifiEvmConnections] = useState<TokensByChain>({});
 
@@ -82,7 +124,7 @@ export const useFetchLifiEvmTokensSlugs = ({ fromChain, fromToken }: FetchTokens
     if (Object.keys(lifiEvmConnections).length === 0) {
       enabledChains.forEach(chain => {
         dispatch(
-          putLifiEvmTokensMetadataAction({
+          putLifiConnectedEvmTokensMetadataAction({
             chainId: chain.chainId,
             records: {}
           })
@@ -91,55 +133,15 @@ export const useFetchLifiEvmTokensSlugs = ({ fromChain, fromToken }: FetchTokens
     }
   }, [lifiEvmConnections, enabledChains]);
 
-  const filteredTokensByChain: TokensByChain = useMemo(() => {
-    const result: TokensByChain = {};
-    const enabledChainIds = new Set(enabledChains.map(chain => chain.chainId));
-
-    for (const [chainIdStr, tokens] of Object.entries(lifiEvmConnections)) {
-      const chainId = Number(chainIdStr);
-
-      if (!enabledChainIds.has(chainId)) continue;
-
-      const existingAddresses = new Set();
-
-      result[chainId] = tokens.filter((token: Token) => {
-        const addr = token.address;
-        const isDuplicate = existingAddresses.has(addr);
-        const isValid = addr && !isDuplicate;
-
-        if (isValid) existingAddresses.add(addr);
-        return isValid;
-      });
-    }
-
-    return result;
-  }, [lifiEvmConnections, enabledChains]);
+  const filteredTokensByChain = useMemo(
+    () => normalizeTokensByChain(lifiEvmConnections, enabledChains),
+    [lifiEvmConnections, enabledChains]
+  );
 
   useEffect(() => {
-    Object.entries(filteredTokensByChain).forEach(([chainIdStr, chainTokens]) => {
-      const chainId = Number(chainIdStr);
-      const records: TokenSlugTokenMetadataRecord = {};
-
-      chainTokens.forEach((token: Token) => {
-        const isNative = token.address === EVM_ZERO_ADDRESS;
-
-        const tokenSlug = isNative
-          ? toChainAssetSlug(TempleChainKind.EVM, chainId, EVM_TOKEN_SLUG)
-          : toTokenSlug(token.address, 0);
-
-        records[tokenSlug] = {
-          address: token.address as HexString,
-          standard: EvmAssetStandard.ERC20,
-          name: token.name,
-          symbol: token.symbol,
-          decimals: token.decimals,
-          logoURI: token.logoURI,
-          priceUSD: token.priceUSD
-        };
-      });
-
+    handleTokensByChain(filteredTokensByChain, (chainId, records) => {
       dispatch(
-        putLifiEvmTokensMetadataAction({
+        putLifiConnectedEvmTokensMetadataAction({
           chainId,
           records
         })
@@ -213,4 +215,58 @@ export const useFetch3RouteEvmTokensSlugs = ({ fromChain, fromToken }: FetchToke
       })
     );
   }, [filteredTokensByChain, fromToken]);
+};
+
+const normalizeTokensByChain = (tokens: TokensByChain, enabledChains: EvmChain[]) => {
+  const result: TokensByChain = {};
+  const enabledChainIds = new Set(enabledChains.map(chain => chain.chainId));
+
+  for (const [chainIdStr, chainTokens] of Object.entries(tokens)) {
+    const chainId = Number(chainIdStr);
+
+    if (!enabledChainIds.has(chainId)) continue;
+
+    const existingAddresses = new Set();
+
+    result[chainId] = chainTokens.filter((token: Token) => {
+      const addr = token.address;
+      const isDuplicate = existingAddresses.has(addr);
+      const isValid = addr && !isDuplicate;
+
+      if (isValid) existingAddresses.add(addr);
+      return isValid;
+    });
+  }
+
+  return result;
+};
+
+const handleTokensByChain = (
+  tokensByChain: TokensByChain,
+  callback: (chainId: number, records: TokenSlugTokenMetadataRecord) => void
+) => {
+  Object.entries(tokensByChain).forEach(([chainIdStr, chainTokens]) => {
+    const chainId = Number(chainIdStr);
+    const records: TokenSlugTokenMetadataRecord = {};
+
+    chainTokens.forEach((token: Token) => {
+      const isNative = token.address === EVM_ZERO_ADDRESS;
+
+      const tokenSlug = isNative
+        ? toChainAssetSlug(TempleChainKind.EVM, chainId, EVM_TOKEN_SLUG)
+        : toTokenSlug(token.address, 0);
+
+      records[tokenSlug] = {
+        address: token.address as HexString,
+        standard: EvmAssetStandard.ERC20,
+        name: token.name,
+        symbol: token.symbol,
+        decimals: token.decimals,
+        logoURI: token.logoURI,
+        priceUSD: token.priceUSD
+      };
+    });
+
+    callback(chainId, records);
+  });
 };

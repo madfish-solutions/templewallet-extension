@@ -8,7 +8,7 @@ import { EmptyState } from 'app/atoms/EmptyState';
 import { PageLoader } from 'app/atoms/Loader';
 import { getSlugWithChainId } from 'app/hooks/listing-logic/utils';
 import { use3RouteEvmTokensMetadataRecordSelector } from 'app/store/evm/swap-3route-metadata/selectors';
-import { useLifiEvmTokensMetadataRecordSelector } from 'app/store/evm/swap-lifi-metadata/selectors';
+import { useLifiConnectedEvmTokensMetadataRecordSelector } from 'app/store/evm/swap-lifi-metadata/selectors';
 import { useEvmTokensMetadataRecordSelector } from 'app/store/evm/tokens-metadata/selectors';
 import { EvmTokenListItem } from 'app/templates/TokenListItem';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
@@ -25,7 +25,7 @@ import { TempleChainKind } from 'temple/types';
 import { TOKEN_ITEM_HEIGHT } from '../../constants';
 import { SwapFieldName } from '../../form/interfaces';
 
-import { use3RouteEvmAllTokensSlugs, useFirstValue, useLifiEvmAllTokensSlugs } from './hooks';
+import { useFirstValue, useLifiEvmAllTokensSlugs, use3RouteEvmAllTokensSlugs } from './hooks';
 
 interface ItemData {
   searchedSlugs: string[];
@@ -104,7 +104,7 @@ export const AllEvmChainsAssetsList = memo<Props>(
 
     const evmChains = useAllEvmChains();
     const evmMetadata = useEvmTokensMetadataRecordSelector();
-    const lifiMetadata = useLifiEvmTokensMetadataRecordSelector();
+    const lifiMetadata = useLifiConnectedEvmTokensMetadataRecordSelector();
     const route3EvmMetadata = use3RouteEvmTokensMetadataRecordSelector();
 
     const getMetadata = useCallback(

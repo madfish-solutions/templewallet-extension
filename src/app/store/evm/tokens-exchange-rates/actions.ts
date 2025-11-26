@@ -1,10 +1,12 @@
 import { createAction } from '@reduxjs/toolkit';
 
+import { LifiEvmTokenMetadata } from 'lib/metadata/types';
+
 import { BalancesResponse } from '../types';
 
 interface ProcessLoadedEvmExchangeRatesActionPayload {
   chainId: number;
-  data: BalancesResponse;
+  data: BalancesResponse | { lifiItems: LifiEvmTokenMetadata[] };
   timestamp: number;
 }
 

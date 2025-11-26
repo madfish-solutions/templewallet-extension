@@ -17,6 +17,16 @@ export async function fetchFromStorage<T = any>(key: string): Promise<T | null> 
   }
 }
 
+export async function fetchManyFromStorage<K extends string, T extends Record<K, any>>(keys: K[]): Promise<Partial<T>> {
+  const deprecatedKeys = keys.filter(k => DEPRECATED_KEYS.some(dk => k.startsWith(dk)));
+
+  if (deprecatedKeys.length > 0) {
+    throw new Error(`Storage keys ${deprecatedKeys.join(', ')} are deprecated`);
+  }
+
+  return (await browser.storage.local.get(keys)) as Partial<T>;
+}
+
 export async function putToStorage<T = any>(key: string, value: T) {
   return browser.storage.local.set({ [key]: value });
 }
