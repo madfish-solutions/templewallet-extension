@@ -15,6 +15,7 @@ import { HistoryAction, navigate } from 'lib/woozie';
 
 import { CollectiblesTab } from '../Collectibles/CollectiblesTab';
 
+import { EarnSection } from './OtherComponents/EarnSection';
 import { TokensTab } from './OtherComponents/Tokens/Tokens';
 import { TotalEquityBanner } from './OtherComponents/TotalEquityBanner';
 
@@ -58,6 +59,8 @@ const Home = memo(() => {
           className="mt-4 mb-4"
         />
       </div>
+
+      <EarnSection className="mt-6" />
 
       <SuspenseContainer>
         <DAppConnectionRefsProvider>
