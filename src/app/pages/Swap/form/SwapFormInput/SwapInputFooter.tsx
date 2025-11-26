@@ -50,7 +50,7 @@ const SwapFooter: FC<SwapFooterProps> = ({
 
     if (!value || value.isNaN()) return '0';
 
-    return value?.toString();
+    return value.toString();
   }, [amount, assetDecimals, inputName, isFiatMode, parseFiatValueToAssetAmount]);
 
   return (
