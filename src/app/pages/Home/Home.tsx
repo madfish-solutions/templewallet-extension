@@ -1,13 +1,15 @@
 import React, { memo, useCallback, useEffect } from 'react';
 
-import { AssetsSegmentControl } from 'app/atoms/AssetsSegmentControl';
 import { SuspenseContainer } from 'app/atoms/SuspenseContainer';
 import { useLocationSearchParamValue } from 'app/hooks/use-location';
 import PageLayout from 'app/layouts/PageLayout';
 import { AppHeader } from 'app/templates/AppHeader';
+import { BuyModals, useBuyModalsState } from 'app/templates/buy-modals';
 import { DAppConnectionRefsProvider } from 'app/templates/DAppConnection/dapp-connection-refs';
+import { DepositModal } from 'app/templates/DepositModal';
 import { ExploreActionButtonsBar } from 'app/templates/ExploreActionButtons';
 import { toastSuccess } from 'app/toaster';
+import { useBooleanState } from 'lib/ui/hooks';
 import { useInitToastMessage } from 'lib/temple/front/toasts-context';
 import { HistoryAction, navigate } from 'lib/woozie';
 
@@ -20,6 +22,16 @@ const Home = memo(() => {
   const [tabSlug] = useLocationSearchParamValue('tab');
 
   const [initToastMessage, setInitToastMessage] = useInitToastMessage();
+
+  const [depositModalOpened, openDepositModal, closeDepositModal] = useBooleanState(false);
+  const {
+    cryptoExchangeModalOpened,
+    debitCreditCardModalOpened,
+    closeCryptoExchangeModal,
+    closeDebitCreditCardModal,
+    openCryptoExchangeModal,
+    openDebitCreditCardModal
+  } = useBuyModalsState();
 
   useEffect(() => {
     if (!initToastMessage) return;
@@ -37,24 +49,39 @@ const Home = memo(() => {
 
   return (
     <PageLayout Header={AppHeader} contentPadding={false}>
-      <div className="flex flex-col pt-1 px-4 bg-white">
+      <div className="flex flex-col pt-2 pb-0 px-4 bg-white shadow-bottom">
         <TotalEquityBanner />
 
-        <ExploreActionButtonsBar additionalButtonType="activity" className="mt-4" />
-
-        <AssetsSegmentControl
-          tabSlug={tabSlug}
-          className="mt-6"
-          onTokensTabClick={onTokensTabClick}
-          onCollectiblesTabClick={onCollectiblesTabClick}
+        <ExploreActionButtonsBar
+          additionalButtonType="activity"
+          onDepositClick={openDepositModal}
+          className="mt-4 mb-4"
         />
       </div>
 
       <SuspenseContainer>
         <DAppConnectionRefsProvider>
-          {tabSlug === 'collectibles' ? <CollectiblesTab /> : <TokensTab />}
+          {tabSlug === 'collectibles' ? (
+            <CollectiblesTab onTokensTabClick={onTokensTabClick} onCollectiblesTabClick={onCollectiblesTabClick} />
+          ) : (
+            <TokensTab onTokensTabClick={onTokensTabClick} onCollectiblesTabClick={onCollectiblesTabClick} />
+          )}
         </DAppConnectionRefsProvider>
       </SuspenseContainer>
+
+      <DepositModal
+        opened={depositModalOpened}
+        onRequestClose={closeDepositModal}
+        openDebitCreditCardModal={openDebitCreditCardModal}
+        openCryptoExchangeModal={openCryptoExchangeModal}
+      />
+
+      <BuyModals
+        cryptoExchangeModalOpened={cryptoExchangeModalOpened}
+        debitCreditCardModalOpened={debitCreditCardModalOpened}
+        closeCryptoExchangeModal={closeCryptoExchangeModal}
+        closeDebitCreditCardModal={closeDebitCreditCardModal}
+      />
     </PageLayout>
   );
 });

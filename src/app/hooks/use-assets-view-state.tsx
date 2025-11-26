@@ -7,12 +7,18 @@ export const [AssetsViewStateProvider, useAssetsViewState] = constate(() => {
 
   const [filtersOpened, _2, setFiltersClosed, toggleFiltersOpened] = useBooleanState(false);
 
+  const [searchMode, setSearchModeActive, setSearchModeInactive, toggleSearchMode] = useBooleanState(false);
+
   return {
     manageActive,
     setManageInactive,
     toggleManageActive,
     filtersOpened,
     setFiltersClosed,
-    toggleFiltersOpened
+    toggleFiltersOpened,
+    searchMode,
+    setSearchModeActive,
+    setSearchModeInactive,
+    toggleSearchMode
   };
 });
