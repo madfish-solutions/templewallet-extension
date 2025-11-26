@@ -23,21 +23,34 @@ interface Props {
   chainId: string;
   publicKeyHash: string;
   accountId: string;
+  onTokensTabClick: EmptyFn;
+  onCollectiblesTabClick: EmptyFn;
 }
 
 const TezosChainTokensTabContext = createContext<Omit<Props, 'chainId'> & { network: TezosChain }>({
   network: makeFallbackChain(TEZOS_DEFAULT_NETWORKS[0]),
   publicKeyHash: '',
-  accountId: ''
+  accountId: '',
+  onTokensTabClick: () => {},
+  onCollectiblesTabClick: () => {}
 });
 
-export const TezosChainTokensTab = memo<Props>(({ chainId, accountId, publicKeyHash }) => {
+export const TezosChainTokensTab = memo<Props>(({
+  chainId,
+  accountId,
+  publicKeyHash,
+  onTokensTabClick,
+  onCollectiblesTabClick
+}) => {
   const network = useTezosChainByChainId(chainId);
 
   if (!network) throw new DeadEndBoundaryError();
 
   const { manageActive } = useAssetsViewState();
-  const contextValue = useMemo(() => ({ accountId, network, publicKeyHash }), [accountId, network, publicKeyHash]);
+  const contextValue = useMemo(
+    () => ({ accountId, network, publicKeyHash, onTokensTabClick, onCollectiblesTabClick }),
+    [accountId, network, publicKeyHash, onTokensTabClick, onCollectiblesTabClick]
+  );
 
   return (
     <TezosChainTokensTabContext.Provider value={contextValue}>
@@ -139,6 +152,8 @@ const TabContentBase = memo<TabContentBaseProps>(
       };
     }, [network, displayedSlugs, publicKeyHash, mainnetTokensScamSlugsRecord, manageActive]);
 
+    const { onTokensTabClick, onCollectiblesTabClick } = useContext(TezosChainTokensTabContext);
+
     return (
       <TokensTabBase
         accountId={accountId}
@@ -151,6 +166,8 @@ const TabContentBase = memo<TabContentBaseProps>(
         isInSearchMode={isInSearchMode}
         network={network}
         shouldShowHiddenTokensHint={shouldShowHiddenTokensHint}
+        onTokensTabClick={onTokensTabClick}
+        onCollectiblesTabClick={onCollectiblesTabClick}
       >
         {tokensView}
       </TokensTabBase>

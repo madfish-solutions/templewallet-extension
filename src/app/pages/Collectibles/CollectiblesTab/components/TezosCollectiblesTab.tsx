@@ -19,23 +19,46 @@ import { TabContentBaseBody } from './tab-content-base-body';
 
 interface Props {
   publicKeyHash: string;
+  onTokensTabClick: EmptyFn;
+  onCollectiblesTabClick: EmptyFn;
 }
 
-export const TezosCollectiblesTab = memo<Props>(({ publicKeyHash }) => {
+export const TezosCollectiblesTab = memo<Props>(({ publicKeyHash, onTokensTabClick, onCollectiblesTabClick }) => {
   const { manageActive } = useAssetsViewState();
 
-  if (manageActive) return <TabContentWithManageActive publicKeyHash={publicKeyHash} />;
+  if (manageActive)
+    return (
+      <TabContentWithManageActive
+        publicKeyHash={publicKeyHash}
+        onTokensTabClick={onTokensTabClick}
+        onCollectiblesTabClick={onCollectiblesTabClick}
+      />
+    );
 
-  return <TabContent publicKeyHash={publicKeyHash} />;
+  return (
+    <TabContent
+      publicKeyHash={publicKeyHash}
+      onTokensTabClick={onTokensTabClick}
+      onCollectiblesTabClick={onCollectiblesTabClick}
+    />
+  );
 });
 
-const TabContent: FC<Props> = ({ publicKeyHash }) => {
+const TabContent: FC<Props> = ({ publicKeyHash, onTokensTabClick, onCollectiblesTabClick }) => {
   const { enabledChainSlugsSorted } = useTezosAccountCollectiblesForListing(publicKeyHash);
 
-  return <TabContentBase publicKeyHash={publicKeyHash} allSlugsSorted={enabledChainSlugsSorted} manageActive={false} />;
+  return (
+    <TabContentBase
+      publicKeyHash={publicKeyHash}
+      allSlugsSorted={enabledChainSlugsSorted}
+      manageActive={false}
+      onTokensTabClick={onTokensTabClick}
+      onCollectiblesTabClick={onCollectiblesTabClick}
+    />
+  );
 };
 
-const TabContentWithManageActive: FC<Props> = ({ publicKeyHash }) => {
+const TabContentWithManageActive: FC<Props> = ({ publicKeyHash, onTokensTabClick, onCollectiblesTabClick }) => {
   const { enabledChainSlugsSorted, allAccountCollectibles, sortPredicate } =
     useTezosAccountCollectiblesForListing(publicKeyHash);
 
@@ -49,16 +72,32 @@ const TabContentWithManageActive: FC<Props> = ({ publicKeyHash }) => {
 
   const allSlugsSorted = usePreservedOrderSlugsToManage(enabledChainSlugsSorted, allChainSlugsSorted);
 
-  return <TabContentBase publicKeyHash={publicKeyHash} allSlugsSorted={allSlugsSorted} manageActive={true} />;
+  return (
+    <TabContentBase
+      publicKeyHash={publicKeyHash}
+      allSlugsSorted={allSlugsSorted}
+      manageActive={true}
+      onTokensTabClick={onTokensTabClick}
+      onCollectiblesTabClick={onCollectiblesTabClick}
+    />
+  );
 };
 
 interface TabContentBaseProps {
   publicKeyHash: string;
   allSlugsSorted: string[];
   manageActive: boolean;
+  onTokensTabClick: EmptyFn;
+  onCollectiblesTabClick: EmptyFn;
 }
 
-const TabContentBase = memo<TabContentBaseProps>(({ publicKeyHash, allSlugsSorted, manageActive }) => {
+const TabContentBase = memo<TabContentBaseProps>(({
+  publicKeyHash,
+  allSlugsSorted,
+  manageActive,
+  onTokensTabClick,
+  onCollectiblesTabClick
+}) => {
   const mainnetChain = useTezosMainnetChain();
   const mainnetTokensScamSlugsRecord = useMainnetTokensScamlistSelector();
 
@@ -101,6 +140,8 @@ const TabContentBase = memo<TabContentBaseProps>(({ publicKeyHash, allSlugsSorte
       slugs={displayedSlugs}
       showInfo={showInfo}
       renderItem={renderItem}
+      onTokensTabClick={onTokensTabClick}
+      onCollectiblesTabClick={onCollectiblesTabClick}
     />
   );
 });

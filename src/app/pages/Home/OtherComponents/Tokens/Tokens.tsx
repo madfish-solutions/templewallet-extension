@@ -13,7 +13,12 @@ import { MultiChainTokensTab } from './components/MultiChainTokensTab';
 import { TezosChainTokensTab } from './components/TezosChainTokensTab';
 import { TezosTokensTab } from './components/TezosTokensTab';
 
-export const TokensTab = memo(() => {
+interface TokensTabProps {
+  onTokensTabClick: EmptyFn;
+  onCollectiblesTabClick: EmptyFn;
+}
+
+export const TokensTab = memo<TokensTabProps>(({ onTokensTabClick, onCollectiblesTabClick }) => {
   const { filtersOpened } = useAssetsViewState();
   const { filterChain } = useAssetsFilterOptionsSelector();
 
@@ -46,12 +51,24 @@ export const TokensTab = memo(() => {
 
   if (isTezosFilter && accountTezAddress)
     return (
-      <TezosChainTokensTab accountId={accountId} chainId={localFilterChain.chainId} publicKeyHash={accountTezAddress} />
+      <TezosChainTokensTab
+        accountId={accountId}
+        chainId={localFilterChain.chainId}
+        publicKeyHash={accountTezAddress}
+        onTokensTabClick={onTokensTabClick}
+        onCollectiblesTabClick={onCollectiblesTabClick}
+      />
     );
 
   if (isEvmFilter && accountEvmAddress)
     return (
-      <EvmChainTokensTab accountId={accountId} chainId={localFilterChain.chainId} publicKeyHash={accountEvmAddress} />
+      <EvmChainTokensTab
+        accountId={accountId}
+        chainId={localFilterChain.chainId}
+        publicKeyHash={accountEvmAddress}
+        onTokensTabClick={onTokensTabClick}
+        onCollectiblesTabClick={onCollectiblesTabClick}
+      />
     );
 
   if (!localFilterChain && accountTezAddress && accountEvmAddress)
@@ -60,14 +77,30 @@ export const TokensTab = memo(() => {
         accountId={accountId}
         accountTezAddress={accountTezAddress}
         accountEvmAddress={accountEvmAddress}
+        onTokensTabClick={onTokensTabClick}
+        onCollectiblesTabClick={onCollectiblesTabClick}
       />
     );
 
   if (!localFilterChain && accountTezAddress)
-    return <TezosTokensTab accountId={accountId} publicKeyHash={accountTezAddress} />;
+    return (
+      <TezosTokensTab
+        accountId={accountId}
+        publicKeyHash={accountTezAddress}
+        onTokensTabClick={onTokensTabClick}
+        onCollectiblesTabClick={onCollectiblesTabClick}
+      />
+    );
 
   if (!localFilterChain && accountEvmAddress)
-    return <EvmTokensTab accountId={accountId} publicKeyHash={accountEvmAddress} />;
+    return (
+      <EvmTokensTab
+        accountId={accountId}
+        publicKeyHash={accountEvmAddress}
+        onTokensTabClick={onTokensTabClick}
+        onCollectiblesTabClick={onCollectiblesTabClick}
+      />
+    );
 
   return null;
 });

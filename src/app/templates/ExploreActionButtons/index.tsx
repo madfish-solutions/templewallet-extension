@@ -5,10 +5,9 @@ import { ChainIds } from '@taquito/taquito';
 import clsx from 'clsx';
 import { Props as TippyProps } from 'tippy.js';
 
-import { Anchor, IconBase } from 'app/atoms';
+import { Button, IconBase } from 'app/atoms';
 import { ReactComponent as ActivityIcon } from 'app/icons/base/activity.svg';
-import { ReactComponent as MarketIcon } from 'app/icons/base/card.svg';
-import { ReactComponent as ReceiveIcon } from 'app/icons/base/income.svg';
+import { ReactComponent as DepositIcon } from 'app/icons/base/income.svg';
 import { ReactComponent as OutcomeIcon } from 'app/icons/base/outcome.svg';
 import { ReactComponent as SendIcon } from 'app/icons/base/send.svg';
 import { ReactComponent as SwapIcon } from 'app/icons/base/swap.svg';
@@ -22,8 +21,7 @@ import { TID, T, t } from 'lib/i18n';
 import { useAvailableRoute3TokensSlugs } from 'lib/route3/assets';
 import { TempleAccountType } from 'lib/temple/types';
 import useTippy from 'lib/ui/useTippy';
-import { createUrl, Link, To } from 'lib/woozie';
-import { createLocationState } from 'lib/woozie/location';
+import { Link, To } from 'lib/woozie';
 import { useAccount } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
 
@@ -34,11 +32,12 @@ interface Props {
   chainId?: number | string | nullish;
   assetSlug?: string | nullish;
   additionalButtonType?: 'activity' | 'earn-tez' | 'earn-tkey' | 'earn-eth';
+  onDepositClick?: EmptyFn;
   className?: string;
 }
 
 export const ExploreActionButtonsBar = memo<Props>(
-  ({ chainKind, chainId, assetSlug, additionalButtonType, className }) => {
+  ({ chainKind, chainId, assetSlug, additionalButtonType, onDepositClick, className }) => {
     const account = useAccount();
     const testnetModeEnabled = useTestnetModeEnabledSelector();
     const { route3tokensSlugs } = useAvailableRoute3TokensSlugs();
@@ -62,8 +61,6 @@ export const ExploreActionButtonsBar = memo<Props>(
       return false;
     }, [assetSlug, chainId, chainKind, route3tokensSlugs, supportedChainIds]);
 
-    const labelClassName = additionalButtonType ? 'max-w-12' : 'max-w-15';
-
     const additionalButton = useMemo(() => {
       switch (additionalButtonType) {
         case 'earn-tez':
@@ -75,7 +72,6 @@ export const ExploreActionButtonsBar = memo<Props>(
               Icon={OutcomeIcon}
               to={additionalButtonType === 'earn-tez' ? `/earn-tez/${chainId}` : `/${additionalButtonType}`}
               testID={ExploreActionButtonsSelectors.earnButton}
-              labelClassName={labelClassName}
             />
           );
         case 'activity':
@@ -85,32 +81,20 @@ export const ExploreActionButtonsBar = memo<Props>(
               Icon={ActivityIcon}
               to="/activity"
               testID={ExploreActionButtonsSelectors.activityButton}
-              labelClassName={labelClassName}
             />
           );
         default:
           return null;
       }
-    }, [additionalButtonType, chainId, labelClassName]);
+    }, [additionalButtonType, chainId]);
 
+    // For home page (activity button), show: Deposit, Swap, Activity, Send
+    // For token page with earn, show: Deposit, Swap, Earn, Send
     return (
-      <div className={clsx('grid gap-x-2 h-13.5', additionalButton ? 'grid-cols-5' : 'grid-cols-4', className)}>
-        <ActionButton
-          labelI18nKey="receive"
-          Icon={ReceiveIcon}
-          to={chainKind ? `/receive/${chainKind}` : '/receive'}
-          testID={ExploreActionButtonsSelectors.receiveButton}
-          labelClassName={labelClassName}
-        />
-
-        <ActionButton
-          labelI18nKey="market"
-          Icon={MarketIcon}
-          to="/market"
-          disabled={!canSend || testnetModeEnabled}
-          tippyProps={getDisabledTippyProps(testnetModeEnabled)}
-          testID={ExploreActionButtonsSelectors.marketButton}
-          labelClassName={labelClassName}
+      <div className={clsx('flex gap-3', className)}>
+        <DepositActionButton
+          onClick={onDepositClick}
+          testID={ExploreActionButtonsSelectors.depositButton}
         />
 
         <ActionButton
@@ -127,7 +111,6 @@ export const ExploreActionButtonsBar = memo<Props>(
           disabled={!canSend || testnetModeEnabled}
           tippyProps={getDisabledTippyProps(testnetModeEnabled)}
           testID={ExploreActionButtonsSelectors.swapButton}
-          labelClassName={labelClassName}
         />
 
         {additionalButton}
@@ -139,25 +122,43 @@ export const ExploreActionButtonsBar = memo<Props>(
           disabled={!canSend}
           tippyProps={getDisabledTippyProps(false)}
           testID={ExploreActionButtonsSelectors.sendButton}
-          labelClassName={labelClassName}
         />
       </div>
     );
   }
 );
 
+interface DepositActionButtonProps extends TestIDProps {
+  onClick?: EmptyFn;
+}
+
+const DepositActionButton = memo<DepositActionButtonProps>(({ onClick, testID, testIDProperties }) => (
+  <Button
+    className={clsx(
+      'flex-1 flex flex-col gap-0.5 p-2 items-center justify-center rounded-lg',
+      'bg-primary-low text-primary hover:bg-primary-hover-low hover:text-primary-hover'
+    )}
+    onClick={onClick}
+    testID={testID}
+    testIDProperties={testIDProperties}
+  >
+    <IconBase Icon={DepositIcon} size={24} />
+    <span className="text-font-small-bold">
+      <T id="deposit" />
+    </span>
+  </Button>
+));
+
 interface ActionButtonProps extends TestIDProps {
   labelI18nKey: TID;
   Icon: FunctionComponent<SVGProps<SVGSVGElement>>;
   to: To;
   disabled?: boolean;
-  isAnchor?: boolean;
   tippyProps?: Partial<TippyProps>;
-  labelClassName?: string;
 }
 
 const ActionButton = memo<ActionButtonProps>(
-  ({ labelI18nKey, Icon, to, disabled, isAnchor, tippyProps = {}, testID, testIDProperties, labelClassName }) => {
+  ({ labelI18nKey, Icon, to, disabled, tippyProps = {}, testID, testIDProperties }) => {
     const buttonRef = useTippy<HTMLButtonElement>({
       ...tippyProps,
       content: disabled && !tippyProps.content ? t('disabled') : tippyProps.content
@@ -166,7 +167,7 @@ const ActionButton = memo<ActionButtonProps>(
     const commonButtonProps = useMemo(
       () => ({
         className: clsx(
-          'flex flex-col gap-y-0.5 p-2 items-center justify-center rounded-lg',
+          'flex-1 flex flex-col gap-0.5 p-2 items-center justify-center rounded-lg',
           disabled
             ? 'bg-disable text-grey-2'
             : 'bg-primary-low text-primary hover:bg-primary-hover-low hover:text-primary-hover'
@@ -175,30 +176,17 @@ const ActionButton = memo<ActionButtonProps>(
         children: (
           <>
             <IconBase Icon={Icon} size={24} />
-
-            <span className={clsx('text-font-small-bold truncate', labelClassName)}>
+            <span className="text-font-small-bold">
               <T id={labelI18nKey} />
             </span>
           </>
         )
       }),
-      [disabled, Icon, labelClassName, labelI18nKey]
+      [disabled, Icon, labelI18nKey]
     );
 
     if (disabled) {
       return <button ref={buttonRef} {...commonButtonProps} />;
-    }
-
-    if (isAnchor) {
-      let href: string;
-      if (typeof to === 'string') {
-        href = to;
-      } else {
-        const { pathname, search, hash } = typeof to === 'function' ? to(createLocationState()) : to;
-        href = createUrl(pathname, search, hash);
-      }
-
-      return <Anchor testID={testID} testIDProperties={testIDProperties} href={href} {...commonButtonProps} />;
     }
 
     return <Link testID={testID} testIDProperties={testIDProperties} to={to} {...commonButtonProps} />;
