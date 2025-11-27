@@ -80,7 +80,11 @@ export const TokensTabBase: FC<PropsWithChildren<TokensTabBaseProps>> = ({
   );
 };
 
-interface TokensTabBaseContentProps extends Omit<TokensTabBaseProps, 'searchValue' | 'onSearchValueChange' | 'onTokensTabClick' | 'onCollectiblesTabClick'> {
+interface TokensTabBaseContentProps
+  extends Omit<
+    TokensTabBaseProps,
+    'searchValue' | 'onSearchValueChange' | 'onTokensTabClick' | 'onCollectiblesTabClick'
+  > {
   manageActive: boolean;
 }
 
@@ -216,7 +220,7 @@ const TokensTabBaseContentWrapper: FC<PropsWithChildren<{ manageActive?: boolean
   padding,
   children
 }) => (
-  <ContentContainer padding={padding}>
+  <ContentContainer withShadow={false} padding={padding}>
     {manageActive ? null : <UpdateAppBanner />}
 
     {children}

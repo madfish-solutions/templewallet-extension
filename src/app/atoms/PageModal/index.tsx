@@ -26,12 +26,15 @@ interface PageModalProps extends TestIDProps {
   title: ReactChildren;
   opened: boolean;
   headerClassName?: string;
+  headerContainerClassName?: string;
   titleLeft?: ReactNode;
   titleRight?: ReactNode;
   onGoBack?: EmptyFn;
   onRequestClose?: EmptyFn;
   animated?: boolean;
   contentPadding?: boolean;
+  showHeader?: boolean;
+  headerContainerPadding?: boolean;
   miniVersion?: boolean;
   suspenseLoader?: ReactNode;
   suspenseErrorMessage?: string;
@@ -45,6 +48,7 @@ export const PageModal: FC<PageModalProps> = ({
   title,
   opened,
   headerClassName,
+  headerContainerClassName,
   titleLeft,
   onGoBack,
   onRequestClose,
@@ -54,6 +58,8 @@ export const PageModal: FC<PageModalProps> = ({
   animated = true,
   contentPadding = false,
   shouldChangeBottomShift = true,
+  showHeader = true,
+  headerContainerPadding = true,
   miniVersion = false,
   suspenseLoader,
   suspenseErrorMessage
@@ -104,8 +110,14 @@ export const PageModal: FC<PageModalProps> = ({
       onRequestClose={onRequestClose}
       testId={testID}
     >
-      {!miniVersion && (
-        <div className="flex items-center p-4 border-b-0.5 border-lines">
+      {showHeader && (
+        <div
+          className={clsx(
+            'flex items-center border-b-0.5 border-lines',
+            headerContainerPadding && 'p-4',
+            headerContainerClassName
+          )}
+        >
           <div className="w-12">{titleLeft ?? (onGoBack ? <BackButton onClick={handleGoBack} /> : null)}</div>
 
           <div className={clsx('flex-1 text-center text-font-regular-bold', headerClassName)}>{title}</div>

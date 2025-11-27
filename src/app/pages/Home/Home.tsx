@@ -9,8 +9,8 @@ import { DAppConnectionRefsProvider } from 'app/templates/DAppConnection/dapp-co
 import { DepositModal } from 'app/templates/DepositModal';
 import { ExploreActionButtonsBar } from 'app/templates/ExploreActionButtons';
 import { toastSuccess } from 'app/toaster';
-import { useBooleanState } from 'lib/ui/hooks';
 import { useInitToastMessage } from 'lib/temple/front/toasts-context';
+import { useBooleanState } from 'lib/ui/hooks';
 import { HistoryAction, navigate } from 'lib/woozie';
 
 import { CollectiblesTab } from '../Collectibles/CollectiblesTab';
@@ -49,18 +49,14 @@ const Home = memo(() => {
   const onCollectiblesTabClick = useCallback(() => navigate({ search: 'tab=collectibles' }, HistoryAction.Replace), []);
 
   return (
-    <PageLayout Header={AppHeader} contentPadding={false}>
-      <div className="flex flex-col pt-2 pb-0 px-4 bg-white shadow-bottom">
+    <PageLayout Header={AppHeader} bgWhite={false} contentPadding={false}>
+      <div className="flex flex-col pt-2 pb-0 px-4">
         <TotalEquityBanner />
 
-        <ExploreActionButtonsBar
-          additionalButtonType="activity"
-          onDepositClick={openDepositModal}
-          className="mt-4 mb-4"
-        />
+        <ExploreActionButtonsBar additionalButtonType="activity" onDepositClick={openDepositModal} className="mt-4" />
       </div>
 
-      <EarnSection className="mt-6" />
+      <EarnSection className="mt-6 mb-3" />
 
       <SuspenseContainer>
         <DAppConnectionRefsProvider>
