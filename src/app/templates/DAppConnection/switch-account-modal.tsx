@@ -4,7 +4,8 @@ import clsx from 'clsx';
 
 import { IconBase, Identicon } from 'app/atoms';
 import DAppLogo from 'app/atoms/DAppLogo';
-import { ActionsButtonsBox, CLOSE_ANIMATION_TIMEOUT, PageModal } from 'app/atoms/PageModal';
+import { ActionsButtonsBox, CLOSE_ANIMATION_TIMEOUT } from 'app/atoms/PageModal';
+import { MiniPageModal } from 'app/atoms/PageModal/mini-page-modal';
 import { StyledButton } from 'app/atoms/StyledButton';
 import { ReactComponent as LinkIcon } from 'app/icons/base/link.svg';
 import { DAppSession, isTezosDAppSession } from 'app/storage/dapps';
@@ -56,7 +57,7 @@ export const SwitchAccountModal = memo(({ dApp, onClose }: SwitchAccountModalPro
   }, [onClose, accountName, origin]);
 
   return (
-    <PageModal miniVersion showHeader={false} title={null} opened onRequestClose={handleClose}>
+    <MiniPageModal opened showHeader={false} onRequestClose={handleClose}>
       <div className="p-4 flex flex-col flex-1 gap-4 bg-background rounded-t-lg">
         <div className="flex justify-center gap-3.5 relative">
           <div className="w-13 h-13 flex justify-center items-center bg-white shadow-card rounded-lg">
@@ -96,6 +97,6 @@ export const SwitchAccountModal = memo(({ dApp, onClose }: SwitchAccountModalPro
           <T id="connect" />
         </StyledButton>
       </ActionsButtonsBox>
-    </PageModal>
+    </MiniPageModal>
   );
 });
