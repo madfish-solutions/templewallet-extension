@@ -1,4 +1,4 @@
-import React, { ReactNode, memo, useCallback, useMemo, useState } from 'react';
+import React, { ReactNode, memo, useCallback, useEffect, useMemo, useState } from 'react';
 
 import { Alert, Anchor, IconBase } from 'app/atoms';
 import DAppLogo from 'app/atoms/DAppLogo';
@@ -146,6 +146,7 @@ export const ConfirmDAppForm = memo<ConfirmDAppFormProps>(
     const ledgerConfirmationRequired =
       ledgerInteractingPayloadTypes.some(payloadType => payload.type === payloadType) &&
       selectedAccount.type === TempleAccountType.Ledger;
+    const [ledgerGuardedForAccountId, setLedgerGuardedForAccountId] = useState<string | null>(null);
     const { guard, preconnectIfNeeded, ledgerPromptProps } = useLedgerWebHidFullViewGuard();
 
     const detachConfirmWindow = useCallback(async () => {
@@ -155,6 +156,29 @@ export const ConfirmDAppForm = memo<ConfirmDAppFormProps>(
         id: confirmationId
       });
     }, [confirmWindow, confirmationId]);
+
+    useEffect(() => {
+      if (!ledgerConfirmationRequired) return;
+      if (ledgerGuardedForAccountId === selectedAccount.id) return;
+
+      setLedgerGuardedForAccountId(selectedAccount.id);
+
+      void (async () => {
+        const redirected = await guard(selectedAccount.type, {
+          onBeforeFullView: detachConfirmWindow,
+          useConfirmFullView: true
+        });
+
+        if (redirected) return;
+      })();
+    }, [
+      detachConfirmWindow,
+      guard,
+      ledgerConfirmationRequired,
+      ledgerGuardedForAccountId,
+      selectedAccount.id,
+      selectedAccount.type
+    ]);
 
     const shouldShowProgress =
       payload.type !== 'connect' &&
@@ -223,7 +247,6 @@ export const ConfirmDAppForm = memo<ConfirmDAppFormProps>(
       confirm,
       guard,
       selectedAccount.type,
-      confirmWindow,
       detachConfirmWindow
     ]);
 
@@ -233,7 +256,11 @@ export const ConfirmDAppForm = memo<ConfirmDAppFormProps>(
       setIsDeclining(true);
       await confirm(false);
       setIsDeclining(false);
-    }, [confirm, isConfirming, isDeclining, setIsDeclining]);
+
+      if (confirmWindow && fullPage) {
+        window.close();
+      }
+    }, [confirm, confirmWindow, fullPage, isConfirming, isDeclining, setIsDeclining]);
 
     const handleErrorAlertClose = useCallback(() => setError(null), [setError]);
 
