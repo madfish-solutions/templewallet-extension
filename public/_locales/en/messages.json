@@ -3725,10 +3725,16 @@
     "message": "Purchase crypto via credit or debit card with 26+ currencies options"
   },
   "crossChainSwap": {
-    "message": "Cross-chain Swap"
+    "message": "Cross-Chain Swap"
   },
   "crossChainSwapDescription": {
     "message": "Exchange crypto instantly from Solana, Bitcoin and other networks"
+  },
+  "receiveOnChain": {
+    "message": "Receive on-chain"
+  },
+  "receiveOnChainDescription": {
+    "message": "Transfer crypto via address or QR code from other wallets or exchanges"
   },
   "convertation": {
     "message": "Convertation"

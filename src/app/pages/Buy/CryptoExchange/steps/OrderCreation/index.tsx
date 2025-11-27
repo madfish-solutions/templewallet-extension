@@ -1,11 +1,10 @@
-import React, { FC, useCallback, useMemo } from 'react';
+import React, { FC, useCallback, useMemo, useState } from 'react';
 
 import { FormProvider, useForm } from 'react-hook-form-v7';
 
-import { ModalHeaderConfig } from 'app/atoms/PageModal';
 import { dispatch } from 'app/store';
 import { loadExolixCurrenciesActions, loadExolixNetworksMapActions } from 'app/store/crypto-exchange/actions';
-import { useDidMount } from 'lib/ui/hooks';
+import { useBooleanState, useDidMount } from 'lib/ui/hooks';
 import { useAccountAddressForTezos } from 'temple/front';
 
 import {
@@ -15,18 +14,13 @@ import {
 } from '../../config';
 
 import { FormContent } from './components/FormContent';
-import { SelectCurrencyContent, SelectTokenContent } from './components/SelectCurrencyContent';
+import { SelectCurrencyModal, SelectTokenContent } from './components/SelectCurrencyModal';
 import { CryptoExchangeFormData } from './types';
 
-export type OrderCreationContent = 'form' | SelectTokenContent;
+export const OrderCreation: FC = () => {
+  const [modalContent, setModalContent] = useState<SelectTokenContent>('send');
+  const [selectCurrencyModalOpened, openSelectCurrencyModal, closeSelectCurrencyModal] = useBooleanState(false);
 
-interface Props {
-  setModalHeaderConfig: SyncFn<ModalHeaderConfig>;
-  orderCreationContent: OrderCreationContent;
-  setOrderCreationContent: SyncFn<OrderCreationContent>;
-}
-
-export const OrderCreation: FC<Props> = ({ orderCreationContent, setOrderCreationContent, setModalHeaderConfig }) => {
   const tezosAddress = useAccountAddressForTezos();
 
   useDidMount(() => {
@@ -49,19 +43,28 @@ export const OrderCreation: FC<Props> = ({ orderCreationContent, setOrderCreatio
     defaultValues: defaultFormData
   });
 
-  const handleGoBack = useCallback(() => setOrderCreationContent('form'), [setOrderCreationContent]);
+  const handleSelectInputCurrency = useCallback(() => {
+    setModalContent('send');
+    openSelectCurrencyModal();
+  }, [openSelectCurrencyModal]);
+
+  const handleSelectOutputCurrency = useCallback(() => {
+    setModalContent('get');
+    openSelectCurrencyModal();
+  }, [openSelectCurrencyModal]);
 
   return (
     <FormProvider {...form}>
-      {orderCreationContent === 'form' ? (
-        <FormContent setModalHeaderConfig={setModalHeaderConfig} setModalContent={setOrderCreationContent} />
-      ) : (
-        <SelectCurrencyContent
-          content={orderCreationContent}
-          setModalHeaderConfig={setModalHeaderConfig}
-          onGoBack={handleGoBack}
-        />
-      )}
+      <FormContent
+        onSelectInputCurrency={handleSelectInputCurrency}
+        onSelectOutputCurrency={handleSelectOutputCurrency}
+      />
+
+      <SelectCurrencyModal
+        content={modalContent}
+        opened={selectCurrencyModalOpened}
+        onRequestClose={closeSelectCurrencyModal}
+      />
     </FormProvider>
   );
 };

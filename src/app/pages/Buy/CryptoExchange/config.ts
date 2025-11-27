@@ -1,6 +1,4 @@
-import { ModalHeaderConfig } from 'app/atoms/PageModal';
 import { StoredExolixCurrency } from 'app/store/crypto-exchange/state';
-import { t } from 'lib/i18n';
 
 export const EXOLIX_CONTACT_LINK = 'https://exolix.com/contact';
 

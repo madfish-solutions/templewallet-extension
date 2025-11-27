@@ -92,10 +92,7 @@ export const ExploreActionButtonsBar = memo<Props>(
     // For token page with earn, show: Deposit, Swap, Earn, Send
     return (
       <div className={clsx('flex gap-3', className)}>
-        <DepositActionButton
-          onClick={onDepositClick}
-          testID={ExploreActionButtonsSelectors.depositButton}
-        />
+        <DepositActionButton onClick={onDepositClick} testID={ExploreActionButtonsSelectors.depositButton} />
 
         <ActionButton
           labelI18nKey="swap"

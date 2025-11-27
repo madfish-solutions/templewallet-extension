@@ -3,10 +3,10 @@ import React, { memo, useCallback } from 'react';
 import { IconBase } from 'app/atoms';
 import { HashChip } from 'app/atoms/HashChip';
 import { ReactComponent as CopyIcon } from 'app/icons/base/copy.svg';
-import { InfoContainer, InfoRaw } from 'app/templates/buy-modals/info-block';
 import { toastSuccess } from 'app/toaster';
 import { t } from 'lib/i18n';
 
+import { InfoContainer, InfoRaw } from '../../../../info-block';
 import { CurrencyIcon } from '../../../components/CurrencyIcon';
 import { DisplayExchangeValue } from '../../../components/DisplayExchangeValue';
 import { useCryptoExchangeDataState } from '../../../context';

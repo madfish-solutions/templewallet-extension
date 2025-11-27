@@ -4,7 +4,6 @@ import { SuspenseContainer } from 'app/atoms/SuspenseContainer';
 import { useLocationSearchParamValue } from 'app/hooks/use-location';
 import PageLayout from 'app/layouts/PageLayout';
 import { AppHeader } from 'app/templates/AppHeader';
-import { BuyModals, useBuyModalsState } from 'app/templates/buy-modals';
 import { DAppConnectionRefsProvider } from 'app/templates/DAppConnection/dapp-connection-refs';
 import { DepositModal } from 'app/templates/DepositModal';
 import { ExploreActionButtonsBar } from 'app/templates/ExploreActionButtons';
@@ -25,14 +24,6 @@ const Home = memo(() => {
   const [initToastMessage, setInitToastMessage] = useInitToastMessage();
 
   const [depositModalOpened, openDepositModal, closeDepositModal] = useBooleanState(false);
-  const {
-    cryptoExchangeModalOpened,
-    debitCreditCardModalOpened,
-    closeCryptoExchangeModal,
-    closeDebitCreditCardModal,
-    openCryptoExchangeModal,
-    openDebitCreditCardModal
-  } = useBuyModalsState();
 
   useEffect(() => {
     if (!initToastMessage) return;
@@ -68,19 +59,7 @@ const Home = memo(() => {
         </DAppConnectionRefsProvider>
       </SuspenseContainer>
 
-      <DepositModal
-        opened={depositModalOpened}
-        onRequestClose={closeDepositModal}
-        openDebitCreditCardModal={openDebitCreditCardModal}
-        openCryptoExchangeModal={openCryptoExchangeModal}
-      />
-
-      <BuyModals
-        cryptoExchangeModalOpened={cryptoExchangeModalOpened}
-        debitCreditCardModalOpened={debitCreditCardModalOpened}
-        closeCryptoExchangeModal={closeCryptoExchangeModal}
-        closeDebitCreditCardModal={closeDebitCreditCardModal}
-      />
+      <DepositModal opened={depositModalOpened} onRequestClose={closeDepositModal} />
     </PageLayout>
   );
 });
