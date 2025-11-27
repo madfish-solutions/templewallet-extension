@@ -4,3 +4,4 @@ export enum DepositModalSelectors {
   buyWithFiatOption = 'Deposit Modal/Buy With Fiat Option',
   crossChainSwapOption = 'Deposit Modal/Cross-Chain Swap Option'
 }
+
