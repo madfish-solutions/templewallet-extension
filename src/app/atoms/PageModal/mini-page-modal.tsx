@@ -1,13 +1,11 @@
-import React, { FC, useMemo } from 'react';
+import React, { FC } from 'react';
 
 import clsx from 'clsx';
 import Modal from 'react-modal';
 
 import { ACTIVATE_CONTENT_FADER_CLASSNAME } from 'app/a11y/content-fader';
-import { useIsBrowserFullscreen } from 'app/ConfirmPage/hooks/use-is-browser-fullscreen';
 import { useAppEnv } from 'app/env';
-import { FULL_PAGE_WRAP_OVERLAY_CLASSNAME, LAYOUT_CONTAINER_CLASSNAME } from 'app/layouts/containers';
-import { useTestnetModeEnabledSelector } from 'app/store/settings/selectors';
+import { LAYOUT_CONTAINER_CLASSNAME } from 'app/layouts/containers';
 import { TestIDProps } from 'lib/analytics';
 
 import ModStyles from './styles.module.css';
@@ -30,37 +28,25 @@ export const MiniPageModal: FC<MiniPageModalProps> = ({
   children,
   testID
 }) => {
-  const { fullPage, confirmWindow } = useAppEnv();
-  const testnetModeEnabled = useTestnetModeEnabledSelector();
-  const isBrowserFullscreen = useIsBrowserFullscreen();
-
-  const baseOverlayClassNames = useMemo(() => {
-    if (confirmWindow) return isBrowserFullscreen ? 'pt-13 pb-8' : 'pt-4';
-
-    if (testnetModeEnabled) return fullPage ? 'pt-19 pb-8' : 'pt-10';
-
-    return fullPage ? 'pt-13 pb-8' : 'pt-4';
-  }, [confirmWindow, fullPage, testnetModeEnabled, isBrowserFullscreen]);
+  const { fullPage } = useAppEnv();
 
   return (
     <Modal
       isOpen={opened}
       closeTimeoutMS={CLOSE_ANIMATION_TIMEOUT}
-      htmlOpenClassName="overflow-hidden" // Disabling page scroll and/or bounce behind modal
+      htmlOpenClassName="overflow-hidden"
       bodyOpenClassName={ACTIVATE_CONTENT_FADER_CLASSNAME}
       overlayClassName={{
-        base: clsx('fixed z-modal-page left-0 right-0 bottom-0', baseOverlayClassNames),
+        base: clsx('fixed z-modal-page inset-0', fullPage && 'pb-8'),
         afterOpen: '',
         beforeClose: ''
       }}
       className={{
         base: clsx(
+          'flex flex-col absolute left-0 right-0 bg-white overflow-hidden focus:outline-none ease-out duration-300',
+          fullPage ? 'rounded-8 bottom-8' : 'rounded-t-8 bottom-0',
           LAYOUT_CONTAINER_CLASSNAME,
-          FULL_PAGE_WRAP_OVERLAY_CLASSNAME,
-          'h-full flex flex-col bg-white focus:outline-none',
-          fullPage ? 'rounded-8' : 'rounded-t-8',
-          ModStyles.base,
-          'ease-out duration-300'
+          ModStyles.base
         ),
         afterOpen: ModStyles.opened,
         beforeClose: ModStyles.closed
@@ -81,7 +67,7 @@ export const MiniPageModal: FC<MiniPageModalProps> = ({
         </div>
       )}
 
-      <div className="flex-grow flex flex-col">{children}</div>
+      <div className="flex-grow bottom flex flex-col overflow-hidden">{children}</div>
     </Modal>
   );
 };
