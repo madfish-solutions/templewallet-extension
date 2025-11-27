@@ -19,6 +19,7 @@ interface PersistOptions<T> {
 interface LedgerWebHidGuardOptions<T> {
   persist?: PersistOptions<T>;
   onBeforeFullView?: () => Promise<void> | void;
+  useConfirmFullView?: boolean;
 }
 
 export function useLedgerWebHidFullViewGuard() {
@@ -61,7 +62,7 @@ export function useLedgerWebHidFullViewGuard() {
 
   const guard = useCallback(
     async <T>(accountType: TempleAccountType, options?: LedgerWebHidGuardOptions<T>): Promise<boolean> => {
-      const { persist, onBeforeFullView } = options ?? {};
+      const { persist, onBeforeFullView, useConfirmFullView } = options ?? {};
       try {
         const isLedgerAccount = accountType === TempleAccountType.Ledger;
         if (!isLedgerAccount) return false;
@@ -99,6 +100,9 @@ export function useLedgerWebHidFullViewGuard() {
           if (onBeforeFullView) {
             window.close();
           }
+        } else if (useConfirmFullView) {
+          openInFullConfirmPage();
+          window.close();
         } else {
           openInFullPage();
           window.close();

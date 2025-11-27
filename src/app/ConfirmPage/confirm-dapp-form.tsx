@@ -205,10 +205,10 @@ export const ConfirmDAppForm = memo<ConfirmDAppFormProps>(
       if (isConfirming || isDeclining) return;
 
       if (ledgerConfirmationRequired) {
-        const redirected = await guard(
-          selectedAccount.type,
-          confirmWindow ? { onBeforeFullView: detachConfirmWindow } : undefined
-        );
+        const redirected = await guard(selectedAccount.type, {
+          onBeforeFullView: detachConfirmWindow,
+          useConfirmFullView: true
+        });
         if (redirected) return;
       }
 

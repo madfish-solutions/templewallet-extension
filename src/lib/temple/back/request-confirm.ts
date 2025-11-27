@@ -101,6 +101,12 @@ export async function requestConfirm<T extends TempleDAppPayload>({
 
     const sub = store.watch(sidebarClosed, (_, closedSidebarWindowId) => {
       if (closedSidebarWindowId === (targetWindowId ?? null)) {
+        if (isConfirmationWindowDetached(id)) {
+          clearConfirmationWindowDetached(id);
+          close();
+          return;
+        }
+
         declineAndClose();
       }
     });
