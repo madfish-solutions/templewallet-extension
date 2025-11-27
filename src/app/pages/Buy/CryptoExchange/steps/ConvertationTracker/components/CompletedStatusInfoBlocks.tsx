@@ -4,11 +4,11 @@ import { Anchor, HashShortView, IconBase } from 'app/atoms';
 import { HashChip } from 'app/atoms/HashChip';
 import { ReactComponent as CopyIcon } from 'app/icons/base/copy.svg';
 import { ReactComponent as OutLinkIcon } from 'app/icons/base/outLink.svg';
-import { InfoContainer, InfoRaw } from 'app/templates/buy-modals/info-block';
 import { toastSuccess } from 'app/toaster';
 import { ExchangeHash } from 'lib/apis/exolix/types';
 import { t } from 'lib/i18n';
 
+import { InfoContainer, InfoRaw } from '../../../../info-block';
 import { CurrencyIcon } from '../../../components/CurrencyIcon';
 import { DisplayExchangeValue } from '../../../components/DisplayExchangeValue';
 import { VALUE_PLACEHOLDER } from '../../../config';

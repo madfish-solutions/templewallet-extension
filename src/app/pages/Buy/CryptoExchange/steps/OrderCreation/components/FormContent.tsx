@@ -1,4 +1,4 @@
-import React, { FC, useCallback, useEffect, useLayoutEffect, useMemo, useRef } from 'react';
+import React, { FC, useCallback, useEffect, useMemo, useRef } from 'react';
 
 import axios from 'axios';
 import { isEmpty } from 'lodash';
@@ -7,10 +7,8 @@ import { useDebounce } from 'use-debounce';
 
 import { FadeTransition } from 'app/a11y/FadeTransition';
 import AssetField from 'app/atoms/AssetField';
-import { ModalHeaderConfig } from 'app/atoms/PageModal';
 import { ActionsButtonsBox } from 'app/atoms/PageModal/actions-buttons-box';
 import { StyledButton } from 'app/atoms/StyledButton';
-import { ErrorType, MinMaxDisplay } from 'app/templates/buy-modals/min-max-display';
 import { toastError } from 'app/toaster';
 import { useFormAnalytics } from 'lib/analytics';
 import { loadMinMaxExchangeValues, queryExchange, submitExchange } from 'lib/apis/exolix/utils';
@@ -18,16 +16,16 @@ import { t, T } from 'lib/i18n';
 import { useTypedSWR } from 'lib/swr';
 import { useAccountAddressForEvm, useAccountAddressForTezos } from 'temple/front';
 
+import { ErrorType, MinMaxDisplay } from '../../../../min-max-display';
 import { StepLabel } from '../../../components/StepLabel';
 import { Stepper } from '../../../components/Stepper';
-import { defaultModalHeaderConfig, EXOLIX_DECIMALS, TEZOS_EXOLIX_NETWORK_CODE } from '../../../config';
+import { EXOLIX_DECIMALS, TEZOS_EXOLIX_NETWORK_CODE } from '../../../config';
 import { useCryptoExchangeDataState } from '../../../context';
 import { getCurrencyDisplayCode } from '../../../utils';
 import { CryptoExchangeFormData } from '../types';
 
 import { InfoCard } from './InfoCard';
 import { SelectCurrencyButton } from './SelectCurrencyButton';
-import { SelectTokenContent } from './SelectCurrencyContent';
 
 const TEN_SECONDS_IN_MS = 10_000;
 
@@ -39,11 +37,11 @@ const DEFAULT_SWR_CONFIG = {
 };
 
 interface Props {
-  setModalHeaderConfig: SyncFn<ModalHeaderConfig>;
-  setModalContent: SyncFn<SelectTokenContent>;
+  onSelectInputCurrency: EmptyFn;
+  onSelectOutputCurrency: EmptyFn;
 }
 
-export const FormContent: FC<Props> = ({ setModalHeaderConfig, setModalContent }) => {
+export const FormContent: FC<Props> = ({ onSelectInputCurrency, onSelectOutputCurrency }) => {
   const formAnalytics = useFormAnalytics('ExolixOrderCreationForm');
 
   const evmAddress = useAccountAddressForEvm();
@@ -61,8 +59,6 @@ export const FormContent: FC<Props> = ({ setModalHeaderConfig, setModalContent }
 
   const inputCurrency = watch('inputCurrency');
   const outputCurrency = watch('outputCurrency');
-
-  useLayoutEffect(() => void setModalHeaderConfig(defaultModalHeaderConfig), []);
 
   const { data: minMaxData, isValidating: isMinMaxLoading } = useTypedSWR(
     ['exolix/api/min-max', inputCurrency, outputCurrency],
@@ -120,9 +116,6 @@ export const FormContent: FC<Props> = ({ setModalHeaderConfig, setModalContent }
 
     return evmAddress;
   }, [evmAddress, outputCurrency.network.code, tezosAddress]);
-
-  const selectInputCurrency = useCallback(() => setModalContent('send'), []);
-  const selectOutputCurrency = useCallback(() => setModalContent('get'), []);
 
   const handleMinClick = useCallback(
     () => minMaxData && setValue('inputValue', minMaxData.finalMinAmount.toString(), { shouldValidate: true }),
@@ -202,7 +195,7 @@ export const FormContent: FC<Props> = ({ setModalHeaderConfig, setModalContent }
               onBlur={onBlur}
               onChange={v => onChange(v ?? '')}
               assetDecimals={EXOLIX_DECIMALS}
-              rightSideComponent={<SelectCurrencyButton currency={inputCurrency} onClick={selectInputCurrency} />}
+              rightSideComponent={<SelectCurrencyButton currency={inputCurrency} onClick={onSelectInputCurrency} />}
               rightSideContainerStyle={{ right: 2 }}
               style={{ paddingRight: 158 }}
               underneathComponent={
@@ -226,7 +219,7 @@ export const FormContent: FC<Props> = ({ setModalHeaderConfig, setModalContent }
           readOnly
           value={toAmount === 0 ? '' : toAmount}
           assetDecimals={EXOLIX_DECIMALS}
-          rightSideComponent={<SelectCurrencyButton currency={outputCurrency} onClick={selectOutputCurrency} />}
+          rightSideComponent={<SelectCurrencyButton currency={outputCurrency} onClick={onSelectOutputCurrency} />}
           rightSideContainerStyle={{ right: 2 }}
           style={{ paddingRight: 158 }}
           label={t('get')}

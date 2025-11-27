@@ -5,11 +5,11 @@ import { CaptionAlert, IconBase } from 'app/atoms';
 import { ActionsButtonsBox } from 'app/atoms/PageModal';
 import { StyledButton } from 'app/atoms/StyledButton';
 import { ReactComponent as CopyIcon } from 'app/icons/base/copy.svg';
-import { InfoContainer, InfoRaw } from 'app/templates/buy-modals/info-block';
 import { toastSuccess } from 'app/toaster';
 import { OrderStatusEnum } from 'lib/apis/exolix/types';
 import { t, T } from 'lib/i18n';
 
+import { InfoContainer, InfoRaw } from '../../../info-block';
 import { CurrencyIcon } from '../../components/CurrencyIcon';
 import { DisplayExchangeValue } from '../../components/DisplayExchangeValue';
 import { StepLabel } from '../../components/StepLabel';

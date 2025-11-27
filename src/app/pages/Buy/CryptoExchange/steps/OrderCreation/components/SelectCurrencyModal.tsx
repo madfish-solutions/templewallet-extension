@@ -1,13 +1,12 @@
-import React, { FC, memo, useCallback, useLayoutEffect, useMemo, useState } from 'react';
+import React, { FC, memo, useCallback, useMemo, useState } from 'react';
 
 import { useFormContext } from 'react-hook-form-v7';
 import { useDebounce } from 'use-debounce';
 
-import { FadeTransition } from 'app/a11y/FadeTransition';
 import { Button } from 'app/atoms';
 import { EmptyState } from 'app/atoms/EmptyState';
 import { PageLoader } from 'app/atoms/Loader';
-import { ModalHeaderConfig } from 'app/atoms/PageModal';
+import { PageModal } from 'app/atoms/PageModal';
 import { SimpleInfiniteScroll } from 'app/atoms/SimpleInfiniteScroll';
 import { useSimplePaginationLogic } from 'app/hooks/use-simple-pagination-logic';
 import {
@@ -33,12 +32,12 @@ const SCROLLABLE_ELEM_ID = 'SELECT_TOKEN_CONTENT_SCROLL';
 export type SelectTokenContent = 'send' | 'get';
 
 interface Props {
+  opened: boolean;
   content: SelectTokenContent;
-  setModalHeaderConfig: SyncFn<ModalHeaderConfig>;
-  onGoBack: EmptyFn;
+  onRequestClose?: EmptyFn;
 }
 
-export const SelectCurrencyContent: FC<Props> = ({ content, setModalHeaderConfig, onGoBack }) => {
+export const SelectCurrencyModal: FC<Props> = ({ opened, content, onRequestClose }) => {
   const [searchValue, setSearchValue] = useState('');
   const [searchValueDebounced] = useDebounce(searchValue, 300);
 
@@ -58,11 +57,6 @@ export const SelectCurrencyContent: FC<Props> = ({ content, setModalHeaderConfig
 
   const inputCurrency = watch('inputCurrency');
   const outputCurrency = watch('outputCurrency');
-
-  useLayoutEffect(
-    () => void setModalHeaderConfig({ title: t('selectToken'), onGoBack }),
-    [onGoBack, setModalHeaderConfig]
-  );
 
   const enabledExolixNetworkCodes = useMemo(
     () => evmChains.map(({ chainId }) => exolixNetworksMap[chainId]),
@@ -101,13 +95,13 @@ export const SelectCurrencyContent: FC<Props> = ({ content, setModalHeaderConfig
   const selectCurrency = useCallback(
     (currency: StoredExolixCurrency) => {
       setValue(content === 'send' ? 'inputCurrency' : 'outputCurrency', currency);
-      onGoBack();
+      onRequestClose?.();
     },
-    [content, onGoBack, setValue]
+    [content, onRequestClose, setValue]
   );
 
   return (
-    <FadeTransition>
+    <PageModal opened={opened} title={t('selectToken')} onRequestClose={onRequestClose}>
       <div className="flex flex-col px-4 pt-4 pb-3">
         <SearchBarField value={searchValue} defaultRightMargin={false} onValueChange={setSearchValue} />
       </div>
@@ -129,7 +123,7 @@ export const SelectCurrencyContent: FC<Props> = ({ content, setModalHeaderConfig
           </SimpleInfiniteScroll>
         )}
       </div>
-    </FadeTransition>
+    </PageModal>
   );
 };
 

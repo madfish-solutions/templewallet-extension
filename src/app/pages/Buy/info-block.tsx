@@ -2,9 +2,8 @@ import React, { FC } from 'react';
 
 import clsx from 'clsx';
 
+import { ChartListItem } from 'app/templates/chart-list-item';
 import { T, TID } from 'lib/i18n';
-
-import { ChartListItem } from '../chart-list-item';
 
 interface InfoContainerProps extends PropsWithChildren {
   className?: string;

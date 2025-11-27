@@ -19,6 +19,7 @@ import { useAccount } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
 
 import { ActivityPage } from './pages/Activity';
+import { CryptoExchange } from './pages/Buy/CryptoExchange';
 import { DebitCreditCard } from './pages/Buy/DebitCreditCard';
 import { ChainSettings } from './pages/ChainSettings';
 import { Dapps } from './pages/Dapps';
@@ -29,7 +30,6 @@ import { ImportWallet } from './pages/ImportWallet';
 import { Notifications } from './pages/Notifications';
 import { RewardsPage } from './pages/Rewards';
 import { TokenPage } from './pages/Token';
-import { CryptoExchange } from './pages/Buy/CryptoExchange';
 
 interface RouteContext {
   popup: boolean;
