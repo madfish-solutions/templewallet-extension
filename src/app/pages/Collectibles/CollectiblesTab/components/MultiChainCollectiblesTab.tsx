@@ -15,10 +15,12 @@ import { TabContentBaseBody } from './tab-content-base-body';
 interface MultiChainCollectiblesTabProps {
   accountTezAddress: string;
   accountEvmAddress: HexString;
+  onTokensTabClick: EmptyFn;
+  onCollectiblesTabClick: EmptyFn;
 }
 
 export const MultiChainCollectiblesTab = memo<MultiChainCollectiblesTabProps>(
-  ({ accountTezAddress, accountEvmAddress }) => {
+  ({ accountTezAddress, accountEvmAddress, onTokensTabClick, onCollectiblesTabClick }) => {
     const { blur, showInfo } = useCollectiblesListOptionsSelector();
     const mainnetTokensScamSlugsRecord = useMainnetTokensScamlistSelector();
 
@@ -77,6 +79,8 @@ export const MultiChainCollectiblesTab = memo<MultiChainCollectiblesTabProps>(
         slugs={paginatedSlugs}
         showInfo={showInfo}
         renderItem={renderItem}
+        onTokensTabClick={onTokensTabClick}
+        onCollectiblesTabClick={onCollectiblesTabClick}
       />
     );
   }

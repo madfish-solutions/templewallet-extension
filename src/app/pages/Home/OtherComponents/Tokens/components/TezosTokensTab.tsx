@@ -35,9 +35,16 @@ import { TokensTabBase } from './tokens-tab-base';
 interface Props {
   publicKeyHash: string;
   accountId: string;
+  onTokensTabClick: EmptyFn;
+  onCollectiblesTabClick: EmptyFn;
 }
 
-const TezosTokensTabContext = createContext<Props>({ publicKeyHash: '', accountId: '' });
+const TezosTokensTabContext = createContext<Props>({
+  publicKeyHash: '',
+  accountId: '',
+  onTokensTabClick: () => {},
+  onCollectiblesTabClick: () => {}
+});
 
 export const TezosTokensTab = memo<Props>(props => {
   const { manageActive } = useAssetsViewState();
@@ -199,6 +206,8 @@ const TabContentBase = memo<TabContentBaseProps>(
       }
     }, [displayedGroupedSlugs, displayedSlugs, tezosChains, publicKeyHash, mainnetTokensScamSlugsRecord, manageActive]);
 
+    const { onTokensTabClick, onCollectiblesTabClick } = useContext(TezosTokensTabContext);
+
     return (
       <TokensTabBase
         accountId={accountId}
@@ -211,6 +220,8 @@ const TabContentBase = memo<TabContentBaseProps>(
         isInSearchMode={isInSearchMode}
         network={mainnetChain}
         shouldShowHiddenTokensHint={shouldShowHiddenTokensHint}
+        onTokensTabClick={onTokensTabClick}
+        onCollectiblesTabClick={onCollectiblesTabClick}
       >
         {tokensView}
       </TokensTabBase>

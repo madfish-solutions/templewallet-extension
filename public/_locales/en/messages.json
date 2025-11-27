@@ -2897,9 +2897,6 @@
   "social": {
     "message": "Social"
   },
-  "market": {
-    "message": "Market"
-  },
   "marketplace": {
     "message": "Marketplace"
   },
@@ -3728,10 +3725,16 @@
     "message": "Purchase crypto via credit or debit card with 26+ currencies options"
   },
   "crossChainSwap": {
-    "message": "Cross-chain Swap"
+    "message": "Cross-Chain Swap"
   },
   "crossChainSwapDescription": {
     "message": "Exchange crypto instantly from Solana, Bitcoin and other networks"
+  },
+  "receiveOnChain": {
+    "message": "Receive on-chain"
+  },
+  "receiveOnChainDescription": {
+    "message": "Transfer crypto via address or QR code from other wallets or exchanges"
   },
   "convertation": {
     "message": "Convertation"
@@ -4587,9 +4590,6 @@
   },
   "rewardsEarningEnabled": {
     "message": "Rewards earning successfully enabled"
-  },
-  "marketPageDisclaimer": {
-    "message": "Temple integrated third-party solutions to buy or exchange crypto."
   },
   "txCouldNotBeEstimated": {
     "message": "Transaction could not be estimated"

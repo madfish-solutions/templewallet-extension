@@ -3,18 +3,16 @@ import React, { FC, memo } from 'react';
 import { FadeTransition } from 'app/a11y/FadeTransition';
 import { SyncSpinner } from 'app/atoms';
 import { AddCustomTokenButton } from 'app/atoms/AddCustomTokenButton';
+import { AssetsBar } from 'app/atoms/AssetsBar';
 import { PageLoader } from 'app/atoms/Loader';
-import { ManageAssetsViewStateButtons } from 'app/atoms/ManageAssetsViewStateButtons';
 import {
   VisibilityTrackingInfiniteScroll,
   VisibilityTrackingInfiniteScrollProps
 } from 'app/atoms/visibility-tracking-infinite-scroll';
 import { useAssetsViewState } from 'app/hooks/use-assets-view-state';
-import { ReactComponent as ApplePayIcon } from 'app/icons/payment-options/apple-pay-no-frame.svg';
-import { ReactComponent as MastercardIcon } from 'app/icons/payment-options/mastercard.svg';
-import { ReactComponent as VisaIcon } from 'app/icons/payment-options/visa.svg';
-import { ContentContainer, StickyBar } from 'app/layouts/containers';
-import { AssetsSelectors } from 'app/pages/Home/OtherComponents/Assets.selectors';
+import { ContentContainer } from 'app/layouts/containers';
+import BuyWithFiatImageSrc from 'app/misc/deposit/buy-with-fiat.png';
+import CrossChainSwapImageSrc from 'app/misc/deposit/cross-chain-swap.png';
 import { HomeSelectors } from 'app/pages/Home/selectors';
 import {
   useIsAccountInitializedLoadingSelector,
@@ -22,18 +20,13 @@ import {
 } from 'app/store/accounts-initialization/selectors';
 import { useTestnetModeEnabledSelector } from 'app/store/settings/selectors';
 import { AssetsFilterOptions } from 'app/templates/AssetsFilterOptions';
-import { BuyModals, useBuyModalsState } from 'app/templates/buy-modals';
 import { DAppConnection } from 'app/templates/DAppConnection';
-import { IllustratedOption } from 'app/templates/illustrated-option';
-import { SearchBarField } from 'app/templates/SearchField';
-import { T } from 'lib/i18n';
+import { DepositOption } from 'app/templates/deposit-option';
+import { t, T } from 'lib/i18n';
 import { OneOfChains } from 'temple/front';
 
 import { EmptySection } from '../EmptySection';
 import { UpdateAppBanner } from '../UpdateAppBanner';
-
-import BuyWithFiatIllustrationSrc from './buy-with-fiat.png';
-import CrossChainSwapIllustrationSrc from './cross-chain-swap.png';
 
 export interface TokensTabBaseProps {
   searchValue: string;
@@ -46,27 +39,28 @@ export interface TokensTabBaseProps {
   isInSearchMode: boolean;
   network?: OneOfChains;
   shouldShowHiddenTokensHint?: boolean;
+  onTokensTabClick: EmptyFn;
+  onCollectiblesTabClick: EmptyFn;
 }
 
 export const TokensTabBase: FC<PropsWithChildren<TokensTabBaseProps>> = ({
   searchValue,
   onSearchValueChange,
+  onTokensTabClick,
+  onCollectiblesTabClick,
   ...restProps
 }) => {
   const { manageActive, filtersOpened } = useAssetsViewState();
 
   return (
     <>
-      <StickyBar>
-        <SearchBarField
-          value={searchValue}
-          disabled={filtersOpened}
-          onValueChange={onSearchValueChange}
-          testID={AssetsSelectors.searchAssetsInputTokens}
-        />
-
-        <ManageAssetsViewStateButtons />
-      </StickyBar>
+      <AssetsBar
+        tabSlug="tokens"
+        searchValue={searchValue}
+        onSearchValueChange={onSearchValueChange}
+        onTokensTabClick={onTokensTabClick}
+        onCollectiblesTabClick={onCollectiblesTabClick}
+      />
 
       {filtersOpened ? (
         <AssetsFilterOptions />
@@ -81,11 +75,13 @@ export const TokensTabBase: FC<PropsWithChildren<TokensTabBaseProps>> = ({
   );
 };
 
-interface TokensTabBaseContentProps extends Omit<TokensTabBaseProps, 'searchValue' | 'onSearchValueChange'> {
+interface TokensTabBaseContentProps
+  extends Omit<
+    TokensTabBaseProps,
+    'searchValue' | 'onSearchValueChange' | 'onTokensTabClick' | 'onCollectiblesTabClick'
+  > {
   manageActive: boolean;
 }
-
-const fiatOptionsIcons = [MastercardIcon, VisaIcon, ApplePayIcon];
 
 const TokensTabBaseContent: FC<PropsWithChildren<TokensTabBaseContentProps>> = ({
   tokensCount,
@@ -152,72 +148,38 @@ const TokensTabBaseContent: FC<PropsWithChildren<TokensTabBaseContentProps>> = (
   );
 };
 
-const UninitializedAccountContent = memo(() => {
-  const {
-    cryptoExchangeModalOpened,
-    debitCreditCardModalOpened,
-    closeCryptoExchangeModal,
-    closeDebitCreditCardModal,
-    openCryptoExchangeModal,
-    openDebitCreditCardModal
-  } = useBuyModalsState();
+const UninitializedAccountContent = memo(() => (
+  <>
+    <p className="p-1 mb-1 text-font-description-bold text-grey-1">
+      <T id="depositTokensToGetStarted" />
+    </p>
 
-  return (
-    <>
-      <p className="p-1 mb-1 text-font-description-bold text-grey-1">
-        <T id="depositTokensToGetStarted" />
-      </p>
+    <DepositOption
+      paymentIcons
+      to="/buy/card"
+      title={t('buyWithFiat')}
+      description={t('buyWithFiatDescription')}
+      testID={HomeSelectors.buyWithFiatButton}
+      imageSrc={BuyWithFiatImageSrc}
+      className="mb-2"
+    />
 
-      <IllustratedOption
-        title={
-          <div className="flex gap-2 flex-wrap items-center">
-            <span>
-              <T id="buyWithFiat" />
-            </span>
-
-            <div className="flex gap-1 items-center">
-              {fiatOptionsIcons.map((Icon, index) => (
-                <div
-                  className="w-[29px] h-5 px-1 flex items-center justify-center border-0.5 border-lines rounded"
-                  key={index}
-                >
-                  <Icon />
-                </div>
-              ))}
-            </div>
-          </div>
-        }
-        className="mb-2"
-        descriptionI18nKey="buyWithFiatDescription"
-        testID={HomeSelectors.buyWithFiatButton}
-        IllustrationAsset={BuyWithFiatIllustrationSrc}
-        onClick={openDebitCreditCardModal}
-      />
-
-      <IllustratedOption
-        title={<T id="crossChainSwap" />}
-        descriptionI18nKey="crossChainSwapDescription"
-        testID={HomeSelectors.crossChainSwapButton}
-        IllustrationAsset={CrossChainSwapIllustrationSrc}
-        onClick={openCryptoExchangeModal}
-      />
-
-      <BuyModals
-        cryptoExchangeModalOpened={cryptoExchangeModalOpened}
-        debitCreditCardModalOpened={debitCreditCardModalOpened}
-        closeCryptoExchangeModal={closeCryptoExchangeModal}
-        closeDebitCreditCardModal={closeDebitCreditCardModal}
-      />
-    </>
-  );
-});
+    <DepositOption
+      to="/buy/crypto"
+      title={t('crossChainSwap')}
+      description={t('crossChainSwapDescription')}
+      testID={HomeSelectors.crossChainSwapButton}
+      imageSrc={CrossChainSwapImageSrc}
+    />
+  </>
+));
 
 const TokensTabBaseContentWrapper: FC<PropsWithChildren<{ manageActive?: boolean; padding?: boolean }>> = ({
   manageActive,
   padding,
   children
 }) => (
-  <ContentContainer padding={padding}>
+  <ContentContainer withShadow={false} padding={padding}>
     {manageActive ? null : <UpdateAppBanner />}
 
     {children}
