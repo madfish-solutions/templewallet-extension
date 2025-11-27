@@ -37,6 +37,7 @@ export const KoloCardPage = memo(() => {
     'kolo-card-customer-colors',
     DEFAULT_CUSTOMER_COLORS
   );
+  const [customerColorsDraft, setCustomerColorsDraft] = useState<CustomerColorsState>(customerColors);
 
   const hasCustomColors = useMemo(
     () => Object.values(customerColors).some(value => Boolean(value && value.trim().length > 0)),
@@ -79,14 +80,18 @@ export const KoloCardPage = memo(() => {
     (key: keyof CustomerColorsState) => (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
       const value = event.target.value;
 
-      setCustomerColors(prev => ({
+      setCustomerColorsDraft(prev => ({
         ...prev,
         [key]: value
       }));
     };
 
   const handleResetCustomerColors = () => {
-    setCustomerColors(DEFAULT_CUSTOMER_COLORS);
+    setCustomerColorsDraft(DEFAULT_CUSTOMER_COLORS);
+  };
+
+  const handleApplyCustomerColors = () => {
+    setCustomerColors(customerColorsDraft);
   };
 
   const handleFetchTopUpAddress = async () => {
@@ -139,7 +144,7 @@ export const KoloCardPage = memo(() => {
             <FormField
               label="BrandColor"
               type="text"
-              value={customerColors.BrandColor}
+              value={customerColorsDraft.BrandColor}
               onChange={handleCustomerColorChange('BrandColor')}
               placeholder="#FFD600"
               smallPaddings
@@ -148,7 +153,7 @@ export const KoloCardPage = memo(() => {
             <FormField
               label="ButtonPimary"
               type="text"
-              value={customerColors.ButtonPimary}
+              value={customerColorsDraft.ButtonPimary}
               onChange={handleCustomerColorChange('ButtonPimary')}
               placeholder="#FFD600"
               smallPaddings
@@ -157,7 +162,7 @@ export const KoloCardPage = memo(() => {
             <FormField
               label="ButtonPimaryDisabled"
               type="text"
-              value={customerColors.ButtonPimaryDisabled}
+              value={customerColorsDraft.ButtonPimaryDisabled}
               onChange={handleCustomerColorChange('ButtonPimaryDisabled')}
               placeholder="#0E0E0C"
               smallPaddings
@@ -166,7 +171,7 @@ export const KoloCardPage = memo(() => {
             <FormField
               label="TextButton"
               type="text"
-              value={customerColors.TextButton}
+              value={customerColorsDraft.TextButton}
               onChange={handleCustomerColorChange('TextButton')}
               placeholder="#000000"
               smallPaddings
@@ -175,7 +180,7 @@ export const KoloCardPage = memo(() => {
             <FormField
               label="TextDisabledButton"
               type="text"
-              value={customerColors.TextDisabledButton}
+              value={customerColorsDraft.TextDisabledButton}
               onChange={handleCustomerColorChange('TextDisabledButton')}
               placeholder="#686866"
               smallPaddings
@@ -184,7 +189,7 @@ export const KoloCardPage = memo(() => {
             <FormField
               label="BgPrimary"
               type="text"
-              value={customerColors.BgPrimary}
+              value={customerColorsDraft.BgPrimary}
               onChange={handleCustomerColorChange('BgPrimary')}
               placeholder="#000000"
               smallPaddings
@@ -193,7 +198,7 @@ export const KoloCardPage = memo(() => {
             <FormField
               label="BgSecondary"
               type="text"
-              value={customerColors.BgSecondary}
+              value={customerColorsDraft.BgSecondary}
               onChange={handleCustomerColorChange('BgSecondary')}
               placeholder="#181816"
               smallPaddings
@@ -202,32 +207,33 @@ export const KoloCardPage = memo(() => {
             <FormField
               label="BgTertiary"
               type="text"
-              value={customerColors.BgTertiary}
+              value={customerColorsDraft.BgTertiary}
               onChange={handleCustomerColorChange('BgTertiary')}
               placeholder="#0F0F10"
               smallPaddings
             />
 
             <div className="flex gap-2">
+              <Button onClick={handleApplyCustomerColors}>Apply</Button>
               <Button onClick={handleResetCustomerColors}>Reset to defaults</Button>
             </div>
           </div>
 
-          <div className="mt-4 flex flex-col gap-2">
-            <Button disabled={topUpLoading} onClick={handleFetchTopUpAddress}>
-              {topUpLoading ? 'Fetching top-up address...' : 'Get crypto top-up address'}
-            </Button>
+          {/*<div className="mt-4 flex flex-col gap-2">*/}
+          {/*  <Button disabled={topUpLoading} onClick={handleFetchTopUpAddress}>*/}
+          {/*    {topUpLoading ? 'Fetching top-up address...' : 'Get crypto top-up address'}*/}
+          {/*  </Button>*/}
 
-            {topUpError && <span className="text-font-small text-danger">{topUpError}</span>}
+          {/*  {topUpError && <span className="text-font-small text-danger">{topUpError}</span>}*/}
 
-            {topUpAddress && (
-              <div className="mt-2 flex flex-col gap-2">
-                <span>{topUpAddress}</span>
+          {/*  {topUpAddress && (*/}
+          {/*    <div className="mt-2 flex flex-col gap-2">*/}
+          {/*      <span>{topUpAddress}</span>*/}
 
-                {topUpMemo && <span className="text-font-small break-all">{topUpMemo}</span>}
-              </div>
-            )}
-          </div>
+          {/*      {topUpMemo && <span className="text-font-small break-all">{topUpMemo}</span>}*/}
+          {/*    </div>*/}
+          {/*  )}*/}
+          {/*</div>*/}
         </div>
       </div>
     </PageLayout>
