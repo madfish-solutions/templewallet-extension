@@ -14,17 +14,11 @@ import PageLayout from 'app/layouts/PageLayout';
 import { AccountsModal } from 'app/templates/AccountsModal';
 import { LedgerApprovalModal } from 'app/templates/ledger-approval-modal';
 import { EvmOperationKind, getOperationKind } from 'lib/evm/on-chain/transactions';
+import { equalsIgnoreCase } from 'lib/evm/on-chain/utils/common.utils';
 import { parseEvmTxRequest } from 'lib/evm/on-chain/utils/parse-evm-tx-request';
 import { T, t } from 'lib/i18n';
 import { useTempleClient } from 'lib/temple/front';
-import {
-  StoredAccount,
-  TempleAccountType,
-  TempleDAppPayload,
-  TempleEvmDAppPayload,
-  TempleMessageType,
-  TempleTezosDAppPayload
-} from 'lib/temple/types';
+import { StoredAccount, TempleAccountType, TempleDAppPayload, TempleMessageType } from 'lib/temple/types';
 import { LedgerOperationState, runConnectedLedgerOperationFlow } from 'lib/ui';
 import { useBooleanState, useSafeState } from 'lib/ui/hooks';
 import { useLedgerWebHidFullViewGuard } from 'lib/ui/ledger-webhid-guard';
@@ -96,31 +90,29 @@ export const ConfirmDAppForm = memo<ConfirmDAppFormProps>(
     const currentAccountId = useCurrentAccountId();
 
     const payloadAccountId = useMemo(() => {
-      if ((payload as TempleTezosDAppPayload).network && 'sourcePkh' in payload) {
-        const sourcePkh = (payload as TempleTezosDAppPayload & { sourcePkh: string }).sourcePkh;
+      if (payload.chainType === TempleChainKind.Tezos) {
+        if ('sourcePkh' in payload) {
+          const sourcePkh = payload.sourcePkh;
 
-        const tezosAccount = accounts.find(acc => getAccountForTezos(acc)?.address === sourcePkh);
-        return tezosAccount?.id;
+          const tezosAccount = accounts.find(acc => equalsIgnoreCase(getAccountForTezos(acc)?.address, sourcePkh));
+          return tezosAccount?.id;
+        }
       }
 
-      if ((payload as TempleEvmDAppPayload).chainId) {
+      if (payload.chainType === TempleChainKind.EVM) {
         if (payload.type === 'confirm_operations') {
-          const from = (payload as TempleEvmDAppPayload & { req: { from?: HexString } }).req.from;
+          const from = payload.req.from;
 
           if (from) {
-            const evmAccount = accounts.find(
-              acc => getAccountForEvm(acc)?.address.toLowerCase() === from.toLowerCase()
-            );
+            const evmAccount = accounts.find(acc => equalsIgnoreCase(getAccountForEvm(acc)?.address, from));
             return evmAccount?.id;
           }
         }
 
         if ('sourcePkh' in payload) {
-          const sourcePkh = (payload as TempleEvmDAppPayload & { sourcePkh: HexString }).sourcePkh;
+          const sourcePkh = payload.sourcePkh;
 
-          const evmAccount = accounts.find(
-            acc => getAccountForEvm(acc)?.address.toLowerCase() === sourcePkh.toLowerCase()
-          );
+          const evmAccount = accounts.find(acc => equalsIgnoreCase(getAccountForEvm(acc)?.address, sourcePkh));
           return evmAccount?.id;
         }
       }
@@ -164,12 +156,10 @@ export const ConfirmDAppForm = memo<ConfirmDAppFormProps>(
       setLedgerGuardedForAccountId(selectedAccount.id);
 
       void (async () => {
-        const redirected = await guard(selectedAccount.type, {
+        await guard(selectedAccount.type, {
           onBeforeFullView: detachConfirmWindow,
           useConfirmFullView: true
         });
-
-        if (redirected) return;
       })();
     }, [
       detachConfirmWindow,
