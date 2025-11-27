@@ -1,31 +1,25 @@
 import React, { FC, useCallback, useState } from 'react';
 
-import { PageModal } from 'app/atoms/PageModal';
+import { PageTitle } from 'app/atoms';
+import PageLayout from 'app/layouts/PageLayout';
+import { t } from 'lib/i18n';
 
-import { defaultModalHeaderConfig } from './config';
 import { CryptoExchangeDataProvider, useCryptoExchangeDataState } from './context';
 import { ConvertationTracker } from './steps/ConvertationTracker';
 import { Deposit } from './steps/Deposit';
 import { OrderCreation, OrderCreationContent } from './steps/OrderCreation';
 
-interface Props {
-  opened: boolean;
-  onRequestClose: EmptyFn;
-}
-
-export const CryptoExchangeModal: FC<Props> = ({ opened, onRequestClose }) => {
-  const [modalHeaderConfig, setModalHeaderConfig] = useState(defaultModalHeaderConfig);
+export const CryptoExchange: FC = () => {
   const [orderCreationContent, setOrderCreationContent] = useState<OrderCreationContent>('form');
 
   const { step } = useCryptoExchangeDataState();
 
   const handleClose = useCallback(() => {
-    onRequestClose();
     setOrderCreationContent('form');
-  }, [onRequestClose]);
+  }, []);
 
   return (
-    <PageModal opened={opened} onRequestClose={handleClose} {...modalHeaderConfig}>
+    <PageLayout pageTitle={<PageTitle title={t('cryptoExchange')} />}>
       <CryptoExchangeDataProvider>
         {(() => {
           switch (step) {
@@ -45,6 +39,6 @@ export const CryptoExchangeModal: FC<Props> = ({ opened, onRequestClose }) => {
           }
         })()}
       </CryptoExchangeDataProvider>
-    </PageModal>
+    </PageLayout>
   );
 };

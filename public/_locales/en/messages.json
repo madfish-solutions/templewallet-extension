@@ -2897,9 +2897,6 @@
   "social": {
     "message": "Social"
   },
-  "market": {
-    "message": "Market"
-  },
   "marketplace": {
     "message": "Marketplace"
   },
@@ -4587,9 +4584,6 @@
   },
   "rewardsEarningEnabled": {
     "message": "Rewards earning successfully enabled"
-  },
-  "marketPageDisclaimer": {
-    "message": "Temple integrated third-party solutions to buy or exchange crypto."
   },
   "txCouldNotBeEstimated": {
     "message": "Transaction could not be estimated"

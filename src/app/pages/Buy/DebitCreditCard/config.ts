@@ -1,9 +1,7 @@
-import { ModalHeaderConfig } from 'app/atoms/PageModal';
 import { MOONPAY_ASSETS_BASE_URL } from 'lib/apis/moonpay';
 import { TopUpProviderId } from 'lib/buy-with-credit-card/top-up-provider-id.enum';
 import { toTopUpTokenSlug } from 'lib/buy-with-credit-card/top-up-token-slug.utils';
 import { TopUpInputInterface, TopUpOutputInterface } from 'lib/buy-with-credit-card/topup.interface';
-import { t } from 'lib/i18n';
 import { ETHEREUM_MAINNET_CHAIN_ID, TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
 import { TempleChainKind } from 'temple/types';
 
@@ -37,9 +35,4 @@ export const DEFAULT_EVM_OUTPUT_TOKEN: TopUpOutputInterface = {
   providers: [TopUpProviderId.MoonPay, TopUpProviderId.Utorg],
   precision: 1,
   slug: toTopUpTokenSlug('ETH', TempleChainKind.EVM, ETHEREUM_MAINNET_CHAIN_ID.toString())
-};
-
-export const defaultModalHeaderConfig: ModalHeaderConfig = {
-  title: t('debitCreditCard'),
-  onGoBack: undefined
 };

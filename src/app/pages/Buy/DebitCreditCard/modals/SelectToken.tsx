@@ -1,28 +1,24 @@
-import React, { FC, useCallback, useLayoutEffect, useMemo } from 'react';
+import React, { FC, useCallback, useMemo } from 'react';
 
 import { intersection } from 'lodash';
 import { useFormContext } from 'react-hook-form-v7';
 
-import { ModalHeaderConfig } from 'app/atoms/PageModal';
 import { useCurrenciesLoadingSelector } from 'app/store/buy-with-credit-card/selectors';
 import { fromTopUpTokenSlug } from 'lib/buy-with-credit-card/top-up-token-slug.utils';
 import { TopUpOutputInterface } from 'lib/buy-with-credit-card/topup.interface';
-import { t } from 'lib/i18n';
 import { useAccountAddressForEvm, useAccountAddressForTezos, useEnabledEvmChains } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
 
-import { BuyWithCreditCardFormData } from '../form-data.interface';
 import { useAllCryptoCurrencies } from '../hooks/use-all-crypto-currencies';
+import { BuyWithCreditCardFormData, DefaultModalProps } from '../types';
 
 import { SelectAssetBase } from './SelectAssetBase';
 
-interface Props {
-  setModalHeaderConfig: SyncFn<ModalHeaderConfig>;
+interface Props extends DefaultModalProps {
   onTokenSelect?: SyncFn<TopUpOutputInterface>;
-  onGoBack?: EmptyFn;
 }
 
-export const SelectToken: FC<Props> = ({ setModalHeaderConfig, onTokenSelect, onGoBack }) => {
+export const SelectTokenModal: FC<Props> = ({ onTokenSelect, onRequestClose, ...rest }) => {
   const { watch, setValue } = useFormContext<BuyWithCreditCardFormData>();
 
   const inputCurrency = watch('inputCurrency');
@@ -34,11 +30,6 @@ export const SelectToken: FC<Props> = ({ setModalHeaderConfig, onTokenSelect, on
 
   const allTokens = useAllCryptoCurrencies();
   const currenciesLoading = useCurrenciesLoadingSelector();
-
-  useLayoutEffect(
-    () => void setModalHeaderConfig({ title: t('selectToken'), onGoBack }),
-    [onGoBack, setModalHeaderConfig]
-  );
 
   const enabledTokens = useMemo(
     () =>
@@ -62,9 +53,9 @@ export const SelectToken: FC<Props> = ({ setModalHeaderConfig, onTokenSelect, on
     (token: TopUpOutputInterface) => {
       setValue('outputToken', token);
       onTokenSelect?.(token);
-      onGoBack?.();
+      onRequestClose?.();
     },
-    [setValue, onTokenSelect, onGoBack]
+    [setValue, onTokenSelect, onRequestClose]
   );
 
   return (
@@ -72,6 +63,8 @@ export const SelectToken: FC<Props> = ({ setModalHeaderConfig, onTokenSelect, on
       assets={tokensForSelectedFiat}
       loading={currenciesLoading}
       onCurrencySelect={handleTokenSelect}
+      onRequestClose={onRequestClose}
+      {...rest}
     />
   );
 };

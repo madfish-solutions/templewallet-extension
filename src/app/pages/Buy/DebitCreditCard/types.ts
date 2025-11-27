@@ -11,3 +11,9 @@ export interface BuyWithCreditCardFormData {
   inputAmount?: number;
   outputAmount?: number;
 }
+
+export interface DefaultModalProps {
+  title: ReactChildren;
+  opened: boolean;
+  onRequestClose?: EmptyFn;
+}

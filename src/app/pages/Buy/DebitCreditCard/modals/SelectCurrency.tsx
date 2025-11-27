@@ -1,33 +1,24 @@
-import React, { FC, useCallback, useLayoutEffect } from 'react';
+import React, { FC, useCallback } from 'react';
 
 import { useFormContext } from 'react-hook-form-v7';
 
-import { ModalHeaderConfig } from 'app/atoms/PageModal';
 import { useCurrenciesLoadingSelector } from 'app/store/buy-with-credit-card/selectors';
 import { TopUpInputInterface } from 'lib/buy-with-credit-card/topup.interface';
-import { t } from 'lib/i18n';
 
-import { BuyWithCreditCardFormData } from '../form-data.interface';
 import { useAllFiatCurrencies } from '../hooks/use-all-fiat-currencies';
+import { BuyWithCreditCardFormData, DefaultModalProps } from '../types';
 
 import { SelectAssetBase } from './SelectAssetBase';
 
-interface Props {
-  setModalHeaderConfig: SyncFn<ModalHeaderConfig>;
+interface Props extends DefaultModalProps {
   onCurrencySelect?: SyncFn<TopUpInputInterface>;
-  onGoBack?: EmptyFn;
 }
 
-export const SelectCurrency: FC<Props> = ({ setModalHeaderConfig, onCurrencySelect, onGoBack }) => {
+export const SelectCurrencyModal: FC<Props> = ({ onCurrencySelect, onRequestClose, ...rest }) => {
   const { watch, setValue } = useFormContext<BuyWithCreditCardFormData>();
 
   const inputCurrency = watch('inputCurrency');
   const outputToken = watch('outputToken');
-
-  useLayoutEffect(
-    () => void setModalHeaderConfig({ title: t('selectCurrency'), onGoBack }),
-    [onGoBack, setModalHeaderConfig]
-  );
 
   const allFiatCurrencies = useAllFiatCurrencies(inputCurrency.code, outputToken.slug);
 
@@ -37,9 +28,9 @@ export const SelectCurrency: FC<Props> = ({ setModalHeaderConfig, onCurrencySele
     (currency: TopUpInputInterface) => {
       setValue('inputCurrency', currency);
       onCurrencySelect?.(currency);
-      onGoBack?.();
+      onRequestClose?.();
     },
-    [setValue, onCurrencySelect, onGoBack]
+    [setValue, onCurrencySelect, onRequestClose]
   );
 
   return (
@@ -47,6 +38,8 @@ export const SelectCurrency: FC<Props> = ({ setModalHeaderConfig, onCurrencySele
       assets={allFiatCurrencies}
       loading={currenciesLoading}
       onCurrencySelect={handleCurrencySelect}
+      onRequestClose={onRequestClose}
+      {...rest}
     />
   );
 };

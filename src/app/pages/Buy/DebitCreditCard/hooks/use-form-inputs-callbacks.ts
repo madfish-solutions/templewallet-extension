@@ -19,7 +19,7 @@ import {
 import { useAccountAddressForTezos } from 'temple/front';
 
 import { DEFAULT_EVM_OUTPUT_TOKEN, DEFAULT_TEZOS_OUTPUT_TOKEN } from '../config';
-import { BuyWithCreditCardFormData } from '../form-data.interface';
+import { BuyWithCreditCardFormData } from '../types';
 
 import { usePaymentProviders } from './use-payment-providers';
 
