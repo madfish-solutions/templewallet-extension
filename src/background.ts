@@ -6,14 +6,26 @@ import 'lib/keep-bg-worker-alive/background';
 import { putStoredAppInstallIdentity } from 'app/storage/app-install-id';
 import { getStoredAppUpdateDetails, putStoredAppUpdateDetails } from 'app/storage/app-update';
 import { updateRulesStorage } from 'lib/ads/update-rules-storage';
-import { SHOULD_OPEN_LETS_EXCHANGE_MODAL_STORAGE_KEY, SIDE_VIEW_WAS_FORCED_STORAGE_KEY } from 'lib/constants';
+import {
+  SHOULD_OPEN_LETS_EXCHANGE_MODAL_STORAGE_KEY,
+  SHOULD_PROMOTE_ROOTSTOCK_STORAGE_KEY,
+  SIDE_VIEW_WAS_FORCED_STORAGE_KEY
+} from 'lib/constants';
 import { EnvVars, IS_SIDE_PANEL_AVAILABLE } from 'lib/env';
-import { fetchFromStorage, putToStorage } from 'lib/storage';
+import { fetchFromStorage, fetchManyFromStorage, putToStorage } from 'lib/storage';
 import { start } from 'lib/temple/back/main';
 import { Vault } from 'lib/temple/back/vault';
 import { generateKeyPair } from 'lib/utils/ecdsa';
 
 import PackageJSON from '../package.json';
+
+type UpdateStorageKey =
+  | typeof SHOULD_OPEN_LETS_EXCHANGE_MODAL_STORAGE_KEY
+  | typeof SHOULD_PROMOTE_ROOTSTOCK_STORAGE_KEY;
+const updateStorageKeys: UpdateStorageKey[] = [
+  SHOULD_OPEN_LETS_EXCHANGE_MODAL_STORAGE_KEY,
+  SHOULD_PROMOTE_ROOTSTOCK_STORAGE_KEY
+];
 
 browser.runtime.onInstalled.addListener(({ reason }) => {
   if (reason === 'install') {
@@ -24,11 +36,20 @@ browser.runtime.onInstalled.addListener(({ reason }) => {
   if (reason === 'update')
     Promise.all([
       getStoredAppUpdateDetails(),
-      fetchFromStorage<boolean>(SHOULD_OPEN_LETS_EXCHANGE_MODAL_STORAGE_KEY)
-    ]).then(([details, shouldOpenLetsExchangeModal]) => {
-      if (details?.triggeredManually) openFullPage();
-      if (shouldOpenLetsExchangeModal === null) putToStorage(SHOULD_OPEN_LETS_EXCHANGE_MODAL_STORAGE_KEY, true);
-    });
+      fetchManyFromStorage<UpdateStorageKey, Record<UpdateStorageKey, boolean>>(updateStorageKeys)
+    ]).then(
+      ([
+        details,
+        {
+          [SHOULD_OPEN_LETS_EXCHANGE_MODAL_STORAGE_KEY]: shouldOpenLetsExchangeModal,
+          [SHOULD_PROMOTE_ROOTSTOCK_STORAGE_KEY]: shouldPromoteRootstock
+        }
+      ]) => {
+        if (details?.triggeredManually) openFullPage();
+        if (shouldOpenLetsExchangeModal == null) putToStorage(SHOULD_OPEN_LETS_EXCHANGE_MODAL_STORAGE_KEY, true);
+        if (shouldPromoteRootstock == null) putToStorage(SHOULD_PROMOTE_ROOTSTOCK_STORAGE_KEY, true);
+      }
+    );
 });
 
 browser.runtime.onUpdateAvailable.addListener(newManifest => {

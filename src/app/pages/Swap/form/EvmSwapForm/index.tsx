@@ -12,7 +12,7 @@ import { getProtocolFeeForRouteStep } from 'app/pages/Swap/form/EvmSwapForm/util
 import { useFetchLifiEvmTokensSlugs } from 'app/pages/Swap/form/hooks';
 import { SwapFormValue, SwapInputValue } from 'app/pages/Swap/form/SwapForm.form';
 import { formatDuration, getBufferedExecutionDuration, getDefaultSwapFormValues } from 'app/pages/Swap/form/utils';
-import { useLifiEvmTokenMetadataSelector } from 'app/store/evm/swap-lifi-metadata/selectors';
+import { useLifiConnectedEvmTokenMetadataSelector } from 'app/store/evm/swap-lifi-metadata/selectors';
 import { useEvmTokenMetadataSelector } from 'app/store/evm/tokens-metadata/selectors';
 import { toastError } from 'app/toaster';
 import { useFormAnalytics } from 'lib/analytics';
@@ -147,11 +147,11 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
     (targetAssetInfo?.chainId as number) || chainId,
     outputValue.assetSlug ?? EVM_TOKEN_SLUG
   );
-  const lifiInputTokenMetadata = useLifiEvmTokenMetadataSelector(
+  const lifiInputTokenMetadata = useLifiConnectedEvmTokenMetadataSelector(
     (sourceAssetInfo?.chainId as number) || chainId,
     inputValue.assetSlug ?? EVM_TOKEN_SLUG
   );
-  const lifiOutputTokenMetadata = useLifiEvmTokenMetadataSelector(
+  const lifiOutputTokenMetadata = useLifiConnectedEvmTokenMetadataSelector(
     (targetAssetInfo?.chainId as number) || chainId,
     outputValue.assetSlug ?? EVM_TOKEN_SLUG
   );

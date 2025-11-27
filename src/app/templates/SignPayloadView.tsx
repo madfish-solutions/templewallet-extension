@@ -33,8 +33,30 @@ export const SignPayloadView = memo<SignPayloadViewProps>(({ payload }) => {
   );
   const { fieldRef, copy } = useCopyToClipboard<HTMLTextAreaElement>();
 
-  const previewSource =
-    payload.chainType === TempleChainKind.EVM ? payload.payload : payload.preview ?? payload.payload;
+  const previewSource = useMemo(() => {
+    if (
+      payload.chainType === TempleChainKind.EVM &&
+      typeof payload.payload === 'object' &&
+      'raw' in payload.payload &&
+      typeof payload.payload.raw === 'string'
+    ) {
+      try {
+        const result = new TextDecoder('UTF-8', { fatal: true }).decode(
+          Buffer.from(payload.payload.raw.slice(2), 'hex')
+        );
+
+        return result;
+      } catch {
+        return payload.payload.raw;
+      }
+    }
+
+    if (payload.chainType === TempleChainKind.EVM) {
+      return payload.payload;
+    }
+
+    return payload.preview ?? payload.payload;
+  }, [payload]);
   const text = useMemo(
     () => (typeof previewSource === 'string' ? previewSource : JSON.stringify(previewSource, null, 2)),
     [previewSource]
