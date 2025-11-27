@@ -1,57 +1,50 @@
-import React, { FC, memo, useCallback, useLayoutEffect } from 'react';
+import React, { FC, memo, useCallback } from 'react';
 
 import clsx from 'clsx';
 import { useFormContext } from 'react-hook-form-v7';
 
-import { FadeTransition } from 'app/a11y/FadeTransition';
 import { EmptyState } from 'app/atoms/EmptyState';
 import Money from 'app/atoms/Money';
-import { ModalHeaderConfig } from 'app/atoms/PageModal';
-import { InfoContainer } from 'app/templates/buy-modals/info-block';
+import { PageModal } from 'app/atoms/PageModal';
 import { TopUpProviderIcon } from 'app/templates/TopUpProviderIcon';
 import { TopUpProviderId } from 'lib/buy-with-credit-card/top-up-provider-id.enum';
 import { PaymentProviderInterface } from 'lib/buy-with-credit-card/topup.interface';
-import { T, t, TID } from 'lib/i18n';
+import { T, TID } from 'lib/i18n';
 
+import { InfoContainer } from '../../info-block';
 import { NewQuoteLabel } from '../components/NewQuoteLabel';
 import { VALUE_PLACEHOLDER } from '../config';
-import { BuyWithCreditCardFormData } from '../form-data.interface';
+import { BuyWithCreditCardFormData, DefaultModalProps } from '../types';
 
-interface Props {
-  setModalHeaderConfig: SyncFn<ModalHeaderConfig>;
+interface Props extends DefaultModalProps {
   paymentProvidersToDisplay: PaymentProviderInterface[];
   lastFormRefreshTimestamp: number;
   onProviderSelect?: SyncFn<PaymentProviderInterface>;
-  onGoBack?: EmptyFn;
 }
 
-export const SelectProvider: FC<Props> = ({
-  setModalHeaderConfig,
+export const SelectProviderModal: FC<Props> = ({
+  title,
+  opened,
+  onRequestClose,
   paymentProvidersToDisplay,
   lastFormRefreshTimestamp,
-  onProviderSelect,
-  onGoBack
+  onProviderSelect
 }) => {
   const { watch, setValue } = useFormContext<BuyWithCreditCardFormData>();
 
   const activeProvider = watch('provider');
 
-  useLayoutEffect(
-    () => void setModalHeaderConfig({ title: t('selectProvider'), onGoBack }),
-    [setModalHeaderConfig, onGoBack]
-  );
-
   const handleProviderSelect = useCallback(
     (p: PaymentProviderInterface) => {
       setValue('provider', p);
       onProviderSelect?.(p);
-      onGoBack?.();
+      onRequestClose?.();
     },
-    [setValue, onProviderSelect, onGoBack]
+    [setValue, onProviderSelect, onRequestClose]
   );
 
   return (
-    <FadeTransition>
+    <PageModal title={title} opened={opened} onRequestClose={onRequestClose}>
       <NewQuoteLabel title="providers" lastFormRefreshTimestamp={lastFormRefreshTimestamp} className="m-4" />
 
       <div className="flex flex-col px-4 pb-4">
@@ -65,7 +58,7 @@ export const SelectProvider: FC<Props> = ({
           </>
         )}
       </div>
-    </FadeTransition>
+    </PageModal>
   );
 };
 

@@ -3,9 +3,9 @@ import React, { useCallback, useMemo, useState } from 'react';
 import { isDefined } from '@rnw-community/shared';
 import { useDebounce } from 'use-debounce';
 
-import { FadeTransition } from 'app/a11y/FadeTransition';
 import { EmptyState } from 'app/atoms/EmptyState';
 import { PageLoader } from 'app/atoms/Loader';
+import { PageModal } from 'app/atoms/PageModal';
 import { SearchBarField } from 'app/templates/SearchField';
 import { getAssetSymbolToDisplay } from 'lib/buy-with-credit-card/get-asset-symbol-to-display';
 import { fromTopUpTokenSlug } from 'lib/buy-with-credit-card/top-up-token-slug.utils';
@@ -15,16 +15,17 @@ import { useAllEvmChains, useTezosMainnetChain } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
 
 import { AssetIcon } from '../components/AssetIcon';
+import { DefaultModalProps } from '../types';
 
 type Asset = TopUpInputInterface | TopUpOutputInterface;
 
-interface Props<T extends Asset> {
+interface Props<T extends Asset> extends DefaultModalProps {
   assets: T[];
   loading?: boolean;
   onCurrencySelect?: SyncFn<T>;
 }
 
-export const SelectAssetBase = <T extends Asset>({ assets, loading, onCurrencySelect }: Props<T>) => {
+export const SelectAssetBase = <T extends Asset>({ assets, loading, onCurrencySelect, ...modalProps }: Props<T>) => {
   const [searchValue, setSearchValue] = useState('');
   const [searchValueDebounced] = useDebounce(searchValue, 300);
   const inSearch = isSearchStringApplicable(searchValueDebounced);
@@ -35,7 +36,7 @@ export const SelectAssetBase = <T extends Asset>({ assets, loading, onCurrencySe
   );
 
   return (
-    <FadeTransition>
+    <PageModal {...modalProps}>
       <div className="p-4">
         <SearchBarField value={searchValue} defaultRightMargin={false} onValueChange={setSearchValue} className="p-4" />
       </div>
@@ -53,7 +54,7 @@ export const SelectAssetBase = <T extends Asset>({ assets, loading, onCurrencySe
           </>
         )}
       </div>
-    </FadeTransition>
+    </PageModal>
   );
 };
 

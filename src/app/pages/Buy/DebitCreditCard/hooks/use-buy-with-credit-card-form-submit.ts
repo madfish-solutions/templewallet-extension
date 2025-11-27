@@ -19,7 +19,7 @@ import { assertUnreachable } from 'lib/utils/switch-cases';
 import { useAccountAddressForEvm, useAccountAddressForTezos } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
 
-import { BuyWithCreditCardFormData } from '../form-data.interface';
+import { BuyWithCreditCardFormData } from '../types';
 
 export const useBuyWithCreditCardFormSubmit = () => {
   const [purchaseLinkLoading, setPurchaseLinkLoading] = useState(false);

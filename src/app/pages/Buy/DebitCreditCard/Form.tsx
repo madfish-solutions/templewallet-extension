@@ -5,7 +5,6 @@ import BigNumber from 'bignumber.js';
 import { isEmpty, isEqual } from 'lodash';
 import { Controller, useFormContext } from 'react-hook-form-v7';
 
-import { FadeTransition } from 'app/a11y/FadeTransition';
 import AssetField from 'app/atoms/AssetField';
 import Money from 'app/atoms/Money';
 import { ActionsButtonsBox } from 'app/atoms/PageModal';
@@ -13,28 +12,28 @@ import { StyledButton } from 'app/atoms/StyledButton';
 import { dispatch } from 'app/store';
 import { updatePairLimitsActions } from 'app/store/buy-with-credit-card/actions';
 import { useCurrenciesLoadingSelector } from 'app/store/buy-with-credit-card/selectors';
-import { InfoContainer, InfoRaw } from 'app/templates/buy-modals/info-block';
-import { ErrorType, MinMaxDisplay } from 'app/templates/buy-modals/min-max-display';
 import { getAssetSymbolToDisplay } from 'lib/buy-with-credit-card/get-asset-symbol-to-display';
 import { TopUpProviderId } from 'lib/buy-with-credit-card/top-up-provider-id.enum';
 import { PaymentProviderInterface } from 'lib/buy-with-credit-card/topup.interface';
 import { ProviderErrors } from 'lib/buy-with-credit-card/types';
 import { T, t } from 'lib/i18n';
 
-import { NewQuoteLabel } from '../components/NewQuoteLabel';
-import { SelectAssetButton } from '../components/SelectAssetButton';
-import { SelectProviderButton } from '../components/SelectProviderButton';
-import { VALUE_PLACEHOLDER } from '../config';
-import { BuyWithCreditCardFormData } from '../form-data.interface';
-import { useAllCryptoCurrencies } from '../hooks/use-all-crypto-currencies';
-import { useAllFiatCurrencies } from '../hooks/use-all-fiat-currencies';
-import { useBuyWithCreditCardFormSubmit } from '../hooks/use-buy-with-credit-card-form-submit';
-import { usePairLimitsAreLoading } from '../hooks/use-input-limits';
-import { useUpdateCurrentProvider } from '../hooks/use-update-current-provider';
-import { BuyWithCreditCardSelectors } from '../selectors';
+import { InfoContainer, InfoRaw } from '../info-block';
+import { ErrorType, MinMaxDisplay } from '../min-max-display';
+
+import { NewQuoteLabel } from './components/NewQuoteLabel';
+import { SelectAssetButton } from './components/SelectAssetButton';
+import { SelectProviderButton } from './components/SelectProviderButton';
+import { VALUE_PLACEHOLDER } from './config';
+import { useAllCryptoCurrencies } from './hooks/use-all-crypto-currencies';
+import { useAllFiatCurrencies } from './hooks/use-all-fiat-currencies';
+import { useBuyWithCreditCardFormSubmit } from './hooks/use-buy-with-credit-card-form-submit';
+import { usePairLimitsAreLoading } from './hooks/use-input-limits';
+import { useUpdateCurrentProvider } from './hooks/use-update-current-provider';
+import { BuyWithCreditCardSelectors } from './selectors';
+import { BuyWithCreditCardFormData } from './types';
 
 interface Props {
-  setModalContent: SyncFn<'send' | 'get' | 'provider'>;
   formIsLoading: boolean;
   allPaymentProviders: PaymentProviderInterface[];
   paymentProvidersToDisplay: PaymentProviderInterface[];
@@ -43,16 +42,21 @@ interface Props {
   setPaymentProvider: SyncFn<PaymentProviderInterface | undefined>;
   manuallySelectedProviderIdRef: MutableRefObject<TopUpProviderId | undefined>;
   onInputAmountChange: SyncFn<number | undefined>;
+  onSelectCurrency: EmptyFn;
+  onSelectToken: EmptyFn;
+  onSelectProvider: EmptyFn;
 }
 
 export const Form: FC<Props> = ({
-  setModalContent,
   formIsLoading,
   paymentProvidersToDisplay,
   manuallySelectedProviderIdRef,
   lastFormRefreshTimestamp,
   setPaymentProvider,
-  onInputAmountChange
+  onInputAmountChange,
+  onSelectCurrency,
+  onSelectToken,
+  onSelectProvider
 }) => {
   const { control, watch, handleSubmit, formState, setValue } = useFormContext<BuyWithCreditCardFormData>();
   const { isSubmitting, submitCount, errors } = formState;
@@ -109,10 +113,6 @@ export const Form: FC<Props> = ({
     }
   }, [allFiatCurrencies, inputAmount, inputCurrency, setValue]);
 
-  const handleSelectCurrency = useCallback(() => void setModalContent('send'), [setModalContent]);
-  const handleSelectToken = useCallback(() => void setModalContent('get'), [setModalContent]);
-  const handleSelectProvider = useCallback(() => void setModalContent('provider'), [setModalContent]);
-
   const handleMinClick = useCallback(
     () => void onInputAmountChange(inputCurrency.minAmount),
     [inputCurrency.minAmount, onInputAmountChange]
@@ -138,7 +138,7 @@ export const Form: FC<Props> = ({
   );
 
   return (
-    <FadeTransition>
+    <>
       <form id="main-form" className="flex-1 pt-4 px-4 flex flex-col overflow-y-auto" onSubmit={handleSubmit(onSubmit)}>
         <Controller
           name="inputAmount"
@@ -150,9 +150,7 @@ export const Form: FC<Props> = ({
               onBlur={onBlur}
               onChange={v => onInputAmountChange(v ? Number(v) : undefined)}
               assetDecimals={inputCurrency.precision}
-              rightSideComponent={
-                <SelectAssetButton useFlagIcon currency={inputCurrency} onClick={handleSelectCurrency} />
-              }
+              rightSideComponent={<SelectAssetButton useFlagIcon currency={inputCurrency} onClick={onSelectCurrency} />}
               rightSideContainerStyle={{ right: 2 }}
               style={{ paddingRight: 158 }}
               underneathComponent={
@@ -177,7 +175,7 @@ export const Form: FC<Props> = ({
           readOnly
           value={outputAmount}
           assetDecimals={outputToken.precision}
-          rightSideComponent={<SelectAssetButton currency={outputToken} onClick={handleSelectToken} />}
+          rightSideComponent={<SelectAssetButton currency={outputToken} onClick={onSelectToken} />}
           rightSideContainerStyle={{ right: 2 }}
           style={{ paddingRight: 158 }}
           label={t('get')}
@@ -189,7 +187,7 @@ export const Form: FC<Props> = ({
 
         <NewQuoteLabel title="provider" lastFormRefreshTimestamp={lastFormRefreshTimestamp} className="mb-1" />
 
-        <SelectProviderButton provider={provider} onClick={handleSelectProvider} />
+        <SelectProviderButton provider={provider} onClick={onSelectProvider} />
 
         <InfoContainer className="mt-6 mb-8">
           <InfoRaw bottomSeparator title="exchangeRate">
@@ -224,6 +222,6 @@ export const Form: FC<Props> = ({
           <T id="topUp" />
         </StyledButton>
       </ActionsButtonsBox>
-    </FadeTransition>
+    </>
   );
 };

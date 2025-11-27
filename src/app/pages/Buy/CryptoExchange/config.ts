@@ -44,8 +44,3 @@ export const INITIAL_EVM_ACC_OUTPUT_CURRENCY: StoredExolixCurrency = {
     shortName: null
   }
 };
-
-export const defaultModalHeaderConfig: ModalHeaderConfig = {
-  title: t('cryptoExchange'),
-  onGoBack: undefined
-};
