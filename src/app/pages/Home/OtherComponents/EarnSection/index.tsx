@@ -9,6 +9,7 @@ import { ReactComponent as ChevronRightIcon } from 'app/icons/base/chevron_right
 import { useTokenApyRateSelector } from 'app/store/d-apps';
 import { TezosAssetIcon } from 'app/templates/AssetIcon';
 import { setTestID } from 'lib/analytics';
+import { T } from 'lib/i18n';
 import { TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
 import { openLink } from 'lib/utils';
 import { navigate } from 'lib/woozie';
@@ -67,19 +68,18 @@ export const EarnSection = memo<EarnSectionProps>(({ className }) => {
         <CryptoCardPlaceholder />
 
         {/* Earn section card (foreground) */}
-        <div
-          className="relative -mb-[68px] px-4"
-          {...setTestID(EarnSectionSelectors.earnSectionCard)}
-        >
+        <div className="relative -mb-[68px] px-4" {...setTestID(EarnSectionSelectors.earnSectionCard)}>
           <div className="bg-white border-0.5 border-lines rounded-lg flex flex-col pt-0 pb-1 px-1">
             {/* Header */}
             <Button
-              className="flex items-center justify-between px-3 py-2 rounded-lg overflow-hidden"
+              className="flex items-center justify-between p-2 rounded-8 overflow-hidden"
               onClick={handleHeaderClick}
               testID={EarnSectionSelectors.earnSectionHeader}
             >
-              <span className="text-font-description-bold text-text">Earn</span>
-              <IconBase Icon={ChevronRightIcon} size={24} className="text-primary" />
+              <span className="text-font-description-bold p-1">
+                <T id="earn" />
+              </span>
+              <IconBase Icon={ChevronRightIcon} className="text-primary" />
             </Button>
 
             {/* Carousel Items Container */}
@@ -138,12 +138,7 @@ const EarnOpportunityItem = memo<EarnOpportunityItemProps>(({ opportunity }) => 
     >
       {/* Token icon with network badge */}
       <div className="relative p-1">
-        <TezosAssetIcon
-          assetSlug={slug}
-          tezosChainId={TEZOS_MAINNET_CHAIN_ID}
-          size={24}
-          className="rounded-full"
-        />
+        <TezosAssetIcon assetSlug={slug} tezosChainId={TEZOS_MAINNET_CHAIN_ID} size={24} className="rounded-full" />
         <div className="absolute bottom-0 right-0 bg-white border-0.5 border-lines rounded-full p-0.5">
           <TezosNetworkLogo chainId={TEZOS_MAINNET_CHAIN_ID} size={12} />
         </div>
@@ -161,38 +156,10 @@ const EarnOpportunityItem = memo<EarnOpportunityItemProps>(({ opportunity }) => 
 });
 
 /**
- * Placeholder card for the upcoming Crypto Card feature.
- * This will be replaced with actual implementation in a separate task.
+ * TODO: Replace with actual implementation.
  */
 const CryptoCardPlaceholder = memo(() => (
-  <div
-    className="h-24 mx-4 -mb-[68px] rounded-lg px-4 py-3 flex flex-col"
-    style={{
-      background: 'linear-gradient(135deg, #FF8A00 0%, #FF5B00 100%)'
-    }}
-    {...setTestID(EarnSectionSelectors.cryptoCardPlaceholder)}
-  >
-    <div className="flex items-center justify-between">
-      <span className="text-font-description-bold text-white">Crypto card</span>
-      <KoloLogo />
-    </div>
+  <div className="h-24 mx-6 -mb-[68px] rounded-8 px-4 py-3 bg-primary">
+    <span className="text-font-description-bold text-white">Crypto card</span>
   </div>
 ));
-
-/** Kolo logo placeholder - simplified SVG representation */
-const KoloLogo = memo(() => (
-  <div className="flex items-center h-4">
-    <svg width="44" height="16" viewBox="0 0 44 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-      {/* K */}
-      <path d="M0 0H2V16H0V0Z" fill="white" fillOpacity="0.9" />
-      <path d="M2 8L8 0H10.5L4.5 8L10.5 16H8L2 8Z" fill="white" fillOpacity="0.9" />
-      {/* O */}
-      <circle cx="16" cy="8" r="5" stroke="white" strokeWidth="2" strokeOpacity="0.9" />
-      {/* L */}
-      <path d="M24 0H26V14H32V16H24V0Z" fill="white" fillOpacity="0.9" />
-      {/* O */}
-      <circle cx="38" cy="8" r="5" stroke="white" strokeWidth="2" strokeOpacity="0.9" />
-    </svg>
-  </div>
-));
-

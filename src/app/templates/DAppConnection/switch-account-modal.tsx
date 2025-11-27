@@ -56,7 +56,7 @@ export const SwitchAccountModal = memo(({ dApp, onClose }: SwitchAccountModalPro
   }, [onClose, accountName, origin]);
 
   return (
-    <PageModal miniVersion title={null} opened onRequestClose={handleClose}>
+    <PageModal miniVersion showHeader={false} title={null} opened onRequestClose={handleClose}>
       <div className="p-4 flex flex-col flex-1 gap-4 bg-background rounded-t-lg">
         <div className="flex justify-center gap-3.5 relative">
           <div className="w-13 h-13 flex justify-center items-center bg-white shadow-card rounded-lg">

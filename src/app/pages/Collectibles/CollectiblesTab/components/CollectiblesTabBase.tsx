@@ -58,7 +58,7 @@ export const CollectiblesTabBase: FC<PropsWithChildren<CollectiblesTabBaseProps>
         <AssetsFilterOptions />
       ) : (
         <FadeTransition>
-          <ContentContainer padding={collectiblesCount > 0}>
+          <ContentContainer withShadow={false} padding={collectiblesCount > 0}>
             {collectiblesCount === 0 ? (
               isSyncing && !isInSearchMode ? (
                 <PageLoader stretch />
