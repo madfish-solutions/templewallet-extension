@@ -2,7 +2,7 @@ import type { RawSignResult } from '@taquito/core';
 import type { DerivationType } from '@taquito/ledger-signer';
 import type { TempleDAppMetadata } from '@temple-wallet/dapp/dist/types';
 import BigNumber from 'bignumber.js';
-import type { RpcTransactionRequest, TypedDataDefinition } from 'viem';
+import type { RpcTransactionRequest, SignableMessage, TypedDataDefinition } from 'viem';
 
 import type { DAppsSessionsRecord } from 'app/storage/dapps';
 import type { PromisesQueueCounters } from 'lib/utils';
@@ -370,7 +370,7 @@ export interface TempleEvmDAppSignTypedPayload extends TempleEvmDAppSignPayloadB
 
 export interface TempleEvmDAppPersonalSignPayload extends TempleEvmDAppSignPayloadBase {
   type: 'personal_sign';
-  payload: string;
+  payload: SignableMessage;
 }
 
 export type TempleEvmDAppSignPayload = TempleEvmDAppSignTypedPayload | TempleEvmDAppPersonalSignPayload;

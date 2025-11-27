@@ -24,6 +24,7 @@ import {
   SHOULD_BACKUP_MNEMONIC_STORAGE_KEY,
   SHOULD_DISABLE_NOT_ACTIVE_NETWORKS_STORAGE_KEY,
   SHOULD_OPEN_LETS_EXCHANGE_MODAL_STORAGE_KEY,
+  SHOULD_PROMOTE_ROOTSTOCK_STORAGE_KEY,
   SIDE_VIEW_WAS_FORCED_STORAGE_KEY,
   TERMS_OF_USE_URL,
   WEBSITES_ANALYTICS_ENABLED
@@ -140,6 +141,7 @@ export const CreatePasswordForm = memo<CreatePasswordFormProps>(
           await putToStorage(REPLACE_REFERRALS_ENABLED, adsViewEnabled);
           await putToStorage(WEBSITES_ANALYTICS_ENABLED, adsViewEnabled);
           await putToStorage(SHOULD_OPEN_LETS_EXCHANGE_MODAL_STORAGE_KEY, false);
+          await putToStorage(SHOULD_PROMOTE_ROOTSTOCK_STORAGE_KEY, false);
           await putToStorage(SHOULD_DISABLE_NOT_ACTIVE_NETWORKS_STORAGE_KEY, true);
 
           if (adsViewEnabled && analyticsEnabled) {

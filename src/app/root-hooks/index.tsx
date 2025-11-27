@@ -14,7 +14,7 @@ import { useReactivateAdsOnce } from 'app/hooks/use-reactivate-ads-once';
 import { useStorageAnalytics } from 'app/hooks/use-storage-analytics';
 import { useUserAnalyticsAndAdsSettings } from 'app/hooks/use-user-analytics-and-ads-settings.hook';
 import { useUserIdAccountPkhSync } from 'app/hooks/use-user-id-account-pkh-sync';
-import { useFetchSupportedLifiChainIds } from 'app/pages/Swap/form/hooks';
+import { useFetchSupportedLifiChainIds, useLifiTokensMetadataSync } from 'app/pages/Swap/form/hooks';
 import { dispatch } from 'app/store';
 import { cleanupOutdatedEvmPendingTxWithInitialMonitorTriggerAction } from 'app/store/evm/pending-transactions/actions';
 import { useTestnetModeEnabledSelector } from 'app/store/settings/selectors';
@@ -129,6 +129,7 @@ const TezosAccountHooks = memo<{ publicKeyHash: string }>(({ publicKeyHash }) =>
 const EvmAccountHooks = memo<{ publicKeyHash: HexString }>(({ publicKeyHash }) => {
   useNoCategoryEvmAssetsLoading(publicKeyHash);
   useFetchSupportedLifiChainIds();
+  useLifiTokensMetadataSync();
   const testnetModeEnabled = useTestnetModeEnabledSelector();
 
   return (
