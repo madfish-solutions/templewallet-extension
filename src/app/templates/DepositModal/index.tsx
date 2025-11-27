@@ -1,7 +1,7 @@
 import React, { FC, memo } from 'react';
 
 import { Button } from 'app/atoms';
-import { PageModal } from 'app/atoms/PageModal';
+import { MiniPageModal } from 'app/atoms/PageModal/mini-page-modal';
 import { ReactComponent as ApplePayIcon } from 'app/icons/payment-options/apple-pay-no-frame.svg';
 import { ReactComponent as MastercardIcon } from 'app/icons/payment-options/mastercard.svg';
 import { ReactComponent as VisaIcon } from 'app/icons/payment-options/visa.svg';
@@ -40,12 +40,9 @@ export const DepositModal: FC<DepositModalProps> = memo(
     };
 
     return (
-      <PageModal
-        miniVersion
+      <MiniPageModal
         opened={opened}
         title={t('deposit')}
-        headerContainerPadding={false}
-        headerContainerClassName="p-3"
         onRequestClose={onRequestClose}
         testID={DepositModalSelectors.depositModal}
       >
@@ -75,7 +72,7 @@ export const DepositModal: FC<DepositModalProps> = memo(
             testID={DepositModalSelectors.crossChainSwapOption}
           />
         </div>
-      </PageModal>
+      </MiniPageModal>
     );
   }
 );
