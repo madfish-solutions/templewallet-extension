@@ -21,7 +21,7 @@ const Content = () => {
   const { step } = useCryptoExchangeDataState();
 
   return (
-    <PageLayout pageTitle={<PageTitle title={t('cryptoExchange')} />}>
+    <PageLayout pageTitle={<PageTitle title={t('cryptoExchange')} />} contentPadding={false} noScroll>
       {(() => {
         switch (step) {
           case 1:
