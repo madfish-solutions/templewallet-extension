@@ -23,6 +23,7 @@ interface LedgerWebHidGuardOptions<T> {
 
 export function useLedgerWebHidFullViewGuard() {
   const { popup, sidebar, confirmWindow, fullPage } = useAppEnv();
+  console.log('hook called', popup, sidebar, confirmWindow, fullPage);
 
   const [promptOpened, setPromptOpened] = useState(false);
 
@@ -74,6 +75,7 @@ export function useLedgerWebHidFullViewGuard() {
         }
 
         const devices = await globalThis.navigator.hid.getDevices();
+        console.log('devices', devices);
         if (devices && devices.length > 0) {
           return false;
         }

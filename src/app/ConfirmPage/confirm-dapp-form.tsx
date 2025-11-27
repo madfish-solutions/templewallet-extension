@@ -17,12 +17,20 @@ import { EvmOperationKind, getOperationKind } from 'lib/evm/on-chain/transaction
 import { parseEvmTxRequest } from 'lib/evm/on-chain/utils/parse-evm-tx-request';
 import { T, t } from 'lib/i18n';
 import { useTempleClient } from 'lib/temple/front';
-import { StoredAccount, TempleAccountType, TempleDAppPayload, TempleMessageType } from 'lib/temple/types';
+import {
+  StoredAccount,
+  TempleAccountType,
+  TempleDAppPayload,
+  TempleEvmDAppPayload,
+  TempleMessageType,
+  TempleTezosDAppPayload
+} from 'lib/temple/types';
 import { LedgerOperationState, runConnectedLedgerOperationFlow } from 'lib/ui';
 import { useBooleanState, useSafeState } from 'lib/ui/hooks';
 import { useLedgerWebHidFullViewGuard } from 'lib/ui/ledger-webhid-guard';
 import { LedgerFullViewPromptModal } from 'lib/ui/LedgerFullViewPrompt';
 import { delay } from 'lib/utils';
+import { getAccountForEvm, getAccountForTezos } from 'temple/accounts';
 import { useCurrentAccountId } from 'temple/front';
 import { makeIntercomRequest } from 'temple/front/intercom-client';
 import { TempleChainKind } from 'temple/types';
@@ -86,14 +94,53 @@ export const ConfirmDAppForm = memo<ConfirmDAppFormProps>(
     const { errorMessage: addAssetErrorMessage } = useAddAsset();
 
     const currentAccountId = useCurrentAccountId();
-    const selectedAccountId = useMemo(
-      () => (accounts.some(account => account.id === currentAccountId) ? currentAccountId : accounts[0].id),
-      [accounts, currentAccountId]
-    );
+
+    const payloadAccountId = useMemo(() => {
+      if ((payload as TempleTezosDAppPayload).network && 'sourcePkh' in payload) {
+        const sourcePkh = (payload as TempleTezosDAppPayload & { sourcePkh: string }).sourcePkh;
+
+        const tezosAccount = accounts.find(acc => getAccountForTezos(acc)?.address === sourcePkh);
+        return tezosAccount?.id;
+      }
+
+      if ((payload as TempleEvmDAppPayload).chainId) {
+        if (payload.type === 'confirm_operations') {
+          const from = (payload as TempleEvmDAppPayload & { req: { from?: HexString } }).req.from;
+
+          if (from) {
+            const evmAccount = accounts.find(
+              acc => getAccountForEvm(acc)?.address.toLowerCase() === from.toLowerCase()
+            );
+            return evmAccount?.id;
+          }
+        }
+
+        if ('sourcePkh' in payload) {
+          const sourcePkh = (payload as TempleEvmDAppPayload & { sourcePkh: HexString }).sourcePkh;
+
+          const evmAccount = accounts.find(
+            acc => getAccountForEvm(acc)?.address.toLowerCase() === sourcePkh.toLowerCase()
+          );
+          return evmAccount?.id;
+        }
+      }
+
+      return undefined;
+    }, [accounts, payload]);
+
+    const selectedAccountId = useMemo(() => {
+      if (payloadAccountId && accounts.some(account => account.id === payloadAccountId)) {
+        return payloadAccountId;
+      }
+
+      return accounts.some(account => account.id === currentAccountId) ? currentAccountId : accounts[0].id;
+    }, [accounts, currentAccountId, payloadAccountId]);
+
     const selectedAccount = useMemo(
       () => accounts.find(account => account.id === selectedAccountId)!,
       [accounts, selectedAccountId]
     );
+
     const { dAppQueueCounters } = useTempleClient();
     const { length: requestsLeft, maxLength: totalRequestsCount } = dAppQueueCounters;
     const ledgerConfirmationRequired =
