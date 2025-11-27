@@ -86,7 +86,7 @@ export const DebitCreditCard: FC = () => {
   );
 
   return (
-    <PageLayout pageTitle={<PageTitle title={t('debitCreditCard')} />}>
+    <PageLayout pageTitle={<PageTitle title={t('debitCreditCard')} />} contentPadding={false} noScroll>
       <FormProvider {...form}>
         <Form
           formIsLoading={formIsLoading}

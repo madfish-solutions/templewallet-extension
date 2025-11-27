@@ -5,7 +5,6 @@ import { isEmpty } from 'lodash';
 import { Controller, useFormContext, SubmitHandler } from 'react-hook-form-v7';
 import { useDebounce } from 'use-debounce';
 
-import { FadeTransition } from 'app/a11y/FadeTransition';
 import AssetField from 'app/atoms/AssetField';
 import { ActionsButtonsBox } from 'app/atoms/PageModal/actions-buttons-box';
 import { StyledButton } from 'app/atoms/StyledButton';
@@ -175,7 +174,7 @@ export const FormContent: FC<Props> = ({ onSelectInputCurrency, onSelectOutputCu
   );
 
   return (
-    <FadeTransition>
+    <>
       <form
         id="create-order-form"
         className="flex-1 pt-4 px-4 flex flex-col overflow-y-auto"
@@ -243,6 +242,6 @@ export const FormContent: FC<Props> = ({ onSelectInputCurrency, onSelectOutputCu
           <T id="exchange" />
         </StyledButton>
       </ActionsButtonsBox>
-    </FadeTransition>
+    </>
   );
 };
