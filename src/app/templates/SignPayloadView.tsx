@@ -81,7 +81,7 @@ export const SignPayloadView = memo<SignPayloadViewProps>(({ payload }) => {
       <div className="rounded-lg p-4 bg-white shadow-bottom flex flex-col gap-2">
         <div className="flex gap-2 items-center">
           <span className="flex-1 text-font-description-bold text-grey-2">
-            {payload.chainType === TempleChainKind.Tezos && typeof previewSource !== 'string' ? (
+            {payload.chainType !== TempleChainKind.EVM && typeof previewSource !== 'string' ? (
               <T id="transaction" />
             ) : (
               <T id="message" />

@@ -90,15 +90,6 @@ export const ConfirmDAppForm = memo<ConfirmDAppFormProps>(
     const currentAccountId = useCurrentAccountId();
 
     const payloadAccountId = useMemo(() => {
-      if (payload.chainType === TempleChainKind.Tezos) {
-        if ('sourcePkh' in payload) {
-          const sourcePkh = payload.sourcePkh;
-
-          const tezosAccount = accounts.find(acc => equalsIgnoreCase(getAccountForTezos(acc)?.address, sourcePkh));
-          return tezosAccount?.id;
-        }
-      }
-
       if (payload.chainType === TempleChainKind.EVM) {
         if (payload.type === 'confirm_operations') {
           const from = payload.req.from;
@@ -115,6 +106,15 @@ export const ConfirmDAppForm = memo<ConfirmDAppFormProps>(
           const evmAccount = accounts.find(acc => equalsIgnoreCase(getAccountForEvm(acc)?.address, sourcePkh));
           return evmAccount?.id;
         }
+
+        return undefined;
+      }
+
+      if ('sourcePkh' in payload) {
+        const sourcePkh = payload.sourcePkh;
+
+        const tezosAccount = accounts.find(acc => equalsIgnoreCase(getAccountForTezos(acc)?.address, sourcePkh));
+        return tezosAccount?.id;
       }
 
       return undefined;
