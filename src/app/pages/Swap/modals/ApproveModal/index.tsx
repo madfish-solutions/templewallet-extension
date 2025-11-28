@@ -27,7 +27,9 @@ import { getHumanErrorMessage } from 'lib/temple/error-messages';
 import { useTempleClient } from 'lib/temple/front';
 import { atomsToTokens } from 'lib/temple/helpers';
 import { EvmTransactionRequestWithSender, TempleAccountType, TempleEvmDAppTransactionPayload } from 'lib/temple/types';
-import { runConnectedLedgerOperationFlow } from 'lib/ui';
+import { runConnectedLedgerOperationFlow, LedgerOperationState } from 'lib/ui';
+import { useLedgerWebHidFullViewGuard } from 'lib/ui/ledger-webhid-guard';
+import { LedgerFullViewPromptModal } from 'lib/ui/LedgerFullViewPrompt';
 import { showTxSubmitToastWithDelay } from 'lib/ui/show-tx-submit-toast.util';
 import { delay } from 'lib/utils';
 import { ZERO } from 'lib/utils/numbers';
@@ -72,6 +74,7 @@ const ApproveModal: FC<ApproveModalProps> = ({ stepReviewData, onClose, onStepCo
     from: routeStep.action.fromAddress as HexString
   });
   const [latestSubmitError, setLatestSubmitError] = useState<string | nullish>(null);
+  const { guard, preconnectIfNeeded, ledgerPromptProps } = useLedgerWebHidFullViewGuard();
 
   const amount = useMemo(
     () =>
@@ -144,6 +147,10 @@ const ApproveModal: FC<ApproveModalProps> = ({ stepReviewData, onClose, onStepCo
 
       try {
         if (isLedgerAccount) {
+          const redirected = await guard(account.type);
+          if (redirected) return;
+          setLedgerApprovalModalState(LedgerOperationState.InProgress);
+          await preconnectIfNeeded(account.type, TempleChainKind.EVM);
           await runConnectedLedgerOperationFlow(doOperation, setLedgerApprovalModalState, true);
         } else {
           await doOperation();
@@ -156,14 +163,17 @@ const ApproveModal: FC<ApproveModalProps> = ({ stepReviewData, onClose, onStepCo
       }
     },
     [
+      submitDisabled,
       sendEvmTransaction,
       account.address,
+      account.type,
       inputNetwork,
       getActiveBlockExplorer,
       onStepCompleted,
       isLedgerAccount,
+      guard,
       setLedgerApprovalModalState,
-      submitDisabled
+      preconnectIfNeeded
     ]
   );
 
@@ -220,6 +230,7 @@ const ApproveModal: FC<ApproveModalProps> = ({ stepReviewData, onClose, onStepCo
       </ActionsButtonsBox>
 
       <LedgerApprovalModal state={ledgerApprovalModalState} onClose={handleLedgerModalClose} />
+      <LedgerFullViewPromptModal {...ledgerPromptProps} />
     </>
   );
 };

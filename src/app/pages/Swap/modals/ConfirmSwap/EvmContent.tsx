@@ -32,7 +32,9 @@ import { EvmAssetStandard } from 'lib/evm/types';
 import { useTempleClient } from 'lib/temple/front';
 import { atomsToTokens, tokensToAtoms } from 'lib/temple/helpers';
 import { TempleAccountType } from 'lib/temple/types';
-import { runConnectedLedgerOperationFlow } from 'lib/ui';
+import { runConnectedLedgerOperationFlow, LedgerOperationState } from 'lib/ui';
+import { useLedgerWebHidFullViewGuard } from 'lib/ui/ledger-webhid-guard';
+import { LedgerFullViewPromptModal } from 'lib/ui/LedgerFullViewPrompt';
 import { showTxSubmitToastWithDelay } from 'lib/ui/show-tx-submit-toast.util';
 import { delay } from 'lib/utils';
 import { isEvmNativeTokenSlug } from 'lib/utils/evm.utils';
@@ -93,6 +95,7 @@ export const EvmContent: FC<EvmContentProps> = ({
   const [latestSubmitError, setLatestSubmitError] = useState<unknown>(null);
   const [stepFinalized, setStepFinalized] = useState(false);
   const [submitLoading, setSubmitLoading] = useState(false);
+  const { guard, preconnectIfNeeded, ledgerPromptProps } = useLedgerWebHidFullViewGuard();
 
   useEffect(() => {
     setStepFinalized(false);
@@ -387,6 +390,10 @@ export const EvmContent: FC<EvmContentProps> = ({
         setSubmitLoading(true);
         if (cancelledRef?.current) return;
         if (isLedgerAccount) {
+          const redirected = await guard(account.type);
+          if (redirected) return;
+          setLedgerApprovalModalState(LedgerOperationState.InProgress);
+          await preconnectIfNeeded(account.type, TempleChainKind.EVM);
           await runConnectedLedgerOperationFlow(
             () =>
               executeRouteStep(routeStep, {
@@ -424,28 +431,31 @@ export const EvmContent: FC<EvmContentProps> = ({
   );
 
   return (
-    <FormProvider {...form}>
-      <BaseContent<EvmTxParamsFormData>
-        ledgerApprovalModalState={ledgerApprovalModalState}
-        onLedgerModalClose={handleLedgerModalClose}
-        network={inputNetwork}
-        nativeAssetSlug={EVM_TOKEN_SLUG}
-        selectedTab={tab}
-        setSelectedTab={setTab}
-        latestSubmitError={latestSubmitError}
-        selectedFeeOption={selectedFeeOption}
-        onFeeOptionSelect={handleFeeOptionSelect}
-        displayedFee={displayedFee}
-        displayedFeeOptions={feeOptions?.displayed}
-        minimumReceived={minimumReceived}
-        onCancel={onClose}
-        onSubmit={onSubmit}
-        someBalancesChanges={true}
-        filteredBalancesChanges={balancesChanges}
-        bridgeData={bridgeData}
-        submitLoadingOverride={submitLoading}
-        submitDisabled={submitDisabled}
-      />
-    </FormProvider>
+    <>
+      <FormProvider {...form}>
+        <BaseContent<EvmTxParamsFormData>
+          ledgerApprovalModalState={ledgerApprovalModalState}
+          onLedgerModalClose={handleLedgerModalClose}
+          network={inputNetwork}
+          nativeAssetSlug={EVM_TOKEN_SLUG}
+          selectedTab={tab}
+          setSelectedTab={setTab}
+          latestSubmitError={latestSubmitError}
+          selectedFeeOption={selectedFeeOption}
+          onFeeOptionSelect={handleFeeOptionSelect}
+          displayedFee={displayedFee}
+          displayedFeeOptions={feeOptions?.displayed}
+          minimumReceived={minimumReceived}
+          onCancel={onClose}
+          onSubmit={onSubmit}
+          someBalancesChanges={true}
+          filteredBalancesChanges={balancesChanges}
+          bridgeData={bridgeData}
+          submitLoadingOverride={submitLoading}
+          submitDisabled={submitDisabled}
+        />
+      </FormProvider>
+      <LedgerFullViewPromptModal {...ledgerPromptProps} />
+    </>
   );
 };
