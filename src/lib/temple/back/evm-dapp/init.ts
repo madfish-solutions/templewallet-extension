@@ -1,7 +1,7 @@
 import browser, { Storage } from 'webextension-polyfill';
 
 import { isTruthy } from 'lib/utils';
-import { ChainsRpcUrls, EVM_CHAINS_RPC_URLS_STORAGE_KEY } from 'temple/evm/evm-chains-rpc-urls';
+import { ChainsAllRpcUrls, EVM_CHAINS_ALL_RPC_URLS_STORAGE_KEY } from 'temple/evm/evm-chains-rpc-urls';
 
 import { ETHEREUM_MAINNET_CHAIN_ID } from '../../types';
 import { Vault } from '../vault';
@@ -30,16 +30,16 @@ export function init() {
   });
 }
 
-/** Implements a reaction on disabling a chain or removing it, or wallet reset */
+/** Implements a reaction on chain removal and wallet reset */
 async function evmRpcUrlsListener(changes: StringRecord<Storage.StorageChange>) {
-  if (!(EVM_CHAINS_RPC_URLS_STORAGE_KEY in changes)) {
+  if (!(EVM_CHAINS_ALL_RPC_URLS_STORAGE_KEY in changes)) {
     return;
   }
 
-  const { oldValue, newValue } = changes[EVM_CHAINS_RPC_URLS_STORAGE_KEY];
+  const { oldValue, newValue } = changes[EVM_CHAINS_ALL_RPC_URLS_STORAGE_KEY];
 
-  const oldEvmRpcUrls: ChainsRpcUrls = oldValue ?? {};
-  const newEvmRpcUrls: ChainsRpcUrls = newValue ?? {};
+  const oldEvmRpcUrls: ChainsAllRpcUrls = oldValue ?? {};
+  const newEvmRpcUrls: ChainsAllRpcUrls = newValue ?? {};
   const removedChainsIds = new Set<number>();
   for (const chainId in oldEvmRpcUrls) {
     const newChainRpcUrls = newEvmRpcUrls[chainId];

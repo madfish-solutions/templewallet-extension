@@ -1,13 +1,13 @@
 import { fetchFromStorage, putToStorage } from 'lib/storage';
 import { EVM_DEFAULT_NETWORKS } from 'temple/networks';
 
-export const EVM_CHAINS_RPC_URLS_STORAGE_KEY = 'evmChainsRpcUrls';
-const ACTIVE_EVM_CHAINS_RPC_URLS_STORAGE_KEY = 'activeEvmChainsRpcUrls';
+export const EVM_CHAINS_ALL_RPC_URLS_STORAGE_KEY = 'evmChainsRpcUrls';
+const EVM_CHAINS_ACTIVE_RPC_URLS_STORAGE_KEY = 'activeEvmChainsRpcUrls';
 
-export type ActiveChainsRpcUrls = Partial<StringRecord>;
-export type ChainsRpcUrls = Partial<StringRecord<string[]>>;
+export type ChainsActiveRpcUrls = Partial<StringRecord>;
+export type ChainsAllRpcUrls = Partial<StringRecord<string[]>>;
 
-const DEFAULT_CHAINS_RPC_URLS = EVM_DEFAULT_NETWORKS.reduce<ChainsRpcUrls>((acc, { chainId, rpcBaseURL }) => {
+const DEFAULT_CHAINS_ALL_RPC_URLS = EVM_DEFAULT_NETWORKS.reduce<ChainsAllRpcUrls>((acc, { chainId, rpcBaseURL }) => {
   const previousChainRpcs = acc[chainId];
   if (previousChainRpcs) {
     previousChainRpcs.push(rpcBaseURL);
@@ -18,7 +18,7 @@ const DEFAULT_CHAINS_RPC_URLS = EVM_DEFAULT_NETWORKS.reduce<ChainsRpcUrls>((acc,
   return acc;
 }, {});
 
-const DEFAULT_ACTIVE_CHAINS_RPC_URLS = EVM_DEFAULT_NETWORKS.reduce<ActiveChainsRpcUrls>(
+const DEFAULT_CHAINS_ACTIVE_RPC_URLS = EVM_DEFAULT_NETWORKS.reduce<ChainsActiveRpcUrls>(
   (acc, { chainId, rpcBaseURL }) => {
     if (!acc[chainId]) {
       acc[chainId] = rpcBaseURL;
@@ -29,15 +29,15 @@ const DEFAULT_ACTIVE_CHAINS_RPC_URLS = EVM_DEFAULT_NETWORKS.reduce<ActiveChainsR
   {}
 );
 
-export const getEvmChainsRpcUrls = async () =>
-  (await fetchFromStorage<Partial<StringRecord<string[]>>>(EVM_CHAINS_RPC_URLS_STORAGE_KEY)) ?? DEFAULT_CHAINS_RPC_URLS;
+export const getEvmChainsAllRpcUrls = async () =>
+  (await fetchFromStorage<ChainsAllRpcUrls>(EVM_CHAINS_ALL_RPC_URLS_STORAGE_KEY)) ?? DEFAULT_CHAINS_ALL_RPC_URLS;
 
-export const setEvmChainsRpcUrls = (urls: Partial<StringRecord<string[]>>) =>
-  putToStorage(EVM_CHAINS_RPC_URLS_STORAGE_KEY, urls);
+export const setEvmChainsAllRpcUrls = (urls: ChainsAllRpcUrls) =>
+  putToStorage(EVM_CHAINS_ALL_RPC_URLS_STORAGE_KEY, urls);
 
-export const getActiveEvmChainsRpcUrls = async () =>
-  (await fetchFromStorage<ActiveChainsRpcUrls>(ACTIVE_EVM_CHAINS_RPC_URLS_STORAGE_KEY)) ??
-  DEFAULT_ACTIVE_CHAINS_RPC_URLS;
+export const getEvmChainsActiveRpcUrls = async () =>
+  (await fetchFromStorage<ChainsActiveRpcUrls>(EVM_CHAINS_ACTIVE_RPC_URLS_STORAGE_KEY)) ??
+  DEFAULT_CHAINS_ACTIVE_RPC_URLS;
 
-export const setActiveEvmChainsRpcUrls = (urls: ActiveChainsRpcUrls) =>
-  putToStorage(ACTIVE_EVM_CHAINS_RPC_URLS_STORAGE_KEY, urls);
+export const setEvmChainsActiveRpcUrls = (urls: ChainsActiveRpcUrls) =>
+  putToStorage(EVM_CHAINS_ACTIVE_RPC_URLS_STORAGE_KEY, urls);
