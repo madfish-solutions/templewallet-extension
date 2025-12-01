@@ -7,34 +7,28 @@ import { T, t } from 'lib/i18n';
 import { EvmChain, useAccountForEvm } from 'temple/front';
 
 import { EarnOperationModal, EarnOperationModalProps } from '../components/earn-operation-modal';
-import { EthEarnReviewDataBase, EthStakingStats } from '../types';
+import { EthStakingStats } from '../types';
 
-import { StakeAmountInputContent } from './amount-input-content';
-import { ConfirmStakeContent } from './confirm-stake-content';
+import { UnstakeAmountInputContent } from './amount-input-content';
+import { ConfirmUnstakeContent } from './confirm-unstake-content';
+import { ReviewData } from './types';
 
-interface StakingModalProps {
+interface UnstakeModalProps {
   chain: EvmChain;
   stats: EthStakingStats;
   onRequestClose: EmptyFn;
-}
-
-interface ReviewData extends EthEarnReviewDataBase {
-  amount: BigNumber;
 }
 
 type GenericModalProps = EarnOperationModalProps<{ amount: string }, ReviewData>;
 
 const SuspenseLoader = () => <PageLoader stretch />;
 
-export const StakingModal = memo<StakingModalProps>(({ chain, stats, onRequestClose }) => {
-  const { symbol: ethSymbol } = chain.currency;
+export const UnstakeModal = memo<UnstakeModalProps>(({ chain, stats, onRequestClose }) => {
   const account = useAccountForEvm()!;
 
   const LocalAmountInputContent = useCallback<GenericModalProps['InputDataContent']>(
-    ({ onSubmit, stats }) => (
-      <StakeAmountInputContent chain={chain} account={account} stats={stats} onSubmit={onSubmit} />
-    ),
-    [account, chain]
+    ({ onSubmit, stats }) => <UnstakeAmountInputContent chain={chain} stats={stats} onSubmit={onSubmit} />,
+    [chain]
   );
 
   const makeReviewData = useCallback<GenericModalProps['makeReviewData']>(
@@ -49,14 +43,14 @@ export const StakingModal = memo<StakingModalProps>(({ chain, stats, onRequestCl
 
   return (
     <EarnOperationModal
-      inputDataStepTitle={<T id="currencyStaking" substitutions={ethSymbol} />}
-      confirmStepTitle={<T id="confirmAction" substitutions={<T id="stake" />} />}
+      inputDataStepTitle={<T id="unstakeEth" />}
+      confirmStepTitle={<T id="confirmAction" substitutions={<T id="unstake" />} />}
       successToastText={t('transactionSubmitted')}
       network={chain}
       stats={stats}
       SuspenseLoader={SuspenseLoader}
       InputDataContent={LocalAmountInputContent}
-      ConfirmContent={ConfirmStakeContent}
+      ConfirmContent={ConfirmUnstakeContent}
       makeReviewData={makeReviewData}
       onClose={onRequestClose}
     />

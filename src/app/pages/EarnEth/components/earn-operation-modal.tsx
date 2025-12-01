@@ -5,7 +5,7 @@ import { showTxSubmitToastWithDelay } from 'lib/ui/show-tx-submit-toast.util';
 import { EvmNetworkEssentials } from 'temple/networks';
 import { TempleChainKind } from 'temple/types';
 
-import { EthEarnReviewDataBase } from '../types';
+import { EthEarnReviewDataBase, EthStakingStats } from '../types';
 import { useBlockExplorerUrl } from '../utils';
 
 export interface EarnOperationModalProps<D, R extends EthEarnReviewDataBase> {
@@ -13,8 +13,9 @@ export interface EarnOperationModalProps<D, R extends EthEarnReviewDataBase> {
   confirmStepTitle: ReactChildren;
   successToastText: string;
   network: EvmNetworkEssentials;
+  stats: EthStakingStats;
   SuspenseLoader?: ComponentType<{ isInputDataStep: boolean }>;
-  InputDataContent: ComponentType<{ onSubmit: SyncFn<D> }>;
+  InputDataContent: ComponentType<{ onSubmit: SyncFn<D>; stats: EthStakingStats }>;
   ConfirmContent: ComponentType<{ reviewData: R | undefined; onCancel: EmptyFn }>;
   makeReviewData: (data: D, onSuccess: SyncFn<string>) => R;
   onClose: EmptyFn;
@@ -45,6 +46,7 @@ export const EarnOperationModal = <D, R extends EthEarnReviewDataBase>({
   confirmStepTitle,
   successToastText,
   network,
+  stats,
   SuspenseLoader,
   ConfirmContent,
   InputDataContent,
@@ -83,7 +85,7 @@ export const EarnOperationModal = <D, R extends EthEarnReviewDataBase>({
       onRequestClose={onClose}
     >
       {modalState.step === EarnOperationModalStep.InputData ? (
-        <InputDataContent onSubmit={handleDataSubmit} />
+        <InputDataContent stats={stats} onSubmit={handleDataSubmit} />
       ) : (
         <ConfirmContent reviewData={reviewData} onCancel={goToInputData} />
       )}

@@ -7,23 +7,21 @@ import { EvmNetworkEssentials } from 'temple/networks';
 
 import { ConfirmEarnOperationContent } from '../components/confirm-earn-operation-content';
 
-import { StakeEthModalSelectors } from './selectors';
+import { UnstakeEthModalSelectors } from './selectors';
 import { ReviewData } from './types';
-import { getStakingParams, useStakingEstimationData } from './use-staking-estimation-data';
+import { getUnstakingParams, useUnstakingEstimationData } from './use-unstaking-estimation-data';
 
-interface ConfirmStakeContentProps {
+interface ConfirmUnstakeContentProps {
   reviewData?: ReviewData;
   onCancel: EmptyFn;
 }
 
-export const ConfirmStakeContent = memo<ConfirmStakeContentProps>(({ reviewData, onCancel }) => {
+export const ConfirmUnstakeContent = memo<ConfirmUnstakeContentProps>(({ reviewData, onCancel }) => {
   const balancesChanges = useMemo(
     () => [
       {
         [EVM_TOKEN_SLUG]: {
-          atomicAmount: reviewData
-            ? tokensToAtoms(reviewData.amount, reviewData.network.currency.decimals).negated()
-            : ZERO,
+          atomicAmount: reviewData ? tokensToAtoms(reviewData.amount, reviewData.network.currency.decimals) : ZERO,
           isNft: false
         }
       }
@@ -36,18 +34,18 @@ export const ConfirmStakeContent = memo<ConfirmStakeContentProps>(({ reviewData,
       getBasicParamsSWRKey={getBasicParamsSWRKey}
       formId="confirm-eth-stake-form"
       reviewData={reviewData}
-      cancelTestID={StakeEthModalSelectors.cancelButton}
-      confirmTestID={StakeEthModalSelectors.confirmButton}
-      getBasicParams={getBasicStakingParams}
-      useEstimationData={useStakingEstimationData}
+      cancelTestID={UnstakeEthModalSelectors.cancelButton}
+      confirmTestID={UnstakeEthModalSelectors.confirmButton}
+      getBasicParams={getBasicUnstakingParams}
+      useEstimationData={useUnstakingEstimationData}
       balancesChanges={balancesChanges}
       onCancel={onCancel}
     />
   );
 });
 
-const getBasicStakingParams = ({ account, amount }: ReviewData, network: EvmNetworkEssentials) =>
-  getStakingParams(account, network, amount);
+const getBasicUnstakingParams = ({ account, amount }: ReviewData, network: EvmNetworkEssentials) =>
+  getUnstakingParams(account, network, amount);
 
 const getBasicParamsSWRKey = ({ account, network, amount }: ReviewData) => [
   'get-eth-basic-staking-params',

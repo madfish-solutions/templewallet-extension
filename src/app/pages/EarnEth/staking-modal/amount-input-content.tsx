@@ -3,6 +3,7 @@ import React, { memo, useCallback, useMemo } from 'react';
 import BigNumber from 'bignumber.js';
 import { formatUnits } from 'viem';
 
+import { Alert } from 'app/atoms';
 import { dispatch } from 'app/store';
 import { setOnRampAssetAction } from 'app/store/settings/actions';
 import { isWertSupportedChainAssetSlug } from 'lib/apis/wert';
@@ -10,11 +11,10 @@ import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { toChainAssetSlug } from 'lib/assets/utils';
 import { useEvmAssetBalance } from 'lib/balances/hooks';
 import { T, t } from 'lib/i18n';
-import { useEvmGasMetadata } from 'lib/metadata';
+import { formatDuration } from 'lib/i18n/core';
 import { ZERO } from 'lib/utils/numbers';
 import { AccountForEvm } from 'temple/accounts';
 import { EvmChain } from 'temple/front';
-import { DEFAULT_EVM_CURRENCY } from 'temple/networks';
 import { TempleChainKind } from 'temple/types';
 
 import { AmountInputContent } from '../components/amount-input-content';
@@ -39,8 +39,7 @@ export const StakeAmountInputContent = memo<AmountInputContentProps>(({ account,
 
   const { value: ethBalance = ZERO } = useEvmAssetBalance(EVM_TOKEN_SLUG, accountPkh as HexString, chain);
 
-  const { symbol: ethSymbol = DEFAULT_EVM_CURRENCY.symbol, decimals: ethDecimals = DEFAULT_EVM_CURRENCY.decimals } =
-    useEvmGasMetadata(chain.chainId) ?? {};
+  const { symbol: ethSymbol, decimals: ethDecimals } = chain.currency;
   const stakingEstimationInput = useMemo(
     () => ({
       amount: stats.minStakeAmount,
@@ -90,6 +89,17 @@ export const StakeAmountInputContent = memo<AmountInputContentProps>(({ account,
       onSubmit={onSubmit}
       onExceedMaxAmount={handleExceedMaxAmount}
       onBelowMinAmount={handleBelowMinAmount}
-    />
+    >
+      <Alert
+        className="mb-4"
+        type="info"
+        description={
+          <T
+            id="ethStakingDisclaimer"
+            substitutions={formatDuration(stats.validator_exit_time + stats.validator_withdraw_time, ['days'])}
+          />
+        }
+      />
+    </AmountInputContent>
   );
 });

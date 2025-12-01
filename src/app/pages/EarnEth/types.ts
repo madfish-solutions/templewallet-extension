@@ -8,4 +8,6 @@ export type EthStakingStats = ContractViewsStats &
   Record<
     'validator_activation_time' | 'validator_adding_delay' | 'validator_exit_time' | 'validator_withdraw_time',
     number
-  >;
+  > & {
+    lastUnstakeTimestamp?: string;
+  };

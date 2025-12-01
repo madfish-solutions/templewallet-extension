@@ -1353,14 +1353,71 @@
   "tezosStaking": {
     "message": "Tezos Staking"
   },
+  "ethStaking": {
+    "message": "ETH Staking"
+  },
   "staked": {
     "message": "Staked"
+  },
+  "totalStaked": {
+    "message": "Total staked"
+  },
+  "ethStakingTooltipText": {
+    "message": "Your staking is combined with others to reach the 32 ETH in Everstake validator pool. Once active, your rewards are automatically re-staked."
+  },
+  "ethRewardsTooltip": {
+    "message": "Your rewards is auto-compounded into total staked amount."
+  },
+  "pendingRewards": {
+    "message": "Pending"
+  },
+  "withdrawals": {
+    "message": "Withdrawals"
+  },
+  "ethWithdrawalsTooltipText": {
+    "message": "Unstaked Ethereum that completed the\u00a0withdrawal process will be available to transfer back to your account."
+  },
+  "noWithdrawalsYet": {
+    "message": "No withdrawals yet"
+  },
+  "pendingBalance": {
+    "message": "Pending balance"
+  },
+  "claim": {
+    "message": "Claim"
+  },
+  "ethStakingDisclaimer": {
+    "message": "Estimated withdrawal period is $period$. Actual withdrawal can be faster depending on the provider queue and network conditions.",
+    "placeholders": {
+      "period": {
+        "content": "$1"
+      }
+    }
+  },
+  "ethUnstakingDisclaimer": {
+    "message": "Unstaking takes $period$ to complete. Once $period$ have passed, your ETH will be available to claim.",
+    "placeholders": {
+      "period": {
+        "content": "$1"
+      }
+    }
+  },
+  "notReadyClaimTooltip": {
+    "message": "Estimated withdrawal period is $period$. Actual withdrawal can be faster, you'll receive toast notification when your balance is ready to claim.",
+    "placeholders": {
+      "period": {
+        "content": "$1"
+      }
+    }
   },
   "unstake": {
     "message": "Unstake"
   },
   "unstakeTez": {
     "message": "Unstake TEZ"
+  },
+  "unstakeEth": {
+    "message": "Unstake ETH"
   },
   "estimatedApy": {
     "message": "Est. APY"

@@ -18,7 +18,8 @@ interface ProviderCardProps {
 }
 
 export const ProviderCard = memo<ProviderCardProps>(({ className, stats }) => {
-  const activationTimeSeconds = useMemo(() => stats.validator_activation_time + stats.validator_adding_delay, [stats]);
+  const { validator_activation_time, validator_adding_delay, balance, pendingBalance, pendingDepositedBalance } = stats;
+  const activationTimeSeconds = validator_activation_time + validator_adding_delay;
   const longFormattedActivationTime = useMemo(
     () =>
       formatDuration(
@@ -33,8 +34,8 @@ export const ProviderCard = memo<ProviderCardProps>(({ className, stats }) => {
   );
 
   const stakedAmount = useMemo(
-    () => toShortened(BigNumber.sum(stats.balance, stats.pendingBalance, stats.pendingDepositedBalance)),
-    [stats]
+    () => toShortened(BigNumber.sum(balance, pendingBalance, pendingDepositedBalance)),
+    [balance, pendingBalance, pendingDepositedBalance]
   );
 
   return (

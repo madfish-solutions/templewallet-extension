@@ -3515,7 +3515,7 @@
     nanoid "^3.1.30"
 
 "@temple-wallet/everstake-wallet-sdk@../everstake-wallet-sdk":
-  version "4.0.7"
+  version "5.0.0"
 
 "@temple-wallet/extension-ads@15.0.0":
   version "15.0.0"
