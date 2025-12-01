@@ -32,7 +32,7 @@ export interface GetKoloWidgetUrlParams {
 export const getKoloWidgetUrl = async (params: GetKoloWidgetUrlParams) => {
   const url = new URL(EnvVars.KOLO_TEST_BASE_URL);
 
-  url.searchParams.set('apiKey', EnvVars.TEMPLE_WALLET_KOLO_TEST_API_KEY);
+  url.searchParams.set('apiKey', EnvVars.KOLO_TEST_API_KEY);
 
   if (params.email) {
     url.searchParams.set('email', params.email);
