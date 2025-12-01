@@ -23,10 +23,10 @@ import { getViemPublicClient } from 'temple/evm';
 import { EVMErrorCodes, evmRpcMethodsNames } from 'temple/evm/constants';
 import { estimate } from 'temple/evm/estimate';
 import {
-  getActiveEvmChainsRpcUrls,
-  getEvmChainsRpcUrls,
-  setActiveEvmChainsRpcUrls,
-  setEvmChainsRpcUrls
+  getEvmChainsActiveRpcUrls,
+  getEvmChainsAllRpcUrls,
+  setEvmChainsActiveRpcUrls,
+  setEvmChainsAllRpcUrls
 } from 'temple/evm/evm-chains-rpc-urls';
 import { ChangePermissionsPayload, ErrorWithCode } from 'temple/evm/types';
 import { parseTransactionRequest, serializeBigints } from 'temple/evm/utils';
@@ -581,13 +581,13 @@ export const addChain = async (origin: string, currentChainId: string, params: A
                 }
               }
 
-              const rpcUrls = await getEvmChainsRpcUrls();
-              await setEvmChainsRpcUrls({
+              const rpcUrls = await getEvmChainsAllRpcUrls();
+              await setEvmChainsAllRpcUrls({
                 ...rpcUrls,
                 [chainIdNum]: (rpcUrls[chainIdNum] ?? []).concat(rpcUrl)
               });
-              const activeRpcUrls = await getActiveEvmChainsRpcUrls();
-              await setActiveEvmChainsRpcUrls({
+              const activeRpcUrls = await getEvmChainsActiveRpcUrls();
+              await setEvmChainsActiveRpcUrls({
                 ...activeRpcUrls,
                 [chainIdNum]: activeRpcUrls[chainIdNum] ?? rpcUrl
               });
