@@ -12,7 +12,7 @@ import {
 import { getViemPublicClient } from 'temple/evm';
 import { EVMErrorCodes, evmRpcMethodsNames, RETURNED_ACCOUNTS_CAVEAT_NAME } from 'temple/evm/constants';
 import { EvmEstimationData } from 'temple/evm/estimate';
-import { getActiveEvmChainsRpcUrls, getEvmChainsRpcUrls } from 'temple/evm/evm-chains-rpc-urls';
+import { getEvmChainsActiveRpcUrls, getEvmChainsAllRpcUrls } from 'temple/evm/evm-chains-rpc-urls';
 import { ErrorWithCode } from 'temple/evm/types';
 import { EvmNetworkEssentials } from 'temple/networks';
 import { TempleChainKind } from 'temple/types';
@@ -47,7 +47,7 @@ export async function setDApp(origin: string, permissions: EvmDAppSession) {
 
 /** Throws an error if the chain is unknown; otherwise, returns a list of known RPC URLs for the chain */
 export async function assertiveGetChainRpcURLs(chainId: number) {
-  const rpcUrls = (await getEvmChainsRpcUrls())[chainId];
+  const rpcUrls = (await getEvmChainsAllRpcUrls())[chainId];
 
   if (!rpcUrls) {
     throw new ErrorWithCode(EVMErrorCodes.CHAIN_NOT_RECOGNIZED, 'Network not found');
@@ -58,7 +58,7 @@ export async function assertiveGetChainRpcURLs(chainId: number) {
 
 export async function getActiveRpcBaseURL(chainId: number) {
   const rpcUrls = await assertiveGetChainRpcURLs(chainId);
-  return (await getActiveEvmChainsRpcUrls())[chainId] ?? rpcUrls[0];
+  return (await getEvmChainsActiveRpcUrls())[chainId] ?? rpcUrls[0];
 }
 
 export async function switchChain(origin: string, destinationChainId: number, isInternal: boolean) {
