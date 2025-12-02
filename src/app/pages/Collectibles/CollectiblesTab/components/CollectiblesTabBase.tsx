@@ -25,8 +25,6 @@ export interface CollectiblesTabBaseProps {
   isSyncing: boolean;
   isInSearchMode: boolean;
   network?: OneOfChains;
-  onTokensTabClick: EmptyFn;
-  onCollectiblesTabClick: EmptyFn;
 }
 
 export const CollectiblesTabBase: FC<PropsWithChildren<CollectiblesTabBaseProps>> = ({
@@ -38,8 +36,6 @@ export const CollectiblesTabBase: FC<PropsWithChildren<CollectiblesTabBaseProps>
   isSyncing,
   isInSearchMode,
   network,
-  onTokensTabClick,
-  onCollectiblesTabClick,
   children
 }) => {
   const { manageActive, filtersOpened } = useAssetsViewState();
@@ -50,8 +46,6 @@ export const CollectiblesTabBase: FC<PropsWithChildren<CollectiblesTabBaseProps>
         tabSlug="collectibles"
         searchValue={searchValue}
         onSearchValueChange={onSearchValueChange}
-        onTokensTabClick={onTokensTabClick}
-        onCollectiblesTabClick={onCollectiblesTabClick}
       />
 
       {filtersOpened ? (

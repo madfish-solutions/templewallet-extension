@@ -36,16 +36,12 @@ interface Props {
   accountTezAddress: string;
   accountEvmAddress: HexString;
   accountId: string;
-  onTokensTabClick: EmptyFn;
-  onCollectiblesTabClick: EmptyFn;
 }
 
 const MultiChainTokensTabContext = createContext<Props>({
   accountTezAddress: '',
   accountEvmAddress: '0x',
-  accountId: '',
-  onTokensTabClick: () => {},
-  onCollectiblesTabClick: () => {}
+  accountId: ''
 });
 
 export const MultiChainTokensTab = memo<Props>(props => {
@@ -168,7 +164,7 @@ const TabContentBase = memo<TabContentBaseProps>(
 interface TabContentBaseBodyProps
   extends Omit<
     TokensTabBaseProps,
-    'tokensCount' | 'children' | 'network' | 'oneRemDivRef' | 'getElementIndex' | 'accountId' | 'onTokensTabClick' | 'onCollectiblesTabClick'
+    'tokensCount' | 'children' | 'network' | 'oneRemDivRef' | 'getElementIndex' | 'accountId'
   > {
   manageActive: boolean;
   groupedSlugs: ChainGroupedSlugs | null;
@@ -251,15 +247,11 @@ const TabContentBaseBody = memo<TabContentBaseBodyProps>(
       };
     }, [groupedSlugs, displayedSlugs, evmChains, tezosChains, manageActive, accountEvmAddress, accountTezAddress]);
 
-    const { onTokensTabClick, onCollectiblesTabClick } = useContext(MultiChainTokensTabContext);
-
     return (
       <TokensTabBase
         accountId={accountId}
         tokensCount={displayedSlugs.length}
         getElementIndex={getElementIndex}
-        onTokensTabClick={onTokensTabClick}
-        onCollectiblesTabClick={onCollectiblesTabClick}
         {...restProps}
       >
         {tokensView}

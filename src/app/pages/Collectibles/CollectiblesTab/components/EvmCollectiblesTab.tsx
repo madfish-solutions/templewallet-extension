@@ -14,15 +14,9 @@ import { TabContentBaseBody } from './tab-content-base-body';
 
 interface EvmCollectiblesTabProps {
   publicKeyHash: HexString;
-  onTokensTabClick: EmptyFn;
-  onCollectiblesTabClick: EmptyFn;
 }
 
-export const EvmCollectiblesTab = memo<EvmCollectiblesTabProps>(({
-  publicKeyHash,
-  onTokensTabClick,
-  onCollectiblesTabClick
-}) => {
+export const EvmCollectiblesTab = memo<EvmCollectiblesTabProps>(({ publicKeyHash }) => {
   const mainnetChain = useEthereumMainnetChain();
 
   const { showInfo } = useCollectiblesListOptionsSelector();
@@ -65,8 +59,6 @@ export const EvmCollectiblesTab = memo<EvmCollectiblesTabProps>(({
       slugs={paginatedSlugs}
       showInfo={showInfo}
       renderItem={renderItem}
-      onTokensTabClick={onTokensTabClick}
-      onCollectiblesTabClick={onCollectiblesTabClick}
     />
   );
 });

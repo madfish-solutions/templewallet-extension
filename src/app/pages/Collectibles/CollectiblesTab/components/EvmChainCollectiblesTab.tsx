@@ -13,16 +13,9 @@ import { TabContentBaseBody } from './tab-content-base-body';
 interface EvmChainCollectiblesTabProps {
   chainId: number;
   publicKeyHash: HexString;
-  onTokensTabClick: EmptyFn;
-  onCollectiblesTabClick: EmptyFn;
 }
 
-export const EvmChainCollectiblesTab = memo<EvmChainCollectiblesTabProps>(({
-  chainId,
-  publicKeyHash,
-  onTokensTabClick,
-  onCollectiblesTabClick
-}) => {
+export const EvmChainCollectiblesTab = memo<EvmChainCollectiblesTabProps>(({ chainId, publicKeyHash }) => {
   const network = useEvmChainByChainId(chainId);
 
   const { showInfo } = useCollectiblesListOptionsSelector();
@@ -61,8 +54,6 @@ export const EvmChainCollectiblesTab = memo<EvmChainCollectiblesTabProps>(({
       showInfo={showInfo}
       renderItem={renderItem}
       network={network}
-      onTokensTabClick={onTokensTabClick}
-      onCollectiblesTabClick={onCollectiblesTabClick}
     />
   );
 });

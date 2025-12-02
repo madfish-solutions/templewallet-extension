@@ -19,16 +19,9 @@ import { TabContentBaseBody } from './tab-content-base-body';
 interface Props {
   chainId: string;
   publicKeyHash: string;
-  onTokensTabClick: EmptyFn;
-  onCollectiblesTabClick: EmptyFn;
 }
 
-export const TezosChainCollectiblesTab = memo<Props>(({
-  chainId,
-  publicKeyHash,
-  onTokensTabClick,
-  onCollectiblesTabClick
-}) => {
+export const TezosChainCollectiblesTab = memo<Props>(({ chainId, publicKeyHash }) => {
   const network = useTezosChainByChainId(chainId);
 
   if (!network) throw new DeadEndBoundaryError();
@@ -40,8 +33,6 @@ export const TezosChainCollectiblesTab = memo<Props>(({
       <TabContentWithManageActive
         publicKeyHash={publicKeyHash}
         network={network}
-        onTokensTabClick={onTokensTabClick}
-        onCollectiblesTabClick={onCollectiblesTabClick}
       />
     );
 
@@ -49,8 +40,6 @@ export const TezosChainCollectiblesTab = memo<Props>(({
     <TabContent
       publicKeyHash={publicKeyHash}
       network={network}
-      onTokensTabClick={onTokensTabClick}
-      onCollectiblesTabClick={onCollectiblesTabClick}
     />
   );
 });
@@ -58,11 +47,9 @@ export const TezosChainCollectiblesTab = memo<Props>(({
 interface TabContentProps {
   network: TezosChain;
   publicKeyHash: string;
-  onTokensTabClick: EmptyFn;
-  onCollectiblesTabClick: EmptyFn;
 }
 
-const TabContent: FC<TabContentProps> = ({ network, publicKeyHash, onTokensTabClick, onCollectiblesTabClick }) => {
+const TabContent: FC<TabContentProps> = ({ network, publicKeyHash }) => {
   const { chainId } = network;
 
   const { enabledSlugsSorted } = useTezosChainCollectiblesForListing(publicKeyHash, chainId);
@@ -73,18 +60,11 @@ const TabContent: FC<TabContentProps> = ({ network, publicKeyHash, onTokensTabCl
       publicKeyHash={publicKeyHash}
       allSlugsSorted={enabledSlugsSorted}
       manageActive={false}
-      onTokensTabClick={onTokensTabClick}
-      onCollectiblesTabClick={onCollectiblesTabClick}
     />
   );
 };
 
-const TabContentWithManageActive: FC<TabContentProps> = ({
-  network,
-  publicKeyHash,
-  onTokensTabClick,
-  onCollectiblesTabClick
-}) => {
+const TabContentWithManageActive: FC<TabContentProps> = ({ network, publicKeyHash }) => {
   const { chainId } = network;
 
   const { enabledSlugsSorted, allChainAccountCollectibles, sortPredicate } = useTezosChainCollectiblesForListing(
@@ -105,8 +85,6 @@ const TabContentWithManageActive: FC<TabContentProps> = ({
       publicKeyHash={publicKeyHash}
       allSlugsSorted={allSlugsSorted}
       manageActive={true}
-      onTokensTabClick={onTokensTabClick}
-      onCollectiblesTabClick={onCollectiblesTabClick}
     />
   );
 };
@@ -116,18 +94,9 @@ interface TabContentBaseProps {
   publicKeyHash: string;
   allSlugsSorted: string[];
   manageActive: boolean;
-  onTokensTabClick: EmptyFn;
-  onCollectiblesTabClick: EmptyFn;
 }
 
-const TabContentBase = memo<TabContentBaseProps>(({
-  network,
-  publicKeyHash,
-  allSlugsSorted,
-  manageActive,
-  onTokensTabClick,
-  onCollectiblesTabClick
-}) => {
+const TabContentBase = memo<TabContentBaseProps>(({ network, publicKeyHash, allSlugsSorted, manageActive }) => {
   const { isInSearchMode, displayedSlugs, isSyncing, loadNext, searchValue, setSearchValue } =
     useTezosChainCollectiblesListingLogic(allSlugsSorted, network);
   const mainnetTokensScamSlugsRecord = useMainnetTokensScamlistSelector();
@@ -165,8 +134,6 @@ const TabContentBase = memo<TabContentBaseProps>(({
       showInfo={showInfo}
       renderItem={renderItem}
       network={network}
-      onTokensTabClick={onTokensTabClick}
-      onCollectiblesTabClick={onCollectiblesTabClick}
     />
   );
 });
