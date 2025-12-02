@@ -6,5 +6,6 @@ export enum ConnectLedgerModalSelectors {
   derivationTypeDropdown = 'Connect Ledger/Derivation Type Dropdown',
   derivationTypeOptionButton = 'Connect Ledger/Derivation Type Option Button',
   addCustomPathButton = 'Connect Ledger/Add Custom Path Button',
-  accountIndexInput = 'Connect Ledger/Account Index Input'
+  accountIndexInput = 'Connect Ledger/Account Index Input',
+  firefoxRestrictionButton = 'Connect Ledger/Firefox Restriction Button'
 }

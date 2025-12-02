@@ -2,10 +2,12 @@ import React, { memo, useCallback, useState } from 'react';
 
 import { CLOSE_ANIMATION_TIMEOUT, PageModal } from 'app/atoms/PageModal';
 import { toastSuccess } from 'app/toaster';
+import { IS_FIREFOX } from 'lib/env';
 import { t } from 'lib/i18n';
 import { TempleChainKind } from 'temple/types';
 
 import { ConnectDeviceStep } from './connect-device-step';
+import { FirefoxRestrictionStep } from './firefox-restriction-step';
 import { SelectAccountStep } from './select-account-step';
 import { SelectNetworkStep } from './select-network-step';
 import { AccountProps } from './types';
@@ -18,9 +20,14 @@ interface ConnectLedgerModalProps {
 }
 
 enum ConnectLedgerModalStep {
+  FirefoxRestriction = 'FirefoxRestriction',
   SelectNetwork = 'SelectNetwork',
   ConnectDevice = 'ConnectDevice',
   SelectAccount = 'SelectAccount'
+}
+
+interface FirefoxRestrictionState {
+  step: ConnectLedgerModalStep.FirefoxRestriction;
 }
 
 interface SelectNetworkState {
@@ -37,12 +44,15 @@ interface SelectAccountState {
   initialAccount: AccountProps;
 }
 
-type State = SelectNetworkState | ConnectDeviceState | SelectAccountState;
+type State = FirefoxRestrictionState | SelectNetworkState | ConnectDeviceState | SelectAccountState;
 
 export const ConnectLedgerModal = memo<ConnectLedgerModalProps>(
   ({ animated = true, shouldShowBackButton, onStartGoBack, onClose }) => {
-    const [state, setState] = useState<State>({ step: ConnectLedgerModalStep.SelectNetwork });
-    const isFirstStep = state.step === ConnectLedgerModalStep.SelectNetwork;
+    const [state, setState] = useState<State>({
+      step: IS_FIREFOX ? ConnectLedgerModalStep.FirefoxRestriction : ConnectLedgerModalStep.SelectNetwork
+    });
+    const isFirstStep =
+      state.step === ConnectLedgerModalStep.SelectNetwork || state.step === ConnectLedgerModalStep.FirefoxRestriction;
 
     const goStepBack = useCallback(
       () =>
@@ -79,6 +89,7 @@ export const ConnectLedgerModal = memo<ConnectLedgerModalProps>(
         onGoBack={shouldShowBackButton && isFirstStep ? onStartGoBack : isFirstStep ? undefined : goStepBack}
         onRequestClose={onClose}
       >
+        {state.step === ConnectLedgerModalStep.FirefoxRestriction && <FirefoxRestrictionStep onClose={onClose} />}
         {state.step === ConnectLedgerModalStep.SelectNetwork && <SelectNetworkStep onSelect={goToConnectDevice} />}
         {state.step === ConnectLedgerModalStep.ConnectDevice && (
           <ConnectDeviceStep chainKind={state.chainKind} onSuccess={goToSelectAccount} />

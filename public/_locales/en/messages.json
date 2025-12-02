@@ -2083,6 +2083,12 @@
   "sorry": {
     "message": "Sorry!"
   },
+  "notAvailableOnFirefox": {
+    "message": "Not available on Firefox"
+  },
+  "ledgerNotAvailableOnFirefoxDescription": {
+    "message": "Temple can't connect Ledger due to browser restrictions. Please proceed with the connection using any Chrome-based browsers for a smooth experience."
+  },
   "upload": {
     "message": "Upload"
   },
