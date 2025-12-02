@@ -6,7 +6,8 @@ import {
   ETHEREUM_MAINNET_CHAIN_ID,
   COMMON_MAINNET_CHAIN_IDS,
   TempleTezosChainId,
-  COMMON_TESTNET_CHAIN_IDS
+  COMMON_TESTNET_CHAIN_IDS,
+  ETHERLINK_MAINNET_CHAIN_ID
 } from './types';
 
 interface ChainSpecsBase {
@@ -97,7 +98,7 @@ export const DEFAULT_EVM_CHAINS_SPECS: Record<string, EvmChainSpecs & { testnet:
     testnet: false,
     currency: DEFAULT_EVM_CURRENCY
   },
-  [COMMON_MAINNET_CHAIN_IDS.etherlink]: {
+  [ETHERLINK_MAINNET_CHAIN_ID]: {
     name: 'Etherlink',
     testnet: false,
     currency: {

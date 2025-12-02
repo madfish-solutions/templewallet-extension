@@ -4,12 +4,14 @@ import { LiFiStep } from '@lifi/sdk';
 
 import { useSelector } from 'app/store';
 import {
+  use3RouteEvmChainTokensMetadataSelector,
+  use3RouteEvmTokensMetadataRecordSelector
+} from 'app/store/evm/swap-3route-metadata/selectors';
+import {
   useLifiConnectedEvmChainTokensMetadataSelector,
   useLifiConnectedEvmTokensMetadataRecordSelector
 } from 'app/store/evm/swap-lifi-metadata/selectors';
 import { erc20AllowanceAbi } from 'lib/abi/erc20';
-import { toTokenSlug } from 'lib/assets';
-import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { toChainAssetSlug } from 'lib/assets/utils';
 import { EVM_ZERO_ADDRESS } from 'lib/constants';
 import { useMemoWithCompare } from 'lib/ui/hooks';
@@ -18,14 +20,15 @@ import { getViemPublicClient } from 'temple/evm';
 import { useAllEvmChains } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
 
+import { Route3EvmRoute, getCommonStepProps } from '../../form/interfaces';
+import { getTokenSlugFromEvmDexTokenAddress } from '../../utils';
+
 export const useLifiEvmTokensSlugs = (chainId: number) => {
   const { metadata: lifiEvmTokensMetadataRecord, isLoading } = useLifiConnectedEvmChainTokensMetadataSelector(chainId);
 
   const lifiTokenSlugs = useMemo(
     () =>
-      Object.values(lifiEvmTokensMetadataRecord ?? []).map(token => {
-        return token.address === EVM_ZERO_ADDRESS ? EVM_TOKEN_SLUG : toTokenSlug(token.address, 0);
-      }),
+      Object.values(lifiEvmTokensMetadataRecord ?? []).map(token => getTokenSlugFromEvmDexTokenAddress(token.address)),
     [lifiEvmTokensMetadataRecord]
   );
 
@@ -35,23 +38,64 @@ export const useLifiEvmTokensSlugs = (chainId: number) => {
   };
 };
 
+export const use3RouteEvmTokensSlugs = (chainId: number) => {
+  const { metadata: route3EvmTokensMetadataRecord, isLoading } = use3RouteEvmChainTokensMetadataSelector(chainId);
+
+  const route3EvmTokenSlugs = useMemo(
+    () =>
+      Object.values(route3EvmTokensMetadataRecord ?? []).map(token =>
+        getTokenSlugFromEvmDexTokenAddress(token.address)
+      ),
+    [route3EvmTokensMetadataRecord]
+  );
+
+  return {
+    isLoading,
+    route3EvmTokenSlugs
+  };
+};
+
 export const useLifiEvmAllTokensSlugs = () => {
   const metadataRecord = useLifiConnectedEvmTokensMetadataRecordSelector();
   const isLoading = useSelector(({ lifiEvmTokensMetadata }) => lifiEvmTokensMetadata.isLoading);
 
-  const lifiTokenSlugs = useMemo(() => {
-    return Object.entries(metadataRecord).flatMap(([chainIdStr, tokensBySlug]) => {
-      const chainId = Number(chainIdStr);
-      return Object.values(tokensBySlug).map(token => {
-        const evmTokenSlug = token.address === EVM_ZERO_ADDRESS ? EVM_TOKEN_SLUG : toTokenSlug(token.address, 0);
-        return toChainAssetSlug(TempleChainKind.EVM, chainId, evmTokenSlug);
-      });
-    });
-  }, [metadataRecord]);
+  const lifiTokenSlugs = useMemo(
+    () =>
+      Object.entries(metadataRecord).flatMap(([chainIdStr, tokensBySlug]) => {
+        const chainId = Number(chainIdStr);
+
+        return Object.values(tokensBySlug).map(token =>
+          toChainAssetSlug(TempleChainKind.EVM, chainId, getTokenSlugFromEvmDexTokenAddress(token.address))
+        );
+      }),
+    [metadataRecord]
+  );
 
   return {
     isLoading,
     lifiTokenSlugs
+  };
+};
+
+export const use3RouteEvmAllTokensSlugs = () => {
+  const metadataRecord = use3RouteEvmTokensMetadataRecordSelector();
+  const isLoading = useSelector(({ route3EvmTokensMetadata }) => route3EvmTokensMetadata.isLoading);
+
+  const route3EvmTokenSlugs = useMemo(
+    () =>
+      Object.entries(metadataRecord).flatMap(([chainIdStr, tokensBySlug]) => {
+        const chainId = Number(chainIdStr);
+
+        return Object.values(tokensBySlug).map(token =>
+          toChainAssetSlug(TempleChainKind.EVM, chainId, getTokenSlugFromEvmDexTokenAddress(token.address))
+        );
+      }),
+    [metadataRecord]
+  );
+
+  return {
+    isLoading,
+    route3EvmTokenSlugs
   };
 };
 
@@ -67,7 +111,7 @@ interface UseEvmAllowancesResult {
   error?: unknown;
 }
 
-export function useEvmAllowances(steps: LiFiStep[]): UseEvmAllowancesResult {
+export function useEvmAllowances(steps: LiFiStep[] | Route3EvmRoute[]): UseEvmAllowancesResult {
   const allEvmChains = useAllEvmChains();
 
   const [allowanceSufficient, setAllowanceSufficient] = useState<boolean[]>([]);
@@ -88,25 +132,25 @@ export function useEvmAllowances(steps: LiFiStep[]): UseEvmAllowancesResult {
       try {
         const results = await Promise.all(
           stableSteps.map(async step => {
-            const network = allEvmChains[Number(step.action.fromChainId)];
+            const { fromChainId, fromToken, fromAmount, fromAddress, approvalAddress } = getCommonStepProps(step);
+            const network = allEvmChains[fromChainId];
             const evmToolkit = network ? getViemPublicClient(network) : undefined;
+
             if (!network || !evmToolkit) return { sufficient: true, allowance: toBigInt(ZERO) };
 
-            if (EVM_ZERO_ADDRESS === step.action.fromToken.address) {
+            if (EVM_ZERO_ADDRESS === fromToken.address) {
               return { sufficient: true, allowance: toBigInt(ZERO) };
             }
 
-            const requiredAllowance = BigInt(step.action.fromAmount);
-
             const onChainAllowance = await evmToolkit.readContract({
-              address: step.action.fromToken.address as HexString,
+              address: fromToken.address as HexString,
               abi: [erc20AllowanceAbi],
               functionName: 'allowance',
-              args: [step.action.fromAddress as HexString, step.estimate.approvalAddress as HexString]
+              args: [fromAddress as HexString, approvalAddress as HexString]
             });
 
             return {
-              sufficient: onChainAllowance >= requiredAllowance,
+              sufficient: onChainAllowance >= BigInt(fromAmount),
               allowance: onChainAllowance
             };
           })

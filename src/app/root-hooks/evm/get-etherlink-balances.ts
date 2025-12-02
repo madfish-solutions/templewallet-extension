@@ -16,7 +16,7 @@ import { DEFAULT_NATIVE_TOKEN_ADDRESS } from 'lib/apis/temple/endpoints/evm/api.
 import { getEvmNativeAssetIcon } from 'lib/images-uri';
 import { DEFAULT_EVM_CHAINS_SPECS } from 'lib/temple/chains-specs';
 import { atomsToTokens } from 'lib/temple/helpers';
-import { COMMON_MAINNET_CHAIN_IDS } from 'lib/temple/types';
+import { ETHERLINK_MAINNET_CHAIN_ID } from 'lib/temple/types';
 import { groupByToEntries } from 'lib/utils/group-by-to-entries';
 
 export interface EtherlinkBalancesResponse
@@ -58,7 +58,7 @@ export const getEtherlinkBalances = async (
   const [accountInfo, tokensBalancesWithIncompleteNFT, gasTokenExchangeRate, nftBalances] = await Promise.all([
     fetchGetAccountInfo(chainId, walletAddress),
     fetchGetTokensBalances(chainId, walletAddress),
-    chainId === COMMON_MAINNET_CHAIN_IDS.etherlink ? fetchTezExchangeRate() : Promise.resolve(null),
+    chainId === ETHERLINK_MAINNET_CHAIN_ID ? fetchTezExchangeRate() : Promise.resolve(null),
     fetchAllAccountNfts({ chainId, address: walletAddress })
   ]);
   const tokensBalances = tokensBalancesWithIncompleteNFT.filter(isErc20TokenBalance);

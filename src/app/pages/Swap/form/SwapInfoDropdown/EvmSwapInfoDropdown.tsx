@@ -21,6 +21,7 @@ import { useBooleanState } from 'lib/ui/hooks';
 import useTippy from 'lib/ui/useTippy';
 import { toPercentage } from 'lib/ui/utils';
 
+import Route3ImgSrc from '../assets/3route.png';
 import LiFiImgSrc from '../assets/lifi.png';
 import { evmFeeInfoTippyProps, protocolFeeInfoTippyProps, toolsInfoTippyProps } from '../SwapForm.tippy';
 
@@ -28,6 +29,7 @@ import { SwapExchangeRate } from './SwapExchangeRate';
 import { SwapMinimumReceived } from './SwapMinimumReceived';
 
 interface IEvmSwapInfoDropdownProps {
+  provider: 'lifi' | '3route';
   swapRouteSteps: number;
   inputAmount?: BigNumber;
   outputAmount?: BigNumber;
@@ -39,6 +41,7 @@ interface IEvmSwapInfoDropdownProps {
 }
 
 export const EvmSwapInfoDropdown = ({
+  provider,
   swapRouteSteps,
   inputAmount,
   outputAmount,
@@ -71,11 +74,11 @@ export const EvmSwapInfoDropdown = ({
     <div className="p-4 bg-white rounded-8 shadow-md">
       <div onClick={toggleDropdown} className="flex justify-between items-center cursor-pointer">
         <div className="flex gap-2 items-center">
-          <img src={LiFiImgSrc} alt="lifi" className="w-10 h-10 rounded-8" />
+          <img src={provider === 'lifi' ? LiFiImgSrc : Route3ImgSrc} alt={provider} className="w-10 h-10 rounded-8" />
 
           <div className="flex flex-col gap-1">
             <div className="flex gap-1 items-center">
-              <span className="font-semibold text-sm">Li.Fi</span>
+              <span className="font-semibold text-sm">{provider === 'lifi' ? 'Li.Fi' : '3Route'}</span>
             </div>
             <SwapExchangeRate
               inputAmount={inputAmount}

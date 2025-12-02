@@ -7,7 +7,7 @@ import { EmptyState } from 'app/atoms/EmptyState';
 import { useSearchParamsBoolean } from 'app/hooks/use-search-params-boolean';
 import { MAIN_CHAINS_IDS } from 'lib/constants';
 import { t } from 'lib/i18n';
-import { COMMON_MAINNET_CHAIN_IDS, ETHEREUM_MAINNET_CHAIN_ID, TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
+import { ETHEREUM_MAINNET_CHAIN_ID, ETHERLINK_MAINNET_CHAIN_ID, TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
 import { useBooleanState } from 'lib/ui/hooks';
 import { searchAndFilterChains } from 'lib/ui/search-networks';
 import { SettingsTabProps } from 'lib/ui/settings-tab-props';
@@ -38,7 +38,7 @@ export const NetworksSettings = memo<SettingsTabProps>(({ setHeaderChildren }) =
   const allChains = useMemo(() => {
     const priority = (chain: OneOfChains) => {
       if (chain.kind === TempleChainKind.Tezos && chain.chainId === TEZOS_MAINNET_CHAIN_ID) return 0;
-      if (chain.kind === TempleChainKind.EVM && chain.chainId === COMMON_MAINNET_CHAIN_IDS.etherlink) return 1;
+      if (chain.kind === TempleChainKind.EVM && chain.chainId === ETHERLINK_MAINNET_CHAIN_ID) return 1;
       if (chain.kind === TempleChainKind.EVM && chain.chainId === ETHEREUM_MAINNET_CHAIN_ID) return 2;
       return 3;
     };

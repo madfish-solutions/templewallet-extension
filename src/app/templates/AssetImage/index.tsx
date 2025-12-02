@@ -1,5 +1,6 @@
 import React, { memo } from 'react';
 
+import { use3RouteEvmTokenMetadataSelector } from 'app/store/evm/swap-3route-metadata/selectors';
 import { useLifiEvmTokenMetadataSelector } from 'app/store/evm/swap-lifi-metadata/selectors';
 import { AssetMetadataBase, useEvmGenericAssetMetadata, useGenericTezosAssetMetadata } from 'lib/metadata';
 import { EvmAssetMetadataBase } from 'lib/metadata/types';
@@ -11,7 +12,7 @@ import {
   EvmAssetImageStacked
 } from './AssetImageStacked';
 
-export { TezosAssetImageStacked };
+export { TezosAssetImageStacked } from './AssetImageStacked';
 
 export interface TezosAssetImageProps extends Omit<TezosAssetImageStackedProps, 'sources' | 'metadata'> {
   tezosChainId: string;
@@ -48,13 +49,15 @@ export const EvmAssetImage = memo<EvmAssetImageProps>(({ Loader, Fallback, metad
 
   const storedMetadata = useEvmGenericAssetMetadata(assetSlug, evmChainId);
   const lifiMetadata = useLifiEvmTokenMetadataSelector(evmChainId, assetSlug);
-  const metadata = metadataOverrides ?? storedMetadata?.address ? storedMetadata : lifiMetadata;
+  const route3EvmTokenMetadata = use3RouteEvmTokenMetadataSelector(evmChainId, assetSlug);
+  const dexTokenMetadata = lifiMetadata ?? route3EvmTokenMetadata;
+  const metadata = metadataOverrides ?? storedMetadata?.address ? storedMetadata : dexTokenMetadata;
 
   return (
     <EvmAssetImageStacked
       evmChainId={evmChainId}
       metadata={metadata}
-      extraSrc={lifiMetadata?.logoURI}
+      extraSrc={dexTokenMetadata?.logoURI}
       loader={Loader ? <Loader {...props} metadata={metadata} /> : undefined}
       fallback={Fallback ? <Fallback {...props} metadata={metadata} /> : undefined}
       {...rest}
