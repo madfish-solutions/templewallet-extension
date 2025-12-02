@@ -1,5 +1,6 @@
 export enum ConnectLedgerModalSelectors {
   selectNetworkButton = 'Connect Ledger/Select Network Button',
+  continueButton = 'Connect Ledger/Continue Button',
   connectDeviceButton = 'Connect Ledger/Connect Device Button',
   connectAccountButton = 'Connect Ledger/Connect Account Button',
   customPathButton = 'Connect Ledger/Custom Path Button',

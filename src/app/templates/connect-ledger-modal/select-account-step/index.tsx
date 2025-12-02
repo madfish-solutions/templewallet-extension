@@ -169,6 +169,7 @@ export const SelectAccountStep = memo<SelectAccountStepProps>(({ initialAccount,
         state={ledgerApprovalModalState}
         isSwitchingDerivation={isSwitchingDerivation}
         onClose={handleApproveModalClose}
+        chainKind={initialAccount.chain}
       />
 
       {customPathModalIsOpen && (

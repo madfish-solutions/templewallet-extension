@@ -32,6 +32,7 @@ interface FirefoxRestrictionState {
 
 interface SelectNetworkState {
   step: ConnectLedgerModalStep.SelectNetwork;
+  selectedChainKind?: TempleChainKind;
 }
 
 interface ConnectDeviceState {
@@ -59,7 +60,7 @@ export const ConnectLedgerModal = memo<ConnectLedgerModalProps>(
         setState(prevState => {
           switch (prevState.step) {
             case ConnectLedgerModalStep.ConnectDevice:
-              return { step: ConnectLedgerModalStep.SelectNetwork };
+              return { step: ConnectLedgerModalStep.SelectNetwork, selectedChainKind: prevState.chainKind };
             case ConnectLedgerModalStep.SelectAccount:
               return { step: ConnectLedgerModalStep.ConnectDevice, chainKind: prevState.initialAccount.chain };
             default:
@@ -90,7 +91,9 @@ export const ConnectLedgerModal = memo<ConnectLedgerModalProps>(
         onRequestClose={onClose}
       >
         {state.step === ConnectLedgerModalStep.FirefoxRestriction && <FirefoxRestrictionStep onClose={onClose} />}
-        {state.step === ConnectLedgerModalStep.SelectNetwork && <SelectNetworkStep onSelect={goToConnectDevice} />}
+        {state.step === ConnectLedgerModalStep.SelectNetwork && (
+          <SelectNetworkStep onSelect={goToConnectDevice} selectedChainKind={state.selectedChainKind} />
+        )}
         {state.step === ConnectLedgerModalStep.ConnectDevice && (
           <ConnectDeviceStep chainKind={state.chainKind} onSuccess={goToSelectAccount} />
         )}

@@ -142,7 +142,7 @@ export const ConnectDeviceStep = memo<ConnectDeviceStepProps>(({ chainKind, onSu
           )
         }}
       >
-        <LedgerImage state={imageState} className="w-full" />
+        <LedgerImage state={imageState} chainKind={chainKind} className="w-full" />
         <div className="flex flex-col px-4 items-center">
           <p className="text-font-regular-bold text-center mb-2">
             {typeof title === 'string' ? title : title(appName, modelName ?? '')}
