@@ -5,7 +5,7 @@ import clsx from 'clsx';
 import { EmptyState } from 'app/atoms/EmptyState';
 import { IconButton } from 'app/atoms/IconButton';
 import { ScrollView } from 'app/atoms/PageModal/scroll-view';
-import { useAppEnv } from 'app/env';
+import { openInFullPage, useAppEnv } from 'app/env';
 import { useShortcutAccountSelectModalIsOpened } from 'app/hooks/use-account-select-shortcut';
 import { useAllAccountsReactiveOnAddition } from 'app/hooks/use-all-accounts-reactive';
 import { useRewardsAddresses } from 'app/hooks/use-rewards-addresses';
@@ -46,7 +46,7 @@ enum AccountsModalSubmodals {
 
 export const AccountsModalContent = memo<AccountsModalContentProps>(
   ({ accounts: specifiedAccounts, currentAccountId: specifiedCurrentAccountId, opened, onRequestClose }) => {
-    const { confirmWindow } = useAppEnv();
+    const { confirmWindow, popup, sidebar } = useAppEnv();
     const allAccounts = useVisibleAccounts();
     const globalCurrentAccountId = useCurrentAccountId();
     const currentAccountId = specifiedCurrentAccountId ?? globalCurrentAccountId;
@@ -94,7 +94,18 @@ export const AccountsModalContent = memo<AccountsModalContentProps>(
       setImportOptionSlug(undefined);
     }, []);
     const goToWatchOnlyModal = useCallback(() => setActiveSubmodal(AccountsModalSubmodals.WatchOnly), []);
-    const goToConnectLedgerModal = useCallback(() => setActiveSubmodal(AccountsModalSubmodals.ConnectLedger), []);
+
+    const goToConnectLedgerModal = useCallback(() => {
+      if (popup || sidebar) {
+        openInFullPage();
+        if (popup) {
+          window.close();
+        }
+        return;
+      }
+      setActiveSubmodal(AccountsModalSubmodals.ConnectLedger);
+    }, [popup, sidebar]);
+
     const handleSeedPhraseImportOptionSelect = useCallback(() => setImportOptionSlug('mnemonic'), []);
     const handlePrivateKeyImportOptionSelect = useCallback(() => setImportOptionSlug('private-key'), []);
 
