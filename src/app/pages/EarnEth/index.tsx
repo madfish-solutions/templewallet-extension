@@ -183,7 +183,6 @@ const EarnEthPageLayout = memo<EarnEthPageLayoutProps>(
     const { requested, readyForClaim } = withdrawRequest;
     const account = useAccount();
     const isWatchOnlyAccount = account.type === TempleAccountType.WatchOnly;
-    console.log('oy vey 1', JSON.stringify(stats.withdrawRequestQueueParams));
 
     const pendingStaked = useMemo(
       () => BigNumber.sum(pendingBalanceOf, pendingDepositedBalanceOf, pendingRestakedRewardOf),
@@ -306,12 +305,19 @@ const EarnEthPageLayout = memo<EarnEthPageLayoutProps>(
                   {readyForClaim.lt(1e-6) ? (
                     <NotReadyClaimButton stats={stats} />
                   ) : (
-                    <StyledButton color="primary" size="S" onClick={openClaimModal}>
+                    <StyledButton
+                      color="primary"
+                      size="S"
+                      disabled={/* isWatchOnlyAccount */ false}
+                      onClick={openClaimModal}
+                    >
                       <T id="claim" />
                       {requested.isZero() ? null : (
                         <>
                           {' '}
-                          <Money smallFractionFont={false}>{readyForClaim}</Money>
+                          <Money smallFractionFont={false} tooltip={false}>
+                            {readyForClaim}
+                          </Money>
                         </>
                       )}
                     </StyledButton>
@@ -324,7 +330,7 @@ const EarnEthPageLayout = memo<EarnEthPageLayoutProps>(
                     <T id="amount" />:
                   </span>
                   <span className="text-font-num-12">
-                    <Money smallFractionFont={false}>{requested.plus(readyForClaim)}</Money> {currencySymbol}
+                    <Money smallFractionFont={false}>{requested}</Money> {currencySymbol}
                   </span>
                 </div>
               }

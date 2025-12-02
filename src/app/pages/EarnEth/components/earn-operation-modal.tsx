@@ -1,5 +1,6 @@
 import React, { ComponentType, useCallback, useMemo, useState } from 'react';
 
+import { PageLoader } from 'app/atoms/Loader';
 import { PageModal } from 'app/atoms/PageModal';
 import { showTxSubmitToastWithDelay } from 'lib/ui/show-tx-submit-toast.util';
 import { EvmNetworkEssentials } from 'temple/networks';
@@ -14,7 +15,6 @@ export interface EarnOperationModalProps<D, R extends EthEarnReviewDataBase> {
   successToastText: string;
   network: EvmNetworkEssentials;
   stats: EthStakingStats;
-  SuspenseLoader?: ComponentType<{ isInputDataStep: boolean }>;
   InputDataContent: ComponentType<{ onSubmit: SyncFn<D>; stats: EthStakingStats }>;
   ConfirmContent: ComponentType<{ reviewData: R | undefined; onCancel: EmptyFn }>;
   makeReviewData: (data: D, onSuccess: SyncFn<string>) => R;
@@ -41,13 +41,14 @@ interface ConfirmState<D> extends EarnOperationModalStateBase {
 
 type EarnOperationModalState<D> = InputDataState | ConfirmState<D>;
 
+const SuspenseLoader = () => <PageLoader stretch />;
+
 export const EarnOperationModal = <D, R extends EthEarnReviewDataBase>({
   inputDataStepTitle,
   confirmStepTitle,
   successToastText,
   network,
   stats,
-  SuspenseLoader,
   ConfirmContent,
   InputDataContent,
   makeReviewData,
@@ -79,7 +80,7 @@ export const EarnOperationModal = <D, R extends EthEarnReviewDataBase>({
     <PageModal
       title={isInputDataStep ? inputDataStepTitle : confirmStepTitle}
       opened
-      suspenseLoader={SuspenseLoader ? <SuspenseLoader isInputDataStep={isInputDataStep} /> : undefined}
+      suspenseLoader={<SuspenseLoader />}
       titleRight={isInputDataStep ? undefined : <div />}
       onGoBack={isInputDataStep ? undefined : goToInputData}
       onRequestClose={onClose}

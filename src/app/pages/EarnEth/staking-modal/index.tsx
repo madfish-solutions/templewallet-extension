@@ -2,7 +2,6 @@ import React, { memo, useCallback } from 'react';
 
 import BigNumber from 'bignumber.js';
 
-import { PageLoader } from 'app/atoms/Loader';
 import { T, t } from 'lib/i18n';
 import { EvmChain, useAccountForEvm } from 'temple/front';
 
@@ -23,8 +22,6 @@ interface ReviewData extends EthEarnReviewDataBase {
 }
 
 type GenericModalProps = EarnOperationModalProps<{ amount: string }, ReviewData>;
-
-const SuspenseLoader = () => <PageLoader stretch />;
 
 export const StakingModal = memo<StakingModalProps>(({ chain, stats, onRequestClose }) => {
   const { symbol: ethSymbol } = chain.currency;
@@ -54,7 +51,6 @@ export const StakingModal = memo<StakingModalProps>(({ chain, stats, onRequestCl
       successToastText={t('transactionSubmitted')}
       network={chain}
       stats={stats}
-      SuspenseLoader={SuspenseLoader}
       InputDataContent={LocalAmountInputContent}
       ConfirmContent={ConfirmStakeContent}
       makeReviewData={makeReviewData}

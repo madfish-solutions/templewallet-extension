@@ -10,17 +10,8 @@ import { makeEthereumToolkit } from '../utils';
 
 import { ReviewData } from './types';
 
-export const getUnstakingParams = (account: AccountForEvm, network: EvmNetworkEssentials, amount: BigNumber) => {
-  const toolkit = makeEthereumToolkit(network);
-  const tryGetParams = (allowedInterchangeNum: number) =>
-    toolkit.unstake(account.address, amount.toFixed(), allowedInterchangeNum, EVERSTAKE_SOURCE_ID);
-
-  return tryGetParams(65535).catch(error => {
-    console.error(error);
-
-    return tryGetParams(0);
-  });
-};
+export const getUnstakingParams = (account: AccountForEvm, network: EvmNetworkEssentials, amount: BigNumber) =>
+  makeEthereumToolkit(network).unstake(account.address, amount.toFixed(), 0, EVERSTAKE_SOURCE_ID);
 
 export const useUnstakingEstimationData = makeUseEstimationData<[BigNumber], [BigNumber], ReviewData>(
   getUnstakingParams,

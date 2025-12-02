@@ -2,7 +2,6 @@ import React, { memo, useCallback } from 'react';
 
 import BigNumber from 'bignumber.js';
 
-import { PageLoader } from 'app/atoms/Loader';
 import { T, t } from 'lib/i18n';
 import { EvmChain, useAccountForEvm } from 'temple/front';
 
@@ -20,8 +19,6 @@ interface UnstakeModalProps {
 }
 
 type GenericModalProps = EarnOperationModalProps<{ amount: string }, ReviewData>;
-
-const SuspenseLoader = () => <PageLoader stretch />;
 
 export const UnstakeModal = memo<UnstakeModalProps>(({ chain, stats, onRequestClose }) => {
   const account = useAccountForEvm()!;
@@ -48,7 +45,6 @@ export const UnstakeModal = memo<UnstakeModalProps>(({ chain, stats, onRequestCl
       successToastText={t('transactionSubmitted')}
       network={chain}
       stats={stats}
-      SuspenseLoader={SuspenseLoader}
       InputDataContent={LocalAmountInputContent}
       ConfirmContent={ConfirmUnstakeContent}
       makeReviewData={makeReviewData}
