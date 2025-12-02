@@ -9,7 +9,6 @@ import { createUrlPattern } from 'app/defaults';
 import { ReactComponent as LockFillIcon } from 'app/icons/base/lock_fill.svg';
 import { ReactComponent as PasteFillIcon } from 'app/icons/base/paste_fill.svg';
 import { T, t } from 'lib/i18n';
-import { useShowErrorIfOnBlur } from 'lib/ui/hooks';
 import { readClipboard } from 'lib/ui/utils';
 
 // TODO: change all types if this component should be used for form values that include arrays, objects with fields etc.
@@ -23,7 +22,6 @@ interface UrlInputProps<K extends string, T extends Record<K, string>> {
   id: string;
   placeholder: string;
   submitError: ReactNode | undefined;
-  showErrorOnBlur?: boolean;
   textarea: boolean;
   required: boolean;
   resetSubmitError: EmptyFn;
@@ -43,7 +41,6 @@ export const UrlInput = <K extends string, T extends Record<K, string>>({
   id,
   placeholder,
   submitError,
-  showErrorOnBlur = false,
   textarea,
   required,
   resetSubmitError,
@@ -52,26 +49,18 @@ export const UrlInput = <K extends string, T extends Record<K, string>>({
   testID,
   allowHttp = false
 }: UrlInputProps<K, T>) => {
-  const {
-    showErrorIfOnBlur,
-    onBlur: updateShowErrorOnBlur,
-    onFocus: updateShowErrorOnFocus,
-    onChange: updateShowErrorOnChange
-  } = useShowErrorIfOnBlur();
   const castName = name as unknown as Path<T>;
   const { register, watch, formState, setValue } = formReturn;
-  const { submitCount, errors } = formState;
+  const { errors } = formState;
   const url = watch(castName);
-  const isSubmitted = submitCount > 0;
   const fieldError = errors[castName]?.message;
 
   const applyValueChangeEffects = useCallback(
     (newValue: string) => {
       resetSubmitError();
       onChange?.(newValue);
-      updateShowErrorOnChange();
     },
-    [onChange, resetSubmitError, updateShowErrorOnChange]
+    [onChange, resetSubmitError]
   );
 
   const setUrl = useCallback(
@@ -107,13 +96,10 @@ export const UrlInput = <K extends string, T extends Record<K, string>>({
     [applyValueChangeEffects]
   );
 
-  const errorCaption = useMemo(() => {
-    if (showErrorOnBlur ? showErrorIfOnBlur : isSubmitted) {
-      return typeof fieldError === 'string' ? fieldError : submitError;
-    }
-
-    return undefined;
-  }, [showErrorOnBlur, showErrorIfOnBlur, isSubmitted, fieldError, submitError]);
+  const errorCaption = useMemo(
+    () => (typeof fieldError === 'string' ? fieldError : submitError),
+    [fieldError, submitError]
+  );
 
   return (
     <FormField
@@ -125,15 +111,13 @@ export const UrlInput = <K extends string, T extends Record<K, string>>({
               pattern: { value: createUrlPattern(allowHttp), message: t('mustBeValidURL') },
               validate: (value: PathValue<T, Path<T>>) =>
                 urlsToExclude?.includes(value as string) ? t('mustBeUnique') : true,
-              onChange: handleChange,
-              onBlur: updateShowErrorOnBlur
+              onChange: handleChange
             }
           : undefined
       )}
       className={clsx(!isEditable && 'text-grey-1', 'resize-none')}
       cleanable={Boolean(url) && (!textarea || isEditable)}
       onClean={clearUrl}
-      onFocus={updateShowErrorOnFocus}
       additionalActionButtons={additionalActionButtons}
       labelContainerClassName="w-full flex justify-between items-center"
       label={

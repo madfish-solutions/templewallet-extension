@@ -14,7 +14,7 @@ import { UnsecuredRpcWarningModal } from 'app/templates/UnsecuredRpcWarningModal
 import { UrlInput } from 'app/templates/UrlInput';
 import { T, t } from 'lib/i18n';
 import { isValidTezosChainId } from 'lib/tezos';
-import { useAbortSignal, useShowErrorIfOnBlur } from 'lib/ui/hooks';
+import { useAbortSignal } from 'lib/ui/hooks';
 import { shouldDisableSubmitButton } from 'lib/ui/should-disable-submit-button';
 import { useAllEvmChains, useAllTezosChains } from 'temple/front';
 
@@ -48,12 +48,6 @@ export const AddNetworkModal = memo(
   forwardRef<AddNetworkForm, AddNetworkModalProps>((props, ref) => {
     const { isOpen, onClose } = props;
     const { abort, abortAndRenewSignal } = useAbortSignal();
-    const {
-      showErrorIfOnBlur: showChainIdError,
-      onBlur: updateChainIdShowErrorOnBlur,
-      onFocus: updateChainIdShowErrorOnFocus,
-      onChange: updateChainIdShowErrorOnChange
-    } = useShowErrorIfOnBlur();
     const [submitError, setSubmitError] = useState<string | null>(null);
     const [warningOpen, setWarningOpen] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -72,8 +66,7 @@ export const AddNetworkModal = memo(
     const { control, reset, formState, register, setValue, watch, handleSubmit } = formReturn;
     const formValues = watch();
     const { chainId, rpcUrl, symbol } = formValues;
-    const { submitCount, errors } = formState;
-    const isSubmitted = submitCount > 0;
+    const { errors } = formState;
 
     const prevSuggestedFormValuesRef = useRef<Partial<AddNetworkFormValues> | null | undefined>(null);
     const { data: suggestedFormValues, isLoading: suggestedFormValuesLoading } = useRpcSuggestedFormValues(
@@ -169,11 +162,6 @@ export const AddNetworkModal = memo(
       [evmChains, suggestedChainId, tezChains]
     );
 
-    const handleChainIdChange = useCallback(() => {
-      resetSubmitError();
-      updateChainIdShowErrorOnChange();
-    }, [resetSubmitError, updateChainIdShowErrorOnChange]);
-
     useImperativeHandle(ref, () => ({
       setFormValues: (values: Partial<AddNetworkFormValues>) => {
         reset({ ...defaultValues, ...values });
@@ -222,7 +210,6 @@ export const AddNetworkModal = memo(
                   isEditable
                   id="add-network-rpc-url"
                   placeholder="https://rpc.link"
-                  showErrorOnBlur
                   submitError={undefined}
                   allowHttp
                   textarea
@@ -236,13 +223,11 @@ export const AddNetworkModal = memo(
                   {...register('chainId', {
                     required: t('required'),
                     validate: validateChainId,
-                    onChange: handleChainIdChange,
-                    onBlur: updateChainIdShowErrorOnBlur
+                    onChange: resetSubmitError
                   })}
                   cleanable={Boolean(chainId)}
                   disabled={isSubmitting}
                   onClean={clearChainId}
-                  onFocus={updateChainIdShowErrorOnFocus}
                   labelContainerClassName="w-full flex justify-between items-center"
                   label={
                     <>
@@ -260,7 +245,7 @@ export const AddNetworkModal = memo(
                     </>
                   }
                   placeholder="1"
-                  errorCaption={showChainIdError && (submitError ?? errors.chainId?.message)}
+                  errorCaption={submitError ?? errors.chainId?.message}
                   testID={NetworkSettingsSelectors.chainIdInput}
                 />
 
@@ -271,7 +256,7 @@ export const AddNetworkModal = memo(
                   onClean={clearSymbol}
                   label={<T id="symbol" />}
                   placeholder="ETH"
-                  errorCaption={isSubmitted && errors.symbol?.message}
+                  errorCaption={errors.symbol?.message}
                   testID={NetworkSettingsSelectors.symbolInput}
                 />
               </div>
