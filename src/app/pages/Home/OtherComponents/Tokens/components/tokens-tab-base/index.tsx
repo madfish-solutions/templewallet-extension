@@ -39,28 +39,18 @@ export interface TokensTabBaseProps {
   isInSearchMode: boolean;
   network?: OneOfChains;
   shouldShowHiddenTokensHint?: boolean;
-  onTokensTabClick: EmptyFn;
-  onCollectiblesTabClick: EmptyFn;
 }
 
 export const TokensTabBase: FC<PropsWithChildren<TokensTabBaseProps>> = ({
   searchValue,
   onSearchValueChange,
-  onTokensTabClick,
-  onCollectiblesTabClick,
   ...restProps
 }) => {
   const { manageActive, filtersOpened } = useAssetsViewState();
 
   return (
     <>
-      <AssetsBar
-        tabSlug="tokens"
-        searchValue={searchValue}
-        onSearchValueChange={onSearchValueChange}
-        onTokensTabClick={onTokensTabClick}
-        onCollectiblesTabClick={onCollectiblesTabClick}
-      />
+      <AssetsBar tabSlug="tokens" searchValue={searchValue} onSearchValueChange={onSearchValueChange} />
 
       {filtersOpened ? (
         <AssetsFilterOptions />
@@ -75,11 +65,7 @@ export const TokensTabBase: FC<PropsWithChildren<TokensTabBaseProps>> = ({
   );
 };
 
-interface TokensTabBaseContentProps
-  extends Omit<
-    TokensTabBaseProps,
-    'searchValue' | 'onSearchValueChange' | 'onTokensTabClick' | 'onCollectiblesTabClick'
-  > {
+interface TokensTabBaseContentProps extends Omit<TokensTabBaseProps, 'searchValue' | 'onSearchValueChange'> {
   manageActive: boolean;
 }
 

@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useEffect } from 'react';
+import React, { memo, useEffect } from 'react';
 
 import { SuspenseContainer } from 'app/atoms/SuspenseContainer';
 import { useLocationSearchParamValue } from 'app/hooks/use-location';
@@ -10,7 +10,6 @@ import { ExploreActionButtonsBar } from 'app/templates/ExploreActionButtons';
 import { toastSuccess } from 'app/toaster';
 import { useInitToastMessage } from 'lib/temple/front/toasts-context';
 import { useBooleanState } from 'lib/ui/hooks';
-import { HistoryAction, navigate } from 'lib/woozie';
 
 import { CollectiblesTab } from '../Collectibles/CollectiblesTab';
 
@@ -36,9 +35,6 @@ const Home = memo(() => {
     return () => clearTimeout(timeout);
   }, [initToastMessage, setInitToastMessage]);
 
-  const onTokensTabClick = useCallback(() => navigate({ search: 'tab=tokens' }, HistoryAction.Replace), []);
-  const onCollectiblesTabClick = useCallback(() => navigate({ search: 'tab=collectibles' }, HistoryAction.Replace), []);
-
   return (
     <PageLayout Header={AppHeader} bgWhite={false} contentPadding={false}>
       <div className="flex flex-col pt-2 pb-0 px-4">
@@ -51,11 +47,7 @@ const Home = memo(() => {
 
       <SuspenseContainer>
         <DAppConnectionRefsProvider>
-          {tabSlug === 'collectibles' ? (
-            <CollectiblesTab onTokensTabClick={onTokensTabClick} onCollectiblesTabClick={onCollectiblesTabClick} />
-          ) : (
-            <TokensTab onTokensTabClick={onTokensTabClick} onCollectiblesTabClick={onCollectiblesTabClick} />
-          )}
+          {tabSlug === 'collectibles' ? <CollectiblesTab /> : <TokensTab />}
         </DAppConnectionRefsProvider>
       </SuspenseContainer>
 

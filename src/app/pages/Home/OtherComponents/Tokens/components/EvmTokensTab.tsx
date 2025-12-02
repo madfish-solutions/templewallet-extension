@@ -34,15 +34,11 @@ import { TokensTabBase } from './tokens-tab-base';
 interface Props {
   publicKeyHash: HexString;
   accountId: string;
-  onTokensTabClick: EmptyFn;
-  onCollectiblesTabClick: EmptyFn;
 }
 
 const EvmTokensTabContext = createContext<Props>({
   publicKeyHash: '0x',
-  accountId: '',
-  onTokensTabClick: () => {},
-  onCollectiblesTabClick: () => {}
+  accountId: ''
 });
 
 export const EvmTokensTab = memo<Props>(props => {
@@ -204,8 +200,6 @@ const TabContentBase = memo<TabContentBaseProps>(
       }
     }, [displayedGroupedSlugs, displayedSlugs, manageActive, evmChains, publicKeyHash]);
 
-    const { onTokensTabClick, onCollectiblesTabClick } = useContext(EvmTokensTabContext);
-
     return (
       <TokensTabBase
         accountId={accountId}
@@ -218,8 +212,6 @@ const TabContentBase = memo<TabContentBaseProps>(
         isInSearchMode={isInSearchMode}
         network={mainnetChain}
         shouldShowHiddenTokensHint={shouldShowHiddenTokensHint}
-        onTokensTabClick={onTokensTabClick}
-        onCollectiblesTabClick={onCollectiblesTabClick}
       >
         {tokensView}
       </TokensTabBase>

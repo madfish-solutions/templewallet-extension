@@ -10,12 +10,10 @@ interface TabContentBaseBodyProps
   slugs: string[];
   showInfo: boolean;
   renderItem: (slug: string, index: number, ref?: RefObject<CollectiblesListItemElement>) => ReactNode;
-  onTokensTabClick: EmptyFn;
-  onCollectiblesTabClick: EmptyFn;
 }
 
 export const TabContentBaseBody = memo<TabContentBaseBodyProps>(
-  ({ manageActive, slugs, showInfo, renderItem, onTokensTabClick, onCollectiblesTabClick, ...restProps }) => {
+  ({ manageActive, slugs, showInfo, renderItem, ...restProps }) => {
     const firstItemRef = useRef<CollectiblesListItemElement>(null);
     const contentElement = useMemo(
       () => (
@@ -34,8 +32,6 @@ export const TabContentBaseBody = memo<TabContentBaseBodyProps>(
       <CollectiblesTabBase
         collectiblesCount={slugs.length}
         getElementsIndexes={getElementsIndexes}
-        onTokensTabClick={onTokensTabClick}
-        onCollectiblesTabClick={onCollectiblesTabClick}
         {...restProps}
       >
         {contentElement}

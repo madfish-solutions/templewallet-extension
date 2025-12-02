@@ -23,33 +23,23 @@ interface Props {
   chainId: number;
   publicKeyHash: HexString;
   accountId: string;
-  onTokensTabClick: EmptyFn;
-  onCollectiblesTabClick: EmptyFn;
 }
 
 const EvmChainTokensTabContext = createContext<Omit<Props, 'chainId'> & { network: EvmChain }>({
   network: makeFallbackChain(EVM_DEFAULT_NETWORKS[0]),
   publicKeyHash: '0x',
-  accountId: '',
-  onTokensTabClick: () => {},
-  onCollectiblesTabClick: () => {}
+  accountId: ''
 });
 
-export const EvmChainTokensTab = memo<Props>(({
-  chainId,
-  publicKeyHash,
-  accountId,
-  onTokensTabClick,
-  onCollectiblesTabClick
-}) => {
+export const EvmChainTokensTab = memo<Props>(({ chainId, publicKeyHash, accountId }) => {
   const network = useEvmChainByChainId(chainId);
 
   if (!network) throw new DeadEndBoundaryError();
 
   const { manageActive } = useAssetsViewState();
   const contextValue = useMemo(
-    () => ({ accountId, network, publicKeyHash, onTokensTabClick, onCollectiblesTabClick }),
-    [accountId, network, publicKeyHash, onTokensTabClick, onCollectiblesTabClick]
+    () => ({ accountId, network, publicKeyHash }),
+    [accountId, network, publicKeyHash]
   );
 
   return (
@@ -110,8 +100,7 @@ interface TabContentBaseProps {
 }
 
 const TabContentBase = memo<TabContentBaseProps>(({ allSlugsSorted, manageActive, shouldShowHiddenTokensHint }) => {
-  const { publicKeyHash, network, accountId, onTokensTabClick, onCollectiblesTabClick } =
-    useContext(EvmChainTokensTabContext);
+  const { publicKeyHash, network, accountId } = useContext(EvmChainTokensTabContext);
   const { displayedSlugs, isSyncing, loadNext, searchValue, isInSearchMode, setSearchValue } =
     useEvmChainAccountTokensListingLogic(allSlugsSorted, network.chainId);
   const promoRef = useRef<HTMLDivElement>(null);
@@ -165,8 +154,6 @@ const TabContentBase = memo<TabContentBaseProps>(({ allSlugsSorted, manageActive
       isInSearchMode={isInSearchMode}
       network={network}
       shouldShowHiddenTokensHint={shouldShowHiddenTokensHint}
-      onTokensTabClick={onTokensTabClick}
-      onCollectiblesTabClick={onCollectiblesTabClick}
     >
       {tokensView}
     </TokensTabBase>
