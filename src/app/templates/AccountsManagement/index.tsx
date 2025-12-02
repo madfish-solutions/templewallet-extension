@@ -4,6 +4,7 @@ import { FadeTransition } from 'app/a11y/FadeTransition';
 import { EmptyState } from 'app/atoms/EmptyState';
 import { openInFullPage, useAppEnv } from 'app/env';
 import { useAllAccountsReactiveOnAddition, useAllAccountsReactiveOnRemoval } from 'app/hooks/use-all-accounts-reactive';
+import { useLocationSearchParamValue } from 'app/hooks/use-location';
 import { searchHotkey } from 'lib/constants';
 import { t } from 'lib/i18n';
 import { useTempleClient } from 'lib/temple/front';
@@ -47,6 +48,7 @@ export const AccountsManagement = memo<SettingsTabProps>(({ setHeaderChildren })
   const allAccounts = useAllAccountsReactiveOnAddition(false);
   useAllAccountsReactiveOnRemoval();
 
+  const [connectLedgerParam, setConnectLedgerParam] = useLocationSearchParamValue('connectLedger');
   const [searchValue, setSearchValue] = useState('');
   const [seedPhraseToReveal, setSeedPhraseToReveal] = useState('');
   const [selectedGroup, setSelectedGroup] = useState<DisplayedGroup | null>(null);
@@ -132,7 +134,7 @@ export const AccountsManagement = memo<SettingsTabProps>(({ setHeaderChildren })
 
   const goToConnectLedgerModal = useCallback(() => {
     if (popup || sidebar) {
-      openInFullPage();
+      openInFullPage({ connectLedger: 'true' });
       if (popup) {
         window.close();
       }
@@ -240,6 +242,13 @@ export const AccountsManagement = memo<SettingsTabProps>(({ setHeaderChildren })
     return () => setHeaderChildren(null);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    if (connectLedgerParam === 'true') {
+      setActiveModal(AccountsManagementModal.ConnectLedger);
+      setConnectLedgerParam(null);
+    }
+  }, [connectLedgerParam, setConnectLedgerParam]);
 
   return (
     <FadeTransition>
