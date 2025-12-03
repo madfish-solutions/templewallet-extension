@@ -4,13 +4,12 @@ import { CLOSE_ANIMATION_TIMEOUT, PageModal } from 'app/atoms/PageModal';
 import { toastSuccess } from 'app/toaster';
 import { IS_FIREFOX } from 'lib/env';
 import { t } from 'lib/i18n';
-import { TempleChainKind } from 'temple/types';
 
 import { ConnectDeviceStep } from './connect-device-step';
 import { FirefoxRestrictionStep } from './firefox-restriction-step';
 import { SelectAccountStep } from './select-account-step';
 import { SelectNetworkStep } from './select-network-step';
-import { AccountProps } from './types';
+import { AccountProps, LedgerConnectionConfig } from './types';
 
 interface ConnectLedgerModalProps {
   animated?: boolean;
@@ -32,17 +31,18 @@ interface FirefoxRestrictionState {
 
 interface SelectNetworkState {
   step: ConnectLedgerModalStep.SelectNetwork;
-  selectedChainKind?: TempleChainKind;
+  selection?: LedgerConnectionConfig;
 }
 
 interface ConnectDeviceState {
   step: ConnectLedgerModalStep.ConnectDevice;
-  chainKind: TempleChainKind;
+  selection: LedgerConnectionConfig;
 }
 
 interface SelectAccountState {
   step: ConnectLedgerModalStep.SelectAccount;
   initialAccount: AccountProps;
+  selection: LedgerConnectionConfig;
 }
 
 type State = FirefoxRestrictionState | SelectNetworkState | ConnectDeviceState | SelectAccountState;
@@ -60,9 +60,9 @@ export const ConnectLedgerModal = memo<ConnectLedgerModalProps>(
         setState(prevState => {
           switch (prevState.step) {
             case ConnectLedgerModalStep.ConnectDevice:
-              return { step: ConnectLedgerModalStep.SelectNetwork, selectedChainKind: prevState.chainKind };
+              return { step: ConnectLedgerModalStep.SelectNetwork, selection: prevState.selection };
             case ConnectLedgerModalStep.SelectAccount:
-              return { step: ConnectLedgerModalStep.ConnectDevice, chainKind: prevState.initialAccount.chain };
+              return { step: ConnectLedgerModalStep.ConnectDevice, selection: prevState.selection };
             default:
               return prevState;
           }
@@ -70,11 +70,12 @@ export const ConnectLedgerModal = memo<ConnectLedgerModalProps>(
       []
     );
 
-    const goToConnectDevice = useCallback((chainKind: TempleChainKind) => {
-      setState({ step: ConnectLedgerModalStep.ConnectDevice, chainKind });
+    const goToConnectDevice = useCallback((selection: LedgerConnectionConfig) => {
+      setState({ step: ConnectLedgerModalStep.ConnectDevice, selection });
     }, []);
     const goToSelectAccount = useCallback(
-      (initialAccount: AccountProps) => setState({ step: ConnectLedgerModalStep.SelectAccount, initialAccount }),
+      (initialAccount: AccountProps, selection: LedgerConnectionConfig) =>
+        setState({ step: ConnectLedgerModalStep.SelectAccount, initialAccount, selection }),
       []
     );
     const handleImportSuccess = useCallback(() => {
@@ -92,13 +93,20 @@ export const ConnectLedgerModal = memo<ConnectLedgerModalProps>(
       >
         {state.step === ConnectLedgerModalStep.FirefoxRestriction && <FirefoxRestrictionStep onClose={onClose} />}
         {state.step === ConnectLedgerModalStep.SelectNetwork && (
-          <SelectNetworkStep onSelect={goToConnectDevice} selectedChainKind={state.selectedChainKind} />
+          <SelectNetworkStep onSelect={goToConnectDevice} initialSelection={state.selection} />
         )}
         {state.step === ConnectLedgerModalStep.ConnectDevice && (
-          <ConnectDeviceStep chainKind={state.chainKind} onSuccess={goToSelectAccount} />
+          <ConnectDeviceStep
+            selection={state.selection}
+            onSuccess={account => goToSelectAccount(account, state.selection)}
+          />
         )}
         {state.step === ConnectLedgerModalStep.SelectAccount && (
-          <SelectAccountStep initialAccount={state.initialAccount} onSuccess={handleImportSuccess} />
+          <SelectAccountStep
+            initialAccount={state.initialAccount}
+            selection={state.selection}
+            onSuccess={handleImportSuccess}
+          />
         )}
       </PageModal>
     );

@@ -1063,7 +1063,7 @@
     "message": "Select Ledger Live account"
   },
   "customPath": {
-    "message": "Custom path"
+    "message": "Custom Path"
   },
   "waitingForApprove": {
     "message": "Waiting for approve"
@@ -1787,6 +1787,9 @@
   },
   "derivationType": {
     "message": "Derivation type"
+  },
+  "customSettings": {
+    "message": "Custom settings"
   },
   "derivationTypeFieldDescription": {
     "message": "The elliptical curve that the account will use."
