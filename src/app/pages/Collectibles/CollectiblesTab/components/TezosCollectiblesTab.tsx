@@ -24,30 +24,15 @@ interface Props {
 export const TezosCollectiblesTab = memo<Props>(({ publicKeyHash }) => {
   const { manageActive } = useAssetsViewState();
 
-  if (manageActive)
-    return (
-      <TabContentWithManageActive
-        publicKeyHash={publicKeyHash}
-      />
-    );
+  if (manageActive) return <TabContentWithManageActive publicKeyHash={publicKeyHash} />;
 
-  return (
-    <TabContent
-      publicKeyHash={publicKeyHash}
-    />
-  );
+  return <TabContent publicKeyHash={publicKeyHash} />;
 });
 
 const TabContent: FC<Props> = ({ publicKeyHash }) => {
   const { enabledChainSlugsSorted } = useTezosAccountCollectiblesForListing(publicKeyHash);
 
-  return (
-    <TabContentBase
-      publicKeyHash={publicKeyHash}
-      allSlugsSorted={enabledChainSlugsSorted}
-      manageActive={false}
-    />
-  );
+  return <TabContentBase publicKeyHash={publicKeyHash} allSlugsSorted={enabledChainSlugsSorted} manageActive={false} />;
 };
 
 const TabContentWithManageActive: FC<Props> = ({ publicKeyHash }) => {
@@ -64,13 +49,7 @@ const TabContentWithManageActive: FC<Props> = ({ publicKeyHash }) => {
 
   const allSlugsSorted = usePreservedOrderSlugsToManage(enabledChainSlugsSorted, allChainSlugsSorted);
 
-  return (
-    <TabContentBase
-      publicKeyHash={publicKeyHash}
-      allSlugsSorted={allSlugsSorted}
-      manageActive={true}
-    />
-  );
+  return <TabContentBase publicKeyHash={publicKeyHash} allSlugsSorted={allSlugsSorted} manageActive={true} />;
 };
 
 interface TabContentBaseProps {
@@ -83,7 +62,7 @@ const TabContentBase = memo<TabContentBaseProps>(({ publicKeyHash, allSlugsSorte
   const mainnetChain = useTezosMainnetChain();
   const mainnetTokensScamSlugsRecord = useMainnetTokensScamlistSelector();
 
-  const { isInSearchMode, displayedSlugs, isSyncing, loadNext, searchValue, setSearchValue } =
+  const { isInSearchMode, displayedSlugs, isSyncing, loadNext } =
     useTezosAccountCollectiblesListingLogic(allSlugsSorted);
 
   const { blur, showInfo } = useCollectiblesListOptionsSelector();
@@ -112,9 +91,7 @@ const TabContentBase = memo<TabContentBaseProps>(({ publicKeyHash, allSlugsSorte
 
   return (
     <TabContentBaseBody
-      searchValue={searchValue}
       loadNextPage={loadNext}
-      onSearchValueChange={setSearchValue}
       isSyncing={isSyncing}
       isInSearchMode={isInSearchMode}
       network={mainnetChain}

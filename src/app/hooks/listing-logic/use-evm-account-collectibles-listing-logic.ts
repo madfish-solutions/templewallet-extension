@@ -38,7 +38,7 @@ export const useEvmAccountCollectiblesListingLogic = (publicKeyHash: HexString, 
   const balancesLoading = useEvmBalancesAreLoading();
   const metadatasLoading = useEvmCollectiblesMetadataLoadingSelector();
 
-  const { searchValue, searchValueDebounced, setSearchValue, isInSearchMode, isSyncing } = useCommonAssetsListingLogic(
+  const { searchValueDebounced, isInSearchMode, isSyncing } = useCommonAssetsListingLogic(
     balancesLoading || metadatasLoading
   );
 
@@ -77,8 +77,6 @@ export const useEvmAccountCollectiblesListingLogic = (publicKeyHash: HexString, 
     isInSearchMode,
     paginatedSlugs,
     isSyncing,
-    loadNext,
-    searchValue,
-    setSearchValue
+    loadNext
   };
 };

@@ -3,14 +3,13 @@ import React, { FC, memo } from 'react';
 import { FadeTransition } from 'app/a11y/FadeTransition';
 import { SyncSpinner } from 'app/atoms';
 import { AddCustomTokenButton } from 'app/atoms/AddCustomTokenButton';
-import { AssetsViewStateController } from 'app/atoms/AssetsViewStateController';
 import { PageLoader } from 'app/atoms/Loader';
 import {
   VisibilityTrackingInfiniteScroll,
   VisibilityTrackingInfiniteScrollProps
 } from 'app/atoms/visibility-tracking-infinite-scroll';
 import { useAssetsViewState } from 'app/hooks/use-assets-view-state';
-import { ContentContainer, StickyBar } from 'app/layouts/containers';
+import { ContentContainer } from 'app/layouts/containers';
 import BuyWithFiatImageSrc from 'app/misc/deposit/buy-with-fiat.png';
 import CrossChainSwapImageSrc from 'app/misc/deposit/cross-chain-swap.png';
 import { HomeSelectors } from 'app/pages/Home/selectors';
@@ -29,8 +28,6 @@ import { EmptySection } from '../EmptySection';
 import { UpdateAppBanner } from '../UpdateAppBanner';
 
 export interface TokensTabBaseProps {
-  searchValue: string;
-  onSearchValueChange: SyncFn<string>;
   tokensCount: number;
   getElementIndex: VisibilityTrackingInfiniteScrollProps['getElementsIndexes'];
   loadNextPage: EmptyFn;
@@ -41,19 +38,11 @@ export interface TokensTabBaseProps {
   shouldShowHiddenTokensHint?: boolean;
 }
 
-export const TokensTabBase: FC<PropsWithChildren<TokensTabBaseProps>> = ({
-  searchValue,
-  onSearchValueChange,
-  ...restProps
-}) => {
+export const TokensTabBase: FC<PropsWithChildren<TokensTabBaseProps>> = ({ ...restProps }) => {
   const { manageActive, filtersOpened } = useAssetsViewState();
 
   return (
     <>
-      <StickyBar>
-        <AssetsViewStateController searchValue={searchValue} onSearchValueChange={onSearchValueChange} />
-      </StickyBar>
-
       {filtersOpened ? (
         <AssetsFilterOptions />
       ) : (
@@ -67,7 +56,7 @@ export const TokensTabBase: FC<PropsWithChildren<TokensTabBaseProps>> = ({
   );
 };
 
-interface TokensTabBaseContentProps extends Omit<TokensTabBaseProps, 'searchValue' | 'onSearchValueChange'> {
+interface TokensTabBaseContentProps extends TokensTabBaseProps {
   manageActive: boolean;
 }
 

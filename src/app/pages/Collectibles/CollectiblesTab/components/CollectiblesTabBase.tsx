@@ -3,7 +3,6 @@ import React, { FC } from 'react';
 import { FadeTransition } from 'app/a11y/FadeTransition';
 import { SyncSpinner } from 'app/atoms';
 import { AddCustomTokenButton } from 'app/atoms/AddCustomTokenButton';
-import { AssetsViewStateController } from 'app/atoms/AssetsViewStateController';
 import { PageLoader } from 'app/atoms/Loader';
 import { ScrollBackUpButton } from 'app/atoms/ScrollBackUpButton';
 import {
@@ -11,17 +10,15 @@ import {
   VisibilityTrackingInfiniteScrollProps
 } from 'app/atoms/visibility-tracking-infinite-scroll';
 import { useAssetsViewState } from 'app/hooks/use-assets-view-state';
-import { ContentContainer, StickyBar } from 'app/layouts/containers';
+import { ContentContainer } from 'app/layouts/containers';
 import { EmptySection } from 'app/pages/Home/OtherComponents/Tokens/components/EmptySection';
 import { AssetsFilterOptions } from 'app/templates/AssetsFilterOptions';
 import { OneOfChains } from 'temple/front';
 
 export interface CollectiblesTabBaseProps {
   collectiblesCount: number;
-  searchValue: string;
   getElementsIndexes: VisibilityTrackingInfiniteScrollProps['getElementsIndexes'];
   loadNextPage: EmptyFn;
-  onSearchValueChange: SyncFn<string>;
   isSyncing: boolean;
   isInSearchMode: boolean;
   network?: OneOfChains;
@@ -29,10 +26,8 @@ export interface CollectiblesTabBaseProps {
 
 export const CollectiblesTabBase: FC<PropsWithChildren<CollectiblesTabBaseProps>> = ({
   collectiblesCount,
-  searchValue,
   getElementsIndexes,
   loadNextPage,
-  onSearchValueChange,
   isSyncing,
   isInSearchMode,
   network,
@@ -42,10 +37,6 @@ export const CollectiblesTabBase: FC<PropsWithChildren<CollectiblesTabBaseProps>
 
   return (
     <>
-      <StickyBar>
-        <AssetsViewStateController searchValue={searchValue} onSearchValueChange={onSearchValueChange} />
-      </StickyBar>
-
       {filtersOpened ? (
         <AssetsFilterOptions />
       ) : (

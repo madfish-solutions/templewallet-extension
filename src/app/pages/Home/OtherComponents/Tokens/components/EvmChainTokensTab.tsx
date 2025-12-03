@@ -37,10 +37,7 @@ export const EvmChainTokensTab = memo<Props>(({ chainId, publicKeyHash, accountI
   if (!network) throw new DeadEndBoundaryError();
 
   const { manageActive } = useAssetsViewState();
-  const contextValue = useMemo(
-    () => ({ accountId, network, publicKeyHash }),
-    [accountId, network, publicKeyHash]
-  );
+  const contextValue = useMemo(() => ({ accountId, network, publicKeyHash }), [accountId, network, publicKeyHash]);
 
   return (
     <EvmChainTokensTabContext.Provider value={contextValue}>
@@ -101,8 +98,10 @@ interface TabContentBaseProps {
 
 const TabContentBase = memo<TabContentBaseProps>(({ allSlugsSorted, manageActive, shouldShowHiddenTokensHint }) => {
   const { publicKeyHash, network, accountId } = useContext(EvmChainTokensTabContext);
-  const { displayedSlugs, isSyncing, loadNext, searchValue, isInSearchMode, setSearchValue } =
-    useEvmChainAccountTokensListingLogic(allSlugsSorted, network.chainId);
+  const { displayedSlugs, isSyncing, loadNext, isInSearchMode } = useEvmChainAccountTokensListingLogic(
+    allSlugsSorted,
+    network.chainId
+  );
   const promoRef = useRef<HTMLDivElement>(null);
   const firstListItemRef = useRef<TokenListItemElement>(null);
 
@@ -146,10 +145,8 @@ const TabContentBase = memo<TabContentBaseProps>(({ allSlugsSorted, manageActive
     <TokensTabBase
       accountId={accountId}
       tokensCount={displayedSlugs.length}
-      searchValue={searchValue}
       getElementIndex={getElementIndex}
       loadNextPage={loadNext}
-      onSearchValueChange={setSearchValue}
       isSyncing={isSyncing}
       isInSearchMode={isInSearchMode}
       network={network}

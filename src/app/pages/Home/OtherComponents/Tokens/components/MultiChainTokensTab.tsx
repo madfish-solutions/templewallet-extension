@@ -129,16 +129,8 @@ interface TabContentBaseProps {
 
 const TabContentBase = memo<TabContentBaseProps>(
   ({ allSlugsSorted, allSlugsSortedGrouped, groupByNetwork, manageActive, shouldShowHiddenTokensHint }) => {
-    const {
-      displayedSlugs,
-      displayedGroupedSlugs,
-      isSyncing,
-      loadNextPlain,
-      loadNextGrouped,
-      searchValue,
-      isInSearchMode,
-      setSearchValue
-    } = useAccountTokensListingLogic(allSlugsSorted, allSlugsSortedGrouped);
+    const { displayedSlugs, displayedGroupedSlugs, isSyncing, loadNextPlain, loadNextGrouped, isInSearchMode } =
+      useAccountTokensListingLogic(allSlugsSorted, allSlugsSortedGrouped);
 
     const tezosChains = useAllTezosChains();
     const evmChains = useAllEvmChains();
@@ -147,10 +139,8 @@ const TabContentBase = memo<TabContentBaseProps>(
       <TabContentBaseBody
         isInSearchMode={isInSearchMode}
         isSyncing={isSyncing}
-        searchValue={searchValue}
         displayedSlugs={displayedSlugs}
         loadNextPage={groupByNetwork ? loadNextGrouped : loadNextPlain}
-        onSearchValueChange={setSearchValue}
         groupedSlugs={displayedGroupedSlugs}
         tezosChains={tezosChains}
         evmChains={evmChains}
