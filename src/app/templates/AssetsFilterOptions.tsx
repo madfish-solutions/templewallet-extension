@@ -64,7 +64,7 @@ export const AssetsFilterOptions = memo(() => {
 
   return (
     <FadeTransition>
-      <ContentContainer ref={containerRef}>
+      <ContentContainer ref={containerRef} withShadow={false}>
         <div className="flex justify-between items-center pt-1 pb-2 pl-1">
           <p className="text-font-description-bold">
             <T id="filterByNetwork" />
