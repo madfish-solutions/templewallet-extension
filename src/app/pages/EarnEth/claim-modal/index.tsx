@@ -1,6 +1,5 @@
 import React, { memo, useCallback, useMemo } from 'react';
 
-import { PageLoader } from 'app/atoms/Loader';
 import { PageModal } from 'app/atoms/PageModal';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { T, t } from 'lib/i18n';
@@ -11,6 +10,7 @@ import { EvmNetworkEssentials } from 'temple/networks';
 import { TempleChainKind } from 'temple/types';
 
 import { ConfirmEarnOperationContent } from '../components/confirm-earn-operation-content';
+import { SuspenseLoader } from '../components/suspense-loader';
 import { EthEarnReviewDataBase, EthStakingStats } from '../types';
 import { useBlockExplorerUrl } from '../utils';
 
@@ -22,8 +22,6 @@ interface ClaimModalProps {
   stats: EthStakingStats;
   onRequestClose: EmptyFn;
 }
-
-const SuspenseLoader = () => <PageLoader stretch />;
 
 export const ClaimModal = memo<ClaimModalProps>(({ onRequestClose, ...restProps }) => {
   return (

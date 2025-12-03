@@ -1,6 +1,5 @@
 import React, { ComponentType, useCallback, useMemo, useState } from 'react';
 
-import { PageLoader } from 'app/atoms/Loader';
 import { PageModal } from 'app/atoms/PageModal';
 import { showTxSubmitToastWithDelay } from 'lib/ui/show-tx-submit-toast.util';
 import { EvmNetworkEssentials } from 'temple/networks';
@@ -8,6 +7,8 @@ import { TempleChainKind } from 'temple/types';
 
 import { EthEarnReviewDataBase, EthStakingStats } from '../types';
 import { useBlockExplorerUrl } from '../utils';
+
+import { SuspenseLoader } from './suspense-loader';
 
 export interface EarnOperationModalProps<D, R extends EthEarnReviewDataBase> {
   inputDataStepTitle: ReactChildren;
@@ -40,8 +41,6 @@ interface ConfirmState<D> extends EarnOperationModalStateBase {
 }
 
 type EarnOperationModalState<D> = InputDataState | ConfirmState<D>;
-
-const SuspenseLoader = () => <PageLoader stretch />;
 
 export const EarnOperationModal = <D, R extends EthEarnReviewDataBase>({
   inputDataStepTitle,
