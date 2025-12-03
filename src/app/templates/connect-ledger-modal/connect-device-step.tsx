@@ -148,6 +148,7 @@ export const ConnectDeviceStep = memo<ConnectDeviceStepProps>(({ selection, onSu
   return (
     <FadeTransition>
       <PageModalScrollViewWithActions
+        className="!px-0"
         actionsBoxProps={{
           shouldChangeBottomShift: false,
           children: (
