@@ -3,14 +3,14 @@ import React, { FC, memo } from 'react';
 import { FadeTransition } from 'app/a11y/FadeTransition';
 import { SyncSpinner } from 'app/atoms';
 import { AddCustomTokenButton } from 'app/atoms/AddCustomTokenButton';
-import { AssetsSegmentControl } from 'app/atoms/AssetsSegmentControl';
+import { AssetsViewStateController } from 'app/atoms/AssetsViewStateController';
 import { PageLoader } from 'app/atoms/Loader';
 import {
   VisibilityTrackingInfiniteScroll,
   VisibilityTrackingInfiniteScrollProps
 } from 'app/atoms/visibility-tracking-infinite-scroll';
 import { useAssetsViewState } from 'app/hooks/use-assets-view-state';
-import { ContentContainer } from 'app/layouts/containers';
+import { ContentContainer, StickyBar } from 'app/layouts/containers';
 import BuyWithFiatImageSrc from 'app/misc/deposit/buy-with-fiat.png';
 import CrossChainSwapImageSrc from 'app/misc/deposit/cross-chain-swap.png';
 import { HomeSelectors } from 'app/pages/Home/selectors';
@@ -50,7 +50,9 @@ export const TokensTabBase: FC<PropsWithChildren<TokensTabBaseProps>> = ({
 
   return (
     <>
-      <AssetsSegmentControl searchValue={searchValue} onSearchValueChange={onSearchValueChange} />
+      <StickyBar>
+        <AssetsViewStateController searchValue={searchValue} onSearchValueChange={onSearchValueChange} />
+      </StickyBar>
 
       {filtersOpened ? (
         <AssetsFilterOptions />

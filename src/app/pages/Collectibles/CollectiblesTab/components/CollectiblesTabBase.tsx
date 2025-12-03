@@ -3,7 +3,7 @@ import React, { FC } from 'react';
 import { FadeTransition } from 'app/a11y/FadeTransition';
 import { SyncSpinner } from 'app/atoms';
 import { AddCustomTokenButton } from 'app/atoms/AddCustomTokenButton';
-import { AssetsSegmentControl } from 'app/atoms/AssetsSegmentControl';
+import { AssetsViewStateController } from 'app/atoms/AssetsViewStateController';
 import { PageLoader } from 'app/atoms/Loader';
 import { ScrollBackUpButton } from 'app/atoms/ScrollBackUpButton';
 import {
@@ -11,7 +11,7 @@ import {
   VisibilityTrackingInfiniteScrollProps
 } from 'app/atoms/visibility-tracking-infinite-scroll';
 import { useAssetsViewState } from 'app/hooks/use-assets-view-state';
-import { ContentContainer } from 'app/layouts/containers';
+import { ContentContainer, StickyBar } from 'app/layouts/containers';
 import { EmptySection } from 'app/pages/Home/OtherComponents/Tokens/components/EmptySection';
 import { AssetsFilterOptions } from 'app/templates/AssetsFilterOptions';
 import { OneOfChains } from 'temple/front';
@@ -42,7 +42,9 @@ export const CollectiblesTabBase: FC<PropsWithChildren<CollectiblesTabBaseProps>
 
   return (
     <>
-      <AssetsSegmentControl searchValue={searchValue} onSearchValueChange={onSearchValueChange} />
+      <StickyBar>
+        <AssetsViewStateController searchValue={searchValue} onSearchValueChange={onSearchValueChange} />
+      </StickyBar>
 
       {filtersOpened ? (
         <AssetsFilterOptions />
