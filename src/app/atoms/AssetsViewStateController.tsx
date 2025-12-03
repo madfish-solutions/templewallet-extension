@@ -27,7 +27,7 @@ interface AssetsSegmentControlProps {
   className?: string;
 }
 
-export const AssetsSegmentControl = memo<AssetsSegmentControlProps>(
+export const AssetsViewStateController = memo<AssetsSegmentControlProps>(
   ({ searchValue, onSearchValueChange, className }) => {
     const [tabSlug] = useLocationSearchParamValue('tab');
     const [tab, setTab] = useState(tabSlug ?? 'tokens');
@@ -73,22 +73,12 @@ export const AssetsSegmentControl = memo<AssetsSegmentControlProps>(
     }, [onSearchValueChange, setSearchModeInactive]);
 
     const handleFilterClick = useCallback(() => {
-      if (filtersOpened) {
-        toggleFiltersOpened();
-      } else {
-        if (manageActive) toggleManageActive();
-        toggleFiltersOpened();
-      }
-    }, [filtersOpened, manageActive, toggleFiltersOpened, toggleManageActive]);
+      toggleFiltersOpened();
+    }, [toggleFiltersOpened]);
 
     const handleManageClick = useCallback(() => {
-      if (manageActive) {
-        toggleManageActive();
-      } else {
-        if (filtersOpened) toggleFiltersOpened();
-        toggleManageActive();
-      }
-    }, [filtersOpened, manageActive, toggleFiltersOpened, toggleManageActive]);
+      toggleManageActive();
+    }, [toggleManageActive]);
 
     if (searchMode) {
       return (

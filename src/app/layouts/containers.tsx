@@ -57,9 +57,9 @@ export const StickyBar = React.forwardRef<HTMLDivElement, StickyBarProps>(({ cla
     <div
       ref={combineRefs(forwardedRef, spareRef)}
       className={clsx(
-        'sticky z-sticky px-4 py-3 flex items-center gap-x-2 bg-white',
+        'sticky z-sticky',
         testnetModeEnabled ? 'top-[23px]' : '-top-px',
-        sticked && 'shadow-bottom',
+        sticked && 'bg-white shadow-bottom',
         className
       )}
     >
