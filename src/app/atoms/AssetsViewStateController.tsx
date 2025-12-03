@@ -22,110 +22,110 @@ import { IconBase } from './IconBase';
 import SegmentedControl from './SegmentedControl';
 
 interface AssetsSegmentControlProps {
-  searchValue: string;
-  onSearchValueChange: SyncFn<string>;
   className?: string;
 }
 
-export const AssetsViewStateController = memo<AssetsSegmentControlProps>(
-  ({ searchValue, onSearchValueChange, className }) => {
-    const [tabSlug] = useLocationSearchParamValue('tab');
-    const [tab, setTab] = useState(tabSlug ?? 'tokens');
+export const AssetsViewStateController = memo<AssetsSegmentControlProps>(({ className }) => {
+  const [tabSlug] = useLocationSearchParamValue('tab');
+  const [tab, setTab] = useState(tabSlug ?? 'tokens');
 
-    const tokensRef = useRef<HTMLDivElement>(null);
-    const collectiblesRef = useRef<HTMLDivElement>(null);
+  const tokensRef = useRef<HTMLDivElement>(null);
+  const collectiblesRef = useRef<HTMLDivElement>(null);
 
-    const {
-      searchMode,
-      setSearchModeActive,
-      setSearchModeInactive,
-      manageActive,
-      setManageInactive,
-      toggleManageActive,
-      filtersOpened,
-      setFiltersClosed,
-      toggleFiltersOpened
-    } = useAssetsViewState();
+  const {
+    searchMode,
+    setSearchModeActive,
+    setSearchModeInactive,
+    manageActive,
+    setManageInactive,
+    toggleManageActive,
+    filtersOpened,
+    setFiltersClosed,
+    toggleFiltersOpened,
+    searchValue,
+    setSearchValue,
+    resetSearchValue
+  } = useAssetsViewState();
 
-    const options = useAssetsFilterOptionsSelector();
-    const isNonDefaultOption = !isEqual(options, AssetsFilterOptionsInitialState);
+  const options = useAssetsFilterOptionsSelector();
+  const isNonDefaultOption = !isEqual(options, AssetsFilterOptionsInitialState);
 
-    useEffect(() => void setTab(tabSlug ?? 'tokens'), [tabSlug]);
+  useEffect(() => void setTab(tabSlug ?? 'tokens'), [tabSlug]);
 
-    useWillUnmount(() => {
-      setFiltersClosed();
-      setManageInactive();
-      setSearchModeInactive();
-    });
+  useWillUnmount(() => {
+    setFiltersClosed();
+    setManageInactive();
+    setSearchModeInactive();
+    resetSearchValue();
+  });
 
-    const handleTabChange = useCallback((val: string) => {
-      setTab(val);
-      navigate({ search: `tab=${val}` }, HistoryAction.Replace);
-    }, []);
+  const handleTabChange = useCallback((val: string) => {
+    setTab(val);
+    navigate({ search: `tab=${val}` }, HistoryAction.Replace);
+  }, []);
 
-    const handleSearchClick = useCallback(() => {
-      setSearchModeActive();
-    }, [setSearchModeActive]);
+  const handleSearchClick = useCallback(() => {
+    setSearchModeActive();
+  }, [setSearchModeActive]);
 
-    const handleCloseSearch = useCallback(() => {
-      onSearchValueChange('');
-      setSearchModeInactive();
-    }, [onSearchValueChange, setSearchModeInactive]);
+  const handleCloseSearch = useCallback(() => {
+    resetSearchValue();
+    setSearchModeInactive();
+  }, [resetSearchValue, setSearchModeInactive]);
 
-    const handleFilterClick = useCallback(() => {
-      toggleFiltersOpened();
-    }, [toggleFiltersOpened]);
+  const handleFilterClick = useCallback(() => {
+    toggleFiltersOpened();
+  }, [toggleFiltersOpened]);
 
-    const handleManageClick = useCallback(() => {
-      toggleManageActive();
-    }, [toggleManageActive]);
+  const handleManageClick = useCallback(() => {
+    toggleManageActive();
+  }, [toggleManageActive]);
 
-    if (searchMode) {
-      return (
-        <div className={clsx('flex gap-4 items-center px-4 pt-3 pb-2', className)}>
-          <SearchBarField value={searchValue} onValueChange={onSearchValueChange} defaultRightMargin={false} />
-          <AssetsBarIconButton Icon={CloseIcon} onClick={handleCloseSearch} />
-        </div>
-      );
-    }
-
+  if (searchMode) {
     return (
-      <div className={clsx('flex gap-8 items-center px-4 pt-3 pb-2', className)}>
-        <SegmentedControl
-          name="assets-segment-control"
-          activeSegment={tab}
-          setActiveSegment={handleTabChange}
-          className="flex-1"
-          segments={[
-            {
-              label: t('tokens'),
-              value: 'tokens',
-              ref: tokensRef
-            },
-            {
-              label: t('nfts'),
-              value: 'collectibles',
-              ref: collectiblesRef
-            }
-          ]}
-        />
-        <div className="flex gap-2 items-center">
-          <AssetsBarIconButton Icon={SearchIcon} onClick={handleSearchClick} />
-          <AssetsBarIconButton
-            Icon={filtersOpened ? CloseIcon : !filtersOpened && isNonDefaultOption ? FilterOnIcon : FilterOffIcon}
-            onClick={handleFilterClick}
-            active={filtersOpened}
-          />
-          <AssetsBarIconButton
-            Icon={manageActive ? CloseIcon : ManageIcon}
-            onClick={handleManageClick}
-            active={manageActive}
-          />
-        </div>
+      <div className={clsx('flex gap-4 items-center px-4 pt-3 pb-2', className)}>
+        <SearchBarField value={searchValue} onValueChange={setSearchValue} defaultRightMargin={false} />
+        <AssetsBarIconButton Icon={CloseIcon} onClick={handleCloseSearch} />
       </div>
     );
   }
-);
+
+  return (
+    <div className={clsx('flex gap-8 items-center px-4 pt-3 pb-2', className)}>
+      <SegmentedControl
+        name="assets-segment-control"
+        activeSegment={tab}
+        setActiveSegment={handleTabChange}
+        className="flex-1"
+        segments={[
+          {
+            label: t('tokens'),
+            value: 'tokens',
+            ref: tokensRef
+          },
+          {
+            label: t('nfts'),
+            value: 'collectibles',
+            ref: collectiblesRef
+          }
+        ]}
+      />
+      <div className="flex gap-2 items-center">
+        <AssetsBarIconButton Icon={SearchIcon} onClick={handleSearchClick} />
+        <AssetsBarIconButton
+          Icon={filtersOpened ? CloseIcon : !filtersOpened && isNonDefaultOption ? FilterOnIcon : FilterOffIcon}
+          onClick={handleFilterClick}
+          active={filtersOpened}
+        />
+        <AssetsBarIconButton
+          Icon={manageActive ? CloseIcon : ManageIcon}
+          onClick={handleManageClick}
+          active={manageActive}
+        />
+      </div>
+    </div>
+  );
+});
 
 interface AssetsBarIconButtonProps {
   Icon: ImportedSVGComponent;

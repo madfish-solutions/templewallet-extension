@@ -28,20 +28,9 @@ export const TezosChainCollectiblesTab = memo<Props>(({ chainId, publicKeyHash }
 
   const { manageActive } = useAssetsViewState();
 
-  if (manageActive)
-    return (
-      <TabContentWithManageActive
-        publicKeyHash={publicKeyHash}
-        network={network}
-      />
-    );
+  if (manageActive) return <TabContentWithManageActive publicKeyHash={publicKeyHash} network={network} />;
 
-  return (
-    <TabContent
-      publicKeyHash={publicKeyHash}
-      network={network}
-    />
-  );
+  return <TabContent publicKeyHash={publicKeyHash} network={network} />;
 });
 
 interface TabContentProps {
@@ -97,8 +86,10 @@ interface TabContentBaseProps {
 }
 
 const TabContentBase = memo<TabContentBaseProps>(({ network, publicKeyHash, allSlugsSorted, manageActive }) => {
-  const { isInSearchMode, displayedSlugs, isSyncing, loadNext, searchValue, setSearchValue } =
-    useTezosChainCollectiblesListingLogic(allSlugsSorted, network);
+  const { isInSearchMode, displayedSlugs, isSyncing, loadNext } = useTezosChainCollectiblesListingLogic(
+    allSlugsSorted,
+    network
+  );
   const mainnetTokensScamSlugsRecord = useMainnetTokensScamlistSelector();
 
   const { chainId } = network;
@@ -124,9 +115,7 @@ const TabContentBase = memo<TabContentBaseProps>(({ network, publicKeyHash, allS
 
   return (
     <TabContentBaseBody
-      searchValue={searchValue}
       loadNextPage={loadNext}
-      onSearchValueChange={setSearchValue}
       isSyncing={isSyncing}
       isInSearchMode={isInSearchMode}
       manageActive={manageActive}

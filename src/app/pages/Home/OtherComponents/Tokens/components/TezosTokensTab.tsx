@@ -132,9 +132,7 @@ const TabContentBase = memo<TabContentBaseProps>(
       isSyncing,
       isInSearchMode,
       loadNextGrouped,
-      loadNextPlain,
-      searchValue,
-      setSearchValue
+      loadNextPlain
     } = useTezosAccountTokensListingLogic(allSlugsSorted, allSlugsSortedGrouped);
 
     const mainnetChain = useTezosMainnetChain();
@@ -206,10 +204,8 @@ const TabContentBase = memo<TabContentBaseProps>(
       <TokensTabBase
         accountId={accountId}
         tokensCount={displayedSlugs.length}
-        searchValue={searchValue}
         getElementIndex={getElementIndex}
         loadNextPage={groupByNetwork ? loadNextGrouped : loadNextPlain}
-        onSearchValueChange={setSearchValue}
         isSyncing={isSyncing}
         isInSearchMode={isInSearchMode}
         network={mainnetChain}
