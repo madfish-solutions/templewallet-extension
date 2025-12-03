@@ -17,6 +17,7 @@ import { EarnPromoAdvantageItem, EarnPromoLayout } from 'app/layouts/EarnPromoLa
 import PageLayout from 'app/layouts/PageLayout';
 import { useTestnetModeEnabledSelector } from 'app/store/settings/selectors';
 import { StakingCard } from 'app/templates/staking-card';
+import { MIN_ETH_EVERSTAKE_CLAIMABLE_AMOUNT } from 'lib/constants';
 import { getEvmNewBlockListener } from 'lib/evm/on-chain/evm-transfer-subscriptions/evm-new-block-listener';
 import { T, t } from 'lib/i18n';
 import { formatDuration } from 'lib/i18n/core';
@@ -110,8 +111,10 @@ export const EarnEthPage = memo(() => {
     revalidateOnFocus: false
   });
   const isValidatingRef = useUpdatableRef(isValidating);
-  const blockListener = useMemo(() => getEvmNewBlockListener(chain), [chain]);
+  const blockListener = useMemo(() => (chain && !chain.disabled ? getEvmNewBlockListener(chain) : null), [chain]);
   useEffect(() => {
+    if (!blockListener) return;
+
     const listenFn = () => {
       !isValidatingRef.current && updateStats();
     };
@@ -259,7 +262,7 @@ const EarnEthPageLayout = memo<EarnEthPageLayoutProps>(
                   size="M"
                   className="flex-1"
                   onClick={openUnstakeModal}
-                  disabled={/* isWatchOnlyAccount || */ depositedBalanceOf.isZero()}
+                  disabled={isWatchOnlyAccount || depositedBalanceOf.isZero()}
                 >
                   <T id="unstake" />
                 </StyledButton>
@@ -302,15 +305,10 @@ const EarnEthPageLayout = memo<EarnEthPageLayoutProps>(
                   <span className="text-font-medium-bold">
                     <T id="pendingBalance" />
                   </span>
-                  {readyForClaim.lt(1e-6) ? (
+                  {readyForClaim.lt(MIN_ETH_EVERSTAKE_CLAIMABLE_AMOUNT) ? (
                     <NotReadyClaimButton stats={stats} />
                   ) : (
-                    <StyledButton
-                      color="primary"
-                      size="S"
-                      disabled={/* isWatchOnlyAccount */ false}
-                      onClick={openClaimModal}
-                    >
+                    <StyledButton color="primary" size="S" disabled={isWatchOnlyAccount} onClick={openClaimModal}>
                       <T id="claim" />
                       {requested.isZero() ? null : (
                         <>
