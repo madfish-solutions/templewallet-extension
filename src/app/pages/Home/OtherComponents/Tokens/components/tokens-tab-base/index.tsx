@@ -3,7 +3,7 @@ import React, { FC, memo } from 'react';
 import { FadeTransition } from 'app/a11y/FadeTransition';
 import { SyncSpinner } from 'app/atoms';
 import { AddCustomTokenButton } from 'app/atoms/AddCustomTokenButton';
-import { AssetsBar } from 'app/atoms/AssetsBar';
+import { AssetsSegmentControl } from 'app/atoms/AssetsSegmentControl';
 import { PageLoader } from 'app/atoms/Loader';
 import {
   VisibilityTrackingInfiniteScroll,
@@ -50,7 +50,7 @@ export const TokensTabBase: FC<PropsWithChildren<TokensTabBaseProps>> = ({
 
   return (
     <>
-      <AssetsBar tabSlug="tokens" searchValue={searchValue} onSearchValueChange={onSearchValueChange} />
+      <AssetsSegmentControl searchValue={searchValue} onSearchValueChange={onSearchValueChange} />
 
       {filtersOpened ? (
         <AssetsFilterOptions />

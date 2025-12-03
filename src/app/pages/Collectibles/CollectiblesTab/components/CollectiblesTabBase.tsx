@@ -3,7 +3,7 @@ import React, { FC } from 'react';
 import { FadeTransition } from 'app/a11y/FadeTransition';
 import { SyncSpinner } from 'app/atoms';
 import { AddCustomTokenButton } from 'app/atoms/AddCustomTokenButton';
-import { AssetsBar } from 'app/atoms/AssetsBar';
+import { AssetsSegmentControl } from 'app/atoms/AssetsSegmentControl';
 import { PageLoader } from 'app/atoms/Loader';
 import { ScrollBackUpButton } from 'app/atoms/ScrollBackUpButton';
 import {
@@ -42,11 +42,7 @@ export const CollectiblesTabBase: FC<PropsWithChildren<CollectiblesTabBaseProps>
 
   return (
     <>
-      <AssetsBar
-        tabSlug="collectibles"
-        searchValue={searchValue}
-        onSearchValueChange={onSearchValueChange}
-      />
+      <AssetsSegmentControl searchValue={searchValue} onSearchValueChange={onSearchValueChange} />
 
       {filtersOpened ? (
         <AssetsFilterOptions />
