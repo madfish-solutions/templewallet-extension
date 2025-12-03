@@ -22,8 +22,6 @@ interface AdParams {
   chainName?: string;
 }
 
-const adsIframeOrigin = new URL(EnvVars.HYPELAB_ADS_WINDOW_URL).origin;
-
 export const HypelabImagePromotion: FC<Omit<SingleProviderPromotionProps, 'variant'>> = ({
   accountPkh,
   isVisible,
