@@ -11,10 +11,10 @@ import { EvmChainSpecs, TezosChainSpecs } from 'lib/temple/chains-specs';
 import { useTempleClient } from 'lib/temple/front/client';
 import { TempleDAppPayload } from 'lib/temple/types';
 import {
-  ActiveChainsRpcUrls,
-  ChainsRpcUrls,
-  setActiveEvmChainsRpcUrls,
-  setEvmChainsRpcUrls
+  ChainsActiveRpcUrls,
+  ChainsAllRpcUrls,
+  setEvmChainsActiveRpcUrls,
+  setEvmChainsAllRpcUrls
 } from 'temple/evm/evm-chains-rpc-urls';
 import { getViemChainByChainId } from 'temple/evm/utils';
 import {
@@ -116,29 +116,21 @@ export function useReadyTempleEvmNetworks(customEvmNetworks: StoredEvmNetwork[])
       return;
     }
 
-    setEvmChainsRpcUrls(
-      // `enabledChains` are filtered by `testnetModeEnabled`, which is harmful here
-      Object.values(allChains)
-        .filter(({ disabled }) => !disabled)
-        .reduce<ChainsRpcUrls>(
-          (acc, { chainId, allRpcs }) => ({
-            ...acc,
-            [chainId]: allRpcs.map(({ rpcBaseURL }) => rpcBaseURL)
-          }),
-          {}
-        )
-    ).catch(e => console.error(e));
-    setActiveEvmChainsRpcUrls(
-      Object.values(allChains)
-        .filter(({ disabled }) => !disabled)
-        .reduce<ActiveChainsRpcUrls>(
-          (acc, { chainId, rpcBaseURL }) => ({
-            ...acc,
-            [chainId]: rpcBaseURL
-          }),
-          {}
-        )
+    const { allRpcUrls, activeRpcUrls } = Object.values(allChains).reduce<{
+      allRpcUrls: ChainsAllRpcUrls;
+      activeRpcUrls: ChainsActiveRpcUrls;
+    }>(
+      (acc, { chainId, allRpcs, rpcBaseURL }) => {
+        acc.allRpcUrls[chainId] = allRpcs.map(({ rpcBaseURL }) => rpcBaseURL);
+        acc.activeRpcUrls[chainId] = rpcBaseURL;
+
+        return acc;
+      },
+      { allRpcUrls: {}, activeRpcUrls: {} }
     );
+
+    setEvmChainsAllRpcUrls(allRpcUrls).catch(e => console.error(e));
+    setEvmChainsActiveRpcUrls(activeRpcUrls);
   }, [allChains, shouldPreventUrlsOverwrite]);
 
   return {
