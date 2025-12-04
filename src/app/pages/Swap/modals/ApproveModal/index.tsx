@@ -219,7 +219,11 @@ const ApproveModal: FC<ApproveModalProps> = ({ stepReviewData, onClose, onStepCo
         </StyledButton>
       </ActionsButtonsBox>
 
-      <LedgerApprovalModal state={ledgerApprovalModalState} onClose={handleLedgerModalClose} chainKind={TempleChainKind.EVM} />
+      <LedgerApprovalModal
+        state={ledgerApprovalModalState}
+        onClose={handleLedgerModalClose}
+        chainKind={TempleChainKind.EVM}
+      />
     </>
   );
 };

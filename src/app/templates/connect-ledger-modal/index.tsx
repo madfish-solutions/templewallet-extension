@@ -85,7 +85,7 @@ export const ConnectLedgerModal = memo<ConnectLedgerModalProps>(
 
     return (
       <PageModal
-        title={t(state.step === ConnectLedgerModalStep.SelectAccount ? 'connectAccount' : 'ledgerConnect')}
+        title={t(state.step === ConnectLedgerModalStep.SelectAccount ? 'selectAccount' : 'ledgerConnect')}
         animated={animated}
         opened
         onGoBack={shouldShowBackButton && isFirstStep ? onStartGoBack : isFirstStep ? undefined : goStepBack}

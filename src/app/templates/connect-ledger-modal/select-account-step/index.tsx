@@ -17,7 +17,7 @@ import { toastError } from 'app/toaster';
 import { T, t } from 'lib/i18n';
 import { TEZOS_METADATA } from 'lib/metadata';
 import { useTempleClient, validateDerivationPath } from 'lib/temple/front';
-import { fetchNewAccountName, getDerivationPath } from 'lib/temple/helpers';
+import { fetchNewAccountName } from 'lib/temple/helpers';
 import { StoredAccount, TempleAccountType } from 'lib/temple/types';
 import { LedgerOperationState, runConnectedLedgerOperationFlow } from 'lib/ui';
 import { useBooleanState } from 'lib/ui/hooks';
@@ -32,56 +32,16 @@ import { useGetLedgerEvmAccount, useGetLedgerTezosAccount } from '../utils';
 
 import { CustomPathFormData, CustomPathModal } from './custom-path-modal';
 import { DerivationTypeSelector } from './derivation-type-selector';
-
-type RecognizedTezosGroupKey = 'standard' | 'galleon';
-
-interface GroupedLedgerAccount {
-  account: AccountProps;
-  listIndex: number;
-}
-
-interface LedgerAccountsGroups {
-  standard: GroupedLedgerAccount[];
-  galleon: GroupedLedgerAccount[];
-  other: GroupedLedgerAccount[];
-}
-
-const STANDARD_TEZOS_DERIVATION_REGEX = /^m\/44'\/1729'\/\d+'\/0'$/;
-const GALLEON_DERIVATION_REGEX = /^m\/44'\/1729'\/\d+'\/0'\/0'\/\d+'?$/;
-
-const TEZOS_DERIVATION_GROUPS_METADATA: Record<
-  RecognizedTezosGroupKey,
-  { title: string; patternLabel: string | null }
-> = {
-  standard: {
-    title: 'Default',
-    patternLabel: null
-  },
-  galleon: {
-    title: 'Custom',
-    patternLabel: "m/44'/1729'/0'/0'/0'"
-  }
-};
-
-const TEZOS_GROUPS_RENDER_ORDER: RecognizedTezosGroupKey[] = ['standard', 'galleon'];
-
-const isDefaultTezosDerivationPath = (account: AccountProps) => {
-  if (account.chain !== TempleChainKind.Tezos) {
-    return false;
-  }
-
-  if (isDefined(account.index)) {
-    return account.derivationPath === getDerivationPath(TempleChainKind.Tezos, account.index);
-  }
-
-  return STANDARD_TEZOS_DERIVATION_REGEX.test(account.derivationPath);
-};
-
-const createEmptyLedgerAccountsGroups = (): LedgerAccountsGroups => ({
-  standard: [],
-  galleon: [],
-  other: []
-});
+import {
+  createEmptyLedgerAccountsGroups,
+  GALLEON_DERIVATION_REGEX,
+  getLedgerAccountIndex,
+  GroupedLedgerAccount,
+  LedgerAccountsGroups,
+  TEZOS_DERIVATION_GROUPS_METADATA,
+  TEZOS_GROUPS_RENDER_ORDER,
+  isDefaultTezosDerivationPath
+} from './helpers';
 
 interface SelectAccountStepProps {
   initialAccount: AccountProps;
@@ -161,7 +121,11 @@ export const SelectAccountStep = memo<SelectAccountStepProps>(({ initialAccount,
   const getLedgerTezosAccount = useGetLedgerTezosAccount();
   const getLedgerEvmAccount = useGetLedgerEvmAccount();
   const alreadyInTmpListIndexes = useMemo(
-    () => knownLedgerAccounts.map(a => a.index).filter(isDefined),
+    () => knownLedgerAccounts.map(getLedgerAccountIndex).filter(isDefined),
+    [knownLedgerAccounts]
+  );
+  const alreadyInTmpListDerivationPaths = useMemo(
+    () => knownLedgerAccounts.map(({ derivationPath }) => derivationPath),
     [knownLedgerAccounts]
   );
 
@@ -193,10 +157,27 @@ export const SelectAccountStep = memo<SelectAccountStepProps>(({ initialAccount,
           const newAccount = pickTezosAccounts
             ? await getLedgerTezosAccount(currentDerivationType, indexOrPath)
             : await getLedgerEvmAccount(indexOrPath);
-          setKnownAccountsByDerivation(prevAccounts => ({
-            ...prevAccounts,
-            [currentDerivationType]: prevAccounts[currentDerivationType].concat(newAccount)
-          }));
+          let accountAlreadyKnown = false;
+
+          setKnownAccountsByDerivation(prevAccounts => {
+            const currentAccounts = prevAccounts[currentDerivationType];
+            accountAlreadyKnown = currentAccounts.some(account => account.derivationPath === newAccount.derivationPath);
+
+            if (accountAlreadyKnown) {
+              return prevAccounts;
+            }
+
+            return {
+              ...prevAccounts,
+              [currentDerivationType]: currentAccounts.concat(newAccount)
+            };
+          });
+
+          if (accountAlreadyKnown) {
+            toastError(t('accountAlreadyListed'));
+            return;
+          }
+
           setActiveAccountsIndexes(prevIndexes => ({
             ...prevIndexes,
             [currentDerivationType]: prevIndexes[currentDerivationType] + 1
@@ -266,12 +247,13 @@ export const SelectAccountStep = memo<SelectAccountStepProps>(({ initialAccount,
         <CustomPathModal
           chain={initialAccount.chain}
           alreadyInTmpListIndexes={alreadyInTmpListIndexes}
+          alreadyInTmpListDerivationPaths={alreadyInTmpListDerivationPaths}
           onClose={closeCustomPathModal}
           onSubmit={handleCustomPathModalSubmit}
         />
       )}
 
-      <ScrollView className="pt-4 gap-2" onBottomEdgeVisibilityChange={setBottomEdgeIsVisible}>
+      <ScrollView className="pt-4 gap-2" onBottomEdgeVisibilityChange={setBottomEdgeIsVisible} bottomEdgeThreshold={4}>
         <>
           {pickTezosAccounts && (
             <div className="flex flex-col gap-2">
@@ -377,7 +359,6 @@ export const SelectAccountStep = memo<SelectAccountStepProps>(({ initialAccount,
 interface LedgerAccountsSectionProps {
   title: ReactNode;
   subtitle?: ReactNode;
-  description?: ReactNode;
   accounts: GroupedLedgerAccount[];
   onSelect: (index: number) => void;
   activeAccountIndex: number;
@@ -441,7 +422,7 @@ const LedgerAccountCard = memo<LedgerAccountCardProps>(({ account, index, onSele
 
   return (
     <AccountCard
-      customLabelTitle={`LEDGER #${account.index ?? 0}`}
+      customLabelTitle={`LEDGER #${getLedgerAccountIndex(account) ?? 0}`}
       account={fullAccount}
       AccountName={AccountAddress}
       BalanceValue={BalanceValue}

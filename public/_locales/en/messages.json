@@ -1057,7 +1057,7 @@
     "message": "Please check your USB connection and ensure you approved all relevant permissions."
   },
   "selectAccount": {
-    "message": "Select account"
+    "message": "Select Account"
   },
   "selectLedgerLiveAccount": {
     "message": "Select Ledger Live account"
