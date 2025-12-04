@@ -3,6 +3,14 @@ import BigNumber from 'bignumber.js';
 
 import { TempleChainKind } from 'temple/types';
 
+export interface LedgerConnectionConfig {
+  chainKind: TempleChainKind;
+  tezosSettings?: {
+    derivationType: DerivationType;
+    indexOrDerivationPath?: string;
+  };
+}
+
 interface AccountPropsBase {
   chain: TempleChainKind;
   publicKey: string;

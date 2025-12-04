@@ -304,7 +304,11 @@ export const ConfirmDAppForm = memo<ConfirmDAppFormProps>(({ accounts, payload, 
         onRequestClose={closeAccountsModal}
       />
 
-      <LedgerApprovalModal state={ledgerApprovalModalState} onClose={handleLedgerModalClose} />
+      <LedgerApprovalModal
+        state={ledgerApprovalModalState}
+        onClose={handleLedgerModalClose}
+        chainKind={payload.chainType}
+      />
     </PageLayout>
   );
 });
