@@ -8,7 +8,7 @@ import { useBooleanState } from 'lib/ui/hooks';
 export const [AssetsViewStateProvider, useAssetsViewState] = constate(() => {
   const [manageActive, setManageActive, setManageInactive] = useBooleanState(false);
   const [searchMode, setSearchModeActive, setSearchModeInactive] = useBooleanState(false);
-  const [filtersOpened, _2, setFiltersClosed, toggleFiltersOpened] = useBooleanState(false);
+  const [filtersOpened, setFiltersOpened, setFiltersClosed] = useBooleanState(false);
 
   const [searchValue, setSearchValue] = useState('');
   const [searchValueDebounced] = useDebounce(searchValue, 300);
@@ -20,8 +20,8 @@ export const [AssetsViewStateProvider, useAssetsViewState] = constate(() => {
     setManageActive,
     setManageInactive,
     filtersOpened,
+    setFiltersOpened,
     setFiltersClosed,
-    toggleFiltersOpened,
     searchMode,
     setSearchModeActive,
     setSearchModeInactive,

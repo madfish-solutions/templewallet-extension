@@ -46,13 +46,13 @@ interface CommonProps {
 const Manage = memo<CommonProps>(({ onClick, className }) => (
   <Button
     className={clsx(
-      'flex justify-between items-center p-3 rounded-lg shadow-bottom border-0.5 border-transparent hover:border-lines',
+      'flex justify-between items-center p-3 rounded-8 border-0.5 bg-white border-lines hover:bg-grey-4',
       className
     )}
     onClick={onClick}
   >
     <span className="text-font-medium-bold">
-      <T id="addCustomTokenNonCapitalize" />
+      <T id="addTokenNonCapitalize" />
     </span>
     <IconBase Icon={PlusIcon} size={24} className="text-secondary" />
   </Button>
