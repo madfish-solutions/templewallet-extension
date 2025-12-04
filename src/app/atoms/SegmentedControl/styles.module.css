@@ -9,11 +9,13 @@
   flex: 1;
   display: inline-flex;
   justify-content: space-between;
-  background: #E4E4E4;
-  border-radius: 5px;
+  background: #F0F0F0;
+  border: 0.5px solid #E4E4E4;
+  border-radius: 6px;
   padding: 2px;
   overflow: hidden;
   position: relative;
+  box-sizing: border-box;
 }
 
 .controls input {
@@ -34,16 +36,19 @@
   position: relative;
   text-align: center;
   z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .segment label {
   cursor: pointer;
   display: block;
-  font-family: 'Rubik', sans-serif;
+  font-family: 'Inter', sans-serif;
   font-size: 12px;
   line-height: 16px;
-  font-weight: 500;
-  padding: 4px;
+  font-weight: 600;
+  padding: 3px 8px;
   transition: color 0.5s ease;
 }
 
@@ -51,12 +56,15 @@
   color: #FF5B00;
 }
 
+.segment.inactive label {
+  color: #000000;
+}
+
 .controls::before {
   content: "";
   background: #fff;
-  border-radius: 5px;
+  border-radius: 4px;
   width: var(--highlight-width);
-  box-shadow: 0 2px 8px 0 #00000014;
   transform: translateX(var(--highlight-x-pos));
   transition: transform 0.3s ease, width 0.3s ease;
   position: absolute;

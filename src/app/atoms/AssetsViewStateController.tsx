@@ -83,6 +83,7 @@ export const AssetsViewStateController = memo<AssetsSegmentControlProps>(({ clas
         activeSegment={tab}
         setActiveSegment={handleTabChange}
         className="flex-1"
+        controlsClassName="h-8"
         segments={[
           {
             label: t('tokens'),
