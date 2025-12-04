@@ -968,6 +968,18 @@
   "ledgerConnect": {
     "message": "Ledger Connect"
   },
+  "ledgerEnsureConnectionTitle": {
+    "message": "Ensure your Ledger connection"
+  },
+  "ledgerEnsurePluggedIn": {
+    "message": "Check if your Ledger is plugged in"
+  },
+  "ledgerEnableSmartContractData": {
+    "message": "Enable smart contract data or blind signing"
+  },
+  "ledgerContinueFullScreen": {
+    "message": "Continue in full screen mode"
+  },
   "connectLedger": {
     "message": "Connect Ledger",
     "description": "Ledger = https://www.ledger.com/"

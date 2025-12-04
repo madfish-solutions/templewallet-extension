@@ -31,7 +31,7 @@ export const makeEvmAccount = async (ethApp: Eth, derivationPath: string) => {
       if (typeof wrappedMessage === 'string') {
         messageHex = Buffer.from(wrappedMessage).toString('hex');
       } else if (typeof wrappedMessage.raw === 'string') {
-        messageHex = wrappedMessage.raw;
+        messageHex = wrappedMessage.raw.startsWith('0x') ? wrappedMessage.raw.slice(2) : wrappedMessage.raw;
       } else {
         messageHex = Buffer.from(wrappedMessage.raw).toString('hex');
       }

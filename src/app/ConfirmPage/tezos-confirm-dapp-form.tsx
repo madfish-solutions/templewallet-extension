@@ -100,7 +100,7 @@ export const TezosConfirmDAppForm = memo<TezosConfirmDAppFormProps>(({ payload, 
 
   return (
     <CustomTezosChainIdContext.Provider value={payload.network.chainId}>
-      <ConfirmDAppForm accounts={allAccounts} payload={payload} onConfirm={handleConfirm}>
+      <ConfirmDAppForm confirmationId={id} accounts={allAccounts} payload={payload} onConfirm={handleConfirm}>
         {renderPayload}
       </ConfirmDAppForm>
     </CustomTezosChainIdContext.Provider>

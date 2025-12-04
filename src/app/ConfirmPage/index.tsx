@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import React, { memo, useEffect } from 'react';
 
 import clsx from 'clsx';
 
@@ -44,19 +44,32 @@ const ConfirmDAppForm = () => {
 
   const [confirmationId, setConfirmationId] = useLocationSearchParamValue('id');
 
-  if (!confirmationId) {
-    throw new Error(t('notIdentified'));
-  }
-
-  const { data } = useRetryableSWR<TempleDAppPayload, unknown, string>(confirmationId, getDAppPayload, {
-    suspense: true,
-    shouldRetryOnError: false,
-    revalidateOnFocus: false,
-    revalidateOnReconnect: false
-  });
-  const payload = data!;
+  useEffect(() => {
+    if (!confirmationId) {
+      window.location.replace('fullpage.html#/');
+    }
+  }, [confirmationId]);
 
   useWillUnmount(() => void setConfirmationId(null));
+
+  const fetchDAppPayload = (id: string | null) => getDAppPayload(id!);
+
+  const { data } = useRetryableSWR<TempleDAppPayload, unknown, string | null>(
+    confirmationId,
+    confirmationId ? fetchDAppPayload : null,
+    {
+      suspense: true,
+      shouldRetryOnError: false,
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false
+    }
+  );
+
+  if (!confirmationId) {
+    return null;
+  }
+
+  const payload = data!;
 
   return payload.chainType === TempleChainKind.EVM ? (
     <AddChainDataProvider>
