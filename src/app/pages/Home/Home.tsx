@@ -1,7 +1,9 @@
 import React, { memo, useEffect } from 'react';
 
+import { AssetsViewStateController } from 'app/atoms/AssetsViewStateController';
 import { SuspenseContainer } from 'app/atoms/SuspenseContainer';
 import { useLocationSearchParamValue } from 'app/hooks/use-location';
+import { StickyBar } from 'app/layouts/containers';
 import PageLayout from 'app/layouts/PageLayout';
 import { AppHeader } from 'app/templates/AppHeader';
 import { DAppConnectionRefsProvider } from 'app/templates/DAppConnection/dapp-connection-refs';
@@ -13,8 +15,6 @@ import { useBooleanState } from 'lib/ui/hooks';
 
 import { CollectiblesTab } from '../Collectibles/CollectiblesTab';
 
-import { AssetsViewStateController } from 'app/atoms/AssetsViewStateController';
-import { StickyBar } from 'app/layouts/containers';
 import { EarnSection } from './OtherComponents/EarnSection';
 import { TokensTab } from './OtherComponents/Tokens/Tokens';
 import { TotalEquityBanner } from './OtherComponents/TotalEquityBanner';

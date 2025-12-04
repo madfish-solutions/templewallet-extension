@@ -16,6 +16,7 @@ interface SegmentedControlProps<T extends string> {
   activeSegment: T;
   setActiveSegment: SyncFn<T>;
   className?: string;
+  controlsClassName?: string;
   style?: CSSProperties;
 }
 
@@ -25,6 +26,7 @@ const SegmentedControl = <T extends string>({
   activeSegment,
   setActiveSegment,
   className,
+  controlsClassName,
   style
 }: SegmentedControlProps<T>) => {
   const controlRef = useRef<HTMLDivElement>(null);
@@ -43,7 +45,7 @@ const SegmentedControl = <T extends string>({
 
   return (
     <div ref={controlRef} className={clsx(styles.controlsContainer, className)} style={style}>
-      <div className={styles.controls}>
+      <div className={clsx(styles.controls, controlsClassName)}>
         {segments?.map(item => (
           <div
             key={item.value}
