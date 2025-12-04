@@ -103,7 +103,6 @@ export async function requestConfirm<T extends TempleDAppPayload>({
       if (closedSidebarWindowId === (targetWindowId ?? null)) {
         if (isConfirmationWindowDetached(id)) {
           clearConfirmationWindowDetached(id);
-          close();
           return;
         }
 
@@ -111,7 +110,9 @@ export async function requestConfirm<T extends TempleDAppPayload>({
       }
     });
     stopViewClosedListening = () => sub.unsubscribe();
-    closeView = () => chrome.sidePanel.setOptions({ path: browser.runtime.getURL('sidebar.html') });
+    // Don't use setOptions to navigate - it causes sidebar reload which disconnects the port.
+    // The sidebar will naturally update via woozie router when confirmation completes.
+    closeView = undefined;
   } else {
     const confirmWin = await createConfirmationWindow(id);
 
