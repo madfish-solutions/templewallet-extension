@@ -360,7 +360,7 @@ interface LedgerAccountsSectionProps {
   title: ReactNode;
   subtitle?: ReactNode;
   accounts: GroupedLedgerAccount[];
-  onSelect: (index: number) => void;
+  onSelect: SyncFn<number>;
   activeAccountIndex: number;
 }
 
@@ -389,7 +389,7 @@ const LedgerAccountsSection = memo<LedgerAccountsSectionProps>(
 interface LedgerAccountCardProps {
   account: AccountProps;
   index: number;
-  onSelect: (index: number) => void;
+  onSelect: SyncFn<number>;
   active: boolean;
 }
 

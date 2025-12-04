@@ -286,7 +286,7 @@ const TezosCustomSettings = memo<TezosCustomSettingsProps>(
                           {name} {`(${accountPrefix}...)`}
                         </span>
                       </div>
-                      <RadioButton active={active} variant={'dot'} />
+                      <RadioButton active={active} variant="dot" />
                     </button>
                   );
                 })}

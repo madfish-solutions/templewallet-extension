@@ -61,17 +61,11 @@ const stateToUIConfiguration: Record<LedgerOperationState, UIConfiguration> =
   });
 
 const parseIndexOrPath = (raw?: string): string | number => {
-  if (!raw) return 0;
+  const trimmedValue = raw?.trim();
 
-  const trimmedValue = raw.trim();
+  if (!trimmedValue) return 0;
 
-  if (!trimmedValue) {
-    return 0;
-  }
-
-  if (trimmedValue.includes('/')) {
-    return trimmedValue;
-  }
+  if (trimmedValue.includes('/')) return trimmedValue;
 
   const parsedNumber = Number(trimmedValue);
 

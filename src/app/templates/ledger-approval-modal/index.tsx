@@ -97,8 +97,7 @@ export const LedgerApprovalModal = memo<ApprovalModalProps>(({ isSwitchingDeriva
           state={imageState}
           variant={chainKind !== TempleChainKind.EVM ? LedgerImageVariant.HalfClosed : undefined}
           chainKind={chainKind}
-          className="absolute top-0 left-0 right-0"
-          style={{ width: '100%', height: '256px', objectFit: 'contain' }}
+          className="absolute top-0 left-0 right-0 w-full h-64 object-contain"
         />
         {state !== LedgerOperationState.InProgress && (
           <Button className="absolute top-3 right-3" onClick={onClose}>
