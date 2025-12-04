@@ -2182,11 +2182,14 @@
   "selectNetwork": {
     "message": "Select Network"
   },
+  "searchNetworkName": {
+    "message": "Search network name"
+  },
   "addCustomToken": {
     "message": "Add Custom Token"
   },
-  "addCustomTokenNonCapitalize": {
-    "message": "Add custom token"
+  "addTokenNonCapitalize": {
+    "message": "Add token"
   },
   "tokenAddress": {
     "message": "Token address"

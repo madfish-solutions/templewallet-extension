@@ -32,7 +32,7 @@ export const ContentContainer = forwardRef<HTMLDivElement, ContentContainerProps
       ref={ref}
       className={clsx(
         'flex-grow flex flex-col bg-background',
-        padding && 'px-4 pt-4 pb-15',
+        padding && 'px-4 pt-3 pb-15',
         withShadow && 'shadow-content-inset',
         className
       )}
