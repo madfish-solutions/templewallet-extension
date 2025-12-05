@@ -15,7 +15,6 @@ import { useAssetsFilterOptionsSelector } from 'app/store/assets-filter-options/
 import { AssetsFilterOptionsInitialState } from 'app/store/assets-filter-options/state';
 import { SearchBarField } from 'app/templates/SearchField';
 import { t } from 'lib/i18n';
-import { useBooleanState } from 'lib/ui/hooks';
 import { useWillUnmount } from 'lib/ui/hooks/useWillUnmount';
 import { HistoryAction, navigate } from 'lib/woozie';
 
@@ -31,10 +30,9 @@ export const AssetsViewStateController = memo<AssetsSegmentControlProps>(({ clas
   const [tabSlug] = useLocationSearchParamValue('tab');
   const [tab, setTab] = useState(tabSlug ?? 'tokens');
 
-  const [autoFocusEnabled, setAutoFocusEnabled, setAutoFocusDisabled] = useBooleanState(false);
-
   const tokensRef = useRef<HTMLDivElement>(null);
   const collectiblesRef = useRef<HTMLDivElement>(null);
+  const searchInputRef = useRef<HTMLInputElement | null>(null);
 
   const {
     filtersOpened,
@@ -53,12 +51,11 @@ export const AssetsViewStateController = memo<AssetsSegmentControlProps>(({ clas
   useEffect(() => void setTab(tabSlug ?? 'tokens'), [tabSlug]);
 
   const handleClose = useCallback(() => {
-    setAutoFocusDisabled();
     setFiltersClosed();
     setManageInactive();
     setSearchModeInactive();
     resetSearchValue();
-  }, [setAutoFocusDisabled, setFiltersClosed, setManageInactive, setSearchModeInactive, resetSearchValue]);
+  }, [setFiltersClosed, setManageInactive, setSearchModeInactive, resetSearchValue]);
 
   useWillUnmount(handleClose);
 
@@ -68,9 +65,10 @@ export const AssetsViewStateController = memo<AssetsSegmentControlProps>(({ clas
   }, []);
 
   const handleSearch = useCallback(() => {
-    setAutoFocusEnabled();
     setSearchModeActive();
-  }, [setAutoFocusEnabled, setSearchModeActive]);
+    // input's hidden to visible transition interrupts sync call
+    setTimeout(() => void searchInputRef.current?.focus());
+  }, [setSearchModeActive]);
 
   const handleFilters = useCallback(() => {
     setSearchModeActive();
@@ -84,12 +82,13 @@ export const AssetsViewStateController = memo<AssetsSegmentControlProps>(({ clas
 
   return (
     <div className={clsx('relative px-4 py-3', className)}>
-      <FadeTransition trigger={searchMode} duration={200}>
+      <FadeTransition trigger={searchMode}>
         <div className={clsx('items-center gap-4', searchMode ? 'flex' : 'hidden overflow-hidden')}>
           <SearchBarField
+            autoFocus
             value={searchValue}
             disabled={filtersOpened}
-            autoFocus={autoFocusEnabled}
+            inputRef={searchInputRef}
             onValueChange={setSearchValue}
             defaultRightMargin={false}
           />
