@@ -14,11 +14,11 @@ const shouldHandleBlur = (e: FocusEvent) => e.relatedTarget?.id !== CLEAN_BUTTON
 
 interface Props extends InputHTMLAttributes<HTMLInputElement>, TestIDProps {
   value: string;
-  onValueChange: (value: string) => void;
+  onValueChange: SyncFn<string>;
   bottomOffset?: string;
   /** @deprecated */
   containerClassName?: string;
-  onCleanButtonClick?: () => void;
+  onCleanButtonClick?: EmptyFn;
   inputRef?: React.Ref<HTMLInputElement>;
 }
 

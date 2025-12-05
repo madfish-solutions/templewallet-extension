@@ -116,7 +116,7 @@ const TogglesContainer: FC<TogglesContainerProps> = ({ labelTitle, children }) =
       <T id={labelTitle} />
     </p>
 
-    <div className="rounded-lg border-0.5 border-lines overflow-hidden">{children}</div>
+    <div className="rounded-8 border-0.5 border-lines overflow-hidden">{children}</div>
   </div>
 );
 
@@ -124,7 +124,7 @@ interface ToggleRowProps {
   labelId: TID;
   checked: boolean;
   disabled?: boolean;
-  onChange: (checked: boolean) => void;
+  onChange: SyncFn<boolean>;
   isFirst?: boolean;
   isLast?: boolean;
 }
@@ -133,8 +133,8 @@ const ToggleRow: FC<ToggleRowProps> = ({ labelId, checked, disabled, onChange, i
   <div
     className={clsx(
       'flex justify-between items-center px-3 py-3.5 bg-white',
-      isFirst && 'rounded-t-lg',
-      isLast && 'rounded-b-lg'
+      isFirst && 'rounded-t-8',
+      isLast && 'rounded-b-8'
     )}
   >
     <span className="text-font-medium-bold">
