@@ -33,15 +33,20 @@ const SegmentedControl = <T extends string>({
 
   useEffect(() => {
     const activeSegmentRef = segments.find(segment => segment.value === activeSegment)?.ref;
+    const controlEl = controlRef.current;
+    const activeEl = activeSegmentRef?.current;
 
-    if (activeSegmentRef?.current && controlRef.current) {
-      const { offsetWidth, offsetLeft } = activeSegmentRef.current;
-      const { style } = controlRef.current;
+    if (!controlEl || !activeEl) return;
 
-      style.setProperty('--highlight-width', `${offsetWidth}px`);
-      style.setProperty('--highlight-x-pos', `${offsetLeft}px`);
-    }
-  }, [activeSegment, controlRef, segments]);
+    const { offsetWidth, offsetLeft } = activeEl;
+
+    // Prevent highlight changes if control is hidden
+    if (offsetWidth === 0) return;
+
+    const { style } = controlEl;
+    style.setProperty('--highlight-width', `${offsetWidth}px`);
+    style.setProperty('--highlight-x-pos', `${offsetLeft}px`);
+  }, [activeSegment, segments]);
 
   return (
     <div ref={controlRef} className={clsx(styles.controlsContainer, className)} style={style}>

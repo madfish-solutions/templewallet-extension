@@ -3,6 +3,7 @@ import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from '
 import clsx from 'clsx';
 import { isEqual } from 'lodash';
 
+import { FadeTransition } from 'app/a11y/FadeTransition';
 import { useAssetsViewState } from 'app/hooks/use-assets-view-state';
 import { useLocationSearchParamValue } from 'app/hooks/use-location';
 import { ReactComponent as FilterOffIcon } from 'app/icons/base/filteroff.svg';
@@ -81,47 +82,47 @@ export const AssetsViewStateController = memo<AssetsSegmentControlProps>(({ clas
     setManageActive();
   }, [setSearchModeActive, setManageActive]);
 
-  if (searchMode) {
-    return (
-      <div className={clsx('flex gap-4 items-center px-4 py-3', className)}>
-        <SearchBarField
-          value={searchValue}
-          disabled={filtersOpened}
-          autoFocus={autoFocusEnabled}
-          onValueChange={setSearchValue}
-          defaultRightMargin={false}
-        />
-        <IconButton Icon={CloseIcon} onClick={handleClose} />
-      </div>
-    );
-  }
-
   return (
-    <div className={clsx('flex gap-8 items-center px-4 py-3', className)}>
-      <SegmentedControl
-        name="assets-segment-control"
-        activeSegment={tab}
-        setActiveSegment={handleTabChange}
-        className="flex-1"
-        controlsClassName="h-8"
-        segments={[
-          {
-            label: t('tokens'),
-            value: 'tokens',
-            ref: tokensRef
-          },
-          {
-            label: t('nfts'),
-            value: 'collectibles',
-            ref: collectiblesRef
-          }
-        ]}
-      />
-      <div className="flex gap-2 items-center">
-        <IconButton Icon={SearchIcon} onClick={handleSearch} />
-        <FilterButton onClick={handleFilters} />
-        <IconButton Icon={ManageIcon} onClick={handleManage} />
-      </div>
+    <div className={clsx('relative px-4 py-3', className)}>
+      <FadeTransition trigger={searchMode} duration={200}>
+        <div className={clsx('items-center gap-4', searchMode ? 'flex' : 'hidden overflow-hidden')}>
+          <SearchBarField
+            value={searchValue}
+            disabled={filtersOpened}
+            autoFocus={autoFocusEnabled}
+            onValueChange={setSearchValue}
+            defaultRightMargin={false}
+          />
+          <IconButton Icon={CloseIcon} onClick={handleClose} />
+        </div>
+
+        <div className={clsx('gap-8 items-center', searchMode ? 'hidden overflow-hidden' : 'flex')}>
+          <SegmentedControl
+            name="assets-segment-control"
+            activeSegment={tab}
+            setActiveSegment={handleTabChange}
+            className="flex-1"
+            controlsClassName="h-8"
+            segments={[
+              {
+                label: t('tokens'),
+                value: 'tokens',
+                ref: tokensRef
+              },
+              {
+                label: t('nfts'),
+                value: 'collectibles',
+                ref: collectiblesRef
+              }
+            ]}
+          />
+          <div className="flex gap-2 items-center">
+            <IconButton Icon={SearchIcon} onClick={handleSearch} />
+            <FilterButton onClick={handleFilters} />
+            <IconButton Icon={ManageIcon} onClick={handleManage} />
+          </div>
+        </div>
+      </FadeTransition>
     </div>
   );
 });
