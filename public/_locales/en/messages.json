@@ -2185,9 +2185,6 @@
   "searchNetworkName": {
     "message": "Search network name"
   },
-  "addCustomToken": {
-    "message": "Add Custom Token"
-  },
   "addTokenNonCapitalize": {
     "message": "Add token"
   },

@@ -67,6 +67,6 @@ const Default = memo<CommonProps>(({ onClick, className }) => (
     onClick={onClick}
   >
     <IconBase Icon={PlusCircleIcon} size={12} className="stroke-current" />
-    <T id="addCustomToken" />
+    <T id="addTokenNonCapitalize" />
   </Button>
 ));
