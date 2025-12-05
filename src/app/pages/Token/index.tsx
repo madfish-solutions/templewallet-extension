@@ -11,6 +11,7 @@ import { ContentContainer } from 'app/layouts/containers';
 import PageLayout, { PageLayoutProps } from 'app/layouts/PageLayout';
 import { useMainnetTokensScamlistSelector } from 'app/store/tezos/assets/selectors';
 import { ActivityListContainer, EvmActivityList, TezosActivityList } from 'app/templates/activity';
+import { DepositModal } from 'app/templates/DepositModal';
 import { ExploreActionButtonsBar } from 'app/templates/ExploreActionButtons';
 import { isTezAsset, TEMPLE_TOKEN_SLUG } from 'lib/assets';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
@@ -19,8 +20,6 @@ import { ETHEREUM_MAINNET_CHAIN_ID } from 'lib/temple/types';
 import { useBooleanState } from 'lib/ui/hooks';
 import { HistoryAction, navigate, useLocation } from 'lib/woozie';
 import { TempleChainKind } from 'temple/types';
-
-import { DepositModal } from '../../templates/DepositModal';
 
 import { EvmAssetBanner, TezosAssetBanner } from './AssetBanner';
 import { EvmInfoModalContent, TezosInfoModalContent } from './InfoModal';
