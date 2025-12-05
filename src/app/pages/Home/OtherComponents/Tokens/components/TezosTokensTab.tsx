@@ -126,14 +126,8 @@ const TabContentBase = memo<TabContentBaseProps>(
     const promoRef = useRef<HTMLDivElement>(null);
     const firstHeaderRef = useRef<HTMLDivElement>(null);
     const firstListItemRef = useRef<TokenListItemElement>(null);
-    const {
-      displayedSlugs,
-      displayedGroupedSlugs,
-      isSyncing,
-      isInSearchMode,
-      loadNextGrouped,
-      loadNextPlain
-    } = useTezosAccountTokensListingLogic(allSlugsSorted, allSlugsSortedGrouped);
+    const { displayedSlugs, displayedGroupedSlugs, isSyncing, isInSearchMode, loadNextGrouped, loadNextPlain } =
+      useTezosAccountTokensListingLogic(allSlugsSorted, allSlugsSortedGrouped);
 
     const mainnetChain = useTezosMainnetChain();
     const tezosChains = useAllTezosChains();

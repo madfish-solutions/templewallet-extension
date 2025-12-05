@@ -29,11 +29,7 @@ export const TabContentBaseBody = memo<TabContentBaseBodyProps>(
     );
 
     return (
-      <CollectiblesTabBase
-        collectiblesCount={slugs.length}
-        getElementsIndexes={getElementsIndexes}
-        {...restProps}
-      >
+      <CollectiblesTabBase collectiblesCount={slugs.length} getElementsIndexes={getElementsIndexes} {...restProps}>
         {contentElement}
       </CollectiblesTabBase>
     );

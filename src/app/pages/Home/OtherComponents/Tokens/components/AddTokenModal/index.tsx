@@ -52,7 +52,7 @@ export const AddTokenModal = memo<Props>(({ forCollectible, opened, onRequestClo
 
   return (
     <PageModal
-      title={<T id={isNetworkSelectOpened ? 'selectNetwork' : 'addCustomToken'} />}
+      title={<T id={isNetworkSelectOpened ? 'selectNetwork' : 'addTokenNonCapitalize'} />}
       opened={opened}
       onGoBack={isNetworkSelectOpened ? setNetworkSelectClosed : undefined}
       onRequestClose={totalClose}
