@@ -16,6 +16,7 @@ import { useBooleanState } from 'lib/ui/hooks';
 import { CollectiblesTab } from '../Collectibles/CollectiblesTab';
 
 import { EarnSection } from './OtherComponents/EarnSection';
+import { UpdateAppBanner } from './OtherComponents/Tokens/components/UpdateAppBanner';
 import { TokensTab } from './OtherComponents/Tokens/Tokens';
 import { TotalEquityBanner } from './OtherComponents/TotalEquityBanner';
 
@@ -46,6 +47,8 @@ const Home = memo(() => {
       </div>
 
       <EarnSection className="mt-6 mb-3" />
+
+      <UpdateAppBanner />
 
       <StickyBar>
         <AssetsViewStateController />

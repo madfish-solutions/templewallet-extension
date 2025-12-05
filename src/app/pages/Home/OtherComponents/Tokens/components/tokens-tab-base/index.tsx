@@ -25,7 +25,6 @@ import { t, T } from 'lib/i18n';
 import { OneOfChains } from 'temple/front';
 
 import { EmptySection } from '../EmptySection';
-import { UpdateAppBanner } from '../UpdateAppBanner';
 
 export interface TokensTabBaseProps {
   tokensCount: number;
@@ -89,14 +88,14 @@ const TokensTabBaseContent: FC<PropsWithChildren<TokensTabBaseContentProps>> = (
     (tokensCount === 0 && isSyncing && !isInSearchMode)
   ) {
     return (
-      <TokensTabBaseContentWrapper manageActive={manageActive} padding={false}>
+      <TokensTabBaseContentWrapper padding={false}>
         <PageLoader stretch />
       </TokensTabBaseContentWrapper>
     );
   }
 
   return (
-    <TokensTabBaseContentWrapper manageActive={manageActive} padding={tokensCount > 0}>
+    <TokensTabBaseContentWrapper padding={tokensCount > 0}>
       {tokensCount === 0 ? (
         <EmptySection
           network={network}
@@ -151,14 +150,8 @@ const UninitializedAccountContent = memo(() => (
   </>
 ));
 
-const TokensTabBaseContentWrapper: FC<PropsWithChildren<{ manageActive?: boolean; padding?: boolean }>> = ({
-  manageActive,
-  padding,
-  children
-}) => (
+const TokensTabBaseContentWrapper: FC<PropsWithChildren<{ padding?: boolean }>> = ({ padding, children }) => (
   <ContentContainer withShadow={false} padding={padding}>
-    {manageActive ? null : <UpdateAppBanner />}
-
     {children}
   </ContentContainer>
 );
