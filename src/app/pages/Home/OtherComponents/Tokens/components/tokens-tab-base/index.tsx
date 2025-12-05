@@ -77,7 +77,7 @@ const TokensTabBaseContent: FC<PropsWithChildren<TokensTabBaseContentProps>> = (
 
   if (accountIsInitialized === false && !isSyncingInitializedState && !isTestnet && !manageActive) {
     return (
-      <TokensTabBaseContentWrapper>
+      <TokensTabBaseContentWrapper className="!pt-0">
         <UninitializedAccountContent />
       </TokensTabBaseContentWrapper>
     );
@@ -150,8 +150,12 @@ const UninitializedAccountContent = memo(() => (
   </>
 ));
 
-const TokensTabBaseContentWrapper: FC<PropsWithChildren<{ padding?: boolean }>> = ({ padding, children }) => (
-  <ContentContainer withShadow={false} padding={padding}>
+const TokensTabBaseContentWrapper: FC<PropsWithChildren<{ padding?: boolean; className?: string }>> = ({
+  padding,
+  className,
+  children
+}) => (
+  <ContentContainer withShadow={false} padding={padding} className={className}>
     {children}
   </ContentContainer>
 );
