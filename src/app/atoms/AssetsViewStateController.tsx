@@ -66,7 +66,7 @@ export const AssetsViewStateController = memo<AssetsSegmentControlProps>(({ clas
 
   const handleSearch = useCallback(() => {
     setSearchModeActive();
-    // input's hidden to visible transition interrupts sync call
+    // input's hidden to visible transition interrupts sync invocation
     setTimeout(() => void searchInputRef.current?.focus());
   }, [setSearchModeActive]);
 

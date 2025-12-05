@@ -5,6 +5,7 @@ import BuyWithFiatImageSrc from 'app/misc/deposit/buy-with-fiat.png';
 import CrossChainSwapImageSrc from 'app/misc/deposit/cross-chain-swap.png';
 import ReceiveImageSrc from 'app/misc/deposit/receive-on-chain.png';
 import { t } from 'lib/i18n';
+import { TempleChainKind } from 'temple/types';
 
 import { DepositOption } from '../deposit-option';
 
@@ -13,9 +14,10 @@ import { DepositModalSelectors } from './selectors';
 interface DepositModalProps {
   opened: boolean;
   onRequestClose: EmptyFn;
+  chainKind?: TempleChainKind;
 }
 
-export const DepositModal: FC<DepositModalProps> = memo(({ opened, onRequestClose }) => (
+export const DepositModal: FC<DepositModalProps> = memo(({ chainKind, opened, onRequestClose }) => (
   <MiniPageModal
     opened={opened}
     title={t('deposit')}
@@ -24,7 +26,7 @@ export const DepositModal: FC<DepositModalProps> = memo(({ opened, onRequestClos
   >
     <div className="flex flex-col gap-3 p-4 pb-6 bg-background">
       <DepositOption
-        to="/receive"
+        to={chainKind ? `/receive/${chainKind}` : '/receive'}
         title={t('receiveOnChain')}
         description={t('receiveOnChainDescription')}
         imageSrc={ReceiveImageSrc}

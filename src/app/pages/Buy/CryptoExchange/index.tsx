@@ -9,13 +9,11 @@ import { ConvertationTracker } from './steps/ConvertationTracker';
 import { Deposit } from './steps/Deposit';
 import { OrderCreation } from './steps/OrderCreation';
 
-export const CryptoExchange: FC = () => {
-  return (
-    <CryptoExchangeDataProvider>
-      <Content />
-    </CryptoExchangeDataProvider>
-  );
-};
+export const CryptoExchange: FC = () => (
+  <CryptoExchangeDataProvider>
+    <Content />
+  </CryptoExchangeDataProvider>
+);
 
 const Content = () => {
   const { step } = useCryptoExchangeDataState();

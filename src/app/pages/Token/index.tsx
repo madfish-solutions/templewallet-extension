@@ -20,6 +20,8 @@ import { useBooleanState } from 'lib/ui/hooks';
 import { HistoryAction, navigate, useLocation } from 'lib/woozie';
 import { TempleChainKind } from 'temple/types';
 
+import { DepositModal } from '../../templates/DepositModal';
+
 import { EvmAssetBanner, TezosAssetBanner } from './AssetBanner';
 import { EvmInfoModalContent, TezosInfoModalContent } from './InfoModal';
 import { EvmPageTitle, TezosPageTitle } from './PageTitle';
@@ -64,6 +66,7 @@ const TezosTokenPage: FC<TezosTokenPageProps> = ({ chainId, assetSlug }) => {
   const showScamTokenAlert = isDefined(assetSlug) && mainnetTokensScamSlugsRecord[assetSlug];
 
   const [infoModalOpen, setInfoModalOpen, setInfoModalClosed] = useBooleanState(false);
+  const [depositModalOpened, openDepositModal, closeDepositModal] = useBooleanState(false);
 
   const assetMetadata = useCategorizedTezosAssetMetadata(assetSlug, chainId);
 
@@ -96,6 +99,7 @@ const TezosTokenPage: FC<TezosTokenPageProps> = ({ chainId, assetSlug }) => {
             chainId={chainId}
             assetSlug={assetSlug}
             additionalButtonType={additionalButtonType}
+            onDepositClick={openDepositModal}
           />
         </div>
 
@@ -107,6 +111,8 @@ const TezosTokenPage: FC<TezosTokenPageProps> = ({ chainId, assetSlug }) => {
           </ContentContainer>
         </SuspenseContainer>
       </PageLayout>
+
+      <DepositModal chainKind={TempleChainKind.Tezos} opened={depositModalOpened} onRequestClose={closeDepositModal} />
     </>
   );
 };
@@ -118,6 +124,7 @@ interface EvmTokenPageProps {
 
 const EvmTokenPage: FC<EvmTokenPageProps> = ({ chainId, assetSlug }) => {
   const [infoModalOpen, setInfoModalOpen, setInfoModalClosed] = useBooleanState(false);
+  const [depositModalOpened, openDepositModal, closeDepositModal] = useBooleanState(false);
 
   const assetMetadata = useEvmCategorizedAssetMetadata(assetSlug, chainId);
 
@@ -149,6 +156,7 @@ const EvmTokenPage: FC<EvmTokenPageProps> = ({ chainId, assetSlug }) => {
             chainId={String(chainId)}
             assetSlug={assetSlug}
             additionalButtonType={additionalButtonType}
+            onDepositClick={openDepositModal}
           />
         </div>
 
@@ -160,6 +168,8 @@ const EvmTokenPage: FC<EvmTokenPageProps> = ({ chainId, assetSlug }) => {
           </ContentContainer>
         </SuspenseContainer>
       </PageLayout>
+
+      <DepositModal chainKind={TempleChainKind.EVM} opened={depositModalOpened} onRequestClose={closeDepositModal} />
     </>
   );
 };
