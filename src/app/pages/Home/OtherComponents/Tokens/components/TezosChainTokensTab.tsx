@@ -98,8 +98,10 @@ const TabContentBase = memo<TabContentBaseProps>(
 
     const promoRef = useRef<HTMLDivElement>(null);
     const firstListItemRef = useRef<TokenListItemElement>(null);
-    const { displayedSlugs, isSyncing, loadNext, searchValue, isInSearchMode, setSearchValue } =
-      useTezosChainAccountTokensListingLogic(allSlugsSorted, network.chainId);
+    const { displayedSlugs, isSyncing, loadNext, isInSearchMode } = useTezosChainAccountTokensListingLogic(
+      allSlugsSorted,
+      network.chainId
+    );
 
     const mainnetTokensScamSlugsRecord = useMainnetTokensScamlistSelector();
 
@@ -143,10 +145,8 @@ const TabContentBase = memo<TabContentBaseProps>(
       <TokensTabBase
         accountId={accountId}
         tokensCount={displayedSlugs.length}
-        searchValue={searchValue}
         getElementIndex={getElementIndex}
         loadNextPage={loadNext}
-        onSearchValueChange={setSearchValue}
         isSyncing={isSyncing}
         isInSearchMode={isInSearchMode}
         network={network}

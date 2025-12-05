@@ -36,7 +36,10 @@ interface Props {
   accountId: string;
 }
 
-const EvmTokensTabContext = createContext<Props>({ publicKeyHash: '0x', accountId: '' });
+const EvmTokensTabContext = createContext<Props>({
+  publicKeyHash: '0x',
+  accountId: ''
+});
 
 export const EvmTokensTab = memo<Props>(props => {
   const { manageActive } = useAssetsViewState();
@@ -119,16 +122,8 @@ interface TabContentBaseProps {
 const TabContentBase = memo<TabContentBaseProps>(
   ({ allSlugsSorted, allSlugsSortedGrouped, groupByNetwork, manageActive, shouldShowHiddenTokensHint }) => {
     const { publicKeyHash, accountId } = useContext(EvmTokensTabContext);
-    const {
-      displayedSlugs,
-      displayedGroupedSlugs,
-      isSyncing,
-      loadNextPlain,
-      loadNextGrouped,
-      searchValue,
-      isInSearchMode,
-      setSearchValue
-    } = useEvmAccountTokensListingLogic(allSlugsSorted, allSlugsSortedGrouped);
+    const { displayedSlugs, displayedGroupedSlugs, isSyncing, loadNextPlain, loadNextGrouped, isInSearchMode } =
+      useEvmAccountTokensListingLogic(allSlugsSorted, allSlugsSortedGrouped);
     const promoRef = useRef<HTMLDivElement>(null);
     const firstHeaderRef = useRef<HTMLDivElement>(null);
     const firstListItemRef = useRef<TokenListItemElement>(null);
@@ -201,10 +196,8 @@ const TabContentBase = memo<TabContentBaseProps>(
       <TokensTabBase
         accountId={accountId}
         tokensCount={displayedSlugs.length}
-        searchValue={searchValue}
         getElementIndex={getElementIndex}
         loadNextPage={groupByNetwork ? loadNextGrouped : loadNextPlain}
-        onSearchValueChange={setSearchValue}
         isSyncing={isSyncing}
         isInSearchMode={isInSearchMode}
         network={mainnetChain}

@@ -63,7 +63,7 @@ export const useAccountCollectiblesListingLogic = (
   const evmBalancesLoading = useEvmBalancesAreLoading();
   const evmMetadatasLoading = useEvmCollectiblesMetadataLoadingSelector();
 
-  const { searchValue, searchValueDebounced, setSearchValue, isInSearchMode, isSyncing } = useCommonAssetsListingLogic(
+  const { searchValueDebounced, isInSearchMode, isSyncing } = useCommonAssetsListingLogic(
     tezAssetsLoading || tezMetadatasLoading || evmBalancesLoading || evmMetadatasLoading
   );
 
@@ -109,8 +109,6 @@ export const useAccountCollectiblesListingLogic = (
     isInSearchMode,
     paginatedSlugs,
     isSyncing,
-    loadNext,
-    searchValue,
-    setSearchValue
+    loadNext
   };
 };

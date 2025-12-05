@@ -22,17 +22,17 @@ export const makeGetTokenElementIndexFunction =
     const tokenElementHeight = firstListItemRef.current?.clientHeight ?? 56;
     const indexWithoutPromo = clamp(Math.floor(yAfterOffset / tokenElementHeight), 0, slugsCount - 1);
 
-    if (!promoElement || slugsCount < 5 || indexWithoutPromo < 2) {
+    if (!promoElement || slugsCount < 5 || indexWithoutPromo < 1) {
       return [indexWithoutPromo];
     }
 
-    const contentPromoAndAboveHeight = promoHeight + tokenElementHeight * 2;
+    const contentPromoAndAboveHeight = promoHeight + tokenElementHeight;
 
     if (yAfterOffset < contentPromoAndAboveHeight) {
-      return [1];
+      return [0];
     }
 
-    return [2 + Math.floor((yAfterOffset - contentPromoAndAboveHeight) / tokenElementHeight)];
+    return [1 + Math.floor((yAfterOffset - contentPromoAndAboveHeight) / tokenElementHeight)];
   };
 
 export const makeGroupedTokenElementIndexFunction =
@@ -70,17 +70,17 @@ export const makeGroupedTokenElementIndexFunction =
       yLeft -= headerWithMarginsHeight;
       const indexWithoutPromo = clamp(Math.floor(yLeft / tokenElementHeight), 0, groupSlugsCount - 1);
 
-      if (!promoElement || groupSlugsCount < 5 || indexWithoutPromo < 2) {
+      if (!promoElement || groupSlugsCount < 5 || indexWithoutPromo < 1) {
         return [indexWithoutPromo + slugsInPreviousGroupsCount];
       }
 
-      const contentPromoAndAboveHeight = groupPromoHeight + tokenElementHeight * 2;
+      const contentPromoAndAboveHeight = groupPromoHeight + tokenElementHeight;
 
       if (yLeft < contentPromoAndAboveHeight) {
-        return [slugsInPreviousGroupsCount + 1];
+        return [slugsInPreviousGroupsCount];
       }
 
-      return [slugsInPreviousGroupsCount + 2 + Math.floor((yLeft - contentPromoAndAboveHeight) / tokenElementHeight)];
+      return [slugsInPreviousGroupsCount + 1 + Math.floor((yLeft - contentPromoAndAboveHeight) / tokenElementHeight)];
     }
 
     return [slugsInPreviousGroupsCount - 1];

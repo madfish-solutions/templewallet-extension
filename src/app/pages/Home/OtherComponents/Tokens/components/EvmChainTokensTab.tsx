@@ -25,7 +25,7 @@ interface Props {
   accountId: string;
 }
 
-const TezosChainTokensTabContext = createContext<Omit<Props, 'chainId'> & { network: EvmChain }>({
+const EvmChainTokensTabContext = createContext<Omit<Props, 'chainId'> & { network: EvmChain }>({
   network: makeFallbackChain(EVM_DEFAULT_NETWORKS[0]),
   publicKeyHash: '0x',
   accountId: ''
@@ -40,14 +40,14 @@ export const EvmChainTokensTab = memo<Props>(({ chainId, publicKeyHash, accountI
   const contextValue = useMemo(() => ({ accountId, network, publicKeyHash }), [accountId, network, publicKeyHash]);
 
   return (
-    <TezosChainTokensTabContext.Provider value={contextValue}>
+    <EvmChainTokensTabContext.Provider value={contextValue}>
       {manageActive ? <TabContentWithManageActive /> : <TabContent />}
-    </TezosChainTokensTabContext.Provider>
+    </EvmChainTokensTabContext.Provider>
   );
 });
 
 const TabContent: FC = () => {
-  const { publicKeyHash, network } = useContext(TezosChainTokensTabContext);
+  const { publicKeyHash, network } = useContext(EvmChainTokensTabContext);
   const { hideSmallBalance } = useTokensListOptionsSelector();
 
   const { enabledSlugsSorted, shouldShowHiddenTokensHint } = useEvmChainAccountTokensForListing(
@@ -66,7 +66,7 @@ const TabContent: FC = () => {
 };
 
 const TabContentWithManageActive: FC = () => {
-  const { publicKeyHash, network } = useContext(TezosChainTokensTabContext);
+  const { publicKeyHash, network } = useContext(EvmChainTokensTabContext);
   const { hideSmallBalance } = useTokensListOptionsSelector();
 
   const { enabledSlugsSorted, tokens, tokensSortPredicate } = useEvmChainAccountTokensForListing(
@@ -97,9 +97,11 @@ interface TabContentBaseProps {
 }
 
 const TabContentBase = memo<TabContentBaseProps>(({ allSlugsSorted, manageActive, shouldShowHiddenTokensHint }) => {
-  const { publicKeyHash, network, accountId } = useContext(TezosChainTokensTabContext);
-  const { displayedSlugs, isSyncing, loadNext, searchValue, isInSearchMode, setSearchValue } =
-    useEvmChainAccountTokensListingLogic(allSlugsSorted, network.chainId);
+  const { publicKeyHash, network, accountId } = useContext(EvmChainTokensTabContext);
+  const { displayedSlugs, isSyncing, loadNext, isInSearchMode } = useEvmChainAccountTokensListingLogic(
+    allSlugsSorted,
+    network.chainId
+  );
   const promoRef = useRef<HTMLDivElement>(null);
   const firstListItemRef = useRef<TokenListItemElement>(null);
 
@@ -143,10 +145,8 @@ const TabContentBase = memo<TabContentBaseProps>(({ allSlugsSorted, manageActive
     <TokensTabBase
       accountId={accountId}
       tokensCount={displayedSlugs.length}
-      searchValue={searchValue}
       getElementIndex={getElementIndex}
       loadNextPage={loadNext}
-      onSearchValueChange={setSearchValue}
       isSyncing={isSyncing}
       isInSearchMode={isInSearchMode}
       network={network}

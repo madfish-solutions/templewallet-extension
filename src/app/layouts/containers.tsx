@@ -22,16 +22,18 @@ export const FULL_PAGE_WRAP_OVERLAY_CLASSNAME = 'top-9 bottom-8';
 
 interface ContentContainerProps extends PropsWithChildren {
   padding?: boolean;
+  withShadow?: boolean;
   className?: string;
 }
 
 export const ContentContainer = forwardRef<HTMLDivElement, ContentContainerProps>(
-  ({ padding = true, className, children }, ref) => (
+  ({ padding = true, withShadow = true, className, children }, ref) => (
     <div
       ref={ref}
       className={clsx(
-        'flex-grow flex flex-col bg-background shadow-content-inset',
-        padding && 'px-4 pt-4 pb-15',
+        'flex-grow flex flex-col bg-background',
+        padding && 'px-4 pt-3 pb-15',
+        withShadow && 'shadow-content-inset',
         className
       )}
     >
@@ -55,9 +57,9 @@ export const StickyBar = React.forwardRef<HTMLDivElement, StickyBarProps>(({ cla
     <div
       ref={combineRefs(forwardedRef, spareRef)}
       className={clsx(
-        'sticky z-sticky px-4 py-3 flex items-center gap-x-2 bg-white',
+        'sticky z-sticky',
         testnetModeEnabled ? 'top-[23px]' : '-top-px',
-        sticked && 'shadow-bottom',
+        sticked && 'bg-white shadow-bottom',
         className
       )}
     >

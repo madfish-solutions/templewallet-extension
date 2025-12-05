@@ -22,8 +22,10 @@ export const EvmCollectiblesTab = memo<EvmCollectiblesTabProps>(({ publicKeyHash
   const { showInfo } = useCollectiblesListOptionsSelector();
   const { manageActive } = useAssetsViewState();
 
-  const { isInSearchMode, paginatedSlugs, isSyncing, loadNext, searchValue, setSearchValue } =
-    useEvmAccountCollectiblesListingLogic(publicKeyHash, manageActive);
+  const { isInSearchMode, paginatedSlugs, isSyncing, loadNext } = useEvmAccountCollectiblesListingLogic(
+    publicKeyHash,
+    manageActive
+  );
 
   useEvmCollectiblesMetadataLoading(publicKeyHash);
 
@@ -49,9 +51,7 @@ export const EvmCollectiblesTab = memo<EvmCollectiblesTabProps>(({ publicKeyHash
 
   return (
     <TabContentBaseBody
-      searchValue={searchValue}
       loadNextPage={loadNext}
-      onSearchValueChange={setSearchValue}
       isSyncing={isSyncing}
       isInSearchMode={isInSearchMode}
       network={mainnetChain}

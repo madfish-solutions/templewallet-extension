@@ -60,7 +60,7 @@ export const useEvmChainAccountTokensListingLogic = (allSlugsSorted: string[], c
   const isMetadataLoading = useEvmTokensMetadataLoadingSelector();
   const exchangeRatesLoading = useEvmTokensExchangeRatesLoading();
 
-  const { searchValue, searchValueDebounced, setSearchValue, isInSearchMode, isSyncing } = useCommonAssetsListingLogic(
+  const { searchValueDebounced, isInSearchMode, isSyncing } = useCommonAssetsListingLogic(
     balancesLoading || isMetadataLoading || exchangeRatesLoading
   );
 
@@ -88,8 +88,6 @@ export const useEvmChainAccountTokensListingLogic = (allSlugsSorted: string[], c
     isInSearchMode,
     displayedSlugs,
     isSyncing,
-    loadNext,
-    searchValue,
-    setSearchValue
+    loadNext
   };
 };

@@ -62,7 +62,7 @@ const TabContentBase = memo<TabContentBaseProps>(({ publicKeyHash, allSlugsSorte
   const mainnetChain = useTezosMainnetChain();
   const mainnetTokensScamSlugsRecord = useMainnetTokensScamlistSelector();
 
-  const { isInSearchMode, displayedSlugs, isSyncing, loadNext, searchValue, setSearchValue } =
+  const { isInSearchMode, displayedSlugs, isSyncing, loadNext } =
     useTezosAccountCollectiblesListingLogic(allSlugsSorted);
 
   const { blur, showInfo } = useCollectiblesListOptionsSelector();
@@ -91,9 +91,7 @@ const TabContentBase = memo<TabContentBaseProps>(({ publicKeyHash, allSlugsSorte
 
   return (
     <TabContentBaseBody
-      searchValue={searchValue}
       loadNextPage={loadNext}
-      onSearchValueChange={setSearchValue}
       isSyncing={isSyncing}
       isInSearchMode={isInSearchMode}
       network={mainnetChain}

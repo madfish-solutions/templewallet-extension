@@ -36,7 +36,7 @@ export const useEvmChainCollectiblesListingLogic = (
   const balancesLoading = useEvmChainBalancesLoadingSelector(chainId);
   const metadatasLoading = useEvmCollectiblesMetadataLoadingSelector();
 
-  const { searchValue, searchValueDebounced, setSearchValue, isInSearchMode, isSyncing } = useCommonAssetsListingLogic(
+  const { searchValueDebounced, isInSearchMode, isSyncing } = useCommonAssetsListingLogic(
     balancesLoading || metadatasLoading
   );
 
@@ -70,8 +70,6 @@ export const useEvmChainCollectiblesListingLogic = (
     isInSearchMode,
     paginatedSlugs,
     isSyncing,
-    loadNext,
-    searchValue,
-    setSearchValue
+    loadNext
   };
 };

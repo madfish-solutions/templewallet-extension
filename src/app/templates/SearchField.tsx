@@ -8,16 +8,18 @@ import CleanButton, { CLEAN_BUTTON_ID } from 'app/atoms/CleanButton';
 import { ReactComponent as SearchIcon } from 'app/icons/base/search.svg';
 import { setTestID, TestIDProps } from 'lib/analytics';
 import { useFocusHandlers } from 'lib/ui/hooks/use-focus-handlers';
+import { combineRefs } from 'lib/ui/utils';
 
 const shouldHandleBlur = (e: FocusEvent) => e.relatedTarget?.id !== CLEAN_BUTTON_ID;
 
 interface Props extends InputHTMLAttributes<HTMLInputElement>, TestIDProps {
   value: string;
-  onValueChange: (value: string) => void;
+  onValueChange: SyncFn<string>;
   bottomOffset?: string;
   /** @deprecated */
   containerClassName?: string;
-  onCleanButtonClick?: () => void;
+  onCleanButtonClick?: EmptyFn;
+  inputRef?: React.Ref<HTMLInputElement>;
 }
 
 const SearchField = forwardRef<HTMLDivElement, Props>(
@@ -34,6 +36,7 @@ const SearchField = forwardRef<HTMLDivElement, Props>(
       onBlur = emptyFn,
       onCleanButtonClick = emptyFn,
       testID,
+      inputRef,
       ...rest
     },
     ref
@@ -70,7 +73,7 @@ const SearchField = forwardRef<HTMLDivElement, Props>(
     return (
       <div ref={ref} className={clsx('group relative', containerClassName)}>
         <input
-          ref={inputLocalRef}
+          ref={combineRefs(inputLocalRef, inputRef)}
           type="text"
           className={clsx('appearance-none w-full py-2 px-8 text-font-description', className)}
           value={value}

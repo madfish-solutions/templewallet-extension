@@ -115,8 +115,9 @@ export const makeUseChainKindAccountTokensListingLogic = <T extends TempleChainK
     const isMetadataLoading = useIsMetadataLoading();
     const exchangeRatesLoading = useExchangeRatesLoading();
 
-    const { searchValue, searchValueDebounced, setSearchValue, isInSearchMode, isSyncing } =
-      useCommonAssetsListingLogic(balancesLoading || isMetadataLoading || exchangeRatesLoading);
+    const { searchValueDebounced, isInSearchMode, isSyncing } = useCommonAssetsListingLogic(
+      balancesLoading || isMetadataLoading || exchangeRatesLoading
+    );
     const getMetadata = useGetTokenOrGasMetadata();
 
     const displayedSlugs = useMemo(
@@ -145,9 +146,7 @@ export const makeUseChainKindAccountTokensListingLogic = <T extends TempleChainK
       displayedGroupedSlugs,
       isSyncing,
       loadNextGrouped,
-      loadNextPlain,
-      searchValue,
-      setSearchValue
+      loadNextPlain
     };
   };
 

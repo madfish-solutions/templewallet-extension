@@ -23,7 +23,7 @@ export const NetworkSelectButton = memo<NetworkSelectProps>(({ selectedChain, on
     if (!selectedChain) {
       return (
         <>
-          <IconBase Icon={Browse} className="text-primary" size={16} />
+          <IconBase Icon={Browse} className="text-primary" />
           <span className="text-font-medium-bold">
             <T id="allNetworks" />
           </span>

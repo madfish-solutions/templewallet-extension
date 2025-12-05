@@ -67,7 +67,7 @@ interface BannerBaseProps {
 
 const BannerBase = memo<BannerBaseProps>(({ onClick }) => (
   <div
-    className="flex gap-x-2 p-4 mb-2 rounded-8 border-0.5 border-lines cursor-pointer bg-white hover:bg-grey-4"
+    className="flex mx-4 mb-3 gap-x-2 p-4 rounded-8 border-0.5 border-lines cursor-pointer bg-white hover:bg-grey-4"
     onClick={onClick}
   >
     <div className="flex shrink-0 justify-center items-center w-10 h-10">

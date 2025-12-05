@@ -22,7 +22,7 @@ export const EmptyState = memo<EmptyStateProps>(({ forSearch = true, textI18n, t
   const iconStyle = useMemo(() => ({ width: iconSize ?? 92 }), [iconSize]);
 
   return (
-    <div className={clsx('w-full py-7 flex flex-col items-center gap-2', stretch && 'flex-grow justify-center')}>
+    <div className={clsx('w-full pt-3 pb-4 flex flex-col items-center gap-2', stretch && 'flex-grow justify-center')}>
       <Icon className="fill-grey-3 stroke-grey-3" style={iconStyle} />
 
       {textElem ? <span className="text-center text-font-medium-bold text-grey-2">{textElem}</span> : null}
