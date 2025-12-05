@@ -38,8 +38,6 @@ interface PageModalProps extends TestIDProps {
   children: ReactNode | (() => ReactElement);
 }
 
-export type ModalHeaderConfig = Pick<PageModalProps, 'title' | 'onGoBack'>;
-
 export const PageModal: FC<PageModalProps> = ({
   title,
   opened,
