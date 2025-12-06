@@ -30,12 +30,21 @@ function tReact(messageName: TID, substitutions?: Substitutions | ReactSubstitut
   const subList = toList(substitutions);
   const tmp = getMessage(
     messageName,
-    subList.map(() => TMP_SEPARATOR)
+    subList.map((_, i) => `$${i}$`)
   );
+  let startIndex = 0;
+  const nonArgsParts: string[] = [];
+  const argsParts: (Substitutions | ReactSubstitutions)[] = [];
+  for (const entry of tmp.matchAll(/\$\d+\$/g)) {
+    nonArgsParts.push(tmp.slice(startIndex, entry.index));
+    argsParts.push(subList[Number(entry[0].slice(1, -1))]);
+    startIndex = entry.index + entry[0].length;
+  }
+  nonArgsParts.push(tmp.slice(startIndex));
 
   return (
     <>
-      {tmp.split(TMP_SEPARATOR).map((partI, i) => (
+      {nonArgsParts.map((partI, i) => (
         <Fragment key={`i_${i}`}>
           {partI.split('\n').map((partJ, j) => (
             <Fragment key={`j_${j}`}>
@@ -51,14 +60,13 @@ function tReact(messageName: TID, substitutions?: Substitutions | ReactSubstitut
                 : partJ}
             </Fragment>
           ))}
-          {subList[i]}
+          {argsParts[i]}
         </Fragment>
       ))}
     </>
   );
 }
 
-const TMP_SEPARATOR = '$_$';
 const BOLD_PATTERN = /<b>(.*?)<\/b>/g;
 
 function hasReactSubstitutions(substitutions: Substitutions | ReactSubstitutions): substitutions is ReactSubstitutions {

@@ -181,7 +181,7 @@ export const BaseForm: FC<Props> = ({
       if (errors.amount?.message?.includes(t('maximalAmount'))) {
         const chainAssetSlug = toChainAssetSlug(network.kind, network.chainId, assetSlug);
 
-        isWertSupportedChainAssetSlug(chainAssetSlug) && dispatch(setOnRampAssetAction(chainAssetSlug));
+        isWertSupportedChainAssetSlug(chainAssetSlug) && dispatch(setOnRampAssetAction({ chainAssetSlug }));
       }
     },
     [assetSlug, network]

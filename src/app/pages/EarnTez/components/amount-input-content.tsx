@@ -22,6 +22,7 @@ interface AmountInputContentProps {
   submitButtonLabel: ReactNode;
   maxAmountLabel: ReactNode;
   maxAmount: BigNumber;
+  maxAmountLabelValue?: BigNumber;
   maxButtonTestID: string;
   amountInputTestID: string;
   network: TezosNetworkEssentials;
@@ -41,6 +42,7 @@ export const AmountInputContent: FC<AmountInputContentProps> = ({
   submitButtonTestID,
   maxAmount,
   maxAmountLabel,
+  maxAmountLabelValue = maxAmount,
   maxButtonTestID,
   amountInputTestID,
   network,
@@ -123,7 +125,7 @@ export const AmountInputContent: FC<AmountInputContentProps> = ({
               <div className="text-font-num-12 text-grey-1 min-w-0">
                 {maxAmountLabel}:{' '}
                 <Money fiat={false} smallFractionFont={false} tooltipPlacement="top">
-                  {maxAmount}
+                  {maxAmountLabelValue}
                 </Money>{' '}
                 {tezSymbol}
               </div>

@@ -11,3 +11,5 @@ export const ETH_COIN_ANIMATION_OPTIONS = {
     preserveAspectRatio: 'xMidYMid slice'
   }
 };
+
+export const EVERSTAKE_SOURCE_ID = '25';

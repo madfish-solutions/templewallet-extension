@@ -1,10 +1,9 @@
-import React, { FC, HTMLAttributes, memo, useCallback, useMemo } from 'react';
+import React, { memo, useCallback, useMemo } from 'react';
 
 import { LevelInfo } from '@taquito/rpc';
 import BigNumber from 'bignumber.js';
-import clsx from 'clsx';
 
-import { Alert, Anchor, Divider, IconBase, Money } from 'app/atoms';
+import { Alert, Anchor, IconBase, Money } from 'app/atoms';
 import { DescriptionWithHeader } from 'app/atoms/Alert';
 import { StyledButton } from 'app/atoms/StyledButton';
 import { Tooltip } from 'app/atoms/Tooltip';
@@ -17,6 +16,7 @@ import {
 } from 'app/hooks/use-baking-hooks';
 import { useRichFormatTooltip } from 'app/hooks/use-rich-format-tooltip';
 import { ReactComponent as OutLinkIcon } from 'app/icons/base/outLink.svg';
+import { StakingCard } from 'app/templates/staking-card';
 import { toPenny } from 'lib/assets';
 import { TEZOS_BLOCK_DURATION } from 'lib/fixed-times';
 import { t, T, toShortened } from 'lib/i18n';
@@ -339,21 +339,6 @@ const UnstakeRequestItem = memo<UnstakeRequestItemProps>(
       />
     );
   }
-);
-
-interface StakingCardProps extends Omit<HTMLAttributes<HTMLDivElement>, 'children'> {
-  topInfo: ReactChildren;
-  bottomInfo?: ReactChildren;
-  actions?: ReactChildren;
-}
-
-const StakingCard: FC<StakingCardProps> = ({ topInfo, bottomInfo, actions, className, ...rest }) => (
-  <div className={clsx('flex flex-col rounded-lg shadow-bottom bg-white p-4', className)} {...rest}>
-    <div className="flex justify-between gap-2 items-center">{topInfo}</div>
-    <Divider className="my-2" thinest />
-    {bottomInfo && <div className="flex justify-between gap-2 items-center">{bottomInfo}</div>}
-    {actions && <div className="flex justify-stretch gap-2 items-center mt-4">{actions}</div>}
-  </div>
 );
 
 interface BakerStatsEntryProps {

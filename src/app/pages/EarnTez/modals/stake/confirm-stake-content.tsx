@@ -1,9 +1,9 @@
-import React, { memo } from 'react';
+import React, { memo, useMemo } from 'react';
 
 import { TezosToolkit } from '@taquito/taquito';
 
-import { OneAssetHeader } from 'app/templates/one-asset-header';
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
+import { tzToMutez } from 'lib/temple/helpers';
 
 import { ConfirmEarnOperationContent } from '../../components/confirm-earn-operation-content';
 import { getStakingParams } from '../../estimate-staking';
@@ -17,23 +17,26 @@ interface ConfirmStakeContentProps {
   onCancel: EmptyFn;
 }
 
-export const ConfirmStakeContent = memo<ConfirmStakeContentProps>(({ reviewData, onCancel }) => (
-  <ConfirmEarnOperationContent<ReviewData>
-    getBasicParamsSWRKey={getBasicParamsSWRKey}
-    formId="confirm-stake-form"
-    reviewData={reviewData}
-    renderTopElement={renderTopElement}
-    cancelTestID={StakeModalSelectors.cancelButton}
-    confirmTestID={StakeModalSelectors.confirmButton}
-    getBasicParams={getBasicStakingParams}
-    useEstimationData={useStakingEstimationData}
-    onCancel={onCancel}
-  />
-));
+export const ConfirmStakeContent = memo<ConfirmStakeContentProps>(({ reviewData, onCancel }) => {
+  const balancesChanges = useMemo(
+    () => [{ [TEZ_TOKEN_SLUG]: { atomicAmount: tzToMutez(reviewData?.amount ?? 0).negated(), isNft: false } }],
+    [reviewData]
+  );
 
-const renderTopElement = ({ network, amount }: ReviewData) => (
-  <OneAssetHeader amount={amount.toFixed()} network={network} assetSlug={TEZ_TOKEN_SLUG} />
-);
+  return (
+    <ConfirmEarnOperationContent<ReviewData>
+      getBasicParamsSWRKey={getBasicParamsSWRKey}
+      formId="confirm-stake-form"
+      balancesChanges={balancesChanges}
+      reviewData={reviewData}
+      cancelTestID={StakeModalSelectors.cancelButton}
+      confirmTestID={StakeModalSelectors.confirmButton}
+      getBasicParams={getBasicStakingParams}
+      useEstimationData={useStakingEstimationData}
+      onCancel={onCancel}
+    />
+  );
+});
 
 const getBasicStakingParams = ({ account, amount }: ReviewData, tezos: TezosToolkit) =>
   getStakingParams(account, tezos, amount);

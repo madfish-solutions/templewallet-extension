@@ -11,6 +11,8 @@ const BILLION = 1_000_000_000;
 
 export const ONE_HOUR_MS = 3600_000;
 
+export const ONE_DAY_SECONDS = 24 * 3600;
+
 // TODO: Use this formatter for inputs in a swap route view
 // ts-prune-ignore-next
 export const kFormatter = (num: number): string => {

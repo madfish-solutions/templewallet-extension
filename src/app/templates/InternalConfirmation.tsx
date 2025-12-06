@@ -89,7 +89,7 @@ const InternalConfirmation: FC<InternalConfirmationProps> = ({ payload, onConfir
     try {
       const { errorDetails, errors, name, message } = payloadError.error[0];
       if (message?.includes('empty_implicit_contract') && message?.includes(payload.sourcePkh)) {
-        dispatch(setOnRampAssetAction(TEZOS_CHAIN_ASSET_SLUG));
+        dispatch(setOnRampAssetAction({ chainAssetSlug: TEZOS_CHAIN_ASSET_SLUG }));
       }
       if (
         payload.type !== 'operations' ||
@@ -107,7 +107,7 @@ const InternalConfirmation: FC<InternalConfirmationProps> = ({ payload, onConfir
       });
 
       if (tezBalanceTooLow) {
-        dispatch(setOnRampAssetAction(TEZOS_CHAIN_ASSET_SLUG));
+        dispatch(setOnRampAssetAction({ chainAssetSlug: TEZOS_CHAIN_ASSET_SLUG }));
       }
     } catch {}
   }, [payload.sourcePkh, payload.type, payloadError]);

@@ -63,6 +63,7 @@ export const StakeAmountInputContent = memo<AmountInputContentProps>(({ account,
       submitButtonLabel={<T id="stake" />}
       maxAmountLabel={<T id="balance" />}
       maxAmount={maxAmount}
+      maxAmountLabelValue={tezBalance}
       maxButtonTestID={StakeModalSelectors.maxButton}
       amountInputTestID={StakeModalSelectors.amountInput}
       network={network}

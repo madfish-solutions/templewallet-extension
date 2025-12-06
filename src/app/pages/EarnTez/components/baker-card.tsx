@@ -5,6 +5,8 @@ import clsx from 'clsx';
 import { Anchor, IconBase, Money } from 'app/atoms';
 import { useStakedAmount } from 'app/hooks/use-baking-hooks';
 import { ReactComponent as OutLinkIcon } from 'app/icons/base/outLink.svg';
+import { StakingCard } from 'app/templates/staking-card';
+import { StakingStatsEntry } from 'app/templates/staking-stats-entry';
 import { T, t, toShortened } from 'lib/i18n';
 import { useTezosGasMetadata } from 'lib/metadata';
 import { Baker, useKnownBaker } from 'lib/temple/front';
@@ -19,7 +21,6 @@ import { getBakerAddress } from '../utils';
 
 import { BakerAvatar } from './baker-avatar';
 import { BakerName } from './baker-name';
-import { StakingCard } from './staking-card';
 
 interface PropComponentProps {
   /** Atomic value */
@@ -115,13 +116,13 @@ export const BakerCard = memo(
         bottomInfo={
           metricsType === 'delegation' ? (
             <>
-              <BakerStatsEntry
+              <StakingStatsEntry
                 name={t('delegated')}
                 value={baker ? toShortened(baker.delegation.capacity - baker.delegation.freeSpace) : '-'}
               />
-              <BakerStatsEntry name={t('space')} value={toShortened(baker?.delegation.freeSpace)} />
-              <BakerStatsEntry name={t('fee')} value={delegationFeePercentage} />
-              <BakerStatsEntry
+              <StakingStatsEntry name={t('space')} value={toShortened(baker?.delegation.freeSpace)} />
+              <StakingStatsEntry name={t('fee')} value={delegationFeePercentage} />
+              <StakingStatsEntry
                 name={t('minBalance')}
                 value={
                   baker ? (
@@ -136,13 +137,13 @@ export const BakerCard = memo(
             </>
           ) : (
             <>
-              <BakerStatsEntry
+              <StakingStatsEntry
                 name={t('staking')}
                 value={baker ? toShortened(baker.staking.capacity - baker.staking.freeSpace) : '-'}
               />
-              <BakerStatsEntry name={t('space')} value={toShortened(baker?.staking.freeSpace)} />
-              <BakerStatsEntry name={t('fee')} value={stakingFeePercentage} />
-              <BakerStatsEntry name={t('estimatedApy')} value={stakingApyPercentage} />
+              <StakingStatsEntry name={t('space')} value={toShortened(baker?.staking.freeSpace)} />
+              <StakingStatsEntry name={t('fee')} value={stakingFeePercentage} />
+              <StakingStatsEntry name={t('estimatedApy')} value={stakingApyPercentage} />
             </>
           )
         }
@@ -151,15 +152,3 @@ export const BakerCard = memo(
     );
   }
 );
-
-interface BakerStatsEntryProps {
-  name: string;
-  value: ReactChildren;
-}
-
-const BakerStatsEntry = memo<BakerStatsEntryProps>(({ name, value }) => (
-  <div className="flex flex-1 flex-col gap-0.5">
-    <span className="text-font-description text-grey-2">{name}:</span>
-    <span className="text-font-num-12">{value}</span>
-  </div>
-));

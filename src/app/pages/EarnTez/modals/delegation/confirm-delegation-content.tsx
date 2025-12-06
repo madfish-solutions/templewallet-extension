@@ -9,15 +9,19 @@ import { DescriptionWithHeader } from 'app/atoms/Alert';
 import { HashChip } from 'app/atoms/HashChip';
 import { TextButton } from 'app/atoms/TextButton';
 import { setOnRampAssetAction } from 'app/store/settings/actions';
+import { FeeSummary } from 'app/templates/fee-summary';
 import { TEZOS_CHAIN_ASSET_SLUG } from 'lib/apis/wert';
+import { TEZ_TOKEN_SLUG } from 'lib/assets';
 import { T } from 'lib/i18n';
 import { useTezosGasMetadata } from 'lib/metadata';
 import { ZERO } from 'lib/utils/numbers';
+import { AssetsAmounts } from 'temple/types';
 
 import { BakerCard } from '../../components/baker-card';
 import {
   ConfirmEarnOperationContent,
-  ConfirmEarnOperationContentProps
+  ConfirmEarnOperationContentProps,
+  RenderTopElementProps
 } from '../../components/confirm-earn-operation-content';
 import { getBakerAddress } from '../../utils';
 
@@ -31,12 +35,15 @@ interface ConfirmDelegationContentProps {
   onCancel: EmptyFn;
 }
 
+const balancesChanges: AssetsAmounts[] = [];
+
 export const ConfirmDelegationContent = memo<ConfirmDelegationContentProps>(({ reviewData, onCancel }) => (
   <ConfirmEarnOperationContent<ReviewData>
     getBasicParamsSWRKey={getBasicParamsSWRKey}
     formId="confirm-delegation-form"
     reviewData={reviewData}
-    renderTopElement={renderTopElement}
+    balancesChanges={balancesChanges}
+    TopElement={TopElement}
     cancelTestID={DelegationModalSelectors.cancelButton}
     confirmTestID={DelegationModalSelectors.delegateButton}
     confirmText={<T id="delegate" />}
@@ -47,13 +54,26 @@ export const ConfirmDelegationContent = memo<ConfirmDelegationContentProps>(({ r
   />
 ));
 
-const renderTopElement = ({ network, account, baker }: ReviewData) => (
-  <BakerCard
-    network={network}
-    accountPkh={account.address}
-    baker={baker}
-    HeaderRight={() => <HashChip hash={getBakerAddress(baker)} />}
-  />
+const TopElement = memo<RenderTopElementProps<ReviewData>>(
+  ({ reviewData, displayedFee, displayedStorageFee, goToFeeTab }) => {
+    const { network, account, baker } = reviewData;
+
+    const HeaderRight = useCallback(() => <HashChip hash={getBakerAddress(baker)} />, [baker]);
+
+    return (
+      <div className="flex flex-col my-4 gap-4">
+        <BakerCard network={network} accountPkh={account.address} baker={baker} HeaderRight={HeaderRight} />
+
+        <FeeSummary
+          network={network}
+          assetSlug={TEZ_TOKEN_SLUG}
+          gasFee={displayedFee}
+          storageFee={displayedStorageFee}
+          onOpenFeeTab={goToFeeTab}
+        />
+      </div>
+    );
+  }
 );
 
 const getBasicDelegationParams = ({ account, baker }: ReviewData, tezos: TezosToolkit) =>
@@ -73,7 +93,10 @@ const TxTabsInnerContent: ConfirmEarnOperationContentProps<ReviewData>['TxTabsIn
     const dispatch = useDispatch();
     const { symbol: tezSymbol } = useTezosGasMetadata(network.chainId);
 
-    const openWertPopup = useCallback(() => void dispatch(setOnRampAssetAction(TEZOS_CHAIN_ASSET_SLUG)), [dispatch]);
+    const openWertPopup = useCallback(
+      () => void dispatch(setOnRampAssetAction({ chainAssetSlug: TEZOS_CHAIN_ASSET_SLUG })),
+      [dispatch]
+    );
     const delegatedAmount = useMemo(
       () => BigNumber.max(ZERO, tezBalance.minus(estimationData?.gasFee ?? ZERO)),
       [estimationData?.gasFee, tezBalance]

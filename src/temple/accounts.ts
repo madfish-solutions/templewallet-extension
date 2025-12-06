@@ -19,6 +19,7 @@ export interface AccountForChain<C extends TempleChainKind = TempleChainKind> {
 }
 
 export type AccountForTezos = AccountForChain<TempleChainKind.Tezos>;
+export type AccountForEvm = AccountForChain<TempleChainKind.EVM>;
 
 export const getAccountForTezos = (account: StoredAccount) => getAccountForChain(account, TempleChainKind.Tezos);
 export const getAccountForEvm = (account: StoredAccount) => getAccountForChain(account, TempleChainKind.EVM);
