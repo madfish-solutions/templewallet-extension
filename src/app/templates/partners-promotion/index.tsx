@@ -49,8 +49,6 @@ export const PartnersPromotion = memo(
       const hiddenAt = usePromotionHidingTimestampSelector(id);
       const shouldShowPartnersPromo = useShouldShowPartnersPromoSelector();
 
-      const isAnalyticsSentRef = useRef(false);
-
       const [isHiddenByTimeout, setIsHiddenByTimeout] = useState(shouldBeHiddenByTimeout(hiddenAt));
       const [providerName, setProviderName] = useState<AdsProviderLocalName>('HypeLab');
       const [adError, setAdError] = useState(false);
@@ -72,12 +70,8 @@ export const PartnersPromotion = memo(
         return;
       }, [hiddenAt]);
 
-      const handleAdRectSeen = useCallback(() => {
-        if (isAnalyticsSentRef.current) return;
-
+      const handleImpression = useCallback(() => {
         postAdImpression(rewardsAddresses, AdsProviderTitle[providerName], { pageName });
-
-        isAnalyticsSentRef.current = true;
       }, [providerName, pageName, rewardsAddresses]);
 
       const handleClosePartnersPromoClick = useCallback<MouseEventHandler<HTMLButtonElement>>(
@@ -148,7 +142,7 @@ export const PartnersPromotion = memo(
                     variant={variant}
                     isVisible={adIsReady}
                     pageName={pageName}
-                    onAdRectSeen={handleAdRectSeen}
+                    onImpression={handleImpression}
                     onReady={handleAdReady}
                     onError={handleHypelabError}
                   />
@@ -160,7 +154,7 @@ export const PartnersPromotion = memo(
                     id={id}
                     isVisible={adIsReady}
                     pageName={pageName}
-                    onAdRectSeen={handleAdRectSeen}
+                    onImpression={handleImpression}
                     onReady={handleAdReady}
                     onError={handlePersonaError}
                   />

@@ -3,11 +3,15 @@ import { RefObject } from 'react';
 import { AD_SEEN_THRESHOLD } from 'lib/constants';
 import { useIntersectionObserver } from 'lib/ui/use-intersection-observer';
 
-export const useAdRectObservation = (elemRef: RefObject<Element>, onAdRectSeen: EmptyFn, checkAdTrigger: boolean) =>
+export const useAdRectObservation = (
+  elemRef: RefObject<Element>,
+  onAdRectVisible: SyncFn<boolean>,
+  checkAdTrigger: boolean
+) =>
   useIntersectionObserver(
     elemRef,
     entry => {
-      if (entry.isIntersecting) onAdRectSeen();
+      onAdRectVisible(entry.isIntersecting);
     },
     {
       threshold: AD_SEEN_THRESHOLD

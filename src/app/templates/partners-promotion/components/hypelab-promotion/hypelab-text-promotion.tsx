@@ -1,4 +1,4 @@
-import React, { FC, useEffect, useRef } from 'react';
+import React, { FC, useEffect, useRef, useState } from 'react';
 
 import { Native, NativeElement } from '@hypelab/sdk-react';
 
@@ -6,6 +6,7 @@ import { useAdTimeout } from 'app/hooks/ads/use-ad-timeout';
 import { useElementValue } from 'app/hooks/ads/use-element-value';
 import { AdsProviderTitle } from 'lib/ads';
 import { EnvVars } from 'lib/env';
+import { useUpdatableRef } from 'lib/ui/hooks';
 
 import { SingleProviderPromotionProps } from '../../types';
 import { TextPromotionView } from '../text-promotion-view';
@@ -26,10 +27,12 @@ export const HypelabTextPromotion: FC<Omit<SingleProviderPromotionProps, 'varian
   accountPkh,
   isVisible,
   pageName,
-  onAdRectSeen,
+  onImpression,
   onReady,
   onError
 }) => {
+  const [adRectVisible, setAdRectVisible] = useState(false);
+  const adRectVisibleRef = useUpdatableRef(adRectVisible);
   const hypelabHeadlineRef = useRef<HTMLSpanElement>(null);
   const hypelabBodyRef = useRef<HTMLSpanElement>(null);
   const hypelabCtaLinkRef = useRef<HTMLAnchorElement>(null);
@@ -44,6 +47,18 @@ export const HypelabTextPromotion: FC<Omit<SingleProviderPromotionProps, 'varian
   const adIsReady = headlineText.length > 0;
 
   useAdTimeout(adIsReady, onError);
+
+  useEffect(() => {
+    const impressionsListener = (event: Event) => {
+      if (adRectVisibleRef.current && event.target === hypelabNativeElementRef.current) {
+        onImpression();
+      }
+    };
+
+    globalThis.addEventListener('impression', impressionsListener);
+
+    return () => globalThis.removeEventListener('impression', impressionsListener);
+  }, [adRectVisibleRef, onImpression, hypelabNativeElementRef]);
 
   useEffect(() => {
     if (adIsReady) {
@@ -100,7 +115,7 @@ export const HypelabTextPromotion: FC<Omit<SingleProviderPromotionProps, 'varian
           contentText={bodyText}
           providerTitle={AdsProviderTitle.HypeLab}
           pageName={pageName}
-          onAdRectSeen={onAdRectSeen}
+          onAdRectVisible={setAdRectVisible}
           onImageError={onError}
         />
       </Native>

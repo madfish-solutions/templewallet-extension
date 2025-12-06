@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useRef, useCallback } from 'react';
+import React, { memo, useEffect, useRef, useCallback, useState } from 'react';
 
 import clsx from 'clsx';
 
@@ -43,8 +43,10 @@ const getAdProperties = (adRoot: HTMLDivElement): AdProperties => {
 };
 
 export const PersonaPromotion = memo<Props>(
-  ({ id, isVisible, pageName, accountPkh, onReady, onError, onAdRectSeen }) => {
+  ({ id, isVisible, pageName, accountPkh, onReady, onError, onImpression }) => {
     const containerId = `persona-ad-${id}`;
+    const [adRectVisible, setAdRectVisible] = useState(false);
+    const [adIsReady, setAdIsReady] = useState(false);
 
     const ref = useRef<HTMLDivElement>(null);
 
@@ -76,7 +78,15 @@ export const PersonaPromotion = memo<Props>(
       );
     }, [href, trackEvent, pageName, accountPkh]);
 
-    useAdRectObservation(ref, onAdRectSeen, isVisible);
+    useAdRectObservation(ref, setAdRectVisible, isVisible);
+
+    const impressionSentRef = useRef(false);
+    useEffect(() => {
+      if (adRectVisible && adIsReady && !impressionSentRef.current) {
+        onImpression();
+        impressionSentRef.current = true;
+      }
+    }, [adRectVisible, adIsReady, onImpression]);
 
     const injectAd = useCallback(async () => {
       const { client, environment } = await getPersonaAdClient(accountPkh);
@@ -94,10 +104,17 @@ export const PersonaPromotion = memo<Props>(
 
     useEffect(
       () =>
-        void injectAd().then(onReady, err => {
-          console.error(err);
-          onError();
-        }),
+        void injectAd().then(
+          () => {
+            onReady();
+            setAdIsReady(true);
+          },
+          err => {
+            console.error(err);
+            onError();
+            setAdIsReady(false);
+          }
+        ),
       [injectAd, onReady, onError]
     );
 
@@ -108,7 +125,7 @@ export const PersonaPromotion = memo<Props>(
         providerTitle={AdsProviderTitle.HypeLab}
         pageName={pageName}
         accountPkh={accountPkh}
-        onAdRectSeen={onAdRectSeen}
+        onAdRectVisible={setAdRectVisible}
         backgroundAssetUrl={backgroundAssetUrl}
         backgroundAssetType={backgroundAssetType}
       >
