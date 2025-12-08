@@ -1,4 +1,4 @@
-import React, { memo, useMemo } from 'react';
+import React, { FC, memo, useMemo } from 'react';
 
 import BigNumber from 'bignumber.js';
 
@@ -11,7 +11,7 @@ import { Link } from 'lib/woozie';
 import { ChainId } from 'temple/front/chains';
 import { TempleChainKind } from 'temple/types';
 
-import { EarnOffer } from '../config';
+import { EarnOffer } from '../types';
 
 const COMMON_ITEM_CLASSNAME =
   'flex items-center justify-between p-3 group rounded-8 bg-white border-0.5 border-lines hover:bg-grey-4';
@@ -27,11 +27,11 @@ export const EarnItem = memo<EarnOfferItemProps>(({ offer }) => {
     if (dynamicApyRate) {
       const rate = Number(new BigNumber(dynamicApyRate).decimalPlaces(2));
 
-      return <span className="text-font-small-bold text-success">{`${rate}% APY`}</span>;
+      return `${rate}% APY`;
     }
 
     if (offer.displayYield) {
-      return <span className="text-font-small-bold text-success">{offer.displayYield}</span>;
+      return offer.displayYield;
     }
 
     return null;
@@ -59,38 +59,33 @@ interface EarnOfferItemContentProps {
 
 const EarnOfferItemContent = memo<EarnOfferItemContentProps>(({ offer, displayYield }) => (
   <>
-    <div className="flex items-center gap-3">
-      <div className="flex-shrink-0 relative">
-        {offer.chainKind === TempleChainKind.Tezos ? (
-          <TezosAssetIconWithNetwork
-            tezosChainId={offer.chainId as ChainId<TempleChainKind.Tezos>}
-            assetSlug={offer.assetSlug}
-          />
-        ) : (
-          <EvmAssetIconWithNetwork
-            evmChainId={offer.chainId as ChainId<TempleChainKind.EVM>}
-            assetSlug={offer.assetSlug}
-          />
-        )}
-      </div>
+    <div className="flex items-center gap-x-2">
+      <Icon {...offer} />
 
       <div className="flex flex-col">
-        <div className="flex items-center gap-1">
-          <span className="text-font-description-bold text-secondary">{offer.name}</span>
+        <div className="flex items-center gap-x-0.5">
+          <span className="text-font-medium-bold group-hover:text-secondary">{offer.name}</span>
 
           {offer.isExternal && (
             <IconBase Icon={OutLinkIcon} size={12} className="text-secondary opacity-0 group-hover:opacity-100" />
           )}
         </div>
 
-        <div className="flex items-center gap-2">
-          <span className="text-font-small text-grey-1">{offer.description}</span>
+        <div className="flex items-center gap-x-1">
+          <span className="text-font-description text-grey-1">{offer.description}</span>
 
-          {offer.providerIcon && <offer.providerIcon className="w-4 h-4 shrink-0" />}
+          {offer.providerIcon && <offer.providerIcon className="w-5 h-5 shrink-0" />}
         </div>
       </div>
     </div>
 
-    {displayYield}
+    <span className="text-font-num-bold-14 text-success">{displayYield}</span>
   </>
 ));
+
+const Icon: FC<EarnOffer> = ({ chainKind, chainId, assetSlug }) =>
+  chainKind === TempleChainKind.Tezos ? (
+    <TezosAssetIconWithNetwork tezosChainId={chainId as ChainId<TempleChainKind.Tezos>} assetSlug={assetSlug} />
+  ) : (
+    <EvmAssetIconWithNetwork evmChainId={chainId as ChainId<TempleChainKind.EVM>} assetSlug={assetSlug} />
+  );
