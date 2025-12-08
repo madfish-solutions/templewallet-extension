@@ -2,7 +2,7 @@ import React, { FC, useMemo } from 'react';
 
 import { TagButton } from 'app/atoms/TagButton';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
-import { ETHERLINK_USDC_SLUG } from 'lib/assets/known-tokens';
+import { ETHERLINK_USDC_SLUG, APPLEFARM_REFERRAL_LINK } from 'lib/constants';
 import { COMMON_MAINNET_CHAIN_IDS, ETHEREUM_MAINNET_CHAIN_ID } from 'lib/temple/types';
 import { isTruthy, openLink } from 'lib/utils';
 import { navigate } from 'lib/woozie';
@@ -28,7 +28,7 @@ const INCENTIVE_TOKENS: Record<number, Record<string, IncentiveInfo>> = {
   [COMMON_MAINNET_CHAIN_IDS.etherlink]: {
     [ETHERLINK_USDC_SLUG]: {
       label: 'APY: 28%',
-      link: 'https://app.applefarm.xyz/referral?code=APPLE-FARM-880788',
+      link: APPLEFARM_REFERRAL_LINK,
       external: true
     }
   }

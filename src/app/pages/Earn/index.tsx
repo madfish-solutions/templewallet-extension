@@ -5,10 +5,8 @@ import { PartnersPromotion, PartnersPromotionVariant } from 'app/templates/partn
 import { SearchBarField } from 'app/templates/SearchField';
 import { T, t, TID } from 'lib/i18n';
 
-import { EthSavingItem } from './components/EthSavingItem';
-import { ExternalOfferItem } from './components/ExternalOfferItem';
-import { TezSavingItem } from './components/TezSavingItem';
-import { EARN_OFFERS } from './config';
+import { EarnItem } from './components/EarnItem';
+import { EARN_OFFERS, ETH_SAVING_OFFER, TEZ_SAVING_OFFER } from './config';
 import { EARN_PAGE_NAME } from './constants';
 
 export const Earn = memo(() => {
@@ -33,7 +31,7 @@ export const Earn = memo(() => {
         <Title i18nKey="savings" />
 
         <div className="flex flex-col gap-2">
-          <TezSavingItem />
+          <EarnItem offer={TEZ_SAVING_OFFER} />
 
           <PartnersPromotion
             id="promo-earn-item"
@@ -42,7 +40,7 @@ export const Earn = memo(() => {
             pageName={EARN_PAGE_NAME}
           />
 
-          <EthSavingItem />
+          <EarnItem offer={ETH_SAVING_OFFER} />
         </div>
       </div>
 
@@ -51,7 +49,7 @@ export const Earn = memo(() => {
 
         <div className="flex flex-col gap-y-2">
           {filteredOffers.map(offer => (
-            <ExternalOfferItem key={offer.id} offer={offer} />
+            <EarnItem key={offer.id} offer={offer} />
           ))}
         </div>
       </div>
