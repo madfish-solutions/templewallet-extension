@@ -5,7 +5,7 @@ import { IS_SIDE_PANEL_AVAILABLE } from 'lib/env';
 import { TempleDAppPayload, TempleMessageType, TempleRequest } from 'lib/temple/types';
 
 import { intercom } from './defaults';
-import { sidebarClosed, store } from './store';
+import { dAppPendingConfirmationIdUpdated, sidebarClosed, store } from './store';
 
 const detachedConfirmationIds = new Set<string>();
 
@@ -40,12 +40,14 @@ export async function requestConfirm<T extends TempleDAppPayload>({
   transformPayload = identity,
   handleIntercomRequest
 }: RequestConfirmParams<T>) {
+  dAppPendingConfirmationIdUpdated(id);
   let closing = false;
   let stopViewClosedListening: EmptyFn | undefined;
   let closeView: (() => Promise<void>) | undefined;
   const close = async () => {
     if (closing) return;
     closing = true;
+    dAppPendingConfirmationIdUpdated(null);
 
     try {
       clearConfirmationWindowDetached(id);

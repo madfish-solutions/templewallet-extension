@@ -142,12 +142,11 @@ export const ConfirmDAppForm = memo<ConfirmDAppFormProps>(
     const { guard, preconnectIfNeeded, ledgerPromptProps } = useLedgerWebHidFullViewGuard();
 
     const detachConfirmWindow = useCallback(async () => {
-      if (!confirmWindow) return;
       await makeIntercomRequest({
         type: TempleMessageType.ConfirmationWindowDetachRequest,
         id: confirmationId
       });
-    }, [confirmWindow, confirmationId]);
+    }, [confirmationId]);
 
     useEffect(() => {
       if (!ledgerConfirmationRequired) return;
@@ -204,14 +203,14 @@ export const ConfirmDAppForm = memo<ConfirmDAppFormProps>(
         }
       },
       [
+        confirmWindow,
+        fullPage,
         ledgerConfirmationRequired,
         onConfirm,
         preconnectIfNeeded,
         selectedAccount,
         setError,
-        setLedgerApprovalModalState,
-        confirmWindow,
-        fullPage
+        setLedgerApprovalModalState
       ]
     );
 
@@ -246,13 +245,10 @@ export const ConfirmDAppForm = memo<ConfirmDAppFormProps>(
       setIsDeclining(true);
       await confirm(false);
       setIsDeclining(false);
-
-      if (confirmWindow && fullPage) {
-        window.close();
-      }
-    }, [confirm, confirmWindow, fullPage, isConfirming, isDeclining, setIsDeclining]);
+    }, [confirm, isConfirming, isDeclining, setIsDeclining]);
 
     const handleErrorAlertClose = useCallback(() => setError(null), [setError]);
+
 
     const shouldShowConflict = useMemo(() => {
       if (!isConnectPayload(payload)) return false;

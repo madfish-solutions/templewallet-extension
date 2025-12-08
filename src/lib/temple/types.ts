@@ -34,6 +34,7 @@ export interface FocusLocation {
 
 export interface TempleState {
   dAppQueueCounters: PromisesQueueCounters;
+  dAppPendingConfirmationId: string | null;
   status: TempleStatus;
   accounts: StoredAccount[];
   settings: TempleSettings | null;
