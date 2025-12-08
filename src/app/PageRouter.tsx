@@ -23,6 +23,7 @@ import { CryptoExchange } from './pages/Buy/CryptoExchange';
 import { DebitCreditCard } from './pages/Buy/DebitCreditCard';
 import { ChainSettings } from './pages/ChainSettings';
 import { Dapps } from './pages/Dapps';
+import { Earn } from './pages/Earn';
 import { EarnEthPage } from './pages/EarnEth';
 import { EarnTezPage } from './pages/EarnTez';
 import { EarnTkeyPage } from './pages/EarnTkey';
@@ -92,6 +93,7 @@ const ROUTE_MAP = Woozie.createMap<RouteContext>([
     ))
   ],
   ['/swap', onlyReady(() => <Swap />)],
+  ['/earn', onlyReady(() => <Earn />)],
   ['/earn-tez/:tezosChainId', onlyReady(({ tezosChainId }) => <EarnTezPage tezosChainId={tezosChainId!} />)],
   ['/earn-tkey', onlyReady(() => <EarnTkeyPage />)],
   ['/earn-eth', onlyReady(() => <EarnEthPage />)],
