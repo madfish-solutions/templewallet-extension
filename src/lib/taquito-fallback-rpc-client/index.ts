@@ -1,15 +1,24 @@
 import { isDefined } from '@rnw-community/shared';
 import { HttpResponseError } from '@taquito/http-utils';
 import {
+  AllDelegatesQueryArguments,
+  AttestationRightsQueryArguments,
+  BakingRightsQueryArguments,
+  BigMapKey,
   EntrypointsResponse,
   ForgeOperationsParams,
+  PackDataParams,
+  PendingOperationsQueryArguments,
   PreapplyParams,
   RpcClient,
   RPCOptions,
   RPCRunCodeParam,
+  RPCRunOperationParam,
   RPCRunScriptViewParam,
   RPCRunViewParam,
-  RPCSimulateOperationParam
+  RPCSimulateOperationParam,
+  TicketTokenParams,
+  UnparsingMode
 } from '@taquito/rpc';
 import { TezosOperationError } from '@taquito/taquito';
 
@@ -76,8 +85,28 @@ export class FallbackRpcClient extends RpcClient {
     return this.callWithFallback(client => client.getStorage(address, opts));
   }
 
+  async getSpendable(address: string, opts?: RPCOptions) {
+    return this.callWithFallback(client => client.getSpendable(address, opts));
+  }
+
+  async getBalanceAndFrozenBonds(address: string, opts?: RPCOptions) {
+    return this.callWithFallback(client => client.getBalanceAndFrozenBonds(address, opts));
+  }
+
+  async getSpendableAndFrozenBonds(address: string, opts?: RPCOptions) {
+    return this.callWithFallback(client => client.getSpendableAndFrozenBonds(address, opts));
+  }
+
+  async getFullBalance(address: string, opts?: RPCOptions) {
+    return this.callWithFallback(client => client.getFullBalance(address, opts));
+  }
+
   async getScript(address: string, opts?: RPCOptions) {
     return this.callWithFallback(client => client.getScript(address, opts));
+  }
+
+  async getNormalizedScript(address: string, unparsingMode?: UnparsingMode, opts?: RPCOptions) {
+    return this.callWithFallback(client => client.getNormalizedScript(address, unparsingMode, opts));
   }
 
   async getContract(address: string, opts?: RPCOptions) {
@@ -124,12 +153,25 @@ export class FallbackRpcClient extends RpcClient {
     return this.callWithFallback(client => client.getUnstakedFinalizableBalance(address, opts));
   }
 
+  /** @deprecated Deprecated in favor of getBigMapKeyByID */
+  async getBigMapKey(address: string, key: BigMapKey, opts?: RPCOptions) {
+    return this.callWithFallback(client => client.getBigMapKey(address, key, opts));
+  }
+
   async getBigMapExpr(id: string, expr: string, opts?: RPCOptions) {
     return this.callWithFallback(client => client.getBigMapExpr(id, expr, opts));
   }
 
+  async getAllDelegates(args?: AllDelegatesQueryArguments, opts?: RPCOptions) {
+    return this.callWithFallback(client => client.getAllDelegates(args, opts));
+  }
+
   async getDelegates(address: string, opts?: RPCOptions) {
     return this.callWithFallback(client => client.getDelegates(address, opts));
+  }
+
+  async getVotingInfo(address: string, opts?: RPCOptions) {
+    return this.callWithFallback(client => client.getVotingInfo(address, opts));
   }
 
   async getConstants(opts?: RPCOptions) {
@@ -148,6 +190,38 @@ export class FallbackRpcClient extends RpcClient {
     return this.callWithFallback(client => client.getBlockMetadata(opts));
   }
 
+  async getBakingRights(args?: BakingRightsQueryArguments, opts?: RPCOptions) {
+    return this.callWithFallback(client => client.getBakingRights(args, opts));
+  }
+
+  async getAttestationRights(args?: AttestationRightsQueryArguments, opts?: RPCOptions) {
+    return this.callWithFallback(client => client.getAttestationRights(args, opts));
+  }
+
+  async getBallotList(opts?: RPCOptions) {
+    return this.callWithFallback(client => client.getBallotList(opts));
+  }
+
+  async getBallots(opts?: RPCOptions) {
+    return this.callWithFallback(client => client.getBallots(opts));
+  }
+
+  async getCurrentProposal(opts?: RPCOptions) {
+    return this.callWithFallback(client => client.getCurrentProposal(opts));
+  }
+
+  async getCurrentQuorum(opts?: RPCOptions) {
+    return this.callWithFallback(client => client.getCurrentQuorum(opts));
+  }
+
+  async getVotesListings(opts?: RPCOptions) {
+    return this.callWithFallback(client => client.getVotesListings(opts));
+  }
+
+  async getProposals(opts?: RPCOptions) {
+    return this.callWithFallback(client => client.getProposals(opts));
+  }
+
   async simulateOperation(op: RPCSimulateOperationParam, opts?: RPCOptions) {
     return this.callWithFallback(client => client.simulateOperation(op, opts));
   }
@@ -158,6 +232,11 @@ export class FallbackRpcClient extends RpcClient {
 
   async injectOperation(signedOpBytes: string) {
     return this.callWithFallback(client => client.injectOperation(signedOpBytes));
+  }
+
+  /** @deprecated Deprecated in favor of simulateOperation */
+  async runOperation(op: RPCRunOperationParam, opts?: RPCOptions) {
+    return this.callWithFallback(client => client.runOperation(op, opts));
   }
 
   async forgeOperations(data: ForgeOperationsParams, opts?: RPCOptions) {
@@ -174,6 +253,54 @@ export class FallbackRpcClient extends RpcClient {
 
   async runView(param: RPCRunViewParam, opts?: RPCOptions) {
     return this.callWithFallback(client => client.runView(param, opts));
+  }
+
+  async packData(data: PackDataParams, opts?: RPCOptions) {
+    return this.callWithFallback(client => client.packData(data, opts));
+  }
+
+  async getCurrentPeriod(opts?: RPCOptions) {
+    return this.callWithFallback(client => client.getCurrentPeriod(opts));
+  }
+
+  async getSuccessorPeriod(opts?: RPCOptions) {
+    return this.callWithFallback(client => client.getSuccessorPeriod(opts));
+  }
+
+  async getSaplingDiffById(id: string, opts?: RPCOptions) {
+    return this.callWithFallback(client => client.getSaplingDiffById(id, opts));
+  }
+
+  async getSaplingDiffByContract(contract: string, opts?: RPCOptions) {
+    return this.callWithFallback(client => client.getSaplingDiffByContract(contract, opts));
+  }
+
+  async getProtocolActivations(protocol?: string | undefined) {
+    return this.callWithFallback(client => client.getProtocolActivations(protocol));
+  }
+
+  async getStorageUsedSpace(contract: string, opts?: RPCOptions) {
+    return this.callWithFallback(client => client.getStorageUsedSpace(contract, opts));
+  }
+
+  async getStoragePaidSpace(contract: string, opts?: RPCOptions) {
+    return this.callWithFallback(client => client.getStoragePaidSpace(contract, opts));
+  }
+
+  async getTicketBalance(contract: string, ticket: TicketTokenParams, opts?: RPCOptions) {
+    return this.callWithFallback(client => client.getTicketBalance(contract, ticket, opts));
+  }
+
+  async getAllTicketBalances(contract: string, opts?: RPCOptions) {
+    return this.callWithFallback(client => client.getAllTicketBalances(contract, opts));
+  }
+
+  async getAdaptiveIssuanceLaunchCycle(opts?: RPCOptions) {
+    return this.callWithFallback(client => client.getAdaptiveIssuanceLaunchCycle(opts));
+  }
+
+  async getPendingOperations(args?: PendingOperationsQueryArguments) {
+    return this.callWithFallback(client => client.getPendingOperations(args));
   }
 }
 
