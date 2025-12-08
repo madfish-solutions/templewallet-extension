@@ -3,27 +3,12 @@ import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { KNOWN_TOKENS_SLUGS } from 'lib/assets/known-tokens';
 import { ETHERLINK_USDC_SLUG, APPLEFARM_REFERRAL_LINK } from 'lib/constants';
 import { COMMON_MAINNET_CHAIN_IDS, ETHEREUM_MAINNET_CHAIN_ID, TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
-import { ChainId } from 'temple/front/chains';
 import { TempleChainKind } from 'temple/types';
 
+import { YOUVES_REFFERAL_LINK } from './constants';
 import { ReactComponent as AppleFarmIcon } from './icons/applefarm.svg';
 import { ReactComponent as YouvesIcon } from './icons/youves.svg';
-
-const YOUVES_REFFERAL_LINK = 'https://app.youves.com/?ref=tz1UbRzhYjQKTtWYvGUWcRtVT4fN3NESDVYT';
-
-export interface EarnOffer {
-  id: string;
-  link: string;
-  name: string;
-  description: string;
-  type: 'saving' | 'external';
-  chainKind: TempleChainKind;
-  chainId: ChainId<TempleChainKind>;
-  assetSlug: string;
-  displayYield?: string;
-  providerIcon?: ImportedSVGComponent;
-  isExternal?: boolean;
-}
+import { EarnOffer } from './types';
 
 export const TEZ_SAVING_OFFER: EarnOffer = {
   id: 'earn-tez',
@@ -39,7 +24,7 @@ export const TEZ_SAVING_OFFER: EarnOffer = {
 
 export const ETH_SAVING_OFFER: EarnOffer = {
   id: 'earn-eth',
-  link: `/earn-tez/${TEZOS_MAINNET_CHAIN_ID}`,
+  link: '/earn-eth',
   name: 'ETH',
   description: 'Everstake',
   type: 'saving',
