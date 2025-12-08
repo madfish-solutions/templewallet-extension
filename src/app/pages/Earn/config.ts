@@ -49,7 +49,9 @@ export const ETH_SAVING_OFFER: EarnOffer = {
   displayYield: '3.4-10% APR'
 };
 
-export const EARN_OFFERS: EarnOffer[] = [
+export const SAVINGS_OFFERS: EarnOffer[] = [TEZ_SAVING_OFFER, ETH_SAVING_OFFER];
+
+export const EXTERNAL_OFFERS: EarnOffer[] = [
   {
     id: 'youves-uusd',
     link: YOUVES_REFFERAL_LINK,
