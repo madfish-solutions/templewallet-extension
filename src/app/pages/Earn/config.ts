@@ -1,12 +1,15 @@
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
-import { ETHERLINK_USDC_SLUG, KNOWN_TOKENS_SLUGS } from 'lib/assets/known-tokens';
+import { KNOWN_TOKENS_SLUGS } from 'lib/assets/known-tokens';
+import { ETHERLINK_USDC_SLUG, APPLEFARM_REFERRAL_LINK } from 'lib/constants';
 import { COMMON_MAINNET_CHAIN_IDS, ETHEREUM_MAINNET_CHAIN_ID, TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
 import { ChainId } from 'temple/front/chains';
 import { TempleChainKind } from 'temple/types';
 
 import { ReactComponent as AppleFarmIcon } from './icons/applefarm.svg';
 import { ReactComponent as YouvesIcon } from './icons/youves.svg';
+
+const YOUVES_REFFERAL_LINK = 'https://app.youves.com/?ref=tz1UbRzhYjQKTtWYvGUWcRtVT4fN3NESDVYT';
 
 export interface EarnOffer {
   id: string;
@@ -49,7 +52,7 @@ export const ETH_SAVING_OFFER: EarnOffer = {
 export const EARN_OFFERS: EarnOffer[] = [
   {
     id: 'youves-uusd',
-    link: 'https://app.youves.com/earn',
+    link: YOUVES_REFFERAL_LINK,
     name: 'uUSD',
     description: 'Youves',
     type: 'external',
@@ -61,7 +64,7 @@ export const EARN_OFFERS: EarnOffer[] = [
   },
   {
     id: 'youves-ubtc',
-    link: 'https://app.youves.com/earn',
+    link: YOUVES_REFFERAL_LINK,
     name: 'uBTC',
     description: 'Youves',
     type: 'external',
@@ -73,7 +76,7 @@ export const EARN_OFFERS: EarnOffer[] = [
   },
   {
     id: 'youves-you',
-    link: 'https://app.youves.com/earn',
+    link: YOUVES_REFFERAL_LINK,
     name: 'YOU',
     description: 'Youves',
     type: 'external',
@@ -85,7 +88,7 @@ export const EARN_OFFERS: EarnOffer[] = [
   },
   {
     id: 'applefarm-usdc',
-    link: 'https://app.applefarm.xyz/referral?code=APPLE-FARM-880788',
+    link: APPLEFARM_REFERRAL_LINK,
     name: 'USDC',
     description: 'AppleFarm',
     type: 'external',

@@ -110,5 +110,3 @@ export const ALL_PREDEFINED_METADATAS_RECORD: MetadataRecords = [
   }),
   {}
 );
-
-export const ETHERLINK_USDC_SLUG = '0x796Ea11Fa2dD751eD01b53C372fFDB4AAa8f00F9_0';
