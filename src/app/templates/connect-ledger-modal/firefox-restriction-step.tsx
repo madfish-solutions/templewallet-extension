@@ -1,8 +1,9 @@
 import React, { memo } from 'react';
 
 import { FadeTransition } from 'app/a11y/FadeTransition';
-import { LedgerImage, LedgerImageState } from 'app/atoms';
+import { IconBase, LedgerImage, LedgerImageState } from 'app/atoms';
 import { StyledButton } from 'app/atoms/StyledButton';
+import { ReactComponent as XCircleIcon } from 'app/icons/base/x_circle_fill.svg';
 import { T, t } from 'lib/i18n';
 import { TempleChainKind } from 'temple/types';
 
@@ -39,6 +40,7 @@ export const FirefoxRestrictionStep = memo<FirefoxRestrictionStepProps>(({ onClo
         <p className="text-font-description text-grey-1 text-center mb-6 px-1">
           {t('ledgerNotAvailableOnFirefoxDescription')}
         </p>
+        <IconBase Icon={XCircleIcon} size={24} className="text-error" />
       </div>
     </PageModalScrollViewWithActions>
   </FadeTransition>
