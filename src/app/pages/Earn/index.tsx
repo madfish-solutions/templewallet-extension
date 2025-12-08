@@ -6,17 +6,19 @@ import { SearchBarField } from 'app/templates/SearchField';
 import { T, t, TID } from 'lib/i18n';
 
 import { EarnItem } from './components/EarnItem';
-import { EARN_OFFERS, ETH_SAVING_OFFER, TEZ_SAVING_OFFER } from './config';
+import { EthSavingItem } from './components/EthSavingItem';
+import { TezSavingItem } from './components/TezSavingItem';
+import { EXTERNAL_OFFERS } from './config';
 import { EARN_PAGE_NAME } from './constants';
 
 export const Earn = memo(() => {
   const [searchValue, setSearchValue] = useState('');
 
   const filteredOffers = useMemo(() => {
-    if (!searchValue.trim()) return EARN_OFFERS;
+    if (!searchValue.trim()) return EXTERNAL_OFFERS;
 
     const query = searchValue.toLowerCase();
-    return EARN_OFFERS.filter(
+    return EXTERNAL_OFFERS.filter(
       offer => offer.name.toLowerCase().includes(query) || offer.description.toLowerCase().includes(query)
     );
   }, [searchValue]);
@@ -31,7 +33,7 @@ export const Earn = memo(() => {
         <Title i18nKey="savings" />
 
         <div className="flex flex-col gap-2">
-          <EarnItem offer={TEZ_SAVING_OFFER} />
+          <TezSavingItem />
 
           <PartnersPromotion
             id="promo-earn-item"
@@ -40,7 +42,7 @@ export const Earn = memo(() => {
             pageName={EARN_PAGE_NAME}
           />
 
-          <EarnItem offer={ETH_SAVING_OFFER} />
+          <EthSavingItem />
         </div>
       </div>
 
