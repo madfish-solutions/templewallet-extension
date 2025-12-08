@@ -249,7 +249,6 @@ export const ConfirmDAppForm = memo<ConfirmDAppFormProps>(
 
     const handleErrorAlertClose = useCallback(() => setError(null), [setError]);
 
-
     const shouldShowConflict = useMemo(() => {
       if (!isConnectPayload(payload)) return false;
 
