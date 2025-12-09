@@ -4,8 +4,14 @@ import { dispatch } from 'app/store';
 import { setEvmBalancesLoadingState } from 'app/store/evm/actions';
 import { useRawEvmAccountCollectiblesSelector, useRawEvmAccountTokensSelector } from 'app/store/evm/assets/selectors';
 import { ChainIdTokenSlugsAssetsRecord } from 'app/store/evm/assets/state';
-import { processLoadedOnchainBalancesAction } from 'app/store/evm/balances/actions';
-import { useEvmAccountBalancesTimestampsSelector } from 'app/store/evm/balances/selectors';
+import {
+  markEvmBalancesInitiallyLoadedAction,
+  processLoadedOnchainBalancesAction
+} from 'app/store/evm/balances/actions';
+import {
+  useEvmAccountBalancesTimestampsSelector,
+  useEvmBalancesInitiallyLoadedChainsSelector
+} from 'app/store/evm/balances/selectors';
 import { useAllEvmChainsBalancesLoadingStatesSelector } from 'app/store/evm/selectors';
 import { EvmBalancesSource } from 'app/store/evm/state';
 import { useTestnetModeEnabledSelector } from 'app/store/settings/selectors';
@@ -38,6 +44,7 @@ export const AppEvmBalancesLoading = memo<{ publicKeyHash: HexString }>(({ publi
   const isTestnetMode = useTestnetModeEnabledSelector();
   const loadingStates = useAllEvmChainsBalancesLoadingStatesSelector();
   const balancesTimestamps = useEvmAccountBalancesTimestampsSelector(publicKeyHash);
+  const initiallyLoadedByChainId = useEvmBalancesInitiallyLoadedChainsSelector();
 
   const storedTokens = useRawEvmAccountTokensSelector(publicKeyHash);
   const storedCollectibles = useRawEvmAccountCollectiblesSelector(publicKeyHash);
@@ -80,8 +87,14 @@ export const AppEvmBalancesLoading = memo<{ publicKeyHash: HexString }>(({ publi
     [manualAssetsByChainId]
   );
 
-  const isGoldrushDataFresh = useCallback(
+  const shouldUseGoldrushData = useCallback(
     async (data: BalancesResponse, chainId: number) => {
+      if (!initiallyLoadedByChainId[chainId]) {
+        dispatch(markEvmBalancesInitiallyLoadedAction({ chainId }));
+
+        return true;
+      }
+
       const network = enabledEvmChainsByIds[chainId];
 
       if (!network || !data.chain_tip_signed_at) {
@@ -99,11 +112,11 @@ export const AppEvmBalancesLoading = memo<{ publicKeyHash: HexString }>(({ publi
 
         return delta <= EVM_BALANCES_SYNC_INTERVAL * 3;
       } catch (err) {
-        console.warn('Failed to verify GoldRush freshness', err);
+        console.warn('Failed to verify GoldRush balances response', err);
         return false;
       }
     },
-    [enabledEvmChainsByIds]
+    [enabledEvmChainsByIds, initiallyLoadedByChainId]
   );
 
   const loadingStatesRef = useUpdatableRef(loadingStates);
@@ -175,7 +188,7 @@ export const AppEvmBalancesLoading = memo<{ publicKeyHash: HexString }>(({ publi
     (walletAddress: string, chainId: ChainID) =>
       getEvmBalances(walletAddress, chainId)
         .then(async data => {
-          if (!(await isGoldrushDataFresh(data, chainId))) {
+          if (!(await shouldUseGoldrushData(data, chainId))) {
             console.warn(`GoldRush returned stale balances for chain ${chainId}, falling back to node fetch`);
 
             return { error: new Error('GoldRush data is stale') };
@@ -184,7 +197,7 @@ export const AppEvmBalancesLoading = memo<{ publicKeyHash: HexString }>(({ publi
           return { data };
         })
         .catch(error => ({ error })),
-    [isGoldrushDataFresh]
+    [shouldUseGoldrushData]
   );
   const getEvmBalancesFromChain = useGetBalancesFromChain(publicKeyHash, isSupportedChainId);
 
