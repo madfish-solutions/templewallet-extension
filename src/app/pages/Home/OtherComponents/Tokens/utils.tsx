@@ -21,7 +21,7 @@ export const getTokensViewWithPromo = (tokensJsx: ReactNode[], promoJsx: ReactNo
   if (slugsCount < 5) {
     tokensJsx.push(promoJsx);
   } else {
-    tokensJsx.splice(2, 0, promoJsx);
+    tokensJsx.splice(1, 0, promoJsx);
   }
 
   return tokensJsx;

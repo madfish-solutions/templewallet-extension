@@ -2182,11 +2182,11 @@
   "selectNetwork": {
     "message": "Select Network"
   },
-  "addCustomToken": {
-    "message": "Add Custom Token"
+  "searchNetworkName": {
+    "message": "Search network name"
   },
-  "addCustomTokenNonCapitalize": {
-    "message": "Add custom token"
+  "addTokenNonCapitalize": {
+    "message": "Add token"
   },
   "tokenAddress": {
     "message": "Token address"
@@ -2896,9 +2896,6 @@
   },
   "social": {
     "message": "Social"
-  },
-  "market": {
-    "message": "Market"
   },
   "marketplace": {
     "message": "Marketplace"
@@ -3728,10 +3725,16 @@
     "message": "Purchase crypto via credit or debit card with 26+ currencies options"
   },
   "crossChainSwap": {
-    "message": "Cross-chain Swap"
+    "message": "Cross-Chain Swap"
   },
   "crossChainSwapDescription": {
     "message": "Exchange crypto instantly from Solana, Bitcoin and other networks"
+  },
+  "receiveOnChain": {
+    "message": "Receive on-chain"
+  },
+  "receiveOnChainDescription": {
+    "message": "Transfer crypto via address or QR code from other wallets or exchanges"
   },
   "convertation": {
     "message": "Convertation"
@@ -3922,6 +3925,9 @@
   },
   "collectibles": {
     "message": "Collectibles"
+  },
+  "nfts": {
+    "message": "NFTs"
   },
   "attentionSendAmount": {
     "message": "You need to send the exact amount of cryptocurrency to the deposit address. Otherwise the transaction will fail and you will have to contact $support$",
@@ -4587,9 +4593,6 @@
   },
   "rewardsEarningEnabled": {
     "message": "Rewards earning successfully enabled"
-  },
-  "marketPageDisclaimer": {
-    "message": "Temple integrated third-party solutions to buy or exchange crypto."
   },
   "txCouldNotBeEstimated": {
     "message": "Transaction could not be estimated"

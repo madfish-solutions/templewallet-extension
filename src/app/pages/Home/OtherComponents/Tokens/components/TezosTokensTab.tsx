@@ -37,7 +37,10 @@ interface Props {
   accountId: string;
 }
 
-const TezosTokensTabContext = createContext<Props>({ publicKeyHash: '', accountId: '' });
+const TezosTokensTabContext = createContext<Props>({
+  publicKeyHash: '',
+  accountId: ''
+});
 
 export const TezosTokensTab = memo<Props>(props => {
   const { manageActive } = useAssetsViewState();
@@ -123,16 +126,8 @@ const TabContentBase = memo<TabContentBaseProps>(
     const promoRef = useRef<HTMLDivElement>(null);
     const firstHeaderRef = useRef<HTMLDivElement>(null);
     const firstListItemRef = useRef<TokenListItemElement>(null);
-    const {
-      displayedSlugs,
-      displayedGroupedSlugs,
-      isSyncing,
-      isInSearchMode,
-      loadNextGrouped,
-      loadNextPlain,
-      searchValue,
-      setSearchValue
-    } = useTezosAccountTokensListingLogic(allSlugsSorted, allSlugsSortedGrouped);
+    const { displayedSlugs, displayedGroupedSlugs, isSyncing, isInSearchMode, loadNextGrouped, loadNextPlain } =
+      useTezosAccountTokensListingLogic(allSlugsSorted, allSlugsSortedGrouped);
 
     const mainnetChain = useTezosMainnetChain();
     const tezosChains = useAllTezosChains();
@@ -203,10 +198,8 @@ const TabContentBase = memo<TabContentBaseProps>(
       <TokensTabBase
         accountId={accountId}
         tokensCount={displayedSlugs.length}
-        searchValue={searchValue}
         getElementIndex={getElementIndex}
         loadNextPage={groupByNetwork ? loadNextGrouped : loadNextPlain}
-        onSearchValueChange={setSearchValue}
         isSyncing={isSyncing}
         isInSearchMode={isInSearchMode}
         network={mainnetChain}

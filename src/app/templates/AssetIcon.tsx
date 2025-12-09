@@ -35,19 +35,19 @@ const COLLECTIBLE_IMAGE_DEFAULT_SIZE = 36;
 const NETWORK_IMAGE_DEFAULT_SIZE = 16;
 
 export const TezosAssetIconWithNetwork = memo<TezosAssetImageProps>(
-  ({ assetSlug, tezosChainId, className, style, ...props }) => {
+  ({ assetSlug, tezosChainId, className, style, size, ...props }) => {
     const network = useTezosChainByChainId(tezosChainId);
     const metadata = useGenericTezosAssetMetadata(assetSlug, tezosChainId);
 
     return (
       <div
         className={clsx('flex items-center justify-center relative', className)}
-        style={{ width: ICON_DEFAULT_SIZE, height: ICON_DEFAULT_SIZE, ...style }}
+        style={{ width: size ? size + 8 : ICON_DEFAULT_SIZE, height: size ? size + 8 : ICON_DEFAULT_SIZE, ...style }}
       >
         <TezosAssetIcon
           assetSlug={assetSlug}
           tezosChainId={tezosChainId}
-          size={isCollectible(metadata) ? COLLECTIBLE_IMAGE_DEFAULT_SIZE : TOKEN_IMAGE_DEFAULT_SIZE}
+          size={size ?? (isCollectible(metadata) ? COLLECTIBLE_IMAGE_DEFAULT_SIZE : TOKEN_IMAGE_DEFAULT_SIZE)}
           className={isCollectible(metadata) ? 'rounded-8' : 'rounded-full'}
           {...props}
         />
