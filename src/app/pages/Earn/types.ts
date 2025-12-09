@@ -6,7 +6,6 @@ export interface EarnOffer {
   link: string;
   name: string;
   description: string;
-  type: 'saving' | 'external';
   chainKind: TempleChainKind;
   chainId: ChainId<TempleChainKind>;
   assetSlug: string;
