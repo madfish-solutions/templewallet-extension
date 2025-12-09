@@ -16,6 +16,7 @@ interface SegmentedControlProps<T extends string> {
   activeSegment: T;
   setActiveSegment: SyncFn<T>;
   className?: string;
+  controlsClassName?: string;
   style?: CSSProperties;
 }
 
@@ -25,25 +26,31 @@ const SegmentedControl = <T extends string>({
   activeSegment,
   setActiveSegment,
   className,
+  controlsClassName,
   style
 }: SegmentedControlProps<T>) => {
   const controlRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const activeSegmentRef = segments.find(segment => segment.value === activeSegment)?.ref;
+    const controlEl = controlRef.current;
+    const activeEl = activeSegmentRef?.current;
 
-    if (activeSegmentRef?.current && controlRef.current) {
-      const { offsetWidth, offsetLeft } = activeSegmentRef.current;
-      const { style } = controlRef.current;
+    if (!controlEl || !activeEl) return;
 
-      style.setProperty('--highlight-width', `${offsetWidth}px`);
-      style.setProperty('--highlight-x-pos', `${offsetLeft}px`);
-    }
-  }, [activeSegment, controlRef, segments]);
+    const { offsetWidth, offsetLeft } = activeEl;
+
+    // Prevent highlight changes if control is hidden
+    if (offsetWidth === 0) return;
+
+    const { style } = controlEl;
+    style.setProperty('--highlight-width', `${offsetWidth}px`);
+    style.setProperty('--highlight-x-pos', `${offsetLeft}px`);
+  }, [activeSegment, segments]);
 
   return (
     <div ref={controlRef} className={clsx(styles.controlsContainer, className)} style={style}>
-      <div className={styles.controls}>
+      <div className={clsx(styles.controls, controlsClassName)}>
         {segments?.map(item => (
           <div
             key={item.value}
