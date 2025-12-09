@@ -13,20 +13,19 @@ export const useFilteredEarnOffers = () => {
   const [searchValueDebounced] = useDebounce(searchValue, 300);
   const inSearch = isSearchStringApplicable(searchValueDebounced);
 
-  const filterByName = useCallback(
+  const filterBySymbol = useCallback(
     (offers: EarnOffer[]) => {
       if (!inSearch) return offers;
 
       const query = searchValueDebounced.trim().toLowerCase();
 
-      return offers.filter(({ name }) => name.toLowerCase().includes(query));
+      return offers.filter(({ symbol }) => symbol.toLowerCase().includes(query));
     },
     [inSearch, searchValueDebounced]
   );
 
-  const savingsOffers = useMemo(() => filterByName(SAVINGS_OFFERS), [filterByName]);
-
-  const externalOffers = useMemo(() => filterByName(EXTERNAL_OFFERS), [filterByName]);
+  const savingsOffers = useMemo(() => filterBySymbol(SAVINGS_OFFERS), [filterBySymbol]);
+  const externalOffers = useMemo(() => filterBySymbol(EXTERNAL_OFFERS), [filterBySymbol]);
 
   return {
     savingsOffers,
