@@ -3,7 +3,6 @@ export * from './endpoints/conversion';
 export * from './endpoints/get-ab-group';
 export * from './endpoints/get-exchange-rates';
 export * from './endpoints/get-moonpay-sign';
-export * from './endpoints/get-kolo-crypto-address';
 export * from './endpoints/get-kolo-widget-url';
 export * from './whitelist-tokens';
 

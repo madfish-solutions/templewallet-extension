@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useEffect, useState } from 'react';
+import React, { memo, useEffect } from 'react';
 
 import { AssetsViewStateController } from 'app/atoms/AssetsViewStateController';
 import { SuspenseContainer } from 'app/atoms/SuspenseContainer';
@@ -26,9 +26,8 @@ const Home = memo(() => {
 
   const [initToastMessage, setInitToastMessage] = useInitToastMessage();
 
-  const [isKoloModalOpened, setIsKoloModalOpened] = useState(false);
-
   const [depositModalOpened, openDepositModal, closeDepositModal] = useBooleanState(false);
+  const [cryptoCardModalOpened, openCryptoCardModal, closeCryptoCardModal] = useBooleanState(false);
 
   useEffect(() => {
     if (!initToastMessage) return;
@@ -41,9 +40,6 @@ const Home = memo(() => {
     return () => clearTimeout(timeout);
   }, [initToastMessage, setInitToastMessage]);
 
-  const handleOpenKoloModal = useCallback(() => setIsKoloModalOpened(true), []);
-  const handleCloseKoloModal = useCallback(() => setIsKoloModalOpened(false), []);
-
   return (
     <PageLayout Header={AppHeader} bgWhite={false} contentPadding={false}>
       <div className="flex flex-col pt-2 pb-0 px-4">
@@ -52,7 +48,7 @@ const Home = memo(() => {
         <ExploreActionButtonsBar additionalButtonType="activity" onDepositClick={openDepositModal} className="mt-4" />
       </div>
 
-      <EarnSection className="mt-6 mb-3" />
+      <EarnSection className="mt-6 mb-3" openCryptoCardModal={openCryptoCardModal} />
 
       <UpdateAppBanner />
 
@@ -66,7 +62,7 @@ const Home = memo(() => {
         </DAppConnectionRefsProvider>
       </SuspenseContainer>
 
-      <KoloCardWidgetModal opened={isKoloModalOpened} onRequestClose={handleCloseKoloModal} />
+      <KoloCardWidgetModal opened={cryptoCardModalOpened} onRequestClose={closeCryptoCardModal} />
       <DepositModal opened={depositModalOpened} onRequestClose={closeDepositModal} />
     </PageLayout>
   );

@@ -65,4 +65,3 @@ export const KoloCardWidgetModal: FC<KoloCardWidgetModalProps> = memo(({ opened,
     </PageModal>
   );
 });
-

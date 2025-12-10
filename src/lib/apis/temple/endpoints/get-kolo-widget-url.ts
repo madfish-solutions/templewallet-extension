@@ -6,7 +6,7 @@ interface GetKoloWidgetUrlResponse {
   signedUrl: string;
 }
 
-export interface KoloWidgetCustomerColors {
+interface KoloWidgetCustomerColors {
   BrandColor?: string;
   ButtonPimary?: string;
   ButtonPimaryDisabled?: string;
@@ -18,7 +18,7 @@ export interface KoloWidgetCustomerColors {
   BgTertiary?: string;
 }
 
-export interface GetKoloWidgetUrlParams {
+interface GetKoloWidgetUrlParams {
   email?: string;
   isEmailLocked?: boolean;
   themeColor?: 'dark' | 'light';
@@ -30,9 +30,9 @@ export interface GetKoloWidgetUrlParams {
 }
 
 export const getKoloWidgetUrl = async (params: GetKoloWidgetUrlParams) => {
-  const url = new URL(EnvVars.KOLO_TEST_BASE_URL);
+  const url = new URL(EnvVars.KOLO_BASE_URL);
 
-  url.searchParams.set('apiKey', EnvVars.KOLO_TEST_API_KEY);
+  url.searchParams.set('apiKey', EnvVars.KOLO_API_KEY);
 
   if (params.email) {
     url.searchParams.set('email', params.email);
