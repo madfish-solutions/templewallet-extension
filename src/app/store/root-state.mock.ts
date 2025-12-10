@@ -27,6 +27,7 @@ import { mockBalancesState } from './tezos/balances/state.mock';
 import { mockCollectiblesState } from './tezos/collectibles/state.mock';
 import { mockCollectiblesMetadataState } from './tezos/collectibles-metadata/state.mock';
 import { mockNoCategoryTezosAssetsMetadataState } from './tezos/no-category-assets-metadata/state.mock';
+import { mockPendingTezosTransactionsState } from './tezos/pending-transactions/state.mock';
 import { mockTokensMetadataState } from './tezos/tokens-metadata/state.mock';
 
 // ts-prune-ignore-next
@@ -53,6 +54,7 @@ export const mockRootState: RootState = {
   evmBalances: mockEvmBalancesState,
   evmTokensMetadata: mockEvmTokensMetadataState,
   pendingEvmTransactions: mockPendingEvmTransactionsState,
+  pendingTezosTransactions: mockPendingTezosTransactionsState,
   lifiEvmTokensMetadata: mockLifiEvmTokensMetadataState,
   evmCollectiblesMetadata: mockEvmCollectiblesMetadataState,
   evmTokensExchangeRates: mockEvmTokensExchangeRatesState,
