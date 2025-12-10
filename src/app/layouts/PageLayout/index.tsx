@@ -44,6 +44,7 @@ export interface PageLayoutProps extends DefaultHeaderProps, ScrollEdgesVisibili
   Header?: ComponentType;
   noScroll?: boolean;
   contentPadding?: boolean;
+  bgWhite?: boolean;
   showTestnetModeIndicator?: boolean;
   contentClassName?: string;
   paperClassName?: string;
@@ -56,6 +57,7 @@ const PageLayout: FC<PropsWithChildren<PageLayoutProps>> = ({
   children,
   noScroll = false,
   contentPadding = true,
+  bgWhite = true,
   showTestnetModeIndicator = true,
   contentClassName,
   paperClassName,
@@ -93,8 +95,9 @@ const PageLayout: FC<PropsWithChildren<PageLayoutProps>> = ({
 
           <div
             className={clsx(
-              'flex-grow flex flex-col bg-white',
+              'flex-grow flex flex-col',
               FADABLE_CONTENT_CLASSNAME,
+              bgWhite ? 'bg-white' : 'bg-background',
               noScroll && 'h-full max-h-full'
             )}
           >

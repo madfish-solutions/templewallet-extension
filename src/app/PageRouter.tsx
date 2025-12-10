@@ -19,6 +19,8 @@ import { useAccount } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
 
 import { ActivityPage } from './pages/Activity';
+import { CryptoExchange } from './pages/Buy/CryptoExchange';
+import { DebitCreditCard } from './pages/Buy/DebitCreditCard';
 import { ChainSettings } from './pages/ChainSettings';
 import { Dapps } from './pages/Dapps';
 import { EarnEthPage } from './pages/EarnEth';
@@ -26,7 +28,6 @@ import { EarnTezPage } from './pages/EarnTez';
 import { EarnTkeyPage } from './pages/EarnTkey';
 import { ImportWallet } from './pages/ImportWallet';
 import { KoloCardPage } from './pages/KoloCard';
-import { Market } from './pages/Market';
 import { Notifications } from './pages/Notifications';
 import { RewardsPage } from './pages/Rewards';
 import { TokenPage } from './pages/Token';
@@ -112,7 +113,8 @@ const ROUTE_MAP = Woozie.createMap<RouteContext>([
     onlyReady(({ chainId, chainKind }) => <ChainSettings chainKind={chainKind as TempleChainKind} chainId={chainId!} />)
   ],
   ['/settings/:tabSlug?', onlyReady(({ tabSlug }) => <Settings tabSlug={tabSlug} />)],
-  ['/market', onlyReady(() => <Market />)],
+  ['/buy/card', onlyReady(() => <DebitCreditCard />)],
+  ['/buy/crypto', onlyReady(() => <CryptoExchange />)],
   ['/notifications', onlyReady(() => <Notifications />)],
   ['/dapps', onlyReady(() => <Dapps />)],
   ['/account/:id', onlyReady(({ id }) => <AccountSettings id={id!} />)],

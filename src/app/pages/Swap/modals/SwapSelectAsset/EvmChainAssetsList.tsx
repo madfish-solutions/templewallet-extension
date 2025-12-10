@@ -10,7 +10,7 @@ import { DeadEndBoundaryError } from 'app/ErrorBoundary';
 import { TOKEN_ITEM_HEIGHT } from 'app/pages/Swap/constants';
 import { SwapFieldName } from 'app/pages/Swap/form/interfaces';
 import { useFirstValue, useLifiEvmTokensSlugs } from 'app/pages/Swap/modals/SwapSelectAsset/hooks';
-import { useLifiEvmTokensMetadataRecordSelector } from 'app/store/evm/swap-lifi-metadata/selectors';
+import { useLifiConnectedEvmTokensMetadataRecordSelector } from 'app/store/evm/swap-lifi-metadata/selectors';
 import { useEvmTokensMetadataRecordSelector } from 'app/store/evm/tokens-metadata/selectors';
 import { EvmTokenListItem } from 'app/templates/TokenListItem';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
@@ -74,7 +74,7 @@ export const EvmChainAssetsList = memo<Props>(({ chainId, activeField, publicKey
   );
 
   const metadata = useEvmTokensMetadataRecordSelector();
-  const lifiMetadata = useLifiEvmTokensMetadataRecordSelector();
+  const lifiMetadata = useLifiConnectedEvmTokensMetadataRecordSelector();
 
   const getMetadata = useCallback(
     (slug: string) =>

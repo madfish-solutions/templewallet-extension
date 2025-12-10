@@ -4,7 +4,8 @@ import { persistReducer } from 'redux-persist';
 import { storageConfig } from 'lib/store';
 
 import {
-  putLifiEvmTokensMetadataAction,
+  putLifiConnectedEvmTokensMetadataAction,
+  putLifiEnabledNetworksEvmTokensMetadataAction,
   putLifiEvmTokensMetadataLoadingAction,
   putLifiSupportedChainIdsAction,
   setLifiMetadataLastFetchTimeAction
@@ -14,18 +15,33 @@ import { lifiEvmTokensMetadataInitialState, LifiEvmTokensMetadataState } from '.
 const lifiEvmTokensMetadataReducer = createReducer<LifiEvmTokensMetadataState>(
   lifiEvmTokensMetadataInitialState,
   builder => {
-    builder.addCase(putLifiEvmTokensMetadataAction, ({ metadataRecord }, { payload }) => {
+    builder.addCase(putLifiConnectedEvmTokensMetadataAction, ({ connectedTokensMetadataRecord }, { payload }) => {
       const { chainId, records } = payload;
 
-      metadataRecord[chainId] = {};
+      connectedTokensMetadataRecord[chainId] = {};
 
       for (const slug of Object.keys(records)) {
         const metadata = records[slug];
         if (!metadata) continue;
 
-        metadataRecord[chainId][slug] = metadata;
+        connectedTokensMetadataRecord[chainId][slug] = metadata;
       }
     });
+    builder.addCase(
+      putLifiEnabledNetworksEvmTokensMetadataAction,
+      ({ enabledChainsTokensMetadataRecord }, { payload }) => {
+        const { chainId, records } = payload;
+
+        enabledChainsTokensMetadataRecord[chainId] = {};
+
+        for (const slug of Object.keys(records)) {
+          const metadata = records[slug];
+          if (!metadata) continue;
+
+          enabledChainsTokensMetadataRecord[chainId][slug] = metadata;
+        }
+      }
+    );
     builder.addCase(putLifiEvmTokensMetadataLoadingAction, (state, { payload }) => {
       if (payload.isLoading !== undefined) {
         state.isLoading = payload.isLoading;
@@ -46,7 +62,7 @@ const lifiEvmTokensMetadataReducer = createReducer<LifiEvmTokensMetadataState>(
 export const lifiEvmTokensMetadataPersistedReducer = persistReducer(
   {
     key: 'root.lifiEvmTokensMetadata',
-    blacklist: ['isLoading', 'error', 'metadataRecord'],
+    blacklist: ['isLoading', 'error', 'connectedTokensMetadataRecord', 'enabledChainsTokensMetadataRecord'],
     ...storageConfig
   },
   lifiEvmTokensMetadataReducer

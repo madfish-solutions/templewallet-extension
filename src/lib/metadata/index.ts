@@ -22,8 +22,10 @@ import {
   useEvmTokensMetadataLoadingSelector
 } from 'app/store/evm/selectors';
 import {
-  useLifiEvmChainTokensMetadataSelector,
-  useLifiEvmTokensMetadataRecordSelector
+  useLifiConnectedEvmChainTokensMetadataSelector,
+  useLifiConnectedEvmTokensMetadataRecordSelector,
+  useLifiEnabledNetworksEvmChainTokensMetadataSelector,
+  useLifiEnabledNetworksEvmTokensMetadataRecordSelector
 } from 'app/store/evm/swap-lifi-metadata/selectors';
 import { LifiEvmTokenMetadataRecord } from 'app/store/evm/swap-lifi-metadata/state';
 import {
@@ -117,12 +119,13 @@ export const useGenericTezosAssetMetadata = (slug: string, tezosChainId: string)
 export const useEvmCategorizedAssetMetadata = (slug: string, evmChainId: number): EvmAssetMetadata | undefined => {
   const network = useEvmChainByChainId(evmChainId);
   const tokenMetadata = useEvmTokenMetadataSelector(evmChainId, slug);
-  const { metadata: lifiTokensMetadata } = useLifiEvmChainTokensMetadataSelector(evmChainId);
+  const { metadata: lifiTokensMetadata } = useLifiConnectedEvmChainTokensMetadataSelector(evmChainId);
+  const enabledNetworksLifiTokensMetadata = useLifiEnabledNetworksEvmChainTokensMetadataSelector(evmChainId);
   const collectibleMetadata = useEvmCollectibleMetadataSelector(evmChainId, slug);
 
   return isEvmNativeTokenSlug(slug)
     ? network?.currency
-    : tokenMetadata || lifiTokensMetadata?.[slug] || collectibleMetadata;
+    : tokenMetadata || lifiTokensMetadata?.[slug] || enabledNetworksLifiTokensMetadata?.[slug] || collectibleMetadata;
 };
 
 export const useEvmGenericAssetMetadata = (slug: string, evmChainId: number): EvmAssetMetadata | undefined => {
@@ -155,13 +158,14 @@ const useGetterBySlug = <T>(input: GetterBySlugInput<T>, fallbackValueFn?: SyncF
 export const useGetEvmGasOrTokenMetadata = () => {
   const evmChains = useAllEvmChains();
   const tokensMetadata = useEvmTokensMetadataRecordSelector();
-  const lifiMetadata = useLifiEvmTokensMetadataRecordSelector();
+  const lifiConnectedTokensMetadata = useLifiConnectedEvmTokensMetadataRecordSelector();
+  const lifiEnabledNetworksTokensMetadata = useLifiEnabledNetworksEvmTokensMetadataRecordSelector();
   const getterFn = useCallback(
     (input: EvmTokenMetadataRecord, chainId: number, slug: string) =>
       isEvmNativeTokenSlug(slug) ? evmChains[chainId]?.currency : input[chainId]?.[slug],
     [evmChains]
   );
-  const mergedMetadata = merge({}, tokensMetadata, lifiMetadata);
+  const mergedMetadata = merge({}, tokensMetadata, lifiConnectedTokensMetadata, lifiEnabledNetworksTokensMetadata);
 
   return useGetter(mergedMetadata, getterFn);
 };
@@ -169,16 +173,15 @@ export const useGetEvmGasOrTokenMetadata = () => {
 export const useGetEvmChainTokenOrGasMetadata = (chainId: number) => {
   const network = useEvmChainByChainId(chainId);
   const tokensMetadata = useEvmChainTokensMetadataRecordSelector(chainId);
-  const { metadata: lifiTokensMetadata } = useLifiEvmChainTokensMetadataSelector(chainId);
+  const { metadata: connectedLifiTokensMetadata } = useLifiConnectedEvmChainTokensMetadataSelector(chainId);
+  const enabledNetworksLifiTokensMetadata = useLifiEnabledNetworksEvmChainTokensMetadataSelector(chainId);
   const fallbackValueFn = useCallback(
     (slug: string) => (isEvmNativeTokenSlug(slug) ? network?.currency : undefined),
     [network]
   );
+  const mergedMetadata = merge({}, tokensMetadata, connectedLifiTokensMetadata, enabledNetworksLifiTokensMetadata);
 
-  return useGetterBySlug<EvmNativeTokenMetadata | EvmTokenMetadata>(
-    { ...tokensMetadata, ...lifiTokensMetadata },
-    fallbackValueFn
-  );
+  return useGetterBySlug<EvmNativeTokenMetadata | EvmTokenMetadata>(mergedMetadata, fallbackValueFn);
 };
 
 export const useGetEvmNoCategoryAssetMetadata = (chainId: number) => {
@@ -191,7 +194,8 @@ interface EvmGenericAssetMetadataGetterInput {
   tokensMetadatas: EvmTokenMetadataRecord;
   collectiblesMetadatas: EvmCollectibleMetadataRecord;
   noCategoryMetadatas: EvmNoCategoryAssetMetadataRecord;
-  lifiMetadata: LifiEvmTokenMetadataRecord;
+  lifiConnectedTokensMetadata: LifiEvmTokenMetadataRecord;
+  lifiEnabledNetworksTokensMetadata: LifiEvmTokenMetadataRecord;
 }
 
 const useGetEvmGenericAssetMetadata = () => {
@@ -199,7 +203,8 @@ const useGetEvmGenericAssetMetadata = () => {
   const tokensMetadatas = useEvmTokensMetadataRecordSelector();
   const collectiblesMetadatas = useEvmCollectiblesMetadataRecordSelector();
   const noCategoryMetadatas = useEvmNoCategoryAssetsMetadataRecordSelector();
-  const lifiMetadata = useLifiEvmTokensMetadataRecordSelector();
+  const lifiConnectedTokensMetadata = useLifiConnectedEvmTokensMetadataRecordSelector();
+  const lifiEnabledNetworksTokensMetadata = useLifiEnabledNetworksEvmTokensMetadataRecordSelector();
 
   const getterFn = useCallback(
     (input: EvmGenericAssetMetadataGetterInput, slug: string, chainId: number) => {
@@ -209,13 +214,23 @@ const useGetEvmGenericAssetMetadata = () => {
         input.tokensMetadatas[chainId]?.[slug] ||
         input.collectiblesMetadatas[chainId]?.[slug] ||
         input.noCategoryMetadatas[chainId]?.[slug] ||
-        input.lifiMetadata[chainId]?.[slug]
+        input.lifiConnectedTokensMetadata[chainId]?.[slug] ||
+        input.lifiEnabledNetworksTokensMetadata[chainId]?.[slug]
       );
     },
     [allEvmChains]
   );
 
-  return useGetter({ tokensMetadatas, collectiblesMetadatas, noCategoryMetadatas, lifiMetadata }, getterFn);
+  return useGetter(
+    {
+      tokensMetadatas,
+      collectiblesMetadatas,
+      noCategoryMetadatas,
+      lifiConnectedTokensMetadata,
+      lifiEnabledNetworksTokensMetadata
+    },
+    getterFn
+  );
 };
 
 export const useGetEvmChainCollectibleMetadata = (chainId: number) => {
