@@ -27,7 +27,7 @@ const INCENTIVE_TOKENS: Record<number, Record<string, IncentiveInfo>> = {
   },
   [COMMON_MAINNET_CHAIN_IDS.etherlink]: {
     [ETHERLINK_USDC_SLUG]: {
-      label: 'APY: 28%',
+      label: 'APR: 12%',
       link: APPLEFARM_REFERRAL_LINK,
       external: true
     }

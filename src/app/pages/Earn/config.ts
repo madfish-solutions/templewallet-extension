@@ -76,7 +76,7 @@ export const EXTERNAL_OFFERS: EarnOffer[] = [
     chainKind: TempleChainKind.EVM,
     chainId: COMMON_MAINNET_CHAIN_IDS.etherlink,
     assetSlug: ETHERLINK_USDC_SLUG,
-    displayYield: '28% APR',
+    displayYield: '12% APR',
     providerIcon: AppleFarmIcon,
     isExternal: true
   }
