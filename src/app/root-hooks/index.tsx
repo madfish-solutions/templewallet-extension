@@ -20,6 +20,7 @@ import { cleanupOutdatedEvmPendingTxWithInitialMonitorTriggerAction } from 'app/
 import { useTestnetModeEnabledSelector } from 'app/store/settings/selectors';
 import { loadSwapDexesAction, loadSwapTokensAction } from 'app/store/swap/actions';
 import { loadTokensWhitelistActions, loadTokensScamlistActions } from 'app/store/tezos/assets/actions';
+import { cleanupOutdatedTezosPendingTxWithInitialMonitorTriggerAction } from 'app/store/tezos/pending-transactions/actions';
 import { useTempleClient } from 'lib/temple/front';
 import { useDidMount } from 'lib/ui/hooks';
 import { useAccountAddressForEvm, useAccountAddressForTezos } from 'temple/front';
@@ -61,10 +62,12 @@ const ConstantAppRootHooks = memo(() => {
 const AppReadyRootHooks = memo(() => {
   useAssetsMigrations();
 
-  useDidMount(() => void dispatch(loadTokensWhitelistActions.submit()));
-  useDidMount(() => void dispatch(loadTokensScamlistActions.submit()));
-
-  useDidMount(() => void dispatch(cleanupOutdatedEvmPendingTxWithInitialMonitorTriggerAction()));
+  useDidMount(() => {
+    dispatch(loadTokensWhitelistActions.submit());
+    dispatch(loadTokensScamlistActions.submit());
+    dispatch(cleanupOutdatedEvmPendingTxWithInitialMonitorTriggerAction());
+    dispatch(cleanupOutdatedTezosPendingTxWithInitialMonitorTriggerAction());
+  });
 
   useMetadataRefresh();
 

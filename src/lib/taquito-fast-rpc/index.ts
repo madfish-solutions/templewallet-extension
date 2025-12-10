@@ -264,9 +264,10 @@ export class FastRpcClient extends RpcClient {
   }
 
   private loadLatestBlock = onlyOncePerExec(async () => {
-    if (!this.latestBlock || Date.now() - this.latestBlock.refreshedAt > BLOCK_REFRESH_MIN_INTERVAL) {
+    const newRefreshedAt = Date.now();
+    if (!this.latestBlock || newRefreshedAt - this.latestBlock.refreshedAt > BLOCK_REFRESH_MIN_INTERVAL) {
       const hash = await super.getBlockHash();
-      this.latestBlock = { hash, refreshedAt: Date.now() };
+      this.latestBlock = { hash, refreshedAt: newRefreshedAt };
     }
 
     return this.latestBlock;

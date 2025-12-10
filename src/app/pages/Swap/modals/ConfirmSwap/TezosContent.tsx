@@ -5,6 +5,11 @@ import { FormProvider } from 'react-hook-form-v7';
 
 import { useLedgerApprovalModalState } from 'app/hooks/use-ledger-approval-modal-state';
 import { BaseContent } from 'app/pages/Swap/modals/ConfirmSwap/BaseContent';
+import { dispatch } from 'app/store';
+import {
+  addPendingTezosTransactionAction,
+  monitorPendingTezosTransactionsAction
+} from 'app/store/tezos/pending-transactions/actions';
 import { TezosTxParamsFormData } from 'app/templates/TransactionTabs/types';
 import { useTezosEstimationForm } from 'app/templates/TransactionTabs/use-tezos-estimation-form';
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
@@ -18,6 +23,7 @@ import { serializeEstimate } from 'lib/utils/serialize-estimate';
 import { getParamsWithCustomGasLimitFor3RouteSwap } from 'lib/utils/swap.utils';
 import { getTezosToolkitWithSigner } from 'temple/front';
 import { useGetTezosActiveBlockExplorer } from 'temple/front/ready';
+import { makeBlockExplorerHref } from 'temple/front/use-block-explorers';
 import { TempleChainKind } from 'temple/types';
 
 import { TezosReviewData } from '../../form/interfaces';
@@ -150,6 +156,17 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
 
           const blockExplorer = getActiveBlockExplorer(network.chainId);
 
+          dispatch(
+            addPendingTezosTransactionAction({
+              txHash,
+              accountPkh,
+              network,
+              blockExplorerUrl: makeBlockExplorerHref(blockExplorer.url, txHash, 'tx', TempleChainKind.Tezos),
+              submittedAt: Date.now()
+            })
+          );
+          dispatch(monitorPendingTezosTransactionsAction());
+
           showTxSubmitToastWithDelay(TempleChainKind.Tezos, txHash, blockExplorer.url);
         };
 
@@ -171,12 +188,13 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
       isLedgerAccount,
       setLedgerApprovalModalState,
       getActiveBlockExplorer,
-      network.chainId,
+      network,
       onClose,
       onConfirm,
       onSubmitError,
       submitOperation,
-      tezos
+      tezos,
+      accountPkh
     ]
   );
 

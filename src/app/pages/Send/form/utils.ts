@@ -1,9 +1,12 @@
 import { ManagerKeyResponse } from '@taquito/rpc';
 import { Estimate, getRevealFee, TezosToolkit, TransferParams } from '@taquito/taquito';
+import retry from 'async-retry';
 import BigNumber from 'bignumber.js';
 
 import { transferImplicit, transferToContract } from 'lib/michelson';
 import { loadContract } from 'lib/temple/contract';
+import { getHumanErrorMessage } from 'lib/temple/error-messages';
+import { ERROR_MESSAGES } from 'lib/temple/error-messages/messages';
 import { mutezToTz, tzToMutez } from 'lib/temple/helpers';
 import { TempleAccountType } from 'lib/temple/types';
 import { isTezosContractAddress, tezosManagerKeyHasManager } from 'lib/tezos';
@@ -19,7 +22,7 @@ type TransferParamsInvariant =
       amount: any;
     };
 
-export const estimateTezosMaxFee = async (
+export const estimateTezosMaxFee = (
   acc: AccountForTezos,
   tez: boolean,
   tezos: TezosToolkit,
@@ -28,28 +31,41 @@ export const estimateTezosMaxFee = async (
   balanceBN: BigNumber,
   transferParams: TransferParamsInvariant,
   manager: ManagerKeyResponse
-) => {
-  let estmtnMax: Estimate;
-  if (acc.type === TempleAccountType.ManagedKT) {
-    const michelsonLambda = isTezosContractAddress(to) ? transferToContract : transferImplicit;
+) =>
+  retry(
+    async bail => {
+      try {
+        let estmtnMax: Estimate;
+        if (acc.type === TempleAccountType.ManagedKT) {
+          const michelsonLambda = isTezosContractAddress(to) ? transferToContract : transferImplicit;
 
-    const contract = await loadContract(tezos, acc.address);
-    const transferParamsWrapper = contract.methodsObject
-      .do(michelsonLambda(to, tzToMutez(balanceBN)))
-      .toTransferParams();
-    estmtnMax = await tezos.estimate.transfer(transferParamsWrapper);
-  } else if (tez) {
-    const estmtn = await tezos.estimate.transfer(transferParams);
-    let amountMax = balanceBN.minus(mutezToTz(estmtn.totalCost));
-    if (!tezosManagerKeyHasManager(manager)) {
-      amountMax = amountMax.minus(mutezToTz(getRevealFee(from)));
-    }
-    estmtnMax = await tezos.estimate.transfer({
-      to,
-      amount: amountMax.toString() as any
-    });
-  } else {
-    estmtnMax = await tezos.estimate.transfer(transferParams);
-  }
-  return estmtnMax;
-};
+          const contract = await loadContract(tezos, acc.address);
+          const transferParamsWrapper = contract.methodsObject
+            .do(michelsonLambda(to, tzToMutez(balanceBN)))
+            .toTransferParams();
+          estmtnMax = await tezos.estimate.transfer(transferParamsWrapper);
+        } else if (tez) {
+          const estmtn = await tezos.estimate.transfer(transferParams);
+          let amountMax = balanceBN.minus(mutezToTz(estmtn.totalCost));
+          if (!tezosManagerKeyHasManager(manager)) {
+            amountMax = amountMax.minus(mutezToTz(getRevealFee(from)));
+          }
+          estmtnMax = await tezos.estimate.transfer({
+            to,
+            amount: amountMax.toString() as any
+          });
+        } else {
+          estmtnMax = await tezos.estimate.transfer(transferParams);
+        }
+        return estmtnMax;
+      } catch (err) {
+        const humanErrorMessage = getHumanErrorMessage(err);
+        if (humanErrorMessage !== ERROR_MESSAGES.nonceTooHigh && humanErrorMessage !== ERROR_MESSAGES.nonceTooLow) {
+          bail(err as Error);
+        }
+
+        throw err;
+      }
+    },
+    { retries: 3, minTimeout: 1000, maxTimeout: 1000 }
+  );

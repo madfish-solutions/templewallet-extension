@@ -19,6 +19,7 @@ import { balancesEpics } from './tezos/balances/epics';
 import { collectiblesEpics } from './tezos/collectibles/epics';
 import { collectiblesMetadataEpics } from './tezos/collectibles-metadata/epics';
 import { tezosNoCategoryAssetsMetadataEpics } from './tezos/no-category-assets-metadata/epics';
+import { pendingTezosTransactionsEpics } from './tezos/pending-transactions/epics';
 import { tokensMetadataEpics } from './tezos/tokens-metadata/epics';
 
 const allEpics = combineEpics(
@@ -38,6 +39,7 @@ const allEpics = combineEpics(
   rewardsEpics,
   evmBalancesEpics,
   pendingEvmSwapsEpics,
+  pendingTezosTransactionsEpics,
   accountsInitializationEpics
 );
 

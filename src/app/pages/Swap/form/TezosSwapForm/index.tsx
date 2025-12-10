@@ -17,6 +17,7 @@ import { dispatch, useSelector } from 'app/store';
 import { setOnRampAssetAction } from 'app/store/settings/actions';
 import { loadSwapParamsAction } from 'app/store/swap/actions';
 import { useSwapParamsSelector, useSwapTokenSelector, useSwapTokensSelector } from 'app/store/swap/selectors';
+import { usePendingTezosTransactionsHashes } from 'app/store/tezos/pending-transactions/utils';
 import OperationStatus from 'app/templates/OperationStatus';
 import { toastError, toastUniqWarning } from 'app/toaster';
 import { useFormAnalytics } from 'lib/analytics';
@@ -420,8 +421,17 @@ export const TezosSwapForm: FC<TezosSwapFormProps> = ({
     targetAssetInfo?.chainId
   ]);
 
+  const pendingTxHashes = usePendingTezosTransactionsHashes(publicKeyHash, network.chainId);
+  const otherOperationsPending = pendingTxHashes.length > 0;
+
   const onSubmit = useCallback(async () => {
     if (formState.isSubmitting) return;
+
+    if (otherOperationsPending) {
+      toastError(t('otherOperationsPendingError'));
+
+      return;
+    }
 
     if (
       inputValue.assetSlug === TEZ_TOKEN_SLUG &&
@@ -660,7 +670,8 @@ export const TezosSwapForm: FC<TezosSwapFormProps> = ({
     slippageRatio,
     swapParams.data,
     tezos,
-    toRoute3Token
+    toRoute3Token,
+    otherOperationsPending
   ]);
 
   return (

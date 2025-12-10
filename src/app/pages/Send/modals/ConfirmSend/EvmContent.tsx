@@ -164,6 +164,7 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
       isLedgerAccount,
       sendEvmTransaction,
       network,
+      assetSlug,
       onConfirm,
       onClose,
       getActiveBlockExplorer,
