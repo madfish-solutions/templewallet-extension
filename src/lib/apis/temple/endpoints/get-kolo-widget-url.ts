@@ -1,3 +1,5 @@
+import { isDefined } from '@rnw-community/shared';
+
 import { EnvVars } from 'lib/env';
 
 import { templeWalletApi } from './templewallet.api';
@@ -29,42 +31,44 @@ interface GetKoloWidgetUrlParams {
   isPersist?: boolean;
 }
 
-export const getKoloWidgetUrl = async (params: GetKoloWidgetUrlParams) => {
+export const getKoloWidgetUrl = async (params: GetKoloWidgetUrlParams = {}) => {
+  const { email, isEmailLocked, themeColor, currency, language, customerColors, hideFeatures, isPersist } = params;
   const url = new URL(EnvVars.KOLO_BASE_URL);
 
   url.searchParams.set('apiKey', EnvVars.KOLO_API_KEY);
 
-  if (params.email) {
-    url.searchParams.set('email', params.email);
+  if (email) {
+    url.searchParams.set('email', email);
   }
-  if (typeof params.isEmailLocked === 'boolean') {
-    url.searchParams.set('isEmailLocked', String(params.isEmailLocked));
+
+  if (isDefined(isEmailLocked)) {
+    url.searchParams.set('isEmailLocked', String(isEmailLocked));
   }
-  if (params.themeColor) {
-    url.searchParams.set('themeColor', params.themeColor);
+
+  if (themeColor) {
+    url.searchParams.set('themeColor', themeColor);
   }
-  if (params.currency) {
-    params.currency.forEach(code => {
-      url.searchParams.append('currency', code);
-    });
+
+  currency?.forEach(code => {
+    url.searchParams.append('currency', code);
+  });
+
+  if (language) {
+    url.searchParams.set('language', language);
   }
-  if (params.language) {
-    url.searchParams.set('language', params.language);
-  }
-  if (params.customerColors) {
-    Object.entries(params.customerColors).forEach(([key, value]) => {
-      if (value) {
-        url.searchParams.set(key, value);
-      }
-    });
-  }
-  if (params.hideFeatures) {
-    params.hideFeatures.forEach(feature => {
-      url.searchParams.append('hideFeatures', feature);
-    });
-  }
-  if (typeof params.isPersist === 'boolean') {
-    url.searchParams.set('isPersist', String(params.isPersist));
+
+  Object.entries(customerColors ?? {}).forEach(([key, value]) => {
+    if (value) {
+      url.searchParams.set(key, value);
+    }
+  });
+
+  hideFeatures?.forEach(feature => {
+    url.searchParams.append('hideFeatures', feature);
+  });
+
+  if (isDefined(isPersist)) {
+    url.searchParams.set('isPersist', String(isPersist));
   }
 
   const { data } = await templeWalletApi.post<GetKoloWidgetUrlResponse>('/kolo/widget-sign', {

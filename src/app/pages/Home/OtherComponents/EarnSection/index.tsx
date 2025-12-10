@@ -18,7 +18,7 @@ interface EarnSectionProps {
   openCryptoCardModal: EmptyFn;
 }
 
-const ANIMATION_STYLE = clsx('transform transition-transform duration-200 ease-out peer-hover:translate-y-2');
+const ANIMATION_STYLE = 'transform transition-transform duration-200 ease-out peer-hover:translate-y-2';
 
 export const EarnSection = memo<EarnSectionProps>(({ className, openCryptoCardModal }) => {
   const { animatedChevronRef, handleHover, handleUnhover } = useActivateAnimatedChevron();

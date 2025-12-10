@@ -1,8 +1,9 @@
-import React, { FC, memo, useEffect, useState } from 'react';
+import React, { FC, memo, useEffect } from 'react';
 
 import { PageLoader } from 'app/atoms/Loader';
 import { PageModal } from 'app/atoms/PageModal';
 import { getKoloWidgetUrl } from 'lib/apis/temple';
+import { useSafeState } from 'lib/ui/hooks';
 
 interface KoloCardWidgetModalProps {
   opened: boolean;
@@ -10,9 +11,9 @@ interface KoloCardWidgetModalProps {
 }
 
 export const KoloCardWidgetModal: FC<KoloCardWidgetModalProps> = memo(({ opened, onRequestClose }) => {
-  const [widgetUrl, setWidgetUrl] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [widgetUrl, setWidgetUrl] = useSafeState<string | null>(null);
+  const [loading, setLoading] = useSafeState(false);
+  const [error, setError] = useSafeState<string | null>(null);
 
   useEffect(() => {
     if (!opened || widgetUrl || loading) return;
@@ -36,7 +37,7 @@ export const KoloCardWidgetModal: FC<KoloCardWidgetModalProps> = memo(({ opened,
         setLoading(false);
       }
     })();
-  }, [opened, widgetUrl, loading]);
+  }, [opened, widgetUrl, loading, setLoading, setError, setWidgetUrl]);
 
   return (
     <PageModal title="Crypto Card" opened={opened} onRequestClose={onRequestClose}>
