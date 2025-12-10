@@ -7,7 +7,7 @@ import { useSafeState } from 'lib/ui/hooks';
 
 interface KoloCardWidgetModalProps {
   opened: boolean;
-  onRequestClose: () => void;
+  onRequestClose: EmptyFn;
 }
 
 export const KoloCardWidgetModal: FC<KoloCardWidgetModalProps> = memo(({ opened, onRequestClose }) => {

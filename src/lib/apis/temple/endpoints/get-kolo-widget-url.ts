@@ -35,7 +35,7 @@ export const getKoloWidgetUrl = async (params: GetKoloWidgetUrlParams = {}) => {
   const { email, isEmailLocked, themeColor, currency, language, customerColors, hideFeatures, isPersist } = params;
   const url = new URL(EnvVars.KOLO_BASE_URL);
 
-  url.searchParams.set('apiKey', EnvVars.KOLO_API_KEY);
+  url.searchParams.set('apiKey', EnvVars.KOLO_API_PUBLIC_KEY);
 
   if (email) {
     url.searchParams.set('email', email);
