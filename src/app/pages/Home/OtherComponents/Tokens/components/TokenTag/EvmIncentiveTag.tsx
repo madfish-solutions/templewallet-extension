@@ -2,7 +2,7 @@ import React, { FC, useMemo } from 'react';
 
 import { TagButton } from 'app/atoms/TagButton';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
-import { ETHERLINK_USDC_SLUG, APPLEFARM_REFERRAL_LINK } from 'lib/constants';
+import { ETHERLINK_USDC_SLUG, APPLEFARM_REFERRAL_LINK, APPLEFARM_APR, ETHEREUM_APR } from 'lib/constants';
 import { COMMON_MAINNET_CHAIN_IDS, ETHEREUM_MAINNET_CHAIN_ID } from 'lib/temple/types';
 import { isTruthy, openLink } from 'lib/utils';
 import { navigate } from 'lib/woozie';
@@ -21,13 +21,13 @@ type IncentiveInfo = { label: string; link: string; external?: boolean };
 const INCENTIVE_TOKENS: Record<number, Record<string, IncentiveInfo>> = {
   [ETHEREUM_MAINNET_CHAIN_ID]: {
     [EVM_TOKEN_SLUG]: {
-      label: 'APR: 3.4-10%',
+      label: `APR: ${ETHEREUM_APR}%`,
       link: '/earn-eth'
     }
   },
   [COMMON_MAINNET_CHAIN_IDS.etherlink]: {
     [ETHERLINK_USDC_SLUG]: {
-      label: 'APR: 12%',
+      label: `APR: ${APPLEFARM_APR}%`,
       link: APPLEFARM_REFERRAL_LINK,
       external: true
     }

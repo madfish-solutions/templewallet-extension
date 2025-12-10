@@ -5,6 +5,7 @@ import clsx from 'clsx';
 import { AnimatedMenuChevron } from 'app/atoms/animated-menu-chevron';
 import { EvmAssetIconWithNetwork, TezosAssetIconWithNetwork } from 'app/templates/AssetIcon';
 import { EVM_TOKEN_SLUG, TEZ_TOKEN_SLUG } from 'lib/assets/defaults';
+import { ETHEREUM_APR, TEZOS_APY } from 'lib/constants';
 import { T } from 'lib/i18n';
 import { ETHEREUM_MAINNET_CHAIN_ID, TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
 import { useActivateAnimatedChevron } from 'lib/ui/hooks/use-activate-animated-chevron';
@@ -44,14 +45,14 @@ export const EarnSection = memo<EarnSectionProps>(({ className }) => {
                 <EvmAssetIconWithNetwork assetSlug={EVM_TOKEN_SLUG} evmChainId={ETHEREUM_MAINNET_CHAIN_ID} size={24} />
               }
               symbol="ETH"
-              displayRate="3.4-10% APR"
+              displayRate={`${ETHEREUM_APR}% APR`}
             />
             <EarnOpportunityItem
               Icon={
                 <TezosAssetIconWithNetwork assetSlug={TEZ_TOKEN_SLUG} tezosChainId={TEZOS_MAINNET_CHAIN_ID} size={24} />
               }
               symbol="TEZ"
-              displayRate="6.5% APY"
+              displayRate={`${TEZOS_APY}% APY`}
             />
           </div>
         </div>

@@ -1,7 +1,13 @@
 import React, { FC, useMemo } from 'react';
 
+import { isDefined } from '@rnw-community/shared';
+
 import { useStakedAmount } from 'app/hooks/use-baking-hooks';
+import { TEZ_TOKEN_SLUG } from 'lib/assets';
+import { useTezosAssetBalance } from 'lib/balances';
+import { useDelegate } from 'lib/temple/front';
 import { mutezToTz } from 'lib/temple/helpers';
+import { ZERO } from 'lib/utils/numbers';
 import { useAccountAddressForTezos, useTezosMainnetChain } from 'temple/front';
 import { TezosNetworkEssentials } from 'temple/networks';
 
@@ -27,19 +33,25 @@ interface DepositContentProps {
 }
 
 const DepositContent: FC<DepositContentProps> = ({ accountPkh, network }) => {
-  const { data: stakedAtomic, isLoading } = useStakedAmount(network, accountPkh, false);
+  const { value: tezBalance } = useTezosAssetBalance(TEZ_TOKEN_SLUG, accountPkh, network);
+  const { data: myBakerPkh, isLoading: isBakerAddressLoading } = useDelegate(accountPkh, network, false, true);
+  const { data: stakedAtomic, isLoading: isStakedAmountLoading } = useStakedAmount(network, accountPkh, false);
 
   const deposit = useMemo<ActiveDeposit | undefined>(() => {
-    if (isLoading) return { isLoading: true };
+    if (isBakerAddressLoading || isStakedAmountLoading || !isDefined(tezBalance)) return { isLoading: true };
 
-    if (!stakedAtomic || stakedAtomic.isNaN() || stakedAtomic.lte(0)) {
-      return;
-    }
+    const hasDelegation = isDefined(myBakerPkh) && tezBalance.gt(0);
+    const hasStaked = isDefined(stakedAtomic) && !stakedAtomic.isNaN() && stakedAtomic.gt(0);
 
-    const amount = mutezToTz(stakedAtomic);
+    let amount = ZERO;
+
+    if (hasDelegation) amount = tezBalance;
+    else return;
+
+    if (hasStaked) amount = tezBalance.plus(mutezToTz(stakedAtomic));
 
     return { amount, isLoading: false };
-  }, [stakedAtomic, isLoading]);
+  }, [isBakerAddressLoading, isStakedAmountLoading, tezBalance, myBakerPkh, stakedAtomic]);
 
   return <EarnItem offer={TEZ_SAVING_OFFER} deposit={deposit} />;
 };

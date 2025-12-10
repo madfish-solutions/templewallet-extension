@@ -1,7 +1,7 @@
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { KNOWN_TOKENS_SLUGS } from 'lib/assets/known-tokens';
-import { ETHERLINK_USDC_SLUG, APPLEFARM_REFERRAL_LINK } from 'lib/constants';
+import { ETHERLINK_USDC_SLUG, APPLEFARM_REFERRAL_LINK, TEZOS_APY, APPLEFARM_APR, ETHEREUM_APR } from 'lib/constants';
 import { COMMON_MAINNET_CHAIN_IDS, ETHEREUM_MAINNET_CHAIN_ID, TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
 import { TempleChainKind } from 'temple/types';
 
@@ -18,7 +18,7 @@ export const TEZ_SAVING_OFFER: EarnOffer = {
   chainKind: TempleChainKind.Tezos,
   chainId: TEZOS_MAINNET_CHAIN_ID,
   assetSlug: TEZ_TOKEN_SLUG,
-  displayYield: '6.5% APY'
+  displayYield: `${TEZOS_APY}% APY`
 };
 
 export const ETH_SAVING_OFFER: EarnOffer = {
@@ -29,7 +29,7 @@ export const ETH_SAVING_OFFER: EarnOffer = {
   chainKind: TempleChainKind.EVM,
   chainId: ETHEREUM_MAINNET_CHAIN_ID,
   assetSlug: EVM_TOKEN_SLUG,
-  displayYield: '3.4-10% APR'
+  displayYield: `${ETHEREUM_APR}% APR`
 };
 
 export const SAVINGS_OFFERS: EarnOffer[] = [TEZ_SAVING_OFFER, ETH_SAVING_OFFER];
@@ -76,7 +76,7 @@ export const EXTERNAL_OFFERS: EarnOffer[] = [
     chainKind: TempleChainKind.EVM,
     chainId: COMMON_MAINNET_CHAIN_IDS.etherlink,
     assetSlug: ETHERLINK_USDC_SLUG,
-    displayYield: '12% APR',
+    displayYield: `${APPLEFARM_APR}% APR`,
     providerIcon: AppleFarmIcon,
     isExternal: true
   }
