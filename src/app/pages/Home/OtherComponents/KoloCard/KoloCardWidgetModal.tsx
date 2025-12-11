@@ -1,5 +1,7 @@
 import React, { FC, memo, useEffect } from 'react';
 
+import retry from 'async-retry';
+
 import { PageLoader } from 'app/atoms/Loader';
 import { PageModal } from 'app/atoms/PageModal';
 import { getKoloWidgetUrl } from 'lib/apis/temple';
@@ -16,28 +18,37 @@ export const KoloCardWidgetModal: FC<KoloCardWidgetModalProps> = memo(({ opened,
   const [error, setError] = useSafeState<string | null>(null);
 
   useEffect(() => {
-    if (!opened || widgetUrl || loading) return;
+    if (!opened) {
+      setWidgetUrl(null);
+      setError(null);
+      return;
+    }
+
+    if (widgetUrl || loading || error) return;
 
     setLoading(true);
-    setError(null);
 
     void (async () => {
       try {
-        const url = await getKoloWidgetUrl({
-          isEmailLocked: false,
-          themeColor: 'light',
-          hideFeatures: [],
-          isPersist: false
-        });
+        const url = await retry(
+          () =>
+            getKoloWidgetUrl({
+              isEmailLocked: false,
+              themeColor: 'light',
+              hideFeatures: [],
+              isPersist: false
+            }),
+          { retries: 3 }
+        );
 
         setWidgetUrl(url);
       } catch {
-        setError('Failed to load KOLO Card widget.');
+        setError('Failed to load KOLO Card widget. Please try again later.');
       } finally {
         setLoading(false);
       }
     })();
-  }, [opened, widgetUrl, loading, setLoading, setError, setWidgetUrl]);
+  }, [opened, widgetUrl, loading, error, setLoading, setError, setWidgetUrl]);
 
   return (
     <PageModal title="Crypto Card" opened={opened} onRequestClose={onRequestClose}>
