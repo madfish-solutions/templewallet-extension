@@ -59,7 +59,7 @@ export const AccountCard = memo<AccountCardProps>(
       <div
         ref={elemRef}
         className={clsx(
-          'flex flex-col',
+          'flex flex-col bg-white',
           alwaysShowAddresses ? 'p-3 gap-y-2' : 'p-2 gap-y-1.5',
           'rounded-lg shadow-bottom border',
           alwaysShowAddresses && 'ease-out duration-300',

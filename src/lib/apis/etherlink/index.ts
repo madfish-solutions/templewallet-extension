@@ -1,7 +1,7 @@
 import { Semaphore } from 'async-mutex';
 import axios from 'axios';
 
-import { COMMON_MAINNET_CHAIN_IDS, COMMON_TESTNET_CHAIN_IDS } from 'lib/temple/types';
+import { COMMON_TESTNET_CHAIN_IDS, ETHERLINK_MAINNET_CHAIN_ID } from 'lib/temple/types';
 
 import { refetchOnce429 } from '../utils';
 
@@ -37,7 +37,7 @@ const api = axios.create({
   adapter: 'fetch'
 });
 const apiSemaphores = {
-  [COMMON_MAINNET_CHAIN_IDS.etherlink]: new Semaphore(10),
+  [ETHERLINK_MAINNET_CHAIN_ID]: new Semaphore(10),
   [COMMON_TESTNET_CHAIN_IDS.etherlink]: new Semaphore(10)
 };
 

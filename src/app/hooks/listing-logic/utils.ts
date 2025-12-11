@@ -1,7 +1,6 @@
-import { useState } from 'react';
-
 import { useDebounce } from 'use-debounce';
 
+import { useAssetsViewState } from 'app/hooks/use-assets-view-state';
 import { fromChainAssetSlug } from 'lib/assets/utils';
 import { isSearchStringApplicable } from 'lib/utils/search-items';
 
@@ -14,9 +13,7 @@ export const getSlugWithChainId = <T>(chainSlug: string) => {
 export const getSlugFromChainSlug = (chainSlug: string) => getSlugWithChainId(chainSlug).assetSlug;
 
 export const useCommonAssetsListingLogic = (isSyncing: boolean | ((isInSearchMode: boolean) => boolean)) => {
-  const [searchValue, setSearchValue] = useState('');
-  const [searchValueDebounced] = useDebounce(searchValue, 300);
-
+  const { searchValue, searchValueDebounced, setSearchValue } = useAssetsViewState();
   const isInSearchMode = isSearchStringApplicable(searchValueDebounced);
 
   const isSyncingLocal: boolean = typeof isSyncing === 'function' ? isSyncing(isInSearchMode) : isSyncing;

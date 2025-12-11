@@ -2,7 +2,9 @@ import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
 
 import { FadeTransition } from 'app/a11y/FadeTransition';
 import { EmptyState } from 'app/atoms/EmptyState';
+import { openInFullPage, useAppEnv } from 'app/env';
 import { useAllAccountsReactiveOnAddition, useAllAccountsReactiveOnRemoval } from 'app/hooks/use-all-accounts-reactive';
+import { useLocationSearchParamValue } from 'app/hooks/use-location';
 import { searchHotkey } from 'lib/constants';
 import { t } from 'lib/i18n';
 import { useTempleClient } from 'lib/temple/front';
@@ -42,9 +44,11 @@ enum AccountsManagementModal {
 export const AccountsManagement = memo<SettingsTabProps>(({ setHeaderChildren }) => {
   const { createAccount } = useTempleClient();
   const customAlert = useAlert();
+  const { popup, sidebar } = useAppEnv();
   const allAccounts = useAllAccountsReactiveOnAddition(false);
   useAllAccountsReactiveOnRemoval();
 
+  const [connectLedgerParam, setConnectLedgerParam] = useLocationSearchParamValue('connectLedger');
   const [searchValue, setSearchValue] = useState('');
   const [seedPhraseToReveal, setSeedPhraseToReveal] = useState('');
   const [selectedGroup, setSelectedGroup] = useState<DisplayedGroup | null>(null);
@@ -127,10 +131,18 @@ export const AccountsManagement = memo<SettingsTabProps>(({ setHeaderChildren })
     () => goToImportOptionFactory(AccountsManagementModal.ImportAccount, 'private-key'),
     [goToImportOptionFactory]
   );
-  const goToConnectLedgerModal = useMemo(
-    () => goToImportOptionFactory(AccountsManagementModal.ConnectLedger),
-    [goToImportOptionFactory]
-  );
+
+  const goToConnectLedgerModal = useCallback(() => {
+    if (popup || sidebar) {
+      openInFullPage({ connectLedger: 'true' });
+      if (popup) {
+        window.close();
+      }
+      return;
+    }
+    setActiveModal(AccountsManagementModal.ConnectLedger);
+  }, [popup, sidebar]);
+
   const goToWatchOnlyModal = useCallback(() => setActiveModal(AccountsManagementModal.WatchOnly), []);
   const handleSeedPhraseImportOptionSelect = useCallback(() => setImportOptionSlug('mnemonic'), []);
   const handlePrivateKeyImportOptionSelect = useCallback(() => setImportOptionSlug('private-key'), []);
@@ -230,6 +242,13 @@ export const AccountsManagement = memo<SettingsTabProps>(({ setHeaderChildren })
     return () => setHeaderChildren(null);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    if (connectLedgerParam === 'true') {
+      setActiveModal(AccountsManagementModal.ConnectLedger);
+      setConnectLedgerParam(null);
+    }
+  }, [connectLedgerParam, setConnectLedgerParam]);
 
   return (
     <FadeTransition>

@@ -56,6 +56,7 @@ interface Props {
   swapParamsAreLoading: boolean;
   swapRouteSteps: number;
   bridgeDetails?: BridgeDetails;
+  provider: 'lifi' | '3route';
   setIsFiatMode?: SyncFn<boolean>;
   parseFiatValueToAssetAmount: (
     fiatAmount?: BigNumber.Value,
@@ -93,6 +94,7 @@ export const BaseSwapForm: FC<Props> = ({
   swapParamsAreLoading,
   swapRouteSteps,
   bridgeDetails,
+  provider,
   setIsFiatMode = noop,
   parseFiatValueToAssetAmount,
   onInputChange,
@@ -320,6 +322,7 @@ export const BaseSwapForm: FC<Props> = ({
           <div className="mb-6">
             {isEvmNetwork ? (
               <EvmSwapInfoDropdown
+                provider={provider}
                 swapRouteSteps={swapRouteSteps}
                 inputAmount={inputAmount}
                 outputAmount={outputAmount}

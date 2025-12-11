@@ -17,6 +17,7 @@ import { T } from 'lib/i18n';
 import { DisplayedFeeOptions, FeeOptionLabel } from 'lib/temple/front/estimation-data-providers';
 import { LedgerOperationState } from 'lib/ui';
 import { EvmChain, OneOfChains } from 'temple/front';
+import { AssetsAmounts } from 'temple/types';
 
 interface BaseContentProps<T extends TxParamsFormData> {
   ledgerApprovalModalState: LedgerOperationState;
@@ -24,7 +25,7 @@ interface BaseContentProps<T extends TxParamsFormData> {
   network: OneOfChains;
   nativeAssetSlug: string;
   someBalancesChanges: boolean;
-  filteredBalancesChanges: any;
+  filteredBalancesChanges: AssetsAmounts[];
   selectedTab: Tab;
   setSelectedTab: SyncFn<Tab>;
   selectedFeeOption: FeeOptionLabel | nullish;
@@ -146,7 +147,7 @@ export const BaseContent = <T extends TxParamsFormData>({
         </StyledButton>
       </ActionsButtonsBox>
 
-      <LedgerApprovalModal state={ledgerApprovalModalState} onClose={onLedgerModalClose} />
+      <LedgerApprovalModal state={ledgerApprovalModalState} onClose={onLedgerModalClose} chainKind={network.kind} />
     </>
   );
 };

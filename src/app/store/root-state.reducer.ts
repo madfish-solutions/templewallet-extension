@@ -16,6 +16,7 @@ import { noCategoryEvmAssetsMetadataPersistedReducer } from './evm/no-category-a
 import { pendingEvmTransactionsPersistedReducer } from './evm/pending-transactions/reducers';
 import { evmLoadingReducer } from './evm/reducer';
 import { stakeWithdrawalReadyNotificationsReducer } from './evm/stake-withdrawal-ready-notifications/reducers';
+import { route3EvmTokensMetadataPersistedReducer } from './evm/swap-3route-metadata/reducers';
 import { evmTokensExchangeRatesPersistedReducer } from './evm/tokens-exchange-rates/reducers';
 import { evmTokensMetadataPersistedReducer } from './evm/tokens-metadata/reducers';
 import { newsletterReducers } from './newsletter/newsletter-reducers';
@@ -60,7 +61,8 @@ const rootStateReducersMap = {
   evmNoCategoryAssetMetadata: noCategoryEvmAssetsMetadataPersistedReducer,
   evmStakeWithdrawalReadyNotifications: stakeWithdrawalReadyNotificationsReducer,
   assetsFilterOptions: assetsFilterOptionsReducer,
-  accountsInitialization: accountsInitializationReducer
+  accountsInitialization: accountsInitializationReducer,
+  route3EvmTokensMetadata: route3EvmTokensMetadataPersistedReducer
 };
 
 export const rootReducer = combineReducers(rootStateReducersMap);

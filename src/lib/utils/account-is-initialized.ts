@@ -2,7 +2,7 @@ import { fetchEvmAccountInitialized } from 'lib/apis/temple/endpoints/evm';
 import { TzktAccountType, getAccountStatsFromTzkt } from 'lib/apis/tzkt';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { evmOnChainBalancesRequestsExecutor } from 'lib/evm/on-chain/balance';
-import { COMMON_MAINNET_CHAIN_IDS, TempleTezosChainId } from 'lib/temple/types';
+import { ETHERLINK_MAINNET_CHAIN_ID, TempleTezosChainId } from 'lib/temple/types';
 import { ETHERLINK_RPC_URL } from 'temple/networks';
 
 const existentAccountTypes = [TzktAccountType.Contract, TzktAccountType.Delegate, TzktAccountType.User];
@@ -15,7 +15,7 @@ const fetchTezosInitialized = makeFetchInitializedFn(address =>
 const fetchEtherlinkInitialized = makeFetchInitializedFn(account =>
   evmOnChainBalancesRequestsExecutor
     .executeRequest({
-      network: { rpcBaseURL: ETHERLINK_RPC_URL, chainId: COMMON_MAINNET_CHAIN_IDS.etherlink },
+      network: { rpcBaseURL: ETHERLINK_RPC_URL, chainId: ETHERLINK_MAINNET_CHAIN_ID },
       assetSlug: EVM_TOKEN_SLUG,
       account: account as HexString
     })

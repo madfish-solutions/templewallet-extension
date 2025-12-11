@@ -1,3 +1,4 @@
+import { isDefined } from '@rnw-community/shared';
 /* eslint-disable import/no-duplicates */
 import formatDateFns from 'date-fns/format';
 import formatDurationFns from 'date-fns/formatDuration';
@@ -8,7 +9,7 @@ import browser from 'webextension-polyfill';
 import cldrjsLocales from './cldrjs-locales.json';
 import { getNativeLocale, getDefaultLocale, areLocalesEqual, fetchLocaleMessages, applySubstitutions } from './helpers';
 import { getSavedLocale } from './saving';
-import { FetchedLocaleMessages, Substitutions } from './types';
+import { FetchedLocaleMessages, LocaleMessages, Substitutions } from './types';
 
 const dateFnsLocales: Record<string, Locale> = {
   en: enUS,
@@ -29,17 +30,34 @@ let fetchedLocaleMessages: FetchedLocaleMessages = {
 let cldrLocale = cldrjsLocales.en;
 
 export async function init() {
-  const saved = getSavedLocale();
-  const deflt = getDefaultLocale();
-  const native = getNativeLocale();
-
-  const [target, fallback] = await Promise.all([
-    !saved || areLocalesEqual(saved, native) ? null : fetchLocaleMessages(saved),
-    areLocalesEqual(deflt, native) || (saved && areLocalesEqual(deflt, saved)) ? null : fetchLocaleMessages(deflt)
-  ]);
+  const [target, fallback] = await Promise.all([getTargetLocaleMessages(), getFallbackLocaleMessages()]);
 
   fetchedLocaleMessages = { target, fallback };
   cldrLocale = (cldrjsLocales as Record<string, any>)[getCurrentLocale()] || cldrjsLocales.en;
+}
+
+const promiseNull = Promise.resolve(null);
+
+function getTargetLocaleMessages(): Promise<LocaleMessages | null> {
+  const savedLocale = getSavedLocale();
+  const nativeLocale = getNativeLocale();
+
+  if (!savedLocale || areLocalesEqual(savedLocale, nativeLocale)) return promiseNull;
+
+  return fetchLocaleMessages(savedLocale);
+}
+
+function getFallbackLocaleMessages(): Promise<LocaleMessages | null> {
+  const savedLocale = getSavedLocale();
+  const defaultLocale = getDefaultLocale();
+  const nativeLocale = getNativeLocale();
+
+  const areDefaultNativeEqual = areLocalesEqual(defaultLocale, nativeLocale);
+  const areDefaultSavedEqual = isDefined(savedLocale) && areLocalesEqual(defaultLocale, savedLocale);
+
+  if (areDefaultNativeEqual || areDefaultSavedEqual) return promiseNull;
+
+  return fetchLocaleMessages(defaultLocale);
 }
 
 export function getMessage(messageName: string, substitutions?: Substitutions) {

@@ -207,6 +207,7 @@ export const ConfirmDAppForm = memo<ConfirmDAppFormProps>(({ accounts, payload, 
   }, [payload, error, addAssetErrorMessage, showConflict]);
 
   const isOperationsConfirm = payload.type === 'confirm_operations';
+  const isSignPayload = payload.type === 'sign' || payload.type === 'personal_sign' || payload.type === 'sign_typed';
 
   return (
     <PageLayout
@@ -237,7 +238,7 @@ export const ConfirmDAppForm = memo<ConfirmDAppFormProps>(({ accounts, payload, 
           </div>
         )}
 
-        {error && !isOperationsConfirm && (
+        {error && !isOperationsConfirm && !isSignPayload && (
           <Alert
             closable
             onClose={handleErrorAlertClose}
@@ -304,7 +305,11 @@ export const ConfirmDAppForm = memo<ConfirmDAppFormProps>(({ accounts, payload, 
         onRequestClose={closeAccountsModal}
       />
 
-      <LedgerApprovalModal state={ledgerApprovalModalState} onClose={handleLedgerModalClose} />
+      <LedgerApprovalModal
+        state={ledgerApprovalModalState}
+        onClose={handleLedgerModalClose}
+        chainKind={payload.chainType}
+      />
     </PageLayout>
   );
 });

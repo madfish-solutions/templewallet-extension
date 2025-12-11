@@ -2,7 +2,7 @@ import React, { FC, useMemo } from 'react';
 
 import { TagButton } from 'app/atoms/TagButton';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
-import { COMMON_MAINNET_CHAIN_IDS, ETHEREUM_HOODI_CHAIN_ID, ETHEREUM_MAINNET_CHAIN_ID } from 'lib/temple/types';
+import { ETHEREUM_HOODI_CHAIN_ID, ETHEREUM_MAINNET_CHAIN_ID, ETHERLINK_MAINNET_CHAIN_ID } from 'lib/temple/types';
 import { isTruthy, openLink } from 'lib/utils';
 import { navigate } from 'lib/woozie';
 import { useEvmChainByChainId } from 'temple/front/chains';
@@ -30,7 +30,7 @@ const INCENTIVE_TOKENS: Record<number, Record<string, IncentiveInfo>> = {
       link: '/earn-eth'
     }
   },
-  [COMMON_MAINNET_CHAIN_IDS.etherlink]: {
+  [ETHERLINK_MAINNET_CHAIN_ID]: {
     // USDC
     '0x796Ea11Fa2dD751eD01b53C372fFDB4AAa8f00F9_0': {
       label: 'APY: 28%',

@@ -5,9 +5,10 @@ import clsx from 'clsx';
 import { EmptyState } from 'app/atoms/EmptyState';
 import { IconButton } from 'app/atoms/IconButton';
 import { ScrollView } from 'app/atoms/PageModal/scroll-view';
-import { useAppEnv } from 'app/env';
+import { openInFullPage, useAppEnv } from 'app/env';
 import { useShortcutAccountSelectModalIsOpened } from 'app/hooks/use-account-select-shortcut';
 import { useAllAccountsReactiveOnAddition } from 'app/hooks/use-all-accounts-reactive';
+import { useLocationSearchParamValue } from 'app/hooks/use-location';
 import { useRewardsAddresses } from 'app/hooks/use-rewards-addresses';
 import { ReactComponent as SettingsIcon } from 'app/icons/base/settings.svg';
 import {
@@ -46,7 +47,7 @@ enum AccountsModalSubmodals {
 
 export const AccountsModalContent = memo<AccountsModalContentProps>(
   ({ accounts: specifiedAccounts, currentAccountId: specifiedCurrentAccountId, opened, onRequestClose }) => {
-    const { confirmWindow } = useAppEnv();
+    const { confirmWindow, popup, sidebar } = useAppEnv();
     const allAccounts = useVisibleAccounts();
     const globalCurrentAccountId = useCurrentAccountId();
     const currentAccountId = specifiedCurrentAccountId ?? globalCurrentAccountId;
@@ -57,8 +58,17 @@ export const AccountsModalContent = memo<AccountsModalContentProps>(
     const [activeSubmodal, setActiveSubmodal] = useState<AccountsModalSubmodals | undefined>(undefined);
     const [importOptionSlug, setImportOptionSlug] = useState<ImportOptionSlug | undefined>();
 
+    const [connectLedgerParam, setConnectLedgerParam] = useLocationSearchParamValue('connectLedger');
+
     useAllAccountsReactiveOnAddition();
     useShortcutAccountSelectModalIsOpened(onRequestClose);
+
+    useEffect(() => {
+      if (connectLedgerParam === 'true' && opened) {
+        setActiveSubmodal(AccountsModalSubmodals.ConnectLedger);
+        setConnectLedgerParam(null);
+      }
+    }, [connectLedgerParam, opened, setConnectLedgerParam]);
 
     const filteredAccounts = useMemo(
       () => (searchValue.length ? searchAndFilterAccounts(accounts, searchValue) : accounts),
@@ -94,7 +104,18 @@ export const AccountsModalContent = memo<AccountsModalContentProps>(
       setImportOptionSlug(undefined);
     }, []);
     const goToWatchOnlyModal = useCallback(() => setActiveSubmodal(AccountsModalSubmodals.WatchOnly), []);
-    const goToConnectLedgerModal = useCallback(() => setActiveSubmodal(AccountsModalSubmodals.ConnectLedger), []);
+
+    const goToConnectLedgerModal = useCallback(() => {
+      if (popup || sidebar) {
+        openInFullPage({ connectLedger: 'true' });
+        if (popup) {
+          window.close();
+        }
+        return;
+      }
+      setActiveSubmodal(AccountsModalSubmodals.ConnectLedger);
+    }, [popup, sidebar]);
+
     const handleSeedPhraseImportOptionSelect = useCallback(() => setImportOptionSlug('mnemonic'), []);
     const handlePrivateKeyImportOptionSelect = useCallback(() => setImportOptionSlug('private-key'), []);
 
