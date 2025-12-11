@@ -8,11 +8,6 @@ export const selectAllPendingTezosTransactions = (state: RootState) =>
 
 export const toAccountChainIdSlug = (accountPkh: string, chainId: string) => `${accountPkh}-${chainId}`;
 
-export const parseAccountChainIdSlug = (accountChainIdSlug: string) => {
-  const [accountPkh, chainId] = accountChainIdSlug.split('-');
-  return { accountPkh, chainId };
-};
-
 export const usePendingTezosTransactionsHashes = (accountPkh: string, chainId: string) => {
   const { hashesByAccountChainId, transactions } = useSelector(
     ({ pendingTezosTransactions }) => pendingTezosTransactions
