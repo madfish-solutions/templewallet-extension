@@ -7,6 +7,7 @@ import { useAdTimeout } from 'app/hooks/ads/use-ad-timeout';
 import { AdsProviderTitle } from 'lib/ads';
 import { HYPELAB_STUB_CAMPAIGN_SLUG } from 'lib/constants';
 import { EnvVars } from 'lib/env';
+import { useUpdatableRef } from 'lib/ui/hooks';
 import { useAccountAddressForEvm } from 'temple/front';
 
 import { HypelabBannerAd, SingleProviderPromotionProps } from '../../types';
@@ -21,13 +22,11 @@ interface AdParams {
   chainName?: string;
 }
 
-const adsIframeOrigin = new URL(EnvVars.HYPELAB_ADS_WINDOW_URL).origin;
-
 export const HypelabImagePromotion: FC<Omit<SingleProviderPromotionProps, 'variant'>> = ({
   accountPkh,
   isVisible,
   pageName,
-  onAdRectSeen,
+  onImpression,
   onError,
   onReady
 }) => {
@@ -51,6 +50,9 @@ export const HypelabImagePromotion: FC<Omit<SingleProviderPromotionProps, 'varia
     return { backgroundAssetType: 'video' as const, backgroundAssetUrl: creativeSet.video.url };
   }, [currentAd]);
 
+  const [adRectVisible, setAdRectVisible] = useState(false);
+  const adRectVisibleRef = useUpdatableRef(adRectVisible);
+
   useAdTimeout(adIsReady, onError);
 
   const adId = useMemo(() => nanoid(), []);
@@ -59,8 +61,25 @@ export const HypelabImagePromotion: FC<Omit<SingleProviderPromotionProps, 'varia
       return;
     }
 
+    const handleReadyAd = (data: any) => {
+      const ad: HypelabBannerAd | undefined = data?.ad;
+
+      if (!ad) {
+        return;
+      }
+
+      if (ad && prevAdUrlRef.current !== ad.cta_url && ad.campaign_slug === HYPELAB_STUB_CAMPAIGN_SLUG) {
+        onError();
+      } else if (ad && prevAdUrlRef.current !== ad.cta_url) {
+        setCurrentAd(ad);
+        prevAdUrlRef.current = ad.cta_url;
+        setAdIsReady(true);
+        onReady();
+      }
+    };
+
     const messagesListener = (event: MessageEvent) => {
-      if (event.origin !== adsIframeOrigin) {
+      if (!event.source || event.source !== hypelabIframeRef.current?.contentWindow) {
         return;
       }
 
@@ -71,20 +90,7 @@ export const HypelabImagePromotion: FC<Omit<SingleProviderPromotionProps, 'varia
 
         switch (data.type) {
           case 'ready':
-            const ad: HypelabBannerAd | undefined = data?.ad;
-
-            if (!ad) {
-              return;
-            }
-
-            if (ad && prevAdUrlRef.current !== ad.cta_url && ad.campaign_slug === HYPELAB_STUB_CAMPAIGN_SLUG) {
-              onError();
-            } else if (ad && prevAdUrlRef.current !== ad.cta_url) {
-              setCurrentAd(ad);
-              prevAdUrlRef.current = ad.cta_url;
-              setAdIsReady(true);
-              onReady();
-            }
+            handleReadyAd(data);
             break;
           case 'error':
             onError();
@@ -92,6 +98,11 @@ export const HypelabImagePromotion: FC<Omit<SingleProviderPromotionProps, 'varia
           case 'resize':
             if (data.width !== 0 && data.height !== 0) {
               setAdSize({ width: data.width, height: data.height });
+            }
+            break;
+          case 'impression':
+            if (adRectVisibleRef.current) {
+              onImpression();
             }
         }
       } catch (e) {
@@ -101,7 +112,7 @@ export const HypelabImagePromotion: FC<Omit<SingleProviderPromotionProps, 'varia
     window.addEventListener('message', messagesListener);
 
     return () => window.removeEventListener('message', messagesListener);
-  }, [adId, onError, onReady]);
+  }, [adId, onError, onReady, onImpression, adRectVisibleRef]);
 
   const iframeSrc = useMemo(
     () => getAdsTwUrl({ origin: globalThis.location.origin, width: 320, height: 100, id: adId, evmAccountAddress }),
@@ -115,9 +126,9 @@ export const HypelabImagePromotion: FC<Omit<SingleProviderPromotionProps, 'varia
       isVisible={isVisible}
       providerTitle={AdsProviderTitle.HypeLab}
       pageName={pageName}
-      onAdRectSeen={onAdRectSeen}
       backgroundAssetUrl={backgroundAssetUrl}
       backgroundAssetType={backgroundAssetType}
+      onAdRectVisible={setAdRectVisible}
     >
       <div>
         <iframe
