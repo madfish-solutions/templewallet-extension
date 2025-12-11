@@ -118,3 +118,21 @@ export function isLifiStep(step: LiFiStep | Route3EvmRoute): step is LiFiStep {
 export function isRoute3EvmStep(step: LiFiStep | Route3EvmRoute): step is Route3EvmRoute {
   return 'txData' in step;
 }
+
+export type SelectedChainAssets = { from: string; to: string | null } | { from: string | null; to: string };
+
+export type PendingSwapReview =
+  | {
+      kind: TempleChainKind.EVM;
+      chainId: number;
+      swapRoute: Route3EvmRoute | LiFiRoute;
+      selectedChainAssets: SelectedChainAssets;
+    }
+  | {
+      kind: TempleChainKind.Tezos;
+      chainId: string;
+      opParams: WalletParamsWithKind[];
+      cashbackInTkey?: string;
+      minimumReceived: { amount: string; symbol: string };
+      selectedChainAssets: SelectedChainAssets;
+    };

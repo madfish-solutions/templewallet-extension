@@ -16,7 +16,9 @@ import { useEvmAssetBalance } from 'lib/balances/hooks';
 import { useEvmCategorizedAssetMetadata } from 'lib/metadata';
 import { useTempleClient } from 'lib/temple/front';
 import { TempleAccountType } from 'lib/temple/types';
-import { runConnectedLedgerOperationFlow } from 'lib/ui';
+import { runConnectedLedgerOperationFlow, LedgerOperationState } from 'lib/ui';
+import { useLedgerWebHidFullViewGuard } from 'lib/ui/ledger-webhid-guard';
+import { LedgerFullViewPromptModal } from 'lib/ui/LedgerFullViewPrompt';
 import { showTxSubmitToastWithDelay } from 'lib/ui/show-tx-submit-toast.util';
 import { ZERO } from 'lib/utils/numbers';
 import { useGetEvmActiveBlockExplorer } from 'temple/front/ready';
@@ -46,6 +48,7 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
   const getActiveBlockExplorer = useGetEvmActiveBlockExplorer();
 
   const [latestSubmitError, setLatestSubmitError] = useState<unknown>(null);
+  const { guard, preconnectIfNeeded, ledgerPromptProps } = useLedgerWebHidFullViewGuard();
 
   const { data: estimationData, error: estimationError } = useEvmEstimationData({
     to: to as HexString,
@@ -144,6 +147,10 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
         };
 
         if (isLedgerAccount) {
+          const redirected = await guard(account.type);
+          if (redirected) return;
+          setLedgerApprovalModalState(LedgerOperationState.InProgress);
+          await preconnectIfNeeded(account.type, TempleChainKind.EVM);
           await runConnectedLedgerOperationFlow(doOperation, setLedgerApprovalModalState, true);
         } else {
           await doOperation();
@@ -157,7 +164,9 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
       getFeesPerGas,
       assetMetadata,
       estimationData,
+      onSubmitError,
       estimationError,
+      assertCustomFeesPerGasNotTooLow,
       accountPkh,
       to,
       amount,
@@ -167,32 +176,36 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
       onConfirm,
       onClose,
       getActiveBlockExplorer,
+      guard,
+      account.type,
       setLedgerApprovalModalState,
-      onSubmitError,
-      assertCustomFeesPerGasNotTooLow
+      preconnectIfNeeded
     ]
   );
 
   return (
-    <FormProvider {...form}>
-      <BaseContent<EvmTxParamsFormData>
-        ledgerApprovalModalState={ledgerApprovalModalState}
-        onLedgerModalClose={handleLedgerModalClose}
-        network={network}
-        assetSlug={assetSlug}
-        amount={amount}
-        recipientAddress={to}
-        decimals={assetMetadata?.decimals}
-        displayedFeeOptions={feeOptions?.displayed}
-        selectedTab={tab}
-        setSelectedTab={setTab}
-        selectedFeeOption={selectedFeeOption}
-        latestSubmitError={latestSubmitError}
-        displayedFee={displayedFee}
-        onFeeOptionSelect={handleFeeOptionSelect}
-        onCancel={onClose}
-        onSubmit={onSubmit}
-      />
-    </FormProvider>
+    <>
+      <FormProvider {...form}>
+        <BaseContent<EvmTxParamsFormData>
+          ledgerApprovalModalState={ledgerApprovalModalState}
+          onLedgerModalClose={handleLedgerModalClose}
+          network={network}
+          assetSlug={assetSlug}
+          amount={amount}
+          recipientAddress={to}
+          decimals={assetMetadata?.decimals}
+          displayedFeeOptions={feeOptions?.displayed}
+          selectedTab={tab}
+          setSelectedTab={setTab}
+          selectedFeeOption={selectedFeeOption}
+          latestSubmitError={latestSubmitError}
+          displayedFee={displayedFee}
+          onFeeOptionSelect={handleFeeOptionSelect}
+          onCancel={onClose}
+          onSubmit={onSubmit}
+        />
+      </FormProvider>
+      <LedgerFullViewPromptModal {...ledgerPromptProps} />
+    </>
   );
 };
