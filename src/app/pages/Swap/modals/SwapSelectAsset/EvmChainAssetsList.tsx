@@ -2,14 +2,13 @@ import React, { memo, useMemo, MouseEvent, useCallback } from 'react';
 
 import { isDefined } from '@rnw-community/shared';
 import clsx from 'clsx';
+import { uniq } from 'lodash';
 import { FixedSizeList as List, ListChildComponentProps } from 'react-window';
 
 import { EmptyState } from 'app/atoms/EmptyState';
 import { PageLoader } from 'app/atoms/Loader';
 import { DeadEndBoundaryError } from 'app/ErrorBoundary';
-import { TOKEN_ITEM_HEIGHT } from 'app/pages/Swap/constants';
-import { SwapFieldName } from 'app/pages/Swap/form/interfaces';
-import { useFirstValue, useLifiEvmTokensSlugs } from 'app/pages/Swap/modals/SwapSelectAsset/hooks';
+import { use3RouteEvmTokensMetadataRecordSelector } from 'app/store/evm/swap-3route-metadata/selectors';
 import { useLifiConnectedEvmTokensMetadataRecordSelector } from 'app/store/evm/swap-lifi-metadata/selectors';
 import { useEvmTokensMetadataRecordSelector } from 'app/store/evm/tokens-metadata/selectors';
 import { EvmTokenListItem } from 'app/templates/TokenListItem';
@@ -23,6 +22,11 @@ import { useMemoWithCompare } from 'lib/ui/hooks';
 import { useEvmChainByChainId } from 'temple/front/chains';
 import { EvmNetworkEssentials } from 'temple/networks';
 import { TempleChainKind } from 'temple/types';
+
+import { TOKEN_ITEM_HEIGHT } from '../../constants';
+import { SwapFieldName } from '../../form/interfaces';
+
+import { use3RouteEvmTokensSlugs, useFirstValue, useLifiEvmTokensSlugs } from './hooks';
 
 interface ItemData {
   showFavoritesMark: boolean;
@@ -45,7 +49,8 @@ export const EvmChainAssetsList = memo<Props>(({ chainId, activeField, publicKey
   const network = useEvmChainByChainId(chainId);
   if (!network) throw new DeadEndBoundaryError();
 
-  const { lifiTokenSlugs, isLoading } = useLifiEvmTokensSlugs(chainId);
+  const { lifiTokenSlugs, isLoading: lifiTokensSlugsLoading } = useLifiEvmTokensSlugs(chainId);
+  const { route3EvmTokenSlugs, isLoading: route3EvmTokensSlugsLoading } = use3RouteEvmTokensSlugs(chainId);
   const getEvmBalance = useGetEvmTokenBalanceWithDecimals(publicKeyHash);
 
   const isEvmNonZeroBalance = useCallback(
@@ -65,8 +70,10 @@ export const EvmChainAssetsList = memo<Props>(({ chainId, activeField, publicKey
   const evmChainAssetsSlugs = useMemo(() => {
     const gasTokensSlugs: string[] = [EVM_TOKEN_SLUG];
 
-    return filterZeroBalances ? gasTokensSlugs.concat(tokensSlugs).filter(isEvmNonZeroBalance) : lifiTokenSlugs;
-  }, [filterZeroBalances, isEvmNonZeroBalance, lifiTokenSlugs, tokensSlugs]);
+    return filterZeroBalances
+      ? gasTokensSlugs.concat(tokensSlugs).filter(isEvmNonZeroBalance)
+      : uniq(lifiTokenSlugs.concat(route3EvmTokenSlugs));
+  }, [filterZeroBalances, isEvmNonZeroBalance, lifiTokenSlugs, route3EvmTokenSlugs, tokensSlugs]);
 
   const evmChainAssetsSlugsSorted = useMemoWithCompare(
     () => evmChainAssetsSlugs.toSorted(tokensSortPredicate),
@@ -75,11 +82,14 @@ export const EvmChainAssetsList = memo<Props>(({ chainId, activeField, publicKey
 
   const metadata = useEvmTokensMetadataRecordSelector();
   const lifiMetadata = useLifiConnectedEvmTokensMetadataRecordSelector();
+  const route3EvmMetadata = use3RouteEvmTokensMetadataRecordSelector();
 
   const getMetadata = useCallback(
     (slug: string) =>
-      slug === EVM_TOKEN_SLUG ? network?.currency : metadata[chainId]?.[slug] ?? lifiMetadata[chainId]?.[slug],
-    [chainId, lifiMetadata, metadata, network?.currency]
+      slug === EVM_TOKEN_SLUG
+        ? network?.currency
+        : metadata[chainId]?.[slug] ?? lifiMetadata[chainId]?.[slug] ?? route3EvmMetadata[chainId]?.[slug],
+    [chainId, lifiMetadata, metadata, network?.currency, route3EvmMetadata]
   );
 
   const searchedSlugs = useMemo(
@@ -87,7 +97,7 @@ export const EvmChainAssetsList = memo<Props>(({ chainId, activeField, publicKey
     [evmChainAssetsSlugsSorted, getMetadata, searchValue]
   );
 
-  if (isLoading && !filterZeroBalances) return <PageLoader stretch />;
+  if ((lifiTokensSlugsLoading || route3EvmTokensSlugsLoading) && !filterZeroBalances) return <PageLoader stretch />;
   if (searchedSlugs.length === 0) return <EmptyState />;
 
   const itemData: ItemData = {
