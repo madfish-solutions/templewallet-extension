@@ -47,6 +47,7 @@ export const TEZOS_MAINNET_CHAIN_ID = 'NetXdQprcVkpaWU';
 export const TEZOS_GHOSTNET_CHAIN_ID = 'NetXnHfVqm9iesp';
 const TEZOS_SHADOWNET_CHAIN_ID = 'NetXsqzbfFenSTS';
 export const ETHEREUM_MAINNET_CHAIN_ID = 1;
+export const ETHERLINK_MAINNET_CHAIN_ID = 42793;
 export const COMMON_MAINNET_CHAIN_IDS = {
   polygon: 137,
   bsc: 56,
@@ -54,7 +55,6 @@ export const COMMON_MAINNET_CHAIN_IDS = {
   optimism: 10,
   arbitrum: 42161,
   base: 8453,
-  etherlink: 42793,
   rootstock: 30
 } as const;
 export const ETH_SEPOLIA_CHAIN_ID = 11155111;
