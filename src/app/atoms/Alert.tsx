@@ -1,4 +1,4 @@
-import React, { FC, HTMLAttributes, ReactNode, useEffect, useRef } from 'react';
+import React, { FC, HTMLAttributes, ReactNode, useEffect, useLayoutEffect, useRef, useState } from 'react';
 
 import clsx from 'clsx';
 
@@ -50,16 +50,27 @@ export const Alert: FC<AlertProps> = ({
   ...rest
 }) => {
   const ref = useRef<HTMLDivElement>(null);
+  const descriptionRef = useRef<HTMLDivElement>(null);
+  const [isMultiLine, setIsMultiLine] = useState(false);
   const Icon = icons[type];
 
   const descriptionElement = (
     <div
+      ref={descriptionRef}
       className="text-font-description flex-1 max-h-32 break-words overflow-y-auto"
       {...setTestID(AlertSelectors.alertDescription)}
     >
       {description}
     </div>
   );
+
+  useLayoutEffect(() => {
+    const element = descriptionRef.current;
+    if (element) {
+      const lineHeight = parseFloat(getComputedStyle(element).lineHeight);
+      setIsMultiLine(element.scrollHeight > lineHeight * 1.5);
+    }
+  }, [description]);
 
   useEffect(() => {
     if (autoFocus) {
@@ -87,7 +98,7 @@ export const Alert: FC<AlertProps> = ({
       )}
       {description && !Icon && descriptionElement}
       {description && Icon && (
-        <div className="w-full flex items-start gap-x-1">
+        <div className={clsx('w-full flex gap-x-1', isMultiLine ? 'items-start' : 'items-center')}>
           <Icon className="w-6 h-auto" />
           {descriptionElement}
         </div>
