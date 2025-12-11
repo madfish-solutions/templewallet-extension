@@ -88,7 +88,7 @@ export const EarnEthPageLayout = memo<EarnEthPageLayoutProps>(
                   ) : (
                     <StyledButton color="primary" size="S" disabled={isWatchOnlyAccount} onClick={openClaimModal}>
                       <T id="claim" />
-                      {requested.isZero() ? null : (
+                      {readyForClaim.eq(requested) ? null : (
                         <>
                           {' '}
                           <Money smallFractionFont={false} tooltip={false}>

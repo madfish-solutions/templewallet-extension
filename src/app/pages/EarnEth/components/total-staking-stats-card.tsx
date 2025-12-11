@@ -1,12 +1,15 @@
 import React, { memo, useMemo } from 'react';
 
 import BigNumber from 'bignumber.js';
+import clsx from 'clsx';
 
 import { IconBase, Money } from 'app/atoms';
+import { FullAmountTippy } from 'app/atoms/Money';
 import { StyledButton } from 'app/atoms/StyledButton';
 import { Tooltip } from 'app/atoms/Tooltip';
 import { ReactComponent as GiftIcon } from 'app/icons/base/gift.svg';
 import { StakingCard } from 'app/templates/staking-card';
+import { MIN_ETH_EVERSTAKE_CLAIMABLE_AMOUNT } from 'lib/constants';
 import { T } from 'lib/i18n';
 import { TempleAccountType } from 'lib/temple/types';
 import { useAccount } from 'temple/front';
@@ -60,14 +63,16 @@ export const TotalStakingStatsCard = memo<TotalStakingStatsCardProps>(
               </span>
             </div>
 
-            <div className="flex flex-col gap-0.5 text-right">
-              <span className="text-font-description text-grey-1">
-                <T id="pendingRewards" />
-              </span>
-              <span className="text-font-num-14">
-                <Money smallFractionFont={false}>{pendingStaked}</Money> {currencySymbol}
-              </span>
-            </div>
+            {pendingStaked.gt(0) && (
+              <div className="flex flex-col gap-0.5 text-right">
+                <span className="text-font-description text-grey-1">
+                  <T id="pendingRewards" />
+                </span>
+                <span className="text-font-num-14">
+                  <Money smallFractionFont={false}>{pendingStaked}</Money> {currencySymbol}
+                </span>
+              </div>
+            )}
           </div>
         }
         bottomInfo={
@@ -80,21 +85,37 @@ export const TotalStakingStatsCard = memo<TotalStakingStatsCardProps>(
               <Tooltip content={<T id="ethRewardsTooltip" />} className="text-grey-2" />
             </div>
             <span className="text-font-num-12 align-middle">
-              <Money smallFractionFont={false}>{rewards}</Money> {currencySymbol}
+              {rewards.gte(MIN_ETH_EVERSTAKE_CLAIMABLE_AMOUNT) || rewards.isZero() ? (
+                <Money smallFractionFont={false}>{rewards}</Money>
+              ) : (
+                <FullAmountTippy
+                  className={clsx(
+                    'px-px -mr-px rounded truncate',
+                    'cursor-pointer hover:bg-black hover:bg-opacity-5 transition ease-in-out duration-200'
+                  )}
+                  fullAmount={rewards}
+                  showAmountTooltip
+                >
+                  &lt;{MIN_ETH_EVERSTAKE_CLAIMABLE_AMOUNT}
+                </FullAmountTippy>
+              )}{' '}
+              {currencySymbol}
             </span>
           </div>
         }
         actions={
           <>
-            <StyledButton
-              color="primary-low"
-              size="M"
-              className="flex-1"
-              onClick={openUnstakeModal}
-              disabled={isWatchOnlyAccount || depositedBalanceOf.isZero()}
-            >
-              <T id="unstake" />
-            </StyledButton>
+            {depositedBalanceOf.gt(0) && (
+              <StyledButton
+                color="primary-low"
+                size="M"
+                className="flex-1"
+                onClick={openUnstakeModal}
+                disabled={isWatchOnlyAccount}
+              >
+                <T id="unstake" />
+              </StyledButton>
+            )}
             <StyledButton
               color="primary"
               size="M"

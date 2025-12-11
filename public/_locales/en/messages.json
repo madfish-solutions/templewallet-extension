@@ -1419,9 +1419,6 @@
   "unstakeEth": {
     "message": "Unstake ETH"
   },
-  "everstakeWithdrawalReady": {
-    "message": "Everstake withdrawal is ready"
-  },
   "estimatedApy": {
     "message": "Est. APY"
   },

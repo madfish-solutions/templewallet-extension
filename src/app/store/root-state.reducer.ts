@@ -15,7 +15,6 @@ import { evmCollectiblesMetadataPersistedReducer } from './evm/collectibles-meta
 import { noCategoryEvmAssetsMetadataPersistedReducer } from './evm/no-category-assets-metadata/reducers';
 import { pendingEvmTransactionsPersistedReducer } from './evm/pending-transactions/reducers';
 import { evmLoadingReducer } from './evm/reducer';
-import { stakeWithdrawalReadyNotificationsReducer } from './evm/stake-withdrawal-ready-notifications/reducers';
 import { route3EvmTokensMetadataPersistedReducer } from './evm/swap-3route-metadata/reducers';
 import { evmTokensExchangeRatesPersistedReducer } from './evm/tokens-exchange-rates/reducers';
 import { evmTokensMetadataPersistedReducer } from './evm/tokens-metadata/reducers';
@@ -59,7 +58,6 @@ const rootStateReducersMap = {
   evmTokensExchangeRates: evmTokensExchangeRatesPersistedReducer,
   evmCollectiblesMetadata: evmCollectiblesMetadataPersistedReducer,
   evmNoCategoryAssetMetadata: noCategoryEvmAssetsMetadataPersistedReducer,
-  evmStakeWithdrawalReadyNotifications: stakeWithdrawalReadyNotificationsReducer,
   assetsFilterOptions: assetsFilterOptionsReducer,
   accountsInitialization: accountsInitializationReducer,
   route3EvmTokensMetadata: route3EvmTokensMetadataPersistedReducer
