@@ -34,6 +34,7 @@ export interface FocusLocation {
 
 export interface TempleState {
   dAppQueueCounters: PromisesQueueCounters;
+  dAppPendingConfirmationId: string | null;
   status: TempleStatus;
   accounts: StoredAccount[];
   settings: TempleSettings | null;
@@ -460,6 +461,8 @@ export enum TempleMessageType {
   SignResponse = 'TEMPLE_SIGN_RESPONSE',
   ConfirmationRequest = 'TEMPLE_CONFIRMATION_REQUEST',
   ConfirmationResponse = 'TEMPLE_CONFIRMATION_RESPONSE',
+  ConfirmationWindowDetachRequest = 'TEMPLE_CONFIRMATION_WINDOW_DETACH_REQUEST',
+  ConfirmationWindowDetachResponse = 'TEMPLE_CONFIRMATION_WINDOW_DETACH_RESPONSE',
   PageRequest = 'TEMPLE_PAGE_REQUEST',
   PageResponse = 'TEMPLE_PAGE_RESPONSE',
   DAppGetPayloadRequest = 'TEMPLE_DAPP_GET_PAYLOAD_REQUEST',
@@ -536,6 +539,7 @@ export type TempleRequest =
   | TempleOperationsRequest
   | TempleSignRequest
   | TempleConfirmationRequest
+  | TempleConfirmationWindowDetachRequest
   | TempleRemoveAccountRequest
   | TempleRemoveHdWalletRequest
   | TempleRemoveAccountsByTypeRequest
@@ -583,6 +587,7 @@ export type TempleResponse =
   | TempleOperationsResponse
   | TempleSignResponse
   | TempleConfirmationResponse
+  | TempleConfirmationWindowDetachResponse
   | TempleRemoveAccountResponse
   | TempleRemoveHdWalletResponse
   | TempleRemoveAccountsByTypeResponse
@@ -942,6 +947,15 @@ interface TempleConfirmationRequest extends TempleMessageBase {
 
 interface TempleConfirmationResponse extends TempleMessageBase {
   type: TempleMessageType.ConfirmationResponse;
+}
+
+interface TempleConfirmationWindowDetachRequest extends TempleMessageBase {
+  type: TempleMessageType.ConfirmationWindowDetachRequest;
+  id: string;
+}
+
+interface TempleConfirmationWindowDetachResponse extends TempleMessageBase {
+  type: TempleMessageType.ConfirmationWindowDetachResponse;
 }
 
 interface TempleSendEvmTransactionRequest extends TempleMessageBase {

@@ -19,6 +19,8 @@ import { tzToMutez } from 'lib/temple/helpers';
 import { TempleAccountType } from 'lib/temple/types';
 import { isTezosContractAddress } from 'lib/tezos';
 import { runConnectedLedgerOperationFlow } from 'lib/ui';
+import { useLedgerWebHidFullViewGuard } from 'lib/ui/ledger-webhid-guard';
+import { LedgerFullViewPromptModal } from 'lib/ui/LedgerFullViewPrompt';
 import { showTxSubmitToastWithDelay } from 'lib/ui/show-tx-submit-toast.util';
 import { ZERO } from 'lib/utils/numbers';
 import { getTezosToolkitWithSigner } from 'temple/front';
@@ -112,6 +114,7 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
 
   const { ledgerApprovalModalState, setLedgerApprovalModalState, handleLedgerModalClose } =
     useLedgerApprovalModalState();
+  const { guard, ledgerPromptProps } = useLedgerWebHidFullViewGuard();
 
   const onSubmitError = useCallback(
     (err: unknown) => {
@@ -162,6 +165,8 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
         };
 
         if (isLedgerAccount) {
+          const redirected = await guard(account.type);
+          if (redirected) return;
           await runConnectedLedgerOperationFlow(doOperation, setLedgerApprovalModalState, true);
         } else {
           await doOperation();
@@ -184,31 +189,36 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
       network.chainId,
       setLedgerApprovalModalState,
       onSubmitError,
-      assertCustomGasFeeNotTooLow
+      assertCustomGasFeeNotTooLow,
+      guard,
+      account.type
     ]
   );
 
   return (
-    <FormProvider {...form}>
-      <BaseContent<TezosTxParamsFormData>
-        ledgerApprovalModalState={ledgerApprovalModalState}
-        onLedgerModalClose={handleLedgerModalClose}
-        network={network}
-        assetSlug={assetSlug}
-        amount={amount}
-        recipientAddress={to}
-        decimals={assetMetadata.decimals}
-        displayedFeeOptions={displayedFeeOptions}
-        displayedFee={displayedFee}
-        selectedTab={tab}
-        setSelectedTab={setTab}
-        latestSubmitError={latestSubmitError}
-        displayedStorageFee={displayedStorageFee}
-        onFeeOptionSelect={handleFeeOptionSelect}
-        selectedFeeOption={selectedFeeOption}
-        onCancel={onClose}
-        onSubmit={onSubmit}
-      />
-    </FormProvider>
+    <>
+      <FormProvider {...form}>
+        <BaseContent<TezosTxParamsFormData>
+          ledgerApprovalModalState={ledgerApprovalModalState}
+          onLedgerModalClose={handleLedgerModalClose}
+          network={network}
+          assetSlug={assetSlug}
+          amount={amount}
+          recipientAddress={to}
+          decimals={assetMetadata.decimals}
+          displayedFeeOptions={displayedFeeOptions}
+          displayedFee={displayedFee}
+          selectedTab={tab}
+          setSelectedTab={setTab}
+          latestSubmitError={latestSubmitError}
+          displayedStorageFee={displayedStorageFee}
+          onFeeOptionSelect={handleFeeOptionSelect}
+          selectedFeeOption={selectedFeeOption}
+          onCancel={onClose}
+          onSubmit={onSubmit}
+        />
+      </FormProvider>
+      <LedgerFullViewPromptModal {...ledgerPromptProps} />
+    </>
   );
 };
