@@ -33,7 +33,7 @@ export const estimateTezosMaxFee = (
   manager: ManagerKeyResponse
 ) =>
   retry(
-    async bail => {
+    async (bail): Promise<Estimate> => {
       try {
         let estmtnMax: Estimate;
         if (acc.type === TempleAccountType.ManagedKT) {
@@ -61,7 +61,8 @@ export const estimateTezosMaxFee = (
       } catch (err) {
         const humanErrorMessage = getHumanErrorMessage(err);
         if (humanErrorMessage !== ERROR_MESSAGES.nonceTooHigh && humanErrorMessage !== ERROR_MESSAGES.nonceTooLow) {
-          bail(err as Error);
+          // @ts-expect-error
+          return bail(err as Error);
         }
 
         throw err;
