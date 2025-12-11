@@ -10,7 +10,7 @@ export interface SingleProviderPromotionProps {
   pageName: string;
   onReady: EmptyFn;
   onError: EmptyFn;
-  onAdRectSeen: EmptyFn;
+  onImpression: EmptyFn;
 }
 
 interface HypelabImageCreativeSet {

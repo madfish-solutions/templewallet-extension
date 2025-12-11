@@ -6,8 +6,7 @@ import clsx from 'clsx';
 import Money from 'app/atoms/Money';
 import { ReactComponent as UnknownCollectible } from 'app/icons/unknown-collectible.svg';
 import { ReactComponent as UnknownToken } from 'app/icons/unknown-token.svg';
-import { T, t } from 'lib/i18n';
-import useTippy, { UseTippyOptions } from 'lib/ui/useTippy';
+import { t } from 'lib/i18n';
 import { EvmChain, TezosChain } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
 
@@ -54,18 +53,10 @@ interface OperationConfirmationCardRowProps {
   withSign?: boolean;
 }
 
-const unknownTokenTippyOptions: UseTippyOptions = {
-  trigger: 'mouseenter',
-  hideOnClick: false,
-  animation: 'shift-away-subtle',
-  content: t('unknownToken')
-};
-
 export const OperationConfirmationCardRow = memo<OperationConfirmationCardRowProps>(
   ({ chain, assetSlug, variant, amountClassName, volume, symbol, rightContent, bridge, withSign }) => {
     const allCollectibles = variant === OperationConfirmationCardRowVariant.AllCollectibles;
     const isCollectible = allCollectibles || variant === OperationConfirmationCardRowVariant.Collectible;
-    const tippyRef = useTippy<HTMLSpanElement>(unknownTokenTippyOptions);
     const Fallback = isCollectible ? CollectibleIconFallback : TokenIconFallback;
 
     const icon = useMemo(() => {
@@ -114,17 +105,9 @@ export const OperationConfirmationCardRow = memo<OperationConfirmationCardRowPro
           ) : (
             <>
               <DisplayVolume volume={volume} withSign={withSign} />
-
-              <span className="whitespace-nowrap">
-                {symbol ??
-                  (isCollectible ? (
-                    <T id="unknownToken" />
-                  ) : (
-                    <span ref={tippyRef}>
-                      <T id="unknownTokenAcronym" />
-                    </span>
-                  ))}
-              </span>
+              <ShortenedTextWithTooltip>
+                {symbol ?? (isCollectible ? t('unknownToken') : t('unknownTokenAcronym'))}
+              </ShortenedTextWithTooltip>
             </>
           )}
         </div>

@@ -1,16 +1,19 @@
 import React, { memo, useCallback, useState, MouseEvent, Suspense, useEffect, useMemo, FC } from 'react';
 
 import clsx from 'clsx';
+import { uniq } from 'lodash';
 import { useDebounce } from 'use-debounce';
 
 import { Button, IconBase } from 'app/atoms';
 import { PageLoader } from 'app/atoms/Loader';
 import { PageModal } from 'app/atoms/PageModal';
 import { ReactComponent as CompactDown } from 'app/icons/base/compact_down.svg';
-import { SwapFieldName } from 'app/pages/Swap/form/interfaces';
-import { isFilterChain } from 'app/pages/Swap/form/utils';
 import { useAssetsFilterOptionsSelector } from 'app/store/assets-filter-options/selectors';
 import { FilterChain } from 'app/store/assets-filter-options/state';
+import {
+  use3RouteEvmSupportedChainIdsSelector,
+  use3RouteEvmTokensMetadataRecordSelector
+} from 'app/store/evm/swap-3route-metadata/selectors';
 import {
   useLifiConnectedEvmTokensMetadataRecordSelector,
   useLifiSupportedChainIdsSelector
@@ -22,6 +25,9 @@ import { t } from 'lib/i18n';
 import { useMemoWithCompare } from 'lib/ui/hooks';
 import { useAccountAddressForEvm, useAccountAddressForTezos, useTezosMainnetChain } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
+
+import { SwapFieldName } from '../../form/interfaces';
+import { isFilterChain } from '../../form/utils';
 
 import { AllEvmChainsAssetsList } from './AllEvmChainsAssetsList';
 import { EvmChainAssetsList } from './EvmChainAssetsList';
@@ -40,7 +46,8 @@ export const SwapSelectAssetModal = memo<SelectTokenModalProps>(
   ({ activeField, onAssetSelect, opened, onRequestClose, chainKind }) => {
     const [searchValue, setSearchValue] = useState('');
     const [searchValueDebounced] = useDebounce(searchValue, 300);
-    const metadataRecord = useLifiConnectedEvmTokensMetadataRecordSelector();
+    const lifiMetadataRecord = useLifiConnectedEvmTokensMetadataRecordSelector();
+    const route3MetadataRecord = use3RouteEvmTokensMetadataRecordSelector();
 
     const tezosNetwork = useTezosMainnetChain();
 
@@ -154,13 +161,14 @@ export const SwapSelectAssetModal = memo<SelectTokenModalProps>(
       [localFilterChain, activeField]
     );
 
-    const availableChainIds = useMemo(
-      () =>
-        Object.entries(metadataRecord)
-          .filter(([_, record]) => Object.keys(record).length > 0)
-          .map(([chainId]) => Number(chainId)),
-      [metadataRecord]
-    );
+    const availableChainIds = useMemo(() => {
+      let metadataEntries: [string, StringRecord<unknown>][] = Object.entries(lifiMetadataRecord);
+      metadataEntries = metadataEntries.concat(Object.entries(route3MetadataRecord));
+
+      return metadataEntries
+        .filter(([_, record]) => Object.keys(record).length > 0)
+        .map(([chainId]) => Number(chainId));
+    }, [lifiMetadataRecord, route3MetadataRecord]);
 
     return (
       <PageModal title="Select Token" opened={opened} onRequestClose={onRequestClose}>
@@ -211,7 +219,12 @@ const FilterNetworkPopper = memo<FilterNetworkPopperProps>(
     showFavoritesOption,
     availableChainIds
   }) => {
-    const supportedChainIds = useLifiSupportedChainIdsSelector();
+    const lifiSupportedChainIds = useLifiSupportedChainIdsSelector();
+    const route3SupportedChainIds = use3RouteEvmSupportedChainIdsSelector();
+    const supportedChainIds = useMemo(
+      () => uniq(lifiSupportedChainIds.concat(route3SupportedChainIds)),
+      [lifiSupportedChainIds, route3SupportedChainIds]
+    );
 
     return (
       <NetworkPopper

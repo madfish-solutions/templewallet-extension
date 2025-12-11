@@ -1,3 +1,4 @@
+/* eslint-disable */
 var HypeLab;
 (() => {
   'use strict';
@@ -12,7 +13,134 @@ var HypeLab;
         var s = (0, i.default)('v5', 80, o.default);
         t.default = s;
       },
-      62: function (e, t, n) {
+      64: e => {
+        var t,
+          n = Object.defineProperty,
+          i = Object.getOwnPropertyDescriptor,
+          o = Object.getOwnPropertyNames,
+          r = Object.prototype.hasOwnProperty,
+          s = {};
+        function a(e) {
+          switch (e) {
+            case 'local':
+              return 'https://api.lvh.me:8080';
+            case 'development':
+              return 'https://api.hypelab-staging.com';
+            case 'production':
+              return 'https://api.hypelab.com';
+          }
+        }
+        ((e, t) => {
+          for (var i in t) n(e, i, { get: t[i], enumerable: !0 });
+        })(s, { getBaseURL: () => a }),
+          (e.exports =
+            ((t = s),
+            ((e, t, s, a) => {
+              if ((t && 'object' == typeof t) || 'function' == typeof t)
+                for (let s of o(t))
+                  !r.call(e, s) &&
+                    undefined !== s &&
+                    n(e, s, { get: () => t[s], enumerable: !(a = i(t, s)) || a.enumerable });
+              return e;
+            })(n({}, '__esModule', { value: !0 }), t)));
+      },
+      178: (e, t) => {
+        var n;
+        Object.defineProperty(t, '__esModule', { value: !0 }),
+          (t.ConfigFlags = void 0),
+          (function (e) {
+            (e[(e.PLATFORM_WEB = 0)] = 'PLATFORM_WEB'),
+              (e[(e.PLATFORM_ANDROID = 1)] = 'PLATFORM_ANDROID'),
+              (e[(e.PLATFORM_IOS = 2)] = 'PLATFORM_IOS'),
+              (e[(e.PLATFORM_UNITY = 4)] = 'PLATFORM_UNITY');
+          })(n || (t.ConfigFlags = n = {}));
+      },
+      210: (e, t) => {
+        function n(e, t, n, i) {
+          switch (e) {
+            case 0:
+              return (t & n) ^ (~t & i);
+            case 1:
+            case 3:
+              return t ^ n ^ i;
+            case 2:
+              return (t & n) ^ (t & i) ^ (n & i);
+          }
+        }
+        function i(e, t) {
+          return (e << t) | (e >>> (32 - t));
+        }
+        Object.defineProperty(t, '__esModule', { value: !0 }), (t.default = void 0);
+        t.default = function (e) {
+          const t = [1518500249, 1859775393, 2400959708, 3395469782],
+            o = [1732584193, 4023233417, 2562383102, 271733878, 3285377520];
+          if ('string' == typeof e) {
+            const t = unescape(encodeURIComponent(e));
+            e = [];
+            for (let n = 0; n < t.length; ++n) e.push(t.charCodeAt(n));
+          } else Array.isArray(e) || (e = Array.prototype.slice.call(e));
+          e.push(128);
+          const r = e.length / 4 + 2,
+            s = Math.ceil(r / 16),
+            a = new Array(s);
+          for (let t = 0; t < s; ++t) {
+            const n = new Uint32Array(16);
+            for (let i = 0; i < 16; ++i)
+              n[i] =
+                (e[64 * t + 4 * i] << 24) |
+                (e[64 * t + 4 * i + 1] << 16) |
+                (e[64 * t + 4 * i + 2] << 8) |
+                e[64 * t + 4 * i + 3];
+            a[t] = n;
+          }
+          (a[s - 1][14] = (8 * (e.length - 1)) / Math.pow(2, 32)),
+            (a[s - 1][14] = Math.floor(a[s - 1][14])),
+            (a[s - 1][15] = (8 * (e.length - 1)) & 4294967295);
+          for (let e = 0; e < s; ++e) {
+            const r = new Uint32Array(80);
+            for (let t = 0; t < 16; ++t) r[t] = a[e][t];
+            for (let e = 16; e < 80; ++e) r[e] = i(r[e - 3] ^ r[e - 8] ^ r[e - 14] ^ r[e - 16], 1);
+            let s = o[0],
+              l = o[1],
+              d = o[2],
+              c = o[3],
+              u = o[4];
+            for (let e = 0; e < 80; ++e) {
+              const o = Math.floor(e / 20),
+                a = (i(s, 5) + n(o, l, d, c) + u + t[o] + r[e]) >>> 0;
+              (u = c), (c = d), (d = i(l, 30) >>> 0), (l = s), (s = a);
+            }
+            (o[0] = (o[0] + s) >>> 0),
+              (o[1] = (o[1] + l) >>> 0),
+              (o[2] = (o[2] + d) >>> 0),
+              (o[3] = (o[3] + c) >>> 0),
+              (o[4] = (o[4] + u) >>> 0);
+          }
+          return [
+            (o[0] >> 24) & 255,
+            (o[0] >> 16) & 255,
+            (o[0] >> 8) & 255,
+            255 & o[0],
+            (o[1] >> 24) & 255,
+            (o[1] >> 16) & 255,
+            (o[1] >> 8) & 255,
+            255 & o[1],
+            (o[2] >> 24) & 255,
+            (o[2] >> 16) & 255,
+            (o[2] >> 8) & 255,
+            255 & o[2],
+            (o[3] >> 24) & 255,
+            (o[3] >> 16) & 255,
+            (o[3] >> 8) & 255,
+            255 & o[3],
+            (o[4] >> 24) & 255,
+            (o[4] >> 16) & 255,
+            (o[4] >> 8) & 255,
+            255 & o[4]
+          ];
+        };
+      },
+      215: function (e, t, n) {
         var i =
           (this && this.__awaiter) ||
           function (e, t, n, i) {
@@ -46,8 +174,8 @@ var HypeLab;
             });
           };
         Object.defineProperty(t, '__esModule', { value: !0 }), (t.BaseComponent = void 0);
-        const o = n(158),
-          r = n(376);
+        const o = n(247),
+          r = n(799);
         class s extends HTMLElement {
           constructor() {
             super(),
@@ -114,7 +242,7 @@ var HypeLab;
         }
         t.BaseComponent = s;
       },
-      158: function (e, t, n) {
+      247: function (e, t, n) {
         var i =
             (this && this.__awaiter) ||
             function (e, t, n, i) {
@@ -240,8 +368,8 @@ var HypeLab;
               }
             });
           });
-        const r = n(376),
-          s = n(270);
+        const r = n(799),
+          s = n(335);
         function a() {
           const e = (0, r.getConfig)();
           if (e.baseUrl) return e.baseUrl;
@@ -255,7 +383,7 @@ var HypeLab;
           }
         }
       },
-      165: function (e, t, n) {
+      248: function (e, t, n) {
         var i =
           (this && this.__awaiter) ||
           function (e, t, n, i) {
@@ -289,35 +417,26 @@ var HypeLab;
             });
           };
         Object.defineProperty(t, '__esModule', { value: !0 }), (t.RTBNativeComponent = void 0);
-        const o = n(376),
-          r = n(667);
+        const o = n(799),
+          r = n(698);
         class s extends r.RTBBaseComponent {
           constructor() {
             super(...arguments),
               (this.refreshTimer = null),
               (this.clickFired = !1),
               (this.ctaLinks = null),
-              (this.position = null),
-              (this.disconnected = false);
+              (this.position = null);
           }
           connectedCallback() {
-            this.disconnected = false;
-            const getDisconnected = () => this.disconnected;
-
             return i(this, void 0, void 0, function* () {
               this.updatePosition(),
                 (0, o.style)(this, { display: 'none' }),
-                yield this.requestBid();
-
-              if (!getDisconnected()) {
-                this.refreshTimer = setInterval(() => this.requestBid(), 3e4);
-              }
+                yield this.requestBid(),
+                (this.refreshTimer = setInterval(() => this.requestBid(), 3e4));
             });
           }
           disconnectedCallback() {
-            this.disconnected = true;
-            this.removeIntersectionObserver();
-            this.refreshTimer && clearInterval(this.refreshTimer);
+            this.removeIntersectionObserver(), this.refreshTimer && clearInterval(this.refreshTimer);
           }
           requestBid() {
             const e = Object.create(null, { requestBid: { get: () => super.requestBid } });
@@ -349,7 +468,7 @@ var HypeLab;
                   _ = this.querySelectorAll('[data-ref="displayUrl"]'),
                   C = this.querySelectorAll('[data-ref="ctaText"]'),
                   O = this.querySelectorAll('[data-ref="icon"]'),
-                  E = this.querySelectorAll('[data-ref="mediaContent"]');
+                  P = this.querySelectorAll('[data-ref="mediaContent"]');
                 (this.ctaLinks = this.querySelectorAll('[data-ref="ctaLink"]')),
                   w.forEach(e => {
                     var t, n;
@@ -402,7 +521,7 @@ var HypeLab;
                   this.ctaLinks.forEach(t => {
                     (t.href = e.link.url), t.addEventListener('click', this.trackClick.bind(this));
                   }),
-                  E.forEach(e => {
+                  P.forEach(e => {
                     var t, n;
                     if (null === (t = null == g ? void 0 : g.img) || void 0 === t ? void 0 : t.url)
                       e.innerHTML = `<img src="${g.img.url}" style="width: 100%; height: 100%;" />`;
@@ -470,100 +589,83 @@ var HypeLab;
         }
         t.RTBNativeComponent = s;
       },
-      210: (e, t) => {
-        function n(e, t, n, i) {
-          switch (e) {
-            case 0:
-              return (t & n) ^ (~t & i);
-            case 1:
-            case 3:
-              return t ^ n ^ i;
-            case 2:
-              return (t & n) ^ (t & i) ^ (n & i);
-          }
-        }
-        function i(e, t) {
-          return (e << t) | (e >>> (32 - t));
-        }
-        Object.defineProperty(t, '__esModule', { value: !0 }),
-          (t.default = void 0),
-          (t.default = function (e) {
-            const t = [1518500249, 1859775393, 2400959708, 3395469782],
-              o = [1732584193, 4023233417, 2562383102, 271733878, 3285377520];
-            if ('string' == typeof e) {
-              const t = unescape(encodeURIComponent(e));
-              e = [];
-              for (let n = 0; n < t.length; ++n) e.push(t.charCodeAt(n));
-            } else Array.isArray(e) || (e = Array.prototype.slice.call(e));
-            e.push(128);
-            const r = e.length / 4 + 2,
-              s = Math.ceil(r / 16),
-              a = new Array(s);
-            for (let t = 0; t < s; ++t) {
-              const n = new Uint32Array(16);
-              for (let i = 0; i < 16; ++i)
-                n[i] =
-                  (e[64 * t + 4 * i] << 24) |
-                  (e[64 * t + 4 * i + 1] << 16) |
-                  (e[64 * t + 4 * i + 2] << 8) |
-                  e[64 * t + 4 * i + 3];
-              a[t] = n;
-            }
-            (a[s - 1][14] = (8 * (e.length - 1)) / Math.pow(2, 32)),
-              (a[s - 1][14] = Math.floor(a[s - 1][14])),
-              (a[s - 1][15] = (8 * (e.length - 1)) & 4294967295);
-            for (let e = 0; e < s; ++e) {
-              const r = new Uint32Array(80);
-              for (let t = 0; t < 16; ++t) r[t] = a[e][t];
-              for (let e = 16; e < 80; ++e) r[e] = i(r[e - 3] ^ r[e - 8] ^ r[e - 14] ^ r[e - 16], 1);
-              let s = o[0],
-                l = o[1],
-                d = o[2],
-                c = o[3],
-                u = o[4];
-              for (let e = 0; e < 80; ++e) {
-                const o = Math.floor(e / 20),
-                  a = (i(s, 5) + n(o, l, d, c) + u + t[o] + r[e]) >>> 0;
-                (u = c), (c = d), (d = i(l, 30) >>> 0), (l = s), (s = a);
-              }
-              (o[0] = (o[0] + s) >>> 0),
-                (o[1] = (o[1] + l) >>> 0),
-                (o[2] = (o[2] + d) >>> 0),
-                (o[3] = (o[3] + c) >>> 0),
-                (o[4] = (o[4] + u) >>> 0);
-            }
-            return [
-              (o[0] >> 24) & 255,
-              (o[0] >> 16) & 255,
-              (o[0] >> 8) & 255,
-              255 & o[0],
-              (o[1] >> 24) & 255,
-              (o[1] >> 16) & 255,
-              (o[1] >> 8) & 255,
-              255 & o[1],
-              (o[2] >> 24) & 255,
-              (o[2] >> 16) & 255,
-              (o[2] >> 8) & 255,
-              255 & o[2],
-              (o[3] >> 24) & 255,
-              (o[3] >> 16) & 255,
-              (o[3] >> 8) & 255,
-              255 & o[3],
-              (o[4] >> 24) & 255,
-              (o[4] >> 16) & 255,
-              (o[4] >> 8) & 255,
-              255 & o[4]
-            ];
-          });
-      },
       264: (e, t) => {
         Object.defineProperty(t, '__esModule', { value: !0 }),
           (t.default = void 0),
           (t.default =
             /^(?:[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}|00000000-0000-0000-0000-000000000000)$/i);
       },
-      270: (e, t) => {
-        Object.defineProperty(t, '__esModule', { value: !0 }), (t.version = void 0), (t.version = '2.7.0');
+      316: (e, t, n) => {
+        Object.defineProperty(t, '__esModule', { value: !0 }),
+          Object.defineProperty(t, 'NIL', {
+            enumerable: !0,
+            get: function () {
+              return a.default;
+            }
+          }),
+          Object.defineProperty(t, 'parse', {
+            enumerable: !0,
+            get: function () {
+              return u.default;
+            }
+          }),
+          Object.defineProperty(t, 'stringify', {
+            enumerable: !0,
+            get: function () {
+              return c.default;
+            }
+          }),
+          Object.defineProperty(t, 'v1', {
+            enumerable: !0,
+            get: function () {
+              return i.default;
+            }
+          }),
+          Object.defineProperty(t, 'v3', {
+            enumerable: !0,
+            get: function () {
+              return o.default;
+            }
+          }),
+          Object.defineProperty(t, 'v4', {
+            enumerable: !0,
+            get: function () {
+              return r.default;
+            }
+          }),
+          Object.defineProperty(t, 'v5', {
+            enumerable: !0,
+            get: function () {
+              return s.default;
+            }
+          }),
+          Object.defineProperty(t, 'validate', {
+            enumerable: !0,
+            get: function () {
+              return d.default;
+            }
+          }),
+          Object.defineProperty(t, 'version', {
+            enumerable: !0,
+            get: function () {
+              return l.default;
+            }
+          });
+        var i = h(n(766)),
+          o = h(n(532)),
+          r = h(n(521)),
+          s = h(n(10)),
+          a = h(n(688)),
+          l = h(n(687)),
+          d = h(n(893)),
+          c = h(n(750)),
+          u = h(n(512));
+        function h(e) {
+          return e && e.__esModule ? e : { default: e };
+        }
+      },
+      335: (e, t) => {
+        Object.defineProperty(t, '__esModule', { value: !0 }), (t.version = void 0), (t.version = '2.8.1');
       },
       361: (e, t, n) => {
         var i,
@@ -574,28 +676,30 @@ var HypeLab;
           l = {};
         ((e, t) => {
           for (var n in t) o(e, n, { get: t[n], enumerable: !0 });
-        })(l, { Identity: () => h }),
+        })(l, { Identity: () => p }),
           (e.exports =
             ((i = l),
             ((e, t, n, i) => {
               if ((t && 'object' == typeof t) || 'function' == typeof t)
                 for (let n of s(t))
                   !a.call(e, n) &&
-                    void 0 !== n &&
+                    undefined !== n &&
                     o(e, n, { get: () => t[n], enumerable: !(i = r(t, n)) || i.enumerable });
               return e;
             })(o({}, '__esModule', { value: !0 }), i)));
-        var d = n(935);
-        function c(e, t) {
+        var d = n(64),
+          c = n(316);
+        function u(e, t) {
           try {
             return e();
           } catch {
             return t;
           }
         }
-        var u = 'hl_uuid',
-          h = class {
+        var h = 'hl_uuid',
+          p = class {
             config;
+            refreshPromise = null;
             uuid;
             wids;
             wp;
@@ -603,7 +707,7 @@ var HypeLab;
             getWalletsPromise = null;
             constructor(e) {
               (this.config = e),
-                (this.uuid = this.getOrSetUUID()),
+                (this.uuid = null),
                 (this.wids = []),
                 (this.wp = { ada: !1, bnb: !1, eth: !1, sol: !1, tron: !1 }),
                 (this.wpfs = { ada: [], bnb: [], eth: [], sol: [], tron: [] });
@@ -612,15 +716,22 @@ var HypeLab;
               return { uuid: this.uuid, wids: this.wids, wp: this.wp, wpfs: this.wpfs };
             }
             async refresh() {
-              (this.uuid = this.getOrSetUUID()),
+              this.refreshPromise ||
+                (this.refreshPromise = this._refresh().then(() => {
+                  this.refreshPromise = null;
+                })),
+                await this.refreshPromise;
+            }
+            async _refresh() {
+              (this.uuid = await this.syncUUID()),
                 (this.wids = this.mergeWIDs(await this.getWallets())),
                 (this.wp = this.getWalletPresence()),
                 (this.wpfs = this.getWalletProviderFlags());
             }
             setUUID(e) {
               if (typeof window > 'u') return null;
-              let t = { value: e?.toString() || (0, d.v4)() };
-              return window.localStorage.setItem(u, JSON.stringify(t)), t.value;
+              let t = { value: e?.toString() || (0, c.v4)() };
+              return window.localStorage.setItem(h, JSON.stringify(t)), t.value;
             }
             setWalletAddresses(e) {
               this.wids = this.mergeWIDs(e);
@@ -635,13 +746,22 @@ var HypeLab;
                 )
               ];
             }
-            getOrSetUUID() {
-              return this.getUUID() ?? this.setUUID();
+            async syncUUID() {
+              let e = (0, d.getBaseURL)(this.config.environment),
+                t = await (
+                  await fetch(new URL('/v1/j', e), {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ q: this.getUUID() || '' }),
+                    credentials: 'include'
+                  })
+                ).text();
+              return this.setUUID(t || void 0);
             }
             getUUID() {
               if (typeof window > 'u') return null;
               try {
-                let e = window.localStorage.getItem(u);
+                let e = window.localStorage.getItem(h);
                 return null !== e ? JSON.parse(e).value : null;
               } catch {
                 return null;
@@ -659,7 +779,7 @@ var HypeLab;
                         try {
                           return (await (n?.ethereum || t).request({ method: 'eth_accounts' })) ?? [];
                         } catch (e) {
-                          return [];
+                          return console.error(e), [];
                         }
                       })().then(e => ((this.getWalletsPromise = null), e)),
                       new Promise(e => {
@@ -681,11 +801,11 @@ var HypeLab;
             }
             getWalletProviderFlags() {
               return {
-                ada: c(this.getAdaWalletProviderFlags, []),
-                bnb: c(this.getBnbWalletProviderFlags, []),
-                eth: c(this.getEthWalletProviderFlags, []),
-                sol: c(this.getSolWalletProviderFlags, []),
-                tron: c(this.getTronWalletProviderFlags, [])
+                ada: u(this.getAdaWalletProviderFlags, []),
+                bnb: u(this.getBnbWalletProviderFlags, []),
+                eth: u(this.getEthWalletProviderFlags, []),
+                sol: u(this.getSolWalletProviderFlags, []),
+                tron: u(this.getTronWalletProviderFlags, [])
               };
             }
             getAdaWalletProviderFlags() {
@@ -801,92 +921,6 @@ var HypeLab;
             }
           };
       },
-      376: (e, t) => {
-        function n() {
-          var e;
-          const t = null === (e = window.__hype) || void 0 === e ? void 0 : e.config;
-          return t || i('No config specified'), t;
-        }
-        function i(e) {
-          throw new Error(`[HypeLab] ${e}`);
-        }
-        function o(e) {
-          return e.clientWidth, e.clientHeight, !0;
-        }
-        Object.defineProperty(t, '__esModule', { value: !0 }),
-          (t.getConfig = n),
-          (t.configHasFlags = function (e) {
-            return ((n().__flags || 0) & e) === e;
-          }),
-          (t.getIdentity = function () {
-            var e;
-            const t = null === (e = window.__hype) || void 0 === e ? void 0 : e.identity;
-            return t || i('Identity not initialized'), t;
-          }),
-          (t.log = function (...e) {
-            'development' === n().environment || n().debugLogging;
-          }),
-          (t.debug = function (...e) {
-            n().debugLogging;
-          }),
-          (t.throwError = i),
-          (t.randomId = function () {
-            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (e) {
-              const t = (16 * Math.random()) | 0;
-              return ('x' === e ? t : (3 & t) | 8).toString(16);
-            });
-          }),
-          (t.currentLocation = function () {
-            return 'undefined' == typeof window ? null : window.top ? window.top.location.href : window.location.href;
-          }),
-          (t.getURL = function () {
-            const e = n();
-            if (e.baseUrl) return e.baseUrl;
-            switch (e.environment) {
-              case 'local':
-                return 'https://api.lvh.me:8080';
-              case 'development':
-                return 'https://api.hypelab-staging.com';
-              case 'production':
-                return 'https://api.hypelab.com';
-            }
-          }),
-          (t.style = function (e, t, n = !1) {
-            n || ((e.style.transition = 'none'), o(e));
-            for (const n in t) {
-              const i = t[n];
-              i && (e.style[n] = i);
-            }
-            n || (e.style.removeProperty('transition'), o(e));
-          }),
-          (t.resetStyle = function (e, t) {
-            for (const n of t) {
-              const t = n
-                .split(/(?=[A-Z])/)
-                .join('-')
-                .toLowerCase();
-              e.style.removeProperty(t);
-            }
-          }),
-          (t.wait = function (e) {
-            return new Promise(t =>
-              setTimeout(() => {
-                t();
-              }, e)
-            );
-          }),
-          (t.preloadImage = function (e) {
-            return new Promise((t, n) => {
-              const i = new Image();
-              (i.onload = () => t(i)), (i.onerror = n), (i.src = e);
-            });
-          }),
-          (t.getMediaUrlFromVAST = function (e) {
-            const t = new DOMParser().parseFromString(e, 'text/xml').querySelectorAll('MediaFile');
-            for (const e of t) if (e.textContent) return e.textContent;
-            return null;
-          });
-      },
       391: (e, t) => {
         function n(e) {
           return 14 + (((e + 64) >>> 9) << 4) + 1;
@@ -911,118 +945,117 @@ var HypeLab;
         function l(e, t, n, i, r, s, a) {
           return o(n ^ (t | ~i), e, t, r, s, a);
         }
-        Object.defineProperty(t, '__esModule', { value: !0 }),
-          (t.default = void 0),
-          (t.default = function (e) {
-            if ('string' == typeof e) {
-              const t = unescape(encodeURIComponent(e));
-              e = new Uint8Array(t.length);
-              for (let n = 0; n < t.length; ++n) e[n] = t.charCodeAt(n);
+        Object.defineProperty(t, '__esModule', { value: !0 }), (t.default = void 0);
+        t.default = function (e) {
+          if ('string' == typeof e) {
+            const t = unescape(encodeURIComponent(e));
+            e = new Uint8Array(t.length);
+            for (let n = 0; n < t.length; ++n) e[n] = t.charCodeAt(n);
+          }
+          return (function (e) {
+            const t = [],
+              n = 32 * e.length,
+              i = '0123456789abcdef';
+            for (let o = 0; o < n; o += 8) {
+              const n = (e[o >> 5] >>> o % 32) & 255,
+                r = parseInt(i.charAt((n >>> 4) & 15) + i.charAt(15 & n), 16);
+              t.push(r);
             }
-            return (function (e) {
-              const t = [],
-                n = 32 * e.length,
-                i = '0123456789abcdef';
-              for (let o = 0; o < n; o += 8) {
-                const n = (e[o >> 5] >>> o % 32) & 255,
-                  r = parseInt(i.charAt((n >>> 4) & 15) + i.charAt(15 & n), 16);
-                t.push(r);
+            return t;
+          })(
+            (function (e, t) {
+              (e[t >> 5] |= 128 << t % 32), (e[n(t) - 1] = t);
+              let o = 1732584193,
+                d = -271733879,
+                c = -1732584194,
+                u = 271733878;
+              for (let t = 0; t < e.length; t += 16) {
+                const n = o,
+                  h = d,
+                  p = c,
+                  f = u;
+                (o = r(o, d, c, u, e[t], 7, -680876936)),
+                  (u = r(u, o, d, c, e[t + 1], 12, -389564586)),
+                  (c = r(c, u, o, d, e[t + 2], 17, 606105819)),
+                  (d = r(d, c, u, o, e[t + 3], 22, -1044525330)),
+                  (o = r(o, d, c, u, e[t + 4], 7, -176418897)),
+                  (u = r(u, o, d, c, e[t + 5], 12, 1200080426)),
+                  (c = r(c, u, o, d, e[t + 6], 17, -1473231341)),
+                  (d = r(d, c, u, o, e[t + 7], 22, -45705983)),
+                  (o = r(o, d, c, u, e[t + 8], 7, 1770035416)),
+                  (u = r(u, o, d, c, e[t + 9], 12, -1958414417)),
+                  (c = r(c, u, o, d, e[t + 10], 17, -42063)),
+                  (d = r(d, c, u, o, e[t + 11], 22, -1990404162)),
+                  (o = r(o, d, c, u, e[t + 12], 7, 1804603682)),
+                  (u = r(u, o, d, c, e[t + 13], 12, -40341101)),
+                  (c = r(c, u, o, d, e[t + 14], 17, -1502002290)),
+                  (d = r(d, c, u, o, e[t + 15], 22, 1236535329)),
+                  (o = s(o, d, c, u, e[t + 1], 5, -165796510)),
+                  (u = s(u, o, d, c, e[t + 6], 9, -1069501632)),
+                  (c = s(c, u, o, d, e[t + 11], 14, 643717713)),
+                  (d = s(d, c, u, o, e[t], 20, -373897302)),
+                  (o = s(o, d, c, u, e[t + 5], 5, -701558691)),
+                  (u = s(u, o, d, c, e[t + 10], 9, 38016083)),
+                  (c = s(c, u, o, d, e[t + 15], 14, -660478335)),
+                  (d = s(d, c, u, o, e[t + 4], 20, -405537848)),
+                  (o = s(o, d, c, u, e[t + 9], 5, 568446438)),
+                  (u = s(u, o, d, c, e[t + 14], 9, -1019803690)),
+                  (c = s(c, u, o, d, e[t + 3], 14, -187363961)),
+                  (d = s(d, c, u, o, e[t + 8], 20, 1163531501)),
+                  (o = s(o, d, c, u, e[t + 13], 5, -1444681467)),
+                  (u = s(u, o, d, c, e[t + 2], 9, -51403784)),
+                  (c = s(c, u, o, d, e[t + 7], 14, 1735328473)),
+                  (d = s(d, c, u, o, e[t + 12], 20, -1926607734)),
+                  (o = a(o, d, c, u, e[t + 5], 4, -378558)),
+                  (u = a(u, o, d, c, e[t + 8], 11, -2022574463)),
+                  (c = a(c, u, o, d, e[t + 11], 16, 1839030562)),
+                  (d = a(d, c, u, o, e[t + 14], 23, -35309556)),
+                  (o = a(o, d, c, u, e[t + 1], 4, -1530992060)),
+                  (u = a(u, o, d, c, e[t + 4], 11, 1272893353)),
+                  (c = a(c, u, o, d, e[t + 7], 16, -155497632)),
+                  (d = a(d, c, u, o, e[t + 10], 23, -1094730640)),
+                  (o = a(o, d, c, u, e[t + 13], 4, 681279174)),
+                  (u = a(u, o, d, c, e[t], 11, -358537222)),
+                  (c = a(c, u, o, d, e[t + 3], 16, -722521979)),
+                  (d = a(d, c, u, o, e[t + 6], 23, 76029189)),
+                  (o = a(o, d, c, u, e[t + 9], 4, -640364487)),
+                  (u = a(u, o, d, c, e[t + 12], 11, -421815835)),
+                  (c = a(c, u, o, d, e[t + 15], 16, 530742520)),
+                  (d = a(d, c, u, o, e[t + 2], 23, -995338651)),
+                  (o = l(o, d, c, u, e[t], 6, -198630844)),
+                  (u = l(u, o, d, c, e[t + 7], 10, 1126891415)),
+                  (c = l(c, u, o, d, e[t + 14], 15, -1416354905)),
+                  (d = l(d, c, u, o, e[t + 5], 21, -57434055)),
+                  (o = l(o, d, c, u, e[t + 12], 6, 1700485571)),
+                  (u = l(u, o, d, c, e[t + 3], 10, -1894986606)),
+                  (c = l(c, u, o, d, e[t + 10], 15, -1051523)),
+                  (d = l(d, c, u, o, e[t + 1], 21, -2054922799)),
+                  (o = l(o, d, c, u, e[t + 8], 6, 1873313359)),
+                  (u = l(u, o, d, c, e[t + 15], 10, -30611744)),
+                  (c = l(c, u, o, d, e[t + 6], 15, -1560198380)),
+                  (d = l(d, c, u, o, e[t + 13], 21, 1309151649)),
+                  (o = l(o, d, c, u, e[t + 4], 6, -145523070)),
+                  (u = l(u, o, d, c, e[t + 11], 10, -1120210379)),
+                  (c = l(c, u, o, d, e[t + 2], 15, 718787259)),
+                  (d = l(d, c, u, o, e[t + 9], 21, -343485551)),
+                  (o = i(o, n)),
+                  (d = i(d, h)),
+                  (c = i(c, p)),
+                  (u = i(u, f));
               }
-              return t;
+              return [o, d, c, u];
             })(
-              (function (e, t) {
-                (e[t >> 5] |= 128 << t % 32), (e[n(t) - 1] = t);
-                let o = 1732584193,
-                  d = -271733879,
-                  c = -1732584194,
-                  u = 271733878;
-                for (let t = 0; t < e.length; t += 16) {
-                  const n = o,
-                    h = d,
-                    p = c,
-                    f = u;
-                  (o = r(o, d, c, u, e[t], 7, -680876936)),
-                    (u = r(u, o, d, c, e[t + 1], 12, -389564586)),
-                    (c = r(c, u, o, d, e[t + 2], 17, 606105819)),
-                    (d = r(d, c, u, o, e[t + 3], 22, -1044525330)),
-                    (o = r(o, d, c, u, e[t + 4], 7, -176418897)),
-                    (u = r(u, o, d, c, e[t + 5], 12, 1200080426)),
-                    (c = r(c, u, o, d, e[t + 6], 17, -1473231341)),
-                    (d = r(d, c, u, o, e[t + 7], 22, -45705983)),
-                    (o = r(o, d, c, u, e[t + 8], 7, 1770035416)),
-                    (u = r(u, o, d, c, e[t + 9], 12, -1958414417)),
-                    (c = r(c, u, o, d, e[t + 10], 17, -42063)),
-                    (d = r(d, c, u, o, e[t + 11], 22, -1990404162)),
-                    (o = r(o, d, c, u, e[t + 12], 7, 1804603682)),
-                    (u = r(u, o, d, c, e[t + 13], 12, -40341101)),
-                    (c = r(c, u, o, d, e[t + 14], 17, -1502002290)),
-                    (d = r(d, c, u, o, e[t + 15], 22, 1236535329)),
-                    (o = s(o, d, c, u, e[t + 1], 5, -165796510)),
-                    (u = s(u, o, d, c, e[t + 6], 9, -1069501632)),
-                    (c = s(c, u, o, d, e[t + 11], 14, 643717713)),
-                    (d = s(d, c, u, o, e[t], 20, -373897302)),
-                    (o = s(o, d, c, u, e[t + 5], 5, -701558691)),
-                    (u = s(u, o, d, c, e[t + 10], 9, 38016083)),
-                    (c = s(c, u, o, d, e[t + 15], 14, -660478335)),
-                    (d = s(d, c, u, o, e[t + 4], 20, -405537848)),
-                    (o = s(o, d, c, u, e[t + 9], 5, 568446438)),
-                    (u = s(u, o, d, c, e[t + 14], 9, -1019803690)),
-                    (c = s(c, u, o, d, e[t + 3], 14, -187363961)),
-                    (d = s(d, c, u, o, e[t + 8], 20, 1163531501)),
-                    (o = s(o, d, c, u, e[t + 13], 5, -1444681467)),
-                    (u = s(u, o, d, c, e[t + 2], 9, -51403784)),
-                    (c = s(c, u, o, d, e[t + 7], 14, 1735328473)),
-                    (d = s(d, c, u, o, e[t + 12], 20, -1926607734)),
-                    (o = a(o, d, c, u, e[t + 5], 4, -378558)),
-                    (u = a(u, o, d, c, e[t + 8], 11, -2022574463)),
-                    (c = a(c, u, o, d, e[t + 11], 16, 1839030562)),
-                    (d = a(d, c, u, o, e[t + 14], 23, -35309556)),
-                    (o = a(o, d, c, u, e[t + 1], 4, -1530992060)),
-                    (u = a(u, o, d, c, e[t + 4], 11, 1272893353)),
-                    (c = a(c, u, o, d, e[t + 7], 16, -155497632)),
-                    (d = a(d, c, u, o, e[t + 10], 23, -1094730640)),
-                    (o = a(o, d, c, u, e[t + 13], 4, 681279174)),
-                    (u = a(u, o, d, c, e[t], 11, -358537222)),
-                    (c = a(c, u, o, d, e[t + 3], 16, -722521979)),
-                    (d = a(d, c, u, o, e[t + 6], 23, 76029189)),
-                    (o = a(o, d, c, u, e[t + 9], 4, -640364487)),
-                    (u = a(u, o, d, c, e[t + 12], 11, -421815835)),
-                    (c = a(c, u, o, d, e[t + 15], 16, 530742520)),
-                    (d = a(d, c, u, o, e[t + 2], 23, -995338651)),
-                    (o = l(o, d, c, u, e[t], 6, -198630844)),
-                    (u = l(u, o, d, c, e[t + 7], 10, 1126891415)),
-                    (c = l(c, u, o, d, e[t + 14], 15, -1416354905)),
-                    (d = l(d, c, u, o, e[t + 5], 21, -57434055)),
-                    (o = l(o, d, c, u, e[t + 12], 6, 1700485571)),
-                    (u = l(u, o, d, c, e[t + 3], 10, -1894986606)),
-                    (c = l(c, u, o, d, e[t + 10], 15, -1051523)),
-                    (d = l(d, c, u, o, e[t + 1], 21, -2054922799)),
-                    (o = l(o, d, c, u, e[t + 8], 6, 1873313359)),
-                    (u = l(u, o, d, c, e[t + 15], 10, -30611744)),
-                    (c = l(c, u, o, d, e[t + 6], 15, -1560198380)),
-                    (d = l(d, c, u, o, e[t + 13], 21, 1309151649)),
-                    (o = l(o, d, c, u, e[t + 4], 6, -145523070)),
-                    (u = l(u, o, d, c, e[t + 11], 10, -1120210379)),
-                    (c = l(c, u, o, d, e[t + 2], 15, 718787259)),
-                    (d = l(d, c, u, o, e[t + 9], 21, -343485551)),
-                    (o = i(o, n)),
-                    (d = i(d, h)),
-                    (c = i(c, p)),
-                    (u = i(u, f));
-                }
-                return [o, d, c, u];
-              })(
-                (function (e) {
-                  if (0 === e.length) return [];
-                  const t = 8 * e.length,
-                    i = new Uint32Array(n(t));
-                  for (let n = 0; n < t; n += 8) i[n >> 5] |= (255 & e[n / 8]) << n % 32;
-                  return i;
-                })(e),
-                8 * e.length
-              )
-            );
-          });
+              (function (e) {
+                if (0 === e.length) return [];
+                const t = 8 * e.length,
+                  i = new Uint32Array(n(t));
+                for (let n = 0; n < t; n += 8) i[n >> 5] |= (255 & e[n / 8]) << n % 32;
+                return i;
+              })(e),
+              8 * e.length
+            )
+          );
+        };
       },
       449: (e, t, n) => {
         Object.defineProperty(t, '__esModule', { value: !0 }),
@@ -1126,18 +1159,334 @@ var HypeLab;
         var s = (0, i.default)('v3', 48, o.default);
         t.default = s;
       },
-      563: (e, t) => {
-        var n;
-        Object.defineProperty(t, '__esModule', { value: !0 }),
-          (t.ConfigFlags = void 0),
-          (function (e) {
-            (e[(e.PLATFORM_WEB = 0)] = 'PLATFORM_WEB'),
-              (e[(e.PLATFORM_ANDROID = 1)] = 'PLATFORM_ANDROID'),
-              (e[(e.PLATFORM_IOS = 2)] = 'PLATFORM_IOS'),
-              (e[(e.PLATFORM_UNITY = 4)] = 'PLATFORM_UNITY');
-          })(n || (t.ConfigFlags = n = {}));
+      653: function (e, t, n) {
+        var i =
+          (this && this.__awaiter) ||
+          function (e, t, n, i) {
+            return new (n || (n = Promise))(function (o, r) {
+              function s(e) {
+                try {
+                  l(i.next(e));
+                } catch (e) {
+                  r(e);
+                }
+              }
+              function a(e) {
+                try {
+                  l(i.throw(e));
+                } catch (e) {
+                  r(e);
+                }
+              }
+              function l(e) {
+                var t;
+                e.done
+                  ? o(e.value)
+                  : ((t = e.value),
+                    t instanceof n
+                      ? t
+                      : new n(function (e) {
+                          e(t);
+                        })).then(s, a);
+              }
+              l((i = i.apply(e, t || [])).next());
+            });
+          };
+        Object.defineProperty(t, '__esModule', { value: !0 }), (t.RTBBannerComponent = void 0);
+        const o = n(799),
+          r = n(698);
+        class s extends r.RTBBaseComponent {
+          constructor() {
+            super(...arguments), (this.iframe = null), (this.refreshTimer = null);
+          }
+          connectedCallback() {
+            return i(this, void 0, void 0, function* () {
+              yield this.requestBid(), (this.refreshTimer = setInterval(() => this.requestBid(), 3e4));
+            });
+          }
+          disconnectedCallback() {
+            this.removeIntersectionObserver(), this.refreshTimer && clearInterval(this.refreshTimer);
+          }
+          requestBid() {
+            const e = Object.create(null, { requestBid: { get: () => super.requestBid } });
+            return i(this, void 0, void 0, function* () {
+              var t, n, i, r;
+              if (document.hidden) return;
+              if (null != this.bid && !1 === (null === (t = this.bid.ext) || void 0 === t ? void 0 : t.r)) return;
+              const s = this.shadowRoot || this.attachShadow({ mode: 'open' });
+              if ((yield e.requestBid.call(this), this.bid)) {
+                this.removeIntersectionObserver(), this.resetTrackedEvents();
+                const e = document.createElement('iframe');
+                (0, o.style)(e, {
+                  display: 'block',
+                  width: `${this.bid.w}px`,
+                  height: `${this.bid.h}px`,
+                  border: 'none',
+                  overflow: 'hidden'
+                }),
+                  e.setAttribute('frameborder', '0'),
+                  this.iframe ? s.replaceChild(e, this.iframe) : s.appendChild(e),
+                  (this.iframe = e),
+                  null === (n = this.iframe.contentWindow) || void 0 === n || n.document.open(),
+                  null === (i = this.iframe.contentWindow) || void 0 === i || i.document.write(this.bid.adm || ''),
+                  null === (r = this.iframe.contentWindow) || void 0 === r || r.document.close(),
+                  this.addIntersectionObserver();
+              }
+            });
+          }
+          buildImpression() {
+            const e = (0, o.getConfig)(),
+              t = this.getBoundingClientRect();
+            return {
+              id: (0, o.randomId)(),
+              banner: { w: 0, h: 0 },
+              ext: {
+                bidder: { property_slug: e.propertySlug, placement_slug: this.getPlacementSlug(), pp: [t.left, t.top] }
+              }
+            };
+          }
+        }
+        t.RTBBannerComponent = s;
       },
-      645: function (e, t, n) {
+      687: (e, t, n) => {
+        Object.defineProperty(t, '__esModule', { value: !0 }), (t.default = void 0);
+        var i,
+          o = (i = n(893)) && i.__esModule ? i : { default: i };
+        t.default = function (e) {
+          if (!(0, o.default)(e)) throw TypeError('Invalid UUID');
+          return parseInt(e.slice(14, 15), 16);
+        };
+      },
+      688: (e, t) => {
+        Object.defineProperty(t, '__esModule', { value: !0 }),
+          (t.default = void 0),
+          (t.default = '00000000-0000-0000-0000-000000000000');
+      },
+      698: function (e, t, n) {
+        var i =
+          (this && this.__awaiter) ||
+          function (e, t, n, i) {
+            return new (n || (n = Promise))(function (o, r) {
+              function s(e) {
+                try {
+                  l(i.next(e));
+                } catch (e) {
+                  r(e);
+                }
+              }
+              function a(e) {
+                try {
+                  l(i.throw(e));
+                } catch (e) {
+                  r(e);
+                }
+              }
+              function l(e) {
+                var t;
+                e.done
+                  ? o(e.value)
+                  : ((t = e.value),
+                    t instanceof n
+                      ? t
+                      : new n(function (e) {
+                          e(t);
+                        })).then(s, a);
+              }
+              l((i = i.apply(e, t || [])).next());
+            });
+          };
+        Object.defineProperty(t, '__esModule', { value: !0 }), (t.RTBBaseComponent = void 0);
+        const o = n(799),
+          r = n(335);
+        class s extends HTMLElement {
+          constructor() {
+            super(...arguments), (this.bid = null), (this.intersectionObserver = null), (this.impressionFired = !1);
+          }
+          addIntersectionObserver(e = this) {
+            (this.intersectionObserver = new IntersectionObserver(e =>
+              i(this, void 0, void 0, function* () {
+                var t;
+                if (e.every(e => e.isIntersecting)) {
+                  if (this.impressionFired) return;
+                  (null === (t = this.bid) || void 0 === t ? void 0 : t.burl) &&
+                    ((this.impressionFired = !0),
+                    yield fetch(this.bid.burl, { credentials: 'include' }).then(result => {
+                      if (result.status === 201) {
+                        this.emitEvent("impression");
+                      }
+
+                      return result;
+                    }));
+                }
+              })
+            )),
+              this.intersectionObserver.observe(e);
+          }
+          removeIntersectionObserver() {
+            this.intersectionObserver && (this.intersectionObserver.disconnect(), (this.intersectionObserver = null));
+          }
+          resetTrackedEvents() {
+            this.impressionFired = !1;
+          }
+          getPlacementSlug() {
+            const e = this.getAttribute('placement');
+            return e || (0, o.throwError)('No placement specified'), e;
+          }
+          emitEvent(e) {
+            (0, o.debug)('Emitting', e, 'DOM event for:', this.getPlacementSlug()),
+              this.dispatchEvent(new CustomEvent(e, { bubbles: !0, composed: !0, cancelable: !1 }));
+          }
+          requestBid() {
+            return i(this, void 0, void 0, function* () {
+              (this.bid = yield this._requestBid()), this.bid ? this.emitEvent('ready') : this.emitEvent('error');
+            });
+          }
+          _requestBid() {
+            return i(this, void 0, void 0, function* () {
+              var e, t;
+              const n = (0, o.getIdentity)();
+              try {
+                yield Promise.allSettled([n.refresh()]);
+                const i = this.buildImpression(),
+                  s = {
+                    at: 1,
+                    id: (0, o.randomId)(),
+                    cur: ['USD'],
+                    device: { language: navigator.language, ua: navigator.userAgent },
+                    site: { page: (0, o.currentLocation)() || void 0, ref: document.referrer },
+                    imp: [i],
+                    user: {
+                      buyeruid: n.uuid || void 0,
+                      id: n.uuid || void 0,
+                      ext: { wids: n.wids, wp: n.wp, wpfs: n.wpfs }
+                    },
+                    ext: {
+                      source: 'network',
+                      sdk_version: r.version,
+                      dpr: Math.max(1, Math.min(3, Math.round(window.devicePixelRatio))),
+                      vp: [
+                        Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0),
+                        Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0)
+                      ]
+                    }
+                  },
+                  a = yield fetch(new URL('/v1/rtb_requests', (0, o.getURL)()), {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(s)
+                  });
+                if (200 !== a.status)
+                  return (0, o.log)('Failed to load ad:', a.statusText), (0, o.debug)('Response:', a), null;
+                return (
+                  (null === (t = null === (e = (yield a.json()).seatbid) || void 0 === e ? void 0 : e[0].bid) ||
+                  void 0 === t
+                    ? void 0
+                    : t[0]) || ((0, o.log)('No bids found in response'), null)
+                );
+              } catch (e) {
+                (0, o.log)('Failed to load ad:', e);
+              }
+              return null;
+            });
+          }
+        }
+        t.RTBBaseComponent = s;
+      },
+      722: (e, t) => {
+        let n;
+        Object.defineProperty(t, '__esModule', { value: !0 }),
+          (t.default = function () {
+            if (
+              !n &&
+              ((n = 'undefined' != typeof crypto && crypto.getRandomValues && crypto.getRandomValues.bind(crypto)), !n)
+            )
+              throw new Error(
+                'crypto.getRandomValues() not supported. See https://github.com/uuidjs/uuid#getrandomvalues-not-supported'
+              );
+            return n(i);
+          });
+        const i = new Uint8Array(16);
+      },
+      750: (e, t, n) => {
+        Object.defineProperty(t, '__esModule', { value: !0 }), (t.default = void 0), (t.unsafeStringify = s);
+        var i,
+          o = (i = n(893)) && i.__esModule ? i : { default: i };
+        const r = [];
+        for (let e = 0; e < 256; ++e) r.push((e + 256).toString(16).slice(1));
+        function s(e, t = 0) {
+          return (
+            r[e[t + 0]] +
+            r[e[t + 1]] +
+            r[e[t + 2]] +
+            r[e[t + 3]] +
+            '-' +
+            r[e[t + 4]] +
+            r[e[t + 5]] +
+            '-' +
+            r[e[t + 6]] +
+            r[e[t + 7]] +
+            '-' +
+            r[e[t + 8]] +
+            r[e[t + 9]] +
+            '-' +
+            r[e[t + 10]] +
+            r[e[t + 11]] +
+            r[e[t + 12]] +
+            r[e[t + 13]] +
+            r[e[t + 14]] +
+            r[e[t + 15]]
+          );
+        }
+        t.default = function (e, t = 0) {
+          const n = s(e, t);
+          if (!(0, o.default)(n)) throw TypeError('Stringified UUID is invalid');
+          return n;
+        };
+      },
+      766: (e, t, n) => {
+        Object.defineProperty(t, '__esModule', { value: !0 }), (t.default = void 0);
+        var i,
+          o = (i = n(722)) && i.__esModule ? i : { default: i },
+          r = n(750);
+        let s,
+          a,
+          l = 0,
+          d = 0;
+        t.default = function (e, t, n) {
+          let i = (t && n) || 0;
+          const c = t || new Array(16);
+          let u = (e = e || {}).node || s,
+            h = void 0 !== e.clockseq ? e.clockseq : a;
+          if (null == u || null == h) {
+            const t = e.random || (e.rng || o.default)();
+            null == u && (u = s = [1 | t[0], t[1], t[2], t[3], t[4], t[5]]),
+              null == h && (h = a = 16383 & ((t[6] << 8) | t[7]));
+          }
+          let p = void 0 !== e.msecs ? e.msecs : Date.now(),
+            f = void 0 !== e.nsecs ? e.nsecs : d + 1;
+          const v = p - l + (f - d) / 1e4;
+          if (
+            (v < 0 && void 0 === e.clockseq && (h = (h + 1) & 16383),
+            (v < 0 || p > l) && void 0 === e.nsecs && (f = 0),
+            f >= 1e4)
+          )
+            throw new Error("uuid.v1(): Can't create more than 10M uuids/sec");
+          (l = p), (d = f), (a = h), (p += 122192928e5);
+          const m = (1e4 * (268435455 & p) + f) % 4294967296;
+          (c[i++] = (m >>> 24) & 255), (c[i++] = (m >>> 16) & 255), (c[i++] = (m >>> 8) & 255), (c[i++] = 255 & m);
+          const g = ((p / 4294967296) * 1e4) & 268435455;
+          (c[i++] = (g >>> 8) & 255),
+            (c[i++] = 255 & g),
+            (c[i++] = ((g >>> 24) & 15) | 16),
+            (c[i++] = (g >>> 16) & 255),
+            (c[i++] = (h >>> 8) | 128),
+            (c[i++] = 255 & h);
+          for (let e = 0; e < 6; ++e) c[i + e] = u[e];
+          return t || (0, r.unsafeStringify)(c);
+        };
+      },
+      796: function (e, t, n) {
         var i =
           (this && this.__awaiter) ||
           function (e, t, n, i) {
@@ -1171,9 +1520,9 @@ var HypeLab;
             });
           };
         Object.defineProperty(t, '__esModule', { value: !0 }), (t.RewardedComponent = void 0);
-        const o = n(563),
-          r = n(376),
-          s = n(62);
+        const o = n(178),
+          r = n(799),
+          s = n(215);
         class a extends s.BaseComponent {
           constructor() {
             super(),
@@ -1364,336 +1713,84 @@ var HypeLab;
             pointerEvents: 'auto'
           };
       },
-      667: function (e, t, n) {
-        var i =
-          (this && this.__awaiter) ||
-          function (e, t, n, i) {
-            return new (n || (n = Promise))(function (o, r) {
-              function s(e) {
-                try {
-                  l(i.next(e));
-                } catch (e) {
-                  r(e);
-                }
-              }
-              function a(e) {
-                try {
-                  l(i.throw(e));
-                } catch (e) {
-                  r(e);
-                }
-              }
-              function l(e) {
-                var t;
-                e.done
-                  ? o(e.value)
-                  : ((t = e.value),
-                    t instanceof n
-                      ? t
-                      : new n(function (e) {
-                          e(t);
-                        })).then(s, a);
-              }
-              l((i = i.apply(e, t || [])).next());
-            });
-          };
-        Object.defineProperty(t, '__esModule', { value: !0 }), (t.RTBBaseComponent = void 0);
-        const o = n(376),
-          r = n(270);
-        class s extends HTMLElement {
-          constructor() {
-            super(...arguments), (this.bid = null), (this.intersectionObserver = null), (this.impressionFired = !1);
-          }
-          addIntersectionObserver(e = this) {
-            (this.intersectionObserver = new IntersectionObserver(e =>
-              i(this, void 0, void 0, function* () {
-                var t;
-                if (e.every(e => e.isIntersecting)) {
-                  if (this.impressionFired) return;
-                  (null === (t = this.bid) || void 0 === t ? void 0 : t.burl) &&
-                    ((this.impressionFired = !0), yield fetch(this.bid.burl, { credentials: 'include' }));
-                }
-              })
-            )),
-              this.intersectionObserver.observe(e);
-          }
-          removeIntersectionObserver() {
-            this.intersectionObserver && (this.intersectionObserver.disconnect(), (this.intersectionObserver = null));
-          }
-          resetTrackedEvents() {
-            this.impressionFired = !1;
-          }
-          getPlacementSlug() {
-            const e = this.getAttribute('placement');
-            return e || (0, o.throwError)('No placement specified'), e;
-          }
-          emitEvent(e) {
-            (0, o.debug)('Emitting', e, 'DOM event for:', this.getPlacementSlug()),
-              this.dispatchEvent(new CustomEvent(e, { bubbles: !0, composed: !0, cancelable: !1 }));
-          }
-          requestBid() {
-            return i(this, void 0, void 0, function* () {
-              (this.bid = yield this._requestBid()), this.bid ? this.emitEvent('ready') : this.emitEvent('error');
-            });
-          }
-          _requestBid() {
-            return i(this, void 0, void 0, function* () {
-              var e, t;
-              const n = (0, o.getIdentity)();
-              try {
-                yield Promise.allSettled([n.refresh()]);
-                const i = this.buildImpression(),
-                  s = {
-                    at: 1,
-                    id: (0, o.randomId)(),
-                    cur: ['USD'],
-                    device: { language: navigator.language, ua: navigator.userAgent },
-                    site: { page: (0, o.currentLocation)() || void 0, ref: document.referrer },
-                    imp: [i],
-                    user: {
-                      buyeruid: n.uuid || void 0,
-                      id: n.uuid || void 0,
-                      ext: { wids: n.wids, wp: n.wp, wpfs: n.wpfs }
-                    },
-                    ext: {
-                      source: 'network',
-                      sdk_version: r.version,
-                      dpr: Math.max(1, Math.min(3, Math.round(window.devicePixelRatio))),
-                      vp: [
-                        Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0),
-                        Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0)
-                      ]
-                    }
-                  },
-                  a = yield fetch(new URL('/v1/rtb_requests', (0, o.getURL)()), {
-                    method: 'POST',
-                    credentials: 'include',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(s)
-                  });
-                return 200 !== a.status
-                  ? ((0, o.log)('Failed to load ad:', a.statusText), (0, o.debug)('Response:', a), null)
-                  : (null === (t = null === (e = (yield a.json()).seatbid) || void 0 === e ? void 0 : e[0].bid) ||
-                    void 0 === t
-                      ? void 0
-                      : t[0]) || ((0, o.log)('No bids found in response'), null);
-              } catch (e) {
-                (0, o.log)('Failed to load ad:', e);
-              }
-              return null;
-            });
-          }
-        }
-        t.RTBBaseComponent = s;
-      },
-      687: (e, t, n) => {
-        Object.defineProperty(t, '__esModule', { value: !0 }), (t.default = void 0);
-        var i,
-          o = (i = n(893)) && i.__esModule ? i : { default: i };
-        t.default = function (e) {
-          if (!(0, o.default)(e)) throw TypeError('Invalid UUID');
-          return parseInt(e.slice(14, 15), 16);
-        };
-      },
-      688: (e, t) => {
+      799: (e, t, n) => {
         Object.defineProperty(t, '__esModule', { value: !0 }),
-          (t.default = void 0),
-          (t.default = '00000000-0000-0000-0000-000000000000');
-      },
-      722: (e, t) => {
-        let n;
-        Object.defineProperty(t, '__esModule', { value: !0 }),
-          (t.default = function () {
-            if (
-              !n &&
-              ((n = 'undefined' != typeof crypto && crypto.getRandomValues && crypto.getRandomValues.bind(crypto)), !n)
-            )
-              throw new Error(
-                'crypto.getRandomValues() not supported. See https://github.com/uuidjs/uuid#getrandomvalues-not-supported'
-              );
-            return n(i);
+          (t.getConfig = o),
+          (t.configHasFlags = function (e) {
+            return ((o().__flags || 0) & e) === e;
+          }),
+          (t.getIdentity = function () {
+            var e;
+            const t = null === (e = window.__hype) || void 0 === e ? void 0 : e.identity;
+            return t || r('Identity not initialized'), t;
+          }),
+          (t.log = function (...e) {
+            ('development' === o().environment || o().debugLogging) && console.log('[HypeLab]', ...e);
+          }),
+          (t.debug = function (...e) {
+            o().debugLogging && console.log('[HypeLab][Debug]', ...e);
+          }),
+          (t.throwError = r),
+          (t.randomId = function () {
+            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (e) {
+              const t = (16 * Math.random()) | 0;
+              return ('x' === e ? t : (3 & t) | 8).toString(16);
+            });
+          }),
+          (t.currentLocation = function () {
+            return 'undefined' == typeof window ? null : window.top ? window.top.location.href : window.location.href;
+          }),
+          (t.getURL = function () {
+            const e = o();
+            return e.baseUrl ? e.baseUrl : (0, i.getBaseURL)(e.environment);
+          }),
+          (t.style = function (e, t, n = !1) {
+            n || ((e.style.transition = 'none'), s(e));
+            for (const n in t) {
+              const i = t[n];
+              i && (e.style[n] = i);
+            }
+            n || (e.style.removeProperty('transition'), s(e));
+          }),
+          (t.resetStyle = function (e, t) {
+            for (const n of t) {
+              const t = n
+                .split(/(?=[A-Z])/)
+                .join('-')
+                .toLowerCase();
+              e.style.removeProperty(t);
+            }
+          }),
+          (t.wait = function (e) {
+            return new Promise(t =>
+              setTimeout(() => {
+                t();
+              }, e)
+            );
+          }),
+          (t.preloadImage = function (e) {
+            return new Promise((t, n) => {
+              const i = new Image();
+              (i.onload = () => t(i)), (i.onerror = n), (i.src = e);
+            });
+          }),
+          (t.getMediaUrlFromVAST = function (e) {
+            const t = new DOMParser().parseFromString(e, 'text/xml').querySelectorAll('MediaFile');
+            for (const e of t) if (e.textContent) return e.textContent;
+            return null;
           });
-        const i = new Uint8Array(16);
-      },
-      750: (e, t, n) => {
-        Object.defineProperty(t, '__esModule', { value: !0 }), (t.default = void 0), (t.unsafeStringify = s);
-        var i,
-          o = (i = n(893)) && i.__esModule ? i : { default: i };
-        const r = [];
-        for (let e = 0; e < 256; ++e) r.push((e + 256).toString(16).slice(1));
-        function s(e, t = 0) {
-          return (
-            r[e[t + 0]] +
-            r[e[t + 1]] +
-            r[e[t + 2]] +
-            r[e[t + 3]] +
-            '-' +
-            r[e[t + 4]] +
-            r[e[t + 5]] +
-            '-' +
-            r[e[t + 6]] +
-            r[e[t + 7]] +
-            '-' +
-            r[e[t + 8]] +
-            r[e[t + 9]] +
-            '-' +
-            r[e[t + 10]] +
-            r[e[t + 11]] +
-            r[e[t + 12]] +
-            r[e[t + 13]] +
-            r[e[t + 14]] +
-            r[e[t + 15]]
-          );
+        const i = n(64);
+        function o() {
+          var e;
+          const t = null === (e = window.__hype) || void 0 === e ? void 0 : e.config;
+          return t || r('No config specified'), t;
         }
-        t.default = function (e, t = 0) {
-          const n = s(e, t);
-          if (!(0, o.default)(n)) throw TypeError('Stringified UUID is invalid');
-          return n;
-        };
-      },
-      766: (e, t, n) => {
-        Object.defineProperty(t, '__esModule', { value: !0 }), (t.default = void 0);
-        var i,
-          o = (i = n(722)) && i.__esModule ? i : { default: i },
-          r = n(750);
-        let s,
-          a,
-          l = 0,
-          d = 0;
-        t.default = function (e, t, n) {
-          let i = (t && n) || 0;
-          const c = t || new Array(16);
-          let u = (e = e || {}).node || s,
-            h = void 0 !== e.clockseq ? e.clockseq : a;
-          if (null == u || null == h) {
-            const t = e.random || (e.rng || o.default)();
-            null == u && (u = s = [1 | t[0], t[1], t[2], t[3], t[4], t[5]]),
-              null == h && (h = a = 16383 & ((t[6] << 8) | t[7]));
-          }
-          let p = void 0 !== e.msecs ? e.msecs : Date.now(),
-            f = void 0 !== e.nsecs ? e.nsecs : d + 1;
-          const v = p - l + (f - d) / 1e4;
-          if (
-            (v < 0 && void 0 === e.clockseq && (h = (h + 1) & 16383),
-            (v < 0 || p > l) && void 0 === e.nsecs && (f = 0),
-            f >= 1e4)
-          )
-            throw new Error("uuid.v1(): Can't create more than 10M uuids/sec");
-          (l = p), (d = f), (a = h), (p += 122192928e5);
-          const m = (1e4 * (268435455 & p) + f) % 4294967296;
-          (c[i++] = (m >>> 24) & 255), (c[i++] = (m >>> 16) & 255), (c[i++] = (m >>> 8) & 255), (c[i++] = 255 & m);
-          const g = ((p / 4294967296) * 1e4) & 268435455;
-          (c[i++] = (g >>> 8) & 255),
-            (c[i++] = 255 & g),
-            (c[i++] = ((g >>> 24) & 15) | 16),
-            (c[i++] = (g >>> 16) & 255),
-            (c[i++] = (h >>> 8) | 128),
-            (c[i++] = 255 & h);
-          for (let e = 0; e < 6; ++e) c[i + e] = u[e];
-          return t || (0, r.unsafeStringify)(c);
-        };
-      },
-      848: function (e, t, n) {
-        var i =
-          (this && this.__awaiter) ||
-          function (e, t, n, i) {
-            return new (n || (n = Promise))(function (o, r) {
-              function s(e) {
-                try {
-                  l(i.next(e));
-                } catch (e) {
-                  r(e);
-                }
-              }
-              function a(e) {
-                try {
-                  l(i.throw(e));
-                } catch (e) {
-                  r(e);
-                }
-              }
-              function l(e) {
-                var t;
-                e.done
-                  ? o(e.value)
-                  : ((t = e.value),
-                    t instanceof n
-                      ? t
-                      : new n(function (e) {
-                          e(t);
-                        })).then(s, a);
-              }
-              l((i = i.apply(e, t || [])).next());
-            });
-          };
-        Object.defineProperty(t, '__esModule', { value: !0 }), (t.RTBBannerComponent = void 0);
-        const o = n(376),
-          r = n(667);
-        class s extends r.RTBBaseComponent {
-          constructor() {
-            super(...arguments), (this.iframe = null), (this.refreshTimer = null), (this.disconnected = false);
-          }
-          connectedCallback() {
-            this.disconnected = false;
-            const getDisconnected = () => this.disconnected;
-
-            return i(this, void 0, void 0, function* () {
-              yield this.requestBid();
-
-              if (!getDisconnected()) {
-                this.refreshTimer = setInterval(() => this.requestBid(), 3e4);
-              }
-            });
-          }
-          disconnectedCallback() {
-            this.disconnected = true;
-            this.removeIntersectionObserver();
-            this.refreshTimer && clearInterval(this.refreshTimer);
-          }
-          requestBid() {
-            const e = Object.create(null, { requestBid: { get: () => super.requestBid } });
-            return i(this, void 0, void 0, function* () {
-              var t, n, i, r;
-              if (document.hidden) return;
-              if (null != this.bid && !1 === (null === (t = this.bid.ext) || void 0 === t ? void 0 : t.r)) return;
-              const s = this.shadowRoot || this.attachShadow({ mode: 'open' });
-              if ((yield e.requestBid.call(this), this.bid)) {
-                this.removeIntersectionObserver(), this.resetTrackedEvents();
-                const e = document.createElement('iframe');
-                (0, o.style)(e, {
-                  display: 'block',
-                  width: `${this.bid.w}px`,
-                  height: `${this.bid.h}px`,
-                  border: 'none',
-                  overflow: 'hidden'
-                }),
-                  e.setAttribute('frameborder', '0'),
-                  e.setAttribute(
-                    'sandbox',
-                    'allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox'
-                  ),
-                  this.iframe ? s.replaceChild(e, this.iframe) : s.appendChild(e),
-                  (this.iframe = e),
-                  null === (n = this.iframe.contentWindow) || void 0 === n || n.document.open(),
-                  null === (i = this.iframe.contentWindow) || void 0 === i || i.document.write(this.bid.adm || ''),
-                  null === (r = this.iframe.contentWindow) || void 0 === r || r.document.close(),
-                  this.addIntersectionObserver();
-              }
-            });
-          }
-          buildImpression() {
-            const e = (0, o.getConfig)(),
-              t = this.getBoundingClientRect();
-            return {
-              id: (0, o.randomId)(),
-              banner: { w: 0, h: 0 },
-              ext: {
-                bidder: { property_slug: e.propertySlug, placement_slug: this.getPlacementSlug(), pp: [t.left, t.top] }
-              }
-            };
-          }
+        function r(e) {
+          throw new Error(`[HypeLab] ${e}`);
         }
-        t.RTBBannerComponent = s;
+        function s(e) {
+          return e.clientWidth, e.clientHeight, !0;
+        }
       },
       893: (e, t, n) => {
         Object.defineProperty(t, '__esModule', { value: !0 }), (t.default = void 0);
@@ -1702,75 +1799,6 @@ var HypeLab;
         t.default = function (e) {
           return 'string' == typeof e && o.default.test(e);
         };
-      },
-      935: (e, t, n) => {
-        Object.defineProperty(t, '__esModule', { value: !0 }),
-          Object.defineProperty(t, 'NIL', {
-            enumerable: !0,
-            get: function () {
-              return a.default;
-            }
-          }),
-          Object.defineProperty(t, 'parse', {
-            enumerable: !0,
-            get: function () {
-              return u.default;
-            }
-          }),
-          Object.defineProperty(t, 'stringify', {
-            enumerable: !0,
-            get: function () {
-              return c.default;
-            }
-          }),
-          Object.defineProperty(t, 'v1', {
-            enumerable: !0,
-            get: function () {
-              return i.default;
-            }
-          }),
-          Object.defineProperty(t, 'v3', {
-            enumerable: !0,
-            get: function () {
-              return o.default;
-            }
-          }),
-          Object.defineProperty(t, 'v4', {
-            enumerable: !0,
-            get: function () {
-              return r.default;
-            }
-          }),
-          Object.defineProperty(t, 'v5', {
-            enumerable: !0,
-            get: function () {
-              return s.default;
-            }
-          }),
-          Object.defineProperty(t, 'validate', {
-            enumerable: !0,
-            get: function () {
-              return d.default;
-            }
-          }),
-          Object.defineProperty(t, 'version', {
-            enumerable: !0,
-            get: function () {
-              return l.default;
-            }
-          });
-        var i = h(n(766)),
-          o = h(n(532)),
-          r = h(n(521)),
-          s = h(n(10)),
-          a = h(n(688)),
-          l = h(n(687)),
-          d = h(n(893)),
-          c = h(n(750)),
-          u = h(n(512));
-        function h(e) {
-          return e && e.__esModule ? e : { default: e };
-        }
       }
     },
     t = {};
@@ -1784,49 +1812,45 @@ var HypeLab;
   (() => {
     var e = i;
     Object.defineProperty(e, '__esModule', { value: !0 }),
-      (e.Environment = void 0),
       (e.initialize = function (e) {
-        var n, i, l, c;
-        e.environment,
+        var n, i, d, c;
+        'development' === e.environment && console.log('[HypeLab] Configuring with:', e),
           'string' != typeof e.propertySlug && (0, a.throwError)('Expected config.propertySlug to be a string'),
           ['local', 'development', 'production'].includes(e.environment) || (e.environment = 'production'),
           (window.__hype = window.__hype || {}),
           (window.__hype.config = e),
           window.__hype.identity ||
             (window.__hype.identity = new t.Identity({
+              environment: e.environment,
               disableWalletDetection:
                 null != (null === (n = e.privacy) || void 0 === n ? void 0 : n.disableWalletDetection)
                   ? null === (i = e.privacy) || void 0 === i
                     ? void 0
                     : i.disableWalletDetection
-                  : null === (l = e.privacy) || void 0 === l
+                  : null === (d = e.privacy) || void 0 === d
                   ? void 0
-                  : l.disable_wallet_detection
+                  : d.disable_wallet_detection
             })),
           (null === (c = window.__hype_wids) || void 0 === c ? void 0 : c.length) &&
-            (d(window.__hype_wids), (window.__hype_wids = void 0)),
+            (l(window.__hype_wids), (window.__hype_wids = void 0)),
           new URLSearchParams(window.location.search).has('hl-dbg') && (window.__hype.config.debugLogging = !0),
           customElements.get('hype-banner') || customElements.define('hype-banner', r.RTBBannerComponent),
           customElements.get('hype-native') || customElements.define('hype-native', s.RTBNativeComponent),
           customElements.get('hype-rewarded') || customElements.define('hype-rewarded', o.RewardedComponent);
       }),
-      (e.setWalletAddresses = d);
+      (e.setWalletAddresses = l);
     const t = n(361),
-      o = n(645),
-      r = n(848),
-      s = n(165),
-      a = n(376);
-    var l;
-    function d(e) {
+      o = n(796),
+      r = n(653),
+      s = n(248),
+      a = n(799);
+    function l(e) {
       try {
         (0, a.getIdentity)().setWalletAddresses(e);
       } catch (t) {
         window.__hype_wids = e;
       }
     }
-    !(function (e) {
-      (e.Production = 'production'), (e.Development = 'development');
-    })(l || (e.Environment = l = {}));
   })(),
     (HypeLab = i);
 })();

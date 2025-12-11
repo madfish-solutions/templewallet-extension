@@ -19,6 +19,8 @@ export const michelEncoder = new MichelCodecPacker();
 export const getTezosRpcClient = memoizee(
   (network: TezosNetworkEssentials): FallbackRpcClient | FastRpcClient => {
     const fallbacks = TEZOS_FALLBACK_RPC_URLS[network.chainId];
+    // TODO: Remove this after testing
+    Promise.resolve(['getTezosRpcClient', { fallbacks, network, DEFAULT_RPC_INDEX }]).then(console.log);
     const shouldApplyFallbacks = isDefined(fallbacks) && network.rpcBaseURL === fallbacks[DEFAULT_RPC_INDEX];
 
     if (!shouldApplyFallbacks) return getTezosFastRpcClient(network.rpcBaseURL);

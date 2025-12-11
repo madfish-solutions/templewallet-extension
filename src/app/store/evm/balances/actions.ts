@@ -29,6 +29,10 @@ interface LoadOnChainBalanceSuccessPayload {
   timestamp: number;
 }
 
+interface MarkEvmBalancesInitiallyLoadedPayload {
+  chainId: number;
+}
+
 export const processLoadedEvmAssetsBalancesAction = createAction<ProcessLoadedEvmTokensBalancesActionPayload>(
   'evm/balances/PROCESS_LOADED_ASSETS_BALANCES_ACTION'
 );
@@ -39,4 +43,8 @@ export const processLoadedOnchainBalancesAction = createAction<ProcessLoadedOnCh
 
 export const loadEvmBalanceOnChainActions = createActions<LoadOnChainBalancePayload, LoadOnChainBalanceSuccessPayload>(
   'evm/balances/LOAD_BALANCE_ON_CHAIN'
+);
+
+export const markEvmBalancesInitiallyLoadedAction = createAction<MarkEvmBalancesInitiallyLoadedPayload>(
+  'evm/balances/MARK_INITIALLY_LOADED'
 );

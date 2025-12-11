@@ -3,6 +3,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { LiFiStep } from '@lifi/sdk';
 import BigNumber from 'bignumber.js';
 
+import { Route3EvmRoute, getCommonStepProps, isLifiStep } from 'app/pages/Swap/form/interfaces';
 import { toastError } from 'app/toaster';
 import { getEvmStepTransaction } from 'lib/apis/temple/endpoints/evm';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
@@ -16,7 +17,7 @@ import { useAllEvmChains } from 'temple/front';
 export function usePrefetchEvmStepTransactions(args: {
   opened: boolean;
   actionsInitialized: boolean;
-  steps: LiFiStep[];
+  steps: LiFiStep[] | Route3EvmRoute[];
   senderAddress?: string;
   cancelledRef: React.MutableRefObject<boolean>;
 }) {
@@ -26,12 +27,12 @@ export function usePrefetchEvmStepTransactions(args: {
   const allEvmChains = useAllEvmChains();
   const getGasBalance = useGetEvmTokenBalanceWithDecimals(senderAddress as HexString);
 
-  const [prefetchedStepsByIndex, setPrefetchedStepsByIndex] = useState<Record<number, LiFiStep>>({});
+  const [prefetchedStepsByIndex, setPrefetchedStepsByIndex] = useState<Record<number, LiFiStep | Route3EvmRoute>>({});
   const [progressionBlocked, setProgressionBlocked] = useState(false);
 
   const prefetchErrorHandledRef = useRef(false);
   const shownInsufficientGasRef = useRef(false);
-  const inflightByKeyRef = useRef<Record<string, Promise<LiFiStep | null> | undefined>>({});
+  const inflightByKeyRef = useRef<Record<string, Promise<LiFiStep | Route3EvmRoute | null> | undefined>>({});
 
   useEffect(() => {
     setPrefetchedStepsByIndex({});
@@ -56,9 +57,10 @@ export function usePrefetchEvmStepTransactions(args: {
       }
     };
 
-    const getInflightKey = (index: number, step: LiFiStep) => `${index}:${step.id}`;
+    const getInflightKey = (index: number, step: LiFiStep | Route3EvmRoute) =>
+      `${index}:${'id' in step ? step.id : '3route'}`;
 
-    const prefetchOne = async (step: LiFiStep, index: number) => {
+    const prefetchOne = async (step: LiFiStep | Route3EvmRoute, index: number) => {
       if (isAborted()) return { index, step };
 
       const key = getInflightKey(index, step);
@@ -68,9 +70,9 @@ export function usePrefetchEvmStepTransactions(args: {
         return isAborted() ? { index, step: null } : { index, step: res };
       }
 
-      const promise: Promise<LiFiStep | null> = (async () => {
+      const promise: Promise<LiFiStep | Route3EvmRoute | null> = (async () => {
         try {
-          const updated = await getEvmStepTransaction(step);
+          const updated = isLifiStep(step) ? await getEvmStepTransaction(step) : step;
           return isAborted() ? null : updated;
         } catch {
           showPrefetchErrorOnce();
@@ -89,7 +91,7 @@ export function usePrefetchEvmStepTransactions(args: {
         const stepTxResults = await Promise.all(stableSteps.map(prefetchOne));
         if (isAborted()) return;
 
-        const nextPrefetched: Record<number, LiFiStep> = {};
+        const nextPrefetched: Record<number, LiFiStep | Route3EvmRoute> = {};
         for (const result of stepTxResults) if (result.step) nextPrefetched[result.index] = result.step;
         setPrefetchedStepsByIndex(nextPrefetched);
       } catch (e) {
@@ -124,25 +126,38 @@ export function usePrefetchEvmStepTransactions(args: {
       toastError(t('insufficientGasBalanceOnChain', chainName));
     };
 
-    const previousStepsProvideFromAmount = (index: number, step: LiFiStep) =>
+    const previousStepsProvideFromAmount = (index: number, step: LiFiStep | Route3EvmRoute) =>
       stableSteps
         .slice(0, index)
         .some(
           prev =>
+            isLifiStep(prev) &&
+            isLifiStep(step) &&
             prev.action.toChainId === step.action.fromChainId &&
             prev.action.toToken.address === step.action.fromToken.address
         );
 
-    const computeFeeTokens = (step: LiFiStep, chain: any) => {
-      const gasCosts = step.estimate.gasCosts;
-      const firstCost = Array.isArray(gasCosts) ? gasCosts[0] : undefined;
-      if (!firstCost?.price || !firstCost?.limit) return null;
+    const computeFeeTokens = (step: LiFiStep | Route3EvmRoute, chain: any) => {
+      let gasPriceAtomic: BigNumber;
+      let gasLimit: BigNumber;
 
-      const gasPriceAtomic = new BigNumber(firstCost.price);
-      const gasLimit = new BigNumber(firstCost.limit);
+      if (isLifiStep(step)) {
+        const gasCosts = step.estimate.gasCosts;
+        const firstCost = Array.isArray(gasCosts) ? gasCosts[0] : undefined;
+        if (!firstCost?.price || !firstCost.limit) return null;
+
+        const { price, limit } = firstCost;
+        gasPriceAtomic = new BigNumber(price);
+        gasLimit = new BigNumber(limit);
+      } else {
+        gasPriceAtomic = new BigNumber(step.gasPrice);
+        gasLimit = new BigNumber(step.gas);
+      }
+
       if (gasPriceAtomic.lte(0) || gasLimit.lte(0)) return null;
 
       const feeAtomic = gasPriceAtomic.times(gasLimit);
+
       return atomsToTokens(feeAtomic, chain.currency.decimals);
     };
 
@@ -152,7 +167,8 @@ export function usePrefetchEvmStepTransactions(args: {
           if (isAborted()) return;
 
           const step = stepsToCheckForGas[i];
-          const chain = allEvmChains[step.action.fromChainId];
+          const { fromChainId, fromToken, fromAmount } = getCommonStepProps(step);
+          const chain = allEvmChains[fromChainId];
           if (!chain) continue;
           const chainName = chain.name ?? chain.currency?.name ?? String(chain.chainId);
 
@@ -162,12 +178,9 @@ export function usePrefetchEvmStepTransactions(args: {
           const balanceAtomic = getGasBalance(chain.chainId, EVM_TOKEN_SLUG);
           const balanceTokens = new BigNumber(balanceAtomic ?? '0');
 
-          const isNativeInput = step.action.fromToken.address === EVM_ZERO_ADDRESS;
+          const isNativeInput = fromToken.address === EVM_ZERO_ADDRESS;
           if (isNativeInput) {
-            const fromAmountTokens = atomsToTokens(
-              new BigNumber(step.action.fromAmount),
-              step.action.fromToken.decimals ?? 0
-            );
+            const fromAmountTokens = atomsToTokens(new BigNumber(fromAmount), fromToken.decimals ?? 0);
 
             if (previousStepsProvideFromAmount(i, step)) {
               if (balanceTokens.lt(feeTokens)) {

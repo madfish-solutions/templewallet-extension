@@ -45,8 +45,8 @@ export const useTezosAccountCollectiblesListingLogic = (allSlugsSorted: string[]
   const assetsAreLoading = useAreAssetsLoading('collectibles');
   const metadatasLoading = useCollectiblesMetadataLoadingSelector();
 
-  const { searchValue, searchValueDebounced, setSearchValue, isInSearchMode, isSyncing } = useCommonAssetsListingLogic(
-    isInSearchMode => (isInSearchMode ? assetsAreLoading || metadatasLoading : assetsAreLoading || pageIsLoading)
+  const { searchValueDebounced, isInSearchMode, isSyncing } = useCommonAssetsListingLogic(isInSearchMode =>
+    isInSearchMode ? assetsAreLoading || metadatasLoading : assetsAreLoading || pageIsLoading
   );
 
   const metaToCheckAndLoad = useMemo(() => {
@@ -79,8 +79,6 @@ export const useTezosAccountCollectiblesListingLogic = (allSlugsSorted: string[]
     isInSearchMode,
     displayedSlugs,
     isSyncing,
-    loadNext,
-    searchValue,
-    setSearchValue
+    loadNext
   };
 };

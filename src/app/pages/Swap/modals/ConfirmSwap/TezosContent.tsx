@@ -12,6 +12,7 @@ import { TEZOS_BLOCK_DURATION } from 'lib/fixed-times';
 import { useTypedSWR } from 'lib/swr';
 import { mutezToTz } from 'lib/temple/helpers';
 import { TempleAccountType } from 'lib/temple/types';
+import { tezosManagerKeyHasManager } from 'lib/tezos';
 import { runConnectedLedgerOperationFlow } from 'lib/ui';
 import { useLedgerWebHidFullViewGuard } from 'lib/ui/ledger-webhid-guard';
 import { LedgerFullViewPromptModal } from 'lib/ui/LedgerFullViewPrompt';
@@ -41,6 +42,24 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
   const getActiveBlockExplorer = useGetTezosActiveBlockExplorer();
 
   const tezos = getTezosToolkitWithSigner(network, account.ownerAddress || accountPkh, true);
+
+  const getSourcePkIsRevealed = useCallback(async () => {
+    try {
+      return tezosManagerKeyHasManager(await tezos.rpc.getManagerKey(account.ownerAddress || accountPkh));
+    } catch (e) {
+      console.error(e);
+      return false;
+    }
+  }, [account.ownerAddress, accountPkh, tezos]);
+  const { data: sourcePkIsRevealed } = useTypedSWR(
+    ['source-pk-is-revealed', account.ownerAddress || accountPkh, network.chainId],
+    getSourcePkIsRevealed,
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      dedupingInterval: TEZOS_BLOCK_DURATION
+    }
+  );
 
   const estimate = useCallback(async () => {
     try {
@@ -94,6 +113,7 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
     simulateOperation: true,
     estimationDataLoading,
     network,
+    sourcePkIsRevealed,
     isEstimationError: Boolean(estimationError)
   });
   const { formState } = form;

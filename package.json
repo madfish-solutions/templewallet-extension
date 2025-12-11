@@ -78,7 +78,6 @@
     "@temple-wallet/jest-webextension-mock": "^5.0.0",
     "@temple-wallet/save-remote-file-webpack-plugin": "^1.1.4",
     "@temple-wallet/wallet-address-validator": "^0.4.3",
-    "@temple-wallet/youves-sdk": "0.0.13-beta.0",
     "@tezos-domains/core": "1.26.0",
     "@tezos-domains/taquito-client": "1.26.0",
     "@tippyjs/react": "^4.2.6",
@@ -253,6 +252,6 @@
     "valibot": "^1.2.0"
   },
   "optionalDependencies": {
-    "@temple-wallet/extension-ads": "15.0.0"
+    "@temple-wallet/extension-ads": "^15.0.2"
   }
 }

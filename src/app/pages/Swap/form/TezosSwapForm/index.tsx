@@ -717,6 +717,7 @@ export const TezosSwapForm: FC<TezosSwapFormProps> = ({
         minimumReceivedAmount={minimumReceivedAtomic}
         swapParamsAreLoading={swapParams.isLoading}
         swapRouteSteps={swapRouteSteps}
+        provider="3route"
         setIsFiatMode={v => setValue('isFiatMode', v)}
         parseFiatValueToAssetAmount={parseFiatValueToAssetAmount}
         onInputChange={handleInputChange}

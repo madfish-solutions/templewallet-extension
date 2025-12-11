@@ -3,25 +3,34 @@ import React, { memo, useCallback, useMemo } from 'react';
 import clsx from 'clsx';
 import ReactJson from 'react-json-view';
 
+import { Alert } from 'app/atoms';
 import { TextButton } from 'app/atoms/TextButton';
 import { ReactComponent as CopyIcon } from 'app/icons/base/copy.svg';
+import { AccountsModal } from 'app/templates/AccountsModal';
 import { toastSuccess } from 'app/toaster';
 import { equalsIgnoreCase } from 'lib/evm/on-chain/utils/common.utils';
 import { T, t } from 'lib/i18n';
 import { TempleEvmDAppSignPayload, TempleTezosDAppSignPayload } from 'lib/temple/types';
+import { useBooleanState } from 'lib/ui/hooks';
 import useCopyToClipboard from 'lib/ui/useCopyToClipboard';
 import { getAccountAddressForEvm, getAccountAddressForTezos } from 'temple/accounts';
-import { useAllAccounts } from 'temple/front';
+import { useAllAccounts, useCurrentAccountId } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
 
 import { AccountCard } from './account-card';
 
 interface SignPayloadViewProps {
   payload: TempleEvmDAppSignPayload | TempleTezosDAppSignPayload;
+  error?: any;
+  onErrorClose?: EmptyFn;
 }
 
-export const SignPayloadView = memo<SignPayloadViewProps>(({ payload }) => {
+export const SignPayloadView = memo<SignPayloadViewProps>(({ payload, error }) => {
   const accounts = useAllAccounts();
+  const currentAccountId = useCurrentAccountId();
+
+  const [accountsModalIsOpen, openAccountsModal, closeAccountsModal] = useBooleanState(false);
+
   const signingAccount = useMemo(
     () =>
       accounts.find(
@@ -31,6 +40,12 @@ export const SignPayloadView = memo<SignPayloadViewProps>(({ payload }) => {
       ),
     [accounts, payload.sourcePkh]
   );
+
+  const selectedAccountId = useMemo(
+    () => (accounts.some(account => account.id === currentAccountId) ? currentAccountId : accounts[0].id),
+    [accounts, currentAccountId]
+  );
+
   const { fieldRef, copy } = useCopyToClipboard<HTMLTextAreaElement>();
 
   const previewSource = useMemo(() => {
@@ -70,15 +85,19 @@ export const SignPayloadView = memo<SignPayloadViewProps>(({ payload }) => {
   return (
     <>
       <AccountCard
+        showCompactDownIcon
         account={signingAccount!}
         isCurrent={false}
         attractSelf={false}
         searchValue=""
         showRadioOnHover={false}
         alwaysShowAddresses
+        onClick={openAccountsModal}
       />
 
-      <div className="rounded-lg p-4 bg-white shadow-bottom flex flex-col gap-2">
+      {error && <Alert type="error" description={error?.message ?? t('smthWentWrong')} className="mt-6" autoFocus />}
+
+      <div className={clsx('rounded-lg p-4 bg-white shadow-bottom flex flex-col gap-2', error ? 'mt-4' : 'mt-6')}>
         <div className="flex gap-2 items-center">
           <span className="flex-1 text-font-description-bold text-grey-2">
             {payload.chainType !== TempleChainKind.EVM && typeof previewSource !== 'string' ? (
@@ -115,6 +134,12 @@ export const SignPayloadView = memo<SignPayloadViewProps>(({ payload }) => {
           )}
         </div>
       </div>
+      <AccountsModal
+        accounts={accounts}
+        currentAccountId={selectedAccountId}
+        opened={accountsModalIsOpen}
+        onRequestClose={closeAccountsModal}
+      />
     </>
   );
 });

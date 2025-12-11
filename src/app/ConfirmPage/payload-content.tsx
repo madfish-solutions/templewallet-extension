@@ -214,7 +214,7 @@ const PayloadContentHOC = <
         }
 
         if (payload.type === 'sign' || payload.type === 'personal_sign' || payload.type === 'sign_typed') {
-          return <SignPayloadView payload={payload} />;
+          return <SignPayloadView payload={payload} error={error} />;
         }
 
         if (isConfirmOperationsPayload(payload)) {

@@ -321,7 +321,6 @@ const Swap = memo<Props>(() => {
         opened={confirmSwapModalOpened}
         onRequestClose={setConfirmSwapModalClosed}
         reviewData={reviewData}
-        onReview={handleReview}
       />
       <LedgerFullViewPromptModal {...ledgerPromptProps} />
     </PageLayout>
