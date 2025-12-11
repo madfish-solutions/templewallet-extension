@@ -112,8 +112,10 @@ export async function requestConfirm<T extends TempleDAppPayload>({
       }
     });
     stopViewClosedListening = () => sub.unsubscribe();
-    // Don't use setOptions to navigate - it causes sidebar reload which disconnects the port.
-    // The sidebar will naturally update via woozie router when confirmation completes.
+    /**
+     * Don't use setOptions to navigate - it causes sidebar reload which disconnects the port.
+     * The sidebar will naturally update via woozie router when confirmation completes.
+     */
     closeView = undefined;
   } else {
     const confirmWin = await createConfirmationWindow(id);
