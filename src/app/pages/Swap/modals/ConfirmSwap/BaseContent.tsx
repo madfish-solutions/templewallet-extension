@@ -147,7 +147,7 @@ export const BaseContent = <T extends TxParamsFormData>({
         </StyledButton>
       </ActionsButtonsBox>
 
-      <LedgerApprovalModal state={ledgerApprovalModalState} onClose={onLedgerModalClose} />
+      <LedgerApprovalModal state={ledgerApprovalModalState} onClose={onLedgerModalClose} chainKind={network.kind} />
     </>
   );
 };

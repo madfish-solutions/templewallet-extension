@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
+import React, { memo, useCallback, useEffect, useMemo, useState, ReactNode } from 'react';
 
 import { isDefined } from '@rnw-community/shared';
 import { DerivationType } from '@taquito/ledger-signer';
@@ -27,39 +27,90 @@ import { DEFAULT_EVM_CURRENCY } from 'temple/networks';
 import { TempleChainKind } from 'temple/types';
 
 import { ConnectLedgerModalSelectors } from '../selectors';
-import { AccountProps } from '../types';
+import { AccountProps, LedgerConnectionConfig } from '../types';
 import { useGetLedgerEvmAccount, useGetLedgerTezosAccount } from '../utils';
 
 import { CustomPathFormData, CustomPathModal } from './custom-path-modal';
 import { DerivationTypeSelector } from './derivation-type-selector';
+import {
+  createEmptyLedgerAccountsGroups,
+  GALLEON_DERIVATION_REGEX,
+  getLedgerAccountIndex,
+  GroupedLedgerAccount,
+  LedgerAccountsGroups,
+  TEZOS_DERIVATION_GROUPS_METADATA,
+  TEZOS_GROUPS_RENDER_ORDER,
+  isDefaultTezosDerivationPath
+} from './helpers';
 
 interface SelectAccountStepProps {
   initialAccount: AccountProps;
+  selection: LedgerConnectionConfig;
   onSuccess: EmptyFn;
 }
 
-export const SelectAccountStep = memo<SelectAccountStepProps>(({ initialAccount, onSuccess }) => {
+export const SelectAccountStep = memo<SelectAccountStepProps>(({ initialAccount, selection, onSuccess }) => {
   const { accounts, createLedgerAccount } = useTempleClient();
+  const pickTezosAccounts = initialAccount.chain === TempleChainKind.Tezos;
+  const defaultDerivationType = pickTezosAccounts
+    ? selection.tezosSettings?.derivationType ?? initialAccount.derivationType
+    : DerivationType.ED25519;
 
-  const [knownAccountsByDerivation, setKnownAccountsByDerivation] = useState<Record<DerivationType, AccountProps[]>>({
-    [DerivationType.ED25519]: [initialAccount],
-    [DerivationType.SECP256K1]: [],
-    [DerivationType.P256]: [],
-    [DerivationType.BIP32_ED25519]: []
-  });
+  const [knownAccountsByDerivation, setKnownAccountsByDerivation] = useState<Record<DerivationType, AccountProps[]>>(
+    () => {
+      const initialState: Record<DerivationType, AccountProps[]> = {
+        [DerivationType.ED25519]: [],
+        [DerivationType.SECP256K1]: [],
+        [DerivationType.P256]: [],
+        [DerivationType.BIP32_ED25519]: []
+      };
+
+      const initialBucket = pickTezosAccounts ? initialAccount.derivationType : DerivationType.ED25519;
+      initialState[initialBucket] = [initialAccount];
+
+      return initialState;
+    }
+  );
   const [activeAccountsIndexes, setActiveAccountsIndexes] = useState<Record<DerivationType, number>>({
-    [DerivationType.ED25519]: 0,
-    [DerivationType.SECP256K1]: -1,
-    [DerivationType.P256]: -1,
-    [DerivationType.BIP32_ED25519]: -1
+    [DerivationType.ED25519]: defaultDerivationType === DerivationType.ED25519 ? 0 : -1,
+    [DerivationType.SECP256K1]: defaultDerivationType === DerivationType.SECP256K1 ? 0 : -1,
+    [DerivationType.P256]: defaultDerivationType === DerivationType.P256 ? 0 : -1,
+    [DerivationType.BIP32_ED25519]: defaultDerivationType === DerivationType.BIP32_ED25519 ? 0 : -1
   });
   const [isSwitchingDerivation, setIsSwitchingDerivation] = useState(false);
   const [bottomEdgeIsVisible, setBottomEdgeIsVisible] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [derivationType, setDerivationType] = useState<DerivationType>(DerivationType.ED25519);
+  const [derivationType, setDerivationType] = useState<DerivationType>(defaultDerivationType);
   const [customPathModalIsOpen, openCustomPathModal, closeCustomPathModal] = useBooleanState(false);
   const knownLedgerAccounts = knownAccountsByDerivation[derivationType];
   const activeAccountIndex = activeAccountsIndexes[derivationType];
+
+  const ledgerAccountsGroups = useMemo<LedgerAccountsGroups>(() => {
+    if (!pickTezosAccounts) {
+      return createEmptyLedgerAccountsGroups();
+    }
+
+    const groups = createEmptyLedgerAccountsGroups();
+
+    knownLedgerAccounts.forEach((account, listIndex) => {
+      const bucket = { account, listIndex };
+
+      if (isDefaultTezosDerivationPath(account)) {
+        groups.standard.push(bucket);
+        return;
+      }
+
+      if (GALLEON_DERIVATION_REGEX.test(account.derivationPath)) {
+        groups.galleon.push(bucket);
+        return;
+      }
+
+      groups.other.push(bucket);
+    });
+
+    return groups;
+  }, [knownLedgerAccounts, pickTezosAccounts]);
+  const { other: tezosOtherAccounts } = ledgerAccountsGroups;
 
   const {
     ledgerApprovalModalState,
@@ -70,10 +121,13 @@ export const SelectAccountStep = memo<SelectAccountStepProps>(({ initialAccount,
   const getLedgerTezosAccount = useGetLedgerTezosAccount();
   const getLedgerEvmAccount = useGetLedgerEvmAccount();
   const alreadyInTmpListIndexes = useMemo(
-    () => knownLedgerAccounts.map(a => a.index).filter(isDefined),
+    () => knownLedgerAccounts.map(getLedgerAccountIndex).filter(isDefined),
     [knownLedgerAccounts]
   );
-  const pickTezosAccounts = initialAccount.chain === TempleChainKind.Tezos;
+  const alreadyInTmpListDerivationPaths = useMemo(
+    () => knownLedgerAccounts.map(({ derivationPath }) => derivationPath),
+    [knownLedgerAccounts]
+  );
 
   const submitSelectedAccount = useCallback(async () => {
     try {
@@ -103,10 +157,27 @@ export const SelectAccountStep = memo<SelectAccountStepProps>(({ initialAccount,
           const newAccount = pickTezosAccounts
             ? await getLedgerTezosAccount(currentDerivationType, indexOrPath)
             : await getLedgerEvmAccount(indexOrPath);
-          setKnownAccountsByDerivation(prevAccounts => ({
-            ...prevAccounts,
-            [currentDerivationType]: prevAccounts[currentDerivationType].concat(newAccount)
-          }));
+          let accountAlreadyKnown = false;
+
+          setKnownAccountsByDerivation(prevAccounts => {
+            const currentAccounts = prevAccounts[currentDerivationType];
+            accountAlreadyKnown = currentAccounts.some(account => account.derivationPath === newAccount.derivationPath);
+
+            if (accountAlreadyKnown) {
+              return prevAccounts;
+            }
+
+            return {
+              ...prevAccounts,
+              [currentDerivationType]: currentAccounts.concat(newAccount)
+            };
+          });
+
+          if (accountAlreadyKnown) {
+            toastError(t('accountAlreadyListed'));
+            return;
+          }
+
           setActiveAccountsIndexes(prevIndexes => ({
             ...prevIndexes,
             [currentDerivationType]: prevIndexes[currentDerivationType] + 1
@@ -169,55 +240,102 @@ export const SelectAccountStep = memo<SelectAccountStepProps>(({ initialAccount,
         state={ledgerApprovalModalState}
         isSwitchingDerivation={isSwitchingDerivation}
         onClose={handleApproveModalClose}
+        chainKind={initialAccount.chain}
       />
 
       {customPathModalIsOpen && (
         <CustomPathModal
           chain={initialAccount.chain}
           alreadyInTmpListIndexes={alreadyInTmpListIndexes}
+          alreadyInTmpListDerivationPaths={alreadyInTmpListDerivationPaths}
           onClose={closeCustomPathModal}
           onSubmit={handleCustomPathModalSubmit}
         />
       )}
 
-      <ScrollView className="gap-6 pt-4" onBottomEdgeVisibilityChange={setBottomEdgeIsVisible}>
+      <ScrollView className="pt-4 gap-2" onBottomEdgeVisibilityChange={setBottomEdgeIsVisible} bottomEdgeThreshold={4}>
         <>
           {pickTezosAccounts && (
-            <div className="flex flex-col gap-1">
-              <span className="text-font-description-bold m-1">
-                <T id="derivationType" />
-              </span>
+            <div className="flex flex-col gap-2">
+              <div className="flex justify-between items-center">
+                <span className="text-font-description-bold m-1">
+                  <T id="derivationType" />
+                </span>
+                <StyledButton
+                  color="secondary-low"
+                  className="bg-transparent"
+                  size="S"
+                  testID={ConnectLedgerModalSelectors.customPathButton}
+                  onClick={openCustomPathModal}
+                >
+                  <T id="customPath" />
+                </StyledButton>
+              </div>
 
               <DerivationTypeSelector onSelect={handleDerivationTypeSelect} derivationType={derivationType} />
             </div>
           )}
 
-          <div className="flex flex-col gap-2">
-            <div className="flex justify-between items-center">
-              <span className="text-font-description-bold m-1">
-                <T id={pickTezosAccounts ? 'selectAccount' : 'selectLedgerLiveAccount'} />
-              </span>
-              <StyledButton
-                color="secondary-low"
-                size="S"
-                testID={ConnectLedgerModalSelectors.customPathButton}
-                onClick={openCustomPathModal}
-              >
-                <T id="customPath" />
-              </StyledButton>
-            </div>
-            <div className="flex flex-col gap-3">
-              {knownLedgerAccounts.map((account, index) => (
-                <LedgerAccountCard
-                  key={account.address}
-                  account={account}
-                  index={index}
+          {pickTezosAccounts ? (
+            <div className="flex flex-col mt-4">
+              {TEZOS_GROUPS_RENDER_ORDER.map(groupKey => {
+                const accounts = ledgerAccountsGroups[groupKey];
+
+                if (accounts.length === 0) {
+                  return null;
+                }
+
+                const { title, patternLabel } = TEZOS_DERIVATION_GROUPS_METADATA[groupKey];
+
+                return (
+                  <LedgerAccountsSection
+                    key={groupKey}
+                    title={title}
+                    subtitle={patternLabel}
+                    accounts={accounts}
+                    onSelect={handleAccountSelect}
+                    activeAccountIndex={activeAccountIndex}
+                  />
+                );
+              })}
+
+              {tezosOtherAccounts.length > 0 && (
+                <LedgerAccountsSection
+                  key="other"
+                  title={<T id="other" />}
+                  accounts={tezosOtherAccounts}
                   onSelect={handleAccountSelect}
-                  active={index === activeAccountIndex}
+                  activeAccountIndex={activeAccountIndex}
                 />
-              ))}
+              )}
             </div>
-          </div>
+          ) : (
+            <>
+              <div className="flex flex-row justify-between gap-2">
+                <span className="text-font-description-bold m-1">Ledger Live</span>
+                <StyledButton
+                  color="secondary-low"
+                  className="bg-transparent"
+                  size="S"
+                  testID={ConnectLedgerModalSelectors.customPathButton}
+                  onClick={openCustomPathModal}
+                >
+                  <T id="customPath" />
+                </StyledButton>
+              </div>
+              <div className="flex flex-col gap-3">
+                {knownLedgerAccounts.map((account, index) => (
+                  <LedgerAccountCard
+                    key={account.address}
+                    account={account}
+                    index={index}
+                    onSelect={handleAccountSelect}
+                    active={index === activeAccountIndex}
+                  />
+                ))}
+              </div>
+            </>
+          )}
         </>
       </ScrollView>
 
@@ -238,10 +356,40 @@ export const SelectAccountStep = memo<SelectAccountStepProps>(({ initialAccount,
   );
 });
 
+interface LedgerAccountsSectionProps {
+  title: ReactNode;
+  subtitle?: ReactNode;
+  accounts: GroupedLedgerAccount[];
+  onSelect: SyncFn<number>;
+  activeAccountIndex: number;
+}
+
+const LedgerAccountsSection = memo<LedgerAccountsSectionProps>(
+  ({ title, subtitle, accounts, onSelect, activeAccountIndex }) => (
+    <div className="flex flex-col gap-2 mb-6">
+      <div className="flex flex-row justify-between">
+        <span className="text-font-description-bold">{title}</span>
+        {subtitle && <span className="text-font-description text-grey-2">Path: {subtitle}</span>}
+      </div>
+      <div className="flex flex-col gap-3">
+        {accounts.map(({ account, listIndex }) => (
+          <LedgerAccountCard
+            key={account.address}
+            account={account}
+            index={listIndex}
+            onSelect={onSelect}
+            active={listIndex === activeAccountIndex}
+          />
+        ))}
+      </div>
+    </div>
+  )
+);
+
 interface LedgerAccountCardProps {
   account: AccountProps;
   index: number;
-  onSelect: (index: number) => void;
+  onSelect: SyncFn<number>;
   active: boolean;
 }
 
@@ -274,7 +422,7 @@ const LedgerAccountCard = memo<LedgerAccountCardProps>(({ account, index, onSele
 
   return (
     <AccountCard
-      customLabelTitle={`LEDGER #${account.index ?? 0}`}
+      customLabelTitle={`LEDGER #${getLedgerAccountIndex(account) ?? 0}`}
       account={fullAccount}
       AccountName={AccountAddress}
       BalanceValue={BalanceValue}
