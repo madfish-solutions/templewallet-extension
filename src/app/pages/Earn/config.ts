@@ -2,7 +2,12 @@ import { TEZ_TOKEN_SLUG } from 'lib/assets';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { KNOWN_TOKENS_SLUGS } from 'lib/assets/known-tokens';
 import { ETHERLINK_USDC_SLUG, APPLEFARM_REFERRAL_LINK, TEZOS_APY, APPLEFARM_APR, ETHEREUM_APR } from 'lib/constants';
-import { COMMON_MAINNET_CHAIN_IDS, ETHEREUM_MAINNET_CHAIN_ID, TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
+import {
+  COMMON_MAINNET_CHAIN_IDS,
+  ETHEREUM_MAINNET_CHAIN_ID,
+  TEZOS_GHOSTNET_CHAIN_ID,
+  TEZOS_MAINNET_CHAIN_ID
+} from 'lib/temple/types';
 import { TempleChainKind } from 'temple/types';
 
 import { YOUVES_REFFERAL_LINK } from './constants';
@@ -10,15 +15,21 @@ import { ReactComponent as AppleFarmIcon } from './icons/applefarm.svg';
 import { ReactComponent as YouvesIcon } from './icons/youves.svg';
 import { EarnOffer } from './types';
 
-export const TEZ_SAVING_OFFER: EarnOffer = {
-  id: 'earn-tez',
-  link: `/earn-tez/${TEZOS_MAINNET_CHAIN_ID}`,
-  symbol: 'TEZ',
-  name: 'Delegation & Stake',
-  chainKind: TempleChainKind.Tezos,
-  chainId: TEZOS_MAINNET_CHAIN_ID,
-  assetSlug: TEZ_TOKEN_SLUG,
-  displayYield: `${TEZOS_APY}% APY`
+export const TEZ_SAVING_OFFER_ID = 'earn-tez';
+
+export const getTezSavingOffer = (isTestnetMode: boolean) => {
+  const chainId = isTestnetMode ? TEZOS_GHOSTNET_CHAIN_ID : TEZOS_MAINNET_CHAIN_ID;
+
+  return {
+    id: TEZ_SAVING_OFFER_ID,
+    link: `/earn-tez/${chainId}`,
+    symbol: 'TEZ',
+    name: 'Delegation & Stake',
+    chainKind: TempleChainKind.Tezos,
+    chainId,
+    assetSlug: TEZ_TOKEN_SLUG,
+    displayYield: `${TEZOS_APY}% APY`
+  };
 };
 
 export const ETH_SAVING_OFFER: EarnOffer = {
@@ -31,8 +42,6 @@ export const ETH_SAVING_OFFER: EarnOffer = {
   assetSlug: EVM_TOKEN_SLUG,
   displayYield: `${ETHEREUM_APR}% APR`
 };
-
-export const SAVINGS_OFFERS: EarnOffer[] = [TEZ_SAVING_OFFER, ETH_SAVING_OFFER];
 
 export const EXTERNAL_OFFERS: EarnOffer[] = [
   {

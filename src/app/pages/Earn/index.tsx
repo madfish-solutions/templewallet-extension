@@ -1,17 +1,15 @@
-import React, { FC, memo, useCallback, useMemo } from 'react';
+import React, { FC, memo, useMemo } from 'react';
 
 import { EmptyState } from 'app/atoms/EmptyState';
 import PageLayout from 'app/layouts/PageLayout';
 import { PartnersPromotion, PartnersPromotionVariant } from 'app/templates/partners-promotion';
 import { SearchBarField } from 'app/templates/SearchField';
 import { T, t, TID } from 'lib/i18n';
-import { getAccountAddressForEvm, getAccountAddressForTezos } from 'temple/accounts';
-import { useAccount } from 'temple/front';
 
 import { EarnItem } from './components/EarnItem';
 import { EthSavingItem } from './components/EthSavingItem';
 import { TezSavingItem } from './components/TezSavingItem';
-import { ETH_SAVING_OFFER, TEZ_SAVING_OFFER } from './config';
+import { ETH_SAVING_OFFER, TEZ_SAVING_OFFER_ID } from './config';
 import { EARN_PAGE_NAME } from './constants';
 import { useFilteredEarnOffers } from './hooks/use-filtered-earn-offers';
 import { EarnOffer } from './types';
@@ -19,44 +17,23 @@ import { EarnOffer } from './types';
 export const Earn = memo(() => {
   const { searchValue, setSearchValue, savingsOffers, externalOffers } = useFilteredEarnOffers();
 
-  const account = useAccount();
-
-  const getRenderItems = useCallback(
-    (offers: EarnOffer[]) => {
-      const tezPkh = getAccountAddressForTezos(account);
-      const evmPkh = getAccountAddressForEvm(account);
-
-      return offers.flatMap(offer => {
-        switch (offer.id) {
-          case TEZ_SAVING_OFFER.id:
-            return tezPkh ? [<TezSavingItem key={offer.id} />] : [];
-          case ETH_SAVING_OFFER.id:
-            return evmPkh ? [<EthSavingItem key={offer.id} />] : [];
-          default:
-            return [<EarnItem key={offer.id} offer={offer} />];
-        }
-      });
-    },
-    [account]
-  );
-
   const savingsItems = useMemo(() => {
-    const items = getRenderItems(savingsOffers);
+    const items = savingsOffers.map(toRenderItem);
 
     if (!items.length) return items;
 
     return withPromo(items);
-  }, [getRenderItems, savingsOffers]);
+  }, [savingsOffers]);
 
   const savingsAvailable = useMemo(() => savingsItems.length > 0, [savingsItems.length]);
 
   const externalItems = useMemo(() => {
-    const items = getRenderItems(externalOffers);
+    const items = externalOffers.map(toRenderItem);
 
     if (!items.length || savingsAvailable) return items;
 
     return withPromo(items);
-  }, [externalOffers, getRenderItems, savingsAvailable]);
+  }, [externalOffers, savingsAvailable]);
 
   const externalOffersAvailable = externalItems.length > 0;
   const shouldShowEmptyState = !savingsAvailable && !externalOffersAvailable;
@@ -87,6 +64,17 @@ export const Earn = memo(() => {
     </PageLayout>
   );
 });
+
+const toRenderItem = (offer: EarnOffer) => {
+  switch (offer.id) {
+    case TEZ_SAVING_OFFER_ID:
+      return <TezSavingItem key={offer.id} />;
+    case ETH_SAVING_OFFER.id:
+      return <EthSavingItem key={offer.id} />;
+    default:
+      return <EarnItem key={offer.id} offer={offer} />;
+  }
+};
 
 const Title: FC<{ i18nKey: TID }> = ({ i18nKey }) => (
   <h2 className="text-font-description-bold py-1 mb-1">

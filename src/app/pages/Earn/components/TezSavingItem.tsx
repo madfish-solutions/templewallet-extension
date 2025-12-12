@@ -3,25 +3,25 @@ import React, { FC, useMemo } from 'react';
 import { isDefined } from '@rnw-community/shared';
 
 import { useStakedAmount } from 'app/hooks/use-baking-hooks';
+import { useTestnetModeEnabledSelector } from 'app/store/settings/selectors';
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
 import { useTezosAssetBalance } from 'lib/balances';
 import { useDelegate } from 'lib/temple/front';
 import { mutezToTz } from 'lib/temple/helpers';
 import { ZERO } from 'lib/utils/numbers';
 import { useAccountAddressForTezos, useTezosMainnetChain } from 'temple/front';
-import { TezosNetworkEssentials } from 'temple/networks';
+import { useTezosTestnetChain } from 'temple/front/chains';
 
-import { TEZ_SAVING_OFFER } from '../config';
+import { getTezSavingOffer } from '../config';
 import { ActiveDeposit } from '../types';
 
 import { EarnItem } from './EarnItem';
 
 export const TezSavingItem: FC = () => {
   const accountPkh = useAccountAddressForTezos();
-  const network = useTezosMainnetChain();
 
-  if (accountPkh && network) {
-    return <DepositContent accountPkh={accountPkh} network={network} />;
+  if (accountPkh) {
+    return <DepositContent accountPkh={accountPkh} />;
   }
 
   return null;
@@ -29,10 +29,15 @@ export const TezSavingItem: FC = () => {
 
 interface DepositContentProps {
   accountPkh: string;
-  network: TezosNetworkEssentials;
 }
 
-const DepositContent: FC<DepositContentProps> = ({ accountPkh, network }) => {
+const DepositContent: FC<DepositContentProps> = ({ accountPkh }) => {
+  const isTestnetMode = useTestnetModeEnabledSelector();
+  const tezMainnet = useTezosMainnetChain();
+  const tezTestnet = useTezosTestnetChain();
+
+  const network = isTestnetMode ? tezTestnet : tezMainnet;
+
   const { value: tezBalance } = useTezosAssetBalance(TEZ_TOKEN_SLUG, accountPkh, network);
   const { data: myBakerPkh, isLoading: isBakerAddressLoading } = useDelegate(accountPkh, network, false, true);
   const { data: stakedAtomic, isLoading: isStakedAmountLoading } = useStakedAmount(network, accountPkh, false);
@@ -53,5 +58,5 @@ const DepositContent: FC<DepositContentProps> = ({ accountPkh, network }) => {
     return { amount, isLoading: false };
   }, [isBakerAddressLoading, isStakedAmountLoading, tezBalance, myBakerPkh, stakedAtomic]);
 
-  return <EarnItem offer={TEZ_SAVING_OFFER} deposit={deposit} />;
+  return <EarnItem offer={getTezSavingOffer(isTestnetMode)} deposit={deposit} />;
 };
