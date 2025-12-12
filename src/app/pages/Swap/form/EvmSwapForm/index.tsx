@@ -6,6 +6,9 @@ import BigNumber from 'bignumber.js';
 import { FormProvider, useForm } from 'react-hook-form-v7';
 
 import { DeadEndBoundaryError } from 'app/ErrorBoundary';
+import { useSwapFormControl } from 'app/pages/Swap/context';
+import { BaseSwapForm } from 'app/pages/Swap/form/BaseSwapForm';
+import { SwapFormValue, SwapInputValue } from 'app/pages/Swap/form/SwapForm.form';
 import { use3RouteEvmTokenMetadataSelector } from 'app/store/evm/swap-3route-metadata/selectors';
 import { useLifiEvmTokenMetadataSelector } from 'app/store/evm/swap-lifi-metadata/selectors';
 import { useEvmTokenMetadataSelector } from 'app/store/evm/tokens-metadata/selectors';
@@ -30,10 +33,8 @@ import { useAccountForEvm } from 'temple/front';
 import { useEvmChainByChainId } from 'temple/front/chains';
 import { TempleChainKind } from 'temple/types';
 
-import { BaseSwapForm } from '../../form/BaseSwapForm';
 import { getProtocolFeeForRouteStep } from '../../form/EvmSwapForm/utils';
 import { useFetchLifiEvmTokensSlugs, useFetch3RouteEvmTokensSlugs } from '../../form/hooks';
-import { SwapFormValue, SwapInputValue } from '../../form/SwapForm.form';
 import { formatDuration, getBufferedExecutionDuration, getDefaultSwapFormValues } from '../../form/utils';
 import {
   ChainAssetInfo,
@@ -71,6 +72,7 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
   if (!account) throw new DeadEndBoundaryError();
 
   const publicKeyHash = account.address as HexString;
+  const swapFormControl = useSwapFormControl();
 
   const [swapRoute, setSwapRoute] = useState<LiFiRoute | Route3EvmRoute | null>(null);
   const [isRouteLoading, setIsRouteLoading] = useState(false);
@@ -178,6 +180,20 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
     setSwapRoute(null);
     reset(defaultValues);
   }, [defaultValues, reset]);
+
+  useEffect(() => {
+    if (!swapFormControl) return;
+    const next = { ...(swapFormControl.current ?? {}), resetForm };
+    swapFormControl.current = next;
+
+    return () => {
+      if (swapFormControl.current?.resetForm === resetForm) {
+        const updated = { ...(swapFormControl.current ?? {}) };
+        delete updated.resetForm;
+        swapFormControl.current = updated;
+      }
+    };
+  }, [swapFormControl, resetForm]);
 
   const handleInputChange = useCallback(
     (newInputValue: SwapInputValue) => {

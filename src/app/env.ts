@@ -91,6 +91,17 @@ export function openInFullPage(extraSearchParams?: Record<string, string>) {
   });
 }
 
+export function openInFullConfirmPage() {
+  const { search, hash } = window.location;
+  const searchParams = new URLSearchParams(search);
+  searchParams.set('full', '1');
+  const searchString = searchParams.toString();
+  const url = createUrl('confirm.html', searchString ? `?${searchString}` : '', hash);
+  browser.tabs.create({
+    url: browser.runtime.getURL(url)
+  });
+}
+
 export function openInSidebar() {
   if (IS_SIDE_PANEL_AVAILABLE) {
     return browser.windows

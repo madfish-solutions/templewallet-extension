@@ -12,6 +12,7 @@ import failYellowEvmImage from './assets/fail-yellow-evm.png';
 import failYellowTezHcImage from './assets/fail-yellow-tez-hc.png';
 import failYellowTezImage from './assets/fail-yellow-tez.png';
 import lookingEvmImage from './assets/looking-evm.png';
+import lookingTezHcImage from './assets/looking-tez-hc.png';
 import lookingTezImage from './assets/looking-tez.png';
 import successEvmImage from './assets/success-evm.png';
 import successTezHcImage from './assets/success-tez-hc.png';
@@ -41,7 +42,7 @@ const images = {
   },
   [LedgerImageState.Looking]: {
     [LedgerImageVariant.Open]: lookingTezImage,
-    [LedgerImageVariant.HalfClosed]: connectTezHcImage
+    [LedgerImageVariant.HalfClosed]: lookingTezHcImage
   },
   [LedgerImageState.Success]: {
     [LedgerImageVariant.Open]: successTezImage,

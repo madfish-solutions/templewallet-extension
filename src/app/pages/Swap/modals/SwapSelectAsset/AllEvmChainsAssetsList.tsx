@@ -57,7 +57,8 @@ export const AllEvmChainsAssetsList = memo<Props>(
       (chainSlug: string) => {
         const [, chainId, assetSlug] = parseChainAssetSlug(chainSlug);
 
-        return isDefined(getEvmBalance(chainId as number, assetSlug));
+        const balance = getEvmBalance(chainId as number, assetSlug);
+        return isDefined(balance) && balance.gt(0);
       },
       [getEvmBalance]
     );

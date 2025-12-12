@@ -8,6 +8,7 @@ import { FormProvider, useForm } from 'react-hook-form-v7';
 
 import { DeadEndBoundaryError } from 'app/ErrorBoundary';
 import { EXCHANGE_XTZ_RESERVE } from 'app/pages/Swap/constants';
+import { useSwapFormControl } from 'app/pages/Swap/context';
 import { BaseSwapForm } from 'app/pages/Swap/form/BaseSwapForm';
 import { ChainAssetInfo, SwapFieldName, TezosReviewData } from 'app/pages/Swap/form/interfaces';
 import { SwapFormValue, SwapInputValue } from 'app/pages/Swap/form/SwapForm.form';
@@ -89,6 +90,7 @@ export const TezosSwapForm: FC<TezosSwapFormProps> = ({
 
   const publicKeyHash = account.address;
   const tezos = getTezosToolkitWithSigner(network, publicKeyHash);
+  const swapFormControl = useSwapFormControl();
 
   const { route3tokensSlugs } = useAvailableRoute3TokensSlugs();
   useTezosTokensMetadataPresenceCheck(network, route3tokensSlugs);
@@ -294,6 +296,29 @@ export const TezosSwapForm: FC<TezosSwapFormProps> = ({
   }, [hopsAreAbsent, swapParams.data]);
 
   const resetForm = useCallback(() => void reset(defaultValues), [defaultValues, reset]);
+
+  useEffect(() => {
+    if (!swapFormControl) return;
+    const next = {
+      ...(swapFormControl.current ?? {}),
+      resetForm,
+      setTezosOperation: setOperation
+    };
+    swapFormControl.current = next;
+
+    return () => {
+      if (swapFormControl.current?.resetForm === resetForm) {
+        const updated = { ...(swapFormControl.current ?? {}) };
+        delete updated.resetForm;
+        swapFormControl.current = updated;
+      }
+      if (swapFormControl.current?.setTezosOperation === setOperation) {
+        const updated = { ...(swapFormControl.current ?? {}) };
+        delete updated.setTezosOperation;
+        swapFormControl.current = updated;
+      }
+    };
+  }, [swapFormControl, resetForm, setOperation]);
 
   const handleInputChange = useCallback(
     (newInputValue: SwapInputValue) => {
