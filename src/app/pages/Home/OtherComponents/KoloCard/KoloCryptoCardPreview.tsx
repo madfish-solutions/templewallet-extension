@@ -1,15 +1,18 @@
 import React, { FC, memo } from 'react';
 
+import { Button } from 'app/atoms';
+
 import { ReactComponent as KoloLogo } from './assets/kolo-logo.svg';
+import { KoloCardSelectors } from './selectors';
 
 interface KoloCryptoCardPreviewProps {
   onClick?: EmptyFn;
 }
 
 export const KoloCryptoCardPreview: FC<KoloCryptoCardPreviewProps> = memo(({ onClick }) => (
-  <button
-    type="button"
+  <Button
     onClick={onClick}
+    testID={KoloCardSelectors.cryptoCardButton}
     className="peer rounded-8 h-24 mx-6 -mb-[68px] px-4 py-3 flex items-start justify-between
                focus:outline-none transform transition-transform duration-200 ease-out origin-left hover:-rotate-1"
     style={{
@@ -19,5 +22,5 @@ export const KoloCryptoCardPreview: FC<KoloCryptoCardPreviewProps> = memo(({ onC
     <span className="text-font-description-bold text-white text-left">Crypto card</span>
 
     <KoloLogo />
-  </button>
+  </Button>
 ));
