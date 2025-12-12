@@ -4,6 +4,7 @@ import { IconBase, Loader, Money } from 'app/atoms';
 import { AccountAvatar } from 'app/atoms/AccountAvatar';
 import { AccountName } from 'app/atoms/AccountName';
 import { StyledButton } from 'app/atoms/StyledButton';
+import { useRewardsAddresses } from 'app/hooks/use-rewards-addresses';
 import { ReactComponent as LinkIcon } from 'app/icons/base/copy.svg';
 import { ReactComponent as InfoIcon } from 'app/icons/base/InfoFill.svg';
 import { inviteAccountInfoTippyProps } from 'app/pages/Rewards/tooltip';
@@ -14,13 +15,14 @@ import { t } from 'lib/i18n';
 import { useTypedSWR } from 'lib/swr';
 import { useCopyText } from 'lib/ui/hooks/use-copy-text';
 import useTippy from 'lib/ui/useTippy';
-import { getAccountAddressForTezos } from 'temple/accounts';
+import { getAccountAddressForEvm, getAccountAddressForTezos } from 'temple/accounts';
 import { useAllAccounts } from 'temple/front';
 
 import referralsImage from './assets/referrals-image.png';
 
 export const ReferralsCard = memo(() => {
   const accounts = useAllAccounts();
+  const { tezosAddress: rewardsTezosAddress, evmAddress: rewardsEvmAddress } = useRewardsAddresses();
   const inviteAccountInfoRef = useTippy<HTMLDivElement>(inviteAccountInfoTippyProps);
   const { trackEvent } = useAnalytics();
 
@@ -42,13 +44,25 @@ export const ReferralsCard = memo(() => {
   const handleCopyInviteLink = useCopyText(refLink, false, onInviteLinkCopied);
 
   const account = useMemo(() => {
-    return conversionAccount
-      ? accounts.find(acc => {
-          const tezosAddress = getAccountAddressForTezos(acc);
-          return tezosAddress === conversionAccount.tezosAddress;
-        })
-      : accounts[0];
-  }, [accounts, conversionAccount]);
+    const rewardsAccount =
+      rewardsTezosAddress || rewardsEvmAddress
+        ? accounts.find(
+            acc =>
+              getAccountAddressForTezos(acc) === rewardsTezosAddress &&
+              getAccountAddressForEvm(acc) === rewardsEvmAddress
+          )
+        : undefined;
+
+    if (rewardsAccount) {
+      return rewardsAccount;
+    }
+
+    if (conversionAccount) {
+      return accounts.find(acc => getAccountAddressForTezos(acc) === conversionAccount.tezosAddress);
+    }
+
+    return accounts[0];
+  }, [accounts, conversionAccount, rewardsEvmAddress, rewardsTezosAddress]);
 
   return (
     <div className="gap-3 bg-white rounded-8 p-1 flex flex-col shadow-bottom">

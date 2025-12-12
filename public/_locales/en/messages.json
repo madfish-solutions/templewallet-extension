@@ -968,6 +968,18 @@
   "ledgerConnect": {
     "message": "Ledger Connect"
   },
+  "ledgerEnsureConnectionTitle": {
+    "message": "Ensure your Ledger connection"
+  },
+  "ledgerEnsurePluggedIn": {
+    "message": "Check if your Ledger is plugged in"
+  },
+  "ledgerEnableSmartContractData": {
+    "message": "Enable smart contract data or blind signing"
+  },
+  "ledgerContinueFullScreen": {
+    "message": "Continue in full screen mode"
+  },
   "connectLedger": {
     "message": "Connect Ledger",
     "description": "Ledger = https://www.ledger.com/"
@@ -1057,13 +1069,13 @@
     "message": "Please check your USB connection and ensure you approved all relevant permissions."
   },
   "selectAccount": {
-    "message": "Select account"
+    "message": "Select Account"
   },
   "selectLedgerLiveAccount": {
     "message": "Select Ledger Live account"
   },
   "customPath": {
-    "message": "Custom path"
+    "message": "Custom Path"
   },
   "waitingForApprove": {
     "message": "Waiting for approve"
@@ -1788,6 +1800,9 @@
   "derivationType": {
     "message": "Derivation type"
   },
+  "customSettings": {
+    "message": "Custom settings"
+  },
   "derivationTypeFieldDescription": {
     "message": "The elliptical curve that the account will use."
   },
@@ -2082,6 +2097,12 @@
   },
   "sorry": {
     "message": "Sorry!"
+  },
+  "notAvailableOnFirefox": {
+    "message": "Not available on Firefox"
+  },
+  "ledgerNotAvailableOnFirefoxDescription": {
+    "message": "Temple can't connect Ledger due to browser restrictions. Please proceed with the connection using any Chrome-based browsers for a smooth experience."
   },
   "upload": {
     "message": "Upload"

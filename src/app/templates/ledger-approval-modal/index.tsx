@@ -16,6 +16,7 @@ import {
 import { useTestnetModeEnabledSelector } from 'app/store/settings/selectors';
 import { t } from 'lib/i18n';
 import { LedgerOperationState, LedgerUIConfigurationBase, makeStateToUIConfiguration } from 'lib/ui';
+import { TempleChainKind } from 'temple/types';
 
 import styles from './ledger-approval-modal.module.css';
 
@@ -23,6 +24,7 @@ interface ApprovalModalProps {
   state: LedgerOperationState;
   isSwitchingDerivation?: boolean;
   onClose: Modal.Props['onRequestClose'];
+  chainKind?: TempleChainKind;
 }
 
 interface UIConfiguration extends LedgerUIConfigurationBase {
@@ -30,7 +32,7 @@ interface UIConfiguration extends LedgerUIConfigurationBase {
   description: string;
 }
 
-export const LedgerApprovalModal = memo<ApprovalModalProps>(({ isSwitchingDerivation, state, onClose }) => {
+export const LedgerApprovalModal = memo<ApprovalModalProps>(({ isSwitchingDerivation, state, onClose, chainKind }) => {
   const { fullPage, confirmWindow } = useAppEnv();
   const testnetModeEnabled = useTestnetModeEnabledSelector();
 
@@ -93,8 +95,9 @@ export const LedgerApprovalModal = memo<ApprovalModalProps>(({ isSwitchingDeriva
       <div className="relative p-3 pb-6 w-modal flex flex-col items-center">
         <LedgerImage
           state={imageState}
-          variant={LedgerImageVariant.HalfClosed}
-          className="absolute top-0 left-0 right-0"
+          variant={chainKind !== TempleChainKind.EVM ? LedgerImageVariant.HalfClosed : undefined}
+          chainKind={chainKind}
+          className="absolute top-0 left-0 right-0 w-full h-64 object-contain"
         />
         {state !== LedgerOperationState.InProgress && (
           <Button className="absolute top-3 right-3" onClick={onClose}>

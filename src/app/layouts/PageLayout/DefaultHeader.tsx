@@ -27,15 +27,15 @@ export const DefaultHeader = memo<PropsWithChildren<DefaultHeaderProps>>(
     const { historyPosition, pathname } = useLocation();
 
     const inHome = pathname === '/';
-    const canNavBack = historyPosition > 0 || !inHome;
+    const hasHistoryBack = historyPosition > 0;
 
     const onBackClick = useCallback(() => {
       if (step && step > 0) return void setStep?.(step - 1);
 
-      if (canNavBack) return void goBack();
+      if (hasHistoryBack) return void goBack();
 
-      navigate('/', HistoryAction.Replace);
-    }, [setStep, step, canNavBack]);
+      if (!inHome) return void navigate('/', HistoryAction.Replace);
+    }, [setStep, step, hasHistoryBack, inHome]);
 
     const elemRef = useRef<HTMLDivElement>(null);
 

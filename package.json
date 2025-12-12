@@ -252,6 +252,6 @@
     "valibot": "^1.2.0"
   },
   "optionalDependencies": {
-    "@temple-wallet/extension-ads": "15.0.0"
+    "@temple-wallet/extension-ads": "^15.0.2"
   }
 }

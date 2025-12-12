@@ -1,8 +1,8 @@
 import {
   TEZOS_MAINNET_CHAIN_ID,
   TempleTezosChainId,
-  COMMON_MAINNET_CHAIN_IDS,
-  COMMON_TESTNET_CHAIN_IDS
+  COMMON_TESTNET_CHAIN_IDS,
+  ETHERLINK_MAINNET_CHAIN_ID
 } from './temple/types';
 
 export enum ContentScriptType {
@@ -120,7 +120,7 @@ export const DEFAULT_PASSWORD_INPUT_PLACEHOLDER = '•••••••••�
 export const MAIN_CHAINS_IDS: Array<string | number> = [
   TEZOS_MAINNET_CHAIN_ID,
   TempleTezosChainId.Ghostnet,
-  COMMON_MAINNET_CHAIN_IDS.etherlink,
+  ETHERLINK_MAINNET_CHAIN_ID,
   COMMON_TESTNET_CHAIN_IDS.etherlink
 ];
 

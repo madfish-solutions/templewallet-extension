@@ -72,9 +72,31 @@ export const OpenInFullPage: FC = () => {
 
 export const isPopupWindow = () => browser.extension.getViews({ type: 'popup' }).includes(window);
 
-export function openInFullPage() {
+export function openInFullPage(extraSearchParams?: Record<string, string>) {
+  const { origin, hash } = window.location;
+
+  const hashUrl = new URL(hash.startsWith('#') ? hash.slice(1) : hash || '/', origin);
+
+  if (extraSearchParams) {
+    for (const [key, value] of Object.entries(extraSearchParams)) {
+      hashUrl.searchParams.set(key, value);
+    }
+  }
+
+  const newHash = `${hashUrl.pathname}${hashUrl.search}${hashUrl.hash}`;
+  const url = createUrl('fullpage.html', '', newHash);
+
+  browser.tabs.create({
+    url: browser.runtime.getURL(url)
+  });
+}
+
+export function openInFullConfirmPage() {
   const { search, hash } = window.location;
-  const url = createUrl('fullpage.html', search, hash);
+  const searchParams = new URLSearchParams(search);
+  searchParams.set('full', '1');
+  const searchString = searchParams.toString();
+  const url = createUrl('confirm.html', searchString ? `?${searchString}` : '', hash);
   browser.tabs.create({
     url: browser.runtime.getURL(url)
   });

@@ -3,6 +3,7 @@ import React, { memo, FunctionComponent, SVGProps, useMemo } from 'react';
 import { isDefined } from '@rnw-community/shared';
 import { ChainIds } from '@taquito/taquito';
 import clsx from 'clsx';
+import { uniq } from 'lodash';
 import { Props as TippyProps } from 'tippy.js';
 
 import { Button, IconBase } from 'app/atoms';
@@ -13,6 +14,7 @@ import { ReactComponent as SendIcon } from 'app/icons/base/send.svg';
 import { ReactComponent as SwapIcon } from 'app/icons/base/swap.svg';
 import { buildSendPagePath } from 'app/pages/Send/build-url';
 import { buildSwapPagePath } from 'app/pages/Swap/build-url-query';
+import { use3RouteEvmSupportedChainIdsSelector } from 'app/store/evm/swap-3route-metadata/selectors';
 import { useLifiSupportedChainIdsSelector } from 'app/store/evm/swap-lifi-metadata/selectors';
 import { useTestnetModeEnabledSelector } from 'app/store/settings/selectors';
 import { TestIDProps } from 'lib/analytics';
@@ -41,7 +43,12 @@ export const ExploreActionButtonsBar = memo<Props>(
     const account = useAccount();
     const testnetModeEnabled = useTestnetModeEnabledSelector();
     const { route3tokensSlugs } = useAvailableRoute3TokensSlugs();
-    const supportedChainIds = useLifiSupportedChainIdsSelector();
+    const lifiSupportedChainIds = useLifiSupportedChainIdsSelector();
+    const route3SupportedChainIds = use3RouteEvmSupportedChainIdsSelector();
+    const supportedChainIds = useMemo(
+      () => uniq(lifiSupportedChainIds.concat(route3SupportedChainIds)),
+      [lifiSupportedChainIds, route3SupportedChainIds]
+    );
 
     const canSend = account.type !== TempleAccountType.WatchOnly;
     const sendLink = buildSendPagePath(chainKind, chainId as string, assetSlug);

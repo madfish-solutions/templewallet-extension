@@ -38,6 +38,8 @@ export const settingsUpdated = createEvent<TempleSettings>('Settings updated');
 
 export const dAppQueueCountersUpdated = createEvent<PromisesQueueCounters>('DApp queue counters updated');
 
+export const dAppPendingConfirmationIdUpdated = createEvent<string | null>('DApp pending confirmation ID updated');
+
 export const focusLocationChanged = createEvent<FocusLocation | null>('Focus location changed');
 
 export const popupOpened = createEvent<number | null>('Popup opened');
@@ -61,6 +63,7 @@ export const store = createStore<StoreState>({
   accounts: [],
   settings: null,
   dAppQueueCounters: DEFAULT_PROMISES_QUEUE_COUNTERS,
+  dAppPendingConfirmationId: null,
   focusLocation: null,
   windowsWithPopups: [],
   windowsWithSidebars: [],
@@ -84,6 +87,7 @@ export const store = createStore<StoreState>({
     accounts: [],
     settings: null,
     dAppQueueCounters: DEFAULT_PROMISES_QUEUE_COUNTERS,
+    dAppPendingConfirmationId: null,
     focusLocation,
     windowsWithPopups,
     windowsWithSidebars,
@@ -103,6 +107,10 @@ export const store = createStore<StoreState>({
   .on(settingsUpdated, (state, settings) => ({
     ...state,
     settings
+  }))
+  .on(dAppPendingConfirmationIdUpdated, (state, dAppPendingConfirmationId) => ({
+    ...state,
+    dAppPendingConfirmationId
   }))
   .on(dAppQueueCountersUpdated, (state, dAppQueueCounters) => ({
     ...state,

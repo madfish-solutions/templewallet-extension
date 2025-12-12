@@ -21,7 +21,7 @@ interface Props {
   contentText?: string;
   providerTitle: AdsProviderTitle;
   pageName: string;
-  onAdRectSeen: EmptyFn;
+  onAdRectVisible: SyncFn<boolean>;
   onImageError: EmptyFn;
 }
 
@@ -35,11 +35,11 @@ export const TextPromotionView = memo<Props>(
     contentText = '',
     providerTitle,
     pageName,
-    onAdRectSeen,
+    onAdRectVisible,
     onImageError
   }) => {
     const ref = useRef<HTMLAnchorElement>(null);
-    useAdRectObservation(ref, onAdRectSeen, isVisible);
+    useAdRectObservation(ref, onAdRectVisible, isVisible);
 
     const testIDProperties = useMemo(
       () => buildAdClickAnalyticsProperties(PartnersPromotionVariant.Text, providerTitle, pageName, accountPkh, href),
