@@ -554,6 +554,21 @@ export interface TzktGetBalanceHistoryParams {
   offset?: number;
 }
 
+export type TzktStakingUpdateType = 'stake' | 'unstake' | 'slash' | 'reward' | 'unstake_finalized';
+
+export interface TzktStakingUpdate {
+  /** Block level */
+  level: number;
+  /** ISO string */
+  timestamp: string;
+  cycle: number;
+  baker: TzktAlias;
+  staker: TzktAlias;
+  type: TzktStakingUpdateType;
+  /** Amount in mutez */
+  amount: number;
+}
+
 export enum TzktSubscriptionStateMessageType {
   Subscribed = 0,
   Data = 1,

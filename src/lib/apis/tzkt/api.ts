@@ -22,7 +22,8 @@ import {
   TzktSetDelegateParamsOperation,
   TzktOperationRole,
   TzktBalanceHistoryItem,
-  TzktGetBalanceHistoryParams
+  TzktGetBalanceHistoryParams,
+  TzktStakingUpdate
 } from './types';
 import { calcTzktAccountSpendableTezBalance } from './utils';
 
@@ -264,4 +265,25 @@ export const fetchAccountBalanceHistory = (
     {
       signal
     }
+  );
+
+export interface TzktGetStakingUpdatesParams {
+  staker?: string;
+  baker?: string;
+  offset?: number;
+}
+
+export const fetchStakingUpdates = (
+  chainId: TzktApiChainId,
+  params: TzktGetStakingUpdatesParams,
+  signal?: AbortSignal
+) =>
+  fetchGet<TzktStakingUpdate[]>(
+    chainId,
+    '/staking/updates',
+    {
+      ...params,
+      limit: TZKT_MAX_QUERY_ITEMS_LIMIT
+    },
+    { signal }
   );

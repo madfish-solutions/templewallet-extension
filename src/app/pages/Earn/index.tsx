@@ -2,6 +2,7 @@ import React, { FC, memo, useEffect, useMemo } from 'react';
 
 import { EmptyState } from 'app/atoms/EmptyState';
 import { useTezosAccountBalanceHistory } from 'app/hooks/use-tezos-account-balance-history';
+import { useTezosAccountStakingUpdates } from 'app/hooks/use-tezos-account-staking-updates';
 import PageLayout from 'app/layouts/PageLayout';
 import { PartnersPromotion, PartnersPromotionVariant } from 'app/templates/partners-promotion';
 import { SearchBarField } from 'app/templates/SearchField';
@@ -19,16 +20,20 @@ import { EarnOffer } from './types';
 
 export const Earn = memo(() => {
   const tezPkh = useAccountAddressForTezos();
-  const { data: tezBalanceHistory } = useTezosAccountBalanceHistory({
-    accountPkh: tezPkh!,
-    chainId: TempleTezosChainId.Mainnet,
+  const { data: tezBalanceHistory } = useTezosAccountBalanceHistory(tezPkh!, TempleTezosChainId.Mainnet, {
     limit: 100,
     step: 450 // 1 hour
   });
 
+  const { data: tezStakingUpdates } = useTezosAccountStakingUpdates(tezPkh!, TempleTezosChainId.Mainnet);
+
   useEffect(() => {
     if (tezBalanceHistory) console.log(tezBalanceHistory);
   }, [tezBalanceHistory]);
+
+  useEffect(() => {
+    if (tezStakingUpdates) console.log(tezStakingUpdates);
+  }, [tezStakingUpdates]);
 
   const { searchValue, setSearchValue, savingsOffers, externalOffers } = useFilteredEarnOffers();
 
