@@ -539,6 +539,21 @@ export type TzktAccount =
   | TzktSmartRollupAccount
   | TzktEmptyAccount;
 
+export interface TzktBalanceHistoryItem {
+  /** Block level */
+  level: number;
+  /** ISO string */
+  timestamp: string;
+  /** Account balance at the given level in mutez */
+  balance: number;
+}
+
+export interface TzktGetBalanceHistoryParams {
+  step?: number;
+  limit?: number;
+  offset?: number;
+}
+
 export enum TzktSubscriptionStateMessageType {
   Subscribed = 0,
   Data = 1,

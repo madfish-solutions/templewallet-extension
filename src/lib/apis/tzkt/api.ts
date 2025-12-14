@@ -20,7 +20,9 @@ import {
   TzktCycle,
   TzktProtocol,
   TzktSetDelegateParamsOperation,
-  TzktOperationRole
+  TzktOperationRole,
+  TzktBalanceHistoryItem,
+  TzktGetBalanceHistoryParams
 } from './types';
 import { calcTzktAccountSpendableTezBalance } from './utils';
 
@@ -245,3 +247,21 @@ export const getAccountStatsFromTzkt = async (account: string, chainId: TzktApiC
 
 export const fetchTokenTransfers = (chainId: TzktApiChainId, params: Record<string, any>, signal?: AbortSignal) =>
   fetchGet<TzktTokenTransfer[]>(chainId, '/tokens/transfers', params, { signal });
+
+export const fetchAccountBalanceHistory = (
+  chainId: TzktApiChainId,
+  accountAddress: string,
+  params: TzktGetBalanceHistoryParams = {},
+  signal?: AbortSignal
+) =>
+  fetchGet<TzktBalanceHistoryItem[]>(
+    chainId,
+    `/accounts/${accountAddress}/balance_history`,
+    {
+      ...params,
+      'sort.asc': 'level'
+    },
+    {
+      signal
+    }
+  );
