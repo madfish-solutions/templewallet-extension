@@ -3,8 +3,8 @@ import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { KNOWN_TOKENS_SLUGS } from 'lib/assets/known-tokens';
 import { ETHERLINK_USDC_SLUG, APPLEFARM_REFERRAL_LINK, TEZOS_APY, APPLEFARM_APR, ETHEREUM_APR } from 'lib/constants';
 import {
-  COMMON_MAINNET_CHAIN_IDS,
   ETHEREUM_MAINNET_CHAIN_ID,
+  ETHERLINK_MAINNET_CHAIN_ID,
   TEZOS_GHOSTNET_CHAIN_ID,
   TEZOS_MAINNET_CHAIN_ID
 } from 'lib/temple/types';
@@ -83,7 +83,7 @@ export const EXTERNAL_OFFERS: EarnOffer[] = [
     symbol: 'USDC',
     name: 'AppleFarm',
     chainKind: TempleChainKind.EVM,
-    chainId: COMMON_MAINNET_CHAIN_IDS.etherlink,
+    chainId: ETHERLINK_MAINNET_CHAIN_ID,
     assetSlug: ETHERLINK_USDC_SLUG,
     displayYield: `${APPLEFARM_APR}% APR`,
     providerIcon: AppleFarmIcon,

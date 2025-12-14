@@ -15,6 +15,7 @@ import { Link } from 'lib/woozie';
 import { ChainId } from 'temple/front/chains';
 import { TempleChainKind } from 'temple/types';
 
+import { EarnSelectors } from '../selectors';
 import { ActiveDeposit, EarnOffer } from '../types';
 
 const COMMON_ITEM_CLASSNAME =
@@ -40,16 +41,24 @@ export const EarnItem = memo<EarnOfferItemProps>(({ offer, deposit }) => {
     return { ...offer, displayYield: finalDisplayYield };
   }, [dynamicApyRate, offer]);
 
+  const analyticsProps = useMemo(
+    () => ({
+      testID: EarnSelectors.earnOfferClick,
+      testIDProperties: { id: offer.id }
+    }),
+    [offer]
+  );
+
   if (offer.isExternal) {
     return (
-      <Anchor href={offer.link} className={COMMON_ITEM_CLASSNAME}>
+      <Anchor href={offer.link} className={COMMON_ITEM_CLASSNAME} {...analyticsProps}>
         <EarnOfferItemContent offer={adjustedOffer} deposit={deposit} />
       </Anchor>
     );
   }
 
   return (
-    <Link to={offer.link} className={COMMON_ITEM_CLASSNAME}>
+    <Link to={offer.link} className={COMMON_ITEM_CLASSNAME} {...analyticsProps}>
       <EarnOfferItemContent offer={adjustedOffer} deposit={deposit} />
     </Link>
   );
