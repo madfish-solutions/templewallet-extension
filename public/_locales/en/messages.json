@@ -1340,6 +1340,9 @@
   "transactionSubmitted": {
     "message": "Transaction Submitted"
   },
+  "otherOperationsPendingError": {
+    "message": "One transaction per block, try again in a moment"
+  },
   "unstakeRequestNumber": {
     "message": "Unstake request $number$",
     "placeholders": {
