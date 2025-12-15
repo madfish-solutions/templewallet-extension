@@ -1,20 +1,32 @@
-import React, { FC, memo, useMemo, useState } from 'react';
+import React, { FC, useEffect, useMemo, useState } from 'react';
 
 import { compare } from 'compare-versions';
 import browser from 'webextension-polyfill';
 
 import { AppUpdateDetails, useStoredAppUpdateDetails } from 'app/storage/app-update/use-value.hook';
+import { useShouldShowPartnersPromoSelector } from 'app/store/partners-promotion/selectors';
+import { SHOULD_HIDE_ENABLE_ADS_BANNER_STORAGE_KEY } from 'lib/constants';
 import { APP_VERSION } from 'lib/env';
-import { T } from 'lib/i18n';
+import { useStorage } from 'lib/temple/front';
 import { useDidMount } from 'lib/ui/hooks';
-import { Lottie } from 'lib/ui/react-lottie';
 
-import rocketAnimation from './rocket-animation.json';
+import { EnableAdsBanner } from './enable-ads-banner';
+import { UpdateAppBanner } from './update-app-banner';
 
-export const UpdateAppBanner: FC = () => {
+export const NotificationBanner: FC = () => {
   const [storedUpdateDetails, setStoredUpdateDetails] = useStoredAppUpdateDetails();
 
   const [checkedUpdateDetails, setCheckedUpdateDetails] = useState<AppUpdateDetails>();
+
+  const [shouldHideEnableAdsBanner, setShouldHideEnableAdsBanner] = useStorage(
+    SHOULD_HIDE_ENABLE_ADS_BANNER_STORAGE_KEY
+  );
+  const adsEnabled = useShouldShowPartnersPromoSelector();
+
+  useEffect(
+    () => void (!shouldHideEnableAdsBanner && adsEnabled && setShouldHideEnableAdsBanner(true)),
+    [shouldHideEnableAdsBanner, adsEnabled, setShouldHideEnableAdsBanner]
+  );
 
   const isStoredVersionOutdated = useMemo(
     () => Boolean(storedUpdateDetails?.version && compare(storedUpdateDetails.version, APP_VERSION, '<=')),
@@ -47,40 +59,9 @@ export const UpdateAppBanner: FC = () => {
     };
   }, [updateDetails, isStoredVersionOutdated, setStoredUpdateDetails]);
 
-  if (!handleUpdate) return null;
-
-  return <BannerBase onClick={handleUpdate} />;
-};
-
-const ROCKET_ANIMATION_OPTIONS = {
-  loop: true,
-  autoplay: true,
-  animationData: rocketAnimation,
-  rendererSettings: {
-    preserveAspectRatio: 'xMidYMid slice'
+  if (handleUpdate) {
+    return <UpdateAppBanner onClick={handleUpdate} />;
   }
-} as const;
 
-interface BannerBaseProps {
-  onClick?: EmptyFn;
-}
-
-const BannerBase = memo<BannerBaseProps>(({ onClick }) => (
-  <div
-    className="flex mx-4 mb-3 gap-x-2 p-4 rounded-8 border-0.5 border-lines cursor-pointer bg-white hover:bg-grey-4"
-    onClick={onClick}
-  >
-    <div className="flex shrink-0 justify-center items-center w-10 h-10">
-      <Lottie isClickToPauseDisabled options={ROCKET_ANIMATION_OPTIONS} height={47} width={47} />
-    </div>
-
-    <div className="flex flex-col gap-y-1">
-      <p className="text-font-medium-bold">
-        <T id="newVersion" />
-      </p>
-      <p className="text-font-description text-grey-1">
-        <T id="clickToUpdateWallet" />
-      </p>
-    </div>
-  </div>
-));
+  return shouldHideEnableAdsBanner || adsEnabled ? null : <EnableAdsBanner />;
+};

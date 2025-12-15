@@ -12,7 +12,7 @@ import { getNumberSymbols, toLocalFixed, toLocalFormat, toShortened, t } from 'l
 import useCopyToClipboard from 'lib/ui/useCopyToClipboard';
 
 interface MoneyProps extends TestIDProps {
-  children: number | string | BigNumber;
+  children: BigNumber.Value;
   fiat?: boolean;
   cryptoDecimals?: number;
   roundingMode?: BigNumber.RoundingMode;
