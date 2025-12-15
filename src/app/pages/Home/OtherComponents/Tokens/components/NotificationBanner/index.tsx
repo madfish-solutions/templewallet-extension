@@ -15,6 +15,7 @@ import { UpdateAppBanner } from './update-app-banner';
 
 export const NotificationBanner: FC = () => {
   const [storedUpdateDetails, setStoredUpdateDetails] = useStoredAppUpdateDetails();
+  const [isUpdateChecked, setIsUpdateChecked] = useState(false);
 
   const [checkedUpdateDetails, setCheckedUpdateDetails] = useState<AppUpdateDetails>();
 
@@ -37,9 +38,12 @@ export const NotificationBanner: FC = () => {
     if (isStoredVersionOutdated) setStoredUpdateDetails(null);
 
     // Only available in Chrome
-    void browser.runtime.requestUpdateCheck?.().then(([status, details]) => {
-      if (status === 'update_available') setCheckedUpdateDetails(details);
-    });
+    void browser.runtime
+      .requestUpdateCheck?.()
+      .then(([status, details]) => {
+        if (status === 'update_available') setCheckedUpdateDetails(details);
+      })
+      .finally(() => setIsUpdateChecked(true));
   });
 
   const updateDetails = storedUpdateDetails || checkedUpdateDetails;
@@ -63,5 +67,5 @@ export const NotificationBanner: FC = () => {
     return <UpdateAppBanner onClick={handleUpdate} />;
   }
 
-  return shouldHideEnableAdsBanner || adsEnabled ? null : <EnableAdsBanner />;
+  return shouldHideEnableAdsBanner || adsEnabled || !isUpdateChecked ? null : <EnableAdsBanner />;
 };
