@@ -4,7 +4,7 @@ import BigNumber from 'bignumber.js';
 
 import { Money } from 'app/atoms';
 import { Lines } from 'app/atoms/Lines';
-import { useFiatCurrency } from 'lib/fiat-currency';
+import { useFiatCurrency, useFiatToUsdRate } from 'lib/fiat-currency';
 import { T } from 'lib/i18n';
 
 interface RewardsCoverCardProps {
@@ -17,11 +17,12 @@ interface RewardsCoverCardProps {
 
 export const RewardsCoverCard = memo<RewardsCoverCardProps>(
   ({ networkLogo, networkName, costs, rewardsCover, annotation }) => {
-    const { selectedFiatCurrency, fiatRates } = useFiatCurrency();
+    const { selectedFiatCurrency } = useFiatCurrency();
+    const fiatToUsdRate = useFiatToUsdRate();
 
     const costsInSelectedCurrency = useMemo(
-      () => new BigNumber(costs).times(fiatRates.usd).div(fiatRates[selectedFiatCurrency.apiLabel]),
-      [costs, fiatRates, selectedFiatCurrency]
+      () => new BigNumber(costs).times(fiatToUsdRate ?? 1),
+      [costs, fiatToUsdRate]
     );
 
     return (
