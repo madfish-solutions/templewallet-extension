@@ -8,10 +8,6 @@ on:
         type: boolean
         description: Build without private packages
         required: false
-      personaAds:
-        type: boolean
-        description: Enable persona ads provider
-        required: false
       prod:
         type: boolean
         description: Build for production environment
@@ -71,16 +67,6 @@ jobs:
           HYPELAB_EXTERNAL_MEDIUM_PLACEMENT_SLUG: ${{ vars.HYPELAB_EXTERNAL_MEDIUM_PLACEMENT_SLUG }}
           HYPELAB_EXTERNAL_SMALL_PLACEMENT_SLUG: ${{ vars.HYPELAB_EXTERNAL_SMALL_PLACEMENT_SLUG }}
           HYPELAB_EXTERNAL_NATIVE_PLACEMENT_SLUG: ${{ vars.HYPELAB_EXTERNAL_NATIVE_PLACEMENT_SLUG }}
-          PERSONA_ADS_ENABLED: ${{ github.event.inputs.personaAds == 'true' }}
-          PERSONA_ADS_API_KEY: ${{ vars.PERSONA_ADS_API_KEY }}
-          PERSONA_ADS_MISES_BANNER_UNIT_ID: ${{ vars.PERSONA_ADS_MISES_BANNER_UNIT_ID }}
-          PERSONA_ADS_BANNER_UNIT_ID: ${{ vars.PERSONA_ADS_BANNER_UNIT_ID }}
-          PERSONA_ADS_MISES_WIDE_BANNER_UNIT_ID: ${{ vars.PERSONA_ADS_MISES_WIDE_BANNER_UNIT_ID }}
-          PERSONA_ADS_WIDE_BANNER_UNIT_ID: ${{ vars.PERSONA_ADS_WIDE_BANNER_UNIT_ID }}
-          PERSONA_ADS_MISES_MEDIUM_BANNER_UNIT_ID: ${{ vars.PERSONA_ADS_MISES_MEDIUM_BANNER_UNIT_ID }}
-          PERSONA_ADS_MEDIUM_BANNER_UNIT_ID: ${{ vars.PERSONA_ADS_MEDIUM_BANNER_UNIT_ID }}
-          PERSONA_ADS_MISES_SQUARISH_BANNER_UNIT_ID: ${{ vars.PERSONA_ADS_MISES_SQUARISH_BANNER_UNIT_ID }}
-          PERSONA_ADS_SQUARISH_BANNER_UNIT_ID: ${{ vars.PERSONA_ADS_SQUARISH_BANNER_UNIT_ID }}
           BITMEDIA_320_50_PLACEMENT_ID: ${{ vars.BITMEDIA_320_50_PLACEMENT_ID }}
           BITMEDIA_320_100_PLACEMENT_ID: ${{ vars.BITMEDIA_320_100_PLACEMENT_ID }}
           BITMEDIA_300_250_PLACEMENT_ID: ${{ vars.BITMEDIA_300_250_PLACEMENT_ID }}

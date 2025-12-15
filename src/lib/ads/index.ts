@@ -1,6 +1,5 @@
 export enum AdsProviderTitle {
   HypeLab = 'HypeLab',
-  Persona = 'Persona',
   Temple = 'Temple Wallet'
 }
 
