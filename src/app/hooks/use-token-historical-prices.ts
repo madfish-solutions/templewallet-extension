@@ -1,4 +1,4 @@
-import { fetchMarketChartData, type MarketChartData, type MarketChartParams } from 'lib/apis/temple';
+import { fetchMarketChartData, type MarketChartData, type MarketChartParams } from 'lib/apis/coingecko';
 import { useTypedSWR } from 'lib/swr';
 
 export const useTokenHistoricalPrices = (params: MarketChartParams) =>

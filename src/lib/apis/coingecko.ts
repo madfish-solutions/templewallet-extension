@@ -5,7 +5,7 @@ import { ETHEREUM_MAINNET_CHAIN_ID, COMMON_MAINNET_CHAIN_IDS } from 'lib/temple/
 import { BasicChain } from 'temple/front/chains';
 import { TempleChainKind } from 'temple/types';
 
-const coingeckoApi = axios.create({ baseURL: 'https://api.coingecko.com/api/v3/' });
+export const coingeckoApi = axios.create({ baseURL: 'https://api.coingecko.com/api/v3/' });
 
 export function fetchTokenMarketInfo(assetSlug: string, chain: BasicChain) {
   const coingeckoAssetId =
@@ -139,3 +139,55 @@ const COINGECKO_EVM_TOKENS_IDS: Record<number, StringRecord> = {
     '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913_0': 'usd-coin' // USDC
   }
 };
+
+//* https://docs.coingecko.com/reference/coins-id-market-chart */
+export interface MarketChartParams {
+  id: string;
+  vs_currency?: string;
+  days?: string;
+  interval?: '5m' | 'hourly' | 'daily';
+  precision?:
+    | 'full'
+    | '0'
+    | '1'
+    | '2'
+    | '3'
+    | '4'
+    | '5'
+    | '6'
+    | '7'
+    | '8'
+    | '9'
+    | '10'
+    | '11'
+    | '12'
+    | '13'
+    | '14'
+    | '15'
+    | '16'
+    | '17'
+    | '18';
+}
+
+export interface MarketChartData {
+  prices: number[][];
+  market_caps: number[][];
+  total_volumes: number[][];
+}
+
+export function fetchMarketChartData(params: MarketChartParams) {
+  const { id, vs_currency = 'usd', days = '1', interval, precision } = params;
+
+  const queryParams = {
+    vs_currency,
+    days,
+    ...(interval ? { interval } : {}),
+    ...(precision ? { precision } : {})
+  };
+
+  return coingeckoApi
+    .get<MarketChartData>(`coins/${id}/market_chart`, {
+      params: queryParams
+    })
+    .then(({ data }) => data);
+}
