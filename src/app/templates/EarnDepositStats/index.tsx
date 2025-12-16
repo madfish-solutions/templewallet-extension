@@ -69,7 +69,14 @@ const EarnDepositStatsContent: FC<EarnDepositStatsContentProps> = ({ accountPkh 
     return { amount, isLoading: false };
   }, [isBakerAddressLoading, isStakedAmountLoading, tezBalance, myBakerPkh, stakedAtomic]);
 
-  const fiatChangeValues = useMemo(() => chartData?.map(([, value]) => value) ?? [], [chartData]);
+  const fiatChangeValues = useMemo(
+    () =>
+      chartData?.map(([timestamp, price]) => ({
+        timestamp,
+        value: price
+      })) ?? [],
+    [chartData]
+  );
 
   const latestFiatValue = useMemo(
     () => (chartData && chartData.length ? chartData[chartData.length - 1][1] : undefined),
@@ -132,8 +139,8 @@ const EarnDepositStatsContent: FC<EarnDepositStatsContentProps> = ({ accountPkh 
         </div>
       </div>
 
-      <div className="w-28 sm:w-40 flex items-end">
-        <SimpleChart values={fiatChangeValues} />
+      <div className="w-44 flex items-end">
+        <SimpleChart data={fiatChangeValues} />
       </div>
     </div>
   );
