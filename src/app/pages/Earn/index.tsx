@@ -1,14 +1,11 @@
-import React, { FC, memo, useEffect, useMemo } from 'react';
+import React, { FC, memo, useMemo } from 'react';
 
 import { EmptyState } from 'app/atoms/EmptyState';
-import { useTezosAccountBalanceHistory } from 'app/hooks/use-tezos-account-balance-history';
-import { useTezosAccountStakingUpdates } from 'app/hooks/use-tezos-account-staking-updates';
 import PageLayout from 'app/layouts/PageLayout';
+import { EarnDepositStats } from 'app/templates/EarnDepositStats';
 import { PartnersPromotion, PartnersPromotionVariant } from 'app/templates/partners-promotion';
 import { SearchBarField } from 'app/templates/SearchField';
 import { T, t, TID } from 'lib/i18n';
-import { TempleTezosChainId } from 'lib/temple/types';
-import { useAccountAddressForTezos } from 'temple/front';
 
 import { EarnItem } from './components/EarnItem';
 import { EthSavingItem } from './components/EthSavingItem';
@@ -19,22 +16,6 @@ import { useFilteredEarnOffers } from './hooks/use-filtered-earn-offers';
 import { EarnOffer } from './types';
 
 export const Earn = memo(() => {
-  const tezPkh = useAccountAddressForTezos();
-  const { data: tezBalanceHistory } = useTezosAccountBalanceHistory(tezPkh!, TempleTezosChainId.Mainnet, {
-    limit: 100,
-    step: 450 // 1 hour
-  });
-
-  const { data: tezStakingUpdates } = useTezosAccountStakingUpdates(tezPkh!, TempleTezosChainId.Mainnet);
-
-  useEffect(() => {
-    if (tezBalanceHistory) console.log(tezBalanceHistory);
-  }, [tezBalanceHistory]);
-
-  useEffect(() => {
-    if (tezStakingUpdates) console.log(tezStakingUpdates);
-  }, [tezStakingUpdates]);
-
   const { searchValue, setSearchValue, savingsOffers, externalOffers } = useFilteredEarnOffers();
 
   const savingsItems = useMemo(() => {
@@ -67,6 +48,8 @@ export const Earn = memo(() => {
       {savingsAvailable && (
         <div className="mb-4">
           <Title i18nKey="savings" />
+
+          <EarnDepositStats />
 
           <div className="flex flex-col gap-y-2">{savingsItems}</div>
         </div>
