@@ -225,7 +225,7 @@ export const BaseSwapForm: FC<Props> = ({
           inputAssetSlug
         );
 
-        isWertSupportedChainAssetSlug(chainAssetSlug) && dispatch(setOnRampAssetAction(chainAssetSlug));
+        isWertSupportedChainAssetSlug(chainAssetSlug) && dispatch(setOnRampAssetAction({ chainAssetSlug }));
       }
     },
     [inputAssetSlug, inputChainId, isEvmNetwork]

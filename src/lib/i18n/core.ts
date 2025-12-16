@@ -98,28 +98,33 @@ export function formatDate(date: string | number | Date, format: string) {
 }
 
 const formatDurationParts = [
+  ['days', 24 * 60 * 60],
   ['hours', 60 * 60],
   ['minutes', 60],
   ['seconds', 1]
 ] as const;
 
-export function formatDuration(seconds: number) {
+type DurationPartName = (typeof formatDurationParts)[number][0];
+
+export function formatDuration(seconds: number, partsToUse: DurationPartName[] = ['hours', 'minutes', 'seconds']) {
   const locale = getDateFnsLocale();
 
-  const { duration, format } = formatDurationParts.reduce<{ duration: Duration; format: string[]; remainder: number }>(
-    (acc, [newPart, newPartSeconds]) => {
-      const newPartValue = Math.floor(acc.remainder / newPartSeconds);
+  const { duration, format } = formatDurationParts
+    .filter(part => partsToUse.includes(part[0]))
+    .reduce<{ duration: Duration; format: string[]; remainder: number }>(
+      (acc, [newPart, newPartSeconds]) => {
+        const newPartValue = Math.floor(acc.remainder / newPartSeconds);
 
-      if (newPartValue) {
-        acc.duration[newPart] = newPartValue;
-        acc.format.push(newPart);
-        acc.remainder -= newPartValue * newPartSeconds;
-      }
+        if (newPartValue) {
+          acc.duration[newPart] = newPartValue;
+          acc.format.push(newPart);
+          acc.remainder -= newPartValue * newPartSeconds;
+        }
 
-      return acc;
-    },
-    { duration: {}, format: [], remainder: seconds }
-  );
+        return acc;
+      },
+      { duration: {}, format: [], remainder: seconds }
+    );
 
   // @ts-expect-error
   return formatDurationFns(duration, { format, locale });
