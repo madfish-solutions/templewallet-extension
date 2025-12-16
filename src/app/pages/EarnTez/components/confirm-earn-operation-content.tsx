@@ -8,6 +8,7 @@ import { SWRResponse } from 'swr';
 import { FadeTransition } from 'app/a11y/FadeTransition';
 import { ActionModalButton } from 'app/atoms/action-modal';
 import { useLedgerApprovalModalState } from 'app/hooks/use-ledger-approval-modal-state';
+import { BalancesChangesView } from 'app/templates/balances-changes-view';
 import { CurrentAccount } from 'app/templates/current-account';
 import { FeeSummary } from 'app/templates/fee-summary';
 import { LedgerApprovalModal } from 'app/templates/ledger-approval-modal';
@@ -17,13 +18,14 @@ import { TezosTxParamsFormData } from 'app/templates/TransactionTabs/types';
 import { useTezosEstimationForm } from 'app/templates/TransactionTabs/use-tezos-estimation-form';
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
 import { useTezosAssetBalance } from 'lib/balances';
-import { T } from 'lib/i18n';
+import { t, T } from 'lib/i18n';
 import { useTypedSWR } from 'lib/swr';
 import { TezosEstimationData, TezosEstimationDataProvider } from 'lib/temple/front/estimation-data-providers';
 import { TempleAccountType } from 'lib/temple/types';
 import { runConnectedLedgerOperationFlow } from 'lib/ui';
 import { ZERO } from 'lib/utils/numbers';
 import { getTezosToolkitWithSigner } from 'temple/front';
+import { AssetsAmounts } from 'temple/types';
 
 import { TezosEarnReviewDataBase } from '../types';
 
@@ -33,11 +35,19 @@ interface TxTabsInnerContentProps<R extends TezosEarnReviewDataBase> {
   estimationData?: TezosEstimationData;
 }
 
+export interface RenderTopElementProps<R extends TezosEarnReviewDataBase> {
+  reviewData: R;
+  displayedFee: string | undefined;
+  displayedStorageFee: string | undefined;
+  goToFeeTab: EmptyFn;
+}
+
 export interface ConfirmEarnOperationContentProps<R extends TezosEarnReviewDataBase> {
   getBasicParamsSWRKey: (reviewData: R) => string[];
   formId: string;
+  balancesChanges: AssetsAmounts[];
   reviewData?: R;
-  renderTopElement: (reviewData: R) => ReactChildren;
+  TopElement?: ComponentType<RenderTopElementProps<R>>;
   cancelTestID: string;
   confirmTestID: string;
   confirmText?: ReactChildren;
@@ -106,15 +116,15 @@ export const ConfirmEarnOperationContent = <R extends TezosEarnReviewDataBase>({
 interface ConfirmEarnOperationContentBodyWrapperProps<R extends TezosEarnReviewDataBase>
   extends Pick<
     ConfirmEarnOperationContentProps<R>,
-    | 'renderTopElement'
+    | 'TopElement'
     | 'getBasicParamsSWRKey'
     | 'getBasicParams'
     | 'useEstimationData'
     | 'TxTabsInnerContent'
     | 'formId'
+    | 'balancesChanges'
   > {
   data: R;
-  renderTopElement: (reviewData: R) => ReactChildren;
   setLoading: SyncFn<boolean>;
 }
 
@@ -123,7 +133,8 @@ const ConfirmEarnOperationContentBodyWrapper = <R extends TezosEarnReviewDataBas
   TxTabsInnerContent,
   data,
   formId,
-  renderTopElement,
+  TopElement,
+  balancesChanges,
   getBasicParams,
   useEstimationData,
   setLoading
@@ -227,22 +238,44 @@ const ConfirmEarnOperationContentBodyWrapper = <R extends TezosEarnReviewDataBas
     ]
   );
 
-  const topElement = useMemo(() => renderTopElement(data), [data, renderTopElement]);
-
   const goToFeeTab = useCallback(() => setTab('fee'), [setTab]);
+
+  const topElement = useMemo(
+    () =>
+      TopElement ? (
+        <TopElement
+          displayedFee={displayedFee}
+          displayedStorageFee={displayedStorageFee}
+          reviewData={data}
+          goToFeeTab={goToFeeTab}
+        />
+      ) : (
+        <div className="my-4">
+          <BalancesChangesView
+            balancesChanges={balancesChanges}
+            title={t('simulatedResult')}
+            chain={network}
+            footer={
+              <FeeSummary
+                network={network}
+                assetSlug={TEZ_TOKEN_SLUG}
+                gasFee={displayedFee}
+                storageFee={displayedStorageFee}
+                onOpenFeeTab={goToFeeTab}
+                embedded
+              />
+            }
+          />
+        </div>
+      ),
+    [balancesChanges, data, displayedFee, displayedStorageFee, goToFeeTab, network, TopElement]
+  );
 
   return (
     <FormProvider {...form}>
-      <div className="flex flex-col pt-4">
-        {topElement != null && <div className="mb-6 flex flex-col">{topElement}</div>}
+      <div className="flex flex-col">
+        {topElement}
 
-        <FeeSummary
-          network={network}
-          assetSlug={TEZ_TOKEN_SLUG}
-          gasFee={displayedFee}
-          storageFee={displayedStorageFee}
-          onOpenFeeTab={goToFeeTab}
-        />
         <CurrentAccount />
 
         <div className="flex flex-col">

@@ -29,6 +29,7 @@ import { balancesReducer } from './tezos/balances/reducers';
 import { collectiblesPersistedReducer } from './tezos/collectibles/reducer';
 import { collectiblesMetadataPersistedReducer } from './tezos/collectibles-metadata/reducer';
 import { noCategoryTezosAssetsMetadataPersistedReducer } from './tezos/no-category-assets-metadata/reducers';
+import { pendingTezosTransactionsPersistedReducer } from './tezos/pending-transactions/reducers';
 import { tokensMetadataReducer } from './tezos/tokens-metadata/reducers';
 
 const rootStateReducersMap = {
@@ -53,6 +54,7 @@ const rootStateReducersMap = {
   evmAssets: evmAssetsPersistedReducer,
   evmBalances: evmBalancesReducer,
   pendingEvmTransactions: pendingEvmTransactionsPersistedReducer,
+  pendingTezosTransactions: pendingTezosTransactionsPersistedReducer,
   lifiEvmTokensMetadata: lifiEvmTokensMetadataPersistedReducer,
   evmTokensMetadata: evmTokensMetadataPersistedReducer,
   evmTokensExchangeRates: evmTokensExchangeRatesPersistedReducer,
