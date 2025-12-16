@@ -84,7 +84,8 @@ export const buildBaseConfig = (): WebPack.Configuration & Pick<WebPack.WebpackO
         Exports of `punycode@2.3.0/punycode.js` & `punycode@2.3.0/punycode.es6.js` are different.
         We need the former ones (e.g. `idna-uts46-hx` relies on it).
       */
-      punycode$: require.resolve('punycode/punycode.js')
+      punycode$: require.resolve('punycode/punycode.js'),
+      recharts$: require.resolve('recharts/umd/Recharts.js')
     }
   },
 
