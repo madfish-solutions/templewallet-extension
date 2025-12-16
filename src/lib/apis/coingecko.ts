@@ -144,8 +144,7 @@ const COINGECKO_EVM_TOKENS_IDS: Record<number, StringRecord> = {
 export interface MarketChartParams {
   id: string;
   vs_currency?: string;
-  days?: string;
-  interval?: '5m' | 'hourly' | 'daily';
+  days?: number | 'max';
   precision?:
     | 'full'
     | '0'
@@ -176,12 +175,11 @@ export interface MarketChartData {
 }
 
 export function fetchMarketChartData(params: MarketChartParams) {
-  const { id, vs_currency = 'usd', days = '1', interval, precision } = params;
+  const { id, vs_currency = 'usd', days = 1, precision } = params;
 
   const queryParams = {
     vs_currency,
     days,
-    ...(interval ? { interval } : {}),
     ...(precision ? { precision } : {})
   };
 

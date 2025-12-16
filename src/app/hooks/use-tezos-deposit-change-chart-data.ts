@@ -116,8 +116,7 @@ export const useTezosDepositChangeChartData = (): UseTezosDepositChangeChartData
   } = useTokenHistoricalPrices({
     id: 'tezos',
     vs_currency: selectedFiatCurrency.apiLabel,
-    days: '30',
-    interval: 'hourly'
+    days: 30
   });
 
   const isLoading = isBalanceHistoryLoading || isStakingUpdatesLoading || isMarketChartLoading;
