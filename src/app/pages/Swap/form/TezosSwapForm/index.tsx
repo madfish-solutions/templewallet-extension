@@ -462,7 +462,7 @@ export const TezosSwapForm: FC<TezosSwapFormProps> = ({
       inputValue.assetSlug === TEZ_TOKEN_SLUG &&
       getTezosBalance(TEZOS_MAINNET_CHAIN_ID, TEZ_TOKEN_SLUG)?.lte(EXCHANGE_XTZ_RESERVE)
     ) {
-      dispatch(setOnRampAssetAction(TEZOS_CHAIN_ASSET_SLUG));
+      dispatch(setOnRampAssetAction({ chainAssetSlug: TEZOS_CHAIN_ASSET_SLUG }));
 
       return;
     }

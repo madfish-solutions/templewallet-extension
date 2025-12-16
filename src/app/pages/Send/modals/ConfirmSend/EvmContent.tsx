@@ -180,6 +180,7 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
       guard,
       account.type,
       setLedgerApprovalModalState,
+      assetSlug,
       preconnectIfNeeded
     ]
   );

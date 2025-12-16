@@ -267,7 +267,7 @@ interface FullAmountTippyProps extends HTMLAttributes<HTMLSpanElement>, TestIDPr
   enabled?: boolean;
 }
 
-const FullAmountTippy: FC<FullAmountTippyProps> = ({
+export const FullAmountTippy: FC<FullAmountTippyProps> = ({
   fullAmount,
   onClick,
   showAmountTooltip,

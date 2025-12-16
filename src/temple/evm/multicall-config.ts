@@ -1,3 +1,5 @@
+import { COMMON_MAINNET_CHAIN_IDS, ETHEREUM_HOODI_CHAIN_ID, ETHEREUM_MAINNET_CHAIN_ID } from 'lib/temple/types';
+
 interface MulticallBatchOptions {
   batchSize: number;
   wait?: number;
@@ -11,36 +13,41 @@ const DEFAULT_MULTICALL_OPTIONS: MulticallBatchOptions = {
 };
 
 const MULTICALL_OPTIONS_BY_CHAIN: Partial<Record<number, MulticallBatchOptions>> = {
-  1: {
+  [ETHEREUM_MAINNET_CHAIN_ID]: {
     batchSize: 160,
     wait: 25,
     maxSize: 10_240
   },
-  137: {
+  [COMMON_MAINNET_CHAIN_IDS.polygon]: {
     batchSize: 96,
     wait: 30,
     maxSize: 6_144
   },
-  56: {
+  [COMMON_MAINNET_CHAIN_IDS.bsc]: {
     batchSize: 80,
     wait: 30,
     maxSize: 6_144
   },
-  43114: {
+  [COMMON_MAINNET_CHAIN_IDS.avalanche]: {
     batchSize: 120,
     wait: 25
   },
-  10: {
+  [COMMON_MAINNET_CHAIN_IDS.optimism]: {
     batchSize: 96,
     wait: 25
   },
-  42161: {
+  [COMMON_MAINNET_CHAIN_IDS.arbitrum]: {
     batchSize: 120,
     wait: 25
   },
-  8453: {
+  [COMMON_MAINNET_CHAIN_IDS.base]: {
     batchSize: 96,
     wait: 20
+  },
+  [ETHEREUM_HOODI_CHAIN_ID]: {
+    batchSize: 160,
+    wait: 25,
+    maxSize: 10_240
   }
 };
 

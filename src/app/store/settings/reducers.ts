@@ -17,7 +17,9 @@ export const settingsReducer = createReducer<SettingsState>(settingsInitialState
   });
 
   builder.addCase(setOnRampAssetAction, (state, { payload }) => {
-    state.onRampAsset = payload;
+    const { chainAssetSlug, title } = payload;
+    state.onRampAsset = chainAssetSlug;
+    state.onRampTitle = title;
   });
 
   builder.addCase(setPendingReactivateAdsAction, (state, { payload }) => {
