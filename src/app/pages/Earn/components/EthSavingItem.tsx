@@ -2,11 +2,13 @@ import React, { FC, useCallback, useMemo } from 'react';
 
 import BigNumber from 'bignumber.js';
 
+import { useTestnetModeEnabledSelector } from 'app/store/settings/selectors';
 import { useTypedSWR } from 'lib/swr';
-import { useAccountAddressForEvm, useEthereumMainnetChain } from 'temple/front';
+import { ETHEREUM_HOODI_CHAIN_ID, ETHEREUM_MAINNET_CHAIN_ID } from 'lib/temple/types';
+import { useAccountAddressForEvm, useAllEvmChains } from 'temple/front';
 
 import { makeEthereumToolkit } from '../../EarnEth/utils';
-import { ETH_SAVING_OFFER } from '../config';
+import { getEthSavingOffer } from '../config';
 import { ActiveDeposit } from '../types';
 
 import { EarnItem } from './EarnItem';
@@ -26,14 +28,19 @@ interface DepositContentProps {
 }
 
 const DepositContent: FC<DepositContentProps> = ({ evmAddress }) => {
-  const network = useEthereumMainnetChain();
+  const isTestnet = useTestnetModeEnabledSelector();
+  const allEvmChains = useAllEvmChains();
+  const chainId = isTestnet ? ETHEREUM_HOODI_CHAIN_ID : ETHEREUM_MAINNET_CHAIN_ID;
+  const chain = allEvmChains[chainId];
+  const stakingEthereum = useMemo(() => (chain && !chain.disabled ? makeEthereumToolkit(chain) : null), [chain]);
 
-  const getStats = useCallback(
-    () => makeEthereumToolkit(network).contractViewsStats(evmAddress),
-    [network, evmAddress]
-  );
+  const getStats = useCallback(() => {
+    if (!stakingEthereum) return;
 
-  const { data: stats, isLoading } = useTypedSWR(['eth-staking-balances-item', evmAddress, network.chainId], getStats, {
+    return stakingEthereum.contractViewsStats(evmAddress);
+  }, [stakingEthereum, evmAddress]);
+
+  const { data: stats, isLoading } = useTypedSWR(['eth-staking-balances-item', evmAddress, chainId], getStats, {
     revalidateOnFocus: false
   });
 
@@ -57,5 +64,5 @@ const DepositContent: FC<DepositContentProps> = ({ evmAddress }) => {
     return { amount, isLoading };
   }, [stats, isLoading]);
 
-  return <EarnItem offer={ETH_SAVING_OFFER} deposit={deposit} />;
+  return <EarnItem offer={getEthSavingOffer(isTestnet)} deposit={deposit} />;
 };

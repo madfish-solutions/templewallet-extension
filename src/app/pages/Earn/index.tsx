@@ -9,7 +9,7 @@ import { T, t, TID } from 'lib/i18n';
 import { EarnItem } from './components/EarnItem';
 import { EthSavingItem } from './components/EthSavingItem';
 import { TezSavingItem } from './components/TezSavingItem';
-import { ETH_SAVING_OFFER, TEZ_SAVING_OFFER_ID } from './config';
+import { ETH_SAVING_OFFER_ID, TEZ_SAVING_OFFER_ID } from './config';
 import { EARN_PAGE_NAME } from './constants';
 import { useFilteredEarnOffers } from './hooks/use-filtered-earn-offers';
 import { EarnOffer } from './types';
@@ -69,7 +69,7 @@ const toRenderItem = (offer: EarnOffer) => {
   switch (offer.id) {
     case TEZ_SAVING_OFFER_ID:
       return <TezSavingItem key={offer.id} />;
-    case ETH_SAVING_OFFER.id:
+    case ETH_SAVING_OFFER_ID:
       return <EthSavingItem key={offer.id} />;
     default:
       return <EarnItem key={offer.id} offer={offer} />;

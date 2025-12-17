@@ -8,7 +8,7 @@ import { isSearchStringApplicable } from 'lib/utils/search-items';
 import { getAccountAddressForEvm, getAccountAddressForTezos } from 'temple/accounts';
 import { useAccount } from 'temple/front';
 
-import { getTezSavingOffer, ETH_SAVING_OFFER, EXTERNAL_OFFERS } from '../config';
+import { getTezSavingOffer, EXTERNAL_OFFERS, getEthSavingOffer } from '../config';
 import { EarnOffer } from '../types';
 
 export const useFilteredEarnOffers = () => {
@@ -34,13 +34,15 @@ export const useFilteredEarnOffers = () => {
   const availableSavingsOffers = useMemo(() => {
     const tezPkh = getAccountAddressForTezos(account);
     const evmPkh = getAccountAddressForEvm(account);
+
     const tezSavingOffer = getTezSavingOffer(isTestnetMode);
+    const ethSavingOffer = getEthSavingOffer(isTestnetMode);
 
-    if (account.type === TempleAccountType.WatchOnly || (!tezPkh && isTestnetMode)) return [];
-    if (!tezPkh && !isTestnetMode) return [ETH_SAVING_OFFER];
-    if (!evmPkh || isTestnetMode) return [tezSavingOffer];
+    if (account.type === TempleAccountType.WatchOnly) return [];
+    if (!tezPkh) return [ethSavingOffer];
+    if (!evmPkh) return [tezSavingOffer];
 
-    return [tezSavingOffer, ETH_SAVING_OFFER];
+    return [tezSavingOffer, ethSavingOffer];
   }, [account, isTestnetMode]);
 
   const searchedSavingsOffers = useMemo(
