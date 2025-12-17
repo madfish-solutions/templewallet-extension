@@ -1,4 +1,4 @@
-import React, { FC, memo, useCallback, useEffect, useMemo } from 'react';
+import React, { memo, useCallback, useEffect, useMemo } from 'react';
 
 import retry from 'async-retry';
 
@@ -23,7 +23,7 @@ interface KoloCardWidgetModalProps {
   onRequestClose: EmptyFn;
 }
 
-export const KoloCardWidgetModal: FC<KoloCardWidgetModalProps> = memo(({ opened, onRequestClose }) => {
+export const KoloCardWidgetModal = memo(({ opened, onRequestClose }: KoloCardWidgetModalProps) => {
   const [widgetUrl, setWidgetUrl] = useSafeState<string | null>(null);
   const [loading, setLoading] = useSafeState(false);
   const [error, setError] = useSafeState<string | null>(null);
@@ -131,7 +131,7 @@ export const KoloCardWidgetModal: FC<KoloCardWidgetModalProps> = memo(({ opened,
 
 type KoloActionProps = ActionListItemProps & { key: string };
 
-const KoloActionsDropdown: FC<{ actions: KoloActionProps[] }> = ({ actions }) => (
+const KoloActionsDropdown = ({ actions }: { actions: KoloActionProps[] }) => (
   <Popper
     placement="bottom-start"
     strategy="fixed"
