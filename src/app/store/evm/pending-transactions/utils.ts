@@ -10,6 +10,6 @@ export const selectAllPendingTransfers = (state: RootState): PendingEvmTransfer[
   return Object.values(state.pendingEvmTransactions?.transfers ?? {});
 };
 
-export const selectAllPendingTransactions = (state: RootState): PendingEvmTransaction[] => {
+export const selectAllPendingOtherTransactions = (state: RootState): PendingEvmTransaction[] => {
   return Object.values(state.pendingEvmTransactions?.otherTransactions ?? {});
 };

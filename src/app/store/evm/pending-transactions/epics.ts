@@ -49,7 +49,7 @@ import {
   monitorPendingOtherTransactionsAction,
   updatePendingOtherTransactionStatusAction
 } from './actions';
-import { selectAllPendingSwaps, selectAllPendingTransactions, selectAllPendingTransfers } from './utils';
+import { selectAllPendingSwaps, selectAllPendingOtherTransactions, selectAllPendingTransfers } from './utils';
 
 const MAX_SWAP_STATUS_CHECK_ATTEMPTS = 50;
 
@@ -378,7 +378,7 @@ const monitorPendingOtherTransactionsEpic: Epic<Action, Action, RootState> = (ac
     ofType(monitorPendingOtherTransactionsAction),
     withLatestFrom(state$),
     mergeMap(([, state]) => {
-      const pendingTransactions = selectAllPendingTransactions(state);
+      const pendingTransactions = selectAllPendingOtherTransactions(state);
 
       return pendingTransactions.length === 0 ? EMPTY : from(pendingTransactions);
     }),
@@ -461,7 +461,7 @@ const cleanupOutdatedEvmPendingTransactionsEpic: Epic<Action, Action, RootState>
     mergeMap(([, state]) => {
       const pendingSwaps = selectAllPendingSwaps(state);
       const pendingTransfers = selectAllPendingTransfers(state);
-      const pendingTransactions = selectAllPendingTransactions(state);
+      const pendingTransactions = selectAllPendingOtherTransactions(state);
       const now = Date.now();
 
       const outdatedSwaps = pendingSwaps.filter(swap => now - swap.submittedAt > MAX_PENDING_SWAP_AGE);
