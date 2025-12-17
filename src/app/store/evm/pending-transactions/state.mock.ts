@@ -4,5 +4,6 @@ import { PendingEvmTransactionsState } from './state';
 
 export const mockPendingEvmTransactionsState = mockPersistedState<PendingEvmTransactionsState>({
   transfers: {},
-  swaps: {}
+  swaps: {},
+  otherTransactions: {}
 });
