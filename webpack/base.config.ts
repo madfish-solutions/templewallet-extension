@@ -199,7 +199,7 @@ export const buildBaseConfig = (): WebPack.Configuration & Pick<WebPack.WebpackO
     }),
     shouldDisableAds &&
       new WebPack.IgnorePlugin({
-        resourceRegExp: /^@temple-wallet\/extension-ads(\/.+)?$/
+        resourceRegExp: /^(@temple-wallet\/extension-ads(\/.+)?)|(\.\/update-rules-storage)$/
       }),
 
     new ModuleNotFoundPlugin(PATHS.SOURCE),

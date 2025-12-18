@@ -24,7 +24,7 @@
     "build:without-zip:firefox:core": "cross-env CORE_BUILD=true run-s build:without-zip:firefox",
     "build:opera": "cross-env TARGET_BROWSER=opera run-s build",
     "build:opera:core": "cross-env CORE_BUILD=true run-s build:opera",
-    "remove-ad-related-files": "rm -rf src/hypelab.embed.js src/replaceAds.ts src/replaceReferrals.ts src/content-scripts/replace-ads",
+    "remove-ad-related-files": "rm -rf src/hypelab.embed.js src/replaceAds.ts src/replaceReferrals.ts src/content-scripts/replace-ads src/content-scripts/utils.ts src/lib/ads/configure-ads.ts src/lib/ads/evm-chains-names.json src/lib/ads/update-rules-storage.ts",
     "test": "jest",
     "test:coverage": "jest --coverage",
     "ts": "tsc --pretty",

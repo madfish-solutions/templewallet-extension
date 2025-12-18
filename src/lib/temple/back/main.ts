@@ -5,7 +5,7 @@ import { ValidationError } from 'yup';
 
 import { getStoredAppInstallIdentity } from 'app/storage/app-install-id';
 import { importExtensionAdsReferralsModule } from 'lib/ads/import-extension-ads-module';
-import { updateRulesStorage } from 'lib/ads/update-rules-storage';
+import { importUpdateRulesStorageModule } from 'lib/ads/import-update-rules-storage';
 import {
   fetchReferralsAffiliateLinks,
   fetchReferralsRules,
@@ -405,6 +405,7 @@ browser.runtime.onMessage.addListener(async (msg, sender) => {
   try {
     switch (msg?.type) {
       case ContentScriptType.UpdateAdsRules:
+        const { updateRulesStorage } = await importUpdateRulesStorageModule();
         await updateRulesStorage();
         return;
 
