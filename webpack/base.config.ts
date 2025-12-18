@@ -211,7 +211,7 @@ export const buildBaseConfig = (): WebPack.Configuration & Pick<WebPack.WebpackO
       'process.env.MANIFEST_VERSION': JSON.stringify(String(MANIFEST_VERSION)),
       'process.env.BACKGROUND_IS_WORKER': JSON.stringify(String(BACKGROUND_IS_WORKER)),
       'process.env.TARGET_BROWSER': JSON.stringify(TARGET_BROWSER),
-      'process.env.DISABLE_ADS': String(shouldDisableAds),
+      'process.env.DISABLE_ADS': JSON.stringify(String(shouldDisableAds)),
       ...Object.fromEntries(
         Object.entries(envFilesData).map(([name, value]) => {
           const key = `process.env.${name}`;
