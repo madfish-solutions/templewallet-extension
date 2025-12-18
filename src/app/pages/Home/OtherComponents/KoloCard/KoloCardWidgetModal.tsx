@@ -17,6 +17,7 @@ import Popper from 'lib/ui/Popper';
 
 const KOLO_ABOUT_LINK = 'https://docs.templewallet.com/card/';
 const KOLO_SUPPORT_URL = 'https://t.me/KoloHelpBot';
+const KOLO_MOCK_EMAIL = 'example@gmail.com';
 
 interface KoloCardWidgetModalProps {
   opened: boolean;
@@ -27,12 +28,19 @@ export const KoloCardWidgetModal = memo(({ opened, onRequestClose }: KoloCardWid
   const [widgetUrl, setWidgetUrl] = useSafeState<string | null>(null);
   const [loading, setLoading] = useSafeState(false);
   const [error, setError] = useSafeState<string | null>(null);
+  const [emailOverride, setEmailOverride] = useSafeState<string | null>(null);
+  const [logoutReinitStage, setLogoutReinitStage] = useSafeState<0 | 1 | 2>(0);
 
   const handleLogout = useCallback(() => {
+    // 2-step re-init:
+    // stage 1: load once with mock email to drop KOLO session
+    // stage 2: auto reload without email, so KOLO can prefill from its account data
+    setLogoutReinitStage(1);
+    setEmailOverride(KOLO_MOCK_EMAIL);
     setWidgetUrl(null);
     setError(null);
     setLoading(false);
-  }, [setWidgetUrl, setError, setLoading]);
+  }, [setLogoutReinitStage, setEmailOverride, setWidgetUrl, setError, setLoading]);
 
   const dropdownActions = useMemo<KoloActionProps[]>(
     () => [
@@ -66,6 +74,8 @@ export const KoloCardWidgetModal = memo(({ opened, onRequestClose }: KoloCardWid
       setWidgetUrl(null);
       setError(null);
       setLoading(false);
+      setEmailOverride(null);
+      setLogoutReinitStage(0);
       return;
     }
 
@@ -78,6 +88,7 @@ export const KoloCardWidgetModal = memo(({ opened, onRequestClose }: KoloCardWid
         const url = await retry(
           () =>
             getKoloWidgetUrl({
+              email: emailOverride ?? undefined,
               isEmailLocked: false,
               themeColor: 'light',
               hideFeatures: [],
@@ -94,7 +105,27 @@ export const KoloCardWidgetModal = memo(({ opened, onRequestClose }: KoloCardWid
         setLoading(false);
       }
     })();
-  }, [opened, widgetUrl, loading, error, setLoading, setError, setWidgetUrl]);
+  }, [
+    opened,
+    widgetUrl,
+    loading,
+    error,
+    emailOverride,
+    setLoading,
+    setError,
+    setWidgetUrl,
+    setEmailOverride,
+    setLogoutReinitStage
+  ]);
+
+  const handleWidgetLoad = useCallback(() => {
+    if (logoutReinitStage !== 1) return;
+
+    setLogoutReinitStage(2);
+    setEmailOverride(null);
+    setWidgetUrl(null);
+    setError(null);
+  }, [logoutReinitStage, setLogoutReinitStage, setEmailOverride, setWidgetUrl, setError]);
 
   return (
     <PageModal
@@ -104,7 +135,7 @@ export const KoloCardWidgetModal = memo(({ opened, onRequestClose }: KoloCardWid
       titleLeft={opened ? <KoloActionsDropdown actions={dropdownActions} /> : null}
     >
       <div className="flex flex-col h-full">
-        {loading && (
+        {(loading || (logoutReinitStage === 1 && widgetUrl)) && (
           <div className="flex-grow flex items-center justify-center">
             <PageLoader />
           </div>
@@ -120,8 +151,9 @@ export const KoloCardWidgetModal = memo(({ opened, onRequestClose }: KoloCardWid
           <iframe
             src={widgetUrl}
             title="KOLO Card widget"
-            className="w-full flex-grow border-0"
+            className={`w-full flex-grow border-0 ${logoutReinitStage === 1 ? 'opacity-0 pointer-events-none' : ''}`}
             allow="clipboard-read; clipboard-write; autoplay; payment"
+            onLoad={handleWidgetLoad}
           />
         )}
       </div>
