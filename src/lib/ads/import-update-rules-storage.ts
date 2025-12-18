@@ -3,5 +3,5 @@ export const importUpdateRulesStorageModule = () => {
   // eslint-disable-next-line @typescript-eslint/prefer-ts-expect-error
   // @ts-ignore
   // eslint-disable-next-line import/no-unresolved
-  return import('./update-rules-storage');
+  return import('lib/ads/update-rules-storage');
 };

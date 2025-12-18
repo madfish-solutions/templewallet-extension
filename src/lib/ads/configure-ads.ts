@@ -3,17 +3,16 @@ import browser from 'webextension-polyfill';
 import { buildSwapPagePath } from 'app/pages/Swap/build-url-query';
 import { getDApp } from 'app/storage/dapps';
 import {
-  ADS_META_SEARCH_PARAM_NAME,
-  ADS_VIEWER_DATA_STORAGE_KEY,
   AD_CATEGORIES_PARAM_NAME,
+  ADS_META_SEARCH_PARAM_NAME,
   CHAIN_NAME_SEARCH_PARAM_NAME,
-  ContentScriptType,
   EVM_ACCOUNT_SEARCH_PARAM_NAME,
   FONT_SIZE_SEARCH_PARAM_NAME,
   LINE_HEIGHT_SEARCH_PARAM_NAME,
   ORIGIN_SEARCH_PARAM_NAME,
   THEME_COLOR_SEARCH_PARAM_NAME
-} from 'lib/constants';
+} from 'lib/ads-constants';
+import { ADS_VIEWER_DATA_STORAGE_KEY, ContentScriptType } from 'lib/constants';
 import { APP_VERSION, EnvVars, IS_MISES_BROWSER } from 'lib/env';
 import { fetchFromStorage } from 'lib/storage';
 import { TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
