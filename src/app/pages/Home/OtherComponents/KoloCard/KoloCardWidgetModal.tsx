@@ -12,6 +12,8 @@ import { ReactComponent as ExitIcon } from 'app/icons/base/exit.svg';
 import { ReactComponent as InfoIcon } from 'app/icons/base/info.svg';
 import { ReactComponent as MenuCircleIcon } from 'app/icons/base/menu_circle.svg';
 import { getKoloWidgetUrl } from 'lib/apis/temple';
+import { KOLO_FORCE_LOGOUT_ON_NEXT_OPEN_STORAGE_KEY } from 'lib/constants';
+import { useStorage } from 'lib/temple/front';
 import { useSafeState } from 'lib/ui/hooks';
 import Popper from 'lib/ui/Popper';
 
@@ -29,12 +31,18 @@ export const KoloCardWidgetModal = memo(({ opened, onRequestClose }: KoloCardWid
   const [loading, setLoading] = useSafeState(false);
   const [error, setError] = useSafeState<string | null>(null);
   const [emailOverride, setEmailOverride] = useSafeState<string | null>(null);
+  const [forceLogoutOnNextOpen, setForceLogoutOnNextOpen] = useStorage<boolean>(
+    KOLO_FORCE_LOGOUT_ON_NEXT_OPEN_STORAGE_KEY,
+    false
+  );
   const [logoutReinitStage, setLogoutReinitStage] = useSafeState<0 | 1 | 2>(0);
 
   const handleLogout = useCallback(() => {
-    // 2-step re-init:
-    // stage 1: load once with mock email to drop KOLO session
-    // stage 2: auto reload without email, so KOLO can prefill from its account data
+    /*
+     2-step re-init:
+     stage 1: load once with mock email to drop KOLO session
+     stage 2: auto reload without email, so KOLO can prefill from its account data
+    */
     setLogoutReinitStage(1);
     setEmailOverride(KOLO_MOCK_EMAIL);
     setWidgetUrl(null);
@@ -81,6 +89,12 @@ export const KoloCardWidgetModal = memo(({ opened, onRequestClose }: KoloCardWid
 
     if (widgetUrl || loading || error) return;
 
+    if (forceLogoutOnNextOpen && logoutReinitStage === 0) {
+      setLogoutReinitStage(1);
+      setEmailOverride(KOLO_MOCK_EMAIL);
+      return;
+    }
+
     setLoading(true);
 
     void (async () => {
@@ -111,6 +125,8 @@ export const KoloCardWidgetModal = memo(({ opened, onRequestClose }: KoloCardWid
     loading,
     error,
     emailOverride,
+    forceLogoutOnNextOpen,
+    logoutReinitStage,
     setLoading,
     setError,
     setWidgetUrl,
@@ -121,11 +137,12 @@ export const KoloCardWidgetModal = memo(({ opened, onRequestClose }: KoloCardWid
   const handleWidgetLoad = useCallback(() => {
     if (logoutReinitStage !== 1) return;
 
+    void setForceLogoutOnNextOpen(false);
     setLogoutReinitStage(2);
     setEmailOverride(null);
     setWidgetUrl(null);
     setError(null);
-  }, [logoutReinitStage, setLogoutReinitStage, setEmailOverride, setWidgetUrl, setError]);
+  }, [logoutReinitStage, setForceLogoutOnNextOpen, setLogoutReinitStage, setEmailOverride, setWidgetUrl, setError]);
 
   return (
     <PageModal
