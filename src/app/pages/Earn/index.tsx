@@ -20,9 +20,7 @@ export const Earn = memo(() => {
   const savingsItems = useMemo(() => {
     const items = savingsOffers.map(toRenderItem);
 
-    if (!items.length) return items;
-
-    return withPromo(items);
+    return items.length ? withPromo(items) : items;
   }, [savingsOffers]);
 
   const savingsAvailable = useMemo(() => savingsItems.length > 0, [savingsItems.length]);

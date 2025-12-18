@@ -57,7 +57,7 @@ const DepositContent: FC<DepositContentProps> = ({ evmAddress }) => {
     } = stats;
 
     const pendingStaked = BigNumber.sum(pendingBalanceOf, pendingDepositedBalanceOf, pendingRestakedRewardOf);
-    const amount = BigNumber.sum(depositedBalanceOf, restakedRewardOf).plus(pendingStaked);
+    const amount = BigNumber.sum(depositedBalanceOf, restakedRewardOf, pendingStaked);
 
     if (amount.lte(0)) return;
 

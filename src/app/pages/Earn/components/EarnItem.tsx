@@ -33,9 +33,7 @@ export const EarnItem = memo<EarnOfferItemProps>(({ offer, deposit }) => {
     let finalDisplayYield = offer.displayYield;
 
     if (dynamicApyRate) {
-      const rate = Number(new BigNumber(dynamicApyRate).decimalPlaces(2));
-
-      finalDisplayYield = `${rate}% APY`;
+      finalDisplayYield = `${new BigNumber(dynamicApyRate).decimalPlaces(2).toFixed()}% APY`;
     }
 
     return { ...offer, displayYield: finalDisplayYield };

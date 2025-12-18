@@ -50,39 +50,33 @@ export const getEthSavingOffer = (isTestnetMode: boolean) => {
   };
 };
 
+const YOUVES_OFFER_COMMON_PROPERTIES = {
+  name: 'Youves',
+  link: YOUVES_REFFERAL_LINK,
+  chainKind: TempleChainKind.Tezos,
+  chainId: TEZOS_MAINNET_CHAIN_ID,
+  providerIcon: YouvesIcon,
+  isExternal: true
+};
+
 export const EXTERNAL_OFFERS: EarnOffer[] = [
   {
     id: 'youves-uusd',
-    link: YOUVES_REFFERAL_LINK,
     symbol: 'uUSD',
-    name: 'Youves',
-    chainKind: TempleChainKind.Tezos,
-    chainId: TEZOS_MAINNET_CHAIN_ID,
     assetSlug: KNOWN_TOKENS_SLUGS.UUSD,
-    providerIcon: YouvesIcon,
-    isExternal: true
+    ...YOUVES_OFFER_COMMON_PROPERTIES
   },
   {
     id: 'youves-ubtc',
-    link: YOUVES_REFFERAL_LINK,
     symbol: 'uBTC',
-    name: 'Youves',
-    chainKind: TempleChainKind.Tezos,
-    chainId: TEZOS_MAINNET_CHAIN_ID,
     assetSlug: KNOWN_TOKENS_SLUGS.UBTC,
-    providerIcon: YouvesIcon,
-    isExternal: true
+    ...YOUVES_OFFER_COMMON_PROPERTIES
   },
   {
     id: 'youves-you',
-    link: YOUVES_REFFERAL_LINK,
     symbol: 'YOU',
-    name: 'Youves',
-    chainKind: TempleChainKind.Tezos,
-    chainId: TEZOS_MAINNET_CHAIN_ID,
     assetSlug: KNOWN_TOKENS_SLUGS.YOU,
-    providerIcon: YouvesIcon,
-    isExternal: true
+    ...YOUVES_OFFER_COMMON_PROPERTIES
   },
   {
     id: 'applefarm-usdc',
