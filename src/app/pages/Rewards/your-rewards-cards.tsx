@@ -13,7 +13,7 @@ import { TEMPLE_BAKERY_PAYOUT_ADDRESS, TEMPLE_REWARDS_PAYOUT_ADDRESS } from 'app
 import { advancedFeaturesInfoTippyProps } from 'app/pages/Rewards/tooltip';
 import { fetchTokenTransfers } from 'lib/apis/tzkt/api';
 import { PREDEFINED_TOKENS_METADATA } from 'lib/assets/known-tokens';
-import { IS_MISES_BROWSER } from 'lib/env';
+import { DISABLE_ADS, IS_MISES_BROWSER } from 'lib/env';
 import { t, T } from 'lib/i18n';
 import { TEMPLE_BAKER_ADDRESS } from 'lib/known-bakers';
 import { useDelegate } from 'lib/temple/front';
@@ -183,7 +183,7 @@ export const YourRewardsCards = memo(() => {
             <div className="justify-center items-center flex h-[42px]">
               <Loader size="L" trackVariant="dark" className="text-secondary" />
             </div>
-          ) : !isAdvertisingEnabled && !referralsEnabled ? (
+          ) : !isAdvertisingEnabled && !referralsEnabled && !DISABLE_ADS ? (
             <p className="text-font-description text-grey-1">{t('passivelyEarnTkey')}</p>
           ) : !tkeyStats || tkeyStats.total === 0 ? (
             <div className="justify-center items-center flex h-[42px]">

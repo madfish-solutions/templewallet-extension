@@ -25,14 +25,13 @@ import {
   MANIFEST_VERSION,
   BACKGROUND_IS_WORKER,
   RELOADER_PORTS,
-  MAX_JS_CHUNK_SIZE_IN_BYTES,
-  IS_CORE_BUILD
+  MAX_JS_CHUNK_SIZE_IN_BYTES
 } from './webpack/env';
 import { buildManifest } from './webpack/manifest';
-import { PATHS, IFRAMES } from './webpack/paths';
+import { PATHS } from './webpack/paths';
 // import { CheckUnusedFilesPlugin } from './webpack/plugins/check-unused';
 import usePagesLiveReload from './webpack/plugins/live-reload';
-import { isTruthy } from './webpack/utils';
+import { IFRAMES, isTruthy, shouldDisableAds } from './webpack/utils';
 
 const ExtensionReloaderMV3 = ExtensionReloaderMV3BadlyTyped as ExtensionReloaderMV3Type;
 
@@ -134,7 +133,7 @@ const mainConfig = (() => {
             See: https://github.com/vercel/next.js/issues/22581
           */
           { from: PATHS.LIBTHEMIS_WASM_FILE, to: PATHS.OUTPUT_WASM },
-          { from: PATHS.HYPELAB_EMBED_FILE, to: PATHS.OUTPUT_HYPELAB_EMBED }
+          ...(shouldDisableAds ? [] : [{ from: PATHS.HYPELAB_EMBED_FILE, to: PATHS.OUTPUT_HYPELAB_EMBED }])
         ]
       }),
 
@@ -178,7 +177,7 @@ const scriptsConfig = (() => {
     main: Path.join(PATHS.SOURCE, 'content-scripts/main.ts'),
     inpage: Path.join(PATHS.SOURCE, 'content-scripts/inpage.ts')
   };
-  if (!IS_CORE_BUILD) {
+  if (!shouldDisableAds) {
     config.entry.replaceAds = Path.join(PATHS.SOURCE, 'replaceAds.ts');
     config.entry.replaceReferrals = Path.join(PATHS.SOURCE, 'replaceReferrals.ts');
   }

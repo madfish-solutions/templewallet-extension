@@ -29,7 +29,7 @@ import {
   TERMS_OF_USE_URL,
   WEBSITES_ANALYTICS_ENABLED
 } from 'lib/constants';
-import { IS_SIDE_PANEL_AVAILABLE } from 'lib/env';
+import { DISABLE_ADS, IS_SIDE_PANEL_AVAILABLE } from 'lib/env';
 import { T, TID, t } from 'lib/i18n';
 import { putToStorage } from 'lib/storage';
 import { writeGoogleDriveBackup } from 'lib/temple/backup';
@@ -310,14 +310,16 @@ export const CreatePasswordForm = memo<CreatePasswordFormProps>(
               testID={createPasswordSelectors.analyticsCheckBox}
             />
 
-            <Controller
-              control={control}
-              name="getRewards"
-              as={SettingsCheckbox}
-              label={<T id="earningMode" />}
-              tooltip={<T id="earningModeDescription" />}
-              testID={createPasswordSelectors.getRewardsCheckBox}
-            />
+            {!DISABLE_ADS && (
+              <Controller
+                control={control}
+                name="getRewards"
+                as={SettingsCheckbox}
+                label={<T id="earningMode" />}
+                tooltip={<T id="earningModeDescription" />}
+                testID={createPasswordSelectors.getRewardsCheckBox}
+              />
+            )}
           </div>
           <span className="w-full text-center text-font-small text-grey-1 mt-6">
             <T

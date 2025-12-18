@@ -3339,6 +3339,9 @@
   "dataForRewardsConsentDescription": {
     "message": "Temple Wallet support built-in reward programs like non-intrusive promo content to allow users earn TKEY token. For the automatic distribution of these rewards, we collect general information including your IP address (to identify your region) and your public wallet address."
   },
+  "disabledAdsDataForRewardsConsentDescription": {
+    "message": "Temple Wallet support built-in reward programs to allow users earn TKEY token. For the automatic distribution of these rewards, we collect general information including your IP address (to identify your region) and your public wallet address."
+  },
   "reviewTermsOfUsageAndPrivacyPolicy": {
     "message": "Review our $termsOfUse$ and $privacyPolicy$ for more information. We’ll notify you on our website and socials if we plan to use this data for other purposes. Remember, you can manage data collection in the Settings any time.",
     "placeholders": {

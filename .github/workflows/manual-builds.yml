@@ -28,6 +28,10 @@ on:
         type: boolean
         description: Firefox build
         required: false
+      removeAdsForFirefox:
+        type: boolean
+        description: Remove ads for Firefox
+        required: false
 
 jobs:
   additional-builds:
@@ -155,6 +159,10 @@ jobs:
           path: e2e/test-results/video-result.webm
           channel: temple-test-runs
           initial_comment: <https://github.com/madfish-solutions/templewallet-extension/pull/${{ github.event.number }}|${{ github.event.pull_request.title }}>  (Run <https://github.com/madfish-solutions/templewallet-extension/actions/runs/${{ github.run_id }}|№${{ github.run_number }}>)
+
+      - name: Remove ad-related files
+        if: ${{ github.event.inputs.removeAdsForFirefox == 'true' }}
+        run: yarn remove-ad-related-files
 
       - name: Create Firefox build
         if: ${{ github.event.inputs.firefox == 'true' && github.event.inputs.core != 'true'}}
