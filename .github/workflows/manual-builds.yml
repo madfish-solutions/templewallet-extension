@@ -1,5 +1,5 @@
 name: Manual builds
-run-name: Manual build of ${{ github.ref_name }} (Chrome=${{ github.event.inputs.chrome == 'true' || github.event.inputs.chromePlusE2E == 'true' }}; Firefox=${{ github.event.inputs.firefox == 'true' }}; E2E=${{ github.event.inputs.chromePlusE2E == 'true' }}; Core=${{ github.event.inputs.core == 'true' }} ; Prod=${{ github.event.inputs.prod == 'true' }})
+run-name: Manual build of ${{ github.ref_name }} (Chrome=${{ github.event.inputs.chrome == 'true' || github.event.inputs.chromePlusE2E == 'true' }}; Firefox=${{ github.event.inputs.firefox == 'true' }}; E2E=${{ github.event.inputs.chromePlusE2E == 'true' }}; Core=${{ github.event.inputs.core == 'true' }} ; Prod=${{ github.event.inputs.prod == 'true' }}; removeAdsForFirefox=${{ github.event.inputs.removeAdsForFirefox == 'true' }})
 
 on:
   workflow_dispatch:
