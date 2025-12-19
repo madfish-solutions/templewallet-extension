@@ -200,7 +200,7 @@ export const buildBaseConfig = (): WebPack.Configuration & Pick<WebPack.WebpackO
     shouldDisableAds &&
       new WebPack.IgnorePlugin({
         resourceRegExp:
-          /^(@temple-wallet\/extension-ads(\/.+)?)|(lib\/ads\/update-rules-storage)|(app\/templates\/partners-promotion\/partners-promotion)$/
+          /^(?:@temple-wallet\/extension-ads(?:\/.+)?|lib\/ads\/update-rules-storage|app\/templates\/partners-promotion\/partners-promotion|app\/load-hypelab-script\/component)$/
       }),
 
     new ModuleNotFoundPlugin(PATHS.SOURCE),

@@ -17,7 +17,8 @@ const fs = require('node:fs');
   'src/app/hooks/ads',
   'src/lib/ads-constants.ts',
   'src/lib/ads/index.ts',
-  'src/lib/ads/persona.ts'
+  'src/lib/ads/persona.ts',
+  'src/app/load-hypelab-script/component.ts'
 ].forEach(file => {
   try {
     fs.rmSync(file, { force: true, recursive: true });
