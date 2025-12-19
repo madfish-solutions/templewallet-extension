@@ -3,6 +3,7 @@ import React, { FC, memo, ReactNode } from 'react';
 import clsx from 'clsx';
 
 import { AnimatedMenuChevron } from 'app/atoms/animated-menu-chevron';
+import { KoloCryptoCardPreview } from 'app/pages/Home/OtherComponents/KoloCard/KoloCryptoCardPreview';
 import { EvmAssetIconWithNetwork, TezosAssetIconWithNetwork } from 'app/templates/AssetIcon';
 import { EVM_TOKEN_SLUG, TEZ_TOKEN_SLUG } from 'lib/assets/defaults';
 import { ETHEREUM_APR, TEZOS_APY } from 'lib/constants';
@@ -15,18 +16,21 @@ import { HomeSelectors } from '../../selectors';
 
 interface EarnSectionProps {
   className?: string;
+  openCryptoCardModal: EmptyFn;
 }
 
-export const EarnSection = memo<EarnSectionProps>(({ className }) => {
+export const EarnSection = memo<EarnSectionProps>(({ className, openCryptoCardModal }) => {
   const { animatedChevronRef, handleHover, handleUnhover } = useActivateAnimatedChevron();
 
   return (
     <div className={clsx('flex flex-col relative pb-[68px]', className)}>
-      <CryptoCardPlaceholder />
+      <KoloCryptoCardPreview onClick={openCryptoCardModal} />
 
       <Link
         to="/earn"
-        className="relative -mb-[68px] px-4"
+        className={
+          'relative -mb-[68px] px-4 transform transition-transform duration-200 ease-out peer-hover:translate-y-2'
+        }
         onMouseEnter={handleHover}
         onMouseLeave={handleUnhover}
         testID={HomeSelectors.earnSectionCard}
@@ -75,19 +79,5 @@ const EarnOpportunityItem: FC<EarnOpportunityItemProps> = ({ Icon, symbol, displ
       <span className="text-font-description-bold">{symbol}</span>
       <span className="text-font-num-12 text-grey-1">{displayRate}</span>
     </div>
-  </div>
-);
-
-/**
- * TODO: Replace with actual implementation.
- */
-const CryptoCardPlaceholder = () => (
-  <div
-    className="h-24 mx-6 -mb-[68px] rounded-8 px-4 py-3"
-    style={{
-      background: 'linear-gradient(136deg, #FF5B00 -2.06%, #F4BE38 103.52%)'
-    }}
-  >
-    <span className="text-font-description-bold text-white">Crypto card</span>
   </div>
 );
