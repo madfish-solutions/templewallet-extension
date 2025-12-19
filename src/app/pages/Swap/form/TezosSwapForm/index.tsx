@@ -8,6 +8,7 @@ import { FormProvider, useForm } from 'react-hook-form-v7';
 
 import { DeadEndBoundaryError } from 'app/ErrorBoundary';
 import { EXCHANGE_XTZ_RESERVE } from 'app/pages/Swap/constants';
+import { useSwapFormControl } from 'app/pages/Swap/context';
 import { BaseSwapForm } from 'app/pages/Swap/form/BaseSwapForm';
 import { ChainAssetInfo, SwapFieldName, TezosReviewData } from 'app/pages/Swap/form/interfaces';
 import { SwapFormValue, SwapInputValue } from 'app/pages/Swap/form/SwapForm.form';
@@ -17,6 +18,7 @@ import { dispatch, useSelector } from 'app/store';
 import { setOnRampAssetAction } from 'app/store/settings/actions';
 import { loadSwapParamsAction } from 'app/store/swap/actions';
 import { useSwapParamsSelector, useSwapTokenSelector, useSwapTokensSelector } from 'app/store/swap/selectors';
+import { usePendingTezosTransactionsHashes } from 'app/store/tezos/pending-transactions/utils';
 import OperationStatus from 'app/templates/OperationStatus';
 import { toastError, toastUniqWarning } from 'app/toaster';
 import { useFormAnalytics } from 'lib/analytics';
@@ -88,6 +90,7 @@ export const TezosSwapForm: FC<TezosSwapFormProps> = ({
 
   const publicKeyHash = account.address;
   const tezos = getTezosToolkitWithSigner(network, publicKeyHash);
+  const swapFormControl = useSwapFormControl();
 
   const { route3tokensSlugs } = useAvailableRoute3TokensSlugs();
   useTezosTokensMetadataPresenceCheck(network, route3tokensSlugs);
@@ -294,6 +297,29 @@ export const TezosSwapForm: FC<TezosSwapFormProps> = ({
 
   const resetForm = useCallback(() => void reset(defaultValues), [defaultValues, reset]);
 
+  useEffect(() => {
+    if (!swapFormControl) return;
+    const next = {
+      ...(swapFormControl.current ?? {}),
+      resetForm,
+      setTezosOperation: setOperation
+    };
+    swapFormControl.current = next;
+
+    return () => {
+      if (swapFormControl.current?.resetForm === resetForm) {
+        const updated = { ...(swapFormControl.current ?? {}) };
+        delete updated.resetForm;
+        swapFormControl.current = updated;
+      }
+      if (swapFormControl.current?.setTezosOperation === setOperation) {
+        const updated = { ...(swapFormControl.current ?? {}) };
+        delete updated.setTezosOperation;
+        swapFormControl.current = updated;
+      }
+    };
+  }, [swapFormControl, resetForm, setOperation]);
+
   const handleInputChange = useCallback(
     (newInputValue: SwapInputValue) => {
       const currentFormState = getValues();
@@ -420,14 +446,23 @@ export const TezosSwapForm: FC<TezosSwapFormProps> = ({
     targetAssetInfo?.chainId
   ]);
 
+  const pendingTxHashes = usePendingTezosTransactionsHashes(publicKeyHash, network.chainId);
+  const otherOperationsPending = pendingTxHashes.length > 0;
+
   const onSubmit = useCallback(async () => {
     if (formState.isSubmitting) return;
+
+    if (otherOperationsPending) {
+      toastError(t('otherOperationsPendingError'));
+
+      return;
+    }
 
     if (
       inputValue.assetSlug === TEZ_TOKEN_SLUG &&
       getTezosBalance(TEZOS_MAINNET_CHAIN_ID, TEZ_TOKEN_SLUG)?.lte(EXCHANGE_XTZ_RESERVE)
     ) {
-      dispatch(setOnRampAssetAction(TEZOS_CHAIN_ASSET_SLUG));
+      dispatch(setOnRampAssetAction({ chainAssetSlug: TEZOS_CHAIN_ASSET_SLUG }));
 
       return;
     }
@@ -660,7 +695,8 @@ export const TezosSwapForm: FC<TezosSwapFormProps> = ({
     slippageRatio,
     swapParams.data,
     tezos,
-    toRoute3Token
+    toRoute3Token,
+    otherOperationsPending
   ]);
 
   return (
@@ -692,6 +728,7 @@ export const TezosSwapForm: FC<TezosSwapFormProps> = ({
         minimumReceivedAmount={minimumReceivedAtomic}
         swapParamsAreLoading={swapParams.isLoading}
         swapRouteSteps={swapRouteSteps}
+        provider="3route"
         setIsFiatMode={v => setValue('isFiatMode', v)}
         parseFiatValueToAssetAmount={parseFiatValueToAssetAmount}
         onInputChange={handleInputChange}

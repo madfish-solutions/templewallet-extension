@@ -1,18 +1,12 @@
 import { useEffect, useState } from 'react';
 
-import { forkJoin } from 'rxjs';
+import { transform } from 'lodash';
+import { from } from 'rxjs';
 
 import { dispatch } from 'app/store';
 import { useTezosUsdToTokenRatesSelector } from 'app/store/currency/selectors';
 import { loadTokensApyActions } from 'app/store/d-apps/actions';
-import {
-  fetchKUSDApy$,
-  fetchTzBtcApy$,
-  fetchUBTCApr$,
-  fetchUSDTApy$,
-  fetchUUSDCApr$,
-  fetchYOUApr$
-} from 'app/store/d-apps/utils';
+import { YouvesStatsResponse, getYouvesStats } from 'lib/apis/temple/endpoints/get-youves-stats';
 import { useTezosMainnetChain } from 'temple/front';
 
 export const useTokensApyLoading = () => {
@@ -22,15 +16,18 @@ export const useTokensApyLoading = () => {
   const [tokensApy, setTokensApy] = useState({});
 
   useEffect(() => {
-    const subscription = forkJoin([
-      fetchTzBtcApy$(),
-      fetchKUSDApy$(),
-      fetchUSDTApy$(),
-      fetchUUSDCApr$(chain),
-      fetchUBTCApr$(chain),
-      fetchYOUApr$(chain, usdToTokenRates)
-    ]).subscribe(responses => {
-      setTokensApy(Object.assign({}, ...responses));
+    const subscription = from(getYouvesStats()).subscribe(({ apr: youvesAprs }) => {
+      setTokensApy(
+        transform<YouvesStatsResponse['apr'], StringRecord<number>>(
+          youvesAprs,
+          (acc, curr, key) => {
+            acc[key] = typeof curr === 'number' ? curr : curr.v3;
+
+            return acc;
+          },
+          {}
+        )
+      );
     });
 
     return () => subscription.unsubscribe();

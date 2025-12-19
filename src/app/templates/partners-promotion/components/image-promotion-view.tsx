@@ -18,7 +18,7 @@ interface Props extends PropsWithChildren {
   pageName: string;
   backgroundAssetUrl?: string;
   backgroundAssetType?: 'image' | 'video';
-  onAdRectSeen: EmptyFn;
+  onAdRectVisible: SyncFn<boolean>;
 }
 
 export const ImagePromotionView = memo<Props>(
@@ -31,10 +31,10 @@ export const ImagePromotionView = memo<Props>(
     pageName,
     backgroundAssetUrl,
     backgroundAssetType = 'image',
-    onAdRectSeen
+    onAdRectVisible
   }) => {
     const ref = useRef<HTMLAnchorElement>(null);
-    useAdRectObservation(ref, onAdRectSeen, isVisible);
+    useAdRectObservation(ref, onAdRectVisible, isVisible);
 
     const testIDProperties = useMemo(
       () => buildAdClickAnalyticsProperties(PartnersPromotionVariant.Image, providerTitle, pageName, accountPkh, href),

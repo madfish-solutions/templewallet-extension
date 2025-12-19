@@ -8,7 +8,9 @@ import {
   ETH_SEPOLIA_CHAIN_ID,
   COMMON_MAINNET_CHAIN_IDS,
   TempleTezosChainId,
-  COMMON_TESTNET_CHAIN_IDS
+  COMMON_TESTNET_CHAIN_IDS,
+  ETHERLINK_MAINNET_CHAIN_ID,
+  ETHEREUM_HOODI_CHAIN_ID
 } from 'lib/temple/types';
 
 import { TempleChainKind } from './types';
@@ -214,6 +216,11 @@ export const EVM_FALLBACK_RPC_URLS: Record<number, string[]> = {
     'https://sepolia.drpc.org',
     'https://1rpc.io/sepolia'
   ],
+  [ETHEREUM_HOODI_CHAIN_ID]: [
+    'https://0xrpc.io/hoodi',
+    'https://rpc.hoodi.ethpandaops.io',
+    'https://ethereum-hoodi.gateway.tatum.io'
+  ],
   [COMMON_TESTNET_CHAIN_IDS.polygon]: [
     'https://polygon-amoy-bor-rpc.publicnode.com',
     'https://rpc-amoy.polygon.technology',
@@ -324,7 +331,7 @@ export const EVM_DEFAULT_NETWORKS: NonEmptyArray<StoredEvmNetwork> = [
     id: 'etherlink-mainnet',
     name: 'Etherlink',
     chain: TempleChainKind.EVM,
-    chainId: COMMON_MAINNET_CHAIN_IDS.etherlink,
+    chainId: ETHERLINK_MAINNET_CHAIN_ID,
     rpcBaseURL: ETHERLINK_RPC_URL,
     description: 'Etherlink Mainnet',
     color: '#207449',
@@ -347,6 +354,15 @@ export const EVM_DEFAULT_NETWORKS: NonEmptyArray<StoredEvmNetwork> = [
     chainId: ETH_SEPOLIA_CHAIN_ID,
     rpcBaseURL: EVM_FALLBACK_RPC_URLS[ETH_SEPOLIA_CHAIN_ID][0],
     color: '#010b79',
+    default: true
+  },
+  {
+    id: 'eth-hoodi',
+    name: 'Ethereum Hoodi',
+    chain: TempleChainKind.EVM,
+    chainId: ETHEREUM_HOODI_CHAIN_ID,
+    rpcBaseURL: EVM_FALLBACK_RPC_URLS[ETHEREUM_HOODI_CHAIN_ID][0],
+    color: '#010b69',
     default: true
   },
   {

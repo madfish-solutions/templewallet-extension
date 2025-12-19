@@ -12,7 +12,7 @@ import { DEFAULT_RPC_INDEX, TEZOS_FALLBACK_RPC_URLS, TezosNetworkEssentials } fr
 
 import { getTezosFastRpcClient } from './utils';
 
-export { TEZOS_CONFIRMATION_TIMED_OUT_ERROR_MSG, confirmTezosOperation } from './confirmation';
+export * from './confirmation';
 
 export const michelEncoder = new MichelCodecPacker();
 

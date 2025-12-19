@@ -1,8 +1,11 @@
 import React, { memo, useCallback, useMemo } from 'react';
 
+import BigNumber from 'bignumber.js';
+
 import { PageModal } from 'app/atoms/PageModal';
+import { useUnstakeRequests } from 'app/hooks/use-baking-hooks';
+import { TEZ_TOKEN_SLUG } from 'lib/assets';
 import { T } from 'lib/i18n';
-import { NullComponent } from 'lib/ui/null-component';
 import { showTxSubmitToastWithDelay } from 'lib/ui/show-tx-submit-toast.util';
 import { AccountForTezos } from 'temple/accounts';
 import { TezosChain } from 'temple/front';
@@ -23,6 +26,7 @@ interface FinalizeModalProps {
 
 export const FinalizeModal = memo<FinalizeModalProps>(({ account, network, onClose }) => {
   const explorerBaseUrl = useBlockExplorerUrl(network);
+  const { data: requests } = useUnstakeRequests(network, account.address, true);
 
   const handleConfirm = useCallback(
     (hash: string) => {
@@ -34,13 +38,32 @@ export const FinalizeModal = memo<FinalizeModalProps>(({ account, network, onClo
 
   const reviewData = useMemo(() => ({ account, network, onConfirm: handleConfirm }), [account, handleConfirm, network]);
 
+  const balancesChanges = useMemo(
+    () =>
+      requests && requests.finalizable.length > 0
+        ? [
+            {
+              [TEZ_TOKEN_SLUG]: {
+                atomicAmount: BigNumber.sum(0, ...requests.finalizable.map(req => req.amount)),
+                isNft: false
+              }
+            }
+          ]
+        : [],
+    [requests]
+  );
+
+  if (!requests) {
+    return null;
+  }
+
   return (
     <PageModal title={<T id="finalizeUnstake" />} opened titleLeft={null} onRequestClose={onClose}>
       <ConfirmEarnOperationContent
         getBasicParamsSWRKey={getBasicParamsSWRKey}
         formId="confirm-finalize-form"
+        balancesChanges={balancesChanges}
         reviewData={reviewData}
-        renderTopElement={NullComponent}
         cancelTestID={FinalizeModalSelectors.cancelButton}
         confirmTestID={FinalizeModalSelectors.confirmButton}
         getBasicParams={getBasicFinalizationParams}

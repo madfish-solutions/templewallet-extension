@@ -1,6 +1,7 @@
-import { ChainAssetInfo } from 'app/pages/Swap/form/interfaces';
-import { SwapFormValue } from 'app/pages/Swap/form/SwapForm.form';
 import { FilterChain } from 'app/store/assets-filter-options/state';
+
+import { ChainAssetInfo } from './interfaces';
+import { SwapFormValue } from './SwapForm.form';
 
 export function getDefaultSwapFormValues(
   sourceAssetInfo: ChainAssetInfo | null,

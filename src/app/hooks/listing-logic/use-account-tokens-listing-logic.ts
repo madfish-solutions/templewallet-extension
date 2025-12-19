@@ -135,7 +135,7 @@ export const useAccountTokensListingLogic = (
   const evmMetadatasLoading = useEvmTokensMetadataLoadingSelector();
   const exchangeRatesLoading = useEvmTokensExchangeRatesLoading();
 
-  const { searchValue, searchValueDebounced, setSearchValue, isInSearchMode, isSyncing } = useCommonAssetsListingLogic(
+  const { searchValueDebounced, isInSearchMode, isSyncing } = useCommonAssetsListingLogic(
     tezAssetsAreLoading || tezMetadatasLoading || evmBalancesLoading || evmMetadatasLoading || exchangeRatesLoading
   );
 
@@ -192,8 +192,6 @@ export const useAccountTokensListingLogic = (
     displayedGroupedSlugs,
     isSyncing,
     loadNextGrouped,
-    loadNextPlain,
-    searchValue,
-    setSearchValue
+    loadNextPlain
   };
 };

@@ -2,11 +2,11 @@ import React, { memo, useCallback, useMemo, useState } from 'react';
 
 import { omit } from 'lodash';
 import { FormProvider } from 'react-hook-form-v7';
-import { TransactionRequest, formatTransactionRequest } from 'viem';
+import { TransactionRequest, decodeFunctionData, formatTransactionRequest } from 'viem';
 
 import { HashChip } from 'app/atoms/HashChip';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
-import { EvmOperationKind, getOperationKind } from 'lib/evm/on-chain/transactions';
+import { EvmOperationKind, approveAbis, getOperationKind } from 'lib/evm/on-chain/transactions';
 import { equalsIgnoreCase } from 'lib/evm/on-chain/utils/common.utils';
 import { parseEvmTxRequest } from 'lib/evm/on-chain/utils/parse-evm-tx-request';
 import { T } from 'lib/i18n';
@@ -141,6 +141,20 @@ const EvmTransactionViewBody = memo<EvmTransactionViewProps>(
 
     const [approvesLoading, setApprovesLoading] = useState(operationKind === EvmOperationKind.Approval);
 
+    const destinationHash = useMemo(() => {
+      if (!req.to) return null;
+
+      if (operationKind === EvmOperationKind.Approval && req.data) {
+        try {
+          return decodeFunctionData({ abi: approveAbis, data: req.data }).args[0];
+        } catch {
+          // not an approval transaction
+        }
+      }
+
+      return req.to;
+    }, [req, operationKind]);
+
     return (
       <FormProvider {...form}>
         <OperationViewLayout
@@ -166,7 +180,7 @@ const EvmTransactionViewBody = memo<EvmTransactionViewProps>(
               )
             ) : null
           }
-          destinationValue={req.to ? <HashChip hash={req.to} /> : null}
+          destinationValue={destinationHash ? <HashChip hash={destinationHash} /> : null}
           sendingAccount={sendingAccount}
           balancesChanges={balancesChanges || {}}
           metadataLoading={metadataLoading}

@@ -1,15 +1,20 @@
-import { StepToolDetails, Route, LiFiStep } from '@lifi/sdk';
+import { StepToolDetails, Route as LiFiRoute, LiFiStep } from '@lifi/sdk';
 import { WalletParamsWithKind } from '@taquito/taquito';
 import { BatchWalletOperation } from '@taquito/taquito/dist/types/wallet/batch-operation';
 import BigNumber from 'bignumber.js';
 
+import { Route3EvmRoute } from 'lib/apis/temple/endpoints/evm/api.interfaces';
 import {
   EvmReviewData as GenericEvmReviewData,
   TezosReviewData as GenericTezosReviewData
 } from 'lib/temple/front/estimation-data-providers';
+import { ETHERLINK_MAINNET_CHAIN_ID } from 'lib/temple/types';
 import { AccountForChain } from 'temple/accounts';
 import { EvmChain } from 'temple/front';
+import { NetworkEssentials } from 'temple/networks';
 import { TempleChainKind } from 'temple/types';
+
+export type { Route3EvmRoute } from 'lib/apis/temple/endpoints/evm/api.interfaces';
 
 export type BridgeDetails = {
   tools: StepToolDetails[];
@@ -29,12 +34,12 @@ export interface EvmStepReviewData {
     amount: string;
     symbol: string;
   };
-  routeStep: LiFiStep;
+  routeStep: LiFiStep | Route3EvmRoute;
 }
 
 interface EvmSwapReviewData {
   handleResetForm: EmptyFn;
-  swapRoute: Route;
+  swapRoute: LiFiRoute | Route3EvmRoute;
 }
 
 interface TezosSwapReviewData {
@@ -47,9 +52,9 @@ interface TezosSwapReviewData {
   };
 }
 
-export interface ChainAssetInfo {
+export interface ChainAssetInfo<T extends TempleChainKind = TempleChainKind> {
   networkKind: string;
-  chainId: number | string;
+  chainId: NetworkEssentials<T>['chainId'];
   assetSlug: string;
 }
 
@@ -63,3 +68,71 @@ export type SwapReviewData = TezosReviewData | EvmReviewData;
 
 export const isSwapEvmReviewData = (data: SwapReviewData): data is EvmReviewData =>
   data.network.kind === TempleChainKind.EVM;
+
+export const getCommonStepProps = (step: LiFiStep | Route3EvmRoute) => {
+  if (isLifiStep(step)) {
+    const { action, estimate, transactionRequest } = step;
+    const { approvalAddress, toAmountMin } = estimate;
+    const { fromChainId, fromToken, fromAmount, fromAddress, toChainId, toToken } = action;
+
+    return {
+      fromChainId,
+      fromToken,
+      fromAmount,
+      fromAddress,
+      approvalAddress,
+      toChainId,
+      toToken,
+      toAmountMin,
+      txDestination: transactionRequest?.to as HexString | undefined
+    };
+  }
+
+  const { fromToken, fromAmount, fromAddress, txDestination, toToken, toAmountMin } = step;
+
+  return {
+    fromChainId: ETHERLINK_MAINNET_CHAIN_ID,
+    fromToken,
+    fromAmount,
+    fromAddress,
+    approvalAddress: txDestination,
+    toChainId: ETHERLINK_MAINNET_CHAIN_ID,
+    toToken,
+    toAmountMin,
+    txDestination
+  };
+};
+
+export function isRoute3EvmRoute(route: Route3EvmRoute | LiFiRoute): route is Route3EvmRoute {
+  return 'txData' in route;
+}
+
+export function isLifiRoute(route: Route3EvmRoute | LiFiRoute): route is LiFiRoute {
+  return 'steps' in route;
+}
+
+export function isLifiStep(step: LiFiStep | Route3EvmRoute): step is LiFiStep {
+  return 'type' in step;
+}
+
+export function isRoute3EvmStep(step: LiFiStep | Route3EvmRoute): step is Route3EvmRoute {
+  return 'txData' in step;
+}
+
+export type SelectedChainAssets = { from: string; to: string | null } | { from: string | null; to: string };
+
+export type PendingSwapReview =
+  | {
+      kind: TempleChainKind.EVM;
+      chainId: number;
+      swapRoute: Route3EvmRoute | LiFiRoute;
+      selectedChainAssets: SelectedChainAssets;
+    }
+  | {
+      kind: TempleChainKind.Tezos;
+      chainId: string;
+      opParams: WalletParamsWithKind[];
+      cashbackInTkey?: string;
+      minimumReceived: { amount: string; symbol: string };
+      selectedChainAssets: SelectedChainAssets;
+    };

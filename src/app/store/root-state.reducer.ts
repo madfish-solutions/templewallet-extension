@@ -15,6 +15,7 @@ import { evmCollectiblesMetadataPersistedReducer } from './evm/collectibles-meta
 import { noCategoryEvmAssetsMetadataPersistedReducer } from './evm/no-category-assets-metadata/reducers';
 import { pendingEvmTransactionsPersistedReducer } from './evm/pending-transactions/reducers';
 import { evmLoadingReducer } from './evm/reducer';
+import { route3EvmTokensMetadataPersistedReducer } from './evm/swap-3route-metadata/reducers';
 import { evmTokensExchangeRatesPersistedReducer } from './evm/tokens-exchange-rates/reducers';
 import { evmTokensMetadataPersistedReducer } from './evm/tokens-metadata/reducers';
 import { newsletterReducers } from './newsletter/newsletter-reducers';
@@ -28,6 +29,7 @@ import { balancesReducer } from './tezos/balances/reducers';
 import { collectiblesPersistedReducer } from './tezos/collectibles/reducer';
 import { collectiblesMetadataPersistedReducer } from './tezos/collectibles-metadata/reducer';
 import { noCategoryTezosAssetsMetadataPersistedReducer } from './tezos/no-category-assets-metadata/reducers';
+import { pendingTezosTransactionsPersistedReducer } from './tezos/pending-transactions/reducers';
 import { tokensMetadataReducer } from './tezos/tokens-metadata/reducers';
 
 const rootStateReducersMap = {
@@ -52,13 +54,15 @@ const rootStateReducersMap = {
   evmAssets: evmAssetsPersistedReducer,
   evmBalances: evmBalancesReducer,
   pendingEvmTransactions: pendingEvmTransactionsPersistedReducer,
+  pendingTezosTransactions: pendingTezosTransactionsPersistedReducer,
   lifiEvmTokensMetadata: lifiEvmTokensMetadataPersistedReducer,
   evmTokensMetadata: evmTokensMetadataPersistedReducer,
   evmTokensExchangeRates: evmTokensExchangeRatesPersistedReducer,
   evmCollectiblesMetadata: evmCollectiblesMetadataPersistedReducer,
   evmNoCategoryAssetMetadata: noCategoryEvmAssetsMetadataPersistedReducer,
   assetsFilterOptions: assetsFilterOptionsReducer,
-  accountsInitialization: accountsInitializationReducer
+  accountsInitialization: accountsInitializationReducer,
+  route3EvmTokensMetadata: route3EvmTokensMetadataPersistedReducer
 };
 
 export const rootReducer = combineReducers(rootStateReducersMap);

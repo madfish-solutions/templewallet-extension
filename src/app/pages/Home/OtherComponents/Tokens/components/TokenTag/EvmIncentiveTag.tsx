@@ -2,7 +2,8 @@ import React, { FC, useMemo } from 'react';
 
 import { TagButton } from 'app/atoms/TagButton';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
-import { COMMON_MAINNET_CHAIN_IDS, ETHEREUM_MAINNET_CHAIN_ID } from 'lib/temple/types';
+import { ETHERLINK_USDC_SLUG, APPLEFARM_REFERRAL_LINK, APPLEFARM_APR, ETHEREUM_APR } from 'lib/constants';
+import { ETHEREUM_HOODI_CHAIN_ID, ETHEREUM_MAINNET_CHAIN_ID, ETHERLINK_MAINNET_CHAIN_ID } from 'lib/temple/types';
 import { isTruthy, openLink } from 'lib/utils';
 import { navigate } from 'lib/woozie';
 import { useEvmChainByChainId } from 'temple/front/chains';
@@ -20,15 +21,20 @@ type IncentiveInfo = { label: string; link: string; external?: boolean };
 const INCENTIVE_TOKENS: Record<number, Record<string, IncentiveInfo>> = {
   [ETHEREUM_MAINNET_CHAIN_ID]: {
     [EVM_TOKEN_SLUG]: {
-      label: 'APR: 3.4-10%',
+      label: `APR: ${ETHEREUM_APR}%`,
       link: '/earn-eth'
     }
   },
-  [COMMON_MAINNET_CHAIN_IDS.etherlink]: {
-    // USDC
-    '0x796Ea11Fa2dD751eD01b53C372fFDB4AAa8f00F9_0': {
-      label: 'APY: 28%',
-      link: 'https://app.applefarm.xyz/referral?code=APPLE-FARM-880788',
+  [ETHEREUM_HOODI_CHAIN_ID]: {
+    [EVM_TOKEN_SLUG]: {
+      label: `APR: ${ETHEREUM_APR}%`,
+      link: '/earn-eth'
+    }
+  },
+  [ETHERLINK_MAINNET_CHAIN_ID]: {
+    [ETHERLINK_USDC_SLUG]: {
+      label: `APR: ${APPLEFARM_APR}%`,
+      link: APPLEFARM_REFERRAL_LINK,
       external: true
     }
   }

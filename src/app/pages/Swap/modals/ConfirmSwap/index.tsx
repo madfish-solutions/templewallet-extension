@@ -16,7 +16,6 @@ interface ConfirmSwapModalProps {
   opened: boolean;
   onRequestClose: EmptyFn;
   reviewData?: SwapReviewData;
-  onReview: SyncFn<SwapReviewData>;
 }
 
 export const ConfirmSwapModal: FC<ConfirmSwapModalProps> = ({ opened, onRequestClose, reviewData }) => {

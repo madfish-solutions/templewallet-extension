@@ -570,6 +570,14 @@
       }
     }
   },
+  "minimalAmount": {
+    "message": "Min: $amount$",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
   "amountMustBePositive": {
     "message": "Must be positive"
   },
@@ -968,6 +976,18 @@
   "ledgerConnect": {
     "message": "Ledger Connect"
   },
+  "ledgerEnsureConnectionTitle": {
+    "message": "Ensure your Ledger connection"
+  },
+  "ledgerEnsurePluggedIn": {
+    "message": "Check if your Ledger is plugged in"
+  },
+  "ledgerEnableSmartContractData": {
+    "message": "Enable smart contract data or blind signing"
+  },
+  "ledgerContinueFullScreen": {
+    "message": "Continue in full screen mode"
+  },
   "connectLedger": {
     "message": "Connect Ledger",
     "description": "Ledger = https://www.ledger.com/"
@@ -1057,13 +1077,13 @@
     "message": "Please check your USB connection and ensure you approved all relevant permissions."
   },
   "selectAccount": {
-    "message": "Select account"
+    "message": "Select Account"
   },
   "selectLedgerLiveAccount": {
     "message": "Select Ledger Live account"
   },
   "customPath": {
-    "message": "Custom path"
+    "message": "Custom Path"
   },
   "waitingForApprove": {
     "message": "Waiting for approve"
@@ -1328,6 +1348,9 @@
   "transactionSubmitted": {
     "message": "Transaction Submitted"
   },
+  "otherOperationsPendingError": {
+    "message": "One transaction per block, try again in a moment"
+  },
   "unstakeRequestNumber": {
     "message": "Unstake request $number$",
     "placeholders": {
@@ -1345,8 +1368,62 @@
   "tezosStaking": {
     "message": "Tezos Staking"
   },
+  "ethStaking": {
+    "message": "ETH Staking"
+  },
   "staked": {
     "message": "Staked"
+  },
+  "totalStaked": {
+    "message": "Total staked"
+  },
+  "ethStakingTooltipText": {
+    "message": "Your staking is combined with others to reach the 32 ETH in Everstake validator pool. Once active, your rewards are automatically re-staked."
+  },
+  "ethRewardsTooltip": {
+    "message": "Your rewards is auto-compounded into total staked amount."
+  },
+  "pendingRewards": {
+    "message": "Pending"
+  },
+  "withdrawals": {
+    "message": "Withdrawals"
+  },
+  "ethWithdrawalsTooltipText": {
+    "message": "Unstaked Ethereum that completed the\u00a0withdrawal process will be available to transfer back to your account."
+  },
+  "noWithdrawalsYet": {
+    "message": "No withdrawals yet"
+  },
+  "pendingBalance": {
+    "message": "Pending balance"
+  },
+  "claim": {
+    "message": "Claim"
+  },
+  "ethStakingDisclaimer": {
+    "message": "Estimated withdrawal period is $period$. Actual withdrawal can be faster depending on the provider queue and network conditions.",
+    "placeholders": {
+      "period": {
+        "content": "$1"
+      }
+    }
+  },
+  "ethUnstakingDisclaimer": {
+    "message": "Unstaking takes $period$ to complete. Once $period$ have passed, your ETH will be available to claim.",
+    "placeholders": {
+      "period": {
+        "content": "$1"
+      }
+    }
+  },
+  "notReadyClaimTooltip": {
+    "message": "Estimated withdrawal period is $period$. Actual withdrawal can be faster, you'll receive toast notification when your balance is ready to claim.",
+    "placeholders": {
+      "period": {
+        "content": "$1"
+      }
+    }
   },
   "unstake": {
     "message": "Unstake"
@@ -1354,8 +1431,14 @@
   "unstakeTez": {
     "message": "Unstake TEZ"
   },
+  "unstakeEth": {
+    "message": "Unstake ETH"
+  },
   "estimatedApy": {
     "message": "Est. APY"
+  },
+  "estimatedApr": {
+    "message": "Est. APR"
   },
   "selectBaker": {
     "message": "Select Baker"
@@ -1595,6 +1678,14 @@
       }
     }
   },
+  "insufficientAssetBalance": {
+    "message": "Insufficient $assetSymbol$ balance",
+    "placeholders": {
+      "assetSymbol": {
+        "content": "$1"
+      }
+    }
+  },
   "getHelpLink": {
     "message": "Get help: $link$",
     "placeholders": {
@@ -1787,6 +1878,9 @@
   },
   "derivationType": {
     "message": "Derivation type"
+  },
+  "customSettings": {
+    "message": "Custom settings"
   },
   "derivationTypeFieldDescription": {
     "message": "The elliptical curve that the account will use."
@@ -2083,6 +2177,12 @@
   "sorry": {
     "message": "Sorry!"
   },
+  "notAvailableOnFirefox": {
+    "message": "Not available on Firefox"
+  },
+  "ledgerNotAvailableOnFirefoxDescription": {
+    "message": "Temple can't connect Ledger due to browser restrictions. Please proceed with the connection using any Chrome-based browsers for a smooth experience."
+  },
   "upload": {
     "message": "Upload"
   },
@@ -2182,11 +2282,11 @@
   "selectNetwork": {
     "message": "Select Network"
   },
-  "addCustomToken": {
-    "message": "Add Custom Token"
+  "searchNetworkName": {
+    "message": "Search network name"
   },
-  "addCustomTokenNonCapitalize": {
-    "message": "Add custom token"
+  "addTokenNonCapitalize": {
+    "message": "Add token"
   },
   "tokenAddress": {
     "message": "Token address"
@@ -2706,6 +2806,12 @@
   "swap": {
     "message": "Swap"
   },
+  "savings": {
+    "message": "Savings"
+  },
+  "externalOffers": {
+    "message": "External Offers"
+  },
   "accountNumber": {
     "message": "Account number"
   },
@@ -2896,9 +3002,6 @@
   },
   "social": {
     "message": "Social"
-  },
-  "market": {
-    "message": "Market"
   },
   "marketplace": {
     "message": "Marketplace"
@@ -3728,10 +3831,16 @@
     "message": "Purchase crypto via credit or debit card with 26+ currencies options"
   },
   "crossChainSwap": {
-    "message": "Cross-chain Swap"
+    "message": "Cross-Chain Swap"
   },
   "crossChainSwapDescription": {
     "message": "Exchange crypto instantly from Solana, Bitcoin and other networks"
+  },
+  "receiveOnChain": {
+    "message": "Receive on-chain"
+  },
+  "receiveOnChainDescription": {
+    "message": "Transfer crypto via address or QR code from other wallets or exchanges"
   },
   "convertation": {
     "message": "Convertation"
@@ -3922,6 +4031,9 @@
   },
   "collectibles": {
     "message": "Collectibles"
+  },
+  "nfts": {
+    "message": "NFTs"
   },
   "attentionSendAmount": {
     "message": "You need to send the exact amount of cryptocurrency to the deposit address. Otherwise the transaction will fail and you will have to contact $support$",
@@ -4588,9 +4700,6 @@
   "rewardsEarningEnabled": {
     "message": "Rewards earning successfully enabled"
   },
-  "marketPageDisclaimer": {
-    "message": "Temple integrated third-party solutions to buy or exchange crypto."
-  },
   "txCouldNotBeEstimated": {
     "message": "Transaction could not be estimated"
   },
@@ -4735,5 +4844,40 @@
   },
   "currentAccountNotConnectedToDApp": {
     "message": "Current account isn’t connected to Dapp"
+  },
+  "addNetworkToContinue": {
+    "message": "Add $network$ to continue",
+    "placeholders": {
+      "network": {
+        "content": "$1"
+      }
+    }
+  },
+  "enableNetworkToContinue": {
+    "message": "Enable $network$ to continue",
+    "placeholders": {
+      "network": {
+        "content": "$1"
+      }
+    }
+  },
+  "activation": {
+    "message": "Activation"
+  },
+  "activationTimeTooltip": {
+    "message": "Time from deposit to start receving rewards. Your deposit will be shown as pending until your stake becomes active.\n\nActivation time: ≈$activationTime$.",
+    "placeholders": {
+      "activationTime": {
+        "content": "$1"
+      }
+    }
+  },
+  "currencyStaking": {
+    "message": "$currency$ Staking",
+    "placeholders": {
+      "currency": {
+        "content": "$1"
+      }
+    }
   }
 }

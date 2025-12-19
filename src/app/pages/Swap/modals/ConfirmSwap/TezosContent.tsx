@@ -5,6 +5,11 @@ import { FormProvider } from 'react-hook-form-v7';
 
 import { useLedgerApprovalModalState } from 'app/hooks/use-ledger-approval-modal-state';
 import { BaseContent } from 'app/pages/Swap/modals/ConfirmSwap/BaseContent';
+import { dispatch } from 'app/store';
+import {
+  addPendingTezosTransactionAction,
+  monitorPendingTezosTransactionsAction
+} from 'app/store/tezos/pending-transactions/actions';
 import { TezosTxParamsFormData } from 'app/templates/TransactionTabs/types';
 import { useTezosEstimationForm } from 'app/templates/TransactionTabs/use-tezos-estimation-form';
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
@@ -12,12 +17,16 @@ import { TEZOS_BLOCK_DURATION } from 'lib/fixed-times';
 import { useTypedSWR } from 'lib/swr';
 import { mutezToTz } from 'lib/temple/helpers';
 import { TempleAccountType } from 'lib/temple/types';
+import { tezosManagerKeyHasManager } from 'lib/tezos';
 import { runConnectedLedgerOperationFlow } from 'lib/ui';
+import { useLedgerWebHidFullViewGuard } from 'lib/ui/ledger-webhid-guard';
+import { LedgerFullViewPromptModal } from 'lib/ui/LedgerFullViewPrompt';
 import { showTxSubmitToastWithDelay } from 'lib/ui/show-tx-submit-toast.util';
 import { serializeEstimate } from 'lib/utils/serialize-estimate';
 import { getParamsWithCustomGasLimitFor3RouteSwap } from 'lib/utils/swap.utils';
 import { getTezosToolkitWithSigner } from 'temple/front';
 import { useGetTezosActiveBlockExplorer } from 'temple/front/ready';
+import { makeBlockExplorerHref } from 'temple/front/use-block-explorers';
 import { TempleChainKind } from 'temple/types';
 
 import { TezosReviewData } from '../../form/interfaces';
@@ -39,6 +48,24 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
   const getActiveBlockExplorer = useGetTezosActiveBlockExplorer();
 
   const tezos = getTezosToolkitWithSigner(network, account.ownerAddress || accountPkh, true);
+
+  const getSourcePkIsRevealed = useCallback(async () => {
+    try {
+      return tezosManagerKeyHasManager(await tezos.rpc.getManagerKey(account.ownerAddress || accountPkh));
+    } catch (e) {
+      console.error(e);
+      return false;
+    }
+  }, [account.ownerAddress, accountPkh, tezos]);
+  const { data: sourcePkIsRevealed } = useTypedSWR(
+    ['source-pk-is-revealed', account.ownerAddress || accountPkh, network.chainId],
+    getSourcePkIsRevealed,
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      dedupingInterval: TEZOS_BLOCK_DURATION
+    }
+  );
 
   const estimate = useCallback(async () => {
     try {
@@ -92,6 +119,7 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
     simulateOperation: true,
     estimationDataLoading,
     network,
+    sourcePkIsRevealed,
     isEstimationError: Boolean(estimationError)
   });
   const { formState } = form;
@@ -104,6 +132,7 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
 
   const { ledgerApprovalModalState, setLedgerApprovalModalState, handleLedgerModalClose } =
     useLedgerApprovalModalState();
+  const { guard, ledgerPromptProps } = useLedgerWebHidFullViewGuard();
 
   const onSubmitError = useCallback(
     (err: unknown) => {
@@ -150,10 +179,23 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
 
           const blockExplorer = getActiveBlockExplorer(network.chainId);
 
+          dispatch(
+            addPendingTezosTransactionAction({
+              txHash,
+              accountPkh,
+              network,
+              blockExplorerUrl: makeBlockExplorerHref(blockExplorer.url, txHash, 'tx', TempleChainKind.Tezos),
+              submittedAt: Date.now()
+            })
+          );
+          dispatch(monitorPendingTezosTransactionsAction());
+
           showTxSubmitToastWithDelay(TempleChainKind.Tezos, txHash, blockExplorer.url);
         };
 
         if (isLedgerAccount) {
+          const redirected = await guard(account.type);
+          if (redirected) return;
           await runConnectedLedgerOperationFlow(doOperation, setLedgerApprovalModalState, true);
         } else {
           await doOperation();
@@ -163,45 +205,51 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
       }
     },
     [
-      displayedFeeOptions,
-      estimationData,
-      estimationError,
-      assertCustomGasFeeNotTooLow,
       formState.isSubmitting,
+      estimationData,
+      displayedFeeOptions,
       isLedgerAccount,
-      setLedgerApprovalModalState,
+      assertCustomGasFeeNotTooLow,
+      onSubmitError,
+      estimationError,
+      submitOperation,
+      tezos,
       getActiveBlockExplorer,
-      network.chainId,
+      network,
       onClose,
       onConfirm,
-      onSubmitError,
-      submitOperation,
-      tezos
+      accountPkh,
+      guard,
+      account.type,
+      setLedgerApprovalModalState
     ]
   );
 
   return (
-    <FormProvider {...form}>
-      <BaseContent<TezosTxParamsFormData>
-        ledgerApprovalModalState={ledgerApprovalModalState}
-        onLedgerModalClose={handleLedgerModalClose}
-        network={network}
-        nativeAssetSlug={TEZ_TOKEN_SLUG}
-        selectedTab={tab}
-        setSelectedTab={setTab}
-        latestSubmitError={latestSubmitError}
-        selectedFeeOption={selectedFeeOption}
-        onFeeOptionSelect={handleFeeOptionSelect}
-        displayedFee={displayedFee}
-        displayedFeeOptions={displayedFeeOptions}
-        displayedStorageFee={displayedStorageFee}
-        cashbackInTkey={cashbackInTkey}
-        minimumReceived={minimumReceived}
-        onCancel={onClose}
-        onSubmit={onSubmit}
-        someBalancesChanges={someBalancesChanges}
-        filteredBalancesChanges={[filteredBalancesChanges]}
-      />
-    </FormProvider>
+    <>
+      <FormProvider {...form}>
+        <BaseContent<TezosTxParamsFormData>
+          ledgerApprovalModalState={ledgerApprovalModalState}
+          onLedgerModalClose={handleLedgerModalClose}
+          network={network}
+          nativeAssetSlug={TEZ_TOKEN_SLUG}
+          selectedTab={tab}
+          setSelectedTab={setTab}
+          latestSubmitError={latestSubmitError}
+          selectedFeeOption={selectedFeeOption}
+          onFeeOptionSelect={handleFeeOptionSelect}
+          displayedFee={displayedFee}
+          displayedFeeOptions={displayedFeeOptions}
+          displayedStorageFee={displayedStorageFee}
+          cashbackInTkey={cashbackInTkey}
+          minimumReceived={minimumReceived}
+          onCancel={onClose}
+          onSubmit={onSubmit}
+          someBalancesChanges={someBalancesChanges}
+          filteredBalancesChanges={[filteredBalancesChanges]}
+        />
+      </FormProvider>
+      <LedgerFullViewPromptModal {...ledgerPromptProps} />
+    </>
   );
 };

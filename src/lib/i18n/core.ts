@@ -1,3 +1,4 @@
+import { isDefined } from '@rnw-community/shared';
 /* eslint-disable import/no-duplicates */
 import formatDateFns from 'date-fns/format';
 import formatDurationFns from 'date-fns/formatDuration';
@@ -8,7 +9,7 @@ import browser from 'webextension-polyfill';
 import cldrjsLocales from './cldrjs-locales.json';
 import { getNativeLocale, getDefaultLocale, areLocalesEqual, fetchLocaleMessages, applySubstitutions } from './helpers';
 import { getSavedLocale } from './saving';
-import { FetchedLocaleMessages, Substitutions } from './types';
+import { FetchedLocaleMessages, LocaleMessages, Substitutions } from './types';
 
 const dateFnsLocales: Record<string, Locale> = {
   en: enUS,
@@ -29,17 +30,34 @@ let fetchedLocaleMessages: FetchedLocaleMessages = {
 let cldrLocale = cldrjsLocales.en;
 
 export async function init() {
-  const saved = getSavedLocale();
-  const deflt = getDefaultLocale();
-  const native = getNativeLocale();
-
-  const [target, fallback] = await Promise.all([
-    !saved || areLocalesEqual(saved, native) ? null : fetchLocaleMessages(saved),
-    areLocalesEqual(deflt, native) || (saved && areLocalesEqual(deflt, saved)) ? null : fetchLocaleMessages(deflt)
-  ]);
+  const [target, fallback] = await Promise.all([getTargetLocaleMessages(), getFallbackLocaleMessages()]);
 
   fetchedLocaleMessages = { target, fallback };
   cldrLocale = (cldrjsLocales as Record<string, any>)[getCurrentLocale()] || cldrjsLocales.en;
+}
+
+const promiseNull = Promise.resolve(null);
+
+function getTargetLocaleMessages(): Promise<LocaleMessages | null> {
+  const savedLocale = getSavedLocale();
+  const nativeLocale = getNativeLocale();
+
+  if (!savedLocale || areLocalesEqual(savedLocale, nativeLocale)) return promiseNull;
+
+  return fetchLocaleMessages(savedLocale);
+}
+
+function getFallbackLocaleMessages(): Promise<LocaleMessages | null> {
+  const savedLocale = getSavedLocale();
+  const defaultLocale = getDefaultLocale();
+  const nativeLocale = getNativeLocale();
+
+  const areDefaultNativeEqual = areLocalesEqual(defaultLocale, nativeLocale);
+  const areDefaultSavedEqual = isDefined(savedLocale) && areLocalesEqual(defaultLocale, savedLocale);
+
+  if (areDefaultNativeEqual || areDefaultSavedEqual) return promiseNull;
+
+  return fetchLocaleMessages(defaultLocale);
 }
 
 export function getMessage(messageName: string, substitutions?: Substitutions) {
@@ -80,28 +98,33 @@ export function formatDate(date: string | number | Date, format: string) {
 }
 
 const formatDurationParts = [
+  ['days', 24 * 60 * 60],
   ['hours', 60 * 60],
   ['minutes', 60],
   ['seconds', 1]
 ] as const;
 
-export function formatDuration(seconds: number) {
+type DurationPartName = (typeof formatDurationParts)[number][0];
+
+export function formatDuration(seconds: number, partsToUse: DurationPartName[] = ['hours', 'minutes', 'seconds']) {
   const locale = getDateFnsLocale();
 
-  const { duration, format } = formatDurationParts.reduce<{ duration: Duration; format: string[]; remainder: number }>(
-    (acc, [newPart, newPartSeconds]) => {
-      const newPartValue = Math.floor(acc.remainder / newPartSeconds);
+  const { duration, format } = formatDurationParts
+    .filter(part => partsToUse.includes(part[0]))
+    .reduce<{ duration: Duration; format: string[]; remainder: number }>(
+      (acc, [newPart, newPartSeconds]) => {
+        const newPartValue = Math.floor(acc.remainder / newPartSeconds);
 
-      if (newPartValue) {
-        acc.duration[newPart] = newPartValue;
-        acc.format.push(newPart);
-        acc.remainder -= newPartValue * newPartSeconds;
-      }
+        if (newPartValue) {
+          acc.duration[newPart] = newPartValue;
+          acc.format.push(newPart);
+          acc.remainder -= newPartValue * newPartSeconds;
+        }
 
-      return acc;
-    },
-    { duration: {}, format: [], remainder: seconds }
-  );
+        return acc;
+      },
+      { duration: {}, format: [], remainder: seconds }
+    );
 
   // @ts-expect-error
   return formatDurationFns(duration, { format, locale });

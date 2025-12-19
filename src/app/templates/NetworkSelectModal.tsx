@@ -19,7 +19,7 @@ import { setAssetsFilterChain } from 'app/store/assets-filter-options/actions';
 import { FilterChain } from 'app/store/assets-filter-options/state';
 import { useTestnetModeEnabledSelector } from 'app/store/settings/selectors';
 import { SearchBarField } from 'app/templates/SearchField';
-import { T } from 'lib/i18n';
+import { t, T } from 'lib/i18n';
 import { searchAndFilterChains } from 'lib/ui/search-networks';
 import { useScrollIntoViewOnMount } from 'lib/ui/use-scroll-into-view';
 import { isSearchStringApplicable } from 'lib/utils/search-items';
@@ -124,12 +124,12 @@ export const NetworkSelectModalContent = memo<ContentProps>(({ opened, selectedN
   return (
     <>
       <div className="flex gap-x-2 p-4 pb-3">
-        <SearchBarField value={searchValue} placeholder="Network name" onValueChange={setSearchValue} />
+        <SearchBarField value={searchValue} placeholder={t('searchNetworkName')} onValueChange={setSearchValue} />
 
         <IconButton Icon={PlusIcon} color="blue" onClick={() => navigate('settings/networks')} />
       </div>
 
-      <div className="px-4 py-1 flex-grow flex flex-col overflow-y-auto">
+      <div className="px-4 py-1 flex-grow flex flex-col gap-3 overflow-y-auto">
         {searchedNetworks.length === 0 ? (
           <EmptyState />
         ) : (
@@ -200,7 +200,7 @@ export const Network: FC<NetworkProps> = ({
   return (
     <div
       ref={elemRef}
-      className="cursor-pointer mb-3 flex justify-between items-center p-3 rounded-lg shadow-bottom border-0.5 border-transparent group"
+      className="cursor-pointer flex justify-between items-center p-3 rounded-8 border-0.5 border-lines group"
       onClick={handleClick}
     >
       <div className="flex items-center gap-x-2">

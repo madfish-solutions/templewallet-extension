@@ -1,22 +1,19 @@
-import React, { FC, memo, useCallback, useMemo, useRef } from 'react';
+import React, { FC, memo, useCallback, useRef } from 'react';
 
-import { isEqual, omit } from 'lodash';
+import clsx from 'clsx';
 
 import { FadeTransition } from 'app/a11y/FadeTransition';
-import { Divider, IconBase, ToggleSwitch } from 'app/atoms';
+import { Divider, ToggleSwitch } from 'app/atoms';
 import { NetworkSelectButton } from 'app/atoms/NetworkSelectButton';
-import { ReactComponent as CleanIcon } from 'app/icons/base/x_circle_fill.svg';
 import { ContentContainer } from 'app/layouts/containers';
 import { dispatch } from 'app/store';
 import {
-  resetTokensFilterOptions,
   setCollectiblesBlurFilterOption,
   setCollectiblesShowInfoFilterOption,
   setTokensGroupByNetworkFilterOption,
   setTokensHideSmallBalanceFilterOption
 } from 'app/store/assets-filter-options/actions';
 import { useAssetsFilterOptionsSelector } from 'app/store/assets-filter-options/selectors';
-import { AssetsFilterOptionsInitialState } from 'app/store/assets-filter-options/state';
 import { useTestnetModeEnabledSelector } from 'app/store/settings/selectors';
 import { NetworkSelectModal } from 'app/templates/NetworkSelectModal';
 import { T, TID } from 'lib/i18n';
@@ -29,20 +26,7 @@ export const AssetsFilterOptions = memo(() => {
 
   const [networksModalOpened, setNetworksModalOpen, setNetworksModalClosed] = useBooleanState(false);
 
-  const isNonDefaultOption = useMemo(
-    () =>
-      testnetModeEnabled
-        ? !isEqual(
-            omit(options, 'tokensListOptions.hideSmallBalance'),
-            omit(AssetsFilterOptionsInitialState, 'tokensListOptions.hideSmallBalance')
-          )
-        : !isEqual(options, AssetsFilterOptionsInitialState),
-    [options, testnetModeEnabled]
-  );
-
   const containerRef = useRef(null);
-
-  const handleResetAllClick = useCallback(() => dispatch(resetTokensFilterOptions()), []);
 
   const handleTokensHideSmallBalanceChange = useCallback(
     (checked: boolean) => dispatch(setTokensHideSmallBalanceFilterOption(checked)),
@@ -64,74 +48,52 @@ export const AssetsFilterOptions = memo(() => {
 
   return (
     <FadeTransition>
-      <ContentContainer ref={containerRef}>
-        <div className="flex justify-between items-center pt-1 pb-2 pl-1">
-          <p className="text-font-description-bold">
+      <ContentContainer ref={containerRef} withShadow={false}>
+        <div className="flex flex-col gap-1">
+          <p className="text-font-description-bold p-1">
             <T id="filterByNetwork" />
           </p>
 
-          {isNonDefaultOption && (
-            <button
-              onClick={handleResetAllClick}
-              className="flex items-center text-secondary text-font-description-bold"
-            >
-              <T id="resetAll" />
-              <IconBase Icon={CleanIcon} size={12} />
-            </button>
-          )}
+          <NetworkSelectButton selectedChain={filterChain} onClick={setNetworksModalOpen} />
         </div>
-
-        <NetworkSelectButton selectedChain={filterChain} onClick={setNetworksModalOpen} />
 
         <TogglesContainer labelTitle="tokensList">
           {!testnetModeEnabled && (
             <>
-              <div className="flex justify-between items-center p-3">
-                <span className="text-font-medium-bold">
-                  <T id="hideSmallBalance" />
-                </span>
-
-                <ToggleSwitch
-                  checked={tokensListOptions.hideSmallBalance}
-                  onChange={handleTokensHideSmallBalanceChange}
-                />
-              </div>
-
+              <ToggleRow
+                labelId="hideSmallBalance"
+                checked={tokensListOptions.hideSmallBalance}
+                onChange={handleTokensHideSmallBalanceChange}
+                isFirst
+              />
               <Divider thinest />
             </>
           )}
 
-          <div className="flex justify-between items-center p-3">
-            <span className="text-font-medium-bold">
-              <T id="groupByNetwork" />
-            </span>
-
-            <ToggleSwitch
-              checked={tokensListOptions.groupByNetwork}
-              disabled={Boolean(filterChain)}
-              onChange={handleTokensGroupByNetworkChange}
-            />
-          </div>
+          <ToggleRow
+            labelId="groupByNetwork"
+            checked={tokensListOptions.groupByNetwork}
+            disabled={Boolean(filterChain)}
+            onChange={handleTokensGroupByNetworkChange}
+            isFirst={testnetModeEnabled}
+            isLast
+          />
         </TogglesContainer>
 
         <TogglesContainer labelTitle="collectiblesView">
-          <div className="flex justify-between items-center p-3">
-            <span className="text-font-medium-bold">
-              <T id="blurSensitiveContent" />
-            </span>
-
-            <ToggleSwitch checked={collectiblesListOptions.blur} onChange={handleCollectiblesBlurChange} />
-          </div>
-
+          <ToggleRow
+            labelId="blurSensitiveContent"
+            checked={collectiblesListOptions.blur}
+            onChange={handleCollectiblesBlurChange}
+            isFirst
+          />
           <Divider thinest />
-
-          <div className="flex justify-between items-center p-3">
-            <span className="text-font-medium-bold">
-              <T id="showDetails" />
-            </span>
-
-            <ToggleSwitch checked={collectiblesListOptions.showInfo} onChange={handleCollectiblesShowInfoChange} />
-          </div>
+          <ToggleRow
+            labelId="showDetails"
+            checked={collectiblesListOptions.showInfo}
+            onChange={handleCollectiblesShowInfoChange}
+            isLast
+          />
         </TogglesContainer>
 
         <NetworkSelectModal
@@ -149,11 +111,36 @@ interface TogglesContainerProps extends PropsWithChildren {
 }
 
 const TogglesContainer: FC<TogglesContainerProps> = ({ labelTitle, children }) => (
-  <>
-    <p className="text-font-description-bold mt-4 pt-1 pb-2 pl-1">
+  <div className="flex flex-col gap-1 mt-4">
+    <p className="text-font-description-bold p-1">
       <T id={labelTitle} />
     </p>
 
-    <div className="rounded-lg shadow-bottom border-0.5 border-transparent">{children}</div>
-  </>
+    <div className="rounded-8 border-0.5 border-lines overflow-hidden">{children}</div>
+  </div>
+);
+
+interface ToggleRowProps {
+  labelId: TID;
+  checked: boolean;
+  disabled?: boolean;
+  onChange: SyncFn<boolean>;
+  isFirst?: boolean;
+  isLast?: boolean;
+}
+
+const ToggleRow: FC<ToggleRowProps> = ({ labelId, checked, disabled, onChange, isFirst, isLast }) => (
+  <div
+    className={clsx(
+      'flex justify-between items-center px-3 py-3.5 bg-white',
+      isFirst && 'rounded-t-8',
+      isLast && 'rounded-b-8'
+    )}
+  >
+    <span className="text-font-medium-bold">
+      <T id={labelId} />
+    </span>
+
+    <ToggleSwitch checked={checked} disabled={disabled} onChange={onChange} />
+  </div>
 );

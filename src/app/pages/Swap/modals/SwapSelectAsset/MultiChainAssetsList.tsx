@@ -1,14 +1,13 @@
 import React, { memo, useMemo, MouseEvent, useCallback } from 'react';
 
 import { isDefined } from '@rnw-community/shared';
+import { uniq } from 'lodash';
 import { FixedSizeList as List, ListChildComponentProps } from 'react-window';
 
 import { EmptyState } from 'app/atoms/EmptyState';
 import { PageLoader } from 'app/atoms/Loader';
 import { getSlugFromChainSlug } from 'app/hooks/listing-logic/utils';
-import { TOKEN_ITEM_HEIGHT } from 'app/pages/Swap/constants';
-import { SwapFieldName } from 'app/pages/Swap/form/interfaces';
-import { useFirstValue, useLifiEvmAllTokensSlugs } from 'app/pages/Swap/modals/SwapSelectAsset/hooks';
+import { use3RouteEvmTokensMetadataRecordSelector } from 'app/store/evm/swap-3route-metadata/selectors';
 import { useLifiConnectedEvmTokensMetadataRecordSelector } from 'app/store/evm/swap-lifi-metadata/selectors';
 import { useEvmTokensMetadataRecordSelector } from 'app/store/evm/tokens-metadata/selectors';
 import { useAllAccountBalancesSelector } from 'app/store/tezos/balances/selectors';
@@ -34,6 +33,11 @@ import {
 import { useFavoriteTokens } from 'temple/front/use-favorite-tokens';
 import { TempleChainKind } from 'temple/types';
 
+import { TOKEN_ITEM_HEIGHT } from '../../constants';
+import { SwapFieldName } from '../../form/interfaces';
+
+import { useFirstValue, useLifiEvmAllTokensSlugs, use3RouteEvmAllTokensSlugs } from './hooks';
+
 interface ItemData {
   searchedSlugs: string[];
   tezosPublicKeyHash: string;
@@ -57,7 +61,8 @@ interface Props {
 export const MultiChainAssetsList = memo<Props>(
   ({ accountTezAddress, activeField, accountEvmAddress, showOnlyFavorites, searchValue, onAssetSelect }) => {
     const evmTokensSlugs = useEnabledEvmAccountTokenSlugs(accountEvmAddress);
-    const { lifiTokenSlugs, isLoading } = useLifiEvmAllTokensSlugs();
+    const { lifiTokenSlugs, isLoading: lifiTokensLoading } = useLifiEvmAllTokensSlugs();
+    const { route3EvmTokenSlugs, isLoading: route3EvmTokensLoading } = use3RouteEvmAllTokensSlugs();
 
     const { route3tokensSlugs } = useAvailableRoute3TokensSlugs();
 
@@ -68,7 +73,8 @@ export const MultiChainAssetsList = memo<Props>(
       (chainSlug: string) => {
         const [, chainId, assetSlug] = parseChainAssetSlug(chainSlug);
 
-        return isDefined(getEvmBalance(chainId as number, assetSlug));
+        const balance = getEvmBalance(chainId as number, assetSlug);
+        return isDefined(balance) && balance.gt(0);
       },
       [getEvmBalance]
     );
@@ -101,31 +107,22 @@ export const MultiChainAssetsList = memo<Props>(
         return favoriteTokens.filter(token => token.startsWith('evm'));
       }
 
-      const result: string[] = [];
-
-      if (filterZeroBalances) {
-        result.push(
-          ...enabledTezChains
-            .map(chain => toChainAssetSlug(TempleChainKind.Tezos, chain.chainId, TEZ_TOKEN_SLUG))
-            .filter(isTezNonZeroBalance)
-        );
-        result.push(
-          ...enabledEvmChains
-            .map(chain => toChainAssetSlug(TempleChainKind.EVM, chain.chainId, EVM_TOKEN_SLUG))
-            .filter(isEvmNonZeroBalance)
-        );
+      if (!filterZeroBalances) {
+        return uniq(lifiTokenSlugs.concat(route3EvmTokenSlugs));
       }
 
-      result.push(
-        ...(filterZeroBalances
-          ? route3tokensSlugs
-              .map(slug => toChainAssetSlug(TempleChainKind.Tezos, TEZOS_MAINNET_CHAIN_ID, slug))
-              .filter(isTezNonZeroBalance)
-          : [])
-      );
-      result.push(...(filterZeroBalances ? evmTokensSlugs.filter(isEvmNonZeroBalance) : lifiTokenSlugs));
-
-      return result;
+      return enabledTezChains
+        .map(chain => toChainAssetSlug(TempleChainKind.Tezos, chain.chainId, TEZ_TOKEN_SLUG))
+        .filter(isTezNonZeroBalance)
+        .concat(
+          enabledEvmChains
+            .map(chain => toChainAssetSlug(TempleChainKind.EVM, chain.chainId, EVM_TOKEN_SLUG))
+            .filter(isEvmNonZeroBalance),
+          route3tokensSlugs
+            .map(slug => toChainAssetSlug(TempleChainKind.Tezos, TEZOS_MAINNET_CHAIN_ID, slug))
+            .filter(isTezNonZeroBalance),
+          evmTokensSlugs.filter(isEvmNonZeroBalance)
+        );
     }, [
       showOnlyFavorites,
       filterZeroBalances,
@@ -136,11 +133,12 @@ export const MultiChainAssetsList = memo<Props>(
       lifiTokenSlugs,
       favoriteTokens,
       enabledTezChains,
-      enabledEvmChains
+      enabledEvmChains,
+      route3EvmTokenSlugs
     ]);
 
     const enabledAssetsSlugsSorted = useMemoWithCompare(
-      () => enabledAssetsSlugs.sort(tokensSortPredicate),
+      () => enabledAssetsSlugs.toSorted(tokensSortPredicate),
       [enabledAssetsSlugs, tokensSortPredicate]
     );
 
@@ -150,13 +148,14 @@ export const MultiChainAssetsList = memo<Props>(
     const getTezMetadata = useGetTokenOrGasMetadata();
     const evmMetadata = useEvmTokensMetadataRecordSelector();
     const lifiMetadata = useLifiConnectedEvmTokensMetadataRecordSelector();
+    const route3EvmMetadata = use3RouteEvmTokensMetadataRecordSelector();
 
     const getEvmMetadata = useCallback(
       (chainId: number, slug: string) =>
         slug === EVM_TOKEN_SLUG
           ? evmChains[chainId]?.currency
-          : evmMetadata[chainId]?.[slug] ?? lifiMetadata[chainId]?.[slug],
-      [evmChains, evmMetadata, lifiMetadata]
+          : evmMetadata[chainId]?.[slug] ?? lifiMetadata[chainId]?.[slug] ?? route3EvmMetadata[chainId]?.[slug],
+      [evmChains, evmMetadata, lifiMetadata, route3EvmMetadata]
     );
 
     const searchedSlugs = useMemo(
@@ -172,7 +171,7 @@ export const MultiChainAssetsList = memo<Props>(
       [enabledAssetsSlugsSorted, getEvmMetadata, getTezMetadata, searchValue]
     );
 
-    if (isLoading && !filterZeroBalances) return <PageLoader stretch />;
+    if ((lifiTokensLoading || route3EvmTokensLoading) && !filterZeroBalances) return <PageLoader stretch />;
     if (searchedSlugs.length === 0) return <EmptyState />;
 
     const itemData: ItemData = {
@@ -222,7 +221,7 @@ const TokenListItemRenderer = ({ index, style, data }: ListChildComponentProps<I
       <div style={style} key={slug} className="px-4">
         <TezosTokenListItem
           index={index}
-          network={tezosChains[chainId]!}
+          network={tezosChains[chainId]}
           publicKeyHash={tezosPublicKeyHash}
           assetSlug={assetSlug}
           showTags={false}
@@ -238,7 +237,7 @@ const TokenListItemRenderer = ({ index, style, data }: ListChildComponentProps<I
     <div style={style} key={slug} className="px-4">
       <EvmTokenListItem
         index={index}
-        network={evmChains[chainId]!}
+        network={evmChains[chainId]}
         assetSlug={assetSlug}
         publicKeyHash={evmPublicKeyHash}
         requiresVisibility={false}

@@ -34,6 +34,7 @@ export interface FocusLocation {
 
 export interface TempleState {
   dAppQueueCounters: PromisesQueueCounters;
+  dAppPendingConfirmationId: string | null;
   status: TempleStatus;
   accounts: StoredAccount[];
   settings: TempleSettings | null;
@@ -47,6 +48,8 @@ export const TEZOS_MAINNET_CHAIN_ID = 'NetXdQprcVkpaWU';
 export const TEZOS_GHOSTNET_CHAIN_ID = 'NetXnHfVqm9iesp';
 const TEZOS_SHADOWNET_CHAIN_ID = 'NetXsqzbfFenSTS';
 export const ETHEREUM_MAINNET_CHAIN_ID = 1;
+export const ETHEREUM_HOODI_CHAIN_ID = 560048;
+export const ETHERLINK_MAINNET_CHAIN_ID = 42793;
 export const COMMON_MAINNET_CHAIN_IDS = {
   polygon: 137,
   bsc: 56,
@@ -54,7 +57,6 @@ export const COMMON_MAINNET_CHAIN_IDS = {
   optimism: 10,
   arbitrum: 42161,
   base: 8453,
-  etherlink: 42793,
   rootstock: 30
 } as const;
 export const ETH_SEPOLIA_CHAIN_ID = 11155111;
@@ -459,6 +461,8 @@ export enum TempleMessageType {
   SignResponse = 'TEMPLE_SIGN_RESPONSE',
   ConfirmationRequest = 'TEMPLE_CONFIRMATION_REQUEST',
   ConfirmationResponse = 'TEMPLE_CONFIRMATION_RESPONSE',
+  ConfirmationWindowDetachRequest = 'TEMPLE_CONFIRMATION_WINDOW_DETACH_REQUEST',
+  ConfirmationWindowDetachResponse = 'TEMPLE_CONFIRMATION_WINDOW_DETACH_RESPONSE',
   PageRequest = 'TEMPLE_PAGE_REQUEST',
   PageResponse = 'TEMPLE_PAGE_RESPONSE',
   DAppGetPayloadRequest = 'TEMPLE_DAPP_GET_PAYLOAD_REQUEST',
@@ -535,6 +539,7 @@ export type TempleRequest =
   | TempleOperationsRequest
   | TempleSignRequest
   | TempleConfirmationRequest
+  | TempleConfirmationWindowDetachRequest
   | TempleRemoveAccountRequest
   | TempleRemoveHdWalletRequest
   | TempleRemoveAccountsByTypeRequest
@@ -582,6 +587,7 @@ export type TempleResponse =
   | TempleOperationsResponse
   | TempleSignResponse
   | TempleConfirmationResponse
+  | TempleConfirmationWindowDetachResponse
   | TempleRemoveAccountResponse
   | TempleRemoveHdWalletResponse
   | TempleRemoveAccountsByTypeResponse
@@ -941,6 +947,15 @@ interface TempleConfirmationRequest extends TempleMessageBase {
 
 interface TempleConfirmationResponse extends TempleMessageBase {
   type: TempleMessageType.ConfirmationResponse;
+}
+
+interface TempleConfirmationWindowDetachRequest extends TempleMessageBase {
+  type: TempleMessageType.ConfirmationWindowDetachRequest;
+  id: string;
+}
+
+interface TempleConfirmationWindowDetachResponse extends TempleMessageBase {
+  type: TempleMessageType.ConfirmationWindowDetachResponse;
 }
 
 interface TempleSendEvmTransactionRequest extends TempleMessageBase {

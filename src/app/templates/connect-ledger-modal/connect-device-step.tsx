@@ -14,12 +14,12 @@ import { TempleChainKind } from 'temple/types';
 import { PageModalScrollViewWithActions } from '../page-modal-scroll-view-with-actions';
 
 import { ConnectLedgerModalSelectors } from './selectors';
-import { AccountProps } from './types';
+import { AccountProps, LedgerConnectionConfig } from './types';
 import { useGetLedgerEvmAccount, useGetLedgerTezosAccount } from './utils';
 
 interface ConnectDeviceStepProps {
   onSuccess: (account: AccountProps) => void;
-  chainKind: TempleChainKind;
+  selection: LedgerConnectionConfig;
 }
 
 const appsNames = {
@@ -60,7 +60,20 @@ const stateToUIConfiguration: Record<LedgerOperationState, UIConfiguration> =
     }
   });
 
-export const ConnectDeviceStep = memo<ConnectDeviceStepProps>(({ chainKind, onSuccess }) => {
+const parseIndexOrPath = (raw?: string): string | number => {
+  const trimmedValue = raw?.trim();
+
+  if (!trimmedValue) return 0;
+
+  if (trimmedValue.includes('/')) return trimmedValue;
+
+  const parsedNumber = Number(trimmedValue);
+
+  return Number.isFinite(parsedNumber) ? parsedNumber : 0;
+};
+
+export const ConnectDeviceStep = memo<ConnectDeviceStepProps>(({ selection, onSuccess }) => {
+  const { chainKind, tezosSettings } = selection;
   const [account, setAccount] = useState<AccountProps>();
   const [connectionState, setConnectionState] = useState<LedgerOperationState>(LedgerOperationState.NotStarted);
   const [modelName, setModelName] = useState<string | null>(null);
@@ -103,7 +116,10 @@ export const ConnectDeviceStep = memo<ConnectDeviceStepProps>(({ chainKind, onSu
       try {
         setAccount(
           chainKind === TempleChainKind.Tezos
-            ? await getLedgerTezosAccount(DerivationType.ED25519, 0)
+            ? await getLedgerTezosAccount(
+                tezosSettings?.derivationType ?? DerivationType.ED25519,
+                tezosSettings?.indexOrDerivationPath ? parseIndexOrPath(tezosSettings.indexOrDerivationPath) : 0
+              )
             : await getLedgerEvmAccount(0)
         );
         setConnectionState(LedgerOperationState.Success);
@@ -119,13 +135,14 @@ export const ConnectDeviceStep = memo<ConnectDeviceStepProps>(({ chainKind, onSu
       setConnectionState(LedgerOperationState.UnableToConnect);
       setModelName(null);
     }
-  }, [chainKind, getLedgerEvmAccount, getLedgerTezosAccount]);
+  }, [chainKind, getLedgerEvmAccount, getLedgerTezosAccount, tezosSettings]);
 
   const handleContinueClick = useCallback(() => onSuccess(account!), [onSuccess, account]);
 
   return (
     <FadeTransition>
       <PageModalScrollViewWithActions
+        className="!px-0"
         actionsBoxProps={{
           shouldChangeBottomShift: false,
           children: (
@@ -142,7 +159,7 @@ export const ConnectDeviceStep = memo<ConnectDeviceStepProps>(({ chainKind, onSu
           )
         }}
       >
-        <LedgerImage state={imageState} className="w-full" />
+        <LedgerImage state={imageState} chainKind={chainKind} className="w-full" />
         <div className="flex flex-col px-4 items-center">
           <p className="text-font-regular-bold text-center mb-2">
             {typeof title === 'string' ? title : title(appName, modelName ?? '')}

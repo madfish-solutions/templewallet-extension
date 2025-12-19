@@ -12,6 +12,7 @@ import RootSuspenseFallback from 'app/a11y/RootSuspenseFallback';
 import ConfirmPage from 'app/ConfirmPage';
 import { AppEnvProvider, WindowType } from 'app/env';
 import ErrorBoundary from 'app/ErrorBoundary';
+import { useSyncConfirmationIdToUrl } from 'app/hooks/use-sync-confirmation-id-to-url';
 import Dialogs from 'app/layouts/Dialogs';
 import { PageRouter } from 'app/PageRouter';
 import { TempleProvider, useTempleClient } from 'lib/temple/front';
@@ -61,14 +62,16 @@ export const App: FC<Props> = ({ env }) => (
 );
 
 const SidebarContent = () => {
-  const { dAppQueueCounters } = useTempleClient();
-  const location = Woozie.useLocation();
+  const { dAppQueueCounters, dAppPendingConfirmationId } = useTempleClient();
+  const { search, pathname } = Woozie.useLocation();
+
+  useSyncConfirmationIdToUrl(dAppPendingConfirmationId);
 
   const isConfirmation = useMemo(() => {
-    const searchParams = new URLSearchParams(location.search);
+    const searchParams = new URLSearchParams(search);
 
-    return dAppQueueCounters.length && searchParams.has('id') && searchParams.size === 1 && location.pathname === '/';
-  }, [dAppQueueCounters.length, location.pathname, location.search]);
+    return dAppQueueCounters.length && searchParams.has('id') && searchParams.size === 1 && pathname === '/';
+  }, [dAppQueueCounters.length, pathname, search]);
 
   return isConfirmation ? <ConfirmContent /> : <MainAppContent />;
 };

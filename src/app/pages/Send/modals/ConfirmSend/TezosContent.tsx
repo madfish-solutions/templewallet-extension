@@ -6,6 +6,11 @@ import { FormProvider } from 'react-hook-form-v7';
 import { useLedgerApprovalModalState } from 'app/hooks/use-ledger-approval-modal-state';
 import { TezosReviewData } from 'app/pages/Send/form/interfaces';
 import { useTezosEstimationData } from 'app/pages/Send/hooks/use-tezos-estimation-data';
+import { dispatch } from 'app/store';
+import {
+  addPendingTezosTransactionAction,
+  monitorPendingTezosTransactionsAction
+} from 'app/store/tezos/pending-transactions/actions';
 import { TezosTxParamsFormData } from 'app/templates/TransactionTabs/types';
 import { useTezosEstimationForm } from 'app/templates/TransactionTabs/use-tezos-estimation-form';
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
@@ -19,10 +24,13 @@ import { tzToMutez } from 'lib/temple/helpers';
 import { TempleAccountType } from 'lib/temple/types';
 import { isTezosContractAddress } from 'lib/tezos';
 import { runConnectedLedgerOperationFlow } from 'lib/ui';
+import { useLedgerWebHidFullViewGuard } from 'lib/ui/ledger-webhid-guard';
+import { LedgerFullViewPromptModal } from 'lib/ui/LedgerFullViewPrompt';
 import { showTxSubmitToastWithDelay } from 'lib/ui/show-tx-submit-toast.util';
 import { ZERO } from 'lib/utils/numbers';
 import { getTezosToolkitWithSigner } from 'temple/front';
 import { useGetTezosActiveBlockExplorer } from 'temple/front/ready';
+import { makeBlockExplorerHref } from 'temple/front/use-block-explorers';
 import { TempleChainKind } from 'temple/types';
 
 import { BaseContent } from './BaseContent';
@@ -112,6 +120,7 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
 
   const { ledgerApprovalModalState, setLedgerApprovalModalState, handleLedgerModalClose } =
     useLedgerApprovalModalState();
+  const { guard, ledgerPromptProps } = useLedgerWebHidFullViewGuard();
 
   const onSubmitError = useCallback(
     (err: unknown) => {
@@ -159,9 +168,22 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
           const blockExplorer = getActiveBlockExplorer(network.chainId);
 
           showTxSubmitToastWithDelay(TempleChainKind.Tezos, txHash, blockExplorer.url);
+
+          dispatch(
+            addPendingTezosTransactionAction({
+              txHash,
+              accountPkh,
+              network,
+              blockExplorerUrl: makeBlockExplorerHref(blockExplorer.url, txHash, 'tx', TempleChainKind.Tezos),
+              submittedAt: Date.now()
+            })
+          );
+          dispatch(monitorPendingTezosTransactionsAction());
         };
 
         if (isLedgerAccount) {
+          const redirected = await guard(account.type);
+          if (redirected) return;
           await runConnectedLedgerOperationFlow(doOperation, setLedgerApprovalModalState, true);
         } else {
           await doOperation();
@@ -181,34 +203,40 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
       onConfirm,
       onClose,
       getActiveBlockExplorer,
-      network.chainId,
+      network,
       setLedgerApprovalModalState,
       onSubmitError,
-      assertCustomGasFeeNotTooLow
+      assertCustomGasFeeNotTooLow,
+      accountPkh,
+      guard,
+      account.type
     ]
   );
 
   return (
-    <FormProvider {...form}>
-      <BaseContent<TezosTxParamsFormData>
-        ledgerApprovalModalState={ledgerApprovalModalState}
-        onLedgerModalClose={handleLedgerModalClose}
-        network={network}
-        assetSlug={assetSlug}
-        amount={amount}
-        recipientAddress={to}
-        decimals={assetMetadata.decimals}
-        displayedFeeOptions={displayedFeeOptions}
-        displayedFee={displayedFee}
-        selectedTab={tab}
-        setSelectedTab={setTab}
-        latestSubmitError={latestSubmitError}
-        displayedStorageFee={displayedStorageFee}
-        onFeeOptionSelect={handleFeeOptionSelect}
-        selectedFeeOption={selectedFeeOption}
-        onCancel={onClose}
-        onSubmit={onSubmit}
-      />
-    </FormProvider>
+    <>
+      <FormProvider {...form}>
+        <BaseContent<TezosTxParamsFormData>
+          ledgerApprovalModalState={ledgerApprovalModalState}
+          onLedgerModalClose={handleLedgerModalClose}
+          network={network}
+          assetSlug={assetSlug}
+          amount={amount}
+          recipientAddress={to}
+          decimals={assetMetadata.decimals}
+          displayedFeeOptions={displayedFeeOptions}
+          displayedFee={displayedFee}
+          selectedTab={tab}
+          setSelectedTab={setTab}
+          latestSubmitError={latestSubmitError}
+          displayedStorageFee={displayedStorageFee}
+          onFeeOptionSelect={handleFeeOptionSelect}
+          selectedFeeOption={selectedFeeOption}
+          onCancel={onClose}
+          onSubmit={onSubmit}
+        />
+      </FormProvider>
+      <LedgerFullViewPromptModal {...ledgerPromptProps} />
+    </>
   );
 };

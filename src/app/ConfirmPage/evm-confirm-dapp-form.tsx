@@ -119,7 +119,7 @@ export const EvmConfirmDAppForm = memo<EvmConfirmDAppFormProps>(({ payload, id }
 
   return (
     <CustomEvmChainIdContext.Provider value={chainId}>
-      <ConfirmDAppForm accounts={allAccounts} payload={modifiedPayload} onConfirm={handleConfirm}>
+      <ConfirmDAppForm confirmationId={id} accounts={allAccounts} payload={modifiedPayload} onConfirm={handleConfirm}>
         {renderPayload}
       </ConfirmDAppForm>
     </CustomEvmChainIdContext.Provider>

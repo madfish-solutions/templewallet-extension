@@ -5,6 +5,7 @@ import clsx from 'clsx';
 import { Anchor } from 'app/atoms/Anchor';
 import { useAdRectObservation } from 'app/hooks/ads/use-ad-rect-observation';
 import { DAPPS_PAGE_NAME } from 'app/pages/Dapps/constants';
+import { EARN_PAGE_NAME } from 'app/pages/Earn/constants';
 import type { AdsProviderTitle } from 'lib/ads';
 
 import { PartnersPromotionSelectors } from '../selectors';
@@ -20,7 +21,7 @@ interface Props {
   contentText?: string;
   providerTitle: AdsProviderTitle;
   pageName: string;
-  onAdRectSeen: EmptyFn;
+  onAdRectVisible: SyncFn<boolean>;
   onImageError: EmptyFn;
 }
 
@@ -34,18 +35,18 @@ export const TextPromotionView = memo<Props>(
     contentText = '',
     providerTitle,
     pageName,
-    onAdRectSeen,
+    onAdRectVisible,
     onImageError
   }) => {
     const ref = useRef<HTMLAnchorElement>(null);
-    useAdRectObservation(ref, onAdRectSeen, isVisible);
+    useAdRectObservation(ref, onAdRectVisible, isVisible);
 
     const testIDProperties = useMemo(
       () => buildAdClickAnalyticsProperties(PartnersPromotionVariant.Text, providerTitle, pageName, accountPkh, href),
       [href, providerTitle, pageName, accountPkh]
     );
 
-    const isDappsPage = pageName === DAPPS_PAGE_NAME;
+    const customPadding = pageName === DAPPS_PAGE_NAME || pageName === EARN_PAGE_NAME;
 
     return (
       <Anchor
@@ -60,10 +61,10 @@ export const TextPromotionView = memo<Props>(
         testID={PartnersPromotionSelectors.promoLink}
         testIDProperties={testIDProperties}
       >
-        <div className={clsx(isDappsPage ? 'p-3' : 'p-2', 'w-full flex-1 flex gap-2 pr-9')}>
+        <div className={clsx(customPadding ? 'p-3' : 'p-2', 'w-full flex-1 flex gap-2 pr-9')}>
           <div className="shrink-0">
             <img
-              className={clsx(isDappsPage ? 'p-0.5' : 'p-1', 'w-10 h-auto rounded-circle')}
+              className={clsx(customPadding ? 'p-0.5' : 'p-1', 'w-10 h-auto rounded-circle')}
               src={imageSrc}
               alt="Partners promotion"
               onError={onImageError}

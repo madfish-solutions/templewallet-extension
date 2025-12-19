@@ -40,42 +40,44 @@ export const AppEvmTokensMetadataLoading = memo<{ publicKeyHash: HexString }>(({
 
     const dispatchSetEvmTokensMetadataLoadingToTrue = once(() => dispatch(setEvmTokensMetadataLoading(true)));
 
-    Promise.allSettled(
-      evmChains.map(chain => {
-        const { chainId } = chain;
+    const fetchers = evmChains.flatMap(chain => {
+      const { chainId } = chain;
 
-        const chainTokensRecord = currentAccountTokens?.[chainId];
-        const chainMetadataRecord = tokensMetadataRecordRef.current[chainId];
+      const chainTokensRecord = currentAccountTokens?.[chainId];
+      const chainMetadataRecord = tokensMetadataRecordRef.current[chainId];
 
-        const allSlugs = chainTokensRecord ? Object.keys(chainTokensRecord) : [];
-        const checkedSlugs = checkedRef.current[chainId] ?? [];
+      const allSlugs = chainTokensRecord ? Object.keys(chainTokensRecord) : [];
+      const checkedSlugs = checkedRef.current[chainId] ?? [];
 
-        const slugsWithoutMeta = allSlugs.filter(slug => !chainMetadataRecord?.[slug] && !checkedSlugs.includes(slug));
+      const slugsWithoutMeta = allSlugs.filter(slug => !chainMetadataRecord?.[slug] && !checkedSlugs.includes(slug));
 
-        if (!slugsWithoutMeta.length) return;
+      if (!slugsWithoutMeta.length) return [];
 
-        checkedRef.current[chainId] = checkedSlugs.concat(slugsWithoutMeta);
+      checkedRef.current[chainId] = checkedSlugs.concat(slugsWithoutMeta);
 
-        dispatchSetEvmTokensMetadataLoadingToTrue();
+      dispatchSetEvmTokensMetadataLoadingToTrue();
 
-        if (isSupportedChainId(chainId) && !isTestnetMode) {
-          return getEvmTokensMetadata(publicKeyHash, chainId).then(data => {
-            dispatch(processLoadedEvmTokensMetadataAction({ chainId, data }));
+      if (isSupportedChainId(chainId) && !isTestnetMode) {
+        const fetcher = getEvmTokensMetadata(publicKeyHash, chainId).then(data => {
+          dispatch(processLoadedEvmTokensMetadataAction({ chainId, data }));
 
-            const slugsLeftWithoutMeta = data.items
-              .filter(item => !isValidFetchedEvmMetadata(item))
-              .map(item => toTokenSlug(ViemUtils.getAddress(item.contract_address)))
-              .filter(slug => slugsWithoutMeta.includes(slug));
+          const slugsLeftWithoutMeta = data.items
+            .filter(item => !isValidFetchedEvmMetadata(item))
+            .map(item => toTokenSlug(ViemUtils.getAddress(item.contract_address)))
+            .filter(slug => slugsWithoutMeta.includes(slug));
 
-            if (!slugsLeftWithoutMeta.length) return;
+          if (!slugsLeftWithoutMeta.length) return;
 
-            return loadEvmTokensMetadataFromChain(slugsLeftWithoutMeta, chain);
-          });
-        }
+          return loadEvmTokensMetadataFromChain(slugsLeftWithoutMeta, chain);
+        });
 
-        return loadEvmTokensMetadataFromChain(slugsWithoutMeta, chain);
-      })
-    ).then(() => void dispatch(setEvmTokensMetadataLoading(false)));
+        return [fetcher];
+      }
+
+      return [loadEvmTokensMetadataFromChain(slugsWithoutMeta, chain)];
+    });
+
+    Promise.allSettled(fetchers).then(() => void dispatch(setEvmTokensMetadataLoading(false)));
   }, [evmChains, isLoadingRef, tokensMetadataRecordRef, storedTokensRecord, publicKeyHash, isTestnetMode]);
 
   return null;

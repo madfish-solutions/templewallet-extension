@@ -1,18 +1,23 @@
-import React, { memo, useCallback, useEffect } from 'react';
+import React, { memo, useEffect } from 'react';
 
-import { AssetsSegmentControl } from 'app/atoms/AssetsSegmentControl';
+import { AssetsViewStateController } from 'app/atoms/AssetsViewStateController';
 import { SuspenseContainer } from 'app/atoms/SuspenseContainer';
 import { useLocationSearchParamValue } from 'app/hooks/use-location';
+import { StickyBar } from 'app/layouts/containers';
 import PageLayout from 'app/layouts/PageLayout';
 import { AppHeader } from 'app/templates/AppHeader';
 import { DAppConnectionRefsProvider } from 'app/templates/DAppConnection/dapp-connection-refs';
+import { DepositModal } from 'app/templates/DepositModal';
 import { ExploreActionButtonsBar } from 'app/templates/ExploreActionButtons';
 import { toastSuccess } from 'app/toaster';
 import { useInitToastMessage } from 'lib/temple/front/toasts-context';
-import { HistoryAction, navigate } from 'lib/woozie';
+import { useBooleanState } from 'lib/ui/hooks';
 
 import { CollectiblesTab } from '../Collectibles/CollectiblesTab';
 
+import { EarnSection } from './OtherComponents/EarnSection';
+import { KoloCardWidgetModal } from './OtherComponents/KoloCard/KoloCardWidgetModal';
+import { UpdateAppBanner } from './OtherComponents/Tokens/components/UpdateAppBanner';
 import { TokensTab } from './OtherComponents/Tokens/Tokens';
 import { TotalEquityBanner } from './OtherComponents/TotalEquityBanner';
 
@@ -20,6 +25,9 @@ const Home = memo(() => {
   const [tabSlug] = useLocationSearchParamValue('tab');
 
   const [initToastMessage, setInitToastMessage] = useInitToastMessage();
+
+  const [depositModalOpened, openDepositModal, closeDepositModal] = useBooleanState(false);
+  const [cryptoCardModalOpened, openCryptoCardModal, closeCryptoCardModal] = useBooleanState(false);
 
   useEffect(() => {
     if (!initToastMessage) return;
@@ -32,29 +40,30 @@ const Home = memo(() => {
     return () => clearTimeout(timeout);
   }, [initToastMessage, setInitToastMessage]);
 
-  const onTokensTabClick = useCallback(() => navigate({ search: 'tab=tokens' }, HistoryAction.Replace), []);
-  const onCollectiblesTabClick = useCallback(() => navigate({ search: 'tab=collectibles' }, HistoryAction.Replace), []);
-
   return (
-    <PageLayout Header={AppHeader} contentPadding={false}>
-      <div className="flex flex-col pt-1 px-4 bg-white">
+    <PageLayout Header={AppHeader} bgWhite={false} contentPadding={false}>
+      <div className="flex flex-col pt-2 pb-0 px-4">
         <TotalEquityBanner />
 
-        <ExploreActionButtonsBar additionalButtonType="activity" className="mt-4" />
-
-        <AssetsSegmentControl
-          tabSlug={tabSlug}
-          className="mt-6"
-          onTokensTabClick={onTokensTabClick}
-          onCollectiblesTabClick={onCollectiblesTabClick}
-        />
+        <ExploreActionButtonsBar additionalButtonType="activity" onDepositClick={openDepositModal} className="mt-4" />
       </div>
+
+      <EarnSection className="mt-6 mb-3" openCryptoCardModal={openCryptoCardModal} />
+
+      <UpdateAppBanner />
+
+      <StickyBar>
+        <AssetsViewStateController />
+      </StickyBar>
 
       <SuspenseContainer>
         <DAppConnectionRefsProvider>
           {tabSlug === 'collectibles' ? <CollectiblesTab /> : <TokensTab />}
         </DAppConnectionRefsProvider>
       </SuspenseContainer>
+
+      <KoloCardWidgetModal opened={cryptoCardModalOpened} onRequestClose={closeCryptoCardModal} />
+      <DepositModal opened={depositModalOpened} onRequestClose={closeDepositModal} />
     </PageLayout>
   );
 });
