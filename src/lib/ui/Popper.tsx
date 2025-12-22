@@ -104,6 +104,15 @@ const Popper = memo<PopperProps>(({ popup, children, fallbackPlacementsEnabled =
     []
   );
 
+  useEffect(() => {
+    if (!opened) return;
+
+    const handleWindowBlur = () => setOpened(false);
+    window.addEventListener('blur', handleWindowBlur);
+
+    return () => window.removeEventListener('blur', handleWindowBlur);
+  }, [opened, setOpened]);
+
   useLayoutEffect(() => {
     popperRef.current?.forceUpdate();
   }, [opened]);

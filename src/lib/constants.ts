@@ -110,6 +110,8 @@ export const SHOULD_DISABLE_NOT_ACTIVE_NETWORKS_STORAGE_KEY = 'SHOULD_DISABLE_NO
 
 export const ACCOUNTS_FOR_REENABLING_NETWORKS_STORAGE_KEY = 'ACCOUNTS_FOR_REENABLING_NETWORKS';
 
+export const KOLO_FORCE_LOGOUT_ON_NEXT_OPEN_STORAGE_KEY = 'KOLO_FORCE_LOGOUT_ON_NEXT_OPEN';
+
 // Browser storage cannot set a value to Infinity
 export const NEVER_AUTOLOCK_VALUE = Number.MAX_SAFE_INTEGER;
 
@@ -151,7 +153,9 @@ export const MAX_EVM_ALLOWANCE = BigInt(2) ** BigInt(256) - BigInt(1);
 
 export const LEDGER_USB_VENDOR_ID = '0x2c97';
 
-export const TEZOS_APY = 5.6;
+export const TEZOS_APY = '6.5';
+export const ETHEREUM_APR = '3.4-10';
+export const APPLEFARM_APR = '12';
 
 export const TEZ_BURN_ADDRESS = 'tz1burnburnburnburnburnburnburjAYjjX';
 
@@ -164,3 +168,6 @@ export const ASSET_HUGE_AMOUNT = 1e18;
 export const REACTIVATION_APPLIED_AT_KEY = 'ADS_REACTIVATION_APPLIED_AT';
 
 export const MIN_ETH_EVERSTAKE_CLAIMABLE_AMOUNT = 1e-6;
+
+export const ETHERLINK_USDC_SLUG = '0x796Ea11Fa2dD751eD01b53C372fFDB4AAa8f00F9_0';
+export const APPLEFARM_REFERRAL_LINK = 'https://app.applefarm.xyz/referral?code=APPLE-FARM-880788';

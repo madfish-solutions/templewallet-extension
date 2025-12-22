@@ -2806,6 +2806,12 @@
   "swap": {
     "message": "Swap"
   },
+  "savings": {
+    "message": "Savings"
+  },
+  "externalOffers": {
+    "message": "External Offers"
+  },
   "accountNumber": {
     "message": "Account number"
   },
