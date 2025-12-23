@@ -3,6 +3,8 @@ import React, { PropsWithChildren, Component, ErrorInfo, memo } from 'react';
 import clsx from 'clsx';
 
 import { ReactComponent as DangerIcon } from 'app/icons/danger.svg';
+import { store } from 'app/store';
+import { reportError } from 'lib/analytics';
 import { t, T } from 'lib/i18n';
 import { getOnlineStatus } from 'lib/ui/get-online-status';
 import { HistoryAction, navigate } from 'lib/woozie';
@@ -37,6 +39,18 @@ export default class ErrorBoundary extends Component<Props, ErrorBoundaryState> 
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     console.error(error.message, errorInfo.componentStack);
+
+    try {
+      const state = store.getState();
+      const { userId, isAnalyticsEnabled } = state.settings;
+
+      reportError(error, userId, undefined, isAnalyticsEnabled, {
+        source: 'ErrorBoundary',
+        componentStack: errorInfo.componentStack
+      });
+    } catch {
+      // Silently fail
+    }
   }
 
   componentDidMount() {
