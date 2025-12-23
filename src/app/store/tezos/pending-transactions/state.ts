@@ -1,11 +1,10 @@
 import { TezosNetworkEssentials } from 'temple/networks';
-
-export type TransactionStatus = 'PENDING' | 'DONE' | 'FAILED';
+import { PendingTransactionStatus } from 'temple/types';
 
 export interface TransactionState {
   submittedAt: number;
   lastCheckedAt: number;
-  status: TransactionStatus;
+  status: PendingTransactionStatus;
   txHash: string;
   accountPkh: string;
   network: TezosNetworkEssentials;
@@ -16,6 +15,7 @@ export interface TransactionState {
 export interface PendingTezosTransactionsState {
   transactions: StringRecord<TransactionState>;
   hashesByAccountChainId: StringRecord<string[]>;
+  transactionBeingWatched?: string;
 }
 
 export const pendingTezosTransactionsInitialState: PendingTezosTransactionsState = {
