@@ -8,7 +8,7 @@ import { AssetsAmounts } from 'temple/types';
 export interface BalancesChangesViewProps<C extends OneOfChains = OneOfChains> {
   balancesChanges: AssetsAmounts[];
   chain: C;
-  title?: string;
+  title?: ReactNode;
   footer?: ReactNode;
   bridgeData?: {
     inputNetwork: EvmChain;

@@ -3,13 +3,12 @@ import React, { memo, Suspense, useCallback, useEffect, useMemo, useState } from
 import clsx from 'clsx';
 import { useDebounce } from 'use-debounce';
 
-import { HashShortView, IconBase } from 'app/atoms';
 import { AccountAvatar } from 'app/atoms/AccountAvatar';
+import { CopyAddress } from 'app/atoms/copy-address';
 import { EmptyState } from 'app/atoms/EmptyState';
 import { PageModal } from 'app/atoms/PageModal';
 import { ScrollView } from 'app/atoms/PageModal/scroll-view';
 import { RadioButton } from 'app/atoms/RadioButton';
-import { ReactComponent as CopyIcon } from 'app/icons/base/copy.svg';
 import { SpinnerSection } from 'app/pages/Send/form/SpinnerSection';
 import {
   AccountsGroup as GenericAccountsGroup,
@@ -18,7 +17,6 @@ import {
 import { SearchBarField } from 'app/templates/SearchField';
 import { T } from 'lib/i18n';
 import { TempleContact } from 'lib/temple/types';
-import { useCopyText } from 'lib/ui/hooks/use-copy-text';
 import { useScrollIntoViewOnMount } from 'lib/ui/use-scroll-into-view';
 import { searchAndFilterItems } from 'lib/utils/search-items';
 import { getAccountAddressForEvm, getAccountAddressForTezos } from 'temple/accounts';
@@ -208,9 +206,8 @@ const AccountOfGroup = memo<AccountOfGroupProps>(({ name, address, iconHash, isC
     <div
       ref={elemRef}
       className={clsx(
-        'flex flex-row justify-between items-center p-3',
-        'rounded-lg shadow-bottom border group',
-        isCurrent ? 'border-primary' : 'cursor-pointer border-transparent hover:border-lines'
+        'bg-white flex flex-row justify-between items-center p-3 rounded-lg group',
+        isCurrent ? 'border-primary border' : 'cursor-pointer variable-lines-border'
       )}
       onClick={onClick}
     >
@@ -219,7 +216,7 @@ const AccountOfGroup = memo<AccountOfGroupProps>(({ name, address, iconHash, isC
 
         <div className="flex flex-col">
           <span className="text-font-medium-bold">{name}</span>
-          <Address address={address} />
+          <CopyAddress address={address} className="p-0.5" />
         </div>
       </div>
 
@@ -227,19 +224,6 @@ const AccountOfGroup = memo<AccountOfGroupProps>(({ name, address, iconHash, isC
     </div>
   );
 });
-
-interface AddressProps {
-  address: string;
-}
-
-const Address = memo<AddressProps>(({ address }) => (
-  <div className="flex flex-row items-center p-0.5 cursor-pointer" onClick={useCopyText(address, true)}>
-    <span className="text-font-description text-grey-1 group-hover:text-secondary">
-      <HashShortView hash={address} />
-    </span>
-    <IconBase Icon={CopyIcon} size={12} className="ml-0.5 text-secondary hidden group-hover:block" />
-  </div>
-));
 
 const searchAndFilterContacts = (accounts: TempleContact[], searchValue: string) => {
   const preparedSearchValue = searchValue.trim().toLowerCase();
