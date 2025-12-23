@@ -52,7 +52,7 @@ export const NoBakerContent = memo<NoBakerContentProps>(({ cannotDelegate, openD
       </div>
 
       <h3 className="mb-4 text-font-h3 text-center">
-        <T id="delegationPointsHead" substitutions={String(TEZOS_APY)} />
+        <T id="delegationPointsHead" substitutions={TEZOS_APY} />
       </h3>
 
       <div className="grid grid-cols-2 gap-3">

@@ -41,7 +41,7 @@ export const TotalStakingStatsCard = memo<TotalStakingStatsCardProps>(
       [pendingBalanceOf, pendingDepositedBalanceOf, pendingRestakedRewardOf]
     );
     const totalStaked = useMemo(
-      () => BigNumber.sum(depositedBalanceOf, restakedRewardOf).plus(pendingStaked),
+      () => BigNumber.sum(depositedBalanceOf, restakedRewardOf, pendingStaked),
       [depositedBalanceOf, restakedRewardOf, pendingStaked]
     );
     const rewards = useMemo(

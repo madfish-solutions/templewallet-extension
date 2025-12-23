@@ -16,6 +16,7 @@ import { useBooleanState } from 'lib/ui/hooks';
 import { CollectiblesTab } from '../Collectibles/CollectiblesTab';
 
 import { EarnSection } from './OtherComponents/EarnSection';
+import { KoloCardWidgetModal } from './OtherComponents/KoloCard/KoloCardWidgetModal';
 import { NotificationBanner } from './OtherComponents/Tokens/components/NotificationBanner';
 import { TokensTab } from './OtherComponents/Tokens/Tokens';
 import { TotalEquityBanner } from './OtherComponents/TotalEquityBanner';
@@ -26,6 +27,7 @@ const Home = memo(() => {
   const [initToastMessage, setInitToastMessage] = useInitToastMessage();
 
   const [depositModalOpened, openDepositModal, closeDepositModal] = useBooleanState(false);
+  const [cryptoCardModalOpened, openCryptoCardModal, closeCryptoCardModal] = useBooleanState(false);
 
   useEffect(() => {
     if (!initToastMessage) return;
@@ -46,7 +48,7 @@ const Home = memo(() => {
         <ExploreActionButtonsBar additionalButtonType="activity" onDepositClick={openDepositModal} className="mt-4" />
       </div>
 
-      <EarnSection className="mt-6 mb-3" />
+      <EarnSection className="mt-6 mb-3" openCryptoCardModal={openCryptoCardModal} />
 
       <NotificationBanner />
 
@@ -60,6 +62,7 @@ const Home = memo(() => {
         </DAppConnectionRefsProvider>
       </SuspenseContainer>
 
+      <KoloCardWidgetModal opened={cryptoCardModalOpened} onRequestClose={closeCryptoCardModal} />
       <DepositModal opened={depositModalOpened} onRequestClose={closeDepositModal} />
     </PageLayout>
   );
