@@ -55,9 +55,9 @@ export const rootEpic: typeof allEpics = (action$, store$, dependencies) =>
       try {
         const state = store$.value;
         const { userId, isAnalyticsEnabled } = state.settings;
-        reportError(toError(error), userId, undefined, isAnalyticsEnabled, { source: 'Redux Epic' });
+        void reportError(toError(error), userId, undefined, isAnalyticsEnabled, { source: 'Redux Epic' });
       } catch {
-        // Silently fail
+        // error
       }
 
       return source;

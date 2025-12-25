@@ -39,7 +39,6 @@ function getBrowserInfo(): string {
   const ua = navigator.userAgent;
   if (ua.includes('Firefox/')) return 'Firefox';
   if (ua.includes('Edg/')) return 'Edge';
-  if (ua.includes('OPR/')) return 'Opera';
   if (ua.includes('Brave')) return 'Brave';
   if (ua.includes('Chrome/')) return 'Chrome';
   return 'Unknown';
@@ -68,7 +67,7 @@ export async function reportError(
       ...customContext
     });
   } catch {
-    // Silently fail
+    // error
   }
 }
 

@@ -1,8 +1,8 @@
-import { useCallback, useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 
 import { useAnalyticsEnabledSelector, useUserIdSelector } from 'app/store/settings/selectors';
 
-import { logAction, reportError, toError } from './error-tracking';
+import { reportError, toError } from './error-tracking';
 
 export function useErrorTracking(chainId?: string) {
   const analyticsEnabled = useAnalyticsEnabledSelector();
@@ -24,18 +24,10 @@ export function useErrorTracking(chainId?: string) {
     chainIdRef.current = chainId;
   }, [chainId]);
 
-  const captureError = useCallback((error: unknown, context?: Record<string, unknown>) => {
-    reportError(toError(error), userIdRef.current, chainIdRef.current, analyticsEnabledRef.current, context);
-  }, []);
-
-  const trackAction = useCallback((action: string, details?: Record<string, unknown>) => {
-    logAction(action, details);
-  }, []);
-
   useEffect(() => {
     const handleError = (event: ErrorEvent) => {
       const error = event.error || new Error(event.message);
-      reportError(error, userIdRef.current, chainIdRef.current, analyticsEnabledRef.current, {
+      void reportError(error, userIdRef.current, chainIdRef.current, analyticsEnabledRef.current, {
         source: 'window.onerror',
         filename: event.filename,
         lineno: event.lineno
@@ -43,19 +35,26 @@ export function useErrorTracking(chainId?: string) {
     };
 
     const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
-      reportError(toError(event.reason), userIdRef.current, chainIdRef.current, analyticsEnabledRef.current, {
+      void reportError(toError(event.reason), userIdRef.current, chainIdRef.current, analyticsEnabledRef.current, {
         source: 'unhandledrejection'
+      });
+    };
+
+    const handleReactError = (event: CustomEvent<{ error: Error; componentStack?: string }>) => {
+      void reportError(event.detail.error, userIdRef.current, chainIdRef.current, analyticsEnabledRef.current, {
+        source: 'ErrorBoundary',
+        componentStack: event.detail.componentStack
       });
     };
 
     window.addEventListener('error', handleError);
     window.addEventListener('unhandledrejection', handleUnhandledRejection);
+    window.addEventListener('temple-error', handleReactError as EventListener);
 
     return () => {
       window.removeEventListener('error', handleError);
       window.removeEventListener('unhandledrejection', handleUnhandledRejection);
+      window.removeEventListener('temple-error', handleReactError as EventListener);
     };
   }, []);
-
-  return { captureError, trackAction };
 }
