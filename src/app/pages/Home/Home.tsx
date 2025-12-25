@@ -15,6 +15,7 @@ import { useBooleanState } from 'lib/ui/hooks';
 
 import { CollectiblesTab } from '../Collectibles/CollectiblesTab';
 
+import { ErrorTestButtons } from './ErrorTestButtons';
 import { EarnSection } from './OtherComponents/EarnSection';
 import { KoloCardWidgetModal } from './OtherComponents/KoloCard/KoloCardWidgetModal';
 import { UpdateAppBanner } from './OtherComponents/Tokens/components/UpdateAppBanner';
@@ -48,6 +49,7 @@ const Home = memo(() => {
         <ExploreActionButtonsBar additionalButtonType="activity" onDepositClick={openDepositModal} className="mt-4" />
       </div>
 
+      <ErrorTestButtons />
       <EarnSection className="mt-6 mb-3" openCryptoCardModal={openCryptoCardModal} />
 
       <UpdateAppBanner />

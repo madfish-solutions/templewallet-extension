@@ -3,29 +3,7 @@ import { AnalyticsEventCategory } from 'lib/temple/analytics-types';
 
 import { sendTrackEvent } from './send-events.utils';
 
-const MAX_ACTION_LOG_SIZE = 50;
-
-interface ActionLogEntry {
-  action: string;
-  timestamp: number;
-  details?: Record<string, unknown>;
-}
-
-let actionLog: ActionLogEntry[] = [];
-
-export function logAction(action: string, details?: Record<string, unknown>): void {
-  actionLog.push({ action, timestamp: Date.now(), details });
-
-  if (actionLog.length > MAX_ACTION_LOG_SIZE) {
-    actionLog = actionLog.slice(-MAX_ACTION_LOG_SIZE);
-  }
-}
-
-export function getActionLog(): ActionLogEntry[] {
-  return [...actionLog];
-}
-
-function getOSInfo(): string {
+function getOS(): string {
   const ua = navigator.userAgent;
   if (ua.includes('Windows')) return 'Windows';
   if (ua.includes('Mac')) return 'macOS';
@@ -35,13 +13,29 @@ function getOSInfo(): string {
   return navigator.platform || 'Unknown';
 }
 
-function getBrowserInfo(): string {
+function getBrowser(): string {
   const ua = navigator.userAgent;
-  if (ua.includes('Firefox/')) return 'Firefox';
-  if (ua.includes('Edg/')) return 'Edge';
-  if (ua.includes('Brave')) return 'Brave';
-  if (ua.includes('Chrome/')) return 'Chrome';
+  const chrome = ua.match(/Chrome\/(\d+\.\d+)/);
+  if (chrome) return `Chrome ${chrome[1]}`;
+  const firefox = ua.match(/Firefox\/(\d+\.\d+)/);
+  if (firefox) return `Firefox ${firefox[1]}`;
+  const edge = ua.match(/Edg\/(\d+\.\d+)/);
+  if (edge) return `Edge ${edge[1]}`;
+  if (ua.includes('Brave')) {
+    const brave = ua.match(/Chrome\/(\d+\.\d+)/);
+    return brave ? `Brave ${brave[1]}` : 'Brave';
+  }
   return 'Unknown';
+}
+
+function getWindowType(): string {
+  const url = window.location.href;
+  if (url.includes('popup.html')) return 'popup';
+  if (url.includes('fullpage.html')) return 'fullpage';
+  if (url.includes('sidebar.html')) return 'sidebar';
+  if (url.includes('confirm.html')) return 'confirm';
+  if (url.includes('options.html')) return 'options';
+  return 'unknown';
 }
 
 export async function reportError(
@@ -54,16 +48,20 @@ export async function reportError(
   if (!isAnalyticsEnabled || IS_DEV_ENV) return;
 
   try {
+    const now = new Date();
+
     await sendTrackEvent(userId, chainId, 'ErrorCaptured', AnalyticsEventCategory.Error, {
       errorType: error.name || 'Error',
       errorMessage: error.message,
       stackTrace: error.stack,
       version: APP_VERSION,
-      os: getOSInfo(),
-      browser: getBrowserInfo(),
-      timestamp: Date.now(),
+      windowType: getWindowType(),
       url: window.location.href,
-      actionLog: getActionLog(),
+      os: getOS(),
+      browser: getBrowser(),
+      timestamp: now.getTime(),
+      timestampISO: now.toISOString(),
+      chainId: chainId || null,
       ...customContext
     });
   } catch {
