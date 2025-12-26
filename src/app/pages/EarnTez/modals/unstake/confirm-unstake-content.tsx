@@ -1,9 +1,9 @@
-import React, { memo } from 'react';
+import React, { memo, useMemo } from 'react';
 
 import { TezosToolkit } from '@taquito/taquito';
 
-import { OneAssetHeader } from 'app/templates/one-asset-header';
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
+import { tzToMutez } from 'lib/temple/helpers';
 
 import { ConfirmEarnOperationContent } from '../../components/confirm-earn-operation-content';
 
@@ -16,23 +16,26 @@ interface ConfirmUnstakeContentProps {
   onCancel: EmptyFn;
 }
 
-export const ConfirmUnstakeContent = memo<ConfirmUnstakeContentProps>(({ reviewData, onCancel }) => (
-  <ConfirmEarnOperationContent<ReviewData>
-    getBasicParamsSWRKey={getBasicParamsSWRKey}
-    formId="confirm-unstake-form"
-    reviewData={reviewData}
-    renderTopElement={renderTopElement}
-    cancelTestID={UnstakeModalSelectors.cancelButton}
-    confirmTestID={UnstakeModalSelectors.confirmButton}
-    getBasicParams={getBasicUnstakingParams}
-    useEstimationData={useUnstakingEstimationData}
-    onCancel={onCancel}
-  />
-));
+export const ConfirmUnstakeContent = memo<ConfirmUnstakeContentProps>(({ reviewData, onCancel }) => {
+  const balancesChanges = useMemo(
+    () => (reviewData ? [{ [TEZ_TOKEN_SLUG]: { atomicAmount: tzToMutez(reviewData.amount), isNft: false } }] : []),
+    [reviewData]
+  );
 
-const renderTopElement = ({ network, amount }: ReviewData) => (
-  <OneAssetHeader amount={amount.toFixed()} network={network} assetSlug={TEZ_TOKEN_SLUG} />
-);
+  return (
+    <ConfirmEarnOperationContent<ReviewData>
+      getBasicParamsSWRKey={getBasicParamsSWRKey}
+      formId="confirm-unstake-form"
+      balancesChanges={balancesChanges}
+      reviewData={reviewData}
+      cancelTestID={UnstakeModalSelectors.cancelButton}
+      confirmTestID={UnstakeModalSelectors.confirmButton}
+      getBasicParams={getBasicUnstakingParams}
+      useEstimationData={useUnstakingEstimationData}
+      onCancel={onCancel}
+    />
+  );
+});
 
 const getBasicUnstakingParams = ({ account, amount }: ReviewData, tezos: TezosToolkit) =>
   getUnstakingParams(account, tezos, amount);

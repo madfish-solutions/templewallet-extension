@@ -3,6 +3,7 @@ import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { KNOWN_TOKENS_SLUGS } from 'lib/assets/known-tokens';
 import { ETHERLINK_USDC_SLUG, APPLEFARM_REFERRAL_LINK, TEZOS_APY, APPLEFARM_APR, ETHEREUM_APR } from 'lib/constants';
 import {
+  ETHEREUM_HOODI_CHAIN_ID,
   ETHEREUM_MAINNET_CHAIN_ID,
   ETHERLINK_MAINNET_CHAIN_ID,
   TEZOS_GHOSTNET_CHAIN_ID,
@@ -32,50 +33,50 @@ export const getTezSavingOffer = (isTestnetMode: boolean) => {
   };
 };
 
-export const ETH_SAVING_OFFER: EarnOffer = {
-  id: 'earn-eth',
-  link: '/earn-eth',
-  symbol: 'ETH',
-  name: 'Everstake',
-  chainKind: TempleChainKind.EVM,
-  chainId: ETHEREUM_MAINNET_CHAIN_ID,
-  assetSlug: EVM_TOKEN_SLUG,
-  displayYield: `${ETHEREUM_APR}% APR`
+export const ETH_SAVING_OFFER_ID = 'earn-eth';
+
+export const getEthSavingOffer = (isTestnetMode: boolean) => {
+  const chainId = isTestnetMode ? ETHEREUM_HOODI_CHAIN_ID : ETHEREUM_MAINNET_CHAIN_ID;
+
+  return {
+    id: ETH_SAVING_OFFER_ID,
+    link: '/earn-eth',
+    symbol: 'ETH',
+    name: 'Everstake',
+    chainKind: TempleChainKind.EVM,
+    chainId,
+    assetSlug: EVM_TOKEN_SLUG,
+    displayYield: `${ETHEREUM_APR}% APR`
+  };
+};
+
+const YOUVES_OFFER_COMMON_PROPERTIES = {
+  name: 'Youves',
+  link: YOUVES_REFFERAL_LINK,
+  chainKind: TempleChainKind.Tezos,
+  chainId: TEZOS_MAINNET_CHAIN_ID,
+  providerIcon: YouvesIcon,
+  isExternal: true
 };
 
 export const EXTERNAL_OFFERS: EarnOffer[] = [
   {
     id: 'youves-uusd',
-    link: YOUVES_REFFERAL_LINK,
     symbol: 'uUSD',
-    name: 'Youves',
-    chainKind: TempleChainKind.Tezos,
-    chainId: TEZOS_MAINNET_CHAIN_ID,
     assetSlug: KNOWN_TOKENS_SLUGS.UUSD,
-    providerIcon: YouvesIcon,
-    isExternal: true
+    ...YOUVES_OFFER_COMMON_PROPERTIES
   },
   {
     id: 'youves-ubtc',
-    link: YOUVES_REFFERAL_LINK,
     symbol: 'uBTC',
-    name: 'Youves',
-    chainKind: TempleChainKind.Tezos,
-    chainId: TEZOS_MAINNET_CHAIN_ID,
     assetSlug: KNOWN_TOKENS_SLUGS.UBTC,
-    providerIcon: YouvesIcon,
-    isExternal: true
+    ...YOUVES_OFFER_COMMON_PROPERTIES
   },
   {
     id: 'youves-you',
-    link: YOUVES_REFFERAL_LINK,
     symbol: 'YOU',
-    name: 'Youves',
-    chainKind: TempleChainKind.Tezos,
-    chainId: TEZOS_MAINNET_CHAIN_ID,
     assetSlug: KNOWN_TOKENS_SLUGS.YOU,
-    providerIcon: YouvesIcon,
-    isExternal: true
+    ...YOUVES_OFFER_COMMON_PROPERTIES
   },
   {
     id: 'applefarm-usdc',

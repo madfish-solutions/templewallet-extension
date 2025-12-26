@@ -7,6 +7,10 @@ inputs:
     required: true
   NPM_TOKEN:
     required: false
+  KOLO_API_PUBLIC_KEY:
+    required: true
+  KOLO_BASE_URL:
+    required: true
   TEMPLE_WALLET_JITSU_TRACKING_HOST:
     required: true
   TEMPLE_WALLET_JITSU_WRITE_KEY:
@@ -171,6 +175,9 @@ runs:
         TEMPLE_WALLET_KOLIBRIO_PARAMS=${{ inputs.TEMPLE_WALLET_KOLIBRIO_PARAMS }}
         TEMPLE_FIREBASE_CONFIG=${{ inputs.TEMPLE_FIREBASE_CONFIG }}
         TEMPLE_FIREBASE_MESSAGING_VAPID_KEY=${{ inputs.TEMPLE_FIREBASE_MESSAGING_VAPID_KEY }}
+
+        KOLO_API_PUBLIC_KEY=${{ inputs.KOLO_API_PUBLIC_KEY }}
+        KOLO_BASE_URL=${{ inputs.KOLO_BASE_URL }}
 
         HYPELAB_API_URL=${{ inputs.HYPELAB_API_URL }}
         HYPELAB_HIGH_PLACEMENT_SLUG=${{ inputs.HYPELAB_HIGH_PLACEMENT_SLUG }}

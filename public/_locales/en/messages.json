@@ -570,6 +570,14 @@
       }
     }
   },
+  "minimalAmount": {
+    "message": "Min: $amount$",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
   "amountMustBePositive": {
     "message": "Must be positive"
   },
@@ -1340,6 +1348,9 @@
   "transactionSubmitted": {
     "message": "Transaction Submitted"
   },
+  "otherOperationsPendingError": {
+    "message": "One transaction per block, try again in a moment"
+  },
   "unstakeRequestNumber": {
     "message": "Unstake request $number$",
     "placeholders": {
@@ -1357,8 +1368,62 @@
   "tezosStaking": {
     "message": "Tezos Staking"
   },
+  "ethStaking": {
+    "message": "ETH Staking"
+  },
   "staked": {
     "message": "Staked"
+  },
+  "totalStaked": {
+    "message": "Total staked"
+  },
+  "ethStakingTooltipText": {
+    "message": "Your staking is combined with others to reach the 32 ETH in Everstake validator pool. Once active, your rewards are automatically re-staked."
+  },
+  "ethRewardsTooltip": {
+    "message": "Your rewards is auto-compounded into total staked amount."
+  },
+  "pendingRewards": {
+    "message": "Pending"
+  },
+  "withdrawals": {
+    "message": "Withdrawals"
+  },
+  "ethWithdrawalsTooltipText": {
+    "message": "Unstaked Ethereum that completed the\u00a0withdrawal process will be available to transfer back to your account."
+  },
+  "noWithdrawalsYet": {
+    "message": "No withdrawals yet"
+  },
+  "pendingBalance": {
+    "message": "Pending balance"
+  },
+  "claim": {
+    "message": "Claim"
+  },
+  "ethStakingDisclaimer": {
+    "message": "Estimated withdrawal period is $period$. Actual withdrawal can be faster depending on the provider queue and network conditions.",
+    "placeholders": {
+      "period": {
+        "content": "$1"
+      }
+    }
+  },
+  "ethUnstakingDisclaimer": {
+    "message": "Unstaking takes $period$ to complete. Once $period$ have passed, your ETH will be available to claim.",
+    "placeholders": {
+      "period": {
+        "content": "$1"
+      }
+    }
+  },
+  "notReadyClaimTooltip": {
+    "message": "Estimated withdrawal period is $period$. Actual withdrawal can be faster, you'll receive toast notification when your balance is ready to claim.",
+    "placeholders": {
+      "period": {
+        "content": "$1"
+      }
+    }
   },
   "unstake": {
     "message": "Unstake"
@@ -1366,8 +1431,14 @@
   "unstakeTez": {
     "message": "Unstake TEZ"
   },
+  "unstakeEth": {
+    "message": "Unstake ETH"
+  },
   "estimatedApy": {
     "message": "Est. APY"
+  },
+  "estimatedApr": {
+    "message": "Est. APR"
   },
   "selectBaker": {
     "message": "Select Baker"
@@ -1603,6 +1674,14 @@
     "message": "Insufficient $tokenSymbol$ for gas",
     "placeholders": {
       "tokenSymbol": {
+        "content": "$1"
+      }
+    }
+  },
+  "insufficientAssetBalance": {
+    "message": "Insufficient $assetSymbol$ balance",
+    "placeholders": {
+      "assetSymbol": {
         "content": "$1"
       }
     }
@@ -4765,5 +4844,40 @@
   },
   "currentAccountNotConnectedToDApp": {
     "message": "Current account isn’t connected to Dapp"
+  },
+  "addNetworkToContinue": {
+    "message": "Add $network$ to continue",
+    "placeholders": {
+      "network": {
+        "content": "$1"
+      }
+    }
+  },
+  "enableNetworkToContinue": {
+    "message": "Enable $network$ to continue",
+    "placeholders": {
+      "network": {
+        "content": "$1"
+      }
+    }
+  },
+  "activation": {
+    "message": "Activation"
+  },
+  "activationTimeTooltip": {
+    "message": "Time from deposit to start receving rewards. Your deposit will be shown as pending until your stake becomes active.\n\nActivation time: ≈$activationTime$.",
+    "placeholders": {
+      "activationTime": {
+        "content": "$1"
+      }
+    }
+  },
+  "currencyStaking": {
+    "message": "$currency$ Staking",
+    "placeholders": {
+      "currency": {
+        "content": "$1"
+      }
+    }
   }
 }

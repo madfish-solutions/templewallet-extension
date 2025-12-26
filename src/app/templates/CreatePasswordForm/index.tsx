@@ -19,6 +19,7 @@ import { toastError } from 'app/toaster';
 import { AnalyticsEventCategory, useAnalytics } from 'lib/analytics';
 import {
   DEFAULT_PASSWORD_INPUT_PLACEHOLDER,
+  KOLO_FORCE_LOGOUT_ON_NEXT_OPEN_STORAGE_KEY,
   PRIVACY_POLICY_URL,
   REPLACE_REFERRALS_ENABLED,
   SHOULD_BACKUP_MNEMONIC_STORAGE_KEY,
@@ -143,6 +144,7 @@ export const CreatePasswordForm = memo<CreatePasswordFormProps>(
           await putToStorage(SHOULD_OPEN_LETS_EXCHANGE_MODAL_STORAGE_KEY, false);
           await putToStorage(SHOULD_PROMOTE_ROOTSTOCK_STORAGE_KEY, false);
           await putToStorage(SHOULD_DISABLE_NOT_ACTIVE_NETWORKS_STORAGE_KEY, true);
+          await putToStorage(KOLO_FORCE_LOGOUT_ON_NEXT_OPEN_STORAGE_KEY, true);
 
           if (adsViewEnabled && analyticsEnabled) {
             trackEvent('AnalyticsAndAdsEnabled', AnalyticsEventCategory.General, { accountPkh }, true);

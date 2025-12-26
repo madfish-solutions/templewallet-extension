@@ -3,6 +3,7 @@ export * from './endpoints/conversion';
 export * from './endpoints/get-ab-group';
 export * from './endpoints/get-exchange-rates';
 export * from './endpoints/get-moonpay-sign';
+export * from './endpoints/get-kolo-widget-url';
 export * from './whitelist-tokens';
 
 export { templeWalletApi } from './endpoints/templewallet.api';

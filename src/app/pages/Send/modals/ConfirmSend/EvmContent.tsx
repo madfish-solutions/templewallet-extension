@@ -173,12 +173,14 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
       isLedgerAccount,
       sendEvmTransaction,
       network,
+      assetSlug,
       onConfirm,
       onClose,
       getActiveBlockExplorer,
       guard,
       account.type,
       setLedgerApprovalModalState,
+      assetSlug,
       preconnectIfNeeded
     ]
   );
