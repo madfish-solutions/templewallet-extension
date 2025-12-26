@@ -1,6 +1,6 @@
 {
   "name": "temple-wallet",
-  "version": "2.0.18",
+  "version": "2.0.19",
   "private": true,
   "scripts": {
     "start-run": "cross-env TS_NODE_PROJECT=\"webpack/tsconfig.json\" webpack --watch --stats errors-warnings",
@@ -58,7 +58,6 @@
     "@lifi/sdk": "3.11.4",
     "@microsoft/signalr": "^8.0.0",
     "@peculiar/webcrypto": "1.1.6",
-    "@personaxyz/ad-sdk": "^0.0.19",
     "@popperjs/core": "2.4.4",
     "@react-spring/web": "^10.0.1",
     "@redux-devtools/remote": "^0.8.0",
@@ -254,6 +253,6 @@
     "valibot": "^1.2.0"
   },
   "optionalDependencies": {
-    "@temple-wallet/extension-ads": "^15.0.2"
+    "@temple-wallet/extension-ads": "^15.0.3"
   }
 }

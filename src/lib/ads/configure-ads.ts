@@ -27,7 +27,7 @@ import { importExtensionAdsModule } from './import-extension-ads-module';
 // build runs without errors.
 interface AdSource {
   shouldNotUseStrictContainerLimits?: boolean;
-  providerName: 'Temple' | 'Persona' | 'HypeLab' | 'Bitmedia';
+  providerName: 'Temple' | 'HypeLab' | 'Bitmedia';
   native?: boolean;
   slug: string;
   categories?: string[];
@@ -181,38 +181,6 @@ const bannerAdsMetaBase: (AdMetadata | false)[] = [
       maxContainerHeight: 300
     }
   },
-  EnvVars.PERSONA_ADS_ENABLED && {
-    source: {
-      providerName: 'Persona' as const,
-      native: false,
-      slug: IS_MISES_BROWSER ? EnvVars.PERSONA_ADS_MISES_WIDE_BANNER_UNIT_ID : EnvVars.PERSONA_ADS_WIDE_BANNER_UNIT_ID
-    },
-    dimensions: {
-      width: 728,
-      height: 90,
-      minContainerWidth: 727,
-      minContainerHeight: 89,
-      maxContainerWidth: Infinity,
-      maxContainerHeight: 300
-    }
-  },
-  EnvVars.PERSONA_ADS_ENABLED && {
-    source: {
-      providerName: 'Persona' as const,
-      native: false,
-      slug: IS_MISES_BROWSER
-        ? EnvVars.PERSONA_ADS_MISES_MEDIUM_BANNER_UNIT_ID
-        : EnvVars.PERSONA_ADS_MEDIUM_BANNER_UNIT_ID
-    },
-    dimensions: {
-      width: 600,
-      height: 160,
-      minContainerWidth: 599,
-      minContainerHeight: 159,
-      maxContainerWidth: 800,
-      maxContainerHeight: 300
-    }
-  },
   isTruthy(EnvVars.BITMEDIA_300_600_PLACEMENT_ID) && {
     source: {
       providerName: 'Bitmedia' as const,
@@ -278,22 +246,6 @@ const bannerAdsMetaBase: (AdMetadata | false)[] = [
       providerName: 'Bitmedia' as const,
       native: false,
       slug: EnvVars.BITMEDIA_300_250_PLACEMENT_ID
-    },
-    dimensions: {
-      width: 300,
-      height: 250,
-      minContainerWidth: 299,
-      minContainerHeight: 249,
-      maxContainerWidth: 700,
-      maxContainerHeight: Infinity
-    }
-  },
-  EnvVars.PERSONA_ADS_ENABLED && {
-    source: {
-      providerName: 'Persona' as const,
-      slug: IS_MISES_BROWSER
-        ? EnvVars.PERSONA_ADS_MISES_SQUARISH_BANNER_UNIT_ID
-        : EnvVars.PERSONA_ADS_SQUARISH_BANNER_UNIT_ID
     },
     dimensions: {
       width: 300,
@@ -396,21 +348,6 @@ const bannerAdsMetaBase: (AdMetadata | false)[] = [
       maxContainerHeight: 130
     }
   },
-  EnvVars.PERSONA_ADS_ENABLED && {
-    source: {
-      providerName: 'Persona' as const,
-      slug: IS_MISES_BROWSER ? EnvVars.PERSONA_ADS_MISES_BANNER_UNIT_ID : EnvVars.PERSONA_ADS_BANNER_UNIT_ID,
-      shouldNotUseStrictContainerLimits: true
-    },
-    dimensions: {
-      width: 321,
-      height: 101,
-      minContainerWidth: 319,
-      minContainerHeight: 99,
-      maxContainerWidth: 420,
-      maxContainerHeight: 130
-    }
-  },
   EnvVars.USE_ADS_STUBS && {
     source: {
       providerName: 'Temple' as const,
@@ -463,7 +400,6 @@ export const configureAds = async () => {
     tkeyInpageAdUrl,
     smallTkeyInpageAdUrl,
     externalAdsActivityMessageType: ContentScriptType.ExternalAdsActivity,
-    personaIframePath: browser.runtime.getURL('iframes/persona-ad.html'),
     getAdsStackIframeURL,
     buildNativeAdsMeta,
     bannerAdsMeta,
