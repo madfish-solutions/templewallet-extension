@@ -41,8 +41,7 @@ const DEST_RELATIVE_PATHS = {
 const IFRAMES: Record<string, string> = IS_CORE_BUILD
   ? {}
   : {
-      'ads-stack': path.join(PATH_SOURCE, 'content-scripts/replace-ads/ads-stack.iframe.ts'),
-      'persona-ad': path.join(PATH_SOURCE, 'content-scripts/replace-ads/persona-ad.iframe.ts')
+      'ads-stack': path.join(PATH_SOURCE, 'content-scripts/replace-ads/ads-stack.iframe.ts')
     };
 
 const PATHS = {
