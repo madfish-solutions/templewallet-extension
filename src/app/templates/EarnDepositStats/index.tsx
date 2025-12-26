@@ -6,21 +6,11 @@ import { Loader } from 'app/atoms';
 import Money from 'app/atoms/Money';
 import { TezosNetworkLogo } from 'app/atoms/NetworkLogo';
 import { SimpleChart } from 'app/atoms/SimpleChart';
-import { useStakedAmount } from 'app/hooks/use-baking-hooks';
 import { useTezosDepositChangeChartData } from 'app/hooks/use-tezos-deposit-change-chart-data';
-import { TEZ_TOKEN_SLUG } from 'lib/assets';
-import { useTezosAssetBalance } from 'lib/balances';
 import { T } from 'lib/i18n';
-import { useDelegate } from 'lib/temple/front';
-import { mutezToTz } from 'lib/temple/helpers';
 import { TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
 import { ZERO } from 'lib/utils/numbers';
-import { useAccountAddressForTezos, useTezosMainnetChain } from 'temple/front';
-
-interface ActiveDepositValue {
-  amount?: BigNumber;
-  isLoading: boolean;
-}
+import { useAccountAddressForTezos } from 'temple/front';
 
 export const EarnDepositStats = memo(() => {
   const accountPkh = useAccountAddressForTezos();
@@ -37,41 +27,13 @@ interface EarnDepositStatsContentProps {
 }
 
 const EarnDepositStatsContent: FC<EarnDepositStatsContentProps> = ({ accountPkh }) => {
-  const tezosChain = useTezosMainnetChain();
-
-  const { value: tezBalance } = useTezosAssetBalance(TEZ_TOKEN_SLUG, accountPkh, tezosChain);
-  const { data: myBakerPkh, isLoading: isBakerAddressLoading } = useDelegate(accountPkh, tezosChain, false, true);
-  const { data: stakedAtomic, isLoading: isStakedAmountLoading } = useStakedAmount(tezosChain, accountPkh, false);
-
   const {
     data: chartData,
     selectedFiatCurrency,
     changePercent,
     isLoading: isChartLoading,
     isError: isChartError
-  } = useTezosDepositChangeChartData();
-
-  console.log({ isChartError });
-
-  const deposit = useMemo<ActiveDepositValue>(() => {
-    if (isBakerAddressLoading || isStakedAmountLoading || !tezBalance) {
-      return { isLoading: true };
-    }
-
-    const hasDelegation = Boolean(myBakerPkh) && tezBalance.gt(0);
-    const hasStaked = stakedAtomic && !stakedAtomic.isNaN() && stakedAtomic.gt(0);
-
-    if (!hasDelegation) {
-      return { isLoading: false, amount: undefined };
-    }
-
-    let amount = tezBalance;
-    if (hasStaked) {
-      amount = tezBalance.plus(mutezToTz(stakedAtomic!));
-    }
-
-    return { amount, isLoading: false };
-  }, [isBakerAddressLoading, isStakedAmountLoading, tezBalance, myBakerPkh, stakedAtomic]);
+  } = useTezosDepositChangeChartData(accountPkh);
 
   const fiatChangeValues = useMemo(
     () =>
@@ -95,7 +57,8 @@ const EarnDepositStatsContent: FC<EarnDepositStatsContentProps> = ({ accountPkh 
   const isChangePositive = changePercentBn && changePercentBn.gt(0);
   const isChangeNegative = changePercentBn && changePercentBn.lt(0);
 
-  if (deposit.isLoading || isChartLoading) return <Loader size="S" trackVariant="dark" className="text-secondary" />;
+  if (isChartError) return null;
+  if (isChartLoading) return <Loader size="S" trackVariant="dark" className="text-secondary" />;
 
   return (
     <div className="flex flex-col gap-y-2 p-4 rounded-8 bg-white border-0.5 border-lines">

@@ -8,7 +8,6 @@ import { useTokenHistoricalPrices } from 'app/hooks/use-token-historical-prices'
 import type { TzktStakingUpdate } from 'lib/apis/tzkt';
 import { useFiatCurrency } from 'lib/fiat-currency/core';
 import { TempleTezosChainId } from 'lib/temple/types';
-import { useAccountAddressForTezos } from 'temple/front';
 
 const ONE_DAY_IN_MS = 24 * 60 * 60 * 1000;
 const ONE_MONTH_IN_MS = 30 * ONE_DAY_IN_MS;
@@ -80,8 +79,7 @@ const createStepFunctionGetter = (points: Array<{ timestamp: number; value: numb
   };
 };
 
-export const useTezosDepositChangeChartData = () => {
-  const accountPkh = useAccountAddressForTezos();
+export const useTezosDepositChangeChartData = (accountPkh: string) => {
   const { selectedFiatCurrency } = useFiatCurrency();
 
   const nowMs = Date.now();
@@ -91,7 +89,7 @@ export const useTezosDepositChangeChartData = () => {
     data: balanceHistory,
     isLoading: isBalanceHistoryLoading,
     error: balanceHistoryError
-  } = useTezosAccountBalanceHistory(accountPkh!, TempleTezosChainId.Mainnet, {
+  } = useTezosAccountBalanceHistory(accountPkh, TempleTezosChainId.Mainnet, {
     limit: 500,
     step: 3_600 // approximate hourly balance history
   });
