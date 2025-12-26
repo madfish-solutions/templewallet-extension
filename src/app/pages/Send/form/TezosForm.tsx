@@ -5,6 +5,7 @@ import BigNumber from 'bignumber.js';
 import { FormProvider, useForm } from 'react-hook-form-v7';
 
 import { DeadEndBoundaryError } from 'app/ErrorBoundary';
+import { usePendingTezosTransactionsHashes } from 'app/store/tezos/pending-transactions/utils';
 import { toastError } from 'app/toaster';
 import { useFormAnalytics } from 'lib/analytics';
 import { isTezAsset, TEZ_TOKEN_SLUG, toPenny, fromAssetSlug } from 'lib/assets';
@@ -202,9 +203,18 @@ export const TezosForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, o
 
   useImperativeHandle(formControlRef, () => ({ resetForm }));
 
+  const pendingTxHashes = usePendingTezosTransactionsHashes(accountPkh, chainId);
+  const otherOperationsPending = pendingTxHashes.length > 0;
+
   const onSubmit = useCallback(
     async ({ amount }: SendFormData) => {
       if (formState.isSubmitting) return;
+
+      if (otherOperationsPending) {
+        toastError(t('otherOperationsPendingError'));
+
+        return;
+      }
 
       const actualAmount = shouldUseFiat ? toAssetAmount(amount) : amount;
 
@@ -254,7 +264,8 @@ export const TezosForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, o
       resetForm,
       shouldUseFiat,
       toAssetAmount,
-      toResolved
+      toResolved,
+      otherOperationsPending
     ]
   );
 

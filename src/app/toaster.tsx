@@ -62,8 +62,10 @@ export const toastError = withToastsLimit((title, textBold?, txData?: TxData) =>
   ))
 );
 // @ts-prune-ignore-next
-export const toastInfo = withToastsLimit((title, textBold?) =>
-  toast.custom(toast => <CustomToastBar toast={{ ...toast, message: title }} customType="blank" textBold={textBold} />)
+export const toastInfo = withToastsLimit((title, textBold?, link?: ReactChildren) =>
+  toast.custom(toast => (
+    <CustomToastBar toast={{ ...toast, message: title }} customType="blank" textBold={textBold} link={link} />
+  ))
 );
 
 const getWarningToastHash = (title: string, textBold = true) => `${title}_${textBold}`;
@@ -111,9 +113,10 @@ interface CustomToastBarProps {
   customType?: ToastTypeExtended;
   textBold?: boolean;
   txData?: TxData;
+  link?: ReactChildren;
 }
 
-const CustomToastBar = memo<CustomToastBarProps>(({ toast, customType, textBold = true, txData }) => {
+const CustomToastBar = memo<CustomToastBarProps>(({ toast, customType, textBold = true, txData, link }) => {
   const type: ToastTypeExtended = customType || toast.type;
 
   const prevToastVisibleRef = useRef(toast.visible);
@@ -146,7 +149,7 @@ const CustomToastBar = memo<CustomToastBarProps>(({ toast, customType, textBold 
         </span>
       )}
 
-      {txData && (
+      {txData ? (
         <a
           href={txData.blockExplorerHref}
           target="_blank"
@@ -156,6 +159,8 @@ const CustomToastBar = memo<CustomToastBarProps>(({ toast, customType, textBold 
           <HashShortView hash={txData.hash} />
           <OutLinkIcon className="h-4 stroke-current fill-current" />
         </a>
+      ) : (
+        link
       )}
     </div>
   );

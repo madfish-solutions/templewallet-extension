@@ -14,7 +14,7 @@ import { ReactComponent as SmileWithGlassesIcon } from 'app/icons/smile-with-gla
 import { ReactComponent as SmileIcon } from 'app/icons/smile.svg';
 import { dispatch } from 'app/store';
 import { setOnRampAssetAction } from 'app/store/settings/actions';
-import { useOnRampAssetSelector } from 'app/store/settings/selectors';
+import { useOnRampAssetSelector, useOnRampTitleSelector } from 'app/store/settings/selectors';
 import { getWertLink, wertCommodityEvmChainIdMap } from 'lib/apis/wert';
 import { parseChainAssetSlug } from 'lib/assets/utils';
 import { T } from 'lib/i18n/react';
@@ -28,6 +28,7 @@ import { OnRampSmileButton } from './OnRampSmileButton/OnRampSmileButton';
 export const OnRampOverlay = memo(() => {
   const account = useAccount();
   const onRampAsset = useOnRampAssetSelector();
+  const onRampTitle = useOnRampTitleSelector();
   const isOnRampPossibility = Boolean(onRampAsset);
 
   const [isLinkLoading, setIsLinkLoading] = useState(false);
@@ -43,7 +44,7 @@ export const OnRampOverlay = memo(() => {
 
   const close = useCallback(() => {
     setIsLinkLoading(false);
-    dispatch(setOnRampAssetAction(null));
+    dispatch(setOnRampAssetAction({ chainAssetSlug: null }));
   }, []);
 
   const handleRedirect = useCallback(
@@ -84,7 +85,7 @@ export const OnRampOverlay = memo(() => {
         ) : (
           <>
             <h1 className="text-font-regular-bold my-1">
-              <T id="insufficientBalanceForGas" substitutions={[tokenSymbol]} />
+              {onRampTitle ?? <T id="insufficientBalanceForGas" substitutions={[tokenSymbol]} />}
             </h1>
 
             <p className="text-font-medium text-grey-1 mb-1">

@@ -52,7 +52,7 @@ export const NoBakerContent = memo<NoBakerContentProps>(({ cannotDelegate, openD
       </div>
 
       <h3 className="mb-4 text-font-h3 text-center">
-        <T id="delegationPointsHead" substitutions={String(TEZOS_APY)} />
+        <T id="delegationPointsHead" substitutions={TEZOS_APY} />
       </h3>
 
       <div className="grid grid-cols-2 gap-3">
@@ -69,7 +69,7 @@ const DelegateMotivationPoint: React.FC<{
   Icon: React.FC<React.SVGProps<SVGSVGElement>>;
   textNode: React.ReactNode;
 }> = ({ Icon, textNode }) => (
-  <div className="flex flex-col p-3 bg-grey-4 rounded-xl">
+  <div className="flex flex-col p-3 bg-grey-4 rounded-lg">
     <IconBase size={16} className="text-secondary" Icon={Icon} />
     <p className="p-1 text-font-description">{textNode}</p>
   </div>
