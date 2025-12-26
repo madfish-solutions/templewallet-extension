@@ -1,7 +1,7 @@
 import React, { memo, useMemo } from 'react';
 
 import { useOperationConfirmationCardRowsPropsPart } from 'app/hooks/use-operation-confirmation-card-rows-props-part';
-import { t } from 'lib/i18n';
+import { T } from 'lib/i18n';
 import {
   AssetMetadataBase,
   TokenMetadata as TezosCollectibleMetadata,
@@ -74,7 +74,7 @@ function BalancesChangesViewHOC<
     if (bridgeData) {
       return (
         <GroupedBalancesChangesViewLayout
-          title={t('simulatedResult')}
+          title={<T id="simulatedResult" />}
           rows={[...inputRows, ...outputRows]}
           footer={footer}
         />
@@ -83,7 +83,7 @@ function BalancesChangesViewHOC<
 
     return (
       <BalancesChangesViewLayout
-        title={title ?? (allAssetsAreCollectibles ? t('estimatedTxDetails') : t('simulatedResult'))}
+        title={title ?? (allAssetsAreCollectibles ? <T id="estimatedTxDetails" /> : <T id="simulatedResult" />)}
         rows={fallbackRows}
         footer={footer}
       />

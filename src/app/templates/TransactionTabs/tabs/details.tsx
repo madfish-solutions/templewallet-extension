@@ -129,7 +129,7 @@ export const DetailsTab: FC<Props> = ({
 
   return (
     <FadeTransition>
-      <div className="flex flex-col px-4 py-2 mb-6 rounded-lg border-0.5 border-lines bg-white">
+      <div className="flex flex-col px-4 py-2 mb-6 rounded-lg shadow-bottom border-0.5 border-transparent">
         {rows.map((renderRow, index) => renderRow(index !== rows.length - 1))}
       </div>
     </FadeTransition>

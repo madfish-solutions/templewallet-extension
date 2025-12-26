@@ -738,7 +738,7 @@
     "message": "İşlem bulunamadı"
   },
   "pending": {
-    "message": "bekleniyor"
+    "message": "bekleniyor..."
   },
   "applied": {
     "message": "Uygulandı"

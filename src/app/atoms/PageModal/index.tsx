@@ -87,7 +87,7 @@ export const PageModal: FC<PageModalProps> = ({
         base: clsx(
           LAYOUT_CONTAINER_CLASSNAME,
           FULL_PAGE_WRAP_OVERLAY_CLASSNAME,
-          'h-full flex flex-col bg-background overflow-hidden focus:outline-none',
+          'h-full flex flex-col bg-white overflow-hidden focus:outline-none',
           fullPage ? 'rounded-lg' : 'rounded-t-lg',
           ModStyles.base,
           animated && 'ease-out duration-300'
@@ -99,7 +99,7 @@ export const PageModal: FC<PageModalProps> = ({
       onRequestClose={onRequestClose}
       testId={testID}
     >
-      <div className="flex items-center border-b-0.5 border-lines p-4 bg-white">
+      <div className="flex items-center border-b-0.5 border-lines p-4">
         <div className="w-12">{titleLeft ?? (onGoBack ? <BackButton onClick={handleGoBack} /> : null)}</div>
 
         <div className={clsx('flex-1 text-center text-font-regular-bold', headerClassName)}>{title}</div>

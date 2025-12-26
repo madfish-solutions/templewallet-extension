@@ -61,10 +61,9 @@ export const AccountCard = memo<AccountCardProps>(
         className={clsx(
           'flex flex-col bg-white',
           alwaysShowAddresses ? 'p-3 gap-y-2' : 'p-2 gap-y-1.5',
-          'rounded-lg border-0.5',
+          'rounded-lg shadow-bottom border',
           alwaysShowAddresses && 'ease-out duration-300',
-          isCurrent ? 'border-primary' : 'group border-lines',
-          !isCurrent && onClick && 'cursor-pointer'
+          isCurrent ? 'border-primary' : 'cursor-pointer group border-transparent hover:border-lines'
         )}
         onClick={onClick}
       >

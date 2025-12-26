@@ -11,7 +11,6 @@ import { useAssetsFilterOptionsSelector } from 'app/store/assets-filter-options/
 import { FilterChain } from 'app/store/assets-filter-options/state';
 import { NetworkPopper } from 'app/templates/network-popper';
 import { SearchBarField } from 'app/templates/SearchField';
-import { t } from 'lib/i18n';
 import { useAccountAddressForEvm, useAccountAddressForTezos } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
 
@@ -109,18 +108,18 @@ export const SelectAssetModal = memo<SelectTokenModalProps>(({ onAssetSelect, op
   );
 
   return (
-    <PageModal title={t('selectToken')} opened={opened} onRequestClose={onRequestClose}>
-      <div className="flex flex-col p-4 gap-1">
+    <PageModal title="Select Token" opened={opened} onRequestClose={onRequestClose}>
+      <div className="flex flex-col px-4 pt-4 pb-3">
         {!filterChain && (
-          <div className="flex justify-between items-center">
-            <span className="text-font-description-bold py-1">{t('filterByNetwork')}</span>
+          <div className="flex justify-between items-center mb-1">
+            <span className="text-font-description-bold">Filter by network</span>
             <FilterNetworkPopper selectedOption={localFilterChain} onOptionSelect={handleFilterOptionSelect} />
           </div>
         )}
 
         <SearchBarField
           value={searchValue}
-          placeholder={t('searchByNameOrAddress')}
+          placeholder="Token name"
           defaultRightMargin={false}
           onValueChange={setSearchValue}
         />

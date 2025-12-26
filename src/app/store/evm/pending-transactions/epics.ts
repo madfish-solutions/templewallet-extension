@@ -291,14 +291,10 @@ const monitorPendingTransfersEpic: Epic<Action, Action, RootState> = (action$, s
               timeout: MAX_PENDING_TRANSFER_AGE
             })
           ).pipe(
-            withLatestFrom(state$),
-            mergeMap(([receipt, state]) => {
-              const transferBeingWatched = state.pendingEvmTransactions?.transferBeingWatched === transfer.txHash;
+            mergeMap(receipt => {
               const status = receipt.status === 'success' ? 'DONE' : 'FAILED';
               if (status === 'DONE') {
-                if (!transferBeingWatched) {
-                  toastSuccess('Transfer completed', true, commonToastParams);
-                }
+                toastSuccess('Transfer completed', true, commonToastParams);
 
                 return from([
                   updatePendingTransferStatusAction({
@@ -310,9 +306,7 @@ const monitorPendingTransfersEpic: Epic<Action, Action, RootState> = (action$, s
                 ]);
               }
 
-              if (!transferBeingWatched) {
-                toastError('Transfer failed', true, commonToastParams);
-              }
+              toastError('Transfer failed', true, commonToastParams);
 
               return concat(
                 from([

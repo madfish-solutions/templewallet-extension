@@ -690,7 +690,7 @@
     "message": "운영 내용을 찾을 수 없습니다"
   },
   "pending": {
-    "message": "보류 중"
+    "message": "보류 중..."
   },
   "backtracked": {
     "message": "역추적됨"

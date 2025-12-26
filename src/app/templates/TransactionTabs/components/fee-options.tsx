@@ -73,8 +73,8 @@ const Option = memo<OptionProps>(({ network, assetSlug, active, option, value, o
     <div
       className={clsx(
         'flex flex-col flex-1 justify-center cursor-pointer',
-        'items-center p-2 gap-y-1 rounded-lg',
-        active ? 'border-primary border' : 'variable-lines-border'
+        'items-center shadow-bottom p-2 gap-y-1 rounded-lg border-1.5',
+        active ? 'border-primary' : 'border-transparent'
       )}
       onClick={onClick}
     >

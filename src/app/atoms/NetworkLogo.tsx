@@ -105,7 +105,7 @@ export const EvmNetworkLogo = memo<EvmNetworkLogoProps>(
         height={size}
         loader={fallback}
         fallback={fallback}
-        className={clsx('border-[0.8px] border-lines bg-white rounded-full', withoutTooltipClassName, imgClassName)}
+        className={clsx('border border-lines bg-white rounded-full', withoutTooltipClassName, imgClassName)}
       />
     );
 

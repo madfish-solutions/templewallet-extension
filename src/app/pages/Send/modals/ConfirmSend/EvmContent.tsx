@@ -28,15 +28,13 @@ import { TempleChainKind } from 'temple/types';
 import { buildBasicEvmSendParams } from '../../build-basic-evm-send-params';
 
 import { BaseContent } from './BaseContent';
-import { TxData } from './types';
 
 interface EvmContentProps {
   data: EvmReviewData;
   onClose: EmptyFn;
-  onSuccess: (txData: TxData<TempleChainKind.EVM>) => void;
 }
 
-export const EvmContent: FC<EvmContentProps> = ({ data, onClose, onSuccess }) => {
+export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
   const { account, network, assetSlug, to, amount, onConfirm } = data;
 
   const accountPkh = account.address as HexString;
@@ -130,7 +128,7 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose, onSuccess }) =>
           } as TransactionRequest);
 
           onConfirm();
-          onSuccess({ txHash, displayedFee });
+          onClose();
 
           const blockExplorer = getActiveBlockExplorer(network.chainId.toString());
 
@@ -176,15 +174,15 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose, onSuccess }) =>
       isLedgerAccount,
       sendEvmTransaction,
       network,
+      assetSlug,
       onConfirm,
-      onSuccess,
+      onClose,
       getActiveBlockExplorer,
       guard,
       account.type,
       setLedgerApprovalModalState,
       assetSlug,
-      preconnectIfNeeded,
-      displayedFee
+      preconnectIfNeeded
     ]
   );
 

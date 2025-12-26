@@ -1,4 +1,3 @@
-import type { StatusMessage } from '@lifi/sdk';
 import BigNumber from 'bignumber.js';
 
 import { StoredHDAccount } from 'lib/temple/types';
@@ -24,5 +23,3 @@ type AddressesKeys = 'tezosAddress' | 'evmAddress';
 export type HDAccountRewardsAddresses = Pick<StoredHDAccount, AddressesKeys>;
 export type NoAccountRewardsAddresses = Partial<Record<AddressesKeys, undefined>>;
 export type RewardsAddresses = HDAccountRewardsAddresses | NoAccountRewardsAddresses;
-
-export type PendingTransactionStatus = Exclude<StatusMessage, 'INVALID' | 'NOT_FOUND'>;

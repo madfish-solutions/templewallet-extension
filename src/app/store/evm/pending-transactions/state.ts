@@ -1,7 +1,6 @@
-import { GetStatusRequest } from '@lifi/sdk';
+import { StatusMessage, GetStatusRequest } from '@lifi/sdk';
 
 import { EvmNetworkEssentials } from 'temple/networks';
-import { PendingTransactionStatus } from 'temple/types';
 
 type TxHash = HexString;
 
@@ -11,7 +10,7 @@ export interface MonitorStatesBase {
 
 interface MonitorStates extends MonitorStatesBase {
   lastCheckedAt: number;
-  status: PendingTransactionStatus;
+  status: StatusMessage;
 }
 
 interface Common {
@@ -49,7 +48,6 @@ export interface PendingEvmTransactionsState {
   transfers: Record<TxHash, PendingEvmTransfer>;
   swaps: Record<TxHash, PendingEvmSwap>;
   otherTransactions: Record<TxHash, PendingEvmTransaction>;
-  transferBeingWatched?: TxHash;
 }
 
 export const pendingEvmTransactionsInitialState: PendingEvmTransactionsState = {

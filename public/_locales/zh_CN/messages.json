@@ -693,7 +693,7 @@
     "message": "找不到操作"
   },
   "pending": {
-    "message": "待处理"
+    "message": "待处理…"
   },
   "backtracked": {
     "message": "已回溯"

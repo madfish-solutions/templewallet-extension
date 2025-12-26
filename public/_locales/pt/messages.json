@@ -738,7 +738,7 @@
     "message": "Não foram encontradas operações"
   },
   "pending": {
-    "message": "pendente"
+    "message": "pendente..."
   },
   "applied": {
     "message": "Aplicado"

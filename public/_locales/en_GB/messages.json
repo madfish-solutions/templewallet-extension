@@ -728,7 +728,7 @@
     "message": "No operations found"
   },
   "pending": {
-    "message": "Pending"
+    "message": "pending..."
   },
   "backtracked": {
     "message": "backtracked"

@@ -74,7 +74,3 @@ export const removePendingEvmOtherTransactionAction = createAction<TxHash>(
 );
 
 export const monitorPendingOtherTransactionsAction = createAction('evm/pending-transactions/MONITOR_OTHER_TRANSACTION');
-
-export const setEvmTransferBeingWatchedAction = createAction<TxHash | undefined>(
-  'evm/pending-transactions/SET_TRANSFER_BEING_WATCHED'
-);
