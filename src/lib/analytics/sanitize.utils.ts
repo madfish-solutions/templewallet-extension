@@ -1,18 +1,13 @@
-const ADDRESS_PATTERNS = [/0x[a-fA-F0-9]{40}/g, /tz[1-3][1-9A-Za-z]{33}/g, /KT1[1-9A-Za-z]{33}/g];
-
-const SECRET_PATTERNS = [/(mnemonic|seed phrase|seed|private key|secret key|recovery phrase|passphrase|password)/gi];
-
-const REDACTED = '[REDACTED]';
+const ADDRESS_PATTERNS: Array<[RegExp, string]> = [
+  [/(0x)[a-fA-F0-9]{40}/g, '$1[REDACTED]'],
+  [/(tz[1-4])[1-9A-Za-z]{33}/g, '$1[REDACTED]']
+];
 
 export function sanitizeString(value: string): string {
   let result = value;
 
-  for (const pattern of ADDRESS_PATTERNS) {
-    result = result.replace(pattern, REDACTED);
-  }
-
-  for (const pattern of SECRET_PATTERNS) {
-    result = result.replace(pattern, REDACTED);
+  for (const [pattern, replacement] of ADDRESS_PATTERNS) {
+    result = result.replace(pattern, replacement);
   }
 
   return result;
