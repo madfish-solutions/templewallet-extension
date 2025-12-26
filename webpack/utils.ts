@@ -8,6 +8,4 @@ export const isTruthy = <T>(value: T): value is Truthy<T> => Boolean(value);
 
 export const shouldDisableAds = IS_CORE_BUILD || !PATH_HYPELAB_EMBED_FILE_EXISTS;
 
-export const IFRAMES: Record<string, string> = shouldDisableAds
-  ? {}
-  : { 'ads-stack': PATHS.ADS_STACK_IFRAME, 'persona-ad': PATHS.PERSONA_AD_IFRAME };
+export const IFRAMES: Record<string, string> = shouldDisableAds ? {} : { 'ads-stack': PATHS.ADS_STACK_IFRAME };

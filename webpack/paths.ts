@@ -41,7 +41,6 @@ const DEST_RELATIVE_PATHS = {
 
 const PATHS = {
   ADS_STACK_IFRAME: path.join(PATH_SOURCE, 'content-scripts/replace-ads/ads-stack.iframe.ts'),
-  PERSONA_AD_IFRAME: path.join(PATH_SOURCE, 'content-scripts/replace-ads/persona-ad.iframe.ts'),
   CWD: PATH_CWD,
   NODE_MODULES: PATH_NODE_MODULES,
   SOURCE: PATH_SOURCE,
