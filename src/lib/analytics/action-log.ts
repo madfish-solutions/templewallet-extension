@@ -4,7 +4,7 @@ import { sanitizeValue } from './sanitize.utils';
 
 const MAX_ACTIONS = 10;
 
-export interface ActionLogEntry {
+interface ActionLogEntry {
   event: string;
   category: AnalyticsEventCategory | string;
   timestamp: number;
