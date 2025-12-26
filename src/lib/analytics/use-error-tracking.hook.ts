@@ -25,36 +25,44 @@ export function useErrorTracking(chainId?: string) {
   }, [chainId]);
 
   useEffect(() => {
-    const handleError = (event: ErrorEvent) => {
-      const error = event.error || new Error(event.message);
-      void reportError(error, userIdRef.current, chainIdRef.current, analyticsEnabledRef.current, {
-        source: 'window.onerror',
-        filename: event.filename,
-        lineno: event.lineno
-      });
-    };
+    const controller = new AbortController();
+    window.addEventListener(
+      'error',
+      (event: ErrorEvent) => {
+        const error = event.error || new Error(event.message);
+        void reportError(error, userIdRef.current, chainIdRef.current, analyticsEnabledRef.current, {
+          source: 'window.onerror',
+          filename: event.filename,
+          lineno: event.lineno
+        });
+      },
+      {
+        signal: controller.signal
+      }
+    );
 
-    const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
-      void reportError(toError(event.reason), userIdRef.current, chainIdRef.current, analyticsEnabledRef.current, {
-        source: 'unhandledrejection'
-      });
-    };
+    window.addEventListener(
+      'unhandledrejection',
+      (event: PromiseRejectionEvent) => {
+        void reportError(toError(event.reason), userIdRef.current, chainIdRef.current, analyticsEnabledRef.current, {
+          source: 'unhandledrejection'
+        });
+      },
+      {
+        signal: controller.signal
+      }
+    );
 
-    const handleReactError = (event: CustomEvent<{ error: Error; componentStack?: string }>) => {
-      void reportError(event.detail.error, userIdRef.current, chainIdRef.current, analyticsEnabledRef.current, {
+    const handleTempleError = (event: Event) => {
+      const detail = (event as CustomEvent<{ error: Error; componentStack?: string }>).detail;
+      if (!detail?.error) return;
+      void reportError(detail.error, userIdRef.current, chainIdRef.current, analyticsEnabledRef.current, {
         source: 'ErrorBoundary',
-        componentStack: event.detail.componentStack
+        componentStack: detail.componentStack
       });
     };
 
-    window.addEventListener('error', handleError);
-    window.addEventListener('unhandledrejection', handleUnhandledRejection);
-    window.addEventListener('temple-error', handleReactError as EventListener);
-
-    return () => {
-      window.removeEventListener('error', handleError);
-      window.removeEventListener('unhandledrejection', handleUnhandledRejection);
-      window.removeEventListener('temple-error', handleReactError as EventListener);
-    };
+    window.addEventListener('temple-error', handleTempleError, { signal: controller.signal });
+    return () => void controller.abort();
   }, []);
 }

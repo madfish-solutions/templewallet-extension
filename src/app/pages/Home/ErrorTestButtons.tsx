@@ -1,4 +1,6 @@
-import React, { memo, useState } from 'react';
+import React, { memo, Suspense, useState } from 'react';
+
+import { useRetryableSWR } from 'lib/swr';
 
 /**
  * Test component to trigger different types of errors for testing reportError function
@@ -8,8 +10,21 @@ const ThrowingComponent = () => {
   throw new Error('Test React Error - ErrorBoundary');
 };
 
+const SwrErrorComponent = () => {
+  useRetryableSWR(
+    'test-swr-suspense-error',
+    async () => {
+      throw new Error('Test SWR Suspense Error');
+    },
+    { suspense: true, shouldRetryOnError: false, revalidateOnFocus: false, revalidateOnReconnect: false }
+  );
+
+  return null;
+};
+
 export const ErrorTestButtons = memo(() => {
   const [shouldThrowReactError, setShouldThrowReactError] = useState(false);
+  const [shouldThrowSwrError, setShouldThrowSwrError] = useState(false);
 
   const throwJavaScriptError = () => {
     throw new Error('Test JavaScript Error - window.onerror');
@@ -25,6 +40,14 @@ export const ErrorTestButtons = memo(() => {
 
   if (shouldThrowReactError) {
     return <ThrowingComponent />;
+  }
+
+  if (shouldThrowSwrError) {
+    return (
+      <Suspense fallback={null}>
+        <SwrErrorComponent />
+      </Suspense>
+    );
   }
 
   return (
@@ -47,6 +70,12 @@ export const ErrorTestButtons = memo(() => {
         className="px-3 py-2 bg-purple-500 text-white rounded text-sm hover:bg-purple-600"
       >
         Test Promise Rejection
+      </button>
+      <button
+        onClick={() => setShouldThrowSwrError(true)}
+        className="px-3 py-2 bg-blue-500 text-white rounded text-sm hover:bg-blue-600"
+      >
+        Test SWR (suspense) Error
       </button>
     </div>
   );

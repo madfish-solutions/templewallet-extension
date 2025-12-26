@@ -1,6 +1,8 @@
+import { getActionLog } from 'lib/analytics/action-log';
 import { APP_VERSION, IS_DEV_ENV } from 'lib/env';
 import { AnalyticsEventCategory } from 'lib/temple/analytics-types';
 
+import { sanitizeUrl, sanitizeValue, sanitizeString } from './sanitize.utils';
 import { sendTrackEvent } from './send-events.utils';
 
 function getOS(): string {
@@ -49,20 +51,26 @@ export async function reportError(
 
   try {
     const now = new Date();
+    const sanitizedContext = customContext ? sanitizeValue(customContext) : undefined;
+    const sanitizedMessage = sanitizeString(error.message || '');
+    const sanitizedStack = error.stack ? sanitizeString(error.stack) : undefined;
+    const swrContext = extractSwrContext(error);
 
     await sendTrackEvent(userId, chainId, 'ErrorCaptured', AnalyticsEventCategory.Error, {
       errorType: error.name || 'Error',
-      errorMessage: error.message,
-      stackTrace: error.stack,
+      errorMessage: sanitizedMessage,
+      stackTrace: sanitizedStack,
       version: APP_VERSION,
       windowType: getWindowType(),
-      url: window.location.href,
+      url: sanitizeUrl(window.location.href),
       os: getOS(),
       browser: getBrowser(),
       timestamp: now.getTime(),
       timestampISO: now.toISOString(),
       chainId: chainId || null,
-      ...customContext
+      actionLog: getActionLog(),
+      swr: swrContext,
+      ...sanitizedContext
     });
   } catch {
     // error
@@ -73,4 +81,10 @@ export function toError(value: unknown): Error {
   if (value instanceof Error) return value;
   if (typeof value === 'string') return new Error(value);
   return new Error(String(value));
+}
+
+function extractSwrContext(error: Error) {
+  const ctx = (error as any).__swr;
+  if (!ctx) return undefined;
+  return sanitizeValue(ctx);
 }
