@@ -10,6 +10,7 @@ import { useStakedAmount } from 'app/hooks/use-baking-hooks';
 import { useTezosDepositChangeChartData } from 'app/hooks/use-tezos-deposit-change-chart-data';
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
 import { useTezosAssetBalance } from 'lib/balances';
+import { T } from 'lib/i18n';
 import { useDelegate } from 'lib/temple/front';
 import { mutezToTz } from 'lib/temple/helpers';
 import { TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
@@ -21,7 +22,7 @@ interface ActiveDepositValue {
   isLoading: boolean;
 }
 
-export const EarnDepositStats: FC = memo(() => {
+export const EarnDepositStats = memo(() => {
   const accountPkh = useAccountAddressForTezos();
 
   if (!accountPkh) {
@@ -44,10 +45,13 @@ const EarnDepositStatsContent: FC<EarnDepositStatsContentProps> = ({ accountPkh 
 
   const {
     data: chartData,
+    selectedFiatCurrency,
     changePercent,
     isLoading: isChartLoading,
     isError: isChartError
   } = useTezosDepositChangeChartData();
+
+  console.log({ isChartError });
 
   const deposit = useMemo<ActiveDepositValue>(() => {
     if (isBakerAddressLoading || isStakedAmountLoading || !tezBalance) {
@@ -91,40 +95,27 @@ const EarnDepositStatsContent: FC<EarnDepositStatsContentProps> = ({ accountPkh 
   const isChangePositive = changePercentBn && changePercentBn.gt(0);
   const isChangeNegative = changePercentBn && changePercentBn.lt(0);
 
+  if (deposit.isLoading || isChartLoading) return <Loader size="S" trackVariant="dark" className="text-secondary" />;
+
   return (
-    <div className="mb-3 p-3 rounded-8 bg-white border-0.5 border-lines flex items-stretch gap-x-4">
-      <div className="flex flex-col justify-between flex-1 min-w-0">
-        <div className="flex items-center justify-between gap-x-2 mb-1">
-          <div className="flex items-center gap-x-2 min-w-0">
-            <span className="text-font-description-bold text-grey-1 truncate">Your deposits</span>
+    <div className="flex flex-col gap-y-2 p-4 rounded-8 bg-white border-0.5 border-lines">
+      <div className="flex gap-x-1">
+        <span className="text-font-description text-grey-1">
+          <T id="yourDeposits" />
+        </span>
 
-            <div className="flex items-center gap-x-1 shrink-0">
-              <TezosNetworkLogo chainId={TEZOS_MAINNET_CHAIN_ID} size={20} />
-            </div>
-          </div>
-        </div>
-
+        <TezosNetworkLogo chainId={TEZOS_MAINNET_CHAIN_ID} size={16} />
+      </div>
+      <div className="flex justify-between">
         <div className="flex flex-col gap-y-1">
-          <div className="flex items-baseline gap-x-1">
-            {deposit.isLoading ? (
-              <Loader size="S" trackVariant="dark" className="text-secondary" />
-            ) : deposit.amount ? (
-              <>
-                <span className="text-font-num-bold-24">
-                  <Money fiat smallFractionFont={false}>
-                    {latestFiatValue ?? ZERO}
-                  </Money>
-                </span>
-                <span className="text-font-description text-grey-1">$</span>
-              </>
-            ) : (
-              <span className="text-font-description text-grey-3">No active deposits</span>
-            )}
-          </div>
+          <span className="text-font-num-bold-16">
+            <Money fiat shortened smallFractionFont={false}>
+              {latestFiatValue ?? ZERO}
+            </Money>{' '}
+            {selectedFiatCurrency.symbol}
+          </span>
 
-          {isChartLoading || isChartError ? (
-            <span className="text-font-description text-grey-3">{isChartLoading ? 'Loading' : 'No data'}</span>
-          ) : changePercentBn ? (
+          {changePercentBn && (
             <span
               className={`text-font-num-12 ${
                 isChangePositive ? 'text-success' : isChangeNegative ? 'text-error' : 'text-grey-1'
@@ -132,15 +123,15 @@ const EarnDepositStatsContent: FC<EarnDepositStatsContentProps> = ({ accountPkh 
             >
               <Money fiat={false} withSign smallFractionFont={false}>
                 {changePercentBn}
-              </Money>{' '}
+              </Money>
               %
             </span>
-          ) : null}
+          )}
         </div>
-      </div>
 
-      <div className="w-44 flex items-end">
-        <SimpleChart data={fiatChangeValues} />
+        <div className="w-52">
+          <SimpleChart data={fiatChangeValues} />
+        </div>
       </div>
     </div>
   );

@@ -47,9 +47,10 @@ export const Earn = memo(() => {
         <div className="mb-4">
           <Title i18nKey="savings" />
 
-          <EarnDepositStats />
-
-          <div className="flex flex-col gap-y-2">{savingsItems}</div>
+          <div className="flex flex-col gap-y-2">
+            <EarnDepositStats />
+            {savingsItems}
+          </div>
         </div>
       )}
 

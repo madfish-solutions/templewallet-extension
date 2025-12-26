@@ -1,6 +1,6 @@
 import React, { FC } from 'react';
 
-import { Area, AreaChart, Line, ResponsiveContainer, Tooltip } from 'recharts';
+import { Area, AreaChart, Line, ResponsiveContainer } from 'recharts';
 
 interface SimpleChartProps {
   data: { timestamp: number; value: number }[];
@@ -22,11 +22,24 @@ export const SimpleChart: FC<SimpleChartProps> = ({ data, className }) => {
           </linearGradient>
         </defs>
 
-        <Area type="monotone" dataKey="value" stroke="none" fill="url(#areaFill)" isAnimationActive={false} />
+        <Area
+          type="monotone"
+          dataKey="value"
+          stroke="none"
+          fill="url(#areaFill)"
+          activeDot={false}
+          isAnimationActive={false}
+        />
 
-        <Line type="monotone" dataKey="value" stroke="#2D6CDF" strokeWidth={2} dot={false} isAnimationActive={false} />
-
-        <Tooltip cursor={false} contentStyle={{ display: 'none' }} />
+        <Line
+          type="monotone"
+          dataKey="value"
+          stroke="#2D6CDF"
+          strokeWidth={2}
+          dot={false}
+          activeDot={false}
+          isAnimationActive={false}
+        />
       </AreaChart>
     </ResponsiveContainer>
   );

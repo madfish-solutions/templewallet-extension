@@ -16,13 +16,6 @@ const MUTEZ_IN_TEZ = 1_000_000;
 
 type DepositChartPoint = [timestamp: number, value: number];
 
-export interface UseTezosDepositChangeChartDataResult {
-  data?: DepositChartPoint[];
-  changePercent?: number;
-  isLoading: boolean;
-  isError: boolean;
-}
-
 const buildStakedBalanceTimeline = (updates: TzktStakingUpdate[], fromTimestampMs: number) => {
   if (!updates.length) {
     return [{ timestamp: fromTimestampMs, stakedMutez: 0 }];
@@ -87,7 +80,7 @@ const createStepFunctionGetter = (points: Array<{ timestamp: number; value: numb
   };
 };
 
-export const useTezosDepositChangeChartData = (): UseTezosDepositChangeChartDataResult => {
+export const useTezosDepositChangeChartData = () => {
   const accountPkh = useAccountAddressForTezos();
   const { selectedFiatCurrency } = useFiatCurrency();
 
@@ -185,6 +178,7 @@ export const useTezosDepositChangeChartData = (): UseTezosDepositChangeChartData
 
   return {
     data,
+    selectedFiatCurrency,
     changePercent,
     isLoading,
     isError
