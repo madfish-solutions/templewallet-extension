@@ -277,7 +277,8 @@ export const EvmContent: FC<EvmContentProps> = ({
             initialInputTokenSlug: initialInputData.tokenSlug,
             initialInputNetwork: initialInputData.network,
             blockExplorerUrl: makeBlockExplorerHref(blockExplorer.url, txHash, 'tx', TempleChainKind.EVM),
-            statusCheckParams
+            statusCheckParams,
+            submittedAt: Date.now()
           })
         );
 
