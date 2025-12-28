@@ -15,11 +15,11 @@ import { useAccountAddressForTezos } from 'temple/front';
 export const EarnDepositStats = memo(() => {
   const accountPkh = useAccountAddressForTezos();
 
-  if (!accountPkh) {
-    return null;
+  if (accountPkh) {
+    return <EarnDepositStatsContent accountPkh={accountPkh} />;
   }
 
-  return <EarnDepositStatsContent accountPkh={accountPkh} />;
+  return null;
 });
 
 interface EarnDepositStatsContentProps {

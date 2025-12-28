@@ -260,7 +260,7 @@ export const fetchAccountBalanceHistory = (
     `/accounts/${accountAddress}/balance_history`,
     {
       ...params,
-      'sort.asc': 'level'
+      'sort.desc': 'level'
     },
     {
       signal
@@ -271,6 +271,7 @@ export interface TzktGetStakingUpdatesParams {
   staker?: string;
   baker?: string;
   offset?: number;
+  limit?: number;
 }
 
 export const fetchStakingUpdates = (
@@ -283,7 +284,7 @@ export const fetchStakingUpdates = (
     '/staking/updates',
     {
       ...params,
-      limit: TZKT_MAX_QUERY_ITEMS_LIMIT
+      'sort.desc': 'level'
     },
     { signal }
   );
