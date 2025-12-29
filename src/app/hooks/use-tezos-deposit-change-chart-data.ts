@@ -3,10 +3,12 @@ import { useMemo } from 'react';
 import { useTezosAccountBalanceHistory } from 'app/hooks/use-tezos-account-balance-history';
 import { useTezosAccountStakingUpdates } from 'app/hooks/use-tezos-account-staking-updates';
 import { useTokenHistoricalPrices } from 'app/hooks/use-token-historical-prices';
-import type { TzktStakingUpdate } from 'lib/apis/tzkt';
+import { type TzktStakingUpdate } from 'lib/apis/tzkt';
 import { useFiatCurrency } from 'lib/fiat-currency/core';
 import { mutezToTz } from 'lib/temple/helpers';
 import { TempleTezosChainId } from 'lib/temple/types';
+
+import { useDelegatedFrom3MonthsTimestamp } from './use-delegated-from-3-months-timestamp';
 
 const ONE_DAY_IN_MS = 24 * 60 * 60 * 1000;
 const ONE_MONTH_IN_MS = 30 * ONE_DAY_IN_MS;
@@ -39,8 +41,14 @@ export const useTezosDepositChangeChartData = (accountPkh: string) => {
     days: 30
   });
 
-  const isLoading = isBalanceHistoryLoading || isStakingUpdatesLoading || isMarketChartLoading;
-  const isError = Boolean(balanceHistoryError || stakingUpdatesError || marketChartError);
+  const {
+    data: delegatedFromMs,
+    isLoading: isDelegationLoading,
+    error: delegationError
+  } = useDelegatedFrom3MonthsTimestamp(accountPkh, TempleTezosChainId.Mainnet);
+
+  const isLoading = isBalanceHistoryLoading || isStakingUpdatesLoading || isMarketChartLoading || isDelegationLoading;
+  const isError = Boolean(balanceHistoryError || stakingUpdatesError || marketChartError || delegationError);
 
   const { data, changePercent } = useMemo(() => {
     if (!balanceHistory?.length || !stakingUpdates || !marketChartData?.prices?.length) {
@@ -60,7 +68,7 @@ export const useTezosDepositChangeChartData = (accountPkh: string) => {
 
     const balancePoints = balanceHistory
       .map(item => ({
-        timestamp: new Date(item.timestamp).getTime(),
+        timestamp: toMsTimestamp(item.timestamp),
         value: item.balance
       }))
       .filter(point => point.timestamp >= monthAgoMs && point.timestamp <= nowMs)
@@ -78,8 +86,13 @@ export const useTezosDepositChangeChartData = (accountPkh: string) => {
 
     const getBalanceAt = createStepFunctionGetter(balancePoints);
     const getStakedAt = createStepFunctionGetter(stakedPoints);
+    const delegatedFrom = delegatedFromMs ?? null;
 
     const series = pricePoints.map(({ timestamp, fiatPrice }) => {
+      if (delegatedFrom === null || timestamp < delegatedFrom) {
+        return [timestamp, 0];
+      }
+
       const liquidMutez = getBalanceAt(timestamp);
       const stakedMutez = getStakedAt(timestamp);
 
@@ -99,7 +112,7 @@ export const useTezosDepositChangeChartData = (accountPkh: string) => {
     const changePercent = ((lastValue - firstValue) / firstValue) * 100;
 
     return { data: series, changePercent };
-  }, [balanceHistory, stakingUpdates, marketChartData]);
+  }, [balanceHistory, stakingUpdates, marketChartData, delegatedFromMs]);
 
   return {
     data,
