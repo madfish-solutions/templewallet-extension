@@ -96,6 +96,7 @@ interface BackgroundErrorResponse {
   error: {
     code: number;
     message: string;
+    data?: Record<string, unknown>;
   };
   requestId: string;
 }
@@ -187,11 +188,21 @@ export class TempleWeb3Provider extends EventEmitter {
   }
 
   get selectedAddress() {
+    const forwardTarget = window.__templeForwardTarget;
+    if (forwardTarget && 'selectedAddress' in forwardTarget) {
+      return forwardTarget.selectedAddress;
+    }
     return this.accounts[0];
   }
 
   // @ts-expect-error
   request: EIP1193RequestFn<KnownMethods> = async params => {
+    const forwardTarget = window.__templeForwardTarget;
+    if (forwardTarget?.request && typeof forwardTarget.request === 'function') {
+      // @ts-expect-error
+      return forwardTarget.request(params);
+    }
+
     switch (params.method) {
       case evmRpcMethodsNames.eth_accounts:
         return this.accounts;
@@ -371,26 +382,12 @@ export class TempleWeb3Provider extends EventEmitter {
     toProviderResponse: (data: BackgroundResponseData<M>) => ProviderResponse<M>,
     requiredAccount: HexString | undefined
   ) {
-    const forwardTarget = window.__templeForwardTarget;
-    if (forwardTarget?.request && typeof forwardTarget.request === 'function') {
-      // @ts-expect-error
-      return forwardTarget.request(args);
-    }
     if (requiredAccount && !this.accounts.some(acc => acc.toLowerCase() === requiredAccount.toLowerCase())) {
       throwErrorLikeObject(EVMErrorCodes.NOT_AUTHORIZED, 'Account is not connected');
     }
 
     const requestId = uuid();
     const otherProviders: EIP6963ProviderInfo[] = window.__templeOtherProviders || [];
-
-    if (
-      (args.method === evmRpcMethodsNames.eth_requestAccounts ||
-        args.method === evmRpcMethodsNames.wallet_requestPermissions) &&
-      window.__templeSelectedOtherRdns &&
-      otherProviders.some(p => p.rdns === window.__templeSelectedOtherRdns)
-    ) {
-      throw makeErrorLikeObject(EVMErrorCodes.USER_REJECTED_REQUEST, 'Connection declined');
-    }
 
     globalThis.dispatchEvent(
       new CustomEvent<PassToBgEventDetail>(PASS_TO_BG_EVENT, {
@@ -406,7 +403,7 @@ export class TempleWeb3Provider extends EventEmitter {
     );
 
     return new Promise<ProviderResponse<M>>((resolve, reject) => {
-      const listener = (msg: ResponseFromBgMessage) => {
+      const listener = async (msg: ResponseFromBgMessage) => {
         const reqIdFromEvent = msg.requestId;
         const payload: BackgroundResponse<M> = msg.payload;
 
@@ -417,6 +414,26 @@ export class TempleWeb3Provider extends EventEmitter {
         removeListener();
 
         if ('error' in payload) {
+          if (payload.error.code === EVMErrorCodes.FORWARD_TO_PROVIDER && payload.error.data?.rdns) {
+            const targetRdns = payload.error.data.rdns as string;
+            const target = window.__templeProvidersMapByRdns?.[targetRdns];
+
+            if (target?.request && typeof target.request === 'function') {
+              window.__templeSelectedOtherRdns = targetRdns;
+              window.__templeForwardTarget = target;
+
+              try {
+                // @ts-expect-error
+                const result = await target.request(args);
+                // @ts-expect-error
+                resolve(result);
+              } catch (err: any) {
+                reject(err);
+              }
+              return;
+            }
+          }
+
           console.error('inpage got error from bg', payload);
           reject(makeErrorLikeObject(payload.error.code, payload.error.message));
 

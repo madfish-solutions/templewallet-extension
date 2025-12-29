@@ -1053,6 +1053,8 @@ interface TempleDAppPermConfirmationRequest extends TempleMessageBase {
   confirmed: boolean;
   accountPublicKey: string;
   accountPublicKeyHash: string;
+  /** When set, indicates the user chose to connect with another wallet provider (by rdns) */
+  forwardToProvider?: string;
 }
 
 interface TempleDAppPermConfirmationResponse extends TempleMessageBase {

@@ -9,7 +9,9 @@ export enum EVMErrorCodes {
   CHAIN_NOT_RECOGNIZED = 4902,
   INVALID_PARAMS = -32602,
   INTERNAL_ERROR = -32603,
-  INVALID_INPUT = -32000
+  INVALID_INPUT = -32000,
+  /** Internal code used to signal forwarding to another provider */
+  FORWARD_TO_PROVIDER = -32099
 }
 
 // Enum doesn't always work as expected in TypeScript

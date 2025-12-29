@@ -1,7 +1,7 @@
 import { evmRpcMethodsNames } from './constants';
 
 export class ErrorWithCode extends Error {
-  constructor(public code: number, message: string) {
+  constructor(public code: number, message: string, public data?: Record<string, unknown>) {
     super(message);
   }
 }

@@ -2,18 +2,8 @@ import { v4 as uuid } from 'uuid';
 import { EIP1193Provider } from 'viem';
 
 import { TEMPLE_ICON } from 'content-scripts/constants';
-import { TEMPLE_SWITCH_PROVIDER_EVENT } from 'lib/constants';
 import { EIP6963ProviderInfo } from 'lib/temple/types';
-import { evmRpcMethodsNames } from 'temple/evm/constants';
 import { TempleWeb3Provider } from 'temple/evm/web3-provider';
-
-interface TempleSwitchProviderEvent extends CustomEvent {
-  detail: {
-    rdns?: string;
-    uuid?: string;
-    autoConnect?: boolean;
-  };
-}
 
 declare global {
   interface Window {
@@ -87,25 +77,3 @@ function handleAnnounceProvider(evt: Event) {
 globalThis.addEventListener('eip6963:requestProvider', announceProvider);
 globalThis.addEventListener('eip6963:announceProvider', handleAnnounceProvider);
 globalThis.dispatchEvent(new Event('eip6963:requestProvider'));
-
-document.addEventListener(TEMPLE_SWITCH_PROVIDER_EVENT, async (evt: Event) => {
-  const customEvent = evt as TempleSwitchProviderEvent;
-  const data = customEvent?.detail || {};
-  const { rdns, autoConnect } = data;
-  const byRdns = rdns && window.__templeProvidersMapByRdns?.[rdns];
-  const target = byRdns || null;
-
-  if (target) {
-    try {
-      window.__templeSelectedOtherRdns = rdns;
-      window.__templeForwardTarget = target;
-      if (autoConnect) {
-        try {
-          await target.request({ method: evmRpcMethodsNames.eth_requestAccounts });
-        } catch (err) {}
-      }
-    } catch (e) {
-      console.error(e);
-    }
-  }
-});

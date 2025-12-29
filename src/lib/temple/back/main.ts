@@ -328,7 +328,8 @@ const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<T
             resPayload = {
               error: {
                 code: e.code,
-                message: e.message
+                message: e.message,
+                data: e.data
               }
             };
           } else if (e instanceof ValidationError) {
@@ -377,21 +378,6 @@ const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<T
           encrypted: res?.encrypted
         };
       }
-
-    case TempleMessageType.DAppSelectOtherWalletRequest: {
-      try {
-        intercom.broadcast({
-          type: TempleMessageType.TempleSwitchEvmProvider,
-          origin: req.origin,
-          rdns: req.rdns,
-          uuid: req.uuid,
-          autoConnect: true
-        });
-      } catch (e) {
-        console.error(e);
-      }
-      return { type: TempleMessageType.DAppSelectOtherWalletResponse };
-    }
 
     case TempleMessageType.ResetExtensionRequest:
       await Actions.resetExtension(req.password);
