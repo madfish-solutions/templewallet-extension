@@ -9,7 +9,6 @@ declare global {
   interface Window {
     __templeOtherProviders?: EIP6963ProviderInfo[];
     __templeProvidersMapByRdns?: Record<string, EIP1193Provider>;
-    __templeSelectedOtherRdns?: string;
     __templeForwardTarget?: EIP1193Provider;
     ethereum?: EIP1193Provider;
   }

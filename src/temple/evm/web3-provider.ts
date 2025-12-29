@@ -419,7 +419,6 @@ export class TempleWeb3Provider extends EventEmitter {
             const target = window.__templeProvidersMapByRdns?.[targetRdns];
 
             if (target?.request && typeof target.request === 'function') {
-              window.__templeSelectedOtherRdns = targetRdns;
               window.__templeForwardTarget = target;
 
               try {
