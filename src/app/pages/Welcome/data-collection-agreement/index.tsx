@@ -49,14 +49,14 @@ export const DataCollectionAgreement = memo<Props>(({ onConsent }) => {
             description="usageAnalyticsConsentDescription"
           />
 
-          <FeatureCard
-            icon={GiftIcon}
-            iconSize={24}
-            title="dataForRewardsConsent"
-            description={
-              DISABLE_ADS ? 'disabledAdsDataForRewardsConsentDescription' : 'dataForRewardsConsentDescription'
-            }
-          />
+          {!DISABLE_ADS && (
+            <FeatureCard
+              icon={GiftIcon}
+              iconSize={24}
+              title="dataForRewardsConsent"
+              description="dataForRewardsConsentDescription"
+            />
+          )}
         </div>
 
         <div className="flex-1" />

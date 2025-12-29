@@ -160,23 +160,27 @@ export const YourRewardsCards = memo(() => {
     <div className="flex flex-col">
       <span className="text-font-description-bold mb-3">{t('yourRewards')}</span>
       <div className="rounded-8 shadow-bottom mb-4">
-        <Link
-          to="/settings/additional-settings"
-          className={clsx('p-3 flex items-center justify-between')}
-          onMouseEnter={handleAdvancedHover}
-          onMouseLeave={handleAdvancedUnhover}
-        >
-          <span className="text-font-medium-bold">
-            <T id="advancedFeatures" />
-          </span>
-          {!isAdvertisingEnabled && !referralsEnabled ? (
-            <AnimatedMenuChevron ref={advancedChevronRef} />
-          ) : (
-            <IconBase ref={advancedFeaturesInfoRef} size={16} Icon={InfoIcon} className="text-grey-2" />
-          )}
-        </Link>
+        {!DISABLE_ADS && (
+          <>
+            <Link
+              to="/settings/additional-settings"
+              className={clsx('p-3 flex items-center justify-between')}
+              onMouseEnter={handleAdvancedHover}
+              onMouseLeave={handleAdvancedUnhover}
+            >
+              <span className="text-font-medium-bold">
+                <T id="advancedFeatures" />
+              </span>
+              {!isAdvertisingEnabled && !referralsEnabled ? (
+                <AnimatedMenuChevron ref={advancedChevronRef} />
+              ) : (
+                <IconBase ref={advancedFeaturesInfoRef} size={16} Icon={InfoIcon} className="text-grey-2" />
+              )}
+            </Link>
 
-        <Divider className="bg-lines" />
+            <Divider className="bg-lines" />
+          </>
+        )}
 
         <div className="p-3">
           {isTkeyLoading ? (

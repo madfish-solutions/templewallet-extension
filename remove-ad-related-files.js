@@ -18,7 +18,9 @@ const fs = require('node:fs');
   'src/lib/ads-constants.ts',
   'src/lib/ads/index.ts',
   'src/lib/ads/persona.ts',
-  'src/app/load-hypelab-script/component.ts'
+  'src/app/load-hypelab-script/component.ts',
+  'src/app/pages/Home/OtherComponents/Tokens/components/NotificationBanner/enable-ads-banner',
+  'src/lib/apis/ads-api/ads-api.ts'
 ].forEach(file => {
   try {
     fs.rmSync(file, { force: true, recursive: true });

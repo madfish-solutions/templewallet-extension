@@ -3,7 +3,7 @@ import { useEffect, useRef } from 'react';
 import { dispatch } from 'app/store';
 import { togglePartnersPromotionAction } from 'app/store/partners-promotion/actions';
 import { useShouldShowPartnersPromoSelector } from 'app/store/partners-promotion/selectors';
-import { postReactivationCheck } from 'lib/apis/ads-api';
+import { importAdsApiModule } from 'lib/apis/ads-api';
 import { REACTIVATION_APPLIED_AT_KEY } from 'lib/constants';
 import { usePassiveStorage } from 'lib/temple/front/storage';
 import { getAccountAddressForTezos } from 'temple/accounts';
@@ -27,13 +27,15 @@ export function useReactivateAdsOnce() {
       if (tezAddr) tezos.push(tezAddr);
     }
 
-    postReactivationCheck(tezos)
+    importAdsApiModule()
+      .then(({ postReactivationCheck }) => postReactivationCheck(tezos))
       .then(({ eligible }) => {
         if (eligible) {
           dispatch(togglePartnersPromotionAction(true));
           setAppliedAt(Date.now());
         }
       })
+      .catch(() => {})
       .finally(() => {
         runningRef.current = false;
       });
