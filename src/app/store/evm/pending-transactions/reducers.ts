@@ -11,7 +11,10 @@ import {
   addPendingEvmTransferAction,
   updatePendingTransferStatusAction,
   removePendingEvmTransferAction,
-  disableSwapCheckStatusRetriesAction
+  disableSwapCheckStatusRetriesAction,
+  addPendingEvmOtherTransactionAction,
+  updatePendingOtherTransactionStatusAction,
+  removePendingEvmOtherTransactionAction
 } from './actions';
 import { pendingEvmTransactionsInitialState, PendingEvmTransactionsState } from './state';
 
@@ -19,8 +22,7 @@ const pendingEvmTransactionsReducer = createReducer(pendingEvmTransactionsInitia
   builder.addCase(addPendingEvmSwapAction, (state, { payload }) => {
     state.swaps[payload.txHash] = {
       ...payload,
-      submittedAt: Date.now(),
-      lastCheckedAt: Date.now(),
+      lastCheckedAt: payload.submittedAt,
       statusCheckAttempts: 0,
       retriesEnabled: true,
       status: 'PENDING'
@@ -57,8 +59,7 @@ const pendingEvmTransactionsReducer = createReducer(pendingEvmTransactionsInitia
   builder.addCase(addPendingEvmTransferAction, (state, { payload }) => {
     state.transfers[payload.txHash] = {
       ...payload,
-      submittedAt: Date.now(),
-      lastCheckedAt: Date.now(),
+      lastCheckedAt: payload.submittedAt,
       status: 'PENDING'
     };
   });
@@ -73,6 +74,26 @@ const pendingEvmTransactionsReducer = createReducer(pendingEvmTransactionsInitia
 
   builder.addCase(removePendingEvmTransferAction, (state, { payload: txHash }) => {
     delete state.transfers[txHash];
+  });
+
+  builder.addCase(addPendingEvmOtherTransactionAction, (state, { payload }) => {
+    state.otherTransactions[payload.txHash] = {
+      ...payload,
+      lastCheckedAt: payload.submittedAt,
+      status: 'PENDING'
+    };
+  });
+
+  builder.addCase(updatePendingOtherTransactionStatusAction, (state, { payload }) => {
+    const transaction = state.otherTransactions[payload.txHash];
+    if (transaction) {
+      transaction.status = payload.status;
+      transaction.lastCheckedAt = payload.lastCheckedAt;
+    }
+  });
+
+  builder.addCase(removePendingEvmOtherTransactionAction, (state, { payload: txHash }) => {
+    delete state.otherTransactions[txHash];
   });
 });
 

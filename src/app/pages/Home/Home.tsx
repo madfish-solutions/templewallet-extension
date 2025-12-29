@@ -17,7 +17,7 @@ import { CollectiblesTab } from '../Collectibles/CollectiblesTab';
 
 import { EarnSection } from './OtherComponents/EarnSection';
 import { KoloCardWidgetModal } from './OtherComponents/KoloCard/KoloCardWidgetModal';
-import { UpdateAppBanner } from './OtherComponents/Tokens/components/UpdateAppBanner';
+import { NotificationBanner } from './OtherComponents/Tokens/components/NotificationBanner';
 import { TokensTab } from './OtherComponents/Tokens/Tokens';
 import { TotalEquityBanner } from './OtherComponents/TotalEquityBanner';
 
@@ -50,7 +50,7 @@ const Home = memo(() => {
 
       <EarnSection className="mt-6 mb-3" openCryptoCardModal={openCryptoCardModal} />
 
-      <UpdateAppBanner />
+      <NotificationBanner />
 
       <StickyBar>
         <AssetsViewStateController />

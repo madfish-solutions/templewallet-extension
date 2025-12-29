@@ -47,6 +47,7 @@ import {
   TempleMessageType,
   WatchAssetParameters
 } from '../../types';
+import { intercom } from '../defaults';
 import { settingsUpdated, withUnlocked } from '../store';
 
 import {
@@ -383,6 +384,17 @@ export const sendEvmTransactionAfterConfirm = async (
                 parseTransactionRequest(modifiedReq)
               )
             );
+            intercom.broadcast({
+              type: TempleMessageType.TempleDAppTransactionSent,
+              origin,
+              chainType: TempleChainKind.EVM,
+              network: {
+                chainId: parsedChainId,
+                rpcBaseURL
+              },
+              txHash: result,
+              accountPkh: sourcePkh
+            });
             resolve(result);
           } else {
             decline();

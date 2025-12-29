@@ -4,8 +4,11 @@ import { EvmNetworkEssentials } from 'temple/networks';
 
 type TxHash = HexString;
 
-interface MonitorStates {
+export interface MonitorStatesBase {
   submittedAt: number;
+}
+
+interface MonitorStates extends MonitorStatesBase {
   lastCheckedAt: number;
   status: StatusMessage;
 }
@@ -24,6 +27,10 @@ export interface PendingEvmSwapBase extends Common {
   statusCheckParams: Omit<GetStatusRequest, 'txHash'> & { provider?: 'lifi' | '3route' };
 }
 
+export interface PendingEvmTransactionBase extends Common {
+  network: EvmNetworkEssentials;
+}
+
 export interface PendingEvmTransferBase extends Common {
   assetSlug: string;
   network: EvmNetworkEssentials;
@@ -35,13 +42,16 @@ export type PendingEvmSwap = PendingEvmSwapBase &
     retriesEnabled: boolean;
   };
 export type PendingEvmTransfer = PendingEvmTransferBase & MonitorStates;
+export type PendingEvmTransaction = PendingEvmTransactionBase & MonitorStates;
 
 export interface PendingEvmTransactionsState {
   transfers: Record<TxHash, PendingEvmTransfer>;
   swaps: Record<TxHash, PendingEvmSwap>;
+  otherTransactions: Record<TxHash, PendingEvmTransaction>;
 }
 
 export const pendingEvmTransactionsInitialState: PendingEvmTransactionsState = {
   transfers: {},
-  swaps: {}
+  swaps: {},
+  otherTransactions: {}
 };
