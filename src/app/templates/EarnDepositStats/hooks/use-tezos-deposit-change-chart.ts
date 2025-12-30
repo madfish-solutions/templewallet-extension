@@ -1,21 +1,20 @@
 import { useMemo } from 'react';
 
-import { useTezosAccountBalanceHistory } from 'app/hooks/use-tezos-account-balance-history';
-import { useTezosAccountStakingUpdates } from 'app/hooks/use-tezos-account-staking-updates';
-import { useTokenHistoricalPrices } from 'app/hooks/use-token-historical-prices';
 import { type TzktStakingUpdate } from 'lib/apis/tzkt';
 import { useFiatCurrency } from 'lib/fiat-currency/core';
 import { mutezToTz } from 'lib/temple/helpers';
 import { TempleTezosChainId } from 'lib/temple/types';
 
+import { ONE_MONTH_IN_MS } from '../constants';
+import { toMsTimestamp } from '../utils';
+
 import { useDelegatedFrom3MonthsTimestamp } from './use-delegated-from-3-months-timestamp';
+import { useTezosAccountBalanceHistory } from './use-tezos-account-balance-history';
+import { useTezosAccountStakingUpdates } from './use-tezos-account-staking-updates';
+import { useTokenHistoricalPrices } from './use-token-historical-prices';
 
-const ONE_DAY_IN_MS = 24 * 60 * 60 * 1000;
-const ONE_MONTH_IN_MS = 30 * ONE_DAY_IN_MS;
-
-export const useTezosDepositChangeChartData = (accountPkh: string) => {
+export const useTezosDepositChangeChart = (accountPkh: string) => {
   const { selectedFiatCurrency } = useFiatCurrency();
-
   const {
     data: balanceHistory,
     isLoading: isBalanceHistoryLoading,
@@ -50,9 +49,9 @@ export const useTezosDepositChangeChartData = (accountPkh: string) => {
   const isLoading = isBalanceHistoryLoading || isStakingUpdatesLoading || isMarketChartLoading || isDelegationLoading;
   const isError = Boolean(balanceHistoryError || stakingUpdatesError || marketChartError || delegationError);
 
-  const { data, changePercent } = useMemo(() => {
+  const data = useMemo(() => {
     if (!balanceHistory?.length || !stakingUpdates || !marketChartData?.prices?.length) {
-      return { data: undefined, changePercent: undefined };
+      return;
     }
 
     const nowMs = Date.now();
@@ -63,7 +62,7 @@ export const useTezosDepositChangeChartData = (accountPkh: string) => {
       .filter(point => point.timestamp >= monthAgoMs && point.timestamp <= nowMs);
 
     if (!pricePoints.length) {
-      return { data: undefined, changePercent: undefined };
+      return;
     }
 
     const balancePoints = balanceHistory
@@ -75,7 +74,7 @@ export const useTezosDepositChangeChartData = (accountPkh: string) => {
       .toReversed();
 
     if (!balancePoints.length) {
-      return { data: undefined, changePercent: undefined };
+      return;
     }
 
     const stakedTimeline = buildStakedBalanceTimeline(stakingUpdates, monthAgoMs);
@@ -88,7 +87,7 @@ export const useTezosDepositChangeChartData = (accountPkh: string) => {
     const getStakedAt = createStepFunctionGetter(stakedPoints);
     const delegatedFrom = delegatedFromMs ?? null;
 
-    const series = pricePoints.map(({ timestamp, fiatPrice }) => {
+    return pricePoints.map(({ timestamp, fiatPrice }) => {
       if (delegatedFrom === null || timestamp < delegatedFrom) {
         return [timestamp, 0];
       }
@@ -101,29 +100,15 @@ export const useTezosDepositChangeChartData = (accountPkh: string) => {
 
       return [timestamp, depositInFiat];
     });
-
-    const [firstTimestamp, firstValue] = series[0];
-    const [lastTimestamp, lastValue] = series[series.length - 1];
-
-    if (firstTimestamp === lastTimestamp || firstValue <= 0) {
-      return { data: series, changePercent: undefined };
-    }
-
-    const changePercent = ((lastValue - firstValue) / firstValue) * 100;
-
-    return { data: series, changePercent };
   }, [balanceHistory, stakingUpdates, marketChartData, delegatedFromMs]);
 
   return {
     data,
     selectedFiatCurrency,
-    changePercent,
     isLoading,
     isError
   };
 };
-
-const toMsTimestamp = (isoTimestamp: string) => new Date(isoTimestamp).getTime();
 
 const buildStakedBalanceTimeline = (updates: TzktStakingUpdate[], fromTimestampMs: number) => {
   if (!updates.length) {
@@ -145,8 +130,7 @@ const buildStakedBalanceTimeline = (updates: TzktStakingUpdate[], fromTimestampM
         stakedMutez += update.amount;
         break;
       case 'finalize':
-        const newAmount = stakedMutez - update.amount;
-        stakedMutez = newAmount >= 0 ? newAmount : 0;
+        stakedMutez = Math.max(0, stakedMutez - update.amount);
         break;
       default:
         break;

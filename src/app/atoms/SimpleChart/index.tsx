@@ -22,24 +22,9 @@ export const SimpleChart: FC<SimpleChartProps> = ({ data, className }) => {
           </linearGradient>
         </defs>
 
-        <Area
-          type="monotone"
-          dataKey="value"
-          stroke="none"
-          fill="url(#areaFill)"
-          activeDot={false}
-          isAnimationActive={false}
-        />
+        <Area type="monotone" dataKey="value" stroke="none" fill="url(#areaFill)" activeDot={false} />
 
-        <Line
-          type="monotone"
-          dataKey="value"
-          stroke="#2D6CDF"
-          strokeWidth={2}
-          dot={false}
-          activeDot={false}
-          isAnimationActive={false}
-        />
+        <Line type="monotone" dataKey="value" stroke="#2D6CDF" strokeWidth={2} dot={false} activeDot={false} />
       </AreaChart>
     </ResponsiveContainer>
   );
