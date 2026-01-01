@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 
 import { getEthAccountTransactions } from '@temple-wallet/everstake-wallet-sdk';
 import BigNumber from 'bignumber.js';
+import { formatEther } from 'viem';
 
 import { useTokenHistoricalPrices } from 'app/templates/EarnDepositStats/hooks/use-token-historical-prices';
 import { useFiatCurrency } from 'lib/fiat-currency/core';
@@ -67,7 +68,7 @@ export const useEthDepositChangeChart = (accountAddress?: string | null) => {
       .map(tx => ({
         type: tx.type,
         timestamp: toMsTimestamp(tx.created_at),
-        amount: new BigNumber(tx.amount)
+        amount: formatEther(BigInt(tx.amount))
       }))
       .sort((a, b) => a.timestamp - b.timestamp);
 

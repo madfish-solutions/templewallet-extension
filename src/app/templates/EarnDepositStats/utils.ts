@@ -1,45 +1,28 @@
 export const toMsTimestamp = (isoTimestamp: string) => new Date(isoTimestamp).getTime();
 
 export const mergeDepositSeries = (tezosSeries?: number[][], ethSeries?: number[][]) => {
-  if (!tezosSeries?.length && !ethSeries?.length) {
-    return;
-  }
+  if (!tezosSeries?.length && !ethSeries?.length) return;
+  if (!ethSeries?.length) return tezosSeries;
+  if (!tezosSeries?.length) return ethSeries;
 
-  if (!ethSeries?.length) {
-    return tezosSeries;
-  }
+  const [tezosStartTimestamp] = tezosSeries[0];
+  const [ethStartTimestamp] = ethSeries[0];
 
-  if (!tezosSeries?.length) {
-    return ethSeries;
-  }
+  const base = tezosStartTimestamp >= ethStartTimestamp ? tezosSeries : ethSeries;
+  const other = tezosStartTimestamp >= ethStartTimestamp ? ethSeries : tezosSeries;
 
   const result: number[][] = [];
 
-  let tIndex = 0;
-  let eIndex = 0;
-  let lastTezosValue = 0;
-  let lastEthValue = 0;
+  let otherIndex = 0;
+  let lastOtherValue = 0;
 
-  while (tIndex < tezosSeries.length || eIndex < ethSeries.length) {
-    const nextTezos = tIndex < tezosSeries.length ? tezosSeries[tIndex] : null;
-    const nextEth = eIndex < ethSeries.length ? ethSeries[eIndex] : null;
-
-    const nextTimestamp = Math.min(
-      nextTezos ? nextTezos[0] : Number.POSITIVE_INFINITY,
-      nextEth ? nextEth[0] : Number.POSITIVE_INFINITY
-    );
-
-    if (nextTezos && nextTezos[0] === nextTimestamp) {
-      lastTezosValue = nextTezos[1];
-      tIndex++;
+  for (const [timestamp, baseValue] of base) {
+    while (otherIndex < other.length && other[otherIndex][0] <= timestamp) {
+      lastOtherValue = other[otherIndex][1];
+      otherIndex++;
     }
 
-    if (nextEth && nextEth[0] === nextTimestamp) {
-      lastEthValue = nextEth[1];
-      eIndex++;
-    }
-
-    result.push([nextTimestamp, lastTezosValue + lastEthValue]);
+    result.push([timestamp, baseValue + lastOtherValue]);
   }
 
   return result;
