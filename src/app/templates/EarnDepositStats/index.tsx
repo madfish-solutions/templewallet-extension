@@ -1,17 +1,23 @@
 import React, { FC, memo, ReactNode, RefObject, useMemo } from 'react';
 
+import clsx from 'clsx';
+
 import { Loader } from 'app/atoms';
 import { AnimatedMenuChevron } from 'app/atoms/animated-menu-chevron';
 import Money from 'app/atoms/Money';
 import { EvmNetworkLogo, TezosNetworkLogo } from 'app/atoms/NetworkLogo';
 import { SimpleChart } from 'app/atoms/SimpleChart';
+import { HomeSelectors } from 'app/pages/Home/selectors';
 import { EvmAssetIconWithNetwork, TezosAssetIconWithNetwork } from 'app/templates/AssetIcon';
+import { KoloCryptoCardPreview } from 'app/templates/KoloCard/KoloCryptoCardPreview';
 import { EVM_TOKEN_SLUG, TEZ_TOKEN_SLUG } from 'lib/assets/defaults';
 import { ETHEREUM_APR, TEZOS_APY } from 'lib/constants';
 import { useFiatCurrency } from 'lib/fiat-currency/core';
 import { T } from 'lib/i18n';
 import { ETHEREUM_MAINNET_CHAIN_ID, TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
+import { useActivateAnimatedChevron } from 'lib/ui/hooks/use-activate-animated-chevron';
 import { ZERO } from 'lib/utils/numbers';
+import { Link } from 'lib/woozie';
 import { useAccountAddressForEvm, useAccountAddressForTezos } from 'temple/front';
 
 import { useDepositChartDerivedValues } from './hooks/use-deposit-chart-derived-values';
@@ -22,41 +28,72 @@ import { mergeDepositSeries } from './utils';
 interface EarnDepositStatsProps {
   isHomePage?: boolean;
   animatedChevronRef?: RefObject<AnimatedMenuChevron>;
+  onCryptoCardClick?: EmptyFn;
+  containerClassName?: string;
 }
 
-export const EarnDepositStats = memo<EarnDepositStatsProps>(({ isHomePage, animatedChevronRef }) => {
-  const tezosPkh = useAccountAddressForTezos();
-  const evmPkh = useAccountAddressForEvm();
+export const EarnDepositStats = memo<EarnDepositStatsProps>(
+  ({ isHomePage, animatedChevronRef, onCryptoCardClick, containerClassName }) => {
+    const tezosPkh = useAccountAddressForTezos();
+    const evmPkh = useAccountAddressForEvm();
 
-  if (tezosPkh && evmPkh) {
+    const content = (() => {
+      if (tezosPkh && evmPkh) {
+        return (
+          <CombinedEarnDepositStats
+            isHomePage={isHomePage}
+            tezosAccountPkh={tezosPkh}
+            evmAccountPkh={evmPkh}
+            animatedChevronRef={animatedChevronRef}
+          />
+        );
+      }
+
+      if (tezosPkh) {
+        return (
+          <TezosEarnDepositStats
+            isHomePage={isHomePage}
+            tezosAccountPkh={tezosPkh}
+            animatedChevronRef={animatedChevronRef}
+          />
+        );
+      }
+
+      if (evmPkh) {
+        return (
+          <EvmEarnDepositStats isHomePage={isHomePage} evmAccountPkh={evmPkh} animatedChevronRef={animatedChevronRef} />
+        );
+      }
+
+      return null;
+    })();
+
+    if (!isHomePage) {
+      return content;
+    }
+
+    const { animatedChevronRef: localChevronRef, handleHover, handleUnhover } = useActivateAnimatedChevron();
+
+    // Prefer explicitly passed ref when provided (for future extensibility), otherwise use local.
+    const chevronRef = animatedChevronRef ?? localChevronRef;
+
     return (
-      <CombinedEarnDepositStats
-        isHomePage={isHomePage}
-        tezosAccountPkh={tezosPkh}
-        evmAccountPkh={evmPkh}
-        animatedChevronRef={animatedChevronRef}
-      />
+      <div className={clsx('flex flex-col relative pb-[68px]', containerClassName)}>
+        <KoloCryptoCardPreview onClick={onCryptoCardClick} />
+
+        <Link
+          to="/earn"
+          className="relative -mb-[68px] px-4 transform transition-transform duration-200 ease-out"
+          onMouseEnter={handleHover}
+          onMouseLeave={handleUnhover}
+          testID={HomeSelectors.earnSectionCard}
+        >
+          {content && React.cloneElement(content as JSX.Element, { animatedChevronRef: chevronRef, isHomePage: true })}
+        </Link>
+      </div>
     );
   }
-
-  if (tezosPkh) {
-    return (
-      <TezosEarnDepositStats
-        isHomePage={isHomePage}
-        tezosAccountPkh={tezosPkh}
-        animatedChevronRef={animatedChevronRef}
-      />
-    );
-  }
-
-  if (evmPkh) {
-    return (
-      <EvmEarnDepositStats isHomePage={isHomePage} evmAccountPkh={evmPkh} animatedChevronRef={animatedChevronRef} />
-    );
-  }
-
-  return null;
-});
+);
 
 interface TezosEarnDepositStatsProps extends EarnDepositStatsProps {
   tezosAccountPkh: string;

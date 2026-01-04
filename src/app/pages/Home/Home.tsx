@@ -8,15 +8,15 @@ import PageLayout from 'app/layouts/PageLayout';
 import { AppHeader } from 'app/templates/AppHeader';
 import { DAppConnectionRefsProvider } from 'app/templates/DAppConnection/dapp-connection-refs';
 import { DepositModal } from 'app/templates/DepositModal';
+import { EarnDepositStats } from 'app/templates/EarnDepositStats';
 import { ExploreActionButtonsBar } from 'app/templates/ExploreActionButtons';
 import { toastSuccess } from 'app/toaster';
 import { useInitToastMessage } from 'lib/temple/front/toasts-context';
 import { useBooleanState } from 'lib/ui/hooks';
 
+import { KoloCardWidgetModal } from '../../templates/KoloCard/KoloCardWidgetModal';
 import { CollectiblesTab } from '../Collectibles/CollectiblesTab';
 
-import { EarnSection } from './OtherComponents/EarnSection';
-import { KoloCardWidgetModal } from './OtherComponents/KoloCard/KoloCardWidgetModal';
 import { UpdateAppBanner } from './OtherComponents/Tokens/components/UpdateAppBanner';
 import { TokensTab } from './OtherComponents/Tokens/Tokens';
 import { TotalEquityBanner } from './OtherComponents/TotalEquityBanner';
@@ -48,7 +48,7 @@ const Home = memo(() => {
         <ExploreActionButtonsBar additionalButtonType="activity" onDepositClick={openDepositModal} className="mt-4" />
       </div>
 
-      <EarnSection className="mt-6 mb-3" openCryptoCardModal={openCryptoCardModal} />
+      <EarnDepositStats isHomePage containerClassName="mt-6 mb-3" onCryptoCardClick={openCryptoCardModal} />
 
       <UpdateAppBanner />
 
