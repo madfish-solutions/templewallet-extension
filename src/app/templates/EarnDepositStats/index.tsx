@@ -1,6 +1,7 @@
-import React, { FC, memo, ReactNode, useMemo } from 'react';
+import React, { FC, memo, ReactNode, RefObject, useMemo } from 'react';
 
 import { Loader } from 'app/atoms';
+import { AnimatedMenuChevron } from 'app/atoms/animated-menu-chevron';
 import Money from 'app/atoms/Money';
 import { EvmNetworkLogo, TezosNetworkLogo } from 'app/atoms/NetworkLogo';
 import { SimpleChart } from 'app/atoms/SimpleChart';
@@ -20,22 +21,38 @@ import { mergeDepositSeries } from './utils';
 
 interface EarnDepositStatsProps {
   isHomePage?: boolean;
+  animatedChevronRef?: RefObject<AnimatedMenuChevron>;
 }
 
-export const EarnDepositStats = memo<EarnDepositStatsProps>(({ isHomePage }) => {
+export const EarnDepositStats = memo<EarnDepositStatsProps>(({ isHomePage, animatedChevronRef }) => {
   const tezosPkh = useAccountAddressForTezos();
   const evmPkh = useAccountAddressForEvm();
 
   if (tezosPkh && evmPkh) {
-    return <CombinedEarnDepositStats isHomePage={isHomePage} tezosAccountPkh={tezosPkh} evmAccountPkh={evmPkh} />;
+    return (
+      <CombinedEarnDepositStats
+        isHomePage={isHomePage}
+        tezosAccountPkh={tezosPkh}
+        evmAccountPkh={evmPkh}
+        animatedChevronRef={animatedChevronRef}
+      />
+    );
   }
 
   if (tezosPkh) {
-    return <TezosEarnDepositStats isHomePage={isHomePage} tezosAccountPkh={tezosPkh} />;
+    return (
+      <TezosEarnDepositStats
+        isHomePage={isHomePage}
+        tezosAccountPkh={tezosPkh}
+        animatedChevronRef={animatedChevronRef}
+      />
+    );
   }
 
   if (evmPkh) {
-    return <EvmEarnDepositStats isHomePage={isHomePage} evmAccountPkh={evmPkh} />;
+    return (
+      <EvmEarnDepositStats isHomePage={isHomePage} evmAccountPkh={evmPkh} animatedChevronRef={animatedChevronRef} />
+    );
   }
 
   return null;
@@ -57,7 +74,8 @@ interface CombinedEarnDepositStatsProps extends EarnDepositStatsProps {
 const CombinedEarnDepositStats: FC<CombinedEarnDepositStatsProps> = ({
   isHomePage,
   tezosAccountPkh,
-  evmAccountPkh
+  evmAccountPkh,
+  animatedChevronRef
 }) => {
   const {
     data: tezosChartData,
@@ -82,6 +100,7 @@ const CombinedEarnDepositStats: FC<CombinedEarnDepositStatsProps> = ({
   return (
     <EarnDepositStatsLayout
       isHomePage={isHomePage}
+      animatedChevronRef={animatedChevronRef}
       chartData={chartData}
       isChartLoading={isChartLoading}
       fiatCurrencySymbol={selectedFiatCurrency.symbol}
@@ -95,7 +114,7 @@ const CombinedEarnDepositStats: FC<CombinedEarnDepositStatsProps> = ({
   );
 };
 
-const TezosEarnDepositStats: FC<TezosEarnDepositStatsProps> = ({ isHomePage, tezosAccountPkh }) => {
+const TezosEarnDepositStats: FC<TezosEarnDepositStatsProps> = ({ isHomePage, tezosAccountPkh, animatedChevronRef }) => {
   const {
     data: tezosChartData,
     selectedFiatCurrency,
@@ -108,6 +127,7 @@ const TezosEarnDepositStats: FC<TezosEarnDepositStatsProps> = ({ isHomePage, tez
   return (
     <EarnDepositStatsLayout
       isHomePage={isHomePage}
+      animatedChevronRef={animatedChevronRef}
       chartData={tezosChartData}
       isChartLoading={isLoading}
       fiatCurrencySymbol={selectedFiatCurrency.symbol}
@@ -116,7 +136,7 @@ const TezosEarnDepositStats: FC<TezosEarnDepositStatsProps> = ({ isHomePage, tez
   );
 };
 
-const EvmEarnDepositStats: FC<EvmEarnDepositStatsProps> = ({ isHomePage, evmAccountPkh }) => {
+const EvmEarnDepositStats: FC<EvmEarnDepositStatsProps> = ({ isHomePage, evmAccountPkh, animatedChevronRef }) => {
   const { selectedFiatCurrency } = useFiatCurrency();
 
   const { data: ethChartData, isLoading, isError } = useEthDepositChangeChart(evmAccountPkh);
@@ -126,6 +146,7 @@ const EvmEarnDepositStats: FC<EvmEarnDepositStatsProps> = ({ isHomePage, evmAcco
   return (
     <EarnDepositStatsLayout
       isHomePage={isHomePage}
+      animatedChevronRef={animatedChevronRef}
       chartData={ethChartData}
       isChartLoading={isLoading}
       fiatCurrencySymbol={selectedFiatCurrency.symbol}
@@ -143,6 +164,7 @@ interface EarnDepositStatsLayoutProps extends EarnDepositStatsProps {
 
 const EarnDepositStatsLayout: FC<EarnDepositStatsLayoutProps> = ({
   isHomePage,
+  animatedChevronRef,
   chartData,
   isChartLoading,
   fiatCurrencySymbol,
@@ -151,64 +173,73 @@ const EarnDepositStatsLayout: FC<EarnDepositStatsLayoutProps> = ({
   const { fiatChangeValues, latestFiatValue, changePercentBn, isChangePositive, isChangeNegative, hasDeposits } =
     useDepositChartDerivedValues(chartData);
 
-  if (isHomePage) {
-    if (isChartLoading) {
-      return (
-        <div className="flex justify-center items-center h-[80px]">
-          <Loader size="M" trackVariant="dark" className="text-secondary" />
-        </div>
-      );
-    }
-
-    if (!hasDeposits) {
-      return <HomeEarnNoDepositsContent />;
-    }
-  }
-
-  return (
-    <div className="flex flex-col gap-y-2 p-4 rounded-8 bg-white border-0.5 border-lines">
-      {isChartLoading ? (
-        <div className="w-full h-[68px] flex justify-center items-center">
-          <Loader size="M" trackVariant="dark" className="text-secondary" />
-        </div>
-      ) : (
-        <>
-          <div className="flex gap-x-1">
-            <span className="text-font-description text-grey-1">
-              <T id="yourDeposits" />
-            </span>
-
-            {headerIcons}
+  if (!isHomePage || (hasDeposits && !isChartLoading)) {
+    return (
+      <div className="flex flex-col gap-y-2 p-4 rounded-8 bg-white border-0.5 border-lines">
+        {isChartLoading ? (
+          <div className="w-full h-[68px] flex justify-center items-center">
+            <Loader size="L" trackVariant="dark" className="text-secondary" />
           </div>
-          <div className="flex justify-between">
-            <div className="flex flex-col gap-y-1">
-              <span className="text-font-num-bold-16">
-                <Money fiat shortened smallFractionFont={false}>
-                  {latestFiatValue ?? ZERO}
-                </Money>{' '}
-                {fiatCurrencySymbol}
+        ) : (
+          <>
+            <div className="flex gap-x-1">
+              <span className="text-font-description text-grey-1">
+                <T id="yourDeposits" />
               </span>
 
-              {changePercentBn && (
-                <span
-                  className={`text-font-num-12 ${
-                    isChangePositive ? 'text-success' : isChangeNegative ? 'text-error' : 'text-grey-1'
-                  }`}
-                >
-                  <Money fiat={false} withSign smallFractionFont={false}>
-                    {changePercentBn}
-                  </Money>
-                  %
+              {headerIcons}
+            </div>
+            <div className="flex justify-between">
+              <div className="flex flex-col gap-y-1">
+                <span className="text-font-num-bold-16">
+                  <Money fiat shortened smallFractionFont={false}>
+                    {latestFiatValue ?? ZERO}
+                  </Money>{' '}
+                  {fiatCurrencySymbol}
                 </span>
-              )}
-            </div>
 
-            <div className="w-52">
-              <SimpleChart data={fiatChangeValues} />
+                {changePercentBn && (
+                  <span
+                    className={`text-font-num-12 ${
+                      isChangePositive ? 'text-success' : isChangeNegative ? 'text-error' : 'text-grey-1'
+                    }`}
+                  >
+                    <Money fiat={false} withSign smallFractionFont={false}>
+                      {changePercentBn}
+                    </Money>
+                    %
+                  </span>
+                )}
+              </div>
+
+              <div className="w-52">
+                <SimpleChart data={fiatChangeValues} />
+              </div>
             </div>
-          </div>
-        </>
-      )}
+          </>
+        )}
+      </div>
+    );
+  }
+
+  const innerContent = isChartLoading ? (
+    <div className="flex py-1 justify-center items-center">
+      <Loader size="L" trackVariant="dark" className="text-secondary" />
+    </div>
+  ) : (
+    <HomeEarnNoDepositsContent />
+  );
+
+  return (
+    <div className="flex flex-col rounded-8 pb-1 px-1 border-0.5 border-lines bg-white">
+      <div className="flex items-center justify-between p-2 rounded-8 overflow-hidden">
+        <span className="text-font-description-bold p-1">
+          <T id="earn" />
+        </span>
+        {animatedChevronRef && <AnimatedMenuChevron ref={animatedChevronRef} />}
+      </div>
+
+      <div className="rounded-8 p-3 pb-2 bg-background">{innerContent}</div>
     </div>
   );
 };

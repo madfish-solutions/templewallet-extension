@@ -58,5 +58,3 @@ export const useFilteredEarnOffers = () => {
     setSearchValue
   };
 };
-
-
