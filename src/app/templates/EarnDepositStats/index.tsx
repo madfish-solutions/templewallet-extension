@@ -99,9 +99,13 @@ const CombinedEarnDepositStats: FC<CombinedEarnDepositStatsProps> = ({
       isChartLoading={isChartLoading}
       fiatCurrencySymbol={selectedFiatCurrency.symbol}
       headerIcons={
-        <div className="flex items-center gap-x-1">
-          <TezosNetworkLogo chainId={TEZOS_MAINNET_CHAIN_ID} size={16} />
-          <EvmNetworkLogo chainId={ETHEREUM_MAINNET_CHAIN_ID} size={16} imgClassName="p-0.5" />
+        <div className="flex items-center">
+          <TezosNetworkLogo
+            size={16}
+            chainId={TEZOS_MAINNET_CHAIN_ID}
+            className="border border-lines bg-white rounded-full"
+          />
+          <EvmNetworkLogo size={16} chainId={ETHEREUM_MAINNET_CHAIN_ID} className="-ml-1" imgClassName="p-0.5" />
         </div>
       }
     />
