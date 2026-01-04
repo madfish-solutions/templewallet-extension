@@ -8,17 +8,18 @@ import Money from 'app/atoms/Money';
 import { EvmNetworkLogo, TezosNetworkLogo } from 'app/atoms/NetworkLogo';
 import { SimpleChart } from 'app/atoms/SimpleChart';
 import { HomeSelectors } from 'app/pages/Home/selectors';
+import { useTestnetModeEnabledSelector } from 'app/store/settings/selectors';
 import { EvmAssetIconWithNetwork, TezosAssetIconWithNetwork } from 'app/templates/AssetIcon';
 import { KoloCryptoCardPreview } from 'app/templates/KoloCard/KoloCryptoCardPreview';
 import { EVM_TOKEN_SLUG, TEZ_TOKEN_SLUG } from 'lib/assets/defaults';
 import { ETHEREUM_APR, TEZOS_APY } from 'lib/constants';
 import { useFiatCurrency } from 'lib/fiat-currency/core';
 import { T } from 'lib/i18n';
-import { ETHEREUM_MAINNET_CHAIN_ID, TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
+import { ETHEREUM_MAINNET_CHAIN_ID, TEZOS_MAINNET_CHAIN_ID, TempleAccountType } from 'lib/temple/types';
 import { useActivateAnimatedChevron } from 'lib/ui/hooks/use-activate-animated-chevron';
 import { ZERO } from 'lib/utils/numbers';
 import { Link } from 'lib/woozie';
-import { useAccountAddressForEvm, useAccountAddressForTezos } from 'temple/front';
+import { useAccount, useAccountAddressForEvm, useAccountAddressForTezos } from 'temple/front';
 
 import { useDepositChartDerivedValues } from './hooks/use-deposit-chart-derived-values';
 import { useEthDepositChangeChart } from './hooks/use-eth-deposit-change-chart';
@@ -35,30 +36,45 @@ export const EarnDepositStats = memo<EarnDepositStatsProps>(props => {
   const tezosPkh = useAccountAddressForTezos();
   const evmPkh = useAccountAddressForEvm();
 
+  const isTestnetMode = useTestnetModeEnabledSelector();
+  const account = useAccount();
+  const isWatchOnly = account.type === TempleAccountType.WatchOnly;
+  const isGloballyDisabled = isTestnetMode || isWatchOnly;
+
+  if (!props.isHomePage && isGloballyDisabled) {
+    return null;
+  }
+
+  const commonProps = { ...props, isGloballyDisabled };
+
   if (tezosPkh && evmPkh) {
-    return <CombinedEarnDepositStats {...props} tezosAccountPkh={tezosPkh} evmAccountPkh={evmPkh} />;
+    return <CombinedEarnDepositStats {...commonProps} tezosAccountPkh={tezosPkh} evmAccountPkh={evmPkh} />;
   }
 
   if (tezosPkh) {
-    return <TezosEarnDepositStats {...props} tezosAccountPkh={tezosPkh} />;
+    return <TezosEarnDepositStats {...commonProps} tezosAccountPkh={tezosPkh} />;
   }
 
   if (evmPkh) {
-    return <EvmEarnDepositStats {...props} evmAccountPkh={evmPkh} />;
+    return <EvmEarnDepositStats {...commonProps} evmAccountPkh={evmPkh} />;
   }
 
   return null;
 });
 
-interface TezosEarnDepositStatsProps extends EarnDepositStatsProps {
+interface CommonProps extends EarnDepositStatsProps {
+  isGloballyDisabled?: boolean;
+}
+
+interface TezosEarnDepositStatsProps extends CommonProps {
   tezosAccountPkh: string;
 }
 
-interface EvmEarnDepositStatsProps extends EarnDepositStatsProps {
+interface EvmEarnDepositStatsProps extends CommonProps {
   evmAccountPkh: string;
 }
 
-interface CombinedEarnDepositStatsProps extends EarnDepositStatsProps {
+interface CombinedEarnDepositStatsProps extends CommonProps {
   tezosAccountPkh: string;
   evmAccountPkh: string;
 }
@@ -67,6 +83,7 @@ const CombinedEarnDepositStats: FC<CombinedEarnDepositStatsProps> = ({
   isHomePage,
   onCryptoCardClick,
   containerClassName,
+  isGloballyDisabled,
   tezosAccountPkh,
   evmAccountPkh
 }) => {
@@ -88,15 +105,17 @@ const CombinedEarnDepositStats: FC<CombinedEarnDepositStatsProps> = ({
   const isChartError = isTezosChartError || isEthChartError;
   const isChartLoading = isTezosChartLoading || isEthChartLoading;
 
-  if (isChartError) return null;
+  if (!isHomePage && (isGloballyDisabled || isChartError)) return null;
+
+  const shouldForceNoDeposits = isGloballyDisabled || isChartError;
 
   return (
     <EarnDepositStatsLayout
       isHomePage={isHomePage}
       onCryptoCardClick={onCryptoCardClick}
       containerClassName={containerClassName}
-      chartData={chartData}
-      isChartLoading={isChartLoading}
+      chartData={shouldForceNoDeposits ? undefined : chartData}
+      isChartLoading={shouldForceNoDeposits ? false : isChartLoading}
       fiatCurrencySymbol={selectedFiatCurrency.symbol}
       headerIcons={
         <div className="flex items-center">
@@ -116,6 +135,7 @@ const TezosEarnDepositStats: FC<TezosEarnDepositStatsProps> = ({
   isHomePage,
   onCryptoCardClick,
   containerClassName,
+  isGloballyDisabled,
   tezosAccountPkh
 }) => {
   const {
@@ -125,15 +145,17 @@ const TezosEarnDepositStats: FC<TezosEarnDepositStatsProps> = ({
     isError
   } = useTezosDepositChangeChart(tezosAccountPkh);
 
-  if (isError) return null;
+  if (!isHomePage && (isGloballyDisabled || isError)) return null;
+
+  const shouldForceNoDeposits = isGloballyDisabled || isError;
 
   return (
     <EarnDepositStatsLayout
       isHomePage={isHomePage}
       onCryptoCardClick={onCryptoCardClick}
       containerClassName={containerClassName}
-      chartData={tezosChartData}
-      isChartLoading={isLoading}
+      chartData={shouldForceNoDeposits ? undefined : tezosChartData}
+      isChartLoading={shouldForceNoDeposits ? false : isLoading}
       fiatCurrencySymbol={selectedFiatCurrency.symbol}
       headerIcons={<TezosNetworkLogo chainId={TEZOS_MAINNET_CHAIN_ID} size={16} />}
     />
@@ -144,21 +166,24 @@ const EvmEarnDepositStats: FC<EvmEarnDepositStatsProps> = ({
   isHomePage,
   onCryptoCardClick,
   containerClassName,
+  isGloballyDisabled,
   evmAccountPkh
 }) => {
   const { selectedFiatCurrency } = useFiatCurrency();
 
   const { data: ethChartData, isLoading, isError } = useEthDepositChangeChart(evmAccountPkh);
 
-  if (isError) return null;
+  if (!isHomePage && (isGloballyDisabled || isError)) return null;
+
+  const shouldForceNoDeposits = isGloballyDisabled || isError;
 
   return (
     <EarnDepositStatsLayout
       isHomePage={isHomePage}
       onCryptoCardClick={onCryptoCardClick}
       containerClassName={containerClassName}
-      chartData={ethChartData}
-      isChartLoading={isLoading}
+      chartData={shouldForceNoDeposits ? undefined : ethChartData}
+      isChartLoading={shouldForceNoDeposits ? false : isLoading}
       fiatCurrencySymbol={selectedFiatCurrency.symbol}
       headerIcons={<EvmNetworkLogo chainId={ETHEREUM_MAINNET_CHAIN_ID} size={16} imgClassName="p-0.5" />}
     />
@@ -287,7 +312,7 @@ const EarnDepositStatsLayout: FC<EarnDepositStatsLayoutProps> = ({
 };
 
 const HomeEarnNoDepositsContent: FC = () => (
-  <div className="flex flex-row rounded-8 p-3 pb-2 gap-4 bg-background">
+  <div className="flex flex-row gap-4 bg-background">
     <EarnOpportunityItem
       Icon={<EvmAssetIconWithNetwork assetSlug={EVM_TOKEN_SLUG} evmChainId={ETHEREUM_MAINNET_CHAIN_ID} size={24} />}
       symbol="ETH"
