@@ -1,4 +1,4 @@
-import React, { FC, memo, ReactNode, RefObject, useMemo } from 'react';
+import React, { FC, memo, ReactNode, useMemo } from 'react';
 
 import clsx from 'clsx';
 
@@ -31,87 +31,44 @@ interface EarnDepositStatsProps {
   containerClassName?: string;
 }
 
-export const EarnDepositStats = memo<EarnDepositStatsProps>(({ isHomePage, onCryptoCardClick, containerClassName }) => {
+export const EarnDepositStats = memo<EarnDepositStatsProps>(props => {
   const tezosPkh = useAccountAddressForTezos();
   const evmPkh = useAccountAddressForEvm();
 
-  const { animatedChevronRef, handleHover, handleUnhover } = useActivateAnimatedChevron();
-
-  const content = (() => {
-    if (tezosPkh && evmPkh) {
-      return (
-        <CombinedEarnDepositStats
-          isHomePage={isHomePage}
-          tezosAccountPkh={tezosPkh}
-          evmAccountPkh={evmPkh}
-          animatedChevronRef={animatedChevronRef}
-        />
-      );
-    }
-
-    if (tezosPkh) {
-      return (
-        <TezosEarnDepositStats
-          isHomePage={isHomePage}
-          tezosAccountPkh={tezosPkh}
-          animatedChevronRef={animatedChevronRef}
-        />
-      );
-    }
-
-    if (evmPkh) {
-      return (
-        <EvmEarnDepositStats isHomePage={isHomePage} evmAccountPkh={evmPkh} animatedChevronRef={animatedChevronRef} />
-      );
-    }
-
-    return null;
-  })();
-
-  if (!isHomePage) {
-    return content;
+  if (tezosPkh && evmPkh) {
+    return <CombinedEarnDepositStats {...props} tezosAccountPkh={tezosPkh} evmAccountPkh={evmPkh} />;
   }
 
-  return (
-    <div className={clsx('flex flex-col relative pb-[68px]', containerClassName)}>
-      <KoloCryptoCardPreview onClick={onCryptoCardClick} />
+  if (tezosPkh) {
+    return <TezosEarnDepositStats {...props} tezosAccountPkh={tezosPkh} />;
+  }
 
-      <Link
-        to="/earn"
-        className="relative -mb-[68px] px-4 transform transition-transform duration-200 ease-out"
-        onMouseEnter={handleHover}
-        onMouseLeave={handleUnhover}
-        testID={HomeSelectors.earnSectionCard}
-      >
-        {content}
-      </Link>
-    </div>
-  );
+  if (evmPkh) {
+    return <EvmEarnDepositStats {...props} evmAccountPkh={evmPkh} />;
+  }
+
+  return null;
 });
 
-interface CommonProps {
-  isHomePage?: boolean;
-  animatedChevronRef?: RefObject<AnimatedMenuChevron>;
-}
-
-interface TezosEarnDepositStatsProps extends CommonProps {
+interface TezosEarnDepositStatsProps extends EarnDepositStatsProps {
   tezosAccountPkh: string;
 }
 
-interface EvmEarnDepositStatsProps extends CommonProps {
+interface EvmEarnDepositStatsProps extends EarnDepositStatsProps {
   evmAccountPkh: string;
 }
 
-interface CombinedEarnDepositStatsProps extends CommonProps {
+interface CombinedEarnDepositStatsProps extends EarnDepositStatsProps {
   tezosAccountPkh: string;
   evmAccountPkh: string;
 }
 
 const CombinedEarnDepositStats: FC<CombinedEarnDepositStatsProps> = ({
   isHomePage,
+  onCryptoCardClick,
+  containerClassName,
   tezosAccountPkh,
-  evmAccountPkh,
-  animatedChevronRef
+  evmAccountPkh
 }) => {
   const {
     data: tezosChartData,
@@ -136,7 +93,8 @@ const CombinedEarnDepositStats: FC<CombinedEarnDepositStatsProps> = ({
   return (
     <EarnDepositStatsLayout
       isHomePage={isHomePage}
-      animatedChevronRef={animatedChevronRef}
+      onCryptoCardClick={onCryptoCardClick}
+      containerClassName={containerClassName}
       chartData={chartData}
       isChartLoading={isChartLoading}
       fiatCurrencySymbol={selectedFiatCurrency.symbol}
@@ -150,7 +108,12 @@ const CombinedEarnDepositStats: FC<CombinedEarnDepositStatsProps> = ({
   );
 };
 
-const TezosEarnDepositStats: FC<TezosEarnDepositStatsProps> = ({ isHomePage, tezosAccountPkh, animatedChevronRef }) => {
+const TezosEarnDepositStats: FC<TezosEarnDepositStatsProps> = ({
+  isHomePage,
+  onCryptoCardClick,
+  containerClassName,
+  tezosAccountPkh
+}) => {
   const {
     data: tezosChartData,
     selectedFiatCurrency,
@@ -163,7 +126,8 @@ const TezosEarnDepositStats: FC<TezosEarnDepositStatsProps> = ({ isHomePage, tez
   return (
     <EarnDepositStatsLayout
       isHomePage={isHomePage}
-      animatedChevronRef={animatedChevronRef}
+      onCryptoCardClick={onCryptoCardClick}
+      containerClassName={containerClassName}
       chartData={tezosChartData}
       isChartLoading={isLoading}
       fiatCurrencySymbol={selectedFiatCurrency.symbol}
@@ -172,7 +136,12 @@ const TezosEarnDepositStats: FC<TezosEarnDepositStatsProps> = ({ isHomePage, tez
   );
 };
 
-const EvmEarnDepositStats: FC<EvmEarnDepositStatsProps> = ({ isHomePage, evmAccountPkh, animatedChevronRef }) => {
+const EvmEarnDepositStats: FC<EvmEarnDepositStatsProps> = ({
+  isHomePage,
+  onCryptoCardClick,
+  containerClassName,
+  evmAccountPkh
+}) => {
   const { selectedFiatCurrency } = useFiatCurrency();
 
   const { data: ethChartData, isLoading, isError } = useEthDepositChangeChart(evmAccountPkh);
@@ -182,7 +151,8 @@ const EvmEarnDepositStats: FC<EvmEarnDepositStatsProps> = ({ isHomePage, evmAcco
   return (
     <EarnDepositStatsLayout
       isHomePage={isHomePage}
-      animatedChevronRef={animatedChevronRef}
+      onCryptoCardClick={onCryptoCardClick}
+      containerClassName={containerClassName}
       chartData={ethChartData}
       isChartLoading={isLoading}
       fiatCurrencySymbol={selectedFiatCurrency.symbol}
@@ -191,7 +161,7 @@ const EvmEarnDepositStats: FC<EvmEarnDepositStatsProps> = ({ isHomePage, evmAcco
   );
 };
 
-interface EarnDepositStatsLayoutProps extends CommonProps {
+interface EarnDepositStatsLayoutProps extends EarnDepositStatsProps {
   chartData?: number[][];
   isChartLoading: boolean;
   fiatCurrencySymbol: string;
@@ -200,82 +170,114 @@ interface EarnDepositStatsLayoutProps extends CommonProps {
 
 const EarnDepositStatsLayout: FC<EarnDepositStatsLayoutProps> = ({
   isHomePage,
-  animatedChevronRef,
+  onCryptoCardClick,
+  containerClassName,
   chartData,
   isChartLoading,
   fiatCurrencySymbol,
   headerIcons
 }) => {
+  const { animatedChevronRef, handleHover, handleUnhover } = useActivateAnimatedChevron();
+
   const { fiatChangeValues, latestFiatValue, changePercentBn, isChangePositive, isChangeNegative, hasDeposits } =
     useDepositChartDerivedValues(chartData);
 
-  if (!isHomePage || (hasDeposits && !isChartLoading)) {
-    return (
-      <div className="flex flex-col gap-y-2 p-4 rounded-8 bg-white border-0.5 border-lines">
-        {isChartLoading ? (
-          <div className="w-full h-[68px] flex justify-center items-center">
-            <Loader size="L" trackVariant="dark" className="text-secondary" />
+  const statsCard = (
+    <div
+      className={clsx(
+        'flex flex-col gap-y-2 p-4 rounded-8 border-0.5 border-lines bg-white',
+        isHomePage && hasDeposits && !isChartLoading && 'hover:bg-grey-4'
+      )}
+    >
+      {isChartLoading ? (
+        <div className="w-full h-[68px] flex justify-center items-center">
+          <Loader size="L" trackVariant="dark" className="text-secondary" />
+        </div>
+      ) : (
+        <>
+          <div className="flex gap-x-1">
+            <span className="text-font-description text-grey-1">
+              <T id="yourDeposits" />
+            </span>
+
+            {headerIcons}
           </div>
-        ) : (
-          <>
-            <div className="flex gap-x-1">
-              <span className="text-font-description text-grey-1">
-                <T id="yourDeposits" />
+          <div className="flex justify-between">
+            <div className="flex flex-col gap-y-1">
+              <span className="text-font-num-bold-16">
+                <Money fiat shortened smallFractionFont={false}>
+                  {latestFiatValue ?? ZERO}
+                </Money>{' '}
+                {fiatCurrencySymbol}
               </span>
 
-              {headerIcons}
-            </div>
-            <div className="flex justify-between">
-              <div className="flex flex-col gap-y-1">
-                <span className="text-font-num-bold-16">
-                  <Money fiat shortened smallFractionFont={false}>
-                    {latestFiatValue ?? ZERO}
-                  </Money>{' '}
-                  {fiatCurrencySymbol}
+              {changePercentBn && (
+                <span
+                  className={`text-font-num-12 ${
+                    isChangePositive ? 'text-success' : isChangeNegative ? 'text-error' : 'text-grey-1'
+                  }`}
+                >
+                  <Money fiat={false} withSign smallFractionFont={false}>
+                    {changePercentBn}
+                  </Money>
+                  %
                 </span>
-
-                {changePercentBn && (
-                  <span
-                    className={`text-font-num-12 ${
-                      isChangePositive ? 'text-success' : isChangeNegative ? 'text-error' : 'text-grey-1'
-                    }`}
-                  >
-                    <Money fiat={false} withSign smallFractionFont={false}>
-                      {changePercentBn}
-                    </Money>
-                    %
-                  </span>
-                )}
-              </div>
-
-              <div className="w-52">
-                <SimpleChart data={fiatChangeValues} />
-              </div>
+              )}
             </div>
-          </>
-        )}
-      </div>
-    );
-  }
 
-  const innerContent = isChartLoading ? (
-    <div className="flex py-1 justify-center items-center">
-      <Loader size="L" trackVariant="dark" className="text-secondary" />
+            <div className="w-52">
+              <SimpleChart data={fiatChangeValues} />
+            </div>
+          </div>
+        </>
+      )}
     </div>
-  ) : (
-    <HomeEarnNoDepositsContent />
   );
 
-  return (
-    <div className="flex flex-col rounded-8 pb-1 px-1 border-0.5 border-lines bg-white">
-      <div className="flex items-center justify-between p-2 rounded-8 overflow-hidden">
-        <span className="text-font-description-bold p-1">
-          <T id="earn" />
-        </span>
-        {animatedChevronRef && <AnimatedMenuChevron ref={animatedChevronRef} />}
-      </div>
+  if (!isHomePage) {
+    return statsCard;
+  }
 
-      <div className="rounded-8 p-3 pb-2 bg-background">{innerContent}</div>
+  const linkContent =
+    hasDeposits && !isChartLoading ? (
+      statsCard
+    ) : (
+      <div className="flex flex-col rounded-8 pb-1 px-1 border-0.5 border-lines bg-white">
+        <div className="flex items-center justify-between p-2 rounded-8 overflow-hidden">
+          <span className="text-font-description-bold p-1">
+            <T id="earn" />
+          </span>
+          <AnimatedMenuChevron ref={animatedChevronRef} />
+        </div>
+
+        <div className="rounded-8 p-3 pb-2 bg-background">
+          {isChartLoading ? (
+            <div className="flex py-1 justify-center items-center">
+              <Loader size="L" trackVariant="dark" className="text-secondary" />
+            </div>
+          ) : (
+            <HomeEarnNoDepositsContent />
+          )}
+        </div>
+      </div>
+    );
+
+  return (
+    <div className={clsx('flex flex-col relative pb-[68px]', containerClassName)}>
+      <KoloCryptoCardPreview onClick={onCryptoCardClick} />
+
+      <Link
+        to="/earn"
+        className={clsx(
+          'relative -mb-[68px] px-4 transform transition-transform duration-200 ease-out',
+          hasDeposits && 'peer-hover:translate-y-2'
+        )}
+        onMouseEnter={handleHover}
+        onMouseLeave={handleUnhover}
+        testID={HomeSelectors.earnSectionCard}
+      >
+        {linkContent}
+      </Link>
     </div>
   );
 };
