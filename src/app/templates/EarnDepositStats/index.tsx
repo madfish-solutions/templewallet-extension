@@ -27,83 +27,82 @@ import { mergeDepositSeries } from './utils';
 
 interface EarnDepositStatsProps {
   isHomePage?: boolean;
-  animatedChevronRef?: RefObject<AnimatedMenuChevron>;
   onCryptoCardClick?: EmptyFn;
   containerClassName?: string;
 }
 
-export const EarnDepositStats = memo<EarnDepositStatsProps>(
-  ({ isHomePage, animatedChevronRef, onCryptoCardClick, containerClassName }) => {
-    const tezosPkh = useAccountAddressForTezos();
-    const evmPkh = useAccountAddressForEvm();
+export const EarnDepositStats = memo<EarnDepositStatsProps>(({ isHomePage, onCryptoCardClick, containerClassName }) => {
+  const tezosPkh = useAccountAddressForTezos();
+  const evmPkh = useAccountAddressForEvm();
 
-    const content = (() => {
-      if (tezosPkh && evmPkh) {
-        return (
-          <CombinedEarnDepositStats
-            isHomePage={isHomePage}
-            tezosAccountPkh={tezosPkh}
-            evmAccountPkh={evmPkh}
-            animatedChevronRef={animatedChevronRef}
-          />
-        );
-      }
+  const { animatedChevronRef, handleHover, handleUnhover } = useActivateAnimatedChevron();
 
-      if (tezosPkh) {
-        return (
-          <TezosEarnDepositStats
-            isHomePage={isHomePage}
-            tezosAccountPkh={tezosPkh}
-            animatedChevronRef={animatedChevronRef}
-          />
-        );
-      }
-
-      if (evmPkh) {
-        return (
-          <EvmEarnDepositStats isHomePage={isHomePage} evmAccountPkh={evmPkh} animatedChevronRef={animatedChevronRef} />
-        );
-      }
-
-      return null;
-    })();
-
-    if (!isHomePage) {
-      return content;
+  const content = (() => {
+    if (tezosPkh && evmPkh) {
+      return (
+        <CombinedEarnDepositStats
+          isHomePage={isHomePage}
+          tezosAccountPkh={tezosPkh}
+          evmAccountPkh={evmPkh}
+          animatedChevronRef={animatedChevronRef}
+        />
+      );
     }
 
-    const { animatedChevronRef: localChevronRef, handleHover, handleUnhover } = useActivateAnimatedChevron();
+    if (tezosPkh) {
+      return (
+        <TezosEarnDepositStats
+          isHomePage={isHomePage}
+          tezosAccountPkh={tezosPkh}
+          animatedChevronRef={animatedChevronRef}
+        />
+      );
+    }
 
-    // Prefer explicitly passed ref when provided (for future extensibility), otherwise use local.
-    const chevronRef = animatedChevronRef ?? localChevronRef;
+    if (evmPkh) {
+      return (
+        <EvmEarnDepositStats isHomePage={isHomePage} evmAccountPkh={evmPkh} animatedChevronRef={animatedChevronRef} />
+      );
+    }
 
-    return (
-      <div className={clsx('flex flex-col relative pb-[68px]', containerClassName)}>
-        <KoloCryptoCardPreview onClick={onCryptoCardClick} />
+    return null;
+  })();
 
-        <Link
-          to="/earn"
-          className="relative -mb-[68px] px-4 transform transition-transform duration-200 ease-out"
-          onMouseEnter={handleHover}
-          onMouseLeave={handleUnhover}
-          testID={HomeSelectors.earnSectionCard}
-        >
-          {content && React.cloneElement(content as JSX.Element, { animatedChevronRef: chevronRef, isHomePage: true })}
-        </Link>
-      </div>
-    );
+  if (!isHomePage) {
+    return content;
   }
-);
 
-interface TezosEarnDepositStatsProps extends EarnDepositStatsProps {
+  return (
+    <div className={clsx('flex flex-col relative pb-[68px]', containerClassName)}>
+      <KoloCryptoCardPreview onClick={onCryptoCardClick} />
+
+      <Link
+        to="/earn"
+        className="relative -mb-[68px] px-4 transform transition-transform duration-200 ease-out"
+        onMouseEnter={handleHover}
+        onMouseLeave={handleUnhover}
+        testID={HomeSelectors.earnSectionCard}
+      >
+        {content}
+      </Link>
+    </div>
+  );
+});
+
+interface CommonProps {
+  isHomePage?: boolean;
+  animatedChevronRef?: RefObject<AnimatedMenuChevron>;
+}
+
+interface TezosEarnDepositStatsProps extends CommonProps {
   tezosAccountPkh: string;
 }
 
-interface EvmEarnDepositStatsProps extends EarnDepositStatsProps {
+interface EvmEarnDepositStatsProps extends CommonProps {
   evmAccountPkh: string;
 }
 
-interface CombinedEarnDepositStatsProps extends EarnDepositStatsProps {
+interface CombinedEarnDepositStatsProps extends CommonProps {
   tezosAccountPkh: string;
   evmAccountPkh: string;
 }
@@ -192,7 +191,7 @@ const EvmEarnDepositStats: FC<EvmEarnDepositStatsProps> = ({ isHomePage, evmAcco
   );
 };
 
-interface EarnDepositStatsLayoutProps extends EarnDepositStatsProps {
+interface EarnDepositStatsLayoutProps extends CommonProps {
   chartData?: number[][];
   isChartLoading: boolean;
   fiatCurrencySymbol: string;
