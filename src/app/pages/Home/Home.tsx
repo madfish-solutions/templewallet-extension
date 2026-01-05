@@ -10,11 +10,11 @@ import { DAppConnectionRefsProvider } from 'app/templates/DAppConnection/dapp-co
 import { DepositModal } from 'app/templates/DepositModal';
 import { EarnDepositStats } from 'app/templates/EarnDepositStats';
 import { ExploreActionButtonsBar } from 'app/templates/ExploreActionButtons';
+import { KoloCardWidgetModal } from 'app/templates/KoloCard/KoloCardWidgetModal';
 import { toastSuccess } from 'app/toaster';
 import { useInitToastMessage } from 'lib/temple/front/toasts-context';
 import { useBooleanState } from 'lib/ui/hooks';
 
-import { KoloCardWidgetModal } from '../../templates/KoloCard/KoloCardWidgetModal';
 import { CollectiblesTab } from '../Collectibles/CollectiblesTab';
 
 import { NotificationBanner } from './OtherComponents/Tokens/components/NotificationBanner';
