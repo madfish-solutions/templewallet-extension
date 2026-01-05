@@ -140,7 +140,8 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose }) => {
               accountPkh,
               assetSlug,
               network,
-              blockExplorerUrl: makeBlockExplorerHref(blockExplorer.url, txHash, 'tx', TempleChainKind.EVM)
+              blockExplorerUrl: makeBlockExplorerHref(blockExplorer.url, txHash, 'tx', TempleChainKind.EVM),
+              submittedAt: Date.now()
             })
           );
           dispatch(monitorPendingTransfersAction());

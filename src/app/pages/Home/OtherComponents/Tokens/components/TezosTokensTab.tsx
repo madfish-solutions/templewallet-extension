@@ -14,7 +14,7 @@ import {
   useTokensListOptionsSelector
 } from 'app/store/assets-filter-options/selectors';
 import { useMainnetTokensScamlistSelector } from 'app/store/tezos/assets/selectors';
-import { PartnersPromotion, PartnersPromotionVariant } from 'app/templates/partners-promotion';
+import { usePartnersPromotionModule } from 'app/templates/partners-promotion';
 import { TezosTokenListItem } from 'app/templates/TokenListItem';
 import { parseChainAssetSlug, toChainAssetSlug } from 'lib/assets/utils';
 import { useMemoWithCompare } from 'lib/ui/hooks';
@@ -128,21 +128,23 @@ const TabContentBase = memo<TabContentBaseProps>(
     const firstListItemRef = useRef<TokenListItemElement>(null);
     const { displayedSlugs, displayedGroupedSlugs, isSyncing, isInSearchMode, loadNextGrouped, loadNextPlain } =
       useTezosAccountTokensListingLogic(allSlugsSorted, allSlugsSortedGrouped);
+    const PartnersPromotionModule = usePartnersPromotionModule();
 
     const mainnetChain = useTezosMainnetChain();
     const tezosChains = useAllTezosChains();
     const mainnetTokensScamSlugsRecord = useMainnetTokensScamlistSelector();
 
     const { tokensView, getElementIndex } = useMemo(() => {
-      const promoJsx = manageActive ? null : (
-        <PartnersPromotion
-          id="promo-token-item"
-          key="promo-token-item"
-          variant={PartnersPromotionVariant.Text}
-          pageName="Token page"
-          ref={promoRef}
-        />
-      );
+      const promoJsx =
+        manageActive || !PartnersPromotionModule ? null : (
+          <PartnersPromotionModule.PartnersPromotion
+            id="promo-token-item"
+            key="promo-token-item"
+            variant={PartnersPromotionModule.PartnersPromotionVariant.Text}
+            pageName="Token page"
+            ref={promoRef}
+          />
+        );
 
       if (displayedGroupedSlugs) {
         return {

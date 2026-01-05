@@ -9,7 +9,7 @@ import {
   LINE_HEIGHT_SEARCH_PARAM_NAME,
   ORIGIN_SEARCH_PARAM_NAME,
   THEME_COLOR_SEARCH_PARAM_NAME
-} from 'lib/constants';
+} from 'lib/ads-constants';
 
 import { getRulesFromStorage } from './ads-rules';
 

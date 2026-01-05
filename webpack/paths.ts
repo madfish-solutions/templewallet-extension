@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
-import { IS_CORE_BUILD, TARGET_BROWSER } from './env';
+import { TARGET_BROWSER } from './env';
 
 const PACKED_EXTENSION = (() => {
   switch (TARGET_BROWSER) {
@@ -32,20 +32,15 @@ const PATH_LIBTHEMIS_WASM_FILE = path.join(PATH_NODE_MODULES, 'wasm-themis/src/l
 const PATH_HYPELAB_EMBED_FILE = path.join(PATH_SOURCE, 'hypelab.embed.js');
 const PATH_OUTPUT_HYPELAB_EMBED = path.join(PATH_OUTPUT, 'scripts/hypelab.embed.js');
 
+export const PATH_HYPELAB_EMBED_FILE_EXISTS = fs.existsSync(PATH_HYPELAB_EMBED_FILE);
+
 const DEST_RELATIVE_PATHS = {
   OUTPUT: DEST_RELATIVE_PATH_OUTPUT,
   OUTPUT_PACKED: DEST_RELATIVE_PATH_OUTPUT_PACKED
 };
 
-/** Mapping entries' names to source paths */
-const IFRAMES: Record<string, string> = IS_CORE_BUILD
-  ? {}
-  : {
-      'ads-stack': path.join(PATH_SOURCE, 'content-scripts/replace-ads/ads-stack.iframe.ts'),
-      'persona-ad': path.join(PATH_SOURCE, 'content-scripts/replace-ads/persona-ad.iframe.ts')
-    };
-
 const PATHS = {
+  ADS_STACK_IFRAME: path.join(PATH_SOURCE, 'content-scripts/replace-ads/ads-stack.iframe.ts'),
   CWD: PATH_CWD,
   NODE_MODULES: PATH_NODE_MODULES,
   SOURCE: PATH_SOURCE,
@@ -60,4 +55,4 @@ const PATHS = {
   OUTPUT_HYPELAB_EMBED: PATH_OUTPUT_HYPELAB_EMBED
 };
 
-export { DEST_RELATIVE_PATHS, PATHS, IFRAMES };
+export { DEST_RELATIVE_PATHS, PATHS };

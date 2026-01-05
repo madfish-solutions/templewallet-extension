@@ -5,7 +5,7 @@ import browser from 'webextension-polyfill';
 import 'lib/keep-bg-worker-alive/background';
 import { putStoredAppInstallIdentity } from 'app/storage/app-install-id';
 import { getStoredAppUpdateDetails, putStoredAppUpdateDetails } from 'app/storage/app-update';
-import { updateRulesStorage } from 'lib/ads/update-rules-storage';
+import { importUpdateRulesStorageModule } from 'lib/ads/import-update-rules-storage';
 import {
   SHOULD_OPEN_LETS_EXCHANGE_MODAL_STORAGE_KEY,
   SHOULD_PROMOTE_ROOTSTOCK_STORAGE_KEY,
@@ -74,7 +74,9 @@ globalThis.addEventListener('notificationclick', event => {
 const firebase = initializeApp(JSON.parse(EnvVars.TEMPLE_FIREBASE_CONFIG));
 getMessaging(firebase);
 
-updateRulesStorage();
+importUpdateRulesStorageModule()
+  .then(module => module.updateRulesStorage())
+  .catch(() => {});
 
 async function prepareAppIdentity() {
   const { privateKey, publicKey, publicKeyHash } = await generateKeyPair();

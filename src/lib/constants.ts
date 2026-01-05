@@ -18,12 +18,6 @@ export enum ContentScriptType {
 
 export const APP_TITLE = 'Temple Wallet';
 
-export const AD_CATEGORIES_PARAM_NAME = 'categories';
-
-export const ORIGIN_SEARCH_PARAM_NAME = 'o';
-
-export const ADS_META_SEARCH_PARAM_NAME = 'ads-meta';
-
 export const WEBSITES_ANALYTICS_ENABLED = 'WEBSITES_ANALYTICS_ENABLED';
 
 export const REPLACE_REFERRALS_ENABLED = 'REPLACE_REFERRALS_ENABLED';
@@ -58,10 +52,6 @@ export const ALL_ADS_RULES_STORAGE_KEY = 'ALL_ADS_RULES';
 export const ADS_RULES_UPDATE_INTERVAL = 5 * 60 * 1000;
 
 export const AD_HIDING_TIMEOUT = 12 * 3600 * 1000;
-
-export const AD_SEEN_THRESHOLD = 0.5;
-
-export const HYPELAB_STUB_CAMPAIGN_SLUG = 'e55d2795d2';
 
 export const TERMS_OF_USE_URL = 'https://www.templewallet.com/terms';
 
@@ -110,6 +100,8 @@ export const SHOULD_DISABLE_NOT_ACTIVE_NETWORKS_STORAGE_KEY = 'SHOULD_DISABLE_NO
 
 export const ACCOUNTS_FOR_REENABLING_NETWORKS_STORAGE_KEY = 'ACCOUNTS_FOR_REENABLING_NETWORKS';
 
+export const SHOULD_HIDE_ENABLE_ADS_BANNER_STORAGE_KEY = 'SHOULD_HIDE_ENABLE_ADS_BANNER';
+
 export const KOLO_FORCE_LOGOUT_ON_NEXT_OPEN_STORAGE_KEY = 'KOLO_FORCE_LOGOUT_ON_NEXT_OPEN';
 
 // Browser storage cannot set a value to Infinity
@@ -140,12 +132,6 @@ export const TEMPLE_SWITCH_PROVIDER_EVENT = 'templeSwitchProvider';
 
 export const FEE_PER_GAS_UNIT = 0.1;
 export const RECOMMENDED_ADD_TEZ_GAS_FEE = 0.00015;
-
-export const THEME_COLOR_SEARCH_PARAM_NAME = 'tc';
-export const FONT_SIZE_SEARCH_PARAM_NAME = 'fs';
-export const LINE_HEIGHT_SEARCH_PARAM_NAME = 'lh';
-export const EVM_ACCOUNT_SEARCH_PARAM_NAME = 'ea';
-export const CHAIN_NAME_SEARCH_PARAM_NAME = 'cn';
 
 export const SEND_ETH_GAS_LIMIT = BigInt(21000);
 
