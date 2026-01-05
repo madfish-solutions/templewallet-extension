@@ -87,17 +87,16 @@ export const CreatePasswordForm = memo<CreatePasswordFormProps>(
       return { analytics: true, getRewards: true };
     }, [consent]);
 
-    const { control, watch, register, handleSubmit, errors, triggerValidation, formState, setValue, reset } =
-      useForm<FormData>({
-        defaultValues: {
-          password: '',
-          repeatPassword: '',
-          ...defaultCheckboxValues
-        },
-        mode: 'onChange'
-      });
-    const submitting = formState.isSubmitting;
-    const wasSubmitted = formState.submitCount > 0;
+    const { control, watch, register, handleSubmit, trigger, formState, setValue, reset } = useForm<FormData>({
+      defaultValues: {
+        password: '',
+        repeatPassword: '',
+        ...defaultCheckboxValues
+      },
+      mode: 'onChange'
+    });
+    const { errors, isSubmitting: submitting, submitCount, dirtyFields } = formState;
+    const wasSubmitted = submitCount > 0;
 
     const {
       password: passwordValue,
@@ -117,10 +116,10 @@ export const CreatePasswordForm = memo<CreatePasswordFormProps>(
     const seedPhrase = useMemo(() => mnemonicToImport ?? generateMnemonic(128), [mnemonicToImport]);
 
     useLayoutEffect(() => {
-      if (formState.dirtyFields.has('repeatPassword')) {
-        triggerValidation('repeatPassword');
+      if (dirtyFields.repeatPassword) {
+        trigger('repeatPassword');
       }
-    }, [triggerValidation, formState.dirtyFields, passwordValue]);
+    }, [trigger, dirtyFields, passwordValue]);
 
     const onSubmit = useCallback(
       async (data: FormData) => {
@@ -194,8 +193,11 @@ export const CreatePasswordForm = memo<CreatePasswordFormProps>(
       ]
     );
 
-    const cleanPassword = useCallback(async () => setValue('password', '', true), [setValue]);
-    const cleanRepeatPassword = useCallback(async () => setValue('repeatPassword', '', true), [setValue]);
+    const cleanPassword = useCallback(async () => setValue('password', '', { shouldValidate: true }), [setValue]);
+    const cleanRepeatPassword = useCallback(
+      async () => setValue('repeatPassword', '', { shouldValidate: true }),
+      [setValue]
+    );
     const fillFormForPassword = useCallback(
       (password: string) =>
         reset({
@@ -251,7 +253,7 @@ export const CreatePasswordForm = memo<CreatePasswordFormProps>(
             </div>
             {backupPasswordUsed && <Alert type="info" description={<T id="backupPasswordAlertText" />} />}
             <FormField
-              ref={register({
+              {...register('password', {
                 required: PASSWORD_ERROR_CAPTION,
                 pattern: backupPasswordUsed
                   ? undefined
@@ -262,7 +264,6 @@ export const CreatePasswordForm = memo<CreatePasswordFormProps>(
               })}
               id="newwallet-password"
               type="password"
-              name="password"
               placeholder={DEFAULT_PASSWORD_INPUT_PLACEHOLDER}
               errorCaption={errors.password?.message}
               shouldShowErrorCaption={false}
@@ -285,14 +286,13 @@ export const CreatePasswordForm = memo<CreatePasswordFormProps>(
               ))}
             </div>
             <FormField
-              ref={register({
+              {...register('repeatPassword', {
                 required: t('required'),
                 validate: val => backupPasswordUsed || val === passwordValue || t('mustBeEqualToPasswordAbove')
               })}
               label={<T id="repeatPassword" />}
               id="newwallet-repassword"
               type="password"
-              name="repeatPassword"
               placeholder={DEFAULT_PASSWORD_INPUT_PLACEHOLDER}
               errorCaption={errors.repeatPassword?.message}
               cleanable={repeatPasswordValue ? repeatPasswordValue.length > 0 : false}
@@ -306,19 +306,29 @@ export const CreatePasswordForm = memo<CreatePasswordFormProps>(
             <Controller
               control={control}
               name="analytics"
-              as={SettingsCheckbox}
-              label={<T id="usageAnalytics" />}
-              tooltip={<T id="analyticsInputDescription" />}
-              testID={createPasswordSelectors.analyticsCheckBox}
+              render={({ field }) => (
+                <SettingsCheckbox
+                  {...field}
+                  checked={field.value}
+                  label={<T id="usageAnalytics" />}
+                  tooltip={<T id="analyticsInputDescription" />}
+                  testID={createPasswordSelectors.analyticsCheckBox}
+                />
+              )}
             />
 
             <Controller
               control={control}
               name="getRewards"
-              as={SettingsCheckbox}
-              label={<T id="earningMode" />}
-              tooltip={<T id="earningModeDescription" />}
-              testID={createPasswordSelectors.getRewardsCheckBox}
+              render={({ field }) => (
+                <SettingsCheckbox
+                  {...field}
+                  checked={field.value}
+                  label={<T id="earningMode" />}
+                  tooltip={<T id="earningModeDescription" />}
+                  testID={createPasswordSelectors.getRewardsCheckBox}
+                />
+              )}
             />
           </div>
           <span className="w-full text-center text-font-small text-grey-1 mt-6">

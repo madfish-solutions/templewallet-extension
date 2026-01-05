@@ -1,7 +1,7 @@
 import React, { ReactNode, useEffect, useRef } from 'react';
 
 import BigNumber from 'bignumber.js';
-import { SubmitHandler, useFormContext } from 'react-hook-form-v7';
+import { SubmitHandler, useFormContext } from 'react-hook-form';
 
 import { Loader } from 'app/atoms';
 import SegmentedControl from 'app/atoms/SegmentedControl';

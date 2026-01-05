@@ -41,9 +41,10 @@ export const WatchOnlyForm = memo<ImportAccountFormProps>(({ onSuccess }) => {
 
   const formAnalytics = useFormAnalytics(ImportAccountFormType.WatchOnly);
 
-  const { watch, handleSubmit, errors, register, formState, setValue, triggerValidation } = useForm<WatchOnlyFormData>({
+  const { watch, handleSubmit, register, formState, setValue, trigger } = useForm<WatchOnlyFormData>({
     mode: 'onChange'
   });
+  const { errors } = formState;
   const [submitError, setSubmitError] = useState<ReactNode>(null);
   const resetSubmitError = useCallback(() => setSubmitError(null), []);
 
@@ -61,9 +62,9 @@ export const WatchOnlyForm = memo<ImportAccountFormProps>(({ onSuccess }) => {
     (newValue: string) => {
       setValue('address', newValue);
       setSubmitError(null);
-      triggerValidation('address');
+      trigger('address');
     },
-    [setValue, triggerValidation]
+    [setValue, trigger]
   );
 
   const pasteAddress = useCallback(
@@ -166,12 +167,11 @@ export const WatchOnlyForm = memo<ImportAccountFormProps>(({ onSuccess }) => {
         <FormField
           textarea
           rows={5}
-          ref={register({
+          {...register('address', {
             required: t('required'),
             validate: validateAddress
           })}
           type="text"
-          name="address"
           id="watch-address"
           label={t('address')}
           placeholder={t('watchOnlyAddressInputPlaceholder')}

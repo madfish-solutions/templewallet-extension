@@ -1,7 +1,7 @@
 import React, { FC, useCallback, useState } from 'react';
 
 import { omit } from 'lodash';
-import { FormProvider } from 'react-hook-form-v7';
+import { FormProvider } from 'react-hook-form';
 import { TransactionRequest } from 'viem';
 
 import { useLedgerApprovalModalState } from 'app/hooks/use-ledger-approval-modal-state';

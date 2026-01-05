@@ -28,8 +28,10 @@ export const PrivateKeyForm = memo<ImportAccountFormProps>(({ onSuccess }) => {
   const { importAccount } = useTempleClient();
   const formAnalytics = useFormAnalytics(ImportAccountFormType.PrivateKey);
 
-  const { register, handleSubmit, errors, formState, watch, setValue, triggerValidation } =
-    useForm<ByPrivateKeyFormData>({ mode: 'onChange' });
+  const { register, handleSubmit, formState, watch, setValue, trigger } = useForm<ByPrivateKeyFormData>({
+    mode: 'onChange'
+  });
+  const { errors } = formState;
   const [submitError, setSubmitError] = useState<ReactNode>(null);
   const resetSubmitError = useCallback(() => setSubmitError(null), []);
 
@@ -65,18 +67,18 @@ export const PrivateKeyForm = memo<ImportAccountFormProps>(({ onSuccess }) => {
           setValue('privateKey', value);
           clearClipboard();
           setSubmitError(null);
-          triggerValidation('privateKey');
+          trigger('privateKey');
         })
         .catch(console.error),
-    [setValue, triggerValidation]
+    [setValue, trigger]
   );
   const cleanPrivateKeyField = useCallback(() => {
     setValue('privateKey', '');
     setValue('encPassword', undefined);
     setSubmitError(null);
-    triggerValidation('privateKey');
-    triggerValidation('encPassword');
-  }, [setValue, triggerValidation]);
+    trigger('privateKey');
+    trigger('encPassword');
+  }, [setValue, trigger]);
 
   const keyValue = watch('privateKey') as string | undefined;
   const encrypted = useMemo(() => isTezosPrivateKey(keyValue) && keyValue.substring(2, 3) === 'e', [keyValue]);
@@ -103,10 +105,9 @@ export const PrivateKeyForm = memo<ImportAccountFormProps>(({ onSuccess }) => {
         <FormField
           textarea
           rows={5}
-          ref={register({ required: t('required') })}
+          {...register('privateKey', { required: t('required') })}
           type="password"
           revealForbidden
-          name="privateKey"
           id="importacc-privatekey"
           label={t('privateKey')}
           placeholder={t('privateKeyInputPlaceholder')}
@@ -135,8 +136,7 @@ export const PrivateKeyForm = memo<ImportAccountFormProps>(({ onSuccess }) => {
 
         {encrypted && (
           <FormField
-            ref={register}
-            name="encPassword"
+            {...register('encPassword')}
             type="password"
             id="importacc-password"
             labelContainerClassName="w-full flex justify-between items-center"

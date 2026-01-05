@@ -99,7 +99,7 @@
     "@types/node": "16.11.7",
     "@types/react": "18.0.15",
     "@types/react-collapse": "5.0.1",
-    "@types/react-dev-utils": "^9.0.11",
+    "@types/react-dev-utils": "^9.0.15",
     "@types/react-dom": "18.0.6",
     "@types/react-image-fallback": "^8.0.3",
     "@types/react-modal": "3.13.1",
@@ -175,14 +175,13 @@
     "prettier": "^2.7.1",
     "process": "^0.11.10",
     "qr-code-styling-2": "^1.5.5",
-    "qs": "^6.11.1",
+    "qs": "^6.14.1",
     "react": "18.2.0",
     "react-collapse": "5.1.1",
     "react-countdown": "2.3.2",
     "react-dev-utils": "^12",
     "react-dom": "18.2.0",
-    "react-hook-form": "5.3.1",
-    "react-hook-form-v7": "npm:react-hook-form@7.53.0",
+    "react-hook-form": "^7.70.0",
     "react-hot-toast": "^2.4.1",
     "react-infinite-scroll-component": "^6.1.0",
     "react-json-view": "1.21.3",
@@ -249,7 +248,8 @@
     "json5": "^2.2.2",
     "follow-redirects": "^1.15.4",
     "zip-a-folder/glob": "11.1.0",
-    "valibot": "^1.2.0"
+    "valibot": "^1.2.0",
+    "qs": "^6.14.1"
   },
   "optionalDependencies": {
     "@temple-wallet/extension-ads": "^15.0.3"

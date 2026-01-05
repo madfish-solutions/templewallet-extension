@@ -3,7 +3,7 @@ import React, { FC, useCallback, useMemo } from 'react';
 import { isDefined } from '@rnw-community/shared';
 import BigNumber from 'bignumber.js';
 import { isEmpty, noop } from 'lodash';
-import { Controller, SubmitErrorHandler, useFormContext } from 'react-hook-form-v7';
+import { Controller, SubmitErrorHandler, useFormContext } from 'react-hook-form';
 
 import { IconBase } from 'app/atoms';
 import { ActionsButtonsBox } from 'app/atoms/PageModal';

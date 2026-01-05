@@ -1,7 +1,7 @@
 import React, { useCallback, useMemo } from 'react';
 
 import BigNumber from 'bignumber.js';
-import { SubmitHandler, useFormContext } from 'react-hook-form-v7';
+import { SubmitHandler, useFormContext } from 'react-hook-form';
 
 import { HashChip } from 'app/atoms/HashChip';
 import { ActionsButtonsBox } from 'app/atoms/PageModal/actions-buttons-box';
