@@ -20,7 +20,7 @@ import { usePendingTezosTransactionStatusSelector } from 'app/store/tezos/pendin
 import { BalancesChangesView } from 'app/templates/balances-changes-view';
 import { ChartListItem } from 'app/templates/chart-list-item';
 import { FeeSummary } from 'app/templates/fee-summary';
-import { PartnersPromotion, PartnersPromotionVariant } from 'app/templates/partners-promotion';
+import { usePartnersPromotionModule } from 'app/templates/partners-promotion';
 import { T, t } from 'lib/i18n';
 import { useCategorizedTezosAssetMetadata, useEvmCategorizedAssetMetadata } from 'lib/metadata';
 import { useCopyText } from 'lib/ui/hooks/use-copy-text';
@@ -71,6 +71,7 @@ const OperationStatusContentHOC = <T extends TempleChainKind>({
     const assetMetadata = useAssetMetadata(assetSlug, network.chainId);
     const balancesChanges = useSendBalancesChanges(assetSlug, amount, assetMetadata?.decimals);
     const blockExplorerUrl = useBlockExplorerHref(network.kind, network.chainId, 'tx', txHash);
+    const PartnersPromotionModule = usePartnersPromotionModule();
 
     return (
       <>
@@ -151,7 +152,13 @@ const OperationStatusContentHOC = <T extends TempleChainKind>({
               </ChartListItem>
             </div>
 
-            <PartnersPromotion id="promo-send-status-content" variant={PartnersPromotionVariant.Text} pageName="Send" />
+            {PartnersPromotionModule && (
+              <PartnersPromotionModule.PartnersPromotion
+                id="promo-send-status-content"
+                variant={PartnersPromotionModule.PartnersPromotionVariant.Text}
+                pageName="Send"
+              />
+            )}
           </div>
         </div>
 
