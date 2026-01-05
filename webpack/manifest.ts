@@ -8,9 +8,8 @@ import type { Manifest } from 'webextension-polyfill';
 import packageJSON from '../package.json';
 
 import { envFilesData } from './dotenv';
-import { Vendor, ALL_VENDORS, getManifestVersion, IS_CORE_BUILD } from './env';
-import { IFRAMES } from './paths';
-import { isTruthy } from './utils';
+import { Vendor, ALL_VENDORS, getManifestVersion } from './env';
+import { IFRAMES, isTruthy, shouldDisableAds } from './utils';
 
 const WEB_ACCCESSIBLE_RESOURSES = [
   // For dynamic imports
@@ -192,7 +191,7 @@ const buildManifestCommons = (vendor: string): Omit<Manifest.WebExtensionManifes
         run_at: 'document_start' as const,
         all_frames: true
       },
-      !IS_CORE_BUILD && {
+      !shouldDisableAds && {
         matches: ['https://*/*', 'http://*/*'],
         exclude_matches: ['http://localhost/*'],
         js: ['scripts/replaceAds.js', 'scripts/replaceReferrals.js'],

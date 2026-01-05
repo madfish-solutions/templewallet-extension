@@ -5,7 +5,7 @@ import { nanoid } from 'nanoid';
 
 import { useAdTimeout } from 'app/hooks/ads/use-ad-timeout';
 import { AdsProviderTitle } from 'lib/ads';
-import { HYPELAB_STUB_CAMPAIGN_SLUG } from 'lib/constants';
+import { HYPELAB_STUB_CAMPAIGN_SLUG } from 'lib/ads-constants';
 import { EnvVars } from 'lib/env';
 import { useUpdatableRef } from 'lib/ui/hooks';
 import { useAccountAddressForEvm } from 'temple/front';

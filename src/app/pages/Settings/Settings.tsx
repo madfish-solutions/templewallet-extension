@@ -25,6 +25,7 @@ import { SecuritySettings } from 'app/templates/SecuritySettings';
 import GeneralSettings from 'app/templates/SettingsGeneral';
 import SyncSettings from 'app/templates/Synchronization/SyncSettings';
 import { SyncUnavailableModal } from 'app/templates/Synchronization/SyncUnavailableModal';
+import { DISABLE_ADS } from 'lib/env';
 import { TID, T } from 'lib/i18n';
 import { TempleAccountType } from 'lib/temple/types';
 import { useBooleanState } from 'lib/ui/hooks';
@@ -110,13 +111,17 @@ const TABS_GROUPS: Tab[][] = [
       noPadding: true,
       testID: SettingsSelectors.dAppsButton
     },
-    {
-      slug: 'additional-settings',
-      titleI18nKey: 'advancedFeatures',
-      Icon: DefaultSettingsIconHOC(AdditionalFeaturesIcon),
-      Component: AdvancedFeatures,
-      testID: SettingsSelectors.advancedFeaturesButton
-    },
+    ...(DISABLE_ADS
+      ? []
+      : [
+          {
+            slug: 'additional-settings',
+            titleI18nKey: 'advancedFeatures' as const,
+            Icon: DefaultSettingsIconHOC(AdditionalFeaturesIcon),
+            Component: AdvancedFeatures,
+            testID: SettingsSelectors.advancedFeaturesButton
+          }
+        ]),
     {
       slug: SYNC_PAGE_SLUG,
       titleI18nKey: 'templeSync',

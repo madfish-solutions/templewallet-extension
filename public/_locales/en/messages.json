@@ -65,6 +65,45 @@
       }
     }
   },
+  "enableAdsBannerTitle": {
+    "message": "Save on transaction fees"
+  },
+  "enableAdsBannerDescription": {
+    "message": "Cover network costs with Temple Rewards"
+  },
+  "rewardsEarningSuccessfullyEnabled": {
+    "message": "Rewards earning successfully enabled"
+  },
+  "templeRewards": {
+    "message": "Temple Rewards"
+  },
+  "coverNetworkCosts": {
+    "message": "Cover your network costs"
+  },
+  "coverNetworkCostsDescription": {
+    "message": "Monetize your browser and cover your costs with rewards. Over 300,000 TKEY was already paid to users who activated non-intrusive promo content."
+  },
+  "coverMyCosts": {
+    "message": "Cover my costs"
+  },
+  "enablePromoContentResults": {
+    "message": "By enabling promo content, you agree to share your wallet address and IP to receive tokens and promo ads."
+  },
+  "costs": {
+    "message": "Costs:"
+  },
+  "perMonth": {
+    "message": " / Month"
+  },
+  "rewardsCover": {
+    "message": "Rewards cover:"
+  },
+  "tezosFeesAnnotation": {
+    "message": "*more than 20 transactions paid by rewards"
+  },
+  "otherEvmNetworks": {
+    "message": "Other EVM"
+  },
   "protectedFormField": {
     "message": "Protected"
   },

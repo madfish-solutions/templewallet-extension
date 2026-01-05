@@ -13,7 +13,7 @@ import {
   useGroupByNetworkBehaviorSelector,
   useTokensListOptionsSelector
 } from 'app/store/assets-filter-options/selectors';
-import { PartnersPromotion, PartnersPromotionVariant } from 'app/templates/partners-promotion';
+import { usePartnersPromotionModule } from 'app/templates/partners-promotion';
 import { EvmTokenListItem } from 'app/templates/TokenListItem';
 import { parseChainAssetSlug, toChainAssetSlug } from 'lib/assets/utils';
 import { useMemoWithCompare } from 'lib/ui/hooks';
@@ -127,20 +127,22 @@ const TabContentBase = memo<TabContentBaseProps>(
     const promoRef = useRef<HTMLDivElement>(null);
     const firstHeaderRef = useRef<HTMLDivElement>(null);
     const firstListItemRef = useRef<TokenListItemElement>(null);
+    const PartnersPromotionModule = usePartnersPromotionModule();
 
     const mainnetChain = useEthereumMainnetChain();
     const evmChains = useAllEvmChains();
 
     const { tokensView, getElementIndex } = useMemo(() => {
-      const promoJsx = manageActive ? null : (
-        <PartnersPromotion
-          id="promo-token-item"
-          key="promo-token-item"
-          variant={PartnersPromotionVariant.Text}
-          pageName="Token page"
-          ref={promoRef}
-        />
-      );
+      const promoJsx =
+        manageActive || !PartnersPromotionModule ? null : (
+          <PartnersPromotionModule.PartnersPromotion
+            id="promo-token-item"
+            key="promo-token-item"
+            variant={PartnersPromotionModule.PartnersPromotionVariant.Text}
+            pageName="Token page"
+            ref={promoRef}
+          />
+        );
 
       if (displayedGroupedSlugs) {
         return {
