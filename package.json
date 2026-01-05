@@ -24,6 +24,7 @@
     "build:without-zip:firefox:core": "cross-env CORE_BUILD=true run-s build:without-zip:firefox",
     "build:opera": "cross-env TARGET_BROWSER=opera run-s build",
     "build:opera:core": "cross-env CORE_BUILD=true run-s build:opera",
+    "remove-ad-related-files": "node ./remove-ad-related-files.js",
     "test": "jest",
     "test:coverage": "jest --coverage",
     "ts": "tsc --pretty",

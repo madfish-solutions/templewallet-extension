@@ -1,6 +1,6 @@
 import { checkIfShouldReplaceTakeAdsReferrals, checkIfShouldReplaceTempleReferrals } from 'content-scripts/utils';
 import { importExtensionAdsReferralsModule } from 'lib/ads/import-extension-ads-module';
-import type { ReferralsRulesResponse, TempleReferralLinkItem } from 'lib/apis/ads-api';
+import type { ReferralsRulesResponse, TempleReferralLinkItem } from 'lib/apis/ads-api/ads-api';
 import { browser } from 'lib/browser';
 import { ContentScriptType } from 'lib/constants';
 import { throttleAsyncCalls } from 'lib/utils/functions';

@@ -29,10 +29,10 @@ import {
   SOURCE_MAP,
   MANIFEST_VERSION,
   BACKGROUND_IS_WORKER,
-  IMAGE_INLINE_SIZE_LIMIT_ENV,
-  IS_CORE_BUILD
+  IMAGE_INLINE_SIZE_LIMIT_ENV
 } from './env';
 import { PATHS } from './paths';
+import { shouldDisableAds } from './utils';
 
 const VERSION = packageJSON.version;
 const IMAGE_INLINE_SIZE_LIMIT = parseInt(IMAGE_INLINE_SIZE_LIMIT_ENV);
@@ -197,9 +197,10 @@ export const buildBaseConfig = (): WebPack.Configuration & Pick<WebPack.WebpackO
       resourceRegExp: /^\.\/wordlists\/(?!english)/,
       contextRegExp: /bip39\/src$/
     }),
-    IS_CORE_BUILD &&
+    shouldDisableAds &&
       new WebPack.IgnorePlugin({
-        resourceRegExp: /^@temple-wallet\/extension-ads(\/.+)?$/
+        resourceRegExp:
+          /^(?:@temple-wallet\/extension-ads(?:\/.+)?|lib\/ads\/update-rules-storage|app\/templates\/partners-promotion\/partners-promotion|app\/load-hypelab-script\/component|app\/pages\/Home\/OtherComponents\/Tokens\/components\/NotificationBanner\/enable-ads-banner\/component|lib\/apis\/ads-api\/ads-api)$/
       }),
 
     new ModuleNotFoundPlugin(PATHS.SOURCE),
@@ -211,6 +212,7 @@ export const buildBaseConfig = (): WebPack.Configuration & Pick<WebPack.WebpackO
       'process.env.MANIFEST_VERSION': JSON.stringify(String(MANIFEST_VERSION)),
       'process.env.BACKGROUND_IS_WORKER': JSON.stringify(String(BACKGROUND_IS_WORKER)),
       'process.env.TARGET_BROWSER': JSON.stringify(TARGET_BROWSER),
+      'process.env.DISABLE_ADS': JSON.stringify(String(shouldDisableAds)),
       ...Object.fromEntries(
         Object.entries(envFilesData).map(([name, value]) => {
           const key = `process.env.${name}`;

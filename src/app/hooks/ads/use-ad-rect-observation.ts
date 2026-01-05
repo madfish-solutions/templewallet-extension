@@ -1,6 +1,6 @@
 import { RefObject } from 'react';
 
-import { AD_SEEN_THRESHOLD } from 'lib/constants';
+import { AD_SEEN_THRESHOLD } from 'lib/ads-constants';
 import { useIntersectionObserver } from 'lib/ui/use-intersection-observer';
 
 export const useAdRectObservation = (

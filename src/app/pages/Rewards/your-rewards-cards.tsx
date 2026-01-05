@@ -13,7 +13,7 @@ import { TEMPLE_BAKERY_PAYOUT_ADDRESS, TEMPLE_REWARDS_PAYOUT_ADDRESS } from 'app
 import { advancedFeaturesInfoTippyProps } from 'app/pages/Rewards/tooltip';
 import { fetchTokenTransfers } from 'lib/apis/tzkt/api';
 import { PREDEFINED_TOKENS_METADATA } from 'lib/assets/known-tokens';
-import { IS_MISES_BROWSER } from 'lib/env';
+import { DISABLE_ADS, IS_MISES_BROWSER } from 'lib/env';
 import { t, T } from 'lib/i18n';
 import { TEMPLE_BAKER_ADDRESS } from 'lib/known-bakers';
 import { useDelegate } from 'lib/temple/front';
@@ -160,30 +160,34 @@ export const YourRewardsCards = memo(() => {
     <div className="flex flex-col">
       <span className="text-font-description-bold mb-3">{t('yourRewards')}</span>
       <div className="rounded-8 shadow-bottom mb-4">
-        <Link
-          to="/settings/additional-settings"
-          className={clsx('p-3 flex items-center justify-between')}
-          onMouseEnter={handleAdvancedHover}
-          onMouseLeave={handleAdvancedUnhover}
-        >
-          <span className="text-font-medium-bold">
-            <T id="advancedFeatures" />
-          </span>
-          {!isAdvertisingEnabled && !referralsEnabled ? (
-            <AnimatedMenuChevron ref={advancedChevronRef} />
-          ) : (
-            <IconBase ref={advancedFeaturesInfoRef} size={16} Icon={InfoIcon} className="text-grey-2" />
-          )}
-        </Link>
+        {!DISABLE_ADS && (
+          <>
+            <Link
+              to="/settings/additional-settings"
+              className={clsx('p-3 flex items-center justify-between')}
+              onMouseEnter={handleAdvancedHover}
+              onMouseLeave={handleAdvancedUnhover}
+            >
+              <span className="text-font-medium-bold">
+                <T id="advancedFeatures" />
+              </span>
+              {!isAdvertisingEnabled && !referralsEnabled ? (
+                <AnimatedMenuChevron ref={advancedChevronRef} />
+              ) : (
+                <IconBase ref={advancedFeaturesInfoRef} size={16} Icon={InfoIcon} className="text-grey-2" />
+              )}
+            </Link>
 
-        <Divider className="bg-lines" />
+            <Divider className="bg-lines" />
+          </>
+        )}
 
         <div className="p-3">
           {isTkeyLoading ? (
             <div className="justify-center items-center flex h-[42px]">
               <Loader size="L" trackVariant="dark" className="text-secondary" />
             </div>
-          ) : !isAdvertisingEnabled && !referralsEnabled ? (
+          ) : !isAdvertisingEnabled && !referralsEnabled && !DISABLE_ADS ? (
             <p className="text-font-description text-grey-1">{t('passivelyEarnTkey')}</p>
           ) : !tkeyStats || tkeyStats.total === 0 ? (
             <div className="justify-center items-center flex h-[42px]">

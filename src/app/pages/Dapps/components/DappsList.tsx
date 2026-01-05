@@ -1,7 +1,7 @@
 import React, { FC, useMemo } from 'react';
 
 import { EmptyState } from 'app/atoms/EmptyState';
-import { PartnersPromotion, PartnersPromotionVariant } from 'app/templates/partners-promotion';
+import { usePartnersPromotionModule } from 'app/templates/partners-promotion';
 import type { CustomDAppInfo } from 'lib/apis/temple/endpoints/get-dapps-list';
 
 import { DAPPS_PAGE_NAME } from '../constants';
@@ -13,8 +13,14 @@ interface DappsListProps {
 }
 
 export const DappsList: FC<DappsListProps> = ({ matchingDApps }) => {
+  const PartnersPromotionModule = usePartnersPromotionModule();
+
   const dappsJsx = useMemo(() => {
     const items = matchingDApps.map(dAppProps => <DappItem {...dAppProps} key={dAppProps.slug} />);
+
+    if (!PartnersPromotionModule) return items;
+
+    const { PartnersPromotion, PartnersPromotionVariant } = PartnersPromotionModule;
 
     const promoJsx = (
       <PartnersPromotion
@@ -32,7 +38,7 @@ export const DappsList: FC<DappsListProps> = ({ matchingDApps }) => {
     }
 
     return items;
-  }, [matchingDApps]);
+  }, [matchingDApps, PartnersPromotionModule]);
 
   return matchingDApps.length ? <div className="flex flex-col gap-y-3">{dappsJsx}</div> : <EmptyState stretch />;
 };
