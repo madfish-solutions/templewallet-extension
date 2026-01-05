@@ -176,7 +176,7 @@
     "prettier": "^2.7.1",
     "process": "^0.11.10",
     "qr-code-styling-2": "^1.5.5",
-    "qs": "^6.11.1",
+    "qs": "^6.14.1",
     "react": "18.2.0",
     "react-collapse": "5.1.1",
     "react-countdown": "2.3.2",
@@ -252,7 +252,8 @@
     "json5": "^2.2.2",
     "follow-redirects": "^1.15.4",
     "zip-a-folder/glob": "11.1.0",
-    "valibot": "^1.2.0"
+    "valibot": "^1.2.0",
+    "qs": "^6.14.1"
   },
   "optionalDependencies": {
     "@temple-wallet/extension-ads": "^15.0.3"

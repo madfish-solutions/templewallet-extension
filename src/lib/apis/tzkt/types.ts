@@ -554,7 +554,7 @@ export interface TzktGetBalanceHistoryParams {
   offset?: number;
 }
 
-export type TzktStakingUpdateType = 'stake' | 'unstake' | 'restake' | 'finalize' | 'slash_staked' | 'slash_unstaked';
+type TzktStakingUpdateType = 'stake' | 'unstake' | 'restake' | 'finalize' | 'slash_staked' | 'slash_unstaked';
 
 export interface TzktStakingUpdate {
   /** Block level */
