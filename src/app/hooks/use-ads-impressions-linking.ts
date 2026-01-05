@@ -13,6 +13,8 @@ export const useAdsImpressionsLinking = () => {
   useDidMount(() => {
     if (linked) return;
 
-    performLinkingOfAdsImpressions(adsViewerAddresses).then(() => void dispatch(setAdsImpressionsLinkedAction()));
+    performLinkingOfAdsImpressions(adsViewerAddresses)
+      .then(() => void dispatch(setAdsImpressionsLinkedAction()))
+      .catch(() => {});
   });
 };

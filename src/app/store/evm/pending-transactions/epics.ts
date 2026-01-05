@@ -1,7 +1,20 @@
 import retry from 'async-retry';
 import { Action } from 'redux';
 import { combineEpics, Epic } from 'redux-observable';
-import { catchError, concat, delay, exhaustMap, filter, from, map, mergeMap, of, withLatestFrom, interval } from 'rxjs';
+import {
+  catchError,
+  concat,
+  delay,
+  exhaustMap,
+  filter,
+  from,
+  map,
+  mergeMap,
+  of,
+  withLatestFrom,
+  interval,
+  EMPTY
+} from 'rxjs';
 import { ofType } from 'ts-action-operators';
 import { WaitForTransactionReceiptTimeoutError } from 'viem';
 
@@ -31,9 +44,12 @@ import {
   updateBalancesAfterTransferAction,
   removePendingEvmTransferAction,
   cleanupOutdatedEvmPendingTxWithInitialMonitorTriggerAction,
-  disableSwapCheckStatusRetriesAction
+  disableSwapCheckStatusRetriesAction,
+  removePendingEvmOtherTransactionAction,
+  monitorPendingOtherTransactionsAction,
+  updatePendingOtherTransactionStatusAction
 } from './actions';
-import { selectAllPendingSwaps, selectAllPendingTransfers } from './utils';
+import { selectAllPendingSwaps, selectAllPendingOtherTransactions, selectAllPendingTransfers } from './utils';
 
 const MAX_SWAP_STATUS_CHECK_ATTEMPTS = 50;
 
@@ -43,6 +59,7 @@ const SHORT_MONITOR_INTERVAL = 4_000;
 const ONE_MINUTE = 60 * 1_000;
 const MAX_PENDING_SWAP_AGE = 10 * ONE_MINUTE;
 const MAX_PENDING_TRANSFER_AGE = 2 * ONE_MINUTE;
+const MAX_PENDING_OTHER_TRANSACTION_AGE = 2 * ONE_MINUTE;
 
 const monitorPendingSwapsEpic: Epic<Action, Action, RootState> = (action$, state$) =>
   action$.pipe(
@@ -356,6 +373,87 @@ const updateBalancesAfterTransferEpic: Epic<Action, Action, RootState> = action$
     })
   );
 
+const monitorPendingOtherTransactionsEpic: Epic<Action, Action, RootState> = (action$, state$) =>
+  action$.pipe(
+    ofType(monitorPendingOtherTransactionsAction),
+    withLatestFrom(state$),
+    mergeMap(([, state]) => {
+      const pendingTransactions = selectAllPendingOtherTransactions(state);
+
+      return pendingTransactions.length === 0 ? EMPTY : from(pendingTransactions);
+    }),
+    mergeMap(transaction => {
+      if (transaction.status === 'DONE') {
+        return of();
+      }
+
+      if (transaction.status === 'FAILED') {
+        return of(removePendingEvmOtherTransactionAction(transaction.txHash));
+      }
+
+      const client = getViemPublicClient(transaction.network);
+      const commonToastParams = {
+        hash: transaction.txHash,
+        blockExplorerHref: transaction.blockExplorerUrl
+      };
+
+      return from(
+        client.waitForTransactionReceipt({
+          hash: transaction.txHash,
+          pollingInterval: SHORT_MONITOR_INTERVAL,
+          timeout: MAX_PENDING_OTHER_TRANSACTION_AGE
+        })
+      ).pipe(
+        mergeMap(receipt => {
+          const status = receipt.status === 'success' ? 'DONE' : 'FAILED';
+          if (status === 'DONE') {
+            toastSuccess('Transaction completed', true, commonToastParams);
+
+            return of(
+              updatePendingOtherTransactionStatusAction({
+                txHash: transaction.txHash,
+                status: 'DONE',
+                lastCheckedAt: Date.now()
+              })
+            );
+          }
+
+          toastError('Transaction failed', true, commonToastParams);
+
+          return concat(
+            of(
+              updatePendingOtherTransactionStatusAction({
+                txHash: transaction.txHash,
+                status: 'FAILED',
+                lastCheckedAt: Date.now()
+              })
+            ),
+            of(removePendingEvmOtherTransactionAction(transaction.txHash)).pipe(delay(5000))
+          );
+        }),
+        catchError(error => {
+          if (error instanceof WaitForTransactionReceiptTimeoutError) {
+            console.warn(error.shortMessage);
+            return of(removePendingEvmOtherTransactionAction(transaction.txHash));
+          }
+
+          toastError('Transaction failed', true, commonToastParams);
+
+          return concat(
+            of(
+              updatePendingOtherTransactionStatusAction({
+                txHash: transaction.txHash,
+                status: 'FAILED',
+                lastCheckedAt: Date.now()
+              })
+            ),
+            of(removePendingEvmOtherTransactionAction(transaction.txHash)).pipe(delay(5000))
+          );
+        })
+      );
+    })
+  );
+
 const cleanupOutdatedEvmPendingTransactionsEpic: Epic<Action, Action, RootState> = (action$, state$) =>
   action$.pipe(
     ofType(cleanupOutdatedEvmPendingTxWithInitialMonitorTriggerAction),
@@ -363,17 +461,26 @@ const cleanupOutdatedEvmPendingTransactionsEpic: Epic<Action, Action, RootState>
     mergeMap(([, state]) => {
       const pendingSwaps = selectAllPendingSwaps(state);
       const pendingTransfers = selectAllPendingTransfers(state);
+      const pendingTransactions = selectAllPendingOtherTransactions(state);
       const now = Date.now();
 
       const outdatedSwaps = pendingSwaps.filter(swap => now - swap.submittedAt > MAX_PENDING_SWAP_AGE);
       const outdatedTransfers = pendingTransfers.filter(tr => now - tr.submittedAt > MAX_PENDING_TRANSFER_AGE);
+      const outdatedOtherTransactions = pendingTransactions.filter(
+        tx => now - tx.submittedAt > MAX_PENDING_OTHER_TRANSACTION_AGE
+      );
 
       const removalActions: Action[] = [
         ...outdatedSwaps.map(({ txHash }) => removePendingEvmSwapAction(txHash)),
-        ...outdatedTransfers.map(({ txHash }) => removePendingEvmTransferAction(txHash))
+        ...outdatedTransfers.map(({ txHash }) => removePendingEvmTransferAction(txHash)),
+        ...outdatedOtherTransactions.map(({ txHash }) => removePendingEvmOtherTransactionAction(txHash))
       ];
 
-      const monitorActions: Action[] = [monitorPendingSwapsAction(), monitorPendingTransfersAction()];
+      const monitorActions: Action[] = [
+        monitorPendingSwapsAction(),
+        monitorPendingTransfersAction(),
+        monitorPendingOtherTransactionsAction()
+      ];
 
       if (removalActions.length > 0) {
         return concat(from(removalActions), from(monitorActions));
@@ -389,5 +496,6 @@ export const pendingEvmSwapsEpics = combineEpics(
   periodicSwapMonitorTriggerEpic,
   monitorPendingTransfersEpic,
   updateBalancesAfterTransferEpic,
-  cleanupOutdatedEvmPendingTransactionsEpic
+  cleanupOutdatedEvmPendingTransactionsEpic,
+  monitorPendingOtherTransactionsEpic
 );

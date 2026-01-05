@@ -19,7 +19,7 @@ import { TempleProvider, useTempleClient } from 'lib/temple/front';
 import { DialogsProvider } from 'lib/ui/dialog';
 import * as Woozie from 'lib/woozie';
 
-import { LoadHypelabScript } from './load-hypelab-script';
+import { useLoadHypelabScriptModule } from './load-hypelab-script';
 import { RegisterOpenedWindow } from './register-opened-window';
 import { AppRootHooks, ConfirmWindowRootHooks } from './root-hooks';
 import { StoreProvider } from './store/provider';
@@ -40,7 +40,7 @@ export const App: FC<Props> = ({ env }) => (
 
           <AwaitI18N />
 
-          <LoadHypelabScript />
+          <LoadOtherScripts />
 
           <AwaitFonts>
             <BootAnimation>
@@ -111,3 +111,9 @@ const AwaitFonts: FC<PropsWithChildren> = ({ children }) => (
     </AwaitFontFamily>
   </AwaitFontFamily>
 );
+
+const LoadOtherScripts = () => {
+  const LoadHypelabScriptModule = useLoadHypelabScriptModule();
+
+  return <>{LoadHypelabScriptModule && <LoadHypelabScriptModule.LoadHypelabScript />}</>;
+};

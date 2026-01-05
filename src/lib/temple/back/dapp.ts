@@ -212,6 +212,15 @@ const handleIntercomRequest = async (
 
         safeGetChain(network.rpcBaseURL, op);
 
+        intercom.broadcast({
+          type: TempleMessageType.TempleDAppTransactionSent,
+          origin,
+          chainType: TempleChainKind.Tezos,
+          network,
+          txHash: op.hash,
+          accountPkh: dApp.pkh
+        });
+
         resolve({
           type: TempleDAppMessageType.OperationResponse,
           opHash: op.hash

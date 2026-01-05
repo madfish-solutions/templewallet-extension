@@ -10,7 +10,12 @@ import type { EvmEstimationData, SerializedEvmEstimationData } from 'temple/evm/
 import type { TypedDataV1 } from 'temple/evm/typed-data-v1';
 import type { SerializedBigints } from 'temple/evm/utils';
 import type { EvmChain } from 'temple/front';
-import type { StoredEvmNetwork, StoredTezosNetwork, TezosNetworkEssentials } from 'temple/networks';
+import type {
+  EvmNetworkEssentials,
+  StoredEvmNetwork,
+  StoredTezosNetwork,
+  TezosNetworkEssentials
+} from 'temple/networks';
 import type { TempleChainKind } from 'temple/types';
 
 import type {
@@ -408,6 +413,7 @@ export enum TempleMessageType {
   TempleEvmAccountSwitched = 'TEMPLE_SWITCH_EVM_ACCOUNT',
   TempleTezosAccountSwitched = 'TEMPLE_SWITCH_TEZOS_ACCOUNT',
   TempleSwitchEvmProvider = 'TEMPLE_SWITCH_EVM_PROVIDER',
+  TempleDAppTransactionSent = 'TEMPLE_DAPP_TRANSACTION_SENT',
   // Request-Response pairs
   GetStateRequest = 'TEMPLE_GET_STATE_REQUEST',
   GetStateResponse = 'TEMPLE_GET_STATE_RESPONSE',
@@ -514,7 +520,8 @@ export type TempleNotification =
   | TempleEvmChainSwitched
   | TempleSwitchEvmProvider
   | TempleEvmAccountSwitched
-  | TempleTezosAccountSwitched;
+  | TempleTezosAccountSwitched
+  | TempleDAppTransactionSent;
 
 export type TempleRequest =
   | TempleAcknowledgeRequest
@@ -668,6 +675,27 @@ interface TempleSwitchEvmProvider extends TempleMessageBase {
   type: TempleMessageType.TempleSwitchEvmProvider;
   origin: string;
 }
+
+interface TempleDAppTransactionSentBase<T extends TempleChainKind> extends TempleMessageBase {
+  type: TempleMessageType.TempleDAppTransactionSent;
+  origin: string;
+  chainType: T;
+  network: TezosNetworkEssentials | EvmNetworkEssentials;
+  txHash: string;
+  accountPkh: string;
+}
+
+interface TempleEvmDAppTransactionSent extends TempleDAppTransactionSentBase<TempleChainKind.EVM> {
+  network: EvmNetworkEssentials;
+  txHash: HexString;
+  accountPkh: HexString;
+}
+
+interface TempleTezosDAppTransactionSent extends TempleDAppTransactionSentBase<TempleChainKind.Tezos> {
+  network: TezosNetworkEssentials;
+}
+
+type TempleDAppTransactionSent = TempleEvmDAppTransactionSent | TempleTezosDAppTransactionSent;
 
 interface TempleGetStateRequest extends TempleMessageBase {
   type: TempleMessageType.GetStateRequest;

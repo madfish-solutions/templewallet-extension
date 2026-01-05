@@ -24,6 +24,7 @@
     "build:without-zip:firefox:core": "cross-env CORE_BUILD=true run-s build:without-zip:firefox",
     "build:opera": "cross-env TARGET_BROWSER=opera run-s build",
     "build:opera:core": "cross-env CORE_BUILD=true run-s build:opera",
+    "remove-ad-related-files": "node ./remove-ad-related-files.js",
     "test": "jest",
     "test:coverage": "jest --coverage",
     "ts": "tsc --pretty",
@@ -57,7 +58,6 @@
     "@lifi/sdk": "3.11.4",
     "@microsoft/signalr": "^8.0.0",
     "@peculiar/webcrypto": "1.1.6",
-    "@personaxyz/ad-sdk": "^0.0.19",
     "@popperjs/core": "2.4.4",
     "@react-spring/web": "^10.0.1",
     "@redux-devtools/remote": "^0.8.0",
@@ -255,6 +255,6 @@
     "valibot": "^1.2.0"
   },
   "optionalDependencies": {
-    "@temple-wallet/extension-ads": "^15.0.2"
+    "@temple-wallet/extension-ads": "^15.0.3"
   }
 }

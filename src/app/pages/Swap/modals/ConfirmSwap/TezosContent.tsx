@@ -185,7 +185,8 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
               accountPkh,
               network,
               blockExplorerUrl: makeBlockExplorerHref(blockExplorer.url, txHash, 'tx', TempleChainKind.Tezos),
-              submittedAt: Date.now()
+              submittedAt: Date.now(),
+              kind: 'swap'
             })
           );
           dispatch(monitorPendingTezosTransactionsAction());
