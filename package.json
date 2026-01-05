@@ -176,7 +176,7 @@
     "prettier": "^2.7.1",
     "process": "^0.11.10",
     "qr-code-styling-2": "^1.5.5",
-    "qs": "^6.11.1",
+    "qs": "^6.14.1",
     "react": "18.2.0",
     "react-collapse": "5.1.1",
     "react-countdown": "2.3.2",
