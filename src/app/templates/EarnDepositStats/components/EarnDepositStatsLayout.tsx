@@ -39,6 +39,13 @@ export const EarnDepositStatsLayout: FC<EarnDepositStatsLayoutProps> = ({
   const { fiatChangeValues, latestFiatValue, changePercentBn, isChangePositive, isChangeNegative, hasDeposits } =
     useDepositChartDerivedValues(chartData);
 
+  const isHomeView = Boolean(isHomePage);
+  const hasContentToShow = hasDeposits || isChartLoading;
+
+  if (!isHomeView && !hasContentToShow) {
+    return null;
+  }
+
   const statsCard = (
     <div
       className={clsx(
@@ -89,11 +96,7 @@ export const EarnDepositStatsLayout: FC<EarnDepositStatsLayoutProps> = ({
     </div>
   );
 
-  if (!isHomePage && !isChartLoading && !hasDeposits) {
-    return null;
-  }
-
-  if (!isHomePage) {
+  if (!isHomeView) {
     return statsCard;
   }
 
