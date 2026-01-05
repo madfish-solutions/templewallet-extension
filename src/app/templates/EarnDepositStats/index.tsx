@@ -263,6 +263,10 @@ const EarnDepositStatsLayout: FC<EarnDepositStatsLayoutProps> = ({
     </div>
   );
 
+  if (!isHomePage && !isChartLoading && !hasDeposits) {
+    return null;
+  }
+
   if (!isHomePage) {
     return statsCard;
   }
