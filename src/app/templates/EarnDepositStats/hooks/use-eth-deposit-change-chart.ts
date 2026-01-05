@@ -11,7 +11,7 @@ import { useTypedSWR } from 'lib/swr';
 import { ONE_MONTH_IN_MS } from '../constants';
 import { toMsTimestamp } from '../utils';
 
-export const useEthDepositChangeChart = (accountAddress?: string | null) => {
+export const useEthDepositChangeChart = (accountPkh: HexString) => {
   const { selectedFiatCurrency } = useFiatCurrency();
 
   const {
@@ -29,23 +29,19 @@ export const useEthDepositChangeChart = (accountAddress?: string | null) => {
     isLoading: isStakingTxLoading,
     error: stakingTxError
   } = useTypedSWR(
-    ['eth-staking-transactions', accountAddress],
-    () => {
-      if (!accountAddress) return;
-
-      return getEthAccountTransactions({ account: accountAddress, limit: 500 });
-    },
+    ['eth-staking-transactions', accountPkh],
+    () => getEthAccountTransactions({ account: accountPkh, limit: 500 }),
     {
       revalidateOnFocus: false,
       dedupingInterval: 60_000
     }
   );
 
-  const isLoading = isMarketChartLoading || (Boolean(accountAddress) && isStakingTxLoading);
-  const isError = Boolean(marketChartError || (Boolean(accountAddress) && stakingTxError));
+  const isLoading = isMarketChartLoading || isStakingTxLoading;
+  const isError = Boolean(marketChartError || stakingTxError);
 
   const data = useMemo(() => {
-    if (!marketChartData?.prices?.length) {
+    if (!stakingTransactions?.length || !marketChartData?.prices?.length) {
       return;
     }
 
@@ -58,10 +54,6 @@ export const useEthDepositChangeChart = (accountAddress?: string | null) => {
 
     if (!pricePoints.length) {
       return;
-    }
-
-    if (!stakingTransactions || !stakingTransactions.length || !accountAddress) {
-      return pricePoints.map(({ timestamp }) => [timestamp, 0]);
     }
 
     const txs = stakingTransactions
@@ -105,7 +97,7 @@ export const useEthDepositChangeChart = (accountAddress?: string | null) => {
     }
 
     return series;
-  }, [marketChartData, stakingTransactions, accountAddress]);
+  }, [marketChartData, stakingTransactions]);
 
   return {
     data,

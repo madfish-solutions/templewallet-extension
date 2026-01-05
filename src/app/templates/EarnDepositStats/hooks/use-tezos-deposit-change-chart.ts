@@ -15,6 +15,7 @@ import { useTokenHistoricalPrices } from './use-token-historical-prices';
 
 export const useTezosDepositChangeChart = (accountPkh: string) => {
   const { selectedFiatCurrency } = useFiatCurrency();
+
   const {
     data: balanceHistory,
     isLoading: isBalanceHistoryLoading,
@@ -50,7 +51,7 @@ export const useTezosDepositChangeChart = (accountPkh: string) => {
   const isError = Boolean(balanceHistoryError || stakingUpdatesError || marketChartError || delegationError);
 
   const data = useMemo(() => {
-    if (!balanceHistory?.length || !stakingUpdates || !marketChartData?.prices?.length) {
+    if (!balanceHistory?.length || !marketChartData?.prices?.length) {
       return;
     }
 
@@ -73,11 +74,12 @@ export const useTezosDepositChangeChart = (accountPkh: string) => {
       .filter(point => point.timestamp >= monthAgoMs && point.timestamp <= nowMs)
       .toReversed();
 
-    if (!balancePoints.length) {
-      return;
-    }
+    balancePoints.push({
+      timestamp: nowMs,
+      value: balanceHistory[0].balance
+    });
 
-    const stakedTimeline = buildStakedBalanceTimeline(stakingUpdates, monthAgoMs);
+    const stakedTimeline = buildStakedBalanceTimeline(stakingUpdates ?? [], monthAgoMs);
     const stakedPoints = stakedTimeline.map(point => ({
       timestamp: point.timestamp,
       value: point.stakedMutez

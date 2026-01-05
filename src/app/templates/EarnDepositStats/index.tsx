@@ -71,12 +71,12 @@ interface TezosEarnDepositStatsProps extends CommonProps {
 }
 
 interface EvmEarnDepositStatsProps extends CommonProps {
-  evmAccountPkh: string;
+  evmAccountPkh: HexString;
 }
 
 interface CombinedEarnDepositStatsProps extends CommonProps {
   tezosAccountPkh: string;
-  evmAccountPkh: string;
+  evmAccountPkh: HexString;
 }
 
 const CombinedEarnDepositStats: FC<CombinedEarnDepositStatsProps> = ({
