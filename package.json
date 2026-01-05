@@ -1,6 +1,6 @@
 {
   "name": "temple-wallet",
-  "version": "2.0.19",
+  "version": "2.0.20",
   "private": true,
   "scripts": {
     "start-run": "cross-env TS_NODE_PROJECT=\"webpack/tsconfig.json\" webpack --watch --stats errors-warnings",
@@ -24,6 +24,7 @@
     "build:without-zip:firefox:core": "cross-env CORE_BUILD=true run-s build:without-zip:firefox",
     "build:opera": "cross-env TARGET_BROWSER=opera run-s build",
     "build:opera:core": "cross-env CORE_BUILD=true run-s build:opera",
+    "remove-ad-related-files": "node ./remove-ad-related-files.js",
     "test": "jest",
     "test:coverage": "jest --coverage",
     "ts": "tsc --pretty",
@@ -248,8 +249,7 @@
     "json5": "^2.2.2",
     "follow-redirects": "^1.15.4",
     "zip-a-folder/glob": "11.1.0",
-    "valibot": "^1.2.0",
-    "qs": "^6.14.1"
+    "valibot": "^1.2.0"
   },
   "optionalDependencies": {
     "@temple-wallet/extension-ads": "^15.0.3"

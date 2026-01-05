@@ -8,7 +8,7 @@ import {
 import { usePreservedOrderSlugsToManage } from 'app/hooks/listing-logic/use-manageable-slugs';
 import { useAssetsViewState } from 'app/hooks/use-assets-view-state';
 import { useTokensListOptionsSelector } from 'app/store/assets-filter-options/selectors';
-import { PartnersPromotion, PartnersPromotionVariant } from 'app/templates/partners-promotion';
+import { usePartnersPromotionModule } from 'app/templates/partners-promotion';
 import { EvmTokenListItem } from 'app/templates/TokenListItem';
 import { useMemoWithCompare } from 'lib/ui/hooks';
 import { makeGetTokenElementIndexFunction, TokenListItemElement } from 'lib/ui/tokens-list';
@@ -104,6 +104,7 @@ const TabContentBase = memo<TabContentBaseProps>(({ allSlugsSorted, manageActive
   );
   const promoRef = useRef<HTMLDivElement>(null);
   const firstListItemRef = useRef<TokenListItemElement>(null);
+  const PartnersPromotionModule = usePartnersPromotionModule();
 
   const { tokensView, getElementIndex } = useMemo(() => {
     const tokensJsx = displayedSlugs.map((slug, i) => (
@@ -125,15 +126,15 @@ const TabContentBase = memo<TabContentBaseProps>(({ allSlugsSorted, manageActive
         getElementIndex: makeGetTokenElementIndexFunction(promoRef, firstListItemRef, tokensJsx.length)
       };
 
-    const promoJsx = (
-      <PartnersPromotion
+    const promoJsx = PartnersPromotionModule ? (
+      <PartnersPromotionModule.PartnersPromotion
         id="promo-token-item"
         key="promo-token-item"
-        variant={PartnersPromotionVariant.Text}
+        variant={PartnersPromotionModule.PartnersPromotionVariant.Text}
         pageName="Token page"
         ref={promoRef}
       />
-    );
+    ) : null;
 
     return {
       tokensView: getTokensViewWithPromo(tokensJsx, promoJsx),

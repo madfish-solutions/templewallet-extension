@@ -4,7 +4,9 @@ import { BROWSER_IDENTIFIER_HEADER } from 'lib/browser';
 import { APP_VERSION, EnvVars } from 'lib/env';
 import { RewardsAddresses, HDAccountRewardsAddresses, NoAccountRewardsAddresses } from 'temple/types';
 
-import { withAxiosDataExtract } from './utils';
+import { withAxiosDataExtract } from '../utils';
+
+import { RpStatsResponse } from './types';
 
 const axiosClient = axios.create({
   baseURL: EnvVars.TEMPLE_ADS_API_URL,
@@ -122,11 +124,6 @@ export const fetchReferralsAffiliateLinks = withAxiosDataExtract((links: string[
 export const fetchTempleReferralLinkItems = withAxiosDataExtract((browser: string) =>
   axiosClient.get<TempleReferralLinkItem[]>('/temple/referrals/links', { params: { browser } })
 );
-
-export interface RpStatsResponse {
-  impressionsCount: number;
-  referralsClicksCount: number;
-}
 
 interface RpForMonthResponse extends RpStatsResponse {
   firstActivityDate: string | null;

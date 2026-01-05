@@ -1,5 +1,5 @@
 import { getStoredAppInstallIdentity } from 'app/storage/app-install-id';
-import { postLinkAdsImpressions } from 'lib/apis/ads-api';
+import { importAdsApiModule } from 'lib/apis/ads-api';
 import { signData } from 'lib/utils/ecdsa';
 import { RewardsAddresses } from 'temple/types';
 
@@ -17,6 +17,8 @@ export async function performLinkingOfAdsImpressions(adsViewerAddresses: Rewards
   } = identity;
 
   const signature = await signData(privateKey, 'LINK_ADS_IMPRESSIONS');
+
+  const { postLinkAdsImpressions } = await importAdsApiModule();
 
   await postLinkAdsImpressions(adsViewerAddresses, installId, signature);
 }

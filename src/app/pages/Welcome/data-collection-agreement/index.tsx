@@ -9,6 +9,7 @@ import { ReactComponent as GiftIcon } from 'app/icons/base/gift.svg';
 import PageLayout from 'app/layouts/PageLayout';
 import { useFirefoxDataConsent } from 'app/pages/Welcome/data-collection-agreement/use-firefox-data-consent.hook';
 import { PRIVACY_POLICY_URL, TERMS_OF_USE_URL } from 'lib/constants';
+import { DISABLE_ADS } from 'lib/env';
 import { T, TID } from 'lib/i18n';
 import { NullComponent } from 'lib/ui/null-component';
 
@@ -48,12 +49,14 @@ export const DataCollectionAgreement = memo<Props>(({ onConsent }) => {
             description="usageAnalyticsConsentDescription"
           />
 
-          <FeatureCard
-            icon={GiftIcon}
-            iconSize={24}
-            title="dataForRewardsConsent"
-            description="dataForRewardsConsentDescription"
-          />
+          {!DISABLE_ADS && (
+            <FeatureCard
+              icon={GiftIcon}
+              iconSize={24}
+              title="dataForRewardsConsent"
+              description="dataForRewardsConsentDescription"
+            />
+          )}
         </div>
 
         <div className="flex-1" />
