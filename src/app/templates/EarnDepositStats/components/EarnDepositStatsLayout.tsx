@@ -75,9 +75,10 @@ export const EarnDepositStatsLayout: FC<EarnDepositStatsLayoutProps> = ({
 
               {changePercentBn && (
                 <span
-                  className={`text-font-num-12 ${
+                  className={clsx(
+                    'text-font-num-12',
                     isChangePositive ? 'text-success' : isChangeNegative ? 'text-error' : 'text-grey-1'
-                  }`}
+                  )}
                 >
                   <Money fiat={false} withSign smallFractionFont={false}>
                     {changePercentBn}
