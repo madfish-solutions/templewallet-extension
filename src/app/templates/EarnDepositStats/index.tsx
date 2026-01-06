@@ -10,7 +10,7 @@ import { EarnDepositStatsLayout } from './components/EarnDepositStatsLayout';
 import { useEthDepositChangeChart } from './hooks/use-eth-deposit-change-chart';
 import { useTezosDepositChangeChart } from './hooks/use-tezos-deposit-change-chart';
 import { EarnDepositStatsProps } from './types';
-import { mergeDepositSeries } from './utils';
+import { checkDeposit, mergeDepositSeries } from './utils';
 
 export const EarnDepositStats = memo<EarnDepositStatsProps>(props => {
   const tezosPkh = useAccountAddressForTezos();
@@ -80,6 +80,9 @@ const CombinedEarnDepositStats: FC<CombinedEarnDepositStatsProps> = ({
     isError: isEthChartError
   } = useEthDepositChangeChart(evmAccountPkh);
 
+  const hasTezDeposit = useMemo(() => checkDeposit(tezosChartData), [tezosChartData]);
+  const hasEthDeposit = useMemo(() => checkDeposit(ethChartData), [ethChartData]);
+
   const chartData = useMemo(() => mergeDepositSeries(tezosChartData, ethChartData), [tezosChartData, ethChartData]);
 
   const isChartError = isTezosChartError || isEthChartError;
@@ -87,9 +90,6 @@ const CombinedEarnDepositStats: FC<CombinedEarnDepositStatsProps> = ({
   const shouldForceNoDeposits = isGloballyDisabled || isChartError;
 
   if (!isHomePage && shouldForceNoDeposits) return null;
-
-  const tezDeposit = Boolean(tezosChartData?.length);
-  const ethDeposit = Boolean(ethChartData?.length);
 
   return (
     <EarnDepositStatsLayout
@@ -101,18 +101,18 @@ const CombinedEarnDepositStats: FC<CombinedEarnDepositStatsProps> = ({
       fiatCurrencySymbol={selectedFiatCurrency.symbol}
       headerIcons={
         <div className="flex items-center">
-          {tezDeposit && (
+          {hasTezDeposit && (
             <TezosNetworkLogo
               size={16}
               chainId={TEZOS_MAINNET_CHAIN_ID}
               className="border border-lines bg-white rounded-full"
             />
           )}
-          {ethDeposit && (
+          {hasEthDeposit && (
             <EvmNetworkLogo
               size={16}
               chainId={ETHEREUM_MAINNET_CHAIN_ID}
-              className={tezDeposit ? '-ml-1' : undefined}
+              className={hasTezDeposit ? '-ml-1' : undefined}
               imgClassName="p-0.5"
             />
           )}

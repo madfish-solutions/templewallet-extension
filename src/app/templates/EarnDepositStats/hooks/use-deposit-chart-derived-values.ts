@@ -2,6 +2,8 @@ import { useMemo } from 'react';
 
 import BigNumber from 'bignumber.js';
 
+import { checkDeposit } from '../utils';
+
 export const useDepositChartDerivedValues = (chartData?: number[][]) => {
   const changePercent = useMemo(() => {
     if (!chartData || !chartData.length) {
@@ -28,7 +30,7 @@ export const useDepositChartDerivedValues = (chartData?: number[][]) => {
   );
 
   const latestFiatValue = useMemo(
-    () => (chartData && chartData.length ? chartData[chartData.length - 1][1] : undefined),
+    () => (chartData?.length ? chartData[chartData.length - 1][1] : undefined),
     [chartData]
   );
 
@@ -37,9 +39,10 @@ export const useDepositChartDerivedValues = (chartData?: number[][]) => {
     [changePercent]
   );
 
+  const hasDeposits = useMemo(() => checkDeposit(chartData), [chartData]);
+
   const isChangePositive = Boolean(changePercentBn && changePercentBn.gt(0));
   const isChangeNegative = Boolean(changePercentBn && changePercentBn.lt(0));
-  const hasDeposits = typeof latestFiatValue === 'number' && latestFiatValue > 0;
 
   return {
     fiatChangeValues,
