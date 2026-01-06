@@ -88,6 +88,9 @@ const CombinedEarnDepositStats: FC<CombinedEarnDepositStatsProps> = ({
 
   if (!isHomePage && shouldForceNoDeposits) return null;
 
+  const tezDeposit = Boolean(tezosChartData?.length);
+  const ethDeposit = Boolean(ethChartData?.length);
+
   return (
     <EarnDepositStatsLayout
       isHomePage={isHomePage}
@@ -98,12 +101,21 @@ const CombinedEarnDepositStats: FC<CombinedEarnDepositStatsProps> = ({
       fiatCurrencySymbol={selectedFiatCurrency.symbol}
       headerIcons={
         <div className="flex items-center">
-          <TezosNetworkLogo
-            size={16}
-            chainId={TEZOS_MAINNET_CHAIN_ID}
-            className="border border-lines bg-white rounded-full"
-          />
-          <EvmNetworkLogo size={16} chainId={ETHEREUM_MAINNET_CHAIN_ID} className="-ml-1" imgClassName="p-0.5" />
+          {tezDeposit && (
+            <TezosNetworkLogo
+              size={16}
+              chainId={TEZOS_MAINNET_CHAIN_ID}
+              className="border border-lines bg-white rounded-full"
+            />
+          )}
+          {ethDeposit && (
+            <EvmNetworkLogo
+              size={16}
+              chainId={ETHEREUM_MAINNET_CHAIN_ID}
+              className={tezDeposit ? '-ml-1' : undefined}
+              imgClassName="p-0.5"
+            />
+          )}
         </div>
       }
     />
