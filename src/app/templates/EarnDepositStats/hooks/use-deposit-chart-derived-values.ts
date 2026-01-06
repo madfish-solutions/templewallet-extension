@@ -29,11 +29,6 @@ export const useDepositChartDerivedValues = (chartData?: number[][]) => {
     [chartData]
   );
 
-  const latestFiatValue = useMemo(
-    () => (chartData?.length ? chartData[chartData.length - 1][1] : undefined),
-    [chartData]
-  );
-
   const changePercentBn = useMemo(
     () => (typeof changePercent === 'number' ? new BigNumber(changePercent).decimalPlaces(2) : undefined),
     [changePercent]
@@ -41,6 +36,7 @@ export const useDepositChartDerivedValues = (chartData?: number[][]) => {
 
   const hasDeposits = useMemo(() => checkDeposit(chartData), [chartData]);
 
+  const latestFiatValue = chartData?.at(-1)?.[1];
   const isChangePositive = Boolean(changePercentBn && changePercentBn.gt(0));
   const isChangeNegative = Boolean(changePercentBn && changePercentBn.lt(0));
 

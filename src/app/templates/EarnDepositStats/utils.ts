@@ -29,7 +29,7 @@ export const mergeDepositSeries = (tezosSeries?: number[][], ethSeries?: number[
 };
 
 export const checkDeposit = (chartData: number[][] | undefined) => {
-  const latestFiatValue = chartData?.length ? chartData[chartData.length - 1][1] : undefined;
+  const latestFiatValue = chartData?.at(-1)?.[1];
 
   return typeof latestFiatValue === 'number' && latestFiatValue > 0;
 };
