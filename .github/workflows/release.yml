@@ -71,8 +71,14 @@ jobs:
         with:
           optional_modules: true
 
-      - name: Create Chrome and Firefox builds
-        run: yarn build:chrome & yarn build:firefox
+      - name: Create Chrome build
+        run: yarn build:chrome
+      
+      - name: Remove ad-related files
+        run: yarn remove-ad-related-files
+
+      - name: Create Firefox build
+        run: yarn build:firefox
 
       - name: Release
         uses: marvinpinto/action-automatic-releases@latest

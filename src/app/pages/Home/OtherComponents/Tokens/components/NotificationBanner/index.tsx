@@ -13,7 +13,7 @@ import { useStorage } from 'lib/temple/front';
 import { useDidMount } from 'lib/ui/hooks';
 import { ONE_HOUR_MS } from 'lib/utils/numbers';
 
-import { EnableAdsBanner } from './enable-ads-banner';
+import { useEnableAdsBannerModule } from './enable-ads-banner';
 import { UpdateAppBanner } from './update-app-banner';
 
 class UpdateCheckNotAvailableError extends Error {
@@ -97,9 +97,13 @@ export const NotificationBanner: FC = () => {
     };
   }, [updateDetails, isStoredVersionOutdated, setStoredUpdateDetails]);
 
+  const EnableAdsBannerModule = useEnableAdsBannerModule();
+
   if (handleUpdate) {
     return <UpdateAppBanner onClick={handleUpdate} />;
   }
 
-  return shouldHideEnableAdsBanner || adsEnabled || !isUpdateChecked ? null : <EnableAdsBanner />;
+  return shouldHideEnableAdsBanner || adsEnabled || !isUpdateChecked || !EnableAdsBannerModule ? null : (
+    <EnableAdsBannerModule.EnableAdsBanner />
+  );
 };

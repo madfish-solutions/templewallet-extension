@@ -4,14 +4,18 @@ import ErrorBoundary from 'app/ErrorBoundary';
 
 import { PageLoader } from './Loader';
 
-interface Props extends PropsWithChildren {
+export interface SuspenseContainerProps extends PropsWithChildren {
   /** Default message on error */
   errorMessage?: string;
   loader?: ReactNode;
 }
 
 /** Boundary for components' errors & suspense behaviour */
-export const SuspenseContainer: FC<Props> = ({ errorMessage, loader = <PageLoader stretch />, children }) => (
+export const SuspenseContainer: FC<SuspenseContainerProps> = ({
+  errorMessage,
+  loader = <PageLoader stretch />,
+  children
+}) => (
   <ErrorBoundary whileMessage={errorMessage}>
     <Suspense fallback={loader}>{children}</Suspense>
   </ErrorBoundary>

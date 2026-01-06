@@ -5,15 +5,8 @@ import { ValidationError } from 'yup';
 
 import { getStoredAppInstallIdentity } from 'app/storage/app-install-id';
 import { importExtensionAdsReferralsModule } from 'lib/ads/import-extension-ads-module';
-import { updateRulesStorage } from 'lib/ads/update-rules-storage';
-import {
-  fetchReferralsAffiliateLinks,
-  fetchReferralsRules,
-  fetchTempleReferralLinkItems,
-  postAdImpression,
-  postAnonymousAdImpression,
-  postReferralClick
-} from 'lib/apis/ads-api';
+import { importUpdateRulesStorageModule } from 'lib/ads/import-update-rules-storage';
+import { importAdsApiModule } from 'lib/apis/ads-api';
 import { ADS_VIEWER_DATA_STORAGE_KEY, ContentScriptType, REWARDS_ACCOUNT_DATA_STORAGE_KEY } from 'lib/constants';
 import { E2eMessageType } from 'lib/e2e/types';
 import { BACKGROUND_IS_WORKER, EnvVars, IS_FIREFOX, IS_MISES_BROWSER } from 'lib/env';
@@ -21,6 +14,7 @@ import { fetchFromStorage } from 'lib/storage';
 import { encodeMessage, encryptMessage, getSenderId, MessageType, Response } from 'lib/temple/beacon';
 import { clearAsyncStorages } from 'lib/temple/reset';
 import { StoredHDAccount, TempleMessageType, TempleRequest, TempleResponse } from 'lib/temple/types';
+import { withNonImportErrorForwarding } from 'lib/utils/import-error';
 import { getTrackedCashbackServiceDomain, getTrackedUrl } from 'lib/utils/url-track/url-track.utils';
 import { EVMErrorCodes } from 'temple/evm/constants';
 import { ErrorWithCode } from 'temple/evm/types';
@@ -391,6 +385,7 @@ browser.runtime.onMessage.addListener(async (msg, sender) => {
   try {
     switch (msg?.type) {
       case ContentScriptType.UpdateAdsRules:
+        const { updateRulesStorage } = await importUpdateRulesStorageModule();
         await updateRulesStorage();
         return;
 
@@ -426,16 +421,19 @@ browser.runtime.onMessage.addListener(async (msg, sender) => {
         break;
 
       case ContentScriptType.ExternalAdsActivity: {
-        const urlDomain = new URL(msg.url).hostname;
-        const rewardsAddresses = await getRewardsAccountCredentials();
+        await withNonImportErrorForwarding(async () => {
+          const { postAdImpression, postAnonymousAdImpression } = await importAdsApiModule();
+          const urlDomain = new URL(msg.url).hostname;
+          const rewardsAddresses = await getRewardsAccountCredentials();
 
-        if (rewardsAddresses.evmAddress) await postAdImpression(rewardsAddresses, msg.provider, { urlDomain });
-        else {
-          const identity = await getStoredAppInstallIdentity();
-          if (!identity) throw new Error('App identity not found');
-          const installId = identity.publicKeyHash;
-          await postAnonymousAdImpression(installId, urlDomain, msg.provider);
-        }
+          if (rewardsAddresses.evmAddress) await postAdImpression(rewardsAddresses, msg.provider, { urlDomain });
+          else {
+            const identity = await getStoredAppInstallIdentity();
+            if (!identity) throw new Error('App identity not found');
+            const installId = identity.publicKeyHash;
+            await postAnonymousAdImpression(installId, urlDomain, msg.provider);
+          }
+        });
         break;
       }
 
@@ -458,22 +456,28 @@ browser.runtime.onMessage.addListener(async (msg, sender) => {
           return await takeads.affiliateLinks(msg.links);
         }
 
-        // Not requesting from BG page because of CORS.
-        return await fetchReferralsAffiliateLinks(msg.links);
+        return await withNonImportErrorForwarding(async () => {
+          const { fetchReferralsAffiliateLinks } = await importAdsApiModule();
+
+          return await fetchReferralsAffiliateLinks(msg.links);
+        });
       }
 
       case ContentScriptType.ReferralClick: {
         const { urlDomain, pageDomain, provider } = msg;
         const rewardsAddresses = await getRewardsAccountCredentials();
 
-        if (rewardsAddresses.evmAddress) {
-          await postReferralClick(rewardsAddresses, undefined, { urlDomain, pageDomain, provider });
-        } else {
-          const identity = await getStoredAppInstallIdentity();
-          if (!identity) throw new Error('App identity not found');
-          const installId = identity.publicKeyHash;
-          await postReferralClick({}, installId, { urlDomain, pageDomain, provider });
-        }
+        await withNonImportErrorForwarding(async () => {
+          const { postReferralClick } = await importAdsApiModule();
+          if (rewardsAddresses.evmAddress) {
+            await postReferralClick(rewardsAddresses, undefined, { urlDomain, pageDomain, provider });
+          } else {
+            const identity = await getStoredAppInstallIdentity();
+            if (!identity) throw new Error('App identity not found');
+            const installId = identity.publicKeyHash;
+            await postReferralClick({}, installId, { urlDomain, pageDomain, provider });
+          }
+        });
         break;
       }
     }
@@ -514,6 +518,20 @@ const DEFAULT_MEMO_CONFIG = {
   maxAge: 5 * 60_000
 };
 
-const getReferralsRules = memoizee(fetchReferralsRules, DEFAULT_MEMO_CONFIG);
+const getReferralsRules = memoizee(
+  () =>
+    withNonImportErrorForwarding(async () => {
+      const { fetchReferralsRules } = await importAdsApiModule();
+      return await fetchReferralsRules();
+    }),
+  DEFAULT_MEMO_CONFIG
+);
 
-const getTempleReferralLinkItems = memoizee(fetchTempleReferralLinkItems, DEFAULT_MEMO_CONFIG);
+const getTempleReferralLinkItems = memoizee(
+  (browser: string) =>
+    withNonImportErrorForwarding(async () => {
+      const { fetchTempleReferralLinkItems } = await importAdsApiModule();
+      return await fetchTempleReferralLinkItems(browser);
+    }),
+  DEFAULT_MEMO_CONFIG
+);

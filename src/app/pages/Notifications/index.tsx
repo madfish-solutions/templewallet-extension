@@ -7,7 +7,7 @@ import { dispatch } from 'app/store';
 import { viewAllNotificationsAction } from 'app/store/notifications/actions';
 import { useNotificationsSelector } from 'app/store/notifications/selectors';
 import { useShouldShowPartnersPromoSelector } from 'app/store/partners-promotion/selectors';
-import { PartnersPromotion, PartnersPromotionVariant } from 'app/templates/partners-promotion';
+import { usePartnersPromotionModule } from 'app/templates/partners-promotion';
 import { t } from 'lib/i18n';
 import { useBooleanState, useTimeout } from 'lib/ui/hooks';
 
@@ -22,6 +22,7 @@ export const Notifications = () => {
 
   const notifications = useNotificationsSelector();
   const shouldShowPartnersPromoState = useShouldShowPartnersPromoSelector();
+  const PartnersPromotionModule = usePartnersPromotionModule();
 
   const viewAllNotifications = useCallback(() => void dispatch(viewAllNotificationsAction()), []);
 
@@ -38,11 +39,11 @@ export const Notifications = () => {
   return (
     <>
       <PageLayout pageTitle={<PageTitle title={t('notifications')} />} contentClassName="!pb-1">
-        {shouldShowPartnersPromoState && (
+        {shouldShowPartnersPromoState && PartnersPromotionModule && (
           <div className="mb-4 flex justify-center">
-            <PartnersPromotion
+            <PartnersPromotionModule.PartnersPromotion
               id="promo-notifications-item"
-              variant={PartnersPromotionVariant.Image}
+              variant={PartnersPromotionModule.PartnersPromotionVariant.Image}
               pageName="Notifications"
             />
           </div>
