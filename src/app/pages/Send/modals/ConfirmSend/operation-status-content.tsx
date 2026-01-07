@@ -1,4 +1,4 @@
-import React, { FC } from 'react';
+import React, { FC, useEffect, useRef, useState } from 'react';
 
 import clsx from 'clsx';
 
@@ -7,7 +7,7 @@ import { AccountAvatar } from 'app/atoms/AccountAvatar';
 import { CopyAddress } from 'app/atoms/copy-address';
 import { HashChip } from 'app/atoms/HashChip';
 import { EvmNetworkLogo, TezosNetworkLogo } from 'app/atoms/NetworkLogo';
-import { EvmNetworksLogos } from 'app/atoms/NetworksLogos';
+import { EvmNetworksLogos, TezNetworkLogo } from 'app/atoms/NetworksLogos';
 import { ActionsButtonsBox } from 'app/atoms/PageModal';
 import { StyledButton } from 'app/atoms/StyledButton';
 import { TextButton } from 'app/atoms/TextButton';
@@ -32,7 +32,7 @@ import { ReviewDataForChain, TxData } from './types';
 import { useSendBalancesChanges } from './use-send-balances-changes';
 
 interface OperationStatusContentHOCInput<T extends TempleChainKind> {
-  useTransactionStatus: (txHash: TxHash<T>) => PendingTransactionStatus;
+  useTransactionStatus: (txHash: TxHash<T>) => PendingTransactionStatus | undefined;
   useAssetMetadata: (assetSlug: string, chainId: ChainId<T>) => { decimals?: number } | undefined;
 }
 
@@ -67,11 +67,22 @@ const OperationStatusContentHOC = <T extends TempleChainKind>({
   const ChainOperationStatusContent: FC<OperationStatusContentHOCProps<T>> = ({ data, onClose, txData }) => {
     const { txHash, displayedFee, displayedStorageFee } = txData;
     const { network, assetSlug, amount, account } = data;
-    const status = useTransactionStatus(txHash);
+    const rawStatus = useTransactionStatus(txHash);
+    const [status, setStatus] = useState(rawStatus ?? 'PENDING');
+    const isFirstRenderRef = useRef(true);
     const assetMetadata = useAssetMetadata(assetSlug, network.chainId);
     const balancesChanges = useSendBalancesChanges(assetSlug, amount, assetMetadata?.decimals);
     const blockExplorerUrl = useBlockExplorerHref(network.kind, network.chainId, 'tx', txHash);
     const PartnersPromotionModule = usePartnersPromotionModule();
+
+    useEffect(() => {
+      if (isFirstRenderRef.current) {
+        isFirstRenderRef.current = false;
+        return;
+      }
+
+      setStatus(prevStatus => rawStatus ?? (prevStatus === 'PENDING' ? 'FAILED' : prevStatus));
+    }, [rawStatus]);
 
     return (
       <>
@@ -109,7 +120,11 @@ const OperationStatusContentHOC = <T extends TempleChainKind>({
               <ChartListItem title={<T id="sender" />}>
                 <div className="flex flex-row items-center">
                   <div className="flex items-center gap-0.5 px-1 py-0.5">
-                    <EvmNetworksLogos size={16} />
+                    {account.chain === TempleChainKind.EVM ? (
+                      <EvmNetworksLogos size={16} />
+                    ) : (
+                      <TezNetworkLogo size={16} />
+                    )}
                     <CopyAddress
                       firstCharsCount={5}
                       address={account.address}
@@ -163,7 +178,7 @@ const OperationStatusContentHOC = <T extends TempleChainKind>({
         </div>
 
         <ActionsButtonsBox flexDirection="row" shouldChangeBottomShift={false}>
-          <StyledButton size="L" className="w-full" color="primary-low" onClick={onClose}>
+          <StyledButton size="L" className="w-full" color="primary" onClick={onClose}>
             <T id="close" />
           </StyledButton>
         </ActionsButtonsBox>
