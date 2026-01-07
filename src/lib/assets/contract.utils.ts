@@ -34,7 +34,7 @@ export const toTransferParams = async (
 
   if (isFA2Token(asset))
     /*
-     * `contract.methods.transfer` is not working for Rarible contracts.
+     * `contract.methodsObject.transfer` is not working for Rarible contracts.
      * E.g. `KT18pVpRXKPY2c4U2yFEGSH3ZnhB2kL8kwXS_${63714 | 58076}`
      */
     return {
@@ -66,7 +66,7 @@ export const toTransferParams = async (
       }
     };
 
-  return contract.methods.transfer(fromPkh, toPkh, pennyAmount).toTransferParams();
+  return contract.methodsObject.transfer({ from: fromPkh, to: toPkh, value: pennyAmount }).toTransferParams();
 };
 
 export const fromAssetSlugWithStandardDetect = async (tezos: TezosToolkit, slug: string): Promise<Asset> => {

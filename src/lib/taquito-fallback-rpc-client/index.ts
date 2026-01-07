@@ -4,7 +4,6 @@ import {
   AllDelegatesQueryArguments,
   AttestationRightsQueryArguments,
   BakingRightsQueryArguments,
-  BigMapKey,
   EntrypointsResponse,
   ForgeOperationsParams,
   PackDataParams,
@@ -13,7 +12,6 @@ import {
   RpcClient,
   RPCOptions,
   RPCRunCodeParam,
-  RPCRunOperationParam,
   RPCRunScriptViewParam,
   RPCRunViewParam,
   RPCSimulateOperationParam,
@@ -153,11 +151,6 @@ export class FallbackRpcClient extends RpcClient {
     return this.callWithFallback(client => client.getUnstakedFinalizableBalance(address, opts));
   }
 
-  /** @deprecated Deprecated in favor of getBigMapKeyByID */
-  async getBigMapKey(address: string, key: BigMapKey, opts?: RPCOptions) {
-    return this.callWithFallback(client => client.getBigMapKey(address, key, opts));
-  }
-
   async getBigMapExpr(id: string, expr: string, opts?: RPCOptions) {
     return this.callWithFallback(client => client.getBigMapExpr(id, expr, opts));
   }
@@ -232,11 +225,6 @@ export class FallbackRpcClient extends RpcClient {
 
   async injectOperation(signedOpBytes: string) {
     return this.callWithFallback(client => client.injectOperation(signedOpBytes));
-  }
-
-  /** @deprecated Deprecated in favor of simulateOperation */
-  async runOperation(op: RPCRunOperationParam, opts?: RPCOptions) {
-    return this.callWithFallback(client => client.runOperation(op, opts));
   }
 
   async forgeOperations(data: ForgeOperationsParams, opts?: RPCOptions) {

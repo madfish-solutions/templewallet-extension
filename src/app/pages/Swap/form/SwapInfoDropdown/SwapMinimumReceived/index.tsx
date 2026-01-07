@@ -1,7 +1,5 @@
 import React, { FC } from 'react';
 
-import { BigNumber } from 'bignumber.js';
-
 import Money from 'app/atoms/Money';
 import { atomsToTokens } from 'lib/temple/helpers';
 

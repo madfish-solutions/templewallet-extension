@@ -18,7 +18,7 @@ const getTzip12Metadata = async (contract: ReturnType<typeof tzip12>, tokenId: s
   let tzip12Metadata: TokenMetadataWithLogo = {} as TokenMetadataWithLogo;
 
   try {
-    tzip12Metadata = await retry(() => contract.tzip12().getTokenMetadata(Number(tokenId)), RETRY_PARAMS);
+    tzip12Metadata = await retry(() => contract.tzip12().getTokenMetadata(new BigNumber(tokenId)), RETRY_PARAMS);
   } catch {}
 
   return tzip12Metadata;
