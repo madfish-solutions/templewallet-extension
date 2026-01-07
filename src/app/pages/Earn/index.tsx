@@ -2,7 +2,7 @@ import React, { FC, memo, useMemo } from 'react';
 
 import { EmptyState } from 'app/atoms/EmptyState';
 import PageLayout from 'app/layouts/PageLayout';
-import { PartnersPromotion, PartnersPromotionVariant } from 'app/templates/partners-promotion';
+import { usePartnersPromotionModule } from 'app/templates/partners-promotion';
 import { SearchBarField } from 'app/templates/SearchField';
 import { T, t, TID } from 'lib/i18n';
 
@@ -16,12 +16,13 @@ import { EarnOffer } from './types';
 
 export const Earn = memo(() => {
   const { searchValue, setSearchValue, savingsOffers, externalOffers } = useFilteredEarnOffers();
+  const PartnersPromotionModule = usePartnersPromotionModule();
 
   const savingsItems = useMemo(() => {
     const items = savingsOffers.map(toRenderItem);
 
-    return items.length ? withPromo(items) : items;
-  }, [savingsOffers]);
+    return items.length ? withPromo(items, PartnersPromotionModule) : items;
+  }, [savingsOffers, PartnersPromotionModule]);
 
   const savingsAvailable = useMemo(() => savingsItems.length > 0, [savingsItems.length]);
 
@@ -30,8 +31,8 @@ export const Earn = memo(() => {
 
     if (!items.length || savingsAvailable) return items;
 
-    return withPromo(items);
-  }, [externalOffers, savingsAvailable]);
+    return withPromo(items, PartnersPromotionModule);
+  }, [externalOffers, savingsAvailable, PartnersPromotionModule]);
 
   const externalOffersAvailable = externalItems.length > 0;
   const shouldShowEmptyState = !savingsAvailable && !externalOffersAvailable;
@@ -80,7 +81,11 @@ const Title: FC<{ i18nKey: TID }> = ({ i18nKey }) => (
   </h2>
 );
 
-const withPromo = (items: JSX.Element[]) => {
+const withPromo = (items: JSX.Element[], PartnersPromotionModule: ReturnType<typeof usePartnersPromotionModule>) => {
+  if (!PartnersPromotionModule) return items;
+
+  const { PartnersPromotion, PartnersPromotionVariant } = PartnersPromotionModule;
+
   const promoJsx = (
     <PartnersPromotion
       id="promo-earn-item"

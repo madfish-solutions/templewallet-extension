@@ -229,7 +229,8 @@ const ConfirmEarnOperationContentBodyWrapper = <R extends EthEarnReviewDataBase>
               accountPkh: accountPkh as HexString,
               assetSlug: EVM_TOKEN_SLUG,
               network,
-              blockExplorerUrl: makeBlockExplorerHref(blockExplorer.url, txHash, 'tx', TempleChainKind.EVM)
+              blockExplorerUrl: makeBlockExplorerHref(blockExplorer.url, txHash, 'tx', TempleChainKind.EVM),
+              submittedAt: Date.now()
             })
           );
           dispatch(monitorPendingTransfersAction());

@@ -33,6 +33,7 @@ import { AppEvmTokensExchangeRatesLoading } from './evm/tokens-exchange-rates-lo
 import { AppEvmTokensMetadataLoading } from './evm/tokens-metadata-loading';
 import { AppTezosTokensMetadataLoading } from './metadata-loading';
 import { useChainIDsCheck } from './use-chain-ids-check';
+import { useDAppTransactionsListener } from './use-dapp-transactions-listener';
 import { useDisableInactiveNetworks } from './use-disable-inactive-networks';
 import { useEnableAutodisabledNetworks } from './use-enable-autodisabled-networks';
 import { useGlobalErrorTracking } from './use-error-tracking';
@@ -106,6 +107,8 @@ const AppReadyRootHooks = memo(() => {
 
 const ConfirmWindowReadyRootHooks = memo(() => {
   useAssetsMigrations();
+
+  useDAppTransactionsListener();
 
   const tezosAddress = useAccountAddressForTezos();
   const evmAddress = useAccountAddressForEvm();

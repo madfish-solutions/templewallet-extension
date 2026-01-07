@@ -3,30 +3,20 @@ import React, { FC, useCallback, useState } from 'react';
 import clsx from 'clsx';
 
 import { PageTitle } from 'app/atoms';
+import { FireAnimatedEmoji } from 'app/atoms/fire-animated-emoji';
 import { PageLoader } from 'app/atoms/Loader';
 import PageLayout from 'app/layouts/PageLayout';
 import { SearchBarField } from 'app/templates/SearchField';
 import { DappEnum } from 'lib/apis/temple/endpoints/get-dapps-list';
 import { T, t } from 'lib/i18n';
-import { Lottie } from 'lib/ui/react-lottie';
 
 import { FeaturedDappItem } from './components/DappItem';
 import { DappsList } from './components/DappsList';
 import { Tag } from './components/Tag';
-import fireAnimation from './fire-animation.json';
 import { useDappsData } from './hooks/use-dapps-data';
 import { useFilteredDapps } from './hooks/use-filtered-dapps';
 
 const TAGS = Object.values(DappEnum);
-
-const FIRE_ANIMATION_OPTIONS = {
-  loop: true,
-  autoplay: true,
-  animationData: fireAnimation,
-  rendererSettings: {
-    preserveAspectRatio: 'xMidYMid slice'
-  }
-} as const;
 
 const TRANSITION_CLASSNAMES = 'transition-all duration-300 ease-in-out';
 const HIDDEN_OFFSCREEN_CLASSNAMES = 'h-0 opacity-0 overflow-hidden pointer-events-none';
@@ -91,14 +81,10 @@ export const Dapps: FC = () => {
             )}
             aria-hidden={shouldIncludeFeatured}
           >
-            <div className="flex justify-start items-center gap-x-1 mb-1">
-              <Lottie
-                isClickToPauseDisabled
-                options={FIRE_ANIMATION_OPTIONS}
-                height={16}
-                width={16}
-                style={{ margin: 0, cursor: 'default' }}
-              />
+            <div className="flex justify-start items-center mb-1">
+              <div className="p-1">
+                <FireAnimatedEmoji />
+              </div>
               <span className="text-font-description-bold py-1">
                 <T id="featured" />
               </span>
