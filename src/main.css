@@ -1,168 +1,138 @@
-@import './fonts.css';
-
-:root {
-  color: #151618;
-  --tippy-arrow-offset: 1px;
-}
-
-html {
-  height: 100%;
-}
-
-body {
-  min-height: 100%;
-}
-
-* {
-  font-variant-ligatures: none;
-}
-
-/**
- * Popper JS
- */
-
-[data-popper-reference-hidden] {
-  visibility: hidden;
-  pointer-events: none;
-}
-
-/**
- * Tippy JS
- */
+@import "tailwindcss";
 
 @import 'tippy.js/dist/tippy.css';
 @import 'tippy.js/animations/shift-away-subtle.css';
 
-.tippy-box {
-  background-color: black;
-  border-radius: 4px;
-  font-size: 10px;
-  line-height: 12px;
-}
+@import './fonts.css';
 
-.tippy-box[data-placement^='top'] > .tippy-arrow {
-  bottom: var(--tippy-arrow-offset);
-}
-
-.tippy-box[data-placement^='top'] > .tippy-arrow:before {
-  bottom: calc(-16px + var(--tippy-arrow-offset));
-  left: 0;
-  border-width: 0;
-  transform-origin: center;
-  transform: rotate(180deg);
-}
-
-.tippy-box[data-placement^='bottom'] > .tippy-arrow {
-  top: var(--tippy-arrow-offset);
-}
-
-.tippy-box[data-placement^='bottom'] > .tippy-arrow:before {
-  top: calc(-16px + var(--tippy-arrow-offset));
-  left: 0;
-  border-width: 0;
-}
-
-.tippy-box[data-placement^='left'] > .tippy-arrow {
-  right: var(--tippy-arrow-offset);
-}
-
-.tippy-box[data-placement^='left'] > .tippy-arrow:before {
-  border-width: 0;
-  right: calc(-16px + var(--tippy-arrow-offset));
-  transform-origin: center;
-  transform: rotate(90deg);
-}
-
-.tippy-box[data-placement^='right'] > .tippy-arrow {
-  left: var(--tippy-arrow-offset);
-}
-
-.tippy-box[data-placement^='right'] > .tippy-arrow:before {
-  left: calc(-16px + var(--tippy-arrow-offset));
-  border-width: 0;
-  transform-origin: center;
-  transform: rotate(-90deg);
-}
-
-.tippy-box[data-inertia][data-state='visible'] {
-  transition-timing-function: cubic-bezier(0.54, 1.5, 0.38, 1.11);
-}
-
-.tippy-arrow:before {
-  content: '';
-  position: absolute;
-  width: 16px;
-  height: 16px;
-  background: url('app/misc/tooltip-arrow.svg');
-}
-
-.tippy-content {
-  padding: 12px;
-  white-space: pre-line;
-}
-
-/**
- * TailwindCSS
- */
-
-@import "tailwindcss";
 @config "../tailwind.config.js";
 
-/**
- * Appearance for iOS and Safari
- */
-button,
-[type='button'],
-[type='reset'],
-[type='submit'] {
-  appearance: none;
+@layer base {
+  :root {
+    color: #151618;
+    --tippy-arrow-offset: 1px;
+  }
+
+  html {
+    height: 100%;
+  }
+
+  body {
+    min-height: 100%;
+  }
+
+  * {
+    font-variant-ligatures: none;
+  }
+
+  /* Appearance for iOS and Safari */
+  button,
+  [type='button'],
+  [type='reset'],
+  [type='submit'] {
+    appearance: none;
+  }
+
+  /* Hide Arrows From Input Number */
+  /* Chrome, Safari, Edge, Opera */
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  /* Firefox */
+  input[type="number"] {
+    -moz-appearance: textfield;
+  }
+
+  /* Cursor pointer for button by default */
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
 }
 
-/**
- * Text shadow utils.
- */
+@layer components {
+  /**
+   * Popper JS
+   */
 
-.text-shadow-black {
-  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.06);
-}
+  [data-popper-reference-hidden] {
+    visibility: hidden;
+    pointer-events: none;
+  }
 
-.text-shadow-black-orange {
-  text-shadow: 0 1px 0 rgba(39, 19, 3, 0.06);
-}
+  /**
+   * Tippy JS
+   */
 
-/**
- * Scroll bar utils
- */
+  .tippy-box {
+    background-color: black;
+    border-radius: 4px;
+    font-size: 10px;
+    line-height: 12px;
+  }
 
-.no-scrollbar {
-  scrollbar-width: none;
-}
-.no-scrollbar::-webkit-scrollbar {
-  display: none;
-}
+  .tippy-box[data-placement^='top'] > .tippy-arrow {
+    bottom: var(--tippy-arrow-offset);
+  }
 
-/**
- * Misc
- */
+  .tippy-box[data-placement^='top'] > .tippy-arrow:before {
+    bottom: calc(-16px + var(--tippy-arrow-offset));
+    left: 0;
+    border-width: 0;
+    transform-origin: center;
+    transform: rotate(180deg);
+  }
 
-.filter-brightness-75 {
-  filter: brightness(0.75);
-}
+  .tippy-box[data-placement^='bottom'] > .tippy-arrow {
+    top: var(--tippy-arrow-offset);
+  }
 
-.font-tnum {
-  font-feature-settings: 'tnum';
-}
+  .tippy-box[data-placement^='bottom'] > .tippy-arrow:before {
+    top: calc(-16px + var(--tippy-arrow-offset));
+    left: 0;
+    border-width: 0;
+  }
 
-/* Fix CSS transition flickering in Firefox */
-.grayscale-firefox-fix {
-  filter: grayscale(1%);
-}
+  .tippy-box[data-placement^='left'] > .tippy-arrow {
+    right: var(--tippy-arrow-offset);
+  }
 
-/* Fix letter truncated */
-.letter-truncated-fix {
-  line-height: normal;
-  padding-bottom: 0;
-  padding-top: 0;
+  .tippy-box[data-placement^='left'] > .tippy-arrow:before {
+    border-width: 0;
+    right: calc(-16px + var(--tippy-arrow-offset));
+    transform-origin: center;
+    transform: rotate(90deg);
+  }
+
+  .tippy-box[data-placement^='right'] > .tippy-arrow {
+    left: var(--tippy-arrow-offset);
+  }
+
+  .tippy-box[data-placement^='right'] > .tippy-arrow:before {
+    left: calc(-16px + var(--tippy-arrow-offset));
+    border-width: 0;
+    transform-origin: center;
+    transform: rotate(-90deg);
+  }
+
+  .tippy-box[data-inertia][data-state='visible'] {
+    transition-timing-function: cubic-bezier(0.54, 1.5, 0.38, 1.11);
+  }
+
+  .tippy-arrow:before {
+    content: '';
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    background: url('app/misc/tooltip-arrow.svg');
+  }
+
+  .tippy-content {
+    padding: 12px;
+    white-space: pre-line;
+  }
 }
 
 @keyframes fade-in {
@@ -175,20 +145,44 @@ button,
   }
 }
 
-.animate-fade-in {
-  animation: fade-in 2s ease-in-out infinite;
-}
-
-/* Hide Arrows From Input Number */
-@layer base {
-  /* Chrome, Safari, Edge, Opera */
-  input[type="number"]::-webkit-inner-spin-button,
-  input[type="number"]::-webkit-outer-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
+@layer utilities {
+  /* Text shadow utils */
+  .text-shadow-black {
+    text-shadow: 0 1px 0 rgba(0, 0, 0, 0.06);
   }
-  /* Firefox */
-  input[type="number"] {
-    -moz-appearance: textfield;
+
+  .text-shadow-black-orange {
+    text-shadow: 0 1px 0 rgba(39, 19, 3, 0.06);
+  }
+
+  /* Scroll bar utils */
+  .no-scrollbar {
+    scrollbar-width: none;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Misc */
+  .filter-brightness-75 {
+    filter: brightness(0.75);
+  }
+
+  .font-tnum {
+    font-feature-settings: 'tnum';
+  }
+
+  .grayscale-firefox-fix {
+    filter: grayscale(1%);
+  }
+
+  .letter-truncated-fix {
+    line-height: normal;
+    padding-bottom: 0;
+    padding-top: 0;
+  }
+
+  .animate-fade-in {
+    animation: fade-in 2s ease-in-out infinite;
   }
 }

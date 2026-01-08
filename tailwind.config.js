@@ -299,12 +299,12 @@ module.exports = {
       gap: theme => theme('spacing'),
 
       borderRadius: {
-        3: 3,
-        5: 5,
-        6: 6,
-        7: 7,
-        8: 8,
-        10: 10,
+        3: '3px',
+        5: '5px',
+        6: '6px',
+        7: '7px',
+        8: '8px',
+        10: '10px',
         circle: '50%',
         inherit: 'inherit'
       },
