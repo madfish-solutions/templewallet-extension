@@ -30,8 +30,8 @@ body {
  * Tippy JS
  */
 
-@import '~tippy.js/dist/tippy.css';
-@import '~tippy.js/animations/shift-away-subtle.css';
+@import 'tippy.js/dist/tippy.css';
+@import 'tippy.js/animations/shift-away-subtle.css';
 
 .tippy-box {
   background-color: black;

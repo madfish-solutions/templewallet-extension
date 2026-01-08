@@ -202,7 +202,7 @@ module.exports = {
 
       minWidth: theme => theme('width'),
 
-      maxWidth: (theme, { breakpoints }) => ({
+      maxWidth: theme => ({
         ...theme('width'),
         30: '7.5rem',
         xs: '20rem',
@@ -215,17 +215,15 @@ module.exports = {
         '4xl': '56rem',
         '5xl': '64rem',
         '6xl': '72rem',
-        '9/10': '90%',
-        ...breakpoints(theme('screens'))
+        '9/10': '90%'
       }),
 
       screens: {
         normal: '384px'
       },
 
-      margin: (theme, { negative }) => ({
-        ...theme('spacing'),
-        ...negative(theme('spacing'))
+      margin: theme => ({
+        ...theme('spacing')
       }),
 
       padding: theme => ({
@@ -294,9 +292,8 @@ module.exports = {
         'overlay-promo': 1100
       },
 
-      space: (theme, { negative }) => ({
-        ...theme('spacing'),
-        ...negative(theme('spacing'))
+      space: theme => ({
+        ...theme('spacing')
       }),
 
       gap: theme => theme('spacing'),
@@ -312,9 +309,8 @@ module.exports = {
         inherit: 'inherit'
       },
 
-      translate: (theme, { negative }) => ({
+      translate: theme => ({
         ...theme('spacing'),
-        ...negative(theme('spacing')),
         '-full': '-100%',
         '-1/2': '-50%',
         '1/2': '50%',

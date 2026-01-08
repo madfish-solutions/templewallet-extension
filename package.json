@@ -173,7 +173,6 @@
     "postcss": "^8",
     "postcss-flexbugs-fixes": "^5",
     "postcss-loader": "^8",
-    "postcss-preset-env": "^9",
     "prettier": "^2.7.1",
     "process": "^0.11.10",
     "qr-code-styling-2": "^1.5.5",
