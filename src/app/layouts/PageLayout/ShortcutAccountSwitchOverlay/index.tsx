@@ -133,7 +133,7 @@ export const ShortcutAccountSwitchOverlay = memo(() => {
         }}
         unmountOnExit
       >
-        <div className="fixed inset-0 z-overlay-promo flex flex-col items-center justify-center bg-black bg-opacity-15 backdrop-blur-xs">
+        <div className="fixed inset-0 z-overlay-promo flex flex-col items-center justify-center bg-black/15 backdrop-blur-xs">
           <div
             ref={accountSwitchRef}
             tabIndex={0}
@@ -145,7 +145,7 @@ export const ShortcutAccountSwitchOverlay = memo(() => {
                 autoFocus
                 defaultRightMargin={false}
                 value={searchValue}
-                className={'focus:outline-none focus:ring-0 focus:border-transparent'}
+                className={'focus:outline-hidden focus:ring-0 focus:border-transparent'}
                 placeholder={t('searchAccount', [searchHotkey])}
                 onValueChange={handleSearchValueChange}
                 testID={AccountManagementSelectors.searchField}

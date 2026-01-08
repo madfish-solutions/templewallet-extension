@@ -43,7 +43,7 @@ export const MiniPageModal: FC<MiniPageModalProps> = ({
       }}
       className={{
         base: clsx(
-          'flex flex-col absolute left-0 right-0 bg-white overflow-hidden focus:outline-none ease-out duration-300',
+          'flex flex-col absolute left-0 right-0 bg-white overflow-hidden focus:outline-hidden ease-out duration-300',
           fullPage ? 'rounded-8 bottom-8' : 'rounded-t-8 bottom-0',
           LAYOUT_CONTAINER_CLASSNAME,
           ModStyles.base

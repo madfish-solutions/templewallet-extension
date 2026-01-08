@@ -45,7 +45,7 @@ export const ActionModal = memo<ActionModalProps>(
     return (
       <CustomModal
         isOpen
-        className={clsx('rounded-lg outline-none', className)}
+        className={clsx('rounded-lg outline-hidden', className)}
         overlayClassName={clsx(
           'backdrop-blur-xs',
           testnetModeEnabled && !confirmWindow && 'mt-6 rounded-t-none',
@@ -60,7 +60,7 @@ export const ActionModal = memo<ActionModalProps>(
         onRequestClose={onClose}
       >
         {hasHeader && (
-          <div className={clsx('relative p-3 border-b-0.5 border-lines w-modal', contentClassName)}>
+          <div className={clsx('relative blur-xs p-3 border-b-0.5 border-lines w-modal', contentClassName)}>
             <h1 className={clsx('text-center text-font-regular-bold mx-12', headerClassName)}>{title}</h1>
             {hasCloseButton && (
               <Button className="absolute top-3 right-3" onClick={onClose} testID={closeButtonTestID}>

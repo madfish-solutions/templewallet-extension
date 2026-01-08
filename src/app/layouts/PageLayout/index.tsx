@@ -177,7 +177,7 @@ const ContentPaper: FC<ContentPaperProps> = ({
           className
         )}
       >
-        <FadeTransition className={testnetModeEnabled ? '!h-[unset] flex-grow' : undefined}>{children}</FadeTransition>
+        <FadeTransition className={testnetModeEnabled ? 'h-[unset]! flex-grow' : undefined}>{children}</FadeTransition>
       </ContentPaperNode>
     </ContentPaperRefContext.Provider>
   );

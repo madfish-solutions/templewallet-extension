@@ -280,7 +280,7 @@ const Swap = memo<Props>(() => {
       pageTitle={<PageTitle title={t('swap')} />}
       contentPadding={false}
       noScroll
-      paperClassName="!overflow-hidden"
+      paperClassName="overflow-hidden!"
       headerRightElem={
         <IconBase Icon={ManageIcon} className="text-primary cursor-pointer" onClick={setSettingsModalOpen} />
       }

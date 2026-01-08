@@ -23,7 +23,6 @@ module.exports = {
   content: ['./public/**/*.{html,js,mjs}', './src/**/*.{js,jsx,ts,tsx}'],
   prefix: '',
   important: false,
-  separator: ':',
 
   theme: {
     boxShadow: {
@@ -57,7 +56,7 @@ module.exports = {
 
     extend: {
       blur: {
-        xs: '2px'
+        xxs: '2px'
       },
 
       colors: {

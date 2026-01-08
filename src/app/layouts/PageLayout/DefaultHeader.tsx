@@ -51,7 +51,7 @@ export const DefaultHeader = memo<PropsWithChildren<DefaultHeaderProps>>(
           HEADER_IS_STICKY && 'sticky z-header',
           testnetModeEnabled ? 'top-[23px]' : '-top-px',
           'flex flex-col',
-          sticked && 'shadow',
+          sticked && 'shadow-sm',
           !sticked && 'rounded-t-inherit',
           !sticked && !hasChildren && 'border-b-0.5 border-lines',
           'ease-in-out duration-300'

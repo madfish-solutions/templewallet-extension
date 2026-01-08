@@ -191,7 +191,7 @@ export const SeedWordInput: FC<SeedWordInputProps> = ({
   return (
     <div className="flex flex-col relative">
       <FormField
-        className={clsx('!text-font-medium rounded-md !caret-secondary', !isBlur && 'border border-secondary')}
+        className={clsx('text-font-medium! rounded-md caret-secondary!', !isBlur && 'border border-secondary')}
         extraLeftInner={
           <div className="absolute flex items-center inset-y-0 pointer-events-none ml-2">
             <span className="text-font-medium text-grey-2">{id + 1}.</span>
@@ -230,7 +230,7 @@ export const SeedWordInput: FC<SeedWordInputProps> = ({
               ref={el => (variantsRef.current[index] = el)}
               className={clsx(
                 'px-2 py-2.5 w-full text-left rounded-md',
-                'hover:bg-secondary-low focus:bg-secondary-low focus:outline-none'
+                'hover:bg-secondary-low focus:bg-secondary-low focus:outline-hidden'
               )}
               onClick={e => handleVariantClick(e, variant)}
               onBlur={handleBlur}

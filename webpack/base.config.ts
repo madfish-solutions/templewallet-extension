@@ -368,11 +368,9 @@ function getStyleLoaders(module = false) {
           plugins: [
             require('postcss-flexbugs-fixes'),
             postcssPresetEnv({
-              autoprefixer: {},
               stage: 3
             }),
-            require('tailwindcss'),
-            require('autoprefixer')
+            require('@tailwindcss/postcss')
           ]
         }
       }

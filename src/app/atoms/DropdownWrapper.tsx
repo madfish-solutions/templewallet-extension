@@ -48,7 +48,7 @@ const DropdownWrapper = forwardRef<HTMLDivElement, Props>(
         timeout={ANIMATION_DURATION}
         classNames={{
           enter: clsx('opacity-0', scaleAnimation && 'scale-95'),
-          enterActive: clsx('!opacity-100', scaleAnimation && '!scale-100', 'ease-out duration-100'),
+          enterActive: clsx('opacity-100!', scaleAnimation && 'scale-100!', 'ease-out duration-100'),
           exit: clsx('opacity-0', scaleAnimation && 'scale-95', 'ease-in duration-100')
         }}
         mountOnEnter

@@ -15,7 +15,7 @@ interface WordInputProps extends TestIDProps {
 
 export const WordInput = memo<WordInputProps>(({ wordIndex, active, value, testID }) => (
   <FormField
-    className={clsx('!text-font-medium rounded-md', active && 'border border-secondary')}
+    className={clsx('text-font-medium! rounded-md', active && 'border border-secondary')}
     fieldWrapperBottomMargin={false}
     smallPaddings
     extraLeftInnerWrapper="none"

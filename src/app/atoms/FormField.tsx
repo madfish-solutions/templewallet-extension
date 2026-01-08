@@ -255,7 +255,7 @@ export const FormField = forwardRef<FormFieldElement, FormFieldProps>(
             ref={combineRefs(ref, spareRef)}
             className={clsx(
               FORM_FIELD_CLASS_NAME,
-              readOnly && '!placeholder-grey-1',
+              readOnly && 'placeholder-grey-1!',
               smallPaddings ? 'py-2 pl-2' : 'p-3',
               errorCaption ? 'border-error' : warning ? 'border-warning' : 'border-input-low',
               className
@@ -321,7 +321,7 @@ export const FormField = forwardRef<FormFieldElement, FormFieldProps>(
 );
 
 export const FORM_FIELD_CLASS_NAME = clsx(
-  'appearance-none w-full border rounded-lg bg-input-low caret-primary focus:outline-none',
+  'appearance-none w-full border rounded-lg bg-input-low caret-primary focus:outline-hidden',
   'transition ease-in-out duration-200 text-font-regular placeholder-grey-2 hover:placeholder-grey-1'
 );
 

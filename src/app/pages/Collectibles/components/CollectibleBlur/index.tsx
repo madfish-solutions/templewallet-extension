@@ -40,7 +40,7 @@ export const CollectibleBlur = memo<Props>(({ assetSlug, large = false, eyeIconS
           src={source}
           alt="Adult content"
           onLoad={setLoaded}
-          className={clsx('w-full h-full', large ? 'blur' : 'blur-sm')}
+          className={clsx('w-full h-full', large ? 'blur' : 'blur-xs')}
         />
         <RevealEyeSvg className={clsx('absolute z-20', eyeIconSizeClassName ?? (large ? 'w-23 h-23' : 'w-8 h-8'))} />
       </div>

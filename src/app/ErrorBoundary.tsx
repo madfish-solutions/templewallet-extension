@@ -97,14 +97,14 @@ const ErrorBoundaryContent = memo<ErrorBoundaryContentProps>(({ errorMessage, cl
       <button
         className={clsx(
           'mb-6 px-4 py-1',
-          'bg-red-500 rounded',
-          'border border-black border-opacity-5',
+          'bg-red-500 rounded-sm',
+          'border border-black/5',
           'flex items-center',
           'text-white text-shadow-black',
           'text-sm font-semibold',
           'transition duration-300 ease-in-out',
           'opacity-90 hover:opacity-100',
-          'shadow-sm hover:shadow'
+          'shadow-xs hover:shadow-sm'
         )}
         onClick={onTryAgainClick}
       >

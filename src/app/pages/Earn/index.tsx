@@ -38,7 +38,7 @@ export const Earn = memo(() => {
   const shouldShowEmptyState = !savingsAvailable && !externalOffersAvailable;
 
   return (
-    <PageLayout pageTitle={t('earn')} bgWhite={false} contentClassName="!pb-8">
+    <PageLayout pageTitle={t('earn')} bgWhite={false} contentClassName="pb-8!">
       <div className="mb-4">
         <SearchBarField value={searchValue} onValueChange={setSearchValue} defaultRightMargin={false} />
       </div>

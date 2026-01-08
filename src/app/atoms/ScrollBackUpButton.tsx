@@ -30,7 +30,7 @@ export const ScrollBackUpButton = memo(() => {
       className={clsx(
         'sticky bottom-6',
         'mt-5 mx-auto flex items-center text-gray-600 py-1 px-2 text-sm leading-5 select-none',
-        'bg-white hover:bg-gray-200 rounded shadow-lg cursor-pointer',
+        'bg-white hover:bg-gray-200 rounded-sm shadow-lg cursor-pointer',
         'transition ease-in-out duration-100'
       )}
       onClick={onClick}

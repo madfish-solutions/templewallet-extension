@@ -184,7 +184,7 @@ export const EvmCollectibleItem = memo(
 
 const MANAGE_ACTIVE_ITEM_CLASSNAME = clsx(
   'flex items-center justify-between w-full overflow-hidden p-2 rounded-8',
-  'transition ease-in-out duration-200 focus:outline-none'
+  'transition ease-in-out duration-200 focus:outline-hidden'
 );
 
 interface ManageCollectibleListItemLayoutProps<T extends TempleChainKind> {

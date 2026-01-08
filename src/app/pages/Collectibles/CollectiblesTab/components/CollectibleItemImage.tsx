@@ -65,7 +65,7 @@ export const TezosCollectibleItemImage = memo<TezosCollectibleItemImageProps>(
         ) : (
           <>
             {shouldUseBlurredBg && (
-              <ImageStacked sources={sources} loading="lazy" className="absolute w-full h-full object-cover blur-sm" />
+              <ImageStacked sources={sources} loading="lazy" className="absolute w-full h-full object-cover blur-xs" />
             )}
             <ImageStacked
               sources={sources}
@@ -101,7 +101,7 @@ export const EvmCollectibleItemImage = memo<EvmCollectibleItemImageProps>(
           <ImageStacked
             sources={sourcesWithCompressedFallback}
             loading="lazy"
-            className="absolute w-full h-full object-cover blur-sm"
+            className="absolute w-full h-full object-cover blur-xs"
           />
         )}
         <ImageStacked

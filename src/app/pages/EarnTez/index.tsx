@@ -39,7 +39,7 @@ export const EarnTezPage = memo<Props>(({ tezosChainId }) => {
       <PageLayout
         pageTitle={`Earn ${symbol}`}
         contentPadding={false}
-        contentClassName={bakerAddress !== null ? '' : '!bg-white'}
+        contentClassName={bakerAddress !== null ? '' : 'bg-white!'}
         headerRightElem={
           bakerAddress && isKnownChainId(tezosChainId) && !isTezosDcpChainId(tezosChainId) ? (
             <Button testID={EarnTezSelectors.activityButton} onClick={openRewardsModal}>

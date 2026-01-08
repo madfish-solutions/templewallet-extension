@@ -91,7 +91,7 @@ export const TotalStakingStatsCard = memo<TotalStakingStatsCardProps>(
                 <FullAmountTippy
                   className={clsx(
                     'px-px -mr-px rounded truncate',
-                    'cursor-pointer hover:bg-black hover:bg-opacity-5 transition ease-in-out duration-200'
+                    'cursor-pointer hover:bg-black/5 transition ease-in-out duration-200'
                   )}
                   fullAmount={rewards}
                   showAmountTooltip

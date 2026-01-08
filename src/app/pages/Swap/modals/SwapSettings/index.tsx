@@ -111,7 +111,7 @@ export const SwapSettingsModal = memo<SelectTokenModalProps>(
                 onClick={() => handleOptionChange(option)}
                 className={clsx(
                   'flex-1 py-1 rounded-lg transition-all duration-200 text-sm font-semibold',
-                  selectedOption === option ? 'bg-white text-primary shadow-sm' : 'text-text'
+                  selectedOption === option ? 'bg-white text-primary shadow-xs' : 'text-text'
                 )}
               >
                 {option === 'custom' ? t('custom') : option + '%'}

@@ -26,8 +26,8 @@ export const ToggleSwitch = forwardRef<HTMLInputElement, Props>((props, ref) => 
         // 'disable-outline-for-click',
         (() => {
           // if (localChecked) return;
-          if (localFocused) return 'outline outline-1 outline-offset-1 outline-secondary-low';
-          if (errored) return 'outline outline-1 outline-offset-1 outline-red-400';
+          if (localFocused) return 'outline outline-offset-1 outline-secondary-low';
+          if (errored) return 'outline outline-offset-1 outline-red-400';
           return;
         })()
       ),

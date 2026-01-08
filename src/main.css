@@ -105,7 +105,8 @@ body {
  * TailwindCSS
  */
 
-@tailwind base;
+@import "tailwindcss";
+@config "../tailwind.config.js";
 
 /**
  * Appearance for iOS and Safari
@@ -116,10 +117,6 @@ button,
 [type='submit'] {
   appearance: none;
 }
-
-@tailwind components;
-
-@tailwind utilities;
 
 /**
  * Text shadow utils.

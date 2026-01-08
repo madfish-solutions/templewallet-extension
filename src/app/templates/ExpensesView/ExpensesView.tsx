@@ -142,7 +142,7 @@ const ExpensesView: FC<ExpensesViewProps> = ({
                           gasFeeError ? 'border-red-300' : 'border-gray-300',
                           'focus:border-primary-orange',
                           'bg-gray-100 focus:bg-transparent',
-                          'focus:outline-none focus:shadow-outline',
+                          'focus:outline-hidden focus:shadow-outline',
                           'transition ease-in-out duration-200',
                           'rounded',
                           'text-right',
@@ -196,7 +196,7 @@ const ExpensesView: FC<ExpensesViewProps> = ({
                   'border-gray-300',
                   'focus:border-primary-orange',
                   'bg-gray-100 focus:bg-transparent',
-                  'focus:outline-none focus:shadow-outline',
+                  'focus:outline-hidden focus:shadow-outline',
                   'transition ease-in-out duration-200',
                   'rounded',
                   'text-right',
@@ -242,7 +242,7 @@ const ExpensesView: FC<ExpensesViewProps> = ({
                 'sticky bottom-0 left-0 right-0',
                 'flex items-center',
                 'px-2 py-1',
-                'bg-gray-200 bg-opacity-90 border-t',
+                'bg-gray-200/90 border-t',
                 'text-sm text-gray-700'
               )}
             >
@@ -404,7 +404,7 @@ const ExpenseViewItem: FC<ExpenseViewItemProps> = ({ tezosChainId, item, last })
           {argumentDisplayProps && <OperationArgumentDisplay {...argumentDisplayProps} />}
         </div>
 
-        <div className="flex items-end flex-shrink-0 flex-wrap text-gray-800">
+        <div className="flex items-end shrink-0 flex-wrap text-gray-800">
           {item.expenses
             .filter(expense => new BigNumber(expense.amount).isGreaterThan(0))
             .map((expense, index, arr) => (

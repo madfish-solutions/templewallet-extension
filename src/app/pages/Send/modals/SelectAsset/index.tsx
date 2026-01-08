@@ -142,7 +142,7 @@ const FilterNetworkPopper = memo<FilterNetworkPopperProps>(({ selectedOption, on
     {({ ref, toggleOpened, selectedOptionName }) => (
       <Button
         ref={ref}
-        className="flex items-center py-0.5 px-1 text-font-description-bold rounded text-secondary hover:bg-secondary-low"
+        className="flex items-center py-0.5 px-1 text-font-description-bold rounded-sm text-secondary hover:bg-secondary-low"
         onClick={toggleOpened}
       >
         <span>{selectedOptionName}</span>

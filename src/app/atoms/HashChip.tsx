@@ -23,7 +23,7 @@ export const HashChip: FC<HashChipProps> = ({
     className={clsx(
       getStyledButtonColorsClassNames('secondary-low'),
       'select-none transition ease-in-out duration-300',
-      'text-font-description px-1 py-0.5 rounded',
+      'text-font-description px-1 py-0.5 rounded-sm',
       className
     )}
     {...rest}

@@ -50,7 +50,7 @@ const AccountBanner = memo<Props>(
         )}
 
         <div className="w-full border rounded-md p-2 flex items-center">
-          <AccountAvatar seed={account.id} size={32} className="flex-shrink-0" />
+          <AccountAvatar seed={account.id} size={32} className="shrink-0" />
 
           <div className="flex flex-col items-start ml-2">
             <div className="flex flex-wrap items-center">

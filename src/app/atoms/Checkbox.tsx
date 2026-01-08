@@ -32,7 +32,7 @@ export const Checkbox = forwardRef<HTMLInputElement, Props>((props, ref) => {
   const containerClassName = useMemo(
     () =>
       clsx(
-        'flex justify-center items-center flex-shrink-0 transition ease-in-out duration-200 disable-outline-for-click',
+        'flex justify-center items-center shrink-0 transition ease-in-out duration-200 disable-outline-for-click',
         localFocused && 'shadow-outline',
         !disabled && 'cursor-pointer'
       ),
