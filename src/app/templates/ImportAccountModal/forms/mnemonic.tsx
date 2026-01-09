@@ -111,7 +111,9 @@ export const MnemonicForm = memo<ImportAccountFormProps>(({ onSuccess }) => {
         let action: Action;
         if (derivationPath && (isEvmDerivationPath(derivationPath) || !expectedAccountAddress)) {
           const { privateKey } = mnemonicToPrivateKey(seedPhrase, msg => new Error(msg), undefined, derivationPath);
-          const { address: newActualAccountAddress } = privateKeyToEvmAccountCreds(privateKey);
+          const { address: newActualAccountAddress } = isEvmDerivationPath(derivationPath)
+            ? privateKeyToEvmAccountCreds(privateKey)
+            : await privateKeyToTezosAccountCreds(privateKey);
           action = {
             type: 'import-mnemonic-account',
             newActualAccountAddress
