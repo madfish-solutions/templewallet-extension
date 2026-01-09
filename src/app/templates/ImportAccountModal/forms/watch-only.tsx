@@ -169,7 +169,8 @@ export const WatchOnlyForm = memo<ImportAccountFormProps>(({ onSuccess }) => {
           rows={5}
           {...register('address', {
             required: t('required'),
-            validate: validateAddress
+            validate: validateAddress,
+            onChange: resetSubmitError
           })}
           type="text"
           id="watch-address"
@@ -182,7 +183,6 @@ export const WatchOnlyForm = memo<ImportAccountFormProps>(({ onSuccess }) => {
           cleanable={Boolean(addressValue)}
           labelDescription={t('watchOnlyAddressInputDescription')}
           onClean={cleanAddressField}
-          onChange={resetSubmitError}
           additionalActionButtons={
             addressValue ? null : (
               <TextButton

@@ -105,7 +105,7 @@ export const PrivateKeyForm = memo<ImportAccountFormProps>(({ onSuccess }) => {
         <FormField
           textarea
           rows={5}
-          {...register('privateKey', { required: t('required') })}
+          {...register('privateKey', { required: t('required'), onChange: resetSubmitError })}
           type="password"
           revealForbidden
           id="importacc-privatekey"
@@ -117,7 +117,6 @@ export const PrivateKeyForm = memo<ImportAccountFormProps>(({ onSuccess }) => {
           containerClassName="mb-4"
           cleanable={Boolean(keyValue)}
           onClean={cleanPrivateKeyField}
-          onChange={resetSubmitError}
           additionalActionButtons={
             keyValue ? null : (
               <TextButton
@@ -136,7 +135,7 @@ export const PrivateKeyForm = memo<ImportAccountFormProps>(({ onSuccess }) => {
 
         {encrypted && (
           <FormField
-            {...register('encPassword')}
+            {...register('encPassword', { onChange: resetSubmitError })}
             type="password"
             id="importacc-password"
             labelContainerClassName="w-full flex justify-between items-center"
@@ -148,7 +147,6 @@ export const PrivateKeyForm = memo<ImportAccountFormProps>(({ onSuccess }) => {
                 </span>
               </>
             }
-            onChange={resetSubmitError}
             placeholder={DEFAULT_PASSWORD_INPUT_PLACEHOLDER}
             errorCaption={errors.encPassword?.message}
           />
