@@ -82,17 +82,6 @@ export function mnemonicToPrivateKey(
   return { chain, privateKey };
 }
 
-export function mnemonicToLegacyPrivateKey(mnemonic: string) {
-  let seed;
-  try {
-    seed = Bip39.mnemonicToSeedSync(mnemonic).slice(0, 32);
-  } catch {
-    throw new Error('Invalid Mnemonic or Password');
-  }
-
-  return { chain: TempleChainKind.Tezos, privateKey: seedToPrivateKey(seed, TempleChainKind.Tezos) };
-}
-
 export function privateKeyToEvmAccountCreds(privateKey: string): AccountCreds {
   if (!isHex(privateKey)) throw new Error('EVM private key is not a hex value');
   const { address, publicKey } = ViemAccounts.privateKeyToAccount(privateKey);

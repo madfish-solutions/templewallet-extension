@@ -17,7 +17,6 @@ import { accPrivKeyStrgKey, accPubKeyStrgKey } from './storage-keys';
 export {
   createMemorySigner,
   privateKeyToTezosAccountCreds,
-  seedToPrivateKey,
   privateKeyToEvmAccountCreds
 } from 'lib/temple/accounts-helpers';
 
