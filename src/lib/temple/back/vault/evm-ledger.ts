@@ -39,7 +39,7 @@ export const makeEvmAccount = async (ethApp: Eth, derivationPath: string) => {
       return ethApp.signPersonalMessage(derivationPath, messageHex);
     }),
     signTransaction: async (transaction, { serializer = serializeTransaction } = {}) => {
-      const rawTx = serializer(transaction);
+      const rawTx = await serializer(transaction);
       const { ledgerService } = await import('@ledgerhq/hw-app-eth');
       let resolution: LedgerEthTransactionResolution | undefined;
       try {

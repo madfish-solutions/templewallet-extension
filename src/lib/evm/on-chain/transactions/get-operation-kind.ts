@@ -98,7 +98,7 @@ export const getOperationKind = (tx: TransactionSerializable) => {
   }
 
   if (!tx.data || tx.data === '0x') {
-    return tx.value && tx.value > BigInt(0) ? EvmOperationKind.Send : EvmOperationKind.Other;
+    return tx.value && tx.value > 0n ? EvmOperationKind.Send : EvmOperationKind.Other;
   }
 
   for (const [kind, abis] of abiDetectionTypesEntries) {
