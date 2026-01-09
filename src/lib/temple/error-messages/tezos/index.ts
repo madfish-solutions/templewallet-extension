@@ -149,14 +149,14 @@ function hasErrorPattern(error: SerializedTezosOperationError, patterns: readonl
   return error.errors.some(err => patterns.some(pattern => err.id.includes(pattern)));
 }
 
+function isTezosGenericOperationErrorArray(body: unknown): body is TezosGenericOperationError[] {
+  return Array.isArray(body) && body.length > 0 && body.every(item => isObject(item) && 'kind' in item && 'id' in item);
+}
+
 function tryMakeTezosOperationError(error: SerializedHttpResponseError) {
   try {
     const body = JSON.parse(error.body);
-    if (
-      Array.isArray(body) &&
-      body.length > 0 &&
-      body.every(item => isObject(item) && 'kind' in item && 'id' in item)
-    ) {
+    if (isTezosGenericOperationErrorArray(body)) {
       return new TezosOperationError(body, '', []);
     }
   } catch {
