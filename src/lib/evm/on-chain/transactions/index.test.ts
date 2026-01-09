@@ -251,7 +251,7 @@ describe('getEvmBalancesChanges', () => {
       it('should return correct balance changes if simulation passes', async () => {
         simulateContractMock.mockResolvedValue({
           request: testTransaction,
-          result: 3
+          result: 3n
         });
         await checkEvmBalancesChanges(testTransaction, aliceAddress, {
           [getTestErc721TokenSlug(3)]: { atomicAmount: new BigNumber(1), isNft: true }
