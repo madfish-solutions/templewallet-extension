@@ -287,6 +287,7 @@ interface TzktAccountBase {
   balance?: number;
   stakedBalance?: number;
   unstakedBalance?: number;
+  activeTokensCount: number;
 }
 
 interface TzktUserAccount extends TzktAccountBase {
@@ -528,6 +529,7 @@ interface TzktEmptyAccount extends TzktAccountBase {
   type: TzktAccountType.Empty;
   alias: undefined;
   counter: number;
+  activeTokensCount: never;
 }
 
 export type TzktAccount =
