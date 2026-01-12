@@ -8,7 +8,7 @@ const IS_SUPPORTED = 'IntersectionObserver' in window;
  * Memoize rootMargin to avoid unnecessary Intersection Observer re-creations.
  */
 export const useIntersectionObserver = (
-  elemRef: RefObject<Element>,
+  elemRef: RefObject<Element | null>,
   callback: (entry: IntersectionObserverEntry) => void,
   init: Omit<IntersectionObserverInit, 'rootMargin'>,
   predicate = true,

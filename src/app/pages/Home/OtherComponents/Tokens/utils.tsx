@@ -32,8 +32,8 @@ interface GroupedTokensViewWithPromoRenderProps {
   evmChains?: StringRecord<EvmChain>;
   tezosChains?: StringRecord<TezosChain>;
   promoJsx: ReactNode;
-  firstListItemRef: RefObject<TokenListItemElement>;
-  firstHeaderRef: RefObject<HTMLDivElement>;
+  firstListItemRef: RefObject<TokenListItemElement | null>;
+  firstHeaderRef: RefObject<HTMLDivElement | null>;
   buildTokensJsxArray: (
     slugs: string[],
     firstListItemRef: RefObject<TokenListItemElement> | null,

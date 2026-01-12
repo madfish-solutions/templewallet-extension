@@ -1,6 +1,6 @@
 import React, { memo, useCallback, useLayoutEffect } from 'react';
 
-import CSSTransition from 'react-transition-group/CSSTransition';
+import CSSTransitionBase from 'react-transition-group/CSSTransition';
 
 import DocBg from 'app/a11y/DocBg';
 import InternalConfirmation from 'app/templates/InternalConfirmation';
@@ -11,6 +11,8 @@ import { resetPendingConfirmationId } from 'temple/front/pending-confirm';
 const ConfirmationOverlay = memo(() => {
   const { confirmation, confirmInternal } = useTempleClient();
   const displayed = Boolean(confirmation);
+
+  const CSSTransition = CSSTransitionBase as unknown as React.ComponentType<any>;
 
   useLayoutEffect(() => {
     if (displayed) {

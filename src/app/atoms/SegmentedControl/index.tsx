@@ -7,7 +7,7 @@ import styles from './styles.module.css';
 interface Segment<T extends string> {
   label: string;
   value: T;
-  ref: RefObject<HTMLDivElement>;
+  ref: RefObject<HTMLDivElement | null>;
 }
 
 interface SegmentedControlProps<T extends string> {

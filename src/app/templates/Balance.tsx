@@ -1,7 +1,7 @@
 import React, { FC, cloneElement, ReactElement } from 'react';
 
 import BigNumber from 'bignumber.js';
-import CSSTransition from 'react-transition-group/CSSTransition';
+import CSSTransitionBase from 'react-transition-group/CSSTransition';
 
 import { EVM_TOKEN_SLUG, TEZ_TOKEN_SLUG } from 'lib/assets/defaults';
 import { useTezosAssetBalance } from 'lib/balances';
@@ -16,6 +16,8 @@ export interface BalanceProps<T extends TempleChainKind> {
   assetSlug?: string;
   forceFirstRefreshOnChain?: boolean;
 }
+
+const CSSTransition = CSSTransitionBase as unknown as React.ComponentType<any>;
 
 const BalanceHOC = <T extends TempleChainKind>(
   useBalance: (

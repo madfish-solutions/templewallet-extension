@@ -2,6 +2,7 @@ import React, {
   memo,
   ReactElement,
   RefObject,
+  CSSProperties,
   useCallback,
   useEffect,
   useLayoutEffect,
@@ -19,7 +20,7 @@ import { isTruthy } from 'lib/utils';
 export interface PopperRenderProps {
   opened: boolean;
   setOpened: ReactSetStateFn<boolean>;
-  toggleOpened: () => void;
+  toggleOpened: EmptyFn;
 }
 type RenderProp<P> = (props: P) => ReactElement;
 
@@ -34,11 +35,11 @@ type PopperProps = Partial<Options> & {
   popup: PopperPopup;
   children: PopperChildren;
   fallbackPlacementsEnabled?: boolean;
-  style?: React.CSSProperties;
+  style?: CSSProperties;
 };
 
 const Popper = memo<PopperProps>(({ popup, children, fallbackPlacementsEnabled = true, style, ...popperOptions }) => {
-  const popperRef = useRef<Instance>();
+  const popperRef = useRef<Instance>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const popupRef = useRef<HTMLDivElement>(null);
 

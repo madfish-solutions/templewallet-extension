@@ -188,7 +188,7 @@ const MANAGE_ACTIVE_ITEM_CLASSNAME = clsx(
 );
 
 interface ManageCollectibleListItemLayoutProps<T extends TempleChainKind> {
-  wrapperElemRef?: RefObject<HTMLDivElement>;
+  wrapperElemRef?: RefObject<HTMLDivElement | null>;
   chainId: ChainId<T>;
   assetSlug: string;
   assetName: string;
@@ -359,7 +359,7 @@ const ManageEvmListItemLayout = ManageCollectibleListItemLayoutHOC<TempleChainKi
 );
 
 interface DefaultCollectibleListItemLayoutProps<T extends TempleChainKind> {
-  wrapperElemRef?: RefObject<HTMLDivElement>;
+  wrapperElemRef?: RefObject<HTMLDivElement | null>;
   assetSlug: string;
   assetName: string;
   chainId: ChainId<T>;

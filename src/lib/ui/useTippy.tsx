@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 
 import tippy, { Props, Instance } from 'tippy.js';
 
@@ -6,7 +6,7 @@ export type UseTippyOptions = Partial<Props>;
 
 export default function useTippy<T extends Element>(props: UseTippyOptions) {
   const targetRef = useRef<T>(null);
-  const instanceRef = useRef<Instance>();
+  const instanceRef = useRef<Instance>(null);
 
   useEffect(() => {
     if (instanceRef.current) {

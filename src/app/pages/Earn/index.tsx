@@ -47,7 +47,7 @@ export const Earn = memo(() => {
         <div className="mb-4">
           <Title i18nKey="savings" />
 
-          <div className="flex flex-col gap-y-2">{savingsItems}</div>
+          <div className="flex flex-col gap-y-2">{savingsItems as unknown as React.ReactNode}</div>
         </div>
       )}
 
@@ -55,7 +55,7 @@ export const Earn = memo(() => {
         <div>
           <Title i18nKey="externalOffers" />
 
-          <div className="flex flex-col gap-y-2">{externalItems}</div>
+          <div className="flex flex-col gap-y-2">{externalItems as unknown as React.ReactNode}</div>
         </div>
       )}
 

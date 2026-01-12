@@ -135,8 +135,8 @@ export const AddTokenForm = memo<AddTokenPageProps>(
       (formState.dirty && !formValid);
 
     const attemptRef = useRef(0);
-    const tezMetadataRef = useRef<RequiredTokenMetadataResponse>();
-    const evmMetadataRef = useRef<RequiredEvmTokenMetadata | RequiredEvmCollectibleMetadata>();
+    const tezMetadataRef = useRef<RequiredTokenMetadataResponse>(null);
+    const evmMetadataRef = useRef<RequiredEvmTokenMetadata | RequiredEvmCollectibleMetadata>(null);
 
     const loadMetadataPure = useCallback(async () => {
       if (!formValid) return;

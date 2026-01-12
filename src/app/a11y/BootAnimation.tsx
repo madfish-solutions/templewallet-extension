@@ -1,6 +1,8 @@
 import React, { FC, useLayoutEffect, useState } from 'react';
 
-import CSSTransition from 'react-transition-group/CSSTransition';
+import CSSTransitionBase from 'react-transition-group/CSSTransition';
+
+const CSSTransition = CSSTransitionBase as unknown as React.ComponentType<any>;
 
 const BootAnimation: FC<PropsWithChildren> = ({ children }) => {
   const [booted, setBooted] = useState(false);

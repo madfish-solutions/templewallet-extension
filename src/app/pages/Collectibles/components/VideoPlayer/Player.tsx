@@ -65,7 +65,7 @@ export const Player = forwardRef<HTMLVideoElement | HTMLAudioElement, Props>(
     const containerRef = useRef<HTMLDivElement>(null);
     const keyActionRef = useRef<KeyActionHandle>(null);
 
-    const playPromise = useRef<Promise<void>>();
+    const playPromise = useRef<Promise<void>>(null);
     const volumeData = useRef(volumeState || 1);
     const progressSeekData = useRef(0);
 

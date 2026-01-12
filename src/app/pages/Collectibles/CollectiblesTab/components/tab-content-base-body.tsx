@@ -9,12 +9,12 @@ interface TabContentBaseBodyProps
   manageActive: boolean;
   slugs: string[];
   showInfo: boolean;
-  renderItem: (slug: string, index: number, ref?: RefObject<CollectiblesListItemElement>) => ReactNode;
+  renderItem: (slug: string, index: number, ref?: RefObject<CollectiblesListItemElement | null>) => ReactNode;
 }
 
 export const TabContentBaseBody = memo<TabContentBaseBodyProps>(
   ({ manageActive, slugs, showInfo, renderItem, ...restProps }) => {
-    const firstItemRef = useRef<CollectiblesListItemElement>(null);
+    const firstItemRef = useRef<CollectiblesListItemElement | null>(null);
     const contentElement = useMemo(
       () => (
         <div className={manageActive ? undefined : 'grid grid-cols-3 gap-2'}>

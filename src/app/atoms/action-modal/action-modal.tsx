@@ -3,7 +3,7 @@ import React, { ReactNode, memo } from 'react';
 import clsx from 'clsx';
 
 import { Button, IconBase } from 'app/atoms';
-import CustomModal from 'app/atoms/CustomModal';
+import CustomModalBase from 'app/atoms/CustomModal';
 import { useAppEnv } from 'app/env';
 import { ReactComponent as CloseIcon } from 'app/icons/base/x.svg';
 import {
@@ -14,6 +14,8 @@ import {
 import { useTestnetModeEnabledSelector } from 'app/store/settings/selectors';
 
 import actionModalStyles from './action-modal.module.css';
+
+const CustomModal = CustomModalBase as unknown as React.ComponentType<any>;
 
 export interface ActionModalProps {
   hasHeader?: boolean;

@@ -259,7 +259,7 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
     return tokensToAtoms(inputValueToUse || ZERO, inputAssetMetadata?.decimals ?? 0);
   }, [inputAssetMetadata?.decimals, inputValue.amount, isFiatMode, parseFiatValueToAssetAmount]);
 
-  const routeAbortControllerRef = useRef<AbortController | null>(null);
+  const routeAbortControllerRef = useRef<AbortController>(null);
   const latestRequestIdRef = useRef(0);
 
   const fetchEvmSwapRoute = useCallback(

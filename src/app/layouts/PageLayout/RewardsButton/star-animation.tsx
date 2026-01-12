@@ -16,7 +16,7 @@ interface Props {
 export const StarAnimation = memo<Props>(({ loop }) => {
   const prevLoopRef = useRef(loop);
   const [loopComplete, setLoopComplete] = useState(false);
-  const loopTimeoutRef = useRef<NodeJS.Timeout>();
+  const loopTimeoutRef = useRef<NodeJS.Timeout>(null);
   const animationRef = useRef<HTMLImageElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 

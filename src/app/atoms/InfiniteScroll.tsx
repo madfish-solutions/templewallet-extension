@@ -1,11 +1,13 @@
 import React, { CSSProperties, FC, ReactElement, useEffect, useMemo } from 'react';
 
-import ReactInfiniteScrollComponent from 'react-infinite-scroll-component';
+import ReactInfiniteScrollComponentBase from 'react-infinite-scroll-component';
 
 import { APP_CONTENT_PAPER_DOM_ID, SCROLL_DOCUMENT } from 'app/layouts/containers';
 
 import { LoaderDebounce } from './LoaderDebounce';
 import { SyncSpinner } from './SyncSpinner';
+
+const ReactInfiniteScrollComponent = ReactInfiniteScrollComponentBase as unknown as React.ComponentType<any>;
 
 interface Props extends PropsWithChildren {
   itemsLength: number;

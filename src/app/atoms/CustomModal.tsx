@@ -3,13 +3,15 @@ import React, { FC } from 'react';
 import clsx from 'clsx';
 import Modal from 'react-modal';
 
+const ModalComponent = Modal as unknown as React.ComponentType<Modal.Props>;
+
 type CustomModalProps = Modal.Props & React.PropsWithChildren;
 
 const CustomModal: FC<CustomModalProps> = props => {
   const { className, overlayClassName, ...restProps } = props;
 
   return (
-    <Modal
+    <ModalComponent
       {...restProps}
       appElement={document.getElementById('root')!}
       closeTimeoutMS={200}

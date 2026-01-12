@@ -86,7 +86,7 @@
     "@typescript-eslint/no-explicit-any": "off",
     "@typescript-eslint/await-thenable": "error",
     "@typescript-eslint/prefer-ts-expect-error": "error",
-    "@typescript-eslint/no-unused-vars": "off",
+    "@typescript-eslint/no-unused-vars": "error",
     "@typescript-eslint/ban-ts-comment": "off",
     "@typescript-eslint/unified-signatures": "off",
     "@typescript-eslint/switch-exhaustiveness-check": "warn",
@@ -105,6 +105,7 @@
     }],
     "react/jsx-key": "warn",
     "react/no-unescaped-entities": "off",
+    "react/react-in-jsx-scope": "off",
 
     "jsx-a11y/no-autofocus": "off",
     "jsx-a11y/click-events-have-key-events": "off",
