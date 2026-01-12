@@ -99,10 +99,10 @@ export const TezosConfirmDAppForm = memo<TezosConfirmDAppFormProps>(({ payload, 
   );
 
   return (
-    <CustomTezosChainIdContext.Provider value={payload.network.chainId}>
+    <CustomTezosChainIdContext value={payload.network.chainId}>
       <ConfirmDAppForm confirmationId={id} accounts={allAccounts} payload={payload} onConfirm={handleConfirm}>
         {renderPayload}
       </ConfirmDAppForm>
-    </CustomTezosChainIdContext.Provider>
+    </CustomTezosChainIdContext>
   );
 });

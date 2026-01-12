@@ -165,7 +165,7 @@ const ContentPaper: FC<ContentPaperProps> = ({
   );
 
   return (
-    <ContentPaperRefContext.Provider value={rootRef}>
+    <ContentPaperRefContext value={rootRef}>
       <ContentPaperNode
         ref={rootRef}
         id={APP_CONTENT_PAPER_DOM_ID}
@@ -179,7 +179,7 @@ const ContentPaper: FC<ContentPaperProps> = ({
       >
         <FadeTransition className={testnetModeEnabled ? 'h-[unset]! flex-grow' : undefined}>{children}</FadeTransition>
       </ContentPaperNode>
-    </ContentPaperRefContext.Provider>
+    </ContentPaperRefContext>
   );
 };
 

@@ -45,9 +45,9 @@ export const EvmTokensTab = memo<Props>(props => {
   const { manageActive } = useAssetsViewState();
 
   return (
-    <EvmTokensTabContext.Provider value={props}>
+    <EvmTokensTabContext value={props}>
       {manageActive ? <TabContentWithManageActive /> : <TabContent />}
-    </EvmTokensTabContext.Provider>
+    </EvmTokensTabContext>
   );
 });
 

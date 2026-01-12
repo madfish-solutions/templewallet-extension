@@ -48,9 +48,9 @@ export const MultiChainTokensTab = memo<Props>(props => {
   const { manageActive } = useAssetsViewState();
 
   return (
-    <MultiChainTokensTabContext.Provider value={props}>
+    <MultiChainTokensTabContext value={props}>
       {manageActive ? <TabContentWithManageActive /> : <TabContent />}
-    </MultiChainTokensTabContext.Provider>
+    </MultiChainTokensTabContext>
   );
 });
 

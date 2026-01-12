@@ -46,9 +46,9 @@ export const TezosTokensTab = memo<Props>(props => {
   const { manageActive } = useAssetsViewState();
 
   return (
-    <TezosTokensTabContext.Provider value={props}>
+    <TezosTokensTabContext value={props}>
       {manageActive ? <TabContentWithManageActive /> : <TabContent />}
-    </TezosTokensTabContext.Provider>
+    </TezosTokensTabContext>
   );
 });
 

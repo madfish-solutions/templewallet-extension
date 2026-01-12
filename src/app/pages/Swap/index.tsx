@@ -286,7 +286,7 @@ const Swap = memo<Props>(() => {
       }
     >
       <Suspense fallback={<PageLoader stretch />}>
-        <SwapFormControlContext.Provider value={formControlRef}>
+        <SwapFormControlContext value={formControlRef}>
           <SwapForm
             chainKind={activeChainKind}
             chainId={activeChainId}
@@ -301,7 +301,7 @@ const Swap = memo<Props>(() => {
             confirmSwapModalOpened={confirmSwapModalOpened}
             handleToggleIconClick={handleToggleIconClick}
           />
-        </SwapFormControlContext.Provider>
+        </SwapFormControlContext>
       </Suspense>
 
       <SwapSelectAssetModal
