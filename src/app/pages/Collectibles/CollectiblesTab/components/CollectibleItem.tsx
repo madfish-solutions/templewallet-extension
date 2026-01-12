@@ -1,4 +1,4 @@
-import React, { FC, RefObject, forwardRef, memo, useCallback, useMemo, useRef } from 'react';
+import React, { FC, PropsWithoutRef, RefObject, forwardRef, memo, useCallback, useMemo, useRef } from 'react';
 
 import clsx from 'clsx';
 
@@ -206,7 +206,8 @@ const ManageCollectibleListItemLayoutHOC = <
 >(
   NetworkLogo: FC<NetworkLogoPropsBase<T>>,
   CollectibleItemImage: FC<
-    Pick<P, 'metadata' | 'assetSlug' | 'wrapperElemRef'> & Omit<P, keyof ManageCollectibleListItemLayoutProps<T>>
+    Pick<P, 'metadata' | 'assetSlug' | 'wrapperElemRef'> &
+      Omit<PropsWithoutRef<P>, keyof ManageCollectibleListItemLayoutProps<T>>
   >,
   toggleTokenStatus: (
     newStatus: 'enabled' | 'disabled',
@@ -377,7 +378,8 @@ const DefaultCollectibleListItemLayoutHOC = <
   chainKind: T,
   NetworkLogo: FC<NetworkLogoPropsBase<T>>,
   CollectibleItemImage: FC<
-    Pick<P, 'metadata' | 'assetSlug' | 'wrapperElemRef'> & Omit<P, keyof DefaultCollectibleListItemLayoutProps<T>>
+    Pick<P, 'metadata' | 'assetSlug' | 'wrapperElemRef'> &
+      Omit<PropsWithoutRef<P>, keyof DefaultCollectibleListItemLayoutProps<T>>
   >,
   useNetwork: (chainId: ChainId<T>) => ChainOfKind<T> | nullish,
   className?: string
