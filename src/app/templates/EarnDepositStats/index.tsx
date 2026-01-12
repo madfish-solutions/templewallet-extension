@@ -1,16 +1,22 @@
 import React, { FC, memo, useMemo } from 'react';
 
-import { EvmNetworkLogo, TezosNetworkLogo } from 'app/atoms/NetworkLogo';
+import clsx from 'clsx';
+
 import { useTestnetModeEnabledSelector } from 'app/store/settings/selectors';
+import { TEZ_TOKEN_SLUG, EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { useFiatCurrency } from 'lib/fiat-currency/core';
 import { ETHEREUM_MAINNET_CHAIN_ID, TEZOS_MAINNET_CHAIN_ID, TempleAccountType } from 'lib/temple/types';
 import { useAccount, useAccountAddressForEvm, useAccountAddressForTezos } from 'temple/front';
+
+import { EvmAssetIcon, TezosAssetIcon } from '../AssetIcon';
 
 import { EarnDepositStatsLayout } from './components/EarnDepositStatsLayout';
 import { useEthDepositChangeChart } from './hooks/use-eth-deposit-change-chart';
 import { useTezosDepositChangeChart } from './hooks/use-tezos-deposit-change-chart';
 import { EarnDepositStatsProps } from './types';
 import { checkDeposit, mergeDepositSeries } from './utils';
+
+const DEFAULT_DEPOSIT_ICON_CLASSNAMES = 'p-0.5 border border-lines bg-white rounded-full';
 
 export const EarnDepositStats = memo<EarnDepositStatsProps>(props => {
   const tezosPkh = useAccountAddressForTezos();
@@ -102,18 +108,19 @@ const CombinedEarnDepositStats: FC<CombinedEarnDepositStatsProps> = ({
       headerIcons={
         <div className="flex items-center">
           {hasTezDeposit && (
-            <TezosNetworkLogo
+            <TezosAssetIcon
               size={16}
-              chainId={TEZOS_MAINNET_CHAIN_ID}
-              className="border border-lines bg-white rounded-full"
+              assetSlug={TEZ_TOKEN_SLUG}
+              tezosChainId={TEZOS_MAINNET_CHAIN_ID}
+              className={DEFAULT_DEPOSIT_ICON_CLASSNAMES}
             />
           )}
           {hasEthDeposit && (
-            <EvmNetworkLogo
+            <EvmAssetIcon
               size={16}
-              chainId={ETHEREUM_MAINNET_CHAIN_ID}
-              className={hasTezDeposit ? '-ml-1' : undefined}
-              imgClassName="p-0.5"
+              assetSlug={EVM_TOKEN_SLUG}
+              evmChainId={ETHEREUM_MAINNET_CHAIN_ID}
+              className={clsx(DEFAULT_DEPOSIT_ICON_CLASSNAMES, hasTezDeposit && '-ml-1')}
             />
           )}
         </div>
@@ -148,7 +155,14 @@ const TezosEarnDepositStats: FC<TezosEarnDepositStatsProps> = ({
       chartData={shouldForceNoDeposits ? undefined : tezosChartData}
       isChartLoading={shouldForceNoDeposits ? false : isLoading}
       fiatCurrencySymbol={selectedFiatCurrency.symbol}
-      headerIcons={<TezosNetworkLogo chainId={TEZOS_MAINNET_CHAIN_ID} size={16} />}
+      headerIcons={
+        <TezosAssetIcon
+          size={16}
+          assetSlug={TEZ_TOKEN_SLUG}
+          tezosChainId={TEZOS_MAINNET_CHAIN_ID}
+          className={DEFAULT_DEPOSIT_ICON_CLASSNAMES}
+        />
+      }
     />
   );
 };
@@ -176,7 +190,14 @@ const EvmEarnDepositStats: FC<EvmEarnDepositStatsProps> = ({
       chartData={shouldForceNoDeposits ? undefined : ethChartData}
       isChartLoading={shouldForceNoDeposits ? false : isLoading}
       fiatCurrencySymbol={selectedFiatCurrency.symbol}
-      headerIcons={<EvmNetworkLogo chainId={ETHEREUM_MAINNET_CHAIN_ID} size={16} imgClassName="p-0.5" />}
+      headerIcons={
+        <EvmAssetIcon
+          size={16}
+          assetSlug={EVM_TOKEN_SLUG}
+          evmChainId={ETHEREUM_MAINNET_CHAIN_ID}
+          className={DEFAULT_DEPOSIT_ICON_CLASSNAMES}
+        />
+      }
     />
   );
 };
