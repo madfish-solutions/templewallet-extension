@@ -186,7 +186,12 @@ export const SeedWordInput: FC<SeedWordInputProps> = ({
     [autoCompleteVariants, focusedVariantIndex, id, inputsRef, numberOfWords, setValueToVariant]
   );
 
-  const setInputRef = useCallback((el: FormFieldElement | null) => (inputsRef.current[id] = el), [id, inputsRef]);
+  const setInputRef = useCallback(
+    (el: FormFieldElement | null) => {
+      inputsRef.current[id] = el;
+    },
+    [id, inputsRef]
+  );
 
   return (
     <div className="flex flex-col relative">

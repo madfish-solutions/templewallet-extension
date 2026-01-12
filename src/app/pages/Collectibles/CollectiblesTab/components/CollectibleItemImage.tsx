@@ -21,7 +21,7 @@ interface TezosCollectibleItemImageProps {
   areDetailsLoading: boolean;
   mime?: string | null;
   extraSrc?: string;
-  containerElemRef: React.RefObject<Element>;
+  containerElemRef: React.RefObject<Element | null>;
   className?: string;
   shouldUseBlurredBg?: boolean;
   manageActive?: boolean;

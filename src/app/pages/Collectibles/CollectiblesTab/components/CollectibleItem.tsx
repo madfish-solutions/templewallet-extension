@@ -335,7 +335,7 @@ const ManageTezosListItemLayout = ManageCollectibleListItemLayoutHOC<
     areDetailsLoading: boolean;
     mime: string | nullish;
     extraSrc?: string;
-    wrapperElemRef: RefObject<HTMLDivElement>;
+    wrapperElemRef: RefObject<HTMLDivElement | null>;
   }
 >(
   TezosNetworkLogo,
@@ -359,7 +359,7 @@ const ManageEvmListItemLayout = ManageCollectibleListItemLayoutHOC<TempleChainKi
 );
 
 interface DefaultCollectibleListItemLayoutProps<T extends TempleChainKind> {
-  wrapperElemRef?: RefObject<HTMLDivElement>;
+  wrapperElemRef?: RefObject<HTMLDivElement | null>;
   assetSlug: string;
   assetName: string;
   chainId: ChainId<T>;
@@ -474,7 +474,7 @@ const DefaultTezosListItemLayout = DefaultCollectibleListItemLayoutHOC<
     areDetailsLoading: boolean;
     mime: string | nullish;
     extraSrc?: string;
-    wrapperElemRef: RefObject<HTMLDivElement>;
+    wrapperElemRef: RefObject<HTMLDivElement | null>;
   }
 >(
   TempleChainKind.Tezos,

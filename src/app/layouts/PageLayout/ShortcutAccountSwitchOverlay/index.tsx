@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState, useEffect, useRef, KeyboardEventHandler, memo } from 'react';
+import React, { useCallback, useMemo, useState, useEffect, useRef, KeyboardEventHandler, memo, RefObject } from 'react';
 
 import clsx from 'clsx';
 import CSSTransition from 'react-transition-group/CSSTransition';
@@ -27,7 +27,7 @@ export const ShortcutAccountSwitchOverlay = memo(() => {
 
   const { opened, setOpened } = useAccountSelectShortcut();
   useModalScrollLock(opened, accountSwitchRef);
-  useOnClickOutside(accountSwitchRef, () => setOpened(false));
+  useOnClickOutside(accountSwitchRef as RefObject<HTMLElement>, () => setOpened(false));
 
   const currentAccountId = useCurrentAccountId();
   const allAccounts = useVisibleAccounts();

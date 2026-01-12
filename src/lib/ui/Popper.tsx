@@ -25,7 +25,7 @@ export interface PopperRenderProps {
 type RenderProp<P> = (props: P) => ReactElement;
 
 export interface PopperAnchorProps extends PopperRenderProps {
-  ref: RefObject<HTMLButtonElement>;
+  ref: RefObject<HTMLButtonElement | null>;
 }
 
 type PopperPopup = RenderProp<PopperRenderProps>;
@@ -50,7 +50,7 @@ const Popper = memo<PopperProps>(({ popup, children, fallbackPlacementsEnabled =
   }, [setOpened]);
 
   useOnClickOutside(
-    popupRef,
+    popupRef as RefObject<HTMLElement>,
     opened
       ? evt => {
           // @ts-expect-error

@@ -1,4 +1,4 @@
-import React, { FC, cloneElement, ReactElement } from 'react';
+import React, { FC, ReactElement } from 'react';
 
 import BigNumber from 'bignumber.js';
 import CSSTransition from 'react-transition-group/CSSTransition';
@@ -48,9 +48,7 @@ const BalanceHOC = <T extends TempleChainKind>(
           exit: 'opacity-0 transition ease-in duration-200'
         }}
       >
-        {cloneElement(childNode, {
-          className: childNode.props.className
-        })}
+        {childNode}
       </CSSTransition>
     );
   };
