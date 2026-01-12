@@ -40,22 +40,19 @@ interface RestMnemonicFormData {
 
 interface ActionBase {
   type: 'import-mnemonic-account' | 'import-wallet' | 'import-legacy-account';
-  newActualAccountAddress?: string;
+  newActualAccountAddress: string;
 }
 
 interface ImportWalletAction extends ActionBase {
   type: 'import-wallet';
-  newActualAccountAddress?: undefined;
 }
 
 interface ImportMnemonicAccountAction extends ActionBase {
   type: 'import-mnemonic-account';
-  newActualAccountAddress: string;
 }
 
 interface ImportLegacyAccountAction extends ActionBase {
   type: 'import-legacy-account';
-  newActualAccountAddress: string;
   privateKey: string;
 }
 
@@ -167,25 +164,29 @@ export const MnemonicForm = memo<ImportAccountFormProps>(({ onSuccess }) => {
             };
           } else {
             action = {
-              type: 'import-wallet'
+              type: 'import-wallet',
+              newActualAccountAddress: newAddress
             };
           }
         }
 
-        if (action.type === 'import-wallet') {
-          await createOrImportWallet(formatMnemonic(seedPhrase));
-        } else {
-          if (expectedAccountAddress && expectedAccountAddress !== action.newActualAccountAddress) {
-            setFormError('accountAddress', { message: t('accountAddressDoesNotMatch') });
-            return;
-          }
-
-          if (action.type === 'import-mnemonic-account') {
-            await importMnemonicAccount(formatMnemonic(seedPhrase), undefined, derivationPath);
-          } else {
-            await importAccount(TempleChainKind.Tezos, action.privateKey);
-          }
+        if (expectedAccountAddress && expectedAccountAddress !== action.newActualAccountAddress) {
+          setFormError('accountAddress', '', t('accountAddressDoesNotMatch'));
+          return;
         }
+
+        switch (action.type) {
+          case 'import-wallet':
+            await createOrImportWallet(formatMnemonic(seedPhrase));
+            break;
+          case 'import-mnemonic-account':
+            await importMnemonicAccount(formatMnemonic(seedPhrase), undefined, derivationPath);
+            break;
+          case 'import-legacy-account':
+            await importAccount(TempleChainKind.Tezos, action.privateKey);
+            break;
+        }
+
         formAnalytics.trackSubmitSuccess();
         onSuccess();
       } catch (err: any) {
