@@ -64,10 +64,10 @@ export const EarnDepositStatsLayout: FC<EarnDepositStatsLayoutProps> = ({
 
             {headerIcons}
           </div>
-          <div className="flex justify-between gap-x-2">
+          <div className="flex justify-between gap-x-8">
             <div className="flex flex-col gap-y-1">
-              <span className="text-font-num-bold-16">
-                <Money fiat shortened smallFractionFont={false}>
+              <span className="text-font-num-bold-16 text-nowrap">
+                <Money fiat smallFractionFont={false}>
                   {latestFiatValue ?? ZERO}
                 </Money>{' '}
                 {fiatCurrencySymbol}
@@ -88,7 +88,7 @@ export const EarnDepositStatsLayout: FC<EarnDepositStatsLayoutProps> = ({
               )}
             </div>
 
-            <div className="w-52">
+            <div className="w-full">
               <SimpleChart data={fiatChangeValues} />
             </div>
           </div>
