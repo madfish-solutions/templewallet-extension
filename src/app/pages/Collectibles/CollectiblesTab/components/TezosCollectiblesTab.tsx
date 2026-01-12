@@ -68,7 +68,7 @@ const TabContentBase = memo<TabContentBaseProps>(({ publicKeyHash, allSlugsSorte
   const { blur, showInfo } = useCollectiblesListOptionsSelector();
 
   const renderItem = useCallback(
-    (chainSlug: string, index: number, ref?: React.RefObject<CollectiblesListItemElement>) => {
+    (chainSlug: string, index: number, ref?: React.RefObject<CollectiblesListItemElement | null>) => {
       const [_, chainId, slug] = parseChainAssetSlug(chainSlug, TempleChainKind.Tezos);
 
       return (

@@ -96,7 +96,7 @@ const TabContentBase = memo<TabContentBaseProps>(({ network, publicKeyHash, allS
   const { blur, showInfo } = useCollectiblesListOptionsSelector();
 
   const renderItem = useCallback(
-    (slug: string, index: number, ref?: React.RefObject<CollectiblesListItemElement>) => (
+    (slug: string, index: number, ref?: React.RefObject<CollectiblesListItemElement | null>) => (
       <TezosCollectibleItem
         key={slug}
         assetSlug={slug}

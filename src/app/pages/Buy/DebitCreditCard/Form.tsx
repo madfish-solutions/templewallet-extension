@@ -1,4 +1,4 @@
-import React, { FC, MutableRefObject, useCallback, useEffect, useMemo } from 'react';
+import React, { FC, RefObject, useCallback, useEffect, useMemo } from 'react';
 
 import { isDefined } from '@rnw-community/shared';
 import BigNumber from 'bignumber.js';
@@ -40,7 +40,7 @@ interface Props {
   providersErrors: Record<TopUpProviderId, ProviderErrors>;
   lastFormRefreshTimestamp: number;
   setPaymentProvider: SyncFn<PaymentProviderInterface | undefined>;
-  manuallySelectedProviderIdRef: MutableRefObject<TopUpProviderId | undefined>;
+  manuallySelectedProviderIdRef: RefObject<TopUpProviderId | undefined>;
   onInputAmountChange: SyncFn<number | undefined>;
   onSelectCurrency: EmptyFn;
   onSelectToken: EmptyFn;

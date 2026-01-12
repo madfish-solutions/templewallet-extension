@@ -33,7 +33,7 @@ export const MultiChainCollectiblesTab = memo<MultiChainCollectiblesTabProps>(
     useEvmCollectiblesMetadataLoading(accountEvmAddress);
 
     const renderItem = useCallback(
-      (chainSlug: string, index: number, ref?: React.RefObject<CollectiblesListItemElement>) => {
+      (chainSlug: string, index: number, ref?: React.RefObject<CollectiblesListItemElement | null>) => {
         const [chainKind, chainId, slug] = parseChainAssetSlug(chainSlug);
 
         if (chainKind === TempleChainKind.Tezos) {

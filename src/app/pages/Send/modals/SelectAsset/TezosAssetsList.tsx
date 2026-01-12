@@ -1,4 +1,4 @@
-import React, { memo, useMemo, MouseEvent, useCallback, RefObject } from 'react';
+import React, { memo, useMemo, MouseEvent, useCallback, RefObject, ReactNode } from 'react';
 
 import { useTezosAccountTokensForListing } from 'app/hooks/listing-logic/use-tezos-account-tokens-listing-logic';
 import { getSlugWithChainId } from 'app/hooks/listing-logic/utils';
@@ -30,7 +30,7 @@ export const TezosAssetsList = memo<Props>(({ publicKeyHash, searchValue, onAsse
   );
 
   const renderListItem = useCallback(
-    (slug: string, index: number, ref?: RefObject<TokenListItemElement>) => {
+    (slug: string, index: number, ref?: RefObject<TokenListItemElement | null>): ReactNode => {
       const [_, chainId, assetSlug] = parseChainAssetSlug(slug);
 
       return (

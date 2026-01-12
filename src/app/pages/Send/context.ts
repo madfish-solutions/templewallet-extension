@@ -4,7 +4,7 @@ export interface SendFormControl {
   resetForm: EmptyFn;
 }
 
-export const SendFormControlContext = createContext<RefObject<SendFormControl> | null>(null);
+export const SendFormControlContext = createContext<RefObject<SendFormControl | null> | null>(null);
 
 export const useSendFormControl = () => {
   const context = useContext(SendFormControlContext);

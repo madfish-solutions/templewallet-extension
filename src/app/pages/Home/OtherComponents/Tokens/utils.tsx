@@ -36,7 +36,7 @@ interface GroupedTokensViewWithPromoRenderProps {
   firstHeaderRef: RefObject<HTMLDivElement | null>;
   buildTokensJsxArray: (
     slugs: string[],
-    firstListItemRef: RefObject<TokenListItemElement> | null,
+    firstListItemRef: RefObject<TokenListItemElement | null> | null,
     indexShift: number
   ) => ReactNode[];
 }

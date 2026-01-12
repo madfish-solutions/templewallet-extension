@@ -30,7 +30,7 @@ export const EvmChainCollectiblesTab = memo<EvmChainCollectiblesTabProps>(({ cha
   useEvmCollectiblesMetadataLoading(publicKeyHash);
 
   const renderItem = useCallback(
-    (slug: string, index: number, ref?: React.RefObject<CollectiblesListItemElement>) => (
+    (slug: string, index: number, ref?: React.RefObject<CollectiblesListItemElement | null>) => (
       <EvmCollectibleItem
         key={slug}
         assetSlug={slug}

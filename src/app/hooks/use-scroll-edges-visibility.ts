@@ -7,7 +7,7 @@ const bottomEdgeIsVisible = (element: HTMLDivElement, threshold: number) =>
 const topEdgeIsVisible = (element: HTMLDivElement, threshold: number) => element.scrollTop <= threshold;
 
 export const useScrollEdgesVisibility = (
-  ref: RefObject<HTMLDivElement>,
+  ref: RefObject<HTMLDivElement | null>,
   onBottomEdgeVisibilityChange: SyncFn<boolean> = noop,
   bottomEdgeThreshold = 0,
   onTopEdgeVisibilityChange: SyncFn<boolean> = noop,

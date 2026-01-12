@@ -217,7 +217,9 @@ const ChainVariant: FC<ChainVariantProps> = ({ variant, index, variantsRef, onCl
     <button
       key={variant.id}
       id={`autoCompleteVariant-${variant.id}-${variant.name}`}
-      ref={el => (variantsRef.current[index] = el)}
+      ref={el => {
+        variantsRef.current[index] = el;
+      }}
       className={clsx(
         'px-2 py-2.5 w-full text-left rounded-md flex justify-between items-center',
         'hover:bg-secondary-low focus:bg-grey-4 focus:outline-hidden'

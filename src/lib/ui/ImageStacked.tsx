@@ -1,4 +1,4 @@
-import React, { FC, useCallback, useEffect, useMemo, useRef, CSSProperties } from 'react';
+import React, { FC, useCallback, useEffect, useMemo, useRef, CSSProperties, ReactNode } from 'react';
 
 import { useImagesStackLoading } from 'lib/ui/use-images-stack-loading';
 
@@ -10,8 +10,8 @@ export interface ImageStackedProps extends React.ImgHTMLAttributes<HTMLImageElem
    */
   sources: string[];
   size?: number;
-  loader?: JSX.Element;
-  fallback?: JSX.Element;
+  loader?: ReactNode;
+  fallback?: ReactNode;
   pauseRender?: boolean;
   onStackLoaded?: EmptyFn;
   onStackFailed?: EmptyFn;

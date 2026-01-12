@@ -10,7 +10,7 @@ import { SELECT_ASSET_SCROLLABLE_ID } from './constants';
 
 interface TokensListViewProps {
   slugs: string[];
-  children: (slug: string, index: number, ref?: RefObject<TokenListItemElement>) => ReactNode;
+  children: (slug: string, index: number, ref?: RefObject<TokenListItemElement | null>) => ReactNode;
 }
 
 export const TokensListView = memo<TokensListViewProps>(({ slugs, children }) => {

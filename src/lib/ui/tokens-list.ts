@@ -9,8 +9,8 @@ export type TokenListItemElement = HTMLDivElement | HTMLAnchorElement;
 
 export const makeGetTokenElementIndexFunction =
   (
-    promoRef: RefObject<HTMLDivElement> | null,
-    firstListItemRef: RefObject<TokenListItemElement>,
+    promoRef: RefObject<HTMLDivElement | null> | null,
+    firstListItemRef: RefObject<TokenListItemElement | null>,
     slugsCount: number,
     takeTopOffset = true
   ) =>
@@ -37,9 +37,9 @@ export const makeGetTokenElementIndexFunction =
 
 export const makeGroupedTokenElementIndexFunction =
   <T extends TempleChainKind>(
-    promoRef: RefObject<HTMLDivElement>,
-    firstListItemRef: RefObject<TokenListItemElement>,
-    firstHeaderRef: RefObject<HTMLDivElement>,
+    promoRef: RefObject<HTMLDivElement | null>,
+    firstListItemRef: RefObject<TokenListItemElement | null>,
+    firstHeaderRef: RefObject<HTMLDivElement | null>,
     groupedSlugs: ChainGroupedSlugs<T>
   ) =>
   (y: number) => {

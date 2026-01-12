@@ -30,7 +30,7 @@ export const EvmCollectiblesTab = memo<EvmCollectiblesTabProps>(({ publicKeyHash
   useEvmCollectiblesMetadataLoading(publicKeyHash);
 
   const renderItem = useCallback(
-    (chainSlug: string, index: number, ref?: React.RefObject<CollectiblesListItemElement>) => {
+    (chainSlug: string, index: number, ref?: React.RefObject<CollectiblesListItemElement | null>) => {
       const [_, chainId, slug] = parseChainAssetSlug(chainSlug, TempleChainKind.EVM);
 
       return (

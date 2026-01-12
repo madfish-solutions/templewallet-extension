@@ -172,7 +172,7 @@ const TabContentBase = memo<TabContentBaseProps>(
 
       function buildTokensJsxArray(
         chainSlugs: string[],
-        firstListItemRef: RefObject<TokenListItemElement> | null,
+        firstListItemRef: RefObject<TokenListItemElement | null> | null,
         indexShift = 0
       ) {
         return chainSlugs.map((chainSlug, i) => {

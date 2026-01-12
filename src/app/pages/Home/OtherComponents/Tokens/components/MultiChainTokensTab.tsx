@@ -260,7 +260,7 @@ function buildTokensJsxArray(
   accountTezAddress: string,
   accountEvmAddress: HexString,
   manageActive: boolean,
-  firstListItemRef: React.RefObject<TokenListItemElement> | null,
+  firstListItemRef: React.RefObject<TokenListItemElement | null> | null,
   indexShift = 0
 ) {
   return chainSlugs.map((chainSlug, i) => {

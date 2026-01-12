@@ -86,7 +86,18 @@
     "@typescript-eslint/no-explicit-any": "off",
     "@typescript-eslint/await-thenable": "error",
     "@typescript-eslint/prefer-ts-expect-error": "error",
-    "@typescript-eslint/no-unused-vars": "error",
+    "@typescript-eslint/no-unused-vars": [
+      "error",
+      {
+        "args": "all",
+        "argsIgnorePattern": "^_",
+        "caughtErrors": "all",
+        "caughtErrorsIgnorePattern": "^_",
+        "destructuredArrayIgnorePattern": "^_",
+        "varsIgnorePattern": "^_",
+        "ignoreRestSiblings": true
+      }
+    ],
     "@typescript-eslint/ban-ts-comment": "off",
     "@typescript-eslint/unified-signatures": "off",
     "@typescript-eslint/switch-exhaustiveness-check": "warn",

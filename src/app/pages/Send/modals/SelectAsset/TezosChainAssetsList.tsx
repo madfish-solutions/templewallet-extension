@@ -1,4 +1,4 @@
-import React, { memo, MouseEvent, RefObject, useCallback, useMemo } from 'react';
+import React, { memo, MouseEvent, ReactNode, RefObject, useCallback, useMemo } from 'react';
 
 import { DeadEndBoundaryError } from 'app/ErrorBoundary';
 import { TezosTokenListItem } from 'app/templates/TokenListItem';
@@ -45,7 +45,7 @@ export const TezosChainAssetsList = memo<Props>(({ chainId, publicKeyHash, searc
   );
 
   const renderListItem = useCallback(
-    (slug: string, index: number, ref?: RefObject<TokenListItemElement>) => (
+    (slug: string, index: number, ref?: RefObject<TokenListItemElement | null>): ReactNode => (
       <TezosTokenListItem
         key={slug}
         index={index}

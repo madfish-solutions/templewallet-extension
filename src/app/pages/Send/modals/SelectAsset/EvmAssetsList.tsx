@@ -1,4 +1,4 @@
-import React, { memo, useMemo, MouseEvent, useCallback, RefObject } from 'react';
+import React, { memo, useMemo, MouseEvent, useCallback, RefObject, ReactNode } from 'react';
 
 import { getSlugWithChainId } from 'app/hooks/listing-logic/utils';
 import { useEvmTokensMetadataRecordSelector } from 'app/store/evm/tokens-metadata/selectors';
@@ -54,7 +54,7 @@ export const EvmAssetsList = memo<Props>(({ publicKeyHash, searchValue, onAssetS
   );
 
   const renderListItem = useCallback(
-    (chainSlug: string, index: number, ref?: RefObject<TokenListItemElement>) => {
+    (chainSlug: string, index: number, ref?: RefObject<TokenListItemElement | null>): ReactNode => {
       const [_, chainId, assetSlug] = parseChainAssetSlug(chainSlug);
 
       return (

@@ -1,4 +1,4 @@
-import React, { memo, useMemo, MouseEvent, useCallback, RefObject } from 'react';
+import React, { memo, useMemo, MouseEvent, useCallback, RefObject, ReactNode } from 'react';
 
 import { DeadEndBoundaryError } from 'app/ErrorBoundary';
 import { useEvmTokensMetadataRecordSelector } from 'app/store/evm/tokens-metadata/selectors';
@@ -53,7 +53,7 @@ export const EvmChainAssetsList = memo<Props>(({ chainId, publicKeyHash, searchV
   );
 
   const renderListItem = useCallback(
-    (slug: string, index: number, ref?: RefObject<TokenListItemElement>) => (
+    (slug: string, index: number, ref?: RefObject<TokenListItemElement | null>): ReactNode => (
       <EvmTokenListItem
         key={slug}
         index={index}
