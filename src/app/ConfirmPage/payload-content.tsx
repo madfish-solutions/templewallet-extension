@@ -81,7 +81,7 @@ const ConnectViewConflict = memo<{
         rdns: provider.rdns,
         uuid: provider.uuid
       });
-    } catch (e) {}
+    } catch {}
     window.close();
   };
 

@@ -70,7 +70,7 @@ export const dataMatchesAbis = (data: HexString, abis: readonly AbiFunction[]) =
     decodeFunctionData({ abi: abis, data });
 
     return true;
-  } catch (e) {
+  } catch {
     return false;
   }
 };

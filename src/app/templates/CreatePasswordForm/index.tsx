@@ -169,7 +169,7 @@ export const CreatePasswordForm = memo<CreatePasswordFormProps>(
             try {
               await writeGoogleDriveBackup(seedPhrase, password, googleAuthToken);
               onNewBackupState?.(seedPhrase, password, true);
-            } catch (e) {
+            } catch {
               onNewBackupState?.(seedPhrase, password, false);
             }
           }

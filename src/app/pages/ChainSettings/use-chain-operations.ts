@@ -72,7 +72,7 @@ export const useChainOperations = (chainKind: TempleChainKind, chainId: string |
 
       try {
         actualChainId = chainKind === TempleChainKind.Tezos ? await loadTezosChainId(url) : await loadEvmChainId(url);
-      } catch (e) {
+      } catch {
         throw new Error(t('rpcDoesNotRespond'));
       }
 

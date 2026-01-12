@@ -102,7 +102,7 @@ document.addEventListener(TEMPLE_SWITCH_PROVIDER_EVENT, async (evt: Event) => {
       if (autoConnect) {
         try {
           await target.request({ method: evmRpcMethodsNames.eth_requestAccounts });
-        } catch (err) {}
+        } catch {}
       }
     } catch (e) {
       console.error(e);
