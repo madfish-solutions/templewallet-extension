@@ -1,4 +1,4 @@
-import React, { forwardRef, InputHTMLAttributes, useCallback, useEffect, useMemo, useState } from 'react';
+import { FC, InputHTMLAttributes, Ref, useCallback, useEffect, useMemo, useState, ChangeEvent } from 'react';
 
 import clsx from 'clsx';
 
@@ -17,15 +17,16 @@ export interface CheckboxProps
       'name' | 'checked' | 'className' | 'onFocus' | 'onBlur' | 'onClick' | 'disabled'
     > {
   errored?: boolean;
-  onChange?: (checked: boolean, event: React.ChangeEvent<HTMLInputElement>) => void;
+  onChange?: (checked: boolean, event: ChangeEvent<HTMLInputElement>) => void;
 }
 
 interface Props extends CheckboxProps {
   overrideClassNames?: string;
+  ref?: Ref<HTMLInputElement>;
 }
 
-export const Checkbox = forwardRef<HTMLInputElement, Props>((props, ref) => {
-  const { overrideClassNames, errored = false, className, testID, disabled, ...rest } = props;
+export const Checkbox: FC<Props> = props => {
+  const { overrideClassNames, className, testID, disabled, ref, ...rest } = props;
 
   const { localChecked, localFocused, handleChange, handleFocus, handleBlur } = useCheckboxHooks(props);
 
@@ -56,7 +57,7 @@ export const Checkbox = forwardRef<HTMLInputElement, Props>((props, ref) => {
       <IconBase size={16} Icon={localChecked ? CheckmarkFilledIcon : CheckmarkEmptyIcon} className="text-primary" />
     </div>
   );
-});
+};
 
 export const useCheckboxHooks = ({ checked, onChange, onFocus, onBlur, testID, testIDProperties }: CheckboxProps) => {
   const [localChecked, setLocalChecked] = useState(() => checked ?? false);
