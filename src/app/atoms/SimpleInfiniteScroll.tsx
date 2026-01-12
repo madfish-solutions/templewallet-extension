@@ -1,6 +1,6 @@
 import React, { forwardRef, memo, PropsWithChildren, useCallback, useState } from 'react';
 
-import InfiniteScrollBase from 'react-infinite-scroll-component';
+import InfiniteScroll from 'react-infinite-scroll-component';
 
 import { APP_CONTENT_PAPER_DOM_ID, SCROLL_DOCUMENT } from 'app/layouts/containers';
 
@@ -10,10 +10,8 @@ export interface SimpleInfiniteScrollProps {
   scrollableTargetId?: string;
 }
 
-const InfiniteScroll = InfiniteScrollBase as unknown as React.ComponentType<any>;
-
 export const SimpleInfiniteScroll = memo(
-  forwardRef<any, PropsWithChildren<SimpleInfiniteScrollProps>>(
+  forwardRef<InfiniteScroll, PropsWithChildren<SimpleInfiniteScrollProps>>(
     ({ loadNext, onScroll, scrollableTargetId, children }, ref) => {
       const [seedForLoadNext, setSeedForLoadNext] = useState(0);
 

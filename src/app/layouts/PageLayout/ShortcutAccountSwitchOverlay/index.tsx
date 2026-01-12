@@ -1,7 +1,7 @@
 import React, { useCallback, useMemo, useState, useEffect, useRef, KeyboardEventHandler, memo } from 'react';
 
 import clsx from 'clsx';
-import CSSTransitionBase from 'react-transition-group/CSSTransition';
+import CSSTransition from 'react-transition-group/CSSTransition';
 import useOnClickOutside from 'use-onclickoutside';
 
 import { Name } from 'app/atoms';
@@ -22,8 +22,8 @@ import { useAccountsGroups } from 'temple/front/groups';
 import { AccountItem } from './AccountItem';
 
 export const ShortcutAccountSwitchOverlay = memo(() => {
-  const accountSwitchRef = useRef<HTMLElement | null>(null);
-  const accountItemsRef = useRef<Array<HTMLButtonElement | null>>([]);
+  const accountSwitchRef = useRef<HTMLDivElement>(null);
+  const accountItemsRef = useRef<Array<HTMLButtonElement>>([]);
 
   const { opened, setOpened } = useAccountSelectShortcut();
   useModalScrollLock(opened, accountSwitchRef);
@@ -120,8 +120,6 @@ export const ShortcutAccountSwitchOverlay = memo(() => {
       setFocusedAccountItemIndex(0);
     }
   }, [opened]);
-
-  const CSSTransition = CSSTransitionBase as unknown as React.ComponentType<any>;
 
   return (
     <Portal>

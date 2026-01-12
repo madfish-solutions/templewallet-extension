@@ -359,7 +359,7 @@ const ManageEvmListItemLayout = ManageCollectibleListItemLayoutHOC<TempleChainKi
 );
 
 interface DefaultCollectibleListItemLayoutProps<T extends TempleChainKind> {
-  wrapperElemRef?: RefObject<HTMLDivElement | null>;
+  wrapperElemRef?: RefObject<HTMLDivElement>;
   assetSlug: string;
   assetName: string;
   chainId: ChainId<T>;

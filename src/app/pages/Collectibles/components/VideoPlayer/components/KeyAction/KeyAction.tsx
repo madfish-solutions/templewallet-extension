@@ -1,6 +1,6 @@
 import React, { forwardRef, memo, useImperativeHandle, useRef } from 'react';
 
-import { CSSTransition as CSSTransitionBase } from 'react-transition-group';
+import { CSSTransition } from 'react-transition-group';
 
 import { ReactComponent as TrackRewindIcon } from '../../icons/track-rewind.svg';
 import { ReactComponent as TrackSkipIcon } from '../../icons/track-skip.svg';
@@ -34,8 +34,6 @@ export const KeyAction = memo(
         return skipRef.current!;
       }
     }));
-
-    const CSSTransition = CSSTransitionBase as unknown as React.ComponentType<any>;
 
     return (
       <div className="vp-key-action">

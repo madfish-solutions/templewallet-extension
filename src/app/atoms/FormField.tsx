@@ -1,4 +1,4 @@
-import React, {
+import {
   forwardRef,
   InputHTMLAttributes,
   TextareaHTMLAttributes,
@@ -180,7 +180,7 @@ export const FormField = forwardRef<FormFieldElement, FormFieldProps>(
       [secret, localValue, focused]
     );
 
-    const spareRef = useRef<FormFieldElement | null>(null);
+    const spareRef = useRef<FormFieldElement>(null);
 
     useBlurElementOnTimeout(spareRef, focused && Boolean(secret ?? isPasswordInput));
 
@@ -301,7 +301,7 @@ export const FormField = forwardRef<FormFieldElement, FormFieldProps>(
               </Button>
             )}
             {copyable && <Copyable value={String(value)} copy={copy} isSecret={type === 'password'} />}
-            {hasRevealablePassword ? (RevealPasswordIcon as unknown as React.ReactNode) : null}
+            {hasRevealablePassword && RevealPasswordIcon}
           </div>
 
           {secretCovered && <SecretCover onClick={handleSecretBannerClick} />}

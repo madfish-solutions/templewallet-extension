@@ -1,4 +1,4 @@
-import React, { FC, memo, useMemo } from 'react';
+import { FC, memo, ReactNode, useMemo } from 'react';
 
 import { EmptyState } from 'app/atoms/EmptyState';
 import PageLayout from 'app/layouts/PageLayout';
@@ -47,7 +47,7 @@ export const Earn = memo(() => {
         <div className="mb-4">
           <Title i18nKey="savings" />
 
-          <div className="flex flex-col gap-y-2">{savingsItems as unknown as React.ReactNode}</div>
+          <div className="flex flex-col gap-y-2">{savingsItems}</div>
         </div>
       )}
 
@@ -55,7 +55,7 @@ export const Earn = memo(() => {
         <div>
           <Title i18nKey="externalOffers" />
 
-          <div className="flex flex-col gap-y-2">{externalItems as unknown as React.ReactNode}</div>
+          <div className="flex flex-col gap-y-2">{externalItems}</div>
         </div>
       )}
 
@@ -81,7 +81,7 @@ const Title: FC<{ i18nKey: TID }> = ({ i18nKey }) => (
   </h2>
 );
 
-const withPromo = (items: JSX.Element[], PartnersPromotionModule: ReturnType<typeof usePartnersPromotionModule>) => {
+const withPromo = (items: ReactNode[], PartnersPromotionModule: ReturnType<typeof usePartnersPromotionModule>) => {
   if (!PartnersPromotionModule) return items;
 
   const { PartnersPromotion, PartnersPromotionVariant } = PartnersPromotionModule;

@@ -1,7 +1,7 @@
 import React, { forwardRef, HTMLAttributes, useImperativeHandle, useRef, useState } from 'react';
 
 import clsx from 'clsx';
-import CSSTransitionBase from 'react-transition-group/CSSTransition';
+import CSSTransition from 'react-transition-group/CSSTransition';
 
 import { IS_FIREFOX } from 'lib/env';
 import { useDidUpdate } from 'lib/ui/hooks';
@@ -12,8 +12,6 @@ interface Props extends HTMLAttributes<HTMLDivElement> {
   design?: Design;
   scaleAnimation?: boolean;
 }
-
-const CSSTransition = CSSTransitionBase as unknown as React.ComponentType<any>;
 
 const DESIGN_CLASS_NAMES = {
   light: 'bg-white border border-gray-300 shadow-xl',

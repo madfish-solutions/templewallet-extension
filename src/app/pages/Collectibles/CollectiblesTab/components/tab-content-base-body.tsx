@@ -14,7 +14,7 @@ interface TabContentBaseBodyProps
 
 export const TabContentBaseBody = memo<TabContentBaseBodyProps>(
   ({ manageActive, slugs, showInfo, renderItem, ...restProps }) => {
-    const firstItemRef = useRef<CollectiblesListItemElement | null>(null);
+    const firstItemRef = useRef<CollectiblesListItemElement>(null);
     const contentElement = useMemo(
       () => (
         <div className={manageActive ? undefined : 'grid grid-cols-3 gap-2'}>
