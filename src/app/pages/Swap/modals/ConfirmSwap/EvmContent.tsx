@@ -1,4 +1,4 @@
-import React, { FC, useCallback, useEffect, useMemo, useState } from 'react';
+import { FC, RefObject, useCallback, useEffect, useMemo, useState } from 'react';
 
 import { LiFiStep, StatusResponse } from '@lifi/sdk';
 import retry from 'async-retry';
@@ -57,7 +57,7 @@ interface EvmContentProps {
   initialInputData: InitialInputData;
   onClose: EmptyFn;
   onStepCompleted: EmptyFn;
-  cancelledRef?: React.MutableRefObject<boolean>;
+  cancelledRef?: RefObject<boolean | null>;
   skipStatusWait?: boolean;
   submitDisabled?: boolean;
 }

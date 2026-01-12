@@ -1,4 +1,4 @@
-import React, { ReactNode, RefObject } from 'react';
+import { Fragment, ReactNode, Ref } from 'react';
 
 import clsx from 'clsx';
 
@@ -32,11 +32,11 @@ interface GroupedTokensViewWithPromoRenderProps {
   evmChains?: StringRecord<EvmChain>;
   tezosChains?: StringRecord<TezosChain>;
   promoJsx: ReactNode;
-  firstListItemRef: RefObject<TokenListItemElement | null>;
-  firstHeaderRef: RefObject<HTMLDivElement | null>;
+  firstListItemRef: Ref<TokenListItemElement>;
+  firstHeaderRef: Ref<HTMLDivElement>;
   buildTokensJsxArray: (
     slugs: string[],
-    firstListItemRef: RefObject<TokenListItemElement | null> | null,
+    firstListItemRef: Ref<TokenListItemElement>,
     indexShift: number
   ) => ReactNode[];
 }
@@ -58,7 +58,7 @@ export const getGroupedTokensViewWithPromo = ({
     const chains = typeof chainId === 'number' ? evmChains : tezosChains;
 
     return (
-      <React.Fragment key={chainId}>
+      <Fragment key={chainId}>
         <div
           className={clsx('mb-0.5 p-1 text-font-description-bold', gi > 0 && 'mt-4')}
           ref={gi === 0 ? firstHeaderRef : null}
@@ -67,7 +67,7 @@ export const getGroupedTokensViewWithPromo = ({
         </div>
 
         {gi > 0 ? tokensJsx : getTokensViewWithPromo(tokensJsx, promoJsx)}
-      </React.Fragment>
+      </Fragment>
     );
   });
 };

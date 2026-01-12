@@ -1,4 +1,4 @@
-import React, { useEffect, RefObject, CSSProperties, useRef } from 'react';
+import { useEffect, RefObject, CSSProperties, useRef } from 'react';
 
 import clsx from 'clsx';
 

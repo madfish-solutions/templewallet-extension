@@ -1,4 +1,4 @@
-import React, { ReactNode, RefObject, memo, useMemo, useRef } from 'react';
+import { ReactNode, Ref, memo, useMemo, useRef } from 'react';
 
 import { CollectiblesListItemElement, makeGetCollectiblesElementsIndexesFunction } from 'lib/ui/collectibles-list';
 
@@ -9,7 +9,7 @@ interface TabContentBaseBodyProps
   manageActive: boolean;
   slugs: string[];
   showInfo: boolean;
-  renderItem: (slug: string, index: number, ref?: RefObject<CollectiblesListItemElement | null>) => ReactNode;
+  renderItem: (slug: string, index: number, ref?: Ref<CollectiblesListItemElement>) => ReactNode;
 }
 
 export const TabContentBaseBody = memo<TabContentBaseBodyProps>(

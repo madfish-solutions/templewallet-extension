@@ -1,4 +1,4 @@
-import React, { FC, RefObject, createContext, memo, useContext, useMemo, useRef } from 'react';
+import { FC, createContext, memo, useContext, useMemo, useRef, Ref } from 'react';
 
 import {
   useEvmAccountTokensForListing,
@@ -170,11 +170,7 @@ const TabContentBase = memo<TabContentBaseProps>(
         getElementIndex: makeGetTokenElementIndexFunction(promoRef, firstListItemRef, tokensJsx.length)
       };
 
-      function buildTokensJsxArray(
-        chainSlugs: string[],
-        firstListItemRef: RefObject<TokenListItemElement | null> | null,
-        indexShift = 0
-      ) {
+      function buildTokensJsxArray(chainSlugs: string[], firstListItemRef: Ref<TokenListItemElement>, indexShift = 0) {
         return chainSlugs.map((chainSlug, i) => {
           const [_, chainId, slug] = parseChainAssetSlug(chainSlug, TempleChainKind.EVM);
 

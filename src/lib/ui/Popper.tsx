@@ -1,4 +1,4 @@
-import React, {
+import {
   memo,
   ReactElement,
   RefObject,
@@ -8,7 +8,8 @@ import React, {
   useLayoutEffect,
   useMemo,
   useRef,
-  useState
+  useState,
+  Ref
 } from 'react';
 
 import { Instance, Options, createPopper } from '@popperjs/core';
@@ -25,7 +26,7 @@ export interface PopperRenderProps {
 type RenderProp<P> = (props: P) => ReactElement;
 
 export interface PopperAnchorProps extends PopperRenderProps {
-  ref: RefObject<HTMLButtonElement | null>;
+  ref: Ref<HTMLButtonElement>;
 }
 
 type PopperPopup = RenderProp<PopperRenderProps>;

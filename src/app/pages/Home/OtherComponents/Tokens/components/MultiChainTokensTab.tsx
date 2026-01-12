@@ -1,4 +1,4 @@
-import React, { createContext, FC, memo, useContext, useMemo, useRef } from 'react';
+import { createContext, FC, Ref, memo, useContext, useMemo, useRef } from 'react';
 
 import {
   useAccountTokensForListing,
@@ -260,7 +260,7 @@ function buildTokensJsxArray(
   accountTezAddress: string,
   accountEvmAddress: HexString,
   manageActive: boolean,
-  firstListItemRef: React.RefObject<TokenListItemElement | null> | null,
+  firstListItemRef: Ref<TokenListItemElement>,
   indexShift = 0
 ) {
   return chainSlugs.map((chainSlug, i) => {

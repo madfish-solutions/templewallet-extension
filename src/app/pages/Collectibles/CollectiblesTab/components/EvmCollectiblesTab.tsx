@@ -1,4 +1,4 @@
-import React, { memo, useCallback } from 'react';
+import { memo, Ref, useCallback } from 'react';
 
 import { useEvmAccountCollectiblesListingLogic } from 'app/hooks/listing-logic/use-evm-account-collectibles-listing-logic';
 import { useAssetsViewState } from 'app/hooks/use-assets-view-state';
@@ -30,7 +30,7 @@ export const EvmCollectiblesTab = memo<EvmCollectiblesTabProps>(({ publicKeyHash
   useEvmCollectiblesMetadataLoading(publicKeyHash);
 
   const renderItem = useCallback(
-    (chainSlug: string, index: number, ref?: React.RefObject<CollectiblesListItemElement | null>) => {
+    (chainSlug: string, index: number, ref?: Ref<CollectiblesListItemElement>) => {
       const [_, chainId, slug] = parseChainAssetSlug(chainSlug, TempleChainKind.EVM);
 
       return (

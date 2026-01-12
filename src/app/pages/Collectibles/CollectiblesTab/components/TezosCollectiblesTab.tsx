@@ -1,4 +1,4 @@
-import React, { FC, memo, useCallback } from 'react';
+import { FC, Ref, memo, useCallback } from 'react';
 
 import { usePreservedOrderSlugsToManage } from 'app/hooks/listing-logic/use-manageable-slugs';
 import {
@@ -68,7 +68,7 @@ const TabContentBase = memo<TabContentBaseProps>(({ publicKeyHash, allSlugsSorte
   const { blur, showInfo } = useCollectiblesListOptionsSelector();
 
   const renderItem = useCallback(
-    (chainSlug: string, index: number, ref?: React.RefObject<CollectiblesListItemElement | null>) => {
+    (chainSlug: string, index: number, ref?: Ref<CollectiblesListItemElement>) => {
       const [_, chainId, slug] = parseChainAssetSlug(chainSlug, TempleChainKind.Tezos);
 
       return (

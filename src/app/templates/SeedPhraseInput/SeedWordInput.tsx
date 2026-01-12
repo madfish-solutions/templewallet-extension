@@ -1,4 +1,17 @@
-import React, { FC, FocusEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  FC,
+  ChangeEvent,
+  FocusEvent,
+  ClipboardEvent,
+  MouseEvent,
+  KeyboardEvent,
+  RefObject,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState
+} from 'react';
 
 import { emptyFn } from '@rnw-community/shared';
 import bip39WordList from 'bip39/src/wordlists/english.json';
@@ -11,7 +24,7 @@ import { useFocusHandlers } from 'lib/ui/hooks/use-focus-handlers';
 
 export interface SeedWordInputProps extends TestIDProperty {
   id: number;
-  inputsRef: React.MutableRefObject<(FormFieldElement | null)[]>;
+  inputsRef: RefObject<(FormFieldElement | null)[]>;
   numberOfWords: number;
   submitted: boolean;
   revealRef: unknown;
@@ -19,8 +32,8 @@ export interface SeedWordInputProps extends TestIDProperty {
   setWordSpellingErrorsCount: ReactSetStateFn<number>;
   onSeedWordChange: (index: number, value: string) => void;
   value?: string;
-  onChange?: (e: React.ChangeEvent<FormFieldElement>) => void;
-  onPaste?: (e: React.ClipboardEvent<FormFieldElement>) => void;
+  onChange?: (e: ChangeEvent<FormFieldElement>) => void;
+  onPaste?: (e: ClipboardEvent<FormFieldElement>) => void;
 }
 
 export const SeedWordInput: FC<SeedWordInputProps> = ({
@@ -102,7 +115,7 @@ export const SeedWordInput: FC<SeedWordInputProps> = ({
   useEffect(() => variantsRef.current[focusedVariantIndex]?.focus(), [focusedVariantIndex]);
 
   const handlePaste = useCallback(
-    (e: React.ClipboardEvent<FormFieldElement>) => {
+    (e: ClipboardEvent<FormFieldElement>) => {
       inputsRef.current[id]?.blur();
       onPaste(e);
     },
@@ -121,7 +134,7 @@ export const SeedWordInput: FC<SeedWordInputProps> = ({
   );
 
   const handleVariantClick = useCallback(
-    (e: React.MouseEvent<HTMLButtonElement, MouseEvent>, variant: string) => {
+    (e: MouseEvent<HTMLButtonElement>, variant: string) => {
       e.preventDefault();
       setValueToVariant(variant);
     },
@@ -129,7 +142,7 @@ export const SeedWordInput: FC<SeedWordInputProps> = ({
   );
 
   const handleInputKeyDown = useCallback(
-    (e: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    (e: KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>) => {
       if (!autoCompleteVariants) {
         return;
       }
@@ -152,7 +165,7 @@ export const SeedWordInput: FC<SeedWordInputProps> = ({
   );
 
   const handleVariantKeyDown = useCallback(
-    (e: React.KeyboardEvent<HTMLButtonElement>, variant: string) => {
+    (e: KeyboardEvent<HTMLButtonElement>, variant: string) => {
       if (!autoCompleteVariants) {
         return;
       }
