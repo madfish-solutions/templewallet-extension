@@ -1,4 +1,4 @@
-import React, { FC, PropsWithoutRef, RefObject, forwardRef, memo, useCallback, useMemo, useRef } from 'react';
+import { FC, Ref, memo, useCallback, useMemo, useRef } from 'react';
 
 import clsx from 'clsx';
 
@@ -57,61 +57,42 @@ interface TezosCollectibleItemProps {
   manageActive?: boolean;
   scam?: boolean;
   index?: number;
+  ref?: Ref<CollectiblesListItemElement>;
 }
 
-export const TezosCollectibleItem = memo(
-  forwardRef<CollectiblesListItemElement, TezosCollectibleItemProps>(
-    ({ assetSlug, accountPkh, tezosChainId, adultBlur, areDetailsShown, scam, manageActive = false, index }, ref) => {
-      const metadata = useCollectibleMetadataSelector(assetSlug);
-      const wrapperElemRef = useRef<HTMLDivElement>(null);
-      const balanceAtomic = useBalanceSelector(accountPkh, tezosChainId, assetSlug);
+export const TezosCollectibleItem = memo<TezosCollectibleItemProps>(
+  ({ assetSlug, accountPkh, tezosChainId, adultBlur, areDetailsShown, scam, manageActive = false, index, ref }) => {
+    const metadata = useCollectibleMetadataSelector(assetSlug);
+    const wrapperElemRef = useRef<HTMLDivElement>(null);
+    const balanceAtomic = useBalanceSelector(accountPkh, tezosChainId, assetSlug);
 
-      const storedToken = useStoredTezosCollectibleSelector(accountPkh, tezosChainId, assetSlug);
+    const storedToken = useStoredTezosCollectibleSelector(accountPkh, tezosChainId, assetSlug);
 
-      const metadatasLoading = useCollectiblesMetadataLoadingSelector();
+    const metadatasLoading = useCollectiblesMetadataLoadingSelector();
 
-      const checked = getAssetStatus(balanceAtomic, storedToken?.status) === 'enabled';
+    const checked = getAssetStatus(balanceAtomic, storedToken?.status) === 'enabled';
 
-      const areDetailsLoading = useAllCollectiblesDetailsLoadingSelector();
-      const details = useCollectibleDetailsSelector(assetSlug);
+    const areDetailsLoading = useAllCollectiblesDetailsLoadingSelector();
+    const details = useCollectibleDetailsSelector(assetSlug);
 
-      const collectionName = useMemo(
-        () => details?.galleries[0]?.title ?? details?.fa.name ?? 'Unknown Collection',
-        [details]
-      );
+    const collectionName = useMemo(
+      () => details?.galleries[0]?.title ?? details?.fa.name ?? 'Unknown Collection',
+      [details]
+    );
 
-      const assetName = getTokenName(metadata);
+    const assetName = getTokenName(metadata);
 
-      if (manageActive)
-        return (
-          <ManageTezosListItemLayout
-            wrapperElemRef={wrapperElemRef}
-            chainId={tezosChainId}
-            assetSlug={assetSlug}
-            assetName={assetName}
-            collectionName={collectionName}
-            checked={checked}
-            publicKeyHash={accountPkh}
-            metadata={metadata}
-            adultBlur={adultBlur}
-            areDetailsLoading={areDetailsLoading && details === undefined}
-            extraSrc={details?.objktArtifactUri && buildObjktCollectibleArtifactUri(details?.objktArtifactUri)}
-            mime={details?.mime}
-            scam={scam}
-            index={index}
-            ref={ref}
-          />
-        );
-
+    if (manageActive)
       return (
-        <DefaultTezosListItemLayout
+        <ManageTezosListItemLayout
           wrapperElemRef={wrapperElemRef}
+          chainId={tezosChainId}
           assetSlug={assetSlug}
           assetName={assetName}
-          chainId={tezosChainId}
+          collectionName={collectionName}
+          checked={checked}
+          publicKeyHash={accountPkh}
           metadata={metadata}
-          areDetailsShown={areDetailsShown}
-          metadatasLoading={metadatasLoading}
           adultBlur={adultBlur}
           areDetailsLoading={areDetailsLoading && details === undefined}
           extraSrc={details?.objktArtifactUri && buildObjktCollectibleArtifactUri(details?.objktArtifactUri)}
@@ -121,8 +102,26 @@ export const TezosCollectibleItem = memo(
           ref={ref}
         />
       );
-    }
-  )
+
+    return (
+      <DefaultTezosListItemLayout
+        wrapperElemRef={wrapperElemRef}
+        assetSlug={assetSlug}
+        assetName={assetName}
+        chainId={tezosChainId}
+        metadata={metadata}
+        areDetailsShown={areDetailsShown}
+        metadatasLoading={metadatasLoading}
+        adultBlur={adultBlur}
+        areDetailsLoading={areDetailsLoading && details === undefined}
+        extraSrc={details?.objktArtifactUri && buildObjktCollectibleArtifactUri(details?.objktArtifactUri)}
+        mime={details?.mime}
+        scam={scam}
+        index={index}
+        ref={ref}
+      />
+    );
+  }
 );
 
 interface EvmCollectibleItemProps {
@@ -132,54 +131,53 @@ interface EvmCollectibleItemProps {
   showDetails?: boolean;
   manageActive?: boolean;
   index?: number;
+  ref?: Ref<CollectiblesListItemElement>;
 }
 
-export const EvmCollectibleItem = memo(
-  forwardRef<CollectiblesListItemElement, EvmCollectibleItemProps>(
-    ({ assetSlug, evmChainId, accountPkh, showDetails = false, manageActive = false, index }, ref) => {
-      const metadata = useEvmCollectibleMetadataSelector(evmChainId, assetSlug);
-      const chain = useEvmChainByChainId(evmChainId);
-      const { value: balance = ZERO } = useEvmAssetBalance(assetSlug, accountPkh, chain!);
-      const balanceBeforeTruncate = balance.toString();
+export const EvmCollectibleItem = memo<EvmCollectibleItemProps>(
+  ({ assetSlug, evmChainId, accountPkh, showDetails = false, manageActive = false, index, ref }) => {
+    const metadata = useEvmCollectibleMetadataSelector(evmChainId, assetSlug);
+    const chain = useEvmChainByChainId(evmChainId);
+    const { value: balance = ZERO } = useEvmAssetBalance(assetSlug, accountPkh, chain!);
+    const balanceBeforeTruncate = balance.toString();
 
-      const metadatasLoading = useEvmCollectiblesMetadataLoadingSelector();
+    const metadatasLoading = useEvmCollectiblesMetadataLoadingSelector();
 
-      const storedToken = useStoredEvmCollectibleSelector(accountPkh, evmChainId, assetSlug);
+    const storedToken = useStoredEvmCollectibleSelector(accountPkh, evmChainId, assetSlug);
 
-      const checked = getAssetStatus(balanceBeforeTruncate, storedToken?.status) === 'enabled';
+    const checked = getAssetStatus(balanceBeforeTruncate, storedToken?.status) === 'enabled';
 
-      const assetName = getCollectibleName(metadata);
-      const collectionName = getCollectionName(metadata);
+    const assetName = getCollectibleName(metadata);
+    const collectionName = getCollectionName(metadata);
 
-      if (manageActive)
-        return (
-          <ManageEvmListItemLayout
-            chainId={evmChainId}
-            assetSlug={assetSlug}
-            assetName={assetName}
-            collectionName={collectionName}
-            checked={checked}
-            publicKeyHash={accountPkh}
-            metadata={metadata}
-            index={index}
-            ref={ref}
-          />
-        );
-
+    if (manageActive)
       return (
-        <DefaultEvmListItemLayout
+        <ManageEvmListItemLayout
+          chainId={evmChainId}
           assetSlug={assetSlug}
           assetName={assetName}
-          chainId={evmChainId}
+          collectionName={collectionName}
+          checked={checked}
+          publicKeyHash={accountPkh}
           metadata={metadata}
-          areDetailsShown={showDetails}
-          metadatasLoading={metadatasLoading}
           index={index}
           ref={ref}
         />
       );
-    }
-  )
+
+    return (
+      <DefaultEvmListItemLayout
+        assetSlug={assetSlug}
+        assetName={assetName}
+        chainId={evmChainId}
+        metadata={metadata}
+        areDetailsShown={showDetails}
+        metadatasLoading={metadatasLoading}
+        index={index}
+        ref={ref}
+      />
+    );
+  }
 );
 
 const MANAGE_ACTIVE_ITEM_CLASSNAME = clsx(
@@ -188,7 +186,7 @@ const MANAGE_ACTIVE_ITEM_CLASSNAME = clsx(
 );
 
 interface ManageCollectibleListItemLayoutProps<T extends TempleChainKind> {
-  wrapperElemRef?: RefObject<HTMLDivElement | null>;
+  wrapperElemRef?: Ref<HTMLDivElement>;
   chainId: ChainId<T>;
   assetSlug: string;
   assetName: string;
@@ -198,6 +196,7 @@ interface ManageCollectibleListItemLayoutProps<T extends TempleChainKind> {
   scam?: boolean;
   publicKeyHash: PublicKeyHash<T>;
   metadata?: CollectibleMetadata<T>;
+  ref?: Ref<CollectiblesListItemElement>;
 }
 
 const ManageCollectibleListItemLayoutHOC = <
@@ -206,8 +205,7 @@ const ManageCollectibleListItemLayoutHOC = <
 >(
   NetworkLogo: FC<NetworkLogoPropsBase<T>>,
   CollectibleItemImage: FC<
-    Pick<P, 'metadata' | 'assetSlug' | 'wrapperElemRef'> &
-      Omit<PropsWithoutRef<P>, keyof ManageCollectibleListItemLayoutProps<T>>
+    Pick<P, 'metadata' | 'assetSlug' | 'wrapperElemRef'> & Omit<P, keyof ManageCollectibleListItemLayoutProps<T>>
   >,
   toggleTokenStatus: (
     newStatus: 'enabled' | 'disabled',
@@ -217,118 +215,112 @@ const ManageCollectibleListItemLayoutHOC = <
   ) => void,
   deleteItem: (assetSlug: string, chainId: ChainId<T>, publicKeyHash: PublicKeyHash<T>) => void,
   useNetwork: (chainId: ChainId<T>) => ChainOfKind<T> | nullish
-) => {
-  return memo(
-    forwardRef<CollectiblesListItemElement, P>(
-      (
-        {
-          wrapperElemRef,
-          chainId,
-          assetSlug,
-          assetName,
-          collectionName,
-          checked,
-          index,
-          publicKeyHash,
-          scam,
-          metadata,
-          ...restProps
-        },
-        ref
-      ) => {
-        const network = useNetwork(chainId);
-        const [deleteModalOpened, setDeleteModalOpened, setDeleteModalClosed] = useBooleanState(false);
-        const isVisible = useIsItemVisible(index);
+) =>
+  memo<P>(props => {
+    const {
+      wrapperElemRef,
+      chainId,
+      assetSlug,
+      assetName,
+      collectionName,
+      checked,
+      index,
+      publicKeyHash,
+      scam,
+      metadata,
+      ref,
+      ...restProps
+    } = props;
 
-        const handleCollectibleStatusSwitch = useCallback(() => {
-          toggleTokenStatus(checked ? 'disabled' : 'enabled', assetSlug, chainId, publicKeyHash);
-        }, [checked, assetSlug, chainId, publicKeyHash]);
+    const network = useNetwork(chainId);
+    const [deleteModalOpened, setDeleteModalOpened, setDeleteModalClosed] = useBooleanState(false);
+    const isVisible = useIsItemVisible(index);
 
-        const handleDeleteClick = useCallback(() => {
-          deleteItem(assetSlug, chainId, publicKeyHash);
-        }, [assetSlug, chainId, publicKeyHash]);
+    const handleCollectibleStatusSwitch = useCallback(() => {
+      toggleTokenStatus(checked ? 'disabled' : 'enabled', assetSlug, chainId, publicKeyHash);
+    }, [checked, assetSlug, chainId, publicKeyHash]);
 
-        return (
-          <>
+    const handleDeleteClick = useCallback(() => {
+      deleteItem(assetSlug, chainId, publicKeyHash);
+    }, [assetSlug, chainId, publicKeyHash]);
+
+    return (
+      <>
+        <div
+          className={clsx(
+            MANAGE_ACTIVE_ITEM_CLASSNAME,
+            'focus:bg-secondary-low',
+            scam ? 'hover:bg-error-low' : 'hover:bg-secondary-low'
+          )}
+          ref={ref as Ref<HTMLDivElement>}
+        >
+          <div className="flex items-center gap-x-1.5">
             <div
-              className={clsx(
-                MANAGE_ACTIVE_ITEM_CLASSNAME,
-                'focus:bg-secondary-low',
-                scam ? 'hover:bg-error-low' : 'hover:bg-secondary-low'
-              )}
-              ref={ref as RefObject<HTMLDivElement>}
+              ref={wrapperElemRef}
+              style={manageImgStyle}
+              className="relative flex items-center justify-center rounded-8 overflow-hidden bg-grey-4"
             >
-              <div className="flex items-center gap-x-1.5">
+              {isVisible ? (
+                <CollectibleItemImage metadata={metadata} assetSlug={assetSlug} {...restProps} />
+              ) : (
+                <div className="w-full h-full z-1 bg-grey-3" />
+              )}
+
+              {network && isVisible && (
+                <NetworkLogo
+                  chainId={network.chainId}
+                  size={NETWORK_IMAGE_DEFAULT_SIZE}
+                  className="absolute bottom-0.5 right-0.5 z-30"
+                  withTooltip
+                  tooltipPlacement="bottom"
+                />
+              )}
+              {network && !isVisible && (
                 <div
-                  ref={wrapperElemRef}
-                  style={manageImgStyle}
-                  className="relative flex items-center justify-center rounded-8 overflow-hidden bg-grey-4"
-                >
-                  {isVisible ? (
-                    <CollectibleItemImage metadata={metadata} assetSlug={assetSlug} {...restProps} />
-                  ) : (
-                    <div className="w-full h-full z-1 bg-grey-3" />
-                  )}
-
-                  {network && isVisible && (
-                    <NetworkLogo
-                      chainId={network.chainId}
-                      size={NETWORK_IMAGE_DEFAULT_SIZE}
-                      className="absolute bottom-0.5 right-0.5 z-30"
-                      withTooltip
-                      tooltipPlacement="bottom"
-                    />
-                  )}
-                  {network && !isVisible && (
-                    <div
-                      className="absolute bottom-0.5 right-0.5 z-30 rounded-full bg-grey-2"
-                      style={{ width: NETWORK_IMAGE_DEFAULT_SIZE, height: NETWORK_IMAGE_DEFAULT_SIZE }}
-                    />
-                  )}
-                </div>
-
-                <div className="flex flex-col max-w-44">
-                  {isVisible ? (
-                    <>
-                      <div className="flex items-start gap-0.5">
-                        <div className="text-font-medium mb-1 truncate">{assetName}</div>
-                        {scam && <ScamTag />}
-                      </div>
-                      <div className="flex text-font-description items-center text-grey-1 truncate">
-                        {collectionName}
-                      </div>
-                    </>
-                  ) : (
-                    <>
-                      <div className="w-20 h-5 mb-1 bg-grey-3 rounded" />
-                      <div className="w-20 h-4 bg-grey-3 rounded" />
-                    </>
-                  )}
-                </div>
-              </div>
-
-              <div className="flex gap-x-2">
-                {isVisible ? (
-                  <>
-                    <IconBase Icon={DeleteIcon} className="cursor-pointer text-error" onClick={setDeleteModalOpened} />
-                    <ToggleSwitch checked={checked} onChange={handleCollectibleStatusSwitch} />
-                  </>
-                ) : (
-                  <>
-                    <div className="size-6 bg-grey-3 rounded" />
-                    <div className="w-12 h-6 bg-grey-3 rounded" />
-                  </>
-                )}
-              </div>
+                  className="absolute bottom-0.5 right-0.5 z-30 rounded-full bg-grey-2"
+                  style={{ width: NETWORK_IMAGE_DEFAULT_SIZE, height: NETWORK_IMAGE_DEFAULT_SIZE }}
+                />
+              )}
             </div>
 
-            {deleteModalOpened && <DeleteAssetModal onClose={setDeleteModalClosed} onDelete={handleDeleteClick} />}
-          </>
-        );
-      }
-    )
-  );
-};
+            <div className="flex flex-col max-w-44">
+              {isVisible ? (
+                <>
+                  <div className="flex items-start gap-0.5">
+                    <div className="text-font-medium mb-1 truncate">{assetName}</div>
+                    {scam && <ScamTag />}
+                  </div>
+                  <div className="flex text-font-description items-center text-grey-1 truncate">{collectionName}</div>
+                </>
+              ) : (
+                <>
+                  <div className="w-20 h-5 mb-1 bg-grey-3 rounded" />
+                  <div className="w-20 h-4 bg-grey-3 rounded" />
+                </>
+              )}
+            </div>
+          </div>
+
+          <div className="flex gap-x-2">
+            {isVisible ? (
+              <>
+                <IconBase Icon={DeleteIcon} className="cursor-pointer text-error" onClick={setDeleteModalOpened} />
+                <ToggleSwitch checked={checked} onChange={handleCollectibleStatusSwitch} />
+              </>
+            ) : (
+              <>
+                <div className="size-6 bg-grey-3 rounded" />
+                <div className="w-12 h-6 bg-grey-3 rounded" />
+              </>
+            )}
+          </div>
+        </div>
+
+        {deleteModalOpened && <DeleteAssetModal onClose={setDeleteModalClosed} onDelete={handleDeleteClick} />}
+      </>
+    );
+  });
+
 const ManageTezosListItemLayout = ManageCollectibleListItemLayoutHOC<
   TempleChainKind.Tezos,
   ManageCollectibleListItemLayoutProps<TempleChainKind.Tezos> & {
@@ -336,7 +328,7 @@ const ManageTezosListItemLayout = ManageCollectibleListItemLayoutHOC<
     areDetailsLoading: boolean;
     mime: string | nullish;
     extraSrc?: string;
-    wrapperElemRef: RefObject<HTMLDivElement | null>;
+    wrapperElemRef: Ref<HTMLDivElement>;
   }
 >(
   TezosNetworkLogo,
@@ -360,7 +352,7 @@ const ManageEvmListItemLayout = ManageCollectibleListItemLayoutHOC<TempleChainKi
 );
 
 interface DefaultCollectibleListItemLayoutProps<T extends TempleChainKind> {
-  wrapperElemRef?: RefObject<HTMLDivElement | null>;
+  wrapperElemRef?: Ref<HTMLDivElement>;
   assetSlug: string;
   assetName: string;
   chainId: ChainId<T>;
@@ -369,6 +361,7 @@ interface DefaultCollectibleListItemLayoutProps<T extends TempleChainKind> {
   metadatasLoading: boolean;
   scam?: boolean;
   index?: number;
+  ref?: Ref<CollectiblesListItemElement>;
 }
 
 const DefaultCollectibleListItemLayoutHOC = <
@@ -378,97 +371,95 @@ const DefaultCollectibleListItemLayoutHOC = <
   chainKind: T,
   NetworkLogo: FC<NetworkLogoPropsBase<T>>,
   CollectibleItemImage: FC<
-    Pick<P, 'metadata' | 'assetSlug' | 'wrapperElemRef'> &
-      Omit<PropsWithoutRef<P>, keyof DefaultCollectibleListItemLayoutProps<T>>
+    Pick<P, 'metadata' | 'assetSlug' | 'wrapperElemRef'> & Omit<P, keyof DefaultCollectibleListItemLayoutProps<T>>
   >,
   useNetwork: (chainId: ChainId<T>) => ChainOfKind<T> | nullish,
   className?: string
 ) =>
-  forwardRef<CollectiblesListItemElement, P>(
-    (
-      {
-        wrapperElemRef,
-        assetSlug,
-        assetName,
-        metadata,
-        chainId,
-        areDetailsShown,
-        metadatasLoading,
-        scam,
-        index,
-        ...restProps
-      },
-      ref
-    ) => {
-      const network = useNetwork(chainId);
-      const isVisible = useIsItemVisible(index);
+  memo<P>(props => {
+    const {
+      wrapperElemRef,
+      assetSlug,
+      assetName,
+      metadata,
+      chainId,
+      areDetailsShown,
+      metadatasLoading,
+      scam,
+      index,
+      ref,
+      ...restProps
+    } = props;
 
-      return (
-        <Link
-          to={toCollectibleLink(chainKind, chainId, assetSlug)}
-          className={clsx('flex flex-col overflow-hidden group', isVisible ? 'rounded-8' : 'rounded-t-8', className)}
-          testID={CollectibleTabSelectors.collectibleItem}
-          testIDProperties={{ assetSlug: assetSlug }}
-          ref={ref as RefObject<HTMLAnchorElement>}
+    const network = useNetwork(chainId);
+    const isVisible = useIsItemVisible(index);
+
+    return (
+      <Link
+        to={toCollectibleLink(chainKind, chainId, assetSlug)}
+        className={clsx('flex flex-col overflow-hidden group', isVisible ? 'rounded-8' : 'rounded-t-8', className)}
+        testID={CollectibleTabSelectors.collectibleItem}
+        testIDProperties={{ assetSlug: assetSlug }}
+        ref={ref as Ref<HTMLAnchorElement>}
+      >
+        <div
+          ref={wrapperElemRef}
+          className={clsx(
+            'relative flex items-center justify-center bg-grey-4 rounded-8 overflow-hidden w-full aspect-square',
+            isVisible && 'border-2 border-transparent',
+            scam && isVisible ? 'hover:bg-error' : 'group-hover:border-secondary'
+          )}
         >
-          <div
-            ref={wrapperElemRef}
-            className={clsx(
-              'relative flex items-center justify-center bg-grey-4 rounded-8 overflow-hidden w-full aspect-square',
-              isVisible && 'border-2 border-transparent',
-              scam && isVisible ? 'hover:bg-error' : 'group-hover:border-secondary'
-            )}
-          >
-            {scam && (
-              <div className="absolute z-50 top-1.5 left-1.5 ">
-                <ScamTag />
-              </div>
-            )}
-            {!isVisible && (
-              <>
-                <div className="w-full h-full z-1 bg-grey-3" />
-                <div
-                  className="absolute bottom-1 right-1 z-10 rounded-full bg-grey-2"
-                  style={{ width: NETWORK_IMAGE_DEFAULT_SIZE, height: NETWORK_IMAGE_DEFAULT_SIZE }}
+          {scam && (
+            <div className="absolute z-50 top-1.5 left-1.5 ">
+              <ScamTag />
+            </div>
+          )}
+          {!isVisible && (
+            <>
+              <div className="w-full h-full z-1 bg-grey-3" />
+              <div
+                className="absolute bottom-1 right-1 z-10 rounded-full bg-grey-2"
+                style={{ width: NETWORK_IMAGE_DEFAULT_SIZE, height: NETWORK_IMAGE_DEFAULT_SIZE }}
+              />
+            </>
+          )}
+          {metadatasLoading && !metadata && isVisible && <CollectibleImageLoader />}
+          {(!metadatasLoading || metadata) && isVisible && (
+            <>
+              <CollectibleItemImage metadata={metadata} assetSlug={assetSlug} {...restProps} />
+
+              {network && (
+                <NetworkLogo
+                  chainId={network.chainId}
+                  size={NETWORK_IMAGE_DEFAULT_SIZE}
+                  className="absolute bottom-1 right-1 z-10"
+                  withTooltip
+                  tooltipPlacement="bottom"
                 />
-              </>
-            )}
-            {metadatasLoading && !metadata && isVisible && <CollectibleImageLoader />}
-            {(!metadatasLoading || metadata) && isVisible && (
-              <>
-                <CollectibleItemImage metadata={metadata} assetSlug={assetSlug} {...restProps} />
+              )}
+            </>
+          )}
+        </div>
 
-                {network && (
-                  <NetworkLogo
-                    chainId={network.chainId}
-                    size={NETWORK_IMAGE_DEFAULT_SIZE}
-                    className="absolute bottom-1 right-1 z-10"
-                    withTooltip
-                    tooltipPlacement="bottom"
-                  />
-                )}
-              </>
-            )}
+        {areDetailsShown && isVisible && (
+          <div
+            className="pt-1 w-full text-font-description truncate h-5"
+            {...setTestID(CollectibleTabSelectors.collectibleName)}
+            {...setAnotherSelector('name', assetName)}
+          >
+            {assetName}
           </div>
+        )}
+        {areDetailsShown && !isVisible && (
+          <div className="pt-1 w-full h-5">
+            <div className="w-full h-4 bg-grey-3 rounded" />
+          </div>
+        )}
+      </Link>
+    );
+  });
 
-          {areDetailsShown && isVisible && (
-            <div
-              className="pt-1 w-full text-font-description truncate h-5"
-              {...setTestID(CollectibleTabSelectors.collectibleName)}
-              {...setAnotherSelector('name', assetName)}
-            >
-              {assetName}
-            </div>
-          )}
-          {areDetailsShown && !isVisible && (
-            <div className="pt-1 w-full h-5">
-              <div className="w-full h-4 bg-grey-3 rounded" />
-            </div>
-          )}
-        </Link>
-      );
-    }
-  );
 const DefaultTezosListItemLayout = DefaultCollectibleListItemLayoutHOC<
   TempleChainKind.Tezos,
   DefaultCollectibleListItemLayoutProps<TempleChainKind.Tezos> & {
@@ -476,7 +467,7 @@ const DefaultTezosListItemLayout = DefaultCollectibleListItemLayoutHOC<
     areDetailsLoading: boolean;
     mime: string | nullish;
     extraSrc?: string;
-    wrapperElemRef: RefObject<HTMLDivElement | null>;
+    wrapperElemRef: Ref<HTMLDivElement>;
   }
 >(
   TempleChainKind.Tezos,

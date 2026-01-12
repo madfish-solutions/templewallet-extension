@@ -1,4 +1,4 @@
-import React, { memo, useMemo } from 'react';
+import { Ref, memo, useMemo } from 'react';
 
 import { isDefined } from '@rnw-community/shared';
 import clsx from 'clsx';
@@ -21,7 +21,7 @@ interface TezosCollectibleItemImageProps {
   areDetailsLoading: boolean;
   mime?: string | null;
   extraSrc?: string;
-  containerElemRef: React.RefObject<Element | null>;
+  containerElemRef: Ref<Element>;
   className?: string;
   shouldUseBlurredBg?: boolean;
   manageActive?: boolean;
