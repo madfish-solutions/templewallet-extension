@@ -16,40 +16,28 @@ const TEZOS_RELEVANT_PATHS = [
   '/rewards'
 ];
 
+const ASSET_PATH_PREFIXES = ['/token/', '/collectible/'] as const;
+
+const isAssetPath = (pathname: string) => ASSET_PATH_PREFIXES.some(prefix => pathname.startsWith(prefix));
+
+const getChainKindFromAssetPath = (pathname: string): string | undefined => pathname.split('/')[2];
+
 export const useShouldLoadTezosData = () => {
   const { filterChain } = useAssetsFilterOptionsSelector();
   const windowIsActive = useWindowIsActive();
   const { pathname } = useLocation();
 
-  const isOnTezosAssetPage = useMemo(() => {
-    if (pathname.startsWith('/token/') || pathname.startsWith('/collectible/')) {
-      const parts = pathname.split('/');
-      const chainKind = parts[2];
-
-      return chainKind === TempleChainKind.Tezos;
-    }
-    return false;
-  }, [pathname]);
-
-  const shouldLoad = useMemo(() => {
+  return useMemo(() => {
     if (!windowIsActive) return false;
 
     if (pathname === '/') {
       return !filterChain || filterChain.kind === TempleChainKind.Tezos;
     }
 
-    const isRelevantPath = TEZOS_RELEVANT_PATHS.some(path => pathname.startsWith(path));
-
-    if (!isRelevantPath) {
-      return false;
+    if (isAssetPath(pathname)) {
+      return getChainKindFromAssetPath(pathname) === TempleChainKind.Tezos;
     }
 
-    if (pathname.startsWith('/token/') || pathname.startsWith('/collectible/')) {
-      return isOnTezosAssetPage;
-    }
-
-    return true;
-  }, [windowIsActive, filterChain, pathname, isOnTezosAssetPage]);
-
-  return shouldLoad;
+    return TEZOS_RELEVANT_PATHS.some(path => pathname.startsWith(path));
+  }, [windowIsActive, filterChain, pathname]);
 };
