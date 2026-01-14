@@ -42,6 +42,7 @@ export interface ConfirmDAppFormContentProps {
   dismissConflict?: EmptyFn;
   conflictVisible?: boolean;
   showConflict?: boolean;
+  confirmationId: string;
 }
 
 interface ConfirmDAppFormProps {
@@ -367,7 +368,8 @@ export const ConfirmDAppForm = memo<ConfirmDAppFormProps>(
             dismissConflict: () => {
               setShowConflict(false);
             },
-            showConflict
+            showConflict,
+            confirmationId
           })}
         </div>
 
