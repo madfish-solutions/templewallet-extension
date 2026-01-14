@@ -2,6 +2,7 @@ import React, { FC, memo, useMemo } from 'react';
 
 import { EmptyState } from 'app/atoms/EmptyState';
 import PageLayout from 'app/layouts/PageLayout';
+import { EarnDepositStats } from 'app/templates/EarnDepositStats';
 import { usePartnersPromotionModule } from 'app/templates/partners-promotion';
 import { SearchBarField } from 'app/templates/SearchField';
 import { T, t, TID } from 'lib/i18n';
@@ -47,7 +48,10 @@ export const Earn = memo(() => {
         <div className="mb-4">
           <Title i18nKey="savings" />
 
-          <div className="flex flex-col gap-y-2">{savingsItems}</div>
+          <div className="flex flex-col gap-y-2">
+            <EarnDepositStats />
+            {savingsItems}
+          </div>
         </div>
       )}
 

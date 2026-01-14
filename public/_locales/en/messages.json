@@ -4900,6 +4900,9 @@
       }
     }
   },
+  "yourDeposits": {
+    "message": "Your deposits"
+  },
   "activation": {
     "message": "Activation"
   },
