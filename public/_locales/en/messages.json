@@ -822,6 +822,18 @@
   "kukaiWalletTypeError": {
     "message": "Cannot reveal seed phrase for this wallet type"
   },
+  "accountAddress": {
+    "message": "Account Address"
+  },
+  "optionalTezosOnlyComment": {
+    "message": "Optional (Tezos only)"
+  },
+  "accountAddressInputPlaceholder": {
+    "message": "e.g. tz1..."
+  },
+  "accountAddressDoesNotMatch": {
+    "message": "Account address does not match the specified parameters"
+  },
   "accountAddressLabel": {
     "message": "Your current account address. Share it to receive funds."
   },
@@ -1866,7 +1878,7 @@
     "message": "No operations found"
   },
   "pending": {
-    "message": "pending..."
+    "message": "Pending"
   },
   "applied": {
     "message": "Applied"
@@ -2323,6 +2335,18 @@
   },
   "searchNetworkName": {
     "message": "Search network name"
+  },
+  "searchByNameOrAddress": {
+    "message": "Search by name or address"
+  },
+  "status": {
+    "message": "Status"
+  },
+  "sender": {
+    "message": "Sender"
+  },
+  "txHash": {
+    "message": "Tx Hash"
   },
   "addTokenNonCapitalize": {
     "message": "Add token"
@@ -4899,6 +4923,9 @@
         "content": "$1"
       }
     }
+  },
+  "yourDeposits": {
+    "message": "Your deposits"
   },
   "activation": {
     "message": "Activation"

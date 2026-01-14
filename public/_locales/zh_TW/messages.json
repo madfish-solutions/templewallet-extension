@@ -690,7 +690,7 @@
     "message": "找不到操作"
   },
   "pending": {
-    "message": "待處理…"
+    "message": "待處理"
   },
   "backtracked": {
     "message": "已向上回溯"

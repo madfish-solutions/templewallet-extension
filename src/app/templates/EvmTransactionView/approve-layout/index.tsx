@@ -186,7 +186,7 @@ const ApproveLayoutContent = memo<ApproveLayoutContentProps>(
 
     return (
       <>
-        <OperationConfirmationCard title={<T id="approve" />}>
+        <OperationConfirmationCard title={t('approve')}>
           <OperationConfirmationCardRow
             chain={chain}
             assetSlug={assetSlug}

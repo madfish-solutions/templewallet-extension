@@ -9,10 +9,10 @@
   flex: 1;
   display: inline-flex;
   justify-content: space-between;
-  background: #F0F0F0;
+  background: #F4F4F4;
   border: 0.5px solid #E4E4E4;
   border-radius: 6px;
-  padding: 2px;
+  padding: 1.5px;
   overflow: hidden;
   position: relative;
   box-sizing: border-box;
@@ -48,7 +48,7 @@
   font-size: 12px;
   line-height: 16px;
   font-weight: 600;
-  padding: 3px 8px;
+  padding: 4px 8px;
   transition: color 0.5s ease;
 }
 
@@ -68,8 +68,8 @@
   transform: translateX(var(--highlight-x-pos));
   transition: transform 0.3s ease, width 0.3s ease;
   position: absolute;
-  top: 2px;
-  bottom: 2px;
+  top: 1.5px;
+  bottom: 1.5px;
   left: 0;
   z-index: 0;
 }

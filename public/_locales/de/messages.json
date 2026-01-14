@@ -738,7 +738,7 @@
     "message": "Keine Vorgänge gefunden"
   },
   "pending": {
-    "message": "ausstehend..."
+    "message": "ausstehend"
   },
   "applied": {
     "message": "Angewandt"

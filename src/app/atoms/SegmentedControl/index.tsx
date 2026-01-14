@@ -45,7 +45,8 @@ const SegmentedControl = <T extends string>({
 
     const { style } = controlEl;
     style.setProperty('--highlight-width', `${offsetWidth}px`);
-    style.setProperty('--highlight-x-pos', `${offsetLeft}px`);
+    // -0.5px to account for the border
+    style.setProperty('--highlight-x-pos', `${offsetLeft - 0.5}px`);
   }, [activeSegment, segments]);
 
   return (

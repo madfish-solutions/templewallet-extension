@@ -426,7 +426,7 @@
     }
   },
   "success": {
-    "message": "Успіх!"
+    "message": "Успіх"
   },
   "smthWentWrong": {
     "message": "Халепа! Щось пішло не по плану"
@@ -635,7 +635,7 @@
     "message": "Не дозволено"
   },
   "failed": {
-    "message": "Невдача ;("
+    "message": "Невдача"
   },
   "yourBalanceIsZero": {
     "message": "Ваш баланс дорівнює нулю."
@@ -741,7 +741,7 @@
     "message": "Операцій не знайдено"
   },
   "pending": {
-    "message": "Очікуйте..."
+    "message": "Очікуйте"
   },
   "backtracked": {
     "message": "backtracked"
