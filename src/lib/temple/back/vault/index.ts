@@ -25,6 +25,7 @@ import {
   WALLETS_SPECS_STORAGE_KEY
 } from 'lib/constants';
 import { fetchFromStorage as getPlain, putToStorage as savePlain } from 'lib/storage';
+import { mnemonicToPrivateKey } from 'lib/temple/accounts-helpers';
 import { deleteEvmActivitiesByAddress, deleteTezosActivitiesByAddress } from 'lib/temple/activity/repo';
 import {
   fetchNewGroupName,
@@ -62,15 +63,12 @@ import {
   canRemoveAccounts,
   concatAccount,
   createMemorySigner,
-  deriveSeed,
   fetchNewAccountName,
   generateCheck,
-  isEvmDerivationPath,
   mnemonicToEvmAccountCreds,
   mnemonicToTezosAccountCreds,
   privateKeyToEvmAccountCreds,
   privateKeyToTezosAccountCreds,
-  seedToPrivateKey,
   withError
 } from './misc';
 import {
@@ -685,20 +683,13 @@ export class Vault {
 
   async importMnemonicAccount(mnemonic: string, password?: string, derivationPath?: string) {
     return withError('Failed to import account', async () => {
-      let seed;
-      try {
-        seed = Bip39.mnemonicToSeedSync(mnemonic, password);
-      } catch (_err) {
-        throw new PublicError('Invalid Mnemonic or Password');
-      }
+      const { chain, privateKey } = mnemonicToPrivateKey(
+        mnemonic,
+        msg => new PublicError(msg),
+        password,
+        derivationPath
+      );
 
-      if (derivationPath) {
-        seed = deriveSeed(seed, derivationPath);
-      }
-
-      // TODO: Loose chain from derivation, when importing accounts is reworked
-      const chain = derivationPath && isEvmDerivationPath(derivationPath) ? TempleChainKind.EVM : TempleChainKind.Tezos;
-      const privateKey = seedToPrivateKey(seed, chain);
       return this.importAccount(chain, privateKey);
     });
   }
