@@ -193,7 +193,7 @@ const NoBlockExplorerHashButton = ({ txHash }: { txHash: string }) => (
   <TextButton
     color="blue"
     className="gap-0.5 pl-0.5 pr-0.5"
-    textClassName="!text-font-num-12"
+    textClassName="text-font-num-12!"
     Icon={CopyIcon}
     onClick={useCopyText(txHash, true)}
   >
