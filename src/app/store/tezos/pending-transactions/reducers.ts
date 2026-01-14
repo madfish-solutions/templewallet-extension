@@ -6,6 +6,7 @@ import { storageConfig } from 'lib/store';
 import {
   addPendingTezosTransactionAction,
   removePendingTezosTransactionsAction,
+  setTezosTransactionBeingWatchedAction,
   updatePendingTezosTransactionStatusAction
 } from './actions';
 import { PendingTezosTransactionsState, pendingTezosTransactionsInitialState } from './state';
@@ -48,12 +49,17 @@ const pendingTezosTransactionsReducer = createReducer(pendingTezosTransactionsIn
       }
     });
   });
+
+  builder.addCase(setTezosTransactionBeingWatchedAction, (state, { payload: txHash }) => {
+    state.transactionBeingWatched = txHash;
+  });
 });
 
 export const pendingTezosTransactionsPersistedReducer = persistReducer<PendingTezosTransactionsState>(
   {
     key: 'root.tezos.pendingTransactions',
-    ...storageConfig
+    ...storageConfig,
+    blacklist: ['transactionBeingWatched']
   },
   pendingTezosTransactionsReducer
 );

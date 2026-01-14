@@ -14,7 +14,8 @@ import {
   disableSwapCheckStatusRetriesAction,
   addPendingEvmOtherTransactionAction,
   updatePendingOtherTransactionStatusAction,
-  removePendingEvmOtherTransactionAction
+  removePendingEvmOtherTransactionAction,
+  setEvmTransferBeingWatchedAction
 } from './actions';
 import { pendingEvmTransactionsInitialState, PendingEvmTransactionsState } from './state';
 
@@ -95,12 +96,17 @@ const pendingEvmTransactionsReducer = createReducer(pendingEvmTransactionsInitia
   builder.addCase(removePendingEvmOtherTransactionAction, (state, { payload: txHash }) => {
     delete state.otherTransactions[txHash];
   });
+
+  builder.addCase(setEvmTransferBeingWatchedAction, (state, { payload: txHash }) => {
+    state.transferBeingWatched = txHash;
+  });
 });
 
 export const pendingEvmTransactionsPersistedReducer = persistReducer<PendingEvmTransactionsState>(
   {
     key: 'root.evm.pendingTransactions',
-    ...storageConfig
+    ...storageConfig,
+    blacklist: ['transferBeingWatched']
   },
   pendingEvmTransactionsReducer
 );

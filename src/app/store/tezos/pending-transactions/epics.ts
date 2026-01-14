@@ -13,6 +13,7 @@ import {
   confirmTezosOperation,
   getTezosReadOnlyRpcClient
 } from 'temple/tezos';
+import { PendingTransactionStatus } from 'temple/types';
 
 import {
   cleanupOutdatedTezosPendingTxWithInitialMonitorTriggerAction,
@@ -20,21 +21,39 @@ import {
   removePendingTezosTransactionsAction,
   updatePendingTezosTransactionStatusAction
 } from './actions';
-import { TransactionState, TransactionStatus } from './state';
+import { TransactionState } from './state';
 import { selectAllPendingTezosTransactions } from './utils';
 
 const MAX_PENDING_TRANSACTION_AGE = 60_000;
 
-type HandleTxStatusInput = Pick<TransactionState, 'txHash' | 'lastCheckedAt' | 'blockExplorerUrl' | 'kind'>;
+type HandleTxStatusInput = Pick<TransactionState, 'txHash' | 'lastCheckedAt' | 'blockExplorerUrl' | 'kind'> & {
+  transactionBeingWatched?: boolean;
+};
 
-const txDoneAction$ = ({ txHash, lastCheckedAt, blockExplorerUrl, kind = 'transaction' }: HandleTxStatusInput) => {
-  toastSuccess(capitalize(`${kind} completed`), true, { hash: txHash, blockExplorerHref: blockExplorerUrl });
+const txDoneAction$ = ({
+  txHash,
+  lastCheckedAt,
+  blockExplorerUrl,
+  kind = 'transaction',
+  transactionBeingWatched
+}: HandleTxStatusInput) => {
+  if (!transactionBeingWatched) {
+    toastSuccess(capitalize(`${kind} completed`), true, { hash: txHash, blockExplorerHref: blockExplorerUrl });
+  }
 
   return of(updatePendingTezosTransactionStatusAction({ txHash, status: 'DONE', lastCheckedAt }));
 };
 
-const txFailedAction$ = ({ txHash, lastCheckedAt, blockExplorerUrl, kind = 'transaction' }: HandleTxStatusInput) => {
-  toastError(capitalize(`${kind} failed`), true, { hash: txHash, blockExplorerHref: blockExplorerUrl });
+const txFailedAction$ = ({
+  txHash,
+  lastCheckedAt,
+  blockExplorerUrl,
+  kind = 'transaction',
+  transactionBeingWatched
+}: HandleTxStatusInput) => {
+  if (!transactionBeingWatched) {
+    toastError(capitalize(`${kind} failed`), true, { hash: txHash, blockExplorerHref: blockExplorerUrl });
+  }
 
   return concat(
     from([updatePendingTezosTransactionStatusAction({ txHash, status: 'FAILED', lastCheckedAt })]),
@@ -60,10 +79,10 @@ const monitorPendingTransactionsEpic: Epic<Action, Action, RootState> = (action$
         case 'FAILED':
           return of(removePendingTezosTransactionsAction([transaction.txHash]));
         default:
-          const handleTxStatusInput = { txHash, lastCheckedAt: Date.now(), blockExplorerUrl, kind };
+          const lastCheckedAt = Date.now();
 
           return from(
-            new Promise<TransactionStatus>(resolve => {
+            new Promise<PendingTransactionStatus>(resolve => {
               if (isKnownChainId(chainId)) {
                 refetchOnce429(() => fetchGetOperationsByHash(chainId, transaction.txHash)).then(
                   operations =>
@@ -85,7 +104,10 @@ const monitorPendingTransactionsEpic: Epic<Action, Action, RootState> = (action$
                 );
             })
           ).pipe(
-            mergeMap(status => {
+            withLatestFrom(state$),
+            mergeMap(([status, state]) => {
+              const transactionBeingWatched = state.pendingTezosTransactions?.transactionBeingWatched === txHash;
+              const handleTxStatusInput = { txHash, lastCheckedAt, blockExplorerUrl, kind, transactionBeingWatched };
               switch (status) {
                 case 'PENDING':
                   return of(removePendingTezosTransactionsAction([txHash]));

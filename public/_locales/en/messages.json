@@ -1866,7 +1866,7 @@
     "message": "No operations found"
   },
   "pending": {
-    "message": "pending..."
+    "message": "Pending"
   },
   "applied": {
     "message": "Applied"
@@ -2323,6 +2323,18 @@
   },
   "searchNetworkName": {
     "message": "Search network name"
+  },
+  "searchByNameOrAddress": {
+    "message": "Search by name or address"
+  },
+  "status": {
+    "message": "Status"
+  },
+  "sender": {
+    "message": "Sender"
+  },
+  "txHash": {
+    "message": "Tx Hash"
   },
   "addTokenNonCapitalize": {
     "message": "Add token"

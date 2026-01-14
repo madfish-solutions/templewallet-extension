@@ -699,7 +699,7 @@
     "message": "Aucune opération trouvée"
   },
   "pending": {
-    "message": "en attente…"
+    "message": "en attente"
   },
   "backtracked": {
     "message": "rétrogradée"

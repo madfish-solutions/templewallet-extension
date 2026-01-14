@@ -56,6 +56,8 @@ export type ChainId<T extends TempleChainKind> = ChainOfKind<T>['chainId'];
 
 export type PublicKeyHash<T extends TempleChainKind> = T extends TempleChainKind.EVM ? HexString : string;
 
+export type TxHash<T extends TempleChainKind> = T extends TempleChainKind.EVM ? HexString : string;
+
 export type ChainGroupedSlugs<T extends TempleChainKind = TempleChainKind> = [ChainId<T>, string[]][];
 
 export const isPossibleTestnetChain = (chain: OneOfChains) => chain.testnet !== false;
