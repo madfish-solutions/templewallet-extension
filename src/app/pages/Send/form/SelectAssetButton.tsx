@@ -102,7 +102,9 @@ const EvmContent = memo<EvmContentProps>(({ network, accountPkh, assetSlug, onCl
             </span>
 
             <span className="text-font-num-12 text-grey-1">
-              <Money smallFractionFont={false}>{balance}</Money>
+              <span className="-ml-px">
+                <Money smallFractionFont={false}>{balance}</Money>
+              </span>
               <span className="ml-0.5">
                 <T id="available" />
               </span>
