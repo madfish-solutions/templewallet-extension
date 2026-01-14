@@ -2,6 +2,8 @@ import type { Action } from 'redux';
 import { combineEpics, createEpicMiddleware } from 'redux-observable';
 import { catchError } from 'rxjs/operators';
 
+import { reportError, toError } from 'lib/analytics';
+
 import { abTestingEpics } from './ab-testing/epics';
 import { accountsInitializationEpics } from './accounts-initialization/epics';
 import { buyWithCreditCardEpics } from './buy-with-credit-card/epics';
@@ -49,6 +51,14 @@ export const rootEpic: typeof allEpics = (action$, store$, dependencies) =>
   allEpics(action$, store$, dependencies).pipe(
     catchError((error, source) => {
       console.error(error);
+
+      try {
+        const state = store$.value;
+        const { userId, isAnalyticsEnabled } = state.settings;
+        void reportError(toError(error), userId, undefined, isAnalyticsEnabled, { source: 'Redux Epic' });
+      } catch {
+        // error
+      }
 
       return source;
     })
