@@ -20,7 +20,10 @@ import {
   TzktCycle,
   TzktProtocol,
   TzktSetDelegateParamsOperation,
-  TzktOperationRole
+  TzktOperationRole,
+  TzktBalanceHistoryItem,
+  TzktGetBalanceHistoryParams,
+  TzktStakingUpdate
 } from './types';
 import { calcTzktAccountSpendableTezBalance } from './utils';
 
@@ -245,3 +248,43 @@ export const getAccountStatsFromTzkt = async (account: string, chainId: TzktApiC
 
 export const fetchTokenTransfers = (chainId: TzktApiChainId, params: Record<string, any>, signal?: AbortSignal) =>
   fetchGet<TzktTokenTransfer[]>(chainId, '/tokens/transfers', params, { signal });
+
+export const fetchAccountBalanceHistory = (
+  chainId: TzktApiChainId,
+  accountAddress: string,
+  params: TzktGetBalanceHistoryParams = {},
+  signal?: AbortSignal
+) =>
+  fetchGet<TzktBalanceHistoryItem[]>(
+    chainId,
+    `/accounts/${accountAddress}/balance_history`,
+    {
+      ...params,
+      'sort.desc': 'level'
+    },
+    {
+      signal
+    }
+  );
+
+export interface TzktGetStakingUpdatesParams {
+  staker?: string;
+  baker?: string;
+  offset?: number;
+  limit?: number;
+}
+
+export const fetchStakingUpdates = (
+  chainId: TzktApiChainId,
+  params: TzktGetStakingUpdatesParams,
+  signal?: AbortSignal
+) =>
+  fetchGet<TzktStakingUpdate[]>(
+    chainId,
+    '/staking/updates',
+    {
+      ...params,
+      'sort.desc': 'level'
+    },
+    { signal }
+  );

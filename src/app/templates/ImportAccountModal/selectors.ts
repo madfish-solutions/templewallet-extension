@@ -10,6 +10,7 @@ export enum ImportAccountSelectors {
   defaultAccountButton = 'Import Account(Mnemonic)/Default Account (the first one) Button',
   customDerivationPathButton = 'Import Account(Mnemonic)/Custom Derivation Path Button',
   customDerivationPathInput = 'Import Account(Mnemonic)/Custom Derivation Path Input',
+  accountAddressInput = 'Import Account(Mnemonic)/Account Address Input',
   mnemonicPasswordInput = 'Import Account(Mnemonic)/Mnemonic Password Input',
   mnemonicImportButton = 'Import Account(Mnemonic)/Mnemonic Import Button',
   mnemonicValidationErrorText = 'Import (Account/Wallet)/Mnemonic Validation Error Text',

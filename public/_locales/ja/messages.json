@@ -690,7 +690,7 @@
     "message": "オペレーションが見つかりませんでした"
   },
   "pending": {
-    "message": "保留中..."
+    "message": "保留中"
   },
   "backtracked": {
     "message": "バックトラック済み"

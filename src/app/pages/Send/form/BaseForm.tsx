@@ -190,7 +190,7 @@ export const BaseForm: FC<Props> = ({
   return (
     <>
       <div className="flex-1 pt-4 px-4 flex flex-col overflow-y-auto">
-        <div className="text-font-description-bold mb-2">
+        <div className="text-font-description-bold py-1 mb-1">
           <T id="token" />
         </div>
 

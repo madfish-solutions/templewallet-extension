@@ -60,9 +60,10 @@ const permissionsDescriptionsI18nKeys: TID[] = [
 const ConnectViewConflict = memo<{
   providers?: EIP6963ProviderInfo[];
   origin?: string;
+  confirmationId: string;
   onSubmit: EmptyFn;
   dismissConflict?: EmptyFn;
-}>(({ providers, origin, dismissConflict }) => {
+}>(({ providers, origin, confirmationId, dismissConflict }) => {
   useTempleClient();
 
   const domain = (() => {
@@ -76,13 +77,16 @@ const ConnectViewConflict = memo<{
   const selectOtherWallet = async (provider: EIP6963ProviderInfo) => {
     try {
       await makeIntercomRequest({
-        type: TempleMessageType.DAppSelectOtherWalletRequest,
-        origin: origin || window.origin,
-        rdns: provider.rdns,
-        uuid: provider.uuid
+        type: TempleMessageType.DAppPermConfirmationRequest,
+        id: confirmationId,
+        confirmed: false,
+        accountPublicKey: '',
+        accountPublicKeyHash: '',
+        forwardToProvider: provider.rdns
       });
-    } catch (e) {}
-    window.close();
+    } catch (e) {
+      console.error('Failed to forward to other wallet:', e);
+    }
   };
 
   return (
@@ -182,7 +186,12 @@ const PayloadContentHOC = <
   OperationView: FC<OperationViewPropsBase<T> & E>
 ) => {
   const PayloadContent: FC<
-    PayloadContentPropsBase<T> & { extraProps: E; dismissConflict?: () => void; showConflict?: boolean }
+    PayloadContentPropsBase<T> & {
+      extraProps: E;
+      dismissConflict?: () => void;
+      showConflict?: boolean;
+      confirmationId: string;
+    }
   > = ({
     network,
     payload,
@@ -194,7 +203,8 @@ const PayloadContentHOC = <
     setError,
     extraProps,
     dismissConflict,
-    showConflict
+    showConflict,
+    confirmationId
   }) => (
     <div className="w-full flex flex-col">
       {(() => {
@@ -205,6 +215,7 @@ const PayloadContentHOC = <
               <ConnectViewConflict
                 providers={providers}
                 origin={payload.origin}
+                confirmationId={confirmationId}
                 onSubmit={onSubmit}
                 dismissConflict={dismissConflict}
               />

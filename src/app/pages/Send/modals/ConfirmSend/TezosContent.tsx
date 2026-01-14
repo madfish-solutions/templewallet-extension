@@ -34,13 +34,15 @@ import { makeBlockExplorerHref } from 'temple/front/use-block-explorers';
 import { TempleChainKind } from 'temple/types';
 
 import { BaseContent } from './BaseContent';
+import { TxData } from './types';
 
 interface TezosContentProps {
   data: TezosReviewData;
+  onSuccess: (txData: TxData<TempleChainKind.Tezos>) => void;
   onClose: EmptyFn;
 }
 
-export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
+export const TezosContent: FC<TezosContentProps> = ({ data, onClose, onSuccess }) => {
   const { account, network, assetSlug, to, amount, onConfirm } = data;
   const { rpcBaseURL, chainId } = network;
 
@@ -160,10 +162,10 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
           );
 
           onConfirm();
-          onClose();
 
           // @ts-expect-error
           const txHash = operation?.hash || operation?.opHash;
+          onSuccess({ txHash, displayedFee, displayedStorageFee });
 
           const blockExplorer = getActiveBlockExplorer(network.chainId);
 
@@ -202,7 +204,7 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
       submitOperation,
       tezos,
       onConfirm,
-      onClose,
+      onSuccess,
       getActiveBlockExplorer,
       network,
       setLedgerApprovalModalState,
@@ -210,7 +212,9 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
       assertCustomGasFeeNotTooLow,
       accountPkh,
       guard,
-      account.type
+      account.type,
+      displayedFee,
+      displayedStorageFee
     ]
   );
 

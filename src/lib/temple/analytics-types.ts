@@ -10,7 +10,8 @@ export enum AnalyticsEventCategory {
   FormSubmitSuccess = 'FormSubmitSuccess',
   FormSubmitFail = 'FormSubmitFail',
   PageOpened = 'PageOpened',
-  DropdownOpened = 'DropdownOpened'
+  DropdownOpened = 'DropdownOpened',
+  Error = 'Error'
 }
 
 export enum AnalyticsEventEnum {
