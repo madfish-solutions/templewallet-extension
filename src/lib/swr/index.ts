@@ -1,3 +1,5 @@
+import { useMemo } from 'react';
+
 import useSWR, { Key, SWRConfiguration } from 'swr';
 import { FetcherResponse } from 'swr/_internal';
 
@@ -24,7 +26,7 @@ function withSwrContext<Data, SWRKey extends Key = Key>(
       const error = toError(err);
       (error as any).__swr = {
         key: stringifyKey(key),
-        arg: arg === undefined ? undefined : arg
+        arg
       };
       throw error;
     }
@@ -37,7 +39,8 @@ export const useTypedSWR = <Data, Error = any, SWRKey extends Key = Key>(
   fetcher: Fetcher<Data, SWRKey> | null,
   config?: SWRConfiguration<Data, Error, Fetcher<Data, SWRKey>>
 ) => {
-  const wrappedFetcher = fetcher ? withSwrContext(key, fetcher) : null;
+  const wrappedFetcher = useMemo(() => (fetcher ? withSwrContext(key, fetcher) : null), [key, fetcher]);
+
   return useSWR(key, wrappedFetcher, config);
 };
 
@@ -47,6 +50,7 @@ export const useRetryableSWR = <Data, Error = any, SWRKey extends Key = Key>(
   fetcher: Fetcher<Data, SWRKey> | null,
   config?: SWRConfiguration<Data, Error, Fetcher<Data, SWRKey>>
 ) => {
-  const wrappedFetcher = fetcher ? withSwrContext(key, fetcher) : null;
+  const wrappedFetcher = useMemo(() => (fetcher ? withSwrContext(key, fetcher) : null), [key, fetcher]);
+
   return useSWR(key, wrappedFetcher, { errorRetryCount: 2, ...config });
 };

@@ -1,72 +1,38 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import type { Tabs } from 'webextension-polyfill';
 
 import { browser } from 'lib/browser';
-import { useTypedSWR } from 'lib/swr';
 import { useTempleClient } from 'lib/temple/front';
-import { useUpdatableRef } from 'lib/ui/hooks';
 
 function useActiveTab() {
-  const { data: activeTab, mutate } = useTypedSWR(
-    ['browser', 'active-tab'],
-    () =>
-      browser.tabs
-        .query({
-          active: true,
-          lastFocusedWindow: true
-        })
-        .then(tabs => tabs.at(0)),
-    {
-      suspense: true
-    }
-  );
-
-  const activeTabRef = useUpdatableRef(activeTab);
+  const [activeTab, setActiveTab] = useState<Tabs.Tab>();
 
   useEffect(() => {
-    const onUpdated = (tabId: number, _info: Tabs.OnUpdatedChangeInfoType) => {
-      if (tabId === activeTabRef.current?.id) mutate();
+    const update = async () => {
+      const tabs = await browser.tabs.query({
+        active: true,
+        lastFocusedWindow: true
+      });
+      setActiveTab(tabs.at(0));
     };
 
-    const onActivated = (_info: Tabs.OnActivatedActiveInfoType) => {
-      mutate();
-    };
+    update();
 
-    const onCreated = (tab: Tabs.Tab) => {
-      if (tab.active) {
-        activeTabRef.current = tab;
-      }
-      mutate();
-    };
-
-    const onRemoved = (tabId: number) => {
-      if (tabId === activeTabRef.current?.id) {
-        activeTabRef.current = undefined;
-        mutate();
-      }
-    };
-
-    const onReplaced = (_addedTabId: number, removedTabId: number) => {
-      if (removedTabId === activeTabRef.current?.id) {
-        activeTabRef.current = undefined;
-        mutate();
-      }
-    };
-
-    browser.tabs.onUpdated.addListener(onUpdated);
-    browser.tabs.onActivated.addListener(onActivated);
-    browser.tabs.onCreated.addListener(onCreated);
-    browser.tabs.onRemoved.addListener(onRemoved);
-    browser.tabs.onReplaced.addListener(onReplaced);
+    browser.tabs.onUpdated.addListener(update);
+    browser.tabs.onActivated.addListener(update);
+    browser.tabs.onCreated.addListener(update);
+    browser.tabs.onRemoved.addListener(update);
+    browser.tabs.onReplaced.addListener(update);
 
     return () => {
-      browser.tabs.onUpdated.removeListener(onUpdated);
-      browser.tabs.onActivated.removeListener(onActivated);
-      browser.tabs.onCreated.removeListener(onCreated);
-      browser.tabs.onRemoved.removeListener(onRemoved);
+      browser.tabs.onUpdated.removeListener(update);
+      browser.tabs.onActivated.removeListener(update);
+      browser.tabs.onCreated.removeListener(update);
+      browser.tabs.onRemoved.removeListener(update);
+      browser.tabs.onReplaced.removeListener(update);
     };
-  }, [mutate, activeTabRef]);
+  }, []);
 
   return activeTab;
 }
@@ -76,9 +42,9 @@ export function useActiveTabUrlOrigin() {
   const tab = useActiveTab();
 
   return useMemo(() => {
-    const rawUrl = tab ? tab.url ?? tabsOrigins[tab.id ?? browser.tabs.TAB_ID_NONE] : undefined;
-    const url = rawUrl ? new URL(rawUrl) : null;
+    if (!tab) return undefined;
+    const rawUrl = tab.url ?? tabsOrigins[tab.id ?? browser.tabs.TAB_ID_NONE];
 
-    return url?.origin;
+    return rawUrl ? new URL(rawUrl).origin : undefined;
   }, [tab, tabsOrigins]);
 }
