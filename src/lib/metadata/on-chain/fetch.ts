@@ -3,6 +3,8 @@ import { TokenMetadata, tzip12 } from '@taquito/tzip12';
 import { DEFAULT_HANDLERS, MetadataInterface, MetadataProvider, tzip16 } from '@taquito/tzip16';
 import retry from 'async-retry';
 
+import BigNumber from 'bignumber.js';
+
 import { isValidTezosContractAddress } from 'lib/tezos';
 import { assert } from 'lib/utils';
 
@@ -18,7 +20,7 @@ const getTzip12Metadata = async (contract: ReturnType<typeof tzip12>, tokenId: s
   let tzip12Metadata: TokenMetadataWithLogo = {} as TokenMetadataWithLogo;
 
   try {
-    tzip12Metadata = await retry(() => contract.tzip12().getTokenMetadata(Number(tokenId)), RETRY_PARAMS);
+    tzip12Metadata = await retry(() => contract.tzip12().getTokenMetadata(new BigNumber(tokenId)), RETRY_PARAMS);
   } catch {}
 
   return tzip12Metadata;

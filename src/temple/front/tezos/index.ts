@@ -6,6 +6,7 @@ import {
   createIncreasePaidStorageOperation,
   createTransferOperation,
   createTransferTicketOperation,
+  createRegisterGlobalConstantOperation,
   WalletDelegateParams,
   WalletOriginateParams,
   WalletIncreasePaidStorageParams,
@@ -14,6 +15,7 @@ import {
   WalletUnstakeParams,
   WalletFinalizeUnstakeParams,
   WalletTransferTicketParams,
+  WalletRegisterGlobalConstantParams,
   Signer,
   TezosToolkit
 } from '@taquito/taquito';
@@ -124,6 +126,11 @@ class TempleTaquitoWallet implements WalletProvider {
   async mapFinalizeUnstakeParamsToWalletParams(params: () => Promise<WalletFinalizeUnstakeParams>) {
     const walletParams = await params();
     return withoutFeesOverride(walletParams, await createTransferOperation(walletParams as any));
+  }
+
+  async mapRegisterGlobalConstantParamsToWalletParams(params: () => Promise<WalletRegisterGlobalConstantParams>) {
+    const walletParams = await params();
+    return withoutFeesOverride(walletParams, await createRegisterGlobalConstantOperation(walletParams as any));
   }
 
   async sendOperations(opParams: any[]) {
