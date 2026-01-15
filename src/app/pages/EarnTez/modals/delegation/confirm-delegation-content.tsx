@@ -102,7 +102,24 @@ const TxTabsInnerContent: ConfirmEarnOperationContentProps<ReviewData>['TxTabsIn
       [estimationData?.gasFee, tezBalance]
     );
 
-    if (typeof baker === 'object' && delegatedAmount.lt(baker.delegation.minBalance)) {
+    if (typeof baker === 'object' && !baker.delegation.enabled) {
+      return (
+        <Alert
+          className="mb-4"
+          type="warning"
+          closable={false}
+          description={
+            <DescriptionWithHeader header={<T id="delegationNotAvailableTitle" />}>
+              <p>
+                <T id="delegationNotAvailableDescription" />
+              </p>
+            </DescriptionWithHeader>
+          }
+        />
+      );
+    }
+
+    if (typeof baker === 'object' && baker.delegation.enabled && delegatedAmount.lt(baker.delegation.minBalance)) {
       return (
         <Alert
           className="mb-4"
