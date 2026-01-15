@@ -2,7 +2,7 @@ import React, { memo, useCallback, useMemo } from 'react';
 
 import BigNumber from 'bignumber.js';
 import { nanoid } from 'nanoid';
-import { FormProvider } from 'react-hook-form-v7';
+import { FormProvider } from 'react-hook-form';
 
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
 import { TEZOS_BLOCK_DURATION } from 'lib/fixed-times';

@@ -1,7 +1,7 @@
 import React, { FC, useCallback, useMemo, useState } from 'react';
 
 import BigNumber from 'bignumber.js';
-import { FormProvider } from 'react-hook-form-v7';
+import { FormProvider } from 'react-hook-form';
 
 import { useLedgerApprovalModalState } from 'app/hooks/use-ledger-approval-modal-state';
 import { BaseContent } from 'app/pages/Swap/modals/ConfirmSwap/BaseContent';

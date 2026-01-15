@@ -1,7 +1,7 @@
 import React, { memo, useCallback, useMemo } from 'react';
 
 import { startCase } from 'lodash';
-import { Controller } from 'react-hook-form-v7';
+import { Controller } from 'react-hook-form';
 
 import { FormField } from 'app/atoms';
 import {

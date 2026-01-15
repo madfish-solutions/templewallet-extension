@@ -1,7 +1,7 @@
 import React, { memo, useCallback, useMemo, useState } from 'react';
 
 import { omit } from 'lodash';
-import { FormProvider } from 'react-hook-form-v7';
+import { FormProvider } from 'react-hook-form';
 import { TransactionRequest, decodeFunctionData, formatTransactionRequest } from 'viem';
 
 import { HashChip } from 'app/atoms/HashChip';

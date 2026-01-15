@@ -1,6 +1,6 @@
 import React, { FC, useCallback, useMemo, useState } from 'react';
 
-import { FormProvider, useForm } from 'react-hook-form-v7';
+import { FormProvider, useForm } from 'react-hook-form';
 
 import { dispatch } from 'app/store';
 import { loadExolixCurrenciesActions, loadExolixNetworksMapActions } from 'app/store/crypto-exchange/actions';

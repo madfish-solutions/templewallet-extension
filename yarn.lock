@@ -3977,7 +3977,7 @@
   dependencies:
     "@types/react" "*"
 
-"@types/react-dev-utils@^9.0.11":
+"@types/react-dev-utils@^9.0.15":
   version "9.0.15"
   resolved "https://registry.yarnpkg.com/@types/react-dev-utils/-/react-dev-utils-9.0.15.tgz#5a345ba16626ad6686840df19ef0939734ea72c9"
   integrity sha512-JSZZtC8f5FD3FvlT8F6dPojPH6u0f+E/+g9DqXgQo/7GvCdPYiK+Q+mMajZClqH/f5SjyYop7v6uiLyfgnyLQA==
@@ -11688,15 +11688,10 @@ react-error-overlay@^6.0.11:
   resolved "https://registry.yarnpkg.com/react-error-overlay/-/react-error-overlay-6.0.11.tgz#92835de5841c5cf08ba00ddd2d677b6d17ff9adb"
   integrity sha512-/6UZ2qgEyH2aqzYZgQPxEnz33NJ2gNsnHA2o5+o4wW9bLM/JYQitNP9xPhsXwC08hMMovfGe/8retsdDsczPRg==
 
-"react-hook-form-v7@npm:react-hook-form@7.53.0":
-  version "7.53.0"
-  resolved "https://registry.yarnpkg.com/react-hook-form/-/react-hook-form-7.53.0.tgz#3cf70951bf41fa95207b34486203ebefbd3a05ab"
-  integrity sha512-M1n3HhqCww6S2hxLxciEXy2oISPnAzxY7gvwVPrtlczTM/1dDadXgUxDpHMrMTblDOcm/AXtXxHwZ3jpg1mqKQ==
-
-react-hook-form@5.3.1:
-  version "5.3.1"
-  resolved "https://registry.yarnpkg.com/react-hook-form/-/react-hook-form-5.3.1.tgz#96b6f26d823d008e22a6f4ab85628a82d2f0b52e"
-  integrity sha512-n73nVyBaTBL4r2//6ZWi5x41ZYsKRtrqbNf40KILv4XrNO/DQbzFRdr/s53Ua+M0y76TKS3xmOEnk6hWhVTR/w==
+react-hook-form@^7.70.0:
+  version "7.71.1"
+  resolved "https://registry.yarnpkg.com/react-hook-form/-/react-hook-form-7.71.1.tgz#6a758958861682cf0eb22131eead684ba3618f66"
+  integrity sha512-9SUJKCGKo8HUSsCO+y0CtqkqI5nNuaDqTxyqPsZPqIwudpj4rCrAz/jZV+jn57bx5gtZKOh3neQu94DXMc+w5w==
 
 react-hot-toast@^2.4.1:
   version "2.4.1"

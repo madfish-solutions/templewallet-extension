@@ -2,7 +2,7 @@ import React, { FC, useCallback, useEffect, useMemo, useRef } from 'react';
 
 import axios from 'axios';
 import { isEmpty } from 'lodash';
-import { Controller, useFormContext, SubmitHandler } from 'react-hook-form-v7';
+import { Controller, useFormContext, SubmitHandler } from 'react-hook-form';
 import { useDebounce } from 'use-debounce';
 
 import AssetField from 'app/atoms/AssetField';

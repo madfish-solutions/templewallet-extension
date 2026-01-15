@@ -2,7 +2,7 @@ import React, { memo, useCallback, useEffect, useState } from 'react';
 
 import clsx from 'clsx';
 import { isEmpty } from 'lodash';
-import { Controller, RegisterOptions, SubmitHandler, useForm } from 'react-hook-form-v7';
+import { Controller, RegisterOptions, SubmitHandler, useForm } from 'react-hook-form';
 
 import { CaptionAlert } from 'app/atoms';
 import AssetField from 'app/atoms/AssetField';

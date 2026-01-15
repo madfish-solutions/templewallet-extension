@@ -2,7 +2,7 @@ import React, { FC, useCallback, useImperativeHandle, useMemo } from 'react';
 
 import BigNumber from 'bignumber.js';
 import { isString } from 'lodash';
-import { FormProvider, useForm } from 'react-hook-form-v7';
+import { FormProvider, useForm } from 'react-hook-form';
 import { formatEther, isAddress } from 'viem';
 
 import { DeadEndBoundaryError } from 'app/ErrorBoundary';

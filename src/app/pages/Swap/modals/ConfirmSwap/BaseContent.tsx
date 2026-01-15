@@ -1,7 +1,7 @@
 import React, { useCallback } from 'react';
 
 import BigNumber from 'bignumber.js';
-import { SubmitHandler, useFormContext } from 'react-hook-form-v7';
+import { SubmitHandler, useFormContext } from 'react-hook-form';
 
 import { FadeTransition } from 'app/a11y/FadeTransition';
 import { Loader } from 'app/atoms';

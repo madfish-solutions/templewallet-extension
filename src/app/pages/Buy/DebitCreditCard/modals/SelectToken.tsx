@@ -1,7 +1,7 @@
 import React, { FC, useCallback, useMemo } from 'react';
 
 import { intersection } from 'lodash';
-import { useFormContext } from 'react-hook-form-v7';
+import { useFormContext } from 'react-hook-form';
 
 import { useCurrenciesLoadingSelector } from 'app/store/buy-with-credit-card/selectors';
 import { fromTopUpTokenSlug } from 'lib/buy-with-credit-card/top-up-token-slug.utils';

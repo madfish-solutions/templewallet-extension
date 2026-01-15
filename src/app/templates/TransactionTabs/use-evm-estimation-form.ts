@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { transform } from 'lodash';
-import { useForm } from 'react-hook-form-v7';
+import { useForm } from 'react-hook-form';
 import { useDebounce } from 'use-debounce';
 import {
   FeeCapTooLowError,

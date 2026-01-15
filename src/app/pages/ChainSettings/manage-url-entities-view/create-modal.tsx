@@ -1,6 +1,6 @@
 import React, { memo, useCallback, useState } from 'react';
 
-import { Controller, useForm } from 'react-hook-form-v7';
+import { Controller, useForm } from 'react-hook-form';
 
 import { FormField } from 'app/atoms';
 import { CLOSE_ANIMATION_TIMEOUT, PageModal } from 'app/atoms/PageModal';
