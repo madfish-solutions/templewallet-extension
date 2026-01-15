@@ -82,6 +82,7 @@ export enum TempleTezosChainId {
   Shadownet = TEZOS_SHADOWNET_CHAIN_ID,
   Rio = 'NetXPdgaoabtBth',
   Seoul = 'NetXd56aBs1aeW3',
+  Tallin = 'NetXe8DbhW9A1eS',
   Dcp = 'NetXooyhiru73tk',
   DcpTest = 'NetXZb3Lz8FsrZx'
 }
