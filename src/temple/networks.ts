@@ -81,7 +81,7 @@ export const TEZOS_FALLBACK_RPC_URLS: Record<string, string[]> = {
     'https://rpc.tzkt.io/shadownet',
     'https://shadownet.tezos.ecadinfra.com'
   ],
-  [TempleTezosChainId.Tezlink]: ['https://rpc.shadownet.tezlink.nomadic-labs.com']
+  [TempleTezosChainId.Tezlink]: ['https://rpc.shadownet.tezlink.nomadic-labs.com', 'https://rpc.tzkt.io/tezlink']
 };
 
 /** (!) Never remove Mainnet */
