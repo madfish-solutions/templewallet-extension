@@ -2,7 +2,6 @@ import { compose, Context, ContractAbstraction, ContractProvider, TezosToolkit }
 import { TokenMetadata, tzip12 } from '@taquito/tzip12';
 import { DEFAULT_HANDLERS, MetadataInterface, MetadataProvider, tzip16 } from '@taquito/tzip16';
 import retry from 'async-retry';
-
 import BigNumber from 'bignumber.js';
 
 import { isValidTezosContractAddress } from 'lib/tezos';
