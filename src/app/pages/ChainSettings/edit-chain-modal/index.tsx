@@ -1,6 +1,6 @@
 import React, { memo, useCallback, useMemo, useState } from 'react';
 
-import { Controller, FormProvider, useForm } from 'react-hook-form-v7';
+import { Controller, FormProvider, useForm } from 'react-hook-form';
 
 import { FormField, IconBase } from 'app/atoms';
 import { PageModal } from 'app/atoms/PageModal';

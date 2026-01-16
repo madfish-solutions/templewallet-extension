@@ -2,7 +2,7 @@ import React, { FC, MutableRefObject, memo, useCallback, useEffect, useMemo, use
 
 import clsx from 'clsx';
 import { uniqBy } from 'lodash';
-import { useFormContext } from 'react-hook-form-v7';
+import { useFormContext } from 'react-hook-form';
 
 import { FormField } from 'app/atoms';
 import { FormFieldElement } from 'app/atoms/FormField';

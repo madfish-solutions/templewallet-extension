@@ -3,7 +3,7 @@ import React, { FC, MutableRefObject, useCallback, useEffect, useMemo } from 're
 import { isDefined } from '@rnw-community/shared';
 import BigNumber from 'bignumber.js';
 import { isEmpty, isEqual } from 'lodash';
-import { Controller, useFormContext } from 'react-hook-form-v7';
+import { Controller, useFormContext } from 'react-hook-form';
 
 import AssetField from 'app/atoms/AssetField';
 import Money from 'app/atoms/Money';

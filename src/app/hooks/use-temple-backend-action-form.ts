@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 
-import { FieldPath, SubmitHandler, UseFormProps, useForm } from 'react-hook-form-v7';
+import { FieldPath, SubmitHandler, UseFormProps, useForm } from 'react-hook-form';
 
 const SUBMIT_ERROR_TYPE = 'submit-error';
 

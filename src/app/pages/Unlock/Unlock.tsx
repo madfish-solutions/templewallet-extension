@@ -1,6 +1,6 @@
 import React, { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-import { OnSubmit, useForm } from 'react-hook-form';
+import { SubmitHandler, useForm } from 'react-hook-form';
 import { useDispatch } from 'react-redux';
 
 import { FormField, IconBase } from 'app/atoms';
@@ -81,8 +81,8 @@ const Unlock: FC<UnlockProps> = ({ canImportNew = true }) => {
     formRef.current?.querySelector<HTMLInputElement>("input[name='password']")?.focus();
   }, []);
 
-  const { register, handleSubmit, errors, setError, clearError, formState } = useForm<FormData>();
-  const submitting = formState.isSubmitting;
+  const { register, handleSubmit, setError, clearErrors, formState } = useForm<FormData>();
+  const { errors, isSubmitting: submitting } = formState;
 
   const passwordShakeTrigger = useShakeOnErrorTrigger(formState.submitCount, errors.password);
 
@@ -91,16 +91,16 @@ const Unlock: FC<UnlockProps> = ({ canImportNew = true }) => {
       // Human delay.
       await delay();
 
-      setError('password', 'submit-error', message);
+      setError('password', { type: 'submit-error', message });
     },
     [setError]
   );
 
-  const onSubmit = useCallback<OnSubmit<FormData>>(
+  const onSubmit = useCallback<SubmitHandler<FormData>>(
     async ({ password }) => {
       if (submitting) return;
 
-      clearError('password');
+      clearErrors('password');
       formAnalytics.trackSubmit();
       try {
         if (attempt > LAST_ATTEMPT) await delay(Math.random() * 2000 + 1000);
@@ -134,7 +134,7 @@ const Unlock: FC<UnlockProps> = ({ canImportNew = true }) => {
     },
     [
       submitting,
-      clearError,
+      clearErrors,
       formAnalytics,
       attempt,
       unlock,
@@ -155,7 +155,7 @@ const Unlock: FC<UnlockProps> = ({ canImportNew = true }) => {
     const interval = setInterval(() => {
       if (timelock > 0 && Date.now() - timelock > lockLevel) {
         setTimeLock(0);
-        clearError('password');
+        clearErrors('password');
       }
       setTimeleft(getTimeLeft(timelock, lockLevel));
     }, 1_000);
@@ -163,7 +163,7 @@ const Unlock: FC<UnlockProps> = ({ canImportNew = true }) => {
     return () => {
       clearInterval(interval);
     };
-  }, [timelock, lockLevel, setTimeLock, clearError]);
+  }, [timelock, lockLevel, setTimeLock, clearErrors]);
 
   return (
     <>
@@ -177,10 +177,9 @@ const Unlock: FC<UnlockProps> = ({ canImportNew = true }) => {
           </p>
           <div className="w-full flex-1 flex flex-col">
             <FormField
-              ref={register({ required: t('required') })}
+              {...register('password', { required: t('required') })}
               id="unlock-password"
               type="password"
-              name="password"
               placeholder={DEFAULT_PASSWORD_INPUT_PLACEHOLDER}
               errorCaption={errors.password && errors.password.message}
               shakeTrigger={passwordShakeTrigger}

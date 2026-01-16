@@ -1,7 +1,7 @@
 import React, { ReactNode, useCallback, useMemo } from 'react';
 
 import clsx from 'clsx';
-import { Path, PathValue, UseFormReturn } from 'react-hook-form-v7';
+import { Path, PathValue, UseFormReturn } from 'react-hook-form';
 
 import { FormField, IconBase } from 'app/atoms';
 import { TextButton } from 'app/atoms/TextButton';

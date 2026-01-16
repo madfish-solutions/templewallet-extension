@@ -1,7 +1,7 @@
 import React, { FC, useMemo } from 'react';
 
 import clsx from 'clsx';
-import { Controller, useFormContext } from 'react-hook-form-v7';
+import { Controller, useFormContext } from 'react-hook-form';
 import { formatEther } from 'viem';
 
 import { FadeTransition } from 'app/a11y/FadeTransition';

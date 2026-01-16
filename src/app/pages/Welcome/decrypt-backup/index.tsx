@@ -1,6 +1,6 @@
 import React, { memo, useCallback } from 'react';
 
-import { useForm } from 'react-hook-form-v7';
+import { useForm } from 'react-hook-form';
 
 import { FormField } from 'app/atoms';
 import { StyledButton } from 'app/atoms/StyledButton';

@@ -52,6 +52,7 @@ export interface TempleState {
 export const TEZOS_MAINNET_CHAIN_ID = 'NetXdQprcVkpaWU';
 export const TEZOS_GHOSTNET_CHAIN_ID = 'NetXnHfVqm9iesp';
 const TEZOS_SHADOWNET_CHAIN_ID = 'NetXsqzbfFenSTS';
+const TEZOS_TEZLINK_CHAIN_ID = 'NetXH8Gw3H6Z3ey';
 export const ETHEREUM_MAINNET_CHAIN_ID = 1;
 export const ETHEREUM_HOODI_CHAIN_ID = 560048;
 export const ETHERLINK_MAINNET_CHAIN_ID = 42793;
@@ -80,6 +81,7 @@ export enum TempleTezosChainId {
   Mainnet = TEZOS_MAINNET_CHAIN_ID,
   Ghostnet = TEZOS_GHOSTNET_CHAIN_ID,
   Shadownet = TEZOS_SHADOWNET_CHAIN_ID,
+  Tezlink = TEZOS_TEZLINK_CHAIN_ID,
   Rio = 'NetXPdgaoabtBth',
   Seoul = 'NetXd56aBs1aeW3',
   Tallinn = 'NetXe8DbhW9A1eS',

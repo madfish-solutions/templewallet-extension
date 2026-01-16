@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react';
 
-import { SubmitHandler, useFormContext } from 'react-hook-form-v7';
+import { SubmitHandler, useFormContext } from 'react-hook-form';
 
 import { HashChip } from 'app/atoms/HashChip';
 import { ActionsButtonsBox } from 'app/atoms/PageModal/actions-buttons-box';
