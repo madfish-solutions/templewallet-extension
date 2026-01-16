@@ -50,6 +50,15 @@
   [role="button"]:not(:disabled) {
     cursor: pointer;
   }
+
+  /* Preserve Tailwind v3 behavior for border color */
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: transparent;
+  }
 }
 
 @layer components {
