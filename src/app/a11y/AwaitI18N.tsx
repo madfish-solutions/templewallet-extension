@@ -6,7 +6,6 @@ import { delay } from 'lib/utils';
 
 const AwaitI18N: FC = () => {
   useTypedSWR('i18n', awaitI18n, {
-    suspense: true,
     shouldRetryOnError: false,
     revalidateOnFocus: false,
     revalidateOnReconnect: false

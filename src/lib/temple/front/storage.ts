@@ -28,7 +28,6 @@ export function useStorage<T extends StorageValueBase = any>(
 ): [T, (val: SetStorageAction<T>) => Promise<void>];
 export function useStorage<T extends StorageValueBase = any>(key: string, fallback?: T) {
   const { data, mutate } = useRetryableSWR<T | null, unknown, string>(key, fetchFromStorage, {
-    suspense: true,
     revalidateOnFocus: false,
     revalidateOnReconnect: false
   });
@@ -60,7 +59,6 @@ export function usePassiveStorage<T = any>(key: string): [T | null | undefined, 
 export function usePassiveStorage<T = any>(key: string, fallback: T): [T, SyncFn<T>];
 export function usePassiveStorage<T = any>(key: string, fallback?: T) {
   const { data } = useRetryableSWR<T | null, unknown, string>(key, fetchFromStorage, {
-    suspense: true,
     revalidateOnFocus: false,
     revalidateOnReconnect: false
   });
