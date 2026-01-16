@@ -21,16 +21,19 @@ import { useInterval, useMemoWithCompare, useUpdatableRef } from 'lib/ui/hooks';
 import { isTruthy } from 'lib/utils';
 import { useEnabledTezosChains } from 'temple/front';
 
+import { useShouldLoadTezosData } from './balances-loading/use-should-load-tezos-data';
+
 export const AppTezosAssetsLoading = memo<{ publicKeyHash: string }>(({ publicKeyHash }) => {
   const tezosChains = useEnabledTezosChains();
+  const shouldLoad = useShouldLoadTezosData();
 
-  const networks = useMemoWithCompare(
-    () =>
-      tezosChains
-        .map(({ chainId, rpcBaseURL }) => (isKnownChainId(chainId) ? { chainId, rpcBaseURL } : null))
-        .filter(isTruthy),
-    [tezosChains]
-  );
+  const networks = useMemoWithCompare(() => {
+    if (!shouldLoad) return [];
+
+    return tezosChains
+      .map(({ chainId, rpcBaseURL }) => (isKnownChainId(chainId) ? { chainId, rpcBaseURL } : null))
+      .filter(isTruthy);
+  }, [shouldLoad, tezosChains]);
 
   const allTokensMetadata = useAllTokensMetadataSelector();
   const allTokensMetadataRef = useUpdatableRef(allTokensMetadata);
@@ -43,7 +46,7 @@ export const AppTezosAssetsLoading = memo<{ publicKeyHash: string }>(({ publicKe
 
   useInterval(
     () => {
-      if (tokensAreLoading) return;
+      if (tokensAreLoading || networks.length === 0) return;
 
       dispatch(setAssetsIsLoadingAction({ type: 'tokens', value: true, resetError: true }));
 
@@ -76,7 +79,7 @@ export const AppTezosAssetsLoading = memo<{ publicKeyHash: string }>(({ publicKe
 
   useInterval(
     () => {
-      if (collectiblesAreLoading) return;
+      if (collectiblesAreLoading || networks.length === 0) return;
 
       dispatch(setAssetsIsLoadingAction({ type: 'collectibles', value: true, resetError: true }));
 
