@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react';
+import { use, useEffect, useMemo } from 'react';
 
 import type { Tabs } from 'webextension-polyfill';
 
@@ -8,7 +8,12 @@ import { useTempleClient } from 'lib/temple/front';
 import { useUpdatableRef } from 'lib/ui/hooks';
 
 function useActiveTab() {
-  const { data: activeTab, mutate } = useTypedSWR(['browser', 'active-tab'], getActiveTab, { suspense: true });
+  const initialTab = use(initialActiveTabPromise);
+
+  const { data: activeTab, mutate } = useTypedSWR(['browser', 'active-tab'], getActiveTab, {
+    fallbackData: initialTab,
+    revalidateOnMount: false
+  });
 
   const activeTabRef = useUpdatableRef(activeTab);
 
@@ -67,6 +72,8 @@ async function getActiveTab() {
     })
     .then(tabs => tabs.at(0));
 }
+
+const initialActiveTabPromise = getActiveTab();
 
 export function useActiveTabUrlOrigin() {
   const { tabsOrigins } = useTempleClient();
