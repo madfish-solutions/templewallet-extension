@@ -75,14 +75,13 @@ export const MnemonicForm = memo<ImportAccountFormProps>(({ onSuccess }) => {
   const [seedError, setSeedError] = useState('');
   const [error, setError] = useState<ReactNode>(null);
   const {
-    errors,
     register,
     handleSubmit,
     formState,
     reset,
     setError: setFormError
   } = useForm<RestMnemonicFormData>({ defaultValues });
-  const { isSubmitting, submitCount } = formState;
+  const { errors, isSubmitting, submitCount } = formState;
 
   const [numberOfWords, setNumberOfWords] = useState(DEFAULT_SEED_PHRASE_WORDS_AMOUNT);
 
@@ -171,7 +170,7 @@ export const MnemonicForm = memo<ImportAccountFormProps>(({ onSuccess }) => {
         }
 
         if (expectedAccountAddress && expectedAccountAddress !== action.newActualAccountAddress) {
-          setFormError('accountAddress', '', t('accountAddressDoesNotMatch'));
+          setFormError('accountAddress', { message: t('accountAddressDoesNotMatch') });
           return;
         }
 
@@ -253,11 +252,10 @@ export const MnemonicForm = memo<ImportAccountFormProps>(({ onSuccess }) => {
         />
 
         <FormField
-          ref={register({
+          {...register('derivationPath', {
             required: false,
             validate: validateDerivationPath
           })}
-          name="derivationPath"
           id="derivationPath"
           labelContainerClassName="w-full flex justify-between items-center"
           label={
@@ -276,11 +274,10 @@ export const MnemonicForm = memo<ImportAccountFormProps>(({ onSuccess }) => {
         />
 
         <FormField
-          ref={register({
+          {...register('accountAddress', {
             required: false,
             validate: validateTezosAddress
           })}
-          name="accountAddress"
           id="accountAddress"
           labelContainerClassName="w-full flex justify-between items-center"
           label={

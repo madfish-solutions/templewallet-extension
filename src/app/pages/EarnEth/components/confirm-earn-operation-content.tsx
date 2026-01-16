@@ -2,7 +2,7 @@ import React, { ComponentType, useCallback, useEffect, useState } from 'react';
 
 import BigNumber from 'bignumber.js';
 import { omit } from 'lodash';
-import { FormProvider } from 'react-hook-form-v7';
+import { FormProvider } from 'react-hook-form';
 import { SWRResponse } from 'swr';
 import { TransactionRequest } from 'viem';
 

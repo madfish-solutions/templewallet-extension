@@ -4,7 +4,7 @@ import { isDefined } from '@rnw-community/shared';
 import BigNumber from 'bignumber.js';
 import debounce from 'debounce-promise';
 import { intersection } from 'lodash';
-import type { UseFormReturn } from 'react-hook-form-v7';
+import type { UseFormReturn } from 'react-hook-form';
 
 import { dispatch } from 'app/store';
 import { updatePairLimitsActions } from 'app/store/buy-with-credit-card/actions';

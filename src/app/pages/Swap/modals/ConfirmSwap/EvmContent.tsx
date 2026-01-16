@@ -3,7 +3,7 @@ import { FC, RefObject, useCallback, useEffect, useMemo, useState } from 'react'
 import { LiFiStep, StatusResponse } from '@lifi/sdk';
 import retry from 'async-retry';
 import BigNumber from 'bignumber.js';
-import { FormProvider } from 'react-hook-form-v7';
+import { FormProvider } from 'react-hook-form';
 import { TransactionRequest, isAddress } from 'viem';
 
 import { useLedgerApprovalModalState } from 'app/hooks/use-ledger-approval-modal-state';

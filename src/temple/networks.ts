@@ -80,7 +80,8 @@ export const TEZOS_FALLBACK_RPC_URLS: Record<string, string[]> = {
     'https://rpc.shadownet.teztnets.com',
     'https://rpc.tzkt.io/shadownet',
     'https://shadownet.tezos.ecadinfra.com'
-  ]
+  ],
+  [TempleTezosChainId.Tezlink]: ['https://rpc.shadownet.tezlink.nomadic-labs.com', 'https://rpc.tzkt.io/tezlink']
 };
 
 /** (!) Never remove Mainnet */
@@ -131,6 +132,16 @@ export const TEZOS_DEFAULT_NETWORKS: NonEmptyArray<StoredTezosNetwork> = [
     rpcBaseURL: TEZOS_FALLBACK_RPC_URLS[TempleTezosChainId.Shadownet][DEFAULT_RPC_INDEX],
     description: 'Shadownet testnet',
     color: '#4B5563',
+    default: true
+  },
+  {
+    id: 'tezlink',
+    name: 'Tezlink',
+    chain: TempleChainKind.Tezos,
+    chainId: TempleTezosChainId.Tezlink,
+    rpcBaseURL: TEZOS_FALLBACK_RPC_URLS[TempleTezosChainId.Tezlink][DEFAULT_RPC_INDEX],
+    description: 'Tezlink testnet',
+    color: '#5B7523',
     default: true
   }
 ];

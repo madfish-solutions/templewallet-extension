@@ -11,22 +11,24 @@ import { isTruthy } from 'lib/utils';
 import { useEnabledTezosChains, useOnTezosBlock } from 'temple/front';
 import { TezosNetworkEssentials } from 'temple/networks';
 
+import { useShouldLoadTezosData } from './use-should-load-tezos-data';
 import { useTzktSubscription } from './use-tzkt-subscription';
 
 export const AppTezosBalancesLoading = memo<{ publicKeyHash: string }>(({ publicKeyHash }) => {
   const tezosChains = useEnabledTezosChains();
+  const shouldLoad = useShouldLoadTezosData();
 
-  const knownTezosNetworks = useMemoWithCompare(
-    () =>
-      tezosChains
-        .map(({ chainId, rpcBaseURL }) => (isKnownChainId(chainId) ? { chainId, rpcBaseURL } : null))
-        .filter(isTruthy),
-    [tezosChains]
-  );
+  const networksToLoad = useMemoWithCompare(() => {
+    if (!shouldLoad) return [];
+
+    return tezosChains
+      .map(({ chainId, rpcBaseURL }) => (isKnownChainId(chainId) ? { chainId, rpcBaseURL } : null))
+      .filter(isTruthy);
+  }, [shouldLoad, tezosChains]);
 
   return (
     <>
-      {knownTezosNetworks.map(network => (
+      {networksToLoad.map(network => (
         <BalancesLoadingForTezosNetwork
           key={network.chainId}
           publicKeyHash={publicKeyHash}

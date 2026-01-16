@@ -1,7 +1,7 @@
 import React, { FC, memo, useCallback } from 'react';
 
 import clsx from 'clsx';
-import { useFormContext } from 'react-hook-form-v7';
+import { useFormContext } from 'react-hook-form';
 
 import { EmptyState } from 'app/atoms/EmptyState';
 import Money from 'app/atoms/Money';

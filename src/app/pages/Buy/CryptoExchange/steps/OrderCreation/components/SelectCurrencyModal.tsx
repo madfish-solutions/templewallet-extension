@@ -1,6 +1,6 @@
 import React, { FC, memo, useCallback, useMemo, useState } from 'react';
 
-import { useFormContext } from 'react-hook-form-v7';
+import { useFormContext } from 'react-hook-form';
 import { useDebounce } from 'use-debounce';
 
 import { Button } from 'app/atoms';

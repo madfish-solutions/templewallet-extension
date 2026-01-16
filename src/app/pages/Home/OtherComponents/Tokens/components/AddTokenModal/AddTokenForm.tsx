@@ -2,7 +2,7 @@ import React, { memo, useCallback, useEffect, useMemo, useRef } from 'react';
 
 import { ContractAbstraction, ContractProvider, Wallet } from '@taquito/taquito';
 import clsx from 'clsx';
-import { useForm } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 import { useDebouncedCallback } from 'use-debounce';
 import { getAddress, isAddress } from 'viem';
 
@@ -106,10 +106,10 @@ export const AddTokenForm = memo<AddTokenPageProps>(
 
     const [_, setToastsContainerBottomShift] = useToastsContainerBottomShift();
 
-    const { formState, register, errors, watch, setValue, triggerValidation, clearError, handleSubmit } =
-      useForm<FormData>({
-        mode: 'onChange'
-      });
+    const { formState, register, watch, setValue, trigger, clearErrors, handleSubmit, control } = useForm<FormData>({
+      mode: 'onChange'
+    });
+    const { errors } = formState;
 
     const contractAddress = watch('address') || '';
     const tokenIdWithoutFallback = watch('id');
@@ -131,8 +131,8 @@ export const AddTokenForm = memo<AddTokenPageProps>(
     const isAddButtonDisabled =
       tokenValidationError ||
       tokenDataError ||
-      (formState.isSubmitted && !formState.dirty) ||
-      (formState.dirty && !formValid);
+      (formState.isSubmitted && !formState.isDirty) ||
+      (formState.isDirty && !formValid);
 
     const attemptRef = useRef(0);
     const tezMetadataRef = useRef<RequiredTokenMetadataResponse>(null);
@@ -210,18 +210,18 @@ export const AddTokenForm = memo<AddTokenPageProps>(
 
     useEffect(() => {
       if (formValid) {
-        clearError();
+        clearErrors();
         loadMetadataRef.current();
       } else {
         setState(INITIAL_STATE);
         attemptRef.current++;
       }
-    }, [formValid, selectedNetwork, contractAddress, tokenId, clearError, setState]);
+    }, [formValid, selectedNetwork, contractAddress, tokenId, clearErrors, setState]);
 
     const cleanContractAddress = useCallback(() => {
       setValue('address', '');
-      triggerValidation('address');
-    }, [setValue, triggerValidation]);
+      trigger('address');
+    }, [setValue, trigger]);
 
     const cleanTokenId = useCallback(() => {
       setValue('id', undefined);
@@ -356,21 +356,27 @@ export const AddTokenForm = memo<AddTokenPageProps>(
             <T id="tokenAddress" />
           </p>
 
-          <NoSpaceField
-            ref={register({
+          <Controller
+            name="address"
+            control={control}
+            rules={{
               required: t('required'),
               validate: isTezosChainSelected ? validateTezosContractAddress : validateEvmContractAddress
-            })}
-            name="address"
-            id="addtoken-address"
-            textarea
-            rows={2}
-            cleanable={Boolean(contractAddress)}
-            onClean={cleanContractAddress}
-            placeholder={isTezosChainSelected ? 'KT1v9CmPy…' : '0x0f5d2fb2…'}
-            errorCaption={errors.address?.message}
-            containerClassName={forCollectible || isTezosChainSelected ? 'mb-3' : 'mb-1'}
-            className="resize-none"
+            }}
+            render={({ field }) => (
+              <NoSpaceField
+                {...field}
+                id="addtoken-address"
+                textarea
+                rows={2}
+                cleanable={Boolean(contractAddress)}
+                onClean={cleanContractAddress}
+                placeholder={isTezosChainSelected ? 'KT1v9CmPy…' : '0x0f5d2fb2…'}
+                errorCaption={errors.address?.message}
+                containerClassName={forCollectible || isTezosChainSelected ? 'mb-3' : 'mb-1'}
+                className="resize-none"
+              />
+            )}
           />
 
           {(forCollectible || isTezosChainSelected) && (
@@ -385,12 +391,11 @@ export const AddTokenForm = memo<AddTokenPageProps>(
               </div>
 
               <FormField
-                ref={register({
+                {...register('id', {
                   min: { value: 0, message: t('nonNegativeIntMessage') }
                 })}
                 min={0}
                 type="number"
-                name="id"
                 id="token-id"
                 placeholder="0"
                 cleanable={Boolean(tokenIdWithoutFallback) || tokenIdWithoutFallback === '0'}

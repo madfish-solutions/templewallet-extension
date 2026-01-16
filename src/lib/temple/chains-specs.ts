@@ -47,6 +47,10 @@ export const DEFAULT_TEZOS_CHAINS_SPECS: Record<string, TezosChainSpecs & { test
   [TempleTezosChainId.Shadownet]: {
     name: 'Shadownet',
     testnet: true
+  },
+  [TempleTezosChainId.Tezlink]: {
+    name: 'Tezlink',
+    testnet: true
   }
 };
 

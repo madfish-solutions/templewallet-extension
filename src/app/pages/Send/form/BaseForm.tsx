@@ -2,7 +2,7 @@ import React, { FC, FocusEventHandler, useCallback, useMemo, useRef, useState } 
 
 import BigNumber from 'bignumber.js';
 import { isEmpty } from 'lodash';
-import { Controller, SubmitErrorHandler, SubmitHandler, useFormContext, Validate } from 'react-hook-form-v7';
+import { Controller, SubmitErrorHandler, SubmitHandler, useFormContext, Validate } from 'react-hook-form';
 import { useDebounce } from 'use-debounce';
 
 import { Button, NoSpaceField } from 'app/atoms';

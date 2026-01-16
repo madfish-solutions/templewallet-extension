@@ -1,7 +1,7 @@
 import { Ref, memo, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
 
 import { noop } from 'lodash';
-import { Controller, FormProvider, useForm } from 'react-hook-form-v7';
+import { Controller, FormProvider, useForm } from 'react-hook-form';
 
 import { FormField } from 'app/atoms';
 import { PageModal } from 'app/atoms/PageModal';

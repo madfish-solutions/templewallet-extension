@@ -3,7 +3,7 @@ import React, { FC, useCallback, useEffect, useMemo, useRef, useState } from 're
 import { ChainId, Route as LiFiRoute } from '@lifi/sdk';
 import { isDefined } from '@rnw-community/shared';
 import BigNumber from 'bignumber.js';
-import { FormProvider, useForm } from 'react-hook-form-v7';
+import { FormProvider, useForm } from 'react-hook-form';
 
 import { DeadEndBoundaryError } from 'app/ErrorBoundary';
 import { useSwapFormControl } from 'app/pages/Swap/context';

@@ -1,7 +1,7 @@
 import React, { memo, useCallback, useEffect } from 'react';
 
 import { isEmpty } from 'lodash';
-import { Controller, useForm } from 'react-hook-form-v7';
+import { Controller, useForm } from 'react-hook-form';
 import { isAddress } from 'viem';
 
 import { FormField, IconBase, NoSpaceField } from 'app/atoms';

@@ -1,7 +1,7 @@
 import React, { FC } from 'react';
 
 import clsx from 'clsx';
-import { Controller, useFormContext } from 'react-hook-form-v7';
+import { Controller, useFormContext } from 'react-hook-form';
 import ReactJson from 'react-json-view';
 
 import { FadeTransition } from 'app/a11y/FadeTransition';

@@ -1,7 +1,7 @@
 import { useCallback, useState } from 'react';
 
 import { isDefined } from '@rnw-community/shared';
-import { SubmitHandler } from 'react-hook-form-v7';
+import { SubmitHandler } from 'react-hook-form';
 import browser from 'webextension-polyfill';
 
 import { useCryptoCurrenciesSelector } from 'app/store/buy-with-credit-card/selectors';

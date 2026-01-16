@@ -492,6 +492,7 @@ const dAppNetworksChainIds = {
   mainnet: TEZOS_MAINNET_CHAIN_ID,
   ghostnet: TempleTezosChainId.Ghostnet,
   shadownet: TempleTezosChainId.Shadownet,
+  tezlink: TempleTezosChainId.Tezlink,
   rionet: TempleTezosChainId.Rio,
   seoulnet: TempleTezosChainId.Seoul
 };

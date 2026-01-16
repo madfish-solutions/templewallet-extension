@@ -42,12 +42,13 @@ export const NewsletterOverlay = memo(() => {
   const onRampAsset = useOnRampAssetSelector();
   const isOnRampPossibility = Boolean(onRampAsset);
 
-  const validationResolver = useYupValidationResolver<FormValues>(validationSchema);
+  const resolver = useYupValidationResolver<FormValues>(validationSchema);
 
-  const { errors, handleSubmit, watch, register } = useForm<FormValues>({
+  const { formState, handleSubmit, watch, register } = useForm<FormValues>({
     defaultValues: { email: '' },
-    validationResolver
+    resolver
   });
+  const { errors } = formState;
   const email = watch('email');
   const isValid = Object.keys(errors).length === 0;
 
@@ -115,8 +116,7 @@ export const NewsletterOverlay = memo(() => {
 
             <div className="w-full mb-4">
               <input
-                ref={register()}
-                name="email"
+                {...register('email')}
                 className="w-full max-h-13 p-4 rounded-md border text-sm text-gray-910"
                 placeholder="example@mail.com"
                 {...setTestID(NewsletterOverlaySelectors.emailInput)}

@@ -2,7 +2,7 @@ import React, { memo, useCallback, useEffect, useMemo, useRef } from 'react';
 
 import BigNumber from 'bignumber.js';
 import clsx from 'clsx';
-import { Controller, ControllerProps, useForm } from 'react-hook-form-v7';
+import { Controller, ControllerProps, useForm } from 'react-hook-form';
 import { object as objectSchema, string as stringSchema, boolean as booleanSchema } from 'yup';
 
 import { Button, IconBase, Money } from 'app/atoms';

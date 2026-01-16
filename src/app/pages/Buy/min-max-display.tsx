@@ -1,7 +1,7 @@
 import React, { memo } from 'react';
 
 import clsx from 'clsx';
-import { FieldError } from 'react-hook-form-v7';
+import { FieldError } from 'react-hook-form';
 
 import { T } from 'lib/i18n';
 

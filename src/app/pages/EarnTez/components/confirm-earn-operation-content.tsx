@@ -2,7 +2,7 @@ import React, { ComponentType, useCallback, useEffect, useMemo, useState } from 
 
 import { TezosToolkit, WalletParamsWithKind } from '@taquito/taquito';
 import BigNumber from 'bignumber.js';
-import { FormProvider } from 'react-hook-form-v7';
+import { FormProvider } from 'react-hook-form';
 import { SWRResponse } from 'swr';
 
 import { FadeTransition } from 'app/a11y/FadeTransition';

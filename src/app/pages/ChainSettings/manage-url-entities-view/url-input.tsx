@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { UseFormReturn } from 'react-hook-form-v7';
+import { UseFormReturn } from 'react-hook-form';
 
 import { UrlInput as GenericUrlInput } from 'app/templates/UrlInput';
 
