@@ -21,6 +21,7 @@ interface BaseContentProps<T extends TxParamsFormData> {
   ledgerApprovalModalState: LedgerOperationState;
   network: OneOfChains;
   assetSlug: string;
+  nativeAssetSlug: string;
   amount: string;
   recipientAddress: string;
   selectedTab: Tab;
@@ -41,6 +42,7 @@ export const BaseContent = <T extends TxParamsFormData>({
   ledgerApprovalModalState,
   network,
   assetSlug,
+  nativeAssetSlug,
   recipientAddress,
   amount,
   selectedFeeOption,
@@ -72,7 +74,7 @@ export const BaseContent = <T extends TxParamsFormData>({
             footer={
               <FeeSummary
                 network={network}
-                assetSlug={assetSlug}
+                assetSlug={nativeAssetSlug}
                 gasFee={displayedFee}
                 storageFee={displayedStorageFee}
                 onOpenFeeTab={goToFeeTab}
@@ -85,7 +87,7 @@ export const BaseContent = <T extends TxParamsFormData>({
 
         <TransactionTabs<T>
           network={network}
-          nativeAssetSlug={assetSlug}
+          nativeAssetSlug={nativeAssetSlug}
           selectedTab={selectedTab}
           setSelectedTab={setSelectedTab}
           selectedFeeOption={selectedFeeOption}

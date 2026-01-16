@@ -226,6 +226,7 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose, onSuccess }
           onLedgerModalClose={handleLedgerModalClose}
           network={network}
           assetSlug={assetSlug}
+          nativeAssetSlug={TEZ_TOKEN_SLUG}
           amount={amount}
           recipientAddress={to}
           decimals={assetMetadata.decimals}
