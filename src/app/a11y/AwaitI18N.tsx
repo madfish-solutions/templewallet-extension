@@ -1,15 +1,10 @@
-import { FC } from 'react';
+import { FC, use } from 'react';
 
 import { onInited } from 'lib/i18n';
-import { useTypedSWR } from 'lib/swr';
 import { delay } from 'lib/utils';
 
 const AwaitI18N: FC = () => {
-  useTypedSWR('i18n', awaitI18n, {
-    shouldRetryOnError: false,
-    revalidateOnFocus: false,
-    revalidateOnReconnect: false
-  });
+  use(i18nReadyPromise);
 
   return null;
 };
@@ -24,3 +19,5 @@ async function awaitI18n() {
   }
   return null;
 }
+
+const i18nReadyPromise = awaitI18n();
