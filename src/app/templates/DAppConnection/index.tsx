@@ -105,6 +105,7 @@ const DAppConnectionBox = memo(({ activeDApp, disconnectOne }: DAppConnectionBox
     if (dapp.network === 'mainnet') return TempleTezosChainId.Mainnet;
     if (dapp.network === 'ghostnet') return TempleTezosChainId.Ghostnet;
     if (dapp.network === 'shadownet') return TempleTezosChainId.Shadownet;
+    if (dapp.network === 'tezlink') return TempleTezosChainId.Tezlink;
 
     if (dapp.network === 'sandbox') return loadTezosChainId('http://localhost:8732');
 
