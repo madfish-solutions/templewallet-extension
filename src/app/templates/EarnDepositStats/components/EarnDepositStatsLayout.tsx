@@ -1,6 +1,7 @@
 import React, { FC, memo } from 'react';
 
 import clsx from 'clsx';
+import { useDebounce } from 'use-debounce';
 
 import { Loader } from 'app/atoms';
 import { AnimatedMenuChevron } from 'app/atoms/animated-menu-chevron';
@@ -30,10 +31,12 @@ export const EarnDepositStatsLayout: FC<EarnDepositStatsLayoutProps> = ({
   onCryptoCardClick,
   containerClassName,
   chartData,
-  isChartLoading,
+  isChartLoading: syncIsChartLoading,
   fiatCurrencySymbol,
   headerIcons
 }) => {
+  const [isChartLoading] = useDebounce(syncIsChartLoading, 300);
+
   const { animatedChevronRef, handleHover, handleUnhover } = useActivateAnimatedChevron();
 
   const { fiatChangeValues, latestFiatValue, changePercentBn, isChangePositive, isChangeNegative, hasDeposits } =
