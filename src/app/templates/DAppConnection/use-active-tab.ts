@@ -8,14 +8,7 @@ import { useTempleClient } from 'lib/temple/front';
 import { useUpdatableRef } from 'lib/ui/hooks';
 
 function useActiveTab() {
-  const { data: activeTab, mutate } = useTypedSWR(['browser', 'active-tab'], () =>
-    browser.tabs
-      .query({
-        active: true,
-        lastFocusedWindow: true
-      })
-      .then(tabs => tabs.at(0))
-  );
+  const { data: activeTab, mutate } = useTypedSWR(['browser', 'active-tab'], getActiveTab, { suspense: true });
 
   const activeTabRef = useUpdatableRef(activeTab);
 
@@ -64,6 +57,15 @@ function useActiveTab() {
   }, [mutate, activeTabRef]);
 
   return activeTab;
+}
+
+async function getActiveTab() {
+  return browser.tabs
+    .query({
+      active: true,
+      lastFocusedWindow: true
+    })
+    .then(tabs => tabs.at(0));
 }
 
 export function useActiveTabUrlOrigin() {
