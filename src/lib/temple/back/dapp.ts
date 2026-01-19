@@ -494,7 +494,8 @@ const dAppNetworksChainIds = {
   shadownet: TempleTezosChainId.Shadownet,
   tezlink: TempleTezosChainId.Tezlink,
   rionet: TempleTezosChainId.Rio,
-  seoulnet: TempleTezosChainId.Seoul
+  seoulnet: TempleTezosChainId.Seoul,
+  tallinnnet: TempleTezosChainId.Tallinn
 };
 async function getNetworkRPC(net: TezosDAppNetwork) {
   if (net === 'sandbox') {
