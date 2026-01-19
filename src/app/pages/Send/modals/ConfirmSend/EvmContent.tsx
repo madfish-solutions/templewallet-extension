@@ -196,6 +196,7 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose, onSuccess }) =>
           onLedgerModalClose={handleLedgerModalClose}
           network={network}
           assetSlug={assetSlug}
+          nativeAssetSlug={EVM_TOKEN_SLUG}
           amount={amount}
           recipientAddress={to}
           decimals={assetMetadata?.decimals}

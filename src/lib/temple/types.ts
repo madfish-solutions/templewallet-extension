@@ -84,6 +84,7 @@ export enum TempleTezosChainId {
   Tezlink = TEZOS_TEZLINK_CHAIN_ID,
   Rio = 'NetXPdgaoabtBth',
   Seoul = 'NetXd56aBs1aeW3',
+  Tallinn = 'NetXe8DbhW9A1eS',
   Dcp = 'NetXooyhiru73tk',
   DcpTest = 'NetXZb3Lz8FsrZx'
 }
