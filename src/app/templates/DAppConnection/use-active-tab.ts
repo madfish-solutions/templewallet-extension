@@ -1,19 +1,22 @@
-import { use, useEffect, useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 
 import type { Tabs } from 'webextension-polyfill';
 
 import { browser } from 'lib/browser';
-import { useTypedSWR } from 'lib/swr';
+import { useInitialSuspenseSWR } from 'lib/swr';
 import { useTempleClient } from 'lib/temple/front';
 import { useUpdatableRef } from 'lib/ui/hooks';
 
 function useActiveTab() {
-  const initialTab = use(initialActiveTabPromise);
-
-  const { data: activeTab, mutate } = useTypedSWR(['browser', 'active-tab'], getActiveTab, {
-    fallbackData: initialTab,
-    revalidateOnMount: false
-  });
+  const { data: activeTab, mutate } = useInitialSuspenseSWR(
+    ['browser', 'active-tab'],
+    getActiveTab,
+    initialActiveTabPromise,
+    {
+      errorRetryCount: 0,
+      revalidateOnMount: false
+    }
+  );
 
   const activeTabRef = useUpdatableRef(activeTab);
 
