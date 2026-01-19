@@ -150,7 +150,14 @@ function hasErrorPattern(error: SerializedTezosOperationError, patterns: readonl
 }
 
 function isTezosGenericOperationErrorArray(body: unknown): body is TezosGenericOperationError[] {
-  return Array.isArray(body) && body.length > 0 && body.every(item => isObject(item) && 'kind' in item && 'id' in item);
+  return (
+    Array.isArray(body) &&
+    body.length > 0 &&
+    body.every(
+      item =>
+        isObject(item) && 'kind' in item && 'id' in item && typeof item.kind === 'string' && typeof item.id === 'string'
+    )
+  );
 }
 
 function tryMakeTezosOperationError(error: SerializedHttpResponseError) {
