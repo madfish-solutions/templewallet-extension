@@ -190,7 +190,6 @@
     "react-redux": "^9.2.0",
     "react-transition-group": "4.4.5",
     "react-window": "^1.8.11",
-    "react-is": "18.2.0",
     "recharts": "3.5.1",
     "redux-observable": "^2.0.0",
     "redux-persist": "^6.0.0",
@@ -238,7 +237,7 @@
     "text-decoding": "^1.0.0"
   },
   "resolutions": {
-    "axios": "^1.12.0",
+    "axios": "^1.13.2",
     "npm-run-all/cross-spawn": "^7.0.6",
     "react-dev-utils/fork-ts-checker-webpack-plugin": "^9",
     "tslib": "^2.4.0",
