@@ -190,6 +190,7 @@
     "react-redux": "^9.2.0",
     "react-transition-group": "4.4.5",
     "react-window": "^1.8.11",
+    "react-is": "19.2.3",
     "recharts": "3.5.1",
     "redux-observable": "^2.0.0",
     "redux-persist": "^6.0.0",
