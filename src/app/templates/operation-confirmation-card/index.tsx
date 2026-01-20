@@ -29,7 +29,7 @@ export const OperationConfirmationCard: FC<PropsWithChildren<OperationConfirmati
   title,
   children
 }) => (
-  <div className="bg-white p-4 pb-2 shadow-bottom rounded-lg flex flex-col gap-3">
+  <div className="bg-white p-4 pb-2 border-0.5 border-lines rounded-lg flex flex-col gap-3">
     {title && <p className="text-font-description-bold text-grey-1">{title}</p>}
     <div className="flex flex-col gap-2">{children}</div>
   </div>

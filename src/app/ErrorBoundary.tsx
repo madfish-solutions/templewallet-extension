@@ -37,6 +37,12 @@ export default class ErrorBoundary extends Component<Props, ErrorBoundaryState> 
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     console.error(error.message, errorInfo.componentStack);
+
+    window.dispatchEvent(
+      new CustomEvent('temple-error', {
+        detail: { error, componentStack: errorInfo.componentStack }
+      })
+    );
   }
 
   componentDidMount() {

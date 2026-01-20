@@ -97,7 +97,20 @@ export const connectEvm = async (origin: string, chainId: string, icon?: string,
       },
       handleIntercomRequest: async (confirmReq, decline) => {
         if (confirmReq?.type === TempleMessageType.DAppPermConfirmationRequest && confirmReq?.id === id) {
-          const { confirmed, accountPublicKeyHash } = confirmReq;
+          const { confirmed, accountPublicKeyHash, forwardToProvider } = confirmReq;
+
+          if (forwardToProvider) {
+            reject(
+              new ErrorWithCode(EVMErrorCodes.FORWARD_TO_PROVIDER, 'Forward to other provider', {
+                rdns: forwardToProvider
+              })
+            );
+
+            return {
+              type: TempleMessageType.DAppPermConfirmationResponse
+            };
+          }
+
           if (confirmed && accountPublicKeyHash) {
             const lowercasePkh = accountPublicKeyHash.toLowerCase() as HexString;
             await setDApp(origin, {

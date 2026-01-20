@@ -1,7 +1,6 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback } from 'react';
 
-import BigNumber from 'bignumber.js';
-import { SubmitHandler, useFormContext } from 'react-hook-form-v7';
+import { SubmitHandler, useFormContext } from 'react-hook-form';
 
 import { HashChip } from 'app/atoms/HashChip';
 import { ActionsButtonsBox } from 'app/atoms/PageModal/actions-buttons-box';
@@ -14,14 +13,15 @@ import { TransactionTabs } from 'app/templates/TransactionTabs';
 import { Tab, TxParamsFormData } from 'app/templates/TransactionTabs/types';
 import { T } from 'lib/i18n';
 import { DisplayedFeeOptions, FeeOptionLabel } from 'lib/temple/front/estimation-data-providers';
-import { tokensToAtoms } from 'lib/temple/helpers';
 import { LedgerOperationState } from 'lib/ui';
 import { OneOfChains } from 'temple/front';
 
+import { useSendBalancesChanges } from './use-send-balances-changes';
 interface BaseContentProps<T extends TxParamsFormData> {
   ledgerApprovalModalState: LedgerOperationState;
   network: OneOfChains;
   assetSlug: string;
+  nativeAssetSlug: string;
   amount: string;
   recipientAddress: string;
   selectedTab: Tab;
@@ -42,6 +42,7 @@ export const BaseContent = <T extends TxParamsFormData>({
   ledgerApprovalModalState,
   network,
   assetSlug,
+  nativeAssetSlug,
   recipientAddress,
   amount,
   selectedFeeOption,
@@ -61,18 +62,7 @@ export const BaseContent = <T extends TxParamsFormData>({
 
   const goToFeeTab = useCallback(() => setSelectedTab('fee'), [setSelectedTab]);
 
-  const balancesChanges = useMemo(() => {
-    const atomic = tokensToAtoms(new BigNumber(amount || 0), decimals ?? 0).negated();
-
-    return [
-      {
-        [assetSlug]: {
-          atomicAmount: atomic,
-          isNft: false
-        }
-      }
-    ];
-  }, [decimals, assetSlug, amount]);
+  const balancesChanges = useSendBalancesChanges(assetSlug, amount, decimals);
 
   return (
     <>
@@ -84,7 +74,7 @@ export const BaseContent = <T extends TxParamsFormData>({
             footer={
               <FeeSummary
                 network={network}
-                assetSlug={assetSlug}
+                assetSlug={nativeAssetSlug}
                 gasFee={displayedFee}
                 storageFee={displayedStorageFee}
                 onOpenFeeTab={goToFeeTab}
@@ -97,7 +87,7 @@ export const BaseContent = <T extends TxParamsFormData>({
 
         <TransactionTabs<T>
           network={network}
-          nativeAssetSlug={assetSlug}
+          nativeAssetSlug={nativeAssetSlug}
           selectedTab={selectedTab}
           setSelectedTab={setSelectedTab}
           selectedFeeOption={selectedFeeOption}

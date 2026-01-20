@@ -3,7 +3,10 @@ export type {
   TzktTokenTransfer,
   TzktRewardsEntry,
   TzktOperationType,
-  TzktTransactionOperation
+  TzktTransactionOperation,
+  TzktBalanceHistoryItem,
+  TzktGetBalanceHistoryParams,
+  TzktStakingUpdate
 } from './types';
 
 export {
@@ -25,7 +28,9 @@ export {
   fetchAllAssetsBalancesFromTzkt,
   fetchGetOperationsTransactions,
   fetchGetAccountOperations,
-  fetchGetOperationsByHash
+  fetchGetOperationsByHash,
+  fetchAccountBalanceHistory,
+  fetchStakingUpdates
 } from './api';
 
 export { calcTzktAccountSpendableTezBalance } from './utils';

@@ -1,7 +1,6 @@
 import { useMemo } from 'react';
 
 import { isDefined } from '@rnw-community/shared';
-import axios from 'axios';
 import { BigNumber } from 'bignumber.js';
 
 import { useTezosUsdToTokenRatesSelector } from 'app/store/currency/selectors';
@@ -9,6 +8,7 @@ import { use3RouteEvmTokenMetadataSelector } from 'app/store/evm/swap-3route-met
 import { useLifiEvmTokenMetadataSelector } from 'app/store/evm/swap-lifi-metadata/selectors';
 import { useEvmUsdToTokenRatesSelector } from 'app/store/evm/tokens-exchange-rates/selectors';
 import { useSelector } from 'app/store/root-state.selector';
+import { coingeckoApi } from 'lib/apis/coingecko';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { toChainAssetSlug } from 'lib/assets/utils';
 import { useStorage } from 'lib/temple/front';
@@ -83,8 +83,6 @@ export const useFiatCurrency = () => {
     fiatRates: data
   };
 };
-
-const coingeckoApi = axios.create({ baseURL: 'https://api.coingecko.com/api/v3/' });
 
 export const fetchFiatToTezosRates = () =>
   coingeckoApi

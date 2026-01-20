@@ -3,7 +3,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ForgeParams, localForger } from '@taquito/local-forging';
 import { Estimate, TezosOperationError, TezosToolkit, WalletParamsWithKind, getRevealFee } from '@taquito/taquito';
 import BigNumber from 'bignumber.js';
-import { useForm } from 'react-hook-form-v7';
+import { useForm } from 'react-hook-form';
 import { BehaviorSubject, EMPTY, catchError, from, of, switchMap } from 'rxjs';
 import { useDebounce } from 'use-debounce';
 

@@ -2,7 +2,7 @@ import React, { FC, FocusEventHandler, useCallback, useMemo, useRef, useState } 
 
 import BigNumber from 'bignumber.js';
 import { isEmpty } from 'lodash';
-import { Controller, SubmitErrorHandler, SubmitHandler, useFormContext, Validate } from 'react-hook-form-v7';
+import { Controller, SubmitErrorHandler, SubmitHandler, useFormContext, Validate } from 'react-hook-form';
 import { useDebounce } from 'use-debounce';
 
 import { Button, NoSpaceField } from 'app/atoms';
@@ -190,7 +190,7 @@ export const BaseForm: FC<Props> = ({
   return (
     <>
       <div className="flex-1 pt-4 px-4 flex flex-col overflow-y-auto">
-        <div className="text-font-description-bold mb-2">
+        <div className="text-font-description-bold py-1 mb-1">
           <T id="token" />
         </div>
 

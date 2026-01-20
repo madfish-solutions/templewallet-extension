@@ -19,3 +19,7 @@ export const monitorPendingTezosTransactionsAction = createAction('tezos/pending
 export const cleanupOutdatedTezosPendingTxWithInitialMonitorTriggerAction = createAction(
   'tezos/pending-transactions/CLEANUP_OUTDATED_TEZOS_PENDING_TX_WITH_MONITOR_TRIGGER'
 );
+
+export const setTezosTransactionBeingWatchedAction = createAction<string | undefined>(
+  'tezos/pending-transactions/SET_TRANSACTION_BEING_WATCHED'
+);

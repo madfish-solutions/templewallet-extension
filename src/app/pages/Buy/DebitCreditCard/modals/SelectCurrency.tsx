@@ -1,6 +1,6 @@
 import React, { FC, useCallback } from 'react';
 
-import { useFormContext } from 'react-hook-form-v7';
+import { useFormContext } from 'react-hook-form';
 
 import { useCurrenciesLoadingSelector } from 'app/store/buy-with-credit-card/selectors';
 import { TopUpInputInterface } from 'lib/buy-with-credit-card/topup.interface';

@@ -2,7 +2,7 @@ import React, { FC, ReactNode, useCallback, useEffect } from 'react';
 
 import BigNumber from 'bignumber.js';
 import clsx from 'clsx';
-import { Controller, SubmitErrorHandler, useForm } from 'react-hook-form-v7';
+import { Controller, SubmitErrorHandler, useForm } from 'react-hook-form';
 
 import { FadeTransition } from 'app/a11y/FadeTransition';
 import { Button, Money } from 'app/atoms';

@@ -2,7 +2,7 @@ import React, { FC, useCallback, useEffect, useImperativeHandle, useMemo } from 
 
 import { ChainIds } from '@taquito/taquito';
 import BigNumber from 'bignumber.js';
-import { FormProvider, useForm } from 'react-hook-form-v7';
+import { FormProvider, useForm } from 'react-hook-form';
 
 import { DeadEndBoundaryError } from 'app/ErrorBoundary';
 import { usePendingTezosTransactionsHashes } from 'app/store/tezos/pending-transactions/utils';

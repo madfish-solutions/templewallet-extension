@@ -1574,6 +1574,12 @@
   "producerInputDescription": {
     "message": "Address of a registered producer."
   },
+  "delegationNotAvailableTitle": {
+    "message": "Delegation is not available"
+  },
+  "delegationNotAvailableDescription": {
+    "message": "This baker doesn’t offer rewards for delegation. If you want to earn delegation rewards, please choose a different baker."
+  },
   "minDelegationBalanceTitle": {
     "message": "Minimal delegation balance"
   },
@@ -1878,7 +1884,7 @@
     "message": "No operations found"
   },
   "pending": {
-    "message": "pending..."
+    "message": "Pending"
   },
   "applied": {
     "message": "Applied"
@@ -2335,6 +2341,18 @@
   },
   "searchNetworkName": {
     "message": "Search network name"
+  },
+  "searchByNameOrAddress": {
+    "message": "Search by name or address"
+  },
+  "status": {
+    "message": "Status"
+  },
+  "sender": {
+    "message": "Sender"
+  },
+  "txHash": {
+    "message": "Tx Hash"
   },
   "addTokenNonCapitalize": {
     "message": "Add token"
@@ -4911,6 +4929,9 @@
         "content": "$1"
       }
     }
+  },
+  "yourDeposits": {
+    "message": "Your deposits"
   },
   "activation": {
     "message": "Activation"

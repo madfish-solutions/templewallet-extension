@@ -1,7 +1,7 @@
 import React, { useCallback, useState } from 'react';
 
 import clsx from 'clsx';
-import { Controller, useForm } from 'react-hook-form-v7';
+import { Controller, useForm } from 'react-hook-form';
 
 import { FormField, IconBase, ToggleSwitch } from 'app/atoms';
 import { ActionModalBodyContainer, ActionModalButton, ActionModalButtonsContainer } from 'app/atoms/action-modal';

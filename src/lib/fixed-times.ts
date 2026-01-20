@@ -1,4 +1,4 @@
-export const TEZOS_BLOCK_DURATION = 8_000;
+export const TEZOS_BLOCK_DURATION = 6_000;
 
 export const EVM_BALANCES_SYNC_INTERVAL = 60_000;
 

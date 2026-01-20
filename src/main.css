@@ -195,3 +195,12 @@ button,
     -moz-appearance: textfield;
   }
 }
+
+.variable-lines-border {
+  outline: 0.5px solid #E4E4E4;
+  outline-offset: -0.5px;
+  &:hover {
+    outline: 1px solid #E4E4E4;
+    outline-offset: -1px;
+  }
+}

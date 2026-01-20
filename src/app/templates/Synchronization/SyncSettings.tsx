@@ -1,6 +1,6 @@
 import React, { FC, useCallback } from 'react';
 
-import { Controller } from 'react-hook-form-v7';
+import { Controller } from 'react-hook-form';
 
 import { FadeTransition } from 'app/a11y/FadeTransition';
 import { CaptionAlert, FormField } from 'app/atoms';
