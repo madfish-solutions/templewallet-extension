@@ -23,8 +23,7 @@ const bakingBadGetKnownBakers = buildQuery<BakingBadGetBakersParams, BakingBadBa
 
 export async function getAllBakersBakingBad() {
   return bakingBadGetKnownBakers({
-    status: 'active',
-    delegation: true
+    status: 'active'
   });
 }
 

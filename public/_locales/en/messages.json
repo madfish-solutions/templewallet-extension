@@ -1574,6 +1574,12 @@
   "producerInputDescription": {
     "message": "Address of a registered producer."
   },
+  "delegationNotAvailableTitle": {
+    "message": "Delegation is not available"
+  },
+  "delegationNotAvailableDescription": {
+    "message": "This baker doesn’t offer rewards for delegation. If you want to earn delegation rewards, please choose a different baker."
+  },
   "minDelegationBalanceTitle": {
     "message": "Minimal delegation balance"
   },
