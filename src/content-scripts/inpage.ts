@@ -2,6 +2,7 @@ import { v4 as uuid } from 'uuid';
 import { EIP1193Provider } from 'viem';
 
 import { TEMPLE_ICON } from 'content-scripts/constants';
+import { TEMPLE_SET_DEFAULT_PROVIDER_MSG_TYPE } from 'lib/constants';
 import { EIP6963ProviderInfo } from 'lib/temple/types';
 import { TempleWeb3Provider } from 'temple/evm/web3-provider';
 
@@ -11,6 +12,13 @@ declare global {
     __templeProvidersMapByRdns?: Record<string, EIP1193Provider>;
     __templeForwardTarget?: EIP1193Provider;
     ethereum?: EIP1193Provider;
+    temple?: TempleWeb3Provider;
+    templeWalletRouter?: {
+      lastInjectedProvider?: EIP1193Provider;
+      templeOnWindowEthereum: boolean;
+      setDefaultProvider: (templeOnWindowEthereum: boolean) => void;
+      addProvider: (provider: EIP1193Provider) => void;
+    };
   }
 }
 
@@ -20,15 +28,6 @@ const info: EIP6963ProviderInfo = {
   icon: TEMPLE_ICON,
   rdns: 'com.templewallet'
 };
-
-function setGlobalProvider() {
-  try {
-    window.ethereum = defaultTempleProvider;
-    globalThis.dispatchEvent(new Event('ethereum#initialized'));
-  } catch (e) {
-    console.error(e);
-  }
-}
 
 function announceProvider() {
   globalThis.dispatchEvent(
@@ -43,8 +42,72 @@ defaultTempleProvider.initializeAccountsList();
 const eip6963TempleProvider = new TempleWeb3Provider(true);
 eip6963TempleProvider.initializeAccountsList();
 
+const existingEthereum = window.ethereum;
+
+const walletRouter = {
+  lastInjectedProvider: existingEthereum,
+  templeOnWindowEthereum: false,
+  setDefaultProvider(templeOnWindowEthereum: boolean) {
+    walletRouter.templeOnWindowEthereum = templeOnWindowEthereum;
+  },
+  addProvider(provider: EIP1193Provider) {
+    if (defaultTempleProvider !== provider) {
+      walletRouter.lastInjectedProvider = provider;
+    }
+  }
+};
+
+const isMetaMaskGetter = { get: () => walletRouter.templeOnWindowEthereum };
+Object.defineProperty(defaultTempleProvider, 'isMetaMask', isMetaMaskGetter);
+Object.defineProperty(eip6963TempleProvider, 'isMetaMask', isMetaMaskGetter);
+
 announceProvider();
-setGlobalProvider();
+
+try {
+  Object.defineProperty(window, 'temple', {
+    value: defaultTempleProvider,
+    configurable: false
+  });
+} catch {
+  window.temple = defaultTempleProvider;
+}
+
+try {
+  Object.defineProperty(window, 'templeWalletRouter', {
+    value: walletRouter,
+    configurable: false
+  });
+} catch {
+  window.templeWalletRouter = walletRouter;
+}
+
+try {
+  Object.defineProperty(window, 'ethereum', {
+    get() {
+      if (walletRouter.templeOnWindowEthereum) {
+        return defaultTempleProvider;
+      }
+      return walletRouter.lastInjectedProvider;
+    },
+    set(newProvider) {
+      walletRouter.addProvider(newProvider);
+    },
+    configurable: false
+  });
+} catch {
+  try {
+    window.ethereum = defaultTempleProvider;
+  } catch {}
+}
+
+globalThis.dispatchEvent(new Event('ethereum#initialized'));
+
+window.addEventListener('message', evt => {
+  if (evt.source !== window) return;
+  if (evt.data?.type === TEMPLE_SET_DEFAULT_PROVIDER_MSG_TYPE) {
+    window.templeWalletRouter?.setDefaultProvider(evt.data.templeOnWindowEthereum);
+  }
+});
 
 const otherProviders: EIP6963ProviderInfo[] = [];
 const providersMapByRdns: Record<string, EIP1193Provider> = {};
@@ -70,6 +133,7 @@ function handleAnnounceProvider(evt: Event) {
   if (detail?.provider) {
     if (announced.rdns) providersMapByRdns[announced.rdns] = detail.provider;
     window.__templeProvidersMapByRdns = providersMapByRdns;
+    window.templeWalletRouter?.addProvider(detail.provider);
   }
 }
 

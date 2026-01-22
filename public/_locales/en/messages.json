@@ -2249,6 +2249,21 @@
   "fiatCurrency": {
     "message": "Default Currency"
   },
+  "defaultEvmWallet": {
+    "message": "Default EVM Wallet"
+  },
+  "evmDefaultWalletAlwaysAsk": {
+    "message": "Always Ask"
+  },
+  "evmDefaultWalletAlwaysAskDescription": {
+    "message": "Choose wallet when connecting to DApp"
+  },
+  "evmDefaultWalletOther": {
+    "message": "Other (e.g., MetaMask)"
+  },
+  "evmDefaultWalletOtherDescription": {
+    "message": "Disable DApp connect to Temple if option isn't available"
+  },
   "generalSettings": {
     "message": "General"
   },

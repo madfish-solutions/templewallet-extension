@@ -11,9 +11,11 @@ import { NullComponent } from 'lib/ui/null-component';
 import { SelectModal, SelectModalProps } from './select-modal';
 
 interface SelectWithModalProps<T, P extends null | ((item: T) => any)>
-  extends Omit<SelectModalProps<T, P>, 'opened' | 'onRequestClose' | 'CellIcon'> {
+  extends Omit<SelectModalProps<T, P>, 'opened' | 'onRequestClose' | 'CellIcon' | 'CellName'> {
   CellIcon?: SelectModalProps<T, P>['CellIcon'];
   ModalCellIcon?: SelectModalProps<T, P>['CellIcon'];
+  CellName: SelectModalProps<T, P>['CellName'];
+  ModalCellName?: SelectModalProps<T, P>['CellName'];
   testID: string;
   className?: string;
 }
@@ -26,6 +28,7 @@ export const SelectWithModal = <T, P extends null | ((item: T) => any)>({
   CellIcon = NullComponent,
   ModalCellIcon = CellIcon,
   CellName,
+  ModalCellName = CellName,
   value,
   className,
   onSelect,
@@ -63,7 +66,7 @@ export const SelectWithModal = <T, P extends null | ((item: T) => any)>({
         opened={selectModalOpened}
         value={value}
         CellIcon={ModalCellIcon}
-        CellName={CellName}
+        CellName={ModalCellName}
         onRequestClose={closeSelectModal}
         onSelect={handleSelect}
       />

@@ -2,6 +2,7 @@ import React, { memo } from 'react';
 
 import { FadeTransition } from 'app/a11y/FadeTransition';
 
+import { DefaultEvmWalletSelect } from './components/default-evm-wallet-select';
 import { FiatCurrencySelect } from './components/fiat-currency-select';
 import { LocaleSelect } from './components/locale-select';
 import { NotificationsSettings } from './components/notifications-settings';
@@ -13,6 +14,8 @@ const GeneralSettings = memo(() => (
       <LocaleSelect />
 
       <FiatCurrencySelect />
+
+      <DefaultEvmWalletSelect />
 
       <PopupSettings />
 
