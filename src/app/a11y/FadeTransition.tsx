@@ -57,17 +57,16 @@ const DURATION_CLASSNAME_RECORD: Record<Duration, string> = {
 };
 
 const getTransitionClassNames = (duration: Duration, hideOnExit: boolean): CSSTransitionClassNames => {
-  const durationClass = DURATION_CLASSNAME_RECORD[duration];
+  const durationClassName = DURATION_CLASSNAME_RECORD[duration];
+  const activeClassNames = clsx('opacity-100 transition ease-out', durationClassName);
 
   if (hideOnExit) {
     return {
       enter: INITIAL_CLASSNAMES,
-      enterActive: clsx('opacity-100 transition ease-out', durationClass),
-      exit: clsx('opacity-0 transition ease-in', durationClass)
+      enterActive: activeClassNames,
+      exit: clsx('opacity-0 transition ease-in', durationClassName)
     };
   }
-
-  const activeClassNames = clsx('opacity-100 transition ease-out', durationClass);
 
   return {
     enter: INITIAL_CLASSNAMES,
