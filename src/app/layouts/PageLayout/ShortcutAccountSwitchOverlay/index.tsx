@@ -1,8 +1,7 @@
-import React, { useCallback, useMemo, useState, useEffect, useRef, KeyboardEventHandler, memo, RefObject } from 'react';
+import { useCallback, useMemo, useState, useEffect, useRef, KeyboardEventHandler, memo } from 'react';
 
 import clsx from 'clsx';
 import CSSTransition from 'react-transition-group/CSSTransition';
-import useOnClickOutside from 'use-onclickoutside';
 
 import { Name } from 'app/atoms';
 import { AccLabel } from 'app/atoms/AccLabel';
@@ -13,6 +12,7 @@ import { AccountManagementSelectors } from 'app/templates/AccountsManagement/sel
 import { SearchBarField } from 'app/templates/SearchField';
 import { searchHotkey } from 'lib/constants';
 import { T, t } from 'lib/i18n';
+import useOnClickOutside from 'lib/ui/hooks/useOnClickOutside';
 import Portal from 'lib/ui/Portal';
 import { HistoryAction, navigate } from 'lib/woozie';
 import { useCurrentAccountId, useChangeAccount, useVisibleAccounts } from 'temple/front';
@@ -27,7 +27,7 @@ export const ShortcutAccountSwitchOverlay = memo(() => {
 
   const { opened, setOpened } = useAccountSelectShortcut();
   useModalScrollLock(opened, accountSwitchRef);
-  useOnClickOutside(accountSwitchRef as RefObject<HTMLElement>, () => setOpened(false));
+  useOnClickOutside(accountSwitchRef, () => setOpened(false));
 
   const currentAccountId = useCurrentAccountId();
   const allAccounts = useVisibleAccounts();

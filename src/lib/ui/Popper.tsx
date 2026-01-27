@@ -1,7 +1,6 @@
 import {
   memo,
   ReactElement,
-  RefObject,
   CSSProperties,
   useCallback,
   useEffect,
@@ -13,8 +12,8 @@ import {
 } from 'react';
 
 import { Instance, Options, createPopper } from '@popperjs/core';
-import useOnClickOutside from 'use-onclickoutside';
 
+import useOnClickOutside from 'lib/ui/hooks/useOnClickOutside';
 import Portal from 'lib/ui/Portal';
 import { isTruthy } from 'lib/utils';
 
@@ -51,11 +50,10 @@ const Popper = memo<PopperProps>(({ popup, children, fallbackPlacementsEnabled =
   }, [setOpened]);
 
   useOnClickOutside(
-    popupRef as RefObject<HTMLElement>,
+    popupRef,
     opened
       ? evt => {
-          // @ts-expect-error
-          if (!(triggerRef.current && triggerRef.current.contains(evt.target))) {
+          if (!(triggerRef.current && triggerRef.current.contains(evt.target as Node))) {
             setOpened(false);
           }
         }

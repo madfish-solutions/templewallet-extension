@@ -215,7 +215,6 @@
     "typescript-eslint": "^8",
     "use-debounce": "^10",
     "use-force-update": "1.0.7",
-    "use-onclickoutside": "0.4.1",
     "util": "0.11.1",
     "uuid": "^11.0.3",
     "viem": "^2.44.0",
