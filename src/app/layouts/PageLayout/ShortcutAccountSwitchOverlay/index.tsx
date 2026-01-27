@@ -1,8 +1,8 @@
 import { useCallback, useMemo, useState, useEffect, useRef, KeyboardEventHandler, memo } from 'react';
 
 import clsx from 'clsx';
-import CSSTransition from 'react-transition-group/CSSTransition';
 
+import { FadeTransition } from 'app/a11y/FadeTransition';
 import { Name } from 'app/atoms';
 import { AccLabel } from 'app/atoms/AccLabel';
 import { EmptyState } from 'app/atoms/EmptyState';
@@ -20,6 +20,12 @@ import { searchAndFilterAccounts } from 'temple/front/accounts';
 import { useAccountsGroups } from 'temple/front/groups';
 
 import { AccountItem } from './AccountItem';
+
+const TRANSITION_CLASSNAMES = {
+  enter: 'opacity-0',
+  enterActive: 'opacity-100 transition ease-out duration-100',
+  exit: 'opacity-0 transition ease-in duration-100'
+};
 
 export const ShortcutAccountSwitchOverlay = memo(() => {
   const accountSwitchRef = useRef<HTMLDivElement>(null);
@@ -123,16 +129,7 @@ export const ShortcutAccountSwitchOverlay = memo(() => {
 
   return (
     <Portal>
-      <CSSTransition
-        in={opened}
-        timeout={100}
-        classNames={{
-          enter: 'opacity-0',
-          enterActive: 'opacity-100 transition ease-out duration-100',
-          exit: 'opacity-0 transition ease-in duration-100'
-        }}
-        unmountOnExit
-      >
+      <FadeTransition trigger={opened} timeout={100} transitionClassNames={TRANSITION_CLASSNAMES} unmountOnExit>
         <div className="fixed inset-0 z-overlay-promo flex flex-col items-center justify-center bg-black/15 backdrop-blur-xs">
           <div
             ref={accountSwitchRef}
@@ -187,7 +184,7 @@ export const ShortcutAccountSwitchOverlay = memo(() => {
             </p>
           </div>
         </div>
-      </CSSTransition>
+      </FadeTransition>
     </Portal>
   );
 });
