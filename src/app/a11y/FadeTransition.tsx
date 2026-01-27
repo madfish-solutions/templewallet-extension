@@ -41,7 +41,7 @@ export const FadeTransition: FC<FadeTransitionProps> = ({
       classNames={transitionClassNames}
       unmountOnExit={unmountOnExit}
     >
-      <div ref={nodeRef} className={clsx('flex flex-col h-full duration', className)}>
+      <div ref={nodeRef} className={clsx('flex flex-col h-full', className)}>
         {children}
       </div>
     </CSSTransition>
