@@ -1,37 +1,31 @@
-import { FC, useLayoutEffect, useRef, useState } from 'react';
+import { FC, useLayoutEffect, useMemo, useRef, useState } from 'react';
 
 import clsx from 'clsx';
 import CSSTransition, { CSSTransitionClassNames } from 'react-transition-group/CSSTransition';
 
-const INITIAL_CLASSNAMES = 'opacity-0';
-const ACTIVE_CLASSNAMES = 'opacity-100 transition ease-out duration-300';
-
-const DEFAULT_TRANSITION_CLASSNAMES = {
-  enter: INITIAL_CLASSNAMES,
-  enterActive: ACTIVE_CLASSNAMES,
-  exit: INITIAL_CLASSNAMES,
-  exitActive: ACTIVE_CLASSNAMES
-};
+type Duration = 100 | 200 | 300;
 
 interface FadeTransitionProps extends PropsWithChildren {
   trigger?: boolean;
-  timeout?: number;
+  duration?: Duration;
   className?: string;
-  transitionClassNames?: string | CSSTransitionClassNames;
+  hideOnExit?: boolean;
   unmountOnExit?: boolean;
 }
 
 export const FadeTransition: FC<FadeTransitionProps> = ({
   trigger,
-  timeout,
+  duration = 300,
   className,
-  transitionClassNames,
+  hideOnExit = false,
   unmountOnExit,
   children
 }) => {
   const nodeRef = useRef(null);
 
   const [booted, setBooted] = useState(false);
+
+  const transitionClassNames = useMemo(() => getTransitionClassNames(duration, hideOnExit), [duration, hideOnExit]);
 
   useLayoutEffect(() => void setBooted(true), [setBooted]);
 
@@ -43,13 +37,42 @@ export const FadeTransition: FC<FadeTransitionProps> = ({
        */
       in={trigger ?? booted}
       nodeRef={nodeRef}
-      timeout={timeout ?? 300}
-      classNames={transitionClassNames ?? DEFAULT_TRANSITION_CLASSNAMES}
+      timeout={duration}
+      classNames={transitionClassNames}
       unmountOnExit={unmountOnExit}
     >
-      <div ref={nodeRef} className={clsx('flex flex-col h-full', className)}>
+      <div ref={nodeRef} className={clsx('flex flex-col h-full duration', className)}>
         {children}
       </div>
     </CSSTransition>
   );
+};
+
+const INITIAL_CLASSNAMES = 'opacity-0';
+
+const DURATION_CLASSNAME_RECORD: Record<Duration, string> = {
+  100: 'duration-100',
+  200: 'duration-200',
+  300: 'duration-300'
+};
+
+const getTransitionClassNames = (duration: Duration, hideOnExit: boolean): CSSTransitionClassNames => {
+  const durationClass = DURATION_CLASSNAME_RECORD[duration];
+
+  if (hideOnExit) {
+    return {
+      enter: INITIAL_CLASSNAMES,
+      enterActive: clsx('opacity-100 transition ease-out', durationClass),
+      exit: clsx('opacity-0 transition ease-in', durationClass)
+    };
+  }
+
+  const activeClassNames = clsx('opacity-100 transition ease-out', durationClass);
+
+  return {
+    enter: INITIAL_CLASSNAMES,
+    enterActive: activeClassNames,
+    exit: INITIAL_CLASSNAMES,
+    exitActive: activeClassNames
+  };
 };

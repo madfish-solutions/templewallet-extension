@@ -21,12 +21,6 @@ import { useAccountsGroups } from 'temple/front/groups';
 
 import { AccountItem } from './AccountItem';
 
-const TRANSITION_CLASSNAMES = {
-  enter: 'opacity-0',
-  enterActive: 'opacity-100 transition ease-out duration-100',
-  exit: 'opacity-0 transition ease-in duration-100'
-};
-
 export const ShortcutAccountSwitchOverlay = memo(() => {
   const accountSwitchRef = useRef<HTMLDivElement>(null);
   const accountItemsRef = useRef<Array<HTMLButtonElement>>([]);
@@ -129,7 +123,7 @@ export const ShortcutAccountSwitchOverlay = memo(() => {
 
   return (
     <Portal>
-      <FadeTransition trigger={opened} timeout={100} transitionClassNames={TRANSITION_CLASSNAMES} unmountOnExit>
+      <FadeTransition trigger={opened} duration={100} hideOnExit unmountOnExit>
         <div className="fixed inset-0 z-overlay-promo flex flex-col items-center justify-center bg-black/15 backdrop-blur-xs">
           <div
             ref={accountSwitchRef}

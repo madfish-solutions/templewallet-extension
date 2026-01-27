@@ -23,6 +23,8 @@ interface KeyActionProps {
 }
 
 export const KeyAction = memo<KeyActionProps>(({ on, volume, ref }) => {
+  const nodeRef = useRef<HTMLDivElement>(null);
+
   const rewindRef = useRef<HTMLDivElement>(null);
   const skipRef = useRef<HTMLDivElement>(null);
 
@@ -37,8 +39,8 @@ export const KeyAction = memo<KeyActionProps>(({ on, volume, ref }) => {
 
   return (
     <div className="vp-key-action">
-      <CSSTransition in={on} classNames="vp-key-volume" timeout={300} mountOnEnter unmountOnExit>
-        <div className="vp-key-action__volume">
+      <CSSTransition nodeRef={nodeRef} in={on} classNames="vp-key-volume" timeout={300} mountOnEnter unmountOnExit>
+        <div ref={nodeRef} className="vp-key-action__volume">
           <div className="vp-key-action__volume__container">
             <div className="vp-key-action__volume__icon">
               {volume > 0.7 && <VolumeHighIcon />}
