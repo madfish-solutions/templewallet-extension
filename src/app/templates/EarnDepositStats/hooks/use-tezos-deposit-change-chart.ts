@@ -55,13 +55,19 @@ export const useTezosDepositChangeChart = (accountPkh: string) => {
     const nowMs = Date.now();
     const monthAgoMs = nowMs - ONE_MONTH_IN_MS;
 
-    const pricePoints = marketChartData.prices
+    const basePricePoints = marketChartData.prices
       .map(([timestamp, fiatPrice]) => ({ timestamp, fiatPrice }))
       .filter(point => point.timestamp >= monthAgoMs && point.timestamp <= nowMs);
 
-    if (!pricePoints.length) {
+    if (!basePricePoints.length) {
       return;
     }
+
+    const lastPricePoint = basePricePoints.at(-1);
+    const pricePoints =
+      lastPricePoint && lastPricePoint.timestamp < nowMs
+        ? [...basePricePoints, { timestamp: nowMs, fiatPrice: lastPricePoint.fiatPrice }]
+        : basePricePoints;
 
     const balancePoints = balanceHistory
       .map(item => ({
