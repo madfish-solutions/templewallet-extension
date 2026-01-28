@@ -29,7 +29,7 @@ export const ListForSaleModal = memo<ListForSaleModalProps>(({ isOpen, onClose, 
 
   const handleGoToMarketplace = useCallback(async () => {
     onClose();
-    await browser.tabs.create({ url: objktListingUrl, active: false });
+    await browser.tabs.create({ url: objktListingUrl });
   }, [onClose, objktListingUrl]);
 
   if (!isOpen) return null;
