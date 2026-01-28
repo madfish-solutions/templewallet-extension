@@ -20,16 +20,13 @@ export const useTezosDepositChangeChart = (accountPkh: string) => {
     data: balanceHistory,
     isLoading: isBalanceHistoryLoading,
     error: balanceHistoryError
-  } = useTezosAccountBalanceHistory(accountPkh, {
-    limit: 720,
-    step: 450
-  });
+  } = useTezosAccountBalanceHistory(accountPkh);
 
   const {
     data: stakingUpdates,
     isLoading: isStakingUpdatesLoading,
     error: stakingUpdatesError
-  } = useTezosAccountStakingUpdates(accountPkh, { limit: 500 });
+  } = useTezosAccountStakingUpdates(accountPkh);
 
   const {
     data: marketChartData,
