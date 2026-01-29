@@ -1,5 +1,5 @@
 const ONE_DAY_IN_MS = 24 * 60 * 60 * 1000;
 export const ONE_MONTH_IN_MS = 30 * ONE_DAY_IN_MS;
 
-export const DEFAULT_CHART_DAYS_COUNT = 7;
+export const DEFAULT_CHART_DAYS_COUNT = 30;
 export const HOURS_IN_DAYS_COUNT = 24 * DEFAULT_CHART_DAYS_COUNT;
