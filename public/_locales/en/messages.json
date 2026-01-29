@@ -4966,5 +4966,20 @@
         "content": "$1"
       }
     }
+  },
+  "listForSale": {
+    "message": "List for sale"
+  },
+  "redirectingToObjkt": {
+    "message": "Redirecting to objkt.com"
+  },
+  "listForSaleRedirectDescription": {
+    "message": "You'll finish your listing on the marketplace. Would you prefer to do this directly in Temple Wallet?"
+  },
+  "goToMarketplace": {
+    "message": "Go to marketplace"
+  },
+  "redirectButListInWallet": {
+    "message": "Redirect me, but I'd like list in-wallet"
   }
 }
