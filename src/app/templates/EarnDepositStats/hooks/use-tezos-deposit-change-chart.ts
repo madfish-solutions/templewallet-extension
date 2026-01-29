@@ -5,7 +5,7 @@ import { useFiatCurrency } from 'lib/fiat-currency/core';
 import { mutezToTz } from 'lib/temple/helpers';
 import { TempleTezosChainId } from 'lib/temple/types';
 
-import { ONE_MONTH_IN_MS } from '../constants';
+import { DEFAULT_CHART_DAYS_COUNT, ONE_MONTH_IN_MS } from '../constants';
 import { toMsTimestamp } from '../utils';
 
 import { useDelegatedFrom3MonthsTimestamp } from './use-delegated-from-3-months-timestamp';
@@ -35,7 +35,7 @@ export const useTezosDepositChangeChart = (accountPkh: string) => {
   } = useTokenHistoricalPrices({
     id: 'tezos',
     vs_currency: selectedFiatCurrency.apiLabel,
-    days: 30
+    days: DEFAULT_CHART_DAYS_COUNT
   });
 
   const {

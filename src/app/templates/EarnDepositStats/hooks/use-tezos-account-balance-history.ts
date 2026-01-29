@@ -7,6 +7,8 @@ import { useTypedSWR } from 'lib/swr';
 import { TempleTezosChainId } from 'lib/temple/types';
 import { useTezosMainnetChain } from 'temple/front';
 
+import { HOURS_IN_DAYS_COUNT } from '../constants';
+
 export const useTezosAccountBalanceHistory = (accountPkh: string) => {
   const tezMainnet = useTezosMainnetChain();
   const { rawValue: tezBalanceRaw } = useTezosAssetBalance(TEZ_TOKEN_SLUG, accountPkh, tezMainnet);
@@ -15,7 +17,7 @@ export const useTezosAccountBalanceHistory = (accountPkh: string) => {
     ['tezos-account-balance-history', accountPkh],
     () =>
       fetchAccountBalanceHistory(TempleTezosChainId.Mainnet, accountPkh, {
-        limit: 720,
+        limit: HOURS_IN_DAYS_COUNT,
         step: 450
       }),
     {

@@ -8,7 +8,7 @@ import { useTokenHistoricalPrices } from 'app/templates/EarnDepositStats/hooks/u
 import { useFiatCurrency } from 'lib/fiat-currency/core';
 import { useTypedSWR } from 'lib/swr';
 
-import { ONE_MONTH_IN_MS } from '../constants';
+import { DEFAULT_CHART_DAYS_COUNT, ONE_MONTH_IN_MS } from '../constants';
 import { toMsTimestamp } from '../utils';
 
 export const useEthDepositChangeChart = (accountPkh: HexString) => {
@@ -21,7 +21,7 @@ export const useEthDepositChangeChart = (accountPkh: HexString) => {
   } = useTokenHistoricalPrices({
     id: 'ethereum',
     vs_currency: selectedFiatCurrency.apiLabel,
-    days: 30
+    days: DEFAULT_CHART_DAYS_COUNT
   });
 
   const {
