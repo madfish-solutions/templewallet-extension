@@ -1,7 +1,6 @@
 import { localForger } from '@taquito/local-forging';
 import { valueDecoder } from '@taquito/local-forging/dist/lib/michelson/codec';
 import { Uint8ArrayConsumer } from '@taquito/local-forging/dist/lib/uint8array-consumer';
-import { emitMicheline } from '@taquito/michel-codec';
 import {
   TempleDAppMessageType,
   TempleDAppErrorType,
@@ -17,6 +16,7 @@ import {
   TempleDAppNetwork as TezosDAppNetwork
 } from '@temple-wallet/dapp/dist/types';
 import { TezosOperationError } from '@tezos-x/octez.js';
+import { emitMicheline } from '@tezos-x/octez.js-michel-codec';
 import { capitalize } from 'lodash';
 import { nanoid } from 'nanoid';
 import { v4 as uuid } from 'uuid';
