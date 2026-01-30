@@ -1,4 +1,4 @@
-import { DerivationType } from '@taquito/ledger-signer';
+import { DerivationType } from '@tezos-x/octez.js-ledger-signer';
 import BigNumber from 'bignumber.js';
 
 import { TempleChainKind } from 'temple/types';

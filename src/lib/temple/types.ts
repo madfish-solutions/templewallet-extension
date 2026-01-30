@@ -1,6 +1,6 @@
-import type { DerivationType } from '@taquito/ledger-signer';
 import type { TempleDAppMetadata } from '@temple-wallet/dapp/dist/types';
 import type { RawSignResult } from '@tezos-x/octez.js-core';
+import type { DerivationType } from '@tezos-x/octez.js-ledger-signer';
 import BigNumber from 'bignumber.js';
 import type { RpcTransactionRequest, SignableMessage, TypedDataDefinition } from 'viem';
 

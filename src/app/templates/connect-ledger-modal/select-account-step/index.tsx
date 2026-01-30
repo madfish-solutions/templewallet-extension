@@ -1,7 +1,7 @@
 import React, { memo, useCallback, useEffect, useMemo, useState, ReactNode } from 'react';
 
 import { isDefined } from '@rnw-community/shared';
-import { DerivationType } from '@taquito/ledger-signer';
+import { DerivationType } from '@tezos-x/octez.js-ledger-signer';
 import { nanoid } from 'nanoid';
 
 import { FadeTransition } from 'app/a11y/FadeTransition';

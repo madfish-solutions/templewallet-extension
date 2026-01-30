@@ -1,6 +1,6 @@
 import React, { memo, useCallback, useState } from 'react';
 
-import { DerivationType } from '@taquito/ledger-signer';
+import { DerivationType } from '@tezos-x/octez.js-ledger-signer';
 
 import { FadeTransition } from 'app/a11y/FadeTransition';
 import { LedgerImage } from 'app/atoms';
