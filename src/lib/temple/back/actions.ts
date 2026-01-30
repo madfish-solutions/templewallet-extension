@@ -1,5 +1,4 @@
 import { DerivationType } from '@taquito/ledger-signer';
-import { stringToBytes } from '@taquito/utils';
 import {
   TempleDAppMessageType,
   TempleDAppErrorType,
@@ -7,6 +6,7 @@ import {
   TempleDAppResponse
 } from '@temple-wallet/dapp/dist/types';
 import { TezosOperationError } from '@tezos-x/octez.js';
+import { stringToBytes } from '@tezos-x/octez.js-utils';
 import { TransactionRequest } from 'viem';
 import browser, { Runtime } from 'webextension-polyfill';
 
