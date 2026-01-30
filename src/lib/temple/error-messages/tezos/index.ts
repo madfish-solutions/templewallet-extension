@@ -1,5 +1,5 @@
-import { HttpResponseError } from '@taquito/http-utils';
 import { TezosOperationError } from '@tezos-x/octez.js';
+import { HttpResponseError } from '@tezos-x/octez.js-http-utils';
 import { MichelsonV1Expression, TezosGenericOperationError } from '@tezos-x/octez.js-rpc';
 import { isObject } from 'lodash';
 

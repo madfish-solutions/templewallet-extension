@@ -1,5 +1,5 @@
-import { HttpResponseError } from '@taquito/http-utils';
 import { TezosToolkit, WalletContract, Contract, ChainIds } from '@tezos-x/octez.js';
+import { HttpResponseError } from '@tezos-x/octez.js-http-utils';
 import type { MichelsonV1ExpressionExtended } from '@tezos-x/octez.js-rpc';
 import retry from 'async-retry';
 

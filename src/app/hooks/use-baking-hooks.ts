@@ -1,4 +1,4 @@
-import { HttpResponseError } from '@taquito/http-utils';
+import { HttpResponseError } from '@tezos-x/octez.js-http-utils';
 import BigNumber from 'bignumber.js';
 import memoizee from 'memoizee';
 
