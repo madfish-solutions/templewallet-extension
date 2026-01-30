@@ -1,5 +1,5 @@
-import { RawSignResult } from '@taquito/core';
 import { Signer } from '@tezos-x/octez.js';
+import { RawSignResult } from '@tezos-x/octez.js-core';
 
 export class ReadOnlySigner implements Signer {
   constructor(

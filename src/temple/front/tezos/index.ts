@@ -1,4 +1,3 @@
-import { RawSignResult } from '@taquito/core';
 import {
   WalletProvider,
   createOriginationOperation,
@@ -19,6 +18,7 @@ import {
   Signer,
   TezosToolkit
 } from '@tezos-x/octez.js';
+import { RawSignResult } from '@tezos-x/octez.js-core';
 import { Tzip16Module } from '@tezos-x/octez.js-tzip16';
 import { ProhibitedActionError, buf2hex } from '@tezos-x/octez.js-utils';
 import memoizee from 'memoizee';
