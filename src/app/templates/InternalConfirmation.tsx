@@ -1,6 +1,6 @@
 import React, { FC, useCallback, useEffect, useMemo } from 'react';
 
-import { localForger } from '@taquito/local-forging';
+import { localForger } from '@tezos-x/octez.js-local-forging';
 import classNames from 'clsx';
 
 import { Alert, FormSubmitButton, FormSecondaryButton } from 'app/atoms';

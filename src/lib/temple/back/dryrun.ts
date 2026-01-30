@@ -1,5 +1,5 @@
-import { localForger } from '@taquito/local-forging';
 import { TezosToolkit, TezosOperationError, getRevealGasLimit, getRevealFee, Estimate } from '@tezos-x/octez.js';
+import { localForger } from '@tezos-x/octez.js-local-forging';
 import { ForgeOperationsParams } from '@tezos-x/octez.js-rpc';
 import { ProhibitedActionError } from '@tezos-x/octez.js-utils';
 import { omit } from 'lodash';

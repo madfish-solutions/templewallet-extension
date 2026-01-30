@@ -1,7 +1,7 @@
 import type Eth from '@ledgerhq/hw-app-eth';
 import { DerivationType } from '@taquito/ledger-signer';
-import { localForger } from '@taquito/local-forging';
 import { CompositeForger, OperationBatch, RpcForger, Signer, TezosToolkit } from '@tezos-x/octez.js';
+import { localForger } from '@tezos-x/octez.js-local-forging';
 import * as TaquitoUtils from '@tezos-x/octez.js-utils';
 import * as Bip39 from 'bip39';
 import { nanoid } from 'nanoid';
