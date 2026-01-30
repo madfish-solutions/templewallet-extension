@@ -1,6 +1,6 @@
 import { isDefined } from '@rnw-community/shared';
-import { Tzip16Module } from '@taquito/tzip16';
 import { TezosToolkit, MichelCodecPacker } from '@tezos-x/octez.js';
+import { Tzip16Module } from '@tezos-x/octez.js-tzip16';
 import { uniq } from 'lodash';
 import memoizee from 'memoizee';
 
