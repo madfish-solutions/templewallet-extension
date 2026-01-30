@@ -4,7 +4,7 @@ import {
   OperationContents,
   type ManagerKeyResponse,
   type OperationContentsAndResult
-} from '@taquito/rpc';
+} from '@tezos-x/octez.js-rpc';
 import { validateAddress, validateChain, ValidationResult } from '@tezos-x/octez.js-utils';
 import BigNumber from 'bignumber.js';
 

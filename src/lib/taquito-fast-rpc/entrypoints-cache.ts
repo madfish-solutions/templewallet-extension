@@ -1,4 +1,4 @@
-import type { EntrypointsResponse } from '@taquito/rpc';
+import type { EntrypointsResponse } from '@tezos-x/octez.js-rpc';
 import debounce from 'debounce';
 
 interface CachedEntrypointsItem {

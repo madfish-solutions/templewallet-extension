@@ -1,5 +1,5 @@
 import { Schema } from '@taquito/michelson-encoder';
-import { MichelsonV1Expression, TransactionOperationParameter } from '@taquito/rpc';
+import { MichelsonV1Expression, TransactionOperationParameter } from '@tezos-x/octez.js-rpc';
 import BigNumber from 'bignumber.js';
 
 import { toTokenSlug } from 'lib/assets';

@@ -1,4 +1,4 @@
-import { EntrypointsResponse, RpcClient, RPCOptions } from '@taquito/rpc';
+import { EntrypointsResponse, RpcClient, RPCOptions } from '@tezos-x/octez.js-rpc';
 import retry from 'async-retry';
 import memoizee from 'memoizee';
 

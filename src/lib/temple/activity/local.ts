@@ -1,4 +1,4 @@
-import { OperationContentsAndResult, OpKind } from '@taquito/rpc';
+import { OperationContentsAndResult, OpKind } from '@tezos-x/octez.js-rpc';
 
 import * as Repo from 'lib/temple/repo';
 

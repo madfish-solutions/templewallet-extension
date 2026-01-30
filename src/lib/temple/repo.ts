@@ -1,4 +1,4 @@
-import { OperationContentsAndResult } from '@taquito/rpc';
+import { OperationContentsAndResult } from '@tezos-x/octez.js-rpc';
 import Dexie from 'dexie';
 
 import { TzktOperation, TzktTokenTransfer } from 'lib/apis/tzkt';

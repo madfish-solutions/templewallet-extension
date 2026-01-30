@@ -1,4 +1,4 @@
-import { OpKind, OperationContents, OperationContentsAndResult } from '@taquito/rpc';
+import { OpKind, OperationContents, OperationContentsAndResult } from '@tezos-x/octez.js-rpc';
 
 import rawHenMintObjkt from './hen-mint-objkt.json';
 import rawKusdSirsSwapWithTkeyCashback from './kusd-sirs-swap-tkey-cashback.json';
