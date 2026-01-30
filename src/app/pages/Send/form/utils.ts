@@ -10,6 +10,7 @@ import { ERROR_MESSAGES } from 'lib/temple/error-messages/messages';
 import { mutezToTz, tzToMutez } from 'lib/temple/helpers';
 import { TempleAccountType } from 'lib/temple/types';
 import { isTezosContractAddress, tezosManagerKeyHasManager } from 'lib/tezos';
+import { parseTransferParamsToParamsWithKind } from 'lib/utils/parse-transfer-params';
 import { AccountForTezos } from 'temple/accounts';
 
 export const getMaxAmountFiat = (assetPrice: number | null, maxAmountAsset: BigNumber) =>
@@ -35,6 +36,14 @@ export const estimateTezosMaxFee = (
   retry(
     async (bail): Promise<Estimate> => {
       try {
+        const estimateTransfer = async (
+          params: TransferParamsInvariant,
+          accountIsRevealed = tezosManagerKeyHasManager(manager)
+        ) => {
+          const batchEstimations = await tezos.estimate.batch([parseTransferParamsToParamsWithKind(params)]);
+
+          return batchEstimations[accountIsRevealed ? 0 : 1];
+        };
         let estmtnMax: Estimate;
         if (acc.type === TempleAccountType.ManagedKT) {
           const michelsonLambda = isTezosContractAddress(to) ? transferToContract : transferImplicit;
@@ -43,19 +52,16 @@ export const estimateTezosMaxFee = (
           const transferParamsWrapper = contract.methodsObject
             .do(michelsonLambda(to, tzToMutez(balanceBN)))
             .toTransferParams();
-          estmtnMax = await tezos.estimate.transfer(transferParamsWrapper);
+          estmtnMax = await estimateTransfer(transferParamsWrapper, true);
         } else if (tez) {
-          const estmtn = await tezos.estimate.transfer(transferParams);
+          const estmtn = await estimateTransfer(transferParams);
           let amountMax = balanceBN.minus(mutezToTz(estmtn.totalCost));
           if (!tezosManagerKeyHasManager(manager)) {
             amountMax = amountMax.minus(mutezToTz(getRevealFee(from)));
           }
-          estmtnMax = await tezos.estimate.transfer({
-            to,
-            amount: amountMax.toString() as any
-          });
+          estmtnMax = await estimateTransfer({ to, amount: amountMax.toString() as any });
         } else {
-          estmtnMax = await tezos.estimate.transfer(transferParams);
+          estmtnMax = await estimateTransfer(transferParams);
         }
         return estmtnMax;
       } catch (err) {
