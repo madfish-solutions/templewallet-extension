@@ -1,5 +1,5 @@
 import { isDefined } from '@rnw-community/shared';
-import { InMemorySigner } from '@taquito/signer';
+import { InMemorySigner } from '@tezos-x/octez.js-signer';
 import { PrefixV2, b58Encode } from '@tezos-x/octez.js-utils';
 import * as Bip39 from 'bip39';
 import * as Ed25519 from 'ed25519-hd-key';
