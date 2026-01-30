@@ -1,4 +1,4 @@
-import { Schema } from '@taquito/michelson-encoder';
+import { Schema } from '@tezos-x/octez.js-michelson-encoder';
 import { MichelsonV1Expression, TransactionOperationParameter } from '@tezos-x/octez.js-rpc';
 import BigNumber from 'bignumber.js';
 

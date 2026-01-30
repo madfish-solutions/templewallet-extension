@@ -1,4 +1,4 @@
-import { Schema } from '@taquito/michelson-encoder';
+import { Schema } from '@tezos-x/octez.js-michelson-encoder';
 
 export const fa2TransferParamsSchema = new Schema({
   prim: 'list',
