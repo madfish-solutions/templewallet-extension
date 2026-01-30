@@ -1,4 +1,4 @@
-import type { TezosToolkit } from '@taquito/taquito';
+import type { TezosToolkit } from '@tezos-x/octez.js';
 
 import { TEZOS_BLOCK_DURATION } from 'lib/fixed-times';
 

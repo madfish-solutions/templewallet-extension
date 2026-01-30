@@ -1,6 +1,6 @@
 import React, { FC, useCallback, useState } from 'react';
 
-import { OpKind, TransferParams, WalletParamsWithKind } from '@taquito/taquito';
+import { OpKind, TransferParams, WalletParamsWithKind } from '@tezos-x/octez.js';
 import { FormProvider } from 'react-hook-form';
 
 import { useLedgerApprovalModalState } from 'app/hooks/use-ledger-approval-modal-state';

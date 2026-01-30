@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 
-import { ChainIds } from '@taquito/taquito';
+import { ChainIds } from '@tezos-x/octez.js';
 import { sortBy, uniqBy } from 'lodash';
 
 import { useRawEvmAccountTokensSelector, useRawEvmChainAccountTokensSelector } from 'app/store/evm/assets/selectors';

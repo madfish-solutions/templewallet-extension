@@ -1,4 +1,4 @@
-import { OpKind, TezosToolkit, WalletParamsWithKind } from '@taquito/taquito';
+import { OpKind, TezosToolkit, WalletParamsWithKind } from '@tezos-x/octez.js';
 
 import { setDelegate } from 'lib/michelson';
 import { loadContract } from 'lib/temple/contract';

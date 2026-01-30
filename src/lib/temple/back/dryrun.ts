@@ -1,7 +1,7 @@
 import { localForger } from '@taquito/local-forging';
 import { ForgeOperationsParams } from '@taquito/rpc';
-import { TezosToolkit, TezosOperationError, getRevealGasLimit, getRevealFee, Estimate } from '@taquito/taquito';
 import { ProhibitedActionError } from '@taquito/utils';
+import { TezosToolkit, TezosOperationError, getRevealGasLimit, getRevealFee, Estimate } from '@tezos-x/octez.js';
 import { omit } from 'lodash';
 
 import { FEE_PER_GAS_UNIT } from 'lib/constants';

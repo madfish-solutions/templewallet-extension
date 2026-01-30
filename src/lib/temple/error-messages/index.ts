@@ -1,5 +1,5 @@
 import { HttpResponseError } from '@taquito/http-utils';
-import { TezosOperationError } from '@taquito/taquito';
+import { TezosOperationError } from '@tezos-x/octez.js';
 import { isObject } from 'lodash';
 import { BaseError as ViemBaseError } from 'viem';
 

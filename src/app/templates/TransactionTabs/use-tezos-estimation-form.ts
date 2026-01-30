@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { ForgeParams, localForger } from '@taquito/local-forging';
-import { Estimate, TezosOperationError, TezosToolkit, WalletParamsWithKind, getRevealFee } from '@taquito/taquito';
+import { Estimate, TezosOperationError, TezosToolkit, WalletParamsWithKind, getRevealFee } from '@tezos-x/octez.js';
 import BigNumber from 'bignumber.js';
 import { useForm } from 'react-hook-form';
 import { BehaviorSubject, EMPTY, catchError, from, of, switchMap } from 'rxjs';

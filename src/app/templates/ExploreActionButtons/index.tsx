@@ -1,7 +1,7 @@
 import React, { memo, FunctionComponent, SVGProps, useMemo } from 'react';
 
 import { isDefined } from '@rnw-community/shared';
-import { ChainIds } from '@taquito/taquito';
+import { ChainIds } from '@tezos-x/octez.js';
 import clsx from 'clsx';
 import { uniq } from 'lodash';
 import { Props as TippyProps } from 'tippy.js';

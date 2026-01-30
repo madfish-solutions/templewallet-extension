@@ -1,4 +1,4 @@
-import { Estimate } from '@taquito/taquito';
+import { Estimate } from '@tezos-x/octez.js';
 
 import { SerializedEstimate } from 'lib/temple/types';
 

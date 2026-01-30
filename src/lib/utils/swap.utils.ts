@@ -7,7 +7,7 @@ import {
   TransferParams,
   Wallet,
   WalletParamsWithKind
-} from '@taquito/taquito';
+} from '@tezos-x/octez.js';
 import { BigNumber } from 'bignumber.js';
 
 import { Route3Token } from 'lib/apis/route3/fetch-route3-tokens';

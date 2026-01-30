@@ -18,7 +18,7 @@ import {
   TicketTokenParams,
   UnparsingMode
 } from '@taquito/rpc';
-import { TezosOperationError } from '@taquito/taquito';
+import { TezosOperationError } from '@tezos-x/octez.js';
 
 import { getTezosFastRpcClient } from 'temple/tezos/utils';
 

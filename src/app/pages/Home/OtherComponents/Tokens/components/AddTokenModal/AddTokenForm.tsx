@@ -1,6 +1,6 @@
 import React, { memo, useCallback, useEffect, useMemo, useRef } from 'react';
 
-import { ContractAbstraction, ContractProvider, Wallet } from '@taquito/taquito';
+import { ContractAbstraction, ContractProvider, Wallet } from '@tezos-x/octez.js';
 import clsx from 'clsx';
 import { Controller, useForm } from 'react-hook-form';
 import { useDebouncedCallback } from 'use-debounce';

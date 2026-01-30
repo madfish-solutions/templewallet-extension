@@ -1,4 +1,4 @@
-import type { Signer } from '@taquito/taquito';
+import type { Signer } from '@tezos-x/octez.js';
 import browser from 'webextension-polyfill';
 
 import { PublicError } from 'lib/temple/back/PublicError';

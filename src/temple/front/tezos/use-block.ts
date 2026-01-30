@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 
-import { Subscription } from '@taquito/taquito';
+import { Subscription } from '@tezos-x/octez.js';
 
 import { useUpdatableRef } from 'lib/ui/hooks';
 import { TezosNetworkEssentials } from 'temple/networks';

@@ -1,6 +1,6 @@
-import { compose, Context, ContractAbstraction, ContractProvider, TezosToolkit } from '@taquito/taquito';
 import { TokenMetadata, tzip12 } from '@taquito/tzip12';
 import { DEFAULT_HANDLERS, MetadataInterface, MetadataProvider, tzip16 } from '@taquito/tzip16';
+import { compose, Context, ContractAbstraction, ContractProvider, TezosToolkit } from '@tezos-x/octez.js';
 import retry from 'async-retry';
 import BigNumber from 'bignumber.js';
 

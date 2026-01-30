@@ -1,4 +1,4 @@
-import { OpKind, WalletParamsWithKind } from '@taquito/taquito';
+import { OpKind, WalletParamsWithKind } from '@tezos-x/octez.js';
 import { noop } from 'lodash';
 
 import { TempleAccountType } from 'lib/temple/types';
