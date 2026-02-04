@@ -7,6 +7,7 @@ This repository is the Temple Wallet browser extension codebase. Temple Wallet i
 2. Performance is a feature. Avoid UI hitches, excessive main-thread work and unnecessary re-rendering.
 3. Stay aligned with the existing architecture. Prefer small, targeted improvements over new abstractions.
 4. Do not quietly change security-sensitive behavior. Call it out.
+5. When instructions are unclear or conflicting, ask for clarification.
 
 ## Tech Stack
 - React 19
@@ -26,7 +27,6 @@ This repository is the Temple Wallet browser extension codebase. Temple Wallet i
 - See `src/app/atoms/IconBase.tsx` for canonical component structure
 - Avoid repetitive code (DRY principle)
 - Break down large components into smaller, focused sub-components
-- Use early returns to reduce nesting
 - Add comments for complex logic only
 
 ## TypeScript
@@ -38,6 +38,16 @@ This repository is the Temple Wallet browser extension codebase. Temple Wallet i
 
 ## State Management
 - Migrations are mandatory for persisted state changes
+
+## Reusable Components, Hooks, Utils, Constants
+- Components: `src/app/atoms/` (atomic UI) and `src/app/templates/` (page-level templates)
+- Layouts: `src/app/layouts/` (page shells, overlays, dialogs)
+- Hooks: `src/lib/ui/hooks/` (general) and `src/app/hooks/` (feature-specific)
+- General utils: `src/lib/utils/`
+- Temple core utils: `src/lib/temple/` and `src/temple/front/` (wallet / chain helpers)
+- Assets utils and constants: `src/lib/assets/`
+- Data fetching: `src/lib/swr/index.ts` (SWR hooks)
+- API clients: `src/lib/apis/` (shared API wrappers)
 
 ## A Note To The Agent
 We are building this together. When you learn something non-obvious, add it here so future changes go faster.
