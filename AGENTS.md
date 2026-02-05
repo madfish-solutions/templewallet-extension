@@ -1,6 +1,10 @@
 # AGENTS.md - Working Effectively In This Repo
 
-This repository is the Temple Wallet browser extension codebase. Temple Wallet is an open-source multichain wallet for Tezos & EVM-compatible blockchains, focusing on security and seamless UX. Optimize for clarity, polish, and performance in every change.
+This repository is the Temple Wallet browser extension codebase. Temple Wallet is an open-source multichain wallet for Tezos & EVM-compatible blockchains, focusing on security and seamless UX.
+
+Tech stack: React v19, TypeScript, Redux Toolkit, Tailwind CSS v4, Webpack v5
+
+Optimize for clarity, polish, and performance in every change.
 
 ## Core Tenets (Do Not Violate)
 1. Polish is a feature. Visual and interaction quality matter as much as correctness.
@@ -8,13 +12,6 @@ This repository is the Temple Wallet browser extension codebase. Temple Wallet i
 3. Stay aligned with the existing architecture. Prefer small, targeted improvements over new abstractions.
 4. Do not quietly change security-sensitive behavior. Call it out.
 5. When instructions are unclear or conflicting, ask for clarification.
-
-## Tech Stack
-- React 19
-- TypeScript
-- Redux Toolkit
-- Tailwind CSS 4
-- Webpack 5
 
 ## Commands
 - `yarn start`: Dev build / watch
