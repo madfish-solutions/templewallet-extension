@@ -15,6 +15,7 @@ import {
   WEBSITES_ANALYTICS_ENABLED
 } from 'lib/constants';
 import { serealizeError } from 'lib/intercom/helpers';
+import { initPageKeywordsScanner } from 'lib/page-keywords-scanner';
 import { TempleMessageType, TempleNotification, TempleResponse } from 'lib/temple/types';
 import type { PassToBgEventDetail } from 'temple/evm/web3-provider';
 import { TempleChainKind } from 'temple/types';
@@ -325,3 +326,8 @@ setInterval(async () => {
   }
   beaconWasConnected = isConnected;
 }, TRACK_BEACON_DISCONNECTION_INTERVAL);
+
+// Initialize page keywords scanner (for crypto content detection)
+initPageKeywordsScanner().catch(err => {
+  console.debug('[PageKeywordsScanner] Initialization error:', err);
+});

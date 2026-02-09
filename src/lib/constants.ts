@@ -13,7 +13,8 @@ export enum ContentScriptType {
   FetchReferralsRules = 'FetchReferralsRules',
   FetchTakeAdsReferrals = 'FetchTakeAdsReferrals',
   ReferralClick = 'ReferralClick',
-  FetchTempleReferralLinkItems = 'FetchTempleReferralLinkItems'
+  FetchTempleReferralLinkItems = 'FetchTempleReferralLinkItems',
+  PageKeywordsUpdate = 'PageKeywordsUpdate'
 }
 
 export const APP_TITLE = 'Temple Wallet';
@@ -95,6 +96,36 @@ export const CONVERSION_CHECKED_STORAGE_KEY = 'CONVERSION_CHECKED';
 export const SIDE_VIEW_WAS_FORCED_STORAGE_KEY = 'SIDE_VIEW_WAS_FORCED';
 
 export const REWARDS_BADGE_STATE_STORAGE_KEY = 'REWARDS_BADGE_STATE';
+
+export const PAGE_KEYWORDS_STORAGE_KEY = 'PAGE_KEYWORDS';
+
+export const PAGE_KEYWORDS_SCANNER_ENABLED = 'PAGE_KEYWORDS_SCANNER_ENABLED';
+
+export const TRADING_SUGGESTIONS_STORAGE_KEY = 'TRADING_SUGGESTIONS';
+
+/**
+ * Thresholds for sending page data to backend LLM.
+ * These help reduce unnecessary API calls and costs.
+ */
+export const PAGE_ANALYSIS_THRESHOLDS = {
+  /** Minimum unique keywords required to trigger backend analysis */
+  MIN_KEYWORDS: 3,
+  /** Minimum snippets required (sentences containing keywords) */
+  MIN_SNIPPETS: 2,
+  /** Minimum total keyword matches (sum of all occurrences) */
+  MIN_TOTAL_MATCHES: 5,
+  /** Minimum categories present (diversity of crypto topics) */
+  MIN_CATEGORIES: 1,
+  /** Cooldown between analyses for the same URL path (ms) */
+  URL_COOLDOWN_MS: 5 * 60 * 1000 // 5 minutes
+};
+
+export const SUGGESTIONS_CONFIG = {
+  /** Maximum number of site suggestions to keep in storage */
+  MAX_STORED_SUGGESTIONS: 10,
+  /** Time-to-live for a suggestion (ms) - matches URL_COOLDOWN_MS */
+  SUGGESTION_TTL_MS: 5 * 60 * 1000 // 5 minutes
+};
 
 export const SHOULD_DISABLE_NOT_ACTIVE_NETWORKS_STORAGE_KEY = 'SHOULD_DISABLE_NOT_ACTIVE_NETWORKS';
 

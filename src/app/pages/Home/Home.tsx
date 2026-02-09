@@ -11,6 +11,7 @@ import { DepositModal } from 'app/templates/DepositModal';
 import { EarnDepositStats } from 'app/templates/EarnDepositStats';
 import { ExploreActionButtonsBar } from 'app/templates/ExploreActionButtons';
 import { KoloCardWidgetModal } from 'app/templates/KoloCard/KoloCardWidgetModal';
+import { PageKeywordsBanner } from 'app/templates/PageKeywordsBanner';
 import { toastSuccess } from 'app/toaster';
 import { useInitToastMessage } from 'lib/temple/front/toasts-context';
 import { useBooleanState } from 'lib/ui/hooks';
@@ -47,6 +48,8 @@ const Home = memo(() => {
 
         <ExploreActionButtonsBar additionalButtonType="activity" onDepositClick={openDepositModal} className="mt-4" />
       </div>
+
+      <PageKeywordsBanner />
 
       <EarnDepositStats isHomePage containerClassName="mt-6 mb-3" onCryptoCardClick={openCryptoCardModal} />
 

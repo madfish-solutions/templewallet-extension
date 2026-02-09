@@ -7,9 +7,24 @@ import { getStoredAppInstallIdentity } from 'app/storage/app-install-id';
 import { importExtensionAdsReferralsModule } from 'lib/ads/import-extension-ads-module';
 import { importUpdateRulesStorageModule } from 'lib/ads/import-update-rules-storage';
 import { importAdsApiModule } from 'lib/apis/ads-api';
-import { ADS_VIEWER_DATA_STORAGE_KEY, ContentScriptType, REWARDS_ACCOUNT_DATA_STORAGE_KEY } from 'lib/constants';
+import {
+  ADS_VIEWER_DATA_STORAGE_KEY,
+  ContentScriptType,
+  PAGE_ANALYSIS_THRESHOLDS,
+  PAGE_KEYWORDS_STORAGE_KEY,
+  REWARDS_ACCOUNT_DATA_STORAGE_KEY,
+  SUGGESTIONS_CONFIG,
+  TRADING_SUGGESTIONS_STORAGE_KEY
+} from 'lib/constants';
 import { E2eMessageType } from 'lib/e2e/types';
 import { BACKGROUND_IS_WORKER, EnvVars, IS_FIREFOX, IS_MISES_BROWSER } from 'lib/env';
+import {
+  analyzePageContent,
+  buildAnalysisRequest,
+  type PageAnalysis,
+  type PageKeywordsData,
+  type TradingSuggestion
+} from 'lib/page-keywords-scanner';
 import { fetchFromStorage } from 'lib/storage';
 import { encodeMessage, encryptMessage, getSenderId, MessageType, Response } from 'lib/temple/beacon';
 import { clearAsyncStorages } from 'lib/temple/reset';
@@ -480,6 +495,23 @@ browser.runtime.onMessage.addListener(async (msg, sender) => {
         });
         break;
       }
+
+      case ContentScriptType.PageKeywordsUpdate: {
+        // Store keywords data for the current tab
+        const keywordsData = msg.data as PageKeywordsData;
+        if (keywordsData && keywordsData.result.uniqueCount > 0) {
+          await browser.storage.local.set({ [PAGE_KEYWORDS_STORAGE_KEY]: keywordsData });
+
+          // Check if backend analysis should be triggered
+          const shouldAnalyze = await shouldTriggerBackendAnalysis(keywordsData);
+          if (shouldAnalyze) {
+            analyzePageContentInBackground(keywordsData).catch(err => {
+              console.debug('[PageAnalysis] Background analysis failed:', err);
+            });
+          }
+        }
+        break;
+      }
     }
   } catch (e) {
     console.error(e);
@@ -535,3 +567,164 @@ const getTempleReferralLinkItems = memoizee(
     }),
   DEFAULT_MEMO_CONFIG
 );
+
+const urlAnalysisTimestamps = new Map<string, number>();
+
+function getUrlCooldownKey(url: string): string {
+  try {
+    const parsed = new URL(url);
+
+    return `${parsed.hostname}${parsed.pathname}`;
+  } catch {
+    return url;
+  }
+}
+
+/**
+ * Checks if the page data meets thresholds for backend analysis.
+ * This helps reduce unnecessary API calls and costs.
+ */
+async function shouldTriggerBackendAnalysis(keywordsData: PageKeywordsData): Promise<boolean> {
+  const { result, url } = keywordsData;
+  const thresholds = PAGE_ANALYSIS_THRESHOLDS;
+
+  if (result.uniqueCount < thresholds.MIN_KEYWORDS) {
+    console.debug(`[PageAnalysis] Skipping: ${result.uniqueCount}/${thresholds.MIN_KEYWORDS} keywords`);
+
+    return false;
+  }
+
+  const snippetCount = result.snippets?.length ?? 0;
+  if (snippetCount < thresholds.MIN_SNIPPETS) {
+    console.debug(`[PageAnalysis] Skipping: ${snippetCount}/${thresholds.MIN_SNIPPETS} snippets`);
+
+    return false;
+  }
+
+  if (result.totalMatches < thresholds.MIN_TOTAL_MATCHES) {
+    console.debug(`[PageAnalysis] Skipping: ${result.totalMatches}/${thresholds.MIN_TOTAL_MATCHES} matches`);
+
+    return false;
+  }
+
+  if (result.categories.length < thresholds.MIN_CATEGORIES) {
+    console.debug(`[PageAnalysis] Skipping: ${result.categories.length}/${thresholds.MIN_CATEGORIES} categories`);
+
+    return false;
+  }
+
+  // Check URL cooldown (prevent analyzing same page too frequently)
+  const urlKey = getUrlCooldownKey(url);
+  const lastAnalysis = urlAnalysisTimestamps.get(urlKey);
+  const now = Date.now();
+  if (lastAnalysis && now - lastAnalysis < thresholds.URL_COOLDOWN_MS) {
+    const remainingMs = thresholds.URL_COOLDOWN_MS - (now - lastAnalysis);
+    console.debug(`[PageAnalysis] Skipping: URL cooldown (${Math.round(remainingMs / 1000)}s remaining)`);
+
+    return false;
+  }
+
+  urlAnalysisTimestamps.set(urlKey, now);
+
+  // Clean up old entries (keep map from growing indefinitely)
+  if (urlAnalysisTimestamps.size > 200) {
+    const cutoff = now - thresholds.URL_COOLDOWN_MS;
+    for (const [key, timestamp] of urlAnalysisTimestamps) {
+      if (timestamp < cutoff) {
+        urlAnalysisTimestamps.delete(key);
+      }
+    }
+  }
+
+  console.debug('[PageAnalysis] Triggering analysis:', {
+    url: urlKey,
+    keywords: result.uniqueCount,
+    snippets: snippetCount,
+    matches: result.totalMatches,
+    categories: result.categories.length
+  });
+
+  return true;
+}
+
+/** Stored suggestion entry with TTL */
+interface StoredSuggestionEntry {
+  urlKey: string;
+  url: string;
+  hostname: string;
+  timestamp: number;
+  expiresAt: number;
+  analysis: PageAnalysis;
+  suggestions: TradingSuggestion[];
+}
+
+/** Map of urlKey -> suggestion entry, persisted in storage */
+type StoredSuggestionsMap = Record<string, StoredSuggestionEntry>;
+
+/**
+ * Stores a suggestion for a site, evicting expired and oldest entries.
+ */
+async function storeSuggestion(
+  keywordsData: PageKeywordsData,
+  response: { analysis: StoredSuggestionEntry['analysis']; suggestions: StoredSuggestionEntry['suggestions'] }
+): Promise<void> {
+  const stored = await fetchFromStorage<StoredSuggestionsMap>(TRADING_SUGGESTIONS_STORAGE_KEY);
+  const map: StoredSuggestionsMap = stored ?? {};
+  const now = Date.now();
+
+  // Remove expired entries
+  for (const [key, entry] of Object.entries(map)) {
+    if (entry.expiresAt <= now) {
+      delete map[key];
+    }
+  }
+
+  // Add new entry
+  const urlKey = getUrlCooldownKey(keywordsData.url);
+  map[urlKey] = {
+    urlKey,
+    url: keywordsData.url,
+    hostname: keywordsData.hostname,
+    timestamp: now,
+    expiresAt: now + SUGGESTIONS_CONFIG.SUGGESTION_TTL_MS,
+    analysis: response.analysis,
+    suggestions: response.suggestions
+  };
+
+  // Evict oldest entries if over limit
+  const entries = Object.values(map).sort((a, b) => b.timestamp - a.timestamp);
+  const maxEntries = SUGGESTIONS_CONFIG.MAX_STORED_SUGGESTIONS;
+  if (entries.length > maxEntries) {
+    const toKeep = new Set(entries.slice(0, maxEntries).map(e => e.urlKey));
+    for (const key of Object.keys(map)) {
+      if (!toKeep.has(key)) {
+        delete map[key];
+      }
+    }
+  }
+
+  await browser.storage.local.set({ [TRADING_SUGGESTIONS_STORAGE_KEY]: map });
+  console.debug(`[PageAnalysis] Suggestion stored for ${urlKey}, total: ${Object.keys(map).length}`);
+}
+
+/**
+ * Analyze page content in the background using the backend LLM
+ */
+async function analyzePageContentInBackground(keywordsData: PageKeywordsData): Promise<void> {
+  try {
+    const request = buildAnalysisRequest(
+      keywordsData.url,
+      keywordsData.result.snippets || [],
+      keywordsData.result.keywords.map(k => k.keyword),
+      keywordsData.result.categories
+    );
+
+    const response = await analyzePageContent(request);
+
+    if (response && response.hasTradingSignal && response.suggestions.length > 0) {
+      await storeSuggestion(keywordsData, response);
+    }
+  } catch (error) {
+    console.error('[PageAnalysis] Background analysis error:', error);
+  }
+}
