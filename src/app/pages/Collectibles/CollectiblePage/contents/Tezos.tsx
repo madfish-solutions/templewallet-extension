@@ -13,8 +13,11 @@ import {
   useCollectibleDetailsSelector
 } from 'app/store/tezos/collectibles/selectors';
 import { useCollectibleMetadataSelector } from 'app/store/tezos/collectibles-metadata/selectors';
+import { fromFa2TokenSlug } from 'lib/assets/utils';
+import { useTezosAssetBalance } from 'lib/balances';
 import { buildTokenImagesStack } from 'lib/images-uri';
 import { getTokenName } from 'lib/metadata';
+import { useBooleanState } from 'lib/ui/hooks';
 import { navigate } from 'lib/woozie';
 import { useTezosChainByChainId, useAccountForTezos } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
@@ -23,6 +26,7 @@ import { TezosAttributes } from '../components/Attributes';
 import { TezosCollectiblePageImage } from '../components/CollectiblePageImage';
 import { CollectionDetails } from '../components/CollectionDetails';
 import { TezosDetails } from '../components/Details';
+import { ListForSaleModal } from '../components/ListForSaleModal';
 import { QuickActionsPopper } from '../components/QuickActionsPopper';
 
 import { BaseContent } from './Base';
@@ -40,6 +44,8 @@ export const TezosContent = memo<Props>(({ chainId, assetSlug }) => {
   const details = useCollectibleDetailsSelector(assetSlug);
   const areAnyCollectiblesDetailsLoading = useAllCollectiblesDetailsLoadingSelector();
 
+  const [isListForSaleModalOpen, openListForSaleModal, closeListForSaleModal] = useBooleanState(false);
+
   const mainnetTokensScamSlugsRecord = useMainnetTokensScamlistSelector();
   const showScamTokenAlert = isDefined(assetSlug) && mainnetTokensScamSlugsRecord[assetSlug];
 
@@ -47,6 +53,14 @@ export const TezosContent = memo<Props>(({ chainId, assetSlug }) => {
 
   const accountPkh = account.address;
   const areDetailsLoading = areAnyCollectiblesDetailsLoading && details === undefined;
+
+  const { contract: contractAddress, id: tokenId } = useMemo(() => fromFa2TokenSlug(assetSlug), [assetSlug]);
+
+  const { value: balance } = useTezosAssetBalance(assetSlug, accountPkh, network);
+  const isOwnedByUser = useMemo(() => balance?.gt(0) ?? false, [balance]);
+  const canListForSale = useMemo(() => isOwnedByUser && isDefined(details), [isOwnedByUser, details]);
+
+  const listForSaleTestIDProperties = useMemo(() => ({ contractAddress, tokenId }), [contractAddress, tokenId]);
 
   useEffect(() => void dispatch(loadCollectiblesDetailsActions.submit([assetSlug])), [assetSlug]);
 
@@ -70,31 +84,41 @@ export const TezosContent = memo<Props>(({ chainId, assetSlug }) => {
   const showSegmentControl = details?.attributes && details?.attributes.length > 0;
 
   return (
-    <BaseContent
-      headerRightElement={<QuickActionsPopper assetSlug={assetSlug} network={network} />}
-      scamAlertElement={
-        showScamTokenAlert && <ScamTokenAlert isCollectible={true} tezosChainId={chainId} assetSlug={assetSlug} />
-      }
-      imageElement={
-        <TezosCollectiblePageImage
-          assetSlug={assetSlug}
-          metadata={metadata}
-          areDetailsLoading={areDetailsLoading}
-          objktArtifactUri={details?.objktArtifactUri}
-          isAdultContent={details?.isAdultContent}
-          mime={details?.mime}
-        />
-      }
-      collectibleName={collectibleName}
-      collectionDetailsElement={<CollectionDetails {...collection} />}
-      onSend={onSendButtonClick}
-      description={details?.description}
-      showSegmentControl={showSegmentControl}
-      isLoading={areDetailsLoading}
-      detailsElement={
-        <TezosDetails network={network} assetSlug={assetSlug} accountPkh={accountPkh} details={details} />
-      }
-      attributesElement={<TezosAttributes details={details} />}
-    />
+    <>
+      <BaseContent
+        headerRightElement={<QuickActionsPopper assetSlug={assetSlug} network={network} />}
+        scamAlertElement={
+          showScamTokenAlert && <ScamTokenAlert isCollectible={true} tezosChainId={chainId} assetSlug={assetSlug} />
+        }
+        imageElement={
+          <TezosCollectiblePageImage
+            assetSlug={assetSlug}
+            metadata={metadata}
+            areDetailsLoading={areDetailsLoading}
+            objktArtifactUri={details?.objktArtifactUri}
+            isAdultContent={details?.isAdultContent}
+            mime={details?.mime}
+          />
+        }
+        collectibleName={collectibleName}
+        collectionDetailsElement={<CollectionDetails {...collection} />}
+        onSend={onSendButtonClick}
+        onListForSale={canListForSale ? openListForSaleModal : undefined}
+        listForSaleTestIDProperties={listForSaleTestIDProperties}
+        description={details?.description}
+        showSegmentControl={showSegmentControl}
+        isLoading={areDetailsLoading}
+        detailsElement={
+          <TezosDetails network={network} assetSlug={assetSlug} accountPkh={accountPkh} details={details} />
+        }
+        attributesElement={<TezosAttributes details={details} />}
+      />
+      <ListForSaleModal
+        isOpen={isListForSaleModalOpen}
+        onClose={closeListForSaleModal}
+        contractAddress={contractAddress}
+        tokenId={tokenId}
+      />
+    </>
   );
 });
