@@ -2,8 +2,6 @@ import React, { memo, ReactNode } from 'react';
 
 import clsx from 'clsx';
 
-import { useBooleanState } from 'lib/ui/hooks';
-
 import { IconBase } from './IconBase';
 
 interface ModalInfoBlockProps {
@@ -15,25 +13,15 @@ interface ModalInfoBlockProps {
 }
 
 export const ModalInfoBlock = memo<ModalInfoBlockProps>(({ Icon, headline, description, className, onClick }) => {
-  const [isHovered, handleMouseEnter, handleMouseLeave] = useBooleanState(false);
-
   return (
     <button
       className={clsx(
         className,
-        'flex gap-3 p-4 bg-white rounded-lg shadow-center border',
-        isHovered && 'border-lines'
+        'flex gap-3 p-4 bg-white hover:bg-background rounded-lg border-0.5 border-lines group'
       )}
       onClick={onClick}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
     >
-      <div
-        className={clsx(
-          'rounded-full p-3',
-          isHovered ? 'bg-primary-hover-low text-primary-hover' : 'bg-primary-low text-primary'
-        )}
-      >
+      <div className="rounded-full p-3 bg-primary-low text-primary group-hover:bg-primary-hover-low group-hover:text-primary-hover">
         <IconBase Icon={Icon} size={32} className="text-primary" />
       </div>
 

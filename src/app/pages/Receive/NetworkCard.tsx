@@ -27,7 +27,7 @@ export const NetworkCard: FC<NetworkCardProps> = ({ address, chainKind, onQRClic
   const testIDProperties = useMemo(() => ({ chainKind }), [chainKind]);
 
   return (
-    <div className="p-4 flex flex-col gap-y-2 bg-white rounded-lg shadow-bottom">
+    <div className="p-4 flex flex-col gap-y-2 bg-white rounded-lg border-0.5 border-lines">
       <ChainKindLabel
         chainKind={chainKind}
         tooltipText={t(isTezos ? 'tezosReceiveTooltip' : 'evmReceiveTooltip')}
