@@ -25,9 +25,9 @@ interface StoredSuggestionEntry {
 type StoredSuggestionsMap = Record<string, StoredSuggestionEntry>;
 
 interface UsePageKeywordsResult {
-  /** Keywords data for the current/recent page (only if matches active tab) */
+  /** Keywords data for the last scanned page */
   data: PageKeywordsData | null;
-  /** Trading suggestion for the active tab's page (if any, and not expired) */
+  /** Trading suggestion matching the last scanned page (if any, and not expired) */
   currentSuggestion: StoredSuggestionEntry | null;
   /** All stored (non-expired) suggestions */
   allSuggestions: StoredSuggestionEntry[];
@@ -35,8 +35,6 @@ interface UsePageKeywordsResult {
   isEnabled: boolean;
   /** Whether data is loading */
   isLoading: boolean;
-  /** Whether stored data is stale (from a different page than the active tab) */
-  isDataStale: boolean;
   /** Refresh the keywords data */
   refresh: () => Promise<void>;
   /** Enable/disable the entire feature */
@@ -72,37 +70,21 @@ function getValidSuggestions(map: StoredSuggestionsMap | null): StoredSuggestion
 }
 
 /**
- * Gets the active tab's URL.
- */
-async function getActiveTabUrl(): Promise<string | null> {
-  try {
-    const tabs = await browser.tabs.query({ active: true, currentWindow: true });
-
-    return tabs[0]?.url ?? null;
-  } catch {
-    return null;
-  }
-}
-
-/**
  * Hook to access page keywords scanner data and settings.
- * Detects if stored data matches the active tab and flags stale data.
  */
 export function usePageKeywords(): UsePageKeywordsResult {
   const [rawData, setRawData] = useState<PageKeywordsData | null>(null);
   const [suggestionsMap, setSuggestionsMap] = useState<StoredSuggestionsMap | null>(null);
   const [isEnabled, setIsEnabled] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [activeTabUrl, setActiveTabUrl] = useState<string | null>(null);
 
   const loadData = useCallback(async () => {
     try {
-      const [storage, tabUrl] = await Promise.all([browser.storage.local.get(STORAGE_KEYS), getActiveTabUrl()]);
+      const storage = await browser.storage.local.get(STORAGE_KEYS);
 
       setRawData(storage[PAGE_KEYWORDS_STORAGE_KEY] ?? null);
       setIsEnabled(storage[PAGE_KEYWORDS_SCANNER_ENABLED] ?? false);
       setSuggestionsMap(storage[TRADING_SUGGESTIONS_STORAGE_KEY] ?? null);
-      setActiveTabUrl(tabUrl);
     } catch (error) {
       console.error('[usePageKeywords] Failed to load:', error);
     } finally {
@@ -130,35 +112,21 @@ export function usePageKeywords(): UsePageKeywordsResult {
     }
   }, []);
 
-  // Check if stored keywords match the active tab
-  const isDataStale = useMemo(() => {
-    if (!rawData?.url || !activeTabUrl) return false;
-
-    return getUrlKey(rawData.url) !== getUrlKey(activeTabUrl);
-  }, [rawData, activeTabUrl]);
-
-  // Only return data if it matches active tab (not stale)
-  const data = useMemo(() => {
-    if (isDataStale) return null;
-
-    return rawData;
-  }, [rawData, isDataStale]);
-
   // Get all valid (non-expired) suggestions
   const allSuggestions = useMemo(() => getValidSuggestions(suggestionsMap), [suggestionsMap]);
 
-  // Find suggestion matching the active tab URL (not the stored data URL)
+  // Find suggestion matching the last scanned page URL
   const currentSuggestion = useMemo(() => {
-    if (!activeTabUrl || !suggestionsMap) return null;
+    if (!rawData?.url || !suggestionsMap) return null;
 
-    const urlKey = getUrlKey(activeTabUrl);
+    const urlKey = getUrlKey(rawData.url);
     const entry = suggestionsMap[urlKey];
     if (!entry) return null;
 
     if (entry.expiresAt <= Date.now()) return null;
 
     return entry;
-  }, [activeTabUrl, suggestionsMap]);
+  }, [rawData, suggestionsMap]);
 
   // Initial load
   useEffect(() => {
@@ -195,7 +163,7 @@ export function usePageKeywords(): UsePageKeywordsResult {
     return () => clearInterval(interval);
   }, [suggestionsMap]);
 
-  // Listen for storage changes
+  // Listen for storage changes (e.g. new scan data from background)
   useEffect(() => {
     const handleStorageChange = (changes: Record<string, browser.Storage.StorageChange>, areaName: string) => {
       if (areaName !== 'local') return;
@@ -221,12 +189,11 @@ export function usePageKeywords(): UsePageKeywordsResult {
   }, []);
 
   return {
-    data,
+    data: rawData,
     currentSuggestion,
     allSuggestions,
     isEnabled,
     isLoading,
-    isDataStale,
     refresh,
     setEnabled
   };

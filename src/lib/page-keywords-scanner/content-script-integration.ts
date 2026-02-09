@@ -24,11 +24,38 @@ const EXCLUDED_DOMAINS = [
   '127.0.0.1'
 ];
 
+/**
+ * Search engine domains where scanning is not useful.
+ */
+const SEARCH_ENGINE_DOMAINS = [
+  'google.com',
+  'google.',
+  'bing.com',
+  'duckduckgo.com',
+  'yahoo.com',
+  'baidu.com',
+  'ecosia.org',
+  'search.brave.com',
+  'startpage.com'
+];
+
 function shouldExcludePage(): boolean {
   const hostname = window.location.hostname.toLowerCase();
   const href = window.location.href.toLowerCase();
 
-  return EXCLUDED_DOMAINS.some(domain => hostname.includes(domain) || href.includes(domain));
+  if (EXCLUDED_DOMAINS.some(domain => hostname.includes(domain) || href.includes(domain))) {
+    return true;
+  }
+
+  return SEARCH_ENGINE_DOMAINS.some(domain => hostname.includes(domain));
+}
+
+function isInsideIframe(): boolean {
+  try {
+    return window.self !== window.top;
+  } catch {
+    return true;
+  }
 }
 
 export interface PageKeywordsData {
@@ -51,6 +78,11 @@ export async function initPageKeywordsScanner(): Promise<void> {
   isInitialized = true;
 
   try {
+    if (isInsideIframe()) {
+      console.debug('[PageKeywordsScanner] Skipping iframe:', window.location.hostname);
+      return;
+    }
+
     if (shouldExcludePage()) {
       console.debug('[PageKeywordsScanner] Skipping excluded domain:', window.location.hostname);
       return;

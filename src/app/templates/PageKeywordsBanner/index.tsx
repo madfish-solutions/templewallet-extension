@@ -16,7 +16,7 @@ const MAX_VISIBLE_SNIPPETS = 3;
  * Shows in the Home page when keywords are found.
  */
 export const PageKeywordsBanner = memo(() => {
-  const { data, currentSuggestion, isEnabled, isLoading, isDataStale, setEnabled } = usePageKeywords();
+  const { data, currentSuggestion, isEnabled, isLoading, setEnabled } = usePageKeywords();
   const [showSnippets, setShowSnippets] = useState(false);
 
   const displayKeywords = useMemo(() => {
@@ -55,31 +55,33 @@ export const PageKeywordsBanner = memo(() => {
     );
   }
 
-  // Data is from a different page than the active tab
-  if (isDataStale) {
-    return (
-      <div className="mx-4 mt-4 p-3 bg-gray-50 rounded-lg border border-gray-200">
-        <div className="flex items-center gap-2">
-          <span className="text-base">⏳</span>
-          <div>
-            <p className="text-sm text-gray-600">Page analysis on cooldown</p>
-            <p className="text-xs text-gray-400 mt-0.5">Stay on this page, results will appear shortly.</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  const hasKeywords = displayKeywords.length > 0;
+  const hasSuggestion = currentSuggestion !== null;
 
-  if (!displayKeywords.length) return null;
+  if (!hasKeywords && !hasSuggestion) return null;
 
   return (
     <div className="mx-4 mt-4 space-y-3">
-      {/* Trading Suggestion for current page (if available and not expired) */}
-      {currentSuggestion && (
-        <div className="p-3 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg border border-green-200">
+      {hasSuggestion && (
+        <div
+          className={clsx(
+            'p-3 rounded-lg border',
+            currentSuggestion.analysis.sentiment === 'bullish'
+              ? 'bg-gradient-to-r from-green-50 to-emerald-50 border-green-200'
+              : currentSuggestion.analysis.sentiment === 'bearish'
+              ? 'bg-gradient-to-r from-red-50 to-orange-50 border-red-200'
+              : 'bg-gradient-to-r from-gray-50 to-slate-50 border-gray-200'
+          )}
+        >
           <div className="flex items-center gap-2 mb-2">
-            <span className="text-lg">📈</span>
-            <div>
+            <span className="text-lg">
+              {currentSuggestion.analysis.sentiment === 'bullish'
+                ? '📈'
+                : currentSuggestion.analysis.sentiment === 'bearish'
+                ? '📉'
+                : '📊'}
+            </span>
+            <div className="flex-1">
               <p className="text-sm font-medium text-gray-800">Trading Signal Detected</p>
               <p className="text-xs text-gray-500">
                 {currentSuggestion.analysis.sentiment === 'bullish'
@@ -90,71 +92,83 @@ export const PageKeywordsBanner = memo(() => {
                 • {Math.round(currentSuggestion.analysis.confidence * 100)}% confidence
               </p>
             </div>
+            <button
+              onClick={() => setEnabled(false)}
+              className="text-gray-400 hover:text-gray-600 text-xs self-start"
+              title="Disable scanner"
+            >
+              ✕
+            </button>
           </div>
 
           <p className="text-xs text-gray-600 mb-3">{currentSuggestion.analysis.summary}</p>
 
-          <div className="space-y-2">
-            {currentSuggestion.suggestions.slice(0, 2).map(suggestion => (
-              <TradingSuggestionCard key={suggestion.id} suggestion={suggestion} />
-            ))}
-          </div>
+          {currentSuggestion.suggestions.length > 0 && (
+            <div className="space-y-2">
+              {currentSuggestion.suggestions.slice(0, 2).map(suggestion => (
+                <TradingSuggestionCard key={suggestion.id} suggestion={suggestion} />
+              ))}
+            </div>
+          )}
         </div>
       )}
 
-      {/* Keywords Card */}
-      <div className="p-3 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border border-blue-100">
-        <div className="flex items-start justify-between mb-2">
-          <div>
-            <p className="text-sm font-medium text-gray-700">Found keywords:</p>
-            {data && (
-              <p className="text-xs text-gray-500 truncate max-w-[200px]" title={data.hostname}>
-                {data.hostname}
-              </p>
+      {hasKeywords && (
+        <div className="p-3 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border border-blue-100">
+          <div className="flex items-start justify-between mb-2">
+            <div>
+              <p className="text-sm font-medium text-gray-700">Found keywords:</p>
+              {data && (
+                <p className="text-xs text-gray-500 truncate max-w-[200px]" title={data.hostname}>
+                  {data.hostname}
+                </p>
+              )}
+            </div>
+            {!hasSuggestion && (
+              <button
+                onClick={() => setEnabled(false)}
+                className="text-gray-400 hover:text-gray-600 text-xs"
+                title="Disable scanner"
+              >
+                ✕
+              </button>
             )}
           </div>
-          <button
-            onClick={() => setEnabled(false)}
-            className="text-gray-400 hover:text-gray-600 text-xs"
-            title="Disable scanner"
-          >
-            ✕
-          </button>
-        </div>
 
-        <div className="flex flex-wrap gap-1.5">
-          {displayKeywords.map(kw => (
-            <KeywordTag key={kw.keyword} keyword={kw.displayName} category={kw.category} count={kw.count} />
-          ))}
-        </div>
-
-        {data && data.result.uniqueCount > MAX_VISIBLE_KEYWORDS && (
-          <p className="text-xs text-gray-400 mt-2">+{data.result.uniqueCount - MAX_VISIBLE_KEYWORDS} more...</p>
-        )}
-
-        {/* Snippets toggle */}
-        {displaySnippets.length > 0 && (
-          <div className="mt-3 pt-2 border-t border-blue-100">
-            <button
-              onClick={() => setShowSnippets(!showSnippets)}
-              className="text-xs text-blue-600 hover:text-blue-800 flex items-center gap-1"
-            >
-              <span>{showSnippets ? '▼' : '▶'}</span>
-              <span>
-                {showSnippets ? 'Hide' : 'Show'} context ({displaySnippets.length} snippets)
-              </span>
-            </button>
-
-            {showSnippets && (
-              <div className="mt-2 space-y-2">
-                {displaySnippets.map((snippet, idx) => (
-                  <SnippetCard key={idx} snippet={snippet} />
-                ))}
-              </div>
-            )}
+          <div className="flex flex-wrap gap-1.5">
+            {displayKeywords.map(kw => (
+              <KeywordTag key={kw.keyword} keyword={kw.displayName} category={kw.category} count={kw.count} />
+            ))}
           </div>
-        )}
-      </div>
+
+          {data && data.result.uniqueCount > MAX_VISIBLE_KEYWORDS && (
+            <p className="text-xs text-gray-400 mt-2">+{data.result.uniqueCount - MAX_VISIBLE_KEYWORDS} more...</p>
+          )}
+
+          {/* Snippets toggle */}
+          {displaySnippets.length > 0 && (
+            <div className="mt-3 pt-2 border-t border-blue-100">
+              <button
+                onClick={() => setShowSnippets(!showSnippets)}
+                className="text-xs text-blue-600 hover:text-blue-800 flex items-center gap-1"
+              >
+                <span>{showSnippets ? '▼' : '▶'}</span>
+                <span>
+                  {showSnippets ? 'Hide' : 'Show'} context ({displaySnippets.length} snippets)
+                </span>
+              </button>
+
+              {showSnippets && (
+                <div className="mt-2 space-y-2">
+                  {displaySnippets.map((snippet, idx) => (
+                    <SnippetCard key={idx} snippet={snippet} />
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 });

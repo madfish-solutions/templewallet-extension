@@ -721,8 +721,18 @@ async function analyzePageContentInBackground(keywordsData: PageKeywordsData): P
 
     const response = await analyzePageContent(request);
 
-    if (response && response.hasTradingSignal && response.suggestions.length > 0) {
+    if (response && response.hasTradingSignal) {
+      console.debug('[PageAnalysis] Trading signal detected:', {
+        sentiment: response.analysis.sentiment,
+        confidence: response.analysis.confidence,
+        suggestionsCount: response.suggestions.length
+      });
       await storeSuggestion(keywordsData, response);
+    } else {
+      console.debug('[PageAnalysis] No trading signal in response:', {
+        hasResponse: !!response,
+        hasTradingSignal: response?.hasTradingSignal
+      });
     }
   } catch (error) {
     console.error('[PageAnalysis] Background analysis error:', error);
