@@ -1,4 +1,4 @@
-import { TezosToolkit } from '@taquito/taquito';
+import { TezosToolkit } from '@tezos-x/octez.js';
 import memoizee from 'memoizee';
 
 export const loadContract = memoizee(fetchContract, {

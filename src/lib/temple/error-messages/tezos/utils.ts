@@ -5,7 +5,7 @@ import {
   OperationContentsAndResult,
   OperationContentsAndResultTransaction,
   TransactionOperationParameter
-} from '@taquito/rpc';
+} from '@tezos-x/octez.js-rpc';
 
 interface ParseFailedTransactionResult {
   failedOperation?: OperationContentsAndResultTransaction | InternalOperationResult;

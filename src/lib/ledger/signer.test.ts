@@ -1,4 +1,4 @@
-import { b58DecodeAndCheckPrefix, hex2buf } from '@taquito/utils';
+import { b58DecodeAndCheckPrefix, hex2buf } from '@tezos-x/octez.js-utils';
 import { crypto_generichash, ready } from 'libsodium-wrappers';
 import toBuffer from 'typedarray-to-buffer';
 

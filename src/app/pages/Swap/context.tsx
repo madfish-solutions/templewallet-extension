@@ -1,6 +1,6 @@
 import { createContext, MutableRefObject, useContext } from 'react';
 
-import type { BatchWalletOperation } from '@taquito/taquito/dist/types/wallet/batch-operation';
+import type { BatchWalletOperation } from '@tezos-x/octez.js/dist/types/wallet/batch-operation';
 
 export interface SwapFormControl {
   resetForm?: EmptyFn;

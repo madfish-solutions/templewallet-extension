@@ -4,8 +4,8 @@ import {
   OperationContents,
   type ManagerKeyResponse,
   type OperationContentsAndResult
-} from '@taquito/rpc';
-import { validateAddress, validateChain, ValidationResult } from '@taquito/utils';
+} from '@tezos-x/octez.js-rpc';
+import { validateAddress, validateChain, ValidationResult } from '@tezos-x/octez.js-utils';
 import BigNumber from 'bignumber.js';
 
 import { TEZ_TOKEN_SLUG } from 'lib/assets';

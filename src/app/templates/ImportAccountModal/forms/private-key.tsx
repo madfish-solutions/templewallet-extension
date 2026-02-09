@@ -1,6 +1,6 @@
 import React, { memo, ReactNode, useCallback, useMemo, useState } from 'react';
 
-import { PrefixV2 } from '@taquito/utils';
+import { PrefixV2 } from '@tezos-x/octez.js-utils';
 import { useForm } from 'react-hook-form';
 
 import { FormField } from 'app/atoms';

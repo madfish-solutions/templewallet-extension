@@ -1,4 +1,4 @@
-import { MichelsonMap } from '@taquito/michelson-encoder';
+import { MichelsonMap } from '@tezos-x/octez.js-michelson-encoder';
 import { BigNumber } from 'bignumber.js';
 
 import { Hop, Route3Hop } from 'lib/route3/interfaces';

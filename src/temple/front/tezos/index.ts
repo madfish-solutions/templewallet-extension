@@ -1,4 +1,3 @@
-import { RawSignResult } from '@taquito/core';
 import {
   WalletProvider,
   createOriginationOperation,
@@ -18,9 +17,10 @@ import {
   WalletRegisterGlobalConstantParams,
   Signer,
   TezosToolkit
-} from '@taquito/taquito';
-import { Tzip16Module } from '@taquito/tzip16';
-import { ProhibitedActionError, buf2hex } from '@taquito/utils';
+} from '@tezos-x/octez.js';
+import { RawSignResult } from '@tezos-x/octez.js-core';
+import { Tzip16Module } from '@tezos-x/octez.js-tzip16';
+import { ProhibitedActionError, buf2hex } from '@tezos-x/octez.js-utils';
 import memoizee from 'memoizee';
 import { nanoid } from 'nanoid';
 import toBuffer from 'typedarray-to-buffer';

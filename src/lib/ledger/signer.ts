@@ -1,5 +1,5 @@
-import { LedgerSigner, LedgerTransport, DerivationType } from '@taquito/ledger-signer';
-import { b58DecodeAndCheckPrefix, b58Encode, buf2hex, hex2buf, mergebuf, PrefixV2 } from '@taquito/utils';
+import { LedgerSigner, LedgerTransport, DerivationType } from '@tezos-x/octez.js-ledger-signer';
+import { b58DecodeAndCheckPrefix, b58Encode, buf2hex, hex2buf, mergebuf, PrefixV2 } from '@tezos-x/octez.js-utils';
 import * as elliptic from 'elliptic';
 import * as sodium from 'libsodium-wrappers';
 import { crypto_sign_verify_detached, crypto_generichash } from 'libsodium-wrappers';

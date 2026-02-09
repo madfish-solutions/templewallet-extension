@@ -1,6 +1,6 @@
 import React, { memo, useMemo } from 'react';
 
-import { TezosToolkit } from '@taquito/taquito';
+import { TezosToolkit } from '@tezos-x/octez.js';
 
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
 import { tzToMutez } from 'lib/temple/helpers';

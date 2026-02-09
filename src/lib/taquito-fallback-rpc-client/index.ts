@@ -1,5 +1,6 @@
 import { isDefined } from '@rnw-community/shared';
-import { HttpResponseError } from '@taquito/http-utils';
+import { TezosOperationError } from '@tezos-x/octez.js';
+import { HttpResponseError } from '@tezos-x/octez.js-http-utils';
 import {
   AllDelegatesQueryArguments,
   AttestationRightsQueryArguments,
@@ -17,8 +18,7 @@ import {
   RPCSimulateOperationParam,
   TicketTokenParams,
   UnparsingMode
-} from '@taquito/rpc';
-import { TezosOperationError } from '@taquito/taquito';
+} from '@tezos-x/octez.js-rpc';
 
 import { getTezosFastRpcClient } from 'temple/tezos/utils';
 

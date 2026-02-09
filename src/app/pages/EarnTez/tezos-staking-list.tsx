@@ -1,6 +1,6 @@
 import React, { memo, useCallback, useMemo } from 'react';
 
-import { LevelInfo } from '@taquito/rpc';
+import { LevelInfo } from '@tezos-x/octez.js-rpc';
 import BigNumber from 'bignumber.js';
 
 import { Alert, Anchor, IconBase, Money } from 'app/atoms';

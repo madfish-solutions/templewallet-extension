@@ -1,5 +1,5 @@
-import { ManagerKeyResponse } from '@taquito/rpc';
-import { Estimate, getRevealFee, TezosToolkit, TransferParams } from '@taquito/taquito';
+import { Estimate, getRevealFee, TezosToolkit, TransferParams } from '@tezos-x/octez.js';
+import { ManagerKeyResponse } from '@tezos-x/octez.js-rpc';
 import retry from 'async-retry';
 import BigNumber from 'bignumber.js';
 

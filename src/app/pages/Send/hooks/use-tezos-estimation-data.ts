@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 
-import { getRevealFee, TezosToolkit } from '@taquito/taquito';
+import { getRevealFee, TezosToolkit } from '@tezos-x/octez.js';
 import BigNumber from 'bignumber.js';
 
 import { isTezAsset, toPenny } from 'lib/assets';

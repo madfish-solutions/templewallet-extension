@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 
-import { TezosToolkit } from '@taquito/taquito';
+import { TezosToolkit } from '@tezos-x/octez.js';
 import { BigNumber } from 'bignumber.js';
 
 import { Route3Token } from 'lib/apis/route3/fetch-route3-tokens';

@@ -1,6 +1,6 @@
 import React, { FC, useCallback, useEffect, useImperativeHandle, useMemo } from 'react';
 
-import { ChainIds } from '@taquito/taquito';
+import { ChainIds } from '@tezos-x/octez.js';
 import BigNumber from 'bignumber.js';
 import { FormProvider, useForm } from 'react-hook-form';
 

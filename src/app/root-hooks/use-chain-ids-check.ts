@@ -1,6 +1,6 @@
 import { useCallback, useEffect } from 'react';
 
-import { RpcClient } from '@taquito/rpc';
+import { RpcClient } from '@tezos-x/octez.js-rpc';
 import { createPublicClient, http } from 'viem';
 
 import { useAlert } from 'lib/ui';

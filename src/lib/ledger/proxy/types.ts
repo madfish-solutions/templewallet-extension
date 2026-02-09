@@ -1,4 +1,4 @@
-import type { DerivationType } from '@taquito/ledger-signer';
+import type { DerivationType } from '@tezos-x/octez.js-ledger-signer';
 
 import type { TempleLedgerSigner } from '../signer';
 import { TransportType } from '../transport';

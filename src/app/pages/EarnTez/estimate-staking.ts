@@ -1,4 +1,4 @@
-import { OpKind, TezosToolkit, WalletParamsWithKind } from '@taquito/taquito';
+import { OpKind, TezosToolkit, WalletParamsWithKind } from '@tezos-x/octez.js';
 import BigNumber from 'bignumber.js';
 import { noop } from 'lodash';
 

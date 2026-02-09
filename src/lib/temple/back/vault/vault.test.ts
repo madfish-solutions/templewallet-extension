@@ -1,4 +1,4 @@
-import { DerivationType } from '@taquito/ledger-signer';
+import { DerivationType } from '@tezos-x/octez.js-ledger-signer';
 import { TypedDataDefinition } from 'viem';
 import browser from 'webextension-polyfill';
 

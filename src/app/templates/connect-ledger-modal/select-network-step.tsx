@@ -1,6 +1,6 @@
 import React, { ReactNode, memo, useCallback, useEffect, useState } from 'react';
 
-import { DerivationType } from '@taquito/ledger-signer';
+import { DerivationType } from '@tezos-x/octez.js-ledger-signer';
 import clsx from 'clsx';
 
 import { FadeTransition } from 'app/a11y/FadeTransition';

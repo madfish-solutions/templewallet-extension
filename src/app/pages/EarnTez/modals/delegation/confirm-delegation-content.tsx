@@ -1,6 +1,6 @@
 import React, { memo, useCallback, useMemo } from 'react';
 
-import { TezosToolkit } from '@taquito/taquito';
+import { TezosToolkit } from '@tezos-x/octez.js';
 import BigNumber from 'bignumber.js';
 import { useDispatch } from 'react-redux';
 

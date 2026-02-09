@@ -1,6 +1,6 @@
 import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
 
-import { DerivationType } from '@taquito/ledger-signer';
+import { DerivationType } from '@tezos-x/octez.js-ledger-signer';
 
 import { ActionListItem } from 'app/atoms/ActionListItem';
 import { DropdownTriggerButton } from 'app/atoms/dropdown-trigger-button';

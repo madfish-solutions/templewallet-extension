@@ -1,6 +1,6 @@
 import React, { ComponentType, useCallback, useEffect, useMemo, useState } from 'react';
 
-import { TezosToolkit, WalletParamsWithKind } from '@taquito/taquito';
+import { TezosToolkit, WalletParamsWithKind } from '@tezos-x/octez.js';
 import BigNumber from 'bignumber.js';
 import { FormProvider } from 'react-hook-form';
 import { SWRResponse } from 'swr';

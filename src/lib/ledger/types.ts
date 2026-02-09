@@ -1,4 +1,4 @@
-import type { DerivationType } from '@taquito/ledger-signer';
+import type { DerivationType } from '@tezos-x/octez.js-ledger-signer';
 
 export { TransportType } from './transport/types';
 

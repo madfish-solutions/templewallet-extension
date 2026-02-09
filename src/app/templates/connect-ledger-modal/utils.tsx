@@ -1,7 +1,7 @@
 import { useCallback, useMemo } from 'react';
 
-import { DerivationType } from '@taquito/ledger-signer';
-import { getPkhfromPk } from '@taquito/utils';
+import { DerivationType } from '@tezos-x/octez.js-ledger-signer';
+import { getPkhfromPk } from '@tezos-x/octez.js-utils';
 import { publicKeyToAddress } from 'viem/accounts';
 
 import { useTempleClient } from 'lib/temple/front';

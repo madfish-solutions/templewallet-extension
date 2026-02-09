@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 
-import { Estimate, TezosToolkit, WalletParamsWithKind, getRevealFee } from '@taquito/taquito';
+import { Estimate, TezosToolkit, WalletParamsWithKind, getRevealFee } from '@tezos-x/octez.js';
 import BigNumber from 'bignumber.js';
 
 import { useTypedSWR } from 'lib/swr';

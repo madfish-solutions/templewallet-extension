@@ -1,4 +1,7 @@
-import { PublicKeyHashRetrievalError, PublicKeyRetrievalError } from '@taquito/ledger-signer/dist/types/errors';
+import {
+  PublicKeyHashRetrievalError,
+  PublicKeyRetrievalError
+} from '@tezos-x/octez.js-ledger-signer/dist/types/errors';
 
 import { PublicError } from 'lib/temple/back/PublicError';
 

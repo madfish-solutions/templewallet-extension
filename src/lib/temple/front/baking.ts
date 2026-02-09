@@ -1,6 +1,6 @@
 import { useCallback, useMemo } from 'react';
 
-import { ChainIds } from '@taquito/taquito';
+import { ChainIds } from '@tezos-x/octez.js';
 import retry from 'async-retry';
 import useSWR, { unstable_serialize, useSWRConfig } from 'swr';
 
