@@ -14,7 +14,7 @@ const CustomModal: FC<CustomModalProps> = props => {
       appElement={document.getElementById('root')!}
       closeTimeoutMS={200}
       className={{
-        base: clsx('bg-white rounded z-30 shadow-2xl opacity-0', className),
+        base: clsx('bg-background rounded z-30 shadow-2xl opacity-0', className),
         afterOpen: 'opacity-100 transition ease-out duration-300',
         beforeClose: ''
       }}
