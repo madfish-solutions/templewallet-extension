@@ -71,7 +71,7 @@ export const EvmSwapInfoDropdown = ({
   const toolsInfoIconRef = useTippy<HTMLDivElement>(toolsInfoProps);
 
   return (
-    <div className="p-4 bg-white rounded-8 shadow-md">
+    <div className="p-4 bg-white rounded-8 border-0.5 border-lines">
       <div onClick={toggleDropdown} className="flex justify-between items-center cursor-pointer">
         <div className="flex gap-2 items-center">
           <img src={provider === 'lifi' ? LiFiImgSrc : Route3ImgSrc} alt={provider} className="w-10 h-10 rounded-8" />

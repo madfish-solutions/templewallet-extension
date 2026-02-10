@@ -74,7 +74,10 @@ const Provider: FC<ProviderProps> = ({ current, activeId, onClick }) => {
   const handleClick = useCallback(() => onClick?.(current), [current, onClick]);
 
   return (
-    <InfoContainer className={clsx('cursor-pointer mb-4 pt-3 pb-0', active && 'border-primary!')} onClick={handleClick}>
+    <InfoContainer
+      className={clsx('cursor-pointer mb-4 pt-3 pb-0', active ? 'border-primary!' : 'hover:bg-grey-4')}
+      onClick={handleClick}
+    >
       <div className="flex flex-row justify-between pb-3">
         <div className="flex flex-row gap-x-2">
           <TopUpProviderIcon providerId={current.id} size={40} />
