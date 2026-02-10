@@ -5,7 +5,7 @@ import { useFiatCurrency } from 'lib/fiat-currency/core';
 import { mutezToTz } from 'lib/temple/helpers';
 import { TempleTezosChainId } from 'lib/temple/types';
 
-import { ONE_MONTH_IN_MS } from '../constants';
+import { DEFAULT_CHART_DAYS_COUNT, ONE_MONTH_IN_MS } from '../constants';
 import { toMsTimestamp } from '../utils';
 
 import { useDelegatedFrom3MonthsTimestamp } from './use-delegated-from-3-months-timestamp';
@@ -20,16 +20,13 @@ export const useTezosDepositChangeChart = (accountPkh: string) => {
     data: balanceHistory,
     isLoading: isBalanceHistoryLoading,
     error: balanceHistoryError
-  } = useTezosAccountBalanceHistory(accountPkh, TempleTezosChainId.Mainnet, {
-    limit: 720,
-    step: 450
-  });
+  } = useTezosAccountBalanceHistory(accountPkh);
 
   const {
     data: stakingUpdates,
     isLoading: isStakingUpdatesLoading,
     error: stakingUpdatesError
-  } = useTezosAccountStakingUpdates(accountPkh, TempleTezosChainId.Mainnet, { limit: 500 });
+  } = useTezosAccountStakingUpdates(accountPkh);
 
   const {
     data: marketChartData,
@@ -38,7 +35,7 @@ export const useTezosDepositChangeChart = (accountPkh: string) => {
   } = useTokenHistoricalPrices({
     id: 'tezos',
     vs_currency: selectedFiatCurrency.apiLabel,
-    days: 30
+    days: DEFAULT_CHART_DAYS_COUNT
   });
 
   const {
@@ -58,13 +55,19 @@ export const useTezosDepositChangeChart = (accountPkh: string) => {
     const nowMs = Date.now();
     const monthAgoMs = nowMs - ONE_MONTH_IN_MS;
 
-    const pricePoints = marketChartData.prices
+    const basePricePoints = marketChartData.prices
       .map(([timestamp, fiatPrice]) => ({ timestamp, fiatPrice }))
       .filter(point => point.timestamp >= monthAgoMs && point.timestamp <= nowMs);
 
-    if (!pricePoints.length) {
+    if (!basePricePoints.length) {
       return;
     }
+
+    const lastPricePoint = basePricePoints.at(-1);
+    const pricePoints =
+      lastPricePoint && lastPricePoint.timestamp < nowMs
+        ? [...basePricePoints, { timestamp: nowMs, fiatPrice: lastPricePoint.fiatPrice }]
+        : basePricePoints;
 
     const balancePoints = balanceHistory
       .map(item => ({
