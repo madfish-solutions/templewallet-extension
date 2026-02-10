@@ -40,9 +40,9 @@ export const TezosChainTokensTab = memo<Props>(({ chainId, accountId, publicKeyH
   const contextValue = useMemo(() => ({ accountId, network, publicKeyHash }), [accountId, network, publicKeyHash]);
 
   return (
-    <TezosChainTokensTabContext.Provider value={contextValue}>
+    <TezosChainTokensTabContext value={contextValue}>
       {manageActive ? <TabContentWithManageActive /> : <TabContent />}
-    </TezosChainTokensTabContext.Provider>
+    </TezosChainTokensTabContext>
   );
 });
 

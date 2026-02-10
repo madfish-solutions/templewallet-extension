@@ -1,11 +1,12 @@
-import React, { FC, cloneElement, ReactElement } from 'react';
+import React, { FC, ReactElement } from 'react';
 
 import BigNumber from 'bignumber.js';
-import CSSTransition from 'react-transition-group/CSSTransition';
 
+import { FadeTransition } from 'app/a11y/FadeTransition';
 import { EVM_TOKEN_SLUG, TEZ_TOKEN_SLUG } from 'lib/assets/defaults';
 import { useTezosAssetBalance } from 'lib/balances';
 import { useEvmAssetBalance } from 'lib/balances/hooks';
+import { ZERO } from 'lib/utils/numbers';
 import { NetworkEssentials } from 'temple/networks';
 import { TempleChainKind } from 'temple/types';
 
@@ -36,22 +37,12 @@ const BalanceHOC = <T extends TempleChainKind>(
     const { value: balance } = useBalance(assetSlug, address, network, forceFirstRefreshOnChain);
     const exists = balance !== undefined;
 
-    const childNode = children(balance == null ? new BigNumber(0) : balance);
+    const childNode = children(balance == null ? ZERO : balance);
 
     return (
-      <CSSTransition
-        in={exists}
-        timeout={200}
-        classNames={{
-          enter: 'opacity-0',
-          enterActive: 'opacity-100 transition ease-out duration-200',
-          exit: 'opacity-0 transition ease-in duration-200'
-        }}
-      >
-        {cloneElement(childNode, {
-          className: childNode.props.className
-        })}
-      </CSSTransition>
+      <FadeTransition trigger={exists} duration={200} hideOnExit>
+        {childNode}
+      </FadeTransition>
     );
   };
 

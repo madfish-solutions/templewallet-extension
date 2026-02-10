@@ -45,14 +45,14 @@ const Options: FC = () => {
           className={classNames(
             'relative',
             'px-2 py-1',
-            'bg-primary-orange rounded',
+            'bg-primary-orange rounded-sm',
             'border-2 border-primary-orange',
             'flex items-center',
             'text-primary-orange-lighter',
             'text-sm font-semibold',
             'transition duration-200 ease-in-out',
             'opacity-90 hover:opacity-100 focus:opacity-100',
-            'shadow-sm hover:shadow focus:shadow'
+            'shadow-xs hover:shadow focus:shadow'
           )}
           onClick={internalHandleReset}
         >

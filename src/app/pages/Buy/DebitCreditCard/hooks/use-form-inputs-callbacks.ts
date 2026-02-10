@@ -39,7 +39,7 @@ export const useFormInputsCallbacks = (
   const topUpProvider = watch('provider');
 
   const outputCalculationDataRef = useRef({ inputAmount, inputCurrency, outputToken });
-  const manuallySelectedProviderIdRef = useRef<TopUpProviderId>();
+  const manuallySelectedProviderIdRef = useRef<TopUpProviderId>(undefined);
   const allPairsLimits = useAllPairsLimitsSelector();
 
   const setPaymentProvider = useCallback(

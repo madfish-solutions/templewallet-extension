@@ -1,4 +1,4 @@
-import React, { ReactNode, RefObject, memo, useMemo, useRef } from 'react';
+import { ReactNode, memo, useMemo, useRef, Ref } from 'react';
 
 import { noop } from 'lodash';
 
@@ -10,7 +10,7 @@ import { SELECT_ASSET_SCROLLABLE_ID } from './constants';
 
 interface TokensListViewProps {
   slugs: string[];
-  children: (slug: string, index: number, ref?: RefObject<TokenListItemElement>) => ReactNode;
+  children: (slug: string, index: number, ref?: Ref<TokenListItemElement>) => ReactNode;
 }
 
 export const TokensListView = memo<TokensListViewProps>(({ slugs, children }) => {

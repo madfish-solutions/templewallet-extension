@@ -1,4 +1,4 @@
-import React, { forwardRef, memo, useMemo } from 'react';
+import { Ref, memo, useMemo } from 'react';
 
 import clsx from 'clsx';
 
@@ -20,39 +20,38 @@ interface IconButtonProps extends ButtonProps {
   color?: Color;
   active?: boolean;
   tooltip?: string;
+  ref?: Ref<HTMLButtonElement>;
 }
 
-export const IconButton = memo(
-  forwardRef<HTMLButtonElement, IconButtonProps>(({ Icon, color, active, tooltip, ...rest }, ref) => {
-    const tippyProps = useMemo(
-      () => ({
-        trigger: tooltip ? 'mouseenter' : '__SOME_INVALID_VALUE__',
-        hideOnClick: true,
-        content: tooltip,
-        animation: 'shift-away-subtle'
-      }),
-      [tooltip]
-    );
+export const IconButton = memo<IconButtonProps>(({ Icon, color, active, tooltip, ref, ...rest }) => {
+  const tippyProps = useMemo(
+    () => ({
+      trigger: tooltip ? 'mouseenter' : '__SOME_INVALID_VALUE__',
+      hideOnClick: true,
+      content: tooltip,
+      animation: 'shift-away-subtle'
+    }),
+    [tooltip]
+  );
 
-    const tippyRef = useTippy<HTMLButtonElement>(tippyProps);
+  const tippyRef = useTippy<HTMLButtonElement>(tippyProps);
 
-    const finalRef = useMemo(() => combineRefs<HTMLButtonElement>(ref, tippyRef), [ref, tippyRef]);
+  const finalRef = useMemo(() => combineRefs<HTMLButtonElement>(ref, tippyRef), [ref, tippyRef]);
 
-    const colorClassName = useMemo(() => {
-      if (active) return clsx(ACTIVE_STYLED_BUTTON_COLORS_CLASSNAME, 'shadow-none');
+  const colorClassName = useMemo(() => {
+    if (active) return clsx(ACTIVE_STYLED_BUTTON_COLORS_CLASSNAME, 'shadow-none');
 
-      return color
-        ? getStyledButtonColorsClassNames(MAP_TO_STYLED_BUTTON_COLORS[color])
-        : 'bg-white text-primary shadow-bottom hover:bg-grey-4 hover:shadow-none hover:text-primary-hover';
-    }, [active, color]);
+    return color
+      ? getStyledButtonColorsClassNames(MAP_TO_STYLED_BUTTON_COLORS[color])
+      : 'bg-white text-primary shadow-bottom hover:bg-grey-4 hover:shadow-none hover:text-primary-hover';
+  }, [active, color]);
 
-    return (
-      <Button ref={finalRef} className={clsx('p-1 rounded-md', colorClassName)} {...rest}>
-        <IconBase size={16} Icon={Icon} />
-      </Button>
-    );
-  })
-);
+  return (
+    <Button ref={finalRef} className={clsx('p-1 rounded-md', colorClassName)} {...rest}>
+      <IconBase size={16} Icon={Icon} />
+    </Button>
+  );
+});
 
 const MAP_TO_STYLED_BUTTON_COLORS: Record<Color, StyledButtonColor> = {
   blue: 'secondary-low',

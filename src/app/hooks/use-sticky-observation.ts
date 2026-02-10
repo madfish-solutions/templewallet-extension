@@ -11,7 +11,7 @@ import { useIntersectionObserver } from 'lib/ui/use-intersection-observer';
  * Otherwise, the element will never intersect with the top of the scrollable ancestor
  * (thus never triggering the intersection observer).
  */
-export const useStickyObservation = (ref: RefObject<Element>, predicate = true) => {
+export const useStickyObservation = (ref: RefObject<Element | null>, predicate = true) => {
   const [sticked, setSticked] = useState(false);
   const [localPredicate, setLocalPredicate] = useState(false);
 

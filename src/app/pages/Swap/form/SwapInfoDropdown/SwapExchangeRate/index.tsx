@@ -1,7 +1,5 @@
 import React, { FC, useMemo } from 'react';
 
-import { BigNumber } from 'bignumber.js';
-
 import Money from 'app/atoms/Money';
 import { ZERO } from 'lib/utils/numbers';
 

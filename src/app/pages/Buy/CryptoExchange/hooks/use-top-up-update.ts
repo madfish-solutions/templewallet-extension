@@ -22,7 +22,7 @@ export const useTopUpUpdate = () => {
         }
         setExchangeData(data);
         timeoutId = setTimeout(repeat, 3000);
-      } catch (e) {
+      } catch {
         toastError('Failed to update order status!');
       }
     }, 3000);

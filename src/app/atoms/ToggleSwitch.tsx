@@ -1,4 +1,4 @@
-import React, { forwardRef, useMemo } from 'react';
+import { FC, Ref, useMemo } from 'react';
 
 import clsx from 'clsx';
 
@@ -8,10 +8,11 @@ import { type CheckboxProps, useCheckboxHooks } from './Checkbox';
 
 interface Props extends CheckboxProps {
   small?: boolean;
+  ref?: Ref<HTMLInputElement>;
 }
 
-export const ToggleSwitch = forwardRef<HTMLInputElement, Props>((props, ref) => {
-  const { errored = false, disabled, small, testID, ...rest } = props;
+export const ToggleSwitch: FC<Props> = props => {
+  const { errored = false, disabled, small, testID, ref, ...rest } = props;
 
   const { localChecked, localFocused, handleChange, handleFocus, handleBlur } = useCheckboxHooks(props);
 
@@ -26,8 +27,8 @@ export const ToggleSwitch = forwardRef<HTMLInputElement, Props>((props, ref) => 
         // 'disable-outline-for-click',
         (() => {
           // if (localChecked) return;
-          if (localFocused) return 'outline outline-1 outline-offset-1 outline-secondary-low';
-          if (errored) return 'outline outline-1 outline-offset-1 outline-red-400';
+          if (localFocused) return 'outline outline-offset-1 outline-secondary-low';
+          if (errored) return 'outline outline-offset-1 outline-red-400';
           return;
         })()
       ),
@@ -69,4 +70,4 @@ export const ToggleSwitch = forwardRef<HTMLInputElement, Props>((props, ref) => 
       </div>
     </label>
   );
-});
+};

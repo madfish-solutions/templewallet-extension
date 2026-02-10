@@ -69,8 +69,7 @@ export const EnvVars = {
   GOOGLE_AUTH_PAGE_URL: process.env.GOOGLE_AUTH_PAGE_URL!
 } as const;
 
-const ALL_BRANDS = ['Google Chrome', 'Brave', 'Mises'] as const;
-type Brand = (typeof ALL_BRANDS)[number];
+type Brand = 'Google Chrome' | 'Brave' | 'Mises';
 
 function hasUserAgentBrand(...brands: Brand[]): boolean {
   // @ts-expect-error

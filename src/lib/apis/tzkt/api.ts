@@ -267,7 +267,7 @@ export const fetchAccountBalanceHistory = (
     }
   );
 
-export interface TzktGetStakingUpdatesParams {
+interface TzktGetStakingUpdatesParams {
   staker?: string;
   baker?: string;
   offset?: number;

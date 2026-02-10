@@ -1,5 +1,3 @@
-import { BigNumber } from 'bignumber.js';
-
 export interface Route3SwapParamsRequestRaw {
   fromSymbol: string;
   toSymbol: string;

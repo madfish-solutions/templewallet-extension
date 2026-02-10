@@ -91,7 +91,7 @@ const ApproveModal: FC<ApproveModalProps> = ({ stepReviewData, onClose, onStepCo
       to: fromToken.address as HexString,
       from: fromAddress as HexString,
       data: finalEvmTransaction?.data ? finalEvmTransaction.data : txData,
-      value: toHex(BigInt(0)),
+      value: toHex(0n),
       maxFeePerGas: toOptionalHex(estimationData?.maxFeePerGas),
       gas: toOptionalHex(estimationData?.gas),
       gasPrice: toOptionalHex(estimationData?.gasPrice)

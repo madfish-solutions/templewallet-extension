@@ -143,12 +143,16 @@ const MenuDropdown = memo<PopperRenderProps>(({ opened, setOpened }) => {
 
   return (
     <ActionsDropdownPopup title="Menu" opened={opened} lowering={3} style={{ minWidth: 163 }}>
-      {actions.map(action => (
-        <div key={action.key}>
-          <ActionListItem {...action} />
-          {action.withDividerAfter && <Divider className="bg-grey-4 px-2" />}
-        </div>
-      ))}
+      {actions.map(action => {
+        const { key, ...rest } = action;
+
+        return (
+          <div key={key}>
+            <ActionListItem {...rest} />
+            {action.withDividerAfter && <Divider className="bg-grey-4 px-2" />}
+          </div>
+        );
+      })}
 
       <Divider className="my-1.5 bg-grey-4 px-1.5" />
 

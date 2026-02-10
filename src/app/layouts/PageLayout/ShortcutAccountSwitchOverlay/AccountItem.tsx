@@ -1,4 +1,4 @@
-import React, { RefObject } from 'react';
+import { FC, RefObject } from 'react';
 
 import { isDefined } from '@rnw-community/shared';
 import clsx from 'clsx';
@@ -21,7 +21,7 @@ const scrollIntoViewOptions: ScrollIntoViewOptions = { block: 'center', behavior
 interface AccountItemProps {
   account: StoredAccount;
   focused: boolean;
-  onAccountSelect: (accountId: string) => void;
+  onAccountSelect: SyncFn<string>;
   searchValue: string;
   arrayIndex?: number;
   itemsArrayRef?: RefObject<Array<HTMLButtonElement | null>>;
@@ -33,7 +33,7 @@ const baseRowClasses = clsx(
   'border border-transparent'
 );
 
-export const AccountItem: React.FC<AccountItemProps> = ({
+export const AccountItem: FC<AccountItemProps> = ({
   account,
   focused,
   onAccountSelect,

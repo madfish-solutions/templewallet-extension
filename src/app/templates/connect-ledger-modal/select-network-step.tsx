@@ -154,7 +154,7 @@ export const SelectNetworkStep = memo<SelectNetworkStepProps>(({ onSelect, initi
   return (
     <FadeTransition>
       <PageModalScrollViewWithActions
-        className="!px-0"
+        className="px-0!"
         actionsBoxProps={{
           shouldChangeBottomShift: false,
           children: (
@@ -215,7 +215,7 @@ const NetworkOption = memo<NetworkOptionProps>(({ chainKind, tooltipText, select
   const handleClick = useCallback(() => onSelectClick(chainKind), [chainKind, onSelectClick]);
 
   return (
-    <SettingsCellGroup className={clsx('transition-all cursor-pointer', selected && '!border-1 !border-primary')}>
+    <SettingsCellGroup className={clsx('transition-all cursor-pointer', selected && 'border-1! border-primary!')}>
       <div onClick={handleClick}>
         <SettingsCellSingle
           isLast

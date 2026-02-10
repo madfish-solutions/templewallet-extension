@@ -60,5 +60,5 @@ export const buildFormSubmitButtonCommonClassName = (disabled?: boolean, loading
     disabled ? 'bg-gray-400 border-gray-400' : 'bg-primary-orange border-primary-orange',
     loading || disabled
       ? 'opacity-75 pointer-events-none'
-      : 'opacity-90 hover:opacity-100 focus:opacity-100 shadow-sm hover:shadow focus:shadow'
+      : 'opacity-90 hover:opacity-100 focus:opacity-100 shadow-xs hover:shadow focus:shadow'
   );

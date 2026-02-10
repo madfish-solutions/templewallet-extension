@@ -52,7 +52,7 @@ export interface TempleState {
 export const TEZOS_MAINNET_CHAIN_ID = 'NetXdQprcVkpaWU';
 export const TEZOS_GHOSTNET_CHAIN_ID = 'NetXnHfVqm9iesp';
 const TEZOS_SHADOWNET_CHAIN_ID = 'NetXsqzbfFenSTS';
-const TEZOS_TEZLINK_CHAIN_ID = 'NetXH8Gw3H6Z3ey';
+const TEZOS_TEZLINK_CHAIN_ID = 'NetXH1LUfGPNMYw';
 export const ETHEREUM_MAINNET_CHAIN_ID = 1;
 export const ETHEREUM_HOODI_CHAIN_ID = 560048;
 export const ETHERLINK_MAINNET_CHAIN_ID = 42793;
@@ -172,10 +172,16 @@ export interface DisplayedGroup {
   type: TempleAccountType;
 }
 
+export enum EvmDefaultWallet {
+  AlwaysAsk = 'always_ask',
+  Other = 'other'
+}
+
 export interface TempleSettings {
   customTezosNetworks?: StoredTezosNetwork[];
   customEvmNetworks?: StoredEvmNetwork[];
   contacts?: TempleContact[];
+  evmDefaultWallet?: EvmDefaultWallet;
   /** @deprecated */
   customNetworks?: StoredTezosNetwork[];
 }
@@ -411,6 +417,7 @@ export enum TempleMessageType {
   ConfirmationExpired = 'TEMPLE_CONFIRMATION_EXPIRED',
   SelectedAccountChanged = 'TEMPLE_SELECTED_ACCOUNT_CHANGED',
   TempleEvmDAppsDisconnected = 'TEMPLE_EVM_DAPPS_DISCONNECTED',
+  TempleEvmDefaultWalletChanged = 'TEMPLE_EVM_DEFAULT_WALLET_CHANGED',
   TempleTezosDAppsDisconnected = 'TEMPLE_TEZOS_DAPPS_DISCONNECTED',
   TempleEvmChainSwitched = 'TEMPLE_SWITCH_EVM_CHAIN',
   TempleEvmAccountSwitched = 'TEMPLE_SWITCH_EVM_ACCOUNT',
@@ -519,6 +526,7 @@ export type TempleNotification =
   | TempleConfirmationExpired
   | TempleSelectedAccountChanged
   | TempleEvmDAppsDisconnected
+  | TempleEvmDefaultWalletChanged
   | TempleTezosDAppsDisconnected
   | TempleEvmChainSwitched
   | TempleSwitchEvmProvider
@@ -649,6 +657,11 @@ interface TempleSelectedAccountChanged extends TempleMessageBase {
 interface TempleEvmDAppsDisconnected extends TempleMessageBase {
   type: TempleMessageType.TempleEvmDAppsDisconnected;
   origins: string[];
+}
+
+interface TempleEvmDefaultWalletChanged extends TempleMessageBase {
+  type: TempleMessageType.TempleEvmDefaultWalletChanged;
+  evmDefaultWallet: EvmDefaultWallet;
 }
 
 interface TempleTezosDAppsDisconnected extends TempleMessageBase {

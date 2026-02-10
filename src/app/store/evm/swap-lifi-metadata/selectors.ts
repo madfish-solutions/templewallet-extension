@@ -8,10 +8,10 @@ export const useLifiEnabledNetworksEvmTokensMetadataRecordSelector = () =>
   useSelector(({ lifiEvmTokensMetadata }) => lifiEvmTokensMetadata.enabledChainsTokensMetadataRecord);
 
 export const useLifiConnectedEvmChainTokensMetadataSelector = (chainId: number) =>
-  useSelector(({ lifiEvmTokensMetadata }) => ({
-    metadata: lifiEvmTokensMetadata.connectedTokensMetadataRecord[chainId],
-    isLoading: lifiEvmTokensMetadata.isLoading
-  }));
+  useSelector(({ lifiEvmTokensMetadata }) => lifiEvmTokensMetadata.connectedTokensMetadataRecord[chainId]);
+
+export const useLifiConnectedEvmChainTokensMetadataLoadingSelector = () =>
+  useSelector(({ lifiEvmTokensMetadata }) => lifiEvmTokensMetadata.isLoading);
 
 export const useLifiEnabledNetworksEvmChainTokensMetadataSelector = (chainId: number) =>
   useSelector(({ lifiEvmTokensMetadata }) => lifiEvmTokensMetadata.enabledChainsTokensMetadataRecord[chainId]);

@@ -4,7 +4,7 @@ import { AD_SEEN_THRESHOLD } from 'lib/ads-constants';
 import { useIntersectionObserver } from 'lib/ui/use-intersection-observer';
 
 export const useAdRectObservation = (
-  elemRef: RefObject<Element>,
+  elemRef: RefObject<Element | null>,
   onAdRectVisible: SyncFn<boolean>,
   checkAdTrigger: boolean
 ) =>

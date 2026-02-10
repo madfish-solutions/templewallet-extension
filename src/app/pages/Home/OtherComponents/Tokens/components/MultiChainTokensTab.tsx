@@ -1,4 +1,4 @@
-import React, { createContext, FC, memo, useContext, useMemo, useRef } from 'react';
+import { createContext, FC, Ref, memo, useContext, useMemo, useRef } from 'react';
 
 import {
   useAccountTokensForListing,
@@ -48,9 +48,9 @@ export const MultiChainTokensTab = memo<Props>(props => {
   const { manageActive } = useAssetsViewState();
 
   return (
-    <MultiChainTokensTabContext.Provider value={props}>
+    <MultiChainTokensTabContext value={props}>
       {manageActive ? <TabContentWithManageActive /> : <TabContent />}
-    </MultiChainTokensTabContext.Provider>
+    </MultiChainTokensTabContext>
   );
 });
 
@@ -260,7 +260,7 @@ function buildTokensJsxArray(
   accountTezAddress: string,
   accountEvmAddress: HexString,
   manageActive: boolean,
-  firstListItemRef: React.RefObject<TokenListItemElement> | null,
+  firstListItemRef: Ref<TokenListItemElement>,
   indexShift = 0
 ) {
   return chainSlugs.map((chainSlug, i) => {

@@ -1,4 +1,4 @@
-import React, { createContext, FC, memo, useContext, useMemo, useRef } from 'react';
+import { createContext, FC, memo, Ref, useContext, useMemo, useRef } from 'react';
 
 import {
   usePreservedOrderSlugsGroupsToManage,
@@ -46,9 +46,9 @@ export const TezosTokensTab = memo<Props>(props => {
   const { manageActive } = useAssetsViewState();
 
   return (
-    <TezosTokensTabContext.Provider value={props}>
+    <TezosTokensTabContext value={props}>
       {manageActive ? <TabContentWithManageActive /> : <TabContent />}
-    </TezosTokensTabContext.Provider>
+    </TezosTokensTabContext>
   );
 });
 
@@ -172,11 +172,7 @@ const TabContentBase = memo<TabContentBaseProps>(
         getElementIndex: makeGetTokenElementIndexFunction(promoRef, firstListItemRef, tokensJsx.length)
       };
 
-      function buildTokensJsxArray(
-        chainSlugs: string[],
-        firstListItemRef: React.RefObject<TokenListItemElement> | null,
-        indexShift = 0
-      ) {
+      function buildTokensJsxArray(chainSlugs: string[], firstListItemRef: Ref<TokenListItemElement>, indexShift = 0) {
         return chainSlugs.map((chainSlug, i) => {
           const [_, chainId, assetSlug] = parseChainAssetSlug(chainSlug, TempleChainKind.Tezos);
 

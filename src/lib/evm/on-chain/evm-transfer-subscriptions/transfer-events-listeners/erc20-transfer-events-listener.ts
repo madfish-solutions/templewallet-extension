@@ -12,7 +12,7 @@ class ERC20SingleTransferEventsListener extends EvmSingleTransferEventsListener<
   }
 
   protected getTokenId() {
-    return BigInt(0);
+    return 0n;
   }
 
   protected getAmount(log: Log<bigint, number, false, typeof erc20TransferEvent>) {

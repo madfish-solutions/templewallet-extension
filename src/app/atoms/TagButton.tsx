@@ -14,7 +14,7 @@ interface TagButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 export const TagButton: FC<TagButtonProps> = ({ children, className, testID, testIDProperties, ...rest }) => (
   <Button
     className={clsx(
-      'flex-shrink-0 p-1 rounded',
+      'shrink-0 p-1 rounded-sm',
       'text-font-small-bold text-white uppercase',
       'bg-secondary hover:bg-secondary-hover',
       className

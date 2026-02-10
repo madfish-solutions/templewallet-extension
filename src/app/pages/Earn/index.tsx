@@ -1,4 +1,4 @@
-import React, { FC, memo, useMemo } from 'react';
+import { FC, memo, ReactNode, useMemo } from 'react';
 
 import { EmptyState } from 'app/atoms/EmptyState';
 import PageLayout from 'app/layouts/PageLayout';
@@ -39,7 +39,7 @@ export const Earn = memo(() => {
   const shouldShowEmptyState = !savingsAvailable && !externalOffersAvailable;
 
   return (
-    <PageLayout pageTitle={t('earn')} bgWhite={false} contentClassName="!pb-8">
+    <PageLayout pageTitle={t('earn')} bgWhite={false} contentClassName="pb-8!">
       <div className="mb-4">
         <SearchBarField value={searchValue} onValueChange={setSearchValue} defaultRightMargin={false} />
       </div>
@@ -85,7 +85,7 @@ const Title: FC<{ i18nKey: TID }> = ({ i18nKey }) => (
   </h2>
 );
 
-const withPromo = (items: JSX.Element[], PartnersPromotionModule: ReturnType<typeof usePartnersPromotionModule>) => {
+const withPromo = (items: ReactNode[], PartnersPromotionModule: ReturnType<typeof usePartnersPromotionModule>) => {
   if (!PartnersPromotionModule) return items;
 
   const { PartnersPromotion, PartnersPromotionVariant } = PartnersPromotionModule;

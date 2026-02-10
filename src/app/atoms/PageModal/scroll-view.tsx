@@ -1,4 +1,4 @@
-import React, { forwardRef, HTMLAttributes, memo, useRef } from 'react';
+import { HTMLAttributes, Ref, memo, useRef } from 'react';
 
 import clsx from 'clsx';
 
@@ -11,40 +11,37 @@ export interface ScrollViewProps extends HTMLAttributes<HTMLDivElement>, TestIDP
   bottomEdgeThreshold?: number;
   onTopEdgeVisibilityChange?: SyncFn<boolean>;
   topEdgeThreshold?: number;
+  ref?: Ref<HTMLDivElement>;
 }
 
-export const ScrollView = memo(
-  forwardRef<HTMLDivElement, ScrollViewProps>(
-    (
-      {
-        className,
-        onBottomEdgeVisibilityChange,
-        bottomEdgeThreshold,
-        onTopEdgeVisibilityChange,
-        topEdgeThreshold,
-        testID,
-        ...restProps
-      },
-      ref
-    ) => {
-      const rootRef = useRef<HTMLDivElement>(null);
+export const ScrollView = memo<ScrollViewProps>(
+  ({
+    className,
+    onBottomEdgeVisibilityChange,
+    bottomEdgeThreshold,
+    onTopEdgeVisibilityChange,
+    topEdgeThreshold,
+    testID,
+    ref,
+    ...restProps
+  }) => {
+    const rootRef = useRef<HTMLDivElement>(null);
 
-      useScrollEdgesVisibility(
-        rootRef,
-        onBottomEdgeVisibilityChange,
-        bottomEdgeThreshold,
-        onTopEdgeVisibilityChange,
-        topEdgeThreshold
-      );
+    useScrollEdgesVisibility(
+      rootRef,
+      onBottomEdgeVisibilityChange,
+      bottomEdgeThreshold,
+      onTopEdgeVisibilityChange,
+      topEdgeThreshold
+    );
 
-      return (
-        <div
-          {...setTestID(testID)}
-          className={clsx('px-4 flex-1 flex flex-col overflow-y-auto', className)}
-          ref={combineRefs(rootRef, ref)}
-          {...restProps}
-        />
-      );
-    }
-  )
+    return (
+      <div
+        {...setTestID(testID)}
+        className={clsx('px-4 flex-1 flex flex-col overflow-y-auto', className)}
+        ref={combineRefs(rootRef, ref)}
+        {...restProps}
+      />
+    );
+  }
 );

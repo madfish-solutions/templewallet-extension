@@ -13,6 +13,7 @@ import browser, { Runtime } from 'webextension-polyfill';
 import {
   CONVERSION_CHECKED_STORAGE_KEY,
   CUSTOM_TEZOS_NETWORKS_STORAGE_KEY,
+  EVM_DEFAULT_WALLET_STORAGE_KEY,
   REFERRAL_WALLET_REGISTERED_STORAGE_KEY,
   SHOULD_DISABLE_NOT_ACTIVE_NETWORKS_STORAGE_KEY
 } from 'lib/constants';
@@ -365,6 +366,14 @@ export function updateSettings(settings: Partial<TempleSettings>) {
     const updatedSettings = await vault.updateSettings(settings);
 
     putToStorage(CUSTOM_TEZOS_NETWORKS_STORAGE_KEY, updatedSettings.customTezosNetworks);
+
+    if (settings.evmDefaultWallet !== undefined) {
+      putToStorage(EVM_DEFAULT_WALLET_STORAGE_KEY, settings.evmDefaultWallet);
+      intercom.broadcast({
+        type: TempleMessageType.TempleEvmDefaultWalletChanged,
+        evmDefaultWallet: settings.evmDefaultWallet
+      });
+    }
 
     settingsUpdated(updatedSettings);
   });

@@ -9,7 +9,7 @@ const VALUE_UNSET = Symbol();
  */
 export const useMemoWithCompare = <T>(
   factory: () => T,
-  deps: DependencyList | undefined,
+  deps: DependencyList,
   comparator: (prev: T, next: T) => boolean = isEqual
 ) => {
   const valueRef = useRef<T | typeof VALUE_UNSET>(VALUE_UNSET);
@@ -24,5 +24,6 @@ export const useMemoWithCompare = <T>(
     if (comparator(prevVal, nextVal)) return prevVal;
 
     return (valueRef.current = nextVal);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, deps);
 };

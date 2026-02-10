@@ -74,7 +74,7 @@ export const OnRampOverlay = memo(() => {
   if (!isOnRampPossibility) return null;
 
   return (
-    <div className="fixed inset-0 z-overlay-promo flex flex-col items-center justify-center bg-black bg-opacity-15 backdrop-blur-xs">
+    <div className="fixed inset-0 z-overlay-promo flex flex-col items-center justify-center bg-black/15 backdrop-blur-xs">
       <div className="w-88 h-[19.375rem] relative flex flex-col text-center bg-white shadow-bottom rounded-8 px-3 py-4">
         <div className="absolute top-3 right-3">
           <CloseButton onClick={close} />

@@ -27,7 +27,7 @@ export function useLedgerWebHidFullViewGuard() {
 
   const [promptOpened, setPromptOpened] = useState(false);
 
-  const promptResolverRef = useRef<SyncFn<boolean>>();
+  const promptResolverRef = useRef<SyncFn<boolean>>(undefined);
 
   const showPrompt = useCallback(
     () =>

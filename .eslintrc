@@ -86,16 +86,31 @@
     "@typescript-eslint/no-explicit-any": "off",
     "@typescript-eslint/await-thenable": "error",
     "@typescript-eslint/prefer-ts-expect-error": "error",
-    "@typescript-eslint/no-unused-vars": "off",
+    "@typescript-eslint/no-unused-vars": [
+      "error",
+      {
+        "args": "all",
+        "argsIgnorePattern": "^_",
+        "caughtErrors": "all",
+        "caughtErrorsIgnorePattern": "^_",
+        "destructuredArrayIgnorePattern": "^_",
+        "varsIgnorePattern": "^_",
+        "ignoreRestSiblings": true
+      }
+    ],
     "@typescript-eslint/ban-ts-comment": "off",
     "@typescript-eslint/unified-signatures": "off",
     "@typescript-eslint/switch-exhaustiveness-check": "warn",
     "@typescript-eslint/no-namespace": "off",
     "@typescript-eslint/no-invalid-void-type": "off",
-    "@typescript-eslint/ban-types": "warn",
+    "@typescript-eslint/no-empty-object-type": "warn",
+    "@typescript-eslint/no-unsafe-function-type": "warn",
+    "@typescript-eslint/no-wrapper-object-types": "warn",
     "@typescript-eslint/no-dynamic-delete": "off",
     "@typescript-eslint/prefer-literal-enum-member": "off",
     "@typescript-eslint/no-unnecessary-boolean-literal-compare": "off",
+    "@typescript-eslint/no-unused-expressions": "off",
+    "@typescript-eslint/no-require-imports": "off",
 
     "react/prop-types": "off",
     "react/display-name": "off",
@@ -105,6 +120,7 @@
     }],
     "react/jsx-key": "warn",
     "react/no-unescaped-entities": "off",
+    "react/react-in-jsx-scope": "off",
 
     "jsx-a11y/no-autofocus": "off",
     "jsx-a11y/click-events-have-key-events": "off",

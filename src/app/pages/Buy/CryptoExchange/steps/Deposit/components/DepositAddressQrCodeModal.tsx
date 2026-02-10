@@ -18,7 +18,7 @@ export const DepositAddressQrCodeModal = memo<Props>(({ onClose }) => {
   if (!exchangeData) return null;
 
   return (
-    <ActionModal title="Deposit Address" hasCloseButton onClose={onClose} className="w-82" contentClassName="!w-full">
+    <ActionModal title="Deposit Address" hasCloseButton onClose={onClose} className="w-82" contentClassName="w-full!">
       <ActionModalBodyContainer className="items-center pt-4 pb-4">
         <div className="mb-5 rounded-lg shadow-center overflow-hidden p-4">
           <QRCode size={188} data={exchangeData.depositAddress} />

@@ -10,7 +10,7 @@ interface Props {
 }
 
 export const QrCodeModal: FC<Props> = ({ payload, onClose }) => (
-  <ActionModal title={t('sync')} hasCloseButton onClose={onClose} className="w-82" contentClassName="!w-full">
+  <ActionModal title={t('sync')} hasCloseButton onClose={onClose} className="w-82" contentClassName="w-full!">
     <ActionModalBodyContainer className="items-center pt-4 pb-4">
       <CaptionAlert type="warning" message={t('syncSettingsAlert')} />
 

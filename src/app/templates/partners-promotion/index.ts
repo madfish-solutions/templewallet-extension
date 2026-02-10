@@ -1,4 +1,4 @@
-import { useTypedSWR } from 'lib/swr';
+import { use } from 'react';
 
 const importPartnersPromotionModule = async () => {
   try {
@@ -12,13 +12,6 @@ const importPartnersPromotionModule = async () => {
   }
 };
 
-export const usePartnersPromotionModule = () => {
-  const { data } = useTypedSWR('app/templates/partners-promotion/partners-promotion', importPartnersPromotionModule, {
-    suspense: true,
-    revalidateOnFocus: false,
-    revalidateOnMount: true,
-    revalidateOnReconnect: false
-  });
+const importPromise = importPartnersPromotionModule();
 
-  return data;
-};
+export const usePartnersPromotionModule = () => use(importPromise);

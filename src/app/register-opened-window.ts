@@ -11,7 +11,7 @@ import { useThisWindowLocation } from './hooks/use-this-window-location';
 export const RegisterOpenedWindow = () => {
   const { popup, sidebar } = useAppEnv();
   const { data: thisWindowLocation } = useThisWindowLocation();
-  const outOfTabPortRef = useRef<browser.Runtime.Port | undefined>();
+  const outOfTabPortRef = useRef<browser.Runtime.Port>(undefined);
 
   useEffect(() => {
     if (!thisWindowLocation) return;

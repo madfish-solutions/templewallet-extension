@@ -12,7 +12,7 @@ export const useResizeDependentValue = <T, E extends HTMLElement>(
 ) => {
   const [value, setValue] = useSafeState(fallbackValue);
 
-  const ref = useRef<E | nullish>();
+  const ref = useRef<E>(null);
 
   const setValueThrottled = useMemo(
     () => throttle((value: T) => setValue(value), throttleTime),

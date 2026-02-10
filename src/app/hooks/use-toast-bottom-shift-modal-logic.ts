@@ -5,7 +5,7 @@ import { useToastsContainerBottomShift } from 'lib/temple/front/toasts-context';
 export const useToastBottomShiftModalLogic = (modalOpened: boolean, shouldChangeBottomShift: boolean) => {
   const [bottomShift, setBottomShift] = useToastsContainerBottomShift();
 
-  const beforeOpenBottomShift = useRef<number>();
+  const beforeOpenBottomShift = useRef<number>(null);
 
   useEffect(() => {
     if (modalOpened && !beforeOpenBottomShift.current) beforeOpenBottomShift.current = bottomShift;

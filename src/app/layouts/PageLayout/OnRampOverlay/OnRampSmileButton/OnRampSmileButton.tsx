@@ -21,7 +21,9 @@ export const OnRampSmileButton: FC<OnRumpSmileButtonProps> = ({ SmileIcon, amoun
         'rounded-10 shadow-md',
         'transition ease-in-out duration-200',
         'cursor-pointer',
-        accentColors ? 'hover:shadow hover:opacity-90 hover:bg-primary-hover bg-primary' : 'bg-white hover:bg-gray-100'
+        accentColors
+          ? 'hover:shadow-sm hover:opacity-90 hover:bg-primary-hover bg-primary'
+          : 'bg-white hover:bg-gray-100'
       )}
       onClick={onClick}
       testID={testID}
