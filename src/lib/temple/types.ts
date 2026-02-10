@@ -52,7 +52,7 @@ export interface TempleState {
 export const TEZOS_MAINNET_CHAIN_ID = 'NetXdQprcVkpaWU';
 export const TEZOS_GHOSTNET_CHAIN_ID = 'NetXnHfVqm9iesp';
 const TEZOS_SHADOWNET_CHAIN_ID = 'NetXsqzbfFenSTS';
-const TEZOS_TEZLINK_CHAIN_ID = 'NetXH8Gw3H6Z3ey';
+const TEZOS_TEZLINK_CHAIN_ID = 'NetXH1LUfGPNMYw';
 export const ETHEREUM_MAINNET_CHAIN_ID = 1;
 export const ETHEREUM_HOODI_CHAIN_ID = 560048;
 export const ETHERLINK_MAINNET_CHAIN_ID = 42793;

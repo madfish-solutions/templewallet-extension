@@ -14,8 +14,13 @@ Object.assign(global, {
   crypto: new Crypto(),
   CryptoKey,
   TextEncoder,
-  TextDecoder,
+  TextDecoder
 });
+
+// Octez http-utils expects a fetch implementation in browser-like envs (jsdom).
+if (typeof global.fetch !== 'function') {
+  global.fetch = () => Promise.reject(new Error('Fetch is not available in tests.'));
+}
 
 jest.mock('lib/temple/repo', () => ({
   db: {
