@@ -87,7 +87,7 @@ export const NewsletterOverlay = memo(() => {
   if (!shouldShowNewsletterModal || !ready || isOnRampPossibility || pathname !== HOME_PAGE_PATH) return null;
 
   return (
-    <div className="fixed inset-0 z-overlay-promo flex flex-col items-center justify-center bg-gray-700 bg-opacity-20">
+    <div className="fixed inset-0 z-overlay-promo flex flex-col items-center justify-center bg-gray-700/20">
       <div className={classNames(LAYOUT_CONTAINER_CLASSNAME, 'overflow-y-scroll py-4', !fullPage && 'h-full px-4')}>
         <form
           onSubmit={handleSubmit(onSubmit)}

@@ -5,7 +5,7 @@ import { browser } from 'lib/browser';
 import { ContentScriptType } from 'lib/constants';
 import { throttleAsyncCalls } from 'lib/utils/functions';
 
-let interval: NodeJS.Timer;
+let interval: NodeJS.Timeout;
 
 let stopTempleReplacement = false;
 let stopTakeAdsReplacement = false;

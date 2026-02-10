@@ -14,15 +14,15 @@ export const TempleProvider: FC<PropsWithChildren> = ({ children }) => {
   usePushNotifications();
 
   return (
-    <CustomTezosChainIdContext.Provider value={undefined}>
-      <CustomEvmChainIdContext.Provider value={undefined}>
+    <CustomTezosChainIdContext value={undefined}>
+      <CustomEvmChainIdContext value={undefined}>
         <TempleClientProvider>
           <ToastsContextProvider>
             <ConditionalReadyTemple>{children}</ConditionalReadyTemple>
           </ToastsContextProvider>
         </TempleClientProvider>
-      </CustomEvmChainIdContext.Provider>
-    </CustomTezosChainIdContext.Provider>
+      </CustomEvmChainIdContext>
+    </CustomTezosChainIdContext>
   );
 };
 

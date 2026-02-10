@@ -40,7 +40,7 @@ export const FormSecondaryButton: FC<FormSecondaryButtonProps> = ({
         disabled ? 'text-gray-350 border-gray-350' : 'text-primary-orange border-primary-orange',
         loading || disabled
           ? 'opacity-75 shadow-inner cursor-default'
-          : 'opacity-90 hover:opacity-100 shadow-sm hover:shadow focus:shadow',
+          : 'opacity-90 hover:opacity-100 shadow-xs hover:shadow focus:shadow',
         className
       ),
     [disabled, loading, className, small, slim, unsetHeight, rounder]

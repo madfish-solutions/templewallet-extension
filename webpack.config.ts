@@ -84,6 +84,7 @@ const mainConfig = (() => {
       }),
 
       new MiniCssExtractPlugin({
+        ignoreOrder: true,
         filename: 'styles/[name].css',
         chunkFilename: 'styles/[name].chunk.css'
       }),

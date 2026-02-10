@@ -1,4 +1,4 @@
-import React, { forwardRef, memo } from 'react';
+import { Ref, memo } from 'react';
 
 import clsx from 'clsx';
 
@@ -11,16 +11,15 @@ export interface IconBaseProps {
   className?: string;
   iconTransform?: string;
   onClick?: EmptyFn;
+  ref?: Ref<HTMLDivElement>;
 }
 
 /** For monochrome icons */
-export const IconBase = memo(
-  forwardRef<HTMLDivElement, IconBaseProps>(
-    ({ size = 16, className, Icon, iconTransform = SCALE_TRANSFORMS[size], onClick }, ref) => (
-      <div ref={ref} data-icon-size={size} className={clsx(CONTAINER_CLASSNAME[size], className)} onClick={onClick}>
-        <Icon className="w-full h-full stroke-current fill-current" transform={iconTransform} />
-      </div>
-    )
+export const IconBase = memo<IconBaseProps>(
+  ({ size = 16, className, Icon, iconTransform = SCALE_TRANSFORMS[size], onClick, ref }) => (
+    <div ref={ref} data-icon-size={size} className={clsx(CONTAINER_CLASSNAME[size], className)} onClick={onClick}>
+      <Icon className="w-full h-full stroke-current fill-current" transform={iconTransform} />
+    </div>
   )
 );
 

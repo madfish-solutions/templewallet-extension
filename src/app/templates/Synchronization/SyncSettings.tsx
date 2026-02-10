@@ -9,7 +9,7 @@ import { StyledButton } from 'app/atoms/StyledButton';
 import { DeadEndBoundaryError } from 'app/ErrorBoundary';
 import { useTempleBackendActionForm } from 'app/hooks/use-temple-backend-action-form';
 import { DEFAULT_PASSWORD_INPUT_PLACEHOLDER } from 'lib/constants';
-import { t } from 'lib/i18n';
+import { T, t } from 'lib/i18n';
 import { useTempleClient } from 'lib/temple/front';
 import { TempleAccountType } from 'lib/temple/types';
 import { useVanishingState } from 'lib/ui/hooks';
@@ -95,7 +95,7 @@ const SyncSettings: FC = () => {
           disabled={formSubmitted && !isValid}
           testID={SyncSettingsSelectors.syncButton}
         >
-          Sync
+          <T id="sync" />
         </StyledButton>
       </ActionsButtonsBox>
 

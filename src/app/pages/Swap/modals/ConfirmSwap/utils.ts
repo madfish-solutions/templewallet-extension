@@ -7,8 +7,8 @@ export function mapLiFiTxToEvmEstimationData(tx: LiFiTxRequest): EvmEstimationDa
   const gasLimitStr = 'gasLimit' in tx ? tx.gasLimit : undefined;
   const gasPriceStr = 'gasPrice' in tx ? tx.gasPrice : undefined;
 
-  const gasLimit = gasLimitStr ? BigInt(gasLimitStr) : BigInt(0);
-  const gasPrice = gasPriceStr ? BigInt(gasPriceStr) : BigInt(0);
+  const gasLimit = gasLimitStr ? BigInt(gasLimitStr) : 0n;
+  const gasPrice = gasPriceStr ? BigInt(gasPriceStr) : 0n;
 
   return {
     estimatedFee: gasLimit * gasPrice,

@@ -1,9 +1,8 @@
-import React, { useCallback, useMemo, useState, useEffect, useRef, KeyboardEventHandler, memo } from 'react';
+import { useCallback, useMemo, useState, useEffect, useRef, KeyboardEventHandler, memo } from 'react';
 
 import clsx from 'clsx';
-import CSSTransition from 'react-transition-group/CSSTransition';
-import useOnClickOutside from 'use-onclickoutside';
 
+import { FadeTransition } from 'app/a11y/FadeTransition';
 import { Name } from 'app/atoms';
 import { AccLabel } from 'app/atoms/AccLabel';
 import { EmptyState } from 'app/atoms/EmptyState';
@@ -13,6 +12,7 @@ import { AccountManagementSelectors } from 'app/templates/AccountsManagement/sel
 import { SearchBarField } from 'app/templates/SearchField';
 import { searchHotkey } from 'lib/constants';
 import { T, t } from 'lib/i18n';
+import useOnClickOutside from 'lib/ui/hooks/useOnClickOutside';
 import Portal from 'lib/ui/Portal';
 import { HistoryAction, navigate } from 'lib/woozie';
 import { useCurrentAccountId, useChangeAccount, useVisibleAccounts } from 'temple/front';
@@ -23,7 +23,7 @@ import { AccountItem } from './AccountItem';
 
 export const ShortcutAccountSwitchOverlay = memo(() => {
   const accountSwitchRef = useRef<HTMLDivElement>(null);
-  const accountItemsRef = useRef<Array<HTMLButtonElement | null>>([]);
+  const accountItemsRef = useRef<Array<HTMLButtonElement>>([]);
 
   const { opened, setOpened } = useAccountSelectShortcut();
   useModalScrollLock(opened, accountSwitchRef);
@@ -123,17 +123,8 @@ export const ShortcutAccountSwitchOverlay = memo(() => {
 
   return (
     <Portal>
-      <CSSTransition
-        in={opened}
-        timeout={100}
-        classNames={{
-          enter: 'opacity-0',
-          enterActive: 'opacity-100 transition ease-out duration-100',
-          exit: 'opacity-0 transition ease-in duration-100'
-        }}
-        unmountOnExit
-      >
-        <div className="fixed inset-0 z-overlay-promo flex flex-col items-center justify-center bg-black bg-opacity-15 backdrop-blur-xs">
+      <FadeTransition trigger={opened} duration={100} hideOnExit unmountOnExit>
+        <div className="fixed inset-0 z-overlay-promo flex flex-col items-center justify-center bg-black/15 backdrop-blur-xs">
           <div
             ref={accountSwitchRef}
             tabIndex={0}
@@ -145,7 +136,7 @@ export const ShortcutAccountSwitchOverlay = memo(() => {
                 autoFocus
                 defaultRightMargin={false}
                 value={searchValue}
-                className={'focus:outline-none focus:ring-0 focus:border-transparent'}
+                className={'focus:outline-hidden focus:ring-0 focus:border-transparent'}
                 placeholder={t('searchAccount', [searchHotkey])}
                 onValueChange={handleSearchValueChange}
                 testID={AccountManagementSelectors.searchField}
@@ -187,7 +178,7 @@ export const ShortcutAccountSwitchOverlay = memo(() => {
             </p>
           </div>
         </div>
-      </CSSTransition>
+      </FadeTransition>
     </Portal>
   );
 });

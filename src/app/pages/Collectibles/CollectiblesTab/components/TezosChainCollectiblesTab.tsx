@@ -1,4 +1,4 @@
-import React, { FC, memo, useCallback } from 'react';
+import { FC, memo, Ref, useCallback } from 'react';
 
 import { DeadEndBoundaryError } from 'app/ErrorBoundary';
 import { usePreservedOrderSlugsToManage } from 'app/hooks/listing-logic/use-manageable-slugs';
@@ -96,7 +96,7 @@ const TabContentBase = memo<TabContentBaseProps>(({ network, publicKeyHash, allS
   const { blur, showInfo } = useCollectiblesListOptionsSelector();
 
   const renderItem = useCallback(
-    (slug: string, index: number, ref?: React.RefObject<CollectiblesListItemElement>) => (
+    (slug: string, index: number, ref?: Ref<CollectiblesListItemElement>) => (
       <TezosCollectibleItem
         key={slug}
         assetSlug={slug}

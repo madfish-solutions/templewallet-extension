@@ -255,7 +255,7 @@ const periodicSwapMonitorTriggerEpic: Epic<Action, Action, RootState> = (_, stat
       const pendingSwaps = selectAllPendingSwaps(state);
       return pendingSwaps.length > 0;
     }),
-    map(monitorPendingSwapsAction)
+    map(() => monitorPendingSwapsAction())
   );
 
 const monitorPendingTransfersEpic: Epic<Action, Action, RootState> = (action$, state$) =>

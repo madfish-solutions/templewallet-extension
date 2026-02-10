@@ -1,4 +1,4 @@
-import React, { memo, useMemo } from 'react';
+import { Ref, memo, useMemo } from 'react';
 
 import { isDefined } from '@rnw-community/shared';
 import clsx from 'clsx';
@@ -21,7 +21,7 @@ interface TezosCollectibleItemImageProps {
   areDetailsLoading: boolean;
   mime?: string | null;
   extraSrc?: string;
-  containerElemRef: React.RefObject<Element>;
+  containerElemRef: Ref<Element>;
   className?: string;
   shouldUseBlurredBg?: boolean;
   manageActive?: boolean;
@@ -65,7 +65,7 @@ export const TezosCollectibleItemImage = memo<TezosCollectibleItemImageProps>(
         ) : (
           <>
             {shouldUseBlurredBg && (
-              <ImageStacked sources={sources} loading="lazy" className="absolute w-full h-full object-cover blur-sm" />
+              <ImageStacked sources={sources} loading="lazy" className="absolute w-full h-full object-cover blur-xs" />
             )}
             <ImageStacked
               sources={sources}
@@ -101,7 +101,7 @@ export const EvmCollectibleItemImage = memo<EvmCollectibleItemImageProps>(
           <ImageStacked
             sources={sourcesWithCompressedFallback}
             loading="lazy"
-            className="absolute w-full h-full object-cover blur-sm"
+            className="absolute w-full h-full object-cover blur-xs"
           />
         )}
         <ImageStacked

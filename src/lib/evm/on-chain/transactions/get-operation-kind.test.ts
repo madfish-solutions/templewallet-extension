@@ -31,13 +31,13 @@ d6000803e3d6000fd5b5000fea265627a7a72315820631b0dbb6b871cdbfdec2773af15ebfb8e52c
 
   it('should label operations without data and with zero value as unknown', () => {
     expect(getOperationKind({ to: mockDestination })).toEqual(EvmOperationKind.Other);
-    expect(getOperationKind({ to: mockDestination, value: BigInt(0) })).toEqual(EvmOperationKind.Other);
-    expect(getOperationKind({ to: mockDestination, value: BigInt(0), data: '0x' })).toEqual(EvmOperationKind.Other);
+    expect(getOperationKind({ to: mockDestination, value: 0n })).toEqual(EvmOperationKind.Other);
+    expect(getOperationKind({ to: mockDestination, value: 0n, data: '0x' })).toEqual(EvmOperationKind.Other);
   });
 
   it('should detect sending ETH operations', () => {
-    expect(getOperationKind({ to: mockDestination, value: BigInt(1) })).toEqual(EvmOperationKind.Send);
-    expect(getOperationKind({ to: mockDestination, value: BigInt(1), data: '0x' })).toEqual(EvmOperationKind.Send);
+    expect(getOperationKind({ to: mockDestination, value: 1n })).toEqual(EvmOperationKind.Send);
+    expect(getOperationKind({ to: mockDestination, value: 1n, data: '0x' })).toEqual(EvmOperationKind.Send);
   });
 
   describe('should detect mint operations', () => {

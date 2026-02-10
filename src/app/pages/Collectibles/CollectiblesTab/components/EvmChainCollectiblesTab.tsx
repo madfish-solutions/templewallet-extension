@@ -1,4 +1,4 @@
-import React, { memo, useCallback } from 'react';
+import { memo, Ref, useCallback } from 'react';
 
 import { useEvmChainCollectiblesListingLogic } from 'app/hooks/listing-logic/use-evm-chain-collectibles-listing-logic';
 import { useAssetsViewState } from 'app/hooks/use-assets-view-state';
@@ -30,7 +30,7 @@ export const EvmChainCollectiblesTab = memo<EvmChainCollectiblesTabProps>(({ cha
   useEvmCollectiblesMetadataLoading(publicKeyHash);
 
   const renderItem = useCallback(
-    (slug: string, index: number, ref?: React.RefObject<CollectiblesListItemElement>) => (
+    (slug: string, index: number, ref?: Ref<CollectiblesListItemElement>) => (
       <EvmCollectibleItem
         key={slug}
         assetSlug={slug}

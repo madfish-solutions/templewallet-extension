@@ -1,6 +1,6 @@
 import { RefObject, useCallback, useEffect } from 'react';
 
-export const useModalScrollLock = (shouldLock: boolean, modalRef: RefObject<HTMLElement>) => {
+export const useModalScrollLock = (shouldLock: boolean, modalRef: RefObject<HTMLElement | null>) => {
   const handleWheelEvent = useCallback(
     (e: WheelEvent) => {
       if (shouldLock && !modalRef.current?.contains(e.target as Node)) {

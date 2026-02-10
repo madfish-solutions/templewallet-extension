@@ -14,7 +14,7 @@ export const KoloCryptoCardPreview: FC<KoloCryptoCardPreviewProps> = memo(({ onC
     onClick={onClick}
     testID={KoloCardSelectors.cryptoCardButton}
     className="peer rounded-8 h-24 mx-6 -mb-[68px] px-4 py-3 flex items-start justify-between
-               focus:outline-none transform transition-transform duration-200 ease-out origin-left hover:-rotate-1"
+               focus:outline-hidden transform transition-transform duration-200 ease-out origin-left hover:-rotate-1"
     style={{
       background: 'linear-gradient(136deg, #FF5B00 -2.06%, #F4BE38 103.52%)'
     }}

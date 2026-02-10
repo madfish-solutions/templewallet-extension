@@ -38,7 +38,7 @@ const InfiniteScrollVisibilityContextProvider: FC<PropsWithChildren> = ({ childr
     setListItemsVisibility
   };
 
-  return <InfiniteScrollVisibilityContext.Provider value={value}>{children}</InfiniteScrollVisibilityContext.Provider>;
+  return <InfiniteScrollVisibilityContext value={value}>{children}</InfiniteScrollVisibilityContext>;
 };
 
 export interface VisibilityTrackingInfiniteScrollProps

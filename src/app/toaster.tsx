@@ -32,7 +32,7 @@ const withToastsLimit =
       const toastsToDismissCount = toastsIdsPool.length - MAX_TOASTS_COUNT + 1;
       const toastsIdsToDismiss = toastsIdsPool.splice(0, toastsToDismissCount);
       toastsHashesPool.splice(0, toastsToDismissCount);
-      toastsIdsToDismiss.forEach(toast.remove);
+      toastsIdsToDismiss.forEach(id => toast.remove(id));
     }
     const newToastId = toastFn(...args);
     toastsIdsPool.push(newToastId);
@@ -55,13 +55,13 @@ export const toastSuccess = withToastsLimit((title: string, textBold?: boolean, 
     <CustomToastBar toast={{ ...toast, message: title }} customType="success" textBold={textBold} txData={txData} />
   ))
 );
-// @ts-prune-ignore-next
+
 export const toastError = withToastsLimit((title, textBold?, txData?: TxData) =>
   toast.custom(toast => (
     <CustomToastBar toast={{ ...toast, message: title }} customType="error" textBold={textBold} txData={txData} />
   ))
 );
-// @ts-prune-ignore-next
+
 export const toastInfo = withToastsLimit((title, textBold?, link?: ReactChildren) =>
   toast.custom(toast => (
     <CustomToastBar toast={{ ...toast, message: title }} customType="blank" textBold={textBold} link={link} />
@@ -69,7 +69,7 @@ export const toastInfo = withToastsLimit((title, textBold?, link?: ReactChildren
 );
 
 const getWarningToastHash = (title: string, textBold = true) => `${title}_${textBold}`;
-// @ts-prune-ignore-next
+
 export const toastWarning = withToastsLimit(
   (title, textBold?) =>
     toast.custom(toast => (
@@ -77,7 +77,7 @@ export const toastWarning = withToastsLimit(
     )),
   getWarningToastHash
 );
-// @ts-prune-ignore-next
+
 export const toastUniqWarning = withUniqCheck(toastWarning, getWarningToastHash);
 
 export const ToasterProvider = memo(() => {

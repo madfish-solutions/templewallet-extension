@@ -105,7 +105,7 @@ const AppProvider: FC<Props> = ({ children, env }) => (
 const FONTS_WEIGHTS = [300, 400, 500, 600];
 
 const AwaitFonts: FC<PropsWithChildren> = ({ children }) => (
-  <AwaitFontFamily name="Inter" weights={FONTS_WEIGHTS} className="antialiased font-inter">
+  <AwaitFontFamily name="Inter" weights={FONTS_WEIGHTS} className="antialiased font-inter!">
     <AwaitFontFamily name="Rubik" weights={FONTS_WEIGHTS} className="antialiased">
       {children}
     </AwaitFontFamily>

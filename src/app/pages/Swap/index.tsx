@@ -280,13 +280,13 @@ const Swap = memo<Props>(() => {
       pageTitle={<PageTitle title={t('swap')} />}
       contentPadding={false}
       noScroll
-      paperClassName="!overflow-hidden"
+      paperClassName="overflow-hidden!"
       headerRightElem={
         <IconBase Icon={ManageIcon} className="text-primary cursor-pointer" onClick={setSettingsModalOpen} />
       }
     >
       <Suspense fallback={<PageLoader stretch />}>
-        <SwapFormControlContext.Provider value={formControlRef}>
+        <SwapFormControlContext value={formControlRef}>
           <SwapForm
             chainKind={activeChainKind}
             chainId={activeChainId}
@@ -301,7 +301,7 @@ const Swap = memo<Props>(() => {
             confirmSwapModalOpened={confirmSwapModalOpened}
             handleToggleIconClick={handleToggleIconClick}
           />
-        </SwapFormControlContext.Provider>
+        </SwapFormControlContext>
       </Suspense>
 
       <SwapSelectAssetModal

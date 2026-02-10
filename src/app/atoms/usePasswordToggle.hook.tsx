@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import { ReactNode, useCallback, useMemo, useState } from 'react';
 
 import { ReactComponent as EyeClose } from 'app/icons/base/eye_close.svg';
 import { ReactComponent as EyeOpen } from 'app/icons/base/eye_open.svg';
@@ -12,7 +12,7 @@ const usePasswordToggle = (
   onReveal?: EmptyFn,
   revealRef?: unknown,
   handleBlur?: (e: React.FocusEvent) => void
-): ['text' | 'password', JSX.Element] => {
+): ['text' | 'password', ReactNode] => {
   const [visible, setVisibility] = useState(false);
 
   const buttonId = useMemo(() => (id ? `passwordToggle-${id}` : undefined), [id]);

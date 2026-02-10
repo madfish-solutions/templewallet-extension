@@ -47,7 +47,7 @@ export const ExternalLinkChip: FC<ExternalLinkChipProps> = ({
       ref={tooltip ? ref : undefined}
       href={href}
       className={clsx(
-        'flex items-center justify-center rounded select-none p-1',
+        'flex items-center justify-center rounded-sm select-none p-1',
         'bg-gray-100 hover:bg-gray-200 transition ease-in-out duration-300',
         alternativeDesign
           ? 'text-gray-500 bg-gray-200 hover:bg-gray-300'

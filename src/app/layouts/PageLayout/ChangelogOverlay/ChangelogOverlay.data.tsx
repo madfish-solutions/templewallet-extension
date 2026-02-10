@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { ReactNode } from 'react';
 
 export interface ChangelogItem {
   version: string;
-  data?: Array<JSX.Element>;
+  data?: Array<ReactNode>;
 }
 
 const datav1_14_13: ChangelogItem = {

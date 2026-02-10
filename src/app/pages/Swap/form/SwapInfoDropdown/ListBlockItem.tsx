@@ -1,18 +1,18 @@
-import React, { forwardRef } from 'react';
+import { FC, Ref } from 'react';
 
 import { Divider, IconBase } from 'app/atoms';
 import { T, TID } from 'lib/i18n';
 
-export const ListBlockItem = forwardRef<
-  HTMLSpanElement,
-  PropsWithChildren<{
-    title: TID;
-    divide?: boolean;
-    Icon?: ImportedSVGComponent;
-    tooltipText?: string;
-    substitutions?: string[];
-  }>
->(({ Icon, title, divide = true, children, substitutions }, ref) => (
+type ListBlockItemProps = PropsWithChildren<{
+  title: TID;
+  divide?: boolean;
+  Icon?: ImportedSVGComponent;
+  tooltipText?: string;
+  substitutions?: string[];
+  ref?: Ref<HTMLSpanElement>;
+}>;
+
+export const ListBlockItem: FC<ListBlockItemProps> = ({ Icon, title, divide = true, children, substitutions, ref }) => (
   <>
     {divide && <Divider />}
     <div className="flex items-center justify-between min-h-12">
@@ -25,4 +25,4 @@ export const ListBlockItem = forwardRef<
       <span className="p-1 text-font-num-12">{children}</span>
     </div>
   </>
-));
+);

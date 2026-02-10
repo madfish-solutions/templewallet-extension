@@ -1,7 +1,7 @@
 import { useMemo, useRef } from 'react';
 
 export function useAbortSignal() {
-  const ref = useRef<AbortController | null>();
+  const ref = useRef<AbortController>(null);
 
   return useMemo(
     () => ({

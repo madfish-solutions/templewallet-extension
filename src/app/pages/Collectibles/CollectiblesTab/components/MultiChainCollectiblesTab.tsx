@@ -1,4 +1,4 @@
-import React, { memo, useCallback } from 'react';
+import { memo, Ref, useCallback } from 'react';
 
 import { useAccountCollectiblesListingLogic } from 'app/hooks/listing-logic/use-account-collectibles-listing-logic';
 import { useAssetsViewState } from 'app/hooks/use-assets-view-state';
@@ -33,7 +33,7 @@ export const MultiChainCollectiblesTab = memo<MultiChainCollectiblesTabProps>(
     useEvmCollectiblesMetadataLoading(accountEvmAddress);
 
     const renderItem = useCallback(
-      (chainSlug: string, index: number, ref?: React.RefObject<CollectiblesListItemElement>) => {
+      (chainSlug: string, index: number, ref?: Ref<CollectiblesListItemElement>) => {
         const [chainKind, chainId, slug] = parseChainAssetSlug(chainSlug);
 
         if (chainKind === TempleChainKind.Tezos) {

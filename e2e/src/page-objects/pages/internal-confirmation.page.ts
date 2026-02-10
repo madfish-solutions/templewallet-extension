@@ -22,7 +22,7 @@ export class InternalConfirmationPage extends Page {
 
       const errorLog = await this.errorValue.getText();
       console.log('Confirmation page includes error logs:', errorLog);
-    } catch (error) {
+    } catch {
       await this.confirmButton.waitForDisplayed();
       await this.declineButton.waitForDisplayed();
       await this.bytesTab.waitForDisplayed();

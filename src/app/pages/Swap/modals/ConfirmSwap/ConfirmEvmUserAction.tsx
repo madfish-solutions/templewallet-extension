@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useMemo, useState } from 'react';
+import { RefObject, memo, useEffect, useMemo, useState } from 'react';
 
 import { LiFiStep } from '@lifi/sdk';
 import retry from 'async-retry';
@@ -28,7 +28,7 @@ interface ConfirmEvmUserActionProps {
   firstExecuteAction: UserAction;
   onStepCompleted: EmptyFn;
   onRequestClose: EmptyFn;
-  cancelledRef?: React.MutableRefObject<boolean>;
+  cancelledRef?: RefObject<boolean | null>;
   skipStatusWait?: boolean;
   submitDisabled?: boolean;
 }

@@ -1,6 +1,6 @@
 import { createContext, RefObject, useContext } from 'react';
 
-export const ContentPaperRefContext = createContext<RefObject<HTMLDivElement>>({
+export const ContentPaperRefContext = createContext<RefObject<HTMLDivElement | null>>({
   current: null
 });
 

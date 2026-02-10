@@ -1,4 +1,4 @@
-import React from 'react';
+import { FC, Ref } from 'react';
 
 import clsx from 'clsx';
 
@@ -13,16 +13,32 @@ import { Button, ButtonProps } from './Button';
 
 export interface StyledButtonProps extends Omit<ButtonProps, 'color'>, ButtonLikeStylingProps {}
 
-export const StyledButton = React.forwardRef<HTMLButtonElement, StyledButtonProps>((inputProps, ref) => {
-  const buttonProps = useStyledButtonOrLinkProps(inputProps);
+interface StyledButtonComponentProps extends StyledButtonProps {
+  ref?: Ref<HTMLButtonElement>;
+}
+
+export const StyledButton: FC<StyledButtonComponentProps> = (inputProps: StyledButtonComponentProps) => {
+  const { ref, ...rest } = inputProps;
+  const buttonProps = useStyledButtonOrLinkProps(rest);
 
   return <Button ref={ref} {...buttonProps} />;
-});
+};
 
-export const StyledButtonAnchor = React.forwardRef<HTMLAnchorElement, AnchorProps & ButtonLikeStylingProps>(
-  ({ size, color, active, disabled, className: classNameProp, ...props }, ref) => {
-    const className = useStyledButtonClassName({ size, color, active, disabled }, clsx('text-center', classNameProp));
+type StyledButtonAnchorProps = AnchorProps &
+  ButtonLikeStylingProps & {
+    ref?: Ref<HTMLAnchorElement>;
+  };
 
-    return <Anchor ref={ref} {...props} className={className} treatAsButton />;
-  }
-);
+export const StyledButtonAnchor: FC<StyledButtonAnchorProps> = ({
+  size,
+  color,
+  active,
+  disabled,
+  className: classNameProp,
+  ref,
+  ...props
+}) => {
+  const className = useStyledButtonClassName({ size, color, active, disabled }, clsx('text-center', classNameProp));
+
+  return <Anchor ref={ref} {...props} className={className} treatAsButton />;
+};

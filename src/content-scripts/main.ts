@@ -308,7 +308,7 @@ function beaconIsConnected() {
     const account = accounts.find(acc => acc.accountIdentifier === activeAccountId);
 
     return account?.origin?.id === browser.runtime.id;
-  } catch (e) {
+  } catch {
     return false;
   }
 }

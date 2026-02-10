@@ -130,7 +130,7 @@ export const useRefreshIfActive = <L extends [DataLoader<any>, ...DataLoader<any
     if (!windowIsActive || !shouldRefresh) return;
 
     const firstLoadTimeouts: NodeJS.Timeout[] = [];
-    const refreshIntervals: NodeJS.Timer[] = [];
+    const refreshIntervals: NodeJS.Timeout[] = [];
     chainsToRefresh.forEach(({ chainId }) => {
       if (!loaders.some(loader => loader.isApplicable(chainId))) {
         return;

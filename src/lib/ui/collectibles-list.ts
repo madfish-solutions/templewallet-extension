@@ -6,7 +6,7 @@ export type CollectiblesListItemElement = HTMLDivElement | HTMLAnchorElement;
 
 export const makeGetCollectiblesElementsIndexesFunction =
   (
-    firstItemRef: RefObject<CollectiblesListItemElement>,
+    firstItemRef: RefObject<CollectiblesListItemElement | null>,
     itemsCount: number,
     showInfo: boolean,
     manageActive: boolean

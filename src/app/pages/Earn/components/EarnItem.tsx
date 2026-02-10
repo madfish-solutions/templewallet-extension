@@ -94,7 +94,7 @@ const EarnOfferItemContent = memo<EarnOfferItemProps>(({ offer, deposit }) => (
 
 const DepositContent = memo<Required<EarnOfferItemProps>>(({ offer, deposit }) => (
   <>
-    <div className="border-b-0.5 bg-lines" />
+    <div className="border-b-0.5 border-lines" />
 
     <div className="flex items-center justify-between px-1 py-2">
       <span className="text-font-description text-grey-1">

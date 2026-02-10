@@ -1,8 +1,7 @@
 import React, { memo, useCallback, useLayoutEffect } from 'react';
 
-import CSSTransition from 'react-transition-group/CSSTransition';
-
 import DocBg from 'app/a11y/DocBg';
+import { FadeTransition } from 'app/a11y/FadeTransition';
 import InternalConfirmation from 'app/templates/InternalConfirmation';
 import { useTempleClient } from 'lib/temple/front';
 import Portal from 'lib/ui/Portal';
@@ -41,16 +40,7 @@ const ConfirmationOverlay = memo(() => {
       {displayed && <DocBg bgClassName="bg-secondary-low" />}
 
       <Portal>
-        <CSSTransition
-          in={displayed}
-          timeout={200}
-          classNames={{
-            enter: 'opacity-0',
-            enterActive: 'opacity-100 transition ease-out duration-200',
-            exit: 'opacity-0 transition ease-in duration-200'
-          }}
-          unmountOnExit
-        >
+        <FadeTransition trigger={displayed} duration={200} hideOnExit unmountOnExit>
           <div className="fixed inset-0 z-overlay-confirm overflow-y-auto bg-primary-white">
             {confirmation && (
               <InternalConfirmation
@@ -60,7 +50,7 @@ const ConfirmationOverlay = memo(() => {
               />
             )}
           </div>
-        </CSSTransition>
+        </FadeTransition>
       </Portal>
     </>
   );
