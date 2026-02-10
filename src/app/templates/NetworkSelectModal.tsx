@@ -200,7 +200,7 @@ export const Network: FC<NetworkProps> = ({
   return (
     <div
       ref={elemRef}
-      className="cursor-pointer flex justify-between items-center p-3 rounded-8 border-0.5 bg-white border-lines hover:bg-background group"
+      className="cursor-pointer flex justify-between items-center p-3 rounded-8 border-0.5 bg-white border-lines group"
       onClick={handleClick}
     >
       <div className="flex items-center gap-x-2">

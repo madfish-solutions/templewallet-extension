@@ -17,7 +17,7 @@ export const AccountDropdownHeader = memo<AccountDropdownHeaderProps>(({ account
   <div
     className={clsx(
       className,
-      'flex items-center gap-x-2 p-3 rounded-lg bg-white hover:bg-background border-0.5 border-lines cursor-pointer'
+      'flex items-center gap-x-2 p-3 rounded-lg bg-white hover:bg-grey-4 border-0.5 border-lines cursor-pointer'
     )}
     onClick={onClick}
   >

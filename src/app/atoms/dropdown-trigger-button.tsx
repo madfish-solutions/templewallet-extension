@@ -18,7 +18,7 @@ export const DropdownTriggerButton = memo<DropdownTriggerButtonProps>(
       <Button
         className={clsx(
           'flex items-center rounded-8 border-0.5 bg-white border-lines',
-          onClick && 'justify-between hover:bg-background',
+          onClick && 'justify-between hover:bg-grey-4',
           className
         )}
         style={{ cursor: onClick ? 'pointer' : 'auto', ...style }}

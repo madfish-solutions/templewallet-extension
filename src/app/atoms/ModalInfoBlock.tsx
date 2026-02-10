@@ -14,7 +14,7 @@ interface ModalInfoBlockProps {
 
 export const ModalInfoBlock = memo<ModalInfoBlockProps>(({ Icon, headline, description, className, onClick }) => (
   <button
-    className={clsx(className, 'flex gap-3 p-4 bg-white hover:bg-background rounded-lg border-0.5 border-lines group')}
+    className={clsx(className, 'flex gap-3 p-4 bg-white hover:bg-grey-4 rounded-lg border-0.5 border-lines group')}
     onClick={onClick}
   >
     <div className="rounded-full p-3 bg-primary-low text-primary group-hover:bg-primary-hover-low group-hover:text-primary-hover">

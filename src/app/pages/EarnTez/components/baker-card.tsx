@@ -88,7 +88,7 @@ export const BakerCard = memo(
 
     return (
       <StakingCard
-        className={clsx(onClick && 'hover:bg-background cursor-pointer', className)}
+        className={clsx(onClick && 'hover:bg-grey-4 cursor-pointer', className)}
         onClick={handleClick}
         topInfo={
           <>
