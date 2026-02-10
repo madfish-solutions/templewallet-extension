@@ -22,14 +22,14 @@ interface AvatarButtonProps extends AvatarPropsBase, ButtonProps {
 export type AvatarProps = AvatarDivProps | AvatarButtonProps;
 
 const sizeButtonClassNames = {
-  24: 'w-6 h-6 rounded border p-px',
+  24: 'w-6 h-6 rounded-sm border p-px',
   32: 'w-8 h-8 rounded-md border p-px',
   60: 'w-15 h-15 rounded-10 border-1.5 p-[0.5px]'
 };
 
 const sizeContainerClassNames = {
   24: 'rounded-3',
-  32: 'rounded',
+  32: 'rounded-sm',
   60: 'rounded-lg border border-white'
 };
 

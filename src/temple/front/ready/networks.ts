@@ -69,7 +69,7 @@ export function useReadyTempleEvmNetworks(customEvmNetworks: StoredEvmNetwork[])
     if (confirmationId && confirmWindow) {
       try {
         return await getDAppPayload(confirmationId);
-      } catch (e) {
+      } catch {
         return null;
       }
     }

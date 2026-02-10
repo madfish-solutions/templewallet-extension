@@ -57,7 +57,7 @@ const SwapFooter: FC<SwapFooterProps> = ({
     <div className="flex justify-between items-center gap-2 min-h-6">
       <div className="flex-1 flex items-center">
         {error ? (
-          <span className="text-font-description text-error whitespace-nowrap overflow-ellipsis">{error}</span>
+          <span className="text-font-description text-error whitespace-nowrap text-ellipsis">{error}</span>
         ) : shouldShowConvertedAmount ? (
           <ConvertedInputAssetAmount
             chainId={chainId}

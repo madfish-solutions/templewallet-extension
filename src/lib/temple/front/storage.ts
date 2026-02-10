@@ -3,7 +3,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import browser, { Storage } from 'webextension-polyfill';
 
 import { fetchFromStorage, putToStorage } from 'lib/storage';
-import { useRetryableSWR } from 'lib/swr';
+import { useInitialSuspenseSWR } from 'lib/swr';
 import { useDidUpdate } from 'lib/ui/hooks';
 
 type StorageValueBase = string | object | number | boolean | nullish;
@@ -27,11 +27,16 @@ export function useStorage<T extends StorageValueBase = any>(
   fallback: T
 ): [T, (val: SetStorageAction<T>) => Promise<void>];
 export function useStorage<T extends StorageValueBase = any>(key: string, fallback?: T) {
-  const { data, mutate } = useRetryableSWR<T | null, unknown, string>(key, fetchFromStorage, {
-    suspense: true,
-    revalidateOnFocus: false,
-    revalidateOnReconnect: false
-  });
+  const { data, mutate } = useInitialSuspenseSWR<T | null, unknown, string>(
+    key,
+    fetchFromStorage,
+    getInitialStoragePromise<T>(key),
+    {
+      revalidateOnMount: false,
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false
+    }
+  );
 
   useEffect(() => onStorageChanged(key, mutate), [key, mutate]);
 
@@ -43,6 +48,7 @@ export function useStorage<T extends StorageValueBase = any>(key: string, fallba
     valueRef.current = value;
     transientValueRef.current = value;
   }, [value]);
+
   const setValue = useCallback(
     async (val: SetStorageAction<T>) => {
       const nextValue = typeof val === 'function' ? val(valueRef.current!, transientValueRef.current!) : val;
@@ -59,15 +65,20 @@ export function useStorage<T extends StorageValueBase = any>(key: string, fallba
 export function usePassiveStorage<T = any>(key: string): [T | null | undefined, SyncFn<T>];
 export function usePassiveStorage<T = any>(key: string, fallback: T): [T, SyncFn<T>];
 export function usePassiveStorage<T = any>(key: string, fallback?: T) {
-  const { data } = useRetryableSWR<T | null, unknown, string>(key, fetchFromStorage, {
-    suspense: true,
-    revalidateOnFocus: false,
-    revalidateOnReconnect: false
-  });
+  const { data } = useInitialSuspenseSWR<T | null, unknown, string>(
+    key,
+    fetchFromStorage,
+    getInitialStoragePromise<T>(key),
+    {
+      revalidateOnMount: false,
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false
+    }
+  );
 
   const finalData = fallback === undefined ? data : data ?? fallback;
 
-  const [value, setValue] = useState(finalData);
+  const [value, setValue] = useState<T | null | undefined>(finalData);
 
   useDidUpdate(() => {
     setValue(finalData);
@@ -83,6 +94,15 @@ export function usePassiveStorage<T = any>(key: string, fallback?: T) {
   );
 
   return [value, updateValue];
+}
+
+const initialStoragePromises = new Map<string, Promise<any>>();
+
+function getInitialStoragePromise<T>(key: string) {
+  if (!initialStoragePromises.has(key)) {
+    initialStoragePromises.set(key, fetchFromStorage<T>(key));
+  }
+  return initialStoragePromises.get(key) as Promise<T | null>;
 }
 
 function onStorageChanged<T = any>(key: string, callback: (newValue: T) => void) {

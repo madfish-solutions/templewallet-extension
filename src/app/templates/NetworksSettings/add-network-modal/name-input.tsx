@@ -1,4 +1,16 @@
-import React, { FC, MutableRefObject, memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  FC,
+  RefObject,
+  memo,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  MouseEvent,
+  FocusEvent,
+  KeyboardEvent
+} from 'react';
 
 import clsx from 'clsx';
 import { uniqBy } from 'lodash';
@@ -38,7 +50,7 @@ export const NameInput = memo(({ namesToExclude, onChainSelect }: NameInputProps
   const unsetFocusedVariantIndex = useCallback(() => setFocusedVariantIndex(-1), []);
   const variantsRef = useRef<Array<HTMLButtonElement | null>>([]);
 
-  const shouldHandleBlur = useCallback((e: React.FocusEvent) => !checkRelatedTarget(e.relatedTarget?.id), []);
+  const shouldHandleBlur = useCallback((e: FocusEvent) => !checkRelatedTarget(e.relatedTarget?.id), []);
   const {
     isFocused,
     onFocus: handleFocus,
@@ -86,14 +98,14 @@ export const NameInput = memo(({ namesToExclude, onChainSelect }: NameInputProps
   );
 
   const handleVariantClick = useCallback(
-    (_: React.MouseEvent<HTMLButtonElement, MouseEvent>, variant: ViemChain) => {
+    (_: MouseEvent<HTMLButtonElement>, variant: ViemChain) => {
       setValueToVariant(variant);
     },
     [setValueToVariant]
   );
 
   const handleInputKeyDown = useCallback(
-    (e: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    (e: KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>) => {
       if (!autoCompleteVariants || autoCompleteVariants.length === 0) {
         return;
       }
@@ -111,7 +123,7 @@ export const NameInput = memo(({ namesToExclude, onChainSelect }: NameInputProps
   );
 
   const handleVariantKeyDown = useCallback(
-    (e: React.KeyboardEvent<HTMLButtonElement>, variant: ViemChain) => {
+    (e: KeyboardEvent<HTMLButtonElement>, variant: ViemChain) => {
       if (!autoCompleteVariants || autoCompleteVariants.length === 0) {
         return;
       }
@@ -187,15 +199,15 @@ export const NameInput = memo(({ namesToExclude, onChainSelect }: NameInputProps
 interface ChainVariantProps {
   variant: ViemChain;
   index: number;
-  variantsRef: MutableRefObject<(HTMLButtonElement | null)[]>;
-  onClick: (e: React.MouseEvent<HTMLButtonElement, MouseEvent>, variant: ViemChain) => void;
-  onKeyDown: (e: React.KeyboardEvent<HTMLButtonElement>, variant: ViemChain) => void;
-  onBlur: SyncFn<React.FocusEvent>;
+  variantsRef: RefObject<(HTMLButtonElement | null)[]>;
+  onClick: (e: MouseEvent<HTMLButtonElement>, variant: ViemChain) => void;
+  onKeyDown: (e: KeyboardEvent<HTMLButtonElement>, variant: ViemChain) => void;
+  onBlur: SyncFn<FocusEvent>;
 }
 
 const ChainVariant: FC<ChainVariantProps> = ({ variant, index, variantsRef, onClick, onKeyDown, onBlur }) => {
   const handleClick = useCallback(
-    (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+    (e: MouseEvent<HTMLButtonElement>) => {
       e.preventDefault();
 
       onClick(e, variant);
@@ -203,7 +215,7 @@ const ChainVariant: FC<ChainVariantProps> = ({ variant, index, variantsRef, onCl
     [onClick, variant]
   );
   const handleKeyDown = useCallback(
-    (e: React.KeyboardEvent<HTMLButtonElement>) => {
+    (e: KeyboardEvent<HTMLButtonElement>) => {
       if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
         e.preventDefault();
       }
@@ -217,10 +229,12 @@ const ChainVariant: FC<ChainVariantProps> = ({ variant, index, variantsRef, onCl
     <button
       key={variant.id}
       id={`autoCompleteVariant-${variant.id}-${variant.name}`}
-      ref={el => (variantsRef.current[index] = el)}
+      ref={el => {
+        variantsRef.current[index] = el;
+      }}
       className={clsx(
         'px-2 py-2.5 w-full text-left rounded-md flex justify-between items-center',
-        'hover:bg-secondary-low focus:bg-grey-4 focus:outline-none'
+        'hover:bg-secondary-low focus:bg-grey-4 focus:outline-hidden'
       )}
       onClick={handleClick}
       onBlur={onBlur}

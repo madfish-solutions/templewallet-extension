@@ -1,27 +1,30 @@
+import { useMemo } from 'react';
+
 import { NotificationStatus } from 'app/pages/Notifications/enums/notification-status.enum';
 import { NotificationType } from 'app/pages/Notifications/enums/notification-type.enum';
 import { useSelector } from 'app/store/index';
-import type { RootState } from 'app/store/root-state.type';
 
-const getFilteredNotifications = (state: RootState) => {
-  const notifications = state.notifications.list.data;
+export const useNotificationsSelector = () => {
+  const notifications = useSelector(state => state.notifications.list.data);
+  const isNewsEnabled = useSelector(state => state.notifications.isNewsEnabled);
 
-  if (!state.notifications.isNewsEnabled) {
-    return notifications.filter(notification => notification.type !== NotificationType.News);
-  }
-
-  return notifications;
+  return useMemo(
+    () =>
+      isNewsEnabled ? notifications : notifications.filter(notification => notification.type !== NotificationType.News),
+    [notifications, isNewsEnabled]
+  );
 };
-
-export const useNotificationsSelector = () => useSelector(state => getFilteredNotifications(state));
 
 export const useNotificationsItemSelector = (id: number) =>
   useSelector(state => state.notifications.list.data.find(notification => notification.id === id));
 
-export const useNewNotificationsAmountSelector = () =>
-  useSelector(
-    state =>
-      getFilteredNotifications(state).filter(notification => notification.status === NotificationStatus.New).length
+export const useNewNotificationsAmountSelector = () => {
+  const notifications = useNotificationsSelector();
+
+  return useMemo(
+    () => notifications.filter(notification => notification.status === NotificationStatus.New).length,
+    [notifications]
   );
+};
 
 export const useIsNewsEnabledSelector = () => useSelector(({ notifications }) => notifications.isNewsEnabled);

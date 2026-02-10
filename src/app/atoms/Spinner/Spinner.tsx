@@ -22,7 +22,7 @@ const Spinner = memo<SpinnerProps>(({ theme = 'primary', className, ...rest }) =
                 return 'bg-primary';
 
               case 'white':
-                return 'bg-white shadow-sm';
+                return 'bg-white shadow-xs';
 
               case 'dark-gray':
                 return 'bg-grey-1';

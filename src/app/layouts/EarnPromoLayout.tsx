@@ -48,7 +48,7 @@ export const EarnPromoLayout = memo<EarnPromoLayoutProps>(
       <PageLayout
         pageTitle={pageTitle}
         contentPadding={false}
-        contentClassName="!bg-white"
+        contentClassName="bg-white!"
         onTopEdgeVisibilityChange={setShouldCastShadow}
       >
         <div className="flex-1 px-4">

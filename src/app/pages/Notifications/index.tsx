@@ -38,7 +38,7 @@ export const Notifications = () => {
 
   return (
     <>
-      <PageLayout pageTitle={<PageTitle title={t('notifications')} />} contentClassName="!pb-1">
+      <PageLayout pageTitle={<PageTitle title={t('notifications')} />} contentClassName="pb-1!">
         {shouldShowPartnersPromoState && PartnersPromotionModule && (
           <div className="mb-4 flex justify-center">
             <PartnersPromotionModule.PartnersPromotion

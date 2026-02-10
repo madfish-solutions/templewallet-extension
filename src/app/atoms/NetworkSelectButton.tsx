@@ -1,4 +1,4 @@
-import React, { memo, useMemo } from 'react';
+import { memo, ReactNode, useMemo } from 'react';
 
 import { IconBase } from 'app/atoms';
 import { EvmNetworkLogo, TezosNetworkLogo } from 'app/atoms/NetworkLogo';
@@ -19,7 +19,7 @@ export const NetworkSelectButton = memo<NetworkSelectProps>(({ selectedChain, on
   const tezosChains = useAllTezosChains();
   const evmChains = useAllEvmChains();
 
-  const children: JSX.Element = useMemo(() => {
+  const children: ReactNode = useMemo(() => {
     if (!selectedChain) {
       return (
         <>

@@ -73,7 +73,20 @@ export function parseTransactionRequest(req: RpcTransactionRequest): Transaction
   }
 
   if (req.type === '0x2' || req.maxFeePerGas || req.maxPriorityFeePerGas) {
-    const { gas, value, maxFeePerGas, maxPriorityFeePerGas, type, nonce, blobs, authorizationList, ...restProps } = req;
+    const {
+      gas,
+      value,
+      maxFeePerGas,
+      maxFeePerBlobGas,
+      maxPriorityFeePerGas,
+      type,
+      nonce,
+      blobs,
+      blobVersionedHashes,
+      authorizationList,
+      sidecars,
+      ...restProps
+    } = req;
 
     return {
       ...restProps,
@@ -92,13 +105,16 @@ export function parseTransactionRequest(req: RpcTransactionRequest): Transaction
     maxFeePerBlobGas,
     type,
     nonce,
+    blobs,
+    blobVersionedHashes,
     authorizationList,
+    sidecars,
     ...rest
   } = req;
 
   return {
     ...rest,
-    ...toBigintRecord({ gas, value, gasPrice, maxFeePerGas, maxPriorityFeePerGas, maxFeePerBlobGas }),
+    ...toBigintRecord({ gas, value, gasPrice, maxFeePerGas, maxPriorityFeePerGas }),
     nonce: parseNonce(nonce)
   };
 }

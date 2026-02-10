@@ -1,3 +1,5 @@
+import { Usable, use } from 'react';
+
 import useSWR, { Key, SWRConfiguration } from 'swr';
 import { FetcherResponse } from 'swr/_internal';
 
@@ -24,7 +26,7 @@ function withSwrContext<Data, SWRKey extends Key = Key>(
       const error = toError(err);
       (error as any).__swr = {
         key: stringifyKey(key),
-        arg: arg === undefined ? undefined : arg
+        arg
       };
       throw error;
     }
@@ -49,4 +51,20 @@ export const useRetryableSWR = <Data, Error = any, SWRKey extends Key = Key>(
 ) => {
   const wrappedFetcher = fetcher ? withSwrContext(key, fetcher) : null;
   return useSWR(key, wrappedFetcher, { errorRetryCount: 2, ...config });
+};
+
+/**
+ * Suspends only during the initial render, without enabling SWR's `suspense: true` option.
+ * Uses `fallbackData` from a React `use()`-resolved value to avoid suspense on revalidation.
+ * Fetcher must not return (awaited) `undefined` value - results in endless fetching.
+ */
+export const useInitialSuspenseSWR = <Data, Error = any, SWRKey extends Key = Key>(
+  key: SWRKey,
+  fetcher: Fetcher<Data, SWRKey> | null,
+  usable: Usable<Data>,
+  config?: SWRConfiguration<Data, Error, Fetcher<Data, SWRKey>>
+) => {
+  const initialData = use(usable);
+  const wrappedFetcher = fetcher ? withSwrContext(key, fetcher) : null;
+  return useSWR(key, wrappedFetcher, { fallbackData: initialData, errorRetryCount: 2, ...config });
 };

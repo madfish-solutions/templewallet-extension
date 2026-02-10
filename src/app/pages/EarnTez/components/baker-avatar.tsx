@@ -18,9 +18,9 @@ export const BakerAvatar = memo<BakerAvatarProps>(({ address, bakerName, classNa
     <img
       src={getBakerLogoUrl(address)}
       alt={bakerName ?? t('unknownBakerTitle')}
-      className={clsx('flex-shrink-0 w-6 h-6 bg-white rounded', className)}
+      className={clsx('shrink-0 w-6 h-6 bg-white rounded', className)}
     />
   ) : (
-    <UnknownBakerIcon className={clsx('flex-shrink-0 w-6 h-6', className)} />
+    <UnknownBakerIcon className={clsx('shrink-0 w-6 h-6', className)} />
   )
 );

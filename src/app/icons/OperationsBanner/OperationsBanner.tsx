@@ -54,7 +54,7 @@ const OperationsBanner = memo<OperationsBannerProps>(
             className={classNames(
               'block w-full max-w-full p-1',
               'rounded-md',
-              'border-2 bg-gray-100 bg-opacity-50',
+              'border-2 bg-gray-100/50',
               'text-xs leading-tight font-medium',
               typeof opParams === 'string' ? 'break-all' : 'whitespace-nowrap overflow-auto'
             )}
@@ -150,7 +150,7 @@ const CopyButton = memo<CopyButtonProps>(({ toCopy }) => {
           'text-xs font-semibold leading-snug',
           'transition duration-300 ease-in-out',
           'opacity-90 hover:opacity-100 focus:opacity-100',
-          'shadow-sm',
+          'shadow-xs',
           'hover:shadow focus:shadow'
         )}
         onClick={copy}

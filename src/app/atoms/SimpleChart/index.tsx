@@ -1,6 +1,6 @@
 import React, { FC } from 'react';
 
-import { Area, AreaChart, Line, ResponsiveContainer } from 'recharts';
+import { Area, AreaChart, Line, ResponsiveContainer, YAxis } from 'recharts';
 
 interface SimpleChartProps {
   data: { timestamp: number; value: number }[];
@@ -22,9 +22,11 @@ export const SimpleChart: FC<SimpleChartProps> = ({ data, className }) => {
           </linearGradient>
         </defs>
 
-        <Area type="monotone" dataKey="value" stroke="none" fill="url(#areaFill)" activeDot={false} />
+        <YAxis domain={['dataMin', 'dataMax']} hide />
 
-        <Line type="monotone" dataKey="value" stroke="#2D6CDF" strokeWidth={2} dot={false} activeDot={false} />
+        <Area type="basis" dataKey="value" stroke="none" fill="url(#areaFill)" activeDot={false} />
+
+        <Line type="basis" dataKey="value" stroke="#2D6CDF" strokeWidth={2} dot={false} activeDot={false} />
       </AreaChart>
     </ResponsiveContainer>
   );

@@ -18,7 +18,7 @@ interface FirefoxRestrictionStepProps {
 export const FirefoxRestrictionStep = memo<FirefoxRestrictionStepProps>(({ onClose }) => (
   <FadeTransition>
     <PageModalScrollViewWithActions
-      className="!px-0"
+      className="px-0!"
       actionsBoxProps={{
         shouldChangeBottomShift: false,
         children: (

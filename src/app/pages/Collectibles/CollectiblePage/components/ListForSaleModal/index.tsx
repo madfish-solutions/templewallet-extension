@@ -36,13 +36,13 @@ export const ListForSaleModal = memo<ListForSaleModalProps>(({ isOpen, onClose, 
 
   return (
     <ActionModal
-      className="outline-none"
+      className="outline-hidden"
       contentClassName="pt-5 pb-1 border-none"
       title={<T id="redirectingToObjkt" />}
       closeButtonTestID={ListForSaleModalSelectors.closeButton}
       onClose={onClose}
     >
-      <ActionModalBodyContainer className="!pt-0">
+      <ActionModalBodyContainer className="pt-0!">
         <p className="mt-1 text-font-description text-grey-1 text-center whitespace-pre-line">
           <T id="listForSaleRedirectDescription" />
         </p>

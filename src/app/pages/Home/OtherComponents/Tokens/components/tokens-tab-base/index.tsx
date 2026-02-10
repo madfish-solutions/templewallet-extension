@@ -77,7 +77,7 @@ const TokensTabBaseContent: FC<PropsWithChildren<TokensTabBaseContentProps>> = (
 
   if (accountIsInitialized === false && !isSyncingInitializedState && !isTestnet && !manageActive) {
     return (
-      <TokensTabBaseContentWrapper className="!pt-0">
+      <TokensTabBaseContentWrapper className="pt-0!">
         <UninitializedAccountContent />
       </TokensTabBaseContentWrapper>
     );

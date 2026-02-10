@@ -137,9 +137,9 @@ export const EVM_DEFAULT_WALLET_STORAGE_KEY = 'EVM_DEFAULT_WALLET';
 export const FEE_PER_GAS_UNIT = 0.1;
 export const RECOMMENDED_ADD_TEZ_GAS_FEE = 0.00015;
 
-export const SEND_ETH_GAS_LIMIT = BigInt(21000);
+export const SEND_ETH_GAS_LIMIT = 21000n;
 
-export const MAX_EVM_ALLOWANCE = BigInt(2) ** BigInt(256) - BigInt(1);
+export const MAX_EVM_ALLOWANCE = 2n ** 256n - 1n;
 
 export const LEDGER_USB_VENDOR_ID = '0x2c97';
 

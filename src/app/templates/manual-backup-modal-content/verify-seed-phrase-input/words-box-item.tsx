@@ -21,7 +21,7 @@ export const WordsBoxItem = memo<WordsBoxItemProps>(({ data, selected, onSelect,
 
   return (
     <StyledButton
-      className={clsx('flex-1 font-normal py-2', selected && '!text-grey-1')}
+      className={clsx('flex-1 font-normal py-2', selected && 'text-grey-1!')}
       color="secondary"
       disabled={selected}
       size="M"

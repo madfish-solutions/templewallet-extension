@@ -1,4 +1,4 @@
-import { useTypedSWR } from 'lib/swr';
+import { use } from 'react';
 
 const importLoadHypelabScriptModule = async () => {
   try {
@@ -12,13 +12,6 @@ const importLoadHypelabScriptModule = async () => {
   }
 };
 
-export const useLoadHypelabScriptModule = () => {
-  const { data } = useTypedSWR('app/load-hypelab-script/component', importLoadHypelabScriptModule, {
-    suspense: true,
-    revalidateOnFocus: false,
-    revalidateOnMount: true,
-    revalidateOnReconnect: false
-  });
+const importPromise = importLoadHypelabScriptModule();
 
-  return data;
-};
+export const useLoadHypelabScriptModule = () => use(importPromise);

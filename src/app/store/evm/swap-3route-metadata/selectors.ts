@@ -5,10 +5,10 @@ export const use3RouteEvmTokensMetadataRecordSelector = () =>
   useSelector(({ route3EvmTokensMetadata }) => route3EvmTokensMetadata.metadataRecord);
 
 export const use3RouteEvmChainTokensMetadataSelector = (chainId: number) =>
-  useSelector(({ route3EvmTokensMetadata }) => ({
-    metadata: route3EvmTokensMetadata.metadataRecord[chainId],
-    isLoading: route3EvmTokensMetadata.isLoading
-  }));
+  useSelector(({ route3EvmTokensMetadata }) => route3EvmTokensMetadata.metadataRecord[chainId]);
+
+export const use3RouteEvmChainTokensMetadataLoadingSelector = () =>
+  useSelector(({ route3EvmTokensMetadata }) => route3EvmTokensMetadata.isLoading);
 
 export const use3RouteEvmTokenMetadataSelector = (
   chainId: number,

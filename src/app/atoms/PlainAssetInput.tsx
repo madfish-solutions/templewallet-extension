@@ -4,7 +4,7 @@ import BigNumber from 'bignumber.js';
 
 import { useFocusHandlers } from 'lib/ui/hooks/use-focus-handlers';
 
-type PlainAssetInputProps = Omit<React.HTMLAttributes<HTMLInputElement>, 'onChange'> & {
+type PlainAssetInputProps = Omit<React.InputHTMLAttributes<HTMLInputElement>, 'onChange'> & {
   value?: number | string;
   min?: number;
   max?: number;

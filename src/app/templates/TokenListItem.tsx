@@ -1,4 +1,4 @@
-import React, { FC, ForwardedRef, forwardRef, memo, MouseEventHandler, useCallback } from 'react';
+import { FC, PropsWithChildren, Ref, memo, MouseEventHandler, useCallback } from 'react';
 
 import BigNumber from 'bignumber.js';
 import clsx from 'clsx';
@@ -43,7 +43,7 @@ import { toExploreAssetLink } from '../pages/Home/OtherComponents/Tokens/utils';
 
 const LIST_ITEM_CLASSNAME = clsx(
   'flex items-center gap-x-1 p-2 rounded-lg',
-  'transition ease-in-out duration-200 focus:outline-none'
+  'transition ease-in-out duration-200 focus:outline-hidden'
 );
 
 interface TezosTokenListItemProps {
@@ -59,89 +59,86 @@ interface TezosTokenListItemProps {
   showOnlyFavorites?: boolean;
   requiresVisibility?: boolean;
   onClick?: MouseEventHandler<TokenListItemElement>;
+  ref?: Ref<TokenListItemElement>;
 }
 
-export const TezosTokenListItem = memo(
-  forwardRef<TokenListItemElement, TezosTokenListItemProps>(
-    (
-      {
-        network,
-        index,
-        publicKeyHash,
-        assetSlug,
-        active,
-        scam,
-        manageActive = false,
-        requiresVisibility = true,
-        showTags = true,
-        showFavoritesMark = false,
-        showOnlyFavorites = false,
-        onClick
-      },
-      ref
-    ) => {
-      const {
-        value: balance = ZERO,
-        rawValue: rawBalance,
-        assetMetadata: metadata
-      } = useTezosAssetBalance(assetSlug, publicKeyHash, network);
-      const { chainId } = network;
+export const TezosTokenListItem = memo<TezosTokenListItemProps>(
+  ({
+    network,
+    index,
+    publicKeyHash,
+    assetSlug,
+    active,
+    scam,
+    manageActive = false,
+    requiresVisibility = true,
+    showTags = true,
+    showFavoritesMark = false,
+    showOnlyFavorites = false,
+    onClick,
+    ref
+  }) => {
+    const {
+      value: balance = ZERO,
+      rawValue: rawBalance,
+      assetMetadata: metadata
+    } = useTezosAssetBalance(assetSlug, publicKeyHash, network);
+    const { chainId } = network;
 
-      const storedToken = useStoredTezosTokenSelector(publicKeyHash, chainId, assetSlug);
+    const storedToken = useStoredTezosTokenSelector(publicKeyHash, chainId, assetSlug);
 
-      const checked = getAssetStatus(rawBalance, storedToken?.status, assetSlug) === 'enabled';
+    const checked = getAssetStatus(rawBalance, storedToken?.status, assetSlug) === 'enabled';
 
-      const assetSymbol = getAssetSymbol(metadata);
-      const assetName = getTokenName(metadata);
+    const assetSymbol = getAssetSymbol(metadata);
+    const assetName = getTokenName(metadata);
 
-      if (manageActive)
-        return (
-          <ManageTezosActiveListItemLayout
-            assetSlug={assetSlug}
-            assetSymbol={assetSymbol}
-            assetName={assetName}
-            className={clsx('focus:bg-secondary-low', scam ? 'hover:bg-error-low' : 'hover:bg-secondary-low')}
-            scam={scam}
-            checked={checked}
-            network={network}
-            index={index}
-            publicKeyHash={publicKeyHash}
-            onClick={onClick}
-            ref={ref}
-          />
-        );
-
+    if (manageActive)
       return (
-        <DefaultTezosListItemLayout
+        <ManageTezosActiveListItemLayout
           assetSlug={assetSlug}
+          assetSymbol={assetSymbol}
           assetName={assetName}
-          className={clsx(active && 'focus:bg-secondary-low', scam ? 'hover:bg-error-low' : 'hover:bg-secondary-low')}
+          className={clsx('focus:bg-secondary-low', scam ? 'hover:bg-error-low' : 'hover:bg-secondary-low')}
+          scam={scam}
+          checked={checked}
           network={network}
-          showFavoritesMark={showFavoritesMark}
-          showOnlyFavorites={showOnlyFavorites}
           index={index}
-          balance={balance}
+          publicKeyHash={publicKeyHash}
           onClick={onClick}
-          requiresVisibility={requiresVisibility}
           ref={ref}
-        >
-          <div className="flex items-center flex-grow gap-x-2 truncate">
-            <div className="text-font-medium truncate">{assetSymbol}</div>
-
-            {showTags && (
-              <TokenTag
-                network={network}
-                tezPkh={publicKeyHash}
-                assetSlug={assetSlug}
-                assetSymbol={assetSymbol}
-                scam={scam}
-              />
-            )}
-          </div>
-        </DefaultTezosListItemLayout>
+        />
       );
-    }
-  )
+
+    return (
+      <DefaultTezosListItemLayout
+        assetSlug={assetSlug}
+        assetName={assetName}
+        className={clsx(active && 'focus:bg-secondary-low', scam ? 'hover:bg-error-low' : 'hover:bg-secondary-low')}
+        network={network}
+        showFavoritesMark={showFavoritesMark}
+        showOnlyFavorites={showOnlyFavorites}
+        index={index}
+        balance={balance}
+        onClick={onClick}
+        requiresVisibility={requiresVisibility}
+        ref={ref}
+      >
+        <div className="flex items-center flex-grow gap-x-2 truncate">
+          <div className="text-font-medium truncate">{assetSymbol}</div>
+
+          {showTags && (
+            <TokenTag
+              network={network}
+              tezPkh={publicKeyHash}
+              assetSlug={assetSlug}
+              assetSymbol={assetSymbol}
+              scam={scam}
+            />
+          )}
+        </div>
+      </DefaultTezosListItemLayout>
+    );
+  }
 );
 
 interface EvmTokenListItemProps {
@@ -155,82 +152,79 @@ interface EvmTokenListItemProps {
   showOnlyFavorites?: boolean;
   onClick?: MouseEventHandler<TokenListItemElement>;
   requiresVisibility?: boolean;
+  ref?: Ref<TokenListItemElement>;
 }
 
-export const EvmTokenListItem = memo(
-  forwardRef<TokenListItemElement, EvmTokenListItemProps>(
-    (
-      {
-        network,
-        index,
-        publicKeyHash,
-        assetSlug,
-        manageActive = false,
-        requiresVisibility = true,
-        showTags = false,
-        showFavoritesMark = false,
-        showOnlyFavorites = false,
-        onClick
-      },
-      ref
-    ) => {
-      const { chainId } = network;
-      const lifiTokenMetadata = useLifiEvmTokenMetadataSelector(chainId, assetSlug);
-      const route3EvmTokenMetadata = use3RouteEvmTokenMetadataSelector(chainId, assetSlug);
-      const dexTokenMetadata = lifiTokenMetadata ?? route3EvmTokenMetadata;
+export const EvmTokenListItem = memo<EvmTokenListItemProps>(
+  ({
+    network,
+    index,
+    publicKeyHash,
+    assetSlug,
+    manageActive = false,
+    requiresVisibility = true,
+    showTags = false,
+    showFavoritesMark = false,
+    showOnlyFavorites = false,
+    onClick,
+    ref
+  }) => {
+    const { chainId } = network;
+    const lifiTokenMetadata = useLifiEvmTokenMetadataSelector(chainId, assetSlug);
+    const route3EvmTokenMetadata = use3RouteEvmTokenMetadataSelector(chainId, assetSlug);
+    const dexTokenMetadata = lifiTokenMetadata ?? route3EvmTokenMetadata;
 
-      const {
-        value: balance = ZERO,
-        rawValue: rawBalance,
-        metadata
-      } = useEvmTokenBalance(assetSlug, publicKeyHash, network);
-      const storedToken = useStoredEvmTokenSelector(publicKeyHash, chainId, assetSlug);
+    const {
+      value: balance = ZERO,
+      rawValue: rawBalance,
+      metadata
+    } = useEvmTokenBalance(assetSlug, publicKeyHash, network);
+    const storedToken = useStoredEvmTokenSelector(publicKeyHash, chainId, assetSlug);
 
-      const checked = getAssetStatus(rawBalance, storedToken?.status) === 'enabled';
+    const checked = getAssetStatus(rawBalance, storedToken?.status) === 'enabled';
 
-      if (metadata == null && dexTokenMetadata == null) return null;
+    if (metadata == null && dexTokenMetadata == null) return null;
 
-      const assetSymbol = getAssetSymbol(metadata?.decimals ? metadata : dexTokenMetadata);
-      const assetName = getTokenName(metadata?.decimals ? metadata : dexTokenMetadata);
+    const assetSymbol = getAssetSymbol(metadata?.decimals ? metadata : dexTokenMetadata);
+    const assetName = getTokenName(metadata?.decimals ? metadata : dexTokenMetadata);
 
-      if (manageActive)
-        return (
-          <ManageEvmActiveListItemLayout
-            assetSlug={assetSlug}
-            assetSymbol={assetSymbol}
-            assetName={assetName}
-            className="focus:bg-secondary-low, hover:bg-secondary-low"
-            checked={checked}
-            network={network}
-            index={index}
-            publicKeyHash={publicKeyHash}
-            onClick={onClick}
-            ref={ref}
-          />
-        );
-
+    if (manageActive)
       return (
-        <DefaultEvmListItemLayout
+        <ManageEvmActiveListItemLayout
           assetSlug={assetSlug}
+          assetSymbol={assetSymbol}
           assetName={assetName}
           className="focus:bg-secondary-low, hover:bg-secondary-low"
+          checked={checked}
           network={network}
-          showFavoritesMark={showFavoritesMark}
-          showOnlyFavorites={showOnlyFavorites}
           index={index}
-          balance={balance}
+          publicKeyHash={publicKeyHash}
           onClick={onClick}
-          requiresVisibility={requiresVisibility}
           ref={ref}
-        >
-          <div className={clsx('flex items-center flex-grow gap-x-2', balance.lt(ASSET_HUGE_AMOUNT) && 'truncate')}>
-            <div className="text-font-medium truncate">{assetSymbol}</div>
-            {showTags && <EvmIncentiveTag chainId={chainId} assetSlug={assetSlug} symbol={assetSymbol} />}
-          </div>
-        </DefaultEvmListItemLayout>
+        />
       );
-    }
-  )
+
+    return (
+      <DefaultEvmListItemLayout
+        assetSlug={assetSlug}
+        assetName={assetName}
+        className="focus:bg-secondary-low, hover:bg-secondary-low"
+        network={network}
+        showFavoritesMark={showFavoritesMark}
+        showOnlyFavorites={showOnlyFavorites}
+        index={index}
+        balance={balance}
+        onClick={onClick}
+        requiresVisibility={requiresVisibility}
+        ref={ref}
+      >
+        <div className={clsx('flex items-center flex-grow gap-x-2', balance.lt(ASSET_HUGE_AMOUNT) && 'truncate')}>
+          <div className="text-font-medium truncate">{assetSymbol}</div>
+          {showTags && <EvmIncentiveTag chainId={chainId} assetSlug={assetSlug} symbol={assetSymbol} />}
+        </div>
+      </DefaultEvmListItemLayout>
+    );
+  }
 );
 
 interface ManageActiveListItemLayoutProps<T extends TempleChainKind> {
@@ -244,6 +238,7 @@ interface ManageActiveListItemLayoutProps<T extends TempleChainKind> {
   index?: number;
   publicKeyHash: PublicKeyHash<T>;
   onClick?: MouseEventHandler<TokenListItemElement>;
+  ref?: Ref<TokenListItemElement>;
 }
 
 const UNMANAGABLE_TOKENS_SLUGS = {
@@ -262,89 +257,77 @@ const ManageActiveListItemLayoutHOC = <T extends TempleChainKind>(
   ) => void,
   deleteItem: (assetSlug: string, chainId: ChainId<T>, publicKeyHash: PublicKeyHash<T>) => void
 ) =>
-  memo(
-    forwardRef<TokenListItemElement, ManageActiveListItemLayoutProps<T>>(
-      (
-        { assetSlug, assetSymbol, assetName, className, scam, checked, network, index, publicKeyHash, onClick },
-        ref
-      ) => {
-        const { chainId } = network;
-        const [deleteModalOpened, setDeleteModalOpened, setDeleteModalClosed] = useBooleanState(false);
-        const isUnmanageable = UNMANAGABLE_TOKENS_SLUGS[networkKind].includes(assetSlug);
-        const isVisible = useIsItemVisible(index);
+  memo<ManageActiveListItemLayoutProps<T>>(
+    ({ assetSlug, assetSymbol, assetName, className, scam, checked, network, index, publicKeyHash, onClick, ref }) => {
+      const { chainId } = network;
+      const [deleteModalOpened, setDeleteModalOpened, setDeleteModalClosed] = useBooleanState(false);
+      const isUnmanageable = UNMANAGABLE_TOKENS_SLUGS[networkKind].includes(assetSlug);
+      const isVisible = useIsItemVisible(index);
 
-        const handleTokenStatusSwitch = useCallback(
-          () => toggleTokenStatus(checked ? 'disabled' : 'enabled', assetSlug, chainId, publicKeyHash),
-          [assetSlug, checked, chainId, publicKeyHash]
-        );
+      const handleTokenStatusSwitch = useCallback(
+        () => toggleTokenStatus(checked ? 'disabled' : 'enabled', assetSlug, chainId, publicKeyHash),
+        [assetSlug, checked, chainId, publicKeyHash]
+      );
 
-        const handleDeleteClick = useCallback(
-          () => deleteItem(assetSlug, chainId, publicKeyHash),
-          [assetSlug, chainId, publicKeyHash]
-        );
+      const handleDeleteClick = useCallback(
+        () => deleteItem(assetSlug, chainId, publicKeyHash),
+        [assetSlug, chainId, publicKeyHash]
+      );
 
-        return (
-          <>
-            <div
-              className={clsx(LIST_ITEM_CLASSNAME, className)}
-              onClick={onClick}
-              ref={ref as ForwardedRef<HTMLDivElement>}
-            >
-              {isVisible ? (
-                <>
-                  <AssetIconWithNetwork chainId={chainId} assetSlug={assetSlug} className="shrink-0" />
+      return (
+        <>
+          <div className={clsx(LIST_ITEM_CLASSNAME, className)} onClick={onClick} ref={ref as Ref<HTMLDivElement>}>
+            {isVisible ? (
+              <>
+                <AssetIconWithNetwork chainId={chainId} assetSlug={assetSlug} className="shrink-0" />
 
-                  <div className="flex-grow flex gap-x-2 items-center overflow-hidden">
-                    <div className="flex-grow flex flex-col gap-y-1 overflow-hidden">
-                      <div className="flex items-center gap-0.5">
-                        <div className="text-font-medium truncate">{assetSymbol}</div>
-                        {scam && <ScamTag />}
-                      </div>
-
-                      <div className="text-font-description items-center text-grey-1 truncate">{assetName}</div>
+                <div className="flex-grow flex gap-x-2 items-center overflow-hidden">
+                  <div className="flex-grow flex flex-col gap-y-1 overflow-hidden">
+                    <div className="flex items-center gap-0.5">
+                      <div className="text-font-medium truncate">{assetSymbol}</div>
+                      {scam && <ScamTag />}
                     </div>
 
-                    <IconBase
-                      Icon={DeleteIcon}
-                      className={clsx('shrink-0', isUnmanageable ? 'text-disable' : 'cursor-pointer text-error')}
-                      onClick={isUnmanageable ? undefined : setDeleteModalOpened}
-                    />
-
-                    <ToggleSwitch
-                      checked={isUnmanageable ? true : checked}
-                      disabled={isUnmanageable}
-                      onChange={handleTokenStatusSwitch}
-                    />
-                  </div>
-                </>
-              ) : (
-                <>
-                  <div className="flex items-center justify-center relative shrink-0" style={{ width: 40, height: 40 }}>
-                    <div className="rounded-full bg-grey-3" style={{ width: 30, height: 30 }} />
-                    <div
-                      className="absolute bottom-0 right-0 rounded-full bg-grey-3"
-                      style={{ width: 16, height: 16 }}
-                    />
+                    <div className="text-font-description items-center text-grey-1 truncate">{assetName}</div>
                   </div>
 
-                  <div className="flex-grow flex gap-x-2 items-center overflow-hidden">
-                    <div className="flex-grow flex flex-col gap-y-1 overflow-hidden">
-                      <div className="w-10 h-5 bg-grey-3 rounded" />
-                      <div className="w-20 h-4 bg-grey-3 rounded" />
-                    </div>
+                  <IconBase
+                    Icon={DeleteIcon}
+                    className={clsx('shrink-0', isUnmanageable ? 'text-disable' : 'cursor-pointer text-error')}
+                    onClick={isUnmanageable ? undefined : setDeleteModalOpened}
+                  />
 
-                    <div className="size-6 bg-grey-3 rounded" />
-                    <div className="w-12 h-6 bg-grey-3 rounded" />
+                  <ToggleSwitch
+                    checked={isUnmanageable ? true : checked}
+                    disabled={isUnmanageable}
+                    onChange={handleTokenStatusSwitch}
+                  />
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="flex items-center justify-center relative shrink-0" style={{ width: 40, height: 40 }}>
+                  <div className="rounded-full bg-grey-3" style={{ width: 30, height: 30 }} />
+                  <div className="absolute bottom-0 right-0 rounded-full bg-grey-3" style={{ width: 16, height: 16 }} />
+                </div>
+
+                <div className="flex-grow flex gap-x-2 items-center overflow-hidden">
+                  <div className="flex-grow flex flex-col gap-y-1 overflow-hidden">
+                    <div className="w-10 h-5 bg-grey-3 rounded-sm" />
+                    <div className="w-20 h-4 bg-grey-3 rounded-sm" />
                   </div>
-                </>
-              )}
-            </div>
 
-            {deleteModalOpened && <DeleteAssetModal onClose={setDeleteModalClosed} onDelete={handleDeleteClick} />}
-          </>
-        );
-      }
-    )
+                  <div className="size-6 bg-grey-3 rounded-sm" />
+                  <div className="w-12 h-6 bg-grey-3 rounded-sm" />
+                </div>
+              </>
+            )}
+          </div>
+
+          {deleteModalOpened && <DeleteAssetModal onClose={setDeleteModalClosed} onDelete={handleDeleteClick} />}
+        </>
+      );
+    }
   );
 const ManageTezosActiveListItemLayout = ManageActiveListItemLayoutHOC<TempleChainKind.Tezos>(
   TempleChainKind.Tezos,
@@ -370,6 +353,7 @@ interface DefaultListItemLayoutProps<T extends TempleChainKind> {
   requiresVisibility?: boolean;
   showFavoritesMark?: boolean;
   showOnlyFavorites: boolean;
+  ref?: Ref<TokenListItemElement>;
 }
 
 const DefaultListItemLayoutHOC = <T extends TempleChainKind>(
@@ -380,23 +364,21 @@ const DefaultListItemLayoutHOC = <T extends TempleChainKind>(
     className?: string;
   }>
 ) =>
-  forwardRef<TokenListItemElement, PropsWithChildren<DefaultListItemLayoutProps<T>>>(
-    (
-      {
-        children,
-        assetSlug,
-        assetName,
-        className,
-        network,
-        index,
-        balance,
-        onClick,
-        requiresVisibility,
-        showFavoritesMark,
-        showOnlyFavorites
-      },
+  memo<PropsWithChildren<DefaultListItemLayoutProps<T>>>(
+    ({
+      children,
+      assetSlug,
+      assetName,
+      className,
+      network,
+      index,
+      balance,
+      onClick,
+      requiresVisibility,
+      showFavoritesMark,
+      showOnlyFavorites,
       ref
-    ) => {
+    }) => {
       const { chainId } = network;
       const isVisible = useIsItemVisible(index);
       const visible = !requiresVisibility || isVisible;
@@ -427,7 +409,7 @@ const DefaultListItemLayoutHOC = <T extends TempleChainKind>(
           onClick={onClick}
           testID={AssetsSelectors.assetItemButton}
           testIDProperties={{ key: `${assetSlug}-${chainId}` }}
-          ref={ref as ForwardedRef<HTMLAnchorElement>}
+          ref={ref as Ref<HTMLAnchorElement>}
           {...setAnotherSelector('name', assetName)}
         >
           {visible ? (
@@ -478,13 +460,13 @@ const DefaultListItemLayoutHOC = <T extends TempleChainKind>(
 
               <div className="flex-grow flex flex-col gap-y-1 overflow-hidden">
                 <div className="flex justify-between gap-x-4">
-                  <div className="w-10 h-5 bg-grey-3 rounded" />
-                  <div className="w-20 h-5 bg-grey-3 rounded" />
+                  <div className="w-10 h-5 bg-grey-3 rounded-sm" />
+                  <div className="w-20 h-5 bg-grey-3 rounded-sm" />
                 </div>
 
                 <div className="flex justify-between gap-x-4">
-                  <div className="w-20 h-4 bg-grey-3 rounded" />
-                  <div className="w-10 h-4 bg-grey-3 rounded" />
+                  <div className="w-20 h-4 bg-grey-3 rounded-sm" />
+                  <div className="w-10 h-4 bg-grey-3 rounded-sm" />
                 </div>
               </div>
             </>
@@ -493,6 +475,7 @@ const DefaultListItemLayoutHOC = <T extends TempleChainKind>(
       );
     }
   );
+
 const DefaultTezosListItemLayout = DefaultListItemLayoutHOC<TempleChainKind.Tezos>(
   TempleChainKind.Tezos,
   ({ chainId, ...restProps }) => <TezosAssetIconWithNetwork tezosChainId={chainId} {...restProps} />

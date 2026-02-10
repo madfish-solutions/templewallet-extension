@@ -1,30 +1,31 @@
-import React, {
+import {
   memo,
   ReactElement,
-  RefObject,
+  CSSProperties,
   useCallback,
   useEffect,
   useLayoutEffect,
   useMemo,
   useRef,
-  useState
+  useState,
+  Ref
 } from 'react';
 
 import { Instance, Options, createPopper } from '@popperjs/core';
-import useOnClickOutside from 'use-onclickoutside';
 
+import useOnClickOutside from 'lib/ui/hooks/useOnClickOutside';
 import Portal from 'lib/ui/Portal';
 import { isTruthy } from 'lib/utils';
 
 export interface PopperRenderProps {
   opened: boolean;
   setOpened: ReactSetStateFn<boolean>;
-  toggleOpened: () => void;
+  toggleOpened: EmptyFn;
 }
 type RenderProp<P> = (props: P) => ReactElement;
 
 export interface PopperAnchorProps extends PopperRenderProps {
-  ref: RefObject<HTMLButtonElement>;
+  ref: Ref<HTMLButtonElement>;
 }
 
 type PopperPopup = RenderProp<PopperRenderProps>;
@@ -34,11 +35,11 @@ type PopperProps = Partial<Options> & {
   popup: PopperPopup;
   children: PopperChildren;
   fallbackPlacementsEnabled?: boolean;
-  style?: React.CSSProperties;
+  style?: CSSProperties;
 };
 
 const Popper = memo<PopperProps>(({ popup, children, fallbackPlacementsEnabled = true, style, ...popperOptions }) => {
-  const popperRef = useRef<Instance>();
+  const popperRef = useRef<Instance>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const popupRef = useRef<HTMLDivElement>(null);
 
@@ -52,8 +53,7 @@ const Popper = memo<PopperProps>(({ popup, children, fallbackPlacementsEnabled =
     popupRef,
     opened
       ? evt => {
-          // @ts-expect-error
-          if (!(triggerRef.current && triggerRef.current.contains(evt.target))) {
+          if (!(triggerRef.current && triggerRef.current.contains(evt.target as Node))) {
             setOpened(false);
           }
         }

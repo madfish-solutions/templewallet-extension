@@ -57,7 +57,7 @@ export const ReactivateAdsOverlay = memo<Props>(({ onClose }) => {
     return null;
 
   return (
-    <div className="fixed inset-0 z-overlay-promo flex flex-col items-center justify-center bg-gray-700 bg-opacity-20">
+    <div className="fixed inset-0 z-overlay-promo flex flex-col items-center justify-center bg-gray-700/20">
       <div className={clsx('w-full max-w-screen-sm mx-auto overflow-y-scroll py-4', fullPage ? 'px-5' : 'h-full px-4')}>
         <div
           className={clsx(

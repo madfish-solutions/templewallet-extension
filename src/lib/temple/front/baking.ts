@@ -68,7 +68,7 @@ export function useDelegate(
         },
         { retries: 3, minTimeout: 3000, maxTimeout: 5000 }
       );
-    } catch (e) {
+    } catch {
       if (shouldPreventErrorPropagation) {
         return null;
       }

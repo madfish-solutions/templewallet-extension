@@ -45,13 +45,13 @@ export const LetsExchangeModal = memo<LetsExchangeModalProps>(({ onClose, onShow
 
   return (
     <ActionModal
-      className="outline-none"
+      className="outline-hidden"
       contentClassName="pt-5 pb-1 border-none"
       title="LetsExchange in Dapps!"
       closeButtonTestID={LetsExchangeModalSelectors.closeButton}
       onClose={onClose}
     >
-      <ActionModalBodyContainer className="!pt-0">
+      <ActionModalBodyContainer className="pt-0!">
         <div
           className="relative rounded-2xl my-2"
           style={{ background: 'radial-gradient(50% 50% at 50% 50%, #E7F1FC 0%, #F4F4F4 100%)', height: '8.75rem' }}

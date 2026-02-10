@@ -58,8 +58,8 @@ const Money = memo<MoneyProps>(
     const indexOfDecimal = result.indexOf(decimal) === -1 ? result.indexOf('.') : result.indexOf(decimal);
 
     const tippyClassName = clsx(
-      'px-px -mr-px rounded truncate',
-      tooltip && 'cursor-pointer hover:bg-black hover:bg-opacity-5 transition ease-in-out duration-200'
+      'px-px -mr-px rounded-sm truncate',
+      tooltip && 'cursor-pointer hover:bg-black/5 transition ease-in-out duration-200'
     );
 
     if (indexOfDecimal === -1) {

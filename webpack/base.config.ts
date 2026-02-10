@@ -6,7 +6,6 @@
 import ESLintPlugin from 'eslint-webpack-plugin';
 import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 import * as path from 'path';
-import postcssPresetEnv from 'postcss-preset-env';
 import ForkTsCheckerWebpackPlugin from 'react-dev-utils/ForkTsCheckerWebpackPlugin';
 import getCSSModuleLocalIdent from 'react-dev-utils/getCSSModuleLocalIdent';
 import ModuleNotFoundPlugin from 'react-dev-utils/ModuleNotFoundPlugin';
@@ -366,15 +365,7 @@ function getStyleLoaders(module = false) {
         sourceMap: SOURCE_MAP,
         postcssOptions: {
           ident: 'postcss',
-          plugins: [
-            require('postcss-flexbugs-fixes'),
-            postcssPresetEnv({
-              autoprefixer: {},
-              stage: 3
-            }),
-            require('tailwindcss'),
-            require('autoprefixer')
-          ]
+          plugins: [require('postcss-flexbugs-fixes'), require('@tailwindcss/postcss')]
         }
       }
     }

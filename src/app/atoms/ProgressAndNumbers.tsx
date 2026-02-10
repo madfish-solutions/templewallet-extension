@@ -11,9 +11,9 @@ export const ProgressAndNumbers = memo<ProgressAndNumbersProps>(({ progress, tot
       <p className="text-center text-font-num-bold-14 text-grey-1">
         {progress}/{total}
       </p>
-      <div className="relative w-12 h-1 bg-lines rounded-sm">
+      <div className="relative w-12 h-1 bg-lines rounded-xs">
         <div
-          className="absolute top-0 left-0 h-full bg-black rounded-sm"
+          className="absolute top-0 left-0 h-full bg-black rounded-xs"
           style={{ width: `${(progress / total) * 100}%` }}
         />
       </div>
