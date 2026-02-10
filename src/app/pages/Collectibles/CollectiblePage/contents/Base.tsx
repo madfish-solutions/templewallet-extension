@@ -20,6 +20,8 @@ interface CollectiblePageLayoutProps {
   collectibleName: string;
   collectionDetailsElement: ReactNode;
   onSend: EmptyFn;
+  onListForSale?: EmptyFn;
+  listForSaleTestIDProperties?: object;
   description?: string | null;
   showSegmentControl?: boolean;
   detailsElement: ReactNode;
@@ -35,6 +37,8 @@ export const BaseContent: FC<CollectiblePageLayoutProps> = ({
   collectibleName,
   collectionDetailsElement,
   onSend,
+  onListForSale,
+  listForSaleTestIDProperties,
   description,
   showSegmentControl,
   detailsElement,
@@ -46,6 +50,8 @@ export const BaseContent: FC<CollectiblePageLayoutProps> = ({
   const [tab, setTab] = useState<'details' | 'attributes'>('details');
   const detailsTabRef = useRef<HTMLDivElement>(null);
   const attributesTabRef = useRef<HTMLDivElement>(null);
+
+  const isWatchOnlyAccount = account.type === TempleAccountType.WatchOnly;
 
   return (
     <PageLayout headerRightElem={headerRightElement}>
@@ -70,16 +76,31 @@ export const BaseContent: FC<CollectiblePageLayoutProps> = ({
         <>
           {collectionDetailsElement}
 
-          <StyledButton
-            size="L"
-            color="primary"
-            onClick={onSend}
-            testID={CollectiblesSelectors.sendButton}
-            className="my-6"
-            disabled={account.type === TempleAccountType.WatchOnly}
-          >
-            <T id="send" />
-          </StyledButton>
+          <div className="flex gap-2 my-6 w-full">
+            <StyledButton
+              size="L"
+              color="primary"
+              onClick={onSend}
+              testID={CollectiblesSelectors.sendButton}
+              className="flex-1"
+              disabled={isWatchOnlyAccount}
+            >
+              <T id="send" />
+            </StyledButton>
+            {onListForSale && (
+              <StyledButton
+                size="L"
+                color="primary-low"
+                onClick={onListForSale}
+                testID={CollectiblesSelectors.listForSaleButton}
+                testIDProperties={listForSaleTestIDProperties}
+                className="flex-1"
+                disabled={isWatchOnlyAccount}
+              >
+                <T id="listForSale" />
+              </StyledButton>
+            )}
+          </div>
 
           <Description text={description} className="mb-6" />
 

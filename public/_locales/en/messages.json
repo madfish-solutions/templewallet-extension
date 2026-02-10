@@ -1574,6 +1574,12 @@
   "producerInputDescription": {
     "message": "Address of a registered producer."
   },
+  "delegationNotAvailableTitle": {
+    "message": "Delegation is not available"
+  },
+  "delegationNotAvailableDescription": {
+    "message": "This baker doesn’t offer rewards for delegation. If you want to earn delegation rewards, please choose a different baker."
+  },
   "minDelegationBalanceTitle": {
     "message": "Minimal delegation balance"
   },
@@ -2242,6 +2248,21 @@
   },
   "fiatCurrency": {
     "message": "Default Currency"
+  },
+  "defaultEvmWallet": {
+    "message": "Default EVM Wallet"
+  },
+  "evmDefaultWalletAlwaysAsk": {
+    "message": "Always Ask"
+  },
+  "evmDefaultWalletAlwaysAskDescription": {
+    "message": "Choose wallet when connecting to DApp"
+  },
+  "evmDefaultWalletOther": {
+    "message": "Other (e.g., MetaMask)"
+  },
+  "evmDefaultWalletOtherDescription": {
+    "message": "Disable DApp connect to Temple if option isn't available"
   },
   "generalSettings": {
     "message": "General"
@@ -4945,5 +4966,20 @@
         "content": "$1"
       }
     }
+  },
+  "listForSale": {
+    "message": "List for sale"
+  },
+  "redirectingToObjkt": {
+    "message": "Redirecting to objkt.com"
+  },
+  "listForSaleRedirectDescription": {
+    "message": "You'll finish your listing on the marketplace. Would you prefer to do this directly in Temple Wallet?"
+  },
+  "goToMarketplace": {
+    "message": "Go to marketplace"
+  },
+  "redirectButListInWallet": {
+    "message": "Redirect me, but I'd like list in-wallet"
   }
 }

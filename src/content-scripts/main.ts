@@ -7,15 +7,17 @@ import {
   APP_TITLE,
   ContentScriptType,
   DISCONNECT_DAPP_MSG_TYPE,
+  EVM_DEFAULT_WALLET_STORAGE_KEY,
   PASS_TO_BG_EVENT,
   RESPONSE_FROM_BG_MSG_TYPE,
   SWITCH_EVM_ACCOUNT_MSG_TYPE,
   SWITCH_CHAIN_MSG_TYPE,
+  TEMPLE_SET_DEFAULT_PROVIDER_MSG_TYPE,
   TEMPLE_SWITCH_PROVIDER_EVENT,
   WEBSITES_ANALYTICS_ENABLED
 } from 'lib/constants';
 import { serealizeError } from 'lib/intercom/helpers';
-import { TempleMessageType, TempleNotification, TempleResponse } from 'lib/temple/types';
+import { EvmDefaultWallet, TempleMessageType, TempleNotification, TempleResponse } from 'lib/temple/types';
 import type { PassToBgEventDetail } from 'temple/evm/web3-provider';
 import { TempleChainKind } from 'temple/types';
 
@@ -145,6 +147,10 @@ getIntercom().subscribe((msg?: TempleNotification) => {
           document.dispatchEvent(evt);
         } catch {}
       }
+      break;
+    case TempleMessageType.TempleEvmDefaultWalletChanged:
+      const templeOnWindowEthereum = msg.evmDefaultWallet !== EvmDefaultWallet.Other;
+      window.postMessage({ type: TEMPLE_SET_DEFAULT_PROVIDER_MSG_TYPE, templeOnWindowEthereum }, window.origin);
       break;
   }
 });
@@ -325,3 +331,9 @@ setInterval(async () => {
   }
   beaconWasConnected = isConnected;
 }, TRACK_BEACON_DISCONNECTION_INTERVAL);
+
+browser.storage.local.get(EVM_DEFAULT_WALLET_STORAGE_KEY).then(storage => {
+  const setting = storage[EVM_DEFAULT_WALLET_STORAGE_KEY];
+  const templeOnWindowEthereum = setting !== EvmDefaultWallet.Other;
+  window.postMessage({ type: TEMPLE_SET_DEFAULT_PROVIDER_MSG_TYPE, templeOnWindowEthereum }, window.origin);
+});

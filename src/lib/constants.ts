@@ -130,6 +130,10 @@ export const SWITCH_CHAIN_MSG_TYPE = 'templeSwitchChain';
 
 export const TEMPLE_SWITCH_PROVIDER_EVENT = 'templeSwitchProvider';
 
+export const TEMPLE_SET_DEFAULT_PROVIDER_MSG_TYPE = 'templeSetDefaultProvider';
+
+export const EVM_DEFAULT_WALLET_STORAGE_KEY = 'EVM_DEFAULT_WALLET';
+
 export const FEE_PER_GAS_UNIT = 0.1;
 export const RECOMMENDED_ADD_TEZ_GAS_FEE = 0.00015;
 

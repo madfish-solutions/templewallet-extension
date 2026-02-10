@@ -130,7 +130,7 @@ export const EarnDepositStatsLayout: FC<EarnDepositStatsLayoutProps> = ({
         to="/earn"
         className={clsx(
           'relative -mb-[68px] px-4 transform transition-transform duration-200 ease-out',
-          hasDeposits && 'peer-hover:translate-y-2'
+          hasDeposits && '[&_*]:cursor-pointer peer-hover:translate-y-2'
         )}
         onMouseEnter={handleHover}
         onMouseLeave={handleUnhover}

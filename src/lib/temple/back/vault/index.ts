@@ -37,6 +37,7 @@ import {
 import * as Passworder from 'lib/temple/passworder';
 import { clearAsyncStorages } from 'lib/temple/reset';
 import {
+  EvmDefaultWallet,
   SaveLedgerAccountInput,
   StoredAccount,
   TempleAccountType,
@@ -95,8 +96,10 @@ import {
 } from './storage-keys';
 
 const TEMPLE_SYNC_PREFIX = 'templesync';
-const DEFAULT_SETTINGS: TempleSettings = {};
 const libthemisWasmSrc = '/wasm/libthemis.wasm';
+const DEFAULT_SETTINGS: TempleSettings = {
+  evmDefaultWallet: EvmDefaultWallet.AlwaysAsk
+};
 
 interface RemoveAccountEventPayload {
   tezosAddress?: string;
