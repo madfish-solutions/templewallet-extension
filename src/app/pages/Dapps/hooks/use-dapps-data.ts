@@ -14,7 +14,7 @@ export const useDappsData = () => {
     if (!data || isLoading) return { dApps: [], isLoading };
 
     const processedDApps = data.dApps.map(({ categories: rawCategories, ...restProps }) => {
-      const categories = rawCategories.filter(name => name !== DappEnum.Other);
+      const categories: DappEnum[] = rawCategories.filter(name => name !== DappEnum.Other);
       if (categories.length !== rawCategories.length) {
         categories.push(DappEnum.Other);
       }

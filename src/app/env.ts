@@ -25,8 +25,8 @@ export const [AppEnvProvider, useAppEnv] = constate((env: AppEnvironment) => {
   const sidebar = env.windowType === WindowType.Sidebar;
   const confirmWindow = env.confirmWindow ?? false;
 
-  const handlerRef = useRef<BackHandler>();
-  const prevHandlerRef = useRef<BackHandler>();
+  const handlerRef = useRef<BackHandler>(null);
+  const prevHandlerRef = useRef<BackHandler>(null);
 
   const onBack = useCallback(() => {
     if (handlerRef.current) {

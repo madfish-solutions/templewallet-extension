@@ -197,7 +197,7 @@ export const EditAddContact = memo<Props>(({ contact, opened, onRequestClose }) 
               <StyledButton
                 size="S"
                 color="red-low"
-                className="!bg-transparent flex items-center !px-0 py-1 gap-0.5"
+                className="bg-transparent! flex items-center px-0! py-1 gap-0.5"
                 onClick={setDeleteModalOpened}
               >
                 <T id="delete" />

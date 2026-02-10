@@ -14,14 +14,14 @@ const CustomModal: FC<CustomModalProps> = props => {
       appElement={document.getElementById('root')!}
       closeTimeoutMS={200}
       className={{
-        base: clsx('bg-background rounded z-30 shadow-2xl opacity-0', className),
+        base: clsx('bg-background rounded-sm z-30 shadow-2xl opacity-0', className),
         afterOpen: 'opacity-100 transition ease-out duration-300',
         beforeClose: ''
       }}
       overlayClassName={{
         base: clsx(
           'fixed inset-0 z-modal-page p-4',
-          'bg-black bg-opacity-15 opacity-0',
+          'bg-black/15 opacity-0',
           'flex items-center justify-center',
           overlayClassName
         ),

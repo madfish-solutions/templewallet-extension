@@ -154,7 +154,7 @@ export const getSig = (signature: string, curve: any, prefNames: any) => {
 export const safeSignEdData = (sig: Uint8Array, bytesHash: Uint8Array, _publicKey: any) => {
   try {
     return crypto_sign_verify_detached(sig, bytesHash, _publicKey);
-  } catch (e) {
+  } catch {
     return false;
   }
 };
@@ -167,7 +167,7 @@ export const safeSignSpData = (sig: Uint8Array, bytesHash: Uint8Array, _publicKe
     try {
       const [r, s] = match;
       return key.verify(bytesHash, { r, s });
-    } catch (e) {
+    } catch {
       return false;
     }
   }
@@ -182,7 +182,7 @@ export const safeSignP2Data = (sig: Uint8Array, bytesHash: Uint8Array, _publicKe
     try {
       const [r, s] = match;
       return key.verify(bytesHash, { r, s });
-    } catch (e) {
+    } catch {
       return false;
     }
   }

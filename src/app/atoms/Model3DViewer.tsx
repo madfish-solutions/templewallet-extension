@@ -9,7 +9,7 @@ import ModelViewerElementBase from '@google/model-viewer/lib/model-viewer-base';
 import { emptyFn } from '@rnw-community/shared';
 import clsx from 'clsx';
 
-declare global {
+declare module 'react/jsx-runtime' {
   namespace JSX {
     interface IntrinsicElements {
       'model-viewer': React.DetailedHTMLProps<

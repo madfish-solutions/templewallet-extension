@@ -1,5 +1,5 @@
 import { devToolsEnhancer } from '@redux-devtools/remote';
-import { Action, configureStore } from '@reduxjs/toolkit';
+import { type Action, configureStore } from '@reduxjs/toolkit';
 import { persistReducer, persistStore, createMigrate } from 'redux-persist';
 import autoMergeLevel2 from 'redux-persist/lib/stateReconciler/autoMergeLevel2';
 
@@ -59,20 +59,21 @@ const store = configureStore({
     return defMiddleware.concat(epicMiddleware);
   },
   devTools: false,
-  enhancers: REDUX_DEVTOOLS_PORT
-    ? [
-        // See: https://github.com/zalmoxisus/remote-redux-devtools?tab=readme-ov-file#parameters
-        devToolsEnhancer<RootState, Action>({
-          realtime: true,
-          port: Number(REDUX_DEVTOOLS_PORT),
-          // See: https://github.com/reduxjs/redux-devtools/issues/496#issuecomment-670246737
-          stateSanitizer: state => ({
-            ...state,
-            collectiblesMetadata: sanitizeCollectiblesMetadataForDevTools(state.collectiblesMetadata)
+  enhancers: getDefaultEnhancers =>
+    REDUX_DEVTOOLS_PORT
+      ? getDefaultEnhancers().concat(
+          // See: https://github.com/zalmoxisus/remote-redux-devtools?tab=readme-ov-file#parameters
+          devToolsEnhancer<RootState, Action, RootState>({
+            realtime: true,
+            port: Number(REDUX_DEVTOOLS_PORT),
+            // See: https://github.com/reduxjs/redux-devtools/issues/496#issuecomment-670246737
+            stateSanitizer: state => ({
+              ...state,
+              collectiblesMetadata: sanitizeCollectiblesMetadataForDevTools(state.collectiblesMetadata)
+            })
           })
-        })
-      ]
-    : undefined
+        )
+      : getDefaultEnhancers()
 });
 
 const persistor = persistStore(store);

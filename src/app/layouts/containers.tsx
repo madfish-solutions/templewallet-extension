@@ -1,4 +1,4 @@
-import React, { forwardRef, useRef } from 'react';
+import { FC, Ref, useRef } from 'react';
 
 import clsx from 'clsx';
 
@@ -24,29 +24,35 @@ interface ContentContainerProps extends PropsWithChildren {
   padding?: boolean;
   withShadow?: boolean;
   className?: string;
+  ref?: Ref<HTMLDivElement>;
 }
 
-export const ContentContainer = forwardRef<HTMLDivElement, ContentContainerProps>(
-  ({ padding = true, withShadow = true, className, children }, ref) => (
-    <div
-      ref={ref}
-      className={clsx(
-        'flex-grow flex flex-col bg-background',
-        padding && 'px-4 pt-3 pb-15',
-        withShadow && 'shadow-content-inset',
-        className
-      )}
-    >
-      {children}
-    </div>
-  )
+export const ContentContainer = ({
+  padding = true,
+  withShadow = true,
+  className,
+  children,
+  ref
+}: ContentContainerProps) => (
+  <div
+    ref={ref}
+    className={clsx(
+      'flex-grow flex flex-col bg-background',
+      padding && 'px-4 pt-3 pb-15',
+      withShadow && 'shadow-content-inset',
+      className
+    )}
+  >
+    {children}
+  </div>
 );
 
 interface StickyBarProps extends PropsWithChildren {
   className?: string;
+  ref?: Ref<HTMLDivElement>;
 }
 
-export const StickyBar = React.forwardRef<HTMLDivElement, StickyBarProps>(({ className, children }, forwardedRef) => {
+export const StickyBar: FC<StickyBarProps> = ({ className, children, ref: forwardedRef }) => {
   const spareRef = useRef<HTMLDivElement>(null);
 
   const testnetModeEnabled = useTestnetModeEnabledSelector();
@@ -66,4 +72,4 @@ export const StickyBar = React.forwardRef<HTMLDivElement, StickyBarProps>(({ cla
       {children}
     </div>
   );
-});
+};

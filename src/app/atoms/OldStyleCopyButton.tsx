@@ -50,7 +50,7 @@ const OldStyleCopyButton: FC<OldStyleCopyButtonProps> = ({
         ? classNames(
             'font-tnum leading-none select-none',
             'transition ease-in-out duration-300',
-            rounded === 'base' ? 'rounded' : 'rounded-sm',
+            rounded === 'base' ? 'rounded' : 'rounded-xs',
             small ? 'text-font-description p-1' : 'text-font-medium py-1 px-2',
             BG_SHADES[bgShade],
             TEXT_SHADES[textShade],

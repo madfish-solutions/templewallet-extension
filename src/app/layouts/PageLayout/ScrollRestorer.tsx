@@ -1,14 +1,25 @@
-import React, { forwardRef, useImperativeHandle, useLayoutEffect, useRef } from 'react';
+import {
+  FC,
+  HTMLAttributes,
+  PropsWithChildren,
+  Ref,
+  UIEvent,
+  useImperativeHandle,
+  useLayoutEffect,
+  useRef
+} from 'react';
 
 import { combineRefs } from 'lib/ui/utils';
 import * as Woozie from 'lib/woozie';
 
-interface Props extends React.HTMLAttributes<HTMLDivElement> {}
+interface Props extends HTMLAttributes<HTMLDivElement> {
+  ref?: Ref<HTMLDivElement>;
+}
 
 let SCROLL_RESTORATION = new Map<string, number>();
 const MEMOIZED_SCROLLS_LIMIT = 10;
 
-export const ScrollRestorer = forwardRef<HTMLDivElement, PropsWithChildren<Props>>((props, ref) => {
+export const ScrollRestorer: FC<PropsWithChildren<Props>> = ({ ref, ...props }) => {
   const { trigger, href } = Woozie.useLocation();
 
   const localRef = useRef<HTMLDivElement>(null);
@@ -34,8 +45,8 @@ export const ScrollRestorer = forwardRef<HTMLDivElement, PropsWithChildren<Props
   }, [trigger, href]);
 
   return <div ref={combineRefs(localRef, ref)} onScroll={onScroll} {...props} />;
-});
+};
 
-function onScroll(event: React.UIEvent<HTMLDivElement>) {
+function onScroll(event: UIEvent<HTMLDivElement>) {
   SCROLL_RESTORATION.set(window.location.href, event.currentTarget.scrollTop);
 }

@@ -1,5 +1,4 @@
 import { TezosToolkit, TransferParams } from '@taquito/taquito';
-import { BigNumber } from 'bignumber.js';
 
 import { ZERO } from 'lib/utils/numbers';
 

@@ -124,9 +124,9 @@ export const useGenericTezosAssetMetadata = (slug: string, tezosChainId: string)
 export const useEvmCategorizedAssetMetadata = (slug: string, evmChainId: number): EvmAssetMetadata | undefined => {
   const network = useEvmChainByChainId(evmChainId);
   const tokenMetadata = useEvmTokenMetadataSelector(evmChainId, slug);
-  const { metadata: lifiTokensMetadata } = useLifiConnectedEvmChainTokensMetadataSelector(evmChainId);
+  const lifiTokensMetadata = useLifiConnectedEvmChainTokensMetadataSelector(evmChainId);
   const enabledNetworksLifiTokensMetadata = useLifiEnabledNetworksEvmChainTokensMetadataSelector(evmChainId);
-  const { metadata: route3EvmTokensMetadata } = use3RouteEvmChainTokensMetadataSelector(evmChainId);
+  const route3EvmTokensMetadata = use3RouteEvmChainTokensMetadataSelector(evmChainId);
   const collectibleMetadata = useEvmCollectibleMetadataSelector(evmChainId, slug);
 
   return isEvmNativeTokenSlug(slug)
@@ -190,8 +190,8 @@ export const useGetEvmGasOrTokenMetadata = () => {
 export const useGetEvmChainTokenOrGasMetadata = (chainId: number) => {
   const network = useEvmChainByChainId(chainId);
   const tokensMetadata = useEvmChainTokensMetadataRecordSelector(chainId);
-  const { metadata: connectedLifiTokensMetadata } = useLifiConnectedEvmChainTokensMetadataSelector(chainId);
-  const { metadata: route3EvmTokensMetadata } = use3RouteEvmChainTokensMetadataSelector(chainId);
+  const connectedLifiTokensMetadata = useLifiConnectedEvmChainTokensMetadataSelector(chainId);
+  const route3EvmTokensMetadata = use3RouteEvmChainTokensMetadataSelector(chainId);
   const enabledNetworksLifiTokensMetadata = useLifiEnabledNetworksEvmChainTokensMetadataSelector(chainId);
   const fallbackValueFn = useCallback(
     (slug: string) => (isEvmNativeTokenSlug(slug) ? network?.currency : undefined),

@@ -25,13 +25,13 @@ export const buildBasicEvmSendParams = (
   assetMetadata: EvmAssetMetadata,
   amount?: string
 ): BasicEvmSendParams => {
-  let value = BigInt(0);
+  let value = 0n;
   let data: HexString | undefined;
 
-  const atomicAmount = amount ? parseUnits(amount, assetMetadata.decimals ?? 0) : BigInt(1);
+  const atomicAmount = amount ? parseUnits(amount, assetMetadata.decimals ?? 0) : 1n;
   switch (assetMetadata.standard) {
     case EvmAssetStandard.NATIVE:
-      value = amount ? parseEther(amount) : BigInt(1);
+      value = amount ? parseEther(amount) : 1n;
       break;
     case EvmAssetStandard.ERC20:
       data = encodeFunctionData({

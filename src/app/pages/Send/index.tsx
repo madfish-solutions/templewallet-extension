@@ -171,13 +171,13 @@ const Send = memo<Props>(({ chainKind, chainId, assetSlug }) => {
   return (
     <PageLayout pageTitle={<PageTitle title={t('send')} />} contentPadding={false} noScroll>
       <Suspense fallback={<PageLoader stretch />}>
-        <SendFormControlContext.Provider value={formControlRef}>
+        <SendFormControlContext value={formControlRef}>
           <Form
             selectedChainAssetSlug={selectedChainAssetSlug}
             onReview={handleReview}
             onSelectAssetClick={setSelectAssetModalOpen}
           />
-        </SendFormControlContext.Provider>
+        </SendFormControlContext>
       </Suspense>
 
       <SelectAssetModal

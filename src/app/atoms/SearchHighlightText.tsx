@@ -1,5 +1,6 @@
 import React, { memo, useMemo } from 'react';
 
+import clsx from 'clsx';
 import { useDebounce } from 'use-debounce';
 
 interface Props {
@@ -47,7 +48,7 @@ export const SearchHighlightText = memo<Props>(({ children: text, searchValue })
   return (
     <>
       {textFragments.map(({ content, isHighlighted }, i) => (
-        <span key={i} className={isHighlighted ? 'bg-marker-highlight' : undefined}>
+        <span key={i} className={clsx('whitespace-pre-wrap', isHighlighted && 'bg-marker-highlight')}>
           {content}
         </span>
       ))}

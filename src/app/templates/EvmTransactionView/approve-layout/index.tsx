@@ -70,11 +70,11 @@ export const ApproveLayout = memo<ApproveLayoutProps>(
       }
 
       if (knownAssetMetadata) {
-        return { onChainAllowance: BigInt(0), isErc20: knownAssetMetadata.standard === EvmAssetStandard.ERC20 };
+        return { onChainAllowance: 0n, isErc20: knownAssetMetadata.standard === EvmAssetStandard.ERC20 };
       }
 
       return {
-        onChainAllowance: BigInt(0),
+        onChainAllowance: 0n,
         isErc20: (await detectEvmTokenStandard(chain, toEvmAssetSlug(tokenAddress))) === EvmAssetStandard.ERC20
       };
     }, [isErc20IncreaseAllowance, knownAssetMetadata, chain, tokenAddress, txData, evmToolkit, from]);

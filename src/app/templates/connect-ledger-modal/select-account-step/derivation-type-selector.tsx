@@ -121,7 +121,7 @@ const DerivationTypeOption = memo<DerivationTypeOptionProps>(({ derivationType, 
   return (
     <ActionListItem
       active={active}
-      className="!px-2 !py-2.5"
+      className="px-2! py-2.5!"
       onClick={handleClick}
       testID={ConnectLedgerModalSelectors.derivationTypeOptionButton}
     >

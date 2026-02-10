@@ -52,7 +52,7 @@ export const SelectAccountButton = memo<Props>(({ value: selectedAccountAddress,
         {iconHash ? (
           <AccountAvatar seed={iconHash} size={24} borderColor="secondary" />
         ) : (
-          <div className="flex p-px rounded border border-secondary">
+          <div className="flex p-px rounded-sm border border-secondary">
             <img src={DefaultAvatarImgSrc} alt="default-avatar" className="w-5 h-5" />
           </div>
         )}

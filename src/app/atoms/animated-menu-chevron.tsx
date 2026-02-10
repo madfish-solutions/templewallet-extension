@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import { Component } from 'react';
 
 import { animated, Spring } from '@react-spring/web';
 
@@ -53,7 +53,6 @@ export class AnimatedMenuChevron extends Component<object, AnimatedMenuChevronSt
       >
         {style => (
           <>
-            {/** @ts-expect-error: TS types do not accept children */}
             <animated.div style={style}>
               <IconBase Icon={ChevronRightIcon} size={16} className="text-primary" />
             </animated.div>

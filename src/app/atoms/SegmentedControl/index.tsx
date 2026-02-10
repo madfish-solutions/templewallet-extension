@@ -1,4 +1,4 @@
-import React, { useEffect, RefObject, CSSProperties, useRef } from 'react';
+import { useEffect, RefObject, CSSProperties, useRef } from 'react';
 
 import clsx from 'clsx';
 
@@ -7,7 +7,7 @@ import styles from './styles.module.css';
 interface Segment<T extends string> {
   label: string;
   value: T;
-  ref: RefObject<HTMLDivElement>;
+  ref: RefObject<HTMLDivElement | null>;
 }
 
 interface SegmentedControlProps<T extends string> {

@@ -7,7 +7,7 @@ import { TezosNetworkEssentials } from 'temple/networks';
 import { getTezosReadOnlyRpcClient } from 'temple/tezos';
 
 export function useOnTezosBlock(network: TezosNetworkEssentials, callback: (blockHash: string) => void, pause = false) {
-  const blockHashRef = useRef<string>();
+  const blockHashRef = useRef<string>(null);
   const callbackRef = useUpdatableRef(callback);
 
   useEffect(() => {

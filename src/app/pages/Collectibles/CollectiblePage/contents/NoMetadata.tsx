@@ -84,7 +84,7 @@ const NoMetadataContent: FC<BaseProps> = ({ assetSlug, network, detailsElement }
             <StyledButton
               size="S"
               color="secondary-low"
-              className="!bg-transparent flex items-center !px-0 py-0.5 gap-0.5"
+              className="bg-transparent! flex items-center px-0! py-0.5 gap-0.5"
               onClick={loadMetadata}
               testID={CollectiblesSelectors.refreshMetadataButton}
             >

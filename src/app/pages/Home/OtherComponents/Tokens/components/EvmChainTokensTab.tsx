@@ -40,9 +40,9 @@ export const EvmChainTokensTab = memo<Props>(({ chainId, publicKeyHash, accountI
   const contextValue = useMemo(() => ({ accountId, network, publicKeyHash }), [accountId, network, publicKeyHash]);
 
   return (
-    <EvmChainTokensTabContext.Provider value={contextValue}>
+    <EvmChainTokensTabContext value={contextValue}>
       {manageActive ? <TabContentWithManageActive /> : <TabContent />}
-    </EvmChainTokensTabContext.Provider>
+    </EvmChainTokensTabContext>
   );
 });
 

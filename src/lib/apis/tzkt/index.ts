@@ -5,7 +5,6 @@ export type {
   TzktOperationType,
   TzktTransactionOperation,
   TzktBalanceHistoryItem,
-  TzktGetBalanceHistoryParams,
   TzktStakingUpdate
 } from './types';
 

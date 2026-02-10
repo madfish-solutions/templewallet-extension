@@ -261,7 +261,7 @@ export async function decryptMessage(payload: string, senderPublicKey: string) {
   if (hexPayload.length >= crypto_secretbox_NONCEBYTES + crypto_secretbox_MACBYTES) {
     try {
       return await decryptCryptoboxPayload(hexPayload, sharedRx);
-    } catch (decryptionError) {
+    } catch {
       /* NO-OP. We try to decode every message, but some might not be addressed to us. */
     }
   }

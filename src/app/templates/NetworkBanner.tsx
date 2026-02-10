@@ -47,12 +47,12 @@ const NetworkBannerView = memo<NetworkBannerViewProps>(({ knownChain, narrow = f
         <div className="w-full mb-1 flex items-center">
           <div
             className={classNames(
-              'flex-shrink-0 mr-1 w-3 h-3 bg-red-500',
+              'shrink-0 mr-1 w-3 h-3 bg-red-500',
               'border border-primary-white rounded-full shadow-xs'
             )}
           />
 
-          <span className="flex-shrink-0 mr-2 text-xs font-medium uppercase text-red-500">
+          <span className="shrink-0 mr-2 text-xs font-medium uppercase text-red-500">
             <T id="unknownNetwork" />
           </span>
 

@@ -1,4 +1,4 @@
-import React, { forwardRef, memo } from 'react';
+import { Ref, memo } from 'react';
 
 import clsx from 'clsx';
 
@@ -9,11 +9,12 @@ import { IconBase } from './IconBase';
 
 interface DropdownTriggerButtonProps extends ButtonProps {
   iconClassName?: string;
+  ref?: Ref<HTMLButtonElement>;
 }
 
-export const DropdownTriggerButton = memo(
-  forwardRef<HTMLButtonElement, DropdownTriggerButtonProps>(
-    ({ className, iconClassName = 'text-primary', children, onClick, style, ...restProps }, ref) => (
+export const DropdownTriggerButton = memo<DropdownTriggerButtonProps>(
+  ({ className, iconClassName = 'text-primary', children, onClick, style, ref, ...restProps }) => {
+    return (
       <Button
         className={clsx(
           'flex items-center rounded-8 border-0.5 bg-white border-lines',
@@ -27,8 +28,8 @@ export const DropdownTriggerButton = memo(
       >
         {children}
 
-        {onClick && <IconBase Icon={CompactDown} className={iconClassName} size={16} />}
+        {onClick && <IconBase Icon={CompactDown} className={iconClassName} />}
       </Button>
-    )
-  )
+    );
+  }
 );
