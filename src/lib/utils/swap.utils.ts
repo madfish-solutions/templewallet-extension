@@ -92,9 +92,9 @@ export const getSwapTransferParams = async (
   return resultParams;
 };
 
-export const calculateSidePaymentsFromInput = (inputAmount: BigNumber | undefined) => {
+export const calculateSidePaymentsFromInput = (inputAmount: BigNumber | undefined, forceOutputFee = false) => {
   const swapInputAtomic = (inputAmount ?? ZERO).integerValue(BigNumber.ROUND_DOWN);
-  const shouldTakeFeeFromInput = swapInputAtomic.gte(ATOMIC_INPUT_THRESHOLD_FOR_FEE_FROM_INPUT);
+  const shouldTakeFeeFromInput = !forceOutputFee && swapInputAtomic.gte(ATOMIC_INPUT_THRESHOLD_FOR_FEE_FROM_INPUT);
   const inputFeeAtomic = shouldTakeFeeFromInput
     ? multiplyAtomicAmount(swapInputAtomic, ROUTING_FEE_RATIO, BigNumber.ROUND_CEIL)
     : ZERO;
@@ -110,10 +110,14 @@ export const calculateSidePaymentsFromInput = (inputAmount: BigNumber | undefine
   };
 };
 
-const calculateOutputFeeAtomic = (inputAmount: BigNumber | undefined, outputAmount: BigNumber) => {
+const calculateOutputFeeAtomic = (
+  inputAmount: BigNumber | undefined,
+  outputAmount: BigNumber,
+  forceOutputFee = false
+) => {
   const swapInputAtomic = (inputAmount ?? ZERO).integerValue(BigNumber.ROUND_DOWN);
 
-  return swapInputAtomic.gte(ATOMIC_INPUT_THRESHOLD_FOR_FEE_FROM_INPUT)
+  return !forceOutputFee && swapInputAtomic.gte(ATOMIC_INPUT_THRESHOLD_FOR_FEE_FROM_INPUT)
     ? ZERO
     : multiplyAtomicAmount(outputAmount, ROUTING_FEE_RATIO, BigNumber.ROUND_CEIL);
 };
@@ -122,7 +126,8 @@ export const calculateOutputAmounts = (
   inputAmount: BigNumber,
   route3OutputInTokens: string | undefined,
   outputAssetDecimals: number,
-  slippageRatio: number
+  slippageRatio: number,
+  forceOutputFee = false
 ) => {
   const outputAtomicAmountBeforeFee = isDefined(route3OutputInTokens)
     ? tokensToAtoms(new BigNumber(route3OutputInTokens), outputAssetDecimals)
@@ -132,7 +137,7 @@ export const calculateOutputAmounts = (
     slippageRatio,
     BigNumber.ROUND_FLOOR
   );
-  const outputFeeAtomicAmount = calculateOutputFeeAtomic(inputAmount, minOutputAtomicBeforeFee);
+  const outputFeeAtomicAmount = calculateOutputFeeAtomic(inputAmount, minOutputAtomicBeforeFee, forceOutputFee);
   const expectedReceivedAtomic = outputAtomicAmountBeforeFee.minus(outputFeeAtomicAmount);
   const minimumReceivedAtomic = minOutputAtomicBeforeFee.minus(outputFeeAtomicAmount);
 
