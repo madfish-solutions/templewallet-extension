@@ -1,4 +1,4 @@
-import React, { Children, FC, HTMLAttributes } from 'react';
+import React, { FC, HTMLAttributes } from 'react';
 
 import clsx from 'clsx';
 
@@ -7,14 +7,7 @@ export const SettingsCellGroup: FC<PropsWithChildren<HTMLAttributes<HTMLDivEleme
   children,
   ...restProps
 }) => (
-  <div
-    className={clsx(
-      'flex flex-col rounded-lg shadow-bottom bg-white',
-      Children.count(children) === 1 && 'border-0.5 border-transparent hover:border-lines',
-      className
-    )}
-    {...restProps}
-  >
+  <div className={clsx('flex flex-col rounded-lg bg-white border-0.5 border-lines', className)} {...restProps}>
     {children}
   </div>
 );

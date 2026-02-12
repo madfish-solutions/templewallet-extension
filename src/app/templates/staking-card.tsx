@@ -11,7 +11,7 @@ interface StakingCardProps extends Omit<HTMLAttributes<HTMLDivElement>, 'childre
 }
 
 export const StakingCard: FC<StakingCardProps> = ({ topInfo, bottomInfo, actions, className, ...rest }) => (
-  <div className={clsx('flex flex-col rounded-lg shadow-bottom bg-white p-4', className)} {...rest}>
+  <div className={clsx('flex flex-col rounded-lg bg-white border-0.5 border-lines p-4', className)} {...rest}>
     <div className="flex justify-between gap-2 items-center">{topInfo}</div>
     {(bottomInfo || actions) && <Divider className="my-2" thinest />}
     {bottomInfo && <div className="flex justify-between gap-2 items-center">{bottomInfo}</div>}

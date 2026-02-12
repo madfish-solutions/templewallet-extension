@@ -17,8 +17,8 @@ export const FeaturedDappItem = memo<DAppItemProps>(({ dappUrl, name, logo }) =>
     className={clsx(
       'flex flex-col relative group',
       'min-w-[6rem] flex-1 py-3',
-      'justify-center items-center rounded-8 shadow-bottom',
-      'bg-white border-0.5 border-transparent hover:border-lines',
+      'justify-center items-center rounded-8',
+      'bg-white border-0.5 border-lines',
       'transition ease-in-out duration-200'
     )}
     href={dappUrl}
@@ -42,9 +42,8 @@ export const DappItem = memo<DAppItemProps>(({ slug, dappUrl, name, logo, catego
   <Anchor
     className={clsx(
       'flex justify-between items-center p-3 group',
-      'rounded-8 shadow-bottom border-0.5 border-transparent',
-      'transition ease-in-out duration-200',
-      'bg-white hover:border-lines'
+      'rounded-8 bg-white border-0.5 border-lines',
+      'transition ease-in-out duration-200'
     )}
     href={dappUrl}
     rel="noreferrer"

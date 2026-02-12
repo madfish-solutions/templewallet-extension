@@ -19,7 +19,7 @@ export const ExpiresInBlock = memo<Props>(({ className }) => {
   if (!exchangeData) return null;
 
   return (
-    <div className={clsx('rounded-lg shadow-bottom border-0.5 border-transparent', className)}>
+    <div className={clsx('rounded-lg bg-white border-0.5 border-lines', className)}>
       <div className="flex flex-row justify-between bg-grey-4 rounded-tl-7 rounded-tr-7 py-2.5 px-4 mt-0.5 mx-0.5">
         <span className="text-font-description-bold text-grey-1">
           <T id="expiresIn" />

@@ -43,7 +43,7 @@ export const MiniPageModal: FC<MiniPageModalProps> = ({
       }}
       className={{
         base: clsx(
-          'flex flex-col absolute left-0 right-0 bg-white overflow-hidden focus:outline-hidden ease-out duration-300',
+          'flex flex-col absolute left-0 right-0 bg-background overflow-hidden focus:outline-hidden ease-out duration-300',
           fullPage ? 'rounded-8 bottom-8' : 'rounded-t-8 bottom-0',
           LAYOUT_CONTAINER_CLASSNAME,
           ModStyles.base
@@ -56,7 +56,7 @@ export const MiniPageModal: FC<MiniPageModalProps> = ({
       testId={testID}
     >
       {showHeader && (
-        <div className="flex items-center border-b-0.5 border-lines p-3">
+        <div className="flex items-center border-b-0.5 border-lines p-3 bg-white">
           <div className="w-12" />
 
           <div className="flex-1 text-center text-font-regular-bold">{title}</div>
