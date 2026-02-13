@@ -159,7 +159,7 @@ export const YourRewardsCards = memo(() => {
   return (
     <div className="flex flex-col">
       <span className="text-font-description-bold mb-3">{t('yourRewards')}</span>
-      <div className="rounded-8 shadow-bottom mb-4">
+      <div className="rounded-8 mb-4 bg-white border-0.5 border-lines">
         {!DISABLE_ADS && (
           <>
             <Link
@@ -229,7 +229,7 @@ export const YourRewardsCards = memo(() => {
       </div>
       {hasTezosAccount && (
         <>
-          <div className="rounded-8 shadow-bottom">
+          <div className="rounded-8 bg-white border-0.5 border-lines">
             <Link
               to={`/earn-tez/${tezosMainnet.chainId}`}
               className={clsx('p-3 flex items-center justify-between')}

@@ -1,6 +1,4 @@
-import React, { memo } from 'react';
-
-import clsx from 'clsx';
+import { memo } from 'react';
 
 import { HashShortView, IconBase } from 'app/atoms';
 import { AccountAvatar } from 'app/atoms/AccountAvatar';
@@ -13,16 +11,12 @@ import { isEvmContact } from '../utils';
 
 interface ContactProps {
   data: TempleContact;
-  onClick: (contact: TempleContact) => void;
+  onClick: SyncFn<TempleContact>;
 }
 
 export const Contact = memo<ContactProps>(({ data, onClick }) => (
   <div
-    className={clsx(
-      'flex flex-row justify-between items-center p-3',
-      'rounded-lg shadow-bottom border group',
-      'cursor-pointer border-transparent hover:border-lines'
-    )}
+    className="flex flex-row justify-between items-center p-3 rounded-lg cursor-pointer bg-white border-0.5 border-lines group"
     onClick={() => onClick(data)}
   >
     <div className="flex flex-row items-center gap-x-1.5">

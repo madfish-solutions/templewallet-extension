@@ -65,7 +65,7 @@ export const ReferralsCard = memo(() => {
   }, [accounts, conversionAccount, rewardsEvmAddress, rewardsTezosAddress]);
 
   return (
-    <div className="gap-3 bg-white rounded-8 p-1 flex flex-col shadow-bottom">
+    <div className="gap-3 bg-white rounded-8 p-1 flex flex-col border-0.5 border-lines">
       <div className="rounded-6 p-3 bg-secondary-low flex flex-col gap-3">
         <div className="flex items-center justify-between">
           <div className="gap-1 flex flex-row items-center">
