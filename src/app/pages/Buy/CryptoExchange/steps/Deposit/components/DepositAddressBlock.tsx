@@ -29,10 +29,7 @@ export const DepositAddressBlock = memo<Props>(({ className }) => {
   return (
     <>
       <div
-        className={clsx(
-          'flex justify-between items-center p-4 rounded-lg shadow-bottom border-0.5 border-transparent',
-          className
-        )}
+        className={clsx('flex justify-between items-center p-4 rounded-lg bg-white border-0.5 border-lines', className)}
       >
         <div className="flex flex-col gap-y-1">
           <span className="text-font-regular-bold">
