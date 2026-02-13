@@ -32,7 +32,7 @@ export const AddChainView = memo<Props>(({ metadata }) => {
 
   return (
     <div className="flex flex-col gap-4 mb-6">
-      <div className="flex flex-col px-4 py-2 rounded-8 shadow-bottom border-0.5 border-transparent">
+      <div className="flex flex-col px-4 py-2 rounded-8 bg-white border-0.5 border-lines">
         <ChartListItem title={<T id="network" />}>
           <div className="flex flex-row items-center">
             <span className="p-1 text-font-num-bold-12">{metadata.name}</span>

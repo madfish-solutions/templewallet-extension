@@ -100,7 +100,7 @@ const ConnectViewConflict = memo<{
         <button
           type="button"
           onClick={dismissConflict}
-          className="w-full text-left bg-white rounded-xl shadow-bottom border border-transparent hover:border-lines cursor-pointer"
+          className="w-full text-left bg-white rounded-xl border-0.5 border-lines hover:bg-grey-4 cursor-pointer"
         >
           <div className="p-3 flex items-center gap-3">
             <div className="w-9 h-9 rounded flex items-center justify-center">
@@ -120,7 +120,7 @@ const ConnectViewConflict = memo<{
             <button
               key={provider.uuid}
               type="button"
-              className="w-full text-left bg-white rounded-xl shadow-bottom border border-transparent hover:border-lines cursor-pointer"
+              className="w-full text-left bg-white rounded-xl border-0.5 border-lines hover:bg-grey-4 cursor-pointer"
               onClick={() => selectOtherWallet(provider)}
             >
               <div className="p-3 flex items-center gap-3">
@@ -153,7 +153,7 @@ const ConnectViewDefault = memo<{
         alwaysShowAddresses
         onClick={openAccountsModal}
       />
-      <div className="bg-white shadow-bottom rounded-lg p-4">
+      <div className="bg-white border-0.5 border-lines rounded-lg p-4">
         <p className="my-1 text-font-description-bold text-grey-1">
           <T id="permissions" />
         </p>

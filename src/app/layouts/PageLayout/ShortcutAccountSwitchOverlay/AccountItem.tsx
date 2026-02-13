@@ -29,8 +29,8 @@ interface AccountItemProps {
 
 const baseRowClasses = clsx(
   'block w-full p-2 flex items-center rounded-lg',
-  'shadow-bottom overflow-hidden transition ease-in-out duration-200',
-  'border border-transparent'
+  'overflow-hidden transition ease-in-out duration-200',
+  'border-0.5 border-lines'
 );
 
 export const AccountItem: FC<AccountItemProps> = ({
@@ -53,7 +53,7 @@ export const AccountItem: FC<AccountItemProps> = ({
           itemsArrayRef.current[arrayIndex] = el;
         }
       })}
-      className={clsx(baseRowClasses, focused ? 'shadow-none bg-secondary-low' : 'hover:border-lines')}
+      className={clsx(baseRowClasses, focused ? 'border-transparent bg-secondary-low' : 'hover:bg-grey-4')}
       onClick={() => onAccountSelect(account.id)}
       testID={ShortcutAccountSwitchSelectors.accountItemButton}
       testIDProperties={{ accountTypeEnum: account.type }}
