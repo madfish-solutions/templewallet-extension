@@ -14,7 +14,7 @@ type ListBlockItemProps = PropsWithChildren<{
 
 export const ListBlockItem: FC<ListBlockItemProps> = ({ Icon, title, divide = true, children, substitutions, ref }) => (
   <>
-    {divide && <Divider />}
+    {divide && <Divider thinest />}
     <div className="flex items-center justify-between min-h-12">
       <span ref={ref} className="flex gap-0.5 items-center cursor-pointer">
         {Icon ? <IconBase Icon={Icon} className="text-grey-1" /> : <span className="w-6 h-6" />}
