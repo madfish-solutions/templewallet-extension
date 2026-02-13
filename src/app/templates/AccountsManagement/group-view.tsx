@@ -19,7 +19,7 @@ interface GroupViewProps extends GroupActionsPopperProps {
 }
 
 export const GroupView = memo<GroupViewProps>(({ group, searchValue, ...restProps }) => (
-  <div className="shadow-bottom rounded-lg flex flex-col bg-white">
+  <div className="flex flex-col rounded-lg bg-white border-0.5 border-lines">
     <div className="p-3 gap-0.5 flex flex-col">
       <div className="flex flex-row justify-between items-center">
         <span className="text-font-description-bold">{group.name}</span>

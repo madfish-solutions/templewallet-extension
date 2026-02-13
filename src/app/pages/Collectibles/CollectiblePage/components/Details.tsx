@@ -1,4 +1,4 @@
-import React, { memo, useMemo } from 'react';
+import { memo, useMemo } from 'react';
 
 import BigNumber from 'bignumber.js';
 import clsx from 'clsx';
@@ -19,6 +19,8 @@ import { EvmChain, TezosChain } from 'temple/front/chains';
 import { useGetEvmActiveBlockExplorer, useGetTezosActiveBlockExplorer } from 'temple/front/ready';
 import { makeBlockExplorerHref } from 'temple/front/use-block-explorers';
 import { TempleChainKind } from 'temple/types';
+
+import { InfoContainer } from './InfoContainer';
 
 const VALUE_CLASSNAME = 'p-1 text-font-num-bold-12';
 
@@ -71,7 +73,7 @@ export const TezosDetails = memo<TezosDetailsProps>(
     }, [details]);
 
     return (
-      <div className="flex flex-col p-4 rounded-8 shadow-bottom bg-white">
+      <InfoContainer>
         <ChartListItem title={<T id="chain" />}>
           <div className="flex flex-row items-center">
             <span className={VALUE_CLASSNAME}>{network.name}</span>
@@ -130,7 +132,7 @@ export const TezosDetails = memo<TezosDetailsProps>(
             </PlainChartListItem>
           </>
         )}
-      </div>
+      </InfoContainer>
     );
   }
 );
@@ -178,7 +180,7 @@ export const EvmDetails = memo<EvmDetailsProps>(
     );
 
     return (
-      <div className="flex flex-col p-4 rounded-8 shadow-bottom bg-white">
+      <InfoContainer>
         <ChartListItem title={<T id="chain" />}>
           <div className="flex flex-row items-center">
             <span className={VALUE_CLASSNAME}>{network.name}</span>
@@ -226,7 +228,7 @@ export const EvmDetails = memo<EvmDetailsProps>(
             {getValueWithFallback(balance)}
           </PlainChartListItem>
         )}
-      </div>
+      </InfoContainer>
     );
   }
 );
