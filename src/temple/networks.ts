@@ -196,6 +196,7 @@ export const EVM_FALLBACK_RPC_URLS: Record<number, string[]> = {
     'https://1rpc.io/avax/c'
   ],
   [COMMON_MAINNET_CHAIN_IDS.arbitrum]: [
+    `https://arbitrum.kolibr.io${EnvVars.TEMPLE_WALLET_KOLIBRIO_PARAMS}`,
     'https://arbitrum-one-rpc.publicnode.com',
     'https://arbitrum.drpc.org',
     'https://arb-pokt.nodies.app',
