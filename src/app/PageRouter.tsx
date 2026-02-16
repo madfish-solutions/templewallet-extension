@@ -30,6 +30,7 @@ import { EarnTkeyPage } from './pages/EarnTkey';
 import { ImportWallet } from './pages/ImportWallet';
 import { Notifications } from './pages/Notifications';
 import { RewardsPage } from './pages/Rewards';
+import { Sapling } from './pages/sapling';
 import { TokenPage } from './pages/Token';
 
 interface RouteContext {
@@ -92,6 +93,7 @@ const ROUTE_MAP = Woozie.createMap<RouteContext>([
       <Send chainKind={chainKind} chainId={chainId} assetSlug={assetSlug} />
     ))
   ],
+  ['/sapling', onlyReady(() => <Sapling />)],
   ['/swap', onlyReady(() => <Swap />)],
   ['/earn', onlyReady(() => <Earn />)],
   ['/earn-tez/:tezosChainId', onlyReady(({ tezosChainId }) => <EarnTezPage tezosChainId={tezosChainId!} />)],

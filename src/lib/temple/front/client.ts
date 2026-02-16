@@ -18,7 +18,8 @@ import {
   TempleAccountType,
   WalletSpecs,
   EvmTransactionRequestWithSender,
-  SaveLedgerAccountInput
+  SaveLedgerAccountInput,
+  SaplingContractTransaction
 } from 'lib/temple/types';
 import { useDidMount } from 'lib/ui/hooks';
 import { DEFAULT_PROMISES_QUEUE_COUNTERS } from 'lib/utils';
@@ -31,6 +32,7 @@ import {
   makeIntercomRequest
 } from 'temple/front/intercom-client';
 import { getPendingConfirmationId, resetPendingConfirmationId } from 'temple/front/pending-confirm';
+import { TezosNetworkEssentials } from 'temple/networks';
 import { TempleChainKind } from 'temple/types';
 
 import { CLOSURE_STORAGE_KEY, getShouldBeLockedOnStartup } from './lock';
@@ -505,6 +507,37 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
     browser.runtime.reload();
   }, []);
 
+  const getSaplingCredentials = useCallback(async (accountId: string) => {
+    const res = await request({
+      type: TempleMessageType.GetSaplingCredentialsRequest,
+      accountId
+    });
+    assertResponse(res.type === TempleMessageType.GetSaplingCredentialsResponse);
+
+    return res.payload;
+  }, []);
+
+  const prepareSaplingContractTransaction = useCallback(
+    async (
+      accountId: string,
+      transaction: SaplingContractTransaction,
+      network: TezosNetworkEssentials,
+      saplingContractAddress: string
+    ) => {
+      const res = await request({
+        type: TempleMessageType.PrepareSaplingTransactionRequest,
+        accountId,
+        network,
+        transaction,
+        saplingContractAddress
+      });
+      assertResponse(res.type === TempleMessageType.PrepareSaplingTransactionResponse);
+
+      return res.transaction;
+    },
+    []
+  );
+
   useEffect(() => void (data?.shouldLockOnStartup && lock()), [data?.shouldLockOnStartup, lock]);
 
   return {
@@ -569,6 +602,8 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
     switchDAppEvmAccount,
     switchDAppTezosAccount,
     sendEvmTransaction,
-    resetExtension
+    resetExtension,
+    getSaplingCredentials,
+    prepareSaplingContractTransaction
   };
 });

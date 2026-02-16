@@ -32,6 +32,11 @@
   dependencies:
     "@types/chrome" "0.0.246"
 
+"@airgap/sapling-wasm@0.0.9", "@airgap/sapling-wasm@npm:@tezos-x/sapling-wasm@^0.9.0":
+  version "0.9.0"
+  resolved "https://registry.yarnpkg.com/@tezos-x/sapling-wasm/-/sapling-wasm-0.9.0.tgz#70154262d4eacb3d1bef2e062851af1d2a3b482b"
+  integrity sha512-gb+Wtzj/gMZ9y9KWOjEp+CD1DhyvKgJYyuSwfE9k5M9n/3lZCcJ0M4Lv8gmJGKBUOt6QP8VLq7N4QhrQKJa//w==
+
 "@alloc/quick-lru@^5.2.0":
   version "5.2.0"
   resolved "https://registry.yarnpkg.com/@alloc/quick-lru/-/quick-lru-5.2.0.tgz#7bf68b20c0a350f936915fcae06f58e32007ce30"
@@ -3350,6 +3355,24 @@
     "@tezos-x/octez.js-utils" "*"
     bignumber.js "^9.1.2"
     whatwg-url "^15.1.0"
+
+"@tezos-x/octez.js-sapling@^0.9.0":
+  version "0.9.0"
+  resolved "https://registry.yarnpkg.com/@tezos-x/octez.js-sapling/-/octez.js-sapling-0.9.0.tgz#b7d1e725dfe5021ad17fa0fc40001738db93ce00"
+  integrity sha512-4+o2BD1l6lIXRX/9FpYjH+uCMp+MGiqBngPZEGp74aTVBoJRmrA1JsgebiEbtL6oVwkwFWSkkqnRIoVA73jxYA==
+  dependencies:
+    "@airgap/sapling-wasm" "0.0.9"
+    "@stablelib/nacl" "^1.0.4"
+    "@stablelib/random" "^1.0.2"
+    "@tezos-x/octez.js" "*"
+    "@tezos-x/octez.js-core" "*"
+    "@tezos-x/octez.js-rpc" "*"
+    "@tezos-x/octez.js-utils" "*"
+    bignumber.js "^9.1.2"
+    bip39 "3.1.0"
+    blakejs "^1.2.1"
+    pbkdf2 "^3.1.2"
+    typedarray-to-buffer "^4.0.0"
 
 "@tezos-x/octez.js-signer@*":
   version "0.9.0"

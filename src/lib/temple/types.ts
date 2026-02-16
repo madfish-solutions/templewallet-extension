@@ -1,6 +1,10 @@
 import type { RawSignResult } from '@taquito/core';
 import type { DerivationType } from '@taquito/ledger-signer';
 import type { TempleDAppMetadata } from '@temple-wallet/dapp/dist/types';
+import {
+  ParametersSaplingTransaction,
+  ParametersUnshieldedTransaction
+} from '@tezos-x/octez.js-sapling/dist/types/types';
 import BigNumber from 'bignumber.js';
 import type { RpcTransactionRequest, SignableMessage, TypedDataDefinition } from 'viem';
 
@@ -517,7 +521,11 @@ export enum TempleMessageType {
   SetWindowSidebarStateRequest = 'SET_WINDOW_SIDEBAR_STATE_REQUEST',
   SetWindowSidebarStateResponse = 'SET_WINDOW_SIDEBAR_STATE_RESPONSE',
   ProvePossessionRequest = 'PROVE_POSSESSION_REQUEST',
-  ProvePossessionResponse = 'PROVE_POSSESSION_RESPONSE'
+  ProvePossessionResponse = 'PROVE_POSSESSION_RESPONSE',
+  GetSaplingCredentialsRequest = 'GET_SAPLING_CREDENTIALS_REQUEST',
+  GetSaplingCredentialsResponse = 'GET_SAPLING_CREDENTIALS_RESPONSE',
+  PrepareSaplingTransactionRequest = 'PREPARE_SAPLING_TRANSACTION_REQUEST',
+  PrepareSaplingTransactionResponse = 'PREPARE_SAPLING_TRANSACTION_RESPONSE'
 }
 
 export type TempleNotification =
@@ -580,7 +588,9 @@ export type TempleRequest =
   | TempleSendPageEventRequest
   | TempleSendEvmTransactionRequest
   | TempleResetExtensionRequest
-  | TempleProvePossessionRequest;
+  | TempleProvePossessionRequest
+  | TempleGetSaplingCredentialsRequest
+  | TemplePrepareSaplingTransactionRequest;
 
 export type TempleResponse =
   | TempleGetStateResponse
@@ -627,7 +637,9 @@ export type TempleResponse =
   | TempleSendPageEventResponse
   | TempleSendEvmTransactionResponse
   | TempleResetExtensionResponse
-  | TempleProvePossessionResponse;
+  | TempleProvePossessionResponse
+  | TempleGetSaplingCredentialsResponse
+  | TemplePrepareSaplingTransactionResponse;
 
 export interface TempleMessageBase {
   type: TempleMessageType;
@@ -1200,6 +1212,52 @@ interface TempleProvePossessionRequest extends TempleMessageBase {
 interface TempleProvePossessionResponse extends TempleMessageBase {
   type: TempleMessageType.ProvePossessionResponse;
   result: RawSignResult;
+}
+
+interface TempleGetSaplingCredentialsRequest extends TempleMessageBase {
+  type: TempleMessageType.GetSaplingCredentialsRequest;
+  accountId: string;
+}
+
+export interface SaplingCredentials {
+  viewingKey: string;
+  saplingAddress: string;
+}
+
+interface TempleGetSaplingCredentialsResponse extends TempleMessageBase {
+  type: TempleMessageType.GetSaplingCredentialsResponse;
+  payload: SaplingCredentials;
+}
+
+type SaplingContractTransactionType = 'shielded' | 'unshielded' | 'sapling';
+
+interface SaplingContractTransactionBase {
+  type: SaplingContractTransactionType;
+}
+
+interface SaplingUnshieldedTransaction extends SaplingContractTransactionBase {
+  type: 'unshielded';
+  params: ParametersUnshieldedTransaction;
+}
+
+interface SaplingOtherTransaction extends SaplingContractTransactionBase {
+  type: 'shielded' | 'sapling';
+  params: ParametersSaplingTransaction[];
+}
+
+export type SaplingContractTransaction = SaplingUnshieldedTransaction | SaplingOtherTransaction;
+
+interface TemplePrepareSaplingTransactionRequest extends TempleMessageBase {
+  type: TempleMessageType.PrepareSaplingTransactionRequest;
+  accountId: string;
+  network: TezosNetworkEssentials;
+  transaction: SaplingContractTransaction;
+  saplingContractAddress: string;
+}
+
+interface TemplePrepareSaplingTransactionResponse extends TempleMessageBase {
+  type: TempleMessageType.PrepareSaplingTransactionResponse;
+  transaction: string;
 }
 
 export type EvmTransactionRequestWithSender = RpcTransactionRequest & { from: HexString };
