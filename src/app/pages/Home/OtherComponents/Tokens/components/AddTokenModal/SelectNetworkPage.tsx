@@ -21,7 +21,7 @@ import {
 
 interface SelectNetworkPageProps {
   selectedNetwork: OneOfChains;
-  onNetworkSelect: (network: OneOfChains) => void;
+  onNetworkSelect: SyncFn<OneOfChains>;
 }
 
 export const SelectNetworkPage: FC<SelectNetworkPageProps> = ({ selectedNetwork, onNetworkSelect }) => {
@@ -64,7 +64,7 @@ export const SelectNetworkPage: FC<SelectNetworkPageProps> = ({ selectedNetwork,
         <IconButton Icon={PlusIcon} color="blue" onClick={() => navigate('settings/networks')} />
       </div>
 
-      <ScrollView className="pt-1">
+      <ScrollView className="pt-1 pb-4 gap-3">
         {filteredNetworks.length === 0 && <EmptyState />}
 
         {filteredNetworks.map(network => (

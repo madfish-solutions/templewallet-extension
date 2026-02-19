@@ -29,7 +29,7 @@ export const Description = memo<Props>(({ text, className }) => {
   return (
     <div
       className={clsx(
-        'flex flex-col bg-white gap-y-1 p-4 rounded-8 shadow-md',
+        'flex flex-col bg-white gap-y-1 p-4 rounded-8 border-0.5 border-lines',
         isDropdownAvailable && 'cursor-pointer',
         className
       )}

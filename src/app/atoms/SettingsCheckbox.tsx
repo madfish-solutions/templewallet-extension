@@ -1,7 +1,5 @@
 import { Ref, memo, ReactNode, useCallback, ChangeEvent } from 'react';
 
-import clsx from 'clsx';
-
 import { AnalyticsEventCategory, setTestID, useAnalytics } from 'lib/analytics';
 
 import { Checkbox, CheckboxProps } from './Checkbox';
@@ -27,12 +25,7 @@ export const SettingsCheckbox = memo<SettingsCheckboxProps>(
     );
 
     return (
-      <div
-        className={clsx(
-          'flex items-center p-3 rounded-lg bg-white shadow-bottom',
-          'gap-2 border-0.5 border-transparent hover:border-lines'
-        )}
-      >
+      <div className="flex items-center p-3 rounded-lg bg-white border-lines gap-2 border-0.5 hover:bg-grey-4">
         <label className="flex-1 flex items-center gap-2" {...setTestID(testID)}>
           <Checkbox onChange={handleChange} ref={ref} {...restProps} />
           <span className="text-font-medium-bold">{label}</span>

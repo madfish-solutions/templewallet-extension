@@ -31,7 +31,7 @@ export const DepositMemoBlock = memo<Props>(({ className }) => {
     <>
       <div
         className={clsx(
-          'flex justify-between items-center p-4 mb-4 rounded-lg shadow-bottom border-0.5 border-transparent',
+          'flex justify-between items-center p-4 mb-4 rounded-lg bg-white border-0.5 border-lines',
           className
         )}
       >

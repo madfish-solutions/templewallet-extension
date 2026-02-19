@@ -69,7 +69,7 @@ export const EarnEthPageLayout = memo<EarnEthPageLayoutProps>(
           </div>
 
           {requested.isZero() && readyForClaim.isZero() ? (
-            <div className="flex flex-col justify-center items-center gap-2 bg-white rounded-lg shadow-bottom h-29 text-grey-2">
+            <div className="flex flex-col justify-center items-center gap-2 bg-white rounded-lg border-0.5 border-lines h-29 text-grey-2">
               <IconBase Icon={ActivityIcon} />
 
               <span className="text-font-description">

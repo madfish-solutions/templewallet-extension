@@ -133,7 +133,7 @@ export const BakingHistoryItem = memo<BakingHistoryItemProps>(({ item, active, i
 
   return (
     <Button
-      className="flex flex-col p-4 rounded-lg gap-2 shadow-bottom border-0.5 border-transparent hover:border-lines text-left"
+      className="flex flex-col p-4 rounded-lg gap-2 bg-white border-0.5 border-lines hover:bg-grey-4 text-left group"
       onClick={handleClick}
     >
       <div className="flex items-center justify-between">
@@ -178,7 +178,7 @@ export const BakingHistoryItem = memo<BakingHistoryItemProps>(({ item, active, i
             )}
           </div>
           {rewardsStatementsProps.length > 0 && (
-            <div className="bg-grey-4 rounded-xl flex flex-col">
+            <div className="bg-grey-4 border-0.5 border-transparent group-hover:border-grey-3 rounded-xl flex flex-col">
               {rewardsStatementsProps.map(props => (
                 <RewardsStatement key={props.title} {...props} />
               ))}
@@ -208,7 +208,12 @@ interface RewardsStatementProps {
 
 const RewardsStatement = memo<RewardsStatementProps>(
   ({ title, rewards, opportunityNameI18nKey, opportunitiesCount, fees, borderBottom, tezSymbol }) => (
-    <div className={clsx('flex flex-col p-3 gap-0.5', borderBottom && 'border-b-0.5 border-lines')}>
+    <div
+      className={clsx(
+        'flex flex-col p-3 gap-0.5',
+        borderBottom && 'border-b-0.5 border-lines group-hover:border-grey-3'
+      )}
+    >
       <span className="text-font-description-bold text-grey-1 m-1">{title}</span>
       <span className="text-font-description text-grey-1">
         <T

@@ -82,7 +82,7 @@ export const AddAssetView = memo<Props>(({ metadata }) => {
       <div className="flex flex-col gap-4">
         {errorMessage && <CaptionAlert type="error" message={errorMessage} className="items-center" />}
 
-        <div className="flex flex-col px-4 py-2 rounded-8 shadow-bottom border-0.5 border-transparent">
+        <div className="flex flex-col px-4 py-2 rounded-8 bg-white border-0.5 border-lines">
           {network && (
             <ChartListItem title={<T id="network" />}>
               <div className="flex flex-row items-center">
