@@ -2,6 +2,7 @@ import { getActionLog } from 'lib/analytics/action-log';
 import { APP_VERSION, IS_DEV_ENV } from 'lib/env';
 import { AnalyticsEventCategory } from 'lib/temple/analytics-types';
 
+import { isIgnorableExtensionRuntimeError } from './extension-runtime-errors';
 import { sanitizeUrl, sanitizeValue, sanitizeString } from './sanitize.utils';
 import { sendTrackEvent } from './send-events.utils';
 
@@ -47,7 +48,7 @@ export async function reportError(
   isAnalyticsEnabled: boolean,
   customContext?: Record<string, unknown>
 ): Promise<void> {
-  if (!isAnalyticsEnabled || IS_DEV_ENV) return;
+  if (!isAnalyticsEnabled || IS_DEV_ENV || isIgnorableExtensionRuntimeError(error)) return;
 
   try {
     const now = new Date();
