@@ -158,15 +158,9 @@ export const EditUrlEntityModal = <T extends UrlEntityBase>({
               <SettingsCellSingle cellName={<T id={activeI18nKey} />} Component="div">
                 <Controller
                   control={control}
+                  disabled={isSubmitting}
                   name="isActive"
-                  render={({ field }) => (
-                    <ToggleSwitch
-                      {...field}
-                      checked={field.value}
-                      disabled={isSubmitting}
-                      testID={activeSwitchTestID}
-                    />
-                  )}
+                  render={({ field }) => <ToggleSwitch {...field} checked={field.value} testID={activeSwitchTestID} />}
                 />
               </SettingsCellSingle>
             </SettingsCellGroup>
