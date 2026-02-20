@@ -44,7 +44,7 @@ module.exports = [
         }
       },
       react: {
-        version: 'detect'
+        version: '19.2'
       }
     },
     rules: {
@@ -58,6 +58,9 @@ module.exports = [
       'prefer-rest-params': 'off',
       'no-async-promise-executor': 'off',
       'no-prototype-builtins': 'warn',
+      'preserve-caught-error': 'off',
+      'no-useless-assignment': 'off',
+      'no-unassigned-vars': 'off',
 
       'import/no-duplicates': 'error',
       'import/no-named-as-default': 'off',
