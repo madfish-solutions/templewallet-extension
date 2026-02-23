@@ -28,14 +28,12 @@ export const DepositAddressBlock = memo<Props>(({ className }) => {
 
   return (
     <>
-      <div
-        className={clsx('flex justify-between items-center p-4 rounded-lg bg-white border-0.5 border-lines', className)}
-      >
-        <div className="flex flex-col gap-y-1">
+      <div className={clsx('flex justify-between gap-x-6 p-4 rounded-lg bg-white border-0.5 border-lines', className)}>
+        <div className="flex min-w-0 flex-1 flex-col gap-y-1">
           <span className="text-font-regular-bold">
             <T id="depositAddress" />
           </span>
-          <span className="text-font-description text-grey-1 w-48 normal:w-56 h-8 break-words">
+          <span className="text-font-description text-grey-1 break-all line-clamp-2">
             {exchangeData.depositAddress}
           </span>
         </div>
