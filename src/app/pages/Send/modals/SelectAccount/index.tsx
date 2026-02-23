@@ -15,16 +15,22 @@ import {
   AccountsGroupProps as GenericAccountsGroupProps
 } from 'app/templates/AccountsGroup';
 import { SearchBarField } from 'app/templates/SearchField';
+import { getKoloCryptoAddress } from 'lib/apis/temple';
 import { T } from 'lib/i18n';
-import { TempleContact } from 'lib/temple/types';
+import { COMMON_MAINNET_CHAIN_IDS, ETHEREUM_MAINNET_CHAIN_ID, TempleContact } from 'lib/temple/types';
 import { useScrollIntoViewOnMount } from 'lib/ui/use-scroll-into-view';
 import { searchAndFilterItems } from 'lib/utils/search-items';
 import { getAccountAddressForEvm, getAccountAddressForTezos } from 'temple/accounts';
-import { searchAndFilterAccounts, useAccountsGroups, useVisibleAccounts } from 'temple/front';
+import { OneOfChains, searchAndFilterAccounts, useAccountsGroups, useVisibleAccounts } from 'temple/front';
 import { useCurrentAccountId, useSettings } from 'temple/front/ready';
+import { TempleChainKind } from 'temple/types';
+
+// TEMP
+const KOLO_TEST_EMAIL = 'example@gmail.com';
 
 interface Props {
   opened: boolean;
+  network: OneOfChains;
   selectedAccountAddress: string;
   onRequestClose: EmptyFn;
   onAccountSelect: SyncFn<string>;
@@ -32,7 +38,7 @@ interface Props {
 }
 
 export const SelectAccountModal = memo<Props>(
-  ({ opened, selectedAccountAddress, onRequestClose, onAccountSelect, evm = false }) => {
+  ({ opened, network, selectedAccountAddress, onRequestClose, onAccountSelect, evm = false }) => {
     const [searchValue, setSearchValue] = useState('');
     const [searchValueDebounced] = useDebounce(searchValue, 300);
 
@@ -40,6 +46,9 @@ export const SelectAccountModal = memo<Props>(
 
     const allStoredAccounts = useVisibleAccounts();
     const currentStoredAccountId = useCurrentAccountId();
+
+    const [koloCardAddress, setKoloCardAddress] = useState<string>();
+    const koloPayway = useMemo(() => getKoloPayway(network), [network]);
 
     const suitableAccounts = useMemo(
       () =>
@@ -77,6 +86,15 @@ export const SelectAccountModal = memo<Props>(
       [searchValueDebounced, suitableContacts]
     );
 
+    const shouldShowKoloCard = useMemo(() => {
+      if (!koloCardAddress) return false;
+      if (!searchValueDebounced.length) return true;
+
+      const preparedSearchValue = searchValueDebounced.trim().toLowerCase();
+
+      return 'temple card'.includes(preparedSearchValue) || koloCardAddress.toLowerCase().includes(preparedSearchValue);
+    }, [koloCardAddress, searchValueDebounced]);
+
     const [attractSelectedAccount, setAttractSelectedAccount] = useState(true);
 
     useEffect(() => {
@@ -88,6 +106,31 @@ export const SelectAccountModal = memo<Props>(
       if (!opened) setSearchValue('');
     }, [opened]);
 
+    useEffect(() => {
+      console.log(opened, koloPayway);
+      if (!opened || !koloPayway) {
+        setKoloCardAddress(undefined);
+        return;
+      }
+
+      let active = true;
+
+      void (async () => {
+        try {
+          const response = await getKoloCryptoAddress({ payway: koloPayway, email: KOLO_TEST_EMAIL });
+          console.log('getKoloCryptoAddress', response);
+
+          if (active) setKoloCardAddress(response.address);
+        } catch {
+          if (active) setKoloCardAddress(undefined);
+        }
+      })();
+
+      return () => {
+        active = false;
+      };
+    }, [opened, koloPayway]);
+
     return (
       <PageModal title="Select Account" opened={opened} onRequestClose={onRequestClose}>
         <div className="flex flex-col p-4">
@@ -96,8 +139,14 @@ export const SelectAccountModal = memo<Props>(
 
         <ScrollView>
           <Suspense fallback={<SpinnerSection />}>
-            {filteredGroups.length || filteredContacts.length ? (
+            {filteredGroups.length || filteredContacts.length || shouldShowKoloCard ? (
               <>
+                <TempleCardGroup
+                  address={shouldShowKoloCard ? koloCardAddress : undefined}
+                  selectedAccountAddress={selectedAccountAddress}
+                  attractSelectedAccount={attractSelectedAccount}
+                  onAccountSelect={onAccountSelect}
+                />
                 <>
                   {filteredGroups.map(group => (
                     <AccountsGroup
@@ -186,6 +235,35 @@ const AddressBookGroup = memo<AddressBookGroupProps>(
   }
 );
 
+interface TempleCardGroupProps {
+  address?: string;
+  selectedAccountAddress: string;
+  attractSelectedAccount: boolean;
+  onAccountSelect: (address: string) => void;
+}
+
+const TempleCardGroup = memo<TempleCardGroupProps>(
+  ({ address, selectedAccountAddress, attractSelectedAccount, onAccountSelect }) => {
+    if (!address) return null;
+
+    return (
+      <GenericAccountsGroup title="Crypto card" accounts={[{ address }]}>
+        {({ address: cardAddress }) => (
+          <AccountOfGroup
+            key={cardAddress}
+            name="Temple Card"
+            address={cardAddress}
+            iconHash="temple-card"
+            isCurrent={cardAddress === selectedAccountAddress}
+            attractSelf={attractSelectedAccount}
+            onSelect={onAccountSelect}
+          />
+        )}
+      </GenericAccountsGroup>
+    );
+  }
+);
+
 interface AccountOfGroupProps {
   name: string;
   address: string;
@@ -241,3 +319,29 @@ const searchAndFilterContacts = (accounts: TempleContact[], searchValue: string)
 };
 
 const isEvmContact = (address: string) => address.startsWith('0x');
+
+const getKoloPayway = (network: OneOfChains) => {
+  console.log(network);
+  if (network.kind === TempleChainKind.Tezos) {
+    return 'tezos';
+  }
+
+  if (network.kind === TempleChainKind.EVM) {
+    const chainId = Number(network.chainId);
+
+    switch (chainId) {
+      case ETHEREUM_MAINNET_CHAIN_ID:
+        return 'eth';
+      case COMMON_MAINNET_CHAIN_IDS.bsc:
+        return 'bsc';
+      case COMMON_MAINNET_CHAIN_IDS.arbitrum:
+        return 'arbitrum';
+      case COMMON_MAINNET_CHAIN_IDS.base:
+        return 'base';
+      default:
+        return null;
+    }
+  }
+
+  return null;
+};
