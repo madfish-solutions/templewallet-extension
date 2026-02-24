@@ -2,6 +2,7 @@ import { isDefined } from '@rnw-community/shared';
 import {
   ContractMethodObject,
   ContractProvider,
+  getRevealGasLimit,
   OpKind,
   TezosToolkit,
   TransferParams,
@@ -24,6 +25,8 @@ import { isRoute3GasToken } from 'lib/route3/utils/assets.utils';
 import { mapToRoute3ExecuteHops } from 'lib/route3/utils/map-to-route3-hops';
 import { loadContract } from 'lib/temple/contract';
 import { tokensToAtoms } from 'lib/temple/helpers';
+
+import { tezosManagerKeyHasManager } from '../tezos';
 
 import { getTransferPermissions } from './get-transfer-permissions';
 import { ZERO } from './numbers';
@@ -211,18 +214,26 @@ function is3RouteOpParam(p: WalletParamsWithKind) {
 // so this value is with a generous buffer.
 const NON_3ROUTE_OPERATIONS_GAS_LIMIT = 15000;
 
-export async function getParamsWithCustomGasLimitFor3RouteSwap(tezos: TezosToolkit, opParams: WalletParamsWithKind[]) {
+export async function getParamsWithCustomGasLimitFor3RouteSwap(
+  tezos: TezosToolkit,
+  sourcePkh: string,
+  opParams: WalletParamsWithKind[]
+) {
   if (opParams.length < 2 || !opParams.some(op => is3RouteOpParam(op))) {
     return opParams;
   }
 
   try {
+    const manager = await tezos.rpc.getManagerKey(sourcePkh);
+    const revealGasLimit = tezosManagerKeyHasManager(manager) ? 0 : getRevealGasLimit(sourcePkh);
+
     const constants = await tezos.rpc.getConstants();
 
+    const blockGasLimitWithRevealReserve = constants.hard_gas_limit_per_block.minus(revealGasLimit);
     const non3RouteOpParamsCount = opParams.filter(op => !is3RouteOpParam(op)).length;
 
     const gasPer3RouteOperation = Math.min(
-      constants.hard_gas_limit_per_block
+      blockGasLimitWithRevealReserve
         .minus(non3RouteOpParamsCount * NON_3ROUTE_OPERATIONS_GAS_LIMIT)
         .div(opParams.length - non3RouteOpParamsCount)
         .integerValue(BigNumber.ROUND_DOWN)
