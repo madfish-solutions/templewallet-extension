@@ -8,6 +8,7 @@ import {
   ContentScriptType,
   DISCONNECT_DAPP_MSG_TYPE,
   EVM_DEFAULT_WALLET_STORAGE_KEY,
+  INIT_EVM_PROVIDER_MSG_TYPE,
   PASS_TO_BG_EVENT,
   RESPONSE_FROM_BG_MSG_TYPE,
   SWITCH_EVM_ACCOUNT_MSG_TYPE,
@@ -337,3 +338,18 @@ browser.storage.local.get(EVM_DEFAULT_WALLET_STORAGE_KEY).then(storage => {
   const templeOnWindowEthereum = setting !== EvmDefaultWallet.Other;
   window.postMessage({ type: TEMPLE_SET_DEFAULT_PROVIDER_MSG_TYPE, templeOnWindowEthereum }, window.origin);
 });
+
+getIntercom()
+  .request({
+    type: TempleMessageType.PageRequest,
+    origin: window.origin,
+    payload: { method: 'getDefaultRpc', params: null },
+    chainType: TempleChainKind.EVM
+  })
+  .then((res: TempleResponse) => {
+    if (res?.type === TempleMessageType.PageResponse && res.payload?.data) {
+      const { chainId, accounts } = res.payload.data;
+      window.postMessage({ type: INIT_EVM_PROVIDER_MSG_TYPE, chainId, accounts }, window.origin);
+    }
+  })
+  .catch(err => console.error(err));
