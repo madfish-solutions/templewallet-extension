@@ -23,6 +23,7 @@ import { useActivateAnimatedChevron } from 'lib/ui/hooks/use-activate-animated-c
 import useTippy from 'lib/ui/useTippy';
 import { Link } from 'lib/woozie';
 import { useAccountForTezos, useTezosMainnetChain } from 'temple/front';
+import { confirmTezosOperation, getTezosReadOnlyRpcClient } from 'temple/tezos';
 
 export const YourRewardsCards = memo(() => {
   const tezosMainnet = useTezosMainnetChain();
@@ -121,7 +122,7 @@ export const YourRewardsCards = memo(() => {
 
   const [isBakeryLoading, setIsBakeryLoading] = useState(false);
 
-  const { data: myBakerPkh } = useDelegate(account?.address ?? '', tezosMainnet, false, true);
+  const { data: myBakerPkh, mutate: updateBakerPkh } = useDelegate(account?.address ?? '', tezosMainnet, false, true);
   const delegatedToTemple = myBakerPkh === TEMPLE_BAKER_ADDRESS;
 
   useEffect(() => {
@@ -155,6 +156,18 @@ export const YourRewardsCards = memo(() => {
       }
     })();
   }, [account, monthKey, setBakeryStats, tkeyDecimals, tezosMainnet.chainId, tkeyMeta, bakeryStats]);
+
+  const handleDelegationSuccess = useCallback(
+    (opHash: string) => {
+      setIsBakeryLoading(true);
+
+      confirmTezosOperation(getTezosReadOnlyRpcClient(tezosMainnet), opHash)
+        .then(() => updateBakerPkh())
+        .catch(err => console.error('Failed to confirm successful delegation: ', err))
+        .finally(() => setIsBakeryLoading(false));
+    },
+    [updateBakerPkh, tezosMainnet]
+  );
 
   return (
     <div className="flex flex-col">
@@ -300,6 +313,7 @@ export const YourRewardsCards = memo(() => {
               network={tezosMainnet}
               account={account}
               directBakerPkh={TEMPLE_BAKER_ADDRESS}
+              onDelegationSuccess={handleDelegationSuccess}
               onClose={closeDelegation}
             />
           )}
