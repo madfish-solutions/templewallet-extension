@@ -25,8 +25,7 @@ import { isRoute3GasToken } from 'lib/route3/utils/assets.utils';
 import { mapToRoute3ExecuteHops } from 'lib/route3/utils/map-to-route3-hops';
 import { loadContract } from 'lib/temple/contract';
 import { tokensToAtoms } from 'lib/temple/helpers';
-
-import { tezosManagerKeyHasManager } from '../tezos';
+import { tezosManagerKeyHasManager } from 'lib/tezos';
 
 import { getTransferPermissions } from './get-transfer-permissions';
 import { ZERO } from './numbers';
