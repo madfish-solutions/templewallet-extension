@@ -166,21 +166,17 @@ export class TempleWeb3Provider extends EventEmitter {
 
     this.handleDisconnect = this.handleDisconnect.bind(this);
     this.handleSwitchAccount = this.handleSwitchAccount.bind(this);
-    this.initializeAccountsList = this.initializeAccountsList.bind(this);
+    this.initializeChainId();
     this.listenToTypedMessage(isDisconnectDAppMessage, this.handleDisconnect);
     this.listenToTypedMessage(isSwitchAccountMessage, this.handleSwitchAccount);
     this.listenToTypedMessage(isSwitchChainMessage, ({ chainId }) => this.updateChainId(toHex(chainId)));
   }
 
-  initializeAccountsList() {
-    return this.handleRequest(
+  private initializeChainId() {
+    this.handleRequest(
       { method: GET_DEFAULT_WEB3_PARAMS_METHOD_NAME, params: null },
-      ({ chainId, accounts }) => {
+      ({ chainId }) => {
         this.updateChainId(chainId);
-
-        if (accounts.length > 0) {
-          this.updateAccounts(accounts);
-        }
       },
       identity,
       undefined
