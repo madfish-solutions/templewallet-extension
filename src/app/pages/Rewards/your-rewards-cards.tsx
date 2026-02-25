@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
+import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 
 import clsx from 'clsx';
 
@@ -21,7 +21,7 @@ import { usePassiveStorage } from 'lib/temple/front/storage';
 import { TempleTezosChainId } from 'lib/temple/types';
 import { useActivateAnimatedChevron } from 'lib/ui/hooks/use-activate-animated-chevron';
 import useTippy from 'lib/ui/useTippy';
-import { Link } from 'lib/woozie';
+import { Link, navigate } from 'lib/woozie';
 import { useAccountForTezos, useTezosMainnetChain } from 'temple/front';
 import { confirmTezosOperation, getTezosReadOnlyRpcClient } from 'temple/tezos';
 
@@ -45,10 +45,6 @@ export const YourRewardsCards = memo(() => {
 
   const [isDelegationOpen, setDelegationOpen] = useState(false);
 
-  const openTempleBakerDelegation = useCallback<React.MouseEventHandler<HTMLAnchorElement>>(e => {
-    e.preventDefault();
-    setDelegationOpen(true);
-  }, []);
   const closeDelegation = useCallback(() => setDelegationOpen(false), []);
 
   const { isEnabled: isAdvertisingEnabled } = usePartnersPromotionSettings();
@@ -169,6 +165,15 @@ export const YourRewardsCards = memo(() => {
     [updateBakerPkh, tezosMainnet]
   );
 
+  const handleEarnTezClick = useCallback(() => {
+    if (isBakeryLoading) return;
+    if (!delegatedToTemple) {
+      setDelegationOpen(true);
+      return;
+    }
+    navigate(`/earn-tez/${tezosMainnet.chainId}`);
+  }, [delegatedToTemple, isBakeryLoading, tezosMainnet.chainId]);
+
   return (
     <div className="flex flex-col">
       <span className="text-font-description-bold mb-3">{t('yourRewards')}</span>
@@ -243,18 +248,17 @@ export const YourRewardsCards = memo(() => {
       {hasTezosAccount && (
         <>
           <div className="rounded-8 bg-white border-0.5 border-lines">
-            <Link
-              to={`/earn-tez/${tezosMainnet.chainId}`}
-              className={clsx('p-3 flex items-center justify-between')}
+            <div
+              className="p-3 flex items-center justify-between cursor-pointer"
               onMouseEnter={handleBakeryHover}
               onMouseLeave={handleBakeryUnhover}
-              onClick={delegatedToTemple ? undefined : openTempleBakerDelegation}
+              onClick={handleEarnTezClick}
             >
               <span className="text-font-medium-bold">
                 <T id="templeBakery" />
               </span>
               <AnimatedMenuChevron ref={bakeryChevronRef} />
-            </Link>
+            </div>
 
             <Divider className="bg-lines" />
 
