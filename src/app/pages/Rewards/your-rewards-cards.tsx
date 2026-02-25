@@ -117,9 +117,12 @@ export const YourRewardsCards = memo(() => {
   }>(bakeryRewardsStorageKey, null);
 
   const [isBakeryLoading, setIsBakeryLoading] = useState(false);
+  const [isDelegating, setIsDelegating] = useState(false);
 
   const { data: myBakerPkh, mutate: updateBakerPkh } = useDelegate(account?.address ?? '', tezosMainnet, false, true);
   const delegatedToTemple = myBakerPkh === TEMPLE_BAKER_ADDRESS;
+
+  console.log(delegatedToTemple);
 
   useEffect(() => {
     (async () => {
@@ -155,24 +158,24 @@ export const YourRewardsCards = memo(() => {
 
   const handleDelegationSuccess = useCallback(
     (opHash: string) => {
-      setIsBakeryLoading(true);
+      setIsDelegating(true);
 
-      confirmTezosOperation(getTezosReadOnlyRpcClient(tezosMainnet), opHash)
+      confirmTezosOperation(getTezosReadOnlyRpcClient(tezosMainnet), opHash, 2)
         .then(() => updateBakerPkh())
         .catch(err => console.error('Failed to confirm successful delegation: ', err))
-        .finally(() => setIsBakeryLoading(false));
+        .finally(() => setIsDelegating(false));
     },
     [updateBakerPkh, tezosMainnet]
   );
 
   const handleEarnTezClick = useCallback(() => {
-    if (isBakeryLoading) return;
+    if (isDelegating) return;
     if (!delegatedToTemple) {
       setDelegationOpen(true);
       return;
     }
     navigate(`/earn-tez/${tezosMainnet.chainId}`);
-  }, [delegatedToTemple, isBakeryLoading, tezosMainnet.chainId]);
+  }, [delegatedToTemple, isDelegating, tezosMainnet.chainId]);
 
   return (
     <div className="flex flex-col">
@@ -249,7 +252,7 @@ export const YourRewardsCards = memo(() => {
         <>
           <div className="rounded-8 bg-white border-0.5 border-lines">
             <div
-              className="p-3 flex items-center justify-between cursor-pointer"
+              className={clsx('p-3 flex items-center justify-between', !isDelegating && 'cursor-pointer')}
               onMouseEnter={handleBakeryHover}
               onMouseLeave={handleBakeryUnhover}
               onClick={handleEarnTezClick}
@@ -257,7 +260,13 @@ export const YourRewardsCards = memo(() => {
               <span className="text-font-medium-bold">
                 <T id="templeBakery" />
               </span>
-              <AnimatedMenuChevron ref={bakeryChevronRef} />
+              {isDelegating ? (
+                <div className="flex items-center justify-between p-1">
+                  <Loader size="S" trackVariant="dark" className="text-secondary" />
+                </div>
+              ) : (
+                <AnimatedMenuChevron ref={bakeryChevronRef} />
+              )}
             </div>
 
             <Divider className="bg-lines" />
