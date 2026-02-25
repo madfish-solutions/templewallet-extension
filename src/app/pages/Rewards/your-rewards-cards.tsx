@@ -122,8 +122,6 @@ export const YourRewardsCards = memo(() => {
   const { data: myBakerPkh, mutate: updateBakerPkh } = useDelegate(account?.address ?? '', tezosMainnet, false, true);
   const delegatedToTemple = myBakerPkh === TEMPLE_BAKER_ADDRESS;
 
-  console.log(delegatedToTemple);
-
   useEffect(() => {
     (async () => {
       if (!account || !tkeyMeta) {
