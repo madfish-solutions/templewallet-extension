@@ -101,7 +101,7 @@ const Provider: FC<ProviderProps> = ({ current, activeId, onClick }) => {
           {current.isBestPrice && <Tag title="bestPrice" className="bg-success" />}
         </div>
       </div>
-      <div className="py-3 flex flex-row justify-between items-center border-t-0.5">
+      <div className="py-3 flex flex-row justify-between items-center border-t-0.5 border-lines">
         <p className="p-1 text-font-medium text-grey-1">
           <T id="youGet" />:
         </p>

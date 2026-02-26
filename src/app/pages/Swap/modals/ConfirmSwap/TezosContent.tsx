@@ -41,24 +41,25 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
   const { chainId } = network;
 
   const accountPkh = account.address;
+  const sourcePkh = account.ownerAddress || accountPkh;
   const isLedgerAccount = account.type === TempleAccountType.Ledger;
 
   const [latestSubmitError, setLatestSubmitError] = useState<unknown>(null);
 
   const getActiveBlockExplorer = useGetTezosActiveBlockExplorer();
 
-  const tezos = getTezosToolkitWithSigner(network, account.ownerAddress || accountPkh, true);
+  const tezos = getTezosToolkitWithSigner(network, sourcePkh, true);
 
   const getSourcePkIsRevealed = useCallback(async () => {
     try {
-      return tezosManagerKeyHasManager(await tezos.rpc.getManagerKey(account.ownerAddress || accountPkh));
+      return tezosManagerKeyHasManager(await tezos.rpc.getManagerKey(sourcePkh));
     } catch (e) {
       console.error(e);
       return false;
     }
-  }, [account.ownerAddress, accountPkh, tezos]);
+  }, [sourcePkh, tezos]);
   const { data: sourcePkIsRevealed } = useTypedSWR(
-    ['source-pk-is-revealed', account.ownerAddress || accountPkh, network.chainId],
+    ['source-pk-is-revealed', sourcePkh, network.chainId],
     getSourcePkIsRevealed,
     {
       revalidateOnFocus: false,
@@ -69,9 +70,9 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
 
   const estimate = useCallback(async () => {
     try {
-      const route3HandledParams = await getParamsWithCustomGasLimitFor3RouteSwap(tezos, opParams);
+      const route3HandledParams = await getParamsWithCustomGasLimitFor3RouteSwap(tezos, sourcePkh, opParams);
       const estimates = await tezos.estimate.batch(
-        route3HandledParams.map(params => ({ ...params, source: account.ownerAddress || accountPkh }))
+        route3HandledParams.map(params => ({ ...params, source: sourcePkh }))
       );
 
       const estimatedBaseFee = mutezToTz(
@@ -88,7 +89,7 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
       console.error(err);
       return;
     }
-  }, [tezos, opParams, account.ownerAddress, accountPkh]);
+  }, [sourcePkh, tezos, opParams]);
 
   const {
     data: estimationData,
