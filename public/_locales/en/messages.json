@@ -2974,11 +2974,8 @@
   "custom": {
     "message": "Custom"
   },
-  "minimumReceived": {
-    "message": "Minimum Received"
-  },
   "minReceived": {
-    "message": "Minimum Received"
+    "message": "Min.received"
   },
   "scam": {
     "message": "Scam"

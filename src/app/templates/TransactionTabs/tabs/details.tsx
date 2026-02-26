@@ -108,7 +108,7 @@ export const DetailsTab: FC<Props> = ({
     rows.push(bottomSeparator => (
       <SwapInfoRow
         key="minimumReceived"
-        title={t('minimumReceived')}
+        title={t('minReceived')}
         {...minimumReceived}
         bottomSeparator={bottomSeparator}
       />
