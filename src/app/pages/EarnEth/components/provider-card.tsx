@@ -19,18 +19,24 @@ interface ProviderCardProps {
 
 export const ProviderCard = memo<ProviderCardProps>(({ className, stats }) => {
   const { validator_activation_time, validator_adding_delay, balance, pendingBalance, pendingDepositedBalance } = stats;
-  const activationTimeSeconds = validator_activation_time + validator_adding_delay;
+  const hasActivationData = validator_activation_time != null && validator_adding_delay != null;
+  const activationTimeSeconds = (validator_activation_time ?? 0) + (validator_adding_delay ?? 0);
   const longFormattedActivationTime = useMemo(
     () =>
-      formatDuration(
-        activationTimeSeconds,
-        activationTimeSeconds < ONE_DAY_SECONDS ? ['hours', 'minutes', 'seconds'] : ['days', 'hours']
-      ),
-    [activationTimeSeconds]
+      hasActivationData
+        ? formatDuration(
+            activationTimeSeconds,
+            activationTimeSeconds < ONE_DAY_SECONDS ? ['hours', 'minutes', 'seconds'] : ['days', 'hours']
+          )
+        : 'N/A',
+    [hasActivationData, activationTimeSeconds]
   );
   const shortFormattedActivationTime = useMemo(
-    () => formatDuration(activationTimeSeconds, activationTimeSeconds < ONE_DAY_SECONDS ? ['hours'] : ['days']),
-    [activationTimeSeconds]
+    () =>
+      hasActivationData
+        ? formatDuration(activationTimeSeconds, activationTimeSeconds < ONE_DAY_SECONDS ? ['hours'] : ['days'])
+        : 'N/A',
+    [hasActivationData, activationTimeSeconds]
   );
 
   const stakedAmount = useMemo(
