@@ -8,6 +8,8 @@ import { ETHEREUM_MAINNET_CHAIN_ID } from 'lib/temple/types';
 import { Link } from 'lib/woozie';
 import { TempleChainKind } from 'temple/types';
 
+import { TokenPageSelectors } from './selectors';
+
 interface Props {
   chainKind: TempleChainKind;
   chainId: string | number;
@@ -39,6 +41,8 @@ export const EarnTag = memo<Props>(({ chainKind, chainId, assetSlug }) => {
     <Link
       to={data.to}
       className="flex justify-center items-center gap-x-1 p-2 rounded-6 bg-white border-0.5 border-lines hover:bg-grey-4"
+      testID={TokenPageSelectors.earnTag}
+      testIDProperties={{ chainId, assetSlug }}
     >
       <FireAnimatedEmoji />
       <span className="text-font-small-bold">{data.label}</span>
