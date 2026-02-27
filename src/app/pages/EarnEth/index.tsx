@@ -82,17 +82,10 @@ export const EarnEthPage = memo(() => {
   const getStats = useCallback(async () => {
     if (!evmAddress || !stakingEthereum) return null;
 
-    const SIMULATE_EVERSTAKE_403 = true; // TODO: Remove after QA testing
-
     const [contractViewsStats, validatorsQueueStats, lastUnstakeTransaction] = await Promise.all([
       stakingEthereum.contractViewsStats(evmAddress),
-      (SIMULATE_EVERSTAKE_403 ? Promise.reject(new Error('Simulated 403')) : getEthValidatorsQueueStats()).catch(
-        () => null
-      ),
-      (SIMULATE_EVERSTAKE_403
-        ? Promise.reject(new Error('Simulated 403'))
-        : getEthAccountTransactions({ account: evmAddress, operation: 'unstake', limit: 1 })
-      ).catch(() => null)
+      getEthValidatorsQueueStats().catch(() => null),
+      getEthAccountTransactions({ account: evmAddress, operation: 'unstake', limit: 1 }).catch(() => null)
     ]);
 
     const everstakeDataUnavailable = !validatorsQueueStats || !lastUnstakeTransaction;
