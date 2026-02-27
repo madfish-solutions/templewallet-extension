@@ -38,7 +38,7 @@ export const EarnTag = memo<Props>(({ chainKind, chainId, assetSlug }) => {
   return (
     <Link
       to={data.to}
-      className="flex justify-center items-center gap-x-1 p-2 rounded-6 bg-white border-0.5 border-lines"
+      className="flex justify-center items-center gap-x-1 p-2 rounded-6 bg-white border-0.5 border-lines hover:bg-grey-4"
     >
       <FireAnimatedEmoji />
       <span className="text-font-small-bold">{data.label}</span>
