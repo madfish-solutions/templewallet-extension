@@ -16,7 +16,7 @@ import { ExploreActionButtonsBar } from 'app/templates/ExploreActionButtons';
 import { isTezAsset, TEMPLE_TOKEN_SLUG } from 'lib/assets';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { useEvmCategorizedAssetMetadata, useCategorizedTezosAssetMetadata } from 'lib/metadata';
-import { ETHEREUM_MAINNET_CHAIN_ID } from 'lib/temple/types';
+import { ETHEREUM_HOODI_CHAIN_ID, ETHEREUM_MAINNET_CHAIN_ID } from 'lib/temple/types';
 import { useBooleanState } from 'lib/ui/hooks';
 import { HistoryAction, navigate, useLocation } from 'lib/woozie';
 import { TempleChainKind } from 'temple/types';
@@ -136,7 +136,10 @@ const EvmTokenPage: FC<EvmTokenPageProps> = ({ chainId, assetSlug }) => {
   );
 
   const additionalButtonType = useMemo(
-    () => (assetSlug === EVM_TOKEN_SLUG && chainId === ETHEREUM_MAINNET_CHAIN_ID ? 'earn-eth' : undefined),
+    () =>
+      assetSlug === EVM_TOKEN_SLUG && (chainId === ETHEREUM_MAINNET_CHAIN_ID || chainId === ETHEREUM_HOODI_CHAIN_ID)
+        ? 'earn-eth'
+        : undefined,
     [assetSlug, chainId]
   );
 
