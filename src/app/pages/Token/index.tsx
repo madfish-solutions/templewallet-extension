@@ -89,7 +89,7 @@ const TezosTokenPage: FC<TezosTokenPageProps> = ({ chainId, assetSlug }) => {
       </PageModal>
 
       <PageLayout {...pageProps} contentPadding={false}>
-        <div className="flex flex-col p-4 gap-y-3 bg-white">
+        <div className="flex flex-col p-4 gap-y-3 bg-background">
           {showScamTokenAlert && <ScamTokenAlert isCollectible={false} tezosChainId={chainId} assetSlug={assetSlug} />}
           <TezosAssetBanner chainId={chainId} assetSlug={assetSlug} />
 
@@ -103,7 +103,7 @@ const TezosTokenPage: FC<TezosTokenPageProps> = ({ chainId, assetSlug }) => {
         </div>
 
         <SuspenseContainer key={`${chainId}/${assetSlug}`}>
-          <ContentContainer>
+          <ContentContainer withShadow={false}>
             <ActivityListContainer chainId={chainId} assetSlug={assetSlug}>
               <TezosActivityList tezosChainId={chainId} assetSlug={assetSlug} />
             </ActivityListContainer>
@@ -147,7 +147,7 @@ const EvmTokenPage: FC<EvmTokenPageProps> = ({ chainId, assetSlug }) => {
       </PageModal>
 
       <PageLayout {...pageProps} contentPadding={false}>
-        <div className="flex flex-col p-4 gap-y-3 bg-white">
+        <div className="flex flex-col p-4 gap-y-3 bg-background">
           <EvmAssetBanner chainId={chainId} assetSlug={assetSlug} />
 
           <ExploreActionButtonsBar
@@ -160,7 +160,7 @@ const EvmTokenPage: FC<EvmTokenPageProps> = ({ chainId, assetSlug }) => {
         </div>
 
         <SuspenseContainer key={`${chainId}/${assetSlug}`}>
-          <ContentContainer>
+          <ContentContainer withShadow={false}>
             <ActivityListContainer chainId={chainId} assetSlug={assetSlug}>
               <EvmActivityList chainId={chainId} assetSlug={assetSlug} />
             </ActivityListContainer>
