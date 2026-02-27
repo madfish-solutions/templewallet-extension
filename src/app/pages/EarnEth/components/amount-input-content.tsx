@@ -5,7 +5,7 @@ import clsx from 'clsx';
 import { Controller, SubmitErrorHandler, useForm } from 'react-hook-form';
 
 import { FadeTransition } from 'app/a11y/FadeTransition';
-import { Button, Money } from 'app/atoms';
+import { Alert, Button, Money } from 'app/atoms';
 import AssetField from 'app/atoms/AssetField';
 import { StyledButton } from 'app/atoms/StyledButton';
 import { PageModalScrollViewWithActions } from 'app/templates/page-modal-scroll-view-with-actions';
@@ -128,6 +128,9 @@ export const AmountInputContent: FC<AmountInputContentProps> = ({
         }}
       >
         <form id={formId} onSubmit={handleSubmit(onSubmit, handleInvalidSubmit)} className="flex flex-col">
+          {stats.everstakeDataUnavailable && (
+            <Alert className="mb-4" type="warning" description={<T id="someStakingInfoUnavailable" />} />
+          )}
           {children}
 
           <p className="mt-1 mb-2 text-font-description-bold">
