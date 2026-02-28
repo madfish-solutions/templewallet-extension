@@ -104,6 +104,7 @@ import { Vault } from './vault';
 export { switchTezosAccount } from './dapp';
 export { switchChain as switchEvmChain, switchAccount as switchEvmAccount } from './evm-dapp';
 export { provePossession } from './prove-possession';
+export { getSaplingCredentials, prepareSaplingTransaction } from './sapling';
 
 const ACCOUNT_OR_GROUP_NAME_PATTERN = /^.{1,16}$/;
 const AUTODECLINE_AFTER = 60_000;

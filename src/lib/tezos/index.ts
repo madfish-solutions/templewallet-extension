@@ -5,7 +5,7 @@ import {
   type ManagerKeyResponse,
   type OperationContentsAndResult
 } from '@taquito/rpc';
-import { validateAddress, validateChain, ValidationResult } from '@taquito/utils';
+import { b58DecodeAndCheckPrefix, PrefixV2, validateAddress, validateChain, ValidationResult } from '@taquito/utils';
 import BigNumber from 'bignumber.js';
 
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
@@ -16,6 +16,16 @@ import { parseTransactionParams } from './parse-transaction-params';
 
 export function isValidTezosChainId(chainId: string) {
   return validateChain(chainId) === ValidationResult.VALID;
+}
+
+export function isValidSaplingAddress(address: string) {
+  try {
+    b58DecodeAndCheckPrefix(address, [PrefixV2.SaplingAddress]);
+
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 export function isValidTezosAddress(address: string) {

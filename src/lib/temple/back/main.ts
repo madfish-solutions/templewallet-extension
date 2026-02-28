@@ -232,6 +232,25 @@ const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<T
         result: proveResult
       };
 
+    case TempleMessageType.GetSaplingCredentialsRequest:
+      const saplingCredentials = await Actions.getSaplingCredentials(req.accountId);
+      return {
+        type: TempleMessageType.GetSaplingCredentialsResponse,
+        payload: saplingCredentials
+      };
+
+    case TempleMessageType.PrepareSaplingTransactionRequest:
+      const preparedTransaction = await Actions.prepareSaplingTransaction(
+        req.accountId,
+        req.transaction,
+        req.network,
+        req.saplingContractAddress
+      );
+      return {
+        type: TempleMessageType.PrepareSaplingTransactionResponse,
+        transaction: preparedTransaction
+      };
+
     case TempleMessageType.DAppRemoveSessionRequest:
       const sessions = await Actions.removeDAppSession(req.origins);
       return {

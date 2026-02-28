@@ -1,8 +1,9 @@
 import type Eth from '@ledgerhq/hw-app-eth';
 import { DerivationType } from '@taquito/ledger-signer';
 import { localForger } from '@taquito/local-forging';
-import { CompositeForger, OperationBatch, RpcForger, Signer, TezosToolkit } from '@taquito/taquito';
+import { CompositeForger, OperationBatch, RpcForger, RpcReadAdapter, Signer, TezosToolkit } from '@taquito/taquito';
 import * as TaquitoUtils from '@taquito/utils';
+import { InMemorySpendingKey, SaplingToolkit } from '@tezos-x/octez.js-sapling';
 import * as Bip39 from 'bip39';
 import { nanoid } from 'nanoid';
 import {
@@ -30,6 +31,7 @@ import { deleteEvmActivitiesByAddress, deleteTezosActivitiesByAddress } from 'li
 import {
   fetchNewGroupName,
   formatOpParamsBeforeSend,
+  getDerivationPath,
   getSameGroupAccounts,
   isNameCollision,
   toExcelColumnName
@@ -38,6 +40,7 @@ import * as Passworder from 'lib/temple/passworder';
 import { clearAsyncStorages } from 'lib/temple/reset';
 import {
   EvmDefaultWallet,
+  SaplingContractTransaction,
   SaveLedgerAccountInput,
   StoredAccount,
   TempleAccountType,
@@ -66,6 +69,7 @@ import {
   createMemorySigner,
   fetchNewAccountName,
   generateCheck,
+  getMnemonicFromSecretKey,
   mnemonicToEvmAccountCreds,
   mnemonicToTezosAccountCreds,
   privateKeyToEvmAccountCreds,
@@ -864,6 +868,70 @@ export class Vault {
         async signer => await (signer.provePossession?.() ?? Promise.reject(new PublicError('Cannot prove possession')))
       )
     );
+  }
+
+  private async getSpendingKey(accountId: string) {
+    const allAccounts = await this.fetchAccounts();
+    const account = allAccounts.find(acc => acc.id === accountId);
+
+    if (!account) {
+      throw new PublicError('Account not found');
+    }
+
+    switch (account.type) {
+      case TempleAccountType.HD:
+        return await InMemorySpendingKey.fromMnemonic(
+          await fetchAndDecryptOne<string>(walletMnemonicStrgKey(account.walletId), this.passKey),
+          account.hdIndex === 0 ? undefined : getDerivationPath(TempleChainKind.Tezos, account.hdIndex)
+        );
+      case TempleAccountType.Imported:
+        if (account.chain !== TempleChainKind.Tezos) {
+          throw new PublicError('Cannot generate sapling account for this account type');
+        }
+
+        return await InMemorySpendingKey.fromMnemonic(
+          getMnemonicFromSecretKey(await fetchAndDecryptOne<string>(accPrivKeyStrgKey(account.address), this.passKey))
+        );
+      default:
+        throw new PublicError('Cannot generate sapling account for this account type');
+    }
+  }
+
+  // TODO: add these values to the account object
+  async getSaplingCredentials(accountId: string) {
+    return withError('Failed to get sapling credentials', async () => {
+      const spendingKey = await this.getSpendingKey(accountId);
+
+      const saplingViewingKeyProvider = await spendingKey.getSaplingViewingKeyProvider();
+
+      return {
+        viewingKey: saplingViewingKeyProvider.getFullViewingKey().toString('hex'),
+        saplingAddress: (await saplingViewingKeyProvider.getAddress()).address
+      };
+    });
+  }
+
+  async prepareSaplingTransaction(
+    accountId: string,
+    transaction: SaplingContractTransaction,
+    readAdapter: RpcReadAdapter,
+    saplingContractAddress: string
+  ) {
+    const spendingKey = await this.getSpendingKey(accountId);
+    const saplingToolkit = new SaplingToolkit(
+      { saplingSigner: spendingKey },
+      { contractAddress: saplingContractAddress, memoSize: 8 },
+      readAdapter
+    );
+
+    switch (transaction.type) {
+      case 'unshielded':
+        return await saplingToolkit.prepareUnshieldedTransaction(transaction.params);
+      case 'shielded':
+        return await saplingToolkit.prepareShieldedTransaction(transaction.params);
+      case 'sapling':
+        return await saplingToolkit.prepareSaplingTransaction(transaction.params);
+    }
   }
 
   async sign(accPublicKeyHash: string, bytes: string, watermark?: string) {

@@ -1,4 +1,6 @@
+import { b58DecodeAndCheckPrefix } from '@taquito/utils';
 import * as Bip39 from 'bip39';
+import bs58check from 'bs58check';
 import * as ViemAccounts from 'viem/accounts';
 import { toHex } from 'viem/utils';
 
@@ -148,3 +150,27 @@ export async function withError<T>(errMessage: string, factory: (doThrow: () => 
     throw err instanceof PublicError ? err : new PublicError(errMessage);
   }
 }
+
+export function getMnemonicFromSecretKey(secretKey: string) {
+  let entropy: Uint8Array | Buffer;
+
+  if (secretKey.startsWith('spsk') || secretKey.startsWith('p2sk')) {
+    [entropy] = b58DecodeAndCheckPrefix(secretKey);
+  } else if (secretKey.startsWith('edsk')) {
+    entropy = getEntropyFromEdsk(secretKey);
+  } else {
+    throw new PublicError('Invalid secret key');
+  }
+
+  return Bip39.entropyToMnemonic(Buffer.from(entropy));
+}
+
+const getEntropyFromEdsk = (edskString: string) => {
+  const decoded = bs58check.decode(edskString);
+  const prefixLength = 4;
+  const rawBytes = decoded.subarray(prefixLength);
+  if (rawBytes.length === 64) {
+    return rawBytes.subarray(0, 32);
+  }
+  return rawBytes;
+};

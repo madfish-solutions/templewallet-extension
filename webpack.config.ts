@@ -7,6 +7,7 @@ import { CleanWebpackPlugin } from 'clean-webpack-plugin';
 import CopyWebpackPlugin from 'copy-webpack-plugin';
 import CreateFileWebpack from 'create-file-webpack';
 import CssMinimizerPlugin from 'css-minimizer-webpack-plugin';
+import { readdirSync } from 'fs';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
 import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 import * as Path from 'path';
@@ -136,6 +137,23 @@ const mainConfig = (() => {
           { from: PATHS.LIBTHEMIS_WASM_FILE, to: PATHS.OUTPUT_WASM },
           ...(shouldDisableAds ? [] : [{ from: PATHS.HYPELAB_EMBED_FILE, to: PATHS.OUTPUT_HYPELAB_EMBED }])
         ]
+      }),
+
+      new CreateFileWebpack({
+        path: PATHS.OUTPUT_WASM,
+        fileName: 'sapling.wasm',
+        content: (() => {
+          const candidates = readdirSync(PATHS.AIRGAP_SAPLING_WASM_DIR);
+          const wasmJsFile = candidates.find(file => file.endsWith('wasm.js'));
+
+          if (!wasmJsFile) {
+            throw new Error('Sapling WASM JS file not found');
+          }
+
+          const wasmContent: Buffer = require(Path.join(PATHS.AIRGAP_SAPLING_WASM_DIR, wasmJsFile));
+
+          return wasmContent;
+        })()
       }),
 
       // TODO: Enable, when Swap route hops SVGs are used again
