@@ -21,7 +21,8 @@ export const ControlButton = memo<Props>(
   ({ labelI18n, expanded, Icon, iconNode, active = false, onClick, onMouseEnter, onMouseLeave, testID }) => (
     <Button
       className={clsx(
-        'flex items-center p-1 rounded-full border-0.5 border-lines bg-grey-4 hover:bg-secondary-low overflow-hidden transition-all ease-in duration-300',
+        'flex items-center p-1 rounded-full border-0.5 border-lines overflow-hidden transition-all ease-in duration-300',
+        active ? 'bg-secondary-low' : 'bg-grey-4 hover:bg-secondary-low',
         expanded ? 'w-[84px] h-8 gap-x-1' : 'w-8 h-8'
       )}
       onClick={onClick}

@@ -31,19 +31,20 @@ export const ControlFiltersButton = memo<Props>(({ expanded, onClick, testID }) 
   const iconNode = useMemo(() => {
     if (selectedNetwork) {
       return selectedNetwork.kind === TempleChainKind.Tezos ? (
-        <TezosNetworkLogo chainId={selectedNetwork.chainId} size={20} />
+        <TezosNetworkLogo chainId={selectedNetwork.chainId} size={16} />
       ) : (
-        <EvmNetworkLogo chainId={selectedNetwork.chainId} size={20} imgClassName="border-0 bg-transparent p-0" />
+        <EvmNetworkLogo chainId={selectedNetwork.chainId} size={16} />
       );
     }
 
-    return isNonDefaultOption ? <FilterOnIcon className="text-secondary" /> : <FilterOffIcon />;
-  }, [isNonDefaultOption, selectedNetwork]);
+    return;
+  }, [selectedNetwork]);
 
   return (
     <ControlButton
       labelI18n="filters"
       expanded={expanded}
+      Icon={isNonDefaultOption ? FilterOnIcon : FilterOffIcon}
       iconNode={iconNode}
       active={isActive}
       onClick={onClick}
