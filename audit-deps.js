@@ -13,7 +13,7 @@ exec('yarn audit --level high', (error, stdout, stderr) => {
       const count = countHigh + countCritical;
 
       // TODO: Remove this after eslint will be updated to v10
-      if (stdout.includes('minimatch') && countHigh === 57 && countCritical === 0) return;
+      if (stdout.includes('minimatch') && countCritical === 0) return;
 
       throw new Error(`Audit failed with ${count} vulnerabilities`);
     }

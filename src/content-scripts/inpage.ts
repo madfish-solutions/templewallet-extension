@@ -38,9 +38,7 @@ function announceProvider() {
 }
 
 const defaultTempleProvider = new TempleWeb3Provider();
-defaultTempleProvider.initializeAccountsList();
 const eip6963TempleProvider = new TempleWeb3Provider(true);
-eip6963TempleProvider.initializeAccountsList();
 
 const existingEthereum = window.ethereum;
 

@@ -67,7 +67,7 @@ export async function dryRunOpParams({
     let serializedEstimates: SerializedEstimate[] | undefined;
     let error: any = [];
     try {
-      const route3HandledParams = await getParamsWithCustomGasLimitFor3RouteSwap(tezos, opParams);
+      const route3HandledParams = await getParamsWithCustomGasLimitFor3RouteSwap(tezos, sourcePkh, opParams);
       const formatted = route3HandledParams.map(operation => formatOpParamsBeforeSend(operation, sourcePkh));
 
       const [estimationResult] = await Promise.allSettled([tezos.estimate.batch(formatted)]);

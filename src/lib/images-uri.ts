@@ -28,7 +28,13 @@ export const buildTokenImagesStack = (url?: string): string[] => {
 
   if (url.startsWith(IPFS_PROTOCOL) || url.startsWith('http')) {
     const uriInfo = getMediaUriInfo(url);
-    return [buildIpfsMediaUriByInfo(uriInfo, 'small'), buildIpfsMediaUriByInfo(uriInfo, 'medium')].filter(isTruthy);
+    const directFallback = uriInfo.ipfs ? buildIpfsMediaUriByInfo(uriInfo, 'small', false) : uriInfo.uri;
+
+    return [
+      buildIpfsMediaUriByInfo(uriInfo, 'small'),
+      buildIpfsMediaUriByInfo(uriInfo, 'medium'),
+      directFallback
+    ].filter(isTruthy);
   }
 
   if (url.startsWith('data:image/') || url.startsWith('chrome-extension') || url.startsWith('moz-extension')) {

@@ -23,14 +23,17 @@ const wrapperFactory = () => {
 
 export const NotReadyClaimButton = memo<{ stats: EthStakingStats }>(({ stats }) => {
   const { validator_withdraw_time, validator_exit_time, lastUnstakeTimestamp } = stats;
+  const hasTimingData = validator_withdraw_time != null && validator_exit_time != null;
   const notReadyClaimTooltipContent = useMemo(() => {
+    if (!hasTimingData) return t('claimNotReadyYet');
+
     const secondsLeft =
       validator_exit_time +
       validator_withdraw_time -
       (lastUnstakeTimestamp ? Math.floor((Date.now() - new Date(lastUnstakeTimestamp).getTime()) / 1000) : 0);
 
     return t('notReadyClaimTooltip', formatDuration(secondsLeft, secondsLeft < ONE_DAY_SECONDS ? ['hours'] : ['days']));
-  }, [validator_exit_time, validator_withdraw_time, lastUnstakeTimestamp]);
+  }, [hasTimingData, validator_exit_time, validator_withdraw_time, lastUnstakeTimestamp]);
 
   const tooltipRef = useRichFormatTooltip<HTMLDivElement>(
     notReadyClaimTooltipProps,

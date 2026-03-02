@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
+import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 
 import clsx from 'clsx';
 
@@ -21,8 +21,9 @@ import { usePassiveStorage } from 'lib/temple/front/storage';
 import { TempleTezosChainId } from 'lib/temple/types';
 import { useActivateAnimatedChevron } from 'lib/ui/hooks/use-activate-animated-chevron';
 import useTippy from 'lib/ui/useTippy';
-import { Link } from 'lib/woozie';
+import { Link, navigate } from 'lib/woozie';
 import { useAccountForTezos, useTezosMainnetChain } from 'temple/front';
+import { confirmTezosOperation, getTezosReadOnlyRpcClient } from 'temple/tezos';
 
 export const YourRewardsCards = memo(() => {
   const tezosMainnet = useTezosMainnetChain();
@@ -44,10 +45,6 @@ export const YourRewardsCards = memo(() => {
 
   const [isDelegationOpen, setDelegationOpen] = useState(false);
 
-  const openTempleBakerDelegation = useCallback<React.MouseEventHandler<HTMLAnchorElement>>(e => {
-    e.preventDefault();
-    setDelegationOpen(true);
-  }, []);
   const closeDelegation = useCallback(() => setDelegationOpen(false), []);
 
   const { isEnabled: isAdvertisingEnabled } = usePartnersPromotionSettings();
@@ -120,8 +117,9 @@ export const YourRewardsCards = memo(() => {
   }>(bakeryRewardsStorageKey, null);
 
   const [isBakeryLoading, setIsBakeryLoading] = useState(false);
+  const [isDelegating, setIsDelegating] = useState(false);
 
-  const { data: myBakerPkh } = useDelegate(account?.address ?? '', tezosMainnet, false, true);
+  const { data: myBakerPkh, mutate: updateBakerPkh } = useDelegate(account?.address ?? '', tezosMainnet, false, true);
   const delegatedToTemple = myBakerPkh === TEMPLE_BAKER_ADDRESS;
 
   useEffect(() => {
@@ -155,6 +153,27 @@ export const YourRewardsCards = memo(() => {
       }
     })();
   }, [account, monthKey, setBakeryStats, tkeyDecimals, tezosMainnet.chainId, tkeyMeta, bakeryStats]);
+
+  const handleDelegationSuccess = useCallback(
+    (opHash: string) => {
+      setIsDelegating(true);
+
+      confirmTezosOperation(getTezosReadOnlyRpcClient(tezosMainnet), opHash, 2)
+        .then(() => updateBakerPkh())
+        .catch(err => console.error('Failed to confirm successful delegation: ', err))
+        .finally(() => setIsDelegating(false));
+    },
+    [updateBakerPkh, tezosMainnet]
+  );
+
+  const handleEarnTezClick = useCallback(() => {
+    if (isDelegating) return;
+    if (!delegatedToTemple) {
+      setDelegationOpen(true);
+      return;
+    }
+    navigate(`/earn-tez/${tezosMainnet.chainId}`);
+  }, [delegatedToTemple, isDelegating, tezosMainnet.chainId]);
 
   return (
     <div className="flex flex-col">
@@ -230,18 +249,23 @@ export const YourRewardsCards = memo(() => {
       {hasTezosAccount && (
         <>
           <div className="rounded-8 bg-white border-0.5 border-lines">
-            <Link
-              to={`/earn-tez/${tezosMainnet.chainId}`}
-              className={clsx('p-3 flex items-center justify-between')}
+            <div
+              className={clsx('p-3 flex items-center justify-between', !isDelegating && 'cursor-pointer')}
               onMouseEnter={handleBakeryHover}
               onMouseLeave={handleBakeryUnhover}
-              onClick={delegatedToTemple ? undefined : openTempleBakerDelegation}
+              onClick={handleEarnTezClick}
             >
               <span className="text-font-medium-bold">
                 <T id="templeBakery" />
               </span>
-              <AnimatedMenuChevron ref={bakeryChevronRef} />
-            </Link>
+              {isDelegating ? (
+                <div className="flex items-center justify-between p-1">
+                  <Loader size="S" trackVariant="dark" className="text-secondary" />
+                </div>
+              ) : (
+                <AnimatedMenuChevron ref={bakeryChevronRef} />
+              )}
+            </div>
 
             <Divider className="bg-lines" />
 
@@ -300,6 +324,7 @@ export const YourRewardsCards = memo(() => {
               network={tezosMainnet}
               account={account}
               directBakerPkh={TEMPLE_BAKER_ADDRESS}
+              onDelegationSuccess={handleDelegationSuccess}
               onClose={closeDelegation}
             />
           )}

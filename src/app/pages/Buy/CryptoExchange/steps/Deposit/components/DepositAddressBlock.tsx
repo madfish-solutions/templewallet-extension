@@ -2,6 +2,7 @@ import React, { memo } from 'react';
 
 import clsx from 'clsx';
 
+import HashShortView from 'app/atoms/HashShortView';
 import { IconButton } from 'app/atoms/IconButton';
 import { ReactComponent as CopyIcon } from 'app/icons/base/copy.svg';
 import { ReactComponent as QrCodeIcon } from 'app/icons/base/qr_code.svg';
@@ -36,7 +37,7 @@ export const DepositAddressBlock = memo<Props>(({ className }) => {
             <T id="depositAddress" />
           </span>
           <span className="text-font-description text-grey-1 w-48 normal:w-56 h-8 break-words">
-            {exchangeData.depositAddress}
+            <HashShortView hash={exchangeData.depositAddress} trimAfter={60} firstCharsCount={40} lastCharsCount={20} />
           </span>
         </div>
         <div className="flex flex-row gap-x-2 self-end">

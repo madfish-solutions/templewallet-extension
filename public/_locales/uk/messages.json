@@ -1382,9 +1382,6 @@
   "slippageTolerance": {
     "message": "Максимально допустиме відхилення"
   },
-  "minimumReceived": {
-    "message": "Мінімальний Вихід"
-  },
   "steps_one": {
     "message": "$amount$ крок",
     "description": "For plural forms",
