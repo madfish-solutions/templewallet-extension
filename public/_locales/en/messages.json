@@ -2787,6 +2787,9 @@
   "testnet": {
     "message": "Testnet"
   },
+  "filters": {
+    "message": "Filters"
+  },
   "removeNetwork": {
     "message": "Remove Network"
   },
