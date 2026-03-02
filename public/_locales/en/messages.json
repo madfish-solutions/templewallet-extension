@@ -77,6 +77,45 @@
   "templeRewards": {
     "message": "Temple Rewards"
   },
+  "activateRewards": {
+    "message": "Activate rewards"
+  },
+  "rewardsPushHeading": {
+    "message": "Get your cut of 20% revenue!"
+  },
+  "rewardsPushDescription": {
+    "message": "Activate non-intrusive promo content to unlock monthly Temple reward airdrops. Earn based on your activity, up to 2567 TKEY (~24$) per month. Join the 17k others!"
+  },
+  "rewardsPushZeroEfforts": {
+    "message": "Zero efforts"
+  },
+  "rewardsPushZeroEffortsDescription": {
+    "message": "Press \"Activate rewards\" and start earning instantly."
+  },
+  "rewardsPushPassiveEarn": {
+    "message": "Passive earn"
+  },
+  "rewardsPushPassiveEarnDescription": {
+    "message": "No active wallet usage required! Earn $TKEY while your Temple on background."
+  },
+  "rewardsPushAutoPayouts": {
+    "message": "Auto-Payouts"
+  },
+  "rewardsPushAutoPayoutsDescription": {
+    "message": "No claiming, confirmation or extra steps needed."
+  },
+  "rewardsPushDisclaimer": {
+    "message": "By enabling promo content, you agree to share your wallet address and IP to receive tokens and promo ads."
+  },
+  "rewardsEarningActivated": {
+    "message": "Rewards earning activated"
+  },
+  "rewardsEarningActivatedDescription": {
+    "message": "Track your payouts on Rewards page. You'll find it within dropdown on the home page. Thanks for supporting Temple development!"
+  },
+  "gotIt": {
+    "message": "Got it"
+  },
   "coverNetworkCosts": {
     "message": "Cover your network costs"
   },

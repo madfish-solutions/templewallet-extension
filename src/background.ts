@@ -5,10 +5,12 @@ import browser from 'webextension-polyfill';
 import 'lib/keep-bg-worker-alive/background';
 import { putStoredAppInstallIdentity } from 'app/storage/app-install-id';
 import { getStoredAppUpdateDetails, putStoredAppUpdateDetails } from 'app/storage/app-update';
+import type { PartnersPromotionState } from 'app/store/partners-promotion/state';
 import { importUpdateRulesStorageModule } from 'lib/ads/import-update-rules-storage';
 import {
   SHOULD_OPEN_LETS_EXCHANGE_MODAL_STORAGE_KEY,
   SHOULD_PROMOTE_ROOTSTOCK_STORAGE_KEY,
+  SHOULD_SHOW_REWARDS_PUSH_STORAGE_KEY,
   SIDE_VIEW_WAS_FORCED_STORAGE_KEY
 } from 'lib/constants';
 import { EnvVars, IS_SIDE_PANEL_AVAILABLE } from 'lib/env';
@@ -21,10 +23,12 @@ import PackageJSON from '../package.json';
 
 type UpdateStorageKey =
   | typeof SHOULD_OPEN_LETS_EXCHANGE_MODAL_STORAGE_KEY
-  | typeof SHOULD_PROMOTE_ROOTSTOCK_STORAGE_KEY;
+  | typeof SHOULD_PROMOTE_ROOTSTOCK_STORAGE_KEY
+  | typeof SHOULD_SHOW_REWARDS_PUSH_STORAGE_KEY;
 const updateStorageKeys: UpdateStorageKey[] = [
   SHOULD_OPEN_LETS_EXCHANGE_MODAL_STORAGE_KEY,
-  SHOULD_PROMOTE_ROOTSTOCK_STORAGE_KEY
+  SHOULD_PROMOTE_ROOTSTOCK_STORAGE_KEY,
+  SHOULD_SHOW_REWARDS_PUSH_STORAGE_KEY
 ];
 
 browser.runtime.onInstalled.addListener(({ reason }) => {
@@ -33,7 +37,7 @@ browser.runtime.onInstalled.addListener(({ reason }) => {
     return;
   }
 
-  if (reason === 'update')
+  if (reason === 'update') {
     Promise.all([
       getStoredAppUpdateDetails(),
       fetchManyFromStorage<UpdateStorageKey, Record<UpdateStorageKey, boolean>>(updateStorageKeys)
@@ -42,14 +46,27 @@ browser.runtime.onInstalled.addListener(({ reason }) => {
         details,
         {
           [SHOULD_OPEN_LETS_EXCHANGE_MODAL_STORAGE_KEY]: shouldOpenLetsExchangeModal,
-          [SHOULD_PROMOTE_ROOTSTOCK_STORAGE_KEY]: shouldPromoteRootstock
+          [SHOULD_PROMOTE_ROOTSTOCK_STORAGE_KEY]: shouldPromoteRootstock,
+          [SHOULD_SHOW_REWARDS_PUSH_STORAGE_KEY]: shouldShowRewardsPush
         }
       ]) => {
         if (details?.triggeredManually) openFullPage();
         if (shouldOpenLetsExchangeModal == null) putToStorage(SHOULD_OPEN_LETS_EXCHANGE_MODAL_STORAGE_KEY, true);
         if (shouldPromoteRootstock == null) putToStorage(SHOULD_PROMOTE_ROOTSTOCK_STORAGE_KEY, true);
+        if (shouldShowRewardsPush == null) {
+          Promise.all([
+            Vault.isExist(),
+            fetchFromStorage<PartnersPromotionState>('persist:root.partnersPromotion')
+          ]).then(([vaultExists, partnersPromoState]) => {
+            if (vaultExists && !partnersPromoState?.shouldShowPromotion) {
+              putToStorage(SHOULD_SHOW_REWARDS_PUSH_STORAGE_KEY, true);
+              openFullPage();
+            }
+          });
+        }
       }
     );
+  }
 });
 
 browser.runtime.onUpdateAvailable.addListener(newManifest => {
