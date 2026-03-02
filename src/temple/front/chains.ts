@@ -4,7 +4,7 @@ import {
   BlockExplorer,
   ETH_SEPOLIA_CHAIN_ID,
   ETHEREUM_MAINNET_CHAIN_ID,
-  TEZOS_GHOSTNET_CHAIN_ID,
+  TEZOS_SHADOWNET_CHAIN_ID,
   TEZOS_MAINNET_CHAIN_ID
 } from 'lib/temple/types';
 import type { StoredTezosNetwork, StoredEvmNetwork } from 'temple/networks';
@@ -69,7 +69,7 @@ export const useTezosChainByChainId = (tezosChainId: string): TezosChain | null 
 };
 
 export const useTezosMainnetChain = () => useTezosChainByChainId(TEZOS_MAINNET_CHAIN_ID)!;
-export const useTezosTestnetChain = () => useTezosChainByChainId(TEZOS_GHOSTNET_CHAIN_ID)!;
+export const useTezosTestnetChain = () => useTezosChainByChainId(TEZOS_SHADOWNET_CHAIN_ID)!;
 
 export const useEvmChainByChainId = (evmChainId: number): EvmChain | undefined => {
   const allEvmChains = useAllEvmChains();

@@ -6,7 +6,7 @@ import {
   ETHEREUM_HOODI_CHAIN_ID,
   ETHEREUM_MAINNET_CHAIN_ID,
   ETHERLINK_MAINNET_CHAIN_ID,
-  TEZOS_GHOSTNET_CHAIN_ID,
+  TEZOS_SHADOWNET_CHAIN_ID,
   TEZOS_MAINNET_CHAIN_ID
 } from 'lib/temple/types';
 import { TempleChainKind } from 'temple/types';
@@ -19,7 +19,7 @@ import { EarnOffer } from './types';
 export const TEZ_SAVING_OFFER_ID = 'earn-tez';
 
 export const getTezSavingOffer = (isTestnetMode: boolean) => {
-  const chainId = isTestnetMode ? TEZOS_GHOSTNET_CHAIN_ID : TEZOS_MAINNET_CHAIN_ID;
+  const chainId = isTestnetMode ? TEZOS_SHADOWNET_CHAIN_ID : TEZOS_MAINNET_CHAIN_ID;
 
   return {
     id: TEZ_SAVING_OFFER_ID,
