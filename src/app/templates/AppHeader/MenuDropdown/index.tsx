@@ -25,7 +25,7 @@ import { setAssetsFilterChain } from 'app/store/assets-filter-options/actions';
 import { setIsTestnetModeEnabledAction } from 'app/store/settings/actions';
 import { useTestnetModeEnabledSelector } from 'app/store/settings/selectors';
 import { AssetsFilterOptions } from 'app/templates/AssetsFilterOptions';
-import { T } from 'lib/i18n';
+import { T, t } from 'lib/i18n';
 import { useTypedSWR } from 'lib/swr';
 import { useTempleClient } from 'lib/temple/front';
 import { TempleAccountType } from 'lib/temple/types';
@@ -33,7 +33,7 @@ import { useBooleanState } from 'lib/ui/hooks';
 import { PopperRenderProps } from 'lib/ui/Popper';
 import { useAccount } from 'temple/front';
 
-import { TogglesSection } from './components/TogglesSection';
+import { ControlsSection } from './components/ControlsSection';
 import { MenuDropdownSelectors } from './selectors';
 
 interface TDropdownAction extends ActionListItemProps {
@@ -44,18 +44,15 @@ const MenuDropdown = memo<PopperRenderProps>(({ opened, setOpened }) => {
   const { fullPage, sidebar } = useAppEnv();
   const { lock } = useTempleClient();
   const account = useAccount();
+
+  const [filtersModalOpened, openFiltersModal, closeFiltersModal] = useBooleanState(false);
+
   const testnetModeEnabled = useTestnetModeEnabledSelector();
   const { data: isSidebarByDefault } = useTypedSWR('is-sidebar-by-default', getIsSidebarByDefault, {
     fallbackData: sidebar
   });
-  const [filtersModalOpened, openFiltersModal, closeFiltersModal] = useBooleanState(false);
 
   const closeDropdown = useCallback(() => void setOpened(false), [setOpened]);
-
-  const handleTestnetModeSwitch = useCallback((value: boolean) => {
-    dispatch(setAssetsFilterChain(null));
-    dispatch(setIsTestnetModeEnabledAction(value));
-  }, []);
 
   useShortcutAccountSelectModalIsOpened(closeDropdown);
 
@@ -68,34 +65,33 @@ const MenuDropdown = memo<PopperRenderProps>(({ opened, setOpened }) => {
     }
   }, [fullPage, closeDropdown]);
 
-  const handleSidebarSwitch = useCallback(async (checked: boolean) => {
-    try {
-      await setIsSidebarByDefault(checked);
-      if (checked) {
-        await openInSidebar();
-      } else {
-        openPopup();
-      }
-      window.close();
-    } catch (e) {
-      console.error('Failed to open in sidebar:', e);
-    }
-  }, []);
-
-  const handleFiltersClick = useCallback(() => {
+  const onFiltersClick = useCallback(() => {
     closeDropdown();
     openFiltersModal();
   }, [closeDropdown, openFiltersModal]);
 
-  const handleSidebarButtonClick = useCallback(() => {
-    closeDropdown();
-    void handleSidebarSwitch(!isSidebarByDefault);
-  }, [closeDropdown, handleSidebarSwitch, isSidebarByDefault]);
+  const onSidebarClick = useCallback(async () => {
+    try {
+      const isSidebarEnabled = !isSidebarByDefault;
 
-  const handleTestnetButtonClick = useCallback(() => {
-    closeDropdown();
-    handleTestnetModeSwitch(!testnetModeEnabled);
-  }, [closeDropdown, handleTestnetModeSwitch, testnetModeEnabled]);
+      await setIsSidebarByDefault(isSidebarEnabled);
+
+      if (isSidebarEnabled) {
+        await openInSidebar();
+      } else {
+        openPopup();
+      }
+
+      window.close();
+    } catch (e) {
+      console.error('Failed to open in sidebar:', e);
+    }
+  }, [isSidebarByDefault]);
+
+  const onTestnetClick = useCallback(() => {
+    dispatch(setAssetsFilterChain(null));
+    dispatch(setIsTestnetModeEnabledAction(!testnetModeEnabled));
+  }, [testnetModeEnabled]);
 
   const actions = useMemo(
     (): TDropdownAction[] => [
@@ -174,19 +170,17 @@ const MenuDropdown = memo<PopperRenderProps>(({ opened, setOpened }) => {
           );
         })}
 
-        <Divider className="my-1.5 bg-grey-4 px-1.5" />
-
-        <TogglesSection
-          onFiltersClick={handleFiltersClick}
-          onSidebarClick={handleSidebarButtonClick}
-          onTestnetClick={handleTestnetButtonClick}
+        <ControlsSection
+          testnetModeEnabled={testnetModeEnabled}
+          isSidebarEnabled={Boolean(isSidebarByDefault)}
+          onFiltersClick={onFiltersClick}
+          onSidebarClick={onSidebarClick}
+          onTestnetClick={onTestnetClick}
         />
       </ActionsDropdownPopup>
 
-      <PageModal title="Filters" opened={filtersModalOpened} onRequestClose={closeFiltersModal}>
-        <div className="p-4 overflow-y-auto">
-          <AssetsFilterOptions />
-        </div>
+      <PageModal title={t('filters')} opened={filtersModalOpened} onRequestClose={closeFiltersModal}>
+        <AssetsFilterOptions />
       </PageModal>
     </>
   );

@@ -1,5 +1,6 @@
 import { memo, useMemo } from 'react';
 
+import { isDefined } from '@rnw-community/shared';
 import { isEqual } from 'lodash';
 
 import { EvmNetworkLogo, TezosNetworkLogo } from 'app/atoms/NetworkLogo';
@@ -9,7 +10,7 @@ import { useAssetsFilterOptionsSelector } from 'app/store/assets-filter-options/
 import { AssetsFilterOptionsInitialState } from 'app/store/assets-filter-options/state';
 import { TempleChainKind } from 'temple/types';
 
-import { ToggleButton } from './ToggleButton';
+import { ControlButton } from './ControlButton';
 
 interface Props {
   expanded: boolean;
@@ -17,23 +18,15 @@ interface Props {
   testID?: string;
 }
 
-export const FiltersToggleButton = memo<Props>(({ expanded, onClick, testID }) => {
+export const ControlFiltersButton = memo<Props>(({ expanded, onClick, testID }) => {
   const assetsFilterOptions = useAssetsFilterOptionsSelector();
   const selectedNetwork = assetsFilterOptions.filterChain;
 
-  const hasCustomNonNetworkOptions = useMemo(
-    () =>
-      !isEqual(
-        {
-          ...assetsFilterOptions,
-          filterChain: null
-        },
-        AssetsFilterOptionsInitialState
-      ),
-    [assetsFilterOptions]
-  );
+  const options = useAssetsFilterOptionsSelector();
 
-  const isActive = Boolean(selectedNetwork) || hasCustomNonNetworkOptions;
+  const isNonDefaultOption = useMemo(() => !isEqual(options, AssetsFilterOptionsInitialState), [options]);
+
+  const isActive = isDefined(selectedNetwork) || isNonDefaultOption;
 
   const iconNode = useMemo(() => {
     if (selectedNetwork) {
@@ -44,19 +37,15 @@ export const FiltersToggleButton = memo<Props>(({ expanded, onClick, testID }) =
       );
     }
 
-    return hasCustomNonNetworkOptions ? (
-      <FilterOnIcon className="w-full h-full" />
-    ) : (
-      <FilterOffIcon className="w-full h-full" />
-    );
-  }, [hasCustomNonNetworkOptions, selectedNetwork]);
+    return isNonDefaultOption ? <FilterOnIcon className="text-secondary" /> : <FilterOffIcon />;
+  }, [isNonDefaultOption, selectedNetwork]);
 
   return (
-    <ToggleButton
-      iconNode={iconNode}
+    <ControlButton
       labelI18n="filters"
       expanded={expanded}
-      highlighted={isActive}
+      iconNode={iconNode}
+      active={isActive}
       onClick={onClick}
       testID={testID}
     />
