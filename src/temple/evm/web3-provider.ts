@@ -12,6 +12,7 @@ import type {
 
 import {
   DISCONNECT_DAPP_MSG_TYPE,
+  INIT_EVM_PROVIDER_MSG_TYPE,
   PASS_TO_BG_EVENT,
   RESPONSE_FROM_BG_MSG_TYPE,
   SWITCH_EVM_ACCOUNT_MSG_TYPE,
@@ -138,6 +139,12 @@ interface SwitchAccountMessage {
   account: HexString;
 }
 
+interface InitEvmProviderMessage {
+  type: typeof INIT_EVM_PROVIDER_MSG_TYPE;
+  chainId: HexString;
+  accounts: HexString[];
+}
+
 const isTypedMessage = (msg: any): msg is { type: string } => typeof msg === 'object' && msg && 'type' in msg;
 const isDisconnectDAppMessage = (msg: any): msg is DisconnectDAppMessage =>
   isTypedMessage(msg) && msg.type === DISCONNECT_DAPP_MSG_TYPE;
@@ -147,6 +154,8 @@ const isSwitchAccountMessage = (msg: any): msg is SwitchAccountMessage =>
   isTypedMessage(msg) && msg.type === SWITCH_EVM_ACCOUNT_MSG_TYPE;
 const isResponseFromBgMessage = (msg: any): msg is ResponseFromBgMessage =>
   isTypedMessage(msg) && msg.type === RESPONSE_FROM_BG_MSG_TYPE;
+const isInitEvmProviderMessage = (msg: any): msg is InitEvmProviderMessage =>
+  isTypedMessage(msg) && msg.type === INIT_EVM_PROVIDER_MSG_TYPE;
 
 export class TempleWeb3Provider extends EventEmitter {
   private accounts: HexString[];
@@ -166,25 +175,13 @@ export class TempleWeb3Provider extends EventEmitter {
 
     this.handleDisconnect = this.handleDisconnect.bind(this);
     this.handleSwitchAccount = this.handleSwitchAccount.bind(this);
-    this.initializeAccountsList = this.initializeAccountsList.bind(this);
+    this.listenToTypedMessage(isInitEvmProviderMessage, ({ chainId, accounts }) => {
+      this.chainId = chainId;
+      this.accounts = accounts;
+    });
     this.listenToTypedMessage(isDisconnectDAppMessage, this.handleDisconnect);
     this.listenToTypedMessage(isSwitchAccountMessage, this.handleSwitchAccount);
     this.listenToTypedMessage(isSwitchChainMessage, ({ chainId }) => this.updateChainId(toHex(chainId)));
-  }
-
-  initializeAccountsList() {
-    return this.handleRequest(
-      { method: GET_DEFAULT_WEB3_PARAMS_METHOD_NAME, params: null },
-      ({ chainId, accounts }) => {
-        this.updateChainId(chainId);
-
-        if (accounts.length > 0) {
-          this.updateAccounts(accounts);
-        }
-      },
-      identity,
-      undefined
-    ).catch(error => console.error(error));
   }
 
   get selectedAddress() {
