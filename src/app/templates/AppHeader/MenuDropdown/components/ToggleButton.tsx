@@ -1,4 +1,4 @@
-import { memo } from 'react';
+import { ReactNode, memo } from 'react';
 
 import clsx from 'clsx';
 
@@ -6,7 +6,8 @@ import { Button, IconBase } from 'app/atoms';
 import { T, TID } from 'lib/i18n';
 
 interface Props {
-  Icon: ImportedSVGComponent;
+  Icon?: ImportedSVGComponent;
+  iconNode?: ReactNode;
   labelI18n: TID;
   expanded: boolean;
   highlighted: boolean;
@@ -17,7 +18,7 @@ interface Props {
 }
 
 export const ToggleButton = memo<Props>(
-  ({ Icon, labelI18n, expanded, highlighted, onClick, onMouseEnter, onMouseLeave, testID }) => (
+  ({ Icon, iconNode, labelI18n, expanded, highlighted, onClick, onMouseEnter, onMouseLeave, testID }) => (
     <Button
       testID={testID}
       className={clsx(
@@ -36,7 +37,14 @@ export const ToggleButton = memo<Props>(
       onBlur={onMouseLeave}
     >
       <span className="h-7 w-7 rounded-full border-0.5 border-lines bg-white flex items-center justify-center shrink-0">
-        <IconBase Icon={Icon} size={16} className={clsx(expanded && highlighted ? 'text-primary' : 'text-grey-1')} />
+        {iconNode ??
+          (Icon && (
+            <IconBase
+              Icon={Icon}
+              size={16}
+              className={clsx(expanded && highlighted ? 'text-primary' : 'text-grey-1')}
+            />
+          ))}
       </span>
 
       <span
