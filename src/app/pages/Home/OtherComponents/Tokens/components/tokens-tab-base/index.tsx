@@ -18,7 +18,6 @@ import {
   useIsAccountInitializedSelector
 } from 'app/store/accounts-initialization/selectors';
 import { useTestnetModeEnabledSelector } from 'app/store/settings/selectors';
-import { AssetsFilterOptions } from 'app/templates/AssetsFilterOptions';
 import { DAppConnection } from 'app/templates/DAppConnection';
 import { DepositOption } from 'app/templates/deposit-option';
 import { t, T } from 'lib/i18n';
@@ -38,17 +37,13 @@ export interface TokensTabBaseProps {
 }
 
 export const TokensTabBase: FC<PropsWithChildren<TokensTabBaseProps>> = ({ ...restProps }) => {
-  const { manageActive, filtersOpened } = useAssetsViewState();
+  const { manageActive } = useAssetsViewState();
 
   return (
     <>
-      {filtersOpened ? (
-        <AssetsFilterOptions />
-      ) : (
-        <FadeTransition>
-          <TokensTabBaseContent {...restProps} manageActive={manageActive} />
-        </FadeTransition>
-      )}
+      <FadeTransition>
+        <TokensTabBaseContent {...restProps} manageActive={manageActive} />
+      </FadeTransition>
 
       <DAppConnection />
     </>

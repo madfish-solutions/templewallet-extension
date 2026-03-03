@@ -7,15 +7,12 @@ import { EmptyState } from 'app/atoms/EmptyState';
 import { Size } from 'app/atoms/IconBase';
 import { IconButton } from 'app/atoms/IconButton';
 import { EvmNetworkLogo, TezosNetworkLogo } from 'app/atoms/NetworkLogo';
-import { PageModal } from 'app/atoms/PageModal';
 import { RadioButton } from 'app/atoms/RadioButton';
 import { TotalEquity } from 'app/atoms/TotalEquity';
 import { useGetEvmChainAccountTotalBalance } from 'app/hooks/total-balance/use-evm-account-total-balance';
 import { useTezosTotalBalance } from 'app/hooks/total-balance/use-tezos-total-balance';
 import { ReactComponent as Browse } from 'app/icons/base/browse.svg';
 import { ReactComponent as PlusIcon } from 'app/icons/base/plus.svg';
-import { dispatch } from 'app/store';
-import { setAssetsFilterChain } from 'app/store/assets-filter-options/actions';
 import { FilterChain } from 'app/store/assets-filter-options/state';
 import { useTestnetModeEnabledSelector } from 'app/store/settings/selectors';
 import { SearchBarField } from 'app/templates/SearchField';
@@ -39,36 +36,10 @@ const ALL_NETWORKS = 'All Networks';
 interface Props {
   opened: boolean;
   selectedNetwork: FilterChain;
-  onRequestClose: EmptyFn;
-}
-
-export const NetworkSelectModal = memo<Props>(({ opened, selectedNetwork, onRequestClose }) => {
-  const handleNetworkSelect = useCallback(
-    (network: OneOfChains | null) => {
-      dispatch(setAssetsFilterChain(network));
-      onRequestClose();
-    },
-    [onRequestClose]
-  );
-
-  return (
-    <PageModal title={<T id="selectNetwork" />} opened={opened} onRequestClose={onRequestClose}>
-      <NetworkSelectModalContent
-        opened={opened}
-        selectedNetwork={selectedNetwork}
-        handleNetworkSelect={handleNetworkSelect}
-      />
-    </PageModal>
-  );
-});
-
-interface ContentProps {
-  opened: boolean;
-  selectedNetwork: FilterChain;
   handleNetworkSelect: (chain: OneOfChains | null) => void;
 }
 
-export const NetworkSelectModalContent = memo<ContentProps>(({ opened, selectedNetwork, handleNetworkSelect }) => {
+export const NetworkSelectContent = memo<Props>(({ opened, selectedNetwork, handleNetworkSelect }) => {
   const accountTezAddress = useAccountAddressForTezos();
   const accountEvmAddress = useAccountAddressForEvm();
   const testnetModeEnabled = useTestnetModeEnabledSelector();

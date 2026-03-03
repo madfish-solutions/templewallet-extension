@@ -3,7 +3,6 @@ import { memo, useCallback, useMemo } from 'react';
 import { Divider } from 'app/atoms';
 import { ActionListItem, ActionListItemProps } from 'app/atoms/ActionListItem';
 import { ActionsDropdownPopup } from 'app/atoms/ActionsDropdown';
-import { PageModal } from 'app/atoms/PageModal';
 import {
   getIsSidebarByDefault,
   openInFullPage,
@@ -24,8 +23,8 @@ import { dispatch } from 'app/store';
 import { setAssetsFilterChain } from 'app/store/assets-filter-options/actions';
 import { setIsTestnetModeEnabledAction } from 'app/store/settings/actions';
 import { useTestnetModeEnabledSelector } from 'app/store/settings/selectors';
-import { AssetsFilterOptions } from 'app/templates/AssetsFilterOptions';
-import { T, t } from 'lib/i18n';
+import { AssetsFilterOptionsModal } from 'app/templates/AssetsFilterOptionsModal';
+import { T } from 'lib/i18n';
 import { useTypedSWR } from 'lib/swr';
 import { useTempleClient } from 'lib/temple/front';
 import { TempleAccountType } from 'lib/temple/types';
@@ -179,9 +178,7 @@ const MenuDropdown = memo<PopperRenderProps>(({ opened, setOpened }) => {
         />
       </ActionsDropdownPopup>
 
-      <PageModal title={t('filters')} opened={filtersModalOpened} onRequestClose={closeFiltersModal}>
-        <AssetsFilterOptions />
-      </PageModal>
+      <AssetsFilterOptionsModal opened={filtersModalOpened} onRequestClose={closeFiltersModal} />
     </>
   );
 });
