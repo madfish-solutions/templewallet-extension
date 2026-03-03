@@ -71,6 +71,8 @@ const MenuDropdown = memo<PopperRenderProps>(({ opened, setOpened }) => {
 
   const onSidebarClick = useCallback(async () => {
     try {
+      closeDropdown();
+
       const isSidebarEnabled = !isSidebarByDefault;
 
       await setIsSidebarByDefault(isSidebarEnabled);
@@ -85,12 +87,13 @@ const MenuDropdown = memo<PopperRenderProps>(({ opened, setOpened }) => {
     } catch (e) {
       console.error('Failed to open in sidebar:', e);
     }
-  }, [isSidebarByDefault]);
+  }, [closeDropdown, isSidebarByDefault]);
 
   const onTestnetClick = useCallback(() => {
+    closeDropdown();
     dispatch(setAssetsFilterChain(null));
     dispatch(setIsTestnetModeEnabledAction(!testnetModeEnabled));
-  }, [testnetModeEnabled]);
+  }, [closeDropdown, testnetModeEnabled]);
 
   const actions = useMemo(
     (): TDropdownAction[] => [
