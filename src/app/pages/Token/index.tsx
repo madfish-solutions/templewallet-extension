@@ -16,7 +16,7 @@ import { ExploreActionButtonsBar } from 'app/templates/ExploreActionButtons';
 import { isTezAsset, TEMPLE_TOKEN_SLUG } from 'lib/assets';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { useEvmCategorizedAssetMetadata, useCategorizedTezosAssetMetadata } from 'lib/metadata';
-import { ETHEREUM_MAINNET_CHAIN_ID } from 'lib/temple/types';
+import { ETHEREUM_HOODI_CHAIN_ID, ETHEREUM_MAINNET_CHAIN_ID } from 'lib/temple/types';
 import { useBooleanState } from 'lib/ui/hooks';
 import { HistoryAction, navigate, useLocation } from 'lib/woozie';
 import { TempleChainKind } from 'temple/types';
@@ -89,7 +89,7 @@ const TezosTokenPage: FC<TezosTokenPageProps> = ({ chainId, assetSlug }) => {
       </PageModal>
 
       <PageLayout {...pageProps} contentPadding={false}>
-        <div className="flex flex-col p-4 gap-y-3 bg-white">
+        <div className="flex flex-col p-4 gap-y-3 bg-background">
           {showScamTokenAlert && <ScamTokenAlert isCollectible={false} tezosChainId={chainId} assetSlug={assetSlug} />}
           <TezosAssetBanner chainId={chainId} assetSlug={assetSlug} />
 
@@ -103,7 +103,7 @@ const TezosTokenPage: FC<TezosTokenPageProps> = ({ chainId, assetSlug }) => {
         </div>
 
         <SuspenseContainer key={`${chainId}/${assetSlug}`}>
-          <ContentContainer>
+          <ContentContainer withShadow={false}>
             <ActivityListContainer chainId={chainId} assetSlug={assetSlug}>
               <TezosActivityList tezosChainId={chainId} assetSlug={assetSlug} />
             </ActivityListContainer>
@@ -136,7 +136,10 @@ const EvmTokenPage: FC<EvmTokenPageProps> = ({ chainId, assetSlug }) => {
   );
 
   const additionalButtonType = useMemo(
-    () => (assetSlug === EVM_TOKEN_SLUG && chainId === ETHEREUM_MAINNET_CHAIN_ID ? 'earn-eth' : undefined),
+    () =>
+      assetSlug === EVM_TOKEN_SLUG && (chainId === ETHEREUM_MAINNET_CHAIN_ID || chainId === ETHEREUM_HOODI_CHAIN_ID)
+        ? 'earn-eth'
+        : undefined,
     [assetSlug, chainId]
   );
 
@@ -147,7 +150,7 @@ const EvmTokenPage: FC<EvmTokenPageProps> = ({ chainId, assetSlug }) => {
       </PageModal>
 
       <PageLayout {...pageProps} contentPadding={false}>
-        <div className="flex flex-col p-4 gap-y-3 bg-white">
+        <div className="flex flex-col p-4 gap-y-3 bg-background">
           <EvmAssetBanner chainId={chainId} assetSlug={assetSlug} />
 
           <ExploreActionButtonsBar
@@ -160,7 +163,7 @@ const EvmTokenPage: FC<EvmTokenPageProps> = ({ chainId, assetSlug }) => {
         </div>
 
         <SuspenseContainer key={`${chainId}/${assetSlug}`}>
-          <ContentContainer>
+          <ContentContainer withShadow={false}>
             <ActivityListContainer chainId={chainId} assetSlug={assetSlug}>
               <EvmActivityList chainId={chainId} assetSlug={assetSlug} />
             </ActivityListContainer>
