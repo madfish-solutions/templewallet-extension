@@ -44,7 +44,7 @@ export const Receive = memo<Props>(({ chainKind }) => {
       {receivePayload && <ReceiveModal onClose={resetReceivePayload} {...receivePayload} />}
 
       <span className="text-font-description-bold">
-        <T id="networkToReceive" />
+        <T id="network" />
       </span>
 
       <div className="mt-3 flex flex-col gap-y-3">

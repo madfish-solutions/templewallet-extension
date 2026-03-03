@@ -886,9 +886,6 @@
   "enterPasswordToRevealPrivateKey": {
     "message": "Enter your password to reveal private key"
   },
-  "networkToReceive": {
-    "message": "Network to receive"
-  },
   "networkAddress": {
     "message": "$network$ Address",
     "placeholders": {

@@ -20,8 +20,8 @@ import { useAccountAddressForEvm, useAccountAddressForTezos, useTezosChainByChai
 import { ChainId, ChainOfKind, OneOfChains, PublicKeyHash, useEvmChainByChainId } from 'temple/front/chains';
 import { TempleChainKind } from 'temple/types';
 
+import { EarnTag } from './EarnTag';
 import { TokenPageSelectors } from './selectors';
-import { TokenPrice } from './TokenPrice';
 
 interface AssetBannerProps<T extends TempleChainKind> {
   chainId: ChainId<T>;
@@ -33,7 +33,7 @@ interface AssetBannerHOCConfig<T extends TempleChainKind> {
   useChainByChainId: SyncFn<ChainId<T>, ChainOfKind<T> | null | undefined>;
   useCategorizedAssetMetadata: (assetSlug: string, chainId: ChainId<T>) => ChainAssetMetadata<T> | undefined;
   Balance: FC<BalanceProps<T>>;
-  AssetIconWithNetwork: FC<{ assetSlug: string; chainId: ChainId<T>; size: number; className?: string }>;
+  AssetIconWithNetwork: FC<{ assetSlug: string; chainId: ChainId<T>; size?: number; className?: string }>;
   chainKind: T;
 }
 
@@ -60,11 +60,11 @@ const AssetBannerHOC = <T extends TempleChainKind>({
     return (
       <>
         <div className="flex items-center gap-x-1">
-          <AssetIconWithNetwork assetSlug={assetSlug} chainId={chainId} size={40} className="shrink-0" />
+          <AssetIconWithNetwork assetSlug={assetSlug} chainId={chainId} className="shrink-0" />
 
           <NamesComp assetName={assetName} network={network} />
 
-          <TokenPrice assetSlug={assetSlug} chainId={chainId} forEVM={isEVM} />
+          <EarnTag chainKind={chainKind} chainId={chainId} assetSlug={assetSlug} />
         </div>
 
         <div className="flex flex-col">
@@ -113,7 +113,7 @@ const NamesComp: FC<{ assetName: string; network: OneOfChains }> = ({ assetName,
   const networkName = useMemo(() => (network.nameI18nKey ? t(network.nameI18nKey) : network.name), [network]);
 
   return (
-    <div className="flex-grow flex flex-col gap-y-1 pr-6">
+    <div className="flex-grow flex flex-col gap-y-0.5 pr-6">
       <span
         className="text-font-medium-bold truncate max-w-44"
         {...setTestID(TokenPageSelectors.tokenName)}
