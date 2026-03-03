@@ -15,10 +15,11 @@ import { ControlButton } from './ControlButton';
 interface Props {
   expanded: boolean;
   onClick: EmptyFn;
+  stretch?: boolean;
   testID?: string;
 }
 
-export const ControlFiltersButton = memo<Props>(({ expanded, onClick, testID }) => {
+export const ControlFiltersButton = memo<Props>(({ expanded, onClick, stretch, testID }) => {
   const assetsFilterOptions = useAssetsFilterOptionsSelector();
   const selectedNetwork = assetsFilterOptions.filterChain;
 
@@ -44,6 +45,7 @@ export const ControlFiltersButton = memo<Props>(({ expanded, onClick, testID }) 
     <ControlButton
       labelI18n="filters"
       expanded={expanded}
+      stretch={stretch}
       Icon={isNonDefaultOption ? FilterOnIcon : FilterOffIcon}
       iconNode={iconNode}
       active={isActive}

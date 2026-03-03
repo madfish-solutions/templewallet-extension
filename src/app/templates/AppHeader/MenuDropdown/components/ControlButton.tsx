@@ -11,6 +11,7 @@ interface Props {
   Icon?: ImportedSVGComponent;
   iconNode?: ReactNode;
   active?: boolean;
+  stretch?: boolean;
   onClick?: EmptyFn;
   onMouseEnter?: EmptyFn;
   onMouseLeave?: EmptyFn;
@@ -18,12 +19,23 @@ interface Props {
 }
 
 export const ControlButton = memo<Props>(
-  ({ labelI18n, expanded, Icon, iconNode, active = false, onClick, onMouseEnter, onMouseLeave, testID }) => (
+  ({
+    labelI18n,
+    expanded,
+    Icon,
+    iconNode,
+    active = false,
+    stretch = false,
+    onClick,
+    onMouseEnter,
+    onMouseLeave,
+    testID
+  }) => (
     <Button
       className={clsx(
-        'flex items-center p-1 rounded-full border-0.5 border-lines overflow-hidden transition-all ease-in duration-300',
+        'flex items-center h-8 p-[3.5px] rounded-full border-0.5 border-lines overflow-hidden transition-[width] ease-in duration-300',
         active ? 'bg-secondary-low' : 'bg-grey-4 hover:bg-secondary-low',
-        expanded ? 'w-[84px] h-8 gap-x-1' : 'w-8 h-8'
+        expanded ? (stretch ? 'w-29' : 'w-[84px]') : 'w-8'
       )}
       onClick={onClick}
       onMouseEnter={onMouseEnter}
@@ -34,11 +46,11 @@ export const ControlButton = memo<Props>(
         {iconNode ?? (Icon && <IconBase Icon={Icon} className={clsx(active ? 'text-secondary' : 'text-grey-1')} />)}
       </div>
 
-      {expanded && (
-        <span className="text-font-small">
+      <div className={clsx('transition-opacity ease-in duration-300', expanded ? 'opacity-100' : 'opacity-0')}>
+        <span className="text-font-small ml-1">
           <T id={labelI18n} />
         </span>
-      )}
+      </div>
     </Button>
   )
 );
