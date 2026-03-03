@@ -49,7 +49,7 @@ export const OptionsContent = memo<Props>(({ onNetworkSelectClick }) => {
       <ContentContainer withShadow={false}>
         <div className="flex flex-col gap-1">
           <p className="text-font-description-bold p-1">
-            <T id="filterByNetwork" />
+            <T id="network" />
           </p>
 
           <NetworkSelectButton selectedChain={filterChain} onClick={onNetworkSelectClick} />

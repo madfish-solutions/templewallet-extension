@@ -80,7 +80,7 @@ export const AssetsViewStateController = memo<AssetsSegmentControlProps>(({ clas
           <IconButton Icon={CloseIcon} onClick={handleClose} />
         </div>
 
-        <div className={clsx('gap-8 items-center', searchMode ? 'hidden overflow-hidden' : 'flex')}>
+        <div className={clsx('gap-x-18 items-center', searchMode ? 'hidden overflow-hidden' : 'flex')}>
           <SegmentedControl
             name="assets-segment-control"
             activeSegment={tab}
