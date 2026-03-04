@@ -8,6 +8,7 @@ import { useAppEnv } from 'app/env';
 import { togglePartnersPromotionAction } from 'app/store/partners-promotion/actions';
 import { useShouldShowPartnersPromoSelector } from 'app/store/partners-promotion/selectors';
 import { PageModalScrollViewWithActions } from 'app/templates/page-modal-scroll-view-with-actions';
+import { AnalyticsEventCategory, useAnalytics } from 'lib/analytics';
 import { SHOULD_SHOW_REWARDS_PUSH_STORAGE_KEY } from 'lib/constants';
 import { t, T } from 'lib/i18n';
 import { useStorage } from 'lib/temple/front';
@@ -48,7 +49,12 @@ export const RewardsPushOverlay = memo(() => {
   const dispatch = useDispatch();
   const [step, setStep] = useState(OverlayStep.Offer);
 
-  const close = useCallback(() => setShouldShow(false), [setShouldShow]);
+  const { trackEvent } = useAnalytics();
+
+  const close = useCallback(() => {
+    trackEvent(RewardsPushOverlaySelectors.closeButton, AnalyticsEventCategory.ButtonPress);
+    setShouldShow(false);
+  }, [trackEvent, setShouldShow]);
 
   const handleActivateRewards = useCallback(() => {
     dispatch(togglePartnersPromotionAction(true));
