@@ -1,39 +1,46 @@
 import React, { memo } from 'react';
 
 import { DoneAnimation } from 'app/atoms/done-animation';
-import { DAPPS_PAGE_NAME } from 'app/pages/Dapps/constants';
+import PageLayout from 'app/layouts/PageLayout';
 import { usePartnersPromotionModule } from 'app/templates/partners-promotion';
+import { T, TID } from 'lib/i18n';
+import { NullComponent } from 'lib/ui/null-component';
+
+import { useShouldShowPartnersPromoSelector } from '../../store/partners-promotion/selectors';
 
 type Interaction = 'connect' | 'sign' | 'other';
+
+const successTIDByType: Record<Interaction, TID> = {
+  connect: 'connected',
+  sign: 'signed',
+  other: 'confirmed'
+};
 
 interface Props {
   type: Interaction;
 }
 
-const successMessageByType: Record<Interaction, string> = {
-  connect: 'Connected',
-  sign: 'Signed',
-  other: 'Confirmed'
-};
-
 export const DappInteractionSuccess = memo<Props>(({ type }) => {
+  const shouldShowPartnersPromoState = useShouldShowPartnersPromoSelector();
   const PartnersPromotionModule = usePartnersPromotionModule();
 
   return (
-    <div className="h-full flex flex-col bg-background p-4">
-      <div className="flex-1 flex flex-col items-center justify-center">
-        <DoneAnimation className="w-full max-w-74" />
+    <PageLayout Header={NullComponent} contentPadding={false} contentClassName="p-4 pb-8">
+      <div className="flex-1 flex flex-col items-center justify-center pb-8">
+        <DoneAnimation />
 
-        <span className="mt-4 text-font-regular-bold">{successMessageByType[type]}</span>
+        <span className="text-font-regular-bold">
+          <T id={successTIDByType[type]} />
+        </span>
       </div>
 
-      {PartnersPromotionModule && (
+      {shouldShowPartnersPromoState && PartnersPromotionModule && (
         <PartnersPromotionModule.PartnersPromotion
-          id="promo-dapp-interaction-success"
+          id="promo-dapp-interaction-success-item"
           variant={PartnersPromotionModule.PartnersPromotionVariant.Text}
-          pageName={DAPPS_PAGE_NAME}
+          pageName="Dapp Interaction Success"
         />
       )}
-    </div>
+    </PageLayout>
   );
 });
