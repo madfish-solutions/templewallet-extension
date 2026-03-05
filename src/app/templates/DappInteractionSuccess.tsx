@@ -7,16 +7,16 @@ import { usePartnersPromotionModule } from 'app/templates/partners-promotion';
 import { T, TID } from 'lib/i18n';
 import { NullComponent } from 'lib/ui/null-component';
 
-type Interaction = 'connect' | 'sign' | 'other';
+export type DappInteractionSuccessType = 'connect' | 'sign' | 'other';
 
-const successTIDByType: Record<Interaction, TID> = {
+const successTIDByType: Record<DappInteractionSuccessType, TID> = {
   connect: 'connected',
   sign: 'signed',
   other: 'confirmed'
 };
 
 interface Props {
-  type: Interaction;
+  type: DappInteractionSuccessType;
 }
 
 export const DappInteractionSuccess = memo<Props>(({ type }) => {

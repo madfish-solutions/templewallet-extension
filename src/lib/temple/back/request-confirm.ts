@@ -32,6 +32,10 @@ export interface RequestConfirmParams<T extends TempleDAppPayload> {
 const CONFIRM_WINDOW_WIDTH = 384;
 const CONFIRM_WINDOW_HEIGHT = 600;
 const AUTODECLINE_AFTER = 120_000;
+const DAPP_SUCCESS_CLOSE_DELAY_MS = 3000;
+
+const isObjectResult = (value: unknown): value is Record<string, unknown> =>
+  typeof value === 'object' && value !== null;
 
 export async function requestConfirm<T extends TempleDAppPayload>({
   id,
@@ -79,7 +83,20 @@ export async function requestConfirm<T extends TempleDAppPayload>({
 
       const result = await handleIntercomRequest(req, onDecline);
       if (result) {
-        close();
+        const shouldKeepConfirmationWindowOpen =
+          isObjectResult(result) && result.keepConfirmationWindowOpen === true && Boolean(closeView);
+
+        if (shouldKeepConfirmationWindowOpen) {
+          setTimeout(() => void close(), DAPP_SUCCESS_CLOSE_DELAY_MS);
+        } else {
+          close();
+        }
+
+        if (isObjectResult(result)) {
+          const { keepConfirmationWindowOpen: _ignored, ...response } = result;
+          return response;
+        }
+
         return result;
       }
     }
