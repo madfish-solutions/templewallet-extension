@@ -62,16 +62,22 @@ export const App: FC<Props> = ({ env }) => (
 );
 
 const SidebarContent = () => {
-  const { dAppQueueCounters, dAppPendingConfirmationId } = useTempleClient();
+  const { dAppPendingConfirmationId } = useTempleClient();
   const { search, pathname } = Woozie.useLocation();
 
   useSyncConfirmationIdToUrl(dAppPendingConfirmationId);
 
   const isConfirmation = useMemo(() => {
     const searchParams = new URLSearchParams(search);
+    const currentConfirmationId = searchParams.get('id');
 
-    return dAppQueueCounters.length && searchParams.has('id') && searchParams.size === 1 && pathname === '/';
-  }, [dAppQueueCounters.length, pathname, search]);
+    return (
+      Boolean(currentConfirmationId) &&
+      currentConfirmationId === dAppPendingConfirmationId &&
+      searchParams.size === 1 &&
+      pathname === '/'
+    );
+  }, [dAppPendingConfirmationId, pathname, search]);
 
   return isConfirmation ? <ConfirmContent /> : <MainAppContent />;
 };

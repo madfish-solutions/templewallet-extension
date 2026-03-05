@@ -99,7 +99,8 @@ export const ConfirmDAppForm = memo<ConfirmDAppFormProps>(
       useLedgerApprovalModalState();
 
     const [bottomEdgeIsVisible, setBottomEdgeIsVisible] = useState(true);
-    const { confirmWindow, fullPage } = useAppEnv();
+    const { confirmWindow, fullPage, sidebar } = useAppEnv();
+    const isDappConfirmationContext = confirmWindow || sidebar;
 
     const { errorMessage: addAssetErrorMessage } = useAddAsset();
 
@@ -208,7 +209,7 @@ export const ConfirmDAppForm = memo<ConfirmDAppFormProps>(
           }
 
           if (confirmed) {
-            if (confirmWindow) {
+            if (isDappConfirmationContext) {
               setSuccessType(getDappInteractionSuccessType(payload.type));
             }
           } else if (confirmWindow && fullPage) {
@@ -225,6 +226,7 @@ export const ConfirmDAppForm = memo<ConfirmDAppFormProps>(
       [
         confirmWindow,
         fullPage,
+        isDappConfirmationContext,
         ledgerConfirmationRequired,
         onConfirm,
         payload.type,
