@@ -42,7 +42,7 @@ export const ControlButton = memo<Props>(
       onMouseLeave={onMouseLeave}
       testID={testID}
     >
-      <div className="flex items-center justify-center w-6 h-6 rounded-full bg-white">
+      <div className="flex items-center justify-center shrink-0 w-6 h-6 rounded-full bg-white">
         {iconNode ?? (Icon && <IconBase Icon={Icon} className={clsx(active ? 'text-secondary' : 'text-grey-1')} />)}
       </div>
 
