@@ -38,13 +38,14 @@ const logosRecord: Record<number, string> = {
 export interface NetworkLogoPropsBase<T extends TempleChainKind> {
   chainId: ChainId<T>;
   size?: number;
+  bordered?: boolean;
   className?: string;
   withTooltip?: boolean;
   tooltipPlacement?: Placement;
 }
 
 export const TezosNetworkLogo = memo<NetworkLogoPropsBase<TempleChainKind.Tezos>>(
-  ({ chainId, size = 24, className, withTooltip, tooltipPlacement }) => {
+  ({ chainId, size = 24, bordered, className, withTooltip, tooltipPlacement }) => {
     const chain = useTezosChainByChainId(chainId);
     const networkName = useMemo(() => (chain?.nameI18nKey ? t(chain.nameI18nKey) : chain?.name), [chain]);
 
@@ -52,9 +53,14 @@ export const TezosNetworkLogo = memo<NetworkLogoPropsBase<TempleChainKind.Tezos>
 
     const logoJsx =
       chainId === TEZOS_MAINNET_CHAIN_ID ? (
-        <TezNetworkLogo size={size} className={withoutTooltipClassName} />
+        <TezNetworkLogo size={size} bordered={bordered} className={withoutTooltipClassName} />
       ) : (
-        <NetworkLogoFallback networkName={networkName} size={size} className={withoutTooltipClassName} />
+        <NetworkLogoFallback
+          networkName={networkName}
+          size={size}
+          bordered={bordered}
+          className={withoutTooltipClassName}
+        />
       );
 
     return withTooltip ? (
@@ -69,11 +75,12 @@ export const TezosNetworkLogo = memo<NetworkLogoPropsBase<TempleChainKind.Tezos>
 
 interface EvmNetworkLogoProps extends NetworkLogoPropsBase<TempleChainKind.EVM> {
   chainName?: string;
+  bordered?: boolean;
   imgClassName?: string;
 }
 
 export const EvmNetworkLogo = memo<EvmNetworkLogoProps>(
-  ({ chainId, size = 24, chainName, className, imgClassName, withTooltip, tooltipPlacement }) => {
+  ({ chainId, size = 24, chainName, bordered = true, className, imgClassName, withTooltip, tooltipPlacement }) => {
     const sources = useMemo(() => {
       const doubleSize = size * 2;
 
@@ -93,8 +100,15 @@ export const EvmNetworkLogo = memo<EvmNetworkLogoProps>(
     const withoutTooltipClassName = withTooltip ? undefined : className;
 
     const fallback = useMemo(
-      () => <NetworkLogoFallback networkName={networkName} size={size} className={withoutTooltipClassName} />,
-      [networkName, size, withoutTooltipClassName]
+      () => (
+        <NetworkLogoFallback
+          networkName={networkName}
+          size={size}
+          bordered={bordered}
+          className={withoutTooltipClassName}
+        />
+      ),
+      [bordered, networkName, size, withoutTooltipClassName]
     );
 
     const logoJsx = (
@@ -105,7 +119,12 @@ export const EvmNetworkLogo = memo<EvmNetworkLogoProps>(
         height={size}
         loader={fallback}
         fallback={fallback}
-        className={clsx('border-[0.8px] border-lines bg-white rounded-full', withoutTooltipClassName, imgClassName)}
+        className={clsx(
+          'rounded-full',
+          bordered && 'border-[0.8px] border-lines bg-white',
+          withoutTooltipClassName,
+          imgClassName
+        )}
       />
     );
 
@@ -122,13 +141,14 @@ export const EvmNetworkLogo = memo<EvmNetworkLogoProps>(
 interface NetworkLogoFallbackProps {
   networkName?: string;
   size?: number;
+  bordered?: boolean;
   className?: string;
 }
 
-const NetworkLogoFallback = memo<NetworkLogoFallbackProps>(({ networkName, size = 24, className }) => (
+const NetworkLogoFallback = memo<NetworkLogoFallbackProps>(({ networkName, size = 24, bordered = true, className }) => (
   <div
     style={{ width: size, height: size }}
-    className={clsx('p-px border border-grey-4 bg-white rounded-full overflow-hidden', className)}
+    className={clsx('rounded-full overflow-hidden', bordered && 'p-px border border-grey-4 bg-white', className)}
   >
     <IdenticonInitials value={networkName?.at(0) ?? '?'} className="w-full h-full rounded-full" />
   </div>

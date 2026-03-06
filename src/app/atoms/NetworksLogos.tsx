@@ -12,6 +12,7 @@ interface NetworkLogoBaseProps {
   src: string;
   alt: string;
   size?: number;
+  bordered?: boolean;
   className?: string;
   style?: React.CSSProperties;
 }
@@ -43,13 +44,13 @@ export const EvmNetworksLogos = memo<NetworkLogoProps>(({ size = 24 }) => (
   </div>
 ));
 
-const NetworkLogoBase = memo<NetworkLogoBaseProps>(({ src, alt, size = 24, className, style }) => (
+const NetworkLogoBase = memo<NetworkLogoBaseProps>(({ src, alt, size = 24, bordered = true, className, style }) => (
   <img
     src={src}
     alt={alt}
     width={size}
     height={size}
-    className={clsx('p-0.5 border border-grey-4 bg-white rounded-full', className)}
+    className={clsx('rounded-full', bordered && 'p-0.5 border border-grey-4 bg-white', className)}
     style={style}
   />
 ));
