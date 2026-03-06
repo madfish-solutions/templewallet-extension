@@ -1,4 +1,4 @@
-import React, { ReactNode, memo, useCallback, useEffect, useMemo, useState } from 'react';
+import React, { ReactNode, memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { Alert, Anchor, IconBase } from 'app/atoms';
 import DAppLogo from 'app/atoms/DAppLogo';
@@ -14,6 +14,7 @@ import PageLayout from 'app/layouts/PageLayout';
 import { AccountsModal } from 'app/templates/AccountsModal';
 import { DappInteractionSuccess, DappInteractionSuccessType } from 'app/templates/DappInteractionSuccess';
 import { LedgerApprovalModal } from 'app/templates/ledger-approval-modal';
+import { DAPP_SUCCESS_SETTLE_DELAY_MS } from 'lib/constants';
 import { EvmOperationKind, getOperationKind } from 'lib/evm/on-chain/transactions';
 import { equalsIgnoreCase } from 'lib/evm/on-chain/utils/common.utils';
 import { parseEvmTxRequest } from 'lib/evm/on-chain/utils/parse-evm-tx-request';
@@ -150,8 +151,9 @@ export const ConfirmDAppForm = memo<ConfirmDAppFormProps>(
       [accounts, selectedAccountId]
     );
 
-    const { dAppQueueCounters } = useTempleClient();
+    const { dAppQueueCounters, dAppPendingConfirmationId } = useTempleClient();
     const { length: requestsLeft, maxLength: totalRequestsCount } = dAppQueueCounters;
+    const pendingConfirmationIdRef = useRef(dAppPendingConfirmationId);
     const ledgerConfirmationRequired =
       ledgerInteractingPayloadTypes.some(payloadType => payload.type === payloadType) &&
       selectedAccount.type === TempleAccountType.Ledger;
@@ -186,11 +188,23 @@ export const ConfirmDAppForm = memo<ConfirmDAppFormProps>(
       selectedAccount.type
     ]);
 
+    useEffect(() => {
+      pendingConfirmationIdRef.current = dAppPendingConfirmationId;
+    }, [dAppPendingConfirmationId]);
+
     const shouldShowProgress =
       payload.type !== 'connect' &&
       payload.type !== 'add_chain' &&
       payload.type !== 'add_asset' &&
       totalRequestsCount > 1;
+
+    const shouldShowSuccessAfterSettle = useCallback(async () => {
+      await delay(DAPP_SUCCESS_SETTLE_DELAY_MS);
+
+      const pendingConfirmationId = pendingConfirmationIdRef.current;
+
+      return pendingConfirmationId === confirmationId || pendingConfirmationId === null;
+    }, [confirmationId]);
 
     const confirm = useCallback(
       async (confirmed: boolean) => {
@@ -210,7 +224,11 @@ export const ConfirmDAppForm = memo<ConfirmDAppFormProps>(
 
           if (confirmed) {
             if (isDappConfirmationContext) {
-              setSuccessType(getDappInteractionSuccessType(payload.type));
+              const shouldShowSuccess = await shouldShowSuccessAfterSettle();
+
+              if (shouldShowSuccess) {
+                setSuccessType(getDappInteractionSuccessType(payload.type));
+              }
             }
           } else if (confirmWindow && fullPage) {
             window.close();
@@ -234,7 +252,8 @@ export const ConfirmDAppForm = memo<ConfirmDAppFormProps>(
         selectedAccount,
         setError,
         setSuccessType,
-        setLedgerApprovalModalState
+        setLedgerApprovalModalState,
+        shouldShowSuccessAfterSettle
       ]
     );
 
