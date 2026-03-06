@@ -1246,6 +1246,15 @@
       }
     }
   },
+  "connected": {
+    "message": "Connected"
+  },
+  "signed": {
+    "message": "Signed"
+  },
+  "confirmed": {
+    "message": "Confirmed"
+  },
   "walletLinkedWithGoogle": {
     "message": "Wallet linked with Google"
   },

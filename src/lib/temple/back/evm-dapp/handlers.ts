@@ -98,6 +98,7 @@ export const connectEvm = async (origin: string, chainId: string, icon?: string,
       handleIntercomRequest: async (confirmReq, decline) => {
         if (confirmReq?.type === TempleMessageType.DAppPermConfirmationRequest && confirmReq?.id === id) {
           const { confirmed, accountPublicKeyHash, forwardToProvider } = confirmReq;
+          const shouldKeepConfirmationWindowOpen = Boolean(confirmed && accountPublicKeyHash);
 
           if (forwardToProvider) {
             reject(
@@ -125,7 +126,8 @@ export const connectEvm = async (origin: string, chainId: string, icon?: string,
           }
 
           return {
-            type: TempleMessageType.DAppPermConfirmationResponse
+            type: TempleMessageType.DAppPermConfirmationResponse,
+            keepConfirmationWindowOpen: shouldKeepConfirmationWindowOpen
           };
         }
         return undefined;
@@ -414,7 +416,8 @@ export const sendEvmTransactionAfterConfirm = async (
           }
 
           return {
-            type: TempleMessageType.DAppOpsConfirmationResponse
+            type: TempleMessageType.DAppOpsConfirmationResponse,
+            keepConfirmationWindowOpen: confirmed
           };
         }
 
@@ -462,6 +465,8 @@ export const addAsset = async (origin: string, currentChainId: string, params: W
       },
       handleIntercomRequest: async (confirmReq, decline) => {
         if (confirmReq?.type === TempleMessageType.DAppAddEvmAssetRequest && confirmReq.id === id) {
+          const shouldKeepConfirmationWindowOpen = Boolean(confirmReq.confirmed);
+
           if (confirmReq.confirmed) {
             resolve(null);
           } else {
@@ -469,7 +474,8 @@ export const addAsset = async (origin: string, currentChainId: string, params: W
           }
 
           return {
-            type: TempleMessageType.DAppAddEvmAssetResponse
+            type: TempleMessageType.DAppAddEvmAssetResponse,
+            keepConfirmationWindowOpen: shouldKeepConfirmationWindowOpen
           };
         }
 
@@ -526,6 +532,8 @@ export const addChain = async (origin: string, currentChainId: string, params: A
       },
       handleIntercomRequest: async (confirmReq, decline) => {
         if (confirmReq?.type === TempleMessageType.DAppAddEvmChainRequest && confirmReq.id === id) {
+          const shouldKeepConfirmationWindowOpen = Boolean(confirmReq.confirmed);
+
           if (confirmReq.confirmed) {
             await withUnlocked(async ({ vault }) => {
               const chainIdNum = Number(chainMetadata.chainId);
@@ -625,7 +633,8 @@ export const addChain = async (origin: string, currentChainId: string, params: A
           }
 
           return {
-            type: TempleMessageType.DAppAddEvmChainResponse
+            type: TempleMessageType.DAppAddEvmChainResponse,
+            keepConfirmationWindowOpen: shouldKeepConfirmationWindowOpen
           };
         }
 

@@ -151,6 +151,8 @@ export function makeRequestEvmSignFunction<T extends TempleEvmDAppSignPayload>(
         },
         handleIntercomRequest: async (confirmReq, decline) => {
           if (confirmReq?.type === TempleMessageType.DAppSignConfirmationRequest && confirmReq.id === id) {
+            const shouldKeepConfirmationWindowOpen = Boolean(confirmReq.confirmed);
+
             if (confirmReq.confirmed) {
               const result = await withUnlocked(({ vault }) => signDataWithValue(vault, payload, sourcePkh, chainId));
               resolve(result);
@@ -159,7 +161,8 @@ export function makeRequestEvmSignFunction<T extends TempleEvmDAppSignPayload>(
             }
 
             return {
-              type: TempleMessageType.DAppSignConfirmationResponse
+              type: TempleMessageType.DAppSignConfirmationResponse,
+              keepConfirmationWindowOpen: shouldKeepConfirmationWindowOpen
             };
           }
 

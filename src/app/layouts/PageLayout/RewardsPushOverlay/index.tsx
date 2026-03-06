@@ -3,6 +3,7 @@ import React, { FC, memo, useCallback, useMemo, useState } from 'react';
 import { useDispatch } from 'react-redux';
 
 import { ActionModalButton } from 'app/atoms/action-modal';
+import { DoneAnimation } from 'app/atoms/done-animation';
 import { PageModal } from 'app/atoms/PageModal';
 import { useAppEnv } from 'app/env';
 import { togglePartnersPromotionAction } from 'app/store/partners-promotion/actions';
@@ -15,9 +16,7 @@ import { useStorage } from 'lib/temple/front';
 import { Lottie } from 'lib/ui/react-lottie';
 
 import autoPayoutsImgSrc from './assets/auto-payouts.png';
-import backgroundSuccessSrc from './assets/background-success.svg?url';
 import cashbackAnimation from './assets/cashback-animation.json';
-import doneAnimation from './assets/done-animation.json';
 import passiveEarnImgSrc from './assets/passive-earn.png';
 import snapHandImgSrc from './assets/snap-hand.png';
 import { ConfettiExplosion } from './ConfettiExplosion';
@@ -27,13 +26,6 @@ const cashbackAnimationOptions = {
   loop: false,
   autoplay: true,
   animationData: cashbackAnimation,
-  rendererSettings: { preserveAspectRatio: 'xMidYMid slice' }
-};
-
-const doneAnimationOptions = {
-  loop: false,
-  autoplay: true,
-  animationData: doneAnimation,
   rendererSettings: { preserveAspectRatio: 'xMidYMid slice' }
 };
 
@@ -173,13 +165,7 @@ const SuccessModal = memo<SuccessModalProps>(({ opened, onClose, onGotIt }) => {
     >
       <PageModalScrollViewWithActions actionsBoxProps={actionsBoxProps}>
         <div className="flex flex-col items-center text-center">
-          <div className="relative flex items-center justify-center overflow-hidden">
-            <img src={backgroundSuccessSrc} alt="" className="w-full h-auto" />
-            <ConfettiExplosion />
-            <div className="absolute">
-              <Lottie isClickToPauseDisabled options={doneAnimationOptions} height={148} width={148} speed={0.8} />
-            </div>
-          </div>
+          <DoneAnimation overlay={<ConfettiExplosion />} />
 
           <h1 className="text-font-regular-bold mb-2">
             <T id="rewardsEarningActivated" />
