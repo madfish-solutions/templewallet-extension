@@ -94,7 +94,7 @@ export async function requestConfirm<T extends TempleDAppPayload>({
         const shouldKeepConfirmationWindowOpen = isObjectResult(result) && result.keepConfirmationWindowOpen === true;
 
         if (shouldKeepConfirmationWindowOpen) {
-          successCloseTimeout = setTimeout(() => void close(), DAPP_SUCCESS_CLOSE_DELAY_MS);
+          successCloseTimeout = setTimeout(close, DAPP_SUCCESS_CLOSE_DELAY_MS);
         } else {
           close();
         }
