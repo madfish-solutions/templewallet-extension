@@ -18,6 +18,7 @@ import * as Woozie from 'lib/woozie';
 import { useAccount } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
 
+import { RewardsPushOverlay } from './layouts/PageLayout/RewardsPushOverlay';
 import { ActivityPage } from './pages/Activity';
 import { CryptoExchange } from './pages/Buy/CryptoExchange';
 import { DebitCreditCard } from './pages/Buy/DebitCreditCard';
@@ -153,7 +154,14 @@ export const PageRouter = memo(() => {
 
   usePageRouterAnalytics(pathname, search, ctx.ready);
 
-  return useMemo(() => Woozie.resolve(ROUTE_MAP, pathname, ctx), [pathname, ctx]);
+  const routeElement = useMemo(() => Woozie.resolve(ROUTE_MAP, pathname, ctx), [pathname, ctx]);
+
+  return (
+    <>
+      {routeElement}
+      <RewardsPushOverlay />
+    </>
+  );
 });
 
 function onlyReady(factory: RouteFactory): RouteFactory {

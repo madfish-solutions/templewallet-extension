@@ -82,13 +82,20 @@ export const EarnEthPage = memo(() => {
   const getStats = useCallback(async () => {
     if (!evmAddress || !stakingEthereum) return null;
 
-    const [contractViewsStats, validatorsQueueStats, [lastUnstakeTransaction]] = await Promise.all([
+    const [contractViewsStats, validatorsQueueStats, lastUnstakeTransaction] = await Promise.all([
       stakingEthereum.contractViewsStats(evmAddress),
-      getEthValidatorsQueueStats(),
-      getEthAccountTransactions({ account: evmAddress, operation: 'unstake', limit: 1 })
+      getEthValidatorsQueueStats().catch(() => null),
+      getEthAccountTransactions({ account: evmAddress, operation: 'unstake', limit: 1 }).catch(() => null)
     ]);
 
-    return { ...contractViewsStats, ...validatorsQueueStats, lastUnstakeTimestamp: lastUnstakeTransaction?.created_at };
+    const everstakeDataUnavailable = !validatorsQueueStats || !lastUnstakeTransaction;
+
+    return {
+      ...contractViewsStats,
+      ...validatorsQueueStats,
+      lastUnstakeTimestamp: lastUnstakeTransaction?.[0]?.created_at,
+      everstakeDataUnavailable
+    };
   }, [stakingEthereum, evmAddress]);
   const {
     data: stats,

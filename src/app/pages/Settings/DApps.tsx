@@ -89,7 +89,7 @@ const DAppItem = memo<DAppItemProps>(({ dapp, origin, onRemoveClick, onEvmNetwor
   );
 
   return (
-    <div key={dapp.appMeta.name} className="flex items-center gap-2 p-2 bg-white rounded-lg shadow-bottom">
+    <div key={dapp.appMeta.name} className="flex items-center gap-2 p-2 bg-white rounded-lg border-0.5 border-lines">
       <DAppLogo origin={origin} icon={dapp.appMeta.icon} size={36} className="m-[2px] rounded-full" />
 
       <div className="flex-grow gap-0.5">

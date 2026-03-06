@@ -47,7 +47,7 @@ export const SelectWithModal = <T, P extends null | ((item: T) => any)>({
   return (
     <>
       <InputContainer className={className} header={<span className="m-1 text-font-description-bold">{title}</span>}>
-        <SettingsCellGroup>
+        <SettingsCellGroup className="hover:bg-grey-4">
           <SettingsCellSingle
             Component={Button}
             cellIcon={<CellIcon option={value} />}

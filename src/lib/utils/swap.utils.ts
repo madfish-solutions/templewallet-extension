@@ -2,6 +2,7 @@ import { isDefined } from '@rnw-community/shared';
 import {
   ContractMethodObject,
   ContractProvider,
+  getRevealGasLimit,
   OpKind,
   TezosToolkit,
   TransferParams,
@@ -24,6 +25,7 @@ import { isRoute3GasToken } from 'lib/route3/utils/assets.utils';
 import { mapToRoute3ExecuteHops } from 'lib/route3/utils/map-to-route3-hops';
 import { loadContract } from 'lib/temple/contract';
 import { tokensToAtoms } from 'lib/temple/helpers';
+import { tezosManagerKeyHasManager } from 'lib/tezos';
 
 import { getTransferPermissions } from './get-transfer-permissions';
 import { ZERO } from './numbers';
@@ -92,9 +94,9 @@ export const getSwapTransferParams = async (
   return resultParams;
 };
 
-export const calculateSidePaymentsFromInput = (inputAmount: BigNumber | undefined) => {
+export const calculateSidePaymentsFromInput = (inputAmount: BigNumber | undefined, forceOutputFee = false) => {
   const swapInputAtomic = (inputAmount ?? ZERO).integerValue(BigNumber.ROUND_DOWN);
-  const shouldTakeFeeFromInput = swapInputAtomic.gte(ATOMIC_INPUT_THRESHOLD_FOR_FEE_FROM_INPUT);
+  const shouldTakeFeeFromInput = !forceOutputFee && swapInputAtomic.gte(ATOMIC_INPUT_THRESHOLD_FOR_FEE_FROM_INPUT);
   const inputFeeAtomic = shouldTakeFeeFromInput
     ? multiplyAtomicAmount(swapInputAtomic, ROUTING_FEE_RATIO, BigNumber.ROUND_CEIL)
     : ZERO;
@@ -110,10 +112,14 @@ export const calculateSidePaymentsFromInput = (inputAmount: BigNumber | undefine
   };
 };
 
-const calculateOutputFeeAtomic = (inputAmount: BigNumber | undefined, outputAmount: BigNumber) => {
+const calculateOutputFeeAtomic = (
+  inputAmount: BigNumber | undefined,
+  outputAmount: BigNumber,
+  forceOutputFee = false
+) => {
   const swapInputAtomic = (inputAmount ?? ZERO).integerValue(BigNumber.ROUND_DOWN);
 
-  return swapInputAtomic.gte(ATOMIC_INPUT_THRESHOLD_FOR_FEE_FROM_INPUT)
+  return !forceOutputFee && swapInputAtomic.gte(ATOMIC_INPUT_THRESHOLD_FOR_FEE_FROM_INPUT)
     ? ZERO
     : multiplyAtomicAmount(outputAmount, ROUTING_FEE_RATIO, BigNumber.ROUND_CEIL);
 };
@@ -122,7 +128,8 @@ export const calculateOutputAmounts = (
   inputAmount: BigNumber,
   route3OutputInTokens: string | undefined,
   outputAssetDecimals: number,
-  slippageRatio: number
+  slippageRatio: number,
+  forceOutputFee = false
 ) => {
   const outputAtomicAmountBeforeFee = isDefined(route3OutputInTokens)
     ? tokensToAtoms(new BigNumber(route3OutputInTokens), outputAssetDecimals)
@@ -132,7 +139,7 @@ export const calculateOutputAmounts = (
     slippageRatio,
     BigNumber.ROUND_FLOOR
   );
-  const outputFeeAtomicAmount = calculateOutputFeeAtomic(inputAmount, minOutputAtomicBeforeFee);
+  const outputFeeAtomicAmount = calculateOutputFeeAtomic(inputAmount, minOutputAtomicBeforeFee, forceOutputFee);
   const expectedReceivedAtomic = outputAtomicAmountBeforeFee.minus(outputFeeAtomicAmount);
   const minimumReceivedAtomic = minOutputAtomicBeforeFee.minus(outputFeeAtomicAmount);
 
@@ -206,18 +213,26 @@ function is3RouteOpParam(p: WalletParamsWithKind) {
 // so this value is with a generous buffer.
 const NON_3ROUTE_OPERATIONS_GAS_LIMIT = 15000;
 
-export async function getParamsWithCustomGasLimitFor3RouteSwap(tezos: TezosToolkit, opParams: WalletParamsWithKind[]) {
+export async function getParamsWithCustomGasLimitFor3RouteSwap(
+  tezos: TezosToolkit,
+  sourcePkh: string,
+  opParams: WalletParamsWithKind[]
+) {
   if (opParams.length < 2 || !opParams.some(op => is3RouteOpParam(op))) {
     return opParams;
   }
 
   try {
+    const manager = await tezos.rpc.getManagerKey(sourcePkh);
+    const revealGasLimit = tezosManagerKeyHasManager(manager) ? 0 : getRevealGasLimit(sourcePkh);
+
     const constants = await tezos.rpc.getConstants();
 
+    const blockGasLimitWithRevealReserve = constants.hard_gas_limit_per_block.minus(revealGasLimit);
     const non3RouteOpParamsCount = opParams.filter(op => !is3RouteOpParam(op)).length;
 
     const gasPer3RouteOperation = Math.min(
-      constants.hard_gas_limit_per_block
+      blockGasLimitWithRevealReserve
         .minus(non3RouteOpParamsCount * NON_3ROUTE_OPERATIONS_GAS_LIMIT)
         .div(opParams.length - non3RouteOpParamsCount)
         .integerValue(BigNumber.ROUND_DOWN)

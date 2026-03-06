@@ -1,5 +1,7 @@
 import React, { ComponentType, useCallback } from 'react';
 
+import clsx from 'clsx';
+
 import { Button, IconBase } from 'app/atoms';
 import { SettingsCellSingle } from 'app/atoms/SettingsCell';
 import { SettingsCellGroup } from 'app/atoms/SettingsCellGroup';
@@ -33,7 +35,7 @@ export const SelectModalOption = <T extends unknown>({
   const handleClick = useCallback(() => onSelect(option), [onSelect, option]);
 
   return (
-    <SettingsCellGroup className={className}>
+    <SettingsCellGroup className={clsx('hover:bg-grey-4', className)}>
       <SettingsCellSingle
         Component={Button}
         cellIcon={<CellIcon option={option} />}

@@ -6,11 +6,11 @@ const TIMEOUT = 3 * TEZOS_BLOCK_DURATION;
 export const TEZOS_OPERATION_NOT_CONFIRMED_ERROR_MSG = 'Operation was not confirmed';
 export const TEZOS_CONFIRMATION_TIMED_OUT_ERROR_MSG = 'Confirmation polling timed out';
 
-export const confirmTezosOperation = (tezos: TezosToolkit, opHash: string) =>
+export const confirmTezosOperation = (tezos: TezosToolkit, opHash: string, confirmations = 1) =>
   Promise.race([
     tezos.operation
       .createOperation(opHash)
-      .then(op => op.confirmation(1))
+      .then(op => op.confirmation(confirmations))
       .then(confirmation => {
         if (!confirmation) throw new Error(TEZOS_OPERATION_NOT_CONFIRMED_ERROR_MSG);
       }),

@@ -1,9 +1,11 @@
-import React, { memo } from 'react';
+import { memo } from 'react';
 
 import type { CollectibleDetails } from 'app/store/tezos/collectibles/state';
 import { ChartListItem } from 'app/templates/chart-list-item';
 import { NftCollectionAttribute } from 'lib/apis/temple/endpoints/evm/api.interfaces';
 import { toLocalFormat } from 'lib/i18n';
+
+import { InfoContainer } from './InfoContainer';
 
 interface TezosAttributesProps {
   details?: CollectibleDetails | null;
@@ -13,7 +15,7 @@ export const TezosAttributes = memo<TezosAttributesProps>(({ details }) => {
   if (!details || !details.attributes || details.attributes.length === 0) return null;
 
   return (
-    <div className="flex flex-col p-4 rounded-8 shadow-bottom bg-white">
+    <InfoContainer>
       {details.attributes.map((attribute, index) => (
         <ChartListItem
           key={attribute.id}
@@ -30,7 +32,7 @@ export const TezosAttributes = memo<TezosAttributesProps>(({ details }) => {
           </p>
         </ChartListItem>
       ))}
-    </div>
+    </InfoContainer>
   );
 });
 
@@ -42,7 +44,7 @@ export const EvmAttributes = memo<EvmAttributesProps>(({ attributes }) => {
   if (attributes?.length === 0) return null;
 
   return (
-    <div className="flex flex-col p-4 rounded-8 shadow-bottom bg-white">
+    <InfoContainer>
       {attributes?.map((attribute, index) => (
         <ChartListItem
           key={attribute.trait_type + index}
@@ -52,6 +54,6 @@ export const EvmAttributes = memo<EvmAttributesProps>(({ attributes }) => {
           <p className="p-1 text-font-description-bold">{attribute.value}</p>
         </ChartListItem>
       ))}
-    </div>
+    </InfoContainer>
   );
 });

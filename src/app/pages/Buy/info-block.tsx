@@ -12,7 +12,7 @@ interface InfoContainerProps extends PropsWithChildren {
 
 export const InfoContainer: FC<InfoContainerProps> = ({ className, onClick, children }) => (
   <div
-    className={clsx('flex flex-col px-4 py-2 rounded-lg shadow-bottom border-0.5 border-transparent', className)}
+    className={clsx('flex flex-col px-4 py-2 rounded-lg bg-white border-0.5 border-lines', className)}
     onClick={onClick}
   >
     {children}

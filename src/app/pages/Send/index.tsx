@@ -11,7 +11,7 @@ import { t } from 'lib/i18n';
 import {
   ETH_SEPOLIA_CHAIN_ID,
   ETHEREUM_MAINNET_CHAIN_ID,
-  TEZOS_GHOSTNET_CHAIN_ID,
+  TEZOS_SHADOWNET_CHAIN_ID,
   TEZOS_MAINNET_CHAIN_ID,
   TempleAccountType
 } from 'lib/temple/types';
@@ -67,7 +67,7 @@ const Send = memo<Props>(({ chainKind, chainId, assetSlug }) => {
 
     return toChainAssetSlug(
       TempleChainKind.Tezos,
-      testnetModeEnabled ? TEZOS_GHOSTNET_CHAIN_ID : TEZOS_MAINNET_CHAIN_ID,
+      testnetModeEnabled ? TEZOS_SHADOWNET_CHAIN_ID : TEZOS_MAINNET_CHAIN_ID,
       TEZ_TOKEN_SLUG
     );
   });

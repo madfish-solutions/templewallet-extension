@@ -243,9 +243,18 @@ export const TezosSwapForm: FC<TezosSwapFormProps> = ({
     return tokensToAtoms(inputValueToUse ?? ZERO, inputAssetMetadata.decimals);
   }, [inputAssetMetadata.decimals, inputValue.amount, isFiatMode, parseFiatValueToAssetAmount]);
 
+  const isOutputTempleToken = outputValue.assetSlug === KNOWN_TOKENS_SLUGS.TEMPLE;
+
   const { outputAtomicAmountBeforeFee, minimumReceivedAtomic, outputFeeAtomicAmount } = useMemo(
-    () => calculateOutputAmounts(atomsInputValue, swapParams.data.output, outputAssetMetadata.decimals, slippageRatio),
-    [atomsInputValue, swapParams.data.output, outputAssetMetadata.decimals, slippageRatio]
+    () =>
+      calculateOutputAmounts(
+        atomsInputValue,
+        swapParams.data.output,
+        outputAssetMetadata.decimals,
+        slippageRatio,
+        isOutputTempleToken
+      ),
+    [atomsInputValue, swapParams.data.output, outputAssetMetadata.decimals, slippageRatio, isOutputTempleToken]
   );
 
   const dispatchLoadSwapParams = useCallback(
@@ -260,8 +269,11 @@ export const TezosSwapForm: FC<TezosSwapFormProps> = ({
         ? parseFiatValueToAssetAmount(input.amount, inputAssetMetadata.decimals)
         : input.amount;
 
+      const isOutputTempleToken = output.assetSlug === KNOWN_TOKENS_SLUGS.TEMPLE;
+
       const { swapInputMinusFeeAtomic: amount } = calculateSidePaymentsFromInput(
-        tokensToAtoms(inputValueToUse ?? ZERO, inputMetadata.decimals)
+        tokensToAtoms(inputValueToUse ?? ZERO, inputMetadata.decimals),
+        isOutputTempleToken
       );
 
       const route3FromToken = getRoute3TokenBySlug(route3Tokens, input.assetSlug);
@@ -370,7 +382,8 @@ export const TezosSwapForm: FC<TezosSwapFormProps> = ({
         atomsInputValue,
         currentOutput,
         outputAssetMetadata.decimals,
-        slippageRatio
+        slippageRatio,
+        isOutputTempleToken
       );
 
       const amount = atomsToTokens(expectedReceivedAtomic, outputAssetMetadata.decimals);
@@ -382,6 +395,7 @@ export const TezosSwapForm: FC<TezosSwapFormProps> = ({
   }, [
     atomsInputValue,
     isFiatMode,
+    isOutputTempleToken,
     outputAssetMetadata.decimals,
     outputAssetPrice,
     outputValue.assetSlug,
@@ -481,7 +495,7 @@ export const TezosSwapForm: FC<TezosSwapFormProps> = ({
       swapInputMinusFeeAtomic,
       inputFeeAtomic: routingFeeFromInputAtomic,
       cashbackSwapInputAtomic: cashbackSwapInputFromInAtomic
-    } = calculateSidePaymentsFromInput(atomsInputValue);
+    } = calculateSidePaymentsFromInput(atomsInputValue, isOutputTempleToken);
 
     if (!fromRoute3Token || !toRoute3Token || !swapParams.data.output || !inputValue.assetSlug) {
       return;
@@ -537,7 +551,12 @@ export const TezosSwapForm: FC<TezosSwapFormProps> = ({
           tezos
         );
         allSwapParams.push(...routingFeeOpParams);
-      } else if (!isInputTokenTempleToken && isSwapAmountMoreThreshold && routingFeeFromInputAtomic.gt(0)) {
+      } else if (
+        !isInputTokenTempleToken &&
+        isSwapAmountMoreThreshold &&
+        routingFeeFromInputAtomic.gt(0) &&
+        !isOutputTokenTempleToken
+      ) {
         const swapToTempleParams = await fetchRoute3SwapParams({
           fromSymbol: fromRoute3Token.symbol,
           toSymbol: TEMPLE_TOKEN.symbol,
@@ -566,8 +585,6 @@ export const TezosSwapForm: FC<TezosSwapFormProps> = ({
           swapToTempleParams
         );
 
-        allSwapParams.push(...swapToTempleTokenOpParams);
-
         const burnAmount = templeMinOutputAtomic
           .times(ROUTING_FEE_RATIO - SWAP_CASHBACK_RATIO)
           .dividedToIntegerBy(ROUTING_FEE_RATIO);
@@ -581,11 +598,24 @@ export const TezosSwapForm: FC<TezosSwapFormProps> = ({
           TEZ_BURN_ADDRESS,
           tezos
         );
+
+        allSwapParams.push(...swapToTempleTokenOpParams);
         allSwapParams.push(...routingFeeOpParams);
       } else if (!isInputTokenTempleToken && isSwapAmountMoreThreshold && isOutputTokenTempleToken) {
+        const burnAmount = outputFeeAtomicAmount
+          .times(ROUTING_FEE_RATIO - SWAP_CASHBACK_RATIO)
+          .dividedToIntegerBy(ROUTING_FEE_RATIO);
+
+        const expectedOutputFee = multiplyAtomicAmount(
+          outputAtomicAmountBeforeFee,
+          ROUTING_FEE_RATIO,
+          BigNumber.ROUND_CEIL
+        );
+        cashback = expectedOutputFee.minus(burnAmount);
+
         routingOutputFeeTransferParams = await getRoutingFeeTransferParams(
           TEMPLE_TOKEN,
-          outputFeeAtomicAmount.times(ROUTING_FEE_RATIO - SWAP_CASHBACK_RATIO).dividedToIntegerBy(ROUTING_FEE_RATIO),
+          burnAmount,
           publicKeyHash,
           TEZ_BURN_ADDRESS,
           tezos
@@ -682,6 +712,7 @@ export const TezosSwapForm: FC<TezosSwapFormProps> = ({
     getTezosBalance,
     inputAssetMetadata.symbol,
     inputValue,
+    isOutputTempleToken,
     minimumReceivedAtomic,
     network,
     onReview,

@@ -103,7 +103,7 @@ export const EvmInfoModalContent = memo<EvmInfoModalProps>(({ assetSlug, chainId
   );
 });
 
-const LIST_BLOCK_CLASSNAME = 'flex flex-col px-4 py-2 rounded-8 bg-white shadow-bottom';
+const LIST_BLOCK_CLASSNAME = 'flex flex-col px-4 py-2 rounded-8 bg-white border-0.5 border-lines';
 const LIST_BLOCK_ITEM_DATA_SPAN_CLASSNAME = 'p-1 text-font-num-bold-12';
 
 const MainInfoListBlock = memo<{
@@ -201,16 +201,16 @@ const MoreInfoListBlock = memo<{
   return (
     <div className={LIST_BLOCK_CLASSNAME}>
       <ListBlockItem
-        title="Current price"
+        title="Current Price"
         rightSideJsx={
           <span className={LIST_BLOCK_ITEM_DATA_SPAN_CLASSNAME}>
             {!price.isZero() ? (
               <>
-                <span className="mr-0.5">{fiatSymbol}</span>
-
                 <Money smallFractionFont={false} cryptoDecimals={4}>
                   {price}
                 </Money>
+
+                <span className="ml-0.5">{fiatSymbol}</span>
               </>
             ) : (
               'No value'
@@ -226,9 +226,9 @@ const MoreInfoListBlock = memo<{
           <span className={LIST_BLOCK_ITEM_DATA_SPAN_CLASSNAME}>
             {volume24H ? (
               <>
-                <span className="mr-0.5">{fiatSymbol}</span>
-
                 <Money smallFractionFont={false}>{volume24H}</Money>
+
+                <span className="ml-0.5">{fiatSymbol}</span>
               </>
             ) : (
               'No value'
@@ -247,7 +247,7 @@ const ListBlockItem: FC<{ title: string; rightSideJsx: ReactNode; divide?: boole
 }) => {
   return (
     <>
-      {divide && <Divider />}
+      {divide && <Divider thinest />}
 
       <div className="flex items-center justify-between pl-1 gap-x-2 min-h-12">
         <span className="text-font-description text-grey-1">{title}</span>

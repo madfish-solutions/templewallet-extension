@@ -58,7 +58,7 @@ export const SwitchAccountModal = memo(({ dApp, onClose }: SwitchAccountModalPro
 
   return (
     <MiniPageModal opened showHeader={false} onRequestClose={handleClose}>
-      <div className="p-4 flex flex-col flex-1 gap-4 bg-background rounded-t-lg">
+      <div className="p-4 flex flex-col flex-1 gap-4 rounded-t-lg">
         <div className="flex justify-center gap-3.5 relative">
           <div className="w-13 h-13 flex justify-center items-center bg-white shadow-card rounded-lg">
             <Identicon type="botttsneutral" hash={accountId} size={36} className="rounded-circle" />

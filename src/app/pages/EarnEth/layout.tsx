@@ -1,6 +1,6 @@
 import React, { memo } from 'react';
 
-import { IconBase, Money } from 'app/atoms';
+import { Alert, IconBase, Money } from 'app/atoms';
 import { StyledButton } from 'app/atoms/StyledButton';
 import { Tooltip } from 'app/atoms/Tooltip';
 import { ReactComponent as ActivityIcon } from 'app/icons/base/activity.svg';
@@ -34,6 +34,9 @@ export const EarnEthPageLayout = memo<EarnEthPageLayoutProps>(
     return (
       <PageLayout pageTitle="Earn ETH" contentPadding={false}>
         <div className="flex flex-col p-4 pb-8">
+          {stats.everstakeDataUnavailable && (
+            <Alert className="mb-4" type="warning" description={<T id="someStakingInfoUnavailable" />} />
+          )}
           <p className="text-font-description-bold mb-1 py-1">
             <T id="provider" />
           </p>
@@ -69,7 +72,7 @@ export const EarnEthPageLayout = memo<EarnEthPageLayoutProps>(
           </div>
 
           {requested.isZero() && readyForClaim.isZero() ? (
-            <div className="flex flex-col justify-center items-center gap-2 bg-white rounded-lg shadow-bottom h-29 text-grey-2">
+            <div className="flex flex-col justify-center items-center gap-2 bg-white rounded-lg border-0.5 border-lines h-29 text-grey-2">
               <IconBase Icon={ActivityIcon} />
 
               <span className="text-font-description">

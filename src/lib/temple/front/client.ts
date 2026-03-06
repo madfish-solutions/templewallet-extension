@@ -90,10 +90,17 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
   const [googleAuthToken, setGoogleAuthToken] = useState<string>();
 
   useEffect(() => {
-    return intercomClient.subscribe((msg: TempleNotification) => {
+    let stateUpdateTimer: ReturnType<typeof setTimeout> | undefined;
+
+    const unsub = intercomClient.subscribe((msg: TempleNotification) => {
       switch (msg?.type) {
         case TempleMessageType.StateUpdated:
-          mutate();
+          if (stateUpdateTimer === undefined) {
+            stateUpdateTimer = setTimeout(() => {
+              stateUpdateTimer = undefined;
+              mutate();
+            }, 200);
+          }
           break;
 
         case TempleMessageType.ConfirmationRequested:
@@ -110,6 +117,11 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
           break;
       }
     });
+
+    return () => {
+      unsub();
+      if (stateUpdateTimer !== undefined) clearTimeout(stateUpdateTimer);
+    };
   }, [mutate, setConfirmation]);
 
   /**

@@ -38,7 +38,7 @@ const BackupOptionHOC = <T extends string>() =>
 
     return (
       <Button
-        className="flex items-center gap-2 p-4 rounded-lg hover:bg-grey-4 border-0.5 border-lines"
+        className="flex items-center gap-2 p-4 rounded-lg bg-white hover:bg-grey-4 border-0.5 border-lines"
         testID={testID}
         onClick={handleClick}
       >

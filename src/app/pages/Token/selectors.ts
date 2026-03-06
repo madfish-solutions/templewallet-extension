@@ -1,5 +1,6 @@
 export enum TokenPageSelectors {
   pageName = 'Token Page/Page Name',
   tokenName = 'Token Page/Token Name',
-  addressModeSwitchButton = 'Token Page/Address Mode Switch Button'
+  addressModeSwitchButton = 'Token Page/Address Mode Switch Button',
+  earnTag = 'Token Page/Earn Tag'
 }

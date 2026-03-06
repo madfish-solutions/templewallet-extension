@@ -36,16 +36,18 @@ export const UnstakeAmountInputContent = memo<AmountInputContentProps>(({ chain,
       stats={stats}
       onSubmit={onSubmit}
     >
-      <Alert
-        className="mb-4"
-        type="info"
-        description={
-          <T
-            id="ethUnstakingDisclaimer"
-            substitutions={formatDuration(stats.validator_exit_time + stats.validator_withdraw_time, ['days'])}
-          />
-        }
-      />
+      {stats.validator_exit_time != null && stats.validator_withdraw_time != null && (
+        <Alert
+          className="mb-4"
+          type="info"
+          description={
+            <T
+              id="ethUnstakingDisclaimer"
+              substitutions={formatDuration(stats.validator_exit_time + stats.validator_withdraw_time, ['days'])}
+            />
+          }
+        />
+      )}
     </AmountInputContent>
   );
 });

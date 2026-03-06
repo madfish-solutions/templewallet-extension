@@ -1426,9 +1426,6 @@
   "slippageTolerance": {
     "message": "Slipaj toleransı"
   },
-  "minimumReceived": {
-    "message": "Alınan Minimum"
-  },
   "inputOutputAssetsCannotBeSame": {
     "message": "Giriş ve çıkış varlıkları aynı olamaz"
   },

@@ -265,7 +265,7 @@ const TezosCustomSettings = memo<TezosCustomSettingsProps>(
                 <T id="derivationType" />
               </span>
 
-              <div className="flex flex-col mt-1 bg-white rounded-lg border border-lines">
+              <div className="flex flex-col mt-1 bg-white rounded-lg border-0.5 border-lines">
                 {allDerivationTypes.map((type, index) => {
                   const { name, accountPrefix } = derivationTypesCharacteristics[type];
                   const active = type === derivationType;
@@ -276,7 +276,7 @@ const TezosCustomSettings = memo<TezosCustomSettingsProps>(
                       key={type}
                       className={clsx(
                         'flex items-center justify-between p-3 border-lines bg-transparent cursor-pointer',
-                        index !== 0 && 'border-t'
+                        index !== 0 && 'border-t-0.5'
                       )}
                       onClick={() => onDerivationTypeChange(type)}
                       {...setTestID(ConnectLedgerModalSelectors.derivationTypeOptionButton)}

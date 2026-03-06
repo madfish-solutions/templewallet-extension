@@ -129,7 +129,7 @@ export const NetworkSelectModalContent = memo<ContentProps>(({ opened, selectedN
         <IconButton Icon={PlusIcon} color="blue" onClick={() => navigate('settings/networks')} />
       </div>
 
-      <div className="px-4 py-1 flex-grow flex flex-col gap-3 overflow-y-auto">
+      <div className="px-4 pt-1 pb-4 flex-grow flex flex-col gap-3 overflow-y-auto">
         {searchedNetworks.length === 0 ? (
           <EmptyState />
         ) : (
@@ -200,7 +200,7 @@ export const Network: FC<NetworkProps> = ({
   return (
     <div
       ref={elemRef}
-      className="cursor-pointer flex justify-between items-center p-3 rounded-8 border-0.5 border-lines group"
+      className="cursor-pointer flex justify-between items-center p-3 rounded-8 border-0.5 bg-white border-lines group"
       onClick={handleClick}
     >
       <div className="flex items-center gap-x-2">

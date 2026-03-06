@@ -21,7 +21,7 @@ const DEFAULT_PROVIDER: PaymentProviderInterface = {
 
 export const SelectProviderButton = memo<Props>(({ provider = DEFAULT_PROVIDER, onClick, testID }) => (
   <Button
-    className="w-full cursor-pointer flex justify-between items-center p-3 rounded-lg shadow-bottom border-0.5 border-transparent hover:border-lines"
+    className="w-full cursor-pointer flex justify-between items-center p-3 rounded-lg border-0.5 border-lines bg-white hover:bg-grey-4"
     testID={testID}
     onClick={onClick}
   >

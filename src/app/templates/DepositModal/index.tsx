@@ -24,7 +24,7 @@ export const DepositModal: FC<DepositModalProps> = memo(({ chainKind, opened, on
     onRequestClose={onRequestClose}
     testID={DepositModalSelectors.depositModal}
   >
-    <div className="flex flex-col gap-3 p-4 pb-6 bg-background">
+    <div className="flex flex-col gap-3 p-4 pb-6">
       <DepositOption
         to={chainKind ? `/receive/${chainKind}` : '/receive'}
         title={t('receiveOnChain')}
