@@ -7,12 +7,12 @@ import { usePartnersPromotionModule } from 'app/templates/partners-promotion';
 import { T, TID } from 'lib/i18n';
 import { NullComponent } from 'lib/ui/null-component';
 
-export type DappInteractionSuccessType = 'connect' | 'sign' | 'other';
+export type DappInteractionSuccessType = 'connect' | 'sign' | 'confirm';
 
 const successTIDByType: Record<DappInteractionSuccessType, TID> = {
   connect: 'connected',
   sign: 'signed',
-  other: 'confirmed'
+  confirm: 'confirmed'
 };
 
 interface Props {
@@ -37,7 +37,7 @@ export const DappInteractionSuccess = memo<Props>(({ type }) => {
         <PartnersPromotionModule.PartnersPromotion
           id="promo-dapp-interaction-success-item"
           variant={PartnersPromotionModule.PartnersPromotionVariant.Text}
-          pageName="Dapp Interaction Success"
+          pageName={`Dapp Interaction Success/Type: ${type}`}
         />
       )}
     </PageLayout>

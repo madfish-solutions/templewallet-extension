@@ -85,7 +85,7 @@ const getDappInteractionSuccessType = (payloadType: TempleDAppPayload['type']): 
     case 'sign_typed':
       return 'sign';
     default:
-      return 'other';
+      return 'confirm';
   }
 };
 
