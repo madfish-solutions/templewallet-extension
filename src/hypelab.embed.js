@@ -1,4 +1,3 @@
-/* eslint-disable */
 var HypeLab;
 (() => {
   'use strict';
@@ -37,7 +36,7 @@ var HypeLab;
             ((t = s),
             ((e, t, s, a) => {
               if ((t && 'object' == typeof t) || 'function' == typeof t)
-                for (let s of o(t))
+                for (const s of o(t))
                   !r.call(e, s) &&
                     undefined !== s &&
                     n(e, s, { get: () => t[s], enumerable: !(a = i(t, s)) || a.enumerable });
@@ -681,7 +680,7 @@ var HypeLab;
             ((i = l),
             ((e, t, n, i) => {
               if ((t && 'object' == typeof t) || 'function' == typeof t)
-                for (let n of s(t))
+                for (const n of s(t))
                   !a.call(e, n) &&
                     undefined !== n &&
                     o(e, n, { get: () => t[n], enumerable: !(i = r(t, n)) || i.enumerable });
@@ -730,7 +729,7 @@ var HypeLab;
             }
             setUUID(e) {
               if (typeof window > 'u') return null;
-              let t = { value: e?.toString() || (0, c.v4)() };
+              const t = { value: e?.toString() || (0, c.v4)() };
               return window.localStorage.setItem(h, JSON.stringify(t)), t.value;
             }
             setWalletAddresses(e) {
@@ -747,7 +746,7 @@ var HypeLab;
               ];
             }
             async syncUUID() {
-              let e = (0, d.getBaseURL)(this.config.environment),
+              const e = (0, d.getBaseURL)(this.config.environment),
                 t = await (
                   await fetch(new URL('/v1/j', e), {
                     method: 'POST',
@@ -761,7 +760,7 @@ var HypeLab;
             getUUID() {
               if (typeof window > 'u') return null;
               try {
-                let e = window.localStorage.getItem(h);
+                const e = window.localStorage.getItem(h);
                 return null !== e ? JSON.parse(e).value : null;
               } catch {
                 return null;
@@ -773,7 +772,7 @@ var HypeLab;
                 : (this.getWalletsPromise ||
                     (this.getWalletsPromise = Promise.race([
                       (async () => {
-                        let e = window.self !== window.top,
+                        const e = window.self !== window.top,
                           { ethereum: t, phantom: n } = window;
                         if (null == t || (e && null != n)) return [];
                         try {
@@ -809,19 +808,19 @@ var HypeLab;
               };
             }
             getAdaWalletProviderFlags() {
-              let e = [],
+              const e = [],
                 { cardano: t } = window;
               if (!t) return e;
-              let n = ['eternl', 'yoroi', 'nufi', 'flint', 'exodus', 'lace', 'nami', 'gerowallet', 'typhon', 'begin'];
-              for (let i of n) t[i] && e.push(i);
+              const n = ['eternl', 'yoroi', 'nufi', 'flint', 'exodus', 'lace', 'nami', 'gerowallet', 'typhon', 'begin'];
+              for (const i of n) t[i] && e.push(i);
               return e;
             }
             getBnbWalletProviderFlags() {
-              let e = [],
+              const e = [],
                 { BinanceChain: t } = window;
               if (!t) return e;
-              let n = ['isTrustWallet', 'isCoin98', 'isKaiWallet', 'isMetaMask', 'isNifyWallet'];
-              for (let i of n) t[i] && e.push(i);
+              const n = ['isTrustWallet', 'isCoin98', 'isKaiWallet', 'isMetaMask', 'isNifyWallet'];
+              for (const i of n) t[i] && e.push(i);
               return (
                 e.includes('isCoin98') && e.includes('isKaiWallet') && e.splice(e.indexOf('isKaiWallet'), 1),
                 e.includes('isCoin98') && e.includes('isNifyWallet') && e.splice(e.indexOf('isNifyWallet'), 1),
@@ -830,10 +829,10 @@ var HypeLab;
               );
             }
             getEthWalletProviderFlags() {
-              let e = [],
+              const e = [],
                 { ethereum: t } = window;
               if (!t) return e;
-              let n = [
+              const n = [
                 'isApexWallet',
                 'isAvalanche',
                 'isBackpack',
@@ -872,7 +871,7 @@ var HypeLab;
                 'isXDEFI',
                 'isZerion'
               ];
-              for (let i of n) t[i] && e.push(i);
+              for (const i of n) t[i] && e.push(i);
               return (
                 e.includes('isMetaMask') &&
                   [
@@ -899,24 +898,24 @@ var HypeLab;
               );
             }
             getSolWalletProviderFlags() {
-              let e = [],
+              const e = [],
                 { solana: t } = window;
               if (t) {
-                let n = ['isPhantom', 'isNufi'];
-                for (let i of n) t[i] && e.push(i);
+                const n = ['isPhantom', 'isNufi'];
+                for (const i of n) t[i] && e.push(i);
                 e.includes('isNufi') && e.includes('isPhantom') && e.splice(e.indexOf('isPhantom'), 1);
               }
-              let { solflare: n } = window;
+              const { solflare: n } = window;
               n && e.push('isSolflare');
-              let { backpack: i } = window;
+              const { backpack: i } = window;
               return i && e.push('isBackpack'), e;
             }
             getTronWalletProviderFlags() {
-              let e = [],
+              const e = [],
                 { tron: t } = window;
               if (!t) return e;
-              let n = ['isTronLink'];
-              for (let i of n) t[i] && e.push(i);
+              const n = ['isTronLink'];
+              for (const i of n) t[i] && e.push(i);
               return e;
             }
           };
