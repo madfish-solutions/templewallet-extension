@@ -20,5 +20,5 @@
     "newlinesBetween": true
   },
   "sortPackageJson": false,
-  "ignorePatterns": ["dist", "node_modules", "xcode", "public/popup.html", "public/sidebar.html"]
+  "ignorePatterns": ["**/*.html", "**/*.css", "**/*.json", "**/*.md", "**/*.yml", "**/*.yaml"]
 }

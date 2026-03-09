@@ -24,6 +24,6 @@ export const useMemoWithCompare = <T>(
     if (comparator(prevVal, nextVal)) return prevVal;
 
     return (valueRef.current = nextVal);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // oxlint-disable-next-line react-hooks/exhaustive-deps
   }, deps);
 };
