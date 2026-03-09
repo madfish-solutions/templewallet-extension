@@ -33,7 +33,7 @@ runs:
       run: yarn find-deadcode
       shell: bash
 
-    - name: Check ESLint
+    - name: Check linter
       run: yarn lint
       shell: bash
 
