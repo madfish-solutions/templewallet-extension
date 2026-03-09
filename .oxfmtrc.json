@@ -13,16 +13,7 @@
         "elementNamePattern": ["react"]
       }
     ],
-    "groups": [
-      "react",
-      { "newlinesBetween": false },
-      ["external", "builtin"],
-      "internal",
-      "parent",
-      "sibling",
-      "index",
-      "unknown"
-    ],
+    "groups": ["react", ["external", "builtin"], "internal", "parent", "sibling", "index", "unknown"],
     "internalPattern": ["app/", "lib/", "temple/", "content-scripts/"],
     "order": "asc",
     "ignoreCase": true,

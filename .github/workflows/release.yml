@@ -73,7 +73,7 @@ jobs:
 
       - name: Create Chrome build
         run: yarn build:chrome
-      
+
       - name: Remove ad-related files
         run: yarn remove-ad-related-files
 
