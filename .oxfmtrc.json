@@ -5,6 +5,29 @@
   "trailingComma": "none",
   "arrowParens": "avoid",
   "printWidth": 120,
+  "sortImports": {
+    "customGroups": [
+      {
+        "groupName": "react",
+        "selector": "external",
+        "elementNamePattern": ["react"]
+      }
+    ],
+    "groups": [
+      "react",
+      { "newlinesBetween": false },
+      ["external", "builtin"],
+      "internal",
+      "parent",
+      "sibling",
+      "index",
+      "unknown"
+    ],
+    "internalPattern": ["app/", "lib/", "temple/", "content-scripts/"],
+    "order": "asc",
+    "ignoreCase": true,
+    "newlinesBetween": true
+  },
   "sortPackageJson": false,
   "ignorePatterns": ["dist", "node_modules", "xcode", "public/popup.html", "public/sidebar.html"]
 }
