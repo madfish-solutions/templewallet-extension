@@ -30,7 +30,8 @@
     "ts": "tsc --pretty",
     "ts:e2e": "cd e2e && yarn && yarn ts",
     "lint": "oxlint --quiet src e2e",
-    "lint:fix": "oxfmt",
+    "format": "oxfmt",
+    "format:check": "oxfmt --check",
     "clear:lint": "rimraf .oxlint-cache .oxlint_cache node_modules/.cache/.oxlintcache",
     "find-deadcode": "ts-prune --error",
     "audit-deps": "node ./audit-deps.js"
