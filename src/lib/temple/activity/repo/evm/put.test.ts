@@ -1,4 +1,5 @@
 import 'core-js/actual/structured-clone';
+
 import { pick } from 'lodash';
 
 import { ActivityOperKindEnum, ActivityOperTransferType } from 'lib/activity';

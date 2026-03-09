@@ -1,4 +1,5 @@
 import 'core-js/actual/structured-clone';
+
 import { TezosActivity } from 'lib/activity';
 import { TempleTezosChainId } from 'lib/temple/types';
 

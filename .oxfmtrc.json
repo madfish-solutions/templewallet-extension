@@ -6,14 +6,24 @@
   "arrowParens": "avoid",
   "printWidth": 120,
   "sortImports": {
+    "sortSideEffects": true,
     "customGroups": [
       {
         "groupName": "react",
-        "selector": "external",
         "elementNamePattern": ["react"]
       }
     ],
-    "groups": ["react", ["external", "builtin"], "internal", "parent", "sibling", "index", "unknown"],
+    "groups": [
+      "side_effect_style",
+      "react",
+      "side_effect",
+      ["external", "builtin"],
+      "internal",
+      "parent",
+      "sibling",
+      "index",
+      "unknown"
+    ],
     "internalPattern": ["app/", "lib/", "temple/", "content-scripts/"],
     "order": "asc",
     "ignoreCase": true,

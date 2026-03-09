@@ -1,8 +1,8 @@
+import './Error.css';
+
 import React, { memo } from 'react';
 
 import { ReactComponent as ReloadIcon } from '../../icons/reload.svg';
-
-import './Error.css';
 
 interface ErrorProps {
   error: MediaError | null;

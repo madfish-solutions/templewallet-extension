@@ -1,12 +1,14 @@
 import './main.css';
-import { FC, useCallback } from 'react';
+
+import React, { FC, useCallback } from 'react';
+
+import 'lib/keep-bg-worker-alive/script';
+import 'lib/ledger/proxy/foreground';
 
 import classNames from 'clsx';
 import { createRoot } from 'react-dom/client';
 import browser from 'webextension-polyfill';
 
-import 'lib/ledger/proxy/foreground';
-import 'lib/keep-bg-worker-alive/script';
 import DisableOutlinesForClick from 'app/a11y/DisableOutlinesForClick';
 import Dialogs from 'app/layouts/Dialogs';
 import { StoreProvider } from 'app/store/provider';
