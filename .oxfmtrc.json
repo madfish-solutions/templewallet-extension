@@ -1,0 +1,10 @@
+{
+  "$schema": "./node_modules/oxfmt/configuration_schema.json",
+  "bracketSameLine": false,
+  "singleQuote": true,
+  "trailingComma": "none",
+  "arrowParens": "avoid",
+  "printWidth": 120,
+  "sortPackageJson": false,
+  "ignorePatterns": ["dist", "node_modules", "xcode", "public/popup.html", "public/sidebar.html"]
+}
