@@ -1,5 +1,5 @@
 import './main.css';
-import React, { FC, useCallback } from 'react';
+import { FC, useCallback } from 'react';
 
 import classNames from 'clsx';
 import { createRoot } from 'react-dom/client';
