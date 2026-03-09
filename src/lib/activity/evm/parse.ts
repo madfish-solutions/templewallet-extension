@@ -213,8 +213,8 @@ export function parseApprovalLog(approval: Pick<Log, 'topics' | 'logIndex' | 'da
     amountSigned: erc721TokenId
       ? '1'
       : BigInt(approval.data) === MAX_EVM_ALLOWANCE
-      ? null
-      : hexToStringInteger(approval.data),
+        ? null
+        : hexToStringInteger(approval.data),
     nft: erc721TokenId ? true : undefined // Still exhaustive?
   };
 
@@ -222,7 +222,7 @@ export function parseApprovalLog(approval: Pick<Log, 'topics' | 'logIndex' | 'da
 }
 
 function buildInteraction(transfer: AssetTransfersWithMetadataResult, accAddress: string): EvmOperation {
-  const withAddress = transfer.from === accAddress ? transfer.to ?? undefined : transfer.from;
+  const withAddress = transfer.from === accAddress ? (transfer.to ?? undefined) : transfer.from;
 
   return { kind: ActivityOperKindEnum.interaction, withAddress, logIndex: getTransferLogIndex(transfer) };
 }

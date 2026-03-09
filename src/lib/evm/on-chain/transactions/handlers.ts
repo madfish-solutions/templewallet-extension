@@ -7,14 +7,6 @@ import {
   decodeFunctionData
 } from 'viem';
 
-import {
-  erc1155BurnAbi,
-  erc1155BurnBatchAbi,
-  erc1155MintAbi,
-  erc1155MintBatchAbi,
-  erc1155SafeBatchTransferFromAbi,
-  erc1155SafeTransferFromAbi
-} from 'lib/abi/erc1155';
 import { erc20BurnAbi, erc20BurnFromAbi, erc20MintAbi, erc20TransferAbi, erc20TransferFromAbi } from 'lib/abi/erc20';
 import {
   erc721BurnAbi,
@@ -25,6 +17,14 @@ import {
   erc721SafeTransferFromPayableAbi,
   erc721TransferFromAbi
 } from 'lib/abi/erc721';
+import {
+  erc1155BurnAbi,
+  erc1155BurnBatchAbi,
+  erc1155MintAbi,
+  erc1155MintBatchAbi,
+  erc1155SafeBatchTransferFromAbi,
+  erc1155SafeTransferFromAbi
+} from 'lib/abi/erc1155';
 import { toEvmAssetSlug } from 'lib/assets/utils';
 import { EvmAssetStandard } from 'lib/evm/types';
 import { toBigNumber } from 'lib/utils/numbers';

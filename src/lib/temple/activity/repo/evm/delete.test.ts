@@ -1,5 +1,4 @@
 import 'core-js/actual/structured-clone';
-
 import { pick } from 'lodash';
 
 import { VITALIK_ADDRESS } from 'lib/constants';

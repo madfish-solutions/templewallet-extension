@@ -120,7 +120,7 @@ dAppQueue.on(PromisesQueue.COUNTERS_CHANGE_EVENT_NAME, (counters: PromisesQueueC
 const pendingPreEnqueueTezosKeys = new Set<string>();
 
 const castWindowId = (windowId: number | nullish) =>
-  windowId === browser.windows.WINDOW_ID_NONE ? null : windowId ?? null;
+  windowId === browser.windows.WINDOW_ID_NONE ? null : (windowId ?? null);
 const onFocusLocationError = (error: unknown) => {
   console.error(error);
   focusLocationChanged(null);
@@ -166,7 +166,7 @@ export async function init() {
     const onActiveTabChanged = (windowId?: number | null, tabId?: number | null) => {
       focusLocationChanged({
         windowId: castWindowId(windowId),
-        tabId: tabId === browser.tabs.TAB_ID_NONE ? null : tabId ?? null
+        tabId: tabId === browser.tabs.TAB_ID_NONE ? null : (tabId ?? null)
       });
     };
     const onActiveWindowChanged = async (windowId?: number) => {

@@ -74,6 +74,7 @@
     "require-yield": "error",
     "use-isnan": "error",
     "valid-typeof": "error",
+    "prefer-const": "error",
     "no-array-constructor": "error",
 
     "@typescript-eslint/no-duplicate-enum-values": "error",
@@ -131,7 +132,6 @@
     "import/namespace": "error",
     "import/default": "error",
     "import/no-duplicates": "error",
-    "prefer-const": "error",
     "import/no-self-import": "error",
     "import/no-cycle": "error",
 

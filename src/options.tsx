@@ -1,5 +1,4 @@
 import './main.css';
-
 import React, { FC, useCallback } from 'react';
 
 import classNames from 'clsx';
@@ -8,7 +7,6 @@ import browser from 'webextension-polyfill';
 
 import 'lib/ledger/proxy/foreground';
 import 'lib/keep-bg-worker-alive/script';
-
 import DisableOutlinesForClick from 'app/a11y/DisableOutlinesForClick';
 import Dialogs from 'app/layouts/Dialogs';
 import { StoreProvider } from 'app/store/provider';

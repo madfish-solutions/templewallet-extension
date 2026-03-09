@@ -20,5 +20,16 @@
     "newlinesBetween": true
   },
   "sortPackageJson": false,
-  "ignorePatterns": ["**/*.html", "**/*.css", "**/*.json", "**/*.md", "**/*.yml", "**/*.yaml"]
+  "ignorePatterns": [
+    "bin",
+    "webpack",
+    "*.config.ts",
+    "*.embed.js",
+    "**/*.html",
+    "**/*.css",
+    "**/*.json",
+    "**/*.md",
+    "**/*.yml",
+    "**/*.yaml"
+  ]
 }

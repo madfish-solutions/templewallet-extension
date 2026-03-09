@@ -173,8 +173,8 @@ const PageModalContent = memo<Omit<RewardsModalProps, 'onClose' | 'isOpen'>>(({ 
           new Date(cycle.startTime) > nowDate
             ? 'not_come'
             : new Date(cycle.endTime) > nowDate
-            ? 'in_progress'
-            : 'finished'
+              ? 'in_progress'
+              : 'finished'
       };
     });
   }, [bakingHistoryInput]);

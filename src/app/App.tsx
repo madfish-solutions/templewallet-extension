@@ -3,7 +3,6 @@ import React, { PropsWithChildren, ComponentProps, FC, Suspense, useMemo } from 
 import 'lib/local-storage/migrations';
 import 'lib/ledger/proxy/foreground';
 import 'lib/keep-bg-worker-alive/script';
-
 import AwaitFontFamily from 'app/a11y/AwaitFonts';
 import AwaitI18N from 'app/a11y/AwaitI18N';
 import BootAnimation from 'app/a11y/BootAnimation';

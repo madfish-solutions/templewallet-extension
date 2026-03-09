@@ -1,5 +1,4 @@
 import 'core-js/actual/structured-clone';
-
 import { ActivityOperKindEnum, ActivityOperTransferType } from 'lib/activity';
 import { VITALIK_ADDRESS } from 'lib/constants';
 import { TempleChainKind } from 'temple/types';

@@ -178,9 +178,9 @@ export const AddTokenForm = memo<AddTokenPageProps>(
         } else {
           const tokenSlug = toTokenSlug(getAddress(contractAddress), tokenId);
 
-          const metadata = await (forCollectible
-            ? fetchEvmCollectibleMetadataFromChain
-            : fetchEvmTokenMetadataFromChain)(selectedNetwork, tokenSlug);
+          const metadata = await (
+            forCollectible ? fetchEvmCollectibleMetadataFromChain : fetchEvmTokenMetadataFromChain
+          )(selectedNetwork, tokenSlug);
 
           if (!metadata || !hasRequiredMetadata(metadata))
             throw new TokenMetadataNotFoundError('Failed to load token metadata');

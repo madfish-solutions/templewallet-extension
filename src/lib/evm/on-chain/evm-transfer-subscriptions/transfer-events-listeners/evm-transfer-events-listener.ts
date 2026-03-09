@@ -1,9 +1,9 @@
 import { isEqual, noop } from 'lodash';
 import { Log, OneOf, WatchEventParameters } from 'viem';
 
-import { erc1155TransferBatchEvent, erc1155TransferSingleEvent } from 'lib/abi/erc1155';
 import { erc20TransferEvent } from 'lib/abi/erc20';
 import { erc721TransferEvent } from 'lib/abi/erc721';
+import { erc1155TransferBatchEvent, erc1155TransferSingleEvent } from 'lib/abi/erc1155';
 import { getViemPublicClient } from 'temple/evm';
 import { EvmNetworkEssentials } from 'temple/networks';
 
@@ -45,7 +45,11 @@ class EvmTransferEventsSubscriptionExecutor extends EvmRpcRequestsExecutor<
 const evmTransferEventsSubscriptionExecutor = new EvmTransferEventsSubscriptionExecutor();
 
 export abstract class EvmTransferEventsListener<T extends TransferEvent> extends EvmHttpRpcListener<[string]> {
-  constructor(protected network: EvmNetworkEssentials, protected account: HexString, protected event: T) {
+  constructor(
+    protected network: EvmNetworkEssentials,
+    protected account: HexString,
+    protected event: T
+  ) {
     super(network);
   }
 

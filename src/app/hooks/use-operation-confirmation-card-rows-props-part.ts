@@ -97,8 +97,8 @@ export function useOperationConfirmationCardRowsPropsPart<
           variant: allAssetsAreCollectibles
             ? OperationConfirmationCardRowVariant.AllCollectibles
             : isNft
-            ? OperationConfirmationCardRowVariant.Collectible
-            : OperationConfirmationCardRowVariant.Token
+              ? OperationConfirmationCardRowVariant.Collectible
+              : OperationConfirmationCardRowVariant.Token
         };
       }),
     [

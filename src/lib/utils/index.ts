@@ -49,7 +49,10 @@ export const rejectOnTimeout = <R>(promise: Promise<R>, timeout: number, timeout
   ]) as Promise<R>;
 
 class AssertionError extends Error {
-  constructor(message?: string, public actual?: any) {
+  constructor(
+    message?: string,
+    public actual?: any
+  ) {
     super(message);
   }
 }
