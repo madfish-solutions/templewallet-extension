@@ -1,3 +1,5 @@
+import * as Analytics from '../analytics';
+
 import {
   bitcoinMagazineArticlesRegExp,
   CASHBACK_SERVICES_DOMAINS,
@@ -9,7 +11,7 @@ import {
   tzktTokenOrAccountRegExp
 } from './constants';
 
-export const getTrackedUrl = (actualUrl: string) => {
+const getTrackedUrl = (actualUrl: string) => {
   if (EXACT_MATCH_URLS.includes(actualUrl)) {
     return actualUrl;
   }
@@ -49,7 +51,7 @@ export const getTrackedUrl = (actualUrl: string) => {
   return null;
 };
 
-export const getTrackedCashbackServiceDomain = (actualUrl: string) => {
+const getTrackedCashbackServiceDomain = (actualUrl: string) => {
   let { hostname } = new URL(actualUrl);
 
   if (hostname.startsWith('www')) {
@@ -73,4 +75,22 @@ const transformTzktUrl = (url: string) => {
   }
 
   return 'https://tzkt.io/';
+};
+
+export const handleUrlChange = async (
+  url: string,
+  getAdsViewerCredentials: () => Promise<{ tezosAddress?: string }>
+) => {
+  const trackedCashbackServiceDomain = getTrackedCashbackServiceDomain(url);
+
+  if (trackedCashbackServiceDomain) {
+    await Analytics.client.track('External Cashback Links Activity', { domain: trackedCashbackServiceDomain });
+  }
+
+  const trackedUrl = getTrackedUrl(url);
+
+  if (trackedUrl) {
+    const { tezosAddress: accountPkh } = await getAdsViewerCredentials();
+    await Analytics.client.track('External links activity', { url: trackedUrl, accountPkh });
+  }
 };
