@@ -9,8 +9,9 @@ import { togglePartnersPromotionAction } from 'app/store/partners-promotion/acti
 import { useShouldShowPartnersPromoSelector } from 'app/store/partners-promotion/selectors';
 import { PageModalScrollViewWithActions } from 'app/templates/page-modal-scroll-view-with-actions';
 import { AnalyticsEventCategory, useAnalytics } from 'lib/analytics';
-import { SHOULD_SHOW_REWARDS_PUSH_STORAGE_KEY } from 'lib/constants';
+import { SHOULD_SHOW_REWARDS_PUSH_STORAGE_KEY, WEBSITES_ANALYTICS_ENABLED } from 'lib/constants';
 import { t, T } from 'lib/i18n';
+import { putToStorage } from 'lib/storage';
 import { useStorage } from 'lib/temple/front';
 import { Lottie } from 'lib/ui/react-lottie';
 
@@ -58,6 +59,7 @@ export const RewardsPushOverlay = memo(() => {
 
   const handleActivateRewards = useCallback(() => {
     dispatch(togglePartnersPromotionAction(true));
+    putToStorage(WEBSITES_ANALYTICS_ENABLED, true);
     setStep(OverlayStep.Success);
   }, [dispatch]);
 
