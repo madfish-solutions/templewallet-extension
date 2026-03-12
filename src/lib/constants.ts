@@ -166,4 +166,4 @@ export const MIN_ETH_EVERSTAKE_CLAIMABLE_AMOUNT = 1e-6;
 export const ETHERLINK_USDC_SLUG = '0x796Ea11Fa2dD751eD01b53C372fFDB4AAa8f00F9_0';
 export const APPLEFARM_REFERRAL_LINK = 'https://app.applefarm.xyz/referral?code=APPLE-FARM-880788';
 
-export const DAPP_SUCCESS_SETTLE_DELAY_MS = 600;
+export const DAPP_SUCCESS_SETTLE_DELAY_MS = 1200;
