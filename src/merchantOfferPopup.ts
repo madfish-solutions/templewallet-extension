@@ -55,7 +55,6 @@ function injectPopup(offer: MerchantOffer, domain: string) {
   // Prevent duplicate injection
   if (document.getElementById(POPUP_HOST_ID)) return;
 
-  // Load Inter font globally — @font-face in document scope is inherited by shadow DOM
   const fontLink = document.createElement('link');
   fontLink.rel = 'stylesheet';
   fontLink.href = 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap';

@@ -16,12 +16,10 @@ const WEB_ACCCESSIBLE_RESOURSES = [
   'scripts/*.chunk.js',
   // For `<script />` injection
   'scripts/*.embed.js',
-  // For triggering extension page open from scripts
+  // For triggering the extension page open from scripts
   'fullpage.html',
   // For ads' images
   'misc/ad-banners/*',
-  // For fonts in content script shadow DOM
-  'media/*',
   // For iFrames access
   ...Object.keys(IFRAMES).map(name => `iframes/${name}.html`)
 ];
