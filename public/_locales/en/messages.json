@@ -3700,6 +3700,12 @@
   "merchantOfferPopupShowLess": {
     "message": "Show less"
   },
+  "merchantOfferPopupDisclaimer1": {
+    "message": "By pressing Activate Bounty you agree with the"
+  },
+  "merchantOfferPopupDisclaimer2": {
+    "message": "and"
+  },
   "referrals": {
     "message": "Referrals"
   },
