@@ -6,8 +6,7 @@ import { T } from 'lib/i18n';
 import { EnablingSetting } from '../enabling-setting';
 
 import { AdvancedFeaturesSelectors } from './selectors';
-
-export const ReferralLinksSettings = memo(() => {
+memo(() => {
   const { isEnabled, setEnabled } = useReferralLinksSettings();
 
   return (

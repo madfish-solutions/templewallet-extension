@@ -4,13 +4,19 @@ import browser, { Runtime } from 'webextension-polyfill';
 import { ValidationError } from 'yup';
 
 import { getStoredAppInstallIdentity } from 'app/storage/app-install-id';
-import { importExtensionAdsReferralsModule } from 'lib/ads/import-extension-ads-module';
 import { importUpdateRulesStorageModule } from 'lib/ads/import-update-rules-storage';
 import { importAdsApiModule } from 'lib/apis/ads-api';
-import { ADS_VIEWER_DATA_STORAGE_KEY, ContentScriptType, REWARDS_ACCOUNT_DATA_STORAGE_KEY } from 'lib/constants';
+import {
+  ADS_VIEWER_DATA_STORAGE_KEY,
+  ContentScriptType,
+  MERCHANT_OFFERS_ENABLED_STORAGE_KEY,
+  MERCHANT_OFFERS_SNOOZED_UNTIL_STORAGE_KEY,
+  REWARDS_ACCOUNT_DATA_STORAGE_KEY
+} from 'lib/constants';
 import { E2eMessageType } from 'lib/e2e/types';
-import { BACKGROUND_IS_WORKER, EnvVars, IS_FIREFOX, IS_MISES_BROWSER } from 'lib/env';
+import { BACKGROUND_IS_WORKER, IS_FIREFOX, IS_MISES_BROWSER } from 'lib/env';
 import { fetchFromStorage } from 'lib/storage';
+import { AnalyticsEventCategory } from 'lib/temple/analytics-types';
 import { encodeMessage, encryptMessage, getSenderId, MessageType, Response } from 'lib/temple/beacon';
 import { clearAsyncStorages } from 'lib/temple/reset';
 import { StoredHDAccount, TempleMessageType, TempleRequest, TempleResponse } from 'lib/temple/types';
@@ -449,20 +455,6 @@ browser.runtime.onMessage.addListener(async (msg, sender) => {
         return await getTempleReferralLinkItems(browser);
       }
 
-      case ContentScriptType.FetchTakeAdsReferrals: {
-        if (BACKGROUND_IS_WORKER) {
-          const { buildTakeadsClient } = await importExtensionAdsReferralsModule();
-          const takeads = buildTakeadsClient(EnvVars.TAKE_ADS_TOKEN);
-          return await takeads.affiliateLinks(msg.links);
-        }
-
-        return await withNonImportErrorForwarding(async () => {
-          const { fetchReferralsAffiliateLinks } = await importAdsApiModule();
-
-          return await fetchReferralsAffiliateLinks(msg.links);
-        });
-      }
-
       case ContentScriptType.ReferralClick: {
         const { urlDomain, pageDomain, provider } = msg;
         const rewardsAddresses = await getRewardsAccountCredentials();
@@ -477,6 +469,61 @@ browser.runtime.onMessage.addListener(async (msg, sender) => {
             const installId = identity.publicKeyHash;
             await postReferralClick({}, installId, { urlDomain, pageDomain, provider });
           }
+        });
+        break;
+      }
+
+      case ContentScriptType.FetchMerchantOffer: {
+        const enabled = await fetchFromStorage<boolean>(MERCHANT_OFFERS_ENABLED_STORAGE_KEY);
+        if (enabled === false) return null;
+
+        const snoozedUntil = await fetchFromStorage<number>(MERCHANT_OFFERS_SNOOZED_UNTIL_STORAGE_KEY);
+        if (snoozedUntil && Date.now() < snoozedUntil) return null;
+
+        return await withNonImportErrorForwarding(async () => {
+          const { fetchMerchantOffer } = await importAdsApiModule();
+          const response = await fetchMerchantOffer(msg.domain);
+          return response.offer;
+        });
+      }
+
+      case ContentScriptType.ActivateMerchantOffer: {
+        return await withNonImportErrorForwarding(async () => {
+          const { activateMerchantOffer } = await importAdsApiModule();
+          const identity = await getStoredAppInstallIdentity();
+          const subId = identity?.publicKeyHash?.slice(0, 32);
+          return await activateMerchantOffer(msg.url, subId);
+        });
+      }
+
+      case ContentScriptType.MerchantOfferSnooze: {
+        const snoozedUntil = Date.now() + 24 * 60 * 60 * 1000;
+        await browser.storage.local.set({ [MERCHANT_OFFERS_SNOOZED_UNTIL_STORAGE_KEY]: snoozedUntil });
+        break;
+      }
+
+      case ContentScriptType.MerchantOfferDisable: {
+        await browser.storage.local.set({ [MERCHANT_OFFERS_ENABLED_STORAGE_KEY]: false });
+        break;
+      }
+
+      case ContentScriptType.MerchantOfferAnalytics: {
+        const allowedEvents = new Set([
+          'MerchantOfferPopupClose',
+          'MerchantOfferPopupActivate',
+          'MerchantOfferPopupSnooze',
+          'MerchantOfferPopupDisable'
+        ]);
+
+        const { event, properties } = msg;
+        if (typeof event !== 'string' || !allowedEvents.has(event)) break;
+
+        Analytics.trackEvent({
+          userId: '',
+          chainId: undefined,
+          event,
+          category: AnalyticsEventCategory.ButtonPress,
+          properties
         });
         break;
       }

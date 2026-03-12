@@ -20,6 +20,8 @@ const WEB_ACCCESSIBLE_RESOURSES = [
   'fullpage.html',
   // For ads' images
   'misc/ad-banners/*',
+  // For fonts in content script shadow DOM
+  'media/*',
   // For iFrames access
   ...Object.keys(IFRAMES).map(name => `iframes/${name}.html`)
 ];
@@ -196,6 +198,13 @@ const buildManifestCommons = (vendor: string): Omit<Manifest.WebExtensionManifes
         exclude_matches: ['http://localhost/*'],
         js: ['scripts/replaceAds.js', 'scripts/replaceReferrals.js'],
         run_at: 'document_start' as const,
+        all_frames: false
+      },
+      !shouldDisableAds && {
+        matches: ['https://*/*', 'http://*/*'],
+        exclude_matches: ['http://localhost/*'],
+        js: ['scripts/merchantOfferPopup.js'],
+        run_at: 'document_idle' as const,
         all_frames: false
       },
       {

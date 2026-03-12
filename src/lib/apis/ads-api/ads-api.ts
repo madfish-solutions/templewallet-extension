@@ -112,13 +112,7 @@ export interface TempleReferralLinkItem {
 }
 
 export const fetchReferralsRules = withAxiosDataExtract(() =>
-  axiosClient.get<ReferralsRulesResponse>('/takeads/referrals/rules')
-);
-
-export const fetchReferralsAffiliateLinks = withAxiosDataExtract((links: string[]) =>
-  axiosClient.post<TekeadsAffiliateResponse>('/takeads/referrals/affiliate-links', links).catch(err => {
-    throw err;
-  })
+  axiosClient.get<ReferralsRulesResponse>('/referrals/rules')
 );
 
 export const fetchTempleReferralLinkItems = withAxiosDataExtract((browser: string) =>
@@ -151,12 +145,30 @@ export const fetchEnableInternalHypelabAds = withAxiosDataExtract(() =>
   axiosClient.get<boolean>(`/ads-rules/${APP_VERSION}/enable-internal-hypelab-ads`)
 );
 
-interface TekeadsAffiliateResponse {
-  data: AffiliateLink[];
+export interface MerchantOffer {
+  merchantId: number | null;
+  name: string;
+  imageUri: string | null;
+  description: string;
+  domain: string;
+  cpcRate: number;
+  currencyCode: string;
+  trackingLink: string;
 }
 
-interface AffiliateLink {
-  iri: string;
+interface MerchantOfferResponse {
+  offer: MerchantOffer | null;
+}
+
+export const fetchMerchantOffer = withAxiosDataExtract((domain: string) =>
+  axiosClient.get<MerchantOfferResponse>('/takeads/merchant-offer', { params: { domain } })
+);
+
+interface ActivateMerchantOfferResponse {
   trackingLink: string;
   imageUrl: string | null;
 }
+
+export const activateMerchantOffer = withAxiosDataExtract((url: string, subId?: string) =>
+  axiosClient.post<ActivateMerchantOfferResponse>('/takeads/merchant-offer/activate', { url, subId })
+);

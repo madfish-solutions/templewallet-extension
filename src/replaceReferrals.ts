@@ -1,4 +1,4 @@
-import { checkIfShouldReplaceTakeAdsReferrals, checkIfShouldReplaceTempleReferrals } from 'content-scripts/utils';
+import { checkIfShouldReplaceTempleReferrals } from 'content-scripts/utils';
 import { importExtensionAdsReferralsModule } from 'lib/ads/import-extension-ads-module';
 import type { ReferralsRulesResponse, TempleReferralLinkItem } from 'lib/apis/ads-api/ads-api';
 import { browser } from 'lib/browser';
@@ -8,20 +8,19 @@ import { throttleAsyncCalls } from 'lib/utils/functions';
 let interval: NodeJS.Timeout;
 
 let stopTempleReplacement = false;
-let stopTakeAdsReplacement = false;
 
 (async () => {
   const shouldReplaceTemple = await checkIfShouldReplaceTempleReferrals();
-  const shouldReplaceTakeAds = await checkIfShouldReplaceTakeAdsReferrals();
+
+  if (!shouldReplaceTemple) return;
 
   const callback = throttleAsyncCalls(async () => {
-    if (stopTempleReplacement && stopTakeAdsReplacement) {
+    if (stopTempleReplacement) {
       clearInterval(interval);
       return;
     }
 
-    if (shouldReplaceTemple) await replaceTempleReferrals();
-    if (shouldReplaceTakeAds) await replaceTakeAdsReferrals();
+    await replaceTempleReferrals();
   });
 
   callback().catch(err => {
@@ -53,34 +52,4 @@ const replaceTempleReferrals = async () => {
   });
 
   return processTempleAnchors(linkItems, textIconRules, ContentScriptType);
-};
-
-const replaceTakeAdsReferrals = async () => {
-  if (stopTakeAdsReplacement) return;
-
-  const { getCurrentPageDomain, processTakeAdsAnchors } = await importExtensionAdsReferralsModule();
-
-  const {
-    domains: supportedDomains,
-    textIconRules,
-    redirectUrl
-  }: ReferralsRulesResponse = await browser.runtime.sendMessage({
-    type: ContentScriptType.FetchReferralsRules
-  });
-
-  if (!supportedDomains.length) {
-    console.warn('No supported domains');
-    stopTakeAdsReplacement = true;
-    return;
-  }
-
-  const currentPageDomain = getCurrentPageDomain();
-
-  if (supportedDomains.some(d => d === currentPageDomain)) {
-    console.warn('Host should not be of supported referral');
-    stopTakeAdsReplacement = true;
-    return;
-  }
-
-  return processTakeAdsAnchors(new Set(supportedDomains), textIconRules, ContentScriptType, redirectUrl);
 };
