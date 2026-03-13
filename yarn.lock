@@ -10493,10 +10493,10 @@ os-tmpdir@~1.0.2:
   resolved "https://registry.yarnpkg.com/os-tmpdir/-/os-tmpdir-1.0.2.tgz#bbe67406c79aa85c5cfec766fe5734555dfa1274"
   integrity sha512-D2FR03Vir7FIu45XBY20mTb+/ZSWB00sjU9jdQXt83gDrI4Ztz5Fs7/yy74g2N5SVQY4xY1qDr4rNddwYRVX0g==
 
-ox@0.11.3:
-  version "0.11.3"
-  resolved "https://registry.yarnpkg.com/ox/-/ox-0.11.3.tgz#f50be1cae88822f5111b1e3f4a324c4c07eed422"
-  integrity sha512-1bWYGk/xZel3xro3l8WGg6eq4YEKlaqvyMtVhfMFpbJzK2F6rj4EDRtqDCWVEJMkzcmEi9uW2QxsqELokOlarw==
+ox@0.14.0:
+  version "0.14.0"
+  resolved "https://registry.yarnpkg.com/ox/-/ox-0.14.0.tgz#e9f58515dbcb95a74cd5017293380ddce700e401"
+  integrity sha512-WLOB7IKnmI3Ol6RAqY7CJdZKl8QaI44LN91OGF1061YIeN6bL5IsFcdp7+oQShRyamE/8fW/CBRWhJAOzI35Dw==
   dependencies:
     "@adraffy/ens-normalize" "^1.11.0"
     "@noble/ciphers" "^1.3.0"
@@ -13378,10 +13378,10 @@ viem@^2.33.2, viem@^2.36.0:
     ox "0.9.1"
     ws "8.18.3"
 
-viem@^2.44.0:
-  version "2.44.0"
-  resolved "https://registry.yarnpkg.com/viem/-/viem-2.44.0.tgz#8c66f3774998966c6fe3a272ca4668cd8682c37d"
-  integrity sha512-ERvl+N/mPIUck9OSVZGnt1Ex1pMTwKdtOMIbUXLlGJP3KlxdA+1F+Q1hO21qQToaM/ysjTD50ZPQuKyj4Dk3FA==
+viem@^2.47.2:
+  version "2.47.2"
+  resolved "https://registry.yarnpkg.com/viem/-/viem-2.47.2.tgz#8aa767f1f1f621a75ee913e4fa800fa06c6e342b"
+  integrity sha512-etDIwDgmDiGaPg8rUbJtUFuC3/nAJCbhMYyfh5dOcqNNkzBWTNcS2VluPSM5JVo+9U3b2hle2RkBEq3+xyvlvg==
   dependencies:
     "@noble/curves" "1.9.1"
     "@noble/hashes" "1.8.0"
@@ -13389,7 +13389,7 @@ viem@^2.44.0:
     "@scure/bip39" "1.6.0"
     abitype "1.2.3"
     isows "1.0.7"
-    ox "0.11.3"
+    ox "0.14.0"
     ws "8.18.3"
 
 vinyl-buffer@^1.0.1:
