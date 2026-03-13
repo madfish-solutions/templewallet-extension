@@ -1,10 +1,9 @@
 import React, { memo } from 'react';
 
 import { FadeTransition } from 'app/a11y/FadeTransition';
-import { IS_MISES_BROWSER } from 'lib/env';
 
+import { MerchantOffersSettings } from './merchant-offers-settings';
 import { PartnersPromotionSettings } from './partners-promotion-settings';
-import { ReferralLinksSettings } from './referral-links-settings';
 
 export const AdvancedFeatures = memo(() => {
   return (
@@ -12,7 +11,7 @@ export const AdvancedFeatures = memo(() => {
       <div className="w-full flex flex-col gap-4">
         <PartnersPromotionSettings />
 
-        {IS_MISES_BROWSER && <ReferralLinksSettings />}
+        <MerchantOffersSettings />
       </div>
     </FadeTransition>
   );

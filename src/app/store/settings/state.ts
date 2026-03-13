@@ -9,6 +9,7 @@ export interface SettingsState {
   isAnalyticsEnabled: boolean;
   pendingReactivateAds: boolean;
   adsImpressionsLinked: boolean;
+  /** Now only used for Temple referral link replacement (TakeAds replacement removed, replaced by merchant offers popup) */
   referralLinksEnabled: boolean;
   isTestnetModeEnabled: boolean;
   onRampAsset: ChainAssetSlug | null;

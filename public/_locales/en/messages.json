@@ -3706,6 +3706,45 @@
   "referralLinksHint": {
     "message": "All your referrals connected to your first created or imported account in Temple. Make sure you backed up your wallet to prevent unnecessary losses."
   },
+  "merchantOffers": {
+    "message": "Merchant offers"
+  },
+  "merchantOffersDescription": {
+    "message": "Earn crypto cashback and bounty with Temple Wallet from popular merchants. If active, you agree to share your wallet address and IP to receive offers and rewards."
+  },
+  "merchantOfferPopupTitle": {
+    "message": "Rewards"
+  },
+  "merchantOfferPopupSettings": {
+    "message": "Settings"
+  },
+  "merchantOfferPopupEarnUpTo": {
+    "message": "Earn up to $1 $2"
+  },
+  "merchantOfferPopupActivateDescription": {
+    "message": "Activate to visit $1 through our link and earn your reward."
+  },
+  "merchantOfferPopupActivate": {
+    "message": "Activate Bounty"
+  },
+  "merchantOfferPopupActivating": {
+    "message": "Activating..."
+  },
+  "merchantOfferPopupSnooze": {
+    "message": "Snooze for 24h"
+  },
+  "merchantOfferPopupShowMore": {
+    "message": "Show more"
+  },
+  "merchantOfferPopupShowLess": {
+    "message": "Show less"
+  },
+  "merchantOfferPopupDisclaimer1": {
+    "message": "By pressing Activate Bounty you agree with the"
+  },
+  "merchantOfferPopupDisclaimer2": {
+    "message": "and"
+  },
   "referrals": {
     "message": "Referrals"
   },

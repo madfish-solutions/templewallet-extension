@@ -3,7 +3,7 @@ import { importAdsApiModule } from 'lib/apis/ads-api';
 import { signData } from 'lib/utils/ecdsa';
 import { RewardsAddresses } from 'temple/types';
 
-export async function performLinkingOfAdsImpressions(adsViewerAddresses: RewardsAddresses) {
+export async function performLinkingOfAdsImpressions(adsViewerAddresses: RewardsAddresses, userId?: string) {
   const identity = await getStoredAppInstallIdentity();
   if (!identity) {
     console.warn('App identity not found');
@@ -20,5 +20,5 @@ export async function performLinkingOfAdsImpressions(adsViewerAddresses: Rewards
 
   const { postLinkAdsImpressions } = await importAdsApiModule();
 
-  await postLinkAdsImpressions(adsViewerAddresses, installId, signature);
+  await postLinkAdsImpressions(adsViewerAddresses, installId, signature, userId);
 }
