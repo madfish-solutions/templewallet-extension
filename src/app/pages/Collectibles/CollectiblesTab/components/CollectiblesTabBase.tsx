@@ -12,7 +12,6 @@ import {
 import { useAssetsViewState } from 'app/hooks/use-assets-view-state';
 import { ContentContainer } from 'app/layouts/containers';
 import { EmptySection } from 'app/pages/Home/OtherComponents/Tokens/components/EmptySection';
-import { AssetsFilterOptions } from 'app/templates/AssetsFilterOptions';
 import { OneOfChains } from 'temple/front';
 
 export interface CollectiblesTabBaseProps {
@@ -33,56 +32,45 @@ export const CollectiblesTabBase: FC<PropsWithChildren<CollectiblesTabBaseProps>
   network,
   children
 }) => {
-  const { manageActive, filtersOpened } = useAssetsViewState();
+  const { manageActive } = useAssetsViewState();
 
   return (
-    <>
-      {filtersOpened ? (
-        <AssetsFilterOptions />
-      ) : (
-        <FadeTransition>
-          <ContentContainer withShadow={false} padding={collectiblesCount > 0}>
-            {collectiblesCount === 0 ? (
-              isSyncing && !isInSearchMode ? (
-                <PageLoader stretch />
-              ) : (
-                <EmptySection
-                  forCollectibles
-                  manageActive={manageActive}
-                  forSearch={isInSearchMode}
-                  network={network}
-                />
-              )
+    <FadeTransition>
+      <ContentContainer withShadow={false} padding={collectiblesCount > 0}>
+        {collectiblesCount === 0 ? (
+          isSyncing && !isInSearchMode ? (
+            <PageLoader stretch />
+          ) : (
+            <EmptySection forCollectibles manageActive={manageActive} forSearch={isInSearchMode} network={network} />
+          )
+        ) : (
+          <>
+            {isInSearchMode ? (
+              <VisibilityTrackingInfiniteScroll loadNext={loadNextPage} getElementsIndexes={getElementsIndexes}>
+                {children}
+              </VisibilityTrackingInfiniteScroll>
             ) : (
               <>
-                {isInSearchMode ? (
-                  <VisibilityTrackingInfiniteScroll loadNext={loadNextPage} getElementsIndexes={getElementsIndexes}>
-                    {children}
-                  </VisibilityTrackingInfiniteScroll>
-                ) : (
-                  <>
-                    {manageActive && (
-                      <AddCustomTokenButton
-                        forCollectibles
-                        manageActive={manageActive}
-                        network={network}
-                        className="mb-4"
-                      />
-                    )}
-                    <VisibilityTrackingInfiniteScroll loadNext={loadNextPage} getElementsIndexes={getElementsIndexes}>
-                      {children}
-                    </VisibilityTrackingInfiniteScroll>
-                  </>
+                {manageActive && (
+                  <AddCustomTokenButton
+                    forCollectibles
+                    manageActive={manageActive}
+                    network={network}
+                    className="mb-4"
+                  />
                 )}
-
-                {isSyncing && <SyncSpinner className="mt-6" />}
-
-                <ScrollBackUpButton />
+                <VisibilityTrackingInfiniteScroll loadNext={loadNextPage} getElementsIndexes={getElementsIndexes}>
+                  {children}
+                </VisibilityTrackingInfiniteScroll>
               </>
             )}
-          </ContentContainer>
-        </FadeTransition>
-      )}
-    </>
+
+            {isSyncing && <SyncSpinner className="mt-6" />}
+
+            <ScrollBackUpButton />
+          </>
+        )}
+      </ContentContainer>
+    </FadeTransition>
   );
 };

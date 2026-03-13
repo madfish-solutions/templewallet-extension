@@ -6,7 +6,7 @@ import { EmptyState } from 'app/atoms/EmptyState';
 import { IconButton } from 'app/atoms/IconButton';
 import { ScrollView } from 'app/atoms/PageModal/scroll-view';
 import { ReactComponent as PlusIcon } from 'app/icons/base/plus.svg';
-import { Network } from 'app/templates/NetworkSelectModal';
+import { Network } from 'app/templates/NetworkSelectContent';
 import { SearchBarField } from 'app/templates/SearchField';
 import { searchAndFilterChains } from 'lib/ui/search-networks';
 import { isSearchStringApplicable } from 'lib/utils/search-items';
