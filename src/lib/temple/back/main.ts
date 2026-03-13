@@ -8,6 +8,7 @@ import { importUpdateRulesStorageModule } from 'lib/ads/import-update-rules-stor
 import { importAdsApiModule } from 'lib/apis/ads-api';
 import {
   ADS_VIEWER_DATA_STORAGE_KEY,
+  ANALYTICS_USER_ID_STORAGE_KEY,
   ContentScriptType,
   MERCHANT_OFFERS_ENABLED_STORAGE_KEY,
   MERCHANT_OFFERS_SNOOZED_UNTIL_STORAGE_KEY,
@@ -457,17 +458,25 @@ browser.runtime.onMessage.addListener(async (msg, sender) => {
 
       case ContentScriptType.ReferralClick: {
         const { urlDomain, pageDomain, provider } = msg;
-        const rewardsAddresses = await getRewardsAccountCredentials();
 
         await withNonImportErrorForwarding(async () => {
-          const { postReferralClick } = await importAdsApiModule();
-          if (rewardsAddresses.evmAddress) {
-            await postReferralClick(rewardsAddresses, undefined, { urlDomain, pageDomain, provider });
+          // TakeAds merchant offer clicks use Jitsu userId
+          if (provider === 'TakeAds') {
+            const { postReferralClickByUserId } = await importAdsApiModule();
+            const userId = await fetchFromStorage<string>(ANALYTICS_USER_ID_STORAGE_KEY);
+            if (!userId) throw new Error('Analytics userId not found');
+            await postReferralClickByUserId(userId, { urlDomain, pageDomain, provider });
           } else {
-            const identity = await getStoredAppInstallIdentity();
-            if (!identity) throw new Error('App identity not found');
-            const installId = identity.publicKeyHash;
-            await postReferralClick({}, installId, { urlDomain, pageDomain, provider });
+            const { postReferralClick } = await importAdsApiModule();
+            const rewardsAddresses = await getRewardsAccountCredentials();
+            if (rewardsAddresses.evmAddress) {
+              await postReferralClick(rewardsAddresses, undefined, { urlDomain, pageDomain, provider });
+            } else {
+              const identity = await getStoredAppInstallIdentity();
+              if (!identity) throw new Error('App identity not found');
+              const installId = identity.publicKeyHash;
+              await postReferralClick({}, installId, { urlDomain, pageDomain, provider });
+            }
           }
         });
         break;
@@ -490,9 +499,8 @@ browser.runtime.onMessage.addListener(async (msg, sender) => {
       case ContentScriptType.ActivateMerchantOffer: {
         return await withNonImportErrorForwarding(async () => {
           const { activateMerchantOffer } = await importAdsApiModule();
-          const identity = await getStoredAppInstallIdentity();
-          const subId = identity?.publicKeyHash?.slice(0, 32);
-          return await activateMerchantOffer(msg.url, subId);
+          const userId = await fetchFromStorage<string>(ANALYTICS_USER_ID_STORAGE_KEY);
+          return await activateMerchantOffer(msg.url, userId ?? undefined);
         });
       }
 

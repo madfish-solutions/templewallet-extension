@@ -78,6 +78,20 @@ export async function postReferralClick(
   });
 }
 
+/** Post a referral click identified by Jitsu userId (for TakeAds merchant offers) */
+export async function postReferralClickByUserId(
+  userId: string,
+  { urlDomain, pageDomain, provider }: ReferralClickDetails
+) {
+  await axiosClient.post('/takeads/referrals/click', {
+    provider,
+    userId,
+    urlDomain,
+    pageDomain,
+    appVersion: APP_VERSION
+  });
+}
+
 export async function postLinkAdsImpressions(
   { tezosAddress, evmAddress }: RewardsAddresses,
   installId: string,
@@ -169,6 +183,6 @@ interface ActivateMerchantOfferResponse {
   imageUrl: string | null;
 }
 
-export const activateMerchantOffer = withAxiosDataExtract((url: string, subId?: string) =>
-  axiosClient.post<ActivateMerchantOfferResponse>('/takeads/merchant-offer/activate', { url, subId })
+export const activateMerchantOffer = withAxiosDataExtract((url: string, userId?: string) =>
+  axiosClient.post<ActivateMerchantOfferResponse>('/takeads/merchant-offer/activate', { url, userId })
 );
