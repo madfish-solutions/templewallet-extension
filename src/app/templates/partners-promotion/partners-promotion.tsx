@@ -3,6 +3,7 @@ import { Ref, memo, MouseEventHandler, useCallback, useEffect, useRef, useState 
 import clsx from 'clsx';
 import { useDispatch } from 'react-redux';
 
+import { FadeTransition } from 'app/a11y/FadeTransition';
 import { useAdsViewerPkh } from 'app/hooks/use-ads-viewer-addresses';
 import { useRewardsAddresses } from 'app/hooks/use-rewards-addresses';
 import { hidePromotionAction } from 'app/store/partners-promotion/actions';
@@ -113,36 +114,38 @@ export const PartnersPromotion = memo<PartnersPromotionProps>(({ variant, id, pa
   }
 
   return (
-    <div
-      ref={ref}
-      className={clsx(
-        'group w-full relative flex flex-col items-center',
-        !adIsReady && (isImageAd ? 'min-h-[101px]' : 'min-h-16'),
-        className
-      )}
-    >
-      <HypelabPromotion
-        accountPkh={evmViewerAddress}
-        variant={variant}
-        isVisible={adIsReady}
-        pageName={pageName}
-        onImpression={handleImpression}
-        onReady={handleAdReady}
-        onError={handleHypelabError}
-      />
+    <FadeTransition elementTransition trigger={adIsReady} className="w-full">
+      <div
+        ref={ref}
+        className={clsx(
+          'group w-full relative flex flex-col items-center',
+          !adIsReady && (isImageAd ? 'min-h-[101px]' : 'min-h-16'),
+          className
+        )}
+      >
+        <HypelabPromotion
+          accountPkh={evmViewerAddress}
+          variant={variant}
+          isVisible={adIsReady}
+          pageName={pageName}
+          onImpression={handleImpression}
+          onReady={handleAdReady}
+          onError={handleHypelabError}
+        />
 
-      {!adIsReady && (
-        <div className="absolute inset-0 bg-grey-4 text-secondary flex justify-center items-center rounded-lg">
-          <span className="text-font-description-bold text-grey-2">
-            <T id="thanksForSupportingTemple" />
-          </span>
-        </div>
-      )}
+        {!adIsReady && (
+          <div className="absolute inset-0 bg-grey-4 text-secondary flex justify-center items-center rounded-lg">
+            <span className="text-font-description-bold text-grey-2">
+              <T id="thanksForSupportingTemple" />
+            </span>
+          </div>
+        )}
 
-      <CloseButton
-        className="opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto"
-        onClick={handleClosePartnersPromoClick}
-      />
-    </div>
+        <CloseButton
+          className="opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto"
+          onClick={handleClosePartnersPromoClick}
+        />
+      </div>
+    </FadeTransition>
   );
 });
