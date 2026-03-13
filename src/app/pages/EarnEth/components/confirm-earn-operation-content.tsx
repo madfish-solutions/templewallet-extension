@@ -119,16 +119,10 @@ export const ConfirmEarnOperationContent = <R extends EthEarnReviewDataBase>({
   );
 };
 
-interface ConfirmEarnOperationContentBodyWrapperProps<R extends EthEarnReviewDataBase>
-  extends Pick<
-    ConfirmEarnOperationContentProps<R>,
-    | 'getBasicParamsSWRKey'
-    | 'getBasicParams'
-    | 'useEstimationData'
-    | 'TxTabsInnerContent'
-    | 'formId'
-    | 'balancesChanges'
-  > {
+interface ConfirmEarnOperationContentBodyWrapperProps<R extends EthEarnReviewDataBase> extends Pick<
+  ConfirmEarnOperationContentProps<R>,
+  'getBasicParamsSWRKey' | 'getBasicParams' | 'useEstimationData' | 'TxTabsInnerContent' | 'formId' | 'balancesChanges'
+> {
   data: R;
   setLoading: SyncFn<boolean>;
 }

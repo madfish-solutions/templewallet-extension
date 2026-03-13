@@ -1,4 +1,3 @@
-/* eslint-disable */
 var HypeLab;
 (() => {
   'use strict';

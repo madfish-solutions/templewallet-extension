@@ -42,6 +42,6 @@ export default function useOnClickOutside(ref: RefObject<HTMLElement | null>, ha
     return () => {
       abortController.abort();
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // oxlint-disable-next-line react-hooks/exhaustive-deps
   }, [handler]);
 }

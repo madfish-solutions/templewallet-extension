@@ -32,6 +32,6 @@ export const useIntersectionObserver = (
     observer.observe(elem);
 
     return () => void observer.unobserve(elem);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // oxlint-disable-next-line react-hooks/exhaustive-deps
   }, [rootMargin, predicate]);
 };

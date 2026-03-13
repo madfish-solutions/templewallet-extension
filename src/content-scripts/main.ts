@@ -1,8 +1,8 @@
 import type { AccountInfo } from '@airgap/beacon-types/dist/esm';
 import { TemplePageMessage, TemplePageMessageType } from '@temple-wallet/dapp/dist/types';
+import { getIntercom } from 'intercom-client';
 import browser from 'webextension-polyfill';
 
-import { getIntercom } from 'intercom-client';
 import {
   APP_TITLE,
   ContentScriptType,

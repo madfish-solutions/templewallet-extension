@@ -20,6 +20,7 @@ Optimize for clarity, polish, and performance in every change.
 - `yarn test`: Run unit tests (prefer single test files for speed)
 - `yarn ts`: Run the typechecker
 - `yarn lint`: Run the linter
+- `yarn format:check`: Run formatting check
 
 ## Code Style
 - See `src/app/atoms/IconBase.tsx` for canonical component structure

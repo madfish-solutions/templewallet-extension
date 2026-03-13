@@ -183,7 +183,10 @@ class EvmActivityLoader {
   reachedTheEnd = false;
   lastError: unknown;
 
-  constructor(readonly chainId: number, readonly accountAddress: HexString) {}
+  constructor(
+    readonly chainId: number,
+    readonly accountAddress: HexString
+  ) {}
 
   async loadNext(edgeDate: string | undefined, signal: AbortSignal) {
     if (edgeDate) {
@@ -250,7 +253,11 @@ class TezosActivityLoader {
   reachedTheEnd = false;
   lastError: unknown;
 
-  constructor(readonly chainId: TzktApiChainId, readonly accountAddress: string, private rpcBaseURL: string) {}
+  constructor(
+    readonly chainId: TzktApiChainId,
+    readonly accountAddress: string,
+    private rpcBaseURL: string
+  ) {}
 
   async loadNext(edgeDate: string | undefined, signal: AbortSignal, assetSlug?: string) {
     if (edgeDate) {

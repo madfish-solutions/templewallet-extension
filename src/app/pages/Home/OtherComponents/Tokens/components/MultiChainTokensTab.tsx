@@ -151,11 +151,10 @@ const TabContentBase = memo<TabContentBaseProps>(
   }
 );
 
-interface TabContentBaseBodyProps
-  extends Omit<
-    TokensTabBaseProps,
-    'tokensCount' | 'children' | 'network' | 'oneRemDivRef' | 'getElementIndex' | 'accountId'
-  > {
+interface TabContentBaseBodyProps extends Omit<
+  TokensTabBaseProps,
+  'tokensCount' | 'children' | 'network' | 'oneRemDivRef' | 'getElementIndex' | 'accountId'
+> {
   manageActive: boolean;
   groupedSlugs: ChainGroupedSlugs | null;
   tezosChains: StringRecord<TezosChain>;

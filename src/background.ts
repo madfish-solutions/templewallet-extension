@@ -1,8 +1,9 @@
+import 'lib/keep-bg-worker-alive/background';
+
 import { initializeApp } from '@firebase/app';
 import { getMessaging } from '@firebase/messaging/sw';
 import browser from 'webextension-polyfill';
 
-import 'lib/keep-bg-worker-alive/background';
 import { putStoredAppInstallIdentity } from 'app/storage/app-install-id';
 import { getStoredAppUpdateDetails, putStoredAppUpdateDetails } from 'app/storage/app-update';
 import type { PartnersPromotionState } from 'app/store/partners-promotion/state';

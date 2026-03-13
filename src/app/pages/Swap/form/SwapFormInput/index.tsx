@@ -82,7 +82,7 @@ const SwapFormInput: FC<SwapFormInputProps> = ({
             }
             assetDecimals={assetDecimals}
             handleSetMaxAmount={handleSetMaxAmount ? handleSetMaxAmount : noop}
-            assetBalanceStr={assetSlug ? balance?.toString() ?? '0' : undefined}
+            assetBalanceStr={assetSlug ? (balance?.toString() ?? '0') : undefined}
           />
         }
       >

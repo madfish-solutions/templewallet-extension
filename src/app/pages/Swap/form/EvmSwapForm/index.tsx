@@ -165,10 +165,10 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
 
   const inputAssetMetadata = isEvmNativeTokenSlug(inputAssetSlug)
     ? inputNetwork.currency
-    : storedInputTokenMetadata ?? lifiInputTokenMetadata ?? route3EvmInputTokenMetadata;
+    : (storedInputTokenMetadata ?? lifiInputTokenMetadata ?? route3EvmInputTokenMetadata);
   const outputAssetMetadata = isEvmNativeTokenSlug(outputAssetSlug)
     ? outputNetwork.currency
-    : storedOutputTokenMetadata ?? lifiOutputTokenMetadata ?? route3EvmOutputTokenMetadata;
+    : (storedOutputTokenMetadata ?? lifiOutputTokenMetadata ?? route3EvmOutputTokenMetadata);
 
   const inputAssetSymbol = useMemo(() => getAssetSymbol(inputAssetMetadata), [inputAssetMetadata]);
   const outputAssetSymbol = useMemo(() => getAssetSymbol(outputAssetMetadata), [outputAssetMetadata]);

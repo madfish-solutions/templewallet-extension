@@ -4,8 +4,10 @@ import { CollectiblesListItemElement, makeGetCollectiblesElementsIndexesFunction
 
 import { CollectiblesTabBase, CollectiblesTabBaseProps } from './CollectiblesTabBase';
 
-interface TabContentBaseBodyProps
-  extends Omit<CollectiblesTabBaseProps, 'children' | 'collectiblesCount' | 'getElementsIndexes'> {
+interface TabContentBaseBodyProps extends Omit<
+  CollectiblesTabBaseProps,
+  'children' | 'collectiblesCount' | 'getElementsIndexes'
+> {
   manageActive: boolean;
   slugs: string[];
   showInfo: boolean;

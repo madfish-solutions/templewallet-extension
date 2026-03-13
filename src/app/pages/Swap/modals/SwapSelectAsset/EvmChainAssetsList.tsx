@@ -88,7 +88,7 @@ export const EvmChainAssetsList = memo<Props>(({ chainId, activeField, publicKey
     (slug: string) =>
       slug === EVM_TOKEN_SLUG
         ? network?.currency
-        : metadata[chainId]?.[slug] ?? lifiMetadata[chainId]?.[slug] ?? route3EvmMetadata[chainId]?.[slug],
+        : (metadata[chainId]?.[slug] ?? lifiMetadata[chainId]?.[slug] ?? route3EvmMetadata[chainId]?.[slug]),
     [chainId, lifiMetadata, metadata, network?.currency, route3EvmMetadata]
   );
 

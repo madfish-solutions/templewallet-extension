@@ -64,7 +64,7 @@ export const ImageStacked: FC<ImageStackedProps> = ({
 
   return (
     <>
-      {isLoading ? loader ?? null : null}
+      {isLoading ? (loader ?? null) : null}
       <img
         {...imgProps}
         alt={isLoading ? '' : imgProps.alt}

@@ -42,8 +42,13 @@ interface GetClosestNonEmptyActivitiesIntervalConfig<P, I, A> {
   olderThan?: P;
 }
 
-interface FetchActivitiesWithCacheConfig<P, I, A, M = never, R = A[]>
-  extends GetClosestNonEmptyActivitiesIntervalConfig<P, I, A> {
+interface FetchActivitiesWithCacheConfig<
+  P,
+  I,
+  A,
+  M = never,
+  R = A[]
+> extends GetClosestNonEmptyActivitiesIntervalConfig<P, I, A> {
   fetchActivities: (olderThan?: P) => Promise<R>;
   getNewContractMatchItems: SyncFn<R, A[]>;
   getAllNewItems?: SyncFn<R, A[]>;

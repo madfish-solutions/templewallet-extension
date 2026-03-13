@@ -6,4 +6,4 @@ export const makeAnimationOptions = (animationData: any) =>
     rendererSettings: {
       preserveAspectRatio: 'xMidYMid slice'
     }
-  } as const);
+  }) as const;

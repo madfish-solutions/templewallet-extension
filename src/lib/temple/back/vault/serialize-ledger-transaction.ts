@@ -25,7 +25,7 @@ export const toViemSignature = ({ r, s, v }: LedgerSignature) =>
     r: `0x${r}`,
     s: `0x${s}`,
     v: BigInt(typeof v === 'number' ? v : `0x${v}`)
-  } as const);
+  }) as const;
 
 export const serializeLedgerTransaction = (tx: OneOf<TransactionSerializable>, signature: LedgerSignature) => {
   if (tx.type === 'eip1559' || tx.maxFeePerGas || tx.maxPriorityFeePerGas) {

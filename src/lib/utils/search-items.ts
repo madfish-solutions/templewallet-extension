@@ -6,8 +6,8 @@ export interface SearchKey<T, P extends null | ((item: T) => any)> {
   name: P extends (item: T) => infer S
     ? KeysOfUnionType<S> // Case of prepared objects
     : T extends object
-    ? KeysOfUnionType<T> // Case of original objects
-    : string; // Fallback
+      ? KeysOfUnionType<T> // Case of original objects
+      : string; // Fallback
   weight: number;
 }
 

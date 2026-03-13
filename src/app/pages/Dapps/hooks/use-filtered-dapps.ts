@@ -22,8 +22,8 @@ export const useFilteredDapps = (dApps: CustomDAppInfo[], searchValue: string, s
     const matching = inSearch
       ? dApps.filter(({ name }) => name.toLowerCase().includes(searchValueDebounced.toLowerCase()))
       : selectedTags.length
-      ? dApps.filter(({ categories }) => selectedTags.some(selectedTag => categories.includes(selectedTag)))
-      : dApps;
+        ? dApps.filter(({ categories }) => selectedTags.some(selectedTag => categories.includes(selectedTag)))
+        : dApps;
 
     return shouldIncludeFeatured ? matching : matching.filter(({ slug }) => !FEATURED_DAPPS_SLUGS.includes(slug));
   }, [dApps, inSearch, searchValueDebounced, selectedTags, shouldIncludeFeatured]);

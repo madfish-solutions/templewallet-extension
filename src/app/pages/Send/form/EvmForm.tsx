@@ -52,7 +52,7 @@ export const EvmForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, onR
   const storedCollectibleMetadata = useEvmCollectibleMetadataSelector(network.chainId, assetSlug);
   const assetMetadata = isEvmNativeTokenSlug(assetSlug)
     ? network?.currency
-    : storedTokenMetadata ?? storedCollectibleMetadata;
+    : (storedTokenMetadata ?? storedCollectibleMetadata);
 
   if (!assetMetadata) throw new Error('Metadata not found');
 

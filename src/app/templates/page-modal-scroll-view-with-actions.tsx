@@ -4,8 +4,10 @@ import { ActionsButtonsBox } from 'app/atoms/PageModal';
 import { ActionsButtonsBoxProps } from 'app/atoms/PageModal/actions-buttons-box';
 import { ScrollView, ScrollViewProps } from 'app/atoms/PageModal/scroll-view';
 
-interface PageModalScrollViewWithActionsProps
-  extends Omit<ScrollViewProps, 'onBottomEdgeVisibilityChange' | 'onTopEdgeVisibilityChange'> {
+interface PageModalScrollViewWithActionsProps extends Omit<
+  ScrollViewProps,
+  'onBottomEdgeVisibilityChange' | 'onTopEdgeVisibilityChange'
+> {
   actionsBoxProps?: Omit<ActionsButtonsBoxProps, 'shouldCastShadow'>;
   initialBottomEdgeVisible?: boolean;
 }

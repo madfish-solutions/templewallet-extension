@@ -22,7 +22,7 @@ export interface SelectModalOptionProps<T> {
   testID: string;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unnecessary-type-constraint
+// oxlint-disable-next-line @typescript-eslint/no-unnecessary-type-constraint
 export const SelectModalOption = <T extends unknown>({
   option,
   className,

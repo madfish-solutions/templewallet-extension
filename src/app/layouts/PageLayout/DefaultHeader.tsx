@@ -68,7 +68,7 @@ export const DefaultHeader = memo<PropsWithChildren<DefaultHeaderProps>>(
           )}
         >
           <div className="flex-1 flex items-center">
-            {headerLeftElem ?? shouldShowBackButton ? (
+            {(headerLeftElem ?? shouldShowBackButton) ? (
               <Button className="block" onClick={onBackClick} testID={PageLayoutSelectors.backButton}>
                 <IconBase Icon={ChevronLeftIcon} className="text-grey-2" />
               </Button>
