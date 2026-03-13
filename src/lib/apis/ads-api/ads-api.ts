@@ -95,13 +95,15 @@ export async function postReferralClickByUserId(
 export async function postLinkAdsImpressions(
   { tezosAddress, evmAddress }: RewardsAddresses,
   installId: string,
-  signature: string
+  signature: string,
+  userId?: string
 ) {
   await axiosClient.post('/link-impressions', {
     accountPkh: tezosAddress,
     evmPkh: evmAddress,
     installId,
     signature,
+    userId,
     appVersion: APP_VERSION
   });
 }
