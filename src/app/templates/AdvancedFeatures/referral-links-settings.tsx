@@ -6,7 +6,10 @@ import { T } from 'lib/i18n';
 import { EnablingSetting } from '../enabling-setting';
 
 import { AdvancedFeaturesSelectors } from './selectors';
-memo(() => {
+
+// Could be used later for temple referral links
+// ts-prune-ignore-next
+export const ReferralLinksSettings = memo(() => {
   const { isEnabled, setEnabled } = useReferralLinksSettings();
 
   return (
