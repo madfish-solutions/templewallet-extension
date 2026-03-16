@@ -13,6 +13,6 @@ export const useTimeout = (callback: EmptyFn, timeout: number, condition = true,
     const timeoutId = setTimeout(() => void callbackRef.current(), timeout);
 
     return () => void clearTimeout(timeoutId);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // oxlint-disable-next-line react-hooks/exhaustive-deps
   }, [condition, timeout, ...deps]);
 };

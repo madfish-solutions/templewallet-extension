@@ -41,8 +41,9 @@ const InfiniteScrollVisibilityContextProvider: FC<PropsWithChildren> = ({ childr
   return <InfiniteScrollVisibilityContext value={value}>{children}</InfiniteScrollVisibilityContext>;
 };
 
-export interface VisibilityTrackingInfiniteScrollProps
-  extends PropsWithChildren<Omit<SimpleInfiniteScrollProps, 'onScroll'>> {
+export interface VisibilityTrackingInfiniteScrollProps extends PropsWithChildren<
+  Omit<SimpleInfiniteScrollProps, 'onScroll'>
+> {
   /** Return the indexes of the elements that are located at the height of `y` relatively to the scrollable node */
   getElementsIndexes: (y: number) => number[];
 }

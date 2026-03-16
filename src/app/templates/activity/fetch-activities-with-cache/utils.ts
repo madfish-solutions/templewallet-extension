@@ -164,7 +164,7 @@ export const fetchEtherlinkActivities = async (
       operations,
       blockHeight: `${(tx ?? tokensTransfers[0]).block_number}`,
       index: tx?.position ?? null,
-      fee: tx ? tx.fee?.value ?? '0' : null,
+      fee: tx ? (tx.fee?.value ?? '0') : null,
       value: tx?.value ?? null
     };
   }
@@ -421,8 +421,8 @@ const toUnorderedOperations = async (
       return raw_input === '0x'
         ? [gasTokenTransfer]
         : parsedTokensTransfers.length
-        ? parsedTokensTransfers.concat(Number(value) ? gasTokenTransfer : [])
-        : fallbackOperations;
+          ? parsedTokensTransfers.concat(Number(value) ? gasTokenTransfer : [])
+          : fallbackOperations;
     case EvmOperationKind.Approval:
       const approvals = await getApprovalsForAccount(tx, chainId, accountAddress, signal);
 

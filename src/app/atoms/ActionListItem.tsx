@@ -44,20 +44,20 @@ export const ActionListItem: FC<ActionListItemProps> = ({
       active
         ? 'bg-grey-4'
         : disabled
-        ? 'cursor-not-allowed text-disable'
-        : danger
-        ? 'hover:bg-error-low'
-        : 'hover:bg-secondary-low',
+          ? 'cursor-not-allowed text-disable'
+          : danger
+            ? 'hover:bg-error-low'
+            : 'hover:bg-secondary-low',
       className
     ),
     onClick: disabled
       ? undefined
       : setOpened
-      ? () => {
-          setOpened(false);
-          onClick?.();
-        }
-      : onClick,
+        ? () => {
+            setOpened(false);
+            onClick?.();
+          }
+        : onClick,
     children: (
       <>
         {Icon && (

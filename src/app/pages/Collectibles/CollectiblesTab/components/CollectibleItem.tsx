@@ -16,13 +16,13 @@ import { setTezosCollectibleStatusAction } from 'app/store/tezos/assets/actions'
 import { useStoredTezosCollectibleSelector } from 'app/store/tezos/assets/selectors';
 import { useBalanceSelector } from 'app/store/tezos/balances/selectors';
 import {
-  useAllCollectiblesDetailsLoadingSelector,
-  useCollectibleDetailsSelector
-} from 'app/store/tezos/collectibles/selectors';
-import {
   useCollectibleMetadataSelector,
   useCollectiblesMetadataLoadingSelector
 } from 'app/store/tezos/collectibles-metadata/selectors';
+import {
+  useAllCollectiblesDetailsLoadingSelector,
+  useCollectibleDetailsSelector
+} from 'app/store/tezos/collectibles/selectors';
 import { DeleteAssetModal } from 'app/templates/remove-asset-modal/delete-asset-modal';
 import { setAnotherSelector, setTestID } from 'lib/analytics';
 import { getAssetStatus } from 'lib/assets/hooks/utils';

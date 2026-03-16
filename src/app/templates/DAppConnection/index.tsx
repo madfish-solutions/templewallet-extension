@@ -118,7 +118,7 @@ const DAppConnectionBox = memo(({ activeDApp, disconnectOne }: DAppConnectionBox
     ? tezosChainId
       ? tezosChains[tezosChainId]
       : null
-    : evmChains[dapp.chainId] ?? null;
+    : (evmChains[dapp.chainId] ?? null);
 
   return (
     <div className="sticky bottom-0 flex items-center gap-x-2 py-3 px-4 bg-white shadow-bottom" ref={rootRef}>

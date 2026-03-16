@@ -1,9 +1,7 @@
 import { isDefined } from '@rnw-community/shared';
-/* eslint-disable import/no-duplicates */
 import formatDateFns from 'date-fns/format';
 import formatDurationFns from 'date-fns/formatDuration';
 import { enUS, enGB, fr, zhCN, zhTW, ja, ko, uk } from 'date-fns/locale';
-/* eslint-enable */
 import browser from 'webextension-polyfill';
 
 import cldrjsLocales from './cldrjs-locales.json';
@@ -76,7 +74,7 @@ export function getMessage(messageName: string, substitutions?: Substitutions) {
 
   return fallbackVal
     ? applySubstitutions(fallbackVal, substitutions)
-    : browser.i18n.getMessage(messageName, substitutions) ?? '';
+    : (browser.i18n.getMessage(messageName, substitutions) ?? '');
 }
 
 function getDateFnsLocale() {

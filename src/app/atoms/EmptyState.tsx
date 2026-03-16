@@ -17,7 +17,7 @@ interface EmptyStateProps {
 export const EmptyState = memo<EmptyStateProps>(({ forSearch = true, textI18n, text, stretch, iconSize }) => {
   const Icon = forSearch ? SadSearchIcon : SadUniversalIcon;
 
-  const textElem = textI18n ? <T id={textI18n} /> : text ?? <T id="notFound" />;
+  const textElem = textI18n ? <T id={textI18n} /> : (text ?? <T id="notFound" />);
 
   const iconStyle = useMemo(() => ({ width: iconSize ?? 92 }), [iconSize]);
 

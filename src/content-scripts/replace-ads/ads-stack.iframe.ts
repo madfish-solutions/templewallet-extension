@@ -1,5 +1,3 @@
-import { configureAds } from 'lib/ads/configure-ads';
-import { importExtensionAdsModule } from 'lib/ads/import-extension-ads-module';
 import {
   ADS_META_SEARCH_PARAM_NAME,
   AD_CATEGORIES_PARAM_NAME,
@@ -10,6 +8,8 @@ import {
   ORIGIN_SEARCH_PARAM_NAME,
   THEME_COLOR_SEARCH_PARAM_NAME
 } from 'lib/ads-constants';
+import { configureAds } from 'lib/ads/configure-ads';
+import { importExtensionAdsModule } from 'lib/ads/import-extension-ads-module';
 
 import { getRulesFromStorage } from './ads-rules';
 

@@ -130,12 +130,12 @@ export const makeUseChainKindAccountTokensListingLogic = <T extends TempleChainK
     const displayedGroupedSlugs = useMemo(
       () =>
         isInSearchMode
-          ? allSlugsSortedGrouped
+          ? (allSlugsSortedGrouped
               ?.map(([chainId, slugs]): [ChainId<T>, string[]] => [
                 chainId,
                 searchTokensWithNoMeta(searchValueDebounced, slugs, getMetadata, getSlugWithChainId)
               ])
-              .filter(([, slugs]) => slugs.length > 0) ?? null
+              .filter(([, slugs]) => slugs.length > 0) ?? null)
           : paginatedSlugsGroups,
       [allSlugsSortedGrouped, getMetadata, isInSearchMode, paginatedSlugsGroups, searchValueDebounced]
     );

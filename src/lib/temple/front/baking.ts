@@ -131,8 +131,10 @@ export function useKnownBakers(chainId: string, suspense = true) {
   return useMemo(() => (bakers && bakers.length > 1 ? bakers.map(baker => toBakerWithLogo(baker)) : null), [bakers]);
 }
 
-interface RewardsStatsCalculationParams
-  extends Pick<TzktSetDelegateParamsOperation, 'limitOfStakingOverBaking' | 'edgeOfBakingOverStaking'> {
+interface RewardsStatsCalculationParams extends Pick<
+  TzktSetDelegateParamsOperation,
+  'limitOfStakingOverBaking' | 'edgeOfBakingOverStaking'
+> {
   rewardsEntry: TzktRewardsEntry;
   cycle: TzktCycle;
   protocol: TzktProtocol;

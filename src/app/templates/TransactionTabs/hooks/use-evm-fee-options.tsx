@@ -59,8 +59,8 @@ export const useEvmFeeOptions = (
     const gas = customGasLimit
       ? BigInt(customGasLimit)
       : isEvmEstimationData(estimationData)
-      ? estimationData.gas
-      : SEND_ETH_GAS_LIMIT;
+        ? estimationData.gas
+        : SEND_ETH_GAS_LIMIT;
 
     switch (estimationData.type) {
       case 'legacy':

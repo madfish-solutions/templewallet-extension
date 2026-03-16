@@ -169,7 +169,7 @@ export const useAccountTokensListingLogic = (
   const displayedGroupedSlugs = useMemo(
     () =>
       isInSearchMode
-        ? allSlugsSortedGrouped
+        ? (allSlugsSortedGrouped
             ?.map(([chainId, slugs]): [string | number, string[]] => [
               chainId,
               searchAssetsWithNoMeta(
@@ -181,7 +181,7 @@ export const useAccountTokensListingLogic = (
                 getSlugFromChainSlug
               )
             ])
-            .filter(([, slugs]) => slugs.length > 0) ?? null
+            .filter(([, slugs]) => slugs.length > 0) ?? null)
         : paginatedSlugsGroups,
     [allSlugsSortedGrouped, getEvmMetadata, getTezMetadata, isInSearchMode, paginatedSlugsGroups, searchValueDebounced]
   );

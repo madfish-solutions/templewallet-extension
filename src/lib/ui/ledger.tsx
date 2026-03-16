@@ -49,11 +49,14 @@ const stateToUIConfigurationBase: Record<LedgerOperationState, LedgerUIConfigura
 export const makeStateToUIConfiguration = <T extends LedgerUIConfigurationBase>(
   complements: Record<LedgerOperationState, Omit<T, 'imageState' | 'icon'>>
 ) =>
-  Object.entries(stateToUIConfigurationBase).reduce((acc, [key, value]) => {
-    // @ts-expect-error
-    acc[key] = { ...value, ...complements[key] };
-    return acc;
-  }, {} as Record<LedgerOperationState, T>);
+  Object.entries(stateToUIConfigurationBase).reduce(
+    (acc, [key, value]) => {
+      // @ts-expect-error
+      acc[key] = { ...value, ...complements[key] };
+      return acc;
+    },
+    {} as Record<LedgerOperationState, T>
+  );
 
 export const runConnectedLedgerOperationFlow = async (
   action: () => Promise<void>,

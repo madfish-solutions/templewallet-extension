@@ -4,9 +4,8 @@ import { SuspenseContainer, SuspenseContainerProps } from 'app/atoms/SuspenseCon
 
 export const withSuspense =
   <T extends object>(Component: ComponentType<T>, suspenseContainerProps: Omit<SuspenseContainerProps, 'children'>) =>
-  (props: T) =>
-    (
-      <SuspenseContainer {...suspenseContainerProps}>
-        <Component {...props} />
-      </SuspenseContainer>
-    );
+  (props: T) => (
+    <SuspenseContainer {...suspenseContainerProps}>
+      <Component {...props} />
+    </SuspenseContainer>
+  );
