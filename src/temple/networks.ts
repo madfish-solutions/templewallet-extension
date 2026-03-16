@@ -149,11 +149,11 @@ export const EVM_FALLBACK_RPC_URLS: Record<number, string[]> = {
   [ETHEREUM_MAINNET_CHAIN_ID]: [
     `https://eth-rpc.kolibr.io${EnvVars.TEMPLE_WALLET_KOLIBRIO_PARAMS}`,
     'https://ethereum-rpc.publicnode.com',
-    'https://cloudflare-eth.com',
-    'https://eth.llamarpc.com',
     'https://eth.drpc.org',
     'https://eth.meowrpc.com',
-    'https://endpoints.omniatech.io/v1/eth/mainnet/public'
+    'https://0xrpc.io/eth',
+    'https://1rpc.io/eth',
+    'https://ethereum-public.nodies.app'
   ],
   [COMMON_MAINNET_CHAIN_IDS.polygon]: [
     'https://polygon-bor-rpc.publicnode.com',
