@@ -33,8 +33,12 @@ runs:
       run: yarn find-deadcode
       shell: bash
 
-    - name: Check ESLint
+    - name: Check linting
       run: yarn lint
+      shell: bash
+
+    - name: Check formatting
+      run: yarn format:check
       shell: bash
 
     - name: Perform unit tests

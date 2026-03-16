@@ -30,7 +30,7 @@ export const EvmActivityOperationComponent = memo<Props>(
     const asset = useMemo(() => {
       if (!assetBase) return;
 
-      const decimals = assetBase.amountSigned === null ? NaN : assetMetadata?.decimals ?? assetBase.decimals;
+      const decimals = assetBase.amountSigned === null ? NaN : (assetMetadata?.decimals ?? assetBase.decimals);
 
       if (decimals == null) return;
 

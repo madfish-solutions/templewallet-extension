@@ -12,5 +12,8 @@ export function deserealizeError(data: any) {
 export class IntercomError implements Error {
   name: string = 'IntercomError';
 
-  constructor(public message: string, public errors?: any[]) {}
+  constructor(
+    public message: string,
+    public errors?: any[]
+  ) {}
 }

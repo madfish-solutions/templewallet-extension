@@ -6,9 +6,9 @@ import { EvmNetworkEssentials } from 'temple/networks';
 import { equalsIgnoreCase } from '../utils/common.utils';
 
 import { EvmNewBlockListener, getEvmNewBlockListener } from './evm-new-block-listener';
-import { getERC1155TransferEventsListener } from './transfer-events-listeners/erc1155-transfer-events-listener';
 import { getERC20TransferEventsListener } from './transfer-events-listeners/erc20-transfer-events-listener';
 import { getERC721TransferEventsListener } from './transfer-events-listeners/erc721-transfer-events-listener';
+import { getERC1155TransferEventsListener } from './transfer-events-listeners/erc1155-transfer-events-listener';
 
 const transferListenerGetters = {
   [EvmAssetStandard.NATIVE]: getEvmNewBlockListener,

@@ -168,8 +168,8 @@ export const useEvmEstimationForm = (
 
   const rawTransaction = useMemo(() => {
     const feesPerGas = getFeesPerGas(debouncedGasPrice);
-    const gas = debouncedGasLimit ? BigInt(debouncedGasLimit) : fullEstimationData?.gas ?? basicParams?.gas;
-    const nonce = debouncedNonce ? Number(debouncedNonce) : fullEstimationData?.nonce ?? basicParams?.nonce;
+    const gas = debouncedGasLimit ? BigInt(debouncedGasLimit) : (fullEstimationData?.gas ?? basicParams?.gas);
+    const nonce = debouncedNonce ? Number(debouncedNonce) : (fullEstimationData?.nonce ?? basicParams?.nonce);
 
     if (gas === undefined || nonce === undefined || !feesPerGas) return null;
 
@@ -189,7 +189,7 @@ export const useEvmEstimationForm = (
     if (feeOptions && selectedFeeOption) return feeOptions.displayed[selectedFeeOption];
 
     if (debouncedGasPrice) {
-      const gas = debouncedGasLimit ? BigInt(debouncedGasLimit) : fullEstimationData?.gas ?? SEND_ETH_GAS_LIMIT;
+      const gas = debouncedGasLimit ? BigInt(debouncedGasLimit) : (fullEstimationData?.gas ?? SEND_ETH_GAS_LIMIT);
 
       return formatEther(gas * parseEther(debouncedGasPrice, 'gwei'));
     }

@@ -7,12 +7,12 @@ import { buildSendPagePath } from 'app/pages/Send/build-url';
 import { ScamTokenAlert } from 'app/pages/Token/ScamTokenAlert';
 import { dispatch } from 'app/store';
 import { useMainnetTokensScamlistSelector } from 'app/store/tezos/assets/selectors';
+import { useCollectibleMetadataSelector } from 'app/store/tezos/collectibles-metadata/selectors';
 import { loadCollectiblesDetailsActions } from 'app/store/tezos/collectibles/actions';
 import {
   useAllCollectiblesDetailsLoadingSelector,
   useCollectibleDetailsSelector
 } from 'app/store/tezos/collectibles/selectors';
-import { useCollectibleMetadataSelector } from 'app/store/tezos/collectibles-metadata/selectors';
 import { fromFa2TokenSlug } from 'lib/assets/utils';
 import { useTezosAssetBalance } from 'lib/balances';
 import { buildTokenImagesStack } from 'lib/images-uri';

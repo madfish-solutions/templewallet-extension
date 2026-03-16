@@ -3,7 +3,6 @@
   https://github.com/facebook/create-react-app/blob/main/packages/react-scripts/config/webpack.config.js
 */
 
-import ESLintPlugin from 'eslint-webpack-plugin';
 import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 import * as path from 'path';
 import ForkTsCheckerWebpackPlugin from 'react-dev-utils/ForkTsCheckerWebpackPlugin';
@@ -260,17 +259,6 @@ export const buildBaseConfig = (): WebPack.Configuration & Pick<WebPack.WebpackO
       }
     }),
 
-    new ESLintPlugin({
-      extensions: ['js', 'mjs', 'jsx', 'ts', 'tsx'],
-      formatter: require.resolve('react-dev-utils/eslintFormatter'),
-      eslintPath: require.resolve('eslint'),
-      resolvePluginsRelativeTo: PATHS.CWD,
-      cache: DEVELOPMENT_ENV,
-      cacheLocation: path.resolve(PATHS.NODE_MODULES, '.cache/.eslintcache'),
-      lintDirtyModulesOnly: DEVELOPMENT_ENV,
-      failOnError: true,
-      quiet: true
-    })
   ].filter(Boolean),
 
   optimization: {

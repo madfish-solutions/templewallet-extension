@@ -113,17 +113,16 @@ export const ConfirmEarnOperationContent = <R extends TezosEarnReviewDataBase>({
   );
 };
 
-interface ConfirmEarnOperationContentBodyWrapperProps<R extends TezosEarnReviewDataBase>
-  extends Pick<
-    ConfirmEarnOperationContentProps<R>,
-    | 'TopElement'
-    | 'getBasicParamsSWRKey'
-    | 'getBasicParams'
-    | 'useEstimationData'
-    | 'TxTabsInnerContent'
-    | 'formId'
-    | 'balancesChanges'
-  > {
+interface ConfirmEarnOperationContentBodyWrapperProps<R extends TezosEarnReviewDataBase> extends Pick<
+  ConfirmEarnOperationContentProps<R>,
+  | 'TopElement'
+  | 'getBasicParamsSWRKey'
+  | 'getBasicParams'
+  | 'useEstimationData'
+  | 'TxTabsInnerContent'
+  | 'formId'
+  | 'balancesChanges'
+> {
   data: R;
   setLoading: SyncFn<boolean>;
 }

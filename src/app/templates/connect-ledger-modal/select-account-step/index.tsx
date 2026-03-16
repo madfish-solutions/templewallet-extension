@@ -53,7 +53,7 @@ export const SelectAccountStep = memo<SelectAccountStepProps>(({ initialAccount,
   const { accounts, createLedgerAccount } = useTempleClient();
   const pickTezosAccounts = initialAccount.chain === TempleChainKind.Tezos;
   const defaultDerivationType = pickTezosAccounts
-    ? selection.tezosSettings?.derivationType ?? initialAccount.derivationType
+    ? (selection.tezosSettings?.derivationType ?? initialAccount.derivationType)
     : DerivationType.ED25519;
 
   const [knownAccountsByDerivation, setKnownAccountsByDerivation] = useState<Record<DerivationType, AccountProps[]>>(

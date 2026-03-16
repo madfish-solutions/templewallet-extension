@@ -240,7 +240,7 @@ export const AccountsManagement = memo<SettingsTabProps>(({ setHeaderChildren })
   useEffect(() => setHeaderChildren(headerChildren), [headerChildren, setHeaderChildren]);
   useEffect(() => {
     return () => setHeaderChildren(null);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // oxlint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {

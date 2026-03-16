@@ -359,7 +359,7 @@ export const sendEvmTransactionAfterConfirm = async (
       reject(
         new ErrorWithCode(
           EVMErrorCodes.INVALID_PARAMS,
-          e instanceof Error ? e.message : serializeError(e) ?? 'Invalid transaction request'
+          e instanceof Error ? e.message : (serializeError(e) ?? 'Invalid transaction request')
         )
       );
 
@@ -530,9 +530,8 @@ export const addChain = async (origin: string, currentChainId: string, params: A
             await withUnlocked(async ({ vault }) => {
               const chainIdNum = Number(chainMetadata.chainId);
 
-              const prevStoredSpecs = await fetchFromStorage<OptionalRecord<EvmChainSpecs>>(
-                EVM_CHAINS_SPECS_STORAGE_KEY
-              );
+              const prevStoredSpecs =
+                await fetchFromStorage<OptionalRecord<EvmChainSpecs>>(EVM_CHAINS_SPECS_STORAGE_KEY);
               const prevSpecsWithFallback = prevStoredSpecs ?? DEFAULT_EVM_CHAINS_SPECS;
               const prevChainSpecs = prevSpecsWithFallback[chainIdNum];
 

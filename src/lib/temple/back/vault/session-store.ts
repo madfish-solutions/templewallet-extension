@@ -18,9 +18,8 @@ export const getPassHash = async () => {
   if (browser.storage.session == null) return;
 
   try {
-    const { [PASS_HASH_STORE_KEY]: passHash }: { [PASS_HASH_STORE_KEY]?: string } = await browser.storage.session.get(
-      PASS_HASH_STORE_KEY
-    );
+    const { [PASS_HASH_STORE_KEY]: passHash }: { [PASS_HASH_STORE_KEY]?: string } =
+      await browser.storage.session.get(PASS_HASH_STORE_KEY);
 
     if (passHash) return stringToArrayBuffer(passHash);
   } catch (error) {

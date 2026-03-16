@@ -19,8 +19,10 @@ import { atomsToTokens } from 'lib/temple/helpers';
 import { ETHERLINK_MAINNET_CHAIN_ID } from 'lib/temple/types';
 import { groupByToEntries } from 'lib/utils/group-by-to-entries';
 
-export interface EtherlinkBalancesResponse
-  extends Omit<BalancesResponse, 'chain_id' | 'items' | 'chain_tip_signed_at'> {
+export interface EtherlinkBalancesResponse extends Omit<
+  BalancesResponse,
+  'chain_id' | 'items' | 'chain_tip_signed_at'
+> {
   chain_id: EtherlinkChainId;
   balanceItems: BalanceItem[];
   nftItems: NftTokenContractBalanceItem[];

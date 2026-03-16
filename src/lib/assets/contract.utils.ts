@@ -82,6 +82,6 @@ export const fromAssetSlugWithStandardDetect = async (tezos: TezosToolkit, slug:
 
   return {
     contract: contractAddress,
-    id: tokenStandard === 'fa2' ? tokenIdStr ?? '0' : undefined
+    id: tokenStandard === 'fa2' ? (tokenIdStr ?? '0') : undefined
   };
 };

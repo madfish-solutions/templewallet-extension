@@ -39,8 +39,8 @@ export function parseTezosOperationsGroup(
       status === 'applied'
         ? ActivityStatus.applied
         : status === 'pending'
-        ? ActivityStatus.pending
-        : ActivityStatus.failed
+          ? ActivityStatus.pending
+          : ActivityStatus.failed
   };
 }
 

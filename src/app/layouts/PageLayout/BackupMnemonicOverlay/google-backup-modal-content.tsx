@@ -42,7 +42,7 @@ export const GoogleBackupModalContent = memo<GoogleBackupModalContentProps>(
       suspense: true
     });
     const [googleBackupExists, setGoogleBackupExists] = useState(initialGoogleBackupExists);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // oxlint-disable-next-line react-hooks/exhaustive-deps
     useEffect(() => onBackupExists(initialGoogleBackupExists), [initialGoogleBackupExists]);
 
     const handleAuth = useCallback(

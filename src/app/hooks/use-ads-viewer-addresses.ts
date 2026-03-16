@@ -10,7 +10,7 @@ export const useAdsViewerPkh = () => {
   const accountForEvm = useAccountForEvm();
   const { tezosAddress: fallbackTezosAddress, evmAddress: fallbackEvmAddress } = useRewardsAddresses();
   const evmAddress =
-    accountForEvm && isAccountOfActableType(accountForEvm) ? accountForEvm.address : fallbackEvmAddress ?? '';
+    accountForEvm && isAccountOfActableType(accountForEvm) ? accountForEvm.address : (fallbackEvmAddress ?? '');
 
   // Hypelab SDK allows only adding addresses to the list although its function is called `setWalletAddresses`
   // @ts-expect-error
@@ -18,7 +18,9 @@ export const useAdsViewerPkh = () => {
 
   return {
     tezosAddress:
-      accountForTezos && isAccountOfActableType(accountForTezos) ? accountForTezos.address : fallbackTezosAddress ?? '',
+      accountForTezos && isAccountOfActableType(accountForTezos)
+        ? accountForTezos.address
+        : (fallbackTezosAddress ?? ''),
     evmAddress
   };
 };

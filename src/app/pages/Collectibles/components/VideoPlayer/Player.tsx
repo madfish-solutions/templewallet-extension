@@ -1,3 +1,5 @@
+import './Player.css';
+
 import { FC, Ref, useState, useCallback, useEffect, useRef, ReactNode, ChangeEvent, MouseEvent } from 'react';
 
 import { emptyFn } from '@rnw-community/shared';
@@ -17,8 +19,6 @@ import { Time } from './components/Time';
 import { Volume } from './components/Volume';
 import { useTimeout } from './hooks/use-timeout';
 import { formatTime } from './utils/format-time';
-
-import './Player.css';
 
 interface Props {
   src: string;

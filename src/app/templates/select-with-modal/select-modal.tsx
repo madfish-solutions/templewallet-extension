@@ -10,8 +10,10 @@ import { SearchKey, searchAndFilterItems } from 'lib/utils/search-items';
 
 import { SelectModalOption, SelectModalOptionProps } from './select-modal-option';
 
-export interface SelectModalProps<T, P extends null | SyncFn<T, any>>
-  extends Pick<SelectModalOptionProps<T>, 'CellIcon' | 'CellName' | 'onSelect'> {
+export interface SelectModalProps<T, P extends null | SyncFn<T, any>> extends Pick<
+  SelectModalOptionProps<T>,
+  'CellIcon' | 'CellName' | 'onSelect'
+> {
   title: string;
   opened: boolean;
   options: T[];

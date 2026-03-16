@@ -3,8 +3,7 @@ import { FC, AnchorHTMLAttributes, DetailedHTMLProps, MouseEvent } from 'react';
 import { AnalyticsEventCategory, setTestID, TestIDProps, useAnalytics } from 'lib/analytics';
 
 export interface AnchorProps
-  extends DetailedHTMLProps<AnchorHTMLAttributes<HTMLAnchorElement>, HTMLAnchorElement>,
-    TestIDProps {
+  extends DetailedHTMLProps<AnchorHTMLAttributes<HTMLAnchorElement>, HTMLAnchorElement>, TestIDProps {
   treatAsButton?: boolean;
 }
 
