@@ -1,3 +1,4 @@
+import { isDefined } from '@rnw-community/shared';
 import { uniq } from 'lodash';
 import memoizee from 'memoizee';
 import {
@@ -16,15 +17,10 @@ import type { AuthorizationList, RpcAuthorizationList } from 'viem/experimental'
 import { EvmEstimationDataWithFallback, SerializedEvmEstimationDataWithFallback } from 'lib/temple/types';
 import type { EvmChain } from 'temple/front';
 
-import {
-  DEFAULT_EVM_CURRENCY, DEFAULT_RPC_INDEX,
-  EVM_FALLBACK_RPC_URLS,
-  type EvmNetworkEssentials
-} from "../networks";
+import { DEFAULT_EVM_CURRENCY, DEFAULT_RPC_INDEX, EVM_FALLBACK_RPC_URLS, type EvmNetworkEssentials } from '../networks';
 
 import { DEFAULT_TRANSPORT_CONFIG } from './constants';
 import type { EvmEstimationData, SerializedEvmEstimationData } from './estimate';
-import { isDefined } from "@rnw-community/shared";
 
 export const getViemChainsList = memoizee(() => Object.values(ViemChains) as Chain[]);
 
