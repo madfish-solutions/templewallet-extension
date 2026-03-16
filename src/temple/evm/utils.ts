@@ -16,10 +16,15 @@ import type { AuthorizationList, RpcAuthorizationList } from 'viem/experimental'
 import { EvmEstimationDataWithFallback, SerializedEvmEstimationDataWithFallback } from 'lib/temple/types';
 import type { EvmChain } from 'temple/front';
 
-import { DEFAULT_EVM_CURRENCY, EVM_FALLBACK_RPC_URLS, type EvmNetworkEssentials } from '../networks';
+import {
+  DEFAULT_EVM_CURRENCY, DEFAULT_RPC_INDEX,
+  EVM_FALLBACK_RPC_URLS,
+  type EvmNetworkEssentials
+} from "../networks";
 
 import { DEFAULT_TRANSPORT_CONFIG } from './constants';
 import type { EvmEstimationData, SerializedEvmEstimationData } from './estimate';
+import { isDefined } from "@rnw-community/shared";
 
 export const getViemChainsList = memoizee(() => Object.values(ViemChains) as Chain[]);
 
@@ -191,12 +196,13 @@ export const getCustomViemChain = (network: PartiallyRequired<EvmChain, 'chainId
 });
 
 export const getViemTransportForNetwork = (network: EvmNetworkEssentials): Transport => {
-  const fallbackRpcs = EVM_FALLBACK_RPC_URLS[network.chainId];
+  const fallbacks = EVM_FALLBACK_RPC_URLS[network.chainId];
+  const shouldApplyFallbacks = isDefined(fallbacks) && network.rpcBaseURL === fallbacks[DEFAULT_RPC_INDEX];
 
-  if (!fallbackRpcs) return http(network.rpcBaseURL, DEFAULT_TRANSPORT_CONFIG);
+  if (!shouldApplyFallbacks) return http(network.rpcBaseURL, DEFAULT_TRANSPORT_CONFIG);
 
   return fallback(
-    uniq([network.rpcBaseURL, ...fallbackRpcs]).map(url => http(url, { retryCount: 0 })),
+    uniq([network.rpcBaseURL, ...fallbacks]).map(url => http(url, { retryCount: 0 })),
     { retryCount: 0 }
   );
 };

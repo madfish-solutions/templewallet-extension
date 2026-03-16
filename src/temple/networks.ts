@@ -153,31 +153,34 @@ export const EVM_FALLBACK_RPC_URLS: Record<number, string[]> = {
     'https://eth.meowrpc.com',
     'https://0xrpc.io/eth',
     'https://1rpc.io/eth',
+    'https://eth.llamarpc.com',
     'https://ethereum-public.nodies.app'
   ],
   [COMMON_MAINNET_CHAIN_IDS.polygon]: [
     'https://polygon-bor-rpc.publicnode.com',
-    'https://polygon-rpc.com',
     'https://polygon.drpc.org',
+    'https://1rpc.io/matic',
     'https://polygon.meowrpc.com',
-    'https://endpoints.omniatech.io/v1/matic/mainnet/public',
-    'https://1rpc.io/matic'
+    'https://polygon-public.nodies.app',
+    'https://polygon.api.onfinality.io/public'
   ],
   [COMMON_MAINNET_CHAIN_IDS.bsc]: [
     `https://bsc.kolibr.io${EnvVars.TEMPLE_WALLET_KOLIBRIO_PARAMS}`,
     'https://bsc-rpc.publicnode.com',
-    'https://binance.llamarpc.com',
     'https://bsc.drpc.org',
     'https://bsc.meowrpc.com',
-    'https://endpoints.omniatech.io/v1/bsc/mainnet/public',
-    'https://1rpc.io/bnb'
+    'https://1rpc.io/bnb',
+    'https://binance.llamarpc.com',
+    'https://public-bsc-mainnet.fastnode.io',
+    'https://binance-smart-chain-public.nodies.app'
   ],
   [COMMON_MAINNET_CHAIN_IDS.avalanche]: [
     'https://avalanche-c-chain-rpc.publicnode.com',
     'https://avalanche.drpc.org',
+    'https://1rpc.io/avax/c',
     'https://avax.meowrpc.com',
-    'https://endpoints.omniatech.io/v1/avax/mainnet/public',
-    'https://1rpc.io/avax/c'
+    'https://avax.api.pocket.network',
+    'https://avalanche-public.nodies.app/ext/bc/C/rpc'
   ],
   [COMMON_MAINNET_CHAIN_IDS.arbitrum]: [
     `https://arbitrum.kolibr.io${EnvVars.TEMPLE_WALLET_KOLIBRIO_PARAMS}`,
@@ -185,22 +188,29 @@ export const EVM_FALLBACK_RPC_URLS: Record<number, string[]> = {
     'https://arbitrum.drpc.org',
     'https://arb-pokt.nodies.app',
     'https://arbitrum.meowrpc.com',
-    'https://1rpc.io/arb'
+    'https://1rpc.io/arb',
+    'https://arbitrum-one-public.nodies.app',
+    'https://public-arb-mainnet.fastnode.io'
   ],
   [COMMON_MAINNET_CHAIN_IDS.optimism]: [
     'https://optimism-rpc.publicnode.com',
     'https://mainnet.optimism.io',
     'https://optimism.drpc.org',
     'https://optimism.meowrpc.com',
-    'https://1rpc.io/op'
+    'https://1rpc.io/op',
+    'https://optimism-public.nodies.app',
+    'https://public-op-mainnet.fastnode.io'
   ],
   [COMMON_MAINNET_CHAIN_IDS.base]: [
     `https://base.kolibr.io${EnvVars.TEMPLE_WALLET_KOLIBRIO_PARAMS}`,
     'https://base-rpc.publicnode.com',
+    'https://mainnet.base.org',
     'https://base.llamarpc.com',
     'https://base.drpc.org',
     'https://base.meowrpc.com',
-    'https://base-pokt.nodies.app'
+    'https://base-pokt.nodies.app',
+    'https://base.api.pocket.network',
+    'https://base-public.nodies.app'
   ],
   [COMMON_MAINNET_CHAIN_IDS.rootstock]: [
     'https://public-node.rsk.co',
@@ -210,7 +220,8 @@ export const EVM_FALLBACK_RPC_URLS: Record<number, string[]> = {
   [ETH_SEPOLIA_CHAIN_ID]: [
     'https://ethereum-sepolia-rpc.publicnode.com',
     'https://sepolia.drpc.org',
-    'https://1rpc.io/sepolia'
+    'https://1rpc.io/sepolia',
+    'https://0xrpc.io/sep'
   ],
   [ETHEREUM_HOODI_CHAIN_ID]: [
     'https://0xrpc.io/hoodi',
@@ -220,32 +231,36 @@ export const EVM_FALLBACK_RPC_URLS: Record<number, string[]> = {
   [COMMON_TESTNET_CHAIN_IDS.polygon]: [
     'https://polygon-amoy-bor-rpc.publicnode.com',
     'https://rpc-amoy.polygon.technology',
-    'https://polygon-amoy.drpc.org'
+    'https://polygon-amoy.drpc.org',
+    'https://polygon-amoy.api.onfinality.io/public',
+    'https://polygon-amoy-public.nodies.app'
   ],
   [COMMON_TESTNET_CHAIN_IDS.bsc]: [
     'https://bsc-testnet-rpc.publicnode.com',
     'https://bsc-testnet.drpc.org',
-    'https://endpoints.omniatech.io/v1/bsc/testnet/public'
+    'https://api.zan.top/bsc-testnet'
   ],
   [COMMON_TESTNET_CHAIN_IDS.avalanche]: [
     'https://avalanche-fuji-c-chain-rpc.publicnode.com',
     'https://avalanche-fuji.drpc.org',
-    'https://endpoints.omniatech.io/v1/avax/fuji/public'
+    'https://api.avax-test.network/ext/bc/C/rpc'
   ],
   [COMMON_TESTNET_CHAIN_IDS.arbitrum]: [
     'https://arbitrum-sepolia-rpc.publicnode.com',
     'https://arbitrum-sepolia.drpc.org',
-    'https://endpoints.omniatech.io/v1/arbitrum/sepolia/public'
+    'https://arbitrum-sepolia-testnet.api.pocket.network'
   ],
   [COMMON_TESTNET_CHAIN_IDS.optimism]: [
     'https://optimism-sepolia-rpc.publicnode.com',
-    'https://endpoints.omniatech.io/v1/op/sepolia/public',
-    'https://sepolia.optimism.io'
+    'https://sepolia.optimism.io',
+    'https://optimism-sepolia.api.onfinality.io/public',
+    'https://optimism-sepolia-public.nodies.app'
   ],
   [COMMON_TESTNET_CHAIN_IDS.base]: [
     'https://base-sepolia-rpc.publicnode.com',
     'https://base-sepolia.drpc.org',
-    'https://sepolia.base.org'
+    'https://sepolia.base.org',
+    'https://base-testnet.api.pocket.network'
   ],
   [COMMON_TESTNET_CHAIN_IDS.rootstock]: [
     'https://public-node.testnet.rsk.co',
@@ -261,7 +276,7 @@ export const EVM_DEFAULT_NETWORKS: NonEmptyArray<StoredEvmNetwork> = [
     name: 'Ethereum',
     chain: TempleChainKind.EVM,
     chainId: ETHEREUM_MAINNET_CHAIN_ID,
-    rpcBaseURL: EVM_FALLBACK_RPC_URLS[ETHEREUM_MAINNET_CHAIN_ID][0],
+    rpcBaseURL: EVM_FALLBACK_RPC_URLS[ETHEREUM_MAINNET_CHAIN_ID][DEFAULT_RPC_INDEX],
     color: '#0036fc',
     default: true
   },
@@ -270,7 +285,7 @@ export const EVM_DEFAULT_NETWORKS: NonEmptyArray<StoredEvmNetwork> = [
     name: 'Polygon',
     chain: TempleChainKind.EVM,
     chainId: COMMON_MAINNET_CHAIN_IDS.polygon,
-    rpcBaseURL: EVM_FALLBACK_RPC_URLS[COMMON_MAINNET_CHAIN_IDS.polygon][0],
+    rpcBaseURL: EVM_FALLBACK_RPC_URLS[COMMON_MAINNET_CHAIN_IDS.polygon][DEFAULT_RPC_INDEX],
     color: '#725ae8',
     default: true
   },
@@ -279,7 +294,7 @@ export const EVM_DEFAULT_NETWORKS: NonEmptyArray<StoredEvmNetwork> = [
     name: 'BSC',
     chain: TempleChainKind.EVM,
     chainId: COMMON_MAINNET_CHAIN_IDS.bsc,
-    rpcBaseURL: EVM_FALLBACK_RPC_URLS[COMMON_MAINNET_CHAIN_IDS.bsc][0],
+    rpcBaseURL: EVM_FALLBACK_RPC_URLS[COMMON_MAINNET_CHAIN_IDS.bsc][DEFAULT_RPC_INDEX],
     description: 'Binance Smart Chain Mainnet',
     color: '#f5d300',
     default: true
@@ -289,7 +304,7 @@ export const EVM_DEFAULT_NETWORKS: NonEmptyArray<StoredEvmNetwork> = [
     name: 'Avalanche',
     chain: TempleChainKind.EVM,
     chainId: COMMON_MAINNET_CHAIN_IDS.avalanche,
-    rpcBaseURL: EVM_FALLBACK_RPC_URLS[COMMON_MAINNET_CHAIN_IDS.avalanche][0],
+    rpcBaseURL: EVM_FALLBACK_RPC_URLS[COMMON_MAINNET_CHAIN_IDS.avalanche][DEFAULT_RPC_INDEX],
     color: '#ff5959',
     default: true
   },
@@ -298,7 +313,7 @@ export const EVM_DEFAULT_NETWORKS: NonEmptyArray<StoredEvmNetwork> = [
     name: 'Arbitrum',
     chain: TempleChainKind.EVM,
     chainId: COMMON_MAINNET_CHAIN_IDS.arbitrum,
-    rpcBaseURL: EVM_FALLBACK_RPC_URLS[COMMON_MAINNET_CHAIN_IDS.arbitrum][0],
+    rpcBaseURL: EVM_FALLBACK_RPC_URLS[COMMON_MAINNET_CHAIN_IDS.arbitrum][DEFAULT_RPC_INDEX],
     description: 'Arbitrum Mainnet',
     color: '#075de6',
     default: true
@@ -308,7 +323,7 @@ export const EVM_DEFAULT_NETWORKS: NonEmptyArray<StoredEvmNetwork> = [
     name: 'Optimism',
     chain: TempleChainKind.EVM,
     chainId: COMMON_MAINNET_CHAIN_IDS.optimism,
-    rpcBaseURL: EVM_FALLBACK_RPC_URLS[COMMON_MAINNET_CHAIN_IDS.optimism][0],
+    rpcBaseURL: EVM_FALLBACK_RPC_URLS[COMMON_MAINNET_CHAIN_IDS.optimism][DEFAULT_RPC_INDEX],
     description: 'Optimism',
     color: '#fc0000',
     default: true
@@ -318,7 +333,7 @@ export const EVM_DEFAULT_NETWORKS: NonEmptyArray<StoredEvmNetwork> = [
     name: 'Base',
     chain: TempleChainKind.EVM,
     chainId: COMMON_MAINNET_CHAIN_IDS.base,
-    rpcBaseURL: EVM_FALLBACK_RPC_URLS[COMMON_MAINNET_CHAIN_IDS.base][0],
+    rpcBaseURL: EVM_FALLBACK_RPC_URLS[COMMON_MAINNET_CHAIN_IDS.base][DEFAULT_RPC_INDEX],
     description: 'Base Mainnet',
     color: '#323ea8',
     default: true
@@ -338,7 +353,7 @@ export const EVM_DEFAULT_NETWORKS: NonEmptyArray<StoredEvmNetwork> = [
     name: 'Rootstock',
     chain: TempleChainKind.EVM,
     chainId: COMMON_MAINNET_CHAIN_IDS.rootstock,
-    rpcBaseURL: EVM_FALLBACK_RPC_URLS[COMMON_MAINNET_CHAIN_IDS.rootstock][0],
+    rpcBaseURL: EVM_FALLBACK_RPC_URLS[COMMON_MAINNET_CHAIN_IDS.rootstock][DEFAULT_RPC_INDEX],
     description: 'Rootstock Mainnet',
     color: '#000000',
     default: true
@@ -348,7 +363,7 @@ export const EVM_DEFAULT_NETWORKS: NonEmptyArray<StoredEvmNetwork> = [
     name: 'Ethereum Sepolia',
     chain: TempleChainKind.EVM,
     chainId: ETH_SEPOLIA_CHAIN_ID,
-    rpcBaseURL: EVM_FALLBACK_RPC_URLS[ETH_SEPOLIA_CHAIN_ID][0],
+    rpcBaseURL: EVM_FALLBACK_RPC_URLS[ETH_SEPOLIA_CHAIN_ID][DEFAULT_RPC_INDEX],
     color: '#010b79',
     default: true
   },
@@ -357,7 +372,7 @@ export const EVM_DEFAULT_NETWORKS: NonEmptyArray<StoredEvmNetwork> = [
     name: 'Ethereum Hoodi',
     chain: TempleChainKind.EVM,
     chainId: ETHEREUM_HOODI_CHAIN_ID,
-    rpcBaseURL: EVM_FALLBACK_RPC_URLS[ETHEREUM_HOODI_CHAIN_ID][0],
+    rpcBaseURL: EVM_FALLBACK_RPC_URLS[ETHEREUM_HOODI_CHAIN_ID][DEFAULT_RPC_INDEX],
     color: '#010b69',
     default: true
   },
@@ -366,7 +381,7 @@ export const EVM_DEFAULT_NETWORKS: NonEmptyArray<StoredEvmNetwork> = [
     name: 'Polygon Amoy',
     chain: TempleChainKind.EVM,
     chainId: COMMON_TESTNET_CHAIN_IDS.polygon,
-    rpcBaseURL: EVM_FALLBACK_RPC_URLS[COMMON_TESTNET_CHAIN_IDS.polygon][0],
+    rpcBaseURL: EVM_FALLBACK_RPC_URLS[COMMON_TESTNET_CHAIN_IDS.polygon][DEFAULT_RPC_INDEX],
     color: '#392f77',
     default: true
   },
@@ -375,7 +390,7 @@ export const EVM_DEFAULT_NETWORKS: NonEmptyArray<StoredEvmNetwork> = [
     name: 'BSC',
     chain: TempleChainKind.EVM,
     chainId: COMMON_TESTNET_CHAIN_IDS.bsc,
-    rpcBaseURL: EVM_FALLBACK_RPC_URLS[COMMON_TESTNET_CHAIN_IDS.bsc][0],
+    rpcBaseURL: EVM_FALLBACK_RPC_URLS[COMMON_TESTNET_CHAIN_IDS.bsc][DEFAULT_RPC_INDEX],
     description: 'Binance Smart Chain Testnet',
     color: '#867000',
     default: true
@@ -385,7 +400,7 @@ export const EVM_DEFAULT_NETWORKS: NonEmptyArray<StoredEvmNetwork> = [
     name: 'Avalanche Fuji',
     chain: TempleChainKind.EVM,
     chainId: COMMON_TESTNET_CHAIN_IDS.avalanche,
-    rpcBaseURL: EVM_FALLBACK_RPC_URLS[COMMON_TESTNET_CHAIN_IDS.avalanche][0],
+    rpcBaseURL: EVM_FALLBACK_RPC_URLS[COMMON_TESTNET_CHAIN_IDS.avalanche][DEFAULT_RPC_INDEX],
     description: 'Avalanche Testnet',
     color: '#812e2e',
     default: true
@@ -395,7 +410,7 @@ export const EVM_DEFAULT_NETWORKS: NonEmptyArray<StoredEvmNetwork> = [
     name: 'Arbitrum Sepolia',
     chain: TempleChainKind.EVM,
     chainId: COMMON_TESTNET_CHAIN_IDS.arbitrum,
-    rpcBaseURL: EVM_FALLBACK_RPC_URLS[COMMON_TESTNET_CHAIN_IDS.arbitrum][0],
+    rpcBaseURL: EVM_FALLBACK_RPC_URLS[COMMON_TESTNET_CHAIN_IDS.arbitrum][DEFAULT_RPC_INDEX],
     description: 'Arbitrum Testnet',
     color: '#0747ad',
     default: true
@@ -405,7 +420,7 @@ export const EVM_DEFAULT_NETWORKS: NonEmptyArray<StoredEvmNetwork> = [
     name: 'OP Sepolia',
     chain: TempleChainKind.EVM,
     chainId: COMMON_TESTNET_CHAIN_IDS.optimism,
-    rpcBaseURL: EVM_FALLBACK_RPC_URLS[COMMON_TESTNET_CHAIN_IDS.optimism][0],
+    rpcBaseURL: EVM_FALLBACK_RPC_URLS[COMMON_TESTNET_CHAIN_IDS.optimism][DEFAULT_RPC_INDEX],
     description: 'Optimism Testnet',
     color: '#fc0000',
     default: true
@@ -415,7 +430,7 @@ export const EVM_DEFAULT_NETWORKS: NonEmptyArray<StoredEvmNetwork> = [
     name: 'Base Sepolia',
     chain: TempleChainKind.EVM,
     chainId: COMMON_TESTNET_CHAIN_IDS.base,
-    rpcBaseURL: EVM_FALLBACK_RPC_URLS[COMMON_TESTNET_CHAIN_IDS.base][0],
+    rpcBaseURL: EVM_FALLBACK_RPC_URLS[COMMON_TESTNET_CHAIN_IDS.base][DEFAULT_RPC_INDEX],
     description: 'Base Testnet',
     color: '#1c2366',
     default: true
@@ -435,7 +450,7 @@ export const EVM_DEFAULT_NETWORKS: NonEmptyArray<StoredEvmNetwork> = [
     name: 'Rootstock',
     chain: TempleChainKind.EVM,
     chainId: COMMON_TESTNET_CHAIN_IDS.rootstock,
-    rpcBaseURL: EVM_FALLBACK_RPC_URLS[COMMON_TESTNET_CHAIN_IDS.rootstock][0],
+    rpcBaseURL: EVM_FALLBACK_RPC_URLS[COMMON_TESTNET_CHAIN_IDS.rootstock][DEFAULT_RPC_INDEX],
     description: 'Rootstock Testnet',
     color: '#000000',
     default: true
