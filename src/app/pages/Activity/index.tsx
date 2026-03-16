@@ -13,7 +13,7 @@ import {
   TezosActivityList,
   MultichainActivityList
 } from 'app/templates/activity';
-import { NetworkSelectModalContent } from 'app/templates/NetworkSelectModal';
+import { NetworkSelectContent } from 'app/templates/NetworkSelectContent';
 import { useBooleanState } from 'lib/ui/hooks';
 import { OneOfChains } from 'temple/front';
 
@@ -46,7 +46,7 @@ export const ActivityPage = memo(() => {
     >
       <PageModal title="Filter by Network" opened={filtersModalOpen} onRequestClose={setFiltersModalClosed}>
         {() => (
-          <NetworkSelectModalContent
+          <NetworkSelectContent
             opened={filtersModalOpen}
             selectedNetwork={filterChain}
             handleNetworkSelect={handleFilterChainSelect}
