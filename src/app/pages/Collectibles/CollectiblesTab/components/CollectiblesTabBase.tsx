@@ -9,7 +9,7 @@ import {
   VisibilityTrackingInfiniteScroll,
   VisibilityTrackingInfiniteScrollProps
 } from 'app/atoms/visibility-tracking-infinite-scroll';
-import { useAssetsViewState } from 'app/hooks/use-assets-view-state';
+import { useManageState } from 'app/hooks/use-assets-view-state';
 import { ContentContainer } from 'app/layouts/containers';
 import { EmptySection } from 'app/pages/Home/OtherComponents/Tokens/components/EmptySection';
 import { OneOfChains } from 'temple/front';
@@ -32,7 +32,7 @@ export const CollectiblesTabBase: FC<PropsWithChildren<CollectiblesTabBaseProps>
   network,
   children
 }) => {
-  const { manageActive } = useAssetsViewState();
+  const { manageActive } = useManageState();
 
   return (
     <FadeTransition>

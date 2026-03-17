@@ -1,7 +1,7 @@
 import { memo, Ref, useCallback } from 'react';
 
 import { useAccountCollectiblesListingLogic } from 'app/hooks/listing-logic/use-account-collectibles-listing-logic';
-import { useAssetsViewState } from 'app/hooks/use-assets-view-state';
+import { useManageState } from 'app/hooks/use-assets-view-state';
 import { useCollectiblesListOptionsSelector } from 'app/store/assets-filter-options/selectors';
 import { useMainnetTokensScamlistSelector } from 'app/store/tezos/assets/selectors';
 import { parseChainAssetSlug } from 'lib/assets/utils';
@@ -22,7 +22,7 @@ export const MultiChainCollectiblesTab = memo<MultiChainCollectiblesTabProps>(
     const { blur, showInfo } = useCollectiblesListOptionsSelector();
     const mainnetTokensScamSlugsRecord = useMainnetTokensScamlistSelector();
 
-    const { manageActive } = useAssetsViewState();
+    const { manageActive } = useManageState();
 
     const { isInSearchMode, paginatedSlugs, isSyncing, loadNext } = useAccountCollectiblesListingLogic(
       accountTezAddress,
