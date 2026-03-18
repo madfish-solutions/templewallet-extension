@@ -4,6 +4,7 @@ import { ChainId, Route as LiFiRoute } from '@lifi/sdk';
 import { isDefined } from '@rnw-community/shared';
 import BigNumber from 'bignumber.js';
 import { FormProvider, useForm } from 'react-hook-form';
+import { useDebounce } from 'use-debounce';
 
 import { DeadEndBoundaryError } from 'app/ErrorBoundary';
 import { useSwapFormControl } from 'app/pages/Swap/context';
@@ -139,6 +140,7 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
   const inputValue = watch('input');
   const outputValue = watch('output');
   const isFiatMode = watch('isFiatMode');
+  const [debouncedInputAmount] = useDebounce(inputValue.amount, 200);
 
   const { value: inputTokenBalance = ZERO } = useEvmAssetBalance(
     inputValue.assetSlug ?? EVM_TOKEN_SLUG,
@@ -378,21 +380,18 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
     void updateSwapRoute(params);
   }, [buildSwapRouteParams, updateSwapRoute]);
 
+  const getAndSetSwapRouteRef = useRef(getAndSetSwapRoute);
+  getAndSetSwapRouteRef.current = getAndSetSwapRoute;
+
   useEffect(() => {
-    if (!inputValue.amount || new BigNumber(inputValue.amount).isLessThanOrEqualTo(0)) {
+    if (!debouncedInputAmount || new BigNumber(debouncedInputAmount).isLessThanOrEqualTo(0)) {
       setSwapRoute(null);
       return;
     }
     if (sourceAssetInfo?.assetSlug && targetAssetInfo?.assetSlug) {
-      void getAndSetSwapRoute();
+      void getAndSetSwapRouteRef.current();
     }
-  }, [
-    inputValue.amount,
-    sourceAssetInfo?.assetSlug,
-    targetAssetInfo?.assetSlug,
-    slippageTolerance,
-    getAndSetSwapRoute
-  ]);
+  }, [debouncedInputAmount, sourceAssetInfo?.assetSlug, targetAssetInfo?.assetSlug, slippageTolerance]);
 
   useInterval(
     () => {
