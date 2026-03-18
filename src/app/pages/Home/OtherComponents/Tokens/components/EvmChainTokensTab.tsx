@@ -6,7 +6,7 @@ import {
   useEvmChainAccountTokensListingLogic
 } from 'app/hooks/listing-logic/use-evm-chain-account-tokens-listing-logic';
 import { usePreservedOrderSlugsToManage } from 'app/hooks/listing-logic/use-manageable-slugs';
-import { useAssetsViewState } from 'app/hooks/use-assets-view-state';
+import { useManageState } from 'app/hooks/use-assets-view-state';
 import { useTokensListOptionsSelector } from 'app/store/assets-filter-options/selectors';
 import { usePartnersPromotionModule } from 'app/templates/partners-promotion';
 import { EvmTokenListItem } from 'app/templates/TokenListItem';
@@ -36,7 +36,7 @@ export const EvmChainTokensTab = memo<Props>(({ chainId, publicKeyHash, accountI
 
   if (!network) throw new DeadEndBoundaryError();
 
-  const { manageActive } = useAssetsViewState();
+  const { manageActive } = useManageState();
   const contextValue = useMemo(() => ({ accountId, network, publicKeyHash }), [accountId, network, publicKeyHash]);
 
   return (

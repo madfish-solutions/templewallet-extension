@@ -16,7 +16,7 @@ export const ScrollBackUpButton = memo(() => {
       trailing: true
     });
 
-    document.addEventListener('scroll', listener);
+    document.addEventListener('scroll', listener, { passive: true });
 
     return () => document.removeEventListener('scroll', listener);
   }, []);

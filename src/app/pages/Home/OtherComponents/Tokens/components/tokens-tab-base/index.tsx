@@ -8,7 +8,7 @@ import {
   VisibilityTrackingInfiniteScroll,
   VisibilityTrackingInfiniteScrollProps
 } from 'app/atoms/visibility-tracking-infinite-scroll';
-import { useAssetsViewState } from 'app/hooks/use-assets-view-state';
+import { useManageState } from 'app/hooks/use-assets-view-state';
 import { ContentContainer } from 'app/layouts/containers';
 import BuyWithFiatImageSrc from 'app/misc/deposit/buy-with-fiat.png';
 import CrossChainSwapImageSrc from 'app/misc/deposit/cross-chain-swap.png';
@@ -37,7 +37,7 @@ export interface TokensTabBaseProps {
 }
 
 export const TokensTabBase: FC<PropsWithChildren<TokensTabBaseProps>> = ({ ...restProps }) => {
-  const { manageActive } = useAssetsViewState();
+  const { manageActive } = useManageState();
 
   return (
     <>
