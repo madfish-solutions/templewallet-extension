@@ -30,14 +30,14 @@ const LazyEarnTezPage = React.lazy(() => import('./pages/EarnTez').then(m => ({ 
 const LazyEarnEthPage = React.lazy(() => import('./pages/EarnEth').then(m => ({ default: m.EarnEthPage })));
 const LazyEarnTkeyPage = React.lazy(() => import('./pages/EarnTkey').then(m => ({ default: m.EarnTkeyPage })));
 const LazyChainSettings = React.lazy(() => import('./pages/ChainSettings').then(m => ({ default: m.ChainSettings })));
-const LazyAccountSettings = React.lazy(
-  () => import('./pages/AccountSettings').then(m => ({ default: m.AccountSettings }))
+const LazyAccountSettings = React.lazy(() =>
+  import('./pages/AccountSettings').then(m => ({ default: m.AccountSettings }))
 );
-const LazyDebitCreditCard = React.lazy(
-  () => import('./pages/Buy/DebitCreditCard').then(m => ({ default: m.DebitCreditCard }))
+const LazyDebitCreditCard = React.lazy(() =>
+  import('./pages/Buy/DebitCreditCard').then(m => ({ default: m.DebitCreditCard }))
 );
-const LazyCryptoExchange = React.lazy(
-  () => import('./pages/Buy/CryptoExchange').then(m => ({ default: m.CryptoExchange }))
+const LazyCryptoExchange = React.lazy(() =>
+  import('./pages/Buy/CryptoExchange').then(m => ({ default: m.CryptoExchange }))
 );
 const LazyRewardsPage = React.lazy(() => import('./pages/Rewards').then(m => ({ default: m.RewardsPage })));
 const LazyImportWallet = React.lazy(() => import('./pages/ImportWallet').then(m => ({ default: m.ImportWallet })));
@@ -108,7 +108,10 @@ const ROUTE_MAP = Woozie.createMap<RouteContext>([
   ],
   ['/swap', onlyReady(() => lazily(<LazySwap />))],
   ['/earn', onlyReady(() => lazily(<LazyEarn />))],
-  ['/earn-tez/:tezosChainId', onlyReady(({ tezosChainId }) => lazily(<LazyEarnTezPage tezosChainId={tezosChainId!} />))],
+  [
+    '/earn-tez/:tezosChainId',
+    onlyReady(({ tezosChainId }) => lazily(<LazyEarnTezPage tezosChainId={tezosChainId!} />))
+  ],
   ['/earn-tkey', onlyReady(() => lazily(<LazyEarnTkeyPage />))],
   ['/earn-eth', onlyReady(() => lazily(<LazyEarnEthPage />))],
   [
