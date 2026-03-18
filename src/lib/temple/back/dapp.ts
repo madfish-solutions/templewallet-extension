@@ -108,6 +108,8 @@ export async function requestPermission(
       handleIntercomRequest: async (confirmReq, decline) => {
         if (confirmReq?.type === TempleMessageType.DAppPermConfirmationRequest && confirmReq?.id === id) {
           const { confirmed, accountPublicKeyHash, accountPublicKey } = confirmReq;
+          const shouldKeepConfirmationWindowOpen = Boolean(confirmed && accountPublicKeyHash && accountPublicKey);
+
           if (confirmed && accountPublicKeyHash && accountPublicKey) {
             await setDApp(origin, {
               network: req.network,
@@ -131,7 +133,8 @@ export async function requestPermission(
           }
 
           return {
-            type: TempleMessageType.DAppPermConfirmationResponse
+            type: TempleMessageType.DAppPermConfirmationResponse,
+            keepConfirmationWindowOpen: shouldKeepConfirmationWindowOpen
           };
         }
         return undefined;
@@ -238,7 +241,8 @@ const handleIntercomRequest = async (
     }
 
     return {
-      type: TempleMessageType.DAppOpsConfirmationResponse
+      type: TempleMessageType.DAppOpsConfirmationResponse,
+      keepConfirmationWindowOpen: confirmed
     };
   }
   return undefined;
@@ -324,6 +328,8 @@ const generatePromisifySign = async (resolve: any, reject: any, dApp: TezosDAppS
     },
     handleIntercomRequest: async (confirmReq, decline) => {
       if (confirmReq?.type === TempleMessageType.DAppSignConfirmationRequest && confirmReq?.id === id) {
+        const shouldKeepConfirmationWindowOpen = Boolean(confirmReq.confirmed);
+
         if (confirmReq.confirmed) {
           const { prefixSig: signature } = await withUnlocked(({ vault }) => vault.sign(dApp.pkh, req.payload));
           resolve({
@@ -335,7 +341,8 @@ const generatePromisifySign = async (resolve: any, reject: any, dApp: TezosDAppS
         }
 
         return {
-          type: TempleMessageType.DAppSignConfirmationResponse
+          type: TempleMessageType.DAppSignConfirmationResponse,
+          keepConfirmationWindowOpen: shouldKeepConfirmationWindowOpen
         };
       }
       return undefined;

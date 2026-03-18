@@ -11,6 +11,7 @@ interface FadeTransitionProps extends PropsWithChildren {
   className?: string;
   hideOnExit?: boolean;
   unmountOnExit?: boolean;
+  elementTransition?: boolean;
 }
 
 export const FadeTransition: FC<FadeTransitionProps> = ({
@@ -19,6 +20,7 @@ export const FadeTransition: FC<FadeTransitionProps> = ({
   className,
   hideOnExit = false,
   unmountOnExit,
+  elementTransition,
   children
 }) => {
   const nodeRef = useRef(null);
@@ -41,7 +43,7 @@ export const FadeTransition: FC<FadeTransitionProps> = ({
       classNames={transitionClassNames}
       unmountOnExit={unmountOnExit}
     >
-      <div ref={nodeRef} className={clsx('flex flex-col h-full', className)}>
+      <div ref={nodeRef} className={clsx(!elementTransition && 'flex flex-col h-full', className)}>
         {children}
       </div>
     </CSSTransition>
