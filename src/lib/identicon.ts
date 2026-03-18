@@ -22,7 +22,7 @@ function buildImageIdenticonUriLocal<T extends IdenticonImgType>(
   type: T,
   options?: ImageIdenticonOptions<T>
 ) {
-  if (type === 'botttsneutral') return createAvatar(botttsNeutral, { seed: hash, size, ...options }).toDataUriSync();
+  if (type === 'botttsneutral') return createAvatar(botttsNeutral, { seed: hash, size, ...options }).toDataUri();
 
   // TODO: implement options interpretation for jdenticon
   return `data:image/svg+xml,${encodeURIComponent(jdenticon.toSvg(hash, size))}`;
@@ -37,7 +37,7 @@ export const buildInitialsIdenticonUri = memoizee(
       seed,
       fontFamily: ['Menlo', 'Monaco', 'monospace'],
       fontSize: estimateOptimalFontSize(options?.chars ?? 2)
-    }).toDataUriSync(),
+    }).toDataUri(),
   {
     max: 1024,
     normalizer: ([seed, options]) => JSON.stringify([seed, options])
