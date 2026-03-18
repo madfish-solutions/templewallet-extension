@@ -246,6 +246,6 @@
     "serialize-javascript": "^7.0.3"
   },
   "optionalDependencies": {
-    "@temple-wallet/extension-ads": "^15.0.3"
+    "@temple-wallet/extension-ads": "^16.0.0"
   }
 }

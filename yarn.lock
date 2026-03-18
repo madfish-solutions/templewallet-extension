@@ -3301,10 +3301,10 @@
   resolved "https://registry.yarnpkg.com/@temple-wallet/everstake-wallet-sdk/-/everstake-wallet-sdk-5.0.1.tgz#cf6785866d0f3ba4cee1eb2ab649040180df45fe"
   integrity sha512-WJn1BEKRPYQNMUR9qZQ7TD6lzliUsNfYexRpjbFT1k6tUiCBXd7YWQsPJ8iItMdVyeWLyuP5Ao1UESriE8Jkwg==
 
-"@temple-wallet/extension-ads@^15.0.3":
-  version "15.0.3"
-  resolved "https://registry.yarnpkg.com/@temple-wallet/extension-ads/-/extension-ads-15.0.3.tgz#33dff7a897e3ec768fcdeb55a92f1d6ef55beacb"
-  integrity sha512-TV8Nk3+SaIYhHE8jnK8873nVAjuy70n8hgxxrAxGeDJK73syd3n2Ayxp2RSxfOkPtDIsyJHVijfCjgVkTZ6rgg==
+"@temple-wallet/extension-ads@^16.0.0":
+  version "16.0.0"
+  resolved "https://registry.yarnpkg.com/@temple-wallet/extension-ads/-/extension-ads-16.0.0.tgz#98597aee8c6a611cb84a4230d6191611ca620adf"
+  integrity sha512-Bdx8QkeiT6tgxhYwOogEtatrW4lJg9WLLiFYmzDfdiyzDRvhfn0ELk+sd2DLQQiiL1kLFHwO+B/vW9LQJ97sAA==
   dependencies:
     axios "^1.8.4"
     crypto-js "^4.2.0"
