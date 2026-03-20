@@ -207,7 +207,7 @@
     "use-force-update": "1.0.7",
     "util": "0.11.1",
     "uuid": "^11.0.3",
-    "viem": "^2.44.0",
+    "viem": "^2.47.2",
     "vm-browserify": "^1.1.2",
     "wasm-themis": "0.14.6",
     "webextension-polyfill": "^0.10.0",
