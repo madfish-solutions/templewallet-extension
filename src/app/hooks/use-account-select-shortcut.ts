@@ -36,7 +36,7 @@ export const useAccountSelectShortcut = () => {
   const { opened, setOpened } = useShortcutAccountSelectModalIsOpened();
   const { value: accountsModalIsOpen } = useSearchParamsBoolean('accountsModal');
 
-  const handleShortcutPress = useEffectEvent((e: KeyboardEvent) => {
+  useKeyboardShortcut(e => {
     if (e.key !== ACCOUNT_SELECT_HOTKEY.key) return;
 
     e.preventDefault();
@@ -44,9 +44,7 @@ export const useAccountSelectShortcut = () => {
     if (accountsModalIsOpen) return;
 
     setOpened(prev => !prev);
-  });
-
-  useKeyboardShortcut(handleShortcutPress, ACCOUNT_SELECT_HOTKEY.modifierKey);
+  }, ACCOUNT_SELECT_HOTKEY.modifierKey);
 
   return { opened, setOpened };
 };
