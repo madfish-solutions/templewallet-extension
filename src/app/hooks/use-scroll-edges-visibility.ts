@@ -47,7 +47,7 @@ export const useScrollEdgesVisibility = (
       const mutationObserver = new MutationObserver(updateEdgesVisibility);
       resizeObserver.observe(element);
       mutationObserver.observe(element, { childList: true, subtree: true });
-      element.addEventListener('scroll', updateEdgesVisibility);
+      element.addEventListener('scroll', updateEdgesVisibility, { passive: true });
 
       return () => {
         resizeObserver.disconnect();

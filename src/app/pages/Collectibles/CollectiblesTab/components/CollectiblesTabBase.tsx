@@ -4,7 +4,6 @@ import { FadeTransition } from 'app/a11y/FadeTransition';
 import { SyncSpinner } from 'app/atoms';
 import { AddCustomTokenButton } from 'app/atoms/AddCustomTokenButton';
 import { PageLoader } from 'app/atoms/Loader';
-import { ScrollBackUpButton } from 'app/atoms/ScrollBackUpButton';
 import {
   VisibilityTrackingInfiniteScroll,
   VisibilityTrackingInfiniteScrollProps
@@ -66,8 +65,6 @@ export const CollectiblesTabBase: FC<PropsWithChildren<CollectiblesTabBaseProps>
             )}
 
             {isSyncing && <SyncSpinner className="mt-6" />}
-
-            <ScrollBackUpButton />
           </>
         )}
       </ContentContainer>
