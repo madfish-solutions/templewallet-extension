@@ -133,30 +133,22 @@ export const makeUseChainKindAccountTokensListingLogic = <T extends TempleChainK
           : paginatedSlugs,
       [isInSearchMode, paginatedSlugs, allSlugsSorted, searchValueDebounced, getMetadata]
     );
-    const displayedGroupedSlugs = useMemo(
-      () => {
-        if (!isInSearchMode) {
-          return paginatedSlugsGroups;
+    const displayedGroupedSlugs = useMemo(() => {
+      if (!isInSearchMode) return paginatedSlugsGroups;
+      if (!allSlugsSortedGrouped) return null;
+
+      const result: [ChainId<T>, string[]][] = [];
+
+      for (const [chainId, slugs] of allSlugsSortedGrouped) {
+        const filteredSlugs = searchTokensWithNoMeta(searchValueDebounced, slugs, getMetadata, getSlugWithChainId);
+
+        if (filteredSlugs.length > 0) {
+          result.push([chainId, filteredSlugs]);
         }
+      }
 
-        if (!allSlugsSortedGrouped) {
-          return null;
-        }
-
-        const result: [ChainId<T>, string[]][] = [];
-
-        for (const [chainId, slugs] of allSlugsSortedGrouped) {
-          const filteredSlugs = searchTokensWithNoMeta(searchValueDebounced, slugs, getMetadata, getSlugWithChainId);
-
-          if (filteredSlugs.length > 0) {
-            result.push([chainId, filteredSlugs]);
-          }
-        }
-
-        return result;
-      },
-      [allSlugsSortedGrouped, getMetadata, isInSearchMode, paginatedSlugsGroups, searchValueDebounced]
-    );
+      return result;
+    }, [allSlugsSortedGrouped, getMetadata, isInSearchMode, paginatedSlugsGroups, searchValueDebounced]);
 
     return {
       isInSearchMode,

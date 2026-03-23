@@ -75,26 +75,23 @@ export const useAccountTokensForListing = (
     [enabledEvmChains, enabledTezChains]
   );
 
-  const enabledChainsSlugs = useMemo(
-    () => {
-      const result = [...gasChainsSlugs];
+  const enabledChainsSlugs = useMemo(() => {
+    const result = [...gasChainsSlugs];
 
-      for (const { chainId, slug, status } of tezTokens) {
-        if (status === 'enabled') {
-          result.push(toChainAssetSlug(TempleChainKind.Tezos, chainId, slug));
-        }
+    for (const { chainId, slug, status } of tezTokens) {
+      if (status === 'enabled') {
+        result.push(toChainAssetSlug(TempleChainKind.Tezos, chainId, slug));
       }
+    }
 
-      for (const { chainId, slug, status } of evmTokens) {
-        if (status === 'enabled') {
-          result.push(toChainAssetSlug(TempleChainKind.EVM, chainId, slug));
-        }
+    for (const { chainId, slug, status } of evmTokens) {
+      if (status === 'enabled') {
+        result.push(toChainAssetSlug(TempleChainKind.EVM, chainId, slug));
       }
+    }
 
-      return result;
-    },
-    [evmTokens, gasChainsSlugs, tezTokens]
-  );
+    return result;
+  }, [evmTokens, gasChainsSlugs, tezTokens]);
 
   const enabledChainsSlugsSorted = useMemoWithCompare(() => {
     const enabledChainsSlugsFiltered = filterSmallBalances
@@ -171,37 +168,36 @@ export const useAccountTokensListingLogic = (
         : paginatedSlugs,
     [isInSearchMode, searchValueDebounced, allSlugsSorted, getTezMetadata, getEvmMetadata, paginatedSlugs]
   );
-  const displayedGroupedSlugs = useMemo(
-    () => {
-      if (!isInSearchMode) {
-        return paginatedSlugsGroups;
+  const displayedGroupedSlugs = useMemo(() => {
+    if (!isInSearchMode) return paginatedSlugsGroups;
+    if (!allSlugsSortedGrouped) return null;
+
+    const result: [string | number, string[]][] = [];
+
+    for (const [chainId, slugs] of allSlugsSortedGrouped) {
+      const filteredSlugs = searchAssetsWithNoMeta(
+        searchValueDebounced,
+        slugs,
+        getTezMetadata,
+        getEvmMetadata,
+        slug => slug,
+        getSlugFromChainSlug
+      );
+
+      if (filteredSlugs.length > 0) {
+        result.push([chainId, filteredSlugs]);
       }
+    }
 
-      if (!allSlugsSortedGrouped) {
-        return null;
-      }
-
-      const result: [string | number, string[]][] = [];
-
-      for (const [chainId, slugs] of allSlugsSortedGrouped) {
-        const filteredSlugs = searchAssetsWithNoMeta(
-          searchValueDebounced,
-          slugs,
-          getTezMetadata,
-          getEvmMetadata,
-          slug => slug,
-          getSlugFromChainSlug
-        );
-
-        if (filteredSlugs.length > 0) {
-          result.push([chainId, filteredSlugs]);
-        }
-      }
-
-      return result;
-    },
-    [allSlugsSortedGrouped, getEvmMetadata, getTezMetadata, isInSearchMode, paginatedSlugsGroups, searchValueDebounced]
-  );
+    return result;
+  }, [
+    allSlugsSortedGrouped,
+    getEvmMetadata,
+    getTezMetadata,
+    isInSearchMode,
+    paginatedSlugsGroups,
+    searchValueDebounced
+  ]);
 
   return {
     isInSearchMode,
