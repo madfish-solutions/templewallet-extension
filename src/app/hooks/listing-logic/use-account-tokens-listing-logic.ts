@@ -98,7 +98,7 @@ export const useAccountTokensForListing = (
       ? enabledChainsSlugs.filter(isBigBalance)
       : enabledChainsSlugs;
 
-    return enabledChainsSlugsFiltered.sort(tokensSortPredicate);
+    return enabledChainsSlugsFiltered.toSorted(tokensSortPredicate);
   }, [enabledChainsSlugs, filterSmallBalances, isBigBalance, tokensSortPredicate]);
 
   const enabledChainsSlugsSortedGrouped = useMemoWithCompare(() => {
