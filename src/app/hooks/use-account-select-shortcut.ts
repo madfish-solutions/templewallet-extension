@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useEffectEvent, useState } from 'react';
 
 import constate from 'constate';
 
@@ -19,12 +19,13 @@ const [ShortcutAccountSelectStateProvider, useShortcutAccountSelectState] = cons
 
 export { ShortcutAccountSelectStateProvider };
 
-export const useShortcutAccountSelectModalIsOpened = (handleModalOpen?: () => void) => {
+export const useShortcutAccountSelectModalIsOpened = (handleModalOpen?: EmptyFn) => {
   const { opened, setOpened } = useShortcutAccountSelectState();
+  const onModalOpen = useEffectEvent(() => handleModalOpen?.());
 
   useEffect(() => {
-    if (opened && handleModalOpen) {
-      handleModalOpen();
+    if (opened) {
+      onModalOpen();
     }
   }, [opened]);
 
@@ -35,18 +36,15 @@ export const useAccountSelectShortcut = () => {
   const { opened, setOpened } = useShortcutAccountSelectModalIsOpened();
   const { value: accountsModalIsOpen } = useSearchParamsBoolean('accountsModal');
 
-  const handleShortcutPress = useCallback(
-    (e: KeyboardEvent) => {
-      if (e.key !== ACCOUNT_SELECT_HOTKEY.key) return;
+  const handleShortcutPress = useEffectEvent((e: KeyboardEvent) => {
+    if (e.key !== ACCOUNT_SELECT_HOTKEY.key) return;
 
-      e.preventDefault();
+    e.preventDefault();
 
-      if (accountsModalIsOpen) return;
+    if (accountsModalIsOpen) return;
 
-      setOpened(prev => !prev);
-    },
-    [accountsModalIsOpen]
-  );
+    setOpened(prev => !prev);
+  });
 
   useKeyboardShortcut(handleShortcutPress, ACCOUNT_SELECT_HOTKEY.modifierKey);
 
