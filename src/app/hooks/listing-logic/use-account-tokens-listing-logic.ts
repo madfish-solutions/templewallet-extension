@@ -76,18 +76,23 @@ export const useAccountTokensForListing = (
   );
 
   const enabledChainsSlugs = useMemo(
-    () =>
-      gasChainsSlugs
-        .concat(
-          tezTokens
-            .filter(({ status }) => status === 'enabled')
-            .map(({ chainId, slug }) => toChainAssetSlug(TempleChainKind.Tezos, chainId, slug))
-        )
-        .concat(
-          evmTokens
-            .filter(({ status }) => status === 'enabled')
-            .map(({ chainId, slug }) => toChainAssetSlug(TempleChainKind.EVM, chainId, slug))
-        ),
+    () => {
+      const result = [...gasChainsSlugs];
+
+      for (const { chainId, slug, status } of tezTokens) {
+        if (status === 'enabled') {
+          result.push(toChainAssetSlug(TempleChainKind.Tezos, chainId, slug));
+        }
+      }
+
+      for (const { chainId, slug, status } of evmTokens) {
+        if (status === 'enabled') {
+          result.push(toChainAssetSlug(TempleChainKind.EVM, chainId, slug));
+        }
+      }
+
+      return result;
+    },
     [evmTokens, gasChainsSlugs, tezTokens]
   );
 
@@ -167,22 +172,34 @@ export const useAccountTokensListingLogic = (
     [isInSearchMode, searchValueDebounced, allSlugsSorted, getTezMetadata, getEvmMetadata, paginatedSlugs]
   );
   const displayedGroupedSlugs = useMemo(
-    () =>
-      isInSearchMode
-        ? (allSlugsSortedGrouped
-            ?.map(([chainId, slugs]): [string | number, string[]] => [
-              chainId,
-              searchAssetsWithNoMeta(
-                searchValueDebounced,
-                slugs,
-                getTezMetadata,
-                getEvmMetadata,
-                slug => slug,
-                getSlugFromChainSlug
-              )
-            ])
-            .filter(([, slugs]) => slugs.length > 0) ?? null)
-        : paginatedSlugsGroups,
+    () => {
+      if (!isInSearchMode) {
+        return paginatedSlugsGroups;
+      }
+
+      if (!allSlugsSortedGrouped) {
+        return null;
+      }
+
+      const result: [string | number, string[]][] = [];
+
+      for (const [chainId, slugs] of allSlugsSortedGrouped) {
+        const filteredSlugs = searchAssetsWithNoMeta(
+          searchValueDebounced,
+          slugs,
+          getTezMetadata,
+          getEvmMetadata,
+          slug => slug,
+          getSlugFromChainSlug
+        );
+
+        if (filteredSlugs.length > 0) {
+          result.push([chainId, filteredSlugs]);
+        }
+      }
+
+      return result;
+    },
     [allSlugsSortedGrouped, getEvmMetadata, getTezMetadata, isInSearchMode, paginatedSlugsGroups, searchValueDebounced]
   );
 
