@@ -71,14 +71,14 @@ export const YourRewardsCards = memo(() => {
   const tkeyMeta = PREDEFINED_TOKENS_METADATA[TempleTezosChainId.Mainnet]?.find(t => t.symbol === 'TKEY');
   const tkeyDecimals = useMemo(() => Number(tkeyMeta?.decimals ?? 18), [tkeyMeta]);
 
-  const [isTkeyLoading, startTkeyLoadingTransition] = useTransition();
+  const [isTkeyLoading, startTkeyLoading] = useTransition();
 
   useEffect(() => {
     if (!account || !tkeyMeta || tkeyStats) {
       return;
     }
 
-    startTkeyLoadingTransition(async () => {
+    startTkeyLoading(async () => {
       try {
         const transfers = await fetchTokenTransfers(TempleTezosChainId.Mainnet, {
           'sort.desc': 'id',
@@ -92,11 +92,11 @@ export const YourRewardsCards = memo(() => {
         const lastAmount = transfers[0] ? Number(transfers[0].amount) / 10 ** tkeyDecimals : undefined;
 
         setTkeyStats({ monthKey, total, lastAmount });
-      } catch {
-        // Keep the empty-state UI when rewards stats cannot be fetched.
+      } catch (err) {
+        console.log('Failed to load Tkey stats: ', err);
       }
     });
-  }, [account, monthKey, setTkeyStats, startTkeyLoadingTransition, tkeyDecimals, tezosMainnet.chainId, tkeyMeta, tkeyStats]);
+  }, [account, monthKey, setTkeyStats, startTkeyLoading, tkeyDecimals, tezosMainnet.chainId, tkeyMeta, tkeyStats]);
 
   const bakeryRewardsStorageKey = useMemo(
     () => `tkey_bakery_rewards_stats:${tezosMainnet.chainId}:${account?.address ?? 'unknown'}:${monthKey}`,
@@ -109,8 +109,8 @@ export const YourRewardsCards = memo(() => {
     lastAmount?: number;
   }>(bakeryRewardsStorageKey, null);
 
-  const [isBakeryLoading, startBakeryLoadingTransition] = useTransition();
-  const [isDelegating, startDelegationTransition] = useTransition();
+  const [isBakeryLoading, startBakeryLoading] = useTransition();
+  const [isDelegating, startDelegation] = useTransition();
 
   const { data: myBakerPkh, mutate: updateBakerPkh } = useDelegate(account?.address ?? '', tezosMainnet, false, true);
   const delegatedToTemple = myBakerPkh === TEMPLE_BAKER_ADDRESS;
@@ -120,7 +120,7 @@ export const YourRewardsCards = memo(() => {
       return;
     }
 
-    startBakeryLoadingTransition(async () => {
+    startBakeryLoading(async () => {
       try {
         const transfers = await fetchTokenTransfers(TempleTezosChainId.Mainnet, {
           'sort.desc': 'id',
@@ -134,8 +134,8 @@ export const YourRewardsCards = memo(() => {
         const lastAmount = transfers[0] ? Number(transfers[0].amount) / 10 ** tkeyDecimals : undefined;
 
         setBakeryStats({ monthKey, total, lastAmount });
-      } catch {
-        // Keep the empty-state UI when bakery rewards cannot be fetched.
+      } catch (err) {
+        console.error('Failed to load bakery stats: ', err);
       }
     });
   }, [
@@ -143,7 +143,7 @@ export const YourRewardsCards = memo(() => {
     bakeryStats,
     monthKey,
     setBakeryStats,
-    startBakeryLoadingTransition,
+    startBakeryLoading,
     tkeyDecimals,
     tezosMainnet.chainId,
     tkeyMeta
@@ -151,7 +151,7 @@ export const YourRewardsCards = memo(() => {
 
   const handleDelegationSuccess = useCallback(
     (opHash: string) => {
-      startDelegationTransition(async () => {
+      startDelegation(async () => {
         try {
           await confirmTezosOperation(getTezosReadOnlyRpcClient(tezosMainnet), opHash, 2);
           await updateBakerPkh();
@@ -160,7 +160,7 @@ export const YourRewardsCards = memo(() => {
         }
       });
     },
-    [startDelegationTransition, tezosMainnet, updateBakerPkh]
+    [startDelegation, tezosMainnet, updateBakerPkh]
   );
 
   const handleEarnTezClick = useCallback(() => {
