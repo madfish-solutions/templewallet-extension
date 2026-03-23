@@ -1,4 +1,4 @@
-import { memo, useCallback, useEffect, useMemo, useState } from 'react';
+import { memo, useCallback, useEffect, useMemo, useState, useTransition } from 'react';
 
 import clsx from 'clsx';
 
@@ -71,21 +71,15 @@ export const YourRewardsCards = memo(() => {
   const tkeyMeta = PREDEFINED_TOKENS_METADATA[TempleTezosChainId.Mainnet]?.find(t => t.symbol === 'TKEY');
   const tkeyDecimals = useMemo(() => Number(tkeyMeta?.decimals ?? 18), [tkeyMeta]);
 
-  const [isTkeyLoading, setIsTkeyLoading] = useState(false);
+  const [isTkeyLoading, startTkeyLoadingTransition] = useTransition();
 
   useEffect(() => {
-    (async () => {
-      if (!account || !tkeyMeta) {
-        setIsTkeyLoading(false);
-        return;
-      }
-      if (tkeyStats) {
-        setIsTkeyLoading(false);
-        return;
-      }
+    if (!account || !tkeyMeta || tkeyStats) {
+      return;
+    }
 
+    startTkeyLoadingTransition(async () => {
       try {
-        setIsTkeyLoading(true);
         const transfers = await fetchTokenTransfers(TempleTezosChainId.Mainnet, {
           'sort.desc': 'id',
           to: account.address,
@@ -99,11 +93,10 @@ export const YourRewardsCards = memo(() => {
 
         setTkeyStats({ monthKey, total, lastAmount });
       } catch {
-      } finally {
-        setIsTkeyLoading(false);
+        // Keep the empty-state UI when rewards stats cannot be fetched.
       }
-    })();
-  }, [account, monthKey, setTkeyStats, tkeyDecimals, tezosMainnet.chainId, tkeyMeta, tkeyStats]);
+    });
+  }, [account, monthKey, setTkeyStats, startTkeyLoadingTransition, tkeyDecimals, tezosMainnet.chainId, tkeyMeta, tkeyStats]);
 
   const bakeryRewardsStorageKey = useMemo(
     () => `tkey_bakery_rewards_stats:${tezosMainnet.chainId}:${account?.address ?? 'unknown'}:${monthKey}`,
@@ -116,25 +109,19 @@ export const YourRewardsCards = memo(() => {
     lastAmount?: number;
   }>(bakeryRewardsStorageKey, null);
 
-  const [isBakeryLoading, setIsBakeryLoading] = useState(false);
-  const [isDelegating, setIsDelegating] = useState(false);
+  const [isBakeryLoading, startBakeryLoadingTransition] = useTransition();
+  const [isDelegating, startDelegationTransition] = useTransition();
 
   const { data: myBakerPkh, mutate: updateBakerPkh } = useDelegate(account?.address ?? '', tezosMainnet, false, true);
   const delegatedToTemple = myBakerPkh === TEMPLE_BAKER_ADDRESS;
 
   useEffect(() => {
-    (async () => {
-      if (!account || !tkeyMeta) {
-        setIsBakeryLoading(false);
-        return;
-      }
-      if (bakeryStats) {
-        setIsBakeryLoading(false);
-        return;
-      }
+    if (!account || !tkeyMeta || bakeryStats) {
+      return;
+    }
 
+    startBakeryLoadingTransition(async () => {
       try {
-        setIsBakeryLoading(true);
         const transfers = await fetchTokenTransfers(TempleTezosChainId.Mainnet, {
           'sort.desc': 'id',
           to: account.address,
@@ -148,22 +135,32 @@ export const YourRewardsCards = memo(() => {
 
         setBakeryStats({ monthKey, total, lastAmount });
       } catch {
-      } finally {
-        setIsBakeryLoading(false);
+        // Keep the empty-state UI when bakery rewards cannot be fetched.
       }
-    })();
-  }, [account, monthKey, setBakeryStats, tkeyDecimals, tezosMainnet.chainId, tkeyMeta, bakeryStats]);
+    });
+  }, [
+    account,
+    bakeryStats,
+    monthKey,
+    setBakeryStats,
+    startBakeryLoadingTransition,
+    tkeyDecimals,
+    tezosMainnet.chainId,
+    tkeyMeta
+  ]);
 
   const handleDelegationSuccess = useCallback(
     (opHash: string) => {
-      setIsDelegating(true);
-
-      confirmTezosOperation(getTezosReadOnlyRpcClient(tezosMainnet), opHash, 2)
-        .then(() => updateBakerPkh())
-        .catch(err => console.error('Failed to confirm successful delegation: ', err))
-        .finally(() => setIsDelegating(false));
+      startDelegationTransition(async () => {
+        try {
+          await confirmTezosOperation(getTezosReadOnlyRpcClient(tezosMainnet), opHash, 2);
+          await updateBakerPkh();
+        } catch (err) {
+          console.error('Failed to confirm successful delegation: ', err);
+        }
+      });
     },
-    [updateBakerPkh, tezosMainnet]
+    [startDelegationTransition, tezosMainnet, updateBakerPkh]
   );
 
   const handleEarnTezClick = useCallback(() => {
