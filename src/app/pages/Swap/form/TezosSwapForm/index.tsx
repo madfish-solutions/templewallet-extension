@@ -72,7 +72,6 @@ interface TezosSwapFormProps {
   onReview: SyncFn<TezosReviewData>;
   onSelectAssetClick: SyncFn<SwapFieldName>;
   selectedChainAssets: { from: string | null; to: string | null };
-  activeField: SwapFieldName;
   handleToggleIconClick: EmptyFn;
 }
 
@@ -81,7 +80,6 @@ export const TezosSwapForm: FC<TezosSwapFormProps> = ({
   onReview,
   onSelectAssetClick,
   selectedChainAssets,
-  activeField,
   handleToggleIconClick
 }) => {
   const account = useAccountForTezos();
@@ -301,29 +299,6 @@ export const TezosSwapForm: FC<TezosSwapFormProps> = ({
 
   const resetForm = useCallback(() => void reset(defaultValues), [defaultValues, reset]);
 
-  useEffect(() => {
-    if (!swapFormControl) return;
-    const next = {
-      ...(swapFormControl.current ?? {}),
-      resetForm,
-      setTezosOperation: setOperation
-    };
-    swapFormControl.current = next;
-
-    return () => {
-      if (swapFormControl.current?.resetForm === resetForm) {
-        const updated = { ...(swapFormControl.current ?? {}) };
-        delete updated.resetForm;
-        swapFormControl.current = updated;
-      }
-      if (swapFormControl.current?.setTezosOperation === setOperation) {
-        const updated = { ...(swapFormControl.current ?? {}) };
-        delete updated.setTezosOperation;
-        swapFormControl.current = updated;
-      }
-    };
-  }, [swapFormControl, resetForm, setOperation]);
-
   const handleInputChange = useCallback(
     (newInputValue: SwapInputValue) => {
       const currentFormState = getValues();
@@ -355,6 +330,60 @@ export const TezosSwapForm: FC<TezosSwapFormProps> = ({
     },
     [clearErrors, dispatchLoadSwapParams, getValues, setValue]
   );
+
+  const handleSelectedAssetChange = useCallback(
+    (field: SwapFieldName, chainAssetSlug: string) => {
+      const [, chainId, assetSlug] = parseChainAssetSlug(chainAssetSlug);
+      const currentFormState = getValues();
+      const amount = field === 'input' ? currentFormState.input.amount : currentFormState.output.amount;
+
+      if (field === 'input') {
+        handleInputChange({
+          assetSlug,
+          chainId: chainId.toString(),
+          amount
+        });
+
+        return;
+      }
+
+      handleOutputChange({
+        assetSlug,
+        chainId: chainId.toString(),
+        amount
+      });
+    },
+    [getValues, handleInputChange, handleOutputChange]
+  );
+
+  useEffect(() => {
+    if (!swapFormControl) return;
+    const next = {
+      ...(swapFormControl.current ?? {}),
+      resetForm,
+      setTezosOperation: setOperation,
+      handleSelectedAssetChange
+    };
+    swapFormControl.current = next;
+
+    return () => {
+      if (swapFormControl.current?.resetForm === resetForm) {
+        const updated = { ...(swapFormControl.current ?? {}) };
+        delete updated.resetForm;
+        swapFormControl.current = updated;
+      }
+      if (swapFormControl.current?.setTezosOperation === setOperation) {
+        const updated = { ...(swapFormControl.current ?? {}) };
+        delete updated.setTezosOperation;
+        swapFormControl.current = updated;
+      }
+      if (swapFormControl.current?.handleSelectedAssetChange === handleSelectedAssetChange) {
+        const updated = { ...(swapFormControl.current ?? {}) };
+        delete updated.handleSelectedAssetChange;
+        swapFormControl.current = updated;
+      }
+    };
+  }, [handleSelectedAssetChange, swapFormControl, resetForm, setOperation]);
 
   useEffect(() => {
     const currentOutput = swapParams.data.output;
@@ -418,39 +447,6 @@ export const TezosSwapForm: FC<TezosSwapFormProps> = ({
       }
     }
   }, [handleInputChange, inputAssetPrice, inputTokenBalance, inputTokenMaxAmount, inputValue.assetSlug, isFiatMode]);
-
-  useEffect(() => {
-    const newAssetSlug = activeField === 'input' ? sourceAssetInfo?.assetSlug : targetAssetInfo?.assetSlug;
-    if (!newAssetSlug) return;
-    const newAssetMetadata = getTokenMetadata(newAssetSlug);
-    if (!newAssetMetadata) return;
-
-    const currentFormState = getValues();
-    const amount = activeField === 'input' ? currentFormState.input.amount : currentFormState.output.amount;
-
-    activeField === 'input'
-      ? handleInputChange({
-          assetSlug: newAssetSlug,
-          chainId: sourceAssetInfo?.chainId,
-          amount: amount
-        })
-      : handleOutputChange({
-          assetSlug: newAssetSlug,
-          chainId: targetAssetInfo?.chainId,
-          amount: amount
-        });
-  }, [
-    activeField,
-    getTokenMetadata,
-    getValues,
-    handleInputChange,
-    handleOutputChange,
-    isFiatMode,
-    sourceAssetInfo?.assetSlug,
-    sourceAssetInfo?.chainId,
-    targetAssetInfo?.assetSlug,
-    targetAssetInfo?.chainId
-  ]);
 
   const pendingTxHashes = usePendingTezosTransactionsHashes(publicKeyHash, network.chainId);
   const otherOperationsPending = pendingTxHashes.length > 0;
