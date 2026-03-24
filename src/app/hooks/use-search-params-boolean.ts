@@ -10,3 +10,6 @@ export const useSearchParamsBoolean = (paramName: string) => {
 
   return { value: rawValue === 'true', setTrue, setFalse };
 };
+
+export const readSearchParamsBoolean = (paramName: string) =>
+  new URLSearchParams(window.location.search).get(paramName) === 'true';

@@ -2,7 +2,7 @@ import { useEffect, useEffectEvent, useState } from 'react';
 
 import constate from 'constate';
 
-import { useSearchParamsBoolean } from 'app/hooks/use-search-params-boolean';
+import { readSearchParamsBoolean } from 'app/hooks/use-search-params-boolean';
 
 import { useKeyboardShortcut } from './use-keyboard-shortcut';
 
@@ -34,14 +34,13 @@ export const useShortcutAccountSelectModalIsOpened = (handleModalOpen?: EmptyFn)
 
 export const useAccountSelectShortcut = () => {
   const { opened, setOpened } = useShortcutAccountSelectModalIsOpened();
-  const { value: accountsModalIsOpen } = useSearchParamsBoolean('accountsModal');
 
   useKeyboardShortcut(e => {
     if (e.key !== ACCOUNT_SELECT_HOTKEY.key) return;
 
     e.preventDefault();
 
-    if (accountsModalIsOpen) return;
+    if (readSearchParamsBoolean('accountsModal')) return;
 
     setOpened(prev => !prev);
   }, ACCOUNT_SELECT_HOTKEY.modifierKey);
