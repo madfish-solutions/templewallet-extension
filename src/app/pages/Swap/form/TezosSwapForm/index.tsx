@@ -171,13 +171,6 @@ export const TezosSwapForm: FC<TezosSwapFormProps> = ({
   )!;
 
   const [operation, setOperation] = useState<BatchWalletOperation>();
-  const [isAlertVisible, setIsAlertVisible] = useState(false);
-
-  useEffect(() => {
-    if (isAlertVisible) {
-      toastError(t('noRoutesFound'));
-    }
-  }, [isAlertVisible]);
 
   const slippageRatio = useMemo(() => getPercentageRatio(slippageTolerance ?? 0), [slippageTolerance]);
 
@@ -196,6 +189,13 @@ export const TezosSwapForm: FC<TezosSwapFormProps> = ({
   const hopsAreAbsent = isLiquidityBakingParamsResponse(swapParams.data)
     ? swapParams.data.tzbtcHops.length === 0 && swapParams.data.xtzHops.length === 0
     : swapParams.data.hops.length === 0;
+  const shouldShowNoRoutesAlert = Number(swapParams.data.input) > 0 && hopsAreAbsent;
+
+  useEffect(() => {
+    if (shouldShowNoRoutesAlert) {
+      toastError(t('noRoutesFound'));
+    }
+  }, [shouldShowNoRoutesAlert]);
 
   const inputAssetPrice = useAssetFiatCurrencyPrice(inputValue.assetSlug ?? '', network.chainId);
   const outputAssetPrice = useAssetFiatCurrencyPrice(outputValue.assetSlug ?? '', network.chainId);
@@ -298,14 +298,6 @@ export const TezosSwapForm: FC<TezosSwapFormProps> = ({
     }
     prevBlockLevelRef.current = blockLevel;
   }, [blockLevel, dispatchLoadSwapParams, fromRoute3Token, inputValue, outputValue, toRoute3Token]);
-
-  useEffect(() => {
-    if (Number(swapParams.data.input) > 0 && hopsAreAbsent) {
-      setIsAlertVisible(true);
-    } else {
-      setIsAlertVisible(false);
-    }
-  }, [hopsAreAbsent, swapParams.data]);
 
   const resetForm = useCallback(() => void reset(defaultValues), [defaultValues, reset]);
 
