@@ -11,6 +11,7 @@
     "build-run:without-zip": "cross-env TS_NODE_PROJECT=\"webpack/tsconfig.json\" webpack && ts-node webpack/check-script.ts",
     "build-run": "run-s build-run:without-zip && ts-node webpack/zip-script.ts",
     "build": "cross-env NODE_ENV=production run-s build-run",
+    "build:core": "cross-env CORE_BUILD=true run-s build",
     "build:without-zip": "cross-env NODE_ENV=production run-s build-run:without-zip",
     "build-all": "run-s build:*",
     "build-all:core": "run-s build:*:core",
