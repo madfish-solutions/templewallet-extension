@@ -93,7 +93,7 @@ export const YourRewardsCards = memo(() => {
 
         setTkeyStats({ monthKey, total, lastAmount });
       } catch (err) {
-        console.log('Failed to load Tkey stats: ', err);
+        console.error('Failed to load Tkey stats: ', err);
       }
     });
   }, [account, monthKey, setTkeyStats, startTkeyLoading, tkeyDecimals, tezosMainnet.chainId, tkeyMeta, tkeyStats]);
