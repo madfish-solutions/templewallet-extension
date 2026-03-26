@@ -121,7 +121,7 @@ const Unlock: FC<UnlockProps> = ({ canImportNew = true }) => {
           );
         }
 
-        setAttempt(attempt + 1);
+        setAttempt(value => value + 1);
         setTimeleft(getTimeLeft(Date.now(), LOCK_TIME * Math.floor((attempt + 1) / 3)));
 
         if (attempt < LAST_ATTEMPT) {

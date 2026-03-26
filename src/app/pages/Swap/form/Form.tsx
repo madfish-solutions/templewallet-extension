@@ -26,7 +26,6 @@ export const SwapForm = memo<SwapFormProps>(
     onSelectAssetClick,
     handleToggleIconClick,
     confirmSwapModalOpened,
-    activeField,
     chainKind,
     chainId
   }) => {
@@ -38,7 +37,6 @@ export const SwapForm = memo<SwapFormProps>(
           onReview={onReview}
           onSelectAssetClick={onSelectAssetClick}
           selectedChainAssets={selectedChainAssets}
-          activeField={activeField}
           confirmSwapModalOpened={confirmSwapModalOpened}
           handleToggleIconClick={handleToggleIconClick}
         />
@@ -51,7 +49,6 @@ export const SwapForm = memo<SwapFormProps>(
         onReview={onReview}
         onSelectAssetClick={onSelectAssetClick}
         selectedChainAssets={selectedChainAssets}
-        activeField={activeField}
         handleToggleIconClick={handleToggleIconClick}
       />
     );
