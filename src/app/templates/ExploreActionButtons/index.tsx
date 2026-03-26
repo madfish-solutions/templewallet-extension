@@ -23,6 +23,7 @@ import { TID, T, t } from 'lib/i18n';
 import { useAvailableRoute3TokensSlugs } from 'lib/route3/assets';
 import { TempleAccountType } from 'lib/temple/types';
 import useTippy from 'lib/ui/useTippy';
+import { EMPTY_FROZEN_OBJ } from 'lib/utils';
 import { Link, To } from 'lib/woozie';
 import { useAccount } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
@@ -173,7 +174,7 @@ interface ActionButtonProps extends TestIDProps {
 }
 
 const ActionButton = memo<ActionButtonProps>(
-  ({ labelI18nKey, Icon, to, disabled, tippyProps = {}, testID, testIDProperties, labelClassName }) => {
+  ({ labelI18nKey, Icon, to, disabled, tippyProps = EMPTY_FROZEN_OBJ, testID, testIDProperties, labelClassName }) => {
     const buttonRef = useTippy<HTMLButtonElement>({
       ...tippyProps,
       content: disabled && !tippyProps.content ? t('disabled') : tippyProps.content

@@ -11,8 +11,10 @@ let stopTempleReplacement = false;
 let stopTakeAdsReplacement = false;
 
 (async () => {
-  const shouldReplaceTemple = await checkIfShouldReplaceTempleReferrals();
-  const shouldReplaceTakeAds = await checkIfShouldReplaceTakeAdsReferrals();
+  const [shouldReplaceTemple, shouldReplaceTakeAds] = await Promise.all([
+    checkIfShouldReplaceTempleReferrals(),
+    checkIfShouldReplaceTakeAdsReferrals()
+  ]);
 
   const callback = throttleAsyncCalls(async () => {
     if (stopTempleReplacement && stopTakeAdsReplacement) {

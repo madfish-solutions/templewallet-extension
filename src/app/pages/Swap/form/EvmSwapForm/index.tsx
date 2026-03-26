@@ -23,7 +23,7 @@ import { useEvmAssetBalance } from 'lib/balances/hooks';
 import { EVM_ZERO_ADDRESS } from 'lib/constants';
 import { useAssetFiatCurrencyPrice } from 'lib/fiat-currency';
 import { t } from 'lib/i18n';
-import { getAssetSymbol, useGetEvmGasOrTokenMetadata } from 'lib/metadata';
+import { getAssetSymbol } from 'lib/metadata';
 import { ROUTING_FEE_EVM_ADDRESS, ROUTING_FEE_RATIO } from 'lib/route3/constants';
 import { atomsToTokens, tokensToAtoms } from 'lib/temple/helpers';
 import { ETHERLINK_MAINNET_CHAIN_ID } from 'lib/temple/types';
@@ -34,9 +34,7 @@ import { useAccountForEvm } from 'temple/front';
 import { useEvmChainByChainId } from 'temple/front/chains';
 import { TempleChainKind } from 'temple/types';
 
-import { getProtocolFeeForRouteStep } from '../../form/EvmSwapForm/utils';
-import { useFetchLifiEvmTokensSlugs, useFetch3RouteEvmTokensSlugs } from '../../form/hooks';
-import { formatDuration, getBufferedExecutionDuration, getDefaultSwapFormValues } from '../../form/utils';
+import { useFetchLifiEvmTokensSlugs, useFetch3RouteEvmTokensSlugs } from '../hooks';
 import {
   ChainAssetInfo,
   EvmReviewData,
@@ -45,6 +43,9 @@ import {
   Route3EvmRoute,
   SwapFieldName
 } from '../interfaces';
+import { formatDuration, getBufferedExecutionDuration, getDefaultSwapFormValues } from '../utils';
+
+import { getProtocolFeeForRouteStep } from './utils';
 
 interface EvmSwapFormProps {
   chainId: number;
@@ -52,7 +53,6 @@ interface EvmSwapFormProps {
   onReview: SyncFn<EvmReviewData>;
   onSelectAssetClick: SyncFn<SwapFieldName>;
   selectedChainAssets: { from: string | null; to: string | null };
-  activeField: SwapFieldName;
   confirmSwapModalOpened: boolean;
   handleToggleIconClick: EmptyFn;
 }
@@ -65,7 +65,6 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
   onReview,
   onSelectAssetClick,
   selectedChainAssets,
-  activeField,
   confirmSwapModalOpened,
   handleToggleIconClick
 }) => {
@@ -79,8 +78,6 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
   const [isRouteLoading, setIsRouteLoading] = useState(false);
   const [isAlertVisible, setIsAlertVisible] = useState(false);
   const isRouteLoadingRef = useRef(false);
-
-  const getTokenMetadata = useGetEvmGasOrTokenMetadata();
 
   const sourceAssetInfo = useMemo<ChainAssetInfo<TempleChainKind.EVM> | null>(() => {
     if (!selectedChainAssets.from) return null;
@@ -183,20 +180,6 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
     reset(defaultValues);
   }, [defaultValues, reset]);
 
-  useEffect(() => {
-    if (!swapFormControl) return;
-    const next = { ...(swapFormControl.current ?? {}), resetForm };
-    swapFormControl.current = next;
-
-    return () => {
-      if (swapFormControl.current?.resetForm === resetForm) {
-        const updated = { ...(swapFormControl.current ?? {}) };
-        delete updated.resetForm;
-        swapFormControl.current = updated;
-      }
-    };
-  }, [swapFormControl, resetForm]);
-
   const handleInputChange = useCallback(
     (newInputValue: SwapInputValue) => {
       const currentFormState = getValues();
@@ -238,6 +221,50 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
     },
     [clearErrors, getValues, setValue]
   );
+
+  const handleSelectedAssetChange = useCallback(
+    (field: SwapFieldName, chainAssetSlug: string) => {
+      const [, chainId, assetSlug] = parseChainAssetSlug(chainAssetSlug);
+      const currentFormState = getValues();
+      const amount = field === 'input' ? currentFormState.input.amount : currentFormState.output.amount;
+
+      if (field === 'input') {
+        handleInputChange({
+          assetSlug,
+          chainId: Number(chainId),
+          amount
+        });
+
+        return;
+      }
+
+      handleOutputChange({
+        assetSlug,
+        chainId: Number(chainId),
+        amount
+      });
+    },
+    [getValues, handleInputChange, handleOutputChange]
+  );
+
+  useEffect(() => {
+    if (!swapFormControl) return;
+    const next = { ...(swapFormControl.current ?? {}), resetForm, handleSelectedAssetChange };
+    swapFormControl.current = next;
+
+    return () => {
+      if (swapFormControl.current?.resetForm === resetForm) {
+        const updated = { ...(swapFormControl.current ?? {}) };
+        delete updated.resetForm;
+        swapFormControl.current = updated;
+      }
+      if (swapFormControl.current?.handleSelectedAssetChange === handleSelectedAssetChange) {
+        const updated = { ...(swapFormControl.current ?? {}) };
+        delete updated.handleSelectedAssetChange;
+        swapFormControl.current = updated;
+      }
+    };
+  }, [handleSelectedAssetChange, swapFormControl, resetForm]);
 
   const parseFiatValueToAssetAmount = useCallback(
     (
@@ -455,37 +482,6 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
     },
     [slippageTolerance]
   );
-
-  useEffect(() => {
-    const newAssetInfo = activeField === 'input' ? sourceAssetInfo : targetAssetInfo;
-    if (!newAssetInfo) return;
-    const newAssetMetadata = getTokenMetadata(newAssetInfo.chainId, newAssetInfo.assetSlug);
-    if (!newAssetMetadata) return;
-
-    const currentFormState = getValues();
-    const amount = activeField === 'input' ? currentFormState.input.amount : currentFormState.output.amount;
-
-    activeField === 'input'
-      ? handleInputChange({
-          assetSlug: newAssetInfo.assetSlug,
-          chainId: newAssetInfo.chainId,
-          amount: amount
-        })
-      : handleOutputChange({
-          assetSlug: newAssetInfo.assetSlug,
-          chainId: newAssetInfo.chainId,
-          amount: amount
-        });
-  }, [
-    activeField,
-    getTokenMetadata,
-    getValues,
-    handleInputChange,
-    handleOutputChange,
-    isFiatMode,
-    sourceAssetInfo,
-    targetAssetInfo
-  ]);
 
   const onSubmit = useCallback(async () => {
     if (formState.isSubmitting) return;

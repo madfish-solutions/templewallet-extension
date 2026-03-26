@@ -181,6 +181,8 @@ const Swap = memo<Props>(() => {
     (slug: string) => {
       navigate({ pathname: '/swap' }, HistoryAction.Replace);
       const selectedChainKind = parseChainAssetSlug(slug)[0];
+      const fieldKey = activeField === 'input' ? 'from' : 'to';
+      const shouldSyncSelectedAsset = selectedChainKind === activeChainKind && selectedChainAssets[fieldKey] !== slug;
 
       if (activeField === 'input') {
         const toSlug = selectedChainAssets.to;
@@ -206,9 +208,13 @@ const Swap = memo<Props>(() => {
         }
       }
 
+      if (shouldSyncSelectedAsset) {
+        formControlRef.current?.handleSelectedAssetChange?.(activeField, slug);
+      }
+
       setSelectAssetModalClosed();
     },
-    [activeField, selectedChainAssets, setSelectAssetModalClosed]
+    [activeChainKind, activeField, selectedChainAssets, setSelectAssetModalClosed]
   );
 
   const handleToggleIconClick = useCallback(() => {

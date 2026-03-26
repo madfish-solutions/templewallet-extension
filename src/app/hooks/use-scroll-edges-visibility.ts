@@ -1,4 +1,4 @@
-import { RefObject, useEffect, useMemo, useRef } from 'react';
+import { RefObject, startTransition, useEffect, useMemo, useRef } from 'react';
 
 import { noop, throttle } from 'lodash';
 
@@ -24,16 +24,26 @@ export const useScrollEdgesVisibility = (
         }
 
         const currentBottomEdgeIsVisible = bottomEdgeIsVisible(ref.current, bottomEdgeThreshold);
-        if (currentBottomEdgeIsVisible !== prevBottomEdgeIsVisibleRef.current) {
-          prevBottomEdgeIsVisibleRef.current = currentBottomEdgeIsVisible;
-          onBottomEdgeVisibilityChange(currentBottomEdgeIsVisible);
+        const currentTopEdgeIsVisible = topEdgeIsVisible(ref.current, topEdgeThreshold);
+        const bottomEdgeVisibilityChanged = currentBottomEdgeIsVisible !== prevBottomEdgeIsVisibleRef.current;
+        const topEdgeVisibilityChanged = currentTopEdgeIsVisible !== prevTopEdgeIsVisibleRef.current;
+
+        if (!bottomEdgeVisibilityChanged && !topEdgeVisibilityChanged) {
+          return;
         }
 
-        const currentTopEdgeIsVisible = topEdgeIsVisible(ref.current, topEdgeThreshold);
-        if (currentTopEdgeIsVisible !== prevTopEdgeIsVisibleRef.current) {
-          prevTopEdgeIsVisibleRef.current = currentTopEdgeIsVisible;
-          onTopEdgeVisibilityChange(currentTopEdgeIsVisible);
-        }
+        prevBottomEdgeIsVisibleRef.current = currentBottomEdgeIsVisible;
+        prevTopEdgeIsVisibleRef.current = currentTopEdgeIsVisible;
+
+        startTransition(() => {
+          if (bottomEdgeVisibilityChanged) {
+            onBottomEdgeVisibilityChange(currentBottomEdgeIsVisible);
+          }
+
+          if (topEdgeVisibilityChanged) {
+            onTopEdgeVisibilityChange(currentTopEdgeIsVisible);
+          }
+        });
       }, 20),
     [bottomEdgeThreshold, onBottomEdgeVisibilityChange, onTopEdgeVisibilityChange, ref, topEdgeThreshold]
   );
@@ -42,20 +52,24 @@ export const useScrollEdgesVisibility = (
     updateEdgesVisibility();
 
     const element = ref.current;
-    if (element) {
-      const resizeObserver = new ResizeObserver(updateEdgesVisibility);
-      const mutationObserver = new MutationObserver(updateEdgesVisibility);
-      resizeObserver.observe(element);
-      mutationObserver.observe(element, { childList: true, subtree: true });
-      element.addEventListener('scroll', updateEdgesVisibility, { passive: true });
-
+    if (!element) {
       return () => {
-        resizeObserver.disconnect();
-        mutationObserver.disconnect();
-        element.removeEventListener('scroll', updateEdgesVisibility);
+        updateEdgesVisibility.cancel();
       };
     }
 
-    return undefined;
+    const resizeObserver = new ResizeObserver(updateEdgesVisibility);
+    const mutationObserver = new MutationObserver(updateEdgesVisibility);
+
+    resizeObserver.observe(element);
+    mutationObserver.observe(element, { childList: true, subtree: true });
+    element.addEventListener('scroll', updateEdgesVisibility, { passive: true });
+
+    return () => {
+      resizeObserver.disconnect();
+      mutationObserver.disconnect();
+      element.removeEventListener('scroll', updateEdgesVisibility);
+      updateEdgesVisibility.cancel();
+    };
   }, [ref, updateEdgesVisibility]);
 };

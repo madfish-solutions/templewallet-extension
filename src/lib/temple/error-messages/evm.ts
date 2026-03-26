@@ -37,6 +37,11 @@ const ERC1155_ERROR_MESSAGES: StringRecord = {
 };
 
 const ERC20_TRANSFER_BALANCE_ERROR_PATTERN = 'ERC20: transfer amount exceeds balance';
+const EVM_TRANSACTION_HEX_VALUE_PATTERNS: Record<'from' | 'to' | 'data', RegExp> = {
+  from: /from:\s*(0x[a-fA-F0-9]+)(?:\n|$)/,
+  to: /to:\s*(0x[a-fA-F0-9]+)(?:\n|$)/,
+  data: /data:\s*(0x[a-fA-F0-9]+)(?:\n|$)/
+};
 
 const REVERT_REASON_PATTERNS: StringRecord = {
   'The total cost (gas * gas fee + value) of executing this transaction exceeds the balance of the account':
@@ -172,10 +177,11 @@ function extractEvmRevertReason(error: any): string | null {
   return null;
 }
 
-function extractEvmTransactionHexValueFromMessage(message: string, paramName: string): HexString | null {
-  const regex = new RegExp(`${paramName}:\\s*(0x[a-fA-F0-9]+)(?:\n|$)`);
-
-  const match = message.match(regex);
+function extractEvmTransactionHexValueFromMessage(
+  message: string,
+  paramName: keyof typeof EVM_TRANSACTION_HEX_VALUE_PATTERNS
+): HexString | null {
+  const match = message.match(EVM_TRANSACTION_HEX_VALUE_PATTERNS[paramName]);
   if (match) {
     return match[1] as HexString;
   }

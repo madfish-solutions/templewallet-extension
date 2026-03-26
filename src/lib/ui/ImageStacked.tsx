@@ -37,7 +37,8 @@ export const ImageStacked: FC<ImageStackedProps> = ({
             // (i) Cannot set `display: isLoading ? 'none' | 'contents' : undefined`; - `onLoad` won't fire
             width: size,
             height: size,
-            position: 'absolute'
+            position: 'absolute',
+            opacity: 0
           }
         : {
             width: size,

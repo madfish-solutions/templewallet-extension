@@ -25,7 +25,7 @@ const ConfirmPage = memo(() => {
   const isBrowserFullscreen = useIsBrowserFullscreen();
 
   return (
-    <div className={clsx('w-full h-full', isBrowserFullscreen && FULL_PAGE_WRAP_CLASSNAME)}>
+    <div className={clsx('w-full h-full flex flex-col', isBrowserFullscreen && FULL_PAGE_WRAP_CLASSNAME)}>
       {ready ? (
         <SuspenseContainer errorMessage={t('fetchingConfirmationDetails')} loader={<PageLoader stretch />}>
           <ConfirmDAppForm />
