@@ -2,9 +2,8 @@ import React, { FC, useMemo } from 'react';
 
 import { EmptyState } from 'app/atoms/EmptyState';
 import { usePartnersPromotionModule } from 'app/templates/partners-promotion';
+import { DAPPS_PAGE_NAME } from 'lib/ads-constants';
 import type { CustomDAppInfo } from 'lib/apis/temple/endpoints/get-dapps-list';
-
-import { DAPPS_PAGE_NAME } from '../constants';
 
 import { DappItem } from './DappItem';
 

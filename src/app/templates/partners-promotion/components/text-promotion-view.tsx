@@ -4,8 +4,7 @@ import clsx from 'clsx';
 
 import { Anchor } from 'app/atoms/Anchor';
 import { useAdRectObservation } from 'app/hooks/ads/use-ad-rect-observation';
-import { DAPPS_PAGE_NAME } from 'app/pages/Dapps/constants';
-import { EARN_PAGE_NAME } from 'app/pages/Earn/constants';
+import { DAPPS_PAGE_NAME, EARN_PAGE_NAME } from 'lib/ads-constants';
 import type { AdsProviderTitle } from 'lib/ads';
 
 import { PartnersPromotionSelectors } from '../selectors';

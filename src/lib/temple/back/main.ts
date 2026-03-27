@@ -4,6 +4,7 @@ import browser, { Runtime } from 'webextension-polyfill';
 import { ValidationError } from 'yup';
 
 import { getStoredAppInstallIdentity } from 'app/storage/app-install-id';
+import { EXTERNAL_ADS_PAGE_NAME } from 'lib/ads-constants';
 import { importExtensionAdsReferralsModule } from 'lib/ads/import-extension-ads-module';
 import { importUpdateRulesStorageModule } from 'lib/ads/import-update-rules-storage';
 import { importAdsApiModule } from 'lib/apis/ads-api';
@@ -426,12 +427,20 @@ browser.runtime.onMessage.addListener(async (msg, sender) => {
           const urlDomain = new URL(msg.url).hostname;
           const rewardsAddresses = await getRewardsAccountCredentials();
 
-          if (rewardsAddresses.evmAddress) await postAdImpression(rewardsAddresses, msg.provider, { urlDomain });
+          if (rewardsAddresses.evmAddress) {
+            await postAdImpression(rewardsAddresses, msg.provider, {
+              urlDomain,
+              pageName: EXTERNAL_ADS_PAGE_NAME
+            });
+          }
           else {
             const identity = await getStoredAppInstallIdentity();
             if (!identity) throw new Error('App identity not found');
             const installId = identity.publicKeyHash;
-            await postAnonymousAdImpression(installId, urlDomain, msg.provider);
+            await postAnonymousAdImpression(installId, msg.provider, {
+              urlDomain,
+              pageName: EXTERNAL_ADS_PAGE_NAME
+            });
           }
         });
         break;

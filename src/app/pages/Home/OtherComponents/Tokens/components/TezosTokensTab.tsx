@@ -16,6 +16,7 @@ import {
 import { useMainnetTokensScamlistSelector } from 'app/store/tezos/assets/selectors';
 import { usePartnersPromotionModule } from 'app/templates/partners-promotion';
 import { TezosTokenListItem } from 'app/templates/TokenListItem';
+import { HOME_PAGE_NAME } from 'lib/ads-constants';
 import { parseChainAssetSlug, toChainAssetSlug } from 'lib/assets/utils';
 import { useMemoWithCompare } from 'lib/ui/hooks';
 import {
@@ -141,7 +142,7 @@ const TabContentBase = memo<TabContentBaseProps>(
             id="promo-token-item"
             key="promo-token-item"
             variant={PartnersPromotionModule.PartnersPromotionVariant.Text}
-            pageName="Token page"
+            pageName={HOME_PAGE_NAME}
             ref={promoRef}
           />
         );

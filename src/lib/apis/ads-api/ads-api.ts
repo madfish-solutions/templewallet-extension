@@ -38,8 +38,12 @@ export async function postAdImpression(
   });
 }
 
-export async function postAnonymousAdImpression(installId: string, urlDomain: string, provider: string) {
-  await axiosClient.post('/impression', { installId, urlDomain, provider, appVersion: APP_VERSION });
+export async function postAnonymousAdImpression(
+  installId: string,
+  provider: string,
+  { urlDomain, pageName }: ImpressionDetails
+) {
+  await axiosClient.post('/impression', { installId, urlDomain, pageName, provider, appVersion: APP_VERSION });
 }
 
 interface ReferralClickDetails {
