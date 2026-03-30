@@ -78,10 +78,10 @@ export const useLifiTokensMetadataSync = () => {
     [supportedChainIds, enabledChains]
   );
 
-  if (!chainsToSync.length) return;
-
   useInterval(
     async () => {
+      if (!chainsToSync.length) return;
+
       handleTokensByChain(
         normalizeTokensByChain(await getLifiSwapTokens(chainsToSync), enabledChains),
         (chainId, records) => {
