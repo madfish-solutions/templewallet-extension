@@ -56,14 +56,14 @@ const TezosContent = memo<TezosContentProps>(({ network, accountPkh, assetSlug, 
   const metadata = useCategorizedTezosAssetMetadata(assetSlug, network.chainId);
 
   return (
-    <BaseContent assetSlug={assetSlug} onClick={isCollectible(metadata) ? undefined : onClick} {...rest}>
+    <BaseContent assetSlug={assetSlug} onClick={isCollectible(metadata, assetSlug) ? undefined : onClick} {...rest}>
       <TezosAssetIconWithNetwork tezosChainId={network.chainId} assetSlug={assetSlug} />
 
       <TezosBalance network={network} assetSlug={assetSlug} address={accountPkh}>
         {balance => (
           <div className="flex flex-col items-start ml-2">
-            <span className={clsx('text-font-description-bold mb-0.5', isCollectible(metadata) && 'max-w-70 truncate')}>
-              {isCollectible(metadata) ? getTokenName(metadata) : getAssetSymbol(metadata)}
+            <span className={clsx('text-font-description-bold mb-0.5', isCollectible(metadata, assetSlug) && 'max-w-70 truncate')}>
+              {isCollectible(metadata, assetSlug) ? getTokenName(metadata) : getAssetSymbol(metadata)}
             </span>
 
             <span className="text-font-num-12 text-grey-1">

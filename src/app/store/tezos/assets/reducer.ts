@@ -1,8 +1,11 @@
 import { createReducer } from '@reduxjs/toolkit';
-import { persistReducer } from 'redux-persist';
+import { omit } from 'lodash';
+import { createMigrate, PersistedState, persistReducer } from 'redux-persist';
 
 import { toTokenSlug } from 'lib/assets';
-import { storageConfig, createTransformsBeforePersist } from 'lib/store';
+import { IS_DEV_ENV } from 'lib/env';
+import { WR_TOKEN_SLUG } from 'lib/assets/known-tokens';
+import { storageConfig, createTransformsBeforePersist, createEntity } from 'lib/store';
 
 import {
   loadTokensWhitelistActions,
@@ -141,6 +144,8 @@ const assetsReducer = createReducer<SliceState>(initialState, builder => {
   });
 });
 
+type TypedPersistedSliceState = Exclude<PersistedState, undefined> & SliceState;
+
 export const assetsPersistedReducer = persistReducer<SliceState>(
   {
     key: 'root.assets',
@@ -152,7 +157,32 @@ export const assetsPersistedReducer = persistReducer<SliceState>(
         mainnetWhitelist: entry => ({ ...entry, isLoading: false }),
         mainnetScamlist: entry => ({ ...entry, isLoading: false })
       })
-    ]
+    ],
+    version: 2,
+    migrate: createMigrate({
+      '2': (persistedState: PersistedState) => {
+        if (!persistedState) return persistedState;
+
+        const keysHavingWRToken: string[] = [];
+        const state = persistedState as TypedPersistedSliceState;
+
+        return {
+          ...state,
+          collectibles: createEntity(Object.fromEntries(Object.entries(state.collectibles?.data ?? {}).map(
+            ([key, assets]) => {
+              if (assets[WR_TOKEN_SLUG]) keysHavingWRToken.push(key);
+              return [key, omit(assets, WR_TOKEN_SLUG)];
+            }
+          ))),
+          tokens: createEntity(Object.fromEntries(Object.entries(state.tokens?.data ?? {}).map(
+            ([key, assets]) => [
+              key,
+              keysHavingWRToken.includes(key) ? { ...assets, [WR_TOKEN_SLUG]: { status: 'idle' } } : assets
+            ]
+          )))
+        };
+      }
+    }, { debug: IS_DEV_ENV })
   },
   assetsReducer
 );

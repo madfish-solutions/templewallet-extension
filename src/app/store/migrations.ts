@@ -3,6 +3,7 @@ import type { MigrationManifest, PersistedState } from 'redux-persist';
 
 import { TEZOS_CHAIN_ASSET_SLUG } from 'lib/apis/wert';
 import { toTokenSlug } from 'lib/assets';
+import { WR_TOKEN_METADATA, WR_TOKEN_SLUG } from 'lib/assets/known-tokens';
 import { HIDE_ZERO_BALANCES_STORAGE_KEY } from 'lib/constants';
 import { IS_MISES_BROWSER } from 'lib/env';
 import { isCollectible } from 'lib/metadata/utils';
@@ -15,10 +16,6 @@ import { parseKeyForBalancesRecord } from './tezos/balances/utils';
 import { collectiblesMetadataInitialState } from './tezos/collectibles-metadata/state';
 
 import type { SLICES_BLACKLIST } from './index';
-
-type MakePropertiesOptional<T, K extends keyof T> = {
-  [P in keyof T]: P extends K ? T[P] | undefined : T[P];
-};
 
 /** Blacklisted slices are not rehydrated */
 type TypedPersistedRootState = Exclude<PersistedState, undefined> &
@@ -57,7 +54,7 @@ export const MIGRATIONS: MigrationManifest = {
 
       const newSlug = toTokenSlug(metadata.address, tokenId);
 
-      if (isCollectible(metadata)) {
+      if (isCollectible(metadata, newSlug)) {
         collectiblesMetadata.records.set(newSlug, {
           ...metadata,
           id: tokenId
@@ -225,5 +222,21 @@ export const MIGRATIONS: MigrationManifest = {
     };
 
     return newState;
+  },
+  '9': (persistedState: PersistedState) => {
+    if (!persistedState) return persistedState;
+
+    const state = persistedState as TypedPersistedRootState;
+
+    return {
+      ...state,
+      tokensMetadata: {
+        ...state.tokensMetadata,
+        metadataRecord: {
+          ...state.tokensMetadata.metadataRecord,
+          [WR_TOKEN_SLUG]: WR_TOKEN_METADATA
+        }
+      }
+    };
   }
 };

@@ -20,7 +20,7 @@ export const migrateFromIndexedDB = async (metadatas: Record<string, TokenMetada
     const metadata = metadatas[tokenSlug];
     if (!metadata) continue;
 
-    (isCollectible(metadata) ? collectibles : tokens).push({
+    (isCollectible(metadata, tokenSlug) ? collectibles : tokens).push({
       slug: tokenSlug,
       account,
       chainId,

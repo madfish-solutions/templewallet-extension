@@ -16,7 +16,7 @@ export const TezosAssetIcon = memo<TezosAssetImageProps>(props => (
 ));
 
 const TezosAssetIconPlaceholder: TezosAssetImageProps['Fallback'] = memo(({ metadata, size, className, style }) =>
-  metadata && isCollectible(metadata) ? (
+  metadata && isCollectible(metadata, '') ? (
     <CollectiblePlaceholderSvg className={className} style={style} width={size} height={size} />
   ) : (
     <IdenticonInitials
@@ -47,8 +47,8 @@ export const TezosAssetIconWithNetwork = memo<TezosAssetImageProps>(
         <TezosAssetIcon
           assetSlug={assetSlug}
           tezosChainId={tezosChainId}
-          size={size ?? (isCollectible(metadata) ? COLLECTIBLE_IMAGE_DEFAULT_SIZE : TOKEN_IMAGE_DEFAULT_SIZE)}
-          className={isCollectible(metadata) ? 'rounded-8' : 'rounded-full'}
+          size={size ?? (isCollectible(metadata, '') ? COLLECTIBLE_IMAGE_DEFAULT_SIZE : TOKEN_IMAGE_DEFAULT_SIZE)}
+          className={isCollectible(metadata, '') ? 'rounded-8' : 'rounded-full'}
           {...props}
         />
 

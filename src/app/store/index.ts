@@ -36,7 +36,7 @@ const persistConfigBlacklist: (keyof RootState)[] = SLICES_BLACKLIST;
 const persistedReducer = persistReducer<RootState>(
   {
     key: 'temple-root',
-    version: 8,
+    version: 9,
     ...storageConfig,
     stateReconciler: autoMergeLevel2,
     blacklist: persistConfigBlacklist,
