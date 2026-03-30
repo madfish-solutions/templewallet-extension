@@ -428,8 +428,7 @@ browser.runtime.onMessage.addListener(async (msg, sender) => {
 
           if (rewardsAddresses.evmAddress) {
             await postAdImpression(rewardsAddresses, msg.provider, { urlDomain });
-          }
-          else {
+          } else {
             const identity = await getStoredAppInstallIdentity();
             if (!identity) throw new Error('App identity not found');
             const installId = identity.publicKeyHash;

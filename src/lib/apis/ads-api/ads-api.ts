@@ -38,11 +38,7 @@ export async function postAdImpression(
   });
 }
 
-export async function postAnonymousAdImpression(
-  installId: string,
-  provider: string,
-  { urlDomain }: ImpressionDetails
-) {
+export async function postAnonymousAdImpression(installId: string, provider: string, { urlDomain }: ImpressionDetails) {
   await axiosClient.post('/impression', { installId, urlDomain, provider, appVersion: APP_VERSION });
 }
 
