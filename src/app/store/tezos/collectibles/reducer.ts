@@ -46,7 +46,6 @@ const collectiblesReducer = createReducer<CollectiblesState>(collectiblesInitial
 
   builder.addCase(REHYDRATE, (state) => {
     if (state.details?.data[WR_TOKEN_SLUG]) {
-      console.log('WR_TOKEN_SLUG found in collectibles.details');
       state.details = createEntity(omit(state.details.data, WR_TOKEN_SLUG));
     }
   });

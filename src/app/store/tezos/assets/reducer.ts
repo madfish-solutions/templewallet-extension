@@ -148,7 +148,6 @@ const assetsReducer = createReducer<SliceState>(initialState, builder => {
       for (const key in state.collectibles.data) {
         const assets = state.collectibles.data[key];
         if (assets[WR_TOKEN_SLUG]) {
-          console.log('WR_TOKEN_SLUG found in assets.collectibles', key);
           keysHavingWRToken.push(key);
           delete assets[WR_TOKEN_SLUG];
         }
@@ -158,7 +157,6 @@ const assetsReducer = createReducer<SliceState>(initialState, builder => {
     if (state.tokens?.data) {
       for (const key of keysHavingWRToken) {
         state.tokens.data[key] ??= {};
-        console.log('WR_TOKEN_SLUG added to assets.tokens', key);
         state.tokens.data[key][WR_TOKEN_SLUG] = { status: 'idle' };
       }
     }

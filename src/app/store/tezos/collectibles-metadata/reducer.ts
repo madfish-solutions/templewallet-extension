@@ -45,7 +45,6 @@ const collectiblesMetadataReducer = createReducer(collectiblesMetadataInitialSta
 
   builder.addCase(REHYDRATE, state => {
     if (state.records?.has(WR_TOKEN_SLUG)) {
-      console.log('WR_TOKEN_SLUG found in collectiblesMetadata.records');
       state.records.delete(WR_TOKEN_SLUG);
     }
   });
