@@ -44,7 +44,7 @@ const collectiblesReducer = createReducer<CollectiblesState>(collectiblesInitial
     state.details.error = payload;
   });
 
-  builder.addCase(REHYDRATE, (state) => {
+  builder.addCase(REHYDRATE, state => {
     if (state.details?.data[WR_TOKEN_SLUG]) {
       state.details = createEntity(omit(state.details.data, WR_TOKEN_SLUG));
     }
