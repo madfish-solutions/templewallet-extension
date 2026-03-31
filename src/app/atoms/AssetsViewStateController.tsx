@@ -3,7 +3,7 @@ import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
 import clsx from 'clsx';
 
 import { FadeTransition } from 'app/a11y/FadeTransition';
-import { useAssetsViewState } from 'app/hooks/use-assets-view-state';
+import { useManageState, useSearchModeState, useSearchState } from 'app/hooks/use-assets-view-state';
 import { useLocationSearchParamValue } from 'app/hooks/use-location';
 import { ReactComponent as ManageIcon } from 'app/icons/base/manage.svg';
 import { ReactComponent as SearchIcon } from 'app/icons/base/search.svg';
@@ -29,16 +29,9 @@ export const AssetsViewStateController = memo<AssetsSegmentControlProps>(({ clas
   const collectiblesRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement | null>(null);
 
-  const {
-    setManageActive,
-    setManageInactive,
-    searchMode,
-    setSearchModeActive,
-    setSearchModeInactive,
-    searchValue,
-    setSearchValue,
-    resetSearchValue
-  } = useAssetsViewState();
+  const { setManageActive, setManageInactive } = useManageState();
+  const { searchValue, setSearchValue, resetSearchValue } = useSearchState();
+  const { searchMode, setSearchModeActive, setSearchModeInactive } = useSearchModeState();
 
   useEffect(() => void setTab(tabSlug ?? 'tokens'), [tabSlug]);
 

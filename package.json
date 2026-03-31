@@ -224,8 +224,8 @@
     "@bigmi/core": "^0.5.2",
     "@types/react-window": "^1.8.8",
     "fake-indexeddb": "^6.0.0",
-    "oxlint": "^1.51.0",
     "oxfmt": "^0.36.0",
+    "oxlint": "^1.51.0",
     "source-map": "^0.7.4",
     "text-decoding": "^1.0.0"
   },
