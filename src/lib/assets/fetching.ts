@@ -75,7 +75,7 @@ const finishTokensLoading = async (
     if (fungibleByMetaCheck) {
       const metadata = metadataOfNew || knownMeta.get(slug);
 
-      if (!metadata || isCollectible(metadata, slug)) continue;
+      if (!metadata || isCollectible(metadata)) continue;
     }
 
     slugs.push(slug);
@@ -127,7 +127,7 @@ const finishCollectiblesLoadingWithoutMeta = async (
     const metadataOfNew = newMetadatas?.[slugsWithoutMeta.indexOf(slug)];
     const metadata = metadataOfNew || knownMeta.get(slug);
 
-    if (!metadata || !isCollectible(metadata, slug)) continue;
+    if (!metadata || !isCollectible(metadata)) continue;
 
     if (metadataOfNew) newMeta[slug] = metadataOfNew;
 

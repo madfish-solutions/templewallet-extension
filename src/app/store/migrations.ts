@@ -54,7 +54,7 @@ export const MIGRATIONS: MigrationManifest = {
 
       const newSlug = toTokenSlug(metadata.address, tokenId);
 
-      if (isCollectible(metadata, newSlug)) {
+      if (isCollectible(metadata)) {
         collectiblesMetadata.records.set(newSlug, {
           ...metadata,
           id: tokenId

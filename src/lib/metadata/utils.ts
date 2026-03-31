@@ -12,7 +12,6 @@ import {
   EvmAssetMetadataBase,
   EvmAssetMetadata
 } from './types';
-import { WR_TOKEN_SLUG } from 'lib/assets/known-tokens';
 
 export function getAssetSymbol(metadata: EvmAssetMetadataBase | AssetMetadataBase | nullish, short = false) {
   if (!metadata?.symbol) return '???';
@@ -34,8 +33,8 @@ export function getCollectionName(metadata: EvmCollectibleMetadata | nullish) {
 }
 
 /** Empty string for `artifactUri` counts */
-export const isCollectible = (metadata: StringRecord<any> | undefined, tezosTokenSlug: string) =>
-  isDefined(metadata) && 'artifactUri' in metadata && isString(metadata.artifactUri) && tezosTokenSlug !== WR_TOKEN_SLUG;
+export const isCollectible = (metadata: StringRecord<any> | undefined) =>
+  isDefined(metadata) && 'artifactUri' in metadata && isString(metadata.artifactUri);
 
 export const isEvmCollectible = (metadata?: EvmAssetMetadata): metadata is EvmCollectibleMetadata =>
   isDefined(metadata) && 'tokenId' in metadata;
@@ -43,10 +42,8 @@ export const isEvmCollectible = (metadata?: EvmAssetMetadata): metadata is EvmCo
 /**
  * @deprecated // Assertion here is not safe!
  */
-export const isTezosCollectibleMetadata = (
-  metadata: AssetMetadataBase,
-  tezosTokenSlug: string
-): metadata is TokenMetadata => isCollectible(metadata, tezosTokenSlug);
+export const isTezosCollectibleMetadata = (metadata: AssetMetadataBase): metadata is TokenMetadata =>
+  isCollectible(metadata);
 
 /** TODO: Better way */
 export const isEvmCollectibleMetadata = (metadata: EvmAssetMetadataBase): metadata is EvmCollectibleMetadata =>

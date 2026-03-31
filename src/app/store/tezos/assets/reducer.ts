@@ -3,8 +3,8 @@ import { omit } from 'lodash';
 import { createMigrate, PersistedState, persistReducer } from 'redux-persist';
 
 import { toTokenSlug } from 'lib/assets';
-import { IS_DEV_ENV } from 'lib/env';
 import { WR_TOKEN_SLUG } from 'lib/assets/known-tokens';
+import { IS_DEV_ENV } from 'lib/env';
 import { storageConfig, createTransformsBeforePersist, createEntity } from 'lib/store';
 
 import {
@@ -159,30 +159,37 @@ export const assetsPersistedReducer = persistReducer<SliceState>(
       })
     ],
     version: 2,
-    migrate: createMigrate({
-      '2': (persistedState: PersistedState) => {
-        if (!persistedState) return persistedState;
+    migrate: createMigrate(
+      {
+        '2': (persistedState: PersistedState) => {
+          if (!persistedState) return persistedState;
 
-        const keysHavingWRToken: string[] = [];
-        const state = persistedState as TypedPersistedSliceState;
+          const keysHavingWRToken: string[] = [];
+          const state = persistedState as TypedPersistedSliceState;
 
-        return {
-          ...state,
-          collectibles: createEntity(Object.fromEntries(Object.entries(state.collectibles?.data ?? {}).map(
-            ([key, assets]) => {
-              if (assets[WR_TOKEN_SLUG]) keysHavingWRToken.push(key);
-              return [key, omit(assets, WR_TOKEN_SLUG)];
-            }
-          ))),
-          tokens: createEntity(Object.fromEntries(Object.entries(state.tokens?.data ?? {}).map(
-            ([key, assets]) => [
-              key,
-              keysHavingWRToken.includes(key) ? { ...assets, [WR_TOKEN_SLUG]: { status: 'idle' } } : assets
-            ]
-          )))
-        };
-      }
-    }, { debug: IS_DEV_ENV })
+          return {
+            ...state,
+            collectibles: createEntity(
+              Object.fromEntries(
+                Object.entries(state.collectibles?.data ?? {}).map(([key, assets]) => {
+                  if (assets[WR_TOKEN_SLUG]) keysHavingWRToken.push(key);
+                  return [key, omit(assets, WR_TOKEN_SLUG)];
+                })
+              )
+            ),
+            tokens: createEntity(
+              Object.fromEntries(
+                Object.entries(state.tokens?.data ?? {}).map(([key, assets]) => [
+                  key,
+                  keysHavingWRToken.includes(key) ? { ...assets, [WR_TOKEN_SLUG]: { status: 'idle' } } : assets
+                ])
+              )
+            )
+          };
+        }
+      },
+      { debug: IS_DEV_ENV }
+    )
   },
   assetsReducer
 );

@@ -1,13 +1,13 @@
 import { createReducer } from '@reduxjs/toolkit';
+import { omit } from 'lodash';
 import { createMigrate, PersistedState, persistReducer } from 'redux-persist';
 
+import { WR_TOKEN_SLUG } from 'lib/assets/known-tokens';
+import { IS_DEV_ENV } from 'lib/env';
 import { createEntity, storageConfig } from 'lib/store';
 
 import { loadCollectiblesDetailsActions } from './actions';
 import { collectiblesInitialState, CollectiblesState } from './state';
-import { IS_DEV_ENV } from 'lib/env';
-import { omit } from 'lodash';
-import { WR_TOKEN_SLUG } from 'lib/assets/known-tokens';
 
 /** In seconds // TTL = Time To Live */
 const ADULT_FLAG_TTL = 3 * 60 * 60;
@@ -55,15 +55,18 @@ export const collectiblesPersistedReducer = persistReducer(
     ...storageConfig,
     whitelist: ['adultFlags'] as (keyof CollectiblesState)[],
     version: 2,
-    migrate: createMigrate({
-      '2': (persistedState: PersistedState) => {
-        if (!persistedState) return persistedState;
+    migrate: createMigrate(
+      {
+        '2': (persistedState: PersistedState) => {
+          if (!persistedState) return persistedState;
 
-        const state = persistedState as TypedPersistedCollectiblesState;
+          const state = persistedState as TypedPersistedCollectiblesState;
 
-        return { ...state, details: createEntity(omit(state.details?.data ?? {}, WR_TOKEN_SLUG)) };
-      }
-    }, { debug: IS_DEV_ENV })
+          return { ...state, details: createEntity(omit(state.details?.data ?? {}, WR_TOKEN_SLUG)) };
+        }
+      },
+      { debug: IS_DEV_ENV }
+    )
   },
   collectiblesReducer
 );

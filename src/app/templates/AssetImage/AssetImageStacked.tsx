@@ -31,7 +31,7 @@ export const TezosAssetImageStacked: FC<TezosAssetImageStackedProps> = ({
   const sources = useMemoWithCompare(
     () => {
       const sources =
-        metadata && isTezosCollectibleMetadata(metadata, '')
+        metadata && isTezosCollectibleMetadata(metadata)
           ? buildCollectibleImagesStack(metadata, fullViewCollectible)
           : buildTokenImagesStack(metadata?.thumbnailUri);
 

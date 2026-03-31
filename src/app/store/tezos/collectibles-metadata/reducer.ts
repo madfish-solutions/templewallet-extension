@@ -3,8 +3,8 @@ import { enableMapSet } from 'immer';
 import { createMigrate, PersistedState, persistReducer } from 'redux-persist';
 
 import { tokenToSlug, fromAssetSlug } from 'lib/assets';
-import { IS_DEV_ENV } from 'lib/env';
 import { WR_TOKEN_SLUG } from 'lib/assets/known-tokens';
+import { IS_DEV_ENV } from 'lib/env';
 import type { TokenMetadata } from 'lib/metadata';
 import { buildTokenMetadataFromFetched } from 'lib/metadata/utils';
 import { storageConfig, createTransformsBeforePersist, createTransformsBeforeHydrate } from 'lib/store';
@@ -77,17 +77,20 @@ export const collectiblesMetadataPersistedReducer = persistReducer<SliceState>(
       })
     ],
     version: 2,
-    migrate: createMigrate({
-      '2': (persistedState: PersistedState) => {
-        if (!persistedState) return persistedState;
+    migrate: createMigrate(
+      {
+        '2': (persistedState: PersistedState) => {
+          if (!persistedState) return persistedState;
 
-        const state = persistedState as TypedPersistedSliceState;
-        const collectiblesMetadataMap = new Map(state.records);
-        collectiblesMetadataMap.delete(WR_TOKEN_SLUG);
+          const state = persistedState as TypedPersistedSliceState;
+          const collectiblesMetadataMap = new Map(state.records);
+          collectiblesMetadataMap.delete(WR_TOKEN_SLUG);
 
-        return { ...state, records: collectiblesMetadataMap };
-      }
-    }, { debug: IS_DEV_ENV })
+          return { ...state, records: collectiblesMetadataMap };
+        }
+      },
+      { debug: IS_DEV_ENV }
+    )
   },
   collectiblesMetadataReducer
 );

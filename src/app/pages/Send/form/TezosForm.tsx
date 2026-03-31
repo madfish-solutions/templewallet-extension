@@ -60,7 +60,7 @@ export const TezosForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, o
 
   const assetPrice = useAssetFiatCurrencyPrice(assetSlug, chainId);
 
-  const isNft = isCollectible(assetMetadata, assetSlug);
+  const isNft = isCollectible(assetMetadata);
   const assetDecimals = assetMetadata.decimals ?? 0;
 
   const assetSymbol = useMemo(() => getAssetSymbol(assetMetadata), [assetMetadata]);
@@ -288,7 +288,7 @@ export const TezosForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, o
         validateRecipient={validateRecipient}
         onSelectAssetClick={onSelectAssetClick}
         isToFilledWithFamiliarAddress={isToFilledWithFamiliarAddress}
-        shouldShowConvertedAmountBlock={!isCollectible(assetMetadata, assetSlug)}
+        shouldShowConvertedAmountBlock={!isCollectible(assetMetadata)}
         onSubmit={onSubmit}
       />
     </FormProvider>

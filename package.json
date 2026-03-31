@@ -244,7 +244,9 @@
     "zip-a-folder/glob": "11.1.0",
     "valibot": "^1.2.0",
     "minimatch": "^3.1.4",
-    "serialize-javascript": "^7.0.3"
+    "serialize-javascript": "^7.0.3",
+    "node-forge": "1.4.0",
+    "path-to-regexp": "0.1.13"
   },
   "optionalDependencies": {
     "@temple-wallet/extension-ads": "^15.0.3"

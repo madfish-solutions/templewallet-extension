@@ -262,7 +262,7 @@ export const AddTokenForm = memo<AddTokenPageProps>(
               id
             };
 
-            assetIsCollectible = isCollectible(tokenMetadata, tokenSlug);
+            assetIsCollectible = isCollectible(tokenMetadata);
 
             const actionPayload = { records: { [tokenSlug]: tokenMetadata } };
             if (assetIsCollectible) dispatch(putCollectiblesMetadataAction(actionPayload));
