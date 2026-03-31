@@ -180,14 +180,13 @@ export async function fetchTzktAccountAssets(account: string, chainId: string, f
     if (data.length === TZKT_MAX_QUERY_ITEMS_LIMIT)
       return recurse(accum.concat(data), offset + TZKT_MAX_QUERY_ITEMS_LIMIT);
 
-    return accum.concat(
-      fungible === false
-        ? data.filter(([contractAddress, tokenId]) => toTokenSlug(contractAddress, tokenId) !== WR_TOKEN_SLUG)
-        : data
-    );
+    return accum.concat(data);
   };
 
-  const result = await recurse([], 0);
+  let result = await recurse([], 0);
+  if (fungible === false) {
+    result = result.filter(([contractAddress, tokenId]) => toTokenSlug(contractAddress, tokenId) !== WR_TOKEN_SLUG);
+  }
 
   if (fungible === true) {
     const [wrToken] = await fetchGet<TzktAccountAssetSelectedParams[]>(chainId, '/tokens/balances', {

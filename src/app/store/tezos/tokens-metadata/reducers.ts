@@ -69,17 +69,20 @@ export const tokensMetadataReducer = createReducer<TokensMetadataState>(tokensMe
   });
 
   builder.addCase(REHYDRATE, state => {
-    const wrTokenMetadata = pick(state.metadataRecord[WR_TOKEN_SLUG], [
-      'name',
-      'symbol',
-      'decimals',
-      'thumbnailUri',
-      'address',
-      'id',
-      'standard',
-      'displayUri',
-      'artifactUri'
-    ]);
+    const tokenMetadataDraft = state.metadataRecord[WR_TOKEN_SLUG];
+    const wrTokenMetadata = tokenMetadataDraft
+      ? pick(tokenMetadataDraft, [
+          'name',
+          'symbol',
+          'decimals',
+          'thumbnailUri',
+          'address',
+          'id',
+          'standard',
+          'displayUri',
+          'artifactUri'
+        ])
+      : undefined;
     if (wrTokenMetadata && !isEqual(wrTokenMetadata, WR_TOKEN_METADATA)) {
       state.metadataRecord[WR_TOKEN_SLUG] = WR_TOKEN_METADATA;
     }
