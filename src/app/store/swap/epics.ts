@@ -1,7 +1,7 @@
 import { isDefined } from '@rnw-community/shared';
 import { BigNumber } from 'bignumber.js';
 import { combineEpics, Epic } from 'redux-observable';
-import { catchError, from, map, of, switchMap } from 'rxjs';
+import { catchError, debounceTime, from, map, of, switchMap } from 'rxjs';
 import { ofType, toPayload } from 'ts-action-operators';
 
 import { fetchRoute3Dexes$ } from 'lib/apis/route3/fetch-route3-dexes';
@@ -23,6 +23,7 @@ const loadSwapParamsEpic: Epic = action$ =>
   action$.pipe(
     ofType(loadSwapParamsAction.submit),
     toPayload(),
+    debounceTime(200),
     switchMap(payload => {
       if (isAmountDefined(payload)) {
         return from(fetchRoute3SwapParams(payload)).pipe(

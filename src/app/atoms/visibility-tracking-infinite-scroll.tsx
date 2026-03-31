@@ -1,8 +1,10 @@
-import React, { FC, createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
+import React, { FC, createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 
 import { noop } from 'lodash';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { useDebounce } from 'use-debounce';
+
+import { IS_FIREFOX } from 'lib/env';
 
 import { SimpleInfiniteScroll, SimpleInfiniteScrollProps } from './SimpleInfiniteScroll';
 
@@ -33,10 +35,10 @@ const InfiniteScrollVisibilityContextProvider: FC<PropsWithChildren> = ({ childr
   const [listItemsVisibility, setListItemsVisibility] = useState({ top: 0, bottom: Infinity });
   const [listItemsVisibilityDebounced] = useDebounce(listItemsVisibility, 50, debounceOptions);
 
-  const value = {
-    listItemsVisibility: listItemsVisibilityDebounced,
-    setListItemsVisibility
-  };
+  const value = useMemo(
+    () => ({ listItemsVisibility: listItemsVisibilityDebounced, setListItemsVisibility }),
+    [listItemsVisibilityDebounced, setListItemsVisibility]
+  );
 
   return <InfiniteScrollVisibilityContext value={value}>{children}</InfiniteScrollVisibilityContext>;
 };
@@ -100,17 +102,17 @@ const VisibilityTrackingInfiniteScrollContent: FC<VisibilityTrackingInfiniteScro
 };
 
 export const useIsItemVisible = (index: number | undefined) => {
-  const [isVisible, setIsVisible] = useState(true);
-  const tokensTabBaseContext = useInfiniteScrollVisibilityContext();
-  useEffect(() => {
-    // `constate` sets empty object as default context value but let's add one more check for the safety
-    if (index != null && tokensTabBaseContext?.listItemsVisibility && navigator.userAgent.match(/firefox/i)) {
-      const { top, bottom } = tokensTabBaseContext.listItemsVisibility;
-      setIsVisible(index >= top && index <= bottom);
-    } else {
-      setIsVisible(true);
-    }
-  }, [index, tokensTabBaseContext]);
+  if (!IS_FIREFOX) return true;
 
-  return isVisible;
+  return useIsItemVisibleFirefox(index);
+};
+
+const useIsItemVisibleFirefox = (index: number | undefined) => {
+  const { listItemsVisibility } = useInfiniteScrollVisibilityContext();
+
+  return useMemo(() => {
+    if (index == null) return true;
+
+    return index >= listItemsVisibility.top && index <= listItemsVisibility.bottom;
+  }, [index, listItemsVisibility]);
 };
