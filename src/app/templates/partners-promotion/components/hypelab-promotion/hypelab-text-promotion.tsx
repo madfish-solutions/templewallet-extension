@@ -5,10 +5,7 @@ import { Native, NativeElement } from '@hypelab/sdk-react';
 import { useAdTimeout } from 'app/hooks/ads/use-ad-timeout';
 import { useElementValue } from 'app/hooks/ads/use-element-value';
 import { AdsProviderTitle } from 'lib/ads';
-import { fetchInternalBlacklistedHypelabCampaignsSlugs } from 'lib/apis/ads-api/ads-api';
 import { EnvVars } from 'lib/env';
-import { ENABLE_INTERNAL_HYPELAB_ADS_SYNC_INTERVAL } from 'lib/fixed-times';
-import { useTypedSWR } from 'lib/swr';
 import { useUpdatableRef } from 'lib/ui/hooks';
 
 import { SingleProviderPromotionProps } from '../../types';
@@ -30,6 +27,7 @@ export const HypelabTextPromotion: FC<Omit<SingleProviderPromotionProps, 'varian
   accountPkh,
   isVisible,
   pageName,
+  blacklistedCampaignSlugs,
   onImpression,
   onReady,
   onError
@@ -49,17 +47,6 @@ export const HypelabTextPromotion: FC<Omit<SingleProviderPromotionProps, 'varian
   const iconUrl = useElementValue(hypelabIconRef, getImageSrc, dummyImageSrc, attributesObserverOptions);
   const adIsReady = headlineText.length > 0;
 
-  const { data: blacklistedInternalCampaignSlugs } = useTypedSWR(
-    'blacklisted-internal-hypelab-campaigns-slugs',
-    fetchInternalBlacklistedHypelabCampaignsSlugs,
-    {
-      revalidateOnFocus: false,
-      revalidateOnMount: true,
-      revalidateOnReconnect: false,
-      refreshInterval: ENABLE_INTERNAL_HYPELAB_ADS_SYNC_INTERVAL
-    }
-  );
-
   useAdTimeout(adIsReady, onError);
 
   useEffect(() => {
@@ -78,12 +65,12 @@ export const HypelabTextPromotion: FC<Omit<SingleProviderPromotionProps, 'varian
     if (!adIsReady) return;
     const el = hypelabNativeElementRef.current as unknown as { bid?: { cid?: string } } | null;
     const campaignSlug = el?.bid?.cid;
-    if (campaignSlug && blacklistedInternalCampaignSlugs?.includes(campaignSlug)) {
+    if (campaignSlug && blacklistedCampaignSlugs?.includes(campaignSlug)) {
       onError();
     } else {
       onReady();
     }
-  }, [adIsReady, blacklistedInternalCampaignSlugs, onError, onReady, hypelabNativeElementRef]);
+  }, [adIsReady, onError, onReady, blacklistedCampaignSlugs, hypelabNativeElementRef]);
 
   useEffect(() => {
     // Ad refreshing isn't stopped by `@hypelab/sdk-react` itself

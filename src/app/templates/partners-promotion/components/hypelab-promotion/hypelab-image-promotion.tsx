@@ -6,10 +6,7 @@ import { nanoid } from 'nanoid';
 import { useAdTimeout } from 'app/hooks/ads/use-ad-timeout';
 import { AdsProviderTitle } from 'lib/ads';
 import { HYPELAB_STUB_CAMPAIGN_SLUG } from 'lib/ads-constants';
-import { fetchInternalBlacklistedHypelabCampaignsSlugs } from 'lib/apis/ads-api/ads-api';
 import { EnvVars } from 'lib/env';
-import { ENABLE_INTERNAL_HYPELAB_ADS_SYNC_INTERVAL } from 'lib/fixed-times';
-import { useTypedSWR } from 'lib/swr';
 import { useUpdatableRef } from 'lib/ui/hooks';
 import { useAccountAddressForEvm } from 'temple/front';
 
@@ -29,6 +26,7 @@ export const HypelabImagePromotion: FC<Omit<SingleProviderPromotionProps, 'varia
   accountPkh,
   isVisible,
   pageName,
+  blacklistedCampaignSlugs,
   onImpression,
   onError,
   onReady
@@ -36,17 +34,7 @@ export const HypelabImagePromotion: FC<Omit<SingleProviderPromotionProps, 'varia
   const evmAccountAddress = useAccountAddressForEvm();
   const hypelabIframeRef = useRef<HTMLIFrameElement>(null);
   const [adIsReady, setAdIsReady] = useState(false);
-  const { data: blacklistedInternalCampaignSlugs } = useTypedSWR(
-    'blacklisted-internal-hypelab-campaigns-slugs',
-    fetchInternalBlacklistedHypelabCampaignsSlugs,
-    {
-      revalidateOnFocus: false,
-      revalidateOnMount: true,
-      revalidateOnReconnect: false,
-      refreshInterval: ENABLE_INTERNAL_HYPELAB_ADS_SYNC_INTERVAL
-    }
-  );
-  const blacklistedInternalCampaignSlugsRef = useUpdatableRef(blacklistedInternalCampaignSlugs);
+  const blacklistedInternalCampaignSlugsRef = useUpdatableRef(blacklistedCampaignSlugs);
   const [currentAd, setCurrentAd] = useState<HypelabBannerAd | null>(null);
   const [adSize, setAdSize] = useState<{ width: number; height: number }>({ width: 320, height: 100 });
   const prevAdUrlRef = useRef('');
