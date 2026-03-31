@@ -11,6 +11,9 @@ import {
   refreshTokensMetadataAction
 } from './actions';
 import { tokensMetadataInitialState, TokensMetadataState } from './state';
+import { REHYDRATE } from 'redux-persist';
+import { WR_TOKEN_METADATA, WR_TOKEN_SLUG } from 'lib/assets/known-tokens';
+import { isEqual, pick } from 'lodash';
 
 export const tokensMetadataReducer = createReducer<TokensMetadataState>(tokensMetadataInitialState, builder => {
   builder.addCase(putTokensMetadataAction, (state, { payload: { records, resetLoading } }) => {
@@ -62,6 +65,16 @@ export const tokensMetadataReducer = createReducer<TokensMetadataState>(tokensMe
       } else {
         state.metadataRecord[slug] = metadata;
       }
+    }
+  });
+
+  builder.addCase(REHYDRATE, state => {
+    const wrTokenMetadata = pick(
+      state.metadataRecord[WR_TOKEN_SLUG],
+      ['name', 'symbol', 'decimals', 'thumbnailUri', 'address', 'id', 'standard', 'displayUri', 'artifactUri']
+    );
+    if (wrTokenMetadata && !isEqual(wrTokenMetadata, WR_TOKEN_METADATA)) {
+      state.metadataRecord[WR_TOKEN_SLUG] = WR_TOKEN_METADATA;
     }
   });
 });

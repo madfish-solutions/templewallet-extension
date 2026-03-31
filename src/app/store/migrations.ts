@@ -3,7 +3,6 @@ import type { MigrationManifest, PersistedState } from 'redux-persist';
 
 import { TEZOS_CHAIN_ASSET_SLUG } from 'lib/apis/wert';
 import { toTokenSlug } from 'lib/assets';
-import { WR_TOKEN_METADATA, WR_TOKEN_SLUG } from 'lib/assets/known-tokens';
 import { HIDE_ZERO_BALANCES_STORAGE_KEY } from 'lib/constants';
 import { IS_MISES_BROWSER } from 'lib/env';
 import { isCollectible } from 'lib/metadata/utils';
@@ -222,21 +221,5 @@ export const MIGRATIONS: MigrationManifest = {
     };
 
     return newState;
-  },
-  '9': (persistedState: PersistedState) => {
-    if (!persistedState) return persistedState;
-
-    const state = persistedState as TypedPersistedRootState;
-
-    return {
-      ...state,
-      tokensMetadata: {
-        ...state.tokensMetadata,
-        metadataRecord: {
-          ...state.tokensMetadata.metadataRecord,
-          [WR_TOKEN_SLUG]: WR_TOKEN_METADATA
-        }
-      }
-    };
   }
 };

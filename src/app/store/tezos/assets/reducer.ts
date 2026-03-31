@@ -1,11 +1,9 @@
 import { createReducer } from '@reduxjs/toolkit';
-import { omit } from 'lodash';
-import { createMigrate, PersistedState, persistReducer } from 'redux-persist';
+import { persistReducer, REHYDRATE } from 'redux-persist';
 
 import { toTokenSlug } from 'lib/assets';
 import { WR_TOKEN_SLUG } from 'lib/assets/known-tokens';
-import { IS_DEV_ENV } from 'lib/env';
-import { storageConfig, createTransformsBeforePersist, createEntity } from 'lib/store';
+import { storageConfig, createTransformsBeforePersist } from 'lib/store';
 
 import {
   loadTokensWhitelistActions,
@@ -142,9 +140,30 @@ const assetsReducer = createReducer<SliceState>(initialState, builder => {
 
     state.mainnetScamlist.data = payload;
   });
-});
 
-type TypedPersistedSliceState = Exclude<PersistedState, undefined> & SliceState;
+  builder.addCase(REHYDRATE, state => {
+    const keysHavingWRToken: string[] = [];
+
+    if (state.collectibles?.data) {
+      for (const key in state.collectibles.data) {
+        const assets = state.collectibles.data[key];
+        if (assets[WR_TOKEN_SLUG]) {
+          console.log('WR_TOKEN_SLUG found in assets.collectibles', key);
+          keysHavingWRToken.push(key);
+          delete assets[WR_TOKEN_SLUG];
+        }
+      }
+    }
+
+    if (state.tokens?.data) {
+      for (const key of keysHavingWRToken) {
+        state.tokens.data[key] ??= {};
+        console.log('WR_TOKEN_SLUG added to assets.tokens', key);
+        state.tokens.data[key][WR_TOKEN_SLUG] = { status: 'idle' };
+      }
+    }
+  });
+});
 
 export const assetsPersistedReducer = persistReducer<SliceState>(
   {
@@ -157,39 +176,7 @@ export const assetsPersistedReducer = persistReducer<SliceState>(
         mainnetWhitelist: entry => ({ ...entry, isLoading: false }),
         mainnetScamlist: entry => ({ ...entry, isLoading: false })
       })
-    ],
-    version: 2,
-    migrate: createMigrate(
-      {
-        '2': (persistedState: PersistedState) => {
-          if (!persistedState) return persistedState;
-
-          const keysHavingWRToken: string[] = [];
-          const state = persistedState as TypedPersistedSliceState;
-
-          return {
-            ...state,
-            collectibles: createEntity(
-              Object.fromEntries(
-                Object.entries(state.collectibles?.data ?? {}).map(([key, assets]) => {
-                  if (assets[WR_TOKEN_SLUG]) keysHavingWRToken.push(key);
-                  return [key, omit(assets, WR_TOKEN_SLUG)];
-                })
-              )
-            ),
-            tokens: createEntity(
-              Object.fromEntries(
-                Object.entries(state.tokens?.data ?? {}).map(([key, assets]) => [
-                  key,
-                  keysHavingWRToken.includes(key) ? { ...assets, [WR_TOKEN_SLUG]: { status: 'idle' } } : assets
-                ])
-              )
-            )
-          };
-        }
-      },
-      { debug: IS_DEV_ENV }
-    )
+    ]
   },
   assetsReducer
 );

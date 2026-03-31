@@ -1,10 +1,9 @@
 import { createReducer } from '@reduxjs/toolkit';
 import { enableMapSet } from 'immer';
-import { createMigrate, PersistedState, persistReducer } from 'redux-persist';
+import { persistReducer, REHYDRATE } from 'redux-persist';
 
 import { tokenToSlug, fromAssetSlug } from 'lib/assets';
 import { WR_TOKEN_SLUG } from 'lib/assets/known-tokens';
-import { IS_DEV_ENV } from 'lib/env';
 import type { TokenMetadata } from 'lib/metadata';
 import { buildTokenMetadataFromFetched } from 'lib/metadata/utils';
 import { storageConfig, createTransformsBeforePersist, createTransformsBeforeHydrate } from 'lib/store';
@@ -43,9 +42,14 @@ const collectiblesMetadataReducer = createReducer(collectiblesMetadataInitialSta
   builder.addCase(resetCollectiblesMetadataLoadingAction, state => {
     state.isLoading = false;
   });
-});
 
-type TypedPersistedSliceState = Exclude<PersistedState, undefined> & MakePropertiesOptional<SliceState, 'isLoading'>;
+  builder.addCase(REHYDRATE, state => {
+    if (state.records?.has(WR_TOKEN_SLUG)) {
+      console.log('WR_TOKEN_SLUG found in collectiblesMetadata.records');
+      state.records.delete(WR_TOKEN_SLUG);
+    }
+  });
+});
 
 export const collectiblesMetadataPersistedReducer = persistReducer<SliceState>(
   {
@@ -75,22 +79,7 @@ export const collectiblesMetadataPersistedReducer = persistReducer<SliceState>(
           return new Map(serializibleRecords.map(meta => [tokenToSlug(meta), meta]));
         }
       })
-    ],
-    version: 2,
-    migrate: createMigrate(
-      {
-        '2': (persistedState: PersistedState) => {
-          if (!persistedState) return persistedState;
-
-          const state = persistedState as TypedPersistedSliceState;
-          const collectiblesMetadataMap = new Map(state.records);
-          collectiblesMetadataMap.delete(WR_TOKEN_SLUG);
-
-          return { ...state, records: collectiblesMetadataMap };
-        }
-      },
-      { debug: IS_DEV_ENV }
-    )
+    ]
   },
   collectiblesMetadataReducer
 );

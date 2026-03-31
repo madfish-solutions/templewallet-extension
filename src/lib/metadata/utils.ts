@@ -33,7 +33,7 @@ export function getCollectionName(metadata: EvmCollectibleMetadata | nullish) {
 }
 
 /** Empty string for `artifactUri` counts */
-export const isCollectible = (metadata: StringRecord<any> | undefined) =>
+export const isCollectible = (metadata?: StringRecord<any>) =>
   isDefined(metadata) && 'artifactUri' in metadata && isString(metadata.artifactUri);
 
 export const isEvmCollectible = (metadata?: EvmAssetMetadata): metadata is EvmCollectibleMetadata =>

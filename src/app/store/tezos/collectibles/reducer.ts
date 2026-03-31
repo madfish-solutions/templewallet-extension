@@ -1,9 +1,8 @@
 import { createReducer } from '@reduxjs/toolkit';
 import { omit } from 'lodash';
-import { createMigrate, PersistedState, persistReducer } from 'redux-persist';
+import { persistReducer, REHYDRATE } from 'redux-persist';
 
 import { WR_TOKEN_SLUG } from 'lib/assets/known-tokens';
-import { IS_DEV_ENV } from 'lib/env';
 import { createEntity, storageConfig } from 'lib/store';
 
 import { loadCollectiblesDetailsActions } from './actions';
@@ -44,29 +43,20 @@ const collectiblesReducer = createReducer<CollectiblesState>(collectiblesInitial
     state.details.isLoading = false;
     state.details.error = payload;
   });
-});
 
-type TypedPersistedCollectiblesState = Exclude<PersistedState, undefined> &
-  MakePropertiesOptional<CollectiblesState, 'adultFlags'>;
+  builder.addCase(REHYDRATE, (state) => {
+    if (state.details?.data[WR_TOKEN_SLUG]) {
+      console.log('WR_TOKEN_SLUG found in collectibles.details');
+      state.details = createEntity(omit(state.details.data, WR_TOKEN_SLUG));
+    }
+  });
+});
 
 export const collectiblesPersistedReducer = persistReducer(
   {
     key: 'root.collectibles',
     ...storageConfig,
-    whitelist: ['adultFlags'] as (keyof CollectiblesState)[],
-    version: 2,
-    migrate: createMigrate(
-      {
-        '2': (persistedState: PersistedState) => {
-          if (!persistedState) return persistedState;
-
-          const state = persistedState as TypedPersistedCollectiblesState;
-
-          return { ...state, details: createEntity(omit(state.details?.data ?? {}, WR_TOKEN_SLUG)) };
-        }
-      },
-      { debug: IS_DEV_ENV }
-    )
+    whitelist: ['adultFlags'] as (keyof CollectiblesState)[]
   },
   collectiblesReducer
 );
