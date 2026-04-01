@@ -2,7 +2,7 @@ import { BasicChain } from 'temple/front/chains';
 
 export type FilterChain = BasicChain | null;
 
-export interface AssetsFilterOptionsStateInterface {
+export interface ModeOptions {
   filterChain: FilterChain;
   tokensListOptions: {
     /** @deprecated */
@@ -16,7 +16,12 @@ export interface AssetsFilterOptionsStateInterface {
   };
 }
 
-export const AssetsFilterOptionsInitialState: AssetsFilterOptionsStateInterface = {
+export interface AssetsFilterOptionsStateInterface extends ModeOptions {
+  storedMainnetOptions: ModeOptions;
+  storedTestnetOptions: ModeOptions;
+}
+
+export const modeOptionsInitialState: ModeOptions = {
   filterChain: null,
   tokensListOptions: {
     hideSmallBalance: false,
@@ -26,4 +31,10 @@ export const AssetsFilterOptionsInitialState: AssetsFilterOptionsStateInterface 
     blur: false,
     showInfo: false
   }
+};
+
+export const AssetsFilterOptionsInitialState: AssetsFilterOptionsStateInterface = {
+  ...modeOptionsInitialState,
+  storedMainnetOptions: modeOptionsInitialState,
+  storedTestnetOptions: modeOptionsInitialState
 };

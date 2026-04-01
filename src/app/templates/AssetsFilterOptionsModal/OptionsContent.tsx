@@ -2,18 +2,21 @@ import React, { FC, memo, useCallback } from 'react';
 
 import clsx from 'clsx';
 
+import { ReactComponent as XCircleFillIcon } from 'app/icons/base/x_circle_fill.svg';
+
 import { FadeTransition } from 'app/a11y/FadeTransition';
-import { Divider, ToggleSwitch } from 'app/atoms';
+import { Divider, ToggleSwitch, IconBase } from 'app/atoms';
 import { NetworkSelectButton } from 'app/atoms/NetworkSelectButton';
 import { ContentContainer } from 'app/layouts/containers';
 import { dispatch } from 'app/store';
 import {
+  resetTokensFilterOptions,
   setCollectiblesBlurFilterOption,
   setCollectiblesShowInfoFilterOption,
   setTokensGroupByNetworkFilterOption,
   setTokensHideSmallBalanceFilterOption
 } from 'app/store/assets-filter-options/actions';
-import { useAssetsFilterOptionsSelector } from 'app/store/assets-filter-options/selectors';
+import { useAssetsFilterOptionsSelector, useHasActiveFiltersSelector } from 'app/store/assets-filter-options/selectors';
 import { useTestnetModeEnabledSelector } from 'app/store/settings/selectors';
 import { T, TID } from 'lib/i18n';
 
@@ -25,6 +28,7 @@ export const OptionsContent = memo<Props>(({ onNetworkSelectClick }) => {
   const options = useAssetsFilterOptionsSelector();
   const testnetModeEnabled = useTestnetModeEnabledSelector();
   const { filterChain, tokensListOptions, collectiblesListOptions } = options;
+  const hasActiveFilters = useHasActiveFiltersSelector();
 
   const handleTokensHideSmallBalanceChange = useCallback(
     (checked: boolean) => dispatch(setTokensHideSmallBalanceFilterOption(checked)),
@@ -48,32 +52,41 @@ export const OptionsContent = memo<Props>(({ onNetworkSelectClick }) => {
     <FadeTransition>
       <ContentContainer withShadow={false}>
         <div className="flex flex-col gap-1">
-          <p className="text-font-description-bold p-1">
-            <T id="network" />
-          </p>
+          <div className="flex items-center justify-between p-1">
+            <p className="text-font-description-bold">
+              <T id="network" />
+            </p>
+
+            {hasActiveFilters && (
+              <button
+                className="flex items-center gap-0.5 text-secondary"
+                onClick={() => dispatch(resetTokensFilterOptions())}
+              >
+                <span className="text-font-description-bold">
+                  <T id="resetAll" />
+                </span>
+                <IconBase Icon={XCircleFillIcon} size={12} />
+              </button>
+            )}
+          </div>
 
           <NetworkSelectButton selectedChain={filterChain} onClick={onNetworkSelectClick} />
         </div>
 
         <TogglesContainer labelTitle="tokensList">
-          {!testnetModeEnabled && (
-            <>
-              <ToggleRow
-                labelId="hideSmallBalance"
-                checked={tokensListOptions.hideSmallBalance}
-                onChange={handleTokensHideSmallBalanceChange}
-                isFirst
-              />
-              <Divider thinest />
-            </>
-          )}
-
+          <ToggleRow
+            labelId="hideSmallBalance"
+            checked={tokensListOptions.hideSmallBalance}
+            disabled={testnetModeEnabled}
+            onChange={handleTokensHideSmallBalanceChange}
+            isFirst
+          />
+          <Divider thinest />
           <ToggleRow
             labelId="groupByNetwork"
             checked={tokensListOptions.groupByNetwork}
             disabled={Boolean(filterChain)}
             onChange={handleTokensGroupByNetworkChange}
-            isFirst={testnetModeEnabled}
             isLast
           />
         </TogglesContainer>
