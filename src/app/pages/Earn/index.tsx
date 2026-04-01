@@ -5,13 +5,13 @@ import PageLayout from 'app/layouts/PageLayout';
 import { EarnDepositStats } from 'app/templates/EarnDepositStats';
 import { usePartnersPromotionModule } from 'app/templates/partners-promotion';
 import { SearchBarField } from 'app/templates/SearchField';
+import { EARN_PAGE_NAME } from 'lib/ads-constants';
 import { T, t, TID } from 'lib/i18n';
 
 import { EarnItem } from './components/EarnItem';
 import { EthSavingItem } from './components/EthSavingItem';
 import { TezSavingItem } from './components/TezSavingItem';
 import { ETH_SAVING_OFFER_ID, TEZ_SAVING_OFFER_ID } from './config';
-import { EARN_PAGE_NAME } from './constants';
 import { useFilteredEarnOffers } from './hooks/use-filtered-earn-offers';
 import { EarnOffer } from './types';
 
