@@ -16,9 +16,9 @@ export const useHasActiveFiltersSelector = () =>
   useSelector(({ assetsFilterOptions: { filterChain, tokensListOptions, collectiblesListOptions } }) =>
     Boolean(
       filterChain ||
-        tokensListOptions.hideSmallBalance ||
-        tokensListOptions.groupByNetwork ||
-        collectiblesListOptions.blur ||
-        collectiblesListOptions.showInfo
+      tokensListOptions.hideSmallBalance ||
+      tokensListOptions.groupByNetwork ||
+      collectiblesListOptions.blur ||
+      collectiblesListOptions.showInfo
     )
   );

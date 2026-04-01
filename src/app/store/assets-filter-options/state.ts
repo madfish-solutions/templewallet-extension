@@ -2,7 +2,7 @@ import { BasicChain } from 'temple/front/chains';
 
 export type FilterChain = BasicChain | null;
 
-export interface ModeOptions {
+interface ModeOptions {
   filterChain: FilterChain;
   tokensListOptions: {
     /** @deprecated */

@@ -2,11 +2,10 @@ import React, { FC, memo, useCallback } from 'react';
 
 import clsx from 'clsx';
 
-import { ReactComponent as XCircleFillIcon } from 'app/icons/base/x_circle_fill.svg';
-
 import { FadeTransition } from 'app/a11y/FadeTransition';
 import { Divider, ToggleSwitch, IconBase } from 'app/atoms';
 import { NetworkSelectButton } from 'app/atoms/NetworkSelectButton';
+import { ReactComponent as XCircleFillIcon } from 'app/icons/base/x_circle_fill.svg';
 import { ContentContainer } from 'app/layouts/containers';
 import { dispatch } from 'app/store';
 import {
