@@ -6,7 +6,7 @@ import {
   useTezosChainCollectiblesForListing,
   useTezosChainCollectiblesListingLogic
 } from 'app/hooks/listing-logic/use-tezos-chain-collectibles-listing-logic';
-import { useAssetsViewState } from 'app/hooks/use-assets-view-state';
+import { useManageState } from 'app/hooks/use-assets-view-state';
 import { useCollectiblesListOptionsSelector } from 'app/store/assets-filter-options/selectors';
 import { useMainnetTokensScamlistSelector } from 'app/store/tezos/assets/selectors';
 import { CollectiblesListItemElement } from 'lib/ui/collectibles-list';
@@ -26,7 +26,7 @@ export const TezosChainCollectiblesTab = memo<Props>(({ chainId, publicKeyHash }
 
   if (!network) throw new DeadEndBoundaryError();
 
-  const { manageActive } = useAssetsViewState();
+  const { manageActive } = useManageState();
 
   if (manageActive) return <TabContentWithManageActive publicKeyHash={publicKeyHash} network={network} />;
 

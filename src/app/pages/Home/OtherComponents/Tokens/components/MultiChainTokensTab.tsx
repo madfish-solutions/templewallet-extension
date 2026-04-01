@@ -8,7 +8,7 @@ import {
   usePreservedOrderSlugsGroupsToManage,
   usePreservedOrderSlugsToManage
 } from 'app/hooks/listing-logic/use-manageable-slugs';
-import { useAssetsViewState } from 'app/hooks/use-assets-view-state';
+import { useManageState } from 'app/hooks/use-assets-view-state';
 import {
   useGroupByNetworkBehaviorSelector,
   useTokensListOptionsSelector
@@ -46,7 +46,7 @@ const MultiChainTokensTabContext = createContext<Props>({
 });
 
 export const MultiChainTokensTab = memo<Props>(props => {
-  const { manageActive } = useAssetsViewState();
+  const { manageActive } = useManageState();
 
   return (
     <MultiChainTokensTabContext value={props}>
