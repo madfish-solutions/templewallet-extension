@@ -109,7 +109,7 @@ export const PartnersPromotion = memo<PartnersPromotionProps>(({ variant, id, pa
     }
   }, [enableInternalHypelabAds, handleHypelabError]);
 
-  if (!shouldShowPartnersPromo || (adError === 'fatal') || isHiddenTemporarily) {
+  if (!shouldShowPartnersPromo || adError === 'fatal' || isHiddenTemporarily) {
     return null;
   }
 
