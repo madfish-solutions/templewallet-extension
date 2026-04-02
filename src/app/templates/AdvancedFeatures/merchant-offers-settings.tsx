@@ -29,7 +29,7 @@ export const MerchantOffersSettings = memo(() => {
     <EnablingSetting
       title={<T id="merchantOffers" />}
       description={<T id="merchantOffersDescription" />}
-      enabled={isEnabled ?? true}
+      enabled={!!isEnabled}
       onChange={handleChange}
       testID={AdvancedFeaturesSelectors.merchantOffers}
     />

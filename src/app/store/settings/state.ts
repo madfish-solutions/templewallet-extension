@@ -8,7 +8,6 @@ export interface SettingsState {
   userId: string;
   isAnalyticsEnabled: boolean;
   pendingReactivateAds: boolean;
-  adsImpressionsLinked: boolean;
   /** Now only used for Temple referral link replacement (TakeAds replacement removed, replaced by merchant offers popup) */
   referralLinksEnabled: boolean;
   isTestnetModeEnabled: boolean;
@@ -31,7 +30,6 @@ export const settingsInitialState: SettingsState = {
   userId: nanoid(),
   isAnalyticsEnabled: false,
   pendingReactivateAds: false,
-  adsImpressionsLinked: false,
   referralLinksEnabled: IS_MISES_BROWSER,
   isTestnetModeEnabled: false,
   onRampAsset: null,

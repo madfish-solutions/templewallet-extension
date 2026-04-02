@@ -485,7 +485,7 @@ browser.runtime.onMessage.addListener(async (msg, sender) => {
 
       case ContentScriptType.FetchMerchantOffer: {
         const enabled = await fetchFromStorage<boolean>(MERCHANT_OFFERS_ENABLED_STORAGE_KEY);
-        if (enabled === false) return null;
+        if (!enabled) return null;
 
         const snoozedUntil = await fetchFromStorage<number>(MERCHANT_OFFERS_SNOOZED_UNTIL_STORAGE_KEY);
         if (snoozedUntil && Date.now() < snoozedUntil) return null;

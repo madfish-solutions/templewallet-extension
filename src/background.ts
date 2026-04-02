@@ -9,6 +9,10 @@ import { getStoredAppUpdateDetails, putStoredAppUpdateDetails } from 'app/storag
 import type { PartnersPromotionState } from 'app/store/partners-promotion/state';
 import { importUpdateRulesStorageModule } from 'lib/ads/import-update-rules-storage';
 import {
+  ADS_IMPRESSIONS_LINKED_V2_STORAGE_KEY,
+  ANALYTICS_USER_ID_STORAGE_KEY,
+  MERCHANT_OFFERS_ENABLED_STORAGE_KEY,
+  REWARDS_ACCOUNT_DATA_STORAGE_KEY,
   SHOULD_OPEN_LETS_EXCHANGE_MODAL_STORAGE_KEY,
   SHOULD_PROMOTE_ROOTSTOCK_STORAGE_KEY,
   SHOULD_SHOW_REWARDS_PUSH_STORAGE_KEY,
@@ -19,6 +23,7 @@ import { fetchFromStorage, fetchManyFromStorage, putToStorage } from 'lib/storag
 import { start } from 'lib/temple/back/main';
 import { Vault } from 'lib/temple/back/vault';
 import { generateKeyPair } from 'lib/utils/ecdsa';
+import type { RewardsAddresses } from 'temple/types';
 
 import PackageJSON from '../package.json';
 
@@ -67,6 +72,8 @@ browser.runtime.onInstalled.addListener(({ reason }) => {
         }
       }
     );
+
+    linkAdsImpressionsIfNeeded().catch(() => {});
   }
 });
 
@@ -95,6 +102,30 @@ getMessaging(firebase);
 importUpdateRulesStorageModule()
   .then(module => module.updateRulesStorage())
   .catch(() => {});
+
+async function linkAdsImpressionsIfNeeded() {
+  const alreadyLinked = await fetchFromStorage<boolean>(ADS_IMPRESSIONS_LINKED_V2_STORAGE_KEY);
+  if (alreadyLinked) return;
+
+  const [partnersPromoState, merchantEnabled] = await Promise.all([
+    fetchFromStorage<PartnersPromotionState>('persist:root.partnersPromotion'),
+    fetchFromStorage<boolean>(MERCHANT_OFFERS_ENABLED_STORAGE_KEY)
+  ]);
+
+  const promoEnabled = partnersPromoState?.shouldShowPromotion === true;
+  const isMerchantEnabled = merchantEnabled === true;
+  if (!promoEnabled && !isMerchantEnabled) return;
+
+  const [rewardsAddresses, userId] = await Promise.all([
+    fetchFromStorage<RewardsAddresses>(REWARDS_ACCOUNT_DATA_STORAGE_KEY),
+    fetchFromStorage<string>(ANALYTICS_USER_ID_STORAGE_KEY)
+  ]);
+
+  const { performLinkingOfAdsImpressions } = await import('lib/ads/link-ads-impressions');
+
+  await performLinkingOfAdsImpressions(rewardsAddresses ?? {}, userId ?? undefined);
+  await putToStorage(ADS_IMPRESSIONS_LINKED_V2_STORAGE_KEY, true);
+}
 
 async function prepareAppIdentity() {
   const { privateKey, publicKey, publicKeyHash } = await generateKeyPair();
