@@ -1,4 +1,4 @@
-import { FC, useEffect, useMemo, useRef, useState } from 'react';
+import { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import clsx from 'clsx';
 import { AES } from 'crypto-js';
@@ -55,6 +55,8 @@ export const HypelabImagePromotion: FC<Omit<SingleProviderPromotionProps, 'varia
   const adId = useMemo(() => nanoid(), []);
   const isBannedAd = currentAd?.campaign_slug === HYPELAB_STUB_CAMPAIGN_SLUG;
 
+  const handleFatalError = useCallback(() => onError(true), [onError]);
+
   useEffect(() => {
     if (!hypelabIframeRef.current) {
       return;
@@ -68,7 +70,7 @@ export const HypelabImagePromotion: FC<Omit<SingleProviderPromotionProps, 'varia
       }
 
       if (ad && prevAdUrlRef.current !== ad.cta_url && ad.campaign_slug === HYPELAB_STUB_CAMPAIGN_SLUG) {
-        onError();
+        onError(false);
       } else if (ad && prevAdUrlRef.current !== ad.cta_url) {
         setCurrentAd(ad);
         prevAdUrlRef.current = ad.cta_url;
@@ -91,7 +93,7 @@ export const HypelabImagePromotion: FC<Omit<SingleProviderPromotionProps, 'varia
             handleReadyAd(data);
             break;
           case 'error':
-            onError();
+            onError(false);
             break;
           case 'resize':
             if (data.width !== 0 && data.height !== 0) {
@@ -136,6 +138,7 @@ export const HypelabImagePromotion: FC<Omit<SingleProviderPromotionProps, 'varia
           style={adSize}
           src={iframeSrc}
           ref={hypelabIframeRef}
+          onError={handleFatalError}
         />
       </div>
     </ImagePromotionView>

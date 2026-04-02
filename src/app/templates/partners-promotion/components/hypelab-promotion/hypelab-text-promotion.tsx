@@ -1,4 +1,4 @@
-import { FC, useEffect, useRef, useState } from 'react';
+import { FC, useCallback, useEffect, useRef, useState } from 'react';
 
 import { Native, NativeElement } from '@hypelab/sdk-react';
 
@@ -44,6 +44,8 @@ export const HypelabTextPromotion: FC<Omit<SingleProviderPromotionProps, 'varian
   const ctaUrl = useElementValue(hypelabCtaLinkRef, getLinkHref, '/', attributesObserverOptions);
   const iconUrl = useElementValue(hypelabIconRef, getImageSrc, dummyImageSrc, attributesObserverOptions);
   const adIsReady = headlineText.length > 0;
+
+  const handleNonFatalError = useCallback(() => onError(false), [onError]);
 
   useEffect(() => {
     const impressionsListener = (event: Event) => {
@@ -95,7 +97,7 @@ export const HypelabTextPromotion: FC<Omit<SingleProviderPromotionProps, 'varian
         // @ts-expect-error
         class="w-full"
         placement={EnvVars.HYPELAB_INTERNAL_NATIVE_PLACEMENT_SLUG}
-        onError={onError}
+        onError={handleNonFatalError}
       >
         <span className="hidden" ref={hypelabHeadlineRef} data-ref="headline" />
         <span className="hidden" ref={hypelabBodyRef} data-ref="body" />
@@ -113,7 +115,7 @@ export const HypelabTextPromotion: FC<Omit<SingleProviderPromotionProps, 'varian
           providerTitle={AdsProviderTitle.HypeLab}
           pageName={pageName}
           onAdRectVisible={setAdRectVisible}
-          onImageError={onError}
+          onImageError={handleNonFatalError}
         />
       </Native>
     </div>

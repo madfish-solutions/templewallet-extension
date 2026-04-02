@@ -78,7 +78,7 @@ export const PartnersPromotion = memo<PartnersPromotionProps>(({ variant, id, pa
     [id, dispatch]
   );
 
-  const handleHypelabError = useCallback(() => setAdError('non-fatal'), []);
+  const handleHypelabError = useCallback((isFatal: boolean) => setAdError(isFatal ? 'fatal' : 'non-fatal'), []);
 
   const handleAdReady = useCallback(() => setAdIsReady(true), []);
 

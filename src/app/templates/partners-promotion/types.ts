@@ -9,7 +9,7 @@ export interface SingleProviderPromotionProps {
   isVisible: boolean;
   pageName: string;
   onReady: EmptyFn;
-  onError: EmptyFn;
+  onError: (isFatal: boolean) => void;
   onImpression: EmptyFn;
 }
 
