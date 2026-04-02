@@ -1,8 +1,7 @@
-import React, { FC, useEffect, useRef, useState } from 'react';
+import { FC, useEffect, useRef, useState } from 'react';
 
 import { Native, NativeElement } from '@hypelab/sdk-react';
 
-import { useAdTimeout } from 'app/hooks/ads/use-ad-timeout';
 import { useElementValue } from 'app/hooks/ads/use-element-value';
 import { AdsProviderTitle } from 'lib/ads';
 import { EnvVars } from 'lib/env';
@@ -45,8 +44,6 @@ export const HypelabTextPromotion: FC<Omit<SingleProviderPromotionProps, 'varian
   const ctaUrl = useElementValue(hypelabCtaLinkRef, getLinkHref, '/', attributesObserverOptions);
   const iconUrl = useElementValue(hypelabIconRef, getImageSrc, dummyImageSrc, attributesObserverOptions);
   const adIsReady = headlineText.length > 0;
-
-  useAdTimeout(adIsReady, onError);
 
   useEffect(() => {
     const impressionsListener = (event: Event) => {

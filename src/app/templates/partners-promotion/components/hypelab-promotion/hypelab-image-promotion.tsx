@@ -1,9 +1,9 @@
-import React, { FC, useEffect, useMemo, useRef, useState } from 'react';
+import { FC, useEffect, useMemo, useRef, useState } from 'react';
 
+import clsx from 'clsx';
 import { AES } from 'crypto-js';
 import { nanoid } from 'nanoid';
 
-import { useAdTimeout } from 'app/hooks/ads/use-ad-timeout';
 import { AdsProviderTitle } from 'lib/ads';
 import { HYPELAB_STUB_CAMPAIGN_SLUG } from 'lib/ads-constants';
 import { EnvVars } from 'lib/env';
@@ -32,7 +32,6 @@ export const HypelabImagePromotion: FC<Omit<SingleProviderPromotionProps, 'varia
 }) => {
   const evmAccountAddress = useAccountAddressForEvm();
   const hypelabIframeRef = useRef<HTMLIFrameElement>(null);
-  const [adIsReady, setAdIsReady] = useState(false);
   const [currentAd, setCurrentAd] = useState<HypelabBannerAd | null>(null);
   const [adSize, setAdSize] = useState<{ width: number; height: number }>({ width: 320, height: 100 });
   const prevAdUrlRef = useRef('');
@@ -53,9 +52,9 @@ export const HypelabImagePromotion: FC<Omit<SingleProviderPromotionProps, 'varia
   const [adRectVisible, setAdRectVisible] = useState(false);
   const adRectVisibleRef = useUpdatableRef(adRectVisible);
 
-  useAdTimeout(adIsReady, onError);
-
   const adId = useMemo(() => nanoid(), []);
+  const isBannedAd = currentAd?.campaign_slug === HYPELAB_STUB_CAMPAIGN_SLUG;
+
   useEffect(() => {
     if (!hypelabIframeRef.current) {
       return;
@@ -73,7 +72,6 @@ export const HypelabImagePromotion: FC<Omit<SingleProviderPromotionProps, 'varia
       } else if (ad && prevAdUrlRef.current !== ad.cta_url) {
         setCurrentAd(ad);
         prevAdUrlRef.current = ad.cta_url;
-        setAdIsReady(true);
         onReady();
       }
     };
@@ -101,7 +99,7 @@ export const HypelabImagePromotion: FC<Omit<SingleProviderPromotionProps, 'varia
             }
             break;
           case 'impression':
-            if (adRectVisibleRef.current) {
+            if (adRectVisibleRef.current && !isBannedAd) {
               onImpression();
             }
         }
@@ -112,7 +110,7 @@ export const HypelabImagePromotion: FC<Omit<SingleProviderPromotionProps, 'varia
     window.addEventListener('message', messagesListener);
 
     return () => window.removeEventListener('message', messagesListener);
-  }, [adId, onError, onReady, onImpression, adRectVisibleRef]);
+  }, [adId, onReady, onImpression, adRectVisibleRef, onError, isBannedAd]);
 
   const iframeSrc = useMemo(
     () => getAdsTwUrl({ origin: globalThis.location.origin, width: 320, height: 100, id: adId, evmAccountAddress }),
@@ -134,7 +132,7 @@ export const HypelabImagePromotion: FC<Omit<SingleProviderPromotionProps, 'varia
         <iframe
           title="Ad"
           sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"
-          className="block border-none rounded overflow-hidden"
+          className={clsx('block border-none rounded overflow-hidden', isBannedAd && 'size-0')}
           style={adSize}
           src={iframeSrc}
           ref={hypelabIframeRef}

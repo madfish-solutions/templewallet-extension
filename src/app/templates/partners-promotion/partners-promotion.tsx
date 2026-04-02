@@ -46,7 +46,7 @@ export const PartnersPromotion = memo<PartnersPromotionProps>(({ variant, id, pa
   const shouldShowPartnersPromo = useShouldShowPartnersPromoSelector();
 
   const [isHiddenByTimeout, setIsHiddenByTimeout] = useState(shouldBeHiddenByTimeout(hiddenAt));
-  const [adError, setAdError] = useState(false);
+  const [adError, setAdError] = useState<'none' | 'non-fatal' | 'fatal'>('none');
   const [adIsReady, setAdIsReady] = useState(false);
 
   useEffect(() => {
@@ -78,7 +78,7 @@ export const PartnersPromotion = memo<PartnersPromotionProps>(({ variant, id, pa
     [id, dispatch]
   );
 
-  const handleHypelabError = useCallback(() => setAdError(true), []);
+  const handleHypelabError = useCallback(() => setAdError('non-fatal'), []);
 
   const handleAdReady = useCallback(() => setAdIsReady(true), []);
 
@@ -101,15 +101,15 @@ export const PartnersPromotion = memo<PartnersPromotionProps>(({ variant, id, pa
     const prevEnableInternalHypelabAds = prevEnableInternalHypelabAdsRef.current;
     prevEnableInternalHypelabAdsRef.current = enableInternalHypelabAds;
     if (enableInternalHypelabAds === false) {
-      handleHypelabError();
+      setAdError('fatal');
     }
     if (prevEnableInternalHypelabAds === false && enableInternalHypelabAds) {
       setAdIsReady(false);
-      setAdError(false);
+      setAdError('none');
     }
   }, [enableInternalHypelabAds, handleHypelabError]);
 
-  if (!shouldShowPartnersPromo || adError || isHiddenTemporarily) {
+  if (!shouldShowPartnersPromo || (adError === 'fatal') || isHiddenTemporarily) {
     return null;
   }
 
