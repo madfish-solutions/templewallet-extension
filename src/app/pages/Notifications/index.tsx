@@ -8,6 +8,7 @@ import { viewAllNotificationsAction } from 'app/store/notifications/actions';
 import { useNotificationsSelector } from 'app/store/notifications/selectors';
 import { useShouldShowPartnersPromoSelector } from 'app/store/partners-promotion/selectors';
 import { usePartnersPromotionModule } from 'app/templates/partners-promotion';
+import { NOTIFICATIONS_PAGE_NAME } from 'lib/ads-constants';
 import { t } from 'lib/i18n';
 import { useBooleanState, useTimeout } from 'lib/ui/hooks';
 
@@ -44,7 +45,7 @@ export const Notifications = () => {
             <PartnersPromotionModule.PartnersPromotion
               id="promo-notifications-item"
               variant={PartnersPromotionModule.PartnersPromotionVariant.Image}
-              pageName="Notifications"
+              pageName={NOTIFICATIONS_PAGE_NAME}
             />
           </div>
         )}

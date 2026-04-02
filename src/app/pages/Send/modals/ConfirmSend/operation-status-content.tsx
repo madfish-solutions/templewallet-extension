@@ -21,6 +21,7 @@ import { BalancesChangesView } from 'app/templates/balances-changes-view';
 import { ChartListItem } from 'app/templates/chart-list-item';
 import { FeeSummary } from 'app/templates/fee-summary';
 import { usePartnersPromotionModule } from 'app/templates/partners-promotion';
+import { SEND_PAGE_NAME } from 'lib/ads-constants';
 import { T, t } from 'lib/i18n';
 import { useCategorizedTezosAssetMetadata, useEvmCategorizedAssetMetadata } from 'lib/metadata';
 import { useCopyText } from 'lib/ui/hooks/use-copy-text';
@@ -171,7 +172,7 @@ const OperationStatusContentHOC = <T extends TempleChainKind>({
               <PartnersPromotionModule.PartnersPromotion
                 id="promo-send-status-content"
                 variant={PartnersPromotionModule.PartnersPromotionVariant.Text}
-                pageName="Send"
+                pageName={SEND_PAGE_NAME}
               />
             )}
           </div>

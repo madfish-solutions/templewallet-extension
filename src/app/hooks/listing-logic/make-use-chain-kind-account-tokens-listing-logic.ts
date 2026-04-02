@@ -59,13 +59,19 @@ export const makeUseChainKindAccountTokensForListing = <T extends TempleChainKin
     const isBigBalance = useIsBigBalance(publicKeyHash);
 
     const enabledSlugs = useMemo(() => {
-      const gasSlugs = enabledChains.map(chain => toChainAssetSlug(chainKind, chain.chainId, gasTokenSlug));
+      const result: string[] = [];
 
-      const enabledTokensSlugs = tokens
-        .filter(({ status }) => status === 'enabled')
-        .map(({ chainId, slug }) => toChainAssetSlug(chainKind, chainId, slug));
+      for (const chain of enabledChains) {
+        result.push(toChainAssetSlug(chainKind, chain.chainId, gasTokenSlug));
+      }
 
-      return gasSlugs.concat(enabledTokensSlugs);
+      for (const { chainId, slug, status } of tokens) {
+        if (status === 'enabled') {
+          result.push(toChainAssetSlug(chainKind, chainId, slug));
+        }
+      }
+
+      return result;
     }, [tokens, enabledChains]);
 
     const enabledChainSlugsSorted = useMemoWithCompare(() => {
@@ -127,18 +133,22 @@ export const makeUseChainKindAccountTokensListingLogic = <T extends TempleChainK
           : paginatedSlugs,
       [isInSearchMode, paginatedSlugs, allSlugsSorted, searchValueDebounced, getMetadata]
     );
-    const displayedGroupedSlugs = useMemo(
-      () =>
-        isInSearchMode
-          ? allSlugsSortedGrouped
-              ?.map(([chainId, slugs]): [ChainId<T>, string[]] => [
-                chainId,
-                searchTokensWithNoMeta(searchValueDebounced, slugs, getMetadata, getSlugWithChainId)
-              ])
-              .filter(([, slugs]) => slugs.length > 0) ?? null
-          : paginatedSlugsGroups,
-      [allSlugsSortedGrouped, getMetadata, isInSearchMode, paginatedSlugsGroups, searchValueDebounced]
-    );
+    const displayedGroupedSlugs = useMemo(() => {
+      if (!isInSearchMode) return paginatedSlugsGroups;
+      if (!allSlugsSortedGrouped) return null;
+
+      const result: [ChainId<T>, string[]][] = [];
+
+      for (const [chainId, slugs] of allSlugsSortedGrouped) {
+        const filteredSlugs = searchTokensWithNoMeta(searchValueDebounced, slugs, getMetadata, getSlugWithChainId);
+
+        if (filteredSlugs.length > 0) {
+          result.push([chainId, filteredSlugs]);
+        }
+      }
+
+      return result;
+    }, [allSlugsSortedGrouped, getMetadata, isInSearchMode, paginatedSlugsGroups, searchValueDebounced]);
 
     return {
       isInSearchMode,

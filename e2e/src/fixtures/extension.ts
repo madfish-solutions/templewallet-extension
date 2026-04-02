@@ -6,7 +6,7 @@ let EXTENSION_ID = '';
 export const test = base.extend<{
   extensionId: string;
 }>({
-  // eslint-disable-next-line no-empty-pattern
+  // oxlint-disable-next-line no-empty-pattern
   context: async ({}, use) => {
     await use(browser);
   },

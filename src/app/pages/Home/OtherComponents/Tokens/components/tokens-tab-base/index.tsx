@@ -8,7 +8,7 @@ import {
   VisibilityTrackingInfiniteScroll,
   VisibilityTrackingInfiniteScrollProps
 } from 'app/atoms/visibility-tracking-infinite-scroll';
-import { useAssetsViewState } from 'app/hooks/use-assets-view-state';
+import { useManageState } from 'app/hooks/use-assets-view-state';
 import { ContentContainer } from 'app/layouts/containers';
 import BuyWithFiatImageSrc from 'app/misc/deposit/buy-with-fiat.png';
 import CrossChainSwapImageSrc from 'app/misc/deposit/cross-chain-swap.png';
@@ -18,7 +18,6 @@ import {
   useIsAccountInitializedSelector
 } from 'app/store/accounts-initialization/selectors';
 import { useTestnetModeEnabledSelector } from 'app/store/settings/selectors';
-import { AssetsFilterOptions } from 'app/templates/AssetsFilterOptions';
 import { DAppConnection } from 'app/templates/DAppConnection';
 import { DepositOption } from 'app/templates/deposit-option';
 import { t, T } from 'lib/i18n';
@@ -38,17 +37,13 @@ export interface TokensTabBaseProps {
 }
 
 export const TokensTabBase: FC<PropsWithChildren<TokensTabBaseProps>> = ({ ...restProps }) => {
-  const { manageActive, filtersOpened } = useAssetsViewState();
+  const { manageActive } = useManageState();
 
   return (
     <>
-      {filtersOpened ? (
-        <AssetsFilterOptions />
-      ) : (
-        <FadeTransition>
-          <TokensTabBaseContent {...restProps} manageActive={manageActive} />
-        </FadeTransition>
-      )}
+      <FadeTransition>
+        <TokensTabBaseContent {...restProps} manageActive={manageActive} />
+      </FadeTransition>
 
       <DAppConnection />
     </>

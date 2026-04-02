@@ -1,7 +1,7 @@
 import { memo, Ref, useCallback } from 'react';
 
 import { useEvmChainCollectiblesListingLogic } from 'app/hooks/listing-logic/use-evm-chain-collectibles-listing-logic';
-import { useAssetsViewState } from 'app/hooks/use-assets-view-state';
+import { useManageState } from 'app/hooks/use-assets-view-state';
 import { useCollectiblesListOptionsSelector } from 'app/store/assets-filter-options/selectors';
 import { CollectiblesListItemElement } from 'lib/ui/collectibles-list';
 import { useEvmChainByChainId } from 'temple/front/chains';
@@ -19,7 +19,7 @@ export const EvmChainCollectiblesTab = memo<EvmChainCollectiblesTabProps>(({ cha
   const network = useEvmChainByChainId(chainId);
 
   const { showInfo } = useCollectiblesListOptionsSelector();
-  const { manageActive } = useAssetsViewState();
+  const { manageActive } = useManageState();
 
   const { isInSearchMode, paginatedSlugs, isSyncing, loadNext } = useEvmChainCollectiblesListingLogic(
     publicKeyHash,

@@ -1,8 +1,8 @@
 import React, { PropsWithChildren, ComponentProps, FC, Suspense, useMemo } from 'react';
 
-import 'lib/local-storage/migrations';
-import 'lib/ledger/proxy/foreground';
 import 'lib/keep-bg-worker-alive/script';
+import 'lib/ledger/proxy/foreground';
+import 'lib/local-storage/migrations';
 
 import AwaitFontFamily from 'app/a11y/AwaitFonts';
 import AwaitI18N from 'app/a11y/AwaitI18N';
@@ -62,16 +62,22 @@ export const App: FC<Props> = ({ env }) => (
 );
 
 const SidebarContent = () => {
-  const { dAppQueueCounters, dAppPendingConfirmationId } = useTempleClient();
+  const { dAppPendingConfirmationId } = useTempleClient();
   const { search, pathname } = Woozie.useLocation();
 
   useSyncConfirmationIdToUrl(dAppPendingConfirmationId);
 
   const isConfirmation = useMemo(() => {
     const searchParams = new URLSearchParams(search);
+    const currentConfirmationId = searchParams.get('id');
 
-    return dAppQueueCounters.length && searchParams.has('id') && searchParams.size === 1 && pathname === '/';
-  }, [dAppQueueCounters.length, pathname, search]);
+    return (
+      Boolean(currentConfirmationId) &&
+      currentConfirmationId === dAppPendingConfirmationId &&
+      searchParams.size === 1 &&
+      pathname === '/'
+    );
+  }, [dAppPendingConfirmationId, pathname, search]);
 
   return isConfirmation ? <ConfirmContent /> : <MainAppContent />;
 };

@@ -1,11 +1,8 @@
 import { useEffect } from 'react';
 
-import { useDispatch } from 'react-redux';
-
-import { getUserTestingGroupNameActions } from '../store/ab-testing/actions';
+import { dispatch } from 'app/store';
+import { getUserTestingGroupNameActions } from 'app/store/ab-testing/actions';
 
 export const useABTestingLoading = () => {
-  const dispatch = useDispatch();
-
   useEffect(() => void dispatch(getUserTestingGroupNameActions.submit()), []);
 };

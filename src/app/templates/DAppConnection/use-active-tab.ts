@@ -83,7 +83,7 @@ export function useActiveTabUrlOrigin() {
   const tab = useActiveTab();
 
   return useMemo(() => {
-    const rawUrl = tab ? tab.url ?? tabsOrigins[tab.id ?? browser.tabs.TAB_ID_NONE] : undefined;
+    const rawUrl = tab ? (tab.url ?? tabsOrigins[tab.id ?? browser.tabs.TAB_ID_NONE]) : undefined;
     const url = rawUrl ? new URL(rawUrl) : null;
 
     return url?.origin;

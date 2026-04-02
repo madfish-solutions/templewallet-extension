@@ -138,11 +138,14 @@ export const useRefreshIfActive = <L extends [DataLoader<any>, ...DataLoader<any
 
       loaders.forEach(({ setLoading }) => setLoading(chainId, false));
       firstLoadTimeouts.push(
-        setTimeout(() => {
-          refreshData(chainId).then();
+        setTimeout(
+          () => {
+            refreshData(chainId).then();
 
-          refreshIntervals.push(setInterval(() => refreshData(chainId), syncInterval));
-        }, Math.max(0, syncInterval - (Date.now() - getDataTimestamp(chainId))))
+            refreshIntervals.push(setInterval(() => refreshData(chainId), syncInterval));
+          },
+          Math.max(0, syncInterval - (Date.now() - getDataTimestamp(chainId)))
+        )
       );
     });
 

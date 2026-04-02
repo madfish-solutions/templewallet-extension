@@ -1,4 +1,4 @@
-import React, { FC, memo, useCallback, useRef } from 'react';
+import React, { FC, memo, useCallback } from 'react';
 
 import clsx from 'clsx';
 
@@ -15,18 +15,16 @@ import {
 } from 'app/store/assets-filter-options/actions';
 import { useAssetsFilterOptionsSelector } from 'app/store/assets-filter-options/selectors';
 import { useTestnetModeEnabledSelector } from 'app/store/settings/selectors';
-import { NetworkSelectModal } from 'app/templates/NetworkSelectModal';
 import { T, TID } from 'lib/i18n';
-import { useBooleanState } from 'lib/ui/hooks';
 
-export const AssetsFilterOptions = memo(() => {
+interface Props {
+  onNetworkSelectClick: EmptyFn;
+}
+
+export const OptionsContent = memo<Props>(({ onNetworkSelectClick }) => {
   const options = useAssetsFilterOptionsSelector();
   const testnetModeEnabled = useTestnetModeEnabledSelector();
   const { filterChain, tokensListOptions, collectiblesListOptions } = options;
-
-  const [networksModalOpened, setNetworksModalOpen, setNetworksModalClosed] = useBooleanState(false);
-
-  const containerRef = useRef(null);
 
   const handleTokensHideSmallBalanceChange = useCallback(
     (checked: boolean) => dispatch(setTokensHideSmallBalanceFilterOption(checked)),
@@ -48,13 +46,13 @@ export const AssetsFilterOptions = memo(() => {
 
   return (
     <FadeTransition>
-      <ContentContainer ref={containerRef} withShadow={false}>
+      <ContentContainer withShadow={false}>
         <div className="flex flex-col gap-1">
           <p className="text-font-description-bold p-1">
-            <T id="filterByNetwork" />
+            <T id="network" />
           </p>
 
-          <NetworkSelectButton selectedChain={filterChain} onClick={setNetworksModalOpen} />
+          <NetworkSelectButton selectedChain={filterChain} onClick={onNetworkSelectClick} />
         </div>
 
         <TogglesContainer labelTitle="tokensList">
@@ -95,12 +93,6 @@ export const AssetsFilterOptions = memo(() => {
             isLast
           />
         </TogglesContainer>
-
-        <NetworkSelectModal
-          opened={networksModalOpened}
-          selectedNetwork={filterChain}
-          onRequestClose={setNetworksModalClosed}
-        />
       </ContentContainer>
     </FadeTransition>
   );

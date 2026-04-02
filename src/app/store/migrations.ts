@@ -6,6 +6,8 @@ import { toTokenSlug } from 'lib/assets';
 import { HIDE_ZERO_BALANCES_STORAGE_KEY } from 'lib/constants';
 import { IS_MISES_BROWSER } from 'lib/env';
 import { isCollectible } from 'lib/metadata/utils';
+import { TEZOS_GHOSTNET_CHAIN_ID, TEZOS_SHADOWNET_CHAIN_ID } from 'lib/temple/types';
+import { TempleChainKind } from 'temple/types';
 
 import type { RootState } from './root-state.type';
 import { DEFAULT_SWAP_PARAMS } from './swap/state.mock';
@@ -196,6 +198,28 @@ export const MIGRATIONS: MigrationManifest = {
           ...state.assetsFilterOptions?.tokensListOptions,
           hideSmallBalance:
             state.assetsFilterOptions?.tokensListOptions?.hideZeroBalance ?? hideZeroBalanceFromStorage ?? false
+        }
+      }
+    };
+
+    return newState;
+  },
+  '8': (persistedState: PersistedState) => {
+    if (!persistedState) return persistedState;
+
+    const state = persistedState as TypedPersistedRootState;
+
+    if (state.assetsFilterOptions.filterChain?.chainId !== TEZOS_GHOSTNET_CHAIN_ID) {
+      return state;
+    }
+
+    const newState: TypedPersistedRootState = {
+      ...state,
+      assetsFilterOptions: {
+        ...state.assetsFilterOptions,
+        filterChain: {
+          kind: TempleChainKind.Tezos,
+          chainId: TEZOS_SHADOWNET_CHAIN_ID
         }
       }
     };

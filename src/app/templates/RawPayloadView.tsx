@@ -1,6 +1,7 @@
 import React, { CSSProperties, memo } from 'react';
 
 import { FormField } from 'app/atoms';
+import { EMPTY_FROZEN_OBJ } from 'lib/utils';
 
 type RawPayloadViewProps = {
   payload: string;
@@ -12,7 +13,14 @@ type RawPayloadViewProps = {
 };
 
 const RawPayloadView = memo(
-  ({ className, payload, label, rows, style = {}, fieldWrapperBottomMargin = false }: RawPayloadViewProps) => (
+  ({
+    className,
+    payload,
+    label,
+    rows,
+    style = EMPTY_FROZEN_OBJ,
+    fieldWrapperBottomMargin = false
+  }: RawPayloadViewProps) => (
     <FormField
       textarea
       rows={rows}

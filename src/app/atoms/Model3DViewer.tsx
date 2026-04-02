@@ -5,6 +5,7 @@
 import React, { FC, useEffect, useRef } from 'react';
 
 import '@google/model-viewer';
+
 import ModelViewerElementBase from '@google/model-viewer/lib/model-viewer-base';
 import { emptyFn } from '@rnw-community/shared';
 import clsx from 'clsx';

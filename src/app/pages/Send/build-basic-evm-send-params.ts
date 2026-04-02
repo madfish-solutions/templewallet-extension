@@ -58,7 +58,7 @@ export const buildBasicEvmSendParams = (
       throw new Error('Unsupported EVM token standard');
   }
 
-  const to = isEvmNativeTokenSlug(assetMetadata.address) ? receiver : assetMetadata?.address ?? receiver;
+  const to = isEvmNativeTokenSlug(assetMetadata.address) ? receiver : (assetMetadata?.address ?? receiver);
 
   return { to, value, data };
 };

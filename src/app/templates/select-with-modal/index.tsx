@@ -10,8 +10,10 @@ import { NullComponent } from 'lib/ui/null-component';
 
 import { SelectModal, SelectModalProps } from './select-modal';
 
-interface SelectWithModalProps<T, P extends null | ((item: T) => any)>
-  extends Omit<SelectModalProps<T, P>, 'opened' | 'onRequestClose' | 'CellIcon' | 'CellName'> {
+interface SelectWithModalProps<T, P extends null | ((item: T) => any)> extends Omit<
+  SelectModalProps<T, P>,
+  'opened' | 'onRequestClose' | 'CellIcon' | 'CellName'
+> {
   CellIcon?: SelectModalProps<T, P>['CellIcon'];
   ModalCellIcon?: SelectModalProps<T, P>['CellIcon'];
   CellName: SelectModalProps<T, P>['CellName'];

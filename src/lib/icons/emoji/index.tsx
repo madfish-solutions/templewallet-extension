@@ -10,7 +10,7 @@ interface Props extends React.ImgHTMLAttributes<HTMLImageElement> {
 export const EmojiInlineIcon: FC<Props> = ({ name, style, ...props }) => {
   const styleMemo = useMemo(() => ({ display: 'inline', verticalAlign: 'text-top', height: '1em', ...style }), [style]);
 
-  // eslint-disable-next-line jsx-a11y/alt-text
+  // oxlint-disable-next-line jsx-a11y/alt-text
   return <img alt={name} {...props} src={KnownEmojies[name]} style={styleMemo} />;
 };
 

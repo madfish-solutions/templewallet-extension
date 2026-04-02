@@ -5,6 +5,13 @@ export const ORIGIN_SEARCH_PARAM_NAME = 'o';
 export const ADS_META_SEARCH_PARAM_NAME = 'ads-meta';
 
 export const AD_SEEN_THRESHOLD = 0.5;
+export const ACTIVITY_PAGE_NAME = 'Activity page';
+export const DAPPS_PAGE_NAME = 'Dapps page';
+export const EARN_PAGE_NAME = 'Earn page';
+export const HOME_PAGE_NAME = 'Home page';
+export const NOTIFICATIONS_PAGE_NAME = 'Notifications page';
+export const SEND_PAGE_NAME = 'Send page';
+export const TOKEN_PAGE_NAME = 'Token page';
 
 export const HYPELAB_STUB_CAMPAIGN_SLUG = 'e55d2795d2';
 

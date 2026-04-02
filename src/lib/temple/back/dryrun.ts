@@ -20,6 +20,7 @@ interface DryRunParams {
   network: TezosNetworkEssentials;
   sourcePkh: string;
   sourcePublicKey: string;
+  apply3RouteGasWorkaround?: boolean;
   attemptCounter?: number;
   prevFailedOperationIndex?: number;
 }
@@ -39,6 +40,7 @@ export async function dryRunOpParams({
   network,
   sourcePkh,
   sourcePublicKey,
+  apply3RouteGasWorkaround = false,
   attemptCounter = 0,
   prevFailedOperationIndex = -1
 }: DryRunParams): Promise<DryRunResult | null> {
@@ -67,8 +69,10 @@ export async function dryRunOpParams({
     let serializedEstimates: SerializedEstimate[] | undefined;
     let error: any = [];
     try {
-      const route3HandledParams = await getParamsWithCustomGasLimitFor3RouteSwap(tezos, sourcePkh, opParams);
-      const formatted = route3HandledParams.map(operation => formatOpParamsBeforeSend(operation, sourcePkh));
+      const preparedOpParams = apply3RouteGasWorkaround
+        ? await getParamsWithCustomGasLimitFor3RouteSwap(tezos, sourcePkh, opParams)
+        : opParams;
+      const formatted = preparedOpParams.map(operation => formatOpParamsBeforeSend(operation, sourcePkh));
 
       const [estimationResult] = await Promise.allSettled([tezos.estimate.batch(formatted)]);
       const [contractBatchResult] = await Promise.allSettled([tezos.contract.batch(formatted).send()]);
@@ -98,6 +102,7 @@ export async function dryRunOpParams({
                 network,
                 sourcePkh,
                 sourcePublicKey,
+                apply3RouteGasWorkaround,
                 attemptCounter: failedOperationIndex > prevFailedOperationIndex ? 0 : attemptCounter + 1,
                 prevFailedOperationIndex: Math.max(failedOperationIndex, prevFailedOperationIndex)
               });

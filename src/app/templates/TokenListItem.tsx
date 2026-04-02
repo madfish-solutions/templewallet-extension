@@ -1,4 +1,4 @@
-import { FC, PropsWithChildren, Ref, memo, MouseEventHandler, useCallback } from 'react';
+import { CSSProperties, FC, PropsWithChildren, Ref, memo, MouseEventHandler, useCallback } from 'react';
 
 import BigNumber from 'bignumber.js';
 import clsx from 'clsx';
@@ -45,6 +45,10 @@ const LIST_ITEM_CLASSNAME = clsx(
   'flex items-center gap-x-1 p-2 rounded-lg',
   'transition ease-in-out duration-200 focus:outline-hidden'
 );
+const LIST_ITEM_STYLE: CSSProperties = {
+  contentVisibility: 'auto',
+  containIntrinsicSize: '0 56px'
+};
 
 interface TezosTokenListItemProps {
   network: TezosNetworkEssentials;
@@ -276,13 +280,18 @@ const ManageActiveListItemLayoutHOC = <T extends TempleChainKind>(
 
       return (
         <>
-          <div className={clsx(LIST_ITEM_CLASSNAME, className)} onClick={onClick} ref={ref as Ref<HTMLDivElement>}>
+          <div
+            className={clsx(LIST_ITEM_CLASSNAME, className)}
+            onClick={onClick}
+            ref={ref as Ref<HTMLDivElement>}
+            style={LIST_ITEM_STYLE}
+          >
             {isVisible ? (
               <>
                 <AssetIconWithNetwork chainId={chainId} assetSlug={assetSlug} className="shrink-0" />
 
-                <div className="flex-grow flex gap-x-2 items-center overflow-hidden">
-                  <div className="flex-grow flex flex-col gap-y-1 overflow-hidden">
+                <div className="grow flex gap-x-2 items-center overflow-hidden">
+                  <div className="grow flex flex-col gap-y-1 overflow-hidden">
                     <div className="flex items-center gap-0.5">
                       <div className="text-font-medium truncate">{assetSymbol}</div>
                       {scam && <ScamTag />}
@@ -407,6 +416,7 @@ const DefaultListItemLayoutHOC = <T extends TempleChainKind>(
           to={toExploreAssetLink(false, networkKind, chainId, assetSlug)}
           className={clsx(LIST_ITEM_CLASSNAME, className)}
           onClick={onClick}
+          style={LIST_ITEM_STYLE}
           testID={AssetsSelectors.assetItemButton}
           testIDProperties={{ key: `${assetSlug}-${chainId}` }}
           ref={ref as Ref<HTMLAnchorElement>}

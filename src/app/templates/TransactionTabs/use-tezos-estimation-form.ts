@@ -59,8 +59,8 @@ export const useTezosEstimationForm = ({
     'ownerAddress' in senderAccount
       ? senderAccount.ownerAddress
       : 'owner' in senderAccount
-      ? senderAccount.owner
-      : undefined;
+        ? senderAccount.owner
+        : undefined;
   const accountPkh = useMemo(
     () => ('address' in senderAccount ? senderAccount.address : getAccountAddressForTezos(senderAccount)!),
     [senderAccount]
@@ -377,8 +377,8 @@ export const useTezosEstimationForm = ({
         gasFee: parsedCustomGasFee.isPositive()
           ? parsedCustomGasFee
           : currentGasFeePreset
-          ? new BigNumber(currentGasFeePreset)
-          : null,
+            ? new BigNumber(currentGasFeePreset)
+            : null,
         storageLimit: parsedCustomStorageLimit.gte(0) ? parsedCustomStorageLimit : totalDefaultStorageLimit
       };
     },

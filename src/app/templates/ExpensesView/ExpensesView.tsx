@@ -73,7 +73,7 @@ const ExpensesView: FC<ExpensesViewProps> = ({
           defaultGasFeeMutez = defaultGasFeeMutez.plus(e.suggestedFeeMutez);
           storageFeeMutez = storageFeeMutez.plus(
             Math.ceil(
-              (i === 0 ? modifyFeeAndLimit.storageLimit ?? e.storageLimit : e.storageLimit) *
+              (i === 0 ? (modifyFeeAndLimit.storageLimit ?? e.storageLimit) : e.storageLimit) *
                 Number(e.minimalFeePerStorageByteMutez)
             )
           );

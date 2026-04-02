@@ -67,8 +67,8 @@ export const BackupMnemonicOverlay = memo(() => {
             ? 'verifySeedPhrase'
             : 'backupYourSeedPhrase'
           : googleBackupExists === undefined
-          ? 'continueWithGoogle'
-          : 'backupToGoogle'
+            ? 'continueWithGoogle'
+            : 'backupToGoogle'
       )}
       opened
       suspenseErrorMessage={isManualBackup ? undefined : t('checkingBackupFromGoogleDrive')}
