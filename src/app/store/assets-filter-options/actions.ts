@@ -6,6 +6,10 @@ export const resetTokensFilterOptions = createAction('assets-filter-options/RESE
 
 export const setAssetsFilterChain = createAction<FilterChain>('assets-filter-options/SET_ASSETS_FILTER_CHAIN_ID');
 
+export const swapOptionsForTestnetSwitch = createAction<boolean>(
+  'assets-filter-options/SWAP_OPTIONS_FOR_TESTNET_SWITCH'
+);
+
 export const setTokensHideSmallBalanceFilterOption = createAction<boolean>(
   'assets-filter-options/SET_TOKENS_HIDE_SMALL_BALANCE_FILTER_OPTION'
 );

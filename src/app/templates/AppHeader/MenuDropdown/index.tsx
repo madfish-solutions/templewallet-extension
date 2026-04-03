@@ -20,7 +20,7 @@ import { ReactComponent as SettingsIcon } from 'app/icons/base/settings.svg';
 import { NotificationsBell } from 'app/pages/Notifications/components/bell';
 import { RewardsIconWithBadge } from 'app/pages/Notifications/components/rewards';
 import { dispatch } from 'app/store';
-import { setAssetsFilterChain } from 'app/store/assets-filter-options/actions';
+import { swapOptionsForTestnetSwitch } from 'app/store/assets-filter-options/actions';
 import { setIsTestnetModeEnabledAction } from 'app/store/settings/actions';
 import { useTestnetModeEnabledSelector } from 'app/store/settings/selectors';
 import { AssetsFilterOptionsModal } from 'app/templates/AssetsFilterOptionsModal';
@@ -91,7 +91,7 @@ const MenuDropdown = memo<PopperRenderProps>(({ opened, setOpened }) => {
 
   const onTestnetClick = useCallback(() => {
     closeDropdown();
-    dispatch(setAssetsFilterChain(null));
+    dispatch(swapOptionsForTestnetSwitch(testnetModeEnabled));
     dispatch(setIsTestnetModeEnabledAction(!testnetModeEnabled));
   }, [closeDropdown, testnetModeEnabled]);
 
