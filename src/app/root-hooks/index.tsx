@@ -5,6 +5,7 @@ import { useAdsImpressionsLinking } from 'app/hooks/use-ads-impressions-linking'
 import { useAssetsMigrations } from 'app/hooks/use-assets-migrations';
 import { useCollectiblesDetailsLoading } from 'app/hooks/use-collectibles-details-loading';
 import { useConversionVerification } from 'app/hooks/use-conversion-verification';
+import { useMerchantPromotionSync } from 'app/hooks/use-merchant-promotion-sync';
 import { useTokensApyLoading } from 'app/hooks/use-load-tokens-apy.hook';
 import { useLongRefreshLoading } from 'app/hooks/use-long-refresh-loading.hook';
 import { useMetadataRefresh } from 'app/hooks/use-metadata-refresh';
@@ -86,6 +87,7 @@ const AppReadyRootHooks = memo(() => {
   useStorageAnalytics();
   useConversionVerification();
   useReactivateAdsOnce();
+  useMerchantPromotionSync();
   useAdsImpressionsLinking();
 
   useChainIDsCheck();
