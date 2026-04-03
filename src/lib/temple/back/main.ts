@@ -6,17 +6,16 @@ import { ValidationError } from 'yup';
 import { getStoredAppInstallIdentity } from 'app/storage/app-install-id';
 import { importUpdateRulesStorageModule } from 'lib/ads/import-update-rules-storage';
 import { importAdsApiModule } from 'lib/apis/ads-api';
+import type { MerchantPromotionState } from 'app/store/merchant-promotion/state';
 import {
   ADS_VIEWER_DATA_STORAGE_KEY,
   ANALYTICS_USER_ID_STORAGE_KEY,
   ContentScriptType,
-  MERCHANT_OFFERS_ENABLED_STORAGE_KEY,
-  MERCHANT_OFFERS_SNOOZED_UNTIL_STORAGE_KEY,
   REWARDS_ACCOUNT_DATA_STORAGE_KEY
 } from 'lib/constants';
 import { E2eMessageType } from 'lib/e2e/types';
 import { BACKGROUND_IS_WORKER, IS_FIREFOX, IS_MISES_BROWSER } from 'lib/env';
-import { fetchFromStorage } from 'lib/storage';
+import { fetchFromStorage, putToStorage } from 'lib/storage';
 import { AnalyticsEventCategory } from 'lib/temple/analytics-types';
 import { encodeMessage, encryptMessage, getSenderId, MessageType, Response } from 'lib/temple/beacon';
 import { clearAsyncStorages } from 'lib/temple/reset';
@@ -484,11 +483,9 @@ browser.runtime.onMessage.addListener(async (msg, sender) => {
       }
 
       case ContentScriptType.FetchMerchantOffer: {
-        const enabled = await fetchFromStorage<boolean>(MERCHANT_OFFERS_ENABLED_STORAGE_KEY);
-        if (!enabled) return null;
-
-        const snoozedUntil = await fetchFromStorage<number>(MERCHANT_OFFERS_SNOOZED_UNTIL_STORAGE_KEY);
-        if (snoozedUntil && Date.now() < snoozedUntil) return null;
+        const merchantState = await fetchFromStorage<MerchantPromotionState>('persist:root.merchantPromotion');
+        if (!merchantState?.enabled) return null;
+        if (merchantState.snoozedUntil && Date.now() < merchantState.snoozedUntil) return null;
 
         return await withNonImportErrorForwarding(async () => {
           const { fetchMerchantOffer } = await importAdsApiModule();
@@ -506,13 +503,19 @@ browser.runtime.onMessage.addListener(async (msg, sender) => {
       }
 
       case ContentScriptType.MerchantOfferSnooze: {
-        const snoozedUntil = Date.now() + 24 * 60 * 60 * 1000;
-        await browser.storage.local.set({ [MERCHANT_OFFERS_SNOOZED_UNTIL_STORAGE_KEY]: snoozedUntil });
+        const merchantState = await fetchFromStorage<MerchantPromotionState>('persist:root.merchantPromotion');
+        await putToStorage('persist:root.merchantPromotion', {
+          ...merchantState,
+          snoozedUntil: Date.now() + 24 * 60 * 60 * 1000
+        });
         break;
       }
 
       case ContentScriptType.MerchantOfferDisable: {
-        await browser.storage.local.set({ [MERCHANT_OFFERS_ENABLED_STORAGE_KEY]: false });
+        await putToStorage('persist:root.merchantPromotion', {
+          enabled: false,
+          snoozedUntil: 0
+        });
         break;
       }
 

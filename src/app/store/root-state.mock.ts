@@ -18,6 +18,7 @@ import { mockEvmTokensExchangeRatesState } from './evm/tokens-exchange-rates/sta
 import { mockEvmTokensMetadataState } from './evm/tokens-metadata/state.mock';
 import { mockNewsletterState } from './newsletter/newsletter-state.mock';
 import { mockNotificationsState } from './notifications/state.mock';
+import { mockMerchantPromotionState } from './merchant-promotion/state.mock';
 import { mockPartnersPromotionState } from './partners-promotion/state.mock';
 import { mockRewardsState } from './rewards/state.mock';
 import type { RootState } from './root-state.type';
@@ -38,6 +39,7 @@ export const mockRootState: RootState = {
   notifications: mockNotificationsState,
   dApps: mockDAppsState,
   swap: mockSwapState,
+  merchantPromotion: mockMerchantPromotionState,
   partnersPromotion: mockPartnersPromotionState,
   balances: mockBalancesState,
   assets: mockAssetsState,

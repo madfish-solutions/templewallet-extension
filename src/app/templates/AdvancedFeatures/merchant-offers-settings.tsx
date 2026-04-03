@@ -1,35 +1,36 @@
 import React, { memo, useCallback } from 'react';
 
+import { dispatch } from 'app/store';
+import { setMerchantPromotionEnabledAction } from 'app/store/merchant-promotion/actions';
+import { useMerchantPromotionEnabledSelector } from 'app/store/merchant-promotion/selectors';
 import { AnalyticsEventCategory, useAnalytics } from 'lib/analytics';
-import { MERCHANT_OFFERS_ENABLED_STORAGE_KEY } from 'lib/constants';
 import { T } from 'lib/i18n';
-import { usePassiveStorage } from 'lib/temple/front/storage';
 
 import { EnablingSetting } from '../enabling-setting';
 
 import { AdvancedFeaturesSelectors } from './selectors';
 
 export const MerchantOffersSettings = memo(() => {
-  const [isEnabled, setIsEnabled] = usePassiveStorage<boolean>(MERCHANT_OFFERS_ENABLED_STORAGE_KEY);
+  const isEnabled = useMerchantPromotionEnabledSelector();
   const { trackEvent } = useAnalytics();
 
   const handleChange = useCallback(
     (toChecked: boolean) => {
-      setIsEnabled(toChecked);
+      dispatch(setMerchantPromotionEnabledAction(toChecked));
       trackEvent(
         toChecked ? 'MerchantOffersSettingsEnabled' : 'MerchantOffersSettingsDisabled',
         AnalyticsEventCategory.CheckboxChange,
         { toChecked }
       );
     },
-    [setIsEnabled, trackEvent]
+    [trackEvent]
   );
 
   return (
     <EnablingSetting
       title={<T id="merchantOffers" />}
       description={<T id="merchantOffersDescription" />}
-      enabled={!!isEnabled}
+      enabled={isEnabled}
       onChange={handleChange}
       testID={AdvancedFeaturesSelectors.merchantOffers}
     />

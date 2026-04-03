@@ -6,8 +6,7 @@ import { RewardsAddresses } from 'temple/types';
 export async function performLinkingOfAdsImpressions(adsViewerAddresses: RewardsAddresses, userId?: string) {
   const identity = await getStoredAppInstallIdentity();
   if (!identity) {
-    console.warn('App identity not found');
-    return;
+    throw new Error('App identity not found');
   }
 
   const {

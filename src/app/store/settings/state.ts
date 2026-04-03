@@ -14,6 +14,8 @@ export interface SettingsState {
   onRampAsset: ChainAssetSlug | null;
   onRampTitle?: string;
   favoriteTokens: string[];
+  /** @deprecated Replaced by ADS_IMPRESSIONS_LINKED_V2_STORAGE_KEY. Key persists in users' stored data — do not reuse. */
+  adsImpressionsLinked?: boolean;
   /** @deprecated */
   isOnRampPossibility?: boolean;
   /** @deprecated */
