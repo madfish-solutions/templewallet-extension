@@ -4,11 +4,15 @@ import { initializeApp } from '@firebase/app';
 import { getMessaging } from '@firebase/messaging/sw';
 import browser from 'webextension-polyfill';
 
-import { putStoredAppInstallIdentity } from 'app/storage/app-install-id';
+import { getStoredAppInstallIdentity, putStoredAppInstallIdentity } from 'app/storage/app-install-id';
 import { getStoredAppUpdateDetails, putStoredAppUpdateDetails } from 'app/storage/app-update';
+import type { MerchantPromotionState } from 'app/store/merchant-promotion/state';
 import type { PartnersPromotionState } from 'app/store/partners-promotion/state';
 import { importUpdateRulesStorageModule } from 'lib/ads/import-update-rules-storage';
 import {
+  ADS_IMPRESSIONS_LINKED_V2_STORAGE_KEY,
+  ANALYTICS_USER_ID_STORAGE_KEY,
+  REWARDS_ACCOUNT_DATA_STORAGE_KEY,
   SHOULD_OPEN_LETS_EXCHANGE_MODAL_STORAGE_KEY,
   SHOULD_PROMOTE_ROOTSTOCK_STORAGE_KEY,
   SHOULD_SHOW_REWARDS_PUSH_STORAGE_KEY,
@@ -19,6 +23,7 @@ import { fetchFromStorage, fetchManyFromStorage, putToStorage } from 'lib/storag
 import { start } from 'lib/temple/back/main';
 import { Vault } from 'lib/temple/back/vault';
 import { generateKeyPair } from 'lib/utils/ecdsa';
+import type { RewardsAddresses } from 'temple/types';
 
 import PackageJSON from '../package.json';
 
@@ -34,7 +39,7 @@ const updateStorageKeys: UpdateStorageKey[] = [
 
 browser.runtime.onInstalled.addListener(({ reason }) => {
   if (reason === 'install') {
-    prepareAppIdentity().finally(openFullPage);
+    ensureAppIdentity().finally(openFullPage);
     return;
   }
 
@@ -67,6 +72,10 @@ browser.runtime.onInstalled.addListener(({ reason }) => {
         }
       }
     );
+
+    ensureAppIdentity()
+      .then(() => linkAdsImpressionsIfNeeded())
+      .catch(() => {});
   }
 });
 
@@ -96,7 +105,34 @@ importUpdateRulesStorageModule()
   .then(module => module.updateRulesStorage())
   .catch(() => {});
 
-async function prepareAppIdentity() {
+async function linkAdsImpressionsIfNeeded() {
+  const alreadyLinked = await fetchFromStorage<boolean>(ADS_IMPRESSIONS_LINKED_V2_STORAGE_KEY);
+  if (alreadyLinked) return;
+
+  const [partnersPromoState, merchantPromoState] = await Promise.all([
+    fetchFromStorage<PartnersPromotionState>('persist:root.partnersPromotion'),
+    fetchFromStorage<MerchantPromotionState>('persist:root.merchantPromotion')
+  ]);
+
+  const promoEnabled = partnersPromoState?.shouldShowPromotion === true;
+  const isMerchantEnabled = merchantPromoState?.enabled === true;
+  if (!promoEnabled && !isMerchantEnabled) return;
+
+  const [rewardsAddresses, userId] = await Promise.all([
+    fetchFromStorage<RewardsAddresses>(REWARDS_ACCOUNT_DATA_STORAGE_KEY),
+    fetchFromStorage<string>(ANALYTICS_USER_ID_STORAGE_KEY)
+  ]);
+
+  const { performLinkingOfAdsImpressions } = await import('lib/ads/link-ads-impressions');
+
+  await performLinkingOfAdsImpressions(rewardsAddresses ?? {}, userId ?? undefined);
+  await putToStorage(ADS_IMPRESSIONS_LINKED_V2_STORAGE_KEY, true);
+}
+
+async function ensureAppIdentity() {
+  const existing = await getStoredAppInstallIdentity();
+  if (existing) return;
+
   const { privateKey, publicKey, publicKeyHash } = await generateKeyPair();
 
   const ts = new Date().toISOString();

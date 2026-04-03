@@ -10,8 +10,6 @@ export const useOnRampTitleSelector = () => useSelector(({ settings }) => settin
 
 export const useIsPendingReactivateAdsSelector = () => useSelector(({ settings }) => settings.pendingReactivateAds);
 
-export const useIsAdsImpressionsLinkedSelector = () => useSelector(({ settings }) => settings.adsImpressionsLinked);
-
 export const useReferralLinksEnabledSelector = () => useSelector(({ settings }) => settings.referralLinksEnabled);
 
 export const useTestnetModeEnabledSelector = () => useSelector(({ settings }) => settings.isTestnetModeEnabled);

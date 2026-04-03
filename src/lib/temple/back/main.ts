@@ -4,13 +4,19 @@ import browser, { Runtime } from 'webextension-polyfill';
 import { ValidationError } from 'yup';
 
 import { getStoredAppInstallIdentity } from 'app/storage/app-install-id';
-import { importExtensionAdsReferralsModule } from 'lib/ads/import-extension-ads-module';
+import type { MerchantPromotionState } from 'app/store/merchant-promotion/state';
 import { importUpdateRulesStorageModule } from 'lib/ads/import-update-rules-storage';
 import { importAdsApiModule } from 'lib/apis/ads-api';
-import { ADS_VIEWER_DATA_STORAGE_KEY, ContentScriptType, REWARDS_ACCOUNT_DATA_STORAGE_KEY } from 'lib/constants';
+import {
+  ADS_VIEWER_DATA_STORAGE_KEY,
+  ANALYTICS_USER_ID_STORAGE_KEY,
+  ContentScriptType,
+  REWARDS_ACCOUNT_DATA_STORAGE_KEY
+} from 'lib/constants';
 import { E2eMessageType } from 'lib/e2e/types';
-import { BACKGROUND_IS_WORKER, EnvVars, IS_FIREFOX, IS_MISES_BROWSER } from 'lib/env';
-import { fetchFromStorage } from 'lib/storage';
+import { BACKGROUND_IS_WORKER, IS_FIREFOX, IS_MISES_BROWSER } from 'lib/env';
+import { fetchFromStorage, putToStorage } from 'lib/storage';
+import { AnalyticsEventCategory } from 'lib/temple/analytics-types';
 import { encodeMessage, encryptMessage, getSenderId, MessageType, Response } from 'lib/temple/beacon';
 import { clearAsyncStorages } from 'lib/temple/reset';
 import { StoredHDAccount, TempleMessageType, TempleRequest, TempleResponse } from 'lib/temple/types';
@@ -450,34 +456,86 @@ browser.runtime.onMessage.addListener(async (msg, sender) => {
         return await getTempleReferralLinkItems(browser);
       }
 
-      case ContentScriptType.FetchTakeAdsReferrals: {
-        if (BACKGROUND_IS_WORKER) {
-          const { buildTakeadsClient } = await importExtensionAdsReferralsModule();
-          const takeads = buildTakeadsClient(EnvVars.TAKE_ADS_TOKEN);
-          return await takeads.affiliateLinks(msg.links);
-        }
+      case ContentScriptType.ReferralClick: {
+        const { urlDomain, pageDomain, provider } = msg;
+
+        await withNonImportErrorForwarding(async () => {
+          // TakeAds merchant offer clicks use Jitsu userId
+          if (provider === 'TakeAds') {
+            const { postReferralClickByUserId } = await importAdsApiModule();
+            const userId = await fetchFromStorage<string>(ANALYTICS_USER_ID_STORAGE_KEY);
+            if (!userId) throw new Error('Analytics userId not found');
+            await postReferralClickByUserId(userId, { urlDomain, pageDomain, provider });
+          } else {
+            const { postReferralClick } = await importAdsApiModule();
+            const rewardsAddresses = await getRewardsAccountCredentials();
+            if (rewardsAddresses.evmAddress) {
+              await postReferralClick(rewardsAddresses, undefined, { urlDomain, pageDomain, provider });
+            } else {
+              const identity = await getStoredAppInstallIdentity();
+              if (!identity) throw new Error('App identity not found');
+              const installId = identity.publicKeyHash;
+              await postReferralClick({}, installId, { urlDomain, pageDomain, provider });
+            }
+          }
+        });
+        break;
+      }
+
+      case ContentScriptType.FetchMerchantOffer: {
+        const merchantState = await fetchFromStorage<MerchantPromotionState>('persist:root.merchantPromotion');
+        if (!merchantState?.enabled) return null;
+        if (merchantState.snoozedUntil && Date.now() < merchantState.snoozedUntil) return null;
 
         return await withNonImportErrorForwarding(async () => {
-          const { fetchReferralsAffiliateLinks } = await importAdsApiModule();
-
-          return await fetchReferralsAffiliateLinks(msg.links);
+          const { fetchMerchantOffer } = await importAdsApiModule();
+          const response = await fetchMerchantOffer(msg.domain);
+          return response.offer;
         });
       }
 
-      case ContentScriptType.ReferralClick: {
-        const { urlDomain, pageDomain, provider } = msg;
-        const rewardsAddresses = await getRewardsAccountCredentials();
+      case ContentScriptType.ActivateMerchantOffer: {
+        return await withNonImportErrorForwarding(async () => {
+          const { activateMerchantOffer } = await importAdsApiModule();
+          const userId = await fetchFromStorage<string>(ANALYTICS_USER_ID_STORAGE_KEY);
+          return await activateMerchantOffer(msg.url, userId ?? undefined);
+        });
+      }
 
-        await withNonImportErrorForwarding(async () => {
-          const { postReferralClick } = await importAdsApiModule();
-          if (rewardsAddresses.evmAddress) {
-            await postReferralClick(rewardsAddresses, undefined, { urlDomain, pageDomain, provider });
-          } else {
-            const identity = await getStoredAppInstallIdentity();
-            if (!identity) throw new Error('App identity not found');
-            const installId = identity.publicKeyHash;
-            await postReferralClick({}, installId, { urlDomain, pageDomain, provider });
-          }
+      case ContentScriptType.MerchantOfferSnooze: {
+        const merchantState = await fetchFromStorage<MerchantPromotionState>('persist:root.merchantPromotion');
+        await putToStorage('persist:root.merchantPromotion', {
+          ...merchantState,
+          snoozedUntil: Date.now() + 24 * 60 * 60 * 1000
+        });
+        break;
+      }
+
+      case ContentScriptType.MerchantOfferDisable: {
+        await putToStorage('persist:root.merchantPromotion', {
+          enabled: false,
+          snoozedUntil: 0
+        });
+        break;
+      }
+
+      case ContentScriptType.MerchantOfferAnalytics: {
+        const allowedEvents = new Set([
+          'MerchantOfferPopupClose',
+          'MerchantOfferPopupActivate',
+          'MerchantOfferPopupSnooze',
+          'MerchantOfferPopupDisable'
+        ]);
+
+        const { event, properties } = msg;
+        if (typeof event !== 'string' || !allowedEvents.has(event)) break;
+
+        Analytics.trackEvent({
+          userId: '',
+          chainId: undefined,
+          event,
+          category: AnalyticsEventCategory.ButtonPress,
+          properties
         });
         break;
       }

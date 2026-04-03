@@ -7,6 +7,7 @@ import { useCollectiblesDetailsLoading } from 'app/hooks/use-collectibles-detail
 import { useConversionVerification } from 'app/hooks/use-conversion-verification';
 import { useTokensApyLoading } from 'app/hooks/use-load-tokens-apy.hook';
 import { useLongRefreshLoading } from 'app/hooks/use-long-refresh-loading.hook';
+import { useMerchantPromotionSync } from 'app/hooks/use-merchant-promotion-sync';
 import { useMetadataRefresh } from 'app/hooks/use-metadata-refresh';
 import { useNoCategoryEvmAssetsLoading } from 'app/hooks/use-no-category-evm-assets-loading';
 import { useNoCategoryTezosAssetsLoading } from 'app/hooks/use-no-category-tezos-assets-loading';
@@ -86,6 +87,7 @@ const AppReadyRootHooks = memo(() => {
   useStorageAnalytics();
   useConversionVerification();
   useReactivateAdsOnce();
+  useMerchantPromotionSync();
   useAdsImpressionsLinking();
 
   useChainIDsCheck();
