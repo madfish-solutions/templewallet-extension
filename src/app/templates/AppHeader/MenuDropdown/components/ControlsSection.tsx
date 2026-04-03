@@ -33,12 +33,18 @@ export const ControlsSection = memo<Props>(
     const expandTestnet = useCallback(() => setExpandedButton('testnet'), []);
 
     const showSidebarButton = !fullPage && IS_SIDE_PANEL_AVAILABLE;
+    const stretch = !fullPage && !showSidebarButton;
 
     return (
-      <div className={clsx('flex items-center w-[164px] px-1 py-2', showSidebarButton ? 'gap-x-1' : 'gap-x-2')}>
+      <div
+        className={clsx(
+          'flex items-center px-1 py-2',
+          fullPage ? 'w-fit gap-x-2' : clsx('w-41', showSidebarButton ? 'gap-x-1' : 'gap-x-2')
+        )}
+      >
         <ControlFiltersButton
-          expanded={expandedButton === 'filters'}
-          stretch={!showSidebarButton}
+          expanded={fullPage || expandedButton === 'filters'}
+          stretch={stretch}
           onClick={onFiltersClick}
           testID={MenuDropdownSelectors.filtersButton}
         />
@@ -60,8 +66,8 @@ export const ControlsSection = memo<Props>(
           Icon={FlaskIcon}
           labelI18n="testnet"
           active={testnetModeEnabled}
-          expanded={expandedButton === 'testnet'}
-          stretch={!showSidebarButton}
+          expanded={fullPage || expandedButton === 'testnet'}
+          stretch={stretch}
           onClick={onTestnetClick}
           onMouseEnter={expandTestnet}
           onMouseLeave={expandFilters}
