@@ -12,7 +12,11 @@ import {
   usePromotionHidingTimestampSelector
 } from 'app/store/partners-promotion/selectors';
 import { AdsProviderTitle } from 'lib/ads';
-import { fetchEnableInternalHypelabAds, postAdImpression } from 'lib/apis/ads-api/ads-api';
+import {
+  fetchEnableInternalHypelabAds,
+  fetchInternalBlacklistedHypelabCampaignsSlugs,
+  postAdImpression
+} from 'lib/apis/ads-api/ads-api';
 import { AD_HIDING_TIMEOUT } from 'lib/constants';
 import { ENABLE_INTERNAL_HYPELAB_ADS_SYNC_INTERVAL } from 'lib/fixed-times';
 import { T } from 'lib/i18n';
@@ -92,6 +96,17 @@ export const PartnersPromotion = memo<PartnersPromotionProps>(({ variant, id, pa
       refreshInterval: ENABLE_INTERNAL_HYPELAB_ADS_SYNC_INTERVAL
     }
   );
+
+  const { data: blacklistedCampaignSlugs } = useTypedSWR(
+    'blacklisted-internal-hypelab-campaigns-slugs',
+    fetchInternalBlacklistedHypelabCampaignsSlugs,
+    {
+      revalidateOnFocus: false,
+      revalidateOnMount: true,
+      revalidateOnReconnect: false,
+      refreshInterval: ENABLE_INTERNAL_HYPELAB_ADS_SYNC_INTERVAL
+    }
+  );
   const prevEnableInternalHypelabAdsRef = useRef(enableInternalHypelabAds);
 
   const isHiddenTemporarily =
@@ -128,6 +143,7 @@ export const PartnersPromotion = memo<PartnersPromotionProps>(({ variant, id, pa
           variant={variant}
           isVisible={adIsReady}
           pageName={pageName}
+          blacklistedCampaignSlugs={blacklistedCampaignSlugs}
           onImpression={handleImpression}
           onReady={handleAdReady}
           onError={handleHypelabError}

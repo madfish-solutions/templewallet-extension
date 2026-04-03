@@ -26,6 +26,7 @@ export const HypelabImagePromotion: FC<Omit<SingleProviderPromotionProps, 'varia
   accountPkh,
   isVisible,
   pageName,
+  blacklistedCampaignSlugs,
   onImpression,
   onError,
   onReady
@@ -33,6 +34,7 @@ export const HypelabImagePromotion: FC<Omit<SingleProviderPromotionProps, 'varia
   const evmAccountAddress = useAccountAddressForEvm();
   const hypelabIframeRef = useRef<HTMLIFrameElement>(null);
   const [adIsReady, setAdIsReady] = useState(false);
+  const blacklistedInternalCampaignSlugsRef = useUpdatableRef(blacklistedCampaignSlugs);
   const [currentAd, setCurrentAd] = useState<HypelabBannerAd | null>(null);
   const [adSize, setAdSize] = useState<{ width: number; height: number }>({ width: 320, height: 100 });
   const prevAdUrlRef = useRef('');
@@ -69,6 +71,12 @@ export const HypelabImagePromotion: FC<Omit<SingleProviderPromotionProps, 'varia
       }
 
       if (ad && prevAdUrlRef.current !== ad.cta_url && ad.campaign_slug === HYPELAB_STUB_CAMPAIGN_SLUG) {
+        onError();
+      } else if (
+        ad &&
+        prevAdUrlRef.current !== ad.cta_url &&
+        blacklistedInternalCampaignSlugsRef.current?.includes(ad.campaign_slug)
+      ) {
         onError();
       } else if (ad && prevAdUrlRef.current !== ad.cta_url) {
         setCurrentAd(ad);
@@ -112,7 +120,7 @@ export const HypelabImagePromotion: FC<Omit<SingleProviderPromotionProps, 'varia
     window.addEventListener('message', messagesListener);
 
     return () => window.removeEventListener('message', messagesListener);
-  }, [adId, onError, onReady, onImpression, adRectVisibleRef]);
+  }, [adId, onError, onReady, onImpression, adRectVisibleRef, blacklistedInternalCampaignSlugsRef]);
 
   const iframeSrc = useMemo(
     () => getAdsTwUrl({ origin: globalThis.location.origin, width: 320, height: 100, id: adId, evmAccountAddress }),
