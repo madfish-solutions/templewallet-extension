@@ -31,7 +31,7 @@ export const useAdsImpressionsLinking = () => {
     runningRef.current = true;
 
     retry(() => performLinkingOfAdsImpressions(adsViewerAddressesRef.current, userIdRef.current), {
-      retries: 2,
+      retries: 2
     })
       .then(() => {
         setLinked(true);
