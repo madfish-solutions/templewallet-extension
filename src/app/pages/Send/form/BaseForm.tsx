@@ -43,7 +43,7 @@ interface Props {
   onSelectAssetClick: EmptyFn;
   shouldUseFiat: boolean;
   canToggleFiat: boolean;
-  setShouldUseFiat: (value: boolean) => void;
+  setShouldUseFiat: SyncFn<boolean>;
   onSubmit: SubmitHandler<SendFormData>;
   maxEstimating: boolean;
   maxAmount: BigNumber;

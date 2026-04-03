@@ -6,8 +6,6 @@ import { FormProvider, useForm } from 'react-hook-form';
 import { formatEther, isAddress } from 'viem';
 
 import { DeadEndBoundaryError } from 'app/ErrorBoundary';
-import { useEvmCollectibleMetadataSelector } from 'app/store/evm/collectibles-metadata/selectors';
-import { useEvmTokenMetadataSelector } from 'app/store/evm/tokens-metadata/selectors';
 import { useFormAnalytics } from 'lib/analytics';
 import { fromAssetSlug } from 'lib/assets';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
@@ -15,7 +13,7 @@ import { useEvmAssetBalance } from 'lib/balances/hooks';
 import { VITALIK_ADDRESS } from 'lib/constants';
 import { useAssetFiatCurrencyPrice } from 'lib/fiat-currency';
 import { t, toLocalFixed } from 'lib/i18n';
-import { getAssetSymbol } from 'lib/metadata';
+import { getAssetSymbol, useEvmCategorizedAssetMetadata } from 'lib/metadata';
 import { isEvmCollectible } from 'lib/metadata/utils';
 import { useSafeState } from 'lib/ui/hooks';
 import { isEvmNativeTokenSlug } from 'lib/utils/evm.utils';
@@ -37,7 +35,7 @@ interface Props {
   chainId: number;
   assetSlug: string;
   onSelectAssetClick: EmptyFn;
-  onReview: (data: ReviewData) => void;
+  onReview: SyncFn<ReviewData>;
 }
 
 export const EvmForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, onReview }) => {
@@ -48,11 +46,7 @@ export const EvmForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, onR
 
   if (!account || !network) throw new DeadEndBoundaryError();
 
-  const storedTokenMetadata = useEvmTokenMetadataSelector(network.chainId, assetSlug);
-  const storedCollectibleMetadata = useEvmCollectibleMetadataSelector(network.chainId, assetSlug);
-  const assetMetadata = isEvmNativeTokenSlug(assetSlug)
-    ? network?.currency
-    : (storedTokenMetadata ?? storedCollectibleMetadata);
+  const assetMetadata = useEvmCategorizedAssetMetadata(assetSlug, network.chainId);
 
   if (!assetMetadata) throw new Error('Metadata not found');
 
