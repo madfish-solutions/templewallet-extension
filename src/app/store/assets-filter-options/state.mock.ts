@@ -1,13 +1,3 @@
-import { AssetsFilterOptionsStateInterface } from './state';
+import { AssetsFilterOptionsInitialState, AssetsFilterOptionsStateInterface } from './state';
 
-export const mockAssetsFilterOptionsState: AssetsFilterOptionsStateInterface = {
-  filterChain: null,
-  tokensListOptions: {
-    hideSmallBalance: false,
-    groupByNetwork: false
-  },
-  collectiblesListOptions: {
-    blur: false,
-    showInfo: false
-  }
-};
+export const mockAssetsFilterOptionsState: AssetsFilterOptionsStateInterface = AssetsFilterOptionsInitialState;

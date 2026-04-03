@@ -18,7 +18,7 @@ export const toExploreAssetLink = (
 export const getTokensViewWithPromo = (tokensJsx: ReactNode[], promoJsx: ReactNode, slugsCount = tokensJsx.length) => {
   if (!promoJsx) return tokensJsx;
 
-  if (slugsCount < 5) {
+  if (slugsCount <= 1) {
     tokensJsx.push(promoJsx);
   } else {
     tokensJsx.splice(1, 0, promoJsx);
