@@ -40,7 +40,7 @@ interface Props {
   chainId: string;
   assetSlug: string;
   onSelectAssetClick: EmptyFn;
-  onReview: (data: ReviewData) => void;
+  onReview: SyncFn<ReviewData>;
 }
 
 export const TezosForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, onReview }) => {
