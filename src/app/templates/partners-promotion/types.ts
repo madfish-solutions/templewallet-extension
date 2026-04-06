@@ -10,7 +10,7 @@ export interface SingleProviderPromotionProps {
   pageName: string;
   blacklistedCampaignSlugs: string[] | undefined;
   onReady: EmptyFn;
-  onError: (isFatal: boolean) => void;
+  onError: EmptyFn;
   onImpression: EmptyFn;
 }
 

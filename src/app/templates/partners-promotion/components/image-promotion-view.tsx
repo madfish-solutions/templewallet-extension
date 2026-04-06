@@ -43,7 +43,10 @@ export const ImagePromotionView = memo<Props>(
 
     return (
       <Anchor
-        className={clsx('relative w-full h-[101px] rounded-lg overflow-hidden bg-grey-4', !isVisible && 'invisible')}
+        className={clsx(
+          'relative w-full h-[101px] rounded-lg overflow-hidden bg-grey-4',
+          !isVisible && 'invisible pointer-events-none'
+        )}
         href={href}
         target="_blank"
         rel="noreferrer"

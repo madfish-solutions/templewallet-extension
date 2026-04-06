@@ -39,14 +39,14 @@ export const HypelabTextPromotion: FC<Omit<SingleProviderPromotionProps, 'varian
   const hypelabIconRef = useRef<HTMLImageElement>(null);
   const hypelabNativeParentRef = useRef<HTMLDivElement>(null);
   const hypelabNativeElementRef = useChildAdElementRef(hypelabNativeParentRef, 'hype-native');
+  const [adIsBanned, setAdIsBanned] = useState(false);
 
   const headlineText = useElementValue(hypelabHeadlineRef, getInnerText, '', innerTextObserverOptions);
   const bodyText = useElementValue(hypelabBodyRef, getInnerText, '', innerTextObserverOptions);
   const ctaUrl = useElementValue(hypelabCtaLinkRef, getLinkHref, '/', attributesObserverOptions);
   const iconUrl = useElementValue(hypelabIconRef, getImageSrc, dummyImageSrc, attributesObserverOptions);
-  const adIsReady = headlineText.length > 0;
 
-  const handleNonFatalError = useCallback(() => onError(false), [onError]);
+  const handleImageError = useCallback(() => setAdIsBanned(true), []);
 
   useEffect(() => {
     const impressionsListener = (event: Event) => {
@@ -61,15 +61,19 @@ export const HypelabTextPromotion: FC<Omit<SingleProviderPromotionProps, 'varian
   }, [adRectVisibleRef, onImpression, hypelabNativeElementRef]);
 
   useEffect(() => {
+    const adIsReady = headlineText.length > 0;
+
     if (!adIsReady) return;
+
     const el = hypelabNativeElementRef.current as unknown as { bid?: { cid?: string } } | null;
     const campaignSlug = el?.bid?.cid;
     if (campaignSlug && blacklistedCampaignSlugs?.includes(campaignSlug)) {
-      onError();
+      setAdIsBanned(true);
     } else {
+      setAdIsBanned(false);
       onReady();
     }
-  }, [adIsReady, onError, onReady, blacklistedCampaignSlugs, hypelabNativeElementRef]);
+  }, [headlineText, onError, onReady, blacklistedCampaignSlugs, hypelabNativeElementRef]);
 
   useEffect(() => {
     // Ad refreshing isn't stopped by `@hypelab/sdk-react` itself
@@ -103,7 +107,6 @@ export const HypelabTextPromotion: FC<Omit<SingleProviderPromotionProps, 'varian
         // @ts-expect-error
         class="w-full"
         placement={EnvVars.HYPELAB_INTERNAL_NATIVE_PLACEMENT_SLUG}
-        onError={handleNonFatalError}
       >
         <span className="hidden" ref={hypelabHeadlineRef} data-ref="headline" />
         <span className="hidden" ref={hypelabBodyRef} data-ref="body" />
@@ -115,13 +118,13 @@ export const HypelabTextPromotion: FC<Omit<SingleProviderPromotionProps, 'varian
           accountPkh={accountPkh}
           href={ctaUrl || '/'}
           imageSrc={iconUrl || dummyImageSrc}
-          isVisible={isVisible}
+          isVisible={isVisible && !adIsBanned}
           headline={headlineText}
           contentText={bodyText}
           providerTitle={AdsProviderTitle.HypeLab}
           pageName={pageName}
           onAdRectVisible={setAdRectVisible}
-          onImageError={handleNonFatalError}
+          onImageError={handleImageError}
         />
       </Native>
     </div>

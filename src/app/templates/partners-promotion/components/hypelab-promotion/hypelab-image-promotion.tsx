@@ -1,6 +1,5 @@
 import { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-import clsx from 'clsx';
 import { AES } from 'crypto-js';
 import { nanoid } from 'nanoid';
 
@@ -56,8 +55,6 @@ export const HypelabImagePromotion: FC<Omit<SingleProviderPromotionProps, 'varia
 
   const adId = useMemo(() => nanoid(), []);
 
-  const handleFatalError = useCallback(() => onError(true), [onError]);
-
   const isBannedAd = useCallback(
     (ad: HypelabBannerAd | nullish) =>
       ad
@@ -79,12 +76,12 @@ export const HypelabImagePromotion: FC<Omit<SingleProviderPromotionProps, 'varia
         return;
       }
 
-      if (ad && prevAdUrlRef.current !== ad.cta_url && isBannedAd(ad)) {
-        onError(false);
-      } else if (ad && prevAdUrlRef.current !== ad.cta_url) {
+      if (ad && prevAdUrlRef.current !== ad.cta_url) {
         setCurrentAd(ad);
         prevAdUrlRef.current = ad.cta_url;
-        onReady();
+        if (!isBannedAd(ad)) {
+          onReady();
+        }
       }
     };
 
@@ -103,7 +100,7 @@ export const HypelabImagePromotion: FC<Omit<SingleProviderPromotionProps, 'varia
             handleReadyAd(data);
             break;
           case 'error':
-            onError(false);
+            console.error('Error from Hypelab', data);
             break;
           case 'resize':
             if (data.width !== 0 && data.height !== 0) {
@@ -142,7 +139,7 @@ export const HypelabImagePromotion: FC<Omit<SingleProviderPromotionProps, 'varia
     <ImagePromotionView
       accountPkh={accountPkh}
       href={currentAd?.cta_url ?? '#'}
-      isVisible={isVisible}
+      isVisible={isVisible && !isBannedAd(currentAd)}
       providerTitle={AdsProviderTitle.HypeLab}
       pageName={pageName}
       backgroundAssetUrl={backgroundAssetUrl}
@@ -153,11 +150,11 @@ export const HypelabImagePromotion: FC<Omit<SingleProviderPromotionProps, 'varia
         <iframe
           title="Ad"
           sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"
-          className={clsx('block border-none rounded overflow-hidden', isBannedAd(currentAd) && 'size-0')}
+          className="block border-none rounded overflow-hidden"
           style={adSize}
           src={iframeSrc}
           ref={hypelabIframeRef}
-          onError={handleFatalError}
+          onError={onError}
         />
       </div>
     </ImagePromotionView>

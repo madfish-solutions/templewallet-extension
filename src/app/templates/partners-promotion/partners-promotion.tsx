@@ -50,7 +50,7 @@ export const PartnersPromotion = memo<PartnersPromotionProps>(({ variant, id, pa
   const shouldShowPartnersPromo = useShouldShowPartnersPromoSelector();
 
   const [isHiddenByTimeout, setIsHiddenByTimeout] = useState(shouldBeHiddenByTimeout(hiddenAt));
-  const [adError, setAdError] = useState<'none' | 'non-fatal' | 'fatal'>('none');
+  const [adError, setAdError] = useState(false);
   const [adIsReady, setAdIsReady] = useState(false);
 
   useEffect(() => {
@@ -82,7 +82,7 @@ export const PartnersPromotion = memo<PartnersPromotionProps>(({ variant, id, pa
     [id, dispatch]
   );
 
-  const handleHypelabError = useCallback((isFatal: boolean) => setAdError(isFatal ? 'fatal' : 'non-fatal'), []);
+  const handleHypelabError = useCallback(() => setAdError(true), []);
 
   const handleAdReady = useCallback(() => setAdIsReady(true), []);
 
@@ -116,15 +116,15 @@ export const PartnersPromotion = memo<PartnersPromotionProps>(({ variant, id, pa
     const prevEnableInternalHypelabAds = prevEnableInternalHypelabAdsRef.current;
     prevEnableInternalHypelabAdsRef.current = enableInternalHypelabAds;
     if (enableInternalHypelabAds === false) {
-      setAdError('fatal');
+      handleHypelabError();
     }
     if (prevEnableInternalHypelabAds === false && enableInternalHypelabAds) {
       setAdIsReady(false);
-      setAdError('none');
+      setAdError(false);
     }
   }, [enableInternalHypelabAds, handleHypelabError]);
 
-  if (!shouldShowPartnersPromo || adError === 'fatal' || isHiddenTemporarily) {
+  if (!shouldShowPartnersPromo || adError || isHiddenTemporarily) {
     return null;
   }
 
@@ -138,24 +138,24 @@ export const PartnersPromotion = memo<PartnersPromotionProps>(({ variant, id, pa
           className
         )}
       >
-        <HypelabPromotion
-          accountPkh={evmViewerAddress}
-          variant={variant}
-          isVisible={adIsReady}
-          pageName={pageName}
-          blacklistedCampaignSlugs={blacklistedCampaignSlugs}
-          onImpression={handleImpression}
-          onReady={handleAdReady}
-          onError={handleHypelabError}
-        />
+        <div className="w-full flex flex-col items-center z-10">
+          <HypelabPromotion
+            accountPkh={evmViewerAddress}
+            variant={variant}
+            isVisible={adIsReady}
+            pageName={pageName}
+            blacklistedCampaignSlugs={blacklistedCampaignSlugs}
+            onImpression={handleImpression}
+            onReady={handleAdReady}
+            onError={handleHypelabError}
+          />
+        </div>
 
-        {!adIsReady && (
-          <div className="absolute inset-0 bg-grey-4 text-secondary flex justify-center items-center rounded-lg">
-            <span className="text-font-description-bold text-grey-2">
-              <T id="thanksForSupportingTemple" />
-            </span>
-          </div>
-        )}
+        <div className="absolute inset-0 bg-grey-4 text-secondary flex justify-center items-center rounded-lg">
+          <span className="text-font-description-bold text-grey-2">
+            <T id="thanksForSupportingTemple" />
+          </span>
+        </div>
 
         <CloseButton
           className="opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto"
