@@ -32,7 +32,7 @@ export function useStorage<T extends StorageValueBase = any>(key: string, fallba
     fetchFromStorage,
     getInitialStoragePromise<T>(key),
     {
-      revalidateOnMount: false,
+      revalidateOnMount: true,
       revalidateOnFocus: false,
       revalidateOnReconnect: false
     }
