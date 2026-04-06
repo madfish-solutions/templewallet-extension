@@ -3,6 +3,7 @@ import { isDefined } from '@rnw-community/shared';
 import axios, { AxiosError, AxiosRequestConfig } from 'axios';
 
 import { toTokenSlug } from 'lib/assets';
+import { WR_TOKEN_METADATA, WR_TOKEN_SLUG } from 'lib/assets/known-tokens';
 import { isTezosDcpChainId } from 'temple/networks';
 
 import { TZKT_API_BASE_URLS } from './misc';
@@ -165,7 +166,7 @@ export const getProtocolByCycle = (chainId: TzktApiChainId, cycle: number) =>
 /**
  * @arg fungible // `null` for unknown fungibility only
  */
-export function fetchTzktAccountAssets(account: string, chainId: string, fungible: boolean | null) {
+export async function fetchTzktAccountAssets(account: string, chainId: string, fungible: boolean | null) {
   if (!isKnownChainId(chainId)) return Promise.resolve([]);
 
   const recurse = async (
@@ -182,7 +183,25 @@ export function fetchTzktAccountAssets(account: string, chainId: string, fungibl
     return accum.concat(data);
   };
 
-  return recurse([], 0);
+  let result = await recurse([], 0);
+  if (fungible === false) {
+    result = result.filter(([contractAddress, tokenId]) => toTokenSlug(contractAddress, tokenId) !== WR_TOKEN_SLUG);
+  }
+
+  if (fungible === true) {
+    const [wrToken] = await fetchGet<TzktAccountAssetSelectedParams[]>(chainId, '/tokens/balances', {
+      account,
+      'balance.gt': 0,
+      'token.contract': WR_TOKEN_METADATA.address,
+      'token.tokenId': WR_TOKEN_METADATA.id,
+      'select.values': 'token.contract.address,token.tokenId,balance'
+    });
+    if (wrToken) {
+      result.push(wrToken);
+    }
+  }
+
+  return result;
 }
 
 export type TzktAccountAssetSelectedParams = [
