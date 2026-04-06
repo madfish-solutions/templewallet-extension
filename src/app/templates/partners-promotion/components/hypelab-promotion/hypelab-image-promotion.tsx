@@ -4,7 +4,6 @@ import { AES } from 'crypto-js';
 import { nanoid } from 'nanoid';
 
 import { AdsProviderTitle } from 'lib/ads';
-import { HYPELAB_STUB_CAMPAIGN_SLUG } from 'lib/ads-constants';
 import { EnvVars } from 'lib/env';
 import { useUpdatableRef } from 'lib/ui/hooks';
 import { useAccountAddressForEvm } from 'temple/front';
@@ -57,10 +56,7 @@ export const HypelabImagePromotion: FC<Omit<SingleProviderPromotionProps, 'varia
 
   const isBannedAd = useCallback(
     (ad: HypelabBannerAd | nullish) =>
-      ad
-        ? ad.campaign_slug === HYPELAB_STUB_CAMPAIGN_SLUG ||
-          blacklistedInternalCampaignSlugsRef.current?.includes(ad.campaign_slug)
-        : false,
+      blacklistedInternalCampaignSlugsRef.current?.includes(ad?.campaign_slug ?? '') ?? false,
     [blacklistedInternalCampaignSlugsRef]
   );
 
