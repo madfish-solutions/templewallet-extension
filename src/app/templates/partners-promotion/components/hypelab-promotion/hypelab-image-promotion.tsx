@@ -26,12 +26,14 @@ export const HypelabImagePromotion: FC<Omit<SingleProviderPromotionProps, 'varia
   accountPkh,
   isVisible,
   pageName,
+  blacklistedCampaignSlugs,
   onImpression,
   onError,
   onReady
 }) => {
   const evmAccountAddress = useAccountAddressForEvm();
   const hypelabIframeRef = useRef<HTMLIFrameElement>(null);
+  const blacklistedInternalCampaignSlugsRef = useUpdatableRef(blacklistedCampaignSlugs);
   const [currentAd, setCurrentAd] = useState<HypelabBannerAd | null>(null);
   const [adSize, setAdSize] = useState<{ width: number; height: number }>({ width: 320, height: 100 });
   const prevAdUrlRef = useRef('');
@@ -53,9 +55,17 @@ export const HypelabImagePromotion: FC<Omit<SingleProviderPromotionProps, 'varia
   const adRectVisibleRef = useUpdatableRef(adRectVisible);
 
   const adId = useMemo(() => nanoid(), []);
-  const isBannedAd = currentAd?.campaign_slug === HYPELAB_STUB_CAMPAIGN_SLUG;
 
   const handleFatalError = useCallback(() => onError(true), [onError]);
+
+  const isBannedAd = useCallback(
+    (ad: HypelabBannerAd | nullish) =>
+      ad
+        ? ad.campaign_slug === HYPELAB_STUB_CAMPAIGN_SLUG ||
+          blacklistedInternalCampaignSlugsRef.current?.includes(ad.campaign_slug)
+        : false,
+    [blacklistedInternalCampaignSlugsRef]
+  );
 
   useEffect(() => {
     if (!hypelabIframeRef.current) {
@@ -69,7 +79,7 @@ export const HypelabImagePromotion: FC<Omit<SingleProviderPromotionProps, 'varia
         return;
       }
 
-      if (ad && prevAdUrlRef.current !== ad.cta_url && ad.campaign_slug === HYPELAB_STUB_CAMPAIGN_SLUG) {
+      if (ad && prevAdUrlRef.current !== ad.cta_url && isBannedAd(ad)) {
         onError(false);
       } else if (ad && prevAdUrlRef.current !== ad.cta_url) {
         setCurrentAd(ad);
@@ -101,7 +111,7 @@ export const HypelabImagePromotion: FC<Omit<SingleProviderPromotionProps, 'varia
             }
             break;
           case 'impression':
-            if (adRectVisibleRef.current && !isBannedAd) {
+            if (adRectVisibleRef.current && !isBannedAd(currentAd)) {
               onImpression();
             }
         }
@@ -112,7 +122,16 @@ export const HypelabImagePromotion: FC<Omit<SingleProviderPromotionProps, 'varia
     window.addEventListener('message', messagesListener);
 
     return () => window.removeEventListener('message', messagesListener);
-  }, [adId, onReady, onImpression, adRectVisibleRef, onError, isBannedAd]);
+  }, [
+    adId,
+    onError,
+    onReady,
+    onImpression,
+    adRectVisibleRef,
+    blacklistedInternalCampaignSlugsRef,
+    isBannedAd,
+    currentAd
+  ]);
 
   const iframeSrc = useMemo(
     () => getAdsTwUrl({ origin: globalThis.location.origin, width: 320, height: 100, id: adId, evmAccountAddress }),
@@ -134,7 +153,7 @@ export const HypelabImagePromotion: FC<Omit<SingleProviderPromotionProps, 'varia
         <iframe
           title="Ad"
           sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"
-          className={clsx('block border-none rounded overflow-hidden', isBannedAd && 'size-0')}
+          className={clsx('block border-none rounded overflow-hidden', isBannedAd(currentAd) && 'size-0')}
           style={adSize}
           src={iframeSrc}
           ref={hypelabIframeRef}

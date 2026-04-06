@@ -8,6 +8,7 @@ export interface SingleProviderPromotionProps {
   variant: PartnersPromotionVariant;
   isVisible: boolean;
   pageName: string;
+  blacklistedCampaignSlugs: string[] | undefined;
   onReady: EmptyFn;
   onError: (isFatal: boolean) => void;
   onImpression: EmptyFn;

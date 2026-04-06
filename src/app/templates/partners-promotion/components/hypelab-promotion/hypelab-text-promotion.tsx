@@ -26,6 +26,7 @@ export const HypelabTextPromotion: FC<Omit<SingleProviderPromotionProps, 'varian
   accountPkh,
   isVisible,
   pageName,
+  blacklistedCampaignSlugs,
   onImpression,
   onReady,
   onError
@@ -60,10 +61,15 @@ export const HypelabTextPromotion: FC<Omit<SingleProviderPromotionProps, 'varian
   }, [adRectVisibleRef, onImpression, hypelabNativeElementRef]);
 
   useEffect(() => {
-    if (adIsReady) {
+    if (!adIsReady) return;
+    const el = hypelabNativeElementRef.current as unknown as { bid?: { cid?: string } } | null;
+    const campaignSlug = el?.bid?.cid;
+    if (campaignSlug && blacklistedCampaignSlugs?.includes(campaignSlug)) {
+      onError();
+    } else {
       onReady();
     }
-  }, [adIsReady, onReady]);
+  }, [adIsReady, onError, onReady, blacklistedCampaignSlugs, hypelabNativeElementRef]);
 
   useEffect(() => {
     // Ad refreshing isn't stopped by `@hypelab/sdk-react` itself

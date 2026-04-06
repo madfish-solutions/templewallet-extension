@@ -151,6 +151,10 @@ export const fetchEnableInternalHypelabAds = withAxiosDataExtract(() =>
   axiosClient.get<boolean>(`/ads-rules/${APP_VERSION}/enable-internal-hypelab-ads`)
 );
 
+export const fetchInternalBlacklistedHypelabCampaignsSlugs = withAxiosDataExtract(() =>
+  axiosClient.get<string[]>(`/ads-rules/${APP_VERSION}/hypelab-campaigns-blacklist-internal`)
+);
+
 interface TekeadsAffiliateResponse {
   data: AffiliateLink[];
 }

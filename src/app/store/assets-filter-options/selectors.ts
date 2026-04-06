@@ -11,3 +11,14 @@ export const useTokensListOptionsSelector = () => useSelector(state => state.ass
 
 export const useCollectiblesListOptionsSelector = () =>
   useSelector(state => state.assetsFilterOptions.collectiblesListOptions);
+
+export const useHasActiveFiltersSelector = () =>
+  useSelector(({ assetsFilterOptions: { filterChain, tokensListOptions, collectiblesListOptions } }) =>
+    Boolean(
+      filterChain ||
+      tokensListOptions.hideSmallBalance ||
+      tokensListOptions.groupByNetwork ||
+      collectiblesListOptions.blur ||
+      collectiblesListOptions.showInfo
+    )
+  );
