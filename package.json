@@ -244,7 +244,8 @@
     "zip-a-folder/glob": "11.1.0",
     "valibot": "^1.2.0",
     "minimatch": "^3.1.4",
-    "serialize-javascript": "^7.0.3"
+    "serialize-javascript": "^7.0.3",
+    "@noble/curves": "1.9.7"
   },
   "optionalDependencies": {
     "@temple-wallet/extension-ads": "^15.0.3"
