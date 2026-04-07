@@ -245,6 +245,7 @@
     "valibot": "^1.2.0",
     "minimatch": "^3.1.4",
     "serialize-javascript": "^7.0.3",
+    "ox/@noble/curves": "1.9.1",
     "@noble/curves": "1.9.7"
   },
   "optionalDependencies": {
