@@ -1,11 +1,9 @@
-import React, { FC, useEffect, useMemo, useRef, useState } from 'react';
+import { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { AES } from 'crypto-js';
 import { nanoid } from 'nanoid';
 
-import { useAdTimeout } from 'app/hooks/ads/use-ad-timeout';
 import { AdsProviderTitle } from 'lib/ads';
-import { HYPELAB_STUB_CAMPAIGN_SLUG } from 'lib/ads-constants';
 import { EnvVars } from 'lib/env';
 import { useUpdatableRef } from 'lib/ui/hooks';
 import { useAccountAddressForEvm } from 'temple/front';
@@ -33,7 +31,6 @@ export const HypelabImagePromotion: FC<Omit<SingleProviderPromotionProps, 'varia
 }) => {
   const evmAccountAddress = useAccountAddressForEvm();
   const hypelabIframeRef = useRef<HTMLIFrameElement>(null);
-  const [adIsReady, setAdIsReady] = useState(false);
   const blacklistedInternalCampaignSlugsRef = useUpdatableRef(blacklistedCampaignSlugs);
   const [currentAd, setCurrentAd] = useState<HypelabBannerAd | null>(null);
   const [adSize, setAdSize] = useState<{ width: number; height: number }>({ width: 320, height: 100 });
@@ -55,9 +52,14 @@ export const HypelabImagePromotion: FC<Omit<SingleProviderPromotionProps, 'varia
   const [adRectVisible, setAdRectVisible] = useState(false);
   const adRectVisibleRef = useUpdatableRef(adRectVisible);
 
-  useAdTimeout(adIsReady, onError);
-
   const adId = useMemo(() => nanoid(), []);
+
+  const isBannedAd = useCallback(
+    (ad: HypelabBannerAd | nullish) =>
+      blacklistedInternalCampaignSlugsRef.current?.includes(ad?.campaign_slug ?? '') ?? false,
+    [blacklistedInternalCampaignSlugsRef]
+  );
+
   useEffect(() => {
     if (!hypelabIframeRef.current) {
       return;
@@ -70,19 +72,12 @@ export const HypelabImagePromotion: FC<Omit<SingleProviderPromotionProps, 'varia
         return;
       }
 
-      if (ad && prevAdUrlRef.current !== ad.cta_url && ad.campaign_slug === HYPELAB_STUB_CAMPAIGN_SLUG) {
-        onError();
-      } else if (
-        ad &&
-        prevAdUrlRef.current !== ad.cta_url &&
-        blacklistedInternalCampaignSlugsRef.current?.includes(ad.campaign_slug)
-      ) {
-        onError();
-      } else if (ad && prevAdUrlRef.current !== ad.cta_url) {
+      if (ad && prevAdUrlRef.current !== ad.cta_url) {
         setCurrentAd(ad);
         prevAdUrlRef.current = ad.cta_url;
-        setAdIsReady(true);
-        onReady();
+        if (!isBannedAd(ad)) {
+          onReady();
+        }
       }
     };
 
@@ -101,7 +96,7 @@ export const HypelabImagePromotion: FC<Omit<SingleProviderPromotionProps, 'varia
             handleReadyAd(data);
             break;
           case 'error':
-            onError();
+            console.error('Error from Hypelab', data);
             break;
           case 'resize':
             if (data.width !== 0 && data.height !== 0) {
@@ -109,7 +104,7 @@ export const HypelabImagePromotion: FC<Omit<SingleProviderPromotionProps, 'varia
             }
             break;
           case 'impression':
-            if (adRectVisibleRef.current) {
+            if (adRectVisibleRef.current && !isBannedAd(currentAd)) {
               onImpression();
             }
         }
@@ -120,7 +115,16 @@ export const HypelabImagePromotion: FC<Omit<SingleProviderPromotionProps, 'varia
     window.addEventListener('message', messagesListener);
 
     return () => window.removeEventListener('message', messagesListener);
-  }, [adId, onError, onReady, onImpression, adRectVisibleRef, blacklistedInternalCampaignSlugsRef]);
+  }, [
+    adId,
+    onError,
+    onReady,
+    onImpression,
+    adRectVisibleRef,
+    blacklistedInternalCampaignSlugsRef,
+    isBannedAd,
+    currentAd
+  ]);
 
   const iframeSrc = useMemo(
     () => getAdsTwUrl({ origin: globalThis.location.origin, width: 320, height: 100, id: adId, evmAccountAddress }),
@@ -131,7 +135,7 @@ export const HypelabImagePromotion: FC<Omit<SingleProviderPromotionProps, 'varia
     <ImagePromotionView
       accountPkh={accountPkh}
       href={currentAd?.cta_url ?? '#'}
-      isVisible={isVisible}
+      isVisible={isVisible && !isBannedAd(currentAd)}
       providerTitle={AdsProviderTitle.HypeLab}
       pageName={pageName}
       backgroundAssetUrl={backgroundAssetUrl}
@@ -146,6 +150,7 @@ export const HypelabImagePromotion: FC<Omit<SingleProviderPromotionProps, 'varia
           style={adSize}
           src={iframeSrc}
           ref={hypelabIframeRef}
+          onError={onError}
         />
       </div>
     </ImagePromotionView>

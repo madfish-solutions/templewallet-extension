@@ -51,7 +51,7 @@ export const TextPromotionView = memo<Props>(
       <Anchor
         className={clsx(
           'rounded-lg relative w-full flex bg-grey-4 hover:bg-secondary-low group-hover:bg-secondary-low',
-          !isVisible && 'invisible'
+          !isVisible && 'invisible pointer-events-none'
         )}
         href={href}
         target="_blank"
