@@ -1,5 +1,5 @@
 import { DerivationType } from '@taquito/ledger-signer';
-import { TypedDataDefinition } from 'viem';
+import { AuthorizationRequest, TypedDataDefinition } from 'viem';
 import browser from 'webextension-polyfill';
 
 import {
@@ -1111,6 +1111,37 @@ describe('Vault tests', () => {
 
         for (let i = 0; i < signatures.length; i++) {
           expect(await vault.signEvmMessage(accounts[i].evm.address, message)).toEqual(signatures[i]);
+        }
+      });
+    });
+
+    describe('signEvmAuthorization', () => {
+      const authorization: AuthorizationRequest = {
+        address: '0x0000000000000000000000000000000000000000',
+        chainId: 421614,
+        nonce: 0
+      };
+
+      it('should throw an error if the specified account is a watch-only account', async () => {
+        await expect(() => vault.signEvmAuthorization(accounts[2].evm.address, authorization)).rejects.toThrow(
+          'Cannot sign Watch-only account'
+        );
+      });
+
+      it('should throw an error if the specified account does not exist', async () => {
+        await expect(() => vault.signEvmAuthorization(accounts[3].evm.address, authorization)).rejects.toThrow(
+          'Account not found'
+        );
+      });
+
+      it('should sign an EIP-7702 authorization', async () => {
+        const signatures = [
+          '0xcf680ca11b6cdeae58d92b9753682d41737ea6354b316a2937f4706aa9731d6a0f4b06294d5cd3eb8ed0fbd271248eb19f57fb9981384dad1373cab26b98e8c51b',
+          '0x7b9ec91438fa932c7ff48af26f3a58b26bbf9439420cbdc45916b3c83cdd940c165fffcc12073562bbab9335ec1cc7e90d39195abbb7c596d8e36216f7b8dc551c'
+        ];
+
+        for (let i = 0; i < signatures.length; i++) {
+          expect(await vault.signEvmAuthorization(accounts[i].evm.address, authorization)).toEqual(signatures[i]);
         }
       });
     });

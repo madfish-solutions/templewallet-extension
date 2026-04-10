@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { SignableMessage, TypedDataDefinition } from 'viem';
 
 import { templeWalletApi } from '../templewallet.api';
 
@@ -20,15 +21,18 @@ export interface AlchemyJsonRpcResponse<TResult = unknown> {
 export interface WalletPrepareCallsRequest {
   chainId: string;
   paymasterService?: boolean;
+  onlyEstimation?: boolean;
   [key: string]: unknown;
 }
 
 // https://www.alchemy.com/docs/wallets/api-reference/smart-wallets/wallet-api-endpoints/wallet-api-endpoints/wallet-send-prepared-calls
 export interface WalletSendPreparedCallsRequest {
-  chainId: string;
-  data: {
-    sender?: string;
-    [key: string]: unknown;
+  type: string;
+  data: unknown;
+  chainId?: string;
+  signature?: {
+    type: 'secp256k1';
+    data: HexString;
   };
   [key: string]: unknown;
 }
@@ -36,6 +40,78 @@ export interface WalletSendPreparedCallsRequest {
 // https://www.alchemy.com/docs/wallets/api-reference/smart-wallets/wallet-api-endpoints/wallet-api-endpoints/wallet-get-calls-status
 export interface WalletGetCallsStatusRequest {
   callId: string;
+}
+
+export interface AlchemyFeePayment {
+  amount?: string;
+  maxAmount: HexString;
+  tokenAddress?: HexString;
+}
+
+export interface AlchemyMessageSignatureRequest {
+  type: 'personal_sign';
+  data: SignableMessage;
+  rawPayload?: HexString;
+}
+
+export interface AlchemyTypedDataSignatureRequest {
+  type: 'eth_signTypedData_v4';
+  data: TypedDataDefinition;
+  rawPayload?: HexString;
+}
+
+export interface AlchemyAuthorizationSignatureRequest {
+  type: 'authorization';
+  data: {
+    address?: HexString;
+    contractAddress?: HexString;
+    chainId: number;
+    nonce: number;
+  };
+  rawPayload?: HexString;
+}
+
+export type AlchemySignatureRequest =
+  | AlchemyMessageSignatureRequest
+  | AlchemyTypedDataSignatureRequest
+  | AlchemyAuthorizationSignatureRequest;
+
+export interface AlchemyPreparedCallBase {
+  type: string;
+  data: unknown;
+  chainId?: string;
+  signatureRequest: AlchemySignatureRequest;
+}
+
+export interface AlchemyPreparedCallSingle extends AlchemyPreparedCallBase {
+  feePayment?: AlchemyFeePayment;
+}
+
+export interface AlchemyPreparedCallArray {
+  type: 'array';
+  data: AlchemyPreparedCallBase[];
+  feePayment?: AlchemyFeePayment;
+}
+
+export type AlchemyPrepareCallsResult = AlchemyPreparedCallSingle | AlchemyPreparedCallArray;
+
+export interface AlchemySendPreparedCallsResult {
+  id: string;
+}
+
+export interface AlchemyCallsStatusReceipt {
+  status?: string;
+  transactionHash?: HexString;
+  [key: string]: unknown;
+}
+
+export interface AlchemyCallsStatusResult {
+  id: string;
+  chainId: string;
+  atomic: boolean;
+  status: number;
+  receipts: AlchemyCallsStatusReceipt[] | null;
+  errors?: unknown;
 }
 
 const postAlchemyWalletRequest = <TResult>(path: string, body: object, signal?: AbortSignal) =>
