@@ -895,6 +895,16 @@ export class Vault {
     return this.withSigningEvmAccount(accPublicKeyHash, async account => account.signMessage({ message }));
   }
 
+  async signEvmHash(accPublicKeyHash: string, hash: HexString) {
+    return this.withSigningEvmAccount(accPublicKeyHash, async account => {
+      if (!account.sign) {
+        throw new PublicError('Ledger cannot sign raw EVM hashes');
+      }
+
+      return account.sign({ hash });
+    });
+  }
+
   async signEvmAuthorization(accPublicKeyHash: string, authorization: AuthorizationRequest) {
     return this.withSigningEvmAccount(accPublicKeyHash, async account => {
       if (!account.signAuthorization) {

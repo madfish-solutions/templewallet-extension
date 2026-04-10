@@ -1,7 +1,12 @@
 import axios from 'axios';
 import { SignableMessage, TypedDataDefinition } from 'viem';
 
-import { templeWalletApi } from '../templewallet.api';
+import { EnvVars } from 'lib/env';
+
+const templeWalletEvmApi = axios.create({
+  baseURL: new URL('/api', EnvVars.TEMPLE_WALLET_EVM_API_URL).href,
+  adapter: 'fetch'
+});
 
 export interface AlchemyJsonRpcError {
   code: number;
@@ -54,6 +59,11 @@ export interface AlchemyMessageSignatureRequest {
   rawPayload?: HexString;
 }
 
+export interface AlchemyEip7702AuthSignatureRequest {
+  type: 'eip7702Auth';
+  rawPayload: HexString;
+}
+
 export interface AlchemyTypedDataSignatureRequest {
   type: 'eth_signTypedData_v4';
   data: TypedDataDefinition;
@@ -72,6 +82,7 @@ export interface AlchemyAuthorizationSignatureRequest {
 }
 
 export type AlchemySignatureRequest =
+  | AlchemyEip7702AuthSignatureRequest
   | AlchemyMessageSignatureRequest
   | AlchemyTypedDataSignatureRequest
   | AlchemyAuthorizationSignatureRequest;
@@ -80,20 +91,39 @@ export interface AlchemyPreparedCallBase {
   type: string;
   data: unknown;
   chainId?: string;
-  signatureRequest: AlchemySignatureRequest;
+  signatureRequest?: AlchemySignatureRequest;
+  feePayment?: AlchemyFeePayment;
 }
 
 export interface AlchemyPreparedCallSingle extends AlchemyPreparedCallBase {
   feePayment?: AlchemyFeePayment;
 }
 
-export interface AlchemyPreparedCallArray {
+interface AlchemyPreparedCallArray {
   type: 'array';
   data: AlchemyPreparedCallBase[];
   feePayment?: AlchemyFeePayment;
 }
 
 export type AlchemyPrepareCallsResult = AlchemyPreparedCallSingle | AlchemyPreparedCallArray;
+export const isAlchemyPreparedCallArray = (result?: AlchemyPrepareCallsResult): result is AlchemyPreparedCallArray =>
+  Boolean(result && result.type === 'array' && Array.isArray(result.data));
+
+export const getAlchemyFeePayment = (result?: AlchemyPrepareCallsResult) => {
+  if (!result) {
+    return undefined;
+  }
+
+  if (result.feePayment) {
+    return result.feePayment;
+  }
+
+  if (!isAlchemyPreparedCallArray(result)) {
+    return result.feePayment;
+  }
+
+  return result.data.find((item: AlchemyPreparedCallBase) => item.feePayment)?.feePayment;
+};
 
 export interface AlchemySendPreparedCallsResult {
   id: string;
@@ -115,7 +145,7 @@ export interface AlchemyCallsStatusResult {
 }
 
 const postAlchemyWalletRequest = <TResult>(path: string, body: object, signal?: AbortSignal) =>
-  templeWalletApi.post<AlchemyJsonRpcResponse<TResult>>(`evm${path}`, body, { signal }).then(
+  templeWalletEvmApi.post<AlchemyJsonRpcResponse<TResult>>(path, body, { signal }).then(
     res => res.data,
     error => {
       if (axios.isCancel(error) || error?.name === 'CanceledError') return;

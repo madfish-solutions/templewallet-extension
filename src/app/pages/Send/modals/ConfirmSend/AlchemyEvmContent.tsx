@@ -15,7 +15,6 @@ import { BalancesChangesView } from 'app/templates/balances-changes-view';
 import { ChartListItem } from 'app/templates/chart-list-item';
 import { CurrentAccount } from 'app/templates/current-account';
 import {
-  AlchemyPreparedCallArray,
   AlchemyPreparedCallBase,
   AlchemyPreparedCallSingle,
   AlchemyCallsStatusResult,
@@ -23,6 +22,7 @@ import {
   AlchemySignatureRequest,
   AlchemySendPreparedCallsResult,
   getAlchemyCallsStatus,
+  isAlchemyPreparedCallArray,
   prepareAlchemyWalletCalls,
   sendAlchemyPreparedCalls
 } from 'lib/apis/temple/endpoints/evm/alchemy-wallet';
@@ -50,10 +50,6 @@ const ALCHEMY_STATUS_POLL_INTERVAL = 3_000;
 const ALCHEMY_STATUS_POLL_ATTEMPTS = 30;
 
 const isAlchemyPendingStatus = (status: number) => status >= 100 && status < 200;
-const isAlchemyPreparedCallArray = (
-  preparedCalls: AlchemyPrepareCallsResult
-): preparedCalls is AlchemyPreparedCallArray => preparedCalls.type === 'array' && Array.isArray(preparedCalls.data);
-
 export const AlchemyEvmContent: FC<AlchemyEvmContentProps> = ({ data, onClose, onSuccess }) => {
   const { account, network, assetSlug, to, amount, onConfirm } = data;
   const accountPkh = account.address as HexString;
@@ -62,7 +58,7 @@ export const AlchemyEvmContent: FC<AlchemyEvmContentProps> = ({ data, onClose, o
   const assetSymbol = useMemo(() => (assetMetadata ? getAssetSymbol(assetMetadata) : ''), [assetMetadata]);
   const balancesChanges = useSendBalancesChanges(assetSlug, amount, assetMetadata?.decimals);
   const getActiveBlockExplorer = useGetEvmActiveBlockExplorer();
-  const { signEvmAuthorization, signEvmMessage, signEvmTypedData } = useTempleClient();
+  const { signEvmAuthorization, signEvmHash, signEvmMessage, signEvmTypedData } = useTempleClient();
   const {
     feeAmount,
     error: estimationError,
@@ -81,6 +77,8 @@ export const AlchemyEvmContent: FC<AlchemyEvmContentProps> = ({ data, onClose, o
   const signSignatureRequest = useCallback(
     async (signatureRequest: AlchemySignatureRequest) => {
       switch (signatureRequest.type) {
+        case 'eip7702Auth':
+          return signEvmHash(accountPkh, signatureRequest.rawPayload);
         case 'authorization': {
           if (signatureRequest.data.address) {
             return signEvmAuthorization(accountPkh, {
@@ -108,7 +106,7 @@ export const AlchemyEvmContent: FC<AlchemyEvmContentProps> = ({ data, onClose, o
           throw new Error('Unsupported Alchemy signature request');
       }
     },
-    [accountPkh, signEvmAuthorization, signEvmMessage, signEvmTypedData]
+    [accountPkh, signEvmAuthorization, signEvmHash, signEvmMessage, signEvmTypedData]
   );
 
   const signPreparedCalls = useCallback(
@@ -119,25 +117,33 @@ export const AlchemyEvmContent: FC<AlchemyEvmContentProps> = ({ data, onClose, o
           data: await Promise.all(
             preparedCalls.data.map(async (item: AlchemyPreparedCallBase) => ({
               ...item,
-              signature: {
-                type: 'secp256k1' as const,
-                data: await signSignatureRequest(item.signatureRequest)
-              }
+              ...(item.signatureRequest
+                ? {
+                    signature: {
+                      type: 'secp256k1' as const,
+                      data: await signSignatureRequest(item.signatureRequest)
+                    }
+                  }
+                : {})
             }))
           )
         };
       }
 
-      const singlePreparedCall = preparedCalls as AlchemyPreparedCallSingle;
+      const singlePreparedCall: AlchemyPreparedCallSingle = preparedCalls;
 
       return {
         type: singlePreparedCall.type,
         data: singlePreparedCall.data,
         ...(singlePreparedCall.chainId ? { chainId: singlePreparedCall.chainId } : {}),
-        signature: {
-          type: 'secp256k1' as const,
-          data: await signSignatureRequest(singlePreparedCall.signatureRequest)
-        }
+        ...(singlePreparedCall.signatureRequest
+          ? {
+              signature: {
+                type: 'secp256k1' as const,
+                data: await signSignatureRequest(singlePreparedCall.signatureRequest)
+              }
+            }
+          : {})
       };
     },
     [signSignatureRequest]

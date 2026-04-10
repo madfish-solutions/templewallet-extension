@@ -511,6 +511,8 @@ export enum TempleMessageType {
   SendEvmTransactionResponse = 'SEND_EVM_TRANSACTION_RESPONSE',
   SignEvmMessageRequest = 'SIGN_EVM_MESSAGE_REQUEST',
   SignEvmMessageResponse = 'SIGN_EVM_MESSAGE_RESPONSE',
+  SignEvmHashRequest = 'SIGN_EVM_HASH_REQUEST',
+  SignEvmHashResponse = 'SIGN_EVM_HASH_RESPONSE',
   SignEvmTypedDataRequest = 'SIGN_EVM_TYPED_DATA_REQUEST',
   SignEvmTypedDataResponse = 'SIGN_EVM_TYPED_DATA_RESPONSE',
   SignEvmAuthorizationRequest = 'SIGN_EVM_AUTHORIZATION_REQUEST',
@@ -585,6 +587,7 @@ export type TempleRequest =
   | TempleSendPageEventRequest
   | TempleSendEvmTransactionRequest
   | TempleSignEvmMessageRequest
+  | TempleSignEvmHashRequest
   | TempleSignEvmTypedDataRequest
   | TempleSignEvmAuthorizationRequest
   | TempleResetExtensionRequest
@@ -635,6 +638,7 @@ export type TempleResponse =
   | TempleSendPageEventResponse
   | TempleSendEvmTransactionResponse
   | TempleSignEvmMessageResponse
+  | TempleSignEvmHashResponse
   | TempleSignEvmTypedDataResponse
   | TempleSignEvmAuthorizationResponse
   | TempleResetExtensionResponse
@@ -1036,6 +1040,17 @@ interface TempleSignEvmMessageRequest extends TempleMessageBase {
 
 interface TempleSignEvmMessageResponse extends TempleMessageBase {
   type: TempleMessageType.SignEvmMessageResponse;
+  signature: HexString;
+}
+
+interface TempleSignEvmHashRequest extends TempleMessageBase {
+  type: TempleMessageType.SignEvmHashRequest;
+  accountPkh: HexString;
+  hash: HexString;
+}
+
+interface TempleSignEvmHashResponse extends TempleMessageBase {
+  type: TempleMessageType.SignEvmHashResponse;
   signature: HexString;
 }
 

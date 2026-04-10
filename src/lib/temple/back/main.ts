@@ -77,6 +77,12 @@ const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<T
         signature: await Actions.signEvmMessage(req.accountPkh, req.message)
       };
 
+    case TempleMessageType.SignEvmHashRequest:
+      return {
+        type: TempleMessageType.SignEvmHashResponse,
+        signature: await Actions.signEvmHash(req.accountPkh, req.hash)
+      };
+
     case TempleMessageType.SignEvmTypedDataRequest:
       return {
         type: TempleMessageType.SignEvmTypedDataResponse,

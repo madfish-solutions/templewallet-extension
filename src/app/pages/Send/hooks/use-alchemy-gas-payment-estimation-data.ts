@@ -2,7 +2,11 @@ import { useCallback, useMemo } from 'react';
 
 import { formatUnits, numberToHex } from 'viem';
 
-import { prepareAlchemyWalletCalls, AlchemyPrepareCallsResult } from 'lib/apis/temple/endpoints/evm/alchemy-wallet';
+import {
+  AlchemyPrepareCallsResult,
+  getAlchemyFeePayment,
+  prepareAlchemyWalletCalls
+} from 'lib/apis/temple/endpoints/evm/alchemy-wallet';
 import { useEvmCategorizedAssetMetadata } from 'lib/metadata';
 import { useTypedSWR } from 'lib/swr';
 import { EvmChain } from 'temple/front';
@@ -53,11 +57,17 @@ export const useAlchemyGasPaymentEstimationData = ({
       throw new Error(response.error.message);
     }
 
-    if (!response?.result?.feePayment?.maxAmount) {
+    if (!response?.result) {
+      throw new Error('Alchemy prepare calls response is empty');
+    }
+
+    const feePayment = getAlchemyFeePayment(response?.result);
+
+    if (!feePayment?.maxAmount) {
       throw new Error('Alchemy fee payment estimate is unavailable');
     }
 
-    return response.result;
+    return { ...response.result, feePayment };
   }, [accountPkh, amount, assetMetadata, network.chainId, to]);
 
   const swr = useTypedSWR(

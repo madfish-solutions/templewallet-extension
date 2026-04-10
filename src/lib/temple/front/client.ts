@@ -524,6 +524,17 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
     return res.signature;
   }, []);
 
+  const signEvmHash = useCallback(async (accountPkh: HexString, hash: HexString) => {
+    const res = await request({
+      type: TempleMessageType.SignEvmHashRequest,
+      accountPkh,
+      hash
+    });
+    assertResponse(res.type === TempleMessageType.SignEvmHashResponse);
+
+    return res.signature;
+  }, []);
+
   const signEvmTypedData = useCallback(async (accountPkh: HexString, typedData: TypedDataDefinition) => {
     const res = await request({
       type: TempleMessageType.SignEvmTypedDataRequest,
@@ -621,6 +632,7 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
     switchDAppTezosAccount,
     sendEvmTransaction,
     signEvmMessage,
+    signEvmHash,
     signEvmTypedData,
     signEvmAuthorization,
     resetExtension

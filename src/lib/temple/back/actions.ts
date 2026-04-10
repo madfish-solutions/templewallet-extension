@@ -228,6 +228,12 @@ export function signEvmMessage(accountPkh: HexString, message: SignableMessage) 
   });
 }
 
+export function signEvmHash(accountPkh: HexString, hash: HexString) {
+  return withUnlocked(async ({ vault }) => {
+    return await vault.signEvmHash(accountPkh, hash);
+  });
+}
+
 export function signEvmTypedData(accountPkh: HexString, typedData: TypedDataDefinition) {
   return withUnlocked(async ({ vault }) => {
     return await vault.signEvmTypedData(accountPkh, typedData);
