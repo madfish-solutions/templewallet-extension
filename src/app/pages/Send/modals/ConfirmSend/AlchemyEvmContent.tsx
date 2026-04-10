@@ -1,5 +1,6 @@
 import React, { FC, useCallback, useMemo, useState } from 'react';
 
+import axios from 'axios';
 import { numberToHex } from 'viem';
 
 import { HashChip } from 'app/atoms/HashChip';
@@ -50,6 +51,30 @@ const ALCHEMY_STATUS_POLL_INTERVAL = 3_000;
 const ALCHEMY_STATUS_POLL_ATTEMPTS = 30;
 
 const isAlchemyPendingStatus = (status: number) => status >= 100 && status < 200;
+const getReadableErrorMessage = (error: unknown) => {
+  if (error instanceof Error) {
+    return error.message;
+  }
+
+  if (axios.isAxiosError(error)) {
+    const responseData = error.response?.data;
+    if (responseData && typeof responseData === 'object') {
+      const message =
+        'error' in responseData && responseData.error && typeof responseData.error === 'object'
+          ? (responseData.error as { message?: string }).message
+          : undefined;
+
+      if (message) {
+        return message;
+      }
+    }
+
+    return error.message;
+  }
+
+  return t('unknownError');
+};
+
 export const AlchemyEvmContent: FC<AlchemyEvmContentProps> = ({ data, onClose, onSuccess }) => {
   const { account, network, assetSlug, to, amount, onConfirm } = data;
   const accountPkh = account.address as HexString;
@@ -111,40 +136,29 @@ export const AlchemyEvmContent: FC<AlchemyEvmContentProps> = ({ data, onClose, o
 
   const signPreparedCalls = useCallback(
     async (preparedCalls: AlchemyPrepareCallsResult) => {
+      const signPreparedCallItem = async (item: AlchemyPreparedCallBase) => ({
+        type: item.type,
+        data: item.data,
+        ...(item.chainId ? { chainId: item.chainId } : {}),
+        ...(item.signatureRequest
+          ? {
+              signature: {
+                type: 'secp256k1' as const,
+                data: await signSignatureRequest(item.signatureRequest)
+              }
+            }
+          : {})
+      });
+
       if (isAlchemyPreparedCallArray(preparedCalls)) {
         return {
           type: 'array',
-          data: await Promise.all(
-            preparedCalls.data.map(async (item: AlchemyPreparedCallBase) => ({
-              ...item,
-              ...(item.signatureRequest
-                ? {
-                    signature: {
-                      type: 'secp256k1' as const,
-                      data: await signSignatureRequest(item.signatureRequest)
-                    }
-                  }
-                : {})
-            }))
-          )
+          data: await Promise.all(preparedCalls.data.map(signPreparedCallItem))
         };
       }
 
       const singlePreparedCall: AlchemyPreparedCallSingle = preparedCalls;
-
-      return {
-        type: singlePreparedCall.type,
-        data: singlePreparedCall.data,
-        ...(singlePreparedCall.chainId ? { chainId: singlePreparedCall.chainId } : {}),
-        ...(singlePreparedCall.signatureRequest
-          ? {
-              signature: {
-                type: 'secp256k1' as const,
-                data: await signSignatureRequest(singlePreparedCall.signatureRequest)
-              }
-            }
-          : {})
-      };
+      return signPreparedCallItem(singlePreparedCall);
     },
     [signSignatureRequest]
   );
@@ -287,11 +301,7 @@ export const AlchemyEvmContent: FC<AlchemyEvmContentProps> = ({ data, onClose, o
       return null;
     }
 
-    if (error instanceof Error) {
-      return error.message;
-    }
-
-    return t('unknownError');
+    return getReadableErrorMessage(error);
   }, [estimationError, submitError]);
 
   return (
