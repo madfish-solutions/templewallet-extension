@@ -7,7 +7,11 @@ import { HashChip } from 'app/atoms/HashChip';
 import { Loader } from 'app/atoms/Loader';
 import { ActionsButtonsBox } from 'app/atoms/PageModal';
 import { StyledButton } from 'app/atoms/StyledButton';
-import { getAlchemyGasPaymentChainId } from 'app/pages/Send/alchemy-pay-gas-with-token';
+import {
+  ALCHEMY_GAS_PAYMENT_TOKEN_SYMBOL,
+  getAlchemyGasPaymentAssetSlug,
+  getAlchemyGasPaymentChainId
+} from 'app/pages/Send/alchemy-pay-gas-with-token';
 import { EvmReviewData } from 'app/pages/Send/form/interfaces';
 import { useAlchemyGasPaymentEstimationData } from 'app/pages/Send/hooks/use-alchemy-gas-payment-estimation-data';
 import { dispatch } from 'app/store';
@@ -78,9 +82,14 @@ const getReadableErrorMessage = (error: unknown) => {
 export const AlchemyEvmContent: FC<AlchemyEvmContentProps> = ({ data, onClose, onSuccess }) => {
   const { account, network, assetSlug, to, amount, onConfirm } = data;
   const accountPkh = account.address as HexString;
+  const alchemyGasPaymentAssetSlug = getAlchemyGasPaymentAssetSlug(network.chainId) ?? assetSlug;
 
   const assetMetadata = useEvmCategorizedAssetMetadata(assetSlug, network.chainId);
-  const assetSymbol = useMemo(() => (assetMetadata ? getAssetSymbol(assetMetadata) : ''), [assetMetadata]);
+  const alchemyGasPaymentMetadata = useEvmCategorizedAssetMetadata(alchemyGasPaymentAssetSlug, network.chainId);
+  const assetSymbol = useMemo(
+    () => (alchemyGasPaymentMetadata ? getAssetSymbol(alchemyGasPaymentMetadata) : ALCHEMY_GAS_PAYMENT_TOKEN_SYMBOL),
+    [alchemyGasPaymentMetadata]
+  );
   const balancesChanges = useSendBalancesChanges(assetSlug, amount, assetMetadata?.decimals);
   const getActiveBlockExplorer = useGetEvmActiveBlockExplorer();
   const { signEvmAuthorization, signEvmHash, signEvmMessage, signEvmTypedData } = useTempleClient();
@@ -90,7 +99,8 @@ export const AlchemyEvmContent: FC<AlchemyEvmContentProps> = ({ data, onClose, o
     isValidating: isEstimating
   } = useAlchemyGasPaymentEstimationData({
     to: to as HexString,
-    assetSlug,
+    sendAssetSlug: assetSlug,
+    gasPaymentAssetSlug: alchemyGasPaymentAssetSlug,
     accountPkh,
     network,
     amount,

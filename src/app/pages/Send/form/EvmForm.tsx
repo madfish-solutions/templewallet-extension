@@ -16,6 +16,7 @@ import { useAssetFiatCurrencyPrice } from 'lib/fiat-currency';
 import { t, toLocalFixed } from 'lib/i18n';
 import { getAssetSymbol, useEvmCategorizedAssetMetadata } from 'lib/metadata';
 import { isEvmCollectible } from 'lib/metadata/utils';
+import { atomsToTokens } from 'lib/temple/helpers';
 import { TempleAccountType } from 'lib/temple/types';
 import { useSafeState } from 'lib/ui/hooks';
 import { isEvmNativeTokenSlug } from 'lib/utils/evm.utils';
@@ -26,7 +27,12 @@ import { useEvmChainByChainId } from 'temple/front/chains';
 import { useEvmAddressByDomainName } from 'temple/front/evm/ens';
 import { useSettings } from 'temple/front/ready';
 
-import { isAlchemyGasPaymentSupportedAsset } from '../alchemy-pay-gas-with-token';
+import {
+  ALCHEMY_GAS_PAYMENT_TOKEN_DECIMALS,
+  ALCHEMY_GAS_PAYMENT_TOKEN_SYMBOL,
+  getAlchemyGasPaymentAssetSlug,
+  isAlchemyGasPaymentSupportedChain
+} from '../alchemy-pay-gas-with-token';
 import { useSendFormControl } from '../context';
 import { useAlchemyGasPaymentEstimationData } from '../hooks/use-alchemy-gas-payment-estimation-data';
 import { useEvmEstimationData } from '../hooks/use-evm-estimation-data';
@@ -60,9 +66,22 @@ export const EvmForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, onR
   const accountPkh = account.address as HexString;
 
   const formAnalytics = useFormAnalytics('SendForm');
+  const alchemyGasPaymentAssetSlug = getAlchemyGasPaymentAssetSlug(network.chainId) ?? assetSlug;
 
   const { value: balance = ZERO } = useEvmAssetBalance(assetSlug, accountPkh, network);
   const { value: ethBalance = ZERO } = useEvmAssetBalance(EVM_TOKEN_SLUG, accountPkh, network);
+  const { rawValue: alchemyGasPaymentRawBalance } = useEvmAssetBalance(alchemyGasPaymentAssetSlug, accountPkh, network);
+  const alchemyGasPaymentMetadata = useEvmCategorizedAssetMetadata(alchemyGasPaymentAssetSlug, network.chainId);
+  const alchemyGasPaymentBalance = useMemo(
+    () =>
+      alchemyGasPaymentRawBalance
+        ? atomsToTokens(
+            alchemyGasPaymentRawBalance,
+            alchemyGasPaymentMetadata?.decimals ?? ALCHEMY_GAS_PAYMENT_TOKEN_DECIMALS
+          )
+        : ZERO,
+    [alchemyGasPaymentMetadata?.decimals, alchemyGasPaymentRawBalance]
+  );
 
   const [shouldUseFiat, setShouldUseFiat] = useSafeState(false);
 
@@ -90,9 +109,10 @@ export const EvmForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, onR
   const toFilled = Boolean(toValue && (isAddress(toValue) || isString(resolvedAddress)));
 
   const toResolved = resolvedAddress || toValue;
+  const isSendingAlchemyGasPaymentAsset = assetSlug === alchemyGasPaymentAssetSlug;
   const alchemyGasPaymentSupported = useMemo(
-    () => account.type !== TempleAccountType.Ledger && isAlchemyGasPaymentSupportedAsset(assetSlug, network.chainId),
-    [account.type, assetSlug, network.chainId]
+    () => account.type !== TempleAccountType.Ledger && isAlchemyGasPaymentSupportedChain(network.chainId),
+    [account.type, network.chainId]
   );
   const [shouldUseAlchemyGasPayment, setShouldUseAlchemyGasPayment] = useSafeState(false);
   const minimalAlchemyEstimateAmount = useMemo(
@@ -137,7 +157,8 @@ export const EvmForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, onR
   });
   const { feeAmount: alchemyFeeAmount, isValidating: alchemyEstimating } = useAlchemyGasPaymentEstimationData({
     to: (toFilled ? toResolved : VITALIK_ADDRESS) as HexString,
-    assetSlug,
+    sendAssetSlug: assetSlug,
+    gasPaymentAssetSlug: alchemyGasPaymentAssetSlug,
     accountPkh,
     network,
     amount: alchemyEstimateAmount ?? minimalAlchemyEstimateAmount,
@@ -146,11 +167,10 @@ export const EvmForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, onR
 
   const maxAmount = useMemo(() => {
     if (shouldUseAlchemyGasPayment) {
-      if (!alchemyFeeAmount) {
-        return shouldUseFiat ? getMaxAmountFiat(assetPrice.toNumber(), balance) : balance;
-      }
-
-      const maxAmountAsset = BigNumber.max(balance.minus(alchemyFeeAmount), ZERO);
+      const maxAmountAsset =
+        isSendingAlchemyGasPaymentAsset && alchemyFeeAmount
+          ? BigNumber.max(balance.minus(alchemyFeeAmount), ZERO)
+          : balance;
 
       return shouldUseFiat ? getMaxAmountFiat(assetPrice.toNumber(), maxAmountAsset) : maxAmountAsset;
     }
@@ -167,9 +187,9 @@ export const EvmForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, onR
   }, [
     alchemyFeeAmount,
     assetPrice,
-    assetSlug,
     balance,
     estimationData,
+    isSendingAlchemyGasPaymentAsset,
     shouldUseAlchemyGasPayment,
     shouldUseFiat,
     toVitalikEstimationData
@@ -180,7 +200,11 @@ export const EvmForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, onR
       if (!amount) return t('required');
       if (Number(amount) === 0) return t('amountMustBePositive');
 
-      if (shouldUseAlchemyGasPayment && alchemyFeeAmount) {
+      if (shouldUseAlchemyGasPayment && alchemyFeeAmount && alchemyGasPaymentBalance.isLessThan(alchemyFeeAmount)) {
+        return `Insufficient ${alchemyGasPaymentMetadata ? getAssetSymbol(alchemyGasPaymentMetadata) : ALCHEMY_GAS_PAYMENT_TOKEN_SYMBOL} balance to pay gas`;
+      }
+
+      if (shouldUseAlchemyGasPayment && alchemyFeeAmount && isSendingAlchemyGasPaymentAsset) {
         return (
           new BigNumber(amount).plus(alchemyFeeAmount).isLessThanOrEqualTo(balance) ||
           t('maximalAmount', toLocalFixed(maxAmount, Math.min(assetDecimals, 6)))
@@ -192,7 +216,16 @@ export const EvmForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, onR
         t('maximalAmount', toLocalFixed(maxAmount, Math.min(assetDecimals, 6)))
       );
     },
-    [alchemyFeeAmount, assetDecimals, balance, maxAmount, shouldUseAlchemyGasPayment]
+    [
+      alchemyFeeAmount,
+      alchemyGasPaymentBalance,
+      alchemyGasPaymentMetadata,
+      assetDecimals,
+      balance,
+      isSendingAlchemyGasPaymentAsset,
+      maxAmount,
+      shouldUseAlchemyGasPayment
+    ]
   );
 
   const validateRecipient = useCallback(
@@ -293,7 +326,7 @@ export const EvmForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, onR
             <SettingsCheckbox
               checked={shouldUseAlchemyGasPayment}
               onChange={setShouldUseAlchemyGasPayment}
-              label="Pay gas with this token (Alchemy demo)"
+              label="Pay gas with USDC token"
             />
           ) : undefined
         }

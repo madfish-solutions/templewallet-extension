@@ -11,11 +11,13 @@ import { useEvmCategorizedAssetMetadata } from 'lib/metadata';
 import { useTypedSWR } from 'lib/swr';
 import { EvmChain } from 'temple/front';
 
+import { ALCHEMY_GAS_PAYMENT_TOKEN_DECIMALS } from '../alchemy-pay-gas-with-token';
 import { buildBasicEvmSendParams } from '../build-basic-evm-send-params';
 
 interface UseAlchemyGasPaymentEstimationDataInput {
   to: HexString;
-  assetSlug: string;
+  sendAssetSlug: string;
+  gasPaymentAssetSlug: string;
   accountPkh: HexString;
   network: EvmChain;
   amount: string;
@@ -24,20 +26,22 @@ interface UseAlchemyGasPaymentEstimationDataInput {
 
 export const useAlchemyGasPaymentEstimationData = ({
   to,
-  assetSlug,
+  sendAssetSlug,
+  gasPaymentAssetSlug,
   accountPkh,
   network,
   amount,
   enabled
 }: UseAlchemyGasPaymentEstimationDataInput) => {
-  const assetMetadata = useEvmCategorizedAssetMetadata(assetSlug, network.chainId);
+  const sendAssetMetadata = useEvmCategorizedAssetMetadata(sendAssetSlug, network.chainId);
+  const gasPaymentAssetMetadata = useEvmCategorizedAssetMetadata(gasPaymentAssetSlug, network.chainId);
 
   const estimate = useCallback(async () => {
-    if (!assetMetadata) {
+    if (!sendAssetMetadata) {
       throw new Error('Asset metadata not found');
     }
 
-    const { to: txDestination, value, data } = buildBasicEvmSendParams(accountPkh, to, assetMetadata, amount);
+    const { to: txDestination, value, data } = buildBasicEvmSendParams(accountPkh, to, sendAssetMetadata, amount);
 
     const response = await prepareAlchemyWalletCalls<AlchemyPrepareCallsResult>({
       chainId: numberToHex(network.chainId),
@@ -68,10 +72,12 @@ export const useAlchemyGasPaymentEstimationData = ({
     }
 
     return { ...response.result, feePayment };
-  }, [accountPkh, amount, assetMetadata, network.chainId, to]);
+  }, [accountPkh, amount, network.chainId, sendAssetMetadata, to]);
 
   const swr = useTypedSWR(
-    enabled ? ['alchemy-gas-payment-estimation', network.chainId, assetSlug, accountPkh, to, amount] : null,
+    enabled
+      ? ['alchemy-gas-payment-estimation', network.chainId, sendAssetSlug, gasPaymentAssetSlug, accountPkh, to, amount]
+      : null,
     estimate,
     {
       shouldRetryOnError: false,
@@ -81,12 +87,15 @@ export const useAlchemyGasPaymentEstimationData = ({
   );
 
   const feeAmount = useMemo(() => {
-    if (!swr.data?.feePayment?.maxAmount || assetMetadata?.decimals == null) {
+    if (!swr.data?.feePayment?.maxAmount) {
       return undefined;
     }
 
-    return formatUnits(BigInt(swr.data.feePayment.maxAmount), assetMetadata.decimals);
-  }, [assetMetadata?.decimals, swr.data]);
+    return formatUnits(
+      BigInt(swr.data.feePayment.maxAmount),
+      gasPaymentAssetMetadata?.decimals ?? ALCHEMY_GAS_PAYMENT_TOKEN_DECIMALS
+    );
+  }, [gasPaymentAssetMetadata?.decimals, swr.data]);
 
   return {
     ...swr,
