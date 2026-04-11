@@ -411,6 +411,7 @@ export const configureAds = async () => {
     chainName:
       chainId in evmChainsNames
         ? evmChainsNames[String(chainId) as keyof typeof evmChainsNames]
-        : `0x${chainId.toString(16)}`
+        : `0x${chainId.toString(16)}`,
+    makeThemingParamsChangeMessage: params => JSON.stringify({ type: 'setParams', params })
   });
 };
