@@ -23,8 +23,8 @@ import { TempleChainKind, type AdsViewerData } from 'temple/types';
 import evmChainsNames from './evm-chains-names.json';
 import { importExtensionAdsModule } from './import-extension-ads-module';
 
-// Four interfaces below are copied from '@temple-wallet/extension-ads' to avoid importing it to ensure that a core
-// build runs without errors.
+// #region These interfaces below are copied from '@temple-wallet/extension-ads' to avoid importing it to ensure that a
+// core build runs without errors.
 interface AdSource {
   shouldNotUseStrictContainerLimits?: boolean;
   providerName: 'Temple' | 'HypeLab' | 'Bitmedia';
@@ -58,6 +58,13 @@ interface AdsStackIframeURLParams {
   evmAccountAddress?: string;
   chainName?: string;
 }
+
+interface AdThemeParams {
+  themeColor?: string;
+  fontSize?: number;
+  lineHeight?: number;
+}
+// #endregion
 
 const smallTkeyInpageAdUrl = browser.runtime.getURL(`/misc/ad-banners/small-tkey-inpage-ad.png`);
 const tkeyInpageAdUrl = browser.runtime.getURL(`/misc/ad-banners/tkey-inpage-ad.png`);
@@ -412,6 +419,6 @@ export const configureAds = async () => {
       chainId in evmChainsNames
         ? evmChainsNames[String(chainId) as keyof typeof evmChainsNames]
         : `0x${chainId.toString(16)}`,
-    makeThemingParamsChangeMessage: params => JSON.stringify({ type: 'setParams', params })
+    makeThemingParamsChangeMessage: (params: AdThemeParams) => JSON.stringify({ type: 'setParams', params })
   });
 };
