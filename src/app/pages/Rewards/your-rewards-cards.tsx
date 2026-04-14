@@ -1,4 +1,4 @@
-import { memo, useCallback, useEffect, useMemo, useState, useTransition } from 'react';
+import { memo, useCallback, useMemo, useState, useTransition } from 'react';
 
 import clsx from 'clsx';
 
@@ -11,19 +11,18 @@ import { ReactComponent as InfoIcon } from 'app/icons/base/InfoFill.svg';
 import { DelegationModal } from 'app/pages/EarnTez/modals/delegation';
 import { TEMPLE_BAKERY_PAYOUT_ADDRESS, TEMPLE_REWARDS_PAYOUT_ADDRESS } from 'app/pages/Rewards/constants';
 import { advancedFeaturesInfoTippyProps } from 'app/pages/Rewards/tooltip';
-import { fetchTokenTransfers } from 'lib/apis/tzkt/api';
-import { PREDEFINED_TOKENS_METADATA } from 'lib/assets/known-tokens';
+import { TEMPLE_BAKERY_REWARDS_STATS_STORAGE_KEY, TKEY_REWARDS_STATS_STORAGE_KEY } from 'lib/constants';
 import { DISABLE_ADS, IS_MISES_BROWSER } from 'lib/env';
 import { t, T } from 'lib/i18n';
 import { TEMPLE_BAKER_ADDRESS } from 'lib/known-bakers';
 import { useDelegate } from 'lib/temple/front';
-import { usePassiveStorage } from 'lib/temple/front/storage';
-import { TempleTezosChainId } from 'lib/temple/types';
 import { useActivateAnimatedChevron } from 'lib/ui/hooks/use-activate-animated-chevron';
 import useTippy from 'lib/ui/useTippy';
 import { Link, navigate } from 'lib/woozie';
 import { useAccountForTezos, useTezosMainnetChain } from 'temple/front';
 import { confirmTezosOperation, getTezosReadOnlyRpcClient } from 'temple/tezos';
+
+import { useRewardsStatsEntry } from './use-rewards-stats-entry';
 
 export const YourRewardsCards = memo(() => {
   const tezosMainnet = useTezosMainnetChain();
@@ -52,102 +51,22 @@ export const YourRewardsCards = memo(() => {
 
   const referralsEnabled = useMemo(() => isReferralLinksEnabled && IS_MISES_BROWSER, [isReferralLinksEnabled]);
 
-  const monthKey = useMemo(() => {
-    const d = new Date();
-    return `${d.getFullYear()}-${d.getMonth()}`;
-  }, []);
-
-  const tkeyRewardsStorageKey = useMemo(
-    () => `tkey_rewards_stats:${tezosMainnet.chainId}:${account?.address ?? 'unknown'}:${monthKey}`,
-    [tezosMainnet.chainId, account?.address, monthKey]
+  const { isLoading: isTkeyLoading, stats: tkeyStats } = useRewardsStatsEntry(
+    TKEY_REWARDS_STATS_STORAGE_KEY,
+    TEMPLE_REWARDS_PAYOUT_ADDRESS,
+    'Failed to load Tkey stats: '
   );
 
-  const [tkeyStats, setTkeyStats] = usePassiveStorage<null | {
-    monthKey: string;
-    total: number;
-    lastAmount?: number;
-  }>(tkeyRewardsStorageKey, null);
-
-  const tkeyMeta = PREDEFINED_TOKENS_METADATA[TempleTezosChainId.Mainnet]?.find(t => t.symbol === 'TKEY');
-  const tkeyDecimals = useMemo(() => Number(tkeyMeta?.decimals ?? 18), [tkeyMeta]);
-
-  const [isTkeyLoading, startTkeyLoading] = useTransition();
-
-  useEffect(() => {
-    if (!account || !tkeyMeta || tkeyStats) {
-      return;
-    }
-
-    startTkeyLoading(async () => {
-      try {
-        const transfers = await fetchTokenTransfers(TempleTezosChainId.Mainnet, {
-          'sort.desc': 'id',
-          to: account.address,
-          from: TEMPLE_REWARDS_PAYOUT_ADDRESS,
-          'token.contract': tkeyMeta.address,
-          'token.tokenId': tkeyMeta.id
-        });
-
-        const total = transfers.reduce((sum, tr) => sum + Number(tr.amount) / 10 ** tkeyDecimals, 0);
-        const lastAmount = transfers[0] ? Number(transfers[0].amount) / 10 ** tkeyDecimals : undefined;
-
-        setTkeyStats({ monthKey, total, lastAmount });
-      } catch (err) {
-        console.error('Failed to load Tkey stats: ', err);
-      }
-    });
-  }, [account, monthKey, setTkeyStats, startTkeyLoading, tkeyDecimals, tezosMainnet.chainId, tkeyMeta, tkeyStats]);
-
-  const bakeryRewardsStorageKey = useMemo(
-    () => `tkey_bakery_rewards_stats:${tezosMainnet.chainId}:${account?.address ?? 'unknown'}:${monthKey}`,
-    [tezosMainnet.chainId, account?.address, monthKey]
+  const { isLoading: isBakeryLoading, stats: bakeryStats } = useRewardsStatsEntry(
+    TEMPLE_BAKERY_REWARDS_STATS_STORAGE_KEY,
+    TEMPLE_BAKERY_PAYOUT_ADDRESS,
+    'Failed to load bakery stats: '
   );
 
-  const [bakeryStats, setBakeryStats] = usePassiveStorage<null | {
-    monthKey: string;
-    total: number;
-    lastAmount?: number;
-  }>(bakeryRewardsStorageKey, null);
-
-  const [isBakeryLoading, startBakeryLoading] = useTransition();
   const [isDelegating, startDelegation] = useTransition();
 
   const { data: myBakerPkh, mutate: updateBakerPkh } = useDelegate(account?.address ?? '', tezosMainnet, false, true);
   const delegatedToTemple = myBakerPkh === TEMPLE_BAKER_ADDRESS;
-
-  useEffect(() => {
-    if (!account || !tkeyMeta || bakeryStats) {
-      return;
-    }
-
-    startBakeryLoading(async () => {
-      try {
-        const transfers = await fetchTokenTransfers(TempleTezosChainId.Mainnet, {
-          'sort.desc': 'id',
-          to: account.address,
-          from: TEMPLE_BAKERY_PAYOUT_ADDRESS,
-          'token.contract': tkeyMeta.address,
-          'token.tokenId': tkeyMeta.id
-        });
-
-        const total = transfers.reduce((sum, tr) => sum + Number(tr.amount) / 10 ** tkeyDecimals, 0);
-        const lastAmount = transfers[0] ? Number(transfers[0].amount) / 10 ** tkeyDecimals : undefined;
-
-        setBakeryStats({ monthKey, total, lastAmount });
-      } catch (err) {
-        console.error('Failed to load bakery stats: ', err);
-      }
-    });
-  }, [
-    account,
-    bakeryStats,
-    monthKey,
-    setBakeryStats,
-    startBakeryLoading,
-    tkeyDecimals,
-    tezosMainnet.chainId,
-    tkeyMeta
-  ]);
 
   const handleDelegationSuccess = useCallback(
     (opHash: string) => {
@@ -205,7 +124,7 @@ export const YourRewardsCards = memo(() => {
             </div>
           ) : !isAdvertisingEnabled && !referralsEnabled && !DISABLE_ADS ? (
             <p className="text-font-description text-grey-1">{t('passivelyEarnTkey')}</p>
-          ) : !tkeyStats || tkeyStats.total === 0 ? (
+          ) : !tkeyStats || tkeyStats.total.isZero() ? (
             <div className="justify-center items-center flex h-[42px]">
               <span className="text-font-description text-grey-2 center">{t('noRewardsActivity')}</span>
             </div>
@@ -214,7 +133,7 @@ export const YourRewardsCards = memo(() => {
               <div className="flex flex-col gap-0.5">
                 <span className="text-font-description text-grey-1">{t('allTime')}</span>
                 <span className="text-font-num-bold-16 text-text">
-                  {tkeyStats.total && (
+                  {!tkeyStats.total.isZero() && (
                     <div className="flex flex-row items-center gap-1">
                       <div className="w-6 h-6 flex justify-center items-center bg-text rounded-full">
                         <Logo type={'icon'} size={14} />
@@ -271,11 +190,11 @@ export const YourRewardsCards = memo(() => {
                 <div className="justify-center items-center flex h-[42px]">
                   <Loader size="L" trackVariant="dark" className="text-secondary" />
                 </div>
-              ) : delegatedToTemple && (!bakeryStats || bakeryStats.total === 0) ? (
+              ) : delegatedToTemple && (!bakeryStats || bakeryStats.total.isZero()) ? (
                 <div className="justify-center items-center flex h-[42px]">
                   <span className="text-font-description text-grey-2 center">{t('noDelegationRewards')}</span>
                 </div>
-              ) : !bakeryStats || bakeryStats.total === 0 ? (
+              ) : !bakeryStats || bakeryStats.total.isZero() ? (
                 <p className="text-font-description text-grey-1">
                   <T
                     id="delegateTezFunds"

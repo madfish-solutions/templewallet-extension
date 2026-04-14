@@ -54,16 +54,18 @@ export const WR_TOKEN_METADATA: TokenMetadata = {
 
 export const WR_TOKEN_SLUG = toTokenSlug(WR_TOKEN_METADATA.address, WR_TOKEN_METADATA.id);
 
+export const TKEY_TOKEN_METADATA: TokenMetadata = {
+  id: '0',
+  address: 'KT1VaEsVNiBoA56eToEK6n6BcPgh1tdx9eXi',
+  name: 'Temple Key',
+  symbol: 'TKEY',
+  decimals: 18,
+  thumbnailUri: 'ipfs://Qmb9QUXYn1PW8e7E2CwpBMgEur7gFAPPpq2Zh7H2D7eQcT',
+  standard: TezosTokenStandardsEnum.Fa2
+};
+
 const PREDEFINED_MAINNET_TOKENS_METADATA: TokenMetadata[] = [
-  {
-    id: '0',
-    address: 'KT1VaEsVNiBoA56eToEK6n6BcPgh1tdx9eXi',
-    name: 'Temple Key',
-    symbol: 'TKEY',
-    decimals: 18,
-    thumbnailUri: 'ipfs://Qmb9QUXYn1PW8e7E2CwpBMgEur7gFAPPpq2Zh7H2D7eQcT',
-    standard: TezosTokenStandardsEnum.Fa2
-  },
+  TKEY_TOKEN_METADATA,
   {
     id: '0',
     address: 'KT1XnTn74bUtxHfDtBmm2bGZAQfhPbvKWR8o',
