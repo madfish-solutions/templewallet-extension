@@ -7,9 +7,9 @@ import { TKEY_TOKEN_METADATA } from 'lib/assets/known-tokens';
 import { usePassiveStorage } from 'lib/temple/front/storage';
 import { atomsToTokens } from 'lib/temple/helpers';
 import { TempleTezosChainId } from 'lib/temple/types';
+import { useUpdatableRef } from 'lib/ui/hooks';
 import { ZERO } from 'lib/utils/numbers';
 import { useAccountAddressForTezos } from 'temple/front';
-import { useUpdatableRef } from 'lib/ui/hooks';
 
 export const useRewardsStatsEntry = (storageKey: string, senderPkh: string, errorLogPrefix: string) => {
   const accountAddress = useAccountAddressForTezos();
