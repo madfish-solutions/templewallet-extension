@@ -18,8 +18,7 @@ import { TempleChainKind } from 'temple/types';
 import { EarnSelectors } from '../selectors';
 import { ActiveDeposit, EarnOffer } from '../types';
 
-const COMMON_ITEM_CLASSNAME =
-  'p-3 group rounded-8 bg-white border-0.5 border-lines hover:bg-grey-4 transition ease-in-out duration-200';
+import { COMMON_ITEM_CLASSNAME } from './constants';
 
 interface EarnOfferItemProps {
   offer: EarnOffer;

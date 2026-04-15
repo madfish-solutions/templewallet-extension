@@ -11,6 +11,7 @@ import { importUpdateRulesStorageModule } from 'lib/ads/import-update-rules-stor
 import {
   SHOULD_OPEN_LETS_EXCHANGE_MODAL_STORAGE_KEY,
   SHOULD_PROMOTE_ROOTSTOCK_STORAGE_KEY,
+  SHOULD_SHOW_NEW_DAPPS_MODAL_STORAGE_KEY,
   SHOULD_SHOW_REWARDS_PUSH_STORAGE_KEY,
   SIDE_VIEW_WAS_FORCED_STORAGE_KEY
 } from 'lib/constants';
@@ -25,11 +26,13 @@ import PackageJSON from '../package.json';
 type UpdateStorageKey =
   | typeof SHOULD_OPEN_LETS_EXCHANGE_MODAL_STORAGE_KEY
   | typeof SHOULD_PROMOTE_ROOTSTOCK_STORAGE_KEY
-  | typeof SHOULD_SHOW_REWARDS_PUSH_STORAGE_KEY;
+  | typeof SHOULD_SHOW_REWARDS_PUSH_STORAGE_KEY
+  | typeof SHOULD_SHOW_NEW_DAPPS_MODAL_STORAGE_KEY;
 const updateStorageKeys: UpdateStorageKey[] = [
   SHOULD_OPEN_LETS_EXCHANGE_MODAL_STORAGE_KEY,
   SHOULD_PROMOTE_ROOTSTOCK_STORAGE_KEY,
-  SHOULD_SHOW_REWARDS_PUSH_STORAGE_KEY
+  SHOULD_SHOW_REWARDS_PUSH_STORAGE_KEY,
+  SHOULD_SHOW_NEW_DAPPS_MODAL_STORAGE_KEY
 ];
 
 browser.runtime.onInstalled.addListener(({ reason }) => {
@@ -48,12 +51,14 @@ browser.runtime.onInstalled.addListener(({ reason }) => {
         {
           [SHOULD_OPEN_LETS_EXCHANGE_MODAL_STORAGE_KEY]: shouldOpenLetsExchangeModal,
           [SHOULD_PROMOTE_ROOTSTOCK_STORAGE_KEY]: shouldPromoteRootstock,
-          [SHOULD_SHOW_REWARDS_PUSH_STORAGE_KEY]: shouldShowRewardsPush
+          [SHOULD_SHOW_REWARDS_PUSH_STORAGE_KEY]: shouldShowRewardsPush,
+          [SHOULD_SHOW_NEW_DAPPS_MODAL_STORAGE_KEY]: shouldShowNewDappsModal
         }
       ]) => {
         if (details?.triggeredManually) openFullPage();
         if (shouldOpenLetsExchangeModal == null) putToStorage(SHOULD_OPEN_LETS_EXCHANGE_MODAL_STORAGE_KEY, true);
         if (shouldPromoteRootstock == null) putToStorage(SHOULD_PROMOTE_ROOTSTOCK_STORAGE_KEY, true);
+        if (shouldShowNewDappsModal == null) putToStorage(SHOULD_SHOW_NEW_DAPPS_MODAL_STORAGE_KEY, true);
         if (shouldShowRewardsPush == null) {
           Promise.all([
             Vault.isExist(),

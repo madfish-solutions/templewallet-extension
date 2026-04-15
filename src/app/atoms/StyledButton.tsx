@@ -24,7 +24,7 @@ export const StyledButton: FC<StyledButtonComponentProps> = (inputProps: StyledB
   return <Button ref={ref} {...buttonProps} />;
 };
 
-type StyledButtonAnchorProps = AnchorProps &
+export type StyledButtonAnchorProps = AnchorProps &
   ButtonLikeStylingProps & {
     ref?: Ref<HTMLAnchorElement>;
   };

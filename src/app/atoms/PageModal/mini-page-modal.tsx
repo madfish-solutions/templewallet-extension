@@ -16,7 +16,6 @@ interface MiniPageModalProps extends PropsWithChildren, TestIDProps {
   opened: boolean;
   title?: ReactChildren;
   onRequestClose?: EmptyFn;
-  contentPadding?: boolean;
   showHeader?: boolean;
 }
 
@@ -67,7 +66,7 @@ export const MiniPageModal: FC<MiniPageModalProps> = ({
         </div>
       )}
 
-      <div className="flex-grow bottom flex flex-col overflow-hidden">{children}</div>
+      <div className="grow bottom flex flex-col overflow-hidden">{children}</div>
     </Modal>
   );
 };
