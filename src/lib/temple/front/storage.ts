@@ -70,7 +70,7 @@ export function usePassiveStorage<T = any>(key: string, fallback?: T) {
     fetchFromStorage,
     getInitialStoragePromise<T>(key),
     {
-      revalidateOnMount: false,
+      revalidateOnMount: true,
       revalidateOnFocus: false,
       revalidateOnReconnect: false
     }
