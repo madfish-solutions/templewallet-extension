@@ -106,15 +106,15 @@ function getInitialStoragePromise<T>(key: string) {
 }
 
 function onStorageChanged<T = any>(key: string, callback: (newValue: T) => void) {
-  const handleChanged = ((changes: { [s: string]: Storage.StorageChange }) => {
+  const handleChanged = (changes: Storage.StorageAreaOnChangedChangesType) => {
     if (key in changes) {
       // onChanged reports newValue === undefined when a key is removed.
       // Our fetcher uses null to mean “missing”, so normalize to null here.
       // This keeps SWR (with suspense) from re-suspending on storage.clear(),
       // preventing transient unmount/remount (e.g., modal flicker) during resets.
-      callback(changes[key].newValue ?? null);
+      callback((changes[key] as Storage.StorageChange).newValue ?? null);
     }
-  }) as unknown as (changes: Storage.StorageAreaOnChangedChangesType) => void;
+  };
 
   // (!) Do not sub to all storages at once (via `browser.storage.onChanged`).
   // See: https://bugzilla.mozilla.org/show_bug.cgi?id=1838448#c14

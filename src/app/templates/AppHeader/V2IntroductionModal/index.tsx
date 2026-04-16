@@ -8,27 +8,27 @@ import { StyledButton } from 'app/atoms/StyledButton';
 import { ReactComponent as OutLinkIcon } from 'app/icons/base/outLink.svg';
 import { ReactComponent as CloseIcon } from 'app/icons/base/x.svg';
 import { T } from 'lib/i18n';
+import { useDidMount } from 'lib/ui/hooks';
+
+import { UpdateModalProps } from '../types';
 
 import { V2IntroductionModalSelectors } from './selectors';
-
-interface V2IntroductionModalProps {
-  setShouldShowV2IntroModal: (value: boolean) => Promise<void>;
-}
 
 const V2_DOCS_URL =
   'https://docs.templewallet.com/blog/the-temple-wallet-tezos-evm-update-the-beginning-of-the-new-chapter/';
 
-export const V2IntroductionModal = memo(({ setShouldShowV2IntroModal }: V2IntroductionModalProps) => {
-  const handleClose = useCallback(() => setShouldShowV2IntroModal(false), [setShouldShowV2IntroModal]);
-  const handleLinkClick = useCallback(async () => {
-    await handleClose();
-    await browser.tabs.create({ url: V2_DOCS_URL });
-  }, [handleClose]);
+export const V2IntroductionModal = memo(({ onClose, onShown }: UpdateModalProps) => {
+  const handleLinkClick = useCallback(() => {
+    onClose();
+    browser.tabs.create({ url: V2_DOCS_URL });
+  }, [onClose]);
+
+  useDidMount(onShown);
 
   return (
-    <ActionModal hasHeader={false} onClose={handleClose}>
+    <ActionModal hasHeader={false} onClose={onClose}>
       <div className="relative w-full flex flex-col items-center px-3 py-4 gap-y-2">
-        <Button className="absolute top-3 right-3" onClick={handleClose}>
+        <Button className="absolute top-3 right-3" onClick={onClose}>
           <IconBase Icon={CloseIcon} className="text-grey-2" />
         </Button>
 

@@ -1,8 +1,9 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 
 import { useDebounce } from 'use-debounce';
 
 import { useTestnetModeEnabledSelector } from 'app/store/settings/selectors';
+import { DAppForDeposit, DAPPS_FOR_DEPOSITS } from 'lib/dapps-for-deposit';
 import { TempleAccountType } from 'lib/temple/types';
 import { isSearchStringApplicable } from 'lib/utils/search-items';
 import { getAccountAddressForEvm, getAccountAddressForTezos } from 'temple/accounts';
@@ -20,14 +21,16 @@ export const useFilteredEarnOffers = () => {
   const account = useAccount();
   const isTestnetMode = useTestnetModeEnabledSelector();
 
-  const filterBySymbol = useCallback(
-    (offers: EarnOffer[]) => {
-      if (!inSearch) return offers;
+  const filterBySymbol = useMemo(
+    () =>
+      <T extends EarnOffer | DAppForDeposit>(offers: T[]) => {
+        if (!inSearch) return offers;
+        const query = searchValueDebounced.trim().toLowerCase();
 
-      const query = searchValueDebounced.trim().toLowerCase();
-
-      return offers.filter(({ symbol }) => symbol.toLowerCase().includes(query));
-    },
+        return offers.filter(offer =>
+          ('description' in offer ? offer.name : offer.symbol).toLowerCase().includes(query)
+        );
+      },
     [inSearch, searchValueDebounced]
   );
 
@@ -50,10 +53,12 @@ export const useFilteredEarnOffers = () => {
     [availableSavingsOffers, filterBySymbol]
   );
   const externalOffers = useMemo(() => filterBySymbol(EXTERNAL_OFFERS), [filterBySymbol]);
+  const dAppsForDeposits = useMemo(() => filterBySymbol(DAPPS_FOR_DEPOSITS), [filterBySymbol]);
 
   return {
     savingsOffers: searchedSavingsOffers,
     externalOffers,
+    dAppsForDeposits,
     searchValue,
     setSearchValue
   };
