@@ -1,11 +1,14 @@
-import { memo } from 'react';
+import { memo, useMemo } from 'react';
+
+import clsx from 'clsx';
 
 import { ActionsButtonsBox } from 'app/atoms/PageModal';
 import { MiniPageModal } from 'app/atoms/PageModal/mini-page-modal';
-import { StyledButtonAnchor } from 'app/atoms/StyledButton';
 import { DAPPS_FOR_DEPOSITS } from 'lib/dapps-for-deposit';
 import { T } from 'lib/i18n';
 import { useDidMount } from 'lib/ui/hooks';
+import { useStyledButtonClassName } from 'lib/ui/use-styled-button-or-link-props';
+import { Link } from 'lib/woozie';
 
 import { UpdateModalProps } from '../types';
 
@@ -18,6 +21,12 @@ const dAppsLogoComponents = [2, 0, 1].map(index => ({
 
 export const NewDAppsModal = memo(({ onClose, onShown }: UpdateModalProps) => {
   useDidMount(onShown);
+
+  const styledButtonClassName = useStyledButtonClassName({ size: 'L', color: 'primary' });
+  const goToEarnButtonClassName = useMemo(
+    () => clsx(styledButtonClassName, 'w-full cursor-pointer text-center'),
+    [styledButtonClassName]
+  );
 
   return (
     <MiniPageModal opened onRequestClose={onClose}>
@@ -39,15 +48,14 @@ export const NewDAppsModal = memo(({ onClose, onShown }: UpdateModalProps) => {
         </div>
       </div>
       <ActionsButtonsBox className="pt-3">
-        <StyledButtonAnchor
-          size="L"
-          className="w-full cursor-pointer"
-          color="primary"
+        <Link
+          to="/earn"
+          className={goToEarnButtonClassName}
           onClick={onClose}
           testID={NewDAppsModalSelectors.goToEarnButton}
         >
           <T id="goToEarnPage" />
-        </StyledButtonAnchor>
+        </Link>
       </ActionsButtonsBox>
     </MiniPageModal>
   );

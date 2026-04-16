@@ -34,6 +34,11 @@ const updateStorageKeys: UpdateStorageKey[] = [
   SHOULD_SHOW_REWARDS_PUSH_STORAGE_KEY,
   SHOULD_SHOW_NEW_DAPPS_MODAL_STORAGE_KEY
 ];
+const updateStorageKeysToEnsure = [
+  SHOULD_OPEN_LETS_EXCHANGE_MODAL_STORAGE_KEY,
+  SHOULD_PROMOTE_ROOTSTOCK_STORAGE_KEY,
+  SHOULD_SHOW_NEW_DAPPS_MODAL_STORAGE_KEY
+] as const;
 
 browser.runtime.onInstalled.addListener(({ reason }) => {
   if (reason === 'install') {
@@ -45,33 +50,24 @@ browser.runtime.onInstalled.addListener(({ reason }) => {
     Promise.all([
       getStoredAppUpdateDetails(),
       fetchManyFromStorage<UpdateStorageKey, Record<UpdateStorageKey, boolean>>(updateStorageKeys)
-    ]).then(
-      ([
-        details,
-        {
-          [SHOULD_OPEN_LETS_EXCHANGE_MODAL_STORAGE_KEY]: shouldOpenLetsExchangeModal,
-          [SHOULD_PROMOTE_ROOTSTOCK_STORAGE_KEY]: shouldPromoteRootstock,
-          [SHOULD_SHOW_REWARDS_PUSH_STORAGE_KEY]: shouldShowRewardsPush,
-          [SHOULD_SHOW_NEW_DAPPS_MODAL_STORAGE_KEY]: shouldShowNewDappsModal
-        }
-      ]) => {
-        if (details?.triggeredManually) openFullPage();
-        if (shouldOpenLetsExchangeModal == null) putToStorage(SHOULD_OPEN_LETS_EXCHANGE_MODAL_STORAGE_KEY, true);
-        if (shouldPromoteRootstock == null) putToStorage(SHOULD_PROMOTE_ROOTSTOCK_STORAGE_KEY, true);
-        if (shouldShowNewDappsModal == null) putToStorage(SHOULD_SHOW_NEW_DAPPS_MODAL_STORAGE_KEY, true);
-        if (shouldShowRewardsPush == null) {
-          Promise.all([
-            Vault.isExist(),
-            fetchFromStorage<PartnersPromotionState>('persist:root.partnersPromotion')
-          ]).then(([vaultExists, partnersPromoState]) => {
+    ]).then(([details, { [SHOULD_SHOW_REWARDS_PUSH_STORAGE_KEY]: shouldShowRewardsPush, ...rest }]) => {
+      if (details?.triggeredManually) openFullPage();
+      Promise.all(
+        updateStorageKeysToEnsure.map(key => {
+          if (rest[key] == null) putToStorage(key, true);
+        })
+      );
+      if (shouldShowRewardsPush == null) {
+        Promise.all([Vault.isExist(), fetchFromStorage<PartnersPromotionState>('persist:root.partnersPromotion')]).then(
+          ([vaultExists, partnersPromoState]) => {
             if (vaultExists && !partnersPromoState?.shouldShowPromotion) {
               putToStorage(SHOULD_SHOW_REWARDS_PUSH_STORAGE_KEY, true);
               openFullPage();
             }
-          });
-        }
+          }
+        );
       }
-    );
+    });
   }
 });
 

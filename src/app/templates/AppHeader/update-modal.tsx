@@ -39,7 +39,7 @@ const updateModals: Record<UpdateModalName, UpdateModalRecord> = {
 const modalsNames = Object.keys(updateModals) as UpdateModalName[];
 const storageKeys = Object.values(updateModals).map(modal => modal.storageKey);
 
-const fetchValues = async () => fetchManyFromStorage(storageKeys);
+const fetchValues = () => fetchManyFromStorage(storageKeys);
 
 let initialValuesPromise: Promise<Partial<Record<ShouldShowModalStorageKey, boolean>>> | null = null;
 const getInitialValuesPromise = () => {
