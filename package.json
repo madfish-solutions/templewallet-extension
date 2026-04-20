@@ -200,7 +200,6 @@
     "ts-action": "^11.0.0",
     "ts-action-operators": "^9.1.2",
     "ts-jest": "^27",
-    "ts-loader": "^9.5.1",
     "ts-node": "^10.9.2",
     "ts-prune": "^0.10.3",
     "typescript": "^5.9.3",
@@ -221,8 +220,15 @@
     "zip-a-folder": "^3"
   },
   "devDependencies": {
+    "@babel/core": "^7.29.0",
+    "@babel/preset-env": "^7.29.2",
+    "@babel/preset-react": "^7.28.5",
+    "@babel/preset-typescript": "^7.28.5",
     "@bigmi/core": "^0.5.2",
     "@types/react-window": "^1.8.8",
+    "babel-loader": "^10.1.1",
+    "babel-plugin-react-compiler": "^1.0.0",
+    "eslint-plugin-react-hooks": "^7.1.1",
     "fake-indexeddb": "^6.0.0",
     "oxfmt": "^0.36.0",
     "oxlint": "^1.51.0",
