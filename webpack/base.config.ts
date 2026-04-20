@@ -129,40 +129,10 @@ export const buildBaseConfig = (): WebPack.Configuration & Pick<WebPack.WebpackO
             test: /\.(ts|mts|cts|tsx)$/,
             loader: require.resolve('babel-loader'),
             options: {
-              babelrc: false,
-              configFile: false,
               cacheDirectory: true,
               cacheCompression: false,
               sourceMaps: SOURCE_MAP,
-              comments: DEVELOPMENT_ENV,
-              presets: [
-                [
-                  require.resolve('@babel/preset-env'),
-                  {
-                    bugfixes: true,
-                    modules: false
-                  }
-                ],
-                [
-                  require.resolve('@babel/preset-react'),
-                  {
-                    development: DEVELOPMENT_ENV,
-                    runtime: 'automatic'
-                  }
-                ],
-                [
-                  require.resolve('@babel/preset-typescript'),
-                  {
-                    allowDeclareFields: true,
-                    allowNamespaces: true
-                  }
-                ]
-              ],
-              plugins: [
-                [
-                  require.resolve('babel-plugin-react-compiler')
-                ]
-              ]
+              comments: DEVELOPMENT_ENV
             }
           },
           // "postcss" loader applies autoprefixer to our CSS.
