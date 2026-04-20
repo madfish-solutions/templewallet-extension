@@ -160,11 +160,7 @@ export const buildBaseConfig = (): WebPack.Configuration & Pick<WebPack.WebpackO
               ],
               plugins: [
                 [
-                  require.resolve('babel-plugin-react-compiler'),
-                  {
-                    compilationMode: 'annotation',
-                    panicThreshold: 'none'
-                  }
+                  require.resolve('babel-plugin-react-compiler')
                 ]
               ]
             }
