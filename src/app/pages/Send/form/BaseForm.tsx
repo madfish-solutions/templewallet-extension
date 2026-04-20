@@ -323,6 +323,7 @@ export const BaseForm: FC<Props> = ({
         onAccountSelect={handleRecipientAddressSelect}
         opened={selectAccountModalOpened}
         onRequestClose={setSelectAccountModalClosed}
+        network={network}
         evm={evm}
       />
     </>
