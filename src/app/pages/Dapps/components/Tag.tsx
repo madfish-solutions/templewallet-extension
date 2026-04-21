@@ -15,23 +15,21 @@ interface TagProps {
   selected: boolean;
 }
 
-export const Tag: FC<TagProps> = ({ name, onClick, selected }) => {
-  return (
-    <Button
-      className={clsx(
-        'inline-flex items-center rounded-6 px-2 py-1 bg-grey-4',
-        'border-0.5 border-lines hover:text-secondary',
-        selected && 'bg-secondary text-white hover:text-white'
-      )}
-      onClick={() => onClick(name)}
+export const Tag: FC<TagProps> = ({ name, onClick, selected }) => (
+  <Button
+    className={clsx(
+      'inline-flex items-center rounded-6 px-2 py-1 bg-grey-4',
+      'border-0.5 border-lines hover:text-secondary',
+      selected && 'bg-secondary text-white hover:text-white'
+    )}
+    onClick={() => onClick(name)}
+  >
+    <span className="text-font-description whitespace-nowrap">{t(name.toLowerCase() as TID) || name}</span>
+    <div
+      style={BOUNCING_ANIMATION_STYLES}
+      className={clsx('overflow-hidden', selected ? 'w-4 opacity-100' : 'w-0 opacity-0')}
     >
-      <span className="text-font-description whitespace-nowrap">{t(name.toLowerCase() as TID) || name}</span>
-      <div
-        style={BOUNCING_ANIMATION_STYLES}
-        className={clsx('overflow-hidden', selected ? 'w-4 opacity-100' : 'w-0 opacity-0')}
-      >
-        {selected && <IconBase Icon={CleanIcon} size={12} />}
-      </div>
-    </Button>
-  );
-};
+      {selected && <IconBase Icon={CleanIcon} size={12} />}
+    </div>
+  </Button>
+);

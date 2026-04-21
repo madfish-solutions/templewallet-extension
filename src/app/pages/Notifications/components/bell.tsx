@@ -1,11 +1,9 @@
-import React, { FC } from 'react';
-
 import { IconBase } from 'app/atoms';
 import { AnimatedDot } from 'app/atoms/AnimatedDot';
 import { ReactComponent as BellIcon } from 'app/icons/base/bell.svg';
 import { useNewNotificationsAmountSelector } from 'app/store/notifications/selectors';
 
-export const NotificationsBell: FC = () => {
+export const NotificationsBell = () => {
   const newNotificationsAmount = useNewNotificationsAmountSelector();
   const isNewNotificationsAvailable = newNotificationsAmount > 0;
 
