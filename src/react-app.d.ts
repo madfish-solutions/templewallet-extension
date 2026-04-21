@@ -57,3 +57,24 @@ declare module '*.module.css' {
   const classes: { readonly [key: string]: string };
   export default classes;
 }
+
+declare module 'react-devtools-core/backend' {
+  interface DevToolsSettings {
+    appendComponentStack?: boolean;
+    breakOnConsoleErrors?: boolean;
+    showInlineWarningsAndErrors?: boolean;
+    hideConsoleLogsInStrictMode?: boolean;
+  }
+
+  interface ConnectToDevToolsOptions {
+    host?: string;
+    port?: number;
+    isAppActive?: () => boolean;
+    retryConnectionDelay?: number;
+    useHttps?: boolean;
+    onSettingsUpdated?: (settings: DevToolsSettings) => void;
+  }
+
+  export const initialize: (settings?: DevToolsSettings | Promise<DevToolsSettings> | null) => void;
+  export const connectToDevTools: (options?: ConnectToDevToolsOptions) => void;
+}

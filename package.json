@@ -5,6 +5,7 @@
   "scripts": {
     "start-run": "cross-env TS_NODE_PROJECT=\"webpack/tsconfig.json\" webpack --watch --stats errors-warnings",
     "start": "cross-env NODE_ENV=development run-s start-run",
+    "devtools": "react-devtools",
     "start:core": "cross-env CORE_BUILD=true run-s start",
     "start:firefox": "cross-env TARGET_BROWSER=firefox run-s start",
     "start:firefox:core": "cross-env CORE_BUILD=true run-s start:firefox",
@@ -232,6 +233,8 @@
     "fake-indexeddb": "^6.0.0",
     "oxfmt": "^0.36.0",
     "oxlint": "^1.51.0",
+    "react-devtools": "^7.0.1",
+    "react-devtools-core": "^7.0.1",
     "source-map": "^0.7.4",
     "text-decoding": "^1.0.0"
   },

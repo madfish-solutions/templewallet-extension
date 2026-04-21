@@ -36,6 +36,7 @@ import { IFRAMES, isTruthy, shouldDisableAds } from './webpack/utils';
 const ExtensionReloaderMV3 = ExtensionReloaderMV3BadlyTyped as ExtensionReloaderMV3Type;
 
 const PAGES_NAMES = ['popup', 'fullpage', 'confirm', 'options', 'sidebar'];
+const REACT_DEVTOOLS_STANDALONE_ENTRY = Path.join(PATHS.SOURCE, 'react-devtools-standalone.ts');
 
 const HTML_TEMPLATES = PAGES_NAMES.map(name => {
   const filename = `${name}.html`;
@@ -58,7 +59,14 @@ const mainConfig = (() => {
   const liveReload = DEVELOPMENT_ENV && usePagesLiveReload(RELOADER_PORTS.PAGES);
 
   config.entry = {
-    ...Object.fromEntries(PAGES_NAMES.map(name => [name, Path.join(PATHS.SOURCE, `${name}.tsx`)])),
+    ...Object.fromEntries(
+      PAGES_NAMES.map(name => [
+        name,
+        DEVELOPMENT_ENV
+          ? [REACT_DEVTOOLS_STANDALONE_ENTRY, Path.join(PATHS.SOURCE, `${name}.tsx`)]
+          : Path.join(PATHS.SOURCE, `${name}.tsx`)
+      ])
+    ),
     ...IFRAMES
   };
 

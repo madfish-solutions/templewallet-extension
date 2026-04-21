@@ -103,6 +103,14 @@ redux-devtools --open --port=8000
 
 Go to settings to specify port one more time.
 
+To enable React DevTools as a standalone app, run it in a separate terminal:
+
+```bash
+yarn devtools
+```
+
+The extension's React pages prepend `src/react-devtools-standalone.ts` in the development webpack entry, following the upstream webpack approach from the [`React DevTools docs`](https://github.com/facebook/react/blob/main/packages/react-devtools/README.md). That bridge initializes `react-devtools-core/backend` before the page's React imports, so opening the standalone app before or during `yarn start` is enough. This wiring is development-only and is not shipped in production builds.
+
 ### Notes about countries flags
 
 - Do not compress the atlas with them, which is located at `public/misc/country-flags/atlas_original.png`, using tinypng; the compressed image has too low quality.
