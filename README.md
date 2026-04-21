@@ -103,13 +103,13 @@ redux-devtools --open --port=8000
 
 Go to settings to specify port one more time.
 
-To enable React DevTools as a standalone app, run it in a separate terminal:
+To enable React DevTools as a standalone app together with the webpack bridge, use:
 
 ```bash
-yarn devtools
+yarn start:devtools
 ```
 
-The extension's React pages prepend `src/react-devtools-standalone.ts` in the development webpack entry, following the upstream webpack approach from the [`React DevTools docs`](https://github.com/facebook/react/blob/main/packages/react-devtools/README.md). That bridge initializes `react-devtools-core/backend` before the page's React imports, so opening the standalone app before or during `yarn start` is enough. This wiring is development-only and is not shipped in production builds.
+This script launches the standalone Electron UI sets `REACT_DEVTOOLS=true`, which makes the development webpack build prepend `src/react-devtools-standalone.ts` before each React page entry. Plain `yarn start` does not include this bridge, and production builds never ship it.
 
 ### Notes about countries flags
 

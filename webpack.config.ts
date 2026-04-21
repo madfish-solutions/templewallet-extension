@@ -24,6 +24,7 @@ import {
   TARGET_BROWSER,
   MANIFEST_VERSION,
   BACKGROUND_IS_WORKER,
+  REACT_DEVTOOLS,
   RELOADER_PORTS,
   MAX_JS_CHUNK_SIZE_IN_BYTES
 } from './webpack/env';
@@ -62,7 +63,7 @@ const mainConfig = (() => {
     ...Object.fromEntries(
       PAGES_NAMES.map(name => [
         name,
-        DEVELOPMENT_ENV
+        REACT_DEVTOOLS
           ? [REACT_DEVTOOLS_STANDALONE_ENTRY, Path.join(PATHS.SOURCE, `${name}.tsx`)]
           : Path.join(PATHS.SOURCE, `${name}.tsx`)
       ])

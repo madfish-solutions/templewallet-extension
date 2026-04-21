@@ -4,6 +4,7 @@ type ProcessDotEnv = {
   SOURCE_MAP?: `${boolean}`;
   IMAGE_INLINE_SIZE_LIMIT?: string;
   CORE_BUILD?: `${boolean}`;
+  REACT_DEVTOOLS?: `${boolean}`;
 };
 
 const {
@@ -11,7 +12,8 @@ const {
   TARGET_BROWSER = 'chrome',
   SOURCE_MAP: SOURCE_MAP_ENV,
   IMAGE_INLINE_SIZE_LIMIT: IMAGE_INLINE_SIZE_LIMIT_ENV = '10000',
-  CORE_BUILD
+  CORE_BUILD,
+  REACT_DEVTOOLS: REACT_DEVTOOLS_ENV
 } = process.env as ProcessDotEnv;
 
 export const WEBPACK_MODE = NODE_ENV === 'test' ? 'none' : NODE_ENV;
@@ -24,6 +26,7 @@ export const SOURCE_MAP = NODE_ENV !== 'production' && SOURCE_MAP_ENV !== 'false
 export const DROP_CONSOLE_IN_PROD = true;
 
 export const IS_CORE_BUILD = CORE_BUILD === 'true';
+export const REACT_DEVTOOLS = DEVELOPMENT_ENV && REACT_DEVTOOLS_ENV === 'true';
 
 export const RELOADER_PORTS = {
   BACKGROUND: 9090,

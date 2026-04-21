@@ -6,6 +6,7 @@
     "start-run": "cross-env TS_NODE_PROJECT=\"webpack/tsconfig.json\" webpack --watch --stats errors-warnings",
     "start": "cross-env NODE_ENV=development run-s start-run",
     "devtools": "react-devtools",
+    "start:devtools": "cross-env REACT_DEVTOOLS=true run-p start devtools",
     "start:core": "cross-env CORE_BUILD=true run-s start",
     "start:firefox": "cross-env TARGET_BROWSER=firefox run-s start",
     "start:firefox:core": "cross-env CORE_BUILD=true run-s start:firefox",
