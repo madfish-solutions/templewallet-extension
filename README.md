@@ -99,7 +99,7 @@ Then open an explorer at previously specified port:
 redux-devtools --open --port=8000
 ```
 
-> Other UI options like `--open=browser` are available.
+> Other UI options like `--open=browser` are available. <
 
 Go to settings to specify port one more time.
 
@@ -112,7 +112,7 @@ yarn global add react-devtools
 Then open the standalone app:
 
 ```bash
-react-devtools
+react-devtools --port=8097
 ```
 
 Then run:
