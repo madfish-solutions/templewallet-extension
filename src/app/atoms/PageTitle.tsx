@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import React from 'react';
 
 import { IconBase } from './IconBase';
 
@@ -7,10 +7,10 @@ interface Props {
   Icon?: ImportedSVGComponent;
 }
 
-export const PageTitle = memo<Props>(({ Icon, title }) => (
+export const PageTitle = ({ Icon, title }: Props) => (
   <>
     {Icon && <IconBase Icon={Icon} className="mr-1" />}
 
     <span className="text-font-regular-bold">{title}</span>
   </>
-));
+);

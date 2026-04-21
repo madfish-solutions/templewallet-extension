@@ -109,7 +109,7 @@ interface IconButtonProps {
   active?: boolean;
 }
 
-const IconButton = memo<IconButtonProps>(({ Icon, onClick, active }) => (
+const IconButton = ({ Icon, onClick, active }: IconButtonProps) => (
   <Button
     className={clsx(
       'p-1 rounded-md overflow-hidden',
@@ -119,4 +119,4 @@ const IconButton = memo<IconButtonProps>(({ Icon, onClick, active }) => (
   >
     <IconBase Icon={Icon} />
   </Button>
-));
+);

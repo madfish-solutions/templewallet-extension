@@ -1,11 +1,11 @@
-import React, { memo } from 'react';
+import React from 'react';
 
 interface ProgressAndNumbersProps {
   progress: number;
   total: number;
 }
 
-export const ProgressAndNumbers = memo<ProgressAndNumbersProps>(({ progress, total }) =>
+export const ProgressAndNumbers = ({ progress, total }: ProgressAndNumbersProps) =>
   total === 0 ? null : (
     <div className="flex flex-col">
       <p className="text-center text-font-num-bold-14 text-grey-1">
@@ -19,4 +19,4 @@ export const ProgressAndNumbers = memo<ProgressAndNumbersProps>(({ progress, tot
       </div>
     </div>
   )
-);
+;

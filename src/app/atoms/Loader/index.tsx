@@ -1,4 +1,4 @@
-import React, { FC, memo } from 'react';
+import React, { FC } from 'react';
 
 import clsx from 'clsx';
 
@@ -22,7 +22,7 @@ const SIZE_CLASSNAME: Record<Size, string> = {
   XS: 'w-3 h-3'
 };
 
-export const Loader = memo<Props>(({ size, trackVariant, className }) => (
+export const Loader = ({ size, trackVariant, className }: Props) => (
   <LoaderIcon
     className={clsx(
       SIZE_CLASSNAME[size],
@@ -31,7 +31,7 @@ export const Loader = memo<Props>(({ size, trackVariant, className }) => (
       className
     )}
   />
-));
+);
 
 interface PageLoaderProps {
   text?: string;

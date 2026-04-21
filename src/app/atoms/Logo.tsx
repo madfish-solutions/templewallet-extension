@@ -1,4 +1,4 @@
-import React, { SVGProps, memo, useMemo } from 'react';
+import React, { SVGProps } from 'react';
 
 import { ReactComponent as TempleIconTitleFullV } from 'app/misc/temple-icon-title-full-v.svg';
 import { ReactComponent as TempleIconTitleFull } from 'app/misc/temple-icon-title-full.svg';
@@ -20,9 +20,8 @@ const logoIcons = {
   'icon-title-full-v': TempleIconTitleFullV
 };
 
-export const Logo = memo<LogoProps>(({ size = 40, type, style: customStyle, ...rest }) => {
+export const Logo = ({ size = 40, type, style: customStyle, ...rest }: LogoProps) => {
   const Component = logoIcons[type];
-  const style = useMemo(() => ({ ...(customStyle ?? {}), height: size }), [customStyle, size]);
 
-  return <Component style={style} title={APP_TITLE} {...rest} />;
-});
+  return <Component style={{ ...(customStyle ?? {}), height: size }} title={APP_TITLE} {...rest} />;
+};

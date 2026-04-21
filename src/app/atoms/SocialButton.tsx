@@ -1,10 +1,10 @@
-import React, { memo } from 'react';
+import React from 'react';
 
 import clsx from 'clsx';
 
 import { Button, ButtonProps } from './Button';
 
-export const SocialButton = memo<ButtonProps>(({ className, ...rest }) => (
+export const SocialButton = ({ className, ...rest }: ButtonProps) => (
   <Button
     className={clsx(
       className,
@@ -13,4 +13,4 @@ export const SocialButton = memo<ButtonProps>(({ className, ...rest }) => (
     )}
     {...rest}
   />
-));
+);

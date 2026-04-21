@@ -1,4 +1,4 @@
-import React, { FC, ReactElement, ReactNode, memo, useMemo, useCallback } from 'react';
+import React, { FC, ReactElement, ReactNode, useMemo, useCallback } from 'react';
 
 import clsx from 'clsx';
 import Modal from 'react-modal';
@@ -116,10 +116,10 @@ export const PageModal: FC<PageModalProps> = ({
   );
 };
 
-const BackButton = memo<{ onClick?: EmptyFn }>(({ onClick }) => (
+const BackButton = ({ onClick }: { onClick?: EmptyFn }) => (
   <IconBase Icon={ChevronLeftIcon} size={16} className="text-grey-2 cursor-pointer" onClick={onClick} />
-));
+);
 
-export const CloseButton = memo<{ onClick?: EmptyFn }>(({ onClick }) => (
+export const CloseButton = ({ onClick }: { onClick?: EmptyFn }) => (
   <IconBase Icon={ExIcon} size={16} className="text-grey-2 cursor-pointer" onClick={onClick} />
-));
+);

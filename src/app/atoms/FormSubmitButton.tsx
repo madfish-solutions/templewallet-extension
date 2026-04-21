@@ -1,4 +1,4 @@
-import React, { FC, useMemo } from 'react';
+import React, { FC } from 'react';
 
 import clsx from 'clsx';
 
@@ -28,24 +28,20 @@ export const FormSubmitButton: FC<FormSubmitButtonProps> = ({
   children,
   ...rest
 }) => {
-  const classNameMemo = useMemo(
-    () =>
-      clsx(
-        'relative gap-x-2',
-        'text-primary-orange-lighter border-2',
-        buildFormSubmitButtonCommonClassName(disabled, loading),
-        rounder ? 'rounded-md' : 'rounded',
-        small ? 'px-6 text-sm' : 'px-8 text-base leading-5',
-        !unsetHeight && (slim ? 'h-9 py-1.5' : 'h-12 py-2'),
-        className
-      ),
-    [disabled, loading, className, small, slim, unsetHeight, rounder]
+  const buttonClassName = clsx(
+    'relative gap-x-2',
+    'text-primary-orange-lighter border-2',
+    buildFormSubmitButtonCommonClassName(disabled, loading),
+    rounder ? 'rounded-md' : 'rounded',
+    small ? 'px-6 text-sm' : 'px-8 text-base leading-5',
+    !unsetHeight && (slim ? 'h-9 py-1.5' : 'h-12 py-2'),
+    className
   );
 
-  const otherProps = useMemo(() => (loading ? setAnotherSelector('loading', '') : null), [loading]);
+  const otherProps = loading ? setAnotherSelector('loading', '') : null;
 
   return (
-    <Button type="submit" className={classNameMemo} disabled={disabled} {...rest} {...otherProps}>
+    <Button type="submit" className={buttonClassName} disabled={disabled} {...rest} {...otherProps}>
       {loading && <Spinner theme="white" className={small ? 'w-8' : 'w-12'} />}
 
       {loading ? keepChildrenWhenLoading && children : children}
