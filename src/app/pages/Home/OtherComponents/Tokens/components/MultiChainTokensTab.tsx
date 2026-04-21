@@ -8,7 +8,7 @@ import {
   usePreservedOrderSlugsGroupsToManage,
   usePreservedOrderSlugsToManage
 } from 'app/hooks/listing-logic/use-manageable-slugs';
-import { useAssetsViewState } from 'app/hooks/use-assets-view-state';
+import { useManageState } from 'app/hooks/use-assets-view-state';
 import {
   useGroupByNetworkBehaviorSelector,
   useTokensListOptionsSelector
@@ -16,6 +16,7 @@ import {
 import { useMainnetTokensScamlistSelector } from 'app/store/tezos/assets/selectors';
 import { usePartnersPromotionModule } from 'app/templates/partners-promotion';
 import { EvmTokenListItem, TezosTokenListItem } from 'app/templates/TokenListItem';
+import { HOME_PAGE_NAME } from 'lib/ads-constants';
 import { parseChainAssetSlug, toChainAssetSlug } from 'lib/assets/utils';
 import { useMemoWithCompare } from 'lib/ui/hooks';
 import {
@@ -45,7 +46,7 @@ const MultiChainTokensTabContext = createContext<Props>({
 });
 
 export const MultiChainTokensTab = memo<Props>(props => {
-  const { manageActive } = useAssetsViewState();
+  const { manageActive } = useManageState();
 
   return (
     <MultiChainTokensTabContext value={props}>
@@ -151,11 +152,10 @@ const TabContentBase = memo<TabContentBaseProps>(
   }
 );
 
-interface TabContentBaseBodyProps
-  extends Omit<
-    TokensTabBaseProps,
-    'tokensCount' | 'children' | 'network' | 'oneRemDivRef' | 'getElementIndex' | 'accountId'
-  > {
+interface TabContentBaseBodyProps extends Omit<
+  TokensTabBaseProps,
+  'tokensCount' | 'children' | 'network' | 'oneRemDivRef' | 'getElementIndex' | 'accountId'
+> {
   manageActive: boolean;
   groupedSlugs: ChainGroupedSlugs | null;
   tezosChains: StringRecord<TezosChain>;
@@ -179,7 +179,7 @@ const TabContentBaseBody = memo<TabContentBaseBodyProps>(
             id="promo-token-item"
             key="promo-token-item"
             variant={PartnersPromotionModule.PartnersPromotionVariant.Text}
-            pageName="Token page"
+            pageName={HOME_PAGE_NAME}
             ref={promoRef}
           />
         );

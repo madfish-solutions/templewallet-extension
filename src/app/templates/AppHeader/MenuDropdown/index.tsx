@@ -1,6 +1,6 @@
-import React, { memo, useCallback, useMemo } from 'react';
+import { memo, useCallback, useMemo } from 'react';
 
-import { Divider, ToggleSwitch } from 'app/atoms';
+import { Divider } from 'app/atoms';
 import { ActionListItem, ActionListItemProps } from 'app/atoms/ActionListItem';
 import { ActionsDropdownPopup } from 'app/atoms/ActionsDropdown';
 import {
@@ -20,17 +20,19 @@ import { ReactComponent as SettingsIcon } from 'app/icons/base/settings.svg';
 import { NotificationsBell } from 'app/pages/Notifications/components/bell';
 import { RewardsIconWithBadge } from 'app/pages/Notifications/components/rewards';
 import { dispatch } from 'app/store';
-import { setAssetsFilterChain } from 'app/store/assets-filter-options/actions';
+import { swapOptionsForTestnetSwitch } from 'app/store/assets-filter-options/actions';
 import { setIsTestnetModeEnabledAction } from 'app/store/settings/actions';
 import { useTestnetModeEnabledSelector } from 'app/store/settings/selectors';
-import { IS_SIDE_PANEL_AVAILABLE } from 'lib/env';
+import { AssetsFilterOptionsModal } from 'app/templates/AssetsFilterOptionsModal';
 import { T } from 'lib/i18n';
 import { useTypedSWR } from 'lib/swr';
 import { useTempleClient } from 'lib/temple/front';
 import { TempleAccountType } from 'lib/temple/types';
+import { useBooleanState } from 'lib/ui/hooks';
 import { PopperRenderProps } from 'lib/ui/Popper';
 import { useAccount } from 'temple/front';
 
+import { ControlsSection } from './components/ControlsSection';
 import { MenuDropdownSelectors } from './selectors';
 
 interface TDropdownAction extends ActionListItemProps {
@@ -41,17 +43,15 @@ const MenuDropdown = memo<PopperRenderProps>(({ opened, setOpened }) => {
   const { fullPage, sidebar } = useAppEnv();
   const { lock } = useTempleClient();
   const account = useAccount();
+
+  const [filtersModalOpened, openFiltersModal, closeFiltersModal] = useBooleanState(false);
+
   const testnetModeEnabled = useTestnetModeEnabledSelector();
   const { data: isSidebarByDefault } = useTypedSWR('is-sidebar-by-default', getIsSidebarByDefault, {
     fallbackData: sidebar
   });
 
   const closeDropdown = useCallback(() => void setOpened(false), [setOpened]);
-
-  const handleTestnetModeSwitch = useCallback((value: boolean) => {
-    dispatch(setAssetsFilterChain(null));
-    dispatch(setIsTestnetModeEnabledAction(value));
-  }, []);
 
   useShortcutAccountSelectModalIsOpened(closeDropdown);
 
@@ -64,19 +64,36 @@ const MenuDropdown = memo<PopperRenderProps>(({ opened, setOpened }) => {
     }
   }, [fullPage, closeDropdown]);
 
-  const handleSidebarSwitch = useCallback(async (checked: boolean) => {
+  const onFiltersClick = useCallback(() => {
+    closeDropdown();
+    openFiltersModal();
+  }, [closeDropdown, openFiltersModal]);
+
+  const onSidebarClick = useCallback(async () => {
     try {
-      await setIsSidebarByDefault(checked);
-      if (checked) {
+      closeDropdown();
+
+      const isSidebarEnabled = !isSidebarByDefault;
+
+      await setIsSidebarByDefault(isSidebarEnabled);
+
+      if (isSidebarEnabled) {
         await openInSidebar();
       } else {
         openPopup();
       }
+
       window.close();
     } catch (e) {
       console.error('Failed to open in sidebar:', e);
     }
-  }, []);
+  }, [closeDropdown, isSidebarByDefault]);
+
+  const onTestnetClick = useCallback(() => {
+    closeDropdown();
+    dispatch(swapOptionsForTestnetSwitch(testnetModeEnabled));
+    dispatch(setIsTestnetModeEnabledAction(!testnetModeEnabled));
+  }, [closeDropdown, testnetModeEnabled]);
 
   const actions = useMemo(
     (): TDropdownAction[] => [
@@ -142,50 +159,30 @@ const MenuDropdown = memo<PopperRenderProps>(({ opened, setOpened }) => {
   );
 
   return (
-    <ActionsDropdownPopup title="Menu" opened={opened} lowering={3} style={{ minWidth: 163 }}>
-      {actions.map(action => {
-        const { key, ...rest } = action;
+    <>
+      <ActionsDropdownPopup title="Menu" opened={opened} lowering={3} style={{ minWidth: 163 }}>
+        {actions.map(action => {
+          const { key, ...rest } = action;
 
-        return (
-          <div key={key}>
-            <ActionListItem {...rest} />
-            {action.withDividerAfter && <Divider className="bg-grey-4 px-2" />}
-          </div>
-        );
-      })}
+          return (
+            <div key={key}>
+              <ActionListItem {...rest} />
+              {action.withDividerAfter && <Divider className="bg-grey-4 px-2" />}
+            </div>
+          );
+        })}
 
-      <Divider className="my-1.5 bg-grey-4 px-1.5" />
-
-      {!fullPage && IS_SIDE_PANEL_AVAILABLE && (
-        <label className="py-2.5 px-2 flex items-center gap-x-1">
-          <span className="flex-1 text-font-description">
-            <T id="sidebar" />
-          </span>
-
-          <ToggleSwitch
-            small
-            checked={isSidebarByDefault}
-            onClick={closeDropdown}
-            onChange={handleSidebarSwitch}
-            testID={MenuDropdownSelectors.sidebarSwitch}
-          />
-        </label>
-      )}
-
-      <label className="py-2.5 px-2 flex items-center gap-x-1">
-        <span className="flex-1 text-font-description">
-          <T id="testnetMode" />
-        </span>
-
-        <ToggleSwitch
-          small
-          checked={testnetModeEnabled}
-          onClick={closeDropdown}
-          onChange={handleTestnetModeSwitch}
-          testID={MenuDropdownSelectors.testnetModeSwitch}
+        <ControlsSection
+          testnetModeEnabled={testnetModeEnabled}
+          isSidebarEnabled={Boolean(isSidebarByDefault)}
+          onFiltersClick={onFiltersClick}
+          onSidebarClick={onSidebarClick}
+          onTestnetClick={onTestnetClick}
         />
-      </label>
-    </ActionsDropdownPopup>
+      </ActionsDropdownPopup>
+
+      <AssetsFilterOptionsModal opened={filtersModalOpened} onRequestClose={closeFiltersModal} />
+    </>
   );
 });
 

@@ -75,28 +75,30 @@ export const useAccountTokensForListing = (
     [enabledEvmChains, enabledTezChains]
   );
 
-  const enabledChainsSlugs = useMemo(
-    () =>
-      gasChainsSlugs
-        .concat(
-          tezTokens
-            .filter(({ status }) => status === 'enabled')
-            .map(({ chainId, slug }) => toChainAssetSlug(TempleChainKind.Tezos, chainId, slug))
-        )
-        .concat(
-          evmTokens
-            .filter(({ status }) => status === 'enabled')
-            .map(({ chainId, slug }) => toChainAssetSlug(TempleChainKind.EVM, chainId, slug))
-        ),
-    [evmTokens, gasChainsSlugs, tezTokens]
-  );
+  const enabledChainsSlugs = useMemo(() => {
+    const result = [...gasChainsSlugs];
+
+    for (const { chainId, slug, status } of tezTokens) {
+      if (status === 'enabled') {
+        result.push(toChainAssetSlug(TempleChainKind.Tezos, chainId, slug));
+      }
+    }
+
+    for (const { chainId, slug, status } of evmTokens) {
+      if (status === 'enabled') {
+        result.push(toChainAssetSlug(TempleChainKind.EVM, chainId, slug));
+      }
+    }
+
+    return result;
+  }, [evmTokens, gasChainsSlugs, tezTokens]);
 
   const enabledChainsSlugsSorted = useMemoWithCompare(() => {
     const enabledChainsSlugsFiltered = filterSmallBalances
       ? enabledChainsSlugs.filter(isBigBalance)
       : enabledChainsSlugs;
 
-    return enabledChainsSlugsFiltered.sort(tokensSortPredicate);
+    return enabledChainsSlugsFiltered.toSorted(tokensSortPredicate);
   }, [enabledChainsSlugs, filterSmallBalances, isBigBalance, tokensSortPredicate]);
 
   const enabledChainsSlugsSortedGrouped = useMemoWithCompare(() => {
@@ -166,25 +168,36 @@ export const useAccountTokensListingLogic = (
         : paginatedSlugs,
     [isInSearchMode, searchValueDebounced, allSlugsSorted, getTezMetadata, getEvmMetadata, paginatedSlugs]
   );
-  const displayedGroupedSlugs = useMemo(
-    () =>
-      isInSearchMode
-        ? allSlugsSortedGrouped
-            ?.map(([chainId, slugs]): [string | number, string[]] => [
-              chainId,
-              searchAssetsWithNoMeta(
-                searchValueDebounced,
-                slugs,
-                getTezMetadata,
-                getEvmMetadata,
-                slug => slug,
-                getSlugFromChainSlug
-              )
-            ])
-            .filter(([, slugs]) => slugs.length > 0) ?? null
-        : paginatedSlugsGroups,
-    [allSlugsSortedGrouped, getEvmMetadata, getTezMetadata, isInSearchMode, paginatedSlugsGroups, searchValueDebounced]
-  );
+  const displayedGroupedSlugs = useMemo(() => {
+    if (!isInSearchMode) return paginatedSlugsGroups;
+    if (!allSlugsSortedGrouped) return null;
+
+    const result: [string | number, string[]][] = [];
+
+    for (const [chainId, slugs] of allSlugsSortedGrouped) {
+      const filteredSlugs = searchAssetsWithNoMeta(
+        searchValueDebounced,
+        slugs,
+        getTezMetadata,
+        getEvmMetadata,
+        slug => slug,
+        getSlugFromChainSlug
+      );
+
+      if (filteredSlugs.length > 0) {
+        result.push([chainId, filteredSlugs]);
+      }
+    }
+
+    return result;
+  }, [
+    allSlugsSortedGrouped,
+    getEvmMetadata,
+    getTezMetadata,
+    isInSearchMode,
+    paginatedSlugsGroups,
+    searchValueDebounced
+  ]);
 
   return {
     isInSearchMode,

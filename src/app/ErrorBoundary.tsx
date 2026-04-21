@@ -8,7 +8,10 @@ import { getOnlineStatus } from 'lib/ui/get-online-status';
 import { HistoryAction, navigate } from 'lib/woozie';
 
 export class BoundaryError extends Error {
-  constructor(public readonly message: string, public readonly beforeTryAgain: EmptyFn) {
+  constructor(
+    public readonly message: string,
+    public readonly beforeTryAgain: EmptyFn
+  ) {
     super(message);
   }
 }

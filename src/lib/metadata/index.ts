@@ -158,7 +158,7 @@ type GetterBySlugInput<T> = StringRecord<T> | Map<string, T> | undefined;
 const useGetterBySlug = <T>(input: GetterBySlugInput<T>, fallbackValueFn?: SyncFn<string, T | undefined>) => {
   const getterFn = useCallback(
     (input: GetterBySlugInput<T>, slug: string) =>
-      input instanceof Map ? input.get(slug) : input?.[slug] ?? fallbackValueFn?.(slug),
+      input instanceof Map ? input.get(slug) : (input?.[slug] ?? fallbackValueFn?.(slug)),
     [fallbackValueFn]
   );
 

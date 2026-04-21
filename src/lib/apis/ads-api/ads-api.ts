@@ -38,7 +38,7 @@ export async function postAdImpression(
   });
 }
 
-export async function postAnonymousAdImpression(installId: string, urlDomain: string, provider: string) {
+export async function postAnonymousAdImpression(installId: string, provider: string, { urlDomain }: ImpressionDetails) {
   await axiosClient.post('/impression', { installId, urlDomain, provider, appVersion: APP_VERSION });
 }
 
@@ -149,6 +149,10 @@ export async function postReactivationCheck(tezos: string[]): Promise<{ eligible
 
 export const fetchEnableInternalHypelabAds = withAxiosDataExtract(() =>
   axiosClient.get<boolean>(`/ads-rules/${APP_VERSION}/enable-internal-hypelab-ads`)
+);
+
+export const fetchInternalBlacklistedHypelabCampaignsSlugs = withAxiosDataExtract(() =>
+  axiosClient.get<string[]>(`/ads-rules/${APP_VERSION}/hypelab-campaigns-blacklist-internal`)
 );
 
 interface TekeadsAffiliateResponse {

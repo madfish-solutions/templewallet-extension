@@ -11,7 +11,8 @@ import { checkedHandler } from 'lib/ui/inputHandlers';
 import { IconBase } from './IconBase';
 
 export interface CheckboxProps
-  extends TestIDProps,
+  extends
+    TestIDProps,
     Pick<
       InputHTMLAttributes<HTMLInputElement>,
       'name' | 'checked' | 'className' | 'onFocus' | 'onBlur' | 'onClick' | 'disabled'

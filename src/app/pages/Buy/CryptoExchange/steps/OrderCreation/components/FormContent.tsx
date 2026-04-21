@@ -83,7 +83,7 @@ export const FormContent: FC<Props> = ({ onSelectInputCurrency, onSelectOutputCu
   const { data: ratesData, isValidating: isRatesLoading } = useTypedSWR(
     ['exolix/api/rate', minMaxData, inputValueDebounced],
     () => {
-      const amount = Number(inputValueDebounced) ?? 0;
+      const amount = getParsedAmount(inputValueDebounced);
 
       if (!minMaxData || amount < minMaxData.finalMinAmount || amount > minMaxData.finalMaxAmount) {
         return;
@@ -147,7 +147,7 @@ export const FormContent: FC<Props> = ({ onSelectInputCurrency, onSelectOutputCu
 
         formAnalytics.trackSubmit();
 
-        const amount = Number(inputValue) ?? 0;
+        const amount = getParsedAmount(inputValue);
 
         const data = await submitExchange({
           coinFrom: inputCurrency.code,
@@ -244,4 +244,10 @@ export const FormContent: FC<Props> = ({ onSelectInputCurrency, onSelectOutputCu
       </ActionsButtonsBox>
     </>
   );
+};
+
+const getParsedAmount = (value: string, fallback = 0): number => {
+  const parsedAmount = Number(value);
+
+  return Number.isFinite(parsedAmount) ? parsedAmount : fallback;
 };

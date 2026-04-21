@@ -3,6 +3,7 @@ import { Ref, memo, MouseEventHandler, useCallback, useEffect, useRef, useState 
 import clsx from 'clsx';
 import { useDispatch } from 'react-redux';
 
+import { FadeTransition } from 'app/a11y/FadeTransition';
 import { useAdsViewerPkh } from 'app/hooks/use-ads-viewer-addresses';
 import { useRewardsAddresses } from 'app/hooks/use-rewards-addresses';
 import { hidePromotionAction } from 'app/store/partners-promotion/actions';
@@ -11,7 +12,11 @@ import {
   usePromotionHidingTimestampSelector
 } from 'app/store/partners-promotion/selectors';
 import { AdsProviderTitle } from 'lib/ads';
-import { fetchEnableInternalHypelabAds, postAdImpression } from 'lib/apis/ads-api/ads-api';
+import {
+  fetchEnableInternalHypelabAds,
+  fetchInternalBlacklistedHypelabCampaignsSlugs,
+  postAdImpression
+} from 'lib/apis/ads-api/ads-api';
 import { AD_HIDING_TIMEOUT } from 'lib/constants';
 import { ENABLE_INTERNAL_HYPELAB_ADS_SYNC_INTERVAL } from 'lib/fixed-times';
 import { T } from 'lib/i18n';
@@ -91,6 +96,17 @@ export const PartnersPromotion = memo<PartnersPromotionProps>(({ variant, id, pa
       refreshInterval: ENABLE_INTERNAL_HYPELAB_ADS_SYNC_INTERVAL
     }
   );
+
+  const { data: blacklistedCampaignSlugs } = useTypedSWR(
+    'blacklisted-internal-hypelab-campaigns-slugs',
+    fetchInternalBlacklistedHypelabCampaignsSlugs,
+    {
+      revalidateOnFocus: false,
+      revalidateOnMount: true,
+      revalidateOnReconnect: false,
+      refreshInterval: ENABLE_INTERNAL_HYPELAB_ADS_SYNC_INTERVAL
+    }
+  );
   const prevEnableInternalHypelabAdsRef = useRef(enableInternalHypelabAds);
 
   const isHiddenTemporarily =
@@ -113,36 +129,39 @@ export const PartnersPromotion = memo<PartnersPromotionProps>(({ variant, id, pa
   }
 
   return (
-    <div
-      ref={ref}
-      className={clsx(
-        'group w-full relative flex flex-col items-center',
-        !adIsReady && (isImageAd ? 'min-h-[101px]' : 'min-h-16'),
-        className
-      )}
-    >
-      <HypelabPromotion
-        accountPkh={evmViewerAddress}
-        variant={variant}
-        isVisible={adIsReady}
-        pageName={pageName}
-        onImpression={handleImpression}
-        onReady={handleAdReady}
-        onError={handleHypelabError}
-      />
+    <FadeTransition elementTransition trigger={adIsReady} className="w-full">
+      <div
+        ref={ref}
+        className={clsx(
+          'group w-full relative flex flex-col items-center',
+          !adIsReady && (isImageAd ? 'min-h-[101px]' : 'min-h-16'),
+          className
+        )}
+      >
+        <HypelabPromotion
+          accountPkh={evmViewerAddress}
+          variant={variant}
+          isVisible={adIsReady}
+          pageName={pageName}
+          blacklistedCampaignSlugs={blacklistedCampaignSlugs}
+          onImpression={handleImpression}
+          onReady={handleAdReady}
+          onError={handleHypelabError}
+        />
 
-      {!adIsReady && (
-        <div className="absolute inset-0 bg-grey-4 text-secondary flex justify-center items-center rounded-lg">
-          <span className="text-font-description-bold text-grey-2">
-            <T id="thanksForSupportingTemple" />
-          </span>
-        </div>
-      )}
+        {!adIsReady && (
+          <div className="absolute inset-0 bg-grey-4 text-secondary flex justify-center items-center rounded-lg">
+            <span className="text-font-description-bold text-grey-2">
+              <T id="thanksForSupportingTemple" />
+            </span>
+          </div>
+        )}
 
-      <CloseButton
-        className="opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto"
-        onClick={handleClosePartnersPromoClick}
-      />
-    </div>
+        <CloseButton
+          className="opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto"
+          onClick={handleClosePartnersPromoClick}
+        />
+      </div>
+    </FadeTransition>
   );
 });

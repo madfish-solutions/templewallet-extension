@@ -1,4 +1,4 @@
-import React, { ReactNode, memo, useCallback, useEffect, useMemo, useState } from 'react';
+import React, { ReactNode, memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { Alert, Anchor, IconBase } from 'app/atoms';
 import DAppLogo from 'app/atoms/DAppLogo';
@@ -12,7 +12,9 @@ import { ReactComponent as LinkIcon } from 'app/icons/base/link.svg';
 import { ReactComponent as OutLinkIcon } from 'app/icons/base/outLink.svg';
 import PageLayout from 'app/layouts/PageLayout';
 import { AccountsModal } from 'app/templates/AccountsModal';
+import { DappInteractionSuccess, DappInteractionSuccessType } from 'app/templates/DappInteractionSuccess';
 import { LedgerApprovalModal } from 'app/templates/ledger-approval-modal';
+import { DAPP_SUCCESS_SETTLE_DELAY_MS } from 'lib/constants';
 import { EvmOperationKind, getOperationKind } from 'lib/evm/on-chain/transactions';
 import { equalsIgnoreCase } from 'lib/evm/on-chain/utils/common.utils';
 import { parseEvmTxRequest } from 'lib/evm/on-chain/utils/parse-evm-tx-request';
@@ -74,17 +76,32 @@ const ledgerInteractingPayloadTypes: TempleDAppPayload['type'][] = [
   'sign_typed'
 ];
 
+const getDappInteractionSuccessType = (payloadType: TempleDAppPayload['type']): DappInteractionSuccessType => {
+  switch (payloadType) {
+    case 'connect':
+      return 'connect';
+    case 'sign':
+    case 'personal_sign':
+    case 'sign_typed':
+      return 'sign';
+    default:
+      return 'confirm';
+  }
+};
+
 export const ConfirmDAppForm = memo<ConfirmDAppFormProps>(
   ({ accounts, payload, confirmationId, onConfirm, children }) => {
     const [accountsModalIsOpen, openAccountsModal, closeAccountsModal] = useBooleanState(false);
     const [isConfirming, setIsConfirming] = useSafeState(false);
     const [isDeclining, setIsDeclining] = useSafeState(false);
     const [error, setError] = useSafeState<any>(null);
+    const [successType, setSuccessType] = useSafeState<DappInteractionSuccessType | null>(null);
     const { ledgerApprovalModalState, setLedgerApprovalModalState, handleLedgerModalClose } =
       useLedgerApprovalModalState();
 
     const [bottomEdgeIsVisible, setBottomEdgeIsVisible] = useState(true);
-    const { confirmWindow, fullPage } = useAppEnv();
+    const { confirmWindow, fullPage, sidebar } = useAppEnv();
+    const isDappConfirmationContext = confirmWindow || sidebar;
 
     const { errorMessage: addAssetErrorMessage } = useAddAsset();
 
@@ -134,8 +151,9 @@ export const ConfirmDAppForm = memo<ConfirmDAppFormProps>(
       [accounts, selectedAccountId]
     );
 
-    const { dAppQueueCounters } = useTempleClient();
+    const { dAppQueueCounters, dAppPendingConfirmationId } = useTempleClient();
     const { length: requestsLeft, maxLength: totalRequestsCount } = dAppQueueCounters;
+    const pendingConfirmationIdRef = useRef(dAppPendingConfirmationId);
     const ledgerConfirmationRequired =
       ledgerInteractingPayloadTypes.some(payloadType => payload.type === payloadType) &&
       selectedAccount.type === TempleAccountType.Ledger;
@@ -170,11 +188,23 @@ export const ConfirmDAppForm = memo<ConfirmDAppFormProps>(
       selectedAccount.type
     ]);
 
+    useEffect(() => {
+      pendingConfirmationIdRef.current = dAppPendingConfirmationId;
+    }, [dAppPendingConfirmationId]);
+
     const shouldShowProgress =
       payload.type !== 'connect' &&
       payload.type !== 'add_chain' &&
       payload.type !== 'add_asset' &&
       totalRequestsCount > 1;
+
+    const shouldShowSuccessAfterSettle = useCallback(async () => {
+      await delay(DAPP_SUCCESS_SETTLE_DELAY_MS);
+
+      const pendingConfirmationId = pendingConfirmationIdRef.current;
+
+      return pendingConfirmationId === confirmationId || pendingConfirmationId === null;
+    }, [confirmationId]);
 
     const confirm = useCallback(
       async (confirmed: boolean) => {
@@ -192,7 +222,15 @@ export const ConfirmDAppForm = memo<ConfirmDAppFormProps>(
             await doOperation();
           }
 
-          if (confirmWindow && fullPage) {
+          if (confirmed) {
+            if (isDappConfirmationContext) {
+              const shouldShowSuccess = await shouldShowSuccessAfterSettle();
+
+              if (shouldShowSuccess) {
+                setSuccessType(getDappInteractionSuccessType(payload.type));
+              }
+            }
+          } else if (confirmWindow && fullPage) {
             window.close();
           }
         } catch (err: any) {
@@ -206,12 +244,16 @@ export const ConfirmDAppForm = memo<ConfirmDAppFormProps>(
       [
         confirmWindow,
         fullPage,
+        isDappConfirmationContext,
         ledgerConfirmationRequired,
         onConfirm,
+        payload.type,
         preconnectIfNeeded,
         selectedAccount,
         setError,
-        setLedgerApprovalModalState
+        setSuccessType,
+        setLedgerApprovalModalState,
+        shouldShowSuccessAfterSettle
       ]
     );
 
@@ -317,6 +359,10 @@ export const ConfirmDAppForm = memo<ConfirmDAppFormProps>(
 
     const isOperationsConfirm = payload.type === 'confirm_operations';
     const isSignPayload = payload.type === 'sign' || payload.type === 'personal_sign' || payload.type === 'sign_typed';
+
+    if (successType) {
+      return <DappInteractionSuccess type={successType} />;
+    }
 
     return (
       <PageLayout

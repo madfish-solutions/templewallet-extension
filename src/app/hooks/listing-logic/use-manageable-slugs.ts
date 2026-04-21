@@ -44,7 +44,7 @@ export const usePreservedOrderSlugsToManage = (enabledSlugsSorted: string[], oth
 
     // Sorting with respect to previous order every time
     const newResult = prevResult.length
-      ? newConcated.sort((a, b) => {
+      ? newConcated.toSorted((a, b) => {
           const ai = indexMap.get(a);
           const bi = indexMap.get(b);
 
@@ -87,7 +87,7 @@ export const usePreservedOrderSlugsGroupsToManage = <T extends TempleChainKind>(
 
     const newResult = prevResult.length
       ? newConcated
-          .sort(([chainIdA], [chainIdB]) => {
+          .toSorted(([chainIdA], [chainIdB]) => {
             const ai = chainsIndexMap.get(chainIdA);
             const bi = chainsIndexMap.get(chainIdB);
 
@@ -97,7 +97,7 @@ export const usePreservedOrderSlugsGroupsToManage = <T extends TempleChainKind>(
           })
           .map(([chainId, slugs]): [ChainId<T>, string[]] => [
             chainId,
-            slugs.sort((a, b) => {
+            slugs.toSorted((a, b) => {
               const ai = slugsIndexes.get(chainId)?.get(a);
               const bi = slugsIndexes.get(chainId)?.get(b);
 

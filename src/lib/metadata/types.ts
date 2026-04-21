@@ -52,8 +52,10 @@ export interface EvmTokenMetadata extends EvmAssetMetadataBase {
   address: HexString;
 }
 
-export interface EvmNativeTokenMetadata
-  extends RequiredBy<EvmAssetMetadataBase, Exclude<keyof EvmAssetMetadataBase, 'iconURL'>> {
+export interface EvmNativeTokenMetadata extends RequiredBy<
+  EvmAssetMetadataBase,
+  Exclude<keyof EvmAssetMetadataBase, 'iconURL'>
+> {
   standard: EvmAssetStandard.NATIVE;
   address: typeof EVM_TOKEN_SLUG;
 }

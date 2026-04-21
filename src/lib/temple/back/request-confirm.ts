@@ -1,6 +1,7 @@
 import { identity } from 'lodash';
 import browser, { Runtime } from 'webextension-polyfill';
 
+import { DAPP_SUCCESS_SETTLE_DELAY_MS } from 'lib/constants';
 import { IS_SIDE_PANEL_AVAILABLE } from 'lib/env';
 import { TempleDAppPayload, TempleMessageType, TempleRequest } from 'lib/temple/types';
 
@@ -32,6 +33,11 @@ export interface RequestConfirmParams<T extends TempleDAppPayload> {
 const CONFIRM_WINDOW_WIDTH = 384;
 const CONFIRM_WINDOW_HEIGHT = 600;
 const AUTODECLINE_AFTER = 120_000;
+const DAPP_SUCCESS_SCREEN_DURATION_MS = 3000;
+const DAPP_SUCCESS_CLOSE_DELAY_MS = DAPP_SUCCESS_SETTLE_DELAY_MS + DAPP_SUCCESS_SCREEN_DURATION_MS;
+
+const isObjectResult = (value: unknown): value is Record<string, unknown> =>
+  typeof value === 'object' && value !== null;
 
 export async function requestConfirm<T extends TempleDAppPayload>({
   id,
@@ -44,14 +50,20 @@ export async function requestConfirm<T extends TempleDAppPayload>({
   let closing = false;
   let stopViewClosedListening: EmptyFn | undefined;
   let closeView: (() => Promise<void>) | undefined;
+  let successCloseTimeout: ReturnType<typeof setTimeout> | undefined;
   const close = async () => {
     if (closing) return;
     closing = true;
-    dAppPendingConfirmationIdUpdated(null);
+    if (store.getState().dAppPendingConfirmationId === id) {
+      dAppPendingConfirmationIdUpdated(null);
+    }
 
     try {
       clearConfirmationWindowDetached(id);
 
+      if (successCloseTimeout) {
+        clearTimeout(successCloseTimeout);
+      }
       stopTimeout();
       stopRequestListening();
       stopViewClosedListening?.();
@@ -79,7 +91,19 @@ export async function requestConfirm<T extends TempleDAppPayload>({
 
       const result = await handleIntercomRequest(req, onDecline);
       if (result) {
-        close();
+        const shouldKeepConfirmationWindowOpen = isObjectResult(result) && result.keepConfirmationWindowOpen === true;
+
+        if (shouldKeepConfirmationWindowOpen) {
+          successCloseTimeout = setTimeout(close, DAPP_SUCCESS_CLOSE_DELAY_MS);
+        } else {
+          close();
+        }
+
+        if (isObjectResult(result)) {
+          const { keepConfirmationWindowOpen: _ignored, ...response } = result;
+          return response;
+        }
+
         return result;
       }
     }

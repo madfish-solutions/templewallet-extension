@@ -426,12 +426,13 @@ browser.runtime.onMessage.addListener(async (msg, sender) => {
           const urlDomain = new URL(msg.url).hostname;
           const rewardsAddresses = await getRewardsAccountCredentials();
 
-          if (rewardsAddresses.evmAddress) await postAdImpression(rewardsAddresses, msg.provider, { urlDomain });
-          else {
+          if (rewardsAddresses.evmAddress) {
+            await postAdImpression(rewardsAddresses, msg.provider, { urlDomain });
+          } else {
             const identity = await getStoredAppInstallIdentity();
             if (!identity) throw new Error('App identity not found');
             const installId = identity.publicKeyHash;
-            await postAnonymousAdImpression(installId, urlDomain, msg.provider);
+            await postAnonymousAdImpression(installId, msg.provider, { urlDomain });
           }
         });
         break;

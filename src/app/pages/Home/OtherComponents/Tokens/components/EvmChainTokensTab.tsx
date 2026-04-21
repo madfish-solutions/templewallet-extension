@@ -6,10 +6,11 @@ import {
   useEvmChainAccountTokensListingLogic
 } from 'app/hooks/listing-logic/use-evm-chain-account-tokens-listing-logic';
 import { usePreservedOrderSlugsToManage } from 'app/hooks/listing-logic/use-manageable-slugs';
-import { useAssetsViewState } from 'app/hooks/use-assets-view-state';
+import { useManageState } from 'app/hooks/use-assets-view-state';
 import { useTokensListOptionsSelector } from 'app/store/assets-filter-options/selectors';
 import { usePartnersPromotionModule } from 'app/templates/partners-promotion';
 import { EvmTokenListItem } from 'app/templates/TokenListItem';
+import { HOME_PAGE_NAME } from 'lib/ads-constants';
 import { useMemoWithCompare } from 'lib/ui/hooks';
 import { makeGetTokenElementIndexFunction, TokenListItemElement } from 'lib/ui/tokens-list';
 import { EvmChain, useEvmChainByChainId } from 'temple/front/chains';
@@ -36,7 +37,7 @@ export const EvmChainTokensTab = memo<Props>(({ chainId, publicKeyHash, accountI
 
   if (!network) throw new DeadEndBoundaryError();
 
-  const { manageActive } = useAssetsViewState();
+  const { manageActive } = useManageState();
   const contextValue = useMemo(() => ({ accountId, network, publicKeyHash }), [accountId, network, publicKeyHash]);
 
   return (
@@ -131,7 +132,7 @@ const TabContentBase = memo<TabContentBaseProps>(({ allSlugsSorted, manageActive
         id="promo-token-item"
         key="promo-token-item"
         variant={PartnersPromotionModule.PartnersPromotionVariant.Text}
-        pageName="Token page"
+        pageName={HOME_PAGE_NAME}
         ref={promoRef}
       />
     ) : null;

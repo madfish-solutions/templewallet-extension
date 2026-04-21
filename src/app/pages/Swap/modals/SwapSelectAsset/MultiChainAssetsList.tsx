@@ -154,7 +154,7 @@ export const MultiChainAssetsList = memo<Props>(
       (chainId: number, slug: string) =>
         slug === EVM_TOKEN_SLUG
           ? evmChains[chainId]?.currency
-          : evmMetadata[chainId]?.[slug] ?? lifiMetadata[chainId]?.[slug] ?? route3EvmMetadata[chainId]?.[slug],
+          : (evmMetadata[chainId]?.[slug] ?? lifiMetadata[chainId]?.[slug] ?? route3EvmMetadata[chainId]?.[slug]),
       [evmChains, evmMetadata, lifiMetadata, route3EvmMetadata]
     );
 

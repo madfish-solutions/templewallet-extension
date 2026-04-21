@@ -239,7 +239,7 @@ export class TempleWeb3Provider extends EventEmitter {
       case 'wallet_showCallsStatus':
       case 'eth_sign':
         throwErrorLikeObject(EVMErrorCodes.METHOD_NOT_SUPPORTED, 'Method not supported');
-      // eslint-disable-next-line no-fallthrough
+      // oxlint-disable-next-line no-fallthrough
       default:
         // @ts-expect-error
         return this.handleRpcRequest(params);

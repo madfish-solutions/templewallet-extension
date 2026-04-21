@@ -1,6 +1,5 @@
 import React, { memo, useEffect, useState } from 'react';
 
-import { useAssetsViewState } from 'app/hooks/use-assets-view-state';
 import { dispatch } from 'app/store';
 import { setAssetsFilterChain } from 'app/store/assets-filter-options/actions';
 import { useAssetsFilterOptionsSelector } from 'app/store/assets-filter-options/selectors';
@@ -14,7 +13,6 @@ import { TezosChainTokensTab } from './components/TezosChainTokensTab';
 import { TezosTokensTab } from './components/TezosTokensTab';
 
 export const TokensTab = memo(() => {
-  const { filtersOpened } = useAssetsViewState();
   const { filterChain } = useAssetsFilterOptionsSelector();
 
   const [localFilterChain, setLocalFilterChain] = useState(filterChain);
@@ -35,10 +33,6 @@ export const TokensTab = memo(() => {
       setLocalFilterChain(null);
     }
   }, [filterChain, accountTezAddress, accountEvmAddress]);
-
-  useEffect(() => {
-    if (!filtersOpened) setLocalFilterChain(filterChain);
-  }, [filtersOpened]);
 
   useEffect(() => {
     if (filterChain?.chainId !== localFilterChain?.chainId) setLocalFilterChain(filterChain);

@@ -84,7 +84,7 @@ export function useRewardsBadgeVisible() {
 
         if (cancelled) return;
 
-        const referralsCount = referralsCountRaw ? Number(referralsCountRaw) : state.lastReferralsCount ?? 0;
+        const referralsCount = referralsCountRaw ? Number(referralsCountRaw) : (state.lastReferralsCount ?? 0);
 
         const hasNewPayout = transfers.some(
           tr => tr.from.address === TEMPLE_REWARDS_PAYOUT_ADDRESS || tr.from.address === TEMPLE_BAKERY_PAYOUT_ADDRESS

@@ -40,7 +40,7 @@ export function useStorage<T extends StorageValueBase = any>(key: string, fallba
 
   useEffect(() => onStorageChanged(key, mutate), [key, mutate]);
 
-  const value = fallback === undefined ? data : data ?? fallback;
+  const value = fallback === undefined ? data : (data ?? fallback);
   const valueRef = useRef(value);
   const transientValueRef = useRef(value);
 
@@ -76,7 +76,7 @@ export function usePassiveStorage<T = any>(key: string, fallback?: T) {
     }
   );
 
-  const finalData = fallback === undefined ? data : data ?? fallback;
+  const finalData = fallback === undefined ? data : (data ?? fallback);
 
   const [value, setValue] = useState<T | null | undefined>(finalData);
 
@@ -86,7 +86,7 @@ export function usePassiveStorage<T = any>(key: string, fallback?: T) {
 
   const updateValue = useCallback(
     (newValue: T | null | undefined) => {
-      const newValueWithFallback = fallback === undefined ? newValue : newValue ?? fallback;
+      const newValueWithFallback = fallback === undefined ? newValue : (newValue ?? fallback);
       putToStorage(key, newValueWithFallback);
       setValue(newValueWithFallback);
     },

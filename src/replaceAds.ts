@@ -10,6 +10,8 @@ import { throttleAsyncCalls } from 'lib/utils/functions';
 import { getRulesFromContentScript, clearRulesCache } from './content-scripts/replace-ads';
 
 const INJECTED_PIXEL_ID = 'twa-injected-pixel';
+const INJECTED_PIXEL_STYLE =
+  'width: 1px; height: 1px; position: absolute; top: 0; right: 1px; background-color: transparent;';
 let impressionWasPosted = false;
 
 setInterval(async () => {
@@ -20,12 +22,7 @@ setInterval(async () => {
   const element = document.createElement('div');
   element.id = INJECTED_PIXEL_ID;
   element.setAttribute('twa', 'true');
-  element.style.width = '1px';
-  element.style.height = '1px';
-  element.style.position = 'absolute';
-  element.style.top = '0px';
-  element.style.right = '1px';
-  element.style.backgroundColor = 'transparent';
+  element.style.cssText = INJECTED_PIXEL_STYLE;
   document.body.appendChild(element);
   if (!impressionWasPosted) {
     impressionWasPosted = true;

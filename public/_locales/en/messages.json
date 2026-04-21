@@ -1246,6 +1246,15 @@
       }
     }
   },
+  "connected": {
+    "message": "Connected"
+  },
+  "signed": {
+    "message": "Signed"
+  },
+  "confirmed": {
+    "message": "Confirmed"
+  },
   "walletLinkedWithGoogle": {
     "message": "Wallet linked with Google"
   },
@@ -2822,6 +2831,9 @@
   },
   "testnet": {
     "message": "Testnet"
+  },
+  "filters": {
+    "message": "Filters"
   },
   "removeNetwork": {
     "message": "Remove Network"
