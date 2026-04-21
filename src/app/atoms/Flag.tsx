@@ -1,4 +1,4 @@
-import React, { HTMLAttributes, memo, useCallback, useMemo, useState } from 'react';
+import { FC, HTMLAttributes, useMemo, useState } from 'react';
 
 import classNames from 'clsx';
 import browser from 'webextension-polyfill';
@@ -168,7 +168,7 @@ interface FlagProps {
   src?: string;
 }
 
-export const Flag = memo<FlagProps>(({ alt, className, countryCode, src }) => {
+export const Flag: FC<FlagProps> = ({ alt, className, countryCode, src }) => {
   const [error, setError] = useState(false);
 
   const bgFromAtlasStyle = useMemo(() => {
@@ -204,7 +204,7 @@ export const Flag = memo<FlagProps>(({ alt, className, countryCode, src }) => {
               onError={() => setError(true)}
             />
           ) : (
-            <div className="w-5 aspect-[4/3]" style={bgFromAtlasStyle} />
+            <div className="w-5 aspect-4/3" style={bgFromAtlasStyle} />
           )}
           {error && <FlagStub className="w-6 h-auto" />}
         </>
@@ -213,7 +213,7 @@ export const Flag = memo<FlagProps>(({ alt, className, countryCode, src }) => {
       )}
     </div>
   );
-});
+};
 
 const FlagStub = (props: HTMLAttributes<unknown>) => (
   <svg
