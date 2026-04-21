@@ -2,7 +2,7 @@ import React, { FC, useMemo } from 'react';
 
 import { EmptyState } from 'app/atoms/EmptyState';
 import { usePartnersPromotionModule } from 'app/templates/partners-promotion';
-import { DAPPS_PAGE_NAME } from 'lib/ads-constants';
+import { useAdsConstantsModule } from 'lib/ads-constants';
 import type { CustomDAppInfo } from 'lib/apis/temple/endpoints/get-dapps-list';
 
 import { DappItem } from './DappItem';
@@ -13,11 +13,12 @@ interface DappsListProps {
 
 export const DappsList: FC<DappsListProps> = ({ matchingDApps }) => {
   const PartnersPromotionModule = usePartnersPromotionModule();
+  const AdsConstantsModule = useAdsConstantsModule();
 
   const dappsJsx = useMemo(() => {
     const items = matchingDApps.map(dAppProps => <DappItem {...dAppProps} key={dAppProps.slug} />);
 
-    if (!PartnersPromotionModule) return items;
+    if (!PartnersPromotionModule || !AdsConstantsModule) return items;
 
     const { PartnersPromotion, PartnersPromotionVariant } = PartnersPromotionModule;
 
@@ -26,7 +27,7 @@ export const DappsList: FC<DappsListProps> = ({ matchingDApps }) => {
         id="promo-dapp-item"
         key="promo-dapp-item"
         variant={PartnersPromotionVariant.Text}
-        pageName={DAPPS_PAGE_NAME}
+        pageName={AdsConstantsModule.DAPPS_PAGE_NAME}
       />
     );
 
@@ -37,7 +38,7 @@ export const DappsList: FC<DappsListProps> = ({ matchingDApps }) => {
     }
 
     return items;
-  }, [matchingDApps, PartnersPromotionModule]);
+  }, [matchingDApps, PartnersPromotionModule, AdsConstantsModule]);
 
   return matchingDApps.length ? <div className="flex flex-col gap-y-3">{dappsJsx}</div> : <EmptyState stretch />;
 };

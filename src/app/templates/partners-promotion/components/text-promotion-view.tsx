@@ -5,7 +5,7 @@ import clsx from 'clsx';
 import { Anchor } from 'app/atoms/Anchor';
 import { useAdRectObservation } from 'app/hooks/ads/use-ad-rect-observation';
 import type { AdsProviderTitle } from 'lib/ads';
-import { DAPPS_PAGE_NAME, EARN_PAGE_NAME } from 'lib/ads-constants';
+import { DAPPS_PAGE_NAME, EARN_PAGE_NAME } from 'lib/ads-constants/ads-constants';
 
 import { PartnersPromotionSelectors } from '../selectors';
 import { PartnersPromotionVariant } from '../types';

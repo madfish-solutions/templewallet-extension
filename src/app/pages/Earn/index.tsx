@@ -5,7 +5,7 @@ import PageLayout from 'app/layouts/PageLayout';
 import { EarnDepositStats } from 'app/templates/EarnDepositStats';
 import { usePartnersPromotionModule } from 'app/templates/partners-promotion';
 import { SearchBarField } from 'app/templates/SearchField';
-import { EARN_PAGE_NAME } from 'lib/ads-constants';
+import { useAdsConstantsModule } from 'lib/ads-constants';
 import { T, t, TID } from 'lib/i18n';
 
 import { EarnItem } from './components/EarnItem';
@@ -18,12 +18,13 @@ import { EarnOffer } from './types';
 export const Earn = memo(() => {
   const { searchValue, setSearchValue, savingsOffers, externalOffers } = useFilteredEarnOffers();
   const PartnersPromotionModule = usePartnersPromotionModule();
+  const AdsConstantsModule = useAdsConstantsModule();
 
   const savingsItems = useMemo(() => {
     const items = savingsOffers.map(toRenderItem);
 
-    return items.length ? withPromo(items, PartnersPromotionModule) : items;
-  }, [savingsOffers, PartnersPromotionModule]);
+    return items.length ? withPromo(items, PartnersPromotionModule, AdsConstantsModule) : items;
+  }, [savingsOffers, PartnersPromotionModule, AdsConstantsModule]);
 
   const savingsAvailable = useMemo(() => savingsItems.length > 0, [savingsItems.length]);
 
@@ -32,8 +33,8 @@ export const Earn = memo(() => {
 
     if (!items.length || savingsAvailable) return items;
 
-    return withPromo(items, PartnersPromotionModule);
-  }, [externalOffers, savingsAvailable, PartnersPromotionModule]);
+    return withPromo(items, PartnersPromotionModule, AdsConstantsModule);
+  }, [externalOffers, savingsAvailable, PartnersPromotionModule, AdsConstantsModule]);
 
   const externalOffersAvailable = externalItems.length > 0;
   const shouldShowEmptyState = !savingsAvailable && !externalOffersAvailable;
@@ -85,8 +86,12 @@ const Title: FC<{ i18nKey: TID }> = ({ i18nKey }) => (
   </h2>
 );
 
-const withPromo = (items: ReactNode[], PartnersPromotionModule: ReturnType<typeof usePartnersPromotionModule>) => {
-  if (!PartnersPromotionModule) return items;
+const withPromo = (
+  items: ReactNode[],
+  PartnersPromotionModule: ReturnType<typeof usePartnersPromotionModule>,
+  AdsConstantsModule: ReturnType<typeof useAdsConstantsModule>
+) => {
+  if (!PartnersPromotionModule || !AdsConstantsModule) return items;
 
   const { PartnersPromotion, PartnersPromotionVariant } = PartnersPromotionModule;
 
@@ -95,7 +100,7 @@ const withPromo = (items: ReactNode[], PartnersPromotionModule: ReturnType<typeo
       id="promo-earn-item"
       key="promo-earn-item"
       variant={PartnersPromotionVariant.Text}
-      pageName={EARN_PAGE_NAME}
+      pageName={AdsConstantsModule.EARN_PAGE_NAME}
     />
   );
 

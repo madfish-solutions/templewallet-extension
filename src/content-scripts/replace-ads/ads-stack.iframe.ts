@@ -7,7 +7,7 @@ import {
   LINE_HEIGHT_SEARCH_PARAM_NAME,
   ORIGIN_SEARCH_PARAM_NAME,
   THEME_COLOR_SEARCH_PARAM_NAME
-} from 'lib/ads-constants';
+} from 'lib/ads-constants/ads-constants';
 import { configureAds } from 'lib/ads/configure-ads';
 import { importExtensionAdsModule } from 'lib/ads/import-extension-ads-module';
 
