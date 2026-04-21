@@ -26,6 +26,8 @@ Optimize for clarity, polish, and performance in every change.
 - See `src/app/atoms/IconBase.tsx` for canonical component structure
 - Avoid repetitive code (DRY principle)
 - Break down large components into smaller, focused sub-components
+- React Compiler is integrated in this repo; do not add manual memoization with `useMemo`, `useCallback`, or `memo` by default
+- Add manual memoization only when there is a clear, demonstrated need that the compiler does not already cover
 - Add comments for complex logic only
 
 ## TypeScript
