@@ -92,4 +92,4 @@ const NotificationIcon = memo<Pick<NotificationInterface, 'type' | 'status'>>(({
   );
 });
 
-const Dot = memo(() => <div className="w-2 h-2 rounded-circle bg-secondary m-1.5" />);
+const Dot = () => <div className="w-2 h-2 rounded-circle bg-secondary m-1.5" />;

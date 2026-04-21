@@ -1,4 +1,4 @@
-import React, { FC, useCallback, useMemo } from 'react';
+import React, { FC } from 'react';
 
 import clsx from 'clsx';
 
@@ -21,10 +21,8 @@ interface NetworkCardProps extends ReceivePayload {
 }
 
 export const NetworkCard: FC<NetworkCardProps> = ({ address, chainKind, onQRClick }) => {
-  const handleQRClick = useCallback(() => onQRClick({ address, chainKind }), [address, chainKind, onQRClick]);
   const isTezos = chainKind === TempleChainKind.Tezos;
-
-  const testIDProperties = useMemo(() => ({ chainKind }), [chainKind]);
+  const testIDProperties = { chainKind };
 
   return (
     <div className="p-4 flex flex-col gap-y-2 bg-white rounded-lg border-0.5 border-lines">
@@ -52,7 +50,7 @@ export const NetworkCard: FC<NetworkCardProps> = ({ address, chainKind, onQRClic
         <IconButton
           Icon={QRCodeIcon}
           color="blue"
-          onClick={handleQRClick}
+          onClick={() => onQRClick({ address, chainKind })}
           testID={ReceiveSelectors.openQRCodeButton}
           testIDProperties={testIDProperties}
         />

@@ -1,11 +1,11 @@
-import React, { memo } from 'react';
+import React, { FC } from 'react';
 
 import { IconBase } from 'app/atoms';
 import { AnimatedDot } from 'app/atoms/AnimatedDot';
 import { ReactComponent as BellIcon } from 'app/icons/base/bell.svg';
 import { useNewNotificationsAmountSelector } from 'app/store/notifications/selectors';
 
-export const NotificationsBell = memo(() => {
+export const NotificationsBell: FC = () => {
   const newNotificationsAmount = useNewNotificationsAmountSelector();
   const isNewNotificationsAvailable = newNotificationsAmount > 0;
 
@@ -16,4 +16,4 @@ export const NotificationsBell = memo(() => {
       <IconBase Icon={BellIcon} size={16} className="text-secondary" />
     </div>
   );
-});
+};

@@ -87,12 +87,8 @@ export const TezosForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, o
 
   const toValue = watch('to');
 
-  const toFilledWithAddress = useMemo(() => Boolean(toValue && isValidTezosAddress(toValue)), [toValue]);
-
-  const toFilledWithDomain = useMemo(
-    () => Boolean(toValue && isTezosDomainsNameValid(toValue, domainsClient)),
-    [toValue, domainsClient]
-  );
+  const toFilledWithAddress = Boolean(toValue && isValidTezosAddress(toValue));
+  const toFilledWithDomain = Boolean(toValue && isTezosDomainsNameValid(toValue, domainsClient));
 
   const { data: resolvedAddress } = useTezosAddressByDomainName(toValue, network);
 

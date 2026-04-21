@@ -1,4 +1,4 @@
-import React, { memo, useCallback } from 'react';
+import React, { FC } from 'react';
 
 import clsx from 'clsx';
 
@@ -15,9 +15,7 @@ interface TagProps {
   selected: boolean;
 }
 
-export const Tag = memo<TagProps>(({ name, onClick, selected }) => {
-  const handleClick = useCallback(() => onClick(name), [onClick, name]);
-
+export const Tag: FC<TagProps> = ({ name, onClick, selected }) => {
   return (
     <Button
       className={clsx(
@@ -25,7 +23,7 @@ export const Tag = memo<TagProps>(({ name, onClick, selected }) => {
         'border-0.5 border-lines hover:text-secondary',
         selected && 'bg-secondary text-white hover:text-white'
       )}
-      onClick={handleClick}
+      onClick={() => onClick(name)}
     >
       <span className="text-font-description whitespace-nowrap">{t(name.toLowerCase() as TID) || name}</span>
       <div
@@ -36,4 +34,4 @@ export const Tag = memo<TagProps>(({ name, onClick, selected }) => {
       </div>
     </Button>
   );
-});
+};

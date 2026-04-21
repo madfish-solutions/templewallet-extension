@@ -92,8 +92,8 @@ export const MultiChainAssetsList = memo<Props>(
     const enabledTezChains = useEnabledTezosChains();
     const enabledEvmChains = useEnabledEvmChains();
 
-    const filterZeroBalances = useMemo(() => activeField === 'input', [activeField]);
-    const showFavoritesMark = useMemo(() => activeField === 'output', [activeField]);
+    const filterZeroBalances = activeField === 'input';
+    const showFavoritesMark = activeField === 'output';
 
     const rawTokensSortPredicate = useAccountTokensSortPredicate(
       accountTezAddress,

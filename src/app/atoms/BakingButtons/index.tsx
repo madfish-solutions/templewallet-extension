@@ -1,4 +1,4 @@
-import React, { memo, useCallback } from 'react';
+import { FC } from 'react';
 
 import { TestIDProperty } from 'lib/analytics';
 import { T, t } from 'lib/i18n';
@@ -12,10 +12,10 @@ interface RedelegateButtonProps extends TestIDProperty {
   onConfirm?: EmptyFn;
 }
 
-export const RedelegateButton = memo<RedelegateButtonProps>(({ disabled, staked, onConfirm, testID }) => {
+export const RedelegateButton: FC<RedelegateButtonProps> = ({ disabled, staked, onConfirm, testID }) => {
   const customConfirm = useConfirm();
 
-  const handleClick = useCallback(() => {
+  const handleClick = () => {
     if (!staked) {
       onConfirm?.();
 
@@ -30,11 +30,11 @@ export const RedelegateButton = memo<RedelegateButtonProps>(({ disabled, staked,
     }).then(confirmed => {
       if (confirmed) onConfirm?.();
     });
-  }, [customConfirm, onConfirm, staked]);
+  };
 
   return (
     <StyledButton disabled={disabled} color="secondary-low" size="S" testID={testID} onClick={handleClick}>
       <T id="reDelegate" />
     </StyledButton>
   );
-});
+};
