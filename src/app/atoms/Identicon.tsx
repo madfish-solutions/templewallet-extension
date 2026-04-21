@@ -26,7 +26,7 @@ export const Identicon = <T extends IdenticonImgType>({
   options,
   ...rest
 }: IdenticonProps<T>) => {
-  const backgroundImage = useMemo(() => buildImageIdenticonUri(hash, size, type, options), [hash, options, size, type]);
+  const backgroundImage = buildImageIdenticonUri(hash, size, type, options);
 
   return (
     <div
@@ -51,5 +51,5 @@ interface IdenticonInitialsProps extends ImgHTMLAttributes<HTMLImageElement> {
 export const IdenticonInitials: FC<IdenticonInitialsProps> = ({ value, options, ...props }) => {
   const src = useMemo(() => buildInitialsIdenticonUri(value, options), [options, value]);
 
-  return <img src={src} {...props} />;
+  return <img src={src} alt="" {...props} />;
 };
