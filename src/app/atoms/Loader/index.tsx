@@ -22,7 +22,7 @@ const SIZE_CLASSNAME: Record<Size, string> = {
   XS: 'w-3 h-3'
 };
 
-export const Loader = ({ size, trackVariant, className }: Props) => (
+export const Loader: FC<Props> = ({ size, trackVariant, className }) => (
   <LoaderIcon
     className={clsx(
       SIZE_CLASSNAME[size],

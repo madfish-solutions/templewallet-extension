@@ -1,11 +1,11 @@
-import React from 'react';
+import React, { FC } from 'react';
 
 interface ProgressAndNumbersProps {
   progress: number;
   total: number;
 }
 
-export const ProgressAndNumbers = ({ progress, total }: ProgressAndNumbersProps) =>
+export const ProgressAndNumbers: FC<ProgressAndNumbersProps> = ({ progress, total }) =>
   total === 0 ? null : (
     <div className="flex flex-col">
       <p className="text-center text-font-num-bold-14 text-grey-1">
@@ -18,5 +18,4 @@ export const ProgressAndNumbers = ({ progress, total }: ProgressAndNumbersProps)
         />
       </div>
     </div>
-  )
-;
+  );

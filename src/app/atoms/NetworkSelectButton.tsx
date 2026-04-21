@@ -1,4 +1,4 @@
-import { ReactNode } from 'react';
+import { FC, ReactNode } from 'react';
 
 import { IconBase } from 'app/atoms';
 import { EvmNetworkLogo, TezosNetworkLogo } from 'app/atoms/NetworkLogo';
@@ -15,7 +15,7 @@ interface NetworkSelectProps {
   onClick: EmptyFn;
 }
 
-export const NetworkSelectButton = ({ selectedChain, onClick }: NetworkSelectProps) => {
+export const NetworkSelectButton: FC<NetworkSelectProps> = ({ selectedChain, onClick }) => {
   const tezosChains = useAllTezosChains();
   const evmChains = useAllEvmChains();
 

@@ -1,4 +1,4 @@
-import { Ref } from 'react';
+import { FC, Ref } from 'react';
 
 import clsx from 'clsx';
 
@@ -12,7 +12,7 @@ interface DropdownTriggerButtonProps extends ButtonProps {
   ref?: Ref<HTMLButtonElement>;
 }
 
-export const DropdownTriggerButton = ({
+export const DropdownTriggerButton: FC<DropdownTriggerButtonProps> = ({
   className,
   iconClassName = 'text-primary',
   children,
@@ -20,7 +20,7 @@ export const DropdownTriggerButton = ({
   style,
   ref,
   ...restProps
-}: DropdownTriggerButtonProps) => {
+}) => {
   return (
     <Button
       className={clsx(

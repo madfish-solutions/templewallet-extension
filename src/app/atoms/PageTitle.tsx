@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { FC } from 'react';
 
 import { IconBase } from './IconBase';
 
@@ -7,7 +7,7 @@ interface Props {
   Icon?: ImportedSVGComponent;
 }
 
-export const PageTitle = ({ Icon, title }: Props) => (
+export const PageTitle: FC<Props> = ({ Icon, title }) => (
   <>
     {Icon && <IconBase Icon={Icon} className="mr-1" />}
 

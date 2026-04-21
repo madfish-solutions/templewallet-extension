@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { FC } from 'react';
 
 import { Button } from 'app/atoms';
 import { ReactComponent as ExIcon } from 'app/icons/x.svg';
@@ -8,7 +8,7 @@ interface Props extends TestIDProps {
   onClick: EmptyFn;
 }
 
-export const OverlayCloseButton = ({ testID, testIDProperties, onClick }: Props) => (
+export const OverlayCloseButton: FC<Props> = ({ testID, testIDProperties, onClick }) => (
   <Button
     type="button"
     className="absolute z-1 top-3 right-3 p-2 flex items-center bg-gray-200 hover:bg-gray-300 rounded-sm hover:opacity-90"

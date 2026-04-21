@@ -24,6 +24,7 @@ Optimize for clarity, polish, and performance in every change.
 
 ## Code Style
 - See `src/app/atoms/IconBase.tsx` for canonical component structure
+- "FC<Props>" should be preferred instead of "{}: Props"
 - Avoid repetitive code (DRY principle)
 - Break down large components into smaller, focused sub-components
 - React Compiler is integrated in this repo; do not add manual memoization with `useMemo`, `useCallback`, or `memo` by default

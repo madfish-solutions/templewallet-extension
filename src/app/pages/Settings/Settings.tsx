@@ -51,9 +51,9 @@ interface Tab {
   testID?: SettingsSelectors;
 }
 
-const DefaultSettingsIconHOC = (Icon: React.FC<React.SVGProps<SVGSVGElement>>): FC => () => (
-  <IconBase size={16} Icon={Icon} className="text-primary" />
-);
+const DefaultSettingsIconHOC =
+  (Icon: React.FC<React.SVGProps<SVGSVGElement>>): FC =>
+  () => <IconBase size={16} Icon={Icon} className="text-primary" />;
 
 const AccountManagementIcon: FC = () => {
   const { id } = useAccount();

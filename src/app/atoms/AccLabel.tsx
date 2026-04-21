@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { FC } from 'react';
 
 import { ReactComponent as HdIcon } from 'app/icons/base/hd.svg';
 import { ReactComponent as ImportedIcon } from 'app/icons/base/imported.svg';
@@ -14,7 +14,7 @@ interface Props {
   customTitle?: string;
 }
 
-export const AccLabel = ({ type, customTitle }: Props) => {
+export const AccLabel: FC<Props> = ({ type, customTitle }) => {
   const [Icon, defaultTitle] = getAccLabelContent(type);
 
   return (

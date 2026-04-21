@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { FC } from 'react';
 
 import clsx from 'clsx';
 
@@ -15,7 +15,7 @@ interface LinesProps {
 const COMMON_CONTAINER_CLASS_NAME = 'flex items-center gap-2';
 const COMMON_LINE_CLASS_NAME = 'flex-1 border-lines';
 
-export const Lines = ({ type = 'divider', className, style }: LinesProps) => (
+export const Lines: FC<LinesProps> = ({ type = 'divider', className, style }) => (
   <div className={clsx('w-auto', COMMON_CONTAINER_CLASS_NAME, className)} style={style}>
     <div className={clsx(COMMON_LINE_CLASS_NAME, type === 'line' ? 'border-b-0.5' : 'border-b')} />
     {type === 'or' && (
@@ -27,7 +27,7 @@ export const Lines = ({ type = 'divider', className, style }: LinesProps) => (
   </div>
 );
 
-export const VerticalLines = ({ type = 'divider', className, style }: LinesProps) => (
+export const VerticalLines: FC<LinesProps> = ({ type = 'divider', className, style }) => (
   <div className={clsx('h-auto flex-col', COMMON_CONTAINER_CLASS_NAME, className)} style={style}>
     <div className={clsx(COMMON_LINE_CLASS_NAME, type === 'line' ? 'border-r-0.5' : 'border-r')} />
     {type === 'or' && (
@@ -39,7 +39,7 @@ export const VerticalLines = ({ type = 'divider', className, style }: LinesProps
   </div>
 );
 
-const OrLabel = () => (
+const OrLabel: FC = () => (
   <span className="text-font-small text-grey-3 font-semibold">
     <T id="or" />
   </span>

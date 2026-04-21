@@ -1,4 +1,4 @@
-import React, { SVGProps } from 'react';
+import React, { FC, SVGProps } from 'react';
 
 import { ReactComponent as TempleIconTitleFullV } from 'app/misc/temple-icon-title-full-v.svg';
 import { ReactComponent as TempleIconTitleFull } from 'app/misc/temple-icon-title-full.svg';
@@ -20,7 +20,7 @@ const logoIcons = {
   'icon-title-full-v': TempleIconTitleFullV
 };
 
-export const Logo = ({ size = 40, type, style: customStyle, ...rest }: LogoProps) => {
+export const Logo: FC<LogoProps> = ({ size = 40, type, style: customStyle, ...rest }) => {
   const Component = logoIcons[type];
 
   return <Component style={{ ...(customStyle ?? {}), height: size }} title={APP_TITLE} {...rest} />;

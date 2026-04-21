@@ -1,10 +1,10 @@
-import React from 'react';
+import React, { FC } from 'react';
 
 import clsx from 'clsx';
 
 import { Button, ButtonProps } from './Button';
 
-export const SocialButton = ({ className, ...rest }: ButtonProps) => (
+export const SocialButton: FC<ButtonProps> = ({ className, ...rest }) => (
   <Button
     className={clsx(
       className,

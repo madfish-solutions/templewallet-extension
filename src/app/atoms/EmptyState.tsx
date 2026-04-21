@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { FC } from 'react';
 
 import clsx from 'clsx';
 
@@ -14,7 +14,7 @@ interface EmptyStateProps {
   iconSize?: number;
 }
 
-export const EmptyState = ({ forSearch = true, textI18n, text, stretch, iconSize }: EmptyStateProps) => {
+export const EmptyState: FC<EmptyStateProps> = ({ forSearch = true, textI18n, text, stretch, iconSize }) => {
   const Icon = forSearch ? SadSearchIcon : SadUniversalIcon;
 
   const textElem = textI18n ? <T id={textI18n} /> : (text ?? <T id="notFound" />);

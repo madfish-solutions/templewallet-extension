@@ -1,4 +1,4 @@
-import { Ref } from 'react';
+import { FC, PropsWithChildren, Ref } from 'react';
 
 import clsx from 'clsx';
 
@@ -18,7 +18,7 @@ interface Props extends TestIDProps {
   ref?: Ref<HTMLButtonElement>;
 }
 
-export const TextButton = ({
+export const TextButton: FC<PropsWithChildren<Props>> = ({
   Icon,
   color = 'grey',
   onClick,

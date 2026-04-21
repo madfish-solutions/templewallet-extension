@@ -116,10 +116,10 @@ export const PageModal: FC<PageModalProps> = ({
   );
 };
 
-const BackButton = ({ onClick }: { onClick?: EmptyFn }) => (
+const BackButton: FC<{ onClick?: EmptyFn }> = ({ onClick }) => (
   <IconBase Icon={ChevronLeftIcon} size={16} className="text-grey-2 cursor-pointer" onClick={onClick} />
 );
 
-export const CloseButton = ({ onClick }: { onClick?: EmptyFn }) => (
+export const CloseButton: FC<{ onClick?: EmptyFn }> = ({ onClick }) => (
   <IconBase Icon={ExIcon} size={16} className="text-grey-2 cursor-pointer" onClick={onClick} />
 );
