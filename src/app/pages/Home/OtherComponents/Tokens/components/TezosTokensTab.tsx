@@ -16,7 +16,7 @@ import {
 import { useMainnetTokensScamlistSelector } from 'app/store/tezos/assets/selectors';
 import { usePartnersPromotionModule } from 'app/templates/partners-promotion';
 import { TezosTokenListItem } from 'app/templates/TokenListItem';
-import { HOME_PAGE_NAME } from 'lib/ads-constants';
+import { useAdsConstantsModule } from 'lib/ads-constants';
 import { parseChainAssetSlug, toChainAssetSlug } from 'lib/assets/utils';
 import { useMemoWithCompare } from 'lib/ui/hooks';
 import {
@@ -130,6 +130,7 @@ const TabContentBase = memo<TabContentBaseProps>(
     const { displayedSlugs, displayedGroupedSlugs, isSyncing, isInSearchMode, loadNextGrouped, loadNextPlain } =
       useTezosAccountTokensListingLogic(allSlugsSorted, allSlugsSortedGrouped);
     const PartnersPromotionModule = usePartnersPromotionModule();
+    const AdsConstantsModule = useAdsConstantsModule();
 
     const mainnetChain = useTezosMainnetChain();
     const tezosChains = useAllTezosChains();
@@ -137,12 +138,12 @@ const TabContentBase = memo<TabContentBaseProps>(
 
     const { tokensView, getElementIndex } = useMemo(() => {
       const promoJsx =
-        manageActive || !PartnersPromotionModule ? null : (
+        manageActive || !PartnersPromotionModule || !AdsConstantsModule ? null : (
           <PartnersPromotionModule.PartnersPromotion
             id="promo-token-item"
             key="promo-token-item"
             variant={PartnersPromotionModule.PartnersPromotionVariant.Text}
-            pageName={HOME_PAGE_NAME}
+            pageName={AdsConstantsModule.HOME_PAGE_NAME}
             ref={promoRef}
           />
         );

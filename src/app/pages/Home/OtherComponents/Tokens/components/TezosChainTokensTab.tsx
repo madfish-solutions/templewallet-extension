@@ -10,7 +10,7 @@ import { useManageState } from 'app/hooks/use-assets-view-state';
 import { useMainnetTokensScamlistSelector } from 'app/store/tezos/assets/selectors';
 import { usePartnersPromotionModule } from 'app/templates/partners-promotion';
 import { TezosTokenListItem } from 'app/templates/TokenListItem';
-import { HOME_PAGE_NAME } from 'lib/ads-constants';
+import { useAdsConstantsModule } from 'lib/ads-constants';
 import { useMemoWithCompare } from 'lib/ui/hooks';
 import { makeGetTokenElementIndexFunction, TokenListItemElement } from 'lib/ui/tokens-list';
 import { TezosChain, useTezosChainByChainId } from 'temple/front';
@@ -106,6 +106,7 @@ const TabContentBase = memo<TabContentBaseProps>(
 
     const mainnetTokensScamSlugsRecord = useMainnetTokensScamlistSelector();
     const PartnersPromotionModule = usePartnersPromotionModule();
+    const AdsConstantsModule = useAdsConstantsModule();
 
     const { tokensView, getElementIndex } = useMemo(() => {
       const tokensJsx = displayedSlugs.map((assetSlug, i) => (
@@ -127,21 +128,30 @@ const TabContentBase = memo<TabContentBaseProps>(
           getElementIndex: makeGetTokenElementIndexFunction(promoRef, firstListItemRef, tokensJsx.length)
         };
 
-      const promoJsx = PartnersPromotionModule ? (
-        <PartnersPromotionModule.PartnersPromotion
-          id="promo-token-item"
-          key="promo-token-item"
-          variant={PartnersPromotionModule.PartnersPromotionVariant.Text}
-          pageName={HOME_PAGE_NAME}
-          ref={promoRef}
-        />
-      ) : null;
+      const promoJsx =
+        PartnersPromotionModule && AdsConstantsModule ? (
+          <PartnersPromotionModule.PartnersPromotion
+            id="promo-token-item"
+            key="promo-token-item"
+            variant={PartnersPromotionModule.PartnersPromotionVariant.Text}
+            pageName={AdsConstantsModule.HOME_PAGE_NAME}
+            ref={promoRef}
+          />
+        ) : null;
 
       return {
         tokensView: getTokensViewWithPromo(tokensJsx, promoJsx),
         getElementIndex: makeGetTokenElementIndexFunction(promoRef, firstListItemRef, tokensJsx.length)
       };
-    }, [network, displayedSlugs, publicKeyHash, mainnetTokensScamSlugsRecord, manageActive, PartnersPromotionModule]);
+    }, [
+      network,
+      displayedSlugs,
+      publicKeyHash,
+      mainnetTokensScamSlugsRecord,
+      manageActive,
+      PartnersPromotionModule,
+      AdsConstantsModule
+    ]);
 
     return (
       <TokensTabBase
