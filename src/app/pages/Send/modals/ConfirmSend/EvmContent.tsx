@@ -1,4 +1,4 @@
-import React, { FC, useCallback, useState } from 'react';
+import { FC, useState } from 'react';
 
 import { omit } from 'lodash';
 import { FormProvider } from 'react-hook-form';
@@ -78,115 +78,81 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose, onSuccess }) =>
   const { ledgerApprovalModalState, setLedgerApprovalModalState, handleLedgerModalClose } =
     useLedgerApprovalModalState();
 
-  const onSubmitError = useCallback(
-    (err: unknown) => {
-      console.error(err);
-      setLatestSubmitError(err);
-      setTab('error');
-    },
-    [setLatestSubmitError, setTab]
-  );
+  const onSubmitError = (err: unknown) => {
+    console.error(err);
+    setLatestSubmitError(err);
+    setTab('error');
+  };
 
-  const onSubmit = useCallback(
-    async ({ gasPrice, gasLimit, nonce }: EvmTxParamsFormData) => {
-      if (formState.isSubmitting) return;
+  const onSubmit = async ({ gasPrice, gasLimit, nonce }: EvmTxParamsFormData) => {
+    if (formState.isSubmitting) return;
 
-      const feesPerGas = getFeesPerGas(gasPrice);
+    const feesPerGas = getFeesPerGas(gasPrice);
 
-      if (!assetMetadata) {
-        throw new Error('Asset metadata not found.');
-      }
+    if (!assetMetadata) {
+      throw new Error('Asset metadata not found.');
+    }
 
-      if (!estimationData || !feesPerGas) {
-        onSubmitError(estimationError);
+    if (!estimationData || !feesPerGas) {
+      onSubmitError(estimationError);
 
-        return;
-      }
+      return;
+    }
 
-      try {
-        assertCustomFeesPerGasNotTooLow(feesPerGas);
-      } catch (e) {
-        onSubmitError(e);
+    try {
+      assertCustomFeesPerGasNotTooLow(feesPerGas);
+    } catch (e) {
+      onSubmitError(e);
 
-        return;
-      }
+      return;
+    }
 
-      try {
-        const { value, to: txDestination } = buildBasicEvmSendParams(
-          accountPkh,
-          to as HexString,
-          assetMetadata,
-          amount
+    try {
+      const { value, to: txDestination } = buildBasicEvmSendParams(accountPkh, to as HexString, assetMetadata, amount);
+
+      const doOperation = async () => {
+        const txHash = await sendEvmTransaction(accountPkh, network, {
+          to: txDestination,
+          value,
+          ...omit(estimationData, 'estimatedFee'),
+          ...feesPerGas,
+          ...(gasLimit ? { gas: BigInt(gasLimit) } : {}),
+          ...(nonce ? { nonce: Number(nonce) } : {})
+        } as TransactionRequest);
+
+        onConfirm();
+        onSuccess({ txHash, displayedFee });
+
+        const blockExplorer = getActiveBlockExplorer(network.chainId.toString());
+
+        showTxSubmitToastWithDelay(TempleChainKind.EVM, txHash, blockExplorer.url);
+
+        dispatch(
+          addPendingEvmTransferAction({
+            txHash,
+            accountPkh,
+            assetSlug,
+            network,
+            blockExplorerUrl: makeBlockExplorerHref(blockExplorer.url, txHash, 'tx', TempleChainKind.EVM),
+            submittedAt: Date.now()
+          })
         );
+        dispatch(monitorPendingTransfersAction());
+      };
 
-        const doOperation = async () => {
-          const txHash = await sendEvmTransaction(accountPkh, network, {
-            to: txDestination,
-            value,
-            ...omit(estimationData, 'estimatedFee'),
-            ...feesPerGas,
-            ...(gasLimit ? { gas: BigInt(gasLimit) } : {}),
-            ...(nonce ? { nonce: Number(nonce) } : {})
-          } as TransactionRequest);
-
-          onConfirm();
-          onSuccess({ txHash, displayedFee });
-
-          const blockExplorer = getActiveBlockExplorer(network.chainId.toString());
-
-          showTxSubmitToastWithDelay(TempleChainKind.EVM, txHash, blockExplorer.url);
-
-          dispatch(
-            addPendingEvmTransferAction({
-              txHash,
-              accountPkh,
-              assetSlug,
-              network,
-              blockExplorerUrl: makeBlockExplorerHref(blockExplorer.url, txHash, 'tx', TempleChainKind.EVM),
-              submittedAt: Date.now()
-            })
-          );
-          dispatch(monitorPendingTransfersAction());
-        };
-
-        if (isLedgerAccount) {
-          const redirected = await guard(account.type);
-          if (redirected) return;
-          setLedgerApprovalModalState(LedgerOperationState.InProgress);
-          await preconnectIfNeeded(account.type, TempleChainKind.EVM);
-          await runConnectedLedgerOperationFlow(doOperation, setLedgerApprovalModalState, true);
-        } else {
-          await doOperation();
-        }
-      } catch (err: any) {
-        onSubmitError(err);
+      if (isLedgerAccount) {
+        const redirected = await guard(account.type);
+        if (redirected) return;
+        setLedgerApprovalModalState(LedgerOperationState.InProgress);
+        await preconnectIfNeeded(account.type, TempleChainKind.EVM);
+        await runConnectedLedgerOperationFlow(doOperation, setLedgerApprovalModalState, true);
+      } else {
+        await doOperation();
       }
-    },
-    [
-      formState.isSubmitting,
-      getFeesPerGas,
-      assetMetadata,
-      estimationData,
-      onSubmitError,
-      estimationError,
-      assertCustomFeesPerGasNotTooLow,
-      accountPkh,
-      to,
-      amount,
-      isLedgerAccount,
-      sendEvmTransaction,
-      network,
-      onConfirm,
-      onSuccess,
-      getActiveBlockExplorer,
-      guard,
-      account.type,
-      setLedgerApprovalModalState,
-      assetSlug,
-      preconnectIfNeeded,
-      displayedFee
-    ]
-  );
+    } catch (err: any) {
+      onSubmitError(err);
+    }
+  };
 
   return (
     <>
