@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
+import { FC, useRef } from 'react';
 
 import clsx from 'clsx';
 
@@ -11,19 +11,20 @@ import { ReactComponent as CloseIcon } from 'app/icons/base/x.svg';
 import { SearchBarField } from 'app/templates/SearchField';
 import { t } from 'lib/i18n';
 import { useWillUnmount } from 'lib/ui/hooks/useWillUnmount';
-import { HistoryAction, navigate } from 'lib/woozie';
 
 import { Button } from './Button';
 import { IconBase } from './IconBase';
 import SegmentedControl from './SegmentedControl';
 
+type AssetsTab = 'tokens' | 'collectibles';
+
 interface AssetsSegmentControlProps {
   className?: string;
 }
 
-export const AssetsViewStateController = memo<AssetsSegmentControlProps>(({ className }) => {
-  const [tabSlug] = useLocationSearchParamValue('tab');
-  const [tab, setTab] = useState(tabSlug ?? 'tokens');
+export const AssetsViewStateController: FC<AssetsSegmentControlProps> = ({ className }) => {
+  const [tabSlug, setTabSlug] = useLocationSearchParamValue('tab');
+  const tab: AssetsTab = tabSlug === 'collectibles' ? 'collectibles' : 'tokens';
 
   const tokensRef = useRef<HTMLDivElement>(null);
   const collectiblesRef = useRef<HTMLDivElement>(null);
@@ -33,31 +34,26 @@ export const AssetsViewStateController = memo<AssetsSegmentControlProps>(({ clas
   const { searchValue, setSearchValue, resetSearchValue } = useSearchState();
   const { searchMode, setSearchModeActive, setSearchModeInactive } = useSearchModeState();
 
-  useEffect(() => void setTab(tabSlug ?? 'tokens'), [tabSlug]);
-
-  const handleClose = useCallback(() => {
+  const handleClose = () => {
     setManageInactive();
     setSearchModeInactive();
     resetSearchValue();
-  }, [setManageInactive, setSearchModeInactive, resetSearchValue]);
+  };
 
   useWillUnmount(handleClose);
 
-  const handleTabChange = useCallback((val: string) => {
-    setTab(val);
-    navigate({ search: `tab=${val}` }, HistoryAction.Replace);
-  }, []);
+  const handleTabChange = (val: AssetsTab) => void setTabSlug(val);
 
-  const handleSearch = useCallback(() => {
+  const handleSearch = () => {
     setSearchModeActive();
     // input's hidden to visible transition interrupts sync invocation
     setTimeout(() => void searchInputRef.current?.focus());
-  }, [setSearchModeActive]);
+  };
 
-  const handleManage = useCallback(() => {
+  const handleManage = () => {
     setSearchModeActive();
     setManageActive();
-  }, [setSearchModeActive, setManageActive]);
+  };
 
   return (
     <div className={clsx('relative px-4 py-3', className)}>
@@ -101,7 +97,7 @@ export const AssetsViewStateController = memo<AssetsSegmentControlProps>(({ clas
       </FadeTransition>
     </div>
   );
-});
+};
 
 interface IconButtonProps {
   Icon: ImportedSVGComponent;
@@ -109,7 +105,7 @@ interface IconButtonProps {
   active?: boolean;
 }
 
-const IconButton = ({ Icon, onClick, active }: IconButtonProps) => (
+const IconButton: FC<IconButtonProps> = ({ Icon, onClick, active }) => (
   <Button
     className={clsx(
       'p-1 rounded-md overflow-hidden',

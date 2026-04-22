@@ -1,4 +1,4 @@
-import { Ref, memo, useMemo } from 'react';
+import { Ref, useMemo, FC } from 'react';
 
 import clsx from 'clsx';
 
@@ -23,20 +23,17 @@ interface IconButtonProps extends ButtonProps {
   ref?: Ref<HTMLButtonElement>;
 }
 
-export const IconButton = memo<IconButtonProps>(({ Icon, color, active, tooltip, ref, ...rest }) => {
-  const tippyProps = useMemo(
-    () => ({
-      trigger: tooltip ? 'mouseenter' : '__SOME_INVALID_VALUE__',
-      hideOnClick: true,
-      content: tooltip,
-      animation: 'shift-away-subtle'
-    }),
-    [tooltip]
-  );
+export const IconButton: FC<IconButtonProps> = ({ Icon, color, active, tooltip, ref, ...rest }) => {
+  const tippyProps = {
+    trigger: tooltip ? 'mouseenter' : '__SOME_INVALID_VALUE__',
+    hideOnClick: true,
+    content: tooltip,
+    animation: 'shift-away-subtle'
+  };
 
   const tippyRef = useTippy<HTMLButtonElement>(tippyProps);
 
-  const finalRef = useMemo(() => combineRefs<HTMLButtonElement>(ref, tippyRef), [ref, tippyRef]);
+  const finalRef = combineRefs<HTMLButtonElement>(ref, tippyRef);
 
   const colorClassName = useMemo(() => {
     if (active) return clsx(ACTIVE_STYLED_BUTTON_COLORS_CLASSNAME, 'shadow-none');
@@ -51,7 +48,7 @@ export const IconButton = memo<IconButtonProps>(({ Icon, color, active, tooltip,
       <IconBase size={16} Icon={Icon} />
     </Button>
   );
-});
+};
 
 const MAP_TO_STYLED_BUTTON_COLORS: Record<Color, StyledButtonColor> = {
   blue: 'secondary-low',

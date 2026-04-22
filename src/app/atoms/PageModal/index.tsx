@@ -107,7 +107,7 @@ export const PageModal: FC<PageModalProps> = ({
         <div className="w-12 flex justify-end">{titleRight ?? <CloseButton onClick={onRequestClose} />}</div>
       </div>
 
-      <div className={clsx('flex-grow flex flex-col overflow-hidden', contentPadding && 'p-4')}>
+      <div className={clsx('grow flex flex-col overflow-hidden', contentPadding && 'p-4')}>
         <SuspenseContainer loader={suspenseLoader} errorMessage={suspenseErrorMessage}>
           {typeof children === 'function' ? (opened ? children() : null) : children}
         </SuspenseContainer>
