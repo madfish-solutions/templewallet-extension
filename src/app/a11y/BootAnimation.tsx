@@ -1,15 +1,15 @@
-import React, { FC, useLayoutEffect, useRef, useState } from 'react';
+import { FC, useLayoutEffect, useRef } from 'react';
 
 import CSSTransition from 'react-transition-group/CSSTransition';
+
+import { useBooleanState } from 'lib/ui/hooks';
 
 const BootAnimation: FC<PropsWithChildren> = ({ children }) => {
   const nodeRef = useRef(null);
 
-  const [booted, setBooted] = useState(false);
+  const [booted, setBooted] = useBooleanState(false);
 
-  useLayoutEffect(() => {
-    setBooted(true);
-  }, [setBooted]);
+  useLayoutEffect(setBooted, [setBooted]);
 
   return (
     <CSSTransition nodeRef={nodeRef} in={booted} timeout={200}>

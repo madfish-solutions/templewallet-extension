@@ -1,7 +1,9 @@
-import { FC, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { FC, useLayoutEffect, useRef } from 'react';
 
 import clsx from 'clsx';
 import CSSTransition, { CSSTransitionClassNames } from 'react-transition-group/CSSTransition';
+
+import { useBooleanState } from 'lib/ui/hooks';
 
 type Duration = 100 | 200 | 300;
 
@@ -25,11 +27,9 @@ export const FadeTransition: FC<FadeTransitionProps> = ({
 }) => {
   const nodeRef = useRef(null);
 
-  const [booted, setBooted] = useState(false);
+  const [booted, setBooted] = useBooleanState(false);
 
-  const transitionClassNames = useMemo(() => getTransitionClassNames(duration, hideOnExit), [duration, hideOnExit]);
-
-  useLayoutEffect(() => void setBooted(true), [setBooted]);
+  useLayoutEffect(setBooted, [setBooted]);
 
   return (
     <CSSTransition
@@ -40,7 +40,7 @@ export const FadeTransition: FC<FadeTransitionProps> = ({
       in={trigger ?? booted}
       nodeRef={nodeRef}
       timeout={duration}
-      classNames={transitionClassNames}
+      classNames={getTransitionClassNames(duration, hideOnExit)}
       unmountOnExit={unmountOnExit}
     >
       <div ref={nodeRef} className={clsx(!elementTransition && 'flex flex-col h-full', className)}>

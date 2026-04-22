@@ -240,7 +240,7 @@ const MoneyWithFormat: FC<MoneyWithFormatProps> = ({
     const { amount } = formatAmount(bn);
 
     return new BigNumber(amount.toFixed(2));
-  }, [bn.toString(), isFiat]);
+  }, [bn, isFiat]);
 
   return (
     <FullAmountTippy
