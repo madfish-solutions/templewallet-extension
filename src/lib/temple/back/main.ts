@@ -71,6 +71,30 @@ const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<T
       );
       return { type: TempleMessageType.SendEvmTransactionResponse, txHash };
 
+    case TempleMessageType.SignEvmMessageRequest:
+      return {
+        type: TempleMessageType.SignEvmMessageResponse,
+        signature: await Actions.signEvmMessage(req.accountPkh, req.message)
+      };
+
+    case TempleMessageType.SignEvmHashRequest:
+      return {
+        type: TempleMessageType.SignEvmHashResponse,
+        signature: await Actions.signEvmHash(req.accountPkh, req.hash)
+      };
+
+    case TempleMessageType.SignEvmTypedDataRequest:
+      return {
+        type: TempleMessageType.SignEvmTypedDataResponse,
+        signature: await Actions.signEvmTypedData(req.accountPkh, req.typedData)
+      };
+
+    case TempleMessageType.SignEvmAuthorizationRequest:
+      return {
+        type: TempleMessageType.SignEvmAuthorizationResponse,
+        signature: await Actions.signEvmAuthorization(req.accountPkh, req.authorization)
+      };
+
     case TempleMessageType.NewWalletRequest:
       const accountPkh = await Actions.registerNewWallet(req.password, req.mnemonic);
       return { type: TempleMessageType.NewWalletResponse, accountPkh };

@@ -1,4 +1,4 @@
-import React, { FC, FocusEventHandler, useCallback, useMemo, useRef, useState } from 'react';
+import React, { FC, FocusEventHandler, ReactNode, useCallback, useMemo, useRef, useState } from 'react';
 
 import BigNumber from 'bignumber.js';
 import { isEmpty } from 'lodash';
@@ -50,6 +50,7 @@ interface Props {
   isToFilledWithFamiliarAddress: boolean;
   shouldShowConvertedAmountBlock?: boolean;
   evm?: boolean;
+  extraContent?: ReactNode;
 }
 
 export const BaseForm: FC<Props> = ({
@@ -71,7 +72,8 @@ export const BaseForm: FC<Props> = ({
   onSubmit,
   isToFilledWithFamiliarAddress,
   shouldShowConvertedAmountBlock = true,
-  evm
+  evm,
+  extraContent
 }) => {
   const [selectAccountModalOpened, setSelectAccountModalOpen, setSelectAccountModalClosed] = useBooleanState(false);
 
@@ -202,6 +204,8 @@ export const BaseForm: FC<Props> = ({
           className="mb-4"
           testID={SendFormSelectors.selectAssetButton}
         />
+
+        {extraContent ? <div className="mb-4">{extraContent}</div> : null}
 
         <form id="send-form" onSubmit={handleSubmit(onSubmit, onInvalidSubmit)}>
           <Controller

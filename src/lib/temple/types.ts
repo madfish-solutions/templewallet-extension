@@ -2,7 +2,7 @@ import type { RawSignResult } from '@taquito/core';
 import type { DerivationType } from '@taquito/ledger-signer';
 import type { TempleDAppMetadata } from '@temple-wallet/dapp/dist/types';
 import BigNumber from 'bignumber.js';
-import type { RpcTransactionRequest, SignableMessage, TypedDataDefinition } from 'viem';
+import type { AuthorizationRequest, RpcTransactionRequest, SignableMessage, TypedDataDefinition } from 'viem';
 
 import type { DAppsSessionsRecord } from 'app/storage/dapps';
 import type { PromisesQueueCounters } from 'lib/utils';
@@ -509,6 +509,14 @@ export enum TempleMessageType {
   SendPageEventResponse = 'SEND_PAGE_EVENT_RESPONSE',
   SendEvmTransactionRequest = 'SEND_EVM_TRANSACTION_REQUEST',
   SendEvmTransactionResponse = 'SEND_EVM_TRANSACTION_RESPONSE',
+  SignEvmMessageRequest = 'SIGN_EVM_MESSAGE_REQUEST',
+  SignEvmMessageResponse = 'SIGN_EVM_MESSAGE_RESPONSE',
+  SignEvmHashRequest = 'SIGN_EVM_HASH_REQUEST',
+  SignEvmHashResponse = 'SIGN_EVM_HASH_RESPONSE',
+  SignEvmTypedDataRequest = 'SIGN_EVM_TYPED_DATA_REQUEST',
+  SignEvmTypedDataResponse = 'SIGN_EVM_TYPED_DATA_RESPONSE',
+  SignEvmAuthorizationRequest = 'SIGN_EVM_AUTHORIZATION_REQUEST',
+  SignEvmAuthorizationResponse = 'SIGN_EVM_AUTHORIZATION_RESPONSE',
   ResetExtensionRequest = 'RESET_EXTENSION_REQUEST',
   ResetExtensionResponse = 'RESET_EXTENSION_RESPONSE',
   SetWindowPopupStateRequest = 'SET_WINDOW_POPUP_STATE_REQUEST',
@@ -578,6 +586,10 @@ export type TempleRequest =
   | TempleSendTrackEventRequest
   | TempleSendPageEventRequest
   | TempleSendEvmTransactionRequest
+  | TempleSignEvmMessageRequest
+  | TempleSignEvmHashRequest
+  | TempleSignEvmTypedDataRequest
+  | TempleSignEvmAuthorizationRequest
   | TempleResetExtensionRequest
   | TempleProvePossessionRequest;
 
@@ -625,6 +637,10 @@ export type TempleResponse =
   | TempleSendTrackEventResponse
   | TempleSendPageEventResponse
   | TempleSendEvmTransactionResponse
+  | TempleSignEvmMessageResponse
+  | TempleSignEvmHashResponse
+  | TempleSignEvmTypedDataResponse
+  | TempleSignEvmAuthorizationResponse
   | TempleResetExtensionResponse
   | TempleProvePossessionResponse;
 
@@ -1014,6 +1030,50 @@ interface TempleSendEvmTransactionRequest extends TempleMessageBase {
 interface TempleSendEvmTransactionResponse extends TempleMessageBase {
   type: TempleMessageType.SendEvmTransactionResponse;
   txHash: HexString;
+}
+
+interface TempleSignEvmMessageRequest extends TempleMessageBase {
+  type: TempleMessageType.SignEvmMessageRequest;
+  accountPkh: HexString;
+  message: SignableMessage;
+}
+
+interface TempleSignEvmMessageResponse extends TempleMessageBase {
+  type: TempleMessageType.SignEvmMessageResponse;
+  signature: HexString;
+}
+
+interface TempleSignEvmHashRequest extends TempleMessageBase {
+  type: TempleMessageType.SignEvmHashRequest;
+  accountPkh: HexString;
+  hash: HexString;
+}
+
+interface TempleSignEvmHashResponse extends TempleMessageBase {
+  type: TempleMessageType.SignEvmHashResponse;
+  signature: HexString;
+}
+
+interface TempleSignEvmTypedDataRequest extends TempleMessageBase {
+  type: TempleMessageType.SignEvmTypedDataRequest;
+  accountPkh: HexString;
+  typedData: TypedDataDefinition;
+}
+
+interface TempleSignEvmTypedDataResponse extends TempleMessageBase {
+  type: TempleMessageType.SignEvmTypedDataResponse;
+  signature: HexString;
+}
+
+interface TempleSignEvmAuthorizationRequest extends TempleMessageBase {
+  type: TempleMessageType.SignEvmAuthorizationRequest;
+  accountPkh: HexString;
+  authorization: AuthorizationRequest;
+}
+
+interface TempleSignEvmAuthorizationResponse extends TempleMessageBase {
+  type: TempleMessageType.SignEvmAuthorizationResponse;
+  signature: HexString;
 }
 
 interface TemplePageRequestBase extends TempleMessageBase {

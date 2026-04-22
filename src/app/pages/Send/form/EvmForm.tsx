@@ -5,6 +5,7 @@ import { isString } from 'lodash';
 import { FormProvider, useForm } from 'react-hook-form';
 import { formatEther, isAddress } from 'viem';
 
+import { SettingsCheckbox } from 'app/atoms/SettingsCheckbox';
 import { DeadEndBoundaryError } from 'app/ErrorBoundary';
 import { useFormAnalytics } from 'lib/analytics';
 import { fromAssetSlug } from 'lib/assets';
@@ -15,6 +16,8 @@ import { useAssetFiatCurrencyPrice } from 'lib/fiat-currency';
 import { t, toLocalFixed } from 'lib/i18n';
 import { getAssetSymbol, useEvmCategorizedAssetMetadata } from 'lib/metadata';
 import { isEvmCollectible } from 'lib/metadata/utils';
+import { atomsToTokens } from 'lib/temple/helpers';
+import { TempleAccountType } from 'lib/temple/types';
 import { useSafeState } from 'lib/ui/hooks';
 import { isEvmNativeTokenSlug } from 'lib/utils/evm.utils';
 import { ZERO } from 'lib/utils/numbers';
@@ -24,7 +27,14 @@ import { useEvmChainByChainId } from 'temple/front/chains';
 import { useEvmAddressByDomainName } from 'temple/front/evm/ens';
 import { useSettings } from 'temple/front/ready';
 
+import {
+  ALCHEMY_GAS_PAYMENT_TOKEN_DECIMALS,
+  ALCHEMY_GAS_PAYMENT_TOKEN_SYMBOL,
+  getAlchemyGasPaymentAssetSlug,
+  isAlchemyGasPaymentSupportedChain
+} from '../alchemy-pay-gas-with-token';
 import { useSendFormControl } from '../context';
+import { useAlchemyGasPaymentEstimationData } from '../hooks/use-alchemy-gas-payment-estimation-data';
 import { useEvmEstimationData } from '../hooks/use-evm-estimation-data';
 
 import { BaseForm } from './BaseForm';
@@ -56,9 +66,22 @@ export const EvmForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, onR
   const accountPkh = account.address as HexString;
 
   const formAnalytics = useFormAnalytics('SendForm');
+  const alchemyGasPaymentAssetSlug = getAlchemyGasPaymentAssetSlug(network.chainId) ?? assetSlug;
 
   const { value: balance = ZERO } = useEvmAssetBalance(assetSlug, accountPkh, network);
   const { value: ethBalance = ZERO } = useEvmAssetBalance(EVM_TOKEN_SLUG, accountPkh, network);
+  const { rawValue: alchemyGasPaymentRawBalance } = useEvmAssetBalance(alchemyGasPaymentAssetSlug, accountPkh, network);
+  const alchemyGasPaymentMetadata = useEvmCategorizedAssetMetadata(alchemyGasPaymentAssetSlug, network.chainId);
+  const alchemyGasPaymentBalance = useMemo(
+    () =>
+      alchemyGasPaymentRawBalance
+        ? atomsToTokens(
+            alchemyGasPaymentRawBalance,
+            alchemyGasPaymentMetadata?.decimals ?? ALCHEMY_GAS_PAYMENT_TOKEN_DECIMALS
+          )
+        : ZERO,
+    [alchemyGasPaymentMetadata?.decimals, alchemyGasPaymentRawBalance]
+  );
 
   const [shouldUseFiat, setShouldUseFiat] = useSafeState(false);
 
@@ -79,12 +102,30 @@ export const EvmForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, onR
   const { watch, formState, reset } = form;
 
   const toValue = watch('to');
+  const amountValue = watch('amount');
 
   const { data: resolvedAddress } = useEvmAddressByDomainName(toValue, network);
 
   const toFilled = Boolean(toValue && (isAddress(toValue) || isString(resolvedAddress)));
 
   const toResolved = resolvedAddress || toValue;
+  const isSendingAlchemyGasPaymentAsset = assetSlug === alchemyGasPaymentAssetSlug;
+  const alchemyGasPaymentSupported = useMemo(
+    () => account.type !== TempleAccountType.Ledger && isAlchemyGasPaymentSupportedChain(network.chainId),
+    [account.type, network.chainId]
+  );
+  const [shouldUseAlchemyGasPayment, setShouldUseAlchemyGasPayment] = useSafeState(false);
+  const minimalAlchemyEstimateAmount = useMemo(
+    () => (assetDecimals > 0 ? `0.${'0'.repeat(assetDecimals - 1)}1` : '1'),
+    [assetDecimals]
+  );
+  const alchemyEstimateAmount = useMemo(() => {
+    if (!alchemyGasPaymentSupported) {
+      return undefined;
+    }
+
+    return amountValue && Number(amountValue) > 0 ? amountValue : minimalAlchemyEstimateAmount;
+  }, [alchemyGasPaymentSupported, amountValue, minimalAlchemyEstimateAmount]);
 
   const isToFilledWithFamiliarAddress = useMemo(() => {
     if (!toFilled) return false;
@@ -102,7 +143,7 @@ export const EvmForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, onR
     network,
     balance,
     ethBalance,
-    toFilled
+    toFilled: toFilled && !shouldUseAlchemyGasPayment
   });
   const { data: toVitalikEstimationData, isValidating: toVitalikEstimating } = useEvmEstimationData({
     to: VITALIK_ADDRESS,
@@ -111,11 +152,29 @@ export const EvmForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, onR
     network,
     balance,
     ethBalance,
-    toFilled: true,
+    toFilled: !shouldUseAlchemyGasPayment,
     silent: true
+  });
+  const { feeAmount: alchemyFeeAmount, isValidating: alchemyEstimating } = useAlchemyGasPaymentEstimationData({
+    to: (toFilled ? toResolved : VITALIK_ADDRESS) as HexString,
+    sendAssetSlug: assetSlug,
+    gasPaymentAssetSlug: alchemyGasPaymentAssetSlug,
+    accountPkh,
+    network,
+    amount: alchemyEstimateAmount ?? minimalAlchemyEstimateAmount,
+    enabled: shouldUseAlchemyGasPayment && alchemyGasPaymentSupported
   });
 
   const maxAmount = useMemo(() => {
+    if (shouldUseAlchemyGasPayment) {
+      const maxAmountAsset =
+        isSendingAlchemyGasPaymentAsset && alchemyFeeAmount
+          ? BigNumber.max(balance.minus(alchemyFeeAmount), ZERO)
+          : balance;
+
+      return shouldUseFiat ? getMaxAmountFiat(assetPrice.toNumber(), maxAmountAsset) : maxAmountAsset;
+    }
+
     const fee = estimationData?.estimatedFee ?? toVitalikEstimationData?.estimatedFee;
 
     if (!fee) return shouldUseFiat ? getMaxAmountFiat(assetPrice.toNumber(), balance) : balance;
@@ -125,19 +184,48 @@ export const EvmForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, onR
       : balance;
 
     return shouldUseFiat ? getMaxAmountFiat(assetPrice.toNumber(), maxAmountAsset) : maxAmountAsset;
-  }, [estimationData, assetSlug, balance, shouldUseFiat, assetPrice, toVitalikEstimationData]);
+  }, [
+    alchemyFeeAmount,
+    assetPrice,
+    balance,
+    estimationData,
+    isSendingAlchemyGasPaymentAsset,
+    shouldUseAlchemyGasPayment,
+    shouldUseFiat,
+    toVitalikEstimationData
+  ]);
 
   const validateAmount = useCallback(
     (amount: string) => {
       if (!amount) return t('required');
       if (Number(amount) === 0) return t('amountMustBePositive');
 
+      if (shouldUseAlchemyGasPayment && alchemyFeeAmount && alchemyGasPaymentBalance.isLessThan(alchemyFeeAmount)) {
+        return `Insufficient ${alchemyGasPaymentMetadata ? getAssetSymbol(alchemyGasPaymentMetadata) : ALCHEMY_GAS_PAYMENT_TOKEN_SYMBOL} balance to pay gas`;
+      }
+
+      if (shouldUseAlchemyGasPayment && alchemyFeeAmount && isSendingAlchemyGasPaymentAsset) {
+        return (
+          new BigNumber(amount).plus(alchemyFeeAmount).isLessThanOrEqualTo(balance) ||
+          t('maximalAmount', toLocalFixed(maxAmount, Math.min(assetDecimals, 6)))
+        );
+      }
+
       return (
         new BigNumber(amount).isLessThanOrEqualTo(maxAmount) ||
         t('maximalAmount', toLocalFixed(maxAmount, Math.min(assetDecimals, 6)))
       );
     },
-    [assetDecimals, maxAmount]
+    [
+      alchemyFeeAmount,
+      alchemyGasPaymentBalance,
+      alchemyGasPaymentMetadata,
+      assetDecimals,
+      balance,
+      isSendingAlchemyGasPaymentAsset,
+      maxAmount,
+      shouldUseAlchemyGasPayment
+    ]
   );
 
   const validateRecipient = useCallback(
@@ -160,7 +248,8 @@ export const EvmForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, onR
   const resetForm = useCallback(() => {
     reset({ to: '', amount: '' });
     setShouldUseFiat(false);
-  }, [reset, setShouldUseFiat]);
+    setShouldUseAlchemyGasPayment(false);
+  }, [reset, setShouldUseAlchemyGasPayment, setShouldUseFiat]);
 
   useImperativeHandle(formControlRef, () => ({ resetForm }));
 
@@ -191,6 +280,7 @@ export const EvmForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, onR
         network,
         amount: actualAmount,
         to: toResolved,
+        useAlchemyGasPayment: shouldUseAlchemyGasPayment,
         onConfirm: resetForm
       });
       formAnalytics.trackSubmitSuccess(analyticsPayload);
@@ -204,6 +294,7 @@ export const EvmForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, onR
       network,
       onReview,
       resetForm,
+      shouldUseAlchemyGasPayment,
       shouldUseFiat,
       toAssetAmount,
       toResolved
@@ -221,7 +312,6 @@ export const EvmForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, onR
         assetPrice={assetPrice}
         isCollectible={isNft}
         maxAmount={maxAmount}
-        maxEstimating={toFilled ? estimating : toVitalikEstimating}
         assetDecimals={assetDecimals}
         canToggleFiat={canToggleFiat}
         shouldUseFiat={shouldUseFiat}
@@ -231,7 +321,17 @@ export const EvmForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, onR
         onSelectAssetClick={onSelectAssetClick}
         isToFilledWithFamiliarAddress={isToFilledWithFamiliarAddress}
         shouldShowConvertedAmountBlock={!isEvmCollectible(assetMetadata)}
+        extraContent={
+          alchemyGasPaymentSupported ? (
+            <SettingsCheckbox
+              checked={shouldUseAlchemyGasPayment}
+              onChange={setShouldUseAlchemyGasPayment}
+              label="Pay gas with USDC token"
+            />
+          ) : undefined
+        }
         onSubmit={onSubmit}
+        maxEstimating={shouldUseAlchemyGasPayment ? alchemyEstimating : toFilled ? estimating : toVitalikEstimating}
       />
     </FormProvider>
   );

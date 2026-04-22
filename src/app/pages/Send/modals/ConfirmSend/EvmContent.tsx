@@ -27,6 +27,7 @@ import { TempleChainKind } from 'temple/types';
 
 import { buildBasicEvmSendParams } from '../../build-basic-evm-send-params';
 
+import { AlchemyEvmContent } from './AlchemyEvmContent';
 import { BaseContent } from './BaseContent';
 import { TxData } from './types';
 
@@ -36,7 +37,7 @@ interface EvmContentProps {
   onSuccess: (txData: TxData<TempleChainKind.EVM>) => void;
 }
 
-export const EvmContent: FC<EvmContentProps> = ({ data, onClose, onSuccess }) => {
+const RegularEvmContent: FC<EvmContentProps> = ({ data, onClose, onSuccess }) => {
   const { account, network, assetSlug, to, amount, onConfirm } = data;
 
   const accountPkh = account.address as HexString;
@@ -215,3 +216,6 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose, onSuccess }) =>
     </>
   );
 };
+
+export const EvmContent: FC<EvmContentProps> = props =>
+  props.data.useAlchemyGasPayment ? <AlchemyEvmContent {...props} /> : <RegularEvmContent {...props} />;

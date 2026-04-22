@@ -2,7 +2,13 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import constate from 'constate';
 import { omit } from 'lodash';
-import { TransactionRequest, formatTransactionRequest } from 'viem';
+import {
+  AuthorizationRequest,
+  SignableMessage,
+  TransactionRequest,
+  TypedDataDefinition,
+  formatTransactionRequest
+} from 'viem';
 import browser from 'webextension-polyfill';
 
 import { WALLETS_SPECS_STORAGE_KEY } from 'lib/constants';
@@ -507,6 +513,50 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
     []
   );
 
+  const signEvmMessage = useCallback(async (accountPkh: HexString, message: SignableMessage) => {
+    const res = await request({
+      type: TempleMessageType.SignEvmMessageRequest,
+      accountPkh,
+      message
+    });
+    assertResponse(res.type === TempleMessageType.SignEvmMessageResponse);
+
+    return res.signature;
+  }, []);
+
+  const signEvmHash = useCallback(async (accountPkh: HexString, hash: HexString) => {
+    const res = await request({
+      type: TempleMessageType.SignEvmHashRequest,
+      accountPkh,
+      hash
+    });
+    assertResponse(res.type === TempleMessageType.SignEvmHashResponse);
+
+    return res.signature;
+  }, []);
+
+  const signEvmTypedData = useCallback(async (accountPkh: HexString, typedData: TypedDataDefinition) => {
+    const res = await request({
+      type: TempleMessageType.SignEvmTypedDataRequest,
+      accountPkh,
+      typedData
+    });
+    assertResponse(res.type === TempleMessageType.SignEvmTypedDataResponse);
+
+    return res.signature;
+  }, []);
+
+  const signEvmAuthorization = useCallback(async (accountPkh: HexString, authorization: AuthorizationRequest) => {
+    const res = await request({
+      type: TempleMessageType.SignEvmAuthorizationRequest,
+      accountPkh,
+      authorization
+    });
+    assertResponse(res.type === TempleMessageType.SignEvmAuthorizationResponse);
+
+    return res.signature;
+  }, []);
+
   const resetExtension = useCallback(async (password: string) => {
     const res = await request({
       type: TempleMessageType.ResetExtensionRequest,
@@ -581,6 +631,10 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
     switchDAppEvmAccount,
     switchDAppTezosAccount,
     sendEvmTransaction,
+    signEvmMessage,
+    signEvmHash,
+    signEvmTypedData,
+    signEvmAuthorization,
     resetExtension
   };
 });

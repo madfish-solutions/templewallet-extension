@@ -6,12 +6,14 @@ import * as TaquitoUtils from '@taquito/utils';
 import * as Bip39 from 'bip39';
 import { nanoid } from 'nanoid';
 import {
+  AuthorizationRequest,
   createWalletClient,
   LocalAccount,
   PrivateKeyAccount,
   SignableMessage,
   TransactionRequest,
-  TypedDataDefinition
+  TypedDataDefinition,
+  serializeSignature
 } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
 import type * as WasmThemisPackageInterface from 'wasm-themis';
@@ -891,6 +893,28 @@ export class Vault {
 
   async signEvmMessage(accPublicKeyHash: string, message: SignableMessage) {
     return this.withSigningEvmAccount(accPublicKeyHash, async account => account.signMessage({ message }));
+  }
+
+  async signEvmHash(accPublicKeyHash: string, hash: HexString) {
+    return this.withSigningEvmAccount(accPublicKeyHash, async account => {
+      if (!account.sign) {
+        throw new PublicError('Ledger cannot sign raw EVM hashes');
+      }
+
+      return account.sign({ hash });
+    });
+  }
+
+  async signEvmAuthorization(accPublicKeyHash: string, authorization: AuthorizationRequest) {
+    return this.withSigningEvmAccount(accPublicKeyHash, async account => {
+      if (!account.signAuthorization) {
+        throw new PublicError('Ledger cannot sign EIP-7702 authorization');
+      }
+
+      const signedAuthorization = await account.signAuthorization(authorization);
+
+      return serializeSignature(signedAuthorization);
+    });
   }
 
   async sendOperations(accPublicKeyHash: string, network: TezosNetworkEssentials, opParams: any[]) {
