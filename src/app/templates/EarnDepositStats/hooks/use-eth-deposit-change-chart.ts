@@ -11,6 +11,8 @@ import { useTypedSWR } from 'lib/swr';
 import { DEFAULT_CHART_DAYS_COUNT, ONE_MONTH_IN_MS } from '../constants';
 import { toMsTimestamp } from '../utils';
 
+const nowMs = Date.now();
+
 export const useEthDepositChangeChart = (accountPkh: HexString) => {
   const { selectedFiatCurrency } = useFiatCurrency();
 
@@ -45,7 +47,6 @@ export const useEthDepositChangeChart = (accountPkh: HexString) => {
       return;
     }
 
-    const nowMs = Date.now();
     const monthAgoMs = nowMs - ONE_MONTH_IN_MS;
 
     const pricePoints = marketChartData.prices

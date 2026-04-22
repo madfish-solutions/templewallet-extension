@@ -2,7 +2,7 @@ import React, { FC, useCallback, useImperativeHandle, useMemo } from 'react';
 
 import BigNumber from 'bignumber.js';
 import { isString } from 'lodash';
-import { FormProvider, useForm } from 'react-hook-form';
+import { FormProvider, useForm, useWatch } from 'react-hook-form';
 import { formatEther, isAddress } from 'viem';
 
 import { DeadEndBoundaryError } from 'app/ErrorBoundary';
@@ -76,9 +76,9 @@ export const EvmForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, onR
     reValidateMode: 'onChange'
   });
 
-  const { watch, formState, reset } = form;
+  const { control, formState, reset } = form;
 
-  const toValue = watch('to');
+  const toValue = useWatch({ name: 'to', control });
 
   const { data: resolvedAddress } = useEvmAddressByDomainName(toValue, network);
 

@@ -1,7 +1,6 @@
-import React, { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { FC, useCallback, useEffect, useRef, useState } from 'react';
 
 import { SubmitHandler, useForm } from 'react-hook-form';
-import { useDispatch } from 'react-redux';
 
 import { FormField, IconBase } from 'app/atoms';
 import { StyledButton } from 'app/atoms/StyledButton';
@@ -9,6 +8,7 @@ import { TextButton } from 'app/atoms/TextButton';
 import { useShouldShowIntroModals } from 'app/hooks/use-should-show-v2-intro-modal';
 import { ReactComponent as LockFillIcon } from 'app/icons/base/lock_fill.svg';
 import { PlanetsBgPageLayout } from 'app/layouts/planets-bg-page-layout';
+import { dispatch } from 'app/store';
 import { getUserTestingGroupNameActions } from 'app/store/ab-testing/actions';
 import { useUserTestingGroupNameSelector } from 'app/store/ab-testing/selectors';
 import { useFormAnalytics } from 'lib/analytics';
@@ -43,10 +43,12 @@ enum PageModalName {
 const LOCK_TIME = 2 * USER_ACTION_TIMEOUT;
 const LAST_ATTEMPT = 3;
 
+const nowMs = Date.now();
+
 const checkTime = (i: number) => (i < 10 ? '0' + i : i);
 
 const getTimeLeft = (start: number, end: number) => {
-  const isPositiveTime = start + end - Date.now() < 0 ? 0 : start + end - Date.now();
+  const isPositiveTime = start + end - nowMs < 0 ? 0 : start + end - nowMs;
   const diff = isPositiveTime / 1000;
   const seconds = Math.floor(diff % 60);
   const minutes = Math.floor(diff / 60);
@@ -55,7 +57,6 @@ const getTimeLeft = (start: number, end: number) => {
 
 const Unlock: FC<UnlockProps> = ({ canImportNew = true }) => {
   const { unlock } = useTempleClient();
-  const dispatch = useDispatch();
   const formAnalytics = useFormAnalytics('UnlockWallet');
 
   useShouldShowIntroModals(true);
@@ -145,15 +146,15 @@ const Unlock: FC<UnlockProps> = ({ canImportNew = true }) => {
     ]
   );
 
-  const handleForgotPasswordClick = useCallback(() => setPageModalName(PageModalName.ForgotPassword), []);
-  const handleModalClose = useCallback(() => setPageModalName(null), []);
-  const handleForgotPasswordContinueClick = useCallback(() => setPageModalName(PageModalName.ResetExtension), []);
+  const handleForgotPasswordClick = () => setPageModalName(PageModalName.ForgotPassword);
+  const handleModalClose = () => setPageModalName(null);
+  const handleForgotPasswordContinueClick = () => setPageModalName(PageModalName.ResetExtension);
 
-  const isDisabled = useMemo(() => Date.now() - timelock <= lockLevel, [timelock, lockLevel]);
+  const isDisabled = nowMs - timelock <= lockLevel;
 
   useEffect(() => {
     const interval = setInterval(() => {
-      if (timelock > 0 && Date.now() - timelock > lockLevel) {
+      if (timelock > 0 && nowMs - timelock > lockLevel) {
         setTimeLock(0);
         clearErrors('password');
       }

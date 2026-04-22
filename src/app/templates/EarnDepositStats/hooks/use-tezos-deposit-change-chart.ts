@@ -13,6 +13,8 @@ import { useTezosAccountBalanceHistory } from './use-tezos-account-balance-histo
 import { useTezosAccountStakingUpdates } from './use-tezos-account-staking-updates';
 import { useTokenHistoricalPrices } from './use-token-historical-prices';
 
+const nowMs = Date.now();
+
 export const useTezosDepositChangeChart = (accountPkh: string) => {
   const { selectedFiatCurrency } = useFiatCurrency();
 
@@ -52,7 +54,6 @@ export const useTezosDepositChangeChart = (accountPkh: string) => {
       return;
     }
 
-    const nowMs = Date.now();
     const monthAgoMs = nowMs - ONE_MONTH_IN_MS;
 
     const basePricePoints = marketChartData.prices
