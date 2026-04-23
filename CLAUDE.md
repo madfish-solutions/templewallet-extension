@@ -1,1 +1,1 @@
-# Read AGENTS.md file to work Effectively In This Repo
+Read AGENTS.md file

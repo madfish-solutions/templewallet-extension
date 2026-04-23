@@ -156,6 +156,7 @@
         "additionalHooks": "(useMemoWithCompare|useDidUpdate|useInterval)"
       }
     ],
+
     "react-hooks-js/config": "warn",
     "react-hooks-js/error-boundaries": "warn",
     "react-hooks-js/gating": "warn",
