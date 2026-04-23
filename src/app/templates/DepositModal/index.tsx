@@ -1,4 +1,4 @@
-import React, { FC, memo } from 'react';
+import { FC } from 'react';
 
 import { MiniPageModal } from 'app/atoms/PageModal/mini-page-modal';
 import BuyWithFiatImageSrc from 'app/misc/deposit/buy-with-fiat.png';
@@ -17,7 +17,7 @@ interface DepositModalProps {
   chainKind?: TempleChainKind;
 }
 
-export const DepositModal: FC<DepositModalProps> = memo(({ chainKind, opened, onRequestClose }) => (
+export const DepositModal: FC<DepositModalProps> = ({ chainKind, opened, onRequestClose }) => (
   <MiniPageModal
     opened={opened}
     title={t('deposit')}
@@ -51,4 +51,4 @@ export const DepositModal: FC<DepositModalProps> = memo(({ chainKind, opened, on
       />
     </div>
   </MiniPageModal>
-));
+);

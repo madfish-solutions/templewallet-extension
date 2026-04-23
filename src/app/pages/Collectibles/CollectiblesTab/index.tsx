@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { ContentContainer } from 'app/layouts/containers';
 import { dispatch } from 'app/store';
@@ -14,7 +14,7 @@ import { MultiChainCollectiblesTab } from './components/MultiChainCollectiblesTa
 import { TezosChainCollectiblesTab } from './components/TezosChainCollectiblesTab';
 import { TezosCollectiblesTab } from './components/TezosCollectiblesTab';
 
-export const CollectiblesTab = memo(() => {
+export const CollectiblesTab = () => {
   const { filterChain } = useAssetsFilterOptionsSelector();
 
   const [localFilterChain, setLocalFilterChain] = useState(filterChain);
@@ -53,4 +53,4 @@ export const CollectiblesTab = memo(() => {
   if (!localFilterChain && accountEvmAddress) return <EvmCollectiblesTab publicKeyHash={accountEvmAddress} />;
 
   return <ContentContainer className="mt-3">{UNDER_DEVELOPMENT_MSG}</ContentContainer>;
-});
+};

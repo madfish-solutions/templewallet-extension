@@ -1,4 +1,4 @@
-import React, { createContext, FC, memo, useContext, useMemo, useRef } from 'react';
+import React, { Activity, createContext, FC, memo, useContext, useMemo, useRef } from 'react';
 
 import { DeadEndBoundaryError } from 'app/ErrorBoundary';
 import {
@@ -42,7 +42,13 @@ export const EvmChainTokensTab = memo<Props>(({ chainId, publicKeyHash, accountI
 
   return (
     <EvmChainTokensTabContext value={contextValue}>
-      {manageActive ? <TabContentWithManageActive /> : <TabContent />}
+      <Activity mode={manageActive ? 'hidden' : 'visible'} name="evm-chain-tokens-tab-default">
+        <TabContent />
+      </Activity>
+
+      <Activity mode={manageActive ? 'visible' : 'hidden'} name="evm-chain-tokens-tab-manage">
+        <TabContentWithManageActive />
+      </Activity>
     </EvmChainTokensTabContext>
   );
 });
@@ -153,6 +159,7 @@ const TabContentBase = memo<TabContentBaseProps>(({ allSlugsSorted, manageActive
       loadNextPage={loadNext}
       isSyncing={isSyncing}
       isInSearchMode={isInSearchMode}
+      manageActive={manageActive}
       network={network}
       shouldShowHiddenTokensHint={shouldShowHiddenTokensHint}
     >

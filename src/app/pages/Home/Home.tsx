@@ -1,4 +1,4 @@
-import React, { memo, useEffect } from 'react';
+import { Activity, useEffect } from 'react';
 
 import { AssetsViewStateController } from 'app/atoms/AssetsViewStateController';
 import { SuspenseContainer } from 'app/atoms/SuspenseContainer';
@@ -21,7 +21,7 @@ import { NotificationBanner } from './OtherComponents/Tokens/components/Notifica
 import { TokensTab } from './OtherComponents/Tokens/Tokens';
 import { TotalEquityBanner } from './OtherComponents/TotalEquityBanner';
 
-const Home = memo(() => {
+const Home = () => {
   const [tabSlug] = useLocationSearchParamValue('tab');
 
   const [initToastMessage, setInitToastMessage] = useInitToastMessage();
@@ -39,6 +39,8 @@ const Home = memo(() => {
 
     return () => clearTimeout(timeout);
   }, [initToastMessage, setInitToastMessage]);
+
+  const isCollectibleTab = tabSlug === 'collectibles';
 
   return (
     <PageLayout Header={AppHeader} bgWhite={false} contentPadding={false}>
@@ -58,7 +60,13 @@ const Home = memo(() => {
 
       <SuspenseContainer>
         <DAppConnectionRefsProvider>
-          {tabSlug === 'collectibles' ? <CollectiblesTab /> : <TokensTab />}
+          <Activity mode={isCollectibleTab ? 'hidden' : 'visible'} name="home-tokens-tab">
+            <TokensTab />
+          </Activity>
+
+          <Activity mode={isCollectibleTab ? 'visible' : 'hidden'} name="home-collectibles-tab">
+            <CollectiblesTab />
+          </Activity>
         </DAppConnectionRefsProvider>
       </SuspenseContainer>
 
@@ -66,6 +74,6 @@ const Home = memo(() => {
       <DepositModal opened={depositModalOpened} onRequestClose={closeDepositModal} />
     </PageLayout>
   );
-});
+};
 
 export default Home;
