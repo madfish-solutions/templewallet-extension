@@ -1,4 +1,4 @@
-import React, { FC, HTMLAttributes, memo, useCallback, useMemo } from 'react';
+import React, { FC, HTMLAttributes, useCallback, useMemo } from 'react';
 
 import BigNumber from 'bignumber.js';
 import clsx from 'clsx';
@@ -27,82 +27,64 @@ interface MoneyProps extends TestIDProps {
 const DEFAULT_CRYPTO_DECIMALS = 6;
 const ENOUGH_INT_LENGTH = 4;
 
-const Money = memo<MoneyProps>(
-  ({
-    children,
-    fiat,
-    cryptoDecimals = DEFAULT_CRYPTO_DECIMALS,
-    roundingMode = BigNumber.ROUND_DOWN,
-    shortened,
-    smallFractionFont = true,
-    withSign,
-    tooltip = true,
-    tooltipPlacement,
-    testID,
-    testIDProperties
-  }) => {
-    const bn = new BigNumber(children);
+const Money: FC<MoneyProps> = ({
+  children,
+  fiat,
+  cryptoDecimals = DEFAULT_CRYPTO_DECIMALS,
+  roundingMode = BigNumber.ROUND_DOWN,
+  shortened,
+  smallFractionFont = true,
+  withSign,
+  tooltip = true,
+  tooltipPlacement,
+  testID,
+  testIDProperties
+}) => {
+  const bn = new BigNumber(children);
 
-    const decimalsLength = bn.decimalPlaces() ?? 0;
-    const intLength = bn.integerValue().toFixed().length;
-    if (intLength >= ENOUGH_INT_LENGTH) {
-      cryptoDecimals = Math.max(cryptoDecimals - 2, 1);
-    }
-    const { decimal } = getNumberSymbols();
+  const decimalsLength = bn.decimalPlaces() ?? 0;
+  const intLength = bn.integerValue().toFixed().length;
+  if (intLength >= ENOUGH_INT_LENGTH) {
+    cryptoDecimals = Math.max(cryptoDecimals - 2, 1);
+  }
+  const { decimal } = getNumberSymbols();
 
-    const deciamlsLimit = decimalsLength > cryptoDecimals ? cryptoDecimals : decimalsLength;
+  const deciamlsLimit = decimalsLength > cryptoDecimals ? cryptoDecimals : decimalsLength;
 
-    const decimals = fiat ? 2 : deciamlsLimit;
-    const result = shortened ? toShortened(bn) : toLocalFormat(bn, { decimalPlaces: decimals, roundingMode });
+  const decimals = fiat ? 2 : deciamlsLimit;
+  const result = shortened ? toShortened(bn) : toLocalFormat(bn, { decimalPlaces: decimals, roundingMode });
 
-    const indexOfDecimal = result.indexOf(decimal) === -1 ? result.indexOf('.') : result.indexOf(decimal);
+  const indexOfDecimal = result.indexOf(decimal) === -1 ? result.indexOf('.') : result.indexOf(decimal);
 
-    const tippyClassName = clsx(
-      'px-px -mr-px rounded-sm truncate',
-      tooltip && 'cursor-pointer hover:bg-black/5 transition ease-in-out duration-200'
-    );
+  const tippyClassName = clsx(
+    'px-px -mr-px rounded-sm truncate',
+    tooltip && 'cursor-pointer hover:bg-black/5 transition ease-in-out duration-200'
+  );
 
-    if (indexOfDecimal === -1) {
-      return (
-        <JustMoney
-          tooltip={tooltip}
-          result={result}
-          className={tippyClassName}
-          tooltipPlacement={tooltipPlacement}
-          bn={bn}
-          withSign={withSign}
-          testID={testID}
-          testIDProperties={testIDProperties}
-        />
-      );
-    }
-
-    if (!fiat && !shortened && decimalsLength > cryptoDecimals) {
-      return (
-        <MoneyWithoutFormat
-          tooltip={tooltip}
-          tooltipPlacement={tooltipPlacement}
-          className={tippyClassName}
-          bn={bn}
-          cryptoDecimals={cryptoDecimals}
-          roundingMode={roundingMode}
-          smallFractionFont={smallFractionFont}
-          withSign={withSign}
-          testID={testID}
-          testIDProperties={testIDProperties}
-        />
-      );
-    }
-
+  if (indexOfDecimal === -1) {
     return (
-      <MoneyWithFormat
+      <JustMoney
         tooltip={tooltip}
-        tooltipPlacement={tooltipPlacement}
         result={result}
         className={tippyClassName}
+        tooltipPlacement={tooltipPlacement}
         bn={bn}
-        isFiat={fiat}
-        indexOfDecimal={indexOfDecimal}
+        withSign={withSign}
+        testID={testID}
+        testIDProperties={testIDProperties}
+      />
+    );
+  }
+
+  if (!fiat && !shortened && decimalsLength > cryptoDecimals) {
+    return (
+      <MoneyWithoutFormat
+        tooltip={tooltip}
+        tooltipPlacement={tooltipPlacement}
+        className={tippyClassName}
+        bn={bn}
+        cryptoDecimals={cryptoDecimals}
+        roundingMode={roundingMode}
         smallFractionFont={smallFractionFont}
         withSign={withSign}
         testID={testID}
@@ -110,7 +92,23 @@ const Money = memo<MoneyProps>(
       />
     );
   }
-);
+
+  return (
+    <MoneyWithFormat
+      tooltip={tooltip}
+      tooltipPlacement={tooltipPlacement}
+      result={result}
+      className={tippyClassName}
+      bn={bn}
+      isFiat={fiat}
+      indexOfDecimal={indexOfDecimal}
+      smallFractionFont={smallFractionFont}
+      withSign={withSign}
+      testID={testID}
+      testIDProperties={testIDProperties}
+    />
+  );
+};
 
 export default Money;
 
@@ -278,7 +276,7 @@ export const FullAmountTippy: FC<FullAmountTippyProps> = ({
   className,
   ...rest
 }) => {
-  const fullAmountStr = useMemo(() => toLocalFixed(fullAmount), [fullAmount]);
+  const fullAmountStr = toLocalFixed(fullAmount);
   const { fieldRef, copy } = useCopyToClipboard();
   const isHugeAmount = fullAmount.gte(ASSET_HUGE_AMOUNT);
 

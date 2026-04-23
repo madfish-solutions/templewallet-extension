@@ -1,4 +1,4 @@
-import React, { FC, memo } from 'react';
+import { FC } from 'react';
 
 import clsx from 'clsx';
 import { useDebounce } from 'use-debounce';
@@ -124,14 +124,14 @@ export const EarnDepositStatsLayout: FC<EarnDepositStatsLayoutProps> = ({
     );
 
   return (
-    <div className={clsx('flex flex-col relative pb-[68px]', containerClassName)}>
+    <div className={clsx('flex flex-col relative pb-17', containerClassName)}>
       <KoloCryptoCardPreview onClick={onCryptoCardClick} />
 
       <Link
         to="/earn"
         className={clsx(
-          'relative -mb-[68px] px-4 transform transition-transform duration-200 ease-out',
-          hasDeposits && '[&_*]:cursor-pointer peer-hover:translate-y-2'
+          'relative -mb-17 px-4 transform transition-transform duration-200 ease-out',
+          hasDeposits && '**:cursor-pointer peer-hover:translate-y-2'
         )}
         onMouseEnter={handleHover}
         onMouseLeave={handleUnhover}
@@ -143,8 +143,12 @@ export const EarnDepositStatsLayout: FC<EarnDepositStatsLayoutProps> = ({
   );
 };
 
-const LoaderLayout = memo<{ className: string }>(({ className }) => (
+interface LoaderLayoutProps {
+  className: string;
+}
+
+const LoaderLayout: FC<LoaderLayoutProps> = ({ className }) => (
   <div className={clsx('flex justify-center items-center', className)}>
     <Loader size="L" trackVariant="dark" className="text-secondary" />
   </div>
-));
+);
