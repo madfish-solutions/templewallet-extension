@@ -21,7 +21,7 @@ import { NotificationBanner } from './OtherComponents/Tokens/components/Notifica
 import { TokensTab } from './OtherComponents/Tokens/Tokens';
 import { TotalEquityBanner } from './OtherComponents/TotalEquityBanner';
 
-const Home = () => {
+export const HomeContent = () => {
   const { activeTab } = useActiveTabState();
   const [initToastMessage, setInitToastMessage] = useInitToastMessage();
 
@@ -74,5 +74,3 @@ const Home = () => {
     </PageLayout>
   );
 };
-
-export default Home;
