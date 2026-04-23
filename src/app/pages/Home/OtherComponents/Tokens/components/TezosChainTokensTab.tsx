@@ -6,7 +6,7 @@ import {
   useTezosChainAccountTokensForListing,
   useTezosChainAccountTokensListingLogic
 } from 'app/hooks/listing-logic/use-tezos-chain-account-tokens-listing-logic';
-import { useManageState } from 'app/hooks/use-assets-view-state';
+import { useTokensManageState } from 'app/hooks/use-assets-view-state';
 import { useMainnetTokensScamlistSelector } from 'app/store/tezos/assets/selectors';
 import { usePartnersPromotionModule } from 'app/templates/partners-promotion';
 import { TezosTokenListItem } from 'app/templates/TokenListItem';
@@ -37,7 +37,7 @@ export const TezosChainTokensTab: FC<Props> = ({ chainId, accountId, publicKeyHa
 
   if (!network) throw new DeadEndBoundaryError();
 
-  const { manageActive } = useManageState();
+  const { manageActive } = useTokensManageState();
   const contextValue = useMemo(() => ({ accountId, network, publicKeyHash }), [accountId, network, publicKeyHash]);
 
   return (

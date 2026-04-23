@@ -2,7 +2,7 @@ import { Activity, useEffect } from 'react';
 
 import { AssetsViewStateController } from 'app/atoms/AssetsViewStateController';
 import { SuspenseContainer } from 'app/atoms/SuspenseContainer';
-import { useLocationSearchParamValue } from 'app/hooks/use-location';
+import { useActiveTabState } from 'app/hooks/use-assets-view-state';
 import { StickyBar } from 'app/layouts/containers';
 import PageLayout from 'app/layouts/PageLayout';
 import { AppHeader } from 'app/templates/AppHeader';
@@ -22,8 +22,7 @@ import { TokensTab } from './OtherComponents/Tokens/Tokens';
 import { TotalEquityBanner } from './OtherComponents/TotalEquityBanner';
 
 const Home = () => {
-  const [tabSlug] = useLocationSearchParamValue('tab');
-
+  const { activeTab } = useActiveTabState();
   const [initToastMessage, setInitToastMessage] = useInitToastMessage();
 
   const [depositModalOpened, openDepositModal, closeDepositModal] = useBooleanState(false);
@@ -40,7 +39,7 @@ const Home = () => {
     return () => clearTimeout(timeout);
   }, [initToastMessage, setInitToastMessage]);
 
-  const isCollectibleTab = tabSlug === 'collectibles';
+  const isCollectibleTab = activeTab === 'collectibles';
 
   return (
     <PageLayout Header={AppHeader} bgWhite={false} contentPadding={false}>

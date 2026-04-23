@@ -8,7 +8,7 @@ import {
   useTezosAccountTokensForListing,
   useTezosAccountTokensListingLogic
 } from 'app/hooks/listing-logic/use-tezos-account-tokens-listing-logic';
-import { useManageState } from 'app/hooks/use-assets-view-state';
+import { useTokensManageState } from 'app/hooks/use-assets-view-state';
 import {
   useGroupByNetworkBehaviorSelector,
   useTokensListOptionsSelector
@@ -44,7 +44,7 @@ const TezosTokensTabContext = createContext<Props>({
 });
 
 export const TezosTokensTab: FC<Props> = props => {
-  const { manageActive } = useManageState();
+  const { manageActive } = useTokensManageState();
 
   return (
     <TezosTokensTabContext value={props}>

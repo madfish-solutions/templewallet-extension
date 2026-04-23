@@ -3,8 +3,13 @@ import { FC, useRef } from 'react';
 import clsx from 'clsx';
 
 import { FadeTransition } from 'app/a11y/FadeTransition';
-import { useManageState, useSearchModeState, useSearchState } from 'app/hooks/use-assets-view-state';
-import { useLocationSearchParamValue } from 'app/hooks/use-location';
+import {
+  useActiveTabState,
+  useCollectiblesManageState,
+  useSearchModeState,
+  useSearchState,
+  useTokensManageState
+} from 'app/hooks/use-assets-view-state';
 import { ReactComponent as ManageIcon } from 'app/icons/base/manage.svg';
 import { ReactComponent as SearchIcon } from 'app/icons/base/search.svg';
 import { ReactComponent as CloseIcon } from 'app/icons/base/x.svg';
@@ -16,23 +21,22 @@ import { Button } from './Button';
 import { IconBase } from './IconBase';
 import SegmentedControl from './SegmentedControl';
 
-type AssetsTab = 'tokens' | 'collectibles';
-
 interface AssetsSegmentControlProps {
   className?: string;
 }
 
 export const AssetsViewStateController: FC<AssetsSegmentControlProps> = ({ className }) => {
-  const [tabSlug, setTabSlug] = useLocationSearchParamValue('tab');
-  const tab: AssetsTab = tabSlug === 'collectibles' ? 'collectibles' : 'tokens';
-
   const tokensRef = useRef<HTMLDivElement>(null);
   const collectiblesRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement | null>(null);
 
-  const { setManageActive, setManageInactive } = useManageState();
+  const { activeTab, setActiveTab } = useActiveTabState();
+  const tokensManageState = useTokensManageState();
+  const collectiblesManageState = useCollectiblesManageState();
   const { searchValue, setSearchValue, resetSearchValue } = useSearchState();
   const { searchMode, setSearchModeActive, setSearchModeInactive } = useSearchModeState();
+  const { setManageActive, setManageInactive } =
+    activeTab === 'collectibles' ? collectiblesManageState : tokensManageState;
 
   const handleClose = () => {
     setManageInactive();
@@ -41,8 +45,6 @@ export const AssetsViewStateController: FC<AssetsSegmentControlProps> = ({ class
   };
 
   useWillUnmount(handleClose);
-
-  const handleTabChange = (val: AssetsTab) => void setTabSlug(val);
 
   const handleSearch = () => {
     setSearchModeActive();
@@ -72,8 +74,8 @@ export const AssetsViewStateController: FC<AssetsSegmentControlProps> = ({ class
         <div className={clsx('gap-x-18 items-center', searchMode ? 'hidden overflow-hidden' : 'flex')}>
           <SegmentedControl
             name="assets-segment-control"
-            activeSegment={tab}
-            setActiveSegment={handleTabChange}
+            activeSegment={activeTab}
+            setActiveSegment={setActiveTab}
             className="flex-1"
             controlsClassName="h-8"
             segments={[

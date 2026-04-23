@@ -1,4 +1,4 @@
-import { FC, memo, Ref, useCallback } from 'react';
+import { Activity, FC, Ref, useCallback } from 'react';
 
 import { DeadEndBoundaryError } from 'app/ErrorBoundary';
 import { usePreservedOrderSlugsToManage } from 'app/hooks/listing-logic/use-manageable-slugs';
@@ -6,7 +6,7 @@ import {
   useTezosChainCollectiblesForListing,
   useTezosChainCollectiblesListingLogic
 } from 'app/hooks/listing-logic/use-tezos-chain-collectibles-listing-logic';
-import { useManageState } from 'app/hooks/use-assets-view-state';
+import { useCollectiblesManageState } from 'app/hooks/use-assets-view-state';
 import { useCollectiblesListOptionsSelector } from 'app/store/assets-filter-options/selectors';
 import { useMainnetTokensScamlistSelector } from 'app/store/tezos/assets/selectors';
 import { CollectiblesListItemElement } from 'lib/ui/collectibles-list';
@@ -21,17 +21,25 @@ interface Props {
   publicKeyHash: string;
 }
 
-export const TezosChainCollectiblesTab = memo<Props>(({ chainId, publicKeyHash }) => {
+export const TezosChainCollectiblesTab: FC<Props> = ({ chainId, publicKeyHash }) => {
   const network = useTezosChainByChainId(chainId);
 
   if (!network) throw new DeadEndBoundaryError();
 
-  const { manageActive } = useManageState();
+  const { manageActive } = useCollectiblesManageState();
 
-  if (manageActive) return <TabContentWithManageActive publicKeyHash={publicKeyHash} network={network} />;
+  return (
+    <>
+      <Activity mode={manageActive ? 'hidden' : 'visible'} name="tezos-chain-collectibles-tab-default">
+        <TabContent publicKeyHash={publicKeyHash} network={network} />
+      </Activity>
 
-  return <TabContent publicKeyHash={publicKeyHash} network={network} />;
-});
+      <Activity mode={manageActive ? 'visible' : 'hidden'} name="tezos-chain-collectibles-tab-manage">
+        <TabContentWithManageActive publicKeyHash={publicKeyHash} network={network} />
+      </Activity>
+    </>
+  );
+};
 
 interface TabContentProps {
   network: TezosChain;
@@ -85,7 +93,7 @@ interface TabContentBaseProps {
   manageActive: boolean;
 }
 
-const TabContentBase = memo<TabContentBaseProps>(({ network, publicKeyHash, allSlugsSorted, manageActive }) => {
+const TabContentBase: FC<TabContentBaseProps> = ({ network, publicKeyHash, allSlugsSorted, manageActive }) => {
   const { isInSearchMode, displayedSlugs, isSyncing, loadNext } = useTezosChainCollectiblesListingLogic(
     allSlugsSorted,
     network
@@ -125,4 +133,4 @@ const TabContentBase = memo<TabContentBaseProps>(({ network, publicKeyHash, allS
       network={network}
     />
   );
-});
+};
