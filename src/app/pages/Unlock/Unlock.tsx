@@ -1,4 +1,4 @@
-import { FC, useCallback, useEffect, useRef, useState } from 'react';
+import { FC, useCallback, useEffect, useState } from 'react';
 
 import { SubmitHandler, useForm } from 'react-hook-form';
 
@@ -43,12 +43,10 @@ enum PageModalName {
 const LOCK_TIME = 2 * USER_ACTION_TIMEOUT;
 const LAST_ATTEMPT = 3;
 
-const nowMs = Date.now();
-
 const checkTime = (i: number) => (i < 10 ? '0' + i : i);
 
-const getTimeLeft = (start: number, end: number) => {
-  const isPositiveTime = start + end - nowMs < 0 ? 0 : start + end - nowMs;
+const getTimeLeft = (start: number, end: number, now: number) => {
+  const isPositiveTime = Math.max(start + end - now, 0);
   const diff = isPositiveTime / 1000;
   const seconds = Math.floor(diff % 60);
   const minutes = Math.floor(diff / 60);
@@ -66,7 +64,8 @@ const Unlock: FC<UnlockProps> = ({ canImportNew = true }) => {
   const [timelock, setTimeLock] = useLocalStorage<number>(TempleSharedStorageKey.TimeLock, 0);
   const lockLevel = LOCK_TIME * Math.floor(attempt / 3);
 
-  const [timeleft, setTimeleft] = useState(getTimeLeft(timelock, lockLevel));
+  const [timeleft, setTimeleft] = useState('00:00');
+  const [isDisabled, setIsDisabled] = useState(timelock > 0 && lockLevel > 0);
 
   const testGroupName = useUserTestingGroupNameSelector();
 
@@ -76,13 +75,7 @@ const Unlock: FC<UnlockProps> = ({ canImportNew = true }) => {
     }
   }, [testGroupName]);
 
-  const formRef = useRef<HTMLFormElement>(null);
-
-  const focusPasswordField = useCallback(() => {
-    formRef.current?.querySelector<HTMLInputElement>("input[name='password']")?.focus();
-  }, []);
-
-  const { register, handleSubmit, setError, clearErrors, formState } = useForm<FormData>();
+  const { register, handleSubmit, setError, clearErrors, setFocus, formState } = useForm<FormData>();
   const { errors, isSubmitting: submitting } = formState;
 
   const passwordShakeTrigger = useShakeOnErrorTrigger(formState.submitCount, errors.password);
@@ -115,21 +108,25 @@ const Unlock: FC<UnlockProps> = ({ canImportNew = true }) => {
 
         console.error(err);
 
+        const currentTime = Date.now();
+
         if (attempt >= LAST_ATTEMPT) {
-          setTimeLock(Date.now());
+          setTimeLock(currentTime);
+          setIsDisabled(true);
           await setPasswordErrorMessage(
             t(attempt === LAST_ATTEMPT ? 'walletTemporarilyBlockedError' : 'incorrectPasswordWalletBlockedError')
           );
         }
 
         setAttempt(value => value + 1);
-        setTimeleft(getTimeLeft(Date.now(), LOCK_TIME * Math.floor((attempt + 1) / 3)));
+        setTimeleft(getTimeLeft(currentTime, LOCK_TIME * Math.floor((attempt + 1) / 3), currentTime));
+        setIsDisabled(attempt >= LAST_ATTEMPT);
 
         if (attempt < LAST_ATTEMPT) {
           await setPasswordErrorMessage(
             t('incorrectPasswordAttemptError', [String(LAST_ATTEMPT - attempt), String(LAST_ATTEMPT)])
           );
-          focusPasswordField();
+          setFocus('password');
         }
       }
     },
@@ -141,7 +138,7 @@ const Unlock: FC<UnlockProps> = ({ canImportNew = true }) => {
       unlock,
       setAttempt,
       setPasswordErrorMessage,
-      focusPasswordField,
+      setFocus,
       setTimeLock
     ]
   );
@@ -150,16 +147,23 @@ const Unlock: FC<UnlockProps> = ({ canImportNew = true }) => {
   const handleModalClose = () => setPageModalName(null);
   const handleForgotPasswordContinueClick = () => setPageModalName(PageModalName.ResetExtension);
 
-  const isDisabled = nowMs - timelock <= lockLevel;
-
   useEffect(() => {
-    const interval = setInterval(() => {
-      if (timelock > 0 && nowMs - timelock > lockLevel) {
+    const updateLockState = () => {
+      const currentTime = Date.now();
+      const lockExpired = timelock > 0 && currentTime - timelock > lockLevel;
+
+      if (lockExpired) {
         setTimeLock(0);
         clearErrors('password');
       }
-      setTimeleft(getTimeLeft(timelock, lockLevel));
-    }, 1_000);
+
+      setIsDisabled(timelock > 0 && !lockExpired && currentTime - timelock <= lockLevel);
+      setTimeleft(getTimeLeft(timelock, lockLevel, currentTime));
+    };
+
+    updateLockState();
+
+    const interval = setInterval(updateLockState, 1_000);
 
     return () => {
       clearInterval(interval);
@@ -169,7 +173,7 @@ const Unlock: FC<UnlockProps> = ({ canImportNew = true }) => {
   return (
     <>
       <PlanetsBgPageLayout showTestnetModeIndicator={false}>
-        <form ref={formRef} className="w-full flex flex-col items-center mb-4" onSubmit={handleSubmit(onSubmit)}>
+        <form className="w-full flex flex-col items-center mb-4" onSubmit={handleSubmit(onSubmit)}>
           <p className="text-font-regular-bold text-center mb-0.5">
             <T id="welcomeBack" />
           </p>

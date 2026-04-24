@@ -25,11 +25,9 @@ import { SelectProviderModal } from './modals/SelectProvider';
 import { SelectTokenModal } from './modals/SelectToken';
 import { BuyWithCreditCardFormData } from './types';
 
-const nowMs = Date.now();
-
 export const DebitCreditCard: FC = () => {
   const [formIsLoading, setFormIsLoading] = useState(false);
-  const [lastFormRefreshTimestamp, setLastFormRefreshTimestamp] = useState(nowMs);
+  const [lastFormRefreshTimestamp, setLastFormRefreshTimestamp] = useState(0);
 
   const [selectCurrencyModalOpened, openSelectCurrencyModal, closeSelectCurrencyModal] = useBooleanState(false);
   const [selectTokenModalOpened, openSelectTokenModal, closeSelectTokenModal] = useBooleanState(false);
@@ -76,6 +74,14 @@ export const DebitCreditCard: FC = () => {
   useErrorAlert(allPaymentProviders, providersErrors, inputCurrency, outputToken);
 
   useEffect(() => void dispatch(loadAllCurrenciesActions.submit()), []);
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      setLastFormRefreshTimestamp(Date.now());
+    }, 0);
+
+    return () => clearTimeout(timeout);
+  }, []);
 
   useInterval(
     () => {

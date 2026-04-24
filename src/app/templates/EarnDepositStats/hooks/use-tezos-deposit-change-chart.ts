@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import { type TzktStakingUpdate } from 'lib/apis/tzkt';
 import { useFiatCurrency } from 'lib/fiat-currency/core';
@@ -13,10 +13,9 @@ import { useTezosAccountBalanceHistory } from './use-tezos-account-balance-histo
 import { useTezosAccountStakingUpdates } from './use-tezos-account-staking-updates';
 import { useTokenHistoricalPrices } from './use-token-historical-prices';
 
-const nowMs = Date.now();
-
 export const useTezosDepositChangeChart = (accountPkh: string) => {
   const { selectedFiatCurrency } = useFiatCurrency();
+  const [nowMs, setNowMs] = useState<number | null>(null);
 
   const {
     data: balanceHistory,
@@ -49,8 +48,20 @@ export const useTezosDepositChangeChart = (accountPkh: string) => {
   const isLoading = isBalanceHistoryLoading || isStakingUpdatesLoading || isMarketChartLoading || isDelegationLoading;
   const isError = Boolean(balanceHistoryError || stakingUpdatesError || marketChartError || delegationError);
 
+  useEffect(() => {
+    if (balanceHistory?.length && marketChartData?.prices?.length) {
+      const timeout = setTimeout(() => {
+        setNowMs(Date.now());
+      }, 0);
+
+      return () => clearTimeout(timeout);
+    }
+
+    return;
+  }, [balanceHistory, marketChartData]);
+
   const data = useMemo(() => {
-    if (!balanceHistory?.length || !marketChartData?.prices?.length) {
+    if (nowMs === null || !balanceHistory?.length || !marketChartData?.prices?.length) {
       return;
     }
 
@@ -106,7 +117,7 @@ export const useTezosDepositChangeChart = (accountPkh: string) => {
 
       return [timestamp, depositInFiat];
     });
-  }, [balanceHistory, stakingUpdates, marketChartData, delegatedFromMs]);
+  }, [balanceHistory, stakingUpdates, marketChartData, delegatedFromMs, nowMs]);
 
   return {
     data,

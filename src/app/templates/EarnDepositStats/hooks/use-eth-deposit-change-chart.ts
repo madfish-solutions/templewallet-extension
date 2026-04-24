@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import { getEthAccountTransactions } from '@temple-wallet/everstake-wallet-sdk';
 import BigNumber from 'bignumber.js';
@@ -11,10 +11,9 @@ import { useTypedSWR } from 'lib/swr';
 import { DEFAULT_CHART_DAYS_COUNT, ONE_MONTH_IN_MS } from '../constants';
 import { toMsTimestamp } from '../utils';
 
-const nowMs = Date.now();
-
 export const useEthDepositChangeChart = (accountPkh: HexString) => {
   const { selectedFiatCurrency } = useFiatCurrency();
+  const [nowMs, setNowMs] = useState<number | null>(null);
 
   const {
     data: marketChartData,
@@ -42,8 +41,20 @@ export const useEthDepositChangeChart = (accountPkh: HexString) => {
   const isLoading = isMarketChartLoading || isStakingTxLoading;
   const isError = Boolean(marketChartError || stakingTxError);
 
+  useEffect(() => {
+    if (stakingTransactions?.length && marketChartData?.prices?.length) {
+      const timeout = setTimeout(() => {
+        setNowMs(Date.now());
+      }, 0);
+
+      return () => clearTimeout(timeout);
+    }
+
+    return;
+  }, [marketChartData, stakingTransactions]);
+
   const data = useMemo(() => {
-    if (!stakingTransactions?.length || !marketChartData?.prices?.length) {
+    if (nowMs === null || !stakingTransactions?.length || !marketChartData?.prices?.length) {
       return;
     }
 
@@ -98,7 +109,7 @@ export const useEthDepositChangeChart = (accountPkh: HexString) => {
     }
 
     return series;
-  }, [marketChartData, stakingTransactions]);
+  }, [marketChartData, nowMs, stakingTransactions]);
 
   return {
     data,
