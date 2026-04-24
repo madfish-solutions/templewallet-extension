@@ -1,4 +1,4 @@
-import React, { memo, useMemo } from 'react';
+import { FC, useMemo } from 'react';
 
 import { DeadEndBoundaryError } from 'app/ErrorBoundary';
 import { TezosActivity } from 'lib/activity';
@@ -21,7 +21,7 @@ interface Props {
   filterKind?: FilterKind;
 }
 
-export const TezosActivityList = memo<Props>(({ tezosChainId, assetSlug, filterKind }) => {
+export const TezosActivityList: FC<Props> = ({ tezosChainId, assetSlug, filterKind }) => {
   const network = useTezosChainByChainId(tezosChainId);
   const accountAddress = useAccountAddressForTezos();
 
@@ -29,18 +29,8 @@ export const TezosActivityList = memo<Props>(({ tezosChainId, assetSlug, filterK
 
   const { chainId, rpcBaseURL } = network;
 
-  const {
-    activities,
-    isLoading,
-    reachedTheEnd,
-    error,
-    setActivities,
-    setIsLoading,
-    setReachedTheEnd,
-    setError,
-    loadNext
-  } = useActivitiesLoadingLogic<TezosActivity>(
-    async (initial, signal) => {
+  const { activities, isLoading, reachedTheEnd, error, loadNext } = useActivitiesLoadingLogic<TezosActivity>(
+    async ({ setIsLoading, setReachedTheEnd, setActivities, setError }, activities, initial, signal) => {
       if (!isKnownChainId(chainId)) {
         setIsLoading(false);
         setReachedTheEnd(true);
@@ -123,4 +113,4 @@ export const TezosActivityList = memo<Props>(({ tezosChainId, assetSlug, filterK
       {contentJsx}
     </ActivityListView>
   );
-});
+};

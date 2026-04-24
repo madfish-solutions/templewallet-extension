@@ -1,7 +1,7 @@
-import { memo, Ref, useCallback } from 'react';
+import { FC, Ref, useCallback } from 'react';
 
 import { useAccountCollectiblesListingLogic } from 'app/hooks/listing-logic/use-account-collectibles-listing-logic';
-import { useManageState } from 'app/hooks/use-assets-view-state';
+import { useCollectiblesManageState } from 'app/hooks/use-assets-view-state';
 import { useCollectiblesListOptionsSelector } from 'app/store/assets-filter-options/selectors';
 import { useMainnetTokensScamlistSelector } from 'app/store/tezos/assets/selectors';
 import { parseChainAssetSlug } from 'lib/assets/utils';
@@ -17,68 +17,69 @@ interface MultiChainCollectiblesTabProps {
   accountEvmAddress: HexString;
 }
 
-export const MultiChainCollectiblesTab = memo<MultiChainCollectiblesTabProps>(
-  ({ accountTezAddress, accountEvmAddress }) => {
-    const { blur, showInfo } = useCollectiblesListOptionsSelector();
-    const mainnetTokensScamSlugsRecord = useMainnetTokensScamlistSelector();
+export const MultiChainCollectiblesTab: FC<MultiChainCollectiblesTabProps> = ({
+  accountTezAddress,
+  accountEvmAddress
+}) => {
+  const { blur, showInfo } = useCollectiblesListOptionsSelector();
+  const mainnetTokensScamSlugsRecord = useMainnetTokensScamlistSelector();
 
-    const { manageActive } = useManageState();
+  const { manageActive } = useCollectiblesManageState();
 
-    const { isInSearchMode, paginatedSlugs, isSyncing, loadNext } = useAccountCollectiblesListingLogic(
-      accountTezAddress,
-      accountEvmAddress,
-      manageActive
-    );
+  const { isInSearchMode, paginatedSlugs, isSyncing, loadNext } = useAccountCollectiblesListingLogic(
+    accountTezAddress,
+    accountEvmAddress,
+    manageActive
+  );
 
-    useEvmCollectiblesMetadataLoading(accountEvmAddress);
+  useEvmCollectiblesMetadataLoading(accountEvmAddress);
 
-    const renderItem = useCallback(
-      (chainSlug: string, index: number, ref?: Ref<CollectiblesListItemElement>) => {
-        const [chainKind, chainId, slug] = parseChainAssetSlug(chainSlug);
+  const renderItem = useCallback(
+    (chainSlug: string, index: number, ref?: Ref<CollectiblesListItemElement>) => {
+      const [chainKind, chainId, slug] = parseChainAssetSlug(chainSlug);
 
-        if (chainKind === TempleChainKind.Tezos) {
-          return (
-            <TezosCollectibleItem
-              key={chainSlug}
-              assetSlug={slug}
-              accountPkh={accountTezAddress}
-              tezosChainId={chainId as string}
-              adultBlur={blur}
-              areDetailsShown={showInfo}
-              manageActive={manageActive}
-              scam={mainnetTokensScamSlugsRecord[slug]}
-              index={index}
-              ref={ref}
-            />
-          );
-        }
-
+      if (chainKind === TempleChainKind.Tezos) {
         return (
-          <EvmCollectibleItem
+          <TezosCollectibleItem
             key={chainSlug}
             assetSlug={slug}
-            evmChainId={chainId as number}
-            accountPkh={accountEvmAddress}
-            showDetails={showInfo}
+            accountPkh={accountTezAddress}
+            tezosChainId={chainId as string}
+            adultBlur={blur}
+            areDetailsShown={showInfo}
             manageActive={manageActive}
+            scam={mainnetTokensScamSlugsRecord[slug]}
             index={index}
             ref={ref}
           />
         );
-      },
-      [accountEvmAddress, accountTezAddress, blur, mainnetTokensScamSlugsRecord, manageActive, showInfo]
-    );
+      }
 
-    return (
-      <TabContentBaseBody
-        loadNextPage={loadNext}
-        isSyncing={isSyncing}
-        isInSearchMode={isInSearchMode}
-        manageActive={manageActive}
-        slugs={paginatedSlugs}
-        showInfo={showInfo}
-        renderItem={renderItem}
-      />
-    );
-  }
-);
+      return (
+        <EvmCollectibleItem
+          key={chainSlug}
+          assetSlug={slug}
+          evmChainId={chainId as number}
+          accountPkh={accountEvmAddress}
+          showDetails={showInfo}
+          manageActive={manageActive}
+          index={index}
+          ref={ref}
+        />
+      );
+    },
+    [accountEvmAddress, accountTezAddress, blur, mainnetTokensScamSlugsRecord, manageActive, showInfo]
+  );
+
+  return (
+    <TabContentBaseBody
+      loadNextPage={loadNext}
+      isSyncing={isSyncing}
+      isInSearchMode={isInSearchMode}
+      manageActive={manageActive}
+      slugs={paginatedSlugs}
+      showInfo={showInfo}
+      renderItem={renderItem}
+    />
+  );
+};

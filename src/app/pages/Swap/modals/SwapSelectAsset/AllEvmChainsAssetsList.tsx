@@ -65,8 +65,8 @@ export const AllEvmChainsAssetsList = memo<Props>(
 
     const { favoriteTokens = [] } = useFavoriteTokens();
 
-    const filterZeroBalances = useMemo(() => activeField === 'input', [activeField]);
-    const showFavoritesMark = useMemo(() => activeField === 'output', [activeField]);
+    const filterZeroBalances = activeField === 'input';
+    const showFavoritesMark = activeField === 'output';
 
     const rawTokensSortPredicate = useEvmAccountTokensSortPredicate(accountEvmAddress, showFavoritesMark);
     const tokensSortPredicate = useFirstValue(rawTokensSortPredicate);

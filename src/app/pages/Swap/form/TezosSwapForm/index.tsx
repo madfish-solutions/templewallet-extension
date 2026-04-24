@@ -1,10 +1,10 @@
-import React, { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { isDefined } from '@rnw-community/shared';
 import { TransferParams } from '@taquito/taquito';
 import { BatchWalletOperation } from '@taquito/taquito/dist/types/wallet/batch-operation';
 import BigNumber from 'bignumber.js';
-import { FormProvider, useForm } from 'react-hook-form';
+import { FormProvider, useForm, useWatch } from 'react-hook-form';
 
 import { DeadEndBoundaryError } from 'app/ErrorBoundary';
 import { EXCHANGE_XTZ_RESERVE } from 'app/pages/Swap/constants';
@@ -137,11 +137,11 @@ export const TezosSwapForm: FC<TezosSwapFormProps> = ({
     mode: 'onSubmit'
   });
 
-  const { watch, reset, setValue, formState, getValues, clearErrors } = form;
+  const { control, reset, setValue, formState, getValues, clearErrors } = form;
 
-  const inputValue = watch('input');
-  const outputValue = watch('output');
-  const isFiatMode = watch('isFiatMode');
+  const inputValue = useWatch({ name: 'input', control });
+  const outputValue = useWatch({ name: 'output', control });
+  const isFiatMode = useWatch({ name: 'isFiatMode', control });
 
   const { value: inputTokenBalance = ZERO } = useTezosAssetBalance(
     inputValue.assetSlug ?? TEZ_TOKEN_SLUG,
@@ -263,7 +263,7 @@ export const TezosSwapForm: FC<TezosSwapFormProps> = ({
 
       if (!inputMetadata) return;
 
-      const inputValueToUse = watch('isFiatMode')
+      const inputValueToUse = isFiatMode
         ? parseFiatValueToAssetAmount(input.amount, inputAssetMetadata.decimals)
         : input.amount;
 
@@ -287,7 +287,7 @@ export const TezosSwapForm: FC<TezosSwapFormProps> = ({
         })
       );
     },
-    [getTokenMetadata, inputAssetMetadata.decimals, parseFiatValueToAssetAmount, route3Tokens, tezos.rpc, watch]
+    [getTokenMetadata, inputAssetMetadata.decimals, parseFiatValueToAssetAmount, route3Tokens, tezos.rpc, isFiatMode]
   );
 
   useEffect(() => {

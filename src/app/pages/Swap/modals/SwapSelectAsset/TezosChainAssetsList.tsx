@@ -31,8 +31,8 @@ export const TezosChainAssetsList = memo<Props>(
     const network = useTezosChainByChainId(chainId);
     if (!network) throw new DeadEndBoundaryError();
 
-    const showFavorites = useMemo(() => activeField === 'output', [activeField]);
-    const filterZeroBalances = useMemo(() => activeField === 'input', [activeField]);
+    const showFavorites = activeField === 'output';
+    const filterZeroBalances = activeField === 'input';
 
     const { route3tokensSlugs } = useAvailableRoute3TokensSlugs();
 

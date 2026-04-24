@@ -1,7 +1,7 @@
 import React, { memo, useMemo, useState } from 'react';
 
 import classNames from 'clsx';
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import { useDispatch } from 'react-redux';
 import { object, string } from 'yup';
 
@@ -44,12 +44,12 @@ export const NewsletterOverlay = memo(() => {
 
   const resolver = useYupValidationResolver<FormValues>(validationSchema);
 
-  const { formState, handleSubmit, watch, register } = useForm<FormValues>({
+  const { formState, handleSubmit, control, register } = useForm<FormValues>({
     defaultValues: { email: '' },
     resolver
   });
   const { errors } = formState;
-  const email = watch('email');
+  const email = useWatch({ name: 'email', control });
   const isValid = Object.keys(errors).length === 0;
 
   const [isLoading, setIsLoading] = useState(false);

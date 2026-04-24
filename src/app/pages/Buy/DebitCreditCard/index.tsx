@@ -1,6 +1,6 @@
 import React, { FC, useEffect, useMemo, useState } from 'react';
 
-import { FormProvider, useForm } from 'react-hook-form';
+import { FormProvider, useForm, useWatch } from 'react-hook-form';
 
 import { PageTitle } from 'app/atoms';
 import PageLayout from 'app/layouts/PageLayout';
@@ -27,7 +27,7 @@ import { BuyWithCreditCardFormData } from './types';
 
 export const DebitCreditCard: FC = () => {
   const [formIsLoading, setFormIsLoading] = useState(false);
-  const [lastFormRefreshTimestamp, setLastFormRefreshTimestamp] = useState(Date.now());
+  const [lastFormRefreshTimestamp, setLastFormRefreshTimestamp] = useState(0);
 
   const [selectCurrencyModalOpened, openSelectCurrencyModal, closeSelectCurrencyModal] = useBooleanState(false);
   const [selectTokenModalOpened, openSelectTokenModal, closeSelectTokenModal] = useBooleanState(false);
@@ -49,11 +49,11 @@ export const DebitCreditCard: FC = () => {
     defaultValues: defaultValues
   });
 
-  const { watch } = form;
+  const { control } = form;
 
-  const inputAmount = watch('inputAmount');
-  const inputCurrency = watch('inputCurrency');
-  const outputToken = watch('outputToken');
+  const inputAmount = useWatch({ name: 'inputAmount', control });
+  const inputCurrency = useWatch({ name: 'inputCurrency', control });
+  const outputToken = useWatch({ name: 'outputToken', control });
 
   const { allPaymentProviders, paymentProvidersToDisplay, providersErrors, updateOutputAmounts } = usePaymentProviders(
     inputAmount,
@@ -74,6 +74,14 @@ export const DebitCreditCard: FC = () => {
   useErrorAlert(allPaymentProviders, providersErrors, inputCurrency, outputToken);
 
   useEffect(() => void dispatch(loadAllCurrenciesActions.submit()), []);
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      setLastFormRefreshTimestamp(Date.now());
+    }, 0);
+
+    return () => clearTimeout(timeout);
+  }, []);
 
   useInterval(
     () => {

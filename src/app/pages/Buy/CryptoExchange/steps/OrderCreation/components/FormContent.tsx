@@ -2,7 +2,7 @@ import React, { FC, useCallback, useEffect, useMemo, useRef } from 'react';
 
 import axios from 'axios';
 import { isEmpty } from 'lodash';
-import { Controller, useFormContext, SubmitHandler } from 'react-hook-form';
+import { Controller, useFormContext, SubmitHandler, useWatch } from 'react-hook-form';
 import { useDebounce } from 'use-debounce';
 
 import AssetField from 'app/atoms/AssetField';
@@ -48,16 +48,16 @@ export const FormContent: FC<Props> = ({ onSelectInputCurrency, onSelectOutputCu
 
   const { setExchangeData, setStep } = useCryptoExchangeDataState();
 
-  const { control, watch, handleSubmit, formState, trigger, setValue } = useFormContext<CryptoExchangeFormData>();
+  const { control, handleSubmit, formState, trigger, setValue } = useFormContext<CryptoExchangeFormData>();
   const { isSubmitting, submitCount, errors } = formState;
 
   const formSubmitted = submitCount > 0;
 
-  const inputValue = watch('inputValue');
+  const inputValue = useWatch({ control, name: 'inputValue' });
   const [inputValueDebounced] = useDebounce(inputValue, 300);
 
-  const inputCurrency = watch('inputCurrency');
-  const outputCurrency = watch('outputCurrency');
+  const inputCurrency = useWatch({ control, name: 'inputCurrency' });
+  const outputCurrency = useWatch({ control, name: 'outputCurrency' });
 
   const { data: minMaxData, isValidating: isMinMaxLoading } = useTypedSWR(
     ['exolix/api/min-max', inputCurrency, outputCurrency],

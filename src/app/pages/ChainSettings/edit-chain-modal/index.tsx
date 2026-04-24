@@ -1,6 +1,6 @@
 import React, { memo, useCallback, useMemo, useState } from 'react';
 
-import { Controller, FormProvider, useForm } from 'react-hook-form';
+import { Controller, FormProvider, useForm, useWatch } from 'react-hook-form';
 
 import { FormField, IconBase } from 'app/atoms';
 import { PageModal } from 'app/atoms/PageModal';
@@ -47,9 +47,9 @@ export const EditChainModal = memo<EditChainModalProps>(({ chain, onClose, onSub
     mode: 'onChange',
     defaultValues
   });
-  const { control, reset, formState, register, setValue, watch, handleSubmit } = formReturn;
-  const symbol = watch('symbol');
-  const name = watch('name');
+  const { control, reset, formState, register, setValue, handleSubmit } = formReturn;
+  const symbol = useWatch({ control, name: 'symbol' });
+  const name = useWatch({ control, name: 'name' });
   const { isSubmitting, submitCount, errors } = formState;
   const isSubmitted = submitCount > 0;
 

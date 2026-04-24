@@ -1,4 +1,4 @@
-import React, { memo, ReactNode } from 'react';
+import React, { FC, ReactNode } from 'react';
 
 import clsx from 'clsx';
 
@@ -12,7 +12,7 @@ interface ModalInfoBlockProps {
   className?: string;
 }
 
-export const ModalInfoBlock = memo<ModalInfoBlockProps>(({ Icon, headline, description, className, onClick }) => (
+export const ModalInfoBlock: FC<ModalInfoBlockProps> = ({ Icon, headline, description, className, onClick }) => (
   <button
     className={clsx(className, 'flex gap-3 p-4 bg-white hover:bg-grey-4 rounded-lg border-0.5 border-lines group')}
     onClick={onClick}
@@ -26,4 +26,4 @@ export const ModalInfoBlock = memo<ModalInfoBlockProps>(({ Icon, headline, descr
       <span className="text-grey-1 text-font-description">{description}</span>
     </div>
   </button>
-));
+);

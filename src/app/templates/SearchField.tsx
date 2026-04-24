@@ -1,4 +1,4 @@
-import { FC, Ref, FocusEvent, InputHTMLAttributes, memo, useCallback, useRef, ChangeEvent } from 'react';
+import { FC, Ref, FocusEvent, InputHTMLAttributes, useRef, ChangeEvent } from 'react';
 
 import { emptyFn } from '@rnw-community/shared';
 import clsx from 'clsx';
@@ -45,14 +45,11 @@ const SearchField: FC<Props> = ({
     setIsFocused
   } = useFocusHandlers(onFocus, onBlur, undefined, shouldHandleBlur);
 
-  const handleChange = useCallback(
-    (evt: ChangeEvent<HTMLInputElement>) => {
-      onValueChange(evt.target.value);
-    },
-    [onValueChange]
-  );
+  const handleChange = (evt: ChangeEvent<HTMLInputElement>) => {
+    onValueChange(evt.target.value);
+  };
 
-  const handleClean = useCallback(() => {
+  const handleClean = () => {
     if (value) {
       inputLocalRef.current?.focus();
       onValueChange('');
@@ -62,7 +59,7 @@ const SearchField: FC<Props> = ({
     }
 
     onCleanButtonClick();
-  }, [onCleanButtonClick, onValueChange, setIsFocused, value]);
+  };
 
   const notEmpty = Boolean(focused || value);
 
@@ -103,31 +100,29 @@ interface SearchBarFieldProps extends Props {
   defaultRightMargin?: boolean;
 }
 
-export const SearchBarField = memo<SearchBarFieldProps>(
-  ({
-    className,
-    placeholder = 'Search',
-    defaultRightMargin = true,
-    containerClassName,
-    value,
-    disabled,
-    ref,
-    ...rest
-  }) => (
-    <SearchField
-      ref={ref}
-      value={value}
-      disabled={disabled}
-      className={clsx(
-        'bg-input-low rounded-lg',
-        'placeholder-grey-1 caret-primary',
-        !disabled && 'hover:placeholder-text',
-        'transition ease-in-out duration-200',
-        className
-      )}
-      containerClassName={clsx('flex-1', defaultRightMargin && 'mr-2', containerClassName)}
-      placeholder={placeholder}
-      {...rest}
-    />
-  )
+export const SearchBarField: FC<SearchBarFieldProps> = ({
+  className,
+  placeholder = 'Search',
+  defaultRightMargin = true,
+  containerClassName,
+  value,
+  disabled,
+  ref,
+  ...rest
+}) => (
+  <SearchField
+    ref={ref}
+    value={value}
+    disabled={disabled}
+    className={clsx(
+      'bg-input-low rounded-lg',
+      'placeholder-grey-1 caret-primary',
+      !disabled && 'hover:placeholder-text',
+      'transition ease-in-out duration-200',
+      className
+    )}
+    containerClassName={clsx('flex-1', defaultRightMargin && 'mr-2', containerClassName)}
+    placeholder={placeholder}
+    {...rest}
+  />
 );

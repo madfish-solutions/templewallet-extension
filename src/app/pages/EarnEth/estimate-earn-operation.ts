@@ -1,5 +1,3 @@
-import { useCallback } from 'react';
-
 import BigNumber from 'bignumber.js';
 import { TransactionRequest } from 'viem';
 
@@ -54,16 +52,9 @@ export const makeUseEstimationData = <T extends unknown[], U extends T, D extend
 ) => {
   const estimateOperation = makeEstimateOperation(makeGetRawOperationEstimate(getParams), assertArgs, handleError);
 
-  const useEstimationData = (data: MinEstimationData<D>, network: EvmNetworkEssentials, ethBalance: BigNumber) => {
-    const estimate = useCallback(
-      () => estimateOperation(data.account, network, ...makeRestArgs(data)),
-      [data, network]
-    );
+  return (data: MinEstimationData<D>, network: EvmNetworkEssentials, ethBalance: BigNumber) => {
+    const estimate = () => estimateOperation(data.account, network, ...makeRestArgs(data));
 
-    const result = useTypedSWR(makeSWRKey(data, data.account, ethBalance), estimate);
-
-    return result;
+    return useTypedSWR(makeSWRKey(data, data.account, ethBalance), estimate);
   };
-
-  return useEstimationData;
 };

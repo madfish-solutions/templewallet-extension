@@ -1,11 +1,11 @@
-import { FC, Ref, memo, useCallback } from 'react';
+import { Activity, FC, Ref, useCallback } from 'react';
 
 import { usePreservedOrderSlugsToManage } from 'app/hooks/listing-logic/use-manageable-slugs';
 import {
   useTezosAccountCollectiblesForListing,
   useTezosAccountCollectiblesListingLogic
 } from 'app/hooks/listing-logic/use-tezos-account-collectibles-listing-logic';
-import { useManageState } from 'app/hooks/use-assets-view-state';
+import { useCollectiblesManageState } from 'app/hooks/use-assets-view-state';
 import { useCollectiblesListOptionsSelector } from 'app/store/assets-filter-options/selectors';
 import { useMainnetTokensScamlistSelector } from 'app/store/tezos/assets/selectors';
 import { parseChainAssetSlug, toChainAssetSlug } from 'lib/assets/utils';
@@ -21,13 +21,21 @@ interface Props {
   publicKeyHash: string;
 }
 
-export const TezosCollectiblesTab = memo<Props>(({ publicKeyHash }) => {
-  const { manageActive } = useManageState();
+export const TezosCollectiblesTab: FC<Props> = ({ publicKeyHash }) => {
+  const { manageActive } = useCollectiblesManageState();
 
-  if (manageActive) return <TabContentWithManageActive publicKeyHash={publicKeyHash} />;
+  return (
+    <>
+      <Activity mode={manageActive ? 'hidden' : 'visible'} name="tezos-collectibles-tab-default">
+        <TabContent publicKeyHash={publicKeyHash} />
+      </Activity>
 
-  return <TabContent publicKeyHash={publicKeyHash} />;
-});
+      <Activity mode={manageActive ? 'visible' : 'hidden'} name="tezos-collectibles-tab-manage">
+        <TabContentWithManageActive publicKeyHash={publicKeyHash} />
+      </Activity>
+    </>
+  );
+};
 
 const TabContent: FC<Props> = ({ publicKeyHash }) => {
   const { enabledChainSlugsSorted } = useTezosAccountCollectiblesForListing(publicKeyHash);
@@ -58,7 +66,7 @@ interface TabContentBaseProps {
   manageActive: boolean;
 }
 
-const TabContentBase = memo<TabContentBaseProps>(({ publicKeyHash, allSlugsSorted, manageActive }) => {
+const TabContentBase: FC<TabContentBaseProps> = ({ publicKeyHash, allSlugsSorted, manageActive }) => {
   const mainnetChain = useTezosMainnetChain();
   const mainnetTokensScamSlugsRecord = useMainnetTokensScamlistSelector();
 
@@ -101,4 +109,4 @@ const TabContentBase = memo<TabContentBaseProps>(({ publicKeyHash, allSlugsSorte
       renderItem={renderItem}
     />
   );
-});
+};

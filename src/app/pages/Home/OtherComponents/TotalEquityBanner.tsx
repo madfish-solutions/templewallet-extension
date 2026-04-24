@@ -1,4 +1,4 @@
-import React, { FC, memo, useCallback } from 'react';
+import { FC, useCallback } from 'react';
 
 import { Button, IconBase } from 'app/atoms';
 import { ActionListItem } from 'app/atoms/ActionListItem';
@@ -12,7 +12,7 @@ import { T } from 'lib/i18n';
 import Popper, { PopperRenderProps } from 'lib/ui/Popper';
 import { useAccount } from 'temple/front';
 
-export const TotalEquityBanner = memo(() => {
+export const TotalEquityBanner = () => {
   const { filterChain } = useAssetsFilterOptionsSelector();
   const account = useAccount();
 
@@ -43,13 +43,13 @@ export const TotalEquityBanner = memo(() => {
       </div>
     </div>
   );
-});
+};
 
 interface EquityCurrencyDropdownProps extends PopperRenderProps {
   setEquityCurrency: SyncFn<EquityCurrency>;
 }
 
-const EquityCurrencyDropdown = memo<EquityCurrencyDropdownProps>(({ opened, toggleOpened, setEquityCurrency }) => {
+const EquityCurrencyDropdown: FC<EquityCurrencyDropdownProps> = ({ opened, toggleOpened, setEquityCurrency }) => {
   const {
     selectedFiatCurrency: { name: fiatName }
   } = useFiatCurrency();
@@ -85,7 +85,7 @@ const EquityCurrencyDropdown = memo<EquityCurrencyDropdownProps>(({ opened, togg
       />
     </ActionsDropdownPopup>
   );
-});
+};
 
 interface EquityCurrencyButtonProps {
   value: EquityCurrency;

@@ -1,4 +1,4 @@
-import { ReactNode, useCallback, useMemo, useState } from 'react';
+import { ReactNode, useState } from 'react';
 
 import { ReactComponent as EyeClose } from 'app/icons/base/eye_close.svg';
 import { ReactComponent as EyeOpen } from 'app/icons/base/eye_open.svg';
@@ -15,32 +15,29 @@ const usePasswordToggle = (
 ): ['text' | 'password', ReactNode] => {
   const [visible, setVisibility] = useState(false);
 
-  const buttonId = useMemo(() => (id ? `passwordToggle-${id}` : undefined), [id]);
+  const buttonId = id ? `passwordToggle-${id}` : undefined;
 
-  const hide = useCallback(() => void setVisibility(false), []);
+  const hide = () => void setVisibility(false);
 
   useDidUpdate(hide, [revealRef]);
 
   useTimeout(hide, USER_ACTION_TIMEOUT, visible);
 
-  const Icon = useMemo(
-    () => (
-      <button
-        id={buttonId}
-        type="button"
-        tabIndex={1}
-        onClick={() => {
-          if (!visible) {
-            onReveal?.();
-          }
-          setVisibility(prev => !prev);
-        }}
-        onBlur={handleBlur}
-      >
-        <IconBase size={16} Icon={visible ? EyeOpen : EyeClose} className="text-primary" />
-      </button>
-    ),
-    [buttonId, handleBlur, visible, onReveal]
+  const Icon = (
+    <button
+      id={buttonId}
+      type="button"
+      tabIndex={1}
+      onClick={() => {
+        if (!visible) {
+          onReveal?.();
+        }
+        setVisibility(prev => !prev);
+      }}
+      onBlur={handleBlur}
+    >
+      <IconBase size={16} Icon={visible ? EyeOpen : EyeClose} className="text-primary" />
+    </button>
   );
 
   const inputType = visible ? 'text' : 'password';

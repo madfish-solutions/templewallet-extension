@@ -14,7 +14,7 @@ import {
 
 import clsx from 'clsx';
 import { uniqBy } from 'lodash';
-import { useFormContext } from 'react-hook-form';
+import { useFormContext, useWatch } from 'react-hook-form';
 
 import { FormField } from 'app/atoms';
 import { FormFieldElement } from 'app/atoms/FormField';
@@ -39,9 +39,9 @@ const inputId = 'new-network-name';
 
 export const NameInput = memo(({ namesToExclude, onChainSelect }: NameInputProps) => {
   const existentEvmChains = useAllEvmChains();
-  const { register, setValue, watch, formState } = useFormContext<AddNetworkFormValues>();
+  const { control, register, setValue, formState } = useFormContext<AddNetworkFormValues>();
   const { submitCount, errors } = formState;
-  const inputValue = watch('name');
+  const inputValue = useWatch({ control, name: 'name' });
   const wasSubmitted = submitCount > 0;
 
   const fieldRef = useRef<FormFieldElement>(null);

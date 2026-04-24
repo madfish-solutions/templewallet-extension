@@ -4,7 +4,7 @@ import { isDefined } from '@rnw-community/shared';
 import BigNumber from 'bignumber.js';
 import debounce from 'debounce-promise';
 import { intersection } from 'lodash';
-import type { UseFormReturn } from 'react-hook-form';
+import { useWatch, type UseFormReturn } from 'react-hook-form';
 
 import { dispatch } from 'app/store';
 import { updatePairLimitsActions } from 'app/store/buy-with-credit-card/actions';
@@ -29,14 +29,14 @@ export const useFormInputsCallbacks = (
   formIsLoading: boolean,
   setFormIsLoading: SyncFn<boolean>
 ) => {
-  const { watch, setValue, trigger } = form;
+  const { control, setValue, trigger } = form;
 
   const tezosAddress = useAccountAddressForTezos();
 
-  const inputAmount = watch('inputAmount');
-  const inputCurrency = watch('inputCurrency');
-  const outputToken = watch('outputToken');
-  const topUpProvider = watch('provider');
+  const inputAmount = useWatch({ control, name: 'inputAmount' });
+  const inputCurrency = useWatch({ control, name: 'inputCurrency' });
+  const outputToken = useWatch({ control, name: 'outputToken' });
+  const topUpProvider = useWatch({ control, name: 'provider' });
 
   const outputCalculationDataRef = useRef({ inputAmount, inputCurrency, outputToken });
   const manuallySelectedProviderIdRef = useRef<TopUpProviderId>(undefined);

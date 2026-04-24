@@ -51,8 +51,15 @@ interface Tab {
   testID?: SettingsSelectors;
 }
 
-const DefaultSettingsIconHOC = (Icon: React.FC<React.SVGProps<SVGSVGElement>>) =>
-  memo(() => <IconBase size={16} Icon={Icon} className="text-primary" />);
+const DefaultSettingsIconHOC =
+  (Icon: React.FC<React.SVGProps<SVGSVGElement>>): FC =>
+  () => <IconBase size={16} Icon={Icon} className="text-primary" />;
+
+const AccountManagementIcon: FC = () => {
+  const { id } = useAccount();
+
+  return <AccountAvatar size={24} seed={id} />;
+};
 
 const SYNC_PAGE_SLUG = 'synchronization';
 
@@ -61,11 +68,7 @@ const TABS_GROUPS: Tab[][] = [
     {
       slug: 'account-management',
       titleI18nKey: 'accountManagement',
-      Icon: memo(() => {
-        const { id } = useAccount();
-
-        return <AccountAvatar size={24} seed={id} />;
-      }),
+      Icon: AccountManagementIcon,
       noPadding: true,
       Component: AccountsManagement,
       testID: SettingsSelectors.accountManagementButton

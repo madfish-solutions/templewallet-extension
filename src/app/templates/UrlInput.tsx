@@ -1,7 +1,7 @@
 import React, { ReactNode, useCallback, useMemo } from 'react';
 
 import clsx from 'clsx';
-import { Path, PathValue, UseFormReturn } from 'react-hook-form';
+import { Path, PathValue, UseFormReturn, useWatch } from 'react-hook-form';
 
 import { FormField, IconBase } from 'app/atoms';
 import { TextButton } from 'app/atoms/TextButton';
@@ -50,9 +50,9 @@ export const UrlInput = <K extends string, T extends Record<K, string>>({
   allowHttp = false
 }: UrlInputProps<K, T>) => {
   const castName = name as unknown as Path<T>;
-  const { register, watch, formState, setValue } = formReturn;
+  const { control, register, formState, setValue } = formReturn;
   const { errors } = formState;
-  const url = watch(castName);
+  const url = useWatch({ control, name: castName });
   const fieldError = errors[castName]?.message;
 
   const applyValueChangeEffects = useCallback(

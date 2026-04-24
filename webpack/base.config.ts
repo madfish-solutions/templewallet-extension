@@ -127,14 +127,12 @@ export const buildBaseConfig = (): WebPack.Configuration & Pick<WebPack.WebpackO
           },
           {
             test: /\.(ts|mts|cts|tsx)$/,
-            loader: require.resolve('ts-loader'),
+            loader: require.resolve('babel-loader'),
             options: {
-              transpileOnly: true,
-              compilerOptions: {
-                target: 'ESNext',
-                removeComments: PRODUCTION_ENV,
-                sourceMap: SOURCE_MAP
-              }
+              cacheDirectory: true,
+              cacheCompression: false,
+              sourceMaps: SOURCE_MAP,
+              comments: DEVELOPMENT_ENV
             }
           },
           // "postcss" loader applies autoprefixer to our CSS.

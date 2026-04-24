@@ -1,4 +1,4 @@
-import { createContext, FC, memo, Ref, useContext, useMemo, useRef } from 'react';
+import { Activity, createContext, FC, Ref, useContext, useMemo, useRef } from 'react';
 
 import {
   usePreservedOrderSlugsGroupsToManage,
@@ -8,7 +8,7 @@ import {
   useTezosAccountTokensForListing,
   useTezosAccountTokensListingLogic
 } from 'app/hooks/listing-logic/use-tezos-account-tokens-listing-logic';
-import { useManageState } from 'app/hooks/use-assets-view-state';
+import { useTokensManageState } from 'app/hooks/use-assets-view-state';
 import {
   useGroupByNetworkBehaviorSelector,
   useTokensListOptionsSelector
@@ -43,15 +43,21 @@ const TezosTokensTabContext = createContext<Props>({
   accountId: ''
 });
 
-export const TezosTokensTab = memo<Props>(props => {
-  const { manageActive } = useManageState();
+export const TezosTokensTab: FC<Props> = props => {
+  const { manageActive } = useTokensManageState();
 
   return (
     <TezosTokensTabContext value={props}>
-      {manageActive ? <TabContentWithManageActive /> : <TabContent />}
+      <Activity mode={manageActive ? 'hidden' : 'visible'} name="tezos-tokens-tab-default">
+        <TabContent />
+      </Activity>
+
+      <Activity mode={manageActive ? 'visible' : 'hidden'} name="tezos-tokens-tab-manage">
+        <TabContentWithManageActive />
+      </Activity>
     </TezosTokensTabContext>
   );
-});
+};
 
 const TabContent: FC = () => {
   const { publicKeyHash } = useContext(TezosTokensTabContext);
@@ -121,92 +127,97 @@ interface TabContentBaseProps {
   shouldShowHiddenTokensHint?: boolean;
 }
 
-const TabContentBase = memo<TabContentBaseProps>(
-  ({ allSlugsSorted, allSlugsSortedGrouped, groupByNetwork, manageActive, shouldShowHiddenTokensHint }) => {
-    const { publicKeyHash, accountId } = useContext(TezosTokensTabContext);
-    const promoRef = useRef<HTMLDivElement>(null);
-    const firstHeaderRef = useRef<HTMLDivElement>(null);
-    const firstListItemRef = useRef<TokenListItemElement>(null);
-    const { displayedSlugs, displayedGroupedSlugs, isSyncing, isInSearchMode, loadNextGrouped, loadNextPlain } =
-      useTezosAccountTokensListingLogic(allSlugsSorted, allSlugsSortedGrouped);
-    const PartnersPromotionModule = usePartnersPromotionModule();
-    const AdsConstantsModule = useAdsConstantsModule();
+const TabContentBase: FC<TabContentBaseProps> = ({
+  allSlugsSorted,
+  allSlugsSortedGrouped,
+  groupByNetwork,
+  manageActive,
+  shouldShowHiddenTokensHint
+}) => {
+  const { publicKeyHash, accountId } = useContext(TezosTokensTabContext);
+  const promoRef = useRef<HTMLDivElement>(null);
+  const firstHeaderRef = useRef<HTMLDivElement>(null);
+  const firstListItemRef = useRef<TokenListItemElement>(null);
+  const { displayedSlugs, displayedGroupedSlugs, isSyncing, isInSearchMode, loadNextGrouped, loadNextPlain } =
+    useTezosAccountTokensListingLogic(allSlugsSorted, allSlugsSortedGrouped);
+  const PartnersPromotionModule = usePartnersPromotionModule();
+  const AdsConstantsModule = useAdsConstantsModule();
 
-    const mainnetChain = useTezosMainnetChain();
-    const tezosChains = useAllTezosChains();
-    const mainnetTokensScamSlugsRecord = useMainnetTokensScamlistSelector();
+  const mainnetChain = useTezosMainnetChain();
+  const tezosChains = useAllTezosChains();
+  const mainnetTokensScamSlugsRecord = useMainnetTokensScamlistSelector();
 
-    const { tokensView, getElementIndex } = useMemo(() => {
-      const promoJsx =
-        manageActive || !PartnersPromotionModule || !AdsConstantsModule ? null : (
-          <PartnersPromotionModule.PartnersPromotion
-            id="promo-token-item"
-            key="promo-token-item"
-            variant={PartnersPromotionModule.PartnersPromotionVariant.Text}
-            pageName={AdsConstantsModule.HOME_PAGE_NAME}
-            ref={promoRef}
+  const { tokensView, getElementIndex } = useMemo(() => {
+    const promoJsx =
+      manageActive || !PartnersPromotionModule || !AdsConstantsModule ? null : (
+        <PartnersPromotionModule.PartnersPromotion
+          id="promo-token-item"
+          key="promo-token-item"
+          variant={PartnersPromotionModule.PartnersPromotionVariant.Text}
+          pageName={AdsConstantsModule.HOME_PAGE_NAME}
+          ref={promoRef}
+        />
+      );
+
+    if (displayedGroupedSlugs) {
+      return {
+        tokensView: getGroupedTokensViewWithPromo({
+          groupedSlugs: displayedGroupedSlugs,
+          tezosChains,
+          promoJsx,
+          firstListItemRef,
+          firstHeaderRef,
+          buildTokensJsxArray
+        }),
+        getElementIndex: makeGroupedTokenElementIndexFunction(
+          promoRef,
+          firstListItemRef,
+          firstHeaderRef,
+          displayedGroupedSlugs
+        )
+      };
+    }
+
+    const tokensJsx = buildTokensJsxArray(displayedSlugs, firstListItemRef);
+
+    return {
+      tokensView: getTokensViewWithPromo(tokensJsx, promoJsx),
+      getElementIndex: makeGetTokenElementIndexFunction(promoRef, firstListItemRef, tokensJsx.length)
+    };
+
+    function buildTokensJsxArray(chainSlugs: string[], firstListItemRef: Ref<TokenListItemElement>, indexShift = 0) {
+      return chainSlugs.map((chainSlug, i) => {
+        const [_, chainId, assetSlug] = parseChainAssetSlug(chainSlug, TempleChainKind.Tezos);
+
+        return (
+          <TezosTokenListItem
+            network={tezosChains[chainId]}
+            index={i + indexShift}
+            key={chainSlug}
+            publicKeyHash={publicKeyHash}
+            assetSlug={assetSlug}
+            scam={mainnetTokensScamSlugsRecord[assetSlug]}
+            manageActive={manageActive}
+            ref={i === 0 ? firstListItemRef : null}
           />
         );
+      });
+    }
+  }, [displayedGroupedSlugs, displayedSlugs, tezosChains, publicKeyHash, mainnetTokensScamSlugsRecord, manageActive]);
 
-      if (displayedGroupedSlugs) {
-        return {
-          tokensView: getGroupedTokensViewWithPromo({
-            groupedSlugs: displayedGroupedSlugs,
-            tezosChains,
-            promoJsx,
-            firstListItemRef,
-            firstHeaderRef,
-            buildTokensJsxArray
-          }),
-          getElementIndex: makeGroupedTokenElementIndexFunction(
-            promoRef,
-            firstListItemRef,
-            firstHeaderRef,
-            displayedGroupedSlugs
-          )
-        };
-      }
-
-      const tokensJsx = buildTokensJsxArray(displayedSlugs, firstListItemRef);
-
-      return {
-        tokensView: getTokensViewWithPromo(tokensJsx, promoJsx),
-        getElementIndex: makeGetTokenElementIndexFunction(promoRef, firstListItemRef, tokensJsx.length)
-      };
-
-      function buildTokensJsxArray(chainSlugs: string[], firstListItemRef: Ref<TokenListItemElement>, indexShift = 0) {
-        return chainSlugs.map((chainSlug, i) => {
-          const [_, chainId, assetSlug] = parseChainAssetSlug(chainSlug, TempleChainKind.Tezos);
-
-          return (
-            <TezosTokenListItem
-              network={tezosChains[chainId]}
-              index={i + indexShift}
-              key={chainSlug}
-              publicKeyHash={publicKeyHash}
-              assetSlug={assetSlug}
-              scam={mainnetTokensScamSlugsRecord[assetSlug]}
-              manageActive={manageActive}
-              ref={i === 0 ? firstListItemRef : null}
-            />
-          );
-        });
-      }
-    }, [displayedGroupedSlugs, displayedSlugs, tezosChains, publicKeyHash, mainnetTokensScamSlugsRecord, manageActive]);
-
-    return (
-      <TokensTabBase
-        accountId={accountId}
-        tokensCount={displayedSlugs.length}
-        getElementIndex={getElementIndex}
-        loadNextPage={groupByNetwork ? loadNextGrouped : loadNextPlain}
-        isSyncing={isSyncing}
-        isInSearchMode={isInSearchMode}
-        network={mainnetChain}
-        shouldShowHiddenTokensHint={shouldShowHiddenTokensHint}
-      >
-        {tokensView}
-      </TokensTabBase>
-    );
-  }
-);
+  return (
+    <TokensTabBase
+      accountId={accountId}
+      tokensCount={displayedSlugs.length}
+      getElementIndex={getElementIndex}
+      loadNextPage={groupByNetwork ? loadNextGrouped : loadNextPlain}
+      isSyncing={isSyncing}
+      isInSearchMode={isInSearchMode}
+      manageActive={manageActive}
+      network={mainnetChain}
+      shouldShowHiddenTokensHint={shouldShowHiddenTokensHint}
+    >
+      {tokensView}
+    </TokensTabBase>
+  );
+};

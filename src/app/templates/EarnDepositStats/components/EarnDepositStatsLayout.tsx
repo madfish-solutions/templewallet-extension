@@ -1,8 +1,9 @@
-import React, { FC, memo } from 'react';
+import { FC } from 'react';
 
 import clsx from 'clsx';
 import { useDebounce } from 'use-debounce';
 
+import { FadeTransition } from 'app/a11y/FadeTransition';
 import { Loader } from 'app/atoms';
 import { AnimatedMenuChevron } from 'app/atoms/animated-menu-chevron';
 import Money from 'app/atoms/Money';
@@ -57,9 +58,9 @@ export const EarnDepositStatsLayout: FC<EarnDepositStatsLayoutProps> = ({
       )}
     >
       {isChartLoading ? (
-        <LoaderLayout className="w-full h-[68px]" />
+        <LoaderLayout className="w-full h-15" />
       ) : (
-        <>
+        <FadeTransition>
           <div className="flex gap-x-1">
             <span className="text-font-description text-grey-1">
               <T id="yourDeposits" />
@@ -95,7 +96,7 @@ export const EarnDepositStatsLayout: FC<EarnDepositStatsLayoutProps> = ({
               <SimpleChart data={fiatChangeValues} />
             </div>
           </div>
-        </>
+        </FadeTransition>
       )}
     </div>
   );
@@ -108,7 +109,7 @@ export const EarnDepositStatsLayout: FC<EarnDepositStatsLayoutProps> = ({
     hasDeposits && !isChartLoading ? (
       statsCard
     ) : (
-      <div className="flex flex-col rounded-8 pb-1 px-1 border-0.5 border-lines bg-white">
+      <div className="flex flex-col rounded-8 border-0.5 border-lines bg-white">
         <div className="flex items-center justify-between p-2 rounded-8 overflow-hidden">
           <span className="text-font-description-bold p-1">
             <T id="earn" />
@@ -123,14 +124,14 @@ export const EarnDepositStatsLayout: FC<EarnDepositStatsLayoutProps> = ({
     );
 
   return (
-    <div className={clsx('flex flex-col relative pb-[68px]', containerClassName)}>
+    <div className={clsx('flex flex-col relative pb-17', containerClassName)}>
       <KoloCryptoCardPreview onClick={onCryptoCardClick} />
 
       <Link
         to="/earn"
         className={clsx(
-          'relative -mb-[68px] px-4 transform transition-transform duration-200 ease-out',
-          hasDeposits && '[&_*]:cursor-pointer peer-hover:translate-y-2'
+          'relative -mb-17 px-4 transform transition-transform duration-200 ease-out',
+          hasDeposits && '**:cursor-pointer peer-hover:translate-y-2'
         )}
         onMouseEnter={handleHover}
         onMouseLeave={handleUnhover}
@@ -142,8 +143,12 @@ export const EarnDepositStatsLayout: FC<EarnDepositStatsLayoutProps> = ({
   );
 };
 
-const LoaderLayout = memo<{ className: string }>(({ className }) => (
+interface LoaderLayoutProps {
+  className: string;
+}
+
+const LoaderLayout: FC<LoaderLayoutProps> = ({ className }) => (
   <div className={clsx('flex justify-center items-center', className)}>
     <Loader size="L" trackVariant="dark" className="text-secondary" />
   </div>
-));
+);

@@ -1,4 +1,4 @@
-import React, { memo, useMemo } from 'react';
+import React, { FC } from 'react';
 
 import { IdenticonInitials } from 'app/atoms/Identicon';
 import { ImageStacked } from 'lib/ui/ImageStacked';
@@ -10,8 +10,8 @@ interface DAppIconProps {
   logo: string;
 }
 
-export const DAppIcon = memo<DAppIconProps>(({ name, logo }) => {
-  const fallbackElement = useMemo(() => <IdenticonInitials value={name} className={DEFAULT_CLASSNAMES} />, [name]);
+export const DAppIcon: FC<DAppIconProps> = ({ name, logo }) => {
+  const fallbackElement = <IdenticonInitials value={name} className={DEFAULT_CLASSNAMES} />;
 
   return (
     <div className="flex justify-center items-center w-10 h-10">
@@ -24,4 +24,4 @@ export const DAppIcon = memo<DAppIconProps>(({ name, logo }) => {
       />
     </div>
   );
-});
+};

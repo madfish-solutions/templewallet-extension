@@ -1,7 +1,7 @@
-import { memo, Ref, useCallback } from 'react';
+import { FC, Ref, useCallback } from 'react';
 
 import { useEvmAccountCollectiblesListingLogic } from 'app/hooks/listing-logic/use-evm-account-collectibles-listing-logic';
-import { useManageState } from 'app/hooks/use-assets-view-state';
+import { useCollectiblesManageState } from 'app/hooks/use-assets-view-state';
 import { useCollectiblesListOptionsSelector } from 'app/store/assets-filter-options/selectors';
 import { parseChainAssetSlug } from 'lib/assets/utils';
 import { CollectiblesListItemElement } from 'lib/ui/collectibles-list';
@@ -16,11 +16,11 @@ interface EvmCollectiblesTabProps {
   publicKeyHash: HexString;
 }
 
-export const EvmCollectiblesTab = memo<EvmCollectiblesTabProps>(({ publicKeyHash }) => {
+export const EvmCollectiblesTab: FC<EvmCollectiblesTabProps> = ({ publicKeyHash }) => {
   const mainnetChain = useEthereumMainnetChain();
 
   const { showInfo } = useCollectiblesListOptionsSelector();
-  const { manageActive } = useManageState();
+  const { manageActive } = useCollectiblesManageState();
 
   const { isInSearchMode, paginatedSlugs, isSyncing, loadNext } = useEvmAccountCollectiblesListingLogic(
     publicKeyHash,
@@ -61,4 +61,4 @@ export const EvmCollectiblesTab = memo<EvmCollectiblesTabProps>(({ publicKeyHash
       renderItem={renderItem}
     />
   );
-});
+};

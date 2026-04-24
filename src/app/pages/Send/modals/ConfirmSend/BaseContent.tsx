@@ -1,5 +1,3 @@
-import React, { useCallback } from 'react';
-
 import { SubmitHandler, useFormContext } from 'react-hook-form';
 
 import { HashChip } from 'app/atoms/HashChip';
@@ -60,7 +58,7 @@ export const BaseContent = <T extends TxParamsFormData>({
 }: BaseContentProps<T>) => {
   const { formState } = useFormContext<T>();
 
-  const goToFeeTab = useCallback(() => setSelectedTab('fee'), [setSelectedTab]);
+  const goToFeeTab = () => setSelectedTab('fee');
 
   const balancesChanges = useSendBalancesChanges(assetSlug, amount, decimals);
 

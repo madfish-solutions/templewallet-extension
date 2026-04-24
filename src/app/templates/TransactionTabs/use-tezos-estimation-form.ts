@@ -3,7 +3,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ForgeParams, localForger } from '@taquito/local-forging';
 import { Estimate, TezosOperationError, TezosToolkit, WalletParamsWithKind, getRevealFee } from '@taquito/taquito';
 import BigNumber from 'bignumber.js';
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import { BehaviorSubject, EMPTY, catchError, from, of, switchMap } from 'rxjs';
 import { useDebounce } from 'use-debounce';
 
@@ -163,12 +163,13 @@ export const useTezosEstimationForm = ({
     return { gasFee: gasFee?.toString() ?? '', storageLimit: storageLimit?.toString() ?? '' };
   }, [basicParams, revealFee]);
   const form = useForm<TezosTxParamsFormData>({ mode: 'onChange', defaultValues });
-  const { watch, setValue } = form;
+  const { setValue, control } = form;
 
-  const gasFeeValue = watch('gasFee');
+  const gasFeeValue = useWatch({ name: 'gasFee', control });
+  const storageLimitValue = useWatch({ name: 'storageLimit', control });
 
   const [debouncedGasFee] = useDebounce(gasFeeValue, DEFAULT_INPUT_DEBOUNCE);
-  const [debouncedStorageLimit] = useDebounce(watch('storageLimit'), DEFAULT_INPUT_DEBOUNCE);
+  const [debouncedStorageLimit] = useDebounce(storageLimitValue, DEFAULT_INPUT_DEBOUNCE);
 
   const [tab, setTab] = useState<Tab>('details');
   const [selectedFeeOption, setSelectedFeeOption] = useState<FeeOptionLabel | null>(

@@ -1,4 +1,4 @@
-import React, { FC, useCallback, useRef, useEffect } from 'react';
+import React, { FC, useRef, useEffect } from 'react';
 
 import clsx from 'clsx';
 
@@ -39,10 +39,6 @@ export const ReadOnlySecretField: FC<ReadOnlySecretFieldProps> = ({
 
   const fieldRef = useRef<HTMLParagraphElement>(null);
 
-  const onSecretCoverClick = useCallback(() => {
-    fieldRef.current?.focus();
-  }, []);
-
   const covered = !focused && !copyButtonFocused;
 
   useEffect(() => {
@@ -82,7 +78,7 @@ export const ReadOnlySecretField: FC<ReadOnlySecretFieldProps> = ({
           <IconBase size={12} Icon={CopyIcon} />
         </CopyButton>
 
-        {covered && <SecretCover onClick={onSecretCoverClick} testID={secretCoverTestId} />}
+        {covered && <SecretCover onClick={() => fieldRef.current?.focus()} testID={secretCoverTestId} />}
       </div>
     </div>
   );

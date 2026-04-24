@@ -8,7 +8,6 @@ import {
   VisibilityTrackingInfiniteScroll,
   VisibilityTrackingInfiniteScrollProps
 } from 'app/atoms/visibility-tracking-infinite-scroll';
-import { useManageState } from 'app/hooks/use-assets-view-state';
 import { ContentContainer } from 'app/layouts/containers';
 import { EmptySection } from 'app/pages/Home/OtherComponents/Tokens/components/EmptySection';
 import { OneOfChains } from 'temple/front';
@@ -19,6 +18,7 @@ export interface CollectiblesTabBaseProps {
   loadNextPage: EmptyFn;
   isSyncing: boolean;
   isInSearchMode: boolean;
+  manageActive: boolean;
   network?: OneOfChains;
 }
 
@@ -28,11 +28,10 @@ export const CollectiblesTabBase: FC<PropsWithChildren<CollectiblesTabBaseProps>
   loadNextPage,
   isSyncing,
   isInSearchMode,
+  manageActive,
   network,
   children
 }) => {
-  const { manageActive } = useManageState();
-
   return (
     <FadeTransition>
       <ContentContainer withShadow={false} padding={collectiblesCount > 0}>

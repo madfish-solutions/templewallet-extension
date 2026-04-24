@@ -1,8 +1,8 @@
-import React, { memo, useEffect } from 'react';
+import { Activity, useEffect } from 'react';
 
 import { AssetsViewStateController } from 'app/atoms/AssetsViewStateController';
 import { SuspenseContainer } from 'app/atoms/SuspenseContainer';
-import { useLocationSearchParamValue } from 'app/hooks/use-location';
+import { useActiveTabState } from 'app/hooks/use-assets-view-state';
 import { StickyBar } from 'app/layouts/containers';
 import PageLayout from 'app/layouts/PageLayout';
 import { AppHeader } from 'app/templates/AppHeader';
@@ -21,9 +21,8 @@ import { NotificationBanner } from './OtherComponents/Tokens/components/Notifica
 import { TokensTab } from './OtherComponents/Tokens/Tokens';
 import { TotalEquityBanner } from './OtherComponents/TotalEquityBanner';
 
-const Home = memo(() => {
-  const [tabSlug] = useLocationSearchParamValue('tab');
-
+export const HomeContent = () => {
+  const { activeTab } = useActiveTabState();
   const [initToastMessage, setInitToastMessage] = useInitToastMessage();
 
   const [depositModalOpened, openDepositModal, closeDepositModal] = useBooleanState(false);
@@ -39,6 +38,8 @@ const Home = memo(() => {
 
     return () => clearTimeout(timeout);
   }, [initToastMessage, setInitToastMessage]);
+
+  const isCollectibleTab = activeTab === 'collectibles';
 
   return (
     <PageLayout Header={AppHeader} bgWhite={false} contentPadding={false}>
@@ -58,7 +59,13 @@ const Home = memo(() => {
 
       <SuspenseContainer>
         <DAppConnectionRefsProvider>
-          {tabSlug === 'collectibles' ? <CollectiblesTab /> : <TokensTab />}
+          <Activity mode={isCollectibleTab ? 'hidden' : 'visible'} name="home-tokens-tab">
+            <TokensTab />
+          </Activity>
+
+          <Activity mode={isCollectibleTab ? 'visible' : 'hidden'} name="home-collectibles-tab">
+            <CollectiblesTab />
+          </Activity>
         </DAppConnectionRefsProvider>
       </SuspenseContainer>
 
@@ -66,6 +73,4 @@ const Home = memo(() => {
       <DepositModal opened={depositModalOpened} onRequestClose={closeDepositModal} />
     </PageLayout>
   );
-});
-
-export default Home;
+};
