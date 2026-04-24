@@ -2,7 +2,7 @@ import React, { memo, useCallback, useEffect, useMemo, useRef } from 'react';
 
 import BigNumber from 'bignumber.js';
 import clsx from 'clsx';
-import { Controller, ControllerProps, useForm } from 'react-hook-form';
+import { Controller, ControllerProps, useForm, useWatch } from 'react-hook-form';
 import { object as objectSchema, string as stringSchema, boolean as booleanSchema } from 'yup';
 
 import { Button, IconBase, Money } from 'app/atoms';
@@ -95,11 +95,11 @@ export const EditModal = memo<EditModalProps>(
       [decimals, minAllowance, minInclusive]
     );
     const validationResolver = useYupValidationResolver<FormValues>(validationSchema);
-    const { handleSubmit, formState, control, watch, setValue } = useForm<FormValues>({
+    const { handleSubmit, formState, control, setValue } = useForm<FormValues>({
       defaultValues,
       resolver: validationResolver
     });
-    const isUnlimited = watch('unlimited');
+    const isUnlimited = useWatch({ control, name: 'unlimited' });
     const onSubmit = useCallback(
       ({ amount, unlimited }: FormValues) => {
         setAllowance(unlimited ? toBigNumber(MAX_EVM_ALLOWANCE) : tokensToAtoms(amount, decimals));
@@ -107,7 +107,7 @@ export const EditModal = memo<EditModalProps>(
       [decimals, setAllowance]
     );
 
-    const amount = watch('amount');
+    const amount = useWatch({ control, name: 'amount' });
     const amountRef = useRef(amount);
     useEffect(() => void (amount && (amountRef.current = amount)), [amount]);
 

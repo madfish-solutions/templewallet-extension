@@ -1,7 +1,7 @@
 import React, { FC, useCallback, useMemo } from 'react';
 
 import { intersection } from 'lodash';
-import { useFormContext } from 'react-hook-form';
+import { useFormContext, useWatch } from 'react-hook-form';
 
 import { useCurrenciesLoadingSelector } from 'app/store/buy-with-credit-card/selectors';
 import { fromTopUpTokenSlug } from 'lib/buy-with-credit-card/top-up-token-slug.utils';
@@ -19,9 +19,9 @@ interface Props extends DefaultModalProps {
 }
 
 export const SelectTokenModal: FC<Props> = ({ onTokenSelect, onRequestClose, ...rest }) => {
-  const { watch, setValue } = useFormContext<BuyWithCreditCardFormData>();
+  const { control, setValue } = useFormContext<BuyWithCreditCardFormData>();
 
-  const inputCurrency = watch('inputCurrency');
+  const inputCurrency = useWatch({ control, name: 'inputCurrency' });
 
   const evmChains = useEnabledEvmChains();
 

@@ -2,7 +2,7 @@ import React, { FC, FocusEventHandler, useCallback, useMemo, useRef, useState } 
 
 import BigNumber from 'bignumber.js';
 import { isEmpty } from 'lodash';
-import { Controller, SubmitErrorHandler, SubmitHandler, useFormContext, Validate } from 'react-hook-form';
+import { Controller, SubmitErrorHandler, SubmitHandler, useFormContext, useWatch, Validate } from 'react-hook-form';
 import { useDebounce } from 'use-debounce';
 
 import { Button, NoSpaceField } from 'app/atoms';
@@ -75,14 +75,14 @@ export const BaseForm: FC<Props> = ({
 }) => {
   const [selectAccountModalOpened, setSelectAccountModalOpen, setSelectAccountModalClosed] = useBooleanState(false);
 
-  const { watch, handleSubmit, control, setValue, getValues, formState } = useFormContext<SendFormData>();
+  const { handleSubmit, control, setValue, getValues, formState } = useFormContext<SendFormData>();
   const { isSubmitting, submitCount, errors } = formState;
 
   const formSubmitted = submitCount > 0;
 
-  const toValue = watch('to');
+  const toValue = useWatch({ control, name: 'to' });
   const [toValueDebounced] = useDebounce(toValue, 300);
-  const amountValue = watch('amount');
+  const amountValue = useWatch({ control, name: 'amount' });
 
   useAddressFieldAnalytics(toValue, 'RECIPIENT_NETWORK');
 

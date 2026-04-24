@@ -1,7 +1,7 @@
 import { Ref, memo, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
 
 import { noop } from 'lodash';
-import { Controller, FormProvider, useForm } from 'react-hook-form';
+import { Controller, FormProvider, useForm, useWatch } from 'react-hook-form';
 
 import { FormField } from 'app/atoms';
 import { PageModal } from 'app/atoms/PageModal';
@@ -66,9 +66,9 @@ export const AddNetworkModal = memo<AddNetworkModalComponentProps>(props => {
     mode: 'onChange',
     defaultValues
   });
-  const { control, reset, formState, register, setValue, watch, handleSubmit } = formReturn;
-  const formValues = watch();
-  const { chainId, rpcUrl, symbol } = formValues;
+  const { control, reset, formState, register, setValue, handleSubmit } = formReturn;
+  const formValues = useWatch({ control, defaultValue: defaultValues });
+  const { chainId = '', rpcUrl = '', symbol = '' } = formValues;
   const { errors } = formState;
 
   const prevSuggestedFormValuesRef = useRef<Partial<AddNetworkFormValues> | null | undefined>(null);

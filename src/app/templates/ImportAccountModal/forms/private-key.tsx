@@ -1,7 +1,7 @@
 import React, { memo, ReactNode, useCallback, useMemo, useState } from 'react';
 
 import { PrefixV2 } from '@taquito/utils';
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 
 import { FormField } from 'app/atoms';
 import { StyledButton } from 'app/atoms/StyledButton';
@@ -28,7 +28,7 @@ export const PrivateKeyForm = memo<ImportAccountFormProps>(({ onSuccess }) => {
   const { importAccount } = useTempleClient();
   const formAnalytics = useFormAnalytics(ImportAccountFormType.PrivateKey);
 
-  const { register, handleSubmit, formState, watch, setValue, trigger } = useForm<ByPrivateKeyFormData>({
+  const { control, register, handleSubmit, formState, setValue, trigger } = useForm<ByPrivateKeyFormData>({
     mode: 'onChange'
   });
   const { errors } = formState;
@@ -80,7 +80,7 @@ export const PrivateKeyForm = memo<ImportAccountFormProps>(({ onSuccess }) => {
     trigger('encPassword');
   }, [setValue, trigger]);
 
-  const keyValue = watch('privateKey') as string | undefined;
+  const keyValue = useWatch({ control, name: 'privateKey' });
   const encrypted = useMemo(() => isTezosPrivateKey(keyValue) && keyValue.substring(2, 3) === 'e', [keyValue]);
 
   return (

@@ -2,7 +2,7 @@
 
 This repository is the Temple Wallet browser extension codebase. Temple Wallet is an open-source multichain wallet for Tezos & EVM-compatible blockchains, focusing on security and seamless UX.
 
-Tech stack: React v19, TypeScript, Redux Toolkit, Tailwind CSS v4, Webpack v5
+Tech stack: React v19 with Compiler, TypeScript, Redux Toolkit, Tailwind CSS v4, Webpack v5
 
 Optimize for clarity, polish, and performance in every change.
 
@@ -24,12 +24,13 @@ Optimize for clarity, polish, and performance in every change.
 
 ## Code Style
 - See `src/app/atoms/IconBase.tsx` for canonical component structure
-- "FC<Props>" should be preferred instead of "{}: Props"
 - Avoid repetitive code (DRY principle)
 - Break down large components into smaller, focused sub-components
+- Add comments for complex logic only
+- "FC<Props>" should be preferred instead of "{}: Props"
 - React Compiler is integrated in this repo; do not add manual memoization with `useMemo`, `useCallback`, or `memo` by default
 - Add manual memoization only when there is a clear, demonstrated need that the compiler does not already cover
-- Add comments for complex logic only
+- prefer useWatch() instead of watch() when working with react-hook-form
 
 ## TypeScript
 - Enforce proper typing (avoid `any` unless absolutely necessary)

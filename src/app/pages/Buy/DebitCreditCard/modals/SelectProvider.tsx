@@ -1,7 +1,7 @@
 import React, { FC, memo, useCallback } from 'react';
 
 import clsx from 'clsx';
-import { useFormContext } from 'react-hook-form';
+import { useFormContext, useWatch } from 'react-hook-form';
 
 import { EmptyState } from 'app/atoms/EmptyState';
 import Money from 'app/atoms/Money';
@@ -30,9 +30,9 @@ export const SelectProviderModal: FC<Props> = ({
   lastFormRefreshTimestamp,
   onProviderSelect
 }) => {
-  const { watch, setValue } = useFormContext<BuyWithCreditCardFormData>();
+  const { control, setValue } = useFormContext<BuyWithCreditCardFormData>();
 
-  const activeProvider = watch('provider');
+  const activeProvider = useWatch({ control, name: 'provider' });
 
   const handleProviderSelect = useCallback(
     (p: PaymentProviderInterface) => {

@@ -1,6 +1,6 @@
 import React, { FC, memo, useCallback, useMemo, useState } from 'react';
 
-import { useFormContext } from 'react-hook-form';
+import { useFormContext, useWatch } from 'react-hook-form';
 import { useDebounce } from 'use-debounce';
 
 import { Button } from 'app/atoms';
@@ -53,10 +53,10 @@ export const SelectCurrencyModal: FC<Props> = ({ opened, content, onRequestClose
   const allCurrencies = useAllExolixCurrenciesSelector();
   const exolixNetworksMap = useExolixNetworksMapSelector();
 
-  const { watch, setValue } = useFormContext<CryptoExchangeFormData>();
+  const { control, setValue } = useFormContext<CryptoExchangeFormData>();
 
-  const inputCurrency = watch('inputCurrency');
-  const outputCurrency = watch('outputCurrency');
+  const inputCurrency = useWatch({ control, name: 'inputCurrency' });
+  const outputCurrency = useWatch({ control, name: 'outputCurrency' });
 
   const enabledExolixNetworkCodes = useMemo(
     () => evmChains.map(({ chainId }) => exolixNetworksMap[chainId]),

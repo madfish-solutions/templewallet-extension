@@ -1,6 +1,6 @@
 import React, { memo, ReactNode, useCallback, useMemo, useState } from 'react';
 
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import * as Viem from 'viem';
 import { normalize } from 'viem/ens';
 
@@ -41,14 +41,14 @@ export const WatchOnlyForm = memo<ImportAccountFormProps>(({ onSuccess }) => {
 
   const formAnalytics = useFormAnalytics(ImportAccountFormType.WatchOnly);
 
-  const { watch, handleSubmit, register, formState, setValue, trigger } = useForm<WatchOnlyFormData>({
+  const { control, handleSubmit, register, formState, setValue, trigger } = useForm<WatchOnlyFormData>({
     mode: 'onChange'
   });
   const { errors } = formState;
   const [submitError, setSubmitError] = useState<ReactNode>(null);
   const resetSubmitError = useCallback(() => setSubmitError(null), []);
 
-  const addressValue = watch('address');
+  const addressValue = useWatch({ control, name: 'address' });
 
   const { data: tezAddressFromTzDomainName } = useTezosAddressByDomainName(addressValue);
   const { data: evmAddressFromDomainName } = useEvmAddressByDomainName(addressValue);
