@@ -4,8 +4,6 @@ import { noop } from 'lodash';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { useDebounce } from 'use-debounce';
 
-import { IS_FIREFOX } from 'lib/env';
-
 import { SimpleInfiniteScroll, SimpleInfiniteScrollProps } from './SimpleInfiniteScroll';
 
 interface ListItemsVisibility {
@@ -22,8 +20,14 @@ interface InfiniteScrollVisibilityContextValue {
   setListItemsVisibility: (v: { top: number; bottom: number }) => void;
 }
 
+/**
+  Narrow the initial window so the first paint only renders a few items fully;
+  the real window expands once updateScrollDimensions runs after layout.
+*/
+const INITIAL_VISIBLE_COUNT = 6;
+
 const defaultContext: InfiniteScrollVisibilityContextValue = {
-  listItemsVisibility: { top: 0, bottom: Infinity },
+  listItemsVisibility: { top: 0, bottom: INITIAL_VISIBLE_COUNT },
   setListItemsVisibility: noop
 };
 
@@ -32,8 +36,18 @@ const InfiniteScrollVisibilityContext = createContext<InfiniteScrollVisibilityCo
 const useInfiniteScrollVisibilityContext = () => useContext(InfiniteScrollVisibilityContext);
 
 const InfiniteScrollVisibilityContextProvider: FC<PropsWithChildren> = ({ children }) => {
-  const [listItemsVisibility, setListItemsVisibility] = useState({ top: 0, bottom: Infinity });
+  const [listItemsVisibility, setListItemsVisibilityRaw] = useState({ top: 0, bottom: INITIAL_VISIBLE_COUNT });
   const [listItemsVisibilityDebounced] = useDebounce(listItemsVisibility, 50, debounceOptions);
+
+  // Expand the window monotonically so items that have been scrolled into view don't revert to skeleton when scrolled away.
+  const setListItemsVisibility = useCallback(
+    (next: ListItemsVisibility) =>
+      setListItemsVisibilityRaw(prev => ({
+        top: Math.min(prev.top, next.top),
+        bottom: Math.max(prev.bottom, next.bottom)
+      })),
+    []
+  );
 
   const value = useMemo(
     () => ({ listItemsVisibility: listItemsVisibilityDebounced, setListItemsVisibility }),
@@ -102,12 +116,6 @@ const VisibilityTrackingInfiniteScrollContent: FC<VisibilityTrackingInfiniteScro
 };
 
 export const useIsItemVisible = (index: number | undefined) => {
-  if (!IS_FIREFOX) return true;
-
-  return useIsItemVisibleFirefox(index);
-};
-
-const useIsItemVisibleFirefox = (index: number | undefined) => {
   const { listItemsVisibility } = useInfiniteScrollVisibilityContext();
 
   return useMemo(() => {
