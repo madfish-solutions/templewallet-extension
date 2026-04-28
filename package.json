@@ -1,6 +1,6 @@
 {
   "name": "temple-wallet",
-  "version": "2.0.26",
+  "version": "2.0.27",
   "private": true,
   "scripts": {
     "start-run": "cross-env TS_NODE_PROJECT=\"webpack/tsconfig.json\" webpack --watch --stats errors-warnings",
@@ -247,6 +247,6 @@
     "serialize-javascript": "^7.0.3"
   },
   "optionalDependencies": {
-    "@temple-wallet/extension-ads": "^15.0.3"
+    "@temple-wallet/extension-ads": "17.0.0-beta.1"
   }
 }
