@@ -225,6 +225,7 @@ const TokenListItemRenderer = ({ index, style, data }: ListChildComponentProps<I
           publicKeyHash={tezosPublicKeyHash}
           assetSlug={assetSlug}
           showTags={false}
+          requiresVisibility={false}
           showOnlyFavorites={showOnlyFavorites}
           showFavoritesMark={showFavoritesMark}
           onClick={e => onAssetSelect(e, slug)}

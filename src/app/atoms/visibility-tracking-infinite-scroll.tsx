@@ -24,7 +24,7 @@ interface InfiniteScrollVisibilityContextValue {
   Narrow the initial window so the first paint only renders a few items fully;
   the real window expands once updateScrollDimensions runs after layout.
 */
-const INITIAL_VISIBLE_COUNT = 6;
+const INITIAL_VISIBLE_COUNT = 12;
 
 const defaultContext: InfiniteScrollVisibilityContextValue = {
   listItemsVisibility: { top: 0, bottom: INITIAL_VISIBLE_COUNT },
