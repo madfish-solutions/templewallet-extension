@@ -3285,10 +3285,10 @@
   resolved "https://registry.yarnpkg.com/@temple-wallet/everstake-wallet-sdk/-/everstake-wallet-sdk-5.0.1.tgz#cf6785866d0f3ba4cee1eb2ab649040180df45fe"
   integrity sha512-WJn1BEKRPYQNMUR9qZQ7TD6lzliUsNfYexRpjbFT1k6tUiCBXd7YWQsPJ8iItMdVyeWLyuP5Ao1UESriE8Jkwg==
 
-"@temple-wallet/extension-ads@^15.0.3":
-  version "15.0.3"
-  resolved "https://registry.yarnpkg.com/@temple-wallet/extension-ads/-/extension-ads-15.0.3.tgz#33dff7a897e3ec768fcdeb55a92f1d6ef55beacb"
-  integrity sha512-TV8Nk3+SaIYhHE8jnK8873nVAjuy70n8hgxxrAxGeDJK73syd3n2Ayxp2RSxfOkPtDIsyJHVijfCjgVkTZ6rgg==
+"@temple-wallet/extension-ads@17.0.0-beta.1":
+  version "17.0.0-beta.1"
+  resolved "https://registry.yarnpkg.com/@temple-wallet/extension-ads/-/extension-ads-17.0.0-beta.1.tgz#b6296496de628f93b14953c0e1b10b543d8da489"
+  integrity sha512-EA4kEhdncvhp1jVSmchWhQWm3oDpvB3dz1Mw/BAaHByF37tYX6ZkaBwaWyzNwcMWwHaQD0nyWNgRbGHbQ9OUXQ==
   dependencies:
     axios "^1.8.4"
     crypto-js "^4.2.0"
@@ -4795,14 +4795,14 @@ available-typed-arrays@^1.0.7:
   dependencies:
     possible-typed-array-names "^1.0.0"
 
-axios@1.7.7, axios@^1.13.5, axios@^1.8.4:
-  version "1.13.5"
-  resolved "https://registry.yarnpkg.com/axios/-/axios-1.13.5.tgz#5e464688fa127e11a660a2c49441c009f6567a43"
-  integrity sha512-cz4ur7Vb0xS4/KUN0tPWe44eqxrIu31me+fbang3ijiNscE129POzipJJA6zniq2C/Z6sJCjMimjS8Lc/GAs8Q==
+axios@1.7.7, axios@^1.15.0, axios@^1.8.4:
+  version "1.15.0"
+  resolved "https://registry.yarnpkg.com/axios/-/axios-1.15.0.tgz#0fcee91ef03d386514474904b27863b2c683bf4f"
+  integrity sha512-wWyJDlAatxk30ZJer+GeCWS209sA42X+N5jU2jy6oHTp7ufw8uzUTVFBX9+wTfAlhiJXGS0Bq7X6efruWjuK9Q==
   dependencies:
     follow-redirects "^1.15.11"
     form-data "^4.0.5"
-    proxy-from-env "^1.1.0"
+    proxy-from-env "^2.1.0"
 
 b4a@^1.6.4:
   version "1.6.6"
@@ -10586,10 +10586,10 @@ proxy-addr@~2.0.7:
     forwarded "0.2.0"
     ipaddr.js "1.9.1"
 
-proxy-from-env@^1.1.0:
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/proxy-from-env/-/proxy-from-env-1.1.0.tgz#e102f16ca355424865755d2c9e8ea4f24d58c3e2"
-  integrity sha512-D+zkORCbA9f1tdWRK0RaCR3GPv50cMxcrz4X8k5LTSUD1Dkw47mKJEZQNunItRTkWwgtaUSo1RVFRIG9ZXiFYg==
+proxy-from-env@^2.1.0:
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/proxy-from-env/-/proxy-from-env-2.1.0.tgz#a7487568adad577cfaaa7e88c49cab3ab3081aba"
+  integrity sha512-cJ+oHTW1VAEa8cJslgmUZrc+sjRKgAKl3Zyse6+PV38hZe/V6Z14TbCuXcan9F9ghlz4QrFr2c92TNF82UkYHA==
 
 pseudomap@^1.0.2:
   version "1.0.2"
