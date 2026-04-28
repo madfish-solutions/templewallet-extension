@@ -13,8 +13,8 @@ import PageLayout from 'app/layouts/PageLayout';
 import { EarnDepositStats } from 'app/templates/EarnDepositStats';
 import { usePartnersPromotionModule } from 'app/templates/partners-promotion';
 import { SearchBarField } from 'app/templates/SearchField';
-import { DAppForDeposit } from 'lib/dapps-for-deposit';
 import { useAdsConstantsModule } from 'lib/ads-constants';
+import { DAppForDeposit } from 'lib/dapps-for-deposit';
 import { T, t, TID } from 'lib/i18n';
 
 import { DAppForDepositItem } from './components/DAppForDepositItem';
