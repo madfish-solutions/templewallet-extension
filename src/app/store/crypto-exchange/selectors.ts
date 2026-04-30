@@ -11,3 +11,6 @@ export const useExolixNetworksMapLoadingSelector = () =>
 
 export const useExolixNetworksMapSelector = () =>
   useSelector(({ cryptoExchange }) => cryptoExchange.exolixNetworksMap.data);
+
+export const useExolixNetworksMapErrorSelector = () =>
+  useSelector(({ cryptoExchange }) => cryptoExchange.exolixNetworksMap.error);

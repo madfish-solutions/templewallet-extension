@@ -189,7 +189,7 @@ export const BaseForm: FC<Props> = ({
 
   return (
     <>
-      <div className="flex-1 pt-4 px-4 flex flex-col overflow-y-auto">
+      <div className="flex-1 px-4 flex flex-col overflow-y-auto">
         <div className="text-font-description-bold py-1 mb-1">
           <T id="token" />
         </div>
@@ -295,11 +295,13 @@ export const BaseForm: FC<Props> = ({
           />
 
           {(toFieldFocused || isToFilledWithFamiliarAddress) && (
-            <SelectAccountButton
-              value={toValueDebounced}
-              onClick={handleSelectRecipientButtonClick}
-              testID={SendFormSelectors.selectAccountButton}
-            />
+            <div className="mb-4">
+              <SelectAccountButton
+                value={toValueDebounced}
+                onClick={handleSelectRecipientButtonClick}
+                testID={SendFormSelectors.selectAccountButton}
+              />
+            </div>
           )}
         </form>
       </div>

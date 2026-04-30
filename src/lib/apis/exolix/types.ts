@@ -52,6 +52,9 @@ export interface ExchangeData {
   withdrawalExtraId: string | null;
   hashIn: ExchangeHash;
   hashOut: ExchangeHash;
+  /** On-chain tx hash on the source chain when Exolix refunds the deposit. Present when status is REFUNDED. */
+  refundHash?: string | null;
+  refundExtraId?: string | null;
   id: string;
   comment: string | null;
   rate: string;
@@ -99,7 +102,12 @@ interface GetRateSuccessResponse {
   maxAmount: number;
 }
 
+interface GetRateUnsupportedPairResponse {
+  error: string;
+}
+
 export type GetRateResponse =
   | GetRateResponseWithAmountTooLow
   | GetRateResponseWithAmountTooHigh
-  | GetRateSuccessResponse;
+  | GetRateSuccessResponse
+  | GetRateUnsupportedPairResponse;

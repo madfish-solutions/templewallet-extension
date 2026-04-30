@@ -4,6 +4,8 @@ import { PageTitle } from 'app/atoms';
 import { PageLoader } from 'app/atoms/Loader';
 import PageLayout from 'app/layouts/PageLayout';
 import { useAssetsFilterOptionsSelector } from 'app/store/assets-filter-options/selectors';
+import { useAnalytics } from 'lib/analytics';
+import { CrossChainAnalyticsEvents } from './cross-chain/analytics';
 import { useTestnetModeEnabledSelector } from 'app/store/settings/selectors';
 import { EVM_TOKEN_SLUG, TEZ_TOKEN_SLUG } from 'lib/assets/defaults';
 import { toChainAssetSlug } from 'lib/assets/utils';
@@ -15,14 +17,26 @@ import {
   TEZOS_MAINNET_CHAIN_ID,
   TempleAccountType
 } from 'lib/temple/types';
+import { CROSS_CHAIN_WARNING_DISMISSED_STORAGE_KEY } from 'lib/cross-chain';
 import { useBooleanState } from 'lib/ui/hooks';
 import { LEDGER_WEBHID_PENDING_PREFIX, useLedgerWebHidFullViewGuard } from 'lib/ui/ledger-webhid-guard';
 import { LedgerFullViewPromptModal } from 'lib/ui/LedgerFullViewPrompt';
-import { useAccountAddressForEvm, useAccountForTezos, useAccountForEvm } from 'temple/front';
+import { useLocalStorage } from 'lib/ui/local-storage';
+import { useAccount, useAccountAddressForEvm, useAccountForTezos, useAccountForEvm } from 'temple/front';
 import { useTezosChainByChainId, useEvmChainByChainId } from 'temple/front/chains';
 import { TempleChainKind } from 'temple/types';
 
+import { useHasActiveCrossChainExchangesSelector } from 'app/store/cross-chain-send/selectors';
+import { CrossChainExchange } from 'app/store/cross-chain-send/state';
+
 import { SendFormControl, SendFormControlContext } from './context';
+import { CrossChainForm } from './cross-chain';
+import { CrossChainActivityButton } from './cross-chain/components/CrossChainActivityButton';
+import { SendTab, SendTabs } from './cross-chain/components/SendTabs';
+import { CrossChainActivityModal } from './cross-chain/modals/CrossChainActivityModal';
+import { ConfirmCrossChainSendModal } from './cross-chain/modals/ConfirmCrossChainSend';
+import { ConfirmCrossChainReviewData, ConfirmCrossChainStep } from './cross-chain/modals/ConfirmCrossChainSend/types';
+import { CrossChainWarningModal } from './cross-chain/modals/WarningModal';
 import { Form } from './form';
 import { PendingSendReview, ReviewData } from './form/interfaces';
 import { ConfirmSendModal } from './modals/ConfirmSend';
@@ -75,6 +89,104 @@ const Send = memo<Props>(({ chainKind, chainId, assetSlug }) => {
   const [selectAssetModalOpened, setSelectAssetModalOpen, setSelectAssetModalClosed] = useBooleanState(false);
   const [confirmSendModalOpened, setConfirmSendModalOpen, setConfirmSendModalClosed] = useBooleanState(false);
   const [reviewData, setReviewData] = useState<ReviewData>();
+
+  const [activeTab, setActiveTab] = useState<SendTab>('default');
+  const [crossChainReview, setCrossChainReview] = useState<ConfirmCrossChainReviewData | undefined>();
+  const [crossChainInitialStep, setCrossChainInitialStep] = useState<ConfirmCrossChainStep | undefined>();
+  const [crossChainInitialExchangeId, setCrossChainInitialExchangeId] = useState<string | undefined>();
+  const [
+    crossChainConfirmOpened,
+    openCrossChainConfirm,
+    closeCrossChainConfirm
+  ] = useBooleanState(false);
+  const [
+    crossChainWarningOpened,
+    openCrossChainWarning,
+    closeCrossChainWarning
+  ] = useBooleanState(false);
+  const [
+    crossChainActivityOpened,
+    openCrossChainActivity,
+    closeCrossChainActivity
+  ] = useBooleanState(false);
+
+  const [warningDismissed] = useLocalStorage<boolean>(CROSS_CHAIN_WARNING_DISMISSED_STORAGE_KEY, false);
+  const currentAccount = useAccount();
+  const hasActiveCrossChain = useHasActiveCrossChainExchangesSelector(currentAccount?.id);
+
+  const { trackEvent } = useAnalytics();
+
+  const handleSetActiveTab = useCallback(
+    (tab: SendTab) => {
+      setActiveTab(tab);
+      if (tab === 'cross-chain') trackEvent(CrossChainAnalyticsEvents.CrossChainTabOpened);
+    },
+    [trackEvent]
+  );
+
+  const handleCrossChainReview = useCallback(
+    (data: ConfirmCrossChainReviewData) => {
+      setCrossChainReview(data);
+      trackEvent(CrossChainAnalyticsEvents.CrossChainReviewed, undefined, {
+        from: data.fromAsset.exolixCoin,
+        fromNetwork: data.fromAsset.exolixNetwork,
+        to: data.toAsset.exolixCoin,
+        toNetwork: data.toAsset.exolixNetwork,
+        amount: data.fromAmount
+      });
+      if (warningDismissed) {
+        openCrossChainConfirm();
+      } else {
+        trackEvent(CrossChainAnalyticsEvents.CrossChainWarningShown);
+        openCrossChainWarning();
+      }
+    },
+    [warningDismissed, openCrossChainConfirm, openCrossChainWarning, trackEvent]
+  );
+
+  const handleWarningConfirm = useCallback(() => {
+    trackEvent(CrossChainAnalyticsEvents.CrossChainWarningDismissed);
+    closeCrossChainWarning();
+    openCrossChainConfirm();
+  }, [closeCrossChainWarning, openCrossChainConfirm, trackEvent]);
+
+  const handleOpenCrossChainActivity = useCallback(() => {
+    trackEvent(CrossChainAnalyticsEvents.CrossChainActivityOpened);
+    openCrossChainActivity();
+  }, [openCrossChainActivity, trackEvent]);
+
+  const handleCrossChainActivityClick = useCallback(
+    (exchange: CrossChainExchange) => {
+      closeCrossChainActivity();
+      setCrossChainReview({
+        fromAsset: exchange.fromAsset,
+        toAsset: exchange.toAsset,
+        fromAmount: exchange.fromAmount,
+        toAmountEstimated: exchange.toAmountEstimated,
+        recipient: exchange.recipient
+      });
+      setCrossChainInitialExchangeId(exchange.id);
+      setCrossChainInitialStep(
+        exchange.phase === 'COMPLETED'
+          ? ConfirmCrossChainStep.Completed
+          : exchange.phase === 'FAILED'
+            ? ConfirmCrossChainStep.Failed
+            : ConfirmCrossChainStep.Processing
+      );
+      openCrossChainConfirm();
+    },
+    [closeCrossChainActivity, openCrossChainConfirm]
+  );
+
+  const handleCrossChainConfirmClose = useCallback(() => {
+    closeCrossChainConfirm();
+    setCrossChainInitialStep(undefined);
+    setCrossChainInitialExchangeId(undefined);
+  }, [closeCrossChainConfirm]);
+
+  const handleTryAgain = useCallback(() => {
+    trackEvent(CrossChainAnalyticsEvents.CrossChainTryAgain);
+  }, [trackEvent]);
 
   const storedPending = useMemo(() => readPending<PendingSendReview>(PENDING_SEND_STORAGE_KEY), [readPending]);
   const pendingEvmChainId = useMemo(
@@ -169,15 +281,32 @@ const Send = memo<Props>(({ chainKind, chainId, assetSlug }) => {
   );
 
   return (
-    <PageLayout pageTitle={<PageTitle title={t('send')} />} contentPadding={false} noScroll>
+    <PageLayout
+      pageTitle={<PageTitle title={t('send')} />}
+      contentPadding={false}
+      noScroll
+      headerRightElem={
+        activeTab === 'cross-chain' ? (
+          <CrossChainActivityButton hasActive={hasActiveCrossChain} onClick={handleOpenCrossChainActivity} />
+        ) : undefined
+      }
+    >
+      <div className="px-4 py-4">
+        <SendTabs activeTab={activeTab} onChange={handleSetActiveTab} />
+      </div>
+
       <Suspense fallback={<PageLoader stretch />}>
-        <SendFormControlContext value={formControlRef}>
-          <Form
-            selectedChainAssetSlug={selectedChainAssetSlug}
-            onReview={handleReview}
-            onSelectAssetClick={setSelectAssetModalOpen}
-          />
-        </SendFormControlContext>
+        {activeTab === 'default' ? (
+          <SendFormControlContext value={formControlRef}>
+            <Form
+              selectedChainAssetSlug={selectedChainAssetSlug}
+              onReview={handleReview}
+              onSelectAssetClick={setSelectAssetModalOpen}
+            />
+          </SendFormControlContext>
+        ) : (
+          <CrossChainForm onReview={handleCrossChainReview} />
+        )}
       </Suspense>
 
       <SelectAssetModal
@@ -190,6 +319,28 @@ const Send = memo<Props>(({ chainKind, chainId, assetSlug }) => {
         onRequestClose={setConfirmSendModalClosed}
         reviewData={reviewData}
       />
+
+      <CrossChainWarningModal
+        opened={crossChainWarningOpened}
+        onRequestClose={closeCrossChainWarning}
+        onConfirm={handleWarningConfirm}
+      />
+      <ConfirmCrossChainSendModal
+        opened={crossChainConfirmOpened}
+        reviewData={crossChainReview}
+        initialStep={crossChainInitialStep}
+        initialExchangeId={crossChainInitialExchangeId}
+        onRequestClose={handleCrossChainConfirmClose}
+        onGoBack={handleCrossChainConfirmClose}
+        onTryAgain={handleTryAgain}
+      />
+      <CrossChainActivityModal
+        opened={crossChainActivityOpened}
+        onRequestClose={closeCrossChainActivity}
+        accountId={currentAccount?.id}
+        onExchangeClick={handleCrossChainActivityClick}
+      />
+
       <LedgerFullViewPromptModal {...ledgerPromptProps} />
     </PageLayout>
   );

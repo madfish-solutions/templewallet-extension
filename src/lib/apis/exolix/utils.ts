@@ -116,6 +116,10 @@ export const loadMinMaxExchangeValues = async (
           break;
         }
 
+        if (!('minAmount' in minAmountExchangeResponse)) {
+          throw new Error('Failed to get minimal input amount');
+        }
+
         // Preparing to try again with the new minimal amount
         finalMinAmount = minAmountExchangeResponse.minAmount;
         exchangeData.amount = minAmountExchangeResponse.minAmount;
@@ -137,7 +141,9 @@ export const loadMinMaxExchangeValues = async (
     });
     // Ignoring the invalid output of the backward exchange
     const maxDollarValueMaxAmount =
-      backwardExchange.message == null && backwardExchange.toAmount >= finalMinAmount
+      'message' in backwardExchange &&
+      backwardExchange.message == null &&
+      backwardExchange.toAmount >= finalMinAmount
         ? backwardExchange.toAmount
         : undefined;
 

@@ -5032,5 +5032,176 @@
   },
   "redirectButListInWallet": {
     "message": "Redirect me, but I'd like list in-wallet"
+  },
+  "advanced": {
+    "message": "Advanced"
+  },
+  "balanceLabel": {
+    "message": "Balance:"
+  },
+  "byProceedingTermsAgreement": {
+    "message": "By proceeding with operation you are agree with the $terms$ and $privacy$.",
+    "placeholders": {
+      "terms": { "content": "$1" },
+      "privacy": { "content": "$2" }
+    }
+  },
+  "couldNotComplete": {
+    "message": "Couldn't complete"
+  },
+  "couldNotCompleteDescription": {
+    "message": "Your funds return to your account automatically.\nIf this hasn't happened, please contact Exolix support to request a refund manually."
+  },
+  "couldNotStartExchange": {
+    "message": "Couldn't start the exchange"
+  },
+  "couldNotStartExchangeDescription": {
+    "message": "Exolix didn't accept this pair right now. The amount may be out of range or the route is temporarily unavailable. Please try again."
+  },
+  "crossChainActivityTitle": {
+    "message": "Cross-chain Activity"
+  },
+  "crossChainSendCompletedToast": {
+    "message": "Cross-chain send completed"
+  },
+  "crossChainSendFailedToast": {
+    "message": "Cross-chain send isn't completed"
+  },
+  "crossChainWarningBody": {
+    "message": "To prevent loss of funds, always make sure the recipient address can receive the token on selected network.\n\nPowered by Exolix as a third-party. You stay in full control of your assets. All transactions are anonymous - no personal data is shared."
+  },
+  "crossChainWarningTitle": {
+    "message": "Sending Cross-chain"
+  },
+  "depositTxHash": {
+    "message": "Deposit Tx Hash"
+  },
+  "dontShowAnymore": {
+    "message": "Don't show me anymore"
+  },
+  "estimationNotReady": {
+    "message": "Estimation not ready"
+  },
+  "expectedResult": {
+    "message": "Expected result"
+  },
+  "failedBadge": {
+    "message": "FAILED"
+  },
+  "feeBreakdownNote": {
+    "message": "Exolix rate already includes service and network fees. The final amount is confirmed after the source transaction is broadcast."
+  },
+  "feeIncludedInQuote": {
+    "message": "Included in the quote"
+  },
+  "feelFreeToCloseNote": {
+    "message": "Feel free to close - we'll notify when completed"
+  },
+  "insufficientBalance": {
+    "message": "Insufficient balance"
+  },
+  "invalidAmount": {
+    "message": "Invalid amount"
+  },
+  "maxWithSymbol": {
+    "message": "Max: $value$ $symbol$",
+    "placeholders": {
+      "value": { "content": "$1" },
+      "symbol": { "content": "$2" }
+    }
+  },
+  "minWithSymbol": {
+    "message": "Min: $value$ $symbol$",
+    "placeholders": {
+      "value": { "content": "$1" },
+      "symbol": { "content": "$2" }
+    }
+  },
+  "minWithValue": {
+    "message": "Min $value$",
+    "placeholders": {
+      "value": { "content": "$1" }
+    }
+  },
+  "noActivityYet": {
+    "message": "No activity yet"
+  },
+  "noAdvancedOptions": {
+    "message": "No advanced options for cross-chain send."
+  },
+  "noTokensAvailable": {
+    "message": "No tokens available"
+  },
+  "orderExpiredCrossChain": {
+    "message": "Order expired"
+  },
+  "orderExpiredCrossChainDescription": {
+    "message": "Your order has expired before the deposit was confirmed. Please try again."
+  },
+  "pairNotAvailable": {
+    "message": "This pair is not available"
+  },
+  "pasteAddress": {
+    "message": "Paste $1 address",
+    "placeholders": {
+      "1": { "content": "$1" }
+    }
+  },
+  "processingFailureNote": {
+    "message": "If the operation fails, funds return to your account automatically"
+  },
+  "refundTxHash": {
+    "message": "Refund Tx Hash"
+  },
+  "refunded": {
+    "message": "Refunded"
+  },
+  "refundedDescription": {
+    "message": "Your funds return to your account automatically.\nIf this hasn't happened, please contact Exolix support to request a refund manually."
+  },
+  "processingStepTitle": {
+    "message": "Processing"
+  },
+  "selectGetToken": {
+    "message": "Select Get Token"
+  },
+  "selectTokenAction": {
+    "message": "Select token"
+  },
+  "sendPreview": {
+    "message": "Send Preview"
+  },
+  "sendStepperConfirmation": {
+    "message": "Confirmation"
+  },
+  "sendStepperExchange": {
+    "message": "Exchange"
+  },
+  "sendStepperSending": {
+    "message": "Sending"
+  },
+  "serviceFee": {
+    "message": "Service fee"
+  },
+  "successBadge": {
+    "message": "SUCCESS"
+  },
+  "switchToCurrency": {
+    "message": "Switch to $1",
+    "placeholders": {
+      "1": { "content": "$1" }
+    }
+  },
+  "tezosMetadataNotAvailable": {
+    "message": "Tezos asset metadata not available"
+  },
+  "tokenExchangePoweredByExolix": {
+    "message": "Token exchange is powered by Exolix as a third-party. Temple Wallet is not responsible for work of third-party services."
+  },
+  "tokenNamePlaceholder": {
+    "message": "Token name"
+  },
+  "unableToFetchRate": {
+    "message": "Unable to fetch rate, please try again"
   }
 }
