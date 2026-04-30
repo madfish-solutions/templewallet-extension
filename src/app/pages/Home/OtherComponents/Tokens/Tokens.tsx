@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { dispatch } from 'app/store';
 import { setAssetsFilterChain } from 'app/store/assets-filter-options/actions';
@@ -12,7 +12,7 @@ import { MultiChainTokensTab } from './components/MultiChainTokensTab';
 import { TezosChainTokensTab } from './components/TezosChainTokensTab';
 import { TezosTokensTab } from './components/TezosTokensTab';
 
-export const TokensTab = memo(() => {
+export const TokensTab = () => {
   const { filterChain } = useAssetsFilterOptionsSelector();
 
   const [localFilterChain, setLocalFilterChain] = useState(filterChain);
@@ -64,4 +64,4 @@ export const TokensTab = memo(() => {
     return <EvmTokensTab accountId={accountId} publicKeyHash={accountEvmAddress} />;
 
   return null;
-});
+};

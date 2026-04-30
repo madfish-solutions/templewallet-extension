@@ -1,4 +1,4 @@
-import { FC, createContext, memo, useContext, useMemo, useRef, Ref } from 'react';
+import { Activity, FC, createContext, useContext, useMemo, useRef, Ref } from 'react';
 
 import {
   useEvmAccountTokensForListing,
@@ -8,7 +8,7 @@ import {
   usePreservedOrderSlugsGroupsToManage,
   usePreservedOrderSlugsToManage
 } from 'app/hooks/listing-logic/use-manageable-slugs';
-import { useManageState } from 'app/hooks/use-assets-view-state';
+import { useTokensManageState } from 'app/hooks/use-assets-view-state';
 import {
   useGroupByNetworkBehaviorSelector,
   useTokensListOptionsSelector
@@ -42,15 +42,21 @@ const EvmTokensTabContext = createContext<Props>({
   accountId: ''
 });
 
-export const EvmTokensTab = memo<Props>(props => {
-  const { manageActive } = useManageState();
+export const EvmTokensTab: FC<Props> = props => {
+  const { manageActive } = useTokensManageState();
 
   return (
     <EvmTokensTabContext value={props}>
-      {manageActive ? <TabContentWithManageActive /> : <TabContent />}
+      <Activity mode={manageActive ? 'hidden' : 'visible'} name="evm-tokens-tab-default">
+        <TabContent />
+      </Activity>
+
+      <Activity mode={manageActive ? 'visible' : 'hidden'} name="evm-tokens-tab-manage">
+        <TabContentWithManageActive />
+      </Activity>
     </EvmTokensTabContext>
   );
-});
+};
 
 const TabContent: FC = () => {
   const { publicKeyHash } = useContext(EvmTokensTabContext);
@@ -120,91 +126,96 @@ interface TabContentBaseProps {
   shouldShowHiddenTokensHint?: boolean;
 }
 
-const TabContentBase = memo<TabContentBaseProps>(
-  ({ allSlugsSorted, allSlugsSortedGrouped, groupByNetwork, manageActive, shouldShowHiddenTokensHint }) => {
-    const { publicKeyHash, accountId } = useContext(EvmTokensTabContext);
-    const { displayedSlugs, displayedGroupedSlugs, isSyncing, loadNextPlain, loadNextGrouped, isInSearchMode } =
-      useEvmAccountTokensListingLogic(allSlugsSorted, allSlugsSortedGrouped);
-    const promoRef = useRef<HTMLDivElement>(null);
-    const firstHeaderRef = useRef<HTMLDivElement>(null);
-    const firstListItemRef = useRef<TokenListItemElement>(null);
-    const PartnersPromotionModule = usePartnersPromotionModule();
-    const AdsConstantsModule = useAdsConstantsModule();
+const TabContentBase: FC<TabContentBaseProps> = ({
+  allSlugsSorted,
+  allSlugsSortedGrouped,
+  groupByNetwork,
+  manageActive,
+  shouldShowHiddenTokensHint
+}) => {
+  const { publicKeyHash, accountId } = useContext(EvmTokensTabContext);
+  const { displayedSlugs, displayedGroupedSlugs, isSyncing, loadNextPlain, loadNextGrouped, isInSearchMode } =
+    useEvmAccountTokensListingLogic(allSlugsSorted, allSlugsSortedGrouped);
+  const promoRef = useRef<HTMLDivElement>(null);
+  const firstHeaderRef = useRef<HTMLDivElement>(null);
+  const firstListItemRef = useRef<TokenListItemElement>(null);
+  const PartnersPromotionModule = usePartnersPromotionModule();
+  const AdsConstantsModule = useAdsConstantsModule();
 
-    const mainnetChain = useEthereumMainnetChain();
-    const evmChains = useAllEvmChains();
+  const mainnetChain = useEthereumMainnetChain();
+  const evmChains = useAllEvmChains();
 
-    const { tokensView, getElementIndex } = useMemo(() => {
-      const promoJsx =
-        manageActive || !PartnersPromotionModule || !AdsConstantsModule ? null : (
-          <PartnersPromotionModule.PartnersPromotion
-            id="promo-token-item"
-            key="promo-token-item"
-            variant={PartnersPromotionModule.PartnersPromotionVariant.Text}
-            pageName={AdsConstantsModule.HOME_PAGE_NAME}
-            ref={promoRef}
+  const { tokensView, getElementIndex } = useMemo(() => {
+    const promoJsx =
+      manageActive || !PartnersPromotionModule || !AdsConstantsModule ? null : (
+        <PartnersPromotionModule.PartnersPromotion
+          id="promo-token-item"
+          key="promo-token-item"
+          variant={PartnersPromotionModule.PartnersPromotionVariant.Text}
+          pageName={AdsConstantsModule.HOME_PAGE_NAME}
+          ref={promoRef}
+        />
+      );
+
+    if (displayedGroupedSlugs) {
+      return {
+        tokensView: getGroupedTokensViewWithPromo({
+          groupedSlugs: displayedGroupedSlugs,
+          evmChains,
+          promoJsx,
+          firstListItemRef,
+          firstHeaderRef,
+          buildTokensJsxArray
+        }),
+        getElementIndex: makeGroupedTokenElementIndexFunction(
+          promoRef,
+          firstListItemRef,
+          firstHeaderRef,
+          displayedGroupedSlugs
+        )
+      };
+    }
+
+    const tokensJsx = buildTokensJsxArray(displayedSlugs, firstListItemRef);
+
+    return {
+      tokensView: getTokensViewWithPromo(tokensJsx, promoJsx),
+      getElementIndex: makeGetTokenElementIndexFunction(promoRef, firstListItemRef, tokensJsx.length)
+    };
+
+    function buildTokensJsxArray(chainSlugs: string[], firstListItemRef: Ref<TokenListItemElement>, indexShift = 0) {
+      return chainSlugs.map((chainSlug, i) => {
+        const [_, chainId, slug] = parseChainAssetSlug(chainSlug, TempleChainKind.EVM);
+
+        return (
+          <EvmTokenListItem
+            showTags
+            key={chainSlug}
+            network={evmChains[chainId]!}
+            index={i + indexShift}
+            assetSlug={slug}
+            publicKeyHash={publicKeyHash}
+            manageActive={manageActive}
+            ref={i === 0 ? firstListItemRef : null}
           />
         );
+      });
+    }
+  }, [displayedGroupedSlugs, displayedSlugs, manageActive, evmChains, publicKeyHash]);
 
-      if (displayedGroupedSlugs) {
-        return {
-          tokensView: getGroupedTokensViewWithPromo({
-            groupedSlugs: displayedGroupedSlugs,
-            evmChains,
-            promoJsx,
-            firstListItemRef,
-            firstHeaderRef,
-            buildTokensJsxArray
-          }),
-          getElementIndex: makeGroupedTokenElementIndexFunction(
-            promoRef,
-            firstListItemRef,
-            firstHeaderRef,
-            displayedGroupedSlugs
-          )
-        };
-      }
-
-      const tokensJsx = buildTokensJsxArray(displayedSlugs, firstListItemRef);
-
-      return {
-        tokensView: getTokensViewWithPromo(tokensJsx, promoJsx),
-        getElementIndex: makeGetTokenElementIndexFunction(promoRef, firstListItemRef, tokensJsx.length)
-      };
-
-      function buildTokensJsxArray(chainSlugs: string[], firstListItemRef: Ref<TokenListItemElement>, indexShift = 0) {
-        return chainSlugs.map((chainSlug, i) => {
-          const [_, chainId, slug] = parseChainAssetSlug(chainSlug, TempleChainKind.EVM);
-
-          return (
-            <EvmTokenListItem
-              showTags
-              key={chainSlug}
-              network={evmChains[chainId]!}
-              index={i + indexShift}
-              assetSlug={slug}
-              publicKeyHash={publicKeyHash}
-              manageActive={manageActive}
-              ref={i === 0 ? firstListItemRef : null}
-            />
-          );
-        });
-      }
-    }, [displayedGroupedSlugs, displayedSlugs, manageActive, evmChains, publicKeyHash]);
-
-    return (
-      <TokensTabBase
-        accountId={accountId}
-        tokensCount={displayedSlugs.length}
-        getElementIndex={getElementIndex}
-        loadNextPage={groupByNetwork ? loadNextGrouped : loadNextPlain}
-        isSyncing={isSyncing}
-        isInSearchMode={isInSearchMode}
-        network={mainnetChain}
-        shouldShowHiddenTokensHint={shouldShowHiddenTokensHint}
-      >
-        {tokensView}
-      </TokensTabBase>
-    );
-  }
-);
+  return (
+    <TokensTabBase
+      accountId={accountId}
+      tokensCount={displayedSlugs.length}
+      getElementIndex={getElementIndex}
+      loadNextPage={groupByNetwork ? loadNextGrouped : loadNextPlain}
+      isSyncing={isSyncing}
+      isInSearchMode={isInSearchMode}
+      manageActive={manageActive}
+      network={mainnetChain}
+      shouldShowHiddenTokensHint={shouldShowHiddenTokensHint}
+    >
+      {tokensView}
+    </TokensTabBase>
+  );
+};

@@ -2,7 +2,7 @@ import React, { memo, useCallback, useEffect, useState } from 'react';
 
 import clsx from 'clsx';
 import { isEmpty } from 'lodash';
-import { Controller, RegisterOptions, SubmitHandler, useForm } from 'react-hook-form';
+import { Controller, RegisterOptions, SubmitHandler, useForm, useWatch } from 'react-hook-form';
 
 import { CaptionAlert } from 'app/atoms';
 import AssetField from 'app/atoms/AssetField';
@@ -29,7 +29,6 @@ export const SwapSettingsModal = memo<SelectTokenModalProps>(
     const [selectedOption, setSelectedOption] = useState(getOptionFromSlippage(currentSlippageTolerance));
 
     const {
-      watch,
       control,
       handleSubmit,
       setValue,
@@ -40,7 +39,7 @@ export const SwapSettingsModal = memo<SelectTokenModalProps>(
       reValidateMode: 'onChange'
     });
 
-    const customSlippageValue = watch('customSlippage');
+    const customSlippageValue = useWatch({ control, name: 'customSlippage' });
     const formSubmitted = submitCount > 0;
 
     const resetSelectedOption = useCallback(() => {

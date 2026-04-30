@@ -1,4 +1,4 @@
-import React, { memo, FunctionComponent, SVGProps, useMemo } from 'react';
+import { FC, FunctionComponent, SVGProps, useMemo } from 'react';
 
 import { isDefined } from '@rnw-community/shared';
 import { ChainIds } from '@taquito/taquito';
@@ -39,107 +39,112 @@ interface Props {
   className?: string;
 }
 
-export const ExploreActionButtonsBar = memo<Props>(
-  ({ chainKind, chainId, assetSlug, additionalButtonType, onDepositClick, className }) => {
-    const account = useAccount();
-    const testnetModeEnabled = useTestnetModeEnabledSelector();
-    const { route3tokensSlugs } = useAvailableRoute3TokensSlugs();
-    const lifiSupportedChainIds = useLifiSupportedChainIdsSelector();
-    const route3SupportedChainIds = use3RouteEvmSupportedChainIdsSelector();
-    const supportedChainIds = useMemo(
-      () => uniq(lifiSupportedChainIds.concat(route3SupportedChainIds)),
-      [lifiSupportedChainIds, route3SupportedChainIds]
-    );
+export const ExploreActionButtonsBar: FC<Props> = ({
+  chainKind,
+  chainId,
+  assetSlug,
+  additionalButtonType,
+  onDepositClick,
+  className
+}) => {
+  const account = useAccount();
+  const testnetModeEnabled = useTestnetModeEnabledSelector();
+  const { route3tokensSlugs } = useAvailableRoute3TokensSlugs();
+  const lifiSupportedChainIds = useLifiSupportedChainIdsSelector();
+  const route3SupportedChainIds = use3RouteEvmSupportedChainIdsSelector();
+  const supportedChainIds = useMemo(
+    () => uniq(lifiSupportedChainIds.concat(route3SupportedChainIds)),
+    [lifiSupportedChainIds, route3SupportedChainIds]
+  );
 
-    const canSend = account.type !== TempleAccountType.WatchOnly;
-    const sendLink = buildSendPagePath(chainKind, chainId as string, assetSlug);
-    const swapLink = buildSwapPagePath({ chainKind, chainId: chainId as string, assetSlug });
+  const canSend = account.type !== TempleAccountType.WatchOnly;
+  const sendLink = buildSendPagePath(chainKind, chainId as string, assetSlug);
+  const swapLink = buildSwapPagePath({ chainKind, chainId: chainId as string, assetSlug });
 
-    const isTokenAvailableForSwap = useMemo(() => {
-      if (chainKind === TempleChainKind.Tezos) {
+  const isTokenAvailableForSwap = useMemo(() => {
+    if (chainKind === TempleChainKind.Tezos) {
+      return (
+        isDefined(assetSlug) &&
+        chainId === ChainIds.MAINNET &&
+        (route3tokensSlugs.includes(assetSlug) || assetSlug === TEZ_TOKEN_SLUG)
+      );
+    }
+    if (chainKind === TempleChainKind.EVM && chainId) {
+      return isDefined(assetSlug) && supportedChainIds.includes(+chainId);
+    }
+    return false;
+  }, [assetSlug, chainId, chainKind, route3tokensSlugs, supportedChainIds]);
+
+  const labelClassName = additionalButtonType ? 'max-w-15' : 'max-w-23';
+
+  const additionalButton = useMemo(() => {
+    switch (additionalButtonType) {
+      case 'earn-tez':
+      case 'earn-tkey':
+      case 'earn-eth':
         return (
-          isDefined(assetSlug) &&
-          chainId === ChainIds.MAINNET &&
-          (route3tokensSlugs.includes(assetSlug) || assetSlug === TEZ_TOKEN_SLUG)
+          <ActionButton
+            labelI18nKey="earn"
+            Icon={OutcomeIcon}
+            to={additionalButtonType === 'earn-tez' ? `/earn-tez/${chainId}` : `/${additionalButtonType}`}
+            testID={ExploreActionButtonsSelectors.earnButton}
+            labelClassName={labelClassName}
+          />
         );
-      }
-      if (chainKind === TempleChainKind.EVM && chainId) {
-        return isDefined(assetSlug) && supportedChainIds.includes(+chainId);
-      }
-      return false;
-    }, [assetSlug, chainId, chainKind, route3tokensSlugs, supportedChainIds]);
+      case 'activity':
+        return (
+          <ActionButton
+            labelI18nKey="activity"
+            Icon={ActivityIcon}
+            to="/activity"
+            testID={ExploreActionButtonsSelectors.activityButton}
+            labelClassName={labelClassName}
+          />
+        );
+      default:
+        return null;
+    }
+  }, [additionalButtonType, chainId, labelClassName]);
 
-    const labelClassName = additionalButtonType ? 'max-w-15' : 'max-w-23';
+  return (
+    <div className={clsx('flex gap-3', className)}>
+      <DepositActionButton
+        onClick={onDepositClick}
+        testID={ExploreActionButtonsSelectors.depositButton}
+        labelClassName={labelClassName}
+      />
 
-    const additionalButton = useMemo(() => {
-      switch (additionalButtonType) {
-        case 'earn-tez':
-        case 'earn-tkey':
-        case 'earn-eth':
-          return (
-            <ActionButton
-              labelI18nKey="earn"
-              Icon={OutcomeIcon}
-              to={additionalButtonType === 'earn-tez' ? `/earn-tez/${chainId}` : `/${additionalButtonType}`}
-              testID={ExploreActionButtonsSelectors.earnButton}
-              labelClassName={labelClassName}
-            />
-          );
-        case 'activity':
-          return (
-            <ActionButton
-              labelI18nKey="activity"
-              Icon={ActivityIcon}
-              to="/activity"
-              testID={ExploreActionButtonsSelectors.activityButton}
-              labelClassName={labelClassName}
-            />
-          );
-        default:
-          return null;
-      }
-    }, [additionalButtonType, chainId, labelClassName]);
+      <ActionButton
+        labelI18nKey="swap"
+        Icon={SwapIcon}
+        to={
+          isTokenAvailableForSwap
+            ? swapLink
+            : {
+                pathname: '/swap',
+                search: undefined
+              }
+        }
+        disabled={!canSend || testnetModeEnabled}
+        tippyProps={getDisabledTippyProps(testnetModeEnabled)}
+        testID={ExploreActionButtonsSelectors.swapButton}
+        labelClassName={labelClassName}
+      />
 
-    return (
-      <div className={clsx('flex gap-3', className)}>
-        <DepositActionButton
-          onClick={onDepositClick}
-          testID={ExploreActionButtonsSelectors.depositButton}
-          labelClassName={labelClassName}
-        />
+      {additionalButton}
 
-        <ActionButton
-          labelI18nKey="swap"
-          Icon={SwapIcon}
-          to={
-            isTokenAvailableForSwap
-              ? swapLink
-              : {
-                  pathname: '/swap',
-                  search: undefined
-                }
-          }
-          disabled={!canSend || testnetModeEnabled}
-          tippyProps={getDisabledTippyProps(testnetModeEnabled)}
-          testID={ExploreActionButtonsSelectors.swapButton}
-          labelClassName={labelClassName}
-        />
-
-        {additionalButton}
-
-        <ActionButton
-          labelI18nKey="send"
-          Icon={SendIcon}
-          to={sendLink}
-          disabled={!canSend}
-          tippyProps={getDisabledTippyProps(false)}
-          testID={ExploreActionButtonsSelectors.sendButton}
-          labelClassName={labelClassName}
-        />
-      </div>
-    );
-  }
-);
+      <ActionButton
+        labelI18nKey="send"
+        Icon={SendIcon}
+        to={sendLink}
+        disabled={!canSend}
+        tippyProps={getDisabledTippyProps(false)}
+        testID={ExploreActionButtonsSelectors.sendButton}
+        labelClassName={labelClassName}
+      />
+    </div>
+  );
+};
 
 const ACTION_BUTTON_COMMON_CLASSNAMES = 'flex-1 flex flex-col gap-0.5 p-2 items-center justify-center rounded-8';
 const ENABLED_ACTION_BUTTON_CLASSNAMES =
@@ -150,7 +155,7 @@ interface DepositActionButtonProps extends TestIDProps {
   labelClassName?: string;
 }
 
-const DepositActionButton = memo<DepositActionButtonProps>(({ onClick, testID, testIDProperties, labelClassName }) => (
+const DepositActionButton: FC<DepositActionButtonProps> = ({ onClick, testID, testIDProperties, labelClassName }) => (
   <Button
     className={clsx(ACTION_BUTTON_COMMON_CLASSNAMES, ENABLED_ACTION_BUTTON_CLASSNAMES)}
     onClick={onClick}
@@ -162,7 +167,7 @@ const DepositActionButton = memo<DepositActionButtonProps>(({ onClick, testID, t
       <T id="deposit" />
     </span>
   </Button>
-));
+);
 
 interface ActionButtonProps extends TestIDProps {
   labelI18nKey: TID;
@@ -173,39 +178,46 @@ interface ActionButtonProps extends TestIDProps {
   labelClassName?: string;
 }
 
-const ActionButton = memo<ActionButtonProps>(
-  ({ labelI18nKey, Icon, to, disabled, tippyProps = EMPTY_FROZEN_OBJ, testID, testIDProperties, labelClassName }) => {
-    const buttonRef = useTippy<HTMLButtonElement>({
-      ...tippyProps,
-      content: disabled && !tippyProps.content ? t('disabled') : tippyProps.content
-    });
+const ActionButton: FC<ActionButtonProps> = ({
+  labelI18nKey,
+  Icon,
+  to,
+  disabled,
+  tippyProps = EMPTY_FROZEN_OBJ,
+  testID,
+  testIDProperties,
+  labelClassName
+}) => {
+  const buttonRef = useTippy<HTMLButtonElement>({
+    ...tippyProps,
+    content: disabled && !tippyProps.content ? t('disabled') : tippyProps.content
+  });
 
-    const commonButtonProps = useMemo(
-      () => ({
-        className: clsx(
-          ACTION_BUTTON_COMMON_CLASSNAMES,
-          disabled ? 'bg-disable text-grey-2' : ENABLED_ACTION_BUTTON_CLASSNAMES
-        ),
-        type: 'button' as const,
-        children: (
-          <>
-            <IconBase Icon={Icon} size={24} />
-            <span className={clsx('text-font-small-bold truncate', labelClassName)}>
-              <T id={labelI18nKey} />
-            </span>
-          </>
-        )
-      }),
-      [disabled, Icon, labelClassName, labelI18nKey]
-    );
+  const commonButtonProps = useMemo(
+    () => ({
+      className: clsx(
+        ACTION_BUTTON_COMMON_CLASSNAMES,
+        disabled ? 'bg-disable text-grey-2' : ENABLED_ACTION_BUTTON_CLASSNAMES
+      ),
+      type: 'button' as const,
+      children: (
+        <>
+          <IconBase Icon={Icon} size={24} />
+          <span className={clsx('text-font-small-bold truncate', labelClassName)}>
+            <T id={labelI18nKey} />
+          </span>
+        </>
+      )
+    }),
+    [disabled, Icon, labelClassName, labelI18nKey]
+  );
 
-    if (disabled) {
-      return <button ref={buttonRef} {...commonButtonProps} />;
-    }
-
-    return <Link testID={testID} testIDProperties={testIDProperties} to={to} {...commonButtonProps} />;
+  if (disabled) {
+    return <button ref={buttonRef} {...commonButtonProps} />;
   }
-);
+
+  return <Link testID={testID} testIDProperties={testIDProperties} to={to} {...commonButtonProps} />;
+};
 
 const getDisabledTippyProps = (testnetMode: boolean) => ({
   trigger: 'mouseenter',

@@ -1,6 +1,6 @@
 import React, { FC, useCallback } from 'react';
 
-import { useFormContext } from 'react-hook-form';
+import { useFormContext, useWatch } from 'react-hook-form';
 
 import { useCurrenciesLoadingSelector } from 'app/store/buy-with-credit-card/selectors';
 import { TopUpInputInterface } from 'lib/buy-with-credit-card/topup.interface';
@@ -15,10 +15,10 @@ interface Props extends DefaultModalProps {
 }
 
 export const SelectCurrencyModal: FC<Props> = ({ onCurrencySelect, onRequestClose, ...rest }) => {
-  const { watch, setValue } = useFormContext<BuyWithCreditCardFormData>();
+  const { control, setValue } = useFormContext<BuyWithCreditCardFormData>();
 
-  const inputCurrency = watch('inputCurrency');
-  const outputToken = watch('outputToken');
+  const inputCurrency = useWatch({ control, name: 'inputCurrency' });
+  const outputToken = useWatch({ control, name: 'outputToken' });
 
   const allFiatCurrencies = useAllFiatCurrencies(inputCurrency.code, outputToken.slug);
 
