@@ -2,7 +2,7 @@ import React, { memo, useCallback, useEffect, useMemo, useRef } from 'react';
 
 import { ContractAbstraction, ContractProvider, Wallet } from '@taquito/taquito';
 import clsx from 'clsx';
-import { Controller, useForm } from 'react-hook-form';
+import { Controller, useForm, useWatch } from 'react-hook-form';
 import { useDebouncedCallback } from 'use-debounce';
 import { getAddress, isAddress } from 'viem';
 
@@ -106,13 +106,13 @@ export const AddTokenForm = memo<AddTokenPageProps>(
 
     const [_, setToastsContainerBottomShift] = useToastsContainerBottomShift();
 
-    const { formState, register, watch, setValue, trigger, clearErrors, handleSubmit, control } = useForm<FormData>({
+    const { formState, register, setValue, trigger, clearErrors, handleSubmit, control } = useForm<FormData>({
       mode: 'onChange'
     });
     const { errors } = formState;
 
-    const contractAddress = watch('address') || '';
-    const tokenIdWithoutFallback = watch('id');
+    const contractAddress = useWatch({ control, name: 'address' }) || '';
+    const tokenIdWithoutFallback = useWatch({ control, name: 'id' });
     const tokenId = tokenIdWithoutFallback || '0';
 
     const showScamTokenAlert = mainnetTokensScamSlugsRecord[toTokenSlug(contractAddress, tokenId)];

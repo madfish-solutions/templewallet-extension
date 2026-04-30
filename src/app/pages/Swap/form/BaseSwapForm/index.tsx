@@ -3,7 +3,7 @@ import React, { FC, useCallback, useMemo } from 'react';
 import { isDefined } from '@rnw-community/shared';
 import BigNumber from 'bignumber.js';
 import { isEmpty, noop } from 'lodash';
-import { Controller, SubmitErrorHandler, useFormContext } from 'react-hook-form';
+import { Controller, SubmitErrorHandler, useFormContext, useWatch } from 'react-hook-form';
 
 import { IconBase } from 'app/atoms';
 import { ActionsButtonsBox } from 'app/atoms/PageModal';
@@ -104,12 +104,12 @@ export const BaseSwapForm: FC<Props> = ({
   handleToggleIconClick,
   onSubmit
 }) => {
-  const { watch, handleSubmit, control, setValue, getValues, formState } = useFormContext<SwapFormValue>();
+  const { handleSubmit, control, setValue, getValues, formState } = useFormContext<SwapFormValue>();
   const { isSubmitting, submitCount, errors } = formState;
 
   const formSubmitted = submitCount > 0;
 
-  const isFiatMode = watch('isFiatMode');
+  const isFiatMode = useWatch({ control, name: 'isFiatMode' });
 
   const { selectedFiatCurrency } = useFiatCurrency();
 

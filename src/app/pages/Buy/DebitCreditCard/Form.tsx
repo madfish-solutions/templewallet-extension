@@ -3,7 +3,7 @@ import React, { FC, RefObject, useCallback, useEffect, useMemo } from 'react';
 import { isDefined } from '@rnw-community/shared';
 import BigNumber from 'bignumber.js';
 import { isEmpty, isEqual } from 'lodash';
-import { Controller, useFormContext } from 'react-hook-form';
+import { Controller, useFormContext, useWatch } from 'react-hook-form';
 
 import AssetField from 'app/atoms/AssetField';
 import Money from 'app/atoms/Money';
@@ -58,16 +58,16 @@ export const Form: FC<Props> = ({
   onSelectToken,
   onSelectProvider
 }) => {
-  const { control, watch, handleSubmit, formState, setValue } = useFormContext<BuyWithCreditCardFormData>();
+  const { control, handleSubmit, formState, setValue } = useFormContext<BuyWithCreditCardFormData>();
   const { isSubmitting, submitCount, errors } = formState;
 
   const formSubmitted = submitCount > 0;
 
-  const inputAmount = watch('inputAmount');
-  const outputAmount = watch('outputAmount');
-  const inputCurrency = watch('inputCurrency');
-  const outputToken = watch('outputToken');
-  const provider = watch('provider');
+  const inputAmount = useWatch({ control, name: 'inputAmount' });
+  const outputAmount = useWatch({ control, name: 'outputAmount' });
+  const inputCurrency = useWatch({ control, name: 'inputCurrency' });
+  const outputToken = useWatch({ control, name: 'outputToken' });
+  const provider = useWatch({ control, name: 'provider' });
 
   const currenciesLoading = useCurrenciesLoadingSelector();
   const pairLimitsLoading = usePairLimitsAreLoading(inputCurrency.code, outputToken.slug);
