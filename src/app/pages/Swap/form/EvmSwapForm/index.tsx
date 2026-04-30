@@ -3,7 +3,7 @@ import React, { FC, useCallback, useEffect, useMemo, useRef, useState } from 're
 import { ChainId, Route as LiFiRoute } from '@lifi/sdk';
 import { isDefined } from '@rnw-community/shared';
 import BigNumber from 'bignumber.js';
-import { FormProvider, useForm } from 'react-hook-form';
+import { FormProvider, useForm, useWatch } from 'react-hook-form';
 import { useDebounce } from 'use-debounce';
 
 import { DeadEndBoundaryError } from 'app/ErrorBoundary';
@@ -132,11 +132,11 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
     reValidateMode: 'onChange'
   });
 
-  const { watch, reset, setValue, formState, getValues, clearErrors } = form;
+  const { control, reset, setValue, formState, getValues, clearErrors } = form;
 
-  const inputValue = watch('input');
-  const outputValue = watch('output');
-  const isFiatMode = watch('isFiatMode');
+  const inputValue = useWatch({ name: 'input', control });
+  const outputValue = useWatch({ name: 'output', control });
+  const isFiatMode = useWatch({ name: 'isFiatMode', control });
   const [debouncedInputAmount] = useDebounce(inputValue.amount, 200);
 
   const { value: inputTokenBalance = ZERO } = useEvmAssetBalance(

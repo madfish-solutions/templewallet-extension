@@ -2,6 +2,7 @@ import React, { FC, useEffect, useMemo, useState } from 'react';
 
 import { isDefined } from '@rnw-community/shared';
 import { compare } from 'compare-versions';
+import { noop } from 'lodash';
 import memoizee from 'memoizee';
 import browser from 'webextension-polyfill';
 
@@ -71,12 +72,7 @@ export const NotificationBanner: FC = () => {
       .then(([status, details]) => {
         if (status === 'update_available') setCheckedUpdateDetails(details);
       })
-      .catch(e => {
-        if (e instanceof UpdateCheckThrottledError) {
-          // TODO: Remove after testing
-          Promise.resolve(e.message).then(console.warn);
-        }
-      })
+      .catch(noop)
       .finally(() => setIsUpdateChecked(true));
   });
 

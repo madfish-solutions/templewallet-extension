@@ -294,12 +294,7 @@ export const FormField: FC<FormFieldProps> = (props: FormFieldProps) => {
           {additionalActionButtons}
           {cleanable && <CleanButton showText={textarea} size={textarea ? 12 : 16} onClick={onClean} />}
           {rightSideComponent && rightSideComponent}
-          {textarea && !cleanable && showPasteButton && (
-            <Button className="flex items-center text-secondary px-1 py-0.5" onClick={onPasteButtonClick}>
-              <span className="text-font-description-bold">Paste</span>
-              <IconBase Icon={PasteFillIcon} size={12} onClick={onClean} />
-            </Button>
-          )}
+          {textarea && !cleanable && showPasteButton && <PasteButton onClick={onPasteButtonClick} />}
           {copyable && <Copyable value={String(value)} copy={copy} isSecret={type === 'password'} />}
           {hasRevealablePassword && RevealPasswordIcon}
         </div>
@@ -388,6 +383,17 @@ const ExtraInner: FC<ExtraInnerProps> = ({ useDefaultWrapper, innerComponent, po
     );
   return <>{innerComponent}</>;
 };
+
+interface PasteButtonProps {
+  onClick?: EmptyFn;
+}
+
+const PasteButton: FC<PasteButtonProps> = ({ onClick }) => (
+  <Button className="flex items-center text-secondary px-1 py-0.5" onClick={onClick}>
+    <span className="text-font-description-bold">Paste</span>
+    <IconBase Icon={PasteFillIcon} size={12} />
+  </Button>
+);
 
 interface CopyableProps {
   value: string;

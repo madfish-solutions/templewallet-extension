@@ -1,17 +1,21 @@
-import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
+import { FC, useRef } from 'react';
 
 import clsx from 'clsx';
 
 import { FadeTransition } from 'app/a11y/FadeTransition';
-import { useManageState, useSearchModeState, useSearchState } from 'app/hooks/use-assets-view-state';
-import { useLocationSearchParamValue } from 'app/hooks/use-location';
+import {
+  useActiveTabState,
+  useCollectiblesManageState,
+  useSearchModeState,
+  useSearchState,
+  useTokensManageState
+} from 'app/hooks/use-assets-view-state';
 import { ReactComponent as ManageIcon } from 'app/icons/base/manage.svg';
 import { ReactComponent as SearchIcon } from 'app/icons/base/search.svg';
 import { ReactComponent as CloseIcon } from 'app/icons/base/x.svg';
 import { SearchBarField } from 'app/templates/SearchField';
 import { t } from 'lib/i18n';
 import { useWillUnmount } from 'lib/ui/hooks/useWillUnmount';
-import { HistoryAction, navigate } from 'lib/woozie';
 
 import { Button } from './Button';
 import { IconBase } from './IconBase';
@@ -21,43 +25,37 @@ interface AssetsSegmentControlProps {
   className?: string;
 }
 
-export const AssetsViewStateController = memo<AssetsSegmentControlProps>(({ className }) => {
-  const [tabSlug] = useLocationSearchParamValue('tab');
-  const [tab, setTab] = useState(tabSlug ?? 'tokens');
-
+export const AssetsViewStateController: FC<AssetsSegmentControlProps> = ({ className }) => {
   const tokensRef = useRef<HTMLDivElement>(null);
   const collectiblesRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement | null>(null);
 
-  const { setManageActive, setManageInactive } = useManageState();
+  const { activeTab, setActiveTab } = useActiveTabState();
+  const tokensManageState = useTokensManageState();
+  const collectiblesManageState = useCollectiblesManageState();
   const { searchValue, setSearchValue, resetSearchValue } = useSearchState();
   const { searchMode, setSearchModeActive, setSearchModeInactive } = useSearchModeState();
+  const { setManageActive, setManageInactive } =
+    activeTab === 'collectibles' ? collectiblesManageState : tokensManageState;
 
-  useEffect(() => void setTab(tabSlug ?? 'tokens'), [tabSlug]);
-
-  const handleClose = useCallback(() => {
+  const handleClose = () => {
     setManageInactive();
     setSearchModeInactive();
     resetSearchValue();
-  }, [setManageInactive, setSearchModeInactive, resetSearchValue]);
+  };
 
   useWillUnmount(handleClose);
 
-  const handleTabChange = useCallback((val: string) => {
-    setTab(val);
-    navigate({ search: `tab=${val}` }, HistoryAction.Replace);
-  }, []);
-
-  const handleSearch = useCallback(() => {
+  const handleSearch = () => {
     setSearchModeActive();
     // input's hidden to visible transition interrupts sync invocation
     setTimeout(() => void searchInputRef.current?.focus());
-  }, [setSearchModeActive]);
+  };
 
-  const handleManage = useCallback(() => {
+  const handleManage = () => {
     setSearchModeActive();
     setManageActive();
-  }, [setSearchModeActive, setManageActive]);
+  };
 
   return (
     <div className={clsx('relative px-4 py-3', className)}>
@@ -76,8 +74,8 @@ export const AssetsViewStateController = memo<AssetsSegmentControlProps>(({ clas
         <div className={clsx('gap-x-18 items-center', searchMode ? 'hidden overflow-hidden' : 'flex')}>
           <SegmentedControl
             name="assets-segment-control"
-            activeSegment={tab}
-            setActiveSegment={handleTabChange}
+            activeSegment={activeTab}
+            setActiveSegment={setActiveTab}
             className="flex-1"
             controlsClassName="h-8"
             segments={[
@@ -101,7 +99,7 @@ export const AssetsViewStateController = memo<AssetsSegmentControlProps>(({ clas
       </FadeTransition>
     </div>
   );
-});
+};
 
 interface IconButtonProps {
   Icon: ImportedSVGComponent;
@@ -109,7 +107,7 @@ interface IconButtonProps {
   active?: boolean;
 }
 
-const IconButton = memo<IconButtonProps>(({ Icon, onClick, active }) => (
+const IconButton: FC<IconButtonProps> = ({ Icon, onClick, active }) => (
   <Button
     className={clsx(
       'p-1 rounded-md overflow-hidden',
@@ -119,4 +117,4 @@ const IconButton = memo<IconButtonProps>(({ Icon, onClick, active }) => (
   >
     <IconBase Icon={Icon} />
   </Button>
-));
+);

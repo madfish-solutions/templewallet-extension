@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 
 import { useDidUpdate } from 'lib/ui/hooks';
 import { areStringArraysEqual } from 'lib/utils/are-string-arrays-equal';
@@ -10,6 +10,8 @@ export const useImagesStackLoading = (sources: string[]) => {
   const emptyStack = sources.length < 1;
 
   const prevSourcesRef = useRef<string[]>([]);
+
+  const [index, setIndex] = useState(emptyStack ? -1 : 0);
 
   const [isLoading, setIsLoading] = useState(!emptyStack);
   const [isStackFailed, setIsStackFailed] = useState(emptyStack);
@@ -38,13 +40,11 @@ export const useImagesStackLoading = (sources: string[]) => {
     }
   }, [sources]);
 
-  const [index, setIndex] = useState(emptyStack ? -1 : 0);
+  const src = sources.at(index);
 
-  const src = sources[index] as string | undefined;
+  const onSuccess = () => void setIsLoading(false);
 
-  const onSuccess = useCallback(() => void setIsLoading(false), []);
-
-  const onFail = useCallback(() => {
+  const onFail = () => {
     if (isStackFailed) {
       return;
     }
@@ -58,7 +58,7 @@ export const useImagesStackLoading = (sources: string[]) => {
     }
 
     setIndex(index + 1);
-  }, [isStackFailed, sources.length, index]);
+  };
 
   return {
     src,

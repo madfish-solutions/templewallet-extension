@@ -2,7 +2,7 @@ import React, { memo, useCallback, useLayoutEffect, useMemo } from 'react';
 
 import { generateMnemonic } from 'bip39';
 import clsx from 'clsx';
-import { Controller, useForm } from 'react-hook-form';
+import { Controller, useForm, useWatch } from 'react-hook-form';
 
 import { Alert, FormField, PASSWORD_ERROR_CAPTION } from 'app/atoms';
 import { SettingsCheckbox } from 'app/atoms/SettingsCheckbox';
@@ -87,7 +87,7 @@ export const CreatePasswordForm = memo<CreatePasswordFormProps>(
       return { analytics: true, getRewards: true };
     }, [consent]);
 
-    const { control, watch, register, handleSubmit, trigger, formState, setValue, reset } = useForm<FormData>({
+    const { control, register, handleSubmit, trigger, formState, setValue, reset } = useForm<FormData>({
       defaultValues: {
         password: '',
         repeatPassword: '',
@@ -103,7 +103,7 @@ export const CreatePasswordForm = memo<CreatePasswordFormProps>(
       repeatPassword: repeatPasswordValue,
       analytics: analyticsEnabled,
       getRewards: rewardsEnabled
-    } = watch();
+    } = useWatch({ control });
 
     const passwordValidation = useMemo(
       () =>

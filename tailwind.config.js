@@ -289,7 +289,8 @@ module.exports = {
         'modal-page': 600,
         dropdown: 800,
         'modal-dialog': 1000,
-        'overlay-promo': 1100
+        'overlay-promo': 1100,
+        'overlay-loading': 1200
       },
 
       space: theme => ({
