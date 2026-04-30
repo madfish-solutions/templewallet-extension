@@ -22,6 +22,7 @@ export const CompletedContent: FC<Props> = ({ exchangeId, onClose }) => {
       backgroundSrc={backgroundSuccessSrc}
       heroOuterClassName="h-39 px-4 pb-2"
       heroInnerClassName="flex flex-col items-center gap-y-3 pb-4 pt-6"
+      showEstimatedTime={false}
       hero={
         <>
           <DoneAnimation hideBackground animationSize={58} />

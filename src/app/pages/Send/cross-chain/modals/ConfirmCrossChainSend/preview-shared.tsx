@@ -54,7 +54,7 @@ export const NetworkRows: FC<NetworkRowsProps> = ({ recipientNode, fromAsset, to
       <ChartListItem title={t('networkTo')}>
         <NetworkCell name={toNetworkName} asset={toAsset} />
       </ChartListItem>
-      <ChartListItem title={t('estimatedTime')} bottomSeparator={false}>
+      <ChartListItem title="Est. time" bottomSeparator={false}>
         <span className="p-1 text-font-num-12">{CROSS_CHAIN_DEFAULT_ETA}</span>
       </ChartListItem>
     </div>

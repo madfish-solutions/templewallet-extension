@@ -1,14 +1,16 @@
-import React, { FC, memo, useCallback } from 'react';
+import React, { FC, memo, useEffect } from 'react';
 
 import { Loader } from 'app/atoms';
 import { CaptionAlert } from 'app/atoms/CaptionAlert';
 import { ActionsButtonsBox } from 'app/atoms/PageModal/actions-buttons-box';
 import { StyledButton } from 'app/atoms/StyledButton';
+import { useAnalytics } from 'lib/analytics';
 import { T, t } from 'lib/i18n';
 import { useAccountForEvm, useAccountForTezos } from 'temple/front';
 import { useEvmChainByChainId, useTezosChainByChainId } from 'temple/front/chains';
 import { TempleChainKind } from 'temple/types';
 
+import { CrossChainAnalyticsEvents } from '../../analytics';
 import { useCrossChainExchangeReservation } from '../../hooks/use-cross-chain-exchange-reservation';
 
 import { PreviewBodyEvm } from './PreviewBodyEvm';
@@ -39,15 +41,28 @@ export const PreviewContent: FC<Props> = ({ data, onSubmitted, onCancel, devForc
     forceError: devForceReservationError
   });
 
-  const { data: exchange, error, isLoading, mutate } = reservation;
-  const handleRetry = useCallback(() => mutate(), [mutate]);
+  const { data: exchange, error, isLoading } = reservation;
+
+  const { trackEvent } = useAnalytics();
+
+  useEffect(() => {
+    if (!error) return;
+    trackEvent(CrossChainAnalyticsEvents.CrossChainReservationFailed, undefined, {
+      fromCoin: fromAsset.exolixCoin,
+      fromNetwork: fromAsset.exolixNetwork,
+      toCoin: toAsset.exolixCoin,
+      toNetwork: toAsset.exolixNetwork,
+      amount: fromAmount,
+      message: error instanceof Error ? error.message : String(error)
+    });
+  }, [error, fromAsset.exolixCoin, fromAsset.exolixNetwork, toAsset.exolixCoin, toAsset.exolixNetwork, fromAmount, trackEvent]);
 
   if (isLoading || (!exchange && !error)) {
     return <CenteredLoader />;
   }
 
   if (error || !exchange) {
-    return <ReservationFailureView error={error} onRetry={handleRetry} onCancel={onCancel} />;
+    return <ReservationFailureView error={error} onClose={onCancel} />;
   }
 
   if (fromAsset.chainKind === TempleChainKind.EVM && evmAccount && evmNetwork) {
@@ -77,11 +92,7 @@ export const PreviewContent: FC<Props> = ({ data, onSubmitted, onCancel, devForc
   }
 
   return (
-    <ReservationFailureView
-      error={new Error(t('crossChainSourceAccountUnavailable'))}
-      onRetry={handleRetry}
-      onCancel={onCancel}
-    />
+    <ReservationFailureView error={new Error(t('crossChainSourceAccountUnavailable'))} onClose={onCancel} />
   );
 };
 
@@ -93,11 +104,10 @@ const CenteredLoader = memo(() => (
 
 interface FailureProps {
   error: unknown;
-  onRetry: EmptyFn;
-  onCancel: EmptyFn;
+  onClose: EmptyFn;
 }
 
-const ReservationFailureView = memo<FailureProps>(({ error, onRetry, onCancel }) => {
+const ReservationFailureView = memo<FailureProps>(({ error, onClose }) => {
   const message =
     error instanceof Error ? error.message : typeof error === 'string' ? error : t('couldNotStartExchangeDescription');
 
@@ -108,12 +118,9 @@ const ReservationFailureView = memo<FailureProps>(({ error, onRetry, onCancel })
         <p className="text-font-small text-grey-1 wrap-break-word">{message}</p>
       </div>
 
-      <ActionsButtonsBox flexDirection="row" shouldChangeBottomShift={false}>
-        <StyledButton size="L" className="w-full" color="primary-low" onClick={onCancel}>
-          <T id="cancel" />
-        </StyledButton>
-        <StyledButton size="L" className="w-full" color="primary" onClick={onRetry}>
-          <T id="retry" />
+      <ActionsButtonsBox shouldChangeBottomShift={false}>
+        <StyledButton size="L" color="primary" onClick={onClose}>
+          <T id="close" />
         </StyledButton>
       </ActionsButtonsBox>
     </>

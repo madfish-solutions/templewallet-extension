@@ -84,7 +84,7 @@ const Send = memo<Props>(({ chainKind, chainId, assetSlug }) => {
   const [storedActiveTab, setActiveTab] = useState<SendTab>('default');
   const activeTab: SendTab = testnetModeEnabled ? 'default' : storedActiveTab;
 
-  const crossChain = useCrossChainSendController({ activeTab });
+  const crossChain = useCrossChainSendController({ activeTab, setActiveTab });
 
   const handleSetActiveTab = useCallback(
     (tab: SendTab) => {

@@ -1,5 +1,7 @@
 import { useCallback } from 'react';
 
+import { unstable_serialize, useSWRConfig } from 'swr';
+
 import { dispatch } from 'app/store';
 import { addCrossChainExchangeAction, monitorCrossChainExchangesAction } from 'app/store/cross-chain-send/actions';
 import { CrossChainExchange } from 'app/store/cross-chain-send/state';
@@ -9,6 +11,8 @@ import { CrossChainAsset } from 'lib/cross-chain';
 import { TempleChainKind } from 'temple/types';
 
 import { CrossChainAnalyticsEvents } from '../analytics';
+
+import { buildCrossChainReservationCacheKey } from './use-cross-chain-exchange-reservation';
 
 interface RecordExchangeArgs {
   accountId: string;
@@ -26,6 +30,7 @@ interface RecordExchangeArgs {
 
 export const useSubmitCrossChainExchange = () => {
   const { trackEvent } = useAnalytics();
+  const { cache: swrCache } = useSWRConfig();
 
   return useCallback(
     ({
@@ -66,6 +71,11 @@ export const useSubmitCrossChainExchange = () => {
       dispatch(addCrossChainExchangeAction(storedExchange));
       dispatch(monitorCrossChainExchangesAction());
 
+      // The reservation just got broadcast — its deposit address is now closed on Exolix's side
+      // (or will be once the deposit lands). Drop the SWR cache entry so a future Preview mount
+      // with the same form inputs creates a brand-new order instead of reusing this one.
+      swrCache.delete(unstable_serialize(buildCrossChainReservationCacheKey({ fromAsset, toAsset, fromAmount, recipient })));
+
       trackEvent(CrossChainAnalyticsEvents.CrossChainConfirmed, undefined, {
         exchangeId: exchange.id,
         from: fromAsset.exolixCoin,
@@ -77,6 +87,6 @@ export const useSubmitCrossChainExchange = () => {
 
       return storedExchange;
     },
-    [trackEvent]
+    [trackEvent, swrCache]
   );
 };

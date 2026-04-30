@@ -69,11 +69,10 @@ export const ConfirmCrossChainSendModal: FC<Props> = ({
   }, [onRequestClose]);
 
   const handleTryAgain = useCallback(() => {
-    if (reviewData && onTryAgain) {
-      onRequestClose();
-      setExchangeId(undefined);
-      onTryAgain(reviewData);
-    }
+    if (!reviewData || !onTryAgain) return;
+    onRequestClose();
+    setExchangeId(undefined);
+    onTryAgain(reviewData);
   }, [reviewData, onTryAgain, onRequestClose]);
 
   return (

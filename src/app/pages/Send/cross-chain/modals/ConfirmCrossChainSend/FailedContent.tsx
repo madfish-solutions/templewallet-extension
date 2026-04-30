@@ -35,6 +35,7 @@ export const FailedContent: FC<Props> = ({ exchangeId, onClose, onTryAgain }) =>
       backgroundSrc={backgroundFailedSrc}
       heroOuterClassName="h-48 px-4 pb-2"
       heroInnerClassName="flex flex-col items-center gap-y-3 pb-4 pt-6"
+      showEstimatedTime={false}
       hero={
         <>
           <XCircleFill width={58} height={58} className="text-error fill-current" />

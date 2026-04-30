@@ -9,7 +9,7 @@ import {
 import { Checkbox } from 'app/atoms/Checkbox';
 import { CROSS_CHAIN_WARNING_DISMISSED_STORAGE_KEY } from 'lib/cross-chain';
 import { T, t } from 'lib/i18n';
-import { useLocalStorage } from 'lib/ui/local-storage';
+import { useStorage } from 'lib/temple/front';
 
 interface Props {
   opened: boolean;
@@ -18,7 +18,7 @@ interface Props {
 }
 
 export const CrossChainWarningModal: FC<Props> = ({ opened, onRequestClose, onConfirm }) => {
-  const [, setDismissed] = useLocalStorage<boolean>(CROSS_CHAIN_WARNING_DISMISSED_STORAGE_KEY, false);
+  const [, setDismissed] = useStorage<boolean>(CROSS_CHAIN_WARNING_DISMISSED_STORAGE_KEY);
   const [dontShow, setDontShow] = useState(false);
 
   if (!opened) return null;

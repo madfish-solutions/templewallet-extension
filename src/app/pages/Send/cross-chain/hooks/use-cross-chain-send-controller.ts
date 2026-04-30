@@ -4,8 +4,9 @@ import { useHasActiveCrossChainExchangesSelector } from 'app/store/cross-chain-s
 import { CrossChainExchange } from 'app/store/cross-chain-send/state';
 import { useAnalytics } from 'lib/analytics';
 import { CROSS_CHAIN_WARNING_DISMISSED_STORAGE_KEY } from 'lib/cross-chain';
+import { useStorage } from 'lib/temple/front';
 import { useBooleanState } from 'lib/ui/hooks';
-import { useLocalStorage } from 'lib/ui/local-storage';
+import { HistoryAction, navigate } from 'lib/woozie';
 import { useAccount } from 'temple/front';
 
 import { CrossChainAnalyticsEvents } from '../analytics';
@@ -14,9 +15,10 @@ import { ConfirmCrossChainReviewData } from '../modals/ConfirmCrossChainSend/typ
 
 interface UseCrossChainSendControllerArgs {
   activeTab: SendTab;
+  setActiveTab: SyncFn<SendTab>;
 }
 
-export const useCrossChainSendController = ({ activeTab }: UseCrossChainSendControllerArgs) => {
+export const useCrossChainSendController = ({ activeTab, setActiveTab }: UseCrossChainSendControllerArgs) => {
   const [crossChainReview, setCrossChainReview] = useState<ConfirmCrossChainReviewData | undefined>();
   const [crossChainInitialExchangeId, setCrossChainInitialExchangeId] = useState<string | undefined>();
 
@@ -24,7 +26,8 @@ export const useCrossChainSendController = ({ activeTab }: UseCrossChainSendCont
   const [crossChainWarningOpened, openCrossChainWarning, closeCrossChainWarning] = useBooleanState(false);
   const [crossChainActivityOpened, openCrossChainActivity, closeCrossChainActivity] = useBooleanState(false);
 
-  const [warningDismissed] = useLocalStorage<boolean>(CROSS_CHAIN_WARNING_DISMISSED_STORAGE_KEY, false);
+  const [warningDismissedRaw] = useStorage<boolean>(CROSS_CHAIN_WARNING_DISMISSED_STORAGE_KEY);
+  const warningDismissed = warningDismissedRaw === true;
   const currentAccount = useAccount();
   const accountId = currentAccount?.id;
   const hasActiveCrossChain = useHasActiveCrossChainExchangesSelector(accountId);
@@ -85,7 +88,9 @@ export const useCrossChainSendController = ({ activeTab }: UseCrossChainSendCont
 
   const handleTryAgain = useCallback(() => {
     trackEvent(CrossChainAnalyticsEvents.CrossChainTryAgain);
-  }, [trackEvent]);
+    navigate('/send', HistoryAction.Replace);
+    setActiveTab('cross-chain');
+  }, [trackEvent, setActiveTab]);
 
   const handleTabChange = useCallback(
     (tab: SendTab) => {

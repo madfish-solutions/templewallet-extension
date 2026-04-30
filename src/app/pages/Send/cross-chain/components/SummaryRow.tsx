@@ -13,7 +13,7 @@ interface Props {
 
 export const SummaryRow = memo<Props>(({ feePercent, eta = CROSS_CHAIN_DEFAULT_ETA }) => (
   <div className="my-4 px-4 bg-white rounded-8 border-0.5 border-lines">
-    <ChartListItem title={t('estimatedTime')}>
+    <ChartListItem title="Est. time">
       <span className="p-1 text-font-num-12 text-black">{eta}</span>
     </ChartListItem>
     <ChartListItem title={t('fee')} bottomSeparator={false}>

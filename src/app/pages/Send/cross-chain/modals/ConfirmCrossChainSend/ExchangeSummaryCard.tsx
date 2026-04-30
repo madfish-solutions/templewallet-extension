@@ -45,7 +45,7 @@ export const ExchangeSummaryCard = memo<Props>(
     const effectiveToAmount = toAmountActual || toAmountEstimated;
 
     return (
-      <div className="rounded-8 bg-white border-0.5 border-lines overflow-hidden">
+      <div className="rounded-8 bg-white border-0.5 border-lines">
         <div className="px-4 pt-4 pb-3 flex flex-col gap-y-3">
           <DirectionalAmountRow
             labelId="send"
@@ -68,30 +68,23 @@ export const ExchangeSummaryCard = memo<Props>(
           />
         </div>
 
-        <div
-          className={clsx(
-            'grid transition-[grid-template-rows] duration-300 ease-in-out',
-            expanded ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'
-          )}
-        >
-          <div className="overflow-hidden">
-            <div className="px-4">
-              <ChartListItem title={t('transactionId')} bottomSeparator={showEstimatedTime || Boolean(depositTxHash)}>
-                <CopyableText text={exolixId} />
+        {expanded && (
+          <div className="px-4">
+            <ChartListItem title={t('transactionId')} bottomSeparator={showEstimatedTime || Boolean(depositTxHash)}>
+              <CopyableText text={exolixId} />
+            </ChartListItem>
+            {showEstimatedTime && (
+              <ChartListItem title="Est. time" bottomSeparator={Boolean(depositTxHash)}>
+                <span className="p-1 text-font-num-12">{CROSS_CHAIN_DEFAULT_ETA}</span>
               </ChartListItem>
-              {showEstimatedTime && (
-                <ChartListItem title={t('estimatedTime')} bottomSeparator={Boolean(depositTxHash)}>
-                  <span className="p-1 text-font-num-12">{CROSS_CHAIN_DEFAULT_ETA}</span>
-                </ChartListItem>
-              )}
-              {depositTxHash && (
-                <ChartListItem title={t('depositTxHash')} bottomSeparator={false}>
-                  <HashChip hash={depositTxHash} firstCharsCount={6} lastCharsCount={4} />
-                </ChartListItem>
-              )}
-            </div>
+            )}
+            {depositTxHash && (
+              <ChartListItem title={t('depositTxHash')} bottomSeparator={false}>
+                <HashChip hash={depositTxHash} firstCharsCount={6} lastCharsCount={4} />
+              </ChartListItem>
+            )}
           </div>
-        </div>
+        )}
 
         <button
           type="button"
