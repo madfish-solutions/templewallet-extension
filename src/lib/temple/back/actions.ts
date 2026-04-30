@@ -7,7 +7,7 @@ import {
   TempleDAppRequest,
   TempleDAppResponse
 } from '@temple-wallet/dapp/dist/types';
-import { TransactionRequest } from 'viem';
+import { AuthorizationRequest, SignableMessage, TransactionRequest, TypedDataDefinition } from 'viem';
 import browser, { Runtime } from 'webextension-polyfill';
 
 import {
@@ -219,6 +219,30 @@ export function canInteractWithDApps() {
 export function sendEvmTransaction(accountPkh: HexString, network: EvmChain, txParams: TransactionRequest) {
   return withUnlocked(async ({ vault }) => {
     return await vault.sendEvmTransaction(accountPkh, network, txParams);
+  });
+}
+
+export function signEvmMessage(accountPkh: HexString, message: SignableMessage) {
+  return withUnlocked(async ({ vault }) => {
+    return await vault.signEvmMessage(accountPkh, message);
+  });
+}
+
+export function signEvmHash(accountPkh: HexString, hash: HexString) {
+  return withUnlocked(async ({ vault }) => {
+    return await vault.signEvmHash(accountPkh, hash);
+  });
+}
+
+export function signEvmTypedData(accountPkh: HexString, typedData: TypedDataDefinition) {
+  return withUnlocked(async ({ vault }) => {
+    return await vault.signEvmTypedData(accountPkh, typedData);
+  });
+}
+
+export function signEvmAuthorization(accountPkh: HexString, authorization: AuthorizationRequest) {
+  return withUnlocked(async ({ vault }) => {
+    return await vault.signEvmAuthorization(accountPkh, authorization);
   });
 }
 

@@ -13,6 +13,7 @@ export interface SendFormData {
 interface BaseReviewData extends SendFormData {
   assetSlug: string;
   onConfirm: EmptyFn;
+  useAlchemyGasPayment?: boolean;
 }
 
 export type EvmReviewData = GenericEvmReviewData<BaseReviewData>;
