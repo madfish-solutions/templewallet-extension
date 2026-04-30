@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import { FC, HTMLAttributes } from 'react';
 
 import clsx from 'clsx';
 import { omit } from 'lodash';
@@ -11,7 +11,7 @@ interface AvatarPropsBase {
   borderColor?: 'secondary' | 'gray';
 }
 
-interface AvatarDivProps extends AvatarPropsBase, React.HTMLAttributes<HTMLDivElement> {
+interface AvatarDivProps extends AvatarPropsBase, HTMLAttributes<HTMLDivElement> {
   elementType?: 'div';
 }
 
@@ -33,34 +33,35 @@ const sizeContainerClassNames = {
   60: 'rounded-lg border border-white'
 };
 
-export const Avatar = memo<PropsWithChildren<AvatarProps>>(
-  ({ children, size, className, borderColor = size === 60 ? 'gray' : 'secondary', ...restProps }) => {
-    const wrapperClassName = clsx(
-      sizeButtonClassNames[size],
-      className,
-      borderColor === 'gray' ? 'border-grey-2' : 'border-secondary',
-      borderColor === 'secondary' && size === 24 && 'hover:border-secondary-hover',
-      borderColor === 'secondary' && size === 32 && 'hover:bg-secondary-low'
-    );
-    const content = (
-      <div
-        className={clsx(
-          'w-full h-full overflow-hidden flex justify-center items-center',
-          sizeContainerClassNames[size]
-        )}
-      >
-        {children}
-      </div>
-    );
+export const Avatar: FC<PropsWithChildren<AvatarProps>> = ({
+  children,
+  size,
+  className,
+  borderColor = size === 60 ? 'gray' : 'secondary',
+  ...restProps
+}) => {
+  const wrapperClassName = clsx(
+    sizeButtonClassNames[size],
+    className,
+    borderColor === 'gray' ? 'border-grey-2' : 'border-secondary',
+    borderColor === 'secondary' && size === 24 && 'hover:border-secondary-hover',
+    borderColor === 'secondary' && size === 32 && 'hover:bg-secondary-low'
+  );
+  const content = (
+    <div
+      className={clsx('w-full h-full overflow-hidden flex justify-center items-center', sizeContainerClassNames[size])}
+    >
+      {children}
+    </div>
+  );
 
-    return restProps.elementType === 'button' ? (
-      <Button className={wrapperClassName} {...omit(restProps, 'elementType')}>
-        {content}
-      </Button>
-    ) : (
-      <div className={wrapperClassName} {...omit(restProps, 'elementType')}>
-        {content}
-      </div>
-    );
-  }
-);
+  return restProps.elementType === 'button' ? (
+    <Button className={wrapperClassName} {...omit(restProps, 'elementType')}>
+      {content}
+    </Button>
+  ) : (
+    <div className={wrapperClassName} {...omit(restProps, 'elementType')}>
+      {content}
+    </div>
+  );
+};

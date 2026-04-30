@@ -1,4 +1,4 @@
-import { FC, ChangeEvent, Ref, useCallback } from 'react';
+import { FC, ChangeEvent, Ref } from 'react';
 
 import { FormFieldProps, FormField } from './FormField';
 
@@ -9,17 +9,12 @@ type NoSpaceFieldProps = FormFieldProps & {
 };
 
 export const NoSpaceField: FC<NoSpaceFieldProps> = ({ value, onChange, ref, ...rest }) => {
-  const format = useCallback((val: string) => val.replace(/\s/g, ''), []);
-
-  const handleChange = useCallback(
-    (evt: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-      const formatted = format(evt.target.value);
-      if (onChange) {
-        onChange(formatted);
-      }
-    },
-    [format, onChange]
-  );
+  const handleChange = (evt: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const formatted = evt.target.value.replace(/\s/g, '');
+    if (onChange) {
+      onChange(formatted);
+    }
+  };
 
   return <FormField ref={ref} value={value} onChange={handleChange} {...rest} />;
 };

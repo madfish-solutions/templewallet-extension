@@ -69,6 +69,9 @@ export const TransactionTabs = <T extends TxParamsFormData>({
   children
 }: TransactionTabsProps<T>) => {
   const { handleSubmit } = useFormContext<T>();
+  const detailsTabRef = useRef<HTMLDivElement>(null);
+  const feeTabRef = useRef<HTMLDivElement>(null);
+  const advancedTabRef = useRef<HTMLDivElement>(null);
   const errorTabRef = useRef<HTMLDivElement>(null);
   const isEvm = network.kind === TempleChainKind.EVM;
 
@@ -93,14 +96,14 @@ export const TransactionTabs = <T extends TxParamsFormData>({
           {
             label: 'Details',
             value: 'details',
-            ref: useRef<HTMLDivElement>(null)
+            ref: detailsTabRef
           },
           {
             label: 'Fee',
             value: 'fee',
-            ref: useRef<HTMLDivElement>(null)
+            ref: feeTabRef
           },
-          { label: 'Advanced', value: 'advanced', ref: useRef<HTMLDivElement>(null) },
+          { label: 'Advanced', value: 'advanced', ref: advancedTabRef },
           ...(error ? [{ label: t('error'), value: 'error' as const, ref: errorTabRef }] : [])
         ]}
       />

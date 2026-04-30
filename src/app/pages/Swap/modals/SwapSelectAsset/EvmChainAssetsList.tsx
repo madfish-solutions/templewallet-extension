@@ -59,8 +59,8 @@ export const EvmChainAssetsList = memo<Props>(({ chainId, activeField, publicKey
     },
     [chainId, getEvmBalance]
   );
-  const showFavoritesMark = useMemo(() => activeField === 'output', [activeField]);
-  const filterZeroBalances = useMemo(() => activeField === 'input', [activeField]);
+  const showFavoritesMark = activeField === 'output';
+  const filterZeroBalances = activeField === 'input';
 
   const tokensSlugs = useEnabledEvmChainAccountTokenSlugs(publicKeyHash, chainId);
 

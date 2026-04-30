@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import React, { FC } from 'react';
 
 import { ReactComponent as ErrorIcon } from 'app/icons/typed-msg/error.svg';
 import { t } from 'lib/i18n';
@@ -13,7 +13,11 @@ const scamInfoTippyProps = {
   placement: 'auto' as const
 };
 
-export const ScamTag = memo(({ className }: { className?: string }) => {
+interface Props {
+  className?: string;
+}
+
+export const ScamTag: FC<Props> = ({ className }) => {
   const scamInfoIconRef = useTippy<HTMLSpanElement>(scamInfoTippyProps);
 
   return (
@@ -25,4 +29,4 @@ export const ScamTag = memo(({ className }: { className?: string }) => {
       <ErrorIcon className="w-5 h-5" />
     </span>
   );
-});
+};

@@ -1,4 +1,4 @@
-import React, { ComponentType, FC, memo, ReactNode, useRef } from 'react';
+import { ComponentType, FC, ReactNode, useRef } from 'react';
 
 import clsx from 'clsx';
 
@@ -185,7 +185,7 @@ const ContentPaper: FC<ContentPaperProps> = ({
 
 const ContentPaperNode = SCROLL_DOCUMENT ? 'div' : ScrollRestorer;
 
-const TestnetModeIndicator = memo(() => {
+const TestnetModeIndicator = () => {
   const enabled = useTestnetModeEnabledSelector();
 
   return (
@@ -201,4 +201,4 @@ const TestnetModeIndicator = memo(() => {
       </span>
     </div>
   );
-});
+};
