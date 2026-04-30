@@ -3,7 +3,6 @@ import { useCallback, useMemo } from 'react';
 import { useTezosUsdToTokenRatesSelector } from 'app/store/currency/selectors';
 import { useEvmTokensExchangeRatesLoading, useEvmTokensMetadataLoadingSelector } from 'app/store/evm/selectors';
 import { useEvmUsdToTokenRatesSelector } from 'app/store/evm/tokens-exchange-rates/selectors';
-import { useEvmTokensMetadataRecordSelector } from 'app/store/evm/tokens-metadata/selectors';
 import { useAreAssetsLoading } from 'app/store/tezos/assets/selectors';
 import { useTokensMetadataLoadingSelector } from 'app/store/tezos/tokens-metadata/selectors';
 import { EVM_TOKEN_SLUG, TEZ_TOKEN_SLUG } from 'lib/assets/defaults';
@@ -12,10 +11,10 @@ import { searchAssetsWithNoMeta } from 'lib/assets/search.utils';
 import { useAccountTokensSortPredicate } from 'lib/assets/use-sorting';
 import { parseChainAssetSlug, toChainAssetSlug } from 'lib/assets/utils';
 import { useGetEvmTokenBalanceWithDecimals, useGetTezosAccountTokenOrGasBalanceWithDecimals } from 'lib/balances/hooks';
-import { useGetTokenOrGasMetadata } from 'lib/metadata';
+import { useGetEvmGasOrTokenMetadata, useGetTokenOrGasMetadata } from 'lib/metadata';
 import { useMemoWithCompare } from 'lib/ui/hooks';
 import { groupByToEntries } from 'lib/utils/group-by-to-entries';
-import { useAllEvmChains, useEnabledEvmChains, useEnabledTezosChains } from 'temple/front';
+import { useEnabledEvmChains, useEnabledTezosChains } from 'temple/front';
 import { ChainGroupedSlugs } from 'temple/front/chains';
 import { TempleChainKind } from 'temple/types';
 
@@ -142,17 +141,7 @@ export const useAccountTokensListingLogic = (
   );
 
   const getTezMetadata = useGetTokenOrGasMetadata();
-  const evmChains = useAllEvmChains();
-  const evmMetadata = useEvmTokensMetadataRecordSelector();
-
-  const getEvmMetadata = useCallback(
-    (chainId: number, slug: string) => {
-      if (slug === EVM_TOKEN_SLUG) return evmChains[chainId]?.currency;
-
-      return evmMetadata[chainId]?.[slug];
-    },
-    [evmChains, evmMetadata]
-  );
+  const getEvmMetadata = useGetEvmGasOrTokenMetadata();
 
   const displayedSlugs = useMemo(
     () =>
