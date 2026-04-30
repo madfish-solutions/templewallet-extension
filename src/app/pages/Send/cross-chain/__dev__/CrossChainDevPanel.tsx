@@ -34,6 +34,7 @@ const buildFakeExchange = (
   senderAddress: 'tz1L7QrPFCSXM4ckPzGqQp9j7iBg9z3uM2Z9',
   sourceTxHash: 'oo1q2w3e4r5t6y7u8i9o0p1a2s3d4f5g6h7j8k9l0z',
   depositAddress: 'tz1depositXXXXXXXXXXXXXXXXXXXXXXXXXX',
+  depositExtraId: null,
   recipient: PREVIEW_DATA.recipient,
   fromAsset: PREVIEW_DATA.fromAsset,
   toAsset: PREVIEW_DATA.toAsset,

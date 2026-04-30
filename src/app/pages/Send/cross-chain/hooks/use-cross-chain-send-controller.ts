@@ -26,8 +26,7 @@ export const useCrossChainSendController = ({ activeTab, setActiveTab }: UseCros
   const [crossChainWarningOpened, openCrossChainWarning, closeCrossChainWarning] = useBooleanState(false);
   const [crossChainActivityOpened, openCrossChainActivity, closeCrossChainActivity] = useBooleanState(false);
 
-  const [warningDismissedRaw] = useStorage<boolean>(CROSS_CHAIN_WARNING_DISMISSED_STORAGE_KEY);
-  const warningDismissed = warningDismissedRaw === true;
+  const [warningDismissed] = useStorage<boolean>(CROSS_CHAIN_WARNING_DISMISSED_STORAGE_KEY, false);
   const currentAccount = useAccount();
   const accountId = currentAccount?.id;
   const hasActiveCrossChain = useHasActiveCrossChainExchangesSelector(accountId);

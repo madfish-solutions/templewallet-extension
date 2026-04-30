@@ -1,5 +1,7 @@
 import { TempleChainKind } from 'temple/types';
 
+export type CrossChainPhase = 'PENDING_TX' | 'TX_CONFIRMED' | 'EXCHANGING' | 'COMPLETED' | 'FAILED';
+
 export type CrossChainDest = 'tezos' | 'evm' | 'btc';
 
 export interface CrossChainAsset {

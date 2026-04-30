@@ -78,6 +78,15 @@ export interface GetRateRequestData {
   amount: number;
 }
 
+export interface CrossChainRateRequestData {
+  coinFrom: string;
+  coinFromNetwork: string;
+  coinTo: string;
+  coinToNetwork: string;
+  /** String to preserve precision for 18-decimal tokens. */
+  amount: string;
+}
+
 interface GetRateResponseWithAmountTooLow {
   fromAmount: number;
   toAmount: number;

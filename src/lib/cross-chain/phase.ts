@@ -1,5 +1,6 @@
-import { CrossChainPhase } from 'app/store/cross-chain-send/state';
 import { OrderStatusEnum } from 'lib/apis/exolix/types';
+
+import { CrossChainPhase } from './types';
 
 const TERMINAL_PHASES: ReadonlyArray<CrossChainPhase> = ['COMPLETED', 'FAILED'];
 

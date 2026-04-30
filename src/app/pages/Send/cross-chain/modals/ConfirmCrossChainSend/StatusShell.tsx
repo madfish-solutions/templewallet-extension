@@ -30,7 +30,7 @@ export const StatusShell: FC<Props> = memo(
     actions
   }) => (
     <>
-      <div className="flex-1 overflow-y-auto px-4 pt-3 flex flex-col items-stretch">
+      <div className="flex-1 min-h-0 overflow-y-auto px-4 pt-3 pb-4 flex flex-col items-stretch">
         <StatusHeroRegion
           backgroundSrc={backgroundSrc}
           outerClassName={heroOuterClassName}

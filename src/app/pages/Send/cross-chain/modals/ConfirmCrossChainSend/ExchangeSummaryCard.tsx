@@ -74,7 +74,7 @@ export const ExchangeSummaryCard = memo<Props>(
               <CopyableText text={exolixId} />
             </ChartListItem>
             {showEstimatedTime && (
-              <ChartListItem title="Est. time" bottomSeparator={Boolean(depositTxHash)}>
+              <ChartListItem title={t('estimatedTime')} bottomSeparator={Boolean(depositTxHash)}>
                 <span className="p-1 text-font-num-12">{CROSS_CHAIN_DEFAULT_ETA}</span>
               </ChartListItem>
             )}

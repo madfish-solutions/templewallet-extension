@@ -1,3 +1,4 @@
+import BigNumber from 'bignumber.js';
 import { useDebounce } from 'use-debounce';
 
 import { GetRateResponse } from 'lib/apis/exolix/types';
@@ -5,7 +6,8 @@ import { queryCrossChainRate } from 'lib/apis/exolix/utils';
 import { CrossChainAsset } from 'lib/cross-chain';
 import { useTypedSWR } from 'lib/swr';
 
-const SEED_PROBE_AMOUNT = 0.00001;
+// Intentionally tiny: always falls below Exolix min so the API surfaces the real min in its response.
+const SEED_PROBE_AMOUNT = '0.00001';
 
 interface RateArgs {
   from: CrossChainAsset;
@@ -15,9 +17,10 @@ interface RateArgs {
 
 export const useCrossChainRate = ({ from, to, amount }: RateArgs) => {
   const [debouncedAmount] = useDebounce(amount.trim(), 350);
-  const parsedAmount = parseFloat(debouncedAmount || '0');
-  const probeAmount = parsedAmount > 0 ? parsedAmount : SEED_PROBE_AMOUNT;
-  const probeKey = parsedAmount > 0 ? debouncedAmount : `seed:${SEED_PROBE_AMOUNT}`;
+  const parsed = new BigNumber(debouncedAmount || '0');
+  const hasAmount = parsed.isFinite() && parsed.isGreaterThan(0);
+  const probeAmount = hasAmount ? debouncedAmount : SEED_PROBE_AMOUNT;
+  const probeKey = hasAmount ? debouncedAmount : `seed:${SEED_PROBE_AMOUNT}`;
 
   const key = ['cross-chain-rate', from.exolixCoin, from.exolixNetwork, to.exolixCoin, to.exolixNetwork, probeKey];
 

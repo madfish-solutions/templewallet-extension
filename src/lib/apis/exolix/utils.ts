@@ -4,7 +4,13 @@ import axios from 'axios';
 import { StoredExolixCurrency } from 'app/store/crypto-exchange/state';
 import { EnvVars } from 'lib/env';
 
-import { ExchangeData, ExolixCurrenciesResponse, GetRateRequestData, GetRateResponse } from './types';
+import {
+  CrossChainRateRequestData,
+  ExchangeData,
+  ExolixCurrenciesResponse,
+  GetRateRequestData,
+  GetRateResponse
+} from './types';
 
 const API_KEY = EnvVars.TEMPLE_WALLET_EXOLIX_API_KEY;
 
@@ -187,7 +193,7 @@ export const submitExchange = (data: {
 export const getExchangeData = (exchangeId: string) =>
   retry(() => api.get<ExchangeData>(`/transactions/${exchangeId}`).then(r => r.data), COMMON_RETRY_CONFIG);
 
-export const queryCrossChainRate = (data: GetRateRequestData): Promise<GetRateResponse> =>
+export const queryCrossChainRate = (data: CrossChainRateRequestData): Promise<GetRateResponse> =>
   retry(
     () =>
       api

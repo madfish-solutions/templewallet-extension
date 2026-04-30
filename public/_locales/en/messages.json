@@ -2992,7 +2992,7 @@
     "message": "Swap route"
   },
   "estimatedTime": {
-    "message": "Estimated time"
+    "message": "Est. time"
   },
   "protocolFee": {
     "message": "Protocol fee"
@@ -5087,6 +5087,9 @@
   },
   "failedBadge": {
     "message": "FAILED"
+  },
+  "failedToGetOperationHash": {
+    "message": "Failed to get operation hash"
   },
   "feelFreeToCloseNote": {
     "message": "Feel free to close - we'll notify when completed"

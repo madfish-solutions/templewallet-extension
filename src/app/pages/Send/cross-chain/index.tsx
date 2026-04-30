@@ -159,6 +159,9 @@ export const CrossChainForm: FC<Props> = ({ onReview }) => {
       if ('minAmount' in rateData) return t('minWithSymbol', [String(rateData.minAmount), fromAsset.symbol]);
       if ('maxAmount' in rateData) return t('maxWithSymbol', [String(rateData.maxAmount), fromAsset.symbol]);
     }
+    if (rateData && !('rate' in rateData) && !('minAmount' in rateData) && !('maxAmount' in rateData)) {
+      return t('unableToFetchRate');
+    }
     return undefined;
   }, [fromAmountInTokens, fromAsset.symbol, insufficientBalance, rateData]);
 
@@ -193,11 +196,13 @@ export const CrossChainForm: FC<Props> = ({ onReview }) => {
         setIsFiatMode(false);
         setValue('fromAmount', '');
         if (!isPairAllowed(asset, toAsset, networksMap)) {
-          const firstAllowed = asset.dest === 'tezos' ? CROSS_CHAIN_ASSETS.ETH_USDT : CROSS_CHAIN_ASSETS.TEZOS_USDT;
-          setToAsset(firstAllowed);
-          if (firstAllowed.dest !== toAsset.dest) {
-            setValue('to', '');
-            clearErrors('to');
+          const [firstAllowed] = getAllowedToAssets(asset, networksMap);
+          if (firstAllowed) {
+            setToAsset(firstAllowed);
+            if (firstAllowed.dest !== toAsset.dest) {
+              setValue('to', '');
+              clearErrors('to');
+            }
           }
         }
       } else {
@@ -244,14 +249,9 @@ export const CrossChainForm: FC<Props> = ({ onReview }) => {
 
   useEffect(() => {
     if (!formSubmitted) return;
-    if (amountError) {
-      if (errors.fromAmount?.message !== amountError) {
-        setError('fromAmount', { message: amountError });
-      }
-    } else if (errors.fromAmount) {
-      clearErrors('fromAmount');
-    }
-  }, [amountError, clearErrors, errors.fromAmount, formSubmitted, setError]);
+    if (amountError) setError('fromAmount', { message: amountError });
+    else clearErrors('fromAmount');
+  }, [amountError, clearErrors, formSubmitted, setError]);
 
   const onSubmit = useCallback(
     (data: CrossChainFormData) => {

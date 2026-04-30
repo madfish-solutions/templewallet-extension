@@ -1,7 +1,7 @@
-import { CrossChainAsset } from 'lib/cross-chain';
+import { CrossChainAsset, CrossChainPhase } from 'lib/cross-chain';
 import { TempleChainKind } from 'temple/types';
 
-export type CrossChainPhase = 'PENDING_TX' | 'TX_CONFIRMED' | 'EXCHANGING' | 'COMPLETED' | 'FAILED';
+export type { CrossChainPhase };
 
 export interface CrossChainExchange {
   /** Exolix exchange id */
@@ -13,7 +13,7 @@ export interface CrossChainExchange {
   senderAddress?: string;
   sourceTxHash?: string;
   depositAddress: string;
-  depositExtraId?: string | null;
+  depositExtraId: string | null;
   recipient: string;
   fromAsset: CrossChainAsset;
   toAsset: CrossChainAsset;

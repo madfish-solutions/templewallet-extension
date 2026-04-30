@@ -2,8 +2,12 @@ import { useMemo } from 'react';
 
 import BigNumber from 'bignumber.js';
 
-import { useRawEvmAccountBalancesSelector, useRawEvmAssetBalanceSelector } from 'app/store/evm/balances/selectors';
-import { useAllAccountBalancesSelector, useBalanceSelector } from 'app/store/tezos/balances/selectors';
+import { useRawEvmAccountBalancesSelector } from 'app/store/evm/balances/selectors';
+import { useAllAccountBalancesSelector } from 'app/store/tezos/balances/selectors';
+import {
+  useGetEvmTokenBalanceWithDecimals,
+  useGetTezosAccountTokenOrGasBalanceWithDecimals
+} from 'lib/balances/hooks';
 import { CrossChainAsset, getAllowedFromAssets, toCrossChainAssetSlug } from 'lib/cross-chain';
 import { atomsToTokens } from 'lib/temple/helpers';
 import { TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
@@ -14,26 +18,15 @@ import { TempleChainKind } from 'temple/types';
 export const useCrossChainFromBalance = (asset: CrossChainAsset): BigNumber => {
   const tezosAddress = useAccountAddressForTezos() ?? '';
   const evmAddress: HexString = useAccountAddressForEvm() ?? '0x';
-  const isEvm = asset.chainKind === TempleChainKind.EVM;
-  const isTezos = asset.chainKind === TempleChainKind.Tezos;
 
-  const tezosRaw = useBalanceSelector(
-    tezosAddress,
-    isTezos ? String(asset.chainId ?? '') : '',
-    isTezos ? (asset.assetSlug ?? '') : ''
-  );
+  const getTezosBalance = useGetTezosAccountTokenOrGasBalanceWithDecimals(tezosAddress);
+  const getEvmBalance = useGetEvmTokenBalanceWithDecimals(evmAddress);
 
-  const evmRaw = useRawEvmAssetBalanceSelector(
-    evmAddress,
-    isEvm ? Number(asset.chainId ?? 0) : 0,
-    isEvm ? (asset.assetSlug ?? '') : ''
-  );
-
-  if (isTezos && tezosAddress && tezosRaw) {
-    return atomsToTokens(new BigNumber(tezosRaw), asset.decimals);
+  if (asset.chainKind === TempleChainKind.Tezos && tezosAddress && asset.chainId != null && asset.assetSlug) {
+    return getTezosBalance(String(asset.chainId), asset.assetSlug) ?? ZERO;
   }
-  if (isEvm && evmAddress && evmRaw) {
-    return atomsToTokens(new BigNumber(evmRaw), asset.decimals);
+  if (asset.chainKind === TempleChainKind.EVM && evmAddress && asset.chainId != null && asset.assetSlug) {
+    return getEvmBalance(Number(asset.chainId), asset.assetSlug) ?? ZERO;
   }
   return ZERO;
 };

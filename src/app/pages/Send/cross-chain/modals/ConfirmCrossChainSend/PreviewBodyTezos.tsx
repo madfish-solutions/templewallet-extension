@@ -1,4 +1,4 @@
-import React, { FC, useCallback, useState } from 'react';
+import { FC, useCallback, useState } from 'react';
 
 import { OpKind, TransferParams, WalletParamsWithKind } from '@taquito/taquito';
 import { FormProvider } from 'react-hook-form';
@@ -192,7 +192,9 @@ const PreviewBodyTezosInner: FC<Props> = ({ data, exchange, account, network, on
           );
 
           // @ts-expect-error - operation shape from useTezosEstimationForm.submitOperation
-          const txHash: string = operation?.hash || operation?.opHash;
+          const maybeTxHash: string | undefined = operation?.hash || operation?.opHash;
+          if (!maybeTxHash) throw new Error(t('failedToGetOperationHash'));
+          const txHash = maybeTxHash;
 
           const blockExplorer = getActiveBlockExplorer(network.chainId);
           dispatch(
@@ -265,7 +267,7 @@ const PreviewBodyTezosInner: FC<Props> = ({ data, exchange, account, network, on
 
   return (
     <FormProvider {...form}>
-      <div className="flex-1 overflow-y-auto px-4 pt-3 pb-4 flex flex-col gap-y-4">
+      <div className="flex-1 min-h-0 overflow-y-auto px-4 pt-3 pb-4 flex flex-col gap-y-4">
         <ExpectedResultCard
           fromAsset={fromAsset}
           fromAmount={fromAmount}

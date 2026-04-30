@@ -10,7 +10,7 @@ interface Props {
 }
 
 export const StatusHeroRegion: FC<Props> = memo(({ backgroundSrc, outerClassName, innerClassName, children }) => (
-  <div className={clsx('relative -mx-4 -mt-3 overflow-hidden', outerClassName)}>
+  <div className={clsx('relative shrink-0 -mx-4 -mt-3 overflow-hidden', outerClassName)}>
     <div
       aria-hidden
       style={{ backgroundImage: `url(${backgroundSrc})` }}

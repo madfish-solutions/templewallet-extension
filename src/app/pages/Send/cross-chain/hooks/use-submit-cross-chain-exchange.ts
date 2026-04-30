@@ -56,7 +56,7 @@ export const useSubmitCrossChainExchange = () => {
         senderAddress,
         sourceTxHash: txHash,
         depositAddress: exchange.depositAddress,
-        depositExtraId: exchange.depositExtraId,
+        depositExtraId: exchange.depositExtraId ?? null,
         recipient: recipient.trim(),
         fromAsset,
         toAsset,
