@@ -33,7 +33,8 @@ export interface CreateCrossChainExchangeInput {
   networkFrom: string;
   coinTo: string;
   networkTo: string;
-  amount: number;
+  /** Pass a stringifies BigNumber to preserve precision for 18-decimal tokens. */
+  amount: string;
   withdrawalAddress: string;
 }
 

@@ -1,0 +1,61 @@
+import React, { FC, memo } from 'react';
+
+import { CrossChainExchange } from 'app/store/cross-chain-send/state';
+
+import { ConfirmCrossChainSendModal } from '../modals/ConfirmCrossChainSend';
+import { ConfirmCrossChainReviewData, ConfirmCrossChainStep } from '../modals/ConfirmCrossChainSend/types';
+import { CrossChainActivityModal } from '../modals/CrossChainActivityModal';
+import { CrossChainWarningModal } from '../modals/WarningModal';
+
+interface Props {
+  warningOpened: boolean;
+  confirmOpened: boolean;
+  activityOpened: boolean;
+  reviewData?: ConfirmCrossChainReviewData;
+  initialStep?: ConfirmCrossChainStep;
+  initialExchangeId?: string;
+  accountId?: string;
+  onWarningClose: EmptyFn;
+  onWarningConfirm: EmptyFn;
+  onConfirmClose: EmptyFn;
+  onActivityClose: EmptyFn;
+  onActivityClick: (exchange: CrossChainExchange) => void;
+  onTryAgain: EmptyFn;
+}
+
+export const CrossChainSendModals: FC<Props> = memo(
+  ({
+    warningOpened,
+    confirmOpened,
+    activityOpened,
+    reviewData,
+    initialStep,
+    initialExchangeId,
+    accountId,
+    onWarningClose,
+    onWarningConfirm,
+    onConfirmClose,
+    onActivityClose,
+    onActivityClick,
+    onTryAgain
+  }) => (
+    <>
+      <CrossChainWarningModal opened={warningOpened} onRequestClose={onWarningClose} onConfirm={onWarningConfirm} />
+      <ConfirmCrossChainSendModal
+        opened={confirmOpened}
+        reviewData={reviewData}
+        initialStep={initialStep}
+        initialExchangeId={initialExchangeId}
+        onRequestClose={onConfirmClose}
+        onGoBack={onConfirmClose}
+        onTryAgain={onTryAgain}
+      />
+      <CrossChainActivityModal
+        opened={activityOpened}
+        onRequestClose={onActivityClose}
+        accountId={accountId}
+        onExchangeClick={onActivityClick}
+      />
+    </>
+  )
+);

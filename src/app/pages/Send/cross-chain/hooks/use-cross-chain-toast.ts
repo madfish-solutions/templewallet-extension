@@ -4,11 +4,10 @@ import { useAllCrossChainExchangesSelector } from 'app/store/cross-chain-send/se
 import { CrossChainPhase } from 'app/store/cross-chain-send/state';
 import { toastError, toastSuccess } from 'app/toaster';
 import { useAnalytics } from 'lib/analytics';
+import { isTerminalPhase } from 'lib/cross-chain';
 import { t } from 'lib/i18n';
 
 import { CrossChainAnalyticsEvents } from '../analytics';
-
-const TERMINAL_PHASES: CrossChainPhase[] = ['COMPLETED', 'FAILED'];
 
 export const useCrossChainToast = () => {
   const exchanges = useAllCrossChainExchangesSelector();
@@ -17,11 +16,13 @@ export const useCrossChainToast = () => {
 
   useEffect(() => {
     const previous = previousPhasesRef.current;
+    const seen = new Set<string>();
 
     for (const exchange of exchanges) {
+      seen.add(exchange.id);
       const prevPhase = previous[exchange.id];
-      const nowTerminal = TERMINAL_PHASES.includes(exchange.phase);
-      const wasTerminal = prevPhase ? TERMINAL_PHASES.includes(prevPhase) : false;
+      const nowTerminal = isTerminalPhase(exchange.phase);
+      const wasTerminal = prevPhase ? isTerminalPhase(prevPhase) : false;
 
       if (prevPhase && !wasTerminal && nowTerminal) {
         if (exchange.phase === 'COMPLETED') {
@@ -37,6 +38,10 @@ export const useCrossChainToast = () => {
       }
 
       previous[exchange.id] = exchange.phase;
+    }
+
+    for (const id of Object.keys(previous)) {
+      if (!seen.has(id)) delete previous[id];
     }
   }, [exchanges, trackEvent]);
 };

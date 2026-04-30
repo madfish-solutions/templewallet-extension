@@ -2,7 +2,7 @@ import React, { FC } from 'react';
 
 import BigNumber from 'bignumber.js';
 
-import { Anchor, IconBase } from 'app/atoms';
+import { Anchor, HashShortView, IconBase } from 'app/atoms';
 import { HashChip } from 'app/atoms/HashChip';
 import { ActionsButtonsBox } from 'app/atoms/PageModal/actions-buttons-box';
 import { StyledButton } from 'app/atoms/StyledButton';
@@ -18,6 +18,8 @@ import { useBlockExplorerHref } from 'temple/front/use-block-explorers';
 
 import backgroundFailedSrc from '../../assets/background-failed.svg?url';
 import { CrossChainAmountRow } from '../../components/CrossChainAmountRow';
+
+import { StatusHeroRegion } from './StatusHeroRegion';
 
 interface Props {
   exchange: CrossChainExchange;
@@ -37,22 +39,19 @@ export const RefundedContent: FC<Props> = ({ exchange, onClose }) => {
   return (
     <>
       <div className="flex-1 overflow-y-auto px-4 pt-3 flex flex-col items-stretch">
-        <div className="relative -mx-4 -mt-3 h-48 px-4 pb-2 overflow-hidden">
-          <div
-            aria-hidden
-            style={{ backgroundImage: `url(${backgroundFailedSrc})` }}
-            className="absolute inset-0 bg-no-repeat bg-cover bg-center pointer-events-none"
-          />
-          <div className="relative flex flex-col items-center gap-y-3 pb-4 pt-6">
-            <XCircleFill width={58} height={58} className="text-error fill-current" />
-            <p className="text-font-regular-bold">
-              <T id="refunded" />
-            </p>
-            <p className="text-font-description text-grey-1 text-center whitespace-pre-line">
-              <T id="refundedDescription" />
-            </p>
-          </div>
-        </div>
+        <StatusHeroRegion
+          backgroundSrc={backgroundFailedSrc}
+          outerClassName="h-48 px-4 pb-2"
+          innerClassName="flex flex-col items-center gap-y-3 pb-4 pt-6"
+        >
+          <XCircleFill width={58} height={58} className="text-error fill-current" />
+          <p className="text-font-regular-bold">
+            <T id="refunded" />
+          </p>
+          <p className="text-font-description text-grey-1 text-center whitespace-pre-line">
+            <T id="refundedDescription" />
+          </p>
+        </StatusHeroRegion>
 
         <div className="rounded-8 bg-white border-0.5 border-lines flex flex-col px-4 pb-4">
           <ChartListItem
@@ -61,7 +60,9 @@ export const RefundedContent: FC<Props> = ({ exchange, onClose }) => {
           >
             {exchange.senderAddress && (
               <div className="flex items-center gap-x-1">
-                <span className="text-font-description text-grey-1">To</span>
+                <span className="text-font-description text-grey-1">
+                  <T id="toAsset" />
+                </span>
                 <HashChip hash={exchange.senderAddress} firstCharsCount={6} lastCharsCount={4} />
               </div>
             )}
@@ -108,7 +109,7 @@ export const RefundedContent: FC<Props> = ({ exchange, onClose }) => {
                   href={refundExplorerHref}
                   className="flex items-center gap-x-1 p-1 text-secondary text-font-num-12"
                 >
-                  <span>{shortenHash(exchange.refundHash)}</span>
+                  <HashShortView hash={exchange.refundHash} firstCharsCount={6} lastCharsCount={4} />
                   <IconBase size={12} Icon={OutLinkIcon} />
                 </Anchor>
               ) : (
@@ -137,6 +138,3 @@ export const RefundedContent: FC<Props> = ({ exchange, onClose }) => {
     </>
   );
 };
-
-const shortenHash = (hash: string) =>
-  hash.length > 12 ? `${hash.slice(0, 6)}...${hash.slice(-4)}` : hash;

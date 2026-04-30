@@ -116,7 +116,7 @@ const Row = memo<RowProps>(({ exchange, onClick }) => {
           )}
         </div>
         <div className="text-font-num-12 text-grey-1 truncate">
-          To: <HashShortView hash={recipient} firstCharsCount={6} lastCharsCount={4} />
+          <T id="toLabel" /> <HashShortView hash={recipient} firstCharsCount={6} lastCharsCount={4} />
         </div>
       </div>
 

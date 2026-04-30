@@ -14,6 +14,7 @@ import { sanitizeCollectiblesMetadataForDevTools } from './tezos/collectibles-me
 
 export const SLICES_BLACKLIST = [
   'cryptoExchange' as const,
+  'crossChainSend' as const,
   'buyWithCreditCard' as const,
   'collectibles' as const,
   'assets' as const,

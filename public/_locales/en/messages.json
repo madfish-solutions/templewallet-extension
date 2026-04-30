@@ -5088,12 +5088,6 @@
   "failedBadge": {
     "message": "FAILED"
   },
-  "feeBreakdownNote": {
-    "message": "Exolix rate already includes service and network fees. The final amount is confirmed after the source transaction is broadcast."
-  },
-  "feeIncludedInQuote": {
-    "message": "Included in the quote"
-  },
   "feelFreeToCloseNote": {
     "message": "Feel free to close - we'll notify when completed"
   },
@@ -5102,6 +5096,15 @@
   },
   "invalidAmount": {
     "message": "Invalid amount"
+  },
+  "invalidBitcoinAddress": {
+    "message": "Invalid Bitcoin address"
+  },
+  "invalidEvmAddress": {
+    "message": "Invalid EVM address"
+  },
+  "invalidTezosAddress": {
+    "message": "Invalid Tezos address"
   },
   "maxWithSymbol": {
     "message": "Max: $value$ $symbol$",
@@ -5126,9 +5129,6 @@
   "noActivityYet": {
     "message": "No activity yet"
   },
-  "noAdvancedOptions": {
-    "message": "No advanced options for cross-chain send."
-  },
   "noTokensAvailable": {
     "message": "No tokens available"
   },
@@ -5146,6 +5146,18 @@
     "placeholders": {
       "1": { "content": "$1" }
     }
+  },
+  "crossChainAssetMetadataNotFound": {
+    "message": "Asset metadata not found"
+  },
+  "crossChainSourceAccountUnavailable": {
+    "message": "Source chain account or network unavailable"
+  },
+  "crossChainUnsupportedDestination": {
+    "message": "Unsupported destination"
+  },
+  "toLabel": {
+    "message": "To:"
   },
   "processingFailureNote": {
     "message": "If the operation fails, funds return to your account automatically"
@@ -5179,9 +5191,6 @@
   },
   "sendStepperSending": {
     "message": "Sending"
-  },
-  "serviceFee": {
-    "message": "Service fee"
   },
   "successBadge": {
     "message": "SUCCESS"

@@ -1,6 +1,7 @@
 import { createCrossChainExchange } from 'lib/apis/exolix/cross-chain';
 import { ExchangeData } from 'lib/apis/exolix/types';
 import { CrossChainAsset } from 'lib/cross-chain';
+import { IS_DEV_ENV } from 'lib/env';
 import { useTypedSWR } from 'lib/swr';
 
 interface ReservationArgs {
@@ -8,7 +9,7 @@ interface ReservationArgs {
   toAsset: CrossChainAsset;
   fromAmount: string;
   recipient: string;
-  /** Dev hook: when true, the SWR call throws so the failure UI can be inspected. */
+  /** Dev hook: when true, the SWR call throws so the failure UI can be inspected. Tree-shaken in prod. */
   forceError?: boolean;
 }
 
@@ -19,9 +20,9 @@ export const useCrossChainExchangeReservation = ({
   recipient,
   forceError
 }: ReservationArgs) => {
+  const devForceError = IS_DEV_ENV && Boolean(forceError);
   const trimmedRecipient = recipient.trim();
-  const parsedAmount = Number(fromAmount);
-  const enabled = parsedAmount > 0 && trimmedRecipient.length > 0;
+  const enabled = Number(fromAmount) > 0 && trimmedRecipient.length > 0;
 
   const key = enabled
     ? [
@@ -30,16 +31,16 @@ export const useCrossChainExchangeReservation = ({
         fromAsset.exolixNetwork,
         toAsset.exolixCoin,
         toAsset.exolixNetwork,
-        parsedAmount,
+        fromAmount,
         trimmedRecipient,
-        forceError ? 'forced-error' : 'normal'
+        devForceError ? 'forced-error' : 'normal'
       ]
     : null;
 
   return useTypedSWR<ExchangeData>(
     key,
     async () => {
-      if (forceError) {
+      if (devForceError) {
         throw new Error('Forced reservation failure (dev panel).');
       }
       return createCrossChainExchange({
@@ -47,7 +48,7 @@ export const useCrossChainExchangeReservation = ({
         networkFrom: fromAsset.exolixNetwork,
         coinTo: toAsset.exolixCoin,
         networkTo: toAsset.exolixNetwork,
-        amount: parsedAmount,
+        amount: fromAmount,
         withdrawalAddress: trimmedRecipient
       });
     },

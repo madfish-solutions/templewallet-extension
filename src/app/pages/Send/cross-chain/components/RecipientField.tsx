@@ -30,12 +30,16 @@ export const RecipientField = memo<Props>(({ toAsset }) => {
   const [focused, setFocused] = useState(false);
   const [selectModalOpened, openSelectModal, closeSelectModal] = useBooleanState(false);
 
-  const validate = useCallback((value: string) => validateCrossChainRecipient(value, toAsset), [toAsset]);
+  const validate = useCallback(
+    (value: string) => {
+      const result = validateCrossChainRecipient(value, toAsset);
+      return result === true ? true : t(result);
+    },
+    [toAsset]
+  );
 
   const handlePasteClick = useCallback(() => {
-    readClipboard()
-      .then(value => setValue('to', value, { shouldValidate: formSubmitted }))
-      .catch(console.error);
+    readClipboard().then(value => setValue('to', value, { shouldValidate: formSubmitted }));
   }, [formSubmitted, setValue]);
 
   const handleClean = useCallback(
@@ -94,7 +98,9 @@ export const RecipientField = memo<Props>(({ toAsset }) => {
       </div>
 
       {isNonBtc && !hideSelectAccount && (
-        <SelectAccountButton value={toValueDebounced ?? ''} onClick={openSelectModal} />
+        <div className="mb-4">
+          <SelectAccountButton value={toValueDebounced ?? ''} onClick={openSelectModal} />
+        </div>
       )}
 
       {isNonBtc && (

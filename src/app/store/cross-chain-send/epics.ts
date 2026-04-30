@@ -1,39 +1,18 @@
 import { Action } from 'redux';
 import { combineEpics, Epic } from 'redux-observable';
-import { catchError, EMPTY, filter, from, interval, map, mergeMap, of, withLatestFrom } from 'rxjs';
+import { REHYDRATE } from 'redux-persist';
+import { catchError, EMPTY, exhaustMap, filter, from, interval, map, merge, of, withLatestFrom } from 'rxjs';
 import { ofType } from 'ts-action-operators';
 
 import { getCrossChainExchangeStatus } from 'lib/apis/exolix/cross-chain';
-import { OrderStatusEnum } from 'lib/apis/exolix/types';
+import { isTerminalPhase, mapExolixStatusToPhase } from 'lib/cross-chain';
 
 import type { RootState } from '../root-state.type';
 
 import { monitorCrossChainExchangesAction, updateCrossChainExchangeAction } from './actions';
-import { CrossChainExchange, CrossChainPhase } from './state';
+import { CrossChainExchange } from './state';
 
 const POLL_INTERVAL_MS = 5_000;
-
-const TERMINAL_PHASES: CrossChainPhase[] = ['COMPLETED', 'FAILED'];
-
-const isTerminal = (phase: CrossChainPhase) => TERMINAL_PHASES.includes(phase);
-
-const mapExolixStatusToPhase = (status: string, previous: CrossChainPhase): CrossChainPhase => {
-  switch (status) {
-    case OrderStatusEnum.WAIT:
-      return previous === 'TX_CONFIRMED' ? 'TX_CONFIRMED' : 'PENDING_TX';
-    case OrderStatusEnum.CONFIRMATION:
-      return 'TX_CONFIRMED';
-    case OrderStatusEnum.EXCHANGING:
-      return 'EXCHANGING';
-    case OrderStatusEnum.SUCCESS:
-      return 'COMPLETED';
-    case OrderStatusEnum.OVERDUE:
-    case OrderStatusEnum.REFUNDED:
-      return 'FAILED';
-    default:
-      return previous;
-  }
-};
 
 const selectAllExchanges = (state: RootState): CrossChainExchange[] => {
   const s = state.crossChainSend;
@@ -41,48 +20,55 @@ const selectAllExchanges = (state: RootState): CrossChainExchange[] => {
 };
 
 const selectActiveExchanges = (state: RootState): CrossChainExchange[] =>
-  selectAllExchanges(state).filter(e => !isTerminal(e.phase));
+  selectAllExchanges(state).filter(e => !isTerminalPhase(e.phase));
 
-const periodicCrossChainMonitorEpic: Epic<Action, Action, RootState> = (_, state$) =>
-  interval(POLL_INTERVAL_MS).pipe(
+const periodicCrossChainMonitorEpic: Epic<Action, Action, RootState> = (action$, state$) => {
+  const tick$ = interval(POLL_INTERVAL_MS).pipe(
     withLatestFrom(state$),
     filter(([, state]) => selectActiveExchanges(state).length > 0),
     map(() => monitorCrossChainExchangesAction())
   );
 
+  // Re-arm polling after rehydrating (service worker restart, popup reopen), so persisted active
+  // exchanges advance without waiting for the next interval tick.
+  const rehydrate$ = action$.pipe(
+    filter(action => action.type === REHYDRATE),
+    withLatestFrom(state$),
+    filter(([, state]) => selectActiveExchanges(state).length > 0),
+    map(() => monitorCrossChainExchangesAction())
+  );
+
+  return merge(tick$, rehydrate$);
+};
+
 const monitorCrossChainExchangesEpic: Epic<Action, Action, RootState> = (action$, state$) =>
   action$.pipe(
     ofType(monitorCrossChainExchangesAction),
     withLatestFrom(state$),
-    mergeMap(([, state]) => {
+    // exhaustMap drops new ticks while a poll cycle is in flight — prevents request storms when Exolix is slow.
+    exhaustMap(([, state]) => {
       const active = selectActiveExchanges(state);
       if (active.length === 0) return EMPTY;
 
-      return from(active).pipe(
-        mergeMap(exchange =>
+      return merge(
+        ...active.map(exchange =>
           from(getCrossChainExchangeStatus(exchange.id)).pipe(
-            mergeMap(data => {
+            map(data => {
               const now = Date.now();
               const nextPhase = mapExolixStatusToPhase(data.status, exchange.phase);
-
-              return of(
-                updateCrossChainExchangeAction({
-                  id: exchange.id,
-                  phase: nextPhase,
-                  exolixStatus: data.status,
-                  hashIn: data.hashIn ?? undefined,
-                  hashOut: data.hashOut ?? undefined,
-                  refundHash: data.refundHash ?? undefined,
-                  toAmountActual: data.amountTo ? String(data.amountTo) : undefined,
-                  updatedAt: now,
-                  completedAt: isTerminal(nextPhase) ? now : undefined
-                })
-              );
+              return updateCrossChainExchangeAction({
+                id: exchange.id,
+                phase: nextPhase,
+                exolixStatus: data.status,
+                hashIn: data.hashIn ?? undefined,
+                hashOut: data.hashOut ?? undefined,
+                refundHash: data.refundHash ?? undefined,
+                toAmountActual: data.amountTo ? String(data.amountTo) : undefined,
+                updatedAt: now,
+                completedAt: isTerminalPhase(nextPhase) ? now : undefined
+              });
             }),
-            catchError(error => {
-              console.warn(`Failed to poll cross-chain exchange ${exchange.id}: `, error);
-              return of();
-            })
+            catchError(() => of())
           )
         )
       );

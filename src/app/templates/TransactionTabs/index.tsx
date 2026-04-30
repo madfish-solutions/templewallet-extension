@@ -45,6 +45,8 @@ export interface TransactionTabsProps<T extends TxParamsFormData> {
     protocolFee?: string;
     destinationChainGasTokenAmount?: BigNumber;
   };
+  /** Override for the default DetailsTab body (e.g. cross-chain flows that need BTC/Tezos+EVM rows). */
+  detailsContent?: ReactNode;
   children?: ReactNode;
 }
 
@@ -66,6 +68,7 @@ export const TransactionTabs = <T extends TxParamsFormData>({
   cashbackInTkey,
   minimumReceived,
   bridgeData,
+  detailsContent,
   children
 }: TransactionTabsProps<T>) => {
   const { handleSubmit } = useFormContext<T>();
@@ -130,7 +133,9 @@ export const TransactionTabs = <T extends TxParamsFormData>({
               case 'error':
                 return <ErrorTab isEvm={isEvm} submitError={latestSubmitError} estimationError={estimationError} />;
               default:
-                return (
+                return detailsContent !== undefined ? (
+                  <>{detailsContent}</>
+                ) : (
                   <DetailsTab
                     network={network}
                     destinationName={destinationName}

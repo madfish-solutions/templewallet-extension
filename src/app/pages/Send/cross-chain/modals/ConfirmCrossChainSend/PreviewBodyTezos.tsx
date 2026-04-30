@@ -1,17 +1,14 @@
-import React, { FC, useCallback, useMemo, useRef, useState } from 'react';
+import React, { FC, useCallback, useState } from 'react';
 
 import { OpKind, TransferParams, WalletParamsWithKind } from '@taquito/taquito';
 import { FormProvider } from 'react-hook-form';
 
 import { HashChip } from 'app/atoms/HashChip';
 import { ActionsButtonsBox } from 'app/atoms/PageModal/actions-buttons-box';
-import SegmentedControl from 'app/atoms/SegmentedControl';
 import { StyledButton } from 'app/atoms/StyledButton';
 import { useLedgerApprovalModalState } from 'app/hooks/use-ledger-approval-modal-state';
 import { useTezosEstimationData } from 'app/pages/Send/hooks/use-tezos-estimation-data';
 import { dispatch } from 'app/store';
-import { addCrossChainExchangeAction, monitorCrossChainExchangesAction } from 'app/store/cross-chain-send/actions';
-import { CrossChainExchange } from 'app/store/cross-chain-send/state';
 import {
   addPendingTezosTransactionAction,
   monitorPendingTezosTransactionsAction
@@ -19,12 +16,9 @@ import {
 import { CurrentAccount } from 'app/templates/current-account';
 import { FeeSummary } from 'app/templates/fee-summary';
 import { LedgerApprovalModal } from 'app/templates/ledger-approval-modal';
-import { AdvancedTab } from 'app/templates/TransactionTabs/tabs/advanced';
-import { ErrorTab } from 'app/templates/TransactionTabs/tabs/error';
-import { FeeTab } from 'app/templates/TransactionTabs/tabs/fee';
-import { Tab, TezosTxParamsFormData } from 'app/templates/TransactionTabs/types';
+import { TransactionTabs } from 'app/templates/TransactionTabs';
+import { TezosTxParamsFormData } from 'app/templates/TransactionTabs/types';
 import { useTezosEstimationForm } from 'app/templates/TransactionTabs/use-tezos-estimation-form';
-import { useAnalytics } from 'lib/analytics';
 import { ExchangeData } from 'lib/apis/exolix/types';
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
 import { toTransferParams } from 'lib/assets/contract.utils';
@@ -48,7 +42,7 @@ import { useGetTezosActiveBlockExplorer } from 'temple/front/ready';
 import { makeBlockExplorerHref } from 'temple/front/use-block-explorers';
 import { TempleChainKind } from 'temple/types';
 
-import { CrossChainAnalyticsEvents } from '../../analytics';
+import { useSubmitCrossChainExchange } from '../../hooks/use-submit-cross-chain-exchange';
 
 import { ExpectedResultCard, NetworkRows } from './preview-shared';
 import { ConfirmCrossChainReviewData, ConfirmCrossChainStep } from './types';
@@ -79,7 +73,7 @@ const PreviewBodyTezosInner: FC<Props> = ({ data, exchange, account, network, on
 
   const currentAccount = useAccount();
   const getActiveBlockExplorer = useGetTezosActiveBlockExplorer();
-  const { trackEvent } = useAnalytics();
+  const recordCrossChainExchange = useSubmitCrossChainExchange();
 
   const assetMetadata = useCategorizedTezosAssetMetadata(fromAsset.assetSlug ?? '', network.chainId);
 
@@ -156,30 +150,12 @@ const PreviewBodyTezosInner: FC<Props> = ({ data, exchange, account, network, on
     useLedgerApprovalModalState();
   const { guard, ledgerPromptProps } = useLedgerWebHidFullViewGuard();
 
-  const detailsRef = useRef<HTMLDivElement>(null);
-  const feeRef = useRef<HTMLDivElement>(null);
-  const advancedRef = useRef<HTMLDivElement>(null);
-  const errorRef = useRef<HTMLDivElement>(null);
-
   const onSubmitError = useCallback(
     (err: unknown) => {
-      console.error(err);
       setLatestSubmitError(err);
       setTab('error');
     },
     [setTab]
-  );
-
-  const segments = useMemo(
-    () => [
-      { label: t('details'), value: 'details' as const, ref: detailsRef },
-      { label: t('fee'), value: 'fee' as const, ref: feeRef },
-      { label: t('advanced'), value: 'advanced' as const, ref: advancedRef },
-      ...(latestSubmitError || estimationError
-        ? [{ label: t('error'), value: 'error' as const, ref: errorRef }]
-        : [])
-    ],
-    [latestSubmitError, estimationError]
   );
 
   const onSubmit = useCallback(
@@ -224,36 +200,18 @@ const PreviewBodyTezosInner: FC<Props> = ({ data, exchange, account, network, on
           );
           dispatch(monitorPendingTezosTransactionsAction());
 
-          const storedExchange: CrossChainExchange = {
-            id: exchange.id,
+          recordCrossChainExchange({
             accountId: currentAccount.id,
             sourceChainKind: TempleChainKind.Tezos,
             sourceChainId: network.chainId,
             senderAddress: accountPkh,
-            sourceTxHash: txHash,
-            depositAddress: exchange.depositAddress,
-            depositExtraId: exchange.depositExtraId,
-            recipient: recipient.trim(),
+            txHash,
+            exchange,
             fromAsset,
             toAsset,
             fromAmount,
             toAmountEstimated,
-            phase: 'PENDING_TX',
-            exolixStatus: exchange.status,
-            createdAt: Date.now(),
-            updatedAt: Date.now()
-          };
-
-          dispatch(addCrossChainExchangeAction(storedExchange));
-          dispatch(monitorCrossChainExchangesAction());
-
-          trackEvent(CrossChainAnalyticsEvents.CrossChainConfirmed, undefined, {
-            exchangeId: exchange.id,
-            from: fromAsset.exolixCoin,
-            fromNetwork: fromAsset.exolixNetwork,
-            to: toAsset.exolixCoin,
-            toNetwork: toAsset.exolixNetwork,
-            amount: fromAmount
+            recipient
           });
 
           onStepChange(ConfirmCrossChainStep.Processing, exchange.id);
@@ -289,7 +247,7 @@ const PreviewBodyTezosInner: FC<Props> = ({ data, exchange, account, network, on
       fromAmount,
       toAmountEstimated,
       currentAccount.id,
-      trackEvent,
+      recordCrossChainExchange,
       onStepChange,
       isLedgerAccount,
       account.type,
@@ -300,7 +258,7 @@ const PreviewBodyTezosInner: FC<Props> = ({ data, exchange, account, network, on
 
   return (
     <FormProvider {...form}>
-      <form id={FORM_ID} onSubmit={form.handleSubmit(onSubmit)} className="flex-1 overflow-y-auto px-4 pt-3 pb-4 flex flex-col gap-y-4">
+      <div className="flex-1 overflow-y-auto px-4 pt-3 pb-4 flex flex-col gap-y-4">
         <ExpectedResultCard
           fromAsset={fromAsset}
           fromAmount={fromAmount}
@@ -318,37 +276,28 @@ const PreviewBodyTezosInner: FC<Props> = ({ data, exchange, account, network, on
 
         <CurrentAccount />
 
-        <SegmentedControl<Tab>
-          name="cross-chain-tezos-preview-tabs"
-          activeSegment={tab}
-          setActiveSegment={setTab}
-          segments={segments}
+        <TransactionTabs<TezosTxParamsFormData>
+          network={network}
+          nativeAssetSlug={TEZ_TOKEN_SLUG}
+          selectedTab={tab}
+          setSelectedTab={setTab}
+          selectedFeeOption={selectedFeeOption}
+          latestSubmitError={latestSubmitError}
+          onFeeOptionSelect={handleFeeOptionSelect}
+          onSubmit={onSubmit}
+          displayedFeeOptions={displayedFeeOptions}
+          estimationError={estimationError}
+          formId={FORM_ID}
+          tabsName="cross-chain-tezos-preview-tabs"
+          detailsContent={
+            <NetworkRows
+              recipientNode={<HashChip hash={recipient} firstCharsCount={6} lastCharsCount={6} />}
+              fromAsset={fromAsset}
+              toAsset={toAsset}
+            />
+          }
         />
-
-        {tab === 'details' && (
-          <NetworkRows
-            recipientNode={<HashChip hash={recipient} firstCharsCount={6} lastCharsCount={6} />}
-            fromAsset={fromAsset}
-            toAsset={toAsset}
-          />
-        )}
-
-        {tab === 'fee' && (
-          <FeeTab
-            network={network}
-            assetSlug={TEZ_TOKEN_SLUG}
-            displayedFeeOptions={displayedFeeOptions}
-            selectedOption={selectedFeeOption}
-            onOptionSelect={handleFeeOptionSelect}
-          />
-        )}
-
-        {tab === 'advanced' && <AdvancedTab />}
-
-        {tab === 'error' && (
-          <ErrorTab isEvm={false} submitError={latestSubmitError} estimationError={estimationError} />
-        )}
-      </form>
+      </div>
 
       <ActionsButtonsBox flexDirection="row" shouldChangeBottomShift={false}>
         <StyledButton

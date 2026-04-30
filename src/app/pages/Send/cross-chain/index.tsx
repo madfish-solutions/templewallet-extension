@@ -1,4 +1,4 @@
-import React, { FC, useCallback, useEffect, useMemo, useState } from 'react';
+import React, { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import BigNumber from 'bignumber.js';
 import { isEmpty } from 'lodash';
@@ -9,6 +9,7 @@ import { StyledButton } from 'app/atoms/StyledButton';
 import { ReactComponent as ArrowDownIcon } from 'app/icons/arrow-down.svg';
 import { dispatch } from 'app/store';
 import { setOnRampAssetAction } from 'app/store/settings/actions';
+import { toastError } from 'app/toaster';
 import { useAnalytics } from 'lib/analytics';
 import { isWertSupportedChainAssetSlug } from 'lib/apis/wert';
 import { toChainAssetSlug } from 'lib/assets/utils';
@@ -26,8 +27,8 @@ import { T, t } from 'lib/i18n';
 import { useBooleanState } from 'lib/ui/hooks';
 import { TempleChainKind } from 'temple/types';
 
+import { CrossChainDevPanel } from './__dev__/CrossChainDevPanel';
 import { CrossChainAnalyticsEvents } from './analytics';
-import { CrossChainDevPanel } from './components/CrossChainDevPanel';
 import { GetCard } from './components/GetCard';
 import { SendCard } from './components/SendCard';
 import { SummaryRow } from './components/SummaryRow';
@@ -116,6 +117,24 @@ export const CrossChainForm: FC<Props> = ({ onReview }) => {
 
   const rateMinAmount = rateData && 'minAmount' in rateData ? rateData.minAmount : undefined;
   const rateMaxAmount = rateData && 'maxAmount' in rateData ? rateData.maxAmount : undefined;
+
+  const lastUnsupportedPairRef = useRef<string | null>(null);
+  useEffect(() => {
+    const isUnsupportedPair = Boolean(rateData && 'error' in rateData);
+    const pairKey = `${fromAsset.exolixCoin}:${fromAsset.exolixNetwork}->${toAsset.exolixCoin}:${toAsset.exolixNetwork}`;
+
+    if (!isUnsupportedPair) {
+      if (lastUnsupportedPairRef.current === pairKey) lastUnsupportedPairRef.current = null;
+      return;
+    }
+
+    const hasMeaningfulAmount = fromAmountInTokens && new BigNumber(fromAmountInTokens).isGreaterThan(0);
+    if (!hasMeaningfulAmount) return;
+
+    if (lastUnsupportedPairRef.current === pairKey) return;
+    lastUnsupportedPairRef.current = pairKey;
+    toastError(t('pairNotAvailable'));
+  }, [rateData, fromAsset.exolixCoin, fromAsset.exolixNetwork, toAsset.exolixCoin, toAsset.exolixNetwork, fromAmountInTokens]);
 
   const insufficientBalance = useMemo(() => {
     if (!fromAmountInTokens) return false;

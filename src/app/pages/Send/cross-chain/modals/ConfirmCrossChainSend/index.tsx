@@ -1,4 +1,4 @@
-import React, { FC, useCallback, useEffect, useState } from 'react';
+import React, { FC, useCallback, useEffect, useRef, useState } from 'react';
 
 import { PageModal } from 'app/atoms/PageModal';
 import { TID, t } from 'lib/i18n';
@@ -41,12 +41,17 @@ export const ConfirmCrossChainSendModal: FC<Props> = ({
 }) => {
   const [step, setStep] = useState<ConfirmCrossChainStep>(initialStep ?? ConfirmCrossChainStep.Preview);
   const [exchangeId, setExchangeId] = useState<string | undefined>(initialExchangeId);
+  const closeResetTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     if (!opened) return;
     setStep(initialStep ?? ConfirmCrossChainStep.Preview);
     setExchangeId(initialExchangeId);
   }, [opened, initialStep, initialExchangeId]);
+
+  useEffect(() => () => {
+    if (closeResetTimerRef.current) clearTimeout(closeResetTimerRef.current);
+  }, []);
 
   const handleStepChange = useCallback((nextStep: ConfirmCrossChainStep, id: string) => {
     setExchangeId(id);
@@ -55,10 +60,12 @@ export const ConfirmCrossChainSendModal: FC<Props> = ({
 
   const handleClose = useCallback(() => {
     onRequestClose();
-    // defer reset so modal close anim completes first
-    setTimeout(() => {
+    if (closeResetTimerRef.current) clearTimeout(closeResetTimerRef.current);
+    // Defer reset so modal close anim (~300ms) completes before the content reverts to Preview.
+    closeResetTimerRef.current = setTimeout(() => {
       setStep(ConfirmCrossChainStep.Preview);
       setExchangeId(undefined);
+      closeResetTimerRef.current = null;
     }, 300);
   }, [onRequestClose]);
 

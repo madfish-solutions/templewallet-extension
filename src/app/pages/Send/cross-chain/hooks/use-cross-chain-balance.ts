@@ -13,24 +13,26 @@ import { TempleChainKind } from 'temple/types';
 
 export const useCrossChainFromBalance = (asset: CrossChainAsset): BigNumber => {
   const tezosAddress = useAccountAddressForTezos() ?? '';
-  const evmAddress = (useAccountAddressForEvm() ?? '0x0000000000000000000000000000000000000000') as HexString;
+  const evmAddress: HexString = useAccountAddressForEvm() ?? '0x';
+  const isEvm = asset.chainKind === TempleChainKind.EVM;
+  const isTezos = asset.chainKind === TempleChainKind.Tezos;
 
   const tezosRaw = useBalanceSelector(
     tezosAddress,
-    asset.chainKind === TempleChainKind.Tezos ? String(asset.chainId ?? '') : '',
-    asset.chainKind === TempleChainKind.Tezos ? asset.assetSlug ?? '' : ''
+    isTezos ? String(asset.chainId ?? '') : '',
+    isTezos ? asset.assetSlug ?? '' : ''
   );
 
   const evmRaw = useRawEvmAssetBalanceSelector(
     evmAddress,
-    asset.chainKind === TempleChainKind.EVM ? Number(asset.chainId ?? 0) : 0,
-    asset.chainKind === TempleChainKind.EVM ? asset.assetSlug ?? '' : ''
+    isEvm ? Number(asset.chainId ?? 0) : 0,
+    isEvm ? asset.assetSlug ?? '' : ''
   );
 
-  if (asset.chainKind === TempleChainKind.Tezos && tezosRaw) {
+  if (isTezos && tezosAddress && tezosRaw) {
     return atomsToTokens(new BigNumber(tezosRaw), asset.decimals);
   }
-  if (asset.chainKind === TempleChainKind.EVM && evmRaw) {
+  if (isEvm && evmAddress && evmRaw) {
     return atomsToTokens(new BigNumber(evmRaw), asset.decimals);
   }
   return ZERO;
@@ -38,7 +40,7 @@ export const useCrossChainFromBalance = (asset: CrossChainAsset): BigNumber => {
 
 export const useCrossChainFromBalances = (): Record<string, BigNumber> => {
   const tezosAddress = useAccountAddressForTezos() ?? '';
-  const evmAddress = (useAccountAddressForEvm() ?? '0x0000000000000000000000000000000000000000') as HexString;
+  const evmAddress: HexString = useAccountAddressForEvm() ?? '0x';
 
   const tezosBalances = useAllAccountBalancesSelector(tezosAddress, TEZOS_MAINNET_CHAIN_ID);
   const evmBalances = useRawEvmAccountBalancesSelector(evmAddress);

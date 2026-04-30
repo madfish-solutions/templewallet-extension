@@ -14,9 +14,10 @@ interface RateArgs {
 }
 
 export const useCrossChainRate = ({ from, to, amount }: RateArgs) => {
-  const [debouncedAmount] = useDebounce(amount, 350);
-  const userAmount = parseFloat(debouncedAmount || '0');
-  const probeAmount = userAmount > 0 ? userAmount : SEED_PROBE_AMOUNT;
+  const [debouncedAmount] = useDebounce(amount.trim(), 350);
+  const parsedAmount = parseFloat(debouncedAmount || '0');
+  const probeAmount = parsedAmount > 0 ? parsedAmount : SEED_PROBE_AMOUNT;
+  const probeKey = parsedAmount > 0 ? debouncedAmount : `seed:${SEED_PROBE_AMOUNT}`;
 
   const key = [
     'cross-chain-rate',
@@ -24,7 +25,7 @@ export const useCrossChainRate = ({ from, to, amount }: RateArgs) => {
     from.exolixNetwork,
     to.exolixCoin,
     to.exolixNetwork,
-    probeAmount
+    probeKey
   ];
 
   return useTypedSWR<GetRateResponse>(

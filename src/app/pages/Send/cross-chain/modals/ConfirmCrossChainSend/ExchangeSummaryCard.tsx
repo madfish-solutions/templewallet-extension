@@ -49,7 +49,7 @@ export const ExchangeSummaryCard = memo<Props>(
         <div className="px-4 pt-4 pb-3 flex flex-col gap-y-3">
           <DirectionalAmountRow
             labelId="send"
-            directionLabel="From"
+            directionLabelId="from"
             address={senderAddress}
             asset={fromAsset}
             amount={fromAmount}
@@ -59,7 +59,7 @@ export const ExchangeSummaryCard = memo<Props>(
           <div className="h-px bg-lines" />
           <DirectionalAmountRow
             labelId="get"
-            directionLabel="To"
+            directionLabelId="toAsset"
             address={recipient}
             asset={toAsset}
             amount={effectiveToAmount}
@@ -114,7 +114,7 @@ export const ExchangeSummaryCard = memo<Props>(
 
 interface DirectionalAmountRowProps {
   labelId: TID;
-  directionLabel: string;
+  directionLabelId: TID;
   address?: string;
   asset: CrossChainAsset;
   amount: string;
@@ -124,7 +124,7 @@ interface DirectionalAmountRowProps {
 
 const DirectionalAmountRow: FC<DirectionalAmountRowProps> = ({
   labelId,
-  directionLabel,
+  directionLabelId,
   address,
   asset,
   amount,
@@ -138,7 +138,9 @@ const DirectionalAmountRow: FC<DirectionalAmountRowProps> = ({
       </span>
       {address && (
         <div className="flex items-center gap-x-1">
-          <span className="text-font-description text-grey-1">{directionLabel}</span>
+          <span className="text-font-description text-grey-1">
+            <T id={directionLabelId} />
+          </span>
           <HashChip hash={address} firstCharsCount={6} lastCharsCount={4} />
         </div>
       )}

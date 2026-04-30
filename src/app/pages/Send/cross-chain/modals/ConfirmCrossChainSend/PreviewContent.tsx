@@ -78,7 +78,7 @@ export const PreviewContent: FC<Props> = ({ data, onStepChange, onCancel, devFor
 
   return (
     <ReservationFailureView
-      error={new Error('Source chain account or network unavailable')}
+      error={new Error(t('crossChainSourceAccountUnavailable'))}
       onRetry={handleRetry}
       onCancel={onCancel}
     />

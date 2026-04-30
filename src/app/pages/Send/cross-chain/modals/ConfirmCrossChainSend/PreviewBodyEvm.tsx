@@ -1,4 +1,4 @@
-import React, { FC, useCallback, useMemo, useRef, useState } from 'react';
+import React, { FC, useCallback, useState } from 'react';
 
 import { omit } from 'lodash';
 import { FormProvider } from 'react-hook-form';
@@ -6,14 +6,11 @@ import { TransactionRequest } from 'viem';
 
 import { HashChip } from 'app/atoms/HashChip';
 import { ActionsButtonsBox } from 'app/atoms/PageModal/actions-buttons-box';
-import SegmentedControl from 'app/atoms/SegmentedControl';
 import { StyledButton } from 'app/atoms/StyledButton';
 import { useLedgerApprovalModalState } from 'app/hooks/use-ledger-approval-modal-state';
 import { buildBasicEvmSendParams } from 'app/pages/Send/build-basic-evm-send-params';
 import { useEvmEstimationData } from 'app/pages/Send/hooks/use-evm-estimation-data';
 import { dispatch } from 'app/store';
-import { addCrossChainExchangeAction, monitorCrossChainExchangesAction } from 'app/store/cross-chain-send/actions';
-import { CrossChainExchange } from 'app/store/cross-chain-send/state';
 import {
   addPendingEvmTransferAction,
   monitorPendingTransfersAction
@@ -21,12 +18,9 @@ import {
 import { CurrentAccount } from 'app/templates/current-account';
 import { FeeSummary } from 'app/templates/fee-summary';
 import { LedgerApprovalModal } from 'app/templates/ledger-approval-modal';
-import { AdvancedTab } from 'app/templates/TransactionTabs/tabs/advanced';
-import { ErrorTab } from 'app/templates/TransactionTabs/tabs/error';
-import { FeeTab } from 'app/templates/TransactionTabs/tabs/fee';
-import { EvmTxParamsFormData, Tab } from 'app/templates/TransactionTabs/types';
+import { TransactionTabs } from 'app/templates/TransactionTabs';
+import { EvmTxParamsFormData } from 'app/templates/TransactionTabs/types';
 import { useEvmEstimationForm } from 'app/templates/TransactionTabs/use-evm-estimation-form';
-import { useAnalytics } from 'lib/analytics';
 import { ExchangeData } from 'lib/apis/exolix/types';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { useEvmAssetBalance } from 'lib/balances/hooks';
@@ -45,7 +39,7 @@ import { useGetEvmActiveBlockExplorer } from 'temple/front/ready';
 import { makeBlockExplorerHref } from 'temple/front/use-block-explorers';
 import { TempleChainKind } from 'temple/types';
 
-import { CrossChainAnalyticsEvents } from '../../analytics';
+import { useSubmitCrossChainExchange } from '../../hooks/use-submit-cross-chain-exchange';
 
 import { ExpectedResultCard, NetworkRows } from './preview-shared';
 import { ConfirmCrossChainReviewData, ConfirmCrossChainStep } from './types';
@@ -76,7 +70,7 @@ const PreviewBodyEvmInner: FC<Props> = ({ data, exchange, account, network, onSt
   const currentAccount = useAccount();
   const { sendEvmTransaction } = useTempleClient();
   const getActiveBlockExplorer = useGetEvmActiveBlockExplorer();
-  const { trackEvent } = useAnalytics();
+  const recordCrossChainExchange = useSubmitCrossChainExchange();
 
   const assetMetadata = useEvmCategorizedAssetMetadata(fromAsset.assetSlug ?? '', network.chainId);
   const { value: balance = ZERO } = useEvmAssetBalance(fromAsset.assetSlug ?? '', accountPkh, network);
@@ -112,30 +106,12 @@ const PreviewBodyEvmInner: FC<Props> = ({ data, exchange, account, network, onSt
   const { ledgerApprovalModalState, setLedgerApprovalModalState, handleLedgerModalClose } =
     useLedgerApprovalModalState();
 
-  const detailsRef = useRef<HTMLDivElement>(null);
-  const feeRef = useRef<HTMLDivElement>(null);
-  const advancedRef = useRef<HTMLDivElement>(null);
-  const errorRef = useRef<HTMLDivElement>(null);
-
   const onSubmitError = useCallback(
     (err: unknown) => {
-      console.error(err);
       setLatestSubmitError(err);
       setTab('error');
     },
     [setTab]
-  );
-
-  const segments = useMemo(
-    () => [
-      { label: t('details'), value: 'details' as const, ref: detailsRef },
-      { label: t('fee'), value: 'fee' as const, ref: feeRef },
-      { label: t('advanced'), value: 'advanced' as const, ref: advancedRef },
-      ...(latestSubmitError || estimationError
-        ? [{ label: t('error'), value: 'error' as const, ref: errorRef }]
-        : [])
-    ],
-    [latestSubmitError, estimationError]
   );
 
   const onSubmit = useCallback(
@@ -145,7 +121,7 @@ const PreviewBodyEvmInner: FC<Props> = ({ data, exchange, account, network, onSt
       const feesPerGas = getFeesPerGas(gasPrice);
 
       if (!assetMetadata) {
-        onSubmitError(new Error('Asset metadata not found.'));
+        onSubmitError(new Error(t('crossChainAssetMetadataNotFound')));
         return;
       }
 
@@ -192,36 +168,18 @@ const PreviewBodyEvmInner: FC<Props> = ({ data, exchange, account, network, onSt
           );
           dispatch(monitorPendingTransfersAction());
 
-          const storedExchange: CrossChainExchange = {
-            id: exchange.id,
+          recordCrossChainExchange({
             accountId: currentAccount.id,
             sourceChainKind: TempleChainKind.EVM,
             sourceChainId: network.chainId,
             senderAddress: accountPkh,
-            sourceTxHash: txHash,
-            depositAddress: exchange.depositAddress,
-            depositExtraId: exchange.depositExtraId,
-            recipient: recipient.trim(),
+            txHash,
+            exchange,
             fromAsset,
             toAsset,
             fromAmount,
             toAmountEstimated,
-            phase: 'PENDING_TX',
-            exolixStatus: exchange.status,
-            createdAt: Date.now(),
-            updatedAt: Date.now()
-          };
-
-          dispatch(addCrossChainExchangeAction(storedExchange));
-          dispatch(monitorCrossChainExchangesAction());
-
-          trackEvent(CrossChainAnalyticsEvents.CrossChainConfirmed, undefined, {
-            exchangeId: exchange.id,
-            from: fromAsset.exolixCoin,
-            fromNetwork: fromAsset.exolixNetwork,
-            to: toAsset.exolixCoin,
-            toNetwork: toAsset.exolixNetwork,
-            amount: fromAmount
+            recipient
           });
 
           onStepChange(ConfirmCrossChainStep.Processing, exchange.id);
@@ -259,7 +217,7 @@ const PreviewBodyEvmInner: FC<Props> = ({ data, exchange, account, network, onSt
       toAmountEstimated,
       recipient,
       currentAccount.id,
-      trackEvent,
+      recordCrossChainExchange,
       onStepChange,
       isLedgerAccount,
       account.type,
@@ -271,7 +229,7 @@ const PreviewBodyEvmInner: FC<Props> = ({ data, exchange, account, network, onSt
 
   return (
     <FormProvider {...form}>
-      <form id={FORM_ID} onSubmit={form.handleSubmit(onSubmit)} className="flex-1 overflow-y-auto px-4 pt-3 pb-4 flex flex-col gap-y-4">
+      <div className="flex-1 overflow-y-auto px-4 pt-3 pb-4 flex flex-col gap-y-4">
         <ExpectedResultCard
           fromAsset={fromAsset}
           fromAmount={fromAmount}
@@ -288,37 +246,28 @@ const PreviewBodyEvmInner: FC<Props> = ({ data, exchange, account, network, onSt
 
         <CurrentAccount />
 
-        <SegmentedControl<Tab>
-          name="cross-chain-evm-preview-tabs"
-          activeSegment={tab}
-          setActiveSegment={setTab}
-          segments={segments}
+        <TransactionTabs<EvmTxParamsFormData>
+          network={network}
+          nativeAssetSlug={EVM_TOKEN_SLUG}
+          selectedTab={tab}
+          setSelectedTab={setTab}
+          selectedFeeOption={selectedFeeOption}
+          latestSubmitError={latestSubmitError}
+          onFeeOptionSelect={handleFeeOptionSelect}
+          onSubmit={onSubmit}
+          displayedFeeOptions={feeOptions?.displayed}
+          estimationError={estimationError}
+          formId={FORM_ID}
+          tabsName="cross-chain-evm-preview-tabs"
+          detailsContent={
+            <NetworkRows
+              recipientNode={<HashChip hash={recipient} firstCharsCount={6} lastCharsCount={6} />}
+              fromAsset={fromAsset}
+              toAsset={toAsset}
+            />
+          }
         />
-
-        {tab === 'details' && (
-          <NetworkRows
-            recipientNode={<HashChip hash={recipient} firstCharsCount={6} lastCharsCount={6} />}
-            fromAsset={fromAsset}
-            toAsset={toAsset}
-          />
-        )}
-
-        {tab === 'fee' && (
-          <FeeTab
-            network={network}
-            assetSlug={EVM_TOKEN_SLUG}
-            displayedFeeOptions={feeOptions?.displayed}
-            selectedOption={selectedFeeOption}
-            onOptionSelect={handleFeeOptionSelect}
-          />
-        )}
-
-        {tab === 'advanced' && <AdvancedTab isEvm />}
-
-        {tab === 'error' && (
-          <ErrorTab isEvm submitError={latestSubmitError} estimationError={estimationError} />
-        )}
-      </form>
+      </div>
 
       <ActionsButtonsBox flexDirection="row" shouldChangeBottomShift={false}>
         <StyledButton
