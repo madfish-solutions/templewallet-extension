@@ -1,4 +1,4 @@
-import React, { FC, useCallback, useState } from 'react';
+import { FC, useState } from 'react';
 
 import type { ActionCreatorWithOptionalPayload } from '@reduxjs/toolkit';
 
@@ -42,16 +42,16 @@ const ConfirmSendModalHOC = <T extends TempleChainKind>({
   const ChainConfirmSendModal: FC<ConfirmSendModalHOCProps<T>> = ({ opened, onRequestClose, reviewData }) => {
     const [txData, setTxData] = useState<TxData<T>>();
 
-    const closeModal = useCallback(() => {
+    const closeModal = () => {
       dispatch(setTransferBeingWatchedAction(undefined));
       setTxData(undefined);
       onRequestClose();
-    }, [onRequestClose]);
+    };
 
-    const handleSuccess = useCallback((txData: TxData<T>) => {
+    const handleSuccess = (txData: TxData<T>) => {
       setTxData(txData);
       dispatch(setTransferBeingWatchedAction(txData.txHash));
-    }, []);
+    };
 
     return (
       <PageModal

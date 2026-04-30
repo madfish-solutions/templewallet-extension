@@ -1,4 +1,4 @@
-import React, { createContext, FC, memo, useContext, useMemo, useRef } from 'react';
+import React, { Activity, createContext, FC, memo, useContext, useMemo, useRef } from 'react';
 
 import { range } from 'lodash';
 
@@ -9,7 +9,7 @@ import {
   useEvmChainAccountTokensListingLogic
 } from 'app/hooks/listing-logic/use-evm-chain-account-tokens-listing-logic';
 import { usePreservedOrderSlugsToManage } from 'app/hooks/listing-logic/use-manageable-slugs';
-import { useManageState } from 'app/hooks/use-assets-view-state';
+import { useTokensManageState } from 'app/hooks/use-assets-view-state';
 import { useTokensListOptionsSelector } from 'app/store/assets-filter-options/selectors';
 import { useEvmCollectiblesMetadataLoadingSelector } from 'app/store/evm/selectors';
 import { usePartnersPromotionModule } from 'app/templates/partners-promotion';
@@ -57,7 +57,7 @@ export const EvmChainTokensTab = memo<Props>(({ chainId, publicKeyHash, accountI
   const collectiblesReady = collectibles.length > 0 || (!collectiblesLoading && !collectiblesMetadataLoading);
   const collectiblesSortPredicate = useEvmChainCollectiblesSortPredicate(publicKeyHash, chainId);
 
-  const { manageActive } = useManageState();
+  const { manageActive } = useTokensManageState();
   const contextValue = useMemo(
     () => ({ accountId, network, publicKeyHash, collectibles, collectiblesReady, collectiblesSortPredicate }),
     [accountId, network, publicKeyHash, collectibles, collectiblesReady, collectiblesSortPredicate]
@@ -65,7 +65,13 @@ export const EvmChainTokensTab = memo<Props>(({ chainId, publicKeyHash, accountI
 
   return (
     <EvmChainTokensTabContext value={contextValue}>
-      {manageActive ? <TabContentWithManageActive /> : <TabContent />}
+      <Activity mode={manageActive ? 'hidden' : 'visible'} name="evm-chain-tokens-tab-default">
+        <TabContent />
+      </Activity>
+
+      <Activity mode={manageActive ? 'visible' : 'hidden'} name="evm-chain-tokens-tab-manage">
+        <TabContentWithManageActive />
+      </Activity>
     </EvmChainTokensTabContext>
   );
 });
@@ -176,6 +182,7 @@ const TabContentBase = memo<TabContentBaseProps>(({ allSlugsSorted, manageActive
       loadNextPage={loadNext}
       isSyncingTokens={isSyncing}
       isInSearchMode={isInSearchMode}
+      manageActive={manageActive}
       network={network}
       shouldShowHiddenTokensHint={shouldShowHiddenTokensHint}
       {...tokensTabBaseProps}

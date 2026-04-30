@@ -1,10 +1,10 @@
-import { useEffect, useRef } from 'react';
+import { DependencyList, useEffect, useRef } from 'react';
 
 import { useDidMount } from './useDidMount';
 import { useUpdatableRef } from './useUpdatableRef';
 import { useWillUnmount } from './useWillUnmount';
 
-export function useDidUpdate(callback: EmptyFn, conditions: unknown[]) {
+export function useDidUpdate(callback: EmptyFn, deps: DependencyList) {
   const hasMountedRef = useRef(false);
   const callbackRef = useUpdatableRef(callback);
 
@@ -12,7 +12,7 @@ export function useDidUpdate(callback: EmptyFn, conditions: unknown[]) {
     if (hasMountedRef.current) {
       callbackRef.current();
     }
-  }, conditions);
+  }, deps);
 
   useDidMount(() => {
     hasMountedRef.current = true;

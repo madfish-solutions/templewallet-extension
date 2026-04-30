@@ -1,4 +1,4 @@
-import React, { FC, memo, useMemo } from 'react';
+import React, { FC, useMemo } from 'react';
 
 import { FadeTransition } from 'app/a11y/FadeTransition';
 import { SyncSpinner } from 'app/atoms';
@@ -9,7 +9,6 @@ import {
   VisibilityTrackingInfiniteScroll,
   VisibilityTrackingInfiniteScrollProps
 } from 'app/atoms/visibility-tracking-infinite-scroll';
-import { useManageState } from 'app/hooks/use-assets-view-state';
 import { ContentContainer } from 'app/layouts/containers';
 import BuyWithFiatImageSrc from 'app/misc/deposit/buy-with-fiat.png';
 import CrossChainSwapImageSrc from 'app/misc/deposit/cross-chain-swap.png';
@@ -38,6 +37,7 @@ export interface TokensTabBaseProps {
   isSyncingTokens: boolean;
   accountId: string;
   isInSearchMode: boolean;
+  manageActive: boolean;
   network?: OneOfChains;
   shouldShowHiddenTokensHint?: boolean;
   collectibles: AccountCollectible[];
@@ -45,27 +45,19 @@ export interface TokensTabBaseProps {
   collectiblesSortPredicate: (aChainAssetSlug: string, bChainAssetSlug: string) => number;
 }
 
-export const TokensTabBase: FC<PropsWithChildren<TokensTabBaseProps>> = props => {
-  const { manageActive } = useManageState();
-
-  return (
-    <>
-      <FadeTransition>
-        <TokensTabBaseContent {...props} manageActive={manageActive} />
-      </FadeTransition>
-
-      <DAppConnection />
-    </>
-  );
-};
-
-interface TokensTabBaseContentProps extends TokensTabBaseProps {
-  manageActive: boolean;
-}
-
 const goToNftsPage = () => navigate('/nfts');
 
-const TokensTabBaseContent: FC<PropsWithChildren<TokensTabBaseContentProps>> = ({
+export const TokensTabBase: FC<PropsWithChildren<TokensTabBaseProps>> = ({ ...restProps }) => (
+  <>
+    <FadeTransition>
+      <TokensTabBaseContent {...restProps} />
+    </FadeTransition>
+
+    <DAppConnection />
+  </>
+);
+
+const TokensTabBaseContent: FC<PropsWithChildren<TokensTabBaseProps>> = ({
   tokensCount,
   getElementIndex,
   loadNextPage,
@@ -185,7 +177,7 @@ const TokensTabBaseContent: FC<PropsWithChildren<TokensTabBaseContentProps>> = (
   );
 };
 
-const UninitializedAccountContent = memo(() => (
+const UninitializedAccountContent = () => (
   <>
     <p className="p-1 mb-1 text-font-description-bold text-grey-1">
       <T id="depositTokensToGetStarted" />
@@ -209,7 +201,7 @@ const UninitializedAccountContent = memo(() => (
       imageSrc={CrossChainSwapImageSrc}
     />
   </>
-));
+);
 
 const TokensTabBaseContentWrapper: FC<PropsWithChildren<{ padding?: boolean; className?: string }>> = ({
   padding,
