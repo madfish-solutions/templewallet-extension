@@ -2,8 +2,8 @@ import React, { FC } from 'react';
 
 import { StyledButton } from 'app/atoms/StyledButton';
 import { ReactComponent as XCircleFill } from 'app/icons/base/x_circle_fill.svg';
-import { OrderStatusEnum } from 'lib/apis/exolix/types';
 import { useCrossChainExchangeSelector } from 'app/store/cross-chain-send/selectors';
+import { OrderStatusEnum } from 'lib/apis/exolix/types';
 import { T, t } from 'lib/i18n';
 
 import backgroundFailedSrc from '../../assets/background-failed.svg?url';

@@ -3,8 +3,8 @@ import { useCallback } from 'react';
 import { dispatch } from 'app/store';
 import { addCrossChainExchangeAction, monitorCrossChainExchangesAction } from 'app/store/cross-chain-send/actions';
 import { CrossChainExchange } from 'app/store/cross-chain-send/state';
-import { ExchangeData } from 'lib/apis/exolix/types';
 import { useAnalytics } from 'lib/analytics';
+import { ExchangeData } from 'lib/apis/exolix/types';
 import { CrossChainAsset } from 'lib/cross-chain';
 import { TempleChainKind } from 'temple/types';
 

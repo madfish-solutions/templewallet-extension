@@ -141,9 +141,7 @@ export const loadMinMaxExchangeValues = async (
     });
     // Ignoring the invalid output of the backward exchange
     const maxDollarValueMaxAmount =
-      'message' in backwardExchange &&
-      backwardExchange.message == null &&
-      backwardExchange.toAmount >= finalMinAmount
+      'message' in backwardExchange && backwardExchange.message == null && backwardExchange.toAmount >= finalMinAmount
         ? backwardExchange.toAmount
         : undefined;
 
@@ -188,3 +186,34 @@ export const submitExchange = (data: {
 
 export const getExchangeData = (exchangeId: string) =>
   retry(() => api.get<ExchangeData>(`/transactions/${exchangeId}`).then(r => r.data), COMMON_RETRY_CONFIG);
+
+export const queryCrossChainRate = (data: GetRateRequestData): Promise<GetRateResponse> =>
+  retry(
+    () =>
+      api
+        .get<GetRateResponse>('/rate', {
+          params: { ...data, rateType: 'float' },
+          validateStatus: status => status === 200 || status === 422
+        })
+        .then(r => r.data),
+    COMMON_RETRY_CONFIG
+  );
+
+export interface CreateCrossChainExchangeInput {
+  coinFrom: string;
+  networkFrom: string;
+  coinTo: string;
+  networkTo: string;
+  /** Pass a stringifies BigNumber to preserve precision for 18-decimal tokens. */
+  amount: string;
+  withdrawalAddress: string;
+}
+
+export const createCrossChainExchange = (input: CreateCrossChainExchangeInput): Promise<ExchangeData> =>
+  api
+    .post<ExchangeData>('/transactions', {
+      ...input,
+      withdrawalExtraId: '',
+      rateType: 'float'
+    })
+    .then(r => r.data);

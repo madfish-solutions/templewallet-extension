@@ -74,7 +74,11 @@ const buildEvmAssetsAll = (override?: ExolixNetworksOverride): CrossChainAsset[]
 
 const FALLBACK_EVM_ASSETS: CrossChainAsset[] = buildEvmAssetsAll();
 
-const requireEvmAsset = (chainId: number, predicate: (a: CrossChainAsset) => boolean, label: string): CrossChainAsset => {
+const requireEvmAsset = (
+  chainId: number,
+  predicate: (a: CrossChainAsset) => boolean,
+  label: string
+): CrossChainAsset => {
   const found = FALLBACK_EVM_ASSETS.find(a => a.chainId === chainId && predicate(a));
   if (!found) throw new Error(`Cross-chain config missing required asset: ${label} (chainId=${chainId})`);
   return found;
@@ -107,8 +111,5 @@ export const toCrossChainAssetSlug = (asset: CrossChainAsset): string => {
   return `${asset.chainKind}:${asset.chainId}:${asset.assetSlug}`;
 };
 
-export const isPairAllowed = (
-  from: CrossChainAsset,
-  to: CrossChainAsset,
-  override?: ExolixNetworksOverride
-): boolean => getAllowedToAssets(from, override).some(t => toCrossChainAssetSlug(t) === toCrossChainAssetSlug(to));
+export const isPairAllowed = (from: CrossChainAsset, to: CrossChainAsset, override?: ExolixNetworksOverride): boolean =>
+  getAllowedToAssets(from, override).some(t => toCrossChainAssetSlug(t) === toCrossChainAssetSlug(to));

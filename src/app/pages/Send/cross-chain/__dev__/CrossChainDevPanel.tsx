@@ -1,16 +1,15 @@
 import React, { FC, memo, useCallback, useMemo, useState } from 'react';
 
 import { Button } from 'app/atoms';
-import { useBooleanState } from 'lib/ui/hooks';
 import { dispatch } from 'app/store';
 import { addCrossChainExchangeAction, removeCrossChainExchangeAction } from 'app/store/cross-chain-send/actions';
 import { CrossChainExchange, CrossChainPhase } from 'app/store/cross-chain-send/state';
 import { CROSS_CHAIN_ASSETS, CrossChainAsset } from 'lib/cross-chain';
+import { useBooleanState } from 'lib/ui/hooks';
 import { useAccount } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
 
 import { ConfirmCrossChainSendModal } from '../modals/ConfirmCrossChainSend';
-import { ConfirmCrossChainStep } from '../modals/ConfirmCrossChainSend/types';
 import { CrossChainActivityModal } from '../modals/CrossChainActivityModal';
 
 const SEED_PREFIX = 'dev-seed-';
@@ -44,35 +43,33 @@ const buildFakeExchange = (
   phase,
   exolixStatus: phase.toLowerCase(),
   hashIn: { hash: '0xe1Bb4d4Ad9b5559aBcDeF0123456789012345678ABCDEF0123456789ABCDef2728', link: null },
-  hashOut: phase === 'COMPLETED'
-    ? { hash: '0xabc1234567890def1234567890abcdef1234567890abcdef1234567890abcd', link: null }
-    : undefined,
+  hashOut:
+    phase === 'COMPLETED'
+      ? { hash: '0xabc1234567890def1234567890abcdef1234567890abcdef1234567890abcd', link: null }
+      : undefined,
   createdAt: Date.now() - 1000 * 60 * 60,
   updatedAt: Date.now(),
-  completedAt: phase === 'COMPLETED' ? Date.now() : undefined,
   ...overrides
 });
 
 interface DevPhaseEntry {
   key: string;
   phase: CrossChainPhase;
-  step: ConfirmCrossChainStep;
   label: string;
   exolixStatus?: string;
   refundHash?: string;
 }
 
 const PHASES_FOR_DEV: DevPhaseEntry[] = [
-  { key: 'pending-tx', phase: 'PENDING_TX', step: ConfirmCrossChainStep.Processing, label: 'Processing — Confirmation' },
-  { key: 'tx-confirmed', phase: 'TX_CONFIRMED', step: ConfirmCrossChainStep.Processing, label: 'Processing — Exchange' },
-  { key: 'exchanging', phase: 'EXCHANGING', step: ConfirmCrossChainStep.Processing, label: 'Processing — Sending' },
-  { key: 'completed', phase: 'COMPLETED', step: ConfirmCrossChainStep.Completed, label: 'Completed' },
-  { key: 'failed', phase: 'FAILED', step: ConfirmCrossChainStep.Failed, label: 'Failed' },
-  { key: 'overdue', phase: 'FAILED', step: ConfirmCrossChainStep.Failed, label: 'Overdue', exolixStatus: 'overdue' },
+  { key: 'pending-tx', phase: 'PENDING_TX', label: 'Processing — Confirmation' },
+  { key: 'tx-confirmed', phase: 'TX_CONFIRMED', label: 'Processing — Exchange' },
+  { key: 'exchanging', phase: 'EXCHANGING', label: 'Processing — Sending' },
+  { key: 'completed', phase: 'COMPLETED', label: 'Completed' },
+  { key: 'failed', phase: 'FAILED', label: 'Failed' },
+  { key: 'overdue', phase: 'FAILED', label: 'Overdue', exolixStatus: 'overdue' },
   {
     key: 'refunded',
     phase: 'FAILED',
-    step: ConfirmCrossChainStep.Failed,
     label: 'Refunded',
     exolixStatus: 'refunded',
     refundHash: '0xrefund1234567890abcdef1234567890abcdef1234567890abcdef1234567890'
@@ -94,7 +91,6 @@ export const CrossChainDevPanel: FC = memo(() => {
   const [previewOpen, openPreview, closePreview] = useBooleanState(false);
   const [previewFailureOpen, openPreviewFailure, closePreviewFailure] = useBooleanState(false);
   const [activeExchangeId, setActiveExchangeId] = useState<string>();
-  const [activeStep, setActiveStep] = useState<ConfirmCrossChainStep>(ConfirmCrossChainStep.Processing);
 
   const seedAll = useCallback(() => {
     PHASES_FOR_DEV.forEach((p, i) => {
@@ -129,7 +125,6 @@ export const CrossChainDevPanel: FC = memo(() => {
       });
       dispatch(addCrossChainExchangeAction(ex));
       setActiveExchangeId(ex.id);
-      setActiveStep(entry.step);
       openConfirm();
     },
     [accountId, openConfirm]
@@ -164,17 +159,12 @@ export const CrossChainDevPanel: FC = memo(() => {
       <ConfirmCrossChainSendModal
         opened={confirmOpen}
         onRequestClose={handleCloseConfirm}
-        initialStep={activeStep}
         initialExchangeId={activeExchangeId}
         reviewData={reviewData}
         onTryAgain={() => undefined}
       />
 
-      <ConfirmCrossChainSendModal
-        opened={previewOpen}
-        onRequestClose={closePreview}
-        reviewData={reviewData}
-      />
+      <ConfirmCrossChainSendModal opened={previewOpen} onRequestClose={closePreview} reviewData={reviewData} />
 
       <ConfirmCrossChainSendModal
         opened={previewFailureOpen}
@@ -189,13 +179,6 @@ export const CrossChainDevPanel: FC = memo(() => {
         accountId={accountId}
         onExchangeClick={ex => {
           setActiveExchangeId(ex.id);
-          setActiveStep(
-            ex.phase === 'COMPLETED'
-              ? ConfirmCrossChainStep.Completed
-              : ex.phase === 'FAILED'
-                ? ConfirmCrossChainStep.Failed
-                : ConfirmCrossChainStep.Processing
-          );
           closeActivity();
           openConfirm();
         }}

@@ -9,8 +9,8 @@ import { useLocalStorage } from 'lib/ui/local-storage';
 import { useAccount } from 'temple/front';
 
 import { CrossChainAnalyticsEvents } from '../analytics';
-import { ConfirmCrossChainReviewData, ConfirmCrossChainStep } from '../modals/ConfirmCrossChainSend/types';
 import { SendTab } from '../components/SendTabs';
+import { ConfirmCrossChainReviewData } from '../modals/ConfirmCrossChainSend/types';
 
 interface UseCrossChainSendControllerArgs {
   activeTab: SendTab;
@@ -18,7 +18,6 @@ interface UseCrossChainSendControllerArgs {
 
 export const useCrossChainSendController = ({ activeTab }: UseCrossChainSendControllerArgs) => {
   const [crossChainReview, setCrossChainReview] = useState<ConfirmCrossChainReviewData | undefined>();
-  const [crossChainInitialStep, setCrossChainInitialStep] = useState<ConfirmCrossChainStep | undefined>();
   const [crossChainInitialExchangeId, setCrossChainInitialExchangeId] = useState<string | undefined>();
 
   const [crossChainConfirmOpened, openCrossChainConfirm, closeCrossChainConfirm] = useBooleanState(false);
@@ -74,13 +73,6 @@ export const useCrossChainSendController = ({ activeTab }: UseCrossChainSendCont
         recipient: exchange.recipient
       });
       setCrossChainInitialExchangeId(exchange.id);
-      setCrossChainInitialStep(
-        exchange.phase === 'COMPLETED'
-          ? ConfirmCrossChainStep.Completed
-          : exchange.phase === 'FAILED'
-            ? ConfirmCrossChainStep.Failed
-            : ConfirmCrossChainStep.Processing
-      );
       openCrossChainConfirm();
     },
     [closeCrossChainActivity, openCrossChainConfirm]
@@ -88,7 +80,6 @@ export const useCrossChainSendController = ({ activeTab }: UseCrossChainSendCont
 
   const handleConfirmClose = useCallback(() => {
     closeCrossChainConfirm();
-    setCrossChainInitialStep(undefined);
     setCrossChainInitialExchangeId(undefined);
   }, [closeCrossChainConfirm]);
 
@@ -109,7 +100,6 @@ export const useCrossChainSendController = ({ activeTab }: UseCrossChainSendCont
     accountId,
     hasActiveCrossChain,
     crossChainReview,
-    crossChainInitialStep,
     crossChainInitialExchangeId,
     crossChainConfirmOpened,
     crossChainWarningOpened,

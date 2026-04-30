@@ -1,7 +1,7 @@
 import { useDebounce } from 'use-debounce';
 
-import { queryCrossChainRate } from 'lib/apis/exolix/cross-chain';
 import { GetRateResponse } from 'lib/apis/exolix/types';
+import { queryCrossChainRate } from 'lib/apis/exolix/utils';
 import { CrossChainAsset } from 'lib/cross-chain';
 import { useTypedSWR } from 'lib/swr';
 
@@ -19,14 +19,7 @@ export const useCrossChainRate = ({ from, to, amount }: RateArgs) => {
   const probeAmount = parsedAmount > 0 ? parsedAmount : SEED_PROBE_AMOUNT;
   const probeKey = parsedAmount > 0 ? debouncedAmount : `seed:${SEED_PROBE_AMOUNT}`;
 
-  const key = [
-    'cross-chain-rate',
-    from.exolixCoin,
-    from.exolixNetwork,
-    to.exolixCoin,
-    to.exolixNetwork,
-    probeKey
-  ];
+  const key = ['cross-chain-rate', from.exolixCoin, from.exolixNetwork, to.exolixCoin, to.exolixNetwork, probeKey];
 
   return useTypedSWR<GetRateResponse>(
     key,

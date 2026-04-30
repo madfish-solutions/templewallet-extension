@@ -81,11 +81,8 @@ const Send = memo<Props>(({ chainKind, chainId, assetSlug }) => {
   const [confirmSendModalOpened, setConfirmSendModalOpen, setConfirmSendModalClosed] = useBooleanState(false);
   const [reviewData, setReviewData] = useState<ReviewData>();
 
-  const [activeTab, setActiveTab] = useState<SendTab>('default');
-
-  useEffect(() => {
-    if (testnetModeEnabled && activeTab === 'cross-chain') setActiveTab('default');
-  }, [testnetModeEnabled, activeTab]);
+  const [storedActiveTab, setActiveTab] = useState<SendTab>('default');
+  const activeTab: SendTab = testnetModeEnabled ? 'default' : storedActiveTab;
 
   const crossChain = useCrossChainSendController({ activeTab });
 
@@ -195,16 +192,17 @@ const Send = memo<Props>(({ chainKind, chainId, assetSlug }) => {
       contentPadding={false}
       noScroll
       headerRightElem={
-        activeTab === 'cross-chain' ? (
-          <CrossChainActivityButton hasActive={crossChain.hasActiveCrossChain} onClick={crossChain.handleOpenActivity} />
+        !testnetModeEnabled && activeTab === 'cross-chain' ? (
+          <CrossChainActivityButton
+            hasActive={crossChain.hasActiveCrossChain}
+            onClick={crossChain.handleOpenActivity}
+          />
         ) : undefined
       }
     >
-      {!testnetModeEnabled && (
-        <div className="px-4 py-4">
-          <SendTabs activeTab={activeTab} onChange={handleSetActiveTab} />
-        </div>
-      )}
+      <div className="px-4 py-4">
+        <SendTabs activeTab={activeTab} onChange={handleSetActiveTab} crossChainDisabled={testnetModeEnabled} />
+      </div>
 
       <Suspense fallback={<PageLoader stretch />}>
         {activeTab === 'default' ? (
@@ -231,21 +229,22 @@ const Send = memo<Props>(({ chainKind, chainId, assetSlug }) => {
         reviewData={reviewData}
       />
 
-      <CrossChainSendModals
-        warningOpened={crossChain.crossChainWarningOpened}
-        confirmOpened={crossChain.crossChainConfirmOpened}
-        activityOpened={crossChain.crossChainActivityOpened}
-        reviewData={crossChain.crossChainReview}
-        initialStep={crossChain.crossChainInitialStep}
-        initialExchangeId={crossChain.crossChainInitialExchangeId}
-        accountId={crossChain.accountId}
-        onWarningClose={crossChain.closeCrossChainWarning}
-        onWarningConfirm={crossChain.handleWarningConfirm}
-        onConfirmClose={crossChain.handleConfirmClose}
-        onActivityClose={crossChain.closeCrossChainActivity}
-        onActivityClick={crossChain.handleActivityClick}
-        onTryAgain={crossChain.handleTryAgain}
-      />
+      {!testnetModeEnabled && (
+        <CrossChainSendModals
+          warningOpened={crossChain.crossChainWarningOpened}
+          confirmOpened={crossChain.crossChainConfirmOpened}
+          activityOpened={crossChain.crossChainActivityOpened}
+          reviewData={crossChain.crossChainReview}
+          initialExchangeId={crossChain.crossChainInitialExchangeId}
+          accountId={crossChain.accountId}
+          onWarningClose={crossChain.closeCrossChainWarning}
+          onWarningConfirm={crossChain.handleWarningConfirm}
+          onConfirmClose={crossChain.handleConfirmClose}
+          onActivityClose={crossChain.closeCrossChainActivity}
+          onActivityClick={crossChain.handleActivityClick}
+          onTryAgain={crossChain.handleTryAgain}
+        />
+      )}
 
       <LedgerFullViewPromptModal {...ledgerPromptProps} />
     </PageLayout>

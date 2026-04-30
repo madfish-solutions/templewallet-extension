@@ -62,12 +62,7 @@ const Pill: FC<PillProps> = ({ labelId, state }) => (
     {state === 'done' ? (
       <IconBase Icon={OkFillIcon} size={12} className="text-success" />
     ) : (
-      <span
-        className={clsx(
-          'w-1.5 h-1.5 rounded-full',
-          state === 'active' ? 'bg-warning' : 'bg-grey-3'
-        )}
-      />
+      <span className={clsx('w-1.5 h-1.5 rounded-full', state === 'active' ? 'bg-warning' : 'bg-grey-3')} />
     )}
     <span>
       <T id={labelId} />

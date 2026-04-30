@@ -1,12 +1,7 @@
 import { CrossChainAsset } from 'lib/cross-chain';
 import { TempleChainKind } from 'temple/types';
 
-export type CrossChainPhase =
-  | 'PENDING_TX'
-  | 'TX_CONFIRMED'
-  | 'EXCHANGING'
-  | 'COMPLETED'
-  | 'FAILED';
+export type CrossChainPhase = 'PENDING_TX' | 'TX_CONFIRMED' | 'EXCHANGING' | 'COMPLETED' | 'FAILED';
 
 export interface CrossChainExchange {
   /** Exolix exchange id */
@@ -34,14 +29,12 @@ export interface CrossChainExchange {
   refundHash?: string;
   createdAt: number;
   updatedAt: number;
-  completedAt?: number;
   bannerDismissed?: boolean;
 }
 
 export interface CrossChainSendState {
   byId: Record<string, CrossChainExchange>;
   ids: string[];
-  lastCheckedAt?: number;
 }
 
 export const crossChainSendInitialState: CrossChainSendState = {

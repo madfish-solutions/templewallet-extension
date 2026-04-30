@@ -4,8 +4,8 @@ import BigNumber from 'bignumber.js';
 
 import { HashShortView, IconBase } from 'app/atoms';
 import { EmptyState } from 'app/atoms/EmptyState';
-import Money from 'app/atoms/Money';
 import { Loader } from 'app/atoms/Loader';
+import Money from 'app/atoms/Money';
 import { MiniPageModal } from 'app/atoms/PageModal/mini-page-modal';
 import { ReactComponent as ChevronRightIcon } from 'app/icons/base/chevron_right.svg';
 import { dispatch } from 'app/store';
@@ -146,4 +146,3 @@ const Row = memo<RowProps>(({ exchange, onClick }) => {
     </button>
   );
 });
-

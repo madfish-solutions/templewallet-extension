@@ -13,17 +13,17 @@ import { useCrossChainExchangeReservation } from '../../hooks/use-cross-chain-ex
 
 import { PreviewBodyEvm } from './PreviewBodyEvm';
 import { PreviewBodyTezos } from './PreviewBodyTezos';
-import { ConfirmCrossChainReviewData, ConfirmCrossChainStep } from './types';
+import { ConfirmCrossChainReviewData } from './types';
 
 interface Props {
   data: ConfirmCrossChainReviewData;
-  onStepChange: (step: ConfirmCrossChainStep, exchangeId: string) => void;
+  onSubmitted: (exchangeId: string) => void;
   onCancel: EmptyFn;
   /** Dev-only: force the reservation SWR call to fail so the failure UI can be inspected. */
   devForceReservationError?: boolean;
 }
 
-export const PreviewContent: FC<Props> = ({ data, onStepChange, onCancel, devForceReservationError }) => {
+export const PreviewContent: FC<Props> = ({ data, onSubmitted, onCancel, devForceReservationError }) => {
   const { fromAsset, fromAmount, recipient, toAsset } = data;
 
   const evmAccount = useAccountForEvm();
@@ -57,7 +57,7 @@ export const PreviewContent: FC<Props> = ({ data, onStepChange, onCancel, devFor
         exchange={exchange}
         account={evmAccount}
         network={evmNetwork}
-        onStepChange={onStepChange}
+        onSubmitted={onSubmitted}
         onCancel={onCancel}
       />
     );
@@ -70,7 +70,7 @@ export const PreviewContent: FC<Props> = ({ data, onStepChange, onCancel, devFor
         exchange={exchange}
         account={tezosAccount}
         network={tezosNetwork}
-        onStepChange={onStepChange}
+        onSubmitted={onSubmitted}
         onCancel={onCancel}
       />
     );
@@ -104,11 +104,7 @@ const ReservationFailureView = memo<FailureProps>(({ error, onRetry, onCancel })
   return (
     <>
       <div className="flex-1 px-4 pt-6 pb-4 flex flex-col gap-y-4">
-        <CaptionAlert
-          type="error"
-          title={t('couldNotStartExchange')}
-          message={t('couldNotStartExchangeDescription')}
-        />
+        <CaptionAlert type="error" title={t('couldNotStartExchange')} message={t('couldNotStartExchangeDescription')} />
         <p className="text-font-small text-grey-1 wrap-break-word">{message}</p>
       </div>
 

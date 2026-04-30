@@ -13,8 +13,8 @@ import { CrossChainExchange } from 'app/store/cross-chain-send/state';
 import { ChartListItem } from 'app/templates/chart-list-item';
 import InFiat from 'app/templates/InFiat';
 import { T, t } from 'lib/i18n';
-import { TempleChainKind } from 'temple/types';
 import { useBlockExplorerHref } from 'temple/front/use-block-explorers';
+import { TempleChainKind } from 'temple/types';
 
 import backgroundFailedSrc from '../../assets/background-failed.svg?url';
 import { CrossChainAmountRow } from '../../components/CrossChainAmountRow';
@@ -119,10 +119,7 @@ export const RefundedContent: FC<Props> = ({ exchange, onClose }) => {
           )}
         </div>
 
-        <Anchor
-          href={EXOLIX_CONTACT_LINK}
-          className="mt-4 py-0.5 flex flex-row justify-center items-center"
-        >
+        <Anchor href={EXOLIX_CONTACT_LINK} className="mt-4 py-0.5 flex flex-row justify-center items-center">
           <span className="text-font-description-bold text-secondary">
             <T id="exolixSupport" />
           </span>

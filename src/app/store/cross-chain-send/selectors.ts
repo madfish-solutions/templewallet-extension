@@ -1,12 +1,10 @@
 import { useMemo } from 'react';
 
+import { isTerminalPhase } from 'lib/cross-chain';
+
 import { useSelector } from '../index';
 
-import { CrossChainExchange, CrossChainPhase } from './state';
-
-const TERMINAL_PHASES: CrossChainPhase[] = ['COMPLETED', 'FAILED'];
-
-const isTerminal = (phase: CrossChainPhase) => TERMINAL_PHASES.includes(phase);
+import { CrossChainExchange } from './state';
 
 export const useCrossChainExchangeSelector = (id: string | undefined): CrossChainExchange | undefined =>
   useSelector(({ crossChainSend }) => (id ? crossChainSend.byId[id] : undefined));
@@ -28,7 +26,7 @@ export const useCrossChainExchangesForAccountSelector = (accountId: string | und
 export const useHasActiveCrossChainExchangesSelector = (accountId: string | undefined) => {
   const forAccount = useCrossChainExchangesForAccountSelector(accountId);
   return useMemo(
-    () => forAccount.some(e => !isTerminal(e.phase) || (e.phase === 'FAILED' && !e.bannerDismissed)),
+    () => forAccount.some(e => !isTerminalPhase(e.phase) || (e.phase === 'FAILED' && !e.bannerDismissed)),
     [forAccount]
   );
 };

@@ -2,8 +2,8 @@ import React, { memo } from 'react';
 
 import clsx from 'clsx';
 
-import { EvmAssetIconWithNetwork, TezosAssetIconWithNetwork } from 'app/templates/AssetIcon';
 import { CurrencyIcon } from 'app/pages/Buy/CryptoExchange/components/CurrencyIcon';
+import { EvmAssetIconWithNetwork, TezosAssetIconWithNetwork } from 'app/templates/AssetIcon';
 import { CrossChainAsset } from 'lib/cross-chain';
 import { TempleChainKind } from 'temple/types';
 

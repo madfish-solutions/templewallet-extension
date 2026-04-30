@@ -3,7 +3,7 @@ import React, { FC, memo } from 'react';
 import { CrossChainExchange } from 'app/store/cross-chain-send/state';
 
 import { ConfirmCrossChainSendModal } from '../modals/ConfirmCrossChainSend';
-import { ConfirmCrossChainReviewData, ConfirmCrossChainStep } from '../modals/ConfirmCrossChainSend/types';
+import { ConfirmCrossChainReviewData } from '../modals/ConfirmCrossChainSend/types';
 import { CrossChainActivityModal } from '../modals/CrossChainActivityModal';
 import { CrossChainWarningModal } from '../modals/WarningModal';
 
@@ -12,7 +12,6 @@ interface Props {
   confirmOpened: boolean;
   activityOpened: boolean;
   reviewData?: ConfirmCrossChainReviewData;
-  initialStep?: ConfirmCrossChainStep;
   initialExchangeId?: string;
   accountId?: string;
   onWarningClose: EmptyFn;
@@ -29,7 +28,6 @@ export const CrossChainSendModals: FC<Props> = memo(
     confirmOpened,
     activityOpened,
     reviewData,
-    initialStep,
     initialExchangeId,
     accountId,
     onWarningClose,
@@ -44,7 +42,6 @@ export const CrossChainSendModals: FC<Props> = memo(
       <ConfirmCrossChainSendModal
         opened={confirmOpened}
         reviewData={reviewData}
-        initialStep={initialStep}
         initialExchangeId={initialExchangeId}
         onRequestClose={onConfirmClose}
         onGoBack={onConfirmClose}

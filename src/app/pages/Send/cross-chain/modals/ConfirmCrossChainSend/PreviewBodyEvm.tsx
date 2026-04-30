@@ -11,10 +11,7 @@ import { useLedgerApprovalModalState } from 'app/hooks/use-ledger-approval-modal
 import { buildBasicEvmSendParams } from 'app/pages/Send/build-basic-evm-send-params';
 import { useEvmEstimationData } from 'app/pages/Send/hooks/use-evm-estimation-data';
 import { dispatch } from 'app/store';
-import {
-  addPendingEvmTransferAction,
-  monitorPendingTransfersAction
-} from 'app/store/evm/pending-transactions/actions';
+import { addPendingEvmTransferAction, monitorPendingTransfersAction } from 'app/store/evm/pending-transactions/actions';
 import { CurrentAccount } from 'app/templates/current-account';
 import { FeeSummary } from 'app/templates/fee-summary';
 import { LedgerApprovalModal } from 'app/templates/ledger-approval-modal';
@@ -42,14 +39,14 @@ import { TempleChainKind } from 'temple/types';
 import { useSubmitCrossChainExchange } from '../../hooks/use-submit-cross-chain-exchange';
 
 import { ExpectedResultCard, NetworkRows } from './preview-shared';
-import { ConfirmCrossChainReviewData, ConfirmCrossChainStep } from './types';
+import { ConfirmCrossChainReviewData } from './types';
 
 interface Props {
   data: ConfirmCrossChainReviewData;
   exchange: ExchangeData;
   account: AccountForChain<TempleChainKind.EVM>;
   network: EvmChain;
-  onStepChange: (step: ConfirmCrossChainStep, exchangeId: string) => void;
+  onSubmitted: (exchangeId: string) => void;
   onCancel: EmptyFn;
 }
 
@@ -61,7 +58,7 @@ export const PreviewBodyEvm: FC<Props> = props => (
   </EvmEstimationDataProvider>
 );
 
-const PreviewBodyEvmInner: FC<Props> = ({ data, exchange, account, network, onStepChange, onCancel }) => {
+const PreviewBodyEvmInner: FC<Props> = ({ data, exchange, account, network, onSubmitted, onCancel }) => {
   const { fromAsset, toAsset, fromAmount, toAmountEstimated, recipient } = data;
 
   const accountPkh = account.address as HexString;
@@ -182,7 +179,7 @@ const PreviewBodyEvmInner: FC<Props> = ({ data, exchange, account, network, onSt
             recipient
           });
 
-          onStepChange(ConfirmCrossChainStep.Processing, exchange.id);
+          onSubmitted(exchange.id);
         };
 
         if (isLedgerAccount) {
@@ -218,7 +215,7 @@ const PreviewBodyEvmInner: FC<Props> = ({ data, exchange, account, network, onSt
       recipient,
       currentAccount.id,
       recordCrossChainExchange,
-      onStepChange,
+      onSubmitted,
       isLedgerAccount,
       account.type,
       guard,

@@ -8,11 +8,11 @@ import { Button, IconBase } from 'app/atoms';
 import { EmptyState } from 'app/atoms/EmptyState';
 import { PageModal } from 'app/atoms/PageModal';
 import { ReactComponent as CompactDown } from 'app/icons/base/compact_down.svg';
+import { CryptoBalance, FiatBalance } from 'app/pages/Home/OtherComponents/Tokens/components/Balance';
+import { isFilterChain } from 'app/pages/Swap/form/utils';
 import { FilterChain } from 'app/store/assets-filter-options/state';
 import { NetworkPopper } from 'app/templates/network-popper';
 import { SearchBarField } from 'app/templates/SearchField';
-import { CryptoBalance, FiatBalance } from 'app/pages/Home/OtherComponents/Tokens/components/Balance';
-import { isFilterChain } from 'app/pages/Swap/form/utils';
 import { CrossChainAsset, ExolixNetworksOverride, getAllowedFromAssets, toCrossChainAssetSlug } from 'lib/cross-chain';
 import { t } from 'lib/i18n';
 import { TempleChainKind } from 'temple/types';
@@ -102,7 +102,9 @@ export const SelectCrossChainFromAssetModal: FC<Props> = ({ opened, networksMap,
         ) : (
           filteredAssets.map(asset => {
             const slug = toCrossChainAssetSlug(asset);
-            return <AssetRow key={slug} asset={asset} balance={balances[slug] ?? new BigNumber(0)} onClick={handleSelect} />;
+            return (
+              <AssetRow key={slug} asset={asset} balance={balances[slug] ?? new BigNumber(0)} onClick={handleSelect} />
+            );
           })
         )}
       </div>
@@ -167,16 +169,9 @@ const AssetRow = memo<AssetRowProps>(({ asset, balance, onClick }) => {
         </div>
 
         <div className="flex gap-x-4">
-          <div className="self-center grow text-font-description text-grey-1 truncate text-start">
-            {asset.name}
-          </div>
+          <div className="self-center grow text-font-description text-grey-1 truncate text-start">{asset.name}</div>
           {isEvm || isTezos ? (
-            <FiatBalance
-              evm={isEvm}
-              chainId={asset.chainId!}
-              assetSlug={asset.assetSlug ?? ''}
-              value={balance}
-            />
+            <FiatBalance evm={isEvm} chainId={asset.chainId!} assetSlug={asset.assetSlug ?? ''} value={balance} />
           ) : null}
         </div>
       </div>

@@ -1,5 +1,5 @@
-import { createCrossChainExchange } from 'lib/apis/exolix/cross-chain';
 import { ExchangeData } from 'lib/apis/exolix/types';
+import { createCrossChainExchange } from 'lib/apis/exolix/utils';
 import { CrossChainAsset } from 'lib/cross-chain';
 import { IS_DEV_ENV } from 'lib/env';
 import { useTypedSWR } from 'lib/swr';

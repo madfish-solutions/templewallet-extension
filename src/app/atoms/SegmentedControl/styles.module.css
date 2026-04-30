@@ -60,6 +60,15 @@
   color: #000000;
 }
 
+.segment.disabled label {
+  color: #B5B5B5;
+  cursor: not-allowed;
+}
+
+.segment.disabled input {
+  cursor: not-allowed;
+}
+
 .controls::before {
   content: "";
   background: #fff;

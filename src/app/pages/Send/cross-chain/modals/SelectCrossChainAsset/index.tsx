@@ -67,9 +67,7 @@ const Item = memo<ItemProps>(({ asset, onClick }) => {
           <p className="text-font-description text-grey-1 max-w-40 truncate">{asset.name}</p>
         </div>
       </div>
-      <p className="text-end text-font-num-12 text-grey-1">
-        {asset.dest === 'btc' ? 'Bitcoin' : asset.exolixNetwork}
-      </p>
+      <p className="text-end text-font-num-12 text-grey-1">{asset.dest === 'btc' ? 'Bitcoin' : asset.exolixNetwork}</p>
     </Button>
   );
 });

@@ -11,11 +11,16 @@ import {
 } from './actions';
 import { crossChainSendInitialState, CrossChainSendState } from './state';
 
-const isExchangeHash = (value: unknown): value is { hash: string | null; link: string | null } =>
-  Boolean(value) && typeof value === 'object';
+type Hash = { hash: string | null; link: string | null } | undefined;
 
-const isMeaningfulHash = (value: unknown) =>
-  isExchangeHash(value) && typeof value.hash === 'string' && value.hash.length > 0;
+const isMeaningfulHash = (value: Hash): value is { hash: string; link: string | null } =>
+  Boolean(value && typeof value.hash === 'string' && value.hash.length > 0);
+
+const hashEquals = (a: Hash, b: Hash) => {
+  if (a === b) return true;
+  if (!a || !b) return false;
+  return a.hash === b.hash && a.link === b.link;
+};
 
 export const crossChainSendReducer = createReducer<CrossChainSendState>(crossChainSendInitialState, builder => {
   builder.addCase(addCrossChainExchangeAction, (state, { payload }) => {
@@ -30,7 +35,6 @@ export const crossChainSendReducer = createReducer<CrossChainSendState>(crossCha
         hashOut: isMeaningfulHash(existing.hashOut) ? existing.hashOut : payload.hashOut,
         refundHash: existing.refundHash ?? payload.refundHash,
         toAmountActual: existing.toAmountActual ?? payload.toAmountActual,
-        completedAt: existing.completedAt ?? payload.completedAt,
         bannerDismissed: existing.bannerDismissed
       };
       return;
@@ -42,15 +46,31 @@ export const crossChainSendReducer = createReducer<CrossChainSendState>(crossCha
   builder.addCase(updateCrossChainExchangeAction, (state, { payload }) => {
     const existing = state.byId[payload.id];
     if (!existing) return;
-    if (payload.phase) existing.phase = payload.phase;
-    if (payload.exolixStatus !== undefined) existing.exolixStatus = payload.exolixStatus;
-    if (isMeaningfulHash(payload.hashIn)) existing.hashIn = payload.hashIn;
-    if (isMeaningfulHash(payload.hashOut)) existing.hashOut = payload.hashOut;
-    if (payload.refundHash) existing.refundHash = payload.refundHash;
-    if (payload.toAmountActual !== undefined) existing.toAmountActual = payload.toAmountActual;
-    if (payload.completedAt) existing.completedAt = payload.completedAt;
+
+    const nextPhase = payload.phase ?? existing.phase;
+    const nextExolixStatus = payload.exolixStatus !== undefined ? payload.exolixStatus : existing.exolixStatus;
+    const nextHashIn = isMeaningfulHash(payload.hashIn) ? payload.hashIn : existing.hashIn;
+    const nextHashOut = isMeaningfulHash(payload.hashOut) ? payload.hashOut : existing.hashOut;
+    const nextRefundHash = payload.refundHash ?? existing.refundHash;
+    const nextToAmountActual = payload.toAmountActual !== undefined ? payload.toAmountActual : existing.toAmountActual;
+
+    const changed =
+      nextPhase !== existing.phase ||
+      nextExolixStatus !== existing.exolixStatus ||
+      !hashEquals(nextHashIn, existing.hashIn) ||
+      !hashEquals(nextHashOut, existing.hashOut) ||
+      nextRefundHash !== existing.refundHash ||
+      nextToAmountActual !== existing.toAmountActual;
+
+    if (!changed) return;
+
+    existing.phase = nextPhase;
+    existing.exolixStatus = nextExolixStatus;
+    existing.hashIn = nextHashIn;
+    existing.hashOut = nextHashOut;
+    existing.refundHash = nextRefundHash;
+    existing.toAmountActual = nextToAmountActual;
     existing.updatedAt = payload.updatedAt;
-    state.lastCheckedAt = payload.updatedAt;
   });
 
   builder.addCase(removeCrossChainExchangeAction, (state, { payload: id }) => {

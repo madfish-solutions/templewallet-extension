@@ -13,7 +13,6 @@ export const updateCrossChainExchangeAction = createAction<{
   refundHash?: string;
   toAmountActual?: string;
   updatedAt: number;
-  completedAt?: number;
 }>('cross-chain-send/UPDATE_EXCHANGE');
 
 export const removeCrossChainExchangeAction = createAction<string>('cross-chain-send/REMOVE_EXCHANGE');

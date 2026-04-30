@@ -27,8 +27,8 @@ import { T, t } from 'lib/i18n';
 import { useCategorizedTezosAssetMetadata } from 'lib/metadata';
 import { transferImplicit, transferToContract } from 'lib/michelson';
 import { useTypedSWR } from 'lib/swr';
-import { TezosEstimationDataProvider } from 'lib/temple/front/estimation-data-providers';
 import { loadContract } from 'lib/temple/contract';
+import { TezosEstimationDataProvider } from 'lib/temple/front/estimation-data-providers';
 import { tzToMutez } from 'lib/temple/helpers';
 import { TempleAccountType } from 'lib/temple/types';
 import { isTezosContractAddress } from 'lib/tezos';
@@ -45,14 +45,14 @@ import { TempleChainKind } from 'temple/types';
 import { useSubmitCrossChainExchange } from '../../hooks/use-submit-cross-chain-exchange';
 
 import { ExpectedResultCard, NetworkRows } from './preview-shared';
-import { ConfirmCrossChainReviewData, ConfirmCrossChainStep } from './types';
+import { ConfirmCrossChainReviewData } from './types';
 
 interface Props {
   data: ConfirmCrossChainReviewData;
   exchange: ExchangeData;
   account: AccountForChain<TempleChainKind.Tezos>;
   network: TezosChain;
-  onStepChange: (step: ConfirmCrossChainStep, exchangeId: string) => void;
+  onSubmitted: (exchangeId: string) => void;
   onCancel: EmptyFn;
 }
 
@@ -64,7 +64,7 @@ export const PreviewBodyTezos: FC<Props> = props => (
   </TezosEstimationDataProvider>
 );
 
-const PreviewBodyTezosInner: FC<Props> = ({ data, exchange, account, network, onStepChange, onCancel }) => {
+const PreviewBodyTezosInner: FC<Props> = ({ data, exchange, account, network, onSubmitted, onCancel }) => {
   const { fromAsset, toAsset, fromAmount, toAmountEstimated, recipient } = data;
   const { rpcBaseURL, chainId } = network;
 
@@ -121,7 +121,14 @@ const PreviewBodyTezosInner: FC<Props> = ({ data, exchange, account, network, on
 
   const { data: basicSendParams } = useTypedSWR(
     assetMetadata
-      ? ['cross-chain-tezos-basic-params', accountPkh, fromAmount, fromAsset.assetSlug, exchange.depositAddress, rpcBaseURL]
+      ? [
+          'cross-chain-tezos-basic-params',
+          accountPkh,
+          fromAmount,
+          fromAsset.assetSlug,
+          exchange.depositAddress,
+          rpcBaseURL
+        ]
       : null,
     getBasicSendParams
   );
@@ -214,7 +221,7 @@ const PreviewBodyTezosInner: FC<Props> = ({ data, exchange, account, network, on
             recipient
           });
 
-          onStepChange(ConfirmCrossChainStep.Processing, exchange.id);
+          onSubmitted(exchange.id);
         };
 
         if (isLedgerAccount) {
@@ -248,7 +255,7 @@ const PreviewBodyTezosInner: FC<Props> = ({ data, exchange, account, network, on
       toAmountEstimated,
       currentAccount.id,
       recordCrossChainExchange,
-      onStepChange,
+      onSubmitted,
       isLedgerAccount,
       account.type,
       guard,

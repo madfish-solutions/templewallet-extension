@@ -4,9 +4,9 @@ import BigNumber from 'bignumber.js';
 
 import { useRawEvmAccountBalancesSelector, useRawEvmAssetBalanceSelector } from 'app/store/evm/balances/selectors';
 import { useAllAccountBalancesSelector, useBalanceSelector } from 'app/store/tezos/balances/selectors';
+import { CrossChainAsset, getAllowedFromAssets, toCrossChainAssetSlug } from 'lib/cross-chain';
 import { atomsToTokens } from 'lib/temple/helpers';
 import { TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
-import { CrossChainAsset, getAllowedFromAssets, toCrossChainAssetSlug } from 'lib/cross-chain';
 import { ZERO } from 'lib/utils/numbers';
 import { useAccountAddressForEvm, useAccountAddressForTezos } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
@@ -20,13 +20,13 @@ export const useCrossChainFromBalance = (asset: CrossChainAsset): BigNumber => {
   const tezosRaw = useBalanceSelector(
     tezosAddress,
     isTezos ? String(asset.chainId ?? '') : '',
-    isTezos ? asset.assetSlug ?? '' : ''
+    isTezos ? (asset.assetSlug ?? '') : ''
   );
 
   const evmRaw = useRawEvmAssetBalanceSelector(
     evmAddress,
     isEvm ? Number(asset.chainId ?? 0) : 0,
-    isEvm ? asset.assetSlug ?? '' : ''
+    isEvm ? (asset.assetSlug ?? '') : ''
   );
 
   if (isTezos && tezosAddress && tezosRaw) {

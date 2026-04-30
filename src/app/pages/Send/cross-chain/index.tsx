@@ -134,7 +134,14 @@ export const CrossChainForm: FC<Props> = ({ onReview }) => {
     if (lastUnsupportedPairRef.current === pairKey) return;
     lastUnsupportedPairRef.current = pairKey;
     toastError(t('pairNotAvailable'));
-  }, [rateData, fromAsset.exolixCoin, fromAsset.exolixNetwork, toAsset.exolixCoin, toAsset.exolixNetwork, fromAmountInTokens]);
+  }, [
+    rateData,
+    fromAsset.exolixCoin,
+    fromAsset.exolixNetwork,
+    toAsset.exolixCoin,
+    toAsset.exolixNetwork,
+    fromAmountInTokens
+  ]);
 
   const insufficientBalance = useMemo(() => {
     if (!fromAmountInTokens) return false;
@@ -251,11 +258,7 @@ export const CrossChainForm: FC<Props> = ({ onReview }) => {
       if (amountError) {
         setError('fromAmount', { message: amountError });
         if (insufficientBalance && fromAsset.chainKind && fromAsset.chainId != null && fromAsset.assetSlug) {
-          const chainAssetSlug = toChainAssetSlug(
-            fromAsset.chainKind,
-            String(fromAsset.chainId),
-            fromAsset.assetSlug
-          );
+          const chainAssetSlug = toChainAssetSlug(fromAsset.chainKind, String(fromAsset.chainId), fromAsset.assetSlug);
           if (isWertSupportedChainAssetSlug(chainAssetSlug)) {
             dispatch(setOnRampAssetAction({ chainAssetSlug }));
           }

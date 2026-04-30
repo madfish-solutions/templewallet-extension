@@ -1,13 +1,14 @@
 import React, { FC, useCallback, useEffect, useRef, useState } from 'react';
 
 import { PageModal } from 'app/atoms/PageModal';
+import { useCrossChainExchangeSelector } from 'app/store/cross-chain-send/selectors';
 import { TID, t } from 'lib/i18n';
 
 import { CompletedContent } from './CompletedContent';
 import { FailedContent } from './FailedContent';
 import { PreviewContent } from './PreviewContent';
 import { ProcessingContent } from './ProcessingContent';
-import { ConfirmCrossChainReviewData, ConfirmCrossChainStep } from './types';
+import { ConfirmCrossChainReviewData, ConfirmCrossChainStep, phaseToConfirmStep } from './types';
 
 interface Props {
   opened: boolean;
@@ -15,8 +16,7 @@ interface Props {
   onRequestClose: EmptyFn;
   onGoBack?: EmptyFn;
   onTryAgain?: (data: ConfirmCrossChainReviewData) => void;
-  /** Dev-only: jump straight to a non-Preview step using a pre-seeded exchange id */
-  initialStep?: ConfirmCrossChainStep;
+  /** Dev/activity-entry: pre-seed an exchange id so the modal opens straight to the matching status step */
   initialExchangeId?: string;
   /** Dev-only: force the eager Exolix reservation to fail so the failure UI can be inspected. */
   devForceReservationError?: boolean;
@@ -35,35 +35,34 @@ export const ConfirmCrossChainSendModal: FC<Props> = ({
   onRequestClose,
   onGoBack,
   onTryAgain,
-  initialStep,
   initialExchangeId,
   devForceReservationError
 }) => {
-  const [step, setStep] = useState<ConfirmCrossChainStep>(initialStep ?? ConfirmCrossChainStep.Preview);
   const [exchangeId, setExchangeId] = useState<string | undefined>(initialExchangeId);
   const closeResetTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     if (!opened) return;
-    setStep(initialStep ?? ConfirmCrossChainStep.Preview);
     setExchangeId(initialExchangeId);
-  }, [opened, initialStep, initialExchangeId]);
+  }, [opened, initialExchangeId]);
 
-  useEffect(() => () => {
-    if (closeResetTimerRef.current) clearTimeout(closeResetTimerRef.current);
-  }, []);
+  useEffect(
+    () => () => {
+      if (closeResetTimerRef.current) clearTimeout(closeResetTimerRef.current);
+    },
+    []
+  );
 
-  const handleStepChange = useCallback((nextStep: ConfirmCrossChainStep, id: string) => {
-    setExchangeId(id);
-    setStep(nextStep);
-  }, []);
+  const exchange = useCrossChainExchangeSelector(exchangeId);
+  const step = exchange ? phaseToConfirmStep(exchange.phase) : ConfirmCrossChainStep.Preview;
+
+  const handleSubmitted = useCallback((id: string) => setExchangeId(id), []);
 
   const handleClose = useCallback(() => {
     onRequestClose();
     if (closeResetTimerRef.current) clearTimeout(closeResetTimerRef.current);
     // Defer reset so modal close anim (~300ms) completes before the content reverts to Preview.
     closeResetTimerRef.current = setTimeout(() => {
-      setStep(ConfirmCrossChainStep.Preview);
       setExchangeId(undefined);
       closeResetTimerRef.current = null;
     }, 300);
@@ -72,7 +71,6 @@ export const ConfirmCrossChainSendModal: FC<Props> = ({
   const handleTryAgain = useCallback(() => {
     if (reviewData && onTryAgain) {
       onRequestClose();
-      setStep(ConfirmCrossChainStep.Preview);
       setExchangeId(undefined);
       onTryAgain(reviewData);
     }
@@ -90,13 +88,13 @@ export const ConfirmCrossChainSendModal: FC<Props> = ({
       {reviewData && step === ConfirmCrossChainStep.Preview && (
         <PreviewContent
           data={reviewData}
-          onStepChange={handleStepChange}
+          onSubmitted={handleSubmitted}
           onCancel={onGoBack ?? handleClose}
           devForceReservationError={devForceReservationError}
         />
       )}
       {exchangeId && step === ConfirmCrossChainStep.Processing && (
-        <ProcessingContent exchangeId={exchangeId} onStepChange={handleStepChange} onClose={handleClose} />
+        <ProcessingContent exchangeId={exchangeId} onClose={handleClose} />
       )}
       {exchangeId && step === ConfirmCrossChainStep.Completed && (
         <CompletedContent exchangeId={exchangeId} onClose={handleClose} />

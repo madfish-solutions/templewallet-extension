@@ -6,7 +6,7 @@ import { useDebounce } from 'use-debounce';
 import { NoSpaceField } from 'app/atoms';
 import { SelectAccountButton, SELECT_ACCOUNT_BUTTON_ID } from 'app/pages/Send/form/SelectAccountButton';
 import { SelectAccountModal } from 'app/pages/Send/modals/SelectAccount';
-import { CrossChainAsset, validateCrossChainRecipient } from 'lib/cross-chain';
+import { CrossChainAsset, CrossChainDest, validateCrossChainRecipient } from 'lib/cross-chain';
 import { t } from 'lib/i18n';
 import { useBooleanState } from 'lib/ui/hooks';
 import { readClipboard } from 'lib/ui/utils';
@@ -16,6 +16,12 @@ import { CrossChainFormData } from '../form-data';
 interface Props {
   toAsset: CrossChainAsset;
 }
+
+const DEST_LABEL: Record<CrossChainDest, string> = {
+  btc: 'Bitcoin',
+  evm: 'EVM',
+  tezos: 'Tezos'
+};
 
 export const RecipientField = memo<Props>(({ toAsset }) => {
   const { control, setValue, watch } = useFormContext<CrossChainFormData>();
@@ -84,12 +90,13 @@ export const RecipientField = memo<Props>(({ toAsset }) => {
               onClean={handleClean}
               onPasteButtonClick={handlePasteClick}
               id="cross-chain-to"
-              placeholder={t(
-                'pasteAddress',
-                toAsset.dest === 'btc' ? 'Bitcoin' : toAsset.dest === 'evm' ? 'EVM' : 'Tezos'
-              )}
+              placeholder={t('pasteAddress', DEST_LABEL[toAsset.dest])}
               errorCaption={
-                !focused && formSubmitted ? (typeof fieldState.error?.message === 'string' ? fieldState.error.message : null) : null
+                !focused && formSubmitted
+                  ? typeof fieldState.error?.message === 'string'
+                    ? fieldState.error.message
+                    : null
+                  : null
               }
               style={{ resize: 'none' }}
             />
