@@ -4,11 +4,9 @@ import BigNumber from 'bignumber.js';
 
 import { Anchor, HashShortView, IconBase } from 'app/atoms';
 import { HashChip } from 'app/atoms/HashChip';
-import { ActionsButtonsBox } from 'app/atoms/PageModal/actions-buttons-box';
 import { StyledButton } from 'app/atoms/StyledButton';
 import { ReactComponent as OutLinkIcon } from 'app/icons/base/outLink.svg';
 import { ReactComponent as XCircleFill } from 'app/icons/base/x_circle_fill.svg';
-import { EXOLIX_CONTACT_LINK } from 'app/pages/Buy/CryptoExchange/config';
 import { CrossChainExchange } from 'app/store/cross-chain-send/state';
 import { ChartListItem } from 'app/templates/chart-list-item';
 import InFiat from 'app/templates/InFiat';
@@ -19,7 +17,7 @@ import { TempleChainKind } from 'temple/types';
 import backgroundFailedSrc from '../../assets/background-failed.svg?url';
 import { CrossChainAmountRow } from '../../components/CrossChainAmountRow';
 
-import { StatusHeroRegion } from './StatusHeroRegion';
+import { StatusShell } from './StatusShell';
 
 interface Props {
   exchange: CrossChainExchange;
@@ -37,13 +35,13 @@ export const RefundedContent: FC<Props> = ({ exchange, onClose }) => {
   );
 
   return (
-    <>
-      <div className="flex-1 min-h-0 overflow-y-auto px-4 pt-3 pb-4 flex flex-col items-stretch">
-        <StatusHeroRegion
-          backgroundSrc={backgroundFailedSrc}
-          outerClassName="h-48 px-4 pb-2"
-          innerClassName="flex flex-col items-center gap-y-3 pb-4 pt-6"
-        >
+    <StatusShell
+      exchange={exchange}
+      backgroundSrc={backgroundFailedSrc}
+      heroOuterClassName="h-48 px-4 pb-2"
+      heroInnerClassName="flex flex-col items-center gap-y-3 pb-4 pt-6"
+      hero={
+        <>
           <XCircleFill width={58} height={58} className="text-error fill-current" />
           <p className="text-font-regular-bold">
             <T id="refunded" />
@@ -51,8 +49,9 @@ export const RefundedContent: FC<Props> = ({ exchange, onClose }) => {
           <p className="text-font-description text-grey-1 text-center whitespace-pre-line">
             <T id="refundedDescription" />
           </p>
-        </StatusHeroRegion>
-
+        </>
+      }
+      body={
         <div className="rounded-8 bg-white border-0.5 border-lines flex flex-col px-4 pb-4">
           <ChartListItem
             title={<span className="text-font-description-bold text-grey-1">{t('amount')}</span>}
@@ -118,20 +117,12 @@ export const RefundedContent: FC<Props> = ({ exchange, onClose }) => {
             </ChartListItem>
           )}
         </div>
-
-        <Anchor href={EXOLIX_CONTACT_LINK} className="mt-4 py-0.5 flex flex-row justify-center items-center">
-          <span className="text-font-description-bold text-secondary">
-            <T id="exolixSupport" />
-          </span>
-          <IconBase size={16} className="text-secondary" Icon={OutLinkIcon} />
-        </Anchor>
-      </div>
-
-      <ActionsButtonsBox>
+      }
+      actions={
         <StyledButton size="L" color="primary" onClick={onClose}>
-          <T id="done" />
+          <T id="doneAction" />
         </StyledButton>
-      </ActionsButtonsBox>
-    </>
+      }
+    />
   );
 };

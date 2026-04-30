@@ -1,8 +1,10 @@
+import { useMemo } from 'react';
+
 import BigNumber from 'bignumber.js';
 import { useDebounce } from 'use-debounce';
 
-import { GetRateResponse } from 'lib/apis/exolix/types';
-import { queryCrossChainRate } from 'lib/apis/exolix/utils';
+import { GetRateResponse, NormalizedRateResult } from 'lib/apis/exolix/types';
+import { normalizeRateResponse, queryCrossChainRate } from 'lib/apis/exolix/utils';
 import { CrossChainAsset } from 'lib/cross-chain';
 import { useTypedSWR } from 'lib/swr';
 
@@ -24,7 +26,7 @@ export const useCrossChainRate = ({ from, to, amount }: RateArgs) => {
 
   const key = ['cross-chain-rate', from.exolixCoin, from.exolixNetwork, to.exolixCoin, to.exolixNetwork, probeKey];
 
-  return useTypedSWR<GetRateResponse>(
+  const swr = useTypedSWR<GetRateResponse>(
     key,
     () =>
       queryCrossChainRate({
@@ -36,4 +38,11 @@ export const useCrossChainRate = ({ from, to, amount }: RateArgs) => {
       }),
     { refreshInterval: 10_000, revalidateOnFocus: false, dedupingInterval: 5_000 }
   );
+
+  const normalized: NormalizedRateResult | undefined = useMemo(
+    () => (swr.data ? normalizeRateResponse(swr.data) : undefined),
+    [swr.data]
+  );
+
+  return { ...swr, normalized };
 };

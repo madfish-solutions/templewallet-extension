@@ -1,34 +1,28 @@
 import { FC, useCallback, useState } from 'react';
 
 import { omit } from 'lodash';
-import { FormProvider } from 'react-hook-form';
 import { TransactionRequest } from 'viem';
 
 import { HashChip } from 'app/atoms/HashChip';
-import { ActionsButtonsBox } from 'app/atoms/PageModal/actions-buttons-box';
-import { StyledButton } from 'app/atoms/StyledButton';
 import { useLedgerApprovalModalState } from 'app/hooks/use-ledger-approval-modal-state';
 import { buildBasicEvmSendParams } from 'app/pages/Send/build-basic-evm-send-params';
 import { useEvmEstimationData } from 'app/pages/Send/hooks/use-evm-estimation-data';
 import { dispatch } from 'app/store';
 import { addPendingEvmTransferAction, monitorPendingTransfersAction } from 'app/store/evm/pending-transactions/actions';
-import { CurrentAccount } from 'app/templates/current-account';
 import { FeeSummary } from 'app/templates/fee-summary';
-import { LedgerApprovalModal } from 'app/templates/ledger-approval-modal';
 import { TransactionTabs } from 'app/templates/TransactionTabs';
 import { EvmTxParamsFormData } from 'app/templates/TransactionTabs/types';
 import { useEvmEstimationForm } from 'app/templates/TransactionTabs/use-evm-estimation-form';
 import { ExchangeData } from 'lib/apis/exolix/types';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { useEvmAssetBalance } from 'lib/balances/hooks';
-import { T, t } from 'lib/i18n';
+import { t } from 'lib/i18n';
 import { useEvmCategorizedAssetMetadata } from 'lib/metadata';
 import { useTempleClient } from 'lib/temple/front';
 import { EvmEstimationDataProvider } from 'lib/temple/front/estimation-data-providers';
 import { TempleAccountType } from 'lib/temple/types';
 import { runConnectedLedgerOperationFlow, LedgerOperationState } from 'lib/ui';
 import { useLedgerWebHidFullViewGuard } from 'lib/ui/ledger-webhid-guard';
-import { LedgerFullViewPromptModal } from 'lib/ui/LedgerFullViewPrompt';
 import { ZERO } from 'lib/utils/numbers';
 import { AccountForChain } from 'temple/accounts';
 import { EvmChain, useAccount } from 'temple/front';
@@ -38,7 +32,7 @@ import { TempleChainKind } from 'temple/types';
 
 import { useSubmitCrossChainExchange } from '../../hooks/use-submit-cross-chain-exchange';
 
-import { ExpectedResultCard, NetworkRows } from './preview-shared';
+import { ExpectedResultCard, NetworkRows, PreviewBodyShell } from './preview-shared';
 import { ConfirmCrossChainReviewData } from './types';
 
 interface Props {
@@ -225,8 +219,11 @@ const PreviewBodyEvmInner: FC<Props> = ({ data, exchange, account, network, onSu
   );
 
   return (
-    <FormProvider {...form}>
-      <div className="flex-1 min-h-0 overflow-y-auto px-4 pt-3 pb-4 flex flex-col gap-y-4">
+    <PreviewBodyShell
+      form={form}
+      formId={FORM_ID}
+      chainKind={TempleChainKind.EVM}
+      expectedResultCard={
         <ExpectedResultCard
           fromAsset={fromAsset}
           fromAmount={fromAmount}
@@ -240,9 +237,8 @@ const PreviewBodyEvmInner: FC<Props> = ({ data, exchange, account, network, onSu
             />
           }
         />
-
-        <CurrentAccount />
-
+      }
+      tabs={
         <TransactionTabs<EvmTxParamsFormData>
           network={network}
           nativeAssetSlug={EVM_TOKEN_SLUG}
@@ -264,36 +260,13 @@ const PreviewBodyEvmInner: FC<Props> = ({ data, exchange, account, network, onSu
             />
           }
         />
-      </div>
-
-      <ActionsButtonsBox flexDirection="row" shouldChangeBottomShift={false}>
-        <StyledButton
-          size="L"
-          className="w-full"
-          color="primary-low"
-          onClick={onCancel}
-          disabled={formState.isSubmitting}
-        >
-          <T id="cancel" />
-        </StyledButton>
-        <StyledButton
-          type="submit"
-          form={FORM_ID}
-          size="L"
-          className="w-full"
-          color="primary"
-          loading={formState.isSubmitting}
-        >
-          <T id={latestSubmitError ? 'retry' : 'confirm'} />
-        </StyledButton>
-      </ActionsButtonsBox>
-
-      <LedgerApprovalModal
-        state={ledgerApprovalModalState}
-        onClose={handleLedgerModalClose}
-        chainKind={TempleChainKind.EVM}
-      />
-      <LedgerFullViewPromptModal {...ledgerPromptProps} />
-    </FormProvider>
+      }
+      isSubmitting={formState.isSubmitting}
+      hasSubmitError={Boolean(latestSubmitError)}
+      ledgerApprovalState={ledgerApprovalModalState}
+      onLedgerApprovalClose={handleLedgerModalClose}
+      ledgerPromptProps={ledgerPromptProps}
+      onCancel={onCancel}
+    />
   );
 };

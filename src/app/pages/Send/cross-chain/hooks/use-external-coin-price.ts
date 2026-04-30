@@ -1,3 +1,5 @@
+import { useMemo } from 'react';
+
 import BigNumber from 'bignumber.js';
 
 import { coingeckoApi } from 'lib/apis/coingecko';
@@ -24,5 +26,5 @@ export const useExternalCoinPrice = (exolixCoin: string): BigNumber => {
     { revalidateOnFocus: false, dedupingInterval: 60_000 }
   );
 
-  return new BigNumber(data ?? 0);
+  return useMemo(() => new BigNumber(data ?? 0), [data]);
 };

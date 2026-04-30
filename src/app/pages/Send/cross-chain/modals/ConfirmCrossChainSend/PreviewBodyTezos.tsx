@@ -1,11 +1,8 @@
 import { FC, useCallback, useState } from 'react';
 
 import { OpKind, TransferParams, WalletParamsWithKind } from '@taquito/taquito';
-import { FormProvider } from 'react-hook-form';
 
 import { HashChip } from 'app/atoms/HashChip';
-import { ActionsButtonsBox } from 'app/atoms/PageModal/actions-buttons-box';
-import { StyledButton } from 'app/atoms/StyledButton';
 import { useLedgerApprovalModalState } from 'app/hooks/use-ledger-approval-modal-state';
 import { useTezosEstimationData } from 'app/pages/Send/hooks/use-tezos-estimation-data';
 import { dispatch } from 'app/store';
@@ -13,9 +10,7 @@ import {
   addPendingTezosTransactionAction,
   monitorPendingTezosTransactionsAction
 } from 'app/store/tezos/pending-transactions/actions';
-import { CurrentAccount } from 'app/templates/current-account';
 import { FeeSummary } from 'app/templates/fee-summary';
-import { LedgerApprovalModal } from 'app/templates/ledger-approval-modal';
 import { TransactionTabs } from 'app/templates/TransactionTabs';
 import { TezosTxParamsFormData } from 'app/templates/TransactionTabs/types';
 import { useTezosEstimationForm } from 'app/templates/TransactionTabs/use-tezos-estimation-form';
@@ -23,7 +18,7 @@ import { ExchangeData } from 'lib/apis/exolix/types';
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
 import { toTransferParams } from 'lib/assets/contract.utils';
 import { useTezosAssetBalance } from 'lib/balances';
-import { T, t } from 'lib/i18n';
+import { t } from 'lib/i18n';
 import { useCategorizedTezosAssetMetadata } from 'lib/metadata';
 import { transferImplicit, transferToContract } from 'lib/michelson';
 import { useTypedSWR } from 'lib/swr';
@@ -34,7 +29,6 @@ import { TempleAccountType } from 'lib/temple/types';
 import { isTezosContractAddress } from 'lib/tezos';
 import { runConnectedLedgerOperationFlow } from 'lib/ui';
 import { useLedgerWebHidFullViewGuard } from 'lib/ui/ledger-webhid-guard';
-import { LedgerFullViewPromptModal } from 'lib/ui/LedgerFullViewPrompt';
 import { ZERO } from 'lib/utils/numbers';
 import { AccountForChain } from 'temple/accounts';
 import { TezosChain, getTezosToolkitWithSigner, useAccount } from 'temple/front';
@@ -44,7 +38,7 @@ import { TempleChainKind } from 'temple/types';
 
 import { useSubmitCrossChainExchange } from '../../hooks/use-submit-cross-chain-exchange';
 
-import { ExpectedResultCard, NetworkRows } from './preview-shared';
+import { ExpectedResultCard, NetworkRows, PreviewBodyShell } from './preview-shared';
 import { ConfirmCrossChainReviewData } from './types';
 
 interface Props {
@@ -266,8 +260,11 @@ const PreviewBodyTezosInner: FC<Props> = ({ data, exchange, account, network, on
   );
 
   return (
-    <FormProvider {...form}>
-      <div className="flex-1 min-h-0 overflow-y-auto px-4 pt-3 pb-4 flex flex-col gap-y-4">
+    <PreviewBodyShell
+      form={form}
+      formId={FORM_ID}
+      chainKind={TempleChainKind.Tezos}
+      expectedResultCard={
         <ExpectedResultCard
           fromAsset={fromAsset}
           fromAmount={fromAmount}
@@ -282,9 +279,8 @@ const PreviewBodyTezosInner: FC<Props> = ({ data, exchange, account, network, on
             />
           }
         />
-
-        <CurrentAccount />
-
+      }
+      tabs={
         <TransactionTabs<TezosTxParamsFormData>
           network={network}
           nativeAssetSlug={TEZ_TOKEN_SLUG}
@@ -306,36 +302,13 @@ const PreviewBodyTezosInner: FC<Props> = ({ data, exchange, account, network, on
             />
           }
         />
-      </div>
-
-      <ActionsButtonsBox flexDirection="row" shouldChangeBottomShift={false}>
-        <StyledButton
-          size="L"
-          className="w-full"
-          color="primary-low"
-          onClick={onCancel}
-          disabled={formState.isSubmitting}
-        >
-          <T id="cancel" />
-        </StyledButton>
-        <StyledButton
-          type="submit"
-          form={FORM_ID}
-          size="L"
-          className="w-full"
-          color="primary"
-          loading={formState.isSubmitting}
-        >
-          <T id={latestSubmitError ? 'retry' : 'confirm'} />
-        </StyledButton>
-      </ActionsButtonsBox>
-
-      <LedgerApprovalModal
-        state={ledgerApprovalModalState}
-        onClose={handleLedgerModalClose}
-        chainKind={TempleChainKind.Tezos}
-      />
-      <LedgerFullViewPromptModal {...ledgerPromptProps} />
-    </FormProvider>
+      }
+      isSubmitting={formState.isSubmitting}
+      hasSubmitError={Boolean(latestSubmitError)}
+      ledgerApprovalState={ledgerApprovalModalState}
+      onLedgerApprovalClose={handleLedgerModalClose}
+      ledgerPromptProps={ledgerPromptProps}
+      onCancel={onCancel}
+    />
   );
 };

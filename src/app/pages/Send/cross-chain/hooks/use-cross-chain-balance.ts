@@ -22,13 +22,16 @@ export const useCrossChainFromBalance = (asset: CrossChainAsset): BigNumber => {
   const getTezosBalance = useGetTezosAccountTokenOrGasBalanceWithDecimals(tezosAddress);
   const getEvmBalance = useGetEvmTokenBalanceWithDecimals(evmAddress);
 
-  if (asset.chainKind === TempleChainKind.Tezos && tezosAddress && asset.chainId != null && asset.assetSlug) {
-    return getTezosBalance(String(asset.chainId), asset.assetSlug) ?? ZERO;
-  }
-  if (asset.chainKind === TempleChainKind.EVM && evmAddress && asset.chainId != null && asset.assetSlug) {
-    return getEvmBalance(Number(asset.chainId), asset.assetSlug) ?? ZERO;
-  }
-  return ZERO;
+  return useMemo(() => {
+    if (asset.chainId == null || !asset.assetSlug) return ZERO;
+    if (asset.chainKind === TempleChainKind.Tezos && tezosAddress) {
+      return getTezosBalance(String(asset.chainId), asset.assetSlug) ?? ZERO;
+    }
+    if (asset.chainKind === TempleChainKind.EVM && evmAddress) {
+      return getEvmBalance(Number(asset.chainId), asset.assetSlug) ?? ZERO;
+    }
+    return ZERO;
+  }, [asset.chainKind, asset.chainId, asset.assetSlug, tezosAddress, evmAddress, getTezosBalance, getEvmBalance]);
 };
 
 export const useCrossChainFromBalances = (): Record<string, BigNumber> => {

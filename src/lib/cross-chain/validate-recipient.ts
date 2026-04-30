@@ -6,6 +6,13 @@ import { isValidTezosAddress } from 'lib/tezos';
 
 import { CrossChainAsset } from './types';
 
+const isValidBitcoinAddress = (address: string) => {
+  // Validator's segwit check accepts `tb1`/`bcrt1` (testnet) regardless of the network arg.
+  // Exolix only routes to the mainnet, so reject testnet prefixes ourselves before delegating.
+  if (/^(tb1|bcrt1)/i.test(address)) return false;
+  return multiNetworkValidateAddress(address, 'BTC');
+};
+
 export const validateCrossChainRecipient = (
   address: string | null | undefined,
   toAsset: CrossChainAsset
@@ -20,10 +27,7 @@ export const validateCrossChainRecipient = (
     case 'evm':
       return isAddress(trimmed) ? true : 'invalidEvmAddress';
     case 'btc':
-      // Validator's segwit check accepts `tb1`/`bcrt1` (testnet) regardless of the network arg.
-      // Exolix only routes to the mainnet, so reject testnet prefixes ourselves before delegating.
-      if (/^(tb1|bcrt1)/i.test(trimmed)) return 'invalidBitcoinAddress';
-      return multiNetworkValidateAddress(trimmed, 'BTC') ? true : 'invalidBitcoinAddress';
+      return isValidBitcoinAddress(trimmed) ? true : 'invalidBitcoinAddress';
     default:
       return 'crossChainUnsupportedDestination';
   }

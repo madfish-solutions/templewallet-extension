@@ -74,7 +74,7 @@ export const ExchangeSummaryCard = memo<Props>(
               <CopyableText text={exolixId} />
             </ChartListItem>
             {showEstimatedTime && (
-              <ChartListItem title={t('estimatedTime')} bottomSeparator={Boolean(depositTxHash)}>
+              <ChartListItem title={t('estimatedTimeShort')} bottomSeparator={Boolean(depositTxHash)}>
                 <span className="p-1 text-font-num-12">{CROSS_CHAIN_DEFAULT_ETA}</span>
               </ChartListItem>
             )}
@@ -144,8 +144,10 @@ const DirectionalAmountRow: FC<DirectionalAmountRowProps> = ({
 
 const CopyableText = memo<{ text: string }>(({ text }) => {
   const handleClick = () => {
-    navigator.clipboard.writeText(text);
-    toastSuccess(t('copiedHash'));
+    navigator.clipboard
+      .writeText(text)
+      .then(() => toastSuccess(t('copiedHash')))
+      .catch(console.error);
   };
 
   return (

@@ -2992,6 +2992,9 @@
     "message": "Swap route"
   },
   "estimatedTime": {
+    "message": "Estimated time"
+  },
+  "estimatedTimeShort": {
     "message": "Est. time"
   },
   "protocolFee": {
@@ -3548,6 +3551,9 @@
     "message": "Next"
   },
   "done": {
+    "message": "Done!"
+  },
+  "doneAction": {
     "message": "Done"
   },
   "standWithUkraine": {

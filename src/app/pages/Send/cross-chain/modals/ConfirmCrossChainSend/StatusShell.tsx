@@ -14,6 +14,8 @@ interface Props {
   heroInnerClassName: string;
   hero: ReactNode;
   showEstimatedTime?: boolean;
+  /** When provided, replaces the default ExchangeSummaryCard. */
+  body?: ReactNode;
   actionsFlexDirection?: 'row' | 'col';
   actions: ReactNode;
 }
@@ -26,6 +28,7 @@ export const StatusShell: FC<Props> = memo(
     heroInnerClassName,
     hero,
     showEstimatedTime,
+    body,
     actionsFlexDirection,
     actions
   }) => (
@@ -39,18 +42,20 @@ export const StatusShell: FC<Props> = memo(
           {hero}
         </StatusHeroRegion>
 
-        <ExchangeSummaryCard
-          fromAsset={exchange.fromAsset}
-          toAsset={exchange.toAsset}
-          fromAmount={exchange.fromAmount}
-          toAmountEstimated={exchange.toAmountEstimated}
-          toAmountActual={exchange.toAmountActual}
-          senderAddress={exchange.senderAddress}
-          recipient={exchange.recipient}
-          exolixId={exchange.id}
-          depositTxHash={exchange.sourceTxHash ?? exchange.hashIn?.hash ?? undefined}
-          showEstimatedTime={showEstimatedTime}
-        />
+        {body ?? (
+          <ExchangeSummaryCard
+            fromAsset={exchange.fromAsset}
+            toAsset={exchange.toAsset}
+            fromAmount={exchange.fromAmount}
+            toAmountEstimated={exchange.toAmountEstimated}
+            toAmountActual={exchange.toAmountActual}
+            senderAddress={exchange.senderAddress}
+            recipient={exchange.recipient}
+            exolixId={exchange.id}
+            depositTxHash={exchange.sourceTxHash ?? exchange.hashIn?.hash ?? undefined}
+            showEstimatedTime={showEstimatedTime}
+          />
+        )}
 
         <div className="mt-4">
           <SupportLink />

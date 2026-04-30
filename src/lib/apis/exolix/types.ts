@@ -64,9 +64,12 @@ export interface ExchangeData {
 export enum OrderStatusEnum {
   WAIT = 'wait',
   CONFIRMATION = 'confirmation',
+  CONFIRMED = 'confirmed',
   EXCHANGING = 'exchanging',
+  SENDING = 'sending',
   SUCCESS = 'success',
   OVERDUE = 'overdue',
+  REFUND = 'refund',
   REFUNDED = 'refunded'
 }
 
@@ -120,3 +123,10 @@ export type GetRateResponse =
   | GetRateResponseWithAmountTooHigh
   | GetRateSuccessResponse
   | GetRateUnsupportedPairResponse;
+
+export type NormalizedRateResult =
+  | { kind: 'ok'; fromAmount: number; toAmount: number; rate: number; minAmount: number; maxAmount: number }
+  | { kind: 'min-bound'; minAmount: number; message: string }
+  | { kind: 'max-bound'; maxAmount: number; message: string }
+  | { kind: 'unsupported' }
+  | { kind: 'unknown' };

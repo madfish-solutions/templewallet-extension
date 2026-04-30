@@ -33,7 +33,7 @@ export const CompletedContent: FC<Props> = ({ exchangeId, onClose }) => {
       }
       actions={
         <StyledButton size="L" color="primary" onClick={onClose}>
-          <T id="done" />
+          <T id="doneAction" />
         </StyledButton>
       }
     />

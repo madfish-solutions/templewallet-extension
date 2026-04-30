@@ -1,4 +1,4 @@
-import React, { FC, memo, useEffect } from 'react';
+import React, { FC, memo, useEffect, useRef } from 'react';
 
 import { Loader } from 'app/atoms';
 import { CaptionAlert } from 'app/atoms/CaptionAlert';
@@ -45,15 +45,22 @@ export const PreviewContent: FC<Props> = ({ data, onSubmitted, onCancel, devForc
 
   const { trackEvent } = useAnalytics();
 
+  const lastReportedErrorRef = useRef<string | null>(null);
   useEffect(() => {
-    if (!error) return;
+    if (!error) {
+      lastReportedErrorRef.current = null;
+      return;
+    }
+    const message = error instanceof Error ? error.message : String(error);
+    if (lastReportedErrorRef.current === message) return;
+    lastReportedErrorRef.current = message;
     trackEvent(CrossChainAnalyticsEvents.CrossChainReservationFailed, undefined, {
       fromCoin: fromAsset.exolixCoin,
       fromNetwork: fromAsset.exolixNetwork,
       toCoin: toAsset.exolixCoin,
       toNetwork: toAsset.exolixNetwork,
       amount: fromAmount,
-      message: error instanceof Error ? error.message : String(error)
+      message
     });
   }, [error, fromAsset.exolixCoin, fromAsset.exolixNetwork, toAsset.exolixCoin, toAsset.exolixNetwork, fromAmount, trackEvent]);
 

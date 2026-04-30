@@ -109,18 +109,18 @@ export const CrossChainForm: FC<Props> = ({ onReview }) => {
     return fromAmount;
   }, [fromAmount, isFiatMode, hasFiatPrice, inputAssetPrice, fromAsset.decimals]);
 
-  const { data: rateData, isValidating: rateLoading } = useCrossChainRate({
+  const { normalized: rate, isValidating: rateLoading } = useCrossChainRate({
     from: fromAsset,
     to: toAsset,
     amount: fromAmountInTokens
   });
 
-  const rateMinAmount = rateData && 'minAmount' in rateData ? rateData.minAmount : undefined;
-  const rateMaxAmount = rateData && 'maxAmount' in rateData ? rateData.maxAmount : undefined;
+  const rateMinAmount = rate?.kind === 'ok' || rate?.kind === 'min-bound' ? rate.minAmount : undefined;
+  const rateMaxAmount = rate?.kind === 'ok' || rate?.kind === 'max-bound' ? rate.maxAmount : undefined;
 
   const lastUnsupportedPairRef = useRef<string | null>(null);
   useEffect(() => {
-    const isUnsupportedPair = Boolean(rateData && 'error' in rateData);
+    const isUnsupportedPair = rate?.kind === 'unsupported';
     const pairKey = `${fromAsset.exolixCoin}:${fromAsset.exolixNetwork}->${toAsset.exolixCoin}:${toAsset.exolixNetwork}`;
 
     if (!isUnsupportedPair) {
@@ -135,7 +135,7 @@ export const CrossChainForm: FC<Props> = ({ onReview }) => {
     lastUnsupportedPairRef.current = pairKey;
     toastError(t('pairNotAvailable'));
   }, [
-    rateData,
+    rate,
     fromAsset.exolixCoin,
     fromAsset.exolixNetwork,
     toAsset.exolixCoin,
@@ -154,25 +154,26 @@ export const CrossChainForm: FC<Props> = ({ onReview }) => {
     const n = new BigNumber(fromAmountInTokens);
     if (n.isNaN() || n.isLessThanOrEqualTo(0)) return t('invalidAmount');
     if (insufficientBalance) return t('insufficientBalance');
-    if (rateData && 'error' in rateData) return t('pairNotAvailable');
-    if (rateData && 'message' in rateData && rateData.message) {
-      if ('minAmount' in rateData) return t('minWithSymbol', [String(rateData.minAmount), fromAsset.symbol]);
-      if ('maxAmount' in rateData) return t('maxWithSymbol', [String(rateData.maxAmount), fromAsset.symbol]);
+    if (!rate) return undefined;
+    switch (rate.kind) {
+      case 'unsupported':
+        return t('pairNotAvailable');
+      case 'min-bound':
+        return t('minWithSymbol', [String(rate.minAmount), fromAsset.symbol]);
+      case 'max-bound':
+        return t('maxWithSymbol', [String(rate.maxAmount), fromAsset.symbol]);
+      case 'unknown':
+        return t('unableToFetchRate');
+      case 'ok':
+        return undefined;
     }
-    if (rateData && !('rate' in rateData) && !('minAmount' in rateData) && !('maxAmount' in rateData)) {
-      return t('unableToFetchRate');
-    }
-    return undefined;
-  }, [fromAmountInTokens, fromAsset.symbol, insufficientBalance, rateData]);
+  }, [fromAmountInTokens, fromAsset.symbol, insufficientBalance, rate]);
 
   const toAmountEstimated = useMemo(() => {
     if (!fromAmountInTokens) return '';
-    if (!rateData) return '';
-    if ('rate' in rateData && rateData.message == null) {
-      return String(rateData.toAmount ?? '');
-    }
-    return '';
-  }, [rateData, fromAmountInTokens]);
+    if (rate?.kind !== 'ok') return '';
+    return String(rate.toAmount ?? '');
+  }, [rate, fromAmountInTokens]);
 
   const openSelect = useCallback(
     (kind: SelectKind) => {
@@ -199,14 +200,14 @@ export const CrossChainForm: FC<Props> = ({ onReview }) => {
           const [firstAllowed] = getAllowedToAssets(asset, networksMap);
           if (firstAllowed) {
             setToAsset(firstAllowed);
-            if (firstAllowed.dest !== toAsset.dest) {
+            if (firstAllowed.chainId !== toAsset.chainId || firstAllowed.dest !== toAsset.dest) {
               setValue('to', '');
               clearErrors('to');
             }
           }
         }
       } else {
-        if (asset.dest !== toAsset.dest) {
+        if (asset.chainId !== toAsset.chainId || asset.dest !== toAsset.dest) {
           setValue('to', '');
           clearErrors('to');
         }

@@ -9,7 +9,8 @@ import {
   ExchangeData,
   ExolixCurrenciesResponse,
   GetRateRequestData,
-  GetRateResponse
+  GetRateResponse,
+  NormalizedRateResult
 } from './types';
 
 const API_KEY = EnvVars.TEMPLE_WALLET_EXOLIX_API_KEY;
@@ -192,6 +193,37 @@ export const submitExchange = (data: {
 
 export const getExchangeData = (exchangeId: string) =>
   retry(() => api.get<ExchangeData>(`/transactions/${exchangeId}`).then(r => r.data), COMMON_RETRY_CONFIG);
+
+/**
+ * Convert the raw `/rate` payload into a discriminated tagged union so call sites stop
+ * sniffing properties (`'error' in r`, `'rate' in r`, …) — drift in the Exolix shape would
+ * otherwise silently downgrade to "unable to fetch rate" without anyone noticing.
+ */
+export const normalizeRateResponse = (raw: GetRateResponse): NormalizedRateResult => {
+  if ('error' in raw) return { kind: 'unsupported' };
+
+  const hasRate = 'rate' in raw;
+  const hasMin = 'minAmount' in raw;
+  const hasMax = 'maxAmount' in raw;
+
+  if (hasRate && raw.message == null) {
+    return {
+      kind: 'ok',
+      fromAmount: raw.fromAmount,
+      toAmount: raw.toAmount,
+      rate: raw.rate,
+      minAmount: raw.minAmount,
+      maxAmount: raw.maxAmount
+    };
+  }
+
+  if (raw.message) {
+    if (hasMin && !hasRate) return { kind: 'min-bound', minAmount: raw.minAmount, message: raw.message };
+    if (hasMax && !hasRate) return { kind: 'max-bound', maxAmount: raw.maxAmount, message: raw.message };
+  }
+
+  return { kind: 'unknown' };
+};
 
 export const queryCrossChainRate = (data: CrossChainRateRequestData): Promise<GetRateResponse> =>
   retry(

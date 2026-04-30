@@ -1,4 +1,4 @@
-import React, { FC, useState } from 'react';
+import React, { memo, useCallback, useState } from 'react';
 
 import {
   ActionModal,
@@ -17,16 +17,16 @@ interface Props {
   onConfirm: EmptyFn;
 }
 
-export const CrossChainWarningModal: FC<Props> = ({ opened, onRequestClose, onConfirm }) => {
+export const CrossChainWarningModal = memo<Props>(({ opened, onRequestClose, onConfirm }) => {
   const [, setDismissed] = useStorage<boolean>(CROSS_CHAIN_WARNING_DISMISSED_STORAGE_KEY);
   const [dontShow, setDontShow] = useState(false);
 
-  if (!opened) return null;
-
-  const handleConfirm = () => {
+  const handleConfirm = useCallback(() => {
     if (dontShow) setDismissed(true);
     onConfirm();
-  };
+  }, [dontShow, setDismissed, onConfirm]);
+
+  if (!opened) return null;
 
   return (
     <ActionModal title={t('crossChainWarningTitle')} onClose={onRequestClose}>
@@ -39,7 +39,7 @@ export const CrossChainWarningModal: FC<Props> = ({ opened, onRequestClose, onCo
           <span className="text-font-medium-bold">
             <T id="dontShowAnymore" />
           </span>
-          <Checkbox checked={dontShow} onChange={checked => setDontShow(checked)} />
+          <Checkbox checked={dontShow} onChange={setDontShow} />
         </label>
       </ActionModalBodyContainer>
       <ActionModalButtonsContainer className="pb-4">
@@ -49,4 +49,4 @@ export const CrossChainWarningModal: FC<Props> = ({ opened, onRequestClose, onCo
       </ActionModalButtonsContainer>
     </ActionModal>
   );
-};
+});
