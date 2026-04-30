@@ -1,4 +1,4 @@
-import { ComponentType, useCallback, useEffect, useMemo, useState } from 'react';
+import { ComponentType, useEffect, useState } from 'react';
 
 import browser, { Storage } from 'webextension-polyfill';
 
@@ -77,23 +77,18 @@ export const UpdateModal = () => {
 
   useEffect(() => onStorageChanged(changes => mutate({ ...data, ...changes })), [data, mutate]);
 
-  const modalToOpen = useMemo(
-    () => data && modalsNames.find(modalName => data[updateModals[modalName].storageKey]),
-    [data]
-  );
+  const modalToOpen = data && modalsNames.find(modalName => data[updateModals[modalName].storageKey]);
   const [modalToShow, setModalToShow] = useState<UpdateModalName | undefined>(modalToOpen);
   useEffect(() => setModalToShow(prevModal => prevModal ?? modalToOpen), [modalToOpen]);
 
-  const handleModalShown = useCallback(() => {
+  const handleModalShown = () => {
     if (modalToShow) {
       putToStorage(updateModals[modalToShow].storageKey, false);
     }
-  }, [modalToShow]);
+  };
 
-  const handleCloseModal = useCallback(
-    () => setModalToShow(prevModal => (prevModal ? modalsNames[modalsNames.indexOf(prevModal) + 1] : undefined)),
-    []
-  );
+  const handleCloseModal = () =>
+    setModalToShow(prevModal => (prevModal ? modalsNames[modalsNames.indexOf(prevModal) + 1] : undefined));
 
   const Component = modalToShow && updateModals[modalToShow].Component;
 

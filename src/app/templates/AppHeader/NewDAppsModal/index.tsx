@@ -1,4 +1,4 @@
-import { memo, useMemo } from 'react';
+import { FC } from 'react';
 
 import clsx from 'clsx';
 
@@ -19,14 +19,11 @@ const dAppsLogoComponents = [2, 0, 1].map(index => ({
   id: DAPPS_FOR_DEPOSITS[index].id
 }));
 
-export const NewDAppsModal = memo(({ onClose, onShown }: UpdateModalProps) => {
+export const NewDAppsModal: FC<UpdateModalProps> = ({ onClose, onShown }) => {
   useDidMount(onShown);
 
   const styledButtonClassName = useStyledButtonClassName({ size: 'L', color: 'primary' });
-  const goToEarnButtonClassName = useMemo(
-    () => clsx(styledButtonClassName, 'w-full cursor-pointer text-center'),
-    [styledButtonClassName]
-  );
+  const goToEarnButtonClassName = clsx(styledButtonClassName, 'w-full cursor-pointer text-center');
 
   return (
     <MiniPageModal opened onRequestClose={onClose}>
@@ -59,4 +56,4 @@ export const NewDAppsModal = memo(({ onClose, onShown }: UpdateModalProps) => {
       </ActionsButtonsBox>
     </MiniPageModal>
   );
-});
+};

@@ -1,4 +1,4 @@
-import { memo, useCallback } from 'react';
+import { FC } from 'react';
 
 import clsx from 'clsx';
 
@@ -14,16 +14,15 @@ interface DAppForDepositItemProps {
   onClick: SyncFn<DAppForDeposit>;
 }
 
-export const DAppForDepositItem = memo<DAppForDepositItemProps>(({ dApp, onClick }) => {
+export const DAppForDepositItem: FC<DAppForDepositItemProps> = ({ dApp, onClick }) => {
   const { icon: Icon, name, description } = dApp;
-  const handleClick = useCallback(() => onClick(dApp), [dApp, onClick]);
 
   return (
     <Button
       className={clsx(COMMON_ITEM_CLASSNAME, 'flex gap-2 items-center')}
       testID={EarnSelectors.dAppForDepositItem}
       testIDProperties={{ dAppName: dApp.name }}
-      onClick={handleClick}
+      onClick={() => onClick(dApp)}
     >
       <Icon className="size-9 m-0.5" />
 
@@ -33,4 +32,4 @@ export const DAppForDepositItem = memo<DAppForDepositItemProps>(({ dApp, onClick
       </div>
     </Button>
   );
-});
+};

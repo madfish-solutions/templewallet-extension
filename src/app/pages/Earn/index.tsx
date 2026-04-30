@@ -1,4 +1,4 @@
-import { FC, memo, ReactNode, useCallback, useMemo, useState } from 'react';
+import { FC, ReactNode, useMemo, useState } from 'react';
 
 import { IconBase } from 'app/atoms';
 import {
@@ -26,7 +26,7 @@ import { useFilteredEarnOffers } from './hooks/use-filtered-earn-offers';
 import { EarnSelectors } from './selectors';
 import { EarnOffer } from './types';
 
-export const Earn = memo(() => {
+export const Earn: FC = () => {
   const { searchValue, setSearchValue, savingsOffers, externalOffers, dAppsForDeposits } = useFilteredEarnOffers();
   const PartnersPromotionModule = usePartnersPromotionModule();
   const [dAppForDeposit, setDAppForDeposit] = useState<DAppForDeposit | null>(null);
@@ -38,7 +38,7 @@ export const Earn = memo(() => {
     return items.length ? withPromo(items, PartnersPromotionModule, AdsConstantsModule) : items;
   }, [savingsOffers, PartnersPromotionModule, AdsConstantsModule]);
 
-  const savingsAvailable = useMemo(() => savingsItems.length > 0, [savingsItems.length]);
+  const savingsAvailable = savingsItems.length > 0;
 
   const externalItems = useMemo(() => {
     const items = externalOffers.map(toRenderItem);
@@ -48,8 +48,7 @@ export const Earn = memo(() => {
     return withPromo(items, PartnersPromotionModule, AdsConstantsModule);
   }, [externalOffers, savingsAvailable, PartnersPromotionModule, AdsConstantsModule]);
 
-  const handleCloseDAppForDepositModal = useCallback(() => setDAppForDeposit(null), []);
-
+  const handleCloseDAppForDepositModal = () => setDAppForDeposit(null);
   const dAppsForDepositsAvailable = dAppsForDeposits.length > 0;
   const externalOffersAvailable = externalItems.length > 0;
   const shouldShowEmptyState = !savingsAvailable && !externalOffersAvailable && !dAppsForDepositsAvailable;
@@ -121,7 +120,7 @@ export const Earn = memo(() => {
       )}
     </PageLayout>
   );
-});
+};
 
 const toRenderItem = (offer: EarnOffer) => {
   switch (offer.id) {

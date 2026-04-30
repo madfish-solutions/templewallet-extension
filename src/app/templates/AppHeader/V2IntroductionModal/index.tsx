@@ -1,4 +1,4 @@
-import React, { memo, useCallback } from 'react';
+import React, { FC } from 'react';
 
 import browser from 'webextension-polyfill';
 
@@ -17,11 +17,11 @@ import { V2IntroductionModalSelectors } from './selectors';
 const V2_DOCS_URL =
   'https://docs.templewallet.com/blog/the-temple-wallet-tezos-evm-update-the-beginning-of-the-new-chapter/';
 
-export const V2IntroductionModal = memo(({ onClose, onShown }: UpdateModalProps) => {
-  const handleLinkClick = useCallback(() => {
+export const V2IntroductionModal: FC<UpdateModalProps> = ({ onClose, onShown }) => {
+  const handleLinkClick = () => {
     onClose();
     browser.tabs.create({ url: V2_DOCS_URL });
-  }, [onClose]);
+  };
 
   useDidMount(onShown);
 
@@ -55,4 +55,4 @@ export const V2IntroductionModal = memo(({ onClose, onShown }: UpdateModalProps)
       </div>
     </ActionModal>
   );
-});
+};

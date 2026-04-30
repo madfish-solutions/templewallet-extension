@@ -1,4 +1,4 @@
-import React, { memo, useCallback } from 'react';
+import React, { memo } from 'react';
 
 import browser from 'webextension-polyfill';
 
@@ -17,10 +17,10 @@ import { UpdateModalProps } from '../types';
 import { EarnEthIntroModalSelectors } from './selectors';
 
 export const EarnEthIntroModal = memo(({ onClose, onShown }: UpdateModalProps) => {
-  const handleLinkClick = useCallback(async () => {
+  const handleLinkClick = async () => {
     onClose();
     await browser.tabs.create({ url: EVERSTAKE_ETHEREUM_STAKE_UTM_LINK });
-  }, [onClose]);
+  };
 
   useDidMount(onShown);
 
