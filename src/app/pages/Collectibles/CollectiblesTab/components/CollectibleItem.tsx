@@ -6,7 +6,6 @@ import { IconBase, ToggleSwitch } from 'app/atoms';
 import { EvmNetworkLogo, NetworkLogoPropsBase, TezosNetworkLogo } from 'app/atoms/NetworkLogo';
 import { useIsItemVisible } from 'app/atoms/visibility-tracking-infinite-scroll';
 import { ReactComponent as DeleteIcon } from 'app/icons/base/delete.svg';
-import { ScamTag } from 'app/pages/Home/OtherComponents/Tokens/components/TokenTag/ScamTag';
 import { dispatch } from 'app/store';
 import { setEvmCollectibleStatusAction } from 'app/store/evm/assets/actions';
 import { useStoredEvmCollectibleSelector } from 'app/store/evm/assets/selectors';
@@ -24,6 +23,7 @@ import {
   useCollectibleDetailsSelector
 } from 'app/store/tezos/collectibles/selectors';
 import { DeleteAssetModal } from 'app/templates/remove-asset-modal/delete-asset-modal';
+import { ScamTag } from 'app/templates/scam-tag';
 import { setAnotherSelector, setTestID } from 'lib/analytics';
 import { getAssetStatus } from 'lib/assets/hooks/utils';
 import { useEvmAssetBalance } from 'lib/balances/hooks';

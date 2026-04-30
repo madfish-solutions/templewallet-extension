@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import { memo } from 'react';
 
 import { ReactComponent as ErrorIcon } from 'app/icons/typed-msg/error.svg';
 import { t } from 'lib/i18n';

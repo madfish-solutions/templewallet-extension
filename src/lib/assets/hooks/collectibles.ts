@@ -18,7 +18,7 @@ import { useEnabledEvmChains, useEnabledTezosChains } from 'temple/front';
 
 import { getAssetStatus } from './utils';
 
-interface AccountCollectible extends AccountAsset {
+export interface AccountCollectible extends AccountAsset {
   chainId: string | number;
 }
 

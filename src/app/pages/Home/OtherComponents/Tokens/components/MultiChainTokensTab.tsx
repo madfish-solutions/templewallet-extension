@@ -1,29 +1,32 @@
 import { createContext, FC, Ref, memo, useContext, useMemo, useRef } from 'react';
 
+import { range } from 'lodash';
+
 import {
   useAccountTokensForListing,
   useAccountTokensListingLogic
 } from 'app/hooks/listing-logic/use-account-tokens-listing-logic';
+import { useEvmBalancesAreLoading } from 'app/hooks/listing-logic/use-evm-balances-loading-state';
 import {
   usePreservedOrderSlugsGroupsToManage,
   usePreservedOrderSlugsToManage
 } from 'app/hooks/listing-logic/use-manageable-slugs';
 import { useManageState } from 'app/hooks/use-assets-view-state';
+import { useEvmCollectiblesMetadataLoading } from 'app/pages/Nfts/hooks/use-evm-collectibles-meta-loading';
 import {
   useGroupByNetworkBehaviorSelector,
   useTokensListOptionsSelector
 } from 'app/store/assets-filter-options/selectors';
-import { useMainnetTokensScamlistSelector } from 'app/store/tezos/assets/selectors';
+import { useEvmCollectiblesMetadataLoadingSelector } from 'app/store/evm/selectors';
+import { useAreAssetsLoading, useMainnetTokensScamlistSelector } from 'app/store/tezos/assets/selectors';
 import { usePartnersPromotionModule } from 'app/templates/partners-promotion';
 import { EvmTokenListItem, TezosTokenListItem } from 'app/templates/TokenListItem';
 import { useAdsConstantsModule } from 'lib/ads-constants';
+import { useEvmAccountCollectibles, useTezosAccountCollectibles } from 'lib/assets/hooks/collectibles';
+import { useAccountCollectiblesSortPredicate } from 'lib/assets/use-sorting';
 import { parseChainAssetSlug, toChainAssetSlug } from 'lib/assets/utils';
 import { useMemoWithCompare } from 'lib/ui/hooks';
-import {
-  makeGetTokenElementIndexFunction,
-  makeGroupedTokenElementIndexFunction,
-  TokenListItemElement
-} from 'lib/ui/tokens-list';
+import { TokenListItemElement } from 'lib/ui/tokens-list';
 import { groupByToEntries } from 'lib/utils/group-by-to-entries';
 import { EvmChain, TezosChain, useAllEvmChains, useAllTezosChains } from 'temple/front';
 import { ChainGroupedSlugs } from 'temple/front/chains';
@@ -39,17 +42,46 @@ interface Props {
   accountId: string;
 }
 
-const MultiChainTokensTabContext = createContext<Props>({
+const MultiChainTokensTabContext = createContext<
+  Props & Pick<TokensTabBaseProps, 'collectibles' | 'collectiblesReady' | 'collectiblesSortPredicate'>
+>({
   accountTezAddress: '',
   accountEvmAddress: '0x',
-  accountId: ''
+  accountId: '',
+  collectibles: [],
+  collectiblesReady: false,
+  collectiblesSortPredicate: () => 0
 });
 
-export const MultiChainTokensTab = memo<Props>(props => {
+export const MultiChainTokensTab = memo<Props>(({ accountEvmAddress, accountTezAddress, accountId }) => {
   const { manageActive } = useManageState();
 
+  const tezCollectibles = useTezosAccountCollectibles(accountTezAddress);
+  const evmCollectibles = useEvmAccountCollectibles(accountEvmAddress);
+  const tezAssetsLoading = useAreAssetsLoading('collectibles');
+  const evmBalancesLoading = useEvmBalancesAreLoading();
+  const evmCollectiblesMetadataLoading = useEvmCollectiblesMetadataLoadingSelector();
+  const collectibles = useMemo(() => tezCollectibles.concat(evmCollectibles), [tezCollectibles, evmCollectibles]);
+  const collectiblesSortPredicate = useAccountCollectiblesSortPredicate(accountTezAddress, accountEvmAddress);
+  const collectiblesReady =
+    (tezCollectibles.length > 0 || !tezAssetsLoading) &&
+    (evmCollectibles.length > 0 || (!evmBalancesLoading && !evmCollectiblesMetadataLoading));
+  const contextValue = useMemo(
+    () => ({
+      accountId,
+      accountEvmAddress,
+      accountTezAddress,
+      collectibles,
+      collectiblesReady,
+      collectiblesSortPredicate
+    }),
+    [accountId, accountEvmAddress, accountTezAddress, collectibles, collectiblesReady, collectiblesSortPredicate]
+  );
+
+  useEvmCollectiblesMetadataLoading(accountEvmAddress);
+
   return (
-    <MultiChainTokensTabContext value={props}>
+    <MultiChainTokensTabContext value={contextValue}>
       {manageActive ? <TabContentWithManageActive /> : <TabContent />}
     </MultiChainTokensTabContext>
   );
@@ -139,7 +171,7 @@ const TabContentBase = memo<TabContentBaseProps>(
     return (
       <TabContentBaseBody
         isInSearchMode={isInSearchMode}
-        isSyncing={isSyncing}
+        isSyncingTokens={isSyncing}
         displayedSlugs={displayedSlugs}
         loadNextPage={groupByNetwork ? loadNextGrouped : loadNextPlain}
         groupedSlugs={displayedGroupedSlugs}
@@ -152,9 +184,9 @@ const TabContentBase = memo<TabContentBaseProps>(
   }
 );
 
-interface TabContentBaseBodyProps extends Omit<
+interface TabContentBaseBodyProps extends Pick<
   TokensTabBaseProps,
-  'tokensCount' | 'children' | 'network' | 'oneRemDivRef' | 'getElementIndex' | 'accountId'
+  'loadNextPage' | 'isSyncingTokens' | 'isInSearchMode' | 'shouldShowHiddenTokensHint'
 > {
   manageActive: boolean;
   groupedSlugs: ChainGroupedSlugs | null;
@@ -165,7 +197,7 @@ interface TabContentBaseBodyProps extends Omit<
 
 const TabContentBaseBody = memo<TabContentBaseBodyProps>(
   ({ manageActive, groupedSlugs, tezosChains, evmChains, displayedSlugs, ...restProps }) => {
-    const { accountTezAddress, accountEvmAddress, accountId } = useContext(MultiChainTokensTabContext);
+    const { accountTezAddress, accountEvmAddress, ...tokensTabBaseProps } = useContext(MultiChainTokensTabContext);
     const promoRef = useRef<HTMLDivElement>(null);
     const firstHeaderRef = useRef<HTMLDivElement>(null);
     const firstListItemRef = useRef<TokenListItemElement>(null);
@@ -207,12 +239,11 @@ const TabContentBaseBody = memo<TabContentBaseBodyProps>(
                 indexShift
               )
           }),
-          getElementIndex: makeGroupedTokenElementIndexFunction(
-            promoRef,
-            firstListItemRef,
-            firstHeaderRef,
-            groupedSlugs
-          )
+          getElementIndex: () =>
+            range(
+              0,
+              groupedSlugs.reduce((acc, [_, slugs]) => acc + slugs.length, 0)
+            )
         };
       }
 
@@ -230,22 +261,32 @@ const TabContentBaseBody = memo<TabContentBaseBodyProps>(
       if (manageActive) {
         return {
           tokensView: tokensJsx,
-          getElementIndex: makeGetTokenElementIndexFunction(promoRef, firstListItemRef, tokensJsx.length)
+          getElementIndex: () => range(0, tokensJsx.length)
         };
       }
 
       return {
         tokensView: getTokensViewWithPromo(tokensJsx, promoJsx),
-        getElementIndex: makeGetTokenElementIndexFunction(promoRef, firstListItemRef, tokensJsx.length)
+        getElementIndex: () => range(0, tokensJsx.length + 1)
       };
-    }, [groupedSlugs, displayedSlugs, evmChains, tezosChains, manageActive, accountEvmAddress, accountTezAddress]);
+    }, [
+      groupedSlugs,
+      displayedSlugs,
+      evmChains,
+      tezosChains,
+      manageActive,
+      accountEvmAddress,
+      accountTezAddress,
+      PartnersPromotionModule,
+      AdsConstantsModule
+    ]);
 
     return (
       <TokensTabBase
-        accountId={accountId}
         tokensCount={displayedSlugs.length}
         getElementIndex={getElementIndex}
         {...restProps}
+        {...tokensTabBaseProps}
       >
         {tokensView}
       </TokensTabBase>

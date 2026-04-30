@@ -7,6 +7,7 @@ import { TempleChainKind } from 'temple/types';
 
 export type TokenListItemElement = HTMLDivElement | HTMLAnchorElement;
 
+// TODO: Use the functions below for dedicated tokens page
 export const makeGetTokenElementIndexFunction =
   (
     promoRef: RefObject<HTMLDivElement | null> | null,
@@ -35,6 +36,7 @@ export const makeGetTokenElementIndexFunction =
     return [1 + Math.floor((yAfterOffset - contentPromoAndAboveHeight) / tokenElementHeight)];
   };
 
+// ts-prune-ignore-next
 export const makeGroupedTokenElementIndexFunction =
   <T extends TempleChainKind>(
     promoRef: RefObject<HTMLDivElement | null>,

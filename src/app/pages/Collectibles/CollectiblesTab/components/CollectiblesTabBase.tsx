@@ -10,7 +10,7 @@ import {
 } from 'app/atoms/visibility-tracking-infinite-scroll';
 import { useManageState } from 'app/hooks/use-assets-view-state';
 import { ContentContainer } from 'app/layouts/containers';
-import { EmptySection } from 'app/pages/Home/OtherComponents/Tokens/components/EmptySection';
+import { AssetsEmptySection } from 'app/templates/assets-empty-section';
 import { OneOfChains } from 'temple/front';
 
 export interface CollectiblesTabBaseProps {
@@ -40,7 +40,13 @@ export const CollectiblesTabBase: FC<PropsWithChildren<CollectiblesTabBaseProps>
           isSyncing && !isInSearchMode ? (
             <PageLoader stretch />
           ) : (
-            <EmptySection forCollectibles manageActive={manageActive} forSearch={isInSearchMode} network={network} />
+            <AssetsEmptySection
+              forCollectibles
+              manageActive={manageActive}
+              forSearch={isInSearchMode}
+              network={network}
+              stretch
+            />
           )
         ) : (
           <>

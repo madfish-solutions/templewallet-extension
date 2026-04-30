@@ -1,9 +1,12 @@
 import { FC, createContext, memo, useContext, useMemo, useRef, Ref } from 'react';
 
+import { range } from 'lodash';
+
 import {
   useEvmAccountTokensForListing,
   useEvmAccountTokensListingLogic
 } from 'app/hooks/listing-logic/use-evm-account-tokens-listing-logic';
+import { useEvmBalancesAreLoading } from 'app/hooks/listing-logic/use-evm-balances-loading-state';
 import {
   usePreservedOrderSlugsGroupsToManage,
   usePreservedOrderSlugsToManage
@@ -13,16 +16,15 @@ import {
   useGroupByNetworkBehaviorSelector,
   useTokensListOptionsSelector
 } from 'app/store/assets-filter-options/selectors';
+import { useEvmCollectiblesMetadataLoadingSelector } from 'app/store/evm/selectors';
 import { usePartnersPromotionModule } from 'app/templates/partners-promotion';
 import { EvmTokenListItem } from 'app/templates/TokenListItem';
 import { useAdsConstantsModule } from 'lib/ads-constants';
+import { useEvmAccountCollectibles } from 'lib/assets/hooks/collectibles';
+import { useEvmAccountCollectiblesSortPredicate } from 'lib/assets/use-sorting';
 import { parseChainAssetSlug, toChainAssetSlug } from 'lib/assets/utils';
 import { useMemoWithCompare } from 'lib/ui/hooks';
-import {
-  TokenListItemElement,
-  makeGetTokenElementIndexFunction,
-  makeGroupedTokenElementIndexFunction
-} from 'lib/ui/tokens-list';
+import { TokenListItemElement } from 'lib/ui/tokens-list';
 import { groupByToEntries } from 'lib/utils/group-by-to-entries';
 import { useAllEvmChains, useEthereumMainnetChain } from 'temple/front';
 import { ChainGroupedSlugs } from 'temple/front/chains';
@@ -30,23 +32,37 @@ import { TempleChainKind } from 'temple/types';
 
 import { getGroupedTokensViewWithPromo, getTokensViewWithPromo } from '../utils';
 
-import { TokensTabBase } from './tokens-tab-base';
+import { TokensTabBase, TokensTabBaseProps } from './tokens-tab-base';
 
 interface Props {
   publicKeyHash: HexString;
   accountId: string;
 }
 
-const EvmTokensTabContext = createContext<Props>({
+const EvmTokensTabContext = createContext<
+  Props & Pick<TokensTabBaseProps, 'collectibles' | 'collectiblesReady' | 'collectiblesSortPredicate'>
+>({
   publicKeyHash: '0x',
-  accountId: ''
+  accountId: '',
+  collectibles: [],
+  collectiblesReady: false,
+  collectiblesSortPredicate: () => 0
 });
 
-export const EvmTokensTab = memo<Props>(props => {
+export const EvmTokensTab = memo<Props>(({ publicKeyHash, accountId }) => {
   const { manageActive } = useManageState();
+  const collectibles = useEvmAccountCollectibles(publicKeyHash);
+  const balancesLoading = useEvmBalancesAreLoading();
+  const collectiblesMetadataLoading = useEvmCollectiblesMetadataLoadingSelector();
+  const collectiblesReady = collectibles.length > 0 || (!balancesLoading && !collectiblesMetadataLoading);
+  const collectiblesSortPredicate = useEvmAccountCollectiblesSortPredicate(publicKeyHash);
+  const contextValue = useMemo(
+    () => ({ publicKeyHash, accountId, collectibles, collectiblesReady, collectiblesSortPredicate }),
+    [publicKeyHash, accountId, collectibles, collectiblesReady, collectiblesSortPredicate]
+  );
 
   return (
-    <EvmTokensTabContext value={props}>
+    <EvmTokensTabContext value={contextValue}>
       {manageActive ? <TabContentWithManageActive /> : <TabContent />}
     </EvmTokensTabContext>
   );
@@ -122,7 +138,7 @@ interface TabContentBaseProps {
 
 const TabContentBase = memo<TabContentBaseProps>(
   ({ allSlugsSorted, allSlugsSortedGrouped, groupByNetwork, manageActive, shouldShowHiddenTokensHint }) => {
-    const { publicKeyHash, accountId } = useContext(EvmTokensTabContext);
+    const { publicKeyHash, accountId, ...tokensTabBaseProps } = useContext(EvmTokensTabContext);
     const { displayedSlugs, displayedGroupedSlugs, isSyncing, loadNextPlain, loadNextGrouped, isInSearchMode } =
       useEvmAccountTokensListingLogic(allSlugsSorted, allSlugsSortedGrouped);
     const promoRef = useRef<HTMLDivElement>(null);
@@ -156,12 +172,11 @@ const TabContentBase = memo<TabContentBaseProps>(
             firstHeaderRef,
             buildTokensJsxArray
           }),
-          getElementIndex: makeGroupedTokenElementIndexFunction(
-            promoRef,
-            firstListItemRef,
-            firstHeaderRef,
-            displayedGroupedSlugs
-          )
+          getElementIndex: () =>
+            range(
+              0,
+              displayedGroupedSlugs.reduce((acc, [_, slugs]) => acc + slugs.length, 0)
+            )
         };
       }
 
@@ -169,7 +184,7 @@ const TabContentBase = memo<TabContentBaseProps>(
 
       return {
         tokensView: getTokensViewWithPromo(tokensJsx, promoJsx),
-        getElementIndex: makeGetTokenElementIndexFunction(promoRef, firstListItemRef, tokensJsx.length)
+        getElementIndex: () => range(0, tokensJsx.length)
       };
 
       function buildTokensJsxArray(chainSlugs: string[], firstListItemRef: Ref<TokenListItemElement>, indexShift = 0) {
@@ -190,7 +205,15 @@ const TabContentBase = memo<TabContentBaseProps>(
           );
         });
       }
-    }, [displayedGroupedSlugs, displayedSlugs, manageActive, evmChains, publicKeyHash]);
+    }, [
+      displayedGroupedSlugs,
+      displayedSlugs,
+      manageActive,
+      evmChains,
+      publicKeyHash,
+      AdsConstantsModule,
+      PartnersPromotionModule
+    ]);
 
     return (
       <TokensTabBase
@@ -198,10 +221,11 @@ const TabContentBase = memo<TabContentBaseProps>(
         tokensCount={displayedSlugs.length}
         getElementIndex={getElementIndex}
         loadNextPage={groupByNetwork ? loadNextGrouped : loadNextPlain}
-        isSyncing={isSyncing}
+        isSyncingTokens={isSyncing}
         isInSearchMode={isInSearchMode}
         network={mainnetChain}
         shouldShowHiddenTokensHint={shouldShowHiddenTokensHint}
+        {...tokensTabBaseProps}
       >
         {tokensView}
       </TokensTabBase>

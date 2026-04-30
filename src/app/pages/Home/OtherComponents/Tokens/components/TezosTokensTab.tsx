@@ -1,5 +1,7 @@
 import { createContext, FC, memo, Ref, useContext, useMemo, useRef } from 'react';
 
+import { range } from 'lodash';
+
 import {
   usePreservedOrderSlugsGroupsToManage,
   usePreservedOrderSlugsToManage
@@ -13,17 +15,15 @@ import {
   useGroupByNetworkBehaviorSelector,
   useTokensListOptionsSelector
 } from 'app/store/assets-filter-options/selectors';
-import { useMainnetTokensScamlistSelector } from 'app/store/tezos/assets/selectors';
+import { useAreAssetsLoading, useMainnetTokensScamlistSelector } from 'app/store/tezos/assets/selectors';
 import { usePartnersPromotionModule } from 'app/templates/partners-promotion';
 import { TezosTokenListItem } from 'app/templates/TokenListItem';
 import { useAdsConstantsModule } from 'lib/ads-constants';
+import { useTezosAccountCollectibles } from 'lib/assets/hooks/collectibles';
+import { useTezosAccountCollectiblesSortPredicate } from 'lib/assets/use-sorting';
 import { parseChainAssetSlug, toChainAssetSlug } from 'lib/assets/utils';
 import { useMemoWithCompare } from 'lib/ui/hooks';
-import {
-  makeGetTokenElementIndexFunction,
-  makeGroupedTokenElementIndexFunction,
-  TokenListItemElement
-} from 'lib/ui/tokens-list';
+import { TokenListItemElement } from 'lib/ui/tokens-list';
 import { groupByToEntries } from 'lib/utils/group-by-to-entries';
 import { useAllTezosChains, useTezosMainnetChain } from 'temple/front';
 import { ChainGroupedSlugs } from 'temple/front/chains';
@@ -31,23 +31,43 @@ import { TempleChainKind } from 'temple/types';
 
 import { getGroupedTokensViewWithPromo, getTokensViewWithPromo } from '../utils';
 
-import { TokensTabBase } from './tokens-tab-base';
+import { TokensTabBase, TokensTabBaseProps } from './tokens-tab-base';
 
 interface Props {
   publicKeyHash: string;
   accountId: string;
 }
 
-const TezosTokensTabContext = createContext<Props>({
+const TezosTokensTabContext = createContext<
+  Props & Pick<TokensTabBaseProps, 'collectibles' | 'collectiblesReady' | 'collectiblesSortPredicate'>
+>({
   publicKeyHash: '',
-  accountId: ''
+  accountId: '',
+  collectibles: [],
+  collectiblesReady: false,
+  collectiblesSortPredicate: () => 0
 });
 
-export const TezosTokensTab = memo<Props>(props => {
+export const TezosTokensTab = memo<Props>(({ publicKeyHash, accountId }) => {
   const { manageActive } = useManageState();
+  const collectibles = useTezosAccountCollectibles(publicKeyHash);
+  const assetsLoading = useAreAssetsLoading('collectibles');
+  const collectiblesReady = collectibles.length > 0 || !assetsLoading;
+  const collectiblesSortPredicate = useTezosAccountCollectiblesSortPredicate(publicKeyHash);
+
+  const value = useMemo(
+    () => ({
+      publicKeyHash,
+      accountId,
+      collectibles,
+      collectiblesReady,
+      collectiblesSortPredicate
+    }),
+    [publicKeyHash, accountId, collectibles, collectiblesReady, collectiblesSortPredicate]
+  );
 
   return (
-    <TezosTokensTabContext value={props}>
+    <TezosTokensTabContext value={value}>
       {manageActive ? <TabContentWithManageActive /> : <TabContent />}
     </TezosTokensTabContext>
   );
@@ -123,7 +143,7 @@ interface TabContentBaseProps {
 
 const TabContentBase = memo<TabContentBaseProps>(
   ({ allSlugsSorted, allSlugsSortedGrouped, groupByNetwork, manageActive, shouldShowHiddenTokensHint }) => {
-    const { publicKeyHash, accountId } = useContext(TezosTokensTabContext);
+    const { publicKeyHash, accountId, ...tokensTabBaseProps } = useContext(TezosTokensTabContext);
     const promoRef = useRef<HTMLDivElement>(null);
     const firstHeaderRef = useRef<HTMLDivElement>(null);
     const firstListItemRef = useRef<TokenListItemElement>(null);
@@ -158,12 +178,11 @@ const TabContentBase = memo<TabContentBaseProps>(
             firstHeaderRef,
             buildTokensJsxArray
           }),
-          getElementIndex: makeGroupedTokenElementIndexFunction(
-            promoRef,
-            firstListItemRef,
-            firstHeaderRef,
-            displayedGroupedSlugs
-          )
+          getElementIndex: () =>
+            range(
+              0,
+              displayedGroupedSlugs.reduce((acc, [_, slugs]) => acc + slugs.length, 0)
+            )
         };
       }
 
@@ -171,7 +190,7 @@ const TabContentBase = memo<TabContentBaseProps>(
 
       return {
         tokensView: getTokensViewWithPromo(tokensJsx, promoJsx),
-        getElementIndex: makeGetTokenElementIndexFunction(promoRef, firstListItemRef, tokensJsx.length)
+        getElementIndex: () => range(0, tokensJsx.length + 1)
       };
 
       function buildTokensJsxArray(chainSlugs: string[], firstListItemRef: Ref<TokenListItemElement>, indexShift = 0) {
@@ -192,7 +211,16 @@ const TabContentBase = memo<TabContentBaseProps>(
           );
         });
       }
-    }, [displayedGroupedSlugs, displayedSlugs, tezosChains, publicKeyHash, mainnetTokensScamSlugsRecord, manageActive]);
+    }, [
+      displayedGroupedSlugs,
+      displayedSlugs,
+      tezosChains,
+      publicKeyHash,
+      mainnetTokensScamSlugsRecord,
+      manageActive,
+      PartnersPromotionModule,
+      AdsConstantsModule
+    ]);
 
     return (
       <TokensTabBase
@@ -200,10 +228,11 @@ const TabContentBase = memo<TabContentBaseProps>(
         tokensCount={displayedSlugs.length}
         getElementIndex={getElementIndex}
         loadNextPage={groupByNetwork ? loadNextGrouped : loadNextPlain}
-        isSyncing={isSyncing}
+        isSyncingTokens={isSyncing}
         isInSearchMode={isInSearchMode}
         network={mainnetChain}
         shouldShowHiddenTokensHint={shouldShowHiddenTokensHint}
+        {...tokensTabBaseProps}
       >
         {tokensView}
       </TokensTabBase>

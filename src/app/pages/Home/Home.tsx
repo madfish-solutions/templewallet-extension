@@ -1,4 +1,4 @@
-import React, { memo, useEffect } from 'react';
+import { memo, useEffect } from 'react';
 
 import { AssetsViewStateController } from 'app/atoms/AssetsViewStateController';
 import { SuspenseContainer } from 'app/atoms/SuspenseContainer';

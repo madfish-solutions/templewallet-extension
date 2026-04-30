@@ -7,7 +7,8 @@ import {
   resetTokensFilterOptions,
   setCollectiblesBlurFilterOption,
   setCollectiblesShowInfoFilterOption,
-  swapOptionsForTestnetSwitch
+  swapOptionsForTestnetSwitch,
+  setCollectiblesViewAsCollectionsFilterOption
 } from './actions';
 import { AssetsFilterOptionsInitialState, AssetsFilterOptionsStateInterface, modeOptionsInitialState } from './state';
 
@@ -50,6 +51,9 @@ export const assetsFilterOptionsReducer = createReducer<AssetsFilterOptionsState
     });
     builder.addCase(setCollectiblesShowInfoFilterOption, (state, { payload }) => {
       state.collectiblesListOptions.showInfo = payload;
+    });
+    builder.addCase(setCollectiblesViewAsCollectionsFilterOption, (state, { payload }) => {
+      state.collectiblesListOptions.viewAsCollections = payload;
     });
   }
 );

@@ -8,7 +8,6 @@ import { useIsItemVisible } from 'app/atoms/visibility-tracking-infinite-scroll'
 import { ReactComponent as DeleteIcon } from 'app/icons/base/delete.svg';
 import { ReactComponent as StarIcon } from 'app/icons/star.svg';
 import { ReactComponent as StarFillIcon } from 'app/icons/starfill.svg';
-import { ScamTag } from 'app/pages/Home/OtherComponents/Tokens/components/TokenTag/ScamTag';
 import { dispatch } from 'app/store';
 import { setEvmTokenStatusAction } from 'app/store/evm/assets/actions';
 import { useStoredEvmTokenSelector } from 'app/store/evm/assets/selectors';
@@ -18,6 +17,7 @@ import { setTezosTokenStatusAction } from 'app/store/tezos/assets/actions';
 import { useStoredTezosTokenSelector } from 'app/store/tezos/assets/selectors';
 import { EvmAssetIconWithNetwork, TezosAssetIconWithNetwork } from 'app/templates/AssetIcon';
 import { DeleteAssetModal } from 'app/templates/remove-asset-modal/delete-asset-modal';
+import { ScamTag } from 'app/templates/scam-tag';
 import { setAnotherSelector } from 'lib/analytics';
 import { TEMPLE_TOKEN_SLUG } from 'lib/assets';
 import { EVM_TOKEN_SLUG, TEZ_TOKEN_SLUG } from 'lib/assets/defaults';

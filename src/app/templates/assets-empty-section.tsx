@@ -1,0 +1,40 @@
+import { memo, useMemo } from 'react';
+
+import { AddCustomTokenButton } from 'app/atoms/AddCustomTokenButton';
+import { EmptyState } from 'app/atoms/EmptyState';
+import { TID } from 'lib/i18n';
+import { OneOfChains } from 'temple/front';
+
+interface Props {
+  forCollectibles: boolean;
+  forSearch: boolean;
+  manageActive: boolean;
+  network?: OneOfChains;
+  shouldShowHiddenTokensHint?: boolean;
+  stretch?: boolean;
+}
+
+export const AssetsEmptySection = memo<Props>(
+  ({ forCollectibles, forSearch, manageActive, network, shouldShowHiddenTokensHint = false, stretch = false }) => {
+    const textI18n = useMemo<TID>(() => {
+      if (forSearch) return 'noAssetsFound';
+      if (!forCollectibles && shouldShowHiddenTokensHint) return 'hiddenTokensHint';
+
+      return forCollectibles ? 'noCollectibles' : 'noTokens';
+    }, [forCollectibles, forSearch, shouldShowHiddenTokensHint]);
+
+    const commonProps = {
+      forCollectibles,
+      manageActive,
+      network
+    };
+
+    return (
+      <div className="w-full h-full px-4 flex flex-col items-center justify-center">
+        {manageActive && <AddCustomTokenButton {...commonProps} className="w-full mt-4" />}
+        <EmptyState forSearch={forSearch} textI18n={textI18n} stretch={stretch} />
+        {!manageActive && <AddCustomTokenButton {...commonProps} className="mb-8" />}
+      </div>
+    );
+  }
+);

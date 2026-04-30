@@ -12,7 +12,7 @@ type ObjktMediaTail = 'display' | 'artifact' | 'thumb288';
 const COMPRESSED_TOKEN_ICON_SIZE = 80;
 const COMPRESSED_COLLECTIBLE_ICON_SIZE = 250;
 
-const IPFS_PROTOCOL = 'ipfs://';
+export const IPFS_PROTOCOL = 'ipfs://';
 const IPFS_GATE = 'https://ipfs.io';
 const MEDIA_HOST = 'https://static.tcinfra.net/media';
 const DEFAULT_MEDIA_SIZE: TcInfraMediaSize = 'small';

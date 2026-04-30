@@ -1,11 +1,11 @@
-import React, { memo } from 'react';
+import { memo } from 'react';
 
+import { ScamTag } from 'app/templates/scam-tag';
 import { isTezAsset } from 'lib/assets';
 import { TezosNetworkEssentials } from 'temple/networks';
 
 import { TokenApyTag } from './ApyTag';
 import { DelegateTezosTag } from './DelegateTag';
-import { ScamTag } from './ScamTag';
 
 interface Props {
   network: TezosNetworkEssentials;
