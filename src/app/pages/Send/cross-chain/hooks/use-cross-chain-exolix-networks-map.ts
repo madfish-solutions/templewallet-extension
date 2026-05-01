@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 
 import { dispatch } from 'app/store';
 import { loadExolixNetworksMapActions } from 'app/store/crypto-exchange/actions';
@@ -34,10 +34,10 @@ export const useCrossChainExolixNetworksMap = (): CrossChainNetworksMapResult =>
     dispatch(loadExolixNetworksMapActions.submit());
   }, [isReady, isLoading, error]);
 
-  const retry = useCallback(() => {
+  const retry = () => {
     lastAttemptedAt.current = Date.now();
     dispatch(loadExolixNetworksMapActions.submit());
-  }, []);
+  };
 
   return { map, isLoading, isReady, error, retry };
 };

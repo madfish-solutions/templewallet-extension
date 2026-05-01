@@ -1,4 +1,4 @@
-import React, { FC, ReactNode, memo } from 'react';
+import React, { FC, ReactNode } from 'react';
 
 import { ActionsButtonsBox } from 'app/atoms/PageModal/actions-buttons-box';
 import { SupportLink } from 'app/pages/Buy/CryptoExchange/components/SupportLink';
@@ -20,51 +20,49 @@ interface Props {
   actions: ReactNode;
 }
 
-export const StatusShell: FC<Props> = memo(
-  ({
-    exchange,
-    backgroundSrc,
-    heroOuterClassName,
-    heroInnerClassName,
-    hero,
-    showEstimatedTime,
-    body,
-    actionsFlexDirection,
-    actions
-  }) => (
-    <>
-      <div className="flex-1 min-h-0 overflow-y-auto px-4 pt-3 pb-4 flex flex-col items-stretch">
-        <StatusHeroRegion
-          backgroundSrc={backgroundSrc}
-          outerClassName={heroOuterClassName}
-          innerClassName={heroInnerClassName}
-        >
-          {hero}
-        </StatusHeroRegion>
+export const StatusShell: FC<Props> = ({
+  exchange,
+  backgroundSrc,
+  heroOuterClassName,
+  heroInnerClassName,
+  hero,
+  showEstimatedTime,
+  body,
+  actionsFlexDirection,
+  actions
+}) => (
+  <>
+    <div className="flex-1 min-h-0 overflow-y-auto px-4 pt-3 pb-4 flex flex-col items-stretch">
+      <StatusHeroRegion
+        backgroundSrc={backgroundSrc}
+        outerClassName={heroOuterClassName}
+        innerClassName={heroInnerClassName}
+      >
+        {hero}
+      </StatusHeroRegion>
 
-        {body ?? (
-          <ExchangeSummaryCard
-            fromAsset={exchange.fromAsset}
-            toAsset={exchange.toAsset}
-            fromAmount={exchange.fromAmount}
-            toAmountEstimated={exchange.toAmountEstimated}
-            toAmountActual={exchange.toAmountActual}
-            senderAddress={exchange.senderAddress}
-            recipient={exchange.recipient}
-            exolixId={exchange.id}
-            depositTxHash={exchange.sourceTxHash ?? exchange.hashIn?.hash ?? undefined}
-            sourceChainKind={exchange.sourceChainKind}
-            sourceChainId={exchange.sourceChainId}
-            showEstimatedTime={showEstimatedTime}
-          />
-        )}
+      {body ?? (
+        <ExchangeSummaryCard
+          fromAsset={exchange.fromAsset}
+          toAsset={exchange.toAsset}
+          fromAmount={exchange.fromAmount}
+          toAmountEstimated={exchange.toAmountEstimated}
+          toAmountActual={exchange.toAmountActual}
+          senderAddress={exchange.senderAddress}
+          recipient={exchange.recipient}
+          exolixId={exchange.id}
+          depositTxHash={exchange.sourceTxHash ?? exchange.hashIn?.hash ?? undefined}
+          sourceChainKind={exchange.sourceChainKind}
+          sourceChainId={exchange.sourceChainId}
+          showEstimatedTime={showEstimatedTime}
+        />
+      )}
 
-        <div className="mt-4">
-          <SupportLink />
-        </div>
+      <div className="mt-4">
+        <SupportLink />
       </div>
+    </div>
 
-      <ActionsButtonsBox flexDirection={actionsFlexDirection}>{actions}</ActionsButtonsBox>
-    </>
-  )
+    <ActionsButtonsBox flexDirection={actionsFlexDirection}>{actions}</ActionsButtonsBox>
+  </>
 );

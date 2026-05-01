@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useState } from 'react';
 
 import { useHasActiveCrossChainExchangesSelector } from 'app/store/cross-chain-send/selectors';
 import { CrossChainExchange } from 'app/store/cross-chain-send/state';
@@ -34,75 +34,66 @@ export const useCrossChainSendController = ({ activeTab, setActiveTab }: UseCros
 
   const { trackEvent } = useAnalytics();
 
-  const handleReview = useCallback(
-    (data: ConfirmCrossChainReviewData) => {
-      setCrossChainReview(data);
-      trackEvent(CrossChainAnalyticsEvents.CrossChainReviewed, undefined, {
-        from: data.fromAsset.exolixCoin,
-        fromNetwork: data.fromAsset.exolixNetwork,
-        to: data.toAsset.exolixCoin,
-        toNetwork: data.toAsset.exolixNetwork,
-        amount: data.fromAmount
-      });
-      if (warningDismissed) {
-        openCrossChainConfirm();
-      } else {
-        trackEvent(CrossChainAnalyticsEvents.CrossChainWarningShown);
-        openCrossChainWarning();
-      }
-    },
-    [warningDismissed, openCrossChainConfirm, openCrossChainWarning, trackEvent]
-  );
+  const handleReview = (data: ConfirmCrossChainReviewData) => {
+    setCrossChainReview(data);
+    trackEvent(CrossChainAnalyticsEvents.CrossChainReviewed, undefined, {
+      from: data.fromAsset.exolixCoin,
+      fromNetwork: data.fromAsset.exolixNetwork,
+      to: data.toAsset.exolixCoin,
+      toNetwork: data.toAsset.exolixNetwork,
+      amount: data.fromAmount
+    });
+    if (warningDismissed) {
+      openCrossChainConfirm();
+    } else {
+      trackEvent(CrossChainAnalyticsEvents.CrossChainWarningShown);
+      openCrossChainWarning();
+    }
+  };
 
-  const handleWarningConfirm = useCallback(() => {
+  const handleWarningConfirm = () => {
     trackEvent(CrossChainAnalyticsEvents.CrossChainWarningDismissed);
     closeCrossChainWarning();
     openCrossChainConfirm();
-  }, [closeCrossChainWarning, openCrossChainConfirm, trackEvent]);
+  };
 
-  const handleOpenActivity = useCallback(() => {
+  const handleOpenActivity = () => {
     trackEvent(CrossChainAnalyticsEvents.CrossChainActivityOpened);
     openCrossChainActivity();
-  }, [openCrossChainActivity, trackEvent]);
+  };
 
-  const handleActivityClick = useCallback(
-    (exchange: CrossChainExchange) => {
-      closeCrossChainActivity();
-      setCrossChainReview({
-        fromAsset: exchange.fromAsset,
-        toAsset: exchange.toAsset,
-        fromAmount: exchange.fromAmount,
-        toAmountEstimated: exchange.toAmountEstimated,
-        recipient: exchange.recipient
-      });
-      setCrossChainInitialExchangeId(exchange.id);
-      openCrossChainConfirm();
-    },
-    [closeCrossChainActivity, openCrossChainConfirm]
-  );
+  const handleActivityClick = (exchange: CrossChainExchange) => {
+    closeCrossChainActivity();
+    setCrossChainReview({
+      fromAsset: exchange.fromAsset,
+      toAsset: exchange.toAsset,
+      fromAmount: exchange.fromAmount,
+      toAmountEstimated: exchange.toAmountEstimated,
+      recipient: exchange.recipient
+    });
+    setCrossChainInitialExchangeId(exchange.id);
+    openCrossChainConfirm();
+  };
 
-  const handleConfirmClose = useCallback(() => {
+  const handleConfirmClose = () => {
     closeCrossChainConfirm();
     setCrossChainInitialExchangeId(undefined);
     setCrossChainReview(undefined);
-  }, [closeCrossChainConfirm]);
+  };
 
-  const handleConfirmSubmitted = useCallback(() => setCrossChainSubmittedAt(Date.now()), []);
+  const handleConfirmSubmitted = () => setCrossChainSubmittedAt(Date.now());
 
-  const handleTryAgain = useCallback(() => {
+  const handleTryAgain = () => {
     trackEvent(CrossChainAnalyticsEvents.CrossChainTryAgain);
     navigate('/send', HistoryAction.Replace);
     setActiveTab('cross-chain');
-  }, [trackEvent, setActiveTab]);
+  };
 
-  const handleTabChange = useCallback(
-    (tab: SendTab) => {
-      if (tab === 'cross-chain' && activeTab !== 'cross-chain') {
-        trackEvent(CrossChainAnalyticsEvents.CrossChainTabOpened);
-      }
-    },
-    [activeTab, trackEvent]
-  );
+  const handleTabChange = (tab: SendTab) => {
+    if (tab === 'cross-chain' && activeTab !== 'cross-chain') {
+      trackEvent(CrossChainAnalyticsEvents.CrossChainTabOpened);
+    }
+  };
 
   return {
     accountId,

@@ -1,4 +1,4 @@
-import React, { FC, memo } from 'react';
+import React, { FC } from 'react';
 
 import { CrossChainExchange } from 'app/store/cross-chain-send/state';
 
@@ -23,39 +23,37 @@ interface Props {
   onTryAgain: EmptyFn;
 }
 
-export const CrossChainSendModals: FC<Props> = memo(
-  ({
-    warningOpened,
-    confirmOpened,
-    activityOpened,
-    reviewData,
-    initialExchangeId,
-    accountId,
-    onWarningClose,
-    onWarningConfirm,
-    onConfirmClose,
-    onConfirmSubmitted,
-    onActivityClose,
-    onActivityClick,
-    onTryAgain
-  }) => (
-    <>
-      <CrossChainWarningModal opened={warningOpened} onRequestClose={onWarningClose} onConfirm={onWarningConfirm} />
-      <ConfirmCrossChainSendModal
-        opened={confirmOpened}
-        reviewData={reviewData}
-        initialExchangeId={initialExchangeId}
-        onRequestClose={onConfirmClose}
-        onGoBack={onConfirmClose}
-        onSubmitted={onConfirmSubmitted}
-        onTryAgain={onTryAgain}
-      />
-      <CrossChainActivityModal
-        opened={activityOpened}
-        onRequestClose={onActivityClose}
-        accountId={accountId}
-        onExchangeClick={onActivityClick}
-      />
-    </>
-  )
+export const CrossChainSendModals: FC<Props> = ({
+  warningOpened,
+  confirmOpened,
+  activityOpened,
+  reviewData,
+  initialExchangeId,
+  accountId,
+  onWarningClose,
+  onWarningConfirm,
+  onConfirmClose,
+  onConfirmSubmitted,
+  onActivityClose,
+  onActivityClick,
+  onTryAgain
+}) => (
+  <>
+    <CrossChainWarningModal opened={warningOpened} onRequestClose={onWarningClose} onConfirm={onWarningConfirm} />
+    <ConfirmCrossChainSendModal
+      opened={confirmOpened}
+      reviewData={reviewData}
+      initialExchangeId={initialExchangeId}
+      onRequestClose={onConfirmClose}
+      onGoBack={onConfirmClose}
+      onSubmitted={onConfirmSubmitted}
+      onTryAgain={onTryAgain}
+    />
+    <CrossChainActivityModal
+      opened={activityOpened}
+      onRequestClose={onActivityClose}
+      accountId={accountId}
+      onExchangeClick={onActivityClick}
+    />
+  </>
 );

@@ -1,4 +1,4 @@
-import React, { FC, memo, useCallback, useEffect, useMemo, useState } from 'react';
+import React, { FC, useEffect, useState } from 'react';
 
 import BigNumber from 'bignumber.js';
 import clsx from 'clsx';
@@ -49,36 +49,31 @@ export const SelectCrossChainFromAssetModal: FC<Props> = ({ opened, networksMap,
     }
   }, [opened]);
 
-  const assets = useMemo(() => getAllowedFromAssets(networksMap), [networksMap]);
+  const assets = getAllowedFromAssets(networksMap);
 
-  const filteredAssets = useMemo(() => {
-    const search = searchDebounced.trim().toLowerCase();
-    return assets.filter(asset => {
-      const slug = toCrossChainAssetSlug(asset);
-      const balance = balances[slug];
-      if (!balance || balance.isLessThanOrEqualTo(0)) return false;
+  const search = searchDebounced.trim().toLowerCase();
+  const filteredAssets = assets.filter(asset => {
+    const slug = toCrossChainAssetSlug(asset);
+    const balance = balances[slug];
+    if (!balance || balance.isLessThanOrEqualTo(0)) return false;
 
-      if (isFilterChain(filterChain) && filterChain) {
-        if (filterChain.kind !== asset.chainKind) return false;
-        if (String(filterChain.chainId) !== String(asset.chainId)) return false;
-      }
+    if (isFilterChain(filterChain) && filterChain) {
+      if (filterChain.kind !== asset.chainKind) return false;
+      if (String(filterChain.chainId) !== String(asset.chainId)) return false;
+    }
 
-      if (!search) return true;
-      return (
-        asset.symbol.toLowerCase().includes(search) ||
-        asset.name.toLowerCase().includes(search) ||
-        asset.exolixNetwork.toLowerCase().includes(search)
-      );
-    });
-  }, [assets, balances, filterChain, searchDebounced]);
+    if (!search) return true;
+    return (
+      asset.symbol.toLowerCase().includes(search) ||
+      asset.name.toLowerCase().includes(search) ||
+      asset.exolixNetwork.toLowerCase().includes(search)
+    );
+  });
 
-  const handleSelect = useCallback(
-    (asset: CrossChainAsset) => {
-      onSelect(asset);
-      onRequestClose();
-    },
-    [onRequestClose, onSelect]
-  );
+  const handleSelect = (asset: CrossChainAsset) => {
+    onSelect(asset);
+    onRequestClose();
+  };
 
   return (
     <PageModal title={t('selectToken')} opened={opened} onRequestClose={onRequestClose}>
@@ -117,7 +112,7 @@ interface FilterNetworkPopperProps {
   onOptionSelect: (filterChain: FilterChain | string) => void;
 }
 
-const FilterNetworkPopper = memo<FilterNetworkPopperProps>(({ selectedOption, onOptionSelect }) => (
+const FilterNetworkPopper: FC<FilterNetworkPopperProps> = ({ selectedOption, onOptionSelect }) => (
   <NetworkPopper
     selectedOption={selectedOption}
     onOptionSelect={onOptionSelect}
@@ -138,7 +133,7 @@ const FilterNetworkPopper = memo<FilterNetworkPopperProps>(({ selectedOption, on
       </Button>
     )}
   </NetworkPopper>
-));
+);
 
 interface AssetRowProps {
   asset: CrossChainAsset;
@@ -146,9 +141,7 @@ interface AssetRowProps {
   onClick: SyncFn<CrossChainAsset>;
 }
 
-const AssetRow = memo<AssetRowProps>(({ asset, balance, onClick }) => {
-  const handleClick = useCallback(() => onClick(asset), [asset, onClick]);
-
+const AssetRow: FC<AssetRowProps> = ({ asset, balance, onClick }) => {
   const isEvm = asset.chainKind === TempleChainKind.EVM && asset.chainId != null;
   const isTezos = asset.chainKind === TempleChainKind.Tezos && asset.chainId != null;
 
@@ -158,7 +151,7 @@ const AssetRow = memo<AssetRowProps>(({ asset, balance, onClick }) => {
         'w-full flex items-center gap-x-1 p-2 rounded-lg',
         'transition ease-in-out duration-200 hover:bg-secondary-low'
       )}
-      onClick={handleClick}
+      onClick={() => onClick(asset)}
     >
       <CrossChainAssetIcon asset={asset} size={32} className="shrink-0" />
 
@@ -177,4 +170,4 @@ const AssetRow = memo<AssetRowProps>(({ asset, balance, onClick }) => {
       </div>
     </Button>
   );
-});
+};

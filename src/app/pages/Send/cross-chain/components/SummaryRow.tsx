@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import React from 'react';
 
 import { Divider } from 'app/atoms';
 import { EXOLIX_PRIVICY_LINK, EXOLIX_TERMS_LINK } from 'app/pages/Buy/CryptoExchange/config';
@@ -11,7 +11,7 @@ interface Props {
   eta?: string;
 }
 
-export const SummaryRow = memo<Props>(({ feePercent, eta = CROSS_CHAIN_DEFAULT_ETA }) => (
+export const SummaryRow: React.FC<Props> = ({ feePercent, eta = CROSS_CHAIN_DEFAULT_ETA }) => (
   <div className="my-4 px-4 bg-white rounded-8 border-0.5 border-lines">
     <ChartListItem title="Est. time">
       <span className="p-1 text-font-num-12 text-black">{eta}</span>
@@ -53,4 +53,4 @@ export const SummaryRow = memo<Props>(({ feePercent, eta = CROSS_CHAIN_DEFAULT_E
       </p>
     </div>
   </div>
-));
+);

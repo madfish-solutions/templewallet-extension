@@ -1,4 +1,4 @@
-import React, { memo, useMemo, useRef } from 'react';
+import React, { useRef } from 'react';
 
 import SegmentedControl from 'app/atoms/SegmentedControl';
 
@@ -11,22 +11,19 @@ interface Props {
   className?: string;
 }
 
-export const SendTabs = memo<Props>(({ activeTab, onChange, crossChainDisabled, className }) => {
+export const SendTabs: React.FC<Props> = ({ activeTab, onChange, crossChainDisabled, className }) => {
   const defaultRef = useRef<HTMLDivElement>(null);
   const crossChainRef = useRef<HTMLDivElement>(null);
 
-  const segments = useMemo(
-    () => [
-      { label: 'Default', value: 'default' as const, ref: defaultRef },
-      {
-        label: 'Cross-chain',
-        value: 'cross-chain' as const,
-        ref: crossChainRef,
-        disabled: crossChainDisabled
-      }
-    ],
-    [crossChainDisabled]
-  );
+  const segments = [
+    { label: 'Default', value: 'default' as const, ref: defaultRef },
+    {
+      label: 'Cross-chain',
+      value: 'cross-chain' as const,
+      ref: crossChainRef,
+      disabled: crossChainDisabled
+    }
+  ];
 
   return (
     <SegmentedControl<SendTab>
@@ -37,4 +34,4 @@ export const SendTabs = memo<Props>(({ activeTab, onChange, crossChainDisabled, 
       className={className}
     />
   );
-});
+};

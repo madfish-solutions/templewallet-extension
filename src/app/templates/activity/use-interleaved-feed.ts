@@ -1,5 +1,3 @@
-import { useMemo } from 'react';
-
 import { FilterChain } from 'app/store/assets-filter-options/state';
 import { useCrossChainExchangesForAccountSelector } from 'app/store/cross-chain-send/selectors';
 import { CrossChainExchange } from 'app/store/cross-chain-send/state';
@@ -108,8 +106,5 @@ export const useInterleavedFeed = ({
 }: FeedArgs): FeedItem[] => {
   const exchanges = useCrossChainExchangesForAccountSelector(accountId);
 
-  return useMemo(
-    () => buildInterleavedFeed(activities, enabled ? exchanges : [], filterChain, remoteReachedTheEnd),
-    [activities, exchanges, filterChain, remoteReachedTheEnd, enabled]
-  );
+  return buildInterleavedFeed(activities, enabled ? exchanges : [], filterChain, remoteReachedTheEnd);
 };

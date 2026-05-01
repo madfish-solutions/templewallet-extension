@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import React from 'react';
 
 import { Button, IconBase } from 'app/atoms';
 import { ReactComponent as CompactDown } from 'app/icons/base/compact_down.svg';
@@ -13,7 +13,7 @@ interface Props {
   placeholder?: string;
 }
 
-export const AssetSelectButton = memo<Props>(({ asset, onClick, placeholder = t('selectTokenAction') }) => (
+export const AssetSelectButton = ({ asset, onClick, placeholder = t('selectTokenAction') }: Props) => (
   <Button
     onClick={onClick}
     className="bg-white py-0.75 px-2 rounded-8 flex items-center justify-between -mr-2.5 cursor-pointer w-[120px]"
@@ -28,4 +28,4 @@ export const AssetSelectButton = memo<Props>(({ asset, onClick, placeholder = t(
     )}
     <IconBase Icon={CompactDown} className="text-primary" />
   </Button>
-));
+);

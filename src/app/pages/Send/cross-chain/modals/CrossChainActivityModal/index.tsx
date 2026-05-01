@@ -1,4 +1,4 @@
-import React, { FC, Fragment, useEffect, useMemo } from 'react';
+import React, { FC, Fragment, useEffect } from 'react';
 
 import { EmptyState } from 'app/atoms/EmptyState';
 import { MiniPageModal } from 'app/atoms/PageModal/mini-page-modal';
@@ -27,7 +27,7 @@ export const CrossChainActivityModal: FC<Props> = ({ opened, onRequestClose, acc
       .forEach(e => dispatch(dismissCrossChainBannerAction(e.id)));
   }, [opened, exchanges]);
 
-  const groups = useMemo(() => {
+  const groups = (() => {
     const sorted = [...exchanges].sort((a, b) => b.createdAt - a.createdAt);
     const byDay = new Map<string, CrossChainExchange[]>();
     for (const ex of sorted) {
@@ -37,7 +37,7 @@ export const CrossChainActivityModal: FC<Props> = ({ opened, onRequestClose, acc
       else byDay.set(key, [ex]);
     }
     return Array.from(byDay.entries());
-  }, [exchanges]);
+  })();
 
   return (
     <MiniPageModal title={t('crossChainActivityTitle')} opened={opened} onRequestClose={onRequestClose}>

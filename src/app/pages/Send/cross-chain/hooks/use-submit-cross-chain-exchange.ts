@@ -1,5 +1,3 @@
-import { useCallback } from 'react';
-
 import { unstable_serialize, useSWRConfig } from 'swr';
 
 import { dispatch } from 'app/store';
@@ -32,63 +30,60 @@ export const useSubmitCrossChainExchange = () => {
   const { trackEvent } = useAnalytics();
   const { cache: swrCache } = useSWRConfig();
 
-  return useCallback(
-    ({
+  return ({
+    accountId,
+    sourceChainKind,
+    sourceChainId,
+    senderAddress,
+    txHash,
+    exchange,
+    fromAsset,
+    toAsset,
+    fromAmount,
+    toAmountEstimated,
+    recipient
+  }: RecordExchangeArgs) => {
+    const now = Date.now();
+
+    const storedExchange: CrossChainExchange = {
+      id: exchange.id,
       accountId,
       sourceChainKind,
       sourceChainId,
       senderAddress,
-      txHash,
-      exchange,
+      sourceTxHash: txHash,
+      depositAddress: exchange.depositAddress,
+      depositExtraId: exchange.depositExtraId ?? null,
+      recipient: recipient.trim(),
       fromAsset,
       toAsset,
       fromAmount,
       toAmountEstimated,
-      recipient
-    }: RecordExchangeArgs) => {
-      const now = Date.now();
+      phase: 'PENDING_TX',
+      exolixStatus: exchange.status,
+      createdAt: now,
+      updatedAt: now
+    };
 
-      const storedExchange: CrossChainExchange = {
-        id: exchange.id,
-        accountId,
-        sourceChainKind,
-        sourceChainId,
-        senderAddress,
-        sourceTxHash: txHash,
-        depositAddress: exchange.depositAddress,
-        depositExtraId: exchange.depositExtraId ?? null,
-        recipient: recipient.trim(),
-        fromAsset,
-        toAsset,
-        fromAmount,
-        toAmountEstimated,
-        phase: 'PENDING_TX',
-        exolixStatus: exchange.status,
-        createdAt: now,
-        updatedAt: now
-      };
+    dispatch(addCrossChainExchangeAction(storedExchange));
+    dispatch(monitorCrossChainExchangesAction());
 
-      dispatch(addCrossChainExchangeAction(storedExchange));
-      dispatch(monitorCrossChainExchangesAction());
+    // The reservation just got broadcast — its deposit address is now closed on Exolix's side
+    // (or will be once the deposit lands). Drop the SWR cache entry so a future Preview mount
+    // with the same form inputs creates a brand-new order instead of reusing this one.
+    swrCache.delete(
+      unstable_serialize(buildCrossChainReservationCacheKey({ fromAsset, toAsset, fromAmount, recipient }))
+    );
 
-      // The reservation just got broadcast — its deposit address is now closed on Exolix's side
-      // (or will be once the deposit lands). Drop the SWR cache entry so a future Preview mount
-      // with the same form inputs creates a brand-new order instead of reusing this one.
-      swrCache.delete(
-        unstable_serialize(buildCrossChainReservationCacheKey({ fromAsset, toAsset, fromAmount, recipient }))
-      );
+    trackEvent(CrossChainAnalyticsEvents.CrossChainConfirmed, undefined, {
+      exchangeId: exchange.id,
+      from: fromAsset.exolixCoin,
+      fromNetwork: fromAsset.exolixNetwork,
+      to: toAsset.exolixCoin,
+      toNetwork: toAsset.exolixNetwork,
+      amount: fromAmount
+    });
 
-      trackEvent(CrossChainAnalyticsEvents.CrossChainConfirmed, undefined, {
-        exchangeId: exchange.id,
-        from: fromAsset.exolixCoin,
-        fromNetwork: fromAsset.exolixNetwork,
-        to: toAsset.exolixCoin,
-        toNetwork: toAsset.exolixNetwork,
-        amount: fromAmount
-      });
-
-      return storedExchange;
-    },
-    [trackEvent, swrCache]
-  );
+    return storedExchange;
+  };
 };

@@ -1,4 +1,4 @@
-import { FC, useMemo } from 'react';
+import { FC } from 'react';
 
 import { DeadEndBoundaryError } from 'app/ErrorBoundary';
 import { CrossChainActivityRow } from 'app/pages/Send/cross-chain/components/CrossChainActivityRow';
@@ -78,10 +78,7 @@ export const TezosActivityList: FC<Props> = ({ tezosChainId, assetSlug, filterKi
     isKnownChainId(chainId)
   );
 
-  const displayActivities = useMemo(
-    () => (filterKind ? activities.filter(act => getActivityFilterKind(act) === filterKind) : activities),
-    [activities, filterKind]
-  );
+  const displayActivities = filterKind ? activities.filter(act => getActivityFilterKind(act) === filterKind) : activities;
 
   const feed = useInterleavedFeed({
     activities: displayActivities,
@@ -93,46 +90,33 @@ export const TezosActivityList: FC<Props> = ({ tezosChainId, assetSlug, filterKi
 
   const groupedFeed = useGroupingByDate(feed);
 
-  const tezosAssetsCheckConfig = useMemo(
-    () => ({
-      activities: displayActivities,
-      tezAccountPkh: accountAddress,
-      mainAsset: assetSlug ? { chainKind: TempleChainKind.Tezos, chainId, slug: assetSlug } : undefined
-    }),
-    [accountAddress, assetSlug, chainId, displayActivities]
-  );
-  useAssetsFromActivitiesCheck(tezosAssetsCheckConfig);
+  useAssetsFromActivitiesCheck({
+    activities: displayActivities,
+    tezAccountPkh: accountAddress,
+    mainAsset: assetSlug ? { chainKind: TempleChainKind.Tezos, chainId, slug: assetSlug } : undefined
+  });
 
-  const contentJsx = useMemo(
-    () =>
-      groupedFeed.map(([dateStr, items]) => (
-        <ActivitiesDateGroup key={dateStr} title={dateStr}>
-          {items.map(item => {
-            if (item.kind === 'tezos') {
-              return (
-                <TezosActivityComponent
-                  key={item.data.hash}
-                  activity={item.data}
-                  chain={network}
-                  assetSlug={assetSlug}
-                />
-              );
-            }
-            if (item.kind === 'cross-chain') {
-              return (
-                <CrossChainActivityRow
-                  key={item.data.id}
-                  exchange={item.data}
-                  onClick={() => onCrossChainExchangeClick?.(item.data.id)}
-                />
-              );
-            }
-            return null;
-          })}
-        </ActivitiesDateGroup>
-      )),
-    [groupedFeed, network, assetSlug, onCrossChainExchangeClick]
-  );
+  const contentJsx = groupedFeed.map(([dateStr, items]) => (
+    <ActivitiesDateGroup key={dateStr} title={dateStr}>
+      {items.map(item => {
+        if (item.kind === 'tezos') {
+          return (
+            <TezosActivityComponent key={item.data.hash} activity={item.data} chain={network} assetSlug={assetSlug} />
+          );
+        }
+        if (item.kind === 'cross-chain') {
+          return (
+            <CrossChainActivityRow
+              key={item.data.id}
+              exchange={item.data}
+              onClick={() => onCrossChainExchangeClick?.(item.data.id)}
+            />
+          );
+        }
+        return null;
+      })}
+    </ActivitiesDateGroup>
+  ));
 
   return (
     <ActivityListView

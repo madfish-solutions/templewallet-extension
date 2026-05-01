@@ -1,4 +1,4 @@
-import React, { FC, memo } from 'react';
+import React, { FC } from 'react';
 
 import { HashChip } from 'app/atoms/HashChip';
 import { EvmNetworkLogo, TezosNetworkLogo } from 'app/atoms/NetworkLogo';
@@ -42,14 +42,14 @@ export const CrossChainPreviewRows: FC<Props> = ({ recipient, fromAsset, toAsset
   );
 };
 
-const NetworkCell = memo<{ name: string; asset: CrossChainAsset }>(({ name, asset }) => (
+const NetworkCell: FC<{ name: string; asset: CrossChainAsset }> = ({ name, asset }) => (
   <div className="flex items-center gap-x-1 p-1">
     <span className="text-font-num-12">{name}</span>
     <AssetNetworkBadge asset={asset} />
   </div>
-));
+);
 
-const AssetNetworkBadge = memo<{ asset: CrossChainAsset }>(({ asset }) => {
+const AssetNetworkBadge: FC<{ asset: CrossChainAsset }> = ({ asset }) => {
   if (asset.chainKind === TempleChainKind.Tezos && asset.chainId != null) {
     return <TezosNetworkLogo size={16} chainId={String(asset.chainId)} />;
   }
@@ -57,7 +57,7 @@ const AssetNetworkBadge = memo<{ asset: CrossChainAsset }>(({ asset }) => {
     return <EvmNetworkLogo size={16} chainId={Number(asset.chainId)} />;
   }
   return <CurrencyIcon src={asset.iconUrl ?? ''} code={asset.exolixCoin} size={16} />;
-});
+};
 
 const resolveNetworkName = (asset: CrossChainAsset, evmName?: string, tezosName?: string): string => {
   if (asset.dest === 'btc') return 'Bitcoin';

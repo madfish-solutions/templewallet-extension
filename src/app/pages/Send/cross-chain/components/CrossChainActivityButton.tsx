@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import React from 'react';
 
 import { IconBase } from 'app/atoms';
 import { AnimatedDot } from 'app/atoms/AnimatedDot';
@@ -10,9 +10,9 @@ interface Props {
   onClick: EmptyFn;
 }
 
-export const CrossChainActivityButton = memo<Props>(({ hasActive, onClick }) => (
+export const CrossChainActivityButton = ({ hasActive, onClick }: Props) => (
   <Button onClick={onClick} className="relative">
     <IconBase Icon={ClockIcon} size={16} className="text-primary" />
     {hasActive && <AnimatedDot className="top-0 left-0" />}
   </Button>
-));
+);

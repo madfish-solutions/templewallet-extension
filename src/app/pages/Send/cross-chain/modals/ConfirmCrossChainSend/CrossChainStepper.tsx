@@ -1,4 +1,4 @@
-import React, { FC, memo } from 'react';
+import React, { FC } from 'react';
 
 import clsx from 'clsx';
 
@@ -24,7 +24,7 @@ const STEP_INDEX_BY_PHASE: Record<CrossChainPhase, number> = {
 
 const STEP_LABEL_IDS: TID[] = ['sendStepperConfirmation', 'sendStepperExchange', 'sendStepperSending'];
 
-export const CrossChainStepper = memo<Props>(({ phase }) => {
+export const CrossChainStepper: FC<Props> = ({ phase }) => {
   const currentStep = STEP_INDEX_BY_PHASE[phase];
   const failed = phase === 'FAILED';
 
@@ -38,7 +38,7 @@ export const CrossChainStepper = memo<Props>(({ phase }) => {
       })}
     </div>
   );
-});
+};
 
 interface PillProps {
   labelId: TID;

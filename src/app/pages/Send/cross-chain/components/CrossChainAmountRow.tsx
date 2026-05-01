@@ -1,4 +1,4 @@
-import React, { ReactNode, memo, useMemo } from 'react';
+import React, { ReactNode } from 'react';
 
 import BigNumber from 'bignumber.js';
 import clsx from 'clsx';
@@ -21,8 +21,8 @@ interface Props {
   rightContent?: ReactNode;
 }
 
-export const CrossChainAmountRow = memo<Props>(({ asset, amount, sign, amountClassName, rightContent }) => {
-  const bnAmount = useMemo(() => (amount ? new BigNumber(amount) : new BigNumber(0)), [amount]);
+export const CrossChainAmountRow = ({ asset, amount, sign, amountClassName, rightContent }: Props) => {
+  const bnAmount = amount ? new BigNumber(amount) : new BigNumber(0);
   const hasTempleAsset = Boolean(asset.chainId && asset.assetSlug);
   const isEvm = asset.chainKind === TempleChainKind.EVM;
 
@@ -64,9 +64,9 @@ export const CrossChainAmountRow = memo<Props>(({ asset, amount, sign, amountCla
       {rightContent ?? fiatRight}
     </div>
   );
-});
+};
 
-const ExternalFiatAmount = memo<{ asset: CrossChainAsset; amount: BigNumber }>(({ asset, amount }) => {
+const ExternalFiatAmount = ({ asset, amount }: { asset: CrossChainAsset; amount: BigNumber }) => {
   const price = useExternalCoinPrice(asset.exolixCoin);
   const { selectedFiatCurrency } = useFiatCurrency();
 
@@ -80,4 +80,4 @@ const ExternalFiatAmount = memo<{ asset: CrossChainAsset; amount: BigNumber }>((
       {selectedFiatCurrency.symbol}
     </span>
   );
-});
+};

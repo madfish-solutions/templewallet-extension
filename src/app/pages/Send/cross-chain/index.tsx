@@ -1,4 +1,4 @@
-import React, { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { FC, useEffect, useRef, useState } from 'react';
 
 import BigNumber from 'bignumber.js';
 import { isEmpty } from 'lodash';
@@ -106,7 +106,7 @@ export const CrossChainForm: FC<Props> = ({ onReview, resetSignal }) => {
   );
   const hasFiatPrice = inputAssetPrice.isGreaterThan(0);
 
-  const fromAmountInTokens = useMemo(() => {
+  const fromAmountInTokens = (() => {
     if (!fromAmount) return '';
     if (isFiatMode && hasFiatPrice) {
       return new BigNumber(fromAmount)
@@ -115,7 +115,7 @@ export const CrossChainForm: FC<Props> = ({ onReview, resetSignal }) => {
         .toFixed();
     }
     return fromAmount;
-  }, [fromAmount, isFiatMode, hasFiatPrice, inputAssetPrice, fromAsset.decimals]);
+  })();
 
   const { normalized: rate, isValidating: rateLoading } = useCrossChainRate({
     from: fromAsset,
@@ -151,13 +151,13 @@ export const CrossChainForm: FC<Props> = ({ onReview, resetSignal }) => {
     fromAmountInTokens
   ]);
 
-  const insufficientBalance = useMemo(() => {
+  const insufficientBalance = (() => {
     if (!fromAmountInTokens) return false;
     const n = new BigNumber(fromAmountInTokens);
     return n.isGreaterThan(0) && n.isGreaterThan(balance);
-  }, [balance, fromAmountInTokens]);
+  })();
 
-  const amountError = useMemo(() => {
+  const amountError = (() => {
     if (!fromAmountInTokens) return t('required');
     const n = new BigNumber(fromAmountInTokens);
     if (n.isNaN() || n.isLessThanOrEqualTo(0)) return t('invalidAmount');
@@ -175,86 +175,74 @@ export const CrossChainForm: FC<Props> = ({ onReview, resetSignal }) => {
       case 'ok':
         return undefined;
     }
-  }, [fromAmountInTokens, fromAsset.symbol, insufficientBalance, rate]);
+  })();
 
-  const toAmountEstimated = useMemo(() => {
+  const toAmountEstimated = (() => {
     if (!fromAmountInTokens) return '';
     if (rate?.kind !== 'ok') return '';
     return String(rate.toAmount ?? '');
-  }, [rate, fromAmountInTokens]);
+  })();
 
-  const openSelect = useCallback(
-    (kind: SelectKind) => {
-      setSelectKind(kind);
-      setSelectOpened();
-    },
-    [setSelectOpened]
-  );
+  const openSelect = (kind: SelectKind) => {
+    setSelectKind(kind);
+    setSelectOpened();
+  };
 
   const { trackEvent } = useAnalytics();
 
-  const handleAssetSelect = useCallback(
-    (asset: CrossChainAsset) => {
-      trackEvent(CrossChainAnalyticsEvents.CrossChainAssetSelected, undefined, {
-        kind: selectKind,
-        coin: asset.exolixCoin,
-        network: asset.exolixNetwork
-      });
-      if (selectKind === 'from') {
-        setFromAsset(asset);
-        setIsFiatMode(false);
-        setValue('fromAmount', '');
-        if (!isPairAllowed(asset, toAsset, networksMap)) {
-          const [firstAllowed] = getAllowedToAssets(asset, networksMap);
-          if (firstAllowed) {
-            setToAsset(firstAllowed);
-            if (firstAllowed.chainId !== toAsset.chainId || firstAllowed.dest !== toAsset.dest) {
-              setValue('to', '');
-              clearErrors('to');
-            }
+  const handleAssetSelect = (asset: CrossChainAsset) => {
+    trackEvent(CrossChainAnalyticsEvents.CrossChainAssetSelected, undefined, {
+      kind: selectKind,
+      coin: asset.exolixCoin,
+      network: asset.exolixNetwork
+    });
+    if (selectKind === 'from') {
+      setFromAsset(asset);
+      setIsFiatMode(false);
+      setValue('fromAmount', '');
+      if (!isPairAllowed(asset, toAsset, networksMap)) {
+        const [firstAllowed] = getAllowedToAssets(asset, networksMap);
+        if (firstAllowed) {
+          setToAsset(firstAllowed);
+          if (firstAllowed.chainId !== toAsset.chainId || firstAllowed.dest !== toAsset.dest) {
+            setValue('to', '');
+            clearErrors('to');
           }
         }
-      } else {
-        if (asset.chainId !== toAsset.chainId || asset.dest !== toAsset.dest) {
-          setValue('to', '');
-          clearErrors('to');
-        }
-        setToAsset(asset);
       }
-    },
-    [selectKind, toAsset, setValue, clearErrors, trackEvent, networksMap]
-  );
+    } else {
+      if (asset.chainId !== toAsset.chainId || asset.dest !== toAsset.dest) {
+        setValue('to', '');
+        clearErrors('to');
+      }
+      setToAsset(asset);
+    }
+  };
 
-  const handleSetMax = useCallback(() => {
+  const handleSetMax = () => {
     if (balance.isLessThanOrEqualTo(0)) return;
     const maxValue =
       isFiatMode && hasFiatPrice
         ? balance.times(inputAssetPrice).decimalPlaces(2, BigNumber.ROUND_FLOOR).toFixed()
         : balance.toFixed();
     setValue('fromAmount', maxValue, { shouldValidate: submitCount > 0 });
-  }, [balance, isFiatMode, hasFiatPrice, inputAssetPrice, setValue, submitCount]);
+  };
 
-  const handleFiatToggle = useCallback(
-    (evt: React.MouseEvent<HTMLButtonElement>) => {
-      evt.preventDefault();
-      if (!hasFiatPrice) return;
-      const newFiatMode = !isFiatMode;
-      setIsFiatMode(newFiatMode);
-      if (!fromAmount) return;
-      const amountBN = new BigNumber(fromAmount);
-      if (amountBN.isNaN()) return;
-      const converted = newFiatMode
-        ? amountBN.times(inputAssetPrice).decimalPlaces(2, BigNumber.ROUND_FLOOR)
-        : amountBN.div(inputAssetPrice).decimalPlaces(fromAsset.decimals, BigNumber.ROUND_FLOOR);
-      setValue('fromAmount', converted.toFixed(), { shouldValidate: submitCount > 0 });
-    },
-    [hasFiatPrice, isFiatMode, fromAmount, inputAssetPrice, fromAsset.decimals, setValue, submitCount]
-  );
+  const handleFiatToggle = (evt: React.MouseEvent<HTMLButtonElement>) => {
+    evt.preventDefault();
+    if (!hasFiatPrice) return;
+    const newFiatMode = !isFiatMode;
+    setIsFiatMode(newFiatMode);
+    if (!fromAmount) return;
+    const amountBN = new BigNumber(fromAmount);
+    if (amountBN.isNaN()) return;
+    const converted = newFiatMode
+      ? amountBN.times(inputAssetPrice).decimalPlaces(2, BigNumber.ROUND_FLOOR)
+      : amountBN.div(inputAssetPrice).decimalPlaces(fromAsset.decimals, BigNumber.ROUND_FLOOR);
+    setValue('fromAmount', converted.toFixed(), { shouldValidate: submitCount > 0 });
+  };
 
-  const fiatToggleLabel = useMemo(
-    () => (isFiatMode ? fromAsset.symbol : selectedFiatCurrency.name),
-    [isFiatMode, fromAsset.symbol, selectedFiatCurrency.name]
-  );
+  const fiatToggleLabel = isFiatMode ? fromAsset.symbol : selectedFiatCurrency.name;
 
   useEffect(() => {
     if (!formSubmitted) return;
@@ -262,32 +250,29 @@ export const CrossChainForm: FC<Props> = ({ onReview, resetSignal }) => {
     else clearErrors('fromAmount');
   }, [amountError, clearErrors, formSubmitted, setError]);
 
-  const onSubmit = useCallback(
-    (data: CrossChainFormData) => {
-      if (amountError) {
-        setError('fromAmount', { message: amountError });
-        if (insufficientBalance && fromAsset.chainKind && fromAsset.chainId != null && fromAsset.assetSlug) {
-          const chainAssetSlug = toChainAssetSlug(fromAsset.chainKind, String(fromAsset.chainId), fromAsset.assetSlug);
-          if (isWertSupportedChainAssetSlug(chainAssetSlug)) {
-            dispatch(setOnRampAssetAction({ chainAssetSlug }));
-          }
+  const onSubmit = (data: CrossChainFormData) => {
+    if (amountError) {
+      setError('fromAmount', { message: amountError });
+      if (insufficientBalance && fromAsset.chainKind && fromAsset.chainId != null && fromAsset.assetSlug) {
+        const chainAssetSlug = toChainAssetSlug(fromAsset.chainKind, String(fromAsset.chainId), fromAsset.assetSlug);
+        if (isWertSupportedChainAssetSlug(chainAssetSlug)) {
+          dispatch(setOnRampAssetAction({ chainAssetSlug }));
         }
-        return;
       }
-      if (!toAmountEstimated) {
-        setError('fromAmount', { message: t('unableToFetchRate') });
-        return;
-      }
-      onReview({
-        fromAsset,
-        toAsset,
-        fromAmount: fromAmountInTokens || data.fromAmount,
-        toAmountEstimated,
-        recipient: data.to.trim()
-      });
-    },
-    [amountError, fromAsset, toAsset, onReview, toAmountEstimated, fromAmountInTokens, setError, insufficientBalance]
-  );
+      return;
+    }
+    if (!toAmountEstimated) {
+      setError('fromAmount', { message: t('unableToFetchRate') });
+      return;
+    }
+    onReview({
+      fromAsset,
+      toAsset,
+      fromAmount: fromAmountInTokens || data.fromAmount,
+      toAmountEstimated,
+      recipient: data.to.trim()
+    });
+  };
 
   return (
     <FormProvider {...form}>

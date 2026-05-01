@@ -1,4 +1,4 @@
-import React, { memo, useMemo } from 'react';
+import React from 'react';
 
 import BigNumber from 'bignumber.js';
 import clsx from 'clsx';
@@ -28,11 +28,11 @@ const phaseToStatus = (phase: CrossChainPhase): UiStatus => {
   return 'pending';
 };
 
-export const CrossChainActivityRow = memo<Props>(({ exchange, onClick }) => {
+export const CrossChainActivityRow = ({ exchange, onClick }: Props) => {
   const status = phaseToStatus(exchange.phase);
   const { fromAsset, fromAmount, recipient, sourceTxHash } = exchange;
 
-  const bnAmount = useMemo(() => (fromAmount ? new BigNumber(fromAmount) : new BigNumber(0)), [fromAmount]);
+  const bnAmount = fromAmount ? new BigNumber(fromAmount) : new BigNumber(0);
   const hasFromFiat = Boolean(fromAsset.chainId && fromAsset.assetSlug);
   const isEvm = fromAsset.chainKind === TempleChainKind.EVM;
 
@@ -124,7 +124,7 @@ export const CrossChainActivityRow = memo<Props>(({ exchange, onClick }) => {
       </span>
     </button>
   );
-});
+};
 
 interface SourceTxHashLinkProps {
   chainKind: TempleChainKind;
@@ -132,7 +132,7 @@ interface SourceTxHashLinkProps {
   txHash: string;
 }
 
-const SourceTxHashLink = memo<SourceTxHashLinkProps>(({ chainKind, chainId, txHash }) => {
+const SourceTxHashLink = ({ chainKind, chainId, txHash }: SourceTxHashLinkProps) => {
   const explorerHref = useBlockExplorerHref(chainKind, chainId, 'tx', txHash);
   return <TxHashAnchor href={explorerHref} hash={txHash} />;
-});
+};

@@ -1,4 +1,4 @@
-import React, { memo, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { Suspense, useEffect, useRef, useState } from 'react';
 
 import { PageTitle } from 'app/atoms';
 import { PageLoader } from 'app/atoms/Loader';
@@ -43,7 +43,7 @@ interface Props {
 
 const PENDING_SEND_STORAGE_KEY = `${LEDGER_WEBHID_PENDING_PREFIX}:send`;
 
-const Send = memo<Props>(({ chainKind, chainId, assetSlug }) => {
+const Send: React.FC<Props> = ({ chainKind, chainId, assetSlug }) => {
   const { guard, readPending, clearPending, ledgerPromptProps } = useLedgerWebHidFullViewGuard();
   const accountEvmAddress = useAccountAddressForEvm();
   const { filterChain } = useAssetsFilterOptionsSelector();
@@ -84,11 +84,10 @@ const Send = memo<Props>(({ chainKind, chainId, assetSlug }) => {
   const [reviewData, setReviewData] = useState<ReviewData>();
 
   const { pathname, search, hash } = useLocation();
-  const initialTab: SendTab = useMemo(() => {
+  const [storedActiveTab, setActiveTab] = useState<SendTab>(() => {
     const tabParam = new URLSearchParams(search).get('tab');
     return tabParam === 'cross-chain' ? 'cross-chain' : 'default';
-  }, [search]);
-  const [storedActiveTab, setActiveTab] = useState<SendTab>(initialTab);
+  });
 
   useEffect(() => {
     const params = new URLSearchParams(search);
@@ -100,23 +99,14 @@ const Send = memo<Props>(({ chainKind, chainId, assetSlug }) => {
 
   const crossChain = useCrossChainSendController({ activeTab, setActiveTab });
 
-  const handleSetActiveTab = useCallback(
-    (tab: SendTab) => {
-      crossChain.handleTabChange(tab);
-      setActiveTab(tab);
-    },
-    [crossChain]
-  );
+  const handleSetActiveTab = (tab: SendTab) => {
+    crossChain.handleTabChange(tab);
+    setActiveTab(tab);
+  };
 
-  const storedPending = useMemo(() => readPending<PendingSendReview>(PENDING_SEND_STORAGE_KEY), [readPending]);
-  const pendingEvmChainId = useMemo(
-    () => (storedPending?.kind === TempleChainKind.EVM ? Number(storedPending.chainId) : undefined),
-    [storedPending]
-  );
-  const pendingTezosChainId = useMemo(
-    () => (storedPending?.kind === TempleChainKind.Tezos ? String(storedPending.chainId) : undefined),
-    [storedPending]
-  );
+  const storedPending = readPending<PendingSendReview>(PENDING_SEND_STORAGE_KEY);
+  const pendingEvmChainId = storedPending?.kind === TempleChainKind.EVM ? Number(storedPending.chainId) : undefined;
+  const pendingTezosChainId = storedPending?.kind === TempleChainKind.Tezos ? String(storedPending.chainId) : undefined;
   const evmNetworkForPending = useEvmChainByChainId(pendingEvmChainId ?? 0);
   const tezosNetworkForPending = useTezosChainByChainId(pendingTezosChainId ?? '');
   const evmAccount = useAccountForEvm();
@@ -165,40 +155,34 @@ const Send = memo<Props>(({ chainKind, chainId, assetSlug }) => {
     clearPending
   ]);
 
-  const handleAssetSelect = useCallback(
-    (slug: string) => {
-      formControlRef.current?.resetForm();
-      setSelectedChainAssetSlug(slug);
-      setSelectAssetModalClosed();
-    },
-    [setSelectAssetModalClosed]
-  );
+  const handleAssetSelect = (slug: string) => {
+    formControlRef.current?.resetForm();
+    setSelectedChainAssetSlug(slug);
+    setSelectAssetModalClosed();
+  };
 
-  const handleReview = useCallback(
-    async (data: ReviewData) => {
-      setReviewData(data);
+  const handleReview = async (data: ReviewData) => {
+    setReviewData(data);
 
-      if (data.account.type === TempleAccountType.Ledger) {
-        const redirected = await guard(data.account.type, {
-          persist: {
-            key: PENDING_SEND_STORAGE_KEY,
-            data: {
-              kind: data.network.kind,
-              chainId: data.network.chainId,
-              assetSlug: data.assetSlug,
-              to: data.to,
-              amount: data.amount,
-              selectedChainAssetSlug
-            }
+    if (data.account.type === TempleAccountType.Ledger) {
+      const redirected = await guard(data.account.type, {
+        persist: {
+          key: PENDING_SEND_STORAGE_KEY,
+          data: {
+            kind: data.network.kind,
+            chainId: data.network.chainId,
+            assetSlug: data.assetSlug,
+            to: data.to,
+            amount: data.amount,
+            selectedChainAssetSlug
           }
-        });
-        if (redirected) return;
-      }
+        }
+      });
+      if (redirected) return;
+    }
 
-      setConfirmSendModalOpen();
-    },
-    [guard, selectedChainAssetSlug, setConfirmSendModalOpen]
-  );
+    setConfirmSendModalOpen();
+  };
 
   return (
     <PageLayout
@@ -264,6 +248,6 @@ const Send = memo<Props>(({ chainKind, chainId, assetSlug }) => {
       <LedgerFullViewPromptModal {...ledgerPromptProps} />
     </PageLayout>
   );
-});
+};
 
 export default Send;

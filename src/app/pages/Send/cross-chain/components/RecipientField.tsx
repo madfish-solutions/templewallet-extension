@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useState } from 'react';
+import React, { useState } from 'react';
 
 import { Controller, useFormContext, useFormState } from 'react-hook-form';
 import { useDebounce } from 'use-debounce';
@@ -23,7 +23,7 @@ const DEST_LABEL: Record<CrossChainDest, string> = {
   tezos: 'Tezos'
 };
 
-export const RecipientField = memo<Props>(({ toAsset }) => {
+export const RecipientField: React.FC<Props> = ({ toAsset }) => {
   const { control, setValue, watch } = useFormContext<CrossChainFormData>();
   const { errors, submitCount } = useFormState<CrossChainFormData>({ control, name: 'to' });
 
@@ -36,35 +36,26 @@ export const RecipientField = memo<Props>(({ toAsset }) => {
   const [focused, setFocused] = useState(false);
   const [selectModalOpened, openSelectModal, closeSelectModal] = useBooleanState(false);
 
-  const validate = useCallback(
-    (value: string) => {
-      const result = validateCrossChainRecipient(value, toAsset);
-      return result === true ? true : t(result);
-    },
-    [toAsset]
-  );
+  const validate = (value: string) => {
+    const result = validateCrossChainRecipient(value, toAsset);
+    return result === true ? true : t(result);
+  };
 
-  const handlePasteClick = useCallback(() => {
+  const handlePasteClick = () => {
     readClipboard().then(value => setValue('to', value, { shouldValidate: formSubmitted }));
-  }, [formSubmitted, setValue]);
+  };
 
-  const handleClean = useCallback(
-    () => setValue('to', '', { shouldValidate: formSubmitted }),
-    [setValue, formSubmitted]
-  );
+  const handleClean = () => setValue('to', '', { shouldValidate: formSubmitted });
 
-  const handleBlur = useCallback((e: React.FocusEvent) => {
+  const handleBlur = (e: React.FocusEvent) => {
     if (e.relatedTarget?.id === SELECT_ACCOUNT_BUTTON_ID) return;
     setFocused(false);
-  }, []);
+  };
 
-  const handleSelectAccount = useCallback(
-    (address: string) => {
-      setValue('to', address, { shouldValidate: formSubmitted });
-      closeSelectModal();
-    },
-    [closeSelectModal, formSubmitted, setValue]
-  );
+  const handleSelectAccount = (address: string) => {
+    setValue('to', address, { shouldValidate: formSubmitted });
+    closeSelectModal();
+  };
 
   const isNonBtc = toAsset.dest !== 'btc';
   const isEvm = toAsset.dest === 'evm';
@@ -121,4 +112,4 @@ export const RecipientField = memo<Props>(({ toAsset }) => {
       )}
     </>
   );
-});
+};

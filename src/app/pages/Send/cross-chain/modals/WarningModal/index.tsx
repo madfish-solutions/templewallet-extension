@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useState } from 'react';
+import React, { useState } from 'react';
 
 import {
   ActionModal,
@@ -17,14 +17,14 @@ interface Props {
   onConfirm: EmptyFn;
 }
 
-export const CrossChainWarningModal = memo<Props>(({ opened, onRequestClose, onConfirm }) => {
+export const CrossChainWarningModal: React.FC<Props> = ({ opened, onRequestClose, onConfirm }) => {
   const [, setDismissed] = useStorage<boolean>(CROSS_CHAIN_WARNING_DISMISSED_STORAGE_KEY);
   const [dontShow, setDontShow] = useState(false);
 
-  const handleConfirm = useCallback(() => {
+  const handleConfirm = () => {
     if (dontShow) setDismissed(true);
     onConfirm();
-  }, [dontShow, setDismissed, onConfirm]);
+  };
 
   if (!opened) return null;
 
@@ -49,4 +49,4 @@ export const CrossChainWarningModal = memo<Props>(({ opened, onRequestClose, onC
       </ActionModalButtonsContainer>
     </ActionModal>
   );
-});
+};

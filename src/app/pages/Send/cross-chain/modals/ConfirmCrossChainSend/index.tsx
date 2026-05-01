@@ -1,4 +1,4 @@
-import React, { FC, useCallback, useEffect, useRef, useState } from 'react';
+import React, { FC, useEffect, useRef, useState } from 'react';
 
 import { FadeTransition } from 'app/a11y/FadeTransition';
 import { PageModal } from 'app/atoms/PageModal';
@@ -59,15 +59,12 @@ export const ConfirmCrossChainSendModal: FC<Props> = ({
   const exchange = useCrossChainExchangeSelector(exchangeId);
   const step = exchange ? phaseToConfirmStep(exchange.phase) : ConfirmCrossChainStep.Preview;
 
-  const handleSubmitted = useCallback(
-    (id: string) => {
-      setExchangeId(id);
-      onSubmitted?.(id);
-    },
-    [onSubmitted]
-  );
+  const handleSubmitted = (id: string) => {
+    setExchangeId(id);
+    onSubmitted?.(id);
+  };
 
-  const handleClose = useCallback(() => {
+  const handleClose = () => {
     onRequestClose();
     if (closeResetTimerRef.current) clearTimeout(closeResetTimerRef.current);
     // Defer reset so modal close anim (~300ms) completes before the content reverts to Preview.
@@ -75,14 +72,14 @@ export const ConfirmCrossChainSendModal: FC<Props> = ({
       setExchangeId(undefined);
       closeResetTimerRef.current = null;
     }, 300);
-  }, [onRequestClose]);
+  };
 
-  const handleTryAgain = useCallback(() => {
+  const handleTryAgain = () => {
     if (!onTryAgain) return;
     onRequestClose();
     setExchangeId(undefined);
     onTryAgain();
-  }, [onTryAgain, onRequestClose]);
+  };
 
   return (
     <PageModal

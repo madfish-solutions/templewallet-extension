@@ -1,5 +1,3 @@
-import { useMemo } from 'react';
-
 import BigNumber from 'bignumber.js';
 import { useDebounce } from 'use-debounce';
 
@@ -39,10 +37,7 @@ export const useCrossChainRate = ({ from, to, amount }: RateArgs) => {
     { refreshInterval: 10_000, revalidateOnFocus: false, dedupingInterval: 5_000 }
   );
 
-  const normalized: NormalizedRateResult | undefined = useMemo(
-    () => (swr.data ? normalizeRateResponse(swr.data) : undefined),
-    [swr.data]
-  );
+  const normalized: NormalizedRateResult | undefined = swr.data ? normalizeRateResponse(swr.data) : undefined;
 
   return { ...swr, normalized };
 };

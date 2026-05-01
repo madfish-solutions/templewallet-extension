@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import React from 'react';
 
 import { CrossChainAsset } from 'lib/cross-chain';
 import { T } from 'lib/i18n';
@@ -13,7 +13,7 @@ interface Props {
   loading?: boolean;
 }
 
-export const GetCard = memo<Props>(({ asset, amount, onAssetClick, loading }) => (
+export const GetCard: React.FC<Props> = ({ asset, amount, onAssetClick, loading }) => (
   <div className="flex flex-col gap-y-3 ">
     <CrossChainAmountInput
       label={<T id="get" />}
@@ -25,4 +25,4 @@ export const GetCard = memo<Props>(({ asset, amount, onAssetClick, loading }) =>
       footer={<RecipientField toAsset={asset} />}
     />
   </div>
-));
+);

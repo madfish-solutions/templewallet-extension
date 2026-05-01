@@ -1,4 +1,4 @@
-import React, { FC, ReactNode, memo } from 'react';
+import React, { FC, ReactNode } from 'react';
 
 import clsx from 'clsx';
 
@@ -9,7 +9,7 @@ interface Props {
   children: ReactNode;
 }
 
-export const StatusHeroRegion: FC<Props> = memo(({ backgroundSrc, outerClassName, innerClassName, children }) => (
+export const StatusHeroRegion: FC<Props> = ({ backgroundSrc, outerClassName, innerClassName, children }) => (
   <div className={clsx('relative shrink-0 -mx-4 -mt-3 overflow-hidden', outerClassName)}>
     <div
       aria-hidden
@@ -18,4 +18,4 @@ export const StatusHeroRegion: FC<Props> = memo(({ backgroundSrc, outerClassName
     />
     <div className={clsx('relative', innerClassName)}>{children}</div>
   </div>
-));
+);

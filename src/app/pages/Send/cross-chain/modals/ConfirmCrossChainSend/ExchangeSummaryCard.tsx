@@ -1,4 +1,4 @@
-import React, { FC, memo, useState } from 'react';
+import React, { FC, useState } from 'react';
 
 import clsx from 'clsx';
 
@@ -31,96 +31,94 @@ interface Props {
   defaultExpanded?: boolean;
 }
 
-export const ExchangeSummaryCard = memo<Props>(
-  ({
-    fromAsset,
-    toAsset,
-    fromAmount,
-    toAmountEstimated,
-    toAmountActual,
-    senderAddress,
-    recipient,
-    exolixId,
-    depositTxHash,
-    sourceChainKind,
-    sourceChainId,
-    showEstimatedTime = true,
-    defaultExpanded = false
-  }) => {
-    const [expanded, setExpanded] = useState(defaultExpanded);
-    const effectiveToAmount = toAmountActual || toAmountEstimated;
-    const depositTxHref = useBlockExplorerHref(sourceChainKind, sourceChainId, 'tx', depositTxHash ?? '');
+export const ExchangeSummaryCard: FC<Props> = ({
+  fromAsset,
+  toAsset,
+  fromAmount,
+  toAmountEstimated,
+  toAmountActual,
+  senderAddress,
+  recipient,
+  exolixId,
+  depositTxHash,
+  sourceChainKind,
+  sourceChainId,
+  showEstimatedTime = true,
+  defaultExpanded = false
+}) => {
+  const [expanded, setExpanded] = useState(defaultExpanded);
+  const effectiveToAmount = toAmountActual || toAmountEstimated;
+  const depositTxHref = useBlockExplorerHref(sourceChainKind, sourceChainId, 'tx', depositTxHash ?? '');
 
-    return (
-      <div className="rounded-8 bg-white border-0.5 border-lines">
-        <div className="px-4 pt-4 pb-3 flex flex-col gap-y-3">
-          <DirectionalAmountRow
-            labelId="send"
-            directionLabelId="from"
-            address={senderAddress}
-            asset={fromAsset}
-            amount={fromAmount}
-            sign="-"
-            valueClassName="text-error"
-          />
-          <div className="h-px bg-lines" />
-          <DirectionalAmountRow
-            labelId="get"
-            directionLabelId="toAsset"
-            address={recipient}
-            asset={toAsset}
-            amount={effectiveToAmount}
-            sign="+"
-            valueClassName="text-success"
-          />
-        </div>
-
-        {expanded && (
-          <div className="px-4">
-            <ChartListItem title={t('transactionId')} bottomSeparator={showEstimatedTime || Boolean(depositTxHash)}>
-              <CopyableText text={exolixId} />
-            </ChartListItem>
-            {showEstimatedTime && (
-              <ChartListItem title={t('estimatedTimeShort')} bottomSeparator={Boolean(depositTxHash)}>
-                <span className="p-1 text-font-num-12">{CROSS_CHAIN_DEFAULT_ETA}</span>
-              </ChartListItem>
-            )}
-            {depositTxHash && (
-              <ChartListItem title={t('depositTxHash')} bottomSeparator={false}>
-                {depositTxHref ? (
-                  <TxHashAnchor
-                    href={depositTxHref}
-                    hash={depositTxHash}
-                    firstCharsCount={6}
-                    lastCharsCount={4}
-                    className="p-1 text-font-num-12"
-                  />
-                ) : (
-                  <HashChip hash={depositTxHash} firstCharsCount={6} lastCharsCount={4} />
-                )}
-              </ChartListItem>
-            )}
-          </div>
-        )}
-
-        <button
-          type="button"
-          className="w-full flex items-center justify-center pb-2"
-          onClick={() => setExpanded(v => !v)}
-        >
-          <IconBase
-            Icon={CompactDown}
-            size={16}
-            className={clsx(
-              'text-grey-1 transform transition-transform duration-300 ease-in-out',
-              expanded ? 'rotate-180' : 'rotate-0'
-            )}
-          />
-        </button>
+  return (
+    <div className="rounded-8 bg-white border-0.5 border-lines">
+      <div className="px-4 pt-4 pb-3 flex flex-col gap-y-3">
+        <DirectionalAmountRow
+          labelId="send"
+          directionLabelId="from"
+          address={senderAddress}
+          asset={fromAsset}
+          amount={fromAmount}
+          sign="-"
+          valueClassName="text-error"
+        />
+        <div className="h-px bg-lines" />
+        <DirectionalAmountRow
+          labelId="get"
+          directionLabelId="toAsset"
+          address={recipient}
+          asset={toAsset}
+          amount={effectiveToAmount}
+          sign="+"
+          valueClassName="text-success"
+        />
       </div>
-    );
-  }
-);
+
+      {expanded && (
+        <div className="px-4">
+          <ChartListItem title={t('transactionId')} bottomSeparator={showEstimatedTime || Boolean(depositTxHash)}>
+            <CopyableText text={exolixId} />
+          </ChartListItem>
+          {showEstimatedTime && (
+            <ChartListItem title={t('estimatedTimeShort')} bottomSeparator={Boolean(depositTxHash)}>
+              <span className="p-1 text-font-num-12">{CROSS_CHAIN_DEFAULT_ETA}</span>
+            </ChartListItem>
+          )}
+          {depositTxHash && (
+            <ChartListItem title={t('depositTxHash')} bottomSeparator={false}>
+              {depositTxHref ? (
+                <TxHashAnchor
+                  href={depositTxHref}
+                  hash={depositTxHash}
+                  firstCharsCount={6}
+                  lastCharsCount={4}
+                  className="p-1 text-font-num-12"
+                />
+              ) : (
+                <HashChip hash={depositTxHash} firstCharsCount={6} lastCharsCount={4} />
+              )}
+            </ChartListItem>
+          )}
+        </div>
+      )}
+
+      <button
+        type="button"
+        className="w-full flex items-center justify-center pb-2"
+        onClick={() => setExpanded(v => !v)}
+      >
+        <IconBase
+          Icon={CompactDown}
+          size={16}
+          className={clsx(
+            'text-grey-1 transform transition-transform duration-300 ease-in-out',
+            expanded ? 'rotate-180' : 'rotate-0'
+          )}
+        />
+      </button>
+    </div>
+  );
+};
 
 interface DirectionalAmountRowProps {
   labelId: TID;
@@ -159,7 +157,7 @@ const DirectionalAmountRow: FC<DirectionalAmountRowProps> = ({
   </div>
 );
 
-const CopyableText = memo<{ text: string }>(({ text }) => {
+const CopyableText: FC<{ text: string }> = ({ text }) => {
   const handleClick = () => {
     navigator.clipboard
       .writeText(text)
@@ -173,4 +171,4 @@ const CopyableText = memo<{ text: string }>(({ text }) => {
       <IconBase Icon={CopyIcon} size={12} className="text-secondary" />
     </Button>
   );
-});
+};

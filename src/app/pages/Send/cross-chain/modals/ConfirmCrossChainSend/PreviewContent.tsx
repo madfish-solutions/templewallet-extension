@@ -1,4 +1,4 @@
-import React, { FC, memo, useCallback, useEffect, useMemo, useRef } from 'react';
+import React, { FC, useEffect, useRef } from 'react';
 
 import { Loader } from 'app/atoms';
 import { CaptionAlert } from 'app/atoms/CaptionAlert';
@@ -143,51 +143,33 @@ const EvmPreviewBody: FC<PreviewBodyProps<AccountForChain<TempleChainKind.EVM>, 
   const recordCrossChainExchange = useSubmitCrossChainExchange();
   const submittedRef = useRef(false);
 
-  const reviewData = useMemo<EvmReviewData>(
-    () => ({
-      account,
-      network,
-      assetSlug: fromAsset.assetSlug ?? '',
-      to: exchange.depositAddress,
-      amount: fromAmount,
-      onConfirm: () => {}
-    }),
-    [account, network, fromAsset.assetSlug, exchange.depositAddress, fromAmount]
-  );
+  const reviewData: EvmReviewData = {
+    account,
+    network,
+    assetSlug: fromAsset.assetSlug ?? '',
+    to: exchange.depositAddress,
+    amount: fromAmount,
+    onConfirm: () => {}
+  };
 
-  const handleSuccess = useCallback(
-    ({ txHash }: TxData<TempleChainKind.EVM>) => {
-      if (submittedRef.current) return;
-      submittedRef.current = true;
-      recordCrossChainExchange({
-        accountId: currentAccount.id,
-        sourceChainKind: TempleChainKind.EVM,
-        sourceChainId: network.chainId,
-        senderAddress: account.address,
-        txHash,
-        exchange,
-        fromAsset,
-        toAsset,
-        fromAmount,
-        toAmountEstimated,
-        recipient
-      });
-      onSubmitted(exchange.id);
-    },
-    [
-      currentAccount.id,
-      network.chainId,
-      account.address,
+  const handleSuccess = ({ txHash }: TxData<TempleChainKind.EVM>) => {
+    if (submittedRef.current) return;
+    submittedRef.current = true;
+    recordCrossChainExchange({
+      accountId: currentAccount.id,
+      sourceChainKind: TempleChainKind.EVM,
+      sourceChainId: network.chainId,
+      senderAddress: account.address,
+      txHash,
       exchange,
       fromAsset,
       toAsset,
       fromAmount,
       toAmountEstimated,
-      recipient,
-      recordCrossChainExchange,
-      onSubmitted
-    ]
-  );
+      recipient
+    });
+    onSubmitted(exchange.id);
+  };
 
   return (
     <EvmContent
@@ -216,51 +198,33 @@ const TezosPreviewBody: FC<PreviewBodyProps<AccountForChain<TempleChainKind.Tezo
 
   const assetMetadata = useCategorizedTezosAssetMetadata(fromAsset.assetSlug ?? '', network.chainId);
 
-  const reviewData = useMemo<TezosReviewData>(
-    () => ({
-      account,
-      network,
-      assetSlug: fromAsset.assetSlug ?? '',
-      to: exchange.depositAddress,
-      amount: fromAmount,
-      onConfirm: () => {}
-    }),
-    [account, network, fromAsset.assetSlug, exchange.depositAddress, fromAmount]
-  );
+  const reviewData: TezosReviewData = {
+    account,
+    network,
+    assetSlug: fromAsset.assetSlug ?? '',
+    to: exchange.depositAddress,
+    amount: fromAmount,
+    onConfirm: () => {}
+  };
 
-  const handleSuccess = useCallback(
-    ({ txHash }: TxData<TempleChainKind.Tezos>) => {
-      if (submittedRef.current) return;
-      submittedRef.current = true;
-      recordCrossChainExchange({
-        accountId: currentAccount.id,
-        sourceChainKind: TempleChainKind.Tezos,
-        sourceChainId: network.chainId,
-        senderAddress: account.address,
-        txHash,
-        exchange,
-        fromAsset,
-        toAsset,
-        fromAmount,
-        toAmountEstimated,
-        recipient
-      });
-      onSubmitted(exchange.id);
-    },
-    [
-      currentAccount.id,
-      network.chainId,
-      account.address,
+  const handleSuccess = ({ txHash }: TxData<TempleChainKind.Tezos>) => {
+    if (submittedRef.current) return;
+    submittedRef.current = true;
+    recordCrossChainExchange({
+      accountId: currentAccount.id,
+      sourceChainKind: TempleChainKind.Tezos,
+      sourceChainId: network.chainId,
+      senderAddress: account.address,
+      txHash,
       exchange,
       fromAsset,
       toAsset,
       fromAmount,
       toAmountEstimated,
-      recipient,
-      recordCrossChainExchange,
-      onSubmitted
-    ]
-  );
+      recipient
+    });
+    onSubmitted(exchange.id);
+  };
 
   if (!assetMetadata) {
     return <CenteredLoader />;
@@ -277,18 +241,18 @@ const TezosPreviewBody: FC<PreviewBodyProps<AccountForChain<TempleChainKind.Tezo
   );
 };
 
-const CenteredLoader = memo(() => (
+const CenteredLoader: FC = () => (
   <div className="flex-1 flex items-center justify-center">
     <Loader size="L" trackVariant="dark" className="text-secondary" />
   </div>
-));
+);
 
 interface FailureProps {
   error: unknown;
   onClose: EmptyFn;
 }
 
-const ReservationFailureView = memo<FailureProps>(({ error, onClose }) => {
+const ReservationFailureView: FC<FailureProps> = ({ error, onClose }) => {
   const message =
     error instanceof Error ? error.message : typeof error === 'string' ? error : t('couldNotStartExchangeDescription');
 
@@ -306,4 +270,4 @@ const ReservationFailureView = memo<FailureProps>(({ error, onClose }) => {
       </ActionsButtonsBox>
     </>
   );
-});
+};

@@ -1,4 +1,4 @@
-import React, { CSSProperties, memo } from 'react';
+import React, { CSSProperties } from 'react';
 
 import clsx from 'clsx';
 
@@ -14,7 +14,7 @@ interface Props {
   style?: CSSProperties;
 }
 
-export const CrossChainAssetIcon = memo<Props>(({ asset, size = 32, className, style }) => {
+export const CrossChainAssetIcon = ({ asset, size = 32, className, style }: Props) => {
   if (asset.chainKind === TempleChainKind.Tezos && asset.chainId != null && asset.assetSlug) {
     return (
       <TezosAssetIconWithNetwork
@@ -55,4 +55,4 @@ export const CrossChainAssetIcon = memo<Props>(({ asset, size = 32, className, s
       />
     </div>
   );
-});
+};

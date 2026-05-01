@@ -1,4 +1,4 @@
-import React, { FC, memo, useCallback, useMemo, useState } from 'react';
+import React, { FC, useState } from 'react';
 
 import { Button } from 'app/atoms';
 import { dispatch } from 'app/store';
@@ -83,7 +83,7 @@ const SEED_ASSETS: { from: CrossChainAsset; to: CrossChainAsset }[] = [
   { from: CROSS_CHAIN_ASSETS.TEZOS_USDT, to: CROSS_CHAIN_ASSETS.BTC }
 ];
 
-export const CrossChainDevPanel: FC = memo(() => {
+export const CrossChainDevPanel: FC = () => {
   const account = useAccount();
   const accountId = account?.id ?? 'dev';
 
@@ -93,7 +93,7 @@ export const CrossChainDevPanel: FC = memo(() => {
   const [previewFailureOpen, openPreviewFailure, closePreviewFailure] = useBooleanState(false);
   const [activeExchangeId, setActiveExchangeId] = useState<string>();
 
-  const seedAll = useCallback(() => {
+  const seedAll = () => {
     PHASES_FOR_DEV.forEach((p, i) => {
       const assets = SEED_ASSETS[i % SEED_ASSETS.length];
       dispatch(
@@ -109,35 +109,32 @@ export const CrossChainDevPanel: FC = memo(() => {
         )
       );
     });
-  }, [accountId]);
+  };
 
-  const clearAll = useCallback(() => {
+  const clearAll = () => {
     PHASES_FOR_DEV.forEach((p, i) => {
       dispatch(removeCrossChainExchangeAction(`${SEED_PREFIX}${p.key}-${i}`));
     });
-  }, []);
+  };
 
-  const openAtPhase = useCallback(
-    (entry: DevPhaseEntry) => {
-      const ex = buildFakeExchange(entry.phase, accountId, {
-        id: `${SEED_PREFIX}${entry.key}-preview`,
-        exolixStatus: entry.exolixStatus ?? entry.phase.toLowerCase(),
-        refundHash: entry.refundHash
-      });
-      dispatch(addCrossChainExchangeAction(ex));
-      setActiveExchangeId(ex.id);
-      openConfirm();
-    },
-    [accountId, openConfirm]
-  );
+  const openAtPhase = (entry: DevPhaseEntry) => {
+    const ex = buildFakeExchange(entry.phase, accountId, {
+      id: `${SEED_PREFIX}${entry.key}-preview`,
+      exolixStatus: entry.exolixStatus ?? entry.phase.toLowerCase(),
+      refundHash: entry.refundHash
+    });
+    dispatch(addCrossChainExchangeAction(ex));
+    setActiveExchangeId(ex.id);
+    openConfirm();
+  };
 
-  const handleCloseConfirm = useCallback(() => {
+  const handleCloseConfirm = () => {
     if (activeExchangeId) dispatch(removeCrossChainExchangeAction(activeExchangeId));
     setActiveExchangeId(undefined);
     closeConfirm();
-  }, [activeExchangeId, closeConfirm]);
+  };
 
-  const reviewData = useMemo(() => PREVIEW_DATA, []);
+  const reviewData = PREVIEW_DATA;
 
   return (
     <div className="m-4 p-3 rounded-8 border border-dashed border-primary bg-primary-low/30 flex flex-col gap-y-2">
@@ -186,7 +183,7 @@ export const CrossChainDevPanel: FC = memo(() => {
       />
     </div>
   );
-});
+};
 
 const DevButton: FC<React.PropsWithChildren<{ onClick: EmptyFn }>> = ({ children, onClick }) => (
   <Button

@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useState } from 'react';
+import React, { useState } from 'react';
 
 import { IconBase } from 'app/atoms';
 import { PageModal } from 'app/atoms/PageModal';
@@ -19,7 +19,7 @@ import { useBooleanState } from 'lib/ui/hooks';
 import { HistoryAction, navigate } from 'lib/woozie';
 import { OneOfChains } from 'temple/front';
 
-export const ActivityPage = memo(() => {
+export const ActivityPage = () => {
   const { filterChain: initFilterChain } = useAssetsFilterOptionsSelector();
 
   const [filterChain, setFilterChain] = useState<FilterChain>(initFilterChain);
@@ -28,21 +28,18 @@ export const ActivityPage = memo(() => {
 
   const [openedExchangeId, setOpenedExchangeId] = useState<string | undefined>();
 
-  const handleFilterChainSelect = useCallback(
-    (chain: OneOfChains | null) => {
-      setFilterChain(chain);
-      setFiltersModalClosed();
-    },
-    [setFiltersModalClosed]
-  );
+  const handleFilterChainSelect = (chain: OneOfChains | null) => {
+    setFilterChain(chain);
+    setFiltersModalClosed();
+  };
 
-  const handleCrossChainExchangeClick = useCallback((id: string) => setOpenedExchangeId(id), []);
-  const handleCrossChainModalClose = useCallback(() => setOpenedExchangeId(undefined), []);
+  const handleCrossChainExchangeClick = (id: string) => setOpenedExchangeId(id);
+  const handleCrossChainModalClose = () => setOpenedExchangeId(undefined);
 
-  const handleTryAgain = useCallback(() => {
+  const handleTryAgain = () => {
     setOpenedExchangeId(undefined);
     navigate('/send?tab=cross-chain', HistoryAction.Push);
-  }, []);
+  };
 
   return (
     <PageLayout
@@ -91,4 +88,4 @@ export const ActivityPage = memo(() => {
       />
     </PageLayout>
   );
-});
+};

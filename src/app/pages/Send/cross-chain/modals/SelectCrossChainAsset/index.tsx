@@ -1,4 +1,4 @@
-import React, { FC, memo, useCallback } from 'react';
+import React, { FC } from 'react';
 
 import { Button } from 'app/atoms';
 import { PageModal } from 'app/atoms/PageModal';
@@ -24,13 +24,10 @@ export const SelectCrossChainToAssetModal: FC<Props> = ({
 }) => {
   const assets = getAllowedToAssets(currentFromAsset, networksMap);
 
-  const handleSelect = useCallback(
-    (asset: CrossChainAsset) => {
-      onSelect(asset);
-      onRequestClose();
-    },
-    [onRequestClose, onSelect]
-  );
+  const handleSelect = (asset: CrossChainAsset) => {
+    onSelect(asset);
+    onRequestClose();
+  };
 
   return (
     <PageModal opened={opened} title={t('selectGetToken')} onRequestClose={onRequestClose}>
@@ -52,22 +49,18 @@ interface ItemProps {
   onClick: SyncFn<CrossChainAsset>;
 }
 
-const Item = memo<ItemProps>(({ asset, onClick }) => {
-  const handleClick = useCallback(() => onClick(asset), [asset, onClick]);
-
-  return (
-    <Button
-      className="w-full cursor-pointer flex justify-between items-center p-2 rounded-8 hover:bg-secondary-low"
-      onClick={handleClick}
-    >
-      <div className="flex items-center gap-x-2">
-        <CrossChainAssetIcon asset={asset} size={32} />
-        <div className="text-start">
-          <p className="text-font-medium">{asset.symbol}</p>
-          <p className="text-font-description text-grey-1 max-w-40 truncate">{asset.name}</p>
-        </div>
+const Item: FC<ItemProps> = ({ asset, onClick }) => (
+  <Button
+    className="w-full cursor-pointer flex justify-between items-center p-2 rounded-8 hover:bg-secondary-low"
+    onClick={() => onClick(asset)}
+  >
+    <div className="flex items-center gap-x-2">
+      <CrossChainAssetIcon asset={asset} size={32} />
+      <div className="text-start">
+        <p className="text-font-medium">{asset.symbol}</p>
+        <p className="text-font-description text-grey-1 max-w-40 truncate">{asset.name}</p>
       </div>
-      <p className="text-end text-font-num-12 text-grey-1">{asset.dest === 'btc' ? 'Bitcoin' : asset.exolixNetwork}</p>
-    </Button>
-  );
-});
+    </div>
+    <p className="text-end text-font-num-12 text-grey-1">{asset.dest === 'btc' ? 'Bitcoin' : asset.exolixNetwork}</p>
+  </Button>
+);
