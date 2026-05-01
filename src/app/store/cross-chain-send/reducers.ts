@@ -22,7 +22,7 @@ const hashEquals = (a: Hash, b: Hash) => {
   return a.hash === b.hash && a.link === b.link;
 };
 
-export const crossChainSendReducer = createReducer<CrossChainSendState>(crossChainSendInitialState, builder => {
+const crossChainSendReducer = createReducer<CrossChainSendState>(crossChainSendInitialState, builder => {
   builder.addCase(addCrossChainExchangeAction, (state, { payload }) => {
     const existing = state.byId[payload.id];
     if (existing) {
@@ -88,7 +88,6 @@ export const crossChainSendReducer = createReducer<CrossChainSendState>(crossCha
 export const crossChainSendPersistedReducer = persistReducer(
   {
     key: 'root.crossChainSend',
-    version: 0,
     ...storageConfig
   },
   crossChainSendReducer

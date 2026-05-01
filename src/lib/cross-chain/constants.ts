@@ -5,7 +5,7 @@ export const CROSS_CHAIN_WARNING_DISMISSED_STORAGE_KEY = 'cross_chain_warning_di
 export const BTC_EXOLIX_COIN_CODE = 'BTC';
 export const BTC_EXOLIX_NETWORK_CODE = 'BTC';
 
-export const BTC_PSEUDO_CHAIN_ID = 'btc';
-export const BTC_PSEUDO_ASSET_SLUG = 'btc';
+const BTC_PSEUDO_CHAIN_ID = 'btc';
+const BTC_PSEUDO_ASSET_SLUG = 'btc';
 
 export const BTC_CHAIN_ASSET_SLUG = `btc:${BTC_PSEUDO_CHAIN_ID}:${BTC_PSEUDO_ASSET_SLUG}`;

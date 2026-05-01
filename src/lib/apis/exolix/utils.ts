@@ -194,11 +194,6 @@ export const submitExchange = (data: {
 export const getExchangeData = (exchangeId: string) =>
   retry(() => api.get<ExchangeData>(`/transactions/${exchangeId}`).then(r => r.data), COMMON_RETRY_CONFIG);
 
-/**
- * Convert the raw `/rate` payload into a discriminated tagged union so call sites stop
- * sniffing properties (`'error' in r`, `'rate' in r`, …) — drift in the Exolix shape would
- * otherwise silently downgrade to "unable to fetch rate" without anyone noticing.
- */
 export const normalizeRateResponse = (raw: GetRateResponse): NormalizedRateResult => {
   if ('error' in raw) return { kind: 'unsupported' };
 
@@ -237,7 +232,7 @@ export const queryCrossChainRate = (data: CrossChainRateRequestData): Promise<Ge
     COMMON_RETRY_CONFIG
   );
 
-export interface CreateCrossChainExchangeInput {
+interface CreateCrossChainExchangeInput {
   coinFrom: string;
   networkFrom: string;
   coinTo: string;

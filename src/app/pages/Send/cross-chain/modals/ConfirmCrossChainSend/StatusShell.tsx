@@ -53,6 +53,8 @@ export const StatusShell: FC<Props> = memo(
             recipient={exchange.recipient}
             exolixId={exchange.id}
             depositTxHash={exchange.sourceTxHash ?? exchange.hashIn?.hash ?? undefined}
+            sourceChainKind={exchange.sourceChainKind}
+            sourceChainId={exchange.sourceChainId}
             showEstimatedTime={showEstimatedTime}
           />
         )}

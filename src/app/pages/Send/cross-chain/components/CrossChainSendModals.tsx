@@ -17,6 +17,7 @@ interface Props {
   onWarningClose: EmptyFn;
   onWarningConfirm: EmptyFn;
   onConfirmClose: EmptyFn;
+  onConfirmSubmitted: (exchangeId: string) => void;
   onActivityClose: EmptyFn;
   onActivityClick: (exchange: CrossChainExchange) => void;
   onTryAgain: EmptyFn;
@@ -33,6 +34,7 @@ export const CrossChainSendModals: FC<Props> = memo(
     onWarningClose,
     onWarningConfirm,
     onConfirmClose,
+    onConfirmSubmitted,
     onActivityClose,
     onActivityClick,
     onTryAgain
@@ -45,6 +47,7 @@ export const CrossChainSendModals: FC<Props> = memo(
         initialExchangeId={initialExchangeId}
         onRequestClose={onConfirmClose}
         onGoBack={onConfirmClose}
+        onSubmitted={onConfirmSubmitted}
         onTryAgain={onTryAgain}
       />
       <CrossChainActivityModal

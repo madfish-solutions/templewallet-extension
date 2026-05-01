@@ -1,16 +1,9 @@
+import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { toTokenSlug } from 'lib/assets/utils';
 import { ETHEREUM_MAINNET_CHAIN_ID } from 'lib/temple/types';
 import { TempleChainKind } from 'temple/types';
 
-import {
-  BTC_ASSET,
-  EVM_CHAIN_CONFIGS,
-  EVM_TOKEN_SLUG,
-  EvmChainConfig,
-  TEZOS_USDT,
-  TEZOS_XTZ,
-  iconForExolix
-} from './config';
+import { BTC_ASSET, EVM_CHAIN_CONFIGS, EvmChainConfig, TEZOS_USDT, TEZOS_XTZ, iconForExolix } from './config';
 import { BTC_CHAIN_ASSET_SLUG } from './constants';
 import { CrossChainAsset } from './types';
 

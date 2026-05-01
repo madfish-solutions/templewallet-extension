@@ -74,7 +74,9 @@ export const useSubmitCrossChainExchange = () => {
       // The reservation just got broadcast — its deposit address is now closed on Exolix's side
       // (or will be once the deposit lands). Drop the SWR cache entry so a future Preview mount
       // with the same form inputs creates a brand-new order instead of reusing this one.
-      swrCache.delete(unstable_serialize(buildCrossChainReservationCacheKey({ fromAsset, toAsset, fromAmount, recipient })));
+      swrCache.delete(
+        unstable_serialize(buildCrossChainReservationCacheKey({ fromAsset, toAsset, fromAmount, recipient }))
+      );
 
       trackEvent(CrossChainAnalyticsEvents.CrossChainConfirmed, undefined, {
         exchangeId: exchange.id,

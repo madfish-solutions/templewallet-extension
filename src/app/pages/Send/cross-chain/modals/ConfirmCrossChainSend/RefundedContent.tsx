@@ -1,18 +1,13 @@
 import React, { FC } from 'react';
 
-import BigNumber from 'bignumber.js';
-
-import { Anchor, HashShortView, IconBase } from 'app/atoms';
+import { TxHashAnchor } from 'app/atoms';
 import { HashChip } from 'app/atoms/HashChip';
 import { StyledButton } from 'app/atoms/StyledButton';
-import { ReactComponent as OutLinkIcon } from 'app/icons/base/outLink.svg';
 import { ReactComponent as XCircleFill } from 'app/icons/base/x_circle_fill.svg';
 import { CrossChainExchange } from 'app/store/cross-chain-send/state';
 import { ChartListItem } from 'app/templates/chart-list-item';
-import InFiat from 'app/templates/InFiat';
 import { T, t } from 'lib/i18n';
 import { useBlockExplorerHref } from 'temple/front/use-block-explorers';
-import { TempleChainKind } from 'temple/types';
 
 import backgroundFailedSrc from '../../assets/background-failed.svg?url';
 import { CrossChainAmountRow } from '../../components/CrossChainAmountRow';
@@ -73,27 +68,6 @@ export const RefundedContent: FC<Props> = ({ exchange, onClose }) => {
               amount={refundAmount}
               sign="+"
               amountClassName="text-success"
-              rightContent={
-                exchange.fromAsset.chainId && exchange.fromAsset.assetSlug ? (
-                  <InFiat
-                    assetSlug={exchange.fromAsset.assetSlug}
-                    chainId={exchange.fromAsset.chainId}
-                    volume={new BigNumber(refundAmount || 0)}
-                    evm={exchange.fromAsset.chainKind === TempleChainKind.EVM}
-                    smallFractionFont={false}
-                  >
-                    {({ balance, symbol, noPrice }) =>
-                      noPrice ? (
-                        <span className="text-font-description text-grey-1">—</span>
-                      ) : (
-                        <span className="text-font-description text-grey-1">
-                          {balance} {symbol}
-                        </span>
-                      )
-                    }
-                  </InFiat>
-                ) : undefined
-              }
             />
           </div>
 
@@ -104,13 +78,13 @@ export const RefundedContent: FC<Props> = ({ exchange, onClose }) => {
               className="border-t-0.5 border-lines pt-6 mb-2"
             >
               {refundExplorerHref ? (
-                <Anchor
+                <TxHashAnchor
                   href={refundExplorerHref}
-                  className="flex items-center gap-x-1 p-1 text-secondary text-font-num-12"
-                >
-                  <HashShortView hash={exchange.refundHash} firstCharsCount={6} lastCharsCount={4} />
-                  <IconBase size={12} Icon={OutLinkIcon} />
-                </Anchor>
+                  hash={exchange.refundHash}
+                  firstCharsCount={6}
+                  lastCharsCount={4}
+                  className="p-1 text-font-num-12"
+                />
               ) : (
                 <HashChip hash={exchange.refundHash} firstCharsCount={6} lastCharsCount={4} />
               )}

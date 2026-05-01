@@ -21,6 +21,7 @@ interface UseCrossChainSendControllerArgs {
 export const useCrossChainSendController = ({ activeTab, setActiveTab }: UseCrossChainSendControllerArgs) => {
   const [crossChainReview, setCrossChainReview] = useState<ConfirmCrossChainReviewData | undefined>();
   const [crossChainInitialExchangeId, setCrossChainInitialExchangeId] = useState<string | undefined>();
+  const [crossChainSubmittedAt, setCrossChainSubmittedAt] = useState<number | undefined>();
 
   const [crossChainConfirmOpened, openCrossChainConfirm, closeCrossChainConfirm] = useBooleanState(false);
   const [crossChainWarningOpened, openCrossChainWarning, closeCrossChainWarning] = useBooleanState(false);
@@ -83,7 +84,10 @@ export const useCrossChainSendController = ({ activeTab, setActiveTab }: UseCros
   const handleConfirmClose = useCallback(() => {
     closeCrossChainConfirm();
     setCrossChainInitialExchangeId(undefined);
+    setCrossChainReview(undefined);
   }, [closeCrossChainConfirm]);
+
+  const handleConfirmSubmitted = useCallback(() => setCrossChainSubmittedAt(Date.now()), []);
 
   const handleTryAgain = useCallback(() => {
     trackEvent(CrossChainAnalyticsEvents.CrossChainTryAgain);
@@ -105,6 +109,7 @@ export const useCrossChainSendController = ({ activeTab, setActiveTab }: UseCros
     hasActiveCrossChain,
     crossChainReview,
     crossChainInitialExchangeId,
+    crossChainSubmittedAt,
     crossChainConfirmOpened,
     crossChainWarningOpened,
     crossChainActivityOpened,
@@ -115,6 +120,7 @@ export const useCrossChainSendController = ({ activeTab, setActiveTab }: UseCros
     handleOpenActivity,
     handleActivityClick,
     handleConfirmClose,
+    handleConfirmSubmitted,
     handleTryAgain,
     handleTabChange
   };

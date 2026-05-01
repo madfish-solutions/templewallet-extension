@@ -26,7 +26,10 @@ import { selectAllPendingTezosTransactions } from './utils';
 
 const MAX_PENDING_TRANSACTION_AGE = 60_000;
 
-type HandleTxStatusInput = Pick<TransactionState, 'txHash' | 'lastCheckedAt' | 'blockExplorerUrl' | 'kind'> & {
+type HandleTxStatusInput = Pick<
+  TransactionState,
+  'txHash' | 'lastCheckedAt' | 'blockExplorerUrl' | 'kind' | 'silent'
+> & {
   transactionBeingWatched?: boolean;
 };
 
@@ -35,9 +38,10 @@ const txDoneAction$ = ({
   lastCheckedAt,
   blockExplorerUrl,
   kind = 'transaction',
-  transactionBeingWatched
+  transactionBeingWatched,
+  silent
 }: HandleTxStatusInput) => {
-  if (!transactionBeingWatched) {
+  if (!transactionBeingWatched && !silent) {
     toastSuccess(capitalize(`${kind} completed`), true, { hash: txHash, blockExplorerHref: blockExplorerUrl });
   }
 
@@ -49,9 +53,10 @@ const txFailedAction$ = ({
   lastCheckedAt,
   blockExplorerUrl,
   kind = 'transaction',
-  transactionBeingWatched
+  transactionBeingWatched,
+  silent
 }: HandleTxStatusInput) => {
-  if (!transactionBeingWatched) {
+  if (!transactionBeingWatched && !silent) {
     toastError(capitalize(`${kind} failed`), true, { hash: txHash, blockExplorerHref: blockExplorerUrl });
   }
 
@@ -71,7 +76,7 @@ const monitorPendingTransactionsEpic: Epic<Action, Action, RootState> = (action$
       return pendingTransactions.length === 0 ? EMPTY : from(pendingTransactions);
     }),
     mergeMap(transaction => {
-      const { network, status, txHash, blockExplorerUrl, kind } = transaction;
+      const { network, status, txHash, blockExplorerUrl, kind, silent } = transaction;
       const { chainId } = network;
       switch (status) {
         case 'DONE':
@@ -107,7 +112,14 @@ const monitorPendingTransactionsEpic: Epic<Action, Action, RootState> = (action$
             withLatestFrom(state$),
             mergeMap(([status, state]) => {
               const transactionBeingWatched = state.pendingTezosTransactions?.transactionBeingWatched === txHash;
-              const handleTxStatusInput = { txHash, lastCheckedAt, blockExplorerUrl, kind, transactionBeingWatched };
+              const handleTxStatusInput = {
+                txHash,
+                lastCheckedAt,
+                blockExplorerUrl,
+                kind,
+                transactionBeingWatched,
+                silent
+              };
               switch (status) {
                 case 'PENDING':
                   return of(removePendingTezosTransactionsAction([txHash]));

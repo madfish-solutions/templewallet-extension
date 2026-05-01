@@ -135,4 +135,3 @@ export const BTC_ASSET: CrossChainAsset = {
   iconUrl: iconForExolix('BTC')
 };
 
-export { EVM_TOKEN_SLUG };

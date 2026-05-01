@@ -25,7 +25,7 @@ export const CrossChainPreviewRows: FC<Props> = ({ recipient, fromAsset, toAsset
   const toNetworkName = resolveNetworkName(toAsset, toEvmNetwork?.name, toTezosNetwork?.name);
 
   return (
-    <>
+    <div className="flex flex-col px-4 py-2 mb-6 rounded-lg border-0.5 border-lines bg-white">
       <ChartListItem title={t('recipient')}>
         <HashChip hash={recipient} firstCharsCount={6} lastCharsCount={6} />
       </ChartListItem>
@@ -38,7 +38,7 @@ export const CrossChainPreviewRows: FC<Props> = ({ recipient, fromAsset, toAsset
       <ChartListItem title="Est. time" bottomSeparator={false}>
         <span className="p-1 text-font-num-12">{CROSS_CHAIN_DEFAULT_ETA}</span>
       </ChartListItem>
-    </>
+    </div>
   );
 };
 

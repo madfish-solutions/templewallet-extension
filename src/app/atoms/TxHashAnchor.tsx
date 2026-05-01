@@ -31,12 +31,12 @@ export const TxHashAnchor = memo<Props>(
         href={href ?? undefined}
         target="_blank"
         onClick={handleClick}
-        className={clsx('flex items-center gap-x-1 group-hover:text-secondary', className)}
+        className={clsx('inline-flex items-center gap-x-1 text-secondary', className)}
       >
-        <span>
+        <span className="whitespace-nowrap">
           <HashShortView hash={hash} firstCharsCount={firstCharsCount} lastCharsCount={lastCharsCount} />
         </span>
-        <IconBase Icon={OutLinkIcon} size={12} className="invisible group-hover:visible" />
+        <IconBase Icon={OutLinkIcon} size={12} />
       </Anchor>
     );
   }

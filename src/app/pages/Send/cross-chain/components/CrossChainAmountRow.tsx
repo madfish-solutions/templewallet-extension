@@ -6,7 +6,10 @@ import clsx from 'clsx';
 import Money from 'app/atoms/Money';
 import InFiat from 'app/templates/InFiat';
 import { CrossChainAsset } from 'lib/cross-chain';
+import { useFiatCurrency } from 'lib/fiat-currency';
 import { TempleChainKind } from 'temple/types';
+
+import { useExternalCoinPrice } from '../hooks/use-external-coin-price';
 
 import { CrossChainAssetIcon } from './CrossChainAssetIcon';
 
@@ -24,7 +27,7 @@ export const CrossChainAmountRow = memo<Props>(({ asset, amount, sign, amountCla
   const isEvm = asset.chainKind === TempleChainKind.EVM;
 
   const fiatRight =
-    hasTempleAsset && rightContent === undefined ? (
+    rightContent !== undefined ? null : hasTempleAsset ? (
       <InFiat
         assetSlug={asset.assetSlug!}
         chainId={asset.chainId!}
@@ -42,7 +45,9 @@ export const CrossChainAmountRow = memo<Props>(({ asset, amount, sign, amountCla
           )
         }
       </InFiat>
-    ) : null;
+    ) : (
+      <ExternalFiatAmount asset={asset} amount={bnAmount} />
+    );
 
   return (
     <div className="flex items-center gap-x-2">
@@ -58,5 +63,21 @@ export const CrossChainAmountRow = memo<Props>(({ asset, amount, sign, amountCla
       </div>
       {rightContent ?? fiatRight}
     </div>
+  );
+});
+
+const ExternalFiatAmount = memo<{ asset: CrossChainAsset; amount: BigNumber }>(({ asset, amount }) => {
+  const price = useExternalCoinPrice(asset.exolixCoin);
+  const { selectedFiatCurrency } = useFiatCurrency();
+
+  if (price.isZero()) return <span className="text-font-description text-grey-1">—</span>;
+
+  return (
+    <span className="text-font-description text-grey-1">
+      <Money fiat smallFractionFont={false}>
+        {amount.times(price)}
+      </Money>{' '}
+      {selectedFiatCurrency.symbol}
+    </span>
   );
 });

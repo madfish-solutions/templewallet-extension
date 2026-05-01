@@ -1,5 +1,6 @@
 import React, { FC, useCallback, useEffect, useRef, useState } from 'react';
 
+import { FadeTransition } from 'app/a11y/FadeTransition';
 import { PageModal } from 'app/atoms/PageModal';
 import { useCrossChainExchangeSelector } from 'app/store/cross-chain-send/selectors';
 import { TID, t } from 'lib/i18n';
@@ -18,6 +19,7 @@ interface Props {
   onTryAgain?: EmptyFn;
   /** Dev/activity-entry: pre-seed an exchange id so the modal opens straight to the matching status step */
   initialExchangeId?: string;
+  onSubmitted?: (exchangeId: string) => void;
   /** Dev-only: force the eager Exolix reservation to fail so the failure UI can be inspected. */
   devForceReservationError?: boolean;
 }
@@ -36,6 +38,7 @@ export const ConfirmCrossChainSendModal: FC<Props> = ({
   onGoBack,
   onTryAgain,
   initialExchangeId,
+  onSubmitted,
   devForceReservationError
 }) => {
   const [exchangeId, setExchangeId] = useState<string | undefined>(initialExchangeId);
@@ -56,7 +59,13 @@ export const ConfirmCrossChainSendModal: FC<Props> = ({
   const exchange = useCrossChainExchangeSelector(exchangeId);
   const step = exchange ? phaseToConfirmStep(exchange.phase) : ConfirmCrossChainStep.Preview;
 
-  const handleSubmitted = useCallback((id: string) => setExchangeId(id), []);
+  const handleSubmitted = useCallback(
+    (id: string) => {
+      setExchangeId(id);
+      onSubmitted?.(id);
+    },
+    [onSubmitted]
+  );
 
   const handleClose = useCallback(() => {
     onRequestClose();
@@ -84,22 +93,30 @@ export const ConfirmCrossChainSendModal: FC<Props> = ({
       titleRight={<div />}
       shouldChangeBottomShift={false}
     >
-      {reviewData && step === ConfirmCrossChainStep.Preview && (
-        <PreviewContent
-          data={reviewData}
-          onSubmitted={handleSubmitted}
-          onCancel={onGoBack ?? handleClose}
-          devForceReservationError={devForceReservationError}
-        />
+      {opened && reviewData && step === ConfirmCrossChainStep.Preview && (
+        <FadeTransition>
+          <PreviewContent
+            data={reviewData}
+            onSubmitted={handleSubmitted}
+            onCancel={onGoBack ?? handleClose}
+            devForceReservationError={devForceReservationError}
+          />
+        </FadeTransition>
       )}
       {exchangeId && step === ConfirmCrossChainStep.Processing && (
-        <ProcessingContent exchangeId={exchangeId} onClose={handleClose} />
+        <FadeTransition>
+          <ProcessingContent exchangeId={exchangeId} onClose={handleClose} />
+        </FadeTransition>
       )}
       {exchangeId && step === ConfirmCrossChainStep.Completed && (
-        <CompletedContent exchangeId={exchangeId} onClose={handleClose} />
+        <FadeTransition>
+          <CompletedContent exchangeId={exchangeId} onClose={handleClose} />
+        </FadeTransition>
       )}
       {exchangeId && step === ConfirmCrossChainStep.Failed && (
-        <FailedContent exchangeId={exchangeId} onClose={handleClose} onTryAgain={handleTryAgain} />
+        <FadeTransition>
+          <FailedContent exchangeId={exchangeId} onClose={handleClose} onTryAgain={handleTryAgain} />
+        </FadeTransition>
       )}
     </PageModal>
   );

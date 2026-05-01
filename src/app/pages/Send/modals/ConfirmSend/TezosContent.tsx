@@ -188,7 +188,8 @@ export const TezosContent: FC<TezosContentProps> = ({
               network,
               blockExplorerUrl: makeBlockExplorerHref(blockExplorer.url, txHash, 'tx', TempleChainKind.Tezos),
               submittedAt: Date.now(),
-              kind: 'transfer'
+              kind: 'transfer',
+              silent: suppressSubmitToast
             })
           );
           dispatch(monitorPendingTezosTransactionsAction());

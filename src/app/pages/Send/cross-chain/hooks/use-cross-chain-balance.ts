@@ -4,10 +4,7 @@ import BigNumber from 'bignumber.js';
 
 import { useRawEvmAccountBalancesSelector } from 'app/store/evm/balances/selectors';
 import { useAllAccountBalancesSelector } from 'app/store/tezos/balances/selectors';
-import {
-  useGetEvmTokenBalanceWithDecimals,
-  useGetTezosAccountTokenOrGasBalanceWithDecimals
-} from 'lib/balances/hooks';
+import { useGetEvmTokenBalanceWithDecimals, useGetTezosAccountTokenOrGasBalanceWithDecimals } from 'lib/balances/hooks';
 import { CrossChainAsset, getAllowedFromAssets, toCrossChainAssetSlug } from 'lib/cross-chain';
 import { atomsToTokens } from 'lib/temple/helpers';
 import { TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';

@@ -51,7 +51,9 @@ export const useCrossChainExchangeReservation = ({
   const trimmedRecipient = recipient.trim();
   const enabled = Number(fromAmount) > 0 && trimmedRecipient.length > 0;
 
-  const key = enabled ? buildCrossChainReservationCacheKey({ fromAsset, toAsset, fromAmount, recipient, forceError }) : null;
+  const key = enabled
+    ? buildCrossChainReservationCacheKey({ fromAsset, toAsset, fromAmount, recipient, forceError })
+    : null;
 
   return useTypedSWR<ExchangeData>(
     key,

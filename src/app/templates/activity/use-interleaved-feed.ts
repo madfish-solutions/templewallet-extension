@@ -8,7 +8,7 @@ import { TempleChainKind } from 'temple/types';
 
 import { isTezosActivity } from './utils';
 
-export type FeedItem =
+type FeedItem =
   | { kind: 'tezos'; addedAt: string; data: TezosActivity }
   | { kind: 'evm'; addedAt: string; data: EvmActivity }
   | { kind: 'cross-chain'; addedAt: string; data: CrossChainExchange };
@@ -51,7 +51,7 @@ const dedupKey = (chainKind: TempleChainKind, chainId: string | number, hash: st
  * Remote activities whose source-chain tx hash matches a cross-chain exchange's
  * `sourceTxHash` are dropped so a single logical sending doesn't render twice.
  */
-export const buildInterleavedFeed = (
+const buildInterleavedFeed = (
   activities: Activity[],
   exchanges: CrossChainExchange[],
   filterChain: FilterChain,
@@ -60,9 +60,7 @@ export const buildInterleavedFeed = (
   const filtered = exchanges.filter(ex => matchesFilter(ex, filterChain));
 
   const sourceTxKeys = new Set(
-    exchanges
-      .filter(ex => ex.sourceTxHash)
-      .map(ex => dedupKey(ex.sourceChainKind, ex.sourceChainId, ex.sourceTxHash!))
+    exchanges.filter(ex => ex.sourceTxHash).map(ex => dedupKey(ex.sourceChainKind, ex.sourceChainId, ex.sourceTxHash!))
   );
 
   const dedupedActivities = activities.filter(activity => {

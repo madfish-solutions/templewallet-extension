@@ -51,9 +51,10 @@ interface Props {
     toAmountEstimated: string;
     recipient: string;
   }) => void;
+  resetSignal?: number;
 }
 
-export const CrossChainForm: FC<Props> = ({ onReview }) => {
+export const CrossChainForm: FC<Props> = ({ onReview, resetSignal }) => {
   const [fromAsset, setFromAsset] = useState<CrossChainAsset>(CROSS_CHAIN_ASSETS.TEZOS_USDT);
   const [toAsset, setToAsset] = useState<CrossChainAsset>(CROSS_CHAIN_ASSETS.ETH_USDT);
 
@@ -82,7 +83,14 @@ export const CrossChainForm: FC<Props> = ({ onReview }) => {
     defaultValues: { fromAmount: '', to: '' }
   });
 
-  const { watch, handleSubmit, setValue, setError, clearErrors, formState } = form;
+  const { watch, handleSubmit, setValue, setError, clearErrors, formState, reset } = form;
+
+  useEffect(() => {
+    if (resetSignal === undefined) return;
+    reset({ fromAmount: '', to: '' });
+    setIsFiatMode(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [resetSignal]);
   const { submitCount, errors } = formState;
   const formSubmitted = submitCount > 0;
 

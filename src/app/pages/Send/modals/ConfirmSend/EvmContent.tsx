@@ -104,11 +104,7 @@ export const EvmContent: FC<EvmContentProps> = ({
 
       const feesPerGas = getFeesPerGas(gasPrice);
 
-      if (!assetMetadata) {
-        onSubmitError(new Error('Asset metadata not found.'));
-
-        return;
-      }
+      if (!assetMetadata) throw new Error('Asset metadata not found.');
 
       if (!estimationData || !feesPerGas) {
         onSubmitError(estimationError);
@@ -158,7 +154,8 @@ export const EvmContent: FC<EvmContentProps> = ({
               assetSlug,
               network,
               blockExplorerUrl: makeBlockExplorerHref(blockExplorer.url, txHash, 'tx', TempleChainKind.EVM),
-              submittedAt: Date.now()
+              submittedAt: Date.now(),
+              silent: suppressSubmitToast
             })
           );
           dispatch(monitorPendingTransfersAction());

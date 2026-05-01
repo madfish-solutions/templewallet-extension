@@ -2,7 +2,7 @@ import React, { FC, memo, useState } from 'react';
 
 import clsx from 'clsx';
 
-import { Button, IconBase } from 'app/atoms';
+import { Button, IconBase, TxHashAnchor } from 'app/atoms';
 import { HashChip } from 'app/atoms/HashChip';
 import { ReactComponent as CompactDown } from 'app/icons/base/chevron_down.svg';
 import { ReactComponent as CopyIcon } from 'app/icons/base/copy.svg';
@@ -10,6 +10,8 @@ import { ChartListItem } from 'app/templates/chart-list-item';
 import { toastSuccess } from 'app/toaster';
 import { CROSS_CHAIN_DEFAULT_ETA, CrossChainAsset } from 'lib/cross-chain';
 import { T, TID, t } from 'lib/i18n';
+import { useBlockExplorerHref } from 'temple/front/use-block-explorers';
+import { TempleChainKind } from 'temple/types';
 
 import { CrossChainAmountRow } from '../../components/CrossChainAmountRow';
 
@@ -23,6 +25,8 @@ interface Props {
   recipient: string;
   exolixId: string;
   depositTxHash?: string;
+  sourceChainKind: TempleChainKind;
+  sourceChainId: string | number;
   showEstimatedTime?: boolean;
   defaultExpanded?: boolean;
 }
@@ -38,11 +42,14 @@ export const ExchangeSummaryCard = memo<Props>(
     recipient,
     exolixId,
     depositTxHash,
+    sourceChainKind,
+    sourceChainId,
     showEstimatedTime = true,
     defaultExpanded = false
   }) => {
     const [expanded, setExpanded] = useState(defaultExpanded);
     const effectiveToAmount = toAmountActual || toAmountEstimated;
+    const depositTxHref = useBlockExplorerHref(sourceChainKind, sourceChainId, 'tx', depositTxHash ?? '');
 
     return (
       <div className="rounded-8 bg-white border-0.5 border-lines">
@@ -80,7 +87,17 @@ export const ExchangeSummaryCard = memo<Props>(
             )}
             {depositTxHash && (
               <ChartListItem title={t('depositTxHash')} bottomSeparator={false}>
-                <HashChip hash={depositTxHash} firstCharsCount={6} lastCharsCount={4} />
+                {depositTxHref ? (
+                  <TxHashAnchor
+                    href={depositTxHref}
+                    hash={depositTxHash}
+                    firstCharsCount={6}
+                    lastCharsCount={4}
+                    className="p-1 text-font-num-12"
+                  />
+                ) : (
+                  <HashChip hash={depositTxHash} firstCharsCount={6} lastCharsCount={4} />
+                )}
               </ChartListItem>
             )}
           </div>

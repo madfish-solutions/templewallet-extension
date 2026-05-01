@@ -2,8 +2,8 @@ import React, { CSSProperties, memo } from 'react';
 
 import clsx from 'clsx';
 
-import { CurrencyIcon } from 'app/pages/Buy/CryptoExchange/components/CurrencyIcon';
 import { EvmAssetIconWithNetwork, TezosAssetIconWithNetwork } from 'app/templates/AssetIcon';
+import { TOKEN_FALLBACK_ICON_SRC } from 'lib/icons';
 import { CrossChainAsset } from 'lib/cross-chain';
 import { TempleChainKind } from 'temple/types';
 
@@ -40,8 +40,19 @@ export const CrossChainAssetIcon = memo<Props>(({ asset, size = 32, className, s
   }
 
   return (
-    <div className={clsx('flex items-center justify-center', className)} style={style}>
-      <CurrencyIcon src={asset.iconUrl ?? ''} code={asset.exolixCoin} size={size} />
+    <div
+      className={clsx('flex items-center justify-center', className)}
+      style={{ width: size + 8, height: size + 8, ...style }}
+    >
+      <img
+        src={asset.iconUrl ?? TOKEN_FALLBACK_ICON_SRC}
+        alt={asset.exolixCoin}
+        className="rounded-full"
+        style={{ width: size, height: size }}
+        onError={e => {
+          if (e.currentTarget.src !== TOKEN_FALLBACK_ICON_SRC) e.currentTarget.src = TOKEN_FALLBACK_ICON_SRC;
+        }}
+      />
     </div>
   );
 });

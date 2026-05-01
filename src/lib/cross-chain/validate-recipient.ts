@@ -17,17 +17,15 @@ export const validateCrossChainRecipient = (
   address: string | null | undefined,
   toAsset: CrossChainAsset
 ): true | TID => {
-  if (!address || address.trim().length === 0) return 'required';
-
-  const trimmed = address.trim();
+  if (!address) return 'required';
 
   switch (toAsset.dest) {
     case 'tezos':
-      return isValidTezosAddress(trimmed) ? true : 'invalidTezosAddress';
+      return isValidTezosAddress(address) ? true : 'invalidTezosAddress';
     case 'evm':
-      return isAddress(trimmed) ? true : 'invalidEvmAddress';
+      return isAddress(address) ? true : 'invalidEvmAddress';
     case 'btc':
-      return isValidBitcoinAddress(trimmed) ? true : 'invalidBitcoinAddress';
+      return isValidBitcoinAddress(address) ? true : 'invalidBitcoinAddress';
     default:
       return 'crossChainUnsupportedDestination';
   }

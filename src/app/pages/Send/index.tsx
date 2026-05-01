@@ -90,7 +90,6 @@ const Send = memo<Props>(({ chainKind, chainId, assetSlug }) => {
   }, [search]);
   const [storedActiveTab, setActiveTab] = useState<SendTab>(initialTab);
 
-  // Once consumed, drop `?tab=...` so refresh / share doesn't lock the user into the seeded tab.
   useEffect(() => {
     const params = new URLSearchParams(search);
     if (!params.has('tab')) return;
@@ -207,7 +206,7 @@ const Send = memo<Props>(({ chainKind, chainId, assetSlug }) => {
       contentPadding={false}
       noScroll
       headerRightElem={
-        !testnetModeEnabled && activeTab === 'cross-chain' ? (
+        !testnetModeEnabled ? (
           <CrossChainActivityButton
             hasActive={crossChain.hasActiveCrossChain}
             onClick={crossChain.handleOpenActivity}
@@ -229,7 +228,7 @@ const Send = memo<Props>(({ chainKind, chainId, assetSlug }) => {
             />
           </SendFormControlContext>
         ) : (
-          <CrossChainForm onReview={crossChain.handleReview} />
+          <CrossChainForm onReview={crossChain.handleReview} resetSignal={crossChain.crossChainSubmittedAt} />
         )}
       </Suspense>
 
@@ -255,6 +254,7 @@ const Send = memo<Props>(({ chainKind, chainId, assetSlug }) => {
           onWarningClose={crossChain.closeCrossChainWarning}
           onWarningConfirm={crossChain.handleWarningConfirm}
           onConfirmClose={crossChain.handleConfirmClose}
+          onConfirmSubmitted={crossChain.handleConfirmSubmitted}
           onActivityClose={crossChain.closeCrossChainActivity}
           onActivityClick={crossChain.handleActivityClick}
           onTryAgain={crossChain.handleTryAgain}

@@ -128,12 +128,7 @@ export const EvmActivityList: FC<Props> = ({ chainId, assetSlug, filterKind, onC
           {items.map(item => {
             if (item.kind === 'evm') {
               return (
-                <EvmActivityComponent
-                  key={item.data.hash}
-                  activity={item.data}
-                  chain={network}
-                  assetSlug={assetSlug}
-                />
+                <EvmActivityComponent key={item.data.hash} activity={item.data} chain={network} assetSlug={assetSlug} />
               );
             }
             if (item.kind === 'cross-chain') {

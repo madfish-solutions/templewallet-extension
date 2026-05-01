@@ -74,10 +74,7 @@ export const ActivityPage = memo(() => {
               onCrossChainExchangeClick={handleCrossChainExchangeClick}
             />
           ) : (
-            <EvmActivityList
-              chainId={filterChain.chainId}
-              onCrossChainExchangeClick={handleCrossChainExchangeClick}
-            />
+            <EvmActivityList chainId={filterChain.chainId} onCrossChainExchangeClick={handleCrossChainExchangeClick} />
           )}
         </ActivityListContainer>
       ) : (

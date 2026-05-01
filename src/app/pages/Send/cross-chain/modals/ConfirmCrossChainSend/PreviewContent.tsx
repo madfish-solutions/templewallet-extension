@@ -8,8 +8,8 @@ import { EvmReviewData, TezosReviewData } from 'app/pages/Send/form/interfaces';
 import { EvmContent } from 'app/pages/Send/modals/ConfirmSend/EvmContent';
 import { TezosContent } from 'app/pages/Send/modals/ConfirmSend/TezosContent';
 import { TxData } from 'app/pages/Send/modals/ConfirmSend/types';
-import { ExchangeData } from 'lib/apis/exolix/types';
 import { useAnalytics } from 'lib/analytics';
+import { ExchangeData } from 'lib/apis/exolix/types';
 import { T, t } from 'lib/i18n';
 import { useCategorizedTezosAssetMetadata } from 'lib/metadata';
 import { EvmEstimationDataProvider, TezosEstimationDataProvider } from 'lib/temple/front/estimation-data-providers';
@@ -70,7 +70,15 @@ export const PreviewContent: FC<Props> = ({ data, onSubmitted, onCancel, devForc
       amount: fromAmount,
       message
     });
-  }, [error, fromAsset.exolixCoin, fromAsset.exolixNetwork, toAsset.exolixCoin, toAsset.exolixNetwork, fromAmount, trackEvent]);
+  }, [
+    error,
+    fromAsset.exolixCoin,
+    fromAsset.exolixNetwork,
+    toAsset.exolixCoin,
+    toAsset.exolixNetwork,
+    fromAmount,
+    trackEvent
+  ]);
 
   if (isLoading || (!exchange && !error)) {
     return <CenteredLoader />;
@@ -133,6 +141,7 @@ const EvmPreviewBody: FC<PreviewBodyProps<AccountForChain<TempleChainKind.EVM>, 
   const { fromAsset, toAsset, fromAmount, toAmountEstimated, recipient } = data;
   const currentAccount = useAccount();
   const recordCrossChainExchange = useSubmitCrossChainExchange();
+  const submittedRef = useRef(false);
 
   const reviewData = useMemo<EvmReviewData>(
     () => ({
@@ -148,6 +157,8 @@ const EvmPreviewBody: FC<PreviewBodyProps<AccountForChain<TempleChainKind.EVM>, 
 
   const handleSuccess = useCallback(
     ({ txHash }: TxData<TempleChainKind.EVM>) => {
+      if (submittedRef.current) return;
+      submittedRef.current = true;
       recordCrossChainExchange({
         accountId: currentAccount.id,
         sourceChainKind: TempleChainKind.EVM,
@@ -201,6 +212,7 @@ const TezosPreviewBody: FC<PreviewBodyProps<AccountForChain<TempleChainKind.Tezo
   const { fromAsset, toAsset, fromAmount, toAmountEstimated, recipient } = data;
   const currentAccount = useAccount();
   const recordCrossChainExchange = useSubmitCrossChainExchange();
+  const submittedRef = useRef(false);
 
   const assetMetadata = useCategorizedTezosAssetMetadata(fromAsset.assetSlug ?? '', network.chainId);
 
@@ -218,6 +230,8 @@ const TezosPreviewBody: FC<PreviewBodyProps<AccountForChain<TempleChainKind.Tezo
 
   const handleSuccess = useCallback(
     ({ txHash }: TxData<TempleChainKind.Tezos>) => {
+      if (submittedRef.current) return;
+      submittedRef.current = true;
       recordCrossChainExchange({
         accountId: currentAccount.id,
         sourceChainKind: TempleChainKind.Tezos,

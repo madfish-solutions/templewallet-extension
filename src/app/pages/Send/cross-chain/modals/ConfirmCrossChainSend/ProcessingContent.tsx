@@ -2,7 +2,6 @@ import React, { FC } from 'react';
 
 import { StyledButton } from 'app/atoms/StyledButton';
 import { useCrossChainExchangeSelector } from 'app/store/cross-chain-send/selectors';
-import { isTerminalPhase } from 'lib/cross-chain';
 import { T } from 'lib/i18n';
 
 import backgroundProcessingSrc from '../../assets/background-processing.svg?url';
@@ -18,8 +17,6 @@ interface Props {
 export const ProcessingContent: FC<Props> = ({ exchangeId, onClose }) => {
   const exchange = useCrossChainExchangeSelector(exchangeId);
   if (!exchange) return null;
-
-  const isTerminal = isTerminalPhase(exchange.phase);
 
   return (
     <StatusShell
@@ -38,11 +35,9 @@ export const ProcessingContent: FC<Props> = ({ exchangeId, onClose }) => {
       showEstimatedTime
       actions={
         <>
-          {!isTerminal && (
-            <p className="text-font-small text-grey-1 text-center">
-              <T id="feelFreeToCloseNote" />
-            </p>
-          )}
+          <p className="text-font-small text-grey-1 text-center">
+            <T id="feelFreeToCloseNote" />
+          </p>
           <StyledButton size="L" color="primary" onClick={onClose}>
             <T id="close" />
           </StyledButton>
