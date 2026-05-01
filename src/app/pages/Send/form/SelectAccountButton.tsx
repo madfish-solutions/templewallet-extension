@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo, useMemo } from 'react';
 
 import { AccountAvatar } from 'app/atoms/AccountAvatar';
 import { DropdownTriggerButton } from 'app/atoms/dropdown-trigger-button';
@@ -17,11 +17,11 @@ interface Props extends TestIDProperty {
   onClick?: EmptyFn;
 }
 
-export const SelectAccountButton: React.FC<Props> = ({ value: selectedAccountAddress, onClick, testID }) => {
+export const SelectAccountButton = memo<Props>(({ value: selectedAccountAddress, onClick, testID }) => {
   const allAccounts = useVisibleAccounts();
   const { contacts } = useSettings();
 
-  const { title, iconHash } = (() => {
+  const { title, iconHash } = useMemo(() => {
     const value = { title: DEFAULT_TITLE, iconHash: '' };
 
     if (!selectedAccountAddress) return value;
@@ -44,7 +44,7 @@ export const SelectAccountButton: React.FC<Props> = ({ value: selectedAccountAdd
     });
 
     return value;
-  })();
+  }, [allAccounts, contacts, selectedAccountAddress]);
 
   return (
     <DropdownTriggerButton className="w-full p-3" id={SELECT_ACCOUNT_BUTTON_ID} testID={testID} onClick={onClick}>
@@ -61,4 +61,4 @@ export const SelectAccountButton: React.FC<Props> = ({ value: selectedAccountAdd
       </div>
     </DropdownTriggerButton>
   );
-};
+});

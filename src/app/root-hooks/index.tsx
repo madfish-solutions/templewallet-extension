@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { memo, useEffect } from 'react';
 
 import { useAccountsInitializedSync } from 'app/hooks/use-accounts-initialized-sync';
 import { useAdsImpressionsLinking } from 'app/hooks/use-ads-impressions-linking';
@@ -39,7 +39,7 @@ import { useDisableInactiveNetworks } from './use-disable-inactive-networks';
 import { useEnableAutodisabledNetworks } from './use-enable-autodisabled-networks';
 import { useGlobalErrorTracking } from './use-error-tracking';
 
-export const AppRootHooks: React.FC = () => {
+export const AppRootHooks = memo(() => {
   const { ready } = useTempleClient();
 
   return (
@@ -48,22 +48,22 @@ export const AppRootHooks: React.FC = () => {
       {ready ? <AppReadyRootHooks /> : null}
     </>
   );
-};
+});
 
-export const ConfirmWindowRootHooks: React.FC = () => {
+export const ConfirmWindowRootHooks = memo(() => {
   const { ready } = useTempleClient();
 
   return ready ? <ConfirmWindowReadyRootHooks /> : null;
-};
+});
 
-const ConstantAppRootHooks: React.FC = () => {
+const ConstantAppRootHooks = memo(() => {
   useConversionVerification();
   useGlobalErrorTracking();
 
   return null;
-};
+});
 
-const AppReadyRootHooks: React.FC = () => {
+const AppReadyRootHooks = memo(() => {
   useAssetsMigrations();
 
   useDidMount(() => {
@@ -105,9 +105,9 @@ const AppReadyRootHooks: React.FC = () => {
       {evmAddress && <EvmAccountHooks publicKeyHash={evmAddress} />}
     </>
   );
-};
+});
 
-const ConfirmWindowReadyRootHooks: React.FC = () => {
+const ConfirmWindowReadyRootHooks = memo(() => {
   useAssetsMigrations();
 
   useDAppTransactionsListener();
@@ -121,9 +121,9 @@ const ConfirmWindowReadyRootHooks: React.FC = () => {
       {evmAddress && <EvmAccountHooks publicKeyHash={evmAddress} />}
     </>
   );
-};
+});
 
-const TezosAccountHooks: React.FC<{ publicKeyHash: string }> = ({ publicKeyHash }) => {
+const TezosAccountHooks = memo<{ publicKeyHash: string }>(({ publicKeyHash }) => {
   useCollectiblesDetailsLoading(publicKeyHash);
   useNoCategoryTezosAssetsLoading(publicKeyHash);
 
@@ -134,9 +134,9 @@ const TezosAccountHooks: React.FC<{ publicKeyHash: string }> = ({ publicKeyHash 
       <AppTezosTokensMetadataLoading publicKeyHash={publicKeyHash} />
     </>
   );
-};
+});
 
-const EvmAccountHooks: React.FC<{ publicKeyHash: HexString }> = ({ publicKeyHash }) => {
+const EvmAccountHooks = memo<{ publicKeyHash: HexString }>(({ publicKeyHash }) => {
   useNoCategoryEvmAssetsLoading(publicKeyHash);
   useFetchSupportedLifiChainIds();
   useLifiTokensMetadataSync();
@@ -150,4 +150,4 @@ const EvmAccountHooks: React.FC<{ publicKeyHash: HexString }> = ({ publicKeyHash
       <AppEtherlinkDataLoading publicKeyHash={publicKeyHash} />
     </>
   );
-};
+});

@@ -45,7 +45,6 @@ export interface TransactionTabsProps<T extends TxParamsFormData> {
     protocolFee?: string;
     destinationChainGasTokenAmount?: BigNumber;
   };
-  /** Override for the default DetailsTab body (e.g. cross-chain flows that need BTC/Tezos+EVM rows). */
   detailsContent?: ReactNode;
   children?: ReactNode;
 }

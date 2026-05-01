@@ -85,10 +85,7 @@ export const CrossChainAmountInput = ({
               {onMaxClick ? (
                 <Button
                   onClick={onMaxClick}
-                  className={clsx(
-                    'text-xs text-font-num',
-                    isBalanceError ? 'text-error underline' : 'text-secondary'
-                  )}
+                  className={clsx('text-xs text-font-num', isBalanceError ? 'text-error underline' : 'text-secondary')}
                 >
                   <Money tooltip={false} smallFractionFont={false} fiat={false}>
                     {balance}
@@ -122,9 +119,7 @@ export const CrossChainAmountInput = ({
           <div className="flex justify-between items-center gap-2 min-h-6">
             <div className="flex-1 flex items-center">
               {errorMessage ? (
-                <span className="text-font-description text-error whitespace-nowrap text-ellipsis">
-                  {errorMessage}
-                </span>
+                <span className="text-font-description text-error whitespace-nowrap text-ellipsis">{errorMessage}</span>
               ) : canShowConvertedAmount ? (
                 <ConvertedInputAssetAmount
                   chainId={fiatChainId}

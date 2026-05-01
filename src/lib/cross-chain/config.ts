@@ -134,4 +134,3 @@ export const BTC_ASSET: CrossChainAsset = {
   name: 'Bitcoin',
   iconUrl: iconForExolix('BTC')
 };
-

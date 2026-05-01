@@ -1,4 +1,4 @@
-import { FC } from 'react';
+import { FC, useMemo } from 'react';
 
 import { DeadEndBoundaryError } from 'app/ErrorBoundary';
 import { CrossChainActivityRow } from 'app/pages/Send/cross-chain/components/CrossChainActivityRow';
@@ -96,7 +96,10 @@ export const EvmActivityList: FC<Props> = ({ chainId, assetSlug, filterKind, onC
     [chainId, accountAddress, assetSlug]
   );
 
-  const displayActivities = filterKind ? activities.filter(a => getActivityFilterKind(a) === filterKind) : activities;
+  const displayActivities = useMemo(
+    () => (filterKind ? activities.filter(a => getActivityFilterKind(a) === filterKind) : activities),
+    [activities, filterKind]
+  );
 
   const feed = useInterleavedFeed({
     activities: displayActivities,
@@ -108,31 +111,41 @@ export const EvmActivityList: FC<Props> = ({ chainId, assetSlug, filterKind, onC
 
   const groupedFeed = useGroupingByDate(feed);
 
-  const contentJsx = groupedFeed.map(([dateStr, items]) => (
-    <ActivitiesDateGroup key={dateStr} title={dateStr}>
-      {items.map(item => {
-        if (item.kind === 'evm') {
-          return <EvmActivityComponent key={item.data.hash} activity={item.data} chain={network} assetSlug={assetSlug} />;
-        }
-        if (item.kind === 'cross-chain') {
-          return (
-            <CrossChainActivityRow
-              key={item.data.id}
-              exchange={item.data}
-              onClick={() => onCrossChainExchangeClick?.(item.data.id)}
-            />
-          );
-        }
-        return null;
-      })}
-    </ActivitiesDateGroup>
-  ));
+  const contentJsx = useMemo(
+    () =>
+      groupedFeed.map(([dateStr, items]) => (
+        <ActivitiesDateGroup key={dateStr} title={dateStr}>
+          {items.map(item => {
+            if (item.kind === 'evm') {
+              return (
+                <EvmActivityComponent key={item.data.hash} activity={item.data} chain={network} assetSlug={assetSlug} />
+              );
+            }
+            if (item.kind === 'cross-chain') {
+              return (
+                <CrossChainActivityRow
+                  key={item.data.id}
+                  exchange={item.data}
+                  onClick={() => onCrossChainExchangeClick?.(item.data.id)}
+                />
+              );
+            }
+            return null;
+          })}
+        </ActivitiesDateGroup>
+      )),
+    [groupedFeed, network, assetSlug, onCrossChainExchangeClick]
+  );
 
-  useAssetsFromActivitiesCheck({
-    activities: displayActivities,
-    evmAccountPkh: accountAddress,
-    mainAsset: assetSlug ? { chainKind: TempleChainKind.EVM, chainId, slug: assetSlug } : undefined
-  });
+  const evmAssetsCheckConfig = useMemo(
+    () => ({
+      activities: displayActivities,
+      evmAccountPkh: accountAddress,
+      mainAsset: assetSlug ? { chainKind: TempleChainKind.EVM, chainId, slug: assetSlug } : undefined
+    }),
+    [accountAddress, assetSlug, chainId, displayActivities]
+  );
+  useAssetsFromActivitiesCheck(evmAssetsCheckConfig);
 
   return (
     <ActivityListView

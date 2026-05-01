@@ -3,8 +3,8 @@ import React, { CSSProperties } from 'react';
 import clsx from 'clsx';
 
 import { EvmAssetIconWithNetwork, TezosAssetIconWithNetwork } from 'app/templates/AssetIcon';
-import { TOKEN_FALLBACK_ICON_SRC } from 'lib/icons';
 import { CrossChainAsset } from 'lib/cross-chain';
+import { TOKEN_FALLBACK_ICON_SRC } from 'lib/icons';
 import { TempleChainKind } from 'temple/types';
 
 interface Props {

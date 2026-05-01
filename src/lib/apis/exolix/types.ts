@@ -52,7 +52,6 @@ export interface ExchangeData {
   withdrawalExtraId: string | null;
   hashIn: ExchangeHash;
   hashOut: ExchangeHash;
-  /** On-chain tx hash on the source chain when Exolix refunds the deposit. Present when status is REFUNDED. */
   refundHash?: string | null;
   refundExtraId?: string | null;
   id: string;

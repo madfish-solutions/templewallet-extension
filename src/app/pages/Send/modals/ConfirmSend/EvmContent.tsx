@@ -100,7 +100,7 @@ export const EvmContent: FC<EvmContentProps> = ({
 
     const feesPerGas = getFeesPerGas(gasPrice);
 
-      if (!assetMetadata) throw new Error('Asset metadata not found.');
+    if (!assetMetadata) throw new Error('Asset metadata not found.');
 
     if (!estimationData || !feesPerGas) {
       onSubmitError(estimationError);
@@ -134,23 +134,23 @@ export const EvmContent: FC<EvmContentProps> = ({
 
         const blockExplorer = getActiveBlockExplorer(network.chainId.toString());
 
-          if (!suppressSubmitToast) {
-            showTxSubmitToastWithDelay(TempleChainKind.EVM, txHash, blockExplorer.url);
-          }
+        if (!suppressSubmitToast) {
+          showTxSubmitToastWithDelay(TempleChainKind.EVM, txHash, blockExplorer.url);
+        }
 
-          dispatch(
-            addPendingEvmTransferAction({
-              txHash,
-              accountPkh,
-              assetSlug,
-              network,
-              blockExplorerUrl: makeBlockExplorerHref(blockExplorer.url, txHash, 'tx', TempleChainKind.EVM),
-              submittedAt: Date.now(),
-              silent: suppressSubmitToast
-            })
-          );
-          dispatch(monitorPendingTransfersAction());
-        };
+        dispatch(
+          addPendingEvmTransferAction({
+            txHash,
+            accountPkh,
+            assetSlug,
+            network,
+            blockExplorerUrl: makeBlockExplorerHref(blockExplorer.url, txHash, 'tx', TempleChainKind.EVM),
+            submittedAt: Date.now(),
+            silent: suppressSubmitToast
+          })
+        );
+        dispatch(monitorPendingTransfersAction());
+      };
 
       if (isLedgerAccount) {
         const redirected = await guard(account.type);

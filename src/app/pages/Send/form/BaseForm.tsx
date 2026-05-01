@@ -1,4 +1,4 @@
-import React, { FC, FocusEventHandler, useRef, useState } from 'react';
+import React, { FC, FocusEventHandler, useCallback, useMemo, useRef, useState } from 'react';
 
 import BigNumber from 'bignumber.js';
 import { isEmpty } from 'lodash';
@@ -92,79 +92,100 @@ export const BaseForm: FC<Props> = ({
 
   const [toFieldFocused, setToFieldFocused] = useState(false);
 
-  const floatingAssetSymbol = shouldUseFiat ? selectedFiatCurrency.name : assetSymbol.slice(0, 4);
+  const floatingAssetSymbol = useMemo(
+    () => (shouldUseFiat ? selectedFiatCurrency.name : assetSymbol.slice(0, 4)),
+    [assetSymbol, selectedFiatCurrency.name, shouldUseFiat]
+  );
 
-  const handleSetMaxAmount = () => {
+  const handleSetMaxAmount = useCallback(() => {
     if (maxAmount) setValue('amount', maxAmount.toString(), { shouldValidate: formSubmitted });
-  };
+  }, [setValue, maxAmount, formSubmitted]);
 
-  const handleToFieldFocus = () => {
+  const handleToFieldFocus = useCallback(() => {
     toFieldRef.current?.focus();
     setToFieldFocused(true);
-  };
+  }, [setToFieldFocused]);
 
-  const handleAmountClean = () => setValue('amount', '', { shouldValidate: formSubmitted });
+  const handleAmountClean = useCallback(
+    () => setValue('amount', '', { shouldValidate: formSubmitted }),
+    [setValue, formSubmitted]
+  );
 
-  const handleToClean = () => setValue('to', '', { shouldValidate: formSubmitted });
+  const handleToClean = useCallback(
+    () => setValue('to', '', { shouldValidate: formSubmitted }),
+    [setValue, formSubmitted]
+  );
 
-  const handlePasteButtonClick = () => {
+  const handlePasteButtonClick = useCallback(() => {
     readClipboard()
       .then(value => setValue('to', value, { shouldValidate: formSubmitted }))
       .catch(console.error);
-  };
+  }, [formSubmitted, setValue]);
 
-  const handleToFieldBlur: FocusEventHandler = e => {
+  const handleToFieldBlur = useCallback<FocusEventHandler>(e => {
     if (e.relatedTarget?.id === SELECT_ACCOUNT_BUTTON_ID) return;
 
     setToFieldFocused(false);
-  };
+  }, []);
 
-  const handleSelectRecipientButtonClick = () => {
+  const handleSelectRecipientButtonClick = useCallback(() => {
     setToFieldFocused(false);
     setSelectAccountModalOpen();
-  };
+  }, [setSelectAccountModalOpen]);
 
-  const toAssetAmount = (fiatAmount: BigNumber.Value = ZERO) =>
-    new BigNumber(fiatAmount || '0').dividedBy(assetPrice ?? 1).toFormat(assetDecimals, BigNumber.ROUND_FLOOR, {
-      decimalSeparator: '.'
-    });
+  const toAssetAmount = useCallback(
+    (fiatAmount: BigNumber.Value = ZERO) =>
+      new BigNumber(fiatAmount || '0').dividedBy(assetPrice ?? 1).toFormat(assetDecimals, BigNumber.ROUND_FLOOR, {
+        decimalSeparator: '.'
+      }),
+    [assetPrice, assetDecimals]
+  );
 
-  const handleFiatToggle = (evt: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-    evt.preventDefault();
+  const handleFiatToggle = useCallback(
+    (evt: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+      evt.preventDefault();
 
-    const newShouldUseFiat = !shouldUseFiat;
-    setShouldUseFiat(newShouldUseFiat);
+      const newShouldUseFiat = !shouldUseFiat;
+      setShouldUseFiat(newShouldUseFiat);
 
-    const amount = getValues().amount;
+      const amount = getValues().amount;
 
-    if (!amount) return;
+      if (!amount) return;
 
-    const amountBN = new BigNumber(amount);
+      const amountBN = new BigNumber(amount);
 
-    setValue(
-      'amount',
-      (newShouldUseFiat ? amountBN.multipliedBy(assetPrice) : amountBN.div(assetPrice)).toFormat(
-        newShouldUseFiat ? 2 : assetDecimals,
-        BigNumber.ROUND_FLOOR,
-        {
-          decimalSeparator: '.'
-        }
-      )
-    );
-  };
+      setValue(
+        'amount',
+        (newShouldUseFiat ? amountBN.multipliedBy(assetPrice) : amountBN.div(assetPrice)).toFormat(
+          newShouldUseFiat ? 2 : assetDecimals,
+          BigNumber.ROUND_FLOOR,
+          {
+            decimalSeparator: '.'
+          }
+        )
+      );
+    },
+    [shouldUseFiat, setShouldUseFiat, getValues, setValue, assetPrice, assetDecimals]
+  );
 
-  const handleRecipientAddressSelect = (address: string) => {
-    setValue('to', address, { shouldValidate: formSubmitted });
-    setSelectAccountModalClosed();
-  };
+  const handleRecipientAddressSelect = useCallback(
+    (address: string) => {
+      setValue('to', address, { shouldValidate: formSubmitted });
+      setSelectAccountModalClosed();
+    },
+    [setSelectAccountModalClosed, setValue, formSubmitted]
+  );
 
-  const onInvalidSubmit: SubmitErrorHandler<SendFormData> = errors => {
-    if (errors.amount?.message?.includes(t('maximalAmount'))) {
-      const chainAssetSlug = toChainAssetSlug(network.kind, network.chainId, assetSlug);
+  const onInvalidSubmit = useCallback<SubmitErrorHandler<SendFormData>>(
+    errors => {
+      if (errors.amount?.message?.includes(t('maximalAmount'))) {
+        const chainAssetSlug = toChainAssetSlug(network.kind, network.chainId, assetSlug);
 
-      isWertSupportedChainAssetSlug(chainAssetSlug) && dispatch(setOnRampAssetAction({ chainAssetSlug }));
-    }
-  };
+        isWertSupportedChainAssetSlug(chainAssetSlug) && dispatch(setOnRampAssetAction({ chainAssetSlug }));
+      }
+    },
+    [assetSlug, network]
+  );
 
   return (
     <>
