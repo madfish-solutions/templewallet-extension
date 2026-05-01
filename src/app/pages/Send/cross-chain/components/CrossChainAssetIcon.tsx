@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import React, { CSSProperties, memo } from 'react';
 
 import clsx from 'clsx';
 
@@ -9,18 +9,12 @@ import { TempleChainKind } from 'temple/types';
 
 interface Props {
   asset: CrossChainAsset;
-  /** Inner icon size in px. Wrapper renders at `size + 8`. */
   size?: number;
   className?: string;
+  style?: CSSProperties;
 }
 
-/**
- * Single source of truth for cross-chain asset rendering.
- * Temple-known assets reuse the standard `<*AssetIconWithNetwork>` (curated metadata icons + chain badge).
- * The BTC pseudo-asset has no Temple chainKind/chainId, so it falls back to the Exolix CDN icon
- * via `<CurrencyIcon>` inside an identically-sized wrapper.
- */
-export const CrossChainAssetIcon = memo<Props>(({ asset, size = 32, className }) => {
+export const CrossChainAssetIcon = memo<Props>(({ asset, size = 32, className, style }) => {
   if (asset.chainKind === TempleChainKind.Tezos && asset.chainId != null && asset.assetSlug) {
     return (
       <TezosAssetIconWithNetwork
@@ -28,6 +22,7 @@ export const CrossChainAssetIcon = memo<Props>(({ asset, size = 32, className })
         assetSlug={asset.assetSlug}
         size={size}
         className={className}
+        style={style}
       />
     );
   }
@@ -39,16 +34,13 @@ export const CrossChainAssetIcon = memo<Props>(({ asset, size = 32, className })
         assetSlug={asset.assetSlug}
         size={size}
         className={className}
+        style={style}
       />
     );
   }
 
-  const wrapperSize = size + 8;
   return (
-    <div
-      className={clsx('flex items-center justify-center', className)}
-      style={{ width: wrapperSize, height: wrapperSize }}
-    >
+    <div className={clsx('flex items-center justify-center', className)} style={style}>
       <CurrencyIcon src={asset.iconUrl ?? ''} code={asset.exolixCoin} size={size} />
     </div>
   );

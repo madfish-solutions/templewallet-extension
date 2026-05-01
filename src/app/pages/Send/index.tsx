@@ -18,6 +18,8 @@ import {
 import { useBooleanState } from 'lib/ui/hooks';
 import { LEDGER_WEBHID_PENDING_PREFIX, useLedgerWebHidFullViewGuard } from 'lib/ui/ledger-webhid-guard';
 import { LedgerFullViewPromptModal } from 'lib/ui/LedgerFullViewPrompt';
+import { useLocation } from 'lib/woozie';
+import { HistoryAction, changeState, createUrl } from 'lib/woozie/history';
 import { useAccountAddressForEvm, useAccountForTezos, useAccountForEvm } from 'temple/front';
 import { useTezosChainByChainId, useEvmChainByChainId } from 'temple/front/chains';
 import { TempleChainKind } from 'temple/types';
@@ -81,7 +83,20 @@ const Send = memo<Props>(({ chainKind, chainId, assetSlug }) => {
   const [confirmSendModalOpened, setConfirmSendModalOpen, setConfirmSendModalClosed] = useBooleanState(false);
   const [reviewData, setReviewData] = useState<ReviewData>();
 
-  const [storedActiveTab, setActiveTab] = useState<SendTab>('default');
+  const { pathname, search, hash } = useLocation();
+  const initialTab: SendTab = useMemo(() => {
+    const tabParam = new URLSearchParams(search).get('tab');
+    return tabParam === 'cross-chain' ? 'cross-chain' : 'default';
+  }, [search]);
+  const [storedActiveTab, setActiveTab] = useState<SendTab>(initialTab);
+
+  // Once consumed, drop `?tab=...` so refresh / share doesn't lock the user into the seeded tab.
+  useEffect(() => {
+    const params = new URLSearchParams(search);
+    if (!params.has('tab')) return;
+    params.delete('tab');
+    changeState(HistoryAction.Replace, window.history.state, createUrl(pathname, params.toString(), hash));
+  }, [pathname, search, hash]);
   const activeTab: SendTab = testnetModeEnabled ? 'default' : storedActiveTab;
 
   const crossChain = useCrossChainSendController({ activeTab, setActiveTab });

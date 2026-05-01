@@ -15,7 +15,7 @@ interface Props {
   reviewData?: ConfirmCrossChainReviewData;
   onRequestClose: EmptyFn;
   onGoBack?: EmptyFn;
-  onTryAgain?: (data: ConfirmCrossChainReviewData) => void;
+  onTryAgain?: EmptyFn;
   /** Dev/activity-entry: pre-seed an exchange id so the modal opens straight to the matching status step */
   initialExchangeId?: string;
   /** Dev-only: force the eager Exolix reservation to fail so the failure UI can be inspected. */
@@ -69,11 +69,11 @@ export const ConfirmCrossChainSendModal: FC<Props> = ({
   }, [onRequestClose]);
 
   const handleTryAgain = useCallback(() => {
-    if (!reviewData || !onTryAgain) return;
+    if (!onTryAgain) return;
     onRequestClose();
     setExchangeId(undefined);
-    onTryAgain(reviewData);
-  }, [reviewData, onTryAgain, onRequestClose]);
+    onTryAgain();
+  }, [onTryAgain, onRequestClose]);
 
   return (
     <PageModal

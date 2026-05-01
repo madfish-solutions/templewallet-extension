@@ -5,6 +5,7 @@ import { PageModal } from 'app/atoms/PageModal';
 import { ReactComponent as FilterOffIcon } from 'app/icons/base/filteroff.svg';
 import { ReactComponent as FilterOnIcon } from 'app/icons/base/filteron.svg';
 import PageLayout from 'app/layouts/PageLayout';
+import { ConfirmCrossChainSendModal } from 'app/pages/Send/cross-chain/modals/ConfirmCrossChainSend';
 import { useAssetsFilterOptionsSelector } from 'app/store/assets-filter-options/selectors';
 import { FilterChain } from 'app/store/assets-filter-options/state';
 import {
@@ -15,6 +16,7 @@ import {
 } from 'app/templates/activity';
 import { NetworkSelectContent } from 'app/templates/NetworkSelectContent';
 import { useBooleanState } from 'lib/ui/hooks';
+import { HistoryAction, navigate } from 'lib/woozie';
 import { OneOfChains } from 'temple/front';
 
 export const ActivityPage = memo(() => {
@@ -24,6 +26,8 @@ export const ActivityPage = memo(() => {
 
   const [filtersModalOpen, setFiltersModalOpen, setFiltersModalClosed] = useBooleanState(false);
 
+  const [openedExchangeId, setOpenedExchangeId] = useState<string | undefined>();
+
   const handleFilterChainSelect = useCallback(
     (chain: OneOfChains | null) => {
       setFilterChain(chain);
@@ -31,6 +35,14 @@ export const ActivityPage = memo(() => {
     },
     [setFiltersModalClosed]
   );
+
+  const handleCrossChainExchangeClick = useCallback((id: string) => setOpenedExchangeId(id), []);
+  const handleCrossChainModalClose = useCallback(() => setOpenedExchangeId(undefined), []);
+
+  const handleTryAgain = useCallback(() => {
+    setOpenedExchangeId(undefined);
+    navigate('/send?tab=cross-chain', HistoryAction.Push);
+  }, []);
 
   return (
     <PageLayout
@@ -57,16 +69,29 @@ export const ActivityPage = memo(() => {
       {filterChain ? (
         <ActivityListContainer chainId={filterChain.chainId}>
           {filterChain.kind === 'tezos' ? (
-            <TezosActivityList tezosChainId={filterChain.chainId} />
+            <TezosActivityList
+              tezosChainId={filterChain.chainId}
+              onCrossChainExchangeClick={handleCrossChainExchangeClick}
+            />
           ) : (
-            <EvmActivityList chainId={filterChain.chainId} />
+            <EvmActivityList
+              chainId={filterChain.chainId}
+              onCrossChainExchangeClick={handleCrossChainExchangeClick}
+            />
           )}
         </ActivityListContainer>
       ) : (
         <ActivityListContainer>
-          <MultichainActivityList />
+          <MultichainActivityList onCrossChainExchangeClick={handleCrossChainExchangeClick} />
         </ActivityListContainer>
       )}
+
+      <ConfirmCrossChainSendModal
+        opened={Boolean(openedExchangeId)}
+        initialExchangeId={openedExchangeId}
+        onRequestClose={handleCrossChainModalClose}
+        onTryAgain={handleTryAgain}
+      />
     </PageLayout>
   );
 });
