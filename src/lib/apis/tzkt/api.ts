@@ -153,7 +153,7 @@ export const getDelegatorRewards = (
     ...restParams
   });
 
-const TZKT_MAX_QUERY_ITEMS_LIMIT = 10_000;
+export const TZKT_MAX_QUERY_ITEMS_LIMIT = 10_000;
 
 export const getCycles = (chainId: TzktApiChainId, offset?: number, limit?: number) =>
   fetchGet<TzktCycle[]>(chainId, '/cycles', { offset, limit });
