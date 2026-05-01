@@ -26,7 +26,7 @@ export const NewDAppsModal: FC<UpdateModalProps> = ({ onClose, onShown }) => {
   const goToEarnButtonClassName = clsx(styledButtonClassName, 'w-full cursor-pointer text-center');
 
   return (
-    <MiniPageModal opened onRequestClose={onClose}>
+    <MiniPageModal opened onRequestClose={onClose} closeTestID={NewDAppsModalSelectors.closeButton}>
       <div className="p-4 flex flex-col gap-4">
         <div className="flex gap-3 justify-center">
           {dAppsLogoComponents.map(({ Icon, id }) => (

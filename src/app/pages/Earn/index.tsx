@@ -1,4 +1,4 @@
-import { FC, ReactNode, useMemo, useState } from 'react';
+import { FC, ReactNode, useState } from 'react';
 
 import { IconBase } from 'app/atoms';
 import {
@@ -32,25 +32,35 @@ export const Earn: FC = () => {
   const [dAppForDeposit, setDAppForDeposit] = useState<DAppForDeposit | null>(null);
   const AdsConstantsModule = useAdsConstantsModule();
 
-  const savingsItems = useMemo(() => {
-    const items = savingsOffers.map(toRenderItem);
+  const getItems =
+    // oxlint-disable-next-line typescript/no-unnecessary-type-constraint
+    <T extends unknown>(
+      data: T[],
+      renderItem: (item: T) => ReactNode,
+      shouldHidePromo: boolean,
+      PromoWrapper?: FC<PropsWithChildren>
+    ) => {
+      const items = data.map(renderItem);
 
-    return items.length ? withPromo(items, PartnersPromotionModule, AdsConstantsModule) : items;
-  }, [savingsOffers, PartnersPromotionModule, AdsConstantsModule]);
+      if (!items.length || shouldHidePromo) return items;
 
+      return withPromo(items, PartnersPromotionModule, AdsConstantsModule, PromoWrapper);
+    };
+
+  const savingsItems = getItems(savingsOffers, toRenderItem, false);
   const savingsAvailable = savingsItems.length > 0;
+  const externalItems = getItems(externalOffers, toRenderItem, savingsAvailable);
+  const externalOffersAvailable = externalItems.length > 0;
 
-  const externalItems = useMemo(() => {
-    const items = externalOffers.map(toRenderItem);
-
-    if (!items.length || savingsAvailable) return items;
-
-    return withPromo(items, PartnersPromotionModule, AdsConstantsModule);
-  }, [externalOffers, savingsAvailable, PartnersPromotionModule, AdsConstantsModule]);
+  const dAppsForDepositsItems = getItems(
+    dAppsForDeposits,
+    dApp => <DAppForDepositItem key={dApp.id} dApp={dApp} onClick={setDAppForDeposit} />,
+    savingsAvailable || externalOffersAvailable,
+    DAppsForDepositsPromoWrapper
+  );
+  const dAppsForDepositsAvailable = dAppsForDeposits.length > 0;
 
   const handleCloseDAppForDepositModal = () => setDAppForDeposit(null);
-  const dAppsForDepositsAvailable = dAppsForDeposits.length > 0;
-  const externalOffersAvailable = externalItems.length > 0;
   const shouldShowEmptyState = !savingsAvailable && !externalOffersAvailable && !dAppsForDepositsAvailable;
 
   return (
@@ -63,11 +73,7 @@ export const Earn: FC = () => {
         <div className="mb-4">
           <Title i18nKey="depositToDApps" />
 
-          <div className="grid grid-cols-2 gap-2">
-            {dAppsForDeposits.map(dApp => (
-              <DAppForDepositItem key={dApp.id} dApp={dApp} onClick={setDAppForDeposit} />
-            ))}
-          </div>
+          <div className="grid grid-cols-2 gap-2">{dAppsForDepositsItems}</div>
         </div>
       )}
 
@@ -139,10 +145,15 @@ const Title: FC<{ i18nKey: TID }> = ({ i18nKey }) => (
   </h2>
 );
 
+const DAppsForDepositsPromoWrapper: FC<PropsWithChildren> = ({ children }) => (
+  <div className="col-span-2">{children}</div>
+);
+
 const withPromo = (
   items: ReactNode[],
   PartnersPromotionModule: ReturnType<typeof usePartnersPromotionModule>,
-  AdsConstantsModule: ReturnType<typeof useAdsConstantsModule>
+  AdsConstantsModule: ReturnType<typeof useAdsConstantsModule>,
+  PromoWrapper?: FC<PropsWithChildren>
 ) => {
   if (!PartnersPromotionModule || !AdsConstantsModule) return items;
 
@@ -156,11 +167,12 @@ const withPromo = (
       pageName={AdsConstantsModule.EARN_PAGE_NAME}
     />
   );
+  const promoJsxWithWrapper = PromoWrapper ? <PromoWrapper>{promoJsx}</PromoWrapper> : promoJsx;
 
   if (items.length < 2) {
-    items.push(promoJsx);
+    items.push(promoJsxWithWrapper);
   } else {
-    items.splice(1, 0, promoJsx);
+    items.splice(1, 0, promoJsxWithWrapper);
   }
 
   return items;
