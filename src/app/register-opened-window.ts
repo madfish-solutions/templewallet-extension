@@ -22,9 +22,13 @@ export const RegisterOpenedWindow = () => {
       const port = browser.runtime.connect({
         name: getOutOfTabWindowPortName(thisWindowId, sidebar ? 'sidebar' : 'popup')
       });
-      port.onDisconnect.addListener(() => void (outOfTabPortRef.current = undefined));
-      outOfTabPortRef.current = port;
       const pingInterval = setInterval(() => port.postMessage('ping'), 1000);
+
+      port.onDisconnect.addListener(() => {
+        clearInterval(pingInterval);
+        outOfTabPortRef.current = undefined;
+      });
+      outOfTabPortRef.current = port;
 
       return () => {
         port.disconnect();

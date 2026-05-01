@@ -8,7 +8,7 @@ import { viewAllNotificationsAction } from 'app/store/notifications/actions';
 import { useNotificationsSelector } from 'app/store/notifications/selectors';
 import { useShouldShowPartnersPromoSelector } from 'app/store/partners-promotion/selectors';
 import { usePartnersPromotionModule } from 'app/templates/partners-promotion';
-import { NOTIFICATIONS_PAGE_NAME } from 'lib/ads-constants';
+import { useAdsConstantsModule } from 'lib/ads-constants';
 import { t } from 'lib/i18n';
 import { useBooleanState, useTimeout } from 'lib/ui/hooks';
 
@@ -24,6 +24,7 @@ export const Notifications = () => {
   const notifications = useNotificationsSelector();
   const shouldShowPartnersPromoState = useShouldShowPartnersPromoSelector();
   const PartnersPromotionModule = usePartnersPromotionModule();
+  const AdsConstantsModule = useAdsConstantsModule();
 
   const viewAllNotifications = useCallback(() => void dispatch(viewAllNotificationsAction()), []);
 
@@ -40,12 +41,12 @@ export const Notifications = () => {
   return (
     <>
       <PageLayout pageTitle={<PageTitle title={t('notifications')} />} contentClassName="pb-1!">
-        {shouldShowPartnersPromoState && PartnersPromotionModule && (
+        {shouldShowPartnersPromoState && PartnersPromotionModule && AdsConstantsModule && (
           <div className="mb-4 flex justify-center">
             <PartnersPromotionModule.PartnersPromotion
               id="promo-notifications-item"
               variant={PartnersPromotionModule.PartnersPromotionVariant.Image}
-              pageName={NOTIFICATIONS_PAGE_NAME}
+              pageName={AdsConstantsModule.NOTIFICATIONS_PAGE_NAME}
             />
           </div>
         )}

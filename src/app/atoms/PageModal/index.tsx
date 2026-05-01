@@ -1,4 +1,4 @@
-import React, { FC, ReactElement, ReactNode, memo, useMemo, useCallback } from 'react';
+import React, { FC, ReactElement, ReactNode, useMemo, useCallback } from 'react';
 
 import clsx from 'clsx';
 import Modal from 'react-modal';
@@ -107,7 +107,7 @@ export const PageModal: FC<PageModalProps> = ({
         <div className="w-12 flex justify-end">{titleRight ?? <CloseButton onClick={onRequestClose} />}</div>
       </div>
 
-      <div className={clsx('flex-grow flex flex-col overflow-hidden', contentPadding && 'p-4')}>
+      <div className={clsx('grow flex flex-col overflow-hidden', contentPadding && 'p-4')}>
         <SuspenseContainer loader={suspenseLoader} errorMessage={suspenseErrorMessage}>
           {typeof children === 'function' ? (opened ? children() : null) : children}
         </SuspenseContainer>
@@ -116,10 +116,10 @@ export const PageModal: FC<PageModalProps> = ({
   );
 };
 
-const BackButton = memo<{ onClick?: EmptyFn }>(({ onClick }) => (
+const BackButton: FC<{ onClick?: EmptyFn }> = ({ onClick }) => (
   <IconBase Icon={ChevronLeftIcon} size={16} className="text-grey-2 cursor-pointer" onClick={onClick} />
-));
+);
 
-export const CloseButton = memo<{ onClick?: EmptyFn }>(({ onClick }) => (
+export const CloseButton: FC<{ onClick?: EmptyFn }> = ({ onClick }) => (
   <IconBase Icon={ExIcon} size={16} className="text-grey-2 cursor-pointer" onClick={onClick} />
-));
+);

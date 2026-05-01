@@ -1,8 +1,8 @@
-import React, { FC, useCallback, useEffect, useImperativeHandle, useMemo } from 'react';
+import { FC, useCallback, useEffect, useImperativeHandle, useMemo } from 'react';
 
 import { ChainIds } from '@taquito/taquito';
 import BigNumber from 'bignumber.js';
-import { FormProvider, useForm } from 'react-hook-form';
+import { FormProvider, useForm, useWatch } from 'react-hook-form';
 
 import { DeadEndBoundaryError } from 'app/ErrorBoundary';
 import { usePendingTezosTransactionsHashes } from 'app/store/tezos/pending-transactions/utils';
@@ -83,12 +83,11 @@ export const TezosForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, o
     reValidateMode: 'onChange'
   });
 
-  const { watch, formState, trigger, reset } = form;
+  const { control, formState, trigger, reset } = form;
 
-  const toValue = watch('to');
+  const toValue = useWatch({ name: 'to', control });
 
-  const toFilledWithAddress = useMemo(() => Boolean(toValue && isValidTezosAddress(toValue)), [toValue]);
-
+  const toFilledWithAddress = Boolean(toValue && isValidTezosAddress(toValue));
   const toFilledWithDomain = useMemo(
     () => Boolean(toValue && isTezosDomainsNameValid(toValue, domainsClient)),
     [toValue, domainsClient]

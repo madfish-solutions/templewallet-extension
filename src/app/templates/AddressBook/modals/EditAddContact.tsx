@@ -1,7 +1,7 @@
 import React, { memo, useCallback, useEffect } from 'react';
 
 import { isEmpty } from 'lodash';
-import { Controller, useForm } from 'react-hook-form';
+import { Controller, useForm, useWatch } from 'react-hook-form';
 import { isAddress } from 'viem';
 
 import { FormField, IconBase, NoSpaceField } from 'app/atoms';
@@ -49,7 +49,7 @@ export const EditAddContact = memo<Props>(({ contact, opened, onRequestClose }) 
 
   const { addContact, editContact } = useContactsActions();
 
-  const { watch, handleSubmit, control, setValue, setError, clearErrors, reset, formState } = useForm<FormData>({
+  const { handleSubmit, control, setValue, setError, clearErrors, reset, formState } = useForm<FormData>({
     mode: 'onSubmit',
     reValidateMode: 'onChange',
     defaultValues
@@ -58,8 +58,8 @@ export const EditAddContact = memo<Props>(({ contact, opened, onRequestClose }) 
 
   const formSubmitted = submitCount > 0;
 
-  const nameValue = watch('name');
-  const addressValue = watch('address');
+  const nameValue = useWatch({ control, name: 'name' });
+  const addressValue = useWatch({ control, name: 'address' });
 
   useEffect(() => {
     if (contact) {

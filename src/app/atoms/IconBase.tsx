@@ -1,4 +1,4 @@
-import { Ref, memo } from 'react';
+import { FC, Ref } from 'react';
 
 import clsx from 'clsx';
 
@@ -15,12 +15,17 @@ export interface IconBaseProps {
 }
 
 /** For monochrome icons */
-export const IconBase = memo<IconBaseProps>(
-  ({ size = 16, className, Icon, iconTransform = SCALE_TRANSFORMS[size], onClick, ref }) => (
-    <div ref={ref} data-icon-size={size} className={clsx(CONTAINER_CLASSNAME[size], className)} onClick={onClick}>
-      <Icon className="w-full h-full stroke-current fill-current" transform={iconTransform} />
-    </div>
-  )
+export const IconBase: FC<IconBaseProps> = ({
+  size = 16,
+  className,
+  Icon,
+  iconTransform = SCALE_TRANSFORMS[size],
+  onClick,
+  ref
+}) => (
+  <div ref={ref} data-icon-size={size} className={clsx(CONTAINER_CLASSNAME[size], className)} onClick={onClick}>
+    <Icon className="w-full h-full stroke-current fill-current" transform={iconTransform} />
+  </div>
 );
 
 /** Exact icons (icons' base containers) sizes */

@@ -1,4 +1,4 @@
-import React, { FC, ReactNode, useCallback, useState } from 'react';
+import React, { FC, ReactNode, useState } from 'react';
 
 import { OpKind, TransferParams, WalletParamsWithKind } from '@taquito/taquito';
 import { FormProvider } from 'react-hook-form';
@@ -83,7 +83,7 @@ export const TezosContent: FC<TezosContentProps> = ({
     toFilled: true
   });
 
-  const getBasicSendParams = useCallback(async (): Promise<WalletParamsWithKind[]> => {
+  const getBasicSendParams = async (): Promise<WalletParamsWithKind[]> => {
     let transferParams: TransferParams;
 
     if (isTezosContractAddress(accountPkh)) {
@@ -101,7 +101,7 @@ export const TezosContent: FC<TezosContentProps> = ({
         ...transferParams
       }
     ];
-  }, [accountPkh, amount, assetMetadata, assetSlug, tezos, to]);
+  };
 
   const { data: basicSendParams } = useTypedSWR(
     ['tezos-basic-send-params', accountPkh, amount, assetSlug, to, rpcBaseURL, account.ownerAddress],
@@ -132,103 +132,76 @@ export const TezosContent: FC<TezosContentProps> = ({
     useLedgerApprovalModalState();
   const { guard, ledgerPromptProps } = useLedgerWebHidFullViewGuard();
 
-  const onSubmitError = useCallback(
-    (err: unknown) => {
-      console.error(err);
-      setLatestSubmitError(err);
-      setTab('error');
-    },
-    [setLatestSubmitError, setTab]
-  );
+  const onSubmitError = (err: unknown) => {
+    console.error(err);
+    setLatestSubmitError(err);
+    setTab('error');
+  };
 
-  const onSubmit = useCallback(
-    async ({ gasFee, storageLimit }: TezosTxParamsFormData) => {
+  const onSubmit = async ({ gasFee, storageLimit }: TezosTxParamsFormData) => {
+    try {
+      if (formState.isSubmitting) return;
+
       try {
-        if (formState.isSubmitting) return;
+        assertCustomGasFeeNotTooLow(gasFee);
+      } catch (e) {
+        onSubmitError(e);
 
-        try {
-          assertCustomGasFeeNotTooLow(gasFee);
-        } catch (e) {
-          onSubmitError(e);
-
-          return;
-        }
-
-        if (!estimationData || estimationError) {
-          onSubmitError(estimationError);
-
-          return;
-        }
-
-        const doOperation = async () => {
-          const operation = await submitOperation(
-            tezos,
-            gasFee,
-            storageLimit,
-            estimationData.revealFee,
-            displayedFeeOptions
-          );
-
-          onConfirm();
-
-          // @ts-expect-error
-          const txHash = operation?.hash || operation?.opHash;
-          onSuccess({ txHash, displayedFee, displayedStorageFee });
-
-          const blockExplorer = getActiveBlockExplorer(network.chainId);
-
-          if (!suppressSubmitToast) {
-            showTxSubmitToastWithDelay(TempleChainKind.Tezos, txHash, blockExplorer.url);
-          }
-
-          dispatch(
-            addPendingTezosTransactionAction({
-              txHash,
-              accountPkh,
-              network,
-              blockExplorerUrl: makeBlockExplorerHref(blockExplorer.url, txHash, 'tx', TempleChainKind.Tezos),
-              submittedAt: Date.now(),
-              kind: 'transfer',
-              silent: suppressSubmitToast
-            })
-          );
-          dispatch(monitorPendingTezosTransactionsAction());
-        };
-
-        if (isLedgerAccount) {
-          const redirected = await guard(account.type);
-          if (redirected) return;
-          await runConnectedLedgerOperationFlow(doOperation, setLedgerApprovalModalState, true);
-        } else {
-          await doOperation();
-        }
-      } catch (err: any) {
-        onSubmitError(err);
+        return;
       }
-    },
-    [
-      formState.isSubmitting,
-      estimationData,
-      displayedFeeOptions,
-      isLedgerAccount,
-      estimationError,
-      submitOperation,
-      tezos,
-      onConfirm,
-      onSuccess,
-      getActiveBlockExplorer,
-      network,
-      setLedgerApprovalModalState,
-      onSubmitError,
-      assertCustomGasFeeNotTooLow,
-      accountPkh,
-      guard,
-      account.type,
-      displayedFee,
-      displayedStorageFee,
-      suppressSubmitToast
-    ]
-  );
+
+      if (!estimationData || estimationError) {
+        onSubmitError(estimationError);
+
+        return;
+      }
+
+      const doOperation = async () => {
+        const operation = await submitOperation(
+          tezos,
+          gasFee,
+          storageLimit,
+          estimationData.revealFee,
+          displayedFeeOptions
+        );
+
+        onConfirm();
+
+        // @ts-expect-error
+        const txHash = operation?.hash || operation?.opHash;
+        onSuccess({ txHash, displayedFee, displayedStorageFee });
+
+        const blockExplorer = getActiveBlockExplorer(network.chainId);
+
+        if (!suppressSubmitToast) {
+          showTxSubmitToastWithDelay(TempleChainKind.Tezos, txHash, blockExplorer.url);
+        }
+
+        dispatch(
+          addPendingTezosTransactionAction({
+            txHash,
+            accountPkh,
+            network,
+            blockExplorerUrl: makeBlockExplorerHref(blockExplorer.url, txHash, 'tx', TempleChainKind.Tezos),
+            submittedAt: Date.now(),
+            kind: 'transfer',
+            silent: suppressSubmitToast
+          })
+        );
+        dispatch(monitorPendingTezosTransactionsAction());
+      };
+
+      if (isLedgerAccount) {
+        const redirected = await guard(account.type);
+        if (redirected) return;
+        await runConnectedLedgerOperationFlow(doOperation, setLedgerApprovalModalState, true);
+      } else {
+        await doOperation();
+      }
+    } catch (err: any) {
+      onSubmitError(err);
+    }
+  };
 
   return (
     <>

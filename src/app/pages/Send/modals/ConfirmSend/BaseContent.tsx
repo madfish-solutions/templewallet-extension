@@ -1,4 +1,4 @@
-import React, { ReactNode, useCallback } from 'react';
+import React, { ReactNode } from 'react';
 
 import { SubmitHandler, useFormContext } from 'react-hook-form';
 
@@ -63,7 +63,7 @@ export const BaseContent = <T extends TxParamsFormData>({
 }: BaseContentProps<T>) => {
   const { formState } = useFormContext<T>();
 
-  const goToFeeTab = useCallback(() => setSelectedTab('fee'), [setSelectedTab]);
+  const goToFeeTab = () => setSelectedTab('fee');
 
   const balancesChanges = useSendBalancesChanges(assetSlug, amount, decimals);
 

@@ -1,4 +1,4 @@
-import React, { FC, useMemo } from 'react';
+import { FC, useMemo } from 'react';
 
 import { DeadEndBoundaryError } from 'app/ErrorBoundary';
 import { CrossChainActivityRow } from 'app/pages/Send/cross-chain/components/CrossChainActivityRow';
@@ -33,18 +33,8 @@ export const EvmActivityList: FC<Props> = ({ chainId, assetSlug, filterKind, onC
 
   if (!network || !accountAddress) throw new DeadEndBoundaryError();
 
-  const {
-    activities,
-    isLoading,
-    reachedTheEnd,
-    error,
-    setActivities,
-    setIsLoading,
-    setReachedTheEnd,
-    setError,
-    loadNext
-  } = useActivitiesLoadingLogic<EvmActivity>(
-    async (initial, signal) => {
+  const { activities, isLoading, reachedTheEnd, error, loadNext } = useActivitiesLoadingLogic<EvmActivity>(
+    async ({ setIsLoading, setActivities, setReachedTheEnd, setError }, activities, initial, signal) => {
       setIsLoading(true);
 
       const currActivities = initial ? [] : activities;
