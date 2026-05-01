@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { ReactNode, useCallback } from 'react';
 
 import { SubmitHandler, useFormContext } from 'react-hook-form';
 
@@ -36,6 +36,8 @@ interface BaseContentProps<T extends TxParamsFormData> {
   displayedStorageFee?: string;
   displayedFeeOptions?: DisplayedFeeOptions;
   decimals?: number;
+  /** Replaces the default recipient row in the details tab (used for cross-chain extra rows). */
+  detailsContent?: ReactNode;
 }
 
 export const BaseContent = <T extends TxParamsFormData>({
@@ -56,7 +58,8 @@ export const BaseContent = <T extends TxParamsFormData>({
   displayedFee,
   displayedStorageFee,
   displayedFeeOptions,
-  decimals
+  decimals,
+  detailsContent
 }: BaseContentProps<T>) => {
   const { formState } = useFormContext<T>();
 
@@ -99,6 +102,7 @@ export const BaseContent = <T extends TxParamsFormData>({
           tabsName="confirm-send-tabs"
           destinationName={<T id="recipient" />}
           destinationValue={<HashChip hash={recipientAddress} />}
+          detailsContent={detailsContent}
         />
       </div>
 

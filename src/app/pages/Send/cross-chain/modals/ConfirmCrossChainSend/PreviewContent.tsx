@@ -1,20 +1,28 @@
-import React, { FC, memo, useEffect, useRef } from 'react';
+import React, { FC, memo, useCallback, useEffect, useMemo, useRef } from 'react';
 
 import { Loader } from 'app/atoms';
 import { CaptionAlert } from 'app/atoms/CaptionAlert';
 import { ActionsButtonsBox } from 'app/atoms/PageModal/actions-buttons-box';
 import { StyledButton } from 'app/atoms/StyledButton';
+import { EvmReviewData, TezosReviewData } from 'app/pages/Send/form/interfaces';
+import { EvmContent } from 'app/pages/Send/modals/ConfirmSend/EvmContent';
+import { TezosContent } from 'app/pages/Send/modals/ConfirmSend/TezosContent';
+import { TxData } from 'app/pages/Send/modals/ConfirmSend/types';
+import { ExchangeData } from 'lib/apis/exolix/types';
 import { useAnalytics } from 'lib/analytics';
 import { T, t } from 'lib/i18n';
-import { useAccountForEvm, useAccountForTezos } from 'temple/front';
+import { useCategorizedTezosAssetMetadata } from 'lib/metadata';
+import { EvmEstimationDataProvider, TezosEstimationDataProvider } from 'lib/temple/front/estimation-data-providers';
+import { AccountForChain } from 'temple/accounts';
+import { EvmChain, TezosChain, useAccount, useAccountForEvm, useAccountForTezos } from 'temple/front';
 import { useEvmChainByChainId, useTezosChainByChainId } from 'temple/front/chains';
 import { TempleChainKind } from 'temple/types';
 
 import { CrossChainAnalyticsEvents } from '../../analytics';
 import { useCrossChainExchangeReservation } from '../../hooks/use-cross-chain-exchange-reservation';
+import { useSubmitCrossChainExchange } from '../../hooks/use-submit-cross-chain-exchange';
 
-import { PreviewBodyEvm } from './PreviewBodyEvm';
-import { PreviewBodyTezos } from './PreviewBodyTezos';
+import { CrossChainPreviewRows } from './CrossChainPreviewRows';
 import { ConfirmCrossChainReviewData } from './types';
 
 interface Props {
@@ -74,32 +82,184 @@ export const PreviewContent: FC<Props> = ({ data, onSubmitted, onCancel, devForc
 
   if (fromAsset.chainKind === TempleChainKind.EVM && evmAccount && evmNetwork) {
     return (
-      <PreviewBodyEvm
-        data={data}
-        exchange={exchange}
-        account={evmAccount}
-        network={evmNetwork}
-        onSubmitted={onSubmitted}
-        onCancel={onCancel}
-      />
+      <EvmEstimationDataProvider>
+        <EvmPreviewBody
+          data={data}
+          exchange={exchange}
+          account={evmAccount}
+          network={evmNetwork}
+          onSubmitted={onSubmitted}
+          onCancel={onCancel}
+        />
+      </EvmEstimationDataProvider>
     );
   }
 
   if (fromAsset.chainKind === TempleChainKind.Tezos && tezosAccount && tezosNetwork) {
     return (
-      <PreviewBodyTezos
-        data={data}
-        exchange={exchange}
-        account={tezosAccount}
-        network={tezosNetwork}
-        onSubmitted={onSubmitted}
-        onCancel={onCancel}
-      />
+      <TezosEstimationDataProvider>
+        <TezosPreviewBody
+          data={data}
+          exchange={exchange}
+          account={tezosAccount}
+          network={tezosNetwork}
+          onSubmitted={onSubmitted}
+          onCancel={onCancel}
+        />
+      </TezosEstimationDataProvider>
     );
   }
 
+  return <ReservationFailureView error={new Error(t('crossChainSourceAccountUnavailable'))} onClose={onCancel} />;
+};
+
+interface PreviewBodyProps<TAccount, TNetwork> {
+  data: ConfirmCrossChainReviewData;
+  exchange: ExchangeData;
+  account: TAccount;
+  network: TNetwork;
+  onSubmitted: (exchangeId: string) => void;
+  onCancel: EmptyFn;
+}
+
+const EvmPreviewBody: FC<PreviewBodyProps<AccountForChain<TempleChainKind.EVM>, EvmChain>> = ({
+  data,
+  exchange,
+  account,
+  network,
+  onSubmitted,
+  onCancel
+}) => {
+  const { fromAsset, toAsset, fromAmount, toAmountEstimated, recipient } = data;
+  const currentAccount = useAccount();
+  const recordCrossChainExchange = useSubmitCrossChainExchange();
+
+  const reviewData = useMemo<EvmReviewData>(
+    () => ({
+      account,
+      network,
+      assetSlug: fromAsset.assetSlug ?? '',
+      to: exchange.depositAddress,
+      amount: fromAmount,
+      onConfirm: () => {}
+    }),
+    [account, network, fromAsset.assetSlug, exchange.depositAddress, fromAmount]
+  );
+
+  const handleSuccess = useCallback(
+    ({ txHash }: TxData<TempleChainKind.EVM>) => {
+      recordCrossChainExchange({
+        accountId: currentAccount.id,
+        sourceChainKind: TempleChainKind.EVM,
+        sourceChainId: network.chainId,
+        senderAddress: account.address,
+        txHash,
+        exchange,
+        fromAsset,
+        toAsset,
+        fromAmount,
+        toAmountEstimated,
+        recipient
+      });
+      onSubmitted(exchange.id);
+    },
+    [
+      currentAccount.id,
+      network.chainId,
+      account.address,
+      exchange,
+      fromAsset,
+      toAsset,
+      fromAmount,
+      toAmountEstimated,
+      recipient,
+      recordCrossChainExchange,
+      onSubmitted
+    ]
+  );
+
   return (
-    <ReservationFailureView error={new Error(t('crossChainSourceAccountUnavailable'))} onClose={onCancel} />
+    <EvmContent
+      data={reviewData}
+      onClose={onCancel}
+      onSuccess={handleSuccess}
+      detailsContent={<CrossChainPreviewRows recipient={recipient} fromAsset={fromAsset} toAsset={toAsset} />}
+      silentEstimation
+      suppressSubmitToast
+    />
+  );
+};
+
+const TezosPreviewBody: FC<PreviewBodyProps<AccountForChain<TempleChainKind.Tezos>, TezosChain>> = ({
+  data,
+  exchange,
+  account,
+  network,
+  onSubmitted,
+  onCancel
+}) => {
+  const { fromAsset, toAsset, fromAmount, toAmountEstimated, recipient } = data;
+  const currentAccount = useAccount();
+  const recordCrossChainExchange = useSubmitCrossChainExchange();
+
+  const assetMetadata = useCategorizedTezosAssetMetadata(fromAsset.assetSlug ?? '', network.chainId);
+
+  const reviewData = useMemo<TezosReviewData>(
+    () => ({
+      account,
+      network,
+      assetSlug: fromAsset.assetSlug ?? '',
+      to: exchange.depositAddress,
+      amount: fromAmount,
+      onConfirm: () => {}
+    }),
+    [account, network, fromAsset.assetSlug, exchange.depositAddress, fromAmount]
+  );
+
+  const handleSuccess = useCallback(
+    ({ txHash }: TxData<TempleChainKind.Tezos>) => {
+      recordCrossChainExchange({
+        accountId: currentAccount.id,
+        sourceChainKind: TempleChainKind.Tezos,
+        sourceChainId: network.chainId,
+        senderAddress: account.address,
+        txHash,
+        exchange,
+        fromAsset,
+        toAsset,
+        fromAmount,
+        toAmountEstimated,
+        recipient
+      });
+      onSubmitted(exchange.id);
+    },
+    [
+      currentAccount.id,
+      network.chainId,
+      account.address,
+      exchange,
+      fromAsset,
+      toAsset,
+      fromAmount,
+      toAmountEstimated,
+      recipient,
+      recordCrossChainExchange,
+      onSubmitted
+    ]
+  );
+
+  if (!assetMetadata) {
+    return <CenteredLoader />;
+  }
+
+  return (
+    <TezosContent
+      data={reviewData}
+      onClose={onCancel}
+      onSuccess={handleSuccess}
+      detailsContent={<CrossChainPreviewRows recipient={recipient} fromAsset={fromAsset} toAsset={toAsset} />}
+      suppressSubmitToast
+    />
   );
 };
 

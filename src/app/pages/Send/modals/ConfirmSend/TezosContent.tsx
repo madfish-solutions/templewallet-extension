@@ -1,4 +1,4 @@
-import React, { FC, useCallback, useState } from 'react';
+import React, { FC, ReactNode, useCallback, useState } from 'react';
 
 import { OpKind, TransferParams, WalletParamsWithKind } from '@taquito/taquito';
 import { FormProvider } from 'react-hook-form';
@@ -40,9 +40,17 @@ interface TezosContentProps {
   data: TezosReviewData;
   onSuccess: (txData: TxData<TempleChainKind.Tezos>) => void;
   onClose: EmptyFn;
+  detailsContent?: ReactNode;
+  suppressSubmitToast?: boolean;
 }
 
-export const TezosContent: FC<TezosContentProps> = ({ data, onClose, onSuccess }) => {
+export const TezosContent: FC<TezosContentProps> = ({
+  data,
+  onClose,
+  onSuccess,
+  detailsContent,
+  suppressSubmitToast
+}) => {
   const { account, network, assetSlug, to, amount, onConfirm } = data;
   const { rpcBaseURL, chainId } = network;
 
@@ -169,7 +177,9 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose, onSuccess }
 
           const blockExplorer = getActiveBlockExplorer(network.chainId);
 
-          showTxSubmitToastWithDelay(TempleChainKind.Tezos, txHash, blockExplorer.url);
+          if (!suppressSubmitToast) {
+            showTxSubmitToastWithDelay(TempleChainKind.Tezos, txHash, blockExplorer.url);
+          }
 
           dispatch(
             addPendingTezosTransactionAction({
@@ -214,7 +224,8 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose, onSuccess }
       guard,
       account.type,
       displayedFee,
-      displayedStorageFee
+      displayedStorageFee,
+      suppressSubmitToast
     ]
   );
 
@@ -240,6 +251,7 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose, onSuccess }
           selectedFeeOption={selectedFeeOption}
           onCancel={onClose}
           onSubmit={onSubmit}
+          detailsContent={detailsContent}
         />
       </FormProvider>
       <LedgerFullViewPromptModal {...ledgerPromptProps} />

@@ -1,4 +1,4 @@
-import React, { FC, useCallback, useState } from 'react';
+import React, { FC, ReactNode, useCallback, useState } from 'react';
 
 import { omit } from 'lodash';
 import { FormProvider } from 'react-hook-form';
@@ -34,9 +34,19 @@ interface EvmContentProps {
   data: EvmReviewData;
   onClose: EmptyFn;
   onSuccess: (txData: TxData<TempleChainKind.EVM>) => void;
+  detailsContent?: ReactNode;
+  silentEstimation?: boolean;
+  suppressSubmitToast?: boolean;
 }
 
-export const EvmContent: FC<EvmContentProps> = ({ data, onClose, onSuccess }) => {
+export const EvmContent: FC<EvmContentProps> = ({
+  data,
+  onClose,
+  onSuccess,
+  detailsContent,
+  silentEstimation,
+  suppressSubmitToast
+}) => {
   const { account, network, assetSlug, to, amount, onConfirm } = data;
 
   const accountPkh = account.address as HexString;
@@ -60,7 +70,8 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose, onSuccess }) =>
     balance,
     ethBalance,
     toFilled: true,
-    amount
+    amount,
+    silent: silentEstimation
   });
 
   const {
@@ -94,7 +105,9 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose, onSuccess }) =>
       const feesPerGas = getFeesPerGas(gasPrice);
 
       if (!assetMetadata) {
-        throw new Error('Asset metadata not found.');
+        onSubmitError(new Error('Asset metadata not found.'));
+
+        return;
       }
 
       if (!estimationData || !feesPerGas) {
@@ -134,7 +147,9 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose, onSuccess }) =>
 
           const blockExplorer = getActiveBlockExplorer(network.chainId.toString());
 
-          showTxSubmitToastWithDelay(TempleChainKind.EVM, txHash, blockExplorer.url);
+          if (!suppressSubmitToast) {
+            showTxSubmitToastWithDelay(TempleChainKind.EVM, txHash, blockExplorer.url);
+          }
 
           dispatch(
             addPendingEvmTransferAction({
@@ -184,7 +199,8 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose, onSuccess }) =>
       setLedgerApprovalModalState,
       assetSlug,
       preconnectIfNeeded,
-      displayedFee
+      displayedFee,
+      suppressSubmitToast
     ]
   );
 
@@ -209,6 +225,7 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose, onSuccess }) =>
           onFeeOptionSelect={handleFeeOptionSelect}
           onCancel={onClose}
           onSubmit={onSubmit}
+          detailsContent={detailsContent}
         />
       </FormProvider>
       <LedgerFullViewPromptModal {...ledgerPromptProps} />
