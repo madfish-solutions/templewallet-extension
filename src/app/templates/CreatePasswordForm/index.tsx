@@ -13,6 +13,7 @@ import { PASSWORD_PATTERN, PasswordValidation, formatMnemonic, passwordValidatio
 import { setIsSidebarByDefault } from 'app/env';
 import { useFirefoxDataConsent } from 'app/pages/Welcome/data-collection-agreement/use-firefox-data-consent.hook';
 import { dispatch } from 'app/store';
+import { setMerchantPromotionEnabledAction } from 'app/store/merchant-promotion/actions';
 import { togglePartnersPromotionAction } from 'app/store/partners-promotion/actions';
 import { setIsAnalyticsEnabledAction, setReferralLinksEnabledAction } from 'app/store/settings/actions';
 import { toastError } from 'app/toaster';
@@ -135,6 +136,7 @@ export const CreatePasswordForm = memo<CreatePasswordFormProps>(
 
           dispatch(togglePartnersPromotionAction(adsViewEnabled));
           dispatch(setIsAnalyticsEnabledAction(analyticsEnabled));
+          dispatch(setMerchantPromotionEnabledAction(adsViewEnabled));
           dispatch(setReferralLinksEnabledAction(adsViewEnabled));
 
           // registerWallet function clears async storages
@@ -145,11 +147,16 @@ export const CreatePasswordForm = memo<CreatePasswordFormProps>(
           await putToStorage(SHOULD_DISABLE_NOT_ACTIVE_NETWORKS_STORAGE_KEY, true);
           await putToStorage(KOLO_FORCE_LOGOUT_ON_NEXT_OPEN_STORAGE_KEY, true);
 
-          if (adsViewEnabled && analyticsEnabled) {
-            trackEvent('AnalyticsAndAdsEnabled', AnalyticsEventCategory.General, { accountPkh }, true);
-          } else {
-            trackEvent('AnalyticsEnabled', AnalyticsEventCategory.General, { accountPkh }, analyticsEnabled);
-            trackEvent('AdsEnabled', AnalyticsEventCategory.General, { accountPkh }, adsViewEnabled);
+          const trackGeneralEvent = (eventName: string) =>
+            trackEvent(eventName, AnalyticsEventCategory.General, { accountPkh }, true);
+
+          if (analyticsEnabled) {
+            trackGeneralEvent('AnalyticsEnabled');
+
+            if (adsViewEnabled) {
+              trackGeneralEvent('AdsEnabled');
+              trackGeneralEvent('DealsEnabled');
+            }
           }
 
           if (IS_SIDE_PANEL_AVAILABLE) {
