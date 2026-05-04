@@ -17,6 +17,18 @@ interface Props {
   onExchangeClick: (exchange: CrossChainExchange) => void;
 }
 
+const getGroups = (exchanges: CrossChainExchange[]) => {
+  const sorted = [...exchanges].sort((a, b) => b.createdAt - a.createdAt);
+  const byDay = new Map<string, CrossChainExchange[]>();
+  for (const ex of sorted) {
+    const key = formatDate(ex.createdAt, 'PP');
+    const list = byDay.get(key);
+    if (list) list.push(ex);
+    else byDay.set(key, [ex]);
+  }
+  return Array.from(byDay.entries());
+};
+
 export const CrossChainActivityModal: FC<Props> = ({ opened, onRequestClose, accountId, onExchangeClick }) => {
   const exchanges = useCrossChainExchangesForAccountSelector(accountId);
 
@@ -27,17 +39,7 @@ export const CrossChainActivityModal: FC<Props> = ({ opened, onRequestClose, acc
       .forEach(e => dispatch(dismissCrossChainBannerAction(e.id)));
   }, [opened, exchanges]);
 
-  const groups = (() => {
-    const sorted = [...exchanges].sort((a, b) => b.createdAt - a.createdAt);
-    const byDay = new Map<string, CrossChainExchange[]>();
-    for (const ex of sorted) {
-      const key = formatDate(ex.createdAt, 'PP');
-      const list = byDay.get(key);
-      if (list) list.push(ex);
-      else byDay.set(key, [ex]);
-    }
-    return Array.from(byDay.entries());
-  })();
+  const groups = getGroups(exchanges);
 
   return (
     <MiniPageModal title={t('crossChainActivityTitle')} opened={opened} onRequestClose={onRequestClose}>

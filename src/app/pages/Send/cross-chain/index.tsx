@@ -2,7 +2,7 @@ import React, { FC, useEffect, useRef, useState } from 'react';
 
 import BigNumber from 'bignumber.js';
 import { isEmpty } from 'lodash';
-import { FormProvider, useForm } from 'react-hook-form';
+import { FormProvider, useForm, useWatch } from 'react-hook-form';
 
 import { ActionsButtonsBox } from 'app/atoms/PageModal/actions-buttons-box';
 import { StyledButton } from 'app/atoms/StyledButton';
@@ -52,9 +52,20 @@ interface Props {
   resetSignal?: number;
 }
 
+const refreshAsset = (
+  asset: CrossChainAsset,
+  networksMapReady: boolean,
+  candidates: CrossChainAsset[]
+): CrossChainAsset => {
+  if (!networksMapReady) return asset;
+  const fresh = candidates.find(c => toCrossChainAssetSlug(c) === toCrossChainAssetSlug(asset));
+  if (!fresh || fresh.exolixNetwork === asset.exolixNetwork) return asset;
+  return fresh;
+};
+
 export const CrossChainForm: FC<Props> = ({ onReview, resetSignal }) => {
-  const [fromAsset, setFromAsset] = useState<CrossChainAsset>(CROSS_CHAIN_ASSETS.TEZOS_USDT);
-  const [toAsset, setToAsset] = useState<CrossChainAsset>(CROSS_CHAIN_ASSETS.ETH_USDT);
+  const [baseFromAsset, setFromAsset] = useState<CrossChainAsset>(CROSS_CHAIN_ASSETS.TEZOS_USDT);
+  const [baseToAsset, setToAsset] = useState<CrossChainAsset>(CROSS_CHAIN_ASSETS.ETH_USDT);
 
   const [selectOpened, setSelectOpened, setSelectClosed] = useBooleanState(false);
   const [selectKind, setSelectKind] = useState<SelectKind>('from');
@@ -62,18 +73,8 @@ export const CrossChainForm: FC<Props> = ({ onReview, resetSignal }) => {
 
   const { map: networksMap, isReady: networksMapReady } = useCrossChainExolixNetworksMap();
 
-  useEffect(() => {
-    if (!networksMapReady) return;
-    const resolveFresh = (asset: CrossChainAsset, candidates: CrossChainAsset[]) =>
-      candidates.find(c => toCrossChainAssetSlug(c) === toCrossChainAssetSlug(asset));
-
-    const refreshedFrom = resolveFresh(fromAsset, getAllowedFromAssets(networksMap));
-    if (refreshedFrom && refreshedFrom.exolixNetwork !== fromAsset.exolixNetwork) setFromAsset(refreshedFrom);
-
-    const refreshedTo = resolveFresh(toAsset, getAllowedToAssets(fromAsset, networksMap));
-    if (refreshedTo && refreshedTo.exolixNetwork !== toAsset.exolixNetwork) setToAsset(refreshedTo);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [networksMap, networksMapReady]);
+  const fromAsset = refreshAsset(baseFromAsset, networksMapReady, getAllowedFromAssets(networksMap));
+  const toAsset = refreshAsset(baseToAsset, networksMapReady, getAllowedToAssets(fromAsset, networksMap));
 
   const form = useForm<CrossChainFormData>({
     mode: 'onSubmit',
@@ -81,18 +82,22 @@ export const CrossChainForm: FC<Props> = ({ onReview, resetSignal }) => {
     defaultValues: { fromAmount: '', to: '' }
   });
 
-  const { watch, handleSubmit, setValue, setError, clearErrors, formState, reset } = form;
+  const { control, handleSubmit, setValue, setError, clearErrors, formState, reset } = form;
+
+  const [prevResetSignal, setPrevResetSignal] = useState(resetSignal);
+  if (resetSignal !== undefined && prevResetSignal !== resetSignal) {
+    setPrevResetSignal(resetSignal);
+    setIsFiatMode(false);
+  }
 
   useEffect(() => {
     if (resetSignal === undefined) return;
     reset({ fromAmount: '', to: '' });
-    setIsFiatMode(false);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [resetSignal]);
+  }, [resetSignal, reset]);
   const { submitCount, errors } = formState;
   const formSubmitted = submitCount > 0;
 
-  const fromAmount = watch('fromAmount');
+  const fromAmount = useWatch({ control, name: 'fromAmount' });
 
   const balance = useCrossChainFromBalance(fromAsset);
 

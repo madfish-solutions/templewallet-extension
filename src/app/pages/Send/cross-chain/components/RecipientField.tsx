@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-import { Controller, useFormContext, useFormState } from 'react-hook-form';
+import { Controller, useFormContext, useFormState, useWatch } from 'react-hook-form';
 import { useDebounce } from 'use-debounce';
 
 import { NoSpaceField } from 'app/atoms';
@@ -24,10 +24,10 @@ const DEST_LABEL: Record<CrossChainDest, string> = {
 };
 
 export const RecipientField: React.FC<Props> = ({ toAsset }) => {
-  const { control, setValue, watch } = useFormContext<CrossChainFormData>();
+  const { control, setValue } = useFormContext<CrossChainFormData>();
   const { errors, submitCount } = useFormState<CrossChainFormData>({ control, name: 'to' });
 
-  const toValue = watch('to');
+  const toValue = useWatch({ control, name: 'to' });
   const [toValueDebounced] = useDebounce(toValue, 300);
   const formSubmitted = submitCount > 0;
   const hasRecipientError = formSubmitted && Boolean(errors.to);

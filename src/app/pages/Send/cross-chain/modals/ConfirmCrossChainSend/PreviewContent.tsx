@@ -1,5 +1,7 @@
 import React, { FC, useEffect, useRef } from 'react';
 
+import { noop } from 'lodash';
+
 import { Loader } from 'app/atoms';
 import { CaptionAlert } from 'app/atoms/CaptionAlert';
 import { ActionsButtonsBox } from 'app/atoms/PageModal/actions-buttons-box';
@@ -146,7 +148,7 @@ const EvmPreviewBody: FC<PreviewBodyProps<AccountForChain<TempleChainKind.EVM>, 
     assetSlug: fromAsset.assetSlug ?? '',
     to: exchange.depositAddress,
     amount: fromAmount,
-    onConfirm: () => {}
+    onConfirm: noop
   };
 
   const handleSuccess = ({ txHash }: TxData<TempleChainKind.EVM>) => {
@@ -201,7 +203,7 @@ const TezosPreviewBody: FC<PreviewBodyProps<AccountForChain<TempleChainKind.Tezo
     assetSlug: fromAsset.assetSlug ?? '',
     to: exchange.depositAddress,
     amount: fromAmount,
-    onConfirm: () => {}
+    onConfirm: noop
   };
 
   const handleSuccess = ({ txHash }: TxData<TempleChainKind.Tezos>) => {
