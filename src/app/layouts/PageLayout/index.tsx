@@ -31,6 +31,7 @@ import { OnRampOverlay } from './OnRampOverlay/OnRampOverlay';
 import { ReactivateAdsOverlay } from './ReactivateAdsOverlay';
 import { ScrollRestorer } from './ScrollRestorer';
 import { ShortcutAccountSwitchOverlay } from './ShortcutAccountSwitchOverlay';
+import { WelcomeRewardsModal } from './WelcomeRewardsModal';
 
 interface ScrollEdgesVisibilityProps {
   onBottomEdgeVisibilityChange?: SyncFn<boolean>;
@@ -128,6 +129,7 @@ const PageLayout: FC<PropsWithChildren<PageLayoutProps>> = ({
           {/*TODO: Update overlay UI*/}
           {/*<NewsletterOverlay />*/}
           <ReactivateAdsOverlay />
+          <WelcomeRewardsModal />
         </>
       )}
       {ready && (

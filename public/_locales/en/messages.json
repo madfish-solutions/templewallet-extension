@@ -4604,6 +4604,21 @@
   "yourWalletIsReady": {
     "message": "Your wallet is ready"
   },
+  "welcomeToRewards": {
+    "message": "Welcome to Rewards"
+  },
+  "welcomeToRewardsDescription": {
+    "message": "Your wallet is ready and now earning. No extra steps, no points - rewards accrue passively with auto-payouts. Here's what's unlocked for you:"
+  },
+  "welcomeRewardsCashback": {
+    "message": "Up to 25% cashback in USDT from thousands of partners."
+  },
+  "welcomeRewardsPromo": {
+    "message": "Automatic rewards in TKEY for non-intrusive promo content."
+  },
+  "goToRewards": {
+    "message": "Go to Rewards"
+  },
   "walletCreatedSuccessfully": {
     "message": "Wallet has been created successfully"
   },

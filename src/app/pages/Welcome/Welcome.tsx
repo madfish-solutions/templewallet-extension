@@ -15,10 +15,11 @@ import { useFirefoxDataConsent } from 'app/pages/Welcome/data-collection-agreeme
 import { CreatePasswordForm } from 'app/templates/CreatePasswordForm';
 import { GoogleBackupStatusModalContent } from 'app/templates/google-backup-status-modal-content';
 import { ImportSeedForm } from 'app/templates/ImportSeedForm';
+import { SHOULD_SHOW_WELCOME_REWARDS_MODAL_STORAGE_KEY } from 'lib/constants';
 import { IS_FIREFOX } from 'lib/env';
 import { t, T, TID } from 'lib/i18n';
 import type { EncryptedBackupObject } from 'lib/temple/backup';
-import { useTempleClient } from 'lib/temple/front';
+import { useStorage, useTempleClient } from 'lib/temple/front';
 import { useInitToastMessage } from 'lib/temple/front/toasts-context';
 import { useBooleanState } from 'lib/ui/hooks';
 import { goBack, navigate, useLocation } from 'lib/woozie';
@@ -93,6 +94,7 @@ const Welcome = memo(() => {
   useABTestingLoading();
   const { setGoogleAuthToken, setSuppressReady } = useTempleClient();
   const [, setInitToast] = useInitToastMessage();
+  const [shouldShowWelcomeRewardsModal] = useStorage(SHOULD_SHOW_WELCOME_REWARDS_MODAL_STORAGE_KEY, false);
   const { historyPosition } = useLocation();
 
   useShouldShowIntroModals(false);
@@ -108,10 +110,12 @@ const Welcome = memo(() => {
   const titleI18nKey = stageModalTitleI18nKeys[walletCreationState.stage];
 
   const handleBackupFinish = useCallback(() => {
-    setInitToast(t('yourWalletIsReady'));
+    if (!shouldShowWelcomeRewardsModal) {
+      setInitToast(t('yourWalletIsReady'));
+    }
     setSuppressReady(false);
     navigate('/loading');
-  }, [setInitToast, setSuppressReady]);
+  }, [setInitToast, setSuppressReady, shouldShowWelcomeRewardsModal]);
   const closeModal = useCallback(() => {
     if (historyPosition !== 0) {
       goBack();

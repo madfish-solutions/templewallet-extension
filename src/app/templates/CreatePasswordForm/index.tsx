@@ -27,6 +27,7 @@ import {
   SHOULD_DISABLE_NOT_ACTIVE_NETWORKS_STORAGE_KEY,
   SHOULD_OPEN_LETS_EXCHANGE_MODAL_STORAGE_KEY,
   SHOULD_PROMOTE_ROOTSTOCK_STORAGE_KEY,
+  SHOULD_SHOW_WELCOME_REWARDS_MODAL_STORAGE_KEY,
   SIDE_VIEW_WAS_FORCED_STORAGE_KEY,
   TERMS_OF_USE_URL,
   WEBSITES_ANALYTICS_ENABLED
@@ -146,6 +147,7 @@ export const CreatePasswordForm = memo<CreatePasswordFormProps>(
           await putToStorage(SHOULD_PROMOTE_ROOTSTOCK_STORAGE_KEY, false);
           await putToStorage(SHOULD_DISABLE_NOT_ACTIVE_NETWORKS_STORAGE_KEY, true);
           await putToStorage(KOLO_FORCE_LOGOUT_ON_NEXT_OPEN_STORAGE_KEY, true);
+          await putToStorage(SHOULD_SHOW_WELCOME_REWARDS_MODAL_STORAGE_KEY, adsViewEnabled);
 
           const trackGeneralEvent = (eventName: string) =>
             trackEvent(eventName, AnalyticsEventCategory.General, { accountPkh }, true);
@@ -165,7 +167,9 @@ export const CreatePasswordForm = memo<CreatePasswordFormProps>(
           }
 
           if (mnemonicToImport) {
-            setInitToast(t(backupPassword ? 'yourWalletIsReady' : 'importSuccessful'));
+            if (!adsViewEnabled) {
+              setInitToast(t(backupPassword ? 'yourWalletIsReady' : 'importSuccessful'));
+            }
             navigate('/loading');
           } else if (!googleAuthToken) {
             await putToStorage(SHOULD_BACKUP_MNEMONIC_STORAGE_KEY, true);
