@@ -1,3 +1,5 @@
+import { useMemo } from 'react';
+
 import { isTerminalPhase } from 'lib/cross-chain';
 
 import { useSelector } from '../index';
@@ -13,12 +15,12 @@ const useCrossChainIdsSelector = () => useSelector(({ crossChainSend }) => cross
 export const useAllCrossChainExchangesSelector = () => {
   const byId = useCrossChainByIdSelector();
   const ids = useCrossChainIdsSelector();
-  return ids.map(id => byId[id]).filter(Boolean);
+  return useMemo(() => ids.map(id => byId[id]).filter(Boolean), [byId, ids]);
 };
 
 export const useCrossChainExchangesForAccountSelector = (accountId: string | undefined) => {
   const all = useAllCrossChainExchangesSelector();
-  return accountId ? all.filter(e => e.accountId === accountId) : [];
+  return useMemo(() => (accountId ? all.filter(e => e.accountId === accountId) : []), [all, accountId]);
 };
 
 export const useHasActiveCrossChainExchangesSelector = (accountId: string | undefined) => {

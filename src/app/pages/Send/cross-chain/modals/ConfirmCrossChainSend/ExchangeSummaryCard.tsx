@@ -7,9 +7,9 @@ import { HashChip } from 'app/atoms/HashChip';
 import { ReactComponent as CompactDown } from 'app/icons/base/chevron_down.svg';
 import { ReactComponent as CopyIcon } from 'app/icons/base/copy.svg';
 import { ChartListItem } from 'app/templates/chart-list-item';
-import { toastSuccess } from 'app/toaster';
 import { CROSS_CHAIN_DEFAULT_ETA, CrossChainAsset } from 'lib/cross-chain';
 import { T, TID, t } from 'lib/i18n';
+import { useCopyText } from 'lib/ui/hooks/use-copy-text';
 import { useBlockExplorerHref } from 'temple/front/use-block-explorers';
 import { TempleChainKind } from 'temple/types';
 
@@ -157,18 +157,9 @@ const DirectionalAmountRow: FC<DirectionalAmountRowProps> = ({
   </div>
 );
 
-const CopyableText: FC<{ text: string }> = ({ text }) => {
-  const handleClick = () => {
-    navigator.clipboard
-      .writeText(text)
-      .then(() => toastSuccess(t('copiedHash')))
-      .catch(console.error);
-  };
-
-  return (
-    <Button onClick={handleClick} className="flex items-center gap-x-1 p-1">
-      <span className="text-font-description">{text}</span>
-      <IconBase Icon={CopyIcon} size={12} className="text-secondary" />
-    </Button>
-  );
-};
+const CopyableText: FC<{ text: string }> = ({ text }) => (
+  <Button onClick={useCopyText(text, true)} className="flex items-center gap-x-1 p-1">
+    <span className="text-font-description">{text}</span>
+    <IconBase Icon={CopyIcon} size={12} className="text-secondary" />
+  </Button>
+);

@@ -17,11 +17,9 @@ interface Props {
   onRequestClose: EmptyFn;
   onGoBack?: EmptyFn;
   onTryAgain?: EmptyFn;
-  /** Dev/activity-entry: pre-seed an exchange id so the modal opens straight to the matching status step */
+  /** Pre-seed an exchange id so the modal opens straight to the matching status step (used when entering from the activity list). */
   initialExchangeId?: string;
   onSubmitted?: (exchangeId: string) => void;
-  /** Dev-only: force the eager Exolix reservation to fail so the failure UI can be inspected. */
-  devForceReservationError?: boolean;
 }
 
 const STEP_TITLE_ID: Record<ConfirmCrossChainStep, TID> = {
@@ -38,8 +36,7 @@ export const ConfirmCrossChainSendModal: FC<Props> = ({
   onGoBack,
   onTryAgain,
   initialExchangeId,
-  onSubmitted,
-  devForceReservationError
+  onSubmitted
 }) => {
   const [exchangeId, setExchangeId] = useState<string | undefined>(initialExchangeId);
   const closeResetTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -92,12 +89,7 @@ export const ConfirmCrossChainSendModal: FC<Props> = ({
     >
       {opened && reviewData && step === ConfirmCrossChainStep.Preview && (
         <FadeTransition>
-          <PreviewContent
-            data={reviewData}
-            onSubmitted={handleSubmitted}
-            onCancel={onGoBack ?? handleClose}
-            devForceReservationError={devForceReservationError}
-          />
+          <PreviewContent data={reviewData} onSubmitted={handleSubmitted} onCancel={onGoBack ?? handleClose} />
         </FadeTransition>
       )}
       {exchangeId && step === ConfirmCrossChainStep.Processing && (

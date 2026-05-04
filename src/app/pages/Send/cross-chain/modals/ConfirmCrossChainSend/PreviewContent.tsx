@@ -29,11 +29,9 @@ interface Props {
   data: ConfirmCrossChainReviewData;
   onSubmitted: (exchangeId: string) => void;
   onCancel: EmptyFn;
-  /** Dev-only: force the reservation SWR call to fail so the failure UI can be inspected. */
-  devForceReservationError?: boolean;
 }
 
-export const PreviewContent: FC<Props> = ({ data, onSubmitted, onCancel, devForceReservationError }) => {
+export const PreviewContent: FC<Props> = ({ data, onSubmitted, onCancel }) => {
   const { fromAsset, fromAmount, recipient, toAsset } = data;
 
   const evmAccount = useAccountForEvm();
@@ -45,8 +43,7 @@ export const PreviewContent: FC<Props> = ({ data, onSubmitted, onCancel, devForc
     fromAsset,
     toAsset,
     fromAmount,
-    recipient,
-    forceError: devForceReservationError
+    recipient
   });
 
   const { data: exchange, error, isLoading } = reservation;

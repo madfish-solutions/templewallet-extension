@@ -21,13 +21,11 @@ import {
   isPairAllowed,
   toCrossChainAssetSlug
 } from 'lib/cross-chain';
-import { IS_DEV_ENV } from 'lib/env';
 import { useAssetFiatCurrencyPrice, useFiatCurrency } from 'lib/fiat-currency';
 import { T, t } from 'lib/i18n';
 import { useBooleanState } from 'lib/ui/hooks';
 import { TempleChainKind } from 'temple/types';
 
-import { CrossChainDevPanel } from './__dev__/CrossChainDevPanel';
 import { CrossChainAnalyticsEvents } from './analytics';
 import { GetCard } from './components/GetCard';
 import { SendCard } from './components/SendCard';
@@ -310,8 +308,6 @@ export const CrossChainForm: FC<Props> = ({ onReview, resetSignal }) => {
 
           <SummaryRow feePercent={SERVICE_FEE_PERCENT} />
         </form>
-
-        {IS_DEV_ENV && <CrossChainDevPanel />}
       </div>
 
       <ActionsButtonsBox shouldCastShadow>
