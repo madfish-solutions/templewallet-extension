@@ -3718,11 +3718,11 @@
   "referralLinksHint": {
     "message": "All your referrals connected to your first created or imported account in Temple. Make sure you backed up your wallet to prevent unnecessary losses."
   },
-  "merchantOffers": {
-    "message": "Merchant offers"
+  "deals": {
+    "message": "Deals"
   },
-  "merchantOffersDescription": {
-    "message": "Earn crypto cashback and bounty with Temple Wallet from popular merchants. If active, you agree to share your wallet address and IP to receive offers and rewards."
+  "dealsDescription": {
+    "message": "Enable offers from merchants in your wallet and browser, join Temple rewards program and get paid in TKEY. If active, you agree to share your wallet address and IP to receive content and rewards."
   },
   "merchantOfferPopupTitle": {
     "message": "Rewards"
@@ -4438,6 +4438,12 @@
   },
   "properties": {
     "message": "Properties"
+  },
+  "disableDealsModalTitle": {
+    "message": "Disable deals and earning?"
+  },
+  "disableDealsModalDescription": {
+    "message": "Disabling will stop automate offer proposition from merchants, TKEY rewards earning and sharing your data to the reward system. You can turn this back on anytime here, in Settings."
   },
   "closePartnersPromotion": {
     "message": "Disable promo and earning?"
