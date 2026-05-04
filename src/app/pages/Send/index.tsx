@@ -2,6 +2,7 @@ import React, { memo, Suspense, useCallback, useEffect, useMemo, useRef, useStat
 
 import { PageTitle } from 'app/atoms';
 import { PageLoader } from 'app/atoms/Loader';
+import { useLocationSearchParamValue } from 'app/hooks/use-location';
 import PageLayout from 'app/layouts/PageLayout';
 import { useAssetsFilterOptionsSelector } from 'app/store/assets-filter-options/selectors';
 import { useTestnetModeEnabledSelector } from 'app/store/settings/selectors';
@@ -18,7 +19,6 @@ import {
 import { useBooleanState } from 'lib/ui/hooks';
 import { LEDGER_WEBHID_PENDING_PREFIX, useLedgerWebHidFullViewGuard } from 'lib/ui/ledger-webhid-guard';
 import { LedgerFullViewPromptModal } from 'lib/ui/LedgerFullViewPrompt';
-import { useLocationSearchParamValue } from 'app/hooks/use-location';
 import { useAccountAddressForEvm, useAccountForTezos, useAccountForEvm } from 'temple/front';
 import { useTezosChainByChainId, useEvmChainByChainId } from 'temple/front/chains';
 import { TempleChainKind } from 'temple/types';
