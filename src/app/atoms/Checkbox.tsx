@@ -1,4 +1,4 @@
-import { FC, InputHTMLAttributes, Ref, useCallback, useEffect, useMemo, useState, ChangeEvent } from 'react';
+import { FC, InputHTMLAttributes, Ref, useCallback, useEffect, useState, ChangeEvent } from 'react';
 
 import clsx from 'clsx';
 
@@ -31,14 +31,10 @@ export const Checkbox: FC<Props> = props => {
 
   const { localChecked, localFocused, handleChange, handleFocus, handleBlur } = useCheckboxHooks(props);
 
-  const containerClassName = useMemo(
-    () =>
-      clsx(
-        'flex justify-center items-center shrink-0 transition ease-in-out duration-200 disable-outline-for-click',
-        localFocused && 'shadow-outline',
-        !disabled && 'cursor-pointer'
-      ),
-    [localFocused, disabled]
+  const containerClassName = clsx(
+    'flex justify-center items-center shrink-0 transition ease-in-out duration-200 disable-outline-for-click',
+    localFocused && 'shadow-outline',
+    !disabled && 'cursor-pointer'
   );
 
   return (

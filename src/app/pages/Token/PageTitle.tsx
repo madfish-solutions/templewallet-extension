@@ -1,10 +1,7 @@
 import React, { memo } from 'react';
 
-import { useEvmTokenMetadataSelector } from 'app/store/evm/tokens-metadata/selectors';
 import { setAnotherSelector, setTestID } from 'lib/analytics';
-import { getAssetSymbol, useCategorizedTezosAssetMetadata } from 'lib/metadata';
-import { isEvmNativeTokenSlug } from 'lib/utils/evm.utils';
-import { useEvmChainByChainId } from 'temple/front/chains';
+import { getAssetSymbol, useCategorizedTezosAssetMetadata, useEvmCategorizedAssetMetadata } from 'lib/metadata';
 
 import { TokenPageSelectors } from './selectors';
 
@@ -27,12 +24,8 @@ export const TezosPageTitle = memo<TezosProps>(({ assetSlug, tezosChainId }) => 
 });
 
 export const EvmPageTitle = memo<EvmProps>(({ assetSlug, evmChainId }) => {
-  const network = useEvmChainByChainId(evmChainId);
-  const assetMetadata = useEvmTokenMetadataSelector(evmChainId, assetSlug);
-
-  const metadata = isEvmNativeTokenSlug(assetSlug) ? network?.currency : assetMetadata;
-
-  const assetSymbol = getAssetSymbol(metadata);
+  const assetMetadata = useEvmCategorizedAssetMetadata(assetSlug, evmChainId);
+  const assetSymbol = getAssetSymbol(assetMetadata);
 
   return <BaseTitle assetSymbol={assetSymbol} />;
 });

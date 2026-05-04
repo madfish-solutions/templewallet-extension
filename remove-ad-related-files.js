@@ -15,7 +15,7 @@ const fs = require('node:fs');
   'src/app/templates/partners-promotion/types.ts',
   'src/app/templates/partners-promotion/utils.ts',
   'src/app/hooks/ads',
-  'src/lib/ads-constants.ts',
+  'src/lib/ads-constants/ads-constants.ts',
   'src/lib/ads/index.ts',
   'src/lib/ads/persona.ts',
   'src/app/load-hypelab-script/component.ts',

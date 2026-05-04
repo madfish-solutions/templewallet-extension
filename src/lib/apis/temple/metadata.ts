@@ -1,7 +1,8 @@
 import axios from 'axios';
-import { chunk } from 'lodash';
+import { chunk, omit } from 'lodash';
 import memoizee from 'memoizee';
 
+import { ALL_PREDEFINED_METADATAS_RECORD } from 'lib/assets/known-tokens';
 import { IS_STAGE_ENV } from 'lib/env';
 import { TempleTezosChainId } from 'lib/temple/types';
 
@@ -53,10 +54,26 @@ export const fetchTokensMetadata = (
 
 const fetchTokensMetadataChunk = memoizee(
   // Simply reducing frequency of requests per set of arguments.
-  (chainId: MetadataApiChainId, slugs: string[]) =>
-    getApi(chainId)
-      .post<(TokenMetadataResponse | null)[]>('/', slugs)
-      .then(r => r.data),
+  async (chainId: MetadataApiChainId, slugs: string[]) => {
+    const slugsIndexesWithPredefinedMetadata: number[] = [];
+    for (let i = 0; i < slugs.length; i++) {
+      if (ALL_PREDEFINED_METADATAS_RECORD[slugs[i]]) {
+        slugsIndexesWithPredefinedMetadata.push(i);
+      }
+    }
+
+    const slugsToFetch = slugs.filter((_, index) => !slugsIndexesWithPredefinedMetadata.includes(index));
+
+    const response: { data: (TokenMetadataResponse | null)[] } =
+      slugsToFetch.length === 0 ? { data: [] } : await getApi(chainId).post('/', slugsToFetch);
+
+    const result = Array.from(response.data);
+    for (const index of slugsIndexesWithPredefinedMetadata) {
+      result.splice(index, 0, omit(ALL_PREDEFINED_METADATAS_RECORD[slugs[index]], ['id', 'address']));
+    }
+
+    return result;
+  },
   {
     maxAge: 10_000,
     normalizer: ([chainId, slugs]) => `${chainId}:${slugs.join()}`,

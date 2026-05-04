@@ -4,7 +4,6 @@ import RootSuspenseFallback from 'app/a11y/RootSuspenseFallback';
 import { SuspenseContainer } from 'app/atoms/SuspenseContainer';
 import { OpenInFullPage, useAppEnv } from 'app/env';
 import { CollectiblePage } from 'app/pages/Collectibles/CollectiblePage';
-import Home from 'app/pages/Home/Home';
 import { Receive } from 'app/pages/Receive/Receive';
 import Send from 'app/pages/Send';
 import Unlock from 'app/pages/Unlock/Unlock';
@@ -19,6 +18,7 @@ import { TempleChainKind } from 'temple/types';
 import { RewardsPushOverlay } from './layouts/PageLayout/RewardsPushOverlay';
 import { ActivityPage } from './pages/Activity';
 import { Dapps } from './pages/Dapps';
+import { Home } from './pages/Home';
 import { Notifications } from './pages/Notifications';
 import { TokenPage } from './pages/Token';
 

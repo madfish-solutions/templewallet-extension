@@ -1,4 +1,4 @@
-import React, { HTMLAttributes, memo, useCallback, useMemo, useState } from 'react';
+import { FC, HTMLAttributes, useMemo, useState } from 'react';
 
 import classNames from 'clsx';
 import browser from 'webextension-polyfill';
@@ -168,7 +168,7 @@ interface FlagProps {
   src?: string;
 }
 
-export const Flag = memo<FlagProps>(({ alt, className, countryCode, src }) => {
+export const Flag: FC<FlagProps> = ({ alt, className, countryCode, src }) => {
   const [error, setError] = useState(false);
 
   const bgFromAtlasStyle = useMemo(() => {
@@ -192,18 +192,19 @@ export const Flag = memo<FlagProps>(({ alt, className, countryCode, src }) => {
     };
   }, [countryCode, src]);
 
-  const handleError = useCallback(() => {
-    setError(true);
-  }, [setError]);
-
   return (
     <div className={classNames('w-6 h-6 flex justify-center items-center', className)}>
       {src || bgFromAtlasStyle ? (
         <>
           {src ? (
-            <img alt={alt} className={classNames({ hidden: error }, 'w-5 h-auto')} src={src} onError={handleError} />
+            <img
+              alt={alt}
+              className={classNames({ hidden: error }, 'w-5 h-auto')}
+              src={src}
+              onError={() => setError(true)}
+            />
           ) : (
-            <div className="w-5 aspect-[4/3]" style={bgFromAtlasStyle} />
+            <div className="w-5 aspect-4/3" style={bgFromAtlasStyle} />
           )}
           {error && <FlagStub className="w-6 h-auto" />}
         </>
@@ -212,9 +213,9 @@ export const Flag = memo<FlagProps>(({ alt, className, countryCode, src }) => {
       )}
     </div>
   );
-});
+};
 
-const FlagStub = memo((props: HTMLAttributes<unknown>) => (
+const FlagStub = (props: HTMLAttributes<unknown>) => (
   <svg
     role="img"
     xmlns="http://www.w3.org/2000/svg"
@@ -230,4 +231,4 @@ const FlagStub = memo((props: HTMLAttributes<unknown>) => (
   >
     <path d="M6.34314575 6.34314575L17.6568542 17.6568542M6.34314575 17.6568542L17.6568542 6.34314575" />
   </svg>
-));
+);

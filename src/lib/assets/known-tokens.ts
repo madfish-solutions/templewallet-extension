@@ -42,16 +42,30 @@ const TZBTC_TOKEN_METADATA: TokenMetadata = {
   standard: TezosTokenStandardsEnum.Fa12
 };
 
+export const WR_TOKEN_METADATA: TokenMetadata = {
+  id: '0',
+  address: 'KT193FiCoUkthuDXcZ6Chr1J19TRoJqjWSYu',
+  name: 'Wristory Token',
+  symbol: 'WR',
+  decimals: 6,
+  thumbnailUri: 'ipfs://bafybeibiohfmkqcslplibgrn4giwrhuw4r4jqkhhdm7ozj4ufk7ch46fxe',
+  standard: TezosTokenStandardsEnum.Fa2
+};
+
+export const WR_TOKEN_SLUG = toTokenSlug(WR_TOKEN_METADATA.address, WR_TOKEN_METADATA.id);
+
+export const TKEY_TOKEN_METADATA: TokenMetadata = {
+  id: '0',
+  address: 'KT1VaEsVNiBoA56eToEK6n6BcPgh1tdx9eXi',
+  name: 'Temple Key',
+  symbol: 'TKEY',
+  decimals: 18,
+  thumbnailUri: 'ipfs://Qmb9QUXYn1PW8e7E2CwpBMgEur7gFAPPpq2Zh7H2D7eQcT',
+  standard: TezosTokenStandardsEnum.Fa2
+};
+
 const PREDEFINED_MAINNET_TOKENS_METADATA: TokenMetadata[] = [
-  {
-    id: '0',
-    address: 'KT1VaEsVNiBoA56eToEK6n6BcPgh1tdx9eXi',
-    name: 'Temple Key',
-    symbol: 'TKEY',
-    decimals: 18,
-    thumbnailUri: 'ipfs://Qmb9QUXYn1PW8e7E2CwpBMgEur7gFAPPpq2Zh7H2D7eQcT',
-    standard: TezosTokenStandardsEnum.Fa2
-  },
+  TKEY_TOKEN_METADATA,
   {
     id: '0',
     address: 'KT1XnTn74bUtxHfDtBmm2bGZAQfhPbvKWR8o',
@@ -79,7 +93,8 @@ const PREDEFINED_MAINNET_TOKENS_METADATA: TokenMetadata[] = [
     decimals: 6,
     thumbnailUri: 'ipfs://Qmb2GiHN9EjcrN29J6y9PsXu3ZDosXTv6uLUWGZfRRSzS2/quipu.png',
     standard: TezosTokenStandardsEnum.Fa2
-  }
+  },
+  WR_TOKEN_METADATA
 ];
 
 const DCP_TOKENS_METADATA: TokenMetadata[] = [

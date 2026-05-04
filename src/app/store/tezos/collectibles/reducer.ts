@@ -1,7 +1,9 @@
 import { createReducer } from '@reduxjs/toolkit';
-import { persistReducer } from 'redux-persist';
+import { omit } from 'lodash';
+import { persistReducer, REHYDRATE } from 'redux-persist';
 
-import { storageConfig } from 'lib/store';
+import { WR_TOKEN_SLUG } from 'lib/assets/known-tokens';
+import { createEntity, storageConfig } from 'lib/store';
 
 import { loadCollectiblesDetailsActions } from './actions';
 import { collectiblesInitialState, CollectiblesState } from './state';
@@ -40,6 +42,12 @@ const collectiblesReducer = createReducer<CollectiblesState>(collectiblesInitial
   builder.addCase(loadCollectiblesDetailsActions.fail, (state, { payload }) => {
     state.details.isLoading = false;
     state.details.error = payload;
+  });
+
+  builder.addCase(REHYDRATE, state => {
+    if (state.details?.data[WR_TOKEN_SLUG]) {
+      state.details = createEntity(omit(state.details.data, WR_TOKEN_SLUG));
+    }
   });
 });
 

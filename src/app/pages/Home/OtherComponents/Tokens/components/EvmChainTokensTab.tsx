@@ -1,4 +1,4 @@
-import React, { createContext, FC, memo, useContext, useMemo, useRef } from 'react';
+import React, { Activity, createContext, FC, memo, useContext, useMemo, useRef } from 'react';
 
 import { DeadEndBoundaryError } from 'app/ErrorBoundary';
 import {
@@ -6,11 +6,11 @@ import {
   useEvmChainAccountTokensListingLogic
 } from 'app/hooks/listing-logic/use-evm-chain-account-tokens-listing-logic';
 import { usePreservedOrderSlugsToManage } from 'app/hooks/listing-logic/use-manageable-slugs';
-import { useManageState } from 'app/hooks/use-assets-view-state';
+import { useTokensManageState } from 'app/hooks/use-assets-view-state';
 import { useTokensListOptionsSelector } from 'app/store/assets-filter-options/selectors';
 import { usePartnersPromotionModule } from 'app/templates/partners-promotion';
 import { EvmTokenListItem } from 'app/templates/TokenListItem';
-import { HOME_PAGE_NAME } from 'lib/ads-constants';
+import { useAdsConstantsModule } from 'lib/ads-constants';
 import { useMemoWithCompare } from 'lib/ui/hooks';
 import { makeGetTokenElementIndexFunction, TokenListItemElement } from 'lib/ui/tokens-list';
 import { EvmChain, useEvmChainByChainId } from 'temple/front/chains';
@@ -37,12 +37,18 @@ export const EvmChainTokensTab = memo<Props>(({ chainId, publicKeyHash, accountI
 
   if (!network) throw new DeadEndBoundaryError();
 
-  const { manageActive } = useManageState();
+  const { manageActive } = useTokensManageState();
   const contextValue = useMemo(() => ({ accountId, network, publicKeyHash }), [accountId, network, publicKeyHash]);
 
   return (
     <EvmChainTokensTabContext value={contextValue}>
-      {manageActive ? <TabContentWithManageActive /> : <TabContent />}
+      <Activity mode={manageActive ? 'hidden' : 'visible'} name="evm-chain-tokens-tab-default">
+        <TabContent />
+      </Activity>
+
+      <Activity mode={manageActive ? 'visible' : 'hidden'} name="evm-chain-tokens-tab-manage">
+        <TabContentWithManageActive />
+      </Activity>
     </EvmChainTokensTabContext>
   );
 });
@@ -106,6 +112,7 @@ const TabContentBase = memo<TabContentBaseProps>(({ allSlugsSorted, manageActive
   const promoRef = useRef<HTMLDivElement>(null);
   const firstListItemRef = useRef<TokenListItemElement>(null);
   const PartnersPromotionModule = usePartnersPromotionModule();
+  const AdsConstantsModule = useAdsConstantsModule();
 
   const { tokensView, getElementIndex } = useMemo(() => {
     const tokensJsx = displayedSlugs.map((slug, i) => (
@@ -127,21 +134,22 @@ const TabContentBase = memo<TabContentBaseProps>(({ allSlugsSorted, manageActive
         getElementIndex: makeGetTokenElementIndexFunction(promoRef, firstListItemRef, tokensJsx.length)
       };
 
-    const promoJsx = PartnersPromotionModule ? (
-      <PartnersPromotionModule.PartnersPromotion
-        id="promo-token-item"
-        key="promo-token-item"
-        variant={PartnersPromotionModule.PartnersPromotionVariant.Text}
-        pageName={HOME_PAGE_NAME}
-        ref={promoRef}
-      />
-    ) : null;
+    const promoJsx =
+      PartnersPromotionModule && AdsConstantsModule ? (
+        <PartnersPromotionModule.PartnersPromotion
+          id="promo-token-item"
+          key="promo-token-item"
+          variant={PartnersPromotionModule.PartnersPromotionVariant.Text}
+          pageName={AdsConstantsModule.HOME_PAGE_NAME}
+          ref={promoRef}
+        />
+      ) : null;
 
     return {
       tokensView: getTokensViewWithPromo(tokensJsx, promoJsx),
       getElementIndex: makeGetTokenElementIndexFunction(promoRef, firstListItemRef, tokensJsx.length)
     };
-  }, [displayedSlugs, manageActive, network, publicKeyHash]);
+  }, [displayedSlugs, manageActive, network, publicKeyHash, PartnersPromotionModule, AdsConstantsModule]);
 
   return (
     <TokensTabBase
@@ -151,6 +159,7 @@ const TabContentBase = memo<TabContentBaseProps>(({ allSlugsSorted, manageActive
       loadNextPage={loadNext}
       isSyncing={isSyncing}
       isInSearchMode={isInSearchMode}
+      manageActive={manageActive}
       network={network}
       shouldShowHiddenTokensHint={shouldShowHiddenTokensHint}
     >

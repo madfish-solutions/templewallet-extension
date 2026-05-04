@@ -16,10 +16,6 @@ import { collectiblesMetadataInitialState } from './tezos/collectibles-metadata/
 
 import type { SLICES_BLACKLIST } from './index';
 
-type MakePropertiesOptional<T, K extends keyof T> = {
-  [P in keyof T]: P extends K ? T[P] | undefined : T[P];
-};
-
 /** Blacklisted slices are not rehydrated */
 type TypedPersistedRootState = Exclude<PersistedState, undefined> &
   MakePropertiesOptional<RootState, (typeof SLICES_BLACKLIST)[number]>;

@@ -1,7 +1,8 @@
 import { createReducer } from '@reduxjs/toolkit';
-import { persistReducer } from 'redux-persist';
+import { persistReducer, REHYDRATE } from 'redux-persist';
 
 import { toTokenSlug } from 'lib/assets';
+import { WR_TOKEN_SLUG } from 'lib/assets/known-tokens';
 import { storageConfig, createTransformsBeforePersist } from 'lib/store';
 
 import {
@@ -138,6 +139,27 @@ const assetsReducer = createReducer<SliceState>(initialState, builder => {
     delete state.mainnetScamlist.error;
 
     state.mainnetScamlist.data = payload;
+  });
+
+  builder.addCase(REHYDRATE, state => {
+    const keysHavingWRToken: string[] = [];
+
+    if (state.collectibles?.data) {
+      for (const key in state.collectibles.data) {
+        const assets = state.collectibles.data[key];
+        if (assets[WR_TOKEN_SLUG]) {
+          keysHavingWRToken.push(key);
+          delete assets[WR_TOKEN_SLUG];
+        }
+      }
+    }
+
+    if (state.tokens?.data) {
+      for (const key of keysHavingWRToken) {
+        state.tokens.data[key] ??= {};
+        state.tokens.data[key][WR_TOKEN_SLUG] = { status: 'idle' };
+      }
+    }
   });
 });
 

@@ -1,4 +1,4 @@
-import React, { memo, useMemo } from 'react';
+import { FC, useMemo } from 'react';
 
 import { dispatch } from 'app/store';
 import { putEvmNoCategoryAssetsMetadataAction } from 'app/store/evm/no-category-assets-metadata/actions';
@@ -40,7 +40,7 @@ const compareByChainId = <T extends { chainId: string | number }>(prev: T[], nex
   return prev.every((l, i) => l.chainId === next[i]?.chainId);
 };
 
-export const MultichainActivityList = memo<Props>(({ filterKind }) => {
+export const MultichainActivityList: FC<Props> = ({ filterKind }) => {
   const tezosChains = useEnabledTezosChains();
   const evmChains = useEnabledEvmChains();
 
@@ -71,62 +71,61 @@ export const MultichainActivityList = memo<Props>(({ filterKind }) => {
     compareByChainId
   );
 
-  const { activities, isLoading, reachedTheEnd, setActivities, setIsLoading, setReachedTheEnd, loadNext } =
-    useActivitiesLoadingLogic<Activity>(
-      async (initial, signal) => {
-        if (signal.aborted) return;
+  const { activities, isLoading, reachedTheEnd, loadNext } = useActivitiesLoadingLogic<Activity>(
+    async ({ setIsLoading, setActivities, setReachedTheEnd }, activities, initial, signal) => {
+      if (signal.aborted) return;
 
-        setIsLoading(true);
+      setIsLoading(true);
 
-        const currActivities = initial ? [] : activities;
+      const currActivities = initial ? [] : activities;
 
-        const allLoaders = [...tezosLoaders, ...evmLoaders];
-        const lastEdgeDate = currActivities.at(-1)?.addedAt;
+      const allLoaders = [...tezosLoaders, ...evmLoaders];
+      const lastEdgeDate = currActivities.at(-1)?.addedAt;
 
-        await Promise.allSettled(
-          evmLoaders
-            .map(l => l.loadNext(lastEdgeDate, signal))
-            .concat(tezosLoaders.map(l => l.loadNext(lastEdgeDate, signal)))
-        );
+      await Promise.allSettled(
+        evmLoaders
+          .map(l => l.loadNext(lastEdgeDate, signal))
+          .concat(tezosLoaders.map(l => l.loadNext(lastEdgeDate, signal)))
+      );
 
-        if (signal.aborted) return;
+      if (signal.aborted) return;
 
-        let edgeDate: string | undefined;
+      let edgeDate: string | undefined;
 
-        for (const l of allLoaders) {
-          if (l.reachedTheEnd || l.lastError) continue;
+      for (const l of allLoaders) {
+        if (l.reachedTheEnd || l.lastError) continue;
 
-          const lastAct = l.activities.at(-1);
-          if (!lastAct) continue;
+        const lastAct = l.activities.at(-1);
+        if (!lastAct) continue;
 
-          if (!edgeDate) {
-            edgeDate = lastAct.addedAt;
-            continue;
-          }
-
-          if (lastAct.addedAt > edgeDate) edgeDate = lastAct.addedAt;
+        if (!edgeDate) {
+          edgeDate = lastAct.addedAt;
+          continue;
         }
 
-        const newActivities = allLoaders
-          .map(l => {
-            if (!edgeDate) return l.activities;
+        if (lastAct.addedAt > edgeDate) edgeDate = lastAct.addedAt;
+      }
 
-            // Not optimal, since activities are sorted already:
-            // return l.activities.filter(a => a.addedAt >= edgeDate);
+      const newActivities = allLoaders
+        .map(l => {
+          if (!edgeDate) return l.activities;
 
-            const lastIndex = l.activities.findLastIndex(a => a.addedAt >= edgeDate);
+          // Not optimal, since activities are sorted already:
+          // return l.activities.filter(a => a.addedAt >= edgeDate);
 
-            return lastIndex === -1 ? [] : l.activities.slice(0, lastIndex + 1);
-          })
-          .flat();
+          const lastIndex = l.activities.findLastIndex(a => a.addedAt >= edgeDate);
 
-        if (currActivities.length === newActivities.length) setReachedTheEnd(true);
-        else setActivities(newActivities);
+          return lastIndex === -1 ? [] : l.activities.slice(0, lastIndex + 1);
+        })
+        .flat();
 
-        setIsLoading(false);
-      },
-      [tezosLoaders, evmLoaders]
-    );
+      if (currActivities.length === newActivities.length) setReachedTheEnd(true);
+      else setActivities(newActivities);
+
+      setIsLoading(false);
+    },
+    [tezosLoaders, evmLoaders]
+  );
 
   const displayActivities = useMemo(() => {
     const filtered = filterKind ? activities.filter(act => getActivityFilterKind(act) === filterKind) : activities;
@@ -156,14 +155,11 @@ export const MultichainActivityList = memo<Props>(({ filterKind }) => {
     [groupedActivities, allTezosChains, allEvmChains]
   );
 
-  const tezosAssetsCheckConfig = useMemo(
-    () => ({
-      activities: displayActivities,
-      tezAccountPkh: tezAccAddress,
-      evmAccountPkh: evmAccAddress
-    }),
-    [displayActivities, tezAccAddress, evmAccAddress]
-  );
+  const tezosAssetsCheckConfig = {
+    activities: displayActivities,
+    tezAccountPkh: tezAccAddress,
+    evmAccountPkh: evmAccAddress
+  };
   useAssetsFromActivitiesCheck(tezosAssetsCheckConfig);
 
   return (
@@ -176,7 +172,7 @@ export const MultichainActivityList = memo<Props>(({ filterKind }) => {
       {contentJsx}
     </ActivityListView>
   );
-});
+};
 
 class EvmActivityLoader {
   activities: EvmActivity[] = [];

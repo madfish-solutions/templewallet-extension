@@ -1,8 +1,9 @@
 import { createReducer } from '@reduxjs/toolkit';
 import { enableMapSet } from 'immer';
-import { persistReducer } from 'redux-persist';
+import { persistReducer, REHYDRATE } from 'redux-persist';
 
 import { tokenToSlug, fromAssetSlug } from 'lib/assets';
+import { WR_TOKEN_SLUG } from 'lib/assets/known-tokens';
 import type { TokenMetadata } from 'lib/metadata';
 import { buildTokenMetadataFromFetched } from 'lib/metadata/utils';
 import { storageConfig, createTransformsBeforePersist, createTransformsBeforeHydrate } from 'lib/store';
@@ -40,6 +41,12 @@ const collectiblesMetadataReducer = createReducer(collectiblesMetadataInitialSta
 
   builder.addCase(resetCollectiblesMetadataLoadingAction, state => {
     state.isLoading = false;
+  });
+
+  builder.addCase(REHYDRATE, state => {
+    if (state.records?.has(WR_TOKEN_SLUG)) {
+      state.records.delete(WR_TOKEN_SLUG);
+    }
   });
 });
 

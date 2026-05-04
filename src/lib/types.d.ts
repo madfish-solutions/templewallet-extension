@@ -38,3 +38,7 @@ type Arguments<T> = T extends (...args: infer U) => any ? U : never;
 type Replace<T, S1, S2> = Exclude<T, S1> extends never ? S2 : S1 extends T ? Exclude<T, S1> | S2 : T;
 
 type ReactSetStateFn<T> = React.Dispatch<React.SetStateAction<T>>;
+
+type MakePropertiesOptional<T, K extends keyof T> = {
+  [P in keyof T]: P extends K ? T[P] | undefined : T[P];
+};

@@ -1,4 +1,4 @@
-import React, { memo, useMemo } from 'react';
+import React, { FC } from 'react';
 
 import { ReactComponent as HdIcon } from 'app/icons/base/hd.svg';
 import { ReactComponent as ImportedIcon } from 'app/icons/base/imported.svg';
@@ -14,21 +14,8 @@ interface Props {
   customTitle?: string;
 }
 
-export const AccLabel = memo<Props>(({ type, customTitle }) => {
-  const [Icon, defaultTitle] = useMemo(() => {
-    switch (type) {
-      case TempleAccountType.HD:
-        return [HdIcon, 'HD'];
-      case TempleAccountType.Imported:
-        return [ImportedIcon, 'IMPORTED'];
-      case TempleAccountType.Ledger:
-        return [LedgerIcon, 'LEDGER'];
-      case TempleAccountType.WatchOnly:
-        return [WatchIcon, 'WATCH'];
-      case TempleAccountType.ManagedKT:
-        return [ManageKtIcon, 'MANAGED KT'];
-    }
-  }, [type]);
+export const AccLabel: FC<Props> = ({ type, customTitle }) => {
+  const [Icon, defaultTitle] = getAccLabelContent(type);
 
   return (
     <div className="flex items-center gap-x-px py-1 pl-1.5 pr-2 bg-grey-4 rounded-md self-end">
@@ -37,4 +24,19 @@ export const AccLabel = memo<Props>(({ type, customTitle }) => {
       <span className="text-font-num-bold-10 text-grey-1 uppercase">{customTitle ?? defaultTitle}</span>
     </div>
   );
-});
+};
+
+const getAccLabelContent = (type: TempleAccountType): [ImportedSVGComponent, string] => {
+  switch (type) {
+    case TempleAccountType.HD:
+      return [HdIcon, 'HD'];
+    case TempleAccountType.Imported:
+      return [ImportedIcon, 'IMPORTED'];
+    case TempleAccountType.Ledger:
+      return [LedgerIcon, 'LEDGER'];
+    case TempleAccountType.WatchOnly:
+      return [WatchIcon, 'WATCH'];
+    case TempleAccountType.ManagedKT:
+      return [ManageKtIcon, 'MANAGED KT'];
+  }
+};
