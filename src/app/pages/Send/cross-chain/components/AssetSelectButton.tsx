@@ -16,7 +16,7 @@ interface Props {
 export const AssetSelectButton = ({ asset, onClick, placeholder = t('selectTokenAction') }: Props) => (
   <Button
     onClick={onClick}
-    className="bg-white py-0.75 px-2 rounded-8 flex items-center justify-between -mr-2.5 cursor-pointer w-[120px]"
+    className="bg-white py-0.75 px-2 rounded-8 flex items-center justify-between -mr-2.5 cursor-pointer w-30"
   >
     {asset ? (
       <div className="flex items-center">

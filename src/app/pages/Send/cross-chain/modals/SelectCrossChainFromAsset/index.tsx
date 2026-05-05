@@ -1,4 +1,4 @@
-import React, { FC, useEffect, useState } from 'react';
+import React, { FC, useMemo, useState } from 'react';
 
 import BigNumber from 'bignumber.js';
 import clsx from 'clsx';
@@ -42,33 +42,39 @@ export const SelectCrossChainFromAssetModal: FC<Props> = ({ opened, networksMap,
 
   const balances = useCrossChainFromBalances();
 
-  useEffect(() => {
+  const [prevOpened, setPrevOpened] = useState(opened);
+  if (prevOpened !== opened) {
+    setPrevOpened(opened);
     if (!opened) {
       setSearchValue('');
       setFilterChain(null);
     }
-  }, [opened]);
+  }
 
-  const assets = getAllowedFromAssets(networksMap);
+  const assets = useMemo(() => getAllowedFromAssets(networksMap), [networksMap]);
+  const search = useMemo(() => searchDebounced.trim().toLowerCase(), [searchDebounced]);
 
-  const search = searchDebounced.trim().toLowerCase();
-  const filteredAssets = assets.filter(asset => {
-    const slug = toCrossChainAssetSlug(asset);
-    const balance = balances[slug];
-    if (!balance || balance.isLessThanOrEqualTo(0)) return false;
+  const filteredAssets = useMemo(
+    () =>
+      assets.filter(asset => {
+        const slug = toCrossChainAssetSlug(asset);
+        const balance = balances[slug];
+        if (!balance || balance.isLessThanOrEqualTo(0)) return false;
 
-    if (isFilterChain(filterChain) && filterChain) {
-      if (filterChain.kind !== asset.chainKind) return false;
-      if (String(filterChain.chainId) !== String(asset.chainId)) return false;
-    }
+        if (isFilterChain(filterChain) && filterChain) {
+          if (filterChain.kind !== asset.chainKind) return false;
+          if (String(filterChain.chainId) !== String(asset.chainId)) return false;
+        }
 
-    if (!search) return true;
-    return (
-      asset.symbol.toLowerCase().includes(search) ||
-      asset.name.toLowerCase().includes(search) ||
-      asset.exolixNetwork.toLowerCase().includes(search)
-    );
-  });
+        if (!search) return true;
+        return (
+          asset.symbol.toLowerCase().includes(search) ||
+          asset.name.toLowerCase().includes(search) ||
+          asset.exolixNetwork.toLowerCase().includes(search)
+        );
+      }),
+    [search, filterChain, assets, balances]
+  );
 
   const handleSelect = (asset: CrossChainAsset) => {
     onSelect(asset);

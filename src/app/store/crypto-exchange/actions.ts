@@ -6,6 +6,6 @@ export const loadExolixCurrenciesActions = createActions<void, Array<StoredExoli
   'crypto-exchange/LOAD_EXOLIX_CURRENCIES'
 );
 
-export const loadExolixNetworksMapActions = createActions<void, ExolixNetworksMap, string>(
+export const loadExolixNetworksMapActions = createActions<void, { data: ExolixNetworksMap; loadedAt: number }, string>(
   'crypto-exchange/LOAD_EXOLIX_NETWORKS_MAP'
 );

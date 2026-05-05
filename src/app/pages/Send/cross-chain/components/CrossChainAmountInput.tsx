@@ -60,7 +60,7 @@ export const CrossChainAmountInput = ({
   const fiatAssetSlug = asset.assetSlug;
   const canShowFiat = fiatChainId != null && fiatAssetSlug != null;
   const canShowConvertedAmount = canShowFiat;
-  const amountValue = amount && amount !== '' ? amount : '0';
+  const amountValue = amount || '0';
   const { selectedFiatCurrency } = useFiatCurrency();
 
   const externalPrice = useExternalCoinPrice(asset.exolixCoin);

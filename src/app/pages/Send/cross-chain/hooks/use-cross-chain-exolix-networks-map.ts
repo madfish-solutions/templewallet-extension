@@ -27,17 +27,25 @@ export const useCrossChainExolixNetworksMap = (): CrossChainNetworksMapResult =>
   const error = useExolixNetworksMapErrorSelector();
   const loadedAt = useExolixNetworksMapLoadedAtSelector();
   const isReady = Object.keys(map).length > 0;
-  const isStale = !loadedAt || Date.now() - loadedAt > TTL_MS;
   const lastAttemptedAt = useRef(0);
 
   useEffect(() => {
     if (isLoading) return;
-    if (isReady && !isStale) return;
-    const now = Date.now();
-    if (now - lastAttemptedAt.current < RETRY_BACKOFF_MS) return;
-    lastAttemptedAt.current = now;
-    dispatch(loadExolixNetworksMapActions.submit());
-  }, [isReady, isLoading, error, isStale]);
+    const elapsed = loadedAt ? Date.now() - loadedAt : Infinity;
+
+    if (!isReady || elapsed >= TTL_MS) {
+      const now = Date.now();
+      if (now - lastAttemptedAt.current < RETRY_BACKOFF_MS) return;
+      lastAttemptedAt.current = now;
+      dispatch(loadExolixNetworksMapActions.submit());
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      dispatch(loadExolixNetworksMapActions.submit());
+    }, TTL_MS - elapsed);
+    return () => clearTimeout(timer);
+  }, [isReady, isLoading, error, loadedAt]);
 
   const retry = () => {
     lastAttemptedAt.current = Date.now();

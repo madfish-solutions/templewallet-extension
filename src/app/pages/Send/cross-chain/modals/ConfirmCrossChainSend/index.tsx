@@ -39,12 +39,13 @@ export const ConfirmCrossChainSendModal: FC<Props> = ({
   onSubmitted
 }) => {
   const [exchangeId, setExchangeId] = useState<string | undefined>(initialExchangeId);
-  const closeResetTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const closeResetTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-  useEffect(() => {
-    if (!opened) return;
-    setExchangeId(initialExchangeId);
-  }, [opened, initialExchangeId]);
+  const [prevOpened, setPrevOpened] = useState(opened);
+  if (prevOpened !== opened) {
+    setPrevOpened(opened);
+    if (opened) setExchangeId(initialExchangeId);
+  }
 
   useEffect(
     () => () => {

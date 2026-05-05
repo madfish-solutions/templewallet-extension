@@ -36,13 +36,13 @@ export const ActivityPage = memo(() => {
     [setFiltersModalClosed]
   );
 
-  const handleCrossChainExchangeClick = useCallback((id: string) => setOpenedExchangeId(id), []);
-  const handleCrossChainModalClose = useCallback(() => setOpenedExchangeId(undefined), []);
+  const handleCrossChainExchangeClick = (id: string) => setOpenedExchangeId(id);
+  const handleCrossChainModalClose = () => setOpenedExchangeId(undefined);
 
-  const handleTryAgain = useCallback(() => {
+  const handleTryAgain = () => {
     setOpenedExchangeId(undefined);
     navigate('/send?tab=cross-chain', HistoryAction.Push);
-  }, []);
+  };
 
   return (
     <PageLayout

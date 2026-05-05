@@ -24,8 +24,8 @@ const cryptoExchangeReducer = createReducer<CryptoExchangeState>(cryptoExchangeI
   });
   builder.addCase(loadExolixNetworksMapActions.success, (state, { payload }) => ({
     ...state,
-    exolixNetworksMap: createEntity(payload),
-    exolixNetworksMapLoadedAt: Date.now()
+    exolixNetworksMap: createEntity(payload.data),
+    exolixNetworksMapLoadedAt: payload.loadedAt
   }));
   builder.addCase(loadExolixNetworksMapActions.fail, (state, { payload: error }) => ({
     ...state,

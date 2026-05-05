@@ -12,7 +12,7 @@ import { TempleChainKind } from 'temple/types';
 
 export const useCrossChainFromBalance = (asset: CrossChainAsset): BigNumber => {
   const tezosAddress = useAccountAddressForTezos() ?? '';
-  const evmAddress: HexString = useAccountAddressForEvm() ?? '0x';
+  const evmAddress = useAccountAddressForEvm() ?? '0x';
 
   const getTezosBalance = useGetTezosAccountTokenOrGasBalanceWithDecimals(tezosAddress);
   const getEvmBalance = useGetEvmTokenBalanceWithDecimals(evmAddress);
@@ -29,7 +29,7 @@ export const useCrossChainFromBalance = (asset: CrossChainAsset): BigNumber => {
 
 export const useCrossChainFromBalances = (): Record<string, BigNumber> => {
   const tezosAddress = useAccountAddressForTezos() ?? '';
-  const evmAddress: HexString = useAccountAddressForEvm() ?? '0x';
+  const evmAddress = useAccountAddressForEvm() ?? '0x';
 
   const tezosBalances = useAllAccountBalancesSelector(tezosAddress, TEZOS_MAINNET_CHAIN_ID);
   const evmBalances = useRawEvmAccountBalancesSelector(evmAddress);

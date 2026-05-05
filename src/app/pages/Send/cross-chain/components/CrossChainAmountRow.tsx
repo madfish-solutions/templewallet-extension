@@ -22,7 +22,7 @@ interface Props {
 }
 
 export const CrossChainAmountRow = ({ asset, amount, sign, amountClassName, rightContent }: Props) => {
-  const bnAmount = amount ? new BigNumber(amount) : new BigNumber(0);
+  const bnAmount = new BigNumber(amount || 0);
   const hasTempleAsset = Boolean(asset.chainId && asset.assetSlug);
   const isEvm = asset.chainKind === TempleChainKind.EVM;
 
