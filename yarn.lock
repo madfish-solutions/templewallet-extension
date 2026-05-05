@@ -4142,10 +4142,10 @@
   resolved "https://registry.yarnpkg.com/@temple-wallet/everstake-wallet-sdk/-/everstake-wallet-sdk-5.0.1.tgz#cf6785866d0f3ba4cee1eb2ab649040180df45fe"
   integrity sha512-WJn1BEKRPYQNMUR9qZQ7TD6lzliUsNfYexRpjbFT1k6tUiCBXd7YWQsPJ8iItMdVyeWLyuP5Ao1UESriE8Jkwg==
 
-"@temple-wallet/extension-ads@17.0.0-beta.1":
-  version "17.0.0-beta.1"
-  resolved "https://registry.yarnpkg.com/@temple-wallet/extension-ads/-/extension-ads-17.0.0-beta.1.tgz#b6296496de628f93b14953c0e1b10b543d8da489"
-  integrity sha512-EA4kEhdncvhp1jVSmchWhQWm3oDpvB3dz1Mw/BAaHByF37tYX6ZkaBwaWyzNwcMWwHaQD0nyWNgRbGHbQ9OUXQ==
+"@temple-wallet/extension-ads@18.0.0-beta.1":
+  version "18.0.0-beta.1"
+  resolved "https://registry.yarnpkg.com/@temple-wallet/extension-ads/-/extension-ads-18.0.0-beta.1.tgz#2a8be88f17d84d816939d1e971f6a213f9339436"
+  integrity sha512-c+ZGNellYM1qCklEFJxqfqaI7+n0wf/qHzVDPaBmpZHaCj03BMSkXYCMzpwclAIMDohNwfcXAx0sgxKcc2//XA==
   dependencies:
     axios "^1.8.4"
     crypto-js "^4.2.0"
