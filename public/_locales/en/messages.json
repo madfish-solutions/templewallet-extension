@@ -4443,7 +4443,7 @@
     "message": "Disable deals and earning?"
   },
   "disableDealsModalDescription": {
-    "message": "Disabling will stop automate offer proposition from merchants, TKEY rewards earning and sharing your data to the reward system. You can turn this back on anytime here, in Settings."
+    "message": "Disabling will stop automated offers from merchants, TKEY rewards earning and sharing your data to the reward system. You can turn this back on anytime here, in Settings."
   },
   "closePartnersPromotion": {
     "message": "Disable promo and earning?"
