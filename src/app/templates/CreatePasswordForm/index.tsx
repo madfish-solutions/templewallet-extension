@@ -149,13 +149,9 @@ export const CreatePasswordForm = memo<CreatePasswordFormProps>(
           await putToStorage(KOLO_FORCE_LOGOUT_ON_NEXT_OPEN_STORAGE_KEY, true);
           await putToStorage(SHOULD_SHOW_WELCOME_REWARDS_MODAL_STORAGE_KEY, adsViewEnabled);
 
-          if (adsViewEnabled && analyticsEnabled) {
-            trackEvent('AnalyticsAndAdsEnabled', AnalyticsEventCategory.General, { accountPkh }, true);
-          } else {
-            trackEvent('AnalyticsEnabled', AnalyticsEventCategory.General, { accountPkh }, analyticsEnabled);
-            trackEvent('AdsEnabled', AnalyticsEventCategory.General, { accountPkh }, adsViewEnabled);
-            trackEvent('DealsEnabled', AnalyticsEventCategory.General, { accountPkh }, adsViewEnabled);
-          }
+          trackEvent('AnalyticsEnabled', AnalyticsEventCategory.General, { accountPkh }, analyticsEnabled);
+          trackEvent('AdsEnabled', AnalyticsEventCategory.General, { accountPkh }, adsViewEnabled);
+          trackEvent('DealsEnabled', AnalyticsEventCategory.General, { accountPkh }, adsViewEnabled);
 
           if (IS_SIDE_PANEL_AVAILABLE) {
             await setIsSidebarByDefault(true);
