@@ -4784,6 +4784,37 @@
   "earn": {
     "message": "Earn"
   },
+  "depositToDApp": {
+    "message": "Deposit to $dAppName$",
+    "placeholders": {
+      "dAppName": {
+        "content": "$1"
+      }
+    }
+  },
+  "depositToDAppNotAvailable": {
+    "message": "Sorry, but this feature isn't available yet in Temple Wallet. Currently you can only deposit your tokens in as usual."
+  },
+  "goToDApp": {
+    "message": "Go to $dAppName$",
+    "placeholders": {
+      "dAppName": {
+        "content": "$1"
+      }
+    }
+  },
+  "depositToDApps": {
+    "message": "Deposit to dapps"
+  },
+  "goToEarnPage": {
+    "message": "Go to Earn"
+  },
+  "newDAppsModalHeadline": {
+    "message": "New dapps in the Earn"
+  },
+  "newDAppsModalDescription": {
+    "message": "Fresh dapps have been added to new deposit section. Check out new opportunities for you!"
+  },
   "earnTkeyHeadline": {
     "message": "Hold, browse or use your Temple and get rewarded in TKEY"
   },
