@@ -4,6 +4,8 @@ import { noop } from 'lodash';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { useDebounce } from 'use-debounce';
 
+import { combineRefs } from 'lib/ui/utils';
+
 import { SimpleInfiniteScroll, SimpleInfiniteScrollProps } from './SimpleInfiniteScroll';
 
 interface ListItemsVisibility {
@@ -73,13 +75,15 @@ export const VisibilityTrackingInfiniteScroll: FC<VisibilityTrackingInfiniteScro
 const VisibilityTrackingInfiniteScrollContent: FC<VisibilityTrackingInfiniteScrollProps> = ({
   children,
   getElementsIndexes,
+  ref,
   ...restProps
 }) => {
   const { setListItemsVisibility } = useInfiniteScrollVisibilityContext();
-  const scrollViewRef = useRef<InfiniteScroll>(null);
+  const internalScrollViewRef = useRef<InfiniteScroll>(null);
+  const scrollViewRef = combineRefs(internalScrollViewRef, ref);
 
   const updateScrollDimensions = useCallback(() => {
-    const scrollView = scrollViewRef.current;
+    const scrollView = internalScrollViewRef.current;
 
     if (!scrollView) return;
 
@@ -97,7 +101,7 @@ const VisibilityTrackingInfiniteScrollContent: FC<VisibilityTrackingInfiniteScro
   useEffect(() => {
     updateScrollDimensions();
 
-    const scrollableNode = scrollViewRef.current?.getScrollableTarget();
+    const scrollableNode = internalScrollViewRef.current?.getScrollableTarget();
     if (scrollableNode) {
       const resizeObserver = new ResizeObserver(() => updateScrollDimensions());
       resizeObserver.observe(scrollableNode);

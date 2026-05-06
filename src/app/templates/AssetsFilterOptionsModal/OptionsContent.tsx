@@ -24,9 +24,8 @@ interface Props {
 }
 
 export const OptionsContent = memo<Props>(({ onNetworkSelectClick }) => {
-  const options = useAssetsFilterOptionsSelector();
+  const { filterChain, tokensListOptions, collectiblesListOptions } = useAssetsFilterOptionsSelector();
   const testnetModeEnabled = useTestnetModeEnabledSelector();
-  const { filterChain, tokensListOptions, collectiblesListOptions } = options;
   const hasActiveFilters = useHasActiveFiltersSelector();
 
   const handleTokensHideSmallBalanceChange = useCallback(
@@ -99,6 +98,7 @@ export const OptionsContent = memo<Props>(({ onNetworkSelectClick }) => {
           />
           <Divider thinest />
           <ToggleRow
+            disabled={collectiblesListOptions.viewAsCollections}
             labelId="showDetails"
             checked={collectiblesListOptions.showInfo}
             onChange={handleCollectiblesShowInfoChange}

@@ -12,6 +12,7 @@ import { OneOfChains } from 'temple/front';
 interface ListViewProps {
   children: ReactChildren;
   isEmpty: boolean;
+  noCollectiblesAtAll: boolean;
   isSyncing: boolean;
   isInSearchMode: boolean;
   manageActive: boolean;
@@ -21,6 +22,7 @@ interface ListViewProps {
 
 export const ListView: FC<ListViewProps> = ({
   children,
+  noCollectiblesAtAll,
   isEmpty,
   isSyncing,
   isInSearchMode,
@@ -54,7 +56,12 @@ export const ListView: FC<ListViewProps> = ({
     );
   } else if (isEmpty) {
     content = (
-      <AssetsEmptySection forCollectibles manageActive={manageActive} forSearch={isInSearchMode} network={network} />
+      <AssetsEmptySection
+        forCollectibles
+        manageActive={manageActive}
+        forSearch={isInSearchMode && !noCollectiblesAtAll}
+        network={network}
+      />
     );
   } else {
     content = (

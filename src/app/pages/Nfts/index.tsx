@@ -1,5 +1,6 @@
 import { memo, Ref, useCallback, useMemo } from 'react';
 
+import { FadeTransition } from 'app/a11y/FadeTransition';
 import { IconBase, ToggleSwitch } from 'app/atoms';
 import { IconButton } from 'app/atoms/IconButton';
 import { MiniPageModal } from 'app/atoms/PageModal/mini-page-modal';
@@ -108,13 +109,14 @@ interface NftsPageContentProps {
 
 const NftsPageContent = memo(({ allCollectibles, sortPredicate }: NftsPageContentProps) => {
   const { searchValue, setSearchValue } = useSearchState();
-  const { selectedChains } = useSelectedChainsState();
+  const { selectedChains, chainIsGloballySelected } = useSelectedChainsState();
   const allTezosChains = useAllTezosChains();
   const allEvmChains = useAllEvmChains();
   const { manageActive, toggleManageActive } = useManageState();
   const { blur, showInfo, viewAsCollections } = useCollectiblesListOptionsSelector();
   const {
     isInSearchMode,
+    noCollectiblesAtAll,
     paginatedSlugs,
     isSyncing,
     loadNext,
@@ -208,29 +210,33 @@ const NftsPageContent = memo(({ allCollectibles, sortPredicate }: NftsPageConten
             <IconButton Icon={manageActive ? CloseIcon : ManageIcon} color="blue" onClick={toggleManageActive} />
           </div>
 
-          {!manageActive && <NetworkChips enabledCollectibles={enabledCollectibles} />}
+          {!manageActive && !chainIsGloballySelected && <NetworkChips enabledCollectibles={enabledCollectibles} />}
         </div>
       }
     >
-      {viewAsCollections && !manageActive ? (
-        <CollectionsListView
-          collections={searchedSlugsByCollections}
-          isSyncing={isSyncing}
-          isInSearchMode={isInSearchMode}
-          network={network}
-          tezDetailsReady={tezDetailsReady}
-        />
-      ) : (
-        <NftsListView
-          collectiblesCount={paginatedSlugs.length}
-          isSyncing={isSyncing}
-          isInSearchMode={isInSearchMode}
-          network={network}
-          chainSlugs={paginatedSlugs}
-          loadNextPage={loadNext}
-          renderItem={renderItem}
-        />
-      )}
+      <FadeTransition trigger={manageActive}>
+        {viewAsCollections && !manageActive ? (
+          <CollectionsListView
+            noCollectiblesAtAll={noCollectiblesAtAll}
+            collections={searchedSlugsByCollections}
+            isSyncing={isSyncing}
+            isInSearchMode={isInSearchMode}
+            network={network}
+            tezDetailsReady={tezDetailsReady}
+          />
+        ) : (
+          <NftsListView
+            noCollectiblesAtAll={noCollectiblesAtAll}
+            isSyncing={isSyncing}
+            isInSearchMode={isInSearchMode}
+            network={network}
+            chainSlugs={paginatedSlugs}
+            loadNextPage={loadNext}
+            renderItem={renderItem}
+          />
+        )}
+      </FadeTransition>
+
       <MiniPageModal opened={filtersModalOpen} onRequestClose={closeFiltersModal} title={t('filters')}>
         <SettingsCellGroup className="m-4 mb-8">
           <SettingsCellSingle Component="div" cellName={t('blurSensitiveContent')} isLast={false}>
@@ -243,7 +249,7 @@ const NftsPageContent = memo(({ allCollectibles, sortPredicate }: NftsPageConten
 
           <SettingsCellSingle Component="div" cellName={t('showDetails')} isLast={false}>
             <ToggleSwitch
-              checked={showInfo || viewAsCollections}
+              checked={showInfo}
               disabled={viewAsCollections}
               onChange={setShowInfoEnabled}
               testID={NftsPageSelectors.showDetailsToggle}

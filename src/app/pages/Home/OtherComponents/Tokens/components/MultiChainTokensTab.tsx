@@ -22,9 +22,14 @@ import { useAreAssetsLoading, useMainnetTokensScamlistSelector } from 'app/store
 import { usePartnersPromotionModule } from 'app/templates/partners-promotion';
 import { EvmTokenListItem, TezosTokenListItem } from 'app/templates/TokenListItem';
 import { useAdsConstantsModule } from 'lib/ads-constants';
-import { useEvmAccountCollectibles, useTezosAccountCollectibles } from 'lib/assets/hooks/collectibles';
+import {
+  toTezEnabledCollectiblesChainSlugs,
+  useEvmAccountCollectibles,
+  useTezosAccountCollectibles
+} from 'lib/assets/hooks/collectibles';
 import { useAccountCollectiblesSortPredicate } from 'lib/assets/use-sorting';
 import { parseChainAssetSlug, toChainAssetSlug } from 'lib/assets/utils';
+import { useTezosCollectiblesMetadataPresenceCheck } from 'lib/metadata';
 import { useMemoWithCompare } from 'lib/ui/hooks';
 import { TokenListItemElement } from 'lib/ui/tokens-list';
 import { groupByToEntries } from 'lib/utils/group-by-to-entries';
@@ -43,12 +48,17 @@ interface Props {
 }
 
 const MultiChainTokensTabContext = createContext<
-  Props & Pick<TokensTabBaseProps, 'collectibles' | 'collectiblesReady' | 'collectiblesSortPredicate'>
+  Props &
+    Pick<
+      TokensTabBaseProps,
+      'tezosCollectibles' | 'evmCollectibles' | 'collectiblesReady' | 'collectiblesSortPredicate'
+    >
 >({
   accountTezAddress: '',
   accountEvmAddress: '0x',
   accountId: '',
-  collectibles: [],
+  tezosCollectibles: [],
+  evmCollectibles: [],
   collectiblesReady: false,
   collectiblesSortPredicate: () => 0
 });
@@ -56,28 +66,41 @@ const MultiChainTokensTabContext = createContext<
 export const MultiChainTokensTab: FC<Props> = ({ accountEvmAddress, accountTezAddress, accountId }) => {
   const { manageActive } = useTokensManageState();
 
-  const tezCollectibles = useTezosAccountCollectibles(accountTezAddress);
+  const tezosCollectibles = useTezosAccountCollectibles(accountTezAddress);
   const evmCollectibles = useEvmAccountCollectibles(accountEvmAddress);
   const tezAssetsLoading = useAreAssetsLoading('collectibles');
   const evmBalancesLoading = useEvmBalancesAreLoading();
   const evmCollectiblesMetadataLoading = useEvmCollectiblesMetadataLoadingSelector();
-  const collectibles = useMemo(() => tezCollectibles.concat(evmCollectibles), [tezCollectibles, evmCollectibles]);
   const collectiblesSortPredicate = useAccountCollectiblesSortPredicate(accountTezAddress, accountEvmAddress);
   const collectiblesReady =
-    (tezCollectibles.length > 0 || !tezAssetsLoading) &&
+    (tezosCollectibles.length > 0 || !tezAssetsLoading) &&
     (evmCollectibles.length > 0 || (!evmBalancesLoading && !evmCollectiblesMetadataLoading));
   const contextValue = useMemo(
     () => ({
       accountId,
       accountEvmAddress,
       accountTezAddress,
-      collectibles,
+      tezosCollectibles,
+      evmCollectibles,
       collectiblesReady,
       collectiblesSortPredicate
     }),
-    [accountId, accountEvmAddress, accountTezAddress, collectibles, collectiblesReady, collectiblesSortPredicate]
+    [
+      accountId,
+      accountEvmAddress,
+      accountTezAddress,
+      tezosCollectibles,
+      evmCollectibles,
+      collectiblesReady,
+      collectiblesSortPredicate
+    ]
   );
 
+  const tezEnabledCollectiblesChainsSlugs = useMemo(
+    () => toTezEnabledCollectiblesChainSlugs(tezosCollectibles),
+    [tezosCollectibles]
+  );
+  useTezosCollectiblesMetadataPresenceCheck(tezEnabledCollectiblesChainsSlugs);
   useEvmCollectiblesMetadataLoading(accountEvmAddress);
 
   return (

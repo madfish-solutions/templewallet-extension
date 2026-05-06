@@ -1,6 +1,7 @@
 import { RefObject } from 'react';
 
 import { clamp, range } from 'lodash';
+import type InfiniteScroll from 'react-infinite-scroll-component';
 
 export type CollectiblesListItemElement = HTMLDivElement | HTMLAnchorElement;
 
@@ -27,9 +28,34 @@ export const makeGetCollectiblesElementsIndexesFunction =
   };
 
 export const makeGetCollectionsElementsIndexesFunction =
-  (firstCollectionFirstItemRef: RefObject<CollectiblesListItemElement | null>, collectionsItemsCounters: number[]) =>
+  (
+    listRef: RefObject<InfiniteScroll | null>,
+    firstCollectionFirstItemRef: RefObject<CollectiblesListItemElement | null>,
+    collectionsItemsCounters: number[]
+  ) =>
   (y: number) => {
-    // TODO: Implement this function
+    // @ts-expect-error: accessing private property
+    const scrollElement = listRef.current?._infScroll;
+    const listTopOffset = scrollElement?.offsetTop ?? 0;
+    const collectionHeaderHeight =
+      scrollElement && firstCollectionFirstItemRef.current
+        ? firstCollectionFirstItemRef.current.offsetTop - listTopOffset
+        : 56;
+    const collectibleElementHeightWithoutGap = firstCollectionFirstItemRef.current?.clientHeight ?? 96;
+    const gapsMultiplier = collectionHeaderHeight / 56;
+    let heightLeft = y - listTopOffset;
+    const collectionBottomHeight = 28 * gapsMultiplier;
+    for (let i = 0; i < collectionsItemsCounters.length; i++) {
+      const collectiblesRowsCount = Math.ceil(collectionsItemsCounters[i] / 4);
+      const collectiblesGridHeight =
+        collectiblesRowsCount * collectibleElementHeightWithoutGap + (collectiblesRowsCount - 1) * 8 * gapsMultiplier;
+      const totalHeight = collectionHeaderHeight + collectiblesGridHeight + collectionBottomHeight;
+      heightLeft -= totalHeight;
 
-    return range(0, collectionsItemsCounters.length);
+      if (heightLeft <= 0) {
+        return [i];
+      }
+    }
+
+    return [collectionsItemsCounters.length - 1];
   };

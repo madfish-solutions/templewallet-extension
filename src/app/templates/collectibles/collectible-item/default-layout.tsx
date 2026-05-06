@@ -14,7 +14,6 @@ import { TempleChainKind } from 'temple/types';
 
 import { CollectibleImageLoader } from '../collectible-image-loader';
 import { EvmCollectibleItemImage, TezosCollectibleItemImage } from '../collectible-item-image';
-import { toCollectibleLink } from '../utils';
 
 import { CommonLayoutProps } from './types';
 
@@ -55,14 +54,14 @@ const DefaultCollectibleListItemLayoutHOC = <
       ...restProps
     } = props;
 
-    const { searchValueDebounced } = useSearchState();
+    const { searchValue } = useSearchState();
     const network = useNetwork(chainId);
     const defaultIsVisible = useIsItemVisible(index);
     const isVisible = isVisibleFromProps ?? defaultIsVisible;
 
     return (
       <Link
-        to={toCollectibleLink(chainKind, chainId, assetSlug)}
+        to={`/collectible/${chainKind}/${chainId}/${assetSlug}`}
         className={clsx('flex flex-col overflow-hidden group', className)}
         testID={testID}
         testIDProperties={{ assetSlug }}
@@ -114,7 +113,7 @@ const DefaultCollectibleListItemLayoutHOC = <
             {...setTestID(nameTestID)}
             {...setAnotherSelector('name', assetName)}
           >
-            <SearchHighlightText searchValue={searchValueDebounced}>{assetName}</SearchHighlightText>
+            <SearchHighlightText searchValue={searchValue}>{assetName}</SearchHighlightText>
           </div>
         )}
         {showDetails && !isVisible && (

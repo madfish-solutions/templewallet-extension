@@ -3,12 +3,14 @@ import { useCallback, useState } from 'react';
 import constate from 'constate';
 import { useDebounce } from 'use-debounce';
 
+import { useAssetsFilterOptionsSelector } from 'app/store/assets-filter-options/selectors';
 import { useBooleanState } from 'lib/ui/hooks';
 
 export const [NftsViewStateProvider, useManageState, useSearchState, useSelectedChainsState] = constate(
   () => {
     const [manageActive, , , toggleManageActive] = useBooleanState(false);
-    const [selectedChains, setSelectedChains] = useState<(number | string)[]>([]);
+    const { filterChain } = useAssetsFilterOptionsSelector();
+    const [selectedChains, setSelectedChains] = useState<(number | string)[]>(filterChain ? [filterChain.chainId] : []);
 
     const [searchValue, setSearchValue] = useState('');
     const [searchValueDebounced] = useDebounce(searchValue, 300);
@@ -23,7 +25,8 @@ export const [NftsViewStateProvider, useManageState, useSearchState, useSelected
       setSearchValue,
       resetSearchValue,
       selectedChains,
-      setSelectedChains
+      setSelectedChains,
+      chainIsGloballySelected: Boolean(filterChain)
     };
   },
   state => ({
@@ -38,6 +41,7 @@ export const [NftsViewStateProvider, useManageState, useSearchState, useSelected
   }),
   state => ({
     selectedChains: state.selectedChains,
-    setSelectedChains: state.setSelectedChains
+    setSelectedChains: state.setSelectedChains,
+    chainIsGloballySelected: state.chainIsGloballySelected
   })
 );

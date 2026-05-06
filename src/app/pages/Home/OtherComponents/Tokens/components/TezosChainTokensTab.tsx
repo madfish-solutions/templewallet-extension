@@ -13,8 +13,9 @@ import { useAreAssetsLoading, useMainnetTokensScamlistSelector } from 'app/store
 import { usePartnersPromotionModule } from 'app/templates/partners-promotion';
 import { TezosTokenListItem } from 'app/templates/TokenListItem';
 import { useAdsConstantsModule } from 'lib/ads-constants';
-import { useTezosChainAccountCollectibles } from 'lib/assets/hooks/collectibles';
+import { toTezEnabledCollectiblesChainSlugs, useTezosChainAccountCollectibles } from 'lib/assets/hooks/collectibles';
 import { useTezosChainCollectiblesSortPredicate } from 'lib/assets/use-sorting';
+import { useTezosCollectiblesMetadataPresenceCheck } from 'lib/metadata';
 import { useMemoWithCompare } from 'lib/ui/hooks';
 import { TokenListItemElement } from 'lib/ui/tokens-list';
 import { TezosChain, useTezosChainByChainId } from 'temple/front';
@@ -33,13 +34,13 @@ interface Props {
 const TezosChainTokensTabContext = createContext<
   Omit<Props, 'chainId'> & { network: TezosChain } & Pick<
       TokensTabBaseProps,
-      'collectibles' | 'collectiblesReady' | 'collectiblesSortPredicate'
+      'tezosCollectibles' | 'collectiblesReady' | 'collectiblesSortPredicate'
     >
 >({
   network: makeFallbackChain(TEZOS_DEFAULT_NETWORKS[0]),
   publicKeyHash: '',
   accountId: '',
-  collectibles: [],
+  tezosCollectibles: [],
   collectiblesReady: false,
   collectiblesSortPredicate: () => 0
 });
@@ -49,15 +50,25 @@ export const TezosChainTokensTab: FC<Props> = ({ chainId, accountId, publicKeyHa
 
   if (!network) throw new DeadEndBoundaryError();
 
-  const collectibles = useTezosChainAccountCollectibles(publicKeyHash, chainId);
+  const tezosCollectibles = useTezosChainAccountCollectibles(publicKeyHash, chainId);
   const collectiblesLoading = useAreAssetsLoading('collectibles');
-  const collectiblesReady = collectibles.length > 0 || !collectiblesLoading;
+  const collectiblesReady = tezosCollectibles.length > 0 || !collectiblesLoading;
   const collectiblesSortPredicate = useTezosChainCollectiblesSortPredicate(publicKeyHash, chainId);
   const { manageActive } = useTokensManageState();
-  const contextValue = useMemo(
-    () => ({ accountId, network, publicKeyHash, collectibles, collectiblesReady, collectiblesSortPredicate }),
-    [accountId, network, publicKeyHash, collectibles, collectiblesReady, collectiblesSortPredicate]
+  const contextValue = {
+    accountId,
+    network,
+    publicKeyHash,
+    tezosCollectibles,
+    collectiblesReady,
+    collectiblesSortPredicate
+  };
+
+  const tezEnabledCollectiblesChainsSlugs = useMemo(
+    () => toTezEnabledCollectiblesChainSlugs(tezosCollectibles),
+    [tezosCollectibles]
   );
+  useTezosCollectiblesMetadataPresenceCheck(tezEnabledCollectiblesChainsSlugs);
 
   return (
     <TezosChainTokensTabContext value={contextValue}>
@@ -97,10 +108,7 @@ const TabContentWithManageActive: FC = () => {
     network.chainId
   );
 
-  const allTokensSlugs = useMemo(
-    () => tokens.filter(({ status }) => status !== 'removed').map(({ slug }) => slug),
-    [tokens]
-  );
+  const allTokensSlugs = tokens.filter(({ status }) => status !== 'removed').map(({ slug }) => slug);
 
   const allTokensSlugsSorted = useMemoWithCompare(
     () => allTokensSlugs.sort(tokensSortPredicate),
@@ -136,26 +144,26 @@ const TabContentBase: FC<TabContentBaseProps> = ({
   const PartnersPromotionModule = usePartnersPromotionModule();
   const AdsConstantsModule = useAdsConstantsModule();
 
-  const { tokensView, getElementIndex } = useMemo(() => {
-    const tokensJsx = displayedSlugs.map((assetSlug, i) => (
-      <TezosTokenListItem
-        key={assetSlug}
-        network={network}
-        index={i}
-        publicKeyHash={publicKeyHash}
-        assetSlug={assetSlug}
-        scam={mainnetTokensScamSlugsRecord[assetSlug]}
-        manageActive={manageActive}
-        ref={i === 0 ? firstListItemRef : null}
-      />
-    ));
+  let tokensView: ReactChildren;
+  let getElementIndex: SyncFn<number, number[]>;
 
-    if (manageActive)
-      return {
-        tokensView: tokensJsx,
-        getElementIndex: () => range(0, tokensJsx.length)
-      };
+  const tokensJsx = displayedSlugs.map((assetSlug, i) => (
+    <TezosTokenListItem
+      key={assetSlug}
+      network={network}
+      index={i}
+      publicKeyHash={publicKeyHash}
+      assetSlug={assetSlug}
+      scam={mainnetTokensScamSlugsRecord[assetSlug]}
+      manageActive={manageActive}
+      ref={i === 0 ? firstListItemRef : null}
+    />
+  ));
 
+  if (manageActive) {
+    tokensView = tokensJsx;
+    getElementIndex = () => range(0, tokensJsx.length);
+  } else {
     const promoJsx =
       PartnersPromotionModule && AdsConstantsModule ? (
         <PartnersPromotionModule.PartnersPromotion
@@ -167,19 +175,9 @@ const TabContentBase: FC<TabContentBaseProps> = ({
         />
       ) : null;
 
-    return {
-      tokensView: getTokensViewWithPromo(tokensJsx, promoJsx),
-      getElementIndex: () => range(0, tokensJsx.length + 1)
-    };
-  }, [
-    network,
-    displayedSlugs,
-    publicKeyHash,
-    mainnetTokensScamSlugsRecord,
-    manageActive,
-    PartnersPromotionModule,
-    AdsConstantsModule
-  ]);
+    tokensView = getTokensViewWithPromo(tokensJsx, promoJsx);
+    getElementIndex = () => range(0, tokensJsx.length + 1);
+  }
 
   return (
     <TokensTabBase

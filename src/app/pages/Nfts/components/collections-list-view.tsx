@@ -2,10 +2,13 @@ import { memo, Ref, useCallback, useEffect, useMemo, useRef, useState } from 're
 
 import clsx from 'clsx';
 import { noop } from 'lodash';
+import type InfiniteScroll from 'react-infinite-scroll-component';
 
 import { Anchor, IconBase } from 'app/atoms';
 import { EvmNetworkLogo, TezosNetworkLogo } from 'app/atoms/NetworkLogo';
+import { SearchHighlightText } from 'app/atoms/SearchHighlightText';
 import { useIsItemVisible, VisibilityTrackingInfiniteScroll } from 'app/atoms/visibility-tracking-infinite-scroll';
+import { useSearchState } from 'app/hooks/use-collectibles-view-state';
 import { ReactComponent as ChevronDownIcon } from 'app/icons/base/chevron_down.svg';
 import { ReactComponent as OutLinkIcon } from 'app/icons/base/outLink.svg';
 import { ReactComponent as UnknownCollectible } from 'app/icons/unknown-collectible.svg';
@@ -23,6 +26,7 @@ import { ListView } from './list-view';
 
 interface CollectionsListViewProps {
   collections: Array<[CollectiblesCollection, string[]]>;
+  noCollectiblesAtAll: boolean;
   isSyncing: boolean;
   isInSearchMode: boolean;
   network?: OneOfChains;
@@ -30,9 +34,10 @@ interface CollectionsListViewProps {
 }
 
 export const CollectionsListView = memo<CollectionsListViewProps>(
-  ({ collections, isSyncing, isInSearchMode, network, tezDetailsReady }) => {
+  ({ collections, noCollectiblesAtAll, isSyncing, isInSearchMode, network, tezDetailsReady }) => {
     const [openedCollections, setOpenedCollections] = useState<string[]>([]);
     const firstCollectionFirstItemRef = useRef<CollectiblesListItemElement>(null);
+    const listRef = useRef<InfiniteScroll>(null);
 
     const toggleCollectionOpened = useCallback((collectionSlug: string) => {
       setOpenedCollections(prev =>
@@ -43,6 +48,7 @@ export const CollectionsListView = memo<CollectionsListViewProps>(
     const getElementsIndexes = useMemo(
       () =>
         makeGetCollectionsElementsIndexesFunction(
+          listRef,
           firstCollectionFirstItemRef,
           collections.map(collection =>
             Math.min(collection[1].length, openedCollections.includes(collection[0].collectionSlug) ? Infinity : 4)
@@ -54,13 +60,14 @@ export const CollectionsListView = memo<CollectionsListViewProps>(
     return (
       <ListView
         isEmpty={collections.length === 0}
+        noCollectiblesAtAll={noCollectiblesAtAll}
         isSyncing={isSyncing}
         isInSearchMode={isInSearchMode}
         manageActive={false}
         network={network}
         collectiblesDetailsReady={tezDetailsReady}
       >
-        <VisibilityTrackingInfiniteScroll getElementsIndexes={getElementsIndexes} loadNext={noop}>
+        <VisibilityTrackingInfiniteScroll getElementsIndexes={getElementsIndexes} loadNext={noop} ref={listRef}>
           {collections.map(([collection, chainSlugs], index) => (
             <CollectionsListItem
               key={collection.collectionSlug}
@@ -96,6 +103,7 @@ const CollectionsListItem = memo<CollectionsListItemProps>(
     const [srcIndex, setSrcIndex] = useState(logoSrc ? 0 : -1);
     const handleToggleOpened = useCallback(() => onToggleOpened(collectionSlug), [collectionSlug, onToggleOpened]);
     const isVisible = useIsItemVisible(index);
+    const { searchValue } = useSearchState();
 
     useEffect(() => setSrcIndex(logoSrc ? 0 : -1), [logoSrc, setSrcIndex]);
 
@@ -116,14 +124,14 @@ const CollectionsListItem = memo<CollectionsListItemProps>(
           <div className="p-0.5 relative" style={collectionImgStyle}>
             {isVisible ? (
               <>
-                <div className="w-full h-full rounded-8 overflow-hidden">
+                <div className="size-10 rounded-8 overflow-hidden">
                   {!logoSrc || srcIndex === -1 ? (
-                    <UnknownCollectible className="w-full h-full" />
+                    <UnknownCollectible className="size-full" />
                   ) : (
                     <img
                       src={logoSrc[srcIndex]}
                       alt="Collection logo"
-                      className="w-full h-full"
+                      className="size-full"
                       onError={handleLogoLoadingError}
                     />
                   )}
@@ -146,19 +154,23 @@ const CollectionsListItem = memo<CollectionsListItemProps>(
             )}
           </div>
 
-          <div className="flex-1 flex flex-col gap-0.5">
+          <div className="flex-1 flex flex-col gap-0.5 overflow-x-hidden">
             {!isVisible && <div className="w-20 h-5 bg-grey-3 rounded" />}
             {isVisible && chainId === TempleTezosChainId.Mainnet && (
               <Anchor
                 className="flex items-center group hover:text-secondary text-font-medium-bold"
                 href={`https://objkt.com/collections/${fromAssetSlug(parseChainAssetSlug(collectionSlug)[2])[0]}`}
               >
-                <span className="truncate">{title ?? 'Unknown Collection'}</span>
+                <span className="truncate">
+                  <SearchHighlightText searchValue={searchValue}>{title ?? 'Unknown Collection'}</SearchHighlightText>
+                </span>
                 <IconBase className="invisible group-hover:visible m-0.5" Icon={OutLinkIcon} size={12} />
               </Anchor>
             )}
             {isVisible && chainId !== TempleTezosChainId.Mainnet && (
-              <p className="text-font-medium-bold truncate">{title ?? 'Unknown Collection'}</p>
+              <p className="text-font-medium-bold truncate">
+                <SearchHighlightText searchValue={searchValue}>{title ?? 'Unknown Collection'}</SearchHighlightText>
+              </p>
             )}
             <p className="text-font-num-10 text-grey-1 truncate">Items: {chainSlugs.length}</p>
           </div>

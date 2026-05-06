@@ -12,6 +12,7 @@ import {
   usePreservedOrderSlugsToManage
 } from 'app/hooks/listing-logic/use-manageable-slugs';
 import { useTokensManageState } from 'app/hooks/use-assets-view-state';
+import { useEvmCollectiblesMetadataLoading } from 'app/pages/Nfts/hooks/use-evm-collectibles-meta-loading';
 import {
   useGroupByNetworkBehaviorSelector,
   useTokensListOptionsSelector
@@ -40,26 +41,28 @@ interface Props {
 }
 
 const EvmTokensTabContext = createContext<
-  Props & Pick<TokensTabBaseProps, 'collectibles' | 'collectiblesReady' | 'collectiblesSortPredicate'>
+  Props & Pick<TokensTabBaseProps, 'evmCollectibles' | 'collectiblesReady' | 'collectiblesSortPredicate'>
 >({
   publicKeyHash: '0x',
   accountId: '',
-  collectibles: [],
+  evmCollectibles: [],
   collectiblesReady: false,
   collectiblesSortPredicate: () => 0
 });
 
 export const EvmTokensTab: FC<Props> = ({ publicKeyHash, accountId }) => {
   const { manageActive } = useTokensManageState();
-  const collectibles = useEvmAccountCollectibles(publicKeyHash);
+  const evmCollectibles = useEvmAccountCollectibles(publicKeyHash);
   const balancesLoading = useEvmBalancesAreLoading();
   const collectiblesMetadataLoading = useEvmCollectiblesMetadataLoadingSelector();
-  const collectiblesReady = collectibles.length > 0 || (!balancesLoading && !collectiblesMetadataLoading);
+  const collectiblesReady = evmCollectibles.length > 0 || (!balancesLoading && !collectiblesMetadataLoading);
   const collectiblesSortPredicate = useEvmAccountCollectiblesSortPredicate(publicKeyHash);
   const contextValue = useMemo(
-    () => ({ publicKeyHash, accountId, collectibles, collectiblesReady, collectiblesSortPredicate }),
-    [publicKeyHash, accountId, collectibles, collectiblesReady, collectiblesSortPredicate]
+    () => ({ publicKeyHash, accountId, evmCollectibles, collectiblesReady, collectiblesSortPredicate }),
+    [publicKeyHash, accountId, evmCollectibles, collectiblesReady, collectiblesSortPredicate]
   );
+
+  useEvmCollectiblesMetadataLoading(publicKeyHash);
 
   return (
     <EvmTokensTabContext value={contextValue}>
@@ -183,7 +186,7 @@ const TabContentBase: FC<TabContentBaseProps> = ({
           firstHeaderRef,
           buildTokensJsxArray
         }),
-        getElementIndex:  () =>
+        getElementIndex: () =>
           range(
             0,
             displayedGroupedSlugs.reduce((acc, [_, slugs]) => acc + slugs.length, 0)

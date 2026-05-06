@@ -22,13 +22,15 @@ import { AssetsEmptySection } from 'app/templates/assets-empty-section';
 import { CollectiblesGroupGrid } from 'app/templates/collectibles/collectibles-group-grid';
 import { DAppConnection } from 'app/templates/DAppConnection';
 import { DepositOption } from 'app/templates/deposit-option';
-import { AccountCollectible } from 'lib/assets/hooks/collectibles';
-import { toChainAssetSlug } from 'lib/assets/utils';
+import {
+  AccountCollectible,
+  toEvmEnabledCollectiblesChainSlugs,
+  toTezEnabledCollectiblesChainSlugs
+} from 'lib/assets/hooks/collectibles';
 import { t, T } from 'lib/i18n';
 import { useActivateAnimatedChevron } from 'lib/ui/hooks/use-activate-animated-chevron';
 import { Link, navigate } from 'lib/woozie';
 import { OneOfChains } from 'temple/front';
-import { TempleChainKind } from 'temple/types';
 
 export interface TokensTabBaseProps {
   tokensCount: number;
@@ -40,7 +42,8 @@ export interface TokensTabBaseProps {
   manageActive: boolean;
   network?: OneOfChains;
   shouldShowHiddenTokensHint?: boolean;
-  collectibles: AccountCollectible[];
+  tezosCollectibles?: AccountCollectible[];
+  evmCollectibles?: AccountCollectible[];
   collectiblesReady: boolean;
   collectiblesSortPredicate: (aChainAssetSlug: string, bChainAssetSlug: string) => number;
 }
@@ -68,7 +71,8 @@ const TokensTabBaseContent: FC<PropsWithChildren<TokensTabBaseProps>> = ({
   manageActive,
   shouldShowHiddenTokensHint,
   children,
-  collectibles,
+  tezosCollectibles,
+  evmCollectibles,
   collectiblesReady,
   collectiblesSortPredicate
 }) => {
@@ -77,15 +81,12 @@ const TokensTabBaseContent: FC<PropsWithChildren<TokensTabBaseProps>> = ({
   const isSyncingInitializedState = useIsAccountInitializedLoadingSelector(accountId);
   const { animatedChevronRef, handleHover, handleUnhover } = useActivateAnimatedChevron();
 
-  const collectiblesSlugsSorted = useMemo(
-    () =>
-      collectibles
-        .filter(({ status }) => status === 'enabled')
-        .map(({ slug, chainId }) =>
-          toChainAssetSlug(typeof chainId === 'number' ? TempleChainKind.EVM : TempleChainKind.Tezos, chainId, slug)
-        )
-        .sort(collectiblesSortPredicate),
-    [collectibles, collectiblesSortPredicate]
+  const tezosCollectiblesSlugs = toTezEnabledCollectiblesChainSlugs(tezosCollectibles ?? []);
+  const evmCollectiblesSlugs = toEvmEnabledCollectiblesChainSlugs(evmCollectibles ?? []);
+  const collectiblesSlugsSorted = tezosCollectiblesSlugs.concat(evmCollectiblesSlugs).sort(collectiblesSortPredicate);
+  const collectibles = useMemo(
+    () => (tezosCollectibles ?? []).concat(evmCollectibles ?? []),
+    [tezosCollectibles, evmCollectibles]
   );
 
   if (accountIsInitialized === false && !isSyncingInitializedState && !isTestnet && !manageActive) {
@@ -115,7 +116,6 @@ const TokensTabBaseContent: FC<PropsWithChildren<TokensTabBaseProps>> = ({
           forCollectibles={false}
           forSearch={isInSearchMode}
           manageActive={manageActive}
-          stretch
           shouldShowHiddenTokensHint={shouldShowHiddenTokensHint}
         />
       ) : (
@@ -134,20 +134,18 @@ const TokensTabBaseContent: FC<PropsWithChildren<TokensTabBaseProps>> = ({
             </VisibilityTrackingInfiniteScroll>
           </div>
 
-          <Link
-            to="/nfts"
+          <div
             className="mt-6 bg-white rounded-8 border-0.5 border-lines p-1 pt-0 flex flex-col"
             onMouseEnter={handleHover}
             onMouseLeave={handleUnhover}
-            testID={HomeSelectors.nftsSection}
           >
-            <div className="flex justify-between items-center p-2 gap-1">
-              <span className="text-font-description-bold">NFTs</span>
+            <Link to="/nfts" className="flex justify-between items-center p-2 gap-1" testID={HomeSelectors.nftsSection}>
+              <span className="text-font-description-bold">{t('nfts')}</span>
               <AnimatedMenuChevron ref={animatedChevronRef} />
-            </div>
+            </Link>
             {collectibles.length === 0 && collectiblesReady && (
               <div className="flex flex-col items-center px-2 py-3 gap-3 bg-background rounded-8">
-                <p className="text-font-description-bold text-grey-1 text-center">Start your collection today!</p>
+                <p className="text-font-description-bold text-grey-1 text-center">{t('startYourCollectionToday')}</p>
 
                 <AddCustomTokenButton forCollectibles manageActive={false} network={network} />
               </div>
@@ -158,7 +156,7 @@ const TokensTabBaseContent: FC<PropsWithChildren<TokensTabBaseProps>> = ({
               </div>
             )}
             {collectibles.length > 0 && (
-              <div className="flex p-2 bg-background rounded-8">
+              <div className="flex flex-col p-2 bg-background rounded-8">
                 <CollectiblesGroupGrid
                   isCollapsed
                   chainSlugs={collectiblesSlugsSorted}
@@ -168,7 +166,7 @@ const TokensTabBaseContent: FC<PropsWithChildren<TokensTabBaseProps>> = ({
                 />
               </div>
             )}
-          </Link>
+          </div>
 
           {isSyncing && <SyncSpinner className="mt-4" />}
         </>

@@ -44,7 +44,6 @@ export const CollectiblesTabBase: FC<PropsWithChildren<CollectiblesTabBaseProps>
               manageActive={manageActive}
               forSearch={isInSearchMode}
               network={network}
-              stretch
             />
           )
         ) : (

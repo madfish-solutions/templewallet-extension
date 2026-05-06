@@ -13,6 +13,7 @@ interface ModeOptions {
   collectiblesListOptions: {
     blur: boolean;
     showInfo: boolean;
+    infoWasShown: boolean;
     viewAsCollections: boolean;
   };
 }
@@ -31,6 +32,7 @@ export const modeOptionsInitialState: ModeOptions = {
   collectiblesListOptions: {
     blur: false,
     showInfo: false,
+    infoWasShown: false,
     viewAsCollections: false
   }
 };

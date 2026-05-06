@@ -7,6 +7,7 @@ import { usePreservedOrderSlugsToManage } from 'app/hooks/listing-logic/use-mana
 import { getSlugFromChainSlug } from 'app/hooks/listing-logic/utils';
 import { useManageState, useSearchState, useSelectedChainsState } from 'app/hooks/use-collectibles-view-state';
 import { useSimpleAssetsPaginationLogic } from 'app/hooks/use-simple-assets-pagination-logic';
+import { useCollectiblesListOptionsSelector } from 'app/store/assets-filter-options/selectors';
 import { useEvmCollectiblesMetadataRecordSelector } from 'app/store/evm/collectibles-metadata/selectors';
 import { useEvmCollectiblesMetadataLoadingSelector } from 'app/store/evm/selectors';
 import { useAreAssetsLoading } from 'app/store/tezos/assets/selectors';
@@ -17,7 +18,7 @@ import {
   useCollectiblesDetailsErrorSelector
 } from 'app/store/tezos/collectibles/selectors';
 import { AccountCollectible } from 'lib/assets/hooks/collectibles';
-import { searchAssetsWithNoMeta } from 'lib/assets/search.utils';
+import { searchCollectiblesWithNoMeta } from 'lib/assets/search.utils';
 import { fromAssetSlug, parseChainAssetSlug, toChainAssetSlug, toTokenSlug } from 'lib/assets/utils';
 import { buildTokenImagesStack } from 'lib/images-uri';
 import { useGetCollectibleMetadata, useTezosCollectiblesMetadataPresenceCheck } from 'lib/metadata';
@@ -38,6 +39,7 @@ export const useCollectiblesListingLogic = (
   const allTezosCollectiblesDetails = useAllCollectiblesDetailsSelector();
   const tezDetailsLoading = useAllCollectiblesDetailsLoadingSelector();
   const tezDetailsError = useCollectiblesDetailsErrorSelector();
+  const { viewAsCollections } = useCollectiblesListOptionsSelector();
   const tezDetailsReady =
     Boolean(tezDetailsError) ||
     Object.keys(allTezosCollectiblesDetails).length > 0 ||
@@ -99,15 +101,21 @@ export const useCollectiblesListingLogic = (
 
   const search = useCallback(
     (slugs: string[]) =>
-      searchAssetsWithNoMeta(
-        searchValueDebounced,
-        slugs,
-        (_, slug) => getTezMetadata(slug),
+      searchCollectiblesWithNoMeta({
+        searchValue: searchValueDebounced,
+        assets: slugs,
+        getTezMetadata: (_, slug) => getTezMetadata(slug),
         getEvmMetadata,
-        slug => slug,
-        getSlugFromChainSlug
-      ),
-    [getEvmMetadata, getTezMetadata, searchValueDebounced]
+        getChainSlug: slug => slug,
+        getSlug: getSlugFromChainSlug,
+        getTezCollectionName: (_, slug) => {
+          if (!viewAsCollections) return undefined;
+
+          const details = allTezosCollectiblesDetails[slug];
+          return details?.galleries[0]?.title ?? details?.fa.name;
+        }
+      }),
+    [getEvmMetadata, getTezMetadata, searchValueDebounced, viewAsCollections, allTezosCollectiblesDetails]
   );
 
   const manageableChainSlugs = usePreservedOrderSlugsToManage(enabledSlugsSorted, otherSlugsSorted);
@@ -166,6 +174,7 @@ export const useCollectiblesListingLogic = (
 
   return {
     isInSearchMode,
+    noCollectiblesAtAll: (manageActive ? manageableChainSlugs : enabledSlugsSorted).length === 0,
     paginatedSlugs,
     isSyncing,
     loadNext,

@@ -9,10 +9,10 @@ import { OneOfChains } from 'temple/front';
 
 import { ListView } from './list-view';
 
-export interface NftsListViewProps {
-  collectiblesCount: number;
+interface NftsListViewProps {
   isSyncing: boolean;
   isInSearchMode: boolean;
+  noCollectiblesAtAll: boolean;
   network?: OneOfChains;
   chainSlugs: string[];
   loadNextPage: EmptyFn;
@@ -20,9 +20,9 @@ export interface NftsListViewProps {
 }
 
 export const NftsListView: FC<NftsListViewProps> = ({
-  collectiblesCount,
   isSyncing,
   isInSearchMode,
+  noCollectiblesAtAll,
   network,
   chainSlugs,
   loadNextPage,
@@ -47,7 +47,8 @@ export const NftsListView: FC<NftsListViewProps> = ({
 
   return (
     <ListView
-      isEmpty={collectiblesCount === 0}
+      noCollectiblesAtAll={noCollectiblesAtAll}
+      isEmpty={chainSlugs.length === 0}
       isSyncing={isSyncing}
       isInSearchMode={isInSearchMode}
       manageActive={manageActive}

@@ -18,8 +18,8 @@ import { TempleChainKind } from 'temple/types';
 import { RewardsPushOverlay } from './layouts/PageLayout/RewardsPushOverlay';
 import { ActivityPage } from './pages/Activity';
 import { Dapps } from './pages/Dapps';
-import { NftsPage } from './pages/Nfts';
 import { Home } from './pages/Home';
+import { NftsPage } from './pages/Nfts';
 import { Notifications } from './pages/Notifications';
 import { TokenPage } from './pages/Token';
 

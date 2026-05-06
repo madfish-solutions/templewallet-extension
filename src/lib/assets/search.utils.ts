@@ -4,7 +4,7 @@ import { searchAndFilterItems } from 'lib/utils/search-items';
 import { TempleChainKind } from '../../temple/types';
 import { EvmAssetMetadataBase, EvmCollectibleMetadata } from '../metadata/types';
 
-import { fromAssetSlug, fromChainAssetSlug } from './utils';
+import { fromAssetSlug, parseChainAssetSlug } from './utils';
 
 const DEFAULT_NUMBER_SEARCH_PRESET = [
   { name: 'tokenId' as const, weight: 1 },
@@ -132,7 +132,7 @@ export function searchAssetsWithNoMeta<T>(
     asset => {
       const chainSlug = getChainSlug(asset);
 
-      const [chainKind, chainId, slug] = fromChainAssetSlug(chainSlug);
+      const [chainKind, chainId, slug] = parseChainAssetSlug(chainSlug);
       const [contract, tokenId] = fromAssetSlug(slug);
       const metadata =
         chainKind === TempleChainKind.Tezos
@@ -181,19 +181,79 @@ export function searchEvmChainTokensWithNoMeta<T>(
   );
 }
 
-const EVM_COLLECTIBLES_NUMBER_SEARCH_PRESET = [
+const COLLECTIBLES_NUMBER_SEARCH_PRESET = [
   { name: 'tokenId' as const, weight: 1 },
   { name: 'symbol' as const, weight: 0.75 },
   { name: 'name' as const, weight: 0.5 },
   { name: 'contractName' as const, weight: 0.5 }
 ];
 
-const EVM_COLLECTIBLES_STRING_SEARCH_PRESET = [
+const COLLECTIBLES_STRING_SEARCH_PRESET = [
   { name: 'symbol' as const, weight: 1 },
   { name: 'name' as const, weight: 0.5 },
   { name: 'contractName' as const, weight: 0.5 },
   { name: 'contract' as const, weight: 0.1 }
 ];
+
+interface SearchCollectiblesWithNoMetaInput<T> {
+  searchValue: string;
+  assets: T[];
+  getTezMetadata: (chainId: string, slug: string) => AssetMetadataBase | undefined;
+  getEvmMetadata: (chainId: number, slug: string) => EvmCollectibleMetadata | undefined;
+  getSlug: (asset: T) => string;
+  getChainSlug: (asset: T) => string;
+  getTezCollectionName: (chainId: string, slug: string) => string | undefined;
+}
+
+export function searchCollectiblesWithNoMeta<T>({
+  searchValue,
+  assets,
+  getTezMetadata,
+  getEvmMetadata,
+  getSlug,
+  getChainSlug,
+  getTezCollectionName
+}: SearchCollectiblesWithNoMetaInput<T>) {
+  const trimmedSearchValue = searchValue.trim();
+
+  if (trimmedSearchValue.search(/^[A-Za-z0-9]+_\d*$/) === 0)
+    return assets.filter(asset => getSlug(asset).startsWith(trimmedSearchValue));
+
+  return searchAndFilterItems(
+    assets,
+    searchValue,
+    Number.isInteger(Number(searchValue)) && !searchValue.startsWith('0x')
+      ? COLLECTIBLES_NUMBER_SEARCH_PRESET
+      : COLLECTIBLES_STRING_SEARCH_PRESET,
+    asset => {
+      const chainSlug = getChainSlug(asset);
+
+      const [chainKind, chainId, slug] = parseChainAssetSlug(chainSlug);
+      const [contract, tokenId] = fromAssetSlug(slug);
+      const commonProps = { contract, tokenId };
+
+      if (chainKind === TempleChainKind.Tezos) {
+        const metadata = getTezMetadata(chainId as string, slug);
+
+        return {
+          ...commonProps,
+          symbol: metadata?.symbol,
+          name: metadata?.name,
+          contractName: getTezCollectionName(chainId as string, slug)
+        };
+      }
+
+      const metadata = getEvmMetadata(chainId as number, slug);
+
+      return {
+        ...commonProps,
+        symbol: metadata?.symbol,
+        name: metadata?.collectibleName,
+        contractName: metadata?.name
+      };
+    }
+  );
+}
 
 export function searchEvmCollectiblesWithNoMeta<T>(
   searchValue: string,
@@ -210,8 +270,8 @@ export function searchEvmCollectiblesWithNoMeta<T>(
     assets,
     searchValue,
     Number.isInteger(Number(searchValue)) && !searchValue.startsWith('0x')
-      ? EVM_COLLECTIBLES_NUMBER_SEARCH_PRESET
-      : EVM_COLLECTIBLES_STRING_SEARCH_PRESET,
+      ? COLLECTIBLES_NUMBER_SEARCH_PRESET
+      : COLLECTIBLES_STRING_SEARCH_PRESET,
     asset => {
       const { chainId, assetSlug } = getSlugWithChainId(asset);
       const [contract, tokenId] = fromAssetSlug(assetSlug);
@@ -243,8 +303,8 @@ export function searchEvmChainCollectiblesWithNoMeta<T>(
     assets,
     searchValue,
     Number.isInteger(Number(searchValue)) && !searchValue.startsWith('0x')
-      ? EVM_COLLECTIBLES_NUMBER_SEARCH_PRESET
-      : EVM_COLLECTIBLES_STRING_SEARCH_PRESET,
+      ? COLLECTIBLES_NUMBER_SEARCH_PRESET
+      : COLLECTIBLES_STRING_SEARCH_PRESET,
     asset => {
       const slug = getSlug(asset);
       const [contract, tokenId] = fromAssetSlug(slug);

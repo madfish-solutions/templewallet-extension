@@ -19,9 +19,10 @@ import { useAreAssetsLoading, useMainnetTokensScamlistSelector } from 'app/store
 import { usePartnersPromotionModule } from 'app/templates/partners-promotion';
 import { TezosTokenListItem } from 'app/templates/TokenListItem';
 import { useAdsConstantsModule } from 'lib/ads-constants';
-import { useTezosAccountCollectibles } from 'lib/assets/hooks/collectibles';
+import { toTezEnabledCollectiblesChainSlugs, useTezosAccountCollectibles } from 'lib/assets/hooks/collectibles';
 import { useTezosAccountCollectiblesSortPredicate } from 'lib/assets/use-sorting';
 import { parseChainAssetSlug, toChainAssetSlug } from 'lib/assets/utils';
+import { useTezosCollectiblesMetadataPresenceCheck } from 'lib/metadata';
 import { useMemoWithCompare } from 'lib/ui/hooks';
 import { TokenListItemElement } from 'lib/ui/tokens-list';
 import { groupByToEntries } from 'lib/utils/group-by-to-entries';
@@ -39,32 +40,38 @@ interface Props {
 }
 
 const TezosTokensTabContext = createContext<
-  Props & Pick<TokensTabBaseProps, 'collectibles' | 'collectiblesReady' | 'collectiblesSortPredicate'>
+  Props & Pick<TokensTabBaseProps, 'tezosCollectibles' | 'collectiblesReady' | 'collectiblesSortPredicate'>
 >({
   publicKeyHash: '',
   accountId: '',
-  collectibles: [],
+  tezosCollectibles: [],
   collectiblesReady: false,
   collectiblesSortPredicate: () => 0
 });
 
 export const TezosTokensTab: FC<Props> = ({ publicKeyHash, accountId }) => {
   const { manageActive } = useTokensManageState();
-  const collectibles = useTezosAccountCollectibles(publicKeyHash);
+  const tezosCollectibles = useTezosAccountCollectibles(publicKeyHash);
   const assetsLoading = useAreAssetsLoading('collectibles');
-  const collectiblesReady = collectibles.length > 0 || !assetsLoading;
+  const collectiblesReady = tezosCollectibles.length > 0 || !assetsLoading;
   const collectiblesSortPredicate = useTezosAccountCollectiblesSortPredicate(publicKeyHash);
 
   const value = useMemo(
     () => ({
       publicKeyHash,
       accountId,
-      collectibles,
+      tezosCollectibles,
       collectiblesReady,
       collectiblesSortPredicate
     }),
-    [publicKeyHash, accountId, collectibles, collectiblesReady, collectiblesSortPredicate]
+    [publicKeyHash, accountId, tezosCollectibles, collectiblesReady, collectiblesSortPredicate]
   );
+
+  const tezEnabledCollectiblesChainsSlugs = useMemo(
+    () => toTezEnabledCollectiblesChainSlugs(tezosCollectibles),
+    [tezosCollectibles]
+  );
+  useTezosCollectiblesMetadataPresenceCheck(tezEnabledCollectiblesChainsSlugs);
 
   return (
     <TezosTokensTabContext value={value}>

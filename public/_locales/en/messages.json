@@ -2414,6 +2414,9 @@
   "nftsLoaderText": {
     "message": "Assets are loading..."
   },
+  "startYourCollectionToday": {
+    "message": "Start your collection today!"
+  },
   "searchNetworkName": {
     "message": "Search network name"
   },

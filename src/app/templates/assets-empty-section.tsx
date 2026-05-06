@@ -11,11 +11,10 @@ interface Props {
   manageActive: boolean;
   network?: OneOfChains;
   shouldShowHiddenTokensHint?: boolean;
-  stretch?: boolean;
 }
 
 export const AssetsEmptySection = memo<Props>(
-  ({ forCollectibles, forSearch, manageActive, network, shouldShowHiddenTokensHint = false, stretch = false }) => {
+  ({ forCollectibles, forSearch, manageActive, network, shouldShowHiddenTokensHint = false }) => {
     const textI18n = useMemo<TID>(() => {
       if (forSearch) return 'noAssetsFound';
       if (!forCollectibles && shouldShowHiddenTokensHint) return 'hiddenTokensHint';
@@ -32,7 +31,7 @@ export const AssetsEmptySection = memo<Props>(
     return (
       <div className="w-full h-full px-4 flex flex-col items-center justify-center">
         {manageActive && <AddCustomTokenButton {...commonProps} className="w-full mt-4" />}
-        <EmptyState forSearch={forSearch} textI18n={textI18n} stretch={stretch} />
+        <EmptyState forSearch={forSearch} textI18n={textI18n} />
         {!manageActive && <AddCustomTokenButton {...commonProps} className="mb-8" />}
       </div>
     );
