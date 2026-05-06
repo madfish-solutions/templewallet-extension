@@ -3,6 +3,7 @@ import React, { memo, useEffect } from 'react';
 import { useAccountsInitializedSync } from 'app/hooks/use-accounts-initialized-sync';
 import { useAdsImpressionsLinking } from 'app/hooks/use-ads-impressions-linking';
 import { useAssetsMigrations } from 'app/hooks/use-assets-migrations';
+import { useCancelConfirmDialogOnLock } from 'app/hooks/use-cancel-confirm-dialog-on-lock';
 import { useCollectiblesDetailsLoading } from 'app/hooks/use-collectibles-details-loading';
 import { useConversionVerification } from 'app/hooks/use-conversion-verification';
 import { useTokensApyLoading } from 'app/hooks/use-load-tokens-apy.hook';
@@ -57,6 +58,7 @@ export const ConfirmWindowRootHooks = memo(() => {
 });
 
 const ConstantAppRootHooks = memo(() => {
+  useCancelConfirmDialogOnLock();
   useConversionVerification();
   useGlobalErrorTracking();
 
