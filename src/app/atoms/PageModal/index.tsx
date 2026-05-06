@@ -13,6 +13,7 @@ import { FULL_PAGE_WRAP_OVERLAY_CLASSNAME, LAYOUT_CONTAINER_CLASSNAME } from 'ap
 import { useTestnetModeEnabledSelector } from 'app/store/settings/selectors';
 import { TestIDProps } from 'lib/analytics';
 
+import { Button, ButtonProps } from '../Button';
 import { IconBase } from '../IconBase';
 import { SuspenseContainer } from '../SuspenseContainer';
 
@@ -120,6 +121,8 @@ const BackButton: FC<{ onClick?: EmptyFn }> = ({ onClick }) => (
   <IconBase Icon={ChevronLeftIcon} size={16} className="text-grey-2 cursor-pointer" onClick={onClick} />
 );
 
-export const CloseButton: FC<{ onClick?: EmptyFn }> = ({ onClick }) => (
-  <IconBase Icon={ExIcon} size={16} className="text-grey-2 cursor-pointer" onClick={onClick} />
+export const CloseButton: FC<Omit<ButtonProps, 'children'>> = ({ className, ...restProps }) => (
+  <Button className={clsx('text-grey-2', className)} {...restProps}>
+    <IconBase Icon={ExIcon} size={16} />
+  </Button>
 );
