@@ -22,6 +22,8 @@ import {
   useAllCollectiblesDetailsLoadingSelector,
   useCollectibleDetailsSelector
 } from 'app/store/tezos/collectibles/selectors';
+import { CollectibleImageLoader } from 'app/templates/collectibles/collectible-image-loader';
+import { EvmCollectibleItemImage, TezosCollectibleItemImage } from 'app/templates/collectibles/collectible-item-image';
 import { DeleteAssetModal } from 'app/templates/remove-asset-modal/delete-asset-modal';
 import { ScamTag } from 'app/templates/scam-tag';
 import { setAnotherSelector, setTestID } from 'lib/analytics';
@@ -38,11 +40,8 @@ import { Link } from 'lib/woozie';
 import { ChainId, ChainOfKind, PublicKeyHash, useEvmChainByChainId, useTezosChainByChainId } from 'temple/front/chains';
 import { TempleChainKind } from 'temple/types';
 
-import { CollectibleImageLoader } from '../../components/CollectibleImageLoader';
 import { CollectibleTabSelectors } from '../selectors';
 import { toCollectibleLink } from '../utils';
-
-import { TezosCollectibleItemImage, EvmCollectibleItemImage } from './CollectibleItemImage';
 
 // Fixed sizes to improve large grid performance
 const manageImgStyle = { width: '2.625rem', height: '2.625rem' };
