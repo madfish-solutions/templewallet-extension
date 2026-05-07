@@ -13,8 +13,6 @@ export const NOTIFICATIONS_PAGE_NAME = 'Notifications page';
 export const SEND_PAGE_NAME = 'Send page';
 export const TOKEN_PAGE_NAME = 'Token page';
 
-export const HYPELAB_STUB_CAMPAIGN_SLUG = 'e55d2795d2';
-
 export const THEME_COLOR_SEARCH_PARAM_NAME = 'tc';
 export const FONT_SIZE_SEARCH_PARAM_NAME = 'fs';
 export const LINE_HEIGHT_SEARCH_PARAM_NAME = 'lh';

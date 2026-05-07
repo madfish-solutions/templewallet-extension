@@ -16,8 +16,8 @@ interface MiniPageModalProps extends PropsWithChildren, TestIDProps {
   opened: boolean;
   title?: ReactChildren;
   onRequestClose?: EmptyFn;
-  contentPadding?: boolean;
   showHeader?: boolean;
+  closeTestID?: string;
 }
 
 export const MiniPageModal: FC<MiniPageModalProps> = ({
@@ -26,7 +26,8 @@ export const MiniPageModal: FC<MiniPageModalProps> = ({
   onRequestClose,
   showHeader = true,
   children,
-  testID
+  testID,
+  closeTestID
 }) => {
   const { fullPage } = useAppEnv();
 
@@ -62,7 +63,7 @@ export const MiniPageModal: FC<MiniPageModalProps> = ({
           <div className="flex-1 text-center text-font-regular-bold">{title}</div>
 
           <div className="w-12 flex justify-end">
-            <CloseButton onClick={onRequestClose} />
+            <CloseButton onClick={onRequestClose} testID={closeTestID} />
           </div>
         </div>
       )}
