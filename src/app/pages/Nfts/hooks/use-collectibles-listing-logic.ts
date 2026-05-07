@@ -26,7 +26,7 @@ import {
 } from 'lib/assets/utils';
 import { buildTokenImagesStack } from 'lib/images-uri';
 import { useGetCollectibleMetadata, useTezosCollectiblesMetadataPresenceCheck } from 'lib/metadata';
-import { getCollectionName } from 'lib/metadata/utils';
+import { getCollectionName as getEvmCollectionName } from 'lib/metadata/utils';
 import { useMemoWithCompare } from 'lib/ui/hooks';
 import { isSearchStringApplicable } from 'lib/utils/search-items';
 import { useAccountAddressForEvm, useAccountAddressForTezos } from 'temple/front';
@@ -117,36 +117,47 @@ export const useCollectiblesListingLogic = (
 
   const { slugs: paginatedSlugs, loadNext } = useSimpleAssetsPaginationLogic(searchedSlugs);
 
-  const slugsByCollectionsSlugs = new Map<string, string[]>();
+  const getCollectionName = (chainKind: TempleChainKind, chainId: string | number, assetSlug: string) =>
+    chainKind === TempleChainKind.Tezos
+      ? getTezCollectionName(assetSlug, allTezosCollectiblesDetails[assetSlug])
+      : getEvmCollectionName(getEvmMetadata(chainId as number, assetSlug));
+
+  const slugsByCollectionsInContracts = new Map<string, Map<string, string[]>>();
   searchedSlugs.forEach(chainCollectibleSlug => {
     const [chainKind, chainId, assetSlug] = parseChainAssetSlug(chainCollectibleSlug);
     const [address] = fromAssetSlug(assetSlug);
-    const collectionSlug = toChainAssetSlug(chainKind, chainId, toTokenSlug(address));
-    let sameCollectionSlugs = slugsByCollectionsSlugs.get(collectionSlug);
+    const contractSlug = toChainAssetSlug(chainKind, chainId, toTokenSlug(address));
+    const collectionName = getCollectionName(chainKind, chainId, assetSlug);
+    let sameContractCollections = slugsByCollectionsInContracts.get(contractSlug);
+    if (!sameContractCollections) {
+      sameContractCollections = new Map<string, string[]>();
+      slugsByCollectionsInContracts.set(contractSlug, sameContractCollections);
+    }
+    let sameCollectionSlugs = sameContractCollections.get(collectionName);
     if (!sameCollectionSlugs) {
       sameCollectionSlugs = [];
-      slugsByCollectionsSlugs.set(collectionSlug, sameCollectionSlugs);
+      sameContractCollections.set(collectionName, sameCollectionSlugs);
     }
     sameCollectionSlugs.push(chainCollectibleSlug);
   });
 
-  const searchedSlugsByCollections = Array.from(slugsByCollectionsSlugs.entries()).map(
-    ([collectionSlug, chainCollectibleSlugs]): [CollectiblesCollection, string[]] => {
-      const [chainKind, chainId, assetSlug] = parseChainAssetSlug(chainCollectibleSlugs[0]);
-      let title: string | undefined;
-      let logoSrc: string[] | undefined;
-      if (chainKind === TempleChainKind.Tezos) {
-        const details = allTezosCollectiblesDetails[assetSlug];
-        if (details) {
-          title = getTezCollectionName(assetSlug, details);
-          logoSrc = buildTokenImagesStack(details.fa.logo);
-        }
-      } else {
-        title = getCollectionName(getEvmMetadata(chainId as number, assetSlug));
-      }
+  const searchedSlugsByCollections = Array.from(
+    slugsByCollectionsInContracts.entries().flatMap(([contractSlug, contractCollections]) =>
+      contractCollections
+        .entries()
+        .map(([collectionName, chainCollectibleSlugs]): [CollectiblesCollection, string[]] => {
+          const [chainKind, chainId, firstAssetSlug] = parseChainAssetSlug(chainCollectibleSlugs[0]);
+          const logoSrc =
+            chainKind === TempleChainKind.Tezos
+              ? buildTokenImagesStack(allTezosCollectiblesDetails[firstAssetSlug]?.fa.logo)
+              : undefined;
 
-      return [{ chainId, title, logoSrc, collectionSlug }, chainCollectibleSlugs];
-    }
+          return [
+            { chainId, title: collectionName, logoSrc, collectionSlug: `${contractSlug}_${collectionName}` },
+            chainCollectibleSlugs
+          ];
+        })
+    )
   );
 
   useTezosCollectiblesMetadataPresenceCheck(tezEnabledCollectiblesChainsSlugs);
