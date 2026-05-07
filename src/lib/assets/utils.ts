@@ -1,6 +1,7 @@
 import BigNumber from 'bignumber.js';
 import { getAddress } from 'viem';
 
+import { CollectibleDetails } from 'app/store/tezos/collectibles/state';
 import type { AssetMetadataBase } from 'lib/metadata';
 import type { ChainId } from 'temple/front/chains';
 import { isTezosDcpChainId } from 'temple/networks';
@@ -79,4 +80,29 @@ export const fromFa2TokenSlug = (slug: string): FA2Token => {
     contract: contractAddress,
     id: tokenIdStr ?? '0'
   };
+};
+
+const NAME_FROM_GALLERY_FIRST_ADDRESSES = new Set([
+  'KT1KEa8z6vWXDJrVqtMrAeDVzsvxat3kHaCE', // FXHASH GENTK
+  'KT1U6EHmNxJTkvaWJ4ThczG4FSDaHC21ssvi', // FXHASH GENTK v2
+  'KT1GtbuswcNMGhHF2TSuH1Yfaqn16do8Qtva', // FXHASH fx(text)
+  'KT1EfsNuqwLAWDd3o4pvfUx1CAh5GMdTrRvr', // FXHASH contract handling Generative Tokens
+  'KT19etLCjCCzTLFFAxsxLFsVYMRPetr2bTD5', // FXHASH Tickets
+  'KT18pVpRXKPY2c4U2yFEGSH3ZnhB2kL8kwXS', // Rarible
+  'KT1RJ6PbjHpwc3M5rw5s2Nbmefwbuwbdxton', // hic et nunc NFTs
+  'KT1M2JnD1wsg7w2B4UXJXtKQPuDUpU2L7cJH' // hic et Nunc OBJKTs Legacy
+]);
+
+export const getTezCollectionName = (assetSlug: string, details: CollectibleDetails | nullish) => {
+  const [contractAddress] = fromAssetSlug(assetSlug);
+
+  if (!details) {
+    return 'Unknown Collection';
+  }
+
+  if (NAME_FROM_GALLERY_FIRST_ADDRESSES.has(contractAddress)) {
+    return details.galleries[0]?.title ?? details.fa.name ?? 'Unknown Collection';
+  }
+
+  return details.fa.name ?? 'Unknown Collection';
 };

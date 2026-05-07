@@ -42,6 +42,7 @@ import { TempleChainKind } from 'temple/types';
 
 import { CollectibleTabSelectors } from '../selectors';
 import { toCollectibleLink } from '../utils';
+import { getTezCollectionName } from 'lib/assets/utils';
 
 // Fixed sizes to improve large grid performance
 const manageImgStyle = { width: '2.625rem', height: '2.625rem' };
@@ -75,8 +76,8 @@ export const TezosCollectibleItem = memo<TezosCollectibleItemProps>(
     const details = useCollectibleDetailsSelector(assetSlug);
 
     const collectionName = useMemo(
-      () => details?.galleries[0]?.title ?? details?.fa.name ?? 'Unknown Collection',
-      [details]
+      () => getTezCollectionName(assetSlug, details),
+      [assetSlug, details]
     );
 
     const assetName = getTokenName(metadata);

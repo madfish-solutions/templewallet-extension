@@ -183,16 +183,14 @@ export function searchEvmChainTokensWithNoMeta<T>(
 
 const COLLECTIBLES_NUMBER_SEARCH_PRESET = [
   { name: 'tokenId' as const, weight: 1 },
-  { name: 'symbol' as const, weight: 0.75 },
   { name: 'name' as const, weight: 0.5 },
   { name: 'contractName' as const, weight: 0.5 }
 ];
 
 const COLLECTIBLES_STRING_SEARCH_PRESET = [
-  { name: 'symbol' as const, weight: 1 },
-  { name: 'name' as const, weight: 0.5 },
-  { name: 'contractName' as const, weight: 0.5 },
-  { name: 'contract' as const, weight: 0.1 }
+  { name: 'name' as const, weight: 1 },
+  { name: 'contractName' as const, weight: 1 },
+  { name: 'contract' as const, weight: 0.2 }
 ];
 
 interface SearchCollectiblesWithNoMetaInput<T> {
@@ -237,7 +235,6 @@ export function searchCollectiblesWithNoMeta<T>({
 
         return {
           ...commonProps,
-          symbol: metadata?.symbol,
           name: metadata?.name,
           contractName: getTezCollectionName(chainId as string, slug)
         };
@@ -247,7 +244,6 @@ export function searchCollectiblesWithNoMeta<T>({
 
       return {
         ...commonProps,
-        symbol: metadata?.symbol,
         name: metadata?.collectibleName,
         contractName: metadata?.name
       };
@@ -280,7 +276,6 @@ export function searchEvmCollectiblesWithNoMeta<T>(
       return {
         contract,
         tokenId,
-        symbol: metadata?.symbol,
         name: metadata?.collectibleName,
         contractName: metadata?.name
       };
@@ -313,7 +308,6 @@ export function searchEvmChainCollectiblesWithNoMeta<T>(
       return {
         contract,
         tokenId,
-        symbol: metadata?.symbol,
         name: metadata?.collectibleName,
         contractName: metadata?.name
       };

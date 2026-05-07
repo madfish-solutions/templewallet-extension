@@ -24,6 +24,7 @@ import { useEvmChainByChainId } from 'temple/front/chains';
 
 import { DefaultEvmListItemLayout, DefaultTezosListItemLayout } from './default-layout';
 import { ManageEvmListItemLayout, ManageTezosListItemLayout } from './manage-layout';
+import { getTezCollectionName } from 'lib/assets/utils';
 
 interface CommonCollectibleItemProps {
   assetSlug: string;
@@ -71,7 +72,7 @@ export const TezosCollectibleItem: FC<TezosCollectibleItemProps> = ({
   const areDetailsLoading = useAllCollectiblesDetailsLoadingSelector();
   const details = useCollectibleDetailsSelector(assetSlug);
 
-  const collectionName = details?.galleries[0]?.title ?? details?.fa.name ?? 'Unknown Collection';
+  const collectionName = getTezCollectionName(assetSlug, details);
 
   const assetName = getTokenName(metadata);
 

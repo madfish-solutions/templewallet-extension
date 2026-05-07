@@ -128,10 +128,6 @@ const NftsPageContent: FC<NftsPageContentProps> = ({ allCollectibles, sortPredic
 
   const [filtersModalOpen, openFiltersModal, closeFiltersModal] = useBooleanState(false);
 
-  const setBlurEnabled = (value: boolean) => dispatch(setCollectiblesBlurFilterOption(value));
-  const setShowInfoEnabled = (value: boolean) => dispatch(setCollectiblesShowInfoFilterOption(value));
-  const setViewAsCollectionsEnabled = (value: boolean) => dispatch(setCollectiblesViewAsCollectionsFilterOption(value));
-
   let network: OneOfChains | undefined;
   if (selectedChains.length === 1) {
     const [chainId] = selectedChains;
@@ -193,7 +189,7 @@ const NftsPageContent: FC<NftsPageContentProps> = ({ allCollectibles, sortPredic
           <SettingsCellSingle Component="div" cellName={t('blurSensitiveContent')} isLast={false}>
             <ToggleSwitch
               checked={blur}
-              onChange={setBlurEnabled}
+              onChange={value => dispatch(setCollectiblesBlurFilterOption(value))}
               testID={NftsPageSelectors.blurSensitiveContentToggle}
             />
           </SettingsCellSingle>
@@ -202,7 +198,7 @@ const NftsPageContent: FC<NftsPageContentProps> = ({ allCollectibles, sortPredic
             <ToggleSwitch
               checked={showInfo}
               disabled={viewAsCollections}
-              onChange={setShowInfoEnabled}
+              onChange={value => dispatch(setCollectiblesShowInfoFilterOption(value))}
               testID={NftsPageSelectors.showDetailsToggle}
             />
           </SettingsCellSingle>
@@ -210,7 +206,7 @@ const NftsPageContent: FC<NftsPageContentProps> = ({ allCollectibles, sortPredic
           <SettingsCellSingle Component="div" cellName={t('viewAsCollections')}>
             <ToggleSwitch
               checked={viewAsCollections}
-              onChange={setViewAsCollectionsEnabled}
+              onChange={value => dispatch(setCollectiblesViewAsCollectionsFilterOption(value))}
               testID={NftsPageSelectors.viewAsCollectionsToggle}
             />
           </SettingsCellSingle>

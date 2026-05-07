@@ -17,7 +17,7 @@ import {
 } from 'app/store/tezos/collectibles/selectors';
 import { AccountCollectible } from 'lib/assets/hooks/collectibles';
 import { searchCollectiblesWithNoMeta } from 'lib/assets/search.utils';
-import { fromAssetSlug, parseChainAssetSlug, toChainAssetSlug, toTokenSlug } from 'lib/assets/utils';
+import { fromAssetSlug, getTezCollectionName, parseChainAssetSlug, toChainAssetSlug, toTokenSlug } from 'lib/assets/utils';
 import { buildTokenImagesStack } from 'lib/images-uri';
 import { useGetCollectibleMetadata, useTezosCollectiblesMetadataPresenceCheck } from 'lib/metadata';
 import { getCollectionName } from 'lib/metadata/utils';
@@ -93,12 +93,8 @@ export const useCollectiblesListingLogic = (
       getEvmMetadata,
       getChainSlug: slug => slug,
       getSlug: getSlugFromChainSlug,
-      getTezCollectionName: (_, slug) => {
-        if (!viewAsCollections) return undefined;
-
-        const details = allTezosCollectiblesDetails[slug];
-        return details?.galleries[0]?.title ?? details?.fa.name;
-      }
+      getTezCollectionName: (_, slug) =>
+        viewAsCollections ? getTezCollectionName(slug, allTezosCollectiblesDetails[slug]) : undefined
     });
 
   const manageableChainSlugs = usePreservedOrderSlugsToManage(enabledSlugsSorted, otherSlugsSorted);
@@ -136,7 +132,7 @@ export const useCollectiblesListingLogic = (
       if (chainKind === TempleChainKind.Tezos) {
         const details = allTezosCollectiblesDetails[assetSlug];
         if (details) {
-          title = details.galleries[0]?.title ?? details.fa.name;
+          title = getTezCollectionName(assetSlug, details);
           logoSrc = buildTokenImagesStack(details.fa.logo);
         }
       } else {
