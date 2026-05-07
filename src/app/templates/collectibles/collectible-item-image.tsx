@@ -1,4 +1,4 @@
-import { Ref, memo, useMemo } from 'react';
+import { FC, Ref } from 'react';
 
 import { isDefined } from '@rnw-community/shared';
 import clsx from 'clsx';
@@ -27,57 +27,54 @@ interface TezosCollectibleItemImageProps {
   manageActive?: boolean;
 }
 
-export const TezosCollectibleItemImage = memo<TezosCollectibleItemImageProps>(
-  ({
-    assetSlug,
-    metadata,
-    adultBlur,
-    areDetailsLoading,
-    mime,
-    extraSrc,
-    className,
-    shouldUseBlurredBg = false,
-    manageActive = false
-  }) => {
-    const isAdultContent = useCollectibleIsAdultSelector(assetSlug);
-    const isAdultFlagLoading = areDetailsLoading && !isDefined(isAdultContent);
-    const shouldShowBlur = isAdultContent && adultBlur;
+const NO_SOURCES: string[] = [];
 
-    const sources = useMemo(() => {
-      if (!isDefined(metadata)) return [];
+export const TezosCollectibleItemImage: FC<TezosCollectibleItemImageProps> = ({
+  assetSlug,
+  metadata,
+  adultBlur,
+  areDetailsLoading,
+  mime,
+  extraSrc,
+  className,
+  shouldUseBlurredBg = false,
+  manageActive = false
+}) => {
+  const isAdultContent = useCollectibleIsAdultSelector(assetSlug);
+  const isAdultFlagLoading = areDetailsLoading && !isDefined(isAdultContent);
+  const shouldShowBlur = isAdultContent && adultBlur;
 
-      const baseSources = buildCollectibleImagesStack(metadata);
-      if (extraSrc !== undefined) {
-        baseSources.push(extraSrc);
-      }
-
-      return baseSources;
-    }, [metadata, extraSrc]);
-
-    const isAudioCollectible = useMemo(() => Boolean(mime && mime.startsWith('audio')), [mime]);
-
-    if (isAdultFlagLoading) {
-      return <CollectibleImageLoader />;
+  let sources = NO_SOURCES;
+  if (metadata) {
+    sources = buildCollectibleImagesStack(metadata);
+    if (extraSrc !== undefined) {
+      sources.push(extraSrc);
     }
-
-    return shouldShowBlur ? (
-      <CollectibleBlur assetSlug={assetSlug} eyeIconSizeClassName={manageActive ? 'w-6 h-6' : undefined} />
-    ) : (
-      <>
-        {shouldUseBlurredBg && (
-          <ImageStacked sources={sources} loading="lazy" className="absolute w-full h-full object-cover blur-xs" />
-        )}
-        <ImageStacked
-          sources={sources}
-          loading="lazy"
-          loader={<CollectibleImageLoader />}
-          fallback={<CollectibleImageFallback isAudioCollectible={isAudioCollectible} />}
-          className={clsx('w-full h-full z-1', className)}
-        />
-      </>
-    );
   }
-);
+
+  const isAudioCollectible = Boolean(mime?.startsWith('audio'));
+
+  if (isAdultFlagLoading) {
+    return <CollectibleImageLoader />;
+  }
+
+  return shouldShowBlur ? (
+    <CollectibleBlur assetSlug={assetSlug} eyeIconSizeClassName={manageActive ? 'w-6 h-6' : undefined} />
+  ) : (
+    <>
+      {shouldUseBlurredBg && (
+        <ImageStacked sources={sources} loading="lazy" className="absolute w-full h-full object-cover blur-xs" />
+      )}
+      <ImageStacked
+        sources={sources}
+        loading="lazy"
+        loader={<CollectibleImageLoader />}
+        fallback={<CollectibleImageFallback isAudioCollectible={isAudioCollectible} />}
+        className={clsx('w-full h-full z-1', className)}
+      />
+    </>
+  );
+};
 
 interface EvmCollectibleItemImageProps {
   metadata?: EvmCollectibleMetadata;
@@ -85,31 +82,30 @@ interface EvmCollectibleItemImageProps {
   shouldUseBlurredBg?: boolean;
 }
 
-export const EvmCollectibleItemImage = memo<EvmCollectibleItemImageProps>(
-  ({ metadata, className, shouldUseBlurredBg = false }) => {
-    const sources = useMemo(() => [buildHttpLinkFromUri(metadata?.image)].filter(isString), [metadata?.image]);
-    const sourcesWithCompressedFallback = useMemo(
-      () => (metadata ? buildEvmCollectibleIconSources(metadata) : []),
-      [metadata]
-    );
+export const EvmCollectibleItemImage: FC<EvmCollectibleItemImageProps> = ({
+  metadata,
+  className,
+  shouldUseBlurredBg = false
+}) => {
+  const sources = [buildHttpLinkFromUri(metadata?.image)].filter(isString);
+  const sourcesWithCompressedFallback = metadata ? buildEvmCollectibleIconSources(metadata) : NO_SOURCES;
 
-    return (
-      <>
-        {shouldUseBlurredBg && (
-          <ImageStacked
-            sources={sourcesWithCompressedFallback}
-            loading="lazy"
-            className="absolute w-full h-full object-cover blur-xs"
-          />
-        )}
+  return (
+    <>
+      {shouldUseBlurredBg && (
         <ImageStacked
-          sources={sources}
+          sources={sourcesWithCompressedFallback}
           loading="lazy"
-          loader={<CollectibleImageLoader />}
-          fallback={<CollectibleImageFallback />}
-          className={clsx('w-full h-full z-1', className)}
+          className="absolute w-full h-full object-cover blur-xs"
         />
-      </>
-    );
-  }
-);
+      )}
+      <ImageStacked
+        sources={sources}
+        loading="lazy"
+        loader={<CollectibleImageLoader />}
+        fallback={<CollectibleImageFallback />}
+        className={clsx('w-full h-full z-1', className)}
+      />
+    </>
+  );
+};

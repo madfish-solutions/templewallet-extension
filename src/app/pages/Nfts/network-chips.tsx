@@ -1,17 +1,17 @@
-import { memo, useCallback, useEffect, useMemo, useState } from 'react';
+import { FC, useEffect, useMemo, useState } from 'react';
 
 import { clsx } from 'clsx';
+import { throttle } from 'lodash';
 
 import { Button, IconBase } from 'app/atoms';
 import { EvmNetworkLogo, TezosNetworkLogo } from 'app/atoms/NetworkLogo';
+import { useSelectedChainsState } from 'app/hooks/use-collectibles-view-state';
 import { ReactComponent as ChevronDownIcon } from 'app/icons/base/chevron_down.svg';
 import { ReactComponent as XCircleFillIcon } from 'app/icons/base/x_circle_fill.svg';
 import { AccountCollectible } from 'lib/assets/hooks/collectibles';
 import { useBooleanState } from 'lib/ui/hooks';
 import { EvmChain, TezosChain } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
-
-import { useSelectedChainsState } from '../../hooks/use-collectibles-view-state';
 
 interface NetworkChipsProps {
   enabledCollectibles: AccountCollectible[];
@@ -36,10 +36,35 @@ const getNumberRenderedWidth = (value: number, font: 'normal' | 'semibold') =>
     .split('')
     .reduce((acc, digit) => acc + textXsDigitWidth[digit as keyof typeof textXsDigitWidth][font], 0);
 
-export const NetworkChips = memo<NetworkChipsProps>(({ enabledCollectibles }) => {
+const getChipsInOneLineCount = (
+  collectiblesAmounts: { chain: NetworkChipProps['chain']; amount: number }[],
+  innerWidth: number
+) => {
+  const availableWidth = Math.min(innerWidth, 384) - 32;
+  let chipsTotalWidth = 0;
+  const getChipWidth = (index: number) => getNumberRenderedWidth(collectiblesAmounts[index].amount, 'normal') + 35;
+  for (let i = 1, itemsLeft = collectiblesAmounts.length - 1; i < collectiblesAmounts.length; i++, itemsLeft--) {
+    chipsTotalWidth += getChipWidth(i - 1);
+    if (i !== 1) chipsTotalWidth += 8;
+    const leftButtonWithGapWidth = getNumberRenderedWidth(itemsLeft, 'semibold') + 72.42;
+
+    if (itemsLeft === 1 && chipsTotalWidth + getChipWidth(collectiblesAmounts.length - 1) <= availableWidth) {
+      return collectiblesAmounts.length;
+    }
+
+    if (chipsTotalWidth + leftButtonWithGapWidth > availableWidth) {
+      return i - 1;
+    }
+  }
+
+  return collectiblesAmounts.length;
+};
+
+export const NetworkChips: FC<NetworkChipsProps> = ({ enabledCollectibles }) => {
   const { selectedChains, setSelectedChains } = useSelectedChainsState();
   const [collapsed, , expand] = useBooleanState(true);
 
+  // Intentional manual memoization to minimize `collectiblesAmounts` re-calculations
   const collectiblesAmounts = useMemo(
     () =>
       Array.from(
@@ -65,36 +90,11 @@ export const NetworkChips = memo<NetworkChipsProps>(({ enabledCollectibles }) =>
     [enabledCollectibles]
   );
 
-  const getVisibleChipsCount = useCallback(() => {
-    if (!collapsed) return collectiblesAmounts.length;
-
-    const availableWidth = Math.min(window.innerWidth, 384) - 32;
-    let chipsTotalWidth = 0;
-    const getChipWidth = (index: number) => getNumberRenderedWidth(collectiblesAmounts[index].amount, 'normal') + 35;
-    for (let i = 1, itemsLeft = collectiblesAmounts.length - 1; i < collectiblesAmounts.length; i++, itemsLeft--) {
-      chipsTotalWidth += getChipWidth(i - 1);
-      if (i !== 1) chipsTotalWidth += 8;
-      const leftButtonWithGapWidth = getNumberRenderedWidth(itemsLeft, 'semibold') + 72.42;
-
-      if (itemsLeft === 1 && chipsTotalWidth + getChipWidth(collectiblesAmounts.length - 1) <= availableWidth) {
-        return collectiblesAmounts.length;
-      }
-
-      if (chipsTotalWidth + leftButtonWithGapWidth > availableWidth) {
-        return i - 1;
-      }
-    }
-
-    return collectiblesAmounts.length;
-  }, [collectiblesAmounts, collapsed]);
-
-  const [visibleChipsCount, setVisibleChipsCount] = useState(getVisibleChipsCount());
+  const [innerWidth, setInnerWidth] = useState(window.innerWidth);
+  const visibleChipsCount = collapsed
+    ? getChipsInOneLineCount(collectiblesAmounts, innerWidth)
+    : collectiblesAmounts.length;
   const chipsToExpandCount = collectiblesAmounts.length - visibleChipsCount;
-
-  const displayedChips = useMemo(
-    () => collectiblesAmounts.slice(0, visibleChipsCount),
-    [collectiblesAmounts, visibleChipsCount]
-  );
 
   useEffect(
     () =>
@@ -105,33 +105,18 @@ export const NetworkChips = memo<NetworkChipsProps>(({ enabledCollectibles }) =>
   );
 
   useEffect(() => {
-    setVisibleChipsCount(getVisibleChipsCount());
+    const resizeListener = throttle(() => setInnerWidth(window.innerWidth), 100);
+    window.addEventListener('resize', resizeListener);
 
-    if (collapsed) {
-      const resizeListener = () => setVisibleChipsCount(getVisibleChipsCount());
-      window.addEventListener('resize', resizeListener);
+    return () => window.removeEventListener('resize', resizeListener);
+  }, []);
 
-      return () => window.removeEventListener('resize', resizeListener);
-    }
-
-    return;
-  }, [getVisibleChipsCount, collapsed]);
-
-  const handleChainClick = useCallback(
-    (chainId: string | number) => {
-      setSelectedChains(prev => {
-        if (prev.includes(chainId)) {
-          return prev.filter(id => id !== chainId);
-        }
-        return prev.concat(chainId);
-      });
-    },
-    [setSelectedChains]
-  );
+  const handleChainClick = (chainId: string | number) =>
+    setSelectedChains(prev => (prev.includes(chainId) ? prev.filter(id => id !== chainId) : prev.concat(chainId)));
 
   return (
     <div className="inline-flex flex-wrap gap-2 items-center">
-      {displayedChips.map(({ chain, amount }) => (
+      {collectiblesAmounts.slice(0, visibleChipsCount).map(({ chain, amount }) => (
         <NetworkChip
           key={chain.chainId}
           amount={amount}
@@ -151,7 +136,7 @@ export const NetworkChips = memo<NetworkChipsProps>(({ enabledCollectibles }) =>
       )}
     </div>
   );
-});
+};
 
 interface NetworkChipProps {
   amount: number;
@@ -160,25 +145,21 @@ interface NetworkChipProps {
   onClick: SyncFn<string | number>;
 }
 
-const NetworkChip = memo<NetworkChipProps>(({ amount, chain, isSelected, onClick }) => {
-  const handleClick = useCallback(() => onClick(chain.chainId), [chain.chainId, onClick]);
-
-  return (
-    <Button
-      key={chain.chainId}
-      className={clsx(
-        'flex items-center px-2 py-1 text-font-num-12 rounded-lg border-0.5',
-        isSelected ? 'bg-secondary text-white pr-1.5 border-secondary' : 'bg-grey-4 hover:text-secondary border-lines'
-      )}
-      onClick={handleClick}
-    >
-      {chain.kind === TempleChainKind.Tezos ? (
-        <TezosNetworkLogo className="mr-0.5" chainId={chain.chainId} size={16} />
-      ) : (
-        <EvmNetworkLogo className="mr-0.5" chainId={chain.chainId} size={16} />
-      )}
-      <span>{amount}</span>
-      {isSelected && <IconBase Icon={XCircleFillIcon} size={12} />}
-    </Button>
-  );
-});
+const NetworkChip: FC<NetworkChipProps> = ({ amount, chain, isSelected, onClick }) => (
+  <Button
+    key={chain.chainId}
+    className={clsx(
+      'flex items-center px-2 py-1 text-font-num-12 rounded-lg border-0.5',
+      isSelected ? 'bg-secondary text-white pr-1.5 border-secondary' : 'bg-grey-4 hover:text-secondary border-lines'
+    )}
+    onClick={() => onClick(chain.chainId)}
+  >
+    {chain.kind === TempleChainKind.Tezos ? (
+      <TezosNetworkLogo className="mr-0.5" chainId={chain.chainId} size={16} />
+    ) : (
+      <EvmNetworkLogo className="mr-0.5" chainId={chain.chainId} size={16} />
+    )}
+    <span>{amount}</span>
+    {isSelected && <IconBase Icon={XCircleFillIcon} size={12} />}
+  </Button>
+);

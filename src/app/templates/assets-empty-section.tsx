@@ -1,4 +1,4 @@
-import { memo, useMemo } from 'react';
+import { FC } from 'react';
 
 import { AddCustomTokenButton } from 'app/atoms/AddCustomTokenButton';
 import { EmptyState } from 'app/atoms/EmptyState';
@@ -13,14 +13,16 @@ interface Props {
   shouldShowHiddenTokensHint?: boolean;
 }
 
-export const AssetsEmptySection = memo<Props>(
+export const AssetsEmptySection: FC<Props> =
   ({ forCollectibles, forSearch, manageActive, network, shouldShowHiddenTokensHint = false }) => {
-    const textI18n = useMemo<TID>(() => {
-      if (forSearch) return 'noAssetsFound';
-      if (!forCollectibles && shouldShowHiddenTokensHint) return 'hiddenTokensHint';
-
-      return forCollectibles ? 'noCollectibles' : 'noTokens';
-    }, [forCollectibles, forSearch, shouldShowHiddenTokensHint]);
+    let textI18n: TID;
+    if (forSearch) {
+      textI18n = 'noAssetsFound';
+    } else if (!forCollectibles && shouldShowHiddenTokensHint) {
+      textI18n = 'hiddenTokensHint';
+    } else {
+      textI18n = forCollectibles ? 'noCollectibles' : 'noTokens';
+    }
 
     const commonProps = {
       forCollectibles,
@@ -35,5 +37,4 @@ export const AssetsEmptySection = memo<Props>(
         {!manageActive && <AddCustomTokenButton {...commonProps} className="mb-8" />}
       </div>
     );
-  }
-);
+  };

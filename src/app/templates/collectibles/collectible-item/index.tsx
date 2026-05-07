@@ -1,4 +1,4 @@
-import { memo, Ref, useMemo, useRef } from 'react';
+import { FC, Ref, useRef } from 'react';
 
 import { useStoredEvmCollectibleSelector } from 'app/store/evm/assets/selectors';
 import { useEvmCollectibleMetadataSelector } from 'app/store/evm/collectibles-metadata/selectors';
@@ -44,153 +44,118 @@ interface TezosCollectibleItemProps extends CommonCollectibleItemProps {
   scam?: boolean;
 }
 
-export const TezosCollectibleItem = memo<TezosCollectibleItemProps>(
-  ({
+export const TezosCollectibleItem: FC<TezosCollectibleItemProps> = ({
+  assetSlug,
+  accountPkh,
+  tezosChainId,
+  adultBlur,
+  showDetails,
+  scam,
+  manageActive = false,
+  index,
+  isVisible,
+  ref,
+  testID,
+  nameTestID
+}) => {
+  const metadata = useCollectibleMetadataSelector(assetSlug);
+  const wrapperElemRef = useRef<HTMLDivElement>(null);
+  const balanceAtomic = useBalanceSelector(accountPkh, tezosChainId, assetSlug);
+
+  const storedToken = useStoredTezosCollectibleSelector(accountPkh, tezosChainId, assetSlug);
+
+  const metadatasLoading = useCollectiblesMetadataLoadingSelector();
+
+  const checked = getAssetStatus(balanceAtomic, storedToken?.status) === 'enabled';
+
+  const areDetailsLoading = useAllCollectiblesDetailsLoadingSelector();
+  const details = useCollectibleDetailsSelector(assetSlug);
+
+  const collectionName = details?.galleries[0]?.title ?? details?.fa.name ?? 'Unknown Collection';
+
+  const assetName = getTokenName(metadata);
+
+  const commonProps = {
+    wrapperElemRef,
+    chainId: tezosChainId,
     assetSlug,
-    accountPkh,
-    tezosChainId,
+    assetName,
+    metadata,
     adultBlur,
-    showDetails,
+    areDetailsLoading: areDetailsLoading && details === undefined,
+    extraSrc: details?.objktArtifactUri && buildObjktCollectibleArtifactUri(details?.objktArtifactUri),
+    mime: details?.mime,
     scam,
-    manageActive = false,
     index,
     isVisible,
     ref,
     testID,
     nameTestID
-  }) => {
-    const metadata = useCollectibleMetadataSelector(assetSlug);
-    const wrapperElemRef = useRef<HTMLDivElement>(null);
-    const balanceAtomic = useBalanceSelector(accountPkh, tezosChainId, assetSlug);
+  };
 
-    const storedToken = useStoredTezosCollectibleSelector(accountPkh, tezosChainId, assetSlug);
-
-    const metadatasLoading = useCollectiblesMetadataLoadingSelector();
-
-    const checked = getAssetStatus(balanceAtomic, storedToken?.status) === 'enabled';
-
-    const areDetailsLoading = useAllCollectiblesDetailsLoadingSelector();
-    const details = useCollectibleDetailsSelector(assetSlug);
-
-    const collectionName = useMemo(
-      () => details?.galleries[0]?.title ?? details?.fa.name ?? 'Unknown Collection',
-      [details]
-    );
-
-    const assetName = getTokenName(metadata);
-
-    if (manageActive)
-      return (
-        <ManageTezosListItemLayout
-          wrapperElemRef={wrapperElemRef}
-          chainId={tezosChainId}
-          assetSlug={assetSlug}
-          assetName={assetName}
-          collectionName={collectionName}
-          checked={checked}
-          publicKeyHash={accountPkh}
-          metadata={metadata}
-          adultBlur={adultBlur}
-          areDetailsLoading={areDetailsLoading && details === undefined}
-          extraSrc={details?.objktArtifactUri && buildObjktCollectibleArtifactUri(details?.objktArtifactUri)}
-          mime={details?.mime}
-          scam={scam}
-          index={index}
-          isVisible={isVisible}
-          ref={ref}
-          testID={testID}
-          nameTestID={nameTestID}
-        />
-      );
-
-    return (
-      <DefaultTezosListItemLayout
-        wrapperElemRef={wrapperElemRef}
-        assetSlug={assetSlug}
-        assetName={assetName}
-        chainId={tezosChainId}
-        metadata={metadata}
-        showDetails={showDetails}
-        metadatasLoading={metadatasLoading}
-        adultBlur={adultBlur}
-        areDetailsLoading={areDetailsLoading && details === undefined}
-        extraSrc={details?.objktArtifactUri && buildObjktCollectibleArtifactUri(details?.objktArtifactUri)}
-        mime={details?.mime}
-        scam={scam}
-        index={index}
-        isVisible={isVisible}
-        ref={ref}
-        testID={testID}
-        nameTestID={nameTestID}
-      />
-    );
-  }
-);
+  return manageActive ? (
+    <ManageTezosListItemLayout
+      {...commonProps}
+      collectionName={collectionName}
+      checked={checked}
+      publicKeyHash={accountPkh}
+    />
+  ) : (
+    <DefaultTezosListItemLayout {...commonProps} showDetails={showDetails} metadatasLoading={metadatasLoading} />
+  );
+};
 
 interface EvmCollectibleItemProps extends CommonCollectibleItemProps {
   evmChainId: number;
   accountPkh: HexString;
 }
 
-export const EvmCollectibleItem = memo<EvmCollectibleItemProps>(
-  ({
+export const EvmCollectibleItem: FC<EvmCollectibleItemProps> = ({
+  assetSlug,
+  evmChainId,
+  accountPkh,
+  showDetails = false,
+  manageActive = false,
+  index,
+  isVisible,
+  ref,
+  testID,
+  nameTestID
+}) => {
+  const metadata = useEvmCollectibleMetadataSelector(evmChainId, assetSlug);
+  const chain = useEvmChainByChainId(evmChainId);
+  const { value: balance = ZERO } = useEvmAssetBalance(assetSlug, accountPkh, chain!);
+  const balanceBeforeTruncate = balance.toString();
+
+  const metadatasLoading = useEvmCollectiblesMetadataLoadingSelector();
+
+  const storedToken = useStoredEvmCollectibleSelector(accountPkh, evmChainId, assetSlug);
+
+  const checked = getAssetStatus(balanceBeforeTruncate, storedToken?.status) === 'enabled';
+
+  const assetName = getCollectibleName(metadata);
+  const collectionName = getCollectionName(metadata);
+
+  const commonProps = {
+    chainId: evmChainId,
     assetSlug,
-    evmChainId,
-    accountPkh,
-    showDetails = false,
-    manageActive = false,
-    index,
+    assetName,
+    metadata,
     isVisible,
+    index,
     ref,
     testID,
     nameTestID
-  }) => {
-    const metadata = useEvmCollectibleMetadataSelector(evmChainId, assetSlug);
-    const chain = useEvmChainByChainId(evmChainId);
-    const { value: balance = ZERO } = useEvmAssetBalance(assetSlug, accountPkh, chain!);
-    const balanceBeforeTruncate = balance.toString();
+  };
 
-    const metadatasLoading = useEvmCollectiblesMetadataLoadingSelector();
-
-    const storedToken = useStoredEvmCollectibleSelector(accountPkh, evmChainId, assetSlug);
-
-    const checked = getAssetStatus(balanceBeforeTruncate, storedToken?.status) === 'enabled';
-
-    const assetName = getCollectibleName(metadata);
-    const collectionName = getCollectionName(metadata);
-
-    if (manageActive)
-      return (
-        <ManageEvmListItemLayout
-          chainId={evmChainId}
-          assetSlug={assetSlug}
-          assetName={assetName}
-          collectionName={collectionName}
-          checked={checked}
-          publicKeyHash={accountPkh}
-          metadata={metadata}
-          index={index}
-          isVisible={isVisible}
-          ref={ref}
-          testID={testID}
-          nameTestID={nameTestID}
-        />
-      );
-
-    return (
-      <DefaultEvmListItemLayout
-        assetSlug={assetSlug}
-        assetName={assetName}
-        chainId={evmChainId}
-        metadata={metadata}
-        showDetails={showDetails}
-        isVisible={isVisible}
-        metadatasLoading={metadatasLoading}
-        index={index}
-        ref={ref}
-        testID={testID}
-        nameTestID={nameTestID}
-      />
-    );
-  }
-);
+  return manageActive ? (
+    <ManageEvmListItemLayout
+      {...commonProps}
+      collectionName={collectionName}
+      checked={checked}
+      publicKeyHash={accountPkh}
+    />
+  ) : (
+    <DefaultEvmListItemLayout {...commonProps} metadatasLoading={metadatasLoading} showDetails={showDetails} />
+  );
+};

@@ -1,4 +1,4 @@
-import { FC, memo, Ref, useCallback } from 'react';
+import { FC, memo, Ref } from 'react';
 
 import clsx from 'clsx';
 
@@ -76,13 +76,10 @@ const ManageCollectibleListItemLayoutHOC = <
     const defaultIsVisible = useIsItemVisible(index);
     const isVisible = isVisibleFromProps ?? defaultIsVisible;
 
-    const handleCollectibleStatusSwitch = useCallback(() => {
+    const handleCollectibleStatusSwitch = () =>
       toggleTokenStatus(checked ? 'disabled' : 'enabled', assetSlug, chainId, publicKeyHash);
-    }, [checked, assetSlug, chainId, publicKeyHash]);
 
-    const handleDeleteClick = useCallback(() => {
-      deleteItem(assetSlug, chainId, publicKeyHash);
-    }, [assetSlug, chainId, publicKeyHash]);
+    const handleDeleteClick = () => deleteItem(assetSlug, chainId, publicKeyHash);
 
     return (
       <>

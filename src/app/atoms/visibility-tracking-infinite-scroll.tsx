@@ -1,4 +1,4 @@
-import React, { FC, createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import React, { FC, createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 
 import { noop } from 'lodash';
 import InfiniteScroll from 'react-infinite-scroll-component';
@@ -42,19 +42,13 @@ const InfiniteScrollVisibilityContextProvider: FC<PropsWithChildren> = ({ childr
   const [listItemsVisibilityDebounced] = useDebounce(listItemsVisibility, 50, debounceOptions);
 
   // Expand the window monotonically so items that have been scrolled into view don't revert to skeleton when scrolled away.
-  const setListItemsVisibility = useCallback(
-    (next: ListItemsVisibility) =>
-      setListItemsVisibilityRaw(prev => ({
-        top: Math.min(prev.top, next.top),
-        bottom: Math.max(prev.bottom, next.bottom)
-      })),
-    []
-  );
+  const setListItemsVisibility = (next: ListItemsVisibility) =>
+    setListItemsVisibilityRaw(prev => ({
+      top: Math.min(prev.top, next.top),
+      bottom: Math.max(prev.bottom, next.bottom)
+    }));
 
-  const value = useMemo(
-    () => ({ listItemsVisibility: listItemsVisibilityDebounced, setListItemsVisibility }),
-    [listItemsVisibilityDebounced, setListItemsVisibility]
-  );
+  const value = { listItemsVisibility: listItemsVisibilityDebounced, setListItemsVisibility };
 
   return <InfiniteScrollVisibilityContext value={value}>{children}</InfiniteScrollVisibilityContext>;
 };
@@ -122,9 +116,5 @@ const VisibilityTrackingInfiniteScrollContent: FC<VisibilityTrackingInfiniteScro
 export const useIsItemVisible = (index: number | undefined) => {
   const { listItemsVisibility } = useInfiniteScrollVisibilityContext();
 
-  return useMemo(() => {
-    if (index == null) return true;
-
-    return index >= listItemsVisibility.top && index <= listItemsVisibility.bottom;
-  }, [index, listItemsVisibility]);
+  return index == null || (index >= listItemsVisibility.top && index <= listItemsVisibility.bottom);
 };

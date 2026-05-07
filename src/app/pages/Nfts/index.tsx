@@ -1,4 +1,4 @@
-import { memo, Ref, useCallback, useMemo } from 'react';
+import { FC } from 'react';
 
 import { FadeTransition } from 'app/a11y/FadeTransition';
 import { IconBase, ToggleSwitch } from 'app/atoms';
@@ -12,6 +12,7 @@ import {
   useSearchState,
   useSelectedChainsState
 } from 'app/hooks/use-collectibles-view-state';
+import { useEvmCollectiblesMetadataLoading } from 'app/hooks/use-evm-collectibles-meta-loading';
 import { ReactComponent as FilterOffIcon } from 'app/icons/base/filteroff.svg';
 import { ReactComponent as FilterOnIcon } from 'app/icons/base/filteron.svg';
 import { ReactComponent as ManageIcon } from 'app/icons/base/manage.svg';
@@ -25,8 +26,6 @@ import {
   setCollectiblesViewAsCollectionsFilterOption
 } from 'app/store/assets-filter-options/actions';
 import { useCollectiblesListOptionsSelector } from 'app/store/assets-filter-options/selectors';
-import { useMainnetTokensScamlistSelector } from 'app/store/tezos/assets/selectors';
-import { EvmCollectibleItem, TezosCollectibleItem } from 'app/templates/collectibles/collectible-item';
 import { SearchBarField } from 'app/templates/SearchField';
 import {
   AccountCollectible,
@@ -38,22 +37,24 @@ import {
   useEvmAccountCollectiblesSortPredicate,
   useTezosAccountCollectiblesSortPredicate
 } from 'lib/assets/use-sorting';
-import { parseChainAssetSlug } from 'lib/assets/utils';
 import { t, T } from 'lib/i18n';
-import { CollectiblesListItemElement } from 'lib/ui/collectibles-list';
 import { useBooleanState } from 'lib/ui/hooks';
 import { UNDER_DEVELOPMENT_MSG } from 'temple/evm/under_dev_msg';
-import { useAccountAddressForEvm, useAccountAddressForTezos, useAllEvmChains, useAllTezosChains } from 'temple/front';
-import { TempleChainKind } from 'temple/types';
+import {
+  OneOfChains,
+  useAccountAddressForEvm,
+  useAccountAddressForTezos,
+  useAllEvmChains,
+  useAllTezosChains
+} from 'temple/front';
 
 import { CollectionsListView } from './components/collections-list-view';
-import { NftsListView } from './components/nfts-list-view';
 import { useCollectiblesListingLogic } from './hooks/use-collectibles-listing-logic';
-import { useEvmCollectiblesMetadataLoading } from './hooks/use-evm-collectibles-meta-loading';
 import { NetworkChips } from './network-chips';
+import { NftsList } from './nfts-list';
 import { NftsPageSelectors } from './selectors';
 
-export const NftsPage = memo(() => {
+export const NftsPage = () => {
   const accountAddressForTezos = useAccountAddressForTezos();
   const accountAddressForEvm = useAccountAddressForEvm();
 
@@ -69,29 +70,29 @@ export const NftsPage = memo(() => {
       )}
     </NftsViewStateProvider>
   );
-});
+};
 
-const MultiChainNftsPage = memo<{ accountTezAddress: string; accountEvmAddress: HexString }>(
-  ({ accountTezAddress, accountEvmAddress }) => {
-    const tezCollectibles = useTezosAccountCollectibles(accountTezAddress);
-    const evmCollectibles = useEvmAccountCollectibles(accountEvmAddress);
-    const allCollectibles = useMemo(() => tezCollectibles.concat(evmCollectibles), [tezCollectibles, evmCollectibles]);
-    const sortPredicate = useAccountCollectiblesSortPredicate(accountTezAddress, accountEvmAddress);
+const MultiChainNftsPage: FC<{ accountTezAddress: string; accountEvmAddress: HexString }> = ({
+  accountTezAddress,
+  accountEvmAddress
+}) => {
+  const tezCollectibles = useTezosAccountCollectibles(accountTezAddress);
+  const evmCollectibles = useEvmAccountCollectibles(accountEvmAddress);
+  const sortPredicate = useAccountCollectiblesSortPredicate(accountTezAddress, accountEvmAddress);
 
-    useEvmCollectiblesMetadataLoading(accountEvmAddress);
+  useEvmCollectiblesMetadataLoading(accountEvmAddress);
 
-    return <NftsPageContent allCollectibles={allCollectibles} sortPredicate={sortPredicate} />;
-  }
-);
+  return <NftsPageContent allCollectibles={tezCollectibles.concat(evmCollectibles)} sortPredicate={sortPredicate} />;
+};
 
-const TezosNftsPage = memo<{ accountTezAddress: string }>(({ accountTezAddress }) => (
+const TezosNftsPage: FC<{ accountTezAddress: string }> = ({ accountTezAddress }) => (
   <NftsPageContent
     allCollectibles={useTezosAccountCollectibles(accountTezAddress)}
     sortPredicate={useTezosAccountCollectiblesSortPredicate(accountTezAddress)}
   />
-));
+);
 
-const EvmNftsPage = memo<{ accountEvmAddress: HexString }>(({ accountEvmAddress }) => {
+const EvmNftsPage: FC<{ accountEvmAddress: HexString }> = ({ accountEvmAddress }) => {
   useEvmCollectiblesMetadataLoading(accountEvmAddress);
 
   return (
@@ -100,14 +101,14 @@ const EvmNftsPage = memo<{ accountEvmAddress: HexString }>(({ accountEvmAddress 
       sortPredicate={useEvmAccountCollectiblesSortPredicate(accountEvmAddress)}
     />
   );
-});
+};
 
 interface NftsPageContentProps {
   allCollectibles: AccountCollectible[];
   sortPredicate: (aChainAssetSlug: string, bChainAssetSlug: string) => number;
 }
 
-const NftsPageContent = memo(({ allCollectibles, sortPredicate }: NftsPageContentProps) => {
+const NftsPageContent: FC<NftsPageContentProps> = ({ allCollectibles, sortPredicate }) => {
   const { searchValue, setSearchValue } = useSearchState();
   const { selectedChains, chainIsGloballySelected } = useSelectedChainsState();
   const allTezosChains = useAllTezosChains();
@@ -124,67 +125,18 @@ const NftsPageContent = memo(({ allCollectibles, sortPredicate }: NftsPageConten
     enabledCollectibles,
     tezDetailsReady
   } = useCollectiblesListingLogic(allCollectibles, sortPredicate);
-  const mainnetTokensScamSlugsRecord = useMainnetTokensScamlistSelector();
-  const accountTezAddress = useAccountAddressForTezos();
-  const accountEvmAddress = useAccountAddressForEvm();
 
   const [filtersModalOpen, openFiltersModal, closeFiltersModal] = useBooleanState(false);
 
-  const setBlurEnabled = useCallback((value: boolean) => dispatch(setCollectiblesBlurFilterOption(value)), []);
-  const setShowInfoEnabled = useCallback((value: boolean) => dispatch(setCollectiblesShowInfoFilterOption(value)), []);
-  const setViewAsCollectionsEnabled = useCallback(
-    (value: boolean) => dispatch(setCollectiblesViewAsCollectionsFilterOption(value)),
-    []
-  );
+  const setBlurEnabled = (value: boolean) => dispatch(setCollectiblesBlurFilterOption(value));
+  const setShowInfoEnabled = (value: boolean) => dispatch(setCollectiblesShowInfoFilterOption(value));
+  const setViewAsCollectionsEnabled = (value: boolean) => dispatch(setCollectiblesViewAsCollectionsFilterOption(value));
 
-  const renderItem = useCallback(
-    (chainSlug: string, index: number, ref?: Ref<CollectiblesListItemElement>) => {
-      const [chainKind, chainId, slug] = parseChainAssetSlug(chainSlug);
-
-      if (chainKind === TempleChainKind.Tezos) {
-        return (
-          <TezosCollectibleItem
-            key={chainSlug}
-            assetSlug={slug}
-            accountPkh={accountTezAddress!}
-            tezosChainId={chainId as string}
-            adultBlur={blur}
-            showDetails={showInfo}
-            manageActive={manageActive}
-            scam={mainnetTokensScamSlugsRecord[slug]}
-            index={index}
-            ref={ref}
-            testID={NftsPageSelectors.collectibleItem}
-            nameTestID={NftsPageSelectors.collectibleName}
-          />
-        );
-      }
-
-      return (
-        <EvmCollectibleItem
-          key={chainSlug}
-          assetSlug={slug}
-          evmChainId={chainId as number}
-          accountPkh={accountEvmAddress!}
-          showDetails={showInfo}
-          manageActive={manageActive}
-          index={index}
-          ref={ref}
-          testID={NftsPageSelectors.collectibleItem}
-          nameTestID={NftsPageSelectors.collectibleName}
-        />
-      );
-    },
-    [accountEvmAddress, accountTezAddress, blur, mainnetTokensScamSlugsRecord, manageActive, showInfo]
-  );
-
-  const network = useMemo(() => {
-    if (selectedChains.length !== 1) return undefined;
-
-    const chainId = selectedChains[0];
-
-    return (typeof chainId === 'number' ? allEvmChains : allTezosChains)[chainId];
-  }, [selectedChains, allEvmChains, allTezosChains]);
+  let network: OneOfChains | undefined;
+  if (selectedChains.length === 1) {
+    const [chainId] = selectedChains;
+    network = (typeof chainId === 'number' ? allEvmChains : allTezosChains)[chainId];
+  }
 
   return (
     <PageLayout
@@ -225,14 +177,13 @@ const NftsPageContent = memo(({ allCollectibles, sortPredicate }: NftsPageConten
             tezDetailsReady={tezDetailsReady}
           />
         ) : (
-          <NftsListView
+          <NftsList
             noCollectiblesAtAll={noCollectiblesAtAll}
             isSyncing={isSyncing}
             isInSearchMode={isInSearchMode}
             network={network}
-            chainSlugs={paginatedSlugs}
-            loadNextPage={loadNext}
-            renderItem={renderItem}
+            paginatedSlugs={paginatedSlugs}
+            loadNext={loadNext}
           />
         )}
       </FadeTransition>
@@ -267,4 +218,4 @@ const NftsPageContent = memo(({ allCollectibles, sortPredicate }: NftsPageConten
       </MiniPageModal>
     </PageLayout>
   );
-});
+};

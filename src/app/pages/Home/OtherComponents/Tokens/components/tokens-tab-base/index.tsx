@@ -50,15 +50,18 @@ export interface TokensTabBaseProps {
 
 const goToNftsPage = () => navigate('/nfts');
 
-export const TokensTabBase: FC<PropsWithChildren<TokensTabBaseProps>> = ({ ...restProps }) => (
+export const TokensTabBase: FC<PropsWithChildren<TokensTabBaseProps>> = props => (
   <>
     <FadeTransition>
-      <TokensTabBaseContent {...restProps} />
+      <TokensTabBaseContent {...props} />
     </FadeTransition>
 
     <DAppConnection />
   </>
 );
+
+// This array is used to optimize the code produced by React compiler
+const NO_COLLECTIBLES: AccountCollectible[] = [];
 
 const TokensTabBaseContent: FC<PropsWithChildren<TokensTabBaseProps>> = ({
   tokensCount,
@@ -81,11 +84,11 @@ const TokensTabBaseContent: FC<PropsWithChildren<TokensTabBaseProps>> = ({
   const isSyncingInitializedState = useIsAccountInitializedLoadingSelector(accountId);
   const { animatedChevronRef, handleHover, handleUnhover } = useActivateAnimatedChevron();
 
-  const tezosCollectiblesSlugs = toTezEnabledCollectiblesChainSlugs(tezosCollectibles ?? []);
-  const evmCollectiblesSlugs = toEvmEnabledCollectiblesChainSlugs(evmCollectibles ?? []);
+  const tezosCollectiblesSlugs = toTezEnabledCollectiblesChainSlugs(tezosCollectibles ?? NO_COLLECTIBLES);
+  const evmCollectiblesSlugs = toEvmEnabledCollectiblesChainSlugs(evmCollectibles ?? NO_COLLECTIBLES);
   const collectiblesSlugsSorted = tezosCollectiblesSlugs.concat(evmCollectiblesSlugs).sort(collectiblesSortPredicate);
   const collectibles = useMemo(
-    () => (tezosCollectibles ?? []).concat(evmCollectibles ?? []),
+    () => (tezosCollectibles ?? NO_COLLECTIBLES).concat(evmCollectibles ?? NO_COLLECTIBLES),
     [tezosCollectibles, evmCollectibles]
   );
 

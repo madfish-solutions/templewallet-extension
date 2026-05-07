@@ -1,5 +1,3 @@
-import { useCallback, useMemo } from 'react';
-
 import { useDebounce } from 'use-debounce';
 
 import { useEvmBalancesAreLoading } from 'app/hooks/listing-logic/use-evm-balances-loading-state';
@@ -45,10 +43,7 @@ export const useCollectiblesListingLogic = (
     Object.keys(allTezosCollectiblesDetails).length > 0 ||
     allAccountCollectibles.every(({ status, chainId }) => status !== 'enabled' || typeof chainId === 'number');
 
-  const enabledCollectibles = useMemo(
-    () => allAccountCollectibles.filter(({ status }) => status === 'enabled'),
-    [allAccountCollectibles]
-  );
+  const enabledCollectibles = allAccountCollectibles.filter(({ status }) => status === 'enabled');
 
   const tezEnabledCollectiblesChainsSlugs = useMemoWithCompare(
     () =>
@@ -57,24 +52,15 @@ export const useCollectiblesListingLogic = (
         .map(({ slug, chainId }) => toChainAssetSlug(TempleChainKind.Tezos, chainId, slug)),
     [enabledCollectibles]
   );
-  const toSortedSlugs = useCallback(
-    (collectibles: AccountCollectible[]) =>
-      collectibles
-        .map(({ slug, chainId }) =>
-          toChainAssetSlug(typeof chainId === 'number' ? TempleChainKind.EVM : TempleChainKind.Tezos, chainId, slug)
-        )
-        .sort(sortPredicate),
-    [sortPredicate]
-  );
+  const toSortedSlugs = (collectibles: AccountCollectible[]) =>
+    collectibles
+      .map(({ slug, chainId }) =>
+        toChainAssetSlug(typeof chainId === 'number' ? TempleChainKind.EVM : TempleChainKind.Tezos, chainId, slug)
+      )
+      .sort(sortPredicate);
 
-  const enabledSlugsSorted = useMemoWithCompare(
-    () => toSortedSlugs(enabledCollectibles),
-    [enabledCollectibles, toSortedSlugs]
-  );
-  const otherSlugsSorted = useMemoWithCompare(
-    () => toSortedSlugs(allAccountCollectibles.filter(({ status }) => status !== 'enabled')),
-    [allAccountCollectibles, toSortedSlugs]
-  );
+  const enabledSlugsSorted = toSortedSlugs(enabledCollectibles);
+  const otherSlugsSorted = toSortedSlugs(allAccountCollectibles.filter(({ status }) => status !== 'enabled'));
 
   const evmMetadata = useEvmCollectiblesMetadataRecordSelector();
   const accountAddressForTezos = useAccountAddressForTezos();
@@ -97,78 +83,69 @@ export const useCollectiblesListingLogic = (
 
   const getTezMetadata = useGetCollectibleMetadata();
 
-  const getEvmMetadata = useCallback((chainId: number, slug: string) => evmMetadata[chainId]?.[slug], [evmMetadata]);
+  const getEvmMetadata = (chainId: number, slug: string) => evmMetadata[chainId]?.[slug];
 
-  const search = useCallback(
-    (slugs: string[]) =>
-      searchCollectiblesWithNoMeta({
-        searchValue: searchValueDebounced,
-        assets: slugs,
-        getTezMetadata: (_, slug) => getTezMetadata(slug),
-        getEvmMetadata,
-        getChainSlug: slug => slug,
-        getSlug: getSlugFromChainSlug,
-        getTezCollectionName: (_, slug) => {
-          if (!viewAsCollections) return undefined;
+  const search = (slugs: string[]) =>
+    searchCollectiblesWithNoMeta({
+      searchValue: searchValueDebounced,
+      assets: slugs,
+      getTezMetadata: (_, slug) => getTezMetadata(slug),
+      getEvmMetadata,
+      getChainSlug: slug => slug,
+      getSlug: getSlugFromChainSlug,
+      getTezCollectionName: (_, slug) => {
+        if (!viewAsCollections) return undefined;
 
-          const details = allTezosCollectiblesDetails[slug];
-          return details?.galleries[0]?.title ?? details?.fa.name;
-        }
-      }),
-    [getEvmMetadata, getTezMetadata, searchValueDebounced, viewAsCollections, allTezosCollectiblesDetails]
-  );
+        const details = allTezosCollectiblesDetails[slug];
+        return details?.galleries[0]?.title ?? details?.fa.name;
+      }
+    });
 
   const manageableChainSlugs = usePreservedOrderSlugsToManage(enabledSlugsSorted, otherSlugsSorted);
 
-  const searchedSlugs = useMemoWithCompare(() => {
-    let result = manageActive ? manageableChainSlugs : enabledSlugsSorted;
+  let searchedSlugs = manageActive ? manageableChainSlugs : enabledSlugsSorted;
 
-    if (isInSearchMode) {
-      result = search(result);
-    }
+  if (isInSearchMode) {
+    searchedSlugs = search(searchedSlugs);
+  }
 
-    if (!manageActive && selectedChains.length > 0) {
-      result = result.filter(slug => selectedChains.includes(parseChainAssetSlug(slug)[1]));
-    }
-
-    return result;
-  }, [isInSearchMode, search, manageableChainSlugs, manageActive, selectedChains, enabledSlugsSorted]);
+  if (!manageActive && selectedChains.length > 0) {
+    searchedSlugs = searchedSlugs.filter(slug => selectedChains.includes(parseChainAssetSlug(slug)[1]));
+  }
 
   const { slugs: paginatedSlugs, loadNext } = useSimpleAssetsPaginationLogic(searchedSlugs);
 
-  const searchedSlugsByCollections = useMemo(() => {
-    const slugsByCollectionsSlugs = new Map<string, string[]>();
-    searchedSlugs.forEach(chainCollectibleSlug => {
-      const [chainKind, chainId, assetSlug] = parseChainAssetSlug(chainCollectibleSlug);
-      const [address] = fromAssetSlug(assetSlug);
-      const collectionSlug = toChainAssetSlug(chainKind, chainId, toTokenSlug(address));
-      let sameCollectionSlugs = slugsByCollectionsSlugs.get(collectionSlug);
-      if (!sameCollectionSlugs) {
-        sameCollectionSlugs = [];
-        slugsByCollectionsSlugs.set(collectionSlug, sameCollectionSlugs);
-      }
-      sameCollectionSlugs.push(chainCollectibleSlug);
-    });
+  const slugsByCollectionsSlugs = new Map<string, string[]>();
+  searchedSlugs.forEach(chainCollectibleSlug => {
+    const [chainKind, chainId, assetSlug] = parseChainAssetSlug(chainCollectibleSlug);
+    const [address] = fromAssetSlug(assetSlug);
+    const collectionSlug = toChainAssetSlug(chainKind, chainId, toTokenSlug(address));
+    let sameCollectionSlugs = slugsByCollectionsSlugs.get(collectionSlug);
+    if (!sameCollectionSlugs) {
+      sameCollectionSlugs = [];
+      slugsByCollectionsSlugs.set(collectionSlug, sameCollectionSlugs);
+    }
+    sameCollectionSlugs.push(chainCollectibleSlug);
+  });
 
-    return Array.from(slugsByCollectionsSlugs.entries()).map(
-      ([collectionSlug, chainCollectibleSlugs]): [CollectiblesCollection, string[]] => {
-        const [chainKind, chainId, assetSlug] = parseChainAssetSlug(chainCollectibleSlugs[0]);
-        let title: string | undefined;
-        let logoSrc: string[] | undefined;
-        if (chainKind === TempleChainKind.Tezos) {
-          const details = allTezosCollectiblesDetails[assetSlug];
-          if (details) {
-            title = details.galleries[0]?.title ?? details.fa.name;
-            logoSrc = buildTokenImagesStack(details.fa.logo);
-          }
-        } else {
-          title = getCollectionName(getEvmMetadata(chainId as number, assetSlug));
+  const searchedSlugsByCollections = Array.from(slugsByCollectionsSlugs.entries()).map(
+    ([collectionSlug, chainCollectibleSlugs]): [CollectiblesCollection, string[]] => {
+      const [chainKind, chainId, assetSlug] = parseChainAssetSlug(chainCollectibleSlugs[0]);
+      let title: string | undefined;
+      let logoSrc: string[] | undefined;
+      if (chainKind === TempleChainKind.Tezos) {
+        const details = allTezosCollectiblesDetails[assetSlug];
+        if (details) {
+          title = details.galleries[0]?.title ?? details.fa.name;
+          logoSrc = buildTokenImagesStack(details.fa.logo);
         }
-
-        return [{ chainId, title, logoSrc, collectionSlug }, chainCollectibleSlugs];
+      } else {
+        title = getCollectionName(getEvmMetadata(chainId as number, assetSlug));
       }
-    );
-  }, [allTezosCollectiblesDetails, searchedSlugs, getEvmMetadata]);
+
+      return [{ chainId, title, logoSrc, collectionSlug }, chainCollectibleSlugs];
+    }
+  );
 
   useTezosCollectiblesMetadataPresenceCheck(tezEnabledCollectiblesChainsSlugs);
 

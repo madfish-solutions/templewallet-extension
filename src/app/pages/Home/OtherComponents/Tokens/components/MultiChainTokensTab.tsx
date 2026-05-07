@@ -12,7 +12,7 @@ import {
   usePreservedOrderSlugsToManage
 } from 'app/hooks/listing-logic/use-manageable-slugs';
 import { useTokensManageState } from 'app/hooks/use-assets-view-state';
-import { useEvmCollectiblesMetadataLoading } from 'app/pages/Nfts/hooks/use-evm-collectibles-meta-loading';
+import { useEvmCollectiblesMetadataLoading } from 'app/hooks/use-evm-collectibles-meta-loading';
 import {
   useGroupByNetworkBehaviorSelector,
   useTokensListOptionsSelector

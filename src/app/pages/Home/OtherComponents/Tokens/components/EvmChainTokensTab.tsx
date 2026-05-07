@@ -1,4 +1,4 @@
-import { Activity, createContext, FC, memo, useContext, useRef } from 'react';
+import { Activity, createContext, FC, useContext, useRef } from 'react';
 
 import { range } from 'lodash';
 
@@ -10,7 +10,7 @@ import {
 } from 'app/hooks/listing-logic/use-evm-chain-account-tokens-listing-logic';
 import { usePreservedOrderSlugsToManage } from 'app/hooks/listing-logic/use-manageable-slugs';
 import { useTokensManageState } from 'app/hooks/use-assets-view-state';
-import { useEvmCollectiblesMetadataLoading } from 'app/pages/Nfts/hooks/use-evm-collectibles-meta-loading';
+import { useEvmCollectiblesMetadataLoading } from 'app/hooks/use-evm-collectibles-meta-loading';
 import { useTokensListOptionsSelector } from 'app/store/assets-filter-options/selectors';
 import { useEvmCollectiblesMetadataLoadingSelector } from 'app/store/evm/selectors';
 import { usePartnersPromotionModule } from 'app/templates/partners-promotion';
@@ -47,7 +47,7 @@ const EvmChainTokensTabContext = createContext<
   collectiblesSortPredicate: () => 0
 });
 
-export const EvmChainTokensTab = memo<Props>(({ chainId, publicKeyHash, accountId }) => {
+export const EvmChainTokensTab: FC<Props> = ({ chainId, publicKeyHash, accountId }) => {
   const network = useEvmChainByChainId(chainId);
 
   if (!network) throw new DeadEndBoundaryError();
@@ -81,7 +81,7 @@ export const EvmChainTokensTab = memo<Props>(({ chainId, publicKeyHash, accountI
       </Activity>
     </EvmChainTokensTabContext>
   );
-});
+};
 
 const TabContent: FC = () => {
   const { publicKeyHash, network } = useContext(EvmChainTokensTabContext);
@@ -130,7 +130,7 @@ interface TabContentBaseProps {
   shouldShowHiddenTokensHint?: boolean;
 }
 
-const TabContentBase = memo<TabContentBaseProps>(({ allSlugsSorted, manageActive, shouldShowHiddenTokensHint }) => {
+const TabContentBase: FC<TabContentBaseProps> = ({ allSlugsSorted, manageActive, shouldShowHiddenTokensHint }) => {
   const { publicKeyHash, network, accountId, ...tokensTabBaseProps } = useContext(EvmChainTokensTabContext);
   const { displayedSlugs, isSyncing, loadNext, isInSearchMode } = useEvmChainAccountTokensListingLogic(
     allSlugsSorted,
@@ -192,4 +192,4 @@ const TabContentBase = memo<TabContentBaseProps>(({ allSlugsSorted, manageActive
       {tokensView}
     </TokensTabBase>
   );
-});
+};
