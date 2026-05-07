@@ -3,7 +3,7 @@ import React, { memo, useCallback, useRef, useState } from 'react';
 import { PageModal } from 'app/atoms/PageModal';
 import { ManualBackupModalContent } from 'app/templates/manual-backup-modal-content';
 import { toastError } from 'app/toaster';
-import { SHOULD_BACKUP_MNEMONIC_STORAGE_KEY } from 'lib/constants';
+import { SHOULD_BACKUP_MNEMONIC_STORAGE_KEY, SHOULD_SHOW_WELCOME_REWARDS_MODAL_STORAGE_KEY } from 'lib/constants';
 import { t } from 'lib/i18n';
 import { useStorage } from 'lib/temple/front';
 import {
@@ -23,6 +23,7 @@ export const BackupMnemonicOverlay = memo(() => {
   const isManualBackup = backupType === 'manual';
   const [backupCredentials, setBackupCredentials] = useState<BackupCredentials>();
   const [, setShouldBackupMnemonic] = useStorage(SHOULD_BACKUP_MNEMONIC_STORAGE_KEY, false);
+  const [shouldShowWelcomeRewardsModal] = useStorage(SHOULD_SHOW_WELCOME_REWARDS_MODAL_STORAGE_KEY, false);
   const [, setInitToast] = useInitToastMessage();
   const nonceRef = useRef(0);
 
@@ -50,10 +51,12 @@ export const BackupMnemonicOverlay = memo(() => {
     setGoogleBackupExists(false);
   }, []);
   const handleBackupSuccess = useCallback(() => {
-    setInitToast(isManualBackup ? t('backupSuccessful') : t('yourWalletIsReady'));
+    if (!shouldShowWelcomeRewardsModal) {
+      setInitToast(isManualBackup ? t('backupSuccessful') : t('yourWalletIsReady'));
+    }
     clearBackupCredentials();
     setShouldBackupMnemonic(false).catch(e => console.error(e));
-  }, [setInitToast, isManualBackup, setShouldBackupMnemonic]);
+  }, [setInitToast, isManualBackup, setShouldBackupMnemonic, shouldShowWelcomeRewardsModal]);
 
   if (!backupType) {
     return <BackupOptionsModal onSelect={handleBackupOptionSelect} />;
