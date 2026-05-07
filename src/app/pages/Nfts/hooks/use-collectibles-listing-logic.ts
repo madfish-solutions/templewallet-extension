@@ -17,7 +17,13 @@ import {
 } from 'app/store/tezos/collectibles/selectors';
 import { AccountCollectible } from 'lib/assets/hooks/collectibles';
 import { searchCollectiblesWithNoMeta } from 'lib/assets/search.utils';
-import { fromAssetSlug, getTezCollectionName, parseChainAssetSlug, toChainAssetSlug, toTokenSlug } from 'lib/assets/utils';
+import {
+  fromAssetSlug,
+  getTezCollectionName,
+  parseChainAssetSlug,
+  toChainAssetSlug,
+  toTokenSlug
+} from 'lib/assets/utils';
 import { buildTokenImagesStack } from 'lib/images-uri';
 import { useGetCollectibleMetadata, useTezosCollectiblesMetadataPresenceCheck } from 'lib/metadata';
 import { getCollectionName } from 'lib/metadata/utils';

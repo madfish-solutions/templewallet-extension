@@ -28,6 +28,7 @@ import { DeleteAssetModal } from 'app/templates/remove-asset-modal/delete-asset-
 import { ScamTag } from 'app/templates/scam-tag';
 import { setAnotherSelector, setTestID } from 'lib/analytics';
 import { getAssetStatus } from 'lib/assets/hooks/utils';
+import { getTezCollectionName } from 'lib/assets/utils';
 import { useEvmAssetBalance } from 'lib/balances/hooks';
 import { buildObjktCollectibleArtifactUri } from 'lib/images-uri';
 import { getTokenName } from 'lib/metadata';
@@ -42,7 +43,6 @@ import { TempleChainKind } from 'temple/types';
 
 import { CollectibleTabSelectors } from '../selectors';
 import { toCollectibleLink } from '../utils';
-import { getTezCollectionName } from 'lib/assets/utils';
 
 // Fixed sizes to improve large grid performance
 const manageImgStyle = { width: '2.625rem', height: '2.625rem' };
@@ -75,10 +75,7 @@ export const TezosCollectibleItem = memo<TezosCollectibleItemProps>(
     const areDetailsLoading = useAllCollectiblesDetailsLoadingSelector();
     const details = useCollectibleDetailsSelector(assetSlug);
 
-    const collectionName = useMemo(
-      () => getTezCollectionName(assetSlug, details),
-      [assetSlug, details]
-    );
+    const collectionName = useMemo(() => getTezCollectionName(assetSlug, details), [assetSlug, details]);
 
     const assetName = getTokenName(metadata);
 

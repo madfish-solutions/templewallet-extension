@@ -14,6 +14,7 @@ import {
   useCollectibleDetailsSelector
 } from 'app/store/tezos/collectibles/selectors';
 import { getAssetStatus } from 'lib/assets/hooks/utils';
+import { getTezCollectionName } from 'lib/assets/utils';
 import { useEvmAssetBalance } from 'lib/balances/hooks';
 import { buildObjktCollectibleArtifactUri } from 'lib/images-uri';
 import { getTokenName } from 'lib/metadata';
@@ -24,7 +25,6 @@ import { useEvmChainByChainId } from 'temple/front/chains';
 
 import { DefaultEvmListItemLayout, DefaultTezosListItemLayout } from './default-layout';
 import { ManageEvmListItemLayout, ManageTezosListItemLayout } from './manage-layout';
-import { getTezCollectionName } from 'lib/assets/utils';
 
 interface CommonCollectibleItemProps {
   assetSlug: string;
