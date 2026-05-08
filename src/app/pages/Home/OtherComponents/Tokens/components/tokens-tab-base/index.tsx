@@ -31,6 +31,7 @@ import { t, T } from 'lib/i18n';
 import { useActivateAnimatedChevron } from 'lib/ui/hooks/use-activate-animated-chevron';
 import { Link, navigate } from 'lib/woozie';
 import { OneOfChains } from 'temple/front';
+import { EMPTY_FROZEN_ARRAY } from 'lib/utils';
 
 export interface TokensTabBaseProps {
   tokensCount: number;
@@ -60,9 +61,6 @@ export const TokensTabBase: FC<PropsWithChildren<TokensTabBaseProps>> = props =>
   </>
 );
 
-// This array is used to optimize the code produced by React compiler
-const NO_COLLECTIBLES: AccountCollectible[] = [];
-
 const TokensTabBaseContent: FC<PropsWithChildren<TokensTabBaseProps>> = ({
   tokensCount,
   getElementIndex,
@@ -74,8 +72,8 @@ const TokensTabBaseContent: FC<PropsWithChildren<TokensTabBaseProps>> = ({
   manageActive,
   shouldShowHiddenTokensHint,
   children,
-  tezosCollectibles = NO_COLLECTIBLES,
-  evmCollectibles = NO_COLLECTIBLES,
+  tezosCollectibles = EMPTY_FROZEN_ARRAY,
+  evmCollectibles = EMPTY_FROZEN_ARRAY,
   collectiblesReady,
   collectiblesSortPredicate
 }) => {
