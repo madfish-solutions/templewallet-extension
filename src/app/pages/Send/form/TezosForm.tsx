@@ -8,29 +8,26 @@ import { DeadEndBoundaryError } from 'app/ErrorBoundary';
 import { usePendingTezosTransactionsHashes } from 'app/store/tezos/pending-transactions/utils';
 import { toastError } from 'app/toaster';
 import { useFormAnalytics } from 'lib/analytics';
-import { isTezAsset, TEZ_TOKEN_SLUG, toPenny, fromAssetSlug } from 'lib/assets';
+import { fromAssetSlug, isTezAsset } from 'lib/assets';
 import { useTezosAssetBalance } from 'lib/balances';
-import { RECOMMENDED_ADD_TEZ_GAS_FEE, TEZ_BURN_ADDRESS } from 'lib/constants';
 import { useAssetFiatCurrencyPrice } from 'lib/fiat-currency';
 import { toLocalFixed, t } from 'lib/i18n';
-import { useCategorizedTezosAssetMetadata, getAssetSymbol, useTezosGasMetadata, isCollectible } from 'lib/metadata';
+import { useCategorizedTezosAssetMetadata, getAssetSymbol, isCollectible } from 'lib/metadata';
 import { validateRecipient as validateAddress } from 'lib/temple/front';
 import { isValidTezosAddress, isTezosContractAddress } from 'lib/tezos';
 import { useSafeState } from 'lib/ui/hooks';
-import { getTezosMaxAmountToken } from 'lib/utils/get-tezos-max-amount-token';
 import { ZERO } from 'lib/utils/numbers';
 import { getAccountAddressForTezos } from 'temple/accounts';
 import { useAccountForTezos, useTezosChainByChainId, useVisibleAccounts } from 'temple/front';
 import { useSettings } from 'temple/front/ready';
 import {
   isTezosDomainsNameValid,
-  getTezosToolkitWithSigner,
   getTezosDomainsClient,
   useTezosAddressByDomainName
 } from 'temple/front/tezos';
 
 import { useSendFormControl } from '../context';
-import { useTezosEstimationData } from '../hooks/use-tezos-estimation-data';
+import { useTezosMaxAmount } from '../hooks/use-max-amount';
 
 import { BaseForm } from './BaseForm';
 import { ReviewData, SendFormData } from './interfaces';
@@ -66,13 +63,11 @@ export const TezosForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, o
   const assetSymbol = useMemo(() => getAssetSymbol(assetMetadata), [assetMetadata]);
 
   const accountPkh = account.address;
-  const tezos = getTezosToolkitWithSigner(network, account.ownerAddress || accountPkh);
   const domainsClient = getTezosDomainsClient(network);
 
   const formAnalytics = useFormAnalytics('SendForm');
 
   const { value: balance = ZERO } = useTezosAssetBalance(assetSlug, accountPkh, network);
-  const { value: tezBalance = ZERO } = useTezosAssetBalance(TEZ_TOKEN_SLUG, accountPkh, network);
 
   const [shouldUseFiat, setShouldUseFiat] = useSafeState(false);
 
@@ -108,55 +103,18 @@ export const TezosForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, o
     return false;
   }, [allAccounts, contacts, toFilled, toResolved]);
 
-  const { data: estimationData, isValidating: estimating } = useTezosEstimationData({
-    to: toResolved,
-    tezos,
-    chainId,
+  const { max: maxAmountAsset, estimating: maxEstimating } = useTezosMaxAmount({
     account,
-    accountPkh,
+    network,
     assetSlug,
     balance,
-    tezBalance,
-    assetMetadata,
-    toFilled
-  });
-  const { data: burnRecipientEstimationData, isValidating: burnEstimating } = useTezosEstimationData({
-    to: TEZ_BURN_ADDRESS,
-    tezos,
-    chainId,
-    account,
-    accountPkh,
-    assetSlug,
-    balance,
-    tezBalance,
-    assetMetadata,
-    toFilled: true
+    to: toFilled ? toResolved : undefined
   });
 
-  const tezosGasMetadata = useTezosGasMetadata(chainId);
-
-  const maxAmount = useMemo(() => {
-    const baseFee = estimationData?.baseFee ?? burnRecipientEstimationData?.baseFee;
-
-    if (!(baseFee instanceof BigNumber)) {
-      return shouldUseFiat ? getMaxAmountFiat(assetPrice.toNumber(), balance) : balance;
-    }
-
-    const maxAmountAsset = isTezAsset(assetSlug)
-      ? getTezosMaxAmountToken(account.type, balance, baseFee, RECOMMENDED_ADD_TEZ_GAS_FEE, toPenny(tezosGasMetadata))
-      : balance;
-
-    return shouldUseFiat ? getMaxAmountFiat(assetPrice.toNumber(), maxAmountAsset) : maxAmountAsset;
-  }, [
-    estimationData,
-    burnRecipientEstimationData,
-    assetSlug,
-    account.type,
-    balance,
-    shouldUseFiat,
-    assetPrice,
-    tezosGasMetadata
-  ]);
+  const maxAmount = useMemo(
+    () => (shouldUseFiat ? getMaxAmountFiat(assetPrice.toNumber(), maxAmountAsset) : maxAmountAsset),
+    [shouldUseFiat, assetPrice, maxAmountAsset]
+  );
 
   const validateAmount = useCallback(
     (amount: string) => {
@@ -278,7 +236,7 @@ export const TezosForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, o
         assetPrice={assetPrice}
         isCollectible={isNft}
         maxAmount={maxAmount}
-        maxEstimating={toFilled ? estimating : burnEstimating}
+        maxEstimating={maxEstimating}
         canToggleFiat={canToggleFiat}
         shouldUseFiat={shouldUseFiat}
         setShouldUseFiat={setShouldUseFiat}
