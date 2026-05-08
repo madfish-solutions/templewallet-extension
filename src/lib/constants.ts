@@ -15,6 +15,8 @@ export enum ContentScriptType {
   FetchTempleReferralLinkItems = 'FetchTempleReferralLinkItems',
   FetchMerchantOffer = 'FetchMerchantOffer',
   ActivateMerchantOffer = 'ActivateMerchantOffer',
+  MarkMerchantOfferActivated = 'MarkMerchantOfferActivated',
+  CheckAndConsumeMerchantOfferActivated = 'CheckAndConsumeMerchantOfferActivated',
   MerchantOfferSnooze = 'MerchantOfferSnooze',
   MerchantOfferDisable = 'MerchantOfferDisable',
   MerchantOfferAnalytics = 'MerchantOfferAnalytics'

@@ -5,19 +5,28 @@ import { ContentScriptType, TERMS_OF_USE_URL, PRIVACY_POLICY_URL } from 'lib/con
 
 import { CLOSE_ICON, DISABLE_ICON, SETTINGS_ICON, SNOOZE_ICON } from './icons';
 import { getPopupStyles } from './styles';
-import { el, msg, stripSubdomain, trackMerchantOfferEvent } from './utils';
+import {
+  el,
+  formatBountyValue,
+  getOfferDescription,
+  markMerchantOfferActivated,
+  msg,
+  normalizeDomain,
+  trackMerchantOfferEvent,
+  wasMerchantOfferActivated
+} from './utils';
 
 const POPUP_HOST_ID = 'temple-merchant-offer-host';
-const ACTIVATED_KEY_PREFIX = 'temple-merchant-offer-activated:';
 
 (async () => {
   // Only run in the main window, not iframes
   if (window.self !== window.top) return;
+  if (/^www\.google\./.test(window.location.hostname) && window.location.pathname === '/search') return;
 
-  const domain = stripSubdomain(window.location.hostname, 'www');
+  const domain = normalizeDomain(window.location.hostname);
 
   // Don't show the popup again if the offer was already activated in this session
-  if (sessionStorage.getItem(`${ACTIVATED_KEY_PREFIX}${domain}`)) return;
+  if (await wasMerchantOfferActivated(domain)) return;
 
   let offer: MerchantOffer | null = null;
 
@@ -63,10 +72,7 @@ function injectPopup(offer: MerchantOffer, domain: string) {
   let showMoreExpanded = false;
   let cleanupOutsideClick: (() => void) | null = null;
 
-  const offerDescription =
-    offer.description && offer.description.trim().split(/\s+/).length > 3
-      ? offer.description
-      : msg('merchantOfferPopupActivateDescription', offer.name);
+  const offerDescription = getOfferDescription(offer);
 
   function render() {
     cleanupOutsideClick?.();
@@ -176,7 +182,7 @@ function injectPopup(offer: MerchantOffer, domain: string) {
       el(
         'div',
         'tw-popup-offer-title',
-        msg('merchantOfferPopupEarnUpTo', [offer.cpcRate.toFixed(2), offer.currencyCode])
+        msg('merchantOfferPopupEarnUpTo', formatBountyValue(offer.cpcRate, offer.currencyCode).split(' '))
       )
     );
 
@@ -231,7 +237,7 @@ function injectPopup(offer: MerchantOffer, domain: string) {
             })
             .catch(() => {});
 
-          sessionStorage.setItem(`${ACTIVATED_KEY_PREFIX}${domain}`, '1');
+          await markMerchantOfferActivated(domain);
 
           window.location.href = result.trackingLink;
         } else {

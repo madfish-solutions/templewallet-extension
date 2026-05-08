@@ -1,6 +1,10 @@
 import { browser } from 'lib/browser';
 import { ContentScriptType } from 'lib/constants';
 
+import type { MerchantOffer } from 'lib/apis/ads-api/ads-api';
+
+export const ACTIVATED_KEY_PREFIX = 'temple-merchant-offer-activated:';
+
 export const msg = (key: string, substitutions?: string | string[]) =>
   browser.i18n.getMessage(key, substitutions) || key;
 
@@ -28,4 +32,50 @@ export function stripSubdomain(hostname: string, subdomain: string) {
   }
 
   return hostname;
+}
+
+export function normalizeDomain(hostname: string) {
+  return stripSubdomain(hostname.toLowerCase(), 'www');
+}
+
+export function getOfferDescription(offer: MerchantOffer) {
+  return offer.description && offer.description.trim().split(/\s+/).length > 3
+    ? offer.description
+    : msg('merchantOfferPopupActivateDescription', offer.name);
+}
+
+export function formatBountyValue(value: number, currencyCode: string) {
+  const formatted =
+    value >= 1
+      ? value.toFixed(2)
+      : value >= 0.01
+        ? value.toFixed(3).replace(/0+$/, '').replace(/\.$/, '')
+        : value.toFixed(6).replace(/0+$/, '').replace(/\.$/, '');
+
+  return `${formatted} ${currencyCode}`;
+}
+
+export async function markMerchantOfferActivated(domain: string) {
+  sessionStorage.setItem(`${ACTIVATED_KEY_PREFIX}${domain}`, '1');
+  await browser.runtime
+    .sendMessage({
+      type: ContentScriptType.MarkMerchantOfferActivated,
+      domain
+    })
+    .catch(() => {});
+}
+
+export async function wasMerchantOfferActivated(domain: string) {
+  if (sessionStorage.getItem(`${ACTIVATED_KEY_PREFIX}${domain}`)) return true;
+
+  try {
+    return Boolean(
+      await browser.runtime.sendMessage({
+        type: ContentScriptType.CheckAndConsumeMerchantOfferActivated,
+        domain
+      })
+    );
+  } catch {
+    return false;
+  }
 }

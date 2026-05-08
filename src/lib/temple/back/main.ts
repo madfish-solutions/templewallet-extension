@@ -35,6 +35,9 @@ import { store, toFront } from './store';
 
 const frontStore = store.map(toFront);
 
+const MERCHANT_OFFER_ACTIVATION_TTL = 2 * 60 * 1000;
+const merchantOfferActivatedAt = new Map<string, number>();
+
 export const start = async () => {
   intercom.onRequest(processRequestWithErrorsLogged);
   await Actions.init();
@@ -502,6 +505,21 @@ browser.runtime.onMessage.addListener(async (msg, sender) => {
         });
       }
 
+      case ContentScriptType.MarkMerchantOfferActivated: {
+        if (typeof msg.domain === 'string') merchantOfferActivatedAt.set(msg.domain, Date.now());
+        break;
+      }
+
+      case ContentScriptType.CheckAndConsumeMerchantOfferActivated: {
+        if (typeof msg.domain !== 'string') return false;
+
+        const activatedAt = merchantOfferActivatedAt.get(msg.domain);
+        if (!activatedAt) return false;
+
+        merchantOfferActivatedAt.delete(msg.domain);
+        return Date.now() - activatedAt < MERCHANT_OFFER_ACTIVATION_TTL;
+      }
+
       case ContentScriptType.MerchantOfferSnooze: {
         const merchantState = await fetchFromStorage<MerchantPromotionState>('persist:root.merchantPromotion');
         await putToStorage('persist:root.merchantPromotion', {
@@ -524,7 +542,9 @@ browser.runtime.onMessage.addListener(async (msg, sender) => {
           'MerchantOfferPopupClose',
           'MerchantOfferPopupActivate',
           'MerchantOfferPopupSnooze',
-          'MerchantOfferPopupDisable'
+          'MerchantOfferPopupDisable',
+          'MerchantOfferGooglePopupClose',
+          'MerchantOfferGooglePopupActivate'
         ]);
 
         const { event, properties } = msg;
