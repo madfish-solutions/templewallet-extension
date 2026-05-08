@@ -20,11 +20,7 @@ import { ZERO } from 'lib/utils/numbers';
 import { getAccountAddressForTezos } from 'temple/accounts';
 import { useAccountForTezos, useTezosChainByChainId, useVisibleAccounts } from 'temple/front';
 import { useSettings } from 'temple/front/ready';
-import {
-  isTezosDomainsNameValid,
-  getTezosDomainsClient,
-  useTezosAddressByDomainName
-} from 'temple/front/tezos';
+import { isTezosDomainsNameValid, getTezosDomainsClient, useTezosAddressByDomainName } from 'temple/front/tezos';
 
 import { useSendFormControl } from '../context';
 import { useTezosMaxAmount } from '../hooks/use-max-amount';
