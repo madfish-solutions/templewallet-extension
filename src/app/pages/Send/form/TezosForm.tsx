@@ -56,7 +56,7 @@ export const TezosForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, o
   const isNft = isCollectible(assetMetadata);
   const assetDecimals = assetMetadata.decimals ?? 0;
 
-  const assetSymbol = getAssetSymbol(assetMetadata)
+  const assetSymbol = getAssetSymbol(assetMetadata);
 
   const accountPkh = account.address;
   const domainsClient = getTezosDomainsClient(network);
@@ -87,14 +87,10 @@ export const TezosForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, o
 
   const toResolved = resolvedAddress || toValue;
 
-  const isToFilledWithFamiliarAddress = (() => {
-    if (!toFilled) return false;
-
-    if (allAccounts.some(acc => getAccountAddressForTezos(acc) === toResolved)) return true;
-    if (contacts?.some(contact => contact.address === toResolved)) return true;
-
-    return false;
-  })();
+  const isToFilledWithFamiliarAddress =
+    toFilled &&
+    (allAccounts.some(acc => getAccountAddressForTezos(acc) === toResolved) ||
+      Boolean(contacts?.some(contact => contact.address === toResolved)));
 
   const { max: maxAmountAsset, estimating: maxEstimating } = useTezosMaxAmount({
     account,
@@ -104,7 +100,7 @@ export const TezosForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, o
     to: toFilled ? toResolved : undefined
   });
 
-  const maxAmount = shouldUseFiat ? getMaxAmountFiat(assetPrice.toNumber(), maxAmountAsset) : maxAmountAsset
+  const maxAmount = shouldUseFiat ? getMaxAmountFiat(assetPrice.toNumber(), maxAmountAsset) : maxAmountAsset;
 
   const validateAmount = useCallback(
     (amount: string) => {

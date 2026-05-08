@@ -83,14 +83,10 @@ export const EvmForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, onR
 
   const toResolved = resolvedAddress || toValue;
 
-  const isToFilledWithFamiliarAddress = (() => {
-    if (!toFilled) return false;
-
-    if (allAccounts.some(acc => getAccountAddressForEvm(acc) === toResolved)) return true;
-    if (contacts?.some(contact => contact.address === toResolved)) return true;
-
-    return false;
-  })();
+  const isToFilledWithFamiliarAddress =
+    toFilled &&
+    (allAccounts.some(acc => getAccountAddressForEvm(acc) === toResolved) ||
+      Boolean(contacts?.some(contact => contact.address === toResolved)));
 
   const { max: maxAmountAsset, estimating: maxEstimating } = useEvmMaxAmount({
     account,
@@ -100,7 +96,7 @@ export const EvmForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, onR
     to: toFilled ? (toResolved as HexString) : undefined
   });
 
-  const maxAmount = shouldUseFiat ? getMaxAmountFiat(assetPrice.toNumber(), maxAmountAsset) : maxAmountAsset
+  const maxAmount = shouldUseFiat ? getMaxAmountFiat(assetPrice.toNumber(), maxAmountAsset) : maxAmountAsset;
 
   const validateAmount = useCallback(
     (amount: string) => {
