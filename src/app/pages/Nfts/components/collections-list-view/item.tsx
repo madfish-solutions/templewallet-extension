@@ -1,4 +1,4 @@
-import { memo, Ref, useEffect, useState } from 'react';
+import { FC, Ref, useEffect, useState } from 'react';
 
 import clsx from 'clsx';
 
@@ -39,96 +39,98 @@ const commonNetworkLogoProps = {
 };
 const networkLogoSkeletonStyle = { width: NETWORK_IMAGE_DEFAULT_SIZE, height: NETWORK_IMAGE_DEFAULT_SIZE };
 
-export const CollectionsListItem = memo<CollectionsListItemProps>(
-  ({ collection, chainSlugs, index, opened, firstItemRef, onToggleOpened }) => {
-    const { collectionSlug, title = t('unknownCollection'), logoSrc, chainId } = collection;
-    const [srcIndex, setSrcIndex] = useState(logoSrc ? 0 : -1);
-    const handleToggleOpened = () => onToggleOpened(collectionSlug);
-    const isVisible = useIsItemVisible(index);
-    const { searchValue } = useSearchState();
+export const CollectionsListItem: FC<CollectionsListItemProps> = ({
+  collection,
+  chainSlugs,
+  index,
+  opened,
+  firstItemRef,
+  onToggleOpened
+}) => {
+  const { collectionSlug, title = t('unknownCollection'), logoSrc, chainId } = collection;
+  const [srcIndex, setSrcIndex] = useState(logoSrc ? 0 : -1);
+  const handleToggleOpened = () => onToggleOpened(collectionSlug);
+  const isVisible = useIsItemVisible(index);
+  const { searchValue } = useSearchState();
 
-    useEffect(() => setSrcIndex(logoSrc ? 0 : -1), [logoSrc, setSrcIndex]);
+  useEffect(() => setSrcIndex(logoSrc ? 0 : -1), [logoSrc, setSrcIndex]);
 
-    const handleLogoLoadingError = () => setSrcIndex(prev => (logoSrc && prev < logoSrc.length - 1 ? prev + 1 : -1));
+  const handleLogoLoadingError = () => setSrcIndex(prev => (logoSrc && prev < logoSrc.length - 1 ? prev + 1 : -1));
 
-    return (
-      <div className="flex flex-col bg-white border-0.5 border-lines mb-4 last:mb-0 p-3 pt-2 rounded-8 gap-2">
-        <div className="flex items-center gap-2">
-          <div className="p-0.5 relative" style={collectionImgStyle}>
-            {isVisible ? (
-              <>
-                <div className="size-10 rounded-8 overflow-hidden">
-                  {!logoSrc || srcIndex === -1 ? (
-                    <UnknownCollectible className="size-full" />
-                  ) : (
-                    <img
-                      src={logoSrc[srcIndex]}
-                      alt="Collection logo"
-                      className="size-full"
-                      onError={handleLogoLoadingError}
-                    />
-                  )}
-                </div>
-
-                {typeof chainId === 'number' ? (
-                  <EvmNetworkLogo chainId={chainId} {...commonNetworkLogoProps} />
+  return (
+    <div className="flex flex-col bg-white border-0.5 border-lines mb-4 last:mb-0 p-3 pt-2 rounded-8 gap-2">
+      <div className="flex items-center gap-2">
+        <div className="p-0.5 relative" style={collectionImgStyle}>
+          {isVisible ? (
+            <>
+              <div className="size-10 rounded-8 overflow-hidden">
+                {!logoSrc || srcIndex === -1 ? (
+                  <UnknownCollectible className="size-full" />
                 ) : (
-                  <TezosNetworkLogo chainId={chainId} {...commonNetworkLogoProps} />
+                  <img
+                    src={logoSrc[srcIndex]}
+                    alt="Collection logo"
+                    className="size-full"
+                    onError={handleLogoLoadingError}
+                  />
                 )}
-              </>
-            ) : (
-              <>
-                <div className="w-full h-full z-1 bg-grey-3 rounded-8" />
-                <div
-                  className="absolute bottom-0 right-0 z-10 rounded-full bg-grey-2"
-                  style={networkLogoSkeletonStyle}
-                />
-              </>
-            )}
-          </div>
+              </div>
 
-          <div className="flex-1 flex flex-col gap-0.5 overflow-x-hidden">
-            {!isVisible && <div className="w-20 h-5 bg-grey-3 rounded" />}
-            {isVisible && chainId === TempleTezosChainId.Mainnet && (
-              <Anchor
-                className="flex items-center group hover:text-secondary text-font-medium-bold"
-                href={`https://objkt.com/collections/${fromAssetSlug(parseChainAssetSlug(collectionSlug)[2])[0]}`}
-              >
-                <span className="truncate">
-                  <SearchHighlightText searchValue={searchValue}>{title}</SearchHighlightText>
-                </span>
-                <IconBase className="invisible group-hover:visible m-0.5" Icon={OutLinkIcon} size={12} />
-              </Anchor>
-            )}
-            {isVisible && chainId !== TempleTezosChainId.Mainnet && (
-              <p className="text-font-medium-bold truncate">
-                <SearchHighlightText searchValue={searchValue}>{title}</SearchHighlightText>
-              </p>
-            )}
-            <p className="text-font-num-10 text-grey-1 truncate">Items: {chainSlugs.length}</p>
-          </div>
-
-          {chainSlugs.length > 4 && (
-            <button
-              className={clsx('p-2 text-grey-1 transform transition-transform duration-500', opened && 'rotate-180')}
-              onClick={handleToggleOpened}
-              {...setTestID(NftsPageSelectors.showMoreButton)}
-            >
-              <IconBase Icon={ChevronDownIcon} />
-            </button>
+              {typeof chainId === 'number' ? (
+                <EvmNetworkLogo chainId={chainId} {...commonNetworkLogoProps} />
+              ) : (
+                <TezosNetworkLogo chainId={chainId} {...commonNetworkLogoProps} />
+              )}
+            </>
+          ) : (
+            <>
+              <div className="w-full h-full z-1 bg-grey-3 rounded-8" />
+              <div className="absolute bottom-0 right-0 z-10 rounded-full bg-grey-2" style={networkLogoSkeletonStyle} />
+            </>
           )}
         </div>
-        <CollectiblesGroupGrid
-          isCollapsed={!opened}
-          chainSlugs={chainSlugs}
-          colsCount={4}
-          isVisible={isVisible}
-          areDetailsShown
-          firstItemRef={firstItemRef}
-          showMoreTestID={NftsPageSelectors.showMoreElement}
-          onShowMore={handleToggleOpened}
-        />
+
+        <div className="flex-1 flex flex-col gap-0.5 overflow-x-hidden">
+          {!isVisible && <div className="w-20 h-5 bg-grey-3 rounded" />}
+          {isVisible && chainId === TempleTezosChainId.Mainnet && (
+            <Anchor
+              className="flex items-center group hover:text-secondary text-font-medium-bold"
+              href={`https://objkt.com/collections/${fromAssetSlug(parseChainAssetSlug(collectionSlug)[2])[0]}`}
+            >
+              <span className="truncate">
+                <SearchHighlightText searchValue={searchValue}>{title}</SearchHighlightText>
+              </span>
+              <IconBase className="invisible group-hover:visible m-0.5" Icon={OutLinkIcon} size={12} />
+            </Anchor>
+          )}
+          {isVisible && chainId !== TempleTezosChainId.Mainnet && (
+            <p className="text-font-medium-bold truncate">
+              <SearchHighlightText searchValue={searchValue}>{title}</SearchHighlightText>
+            </p>
+          )}
+          <p className="text-font-num-10 text-grey-1 truncate">Items: {chainSlugs.length}</p>
+        </div>
+
+        {chainSlugs.length > 4 && (
+          <button
+            className={clsx('p-2 text-grey-1 transform transition-transform duration-500', opened && 'rotate-180')}
+            onClick={handleToggleOpened}
+            {...setTestID(NftsPageSelectors.showMoreButton)}
+          >
+            <IconBase Icon={ChevronDownIcon} />
+          </button>
+        )}
       </div>
-    );
-  }
-);
+      <CollectiblesGroupGrid
+        isCollapsed={!opened}
+        chainSlugs={chainSlugs}
+        colsCount={4}
+        isVisible={isVisible}
+        areDetailsShown
+        firstItemRef={firstItemRef}
+        showMoreTestID={NftsPageSelectors.showMoreElement}
+        onShowMore={handleToggleOpened}
+      />
+    </div>
+  );
+};
