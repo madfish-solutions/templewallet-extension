@@ -1,4 +1,4 @@
-import { FC, useCallback, useEffect, useImperativeHandle, useMemo } from 'react';
+import { FC, useCallback, useEffect, useImperativeHandle } from 'react';
 
 import { ChainIds } from '@taquito/taquito';
 import BigNumber from 'bignumber.js';
@@ -56,7 +56,7 @@ export const TezosForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, o
   const isNft = isCollectible(assetMetadata);
   const assetDecimals = assetMetadata.decimals ?? 0;
 
-  const assetSymbol = useMemo(() => getAssetSymbol(assetMetadata), [assetMetadata]);
+  const assetSymbol = getAssetSymbol(assetMetadata)
 
   const accountPkh = account.address;
   const domainsClient = getTezosDomainsClient(network);
@@ -79,10 +79,7 @@ export const TezosForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, o
   const toValue = useWatch({ name: 'to', control });
 
   const toFilledWithAddress = Boolean(toValue && isValidTezosAddress(toValue));
-  const toFilledWithDomain = useMemo(
-    () => Boolean(toValue && isTezosDomainsNameValid(toValue, domainsClient)),
-    [toValue, domainsClient]
-  );
+  const toFilledWithDomain = Boolean(toValue && isTezosDomainsNameValid(toValue, domainsClient));
 
   const { data: resolvedAddress } = useTezosAddressByDomainName(toValue, network);
 
@@ -90,14 +87,14 @@ export const TezosForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, o
 
   const toResolved = resolvedAddress || toValue;
 
-  const isToFilledWithFamiliarAddress = useMemo(() => {
+  const isToFilledWithFamiliarAddress = (() => {
     if (!toFilled) return false;
 
     if (allAccounts.some(acc => getAccountAddressForTezos(acc) === toResolved)) return true;
     if (contacts?.some(contact => contact.address === toResolved)) return true;
 
     return false;
-  }, [allAccounts, contacts, toFilled, toResolved]);
+  })();
 
   const { max: maxAmountAsset, estimating: maxEstimating } = useTezosMaxAmount({
     account,
@@ -107,10 +104,7 @@ export const TezosForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, o
     to: toFilled ? toResolved : undefined
   });
 
-  const maxAmount = useMemo(
-    () => (shouldUseFiat ? getMaxAmountFiat(assetPrice.toNumber(), maxAmountAsset) : maxAmountAsset),
-    [shouldUseFiat, assetPrice, maxAmountAsset]
-  );
+  const maxAmount = shouldUseFiat ? getMaxAmountFiat(assetPrice.toNumber(), maxAmountAsset) : maxAmountAsset
 
   const validateAmount = useCallback(
     (amount: string) => {

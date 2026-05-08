@@ -1,4 +1,4 @@
-import React, { FC, useMemo, useState } from 'react';
+import React, { FC, useState } from 'react';
 
 import { useDebounce } from 'use-debounce';
 
@@ -36,23 +36,19 @@ export const SelectCrossChainToAssetModal: FC<Props> = ({
     if (!opened) setSearchValue('');
   }
 
-  const assets = useMemo(() => getAllowedToAssets(currentFromAsset, networksMap), [currentFromAsset, networksMap]);
+  const assets = getAllowedToAssets(currentFromAsset, networksMap);
 
-  const displayAssets = useMemo(
-    () =>
-      isSearchStringApplicable(searchValueDebounced)
-        ? searchAndFilterByNameCodeNetwork(
-            assets,
-            searchValueDebounced,
-            ({ name, symbol, exolixCoin, exolixNetwork, dest }) => ({
-              name,
-              code: `${symbol} ${exolixCoin}`,
-              networkName: dest === 'btc' ? 'Bitcoin' : exolixNetwork
-            })
-          )
-        : assets,
-    [assets, searchValueDebounced]
-  );
+  const displayAssets = isSearchStringApplicable(searchValueDebounced)
+    ? searchAndFilterByNameCodeNetwork(
+        assets,
+        searchValueDebounced,
+        ({ name, symbol, exolixCoin, exolixNetwork, dest }) => ({
+          name,
+          code: `${symbol} ${exolixCoin}`,
+          networkName: dest === 'btc' ? 'Bitcoin' : exolixNetwork
+        })
+      )
+    : assets;
 
   const handleSelect = (asset: CrossChainAsset) => {
     onSelect(asset);

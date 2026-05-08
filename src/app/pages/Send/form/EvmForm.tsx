@@ -1,4 +1,4 @@
-import React, { FC, useCallback, useImperativeHandle, useMemo } from 'react';
+import React, { FC, useCallback, useImperativeHandle } from 'react';
 
 import BigNumber from 'bignumber.js';
 import { isString } from 'lodash';
@@ -62,7 +62,7 @@ export const EvmForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, onR
   const isNft = isEvmCollectible(assetMetadata);
   const assetDecimals = assetMetadata.decimals ?? 0;
 
-  const assetSymbol = useMemo(() => getAssetSymbol(assetMetadata), [assetMetadata]);
+  const assetSymbol = getAssetSymbol(assetMetadata);
 
   const assetPrice = useAssetFiatCurrencyPrice(assetSlug, chainId, true);
 
@@ -83,14 +83,14 @@ export const EvmForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, onR
 
   const toResolved = resolvedAddress || toValue;
 
-  const isToFilledWithFamiliarAddress = useMemo(() => {
+  const isToFilledWithFamiliarAddress = (() => {
     if (!toFilled) return false;
 
     if (allAccounts.some(acc => getAccountAddressForEvm(acc) === toResolved)) return true;
     if (contacts?.some(contact => contact.address === toResolved)) return true;
 
     return false;
-  }, [allAccounts, contacts, toFilled, toResolved]);
+  })();
 
   const { max: maxAmountAsset, estimating: maxEstimating } = useEvmMaxAmount({
     account,
@@ -100,10 +100,7 @@ export const EvmForm: FC<Props> = ({ chainId, assetSlug, onSelectAssetClick, onR
     to: toFilled ? (toResolved as HexString) : undefined
   });
 
-  const maxAmount = useMemo(
-    () => (shouldUseFiat ? getMaxAmountFiat(assetPrice.toNumber(), maxAmountAsset) : maxAmountAsset),
-    [shouldUseFiat, assetPrice, maxAmountAsset]
-  );
+  const maxAmount = shouldUseFiat ? getMaxAmountFiat(assetPrice.toNumber(), maxAmountAsset) : maxAmountAsset
 
   const validateAmount = useCallback(
     (amount: string) => {
