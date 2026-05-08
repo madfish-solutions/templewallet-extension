@@ -29,27 +29,34 @@ interface ShowMoreProps {
   testID?: string;
 }
 
-export const ShowMore = memo<ShowMoreProps>(
-  ({ chainSlug, addDetailsPlaceholder, gridIsVisible, onClick, children, overlayClassName, overlayStyle, testID }) => {
-    const [chainKind] = parseChainAssetSlug(chainSlug);
+export const ShowMore: FC<ShowMoreProps> = ({
+  chainSlug,
+  addDetailsPlaceholder,
+  gridIsVisible,
+  onClick,
+  children,
+  overlayClassName,
+  overlayStyle,
+  testID
+}) => {
+  const [chainKind] = parseChainAssetSlug(chainSlug);
 
-    const Content = chainKind === TempleChainKind.Tezos ? TezosShowMoreContent : EvmShowMoreContent;
+  const Content = chainKind === TempleChainKind.Tezos ? TezosShowMoreContent : EvmShowMoreContent;
 
-    return (
-      <Content
-        chainSlug={chainSlug}
-        addDetailsPlaceholder={addDetailsPlaceholder}
-        isVisible={gridIsVisible}
-        overlayClassName={overlayClassName}
-        overlayStyle={overlayStyle}
-        onClick={onClick}
-        testID={testID}
-      >
-        {children}
-      </Content>
-    );
-  }
-);
+  return (
+    <Content
+      chainSlug={chainSlug}
+      addDetailsPlaceholder={addDetailsPlaceholder}
+      isVisible={gridIsVisible}
+      overlayClassName={overlayClassName}
+      overlayStyle={overlayStyle}
+      onClick={onClick}
+      testID={testID}
+    >
+      {children}
+    </Content>
+  );
+};
 
 interface DefaultShowMoreLayoutProps<T extends TempleChainKind> {
   assetSlug: string;
@@ -65,6 +72,7 @@ interface DefaultShowMoreLayoutProps<T extends TempleChainKind> {
   testID?: string;
 }
 
+// Failed to find another way to make React Compiler process ShowMoreLayoutHOC
 const ShowMoreLayoutHOC = <
   T extends TempleChainKind,
   P extends DefaultShowMoreLayoutProps<T> = DefaultShowMoreLayoutProps<T>
@@ -145,7 +153,7 @@ interface ShowMoreContentProps {
   testID?: string;
 }
 
-const TezosShowMoreContent = memo<ShowMoreContentProps>(({ chainSlug, ...restProps }) => {
+const TezosShowMoreContent: FC<ShowMoreContentProps> = ({ chainSlug, ...restProps }) => {
   const [, chainId, assetSlug] = parseChainAssetSlug<TempleChainKind.Tezos>(chainSlug);
   const metadatasLoading = useCollectiblesMetadataLoadingSelector();
   const metadata = useCollectibleMetadataSelector(assetSlug);
@@ -162,9 +170,9 @@ const TezosShowMoreContent = memo<ShowMoreContentProps>(({ chainSlug, ...restPro
       extraSrc={details?.objktArtifactUri && buildObjktCollectibleArtifactUri(details?.objktArtifactUri)}
     />
   );
-});
+};
 
-const EvmShowMoreContent = memo<ShowMoreContentProps>(({ chainSlug, ...restProps }) => {
+const EvmShowMoreContent: FC<ShowMoreContentProps> = ({ chainSlug, ...restProps }) => {
   const [, chainId, assetSlug] = parseChainAssetSlug<TempleChainKind.EVM>(chainSlug);
   const metadata = useEvmCollectibleMetadataSelector(chainId, assetSlug);
   const metadatasLoading = useEvmCollectiblesMetadataLoadingSelector();
@@ -178,4 +186,4 @@ const EvmShowMoreContent = memo<ShowMoreContentProps>(({ chainSlug, ...restProps
       metadatasLoading={metadatasLoading}
     />
   );
-});
+};

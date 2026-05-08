@@ -19,6 +19,7 @@ interface NftsListViewProps {
   renderItem: (chainSlug: string, index: number, ref?: Ref<CollectiblesListItemElement>) => ReactNode;
 }
 
+// React Compiler cannot handle this file because of some refs used during rendering
 export const NftsListView: FC<NftsListViewProps> = ({
   isSyncing,
   isInSearchMode,

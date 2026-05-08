@@ -13,6 +13,7 @@ import { ReactComponent as UnknownCollectible } from 'app/icons/unknown-collecti
 import { CollectiblesGroupGrid } from 'app/templates/collectibles/collectibles-group-grid';
 import { setTestID } from 'lib/analytics';
 import { fromAssetSlug, parseChainAssetSlug } from 'lib/assets/utils';
+import { t } from 'lib/i18n';
 import { TempleTezosChainId } from 'lib/temple/types';
 import { CollectiblesListItemElement } from 'lib/ui/collectibles-list';
 
@@ -30,10 +31,17 @@ interface CollectionsListItemProps {
 
 const collectionImgStyle = { width: '2.5rem', height: '2.5rem' };
 const NETWORK_IMAGE_DEFAULT_SIZE = 16;
+const commonNetworkLogoProps = {
+  size: NETWORK_IMAGE_DEFAULT_SIZE,
+  className: 'absolute bottom-0 right-0 z-10',
+  withTooltip: true,
+  tooltipPlacement: 'bottom' as const
+};
+const networkLogoSkeletonStyle = { width: NETWORK_IMAGE_DEFAULT_SIZE, height: NETWORK_IMAGE_DEFAULT_SIZE };
 
 export const CollectionsListItem = memo<CollectionsListItemProps>(
   ({ collection, chainSlugs, index, opened, firstItemRef, onToggleOpened }) => {
-    const { collectionSlug, title, logoSrc, chainId } = collection;
+    const { collectionSlug, title = t('unknownCollection'), logoSrc, chainId } = collection;
     const [srcIndex, setSrcIndex] = useState(logoSrc ? 0 : -1);
     const handleToggleOpened = () => onToggleOpened(collectionSlug);
     const isVisible = useIsItemVisible(index);
@@ -42,13 +50,6 @@ export const CollectionsListItem = memo<CollectionsListItemProps>(
     useEffect(() => setSrcIndex(logoSrc ? 0 : -1), [logoSrc, setSrcIndex]);
 
     const handleLogoLoadingError = () => setSrcIndex(prev => (logoSrc && prev < logoSrc.length - 1 ? prev + 1 : -1));
-
-    const commonNetworkLogoProps = {
-      size: NETWORK_IMAGE_DEFAULT_SIZE,
-      className: 'absolute bottom-0 right-0 z-10',
-      withTooltip: true,
-      tooltipPlacement: 'bottom' as const
-    };
 
     return (
       <div className="flex flex-col bg-white border-0.5 border-lines mb-4 last:mb-0 p-3 pt-2 rounded-8 gap-2">
@@ -80,7 +81,7 @@ export const CollectionsListItem = memo<CollectionsListItemProps>(
                 <div className="w-full h-full z-1 bg-grey-3 rounded-8" />
                 <div
                   className="absolute bottom-0 right-0 z-10 rounded-full bg-grey-2"
-                  style={{ width: NETWORK_IMAGE_DEFAULT_SIZE, height: NETWORK_IMAGE_DEFAULT_SIZE }}
+                  style={networkLogoSkeletonStyle}
                 />
               </>
             )}
@@ -94,14 +95,14 @@ export const CollectionsListItem = memo<CollectionsListItemProps>(
                 href={`https://objkt.com/collections/${fromAssetSlug(parseChainAssetSlug(collectionSlug)[2])[0]}`}
               >
                 <span className="truncate">
-                  <SearchHighlightText searchValue={searchValue}>{title ?? 'Unknown Collection'}</SearchHighlightText>
+                  <SearchHighlightText searchValue={searchValue}>{title}</SearchHighlightText>
                 </span>
                 <IconBase className="invisible group-hover:visible m-0.5" Icon={OutLinkIcon} size={12} />
               </Anchor>
             )}
             {isVisible && chainId !== TempleTezosChainId.Mainnet && (
               <p className="text-font-medium-bold truncate">
-                <SearchHighlightText searchValue={searchValue}>{title ?? 'Unknown Collection'}</SearchHighlightText>
+                <SearchHighlightText searchValue={searchValue}>{title}</SearchHighlightText>
               </p>
             )}
             <p className="text-font-num-10 text-grey-1 truncate">Items: {chainSlugs.length}</p>

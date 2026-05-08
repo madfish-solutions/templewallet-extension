@@ -2,6 +2,8 @@ import { Fragment, ReactNode, Ref } from 'react';
 
 import clsx from 'clsx';
 
+import { AccountToken } from 'lib/assets/hooks/tokens';
+import { toChainAssetSlug } from 'lib/assets/utils';
 import { TokenListItemElement } from 'lib/ui/tokens-list';
 import { EvmChain, TezosChain } from 'temple/front';
 import { ChainGroupedSlugs } from 'temple/front/chains';
@@ -93,3 +95,8 @@ export function makeFallbackChain(network: StoredEvmNetwork | StoredTezosNetwork
 
   return { ...commonProps, rpc: network, allRpcs: [network], kind: chain, chainId };
 }
+
+export const toNotRemovedChainTokensSlugs = (tokens: AccountToken[], chainKind: TempleChainKind) =>
+  tokens
+    .filter(({ status }) => status !== 'removed')
+    .map(({ chainId, slug }) => toChainAssetSlug(chainKind, chainId, slug));

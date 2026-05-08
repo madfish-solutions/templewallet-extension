@@ -24,6 +24,7 @@ interface DefaultCollectibleListItemLayoutProps<T extends TempleChainKind> exten
   metadatasLoading: boolean;
 }
 
+// Failed to find another way to make React Compiler process DefaultCollectibleListItemLayoutHOC
 const DefaultCollectibleListItemLayoutHOC = <
   T extends TempleChainKind,
   P extends DefaultCollectibleListItemLayoutProps<T> = DefaultCollectibleListItemLayoutProps<T>

@@ -2417,6 +2417,9 @@
   "startYourCollectionToday": {
     "message": "Start your collection today!"
   },
+  "unknownCollection": {
+    "message": "Unknown Collection"
+  },
   "searchNetworkName": {
     "message": "Search network name"
   },

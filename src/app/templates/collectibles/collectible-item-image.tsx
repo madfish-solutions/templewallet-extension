@@ -9,6 +9,7 @@ import { buildCollectibleImagesStack, buildEvmCollectibleIconSources, buildHttpL
 import type { TokenMetadata } from 'lib/metadata';
 import { EvmCollectibleMetadata } from 'lib/metadata/types';
 import { ImageStacked } from 'lib/ui/ImageStacked';
+import { EMPTY_FROZEN_ARRAY } from 'lib/utils';
 
 import { CollectibleBlur } from './collectible-blur';
 import { CollectibleImageFallback } from './collectible-image-fallback';
@@ -27,8 +28,6 @@ interface TezosCollectibleItemImageProps {
   manageActive?: boolean;
 }
 
-const NO_SOURCES: string[] = [];
-
 export const TezosCollectibleItemImage: FC<TezosCollectibleItemImageProps> = ({
   assetSlug,
   metadata,
@@ -44,7 +43,7 @@ export const TezosCollectibleItemImage: FC<TezosCollectibleItemImageProps> = ({
   const isAdultFlagLoading = areDetailsLoading && !isDefined(isAdultContent);
   const shouldShowBlur = isAdultContent && adultBlur;
 
-  let sources = NO_SOURCES;
+  let sources: string[] = EMPTY_FROZEN_ARRAY;
   if (metadata) {
     sources = buildCollectibleImagesStack(metadata);
     if (extraSrc !== undefined) {
@@ -88,7 +87,7 @@ export const EvmCollectibleItemImage: FC<EvmCollectibleItemImageProps> = ({
   shouldUseBlurredBg = false
 }) => {
   const sources = [buildHttpLinkFromUri(metadata?.image)].filter(isString);
-  const sourcesWithCompressedFallback = metadata ? buildEvmCollectibleIconSources(metadata) : NO_SOURCES;
+  const sourcesWithCompressedFallback = metadata ? buildEvmCollectibleIconSources(metadata) : EMPTY_FROZEN_ARRAY;
 
   return (
     <>

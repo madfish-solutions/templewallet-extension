@@ -60,6 +60,8 @@ interface TezosCollectibleItemProps {
   ref?: Ref<CollectiblesListItemElement>;
 }
 
+// TODO: remove this file after a page for tokens is added
+
 export const TezosCollectibleItem = memo<TezosCollectibleItemProps>(
   ({ assetSlug, accountPkh, tezosChainId, adultBlur, areDetailsShown, scam, manageActive = false, index, ref }) => {
     const metadata = useCollectibleMetadataSelector(assetSlug);

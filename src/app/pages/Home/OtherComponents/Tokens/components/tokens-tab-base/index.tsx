@@ -1,4 +1,4 @@
-import React, { FC, useMemo } from 'react';
+import { FC } from 'react';
 
 import { FadeTransition } from 'app/a11y/FadeTransition';
 import { SyncSpinner } from 'app/atoms';
@@ -74,8 +74,8 @@ const TokensTabBaseContent: FC<PropsWithChildren<TokensTabBaseProps>> = ({
   manageActive,
   shouldShowHiddenTokensHint,
   children,
-  tezosCollectibles,
-  evmCollectibles,
+  tezosCollectibles = NO_COLLECTIBLES,
+  evmCollectibles = NO_COLLECTIBLES,
   collectiblesReady,
   collectiblesSortPredicate
 }) => {
@@ -84,13 +84,10 @@ const TokensTabBaseContent: FC<PropsWithChildren<TokensTabBaseProps>> = ({
   const isSyncingInitializedState = useIsAccountInitializedLoadingSelector(accountId);
   const { animatedChevronRef, handleHover, handleUnhover } = useActivateAnimatedChevron();
 
-  const tezosCollectiblesSlugs = toTezEnabledCollectiblesChainSlugs(tezosCollectibles ?? NO_COLLECTIBLES);
-  const evmCollectiblesSlugs = toEvmEnabledCollectiblesChainSlugs(evmCollectibles ?? NO_COLLECTIBLES);
+  const tezosCollectiblesSlugs = toTezEnabledCollectiblesChainSlugs(tezosCollectibles);
+  const evmCollectiblesSlugs = toEvmEnabledCollectiblesChainSlugs(evmCollectibles);
   const collectiblesSlugsSorted = tezosCollectiblesSlugs.concat(evmCollectiblesSlugs).sort(collectiblesSortPredicate);
-  const collectibles = useMemo(
-    () => (tezosCollectibles ?? NO_COLLECTIBLES).concat(evmCollectibles ?? NO_COLLECTIBLES),
-    [tezosCollectibles, evmCollectibles]
-  );
+  const collectibles = tezosCollectibles.concat(evmCollectibles);
 
   if (accountIsInitialized === false && !isSyncingInitializedState && !isTestnet && !manageActive) {
     return (

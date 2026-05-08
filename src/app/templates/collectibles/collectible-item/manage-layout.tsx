@@ -35,6 +35,7 @@ const MANAGE_ACTIVE_ITEM_CLASSNAME = clsx(
   'transition ease-in-out duration-200 focus:outline-hidden'
 );
 
+// Failed to find another way to make React Compiler process ManageCollectibleListItemLayoutHOC
 const ManageCollectibleListItemLayoutHOC = <
   T extends TempleChainKind,
   P extends ManageCollectibleListItemLayoutProps<T> = ManageCollectibleListItemLayoutProps<T>

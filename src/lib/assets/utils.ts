@@ -2,6 +2,7 @@ import BigNumber from 'bignumber.js';
 import { getAddress } from 'viem';
 
 import { CollectibleDetails } from 'app/store/tezos/collectibles/state';
+import { t } from 'lib/i18n';
 import type { AssetMetadataBase } from 'lib/metadata';
 import type { ChainId } from 'temple/front/chains';
 import { isTezosDcpChainId } from 'temple/networks';
@@ -97,12 +98,12 @@ export const getTezCollectionName = (assetSlug: string, details: CollectibleDeta
   const [contractAddress] = fromAssetSlug(assetSlug);
 
   if (!details) {
-    return 'Unknown Collection';
+    return t('unknownCollection');
   }
 
   if (NAME_FROM_GALLERY_FIRST_ADDRESSES.has(contractAddress)) {
-    return details.galleries[0]?.title ?? details.fa.name ?? 'Unknown Collection';
+    return details.galleries[0]?.title ?? details.fa.name ?? t('unknownCollection');
   }
 
-  return details.fa.name ?? 'Unknown Collection';
+  return details.fa.name ?? t('unknownCollection');
 };
