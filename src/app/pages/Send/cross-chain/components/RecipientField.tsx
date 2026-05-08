@@ -14,6 +14,7 @@ import { readClipboard } from 'lib/ui/utils';
 import { CrossChainFormData } from '../form-data';
 
 interface Props {
+  fromAsset: CrossChainAsset;
   toAsset: CrossChainAsset;
 }
 
@@ -23,7 +24,7 @@ const DEST_LABEL: Record<CrossChainDest, string> = {
   tezos: 'Tezos'
 };
 
-export const RecipientField: React.FC<Props> = ({ toAsset }) => {
+export const RecipientField: React.FC<Props> = ({ fromAsset, toAsset }) => {
   const { control, setValue } = useFormContext<CrossChainFormData>();
   const { errors, submitCount } = useFormState<CrossChainFormData>({ control, name: 'to' });
 
@@ -59,6 +60,8 @@ export const RecipientField: React.FC<Props> = ({ toAsset }) => {
 
   const isNonBtc = toAsset.dest !== 'btc';
   const isEvm = toAsset.dest === 'evm';
+  const includeCurrentAccount =
+    (fromAsset.dest === 'evm' && toAsset.dest === 'tezos') || (fromAsset.dest === 'tezos' && toAsset.dest === 'evm');
 
   return (
     <>
@@ -108,6 +111,7 @@ export const RecipientField: React.FC<Props> = ({ toAsset }) => {
           opened={selectModalOpened}
           onRequestClose={closeSelectModal}
           evm={isEvm}
+          includeCurrentAccount={includeCurrentAccount}
         />
       )}
     </>

@@ -29,10 +29,11 @@ interface Props {
   onRequestClose: EmptyFn;
   onAccountSelect: SyncFn<string>;
   evm?: boolean;
+  includeCurrentAccount?: boolean;
 }
 
 export const SelectAccountModal = memo<Props>(
-  ({ opened, selectedAccountAddress, onRequestClose, onAccountSelect, evm = false }) => {
+  ({ opened, selectedAccountAddress, onRequestClose, onAccountSelect, evm = false, includeCurrentAccount = false }) => {
     const [searchValue, setSearchValue] = useState('');
     const [searchValueDebounced] = useDebounce(searchValue, 300);
 
@@ -44,12 +45,12 @@ export const SelectAccountModal = memo<Props>(
     const suitableAccounts = useMemo(
       () =>
         allStoredAccounts.filter(acc => {
-          if (acc.id === currentStoredAccountId) return false;
+          if (!includeCurrentAccount && acc.id === currentStoredAccountId) return false;
 
           if (evm) return Boolean(getAccountAddressForEvm(acc));
           return Boolean(getAccountAddressForTezos(acc));
         }),
-      [allStoredAccounts, currentStoredAccountId, evm]
+      [allStoredAccounts, currentStoredAccountId, evm, includeCurrentAccount]
     );
 
     const filteredAccounts = useMemo(

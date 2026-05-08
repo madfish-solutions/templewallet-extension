@@ -35,7 +35,7 @@ export const CrossChainPreviewRows: FC<Props> = ({ recipient, fromAsset, toAsset
       <ChartListItem title={t('networkTo')}>
         <NetworkCell name={toNetworkName} asset={toAsset} />
       </ChartListItem>
-      <ChartListItem title="Est. time" bottomSeparator={false}>
+      <ChartListItem title={t('estimatedTime')} bottomSeparator={false}>
         <span className="p-1 text-font-num-12">{CROSS_CHAIN_DEFAULT_ETA}</span>
       </ChartListItem>
     </div>

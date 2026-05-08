@@ -2994,9 +2994,6 @@
   "estimatedTime": {
     "message": "Estimated time"
   },
-  "estimatedTimeShort": {
-    "message": "Est. time"
-  },
   "protocolFee": {
     "message": "Protocol fee"
   },
@@ -5058,12 +5055,6 @@
   "couldNotCompleteDescription": {
     "message": "Your funds return to your account automatically.\nIf this hasn't happened, please contact Exolix support to request a refund manually."
   },
-  "couldNotStartExchange": {
-    "message": "Couldn't start the exchange"
-  },
-  "couldNotStartExchangeDescription": {
-    "message": "Exolix didn't accept this pair right now. The amount may be out of range or the route is temporarily unavailable. Please try again."
-  },
   "crossChainActivityTitle": {
     "message": "Cross-chain Activity"
   },
@@ -5159,9 +5150,6 @@
   "crossChainAssetMetadataNotFound": {
     "message": "Asset metadata not found"
   },
-  "crossChainSourceAccountUnavailable": {
-    "message": "Source chain account or network unavailable"
-  },
   "crossChainUnsupportedDestination": {
     "message": "Unsupported destination"
   },
@@ -5200,9 +5188,6 @@
   },
   "sendStepperSending": {
     "message": "Sending"
-  },
-  "successBadge": {
-    "message": "SUCCESS"
   },
   "switchToCurrency": {
     "message": "Switch to $1",

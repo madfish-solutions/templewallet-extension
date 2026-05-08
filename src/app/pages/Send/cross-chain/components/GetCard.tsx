@@ -8,12 +8,13 @@ import { RecipientField } from './RecipientField';
 
 interface Props {
   asset: CrossChainAsset;
+  fromAsset: CrossChainAsset;
   amount: string;
   onAssetClick: EmptyFn;
   loading?: boolean;
 }
 
-export const GetCard: React.FC<Props> = ({ asset, amount, onAssetClick, loading }) => (
+export const GetCard: React.FC<Props> = ({ asset, fromAsset, amount, onAssetClick, loading }) => (
   <div className="flex flex-col gap-y-3 ">
     <CrossChainAmountInput
       label={<T id="get" />}
@@ -22,7 +23,7 @@ export const GetCard: React.FC<Props> = ({ asset, amount, onAssetClick, loading 
       readOnly
       placeholder={loading ? '…' : '0.00'}
       onAssetClick={onAssetClick}
-      footer={<RecipientField toAsset={asset} />}
+      footer={<RecipientField fromAsset={fromAsset} toAsset={asset} />}
     />
   </div>
 );

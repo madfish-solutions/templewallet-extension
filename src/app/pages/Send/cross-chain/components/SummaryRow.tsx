@@ -13,7 +13,7 @@ interface Props {
 
 export const SummaryRow: React.FC<Props> = ({ feePercent, eta = CROSS_CHAIN_DEFAULT_ETA }) => (
   <div className="my-4 px-4 bg-white rounded-8 border-0.5 border-lines">
-    <ChartListItem title="Est. time">
+    <ChartListItem title={t('estimatedTime')}>
       <span className="p-1 text-font-num-12 text-black">{eta}</span>
     </ChartListItem>
     <ChartListItem title={t('fee')} bottomSeparator={false}>

@@ -24,10 +24,13 @@ import {
 import { useAssetFiatCurrencyPrice, useFiatCurrency } from 'lib/fiat-currency';
 import { T, t } from 'lib/i18n';
 import { useBooleanState } from 'lib/ui/hooks';
+import { useAccountForEvm, useAccountForTezos } from 'temple/front';
+import { useEvmChainByChainId, useTezosChainByChainId } from 'temple/front/chains';
 import { TempleChainKind } from 'temple/types';
 
 import { CrossChainAnalyticsEvents } from './analytics';
 import { GetCard } from './components/GetCard';
+import { EvmMaxAmountBridge, TezosMaxAmountBridge } from './components/MaxAmountBridge';
 import { SendCard } from './components/SendCard';
 import { SummaryRow } from './components/SummaryRow';
 import { CrossChainFormData } from './form-data';
@@ -101,6 +104,20 @@ export const CrossChainForm: FC<Props> = ({ onReview, resetSignal }) => {
 
   const balance = useCrossChainFromBalance(fromAsset);
 
+  const evmAccount = useAccountForEvm();
+  const tezosAccount = useAccountForTezos();
+  const evmNetworkForFrom = useEvmChainByChainId(
+    fromAsset.chainKind === TempleChainKind.EVM && fromAsset.chainId != null ? Number(fromAsset.chainId) : 0
+  );
+  const tezosNetworkForFrom = useTezosChainByChainId(
+    fromAsset.chainKind === TempleChainKind.Tezos && fromAsset.chainId != null ? String(fromAsset.chainId) : ''
+  );
+
+  const fromAssetKey = `${fromAsset.chainKind}:${fromAsset.chainId}:${fromAsset.assetSlug}`;
+  const [bridgeMax, setBridgeMax] = useState<{ key: string; max: BigNumber } | null>(null);
+  const maxAmount = bridgeMax?.key === fromAssetKey ? bridgeMax.max : balance;
+  const handleMaxChange = (max: BigNumber) => setBridgeMax({ key: fromAssetKey, max });
+
   const { selectedFiatCurrency } = useFiatCurrency();
   const inputAssetPrice = useAssetFiatCurrencyPrice(
     fromAsset.assetSlug ?? '',
@@ -157,7 +174,7 @@ export const CrossChainForm: FC<Props> = ({ onReview, resetSignal }) => {
   const insufficientBalance = (() => {
     if (!fromAmountInTokens) return false;
     const n = new BigNumber(fromAmountInTokens);
-    return n.isGreaterThan(0) && n.isGreaterThan(balance);
+    return n.isGreaterThan(0) && n.isGreaterThan(maxAmount);
   })();
 
   const amountError = (() => {
@@ -223,11 +240,11 @@ export const CrossChainForm: FC<Props> = ({ onReview, resetSignal }) => {
   };
 
   const handleSetMax = () => {
-    if (balance.isLessThanOrEqualTo(0)) return;
+    if (maxAmount.isLessThanOrEqualTo(0)) return;
     const maxValue =
       isFiatMode && hasFiatPrice
-        ? balance.times(inputAssetPrice).decimalPlaces(2, BigNumber.ROUND_FLOOR).toFixed()
-        : balance.toFixed();
+        ? maxAmount.times(inputAssetPrice).decimalPlaces(2, BigNumber.ROUND_FLOOR).toFixed()
+        : maxAmount.toFixed();
     setValue('fromAmount', maxValue, { shouldValidate: submitCount > 0 });
   };
 
@@ -279,6 +296,25 @@ export const CrossChainForm: FC<Props> = ({ onReview, resetSignal }) => {
 
   return (
     <FormProvider {...form}>
+      {fromAsset.chainKind === TempleChainKind.EVM && evmAccount && evmNetworkForFrom && fromAsset.assetSlug && (
+        <EvmMaxAmountBridge
+          account={evmAccount}
+          network={evmNetworkForFrom}
+          assetSlug={fromAsset.assetSlug}
+          balance={balance}
+          onChange={handleMaxChange}
+        />
+      )}
+      {fromAsset.chainKind === TempleChainKind.Tezos && tezosAccount && tezosNetworkForFrom && fromAsset.assetSlug && (
+        <TezosMaxAmountBridge
+          account={tezosAccount}
+          network={tezosNetworkForFrom}
+          assetSlug={fromAsset.assetSlug}
+          balance={balance}
+          onChange={handleMaxChange}
+        />
+      )}
+
       <div className="flex-1 px-4 flex flex-col overflow-y-auto">
         <form id="cross-chain-form" onSubmit={handleSubmit(onSubmit)}>
           <SendCard
@@ -306,6 +342,7 @@ export const CrossChainForm: FC<Props> = ({ onReview, resetSignal }) => {
 
           <GetCard
             asset={toAsset}
+            fromAsset={fromAsset}
             amount={toAmountEstimated}
             loading={rateLoading}
             onAssetClick={() => openSelect('to')}

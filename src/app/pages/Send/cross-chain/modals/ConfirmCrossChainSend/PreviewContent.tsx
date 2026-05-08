@@ -3,9 +3,9 @@ import React, { FC, useEffect, useRef } from 'react';
 import { noop } from 'lodash';
 
 import { Loader } from 'app/atoms';
-import { CaptionAlert } from 'app/atoms/CaptionAlert';
 import { ActionsButtonsBox } from 'app/atoms/PageModal/actions-buttons-box';
 import { StyledButton } from 'app/atoms/StyledButton';
+import { ReactComponent as XCircleFill } from 'app/icons/base/x_circle_fill.svg';
 import { EvmReviewData, TezosReviewData } from 'app/pages/Send/form/interfaces';
 import { EvmContent } from 'app/pages/Send/modals/ConfirmSend/EvmContent';
 import { TezosContent } from 'app/pages/Send/modals/ConfirmSend/TezosContent';
@@ -21,10 +21,12 @@ import { useEvmChainByChainId, useTezosChainByChainId } from 'temple/front/chain
 import { TempleChainKind } from 'temple/types';
 
 import { CrossChainAnalyticsEvents } from '../../analytics';
+import backgroundFailedSrc from '../../assets/background-failed.svg?url';
 import { useCrossChainExchangeReservation } from '../../hooks/use-cross-chain-exchange-reservation';
 import { useSubmitCrossChainExchange } from '../../hooks/use-submit-cross-chain-exchange';
 
 import { CrossChainPreviewRows } from './CrossChainPreviewRows';
+import { StatusHeroRegion } from './StatusHeroRegion';
 import { ConfirmCrossChainReviewData } from './types';
 
 interface Props {
@@ -84,7 +86,7 @@ export const PreviewContent: FC<Props> = ({ data, onSubmitted, onCancel }) => {
   }
 
   if (error || !exchange) {
-    return <ReservationFailureView error={error} onClose={onCancel} />;
+    return <ReservationFailureView onClose={onCancel} onTryAgain={onCancel} />;
   }
 
   if (fromAsset.chainKind === TempleChainKind.EVM && evmAccount && evmNetwork) {
@@ -117,7 +119,7 @@ export const PreviewContent: FC<Props> = ({ data, onSubmitted, onCancel }) => {
     );
   }
 
-  return <ReservationFailureView error={new Error(t('crossChainSourceAccountUnavailable'))} onClose={onCancel} />;
+  return <ReservationFailureView onClose={onCancel} onTryAgain={onCancel} />;
 };
 
 interface PreviewBodyProps<TAccount, TNetwork> {
@@ -247,26 +249,33 @@ const CenteredLoader: FC = () => (
 );
 
 interface FailureProps {
-  error: unknown;
   onClose: EmptyFn;
+  onTryAgain: EmptyFn;
 }
 
-const ReservationFailureView: FC<FailureProps> = ({ error, onClose }) => {
-  const message =
-    error instanceof Error ? error.message : typeof error === 'string' ? error : t('couldNotStartExchangeDescription');
+const ReservationFailureView: FC<FailureProps> = ({ onClose, onTryAgain }) => (
+  <>
+    <div className="flex-1 min-h-0 overflow-y-auto px-4 pt-3 pb-4 flex flex-col items-stretch">
+      <StatusHeroRegion
+        backgroundSrc={backgroundFailedSrc}
+        outerClassName="h-48 px-4 pb-2"
+        innerClassName="flex flex-col items-center gap-y-3 pb-4 pt-6"
+      >
+        <XCircleFill width={58} height={58} className="text-error fill-current" />
+        <p className="text-font-regular-bold">{t('couldNotComplete')}</p>
+        <p className="text-font-description text-grey-1 text-center whitespace-pre-line">
+          {t('couldNotCompleteDescription')}
+        </p>
+      </StatusHeroRegion>
+    </div>
 
-  return (
-    <>
-      <div className="flex-1 px-4 pt-6 pb-4 flex flex-col gap-y-4">
-        <CaptionAlert type="error" title={t('couldNotStartExchange')} message={t('couldNotStartExchangeDescription')} />
-        <p className="text-font-small text-grey-1 wrap-break-word">{message}</p>
-      </div>
-
-      <ActionsButtonsBox shouldChangeBottomShift={false}>
-        <StyledButton size="L" color="primary" onClick={onClose}>
-          <T id="close" />
-        </StyledButton>
-      </ActionsButtonsBox>
-    </>
-  );
-};
+    <ActionsButtonsBox flexDirection="row">
+      <StyledButton size="L" className="w-full" color="primary-low" onClick={onClose}>
+        <T id="close" />
+      </StyledButton>
+      <StyledButton size="L" className="w-full" color="primary" onClick={onTryAgain}>
+        <T id="tryAgain" />
+      </StyledButton>
+    </ActionsButtonsBox>
+  </>
+);

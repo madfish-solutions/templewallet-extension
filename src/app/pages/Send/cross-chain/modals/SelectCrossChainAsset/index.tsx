@@ -1,9 +1,14 @@
-import React, { FC } from 'react';
+import React, { FC, useMemo, useState } from 'react';
+
+import { useDebounce } from 'use-debounce';
 
 import { Button } from 'app/atoms';
+import { EmptyState } from 'app/atoms/EmptyState';
 import { PageModal } from 'app/atoms/PageModal';
+import { SearchBarField } from 'app/templates/SearchField';
 import { CrossChainAsset, ExolixNetworksOverride, getAllowedToAssets, toCrossChainAssetSlug } from 'lib/cross-chain';
-import { T, t } from 'lib/i18n';
+import { t } from 'lib/i18n';
+import { isSearchStringApplicable, searchAndFilterByNameCodeNetwork } from 'lib/utils/search-items';
 
 import { CrossChainAssetIcon } from '../../components/CrossChainAssetIcon';
 
@@ -22,7 +27,32 @@ export const SelectCrossChainToAssetModal: FC<Props> = ({
   onSelect,
   onRequestClose
 }) => {
-  const assets = getAllowedToAssets(currentFromAsset, networksMap);
+  const [searchValue, setSearchValue] = useState('');
+  const [searchValueDebounced] = useDebounce(searchValue, 300);
+
+  const [prevOpened, setPrevOpened] = useState(opened);
+  if (prevOpened !== opened) {
+    setPrevOpened(opened);
+    if (!opened) setSearchValue('');
+  }
+
+  const assets = useMemo(() => getAllowedToAssets(currentFromAsset, networksMap), [currentFromAsset, networksMap]);
+
+  const displayAssets = useMemo(
+    () =>
+      isSearchStringApplicable(searchValueDebounced)
+        ? searchAndFilterByNameCodeNetwork(
+            assets,
+            searchValueDebounced,
+            ({ name, symbol, exolixCoin, exolixNetwork, dest }) => ({
+              name,
+              code: `${symbol} ${exolixCoin}`,
+              networkName: dest === 'btc' ? 'Bitcoin' : exolixNetwork
+            })
+          )
+        : assets,
+    [assets, searchValueDebounced]
+  );
 
   const handleSelect = (asset: CrossChainAsset) => {
     onSelect(asset);
@@ -31,13 +61,20 @@ export const SelectCrossChainToAssetModal: FC<Props> = ({
 
   return (
     <PageModal opened={opened} title={t('selectGetToken')} onRequestClose={onRequestClose}>
-      <div className="flex-1 px-4 py-3 overflow-y-auto flex flex-col">
-        {assets.length === 0 ? (
-          <div className="text-center text-grey-1 py-6">
-            <T id="noTokensAvailable" />
-          </div>
+      <div className="flex flex-col px-4 pt-4 pb-3">
+        <SearchBarField
+          value={searchValue}
+          placeholder={t('tokenNamePlaceholder')}
+          defaultRightMargin={false}
+          onValueChange={setSearchValue}
+        />
+      </div>
+
+      <div className="flex-1 px-4 pb-4 overflow-y-auto flex flex-col">
+        {displayAssets.length === 0 ? (
+          <EmptyState />
         ) : (
-          assets.map(asset => <Item key={toCrossChainAssetSlug(asset)} asset={asset} onClick={handleSelect} />)
+          displayAssets.map(asset => <Item key={toCrossChainAssetSlug(asset)} asset={asset} onClick={handleSelect} />)
         )}
       </div>
     </PageModal>

@@ -58,11 +58,6 @@ export const CrossChainActivityRow = ({ exchange, onClick }: Props) => {
                 <T id="failedBadge" />
               </span>
             )}
-            {status === 'success' && (
-              <span className="text-font-small-bold h-4 px-1 leading-4 text-success border-0.5 border-success bg-success-low rounded">
-                <T id="successBadge" />
-              </span>
-            )}
           </div>
 
           <div className={clsx('max-w-40 flex text-font-num-14 overflow-hidden', 'group-hover:hidden')}>
