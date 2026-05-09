@@ -29,9 +29,9 @@ import {
 } from 'lib/assets/hooks/collectibles';
 import { t, T } from 'lib/i18n';
 import { useActivateAnimatedChevron } from 'lib/ui/hooks/use-activate-animated-chevron';
+import { EMPTY_FROZEN_ARRAY } from 'lib/utils';
 import { Link, navigate } from 'lib/woozie';
 import { OneOfChains } from 'temple/front';
-import { EMPTY_FROZEN_ARRAY } from 'lib/utils';
 
 export interface TokensTabBaseProps {
   tokensCount: number;
