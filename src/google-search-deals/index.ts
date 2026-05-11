@@ -1,8 +1,3 @@
-import { TEMPLE_ICON } from 'content-scripts/constants';
-import type { MerchantOffer } from 'lib/apis/ads-api/ads-api';
-import { browser } from 'lib/browser';
-import { ContentScriptType, PRIVACY_POLICY_URL, TERMS_OF_USE_URL } from 'lib/constants';
-
 import { CLOSE_ICON } from 'merchant-offer-popup/icons';
 import { getPopupStyles } from 'merchant-offer-popup/styles';
 import {
@@ -15,13 +10,17 @@ import {
   trackMerchantOfferEvent
 } from 'merchant-offer-popup/utils';
 
+import { TEMPLE_ICON } from 'content-scripts/constants';
+import type { MerchantOffer } from 'lib/apis/ads-api/ads-api';
+import { browser } from 'lib/browser';
+import { ContentScriptType, PRIVACY_POLICY_URL, TERMS_OF_USE_URL } from 'lib/constants';
+
 const LABEL_CLASS = 'temple-google-deal-label';
 const PROCESSED_ATTR = 'data-temple-google-deal';
-const LABEL_GAP = 24;
+const LABEL_GAP = 16;
 const HOVER_HIDE_DELAY = 180;
 const scanCache = new WeakSet<Element>();
 const offersCache = new Map<string, Promise<MerchantOffer | null>>();
-const placements: Array<{ root: Element; anchor: HTMLAnchorElement; label: HTMLElement }> = [];
 
 let hoverHost: HTMLDivElement | null = null;
 let hideHoverTimeout: number | null = null;
@@ -32,9 +31,6 @@ if (window.self === window.top && isGoogleSearchPage()) {
 
   const observer = new MutationObserver(() => scanResults());
   observer.observe(document.body, { childList: true, subtree: true });
-
-  window.addEventListener('resize', placeAllLabels, { passive: true });
-  window.addEventListener('scroll', placeAllLabels, { passive: true });
 }
 
 function isGoogleSearchPage() {
@@ -42,39 +38,38 @@ function isGoogleSearchPage() {
 }
 
 function injectStyles() {
+  const fontLink = document.createElement('link');
+  fontLink.rel = 'stylesheet';
+  fontLink.href = 'https://fonts.googleapis.com/css2?family=Rubik:wght@500&display=swap';
+  document.head.appendChild(fontLink);
+
   const style = document.createElement('style');
   style.textContent = `
     .${LABEL_CLASS} {
       align-items: center;
-      background: #5A2B10;
+      background: rgba(255, 91, 0, 0.15);
       border: 0;
-      border-radius: 3px;
-      color: #FF6B00;
+      border-radius: 4px;
+      color: #FF5B00;
       cursor: pointer;
       display: inline-flex;
-      font-family: Arial, sans-serif;
-      font-size: 11px;
-      font-weight: 700;
+      font-family: Rubik, Arial, sans-serif;
+      font-size: 12px;
+      font-weight: 500;
       gap: 4px;
-      height: 20px;
-      line-height: 20px;
+      line-height: 16px;
       opacity: 0;
-      padding: 0 8px;
-      position: absolute;
+      padding: 4px 8px 4px 4px;
+      position: relative;
       transform: translateY(4px);
       transition: opacity 160ms ease, transform 160ms ease, background 120ms ease;
       white-space: nowrap;
-      z-index: 2147483646;
     }
 
-    .${LABEL_CLASS}::before {
-      content: "\\1F3C6";
-      font-size: 12px;
-      line-height: 1;
-    }
-
-    .${LABEL_CLASS}:hover {
-      background: #693212;
+    .${LABEL_CLASS}-icon {
+      display: block;
+      height: 16px;
+      width: 16px;
     }
 
     .${LABEL_CLASS}.temple-google-deal-label-visible {
@@ -88,7 +83,7 @@ function injectStyles() {
       position: absolute;
       transform: translateY(6px);
       transition: opacity 160ms ease, transform 160ms ease;
-      z-index: 2147483647;
+      z-index: 100;
     }
 
     .temple-google-deal-popup-host-visible {
@@ -124,7 +119,10 @@ function scanResults() {
 function getTargetUrl(anchor: HTMLAnchorElement) {
   try {
     const href = new URL(anchor.href);
-    const url = href.hostname.endsWith('google.com') && href.pathname === '/url' ? new URL(href.searchParams.get('q') ?? '') : href;
+    const url =
+      href.hostname.endsWith('google.com') && href.pathname === '/url'
+        ? new URL(href.searchParams.get('q') ?? '')
+        : href;
     if (!/^https?:$/.test(url.protocol) || url.hostname.includes('google.')) return null;
 
     return {
@@ -155,11 +153,15 @@ function addLabel(root: Element, anchor: HTMLAnchorElement, url: string, domain:
   const label = document.createElement('button');
   label.className = LABEL_CLASS;
   label.type = 'button';
-  label.textContent = `Bounty \u2248 ${formatBountyValue(offer.cpcRate, offer.currencyCode)}`;
   label.dataset.templeDomain = domain;
   label.dataset.templeRoot = '';
-  document.body.appendChild(label);
-  placements.push({ root, anchor, label });
+
+  const icon = document.createElement('img');
+  icon.className = `${LABEL_CLASS}-icon`;
+  icon.src = TEMPLE_ICON;
+  icon.alt = '';
+  label.appendChild(icon);
+  label.appendChild(document.createTextNode(`Bounty \u2248 ${formatBountyValue(offer.cpcRate, offer.currencyCode)}`));
 
   const show = () => showHoverPopup(label, offer, url, domain);
   label.addEventListener('mouseenter', show);
@@ -171,22 +173,20 @@ function addLabel(root: Element, anchor: HTMLAnchorElement, url: string, domain:
   requestAnimationFrame(() => label.classList.add('temple-google-deal-label-visible'));
 }
 
-function placeAllLabels() {
-  placements.forEach(({ root, anchor, label }) => placeLabel(root, anchor, label));
-}
-
 function placeLabel(root: Element, anchor: HTMLAnchorElement, label: HTMLElement) {
   const moreButton = findMoreButton(root);
-  const referenceRect = moreButton?.getBoundingClientRect() ?? anchor.getBoundingClientRect();
-  const labelRect = label.getBoundingClientRect();
+  const labelHost = moreButton?.parentElement?.parentElement ?? moreButton?.parentElement;
 
-  const top = referenceRect.top + window.scrollY + Math.max(0, (referenceRect.height - labelRect.height) / 2);
-  const left = moreButton
-    ? referenceRect.left + window.scrollX - labelRect.width - LABEL_GAP
-    : referenceRect.right + window.scrollX + LABEL_GAP;
+  if (moreButton && labelHost) {
+    const moreButtonWidth = moreButton.getBoundingClientRect().width || 18;
+    label.style.marginLeft = `${moreButtonWidth + LABEL_GAP}px`;
+    labelHost.appendChild(label);
+    labelHost.style.display = 'inline-flex';
+    labelHost.style.alignItems = 'center';
+    return;
+  }
 
-  label.style.top = `${top}px`;
-  label.style.left = `${Math.max(0, left)}px`;
+  anchor.insertAdjacentElement('afterend', label);
 }
 
 function findMoreButton(root: Element) {
@@ -273,7 +273,11 @@ function renderHoverPopup(offer: MerchantOffer, url: string, domain: string) {
 
   const offerInfo = el('div', 'tw-popup-offer-info');
   offerInfo.appendChild(
-    el('div', 'tw-popup-offer-title', msg('merchantOfferPopupEarnUpTo', formatBountyValue(offer.cpcRate, offer.currencyCode).split(' ')))
+    el(
+      'div',
+      'tw-popup-offer-title',
+      msg('merchantOfferPopupEarnUpTo', formatBountyValue(offer.cpcRate, offer.currencyCode).split(' '))
+    )
   );
   offerInfo.appendChild(el('div', 'tw-popup-offer-desc', getOfferDescription(offer)));
   offerCard.appendChild(offerInfo);
