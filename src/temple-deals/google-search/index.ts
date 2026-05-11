@@ -4,7 +4,7 @@ import { browser } from 'lib/browser';
 import { ContentScriptType } from 'lib/constants';
 
 import { mountTempleDealsPopup } from '../popup/layout';
-import { formatBountyValue, normalizeDomain } from '../utils';
+import { formatBountyValue, isGoogleSearchPage, normalizeDomain } from '../utils';
 
 const LABEL_CLASS = 'temple-google-deal-label';
 const PROCESSED_ATTR = 'data-temple-google-deal';
@@ -31,10 +31,6 @@ if (window.self === window.top && isGoogleSearchPage()) {
 
   const observer = new MutationObserver(() => scanResults());
   observer.observe(document.body, { childList: true, subtree: true });
-}
-
-function isGoogleSearchPage() {
-  return /^www\.google\./.test(window.location.hostname) && window.location.pathname === '/search';
 }
 
 function injectStyles() {

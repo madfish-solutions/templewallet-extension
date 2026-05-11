@@ -3,18 +3,15 @@ import { browser } from 'lib/browser';
 import { ContentScriptType } from 'lib/constants';
 
 import { injectTempleDealsPopupFont, mountTempleDealsPopup } from '../popup/layout';
-import { normalizeDomain, wasTempleDealActivated } from '../utils';
+import { isGoogleSearchPage, normalizeDomain, wasTempleDealActivated } from '../utils';
 
 const POPUP_HOST_ID = 'temple-deals-popup-host';
 
 (async () => {
-  // Only run in the main window, not iframes
-  if (window.self !== window.top) return;
-  if (/^www\.google\./.test(window.location.hostname) && window.location.pathname === '/search') return;
+  if (window.self !== window.top || isGoogleSearchPage()) return;
 
   const domain = normalizeDomain(window.location.hostname);
 
-  // Don't show the popup again if the offer was already activated in this session
   if (await wasTempleDealActivated(domain)) return;
 
   let offers: MerchantOffer[] = [];

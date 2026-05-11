@@ -78,3 +78,7 @@ export async function wasTempleDealActivated(domain: string) {
     return false;
   }
 }
+
+export function isGoogleSearchPage() {
+  return /^www\.google\./.test(window.location.hostname) && window.location.pathname === '/search';
+}
