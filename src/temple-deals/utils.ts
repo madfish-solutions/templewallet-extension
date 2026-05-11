@@ -44,14 +44,7 @@ export function getOfferDescription(offer: MerchantOffer) {
 }
 
 export function formatBountyValue(value: number, currencyCode: string) {
-  const formatted =
-    value >= 1
-      ? value.toFixed(2)
-      : value >= 0.01
-        ? value.toFixed(3).replace(/0+$/, '').replace(/\.$/, '')
-        : value.toFixed(6).replace(/0+$/, '').replace(/\.$/, '');
-
-  return `${formatted} ${currencyCode}`;
+  return `${Math.max(value, 0.01).toFixed(2)} ${currencyCode}`;
 }
 
 export async function markTempleDealActivated(domain: string) {
