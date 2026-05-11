@@ -1,19 +1,10 @@
-import { CLOSE_ICON } from 'merchant-offer-popup/icons';
-import { getPopupStyles } from 'merchant-offer-popup/styles';
-import {
-  el,
-  formatBountyValue,
-  getOfferDescription,
-  markMerchantOfferActivated,
-  msg,
-  normalizeDomain,
-  trackMerchantOfferEvent
-} from 'merchant-offer-popup/utils';
+import { mountMerchantOfferPopup } from 'merchant-offer-popup/layout';
+import { formatBountyValue, normalizeDomain } from 'merchant-offer-popup/utils';
 
 import { TEMPLE_ICON } from 'content-scripts/constants';
 import type { MerchantOffer } from 'lib/apis/ads-api/ads-api';
 import { browser } from 'lib/browser';
-import { ContentScriptType, PRIVACY_POLICY_URL, TERMS_OF_USE_URL } from 'lib/constants';
+import { ContentScriptType } from 'lib/constants';
 
 const LABEL_CLASS = 'temple-google-deal-label';
 const PROCESSED_ATTR = 'data-temple-google-deal';
@@ -259,13 +250,18 @@ function showHoverPopup(label: HTMLElement, offer: MerchantOffer, url: string, d
   hoverHost.addEventListener('mouseleave', scheduleHideHoverPopup);
   document.body.appendChild(hoverHost);
 
-  const shadow = hoverHost.attachShadow({ mode: 'closed' });
-  const style = document.createElement('style');
-  style.textContent = getPopupStyles();
-  shadow.appendChild(style);
-
-  const popup = renderHoverPopup(offer, url, domain);
-  shadow.appendChild(popup);
+  mountMerchantOfferPopup(hoverHost, {
+    offer,
+    domain,
+    activationUrl: url,
+    pageDomain: normalizeDomain(window.location.hostname),
+    activateEvent: 'MerchantOfferGooglePopupActivate',
+    closeEvent: 'MerchantOfferGooglePopupClose',
+    onClose: () => {
+      hoverHost?.remove();
+      hoverHost = null;
+    }
+  });
 
   const labelRect = label.getBoundingClientRect();
   hoverHost.style.top = `${labelRect.bottom + window.scrollY + 8}px`;
@@ -280,105 +276,4 @@ function scheduleHideHoverPopup() {
     hoverHost?.remove();
     hoverHost = null;
   }, HOVER_HIDE_DELAY);
-}
-
-function renderHoverPopup(offer: MerchantOffer, url: string, domain: string) {
-  const container = el('div', 'tw-popup');
-
-  const header = el('div', 'tw-popup-header');
-  const templeIcon = document.createElement('img');
-  templeIcon.className = 'tw-popup-temple-icon';
-  templeIcon.src = TEMPLE_ICON;
-  templeIcon.alt = '';
-  header.appendChild(templeIcon);
-  header.appendChild(el('span', 'tw-popup-title', msg('merchantOfferPopupTitle')));
-
-  const closeBtn = document.createElement('button');
-  closeBtn.className = 'tw-popup-btn-icon tw-popup-close-btn';
-  closeBtn.title = 'Close';
-  closeBtn.innerHTML = CLOSE_ICON;
-  closeBtn.addEventListener('click', () => {
-    trackMerchantOfferEvent('MerchantOfferGooglePopupClose', { domain });
-    hoverHost?.remove();
-    hoverHost = null;
-  });
-  header.appendChild(closeBtn);
-  container.appendChild(header);
-
-  const body = el('div', 'tw-popup-body');
-  const offerCard = el('div', 'tw-popup-offer-card');
-
-  if (offer.imageUri) {
-    const merchantIcon = document.createElement('img');
-    merchantIcon.className = 'tw-popup-merchant-icon';
-    merchantIcon.src = offer.imageUri;
-    merchantIcon.alt = '';
-    offerCard.appendChild(merchantIcon);
-  } else {
-    offerCard.appendChild(el('div', 'tw-popup-merchant-icon-placeholder'));
-  }
-
-  const offerInfo = el('div', 'tw-popup-offer-info');
-  offerInfo.appendChild(
-    el(
-      'div',
-      'tw-popup-offer-title',
-      msg('merchantOfferPopupEarnUpTo', formatBountyValue(offer.cpcRate, offer.currencyCode).split(' '))
-    )
-  );
-  offerInfo.appendChild(el('div', 'tw-popup-offer-desc', getOfferDescription(offer)));
-  offerCard.appendChild(offerInfo);
-  body.appendChild(offerCard);
-
-  const activateBtn = document.createElement('button');
-  activateBtn.className = 'tw-popup-activate-btn';
-  activateBtn.textContent = msg('merchantOfferPopupActivate');
-  activateBtn.addEventListener('click', async () => {
-    activateBtn.textContent = msg('merchantOfferPopupActivating');
-    activateBtn.disabled = true;
-
-    try {
-      const result = await browser.runtime.sendMessage({
-        type: ContentScriptType.ActivateMerchantOffer,
-        url
-      });
-
-      if (!result?.trackingLink) {
-        activateBtn.textContent = msg('merchantOfferPopupActivate');
-        activateBtn.disabled = false;
-        return;
-      }
-
-      trackMerchantOfferEvent('MerchantOfferGooglePopupActivate', { domain });
-      await browser.runtime
-        .sendMessage({
-          type: ContentScriptType.ReferralClick,
-          urlDomain: domain,
-          pageDomain: normalizeDomain(window.location.hostname),
-          provider: 'TakeAds'
-        })
-        .catch(() => {});
-      await markMerchantOfferActivated(domain);
-
-      window.location.href = result.trackingLink;
-    } catch (err) {
-      console.error('Failed to activate merchant offer:', err);
-      activateBtn.textContent = msg('merchantOfferPopupActivate');
-      activateBtn.disabled = false;
-    }
-  });
-  body.appendChild(activateBtn);
-
-  const disclaimer = el('div', 'tw-popup-disclaimer');
-  disclaimer.innerHTML = [
-    `${msg('merchantOfferPopupDisclaimer1')}`,
-    `<a href="${TERMS_OF_USE_URL}" target="_blank">${msg('termsOfUsage')}</a>`,
-    `${msg('merchantOfferPopupDisclaimer2')}`,
-    `<a href="${PRIVACY_POLICY_URL}" target="_blank">${msg('privacyPolicy')}</a>`
-  ].join(' ');
-  body.appendChild(disclaimer);
-
-  container.appendChild(body);
-
-  return container;
 }
