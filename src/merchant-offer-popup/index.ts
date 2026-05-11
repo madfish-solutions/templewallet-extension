@@ -28,17 +28,18 @@ const POPUP_HOST_ID = 'temple-merchant-offer-host';
   // Don't show the popup again if the offer was already activated in this session
   if (await wasMerchantOfferActivated(domain)) return;
 
-  let offer: MerchantOffer | null = null;
+  let offers: MerchantOffer[] = [];
 
   try {
-    offer = await browser.runtime.sendMessage({
-      type: ContentScriptType.FetchMerchantOffer,
-      domain
+    offers = await browser.runtime.sendMessage({
+      type: ContentScriptType.FetchMerchantOffers,
+      domains: [domain]
     });
   } catch {
     return;
   }
 
+  const offer = offers.at(0);
   if (!offer) return;
 
   injectPopup(offer, domain);

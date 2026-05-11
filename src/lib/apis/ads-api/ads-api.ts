@@ -176,12 +176,8 @@ export interface MerchantOffer {
   trackingLink: string;
 }
 
-interface MerchantOfferResponse {
-  offer: MerchantOffer | null;
-}
-
-export const fetchMerchantOffer = withAxiosDataExtract((domain: string) =>
-  axiosClient.get<MerchantOfferResponse>('/takeads/merchant-offer', { params: { domain } })
+export const fetchMerchantOffers = withAxiosDataExtract((domains: string[]) =>
+  axiosClient.post<MerchantOffer[]>('/takeads/merchant-offers', { domains })
 );
 
 interface ActivateMerchantOfferResponse {

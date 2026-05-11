@@ -13,7 +13,7 @@ export enum ContentScriptType {
   FetchReferralsRules = 'FetchReferralsRules',
   ReferralClick = 'ReferralClick',
   FetchTempleReferralLinkItems = 'FetchTempleReferralLinkItems',
-  FetchMerchantOffer = 'FetchMerchantOffer',
+  FetchMerchantOffers = 'FetchMerchantOffers',
   ActivateMerchantOffer = 'ActivateMerchantOffer',
   MarkMerchantOfferActivated = 'MarkMerchantOfferActivated',
   CheckAndConsumeMerchantOfferActivated = 'CheckAndConsumeMerchantOfferActivated',

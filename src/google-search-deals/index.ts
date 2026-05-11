@@ -20,10 +20,19 @@ const PROCESSED_ATTR = 'data-temple-google-deal';
 const LABEL_GAP = 16;
 const HOVER_HIDE_DELAY = 180;
 const scanCache = new WeakSet<Element>();
-const offersCache = new Map<string, Promise<MerchantOffer | null>>();
+const offersCache = new Map<string, MerchantOffer | null>();
+const pendingLabelsByDomain = new Map<string, PendingLabel[]>();
 
 let hoverHost: HTMLDivElement | null = null;
 let hideHoverTimeout: number | null = null;
+let offersFlushTimeout: number | null = null;
+
+interface PendingLabel {
+  root: Element;
+  anchor: HTMLAnchorElement;
+  url: string;
+  domain: string;
+}
 
 if (window.self === window.top && isGoogleSearchPage()) {
   injectStyles();
@@ -106,13 +115,7 @@ function scanResults() {
     const targetUrl = getTargetUrl(anchor);
     if (!targetUrl) continue;
 
-    resultRoot.setAttribute(PROCESSED_ATTR, 'pending');
-    getOffer(targetUrl.domain).then(offer => {
-      if (!offer || resultRoot.getAttribute(PROCESSED_ATTR) === 'ready') return;
-
-      resultRoot.setAttribute(PROCESSED_ATTR, 'ready');
-      addLabel(resultRoot, anchor, targetUrl.url, targetUrl.domain, offer);
-    });
+    queueLabel({ root: resultRoot, anchor, url: targetUrl.url, domain: targetUrl.domain });
   }
 }
 
@@ -134,19 +137,63 @@ function getTargetUrl(anchor: HTMLAnchorElement) {
   }
 }
 
-function getOffer(domain: string) {
-  let cached = offersCache.get(domain);
-  if (!cached) {
-    cached = browser.runtime
-      .sendMessage({
-        type: ContentScriptType.FetchMerchantOffer,
-        domain
-      })
-      .catch(() => null);
-    offersCache.set(domain, cached);
+function queueLabel(label: PendingLabel) {
+  label.root.setAttribute(PROCESSED_ATTR, 'pending');
+
+  if (offersCache.has(label.domain)) {
+    renderPendingLabel(label, offersCache.get(label.domain) ?? null);
+    return;
   }
 
-  return cached;
+  const pendingLabels = pendingLabelsByDomain.get(label.domain) ?? [];
+  pendingLabels.push(label);
+  pendingLabelsByDomain.set(label.domain, pendingLabels);
+  scheduleOffersFlush();
+}
+
+function scheduleOffersFlush() {
+  if (offersFlushTimeout) return;
+  offersFlushTimeout = window.setTimeout(() => {
+    offersFlushTimeout = null;
+    flushPendingOffers();
+  });
+}
+
+async function flushPendingOffers() {
+  const domains = [...pendingLabelsByDomain.keys()].filter(domain => !offersCache.has(domain));
+  if (!domains.length) return;
+
+  let offers: MerchantOffer[] = [];
+  try {
+    offers = await browser.runtime.sendMessage({
+      type: ContentScriptType.FetchMerchantOffers,
+      domains
+    });
+  } catch {
+    offers = [];
+  }
+
+  const offersByDomain = new Map(offers.map(offer => [normalizeDomain(offer.domain), offer]));
+  domains.forEach(domain => offersCache.set(domain, offersByDomain.get(domain) ?? null));
+
+  domains.forEach(domain => {
+    const pendingLabels = pendingLabelsByDomain.get(domain) ?? [];
+    pendingLabelsByDomain.delete(domain);
+
+    pendingLabels.forEach(label => renderPendingLabel(label, offersCache.get(domain) ?? null));
+  });
+}
+
+function renderPendingLabel({ root, anchor, url, domain }: PendingLabel, offer: MerchantOffer | null) {
+  if (!offer) {
+    root.removeAttribute(PROCESSED_ATTR);
+    return;
+  }
+
+  if (root.getAttribute(PROCESSED_ATTR) === 'ready') return;
+
+  root.setAttribute(PROCESSED_ATTR, 'ready');
+  addLabel(root, anchor, url, domain, offer);
 }
 
 function addLabel(root: Element, anchor: HTMLAnchorElement, url: string, domain: string, offer: MerchantOffer) {

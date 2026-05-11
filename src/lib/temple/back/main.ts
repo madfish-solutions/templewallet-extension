@@ -485,15 +485,14 @@ browser.runtime.onMessage.addListener(async (msg, sender) => {
         break;
       }
 
-      case ContentScriptType.FetchMerchantOffer: {
+      case ContentScriptType.FetchMerchantOffers: {
         const merchantState = await fetchFromStorage<MerchantPromotionState>('persist:root.merchantPromotion');
-        if (!merchantState?.enabled) return null;
-        if (merchantState.snoozedUntil && Date.now() < merchantState.snoozedUntil) return null;
+        if (!merchantState?.enabled) return [];
+        if (merchantState.snoozedUntil && Date.now() < merchantState.snoozedUntil) return [];
 
         return await withNonImportErrorForwarding(async () => {
-          const { fetchMerchantOffer } = await importAdsApiModule();
-          const response = await fetchMerchantOffer(msg.domain);
-          return response.offer;
+          const { fetchMerchantOffers } = await importAdsApiModule();
+          return await fetchMerchantOffers(msg.domains);
         });
       }
 
