@@ -3724,37 +3724,37 @@
   "dealsDescription": {
     "message": "Enable offers from merchants in your wallet and browser, join Temple rewards program and get paid in TKEY. If active, you agree to share your wallet address and IP to receive content and rewards."
   },
-  "merchantOfferPopupTitle": {
+  "dealsOfferPopupTitle": {
     "message": "Rewards"
   },
-  "merchantOfferPopupSettings": {
+  "dealsOfferPopupSettings": {
     "message": "Settings"
   },
-  "merchantOfferPopupEarnUpTo": {
+  "dealsOfferPopupEarnUpTo": {
     "message": "Earn up to $1 $2"
   },
-  "merchantOfferPopupActivateDescription": {
+  "dealsOfferPopupActivateDescription": {
     "message": "Activate to visit $1 through our link and earn your reward."
   },
-  "merchantOfferPopupActivate": {
+  "dealsOfferPopupActivate": {
     "message": "Activate Bounty"
   },
-  "merchantOfferPopupActivating": {
+  "dealsOfferPopupActivating": {
     "message": "Activating..."
   },
-  "merchantOfferPopupSnooze": {
+  "dealsOfferPopupSnooze": {
     "message": "Snooze for 24h"
   },
-  "merchantOfferPopupShowMore": {
+  "dealsOfferPopupShowMore": {
     "message": "Show more"
   },
-  "merchantOfferPopupShowLess": {
+  "dealsOfferPopupShowLess": {
     "message": "Show less"
   },
-  "merchantOfferPopupDisclaimer1": {
+  "dealsOfferPopupDisclaimer1": {
     "message": "By pressing Activate Bounty you agree with the"
   },
-  "merchantOfferPopupDisclaimer2": {
+  "dealsOfferPopupDisclaimer2": {
     "message": "and"
   },
   "referrals": {

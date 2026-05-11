@@ -6,7 +6,7 @@ import browser from 'webextension-polyfill';
 
 import { getStoredAppInstallIdentity, putStoredAppInstallIdentity } from 'app/storage/app-install-id';
 import { getStoredAppUpdateDetails, putStoredAppUpdateDetails } from 'app/storage/app-update';
-import type { MerchantPromotionState } from 'app/store/merchant-promotion/state';
+import type { DealsState } from 'app/store/deals/state';
 import type { PartnersPromotionState } from 'app/store/partners-promotion/state';
 import { importUpdateRulesStorageModule } from 'lib/ads/import-update-rules-storage';
 import {
@@ -69,10 +69,10 @@ browser.runtime.onInstalled.addListener(({ reason }) => {
               putToStorage(SHOULD_SHOW_REWARDS_PUSH_STORAGE_KEY, true);
               openFullPage();
             }
-          });
-        }
+          }
+        );
       }
-    );
+    });
 
     ensureAppIdentity()
       .then(() => linkAdsImpressionsIfNeeded())
@@ -110,14 +110,14 @@ async function linkAdsImpressionsIfNeeded() {
   const alreadyLinked = await fetchFromStorage<boolean>(ADS_IMPRESSIONS_LINKED_V2_STORAGE_KEY);
   if (alreadyLinked) return;
 
-  const [partnersPromoState, merchantPromoState] = await Promise.all([
+  const [partnersPromoState, dealsState] = await Promise.all([
     fetchFromStorage<PartnersPromotionState>('persist:root.partnersPromotion'),
-    fetchFromStorage<MerchantPromotionState>('persist:root.merchantPromotion')
+    fetchFromStorage<DealsState>('persist:root.deals')
   ]);
 
   const promoEnabled = partnersPromoState?.shouldShowPromotion === true;
-  const isMerchantEnabled = merchantPromoState?.enabled === true;
-  if (!promoEnabled && !isMerchantEnabled) return;
+  const isDealsEnabled = dealsState?.enabled === true;
+  if (!promoEnabled && !isDealsEnabled) return;
 
   const [rewardsAddresses, userId] = await Promise.all([
     fetchFromStorage<RewardsAddresses>(REWARDS_ACCOUNT_DATA_STORAGE_KEY),

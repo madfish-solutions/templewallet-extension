@@ -4,7 +4,7 @@ import { ContentScriptType } from 'lib/constants';
 export const msg = (key: string, substitutions?: string | string[]) =>
   browser.i18n.getMessage(key, substitutions) || key;
 
-export function trackMerchantOfferEvent(event: string, properties?: object) {
+export function trackDealsOfferEvent(event: string, properties?: object) {
   browser.runtime
     .sendMessage({
       type: ContentScriptType.MerchantOfferAnalytics,

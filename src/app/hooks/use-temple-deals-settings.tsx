@@ -1,15 +1,15 @@
 import { ChangeEvent } from 'react';
 
 import { dispatch } from 'app/store';
-import { setMerchantPromotionEnabledAction } from 'app/store/merchant-promotion/actions';
-import { useMerchantPromotionEnabledSelector } from 'app/store/merchant-promotion/selectors';
+import { setDealsEnabledAction } from 'app/store/deals/actions';
+import { useDealsEnabledSelector } from 'app/store/deals/selectors';
 import { t } from 'lib/i18n';
 import { useConfirm } from 'lib/ui/dialog';
 
 export const useTempleDealsSettings = () => {
   const confirm = useConfirm();
 
-  const isEnabled = useMerchantPromotionEnabledSelector();
+  const isEnabled = useDealsEnabledSelector();
 
   const handleHide = async () => {
     const confirmed = await confirm({
@@ -20,12 +20,12 @@ export const useTempleDealsSettings = () => {
     });
 
     if (confirmed) {
-      dispatch(setMerchantPromotionEnabledAction(false));
+      dispatch(setDealsEnabledAction(false));
     }
   };
 
   const handleShow = async () => {
-    dispatch(setMerchantPromotionEnabledAction(true));
+    dispatch(setDealsEnabledAction(true));
   };
 
   const setEnabled = (toChecked: boolean, event?: ChangeEvent<HTMLInputElement>) => {

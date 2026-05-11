@@ -190,7 +190,7 @@ const scriptsConfig = (() => {
   if (!shouldDisableAds) {
     config.entry.replaceAds = Path.join(PATHS.SOURCE, 'replaceAds.ts');
     config.entry.replaceReferrals = Path.join(PATHS.SOURCE, 'replaceReferrals.ts');
-    config.entry.merchantOfferPopup = Path.join(PATHS.SOURCE, 'merchant-offer-popup/index.ts');
+    config.entry.dealsOfferPopup = Path.join(PATHS.SOURCE, 'deals-offer-popup/index.ts');
   }
 
   if (BACKGROUND_IS_WORKER)

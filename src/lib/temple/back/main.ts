@@ -4,7 +4,7 @@ import browser, { Runtime } from 'webextension-polyfill';
 import { ValidationError } from 'yup';
 
 import { getStoredAppInstallIdentity } from 'app/storage/app-install-id';
-import type { MerchantPromotionState } from 'app/store/merchant-promotion/state';
+import type { DealsState } from 'app/store/deals/state';
 import { importUpdateRulesStorageModule } from 'lib/ads/import-update-rules-storage';
 import { importAdsApiModule } from 'lib/apis/ads-api';
 import {
@@ -483,9 +483,9 @@ browser.runtime.onMessage.addListener(async (msg, sender) => {
       }
 
       case ContentScriptType.FetchMerchantOffer: {
-        const merchantState = await fetchFromStorage<MerchantPromotionState>('persist:root.merchantPromotion');
-        if (!merchantState?.enabled) return null;
-        if (merchantState.snoozedUntil && Date.now() < merchantState.snoozedUntil) return null;
+        const dealsState = await fetchFromStorage<DealsState>('persist:root.deals');
+        if (!dealsState?.enabled) return null;
+        if (dealsState.snoozedUntil && Date.now() < dealsState.snoozedUntil) return null;
 
         return await withNonImportErrorForwarding(async () => {
           const { fetchMerchantOffer } = await importAdsApiModule();
@@ -503,16 +503,16 @@ browser.runtime.onMessage.addListener(async (msg, sender) => {
       }
 
       case ContentScriptType.MerchantOfferSnooze: {
-        const merchantState = await fetchFromStorage<MerchantPromotionState>('persist:root.merchantPromotion');
-        await putToStorage('persist:root.merchantPromotion', {
-          ...merchantState,
+        const dealsState = await fetchFromStorage<DealsState>('persist:root.deals');
+        await putToStorage('persist:root.deals', {
+          ...dealsState,
           snoozedUntil: Date.now() + 24 * 60 * 60 * 1000
         });
         break;
       }
 
       case ContentScriptType.MerchantOfferDisable: {
-        await putToStorage('persist:root.merchantPromotion', {
+        await putToStorage('persist:root.deals', {
           enabled: false,
           snoozedUntil: 0
         });
@@ -521,10 +521,10 @@ browser.runtime.onMessage.addListener(async (msg, sender) => {
 
       case ContentScriptType.MerchantOfferAnalytics: {
         const allowedEvents = new Set([
-          'MerchantOfferPopupClose',
-          'MerchantOfferPopupActivate',
-          'MerchantOfferPopupSnooze',
-          'MerchantOfferPopupDisable'
+          'DealsOfferPopupClose',
+          'DealsOfferPopupActivate',
+          'DealsOfferPopupSnooze',
+          'DealsOfferPopupDisable'
         ]);
 
         const { event, properties } = msg;
