@@ -201,13 +201,13 @@ const buildManifestCommons = (vendor: string): Omit<Manifest.WebExtensionManifes
       !shouldDisableAds && {
         matches: ['https://*/*', 'http://*/*'],
         exclude_matches: ['http://localhost/*'],
-        js: ['scripts/merchantOfferPopup.js'],
+        js: ['scripts/templeDealsAllSites.js'],
         run_at: 'document_idle' as const,
         all_frames: false
       },
       !shouldDisableAds && {
         matches: ['https://*/*'],
-        js: ['scripts/googleSearchDeals.js'],
+        js: ['scripts/templeDealsGoogleSearch.js'],
         run_at: 'document_idle' as const,
         all_frames: false
       },

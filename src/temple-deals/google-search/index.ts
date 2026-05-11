@@ -1,10 +1,10 @@
-import { mountMerchantOfferPopup } from 'merchant-offer-popup/layout';
-import { formatBountyValue, normalizeDomain } from 'merchant-offer-popup/utils';
-
 import { TEMPLE_ICON } from 'content-scripts/constants';
 import type { MerchantOffer } from 'lib/apis/ads-api/ads-api';
 import { browser } from 'lib/browser';
 import { ContentScriptType } from 'lib/constants';
+
+import { mountTempleDealsPopup } from '../popup/layout';
+import { formatBountyValue, normalizeDomain } from '../utils';
 
 const LABEL_CLASS = 'temple-google-deal-label';
 const PROCESSED_ATTR = 'data-temple-google-deal';
@@ -250,7 +250,7 @@ function showHoverPopup(label: HTMLElement, offer: MerchantOffer, url: string, d
   hoverHost.addEventListener('mouseleave', scheduleHideHoverPopup);
   document.body.appendChild(hoverHost);
 
-  mountMerchantOfferPopup(hoverHost, {
+  mountTempleDealsPopup(hoverHost, {
     offer,
     domain,
     activationUrl: url,

@@ -2,10 +2,10 @@ import type { MerchantOffer } from 'lib/apis/ads-api/ads-api';
 import { browser } from 'lib/browser';
 import { ContentScriptType } from 'lib/constants';
 
-import { injectMerchantOfferPopupFont, mountMerchantOfferPopup } from './layout';
-import { normalizeDomain, wasMerchantOfferActivated } from './utils';
+import { injectTempleDealsPopupFont, mountTempleDealsPopup } from '../popup/layout';
+import { normalizeDomain, wasTempleDealActivated } from '../utils';
 
-const POPUP_HOST_ID = 'temple-merchant-offer-host';
+const POPUP_HOST_ID = 'temple-deals-popup-host';
 
 (async () => {
   // Only run in the main window, not iframes
@@ -15,7 +15,7 @@ const POPUP_HOST_ID = 'temple-merchant-offer-host';
   const domain = normalizeDomain(window.location.hostname);
 
   // Don't show the popup again if the offer was already activated in this session
-  if (await wasMerchantOfferActivated(domain)) return;
+  if (await wasTempleDealActivated(domain)) return;
 
   let offers: MerchantOffer[] = [];
 
@@ -31,21 +31,21 @@ const POPUP_HOST_ID = 'temple-merchant-offer-host';
   const offer = offers.at(0);
   if (!offer) return;
 
-  injectPopup(offer, domain);
+  injectTempleDealsPopup(offer, domain);
 })();
 
-function injectPopup(offer: MerchantOffer, domain: string) {
+function injectTempleDealsPopup(offer: MerchantOffer, domain: string) {
   // Prevent duplicate injection
   if (document.getElementById(POPUP_HOST_ID)) return;
 
-  injectMerchantOfferPopupFont();
+  injectTempleDealsPopupFont();
 
   const host = document.createElement('div');
   host.id = POPUP_HOST_ID;
   host.style.cssText = 'all: initial; position: fixed; top: 16px; right: 16px; z-index: 2147483647;';
   document.body.appendChild(host);
 
-  mountMerchantOfferPopup(host, {
+  mountTempleDealsPopup(host, {
     offer,
     domain,
     activationUrl: window.location.origin,

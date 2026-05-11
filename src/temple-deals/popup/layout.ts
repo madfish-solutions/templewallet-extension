@@ -3,20 +3,21 @@ import type { MerchantOffer } from 'lib/apis/ads-api/ads-api';
 import { browser } from 'lib/browser';
 import { ContentScriptType, PRIVACY_POLICY_URL, TERMS_OF_USE_URL } from 'lib/constants';
 
-import { CLOSE_ICON, DISABLE_ICON, SETTINGS_ICON, SNOOZE_ICON } from './icons';
-import { getPopupStyles } from './styles';
 import {
   el,
   formatBountyValue,
   getOfferDescription,
-  markMerchantOfferActivated,
+  markTempleDealActivated,
   msg,
-  trackMerchantOfferEvent
-} from './utils';
+  trackTempleDealsEvent
+} from '../utils';
+
+import { CLOSE_ICON, DISABLE_ICON, SETTINGS_ICON, SNOOZE_ICON } from './icons';
+import { getPopupStyles } from './styles';
 
 const POPUP_FONT_URL = 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap';
 
-export interface MerchantOfferPopupOptions {
+export interface TempleDealsPopupOptions {
   offer: MerchantOffer;
   domain: string;
   activationUrl: string;
@@ -29,7 +30,7 @@ export interface MerchantOfferPopupOptions {
   onClose: () => void;
 }
 
-export function injectMerchantOfferPopupFont() {
+export function injectTempleDealsPopupFont() {
   if (document.querySelector<HTMLLinkElement>(`link[href="${POPUP_FONT_URL}"]`)) return;
 
   const fontLink = document.createElement('link');
@@ -38,7 +39,7 @@ export function injectMerchantOfferPopupFont() {
   document.head.appendChild(fontLink);
 }
 
-export function mountMerchantOfferPopup(host: HTMLElement, options: MerchantOfferPopupOptions) {
+export function mountTempleDealsPopup(host: HTMLElement, options: TempleDealsPopupOptions) {
   const shadow = host.attachShadow({ mode: 'closed' });
 
   const style = document.createElement('style');
@@ -48,10 +49,10 @@ export function mountMerchantOfferPopup(host: HTMLElement, options: MerchantOffe
   const container = document.createElement('div');
   shadow.appendChild(container);
 
-  renderMerchantOfferPopup(container, shadow, options);
+  renderTempleDealsPopup(container, shadow, options);
 }
 
-function renderMerchantOfferPopup(
+function renderTempleDealsPopup(
   container: HTMLElement,
   shadow: ShadowRoot,
   {
@@ -65,7 +66,7 @@ function renderMerchantOfferPopup(
     showSettings = false,
     showDescriptionToggle = false,
     onClose
-  }: MerchantOfferPopupOptions
+  }: TempleDealsPopupOptions
 ) {
   let settingsOpen = false;
   let showMoreExpanded = false;
@@ -121,7 +122,7 @@ function renderMerchantOfferPopup(
     closeBtn.title = closeTitle;
     closeBtn.innerHTML = CLOSE_ICON;
     closeBtn.addEventListener('click', () => {
-      trackMerchantOfferEvent(closeEvent, { domain });
+      trackTempleDealsEvent(closeEvent, { domain });
       onClose();
     });
     headerActions.appendChild(closeBtn);
@@ -139,7 +140,7 @@ function renderMerchantOfferPopup(
     snoozeBtn.innerHTML = SNOOZE_ICON;
     snoozeBtn.appendChild(document.createTextNode(` ${msg('merchantOfferPopupSnooze')}`));
     snoozeBtn.addEventListener('click', async () => {
-      trackMerchantOfferEvent('MerchantOfferPopupSnooze', { domain });
+      trackTempleDealsEvent('MerchantOfferPopupSnooze', { domain });
       await browser.runtime.sendMessage({ type: ContentScriptType.MerchantOfferSnooze });
       onClose();
     });
@@ -153,7 +154,7 @@ function renderMerchantOfferPopup(
     disableBtn.appendChild(document.createTextNode(' '));
     disableBtn.appendChild(disableText);
     disableBtn.addEventListener('click', async () => {
-      trackMerchantOfferEvent('MerchantOfferPopupDisable', { domain });
+      trackTempleDealsEvent('MerchantOfferPopupDisable', { domain });
       await browser.runtime.sendMessage({ type: ContentScriptType.MerchantOfferDisable });
       onClose();
     });
@@ -258,7 +259,7 @@ function renderMerchantOfferPopup(
           return;
         }
 
-        trackMerchantOfferEvent(activateEvent, { domain });
+        trackTempleDealsEvent(activateEvent, { domain });
         await browser.runtime
           .sendMessage({
             type: ContentScriptType.ReferralClick,
@@ -267,7 +268,7 @@ function renderMerchantOfferPopup(
             provider: 'TakeAds'
           })
           .catch(() => {});
-        await markMerchantOfferActivated(domain);
+        await markTempleDealActivated(domain);
 
         window.location.href = result.trackingLink;
       } catch (err) {

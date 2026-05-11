@@ -1,14 +1,13 @@
+import type { MerchantOffer } from 'lib/apis/ads-api/ads-api';
 import { browser } from 'lib/browser';
 import { ContentScriptType } from 'lib/constants';
 
-import type { MerchantOffer } from 'lib/apis/ads-api/ads-api';
-
-export const ACTIVATED_KEY_PREFIX = 'temple-merchant-offer-activated:';
+export const TEMPLE_DEALS_ACTIVATED_KEY_PREFIX = 'temple-merchant-offer-activated:';
 
 export const msg = (key: string, substitutions?: string | string[]) =>
   browser.i18n.getMessage(key, substitutions) || key;
 
-export function trackMerchantOfferEvent(event: string, properties?: object) {
+export function trackTempleDealsEvent(event: string, properties?: object) {
   browser.runtime
     .sendMessage({
       type: ContentScriptType.MerchantOfferAnalytics,
@@ -55,8 +54,8 @@ export function formatBountyValue(value: number, currencyCode: string) {
   return `${formatted} ${currencyCode}`;
 }
 
-export async function markMerchantOfferActivated(domain: string) {
-  sessionStorage.setItem(`${ACTIVATED_KEY_PREFIX}${domain}`, '1');
+export async function markTempleDealActivated(domain: string) {
+  sessionStorage.setItem(`${TEMPLE_DEALS_ACTIVATED_KEY_PREFIX}${domain}`, '1');
   await browser.runtime
     .sendMessage({
       type: ContentScriptType.MarkMerchantOfferActivated,
@@ -65,8 +64,8 @@ export async function markMerchantOfferActivated(domain: string) {
     .catch(() => {});
 }
 
-export async function wasMerchantOfferActivated(domain: string) {
-  if (sessionStorage.getItem(`${ACTIVATED_KEY_PREFIX}${domain}`)) return true;
+export async function wasTempleDealActivated(domain: string) {
+  if (sessionStorage.getItem(`${TEMPLE_DEALS_ACTIVATED_KEY_PREFIX}${domain}`)) return true;
 
   try {
     return Boolean(
