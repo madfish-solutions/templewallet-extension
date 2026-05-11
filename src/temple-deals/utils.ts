@@ -40,7 +40,7 @@ export function normalizeDomain(hostname: string) {
 export function getOfferDescription(offer: MerchantOffer) {
   return offer.description && offer.description.trim().split(/\s+/).length > 3
     ? offer.description
-    : msg('merchantOfferPopupActivateDescription', offer.name);
+    : msg('templeDealActivateDescription', offer.name);
 }
 
 export function formatBountyValue(value: number, currencyCode: string) {

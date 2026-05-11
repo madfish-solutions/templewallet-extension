@@ -1,7 +1,7 @@
 import { TEMPLE_ICON } from 'content-scripts/constants';
 import type { MerchantOffer } from 'lib/apis/ads-api/ads-api';
 import { browser } from 'lib/browser';
-import { ContentScriptType, PRIVACY_POLICY_URL, TERMS_OF_USE_URL } from 'lib/constants';
+import { ContentScriptType } from 'lib/constants';
 
 import {
   el,
@@ -63,7 +63,7 @@ function renderTempleDealsPopup(
     closeTitle = 'Close',
     activateEvent,
     closeEvent,
-    showSettings = false,
+    showSettings = true,
     showDescriptionToggle = false,
     onClose
   }: TempleDealsPopupOptions
@@ -98,7 +98,7 @@ function renderTempleDealsPopup(
     templeIcon.alt = '';
     header.appendChild(templeIcon);
 
-    header.appendChild(el('span', 'tw-popup-title', msg('merchantOfferPopupTitle')));
+    header.appendChild(el('span', 'tw-popup-title', msg('deals')));
 
     const headerActions = el('div', 'tw-popup-header-actions');
 
@@ -106,9 +106,9 @@ function renderTempleDealsPopup(
       const settingsBtn = el(
         'button',
         settingsOpen ? 'tw-popup-settings-btn tw-popup-settings-btn-open' : 'tw-popup-settings-btn',
-        msg('merchantOfferPopupSettings')
+        msg('settings')
       );
-      settingsBtn.title = msg('merchantOfferPopupSettings');
+      settingsBtn.title = msg('settings');
       settingsBtn.innerHTML += ` ${SETTINGS_ICON}`;
       settingsBtn.addEventListener('click', () => {
         settingsOpen = !settingsOpen;
@@ -118,7 +118,7 @@ function renderTempleDealsPopup(
     }
 
     const closeBtn = document.createElement('button');
-    closeBtn.className = 'tw-popup-btn-icon tw-popup-close-btn';
+    closeBtn.className = 'tw-popup-close-btn';
     closeBtn.title = closeTitle;
     closeBtn.innerHTML = CLOSE_ICON;
     closeBtn.addEventListener('click', () => {
@@ -138,9 +138,9 @@ function renderTempleDealsPopup(
     const snoozeBtn = document.createElement('button');
     snoozeBtn.className = 'tw-popup-dropdown-item tw-popup-dropdown-item-snooze';
     snoozeBtn.innerHTML = SNOOZE_ICON;
-    snoozeBtn.appendChild(document.createTextNode(` ${msg('merchantOfferPopupSnooze')}`));
+    snoozeBtn.appendChild(document.createTextNode(` ${msg('snoozeFor24h')}`));
     snoozeBtn.addEventListener('click', async () => {
-      trackTempleDealsEvent('MerchantOfferPopupSnooze', { domain });
+      trackTempleDealsEvent('snoozeFor24h', { domain });
       await browser.runtime.sendMessage({ type: ContentScriptType.MerchantOfferSnooze });
       onClose();
     });
@@ -181,7 +181,6 @@ function renderTempleDealsPopup(
 
     body.appendChild(renderOfferCard());
     body.appendChild(renderActivateButton());
-    body.appendChild(renderDisclaimer());
 
     return body;
   }
@@ -201,11 +200,7 @@ function renderTempleDealsPopup(
 
     const offerInfo = el('div', 'tw-popup-offer-info');
     offerInfo.appendChild(
-      el(
-        'div',
-        'tw-popup-offer-title',
-        msg('merchantOfferPopupEarnUpTo', formatBountyValue(offer.cpcRate, offer.currencyCode).split(' '))
-      )
+      el('div', 'tw-popup-offer-title', msg('earnValue', formatBountyValue(offer.cpcRate, offer.currencyCode)))
     );
 
     const descEl = el(
@@ -220,11 +215,7 @@ function renderTempleDealsPopup(
     if (showDescriptionToggle) {
       requestAnimationFrame(() => {
         if (showMoreExpanded || descEl.scrollHeight > descEl.clientHeight) {
-          const toggle = el(
-            'button',
-            'tw-popup-show-more',
-            msg(showMoreExpanded ? 'merchantOfferPopupShowLess' : 'merchantOfferPopupShowMore')
-          );
+          const toggle = el('button', 'tw-popup-show-more', msg(showMoreExpanded ? 'showLess' : 'showMore'));
           toggle.addEventListener('click', () => {
             showMoreExpanded = !showMoreExpanded;
             render();
@@ -242,9 +233,9 @@ function renderTempleDealsPopup(
   function renderActivateButton() {
     const activateBtn = document.createElement('button');
     activateBtn.className = 'tw-popup-activate-btn';
-    activateBtn.textContent = msg('merchantOfferPopupActivate');
+    activateBtn.textContent = msg('activateBounty');
     activateBtn.addEventListener('click', async () => {
-      activateBtn.textContent = msg('merchantOfferPopupActivating');
+      activateBtn.textContent = msg('activating');
       activateBtn.disabled = true;
 
       try {
@@ -254,7 +245,7 @@ function renderTempleDealsPopup(
         });
 
         if (!result?.trackingLink) {
-          activateBtn.textContent = msg('merchantOfferPopupActivate');
+          activateBtn.textContent = msg('activateBounty');
           activateBtn.disabled = false;
           return;
         }
@@ -273,24 +264,12 @@ function renderTempleDealsPopup(
         window.location.href = result.trackingLink;
       } catch (err) {
         console.error('Failed to activate merchant offer:', err);
-        activateBtn.textContent = msg('merchantOfferPopupActivate');
+        activateBtn.textContent = msg('activateBounty');
         activateBtn.disabled = false;
       }
     });
 
     return activateBtn;
-  }
-
-  function renderDisclaimer() {
-    const disclaimer = el('div', 'tw-popup-disclaimer');
-    disclaimer.innerHTML = [
-      `${msg('merchantOfferPopupDisclaimer1')}`,
-      `<a href="${TERMS_OF_USE_URL}" target="_blank">${msg('termsOfUsage')}</a>`,
-      `${msg('merchantOfferPopupDisclaimer2')}`,
-      `<a href="${PRIVACY_POLICY_URL}" target="_blank">${msg('privacyPolicy')}</a>`
-    ].join(' ');
-
-    return disclaimer;
   }
 
   render();
