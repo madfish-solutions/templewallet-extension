@@ -177,7 +177,7 @@ export interface MerchantOffer {
 }
 
 export const fetchMerchantOffers = withAxiosDataExtract((domains: string[]) =>
-  axiosClient.post<MerchantOffer[]>('/takeads/merchant-offers', { domains })
+  axiosClient.post<MerchantOffer[]>('/takeads/merchant-offers', domains)
 );
 
 interface ActivateMerchantOfferResponse {
