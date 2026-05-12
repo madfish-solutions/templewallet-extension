@@ -10,6 +10,8 @@ const LABEL_CLASS = 'temple-google-deal-label';
 const PROCESSED_ATTR = 'data-temple-google-deal';
 const LABEL_GAP = 16;
 const HOVER_HIDE_DELAY = 180;
+const GOOGLE_SEARCH_FONT_TEXT = ' Bounty≈.0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+
 const scanCache = new WeakSet<Element>();
 const offersCache = new Map<string, MerchantOffer | null>();
 const pendingLabelsByDomain = new Map<string, PendingLabel[]>();
@@ -38,7 +40,9 @@ function injectStyles() {
 
   const fontLink = document.createElement('link');
   fontLink.rel = 'stylesheet';
-  fontLink.href = 'https://fonts.googleapis.com/css2?family=Rubik:wght@500&display=swap';
+  fontLink.href = `https://fonts.googleapis.com/css2?family=Rubik:wght@500&display=swap&text=${encodeURIComponent(
+    GOOGLE_SEARCH_FONT_TEXT
+  )}`;
   document.head.appendChild(fontLink);
 
   const style = document.createElement('style');

@@ -15,7 +15,11 @@ import {
 import { CLOSE_ICON, DISABLE_ICON, SETTINGS_ICON, SNOOZE_ICON } from './icons';
 import { getPopupStyles } from './styles';
 
-const POPUP_FONT_URL = 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap';
+const POPUP_FONT_TEXT =
+  ' _-,;:!?.\'"()[]{}@*/\\&#%`+<>|~≈$£¥€₴₺₿0123456789aAbBcCçdDeEéèfFgGhHiIıjJkKlLmMnNoOõpPqQrRsSştTuUvVwWxXyYzZ';
+const POPUP_FONT_URL = `https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap&text=${encodeURIComponent(
+  POPUP_FONT_TEXT
+)}`;
 
 export interface TempleDealsPopupOptions {
   offer: MerchantOffer;
