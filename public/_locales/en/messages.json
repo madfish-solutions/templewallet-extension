@@ -3498,13 +3498,13 @@
     "message": "Did you know, you can earn TKEY tokens by viewing ads? If ads are turned off, you can easily enable them anytime in the settings and start earning rewards!"
   },
   "enablePartnersPromotionConfirm": {
-    "message": "Earning TKEY has started"
+    "message": "Earn TKEY & Support Temple"
   },
   "thanksForSupportingTemple": {
     "message": "Thanks for supporting Temple"
   },
   "enablePartnersPromotionDescriptionConfirm": {
-    "message": "Congrats, you've started earning TKEY tokens! Note, rewards are paid automatically each month. Track your performance on Rewards page, and you can always opt out of promo content and data sharing here, in the settings. "
+    "message": "Congrats, you've started earning TKEY tokens!\nBy enabling this feature, you agreed to share your Wallet address and IP to receive tokens and view ads. You can turn ads off or on anytime in the settings."
   },
   "ownAccount": {
     "message": "Own"
@@ -3717,6 +3717,45 @@
   },
   "referralLinksHint": {
     "message": "All your referrals connected to your first created or imported account in Temple. Make sure you backed up your wallet to prevent unnecessary losses."
+  },
+  "deals": {
+    "message": "Deals"
+  },
+  "dealsDescription": {
+    "message": "Enable offers from merchants in your wallet and browser, join Temple rewards program and get paid in TKEY. If active, you agree to share your wallet address and IP to receive content and rewards."
+  },
+  "merchantOfferPopupTitle": {
+    "message": "Rewards"
+  },
+  "merchantOfferPopupSettings": {
+    "message": "Settings"
+  },
+  "merchantOfferPopupEarnUpTo": {
+    "message": "Earn up to $1 $2"
+  },
+  "merchantOfferPopupActivateDescription": {
+    "message": "Activate to visit $1 through our link and earn your reward."
+  },
+  "merchantOfferPopupActivate": {
+    "message": "Activate Bounty"
+  },
+  "merchantOfferPopupActivating": {
+    "message": "Activating..."
+  },
+  "merchantOfferPopupSnooze": {
+    "message": "Snooze for 24h"
+  },
+  "merchantOfferPopupShowMore": {
+    "message": "Show more"
+  },
+  "merchantOfferPopupShowLess": {
+    "message": "Show less"
+  },
+  "merchantOfferPopupDisclaimer1": {
+    "message": "By pressing Activate Bounty you agree with the"
+  },
+  "merchantOfferPopupDisclaimer2": {
+    "message": "and"
   },
   "referrals": {
     "message": "Referrals"
@@ -4400,6 +4439,12 @@
   "properties": {
     "message": "Properties"
   },
+  "disableDealsModalTitle": {
+    "message": "Disable deals and earning?"
+  },
+  "disableDealsModalDescription": {
+    "message": "Disabling will stop automated offers from merchants, TKEY rewards earning and sharing your data to the reward system. You can turn this back on anytime here, in Settings."
+  },
   "closePartnersPromotion": {
     "message": "Disable promo and earning?"
   },
@@ -4413,7 +4458,7 @@
     "message": "Earning Mode"
   },
   "earningModeDescription": {
-    "message": "By enabling this checkbox, you are agreeing to activate advanced features, share your wallet address, IP to receive ads and rewards in TKEY token."
+    "message": "By enabling this checkbox, you agree to activate advanced features, share your wallet address and IP to participate in our rewards program. This information is used to serve rewarded promo and affiliate ads, and to send you crypto token payouts."
   },
   "earnTkeyRewardsDescription": {
     "message": "I agree to share my wallet address and IP to receive ads, referral links and rewards in TKEY token."
@@ -4558,6 +4603,21 @@
   },
   "yourWalletIsReady": {
     "message": "Your wallet is ready"
+  },
+  "welcomeToRewards": {
+    "message": "Welcome to Rewards"
+  },
+  "welcomeToRewardsDescription": {
+    "message": "Your wallet is ready and now earning. No extra steps, no points - rewards accrue passively with auto-payouts. Here's what's unlocked for you:"
+  },
+  "welcomeRewardsCashback": {
+    "message": "Up to 25% cashback in USDT from thousands of partners."
+  },
+  "welcomeRewardsPromo": {
+    "message": "Automatic rewards in TKEY for non-intrusive promo content."
+  },
+  "goToRewards": {
+    "message": "Go to Rewards"
   },
   "walletCreatedSuccessfully": {
     "message": "Wallet has been created successfully"

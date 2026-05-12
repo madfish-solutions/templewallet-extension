@@ -28,6 +28,7 @@ export const SLICES_BLACKLIST = [
   'lifiEvmTokensMetadata' as const,
   'noCategoryAssetMetadata' as const,
   'swap' as const,
+  'merchantPromotion' as const,
   'partnersPromotion' as const
 ];
 

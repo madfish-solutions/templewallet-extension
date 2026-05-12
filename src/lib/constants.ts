@@ -11,9 +11,13 @@ export enum ContentScriptType {
   ExternalAdsActivity = 'ExternalAdsActivity',
   UpdateAdsRules = 'UpdateAdsRules',
   FetchReferralsRules = 'FetchReferralsRules',
-  FetchTakeAdsReferrals = 'FetchTakeAdsReferrals',
   ReferralClick = 'ReferralClick',
-  FetchTempleReferralLinkItems = 'FetchTempleReferralLinkItems'
+  FetchTempleReferralLinkItems = 'FetchTempleReferralLinkItems',
+  FetchMerchantOffer = 'FetchMerchantOffer',
+  ActivateMerchantOffer = 'ActivateMerchantOffer',
+  MerchantOfferSnooze = 'MerchantOfferSnooze',
+  MerchantOfferDisable = 'MerchantOfferDisable',
+  MerchantOfferAnalytics = 'MerchantOfferAnalytics'
 }
 
 export const APP_TITLE = 'Temple Wallet';
@@ -88,6 +92,8 @@ export const SHOULD_PROMOTE_ROOTSTOCK_STORAGE_KEY = 'SHOULD_PROMOTE_ROOTSTOCK';
 
 export const SHOULD_SHOW_REWARDS_PUSH_STORAGE_KEY = 'SHOULD_SHOW_REWARDS_PUSH';
 
+export const SHOULD_SHOW_WELCOME_REWARDS_MODAL_STORAGE_KEY = 'SHOULD_SHOW_WELCOME_REWARDS_MODAL';
+
 export const SHOULD_SHOW_NEW_DAPPS_MODAL_STORAGE_KEY = 'SHOULD_SHOW_NEW_DAPPS_MODAL';
 
 export const AUTOLOCK_TIME_STORAGE_KEY = 'AUTOLOCK_TIME';
@@ -105,6 +111,8 @@ export const SHOULD_DISABLE_NOT_ACTIVE_NETWORKS_STORAGE_KEY = 'SHOULD_DISABLE_NO
 export const ACCOUNTS_FOR_REENABLING_NETWORKS_STORAGE_KEY = 'ACCOUNTS_FOR_REENABLING_NETWORKS';
 
 export const SHOULD_HIDE_ENABLE_ADS_BANNER_STORAGE_KEY = 'SHOULD_HIDE_ENABLE_ADS_BANNER';
+
+export const ADS_IMPRESSIONS_LINKED_V2_STORAGE_KEY = 'ADS_IMPRESSIONS_LINKED_V2';
 
 export const KOLO_FORCE_LOGOUT_ON_NEXT_OPEN_STORAGE_KEY = 'KOLO_FORCE_LOGOUT_ON_NEXT_OPEN';
 

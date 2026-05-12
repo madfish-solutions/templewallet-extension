@@ -18,6 +18,7 @@ import { evmLoadingReducer } from './evm/reducer';
 import { route3EvmTokensMetadataPersistedReducer } from './evm/swap-3route-metadata/reducers';
 import { evmTokensExchangeRatesPersistedReducer } from './evm/tokens-exchange-rates/reducers';
 import { evmTokensMetadataPersistedReducer } from './evm/tokens-metadata/reducers';
+import { merchantPromotionPersistedReducer } from './merchant-promotion/reducers';
 import { newsletterReducers } from './newsletter/newsletter-reducers';
 import { notificationsReducer } from './notifications/reducers';
 import { partnersPromotionPersistedReducer } from './partners-promotion/reducers';
@@ -38,6 +39,7 @@ const rootStateReducersMap = {
   notifications: notificationsReducer,
   dApps: dAppsReducer,
   swap: swapPersistedReducer,
+  merchantPromotion: merchantPromotionPersistedReducer,
   partnersPromotion: partnersPromotionPersistedReducer,
   balances: balancesReducer,
   assets: assetsPersistedReducer,
