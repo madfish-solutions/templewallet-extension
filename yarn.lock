@@ -20,12 +20,12 @@
   resolved "https://registry.yarnpkg.com/@adraffy/ens-normalize/-/ens-normalize-1.11.0.tgz#42cc67c5baa407ac25059fcd7d405cc5ecdb0c33"
   integrity sha512-/3DDPKHqqIqxUULp8yP4zODUY1i+2xvVWsv8A79xGWdCAG+8sb0hRh0Rk2QyOJUnnbyPUAZYcpBuRe3nS2OIUg==
 
-"@airgap/beacon-types@^4.5.1":
-  version "4.5.1"
-  resolved "https://registry.yarnpkg.com/@airgap/beacon-types/-/beacon-types-4.5.1.tgz#30559e7ee9b24eda36e4f77d278697d97fb052d2"
-  integrity sha512-eeEwGyIyuZ9mzq5tRXQC4ZL0xbXYzGHW9cSVG1iPkvzFaxRztseOeJDqmPHL53GjldOpCX9fr2a05TDXCJ20/Q==
+"@airgap/beacon-types@npm:@tezos-x/octez.connect-types@^4.8.4":
+  version "4.8.4"
+  resolved "https://registry.yarnpkg.com/@tezos-x/octez.connect-types/-/octez.connect-types-4.8.4.tgz#1f249cbbe1962913580970db1edc66983cffb412"
+  integrity sha512-dQ0OZjv0sOMrmsVE6KKsrBUHVp0hyVgcn4jwHlnIHFBZn/jsrxr7Tt6tmNr0xdQ7AXtQGznT3mM3gppmO2IVbQ==
   dependencies:
-    "@types/chrome" "0.0.246"
+    "@types/chrome" "^0.1.40"
 
 "@alloc/quick-lru@^5.2.0":
   version "5.2.0"
@@ -1250,20 +1250,10 @@
     "@babel/helper-module-transforms" "^7.28.6"
     "@babel/helper-plugin-utils" "^7.28.6"
 
-"@babel/plugin-transform-modules-systemjs@^7.24.1":
-  version "7.24.1"
-  resolved "https://registry.yarnpkg.com/@babel/plugin-transform-modules-systemjs/-/plugin-transform-modules-systemjs-7.24.1.tgz#2b9625a3d4e445babac9788daec39094e6b11e3e"
-  integrity sha512-mqQ3Zh9vFO1Tpmlt8QPnbwGHzNz3lpNEMxQb1kAemn/erstyqw1r9KeOlOfo3y6xAnFEcOv2tSyrXfmMk+/YZA==
-  dependencies:
-    "@babel/helper-hoist-variables" "^7.22.5"
-    "@babel/helper-module-transforms" "^7.23.3"
-    "@babel/helper-plugin-utils" "^7.24.0"
-    "@babel/helper-validator-identifier" "^7.22.20"
-
-"@babel/plugin-transform-modules-systemjs@^7.29.0":
-  version "7.29.0"
-  resolved "https://registry.yarnpkg.com/@babel/plugin-transform-modules-systemjs/-/plugin-transform-modules-systemjs-7.29.0.tgz#e458a95a17807c415924106a3ff188a3b8dee964"
-  integrity sha512-PrujnVFbOdUpw4UHiVwKvKRLMMic8+eC0CuNlxjsyZUiBjhFdPsewdXCkveh2KqBA9/waD0W1b4hXSOBQJezpQ==
+"@babel/plugin-transform-modules-systemjs@^7.24.1", "@babel/plugin-transform-modules-systemjs@^7.29.0":
+  version "7.29.4"
+  resolved "https://registry.yarnpkg.com/@babel/plugin-transform-modules-systemjs/-/plugin-transform-modules-systemjs-7.29.4.tgz#f621105da99919c15cf4bde6fcc7346ef95e7b20"
+  integrity sha512-N7QmZ0xRZfjHOfZeQLJjwgX2zS9pdGHSVl/cjSGlo4dXMqvurfxXDMKY4RqEKzPozV78VMcd0lxyG13mlbKc4w==
   dependencies:
     "@babel/helper-module-transforms" "^7.28.6"
     "@babel/helper-plugin-utils" "^7.28.6"
@@ -4130,10 +4120,10 @@
     buffer "^6.0.3"
     typedarray-to-buffer "^4.0.0"
 
-"@temple-wallet/dapp@^11.0.0":
-  version "11.0.0"
-  resolved "https://registry.yarnpkg.com/@temple-wallet/dapp/-/dapp-11.0.0.tgz#16a9d7335466191fccd6f07ed62a2e6ad8e6d67c"
-  integrity sha512-Uo8X4S4mC+hd5LvcRJLyS36KELDjuPqerjO/3rSdT8oUTX1s4H3cGclHHdQNk3rBRpYNOeW8AdNyMhT22iihIA==
+"@temple-wallet/dapp@^12.0.0":
+  version "12.0.0"
+  resolved "https://registry.yarnpkg.com/@temple-wallet/dapp/-/dapp-12.0.0.tgz#89a60290519978a2fe9fd882c3d271b46fa74634"
+  integrity sha512-QEZTAxT1LYc11K4wfXYahWQhga8VJ0/ayf3GMrCCGVpXHHIkE2PY7kuKGzObGOT0mkMdV/4I5uJU8n7mTZUq2A==
   dependencies:
     nanoid "^3.1.30"
 
@@ -4362,18 +4352,18 @@
   dependencies:
     "@types/node" "*"
 
-"@types/chrome@0.0.246":
-  version "0.0.246"
-  resolved "https://registry.yarnpkg.com/@types/chrome/-/chrome-0.0.246.tgz#412ee1b162a67d1cfebe413887b9aa0c28998ef1"
-  integrity sha512-MxGxEomGxsJiL9xe/7ZwVgwdn8XVKWbPvxpVQl3nWOjrS0Ce63JsfzxUc4aU3GvRcUPYsfufHmJ17BFyKxeA4g==
-  dependencies:
-    "@types/filesystem" "*"
-    "@types/har-format" "*"
-
 "@types/chrome@^0.0.329":
   version "0.0.329"
   resolved "https://registry.yarnpkg.com/@types/chrome/-/chrome-0.0.329.tgz#7a27c1287be43dae73a428570db20ae79779896f"
   integrity sha512-jAZX4QMnAa1bTSWoQ5/EhhiY1t+1B7a5ZCY5ZEs61tWiQfxXAkfBSxCkQWhGxJoiq/4b4vtcmYEebNEmlLKecg==
+  dependencies:
+    "@types/filesystem" "*"
+    "@types/har-format" "*"
+
+"@types/chrome@^0.1.40":
+  version "0.1.42"
+  resolved "https://registry.yarnpkg.com/@types/chrome/-/chrome-0.1.42.tgz#b13d3e711fb7ceafe67f95909455c22fe6253f7e"
+  integrity sha512-tdT2roFqGecZZDjA9fUEAINb2STxSPifHMDvY6EfRjNRCjdrs/0FwKt5RCIA9MKMd1arAYZZL3nwEkp6ZLZu2w==
   dependencies:
     "@types/filesystem" "*"
     "@types/har-format" "*"
@@ -5652,12 +5642,12 @@ available-typed-arrays@^1.0.7:
   dependencies:
     possible-typed-array-names "^1.0.0"
 
-axios@1.7.7, axios@^1.15.0, axios@^1.8.4:
-  version "1.15.0"
-  resolved "https://registry.yarnpkg.com/axios/-/axios-1.15.0.tgz#0fcee91ef03d386514474904b27863b2c683bf4f"
-  integrity sha512-wWyJDlAatxk30ZJer+GeCWS209sA42X+N5jU2jy6oHTp7ufw8uzUTVFBX9+wTfAlhiJXGS0Bq7X6efruWjuK9Q==
+axios@1.7.7, axios@^1.16.0, axios@^1.8.4:
+  version "1.16.0"
+  resolved "https://registry.yarnpkg.com/axios/-/axios-1.16.0.tgz#f8e5dd931cef2a5f8c32216d5784eda2f8750eb7"
+  integrity sha512-6hp5CwvTPlN2A31g5dxnwAX0orzM7pmCRDLnZSX772mv8WDqICwFjowHuPs04Mc8deIld1+ejhtaMn5vp6b+1w==
   dependencies:
-    follow-redirects "^1.15.11"
+    follow-redirects "^1.16.0"
     form-data "^4.0.5"
     proxy-from-env "^2.1.0"
 
@@ -8137,7 +8127,7 @@ flux@^4.0.1:
     fbemitter "^3.0.0"
     fbjs "^3.0.1"
 
-follow-redirects@^1.0.0, follow-redirects@^1.15.11, follow-redirects@^1.15.4:
+follow-redirects@^1.0.0, follow-redirects@^1.15.4, follow-redirects@^1.16.0:
   version "1.15.5"
   resolved "https://registry.yarnpkg.com/follow-redirects/-/follow-redirects-1.15.5.tgz#54d4d6d062c0fa7d9d17feb008461550e3ba8020"
   integrity sha512-vSFWUON1B+yAw1VN4xMfxgn5fTUiaOzAJCKBwIIgT/+7CuGy9+r+5gITvP62j3RmaD5Ph65UaERdOSRGUzZtgw==
