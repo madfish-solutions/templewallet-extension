@@ -9,7 +9,9 @@ import { formatBountyValue, isGoogleSearchPage, normalizeDomain } from '../utils
 const LABEL_CLASS = 'temple-google-deal-label';
 const PROCESSED_ATTR = 'data-temple-google-deal';
 const LABEL_GAP = 16;
-const HOVER_HIDE_DELAY = 180;
+const POPUP_LABEL_GAP = 8;
+const POPUP_BOTTOM_SPACE_BUFFER = 30;
+const HOVER_HIDE_DELAY = 100;
 const GOOGLE_SEARCH_FONT_TEXT = ' Bounty≈.0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 
 const scanCache = new WeakSet<Element>();
@@ -91,6 +93,10 @@ function injectStyles() {
     .temple-google-deal-popup-host-visible {
       opacity: 1;
       transform: translateY(0);
+    }
+
+    .temple-google-deal-popup-host-above {
+      transform: translateY(-6px);
     }
   `;
   document.documentElement.appendChild(style);
@@ -266,10 +272,21 @@ function showHoverPopup(label: HTMLElement, offer: MerchantOffer, url: string, d
   });
 
   const labelRect = label.getBoundingClientRect();
-  hoverHost.style.top = `${labelRect.bottom + window.scrollY + 8}px`;
-  hoverHost.style.left = `${Math.max(8, labelRect.left + window.scrollX)}px`;
+  placeHoverPopup(hoverHost, labelRect);
 
   requestAnimationFrame(() => hoverHost?.classList.add('temple-google-deal-popup-host-visible'));
+}
+
+function placeHoverPopup(popup: HTMLElement, labelRect: DOMRect) {
+  const popupRect = popup.getBoundingClientRect();
+  const shouldShowAbove = window.innerHeight - labelRect.bottom < popupRect.height + POPUP_BOTTOM_SPACE_BUFFER;
+  const top = shouldShowAbove
+    ? Math.max(window.scrollY + POPUP_LABEL_GAP, labelRect.top + window.scrollY - popupRect.height - POPUP_LABEL_GAP)
+    : labelRect.bottom + window.scrollY + POPUP_LABEL_GAP;
+
+  popup.classList.toggle('temple-google-deal-popup-host-above', shouldShowAbove);
+  popup.style.top = `${top}px`;
+  popup.style.left = `${Math.max(POPUP_LABEL_GAP, labelRect.left + window.scrollX)}px`;
 }
 
 function scheduleHideHoverPopup() {
