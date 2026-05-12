@@ -92,7 +92,6 @@ export const NetworkChips: FC<NetworkChipsProps> = ({ chips, selectedChains, set
       if (selectedChipsPropsWithIndexes.length > 0) {
         newFitIterationChipsWithIndexes.push(selectedChipsPropsWithIndexes[0]);
       }
-      console.log('fuflo 1', JSON.stringify(newFitIterationChipsWithIndexes));
 
       let totalWidth = selectedChipsPropsWithIndexes[0]
         ? chipsNodes[selectedChipsPropsWithIndexes[0].index].getBoundingClientRect().width + gap + showMoreNodeWidth
@@ -100,14 +99,17 @@ export const NetworkChips: FC<NetworkChipsProps> = ({ chips, selectedChains, set
       for (let i = 1; i < selectedChipsPropsWithIndexes.length; i++) {
         const { width: chipNodeWidth } = chipsNodes[selectedChipsPropsWithIndexes[i].index].getBoundingClientRect();
         totalWidth += chipNodeWidth + gap;
+        if (totalWidth > containerWidth) {
+          prepareFitIteration();
+
+          return;
+        }
 
         newFitIterationChipsWithIndexes.push(selectedChipsPropsWithIndexes[i]);
-        console.log('fuflo 2', JSON.stringify(newFitIterationChipsWithIndexes), totalWidth);
       }
       for (const unselectedChipPropsWithIndex of unselectedChipsPropsWithIndexes) {
         const { width: chipNodeWidth } = chipsNodes[unselectedChipPropsWithIndex.index].getBoundingClientRect();
         totalWidth += chipNodeWidth + gap;
-        console.log('fuflo 3', unselectedChipPropsWithIndex, totalWidth);
         if (totalWidth > containerWidth && newFitIterationChipsWithIndexes.length > 0) {
           prepareFitIteration();
 
@@ -115,7 +117,6 @@ export const NetworkChips: FC<NetworkChipsProps> = ({ chips, selectedChains, set
         }
 
         newFitIterationChipsWithIndexes.push(unselectedChipPropsWithIndex);
-        console.log('fuflo 4', JSON.stringify(newFitIterationChipsWithIndexes), totalWidth);
       }
       prepareFitIteration();
     });
@@ -148,11 +149,7 @@ export const NetworkChips: FC<NetworkChipsProps> = ({ chips, selectedChains, set
       .at(-1)!
       .getBoundingClientRect();
 
-    if (
-      showMoreNodeRight <= sandboxRight ||
-      fitIterationChipsCount === 1 ||
-      fitIterationChips.every(({ isSelected }) => isSelected)
-    ) {
+    if (showMoreNodeRight <= sandboxRight || fitIterationChipsCount === 1) {
       setDisplayedChips(fitIterationChips);
       setShowMoreCount(chipsPropsWithState.length - fitIterationChipsCount);
     } else {
