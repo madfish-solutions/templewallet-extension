@@ -71,14 +71,22 @@ function renderTempleDealsPopup(
   let settingsOpen = false;
   let showMoreExpanded = false;
   let cleanupOutsideClick: (() => void) | null = null;
+  let outsideClickTimeout: number | null = null;
   const offerDescription = getOfferDescription(offer);
+  let popupEl: HTMLElement | null = null;
+  let settingsBtn: HTMLButtonElement | null = null;
+  let settingsDropdown: HTMLElement | null = null;
 
   function render() {
     cleanupOutsideClick?.();
     cleanupOutsideClick = null;
+    clearOutsideClickTimeout();
+    settingsBtn = null;
+    settingsDropdown = null;
     container.textContent = '';
 
     const popup = el('div', 'tw-popup');
+    popupEl = popup;
     popup.appendChild(renderHeader());
 
     if (showSettings && settingsOpen) {
@@ -103,18 +111,14 @@ function renderTempleDealsPopup(
     const headerActions = el('div', 'tw-popup-header-actions');
 
     if (showSettings) {
-      const settingsBtn = el(
-        'button',
-        settingsOpen ? 'tw-popup-settings-btn tw-popup-settings-btn-open' : 'tw-popup-settings-btn',
-        msg('settings')
-      );
-      settingsBtn.title = msg('settings');
-      settingsBtn.innerHTML += ` ${SETTINGS_ICON}`;
-      settingsBtn.addEventListener('click', () => {
-        settingsOpen = !settingsOpen;
-        render();
+      const settingsButton = el('button', 'tw-popup-settings-btn', msg('settings')) as HTMLButtonElement;
+      settingsBtn = settingsButton;
+      settingsButton.title = msg('settings');
+      settingsButton.innerHTML += ` ${SETTINGS_ICON}`;
+      settingsButton.addEventListener('click', () => {
+        setSettingsOpen(!settingsOpen);
       });
-      headerActions.appendChild(settingsBtn);
+      headerActions.appendChild(settingsButton);
     }
 
     const closeBtn = document.createElement('button');
@@ -134,9 +138,10 @@ function renderTempleDealsPopup(
 
   function renderSettingsDropdown() {
     const dropdown = el('div', 'tw-popup-settings-dropdown');
+    settingsDropdown = dropdown;
 
     const snoozeBtn = document.createElement('button');
-    snoozeBtn.className = 'tw-popup-dropdown-item tw-popup-dropdown-item-snooze';
+    snoozeBtn.className = 'tw-popup-dropdown-item';
     snoozeBtn.innerHTML = SNOOZE_ICON;
     snoozeBtn.appendChild(document.createTextNode(` ${msg('snoozeFor24h')}`));
     snoozeBtn.addEventListener('click', async () => {
@@ -147,7 +152,7 @@ function renderTempleDealsPopup(
     dropdown.appendChild(snoozeBtn);
 
     const disableBtn = document.createElement('button');
-    disableBtn.className = 'tw-popup-dropdown-item tw-popup-dropdown-item-disable';
+    disableBtn.className = 'tw-popup-dropdown-item';
     disableBtn.innerHTML = DISABLE_ICON;
     const disableText = el('span', '', msg('disable'));
     disableText.style.color = '#FF3B30';
@@ -161,19 +166,42 @@ function renderTempleDealsPopup(
     dropdown.appendChild(disableBtn);
 
     const onOutsideClick = (e: Event) => {
-      const settingsBtn = container.querySelector('.tw-popup-settings-btn');
-
       if (!dropdown.contains(e.target as Node) && !settingsBtn?.contains(e.target as Node)) {
-        settingsOpen = false;
-        render();
+        setSettingsOpen(false);
       }
     };
-    setTimeout(() => {
+    outsideClickTimeout = window.setTimeout(() => {
+      outsideClickTimeout = null;
       shadow.addEventListener('click', onOutsideClick);
       cleanupOutsideClick = () => shadow.removeEventListener('click', onOutsideClick);
     });
 
     return dropdown;
+  }
+
+  function setSettingsOpen(open: boolean) {
+    if (settingsOpen === open) return;
+
+    settingsOpen = open;
+    settingsBtn?.classList.toggle('tw-popup-settings-btn-open', settingsOpen);
+
+    if (settingsOpen) {
+      popupEl?.appendChild(renderSettingsDropdown());
+      return;
+    }
+
+    cleanupOutsideClick?.();
+    cleanupOutsideClick = null;
+    clearOutsideClickTimeout();
+    settingsDropdown?.remove();
+    settingsDropdown = null;
+  }
+
+  function clearOutsideClickTimeout() {
+    if (outsideClickTimeout === null) return;
+
+    window.clearTimeout(outsideClickTimeout);
+    outsideClickTimeout = null;
   }
 
   function renderBody() {

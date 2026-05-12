@@ -17,6 +17,7 @@ export function getPopupStyles() {
       border-radius: 8px;
       box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.08);
       overflow: visible;
+      position: relative;
       animation: tw-slide-in 0.3s ease-out;
     }
 
@@ -60,7 +61,7 @@ export function getPopupStyles() {
       gap: 4px;
       padding: 4px 8px;
       border: none;
-      background: rgba(19, 115, 228, 0.15);
+      background: #E3ECF8;
       color: #1373E4;
       font-size: 12px;
       font-weight: 600;
@@ -72,16 +73,7 @@ export function getPopupStyles() {
     }
 
     .tw-popup-settings-btn:hover {
-      background: rgba(19, 115, 228, 0.2);
-    }
-
-    .tw-popup-settings-btn-open {
-      background: #F4F4F4;
-      color: #707070;
-    }
-
-    .tw-popup-settings-btn-open:hover {
-      background: #EBEBEB;
+      background: #D7E3F2;
     }
 
     .tw-popup-close-btn {
@@ -98,50 +90,41 @@ export function getPopupStyles() {
 
     .tw-popup-settings-dropdown {
       position: absolute;
-      right: 40px;
-      top: 42px;
+      right: 52px;
+      top: 44px;
+      padding: 8px;
       background: #fff;
       border-radius: 6px;
       box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
       overflow: hidden;
       z-index: 10;
-      border: 1px solid #E5E7EB;
     }
 
     .tw-popup-dropdown-item {
       display: flex;
       align-items: center;
       gap: 4px;
-      padding: 14px 16px;
+      padding: 6px 8px;
       border: none;
       background: transparent;
       cursor: pointer;
       font-size: 12px;
+      font-weight: 400;
+      line-height: 16px;
       color: #151618;
       width: 100%;
       text-align: left;
       white-space: nowrap;
-      transition: background 0.15s;
     }
 
     .tw-popup-dropdown-icon {
       width: 16px;
       height: 16px;
-      padding: 4px;
-      box-sizing: content-box;
-      flex-shrink: 0;
-    }
-
-    .tw-popup-dropdown-item-snooze {
-      padding-bottom: 6px;
-    }
-
-    .tw-popup-dropdown-item-disable {
-      padding-top: 6px;
+      margin: 4px;
     }
 
     .tw-popup-dropdown-item:hover {
-      background: #F9FAFB;
+      background: #E3ECF8;
     }
 
     .tw-popup-body {
