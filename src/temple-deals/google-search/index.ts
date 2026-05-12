@@ -26,6 +26,7 @@ let offersFlushTimeout: number | null = null;
 interface PendingLabel {
   root: Element;
   anchor: HTMLAnchorElement;
+  moreButton: HTMLElement | null;
   url: string;
   domain: string;
 }
@@ -109,14 +110,47 @@ function scanResults() {
     scanCache.add(title);
 
     const anchor = title.closest<HTMLAnchorElement>('a[href]');
-    const resultRoot = anchor?.closest('div[data-sokoban-container], div.g, div.MjjYud, div[data-ved]');
-    if (!anchor || !resultRoot || resultRoot.hasAttribute(PROCESSED_ATTR)) continue;
+    if (!anchor || anchor.hasAttribute(PROCESSED_ATTR)) continue;
 
     const targetUrl = getTargetUrl(anchor);
     if (!targetUrl) continue;
 
-    queueLabel({ root: resultRoot, anchor, url: targetUrl.url, domain: targetUrl.domain });
+    const moreButton = findMoreButtonForTitle(title);
+    const resultRoot = getResultRoot(anchor, moreButton);
+
+    queueLabel({ root: resultRoot, anchor, moreButton, url: targetUrl.url, domain: targetUrl.domain });
   }
+}
+
+function findMoreButtonForTitle(title: Element) {
+  if (title.id) {
+    const describedBySelector = `[aria-label="About this result"][aria-describedby="${CSS.escape(title.id)}"]`;
+    const describedByButton = document.querySelector<HTMLElement>(describedBySelector);
+    if (describedByButton) return describedByButton;
+  }
+
+  const nearbyRoot = title.closest('div:has([aria-label="About this result"]), div:has([aria-label="More options"])');
+
+  return (
+    nearbyRoot?.querySelector<HTMLElement>('[aria-label="About this result"]') ??
+    nearbyRoot?.querySelector<HTMLElement>('[aria-label="More options"]') ??
+    null
+  );
+}
+
+function getResultRoot(anchor: HTMLAnchorElement, moreButton: HTMLElement | null) {
+  return moreButton ? getCommonAncestor(anchor, moreButton) : anchor;
+}
+
+function getCommonAncestor(first: Element, second: Element) {
+  let ancestor: Element | null = first;
+
+  while (ancestor) {
+    if (ancestor.contains(second)) return ancestor;
+    ancestor = ancestor.parentElement;
+  }
+
+  return first;
 }
 
 function getTargetUrl(anchor: HTMLAnchorElement) {
@@ -139,6 +173,7 @@ function getTargetUrl(anchor: HTMLAnchorElement) {
 
 function queueLabel(label: PendingLabel) {
   label.root.setAttribute(PROCESSED_ATTR, 'pending');
+  label.anchor.setAttribute(PROCESSED_ATTR, 'pending');
 
   if (offersCache.has(label.domain)) {
     renderPendingLabel(label, offersCache.get(label.domain) ?? null);
@@ -184,19 +219,21 @@ async function flushPendingOffers() {
   });
 }
 
-function renderPendingLabel({ root, anchor, url, domain }: PendingLabel, offer: MerchantOffer | null) {
+function renderPendingLabel({ root, anchor, moreButton, url, domain }: PendingLabel, offer: MerchantOffer | null) {
   if (!offer) {
     root.removeAttribute(PROCESSED_ATTR);
+    anchor.removeAttribute(PROCESSED_ATTR);
     return;
   }
 
   if (root.getAttribute(PROCESSED_ATTR) === 'ready') return;
 
   root.setAttribute(PROCESSED_ATTR, 'ready');
-  addLabel(root, anchor, url, domain, offer);
+  anchor.setAttribute(PROCESSED_ATTR, 'ready');
+  addLabel(anchor, moreButton, url, domain, offer);
 }
 
-function addLabel(root: Element, anchor: HTMLAnchorElement, url: string, domain: string, offer: MerchantOffer) {
+function addLabel(anchor: HTMLAnchorElement, moreButton: HTMLElement | null, url: string, domain: string, offer: MerchantOffer) {
   const label = document.createElement('button');
   label.className = LABEL_CLASS;
   label.type = 'button';
@@ -216,12 +253,11 @@ function addLabel(root: Element, anchor: HTMLAnchorElement, url: string, domain:
   label.addEventListener('mouseleave', scheduleHideHoverPopup);
   label.addEventListener('blur', scheduleHideHoverPopup);
 
-  placeLabel(root, anchor, label);
+  placeLabel(anchor, moreButton, label);
   requestAnimationFrame(() => label.classList.add('temple-google-deal-label-visible'));
 }
 
-function placeLabel(root: Element, anchor: HTMLAnchorElement, label: HTMLElement) {
-  const moreButton = findMoreButton(root);
+function placeLabel(anchor: HTMLAnchorElement, moreButton: HTMLElement | null, label: HTMLElement) {
   const labelHost = moreButton?.parentElement?.parentElement ?? moreButton?.parentElement;
 
   if (moreButton && labelHost) {
@@ -234,14 +270,6 @@ function placeLabel(root: Element, anchor: HTMLAnchorElement, label: HTMLElement
   }
 
   anchor.insertAdjacentElement('afterend', label);
-}
-
-function findMoreButton(root: Element) {
-  return (
-    root.querySelector<HTMLElement>('[aria-label="More options"]') ??
-    root.querySelector<HTMLElement>('[aria-label="About this result"]') ??
-    root.querySelector<HTMLElement>('[role="button"][aria-haspopup="true"]')
-  );
 }
 
 function scheduleShowHoverPopup(label: HTMLElement, offer: MerchantOffer, url: string, domain: string) {
