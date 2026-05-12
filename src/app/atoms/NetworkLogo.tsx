@@ -150,7 +150,7 @@ const NetworkLogoFallback = memo<NetworkLogoFallbackProps>(({ networkName, size 
     style={{ width: size, height: size }}
     className={clsx('rounded-full overflow-hidden', bordered && 'p-px border border-grey-4 bg-white', className)}
   >
-    <IdenticonInitials value={networkName?.at(0) ?? '?'} className="w-full h-full rounded-full" />
+    <IdenticonInitials options={{ chars: 1 }} value={networkName ?? '?'} className="w-full h-full rounded-full" />
   </div>
 ));
 

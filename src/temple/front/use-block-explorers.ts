@@ -266,6 +266,13 @@ const DEFAULT_BLOCK_EXPLORERS_BASE: Record<TempleChainKind, Record<string, Omit<
         id: 'tzkt-shadownet-tezlink'
       }
     ],
+    [TempleTezosChainId.TezosX]: [
+      {
+        name: 'TzKT',
+        url: 'https://tzkt.previewnet.tezosx.nomadic-labs.com',
+        id: 'tzkt-tezosx'
+      }
+    ],
     [TempleTezosChainId.Rio]: [
       {
         name: 'TzKT',
