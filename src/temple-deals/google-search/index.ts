@@ -3,7 +3,7 @@ import type { MerchantOffer } from 'lib/apis/ads-api/ads-api';
 import { browser } from 'lib/browser';
 import { ContentScriptType } from 'lib/constants';
 
-import { mountTempleDealsPopup } from '../popup/layout';
+import { injectTempleDealsPopupFont, mountTempleDealsPopup } from '../popup/layout';
 import { formatBountyValue, isGoogleSearchPage, normalizeDomain } from '../utils';
 
 const LABEL_CLASS = 'temple-google-deal-label';
@@ -34,6 +34,8 @@ if (window.self === window.top && isGoogleSearchPage()) {
 }
 
 function injectStyles() {
+  injectTempleDealsPopupFont();
+
   const fontLink = document.createElement('link');
   fontLink.rel = 'stylesheet';
   fontLink.href = 'https://fonts.googleapis.com/css2?family=Rubik:wght@500&display=swap';

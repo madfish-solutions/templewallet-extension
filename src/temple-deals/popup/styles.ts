@@ -6,12 +6,16 @@ export function getPopupStyles() {
       padding: 0;
     }
 
+    .tw-popup,
+    .tw-popup button {
+      font-family: Inter, Arial, sans-serif;
+    }
+
     .tw-popup {
       width: 360px;
       background: #fff;
       border-radius: 8px;
       box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.08);
-      font-family: Inter, Arial, sans-serif;
       overflow: visible;
       animation: tw-slide-in 0.3s ease-out;
     }
