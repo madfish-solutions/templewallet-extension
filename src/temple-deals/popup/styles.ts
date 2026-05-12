@@ -106,6 +106,7 @@ export function getPopupStyles() {
       gap: 4px;
       padding: 6px 8px;
       border: none;
+      border-radius: 6px;
       background: transparent;
       cursor: pointer;
       font-size: 12px;
