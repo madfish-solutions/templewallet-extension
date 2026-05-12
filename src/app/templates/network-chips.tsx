@@ -1,7 +1,7 @@
 import { Dispatch, FC, SetStateAction, startTransition, useEffect, useRef, useState } from 'react';
 
 import clsx from 'clsx';
-import { omit, throttle } from 'lodash';
+import { throttle } from 'lodash';
 
 import { Button, IconBase } from 'app/atoms';
 import { EvmNetworkLogo, TezosNetworkLogo } from 'app/atoms/NetworkLogo';
@@ -26,25 +26,20 @@ export const NetworkChips: FC<NetworkChipsProps> = ({ chips, selectedChains, set
   const allElementsHiddenRef = useRef<HTMLDivElement>(null);
   const fitIterationSandboxWrapperRef = useRef<HTMLDivElement>(null);
   const fitIterationSandboxRef = useRef<HTMLDivElement>(null);
-  const [displayedChips, setDisplayedChips] = useState<Omit<NetworkChipProps, 'onClick'>[]>(EMPTY_FROZEN_ARRAY);
+  const [displayedChips, setDisplayedChips] = useState<typeof chips>(EMPTY_FROZEN_ARRAY);
   const [showMoreCount, setShowMoreCount] = useState(0);
-  const [fitIterationChips, setFitIterationChips] = useState<Omit<NetworkChipProps, 'onClick'>[]>(EMPTY_FROZEN_ARRAY);
+  const [fitIterationChips, setFitIterationChips] = useState<typeof chips>(EMPTY_FROZEN_ARRAY);
   const prevFitIterationChipsRef = useRef(fitIterationChips);
 
   const handleChainClick = (chainId: string | number) =>
     setSelectedChains(prev => (prev.includes(chainId) ? prev.filter(id => id !== chainId) : prev.concat(chainId)));
 
   const selectedChainsMap = new Map<string | number, boolean>(selectedChains.map(chainId => [chainId, true]));
-  const chipsPropsWithState = chips.map(({ chain, label }) => ({
-    chain,
-    label,
-    isSelected: selectedChainsMap.get(chain.chainId) ?? false
-  }));
 
   const startLayoutUpdate = () =>
     startTransition(() => {
-      if (!collapsed) {
-        setDisplayedChips(chipsPropsWithState);
+      if (!collapsed || chips.length < 2) {
+        setDisplayedChips(chips);
         setShowMoreCount(0);
 
         return;
@@ -52,15 +47,7 @@ export const NetworkChips: FC<NetworkChipsProps> = ({ chips, selectedChains, set
 
       if (!allElementsHiddenRef.current || !allElementsHiddenWrapperRef.current) return;
 
-      if (chipsPropsWithState.length < 2) {
-        setDisplayedChips(chipsPropsWithState);
-        setShowMoreCount(0);
-
-        return;
-      }
-
-      const { right: containerRight, width: containerWidth } =
-        allElementsHiddenWrapperRef.current.getBoundingClientRect();
+      const { right: containerRight } = allElementsHiddenWrapperRef.current.getBoundingClientRect();
       const children = Array.from(allElementsHiddenRef.current.children);
       const chipsNodes = children.slice(0, -1);
       const showMoreNode = children.at(-1)!;
@@ -68,55 +55,30 @@ export const NetworkChips: FC<NetworkChipsProps> = ({ chips, selectedChains, set
       const { right: lastChipNodeRight } = chipsNodes.at(-1)!.getBoundingClientRect();
 
       if (lastChipNodeRight <= containerRight) {
-        setDisplayedChips(chipsPropsWithState);
+        setDisplayedChips(chips);
         setShowMoreCount(0);
 
         return;
       }
 
-      const { width: showMoreNodeWidth } = showMoreNode.getBoundingClientRect();
+      const { left: showMoreNodeLeft } = showMoreNode.getBoundingClientRect();
       const [firstChipNode, secondChipNode] = chipsNodes;
       const { right: firstChipNodeRight } = firstChipNode.getBoundingClientRect();
       const { left: secondChipNodeLeft } = secondChipNode.getBoundingClientRect();
       const gap = secondChipNodeLeft - firstChipNodeRight;
-      const chipsPropsWithIndexes = chipsPropsWithState.map((chip, index) => ({ ...chip, index }));
-      const selectedChipsPropsWithIndexes = chipsPropsWithIndexes.filter(({ isSelected }) => isSelected);
-      const unselectedChipsPropsWithIndexes = chipsPropsWithIndexes.filter(({ isSelected }) => !isSelected);
-      const newFitIterationChipsWithIndexes: typeof selectedChipsPropsWithIndexes = [];
+      const newFitIterationChips: typeof chips = [chips[0]];
 
-      const prepareFitIteration = () =>
-        setFitIterationChips(
-          newFitIterationChipsWithIndexes.sort((a, b) => a.index - b.index).map(props => omit(props, 'index'))
-        );
+      const prepareFitIteration = () => setFitIterationChips(newFitIterationChips);
 
-      if (selectedChipsPropsWithIndexes.length > 0) {
-        newFitIterationChipsWithIndexes.push(selectedChipsPropsWithIndexes[0]);
-      }
-
-      let totalWidth = selectedChipsPropsWithIndexes[0]
-        ? chipsNodes[selectedChipsPropsWithIndexes[0].index].getBoundingClientRect().width + gap + showMoreNodeWidth
-        : showMoreNodeWidth;
-      for (let i = 1; i < selectedChipsPropsWithIndexes.length; i++) {
-        const { width: chipNodeWidth } = chipsNodes[selectedChipsPropsWithIndexes[i].index].getBoundingClientRect();
-        totalWidth += chipNodeWidth + gap;
-        if (totalWidth > containerWidth) {
+      for (let i = 1; i < chips.length; i++) {
+        const { right: chipNodeRight } = chipsNodes[i].getBoundingClientRect();
+        if (chipNodeRight + gap > showMoreNodeLeft) {
           prepareFitIteration();
 
           return;
         }
 
-        newFitIterationChipsWithIndexes.push(selectedChipsPropsWithIndexes[i]);
-      }
-      for (const unselectedChipPropsWithIndex of unselectedChipsPropsWithIndexes) {
-        const { width: chipNodeWidth } = chipsNodes[unselectedChipPropsWithIndex.index].getBoundingClientRect();
-        totalWidth += chipNodeWidth + gap;
-        if (totalWidth > containerWidth && newFitIterationChipsWithIndexes.length > 0) {
-          prepareFitIteration();
-
-          return;
-        }
-
-        newFitIterationChipsWithIndexes.push(unselectedChipPropsWithIndex);
+        newFitIterationChips.push(chips[i]);
       }
       prepareFitIteration();
     });
@@ -151,65 +113,68 @@ export const NetworkChips: FC<NetworkChipsProps> = ({ chips, selectedChains, set
 
     if (showMoreNodeRight <= sandboxRight || fitIterationChipsCount === 1) {
       setDisplayedChips(fitIterationChips);
-      setShowMoreCount(chipsPropsWithState.length - fitIterationChipsCount);
+      setShowMoreCount(chips.length - fitIterationChipsCount);
     } else {
       setFitIterationChips(fitIterationChips.slice(0, fitIterationChipsCount - 1));
     }
-  }, [fitIterationChips, chipsPropsWithState]);
+  }, [fitIterationChips, chips]);
 
   return (
     <div className="flex flex-col" dir="ltr">
       <div className="relative h-0 overflow-x-scroll overflow-y-hidden" ref={allElementsHiddenWrapperRef}>
         <div className="inline-flex gap-2 items-center w-max" ref={allElementsHiddenRef}>
           {chips.map(chip => (
-            <NetworkChip
-              key={chip.chain.chainId}
-              isSelected={selectedChains.includes(chip.chain.chainId)}
-              onClick={handleChainClick}
-              {...chip}
-            />
+            <NetworkChip key={chip.chain.chainId} isSelected onClick={handleChainClick} {...chip} />
           ))}
-          <Button
-            className={clsx(
-              'flex items-center absolute top-0 right-0',
-              'h-6 px-1 py-0.5 text-font-description-bold text-grey-1 hover:bg-grey-4 rounded'
-            )}
-          >
-            <span>+{chips.length} more</span>
-            <IconBase className="text-grey-3" Icon={ChevronDownIcon} size={12} />
-          </Button>
+          <ShowMoreButton showMoreCount={chips.length} className="absolute top-0 right-0" onClick={expand} />
         </div>
       </div>
 
       <div className="relative h-0 overflow-x-scroll overflow-y-hidden" ref={fitIterationSandboxWrapperRef}>
         <div className="inline-flex gap-2 items-center w-max" ref={fitIterationSandboxRef}>
           {fitIterationChips.map(chip => (
-            <NetworkChip key={chip.chain.chainId} onClick={handleChainClick} {...chip} />
+            <NetworkChip key={chip.chain.chainId} isSelected onClick={handleChainClick} {...chip} />
           ))}
-          <Button className="flex items-center h-6 px-1 py-0.5 text-font-description-bold text-grey-1 hover:bg-grey-4 rounded">
-            <span>+{chips.length} more</span>
-            <IconBase className="text-grey-3" Icon={ChevronDownIcon} size={12} />
-          </Button>
+          {fitIterationChips.length < chips.length && (
+            <ShowMoreButton showMoreCount={chips.length - fitIterationChips.length} onClick={expand} />
+          )}
         </div>
       </div>
 
       <div className="inline-flex flex-wrap gap-2 items-center">
-        {displayedChips.map(({ chain, ...restProps }) => (
-          <NetworkChip key={chain.chainId} chain={chain} onClick={handleChainClick} {...restProps} />
+        {displayedChips.map(({ chain, label }) => (
+          <NetworkChip
+            key={chain.chainId}
+            chain={chain}
+            label={label}
+            isSelected={selectedChainsMap.get(chain.chainId) ?? false}
+            onClick={handleChainClick}
+          />
         ))}
-        {showMoreCount > 0 && (
-          <Button
-            className="flex items-center h-6 px-1 py-0.5 text-font-description-bold text-grey-1 hover:bg-grey-4 rounded"
-            onClick={expand}
-          >
-            <span>+{showMoreCount} more</span>
-            <IconBase className="text-grey-3" Icon={ChevronDownIcon} size={12} />
-          </Button>
-        )}
+        {showMoreCount > 0 && <ShowMoreButton showMoreCount={showMoreCount} onClick={expand} />}
       </div>
     </div>
   );
 };
+
+interface ShowMoreButtonProps {
+  className?: string;
+  onClick?: EmptyFn;
+  showMoreCount: number;
+}
+
+const ShowMoreButton: FC<ShowMoreButtonProps> = ({ className, onClick, showMoreCount }) => (
+  <Button
+    className={clsx(
+      'flex items-center h-6 px-1 py-0.5 text-font-description-bold text-grey-1 hover:bg-grey-4 rounded',
+      className
+    )}
+    onClick={onClick}
+  >
+    <span>+{showMoreCount} more</span>
+    <IconBase className="text-grey-3" Icon={ChevronDownIcon} size={12} />
+  </Button>
+);
 
 interface NetworkChipProps {
   label: ReactChildren;
