@@ -11,7 +11,7 @@ const PROCESSED_ATTR = 'data-temple-google-deal';
 const LABEL_GAP = 16;
 const POPUP_LABEL_GAP = 8;
 const POPUP_BOTTOM_SPACE_BUFFER = 30;
-const HOVER_HIDE_DELAY = 100;
+const DEFAULT_DELAY = 180;
 const GOOGLE_SEARCH_FONT_TEXT = ' Bounty≈.0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 
 const scanCache = new WeakSet<Element>();
@@ -19,6 +19,7 @@ const offersCache = new Map<string, MerchantOffer | null>();
 const pendingLabelsByDomain = new Map<string, PendingLabel[]>();
 
 let hoverHost: HTMLDivElement | null = null;
+let showHoverTimeout: number | null = null;
 let hideHoverTimeout: number | null = null;
 let offersFlushTimeout: number | null = null;
 
@@ -209,9 +210,9 @@ function addLabel(root: Element, anchor: HTMLAnchorElement, url: string, domain:
   label.appendChild(icon);
   label.appendChild(document.createTextNode(`Bounty \u2248 ${formatBountyValue(offer.cpcRate, offer.currencyCode)}`));
 
-  const show = () => showHoverPopup(label, offer, url, domain);
+  const show = () => scheduleShowHoverPopup(label, offer, url, domain);
   label.addEventListener('mouseenter', show);
-  label.addEventListener('focus', show);
+  label.addEventListener('focus', () => showHoverPopup(label, offer, url, domain));
   label.addEventListener('mouseleave', scheduleHideHoverPopup);
   label.addEventListener('blur', scheduleHideHoverPopup);
 
@@ -243,7 +244,22 @@ function findMoreButton(root: Element) {
   );
 }
 
+function scheduleShowHoverPopup(label: HTMLElement, offer: MerchantOffer, url: string, domain: string) {
+  if (hideHoverTimeout) {
+    window.clearTimeout(hideHoverTimeout);
+    hideHoverTimeout = null;
+  }
+
+  clearPendingShowHoverPopup();
+  showHoverTimeout = window.setTimeout(() => {
+    showHoverTimeout = null;
+    showHoverPopup(label, offer, url, domain);
+  }, DEFAULT_DELAY);
+}
+
 function showHoverPopup(label: HTMLElement, offer: MerchantOffer, url: string, domain: string) {
+  clearPendingShowHoverPopup();
+
   if (hideHoverTimeout) {
     window.clearTimeout(hideHoverTimeout);
     hideHoverTimeout = null;
@@ -290,9 +306,18 @@ function placeHoverPopup(popup: HTMLElement, labelRect: DOMRect) {
 }
 
 function scheduleHideHoverPopup() {
+  clearPendingShowHoverPopup();
+
   if (hideHoverTimeout) window.clearTimeout(hideHoverTimeout);
   hideHoverTimeout = window.setTimeout(() => {
     hoverHost?.remove();
     hoverHost = null;
-  }, HOVER_HIDE_DELAY);
+  }, DEFAULT_DELAY);
+}
+
+function clearPendingShowHoverPopup() {
+  if (!showHoverTimeout) return;
+
+  window.clearTimeout(showHoverTimeout);
+  showHoverTimeout = null;
 }
