@@ -35,6 +35,7 @@ import { store, toFront } from './store';
 
 const frontStore = store.map(toFront);
 
+const MERCHANT_PROMOTION_STORAGE_KEY = 'persist:root.merchantPromotion';
 const MERCHANT_OFFER_ACTIVATION_TTL = 2 * 60 * 1000;
 const merchantOfferActivatedAt = new Map<string, number>();
 
@@ -486,7 +487,7 @@ browser.runtime.onMessage.addListener(async (msg, sender) => {
       }
 
       case ContentScriptType.FetchMerchantOffers: {
-        const merchantState = await fetchFromStorage<MerchantPromotionState>('persist:root.merchantPromotion');
+        const merchantState = await fetchFromStorage<MerchantPromotionState>(MERCHANT_PROMOTION_STORAGE_KEY);
         if (!merchantState?.enabled) return [];
         if (merchantState.snoozedUntil && Date.now() < merchantState.snoozedUntil) return [];
 
@@ -520,8 +521,8 @@ browser.runtime.onMessage.addListener(async (msg, sender) => {
       }
 
       case ContentScriptType.MerchantOfferSnooze: {
-        const merchantState = await fetchFromStorage<MerchantPromotionState>('persist:root.merchantPromotion');
-        await putToStorage('persist:root.merchantPromotion', {
+        const merchantState = await fetchFromStorage<MerchantPromotionState>(MERCHANT_PROMOTION_STORAGE_KEY);
+        await putToStorage(MERCHANT_PROMOTION_STORAGE_KEY, {
           ...merchantState,
           snoozedUntil: Date.now() + 24 * 60 * 60 * 1000
         });
@@ -529,7 +530,7 @@ browser.runtime.onMessage.addListener(async (msg, sender) => {
       }
 
       case ContentScriptType.MerchantOfferDisable: {
-        await putToStorage('persist:root.merchantPromotion', {
+        await putToStorage(MERCHANT_PROMOTION_STORAGE_KEY, {
           enabled: false,
           snoozedUntil: 0
         });
@@ -537,9 +538,12 @@ browser.runtime.onMessage.addListener(async (msg, sender) => {
       }
 
       case ContentScriptType.MerchantOfferAnalytics: {
-        const userId = await fetchFromStorage<string>(ANALYTICS_USER_ID_STORAGE_KEY);
-        const analyticsEnabled = await fetchFromStorage<boolean>(WEBSITES_ANALYTICS_ENABLED);
-        if (!analyticsEnabled) return;
+        const [analyticsEnabled, userId] = await Promise.all([
+          fetchFromStorage<boolean>(WEBSITES_ANALYTICS_ENABLED),
+          fetchFromStorage<string>(ANALYTICS_USER_ID_STORAGE_KEY)
+        ]);
+
+        if (!analyticsEnabled) break;
 
         const { event, properties, category } = msg;
 
@@ -549,6 +553,7 @@ browser.runtime.onMessage.addListener(async (msg, sender) => {
           category,
           properties
         });
+
         break;
       }
     }

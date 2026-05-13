@@ -89,7 +89,7 @@ function injectStyles() {
       position: absolute;
       transform: translateY(6px);
       transition: opacity 160ms ease, transform 160ms ease;
-      z-index: 100;
+      z-index: 110;
     }
 
     .temple-google-deal-popup-host-visible {
