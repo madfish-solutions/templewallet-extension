@@ -8,7 +8,7 @@ export const TEMPLE_DEALS_EVENTS = {
   cpcWidgetView: 'Deals CPC Widget / View',
   tagActivateBounty: 'Deals Tag / Activate Bounty',
   popupActivateBounty: 'Deals Pop-up / Activate Bounty',
-  popupCloseButton: 'Deals Pop-up / Close Button Click',
+  popupClose: 'Deals Pop-up / Close',
   popupSnooze: 'Deals Pop-up / Snooze',
   popupDisable: 'Deals Pop-up / Disable'
 } as const;
@@ -21,7 +21,8 @@ export function trackTempleDealsEvent(event: string, properties?: object, catego
     .sendMessage({
       type: ContentScriptType.MerchantOfferAnalytics,
       event,
-      properties
+      properties,
+      category
     })
     .catch(() => {});
 }

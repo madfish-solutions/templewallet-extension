@@ -133,7 +133,7 @@ function renderTempleDealsPopup(
     closeBtn.title = closeTitle;
     closeBtn.innerHTML = CLOSE_ICON;
     closeBtn.addEventListener('click', () => {
-      trackTempleDealsEvent(TEMPLE_DEALS_EVENTS.popupCloseButton, { domain });
+      trackTempleDealsEvent(TEMPLE_DEALS_EVENTS.popupClose, { domain });
       onClose();
     });
     headerActions.appendChild(closeBtn);
