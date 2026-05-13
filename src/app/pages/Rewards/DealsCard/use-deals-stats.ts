@@ -1,5 +1,3 @@
-import { useEffect } from 'react';
-
 import { BigNumber } from 'bignumber.js';
 
 import { useRewardsAddresses } from 'app/hooks/use-rewards-addresses';
@@ -7,8 +5,6 @@ import { useRewardsStatsEntry } from 'app/pages/Rewards/use-rewards-stats-entry'
 import { useDealsEnabledSelector } from 'app/store/deals/selectors';
 import { USDT_TOKEN_METADATA } from 'lib/assets/known-tokens';
 import { DEALS_REWARDS_STATS_STORAGE_KEY } from 'lib/constants';
-import { usePassiveStorage } from 'lib/temple/front/storage';
-import { useUpdatableRef } from 'lib/ui/hooks';
 
 import { DEALS_PAYOUT_ADDRESS } from '../constants';
 
@@ -33,8 +29,6 @@ const usdtMeta = {
   decimals: USDT_TOKEN_METADATA.decimals
 };
 
-const DEALS_PENDING_BASELINE_KEY_PREFIX = 'DEALS_LAST_SEEN_PENDING';
-
 export const useDealsStats = () => {
   const enabled = useDealsEnabledSelector();
   const { tezosAddress: rewardsAddress } = useRewardsAddresses();
@@ -51,22 +45,7 @@ export const useDealsStats = () => {
 
   const allTime = onChainStats?.total ?? null;
   const pending = pendingBalance?.pendingUsdt ?? null;
-
-  const baselineKey = rewardsAddress
-    ? `${DEALS_PENDING_BASELINE_KEY_PREFIX}_${rewardsAddress}`
-    : DEALS_PENDING_BASELINE_KEY_PREFIX;
-  const [storedBaseline, setStoredBaseline] = usePassiveStorage<string>(baselineKey, '0');
-  const pendingRef = useUpdatableRef(pending);
-
-  useEffect(
-    () => () => {
-      if (pendingRef.current) setStoredBaseline(pendingRef.current.toFixed());
-    },
-    [pendingRef, setStoredBaseline]
-  );
-
-  const baselineBig = new BigNumber(storedBaseline);
-  const pendingDelta = pending && pending.gt(baselineBig) ? pending.minus(baselineBig) : null;
+  const lastPendingAmount = pendingBalance?.lastPendingAmount ?? null;
 
   return {
     enabled,
@@ -74,7 +53,7 @@ export const useDealsStats = () => {
     allTime,
     lastPayoutAmount: onChainStats?.lastAmount ?? null,
     pending,
-    pendingDelta,
+    lastPendingAmount,
     isLoading: isOnChainLoading || isPendingLoading
   };
 };

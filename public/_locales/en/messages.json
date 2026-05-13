@@ -1486,7 +1486,7 @@
     "message": "Withdrawals"
   },
   "ethWithdrawalsTooltipText": {
-    "message": "Unstaked Ethereum that completed the\u00a0withdrawal process will be available to transfer back to your account."
+    "message": "Unstaked Ethereum that completed the withdrawal process will be available to transfer back to your account."
   },
   "noWithdrawalsYet": {
     "message": "No withdrawals yet"
@@ -1591,7 +1591,7 @@
     "message": "Recommended"
   },
   "helpUkraine": {
-    "message": "Help Ukraine \uD83C\uDDFA\uD83C\uDDE6"
+    "message": "Help Ukraine 🇺🇦"
   },
   "partnership": {
     "message": "Partnership"
@@ -3751,6 +3751,9 @@
   "dealsPending": {
     "message": "Pending"
   },
+  "dealsPendingLastActivityTooltip": {
+    "message": "This is last activity"
+  },
   "dealsActivatePageTitle": {
     "message": "Temple Deals"
   },
@@ -3829,13 +3832,10 @@
   "howItWorksDealsBody": {
     "message": "Temple automatically finds you best offers from 10,000+ partners worldwide. When you visit a partner website, with our affiliate link - merchants may pay us commissions. We share these commissions with our users as rewards."
   },
-  "howItWorksDealsCard1Title": {
-    "message": "Automate finder pop up"
-  },
-  "howItWorksDealsCard1Body": {
+  "howItWorksDealsCard1": {
     "message": "Pops up a deal when visiting partner website."
   },
-  "howItWorksDealsCard2Title": {
+  "howItWorksDealsCard2": {
     "message": "One click reward application with instant activation."
   },
   "howItWorksRewardsHeading": {

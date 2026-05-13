@@ -5,7 +5,7 @@ import { DealsPromoBanner } from './promo-banner';
 import { useDealsStats } from './use-deals-stats';
 
 export const DealsCard: FC = () => {
-  const { renderState, allTime, lastPayoutAmount, pending, pendingDelta, isLoading } = useDealsStats();
+  const { renderState, allTime, lastPayoutAmount, pending, lastPendingAmount, isLoading } = useDealsStats();
 
   if (renderState === 'not-activated') {
     return <DealsPromoBanner />;
@@ -24,7 +24,7 @@ export const DealsCard: FC = () => {
       allTime={allTime}
       lastPayoutAmount={lastPayoutAmount}
       pending={pending}
-      pendingDelta={pendingDelta}
+      lastPendingAmount={lastPendingAmount}
     />
   );
 };

@@ -37,10 +37,10 @@ interface DealsBalancesProps {
   allTime: BigNumber | null;
   lastPayoutAmount: string | null;
   pending: BigNumber | null;
-  pendingDelta: BigNumber | null;
+  lastPendingAmount: BigNumber | null;
 }
 
-export const DealsBalances: FC<DealsBalancesProps> = ({ allTime, lastPayoutAmount, pending, pendingDelta }) => (
+export const DealsBalances: FC<DealsBalancesProps> = ({ allTime, lastPayoutAmount, pending, lastPendingAmount }) => (
   <DealsCardShell>
     <div className="bg-grey-4 rounded-6 p-2 flex gap-2 min-h-26.5">
       <BalanceCell
@@ -52,10 +52,10 @@ export const DealsBalances: FC<DealsBalancesProps> = ({ allTime, lastPayoutAmoun
       <BalanceCell
         label={t('dealsPending')}
         amount={pending}
-        subAmount={pendingDelta ?? new BigNumber(0)}
+        subAmount={lastPendingAmount ?? new BigNumber(0)}
         amountLessThanThreshold={0.01}
         subAlwaysGrey
-        subTippyContent="This is last activity"
+        subTippyContent={t('dealsPendingLastActivityTooltip')}
       />
     </div>
   </DealsCardShell>

@@ -33,8 +33,8 @@ export const RewardsDealsHowItWorks: FC = () => (
         </div>
         <img src={dealsIllustration} alt="" className="w-full h-38 object-contain" />
         <div className="grid grid-cols-2 gap-3 w-full">
-          <ExplainerCard Icon={SearchSparkleIcon} text={t('howItWorksDealsCard1Body')} />
-          <ExplainerCard Icon={ReceiveCheckIcon} text={t('howItWorksDealsCard2Title')} />
+          <ExplainerCard Icon={SearchSparkleIcon} text={t('howItWorksDealsCard1')} />
+          <ExplainerCard Icon={ReceiveCheckIcon} text={t('howItWorksDealsCard2')} />
         </div>
       </section>
 
