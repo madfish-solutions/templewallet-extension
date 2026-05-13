@@ -1,13 +1,13 @@
-import { ADS_VIEWER_DATA_STORAGE_KEY, WEBSITES_ANALYTICS_ENABLED } from 'lib/constants';
+import { ADS_VIEWER_DATA_STORAGE_KEY, WEBSITES_ADS_ENABLED } from 'lib/constants';
 import { IS_MISES_BROWSER } from 'lib/env';
 import { fetchFromStorage } from 'lib/storage';
 
 export function checkIfShouldReplaceAds() {
   return runInMainWindow(async () => {
     const accountDataFromStorage = await fetchFromStorage<string>(ADS_VIEWER_DATA_STORAGE_KEY);
-    const websitesAnalyticsEnabled = await fetchFromStorage<boolean>(WEBSITES_ANALYTICS_ENABLED);
+    const websitesAdsEnabled = await fetchFromStorage<boolean>(WEBSITES_ADS_ENABLED);
 
-    if (accountDataFromStorage) return websitesAnalyticsEnabled ?? false;
+    if (accountDataFromStorage) return websitesAdsEnabled ?? false;
 
     return IS_MISES_BROWSER;
   });

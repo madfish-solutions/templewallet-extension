@@ -11,12 +11,12 @@ import {
   ADS_VIEWER_DATA_STORAGE_KEY,
   ANALYTICS_USER_ID_STORAGE_KEY,
   ContentScriptType,
-  REWARDS_ACCOUNT_DATA_STORAGE_KEY, WEBSITES_ANALYTICS_ENABLED
-} from "lib/constants";
+  REWARDS_ACCOUNT_DATA_STORAGE_KEY,
+  USAGE_ANALYTICS_ENABLED
+} from 'lib/constants';
 import { E2eMessageType } from 'lib/e2e/types';
 import { BACKGROUND_IS_WORKER, IS_FIREFOX, IS_MISES_BROWSER } from 'lib/env';
 import { fetchFromStorage, putToStorage } from 'lib/storage';
-import { AnalyticsEventCategory } from 'lib/temple/analytics-types';
 import { encodeMessage, encryptMessage, getSenderId, MessageType, Response } from 'lib/temple/beacon';
 import { clearAsyncStorages } from 'lib/temple/reset';
 import { StoredHDAccount, TempleMessageType, TempleRequest, TempleResponse } from 'lib/temple/types';
@@ -539,7 +539,7 @@ browser.runtime.onMessage.addListener(async (msg, sender) => {
 
       case ContentScriptType.MerchantOfferAnalytics: {
         const [analyticsEnabled, userId] = await Promise.all([
-          fetchFromStorage<boolean>(WEBSITES_ANALYTICS_ENABLED),
+          fetchFromStorage<boolean>(USAGE_ANALYTICS_ENABLED),
           fetchFromStorage<string>(ANALYTICS_USER_ID_STORAGE_KEY)
         ]);
 

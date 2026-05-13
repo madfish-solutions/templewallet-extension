@@ -30,7 +30,8 @@ import {
   SHOULD_SHOW_WELCOME_REWARDS_MODAL_STORAGE_KEY,
   SIDE_VIEW_WAS_FORCED_STORAGE_KEY,
   TERMS_OF_USE_URL,
-  WEBSITES_ANALYTICS_ENABLED
+  USAGE_ANALYTICS_ENABLED,
+  WEBSITES_ADS_ENABLED
 } from 'lib/constants';
 import { DISABLE_ADS, IS_SIDE_PANEL_AVAILABLE } from 'lib/env';
 import { T, TID, t } from 'lib/i18n';
@@ -142,7 +143,8 @@ export const CreatePasswordForm = memo<CreatePasswordFormProps>(
 
           // registerWallet function clears async storages
           await putToStorage(REPLACE_REFERRALS_ENABLED, adsViewEnabled);
-          await putToStorage(WEBSITES_ANALYTICS_ENABLED, adsViewEnabled);
+          await putToStorage(WEBSITES_ADS_ENABLED, adsViewEnabled);
+          await putToStorage(USAGE_ANALYTICS_ENABLED, analyticsEnabled);
           await putToStorage(SHOULD_OPEN_LETS_EXCHANGE_MODAL_STORAGE_KEY, false);
           await putToStorage(SHOULD_PROMOTE_ROOTSTOCK_STORAGE_KEY, false);
           await putToStorage(SHOULD_DISABLE_NOT_ACTIVE_NETWORKS_STORAGE_KEY, true);
