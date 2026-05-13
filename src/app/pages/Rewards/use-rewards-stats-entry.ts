@@ -9,7 +9,7 @@ import { TempleTezosChainId } from 'lib/temple/types';
 import { useUpdatableRef } from 'lib/ui/hooks';
 import { ZERO } from 'lib/utils/numbers';
 
-export interface RewardsTokenMeta {
+interface RewardsTokenMeta {
   contract: string;
   tokenId: string;
   decimals: number;

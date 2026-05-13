@@ -10,9 +10,9 @@ import { DEALS_PAYOUT_ADDRESS } from '../constants';
 
 import { useDealsPendingBalance } from './use-deals-pending-balance';
 
-export type DealsRenderState = 'not-activated' | 'empty' | 'balances';
+type DealsRenderState = 'not-activated' | 'empty' | 'balances';
 
-export const deriveDealsRenderState = (
+const deriveDealsRenderState = (
   enabled: boolean,
   allTime: BigNumber | null,
   pending: BigNumber | null

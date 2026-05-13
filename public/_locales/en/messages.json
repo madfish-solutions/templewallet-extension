@@ -1486,7 +1486,7 @@
     "message": "Withdrawals"
   },
   "ethWithdrawalsTooltipText": {
-    "message": "Unstaked Ethereum that completed the withdrawal process will be available to transfer back to your account."
+    "message": "Unstaked Ethereum that completed the\u00a0withdrawal process will be available to transfer back to your account."
   },
   "noWithdrawalsYet": {
     "message": "No withdrawals yet"
@@ -1591,7 +1591,7 @@
     "message": "Recommended"
   },
   "helpUkraine": {
-    "message": "Help Ukraine 🇺🇦"
+    "message": "Help Ukraine \uD83C\uDDFA\uD83C\uDDE6"
   },
   "partnership": {
     "message": "Partnership"

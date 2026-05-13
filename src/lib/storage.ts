@@ -36,9 +36,9 @@ export async function removeFromStorage(keyOrKeys: string | string[]) {
 }
 
 export async function removeFromStorageByPrefix(...prefixes: string[]) {
-  const all = await browser.storage.local.get();
-  const matched = Object.keys(all).filter(k => prefixes.some(p => k.startsWith(p)));
-  if (matched.length) await browser.storage.local.remove(matched);
+  const storedItems = await browser.storage.local.get();
+  const keysToRemove = Object.keys(storedItems).filter(key => prefixes.some(prefix => key.startsWith(prefix)));
+  if (keysToRemove.length) await browser.storage.local.remove(keysToRemove);
 }
 
 export async function moveValueInStorage(oldKey: string, newKey: string) {

@@ -1,4 +1,4 @@
-import { FC, useCallback, useState, useTransition } from 'react';
+import { FC, useState, useTransition } from 'react';
 
 import clsx from 'clsx';
 
@@ -35,7 +35,7 @@ export const BakeryCard: FC = () => {
   const { trackEvent } = useAnalytics();
 
   const [isDelegationOpen, setDelegationOpen] = useState(false);
-  const closeDelegation = useCallback(() => setDelegationOpen(false), []);
+  const closeDelegation = () => setDelegationOpen(false);
 
   const [isDelegating, startDelegation] = useTransition();
   const { data: myBakerPkh, mutate: updateBakerPkh } = useDelegate(account?.address ?? '', tezosMainnet, false, true);

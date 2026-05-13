@@ -5,6 +5,7 @@ import { AnimatedMenuChevron } from 'app/atoms/animated-menu-chevron';
 import { usePartnersPromotionSettings } from 'app/hooks/use-partners-promotion-settings';
 import { useRewardsAddresses } from 'app/hooks/use-rewards-addresses';
 import { ReactComponent as InfoIcon } from 'app/icons/base/InfoFill.svg';
+import { AnalyticsEventCategory, useAnalytics } from 'lib/analytics';
 import { TKEY_TOKEN_METADATA } from 'lib/assets/known-tokens';
 import { TKEY_REWARDS_STATS_STORAGE_KEY } from 'lib/constants';
 import { t } from 'lib/i18n';
@@ -16,6 +17,8 @@ import { AllTimeStats } from '../all-time-stats';
 import { TEMPLE_REWARDS_PAYOUT_ADDRESS } from '../constants';
 import { promoInfoTippyProps } from '../tooltip';
 import { useRewardsStatsEntry } from '../use-rewards-stats-entry';
+
+import { PromoCardSelectors } from './selectors';
 
 const tkeyMeta = {
   contract: TKEY_TOKEN_METADATA.address,
@@ -32,6 +35,12 @@ export const PromoCard: FC = () => {
   const { isEnabled } = usePartnersPromotionSettings();
   const { animatedChevronRef, handleHover, handleUnhover } = useActivateAnimatedChevron();
   const { tezosAddress: rewardsAddress } = useRewardsAddresses();
+  const { trackEvent } = useAnalytics();
+
+  const handleCardTap = () => {
+    trackEvent(PromoCardSelectors.card, AnalyticsEventCategory.ButtonPress);
+    navigate('/rewards/promo/activate');
+  };
 
   const { isLoading, stats } = useRewardsStatsEntry(
     TKEY_REWARDS_STATS_STORAGE_KEY,
@@ -45,7 +54,7 @@ export const PromoCard: FC = () => {
     return (
       <button
         type="button"
-        onClick={() => navigate('/rewards/promo/activate')}
+        onClick={handleCardTap}
         onMouseEnter={handleHover}
         onMouseLeave={handleUnhover}
         className="flex-1 bg-white border-0.5 border-lines rounded-8 overflow-clip pt-3 text-left flex flex-col gap-3 items-start min-h-29"
