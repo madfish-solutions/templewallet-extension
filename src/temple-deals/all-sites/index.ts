@@ -3,7 +3,7 @@ import { browser } from 'lib/browser';
 import { ContentScriptType } from 'lib/constants';
 
 import { injectTempleDealsPopupFont, mountTempleDealsPopup } from '../popup/layout';
-import { isGoogleSearchPage, normalizeDomain, wasTempleDealActivated } from '../utils';
+import { isGoogleSearchPage, normalizeDomain, TEMPLE_DEALS_EVENTS, wasTempleDealActivated } from '../utils';
 
 const POPUP_HOST_ID = 'temple-deals-popup-host';
 
@@ -47,8 +47,7 @@ function injectTempleDealsPopup(offer: MerchantOffer, domain: string) {
     domain,
     activationUrl: window.location.origin,
     pageDomain: domain,
-    activateEvent: 'MerchantOfferPopupActivate',
-    closeEvent: 'MerchantOfferPopupClose',
+    activateEvent: TEMPLE_DEALS_EVENTS.popupActivateBounty,
     showSettings: true,
     showDescriptionToggle: true,
     onClose: () => host.remove()

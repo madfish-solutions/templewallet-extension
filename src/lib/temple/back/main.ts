@@ -11,8 +11,8 @@ import {
   ADS_VIEWER_DATA_STORAGE_KEY,
   ANALYTICS_USER_ID_STORAGE_KEY,
   ContentScriptType,
-  REWARDS_ACCOUNT_DATA_STORAGE_KEY
-} from 'lib/constants';
+  REWARDS_ACCOUNT_DATA_STORAGE_KEY, WEBSITES_ANALYTICS_ENABLED
+} from "lib/constants";
 import { E2eMessageType } from 'lib/e2e/types';
 import { BACKGROUND_IS_WORKER, IS_FIREFOX, IS_MISES_BROWSER } from 'lib/env';
 import { fetchFromStorage, putToStorage } from 'lib/storage';
@@ -537,23 +537,16 @@ browser.runtime.onMessage.addListener(async (msg, sender) => {
       }
 
       case ContentScriptType.MerchantOfferAnalytics: {
-        const allowedEvents = new Set([
-          'MerchantOfferPopupClose',
-          'MerchantOfferPopupActivate',
-          'MerchantOfferPopupSnooze',
-          'MerchantOfferPopupDisable',
-          'MerchantOfferGooglePopupClose',
-          'MerchantOfferGooglePopupActivate'
-        ]);
+        const userId = await fetchFromStorage<string>(ANALYTICS_USER_ID_STORAGE_KEY);
+        const analyticsEnabled = await fetchFromStorage<boolean>(WEBSITES_ANALYTICS_ENABLED);
+        if (!analyticsEnabled) return;
 
-        const { event, properties } = msg;
-        if (typeof event !== 'string' || !allowedEvents.has(event)) break;
+        const { event, properties, category } = msg;
 
         Analytics.trackEvent({
-          userId: '',
-          chainId: undefined,
+          userId: userId ?? '',
           event,
-          category: AnalyticsEventCategory.ButtonPress,
+          category,
           properties
         });
         break;

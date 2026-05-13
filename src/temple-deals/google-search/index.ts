@@ -4,7 +4,7 @@ import { browser } from 'lib/browser';
 import { ContentScriptType } from 'lib/constants';
 
 import { injectTempleDealsPopupFont, mountTempleDealsPopup } from '../popup/layout';
-import { formatBountyValue, isGoogleSearchPage, normalizeDomain } from '../utils';
+import { formatBountyValue, isGoogleSearchPage, normalizeDomain, TEMPLE_DEALS_EVENTS } from '../utils';
 
 const LABEL_CLASS = 'temple-google-deal-label';
 const PROCESSED_ATTR = 'data-temple-google-deal';
@@ -307,8 +307,7 @@ function showHoverPopup(label: HTMLElement, offer: MerchantOffer, url: string, d
     domain,
     activationUrl: url,
     pageDomain: normalizeDomain(window.location.hostname),
-    activateEvent: 'MerchantOfferGooglePopupActivate',
-    closeEvent: 'MerchantOfferGooglePopupClose',
+    activateEvent: TEMPLE_DEALS_EVENTS.tagActivateBounty,
     onClose: () => {
       hoverHost?.remove();
       hoverHost = null;

@@ -9,6 +9,7 @@ import {
   getOfferDescription,
   markTempleDealActivated,
   msg,
+  TEMPLE_DEALS_EVENTS,
   trackTempleDealsEvent
 } from '../utils';
 
@@ -28,7 +29,6 @@ export interface TempleDealsPopupOptions {
   pageDomain: string;
   closeTitle?: string;
   activateEvent: string;
-  closeEvent: string;
   showSettings?: boolean;
   showDescriptionToggle?: boolean;
   onClose: () => void;
@@ -66,7 +66,6 @@ function renderTempleDealsPopup(
     pageDomain,
     closeTitle = 'Close',
     activateEvent,
-    closeEvent,
     showSettings = true,
     showDescriptionToggle = false,
     onClose
@@ -80,6 +79,8 @@ function renderTempleDealsPopup(
   let popupEl: HTMLElement | null = null;
   let settingsBtn: HTMLButtonElement | null = null;
   let settingsDropdown: HTMLElement | null = null;
+
+  trackTempleDealsEvent(TEMPLE_DEALS_EVENTS.cpcWidgetView, { domain }, "General");
 
   function render() {
     cleanupOutsideClick?.();
@@ -130,7 +131,7 @@ function renderTempleDealsPopup(
     closeBtn.title = closeTitle;
     closeBtn.innerHTML = CLOSE_ICON;
     closeBtn.addEventListener('click', () => {
-      trackTempleDealsEvent(closeEvent, { domain });
+      trackTempleDealsEvent(TEMPLE_DEALS_EVENTS.popupCloseButton, { domain });
       onClose();
     });
     headerActions.appendChild(closeBtn);
@@ -149,7 +150,7 @@ function renderTempleDealsPopup(
     snoozeBtn.innerHTML = SNOOZE_ICON;
     snoozeBtn.appendChild(document.createTextNode(` ${msg('snoozeFor24h')}`));
     snoozeBtn.addEventListener('click', async () => {
-      trackTempleDealsEvent('snoozeFor24h', { domain });
+      trackTempleDealsEvent(TEMPLE_DEALS_EVENTS.popupSnooze, { domain });
       await browser.runtime.sendMessage({ type: ContentScriptType.MerchantOfferSnooze });
       onClose();
     });
@@ -163,7 +164,7 @@ function renderTempleDealsPopup(
     disableBtn.appendChild(document.createTextNode(' '));
     disableBtn.appendChild(disableText);
     disableBtn.addEventListener('click', async () => {
-      trackTempleDealsEvent('MerchantOfferPopupDisable', { domain });
+      trackTempleDealsEvent(TEMPLE_DEALS_EVENTS.popupDisable, { domain });
       await browser.runtime.sendMessage({ type: ContentScriptType.MerchantOfferDisable });
       onClose();
     });

@@ -4,10 +4,19 @@ import { ContentScriptType } from 'lib/constants';
 
 export const TEMPLE_DEALS_ACTIVATED_KEY_PREFIX = 'temple-merchant-offer-activated:';
 
+export const TEMPLE_DEALS_EVENTS = {
+  cpcWidgetView: 'Deals CPC Widget / View',
+  tagActivateBounty: 'Deals Tag / Activate Bounty',
+  popupActivateBounty: 'Deals Pop-up / Activate Bounty',
+  popupCloseButton: 'Deals Pop-up / Close Button Click',
+  popupSnooze: 'Deals Pop-up / Snooze',
+  popupDisable: 'Deals Pop-up / Disable'
+} as const;
+
 export const msg = (key: string, substitutions?: string | string[]) =>
   browser.i18n.getMessage(key, substitutions) || key;
 
-export function trackTempleDealsEvent(event: string, properties?: object) {
+export function trackTempleDealsEvent(event: string, properties?: object, category: "General" | "ButtonPress" = "ButtonPress") {
   browser.runtime
     .sendMessage({
       type: ContentScriptType.MerchantOfferAnalytics,
