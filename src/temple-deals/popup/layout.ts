@@ -31,6 +31,7 @@ export interface TempleDealsPopupOptions {
   activateEvent: string;
   showSettings?: boolean;
   showDescriptionToggle?: boolean;
+  onSettingsChange?: () => void;
   onClose: () => void;
 }
 
@@ -68,6 +69,7 @@ function renderTempleDealsPopup(
     activateEvent,
     showSettings = true,
     showDescriptionToggle = false,
+    onSettingsChange,
     onClose
   }: TempleDealsPopupOptions
 ) {
@@ -152,6 +154,7 @@ function renderTempleDealsPopup(
     snoozeBtn.addEventListener('click', async () => {
       trackTempleDealsEvent(TEMPLE_DEALS_EVENTS.popupSnooze, { domain });
       await browser.runtime.sendMessage({ type: ContentScriptType.MerchantOfferSnooze });
+      onSettingsChange?.();
       onClose();
     });
     dropdown.appendChild(snoozeBtn);
@@ -166,6 +169,7 @@ function renderTempleDealsPopup(
     disableBtn.addEventListener('click', async () => {
       trackTempleDealsEvent(TEMPLE_DEALS_EVENTS.popupDisable, { domain });
       await browser.runtime.sendMessage({ type: ContentScriptType.MerchantOfferDisable });
+      onSettingsChange?.();
       onClose();
     });
     dropdown.appendChild(disableBtn);

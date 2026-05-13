@@ -22,6 +22,7 @@ let hoverHost: HTMLDivElement | null = null;
 let showHoverTimeout: number | null = null;
 let hideHoverTimeout: number | null = null;
 let offersFlushTimeout: number | null = null;
+let isTempleDealsHidden = false;
 
 interface PendingLabel {
   root: Element;
@@ -105,6 +106,8 @@ function injectStyles() {
 }
 
 function scanResults() {
+  if (isTempleDealsHidden) return;
+
   for (const title of document.querySelectorAll('a h3')) {
     if (scanCache.has(title)) continue;
     scanCache.add(title);
@@ -172,6 +175,8 @@ function getTargetUrl(anchor: HTMLAnchorElement) {
 }
 
 function queueLabel(label: PendingLabel) {
+  if (isTempleDealsHidden) return;
+
   label.root.setAttribute(PROCESSED_ATTR, 'pending');
   label.anchor.setAttribute(PROCESSED_ATTR, 'pending');
 
@@ -195,6 +200,8 @@ function scheduleOffersFlush() {
 }
 
 async function flushPendingOffers() {
+  if (isTempleDealsHidden) return;
+
   const domains = [...pendingLabelsByDomain.keys()].filter(domain => !offersCache.has(domain));
   if (!domains.length) return;
 
@@ -220,6 +227,8 @@ async function flushPendingOffers() {
 }
 
 function renderPendingLabel({ root, anchor, moreButton, url, domain }: PendingLabel, offer: MerchantOffer | null) {
+  if (isTempleDealsHidden) return;
+
   if (!offer) {
     root.removeAttribute(PROCESSED_ATTR);
     anchor.removeAttribute(PROCESSED_ATTR);
@@ -336,6 +345,7 @@ function showHoverPopup(label: HTMLElement, offer: MerchantOffer, url: string, d
     activationUrl: url,
     pageDomain: normalizeDomain(window.location.hostname),
     activateEvent: TEMPLE_DEALS_EVENTS.tagActivateBounty,
+    onSettingsChange: hideTempleDealsOnPage,
     onClose: () => {
       hoverHost?.remove();
       hoverHost = null;
@@ -375,4 +385,24 @@ function clearPendingShowHoverPopup() {
 
   window.clearTimeout(showHoverTimeout);
   showHoverTimeout = null;
+}
+
+function hideTempleDealsOnPage() {
+  isTempleDealsHidden = true;
+  pendingLabelsByDomain.clear();
+  clearPendingShowHoverPopup();
+
+  if (offersFlushTimeout) {
+    window.clearTimeout(offersFlushTimeout);
+    offersFlushTimeout = null;
+  }
+
+  if (hideHoverTimeout) {
+    window.clearTimeout(hideHoverTimeout);
+    hideHoverTimeout = null;
+  }
+
+  hoverHost?.remove();
+  hoverHost = null;
+  document.querySelectorAll(`.${LABEL_CLASS}`).forEach(label => label.remove());
 }
