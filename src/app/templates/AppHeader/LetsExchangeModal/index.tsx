@@ -16,17 +16,14 @@ import { ReactComponent as OutLinkIcon } from 'app/icons/base/outLink.svg';
 import { browser } from 'lib/browser';
 import { useDidMount } from 'lib/ui/hooks';
 
+import { UpdateModalProps } from '../types';
+
 import image10Src from './image_10.png';
 import image13Src from './image_13.png';
 import image14Src from './image_14.png';
 import image17Src from './image_17.png';
 import letsExchangeLogoSrc from './letsexchange-logo.png';
 import { LetsExchangeModalSelectors } from './selectors';
-
-interface LetsExchangeModalProps {
-  onClose: EmptyFn;
-  onShown: EmptyFn;
-}
 
 const LETS_EXCHANGE_URL = 'https://letsexchange.io/?ref_id=CtN9tIep5v36D2mb';
 
@@ -35,7 +32,7 @@ const xStocksTagStyle = { top: '4.526980rem', left: '15.654548rem', rotate: '-1.
 const plentyOfCryptoTagStyle = { top: '6.186811rem', left: '2.544388rem', rotate: '-2.67deg' };
 const buySellTagStyle = { top: '4.4743rem', left: '0.938939rem', rotate: '3.8deg' };
 
-export const LetsExchangeModal = memo<LetsExchangeModalProps>(({ onClose, onShown }) => {
+export const LetsExchangeModal = memo(({ onClose, onShown }: UpdateModalProps) => {
   const handleLinkClick = useCallback(async () => {
     onClose();
     await browser.tabs.create({ url: LETS_EXCHANGE_URL });

@@ -48,6 +48,10 @@ export const DEFAULT_TEZOS_CHAINS_SPECS: Record<string, TezosChainSpecs & { test
     name: 'Shadownet',
     testnet: true
   },
+  [TempleTezosChainId.TezosX]: {
+    name: 'Tezos X Previewnet',
+    testnet: true
+  },
   [TempleTezosChainId.Tezlink]: {
     name: 'Tezlink',
     testnet: true
