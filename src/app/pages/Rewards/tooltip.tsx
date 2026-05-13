@@ -9,11 +9,20 @@ export const inviteAccountInfoTippyProps = {
   placement: 'top-start' as const
 };
 
-export const advancedFeaturesInfoTippyProps = {
+export const dealsInfoTippyProps = {
   trigger: 'mouseenter',
   hideOnClick: false,
-  content: t('advancedFeaturesTooltip'),
+  content: t('dealsInfoTooltip'),
   animation: 'shift-away-subtle',
   maxWidth: '16rem',
+  placement: 'top-end' as const
+};
+
+export const promoInfoTippyProps = {
+  trigger: 'mouseenter',
+  hideOnClick: false,
+  content: t('promoInfoTooltip'),
+  animation: 'shift-away-subtle',
+  maxWidth: '12rem',
   placement: 'top-end' as const
 };
