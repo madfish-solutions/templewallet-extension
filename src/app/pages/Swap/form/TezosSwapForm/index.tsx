@@ -137,7 +137,9 @@ export const TezosSwapForm: FC<TezosSwapFormProps> = ({
     mode: 'onSubmit'
   });
 
-  const { control, reset, setValue, formState, getValues, clearErrors } = form;
+  const { control, reset, setValue, formState, getValues, clearErrors, trigger } = form;
+  const { isSubmitting, submitCount } = formState;
+  const formSubmitted = submitCount > 0;
 
   const inputValue = useWatch({ name: 'input', control });
   const outputValue = useWatch({ name: 'output', control });
@@ -311,8 +313,9 @@ export const TezosSwapForm: FC<TezosSwapFormProps> = ({
       }
 
       dispatchLoadSwapParams(newInputValue, currentFormState.output);
+      if (formSubmitted) trigger();
     },
-    [clearErrors, dispatchLoadSwapParams, getValues, setValue]
+    [clearErrors, dispatchLoadSwapParams, getValues, setValue, formSubmitted, trigger]
   );
 
   const handleOutputChange = useCallback(
@@ -327,8 +330,9 @@ export const TezosSwapForm: FC<TezosSwapFormProps> = ({
       }
 
       dispatchLoadSwapParams(currentFormState.input, newOutputValue);
+      if (formSubmitted) trigger();
     },
-    [clearErrors, dispatchLoadSwapParams, getValues, setValue]
+    [clearErrors, dispatchLoadSwapParams, getValues, setValue, formSubmitted, trigger]
   );
 
   const handleSelectedAssetChange = useCallback(
@@ -452,7 +456,7 @@ export const TezosSwapForm: FC<TezosSwapFormProps> = ({
   const otherOperationsPending = pendingTxHashes.length > 0;
 
   const onSubmit = useCallback(async () => {
-    if (formState.isSubmitting) return;
+    if (isSubmitting) return;
 
     if (otherOperationsPending) {
       toastError(t('otherOperationsPendingError'));
@@ -693,7 +697,7 @@ export const TezosSwapForm: FC<TezosSwapFormProps> = ({
     account,
     atomsInputValue,
     formAnalytics,
-    formState.isSubmitting,
+    isSubmitting,
     fromRoute3Token,
     getSwapParams,
     getSwapWithFeeParams,

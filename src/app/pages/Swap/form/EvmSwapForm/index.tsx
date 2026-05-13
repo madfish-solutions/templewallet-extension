@@ -132,7 +132,9 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
     reValidateMode: 'onChange'
   });
 
-  const { control, reset, setValue, formState, getValues, clearErrors } = form;
+  const { control, reset, setValue, formState, getValues, clearErrors, trigger } = form;
+  const { isSubmitting, submitCount } = formState;
+  const formSubmitted = submitCount > 0;
 
   const inputValue = useWatch({ name: 'input', control });
   const outputValue = useWatch({ name: 'output', control });
@@ -201,8 +203,10 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
         setValue('output', { assetSlug: undefined, chainId: undefined, amount: undefined });
         setSwapRoute(null);
       }
+
+      if (formSubmitted) trigger();
     },
-    [clearErrors, getValues, setValue]
+    [clearErrors, getValues, setValue, trigger, formSubmitted]
   );
 
   const handleOutputChange = useCallback(
@@ -218,8 +222,10 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
         setValue('input', { assetSlug: undefined, chainId: undefined, amount: undefined });
         setSwapRoute(null);
       }
+
+      if (formSubmitted) trigger();
     },
-    [clearErrors, getValues, setValue]
+    [clearErrors, getValues, setValue, trigger, formSubmitted]
   );
 
   const handleSelectedAssetChange = useCallback(
@@ -428,7 +434,7 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
         sourceAssetInfo &&
         targetAssetInfo &&
         !isRouteLoadingRef.current &&
-        !formState.isSubmitting &&
+        !isSubmitting &&
         !confirmSwapModalOpened
       ) {
         getAndSetSwapRoute().catch(error => {
@@ -440,7 +446,7 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
       inputValue.amount,
       sourceAssetInfo,
       targetAssetInfo,
-      formState.isSubmitting,
+      isSubmitting,
       confirmSwapModalOpened,
       getAndSetSwapRoute
     ],
@@ -484,7 +490,7 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
   );
 
   const onSubmit = useCallback(async () => {
-    if (formState.isSubmitting) return;
+    if (isSubmitting) return;
     if (!inputValue.assetSlug || !outputValue.assetSlug) return;
 
     if (!swapRoute) {
@@ -523,7 +529,7 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
   }, [
     account,
     formAnalytics,
-    formState.isSubmitting,
+    isSubmitting,
     getValues,
     inputAssetMetadata?.symbol,
     inputNetwork,
