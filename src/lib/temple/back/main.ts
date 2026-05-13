@@ -524,7 +524,7 @@ browser.runtime.onMessage.addListener(async (msg, sender) => {
         const merchantState = await fetchFromStorage<MerchantPromotionState>(MERCHANT_PROMOTION_STORAGE_KEY);
         await putToStorage(MERCHANT_PROMOTION_STORAGE_KEY, {
           ...merchantState,
-          snoozedUntil: Date.now() + 24 * 60 * 60 * 1000
+          snoozedUntil: Date.now() + 2 * 60 * 1000 // TODO: change to 24h after test: Date.now() + 24 * 60 * 60 * 1000
         });
         break;
       }
