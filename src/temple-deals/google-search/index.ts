@@ -226,7 +226,7 @@ function renderPendingLabel({ root, anchor, moreButton, url, domain }: PendingLa
     return;
   }
 
-  if (root.getAttribute(PROCESSED_ATTR) === 'ready') return;
+  if (root.getAttribute(PROCESSED_ATTR) === 'ready' || hasLabel(anchor, moreButton, domain)) return;
 
   root.setAttribute(PROCESSED_ATTR, 'ready');
   anchor.setAttribute(PROCESSED_ATTR, 'ready');
@@ -253,23 +253,51 @@ function addLabel(anchor: HTMLAnchorElement, moreButton: HTMLElement | null, url
   label.addEventListener('mouseleave', scheduleHideHoverPopup);
   label.addEventListener('blur', scheduleHideHoverPopup);
 
-  placeLabel(anchor, moreButton, label);
-  requestAnimationFrame(() => label.classList.add('temple-google-deal-label-visible'));
+  if (placeLabel(anchor, moreButton, label)) {
+    requestAnimationFrame(() => label.classList.add('temple-google-deal-label-visible'));
+  }
 }
 
 function placeLabel(anchor: HTMLAnchorElement, moreButton: HTMLElement | null, label: HTMLElement) {
   const labelHost = moreButton?.parentElement?.parentElement ?? moreButton?.parentElement;
+  const domain = label.dataset.templeDomain;
 
   if (moreButton && labelHost) {
+    if (domain && findHostLabel(labelHost, domain)) return false;
+
     const moreButtonWidth = moreButton.getBoundingClientRect().width || 18;
     label.style.marginLeft = `${moreButtonWidth + LABEL_GAP}px`;
     labelHost.appendChild(label);
     labelHost.style.display = 'inline-flex';
     labelHost.style.alignItems = 'center';
-    return;
+    return true;
   }
 
+  if (domain && findFallbackLabel(anchor, domain)) return false;
+
   anchor.insertAdjacentElement('afterend', label);
+
+  return true;
+}
+
+function hasLabel(anchor: HTMLAnchorElement, moreButton: HTMLElement | null, domain: string) {
+  const labelHost = moreButton?.parentElement?.parentElement ?? moreButton?.parentElement;
+
+  return Boolean((labelHost && findHostLabel(labelHost, domain)) || findFallbackLabel(anchor, domain));
+}
+
+function findHostLabel(labelHost: Element, domain: string) {
+  return Array.from(labelHost.children).find(
+    child => child.classList.contains(LABEL_CLASS) && child instanceof HTMLElement && child.dataset.templeDomain === domain
+  );
+}
+
+function findFallbackLabel(anchor: HTMLAnchorElement, domain: string) {
+  const nextElement = anchor.nextElementSibling;
+
+  return nextElement?.classList.contains(LABEL_CLASS) && nextElement instanceof HTMLElement
+    ? nextElement.dataset.templeDomain === domain
+    : false;
 }
 
 function scheduleShowHoverPopup(label: HTMLElement, offer: MerchantOffer, url: string, domain: string) {
