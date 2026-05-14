@@ -429,4 +429,3 @@ const OrderExpiredView: FC<OrderExpiredViewProps> = ({
     </ActionsButtonsBox>
   </>
 );
-

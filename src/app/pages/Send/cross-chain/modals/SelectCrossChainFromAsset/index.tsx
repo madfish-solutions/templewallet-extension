@@ -1,4 +1,4 @@
-import { FC, useState } from 'react';
+import { FC, useMemo, useState } from 'react';
 
 import BigNumber from 'bignumber.js';
 import clsx from 'clsx';
@@ -15,7 +15,7 @@ import { useTezosUsdToTokenRatesSelector } from 'app/store/currency/selectors';
 import { useEvmUsdToTokenRatesSelector } from 'app/store/evm/tokens-exchange-rates/selectors';
 import { NetworkPopper } from 'app/templates/network-popper';
 import { SearchBarField } from 'app/templates/SearchField';
-import { compareBn } from 'lib/assets/use-sorting';
+import { compare } from 'lib/assets/use-sorting';
 import { CrossChainAsset, ExolixNetworksOverride, getAllowedFromAssets, toCrossChainAssetSlug } from 'lib/cross-chain';
 import { t } from 'lib/i18n';
 import { ZERO } from 'lib/utils/numbers';
@@ -60,41 +60,46 @@ export const SelectCrossChainFromAssetModal: FC<Props> = ({ opened, networksMap,
   const assets = getAllowedFromAssets(networksMap);
   const search = searchDebounced.trim().toLowerCase();
 
-  const filteredAssets = assets.filter(asset => {
-    const slug = toCrossChainAssetSlug(asset);
-    const balance = balances[slug];
-    if (!balance || balance.isLessThanOrEqualTo(0)) return false;
+  const filteredAssets = useMemo(
+    () =>
+      assets.filter(asset => {
+        const slug = toCrossChainAssetSlug(asset);
+        const balance = balances[slug];
+        if (!balance || balance.isLessThanOrEqualTo(0)) return false;
 
-    if (isFilterChain(filterChain) && filterChain) {
-      if (filterChain.kind !== asset.chainKind) return false;
-      if (String(filterChain.chainId) !== String(asset.chainId)) return false;
-    }
+        if (isFilterChain(filterChain) && filterChain) {
+          if (filterChain.kind !== asset.chainKind) return false;
+          if (String(filterChain.chainId) !== String(asset.chainId)) return false;
+        }
 
-    if (!search) return true;
-    return (
-      asset.symbol.toLowerCase().includes(search) ||
-      asset.name.toLowerCase().includes(search) ||
-      asset.exolixNetwork.toLowerCase().includes(search)
-    );
-  });
+        if (!search) return true;
+        return (
+          asset.symbol.toLowerCase().includes(search) ||
+          asset.name.toLowerCase().includes(search) ||
+          asset.exolixNetwork.toLowerCase().includes(search)
+        );
+      }),
+    [assets, balances, filterChain, search]
+  );
 
-  const valued = filteredAssets.map(asset => {
-    const slug = asset.assetSlug ?? '';
-    const rate =
-      asset.chainKind === TempleChainKind.EVM && typeof asset.chainId === 'number'
-        ? (evmUsdRates[asset.chainId]?.[slug] ?? ZERO)
-        : asset.chainKind === TempleChainKind.Tezos
-          ? (tezosUsdRates[slug] ?? ZERO)
-          : ZERO;
-    const balance = balances[toCrossChainAssetSlug(asset)] ?? ZERO;
-    const equity = balance.multipliedBy(rate);
-    return { asset, balance, equity };
-  });
-  valued.sort((a, b) => {
-    if (a.equity.isEqualTo(b.equity)) return compareBn(b.balance, a.balance);
-    return compareBn(b.equity, a.equity);
-  });
-  const sortedAssets = valued.map(v => v.asset);
+  const assetsByUsdValue = filteredAssets
+    .map(asset => {
+      const assetSlug = asset.assetSlug ?? '';
+      const usdRate =
+        asset.chainKind === TempleChainKind.EVM && typeof asset.chainId === 'number'
+          ? (evmUsdRates[asset.chainId]?.[assetSlug] ?? ZERO)
+          : asset.chainKind === TempleChainKind.Tezos
+            ? (tezosUsdRates[assetSlug] ?? ZERO)
+            : ZERO;
+      const tokenBalance = balances[toCrossChainAssetSlug(asset)] ?? ZERO;
+      const usdValue = tokenBalance.multipliedBy(usdRate);
+      return { asset, tokenBalance, usdValue };
+    })
+    .sort((a, b) => {
+      if (a.usdValue.isEqualTo(b.usdValue)) return compare(b.tokenBalance, a.tokenBalance);
+      return compare(b.usdValue, a.usdValue);
+    });
+  const sortedAssets = assetsByUsdValue.map(entry => entry.asset);
 
   const handleSelect = (asset: CrossChainAsset) => {
     onSelect(asset);
