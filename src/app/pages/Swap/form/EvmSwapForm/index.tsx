@@ -442,14 +442,7 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
         });
       }
     },
-    [
-      inputValue.amount,
-      sourceAssetInfo,
-      targetAssetInfo,
-      isSubmitting,
-      confirmSwapModalOpened,
-      getAndSetSwapRoute
-    ],
+    [inputValue.amount, sourceAssetInfo, targetAssetInfo, isSubmitting, confirmSwapModalOpened, getAndSetSwapRoute],
     AUTO_REFRESH_INTERVAL_MS,
     false
   );

@@ -230,9 +230,7 @@ export const BaseForm: FC<Props> = ({
                   shouldShowConvertedAmountBlock ? (
                     <div className="flex justify-between items-center mt-1 gap-2">
                       {error ? (
-                        <span className="flex-1 text-font-description text-error">
-                          {error.message}
-                        </span>
+                        <span className="flex-1 text-font-description text-error">{error.message}</span>
                       ) : (
                         <ConvertedInputAssetAmount
                           chainId={network.chainId}

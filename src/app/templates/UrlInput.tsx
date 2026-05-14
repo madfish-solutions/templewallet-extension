@@ -98,13 +98,17 @@ export const UrlInput = <K extends string, T extends Record<K, string>>({
     <Controller
       control={control}
       name={castName}
-      rules={isEditable ? {
-        required: required && t('required'),
-        pattern: { value: createUrlPattern(allowHttp), message: t('mustBeValidURL') },
-        validate: (value: PathValue<T, Path<T>>) =>
-          urlsToExclude?.includes(value as string) ? t('mustBeUnique') : true,
-        onChange: handleChange
-      } : undefined}
+      rules={
+        isEditable
+          ? {
+              required: required && t('required'),
+              pattern: { value: createUrlPattern(allowHttp), message: t('mustBeValidURL') },
+              validate: (value: PathValue<T, Path<T>>) =>
+                urlsToExclude?.includes(value as string) ? t('mustBeUnique') : true,
+              onChange: handleChange
+            }
+          : undefined
+      }
       render={({ field: { onChange, onBlur, ref, value }, fieldState: { error } }) => (
         <FormField
           ref={ref}
