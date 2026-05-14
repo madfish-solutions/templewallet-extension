@@ -143,7 +143,6 @@ export const TezosSwapForm: FC<TezosSwapFormProps> = ({
 
   const inputValue = useWatch({ name: 'input', control });
   const outputValue = useWatch({ name: 'output', control });
-  const isFiatMode = useWatch({ name: 'isFiatMode', control });
 
   const { value: inputTokenBalance = ZERO } = useTezosAssetBalance(
     inputValue.assetSlug ?? TEZ_TOKEN_SLUG,
@@ -214,7 +213,7 @@ export const TezosSwapForm: FC<TezosSwapFormProps> = ({
       const { assetSlug: inputAssetSlug, amount: inputAmount } = newInputValue;
       const outputAssetSlug = newOutputValue.assetSlug;
       const inputTokenUsdPrice = inputAssetSlug ? allUsdToTokenRates[inputAssetSlug] : '0';
-      const inputTokenAmount = isFiatMode
+      const inputTokenAmount = getValues('isFiatMode')
         ? parseFiatValueToAssetAmount(inputAmount, inputAssetMetadata.decimals, 'input')
         : inputAmount;
       const inputAmountInUsd = inputTokenAmount?.multipliedBy(inputTokenUsdPrice) ?? ZERO;
@@ -232,16 +231,16 @@ export const TezosSwapForm: FC<TezosSwapFormProps> = ({
         isSwapAmountMoreThreshold
       };
     },
-    [allUsdToTokenRates, isFiatMode, inputAssetMetadata.decimals, parseFiatValueToAssetAmount]
+    [allUsdToTokenRates, inputAssetMetadata.decimals, parseFiatValueToAssetAmount, getValues]
   );
 
   const atomsInputValue = useMemo(() => {
-    const inputValueToUse = isFiatMode
+    const inputValueToUse = getValues('isFiatMode')
       ? parseFiatValueToAssetAmount(inputValue.amount, inputAssetMetadata.decimals)
       : inputValue.amount;
 
     return tokensToAtoms(inputValueToUse ?? ZERO, inputAssetMetadata.decimals);
-  }, [inputAssetMetadata.decimals, inputValue.amount, isFiatMode, parseFiatValueToAssetAmount]);
+  }, [inputAssetMetadata.decimals, inputValue.amount, parseFiatValueToAssetAmount, getValues]);
 
   const isOutputTempleToken = outputValue.assetSlug === KNOWN_TOKENS_SLUGS.TEMPLE;
 
@@ -265,7 +264,7 @@ export const TezosSwapForm: FC<TezosSwapFormProps> = ({
 
       if (!inputMetadata) return;
 
-      const inputValueToUse = isFiatMode
+      const inputValueToUse = getValues('isFiatMode')
         ? parseFiatValueToAssetAmount(input.amount, inputAssetMetadata.decimals)
         : input.amount;
 
@@ -289,7 +288,7 @@ export const TezosSwapForm: FC<TezosSwapFormProps> = ({
         })
       );
     },
-    [getTokenMetadata, inputAssetMetadata.decimals, parseFiatValueToAssetAmount, route3Tokens, tezos.rpc, isFiatMode]
+    [getTokenMetadata, inputAssetMetadata.decimals, parseFiatValueToAssetAmount, route3Tokens, tezos.rpc, getValues]
   );
 
   useEffect(() => {
@@ -414,12 +413,14 @@ export const TezosSwapForm: FC<TezosSwapFormProps> = ({
       const amount = atomsToTokens(expectedReceivedAtomic, outputAssetMetadata.decimals);
       setValue('output', {
         assetSlug: outputValue.assetSlug,
-        amount: isFiatMode ? amount.times(outputAssetPrice).decimalPlaces(2, BigNumber.ROUND_FLOOR) : amount
+        amount: getValues('isFiatMode')
+          ? amount.times(outputAssetPrice).decimalPlaces(2, BigNumber.ROUND_FLOOR)
+          : amount
       });
     }
   }, [
     atomsInputValue,
-    isFiatMode,
+    getValues,
     isOutputTempleToken,
     outputAssetMetadata.decimals,
     outputAssetPrice,
@@ -440,7 +441,7 @@ export const TezosSwapForm: FC<TezosSwapFormProps> = ({
 
   const handleSetMaxAmount = useCallback(() => {
     if (inputValue.assetSlug && inputTokenMaxAmount) {
-      const formattedMaxAmount = isFiatMode
+      const formattedMaxAmount = getValues('isFiatMode')
         ? inputTokenMaxAmount.times(inputAssetPrice).decimalPlaces(2, BigNumber.ROUND_FLOOR)
         : inputTokenMaxAmount;
 
@@ -450,7 +451,7 @@ export const TezosSwapForm: FC<TezosSwapFormProps> = ({
         toastUniqWarning(t('notEnoughTezForFee'), true);
       }
     }
-  }, [handleInputChange, inputAssetPrice, inputTokenBalance, inputTokenMaxAmount, inputValue.assetSlug, isFiatMode]);
+  }, [handleInputChange, inputAssetPrice, inputTokenBalance, inputTokenMaxAmount, inputValue.assetSlug, getValues]);
 
   const pendingTxHashes = usePendingTezosTransactionsHashes(publicKeyHash, network.chainId);
   const otherOperationsPending = pendingTxHashes.length > 0;

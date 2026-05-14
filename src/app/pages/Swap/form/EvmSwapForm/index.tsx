@@ -138,7 +138,6 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
 
   const inputValue = useWatch({ name: 'input', control });
   const outputValue = useWatch({ name: 'output', control });
-  const isFiatMode = useWatch({ name: 'isFiatMode', control });
   const [debouncedInputAmount] = useDebounce(inputValue.amount, 200);
 
   const { value: inputTokenBalance = ZERO } = useEvmAssetBalance(
@@ -287,12 +286,12 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
   );
 
   const atomsInputValue = useMemo(() => {
-    const inputValueToUse = isFiatMode
+    const inputValueToUse = getValues('isFiatMode')
       ? parseFiatValueToAssetAmount(inputValue.amount, inputAssetMetadata?.decimals)
       : inputValue.amount;
 
     return tokensToAtoms(inputValueToUse || ZERO, inputAssetMetadata?.decimals ?? 0);
-  }, [inputAssetMetadata?.decimals, inputValue.amount, isFiatMode, parseFiatValueToAssetAmount]);
+  }, [inputAssetMetadata?.decimals, inputValue.amount, parseFiatValueToAssetAmount, getValues]);
 
   const routeAbortControllerRef = useRef<AbortController>(null);
   const latestRequestIdRef = useRef(0);
@@ -467,13 +466,13 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
 
   const handleSetMaxAmount = useCallback(() => {
     if (inputValue.assetSlug && inputTokenMaxAmount) {
-      const formattedMaxAmount = isFiatMode
+      const formattedMaxAmount = getValues('isFiatMode')
         ? inputTokenMaxAmount.times(inputAssetPrice).decimalPlaces(2, BigNumber.ROUND_FLOOR)
         : inputTokenMaxAmount;
 
       handleInputChange({ assetSlug: inputValue.assetSlug, chainId: inputValue.chainId, amount: formattedMaxAmount });
     }
-  }, [handleInputChange, inputAssetPrice, inputTokenMaxAmount, inputValue.assetSlug, inputValue.chainId, isFiatMode]);
+  }, [handleInputChange, inputAssetPrice, inputTokenMaxAmount, inputValue.assetSlug, inputValue.chainId, getValues]);
 
   const getMinimumReceivedAmount = useCallback(
     (outputAmount: BigNumber | undefined) => {
