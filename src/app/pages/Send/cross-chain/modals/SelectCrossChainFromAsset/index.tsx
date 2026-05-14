@@ -60,6 +60,8 @@ export const SelectCrossChainFromAssetModal: FC<Props> = ({ opened, networksMap,
   const assets = getAllowedFromAssets(networksMap);
   const search = searchDebounced.trim().toLowerCase();
 
+  // Explicit useMemo here: React Compiler also memoizes this, but the explicit hint
+  // collapses several auto-generated cache slots into one and reads cleaner in the compiler output.
   const filteredAssets = useMemo(
     () =>
       assets.filter(asset => {
@@ -82,24 +84,30 @@ export const SelectCrossChainFromAssetModal: FC<Props> = ({ opened, networksMap,
     [assets, balances, filterChain, search]
   );
 
-  const assetsByUsdValue = filteredAssets
-    .map(asset => {
-      const assetSlug = asset.assetSlug ?? '';
-      const usdRate =
-        asset.chainKind === TempleChainKind.EVM && typeof asset.chainId === 'number'
-          ? (evmUsdRates[asset.chainId]?.[assetSlug] ?? ZERO)
-          : asset.chainKind === TempleChainKind.Tezos
-            ? (tezosUsdRates[assetSlug] ?? ZERO)
-            : ZERO;
-      const tokenBalance = balances[toCrossChainAssetSlug(asset)] ?? ZERO;
-      const usdValue = tokenBalance.multipliedBy(usdRate);
-      return { asset, tokenBalance, usdValue };
-    })
-    .sort((a, b) => {
-      if (a.usdValue.isEqualTo(b.usdValue)) return compare(b.tokenBalance, a.tokenBalance);
-      return compare(b.usdValue, a.usdValue);
-    });
-  const sortedAssets = assetsByUsdValue.map(entry => entry.asset);
+  // Explicit useMemo here: React Compiler also memoizes this, but the explicit hint
+  // collapses several auto-generated cache slots into one and reads cleaner in the compiler output.
+  const sortedAssets = useMemo(
+    () =>
+      filteredAssets
+        .map(asset => {
+          const assetSlug = asset.assetSlug ?? '';
+          const usdRate =
+            asset.chainKind === TempleChainKind.EVM && typeof asset.chainId === 'number'
+              ? (evmUsdRates[asset.chainId]?.[assetSlug] ?? ZERO)
+              : asset.chainKind === TempleChainKind.Tezos
+                ? (tezosUsdRates[assetSlug] ?? ZERO)
+                : ZERO;
+          const tokenBalance = balances[toCrossChainAssetSlug(asset)] ?? ZERO;
+          const usdValue = tokenBalance.multipliedBy(usdRate);
+          return { asset, tokenBalance, usdValue };
+        })
+        .sort((a, b) => {
+          if (a.usdValue.isEqualTo(b.usdValue)) return compare(b.tokenBalance, a.tokenBalance);
+          return compare(b.usdValue, a.usdValue);
+        })
+        .map(entry => entry.asset),
+    [filteredAssets, balances, evmUsdRates, tezosUsdRates]
+  );
 
   const handleSelect = (asset: CrossChainAsset) => {
     onSelect(asset);
