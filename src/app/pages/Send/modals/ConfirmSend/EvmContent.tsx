@@ -1,4 +1,4 @@
-import React, { FC, ReactNode, useState } from 'react';
+import React, { FC, ReactNode, useEffect, useState } from 'react';
 
 import { omit } from 'lodash';
 import { FormProvider } from 'react-hook-form';
@@ -37,6 +37,7 @@ interface EvmContentProps {
   detailsContent?: ReactNode;
   silentEstimation?: boolean;
   suppressSubmitToast?: boolean;
+  onSubmittingChange?: (isSubmitting: boolean) => void;
 }
 
 export const EvmContent: FC<EvmContentProps> = ({
@@ -45,7 +46,8 @@ export const EvmContent: FC<EvmContentProps> = ({
   onSuccess,
   detailsContent,
   silentEstimation,
-  suppressSubmitToast
+  suppressSubmitToast,
+  onSubmittingChange
 }) => {
   const { account, network, assetSlug, to, amount, onConfirm } = data;
 
@@ -88,6 +90,10 @@ export const EvmContent: FC<EvmContentProps> = ({
   const { formState } = form;
   const { ledgerApprovalModalState, setLedgerApprovalModalState, handleLedgerModalClose } =
     useLedgerApprovalModalState();
+
+  useEffect(() => {
+    onSubmittingChange?.(formState.isSubmitting);
+  }, [formState.isSubmitting, onSubmittingChange]);
 
   const onSubmitError = (err: unknown) => {
     console.error(err);

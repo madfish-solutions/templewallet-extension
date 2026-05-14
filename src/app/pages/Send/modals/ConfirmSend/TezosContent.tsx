@@ -1,4 +1,4 @@
-import React, { FC, ReactNode, useState } from 'react';
+import React, { FC, ReactNode, useEffect, useState } from 'react';
 
 import { OpKind, TransferParams, WalletParamsWithKind } from '@taquito/taquito';
 import { FormProvider } from 'react-hook-form';
@@ -42,6 +42,7 @@ interface TezosContentProps {
   onClose: EmptyFn;
   detailsContent?: ReactNode;
   suppressSubmitToast?: boolean;
+  onSubmittingChange?: (isSubmitting: boolean) => void;
 }
 
 export const TezosContent: FC<TezosContentProps> = ({
@@ -49,7 +50,8 @@ export const TezosContent: FC<TezosContentProps> = ({
   onClose,
   onSuccess,
   detailsContent,
-  suppressSubmitToast
+  suppressSubmitToast,
+  onSubmittingChange
 }) => {
   const { account, network, assetSlug, to, amount, onConfirm } = data;
   const { rpcBaseURL, chainId } = network;
@@ -131,6 +133,10 @@ export const TezosContent: FC<TezosContentProps> = ({
   const { ledgerApprovalModalState, setLedgerApprovalModalState, handleLedgerModalClose } =
     useLedgerApprovalModalState();
   const { guard, ledgerPromptProps } = useLedgerWebHidFullViewGuard();
+
+  useEffect(() => {
+    onSubmittingChange?.(formState.isSubmitting);
+  }, [formState.isSubmitting, onSubmittingChange]);
 
   const onSubmitError = (err: unknown) => {
     console.error(err);

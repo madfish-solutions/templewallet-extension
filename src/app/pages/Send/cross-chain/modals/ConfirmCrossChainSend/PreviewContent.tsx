@@ -1,6 +1,7 @@
-import React, { FC, useEffect, useRef } from 'react';
+import React, { FC, useEffect, useRef, useState } from 'react';
 
 import { noop } from 'lodash';
+import { unstable_serialize, useSWRConfig } from 'swr';
 
 import { Loader } from 'app/atoms';
 import { ActionsButtonsBox } from 'app/atoms/PageModal/actions-buttons-box';
@@ -12,6 +13,7 @@ import { TezosContent } from 'app/pages/Send/modals/ConfirmSend/TezosContent';
 import { TxData } from 'app/pages/Send/modals/ConfirmSend/types';
 import { useAnalytics } from 'lib/analytics';
 import { ExchangeData } from 'lib/apis/exolix/types';
+import { CrossChainAsset } from 'lib/cross-chain';
 import { T, t } from 'lib/i18n';
 import { useCategorizedTezosAssetMetadata } from 'lib/metadata';
 import { EvmEstimationDataProvider, TezosEstimationDataProvider } from 'lib/temple/front/estimation-data-providers';
@@ -22,10 +24,15 @@ import { TempleChainKind } from 'temple/types';
 
 import { CrossChainAnalyticsEvents } from '../../analytics';
 import backgroundFailedSrc from '../../assets/background-failed.svg?url';
-import { useCrossChainExchangeReservation } from '../../hooks/use-cross-chain-exchange-reservation';
+import {
+  buildCrossChainReservationCacheKey,
+  useCrossChainExchangeReservation
+} from '../../hooks/use-cross-chain-exchange-reservation';
+import { useExchangeReservationExpiry } from '../../hooks/use-exchange-reservation-expiry';
 import { useSubmitCrossChainExchange } from '../../hooks/use-submit-cross-chain-exchange';
 
 import { CrossChainPreviewRows } from './CrossChainPreviewRows';
+import { ExchangeSummaryCard } from './ExchangeSummaryCard';
 import { StatusHeroRegion } from './StatusHeroRegion';
 import { ConfirmCrossChainReviewData } from './types';
 
@@ -43,16 +50,73 @@ export const PreviewContent: FC<Props> = ({ data, onSubmitted, onCancel }) => {
   const evmNetwork = useEvmChainByChainId(Number(fromAsset.chainId ?? 0));
   const tezosNetwork = useTezosChainByChainId(String(fromAsset.chainId ?? ''));
 
+  const senderAddress =
+    fromAsset.chainKind === TempleChainKind.EVM
+      ? evmAccount?.address
+      : fromAsset.chainKind === TempleChainKind.Tezos
+        ? tezosAccount?.address
+        : undefined;
+
   const reservation = useCrossChainExchangeReservation({
     fromAsset,
     toAsset,
     fromAmount,
-    recipient
+    recipient,
+    refundAddress: senderAddress ?? ''
   });
 
   const { data: exchange, error, isLoading } = reservation;
 
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const expired = useExchangeReservationExpiry(exchange?.createdAt);
+  const isExpired = expired && !isSubmitting;
+
+  const { cache: swrCache } = useSWRConfig();
+  const expiryCacheKey = senderAddress
+    ? unstable_serialize(
+        buildCrossChainReservationCacheKey({
+          fromAsset,
+          toAsset,
+          fromAmount,
+          recipient,
+          refundAddress: senderAddress
+        })
+      )
+    : null;
+
+  useEffect(() => {
+    if (!isExpired || !expiryCacheKey) return;
+    return () => swrCache.delete(expiryCacheKey);
+  }, [isExpired, expiryCacheKey, swrCache]);
+
   const { trackEvent } = useAnalytics();
+
+  const reportedExpiryRef = useRef(false);
+
+  useEffect(() => {
+    if (!isExpired || reportedExpiryRef.current) return;
+    reportedExpiryRef.current = true;
+    trackEvent(CrossChainAnalyticsEvents.CrossChainPreBroadcastExpired, undefined, {
+      exchangeId: exchange?.id,
+      fromCoin: fromAsset.exolixCoin,
+      fromNetwork: fromAsset.exolixNetwork,
+      toCoin: toAsset.exolixCoin,
+      toNetwork: toAsset.exolixNetwork,
+      amount: fromAmount,
+      createdAt: exchange?.createdAt
+    });
+  }, [
+    isExpired,
+    trackEvent,
+    exchange?.id,
+    exchange?.createdAt,
+    fromAsset.exolixCoin,
+    fromAsset.exolixNetwork,
+    toAsset.exolixCoin,
+    toAsset.exolixNetwork,
+    fromAmount
+  ]);
 
   const lastReportedErrorRef = useRef<string | null>(null);
   useEffect(() => {
@@ -89,6 +153,23 @@ export const PreviewContent: FC<Props> = ({ data, onSubmitted, onCancel }) => {
     return <ReservationFailureView onClose={onCancel} onTryAgain={onCancel} />;
   }
 
+  if (isExpired) {
+    return (
+      <OrderExpiredView
+        onClose={onCancel}
+        fromAsset={fromAsset}
+        toAsset={toAsset}
+        fromAmount={fromAmount}
+        toAmountEstimated={data.toAmountEstimated}
+        senderAddress={senderAddress}
+        recipient={recipient}
+        exolixId={exchange.id}
+        sourceChainKind={fromAsset.chainKind!}
+        sourceChainId={fromAsset.chainId ?? ''}
+      />
+    );
+  }
+
   if (fromAsset.chainKind === TempleChainKind.EVM && evmAccount && evmNetwork) {
     return (
       <EvmEstimationDataProvider>
@@ -99,6 +180,7 @@ export const PreviewContent: FC<Props> = ({ data, onSubmitted, onCancel }) => {
           network={evmNetwork}
           onSubmitted={onSubmitted}
           onCancel={onCancel}
+          onSubmittingChange={setIsSubmitting}
         />
       </EvmEstimationDataProvider>
     );
@@ -114,6 +196,7 @@ export const PreviewContent: FC<Props> = ({ data, onSubmitted, onCancel }) => {
           network={tezosNetwork}
           onSubmitted={onSubmitted}
           onCancel={onCancel}
+          onSubmittingChange={setIsSubmitting}
         />
       </TezosEstimationDataProvider>
     );
@@ -129,6 +212,7 @@ interface PreviewBodyProps<TAccount, TNetwork> {
   network: TNetwork;
   onSubmitted: (exchangeId: string) => void;
   onCancel: EmptyFn;
+  onSubmittingChange: (isSubmitting: boolean) => void;
 }
 
 const EvmPreviewBody: FC<PreviewBodyProps<AccountForChain<TempleChainKind.EVM>, EvmChain>> = ({
@@ -137,7 +221,8 @@ const EvmPreviewBody: FC<PreviewBodyProps<AccountForChain<TempleChainKind.EVM>, 
   account,
   network,
   onSubmitted,
-  onCancel
+  onCancel,
+  onSubmittingChange
 }) => {
   const { fromAsset, toAsset, fromAmount, toAmountEstimated, recipient } = data;
   const currentAccount = useAccount();
@@ -180,6 +265,7 @@ const EvmPreviewBody: FC<PreviewBodyProps<AccountForChain<TempleChainKind.EVM>, 
       detailsContent={<CrossChainPreviewRows recipient={recipient} fromAsset={fromAsset} toAsset={toAsset} />}
       silentEstimation
       suppressSubmitToast
+      onSubmittingChange={onSubmittingChange}
     />
   );
 };
@@ -190,7 +276,8 @@ const TezosPreviewBody: FC<PreviewBodyProps<AccountForChain<TempleChainKind.Tezo
   account,
   network,
   onSubmitted,
-  onCancel
+  onCancel,
+  onSubmittingChange
 }) => {
   const { fromAsset, toAsset, fromAmount, toAmountEstimated, recipient } = data;
   const currentAccount = useAccount();
@@ -238,6 +325,7 @@ const TezosPreviewBody: FC<PreviewBodyProps<AccountForChain<TempleChainKind.Tezo
       onSuccess={handleSuccess}
       detailsContent={<CrossChainPreviewRows recipient={recipient} fromAsset={fromAsset} toAsset={toAsset} />}
       suppressSubmitToast
+      onSubmittingChange={onSubmittingChange}
     />
   );
 };
@@ -279,3 +367,66 @@ const ReservationFailureView: FC<FailureProps> = ({ onClose, onTryAgain }) => (
     </ActionsButtonsBox>
   </>
 );
+
+interface OrderExpiredViewProps {
+  onClose: EmptyFn;
+  fromAsset: CrossChainAsset;
+  toAsset: CrossChainAsset;
+  fromAmount: string;
+  toAmountEstimated: string;
+  senderAddress?: string;
+  recipient: string;
+  exolixId: string;
+  sourceChainKind: TempleChainKind;
+  sourceChainId: string | number;
+}
+
+const OrderExpiredView: FC<OrderExpiredViewProps> = ({
+  onClose,
+  fromAsset,
+  toAsset,
+  fromAmount,
+  toAmountEstimated,
+  senderAddress,
+  recipient,
+  exolixId,
+  sourceChainKind,
+  sourceChainId
+}) => (
+  <>
+    <div className="flex-1 min-h-0 overflow-y-auto px-4 pt-3 pb-4 flex flex-col items-stretch">
+      <StatusHeroRegion
+        backgroundSrc={backgroundFailedSrc}
+        outerClassName="h-48 px-4 pb-2"
+        innerClassName="flex flex-col items-center gap-y-3 pb-4 pt-6"
+      >
+        <XCircleFill width={58} height={58} className="text-error fill-current" />
+        <p className="text-font-regular-bold">{t('orderExpiredCrossChain')}</p>
+        <p className="text-font-description text-grey-1 text-center whitespace-pre-line">
+          {t('orderExpiredCrossChainPreBroadcastDescription')}
+        </p>
+      </StatusHeroRegion>
+
+      <ExchangeSummaryCard
+        fromAsset={fromAsset}
+        toAsset={toAsset}
+        fromAmount={fromAmount}
+        toAmountEstimated={toAmountEstimated}
+        senderAddress={senderAddress}
+        recipient={recipient}
+        exolixId={exolixId}
+        sourceChainKind={sourceChainKind}
+        sourceChainId={sourceChainId}
+        showEstimatedTime={false}
+        hideDetails
+      />
+    </div>
+
+    <ActionsButtonsBox>
+      <StyledButton size="L" className="w-full" color="primary-low" onClick={onClose}>
+        <T id="close" />
+      </StyledButton>
+    </ActionsButtonsBox>
+  </>
+);
+

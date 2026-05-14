@@ -5166,8 +5166,11 @@
   "orderExpiredCrossChain": {
     "message": "Order expired"
   },
-  "orderExpiredCrossChainDescription": {
-    "message": "Your order has expired before the deposit was confirmed. Please try again."
+  "orderExpiredCrossChainPostBroadcastDescription": {
+    "message": "Your order has expired before the deposit was confirmed. Please contact Exolix support to request a refund manually."
+  },
+  "orderExpiredCrossChainPreBroadcastDescription": {
+    "message": "Your order has expired before the deposit was sent. Please start a new exchange."
   },
   "pairNotAvailable": {
     "message": "This pair is not available"

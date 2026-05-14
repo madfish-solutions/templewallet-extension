@@ -27,7 +27,7 @@ export const FailedContent: FC<Props> = ({ exchangeId, onClose, onTryAgain }) =>
 
   const isOverdue = exchange.exolixStatus === OrderStatusEnum.OVERDUE;
   const heading = isOverdue ? t('orderExpiredCrossChain') : t('couldNotComplete');
-  const description = isOverdue ? t('orderExpiredCrossChainDescription') : t('couldNotCompleteDescription');
+  const description = isOverdue ? t('orderExpiredCrossChainPostBroadcastDescription') : t('couldNotCompleteDescription');
 
   return (
     <StatusShell

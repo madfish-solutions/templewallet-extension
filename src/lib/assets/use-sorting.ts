@@ -82,10 +82,10 @@ export const useAccountTokensSortPredicate = (
       const bEquity = bBalance.multipliedBy(bRate);
 
       if (aEquity.isEqualTo(bEquity)) {
-        return compare(bBalance, aBalance);
+        return compareBn(bBalance, aBalance);
       }
 
-      return compare(bEquity, aEquity);
+      return compareBn(bEquity, aEquity);
     },
     [applyFavorites, getTezBalance, getEvmBalance, tezMainnetUsdToTokenRates, evmUsdToTokenRates, isFavorite]
   );
@@ -110,10 +110,10 @@ export const useTezosAccountTokensSortPredicate = (publicKeyHash: string) => {
       const bEquity = bBalance.multipliedBy(bRate);
 
       if (aEquity.isEqualTo(bEquity)) {
-        return compare(bBalance, aBalance);
+        return compareBn(bBalance, aBalance);
       }
 
-      return compare(bEquity, aEquity);
+      return compareBn(bEquity, aEquity);
     },
     [getBalance, mainnetUsdToTokenRates]
   );
@@ -148,10 +148,10 @@ export const useTezosChainAccountTokensSortPredicate = (
       const bEquity = bBalance.multipliedBy(rates[bSlug] ?? ZERO);
 
       if (aEquity.isEqualTo(bEquity)) {
-        return compare(bBalance, aBalance);
+        return compareBn(bBalance, aBalance);
       }
 
-      return compare(bEquity, aEquity);
+      return compareBn(bEquity, aEquity);
     },
     [applyFavorites, getBalance, isFavorite, mainnetUsdToTokenRates, tezosChainId]
   );
@@ -181,10 +181,10 @@ export const useEvmAccountTokensSortPredicate = (publicKeyHash: HexString, apply
       const bEquity = bBalance.multipliedBy(usdToTokenRates[bChainId]?.[bSlug] ?? ZERO);
 
       if (aEquity.isEqualTo(bEquity)) {
-        return compare(bBalance, aBalance);
+        return compareBn(bBalance, aBalance);
       }
 
-      return compare(bEquity, aEquity);
+      return compareBn(bEquity, aEquity);
     },
     [applyFavorites, getBalance, isFavorite, usdToTokenRates]
   );
@@ -215,10 +215,10 @@ export const useEvmChainTokensSortPredicate = (
       const bEquity = bBalance.multipliedBy(usdToTokenRates[bSlug] ?? ZERO);
 
       if (aEquity.isEqualTo(bEquity)) {
-        return compare(bBalance, aBalance);
+        return compareBn(bBalance, aBalance);
       }
 
-      return compare(bEquity, aEquity);
+      return compareBn(bEquity, aEquity);
     },
     [applyFavorites, chainId, getBalance, isFavorite, usdToTokenRates]
   );
@@ -247,7 +247,7 @@ export const useAccountCollectiblesSortPredicate = (accountTezAddress: string, a
             )
           : new BigNumber(evmBalancesRecord[bChainId as number]?.[bSlug] ?? ZERO);
 
-      return compare(bBalance, aBalance);
+      return compareBn(bBalance, aBalance);
     },
     [accountTezAddress, evmBalancesRecord, tezosBalancesRaw]
   );
@@ -267,7 +267,7 @@ export const useTezosAccountCollectiblesSortPredicate = (account: string) => {
       const aBalance = new BigNumber(balancesRaw[aBalancesKey]?.data[aSlug] ?? ZERO);
       const bBalance = new BigNumber(balancesRaw[bBalancesKey]?.data[bSlug] ?? ZERO);
 
-      return compare(bBalance, aBalance);
+      return compareBn(bBalance, aBalance);
     },
     [account, balancesRaw]
   );
@@ -281,7 +281,7 @@ export const useTezosChainCollectiblesSortPredicate = (publicKeyHash: string, te
       const aBalance = new BigNumber(balancesRaw[aSlug] ?? ZERO);
       const bBalance = new BigNumber(balancesRaw[bSlug] ?? ZERO);
 
-      return compare(bBalance, aBalance);
+      return compareBn(bBalance, aBalance);
     },
     [balancesRaw]
   );
@@ -298,7 +298,7 @@ export const useEvmAccountCollectiblesSortPredicate = (publicKeyHash: HexString)
       const aBalance = new BigNumber(balancesRecord[aChainId]?.[aSlug] ?? ZERO);
       const bBalance = new BigNumber(balancesRecord[bChainId]?.[bSlug] ?? ZERO);
 
-      return compare(bBalance, aBalance);
+      return compareBn(bBalance, aBalance);
     },
     [balancesRecord]
   );
@@ -312,14 +312,10 @@ export const useEvmChainCollectiblesSortPredicate = (publicKeyHash: HexString, e
       const aBalance = new BigNumber(balancesRaw[aSlug] ?? ZERO);
       const bBalance = new BigNumber(balancesRaw[bSlug] ?? ZERO);
 
-      return compare(bBalance, aBalance);
+      return compareBn(bBalance, aBalance);
     },
     [balancesRaw]
   );
 };
 
-const compare = (a: BigNumber, b: BigNumber) => {
-  if (a.isNaN() || b.isNaN()) return 0;
-
-  return a.comparedTo(b) as number;
-};
+export const compareBn = (a: BigNumber, b: BigNumber) => a.comparedTo(b) ?? 0;

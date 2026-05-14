@@ -8,6 +8,7 @@ interface ReservationArgs {
   toAsset: CrossChainAsset;
   fromAmount: string;
   recipient: string;
+  refundAddress: string;
 }
 
 /**
@@ -15,7 +16,13 @@ interface ReservationArgs {
  * the entry — once the reservation has been used, returning it from cache on a future Preview
  * mount would let the user broadcast against a closed deposit address.
  */
-export const buildCrossChainReservationCacheKey = ({ fromAsset, toAsset, fromAmount, recipient }: ReservationArgs) =>
+export const buildCrossChainReservationCacheKey = ({
+  fromAsset,
+  toAsset,
+  fromAmount,
+  recipient,
+  refundAddress
+}: ReservationArgs) =>
   [
     'cross-chain-reservation',
     fromAsset.exolixCoin,
@@ -23,14 +30,23 @@ export const buildCrossChainReservationCacheKey = ({ fromAsset, toAsset, fromAmo
     toAsset.exolixCoin,
     toAsset.exolixNetwork,
     fromAmount,
-    recipient.trim()
+    recipient.trim(),
+    refundAddress
   ] as const;
 
-export const useCrossChainExchangeReservation = ({ fromAsset, toAsset, fromAmount, recipient }: ReservationArgs) => {
+export const useCrossChainExchangeReservation = ({
+  fromAsset,
+  toAsset,
+  fromAmount,
+  recipient,
+  refundAddress
+}: ReservationArgs) => {
   const trimmedRecipient = recipient.trim();
-  const enabled = Number(fromAmount) > 0 && trimmedRecipient.length > 0;
+  const enabled = Number(fromAmount) > 0 && trimmedRecipient.length > 0 && refundAddress.length > 0;
 
-  const key = enabled ? buildCrossChainReservationCacheKey({ fromAsset, toAsset, fromAmount, recipient }) : null;
+  const key = enabled
+    ? buildCrossChainReservationCacheKey({ fromAsset, toAsset, fromAmount, recipient, refundAddress })
+    : null;
 
   return useTypedSWR<ExchangeData>(
     key,
@@ -41,7 +57,8 @@ export const useCrossChainExchangeReservation = ({ fromAsset, toAsset, fromAmoun
         coinTo: toAsset.exolixCoin,
         networkTo: toAsset.exolixNetwork,
         amount: fromAmount,
-        withdrawalAddress: trimmedRecipient
+        withdrawalAddress: trimmedRecipient,
+        refundAddress
       }),
     {
       revalidateOnFocus: false,

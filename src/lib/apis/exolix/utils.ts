@@ -15,6 +15,8 @@ import {
 
 const API_KEY = EnvVars.TEMPLE_WALLET_EXOLIX_API_KEY;
 
+export const EXOLIX_DEPOSIT_WINDOW_MS = 25 * 60 * 1000;
+
 /** Due to legal restrictions */
 const MAX_DOLLAR_VALUE = 10000;
 const MIN_ASSET_AMOUNT = 0.00001;
@@ -240,6 +242,8 @@ interface CreateCrossChainExchangeInput {
   /** Pass a stringifies BigNumber to preserve precision for 18-decimal tokens. */
   amount: string;
   withdrawalAddress: string;
+  /** Exolix uses this to auto-refund when the exchange can't complete. */
+  refundAddress: string;
 }
 
 export const createCrossChainExchange = (input: CreateCrossChainExchangeInput): Promise<ExchangeData> =>

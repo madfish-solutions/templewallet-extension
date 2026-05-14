@@ -29,6 +29,7 @@ interface Props {
   sourceChainId: string | number;
   showEstimatedTime?: boolean;
   defaultExpanded?: boolean;
+  hideDetails?: boolean;
 }
 
 export const ExchangeSummaryCard: FC<Props> = ({
@@ -44,7 +45,8 @@ export const ExchangeSummaryCard: FC<Props> = ({
   sourceChainKind,
   sourceChainId,
   showEstimatedTime = true,
-  defaultExpanded = false
+  defaultExpanded = false,
+  hideDetails = false
 }) => {
   const [expanded, setExpanded] = useState(defaultExpanded);
   const effectiveToAmount = toAmountActual || toAmountEstimated;
@@ -74,7 +76,7 @@ export const ExchangeSummaryCard: FC<Props> = ({
         />
       </div>
 
-      {expanded && (
+      {!hideDetails && expanded && (
         <div className="px-4">
           <ChartListItem title={t('transactionId')} bottomSeparator={showEstimatedTime || Boolean(depositTxHash)}>
             <CopyableText text={exolixId} />
@@ -102,20 +104,22 @@ export const ExchangeSummaryCard: FC<Props> = ({
         </div>
       )}
 
-      <button
-        type="button"
-        className="w-full flex items-center justify-center pb-2"
-        onClick={() => setExpanded(v => !v)}
-      >
-        <IconBase
-          Icon={CompactDown}
-          size={16}
-          className={clsx(
-            'text-grey-1 transform transition-transform duration-300 ease-in-out',
-            expanded ? 'rotate-180' : 'rotate-0'
-          )}
-        />
-      </button>
+      {!hideDetails && (
+        <button
+          type="button"
+          className="w-full flex items-center justify-center pb-2"
+          onClick={() => setExpanded(v => !v)}
+        >
+          <IconBase
+            Icon={CompactDown}
+            size={16}
+            className={clsx(
+              'text-grey-1 transform transition-transform duration-300 ease-in-out',
+              expanded ? 'rotate-180' : 'rotate-0'
+            )}
+          />
+        </button>
+      )}
     </div>
   );
 };

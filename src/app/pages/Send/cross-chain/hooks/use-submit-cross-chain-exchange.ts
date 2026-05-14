@@ -72,7 +72,15 @@ export const useSubmitCrossChainExchange = () => {
     // (or will be once the deposit lands). Drop the SWR cache entry so a future Preview mount
     // with the same form inputs creates a brand-new order instead of reusing this one.
     swrCache.delete(
-      unstable_serialize(buildCrossChainReservationCacheKey({ fromAsset, toAsset, fromAmount, recipient }))
+      unstable_serialize(
+        buildCrossChainReservationCacheKey({
+          fromAsset,
+          toAsset,
+          fromAmount,
+          recipient,
+          refundAddress: senderAddress
+        })
+      )
     );
 
     trackEvent(CrossChainAnalyticsEvents.CrossChainConfirmed, undefined, {

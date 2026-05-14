@@ -1,4 +1,4 @@
-import React, { FC, useMemo, useState } from 'react';
+import { FC, useState } from 'react';
 
 import BigNumber from 'bignumber.js';
 import clsx from 'clsx';
@@ -11,10 +11,14 @@ import { ReactComponent as CompactDown } from 'app/icons/base/compact_down.svg';
 import { CryptoBalance, FiatBalance } from 'app/pages/Home/OtherComponents/Tokens/components/Balance';
 import { isFilterChain } from 'app/pages/Swap/form/utils';
 import { FilterChain } from 'app/store/assets-filter-options/state';
+import { useTezosUsdToTokenRatesSelector } from 'app/store/currency/selectors';
+import { useEvmUsdToTokenRatesSelector } from 'app/store/evm/tokens-exchange-rates/selectors';
 import { NetworkPopper } from 'app/templates/network-popper';
 import { SearchBarField } from 'app/templates/SearchField';
+import { compareBn } from 'lib/assets/use-sorting';
 import { CrossChainAsset, ExolixNetworksOverride, getAllowedFromAssets, toCrossChainAssetSlug } from 'lib/cross-chain';
 import { t } from 'lib/i18n';
+import { ZERO } from 'lib/utils/numbers';
 import { TempleChainKind } from 'temple/types';
 
 import { CrossChainAssetIcon } from '../../components/CrossChainAssetIcon';
@@ -41,6 +45,8 @@ export const SelectCrossChainFromAssetModal: FC<Props> = ({ opened, networksMap,
   const [filterChain, setFilterChain] = useState<FilterChain | string>(null);
 
   const balances = useCrossChainFromBalances();
+  const tezosUsdRates = useTezosUsdToTokenRatesSelector();
+  const evmUsdRates = useEvmUsdToTokenRatesSelector();
 
   const [prevOpened, setPrevOpened] = useState(opened);
   if (prevOpened !== opened) {
@@ -51,30 +57,44 @@ export const SelectCrossChainFromAssetModal: FC<Props> = ({ opened, networksMap,
     }
   }
 
-  const assets = useMemo(() => getAllowedFromAssets(networksMap), [networksMap]);
-  const search = useMemo(() => searchDebounced.trim().toLowerCase(), [searchDebounced]);
+  const assets = getAllowedFromAssets(networksMap);
+  const search = searchDebounced.trim().toLowerCase();
 
-  const filteredAssets = useMemo(
-    () =>
-      assets.filter(asset => {
-        const slug = toCrossChainAssetSlug(asset);
-        const balance = balances[slug];
-        if (!balance || balance.isLessThanOrEqualTo(0)) return false;
+  const filteredAssets = assets.filter(asset => {
+    const slug = toCrossChainAssetSlug(asset);
+    const balance = balances[slug];
+    if (!balance || balance.isLessThanOrEqualTo(0)) return false;
 
-        if (isFilterChain(filterChain) && filterChain) {
-          if (filterChain.kind !== asset.chainKind) return false;
-          if (String(filterChain.chainId) !== String(asset.chainId)) return false;
-        }
+    if (isFilterChain(filterChain) && filterChain) {
+      if (filterChain.kind !== asset.chainKind) return false;
+      if (String(filterChain.chainId) !== String(asset.chainId)) return false;
+    }
 
-        if (!search) return true;
-        return (
-          asset.symbol.toLowerCase().includes(search) ||
-          asset.name.toLowerCase().includes(search) ||
-          asset.exolixNetwork.toLowerCase().includes(search)
-        );
-      }),
-    [search, filterChain, assets, balances]
-  );
+    if (!search) return true;
+    return (
+      asset.symbol.toLowerCase().includes(search) ||
+      asset.name.toLowerCase().includes(search) ||
+      asset.exolixNetwork.toLowerCase().includes(search)
+    );
+  });
+
+  const valued = filteredAssets.map(asset => {
+    const slug = asset.assetSlug ?? '';
+    const rate =
+      asset.chainKind === TempleChainKind.EVM && typeof asset.chainId === 'number'
+        ? (evmUsdRates[asset.chainId]?.[slug] ?? ZERO)
+        : asset.chainKind === TempleChainKind.Tezos
+          ? (tezosUsdRates[slug] ?? ZERO)
+          : ZERO;
+    const balance = balances[toCrossChainAssetSlug(asset)] ?? ZERO;
+    const equity = balance.multipliedBy(rate);
+    return { asset, balance, equity };
+  });
+  valued.sort((a, b) => {
+    if (a.equity.isEqualTo(b.equity)) return compareBn(b.balance, a.balance);
+    return compareBn(b.equity, a.equity);
+  });
+  const sortedAssets = valued.map(v => v.asset);
 
   const handleSelect = (asset: CrossChainAsset) => {
     onSelect(asset);
@@ -98,10 +118,10 @@ export const SelectCrossChainFromAssetModal: FC<Props> = ({ opened, networksMap,
       </div>
 
       <div className="flex-1 px-4 pb-4 overflow-y-auto flex flex-col">
-        {filteredAssets.length === 0 ? (
+        {sortedAssets.length === 0 ? (
           <EmptyState />
         ) : (
-          filteredAssets.map(asset => {
+          sortedAssets.map(asset => {
             const slug = toCrossChainAssetSlug(asset);
             return (
               <AssetRow key={slug} asset={asset} balance={balances[slug] ?? new BigNumber(0)} onClick={handleSelect} />

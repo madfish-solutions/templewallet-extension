@@ -8,5 +8,6 @@ export enum CrossChainAnalyticsEvents {
   CrossChainStatusChanged = 'CrossChainStatusChanged',
   CrossChainTryAgain = 'CrossChainTryAgain',
   CrossChainActivityOpened = 'CrossChainActivityOpened',
-  CrossChainReservationFailed = 'CrossChainReservationFailed'
+  CrossChainReservationFailed = 'CrossChainReservationFailed',
+  CrossChainPreBroadcastExpired = 'CrossChainPreBroadcastExpired'
 }
