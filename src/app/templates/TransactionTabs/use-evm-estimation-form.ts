@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { transform } from 'lodash';
-import { useForm, useWatch } from 'react-hook-form';
+import { useForm, useFormState, useWatch } from 'react-hook-form';
 import { useDebounce } from 'use-debounce';
 import {
   FeeCapTooLowError,
@@ -61,13 +61,14 @@ export const useEvmEstimationForm = (
   }, [basicParams, fullEstimationData]);
 
   const form = useForm<EvmTxParamsFormData>({ mode: 'onChange', defaultValues });
-  const { control, setValue, formState, reset } = form;
+  const { control, setValue, reset } = form;
+  const { isDirty, touchedFields } = useFormState({ control });
 
   useEffect(() => {
-    if (!formState.isDirty) {
+    if (!isDirty) {
       reset(defaultValues);
     }
-  }, [defaultValues, reset, formState.isDirty]);
+  }, [defaultValues, reset, isDirty]);
 
   const nonceValue = useWatch({ name: 'nonce', control });
   const gasLimitValue = useWatch({ name: 'gasLimit', control });
@@ -139,7 +140,7 @@ export const useEvmEstimationForm = (
         return null;
       }
 
-      if (!selectedFeeOption && !formState.touchedFields.gasPrice) {
+      if (!selectedFeeOption && !touchedFields.gasPrice) {
         return feesPerGasFromBasicParams;
       }
 
@@ -165,7 +166,7 @@ export const useEvmEstimationForm = (
         return null;
       }
     },
-    [feeOptions, feesPerGasFromBasicParams, formState.touchedFields.gasPrice, selectedFeeOption]
+    [feeOptions, feesPerGasFromBasicParams, touchedFields.gasPrice, selectedFeeOption]
   );
 
   const rawTransaction = useMemo(() => {

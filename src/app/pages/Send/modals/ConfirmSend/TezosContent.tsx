@@ -1,7 +1,7 @@
 import React, { FC, ReactNode, useEffect, useState } from 'react';
 
 import { OpKind, TransferParams, WalletParamsWithKind } from '@taquito/taquito';
-import { FormProvider } from 'react-hook-form';
+import { FormProvider, useFormState } from 'react-hook-form';
 
 import { useLedgerApprovalModalState } from 'app/hooks/use-ledger-approval-modal-state';
 import { TezosReviewData } from 'app/pages/Send/form/interfaces';
@@ -128,15 +128,15 @@ export const TezosContent: FC<TezosContentProps> = ({
     network,
     isEstimationError: Boolean(estimationError)
   });
-  const { formState } = form;
+  const { isSubmitting } = useFormState({ control: form.control });
 
   const { ledgerApprovalModalState, setLedgerApprovalModalState, handleLedgerModalClose } =
     useLedgerApprovalModalState();
   const { guard, ledgerPromptProps } = useLedgerWebHidFullViewGuard();
 
   useEffect(() => {
-    onSubmittingChange?.(formState.isSubmitting);
-  }, [formState.isSubmitting, onSubmittingChange]);
+    onSubmittingChange?.(isSubmitting);
+  }, [isSubmitting, onSubmittingChange]);
 
   const onSubmitError = (err: unknown) => {
     console.error(err);
@@ -146,7 +146,7 @@ export const TezosContent: FC<TezosContentProps> = ({
 
   const onSubmit = async ({ gasFee, storageLimit }: TezosTxParamsFormData) => {
     try {
-      if (formState.isSubmitting) return;
+      if (isSubmitting) return;
 
       try {
         assertCustomGasFeeNotTooLow(gasFee);

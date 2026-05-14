@@ -1,6 +1,6 @@
 import React, { ReactNode } from 'react';
 
-import { SubmitHandler, useFormContext } from 'react-hook-form';
+import { SubmitHandler, useFormContext, useFormState } from 'react-hook-form';
 
 import { HashChip } from 'app/atoms/HashChip';
 import { ActionsButtonsBox } from 'app/atoms/PageModal/actions-buttons-box';
@@ -61,7 +61,8 @@ export const BaseContent = <T extends TxParamsFormData>({
   decimals,
   detailsContent
 }: BaseContentProps<T>) => {
-  const { formState } = useFormContext<T>();
+  const { control } = useFormContext<T>();
+  const { isValid, isSubmitting } = useFormState({ control });
 
   const goToFeeTab = () => setSelectedTab('fee');
 
@@ -117,8 +118,8 @@ export const BaseContent = <T extends TxParamsFormData>({
           color="primary"
           size="L"
           className="w-full"
-          loading={formState.isSubmitting}
-          disabled={!formState.isValid}
+          loading={isSubmitting}
+          disabled={!isValid}
         >
           <T id={latestSubmitError ? 'retry' : 'confirm'} />
         </StyledButton>

@@ -1,7 +1,7 @@
 import React, { FC, ReactNode, useEffect, useState } from 'react';
 
 import { omit } from 'lodash';
-import { FormProvider } from 'react-hook-form';
+import { FormProvider, useFormState } from 'react-hook-form';
 import { TransactionRequest } from 'viem';
 
 import { useLedgerApprovalModalState } from 'app/hooks/use-ledger-approval-modal-state';
@@ -87,13 +87,13 @@ export const EvmContent: FC<EvmContentProps> = ({
     getFeesPerGas,
     assertCustomFeesPerGasNotTooLow
   } = useEvmEstimationForm(estimationData, null, account, network.chainId);
-  const { formState } = form;
+  const { isSubmitting } = useFormState({ control: form.control });
   const { ledgerApprovalModalState, setLedgerApprovalModalState, handleLedgerModalClose } =
     useLedgerApprovalModalState();
 
   useEffect(() => {
-    onSubmittingChange?.(formState.isSubmitting);
-  }, [formState.isSubmitting, onSubmittingChange]);
+    onSubmittingChange?.(isSubmitting);
+  }, [isSubmitting, onSubmittingChange]);
 
   const onSubmitError = (err: unknown) => {
     console.error(err);
@@ -102,7 +102,7 @@ export const EvmContent: FC<EvmContentProps> = ({
   };
 
   const onSubmit = async ({ gasPrice, gasLimit, nonce }: EvmTxParamsFormData) => {
-    if (formState.isSubmitting) return;
+    if (isSubmitting) return;
 
     const feesPerGas = getFeesPerGas(gasPrice);
 
