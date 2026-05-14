@@ -5,10 +5,10 @@ import { ContentScriptType, TERMS_OF_USE_URL, PRIVACY_POLICY_URL } from 'lib/con
 
 import { CLOSE_ICON, DISABLE_ICON, SETTINGS_ICON, SNOOZE_ICON } from './icons';
 import { getPopupStyles } from './styles';
-import { el, msg, stripSubdomain, trackDealsOfferEvent } from './utils';
+import { el, msg, stripSubdomain, trackMerchantOfferEvent } from './utils';
 
-const POPUP_HOST_ID = 'temple-deals-offer-host';
-const ACTIVATED_KEY_PREFIX = 'temple-deals-offer-activated:';
+const POPUP_HOST_ID = 'temple-merchant-offer-host';
+const ACTIVATED_KEY_PREFIX = 'temple-merchant-offer-activated:';
 
 (async () => {
   // Only run in the main window, not iframes
@@ -66,7 +66,7 @@ function injectPopup(offer: MerchantOffer, domain: string) {
   const offerDescription =
     offer.description && offer.description.trim().split(/\s+/).length > 3
       ? offer.description
-      : msg('activateOfferDescription', offer.name);
+      : msg('merchantOfferPopupActivateDescription', offer.name);
 
   function render() {
     cleanupOutsideClick?.();
@@ -82,7 +82,7 @@ function injectPopup(offer: MerchantOffer, domain: string) {
     templeIcon.alt = '';
     header.appendChild(templeIcon);
 
-    const title = el('span', 'tw-popup-title', msg('rewards'));
+    const title = el('span', 'tw-popup-title', msg('merchantOfferPopupTitle'));
     header.appendChild(title);
 
     const headerActions = el('div', 'tw-popup-header-actions');
@@ -90,9 +90,9 @@ function injectPopup(offer: MerchantOffer, domain: string) {
     const settingsBtn = el(
       'button',
       settingsOpen ? 'tw-popup-settings-btn tw-popup-settings-btn-open' : 'tw-popup-settings-btn',
-      msg('settings')
+      msg('merchantOfferPopupSettings')
     );
-    settingsBtn.title = msg('settings');
+    settingsBtn.title = msg('merchantOfferPopupSettings');
     settingsBtn.innerHTML += ` ${SETTINGS_ICON}`;
     settingsBtn.addEventListener('click', () => {
       settingsOpen = !settingsOpen;
@@ -105,7 +105,7 @@ function injectPopup(offer: MerchantOffer, domain: string) {
     closeBtn.title = 'Close';
     closeBtn.innerHTML = CLOSE_ICON;
     closeBtn.addEventListener('click', () => {
-      trackDealsOfferEvent('DealsOfferPopupClose', { domain });
+      trackMerchantOfferEvent('MerchantOfferPopupClose', { domain });
       host.remove();
     });
     headerActions.appendChild(closeBtn);
@@ -120,9 +120,9 @@ function injectPopup(offer: MerchantOffer, domain: string) {
       const snoozeBtn = document.createElement('button');
       snoozeBtn.className = 'tw-popup-dropdown-item tw-popup-dropdown-item-snooze';
       snoozeBtn.innerHTML = SNOOZE_ICON;
-      snoozeBtn.appendChild(document.createTextNode(` ${msg('snoozeFor24h')}`));
+      snoozeBtn.appendChild(document.createTextNode(` ${msg('merchantOfferPopupSnooze')}`));
       snoozeBtn.addEventListener('click', async () => {
-        trackDealsOfferEvent('DealsOfferPopupSnooze', { domain });
+        trackMerchantOfferEvent('MerchantOfferPopupSnooze', { domain });
         await browser.runtime.sendMessage({ type: ContentScriptType.MerchantOfferSnooze });
         host.remove();
       });
@@ -136,7 +136,7 @@ function injectPopup(offer: MerchantOffer, domain: string) {
       disableBtn.appendChild(document.createTextNode(' '));
       disableBtn.appendChild(disableText);
       disableBtn.addEventListener('click', async () => {
-        trackDealsOfferEvent('DealsOfferPopupDisable', { domain });
+        trackMerchantOfferEvent('MerchantOfferPopupDisable', { domain });
         await browser.runtime.sendMessage({ type: ContentScriptType.MerchantOfferDisable });
         host.remove();
       });
@@ -173,7 +173,11 @@ function injectPopup(offer: MerchantOffer, domain: string) {
 
     const offerInfo = el('div', 'tw-popup-offer-info');
     offerInfo.appendChild(
-      el('div', 'tw-popup-offer-title', msg('earnUpTo', [offer.cpcRate.toFixed(2), offer.currencyCode]))
+      el(
+        'div',
+        'tw-popup-offer-title',
+        msg('merchantOfferPopupEarnUpTo', [offer.cpcRate.toFixed(2), offer.currencyCode])
+      )
     );
 
     const descEl = el(
@@ -188,7 +192,7 @@ function injectPopup(offer: MerchantOffer, domain: string) {
         const toggle = el(
           'button',
           'tw-popup-show-more',
-          msg(showMoreExpanded ? 'showLess' : 'showMore')
+          msg(showMoreExpanded ? 'merchantOfferPopupShowLess' : 'merchantOfferPopupShowMore')
         );
         toggle.addEventListener('click', () => {
           showMoreExpanded = !showMoreExpanded;
@@ -204,9 +208,9 @@ function injectPopup(offer: MerchantOffer, domain: string) {
 
     const activateBtn = document.createElement('button');
     activateBtn.className = 'tw-popup-activate-btn';
-    activateBtn.textContent = msg('activateBounty');
+    activateBtn.textContent = msg('merchantOfferPopupActivate');
     activateBtn.addEventListener('click', async () => {
-      activateBtn.textContent = msg('activating');
+      activateBtn.textContent = msg('merchantOfferPopupActivating');
       activateBtn.disabled = true;
 
       try {
@@ -216,7 +220,7 @@ function injectPopup(offer: MerchantOffer, domain: string) {
         });
 
         if (result?.trackingLink) {
-          trackDealsOfferEvent('DealsOfferPopupActivate', { domain });
+          trackMerchantOfferEvent('MerchantOfferPopupActivate', { domain });
 
           browser.runtime
             .sendMessage({
@@ -231,12 +235,12 @@ function injectPopup(offer: MerchantOffer, domain: string) {
 
           window.location.href = result.trackingLink;
         } else {
-          activateBtn.textContent = msg('activateBounty');
+          activateBtn.textContent = msg('merchantOfferPopupActivate');
           activateBtn.disabled = false;
         }
       } catch (err) {
-        console.error('Failed to activate deals offer:', err);
-        activateBtn.textContent = msg('activateBounty');
+        console.error('Failed to activate merchant offer:', err);
+        activateBtn.textContent = msg('merchantOfferPopupActivate');
         activateBtn.disabled = false;
       }
     });
@@ -244,9 +248,9 @@ function injectPopup(offer: MerchantOffer, domain: string) {
 
     const disclaimer = el('div', 'tw-popup-disclaimer');
     disclaimer.innerHTML = [
-      `${msg('activateBountyDisclaimer1')}`,
+      `${msg('merchantOfferPopupDisclaimer1')}`,
       `<a href="${TERMS_OF_USE_URL}" target="_blank">${msg('termsOfUsage')}</a>`,
-      `${msg('and')}`,
+      `${msg('merchantOfferPopupDisclaimer2')}`,
       `<a href="${PRIVACY_POLICY_URL}" target="_blank">${msg('privacyPolicy')}</a>`
     ].join(' ');
     body.appendChild(disclaimer);

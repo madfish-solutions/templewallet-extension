@@ -201,7 +201,7 @@ const buildManifestCommons = (vendor: string): Omit<Manifest.WebExtensionManifes
       !shouldDisableAds && {
         matches: ['https://*/*', 'http://*/*'],
         exclude_matches: ['http://localhost/*'],
-        js: ['scripts/dealsOfferPopup.js'],
+        js: ['scripts/merchantOfferPopup.js'],
         run_at: 'document_idle' as const,
         all_frames: false
       },

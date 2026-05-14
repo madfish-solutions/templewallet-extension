@@ -3838,31 +3838,37 @@
   "commissionsAndIpNote": {
     "message": "Commissions arrive in multiple currencies, so your balance may be slightly different from actual payout, due to exchange rates. Your IP helps us surface the best deals for your region and your public wallet address collected for automatic payouts."
   },
-  "earnUpTo": {
+  "merchantOfferPopupTitle": {
+    "message": "Rewards"
+  },
+  "merchantOfferPopupSettings": {
+    "message": "Settings"
+  },
+  "merchantOfferPopupEarnUpTo": {
     "message": "Earn up to $1 $2"
   },
-  "activateOfferDescription": {
+  "merchantOfferPopupActivateDescription": {
     "message": "Activate to visit $1 through our link and earn your reward."
   },
-  "activateBounty": {
+  "merchantOfferPopupActivate": {
     "message": "Activate Bounty"
   },
-  "activating": {
+  "merchantOfferPopupActivating": {
     "message": "Activating..."
   },
-  "snoozeFor24h": {
+  "merchantOfferPopupSnooze": {
     "message": "Snooze for 24h"
   },
-  "showMore": {
+  "merchantOfferPopupShowMore": {
     "message": "Show more"
   },
-  "showLess": {
+  "merchantOfferPopupShowLess": {
     "message": "Show less"
   },
-  "activateBountyDisclaimer1": {
+  "merchantOfferPopupDisclaimer1": {
     "message": "By pressing Activate Bounty you agree with the"
   },
-  "and": {
+  "merchantOfferPopupDisclaimer2": {
     "message": "and"
   },
   "referrals": {

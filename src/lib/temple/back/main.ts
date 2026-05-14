@@ -521,10 +521,10 @@ browser.runtime.onMessage.addListener(async (msg, sender) => {
 
       case ContentScriptType.MerchantOfferAnalytics: {
         const allowedEvents = new Set([
-          'DealsOfferPopupClose',
-          'DealsOfferPopupActivate',
-          'DealsOfferPopupSnooze',
-          'DealsOfferPopupDisable'
+          'MerchantOfferPopupClose',
+          'MerchantOfferPopupActivate',
+          'MerchantOfferPopupSnooze',
+          'MerchantOfferPopupDisable'
         ]);
 
         const { event, properties } = msg;
