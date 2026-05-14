@@ -66,7 +66,7 @@ function injectPopup(offer: MerchantOffer, domain: string) {
   const offerDescription =
     offer.description && offer.description.trim().split(/\s+/).length > 3
       ? offer.description
-      : msg('dealsOfferPopupActivateDescription', offer.name);
+      : msg('activateOfferDescription', offer.name);
 
   function render() {
     cleanupOutsideClick?.();
@@ -82,7 +82,7 @@ function injectPopup(offer: MerchantOffer, domain: string) {
     templeIcon.alt = '';
     header.appendChild(templeIcon);
 
-    const title = el('span', 'tw-popup-title', msg('dealsOfferPopupTitle'));
+    const title = el('span', 'tw-popup-title', msg('rewards'));
     header.appendChild(title);
 
     const headerActions = el('div', 'tw-popup-header-actions');
@@ -90,9 +90,9 @@ function injectPopup(offer: MerchantOffer, domain: string) {
     const settingsBtn = el(
       'button',
       settingsOpen ? 'tw-popup-settings-btn tw-popup-settings-btn-open' : 'tw-popup-settings-btn',
-      msg('dealsOfferPopupSettings')
+      msg('settings')
     );
-    settingsBtn.title = msg('dealsOfferPopupSettings');
+    settingsBtn.title = msg('settings');
     settingsBtn.innerHTML += ` ${SETTINGS_ICON}`;
     settingsBtn.addEventListener('click', () => {
       settingsOpen = !settingsOpen;
@@ -120,7 +120,7 @@ function injectPopup(offer: MerchantOffer, domain: string) {
       const snoozeBtn = document.createElement('button');
       snoozeBtn.className = 'tw-popup-dropdown-item tw-popup-dropdown-item-snooze';
       snoozeBtn.innerHTML = SNOOZE_ICON;
-      snoozeBtn.appendChild(document.createTextNode(` ${msg('dealsOfferPopupSnooze')}`));
+      snoozeBtn.appendChild(document.createTextNode(` ${msg('snoozeFor24h')}`));
       snoozeBtn.addEventListener('click', async () => {
         trackDealsOfferEvent('DealsOfferPopupSnooze', { domain });
         await browser.runtime.sendMessage({ type: ContentScriptType.MerchantOfferSnooze });
@@ -173,7 +173,7 @@ function injectPopup(offer: MerchantOffer, domain: string) {
 
     const offerInfo = el('div', 'tw-popup-offer-info');
     offerInfo.appendChild(
-      el('div', 'tw-popup-offer-title', msg('dealsOfferPopupEarnUpTo', [offer.cpcRate.toFixed(2), offer.currencyCode]))
+      el('div', 'tw-popup-offer-title', msg('earnUpTo', [offer.cpcRate.toFixed(2), offer.currencyCode]))
     );
 
     const descEl = el(
@@ -188,7 +188,7 @@ function injectPopup(offer: MerchantOffer, domain: string) {
         const toggle = el(
           'button',
           'tw-popup-show-more',
-          msg(showMoreExpanded ? 'dealsOfferPopupShowLess' : 'dealsOfferPopupShowMore')
+          msg(showMoreExpanded ? 'showLess' : 'showMore')
         );
         toggle.addEventListener('click', () => {
           showMoreExpanded = !showMoreExpanded;
@@ -204,9 +204,9 @@ function injectPopup(offer: MerchantOffer, domain: string) {
 
     const activateBtn = document.createElement('button');
     activateBtn.className = 'tw-popup-activate-btn';
-    activateBtn.textContent = msg('dealsOfferPopupActivate');
+    activateBtn.textContent = msg('activateBounty');
     activateBtn.addEventListener('click', async () => {
-      activateBtn.textContent = msg('dealsOfferPopupActivating');
+      activateBtn.textContent = msg('activating');
       activateBtn.disabled = true;
 
       try {
@@ -231,12 +231,12 @@ function injectPopup(offer: MerchantOffer, domain: string) {
 
           window.location.href = result.trackingLink;
         } else {
-          activateBtn.textContent = msg('dealsOfferPopupActivate');
+          activateBtn.textContent = msg('activateBounty');
           activateBtn.disabled = false;
         }
       } catch (err) {
         console.error('Failed to activate deals offer:', err);
-        activateBtn.textContent = msg('dealsOfferPopupActivate');
+        activateBtn.textContent = msg('activateBounty');
         activateBtn.disabled = false;
       }
     });
@@ -244,9 +244,9 @@ function injectPopup(offer: MerchantOffer, domain: string) {
 
     const disclaimer = el('div', 'tw-popup-disclaimer');
     disclaimer.innerHTML = [
-      `${msg('dealsOfferPopupDisclaimer1')}`,
+      `${msg('activateBountyDisclaimer1')}`,
       `<a href="${TERMS_OF_USE_URL}" target="_blank">${msg('termsOfUsage')}</a>`,
-      `${msg('dealsOfferPopupDisclaimer2')}`,
+      `${msg('and')}`,
       `<a href="${PRIVACY_POLICY_URL}" target="_blank">${msg('privacyPolicy')}</a>`
     ].join(' ');
     body.appendChild(disclaimer);

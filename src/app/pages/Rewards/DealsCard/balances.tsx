@@ -1,6 +1,7 @@
 import { FC, PropsWithChildren } from 'react';
 
 import { BigNumber } from 'bignumber.js';
+import clsx from 'clsx';
 
 import { IconBase, Loader } from 'app/atoms';
 import { ReactComponent as InfoIcon } from 'app/icons/base/InfoFill.svg';
@@ -26,7 +27,7 @@ const DealsCardShell: FC<PropsWithChildren> = ({ children }) => {
           to="/rewards/deals/how-it-works"
           className="self-center py-0.5 px-1 text-font-description-bold text-secondary"
         >
-          {t('howItWorksLink')}
+          {t('howItWorks')}?
         </Link>
       </div>
     </div>
@@ -44,18 +45,18 @@ export const DealsBalances: FC<DealsBalancesProps> = ({ allTime, lastPayoutAmoun
   <DealsCardShell>
     <div className="bg-grey-4 rounded-6 p-2 flex gap-2 min-h-26.5">
       <BalanceCell
-        label={t('dealsAllTime')}
+        label={t('allTime')}
         amount={allTime}
         subAmount={lastPayoutAmount ? new BigNumber(lastPayoutAmount) : new BigNumber(0)}
         highlighted
       />
       <BalanceCell
-        label={t('dealsPending')}
+        label={t('pending')}
         amount={pending}
         subAmount={lastPendingAmount ?? new BigNumber(0)}
         amountLessThanThreshold={0.01}
         subAlwaysGrey
-        subTippyContent={t('dealsPendingLastActivityTooltip')}
+        subTippyContent={t('thisIsLastActivity')}
       />
     </div>
   </DealsCardShell>
@@ -64,8 +65,8 @@ export const DealsBalances: FC<DealsBalancesProps> = ({ allTime, lastPayoutAmoun
 export const DealsEmptyState: FC = () => (
   <DealsCardShell>
     <div className="bg-grey-4 py-4.5 rounded-sm flex flex-col justify-center items-center min-h-26.5">
-      <span className="text-font-description text-grey-1 text-center">{t('templeDealsEmptyState')}</span>
-      <span className="text-font-description text-grey-1 text-center">{t('templeDealsEmptyStateSubtitle')}</span>
+      <span className="text-font-description text-grey-1 text-center">{t('noRewardsFromMerchantsYet')}</span>
+      <span className="text-font-description text-grey-1 text-center">{t('yourEarningsWillBeHere')}</span>
     </div>
   </DealsCardShell>
 );
@@ -73,8 +74,8 @@ export const DealsEmptyState: FC = () => (
 export const DealsLoadingState: FC = () => (
   <DealsCardShell>
     <div className="bg-grey-4 rounded-6 p-2 flex gap-2 min-h-26.5">
-      <LoadingCell label={t('dealsAllTime')} highlighted />
-      <LoadingCell label={t('dealsPending')} />
+      <LoadingCell label={t('allTime')} highlighted />
+      <LoadingCell label={t('pending')} />
     </div>
   </DealsCardShell>
 );
@@ -85,7 +86,7 @@ interface LoadingCellProps {
 }
 
 const LoadingCell: FC<LoadingCellProps> = ({ label, highlighted }) => (
-  <div className={`flex-1 rounded-8 px-2 py-3 flex flex-col gap-2 ${highlighted ? 'bg-white' : ''}`}>
+  <div className={clsx('flex-1 rounded-8 px-2 py-3 flex flex-col gap-2', highlighted && 'bg-white')}>
     <span className="text-font-description-bold text-grey-1">{label}</span>
     <div className="flex-1 flex justify-center items-center">
       <Loader size="L" trackVariant="dark" className="text-secondary" />
@@ -123,7 +124,7 @@ const BalanceCell: FC<BalanceCellProps> = ({
   });
 
   return (
-    <div className={`flex-1 rounded-8 px-2 py-3 flex flex-col gap-2 ${highlighted ? 'bg-white' : ''}`}>
+    <div className={clsx('flex-1 rounded-8 px-2 py-3 flex flex-col gap-2', highlighted && 'bg-white')}>
       <span className="text-font-description-bold text-grey-1">{label}</span>
       <div className="flex flex-col gap-0.5">
         <div className="flex items-baseline gap-1 text-font-num-bold-16 text-text">
@@ -132,7 +133,7 @@ const BalanceCell: FC<BalanceCellProps> = ({
         </div>
         <span
           ref={subTippyContent ? subTippyRef : undefined}
-          className={`text-font-num-12 ${subColorClass} ${subTippyContent ? 'self-start cursor-pointer' : ''}`}
+          className={clsx('text-font-num-12', subColorClass, subTippyContent && 'self-start cursor-pointer')}
         >
           {isSubPositive && '+'}
           {subTippyContent ? toLocalFormat(subAmount, { decimalPlaces: 2 }) : <BalanceAmount value={subAmount} />}

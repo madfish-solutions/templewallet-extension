@@ -19,10 +19,10 @@ import { HistoryAction, navigate } from 'lib/woozie';
 import { RewardsPromoActivateSelectors } from './selectors';
 
 const advantages: EarnPromoAdvantageItem[] = [
-  { Icon: MegaphoneIcon, textI18nKey: 'promoActivateFeature1' },
-  { Icon: CalendarIcon, textI18nKey: 'promoActivateFeature2' },
-  { Icon: ChartIcon, textI18nKey: 'promoActivateFeature3' },
-  { Icon: CogIcon, textI18nKey: 'promoActivateFeature4' }
+  { Icon: MegaphoneIcon, textI18nKey: 'nonIntrusiveContentFeature' },
+  { Icon: CalendarIcon, textI18nKey: 'autoPayoutsWithoutClaimFeature' },
+  { Icon: ChartIcon, textI18nKey: 'earnInBackgroundFeature' },
+  { Icon: CogIcon, textI18nKey: 'turnOnWhenWorksFeature' }
 ];
 
 const tkeyCoinAnimationOptions = {
@@ -49,13 +49,13 @@ export const RewardsPromoActivate: FC = () => {
 
   return (
     <EarnPromoLayout
-      pageTitle={<PageTitle title={t('promoCardTitle')} />}
+      pageTitle={<PageTitle title={t('promo')} />}
       TopVisual={<Lottie isClickToPauseDisabled options={tkeyCoinAnimationOptions} height={172} width={352} />}
-      headline={t('promoActivatePageHeading')}
+      headline={t('receiveShareOf20PromoRewards')}
       advantages={advantages}
       advantageIconClassName="text-primary"
-      disclaimer={t('promoActivateDisclaimer')}
-      actionText={t('promoActivateCTA')}
+      disclaimer={t('enablePromoDisclaimer')}
+      actionText={t('startEarning')}
       actionColor="primary"
       onActionClick={handleActivate}
       actionTestID={RewardsPromoActivateSelectors.startEarningButton}

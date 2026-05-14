@@ -12,7 +12,7 @@ export const inviteAccountInfoTippyProps = {
 export const dealsInfoTippyProps = {
   trigger: 'mouseenter',
   hideOnClick: false,
-  content: t('dealsInfoTooltip'),
+  content: t('rewardsFromDealsTooltip'),
   animation: 'shift-away-subtle',
   maxWidth: '16rem',
   placement: 'top-end' as const
@@ -21,7 +21,7 @@ export const dealsInfoTippyProps = {
 export const promoInfoTippyProps = {
   trigger: 'mouseenter',
   hideOnClick: false,
-  content: t('promoInfoTooltip'),
+  content: t('rewardsFromPromoTooltip'),
   animation: 'shift-away-subtle',
   maxWidth: '12rem',
   placement: 'top-end' as const

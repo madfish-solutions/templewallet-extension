@@ -2,7 +2,7 @@ import { FC, useState, useTransition } from 'react';
 
 import clsx from 'clsx';
 
-import { Loader } from 'app/atoms';
+import { Button, Loader } from 'app/atoms';
 import { AnimatedMenuChevron } from 'app/atoms/animated-menu-chevron';
 import { DelegationModal } from 'app/pages/EarnTez/modals/delegation';
 import { AnalyticsEventCategory, useAnalytics } from 'lib/analytics';
@@ -74,8 +74,7 @@ export const BakeryCard: FC = () => {
 
   return (
     <>
-      <button
-        type="button"
+      <Button
         onClick={handleClick}
         onMouseEnter={handleHover}
         onMouseLeave={handleUnhover}
@@ -89,23 +88,23 @@ export const BakeryCard: FC = () => {
           <>
             <div className="w-full px-2 flex flex-col gap-2">
               <div className="pl-1 w-full flex items-center justify-between h-6">
-                <span className="text-font-description-bold">{t('bakeryCardTitle')}</span>
+                <span className="text-font-description-bold">{t('bakery')}</span>
                 {isDelegating ? (
                   <Loader size="S" trackVariant="dark" className="text-secondary" />
                 ) : (
                   <AnimatedMenuChevron ref={animatedChevronRef} />
                 )}
               </div>
-              <p className="pl-1 w-full text-font-description">{t('bakeryCardDescription')}</p>
+              <p className="pl-1 w-full text-font-description">{t('bakeryDescription')}</p>
             </div>
             <span className="w-full bg-secondary-hover-low text-secondary text-font-num-bold-10 text-center p-2">
-              {t('bakeryCardFooterPill')}
+              {t('apyOnTez')}
             </span>
           </>
         ) : isLoading ? (
           <>
             <div className="w-full px-2 flex items-center justify-between">
-              <span className="text-font-description-bold">{t('bakeryCardTitle')}</span>
+              <span className="text-font-description-bold">{t('bakery')}</span>
               <AnimatedMenuChevron ref={animatedChevronRef} />
             </div>
             <div className="flex-1 w-full flex justify-center items-center">
@@ -115,7 +114,7 @@ export const BakeryCard: FC = () => {
         ) : (
           <div className="w-full px-2 flex flex-col gap-2">
             <div className="w-full flex items-center justify-between">
-              <span className="text-font-description-bold">{t('bakeryCardTitle')}</span>
+              <span className="text-font-description-bold">{t('bakery')}</span>
               {isDelegating ? (
                 <Loader size="S" trackVariant="dark" className="text-secondary" />
               ) : (
@@ -125,7 +124,7 @@ export const BakeryCard: FC = () => {
             <AllTimeStats total={stats?.total} lastAmount={stats?.lastAmount} unit="TKEY" />
           </div>
         )}
-      </button>
+      </Button>
 
       {isDelegationOpen && (
         <DelegationModal

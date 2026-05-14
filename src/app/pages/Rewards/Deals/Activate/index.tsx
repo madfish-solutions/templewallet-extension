@@ -19,10 +19,10 @@ import merchantsStackImage from '../../DealsCard/assets/merchant-stack.png';
 import { RewardsDealsActivateSelectors } from './selectors';
 
 const advantages: EarnPromoAdvantageItem[] = [
-  { Icon: CartIcon, textI18nKey: 'dealsActivateFeature1' },
-  { Icon: BrandsIcon, textI18nKey: 'dealsActivateFeature2' },
-  { Icon: CalendarIcon, textI18nKey: 'dealsActivateFeature3' },
-  { Icon: CardSecureIcon, textI18nKey: 'dealsActivateFeature4' }
+  { Icon: CartIcon, textI18nKey: 'activateInOneClickFeature' },
+  { Icon: BrandsIcon, textI18nKey: 'accessPartnerOffersFeature' },
+  { Icon: CalendarIcon, textI18nKey: 'autoPayoutMonthlyFeature' },
+  { Icon: CardSecureIcon, textI18nKey: 'paymentDetailsPrivateFeature' }
 ];
 
 export const RewardsDealsActivate: FC = () => {
@@ -40,13 +40,13 @@ export const RewardsDealsActivate: FC = () => {
 
   return (
     <EarnPromoLayout
-      pageTitle={<PageTitle title={t('dealsActivatePageTitle')} />}
+      pageTitle={<PageTitle title={t('templeDeals')} />}
       TopVisual={<img src={merchantsStackImage} alt="merchants" className="w-55 h-30 object-contain" />}
-      headline={t('dealsActivatePageHeading')}
+      headline={t('upTo25CashbackInUSDT')}
       advantages={advantages}
       advantageIconClassName="text-primary"
-      disclaimer={t('dealsActivateDisclaimer')}
-      actionText={t('dealsActivateCTA')}
+      disclaimer={t('enableCashbackDisclaimer')}
+      actionText={t('activateCashback')}
       actionColor="primary"
       onActionClick={handleActivate}
       actionTestID={RewardsDealsActivateSelectors.activateCashbackButton}
