@@ -171,10 +171,22 @@ export interface MerchantOffer {
   imageUri: string | null;
   description: string;
   domain: string;
-  cpcRate: number;
-  currencyCode: string;
+  rate: Rate;
   trackingLink: string;
 }
+
+type Rate =
+  | {
+      type: 'cpc';
+      value: string;
+      currency: 'USDT';
+    }
+  | {
+      type: 'cpa';
+      value: string;
+      currency: '%';
+      tier: '1' | '2' | '3' | '4';
+    };
 
 export const fetchMerchantOffers = withAxiosDataExtract((domains: string[]) =>
   axiosClient.post<MerchantOffer[]>('/takeads/merchant-offers', domains)

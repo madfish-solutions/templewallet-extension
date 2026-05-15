@@ -3732,8 +3732,32 @@
       }
     }
   },
-  "templeDealActivateDescription": {
+  "cashbackValue": {
+    "message": "Cashback $value$",
+    "placeholders": {
+      "value": {
+        "content": "$1"
+      }
+    }
+  },
+  "bountyValueApprox": {
+    "message": "Bounty ≈ $value$",
+    "placeholders": {
+      "value": {
+        "content": "$1"
+      }
+    }
+  },
+  "templeDealActivateBountyDescription": {
     "message": "Activate to visit $merchantName$ through our link and earn your bounty.",
+    "placeholders": {
+      "merchantName": {
+        "content": "$1"
+      }
+    }
+  },
+  "templeDealActivateCashbackDescription": {
+    "message": "Activate to visit $merchantName$ through our link and earn cashback.",
     "placeholders": {
       "merchantName": {
         "content": "$1"
@@ -3742,6 +3766,9 @@
   },
   "activateBounty": {
     "message": "Activate Bounty"
+  },
+  "activateCashback": {
+    "message": "Activate Cashback"
   },
   "activating": {
     "message": "Activating..."

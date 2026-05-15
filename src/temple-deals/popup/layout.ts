@@ -5,8 +5,9 @@ import { ContentScriptType } from 'lib/constants';
 
 import {
   el,
-  formatBountyValue,
+  getOfferActivateText,
   getOfferDescription,
+  getOfferTitle,
   markTempleDealActivated,
   msg,
   TEMPLE_DEALS_EVENTS,
@@ -78,11 +79,12 @@ function renderTempleDealsPopup(
   let cleanupOutsideClick: (() => void) | null = null;
   let outsideClickTimeout: number | null = null;
   const offerDescription = getOfferDescription(offer);
+  const activateText = getOfferActivateText(offer);
   let popupEl: HTMLElement | null = null;
   let settingsBtn: HTMLButtonElement | null = null;
   let settingsDropdown: HTMLElement | null = null;
 
-  trackTempleDealsEvent(TEMPLE_DEALS_EVENTS.cpcWidgetView, { domain }, "General");
+  trackTempleDealsEvent(TEMPLE_DEALS_EVENTS.cpcWidgetView, { domain }, 'General');
 
   function render() {
     cleanupOutsideClick?.();
@@ -236,9 +238,7 @@ function renderTempleDealsPopup(
     }
 
     const offerInfo = el('div', 'tw-popup-offer-info');
-    offerInfo.appendChild(
-      el('div', 'tw-popup-offer-title', msg('earnValue', formatBountyValue(offer.cpcRate, offer.currencyCode)))
-    );
+    offerInfo.appendChild(el('div', 'tw-popup-offer-title', getOfferTitle(offer)));
 
     const descEl = el(
       'div',
@@ -270,7 +270,7 @@ function renderTempleDealsPopup(
   function renderActivateButton() {
     const activateBtn = document.createElement('button');
     activateBtn.className = 'tw-popup-activate-btn';
-    activateBtn.textContent = msg('activateBounty');
+    activateBtn.textContent = activateText;
     activateBtn.addEventListener('click', async () => {
       activateBtn.textContent = msg('activating');
       activateBtn.disabled = true;
@@ -282,7 +282,7 @@ function renderTempleDealsPopup(
         });
 
         if (!result?.trackingLink) {
-          activateBtn.textContent = msg('activateBounty');
+          activateBtn.textContent = activateText;
           activateBtn.disabled = false;
           return;
         }
@@ -301,7 +301,7 @@ function renderTempleDealsPopup(
         window.location.href = result.trackingLink;
       } catch (err) {
         console.error('Failed to activate merchant offer:', err);
-        activateBtn.textContent = msg('activateBounty');
+        activateBtn.textContent = activateText;
         activateBtn.disabled = false;
       }
     });

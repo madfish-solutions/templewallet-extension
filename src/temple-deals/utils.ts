@@ -16,7 +16,11 @@ export const TEMPLE_DEALS_EVENTS = {
 export const msg = (key: string, substitutions?: string | string[]) =>
   browser.i18n.getMessage(key, substitutions) || key;
 
-export function trackTempleDealsEvent(event: string, properties?: object, category: "General" | "ButtonPress" = "ButtonPress") {
+export function trackTempleDealsEvent(
+  event: string,
+  properties?: object,
+  category: 'General' | 'ButtonPress' = 'ButtonPress'
+) {
   browser.runtime
     .sendMessage({
       type: ContentScriptType.MerchantOfferAnalytics,
@@ -50,11 +54,44 @@ export function normalizeDomain(hostname: string) {
 export function getOfferDescription(offer: MerchantOffer) {
   return offer.description && offer.description.trim().split(/\s+/).length > 3
     ? offer.description
-    : msg('templeDealActivateDescription', offer.name);
+    : msg(
+        offer.rate.type === 'cpa' ? 'templeDealActivateCashbackDescription' : 'templeDealActivateBountyDescription',
+        offer.name
+      );
 }
 
-export function formatBountyValue(value: number, currencyCode: string) {
-  return `${Math.max(value, 0.01).toFixed(2)} ${currencyCode}`;
+export function getOfferTitle(offer: MerchantOffer) {
+  return msg(offer.rate.type === 'cpa' ? 'cashbackValue' : 'earnValue', formatRateValue(offer));
+}
+
+export function getOfferLabel(offer: MerchantOffer) {
+  return offer.rate.type === 'cpa'
+    ? msg('cashbackValue', formatRateValue(offer))
+    : msg('bountyValueApprox', formatRateValue(offer));
+}
+
+export function getOfferActivateText(offer: MerchantOffer) {
+  return msg(offer.rate.type === 'cpa' ? 'activateCashback' : 'activateBounty');
+}
+
+function formatRateValue({ rate }: MerchantOffer) {
+  if (rate.type === 'cpa') {
+    return `${formatNumericRateValue(rate.value)}${rate.currency}`;
+  }
+
+  return `${formatNumericRateValue(rate.value, true)} ${rate.currency}`;
+}
+
+function formatNumericRateValue(value: string, forceFractionDigits = false) {
+  const numericValue = Number(value);
+
+  if (!Number.isFinite(numericValue)) return value;
+
+  const safeValue = Math.max(numericValue, 0.01);
+
+  return forceFractionDigits
+    ? safeValue.toFixed(2)
+    : safeValue.toLocaleString('en-US', { maximumFractionDigits: 2 });
 }
 
 export async function markTempleDealActivated(domain: string) {
