@@ -4,9 +4,9 @@ import BigNumber from 'bignumber.js';
 import clsx from 'clsx';
 
 import { t } from 'lib/i18n';
+import { ZERO } from 'lib/utils/numbers';
 
 import { BalanceAmount } from './balance-amount';
-import { ZERO } from 'lib/utils/numbers';
 
 interface AllTimeStatsProps {
   total: BigNumber | null | undefined;
