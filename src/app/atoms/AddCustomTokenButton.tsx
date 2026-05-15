@@ -1,49 +1,32 @@
-import React, { memo } from 'react';
+import { FC } from 'react';
 
 import clsx from 'clsx';
 
 import { ReactComponent as PlusIcon } from 'app/icons/base/plus.svg';
 import { ReactComponent as PlusCircleIcon } from 'app/icons/base/plus_circle.svg';
-import { AddTokenModal } from 'app/pages/Home/OtherComponents/Tokens/components/AddTokenModal';
 import { T } from 'lib/i18n';
-import { useBooleanState } from 'lib/ui/hooks';
-import { OneOfChains } from 'temple/front';
 
 import { Button } from './Button';
 import { IconBase } from './IconBase';
 
 interface Props {
-  forCollectibles: boolean;
   manageActive: boolean;
-  network?: OneOfChains;
   className?: string;
+  onClick: EmptyFn;
 }
 
-export const AddCustomTokenButton = memo<Props>(({ forCollectibles, manageActive, network, className }) => {
-  const [addTokenModalOpened, setAddTokenModalOpen, setAddTokenModalClosed] = useBooleanState(false);
-
+export const AddCustomTokenButton: FC<Props> = ({ manageActive, className, onClick }) => {
   const Component = manageActive ? Manage : Default;
 
-  return (
-    <>
-      <Component onClick={setAddTokenModalOpen} className={className} />
-
-      <AddTokenModal
-        forCollectible={forCollectibles}
-        opened={addTokenModalOpened}
-        initialNetwork={network}
-        onRequestClose={setAddTokenModalClosed}
-      />
-    </>
-  );
-});
+  return <Component onClick={onClick} className={className} />;
+};
 
 interface CommonProps {
   onClick: EmptyFn;
   className?: string;
 }
 
-const Manage = memo<CommonProps>(({ onClick, className }) => (
+const Manage: FC<CommonProps> = ({ onClick, className }) => (
   <Button
     className={clsx(
       'flex justify-between items-center p-3 rounded-8 border-0.5 bg-white border-lines hover:bg-grey-4',
@@ -56,9 +39,9 @@ const Manage = memo<CommonProps>(({ onClick, className }) => (
     </span>
     <IconBase Icon={PlusIcon} size={24} className="text-secondary" />
   </Button>
-));
+);
 
-const Default = memo<CommonProps>(({ onClick, className }) => (
+const Default: FC<CommonProps> = ({ onClick, className }) => (
   <Button
     className={clsx(
       'w-fit flex flex-row mb-8 px-2 py-1 bg-secondary-low rounded-md text-font-description-bold text-secondary',
@@ -69,4 +52,4 @@ const Default = memo<CommonProps>(({ onClick, className }) => (
     <IconBase Icon={PlusCircleIcon} size={12} className="stroke-current" />
     <T id="addTokenNonCapitalize" />
   </Button>
-));
+);

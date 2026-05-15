@@ -9,7 +9,9 @@ import {
   VisibilityTrackingInfiniteScrollProps
 } from 'app/atoms/visibility-tracking-infinite-scroll';
 import { ContentContainer } from 'app/layouts/containers';
+import { AddTokenModal } from 'app/pages/Home/OtherComponents/Tokens/components/AddTokenModal';
 import { EmptySection } from 'app/pages/Home/OtherComponents/Tokens/components/EmptySection';
+import { useBooleanState } from 'lib/ui/hooks';
 import { OneOfChains } from 'temple/front';
 
 export interface CollectiblesTabBaseProps {
@@ -32,6 +34,8 @@ export const CollectiblesTabBase: FC<PropsWithChildren<CollectiblesTabBaseProps>
   network,
   children
 }) => {
+  const [customTokenModalOpened, openCustomTokenModal, closeCustomTokenModal] = useBooleanState(false);
+
   return (
     <FadeTransition>
       <ContentContainer withShadow={false} padding={collectiblesCount > 0}>
@@ -39,7 +43,12 @@ export const CollectiblesTabBase: FC<PropsWithChildren<CollectiblesTabBaseProps>
           isSyncing && !isInSearchMode ? (
             <PageLoader stretch />
           ) : (
-            <EmptySection forCollectibles manageActive={manageActive} forSearch={isInSearchMode} network={network} />
+            <EmptySection
+              forCollectibles
+              manageActive={manageActive}
+              forSearch={isInSearchMode}
+              onAddCustomTokenClick={openCustomTokenModal}
+            />
           )
         ) : (
           <>
@@ -50,12 +59,7 @@ export const CollectiblesTabBase: FC<PropsWithChildren<CollectiblesTabBaseProps>
             ) : (
               <>
                 {manageActive && (
-                  <AddCustomTokenButton
-                    forCollectibles
-                    manageActive={manageActive}
-                    network={network}
-                    className="mb-4"
-                  />
+                  <AddCustomTokenButton manageActive={manageActive} onClick={openCustomTokenModal} className="mb-4" />
                 )}
                 <VisibilityTrackingInfiniteScroll loadNext={loadNextPage} getElementsIndexes={getElementsIndexes}>
                   {children}
@@ -67,6 +71,13 @@ export const CollectiblesTabBase: FC<PropsWithChildren<CollectiblesTabBaseProps>
           </>
         )}
       </ContentContainer>
+
+      <AddTokenModal
+        forCollectible={true}
+        opened={customTokenModalOpened}
+        onRequestClose={closeCustomTokenModal}
+        initialNetwork={network}
+      />
     </FadeTransition>
   );
 };

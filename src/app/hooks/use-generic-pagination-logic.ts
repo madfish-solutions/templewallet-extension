@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react';
+import { startTransition, useCallback, useEffect, useMemo, useState } from 'react';
 
 import { useDidUpdate } from 'lib/ui/hooks';
 
@@ -22,6 +22,11 @@ export const useGenericPaginationLogic = <T extends unknown[]>(
     },
     [items, slice]
   );
+
+  useEffect(() => {
+    if (paginatedItemsLength < minInitialItemsCount && itemsLength > minInitialItemsCount)
+      startTransition(() => _load(itemsPerPage));
+  }, [paginatedItemsLength, minInitialItemsCount, itemsPerPage, _load, itemsLength]);
 
   useDidUpdate(() => {
     if (len(paginatedItems) < minInitialItemsCount) _load(itemsPerPage);
