@@ -185,7 +185,7 @@ type Rate =
       type: 'cpa';
       value: string;
       currency: '%';
-      tier: '1' | '2' | '3' | '4';
+      tier: string;
     };
 
 export const fetchMerchantOffers = withAxiosDataExtract((domains: string[]) =>
