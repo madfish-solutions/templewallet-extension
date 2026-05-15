@@ -6,10 +6,14 @@ import { ContentScriptType } from 'lib/constants';
 import {
   el,
   getOfferActivateText,
+  getOfferActivationEvent,
+  getOfferAnalyticsProperties,
   getOfferDescription,
   getOfferTitle,
+  getOfferViewEvent,
   markTempleDealActivated,
   msg,
+  type TempleDealsActivationSource,
   TEMPLE_DEALS_EVENTS,
   trackTempleDealsEvent
 } from '../utils';
@@ -29,7 +33,7 @@ export interface TempleDealsPopupOptions {
   activationUrl: string;
   pageDomain: string;
   closeTitle?: string;
-  activateEvent: string;
+  activationSource: TempleDealsActivationSource;
   showSettings?: boolean;
   showDescriptionToggle?: boolean;
   onSettingsChange?: () => void;
@@ -67,7 +71,7 @@ function renderTempleDealsPopup(
     activationUrl,
     pageDomain,
     closeTitle = 'Close',
-    activateEvent,
+    activationSource,
     showSettings = true,
     showDescriptionToggle = false,
     onSettingsChange,
@@ -84,7 +88,7 @@ function renderTempleDealsPopup(
   let settingsBtn: HTMLButtonElement | null = null;
   let settingsDropdown: HTMLElement | null = null;
 
-  trackTempleDealsEvent(TEMPLE_DEALS_EVENTS.cpcWidgetView, { domain }, 'General');
+  trackTempleDealsEvent(getOfferViewEvent(offer), getOfferAnalyticsProperties(offer, domain), 'General');
 
   function render() {
     cleanupOutsideClick?.();
@@ -287,7 +291,7 @@ function renderTempleDealsPopup(
           return;
         }
 
-        trackTempleDealsEvent(activateEvent, { domain });
+        trackTempleDealsEvent(getOfferActivationEvent(offer, activationSource), getOfferAnalyticsProperties(offer, domain));
         await browser.runtime
           .sendMessage({
             type: ContentScriptType.ReferralClick,

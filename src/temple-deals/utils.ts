@@ -6,12 +6,17 @@ export const TEMPLE_DEALS_ACTIVATED_KEY_PREFIX = 'temple-merchant-offer-activate
 
 export const TEMPLE_DEALS_EVENTS = {
   cpcWidgetView: 'Deals CPC Widget / View',
+  cpaWidgetView: 'Deals CPA Widget / View',
   tagActivateBounty: 'Deals Tag / Activate Bounty',
+  tagActivateCashback: 'Deals Tag / Activate Cashback',
   popupActivateBounty: 'Deals Pop-up / Activate Bounty',
+  popupActivateCashback: 'Deals Pop-up / Activate Cashback',
   popupClose: 'Deals Pop-up / Close',
   popupSnooze: 'Deals Pop-up / Snooze',
   popupDisable: 'Deals Pop-up / Disable'
 } as const;
+
+export type TempleDealsActivationSource = 'tag' | 'popup';
 
 export const msg = (key: string, substitutions?: string | string[]) =>
   browser.i18n.getMessage(key, substitutions) || key;
@@ -72,6 +77,26 @@ export function getOfferLabel(offer: MerchantOffer) {
 
 export function getOfferActivateText(offer: MerchantOffer) {
   return msg(offer.rate.type === 'cpa' ? 'activateCashback' : 'activateBounty');
+}
+
+export function getOfferViewEvent(offer: MerchantOffer) {
+  return offer.rate.type === 'cpa' ? TEMPLE_DEALS_EVENTS.cpaWidgetView : TEMPLE_DEALS_EVENTS.cpcWidgetView;
+}
+
+export function getOfferActivationEvent(offer: MerchantOffer, source: TempleDealsActivationSource) {
+  if (source === 'tag') {
+    return offer.rate.type === 'cpa'
+      ? TEMPLE_DEALS_EVENTS.tagActivateCashback
+      : TEMPLE_DEALS_EVENTS.tagActivateBounty;
+  }
+
+  return offer.rate.type === 'cpa'
+    ? TEMPLE_DEALS_EVENTS.popupActivateCashback
+    : TEMPLE_DEALS_EVENTS.popupActivateBounty;
+}
+
+export function getOfferAnalyticsProperties(offer: MerchantOffer, domain: string) {
+  return offer.rate.type === 'cpa' ? { domain, cashbackTier: offer.rate.tier } : { domain };
 }
 
 function formatRateValue({ rate }: MerchantOffer) {
