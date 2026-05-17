@@ -5,7 +5,7 @@ import clsx from 'clsx';
 import { EvmNetworkLogo, NetworkLogoPropsBase, TezosNetworkLogo } from 'app/atoms/NetworkLogo';
 import { SearchHighlightText } from 'app/atoms/SearchHighlightText';
 import { useIsItemVisible } from 'app/atoms/visibility-tracking-infinite-scroll';
-import { useSearchState } from 'app/hooks/use-collectibles-view-state';
+import { useCollectiblesSearchState } from 'app/hooks/use-assets-view-state';
 import { ScamTag } from 'app/templates/scam-tag';
 import { setAnotherSelector, setTestID } from 'lib/analytics';
 import { Link } from 'lib/woozie';
@@ -55,7 +55,7 @@ const DefaultCollectibleListItemLayoutHOC = <
       ...restProps
     } = props;
 
-    const { searchValue } = useSearchState();
+    const { searchValue } = useCollectiblesSearchState();
     const network = useNetwork(chainId);
     const defaultIsVisible = useIsItemVisible(index);
     const isVisible = isVisibleFromProps ?? defaultIsVisible;

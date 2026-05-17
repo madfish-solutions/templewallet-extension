@@ -1,3 +1,4 @@
+import { t } from 'lib/i18n';
 import { AssetMetadataBase } from 'lib/metadata';
 import { searchAndFilterItems } from 'lib/utils/search-items';
 
@@ -245,7 +246,7 @@ export function searchCollectiblesWithNoMeta<T>({
       return {
         ...commonProps,
         name: metadata?.collectibleName,
-        contractName: metadata?.name
+        contractName: metadata?.name ?? t('unknownCollection')
       };
     }
   );

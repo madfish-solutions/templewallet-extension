@@ -9,7 +9,9 @@ import {
   VisibilityTrackingInfiniteScrollProps
 } from 'app/atoms/visibility-tracking-infinite-scroll';
 import { ContentContainer } from 'app/layouts/containers';
+import { AddTokenModal } from 'app/pages/Home/OtherComponents/Tokens/components/AddTokenModal';
 import { AssetsEmptySection } from 'app/templates/assets-empty-section';
+import { useBooleanState } from 'lib/ui/hooks';
 import { OneOfChains } from 'temple/front';
 
 export interface CollectiblesTabBaseProps {
@@ -32,6 +34,8 @@ export const CollectiblesTabBase: FC<PropsWithChildren<CollectiblesTabBaseProps>
   network,
   children
 }) => {
+  const [customTokenModalOpened, openCustomTokenModal, closeCustomTokenModal] = useBooleanState(false);
+
   return (
     <FadeTransition>
       <ContentContainer withShadow={false} padding={collectiblesCount > 0}>
@@ -43,7 +47,7 @@ export const CollectiblesTabBase: FC<PropsWithChildren<CollectiblesTabBaseProps>
               forCollectibles
               manageActive={manageActive}
               forSearch={isInSearchMode}
-              network={network}
+              onAddCustomTokenClick={openCustomTokenModal}
             />
           )
         ) : (
@@ -55,12 +59,7 @@ export const CollectiblesTabBase: FC<PropsWithChildren<CollectiblesTabBaseProps>
             ) : (
               <>
                 {manageActive && (
-                  <AddCustomTokenButton
-                    forCollectibles
-                    manageActive={manageActive}
-                    network={network}
-                    className="mb-4"
-                  />
+                  <AddCustomTokenButton manageActive={manageActive} onClick={openCustomTokenModal} className="mb-4" />
                 )}
                 <VisibilityTrackingInfiniteScroll loadNext={loadNextPage} getElementsIndexes={getElementsIndexes}>
                   {children}
@@ -72,6 +71,13 @@ export const CollectiblesTabBase: FC<PropsWithChildren<CollectiblesTabBaseProps>
           </>
         )}
       </ContentContainer>
+
+      <AddTokenModal
+        forCollectible={true}
+        opened={customTokenModalOpened}
+        onRequestClose={closeCustomTokenModal}
+        initialNetwork={network}
+      />
     </FadeTransition>
   );
 };

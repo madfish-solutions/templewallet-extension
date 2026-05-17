@@ -1,12 +1,12 @@
 import { FC, Ref } from 'react';
 
-import { useManageState } from 'app/hooks/use-collectibles-view-state';
+import { useCollectiblesManageState } from 'app/hooks/use-assets-view-state';
 import { useCollectiblesListOptionsSelector } from 'app/store/assets-filter-options/selectors';
 import { useMainnetTokensScamlistSelector } from 'app/store/tezos/assets/selectors';
 import { EvmCollectibleItem, TezosCollectibleItem } from 'app/templates/collectibles/collectible-item';
 import { parseChainAssetSlug } from 'lib/assets/utils';
 import { CollectiblesListItemElement } from 'lib/ui/collectibles-list';
-import { OneOfChains, useAccountAddressForEvm, useAccountAddressForTezos } from 'temple/front';
+import { useAccountAddressForEvm, useAccountAddressForTezos } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
 
 import { NftsListView } from './components/nfts-list-view';
@@ -16,21 +16,21 @@ interface NftsListProps {
   noCollectiblesAtAll: boolean;
   isSyncing: boolean;
   isInSearchMode: boolean;
-  network?: OneOfChains;
   paginatedSlugs: string[];
   loadNext: EmptyFn;
+  openCustomTokenModal: EmptyFn;
 }
 
 export const NftsList: FC<NftsListProps> = ({
   noCollectiblesAtAll,
   isSyncing,
   isInSearchMode,
-  network,
   paginatedSlugs,
-  loadNext
+  loadNext,
+  openCustomTokenModal
 }) => {
   const { blur, showInfo } = useCollectiblesListOptionsSelector();
-  const { manageActive } = useManageState();
+  const { manageActive } = useCollectiblesManageState();
   const mainnetTokensScamSlugsRecord = useMainnetTokensScamlistSelector();
   const accountTezAddress = useAccountAddressForTezos();
   const accountEvmAddress = useAccountAddressForEvm();
@@ -76,10 +76,10 @@ export const NftsList: FC<NftsListProps> = ({
       noCollectiblesAtAll={noCollectiblesAtAll}
       isSyncing={isSyncing}
       isInSearchMode={isInSearchMode}
-      network={network}
       chainSlugs={paginatedSlugs}
       loadNextPage={loadNext}
       renderItem={renderItem}
+      openCustomTokenModal={openCustomTokenModal}
     />
   );
 };

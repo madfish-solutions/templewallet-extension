@@ -7,7 +7,6 @@ import { AssetsEmptySection } from 'app/templates/assets-empty-section';
 import { usePartnersPromotionModule } from 'app/templates/partners-promotion';
 import { useAdsConstantsModule } from 'lib/ads-constants';
 import { t } from 'lib/i18n';
-import { OneOfChains } from 'temple/front';
 
 interface ListViewProps {
   children: ReactChildren;
@@ -17,7 +16,7 @@ interface ListViewProps {
   isInSearchMode: boolean;
   manageActive: boolean;
   collectiblesDetailsReady?: boolean;
-  network?: OneOfChains;
+  openCustomTokenModal: EmptyFn;
 }
 
 export const ListView: FC<ListViewProps> = ({
@@ -27,7 +26,7 @@ export const ListView: FC<ListViewProps> = ({
   isSyncing,
   isInSearchMode,
   manageActive,
-  network,
+  openCustomTokenModal,
   collectiblesDetailsReady = true
 }) => {
   const AdsConstantsModule = useAdsConstantsModule();
@@ -60,7 +59,8 @@ export const ListView: FC<ListViewProps> = ({
         forCollectibles
         manageActive={manageActive}
         forSearch={isInSearchMode && !noCollectiblesAtAll}
-        network={network}
+        onAddCustomTokenClick={openCustomTokenModal}
+        stretchSpaceBeforeButton={false}
       />
     );
   } else {

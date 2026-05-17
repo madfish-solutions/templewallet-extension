@@ -7,11 +7,11 @@ import { MiniPageModal } from 'app/atoms/PageModal/mini-page-modal';
 import { SettingsCellSingle } from 'app/atoms/SettingsCell';
 import { SettingsCellGroup } from 'app/atoms/SettingsCellGroup';
 import {
-  NftsViewStateProvider,
-  useManageState,
-  useSearchState,
-  useSelectedChainsState
-} from 'app/hooks/use-collectibles-view-state';
+  useCollectiblesCustomTokenModalState,
+  useCollectiblesManageState,
+  useCollectiblesSearchState,
+  useCollectiblesSelectedChainsState
+} from 'app/hooks/use-assets-view-state';
 import { useEvmCollectiblesMetadataLoading } from 'app/hooks/use-evm-collectibles-meta-loading';
 import { ReactComponent as FilterOffIcon } from 'app/icons/base/filteroff.svg';
 import { ReactComponent as FilterOnIcon } from 'app/icons/base/filteron.svg';
@@ -48,8 +48,11 @@ import {
   useAllTezosChains
 } from 'temple/front';
 
+import { AddTokenModal } from '../Home/OtherComponents/Tokens/components/AddTokenModal';
+
 import { CollectionsListView } from './components/collections-list-view';
 import { useCollectiblesListingLogic } from './hooks/use-collectibles-listing-logic';
+import { useMissingCollectiblesDetailsLoading } from './hooks/use-missing-collectibles-details-loading';
 import { NetworkChips } from './network-chips';
 import { NftsList } from './nfts-list';
 import { NftsPageSelectors } from './selectors';
@@ -59,7 +62,7 @@ export const NftsPage = () => {
   const accountAddressForEvm = useAccountAddressForEvm();
 
   return (
-    <NftsViewStateProvider>
+    <>
       {accountAddressForTezos && accountAddressForEvm && (
         <MultiChainNftsPage accountTezAddress={accountAddressForTezos} accountEvmAddress={accountAddressForEvm} />
       )}
@@ -68,7 +71,7 @@ export const NftsPage = () => {
       {!accountAddressForTezos && !accountAddressForEvm && (
         <ContentContainer className="mt-3">{UNDER_DEVELOPMENT_MSG}</ContentContainer>
       )}
-    </NftsViewStateProvider>
+    </>
   );
 };
 
@@ -81,16 +84,21 @@ const MultiChainNftsPage: FC<{ accountTezAddress: string; accountEvmAddress: Hex
   const sortPredicate = useAccountCollectiblesSortPredicate(accountTezAddress, accountEvmAddress);
 
   useEvmCollectiblesMetadataLoading(accountEvmAddress);
+  useMissingCollectiblesDetailsLoading(accountTezAddress);
 
   return <NftsPageContent allCollectibles={tezCollectibles.concat(evmCollectibles)} sortPredicate={sortPredicate} />;
 };
 
-const TezosNftsPage: FC<{ accountTezAddress: string }> = ({ accountTezAddress }) => (
-  <NftsPageContent
-    allCollectibles={useTezosAccountCollectibles(accountTezAddress)}
-    sortPredicate={useTezosAccountCollectiblesSortPredicate(accountTezAddress)}
-  />
-);
+const TezosNftsPage: FC<{ accountTezAddress: string }> = ({ accountTezAddress }) => {
+  useMissingCollectiblesDetailsLoading(accountTezAddress);
+
+  return (
+    <NftsPageContent
+      allCollectibles={useTezosAccountCollectibles(accountTezAddress)}
+      sortPredicate={useTezosAccountCollectiblesSortPredicate(accountTezAddress)}
+    />
+  );
+};
 
 const EvmNftsPage: FC<{ accountEvmAddress: HexString }> = ({ accountEvmAddress }) => {
   useEvmCollectiblesMetadataLoading(accountEvmAddress);
@@ -109,11 +117,13 @@ interface NftsPageContentProps {
 }
 
 const NftsPageContent: FC<NftsPageContentProps> = ({ allCollectibles, sortPredicate }) => {
-  const { searchValue, setSearchValue } = useSearchState();
-  const { selectedChains, chainIsGloballySelected } = useSelectedChainsState();
+  const { customTokenModalOpened, openCustomTokenModal, closeCustomTokenModal } =
+    useCollectiblesCustomTokenModalState();
+  const { searchValue, setSearchValue } = useCollectiblesSearchState();
+  const { selectedChains, chainIsGloballySelected } = useCollectiblesSelectedChainsState();
   const allTezosChains = useAllTezosChains();
   const allEvmChains = useAllEvmChains();
-  const { manageActive, toggleManageActive } = useManageState();
+  const { manageActive, toggleManageActive } = useCollectiblesManageState();
   const { blur, showInfo, viewAsCollections } = useCollectiblesListOptionsSelector();
   const {
     isInSearchMode,
@@ -169,17 +179,17 @@ const NftsPageContent: FC<NftsPageContentProps> = ({ allCollectibles, sortPredic
             collections={searchedSlugsByCollections}
             isSyncing={isSyncing}
             isInSearchMode={isInSearchMode}
-            network={network}
             tezDetailsReady={tezDetailsReady}
+            openCustomTokenModal={openCustomTokenModal}
           />
         ) : (
           <NftsList
             noCollectiblesAtAll={noCollectiblesAtAll}
             isSyncing={isSyncing}
             isInSearchMode={isInSearchMode}
-            network={network}
             paginatedSlugs={paginatedSlugs}
             loadNext={loadNext}
+            openCustomTokenModal={openCustomTokenModal}
           />
         )}
       </FadeTransition>
@@ -212,6 +222,13 @@ const NftsPageContent: FC<NftsPageContentProps> = ({ allCollectibles, sortPredic
           </SettingsCellSingle>
         </SettingsCellGroup>
       </MiniPageModal>
+
+      <AddTokenModal
+        forCollectible={false}
+        opened={customTokenModalOpened}
+        onRequestClose={closeCustomTokenModal}
+        initialNetwork={network}
+      />
     </PageLayout>
   );
 };

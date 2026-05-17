@@ -4,7 +4,7 @@ import { useSimplePaginationLogic } from './use-simple-pagination-logic';
 
 export const useSimpleAssetsPaginationLogic = (sortedSlugs: string[]) => {
   const { filterChain } = useAssetsFilterOptionsSelector();
-  const { paginatedItems: slugs, loadNext } = useSimplePaginationLogic(sortedSlugs, [filterChain, sortedSlugs.length]);
+  const { paginatedItems: slugs, loadNext } = useSimplePaginationLogic(sortedSlugs, [filterChain]);
 
   return { slugs, loadNext };
 };

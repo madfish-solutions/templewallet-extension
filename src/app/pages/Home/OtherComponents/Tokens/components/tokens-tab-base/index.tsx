@@ -1,4 +1,4 @@
-import { FC } from 'react';
+import { FC, useState } from 'react';
 
 import { FadeTransition } from 'app/a11y/FadeTransition';
 import { SyncSpinner } from 'app/atoms';
@@ -28,10 +28,13 @@ import {
   toTezEnabledCollectiblesChainSlugs
 } from 'lib/assets/hooks/collectibles';
 import { t, T } from 'lib/i18n';
+import { useBooleanState } from 'lib/ui/hooks';
 import { useActivateAnimatedChevron } from 'lib/ui/hooks/use-activate-animated-chevron';
 import { EMPTY_FROZEN_ARRAY } from 'lib/utils';
 import { Link, navigate } from 'lib/woozie';
 import { OneOfChains } from 'temple/front';
+
+import { AddTokenModal } from '../AddTokenModal';
 
 export interface TokensTabBaseProps {
   tokensCount: number;
@@ -51,31 +54,50 @@ export interface TokensTabBaseProps {
 
 const goToNftsPage = () => navigate('/nfts');
 
-export const TokensTabBase: FC<PropsWithChildren<TokensTabBaseProps>> = props => (
-  <>
-    <FadeTransition>
-      <TokensTabBaseContent {...props} />
-    </FadeTransition>
+export const TokensTabBase: FC<PropsWithChildren<TokensTabBaseProps>> = props => {
+  const [customTokenModalOpened, openCustomTokenModal, closeCustomTokenModal] = useBooleanState(false);
+  const [forCollectible, setForCollectible] = useState(false);
 
-    <DAppConnection />
-  </>
-);
+  const openCustomAssetModal = (forCollectible: boolean) => {
+    setForCollectible(forCollectible);
+    openCustomTokenModal();
+  };
 
-const TokensTabBaseContent: FC<PropsWithChildren<TokensTabBaseProps>> = ({
+  return (
+    <>
+      <FadeTransition>
+        <TokensTabBaseContent {...props} openCustomAssetModal={openCustomAssetModal} />
+      </FadeTransition>
+
+      <AddTokenModal
+        forCollectible={forCollectible}
+        opened={customTokenModalOpened}
+        onRequestClose={closeCustomTokenModal}
+        initialNetwork={props.network}
+      />
+
+      <DAppConnection />
+    </>
+  );
+};
+
+const TokensTabBaseContent: FC<
+  PropsWithChildren<Omit<TokensTabBaseProps, 'network'> & { openCustomAssetModal: SyncFn<boolean> }>
+> = ({
   tokensCount,
   getElementIndex,
   loadNextPage,
   isSyncingTokens: isSyncing,
   accountId,
   isInSearchMode,
-  network,
   manageActive,
   shouldShowHiddenTokensHint,
   children,
   tezosCollectibles = EMPTY_FROZEN_ARRAY,
   evmCollectibles = EMPTY_FROZEN_ARRAY,
   collectiblesReady,
-  collectiblesSortPredicate
+  collectiblesSortPredicate,
+  openCustomAssetModal
 }) => {
   const isTestnet = useTestnetModeEnabledSelector();
   const accountIsInitialized = useIsAccountInitializedSelector(accountId);
@@ -87,10 +109,51 @@ const TokensTabBaseContent: FC<PropsWithChildren<TokensTabBaseProps>> = ({
   const collectiblesSlugsSorted = tezosCollectiblesSlugs.concat(evmCollectiblesSlugs).sort(collectiblesSortPredicate);
   const collectibles = tezosCollectibles.concat(evmCollectibles);
 
+  const openCustomTokenModal = () => openCustomAssetModal(false);
+  const openCustomCollectibleModal = () => openCustomAssetModal(true);
+
+  const NftsSection = () => (
+    <div
+      className="mt-6 bg-white rounded-8 border-0.5 border-lines p-1 pt-0 flex flex-col"
+      onMouseEnter={handleHover}
+      onMouseLeave={handleUnhover}
+    >
+      <Link to="/nfts" className="flex justify-between items-center p-2 gap-1" testID={HomeSelectors.nftsSection}>
+        <span className="text-font-description-bold">{t('nfts')}</span>
+        <AnimatedMenuChevron ref={animatedChevronRef} />
+      </Link>
+      {collectibles.length === 0 && collectiblesReady && (
+        <div className="flex flex-col items-center px-2 py-3 gap-3 bg-background rounded-8">
+          <p className="text-font-description-bold text-grey-1 text-center">{t('startYourCollectionToday')}</p>
+
+          <AddCustomTokenButton className="mb-0!" onClick={openCustomCollectibleModal} manageActive={false} />
+        </div>
+      )}
+      {collectibles.length === 0 && !collectiblesReady && (
+        <div className="flex justify-center items-center h-19">
+          <SyncSpinner />
+        </div>
+      )}
+      {collectibles.length > 0 && (
+        <div className="flex flex-col p-2 bg-background rounded-8">
+          <CollectiblesGroupGrid
+            isCollapsed
+            chainSlugs={collectiblesSlugsSorted}
+            colsCount={3}
+            isVisible
+            onShowMore={goToNftsPage}
+          />
+        </div>
+      )}
+    </div>
+  );
+
   if (accountIsInitialized === false && !isSyncingInitializedState && !isTestnet && !manageActive) {
     return (
       <TokensTabBaseContentWrapper className="pt-0!">
         <UninitializedAccountContent />
+
+        <NftsSection />
       </TokensTabBaseContentWrapper>
     );
   }
@@ -110,7 +173,7 @@ const TokensTabBaseContent: FC<PropsWithChildren<TokensTabBaseProps>> = ({
     <TokensTabBaseContentWrapper padding={tokensCount > 0}>
       {tokensCount === 0 ? (
         <AssetsEmptySection
-          network={network}
+          onAddCustomTokenClick={openCustomTokenModal}
           forCollectibles={false}
           forSearch={isInSearchMode}
           manageActive={manageActive}
@@ -119,12 +182,7 @@ const TokensTabBaseContent: FC<PropsWithChildren<TokensTabBaseProps>> = ({
       ) : (
         <>
           {manageActive && (
-            <AddCustomTokenButton
-              forCollectibles={false}
-              manageActive={manageActive}
-              network={network}
-              className="mb-4"
-            />
+            <AddCustomTokenButton onClick={openCustomTokenModal} manageActive={manageActive} className="mb-4" />
           )}
           <div className="w-full max-h-96 flex flex-col overflow-auto">
             <VisibilityTrackingInfiniteScroll getElementsIndexes={getElementIndex} loadNext={loadNextPage}>
@@ -132,39 +190,7 @@ const TokensTabBaseContent: FC<PropsWithChildren<TokensTabBaseProps>> = ({
             </VisibilityTrackingInfiniteScroll>
           </div>
 
-          <div
-            className="mt-6 bg-white rounded-8 border-0.5 border-lines p-1 pt-0 flex flex-col"
-            onMouseEnter={handleHover}
-            onMouseLeave={handleUnhover}
-          >
-            <Link to="/nfts" className="flex justify-between items-center p-2 gap-1" testID={HomeSelectors.nftsSection}>
-              <span className="text-font-description-bold">{t('nfts')}</span>
-              <AnimatedMenuChevron ref={animatedChevronRef} />
-            </Link>
-            {collectibles.length === 0 && collectiblesReady && (
-              <div className="flex flex-col items-center px-2 py-3 gap-3 bg-background rounded-8">
-                <p className="text-font-description-bold text-grey-1 text-center">{t('startYourCollectionToday')}</p>
-
-                <AddCustomTokenButton forCollectibles manageActive={false} network={network} />
-              </div>
-            )}
-            {collectibles.length === 0 && !collectiblesReady && (
-              <div className="flex justify-center items-center h-19">
-                <SyncSpinner />
-              </div>
-            )}
-            {collectibles.length > 0 && (
-              <div className="flex flex-col p-2 bg-background rounded-8">
-                <CollectiblesGroupGrid
-                  isCollapsed
-                  chainSlugs={collectiblesSlugsSorted}
-                  colsCount={3}
-                  isVisible
-                  onShowMore={goToNftsPage}
-                />
-              </div>
-            )}
-          </div>
+          <NftsSection />
 
           {isSyncing && <SyncSpinner className="mt-4" />}
         </>

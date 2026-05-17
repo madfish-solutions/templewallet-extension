@@ -5,7 +5,6 @@ import type InfiniteScroll from 'react-infinite-scroll-component';
 
 import { VisibilityTrackingInfiniteScroll } from 'app/atoms/visibility-tracking-infinite-scroll';
 import { CollectiblesListItemElement, makeGetCollectionsElementsIndexesFunction } from 'lib/ui/collectibles-list';
-import { OneOfChains } from 'temple/front';
 
 import { CollectiblesCollection } from '../../types';
 import { ListView } from '../list-view';
@@ -17,7 +16,7 @@ interface CollectionsListViewProps {
   noCollectiblesAtAll: boolean;
   isSyncing: boolean;
   isInSearchMode: boolean;
-  network?: OneOfChains;
+  openCustomTokenModal: EmptyFn;
   tezDetailsReady: boolean;
 }
 
@@ -26,7 +25,7 @@ export const CollectionsListView: FC<CollectionsListViewProps> = ({
   noCollectiblesAtAll,
   isSyncing,
   isInSearchMode,
-  network,
+  openCustomTokenModal,
   tezDetailsReady
 }) => {
   const [openedCollections, setOpenedCollections] = useState<string[]>([]);
@@ -58,8 +57,8 @@ export const CollectionsListView: FC<CollectionsListViewProps> = ({
       isSyncing={isSyncing}
       isInSearchMode={isInSearchMode}
       manageActive={false}
-      network={network}
       collectiblesDetailsReady={tezDetailsReady}
+      openCustomTokenModal={openCustomTokenModal}
     >
       <VisibilityTrackingInfiniteScroll getElementsIndexes={getElementsIndexes} loadNext={noop} ref={listRef}>
         {collections.map(([collection, chainSlugs], index) => (

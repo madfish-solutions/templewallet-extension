@@ -3,7 +3,11 @@ import { useDebounce } from 'use-debounce';
 import { useEvmBalancesAreLoading } from 'app/hooks/listing-logic/use-evm-balances-loading-state';
 import { usePreservedOrderSlugsToManage } from 'app/hooks/listing-logic/use-manageable-slugs';
 import { getSlugFromChainSlug } from 'app/hooks/listing-logic/utils';
-import { useManageState, useSearchState, useSelectedChainsState } from 'app/hooks/use-collectibles-view-state';
+import {
+  useCollectiblesManageState,
+  useCollectiblesSearchState,
+  useCollectiblesSelectedChainsState
+} from 'app/hooks/use-assets-view-state';
 import { useSimpleAssetsPaginationLogic } from 'app/hooks/use-simple-assets-pagination-logic';
 import { useCollectiblesListOptionsSelector } from 'app/store/assets-filter-options/selectors';
 import { useEvmCollectiblesMetadataRecordSelector } from 'app/store/evm/collectibles-metadata/selectors';
@@ -38,8 +42,8 @@ export const useCollectiblesListingLogic = (
   allAccountCollectibles: AccountCollectible[],
   sortPredicate: (aChainAssetSlug: string, bChainAssetSlug: string) => number
 ) => {
-  const { manageActive } = useManageState();
-  const { selectedChains } = useSelectedChainsState();
+  const { manageActive } = useCollectiblesManageState();
+  const { selectedChains } = useCollectiblesSelectedChainsState();
   const allTezosCollectiblesDetails = useAllCollectiblesDetailsSelector();
   const tezDetailsLoading = useAllCollectiblesDetailsLoadingSelector();
   const tezDetailsError = useCollectiblesDetailsErrorSelector();
@@ -77,7 +81,7 @@ export const useCollectiblesListingLogic = (
 
   const evmBalancesLoading = useEvmBalancesAreLoading();
   const evmMetadatasLoading = useEvmCollectiblesMetadataLoadingSelector();
-  const { searchValueDebounced } = useSearchState();
+  const { searchValueDebounced } = useCollectiblesSearchState();
   const isInSearchMode = isSearchStringApplicable(searchValueDebounced);
 
   const isSyncingLocal =
@@ -141,24 +145,29 @@ export const useCollectiblesListingLogic = (
     sameCollectionSlugs.push(chainCollectibleSlug);
   });
 
-  const searchedSlugsByCollections = Array.from(
-    slugsByCollectionsInContracts.entries().flatMap(([contractSlug, contractCollections]) =>
-      contractCollections
-        .entries()
-        .map(([collectionName, chainCollectibleSlugs]): [CollectiblesCollection, string[]] => {
-          const [chainKind, chainId, firstAssetSlug] = parseChainAssetSlug(chainCollectibleSlugs[0]);
-          const logoSrc =
-            chainKind === TempleChainKind.Tezos
-              ? buildTokenImagesStack(allTezosCollectiblesDetails[firstAssetSlug]?.fa.logo)
-              : undefined;
+  const unsortedSearchedSlugsByCollections = useMemoWithCompare(
+    () =>
+      Array.from(
+        slugsByCollectionsInContracts.entries().flatMap(([contractSlug, contractCollections]) =>
+          contractCollections
+            .entries()
+            .map(([collectionName, chainCollectibleSlugs]): [CollectiblesCollection, string[]] => {
+              const [chainKind, chainId, firstAssetSlug] = parseChainAssetSlug(chainCollectibleSlugs[0]);
+              const logoSrc =
+                chainKind === TempleChainKind.Tezos
+                  ? buildTokenImagesStack(allTezosCollectiblesDetails[firstAssetSlug]?.fa.logo)
+                  : undefined;
 
-          return [
-            { chainId, title: collectionName, logoSrc, collectionSlug: `${contractSlug}_${collectionName}` },
-            chainCollectibleSlugs
-          ];
-        })
-    )
+              return [
+                { chainId, title: collectionName, logoSrc, collectionSlug: `${contractSlug}_${collectionName}` },
+                chainCollectibleSlugs
+              ];
+            })
+        )
+      ),
+    [allTezosCollectiblesDetails, slugsByCollectionsInContracts]
   );
+  const searchedSlugsByCollections = unsortedSearchedSlugsByCollections.toSorted((a, b) => b[1].length - a[1].length);
 
   useTezosCollectiblesMetadataPresenceCheck(tezEnabledCollectiblesChainsSlugs);
 

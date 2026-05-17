@@ -6,7 +6,7 @@ import { Anchor, IconBase } from 'app/atoms';
 import { EvmNetworkLogo, TezosNetworkLogo } from 'app/atoms/NetworkLogo';
 import { SearchHighlightText } from 'app/atoms/SearchHighlightText';
 import { useIsItemVisible } from 'app/atoms/visibility-tracking-infinite-scroll';
-import { useSearchState } from 'app/hooks/use-collectibles-view-state';
+import { useCollectiblesSearchState } from 'app/hooks/use-assets-view-state';
 import { ReactComponent as ChevronDownIcon } from 'app/icons/base/chevron_down.svg';
 import { ReactComponent as OutLinkIcon } from 'app/icons/base/outLink.svg';
 import { ReactComponent as UnknownCollectible } from 'app/icons/unknown-collectible.svg';
@@ -51,9 +51,9 @@ export const CollectionsListItem: FC<CollectionsListItemProps> = ({
   const [srcIndex, setSrcIndex] = useState(logoSrc ? 0 : -1);
   const handleToggleOpened = () => onToggleOpened(collectionSlug);
   const isVisible = useIsItemVisible(index);
-  const { searchValue } = useSearchState();
+  const { searchValue } = useCollectiblesSearchState();
 
-  useEffect(() => setSrcIndex(logoSrc ? 0 : -1), [logoSrc, setSrcIndex]);
+  useEffect(() => setSrcIndex(logoSrc?.length ? 0 : -1), [logoSrc, setSrcIndex]);
 
   const handleLogoLoadingError = () => setSrcIndex(prev => (logoSrc && prev < logoSrc.length - 1 ? prev + 1 : -1));
 

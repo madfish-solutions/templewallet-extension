@@ -38,7 +38,7 @@ export const MiniPageModal: FC<MiniPageModalProps> = ({
       htmlOpenClassName="overflow-hidden"
       bodyOpenClassName={ACTIVATE_CONTENT_FADER_CLASSNAME}
       overlayClassName={{
-        base: clsx('fixed z-modal-page inset-0', fullPage && 'pb-8'),
+        base: clsx('fixed z-modal-page inset-0 backdrop-blur-xxs bg-black/15', fullPage && 'pb-8'),
         afterOpen: '',
         beforeClose: ''
       }}

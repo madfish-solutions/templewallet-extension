@@ -1,6 +1,6 @@
 import { FC } from 'react';
 
-import { useSelectedChainsState } from 'app/hooks/use-collectibles-view-state';
+import { useCollectiblesSelectedChainsState } from 'app/hooks/use-assets-view-state';
 import { NetworkChipChain, NetworkChips as NetworkChipsTemplate } from 'app/templates/network-chips';
 import { AccountCollectible } from 'lib/assets/hooks/collectibles';
 import { useMemoWithCompare } from 'lib/ui/hooks';
@@ -11,7 +11,7 @@ interface NetworkChipsProps {
 }
 
 export const NetworkChips: FC<NetworkChipsProps> = ({ enabledCollectibles }) => {
-  const { selectedChains, setSelectedChains } = useSelectedChainsState();
+  const { selectedChains, setSelectedChains } = useCollectiblesSelectedChainsState();
 
   const chipsProps = useMemoWithCompare(
     () =>

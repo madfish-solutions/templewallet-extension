@@ -6,8 +6,8 @@ import { FadeTransition } from 'app/a11y/FadeTransition';
 import {
   useActiveTabState,
   useCollectiblesManageState,
-  useSearchModeState,
-  useSearchState,
+  useTokensSearchModeState,
+  useTokensSearchState,
   useTokensManageState
 } from 'app/hooks/use-assets-view-state';
 import { ReactComponent as ManageIcon } from 'app/icons/base/manage.svg';
@@ -33,8 +33,8 @@ export const AssetsViewStateController: FC<AssetsSegmentControlProps> = ({ class
   const { activeTab, setActiveTab } = useActiveTabState();
   const tokensManageState = useTokensManageState();
   const collectiblesManageState = useCollectiblesManageState();
-  const { searchValue, setSearchValue, resetSearchValue } = useSearchState();
-  const { searchMode, setSearchModeActive, setSearchModeInactive } = useSearchModeState();
+  const { searchValue, setSearchValue, resetSearchValue } = useTokensSearchState();
+  const { searchMode, setSearchModeActive, setSearchModeInactive } = useTokensSearchModeState();
   const { setManageActive, setManageInactive } =
     activeTab === 'collectibles' ? collectiblesManageState : tokensManageState;
 
