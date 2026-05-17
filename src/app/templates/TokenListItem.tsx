@@ -27,6 +27,7 @@ import { useEvmTokenBalance, useTezosAssetBalance } from 'lib/balances/hooks';
 import { ASSET_HUGE_AMOUNT } from 'lib/constants';
 import { getTokenName, getAssetSymbol } from 'lib/metadata';
 import { useBooleanState } from 'lib/ui/hooks';
+import { toExploreAssetLink } from 'lib/ui/links';
 import { TokenListItemElement } from 'lib/ui/tokens-list';
 import { ZERO } from 'lib/utils/numbers';
 import { Link } from 'lib/woozie';
@@ -39,7 +40,6 @@ import { AssetsSelectors } from '../pages/Home/OtherComponents/Assets.selectors'
 import { CryptoBalance, FiatBalance } from '../pages/Home/OtherComponents/Tokens/components/Balance';
 import { TokenTag } from '../pages/Home/OtherComponents/Tokens/components/TokenTag';
 import { EvmIncentiveTag } from '../pages/Home/OtherComponents/Tokens/components/TokenTag/EvmIncentiveTag';
-import { toExploreAssetLink } from '../pages/Home/OtherComponents/Tokens/utils';
 
 const LIST_ITEM_CLASSNAME = clsx(
   'flex items-center gap-x-1 p-2 rounded-lg',

@@ -18,6 +18,7 @@ import {
   useIsAccountInitializedSelector
 } from 'app/store/accounts-initialization/selectors';
 import { useTestnetModeEnabledSelector } from 'app/store/settings/selectors';
+import { AddTokenModal } from 'app/templates/add-token-modal';
 import { AssetsEmptySection } from 'app/templates/assets-empty-section';
 import { CollectiblesGroupGrid } from 'app/templates/collectibles/collectibles-group-grid';
 import { DAppConnection } from 'app/templates/DAppConnection';
@@ -33,8 +34,6 @@ import { useActivateAnimatedChevron } from 'lib/ui/hooks/use-activate-animated-c
 import { EMPTY_FROZEN_ARRAY } from 'lib/utils';
 import { Link, navigate } from 'lib/woozie';
 import { OneOfChains } from 'temple/front';
-
-import { AddTokenModal } from '../AddTokenModal';
 
 export interface TokensTabBaseProps {
   tokensCount: number;

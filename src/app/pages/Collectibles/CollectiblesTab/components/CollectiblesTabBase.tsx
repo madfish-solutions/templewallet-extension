@@ -9,7 +9,7 @@ import {
   VisibilityTrackingInfiniteScrollProps
 } from 'app/atoms/visibility-tracking-infinite-scroll';
 import { ContentContainer } from 'app/layouts/containers';
-import { AddTokenModal } from 'app/pages/Home/OtherComponents/Tokens/components/AddTokenModal';
+import { AddTokenModal } from 'app/templates/add-token-modal';
 import { AssetsEmptySection } from 'app/templates/assets-empty-section';
 import { useBooleanState } from 'lib/ui/hooks';
 import { OneOfChains } from 'temple/front';
@@ -73,7 +73,7 @@ export const CollectiblesTabBase: FC<PropsWithChildren<CollectiblesTabBaseProps>
       </ContentContainer>
 
       <AddTokenModal
-        forCollectible={true}
+        forCollectible
         opened={customTokenModalOpened}
         onRequestClose={closeCustomTokenModal}
         initialNetwork={network}

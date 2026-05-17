@@ -8,6 +8,7 @@ import { useIsItemVisible } from 'app/atoms/visibility-tracking-infinite-scroll'
 import { useCollectiblesSearchState } from 'app/hooks/use-assets-view-state';
 import { ScamTag } from 'app/templates/scam-tag';
 import { setAnotherSelector, setTestID } from 'lib/analytics';
+import { toExploreAssetLink } from 'lib/ui/links';
 import { Link } from 'lib/woozie';
 import { ChainId, ChainOfKind, useEvmChainByChainId, useTezosChainByChainId } from 'temple/front/chains';
 import { TempleChainKind } from 'temple/types';
@@ -62,7 +63,7 @@ const DefaultCollectibleListItemLayoutHOC = <
 
     return (
       <Link
-        to={`/collectible/${chainKind}/${chainId}/${assetSlug}`}
+        to={toExploreAssetLink(true, chainKind, chainId, assetSlug)}
         className={clsx('flex flex-col overflow-hidden group', className)}
         testID={testID}
         testIDProperties={{ assetSlug }}

@@ -36,13 +36,13 @@ import { CollectibleMetadata } from 'lib/metadata/types';
 import { getCollectibleName, getCollectionName } from 'lib/metadata/utils';
 import { CollectiblesListItemElement } from 'lib/ui/collectibles-list';
 import { useBooleanState } from 'lib/ui/hooks';
+import { toExploreAssetLink } from 'lib/ui/links';
 import { ZERO } from 'lib/utils/numbers';
 import { Link } from 'lib/woozie';
 import { ChainId, ChainOfKind, PublicKeyHash, useEvmChainByChainId, useTezosChainByChainId } from 'temple/front/chains';
 import { TempleChainKind } from 'temple/types';
 
 import { CollectibleTabSelectors } from '../selectors';
-import { toCollectibleLink } from '../utils';
 
 // Fixed sizes to improve large grid performance
 const manageImgStyle = { width: '2.625rem', height: '2.625rem' };
@@ -395,7 +395,7 @@ const DefaultCollectibleListItemLayoutHOC = <
 
     return (
       <Link
-        to={toCollectibleLink(chainKind, chainId, assetSlug)}
+        to={toExploreAssetLink(true, chainKind, chainId, assetSlug)}
         className={clsx('flex flex-col overflow-hidden group', isVisible ? 'rounded-8' : 'rounded-t-8', className)}
         testID={CollectibleTabSelectors.collectibleItem}
         testIDProperties={{ assetSlug: assetSlug }}

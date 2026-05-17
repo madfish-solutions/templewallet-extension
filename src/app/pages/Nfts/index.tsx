@@ -26,6 +26,7 @@ import {
   setCollectiblesViewAsCollectionsFilterOption
 } from 'app/store/assets-filter-options/actions';
 import { useCollectiblesListOptionsSelector } from 'app/store/assets-filter-options/selectors';
+import { AddTokenModal } from 'app/templates/add-token-modal';
 import { SearchBarField } from 'app/templates/SearchField';
 import {
   AccountCollectible,
@@ -47,8 +48,6 @@ import {
   useAllEvmChains,
   useAllTezosChains
 } from 'temple/front';
-
-import { AddTokenModal } from '../Home/OtherComponents/Tokens/components/AddTokenModal';
 
 import { CollectionsListView } from './components/collections-list-view';
 import { useCollectiblesListingLogic } from './hooks/use-collectibles-listing-logic';
@@ -224,7 +223,7 @@ const NftsPageContent: FC<NftsPageContentProps> = ({ allCollectibles, sortPredic
       </MiniPageModal>
 
       <AddTokenModal
-        forCollectible={false}
+        forCollectible
         opened={customTokenModalOpened}
         onRequestClose={closeCustomTokenModal}
         initialNetwork={network}
