@@ -75,14 +75,12 @@ const useAssetsViewState = () => {
     collectiblesPagesPaths.some(path => pathname.startsWith(path))
   );
 
-  const chainIsGloballySelected = Boolean(filterChain);
-
   const activeTab: AssetsTab = tabSlug === 'collectibles' ? 'collectibles' : 'tokens';
 
   const setActiveTab = (tab: AssetsTab) => setTabSlug(tab);
 
   return {
-    chainIsGloballySelected,
+    chainIsGloballySelected: Boolean(filterChain),
     activeTab,
     setActiveTab,
     tokensViewState,
