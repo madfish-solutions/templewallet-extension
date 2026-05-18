@@ -1,0 +1,102 @@
+import React, { FC } from 'react';
+
+import { TxHashAnchor } from 'app/atoms';
+import { HashChip } from 'app/atoms/HashChip';
+import { StyledButton } from 'app/atoms/StyledButton';
+import { ReactComponent as XCircleFill } from 'app/icons/base/x_circle_fill.svg';
+import { CrossChainExchange } from 'app/store/cross-chain-send/state';
+import { ChartListItem } from 'app/templates/chart-list-item';
+import { T, t } from 'lib/i18n';
+import { useBlockExplorerHref } from 'temple/front/use-block-explorers';
+
+import backgroundFailedSrc from '../../assets/background-failed.svg?url';
+import { CrossChainAmountRow } from '../../components/CrossChainAmountRow';
+
+import { StatusShell } from './StatusShell';
+
+interface Props {
+  exchange: CrossChainExchange;
+  onClose: EmptyFn;
+}
+
+export const RefundedContent: FC<Props> = ({ exchange, onClose }) => {
+  const refundAmount = exchange.fromAmount;
+
+  const refundExplorerHref = useBlockExplorerHref(
+    exchange.sourceChainKind,
+    exchange.sourceChainId,
+    'tx',
+    exchange.refundHash ?? ''
+  );
+
+  return (
+    <StatusShell
+      exchange={exchange}
+      backgroundSrc={backgroundFailedSrc}
+      heroOuterClassName="h-48 px-4 pb-2"
+      heroInnerClassName="flex flex-col items-center gap-y-3 pb-4 pt-6"
+      hero={
+        <>
+          <XCircleFill width={58} height={58} className="text-error fill-current" />
+          <p className="text-font-regular-bold">
+            <T id="refunded" />
+          </p>
+          <p className="text-font-description text-grey-1 text-center whitespace-pre-line">
+            <T id="refundedDescription" />
+          </p>
+        </>
+      }
+      body={
+        <div className="rounded-8 bg-white border-0.5 border-lines flex flex-col px-4 pb-4">
+          <ChartListItem
+            title={<span className="text-font-description-bold text-grey-1">{t('amount')}</span>}
+            bottomSeparator={false}
+          >
+            {exchange.senderAddress && (
+              <div className="flex items-center gap-x-1">
+                <span className="text-font-description text-grey-1">
+                  <T id="toAsset" />
+                </span>
+                <HashChip hash={exchange.senderAddress} firstCharsCount={6} lastCharsCount={4} />
+              </div>
+            )}
+          </ChartListItem>
+
+          <div className="pb-3">
+            <CrossChainAmountRow
+              asset={exchange.fromAsset}
+              amount={refundAmount}
+              sign="+"
+              amountClassName="text-success"
+            />
+          </div>
+
+          {exchange.refundHash && (
+            <ChartListItem
+              title={t('refundTxHash')}
+              bottomSeparator={false}
+              className="border-t-0.5 border-lines pt-6 mb-2"
+            >
+              {refundExplorerHref ? (
+                <TxHashAnchor
+                  href={refundExplorerHref}
+                  hash={exchange.refundHash}
+                  firstCharsCount={6}
+                  lastCharsCount={4}
+                  className="p-1 text-font-num-12"
+                />
+              ) : (
+                <HashChip hash={exchange.refundHash} firstCharsCount={6} lastCharsCount={4} />
+              )}
+            </ChartListItem>
+          )}
+        </div>
+      }
+      actions={
+        <StyledButton size="L" color="primary" onClick={onClose}>
+          <T id="doneAction" />
+        </StyledButton>
+      }
+    />
+  );
+};

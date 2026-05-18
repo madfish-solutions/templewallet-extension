@@ -1,11 +1,12 @@
-import React, { FC, useMemo } from 'react';
+import { FC, useMemo } from 'react';
 
 import { DeadEndBoundaryError } from 'app/ErrorBoundary';
+import { CrossChainActivityRow } from 'app/pages/Send/cross-chain/components/CrossChainActivityRow';
 import { dispatch } from 'app/store';
 import { putEvmNoCategoryAssetsMetadataAction } from 'app/store/evm/no-category-assets-metadata/actions';
 import { EvmActivity } from 'lib/activity';
 import { isEtherlinkSupportedChainId } from 'lib/apis/etherlink';
-import { useAccountAddressForEvm } from 'temple/front';
+import { useAccount, useAccountAddressForEvm } from 'temple/front';
 import { useEvmChainByChainId } from 'temple/front/chains';
 import { TempleChainKind } from 'temple/types';
 
@@ -15,32 +16,25 @@ import { fetchEtherlinkActivitiesWithCache, fetchEvmActivitiesWithCache } from '
 import { ActivitiesDateGroup, useGroupingByDate } from './grouping-by-date';
 import { RETRY_AFTER_ERROR_TIMEOUT, useActivitiesLoadingLogic } from './loading-logic';
 import { useAssetsFromActivitiesCheck } from './use-assets-from-activites-check';
+import { useInterleavedFeed } from './use-interleaved-feed';
 import { FilterKind, getActivityFilterKind, getAllEtherlinkActivitiesPageParams } from './utils';
 
 interface Props {
   chainId: number;
   assetSlug?: string;
   filterKind?: FilterKind;
+  onCrossChainExchangeClick?: (id: string) => void;
 }
 
-export const EvmActivityList: FC<Props> = ({ chainId, assetSlug, filterKind }) => {
+export const EvmActivityList: FC<Props> = ({ chainId, assetSlug, filterKind, onCrossChainExchangeClick }) => {
+  const currentAccount = useAccount();
   const network = useEvmChainByChainId(chainId);
   const accountAddress = useAccountAddressForEvm();
 
   if (!network || !accountAddress) throw new DeadEndBoundaryError();
 
-  const {
-    activities,
-    isLoading,
-    reachedTheEnd,
-    error,
-    setActivities,
-    setIsLoading,
-    setReachedTheEnd,
-    setError,
-    loadNext
-  } = useActivitiesLoadingLogic<EvmActivity>(
-    async (initial, signal) => {
+  const { activities, isLoading, reachedTheEnd, error, loadNext } = useActivitiesLoadingLogic<EvmActivity>(
+    async ({ setIsLoading, setActivities, setReachedTheEnd, setError }, activities, initial, signal) => {
       setIsLoading(true);
 
       const currActivities = initial ? [] : activities;
@@ -107,18 +101,40 @@ export const EvmActivityList: FC<Props> = ({ chainId, assetSlug, filterKind }) =
     [activities, filterKind]
   );
 
-  const groupedActivities = useGroupingByDate(displayActivities);
+  const feed = useInterleavedFeed({
+    activities: displayActivities,
+    remoteReachedTheEnd: reachedTheEnd,
+    filterChain: { kind: TempleChainKind.EVM, chainId },
+    accountId: currentAccount.id,
+    enabled: Boolean(onCrossChainExchangeClick)
+  });
+
+  const groupedFeed = useGroupingByDate(feed);
 
   const contentJsx = useMemo(
     () =>
-      groupedActivities.map(([dateStr, activities]) => (
+      groupedFeed.map(([dateStr, items]) => (
         <ActivitiesDateGroup key={dateStr} title={dateStr}>
-          {activities.map(activity => (
-            <EvmActivityComponent key={activity.hash} activity={activity} chain={network} assetSlug={assetSlug} />
-          ))}
+          {items.map(item => {
+            if (item.kind === 'evm') {
+              return (
+                <EvmActivityComponent key={item.data.hash} activity={item.data} chain={network} assetSlug={assetSlug} />
+              );
+            }
+            if (item.kind === 'cross-chain') {
+              return (
+                <CrossChainActivityRow
+                  key={item.data.id}
+                  exchange={item.data}
+                  onClick={() => onCrossChainExchangeClick?.(item.data.id)}
+                />
+              );
+            }
+            return null;
+          })}
         </ActivitiesDateGroup>
       )),
-    [groupedActivities, network, assetSlug]
+    [groupedFeed, network, assetSlug, onCrossChainExchangeClick]
   );
 
   const evmAssetsCheckConfig = useMemo(
@@ -133,7 +149,7 @@ export const EvmActivityList: FC<Props> = ({ chainId, assetSlug, filterKind }) =
 
   return (
     <ActivityListView
-      activitiesNumber={displayActivities.length}
+      activitiesNumber={feed.length}
       isSyncing={isLoading}
       reachedTheEnd={reachedTheEnd || Boolean(error)}
       loadNext={loadNext}

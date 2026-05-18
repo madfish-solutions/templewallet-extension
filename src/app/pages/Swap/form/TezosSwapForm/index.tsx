@@ -1,10 +1,10 @@
-import React, { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { isDefined } from '@rnw-community/shared';
 import { TransferParams } from '@taquito/taquito';
 import { BatchWalletOperation } from '@taquito/taquito/dist/types/wallet/batch-operation';
 import BigNumber from 'bignumber.js';
-import { FormProvider, useForm } from 'react-hook-form';
+import { FormProvider, useForm, useWatch } from 'react-hook-form';
 
 import { DeadEndBoundaryError } from 'app/ErrorBoundary';
 import { EXCHANGE_XTZ_RESERVE } from 'app/pages/Swap/constants';
@@ -137,11 +137,12 @@ export const TezosSwapForm: FC<TezosSwapFormProps> = ({
     mode: 'onSubmit'
   });
 
-  const { watch, reset, setValue, formState, getValues, clearErrors } = form;
+  const { control, reset, setValue, formState, getValues, clearErrors, trigger } = form;
+  const { isSubmitting, submitCount } = formState;
+  const formSubmitted = submitCount > 0;
 
-  const inputValue = watch('input');
-  const outputValue = watch('output');
-  const isFiatMode = watch('isFiatMode');
+  const inputValue = useWatch({ name: 'input', control });
+  const outputValue = useWatch({ name: 'output', control });
 
   const { value: inputTokenBalance = ZERO } = useTezosAssetBalance(
     inputValue.assetSlug ?? TEZ_TOKEN_SLUG,
@@ -212,7 +213,7 @@ export const TezosSwapForm: FC<TezosSwapFormProps> = ({
       const { assetSlug: inputAssetSlug, amount: inputAmount } = newInputValue;
       const outputAssetSlug = newOutputValue.assetSlug;
       const inputTokenUsdPrice = inputAssetSlug ? allUsdToTokenRates[inputAssetSlug] : '0';
-      const inputTokenAmount = isFiatMode
+      const inputTokenAmount = getValues('isFiatMode')
         ? parseFiatValueToAssetAmount(inputAmount, inputAssetMetadata.decimals, 'input')
         : inputAmount;
       const inputAmountInUsd = inputTokenAmount?.multipliedBy(inputTokenUsdPrice) ?? ZERO;
@@ -230,16 +231,16 @@ export const TezosSwapForm: FC<TezosSwapFormProps> = ({
         isSwapAmountMoreThreshold
       };
     },
-    [allUsdToTokenRates, isFiatMode, inputAssetMetadata.decimals, parseFiatValueToAssetAmount]
+    [allUsdToTokenRates, inputAssetMetadata.decimals, parseFiatValueToAssetAmount, getValues]
   );
 
   const atomsInputValue = useMemo(() => {
-    const inputValueToUse = isFiatMode
+    const inputValueToUse = getValues('isFiatMode')
       ? parseFiatValueToAssetAmount(inputValue.amount, inputAssetMetadata.decimals)
       : inputValue.amount;
 
     return tokensToAtoms(inputValueToUse ?? ZERO, inputAssetMetadata.decimals);
-  }, [inputAssetMetadata.decimals, inputValue.amount, isFiatMode, parseFiatValueToAssetAmount]);
+  }, [inputAssetMetadata.decimals, inputValue.amount, parseFiatValueToAssetAmount, getValues]);
 
   const isOutputTempleToken = outputValue.assetSlug === KNOWN_TOKENS_SLUGS.TEMPLE;
 
@@ -263,7 +264,7 @@ export const TezosSwapForm: FC<TezosSwapFormProps> = ({
 
       if (!inputMetadata) return;
 
-      const inputValueToUse = watch('isFiatMode')
+      const inputValueToUse = getValues('isFiatMode')
         ? parseFiatValueToAssetAmount(input.amount, inputAssetMetadata.decimals)
         : input.amount;
 
@@ -287,7 +288,7 @@ export const TezosSwapForm: FC<TezosSwapFormProps> = ({
         })
       );
     },
-    [getTokenMetadata, inputAssetMetadata.decimals, parseFiatValueToAssetAmount, route3Tokens, tezos.rpc, watch]
+    [getTokenMetadata, inputAssetMetadata.decimals, parseFiatValueToAssetAmount, route3Tokens, tezos.rpc, getValues]
   );
 
   useEffect(() => {
@@ -311,8 +312,9 @@ export const TezosSwapForm: FC<TezosSwapFormProps> = ({
       }
 
       dispatchLoadSwapParams(newInputValue, currentFormState.output);
+      if (formSubmitted) trigger();
     },
-    [clearErrors, dispatchLoadSwapParams, getValues, setValue]
+    [clearErrors, dispatchLoadSwapParams, getValues, setValue, formSubmitted, trigger]
   );
 
   const handleOutputChange = useCallback(
@@ -327,8 +329,9 @@ export const TezosSwapForm: FC<TezosSwapFormProps> = ({
       }
 
       dispatchLoadSwapParams(currentFormState.input, newOutputValue);
+      if (formSubmitted) trigger();
     },
-    [clearErrors, dispatchLoadSwapParams, getValues, setValue]
+    [clearErrors, dispatchLoadSwapParams, getValues, setValue, formSubmitted, trigger]
   );
 
   const handleSelectedAssetChange = useCallback(
@@ -410,12 +413,14 @@ export const TezosSwapForm: FC<TezosSwapFormProps> = ({
       const amount = atomsToTokens(expectedReceivedAtomic, outputAssetMetadata.decimals);
       setValue('output', {
         assetSlug: outputValue.assetSlug,
-        amount: isFiatMode ? amount.times(outputAssetPrice).decimalPlaces(2, BigNumber.ROUND_FLOOR) : amount
+        amount: getValues('isFiatMode')
+          ? amount.times(outputAssetPrice).decimalPlaces(2, BigNumber.ROUND_FLOOR)
+          : amount
       });
     }
   }, [
     atomsInputValue,
-    isFiatMode,
+    getValues,
     isOutputTempleToken,
     outputAssetMetadata.decimals,
     outputAssetPrice,
@@ -436,7 +441,7 @@ export const TezosSwapForm: FC<TezosSwapFormProps> = ({
 
   const handleSetMaxAmount = useCallback(() => {
     if (inputValue.assetSlug && inputTokenMaxAmount) {
-      const formattedMaxAmount = isFiatMode
+      const formattedMaxAmount = getValues('isFiatMode')
         ? inputTokenMaxAmount.times(inputAssetPrice).decimalPlaces(2, BigNumber.ROUND_FLOOR)
         : inputTokenMaxAmount;
 
@@ -446,13 +451,13 @@ export const TezosSwapForm: FC<TezosSwapFormProps> = ({
         toastUniqWarning(t('notEnoughTezForFee'), true);
       }
     }
-  }, [handleInputChange, inputAssetPrice, inputTokenBalance, inputTokenMaxAmount, inputValue.assetSlug, isFiatMode]);
+  }, [handleInputChange, inputAssetPrice, inputTokenBalance, inputTokenMaxAmount, inputValue.assetSlug, getValues]);
 
   const pendingTxHashes = usePendingTezosTransactionsHashes(publicKeyHash, network.chainId);
   const otherOperationsPending = pendingTxHashes.length > 0;
 
   const onSubmit = useCallback(async () => {
-    if (formState.isSubmitting) return;
+    if (isSubmitting) return;
 
     if (otherOperationsPending) {
       toastError(t('otherOperationsPendingError'));
@@ -693,7 +698,7 @@ export const TezosSwapForm: FC<TezosSwapFormProps> = ({
     account,
     atomsInputValue,
     formAnalytics,
-    formState.isSubmitting,
+    isSubmitting,
     fromRoute3Token,
     getSwapParams,
     getSwapWithFeeParams,

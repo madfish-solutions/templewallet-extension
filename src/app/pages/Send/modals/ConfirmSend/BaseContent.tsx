@@ -1,6 +1,6 @@
-import React, { useCallback } from 'react';
+import React, { ReactNode } from 'react';
 
-import { SubmitHandler, useFormContext } from 'react-hook-form';
+import { SubmitHandler, useFormContext, useFormState } from 'react-hook-form';
 
 import { HashChip } from 'app/atoms/HashChip';
 import { ActionsButtonsBox } from 'app/atoms/PageModal/actions-buttons-box';
@@ -36,6 +36,8 @@ interface BaseContentProps<T extends TxParamsFormData> {
   displayedStorageFee?: string;
   displayedFeeOptions?: DisplayedFeeOptions;
   decimals?: number;
+  /** Replaces the default recipient row in the details tab (used for cross-chain extra rows). */
+  detailsContent?: ReactNode;
 }
 
 export const BaseContent = <T extends TxParamsFormData>({
@@ -56,11 +58,13 @@ export const BaseContent = <T extends TxParamsFormData>({
   displayedFee,
   displayedStorageFee,
   displayedFeeOptions,
-  decimals
+  decimals,
+  detailsContent
 }: BaseContentProps<T>) => {
-  const { formState } = useFormContext<T>();
+  const { control } = useFormContext<T>();
+  const { isValid, isSubmitting } = useFormState({ control });
 
-  const goToFeeTab = useCallback(() => setSelectedTab('fee'), [setSelectedTab]);
+  const goToFeeTab = () => setSelectedTab('fee');
 
   const balancesChanges = useSendBalancesChanges(assetSlug, amount, decimals);
 
@@ -99,6 +103,7 @@ export const BaseContent = <T extends TxParamsFormData>({
           tabsName="confirm-send-tabs"
           destinationName={<T id="recipient" />}
           destinationValue={<HashChip hash={recipientAddress} />}
+          detailsContent={detailsContent}
         />
       </div>
 
@@ -113,8 +118,8 @@ export const BaseContent = <T extends TxParamsFormData>({
           color="primary"
           size="L"
           className="w-full"
-          loading={formState.isSubmitting}
-          disabled={!formState.isValid}
+          loading={isSubmitting}
+          disabled={!isValid}
         >
           <T id={latestSubmitError ? 'retry' : 'confirm'} />
         </StyledButton>

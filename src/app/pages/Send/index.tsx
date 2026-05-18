@@ -2,6 +2,7 @@ import React, { memo, Suspense, useCallback, useEffect, useMemo, useRef, useStat
 
 import { PageTitle } from 'app/atoms';
 import { PageLoader } from 'app/atoms/Loader';
+import { useLocationSearchParamValue } from 'app/hooks/use-location';
 import PageLayout from 'app/layouts/PageLayout';
 import { useAssetsFilterOptionsSelector } from 'app/store/assets-filter-options/selectors';
 import { useTestnetModeEnabledSelector } from 'app/store/settings/selectors';
@@ -23,6 +24,11 @@ import { useTezosChainByChainId, useEvmChainByChainId } from 'temple/front/chain
 import { TempleChainKind } from 'temple/types';
 
 import { SendFormControl, SendFormControlContext } from './context';
+import { CrossChainForm } from './cross-chain';
+import { CrossChainActivityButton } from './cross-chain/components/CrossChainActivityButton';
+import { CrossChainSendModals } from './cross-chain/components/CrossChainSendModals';
+import { SendTab, SendTabs } from './cross-chain/components/SendTabs';
+import { useCrossChainSendController } from './cross-chain/hooks/use-cross-chain-send-controller';
 import { Form } from './form';
 import { PendingSendReview, ReviewData } from './form/interfaces';
 import { ConfirmSendModal } from './modals/ConfirmSend';
@@ -75,6 +81,24 @@ const Send = memo<Props>(({ chainKind, chainId, assetSlug }) => {
   const [selectAssetModalOpened, setSelectAssetModalOpen, setSelectAssetModalClosed] = useBooleanState(false);
   const [confirmSendModalOpened, setConfirmSendModalOpen, setConfirmSendModalClosed] = useBooleanState(false);
   const [reviewData, setReviewData] = useState<ReviewData>();
+
+  const [tabParam, setTabParam] = useLocationSearchParamValue('tab');
+  const [storedActiveTab, setActiveTab] = useState<SendTab>(tabParam === 'cross-chain' ? 'cross-chain' : 'default');
+
+  useEffect(() => {
+    if (tabParam !== null) setTabParam(null);
+  }, [tabParam, setTabParam]);
+  const activeTab: SendTab = testnetModeEnabled ? 'default' : storedActiveTab;
+
+  const crossChain = useCrossChainSendController({ activeTab, setActiveTab });
+
+  const handleSetActiveTab = useCallback(
+    (tab: SendTab) => {
+      crossChain.handleTabChange(tab);
+      setActiveTab(tab);
+    },
+    [crossChain]
+  );
 
   const storedPending = useMemo(() => readPending<PendingSendReview>(PENDING_SEND_STORAGE_KEY), [readPending]);
   const pendingEvmChainId = useMemo(
@@ -169,15 +193,35 @@ const Send = memo<Props>(({ chainKind, chainId, assetSlug }) => {
   );
 
   return (
-    <PageLayout pageTitle={<PageTitle title={t('send')} />} contentPadding={false} noScroll>
-      <Suspense fallback={<PageLoader stretch />}>
-        <SendFormControlContext value={formControlRef}>
-          <Form
-            selectedChainAssetSlug={selectedChainAssetSlug}
-            onReview={handleReview}
-            onSelectAssetClick={setSelectAssetModalOpen}
+    <PageLayout
+      pageTitle={<PageTitle title={t('send')} />}
+      contentPadding={false}
+      noScroll
+      headerRightElem={
+        !testnetModeEnabled ? (
+          <CrossChainActivityButton
+            hasActive={crossChain.hasActiveCrossChain}
+            onClick={crossChain.handleOpenActivity}
           />
-        </SendFormControlContext>
+        ) : undefined
+      }
+    >
+      <div className="px-4 py-4">
+        <SendTabs activeTab={activeTab} onChange={handleSetActiveTab} crossChainDisabled={testnetModeEnabled} />
+      </div>
+
+      <Suspense fallback={<PageLoader stretch />}>
+        {activeTab === 'default' ? (
+          <SendFormControlContext value={formControlRef}>
+            <Form
+              selectedChainAssetSlug={selectedChainAssetSlug}
+              onReview={handleReview}
+              onSelectAssetClick={setSelectAssetModalOpen}
+            />
+          </SendFormControlContext>
+        ) : (
+          <CrossChainForm onReview={crossChain.handleReview} resetSignal={crossChain.crossChainSubmittedAt} />
+        )}
       </Suspense>
 
       <SelectAssetModal
@@ -190,6 +234,25 @@ const Send = memo<Props>(({ chainKind, chainId, assetSlug }) => {
         onRequestClose={setConfirmSendModalClosed}
         reviewData={reviewData}
       />
+
+      {!testnetModeEnabled && (
+        <CrossChainSendModals
+          warningOpened={crossChain.crossChainWarningOpened}
+          confirmOpened={crossChain.crossChainConfirmOpened}
+          activityOpened={crossChain.crossChainActivityOpened}
+          reviewData={crossChain.crossChainReview}
+          initialExchangeId={crossChain.crossChainInitialExchangeId}
+          accountId={crossChain.accountId}
+          onWarningClose={crossChain.closeCrossChainWarning}
+          onWarningConfirm={crossChain.handleWarningConfirm}
+          onConfirmClose={crossChain.handleConfirmClose}
+          onConfirmSubmitted={crossChain.handleConfirmSubmitted}
+          onActivityClose={crossChain.closeCrossChainActivity}
+          onActivityClick={crossChain.handleActivityClick}
+          onTryAgain={crossChain.handleTryAgain}
+        />
+      )}
+
       <LedgerFullViewPromptModal {...ledgerPromptProps} />
     </PageLayout>
   );

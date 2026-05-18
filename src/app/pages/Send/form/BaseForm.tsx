@@ -1,8 +1,7 @@
 import React, { FC, FocusEventHandler, useCallback, useMemo, useRef, useState } from 'react';
 
 import BigNumber from 'bignumber.js';
-import { isEmpty } from 'lodash';
-import { Controller, SubmitErrorHandler, SubmitHandler, useFormContext, Validate } from 'react-hook-form';
+import { Controller, SubmitErrorHandler, SubmitHandler, useFormContext, useWatch, Validate } from 'react-hook-form';
 import { useDebounce } from 'use-debounce';
 
 import { Button, NoSpaceField } from 'app/atoms';
@@ -75,14 +74,13 @@ export const BaseForm: FC<Props> = ({
 }) => {
   const [selectAccountModalOpened, setSelectAccountModalOpen, setSelectAccountModalClosed] = useBooleanState(false);
 
-  const { watch, handleSubmit, control, setValue, getValues, formState } = useFormContext<SendFormData>();
-  const { isSubmitting, submitCount, errors } = formState;
+  const { handleSubmit, control, setValue, getValues, formState } = useFormContext<SendFormData>();
+  const { isSubmitting, submitCount, isValid } = formState;
 
   const formSubmitted = submitCount > 0;
 
-  const toValue = watch('to');
+  const toValue = useWatch({ control, name: 'to' });
   const [toValueDebounced] = useDebounce(toValue, 300);
-  const amountValue = watch('amount');
 
   useAddressFieldAnalytics(toValue, 'RECIPIENT_NETWORK');
 
@@ -189,7 +187,7 @@ export const BaseForm: FC<Props> = ({
 
   return (
     <>
-      <div className="flex-1 pt-4 px-4 flex flex-col overflow-y-auto">
+      <div className="flex-1 px-4 flex flex-col overflow-y-auto">
         <div className="text-font-description-bold py-1 mb-1">
           <T id="token" />
         </div>
@@ -208,14 +206,14 @@ export const BaseForm: FC<Props> = ({
             name="amount"
             control={control}
             rules={{ validate: validateAmount }}
-            render={({ field: { value, onChange, onBlur }, formState }) => (
+            render={({ field: { value, onChange, onBlur }, fieldState: { error } }) => (
               <AssetField
                 value={value}
                 onBlur={onBlur}
                 onChange={v => onChange(v ?? '')}
                 extraFloatingInner={isCollectible ? undefined : floatingAssetSymbol}
                 assetDecimals={shouldUseFiat ? 2 : assetDecimals}
-                cleanable={Boolean(amountValue)}
+                cleanable={Boolean(value)}
                 shouldShowErrorCaption={!shouldShowConvertedAmountBlock}
                 rightSideComponent={
                   <Button
@@ -231,16 +229,14 @@ export const BaseForm: FC<Props> = ({
                 underneathComponent={
                   shouldShowConvertedAmountBlock ? (
                     <div className="flex justify-between items-center mt-1 gap-2">
-                      {formState.errors.amount ? (
-                        <span className="flex-1 text-font-description text-error">
-                          {formState.errors.amount.message}
-                        </span>
+                      {error ? (
+                        <span className="flex-1 text-font-description text-error">{error.message}</span>
                       ) : (
                         <ConvertedInputAssetAmount
                           chainId={network.chainId}
                           assetSlug={assetSlug}
                           assetSymbol={assetSymbol}
-                          amountValue={shouldUseFiat ? toAssetAmount(amountValue) : amountValue || '0'}
+                          amountValue={shouldUseFiat ? toAssetAmount(value) : value || '0'}
                           toFiat={!shouldUseFiat}
                           evm={network.kind === TempleChainKind.EVM}
                         />
@@ -259,7 +255,7 @@ export const BaseForm: FC<Props> = ({
                 onClean={handleAmountClean}
                 label={t('amount')}
                 placeholder={isCollectible ? '0.00' : `0.00 ${floatingAssetSymbol}`}
-                errorCaption={formSubmitted ? errors.amount?.message : null}
+                errorCaption={formSubmitted ? formState.errors.amount?.message : null}
                 containerClassName={isCollectible ? 'pb-3' : 'pb-8'}
                 testID={SendFormSelectors.amountInput}
               />
@@ -270,7 +266,7 @@ export const BaseForm: FC<Props> = ({
             name="to"
             control={control}
             rules={{ validate: validateRecipient }}
-            render={({ field: { onChange, value } }) => (
+            render={({ field: { onChange, value }, fieldState: { error } }) => (
               <NoSpaceField
                 ref={toFieldRef}
                 value={value}
@@ -281,13 +277,13 @@ export const BaseForm: FC<Props> = ({
                 textarea
                 showPasteButton
                 rows={3}
-                cleanable={Boolean(toValue)}
+                cleanable={Boolean(value)}
                 onClean={handleToClean}
                 onPasteButtonClick={handlePasteButtonClick}
                 id="send-to"
                 label={t('recipient')}
                 placeholder="Address or Domain name"
-                errorCaption={!toFieldFocused && formSubmitted ? errors.to?.message : null}
+                errorCaption={!toFieldFocused && formSubmitted ? error?.message : null}
                 style={{ resize: 'none' }}
                 testID={SendFormSelectors.recipientInput}
               />
@@ -295,11 +291,13 @@ export const BaseForm: FC<Props> = ({
           />
 
           {(toFieldFocused || isToFilledWithFamiliarAddress) && (
-            <SelectAccountButton
-              value={toValueDebounced}
-              onClick={handleSelectRecipientButtonClick}
-              testID={SendFormSelectors.selectAccountButton}
-            />
+            <div className="mb-4">
+              <SelectAccountButton
+                value={toValueDebounced}
+                onClick={handleSelectRecipientButtonClick}
+                testID={SendFormSelectors.selectAccountButton}
+              />
+            </div>
           )}
         </form>
       </div>
@@ -311,7 +309,7 @@ export const BaseForm: FC<Props> = ({
           size="L"
           color="primary"
           loading={maxEstimating || isSubmitting}
-          disabled={formSubmitted && !isEmpty(errors)}
+          disabled={formSubmitted && !isValid}
           testID={SendFormSelectors.sendButton}
         >
           Review

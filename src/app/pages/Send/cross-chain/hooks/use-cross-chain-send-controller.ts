@@ -1,0 +1,118 @@
+import { useState } from 'react';
+
+import { useHasActiveCrossChainExchangesSelector } from 'app/store/cross-chain-send/selectors';
+import { CrossChainExchange } from 'app/store/cross-chain-send/state';
+import { useAnalytics } from 'lib/analytics';
+import { CROSS_CHAIN_WARNING_DISMISSED_STORAGE_KEY } from 'lib/cross-chain';
+import { useStorage } from 'lib/temple/front';
+import { useBooleanState } from 'lib/ui/hooks';
+import { HistoryAction, navigate } from 'lib/woozie';
+import { useAccount } from 'temple/front';
+
+import { CrossChainAnalyticsEvents } from '../analytics';
+import { SendTab } from '../components/SendTabs';
+import { ConfirmCrossChainReviewData } from '../modals/ConfirmCrossChainSend/types';
+
+interface UseCrossChainSendControllerArgs {
+  activeTab: SendTab;
+  setActiveTab: SyncFn<SendTab>;
+}
+
+export const useCrossChainSendController = ({ activeTab, setActiveTab }: UseCrossChainSendControllerArgs) => {
+  const [crossChainReview, setCrossChainReview] = useState<ConfirmCrossChainReviewData | undefined>();
+  const [crossChainInitialExchangeId, setCrossChainInitialExchangeId] = useState<string | undefined>();
+  const [crossChainSubmittedAt, setCrossChainSubmittedAt] = useState<number | undefined>();
+
+  const [crossChainConfirmOpened, openCrossChainConfirm, closeCrossChainConfirm] = useBooleanState(false);
+  const [crossChainWarningOpened, openCrossChainWarning, closeCrossChainWarning] = useBooleanState(false);
+  const [crossChainActivityOpened, openCrossChainActivity, closeCrossChainActivity] = useBooleanState(false);
+
+  const [warningDismissed] = useStorage<boolean>(CROSS_CHAIN_WARNING_DISMISSED_STORAGE_KEY, false);
+  const currentAccount = useAccount();
+  const accountId = currentAccount?.id;
+  const hasActiveCrossChain = useHasActiveCrossChainExchangesSelector(accountId);
+
+  const { trackEvent } = useAnalytics();
+
+  const handleReview = (data: ConfirmCrossChainReviewData) => {
+    setCrossChainReview(data);
+    trackEvent(CrossChainAnalyticsEvents.CrossChainReviewed, undefined, {
+      from: data.fromAsset.exolixCoin,
+      fromNetwork: data.fromAsset.exolixNetwork,
+      to: data.toAsset.exolixCoin,
+      toNetwork: data.toAsset.exolixNetwork,
+      amount: data.fromAmount
+    });
+    if (warningDismissed) {
+      openCrossChainConfirm();
+    } else {
+      trackEvent(CrossChainAnalyticsEvents.CrossChainWarningShown);
+      openCrossChainWarning();
+    }
+  };
+
+  const handleWarningConfirm = () => {
+    trackEvent(CrossChainAnalyticsEvents.CrossChainWarningDismissed);
+    closeCrossChainWarning();
+    openCrossChainConfirm();
+  };
+
+  const handleOpenActivity = () => {
+    trackEvent(CrossChainAnalyticsEvents.CrossChainActivityOpened);
+    openCrossChainActivity();
+  };
+
+  const handleActivityClick = (exchange: CrossChainExchange) => {
+    closeCrossChainActivity();
+    setCrossChainReview({
+      fromAsset: exchange.fromAsset,
+      toAsset: exchange.toAsset,
+      fromAmount: exchange.fromAmount,
+      toAmountEstimated: exchange.toAmountEstimated,
+      recipient: exchange.recipient
+    });
+    setCrossChainInitialExchangeId(exchange.id);
+    openCrossChainConfirm();
+  };
+
+  const handleConfirmClose = () => {
+    closeCrossChainConfirm();
+    setCrossChainInitialExchangeId(undefined);
+    setCrossChainReview(undefined);
+  };
+
+  const handleConfirmSubmitted = () => setCrossChainSubmittedAt(Date.now());
+
+  const handleTryAgain = () => {
+    trackEvent(CrossChainAnalyticsEvents.CrossChainTryAgain);
+    navigate('/send', HistoryAction.Replace);
+    setActiveTab('cross-chain');
+  };
+
+  const handleTabChange = (tab: SendTab) => {
+    if (tab === 'cross-chain' && activeTab !== 'cross-chain') {
+      trackEvent(CrossChainAnalyticsEvents.CrossChainTabOpened);
+    }
+  };
+
+  return {
+    accountId,
+    hasActiveCrossChain,
+    crossChainReview,
+    crossChainInitialExchangeId,
+    crossChainSubmittedAt,
+    crossChainConfirmOpened,
+    crossChainWarningOpened,
+    crossChainActivityOpened,
+    closeCrossChainWarning,
+    closeCrossChainActivity,
+    handleReview,
+    handleWarningConfirm,
+    handleOpenActivity,
+    handleActivityClick,
+    handleConfirmClose,
+    handleConfirmSubmitted,
+    handleTryAgain,
+    handleTabChange
+  };
+};

@@ -1,4 +1,4 @@
-import React, { ReactNode, useCallback, useEffect, useMemo, useState } from 'react';
+import { ReactNode, useCallback, useEffect, useState } from 'react';
 
 import { isDefined } from '@rnw-community/shared';
 import { isEqual } from 'lodash';
@@ -66,21 +66,19 @@ export const ManageUrlEntitiesView = <T extends UrlEntityBase>({
 }: ManageUrlEntitiesViewProps<T>) => {
   const [entityToEdit, setEntityToEdit] = useState<T | null>(null);
   const [createModalOpen, openCreateModal, closeCreateModal] = useBooleanState(false);
+  const entityToEditName = entityToEdit?.name;
 
-  const namesToExclude = useMemo(
-    () => items.map(({ name }) => name).filter(name => name !== entityToEdit?.name),
-    [entityToEdit?.name, items]
-  );
-  const urlsToExclude = useMemo(
-    () => items.map(getEntityUrl).filter(url => !entityToEdit || url !== getEntityUrl(entityToEdit)),
-    [entityToEdit, getEntityUrl, items]
-  );
+  const namesToExclude = items.map(({ name }) => name).filter(name => name !== entityToEditName);
+
+  const urlsToExclude = items.map(getEntityUrl).filter(url => !entityToEdit || url !== getEntityUrl(entityToEdit));
 
   const closeEditModal = useCallback(() => setEntityToEdit(null), []);
 
   const handleRemoveConfirm = useCallback(() => {
     closeEditModal();
-    removeEntity(entityToEdit!.id);
+    if (entityToEdit) {
+      removeEntity(entityToEdit.id);
+    }
   }, [closeEditModal, entityToEdit, removeEntity]);
 
   useEffect(() => {

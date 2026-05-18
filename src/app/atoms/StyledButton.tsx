@@ -17,14 +17,14 @@ interface StyledButtonComponentProps extends StyledButtonProps {
   ref?: Ref<HTMLButtonElement>;
 }
 
-export const StyledButton: FC<StyledButtonComponentProps> = (inputProps: StyledButtonComponentProps) => {
+export const StyledButton: FC<StyledButtonComponentProps> = inputProps => {
   const { ref, ...rest } = inputProps;
   const buttonProps = useStyledButtonOrLinkProps(rest);
 
   return <Button ref={ref} {...buttonProps} />;
 };
 
-type StyledButtonAnchorProps = AnchorProps &
+export type StyledButtonAnchorProps = AnchorProps &
   ButtonLikeStylingProps & {
     ref?: Ref<HTMLAnchorElement>;
   };

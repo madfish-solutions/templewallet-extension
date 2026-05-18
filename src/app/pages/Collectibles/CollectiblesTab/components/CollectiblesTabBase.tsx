@@ -8,9 +8,10 @@ import {
   VisibilityTrackingInfiniteScroll,
   VisibilityTrackingInfiniteScrollProps
 } from 'app/atoms/visibility-tracking-infinite-scroll';
-import { useManageState } from 'app/hooks/use-assets-view-state';
 import { ContentContainer } from 'app/layouts/containers';
+import { AddTokenModal } from 'app/pages/Home/OtherComponents/Tokens/components/AddTokenModal';
 import { EmptySection } from 'app/pages/Home/OtherComponents/Tokens/components/EmptySection';
+import { useBooleanState } from 'lib/ui/hooks';
 import { OneOfChains } from 'temple/front';
 
 export interface CollectiblesTabBaseProps {
@@ -19,6 +20,7 @@ export interface CollectiblesTabBaseProps {
   loadNextPage: EmptyFn;
   isSyncing: boolean;
   isInSearchMode: boolean;
+  manageActive: boolean;
   network?: OneOfChains;
 }
 
@@ -28,10 +30,11 @@ export const CollectiblesTabBase: FC<PropsWithChildren<CollectiblesTabBaseProps>
   loadNextPage,
   isSyncing,
   isInSearchMode,
+  manageActive,
   network,
   children
 }) => {
-  const { manageActive } = useManageState();
+  const [customTokenModalOpened, openCustomTokenModal, closeCustomTokenModal] = useBooleanState(false);
 
   return (
     <FadeTransition>
@@ -40,7 +43,12 @@ export const CollectiblesTabBase: FC<PropsWithChildren<CollectiblesTabBaseProps>
           isSyncing && !isInSearchMode ? (
             <PageLoader stretch />
           ) : (
-            <EmptySection forCollectibles manageActive={manageActive} forSearch={isInSearchMode} network={network} />
+            <EmptySection
+              forCollectibles
+              manageActive={manageActive}
+              forSearch={isInSearchMode}
+              onAddCustomTokenClick={openCustomTokenModal}
+            />
           )
         ) : (
           <>
@@ -51,12 +59,7 @@ export const CollectiblesTabBase: FC<PropsWithChildren<CollectiblesTabBaseProps>
             ) : (
               <>
                 {manageActive && (
-                  <AddCustomTokenButton
-                    forCollectibles
-                    manageActive={manageActive}
-                    network={network}
-                    className="mb-4"
-                  />
+                  <AddCustomTokenButton manageActive={manageActive} onClick={openCustomTokenModal} className="mb-4" />
                 )}
                 <VisibilityTrackingInfiniteScroll loadNext={loadNextPage} getElementsIndexes={getElementsIndexes}>
                   {children}
@@ -68,6 +71,13 @@ export const CollectiblesTabBase: FC<PropsWithChildren<CollectiblesTabBaseProps>
           </>
         )}
       </ContentContainer>
+
+      <AddTokenModal
+        forCollectible={true}
+        opened={customTokenModalOpened}
+        onRequestClose={closeCustomTokenModal}
+        initialNetwork={network}
+      />
     </FadeTransition>
   );
 };

@@ -1,7 +1,6 @@
 import React, { memo, useCallback, useEffect } from 'react';
 
-import { isEmpty } from 'lodash';
-import { Controller, useForm } from 'react-hook-form';
+import { Controller, useForm, useWatch } from 'react-hook-form';
 import { isAddress } from 'viem';
 
 import { FormField, IconBase, NoSpaceField } from 'app/atoms';
@@ -49,17 +48,17 @@ export const EditAddContact = memo<Props>(({ contact, opened, onRequestClose }) 
 
   const { addContact, editContact } = useContactsActions();
 
-  const { watch, handleSubmit, control, setValue, setError, clearErrors, reset, formState } = useForm<FormData>({
+  const { handleSubmit, control, setValue, setError, clearErrors, reset, formState } = useForm<FormData>({
     mode: 'onSubmit',
     reValidateMode: 'onChange',
     defaultValues
   });
-  const { isSubmitting, submitCount, errors } = formState;
+  const { isSubmitting, submitCount, isValid } = formState;
 
   const formSubmitted = submitCount > 0;
 
-  const nameValue = watch('name');
-  const addressValue = watch('address');
+  const nameValue = useWatch({ control, name: 'name' });
+  const addressValue = useWatch({ control, name: 'address' });
 
   useEffect(() => {
     if (contact) {
@@ -153,7 +152,7 @@ export const EditAddContact = memo<Props>(({ contact, opened, onRequestClose }) 
             required: t('required'),
             maxLength: { value: MAX_NAME_LENGTH, message: `Maximum ${MAX_NAME_LENGTH} characters` }
           }}
-          render={({ field: { value, onChange, onBlur } }) => (
+          render={({ field: { value, onChange, onBlur }, fieldState: { error } }) => (
             <FormField
               value={value}
               onBlur={onBlur}
@@ -162,7 +161,7 @@ export const EditAddContact = memo<Props>(({ contact, opened, onRequestClose }) 
               onClean={handleNameClean}
               label={t('name')}
               placeholder="e.g Degen"
-              errorCaption={formSubmitted ? errors.name?.message : null}
+              errorCaption={formSubmitted ? error?.message : null}
               containerClassName="pb-4"
             />
           )}
@@ -172,7 +171,7 @@ export const EditAddContact = memo<Props>(({ contact, opened, onRequestClose }) 
           name="address"
           control={control}
           rules={{ validate: validateAddress }}
-          render={({ field }) => (
+          render={({ field, fieldState: { error } }) => (
             <NoSpaceField
               {...field}
               extraRightInnerWrapper="unset"
@@ -184,7 +183,7 @@ export const EditAddContact = memo<Props>(({ contact, opened, onRequestClose }) 
               onPasteButtonClick={handlePasteButtonClick}
               label={t('address')}
               placeholder="EVM or Tezos"
-              errorCaption={formSubmitted ? errors.address?.message : null}
+              errorCaption={formSubmitted ? error?.message : null}
               containerClassName="pb-4"
               style={{ resize: 'none' }}
             />
@@ -219,7 +218,7 @@ export const EditAddContact = memo<Props>(({ contact, opened, onRequestClose }) 
           size="L"
           color="primary"
           loading={isSubmitting}
-          disabled={formSubmitted && !isEmpty(errors)}
+          disabled={formSubmitted && !isValid}
         >
           <T id="save" />
         </StyledButton>

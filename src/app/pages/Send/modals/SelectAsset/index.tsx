@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useState, MouseEvent, useMemo, Suspense, useEffect } from 'react';
+import { useCallback, useState, MouseEvent, useMemo, Suspense, useEffect, FC } from 'react';
 
 import { useDebounce } from 'use-debounce';
 
@@ -23,12 +23,12 @@ import { TezosAssetsList } from './TezosAssetsList';
 import { TezosChainAssetsList } from './TezosChainAssetsList';
 
 interface SelectTokenModalProps {
-  onAssetSelect: (chainSlug: string) => void;
+  onAssetSelect: SyncFn<string>;
   opened: boolean;
   onRequestClose: EmptyFn;
 }
 
-export const SelectAssetModal = memo<SelectTokenModalProps>(({ onAssetSelect, opened, onRequestClose }) => {
+export const SelectAssetModal: FC<SelectTokenModalProps> = ({ onAssetSelect, opened, onRequestClose }) => {
   const [searchValue, setSearchValue] = useState('');
   const [searchValueDebounced] = useDebounce(searchValue, 300);
 
@@ -131,14 +131,14 @@ export const SelectAssetModal = memo<SelectTokenModalProps>(({ onAssetSelect, op
       </div>
     </PageModal>
   );
-});
+};
 
 interface FilterNetworkPopperProps {
   selectedOption: FilterChain | string;
-  onOptionSelect: (filterChain: FilterChain | string) => void;
+  onOptionSelect: SyncFn<FilterChain | string>;
 }
 
-const FilterNetworkPopper = memo<FilterNetworkPopperProps>(({ selectedOption, onOptionSelect }) => (
+const FilterNetworkPopper: FC<FilterNetworkPopperProps> = ({ selectedOption, onOptionSelect }) => (
   <NetworkPopper selectedOption={selectedOption} onOptionSelect={onOptionSelect} showAllNetworksOption>
     {({ ref, toggleOpened, selectedOptionName }) => (
       <Button
@@ -151,4 +151,4 @@ const FilterNetworkPopper = memo<FilterNetworkPopperProps>(({ selectedOption, on
       </Button>
     )}
   </NetworkPopper>
-));
+);

@@ -2,7 +2,7 @@ import React, { memo, useCallback, useLayoutEffect, useMemo } from 'react';
 
 import { generateMnemonic } from 'bip39';
 import clsx from 'clsx';
-import { Controller, useForm } from 'react-hook-form';
+import { Controller, useForm, useWatch } from 'react-hook-form';
 
 import { Alert, FormField, PASSWORD_ERROR_CAPTION } from 'app/atoms';
 import { SettingsCheckbox } from 'app/atoms/SettingsCheckbox';
@@ -26,13 +26,14 @@ import {
   SHOULD_DISABLE_NOT_ACTIVE_NETWORKS_STORAGE_KEY,
   SHOULD_OPEN_LETS_EXCHANGE_MODAL_STORAGE_KEY,
   SHOULD_PROMOTE_ROOTSTOCK_STORAGE_KEY,
+  SHOULD_SHOW_NEW_DAPPS_MODAL_STORAGE_KEY,
   SIDE_VIEW_WAS_FORCED_STORAGE_KEY,
   TERMS_OF_USE_URL,
   WEBSITES_ANALYTICS_ENABLED
 } from 'lib/constants';
 import { DISABLE_ADS, IS_SIDE_PANEL_AVAILABLE } from 'lib/env';
 import { T, TID, t } from 'lib/i18n';
-import { putToStorage } from 'lib/storage';
+import { putManyToStorage, putToStorage } from 'lib/storage';
 import { writeGoogleDriveBackup } from 'lib/temple/backup';
 import { useStorage, useTempleClient } from 'lib/temple/front';
 import { setBackupCredentials } from 'lib/temple/front/mnemonic-to-backup-keeper';
@@ -87,7 +88,7 @@ export const CreatePasswordForm = memo<CreatePasswordFormProps>(
       return { analytics: true, getRewards: true };
     }, [consent]);
 
-    const { control, watch, register, handleSubmit, trigger, formState, setValue, reset } = useForm<FormData>({
+    const { control, register, handleSubmit, trigger, formState, setValue, reset } = useForm<FormData>({
       defaultValues: {
         password: '',
         repeatPassword: '',
@@ -103,7 +104,7 @@ export const CreatePasswordForm = memo<CreatePasswordFormProps>(
       repeatPassword: repeatPasswordValue,
       analytics: analyticsEnabled,
       getRewards: rewardsEnabled
-    } = watch();
+    } = useWatch({ control });
 
     const passwordValidation = useMemo(
       () =>
@@ -138,12 +139,15 @@ export const CreatePasswordForm = memo<CreatePasswordFormProps>(
           dispatch(setReferralLinksEnabledAction(adsViewEnabled));
 
           // registerWallet function clears async storages
-          await putToStorage(REPLACE_REFERRALS_ENABLED, adsViewEnabled);
-          await putToStorage(WEBSITES_ANALYTICS_ENABLED, adsViewEnabled);
-          await putToStorage(SHOULD_OPEN_LETS_EXCHANGE_MODAL_STORAGE_KEY, false);
-          await putToStorage(SHOULD_PROMOTE_ROOTSTOCK_STORAGE_KEY, false);
-          await putToStorage(SHOULD_DISABLE_NOT_ACTIVE_NETWORKS_STORAGE_KEY, true);
-          await putToStorage(KOLO_FORCE_LOGOUT_ON_NEXT_OPEN_STORAGE_KEY, true);
+          await putManyToStorage({
+            [REPLACE_REFERRALS_ENABLED]: adsViewEnabled,
+            [WEBSITES_ANALYTICS_ENABLED]: adsViewEnabled,
+            [SHOULD_OPEN_LETS_EXCHANGE_MODAL_STORAGE_KEY]: false,
+            [SHOULD_PROMOTE_ROOTSTOCK_STORAGE_KEY]: false,
+            [SHOULD_SHOW_NEW_DAPPS_MODAL_STORAGE_KEY]: false,
+            [SHOULD_DISABLE_NOT_ACTIVE_NETWORKS_STORAGE_KEY]: true,
+            [KOLO_FORCE_LOGOUT_ON_NEXT_OPEN_STORAGE_KEY]: true
+          });
 
           if (adsViewEnabled && analyticsEnabled) {
             trackEvent('AnalyticsAndAdsEnabled', AnalyticsEventCategory.General, { accountPkh }, true);

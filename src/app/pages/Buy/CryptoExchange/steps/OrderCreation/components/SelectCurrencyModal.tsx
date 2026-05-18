@@ -1,6 +1,6 @@
 import React, { FC, memo, useCallback, useMemo, useState } from 'react';
 
-import { useFormContext } from 'react-hook-form';
+import { useFormContext, useWatch } from 'react-hook-form';
 import { useDebounce } from 'use-debounce';
 
 import { Button } from 'app/atoms';
@@ -18,7 +18,7 @@ import {
 import { StoredExolixCurrency } from 'app/store/crypto-exchange/state';
 import { SearchBarField } from 'app/templates/SearchField';
 import { t } from 'lib/i18n';
-import { isSearchStringApplicable, searchAndFilterItems } from 'lib/utils/search-items';
+import { isSearchStringApplicable, searchAndFilterByNameCodeNetwork } from 'lib/utils/search-items';
 import { useAccountAddressForEvm, useAccountAddressForTezos, useEnabledEvmChains } from 'temple/front';
 
 import { CurrencyIcon } from '../../../components/CurrencyIcon';
@@ -53,10 +53,10 @@ export const SelectCurrencyModal: FC<Props> = ({ opened, content, onRequestClose
   const allCurrencies = useAllExolixCurrenciesSelector();
   const exolixNetworksMap = useExolixNetworksMapSelector();
 
-  const { watch, setValue } = useFormContext<CryptoExchangeFormData>();
+  const { control, setValue } = useFormContext<CryptoExchangeFormData>();
 
-  const inputCurrency = watch('inputCurrency');
-  const outputCurrency = watch('outputCurrency');
+  const inputCurrency = useWatch({ control, name: 'inputCurrency' });
+  const outputCurrency = useWatch({ control, name: 'outputCurrency' });
 
   const enabledExolixNetworkCodes = useMemo(
     () => evmChains.map(({ chainId }) => exolixNetworksMap[chainId]),
@@ -153,17 +153,8 @@ const Item = memo<ItemProps>(({ currency, selectCurrency }) => {
 });
 
 const searchAndFilterCurrencies = (currencies: StoredExolixCurrency[], searchValue: string) =>
-  searchAndFilterItems(
-    currencies,
-    searchValue.trim(),
-    [
-      { name: 'name', weight: 1 },
-      { name: 'code', weight: 1 },
-      { name: 'networkName', weight: 0.75 }
-    ],
-    ({ name, code, network }) => ({
-      name,
-      code,
-      networkName: network.fullName
-    })
-  );
+  searchAndFilterByNameCodeNetwork(currencies, searchValue, ({ name, code, network }) => ({
+    name,
+    code,
+    networkName: network.fullName
+  }));

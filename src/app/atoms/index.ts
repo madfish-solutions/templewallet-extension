@@ -18,6 +18,8 @@ export { IconBase } from './IconBase';
 
 export { default as HashShortView } from './HashShortView';
 
+export { TxHashAnchor } from './TxHashAnchor';
+
 export { OldStyleHashChip } from './OldStyleHashChip';
 
 export { Loader } from './Loader';

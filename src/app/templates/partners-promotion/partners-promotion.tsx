@@ -138,24 +138,24 @@ export const PartnersPromotion = memo<PartnersPromotionProps>(({ variant, id, pa
           className
         )}
       >
-        <HypelabPromotion
-          accountPkh={evmViewerAddress}
-          variant={variant}
-          isVisible={adIsReady}
-          pageName={pageName}
-          blacklistedCampaignSlugs={blacklistedCampaignSlugs}
-          onImpression={handleImpression}
-          onReady={handleAdReady}
-          onError={handleHypelabError}
-        />
+        <div className="w-full flex flex-col items-center z-10">
+          <HypelabPromotion
+            accountPkh={evmViewerAddress}
+            variant={variant}
+            isVisible={adIsReady}
+            pageName={pageName}
+            blacklistedCampaignSlugs={blacklistedCampaignSlugs}
+            onImpression={handleImpression}
+            onReady={handleAdReady}
+            onError={handleHypelabError}
+          />
+        </div>
 
-        {!adIsReady && (
-          <div className="absolute inset-0 bg-grey-4 text-secondary flex justify-center items-center rounded-lg">
-            <span className="text-font-description-bold text-grey-2">
-              <T id="thanksForSupportingTemple" />
-            </span>
-          </div>
-        )}
+        <div className="absolute inset-0 bg-grey-4 text-secondary flex justify-center items-center rounded-lg">
+          <span className="text-font-description-bold text-grey-2">
+            <T id="thanksForSupportingTemple" />
+          </span>
+        </div>
 
         <CloseButton
           className="opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto"

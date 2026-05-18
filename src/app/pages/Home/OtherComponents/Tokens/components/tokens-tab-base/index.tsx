@@ -1,4 +1,4 @@
-import React, { FC, memo } from 'react';
+import { FC } from 'react';
 
 import { FadeTransition } from 'app/a11y/FadeTransition';
 import { SyncSpinner } from 'app/atoms';
@@ -8,7 +8,6 @@ import {
   VisibilityTrackingInfiniteScroll,
   VisibilityTrackingInfiniteScrollProps
 } from 'app/atoms/visibility-tracking-infinite-scroll';
-import { useManageState } from 'app/hooks/use-assets-view-state';
 import { ContentContainer } from 'app/layouts/containers';
 import BuyWithFiatImageSrc from 'app/misc/deposit/buy-with-fiat.png';
 import CrossChainSwapImageSrc from 'app/misc/deposit/cross-chain-swap.png';
@@ -21,8 +20,10 @@ import { useTestnetModeEnabledSelector } from 'app/store/settings/selectors';
 import { DAppConnection } from 'app/templates/DAppConnection';
 import { DepositOption } from 'app/templates/deposit-option';
 import { t, T } from 'lib/i18n';
+import { useBooleanState } from 'lib/ui/hooks';
 import { OneOfChains } from 'temple/front';
 
+import { AddTokenModal } from '../AddTokenModal';
 import { EmptySection } from '../EmptySection';
 
 export interface TokensTabBaseProps {
@@ -32,29 +33,22 @@ export interface TokensTabBaseProps {
   isSyncing: boolean;
   accountId: string;
   isInSearchMode: boolean;
+  manageActive: boolean;
   network?: OneOfChains;
   shouldShowHiddenTokensHint?: boolean;
 }
 
-export const TokensTabBase: FC<PropsWithChildren<TokensTabBaseProps>> = ({ ...restProps }) => {
-  const { manageActive } = useManageState();
+export const TokensTabBase: FC<PropsWithChildren<TokensTabBaseProps>> = ({ ...restProps }) => (
+  <>
+    <FadeTransition>
+      <TokensTabBaseContent {...restProps} />
+    </FadeTransition>
 
-  return (
-    <>
-      <FadeTransition>
-        <TokensTabBaseContent {...restProps} manageActive={manageActive} />
-      </FadeTransition>
+    <DAppConnection />
+  </>
+);
 
-      <DAppConnection />
-    </>
-  );
-};
-
-interface TokensTabBaseContentProps extends TokensTabBaseProps {
-  manageActive: boolean;
-}
-
-const TokensTabBaseContent: FC<PropsWithChildren<TokensTabBaseContentProps>> = ({
+const TokensTabBaseContent: FC<PropsWithChildren<TokensTabBaseProps>> = ({
   tokensCount,
   getElementIndex,
   loadNextPage,
@@ -66,6 +60,7 @@ const TokensTabBaseContent: FC<PropsWithChildren<TokensTabBaseContentProps>> = (
   shouldShowHiddenTokensHint,
   children
 }) => {
+  const [customTokenModalOpened, openCustomTokenModal, closeCustomTokenModal] = useBooleanState(false);
   const isTestnet = useTestnetModeEnabledSelector();
   const accountIsInitialized = useIsAccountInitializedSelector(accountId);
   const isSyncingInitializedState = useIsAccountInitializedLoadingSelector(accountId);
@@ -93,21 +88,16 @@ const TokensTabBaseContent: FC<PropsWithChildren<TokensTabBaseContentProps>> = (
     <TokensTabBaseContentWrapper padding={tokensCount > 0}>
       {tokensCount === 0 ? (
         <EmptySection
-          network={network}
           forCollectibles={false}
           forSearch={isInSearchMode}
           manageActive={manageActive}
           shouldShowHiddenTokensHint={shouldShowHiddenTokensHint}
+          onAddCustomTokenClick={openCustomTokenModal}
         />
       ) : (
         <>
           {manageActive && (
-            <AddCustomTokenButton
-              forCollectibles={false}
-              manageActive={manageActive}
-              network={network}
-              className="mb-4"
-            />
+            <AddCustomTokenButton manageActive={manageActive} className="mb-4" onClick={openCustomTokenModal} />
           )}
           <VisibilityTrackingInfiniteScroll getElementsIndexes={getElementIndex} loadNext={loadNextPage}>
             {children}
@@ -115,11 +105,18 @@ const TokensTabBaseContent: FC<PropsWithChildren<TokensTabBaseContentProps>> = (
           {isSyncing && <SyncSpinner className="mt-4" />}
         </>
       )}
+
+      <AddTokenModal
+        forCollectible={false}
+        opened={customTokenModalOpened}
+        onRequestClose={closeCustomTokenModal}
+        initialNetwork={network}
+      />
     </TokensTabBaseContentWrapper>
   );
 };
 
-const UninitializedAccountContent = memo(() => (
+const UninitializedAccountContent = () => (
   <>
     <p className="p-1 mb-1 text-font-description-bold text-grey-1">
       <T id="depositTokensToGetStarted" />
@@ -143,7 +140,7 @@ const UninitializedAccountContent = memo(() => (
       imageSrc={CrossChainSwapImageSrc}
     />
   </>
-));
+);
 
 const TokensTabBaseContentWrapper: FC<PropsWithChildren<{ padding?: boolean; className?: string }>> = ({
   padding,

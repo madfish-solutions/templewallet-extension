@@ -1,11 +1,25 @@
+import { DependencyList } from 'react';
+
 import { useDidMount, useDidUpdate, useSafeState, useAbortSignal } from 'lib/ui/hooks';
 import { useWillUnmount } from 'lib/ui/hooks/useWillUnmount';
 
 export const RETRY_AFTER_ERROR_TIMEOUT = 5_000;
 
+interface LoadingControlCallbacks<A> {
+  setIsLoading: SyncFn<boolean>;
+  setActivities: SyncFn<A[]>;
+  setReachedTheEnd: SyncFn<boolean>;
+  setError: SyncFn<unknown>;
+}
+
 export function useActivitiesLoadingLogic<A>(
-  loadActivities: (initial: boolean, signal: AbortSignal) => Promise<void>,
-  resetDeps: unknown[],
+  loadActivities: (
+    callbacks: LoadingControlCallbacks<A>,
+    activities: A[],
+    initial: boolean,
+    signal: AbortSignal
+  ) => Promise<void>,
+  resetDeps: DependencyList,
   onReset?: EmptyFn,
   initialIsLoading = true
 ) {
@@ -16,13 +30,15 @@ export function useActivitiesLoadingLogic<A>(
 
   const { abort: abortLoading, abortAndRenewSignal } = useAbortSignal();
 
-  function loadNext() {
+  const callbacks = { setIsLoading, setActivities, setReachedTheEnd, setError };
+
+  const loadNext = () => {
     if (isLoading || reachedTheEnd || error) return;
 
-    loadActivities(false, abortAndRenewSignal());
-  }
+    loadActivities(callbacks, activities, false, abortAndRenewSignal());
+  };
 
-  useDidMount(() => void loadActivities(true, abortAndRenewSignal()));
+  useDidMount(() => void loadActivities(callbacks, activities, true, abortAndRenewSignal()));
 
   useWillUnmount(abortLoading);
 
@@ -33,7 +49,7 @@ export function useActivitiesLoadingLogic<A>(
     setError(null);
     onReset?.();
 
-    loadActivities(true, abortAndRenewSignal());
+    loadActivities(callbacks, activities, true, abortAndRenewSignal());
   }, resetDeps);
 
   return {
@@ -41,10 +57,6 @@ export function useActivitiesLoadingLogic<A>(
     isLoading,
     reachedTheEnd,
     error,
-    setActivities,
-    setIsLoading,
-    setReachedTheEnd,
-    setError,
     loadNext
   };
 }

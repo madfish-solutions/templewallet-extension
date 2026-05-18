@@ -296,7 +296,7 @@ const monitorPendingTransfersEpic: Epic<Action, Action, RootState> = (action$, s
               const transferBeingWatched = state.pendingEvmTransactions?.transferBeingWatched === transfer.txHash;
               const status = receipt.status === 'success' ? 'DONE' : 'FAILED';
               if (status === 'DONE') {
-                if (!transferBeingWatched) {
+                if (!transferBeingWatched && !transfer.silent) {
                   toastSuccess('Transfer completed', true, commonToastParams);
                 }
 
@@ -310,7 +310,7 @@ const monitorPendingTransfersEpic: Epic<Action, Action, RootState> = (action$, s
                 ]);
               }
 
-              if (!transferBeingWatched) {
+              if (!transferBeingWatched && !transfer.silent) {
                 toastError('Transfer failed', true, commonToastParams);
               }
 
@@ -331,7 +331,9 @@ const monitorPendingTransfersEpic: Epic<Action, Action, RootState> = (action$, s
                 return of(removePendingEvmTransferAction(transfer.txHash));
               }
 
-              toastError('Transfer failed', true, commonToastParams);
+              if (!transfer.silent) {
+                toastError('Transfer failed', true, commonToastParams);
+              }
 
               return concat(
                 from([

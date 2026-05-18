@@ -1,10 +1,11 @@
-import React, { memo, useMemo } from 'react';
+import { FC, useMemo } from 'react';
 
 import { DeadEndBoundaryError } from 'app/ErrorBoundary';
+import { CrossChainActivityRow } from 'app/pages/Send/cross-chain/components/CrossChainActivityRow';
 import { TezosActivity } from 'lib/activity';
 import { TezosActivityOlderThan } from 'lib/activity/tezos/types';
 import { isKnownChainId } from 'lib/apis/tzkt/api';
-import { useAccountAddressForTezos, useTezosChainByChainId } from 'temple/front';
+import { useAccount, useAccountAddressForTezos, useTezosChainByChainId } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
 
 import { TezosActivityComponent } from './ActivityItem';
@@ -13,15 +14,18 @@ import { fetchTezosActivitiesWithCache } from './fetch-activities-with-cache';
 import { ActivitiesDateGroup, useGroupingByDate } from './grouping-by-date';
 import { RETRY_AFTER_ERROR_TIMEOUT, useActivitiesLoadingLogic } from './loading-logic';
 import { useAssetsFromActivitiesCheck } from './use-assets-from-activites-check';
+import { useInterleavedFeed } from './use-interleaved-feed';
 import { FilterKind, getActivityFilterKind } from './utils';
 
 interface Props {
   tezosChainId: string;
   assetSlug?: string;
   filterKind?: FilterKind;
+  onCrossChainExchangeClick?: (id: string) => void;
 }
 
-export const TezosActivityList = memo<Props>(({ tezosChainId, assetSlug, filterKind }) => {
+export const TezosActivityList: FC<Props> = ({ tezosChainId, assetSlug, filterKind, onCrossChainExchangeClick }) => {
+  const currentAccount = useAccount();
   const network = useTezosChainByChainId(tezosChainId);
   const accountAddress = useAccountAddressForTezos();
 
@@ -29,18 +33,8 @@ export const TezosActivityList = memo<Props>(({ tezosChainId, assetSlug, filterK
 
   const { chainId, rpcBaseURL } = network;
 
-  const {
-    activities,
-    isLoading,
-    reachedTheEnd,
-    error,
-    setActivities,
-    setIsLoading,
-    setReachedTheEnd,
-    setError,
-    loadNext
-  } = useActivitiesLoadingLogic<TezosActivity>(
-    async (initial, signal) => {
+  const { activities, isLoading, reachedTheEnd, error, loadNext } = useActivitiesLoadingLogic<TezosActivity>(
+    async ({ setIsLoading, setReachedTheEnd, setActivities, setError }, activities, initial, signal) => {
       if (!isKnownChainId(chainId)) {
         setIsLoading(false);
         setReachedTheEnd(true);
@@ -89,7 +83,15 @@ export const TezosActivityList = memo<Props>(({ tezosChainId, assetSlug, filterK
     [activities, filterKind]
   );
 
-  const groupedActivities = useGroupingByDate(displayActivities);
+  const feed = useInterleavedFeed({
+    activities: displayActivities,
+    remoteReachedTheEnd: reachedTheEnd,
+    filterChain: { kind: TempleChainKind.Tezos, chainId: tezosChainId },
+    accountId: currentAccount.id,
+    enabled: Boolean(onCrossChainExchangeClick)
+  });
+
+  const groupedFeed = useGroupingByDate(feed);
 
   const tezosAssetsCheckConfig = useMemo(
     () => ({
@@ -103,19 +105,38 @@ export const TezosActivityList = memo<Props>(({ tezosChainId, assetSlug, filterK
 
   const contentJsx = useMemo(
     () =>
-      groupedActivities.map(([dateStr, activities]) => (
+      groupedFeed.map(([dateStr, items]) => (
         <ActivitiesDateGroup key={dateStr} title={dateStr}>
-          {activities.map(activity => (
-            <TezosActivityComponent key={activity.hash} activity={activity} chain={network} assetSlug={assetSlug} />
-          ))}
+          {items.map(item => {
+            if (item.kind === 'tezos') {
+              return (
+                <TezosActivityComponent
+                  key={item.data.hash}
+                  activity={item.data}
+                  chain={network}
+                  assetSlug={assetSlug}
+                />
+              );
+            }
+            if (item.kind === 'cross-chain') {
+              return (
+                <CrossChainActivityRow
+                  key={item.data.id}
+                  exchange={item.data}
+                  onClick={() => onCrossChainExchangeClick?.(item.data.id)}
+                />
+              );
+            }
+            return null;
+          })}
         </ActivitiesDateGroup>
       )),
-    [groupedActivities, network, assetSlug]
+    [groupedFeed, network, assetSlug, onCrossChainExchangeClick]
   );
 
   return (
     <ActivityListView
-      activitiesNumber={displayActivities.length}
+      activitiesNumber={feed.length}
       isSyncing={isLoading}
       reachedTheEnd={reachedTheEnd || Boolean(error)}
       loadNext={loadNext}
@@ -123,4 +144,4 @@ export const TezosActivityList = memo<Props>(({ tezosChainId, assetSlug, filterK
       {contentJsx}
     </ActivityListView>
   );
-});
+};

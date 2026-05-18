@@ -1,4 +1,4 @@
-import { ReactNode, Ref, memo, useMemo, useRef } from 'react';
+import { FC, ReactNode, Ref, useMemo, useRef } from 'react';
 
 import { CollectiblesListItemElement, makeGetCollectiblesElementsIndexesFunction } from 'lib/ui/collectibles-list';
 
@@ -14,26 +14,35 @@ interface TabContentBaseBodyProps extends Omit<
   renderItem: (slug: string, index: number, ref?: Ref<CollectiblesListItemElement>) => ReactNode;
 }
 
-export const TabContentBaseBody = memo<TabContentBaseBodyProps>(
-  ({ manageActive, slugs, showInfo, renderItem, ...restProps }) => {
-    const firstItemRef = useRef<CollectiblesListItemElement>(null);
-    const contentElement = useMemo(
-      () => (
-        <div className={manageActive ? undefined : 'grid grid-cols-3 gap-2'}>
-          {slugs.map((chainSlug, index) => renderItem(chainSlug, index, index === 0 ? firstItemRef : undefined))}
-        </div>
-      ),
-      [manageActive, slugs, renderItem]
-    );
-    const getElementsIndexes = useMemo(
-      () => makeGetCollectiblesElementsIndexesFunction(firstItemRef, slugs.length, showInfo, manageActive),
-      [slugs.length, manageActive, showInfo]
-    );
+export const TabContentBaseBody: FC<TabContentBaseBodyProps> = ({
+  manageActive,
+  slugs,
+  showInfo,
+  renderItem,
+  ...restProps
+}) => {
+  const firstItemRef = useRef<CollectiblesListItemElement>(null);
+  const contentElement = useMemo(
+    () => (
+      <div className={manageActive ? undefined : 'grid grid-cols-3 gap-2'}>
+        {slugs.map((chainSlug, index) => renderItem(chainSlug, index, index === 0 ? firstItemRef : undefined))}
+      </div>
+    ),
+    [manageActive, slugs, renderItem]
+  );
+  const getElementsIndexes = useMemo(
+    () => makeGetCollectiblesElementsIndexesFunction(firstItemRef, slugs.length, showInfo, manageActive),
+    [slugs.length, manageActive, showInfo]
+  );
 
-    return (
-      <CollectiblesTabBase collectiblesCount={slugs.length} getElementsIndexes={getElementsIndexes} {...restProps}>
-        {contentElement}
-      </CollectiblesTabBase>
-    );
-  }
-);
+  return (
+    <CollectiblesTabBase
+      collectiblesCount={slugs.length}
+      getElementsIndexes={getElementsIndexes}
+      manageActive={manageActive}
+      {...restProps}
+    >
+      {contentElement}
+    </CollectiblesTabBase>
+  );
+};

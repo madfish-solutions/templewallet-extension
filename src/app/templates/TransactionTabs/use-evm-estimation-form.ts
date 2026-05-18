@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { transform } from 'lodash';
-import { useForm } from 'react-hook-form';
+import { useForm, useFormState, useWatch } from 'react-hook-form';
 import { useDebounce } from 'use-debounce';
 import {
   FeeCapTooLowError,
@@ -61,18 +61,21 @@ export const useEvmEstimationForm = (
   }, [basicParams, fullEstimationData]);
 
   const form = useForm<EvmTxParamsFormData>({ mode: 'onChange', defaultValues });
-  const { watch, setValue, formState, reset } = form;
+  const { control, setValue, reset } = form;
+  const { isDirty, touchedFields } = useFormState({ control });
 
   useEffect(() => {
-    if (!formState.isDirty) {
+    if (!isDirty) {
       reset(defaultValues);
     }
-  }, [defaultValues, reset, formState.isDirty]);
+  }, [defaultValues, reset, isDirty]);
 
-  const gasPriceValue = watch('gasPrice');
+  const nonceValue = useWatch({ name: 'nonce', control });
+  const gasLimitValue = useWatch({ name: 'gasLimit', control });
+  const gasPriceValue = useWatch({ name: 'gasPrice', control });
 
-  const [debouncedNonce] = useDebounce(watch('nonce'), DEFAULT_INPUT_DEBOUNCE);
-  const [debouncedGasLimit] = useDebounce(watch('gasLimit'), DEFAULT_INPUT_DEBOUNCE);
+  const [debouncedNonce] = useDebounce(nonceValue, DEFAULT_INPUT_DEBOUNCE);
+  const [debouncedGasLimit] = useDebounce(gasLimitValue, DEFAULT_INPUT_DEBOUNCE);
   const [debouncedGasPrice] = useDebounce(gasPriceValue, DEFAULT_INPUT_DEBOUNCE);
 
   const [tab, setTab] = useState<Tab>('details');
@@ -137,7 +140,7 @@ export const useEvmEstimationForm = (
         return null;
       }
 
-      if (!selectedFeeOption && !formState.touchedFields.gasPrice) {
+      if (!selectedFeeOption && !touchedFields.gasPrice) {
         return feesPerGasFromBasicParams;
       }
 
@@ -163,7 +166,7 @@ export const useEvmEstimationForm = (
         return null;
       }
     },
-    [feeOptions, feesPerGasFromBasicParams, formState.touchedFields.gasPrice, selectedFeeOption]
+    [feeOptions, feesPerGasFromBasicParams, touchedFields.gasPrice, selectedFeeOption]
   );
 
   const rawTransaction = useMemo(() => {
