@@ -18,8 +18,6 @@ const MERCHANT_PROMOTION_STORAGE_KEY = 'persist:root.merchantPromotion';
   const alreadyShown = await fetchFromStorage<boolean>(DEALS_ANNOUNCEMENT_SHOWN_STORAGE_KEY);
   if (alreadyShown === true) return;
 
-  // Skip if user already has Deals enabled. Also persist `shown=true` so we never re-evaluate
-  // this branch in future sessions even if the user later disables Deals.
   const merchantState = await fetchFromStorage<MerchantPromotionState>(MERCHANT_PROMOTION_STORAGE_KEY);
   if (merchantState?.enabled) {
     browser.runtime.sendMessage({ type: ContentScriptType.MarkDealsAnnouncementSeen }).catch(() => {});
@@ -42,10 +40,6 @@ function injectAnnouncement() {
   host.style.cssText = 'all: initial; position: fixed; top: 16px; right: 16px; z-index: 2147483647;';
   document.body.appendChild(host);
 
-  // Detach the popup when the page is navigated away from. Otherwise the back/forward
-  // cache restores the cached DOM (with the popup still mounted) when the user returns,
-  // even though `DEALS_ANNOUNCEMENT_SHOWN` is already true — the content script doesn't
-  // re-run on bfcache restore.
   window.addEventListener('pagehide', () => host.remove(), { once: true });
 
   const shadow = host.attachShadow({ mode: 'closed' });

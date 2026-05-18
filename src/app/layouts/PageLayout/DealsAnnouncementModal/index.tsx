@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 
-import clsx from 'clsx';
 import { useDispatch } from 'react-redux';
 
 import { DoneAnimation } from 'app/atoms/done-animation';
@@ -35,9 +34,6 @@ export const DealsAnnouncementModal = () => {
   const dealsEnabled = useMerchantPromotionEnabledSelector();
   const { trackEvent } = useAnalytics();
 
-  // Snapshot the eligibility decision once SWR settles. After that, neither `shown` flipping
-  // (from our own write) nor `dealsEnabled` flipping (from our own Activate dispatch) closes
-  // the modal — visibility is locked to the user's explicit dismissal.
   const [wasEligibleAtMount, setWasEligibleAtMount] = useState<boolean | undefined>(undefined);
   if (wasEligibleAtMount === undefined && shown !== undefined) {
     setWasEligibleAtMount(shown !== true && !dealsEnabled);
@@ -84,14 +80,14 @@ export const DealsAnnouncementModal = () => {
           <StyledButton
             size="L"
             color="primary"
-            className={clsx('w-full')}
+            className="w-full"
             onClick={handleActivate}
             testID={DealsAnnouncementSelectors.inWalletActivate}
           >
             <T id="activateCashback" />
           </StyledButton>
         ) : (
-          <StyledButton size="L" color="primary" className={clsx('w-full')} onClick={handleGotIt}>
+          <StyledButton size="L" color="primary" className="w-full" onClick={handleGotIt}>
             <T id="gotIt" />
           </StyledButton>
         )}
@@ -101,32 +97,32 @@ export const DealsAnnouncementModal = () => {
 };
 
 const OfferBody = () => (
-  <div className={clsx('flex flex-col p-4 rounded-t-8 bg-background min-h-65.5')}>
-    <img src={merchantsImgSrc} alt="" className={clsx('w-45 h-24.5 mx-auto object-contain mb-4')} />
+  <div className="flex flex-col p-4 rounded-t-8 bg-background min-h-65.5">
+    <img src={merchantsImgSrc} alt="" className="w-45 h-24.5 mx-auto object-contain mb-4" />
 
-    <p className={clsx('text-font-regular-bold text-center mb-1')}>
+    <p className="text-font-regular-bold text-center mb-1">
       <T id="featureUnlockedCashback" />
     </p>
 
-    <p className={clsx('text-font-description text-grey-1 text-center')}>
+    <p className="text-font-description text-grey-1 text-center">
       <T id="cashbackInWalletPitch" />
     </p>
 
-    <p className={clsx('text-font-small text-grey-1 text-center mt-4')}>
+    <p className="text-font-small text-grey-1 text-center mt-4">
       <T id="cashbackParticipationDisclaimer" />
     </p>
   </div>
 );
 
 const SuccessBody = () => (
-  <div className={clsx('flex flex-col items-center text-center p-4 rounded-t-8 bg-background min-h-65.5')}>
+  <div className="flex flex-col items-center text-center p-4 rounded-t-8 bg-background min-h-65.5">
     <DoneAnimation withBackground={false} animationSize={100} className="mb-8 mt-4" />
 
-    <h1 className={clsx('text-font-regular-bold mb-2')}>
+    <h1 className="text-font-regular-bold mb-2">
       <T id="cashbackActivated" />
     </h1>
 
-    <p className={clsx('text-font-description text-grey-1')}>
+    <p className="text-font-description text-grey-1">
       <T id="cashbackActivatedBrowseHint" />
     </p>
   </div>
