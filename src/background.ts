@@ -69,10 +69,10 @@ browser.runtime.onInstalled.addListener(({ reason }) => {
               putToStorage(SHOULD_SHOW_REWARDS_PUSH_STORAGE_KEY, true);
               openFullPage();
             }
-          });
-        }
+          }
+        );
       }
-    );
+    });
 
     ensureAppIdentity()
       .then(() => linkAdsImpressionsIfNeeded())

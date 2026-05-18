@@ -11,6 +11,7 @@ import {
   ADS_VIEWER_DATA_STORAGE_KEY,
   ANALYTICS_USER_ID_STORAGE_KEY,
   ContentScriptType,
+  DEALS_ANNOUNCEMENT_SHOWN_STORAGE_KEY,
   REWARDS_ACCOUNT_DATA_STORAGE_KEY
 } from 'lib/constants';
 import { E2eMessageType } from 'lib/e2e/types';
@@ -530,8 +531,54 @@ browser.runtime.onMessage.addListener(async (msg, sender) => {
         const { event, properties } = msg;
         if (typeof event !== 'string' || !allowedEvents.has(event)) break;
 
+        const userId = (await fetchFromStorage<string>(ANALYTICS_USER_ID_STORAGE_KEY)) ?? '';
         Analytics.trackEvent({
-          userId: '',
+          userId,
+          chainId: undefined,
+          event,
+          category: AnalyticsEventCategory.ButtonPress,
+          properties
+        });
+        break;
+      }
+
+      case ContentScriptType.MarkDealsAnnouncementSeen: {
+        await putToStorage(DEALS_ANNOUNCEMENT_SHOWN_STORAGE_KEY, true);
+        break;
+      }
+
+      case ContentScriptType.ActivateDealsAnnouncement: {
+        const merchantState = await fetchFromStorage<MerchantPromotionState>('persist:root.merchantPromotion');
+        await putToStorage('persist:root.merchantPromotion', {
+          ...merchantState,
+          enabled: true,
+          snoozedUntil: 0
+        });
+
+        const userId = (await fetchFromStorage<string>(ANALYTICS_USER_ID_STORAGE_KEY)) ?? '';
+        Analytics.trackEvent({
+          userId,
+          chainId: undefined,
+          event: 'DealsEnabled',
+          category: AnalyticsEventCategory.General,
+          properties: {}
+        });
+        break;
+      }
+
+      case ContentScriptType.DealsAnnouncementAnalytics: {
+        const allowedEvents = new Set([
+          'DealsAnnouncementGoogleSearchView',
+          'DealsAnnouncementGoogleSearchActivate',
+          'DealsAnnouncementGoogleSearchClose'
+        ]);
+
+        const { event, properties } = msg;
+        if (typeof event !== 'string' || !allowedEvents.has(event)) break;
+
+        const userId = (await fetchFromStorage<string>(ANALYTICS_USER_ID_STORAGE_KEY)) ?? '';
+        Analytics.trackEvent({
+          userId,
           chainId: undefined,
           event,
           category: AnalyticsEventCategory.ButtonPress,

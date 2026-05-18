@@ -17,7 +17,10 @@ export enum ContentScriptType {
   ActivateMerchantOffer = 'ActivateMerchantOffer',
   MerchantOfferSnooze = 'MerchantOfferSnooze',
   MerchantOfferDisable = 'MerchantOfferDisable',
-  MerchantOfferAnalytics = 'MerchantOfferAnalytics'
+  MerchantOfferAnalytics = 'MerchantOfferAnalytics',
+  MarkDealsAnnouncementSeen = 'MarkDealsAnnouncementSeen',
+  ActivateDealsAnnouncement = 'ActivateDealsAnnouncement',
+  DealsAnnouncementAnalytics = 'DealsAnnouncementAnalytics'
 }
 
 export const APP_TITLE = 'Temple Wallet';
@@ -91,6 +94,8 @@ export const SHOULD_SHOW_EARN_ETH_INTRO_MODAL_STORAGE_KEY = 'SHOULD_SHOW_EARN_ET
 export const SHOULD_PROMOTE_ROOTSTOCK_STORAGE_KEY = 'SHOULD_PROMOTE_ROOTSTOCK';
 
 export const SHOULD_SHOW_REWARDS_PUSH_STORAGE_KEY = 'SHOULD_SHOW_REWARDS_PUSH';
+
+export const DEALS_ANNOUNCEMENT_SHOWN_STORAGE_KEY = 'DEALS_ANNOUNCEMENT_SHOWN';
 
 export const SHOULD_SHOW_WELCOME_REWARDS_MODAL_STORAGE_KEY = 'SHOULD_SHOW_WELCOME_REWARDS_MODAL';
 
