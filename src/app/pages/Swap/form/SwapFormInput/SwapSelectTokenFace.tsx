@@ -33,7 +33,7 @@ const SwapSelectTokenFace: FC<SwapFieldProps> = ({
       {assetSlug ? (
         <Button
           onClick={handleSelectAssetClick}
-          className="bg-white py-[3px] px-2 rounded-8 flex items-center justify-between -mr-2.5 cursor-pointer w-[120px]"
+          className="bg-white py-0.75 px-2 rounded-8 flex items-center justify-between -mr-2.5 cursor-pointer w-30"
         >
           <div className="flex items-center">
             {typeof chainId === 'string' ? (

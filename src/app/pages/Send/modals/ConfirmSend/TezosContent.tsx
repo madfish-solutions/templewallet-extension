@@ -1,7 +1,7 @@
-import { FC, useState } from 'react';
+import React, { FC, ReactNode, useEffect, useState } from 'react';
 
 import { OpKind, TransferParams, WalletParamsWithKind } from '@taquito/taquito';
-import { FormProvider } from 'react-hook-form';
+import { FormProvider, useFormState } from 'react-hook-form';
 
 import { useLedgerApprovalModalState } from 'app/hooks/use-ledger-approval-modal-state';
 import { TezosReviewData } from 'app/pages/Send/form/interfaces';
@@ -40,9 +40,19 @@ interface TezosContentProps {
   data: TezosReviewData;
   onSuccess: (txData: TxData<TempleChainKind.Tezos>) => void;
   onClose: EmptyFn;
+  detailsContent?: ReactNode;
+  suppressSubmitToast?: boolean;
+  onSubmittingChange?: (isSubmitting: boolean) => void;
 }
 
-export const TezosContent: FC<TezosContentProps> = ({ data, onClose, onSuccess }) => {
+export const TezosContent: FC<TezosContentProps> = ({
+  data,
+  onClose,
+  onSuccess,
+  detailsContent,
+  suppressSubmitToast,
+  onSubmittingChange
+}) => {
   const { account, network, assetSlug, to, amount, onConfirm } = data;
   const { rpcBaseURL, chainId } = network;
 
@@ -118,11 +128,15 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose, onSuccess }
     network,
     isEstimationError: Boolean(estimationError)
   });
-  const { formState } = form;
+  const { isSubmitting } = useFormState({ control: form.control });
 
   const { ledgerApprovalModalState, setLedgerApprovalModalState, handleLedgerModalClose } =
     useLedgerApprovalModalState();
   const { guard, ledgerPromptProps } = useLedgerWebHidFullViewGuard();
+
+  useEffect(() => {
+    onSubmittingChange?.(isSubmitting);
+  }, [isSubmitting, onSubmittingChange]);
 
   const onSubmitError = (err: unknown) => {
     console.error(err);
@@ -132,7 +146,7 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose, onSuccess }
 
   const onSubmit = async ({ gasFee, storageLimit }: TezosTxParamsFormData) => {
     try {
-      if (formState.isSubmitting) return;
+      if (isSubmitting) return;
 
       try {
         assertCustomGasFeeNotTooLow(gasFee);
@@ -165,7 +179,9 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose, onSuccess }
 
         const blockExplorer = getActiveBlockExplorer(network.chainId);
 
-        showTxSubmitToastWithDelay(TempleChainKind.Tezos, txHash, blockExplorer.url);
+        if (!suppressSubmitToast) {
+          showTxSubmitToastWithDelay(TempleChainKind.Tezos, txHash, blockExplorer.url);
+        }
 
         dispatch(
           addPendingTezosTransactionAction({
@@ -174,7 +190,8 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose, onSuccess }
             network,
             blockExplorerUrl: makeBlockExplorerHref(blockExplorer.url, txHash, 'tx', TempleChainKind.Tezos),
             submittedAt: Date.now(),
-            kind: 'transfer'
+            kind: 'transfer',
+            silent: suppressSubmitToast
           })
         );
         dispatch(monitorPendingTezosTransactionsAction());
@@ -214,6 +231,7 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose, onSuccess }
           selectedFeeOption={selectedFeeOption}
           onCancel={onClose}
           onSubmit={onSubmit}
+          detailsContent={detailsContent}
         />
       </FormProvider>
       <LedgerFullViewPromptModal {...ledgerPromptProps} />

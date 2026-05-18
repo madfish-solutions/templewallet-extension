@@ -20,16 +20,23 @@ interface Props {
   overlay?: ReactNode;
   animationSize?: number;
   animationSpeed?: number;
+  hideBackground?: boolean;
   className?: string;
 }
 
-export const DoneAnimation: FC<Props> = ({ overlay, animationSize = 148, animationSpeed = 0.8, className }) => (
+export const DoneAnimation: FC<Props> = ({
+  overlay,
+  animationSize = 148,
+  animationSpeed = 0.8,
+  hideBackground = false,
+  className
+}) => (
   <div className={clsx('relative flex items-center justify-center overflow-hidden', className)}>
-    <img src={backgroundSuccessSrc} alt="" className="w-full h-auto" />
+    {!hideBackground && <img src={backgroundSuccessSrc} alt="" className="w-full h-auto" />}
 
     {overlay}
 
-    <div className="absolute">
+    <div className={clsx(hideBackground ? 'relative' : 'absolute')}>
       <Lottie
         isClickToPauseDisabled
         options={DONE_ANIMATION_OPTIONS}
@@ -40,3 +47,5 @@ export const DoneAnimation: FC<Props> = ({ overlay, animationSize = 148, animati
     </div>
   </div>
 );
+
+export { backgroundSuccessSrc };
