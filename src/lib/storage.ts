@@ -31,6 +31,10 @@ export async function putToStorage<T = any>(key: string, value: T) {
   return browser.storage.local.set({ [key]: value });
 }
 
+export async function putManyToStorage<T extends Record<string, any>>(values: T) {
+  return browser.storage.local.set(values);
+}
+
 export async function removeFromStorage(keyOrKeys: string | string[]) {
   return browser.storage.local.remove(keyOrKeys);
 }

@@ -20,8 +20,10 @@ import { useTestnetModeEnabledSelector } from 'app/store/settings/selectors';
 import { DAppConnection } from 'app/templates/DAppConnection';
 import { DepositOption } from 'app/templates/deposit-option';
 import { t, T } from 'lib/i18n';
+import { useBooleanState } from 'lib/ui/hooks';
 import { OneOfChains } from 'temple/front';
 
+import { AddTokenModal } from '../AddTokenModal';
 import { EmptySection } from '../EmptySection';
 
 export interface TokensTabBaseProps {
@@ -58,6 +60,7 @@ const TokensTabBaseContent: FC<PropsWithChildren<TokensTabBaseProps>> = ({
   shouldShowHiddenTokensHint,
   children
 }) => {
+  const [customTokenModalOpened, openCustomTokenModal, closeCustomTokenModal] = useBooleanState(false);
   const isTestnet = useTestnetModeEnabledSelector();
   const accountIsInitialized = useIsAccountInitializedSelector(accountId);
   const isSyncingInitializedState = useIsAccountInitializedLoadingSelector(accountId);
@@ -85,21 +88,16 @@ const TokensTabBaseContent: FC<PropsWithChildren<TokensTabBaseProps>> = ({
     <TokensTabBaseContentWrapper padding={tokensCount > 0}>
       {tokensCount === 0 ? (
         <EmptySection
-          network={network}
           forCollectibles={false}
           forSearch={isInSearchMode}
           manageActive={manageActive}
           shouldShowHiddenTokensHint={shouldShowHiddenTokensHint}
+          onAddCustomTokenClick={openCustomTokenModal}
         />
       ) : (
         <>
           {manageActive && (
-            <AddCustomTokenButton
-              forCollectibles={false}
-              manageActive={manageActive}
-              network={network}
-              className="mb-4"
-            />
+            <AddCustomTokenButton manageActive={manageActive} className="mb-4" onClick={openCustomTokenModal} />
           )}
           <VisibilityTrackingInfiniteScroll getElementsIndexes={getElementIndex} loadNext={loadNextPage}>
             {children}
@@ -107,6 +105,13 @@ const TokensTabBaseContent: FC<PropsWithChildren<TokensTabBaseProps>> = ({
           {isSyncing && <SyncSpinner className="mt-4" />}
         </>
       )}
+
+      <AddTokenModal
+        forCollectible={false}
+        opened={customTokenModalOpened}
+        onRequestClose={closeCustomTokenModal}
+        initialNetwork={network}
+      />
     </TokensTabBaseContentWrapper>
   );
 };

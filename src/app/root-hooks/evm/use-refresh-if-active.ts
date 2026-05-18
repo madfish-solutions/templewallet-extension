@@ -140,7 +140,9 @@ export const useRefreshIfActive = <L extends [DataLoader<any>, ...DataLoader<any
       firstLoadTimeouts.push(
         setTimeout(
           () => {
-            refreshData(chainId).then();
+            if (!loaders.some(loader => loader.isLoading(chainId))) {
+              refreshData(chainId).then();
+            }
 
             refreshIntervals.push(setInterval(() => refreshData(chainId), syncInterval));
           },

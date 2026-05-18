@@ -132,11 +132,12 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
     reValidateMode: 'onChange'
   });
 
-  const { control, reset, setValue, formState, getValues, clearErrors } = form;
+  const { control, reset, setValue, formState, getValues, clearErrors, trigger } = form;
+  const { isSubmitting, submitCount } = formState;
+  const formSubmitted = submitCount > 0;
 
   const inputValue = useWatch({ name: 'input', control });
   const outputValue = useWatch({ name: 'output', control });
-  const isFiatMode = useWatch({ name: 'isFiatMode', control });
   const [debouncedInputAmount] = useDebounce(inputValue.amount, 200);
 
   const { value: inputTokenBalance = ZERO } = useEvmAssetBalance(
@@ -201,8 +202,10 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
         setValue('output', { assetSlug: undefined, chainId: undefined, amount: undefined });
         setSwapRoute(null);
       }
+
+      if (formSubmitted) trigger();
     },
-    [clearErrors, getValues, setValue]
+    [clearErrors, getValues, setValue, trigger, formSubmitted]
   );
 
   const handleOutputChange = useCallback(
@@ -218,8 +221,10 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
         setValue('input', { assetSlug: undefined, chainId: undefined, amount: undefined });
         setSwapRoute(null);
       }
+
+      if (formSubmitted) trigger();
     },
-    [clearErrors, getValues, setValue]
+    [clearErrors, getValues, setValue, trigger, formSubmitted]
   );
 
   const handleSelectedAssetChange = useCallback(
@@ -281,12 +286,12 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
   );
 
   const atomsInputValue = useMemo(() => {
-    const inputValueToUse = isFiatMode
+    const inputValueToUse = getValues('isFiatMode')
       ? parseFiatValueToAssetAmount(inputValue.amount, inputAssetMetadata?.decimals)
       : inputValue.amount;
 
     return tokensToAtoms(inputValueToUse || ZERO, inputAssetMetadata?.decimals ?? 0);
-  }, [inputAssetMetadata?.decimals, inputValue.amount, isFiatMode, parseFiatValueToAssetAmount]);
+  }, [inputAssetMetadata?.decimals, inputValue.amount, parseFiatValueToAssetAmount, getValues]);
 
   const routeAbortControllerRef = useRef<AbortController>(null);
   const latestRequestIdRef = useRef(0);
@@ -428,7 +433,7 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
         sourceAssetInfo &&
         targetAssetInfo &&
         !isRouteLoadingRef.current &&
-        !formState.isSubmitting &&
+        !isSubmitting &&
         !confirmSwapModalOpened
       ) {
         getAndSetSwapRoute().catch(error => {
@@ -436,14 +441,7 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
         });
       }
     },
-    [
-      inputValue.amount,
-      sourceAssetInfo,
-      targetAssetInfo,
-      formState.isSubmitting,
-      confirmSwapModalOpened,
-      getAndSetSwapRoute
-    ],
+    [inputValue.amount, sourceAssetInfo, targetAssetInfo, isSubmitting, confirmSwapModalOpened, getAndSetSwapRoute],
     AUTO_REFRESH_INTERVAL_MS,
     false
   );
@@ -468,13 +466,13 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
 
   const handleSetMaxAmount = useCallback(() => {
     if (inputValue.assetSlug && inputTokenMaxAmount) {
-      const formattedMaxAmount = isFiatMode
+      const formattedMaxAmount = getValues('isFiatMode')
         ? inputTokenMaxAmount.times(inputAssetPrice).decimalPlaces(2, BigNumber.ROUND_FLOOR)
         : inputTokenMaxAmount;
 
       handleInputChange({ assetSlug: inputValue.assetSlug, chainId: inputValue.chainId, amount: formattedMaxAmount });
     }
-  }, [handleInputChange, inputAssetPrice, inputTokenMaxAmount, inputValue.assetSlug, inputValue.chainId, isFiatMode]);
+  }, [handleInputChange, inputAssetPrice, inputTokenMaxAmount, inputValue.assetSlug, inputValue.chainId, getValues]);
 
   const getMinimumReceivedAmount = useCallback(
     (outputAmount: BigNumber | undefined) => {
@@ -484,7 +482,7 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
   );
 
   const onSubmit = useCallback(async () => {
-    if (formState.isSubmitting) return;
+    if (isSubmitting) return;
     if (!inputValue.assetSlug || !outputValue.assetSlug) return;
 
     if (!swapRoute) {
@@ -523,7 +521,7 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
   }, [
     account,
     formAnalytics,
-    formState.isSubmitting,
+    isSubmitting,
     getValues,
     inputAssetMetadata?.symbol,
     inputNetwork,
