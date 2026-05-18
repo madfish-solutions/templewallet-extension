@@ -52,6 +52,8 @@ export interface ExchangeData {
   withdrawalExtraId: string | null;
   hashIn: ExchangeHash;
   hashOut: ExchangeHash;
+  refundHash?: string | null;
+  refundExtraId?: string | null;
   id: string;
   comment: string | null;
   rate: string;
@@ -61,9 +63,12 @@ export interface ExchangeData {
 export enum OrderStatusEnum {
   WAIT = 'wait',
   CONFIRMATION = 'confirmation',
+  CONFIRMED = 'confirmed',
   EXCHANGING = 'exchanging',
+  SENDING = 'sending',
   SUCCESS = 'success',
   OVERDUE = 'overdue',
+  REFUND = 'refund',
   REFUNDED = 'refunded'
 }
 
@@ -73,6 +78,15 @@ export interface GetRateRequestData {
   coinTo: string;
   coinToNetwork: string;
   amount: number;
+}
+
+export interface CrossChainRateRequestData {
+  coinFrom: string;
+  coinFromNetwork: string;
+  coinTo: string;
+  coinToNetwork: string;
+  /** String to preserve precision for 18-decimal tokens. */
+  amount: string;
 }
 
 interface GetRateResponseWithAmountTooLow {
@@ -99,7 +113,19 @@ interface GetRateSuccessResponse {
   maxAmount: number;
 }
 
+interface GetRateUnsupportedPairResponse {
+  error: string;
+}
+
 export type GetRateResponse =
   | GetRateResponseWithAmountTooLow
   | GetRateResponseWithAmountTooHigh
-  | GetRateSuccessResponse;
+  | GetRateSuccessResponse
+  | GetRateUnsupportedPairResponse;
+
+export type NormalizedRateResult =
+  | { kind: 'ok'; fromAmount: number; toAmount: number; rate: number; minAmount: number; maxAmount: number }
+  | { kind: 'min-bound'; minAmount: number; message: string }
+  | { kind: 'max-bound'; maxAmount: number; message: string }
+  | { kind: 'unsupported' }
+  | { kind: 'unknown' };

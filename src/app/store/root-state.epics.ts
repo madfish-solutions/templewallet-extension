@@ -7,6 +7,7 @@ import { reportError, toError } from 'lib/analytics';
 import { abTestingEpics } from './ab-testing/epics';
 import { accountsInitializationEpics } from './accounts-initialization/epics';
 import { buyWithCreditCardEpics } from './buy-with-credit-card/epics';
+import { crossChainSendEpics } from './cross-chain-send/epics';
 import { cryptoExchangeEpics } from './crypto-exchange/epics';
 import { currencyEpics } from './currency/epics';
 import { evmBalancesEpics } from './evm/balances/epics';
@@ -36,6 +37,7 @@ const allEpics = combineEpics(
   evmNoCategoryAssetsMetadataEpics,
   abTestingEpics,
   cryptoExchangeEpics,
+  crossChainSendEpics,
   buyWithCreditCardEpics,
   collectiblesEpics,
   rewardsEpics,

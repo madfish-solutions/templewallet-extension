@@ -54,12 +54,12 @@ export interface TokensTabBaseProps {
 const goToNftsPage = () => navigate('/nfts');
 
 export const TokensTabBase: FC<PropsWithChildren<TokensTabBaseProps>> = props => {
-  const [customTokenModalOpened, openCustomTokenModal, closeCustomTokenModal] = useBooleanState(false);
+  const [customAssetModalOpened, localOpenCustomAssetModal, closeCustomAssetModal] = useBooleanState(false);
   const [forCollectible, setForCollectible] = useState(false);
 
   const openCustomAssetModal = (forCollectible: boolean) => {
     setForCollectible(forCollectible);
-    openCustomTokenModal();
+    localOpenCustomAssetModal();
   };
 
   return (
@@ -70,8 +70,8 @@ export const TokensTabBase: FC<PropsWithChildren<TokensTabBaseProps>> = props =>
 
       <AddTokenModal
         forCollectible={forCollectible}
-        opened={customTokenModalOpened}
-        onRequestClose={closeCustomTokenModal}
+        opened={customAssetModalOpened}
+        onRequestClose={closeCustomAssetModal}
         initialNetwork={props.network}
       />
 
@@ -172,16 +172,16 @@ const TokensTabBaseContent: FC<
     <TokensTabBaseContentWrapper padding={tokensCount > 0}>
       {tokensCount === 0 ? (
         <AssetsEmptySection
-          onAddCustomTokenClick={openCustomTokenModal}
           forCollectibles={false}
           forSearch={isInSearchMode}
           manageActive={manageActive}
           shouldShowHiddenTokensHint={shouldShowHiddenTokensHint}
+          onAddCustomTokenClick={openCustomTokenModal}
         />
       ) : (
         <>
           {manageActive && (
-            <AddCustomTokenButton onClick={openCustomTokenModal} manageActive={manageActive} className="mb-4" />
+            <AddCustomTokenButton manageActive={manageActive} className="mb-4" onClick={openCustomTokenModal} />
           )}
           <div className="w-full max-h-96 flex flex-col overflow-auto">
             <VisibilityTrackingInfiniteScroll getElementsIndexes={getElementIndex} loadNext={loadNextPage}>

@@ -25,7 +25,7 @@ const loadExolixNetworksMapEpic: Epic = action$ =>
     ofType(loadExolixNetworksMapActions.submit),
     switchMap(() =>
       getExolixNetworksMap$().pipe(
-        map(data => loadExolixNetworksMapActions.success(data)),
+        map(data => loadExolixNetworksMapActions.success({ data, loadedAt: Date.now() })),
         catchError(err => of(loadExolixNetworksMapActions.fail(err.message)))
       )
     )

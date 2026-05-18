@@ -4,9 +4,18 @@ import axios from 'axios';
 import { StoredExolixCurrency } from 'app/store/crypto-exchange/state';
 import { EnvVars } from 'lib/env';
 
-import { ExchangeData, ExolixCurrenciesResponse, GetRateRequestData, GetRateResponse } from './types';
+import {
+  CrossChainRateRequestData,
+  ExchangeData,
+  ExolixCurrenciesResponse,
+  GetRateRequestData,
+  GetRateResponse,
+  NormalizedRateResult
+} from './types';
 
 const API_KEY = EnvVars.TEMPLE_WALLET_EXOLIX_API_KEY;
+
+export const EXOLIX_DEPOSIT_WINDOW_MS = 25 * 60 * 1000;
 
 /** Due to legal restrictions */
 const MAX_DOLLAR_VALUE = 10000;
@@ -116,6 +125,10 @@ export const loadMinMaxExchangeValues = async (
           break;
         }
 
+        if (!('minAmount' in minAmountExchangeResponse)) {
+          throw new Error('Failed to get minimal input amount');
+        }
+
         // Preparing to try again with the new minimal amount
         finalMinAmount = minAmountExchangeResponse.minAmount;
         exchangeData.amount = minAmountExchangeResponse.minAmount;
@@ -137,7 +150,7 @@ export const loadMinMaxExchangeValues = async (
     });
     // Ignoring the invalid output of the backward exchange
     const maxDollarValueMaxAmount =
-      backwardExchange.message == null && backwardExchange.toAmount >= finalMinAmount
+      'message' in backwardExchange && backwardExchange.message == null && backwardExchange.toAmount >= finalMinAmount
         ? backwardExchange.toAmount
         : undefined;
 
@@ -182,3 +195,62 @@ export const submitExchange = (data: {
 
 export const getExchangeData = (exchangeId: string) =>
   retry(() => api.get<ExchangeData>(`/transactions/${exchangeId}`).then(r => r.data), COMMON_RETRY_CONFIG);
+
+export const normalizeRateResponse = (raw: GetRateResponse): NormalizedRateResult => {
+  if ('error' in raw) return { kind: 'unsupported' };
+
+  const hasRate = 'rate' in raw;
+  const hasMin = 'minAmount' in raw;
+  const hasMax = 'maxAmount' in raw;
+
+  if (hasRate && raw.message == null) {
+    return {
+      kind: 'ok',
+      fromAmount: raw.fromAmount,
+      toAmount: raw.toAmount,
+      rate: raw.rate,
+      minAmount: raw.minAmount,
+      maxAmount: raw.maxAmount
+    };
+  }
+
+  if (raw.message) {
+    if (hasMin && !hasRate) return { kind: 'min-bound', minAmount: raw.minAmount, message: raw.message };
+    if (hasMax && !hasRate) return { kind: 'max-bound', maxAmount: raw.maxAmount, message: raw.message };
+  }
+
+  return { kind: 'unknown' };
+};
+
+export const queryCrossChainRate = (data: CrossChainRateRequestData): Promise<GetRateResponse> =>
+  retry(
+    () =>
+      api
+        .get<GetRateResponse>('/rate', {
+          params: { ...data, rateType: 'float' },
+          validateStatus: status => status === 200 || status === 422
+        })
+        .then(r => r.data),
+    COMMON_RETRY_CONFIG
+  );
+
+interface CreateCrossChainExchangeInput {
+  coinFrom: string;
+  networkFrom: string;
+  coinTo: string;
+  networkTo: string;
+  /** Pass a stringifies BigNumber to preserve precision for 18-decimal tokens. */
+  amount: string;
+  withdrawalAddress: string;
+  /** Exolix uses this to auto-refund when the exchange can't complete. */
+  refundAddress: string;
+}
+
+export const createCrossChainExchange = (input: CreateCrossChainExchangeInput): Promise<ExchangeData> =>
+  api
+    .post<ExchangeData>('/transactions', {
+      ...input,
+      withdrawalExtraId: '',
+      rateType: 'float'
+    })
+    .then(r => r.data);

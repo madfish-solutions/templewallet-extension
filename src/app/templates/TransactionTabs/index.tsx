@@ -45,6 +45,7 @@ export interface TransactionTabsProps<T extends TxParamsFormData> {
     protocolFee?: string;
     destinationChainGasTokenAmount?: BigNumber;
   };
+  detailsContent?: ReactNode;
   children?: ReactNode;
 }
 
@@ -66,6 +67,7 @@ export const TransactionTabs = <T extends TxParamsFormData>({
   cashbackInTkey,
   minimumReceived,
   bridgeData,
+  detailsContent,
   children
 }: TransactionTabsProps<T>) => {
   const { handleSubmit } = useFormContext<T>();
@@ -133,7 +135,9 @@ export const TransactionTabs = <T extends TxParamsFormData>({
               case 'error':
                 return <ErrorTab isEvm={isEvm} submitError={latestSubmitError} estimationError={estimationError} />;
               default:
-                return (
+                return detailsContent !== undefined ? (
+                  <>{detailsContent}</>
+                ) : (
                   <DetailsTab
                     network={network}
                     destinationName={destinationName}

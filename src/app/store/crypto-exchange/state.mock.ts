@@ -4,5 +4,6 @@ import { CryptoExchangeState } from './state';
 
 export const mockCryptoExchangeState = mockPersistedState<CryptoExchangeState>({
   exolixCurrencies: createEntity([]),
-  exolixNetworksMap: createEntity({})
+  exolixNetworksMap: createEntity({}),
+  exolixNetworksMapLoadedAt: 0
 });

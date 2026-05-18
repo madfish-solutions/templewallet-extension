@@ -1,7 +1,7 @@
-import { FC, useState } from 'react';
+import React, { FC, ReactNode, useEffect, useState } from 'react';
 
 import { omit } from 'lodash';
-import { FormProvider } from 'react-hook-form';
+import { FormProvider, useFormState } from 'react-hook-form';
 import { TransactionRequest } from 'viem';
 
 import { useLedgerApprovalModalState } from 'app/hooks/use-ledger-approval-modal-state';
@@ -34,9 +34,21 @@ interface EvmContentProps {
   data: EvmReviewData;
   onClose: EmptyFn;
   onSuccess: (txData: TxData<TempleChainKind.EVM>) => void;
+  detailsContent?: ReactNode;
+  silentEstimation?: boolean;
+  suppressSubmitToast?: boolean;
+  onSubmittingChange?: (isSubmitting: boolean) => void;
 }
 
-export const EvmContent: FC<EvmContentProps> = ({ data, onClose, onSuccess }) => {
+export const EvmContent: FC<EvmContentProps> = ({
+  data,
+  onClose,
+  onSuccess,
+  detailsContent,
+  silentEstimation,
+  suppressSubmitToast,
+  onSubmittingChange
+}) => {
   const { account, network, assetSlug, to, amount, onConfirm } = data;
 
   const accountPkh = account.address as HexString;
@@ -60,7 +72,8 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose, onSuccess }) =>
     balance,
     ethBalance,
     toFilled: true,
-    amount
+    amount,
+    silent: silentEstimation
   });
 
   const {
@@ -74,9 +87,13 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose, onSuccess }) =>
     getFeesPerGas,
     assertCustomFeesPerGasNotTooLow
   } = useEvmEstimationForm(estimationData, null, account, network.chainId);
-  const { formState } = form;
+  const { isSubmitting } = useFormState({ control: form.control });
   const { ledgerApprovalModalState, setLedgerApprovalModalState, handleLedgerModalClose } =
     useLedgerApprovalModalState();
+
+  useEffect(() => {
+    onSubmittingChange?.(isSubmitting);
+  }, [isSubmitting, onSubmittingChange]);
 
   const onSubmitError = (err: unknown) => {
     console.error(err);
@@ -85,13 +102,11 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose, onSuccess }) =>
   };
 
   const onSubmit = async ({ gasPrice, gasLimit, nonce }: EvmTxParamsFormData) => {
-    if (formState.isSubmitting) return;
+    if (isSubmitting) return;
 
     const feesPerGas = getFeesPerGas(gasPrice);
 
-    if (!assetMetadata) {
-      throw new Error('Asset metadata not found.');
-    }
+    if (!assetMetadata) throw new Error('Asset metadata not found.');
 
     if (!estimationData || !feesPerGas) {
       onSubmitError(estimationError);
@@ -125,7 +140,9 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose, onSuccess }) =>
 
         const blockExplorer = getActiveBlockExplorer(network.chainId.toString());
 
-        showTxSubmitToastWithDelay(TempleChainKind.EVM, txHash, blockExplorer.url);
+        if (!suppressSubmitToast) {
+          showTxSubmitToastWithDelay(TempleChainKind.EVM, txHash, blockExplorer.url);
+        }
 
         dispatch(
           addPendingEvmTransferAction({
@@ -134,7 +151,8 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose, onSuccess }) =>
             assetSlug,
             network,
             blockExplorerUrl: makeBlockExplorerHref(blockExplorer.url, txHash, 'tx', TempleChainKind.EVM),
-            submittedAt: Date.now()
+            submittedAt: Date.now(),
+            silent: suppressSubmitToast
           })
         );
         dispatch(monitorPendingTransfersAction());
@@ -175,6 +193,7 @@ export const EvmContent: FC<EvmContentProps> = ({ data, onClose, onSuccess }) =>
           onFeeOptionSelect={handleFeeOptionSelect}
           onCancel={onClose}
           onSubmit={onSubmit}
+          detailsContent={detailsContent}
         />
       </FormProvider>
       <LedgerFullViewPromptModal {...ledgerPromptProps} />

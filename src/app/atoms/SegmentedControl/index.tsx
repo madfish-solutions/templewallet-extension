@@ -8,6 +8,7 @@ interface Segment<T extends string> {
   label: string;
   value: T;
   ref: RefObject<HTMLDivElement | null>;
+  disabled?: boolean;
 }
 
 interface SegmentedControlProps<T extends string> {
@@ -55,7 +56,11 @@ const SegmentedControl = <T extends string>({
         {segments?.map(item => (
           <div
             key={item.value}
-            className={clsx(styles.segment, item.value === activeSegment ? styles.active : styles.inactive)}
+            className={clsx(
+              styles.segment,
+              item.value === activeSegment ? styles.active : styles.inactive,
+              item.disabled && styles.disabled
+            )}
             ref={item.ref}
           >
             <input
@@ -65,6 +70,7 @@ const SegmentedControl = <T extends string>({
               name={name}
               onChange={() => setActiveSegment(item.value)}
               checked={item.value === activeSegment}
+              disabled={item.disabled}
             />
             <label htmlFor={item.label}>{item.label}</label>
           </div>

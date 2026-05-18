@@ -318,7 +318,7 @@ export const useEvmChainCollectiblesSortPredicate = (publicKeyHash: HexString, e
   );
 };
 
-const compare = (a: BigNumber, b: BigNumber) => {
+export const compare = (a: BigNumber, b: BigNumber) => {
   if (a.isNaN() || b.isNaN()) return 0;
 
   return a.comparedTo(b) as number;
