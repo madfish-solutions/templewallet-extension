@@ -206,7 +206,7 @@ const buildManifestCommons = (vendor: string): Omit<Manifest.WebExtensionManifes
         all_frames: false
       },
       !shouldDisableAds && {
-        matches: ['https://*/*'],
+        matches: ['https://www.google.com/search*'],
         js: ['scripts/templeDealsGoogleSearch.js'],
         run_at: 'document_idle' as const,
         all_frames: false
