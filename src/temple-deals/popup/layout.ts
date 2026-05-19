@@ -18,7 +18,7 @@ import { getPopupStyles } from './styles';
 
 const POPUP_FONT_TEXT =
   ' _-,;:!?.\'"()[]{}@*/\\&#%`+<>|~≈$£¥€₴₺₿0123456789aAbBcCçdDeEéèfFgGhHiIıjJkKlLmMnNoOõpPqQrRsSştTuUvVwWxXyYzZ';
-const POPUP_FONT_URL = `https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap&text=${encodeURIComponent(
+const POPUP_FONT_URL = `https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&display=swap&text=${encodeURIComponent(
   POPUP_FONT_TEXT
 )}`;
 
