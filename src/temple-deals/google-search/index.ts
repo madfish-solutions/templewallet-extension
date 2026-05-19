@@ -127,17 +127,42 @@ function scanResults() {
 
 function findMoreButtonForTitle(title: Element) {
   if (title.id) {
-    const describedBySelector = `[aria-label="About this result"][aria-describedby="${CSS.escape(title.id)}"]`;
-    const describedByButton = document.querySelector<HTMLElement>(describedBySelector);
+    const describedBySelector = `[aria-describedby~="${CSS.escape(title.id)}"][role="button"]`;
+    const describedByButton = Array.from(document.querySelectorAll<HTMLElement>(describedBySelector)).find(candidate =>
+      isResultMenuButtonCandidate(title, candidate)
+    );
     if (describedByButton) return describedByButton;
   }
 
-  const nearbyRoot = title.closest('div:has([aria-label="About this result"]), div:has([aria-label="More options"])');
+  return findNearbyResultMenuButton(title);
+}
+
+function findNearbyResultMenuButton(title: Element) {
+  const anchor = title.closest('a[href]');
+  let ancestor = anchor?.parentElement ?? title.parentElement;
+  let depth = 0;
+
+  while (ancestor && depth < 6) {
+    const menuButton = Array.from(
+      ancestor.querySelectorAll<HTMLElement>(
+        '[role="button"][tabindex], button[aria-haspopup], [role="button"][aria-haspopup]'
+      )
+    ).find(candidate => isResultMenuButtonCandidate(title, candidate));
+
+    if (menuButton) return menuButton;
+
+    ancestor = ancestor.parentElement;
+    depth++;
+  }
+
+  return null;
+}
+
+function isResultMenuButtonCandidate(title: Element, candidate: HTMLElement) {
+  const anchor = title.closest('a[href]');
 
   return (
-    nearbyRoot?.querySelector<HTMLElement>('[aria-label="About this result"]') ??
-    nearbyRoot?.querySelector<HTMLElement>('[aria-label="More options"]') ??
-    null
+    !candidate.classList.contains(LABEL_CLASS) && !candidate.contains(title) && (!anchor || !anchor.contains(candidate))
   );
 }
 
@@ -242,7 +267,13 @@ function renderPendingLabel({ root, anchor, moreButton, url, domain }: PendingLa
   addLabel(anchor, moreButton, url, domain, offer);
 }
 
-function addLabel(anchor: HTMLAnchorElement, moreButton: HTMLElement | null, url: string, domain: string, offer: MerchantOffer) {
+function addLabel(
+  anchor: HTMLAnchorElement,
+  moreButton: HTMLElement | null,
+  url: string,
+  domain: string,
+  offer: MerchantOffer
+) {
   const label = document.createElement('button');
   label.className = LABEL_CLASS;
   label.type = 'button';
@@ -297,7 +328,8 @@ function hasLabel(anchor: HTMLAnchorElement, moreButton: HTMLElement | null, dom
 
 function findHostLabel(labelHost: Element, domain: string) {
   return Array.from(labelHost.children).find(
-    child => child.classList.contains(LABEL_CLASS) && child instanceof HTMLElement && child.dataset.templeDomain === domain
+    child =>
+      child.classList.contains(LABEL_CLASS) && child instanceof HTMLElement && child.dataset.templeDomain === domain
   );
 }
 
