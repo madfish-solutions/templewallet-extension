@@ -403,13 +403,13 @@ function placeHoverPopup(popup: HTMLElement, labelRect: DOMRect) {
 }
 
 function scheduleHideHoverPopup() {
-  // clearPendingShowHoverPopup();
-  //
-  // if (hideHoverTimeout) window.clearTimeout(hideHoverTimeout);
-  // hideHoverTimeout = window.setTimeout(() => {
-  //   hoverHost?.remove();
-  //   hoverHost = null;
-  // }, DEFAULT_DELAY);
+  clearPendingShowHoverPopup();
+
+  if (hideHoverTimeout) window.clearTimeout(hideHoverTimeout);
+  hideHoverTimeout = window.setTimeout(() => {
+    hoverHost?.remove();
+    hoverHost = null;
+  }, DEFAULT_DELAY);
 }
 
 function clearPendingShowHoverPopup() {
