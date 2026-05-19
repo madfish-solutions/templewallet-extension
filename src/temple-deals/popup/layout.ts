@@ -7,8 +7,8 @@ import {
   el,
   formatBountyValue,
   getOfferDescription,
-  markTempleDealActivated,
   msg,
+  suppressTempleDealPopup,
   TEMPLE_DEALS_EVENTS,
   trackTempleDealsEvent
 } from '../utils';
@@ -296,7 +296,7 @@ function renderTempleDealsPopup(
             provider: 'TakeAds'
           })
           .catch(() => {});
-        await markTempleDealActivated(domain);
+        await suppressTempleDealPopup(domain);
 
         window.location.href = result.trackingLink;
       } catch (err) {

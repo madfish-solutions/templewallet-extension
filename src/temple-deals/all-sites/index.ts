@@ -4,7 +4,13 @@ import { ContentScriptType } from 'lib/constants';
 import { delay } from 'lib/utils';
 
 import { injectTempleDealsPopupFont, mountTempleDealsPopup } from '../popup/layout';
-import { isGoogleSearchPage, normalizeDomain, TEMPLE_DEALS_EVENTS, wasTempleDealActivated } from '../utils';
+import {
+  isGoogleSearchPage,
+  isTempleDealPopupSuppressed,
+  normalizeDomain,
+  suppressTempleDealPopup,
+  TEMPLE_DEALS_EVENTS
+} from '../utils';
 
 const POPUP_HOST_ID = 'temple-deals-popup-host';
 const PAGE_STABLE_DELAY = 1_500;
@@ -17,7 +23,7 @@ const PAGE_STABLE_TIMEOUT = 8_000;
   const stableHref = await waitForStablePage();
   const domain = normalizeDomain(window.location.hostname);
 
-  if (await wasTempleDealActivated(domain)) return;
+  if (await isTempleDealPopupSuppressed(domain)) return;
 
   let offers: MerchantOffer[] = [];
 
@@ -34,7 +40,7 @@ const PAGE_STABLE_TIMEOUT = 8_000;
   if (!offer) return;
   if (window.location.href !== stableHref || normalizeDomain(window.location.hostname) !== domain) return;
 
-  injectTempleDealsPopup(offer, domain);
+  await injectTempleDealsPopup(offer, domain);
 })();
 
 async function waitForStablePage() {
@@ -67,10 +73,11 @@ function waitForWindowLoad() {
   });
 }
 
-function injectTempleDealsPopup(offer: MerchantOffer, domain: string) {
+async function injectTempleDealsPopup(offer: MerchantOffer, domain: string) {
   // Prevent duplicate injection
   if (!document.body || document.getElementById(POPUP_HOST_ID)) return;
 
+  await suppressTempleDealPopup(domain);
   injectTempleDealsPopupFont();
 
   const host = document.createElement('div');
