@@ -155,23 +155,25 @@ const NftsPageContent: FC<NftsPageContentProps> = ({ allCollectibles, sortPredic
         />
       }
       headerChildren={
-        <div className="flex flex-col p-4 gap-4 bg-background">
-          <div className="flex gap-2 items-center">
-            <SearchBarField
-              value={searchValue}
-              placeholder={t('search')}
-              onValueChange={setSearchValue}
-              testID={NftsPageSelectors.searchField}
-            />
+        <div className="flex p-4 gap-2 bg-background items-center">
+          <SearchBarField
+            value={searchValue}
+            placeholder={t('search')}
+            onValueChange={setSearchValue}
+            testID={NftsPageSelectors.searchField}
+          />
 
-            <IconButton Icon={manageActive ? CloseIcon : ManageIcon} color="blue" onClick={toggleManageActive} />
-          </div>
-
-          {!manageActive && !chainIsGloballySelected && <NetworkChips enabledCollectibles={enabledCollectibles} />}
+          <IconButton Icon={manageActive ? CloseIcon : ManageIcon} color="blue" onClick={toggleManageActive} />
         </div>
       }
     >
       <FadeTransition trigger={manageActive}>
+        {!manageActive && !chainIsGloballySelected && (
+          <div className="px-4 mb-1">
+            <NetworkChips enabledCollectibles={enabledCollectibles} />
+          </div>
+        )}
+
         {viewAsCollections && !manageActive ? (
           <CollectionsListView
             noCollectiblesAtAll={noCollectiblesAtAll}
