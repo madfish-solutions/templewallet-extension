@@ -48,6 +48,10 @@ export const makeUseChainKindAccountTokensForListing = <T extends TempleChainKin
   chainKind,
   gasTokenSlug
 }: TokensForListingHookFactoryConfig<T>) => {
+  // A workaround for React Compiler bug
+  const groupSlugsByNetwork = (slugs: string[]) =>
+    groupByToEntries(slugs, slug => parseChainAssetSlug(slug, chainKind)[1]);
+
   const useChainKindAccountTokensForListing = (
     publicKeyHash: PublicKeyHash<T>,
     filterSmallBalances: boolean,
@@ -80,11 +84,10 @@ export const makeUseChainKindAccountTokensForListing = <T extends TempleChainKin
       return enabledSlugsFiltered.sort(tokensSortPredicate);
     }, [enabledSlugs, isBigBalance, tokensSortPredicate, filterSmallBalances]);
 
-    const enabledChainSlugsSortedGrouped = useMemoWithCompare(() => {
-      if (!groupingEnabled) return null;
-
-      return groupByToEntries(enabledChainSlugsSorted, slug => parseChainAssetSlug(slug, chainKind)[1]);
-    }, [enabledChainSlugsSorted, groupingEnabled]);
+    const enabledChainSlugsSortedGrouped = useMemoWithCompare(
+      () => (groupingEnabled ? groupSlugsByNetwork(enabledChainSlugsSorted) : null),
+      [enabledChainSlugsSorted, groupingEnabled]
+    );
 
     return {
       shouldShowHiddenTokensHint:
