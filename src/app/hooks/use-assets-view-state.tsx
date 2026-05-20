@@ -97,13 +97,15 @@ export const [
   useCollectiblesSearchState,
   useTokensSearchModeState,
   useCollectiblesSelectedChainsState,
+  useTokensSelectedChainsState,
   useCollectiblesCustomTokenModalState
 ] = constate(
   useAssetsViewState,
   ({ tokensViewState }) => ({
     manageActive: tokensViewState.manageActive,
     setManageActive: tokensViewState.setManageActive,
-    setManageInactive: tokensViewState.setManageInactive
+    setManageInactive: tokensViewState.setManageInactive,
+    toggleManageActive: tokensViewState.toggleManageActive
   }),
   ({ collectiblesViewState }) => ({
     manageActive: collectiblesViewState.manageActive,
@@ -135,6 +137,11 @@ export const [
   ({ collectiblesViewState, chainIsGloballySelected }) => ({
     selectedChains: collectiblesViewState.selectedChains,
     setSelectedChains: collectiblesViewState.setSelectedChains,
+    chainIsGloballySelected
+  }),
+  ({ tokensViewState, chainIsGloballySelected }) => ({
+    selectedChains: tokensViewState.selectedChains,
+    setSelectedChains: tokensViewState.setSelectedChains,
     chainIsGloballySelected
   }),
   ({ collectiblesViewState }) => ({

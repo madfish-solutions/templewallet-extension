@@ -8,7 +8,7 @@ import { isTruthy, openLink } from 'lib/utils';
 import { navigate } from 'lib/woozie';
 import { useEvmChainByChainId } from 'temple/front/chains';
 
-import { AssetsSelectors } from '../../../Assets.selectors';
+import { AssetsSelectors } from '../assets.selectors';
 
 interface Props {
   chainId: number;

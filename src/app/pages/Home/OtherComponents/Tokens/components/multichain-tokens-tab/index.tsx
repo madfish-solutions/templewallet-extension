@@ -26,12 +26,11 @@ import { useAccountCollectiblesSortPredicate } from 'lib/assets/use-sorting';
 import { parseChainAssetSlug } from 'lib/assets/utils';
 import { useTezosCollectiblesMetadataPresenceCheck } from 'lib/metadata';
 import { useMemoWithCompare } from 'lib/ui/hooks';
+import { toNotRemovedChainTokensSlugs } from 'lib/ui/tokens-list';
 import { groupByToEntries } from 'lib/utils/group-by-to-entries';
 import { useAllEvmChains, useAllTezosChains } from 'temple/front';
 import { ChainGroupedSlugs } from 'temple/front/chains';
 import { TempleChainKind } from 'temple/types';
-
-import { toNotRemovedChainTokensSlugs } from '../../utils';
 
 import { TabContentBaseBody } from './content-base-body';
 import { MultiChainTokensTabContext } from './context';

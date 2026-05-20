@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import { FC } from 'react';
 
 import { useEvmAccountTotalBalance } from 'app/hooks/total-balance/use-evm-account-total-balance';
 import { useEvmChainTotalBalance } from 'app/hooks/total-balance/use-evm-chain-total-balance';
@@ -12,13 +12,18 @@ import { TempleChainKind } from 'temple/types';
 
 import { TotalEquityBase } from './TotalEquityBase';
 
-interface TotalEquityProps {
-  account: StoredAccount;
+interface CommonTotalEquityProps {
   currency: EquityCurrency;
+  tooltip?: boolean;
+  ignoreSmallBalances?: boolean;
+}
+
+interface TotalEquityProps extends CommonTotalEquityProps {
+  account: StoredAccount;
   filterChain?: FilterChain;
 }
 
-export const TotalEquity = memo<TotalEquityProps>(({ account, currency, filterChain = null }) => {
+export const TotalEquity: FC<TotalEquityProps> = ({ account, filterChain = null, ...commonProps }) => {
   const accountTezAddress = getAccountAddressForTezos(account);
   const accountEvmAddress = getAccountAddressForEvm(account);
 
@@ -26,69 +31,75 @@ export const TotalEquity = memo<TotalEquityProps>(({ account, currency, filterCh
   const isEvmFilter = filterChain?.kind === TempleChainKind.EVM;
 
   if (isTezosFilter && accountTezAddress)
-    return <TezosTotalEquity accountTezAddress={accountTezAddress} currency={currency} />;
+    return <TezosTotalEquity accountTezAddress={accountTezAddress} {...commonProps} />;
 
   if (isEvmFilter && accountEvmAddress)
-    return (
-      <EvmChainTotalEquity accountEvmAddress={accountEvmAddress} chainId={filterChain.chainId} currency={currency} />
-    );
+    return <EvmChainTotalEquity accountEvmAddress={accountEvmAddress} chainId={filterChain.chainId} {...commonProps} />;
 
   if (!filterChain && accountTezAddress && accountEvmAddress)
     return (
       <MultiChainTotalEquity
         accountTezAddress={accountTezAddress}
         accountEvmAddress={accountEvmAddress}
-        currency={currency}
+        {...commonProps}
       />
     );
 
   if (!filterChain && accountTezAddress)
-    return <TezosTotalEquity accountTezAddress={accountTezAddress} currency={currency} />;
+    return <TezosTotalEquity accountTezAddress={accountTezAddress} {...commonProps} />;
 
   if (!filterChain && accountEvmAddress)
-    return <EvmAccountTotalEquity accountEvmAddress={accountEvmAddress} currency={currency} />;
+    return <EvmAccountTotalEquity accountEvmAddress={accountEvmAddress} {...commonProps} />;
 
-  return <TotalEquityBase totalBalanceInDollar="0" targetCurrency={currency} />;
-});
+  const { currency, tooltip } = commonProps;
 
-interface MultiChainTotalEquityProps extends Pick<TotalEquityProps, 'currency'> {
+  return <TotalEquityBase totalBalanceInDollar="0" targetCurrency={currency} tooltip={tooltip} />;
+};
+
+const OneCaseTotalEquityHOC = <T extends CommonTotalEquityProps>(
+  useTotalBalance: (input: Omit<T, 'currency' | 'tooltip'>) => string
+) => {
+  function OneCaseTotalEquity({ currency, tooltip, ...totalBalanceInput }: T) {
+    const totalBalanceInDollar = useTotalBalance(totalBalanceInput);
+
+    return <TotalEquityBase totalBalanceInDollar={totalBalanceInDollar} targetCurrency={currency} tooltip={tooltip} />;
+  }
+
+  return OneCaseTotalEquity;
+};
+
+interface MultiChainTotalEquityProps extends CommonTotalEquityProps {
   accountTezAddress: string;
   accountEvmAddress: HexString;
 }
 
-const MultiChainTotalEquity = memo<MultiChainTotalEquityProps>(({ accountTezAddress, accountEvmAddress, currency }) => {
-  const totalBalanceInDollar = useMultiChainTotalBalance(accountTezAddress, accountEvmAddress);
+const MultiChainTotalEquity = OneCaseTotalEquityHOC<MultiChainTotalEquityProps>(
+  ({ accountTezAddress, accountEvmAddress, ignoreSmallBalances }) =>
+    useMultiChainTotalBalance(accountTezAddress, accountEvmAddress, ignoreSmallBalances)
+);
 
-  return <TotalEquityBase totalBalanceInDollar={totalBalanceInDollar} targetCurrency={currency} />;
-});
-
-interface EvmChainTotalEquityProps extends Pick<TotalEquityProps, 'currency'> {
+interface EvmChainTotalEquityProps extends CommonTotalEquityProps {
   accountEvmAddress: HexString;
   chainId: number;
 }
 
-const EvmChainTotalEquity = memo<EvmChainTotalEquityProps>(({ accountEvmAddress, chainId, currency }) => {
-  const totalBalanceInDollar = useEvmChainTotalBalance(accountEvmAddress, chainId);
+const EvmChainTotalEquity = OneCaseTotalEquityHOC<EvmChainTotalEquityProps>(
+  ({ accountEvmAddress, chainId, ignoreSmallBalances }) =>
+    useEvmChainTotalBalance(accountEvmAddress, chainId, ignoreSmallBalances)
+);
 
-  return <TotalEquityBase totalBalanceInDollar={totalBalanceInDollar} targetCurrency={currency} />;
-});
-
-interface EvmAccountTotalEquityProps extends Pick<TotalEquityProps, 'currency'> {
+interface EvmAccountTotalEquityProps extends CommonTotalEquityProps {
   accountEvmAddress: HexString;
 }
 
-const EvmAccountTotalEquity = memo<EvmAccountTotalEquityProps>(({ accountEvmAddress, currency }) => {
-  const totalBalanceInDollar = useEvmAccountTotalBalance(accountEvmAddress);
+const EvmAccountTotalEquity = OneCaseTotalEquityHOC<EvmAccountTotalEquityProps>(
+  ({ accountEvmAddress, ignoreSmallBalances }) => useEvmAccountTotalBalance(accountEvmAddress, ignoreSmallBalances)
+);
 
-  return <TotalEquityBase totalBalanceInDollar={totalBalanceInDollar} targetCurrency={currency} />;
-});
-
-interface TezosTotalEquityProps extends Pick<TotalEquityProps, 'currency'> {
+interface TezosTotalEquityProps extends CommonTotalEquityProps {
   accountTezAddress: string;
 }
 
-const TezosTotalEquity = memo<TezosTotalEquityProps>(({ accountTezAddress, currency }) => {
-  const totalBalanceInDollar = useTezosTotalBalance(accountTezAddress);
-
-  return <TotalEquityBase totalBalanceInDollar={totalBalanceInDollar} targetCurrency={currency} />;
-});
+const TezosTotalEquity = OneCaseTotalEquityHOC<TezosTotalEquityProps>(({ accountTezAddress, ignoreSmallBalances }) =>
+  useTezosTotalBalance(accountTezAddress, ignoreSmallBalances)
+);

@@ -1,4 +1,4 @@
-import React, { memo, Suspense, useMemo } from 'react';
+import { FC, Suspense } from 'react';
 
 import BigNumber from 'bignumber.js';
 
@@ -20,100 +20,103 @@ const SYMBOL_STYLE = { marginLeft: `${4 / 24}em` };
 interface TotalEquityForTezosOnlyProps {
   totalBalanceInDollar: string;
   targetCurrency: EquityCurrency;
+  tooltip?: boolean;
 }
 
-export const TotalEquityBase = memo<TotalEquityForTezosOnlyProps>(({ totalBalanceInDollar, targetCurrency }) => {
+export const TotalEquityBase: FC<TotalEquityForTezosOnlyProps> = ({
+  totalBalanceInDollar,
+  targetCurrency,
+  tooltip
+}) => {
+  const contentProps = { amountInDollar: totalBalanceInDollar, tooltip };
+
   switch (targetCurrency) {
     case 'tez':
-      return <InTez amountInDollar={totalBalanceInDollar} />;
+      return <InTez {...contentProps} />;
     case 'btc':
-      return <InBtc amountInDollar={totalBalanceInDollar} />;
+      return <InBtc {...contentProps} />;
     case 'eth':
-      return <InEth amountInDollar={totalBalanceInDollar} />;
+      return <InEth {...contentProps} />;
     default:
       return (
         <Suspense fallback={null}>
-          <InFiat amountInDollar={totalBalanceInDollar} />
+          <InFiat {...contentProps} />
         </Suspense>
       );
   }
-});
+};
 
-const InFiat = memo<{ amountInDollar: string }>(({ amountInDollar }) => {
+interface TotalEquityContentProps {
+  amountInDollar: string;
+  tooltip?: boolean;
+}
+
+const InFiat: FC<TotalEquityContentProps> = ({ amountInDollar, tooltip }) => {
   const {
     selectedFiatCurrency: { symbol: fiatSymbol }
   } = useFiatCurrency();
 
   const fiatToUsdRate = useFiatToUsdRate();
 
-  const amountInFiat = useMemo(
-    () => (isTruthy(fiatToUsdRate) ? new BigNumber(amountInDollar).times(fiatToUsdRate) : ZERO),
-    [amountInDollar, fiatToUsdRate]
-  );
+  const amountInFiat = isTruthy(fiatToUsdRate) ? new BigNumber(amountInDollar).times(fiatToUsdRate) : ZERO;
 
   return (
     <>
-      <Money smallFractionFont={false} fiat>
+      <Money smallFractionFont={false} fiat tooltip={tooltip}>
         {amountInFiat}
       </Money>
       <span style={SYMBOL_STYLE}>{fiatSymbol}</span>
     </>
   );
-});
+};
 
-const InTez = memo<{ amountInDollar: string }>(({ amountInDollar }) => {
+const InTez: FC<TotalEquityContentProps> = ({ amountInDollar, tooltip }) => {
   const tezosToUsdRate = useTezUsdToTokenRateSelector();
 
-  const amountInTez = useMemo(
-    () =>
-      isTruthy(tezosToUsdRate)
-        ? new BigNumber(amountInDollar).dividedBy(tezosToUsdRate).decimalPlaces(TEZOS_METADATA.decimals)
-        : ZERO,
-    [amountInDollar, tezosToUsdRate]
-  );
+  const amountInTez = isTruthy(tezosToUsdRate)
+    ? new BigNumber(amountInDollar).dividedBy(tezosToUsdRate).decimalPlaces(TEZOS_METADATA.decimals)
+    : ZERO;
 
   return (
     <>
-      <Money smallFractionFont={false}>{amountInTez || ZERO}</Money>
+      <Money smallFractionFont={false} tooltip={tooltip}>
+        {amountInTez || ZERO}
+      </Money>
       <span style={SYMBOL_STYLE}>TEZ</span>
     </>
   );
-});
+};
 
-const InBtc = memo<{ amountInDollar: string }>(({ amountInDollar }) => {
+const InBtc: FC<TotalEquityContentProps> = ({ amountInDollar, tooltip }) => {
   const bitcoinToUsdRate = useBtcToUsdRateSelector();
 
-  const amountInBtc = useMemo(
-    () =>
-      isTruthy(bitcoinToUsdRate)
-        ? new BigNumber(amountInDollar).dividedBy(bitcoinToUsdRate).decimalPlaces(BTC_DECIMALS)
-        : ZERO,
-    [amountInDollar, bitcoinToUsdRate]
-  );
+  const amountInBtc = isTruthy(bitcoinToUsdRate)
+    ? new BigNumber(amountInDollar).dividedBy(bitcoinToUsdRate).decimalPlaces(BTC_DECIMALS)
+    : ZERO;
 
   return (
     <>
-      <Money smallFractionFont={false}>{amountInBtc || ZERO}</Money>
+      <Money smallFractionFont={false} tooltip={tooltip}>
+        {amountInBtc || ZERO}
+      </Money>
       <span style={SYMBOL_STYLE}>BTC</span>
     </>
   );
-});
+};
 
-const InEth = memo<{ amountInDollar: string }>(({ amountInDollar }) => {
+const InEth: FC<TotalEquityContentProps> = ({ amountInDollar, tooltip }) => {
   const ethUsdTokenRates = useEthUsdToTokenRateSelector();
 
-  const amountInEth = useMemo(
-    () =>
-      isTruthy(ethUsdTokenRates)
-        ? new BigNumber(amountInDollar).dividedBy(ethUsdTokenRates).decimalPlaces(ETH_DECIMALS)
-        : ZERO,
-    [amountInDollar, ethUsdTokenRates]
-  );
+  const amountInEth = isTruthy(ethUsdTokenRates)
+    ? new BigNumber(amountInDollar).dividedBy(ethUsdTokenRates).decimalPlaces(ETH_DECIMALS)
+    : ZERO;
 
   return (
     <>
-      <Money smallFractionFont={false}>{amountInEth || ZERO}</Money>
+      <Money smallFractionFont={false} tooltip={tooltip}>
+        {amountInEth || ZERO}
+      </Money>
       <span style={SYMBOL_STYLE}>ETH</span>
     </>
   );
-});
+};

@@ -4,15 +4,14 @@ import { range } from 'lodash';
 
 import { useEvmAccountTokensListingLogic } from 'app/hooks/listing-logic/use-evm-account-tokens-listing-logic';
 import { usePartnersPromotionModule } from 'app/templates/partners-promotion';
-import { EvmTokenListItem } from 'app/templates/TokenListItem';
+import { EvmTokenListItem } from 'app/templates/tokens/token-list-item';
 import { useAdsConstantsModule } from 'lib/ads-constants';
 import { parseChainAssetSlug } from 'lib/assets/utils';
-import { TokenListItemElement } from 'lib/ui/tokens-list';
+import { getGroupedTokensViewWithPromo, getTokensViewWithPromo, TokenListItemElement } from 'lib/ui/tokens-list';
 import { useAllEvmChains, useEthereumMainnetChain } from 'temple/front';
 import { ChainGroupedSlugs } from 'temple/front/chains';
 import { TempleChainKind } from 'temple/types';
 
-import { getGroupedTokensViewWithPromo, getTokensViewWithPromo } from '../../utils';
 import { TokensTabBase } from '../tokens-tab-base';
 
 import { EvmTokensTabContext } from './context';

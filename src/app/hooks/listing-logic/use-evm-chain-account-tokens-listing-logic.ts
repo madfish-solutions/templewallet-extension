@@ -1,22 +1,20 @@
-import { useCallback, useMemo } from 'react';
+import { useMemo } from 'react';
 
 import {
   useEvmChainBalancesLoadingSelector,
   useEvmTokensExchangeRatesLoading,
   useEvmTokensMetadataLoadingSelector
 } from 'app/store/evm/selectors';
-import { useEvmChainUsdToTokenRatesSelector } from 'app/store/evm/tokens-exchange-rates/selectors';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { useEvmChainAccountTokens } from 'lib/assets/hooks/tokens';
 import { searchEvmChainTokensWithNoMeta } from 'lib/assets/search.utils';
 import { useEvmChainTokensSortPredicate } from 'lib/assets/use-sorting';
-import { useGetEvmChainTokenBalanceWithDecimals } from 'lib/balances/hooks';
 import { useGetEvmChainTokenOrGasMetadata } from 'lib/metadata';
 import { useMemoWithCompare } from 'lib/ui/hooks';
 
 import { useSimpleAssetsPaginationLogic } from '../use-simple-assets-pagination-logic';
 
-import { useIsBigBalance } from './use-is-big-balance';
+import { useIsEvmChainBigBalance } from './use-is-big-balance';
 import { useCommonAssetsListingLogic } from './utils';
 
 export const useEvmChainAccountTokensForListing = (
@@ -24,14 +22,11 @@ export const useEvmChainAccountTokensForListing = (
   chainId: number,
   filterSmallBalances: boolean
 ) => {
-  const getBalance = useGetEvmChainTokenBalanceWithDecimals(publicKeyHash, chainId);
-  const usdToTokenRates = useEvmChainUsdToTokenRatesSelector(chainId);
   const tokensSortPredicate = useEvmChainTokensSortPredicate(publicKeyHash, chainId);
 
   const tokens = useEvmChainAccountTokens(publicKeyHash, chainId);
 
-  const getExchangeRate = useCallback((slug: string) => usdToTokenRates[slug], [usdToTokenRates]);
-  const isBigBalance = useIsBigBalance(getBalance, getExchangeRate);
+  const isBigBalance = useIsEvmChainBigBalance(publicKeyHash, chainId);
 
   const enabledSlugs = useMemo(() => {
     const gasTokensSlugs: string[] = [EVM_TOKEN_SLUG];

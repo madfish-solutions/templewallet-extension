@@ -11,17 +11,15 @@ import {
 import { useTokensManageState } from 'app/hooks/use-assets-view-state';
 import { useAreAssetsLoading, useMainnetTokensScamlistSelector } from 'app/store/tezos/assets/selectors';
 import { usePartnersPromotionModule } from 'app/templates/partners-promotion';
-import { TezosTokenListItem } from 'app/templates/TokenListItem';
+import { TezosTokenListItem } from 'app/templates/tokens/token-list-item';
 import { useAdsConstantsModule } from 'lib/ads-constants';
 import { toTezEnabledCollectiblesChainSlugs, useTezosChainAccountCollectibles } from 'lib/assets/hooks/collectibles';
 import { useTezosChainCollectiblesSortPredicate } from 'lib/assets/use-sorting';
 import { useTezosCollectiblesMetadataPresenceCheck } from 'lib/metadata';
 import { useMemoWithCompare } from 'lib/ui/hooks';
-import { TokenListItemElement } from 'lib/ui/tokens-list';
+import { getTokensViewWithPromo, makeFallbackChain, TokenListItemElement } from 'lib/ui/tokens-list';
 import { TezosChain, useTezosChainByChainId } from 'temple/front';
 import { TEZOS_DEFAULT_NETWORKS } from 'temple/networks';
-
-import { getTokensViewWithPromo, makeFallbackChain } from '../utils';
 
 import { TokensTabBase, TokensTabBaseProps } from './tokens-tab-base';
 

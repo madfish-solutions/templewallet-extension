@@ -1,13 +1,16 @@
-import { RefObject } from 'react';
+import { Fragment, ReactNode, Ref, RefObject } from 'react';
 
+import clsx from 'clsx';
 import { clamp } from 'lodash';
 
-import { ChainGroupedSlugs } from 'temple/front/chains';
+import { AccountToken } from 'lib/assets/hooks/tokens';
+import { toChainAssetSlug } from 'lib/assets/utils';
+import { ChainGroupedSlugs, EvmChain, TezosChain } from 'temple/front/chains';
+import { DEFAULT_EVM_CURRENCY, StoredEvmNetwork, StoredTezosNetwork } from 'temple/networks';
 import { TempleChainKind } from 'temple/types';
 
 export type TokenListItemElement = HTMLDivElement | HTMLAnchorElement;
 
-// TODO: Use the functions below for dedicated tokens page
 export const makeGetTokenElementIndexFunction =
   (
     promoRef: RefObject<HTMLDivElement | null> | null,
@@ -23,7 +26,7 @@ export const makeGetTokenElementIndexFunction =
     const tokenElementHeight = firstListItemRef.current?.clientHeight ?? 56;
     const indexWithoutPromo = clamp(Math.floor(yAfterOffset / tokenElementHeight), 0, slugsCount - 1);
 
-    if (!promoElement || slugsCount < 5 || indexWithoutPromo < 1) {
+    if (!promoElement || indexWithoutPromo < 1) {
       return [indexWithoutPromo];
     }
 
@@ -36,7 +39,6 @@ export const makeGetTokenElementIndexFunction =
     return [1 + Math.floor((yAfterOffset - contentPromoAndAboveHeight) / tokenElementHeight)];
   };
 
-// ts-prune-ignore-next
 export const makeGroupedTokenElementIndexFunction =
   <T extends TempleChainKind>(
     promoRef: RefObject<HTMLDivElement | null>,
@@ -72,7 +74,7 @@ export const makeGroupedTokenElementIndexFunction =
       yLeft -= headerWithMarginsHeight;
       const indexWithoutPromo = clamp(Math.floor(yLeft / tokenElementHeight), 0, groupSlugsCount - 1);
 
-      if (!promoElement || groupSlugsCount < 5 || indexWithoutPromo < 1) {
+      if (!promoElement || indexWithoutPromo < 1) {
         return [indexWithoutPromo + slugsInPreviousGroupsCount];
       }
 
@@ -87,3 +89,87 @@ export const makeGroupedTokenElementIndexFunction =
 
     return [slugsInPreviousGroupsCount - 1];
   };
+
+export const getTokensViewWithPromo = (tokensJsx: ReactNode[], promoJsx: ReactNode, slugsCount = tokensJsx.length) => {
+  if (!promoJsx) return tokensJsx;
+
+  if (slugsCount <= 1) {
+    tokensJsx.push(promoJsx);
+  } else {
+    tokensJsx.splice(1, 0, promoJsx);
+  }
+
+  return tokensJsx;
+};
+
+interface GroupedTokensViewWithPromoRenderProps {
+  groupedSlugs: ChainGroupedSlugs;
+  evmChains?: StringRecord<EvmChain>;
+  tezosChains?: StringRecord<TezosChain>;
+  promoJsx: ReactNode;
+  firstListItemRef: Ref<TokenListItemElement>;
+  firstHeaderRef: Ref<HTMLDivElement>;
+  buildTokensJsxArray: (
+    slugs: string[],
+    firstListItemRef: Ref<TokenListItemElement>,
+    indexShift: number
+  ) => ReactNode[];
+}
+
+export const getGroupedTokensViewWithPromo = ({
+  groupedSlugs,
+  evmChains = {},
+  tezosChains = {},
+  promoJsx,
+  firstListItemRef,
+  firstHeaderRef,
+  buildTokensJsxArray
+}: GroupedTokensViewWithPromoRenderProps) => {
+  let indexShift = 0;
+
+  return groupedSlugs.map(([chainId, chainSlugs], gi) => {
+    const tokensJsx = buildTokensJsxArray(chainSlugs, gi === 0 ? firstListItemRef : null, indexShift);
+    indexShift += tokensJsx.length;
+    const chains = typeof chainId === 'number' ? evmChains : tezosChains;
+
+    return (
+      <Fragment key={chainId}>
+        <div
+          className={clsx('mb-0.5 p-1 text-font-description-bold', gi > 0 && 'mt-4')}
+          ref={gi === 0 ? firstHeaderRef : null}
+        >
+          {chains[chainId]?.name ?? 'Unknown chain'}
+        </div>
+
+        {gi > 0 ? tokensJsx : getTokensViewWithPromo(tokensJsx, promoJsx)}
+      </Fragment>
+    );
+  });
+};
+
+export function makeFallbackChain(network: StoredTezosNetwork): TezosChain;
+export function makeFallbackChain(network: StoredEvmNetwork): EvmChain;
+export function makeFallbackChain(network: StoredEvmNetwork | StoredTezosNetwork): EvmChain | TezosChain {
+  const { name, rpcBaseURL } = network;
+  const commonProps = {
+    name,
+    rpcBaseURL,
+    allBlockExplorers: [],
+    default: true
+  };
+
+  if (network.chain === TempleChainKind.EVM) {
+    const { chain, chainId } = network;
+
+    return { ...commonProps, rpc: network, allRpcs: [network], kind: chain, chainId, currency: DEFAULT_EVM_CURRENCY };
+  }
+
+  const { chain, chainId } = network;
+
+  return { ...commonProps, rpc: network, allRpcs: [network], kind: chain, chainId };
+}
+
+export const toNotRemovedChainTokensSlugs = (tokens: AccountToken[], chainKind: TempleChainKind) =>
+  tokens
+    .filter(({ status }) => status !== 'removed')
+    .map(({ chainId, slug }) => toChainAssetSlug(chainKind, chainId, slug));

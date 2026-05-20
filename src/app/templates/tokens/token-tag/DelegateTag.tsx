@@ -9,7 +9,7 @@ import { useDelegate } from 'lib/temple/front';
 import { navigate } from 'lib/woozie';
 import { TezosNetworkEssentials } from 'temple/networks';
 
-import { AssetsSelectors } from '../../../Assets.selectors';
+import { AssetsSelectors } from '../assets.selectors';
 
 interface Props {
   network: TezosNetworkEssentials;

@@ -1,4 +1,4 @@
-import { FC, memo, Ref } from 'react';
+import { FC, Ref } from 'react';
 
 import clsx from 'clsx';
 
@@ -35,7 +35,6 @@ const MANAGE_ACTIVE_ITEM_CLASSNAME = clsx(
   'transition ease-in-out duration-200 focus:outline-hidden'
 );
 
-// Failed to find another way to make React Compiler process ManageCollectibleListItemLayoutHOC
 const ManageCollectibleListItemLayoutHOC = <
   T extends TempleChainKind,
   P extends ManageCollectibleListItemLayoutProps<T> = ManageCollectibleListItemLayoutProps<T>
@@ -52,8 +51,8 @@ const ManageCollectibleListItemLayoutHOC = <
   ) => void,
   deleteItem: (assetSlug: string, chainId: ChainId<T>, publicKeyHash: PublicKeyHash<T>) => void,
   useNetwork: (chainId: ChainId<T>) => ChainOfKind<T> | nullish
-) =>
-  memo<P>(props => {
+) => {
+  function ManageCollectibleListItemLayout(props: P) {
     const {
       wrapperElemRef,
       chainId,
@@ -160,7 +159,10 @@ const ManageCollectibleListItemLayoutHOC = <
         {deleteModalOpened && <DeleteAssetModal onClose={setDeleteModalClosed} onDelete={handleDeleteClick} />}
       </>
     );
-  });
+  }
+
+  return ManageCollectibleListItemLayout;
+};
 
 export const ManageTezosListItemLayout = ManageCollectibleListItemLayoutHOC<
   TempleChainKind.Tezos,

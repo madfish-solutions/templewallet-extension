@@ -2411,7 +2411,7 @@
   "viewAsCollections": {
     "message": "View as collections"
   },
-  "nftsLoaderText": {
+  "assetsLoaderText": {
     "message": "Assets are loading..."
   },
   "startYourCollectionToday": {
@@ -3976,6 +3976,12 @@
   },
   "depositTokensToGetStarted": {
     "message": "Deposit tokens to get started!"
+  },
+  "makeTheFirstDepositToGetStarted": {
+    "message": "Make the first deposit to get started!"
+  },
+  "whitelistedTokens": {
+    "message": "Whitelisted tokens"
   },
   "buyWithFiat": {
     "message": "Buy with Fiat"

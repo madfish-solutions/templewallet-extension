@@ -16,10 +16,9 @@ import { useTezosAccountCollectiblesSortPredicate } from 'lib/assets/use-sorting
 import { parseChainAssetSlug } from 'lib/assets/utils';
 import { useTezosCollectiblesMetadataPresenceCheck } from 'lib/metadata';
 import { useMemoWithCompare } from 'lib/ui/hooks';
+import { toNotRemovedChainTokensSlugs } from 'lib/ui/tokens-list';
 import { groupByToEntries } from 'lib/utils/group-by-to-entries';
 import { TempleChainKind } from 'temple/types';
-
-import { toNotRemovedChainTokensSlugs } from '../../utils';
 
 import { TabContentBase } from './content-base';
 import { TezosTokensTabContext } from './context';
@@ -60,7 +59,6 @@ const TabContent: FC = () => {
   const { publicKeyHash } = useContext(TezosTokensTabContext);
   const groupByNetwork = useGroupByNetworkBehaviorSelector();
   const { hideSmallBalance } = useTokensListOptionsSelector();
-
   const { enabledChainSlugsSorted, enabledChainSlugsSortedGrouped, shouldShowHiddenTokensHint } =
     useTezosAccountTokensForListing(publicKeyHash, hideSmallBalance, groupByNetwork);
 

@@ -36,10 +36,10 @@ import { useFavoriteTokens } from 'temple/front/use-favorite-tokens';
 import { EvmNetworkEssentials, NetworkEssentials, TezosNetworkEssentials } from 'temple/networks';
 import { TempleChainKind } from 'temple/types';
 
-import { AssetsSelectors } from '../pages/Home/OtherComponents/Assets.selectors';
-import { CryptoBalance, FiatBalance } from '../pages/Home/OtherComponents/Tokens/components/Balance';
-import { TokenTag } from '../pages/Home/OtherComponents/Tokens/components/TokenTag';
-import { EvmIncentiveTag } from '../pages/Home/OtherComponents/Tokens/components/TokenTag/EvmIncentiveTag';
+import { AssetsSelectors } from './assets.selectors';
+import { CryptoBalance, FiatBalance } from './balance';
+import { TokenTag } from './token-tag';
+import { EvmIncentiveTag } from './token-tag/EvmIncentiveTag';
 
 const LIST_ITEM_CLASSNAME = clsx(
   'flex items-center gap-x-1 p-2 rounded-lg',

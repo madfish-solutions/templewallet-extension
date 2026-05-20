@@ -1,8 +1,4 @@
-import { useCallback, useMemo } from 'react';
-
-import { useTezosUsdToTokenRatesSelector } from 'app/store/currency/selectors';
 import { useEvmTokensExchangeRatesLoading, useEvmTokensMetadataLoadingSelector } from 'app/store/evm/selectors';
-import { useEvmUsdToTokenRatesSelector } from 'app/store/evm/tokens-exchange-rates/selectors';
 import { useAreAssetsLoading } from 'app/store/tezos/assets/selectors';
 import { useTokensMetadataLoadingSelector } from 'app/store/tezos/tokens-metadata/selectors';
 import { EVM_TOKEN_SLUG, TEZ_TOKEN_SLUG } from 'lib/assets/defaults';
@@ -10,9 +6,9 @@ import { useEvmAccountTokens, useTezosAccountTokens } from 'lib/assets/hooks/tok
 import { searchAssetsWithNoMeta } from 'lib/assets/search.utils';
 import { useAccountTokensSortPredicate } from 'lib/assets/use-sorting';
 import { parseChainAssetSlug, toChainAssetSlug } from 'lib/assets/utils';
-import { useGetEvmTokenBalanceWithDecimals, useGetTezosAccountTokenOrGasBalanceWithDecimals } from 'lib/balances/hooks';
 import { useGetEvmGasOrTokenMetadata, useGetTokenOrGasMetadata } from 'lib/metadata';
 import { useMemoWithCompare } from 'lib/ui/hooks';
+import { EMPTY_FROZEN_ARRAY } from 'lib/utils';
 import { groupByToEntries } from 'lib/utils/group-by-to-entries';
 import { useEnabledEvmChains, useEnabledTezosChains } from 'temple/front';
 import { ChainGroupedSlugs } from 'temple/front/chains';
@@ -22,7 +18,9 @@ import { useGroupedAssetsPaginationLogic } from '../use-group-assets-pagination-
 import { useSimpleAssetsPaginationLogic } from '../use-simple-assets-pagination-logic';
 
 import { useEvmBalancesAreLoading } from './use-evm-balances-loading-state';
-import { useIsBigBalance } from './use-is-big-balance';
+import { useIsMultichainBigBalance } from './use-is-big-balance';
+import { useNetworksForChainSlugs } from './use-networks-for-chain-slugs';
+import { useSelectedChainsTokensSlugs } from './use-selected-chains-tokens-slugs';
 import { getSlugFromChainSlug, useCommonAssetsListingLogic } from './utils';
 
 export const useAccountTokensForListing = (
@@ -39,58 +37,23 @@ export const useAccountTokensForListing = (
 
   const tokensSortPredicate = useAccountTokensSortPredicate(accountTezAddress, accountEvmAddress);
 
-  const getTezBalance = useGetTezosAccountTokenOrGasBalanceWithDecimals(accountTezAddress);
-  const mainnetTezUsdToTokenRates = useTezosUsdToTokenRatesSelector();
-  const getEvmBalance = useGetEvmTokenBalanceWithDecimals(accountEvmAddress);
-  const evmUsdToTokenRates = useEvmUsdToTokenRatesSelector();
+  const isBigBalance = useIsMultichainBigBalance(accountTezAddress, accountEvmAddress);
 
-  const getBalance = useCallback(
-    (chainSlug: string) => {
-      const [chainKind, chainId, slug] = parseChainAssetSlug(chainSlug);
+  const enabledChainsSlugs = enabledTezChains
+    .map(chain => toChainAssetSlug(TempleChainKind.Tezos, chain.chainId, TEZ_TOKEN_SLUG))
+    .concat(enabledEvmChains.map(chain => toChainAssetSlug(TempleChainKind.EVM, chain.chainId, EVM_TOKEN_SLUG)));
 
-      return chainKind === TempleChainKind.Tezos
-        ? getTezBalance(chainId as string, slug)
-        : getEvmBalance(chainId as number, slug);
-    },
-    [getEvmBalance, getTezBalance]
-  );
-  const getExchangeRate = useCallback(
-    (chainSlug: string) => {
-      const [chainKind, chainId, slug] = parseChainAssetSlug(chainSlug);
-
-      return chainKind === TempleChainKind.Tezos
-        ? mainnetTezUsdToTokenRates[slug]
-        : evmUsdToTokenRates[chainId as number]?.[slug];
-    },
-    [evmUsdToTokenRates, mainnetTezUsdToTokenRates]
-  );
-  const isBigBalance = useIsBigBalance(getBalance, getExchangeRate);
-
-  const gasChainsSlugs = useMemo(
-    () => [
-      ...enabledTezChains.map(chain => toChainAssetSlug(TempleChainKind.Tezos, chain.chainId, TEZ_TOKEN_SLUG)),
-      ...enabledEvmChains.map(chain => toChainAssetSlug(TempleChainKind.EVM, chain.chainId, EVM_TOKEN_SLUG))
-    ],
-    [enabledEvmChains, enabledTezChains]
-  );
-
-  const enabledChainsSlugs = useMemo(() => {
-    const result = [...gasChainsSlugs];
-
-    for (const { chainId, slug, status } of tezTokens) {
-      if (status === 'enabled') {
-        result.push(toChainAssetSlug(TempleChainKind.Tezos, chainId, slug));
-      }
+  for (const { chainId, slug, status } of tezTokens) {
+    if (status === 'enabled') {
+      enabledChainsSlugs.push(toChainAssetSlug(TempleChainKind.Tezos, chainId, slug));
     }
+  }
 
-    for (const { chainId, slug, status } of evmTokens) {
-      if (status === 'enabled') {
-        result.push(toChainAssetSlug(TempleChainKind.EVM, chainId, slug));
-      }
+  for (const { chainId, slug, status } of evmTokens) {
+    if (status === 'enabled') {
+      enabledChainsSlugs.push(toChainAssetSlug(TempleChainKind.EVM, chainId, slug));
     }
-
-    return result;
-  }, [evmTokens, gasChainsSlugs, tezTokens]);
+  }
 
   const enabledChainsSlugsSorted = useMemoWithCompare(() => {
     const enabledChainsSlugsFiltered = filterSmallBalances
@@ -117,17 +80,20 @@ export const useAccountTokensForListing = (
   };
 };
 
-const fallbackAllSlugsSortedGrouped: never[] = [];
-
 export const useAccountTokensListingLogic = (
   allSlugsSorted: string[],
   allSlugsSortedGrouped: ChainGroupedSlugs | null
 ) => {
-  const { slugs: paginatedSlugs, loadNext: loadNextPlain } = useSimpleAssetsPaginationLogic(allSlugsSorted);
-  const { slugsGroups: paginatedSlugsGroupsWithFallback, loadNext: loadNextGrouped } = useGroupedAssetsPaginationLogic(
-    allSlugsSortedGrouped ?? fallbackAllSlugsSortedGrouped
+  const { selectedChainsSlugsSorted, selectedChainsSlugsSortedGrouped } = useSelectedChainsTokensSlugs(
+    allSlugsSorted,
+    allSlugsSortedGrouped
   );
-  const paginatedSlugsGroups = allSlugsSortedGrouped ? paginatedSlugsGroupsWithFallback : null;
+  const applicableNetworks = useNetworksForChainSlugs(allSlugsSorted);
+  const { slugs: paginatedSlugs, loadNext: loadNextPlain } = useSimpleAssetsPaginationLogic(selectedChainsSlugsSorted);
+  const { slugsGroups: paginatedSlugsGroupsWithFallback, loadNext: loadNextGrouped } = useGroupedAssetsPaginationLogic(
+    selectedChainsSlugsSortedGrouped ?? EMPTY_FROZEN_ARRAY
+  );
+  const paginatedSlugsGroups = selectedChainsSlugsSortedGrouped ? paginatedSlugsGroupsWithFallback : null;
 
   const tezAssetsAreLoading = useAreAssetsLoading('tokens');
   const tezMetadatasLoading = useTokensMetadataLoadingSelector();
@@ -143,27 +109,25 @@ export const useAccountTokensListingLogic = (
   const getTezMetadata = useGetTokenOrGasMetadata();
   const getEvmMetadata = useGetEvmGasOrTokenMetadata();
 
-  const displayedSlugs = useMemo(
-    () =>
-      isInSearchMode
-        ? searchAssetsWithNoMeta(
-            searchValueDebounced,
-            allSlugsSorted,
-            getTezMetadata,
-            getEvmMetadata,
-            slug => slug,
-            getSlugFromChainSlug
-          )
-        : paginatedSlugs,
-    [isInSearchMode, searchValueDebounced, allSlugsSorted, getTezMetadata, getEvmMetadata, paginatedSlugs]
-  );
-  const displayedGroupedSlugs = useMemo(() => {
-    if (!isInSearchMode) return paginatedSlugsGroups;
-    if (!allSlugsSortedGrouped) return null;
+  const displayedSlugs = isInSearchMode
+    ? searchAssetsWithNoMeta(
+        searchValueDebounced,
+        selectedChainsSlugsSorted,
+        getTezMetadata,
+        getEvmMetadata,
+        slug => slug,
+        getSlugFromChainSlug
+      )
+    : paginatedSlugs;
+  let displayedGroupedSlugs: ChainGroupedSlugs | null;
+  if (!isInSearchMode) {
+    displayedGroupedSlugs = paginatedSlugsGroups;
+  } else if (!selectedChainsSlugsSortedGrouped) {
+    displayedGroupedSlugs = null;
+  } else {
+    displayedGroupedSlugs = [];
 
-    const result: [string | number, string[]][] = [];
-
-    for (const [chainId, slugs] of allSlugsSortedGrouped) {
+    for (const [chainId, slugs] of selectedChainsSlugsSortedGrouped) {
       const filteredSlugs = searchAssetsWithNoMeta(
         searchValueDebounced,
         slugs,
@@ -174,21 +138,13 @@ export const useAccountTokensListingLogic = (
       );
 
       if (filteredSlugs.length > 0) {
-        result.push([chainId, filteredSlugs]);
+        displayedGroupedSlugs.push([chainId, filteredSlugs]);
       }
     }
-
-    return result;
-  }, [
-    allSlugsSortedGrouped,
-    getEvmMetadata,
-    getTezMetadata,
-    isInSearchMode,
-    paginatedSlugsGroups,
-    searchValueDebounced
-  ]);
+  }
 
   return {
+    applicableNetworks,
     isInSearchMode,
     displayedSlugs,
     displayedGroupedSlugs,

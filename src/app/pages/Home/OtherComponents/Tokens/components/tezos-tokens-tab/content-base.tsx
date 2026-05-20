@@ -5,15 +5,14 @@ import { range } from 'lodash';
 import { useTezosAccountTokensListingLogic } from 'app/hooks/listing-logic/use-tezos-account-tokens-listing-logic';
 import { useMainnetTokensScamlistSelector } from 'app/store/tezos/assets/selectors';
 import { usePartnersPromotionModule } from 'app/templates/partners-promotion';
-import { TezosTokenListItem } from 'app/templates/TokenListItem';
+import { TezosTokenListItem } from 'app/templates/tokens/token-list-item';
 import { useAdsConstantsModule } from 'lib/ads-constants';
 import { parseChainAssetSlug } from 'lib/assets/utils';
-import { TokenListItemElement } from 'lib/ui/tokens-list';
+import { getGroupedTokensViewWithPromo, getTokensViewWithPromo, TokenListItemElement } from 'lib/ui/tokens-list';
 import { useAllTezosChains, useTezosMainnetChain } from 'temple/front';
 import { ChainGroupedSlugs } from 'temple/front/chains';
 import { TempleChainKind } from 'temple/types';
 
-import { getGroupedTokensViewWithPromo, getTokensViewWithPromo } from '../../utils';
 import { TokensTabBase } from '../tokens-tab-base';
 
 import { TezosTokensTabContext } from './context';

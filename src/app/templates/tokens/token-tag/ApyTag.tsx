@@ -7,7 +7,7 @@ import { useTokenApyRateSelector } from 'app/store/d-apps';
 import { KNOWN_TOKENS_SLUGS } from 'lib/assets/known-tokens';
 import { openLink } from 'lib/utils';
 
-import { AssetsSelectors } from '../../../Assets.selectors';
+import { AssetsSelectors } from '../assets.selectors';
 
 interface Props {
   slug: string;

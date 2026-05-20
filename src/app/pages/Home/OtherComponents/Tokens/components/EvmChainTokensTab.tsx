@@ -14,16 +14,14 @@ import { useEvmCollectiblesMetadataLoading } from 'app/hooks/use-evm-collectible
 import { useTokensListOptionsSelector } from 'app/store/assets-filter-options/selectors';
 import { useEvmCollectiblesMetadataLoadingSelector } from 'app/store/evm/selectors';
 import { usePartnersPromotionModule } from 'app/templates/partners-promotion';
-import { EvmTokenListItem } from 'app/templates/TokenListItem';
+import { EvmTokenListItem } from 'app/templates/tokens/token-list-item';
 import { useAdsConstantsModule } from 'lib/ads-constants';
 import { useEvmChainAccountCollectibles } from 'lib/assets/hooks/collectibles';
 import { useEvmChainCollectiblesSortPredicate } from 'lib/assets/use-sorting';
 import { useMemoWithCompare } from 'lib/ui/hooks';
-import { TokenListItemElement } from 'lib/ui/tokens-list';
+import { getTokensViewWithPromo, makeFallbackChain, TokenListItemElement } from 'lib/ui/tokens-list';
 import { EvmChain, useEvmChainByChainId } from 'temple/front/chains';
 import { EVM_DEFAULT_NETWORKS } from 'temple/networks';
-
-import { getTokensViewWithPromo, makeFallbackChain } from '../utils';
 
 import { TokensTabBase, TokensTabBaseProps } from './tokens-tab-base';
 

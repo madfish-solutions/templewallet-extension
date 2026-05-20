@@ -4,6 +4,7 @@ import { AccountToken } from 'lib/assets/hooks/tokens';
 import { parseChainAssetSlug, toChainAssetSlug } from 'lib/assets/utils';
 import { AssetMetadataBase, EvmNativeTokenMetadata, EvmTokenMetadata } from 'lib/metadata/types';
 import { useMemoWithCompare } from 'lib/ui/hooks';
+import { EMPTY_FROZEN_ARRAY } from 'lib/utils';
 import { groupByToEntries } from 'lib/utils/group-by-to-entries';
 import { ChainGroupedSlugs, ChainId, ChainOfKind, PublicKeyHash } from 'temple/front/chains';
 import { TempleChainKind } from 'temple/types';
@@ -11,6 +12,8 @@ import { TempleChainKind } from 'temple/types';
 import { useGroupedAssetsPaginationLogic } from '../use-group-assets-pagination-logic';
 import { useSimpleAssetsPaginationLogic } from '../use-simple-assets-pagination-logic';
 
+import { useNetworksForChainSlugs } from './use-networks-for-chain-slugs';
+import { useSelectedChainsTokensSlugs } from './use-selected-chains-tokens-slugs';
 import { getSlugWithChainId, useCommonAssetsListingLogic } from './utils';
 
 type GetMetadata<T extends TempleChainKind> = (
@@ -102,8 +105,6 @@ export const makeUseChainKindAccountTokensForListing = <T extends TempleChainKin
   return useChainKindAccountTokensForListing;
 };
 
-const fallbackAllSlugsSortedGrouped: never[] = [];
-
 export const makeUseChainKindAccountTokensListingLogic = <T extends TempleChainKind>({
   useBalancesAreLoading,
   useIsMetadataLoading,
@@ -115,10 +116,17 @@ export const makeUseChainKindAccountTokensListingLogic = <T extends TempleChainK
     allSlugsSorted: string[],
     allSlugsSortedGrouped: ChainGroupedSlugs<T> | null
   ) => {
-    const { slugs: paginatedSlugs, loadNext: loadNextPlain } = useSimpleAssetsPaginationLogic(allSlugsSorted);
+    const { selectedChainsSlugsSorted, selectedChainsSlugsSortedGrouped } = useSelectedChainsTokensSlugs(
+      allSlugsSorted,
+      allSlugsSortedGrouped
+    );
+    const applicableNetworks = useNetworksForChainSlugs(allSlugsSorted);
+
+    const { slugs: paginatedSlugs, loadNext: loadNextPlain } =
+      useSimpleAssetsPaginationLogic(selectedChainsSlugsSorted);
     const { slugsGroups: paginatedSlugsGroupsWithFallback, loadNext: loadNextGrouped } =
-      useGroupedAssetsPaginationLogic(allSlugsSortedGrouped ?? fallbackAllSlugsSortedGrouped);
-    const paginatedSlugsGroups = allSlugsSortedGrouped ? paginatedSlugsGroupsWithFallback : null;
+      useGroupedAssetsPaginationLogic(selectedChainsSlugsSortedGrouped ?? EMPTY_FROZEN_ARRAY);
+    const paginatedSlugsGroups = selectedChainsSlugsSortedGrouped ? paginatedSlugsGroupsWithFallback : null;
 
     const balancesLoading = useBalancesAreLoading();
     const isMetadataLoading = useIsMetadataLoading();
@@ -132,17 +140,17 @@ export const makeUseChainKindAccountTokensListingLogic = <T extends TempleChainK
     const displayedSlugs = useMemo(
       () =>
         isInSearchMode
-          ? searchTokensWithNoMeta(searchValueDebounced, allSlugsSorted, getMetadata, getSlugWithChainId)
+          ? searchTokensWithNoMeta(searchValueDebounced, selectedChainsSlugsSorted, getMetadata, getSlugWithChainId)
           : paginatedSlugs,
-      [isInSearchMode, paginatedSlugs, allSlugsSorted, searchValueDebounced, getMetadata]
+      [isInSearchMode, paginatedSlugs, selectedChainsSlugsSorted, searchValueDebounced, getMetadata]
     );
     const displayedGroupedSlugs = useMemo(() => {
       if (!isInSearchMode) return paginatedSlugsGroups;
-      if (!allSlugsSortedGrouped) return null;
+      if (!selectedChainsSlugsSortedGrouped) return null;
 
       const result: [ChainId<T>, string[]][] = [];
 
-      for (const [chainId, slugs] of allSlugsSortedGrouped) {
+      for (const [chainId, slugs] of selectedChainsSlugsSortedGrouped) {
         const filteredSlugs = searchTokensWithNoMeta(searchValueDebounced, slugs, getMetadata, getSlugWithChainId);
 
         if (filteredSlugs.length > 0) {
@@ -151,9 +159,10 @@ export const makeUseChainKindAccountTokensListingLogic = <T extends TempleChainK
       }
 
       return result;
-    }, [allSlugsSortedGrouped, getMetadata, isInSearchMode, paginatedSlugsGroups, searchValueDebounced]);
+    }, [selectedChainsSlugsSortedGrouped, getMetadata, isInSearchMode, paginatedSlugsGroups, searchValueDebounced]);
 
     return {
+      applicableNetworks,
       isInSearchMode,
       displayedSlugs,
       displayedGroupedSlugs,

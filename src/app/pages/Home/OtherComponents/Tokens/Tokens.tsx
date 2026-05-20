@@ -32,7 +32,7 @@ export const TokensTab = () => {
       dispatch(setAssetsFilterChain(null));
       setLocalFilterChain(null);
     }
-  }, [filterChain, accountTezAddress, accountEvmAddress]);
+  }, [isTezosFilter, isEvmFilter, isOnlyEvmAccount, isOnlyTezAccount]);
 
   useEffect(() => {
     if (filterChain?.chainId !== localFilterChain?.chainId) setLocalFilterChain(filterChain);

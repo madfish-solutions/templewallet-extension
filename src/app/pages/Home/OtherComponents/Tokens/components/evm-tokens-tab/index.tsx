@@ -17,10 +17,9 @@ import { useEvmAccountCollectibles } from 'lib/assets/hooks/collectibles';
 import { useEvmAccountCollectiblesSortPredicate } from 'lib/assets/use-sorting';
 import { parseChainAssetSlug } from 'lib/assets/utils';
 import { useMemoWithCompare } from 'lib/ui/hooks';
+import { toNotRemovedChainTokensSlugs } from 'lib/ui/tokens-list';
 import { groupByToEntries } from 'lib/utils/group-by-to-entries';
 import { TempleChainKind } from 'temple/types';
-
-import { toNotRemovedChainTokensSlugs } from '../../utils';
 
 import { TabContentBase } from './content-base';
 import { EvmTokensTabContext } from './context';

@@ -1,4 +1,4 @@
-import { FC, memo, Ref } from 'react';
+import { FC, Ref } from 'react';
 
 import clsx from 'clsx';
 
@@ -25,7 +25,6 @@ interface DefaultCollectibleListItemLayoutProps<T extends TempleChainKind> exten
   metadatasLoading: boolean;
 }
 
-// Failed to find another way to make React Compiler process DefaultCollectibleListItemLayoutHOC
 const DefaultCollectibleListItemLayoutHOC = <
   T extends TempleChainKind,
   P extends DefaultCollectibleListItemLayoutProps<T> = DefaultCollectibleListItemLayoutProps<T>
@@ -37,8 +36,8 @@ const DefaultCollectibleListItemLayoutHOC = <
   >,
   useNetwork: (chainId: ChainId<T>) => ChainOfKind<T> | nullish,
   className?: string
-) =>
-  memo<P>(props => {
+) => {
+  function DefaultCollectibleListItemLayout(props: P) {
     const {
       wrapperElemRef,
       assetSlug,
@@ -125,7 +124,10 @@ const DefaultCollectibleListItemLayoutHOC = <
         )}
       </Link>
     );
-  });
+  }
+
+  return DefaultCollectibleListItemLayout;
+};
 
 export const DefaultTezosListItemLayout = DefaultCollectibleListItemLayoutHOC<
   TempleChainKind.Tezos,

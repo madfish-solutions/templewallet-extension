@@ -4,15 +4,14 @@ import { range } from 'lodash';
 
 import { useMainnetTokensScamlistSelector } from 'app/store/tezos/assets/selectors';
 import { usePartnersPromotionModule } from 'app/templates/partners-promotion';
-import { EvmTokenListItem, TezosTokenListItem } from 'app/templates/TokenListItem';
+import { EvmTokenListItem, TezosTokenListItem } from 'app/templates/tokens/token-list-item';
 import { useAdsConstantsModule } from 'lib/ads-constants';
 import { parseChainAssetSlug } from 'lib/assets/utils';
-import { TokenListItemElement } from 'lib/ui/tokens-list';
+import { getGroupedTokensViewWithPromo, getTokensViewWithPromo, TokenListItemElement } from 'lib/ui/tokens-list';
 import { EvmChain, TezosChain } from 'temple/front';
 import { ChainGroupedSlugs } from 'temple/front/chains';
 import { TempleChainKind } from 'temple/types';
 
-import { getGroupedTokensViewWithPromo, getTokensViewWithPromo } from '../../utils';
 import { TokensTabBase, TokensTabBaseProps } from '../tokens-tab-base';
 
 import { MultiChainTokensTabContext } from './context';
