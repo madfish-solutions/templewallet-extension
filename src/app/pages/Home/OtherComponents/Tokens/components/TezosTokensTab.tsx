@@ -1,4 +1,4 @@
-import { Activity, createContext, FC, Ref, useContext, useMemo, useRef } from 'react';
+import { Activity, createContext, FC, useContext, useMemo, useRef } from 'react';
 
 import {
   usePreservedOrderSlugsGroupsToManage,
@@ -14,24 +14,24 @@ import {
   useTokensListOptionsSelector
 } from 'app/store/assets-filter-options/selectors';
 import { useMainnetTokensScamlistSelector } from 'app/store/tezos/assets/selectors';
-import { usePartnersPromotionModule } from 'app/templates/partners-promotion';
 import { TezosTokenListItem } from 'app/templates/TokenListItem';
-import { useAdsConstantsModule } from 'lib/ads-constants';
 import { parseChainAssetSlug, toChainAssetSlug } from 'lib/assets/utils';
 import { useMemoWithCompare } from 'lib/ui/hooks';
 import {
-  makeGetTokenElementIndexFunction,
-  makeGroupedTokenElementIndexFunction,
-  TokenListItemElement
+  getTokenElementIndex,
+  getGroupedTokenElementIndex,
+  TokenListItemElement,
+  useTokenWillBeRendered
 } from 'lib/ui/tokens-list';
 import { groupByToEntries } from 'lib/utils/group-by-to-entries';
 import { useAllTezosChains, useTezosMainnetChain } from 'temple/front';
 import { ChainGroupedSlugs } from 'temple/front/chains';
 import { TempleChainKind } from 'temple/types';
 
-import { getGroupedTokensViewWithPromo, getTokensViewWithPromo } from '../utils';
+import { useRenderPromo } from '../utils';
 
 import { TokensTabBase } from './tokens-tab-base';
+import { GroupedTokensViewWithPromo, TokenListItemFC, TokensViewWithPromo } from './tokens-views';
 
 interface Props {
   publicKeyHash: string;
@@ -140,70 +140,42 @@ const TabContentBase: FC<TabContentBaseProps> = ({
   const firstListItemRef = useRef<TokenListItemElement>(null);
   const { displayedSlugs, displayedGroupedSlugs, isSyncing, isInSearchMode, loadNextGrouped, loadNextPlain } =
     useTezosAccountTokensListingLogic(allSlugsSorted, allSlugsSortedGrouped);
-  const PartnersPromotionModule = usePartnersPromotionModule();
-  const AdsConstantsModule = useAdsConstantsModule();
 
   const mainnetChain = useTezosMainnetChain();
   const tezosChains = useAllTezosChains();
   const mainnetTokensScamSlugsRecord = useMainnetTokensScamlistSelector();
 
-  const { tokensView, getElementIndex } = useMemo(() => {
-    const promoJsx =
-      manageActive || !PartnersPromotionModule || !AdsConstantsModule ? null : (
-        <PartnersPromotionModule.PartnersPromotion
-          id="promo-token-item"
-          key="promo-token-item"
-          variant={PartnersPromotionModule.PartnersPromotionVariant.Text}
-          pageName={AdsConstantsModule.HOME_PAGE_NAME}
-          ref={promoRef}
-        />
-      );
+  const tokenWillBeRendered = useTokenWillBeRendered();
 
-    if (displayedGroupedSlugs) {
-      return {
-        tokensView: getGroupedTokensViewWithPromo({
-          groupedSlugs: displayedGroupedSlugs,
-          tezosChains,
-          promoJsx,
-          firstListItemRef,
-          firstHeaderRef,
-          buildTokensJsxArray
-        }),
-        getElementIndex: makeGroupedTokenElementIndexFunction(
-          promoRef,
-          firstListItemRef,
-          firstHeaderRef,
-          displayedGroupedSlugs
+  const TokenListItem: TokenListItemFC = ({ chainSlug, ref, index }) => {
+    const [_, chainId, assetSlug] = parseChainAssetSlug(chainSlug, TempleChainKind.Tezos);
+
+    return (
+      <TezosTokenListItem
+        network={tezosChains[chainId]}
+        index={index}
+        publicKeyHash={publicKeyHash}
+        assetSlug={assetSlug}
+        scam={mainnetTokensScamSlugsRecord[assetSlug]}
+        manageActive={manageActive}
+        ref={ref}
+      />
+    );
+  };
+
+  const getElementIndex = (y: number) =>
+    displayedGroupedSlugs
+      ? getGroupedTokenElementIndex(
+          promoRef.current,
+          firstListItemRef.current,
+          firstHeaderRef.current,
+          displayedGroupedSlugs,
+          tokenWillBeRendered,
+          y
         )
-      };
-    }
+      : getTokenElementIndex(promoRef.current, firstListItemRef.current, displayedSlugs, tokenWillBeRendered, y);
 
-    const tokensJsx = buildTokensJsxArray(displayedSlugs, firstListItemRef);
-
-    return {
-      tokensView: getTokensViewWithPromo(tokensJsx, promoJsx),
-      getElementIndex: makeGetTokenElementIndexFunction(promoRef, firstListItemRef, tokensJsx.length)
-    };
-
-    function buildTokensJsxArray(chainSlugs: string[], firstListItemRef: Ref<TokenListItemElement>, indexShift = 0) {
-      return chainSlugs.map((chainSlug, i) => {
-        const [_, chainId, assetSlug] = parseChainAssetSlug(chainSlug, TempleChainKind.Tezos);
-
-        return (
-          <TezosTokenListItem
-            network={tezosChains[chainId]}
-            index={i + indexShift}
-            key={chainSlug}
-            publicKeyHash={publicKeyHash}
-            assetSlug={assetSlug}
-            scam={mainnetTokensScamSlugsRecord[assetSlug]}
-            manageActive={manageActive}
-            ref={i === 0 ? firstListItemRef : null}
-          />
-        );
-      });
-    }
-  }, [displayedGroupedSlugs, displayedSlugs, tezosChains, publicKeyHash, mainnetTokensScamSlugsRecord, manageActive]);
+  const Promo = useRenderPromo(manageActive, promoRef);
 
   return (
     <TokensTabBase
@@ -217,7 +189,23 @@ const TabContentBase: FC<TabContentBaseProps> = ({
       network={mainnetChain}
       shouldShowHiddenTokensHint={shouldShowHiddenTokensHint}
     >
-      {tokensView}
+      {displayedGroupedSlugs ? (
+        <GroupedTokensViewWithPromo
+          groupedSlugs={displayedGroupedSlugs}
+          tezosChains={tezosChains}
+          Promo={Promo}
+          firstListItemRef={firstListItemRef}
+          firstHeaderRef={firstHeaderRef}
+          TokenListItem={TokenListItem}
+        />
+      ) : (
+        <TokensViewWithPromo
+          displayedSlugs={displayedSlugs}
+          Promo={Promo}
+          firstListItemRef={firstListItemRef}
+          TokenListItem={TokenListItem}
+        />
+      )}
     </TokensTabBase>
   );
 };

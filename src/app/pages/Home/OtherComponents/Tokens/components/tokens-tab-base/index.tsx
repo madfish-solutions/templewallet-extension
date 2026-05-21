@@ -38,10 +38,10 @@ export interface TokensTabBaseProps {
   shouldShowHiddenTokensHint?: boolean;
 }
 
-export const TokensTabBase: FC<PropsWithChildren<TokensTabBaseProps>> = ({ ...restProps }) => (
+export const TokensTabBase: FC<PropsWithChildren<TokensTabBaseProps>> = props => (
   <>
     <FadeTransition>
-      <TokensTabBaseContent {...restProps} />
+      <TokensTabBaseContent {...props} />
     </FadeTransition>
 
     <DAppConnection />
@@ -99,7 +99,7 @@ const TokensTabBaseContent: FC<PropsWithChildren<TokensTabBaseProps>> = ({
           {manageActive && (
             <AddCustomTokenButton manageActive={manageActive} className="mb-4" onClick={openCustomTokenModal} />
           )}
-          <VisibilityTrackingInfiniteScroll getElementsIndexes={getElementIndex} loadNext={loadNextPage}>
+          <VisibilityTrackingInfiniteScroll loadNext={loadNextPage} getElementsIndexes={getElementIndex}>
             {children}
           </VisibilityTrackingInfiniteScroll>
           {isSyncing && <SyncSpinner className="mt-4" />}
