@@ -51,7 +51,6 @@ export const NftsListView: FC<NftsListViewProps> = ({
       isEmpty={chainSlugs.length === 0}
       isSyncing={isSyncing}
       isInSearchMode={isInSearchMode}
-      manageActive={manageActive}
       openCustomTokenModal={openCustomTokenModal}
     >
       {isInSearchMode ? (

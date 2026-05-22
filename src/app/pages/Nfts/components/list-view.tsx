@@ -14,7 +14,6 @@ interface ListViewProps {
   noCollectiblesAtAll: boolean;
   isSyncing: boolean;
   isInSearchMode: boolean;
-  manageActive: boolean;
   collectiblesDetailsReady?: boolean;
   openCustomTokenModal: EmptyFn;
 }
@@ -25,7 +24,6 @@ export const ListView: FC<ListViewProps> = ({
   isEmpty,
   isSyncing,
   isInSearchMode,
-  manageActive,
   openCustomTokenModal,
   collectiblesDetailsReady = true
 }) => {
@@ -57,7 +55,8 @@ export const ListView: FC<ListViewProps> = ({
     content = (
       <AssetsEmptySection
         forCollectibles
-        manageActive={manageActive}
+        // Intentionally forcing the same look for both variants
+        manageActive={false}
         forSearch={isInSearchMode && !noCollectiblesAtAll}
         onAddCustomTokenClick={openCustomTokenModal}
         stretchSpaceBeforeButton={false}
