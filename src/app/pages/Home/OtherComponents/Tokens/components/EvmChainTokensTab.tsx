@@ -9,12 +9,10 @@ import { usePreservedOrderSlugsToManage } from 'app/hooks/listing-logic/use-mana
 import { useTokensManageState } from 'app/hooks/use-assets-view-state';
 import { useTokensListOptionsSelector } from 'app/store/assets-filter-options/selectors';
 import { EvmTokenListItem } from 'app/templates/TokenListItem';
-import { parseChainAssetSlug } from 'lib/assets/utils';
 import { useMemoWithCompare } from 'lib/ui/hooks';
-import { getTokenElementIndex, TokenListItemElement, useTokenWillBeRendered } from 'lib/ui/tokens-list';
+import { getTokenElementIndex, TokenListItemElement, useEvmChainTokenWillBeRendered } from 'lib/ui/tokens-list';
 import { EvmChain, useEvmChainByChainId } from 'temple/front/chains';
 import { EVM_DEFAULT_NETWORKS } from 'temple/networks';
-import { TempleChainKind } from 'temple/types';
 
 import { makeFallbackChain, useRenderPromo } from '../utils';
 
@@ -113,17 +111,15 @@ const TabContentBase = memo<TabContentBaseProps>(({ allSlugsSorted, manageActive
   const promoRef = useRef<HTMLDivElement>(null);
   const firstListItemRef = useRef<TokenListItemElement>(null);
 
-  const tokenWillBeRendered = useTokenWillBeRendered();
+  const tokenWillBeRendered = useEvmChainTokenWillBeRendered(network);
 
-  const TokenListItem: TokenListItemFC = ({ chainSlug, ref, index }) => {
-    const [, , assetSlug] = parseChainAssetSlug(chainSlug, TempleChainKind.EVM);
-
+  const TokenListItem: TokenListItemFC = ({ slug, ref, index }) => {
     return (
       <EvmTokenListItem
         showTags
         network={network}
         index={index}
-        assetSlug={assetSlug}
+        assetSlug={slug}
         publicKeyHash={publicKeyHash}
         manageActive={manageActive}
         ref={ref}

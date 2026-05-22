@@ -145,7 +145,7 @@ const TabContentBase: FC<TabContentBaseProps> = ({
 
   const tokenWillBeRendered = useTokenWillBeRendered();
 
-  const TokenListItem: TokenListItemFC = ({ chainSlug, ref, index }) => {
+  const TokenListItem: TokenListItemFC = ({ slug: chainSlug, ref, index }) => {
     const [_, chainId, assetSlug] = parseChainAssetSlug(chainSlug, TempleChainKind.EVM);
 
     return (

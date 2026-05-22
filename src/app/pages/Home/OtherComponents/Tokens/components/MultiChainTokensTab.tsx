@@ -180,7 +180,7 @@ const TabContentBaseBody: FC<TabContentBaseBodyProps> = ({
 
   const tokenWillBeRendered = useTokenWillBeRendered();
 
-  const TokenListItem: TokenListItemFC = ({ chainSlug, ref, index }) => {
+  const TokenListItem: TokenListItemFC = ({ slug: chainSlug, ref, index }) => {
     const [chainKind, chainId, assetSlug] = parseChainAssetSlug(chainSlug);
 
     const commonProps = { index, ref, assetSlug, manageActive };

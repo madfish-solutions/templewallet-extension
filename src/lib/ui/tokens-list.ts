@@ -1,14 +1,22 @@
 import { clamp } from 'lodash';
 
-import { use3RouteEvmTokensMetadataRecordSelector } from 'app/store/evm/swap-3route-metadata/selectors';
 import {
+  use3RouteEvmChainTokensMetadataSelector,
+  use3RouteEvmTokensMetadataRecordSelector
+} from 'app/store/evm/swap-3route-metadata/selectors';
+import {
+  useLifiConnectedEvmChainTokensMetadataSelector,
   useLifiConnectedEvmTokensMetadataRecordSelector,
+  useLifiEnabledNetworksEvmChainTokensMetadataSelector,
   useLifiEnabledNetworksEvmTokensMetadataRecordSelector
 } from 'app/store/evm/swap-lifi-metadata/selectors';
-import { useEvmTokensMetadataRecordSelector } from 'app/store/evm/tokens-metadata/selectors';
+import {
+  useEvmChainTokensMetadataRecordSelector,
+  useEvmTokensMetadataRecordSelector
+} from 'app/store/evm/tokens-metadata/selectors';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { parseChainAssetSlug } from 'lib/assets/utils';
-import { ChainGroupedSlugs } from 'temple/front/chains';
+import { ChainGroupedSlugs, EvmChain } from 'temple/front/chains';
 import { TempleChainKind } from 'temple/types';
 
 export type TokenListItemElement = HTMLDivElement | HTMLAnchorElement;
@@ -127,6 +135,24 @@ export const useTokenWillBeRendered = () => {
       lifiEnabledNetworksEvmTokensMetadataRecord[evmChainId]?.[assetSlug] ??
       route3EvmTokensMetadataRecord[evmChainId]?.[assetSlug] ??
       evmTokensMetadataRecord[evmChainId]?.[assetSlug]
+    );
+  };
+};
+
+export const useEvmChainTokenWillBeRendered = (chain: EvmChain) => {
+  const lifiConnectedEvmChainTokensMetadataRecord = useLifiConnectedEvmChainTokensMetadataSelector(chain.chainId);
+  const lifiEnabledNetworksEvmChainTokensMetadataRecord = useLifiEnabledNetworksEvmChainTokensMetadataSelector(
+    chain.chainId
+  );
+  const route3EvmChainTokensMetadataRecord = use3RouteEvmChainTokensMetadataSelector(chain.chainId);
+  const evmChainTokensMetadataRecord = useEvmChainTokensMetadataRecordSelector(chain.chainId);
+
+  return (tokenSlug: string) => {
+    return Boolean(
+      lifiConnectedEvmChainTokensMetadataRecord?.[tokenSlug] ??
+      lifiEnabledNetworksEvmChainTokensMetadataRecord?.[tokenSlug] ??
+      route3EvmChainTokensMetadataRecord?.[tokenSlug] ??
+      evmChainTokensMetadataRecord?.[tokenSlug]
     );
   };
 };

@@ -7,7 +7,7 @@ import { EMPTY_FROZEN_OBJ } from 'lib/utils';
 import { EvmChain, TezosChain } from 'temple/front';
 import { ChainGroupedSlugs, OneOfChains } from 'temple/front/chains';
 
-export type TokenListItemFC = FC<{ chainSlug: string; ref?: Ref<TokenListItemElement>; index: number }>;
+export type TokenListItemFC = FC<{ slug: string; ref?: Ref<TokenListItemElement>; index: number }>;
 
 interface GroupedTokensWithViewPromoProps {
   groupedSlugs: ChainGroupedSlugs;
@@ -39,7 +39,7 @@ export const GroupedTokensViewWithPromo: FC<GroupedTokensWithViewPromoProps> = (
       <TokensGroup
         key={chainId}
         groupIndex={gi}
-        chainSlugs={chainSlugs}
+        slugs={chainSlugs}
         chain={chain}
         Promo={Promo}
         indexShift={prevIndexShift}
@@ -53,7 +53,7 @@ export const GroupedTokensViewWithPromo: FC<GroupedTokensWithViewPromoProps> = (
 
 interface TokensGroupProps {
   groupIndex: number;
-  chainSlugs: string[];
+  slugs: string[];
   chain?: OneOfChains;
   Promo: FC;
   indexShift: number;
@@ -64,7 +64,7 @@ interface TokensGroupProps {
 
 const TokensGroup: FC<TokensGroupProps> = ({
   groupIndex,
-  chainSlugs,
+  slugs,
   chain,
   Promo,
   indexShift,
@@ -80,10 +80,10 @@ const TokensGroup: FC<TokensGroupProps> = ({
       {chain?.name ?? 'Unknown chain'}
     </div>
 
-    {chainSlugs.map((chainSlug, i) => (
-      <Fragment key={chainSlug}>
+    {slugs.map((slug, i) => (
+      <Fragment key={slug}>
         <TokenListItem
-          chainSlug={chainSlug}
+          slug={slug}
           ref={groupIndex === 0 && i === 0 ? firstListItemRef : undefined}
           index={indexShift + i}
         />
@@ -108,7 +108,7 @@ export const TokensViewWithPromo: FC<TokensViewWithPromoProps> = ({
 }) =>
   displayedSlugs.map((slug, i) => (
     <Fragment key={slug}>
-      <TokenListItem chainSlug={slug} ref={i === 0 ? firstListItemRef : undefined} index={i} />
+      <TokenListItem slug={slug} ref={i === 0 ? firstListItemRef : undefined} index={i} />
       {i === 0 ? <Promo /> : null}
     </Fragment>
   ));

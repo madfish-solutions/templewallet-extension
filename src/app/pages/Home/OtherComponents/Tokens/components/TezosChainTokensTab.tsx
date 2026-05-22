@@ -1,5 +1,7 @@
 import { Activity, createContext, FC, useContext, useMemo, useRef } from 'react';
 
+import { constant } from 'lodash';
+
 import { DeadEndBoundaryError } from 'app/ErrorBoundary';
 import { usePreservedOrderSlugsToManage } from 'app/hooks/listing-logic/use-manageable-slugs';
 import {
@@ -9,12 +11,10 @@ import {
 import { useTokensManageState } from 'app/hooks/use-assets-view-state';
 import { useMainnetTokensScamlistSelector } from 'app/store/tezos/assets/selectors';
 import { TezosTokenListItem } from 'app/templates/TokenListItem';
-import { parseChainAssetSlug } from 'lib/assets/utils';
 import { useMemoWithCompare } from 'lib/ui/hooks';
-import { getTokenElementIndex, TokenListItemElement, useTokenWillBeRendered } from 'lib/ui/tokens-list';
+import { getTokenElementIndex, TokenListItemElement } from 'lib/ui/tokens-list';
 import { TezosChain, useTezosChainByChainId } from 'temple/front';
 import { TEZOS_DEFAULT_NETWORKS } from 'temple/networks';
-import { TempleChainKind } from 'temple/types';
 
 import { makeFallbackChain, useRenderPromo } from '../utils';
 
@@ -116,26 +116,20 @@ const TabContentBase: FC<TabContentBaseProps> = ({
 
   const mainnetTokensScamSlugsRecord = useMainnetTokensScamlistSelector();
 
-  const tokenWillBeRendered = useTokenWillBeRendered();
-
-  const TokenListItem: TokenListItemFC = ({ chainSlug, ref, index }) => {
-    const [, , assetSlug] = parseChainAssetSlug(chainSlug, TempleChainKind.Tezos);
-
-    return (
-      <TezosTokenListItem
-        network={network}
-        index={index}
-        publicKeyHash={publicKeyHash}
-        assetSlug={assetSlug}
-        scam={mainnetTokensScamSlugsRecord[assetSlug]}
-        manageActive={manageActive}
-        ref={ref}
-      />
-    );
-  };
+  const TokenListItem: TokenListItemFC = ({ slug, ref, index }) => (
+    <TezosTokenListItem
+      network={network}
+      index={index}
+      publicKeyHash={publicKeyHash}
+      assetSlug={slug}
+      scam={mainnetTokensScamSlugsRecord[slug]}
+      manageActive={manageActive}
+      ref={ref}
+    />
+  );
 
   const getElementIndex = (y: number) =>
-    getTokenElementIndex(promoRef.current, firstListItemRef.current, displayedSlugs, tokenWillBeRendered, y);
+    getTokenElementIndex(promoRef.current, firstListItemRef.current, displayedSlugs, constant(true), y);
 
   const Promo = useRenderPromo(manageActive, promoRef);
 
