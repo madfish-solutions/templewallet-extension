@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useTransition } from 'react';
+import { useEffect, useTransition } from 'react';
 
 import { BigNumber } from 'bignumber.js';
 
@@ -9,10 +9,13 @@ import { atomsToTokens } from 'lib/temple/helpers';
 import { TempleTezosChainId } from 'lib/temple/types';
 import { useUpdatableRef } from 'lib/ui/hooks';
 import { ZERO } from 'lib/utils/numbers';
-import { useAccountAddressForTezos } from 'temple/front';
 
-export const useRewardsStatsEntry = (storageKey: string, senderPkh: string, errorLogPrefix: string) => {
-  const accountAddress = useAccountAddressForTezos();
+export const useRewardsStatsEntry = (
+  storageKey: string,
+  senderPkh: string,
+  accountAddress: string | undefined,
+  errorLogPrefix: string
+) => {
   const [stats, setStats] = usePassiveStorage<null | {
     lastTransferTs?: string;
     total: string;
@@ -58,10 +61,5 @@ export const useRewardsStatsEntry = (storageKey: string, senderPkh: string, erro
     });
   }, [accountAddress, senderPkh, errorLogPrefix, setStats, startLoading, statsRef]);
 
-  const parsedStats = useMemo(
-    () => (stats ? { total: new BigNumber(stats.total), lastAmount: stats.lastAmount } : null),
-    [stats]
-  );
-
-  return { isLoading, stats: parsedStats };
+  return { isLoading, stats: stats ? { total: new BigNumber(stats.total), lastAmount: stats.lastAmount } : null };
 };
