@@ -1,19 +1,18 @@
-import { FC, useContext, useMemo, useRef, Ref } from 'react';
+import { FC, useContext, useRef } from 'react';
 
 import { range } from 'lodash';
 
 import { useEvmAccountTokensListingLogic } from 'app/hooks/listing-logic/use-evm-account-tokens-listing-logic';
-import { usePartnersPromotionModule } from 'app/templates/partners-promotion';
 import { EvmTokenListItem } from 'app/templates/TokenListItem';
-import { useAdsConstantsModule } from 'lib/ads-constants';
 import { parseChainAssetSlug } from 'lib/assets/utils';
 import { TokenListItemElement } from 'lib/ui/tokens-list';
 import { useAllEvmChains, useEthereumMainnetChain } from 'temple/front';
 import { ChainGroupedSlugs } from 'temple/front/chains';
 import { TempleChainKind } from 'temple/types';
 
-import { getGroupedTokensViewWithPromo, getTokensViewWithPromo } from '../../utils';
+import { useRenderPromo } from '../../utils';
 import { TokensTabBase } from '../tokens-tab-base';
+import { GroupedTokensViewWithPromo, TokenListItemFC, TokensViewWithPromo } from '../tokens-views';
 
 import { EvmTokensTabContext } from './context';
 
@@ -39,76 +38,35 @@ export const TabContentBase: FC<TabContentBaseProps> = ({
   const promoRef = useRef<HTMLDivElement>(null);
   const firstHeaderRef = useRef<HTMLDivElement>(null);
   const firstListItemRef = useRef<TokenListItemElement>(null);
-  const PartnersPromotionModule = usePartnersPromotionModule();
-  const AdsConstantsModule = useAdsConstantsModule();
 
   const mainnetChain = useEthereumMainnetChain();
   const evmChains = useAllEvmChains();
 
-  const { tokensView, getElementIndex } = useMemo(() => {
-    const promoJsx =
-      manageActive || !PartnersPromotionModule || !AdsConstantsModule ? null : (
-        <PartnersPromotionModule.PartnersPromotion
-          id="promo-token-item"
-          key="promo-token-item"
-          variant={PartnersPromotionModule.PartnersPromotionVariant.Text}
-          pageName={AdsConstantsModule.HOME_PAGE_NAME}
-          ref={promoRef}
-        />
-      );
+  const TokenListItem: TokenListItemFC = ({ slug: chainSlug, ref, index }) => {
+    const [_, chainId, assetSlug] = parseChainAssetSlug(chainSlug, TempleChainKind.EVM);
 
-    if (displayedGroupedSlugs) {
-      return {
-        tokensView: getGroupedTokensViewWithPromo({
-          groupedSlugs: displayedGroupedSlugs,
-          evmChains,
-          promoJsx,
-          firstListItemRef,
-          firstHeaderRef,
-          buildTokensJsxArray
-        }),
-        getElementIndex: () =>
-          range(
-            0,
-            displayedGroupedSlugs.reduce((acc, [_, slugs]) => acc + slugs.length, 0)
-          )
-      };
-    }
+    return (
+      <EvmTokenListItem
+        showTags
+        network={evmChains[chainId]!}
+        index={index}
+        assetSlug={assetSlug}
+        publicKeyHash={publicKeyHash}
+        manageActive={manageActive}
+        ref={ref}
+      />
+    );
+  };
 
-    const tokensJsx = buildTokensJsxArray(displayedSlugs, firstListItemRef);
+  const getElementIndex = () =>
+    range(
+      0,
+      displayedGroupedSlugs
+        ? displayedGroupedSlugs.reduce((acc, [_, slugs]) => acc + slugs.length, 0)
+        : displayedSlugs.length + 1
+    );
 
-    return {
-      tokensView: getTokensViewWithPromo(tokensJsx, promoJsx),
-      getElementIndex: () => range(0, tokensJsx.length)
-    };
-
-    function buildTokensJsxArray(chainSlugs: string[], firstListItemRef: Ref<TokenListItemElement>, indexShift = 0) {
-      return chainSlugs.map((chainSlug, i) => {
-        const [_, chainId, slug] = parseChainAssetSlug(chainSlug, TempleChainKind.EVM);
-
-        return (
-          <EvmTokenListItem
-            showTags
-            key={chainSlug}
-            network={evmChains[chainId]!}
-            index={i + indexShift}
-            assetSlug={slug}
-            publicKeyHash={publicKeyHash}
-            manageActive={manageActive}
-            ref={i === 0 ? firstListItemRef : null}
-          />
-        );
-      });
-    }
-  }, [
-    displayedGroupedSlugs,
-    displayedSlugs,
-    manageActive,
-    evmChains,
-    publicKeyHash,
-    PartnersPromotionModule,
-    AdsConstantsModule
-  ]);
+  const Promo = useRenderPromo(manageActive, promoRef);
 
   return (
     <TokensTabBase
@@ -123,7 +81,23 @@ export const TabContentBase: FC<TabContentBaseProps> = ({
       shouldShowHiddenTokensHint={shouldShowHiddenTokensHint}
       {...tokensTabBaseProps}
     >
-      {tokensView}
+      {displayedGroupedSlugs ? (
+        <GroupedTokensViewWithPromo
+          groupedSlugs={displayedGroupedSlugs}
+          evmChains={evmChains}
+          Promo={Promo}
+          firstListItemRef={firstListItemRef}
+          firstHeaderRef={firstHeaderRef}
+          TokenListItem={TokenListItem}
+        />
+      ) : (
+        <TokensViewWithPromo
+          displayedSlugs={displayedSlugs}
+          Promo={Promo}
+          firstListItemRef={firstListItemRef}
+          TokenListItem={TokenListItem}
+        />
+      )}
     </TokensTabBase>
   );
 };

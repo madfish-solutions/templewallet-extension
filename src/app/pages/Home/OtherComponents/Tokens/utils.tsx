@@ -1,71 +1,12 @@
-import { Fragment, ReactNode, Ref } from 'react';
+import { Ref } from 'react';
 
-import clsx from 'clsx';
-
+import { usePartnersPromotionModule } from 'app/templates/partners-promotion';
+import { useAdsConstantsModule } from 'lib/ads-constants';
 import { AccountToken } from 'lib/assets/hooks/tokens';
 import { toChainAssetSlug } from 'lib/assets/utils';
-import { TokenListItemElement } from 'lib/ui/tokens-list';
 import { EvmChain, TezosChain } from 'temple/front';
-import { ChainGroupedSlugs } from 'temple/front/chains';
 import { DEFAULT_EVM_CURRENCY, StoredEvmNetwork, StoredTezosNetwork } from 'temple/networks';
 import { TempleChainKind } from 'temple/types';
-
-export const getTokensViewWithPromo = (tokensJsx: ReactNode[], promoJsx: ReactNode, slugsCount = tokensJsx.length) => {
-  if (!promoJsx) return tokensJsx;
-
-  if (slugsCount <= 1) {
-    tokensJsx.push(promoJsx);
-  } else {
-    tokensJsx.splice(1, 0, promoJsx);
-  }
-
-  return tokensJsx;
-};
-
-interface GroupedTokensViewWithPromoRenderProps {
-  groupedSlugs: ChainGroupedSlugs;
-  evmChains?: StringRecord<EvmChain>;
-  tezosChains?: StringRecord<TezosChain>;
-  promoJsx: ReactNode;
-  firstListItemRef: Ref<TokenListItemElement>;
-  firstHeaderRef: Ref<HTMLDivElement>;
-  buildTokensJsxArray: (
-    slugs: string[],
-    firstListItemRef: Ref<TokenListItemElement>,
-    indexShift: number
-  ) => ReactNode[];
-}
-
-export const getGroupedTokensViewWithPromo = ({
-  groupedSlugs,
-  evmChains = {},
-  tezosChains = {},
-  promoJsx,
-  firstListItemRef,
-  firstHeaderRef,
-  buildTokensJsxArray
-}: GroupedTokensViewWithPromoRenderProps) => {
-  let indexShift = 0;
-
-  return groupedSlugs.map(([chainId, chainSlugs], gi) => {
-    const tokensJsx = buildTokensJsxArray(chainSlugs, gi === 0 ? firstListItemRef : null, indexShift);
-    indexShift += tokensJsx.length;
-    const chains = typeof chainId === 'number' ? evmChains : tezosChains;
-
-    return (
-      <Fragment key={chainId}>
-        <div
-          className={clsx('mb-0.5 p-1 text-font-description-bold', gi > 0 && 'mt-4')}
-          ref={gi === 0 ? firstHeaderRef : null}
-        >
-          {chains[chainId]?.name ?? 'Unknown chain'}
-        </div>
-
-        {gi > 0 ? tokensJsx : getTokensViewWithPromo(tokensJsx, promoJsx)}
-      </Fragment>
-    );
-  });
-};
 
 export function makeFallbackChain(network: StoredTezosNetwork): TezosChain;
 export function makeFallbackChain(network: StoredEvmNetwork): EvmChain;
@@ -88,6 +29,22 @@ export function makeFallbackChain(network: StoredEvmNetwork | StoredTezosNetwork
 
   return { ...commonProps, rpc: network, allRpcs: [network], kind: chain, chainId };
 }
+
+export const useRenderPromo = (manageActive: boolean, promoRef?: Ref<HTMLDivElement>) => {
+  const PartnersPromotionModule = usePartnersPromotionModule();
+  const AdsConstantsModule = useAdsConstantsModule();
+
+  return () =>
+    manageActive || !PartnersPromotionModule || !AdsConstantsModule ? null : (
+      <PartnersPromotionModule.PartnersPromotion
+        id="promo-token-item"
+        key="promo-token-item"
+        variant={PartnersPromotionModule.PartnersPromotionVariant.Text}
+        pageName={AdsConstantsModule.HOME_PAGE_NAME}
+        ref={promoRef}
+      />
+    );
+};
 
 export const toNotRemovedChainTokensSlugs = (tokens: AccountToken[], chainKind: TempleChainKind) =>
   tokens

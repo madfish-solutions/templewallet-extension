@@ -1,19 +1,18 @@
-import { FC, Ref, useContext, useMemo, useRef } from 'react';
+import { FC, useContext, useRef } from 'react';
 
 import { range } from 'lodash';
 
 import { useMainnetTokensScamlistSelector } from 'app/store/tezos/assets/selectors';
-import { usePartnersPromotionModule } from 'app/templates/partners-promotion';
 import { EvmTokenListItem, TezosTokenListItem } from 'app/templates/TokenListItem';
-import { useAdsConstantsModule } from 'lib/ads-constants';
 import { parseChainAssetSlug } from 'lib/assets/utils';
 import { TokenListItemElement } from 'lib/ui/tokens-list';
 import { EvmChain, TezosChain } from 'temple/front';
 import { ChainGroupedSlugs } from 'temple/front/chains';
 import { TempleChainKind } from 'temple/types';
 
-import { getGroupedTokensViewWithPromo, getTokensViewWithPromo } from '../../utils';
+import { useRenderPromo } from '../../utils';
 import { TokensTabBase, TokensTabBaseProps } from '../tokens-tab-base';
+import { GroupedTokensViewWithPromo, TokenListItemFC, TokensViewWithPromo } from '../tokens-views';
 
 import { MultiChainTokensTabContext } from './context';
 
@@ -42,84 +41,35 @@ export const TabContentBaseBody: FC<TabContentBaseBodyProps> = ({
   const firstHeaderRef = useRef<HTMLDivElement>(null);
   const firstListItemRef = useRef<TokenListItemElement>(null);
   const mainnetTokensScamSlugsRecord = useMainnetTokensScamlistSelector();
-  const PartnersPromotionModule = usePartnersPromotionModule();
-  const AdsConstantsModule = useAdsConstantsModule();
 
-  const { tokensView, getElementIndex } = useMemo(() => {
-    const promoJsx =
-      manageActive || !PartnersPromotionModule || !AdsConstantsModule ? null : (
-        <PartnersPromotionModule.PartnersPromotion
-          id="promo-token-item"
-          key="promo-token-item"
-          variant={PartnersPromotionModule.PartnersPromotionVariant.Text}
-          pageName={AdsConstantsModule.HOME_PAGE_NAME}
-          ref={promoRef}
+  const TokenListItem: TokenListItemFC = ({ slug: chainSlug, ref, index }) => {
+    const [chainKind, chainId, assetSlug] = parseChainAssetSlug(chainSlug);
+
+    const commonProps = { index, ref, assetSlug, manageActive };
+
+    if (chainKind === TempleChainKind.Tezos) {
+      return (
+        <TezosTokenListItem
+          network={tezosChains[chainId]!}
+          publicKeyHash={accountTezAddress}
+          scam={mainnetTokensScamSlugsRecord[assetSlug]}
+          {...commonProps}
         />
       );
-
-    if (groupedSlugs) {
-      return {
-        tokensView: getGroupedTokensViewWithPromo({
-          groupedSlugs,
-          evmChains,
-          tezosChains,
-          promoJsx,
-          firstListItemRef,
-          firstHeaderRef,
-          buildTokensJsxArray: (slugs, firstListItemRef, indexShift) =>
-            buildTokensJsxArray(
-              mainnetTokensScamSlugsRecord,
-              slugs,
-              tezosChains,
-              evmChains,
-              accountTezAddress,
-              accountEvmAddress,
-              manageActive,
-              firstListItemRef,
-              indexShift
-            )
-        }),
-        getElementIndex: () =>
-          range(
-            0,
-            groupedSlugs.reduce((acc, [_, slugs]) => acc + slugs.length, 0)
-          )
-      };
     }
 
-    const tokensJsx = buildTokensJsxArray(
-      mainnetTokensScamSlugsRecord,
-      displayedSlugs,
-      tezosChains,
-      evmChains,
-      accountTezAddress,
-      accountEvmAddress,
-      manageActive,
-      firstListItemRef
+    return (
+      <EvmTokenListItem showTags network={evmChains[chainId]!} publicKeyHash={accountEvmAddress} {...commonProps} />
+    );
+  };
+
+  const getElementIndex = () =>
+    range(
+      0,
+      groupedSlugs ? groupedSlugs.reduce((acc, [_, slugs]) => acc + slugs.length, 0) : displayedSlugs.length + 1
     );
 
-    if (manageActive) {
-      return {
-        tokensView: tokensJsx,
-        getElementIndex: () => range(0, tokensJsx.length)
-      };
-    }
-
-    return {
-      tokensView: getTokensViewWithPromo(tokensJsx, promoJsx),
-      getElementIndex: () => range(0, tokensJsx.length + 1)
-    };
-  }, [
-    groupedSlugs,
-    displayedSlugs,
-    evmChains,
-    tezosChains,
-    manageActive,
-    accountEvmAddress,
-    accountTezAddress,
-    PartnersPromotionModule,
-    AdsConstantsModule
-  ]);
+  const Promo = useRenderPromo(manageActive, promoRef);
 
   return (
     <TokensTabBase
@@ -129,51 +79,24 @@ export const TabContentBaseBody: FC<TabContentBaseBodyProps> = ({
       {...restProps}
       {...tokensTabBaseProps}
     >
-      {tokensView}
+      {groupedSlugs ? (
+        <GroupedTokensViewWithPromo
+          groupedSlugs={groupedSlugs}
+          evmChains={evmChains}
+          tezosChains={tezosChains}
+          Promo={Promo}
+          firstListItemRef={firstListItemRef}
+          firstHeaderRef={firstHeaderRef}
+          TokenListItem={TokenListItem}
+        />
+      ) : (
+        <TokensViewWithPromo
+          displayedSlugs={displayedSlugs}
+          Promo={Promo}
+          firstListItemRef={firstListItemRef}
+          TokenListItem={TokenListItem}
+        />
+      )}
     </TokensTabBase>
   );
 };
-
-function buildTokensJsxArray(
-  scamSlugs: Record<string, boolean>,
-  chainSlugs: string[],
-  tezosChains: StringRecord<TezosChain>,
-  evmChains: StringRecord<EvmChain>,
-  accountTezAddress: string,
-  accountEvmAddress: HexString,
-  manageActive: boolean,
-  firstListItemRef: Ref<TokenListItemElement>,
-  indexShift = 0
-) {
-  return chainSlugs.map((chainSlug, i) => {
-    const [chainKind, chainId, assetSlug] = parseChainAssetSlug(chainSlug);
-
-    if (chainKind === TempleChainKind.Tezos) {
-      return (
-        <TezosTokenListItem
-          network={tezosChains[chainId]!}
-          index={i + indexShift}
-          key={chainSlug}
-          publicKeyHash={accountTezAddress}
-          scam={scamSlugs[assetSlug]}
-          assetSlug={assetSlug}
-          manageActive={manageActive}
-          ref={i === 0 ? firstListItemRef : null}
-        />
-      );
-    }
-
-    return (
-      <EvmTokenListItem
-        showTags
-        key={chainSlug}
-        network={evmChains[chainId]!}
-        index={i + indexShift}
-        assetSlug={assetSlug}
-        publicKeyHash={accountEvmAddress}
-        manageActive={manageActive}
-        ref={i === 0 ? firstListItemRef : null}
-      />
-    );
-  });
-}

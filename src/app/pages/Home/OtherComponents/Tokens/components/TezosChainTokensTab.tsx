@@ -10,9 +10,7 @@ import {
 } from 'app/hooks/listing-logic/use-tezos-chain-account-tokens-listing-logic';
 import { useTokensManageState } from 'app/hooks/use-assets-view-state';
 import { useAreAssetsLoading, useMainnetTokensScamlistSelector } from 'app/store/tezos/assets/selectors';
-import { usePartnersPromotionModule } from 'app/templates/partners-promotion';
 import { TezosTokenListItem } from 'app/templates/TokenListItem';
-import { useAdsConstantsModule } from 'lib/ads-constants';
 import { toTezEnabledCollectiblesChainSlugs, useTezosChainAccountCollectibles } from 'lib/assets/hooks/collectibles';
 import { useTezosChainCollectiblesSortPredicate } from 'lib/assets/use-sorting';
 import { useTezosCollectiblesMetadataPresenceCheck } from 'lib/metadata';
@@ -21,9 +19,10 @@ import { TokenListItemElement } from 'lib/ui/tokens-list';
 import { TezosChain, useTezosChainByChainId } from 'temple/front';
 import { TEZOS_DEFAULT_NETWORKS } from 'temple/networks';
 
-import { getTokensViewWithPromo, makeFallbackChain } from '../utils';
+import { makeFallbackChain, useRenderPromo } from '../utils';
 
 import { TokensTabBase, TokensTabBaseProps } from './tokens-tab-base';
+import { TokenListItemFC, TokensViewWithPromo } from './tokens-views';
 
 interface Props {
   chainId: string;
@@ -141,43 +140,22 @@ const TabContentBase: FC<TabContentBaseProps> = ({
   );
 
   const mainnetTokensScamSlugsRecord = useMainnetTokensScamlistSelector();
-  const PartnersPromotionModule = usePartnersPromotionModule();
-  const AdsConstantsModule = useAdsConstantsModule();
 
-  let tokensView: ReactChildren;
-  let getElementIndex: SyncFn<number, number[]>;
-
-  const tokensJsx = displayedSlugs.map((assetSlug, i) => (
+  const TokenListItem: TokenListItemFC = ({ slug, ref, index }) => (
     <TezosTokenListItem
-      key={assetSlug}
       network={network}
-      index={i}
+      index={index}
       publicKeyHash={publicKeyHash}
-      assetSlug={assetSlug}
-      scam={mainnetTokensScamSlugsRecord[assetSlug]}
+      assetSlug={slug}
+      scam={mainnetTokensScamSlugsRecord[slug]}
       manageActive={manageActive}
-      ref={i === 0 ? firstListItemRef : null}
+      ref={ref}
     />
-  ));
+  );
 
-  if (manageActive) {
-    tokensView = tokensJsx;
-    getElementIndex = () => range(0, tokensJsx.length);
-  } else {
-    const promoJsx =
-      PartnersPromotionModule && AdsConstantsModule ? (
-        <PartnersPromotionModule.PartnersPromotion
-          id="promo-token-item"
-          key="promo-token-item"
-          variant={PartnersPromotionModule.PartnersPromotionVariant.Text}
-          pageName={AdsConstantsModule.HOME_PAGE_NAME}
-          ref={promoRef}
-        />
-      ) : null;
+  const getElementIndex = () => range(0, displayedSlugs.length + 1);
 
-    tokensView = getTokensViewWithPromo(tokensJsx, promoJsx);
-    getElementIndex = () => range(0, tokensJsx.length + 1);
-  }
+  const Promo = useRenderPromo(manageActive, promoRef);
 
   return (
     <TokensTabBase
@@ -192,7 +170,12 @@ const TabContentBase: FC<TabContentBaseProps> = ({
       shouldShowHiddenTokensHint={shouldShowHiddenTokensHint}
       {...tokensTabBaseProps}
     >
-      {tokensView}
+      <TokensViewWithPromo
+        displayedSlugs={displayedSlugs}
+        Promo={Promo}
+        firstListItemRef={firstListItemRef}
+        TokenListItem={TokenListItem}
+      />
     </TokensTabBase>
   );
 };
