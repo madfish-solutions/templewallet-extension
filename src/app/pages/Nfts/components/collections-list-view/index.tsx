@@ -56,7 +56,6 @@ export const CollectionsListView: FC<CollectionsListViewProps> = ({
       noCollectiblesAtAll={noCollectiblesAtAll}
       isSyncing={isSyncing}
       isInSearchMode={isInSearchMode}
-      manageActive={false}
       collectiblesDetailsReady={tezDetailsReady}
       openCustomTokenModal={openCustomTokenModal}
     >
