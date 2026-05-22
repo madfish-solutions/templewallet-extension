@@ -13,13 +13,12 @@ import { useTokensManageState } from 'app/hooks/use-assets-view-state';
 import { useEvmCollectiblesMetadataLoading } from 'app/hooks/use-evm-collectibles-meta-loading';
 import { useTokensListOptionsSelector } from 'app/store/assets-filter-options/selectors';
 import { useEvmCollectiblesMetadataLoadingSelector } from 'app/store/evm/selectors';
-import { usePartnersPromotionModule } from 'app/templates/partners-promotion';
 import { EvmTokenListItem } from 'app/templates/tokens/token-list-item';
-import { useAdsConstantsModule } from 'lib/ads-constants';
+import { TokenListItemFC, TokensViewWithPromo } from 'app/templates/tokens/tokens-views';
 import { useEvmChainAccountCollectibles } from 'lib/assets/hooks/collectibles';
 import { useEvmChainCollectiblesSortPredicate } from 'lib/assets/use-sorting';
 import { useMemoWithCompare } from 'lib/ui/hooks';
-import { getTokensViewWithPromo, makeFallbackChain, TokenListItemElement } from 'lib/ui/tokens-list';
+import { useRenderPromo, makeFallbackChain, TokenListItemElement } from 'lib/ui/tokens-list';
 import { EvmChain, useEvmChainByChainId } from 'temple/front/chains';
 import { EVM_DEFAULT_NETWORKS } from 'temple/networks';
 
@@ -136,43 +135,24 @@ const TabContentBase: FC<TabContentBaseProps> = ({ allSlugsSorted, manageActive,
   );
   const promoRef = useRef<HTMLDivElement>(null);
   const firstListItemRef = useRef<TokenListItemElement>(null);
-  const PartnersPromotionModule = usePartnersPromotionModule();
-  const AdsConstantsModule = useAdsConstantsModule();
 
-  let tokensView: ReactChildren;
-  let getElementIndex: SyncFn<number, number[]>;
+  const TokenListItem: TokenListItemFC = ({ slug, ref, index }) => {
+    return (
+      <EvmTokenListItem
+        showTags
+        network={network}
+        index={index}
+        assetSlug={slug}
+        publicKeyHash={publicKeyHash}
+        manageActive={manageActive}
+        ref={ref}
+      />
+    );
+  };
 
-  const tokensJsx = displayedSlugs.map((slug, i) => (
-    <EvmTokenListItem
-      showTags
-      key={slug}
-      assetSlug={slug}
-      publicKeyHash={publicKeyHash}
-      network={network}
-      index={i}
-      manageActive={manageActive}
-      ref={i === 0 ? firstListItemRef : null}
-    />
-  ));
+  const getElementIndex = () => range(0, displayedSlugs.length + 1);
 
-  if (manageActive) {
-    tokensView = tokensJsx;
-    getElementIndex = () => range(0, tokensJsx.length);
-  } else {
-    const promoJsx =
-      PartnersPromotionModule && AdsConstantsModule ? (
-        <PartnersPromotionModule.PartnersPromotion
-          id="promo-token-item"
-          key="promo-token-item"
-          variant={PartnersPromotionModule.PartnersPromotionVariant.Text}
-          pageName={AdsConstantsModule.HOME_PAGE_NAME}
-          ref={promoRef}
-        />
-      ) : null;
-
-    tokensView = getTokensViewWithPromo(tokensJsx, promoJsx);
-    getElementIndex = () => range(0, tokensJsx.length + 1);
-  }
+  const Promo = useRenderPromo(manageActive, promoRef);
 
   return (
     <TokensTabBase
@@ -187,7 +167,12 @@ const TabContentBase: FC<TabContentBaseProps> = ({ allSlugsSorted, manageActive,
       shouldShowHiddenTokensHint={shouldShowHiddenTokensHint}
       {...tokensTabBaseProps}
     >
-      {tokensView}
+      <TokensViewWithPromo
+        displayedSlugs={displayedSlugs}
+        Promo={Promo}
+        firstListItemRef={firstListItemRef}
+        TokenListItem={TokenListItem}
+      />
     </TokensTabBase>
   );
 };

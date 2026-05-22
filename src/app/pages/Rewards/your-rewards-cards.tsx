@@ -1,4 +1,4 @@
-import { memo, useCallback, useMemo, useState, useTransition } from 'react';
+import { useTransition } from 'react';
 
 import clsx from 'clsx';
 
@@ -7,15 +7,16 @@ import { AnimatedMenuChevron } from 'app/atoms/animated-menu-chevron';
 import { Logo } from 'app/atoms/Logo';
 import { usePartnersPromotionSettings } from 'app/hooks/use-partners-promotion-settings';
 import { useReferralLinksSettings } from 'app/hooks/use-referral-links-settings';
+import { useRewardsAddresses } from 'app/hooks/use-rewards-addresses';
 import { ReactComponent as InfoIcon } from 'app/icons/base/InfoFill.svg';
 import { DelegationModal } from 'app/pages/EarnTez/modals/delegation';
 import { TEMPLE_BAKERY_PAYOUT_ADDRESS, TEMPLE_REWARDS_PAYOUT_ADDRESS } from 'app/pages/Rewards/constants';
 import { advancedFeaturesInfoTippyProps } from 'app/pages/Rewards/tooltip';
-import { TEMPLE_BAKERY_REWARDS_STATS_STORAGE_KEY, TKEY_REWARDS_STATS_STORAGE_KEY } from 'lib/constants';
 import { DISABLE_ADS, IS_MISES_BROWSER } from 'lib/env';
 import { t, T } from 'lib/i18n';
 import { TEMPLE_BAKER_ADDRESS } from 'lib/known-bakers';
 import { useDelegate } from 'lib/temple/front';
+import { useBooleanState } from 'lib/ui/hooks';
 import { useActivateAnimatedChevron } from 'lib/ui/hooks/use-activate-animated-chevron';
 import useTippy from 'lib/ui/useTippy';
 import { Link, navigate } from 'lib/woozie';
@@ -24,10 +25,12 @@ import { confirmTezosOperation, getTezosReadOnlyRpcClient } from 'temple/tezos';
 
 import { useRewardsStatsEntry } from './use-rewards-stats-entry';
 
-export const YourRewardsCards = memo(() => {
+export const YourRewardsCards = () => {
   const tezosMainnet = useTezosMainnetChain();
   const account = useAccountForTezos();
-  const hasTezosAccount = Boolean(account);
+  const hasTezosBakeryAccount = Boolean(account);
+  const { tezosAddress: tezosRewardsAddress } = useRewardsAddresses();
+  const tezosBakeryAddress = account?.address;
 
   const {
     animatedChevronRef: advancedChevronRef,
@@ -42,54 +45,51 @@ export const YourRewardsCards = memo(() => {
 
   const advancedFeaturesInfoRef = useTippy<HTMLDivElement>(advancedFeaturesInfoTippyProps);
 
-  const [isDelegationOpen, setDelegationOpen] = useState(false);
-
-  const closeDelegation = useCallback(() => setDelegationOpen(false), []);
+  const [isDelegationOpen, openDelegation, closeDelegation] = useBooleanState(false);
 
   const { isEnabled: isAdvertisingEnabled } = usePartnersPromotionSettings();
   const { isEnabled: isReferralLinksEnabled } = useReferralLinksSettings();
 
-  const referralsEnabled = useMemo(() => isReferralLinksEnabled && IS_MISES_BROWSER, [isReferralLinksEnabled]);
+  const referralsEnabled = isReferralLinksEnabled && IS_MISES_BROWSER;
 
   const { isLoading: isTkeyLoading, stats: tkeyStats } = useRewardsStatsEntry(
-    TKEY_REWARDS_STATS_STORAGE_KEY,
+    makeTkeyRewardsStatsStorageKey(tezosRewardsAddress),
     TEMPLE_REWARDS_PAYOUT_ADDRESS,
+    tezosRewardsAddress,
     'Failed to load Tkey stats: '
   );
 
   const { isLoading: isBakeryLoading, stats: bakeryStats } = useRewardsStatsEntry(
-    TEMPLE_BAKERY_REWARDS_STATS_STORAGE_KEY,
+    makeBakeryRewardsStatsStorageKey(tezosBakeryAddress),
     TEMPLE_BAKERY_PAYOUT_ADDRESS,
+    tezosBakeryAddress,
     'Failed to load bakery stats: '
   );
 
   const [isDelegating, startDelegation] = useTransition();
 
-  const { data: myBakerPkh, mutate: updateBakerPkh } = useDelegate(account?.address ?? '', tezosMainnet, false, true);
+  const { data: myBakerPkh, mutate: updateBakerPkh } = useDelegate(tezosBakeryAddress ?? '', tezosMainnet, false, true);
   const delegatedToTemple = myBakerPkh === TEMPLE_BAKER_ADDRESS;
 
-  const handleDelegationSuccess = useCallback(
-    (opHash: string) => {
-      startDelegation(async () => {
-        try {
-          await confirmTezosOperation(getTezosReadOnlyRpcClient(tezosMainnet), opHash, 2);
-          await updateBakerPkh();
-        } catch (err) {
-          console.error('Failed to confirm successful delegation: ', err);
-        }
-      });
-    },
-    [startDelegation, tezosMainnet, updateBakerPkh]
-  );
+  const handleDelegationSuccess = (opHash: string) => {
+    startDelegation(async () => {
+      try {
+        await confirmTezosOperation(getTezosReadOnlyRpcClient(tezosMainnet), opHash, 2);
+        await updateBakerPkh();
+      } catch (err) {
+        console.error('Failed to confirm successful delegation: ', err);
+      }
+    });
+  };
 
-  const handleEarnTezClick = useCallback(() => {
+  const handleEarnTezClick = () => {
     if (isDelegating) return;
     if (!delegatedToTemple) {
-      setDelegationOpen(true);
+      openDelegation();
       return;
     }
     navigate(`/earn-tez/${tezosMainnet.chainId}`);
-  }, [delegatedToTemple, isDelegating, tezosMainnet.chainId]);
+  };
 
   return (
     <div className="flex flex-col">
@@ -162,7 +162,7 @@ export const YourRewardsCards = memo(() => {
           )}
         </div>
       </div>
-      {hasTezosAccount && (
+      {hasTezosBakeryAccount && (
         <>
           <div className="rounded-8 bg-white border-0.5 border-lines">
             <div
@@ -248,4 +248,8 @@ export const YourRewardsCards = memo(() => {
       )}
     </div>
   );
-});
+};
+
+const makeTkeyRewardsStatsStorageKey = (accountAddress: string | undefined) => `TKEY_REWARDS_STATS-${accountAddress}`;
+const makeBakeryRewardsStatsStorageKey = (accountAddress: string | undefined) =>
+  `TEMPLE_BAKERY_REWARDS_STATS-${accountAddress}`;

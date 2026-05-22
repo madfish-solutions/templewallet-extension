@@ -1,4 +1,14 @@
-import React, { FC, useCallback, useEffect, useMemo, useRef, CSSProperties, ReactNode } from 'react';
+import React, {
+  FC,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  CSSProperties,
+  ReactNode,
+  useState,
+  startTransition
+} from 'react';
 
 import { useImagesStackLoading } from 'lib/ui/use-images-stack-loading';
 
@@ -12,7 +22,6 @@ export interface ImageStackedProps extends React.ImgHTMLAttributes<HTMLImageElem
   size?: number;
   loader?: ReactNode;
   fallback?: ReactNode;
-  pauseRender?: boolean;
   onStackLoaded?: EmptyFn;
   onStackFailed?: EmptyFn;
 }
@@ -23,12 +32,18 @@ export const ImageStacked: FC<ImageStackedProps> = ({
   loader,
   fallback,
   style,
-  pauseRender,
   onStackLoaded,
   onStackFailed,
   ...imgProps
 }) => {
+  const [preventLoadImage, setPreventLoadImage] = useState(true);
   const { src, isLoading, isStackFailed, onSuccess, onFail } = useImagesStackLoading(sources);
+
+  useEffect(() => {
+    startTransition(() => setPreventLoadImage(false));
+
+    return () => setPreventLoadImage(true);
+  }, []);
 
   const styleMemo: CSSProperties | undefined = useMemo(
     () =>
@@ -59,9 +74,7 @@ export const ImageStacked: FC<ImageStackedProps> = ({
     if (isStackFailed && onStackFailed) onStackFailed();
   }, [isStackFailed]);
 
-  if (pauseRender) return null;
-
-  if (isStackFailed) return fallback ?? null;
+  if (isStackFailed || preventLoadImage) return fallback ?? null;
 
   return (
     <>

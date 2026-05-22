@@ -1,20 +1,20 @@
-import { FC, useContext, useMemo, useRef, Ref, useCallback } from 'react';
+import { FC, useContext, useRef } from 'react';
 
 import { useEvmAccountTokensListingLogic } from 'app/hooks/listing-logic/use-evm-account-tokens-listing-logic';
 import { EvmTokenListItem } from 'app/templates/tokens/token-list-item';
+import { GroupedTokensViewWithPromo, TokenListItemFC, TokensViewWithPromo } from 'app/templates/tokens/tokens-views';
 import { parseChainAssetSlug } from 'lib/assets/utils';
 import {
-  getGroupedTokensViewWithPromo,
-  getTokensViewWithPromo,
-  makeGetTokenElementIndexFunction,
-  makeGroupedTokenElementIndexFunction,
-  TokenListItemElement
+  getGroupedTokenElementIndex,
+  getTokenElementIndex,
+  TokenListItemElement,
+  useRenderPromo,
+  useTokenWillBeRendered
 } from 'lib/ui/tokens-list';
 import { useAllEvmChains, useEthereumMainnetChain } from 'temple/front';
 import { ChainGroupedSlugs } from 'temple/front/chains';
 import { TempleChainKind } from 'temple/types';
 
-import { Promo } from '../promo';
 import { TokensPageBase } from '../tokens-page-base';
 
 import { EvmTokensPageContext } from './context';
@@ -52,65 +52,36 @@ export const PageContentBase: FC<PageContentBaseProps> = ({
   const mainnetChain = useEthereumMainnetChain();
   const evmChains = useAllEvmChains();
 
-  const buildTokensJsxArray = useCallback(
-    (chainSlugs: string[], firstListItemRef: Ref<TokenListItemElement>, indexShift = 0) =>
-      chainSlugs.map((chainSlug, i) => {
-        const [_, chainId, slug] = parseChainAssetSlug(chainSlug, TempleChainKind.EVM);
+  const TokenListItem: TokenListItemFC = ({ slug: chainSlug, ref, index }) => {
+    const [_, chainId, assetSlug] = parseChainAssetSlug(chainSlug, TempleChainKind.EVM);
 
-        return (
-          <EvmTokenListItem
-            showTags
-            key={chainSlug}
-            network={evmChains[chainId]!}
-            index={i + indexShift}
-            assetSlug={slug}
-            publicKeyHash={publicKeyHash}
-            manageActive={manageActive}
-            ref={i === 0 ? firstListItemRef : null}
-          />
-        );
-      }),
-    [evmChains, publicKeyHash, manageActive]
-  );
+    return (
+      <EvmTokenListItem
+        showTags
+        network={evmChains[chainId]!}
+        index={index}
+        assetSlug={assetSlug}
+        publicKeyHash={publicKeyHash}
+        manageActive={manageActive}
+        ref={ref}
+      />
+    );
+  };
 
-  const { tokensView, getElementIndex } = useMemo(() => {
-    const promoJsx = manageActive ? null : <Promo ref={promoRef} />;
-
-    if (displayedGroupedSlugs) {
-      return {
-        tokensView: getGroupedTokensViewWithPromo({
-          groupedSlugs: displayedGroupedSlugs,
-          evmChains,
-          promoJsx,
-          firstListItemRef,
-          firstHeaderRef,
-          buildTokensJsxArray
-        }),
-        getElementIndex: makeGroupedTokenElementIndexFunction(
-          promoRef,
-          firstListItemRef,
-          firstHeaderRef,
-          displayedGroupedSlugs
+  const tokenWillBeRendered = useTokenWillBeRendered();
+  const getElementIndex = (y: number) =>
+    displayedGroupedSlugs
+      ? getGroupedTokenElementIndex(
+          promoRef.current,
+          firstListItemRef.current,
+          firstHeaderRef.current,
+          displayedGroupedSlugs,
+          tokenWillBeRendered,
+          y
         )
-      };
-    }
+      : getTokenElementIndex(promoRef.current, firstListItemRef.current, displayedSlugs, tokenWillBeRendered, y);
 
-    const tokensJsx = buildTokensJsxArray(displayedSlugs, firstListItemRef);
-
-    return {
-      tokensView: getTokensViewWithPromo(tokensJsx, promoJsx),
-      getElementIndex: makeGetTokenElementIndexFunction(promoRef, firstListItemRef, tokensJsx.length)
-    };
-  }, [
-    displayedGroupedSlugs,
-    displayedSlugs,
-    buildTokensJsxArray,
-    promoRef,
-    firstListItemRef,
-    firstHeaderRef,
-    evmChains,
-    manageActive
-  ]);
+  const Promo = useRenderPromo(manageActive, promoRef);
 
   return (
     <TokensPageBase
@@ -126,7 +97,23 @@ export const PageContentBase: FC<PageContentBaseProps> = ({
       shouldShowHiddenTokensHint={shouldShowHiddenTokensHint}
       {...tokensPageBaseProps}
     >
-      {tokensView}
+      {displayedGroupedSlugs ? (
+        <GroupedTokensViewWithPromo
+          groupedSlugs={displayedGroupedSlugs}
+          evmChains={evmChains}
+          Promo={Promo}
+          firstListItemRef={firstListItemRef}
+          firstHeaderRef={firstHeaderRef}
+          TokenListItem={TokenListItem}
+        />
+      ) : (
+        <TokensViewWithPromo
+          displayedSlugs={displayedSlugs}
+          Promo={Promo}
+          firstListItemRef={firstListItemRef}
+          TokenListItem={TokenListItem}
+        />
+      )}
     </TokensPageBase>
   );
 };

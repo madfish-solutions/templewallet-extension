@@ -11,17 +11,18 @@ import { usePreservedOrderSlugsToManage } from 'app/hooks/listing-logic/use-mana
 import { useTokensManageState } from 'app/hooks/use-assets-view-state';
 import { useTokensListOptionsSelector } from 'app/store/assets-filter-options/selectors';
 import { EvmTokenListItem } from 'app/templates/tokens/token-list-item';
+import { TokenListItemFC, TokensViewWithPromo } from 'app/templates/tokens/tokens-views';
 import { useMemoWithCompare } from 'lib/ui/hooks';
 import {
-  getTokensViewWithPromo,
   makeFallbackChain,
-  makeGetTokenElementIndexFunction,
-  TokenListItemElement
+  getTokenElementIndex,
+  TokenListItemElement,
+  useRenderPromo,
+  useEvmChainTokenWillBeRendered
 } from 'lib/ui/tokens-list';
 import { EvmChain, useEvmChainByChainId } from 'temple/front/chains';
 import { EVM_DEFAULT_NETWORKS } from 'temple/networks';
 
-import { Promo } from './promo';
 import { TokensPageBase, TokensPageBaseProps } from './tokens-page-base';
 
 interface Props {
@@ -119,31 +120,25 @@ const PageContentBase: FC<PageContentBaseProps> = ({ allSlugsSorted, manageActiv
   const promoRef = useRef<HTMLDivElement>(null);
   const firstListItemRef = useRef<TokenListItemElement>(null);
 
-  const tokensJsx = useMemo(
-    () =>
-      displayedSlugs.map((slug, i) => (
-        <EvmTokenListItem
-          showTags
-          key={slug}
-          assetSlug={slug}
-          publicKeyHash={publicKeyHash}
-          network={network}
-          index={i}
-          manageActive={manageActive}
-          ref={i === 0 ? firstListItemRef : null}
-        />
-      )),
-    [displayedSlugs, publicKeyHash, network, manageActive]
-  );
+  const TokenListItem: TokenListItemFC = ({ slug, ref, index }) => {
+    return (
+      <EvmTokenListItem
+        showTags
+        network={network}
+        index={index}
+        assetSlug={slug}
+        publicKeyHash={publicKeyHash}
+        manageActive={manageActive}
+        ref={ref}
+      />
+    );
+  };
 
-  const tokensView = useMemo(
-    () => (manageActive ? tokensJsx : getTokensViewWithPromo(tokensJsx, <Promo ref={promoRef} />)),
-    [manageActive, tokensJsx, promoRef]
-  );
-  const getElementIndex = useMemo(
-    () => makeGetTokenElementIndexFunction(promoRef, firstListItemRef, tokensJsx.length),
-    [tokensJsx, promoRef, firstListItemRef]
-  );
+  const tokenWillBeRendered = useEvmChainTokenWillBeRendered(network);
+  const getElementIndex = (y: number) =>
+    getTokenElementIndex(promoRef.current, firstListItemRef.current, displayedSlugs, tokenWillBeRendered, y);
+
+  const Promo = useRenderPromo(manageActive, promoRef);
 
   const applicableNetworks = useMemo(() => [network], [network]);
 
@@ -161,7 +156,12 @@ const PageContentBase: FC<PageContentBaseProps> = ({ allSlugsSorted, manageActiv
       shouldShowHiddenTokensHint={shouldShowHiddenTokensHint}
       {...tokensPageBaseProps}
     >
-      {tokensView}
+      <TokensViewWithPromo
+        displayedSlugs={displayedSlugs}
+        Promo={Promo}
+        firstListItemRef={firstListItemRef}
+        TokenListItem={TokenListItem}
+      />
     </TokensPageBase>
   );
 };

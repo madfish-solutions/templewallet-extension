@@ -1,20 +1,20 @@
-import { FC, Ref, useContext, useMemo, useRef } from 'react';
+import { FC, useContext, useRef } from 'react';
 
 import { useMainnetTokensScamlistSelector } from 'app/store/tezos/assets/selectors';
 import { EvmTokenListItem, TezosTokenListItem } from 'app/templates/tokens/token-list-item';
+import { GroupedTokensViewWithPromo, TokenListItemFC, TokensViewWithPromo } from 'app/templates/tokens/tokens-views';
 import { parseChainAssetSlug } from 'lib/assets/utils';
 import {
-  getGroupedTokensViewWithPromo,
-  getTokensViewWithPromo,
-  makeGetTokenElementIndexFunction,
-  makeGroupedTokenElementIndexFunction,
-  TokenListItemElement
+  getGroupedTokenElementIndex,
+  getTokenElementIndex,
+  TokenListItemElement,
+  useRenderPromo,
+  useTokenWillBeRendered
 } from 'lib/ui/tokens-list';
 import { EvmChain, TezosChain } from 'temple/front';
 import { ChainGroupedSlugs } from 'temple/front/chains';
 import { TempleChainKind } from 'temple/types';
 
-import { Promo } from '../promo';
 import { TokensPageBase, TokensPageBaseProps } from '../tokens-page-base';
 
 import { MultiChainTokensPageContext } from './context';
@@ -45,58 +45,40 @@ export const PageContentBaseBody: FC<PageContentBaseBodyProps> = ({
   const firstListItemRef = useRef<TokenListItemElement>(null);
   const mainnetTokensScamSlugsRecord = useMainnetTokensScamlistSelector();
 
-  const { tokensView, getElementIndex } = useMemo(() => {
-    const promoJsx = manageActive ? null : <Promo key="promo" ref={promoRef} />;
+  const TokenListItem: TokenListItemFC = ({ slug: chainSlug, ref, index }) => {
+    const [chainKind, chainId, assetSlug] = parseChainAssetSlug(chainSlug);
 
-    if (groupedSlugs) {
-      return {
-        tokensView: getGroupedTokensViewWithPromo({
-          groupedSlugs,
-          evmChains,
-          tezosChains,
-          promoJsx,
-          firstListItemRef,
-          firstHeaderRef,
-          buildTokensJsxArray: (slugs, firstListItemRef, indexShift) =>
-            buildTokensJsxArray(
-              mainnetTokensScamSlugsRecord,
-              slugs,
-              tezosChains,
-              evmChains,
-              accountTezAddress,
-              accountEvmAddress,
-              manageActive,
-              firstListItemRef,
-              indexShift
-            )
-        }),
-        getElementIndex: makeGroupedTokenElementIndexFunction(promoRef, firstListItemRef, firstHeaderRef, groupedSlugs)
-      };
+    const commonProps = { index, ref, assetSlug, manageActive };
+
+    if (chainKind === TempleChainKind.Tezos) {
+      return (
+        <TezosTokenListItem
+          network={tezosChains[chainId]!}
+          publicKeyHash={accountTezAddress}
+          scam={mainnetTokensScamSlugsRecord[assetSlug]}
+          {...commonProps}
+        />
+      );
     }
 
-    const tokensJsx = buildTokensJsxArray(
-      mainnetTokensScamSlugsRecord,
-      displayedSlugs,
-      tezosChains,
-      evmChains,
-      accountTezAddress,
-      accountEvmAddress,
-      manageActive,
-      firstListItemRef
+    return (
+      <EvmTokenListItem showTags network={evmChains[chainId]!} publicKeyHash={accountEvmAddress} {...commonProps} />
     );
+  };
 
-    if (manageActive) {
-      return {
-        tokensView: tokensJsx,
-        getElementIndex: makeGetTokenElementIndexFunction(promoRef, firstListItemRef, tokensJsx.length)
-      };
-    }
-
-    return {
-      tokensView: getTokensViewWithPromo(tokensJsx, promoJsx),
-      getElementIndex: makeGetTokenElementIndexFunction(promoRef, firstListItemRef, tokensJsx.length)
-    };
-  }, [groupedSlugs, displayedSlugs, evmChains, tezosChains, manageActive, accountEvmAddress, accountTezAddress]);
+  const tokenWillBeRendered = useTokenWillBeRendered();
+  const getElementIndex = (y: number) =>
+    groupedSlugs
+      ? getGroupedTokenElementIndex(
+          promoRef.current,
+          firstListItemRef.current,
+          firstHeaderRef.current,
+          groupedSlugs,
+          tokenWillBeRendered,
+          y
+        )
+      : getTokenElementIndex(promoRef.current, firstListItemRef.current, displayedSlugs, tokenWillBeRendered, y);
+  const Promo = useRenderPromo(manageActive, promoRef);
 
   return (
     <TokensPageBase
@@ -106,51 +88,24 @@ export const PageContentBaseBody: FC<PageContentBaseBodyProps> = ({
       {...restProps}
       {...tokensPageBaseProps}
     >
-      {tokensView}
+      {groupedSlugs ? (
+        <GroupedTokensViewWithPromo
+          groupedSlugs={groupedSlugs}
+          evmChains={evmChains}
+          tezosChains={tezosChains}
+          Promo={Promo}
+          firstListItemRef={firstListItemRef}
+          firstHeaderRef={firstHeaderRef}
+          TokenListItem={TokenListItem}
+        />
+      ) : (
+        <TokensViewWithPromo
+          displayedSlugs={displayedSlugs}
+          Promo={Promo}
+          firstListItemRef={firstListItemRef}
+          TokenListItem={TokenListItem}
+        />
+      )}
     </TokensPageBase>
   );
 };
-
-function buildTokensJsxArray(
-  scamSlugs: Record<string, boolean>,
-  chainSlugs: string[],
-  tezosChains: StringRecord<TezosChain>,
-  evmChains: StringRecord<EvmChain>,
-  accountTezAddress: string,
-  accountEvmAddress: HexString,
-  manageActive: boolean,
-  firstListItemRef: Ref<TokenListItemElement>,
-  indexShift = 0
-) {
-  return chainSlugs.map((chainSlug, i) => {
-    const [chainKind, chainId, assetSlug] = parseChainAssetSlug(chainSlug);
-
-    if (chainKind === TempleChainKind.Tezos) {
-      return (
-        <TezosTokenListItem
-          network={tezosChains[chainId]!}
-          index={i + indexShift}
-          key={chainSlug}
-          publicKeyHash={accountTezAddress}
-          scam={scamSlugs[assetSlug]}
-          assetSlug={assetSlug}
-          manageActive={manageActive}
-          ref={i === 0 ? firstListItemRef : null}
-        />
-      );
-    }
-
-    return (
-      <EvmTokenListItem
-        showTags
-        key={chainSlug}
-        network={evmChains[chainId]!}
-        index={i + indexShift}
-        assetSlug={assetSlug}
-        publicKeyHash={accountEvmAddress}
-        manageActive={manageActive}
-        ref={i === 0 ? firstListItemRef : null}
-      />
-    );
-  });
-}

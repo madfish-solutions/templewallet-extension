@@ -1,6 +1,6 @@
 import { Activity, createContext, FC, useContext, useMemo, useRef } from 'react';
 
-import { noop } from 'lodash';
+import { constant, noop } from 'lodash';
 
 import { DeadEndBoundaryError } from 'app/ErrorBoundary';
 import { usePreservedOrderSlugsToManage } from 'app/hooks/listing-logic/use-manageable-slugs';
@@ -11,17 +11,12 @@ import {
 import { useTokensManageState } from 'app/hooks/use-assets-view-state';
 import { useMainnetTokensScamlistSelector } from 'app/store/tezos/assets/selectors';
 import { TezosTokenListItem } from 'app/templates/tokens/token-list-item';
+import { TokenListItemFC, TokensViewWithPromo } from 'app/templates/tokens/tokens-views';
 import { useMemoWithCompare } from 'lib/ui/hooks';
-import {
-  getTokensViewWithPromo,
-  makeFallbackChain,
-  makeGetTokenElementIndexFunction,
-  TokenListItemElement
-} from 'lib/ui/tokens-list';
+import { getTokenElementIndex, makeFallbackChain, TokenListItemElement, useRenderPromo } from 'lib/ui/tokens-list';
 import { TezosChain, useTezosChainByChainId } from 'temple/front';
 import { TEZOS_DEFAULT_NETWORKS } from 'temple/networks';
 
-import { Promo } from './promo';
 import { TokensPageBase, TokensPageBaseProps } from './tokens-page-base';
 
 interface Props {
@@ -121,32 +116,21 @@ const PageContentBase: FC<PageContentBaseProps> = ({
   );
 
   const mainnetTokensScamSlugsRecord = useMainnetTokensScamlistSelector();
-
-  const tokensJsx = useMemo(
-    () =>
-      displayedSlugs.map((assetSlug, i) => (
-        <TezosTokenListItem
-          key={assetSlug}
-          network={network}
-          index={i}
-          publicKeyHash={publicKeyHash}
-          assetSlug={assetSlug}
-          scam={mainnetTokensScamSlugsRecord[assetSlug]}
-          manageActive={manageActive}
-          ref={i === 0 ? firstListItemRef : null}
-        />
-      )),
-    [displayedSlugs, publicKeyHash, network, manageActive]
+  const TokenListItem: TokenListItemFC = ({ slug, ref, index }) => (
+    <TezosTokenListItem
+      network={network}
+      index={index}
+      publicKeyHash={publicKeyHash}
+      assetSlug={slug}
+      scam={mainnetTokensScamSlugsRecord[slug]}
+      manageActive={manageActive}
+      ref={ref}
+    />
   );
 
-  const tokensView = useMemo(
-    () => (manageActive ? tokensJsx : getTokensViewWithPromo(tokensJsx, <Promo ref={promoRef} />)),
-    [manageActive, tokensJsx, promoRef]
-  );
-  const getElementIndex = useMemo(
-    () => makeGetTokenElementIndexFunction(promoRef, firstListItemRef, tokensJsx.length),
-    [tokensJsx, promoRef, firstListItemRef]
-  );
+  const getElementIndex = (y: number) =>
+    getTokenElementIndex(promoRef.current, firstListItemRef.current, displayedSlugs, constant(true), y);
+  const Promo = useRenderPromo(manageActive, promoRef);
 
   const applicableNetworks = useMemo(() => [network], [network]);
 
@@ -164,7 +148,12 @@ const PageContentBase: FC<PageContentBaseProps> = ({
       shouldShowHiddenTokensHint={shouldShowHiddenTokensHint}
       {...tokensPageBaseProps}
     >
-      {tokensView}
+      <TokensViewWithPromo
+        displayedSlugs={displayedSlugs}
+        Promo={Promo}
+        firstListItemRef={firstListItemRef}
+        TokenListItem={TokenListItem}
+      />
     </TokensPageBase>
   );
 };
