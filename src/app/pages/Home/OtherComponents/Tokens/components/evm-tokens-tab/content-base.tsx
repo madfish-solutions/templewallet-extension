@@ -24,7 +24,6 @@ interface TabContentBaseProps {
   shouldShowHiddenTokensHint?: boolean;
 }
 
-// React Compiler cannot handle this file because of some refs used during rendering
 export const TabContentBase: FC<TabContentBaseProps> = ({
   allSlugsSorted,
   allSlugsSortedGrouped,

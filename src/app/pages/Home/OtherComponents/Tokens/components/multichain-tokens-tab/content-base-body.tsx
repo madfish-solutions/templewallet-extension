@@ -27,7 +27,6 @@ interface TabContentBaseBodyProps extends Pick<
   displayedSlugs: string[];
 }
 
-// React Compiler cannot handle this file because of some refs used during rendering
 export const TabContentBaseBody: FC<TabContentBaseBodyProps> = ({
   manageActive,
   groupedSlugs,
