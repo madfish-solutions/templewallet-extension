@@ -1,6 +1,6 @@
 import { groupBy } from 'lodash';
 
-import { fetchEvmTransactions } from 'lib/apis/temple/endpoints/evm';
+import { fetchEvmTransactions, fetchSpamContracts } from 'lib/apis/temple/endpoints/evm';
 import { fromAssetSlug } from 'lib/assets';
 import { TempleChainKind } from 'temple/types';
 
@@ -19,22 +19,27 @@ export async function getEvmActivities(
 
   const contractAddress = assetSlug ? fromAssetSlug(assetSlug)[0] : undefined;
 
-  const { transfers, approvals: allApprovals } = await fetchEvmTransactions(
-    accAddress,
-    chainId,
-    contractAddress,
-    olderThanBlockHeight,
-    signal
-  );
+  const txPromise = fetchEvmTransactions(accAddress, chainId, contractAddress, olderThanBlockHeight, signal);
+  const spamPromise = fetchSpamContracts(chainId, signal);
+  const [{ transfers, approvals: allApprovals }, spamContracts] = await Promise.all([txPromise, spamPromise]);
+
+  const spamSet = new Set(spamContracts.map(a => a.toLowerCase()));
 
   if (!transfers.length && !allApprovals.length) return [];
 
-  const groups = Object.entries(groupBy(transfers, 'hash'));
+  const isSpamTransfer = (t: (typeof transfers)[number]) =>
+    Boolean(t.rawContract.address && spamSet.has(t.rawContract.address.toLowerCase()));
+  const filteredTransfers = transfers.filter(t => !isSpamTransfer(t));
+  const filteredApprovals = allApprovals.filter(a => !spamSet.has(a.address.toLowerCase()));
+
+  const groups = Object.entries(groupBy(filteredTransfers, 'hash'));
 
   return groups.map<EvmActivity>(([hash, transfers]) => {
     const firstTransfer = transfers.at(0)!;
 
-    const approvals = allApprovals.filter(a => a.transactionHash === hash).map(approval => parseApprovalLog(approval));
+    const approvals = filteredApprovals
+      .filter(a => a.transactionHash === hash)
+      .map(approval => parseApprovalLog(approval));
 
     const operations = transfers
       .map(transfer => parseTransfer(transfer, accAddressLowercased, chainId))
