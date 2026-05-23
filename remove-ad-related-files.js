@@ -23,7 +23,9 @@ const fs = require('node:fs');
   'src/app/pages/Home/OtherComponents/Tokens/components/NotificationBanner/enable-ads-banner/rewards-animation.json',
   'src/app/pages/Home/OtherComponents/Tokens/components/NotificationBanner/enable-ads-banner/rewards-cover-card.tsx',
   'src/app/pages/Home/OtherComponents/Tokens/components/NotificationBanner/enable-ads-banner/rewards-modal.tsx',
-  'src/lib/apis/ads-api/ads-api.ts'
+  'src/lib/apis/ads-api/ads-api.ts',
+  'src/lib/temple/back/handle-url-change/constants.ts',
+  'src/lib/temple/back/handle-url-change/handle-url-change.ts'
 ].forEach(file => {
   try {
     fs.rmSync(file, { force: true, recursive: true });

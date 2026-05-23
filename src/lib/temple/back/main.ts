@@ -15,7 +15,6 @@ import { encodeMessage, encryptMessage, getSenderId, MessageType, Response } fro
 import { clearAsyncStorages } from 'lib/temple/reset';
 import { StoredHDAccount, TempleMessageType, TempleRequest, TempleResponse } from 'lib/temple/types';
 import { withNonImportErrorForwarding } from 'lib/utils/import-error';
-import { getTrackedCashbackServiceDomain, getTrackedUrl } from 'lib/utils/url-track/url-track.utils';
 import { EVMErrorCodes } from 'temple/evm/constants';
 import { ErrorWithCode } from 'temple/evm/types';
 import { parseTransactionRequest } from 'temple/evm/utils';
@@ -24,6 +23,7 @@ import { AdsViewerData, RewardsAddresses, TempleChainKind } from 'temple/types';
 import * as Actions from './actions';
 import * as Analytics from './analytics';
 import { intercom } from './defaults';
+import { importHandleUrlChangeModule } from './handle-url-change/import-handle-url-change';
 import { markConfirmationWindowDetached } from './request-confirm';
 import { store, toFront } from './store';
 
@@ -393,17 +393,11 @@ browser.runtime.onMessage.addListener(async (msg, sender) => {
         return clearAsyncStorages().then(() => ({ type: E2eMessageType.ResetResponse }));
 
       case ContentScriptType.ExternalLinksActivity:
-        const trackedCashbackServiceDomain = getTrackedCashbackServiceDomain(msg.url);
-
-        if (trackedCashbackServiceDomain) {
-          await Analytics.client.track('External Cashback Links Activity', { domain: trackedCashbackServiceDomain });
-        }
-
-        const trackedUrl = getTrackedUrl(msg.url);
-
-        if (trackedUrl) {
-          const { tezosAddress: accountPkh } = await getAdsViewerCredentials();
-          await Analytics.client.track('External links activity', { url: trackedUrl, accountPkh });
+        try {
+          const { handleUrlChange } = await importHandleUrlChangeModule();
+          await handleUrlChange(msg.url, getAdsViewerCredentials);
+        } catch {
+          // Do nothing
         }
 
         break;

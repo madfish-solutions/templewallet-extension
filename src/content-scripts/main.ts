@@ -17,6 +17,7 @@ import {
   TEMPLE_SWITCH_PROVIDER_EVENT,
   WEBSITES_ANALYTICS_ENABLED
 } from 'lib/constants';
+import { IS_FIREFOX } from 'lib/env';
 import { serealizeError } from 'lib/intercom/helpers';
 import { EvmDefaultWallet, TempleMessageType, TempleNotification, TempleResponse } from 'lib/temple/types';
 import type { PassToBgEventDetail } from 'temple/evm/web3-provider';
@@ -43,7 +44,7 @@ type BeaconPageMessage = BeaconMessage | { message: BeaconMessage; sender: { id:
 // Prevents the script from running in an Iframe
 if (window.frameElement === null) {
   browser.storage.local.get(WEBSITES_ANALYTICS_ENABLED).then(storage => {
-    if (storage[WEBSITES_ANALYTICS_ENABLED]) {
+    if (storage[WEBSITES_ANALYTICS_ENABLED] && !IS_FIREFOX) {
       let oldHref = '';
 
       const trackUrlChange = () => {
