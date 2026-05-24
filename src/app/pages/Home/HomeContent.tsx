@@ -1,9 +1,6 @@
-import { Activity, useEffect } from 'react';
+import { useEffect } from 'react';
 
-import { AssetsViewStateController } from 'app/atoms/AssetsViewStateController';
 import { SuspenseContainer } from 'app/atoms/SuspenseContainer';
-import { useActiveTabState } from 'app/hooks/use-assets-view-state';
-import { StickyBar } from 'app/layouts/containers';
 import PageLayout from 'app/layouts/PageLayout';
 import { AppHeader } from 'app/templates/AppHeader';
 import { DAppConnectionRefsProvider } from 'app/templates/DAppConnection/dapp-connection-refs';
@@ -15,14 +12,11 @@ import { toastSuccess } from 'app/toaster';
 import { useInitToastMessage } from 'lib/temple/front/toasts-context';
 import { useBooleanState } from 'lib/ui/hooks';
 
-import { CollectiblesTab } from '../Collectibles/CollectiblesTab';
-
-import { NotificationBanner } from './OtherComponents/Tokens/components/NotificationBanner';
-import { TokensTab } from './OtherComponents/Tokens/Tokens';
-import { TotalEquityBanner } from './OtherComponents/TotalEquityBanner';
+import { ContentBody } from './content-body';
+import { NotificationBanner } from './notification-banner';
+import { TotalEquityBanner } from './total-equity-banner';
 
 export const HomeContent = () => {
-  const { activeTab } = useActiveTabState();
   const [initToastMessage, setInitToastMessage] = useInitToastMessage();
 
   const [depositModalOpened, openDepositModal, closeDepositModal] = useBooleanState(false);
@@ -39,8 +33,6 @@ export const HomeContent = () => {
     return () => clearTimeout(timeout);
   }, [initToastMessage, setInitToastMessage]);
 
-  const isCollectibleTab = activeTab === 'collectibles';
-
   return (
     <PageLayout Header={AppHeader} bgWhite={false} contentPadding={false}>
       <div className="flex flex-col pt-2 pb-0 px-4">
@@ -53,19 +45,9 @@ export const HomeContent = () => {
 
       <NotificationBanner />
 
-      <StickyBar>
-        <AssetsViewStateController />
-      </StickyBar>
-
       <SuspenseContainer>
         <DAppConnectionRefsProvider>
-          <Activity mode={isCollectibleTab ? 'hidden' : 'visible'} name="home-tokens-tab">
-            <TokensTab />
-          </Activity>
-
-          <Activity mode={isCollectibleTab ? 'visible' : 'hidden'} name="home-collectibles-tab">
-            <CollectiblesTab />
-          </Activity>
+          <ContentBody onCryptoCardClick={openCryptoCardModal} />
         </DAppConnectionRefsProvider>
       </SuspenseContainer>
 

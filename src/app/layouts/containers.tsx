@@ -1,10 +1,6 @@
-import { FC, Ref, useRef } from 'react';
+import { FC, Ref } from 'react';
 
 import clsx from 'clsx';
-
-import { useStickyObservation } from 'app/hooks/use-sticky-observation';
-import { useTestnetModeEnabledSelector } from 'app/store/settings/selectors';
-import { combineRefs } from 'lib/ui/utils';
 
 export const SCROLL_DOCUMENT = process.env.SCROLL_DOCUMENT === 'true';
 // (!) Condition mustn't be `if(!SCROLL_DOCUMENT)` - won't work for WebPack
@@ -46,30 +42,3 @@ export const ContentContainer: FC<ContentContainerProps> = ({
     {children}
   </div>
 );
-
-interface StickyBarProps extends PropsWithChildren {
-  className?: string;
-  ref?: Ref<HTMLDivElement>;
-}
-
-export const StickyBar: FC<StickyBarProps> = ({ className, children, ref: forwardedRef }) => {
-  const spareRef = useRef<HTMLDivElement>(null);
-
-  const testnetModeEnabled = useTestnetModeEnabledSelector();
-
-  const sticked = useStickyObservation(spareRef);
-
-  return (
-    <div
-      ref={combineRefs(forwardedRef, spareRef)}
-      className={clsx(
-        'sticky z-sticky',
-        testnetModeEnabled ? 'top-[23px]' : '-top-px',
-        sticked && 'bg-white shadow-bottom',
-        className
-      )}
-    >
-      {children}
-    </div>
-  );
-};

@@ -1,4 +1,4 @@
-import { Ref } from 'react';
+import { Ref, RefObject } from 'react';
 
 import { clamp } from 'lodash';
 
@@ -70,7 +70,7 @@ export const getTokenElementIndex = (
   return [chainSlugs.length - 1];
 };
 
-export const getGroupedTokenElementIndex = <T extends TempleChainKind>(
+const getGroupedTokenElementIndex = <T extends TempleChainKind>(
   promoElement: HTMLDivElement | null,
   firstListItemElement: TokenListItemElement | null,
   firstHeaderElement: HTMLDivElement | null,
@@ -185,7 +185,11 @@ export function makeFallbackChain(network: StoredEvmNetwork | StoredTezosNetwork
   return { ...commonProps, rpc: network, allRpcs: [network], kind: chain, chainId };
 }
 
-export const useRenderPromo = (manageActive: boolean, promoRef?: Ref<HTMLDivElement>) => {
+export const useRenderPromo = (
+  manageActive: boolean,
+  page: 'HOME_PAGE_NAME' | 'TOKENS_PAGE_NAME',
+  promoRef?: Ref<HTMLDivElement>
+) => {
   const PartnersPromotionModule = usePartnersPromotionModule();
   const AdsConstantsModule = useAdsConstantsModule();
 
@@ -195,7 +199,7 @@ export const useRenderPromo = (manageActive: boolean, promoRef?: Ref<HTMLDivElem
         id="promo-token-item"
         key="promo-token-item"
         variant={PartnersPromotionModule.PartnersPromotionVariant.Text}
-        pageName={AdsConstantsModule.HOME_PAGE_NAME}
+        pageName={AdsConstantsModule[page]}
         ref={promoRef}
       />
     );
@@ -205,3 +209,25 @@ export const toNotRemovedChainTokensSlugs = (tokens: AccountToken[], chainKind: 
   tokens
     .filter(({ status }) => status !== 'removed')
     .map(({ chainId, slug }) => toChainAssetSlug(chainKind, chainId, slug));
+
+export const useGroupableGetTokenElementIndex = (
+  groupedSlugs: ChainGroupedSlugs | null,
+  slugs: string[],
+  promoRef: RefObject<HTMLDivElement | null>,
+  firstListItemRef: RefObject<TokenListItemElement | null>,
+  firstHeaderRef: RefObject<HTMLDivElement | null>
+) => {
+  const tokenWillBeRendered = useTokenWillBeRendered();
+
+  return (y: number) =>
+    groupedSlugs
+      ? getGroupedTokenElementIndex(
+          promoRef.current,
+          firstListItemRef.current,
+          firstHeaderRef.current,
+          groupedSlugs,
+          tokenWillBeRendered,
+          y
+        )
+      : getTokenElementIndex(promoRef.current, firstListItemRef.current, slugs, tokenWillBeRendered, y);
+};

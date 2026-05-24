@@ -96,7 +96,7 @@ const TokensGroup: FC<TokensGroupProps> = ({
 interface TokensViewWithPromoProps {
   displayedSlugs: string[];
   Promo: FC;
-  firstListItemRef: Ref<TokenListItemElement>;
+  firstListItemRef?: Ref<TokenListItemElement>;
   TokenListItem: TokenListItemFC;
 }
 

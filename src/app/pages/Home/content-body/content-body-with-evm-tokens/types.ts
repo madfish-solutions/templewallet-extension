@@ -1,4 +1,4 @@
-export interface EvmTokensTabProps {
+export interface ContentBodyWithEvmTokensProps {
   publicKeyHash: HexString;
   accountId: string;
 }

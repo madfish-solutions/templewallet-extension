@@ -4,13 +4,7 @@ import { useMainnetTokensScamlistSelector } from 'app/store/tezos/assets/selecto
 import { EvmTokenListItem, TezosTokenListItem } from 'app/templates/tokens/token-list-item';
 import { GroupedTokensViewWithPromo, TokenListItemFC, TokensViewWithPromo } from 'app/templates/tokens/tokens-views';
 import { parseChainAssetSlug } from 'lib/assets/utils';
-import {
-  getGroupedTokenElementIndex,
-  getTokenElementIndex,
-  TokenListItemElement,
-  useRenderPromo,
-  useTokenWillBeRendered
-} from 'lib/ui/tokens-list';
+import { TokenListItemElement, useGroupableGetTokenElementIndex, useRenderPromo } from 'lib/ui/tokens-list';
 import { EvmChain, TezosChain } from 'temple/front';
 import { ChainGroupedSlugs } from 'temple/front/chains';
 import { TempleChainKind } from 'temple/types';
@@ -66,19 +60,14 @@ export const PageContentBaseBody: FC<PageContentBaseBodyProps> = ({
     );
   };
 
-  const tokenWillBeRendered = useTokenWillBeRendered();
-  const getElementIndex = (y: number) =>
-    groupedSlugs
-      ? getGroupedTokenElementIndex(
-          promoRef.current,
-          firstListItemRef.current,
-          firstHeaderRef.current,
-          groupedSlugs,
-          tokenWillBeRendered,
-          y
-        )
-      : getTokenElementIndex(promoRef.current, firstListItemRef.current, displayedSlugs, tokenWillBeRendered, y);
-  const Promo = useRenderPromo(manageActive, promoRef);
+  const getElementIndex = useGroupableGetTokenElementIndex(
+    groupedSlugs,
+    displayedSlugs,
+    promoRef,
+    firstListItemRef,
+    firstHeaderRef
+  );
+  const Promo = useRenderPromo(manageActive, 'TOKENS_PAGE_NAME', promoRef);
 
   return (
     <TokensPageBase

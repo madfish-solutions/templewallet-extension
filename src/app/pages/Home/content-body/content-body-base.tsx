@@ -1,14 +1,13 @@
-import { FC, useState } from 'react';
+import { FC, useContext, useState } from 'react';
+
+import clsx from 'clsx';
 
 import { FadeTransition } from 'app/a11y/FadeTransition';
 import { SyncSpinner } from 'app/atoms';
 import { AddCustomTokenButton } from 'app/atoms/AddCustomTokenButton';
 import { AnimatedMenuChevron } from 'app/atoms/animated-menu-chevron';
 import { PageLoader } from 'app/atoms/Loader';
-import {
-  VisibilityTrackingInfiniteScroll,
-  VisibilityTrackingInfiniteScrollProps
-} from 'app/atoms/visibility-tracking-infinite-scroll';
+import { TotalEquity } from 'app/atoms/TotalEquity';
 import { ContentContainer } from 'app/layouts/containers';
 import BuyWithFiatImageSrc from 'app/misc/deposit/buy-with-fiat.png';
 import CrossChainSwapImageSrc from 'app/misc/deposit/cross-chain-swap.png';
@@ -23,6 +22,7 @@ import { AssetsEmptySection } from 'app/templates/assets-empty-section';
 import { CollectiblesGroupGrid } from 'app/templates/collectibles/collectibles-group-grid';
 import { DAppConnection } from 'app/templates/DAppConnection';
 import { DepositOption } from 'app/templates/deposit-option';
+import { KoloCryptoCardPreview } from 'app/templates/KoloCard/KoloCryptoCardPreview';
 import {
   AccountCollectible,
   toEvmEnabledCollectiblesChainSlugs,
@@ -35,14 +35,13 @@ import { EMPTY_FROZEN_ARRAY } from 'lib/utils';
 import { Link, navigate } from 'lib/woozie';
 import { OneOfChains } from 'temple/front';
 
-export interface TokensTabBaseProps {
+import { ContentBodyBaseContext } from './content-body-base-context';
+
+export interface ContentBodyBaseProps {
   tokensCount: number;
-  getElementIndex: VisibilityTrackingInfiniteScrollProps['getElementsIndexes'];
-  loadNextPage: EmptyFn;
   isSyncingTokens: boolean;
   accountId: string;
   isInSearchMode: boolean;
-  manageActive: boolean;
   network?: OneOfChains;
   shouldShowHiddenTokensHint?: boolean;
   tezosCollectibles?: AccountCollectible[];
@@ -53,7 +52,7 @@ export interface TokensTabBaseProps {
 
 const goToNftsPage = () => navigate('/nfts');
 
-export const TokensTabBase: FC<PropsWithChildren<TokensTabBaseProps>> = props => {
+export const ContentBodyBase: FC<PropsWithChildren<ContentBodyBaseProps>> = props => {
   const [customAssetModalOpened, localOpenCustomAssetModal, closeCustomAssetModal] = useBooleanState(false);
   const [forCollectible, setForCollectible] = useState(false);
 
@@ -65,7 +64,7 @@ export const TokensTabBase: FC<PropsWithChildren<TokensTabBaseProps>> = props =>
   return (
     <>
       <FadeTransition>
-        <TokensTabBaseContent {...props} openCustomAssetModal={openCustomAssetModal} />
+        <ContentBodyBaseInternal {...props} openCustomAssetModal={openCustomAssetModal} />
       </FadeTransition>
 
       <AddTokenModal
@@ -80,16 +79,13 @@ export const TokensTabBase: FC<PropsWithChildren<TokensTabBaseProps>> = props =>
   );
 };
 
-const TokensTabBaseContent: FC<
-  PropsWithChildren<Omit<TokensTabBaseProps, 'network'> & { openCustomAssetModal: SyncFn<boolean> }>
+const ContentBodyBaseInternal: FC<
+  PropsWithChildren<Omit<ContentBodyBaseProps, 'network'> & { openCustomAssetModal: SyncFn<boolean> }>
 > = ({
   tokensCount,
-  getElementIndex,
-  loadNextPage,
-  isSyncingTokens: isSyncing,
+  isSyncingTokens,
   accountId,
   isInSearchMode,
-  manageActive,
   shouldShowHiddenTokensHint,
   children,
   tezosCollectibles = EMPTY_FROZEN_ARRAY,
@@ -98,10 +94,20 @@ const TokensTabBaseContent: FC<
   collectiblesSortPredicate,
   openCustomAssetModal
 }) => {
+  const { onCryptoCardClick, account, filterChain } = useContext(ContentBodyBaseContext);
   const isTestnet = useTestnetModeEnabledSelector();
   const accountIsInitialized = useIsAccountInitializedSelector(accountId);
   const isSyncingInitializedState = useIsAccountInitializedLoadingSelector(accountId);
-  const { animatedChevronRef, handleHover, handleUnhover } = useActivateAnimatedChevron();
+  const {
+    animatedChevronRef: animatedNftsChevronRef,
+    handleHover: handleNftsHover,
+    handleUnhover: handleNftsUnhover
+  } = useActivateAnimatedChevron();
+  const {
+    animatedChevronRef: animatedTokensChevronRef,
+    handleHover: handleTokensHover,
+    handleUnhover: handleTokensUnhover
+  } = useActivateAnimatedChevron();
 
   const tezosCollectiblesSlugs = toTezEnabledCollectiblesChainSlugs(tezosCollectibles);
   const evmCollectiblesSlugs = toEvmEnabledCollectiblesChainSlugs(evmCollectibles);
@@ -114,12 +120,12 @@ const TokensTabBaseContent: FC<
   const NftsSection = () => (
     <div
       className="mt-6 bg-white rounded-8 border-0.5 border-lines p-1 pt-0 flex flex-col"
-      onMouseEnter={handleHover}
-      onMouseLeave={handleUnhover}
+      onMouseEnter={handleNftsHover}
+      onMouseLeave={handleNftsUnhover}
     >
       <Link to="/nfts" className="flex justify-between items-center p-2 gap-1" testID={HomeSelectors.nftsSection}>
         <span className="text-font-description-bold">{t('nfts')}</span>
-        <AnimatedMenuChevron ref={animatedChevronRef} />
+        <AnimatedMenuChevron ref={animatedNftsChevronRef} />
       </Link>
       {collectibles.length === 0 && collectiblesReady && (
         <div className="flex flex-col items-center px-2 py-3 gap-3 bg-background rounded-8">
@@ -147,54 +153,72 @@ const TokensTabBaseContent: FC<
     </div>
   );
 
-  if (accountIsInitialized === false && !isSyncingInitializedState && !isTestnet && !manageActive) {
+  if (accountIsInitialized === false && !isSyncingInitializedState && !isTestnet) {
     return (
-      <TokensTabBaseContentWrapper className="pt-0!">
+      <ContentBodyBaseInternalWrapper className="pt-0!">
         <UninitializedAccountContent />
 
         <NftsSection />
-      </TokensTabBaseContentWrapper>
+      </ContentBodyBaseInternalWrapper>
     );
   }
 
   if (
     (accountIsInitialized !== true && isSyncingInitializedState && !isTestnet) ||
-    (tokensCount === 0 && isSyncing && !isInSearchMode)
+    (tokensCount === 0 && isSyncingTokens && !isInSearchMode)
   ) {
     return (
-      <TokensTabBaseContentWrapper padding={false}>
+      <ContentBodyBaseInternalWrapper padding={false}>
         <PageLoader stretch />
-      </TokensTabBaseContentWrapper>
+      </ContentBodyBaseInternalWrapper>
     );
   }
 
   return (
-    <TokensTabBaseContentWrapper padding={tokensCount > 0}>
+    <ContentBodyBaseInternalWrapper padding={tokensCount > 0}>
       {tokensCount === 0 ? (
         <AssetsEmptySection
           forCollectibles={false}
           forSearch={isInSearchMode}
-          manageActive={manageActive}
+          manageActive={false}
           shouldShowHiddenTokensHint={shouldShowHiddenTokensHint}
           onAddCustomTokenClick={openCustomTokenModal}
         />
       ) : (
         <>
-          {manageActive && (
-            <AddCustomTokenButton manageActive={manageActive} className="mb-4" onClick={openCustomTokenModal} />
-          )}
-          <div className="w-full max-h-96 flex flex-col overflow-auto">
-            <VisibilityTrackingInfiniteScroll getElementsIndexes={getElementIndex} loadNext={loadNextPage}>
-              {children}
-            </VisibilityTrackingInfiniteScroll>
+          <div className="flex flex-col relative mb-17 -mx-4">
+            <KoloCryptoCardPreview onClick={onCryptoCardClick} />
+
+            <div
+              className={clsx(
+                'relative -mb-17 transform transition-transform duration-200 ease-out peer-hover:translate-y-2 mx-4',
+                'bg-white rounded-8 border-0.5 border-lines p-1 pt-0 flex flex-col'
+              )}
+              onMouseEnter={handleTokensHover}
+              onMouseLeave={handleTokensUnhover}
+            >
+              <Link
+                to="/tokens"
+                className="flex justify-between items-center p-2 gap-1"
+                testID={HomeSelectors.tokensSection}
+              >
+                <div className="flex items-center gap-1">
+                  <span className="text-font-description-bold">{t('tokens')}</span>
+                  <span className="text-font-num-bold-12 font-medium text-grey-1">
+                    <TotalEquity account={account} currency="fiat" tooltip={false} filterChain={filterChain} />
+                  </span>
+                </div>
+                <AnimatedMenuChevron ref={animatedTokensChevronRef} />
+              </Link>
+
+              <div className="flex flex-col bg-background rounded-8">{children}</div>
+            </div>
           </div>
 
           <NftsSection />
-
-          {isSyncing && <SyncSpinner className="mt-4" />}
         </>
       )}
-    </TokensTabBaseContentWrapper>
+    </ContentBodyBaseInternalWrapper>
   );
 };
 
@@ -224,7 +248,7 @@ const UninitializedAccountContent = () => (
   </>
 );
 
-const TokensTabBaseContentWrapper: FC<PropsWithChildren<{ padding?: boolean; className?: string }>> = ({
+const ContentBodyBaseInternalWrapper: FC<PropsWithChildren<{ padding?: boolean; className?: string }>> = ({
   padding,
   className,
   children

@@ -7,7 +7,7 @@ const importEnableAdsBannerModule = async () => {
       // oxlint-disable-next-line @typescript-eslint/prefer-ts-expect-error
       // @ts-ignore
       // oxlint-disable-next-line import/no-unresolved
-      'app/pages/Home/OtherComponents/Tokens/components/NotificationBanner/enable-ads-banner/component'
+      'app/pages/Home/notification-banner/enable-ads-banner/component'
     );
   } catch {
     return null;

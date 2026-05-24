@@ -3,12 +3,9 @@ import { useEffect, useRef, useState } from 'react';
 import constate from 'constate';
 import { useDebounce } from 'use-debounce';
 
-import { useLocationSearchParamValue } from 'app/hooks/use-location';
 import { useAssetsFilterOptionsSelector } from 'app/store/assets-filter-options/selectors';
 import { useBooleanState } from 'lib/ui/hooks';
 import { useLocation } from 'lib/woozie';
-
-type AssetsTab = 'tokens' | 'collectibles';
 
 const useAssetsKindViewState = (shouldPersistStateFn: SyncFn<string, boolean>) => {
   const { filterChain } = useAssetsFilterOptionsSelector();
@@ -21,7 +18,6 @@ const useAssetsKindViewState = (shouldPersistStateFn: SyncFn<string, boolean>) =
 
   const [customTokenModalOpened, openCustomTokenModal, closeCustomTokenModal] = useBooleanState(false);
   const [manageActive, setManageActive, setManageInactive, toggleManageActive] = useBooleanState(false);
-  const [searchMode, setSearchModeActive, setSearchModeInactive] = useBooleanState(false);
   const prevShouldPersistStateRef = useRef(shouldPersistStateFn(pathname));
 
   const [searchValue, setSearchValue] = useState('');
@@ -35,22 +31,18 @@ const useAssetsKindViewState = (shouldPersistStateFn: SyncFn<string, boolean>) =
 
     if (!shouldPersistState && prevShouldPersistStateRef.current) {
       setManageInactive();
-      setSearchModeInactive();
       resetSearchValue();
       resetSelectedChains();
     }
 
     prevShouldPersistStateRef.current = shouldPersistState;
-  }, [pathname, shouldPersistStateFn, setManageInactive, setSearchModeInactive, resetSearchValue, resetSelectedChains]);
+  }, [pathname, shouldPersistStateFn, setManageInactive, resetSearchValue, resetSelectedChains]);
 
   return {
     manageActive,
     setManageActive,
     setManageInactive,
     toggleManageActive,
-    searchMode,
-    setSearchModeActive,
-    setSearchModeInactive,
     searchValue,
     searchValueDebounced,
     setSearchValue,
@@ -63,39 +55,27 @@ const useAssetsKindViewState = (shouldPersistStateFn: SyncFn<string, boolean>) =
   };
 };
 
+const tokensPagesPaths = ['/tokens', '/token'];
 const collectiblesPagesPaths = ['/nfts', '/collectible'];
 
 // Moving this function into a separate constant seems to be the only way to make React Compiler work here
 const useAssetsViewState = () => {
-  const [tabSlug, setTabSlug] = useLocationSearchParamValue('tab');
   const { filterChain } = useAssetsFilterOptionsSelector();
 
-  const tokensViewState = useAssetsKindViewState(() => true);
+  const tokensViewState = useAssetsKindViewState(pathname => tokensPagesPaths.some(path => pathname.startsWith(path)));
   const collectiblesViewState = useAssetsKindViewState(pathname =>
     collectiblesPagesPaths.some(path => pathname.startsWith(path))
   );
 
-  const activeTab: AssetsTab = tabSlug === 'collectibles' ? 'collectibles' : 'tokens';
-
-  const setActiveTab = (tab: AssetsTab) => setTabSlug(tab);
-
-  return {
-    chainIsGloballySelected: Boolean(filterChain),
-    activeTab,
-    setActiveTab,
-    tokensViewState,
-    collectiblesViewState
-  };
+  return { chainIsGloballySelected: Boolean(filterChain), tokensViewState, collectiblesViewState };
 };
 
 export const [
   AssetsViewStateProvider,
   useTokensManageState,
   useCollectiblesManageState,
-  useActiveTabState,
   useTokensSearchState,
   useCollectiblesSearchState,
-  useTokensSearchModeState,
   useCollectiblesSelectedChainsState,
   useTokensSelectedChainsState,
   useCollectiblesCustomTokenModalState
@@ -113,10 +93,6 @@ export const [
     setManageInactive: collectiblesViewState.setManageInactive,
     toggleManageActive: collectiblesViewState.toggleManageActive
   }),
-  state => ({
-    activeTab: state.activeTab,
-    setActiveTab: state.setActiveTab
-  }),
   ({ tokensViewState }) => ({
     searchValue: tokensViewState.searchValue,
     searchValueDebounced: tokensViewState.searchValueDebounced,
@@ -128,11 +104,6 @@ export const [
     searchValueDebounced: collectiblesViewState.searchValueDebounced,
     setSearchValue: collectiblesViewState.setSearchValue,
     resetSearchValue: collectiblesViewState.resetSearchValue
-  }),
-  ({ tokensViewState }) => ({
-    searchMode: tokensViewState.searchMode,
-    setSearchModeActive: tokensViewState.setSearchModeActive,
-    setSearchModeInactive: tokensViewState.setSearchModeInactive
   }),
   ({ collectiblesViewState, chainIsGloballySelected }) => ({
     selectedChains: collectiblesViewState.selectedChains,
