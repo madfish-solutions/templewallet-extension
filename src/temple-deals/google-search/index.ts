@@ -58,7 +58,7 @@ function injectStyles() {
       border: 0;
       border-radius: 4px;
       color: #FF5B00;
-      cursor: pointer;
+      cursor: default;
       display: inline-flex;
       font-family: Rubik, Arial, sans-serif;
       font-size: 12px;
@@ -274,9 +274,8 @@ function addLabel(
   domain: string,
   offer: MerchantOffer
 ) {
-  const label = document.createElement('button');
+  const label = document.createElement('span');
   label.className = LABEL_CLASS;
-  label.type = 'button';
   label.dataset.templeDomain = domain;
   label.dataset.templeRoot = '';
 
@@ -289,9 +288,7 @@ function addLabel(
 
   const show = () => scheduleShowHoverPopup(label, offer, url, domain);
   label.addEventListener('mouseenter', show);
-  label.addEventListener('focus', () => showHoverPopup(label, offer, url, domain));
   label.addEventListener('mouseleave', scheduleHideHoverPopup);
-  label.addEventListener('blur', scheduleHideHoverPopup);
 
   if (placeLabel(anchor, moreButton, label)) {
     requestAnimationFrame(() => label.classList.add('temple-google-deal-label-visible'));
