@@ -10,6 +10,7 @@ import { useRetryableSWR } from 'lib/swr';
 import { EvmChainSpecs, TezosChainSpecs } from 'lib/temple/chains-specs';
 import { useTempleClient } from 'lib/temple/front/client';
 import { TempleDAppPayload } from 'lib/temple/types';
+import { useMemoWithCompare } from 'lib/ui/hooks';
 import {
   ChainsActiveRpcUrls,
   ChainsAllRpcUrls,
@@ -29,7 +30,6 @@ import { TempleChainKind } from 'temple/types';
 import type { ChainBase, EvmChain, OneOfChains, TezosChain } from '../chains';
 import { useBlockExplorers } from '../use-block-explorers';
 import { useEvmChainsSpecs, useTezosChainsSpecs } from '../use-chains-specs';
-import { useMemoWithCompare } from 'lib/ui/hooks';
 
 export function useReadyTempleTezosNetworks(customTezosNetworks: StoredTezosNetwork[]) {
   const allTezosNetworks = useMemo<typeof TEZOS_DEFAULT_NETWORKS>(
