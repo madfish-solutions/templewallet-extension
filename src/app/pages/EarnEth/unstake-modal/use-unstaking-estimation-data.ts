@@ -1,12 +1,12 @@
 import BigNumber from 'bignumber.js';
 import { noop } from 'lodash';
 
+import { makeEthereumToolkit } from 'lib/utils/eth-staking';
 import { AccountForEvm } from 'temple/accounts';
 import { EvmNetworkEssentials } from 'temple/networks';
 
 import { EVERSTAKE_SOURCE_ID } from '../constants';
 import { makeUseEstimationData } from '../estimate-earn-operation';
-import { makeEthereumToolkit } from '../utils';
 
 import { ReviewData } from './types';
 
