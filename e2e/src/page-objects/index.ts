@@ -1,5 +1,4 @@
 import { CollectiblePage } from '../page-objects/pages/collectible.page';
-import { NftsPage } from './pages/Nfts.page';
 import { ConfirmationModalPage } from '../page-objects/pages/confirmation-modal.page';
 import { GeneralSettingsPage } from '../page-objects/pages/general-settings.page';
 import { HomePage } from '../page-objects/pages/home.page';
@@ -14,6 +13,7 @@ import { InternalConfirmationPage } from './pages/internal-confirmation.page';
 import { ManualBackupModalPage } from './pages/modal/manual-backup-modal.page';
 import { NewsletterModalPage } from './pages/modal/newsletter-modal.page';
 import { OnRumModalPage } from './pages/modal/on-rum-modal.page';
+import { NftsPage } from './pages/Nfts.page';
 import { SendPage } from './pages/send.page';
 import { SettingsPage } from './pages/settings.page';
 import { setWalletPage } from './pages/setWalletPassword.page';
