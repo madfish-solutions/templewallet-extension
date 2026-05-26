@@ -1,8 +1,10 @@
-import React, { FC, createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import React, { FC, createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 
 import { noop } from 'lodash';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { useDebounce } from 'use-debounce';
+
+import { combineRefs } from 'lib/ui/utils';
 
 import { SimpleInfiniteScroll, SimpleInfiniteScrollProps } from './SimpleInfiniteScroll';
 
@@ -40,19 +42,13 @@ const InfiniteScrollVisibilityContextProvider: FC<PropsWithChildren> = ({ childr
   const [listItemsVisibilityDebounced] = useDebounce(listItemsVisibility, 50, debounceOptions);
 
   // Expand the window monotonically so items that have been scrolled into view don't revert to skeleton when scrolled away.
-  const setListItemsVisibility = useCallback(
-    (next: ListItemsVisibility) =>
-      setListItemsVisibilityRaw(prev => ({
-        top: Math.min(prev.top, next.top),
-        bottom: Math.max(prev.bottom, next.bottom)
-      })),
-    []
-  );
+  const setListItemsVisibility = (next: ListItemsVisibility) =>
+    setListItemsVisibilityRaw(prev => ({
+      top: Math.min(prev.top, next.top),
+      bottom: Math.max(prev.bottom, next.bottom)
+    }));
 
-  const value = useMemo(
-    () => ({ listItemsVisibility: listItemsVisibilityDebounced, setListItemsVisibility }),
-    [listItemsVisibilityDebounced, setListItemsVisibility]
-  );
+  const value = { listItemsVisibility: listItemsVisibilityDebounced, setListItemsVisibility };
 
   return <InfiniteScrollVisibilityContext value={value}>{children}</InfiniteScrollVisibilityContext>;
 };
@@ -73,13 +69,15 @@ export const VisibilityTrackingInfiniteScroll: FC<VisibilityTrackingInfiniteScro
 const VisibilityTrackingInfiniteScrollContent: FC<VisibilityTrackingInfiniteScrollProps> = ({
   children,
   getElementsIndexes,
+  ref,
   ...restProps
 }) => {
   const { setListItemsVisibility } = useInfiniteScrollVisibilityContext();
-  const scrollViewRef = useRef<InfiniteScroll>(null);
+  const internalScrollViewRef = useRef<InfiniteScroll>(null);
+  const scrollViewRef = combineRefs(internalScrollViewRef, ref);
 
   const updateScrollDimensions = useCallback(() => {
-    const scrollView = scrollViewRef.current;
+    const scrollView = internalScrollViewRef.current;
 
     if (!scrollView) return;
 
@@ -97,7 +95,7 @@ const VisibilityTrackingInfiniteScrollContent: FC<VisibilityTrackingInfiniteScro
   useEffect(() => {
     updateScrollDimensions();
 
-    const scrollableNode = scrollViewRef.current?.getScrollableTarget();
+    const scrollableNode = internalScrollViewRef.current?.getScrollableTarget();
     if (scrollableNode) {
       const resizeObserver = new ResizeObserver(() => updateScrollDimensions());
       resizeObserver.observe(scrollableNode);
@@ -118,9 +116,5 @@ const VisibilityTrackingInfiniteScrollContent: FC<VisibilityTrackingInfiniteScro
 export const useIsItemVisible = (index: number | undefined) => {
   const { listItemsVisibility } = useInfiniteScrollVisibilityContext();
 
-  return useMemo(() => {
-    if (index == null) return true;
-
-    return index >= listItemsVisibility.top && index <= listItemsVisibility.bottom;
-  }, [index, listItemsVisibility]);
+  return index == null || (index >= listItemsVisibility.top && index <= listItemsVisibility.bottom);
 };

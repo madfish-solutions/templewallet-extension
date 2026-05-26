@@ -1,4 +1,4 @@
-import React, { memo, useMemo } from 'react';
+import { FC } from 'react';
 
 import clsx from 'clsx';
 
@@ -7,7 +7,7 @@ import { fromAssetSlug } from 'lib/assets';
 import { buildObjktMediaUriForItemPath } from 'lib/images-uri';
 import { useBooleanState } from 'lib/ui/hooks';
 
-import { CollectibleImageLoader } from '../CollectibleImageLoader';
+import { CollectibleImageLoader } from './collectible-image-loader';
 
 interface Props {
   assetSlug: string;
@@ -16,14 +16,12 @@ interface Props {
   onClick?: EmptyFn;
 }
 
-export const CollectibleBlur = memo<Props>(({ assetSlug, large = false, eyeIconSizeClassName, onClick }) => {
-  const [isLoading, _, setLoaded] = useBooleanState(true);
+export const CollectibleBlur: FC<Props> = ({ assetSlug, large = false, eyeIconSizeClassName, onClick }) => {
+  const [isLoading, , setLoaded] = useBooleanState(true);
 
-  const source = useMemo(() => {
-    const [address, id] = fromAssetSlug(assetSlug);
+  const [address, id] = fromAssetSlug(assetSlug);
 
-    return buildObjktMediaUriForItemPath(`${address}/${id}`, 'thumb288');
-  }, [assetSlug]);
+  const source = buildObjktMediaUriForItemPath(`${address}/${id}`, 'thumb288');
 
   return (
     <>
@@ -46,4 +44,4 @@ export const CollectibleBlur = memo<Props>(({ assetSlug, large = false, eyeIconS
       </div>
     </>
   );
-});
+};

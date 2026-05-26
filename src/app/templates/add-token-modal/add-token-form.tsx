@@ -40,6 +40,7 @@ import { loadContract } from 'lib/temple/contract';
 import { useToastsContainerBottomShift } from 'lib/temple/front/toasts-context';
 import { useConfirm } from 'lib/ui/dialog';
 import { useSafeState, useUpdatableRef } from 'lib/ui/hooks';
+import { toExploreAssetLink } from 'lib/ui/links';
 import { navigate } from 'lib/woozie';
 import { OneOfChains, useAccountAddressForEvm, useAccountAddressForTezos } from 'temple/front';
 import { validateEvmContractAddress } from 'temple/front/evm/helpers';
@@ -47,9 +48,7 @@ import { validateTezosContractAddress } from 'temple/front/tezos';
 import { getTezosReadOnlyRpcClient } from 'temple/tezos';
 import { TempleChainKind } from 'temple/types';
 
-import { toExploreAssetLink } from '../../utils';
-
-import { TokenInfo } from './TokenInfo';
+import { TokenInfo } from './token-info';
 
 type ComponentState = {
   processing: boolean;

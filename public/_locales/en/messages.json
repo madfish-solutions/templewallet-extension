@@ -2405,6 +2405,21 @@
   "selectNetwork": {
     "message": "Select Network"
   },
+  "search": {
+    "message": "Search"
+  },
+  "viewAsCollections": {
+    "message": "View as collections"
+  },
+  "nftsLoaderText": {
+    "message": "Assets are loading..."
+  },
+  "startYourCollectionToday": {
+    "message": "Start your collection today!"
+  },
+  "unknownCollection": {
+    "message": "Unknown Collection"
+  },
   "searchNetworkName": {
     "message": "Search network name"
   },

@@ -6,11 +6,11 @@ import { useAssetsFilterOptionsSelector } from 'app/store/assets-filter-options/
 import { useAccountAddressForEvm, useAccountAddressForTezos, useCurrentAccountId } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
 
+import { EvmTokensTab } from './components/evm-tokens-tab';
 import { EvmChainTokensTab } from './components/EvmChainTokensTab';
-import { EvmTokensTab } from './components/EvmTokensTab';
-import { MultiChainTokensTab } from './components/MultiChainTokensTab';
+import { MultiChainTokensTab } from './components/multichain-tokens-tab';
+import { TezosTokensTab } from './components/tezos-tokens-tab';
 import { TezosChainTokensTab } from './components/TezosChainTokensTab';
-import { TezosTokensTab } from './components/TezosTokensTab';
 
 export const TokensTab = () => {
   const { filterChain } = useAssetsFilterOptionsSelector();

@@ -13,7 +13,7 @@ import {
   useAllCollectiblesDetailsLoadingSelector,
   useCollectibleDetailsSelector
 } from 'app/store/tezos/collectibles/selectors';
-import { fromFa2TokenSlug } from 'lib/assets/utils';
+import { fromFa2TokenSlug, getTezCollectionName } from 'lib/assets/utils';
 import { useTezosAssetBalance } from 'lib/balances';
 import { buildTokenImagesStack } from 'lib/images-uri';
 import { getTokenName } from 'lib/metadata';
@@ -69,10 +69,10 @@ export const TezosContent = memo<Props>(({ chainId, assetSlug }) => {
   const collection = useMemo(() => {
     if (!details) return null;
     return {
-      title: details.galleries[0]?.title ?? details.fa.name,
+      title: getTezCollectionName(assetSlug, details),
       logoSrc: buildTokenImagesStack(details.fa.logo)[0]
     };
-  }, [details]);
+  }, [assetSlug, details]);
 
   const onSendButtonClick = useCallback(
     () => navigate(buildSendPagePath(TempleChainKind.Tezos, chainId, assetSlug)),

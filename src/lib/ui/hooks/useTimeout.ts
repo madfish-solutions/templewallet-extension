@@ -1,10 +1,15 @@
 import { useEffect } from 'react';
 
+import { EMPTY_FROZEN_ARRAY } from 'lib/utils';
+
 import { useUpdatableRef } from './useUpdatableRef';
 
-const DEFAULT_DEPS: unknown[] = [];
-
-export const useTimeout = (callback: EmptyFn, timeout: number, condition = true, deps = DEFAULT_DEPS) => {
+export const useTimeout = (
+  callback: EmptyFn,
+  timeout: number,
+  condition = true,
+  deps: unknown[] = EMPTY_FROZEN_ARRAY
+) => {
   const callbackRef = useUpdatableRef(callback);
 
   useEffect(() => {

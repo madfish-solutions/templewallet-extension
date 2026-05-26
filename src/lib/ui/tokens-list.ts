@@ -64,6 +64,8 @@ export const getTokenElementIndex = (
   return [chainSlugs.length - 1];
 };
 
+// TODO: apply this function on the new "Tokens" page
+// ts-prune-ignore-next
 export const getGroupedTokenElementIndex = <T extends TempleChainKind>(
   promoElement: HTMLDivElement | null,
   firstListItemElement: TokenListItemElement | null,
@@ -139,6 +141,8 @@ export const useTokenWillBeRendered = () => {
   };
 };
 
+// TODO: apply this function on the new "Tokens" page
+// ts-prune-ignore-next
 export const useEvmChainTokenWillBeRendered = (chain: EvmChain) => {
   const lifiConnectedEvmChainTokensMetadataRecord = useLifiConnectedEvmChainTokensMetadataSelector(chain.chainId);
   const lifiEnabledNetworksEvmChainTokensMetadataRecord = useLifiEnabledNetworksEvmChainTokensMetadataSelector(

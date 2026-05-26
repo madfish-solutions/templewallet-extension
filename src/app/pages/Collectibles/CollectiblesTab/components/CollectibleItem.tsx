@@ -6,7 +6,6 @@ import { IconBase, ToggleSwitch } from 'app/atoms';
 import { EvmNetworkLogo, NetworkLogoPropsBase, TezosNetworkLogo } from 'app/atoms/NetworkLogo';
 import { useIsItemVisible } from 'app/atoms/visibility-tracking-infinite-scroll';
 import { ReactComponent as DeleteIcon } from 'app/icons/base/delete.svg';
-import { ScamTag } from 'app/pages/Home/OtherComponents/Tokens/components/TokenTag/ScamTag';
 import { dispatch } from 'app/store';
 import { setEvmCollectibleStatusAction } from 'app/store/evm/assets/actions';
 import { useStoredEvmCollectibleSelector } from 'app/store/evm/assets/selectors';
@@ -23,9 +22,13 @@ import {
   useAllCollectiblesDetailsLoadingSelector,
   useCollectibleDetailsSelector
 } from 'app/store/tezos/collectibles/selectors';
+import { CollectibleImageLoader } from 'app/templates/collectibles/collectible-image-loader';
+import { EvmCollectibleItemImage, TezosCollectibleItemImage } from 'app/templates/collectibles/collectible-item-image';
 import { DeleteAssetModal } from 'app/templates/remove-asset-modal/delete-asset-modal';
+import { ScamTag } from 'app/templates/scam-tag';
 import { setAnotherSelector, setTestID } from 'lib/analytics';
 import { getAssetStatus } from 'lib/assets/hooks/utils';
+import { getTezCollectionName } from 'lib/assets/utils';
 import { useEvmAssetBalance } from 'lib/balances/hooks';
 import { buildObjktCollectibleArtifactUri } from 'lib/images-uri';
 import { getTokenName } from 'lib/metadata';
@@ -33,16 +36,13 @@ import { CollectibleMetadata } from 'lib/metadata/types';
 import { getCollectibleName, getCollectionName } from 'lib/metadata/utils';
 import { CollectiblesListItemElement } from 'lib/ui/collectibles-list';
 import { useBooleanState } from 'lib/ui/hooks';
+import { toExploreAssetLink } from 'lib/ui/links';
 import { ZERO } from 'lib/utils/numbers';
 import { Link } from 'lib/woozie';
 import { ChainId, ChainOfKind, PublicKeyHash, useEvmChainByChainId, useTezosChainByChainId } from 'temple/front/chains';
 import { TempleChainKind } from 'temple/types';
 
-import { CollectibleImageLoader } from '../../components/CollectibleImageLoader';
 import { CollectibleTabSelectors } from '../selectors';
-import { toCollectibleLink } from '../utils';
-
-import { TezosCollectibleItemImage, EvmCollectibleItemImage } from './CollectibleItemImage';
 
 // Fixed sizes to improve large grid performance
 const manageImgStyle = { width: '2.625rem', height: '2.625rem' };
@@ -60,6 +60,8 @@ interface TezosCollectibleItemProps {
   ref?: Ref<CollectiblesListItemElement>;
 }
 
+// TODO: remove this file after a page for tokens is added
+
 export const TezosCollectibleItem = memo<TezosCollectibleItemProps>(
   ({ assetSlug, accountPkh, tezosChainId, adultBlur, areDetailsShown, scam, manageActive = false, index, ref }) => {
     const metadata = useCollectibleMetadataSelector(assetSlug);
@@ -75,10 +77,7 @@ export const TezosCollectibleItem = memo<TezosCollectibleItemProps>(
     const areDetailsLoading = useAllCollectiblesDetailsLoadingSelector();
     const details = useCollectibleDetailsSelector(assetSlug);
 
-    const collectionName = useMemo(
-      () => details?.galleries[0]?.title ?? details?.fa.name ?? 'Unknown Collection',
-      [details]
-    );
+    const collectionName = useMemo(() => getTezCollectionName(assetSlug, details), [assetSlug, details]);
 
     const assetName = getTokenName(metadata);
 
@@ -396,7 +395,7 @@ const DefaultCollectibleListItemLayoutHOC = <
 
     return (
       <Link
-        to={toCollectibleLink(chainKind, chainId, assetSlug)}
+        to={toExploreAssetLink(true, chainKind, chainId, assetSlug)}
         className={clsx('flex flex-col overflow-hidden group', isVisible ? 'rounded-8' : 'rounded-t-8', className)}
         testID={CollectibleTabSelectors.collectibleItem}
         testIDProperties={{ assetSlug: assetSlug }}

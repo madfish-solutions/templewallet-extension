@@ -1,5 +1,7 @@
 import { FC } from 'react';
 
+import clsx from 'clsx';
+
 import { AddCustomTokenButton } from 'app/atoms/AddCustomTokenButton';
 import { EmptyState } from 'app/atoms/EmptyState';
 import { TID } from 'lib/i18n';
@@ -9,14 +11,16 @@ interface Props {
   forSearch: boolean;
   manageActive: boolean;
   shouldShowHiddenTokensHint?: boolean;
+  stretchSpaceBeforeButton?: boolean;
   onAddCustomTokenClick: EmptyFn;
 }
 
-export const EmptySection: FC<Props> = ({
+export const AssetsEmptySection: FC<Props> = ({
   forCollectibles,
   forSearch,
   manageActive,
   shouldShowHiddenTokensHint = false,
+  stretchSpaceBeforeButton = true,
   onAddCustomTokenClick
 }) => {
   let textI18n: TID;
@@ -31,12 +35,15 @@ export const EmptySection: FC<Props> = ({
   }
 
   const commonProps = { manageActive, onClick: onAddCustomTokenClick };
+  const shouldShowAddButtonAtTop = manageActive && !forCollectibles;
 
   return (
-    <div className="w-full h-full px-4 flex flex-col items-center">
-      {manageActive && <AddCustomTokenButton {...commonProps} className="w-full mt-4" />}
-      <EmptyState forSearch={forSearch} textI18n={textI18n} stretch />
-      {!manageActive && <AddCustomTokenButton {...commonProps} className="mb-8" />}
+    <div
+      className={clsx('w-full h-full px-4 flex flex-col items-center', !stretchSpaceBeforeButton && 'justify-center')}
+    >
+      {shouldShowAddButtonAtTop && <AddCustomTokenButton {...commonProps} className="w-full mt-4" />}
+      <EmptyState forSearch={forSearch} textI18n={textI18n} stretch={stretchSpaceBeforeButton} />
+      {!shouldShowAddButtonAtTop && <AddCustomTokenButton {...commonProps} className="mb-8" />}
     </div>
   );
 };

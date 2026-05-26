@@ -25,3 +25,7 @@ export const setCollectiblesBlurFilterOption = createAction<boolean>(
 export const setCollectiblesShowInfoFilterOption = createAction<boolean>(
   'assets-filter-options/SET_COLLECTIBLES_SHOW_INFO_FILTER_OPTION'
 );
+
+export const setCollectiblesViewAsCollectionsFilterOption = createAction<boolean>(
+  'assets-filter-options/SET_COLLECTIBLES_VIEW_AS_COLLECTIONS_FILTER_OPTION'
+);
