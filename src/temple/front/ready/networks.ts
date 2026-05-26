@@ -29,6 +29,7 @@ import { TempleChainKind } from 'temple/types';
 import type { ChainBase, EvmChain, OneOfChains, TezosChain } from '../chains';
 import { useBlockExplorers } from '../use-block-explorers';
 import { useEvmChainsSpecs, useTezosChainsSpecs } from '../use-chains-specs';
+import { useMemoWithCompare } from 'lib/ui/hooks';
 
 export function useReadyTempleTezosNetworks(customTezosNetworks: StoredTezosNetwork[]) {
   const allTezosNetworks = useMemo<typeof TEZOS_DEFAULT_NETWORKS>(
@@ -154,7 +155,7 @@ function useChains<T extends OneOfChains>(
   const { allBlockExplorers } = useBlockExplorers();
   const testnetModeEnabled = useTestnetModeEnabledSelector();
 
-  const allChains = useMemo(() => {
+  const allChains = useMemoWithCompare(() => {
     const rpcByChainId = new Map<T['chainId'], NonEmptyArray<StoredNetwork<T>>>();
 
     for (const rpc of networks) {
@@ -198,7 +199,7 @@ function useChains<T extends OneOfChains>(
     return chains;
   }, [allBlockExplorers, chainKind, chainsSpecs, defaultNetworks, makeChain, networks]);
 
-  const enabledChains = useMemo(
+  const enabledChains = useMemoWithCompare(
     () =>
       Object.values(allChains).filter(chain => {
         const isTestnet = chain.testnet !== false;
