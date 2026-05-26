@@ -9,14 +9,16 @@ import { TempleChainKind } from 'temple/types';
 
 import { useIsTezosBigBalance } from '../listing-logic/use-is-big-balance';
 
+import { useTezosStakingSummand } from './use-tezos-staking-summand';
 import { calculateTotalDollarValue } from './utils';
 
-export const useTezosTotalBalance = (publicKeyHash: string, ignoreSmallBalances = false) => {
+export const useTezosTotalBalance = (publicKeyHash: string, ignoreSmallBalances = false, includeStaking = false) => {
   const tokensSlugs = useEnabledTezosChainAccountTokenSlugs(publicKeyHash, TEZOS_MAINNET_CHAIN_ID);
 
   const getBalance = useGetTezosChainAccountTokenOrGasBalanceWithDecimals(publicKeyHash, TEZOS_MAINNET_CHAIN_ID);
   const allUsdToTokenRates = useTezosUsdToTokenRatesSelector();
   const isBigBalance = useIsTezosBigBalance(publicKeyHash);
+  const stakingSummand = useTezosStakingSummand(publicKeyHash, includeStaking);
 
   const slugs = useMemoWithCompare(
     () =>
@@ -27,5 +29,7 @@ export const useTezosTotalBalance = (publicKeyHash: string, ignoreSmallBalances 
     [tokensSlugs, ignoreSmallBalances, isBigBalance]
   );
 
-  return calculateTotalDollarValue(slugs, getBalance, slug => allUsdToTokenRates[slug]);
+  return calculateTotalDollarValue(slugs, getBalance, slug => allUsdToTokenRates[slug])
+    .plus(stakingSummand)
+    .toString();
 };

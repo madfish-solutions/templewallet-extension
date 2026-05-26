@@ -24,7 +24,6 @@ interface PageContentBaseBodyProps extends Pick<
   displayedSlugs: string[];
 }
 
-// React Compiler cannot handle this file because of some refs used during rendering
 export const PageContentBaseBody: FC<PageContentBaseBodyProps> = ({
   manageActive,
   groupedSlugs,
@@ -67,7 +66,7 @@ export const PageContentBaseBody: FC<PageContentBaseBodyProps> = ({
     firstListItemRef,
     firstHeaderRef
   );
-  const Promo = useRenderPromo(manageActive, 'TOKENS_PAGE_NAME', promoRef);
+  const Promo = useRenderPromo(manageActive, 'tokens', promoRef);
 
   return (
     <TokensPageBase

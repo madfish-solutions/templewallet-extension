@@ -2,13 +2,20 @@ import { useEvmChainUsdToTokenRatesSelector } from 'app/store/evm/tokens-exchang
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { useEnabledEvmChainAccountTokenSlugs } from 'lib/assets/hooks';
 import { useGetEvmTokenBalanceWithDecimals } from 'lib/balances/hooks';
+import { ETHEREUM_MAINNET_CHAIN_ID } from 'lib/temple/types';
 import { useMemoWithCompare } from 'lib/ui/hooks';
 
 import { useIsEvmChainBigBalance } from '../listing-logic/use-is-big-balance';
 
+import { useEthStakingSummand } from './use-eth-staking-summand';
 import { calculateTotalDollarValue } from './utils';
 
-export const useEvmChainTotalBalance = (publicKeyHash: HexString, chainId: number, ignoreSmallBalances = false) => {
+export const useEvmChainTotalBalance = (
+  publicKeyHash: HexString,
+  chainId: number,
+  ignoreSmallBalances = false,
+  includeStaking = false
+) => {
   const tokenSlugs = useEnabledEvmChainAccountTokenSlugs(publicKeyHash, chainId);
 
   const getBalance = useGetEvmTokenBalanceWithDecimals(publicKeyHash);
@@ -20,9 +27,13 @@ export const useEvmChainTotalBalance = (publicKeyHash: HexString, chainId: numbe
     [tokenSlugs, ignoreSmallBalances, isBigBalance]
   );
 
+  const stakingSummand = useEthStakingSummand(publicKeyHash, includeStaking && chainId === ETHEREUM_MAINNET_CHAIN_ID);
+
   return calculateTotalDollarValue(
     slugs,
     slug => getBalance(chainId, slug),
     slug => usdToTokenRates[slug]
-  );
+  )
+    .plus(stakingSummand)
+    .toString();
 };

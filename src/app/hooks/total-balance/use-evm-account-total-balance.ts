@@ -3,12 +3,15 @@ import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { useEnabledEvmAccountTokenSlugs } from 'lib/assets/hooks';
 import { parseChainAssetSlug, toChainAssetSlug } from 'lib/assets/utils';
 import { useGetEvmTokenBalanceWithDecimals } from 'lib/balances/hooks';
+import { ETHEREUM_MAINNET_CHAIN_ID } from 'lib/temple/types';
 import { useMemoWithCompare } from 'lib/ui/hooks';
+import { ZERO } from 'lib/utils/numbers';
 import { useEnabledEvmChains } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
 
 import { useIsEvmBigBalance } from '../listing-logic/use-is-big-balance';
 
+import { useEthStakingSummand } from './use-eth-staking-summand';
 import { calculateTotalDollarValue as genericCalculateTotalDollarValue } from './utils';
 
 const useCalculateTotalDollarValue = (publicKeyHash: HexString) => {
@@ -31,8 +34,13 @@ const useCalculateTotalDollarValue = (publicKeyHash: HexString) => {
     );
 };
 
-export const useGetEvmChainAccountTotalBalance = (publicKeyHash: HexString, ignoreSmallBalances = false) => {
+export const useGetEvmChainAccountTotalBalance = (
+  publicKeyHash: HexString,
+  ignoreSmallBalances = false,
+  includeStaking = false
+) => {
   const enabledChainSlugs = useEnabledEvmAccountTokenSlugs(publicKeyHash);
+  const possibleStakingSummand = useEthStakingSummand(publicKeyHash, includeStaking);
 
   const calculateTotalDollarValue = useCalculateTotalDollarValue(publicKeyHash);
   const isBigBalance = useIsEvmBigBalance(publicKeyHash);
@@ -46,10 +54,14 @@ export const useGetEvmChainAccountTotalBalance = (publicKeyHash: HexString, igno
         })
         .concat(toChainAssetSlug(TempleChainKind.EVM, chainId, EVM_TOKEN_SLUG))
         .filter(slug => !ignoreSmallBalances || isBigBalance(slug))
-    );
+    ).plus(chainId === ETHEREUM_MAINNET_CHAIN_ID ? possibleStakingSummand : ZERO);
 };
 
-export const useEvmAccountTotalBalance = (publicKeyHash: HexString, ignoreSmallBalances = false) => {
+export const useEvmAccountTotalBalance = (
+  publicKeyHash: HexString,
+  ignoreSmallBalances = false,
+  includeStaking = false
+) => {
   const enabledChainSlugs = useEnabledEvmAccountTokenSlugs(publicKeyHash);
 
   const calculateTotalDollarValue = useCalculateTotalDollarValue(publicKeyHash);
@@ -65,5 +77,7 @@ export const useEvmAccountTotalBalance = (publicKeyHash: HexString, ignoreSmallB
     [enabledChainSlugs, enabledChains, ignoreSmallBalances, isBigBalance]
   );
 
-  return calculateTotalDollarValue(chainSlugs);
+  const stakingSummand = useEthStakingSummand(publicKeyHash, includeStaking);
+
+  return calculateTotalDollarValue(chainSlugs).plus(stakingSummand).toString();
 };

@@ -64,7 +64,7 @@ export const ContentBodyWithEvmChainTokens: FC<Props> = ({ chainId, publicKeyHas
     );
   };
 
-  const Promo = useRenderPromo(false, 'HOME_PAGE_NAME');
+  const Promo = useRenderPromo(false, 'home');
 
   return (
     <ContentBodyBase

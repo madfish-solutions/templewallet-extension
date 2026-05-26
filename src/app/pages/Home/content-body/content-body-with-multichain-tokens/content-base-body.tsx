@@ -52,7 +52,7 @@ export const ContentBaseBody: FC<ContentBaseBodyProps> = ({
     );
   };
 
-  const Promo = useRenderPromo(false, 'HOME_PAGE_NAME');
+  const Promo = useRenderPromo(false, 'home');
 
   return (
     <ContentBodyBase tokensCount={displayedSlugs.length} {...restProps}>

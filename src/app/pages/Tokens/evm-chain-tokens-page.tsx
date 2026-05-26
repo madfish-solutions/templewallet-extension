@@ -138,7 +138,7 @@ const PageContentBase: FC<PageContentBaseProps> = ({ allSlugsSorted, manageActiv
   const getElementIndex = (y: number) =>
     getTokenElementIndex(promoRef.current, firstListItemRef.current, displayedSlugs, tokenWillBeRendered, y);
 
-  const Promo = useRenderPromo(manageActive, 'TOKENS_PAGE_NAME', promoRef);
+  const Promo = useRenderPromo(manageActive, 'tokens', promoRef);
 
   const applicableNetworks = useMemo(() => [network], [network]);
 

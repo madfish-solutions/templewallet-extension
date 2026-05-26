@@ -28,10 +28,11 @@ export const ContentBase: FC<ContentBaseProps> = ({
   accountId,
   ...contentBodyBaseProps
 }) => {
-  const { displayedSlugs: fullPageDisplayedSlugs, isSyncing, isInSearchMode } = useTezosAccountTokensListingLogic(
-    allSlugsSorted,
-    null
-  );
+  const {
+    displayedSlugs: fullPageDisplayedSlugs,
+    isSyncing,
+    isInSearchMode
+  } = useTezosAccountTokensListingLogic(allSlugsSorted, null);
   const displayedSlugs = fullPageDisplayedSlugs.slice(0, 3);
 
   const mainnetChain = useTezosMainnetChain();
@@ -53,7 +54,7 @@ export const ContentBase: FC<ContentBaseProps> = ({
     );
   };
 
-  const Promo = useRenderPromo(false, 'HOME_PAGE_NAME');
+  const Promo = useRenderPromo(false, 'home');
 
   return (
     <ContentBodyBase

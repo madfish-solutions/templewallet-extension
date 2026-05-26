@@ -41,10 +41,17 @@ export const ContentBodyWithMultiChainTokens: FC<ContentBodyWithMultiChainTokens
   const groupByNetwork = useGroupByNetworkBehaviorSelector();
   const { hideSmallBalance } = useTokensListOptionsSelector();
 
-  const { enabledChainsSlugsSorted, shouldShowHiddenTokensHint } =
-    useAccountTokensForListing(accountTezAddress, accountEvmAddress, hideSmallBalance, groupByNetwork);
-  const { displayedSlugs: fullPageDisplayedSlugs, isSyncing, isInSearchMode } =
-    useAccountTokensListingLogic(enabledChainsSlugsSorted, null);
+  const { enabledChainsSlugsSorted, shouldShowHiddenTokensHint } = useAccountTokensForListing(
+    accountTezAddress,
+    accountEvmAddress,
+    hideSmallBalance,
+    groupByNetwork
+  );
+  const {
+    displayedSlugs: fullPageDisplayedSlugs,
+    isSyncing,
+    isInSearchMode
+  } = useAccountTokensListingLogic(enabledChainsSlugsSorted, null);
   const displayedSlugs = fullPageDisplayedSlugs.slice(0, 3);
 
   const tezosChains = useAllTezosChains();

@@ -16,6 +16,7 @@ interface CommonTotalEquityProps {
   currency: EquityCurrency;
   tooltip?: boolean;
   ignoreSmallBalances?: boolean;
+  includeDeposits?: boolean;
 }
 
 interface TotalEquityProps extends CommonTotalEquityProps {
@@ -23,12 +24,21 @@ interface TotalEquityProps extends CommonTotalEquityProps {
   filterChain?: FilterChain;
 }
 
-export const TotalEquity: FC<TotalEquityProps> = ({ account, filterChain = null, ...commonProps }) => {
+export const TotalEquity: FC<TotalEquityProps> = ({
+  account,
+  filterChain = null,
+  includeDeposits = true,
+  currency,
+  tooltip,
+  ignoreSmallBalances
+}) => {
   const accountTezAddress = getAccountAddressForTezos(account);
   const accountEvmAddress = getAccountAddressForEvm(account);
 
   const isTezosFilter = filterChain?.kind === TempleChainKind.Tezos && filterChain?.chainId === TEZOS_MAINNET_CHAIN_ID;
   const isEvmFilter = filterChain?.kind === TempleChainKind.EVM;
+
+  const commonProps = { includeDeposits, currency, tooltip, ignoreSmallBalances };
 
   if (isTezosFilter && accountTezAddress)
     return <TezosTotalEquity accountTezAddress={accountTezAddress} {...commonProps} />;
@@ -51,8 +61,6 @@ export const TotalEquity: FC<TotalEquityProps> = ({ account, filterChain = null,
   if (!filterChain && accountEvmAddress)
     return <EvmAccountTotalEquity accountEvmAddress={accountEvmAddress} {...commonProps} />;
 
-  const { currency, tooltip } = commonProps;
-
   return <TotalEquityBase totalBalanceInDollar="0" targetCurrency={currency} tooltip={tooltip} />;
 };
 
@@ -74,8 +82,8 @@ interface MultiChainTotalEquityProps extends CommonTotalEquityProps {
 }
 
 const MultiChainTotalEquity = OneCaseTotalEquityHOC<MultiChainTotalEquityProps>(
-  ({ accountTezAddress, accountEvmAddress, ignoreSmallBalances }) =>
-    useMultiChainTotalBalance(accountTezAddress, accountEvmAddress, ignoreSmallBalances)
+  ({ accountTezAddress, accountEvmAddress, ignoreSmallBalances, includeDeposits }) =>
+    useMultiChainTotalBalance(accountTezAddress, accountEvmAddress, ignoreSmallBalances, includeDeposits)
 );
 
 interface EvmChainTotalEquityProps extends CommonTotalEquityProps {
@@ -84,8 +92,8 @@ interface EvmChainTotalEquityProps extends CommonTotalEquityProps {
 }
 
 const EvmChainTotalEquity = OneCaseTotalEquityHOC<EvmChainTotalEquityProps>(
-  ({ accountEvmAddress, chainId, ignoreSmallBalances }) =>
-    useEvmChainTotalBalance(accountEvmAddress, chainId, ignoreSmallBalances)
+  ({ accountEvmAddress, chainId, ignoreSmallBalances, includeDeposits }) =>
+    useEvmChainTotalBalance(accountEvmAddress, chainId, ignoreSmallBalances, includeDeposits)
 );
 
 interface EvmAccountTotalEquityProps extends CommonTotalEquityProps {
@@ -93,13 +101,15 @@ interface EvmAccountTotalEquityProps extends CommonTotalEquityProps {
 }
 
 const EvmAccountTotalEquity = OneCaseTotalEquityHOC<EvmAccountTotalEquityProps>(
-  ({ accountEvmAddress, ignoreSmallBalances }) => useEvmAccountTotalBalance(accountEvmAddress, ignoreSmallBalances)
+  ({ accountEvmAddress, ignoreSmallBalances, includeDeposits }) =>
+    useEvmAccountTotalBalance(accountEvmAddress, ignoreSmallBalances, includeDeposits)
 );
 
 interface TezosTotalEquityProps extends CommonTotalEquityProps {
   accountTezAddress: string;
 }
 
-const TezosTotalEquity = OneCaseTotalEquityHOC<TezosTotalEquityProps>(({ accountTezAddress, ignoreSmallBalances }) =>
-  useTezosTotalBalance(accountTezAddress, ignoreSmallBalances)
+const TezosTotalEquity = OneCaseTotalEquityHOC<TezosTotalEquityProps>(
+  ({ accountTezAddress, ignoreSmallBalances, includeDeposits }) =>
+    useTezosTotalBalance(accountTezAddress, ignoreSmallBalances, includeDeposits)
 );

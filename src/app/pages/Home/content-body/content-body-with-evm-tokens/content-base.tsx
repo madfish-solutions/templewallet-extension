@@ -52,7 +52,7 @@ export const ContentBase: FC<ContentBaseProps> = ({
     );
   };
 
-  const Promo = useRenderPromo(false, 'HOME_PAGE_NAME');
+  const Promo = useRenderPromo(false, 'home');
 
   return (
     <ContentBodyBase

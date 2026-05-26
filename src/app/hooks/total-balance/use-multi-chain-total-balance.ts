@@ -13,12 +13,15 @@ import { TempleChainKind } from 'temple/types';
 
 import { useIsMultichainBigBalance } from '../listing-logic/use-is-big-balance';
 
+import { useEthStakingSummand } from './use-eth-staking-summand';
+import { useTezosStakingSummand } from './use-tezos-staking-summand';
 import { calculateTotalDollarValue } from './utils';
 
 export const useMultiChainTotalBalance = (
   accountTezAddress: string,
   accountEvmAddress: HexString,
-  ignoreSmallBalances = false
+  ignoreSmallBalances = false,
+  includeStaking = false
 ) => {
   const enabledChainSlugs = useEnabledAccountChainTokenSlugs(accountTezAddress, accountEvmAddress);
 
@@ -44,6 +47,9 @@ export const useMultiChainTotalBalance = (
     [enabledChainSlugs, enabledEvmChains, enabledTezChains, isBigBalance, ignoreSmallBalances]
   );
 
+  const tezStakingSummand = useTezosStakingSummand(accountTezAddress, includeStaking);
+  const ethStakingSummand = useEthStakingSummand(accountEvmAddress, includeStaking);
+
   return useMemo(
     () =>
       calculateTotalDollarValue(
@@ -64,7 +70,18 @@ export const useMultiChainTotalBalance = (
               : undefined
             : evmUsdToTokenRates[Number(chainId)]?.[slug];
         }
-      ),
-    [chainSlugs, evmUsdToTokenRates, getEvmBalance, getTezBalance, tezMainnetUsdToTokenRates]
+      )
+        .plus(tezStakingSummand)
+        .plus(ethStakingSummand)
+        .toString(),
+    [
+      chainSlugs,
+      evmUsdToTokenRates,
+      getEvmBalance,
+      getTezBalance,
+      tezMainnetUsdToTokenRates,
+      tezStakingSummand,
+      ethStakingSummand
+    ]
   );
 };

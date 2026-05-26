@@ -1,5 +1,6 @@
 import { FC, Suspense } from 'react';
 
+import { isDefined } from '@rnw-community/shared';
 import BigNumber from 'bignumber.js';
 
 import { EquityCurrency } from 'app/hooks/use-equity-currency';
@@ -30,20 +31,17 @@ export const TotalEquityBase: FC<TotalEquityForTezosOnlyProps> = ({
 }) => {
   const contentProps = { amountInDollar: totalBalanceInDollar, tooltip };
 
-  switch (targetCurrency) {
-    case 'tez':
-      return <InTez {...contentProps} />;
-    case 'btc':
-      return <InBtc {...contentProps} />;
-    case 'eth':
-      return <InEth {...contentProps} />;
-    default:
-      return (
-        <Suspense fallback={null}>
-          <InFiat {...contentProps} />
-        </Suspense>
-      );
+  if (targetCurrency === 'fiat') {
+    return (
+      <Suspense fallback={null}>
+        <InFiat {...contentProps} />
+      </Suspense>
+    );
   }
+
+  const Component = targetCryptoComponents[targetCurrency];
+
+  return <Component {...contentProps} />;
 };
 
 interface TotalEquityContentProps {
@@ -51,72 +49,48 @@ interface TotalEquityContentProps {
   tooltip?: boolean;
 }
 
-const InFiat: FC<TotalEquityContentProps> = ({ amountInDollar, tooltip }) => {
-  const {
-    selectedFiatCurrency: { symbol: fiatSymbol }
-  } = useFiatCurrency();
+const TotalEquityOneCaseHOC = (
+  useSymbol: () => string,
+  useRate: () => string | number | nullish,
+  isCrypto: boolean,
+  decimalPlaces?: number
+) => {
+  function TotalEquityOneCase({ amountInDollar, tooltip }: TotalEquityContentProps) {
+    const symbol = useSymbol();
+    const rate = useRate();
 
-  const fiatToUsdRate = useFiatToUsdRate();
+    let amount: BigNumber;
+    if (isTruthy(rate) && isCrypto) {
+      amount = new BigNumber(amountInDollar).dividedBy(rate);
+    } else if (isTruthy(rate)) {
+      amount = new BigNumber(amountInDollar).times(rate);
+    } else {
+      amount = ZERO;
+    }
 
-  const amountInFiat = isTruthy(fiatToUsdRate) ? new BigNumber(amountInDollar).times(fiatToUsdRate) : ZERO;
+    if (isDefined(decimalPlaces)) {
+      amount = amount.decimalPlaces(decimalPlaces);
+    }
 
-  return (
-    <>
-      <Money smallFractionFont={false} fiat tooltip={tooltip}>
-        {amountInFiat}
-      </Money>
-      <span style={SYMBOL_STYLE}>{fiatSymbol}</span>
-    </>
-  );
+    return (
+      <>
+        <Money smallFractionFont={false} fiat={!isCrypto} tooltip={tooltip}>
+          {amount}
+        </Money>
+        <span style={SYMBOL_STYLE}>{symbol}</span>
+      </>
+    );
+  }
+
+  return TotalEquityOneCase;
 };
 
-const InTez: FC<TotalEquityContentProps> = ({ amountInDollar, tooltip }) => {
-  const tezosToUsdRate = useTezUsdToTokenRateSelector();
+const InFiat = TotalEquityOneCaseHOC(() => useFiatCurrency().selectedFiatCurrency.symbol, useFiatToUsdRate, false);
 
-  const amountInTez = isTruthy(tezosToUsdRate)
-    ? new BigNumber(amountInDollar).dividedBy(tezosToUsdRate).decimalPlaces(TEZOS_METADATA.decimals)
-    : ZERO;
+const InTez = TotalEquityOneCaseHOC(() => 'TEZ', useTezUsdToTokenRateSelector, true, TEZOS_METADATA.decimals);
 
-  return (
-    <>
-      <Money smallFractionFont={false} tooltip={tooltip}>
-        {amountInTez || ZERO}
-      </Money>
-      <span style={SYMBOL_STYLE}>TEZ</span>
-    </>
-  );
-};
+const InBtc = TotalEquityOneCaseHOC(() => 'BTC', useBtcToUsdRateSelector, true, BTC_DECIMALS);
 
-const InBtc: FC<TotalEquityContentProps> = ({ amountInDollar, tooltip }) => {
-  const bitcoinToUsdRate = useBtcToUsdRateSelector();
+const InEth = TotalEquityOneCaseHOC(() => 'ETH', useEthUsdToTokenRateSelector, true, ETH_DECIMALS);
 
-  const amountInBtc = isTruthy(bitcoinToUsdRate)
-    ? new BigNumber(amountInDollar).dividedBy(bitcoinToUsdRate).decimalPlaces(BTC_DECIMALS)
-    : ZERO;
-
-  return (
-    <>
-      <Money smallFractionFont={false} tooltip={tooltip}>
-        {amountInBtc || ZERO}
-      </Money>
-      <span style={SYMBOL_STYLE}>BTC</span>
-    </>
-  );
-};
-
-const InEth: FC<TotalEquityContentProps> = ({ amountInDollar, tooltip }) => {
-  const ethUsdTokenRates = useEthUsdToTokenRateSelector();
-
-  const amountInEth = isTruthy(ethUsdTokenRates)
-    ? new BigNumber(amountInDollar).dividedBy(ethUsdTokenRates).decimalPlaces(ETH_DECIMALS)
-    : ZERO;
-
-  return (
-    <>
-      <Money smallFractionFont={false} tooltip={tooltip}>
-        {amountInEth || ZERO}
-      </Money>
-      <span style={SYMBOL_STYLE}>ETH</span>
-    </>
-  );
-};
+const targetCryptoComponents = { tez: InTez, btc: InBtc, eth: InEth };

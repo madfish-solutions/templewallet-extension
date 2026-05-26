@@ -16,8 +16,11 @@ export const ContentBodyWithTezTokens: FC<ContentBodyWithTezTokensProps> = ({ pu
   const collectiblesReady = tezosCollectibles.length > 0 || !assetsLoading;
   const collectiblesSortPredicate = useTezosAccountCollectiblesSortPredicate(publicKeyHash);
   const { hideSmallBalance } = useTokensListOptionsSelector();
-  const { enabledChainSlugsSorted, shouldShowHiddenTokensHint } =
-    useTezosAccountTokensForListing(publicKeyHash, hideSmallBalance, false);
+  const { enabledChainSlugsSorted, shouldShowHiddenTokensHint } = useTezosAccountTokensForListing(
+    publicKeyHash,
+    hideSmallBalance,
+    false
+  );
 
   const tezEnabledCollectiblesChainsSlugs = toTezEnabledCollectiblesChainSlugs(tezosCollectibles);
   useTezosCollectiblesMetadataPresenceCheck(tezEnabledCollectiblesChainsSlugs);

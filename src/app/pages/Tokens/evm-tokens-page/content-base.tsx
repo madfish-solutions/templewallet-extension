@@ -21,7 +21,6 @@ interface PageContentBaseProps {
   shouldShowHiddenTokensHint?: boolean;
 }
 
-// React Compiler cannot handle this file because of some refs used during rendering
 export const PageContentBase: FC<PageContentBaseProps> = ({
   allSlugsSorted,
   allSlugsSortedGrouped,
@@ -69,7 +68,7 @@ export const PageContentBase: FC<PageContentBaseProps> = ({
     firstListItemRef,
     firstHeaderRef
   );
-  const Promo = useRenderPromo(manageActive, 'TOKENS_PAGE_NAME', promoRef);
+  const Promo = useRenderPromo(manageActive, 'tokens', promoRef);
 
   return (
     <TokensPageBase

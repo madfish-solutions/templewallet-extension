@@ -22,8 +22,12 @@ export const NetworkChips: FC<NetworkChipsProps> = ({ applicableNetworks }) => {
   const testnetModeEnabled = useTestnetModeEnabledSelector();
   const account = useAccount();
 
-  const totalTezBalanceInDollar = useTezosTotalBalance(accountTezAddress ?? '', hideSmallBalance);
-  const getEvmChainAccountTotalBalance = useGetEvmChainAccountTotalBalance(accountEvmAddress ?? '0x', hideSmallBalance);
+  const totalTezBalanceInDollar = useTezosTotalBalance(accountTezAddress ?? '', hideSmallBalance, false);
+  const getEvmChainAccountTotalBalance = useGetEvmChainAccountTotalBalance(
+    accountEvmAddress ?? '0x',
+    hideSmallBalance,
+    false
+  );
 
   const getChainTotalBalance = (chain: OneOfChains) =>
     chain.kind === TempleChainKind.Tezos ? totalTezBalanceInDollar : getEvmChainAccountTotalBalance(chain.chainId);
@@ -42,6 +46,7 @@ export const NetworkChips: FC<NetworkChipsProps> = ({ applicableNetworks }) => {
             currency="fiat"
             tooltip={false}
             ignoreSmallBalances={hideSmallBalance}
+            includeDeposits={false}
           />
         )
       }))}
