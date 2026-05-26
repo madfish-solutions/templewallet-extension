@@ -8,11 +8,11 @@ export const resolveTco = (tcoUrl: string): Promise<string | null> =>
     tcoUrl
   });
 
-export const fetchObjktToken = (params: { contract: string; tokenId: string }): Promise<ObjktToken | null> =>
+export const fetchObjktToken = (contract: string, tokenId: string): Promise<ObjktToken | null> =>
   browser.runtime.sendMessage({
     type: ContentScriptType.FetchObjktToken,
-    contract: params.contract,
-    tokenId: params.tokenId
+    contract,
+    tokenId
   });
 
 export const fetchThumbnailBlob = (url: string): Promise<string | null> =>

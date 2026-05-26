@@ -1,3 +1,5 @@
+import { debounce } from 'lodash';
+
 import { mountPill, type MountedPill } from '../pill/mount-pill';
 import type { DetectorRegistry } from '../registry';
 import { TWEET } from '../x-dom/selectors';
@@ -8,18 +10,12 @@ const DEBOUNCE_MS = 250;
 const VIEWPORT_ROOT_MARGIN = '600px';
 const PROCESSED_MARKER_ATTR = 'data-tw-web-widgets';
 
-type HistoryMethod = (data: any, unused: string, url?: string | URL | null) => void;
-
 export class ScanEngine {
   private started = false;
   private generation = 0;
 
   private mutationObserver: MutationObserver | null = null;
   private intersectionObserver: IntersectionObserver | null = null;
-  private debounceTimer: NodeJS.Timeout | null = null;
-
-  private originalPushState: HistoryMethod | null = null;
-  private originalReplaceState: HistoryMethod | null = null;
 
   private readonly rootsByPost = new WeakMap<HTMLElement, MountedPill[]>();
   private readonly trackedPosts = new Set<HTMLElement>();
@@ -40,9 +36,6 @@ export class ScanEngine {
     this.mutationObserver = new MutationObserver(mutations => this.onMutations(mutations));
     this.mutationObserver.observe(root, { childList: true, subtree: true });
 
-    this.patchHistory();
-    window.addEventListener('popstate', this.onPopState);
-
     this.discover();
   }
 
@@ -53,10 +46,7 @@ export class ScanEngine {
     // Invalidate every in-flight resolve()
     this.generation++;
 
-    if (this.debounceTimer !== null) {
-      clearTimeout(this.debounceTimer);
-      this.debounceTimer = null;
-    }
+    this.scheduleDiscover.cancel();
 
     this.mutationObserver?.disconnect();
     this.mutationObserver = null;
@@ -64,9 +54,6 @@ export class ScanEngine {
     this.intersectionObserver?.disconnect();
     this.intersectionObserver = null;
     this.observedPosts.clear();
-
-    window.removeEventListener('popstate', this.onPopState);
-    this.restoreHistory();
 
     for (const post of this.trackedPosts) this.teardownPost(post);
     this.trackedPosts.clear();
@@ -81,13 +68,9 @@ export class ScanEngine {
     }
   }
 
-  private scheduleDiscover(): void {
-    if (this.debounceTimer !== null) clearTimeout(this.debounceTimer);
-    this.debounceTimer = setTimeout(() => {
-      this.debounceTimer = null;
-      if (this.started) this.discover();
-    }, DEBOUNCE_MS);
-  }
+  private readonly scheduleDiscover = debounce(() => {
+    if (this.started) this.discover();
+  }, DEBOUNCE_MS);
 
   private onMutations(mutations: MutationRecord[]): void {
     let sawAddition = false;
@@ -175,35 +158,5 @@ export class ScanEngine {
     this.intersectionObserver?.unobserve(post);
     this.observedPosts.delete(post);
     this.trackedPosts.delete(post);
-  }
-
-  private readonly onPopState = (): void => {
-    if (this.started) this.scheduleDiscover();
-  };
-
-  private patchHistory(): void {
-    const history = window.history;
-    this.originalPushState = history.pushState.bind(history);
-    this.originalReplaceState = history.replaceState.bind(history);
-
-    history.pushState = (...args: Parameters<History['pushState']>) => {
-      this.originalPushState?.(...args);
-      this.scheduleDiscover();
-    };
-    history.replaceState = (...args: Parameters<History['replaceState']>) => {
-      this.originalReplaceState?.(...args);
-      this.scheduleDiscover();
-    };
-  }
-
-  private restoreHistory(): void {
-    if (this.originalPushState) {
-      window.history.pushState = this.originalPushState;
-      this.originalPushState = null;
-    }
-    if (this.originalReplaceState) {
-      window.history.replaceState = this.originalReplaceState;
-      this.originalReplaceState = null;
-    }
   }
 }

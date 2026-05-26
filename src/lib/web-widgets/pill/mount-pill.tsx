@@ -36,7 +36,7 @@ const ensurePillsRow = (post: HTMLElement, userName: Element): HTMLElement => {
 export const mountPill = (ref: DetectedRef, tagData: TagData): MountedPill | null => {
   const post = ref.postEl;
 
-  if (!post.isConnected || !document.contains(post)) return null;
+  if (!post.isConnected) return null;
 
   const userName = post.querySelector(USER_NAME);
   const tweetText = post.querySelector(TWEET_TEXT);

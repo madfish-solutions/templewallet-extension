@@ -23,14 +23,14 @@ export const objktDetector: Detector = {
       if (!pointsAtObjkt(visibleText(anchor))) continue;
       const href = anchor.getAttribute('href');
       if (!href) continue;
-      refs.push({ detectorId: DETECTOR_ID, sourceHref: href, postEl: post, statusId });
+      refs.push({ sourceHref: href, postEl: post, statusId });
     }
 
     // Direct objkt links
     for (const anchor of post.querySelectorAll<HTMLAnchorElement>(DIRECT_OBJKT_LINK)) {
       const href = anchor.getAttribute('href');
       if (!href) continue;
-      refs.push({ detectorId: DETECTOR_ID, sourceHref: href, postEl: post, statusId });
+      refs.push({ sourceHref: href, postEl: post, statusId });
     }
 
     return refs;
@@ -45,7 +45,7 @@ export const objktDetector: Detector = {
     const parsed = parseObjktUrl(objktUrl);
     if (!parsed) return null;
 
-    const token = await messaging.fetchObjktToken(parsed);
+    const token = await messaging.fetchObjktToken(parsed.contract, parsed.tokenId);
     if (!token) return null;
 
     const tagData = mapTokenToTagData(token, parsed);

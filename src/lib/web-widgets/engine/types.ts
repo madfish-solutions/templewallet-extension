@@ -5,7 +5,6 @@ export interface Detector {
 }
 
 export interface DetectedRef {
-  detectorId: string;
   sourceHref: string;
   postEl: HTMLElement;
   statusId?: string;
