@@ -1,8 +1,8 @@
 import React, { memo } from 'react';
 
 import { FadeTransition } from 'app/a11y/FadeTransition';
-import { T } from 'lib/i18n';
 import { IS_MISES_BROWSER } from 'lib/env';
+import { T } from 'lib/i18n';
 
 import { PartnersPromotionSettings } from './partners-promotion-settings';
 import { ReferralLinksSettings } from './referral-links-settings';

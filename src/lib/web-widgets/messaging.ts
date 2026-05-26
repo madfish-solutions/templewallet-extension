@@ -1,6 +1,5 @@
 import { browser } from 'lib/browser';
 import { ContentScriptType } from 'lib/constants';
-
 import type { ObjktToken } from 'lib/temple/back/web-widgets/objkt-query';
 
 export const resolveTco = (tcoUrl: string): Promise<string | null> =>

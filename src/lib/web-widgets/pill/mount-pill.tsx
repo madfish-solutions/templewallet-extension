@@ -2,12 +2,11 @@ import React from 'react';
 
 import { createRoot, type Root } from 'react-dom/client';
 
-import { Pill } from './Pill';
-import { PILL_STYLES } from './pill-styles';
-
+import type { DetectedRef, TagData } from '../engine/types';
 import { parseStatusId, USER_NAME, TWEET_TEXT } from '../x-dom/selectors';
 
-import type { DetectedRef, TagData } from '../engine/types';
+import { Pill } from './Pill';
+import { PILL_STYLES } from './pill-styles';
 
 const HOST_MARKER_ATTR = 'data-tw-web-widget-pill';
 const ROW_MARKER_ATTR = 'data-tw-web-widgets-row';

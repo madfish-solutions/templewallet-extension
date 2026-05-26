@@ -26,17 +26,6 @@ export const OBJKT_TOKEN_QUERY = `
           decimals
         }
       }
-      dutch_auctions_active {
-        start_price
-        end_price
-        start_time
-        end_time
-      }
-      english_auctions_active {
-        reserve
-        highest_bid
-        end_time
-      }
     }
   }
 `;
@@ -46,27 +35,14 @@ interface ObjktCurrency {
   decimals: number;
 }
 
-export interface ObjktListing {
+interface ObjktListing {
   price: number;
   price_xtz: number | null;
   amount_left: number;
   currency: ObjktCurrency | null;
 }
 
-export interface ObjktDutchAuction {
-  start_price: number;
-  end_price: number;
-  start_time: string;
-  end_time: string;
-}
-
-export interface ObjktEnglishAuction {
-  reserve: number;
-  highest_bid: number | null;
-  end_time: string;
-}
-
-export interface ObjktFa {
+interface ObjktFa {
   name: string | null;
   contract: string;
   path: string | null;
@@ -86,8 +62,6 @@ export interface ObjktToken {
   flag: string | null;
   fa: ObjktFa | null;
   listings_active: ObjktListing[];
-  dutch_auctions_active: ObjktDutchAuction[];
-  english_auctions_active: ObjktEnglishAuction[];
 }
 
 export interface ObjktTokenQueryResponse {

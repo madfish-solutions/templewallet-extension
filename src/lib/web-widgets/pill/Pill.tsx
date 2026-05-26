@@ -1,8 +1,8 @@
 import React, { memo, useCallback, useRef, useState } from 'react';
 
-import { HoverPlaceholder } from './HoverPlaceholder';
-
 import type { TagData } from '../engine/types';
+
+import { HoverPlaceholder } from './HoverPlaceholder';
 
 const OPEN_DELAY_MS = 150;
 const CLOSE_DELAY_MS = 10;
@@ -13,8 +13,7 @@ interface PillProps {
 }
 
 export const Pill = memo<PillProps>(({ tagData }) => {
-  const label =
-    tagData.label.length > MAX_LABEL_CHARS ? `${tagData.label.slice(0, MAX_LABEL_CHARS)}…` : tagData.label;
+  const label = tagData.label.length > MAX_LABEL_CHARS ? `${tagData.label.slice(0, MAX_LABEL_CHARS)}…` : tagData.label;
   const [open, setOpen] = useState(false);
   const pillRef = useRef<HTMLSpanElement>(null);
   const openTimerRef = useRef<NodeJS.Timeout | null>(null);

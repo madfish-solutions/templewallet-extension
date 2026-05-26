@@ -1,14 +1,17 @@
 import { buildCollectibleImagesStack, buildTokenImagesStack } from 'lib/images-uri';
+import type { ObjktToken } from 'lib/temple/back/web-widgets/objkt-query';
 
 import type { TagData } from '../../engine/types';
-import type { ObjktToken } from 'lib/temple/back/web-widgets/objkt-query';
 
 interface ObjktTokenIdentity {
   contract: string;
   tokenId: string;
 }
 
-export const mapTokenToTagData = (token: ObjktToken | null, { contract, tokenId }: ObjktTokenIdentity): TagData | null => {
+export const mapTokenToTagData = (
+  token: ObjktToken | null,
+  { contract, tokenId }: ObjktTokenIdentity
+): TagData | null => {
   if (!token) return null;
   if (token.flag && token.flag.toLowerCase() !== 'none') return null;
 
@@ -24,8 +27,7 @@ export const mapTokenToTagData = (token: ObjktToken | null, { contract, tokenId 
   });
 
   const iconUrl =
-    stack[0] ??
-    buildTokenImagesStack(token.thumbnail_uri ?? token.display_uri ?? token.artifact_uri ?? undefined)[0];
+    stack[0] ?? buildTokenImagesStack(token.thumbnail_uri ?? token.display_uri ?? token.artifact_uri ?? undefined)[0];
 
   const label = token.name?.trim() ?? '';
 

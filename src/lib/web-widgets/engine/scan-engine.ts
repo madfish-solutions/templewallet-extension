@@ -1,8 +1,8 @@
 import { mountPill, type MountedPill } from '../pill/mount-pill';
+import type { DetectorRegistry } from '../registry';
 import { TWEET } from '../x-dom/selectors';
 
 import type { DetectedRef, TagData } from './types';
-import type { DetectorRegistry } from '../registry';
 
 const DEBOUNCE_MS = 250;
 const VIEWPORT_ROOT_MARGIN = '600px';

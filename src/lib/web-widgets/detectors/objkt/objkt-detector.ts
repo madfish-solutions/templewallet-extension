@@ -1,9 +1,9 @@
-import { CANDIDATE_LINK, DIRECT_OBJKT_LINK, parseStatusId } from '../../x-dom/selectors';
+import type { DetectedRef, Detector, TagData } from '../../engine/types';
 import * as messaging from '../../messaging';
+import { CANDIDATE_LINK, DIRECT_OBJKT_LINK, parseStatusId } from '../../x-dom/selectors';
+
 import { mapTokenToTagData } from './map-token-to-tagdata';
 import { parseObjktUrl } from './parse-objkt-url';
-
-import type { DetectedRef, Detector, TagData } from '../../engine/types';
 
 const DETECTOR_ID = 'objkt-nft';
 
