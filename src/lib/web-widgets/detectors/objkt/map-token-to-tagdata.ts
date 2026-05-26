@@ -1,0 +1,40 @@
+import { buildCollectibleImagesStack, buildTokenImagesStack } from 'lib/images-uri';
+
+import type { TagData } from '../../engine/types';
+import type { ObjktToken } from 'lib/temple/back/web-widgets/objkt-query';
+
+interface ObjktTokenIdentity {
+  contract: string;
+  tokenId: string;
+}
+
+export const mapTokenToTagData = (token: ObjktToken | null, { contract, tokenId }: ObjktTokenIdentity): TagData | null => {
+  if (!token) return null;
+  if (token.flag && token.flag.toLowerCase() !== 'none') return null;
+
+  const stack = buildCollectibleImagesStack({
+    name: token.name ?? '',
+    symbol: '',
+    decimals: 0,
+    address: contract,
+    id: tokenId,
+    artifactUri: token.artifact_uri ?? undefined,
+    displayUri: token.display_uri ?? undefined,
+    thumbnailUri: token.thumbnail_uri ?? undefined
+  });
+
+  const iconUrl =
+    stack[0] ??
+    buildTokenImagesStack(token.thumbnail_uri ?? token.display_uri ?? token.artifact_uri ?? undefined)[0];
+
+  const label = token.name?.trim() ?? '';
+
+  if (!label && !iconUrl) return null;
+
+  return {
+    iconUrl: iconUrl ?? '',
+    label,
+    href: `https://objkt.com/tokens/${contract}/${tokenId}`,
+    raw: token
+  };
+};

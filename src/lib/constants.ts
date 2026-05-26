@@ -13,7 +13,10 @@ export enum ContentScriptType {
   FetchReferralsRules = 'FetchReferralsRules',
   FetchTakeAdsReferrals = 'FetchTakeAdsReferrals',
   ReferralClick = 'ReferralClick',
-  FetchTempleReferralLinkItems = 'FetchTempleReferralLinkItems'
+  FetchTempleReferralLinkItems = 'FetchTempleReferralLinkItems',
+  ResolveTco = 'ResolveTco',
+  FetchObjktToken = 'FetchObjktToken',
+  FetchThumbnailBlob = 'FetchThumbnailBlob'
 }
 
 export const APP_TITLE = 'Temple Wallet';
@@ -21,6 +24,8 @@ export const APP_TITLE = 'Temple Wallet';
 export const WEBSITES_ANALYTICS_ENABLED = 'WEBSITES_ANALYTICS_ENABLED';
 
 export const REPLACE_REFERRALS_ENABLED = 'REPLACE_REFERRALS_ENABLED';
+
+export const WEB_WIDGETS_TOKEN_INSIGHT_ENABLED = 'WEB_WIDGETS_TOKEN_INSIGHT_ENABLED';
 
 /** @deprecated */
 export const ACCOUNT_PKH_STORAGE_KEY = 'account_publickeyhash';

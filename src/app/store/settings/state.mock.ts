@@ -10,5 +10,6 @@ export const mockSettingsState: SettingsState = {
   adsImpressionsLinked: false,
   referralLinksEnabled: IS_MISES_BROWSER,
   isTestnetModeEnabled: false,
+  webWidgetsTokenInsightEnabled: true,
   favoriteTokens: []
 };
