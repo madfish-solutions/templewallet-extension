@@ -373,7 +373,7 @@ function showHoverPopup(label: HTMLElement, offer: MerchantOffer, url: string, d
     domain,
     activationUrl: url,
     pageDomain: normalizeDomain(window.location.hostname),
-    activateEvent: TEMPLE_DEALS_EVENTS.tagActivateBounty,
+    activationSource: 'tag',
     onSettingsChange: hideTempleDealsOnPage,
     onClose: () => {
       hoverHost?.remove();

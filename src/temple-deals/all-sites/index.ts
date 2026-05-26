@@ -90,7 +90,7 @@ async function injectTempleDealsPopup(offer: MerchantOffer, domain: string) {
     domain,
     activationUrl: window.location.origin,
     pageDomain: domain,
-    activateEvent: TEMPLE_DEALS_EVENTS.popupActivateBounty,
+    activationSource: 'popup',
     showSettings: true,
     showDescriptionToggle: true,
     onClose: () => host.remove()
