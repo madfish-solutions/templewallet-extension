@@ -1,4 +1,4 @@
-import { Activity, createContext, FC, useContext, useMemo, useRef } from 'react';
+import { Activity, createContext, FC, useContext, useRef } from 'react';
 
 import { constant, noop } from 'lodash';
 
@@ -40,13 +40,9 @@ export const TezosChainTokensPage: FC<Props> = ({ chainId, accountId, publicKeyH
   if (!network) throw new DeadEndBoundaryError();
 
   const { manageActive, toggleManageActive } = useTokensManageState();
-  const contextValue = useMemo(
-    () => ({ accountId, network, publicKeyHash, toggleManageActive }),
-    [accountId, network, publicKeyHash, toggleManageActive]
-  );
 
   return (
-    <TezosChainTokensPageContext value={contextValue}>
+    <TezosChainTokensPageContext value={{ accountId, network, publicKeyHash, toggleManageActive }}>
       <Activity mode={manageActive ? 'hidden' : 'visible'} name="tezos-chain-tokens-page-default">
         <PageContent />
       </Activity>
@@ -132,11 +128,9 @@ const PageContentBase: FC<PageContentBaseProps> = ({
     getTokenElementIndex(promoRef.current, firstListItemRef.current, displayedSlugs, constant(true), y);
   const Promo = useRenderPromo(manageActive, 'tokens', promoRef);
 
-  const applicableNetworks = useMemo(() => [network], [network]);
-
   return (
     <TokensPageBase
-      applicableNetworks={applicableNetworks}
+      applicableNetworks={[network]}
       accountId={accountId}
       tokensCount={displayedSlugs.length}
       getElementIndex={getElementIndex}

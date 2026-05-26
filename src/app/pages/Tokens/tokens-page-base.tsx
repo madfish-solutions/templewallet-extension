@@ -127,8 +127,8 @@ export const TokensPageBase: FC<TokensPageBaseProps> = ({
           <div className="-mb-7">
             <PartnersPromotionModule.PartnersPromotion
               variant={PartnersPromotionModule.PartnersPromotionVariant.Text}
-              id="nfts-loading-view"
-              pageName={AdsConstantsModule.NFTS_PAGE_NAME}
+              id="tokens-loading-view"
+              pageName={AdsConstantsModule.TOKENS_PAGE_NAME}
             />
           </div>
         )}

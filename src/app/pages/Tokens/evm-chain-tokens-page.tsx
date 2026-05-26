@@ -1,4 +1,4 @@
-import { Activity, createContext, FC, useContext, useMemo, useRef } from 'react';
+import { Activity, createContext, FC, useContext, useRef } from 'react';
 
 import { noop } from 'lodash';
 
@@ -46,13 +46,9 @@ export const EvmChainTokensPage: FC<Props> = ({ chainId, publicKeyHash, accountI
   if (!network) throw new DeadEndBoundaryError();
 
   const { manageActive, toggleManageActive } = useTokensManageState();
-  const contextValue = useMemo(
-    () => ({ accountId, network, publicKeyHash, toggleManageActive }),
-    [accountId, network, publicKeyHash, toggleManageActive]
-  );
 
   return (
-    <EvmChainTokensPageContext value={contextValue}>
+    <EvmChainTokensPageContext value={{ accountId, network, publicKeyHash, toggleManageActive }}>
       <Activity mode={manageActive ? 'hidden' : 'visible'} name="evm-chain-tokens-page-default">
         <PageContent />
       </Activity>
@@ -140,11 +136,9 @@ const PageContentBase: FC<PageContentBaseProps> = ({ allSlugsSorted, manageActiv
 
   const Promo = useRenderPromo(manageActive, 'tokens', promoRef);
 
-  const applicableNetworks = useMemo(() => [network], [network]);
-
   return (
     <TokensPageBase
-      applicableNetworks={applicableNetworks}
+      applicableNetworks={[network]}
       accountId={accountId}
       tokensCount={displayedSlugs.length}
       getElementIndex={getElementIndex}
