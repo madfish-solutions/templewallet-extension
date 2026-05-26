@@ -7,8 +7,8 @@ import { useBooleanState } from 'lib/ui/hooks';
 import { OneOfChains, useAccountAddressForTezos, useEthereumMainnetChain, useTezosMainnetChain } from 'temple/front';
 import { useEthereumTestnetChain, useTezosTestnetChain } from 'temple/front/chains';
 
-import { AddTokenForm } from './AddTokenForm';
-import { SelectNetworkPage } from './SelectNetworkPage';
+import { AddTokenForm } from './add-token-form';
+import { SelectNetworkPage } from './select-network-page';
 
 interface Props {
   forCollectible: boolean;

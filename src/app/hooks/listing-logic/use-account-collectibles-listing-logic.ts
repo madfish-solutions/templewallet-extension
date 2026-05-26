@@ -4,13 +4,11 @@ import { useEvmCollectiblesMetadataRecordSelector } from 'app/store/evm/collecti
 import { useEvmCollectiblesMetadataLoadingSelector } from 'app/store/evm/selectors';
 import { useAreAssetsLoading } from 'app/store/tezos/assets/selectors';
 import { useCollectiblesMetadataLoadingSelector } from 'app/store/tezos/collectibles-metadata/selectors';
-import { useEvmAccountCollectibles, useTezosAccountCollectibles } from 'lib/assets/hooks/collectibles';
+import { useEvmCollectiblesChainSlugs, useTezCollectiblesChainSlugs } from 'lib/assets/hooks/collectibles';
 import { searchAssetsWithNoMeta } from 'lib/assets/search.utils';
 import { useAccountCollectiblesSortPredicate } from 'lib/assets/use-sorting';
-import { toChainAssetSlug } from 'lib/assets/utils';
 import { useGetCollectibleMetadata, useTezosCollectiblesMetadataPresenceCheck } from 'lib/metadata';
 import { useMemoWithCompare } from 'lib/ui/hooks';
-import { TempleChainKind } from 'temple/types';
 
 import { useSimpleAssetsPaginationLogic } from '../use-simple-assets-pagination-logic';
 
@@ -25,34 +23,19 @@ export const useAccountCollectiblesListingLogic = (
 ) => {
   const sortPredicate = useAccountCollectiblesSortPredicate(accountTezAddress, accountEvmAddress);
 
-  const tezCollectibles = useTezosAccountCollectibles(accountTezAddress);
-  const evmCollectibles = useEvmAccountCollectibles(accountEvmAddress);
+  const { allSlugs: allTezChainSlugs, enabledCollectiblesSlugs: tezEnabledCollectiblesChainSlugs } =
+    useTezCollectiblesChainSlugs(accountTezAddress);
+  const { allSlugs: allEvmChainSlugs, enabledCollectiblesSlugs: evmEnabledCollectiblesChainSlugs } =
+    useEvmCollectiblesChainSlugs(accountEvmAddress);
 
   const allChainSlugs = useMemoWithCompare(
-    () => [
-      ...tezCollectibles.map(({ chainId, slug }) => toChainAssetSlug(TempleChainKind.Tezos, chainId, slug)),
-      ...evmCollectibles.map(({ chainId, slug }) => toChainAssetSlug(TempleChainKind.EVM, chainId, slug))
-    ],
-    [tezCollectibles, evmCollectibles]
-  );
-
-  const tezEnabledCollectiblesChainsSlugs = useMemoWithCompare(
-    () =>
-      tezCollectibles
-        .filter(({ status }) => status === 'enabled')
-        .map(({ chainId, slug }) => toChainAssetSlug(TempleChainKind.Tezos, chainId, slug)),
-    [tezCollectibles]
+    () => allTezChainSlugs.concat(allEvmChainSlugs),
+    [allTezChainSlugs, allEvmChainSlugs]
   );
 
   const enabledSlugsSorted = useMemoWithCompare(
-    () =>
-      [
-        ...tezEnabledCollectiblesChainsSlugs,
-        ...evmCollectibles
-          .filter(({ status }) => status === 'enabled')
-          .map(({ chainId, slug }) => toChainAssetSlug(TempleChainKind.EVM, chainId, slug))
-      ].sort(sortPredicate),
-    [tezEnabledCollectiblesChainsSlugs, evmCollectibles, sortPredicate]
+    () => tezEnabledCollectiblesChainSlugs.concat(evmEnabledCollectiblesChainSlugs).sort(sortPredicate),
+    [tezEnabledCollectiblesChainSlugs, evmEnabledCollectiblesChainSlugs, sortPredicate]
   );
 
   const evmMetadata = useEvmCollectiblesMetadataRecordSelector();
@@ -103,7 +86,7 @@ export const useAccountCollectiblesListingLogic = (
 
   const { slugs: paginatedSlugs, loadNext } = useSimpleAssetsPaginationLogic(searchedManageableSlugs);
 
-  useTezosCollectiblesMetadataPresenceCheck(tezEnabledCollectiblesChainsSlugs);
+  useTezosCollectiblesMetadataPresenceCheck(tezEnabledCollectiblesChainSlugs);
 
   return {
     isInSearchMode,

@@ -9,6 +9,7 @@ export const ACTIVITY_PAGE_NAME = 'Activity page';
 export const DAPPS_PAGE_NAME = 'Dapps page';
 export const EARN_PAGE_NAME = 'Earn page';
 export const HOME_PAGE_NAME = 'Home page';
+export const NFTS_PAGE_NAME = 'Nfts page';
 export const NOTIFICATIONS_PAGE_NAME = 'Notifications page';
 export const SEND_PAGE_NAME = 'Send page';
 export const TOKEN_PAGE_NAME = 'Token page';

@@ -8,13 +8,6 @@ import { EvmChain, TezosChain } from 'temple/front';
 import { DEFAULT_EVM_CURRENCY, StoredEvmNetwork, StoredTezosNetwork } from 'temple/networks';
 import { TempleChainKind } from 'temple/types';
 
-export const toExploreAssetLink = (
-  isCollectible: boolean,
-  chainKind: TempleChainKind,
-  chainId: number | string,
-  assetSlug: string
-) => `/${isCollectible ? 'collectible' : 'token'}/${chainKind}/${chainId}/${assetSlug}`;
-
 export function makeFallbackChain(network: StoredTezosNetwork): TezosChain;
 export function makeFallbackChain(network: StoredEvmNetwork): EvmChain;
 export function makeFallbackChain(network: StoredEvmNetwork | StoredTezosNetwork): EvmChain | TezosChain {

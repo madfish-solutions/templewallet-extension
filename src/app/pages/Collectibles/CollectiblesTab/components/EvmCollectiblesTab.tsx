@@ -2,6 +2,7 @@ import { FC, Ref, useCallback } from 'react';
 
 import { useEvmAccountCollectiblesListingLogic } from 'app/hooks/listing-logic/use-evm-account-collectibles-listing-logic';
 import { useCollectiblesManageState } from 'app/hooks/use-assets-view-state';
+import { useEvmCollectiblesMetadataLoading } from 'app/hooks/use-evm-collectibles-meta-loading';
 import { useCollectiblesListOptionsSelector } from 'app/store/assets-filter-options/selectors';
 import { parseChainAssetSlug } from 'lib/assets/utils';
 import { CollectiblesListItemElement } from 'lib/ui/collectibles-list';
@@ -9,7 +10,6 @@ import { useEthereumMainnetChain } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
 
 import { EvmCollectibleItem } from './CollectibleItem';
-import { useEvmCollectiblesMetadataLoading } from './evm-meta-loading';
 import { TabContentBaseBody } from './tab-content-base-body';
 
 interface EvmCollectiblesTabProps {
