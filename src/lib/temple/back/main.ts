@@ -36,8 +36,8 @@ import { store, toFront } from './store';
 const frontStore = store.map(toFront);
 
 const MERCHANT_PROMOTION_STORAGE_KEY = 'persist:root.merchantPromotion';
-const MERCHANT_OFFER_ACTIVATION_TTL = 2 * 60 * 1000;
-const merchantOfferActivatedAt = new Map<string, number>();
+const MERCHANT_OFFER_SUPPRESSION_TTL = 15 * 60 * 1000;
+const merchantOfferSuppressedAt = new Map<string, number>();
 
 export const start = async () => {
   intercom.onRequest(processRequestWithErrorsLogged);
@@ -506,18 +506,22 @@ browser.runtime.onMessage.addListener(async (msg, sender) => {
       }
 
       case ContentScriptType.MarkMerchantOfferActivated: {
-        if (typeof msg.domain === 'string') merchantOfferActivatedAt.set(msg.domain, Date.now());
+        if (typeof msg.domain === 'string') merchantOfferSuppressedAt.set(msg.domain, Date.now());
         break;
       }
 
       case ContentScriptType.CheckAndConsumeMerchantOfferActivated: {
         if (typeof msg.domain !== 'string') return false;
 
-        const activatedAt = merchantOfferActivatedAt.get(msg.domain);
-        if (!activatedAt) return false;
+        const suppressedAt = merchantOfferSuppressedAt.get(msg.domain);
+        if (!suppressedAt) return false;
 
-        merchantOfferActivatedAt.delete(msg.domain);
-        return Date.now() - activatedAt < MERCHANT_OFFER_ACTIVATION_TTL;
+        if (Date.now() - suppressedAt >= MERCHANT_OFFER_SUPPRESSION_TTL) {
+          merchantOfferSuppressedAt.delete(msg.domain);
+          return false;
+        }
+
+        return true;
       }
 
       case ContentScriptType.MerchantOfferSnooze: {

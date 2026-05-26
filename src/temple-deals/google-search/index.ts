@@ -58,7 +58,7 @@ function injectStyles() {
       border: 0;
       border-radius: 4px;
       color: #FF5B00;
-      cursor: pointer;
+      cursor: default;
       display: inline-flex;
       font-family: Rubik, Arial, sans-serif;
       font-size: 12px;
@@ -127,17 +127,42 @@ function scanResults() {
 
 function findMoreButtonForTitle(title: Element) {
   if (title.id) {
-    const describedBySelector = `[aria-label="About this result"][aria-describedby="${CSS.escape(title.id)}"]`;
-    const describedByButton = document.querySelector<HTMLElement>(describedBySelector);
+    const describedBySelector = `[aria-describedby~="${CSS.escape(title.id)}"][role="button"]`;
+    const describedByButton = Array.from(document.querySelectorAll<HTMLElement>(describedBySelector)).find(candidate =>
+      isResultMenuButtonCandidate(title, candidate)
+    );
     if (describedByButton) return describedByButton;
   }
 
-  const nearbyRoot = title.closest('div:has([aria-label="About this result"]), div:has([aria-label="More options"])');
+  return findNearbyResultMenuButton(title);
+}
+
+function findNearbyResultMenuButton(title: Element) {
+  const anchor = title.closest('a[href]');
+  let ancestor = anchor?.parentElement ?? title.parentElement;
+  let depth = 0;
+
+  while (ancestor && depth < 6) {
+    const menuButton = Array.from(
+      ancestor.querySelectorAll<HTMLElement>(
+        '[role="button"][tabindex], button[aria-haspopup], [role="button"][aria-haspopup]'
+      )
+    ).find(candidate => isResultMenuButtonCandidate(title, candidate));
+
+    if (menuButton) return menuButton;
+
+    ancestor = ancestor.parentElement;
+    depth++;
+  }
+
+  return null;
+}
+
+function isResultMenuButtonCandidate(title: Element, candidate: HTMLElement) {
+  const anchor = title.closest('a[href]');
 
   return (
-    nearbyRoot?.querySelector<HTMLElement>('[aria-label="About this result"]') ??
-    nearbyRoot?.querySelector<HTMLElement>('[aria-label="More options"]') ??
-    null
+    !candidate.classList.contains(LABEL_CLASS) && !candidate.contains(title) && (!anchor || !anchor.contains(candidate))
   );
 }
 
@@ -249,9 +274,8 @@ function addLabel(
   domain: string,
   offer: MerchantOffer
 ) {
-  const label = document.createElement('button');
+  const label = document.createElement('span');
   label.className = LABEL_CLASS;
-  label.type = 'button';
   label.dataset.templeDomain = domain;
   label.dataset.templeRoot = '';
 
@@ -264,9 +288,7 @@ function addLabel(
 
   const show = () => scheduleShowHoverPopup(label, offer, url, domain);
   label.addEventListener('mouseenter', show);
-  label.addEventListener('focus', () => showHoverPopup(label, offer, url, domain));
   label.addEventListener('mouseleave', scheduleHideHoverPopup);
-  label.addEventListener('blur', scheduleHideHoverPopup);
 
   if (placeLabel(anchor, moreButton, label)) {
     requestAnimationFrame(() => label.classList.add('temple-google-deal-label-visible'));
@@ -351,7 +373,7 @@ function showHoverPopup(label: HTMLElement, offer: MerchantOffer, url: string, d
     domain,
     activationUrl: url,
     pageDomain: normalizeDomain(window.location.hostname),
-    activationSource: 'tag',
+    activateEvent: TEMPLE_DEALS_EVENTS.tagActivateBounty,
     onSettingsChange: hideTempleDealsOnPage,
     onClose: () => {
       hoverHost?.remove();

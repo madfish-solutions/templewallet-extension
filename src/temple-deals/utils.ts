@@ -2,7 +2,8 @@ import type { MerchantOffer } from 'lib/apis/ads-api/ads-api';
 import { browser } from 'lib/browser';
 import { ContentScriptType } from 'lib/constants';
 
-export const TEMPLE_DEALS_ACTIVATED_KEY_PREFIX = 'temple-merchant-offer-activated:';
+export const TEMPLE_DEALS_POPUP_SUPPRESSION_TTL = 2 * 60 * 1000; // change to 15 minutes after test
+export const TEMPLE_DEALS_SUPPRESSED_KEY_PREFIX = 'temple-merchant-offer-suppressed:';
 
 export const TEMPLE_DEALS_EVENTS = {
   cpcWidgetView: 'Deals CPC Widget / View',
@@ -119,8 +120,8 @@ function formatNumericRateValue(value: string, forceFractionDigits = false) {
     : safeValue.toLocaleString('en-US', { maximumFractionDigits: 2 });
 }
 
-export async function markTempleDealActivated(domain: string) {
-  sessionStorage.setItem(`${TEMPLE_DEALS_ACTIVATED_KEY_PREFIX}${domain}`, '1');
+export async function suppressTempleDealPopup(domain: string) {
+  sessionStorage.setItem(`${TEMPLE_DEALS_SUPPRESSED_KEY_PREFIX}${domain}`, String(Date.now()));
   await browser.runtime
     .sendMessage({
       type: ContentScriptType.MarkMerchantOfferActivated,
@@ -129,16 +130,24 @@ export async function markTempleDealActivated(domain: string) {
     .catch(() => {});
 }
 
-export async function wasTempleDealActivated(domain: string) {
-  if (sessionStorage.getItem(`${TEMPLE_DEALS_ACTIVATED_KEY_PREFIX}${domain}`)) return true;
+export async function isTempleDealPopupSuppressed(domain: string) {
+  const storageKey = `${TEMPLE_DEALS_SUPPRESSED_KEY_PREFIX}${domain}`;
+  const suppressedAt = Number(sessionStorage.getItem(storageKey));
+
+  if (suppressedAt && Date.now() - suppressedAt < TEMPLE_DEALS_POPUP_SUPPRESSION_TTL) return true;
+  sessionStorage.removeItem(storageKey);
 
   try {
-    return Boolean(
+    const suppressed = Boolean(
       await browser.runtime.sendMessage({
         type: ContentScriptType.CheckAndConsumeMerchantOfferActivated,
         domain
       })
     );
+
+    if (suppressed) sessionStorage.setItem(storageKey, String(Date.now()));
+
+    return suppressed;
   } catch {
     return false;
   }

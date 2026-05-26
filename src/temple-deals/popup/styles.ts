@@ -43,7 +43,7 @@ export function getPopupStyles() {
 
     .tw-popup-title {
       font-size: 16px;
-      font-weight: 600;
+      font-weight: 500;
       color: #151618;
       flex: 1;
       line-height: 24px;
@@ -58,13 +58,13 @@ export function getPopupStyles() {
     .tw-popup-settings-btn {
       display: flex;
       align-items: center;
-      gap: 4px;
+      gap: 2px;
       padding: 4px 8px;
       border: none;
-      background: #E3ECF8;
+      background: rgba(19, 115, 228, 0.15);
       color: #1373E4;
       font-size: 12px;
-      font-weight: 600;
+      font-weight: 500;
       line-height: 16px;
       cursor: pointer;
       border-radius: 6px;
@@ -110,7 +110,7 @@ export function getPopupStyles() {
       background: transparent;
       cursor: pointer;
       font-size: 12px;
-      font-weight: 400;
+      font-weight: 300;
       line-height: 16px;
       color: #151618;
       width: 100%;
@@ -134,7 +134,7 @@ export function getPopupStyles() {
 
     .tw-popup-offer-card {
       display: flex;
-      gap: 16px;
+      gap: 8px;
       align-items: flex-start;
       margin-bottom: 24px;
     }
@@ -163,7 +163,7 @@ export function getPopupStyles() {
 
     .tw-popup-offer-title {
       font-size: 16px;
-      font-weight: 600;
+      font-weight: 500;
       line-height: 24px;
       color: #000000;
       margin-bottom: 4px;
@@ -171,7 +171,7 @@ export function getPopupStyles() {
 
     .tw-popup-offer-desc {
       font-size: 12px;
-      font-weight: 400;
+      font-weight: 300;
       line-height: 16px;
       color: #707070;
     }
@@ -190,7 +190,7 @@ export function getPopupStyles() {
       font-size: 12px;
       cursor: pointer;
       padding: 2px 0 0;
-      font-weight: 500;
+      font-weight: 400;
     }
 
     .tw-popup-show-more:hover {
@@ -205,7 +205,7 @@ export function getPopupStyles() {
       border: none;
       border-radius: 8px;
       font-size: 16px;
-      font-weight: 600;
+      font-weight: 500;
       line-height: 24px;
       cursor: pointer;
     }
