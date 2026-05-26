@@ -31,6 +31,8 @@ const createCardHost = (): CardHost => {
   return { host, mount };
 };
 
+// memo kept intentionally: unwrapped, the React Compiler's hooks lint flags the lazy
+// useRef read during render below. memo keeps it clean without rewriting the DOM logic.
 export const HoverPlaceholder = memo<HoverPlaceholderProps>(({ anchorRef, open, onMouseEnter, onMouseLeave }) => {
   const hostRef = useRef<CardHost | null>(null);
   if (hostRef.current === null) hostRef.current = createCardHost();

@@ -1,4 +1,4 @@
-import { ChangeEvent, useCallback } from 'react';
+import { ChangeEvent } from 'react';
 
 import { useDispatch } from 'react-redux';
 import browser from 'webextension-polyfill';
@@ -12,15 +12,12 @@ export const useWebWidgetsSettings = () => {
 
   const isEnabled = useWebWidgetsTokenInsightEnabledSelector();
 
-  const setEnabled = useCallback(
-    (toChecked: boolean, event?: ChangeEvent<HTMLInputElement>) => {
-      event?.preventDefault();
+  const setEnabled = (toChecked: boolean, event?: ChangeEvent<HTMLInputElement>) => {
+    event?.preventDefault();
 
-      dispatch(setWebWidgetsTokenInsightEnabledAction(toChecked));
-      browser.storage.local.set({ [WEB_WIDGETS_TOKEN_INSIGHT_ENABLED]: toChecked });
-    },
-    [dispatch]
-  );
+    dispatch(setWebWidgetsTokenInsightEnabledAction(toChecked));
+    browser.storage.local.set({ [WEB_WIDGETS_TOKEN_INSIGHT_ENABLED]: toChecked });
+  };
 
   return { isEnabled, setEnabled };
 };

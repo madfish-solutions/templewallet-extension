@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 
 import type { TagData } from '../engine/types';
 
@@ -12,42 +12,42 @@ interface PillProps {
   tagData: TagData;
 }
 
-export const Pill = memo<PillProps>(({ tagData }) => {
+export const Pill = ({ tagData }: PillProps) => {
   const label = tagData.label.length > MAX_LABEL_CHARS ? `${tagData.label.slice(0, MAX_LABEL_CHARS)}…` : tagData.label;
   const [open, setOpen] = useState(false);
   const pillRef = useRef<HTMLSpanElement>(null);
   const openTimerRef = useRef<NodeJS.Timeout | null>(null);
   const closeTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-  const cancelOpen = useCallback(() => {
+  const cancelOpen = () => {
     if (openTimerRef.current !== null) {
       clearTimeout(openTimerRef.current);
       openTimerRef.current = null;
     }
-  }, []);
+  };
 
-  const cancelClose = useCallback(() => {
+  const cancelClose = () => {
     if (closeTimerRef.current !== null) {
       clearTimeout(closeTimerRef.current);
       closeTimerRef.current = null;
     }
-  }, []);
+  };
 
-  const handleEnter = useCallback(() => {
+  const handleEnter = () => {
     cancelClose();
     openTimerRef.current = setTimeout(() => {
       setOpen(true);
       openTimerRef.current = null;
     }, OPEN_DELAY_MS);
-  }, [cancelClose]);
+  };
 
-  const handleLeave = useCallback(() => {
+  const handleLeave = () => {
     cancelOpen();
     closeTimerRef.current = setTimeout(() => {
       setOpen(false);
       closeTimerRef.current = null;
     }, CLOSE_DELAY_MS);
-  }, [cancelOpen]);
+  };
 
   return (
     <span ref={pillRef} className="tw-pill" onMouseEnter={handleEnter} onMouseLeave={handleLeave}>
@@ -56,4 +56,4 @@ export const Pill = memo<PillProps>(({ tagData }) => {
       <HoverPlaceholder anchorRef={pillRef} open={open} onMouseEnter={cancelClose} onMouseLeave={handleLeave} />
     </span>
   );
-});
+};
