@@ -1,5 +1,5 @@
 import { CollectiblePage } from '../page-objects/pages/collectible.page';
-import { CollectiblesTabPage } from '../page-objects/pages/CollectiblesTab.page';
+import { NftsPage } from './pages/Nfts.page';
 import { ConfirmationModalPage } from '../page-objects/pages/confirmation-modal.page';
 import { GeneralSettingsPage } from '../page-objects/pages/general-settings.page';
 import { HomePage } from '../page-objects/pages/home.page';
@@ -36,7 +36,7 @@ export const Pages = {
   ConfirmationModal: new ConfirmationModalPage(),
   // TODO: add tests for networks settings
   CollectiblePage: new CollectiblePage(),
-  CollectiblesTabPage: new CollectiblesTabPage(),
+  NftsPage: new NftsPage(),
   NotificationsList: new NotificationsListPage(),
   NotificationContent: new NotificationContentPage(),
   GeneralSettings: new GeneralSettingsPage(),
