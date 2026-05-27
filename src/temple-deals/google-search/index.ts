@@ -4,7 +4,7 @@ import { browser } from 'lib/browser';
 import { ContentScriptType } from 'lib/constants';
 
 import { injectTempleDealsPopupFont, mountTempleDealsPopup } from '../popup/layout';
-import { formatBountyValue, isGoogleSearchPage, normalizeDomain, TEMPLE_DEALS_EVENTS } from '../utils';
+import { getOfferLabel, isGoogleSearchPage, normalizeDomain } from '../utils';
 
 const LABEL_CLASS = 'temple-google-deal-label';
 const PROCESSED_ATTR = 'data-temple-google-deal';
@@ -12,7 +12,7 @@ const LABEL_GAP = 16;
 const POPUP_LABEL_GAP = 8;
 const POPUP_BOTTOM_SPACE_BUFFER = 30;
 const DEFAULT_DELAY = 180;
-const GOOGLE_SEARCH_FONT_TEXT = ' Bounty≈.0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+const GOOGLE_SEARCH_FONT_TEXT = ' BountyCashback≈%.0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 
 const scanCache = new WeakSet<Element>();
 const offersCache = new Map<string, MerchantOffer | null>();
@@ -284,7 +284,7 @@ function addLabel(
   icon.src = TEMPLE_ICON;
   icon.alt = '';
   label.appendChild(icon);
-  label.appendChild(document.createTextNode(`Bounty \u2248 ${formatBountyValue(offer.cpcRate, offer.currencyCode)}`));
+  label.appendChild(document.createTextNode(getOfferLabel(offer)));
 
   const show = () => scheduleShowHoverPopup(label, offer, url, domain);
   label.addEventListener('mouseenter', show);
@@ -373,7 +373,7 @@ function showHoverPopup(label: HTMLElement, offer: MerchantOffer, url: string, d
     domain,
     activationUrl: url,
     pageDomain: normalizeDomain(window.location.hostname),
-    activateEvent: TEMPLE_DEALS_EVENTS.tagActivateBounty,
+    activationSource: 'tag',
     onSettingsChange: hideTempleDealsOnPage,
     onClose: () => {
       hoverHost?.remove();
