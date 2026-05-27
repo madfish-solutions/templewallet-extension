@@ -7,10 +7,9 @@ import { AnimatedMenuChevron } from 'app/atoms/animated-menu-chevron';
 import { Logo } from 'app/atoms/Logo';
 import { usePartnersPromotionSettings } from 'app/hooks/use-partners-promotion-settings';
 import { useReferralLinksSettings } from 'app/hooks/use-referral-links-settings';
-import { useRewardsAddresses } from 'app/hooks/use-rewards-addresses';
+import { useBakeryRewardsStats, useTkeyRewardsStats } from 'app/hooks/use-rewards-stats';
 import { ReactComponent as InfoIcon } from 'app/icons/base/InfoFill.svg';
 import { DelegationModal } from 'app/pages/EarnTez/modals/delegation';
-import { TEMPLE_BAKERY_PAYOUT_ADDRESS, TEMPLE_REWARDS_PAYOUT_ADDRESS } from 'app/pages/Rewards/constants';
 import { advancedFeaturesInfoTippyProps } from 'app/pages/Rewards/tooltip';
 import { DISABLE_ADS, IS_MISES_BROWSER } from 'lib/env';
 import { t, T } from 'lib/i18n';
@@ -23,13 +22,10 @@ import { Link, navigate } from 'lib/woozie';
 import { useAccountForTezos, useTezosMainnetChain } from 'temple/front';
 import { confirmTezosOperation, getTezosReadOnlyRpcClient } from 'temple/tezos';
 
-import { useRewardsStatsEntry } from './use-rewards-stats-entry';
-
 export const YourRewardsCards = () => {
   const tezosMainnet = useTezosMainnetChain();
   const account = useAccountForTezos();
   const hasTezosBakeryAccount = Boolean(account);
-  const { tezosAddress: tezosRewardsAddress } = useRewardsAddresses();
   const tezosBakeryAddress = account?.address;
 
   const {
@@ -52,19 +48,8 @@ export const YourRewardsCards = () => {
 
   const referralsEnabled = isReferralLinksEnabled && IS_MISES_BROWSER;
 
-  const { isLoading: isTkeyLoading, stats: tkeyStats } = useRewardsStatsEntry(
-    makeTkeyRewardsStatsStorageKey(tezosRewardsAddress),
-    TEMPLE_REWARDS_PAYOUT_ADDRESS,
-    tezosRewardsAddress,
-    'Failed to load Tkey stats: '
-  );
-
-  const { isLoading: isBakeryLoading, stats: bakeryStats } = useRewardsStatsEntry(
-    makeBakeryRewardsStatsStorageKey(tezosBakeryAddress),
-    TEMPLE_BAKERY_PAYOUT_ADDRESS,
-    tezosBakeryAddress,
-    'Failed to load bakery stats: '
-  );
+  const { isLoading: isTkeyLoading, stats: tkeyStats } = useTkeyRewardsStats();
+  const { isLoading: isBakeryLoading, stats: bakeryStats } = useBakeryRewardsStats();
 
   const [isDelegating, startDelegation] = useTransition();
 
@@ -249,7 +234,3 @@ export const YourRewardsCards = () => {
     </div>
   );
 };
-
-const makeTkeyRewardsStatsStorageKey = (accountAddress: string | undefined) => `TKEY_REWARDS_STATS-${accountAddress}`;
-const makeBakeryRewardsStatsStorageKey = (accountAddress: string | undefined) =>
-  `TEMPLE_BAKERY_REWARDS_STATS-${accountAddress}`;

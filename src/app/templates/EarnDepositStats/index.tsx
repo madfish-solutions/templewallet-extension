@@ -2,19 +2,19 @@ import React, { FC, memo, useMemo } from 'react';
 
 import clsx from 'clsx';
 
+import { useEthDepositChangeChart } from 'app/hooks/deposits/use-eth-deposit-change-chart';
+import { useTezosDepositChangeChart } from 'app/hooks/deposits/use-tezos-deposit-change-chart';
 import { useTestnetModeEnabledSelector } from 'app/store/settings/selectors';
 import { TEZ_TOKEN_SLUG, EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { useFiatCurrency } from 'lib/fiat-currency/core';
 import { ETHEREUM_MAINNET_CHAIN_ID, TEZOS_MAINNET_CHAIN_ID, TempleAccountType } from 'lib/temple/types';
+import { checkDeposit, mergeDepositSeries } from 'lib/utils/deposits';
 import { useAccount, useAccountAddressForEvm, useAccountAddressForTezos } from 'temple/front';
 
 import { EvmAssetIcon, TezosAssetIcon } from '../AssetIcon';
 
 import { EarnDepositStatsLayout } from './components/EarnDepositStatsLayout';
-import { useEthDepositChangeChart } from './hooks/use-eth-deposit-change-chart';
-import { useTezosDepositChangeChart } from './hooks/use-tezos-deposit-change-chart';
 import { EarnDepositStatsProps } from './types';
-import { checkDeposit, mergeDepositSeries } from './utils';
 
 const DEFAULT_DEPOSIT_ICON_CLASSNAMES = 'p-0.5 border border-lines bg-white rounded-full';
 

@@ -5,13 +5,12 @@ import { useFiatCurrency } from 'lib/fiat-currency/core';
 import { mutezToTz } from 'lib/temple/helpers';
 import { TempleTezosChainId } from 'lib/temple/types';
 
-import { DEFAULT_CHART_DAYS_COUNT, ONE_MONTH_IN_MS } from '../constants';
-import { toMsTimestamp } from '../utils';
-
+import { ONE_MONTH_IN_MS, DEFAULT_CHART_DAYS_COUNT } from './constants';
 import { useDelegatedFrom3MonthsTimestamp } from './use-delegated-from-3-months-timestamp';
 import { useTezosAccountBalanceHistory } from './use-tezos-account-balance-history';
 import { useTezosAccountStakingUpdates } from './use-tezos-account-staking-updates';
 import { useTokenHistoricalPrices } from './use-token-historical-prices';
+import { toMsTimestamp } from './utils';
 
 export const useTezosDepositChangeChart = (accountPkh: string) => {
   const { selectedFiatCurrency } = useFiatCurrency();

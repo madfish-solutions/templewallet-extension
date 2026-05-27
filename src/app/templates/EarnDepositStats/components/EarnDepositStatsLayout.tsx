@@ -15,7 +15,7 @@ import { useActivateAnimatedChevron } from 'lib/ui/hooks/use-activate-animated-c
 import { ZERO } from 'lib/utils/numbers';
 import { Link } from 'lib/woozie';
 
-import { useDepositChartDerivedValues } from '../hooks/use-deposit-chart-derived-values';
+import { useDepositChartDerivedValues } from '../../../hooks/deposits/use-deposit-chart-derived-values';
 import { EarnDepositStatsProps } from '../types';
 
 import { HomeEarnNoDepositsContent } from './HomeEarnNoDepositsContent';

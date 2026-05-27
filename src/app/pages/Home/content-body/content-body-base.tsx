@@ -1,11 +1,8 @@
 import { FC, useContext, useState } from 'react';
 
-import clsx from 'clsx';
-
 import { FadeTransition } from 'app/a11y/FadeTransition';
 import { SyncSpinner } from 'app/atoms';
 import { AddCustomTokenButton } from 'app/atoms/AddCustomTokenButton';
-import { AnimatedMenuChevron } from 'app/atoms/animated-menu-chevron';
 import { PageLoader } from 'app/atoms/Loader';
 import { TotalEquity } from 'app/atoms/TotalEquity';
 import { ContentContainer } from 'app/layouts/containers';
@@ -19,6 +16,7 @@ import {
 import { useTestnetModeEnabledSelector } from 'app/store/settings/selectors';
 import { AddTokenModal } from 'app/templates/add-token-modal';
 import { AssetsEmptySection } from 'app/templates/assets-empty-section';
+import { CardWithChevron } from 'app/templates/card-with-chevron';
 import { CollectiblesGroupGrid } from 'app/templates/collectibles/collectibles-group-grid';
 import { DAppConnection } from 'app/templates/DAppConnection';
 import { DepositOption } from 'app/templates/deposit-option';
@@ -30,9 +28,8 @@ import {
 } from 'lib/assets/hooks/collectibles';
 import { t, T } from 'lib/i18n';
 import { useBooleanState } from 'lib/ui/hooks';
-import { useActivateAnimatedChevron } from 'lib/ui/hooks/use-activate-animated-chevron';
 import { EMPTY_FROZEN_ARRAY } from 'lib/utils';
-import { Link, navigate } from 'lib/woozie';
+import { navigate } from 'lib/woozie';
 import { OneOfChains } from 'temple/front';
 
 import { ContentBodyBaseContext } from './content-body-base-context';
@@ -98,11 +95,6 @@ const ContentBodyBaseInternal: FC<
   const isTestnet = useTestnetModeEnabledSelector();
   const accountIsInitialized = useIsAccountInitializedSelector(accountId);
   const isSyncingInitializedState = useIsAccountInitializedLoadingSelector(accountId);
-  const {
-    animatedChevronRef: animatedTokensChevronRef,
-    handleHover: handleTokensHover,
-    handleUnhover: handleTokensUnhover
-  } = useActivateAnimatedChevron();
 
   const openCustomTokenModal = () => openCustomAssetModal(false);
 
@@ -148,19 +140,8 @@ const ContentBodyBaseInternal: FC<
           <div className="flex flex-col relative mb-17 -mx-4">
             <KoloCryptoCardPreview onClick={onCryptoCardClick} />
 
-            <div
-              className={clsx(
-                'relative -mb-17 transform transition-transform duration-200 ease-out peer-hover:translate-y-2 mx-4',
-                'bg-white rounded-8 border-0.5 border-lines p-1 pt-0 flex flex-col'
-              )}
-              onMouseEnter={handleTokensHover}
-              onMouseLeave={handleTokensUnhover}
-            >
-              <Link
-                to="/tokens"
-                className="flex justify-between items-center p-2 gap-1"
-                testID={HomeSelectors.tokensSection}
-              >
+            <CardWithChevron
+              title={
                 <div className="flex items-center gap-1">
                   <span className="text-font-description-bold">
                     <T id="tokens" />
@@ -175,11 +156,13 @@ const ContentBodyBaseInternal: FC<
                     />
                   </span>
                 </div>
-                <AnimatedMenuChevron ref={animatedTokensChevronRef} />
-              </Link>
-
-              <div className="flex flex-col bg-background rounded-8">{children}</div>
-            </div>
+              }
+              linkTo="/tokens"
+              testID={HomeSelectors.tokensSection}
+              className="relative -mb-17 transform transition-transform duration-200 ease-out peer-hover:translate-y-2 mx-4"
+            >
+              {children}
+            </CardWithChevron>
           </div>
 
           <NftsSection
@@ -212,26 +195,20 @@ const NftsSection = ({
   const openCustomCollectibleModal = () => openCustomAssetModal(true);
   const tezosCollectiblesSlugs = toTezEnabledCollectiblesChainSlugs(tezosCollectibles);
   const evmCollectiblesSlugs = toEvmEnabledCollectiblesChainSlugs(evmCollectibles);
-  const {
-    animatedChevronRef: animatedNftsChevronRef,
-    handleHover: handleNftsHover,
-    handleUnhover: handleNftsUnhover
-  } = useActivateAnimatedChevron();
   const collectiblesSlugsSorted = tezosCollectiblesSlugs.concat(evmCollectiblesSlugs).sort(collectiblesSortPredicate);
   const collectibles = tezosCollectibles.concat(evmCollectibles);
 
   return (
-    <div
-      className="mt-6 bg-white rounded-8 border-0.5 border-lines p-1 pt-0 flex flex-col"
-      onMouseEnter={handleNftsHover}
-      onMouseLeave={handleNftsUnhover}
-    >
-      <Link to="/nfts" className="flex justify-between items-center p-2 gap-1" testID={HomeSelectors.nftsSection}>
+    <CardWithChevron
+      title={
         <span className="text-font-description-bold">
           <T id="nfts" />
         </span>
-        <AnimatedMenuChevron ref={animatedNftsChevronRef} />
-      </Link>
+      }
+      linkTo="/nfts"
+      testID={HomeSelectors.nftsSection}
+      className="mt-6"
+    >
       {collectibles.length === 0 && collectiblesReady && (
         <div className="flex flex-col items-center px-2 py-3 gap-3 bg-background rounded-8">
           <p className="text-font-description-bold text-grey-1 text-center">
@@ -257,7 +234,7 @@ const NftsSection = ({
           />
         </div>
       )}
-    </div>
+    </CardWithChevron>
   );
 };
 
