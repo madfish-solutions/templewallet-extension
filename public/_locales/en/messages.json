@@ -3809,13 +3809,13 @@
     "message": "Tezos delegation with auto-payouts in TKEY."
   },
   "apyOnTez": {
-    "message": "6.5% APY on your TEZ"
+    "message": "Up to 6.5% APY"
   },
   "dealsExplanationBody": {
     "message": "Temple automatically finds you best offers from 10,000+ partners worldwide. When you visit a partner website, with our affiliate link - merchants may pay us commissions. We share these commissions with our users as rewards."
   },
   "dealsExplanationCard1": {
-    "message": "Pops up a deal when visiting partner website."
+    "message": "Automate finder pop up you a deal when visiting partner website."
   },
   "dealsExplanationCard2": {
     "message": "One click reward application with instant activation."

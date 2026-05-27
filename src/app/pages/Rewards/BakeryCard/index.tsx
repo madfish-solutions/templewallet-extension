@@ -72,6 +72,49 @@ export const BakeryCard: FC = () => {
     });
   };
 
+  const renderContent = () => {
+    if (!delegatedToTemple) {
+      return (
+        <>
+          <div className="w-full px-2 flex flex-col gap-3">
+            <div className="pl-1 w-full flex items-center justify-between h-6">
+              <span className="text-font-description-bold">{t('bakery')}</span>
+              <AnimatedMenuChevron ref={animatedChevronRef} />
+            </div>
+            <p className="pl-1 w-full text-font-description">{t('bakeryDescription')}</p>
+          </div>
+          <span className="w-full bg-secondary-hover-low text-secondary text-font-num-bold-10 text-center p-2">
+            {t('apyOnTez')}
+          </span>
+        </>
+      );
+    }
+
+    if (isLoading) {
+      return (
+        <>
+          <div className="w-full px-2 flex items-center justify-between">
+            <span className="text-font-description-bold">{t('bakery')}</span>
+            <AnimatedMenuChevron ref={animatedChevronRef} />
+          </div>
+          <div className="flex-1 w-full flex justify-center items-center pb-3">
+            <Loader size="L" trackVariant="dark" className="text-secondary" />
+          </div>
+        </>
+      );
+    }
+
+    return (
+      <div className="w-full px-2 flex flex-col gap-2">
+        <div className="w-full flex items-center justify-between">
+          <span className="text-font-description-bold">{t('bakery')}</span>
+          <AnimatedMenuChevron ref={animatedChevronRef} />
+        </div>
+        <AllTimeStats total={stats?.total} lastAmount={stats?.lastAmount} unit="TKEY" />
+      </div>
+    );
+  };
+
   return (
     <>
       <Button
@@ -79,51 +122,12 @@ export const BakeryCard: FC = () => {
         onMouseEnter={handleHover}
         onMouseLeave={handleUnhover}
         className={clsx(
-          'flex-1 bg-white rounded-8 border-0.5 border-lines text-left flex flex-col gap-3 items-start overflow-clip transition-colors min-h-29',
+          'flex-1 bg-white rounded-8 border-0.5 border-lines text-left flex flex-col gap-2 items-start overflow-clip transition-colors min-h-29',
           !delegatedToTemple ? 'pt-3' : 'py-3',
           !isDelegating && 'hover:bg-grey-4'
         )}
       >
-        {!delegatedToTemple ? (
-          <>
-            <div className="w-full px-2 flex flex-col gap-2">
-              <div className="pl-1 w-full flex items-center justify-between h-6">
-                <span className="text-font-description-bold">{t('bakery')}</span>
-                {isDelegating ? (
-                  <Loader size="S" trackVariant="dark" className="text-secondary" />
-                ) : (
-                  <AnimatedMenuChevron ref={animatedChevronRef} />
-                )}
-              </div>
-              <p className="pl-1 w-full text-font-description">{t('bakeryDescription')}</p>
-            </div>
-            <span className="w-full bg-secondary-hover-low text-secondary text-font-num-bold-10 text-center p-2">
-              {t('apyOnTez')}
-            </span>
-          </>
-        ) : isLoading ? (
-          <>
-            <div className="w-full px-2 flex items-center justify-between">
-              <span className="text-font-description-bold">{t('bakery')}</span>
-              <AnimatedMenuChevron ref={animatedChevronRef} />
-            </div>
-            <div className="flex-1 w-full flex justify-center items-center">
-              <Loader size="L" trackVariant="dark" className="text-secondary" />
-            </div>
-          </>
-        ) : (
-          <div className="w-full px-2 flex flex-col gap-2">
-            <div className="w-full flex items-center justify-between">
-              <span className="text-font-description-bold">{t('bakery')}</span>
-              {isDelegating ? (
-                <Loader size="S" trackVariant="dark" className="text-secondary" />
-              ) : (
-                <AnimatedMenuChevron ref={animatedChevronRef} />
-              )}
-            </div>
-            <AllTimeStats total={stats?.total} lastAmount={stats?.lastAmount} unit="TKEY" />
-          </div>
-        )}
+        {renderContent()}
       </Button>
 
       {isDelegationOpen && (
