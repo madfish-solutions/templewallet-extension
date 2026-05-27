@@ -40,7 +40,7 @@ export function getDealsAnnouncementStyles() {
     .tw-deals-title {
       font-family: ${FONT_FAMILY};
       font-size: 16px;
-      font-weight: 600;
+      font-weight: 500;
       color: #151618;
       flex: 1;
     }
@@ -84,7 +84,7 @@ export function getDealsAnnouncementStyles() {
     .tw-deals-offer-title {
       font-family: ${FONT_FAMILY};
       font-size: 16px;
-      font-weight: 600;
+      font-weight: 500;
       line-height: 24px;
       color: #151618;
       flex: 1;
@@ -93,7 +93,7 @@ export function getDealsAnnouncementStyles() {
     .tw-deals-offer-body {
       font-family: ${FONT_FAMILY};
       font-size: 12px;
-      font-weight: 400;
+      font-weight: 300;
       color: #707070;
       line-height: 16px;
     }
@@ -107,7 +107,7 @@ export function getDealsAnnouncementStyles() {
       padding: 8px 12px;
       font-family: ${FONT_FAMILY};
       font-size: 16px;
-      font-weight: 600;
+      font-weight: 500;
       cursor: pointer;
       margin-top: 24px;
       margin-bottom: 8px;
@@ -120,7 +120,7 @@ export function getDealsAnnouncementStyles() {
     .tw-deals-disclaimer {
       font-family: ${FONT_FAMILY};
       font-size: 10px;
-      font-weight: 400;
+      font-weight: 300;
       color: #707070;
       line-height: 12px;
       text-align: center;
@@ -143,7 +143,7 @@ export function getDealsAnnouncementStyles() {
     .tw-deals-success-title {
       font-family: ${FONT_FAMILY};
       font-size: 16px;
-      font-weight: 600;
+      font-weight: 500;
       color: #151618;
       text-align: center;
     }
@@ -151,7 +151,7 @@ export function getDealsAnnouncementStyles() {
     .tw-deals-success-body {
       font-family: ${FONT_FAMILY};
       font-size: 12px;
-      font-weight: 400;
+      font-weight: 300;
       color: #707070;
       line-height: 16px;
       text-align: center;
@@ -167,7 +167,7 @@ export function getDealsAnnouncementStyles() {
       padding: 8px 12px;
       font-family: ${FONT_FAMILY};
       font-size: 16px;
-      font-weight: 600;
+      font-weight: 500;
       cursor: pointer;
     }
 

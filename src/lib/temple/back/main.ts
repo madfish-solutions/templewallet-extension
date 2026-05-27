@@ -576,6 +576,12 @@ browser.runtime.onMessage.addListener(async (msg, sender) => {
         const { event, properties } = msg;
         if (typeof event !== 'string' || !allowedEvents.has(event)) break;
 
+        // Activation should always be tracked
+        if (event !== 'DealsAnnouncementGoogleSearchActivate') {
+          const rootState = await fetchFromStorage<{ settings?: { isAnalyticsEnabled?: boolean } }>('persist:temple-root');
+          if (rootState?.settings?.isAnalyticsEnabled !== true) break;
+        }
+
         const userId = (await fetchFromStorage<string>(ANALYTICS_USER_ID_STORAGE_KEY)) ?? '';
         Analytics.trackEvent({
           userId,

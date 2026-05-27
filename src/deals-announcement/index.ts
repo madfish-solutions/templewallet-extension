@@ -32,7 +32,7 @@ const MERCHANT_PROMOTION_STORAGE_KEY = 'persist:root.merchantPromotion';
 function injectAnnouncement() {
   const fontLink = document.createElement('link');
   fontLink.rel = 'stylesheet';
-  fontLink.href = 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap';
+  fontLink.href = 'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&display=swap';
   document.head.appendChild(fontLink);
 
   const host = document.createElement('div');

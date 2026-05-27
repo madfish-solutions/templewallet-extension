@@ -8,6 +8,7 @@ import { MiniPageModal } from 'app/atoms/PageModal/mini-page-modal';
 import { StyledButton } from 'app/atoms/StyledButton';
 import { setMerchantPromotionEnabledAction } from 'app/store/merchant-promotion/actions';
 import { useMerchantPromotionEnabledSelector } from 'app/store/merchant-promotion/selectors';
+import { useAnalyticsEnabledSelector } from 'app/store/settings/selectors';
 import { AnalyticsEventCategory, useAnalytics } from 'lib/analytics';
 import { DEALS_ANNOUNCEMENT_SHOWN_STORAGE_KEY } from 'lib/constants';
 import { T } from 'lib/i18n';
@@ -33,6 +34,7 @@ export const DealsAnnouncementModal = () => {
   const account = useAccount();
   const dealsEnabled = useMerchantPromotionEnabledSelector();
   const { trackEvent } = useAnalytics();
+  const analyticsEnabled = useAnalyticsEnabledSelector();
 
   const [wasEligibleAtMount, setWasEligibleAtMount] = useState<boolean | undefined>(undefined);
   if (wasEligibleAtMount === undefined && shown !== undefined) {
@@ -54,6 +56,11 @@ export const DealsAnnouncementModal = () => {
 
     const accountPkh = getAccountAddressForChain(account, TempleChainKind.Tezos) ?? '';
     trackEvent('DealsEnabled', AnalyticsEventCategory.General, { accountPkh }, true);
+
+    // Activation should always be tracked
+    if (!analyticsEnabled) {
+      trackEvent(DealsAnnouncementSelectors.inWalletActivate, AnalyticsEventCategory.ButtonPress, undefined, true);
+    }
 
     setStep(OverlayStep.Success);
   };
