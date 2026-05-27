@@ -162,7 +162,9 @@ const ContentBodyBaseInternal: FC<
                 testID={HomeSelectors.tokensSection}
               >
                 <div className="flex items-center gap-1">
-                  <span className="text-font-description-bold"><T id="tokens" /></span>
+                  <span className="text-font-description-bold">
+                    <T id="tokens" />
+                  </span>
                   <span className="text-font-num-bold-12 font-medium text-grey-1">
                     <TotalEquity
                       account={account}
@@ -225,12 +227,16 @@ const NftsSection = ({
       onMouseLeave={handleNftsUnhover}
     >
       <Link to="/nfts" className="flex justify-between items-center p-2 gap-1" testID={HomeSelectors.nftsSection}>
-        <span className="text-font-description-bold"><T id="nfts" /></span>
+        <span className="text-font-description-bold">
+          <T id="nfts" />
+        </span>
         <AnimatedMenuChevron ref={animatedNftsChevronRef} />
       </Link>
       {collectibles.length === 0 && collectiblesReady && (
         <div className="flex flex-col items-center px-2 py-3 gap-3 bg-background rounded-8">
-          <p className="text-font-description-bold text-grey-1 text-center"><T id="startYourCollectionToday" /></p>
+          <p className="text-font-description-bold text-grey-1 text-center">
+            <T id="startYourCollectionToday" />
+          </p>
 
           <AddCustomTokenButton className="mb-0!" onClick={openCustomCollectibleModal} manageActive={false} />
         </div>
