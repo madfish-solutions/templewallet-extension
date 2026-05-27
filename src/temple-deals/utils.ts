@@ -2,7 +2,7 @@ import type { MerchantOffer } from 'lib/apis/ads-api/ads-api';
 import { browser } from 'lib/browser';
 import { ContentScriptType } from 'lib/constants';
 
-export const TEMPLE_DEALS_POPUP_SUPPRESSION_TTL = 2 * 60 * 1000; // change to 15 minutes after test
+export const TEMPLE_DEALS_POPUP_SUPPRESSION_TTL = 15 * 60 * 1000;
 export const TEMPLE_DEALS_SUPPRESSED_KEY_PREFIX = 'temple-merchant-offer-suppressed:';
 
 export const TEMPLE_DEALS_EVENTS = {
