@@ -578,7 +578,9 @@ browser.runtime.onMessage.addListener(async (msg, sender) => {
 
         // Activation should always be tracked
         if (event !== 'DealsAnnouncementGoogleSearchActivate') {
-          const rootState = await fetchFromStorage<{ settings?: { isAnalyticsEnabled?: boolean } }>('persist:temple-root');
+          const rootState = await fetchFromStorage<{ settings?: { isAnalyticsEnabled?: boolean } }>(
+            'persist:temple-root'
+          );
           if (rootState?.settings?.isAnalyticsEnabled !== true) break;
         }
 
