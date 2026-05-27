@@ -13,8 +13,10 @@ export enum ContentScriptType {
   FetchReferralsRules = 'FetchReferralsRules',
   ReferralClick = 'ReferralClick',
   FetchTempleReferralLinkItems = 'FetchTempleReferralLinkItems',
-  FetchMerchantOffer = 'FetchMerchantOffer',
+  FetchMerchantOffers = 'FetchMerchantOffers',
   ActivateMerchantOffer = 'ActivateMerchantOffer',
+  MarkMerchantOfferActivated = 'MarkMerchantOfferActivated',
+  CheckAndConsumeMerchantOfferActivated = 'CheckAndConsumeMerchantOfferActivated',
   MerchantOfferSnooze = 'MerchantOfferSnooze',
   MerchantOfferDisable = 'MerchantOfferDisable',
   MerchantOfferAnalytics = 'MerchantOfferAnalytics'
@@ -22,7 +24,9 @@ export enum ContentScriptType {
 
 export const APP_TITLE = 'Temple Wallet';
 
-export const WEBSITES_ANALYTICS_ENABLED = 'WEBSITES_ANALYTICS_ENABLED';
+export const WEBSITES_ADS_ENABLED = 'WEBSITES_ANALYTICS_ENABLED';
+
+export const USAGE_ANALYTICS_ENABLED = 'USAGE_ANALYTICS_ENABLED';
 
 export const REPLACE_REFERRALS_ENABLED = 'REPLACE_REFERRALS_ENABLED';
 
