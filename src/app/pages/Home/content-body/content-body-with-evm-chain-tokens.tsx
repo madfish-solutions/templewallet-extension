@@ -44,11 +44,11 @@ export const ContentBodyWithEvmChainTokens: FC<Props> = ({ chainId, publicKeyHas
 
   useEvmCollectiblesMetadataLoading(publicKeyHash);
 
-  const {
-    displayedSlugs: fullPageDisplayedSlugs,
-    isSyncing,
-    isInSearchMode
-  } = useEvmChainAccountTokensListingLogic(enabledSlugsSorted, network.chainId);
+  const { displayedSlugs: fullPageDisplayedSlugs, isSyncing } = useEvmChainAccountTokensListingLogic(
+    enabledSlugsSorted,
+    network.chainId,
+    true
+  );
   const displayedSlugs = fullPageDisplayedSlugs.slice(0, 3);
 
   const TokenListItem: TokenListItemFC = ({ slug, ref, index }) => {
@@ -71,7 +71,6 @@ export const ContentBodyWithEvmChainTokens: FC<Props> = ({ chainId, publicKeyHas
       accountId={accountId}
       tokensCount={displayedSlugs.length}
       isSyncingTokens={isSyncing}
-      isInSearchMode={isInSearchMode}
       network={network}
       shouldShowHiddenTokensHint={shouldShowHiddenTokensHint}
       evmCollectibles={evmCollectibles}

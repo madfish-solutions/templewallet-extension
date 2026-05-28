@@ -4,7 +4,6 @@ import {
   useAccountTokensForListing,
   useAccountTokensListingLogic
 } from 'app/hooks/listing-logic/use-account-tokens-listing-logic';
-import { useEvmBalancesAreLoading } from 'app/hooks/listing-logic/use-evm-balances-loading-state';
 import {
   usePreservedOrderSlugsGroupsToManage,
   usePreservedOrderSlugsToManage
@@ -15,22 +14,16 @@ import {
   useGroupByNetworkBehaviorSelector,
   useTokensListOptionsSelector
 } from 'app/store/assets-filter-options/selectors';
-import { useEvmCollectiblesMetadataLoadingSelector } from 'app/store/evm/selectors';
-import { useAreAssetsLoading } from 'app/store/tezos/assets/selectors';
-import {
-  toTezEnabledCollectiblesChainSlugs,
-  useEvmAccountCollectibles,
-  useTezosAccountCollectibles
-} from 'lib/assets/hooks/collectibles';
-import { useAccountCollectiblesSortPredicate } from 'lib/assets/use-sorting';
 import { parseChainAssetSlug } from 'lib/assets/utils';
-import { useTezosCollectiblesMetadataPresenceCheck } from 'lib/metadata';
 import { useMemoWithCompare } from 'lib/ui/hooks';
 import { toNotRemovedChainTokensSlugs } from 'lib/ui/tokens-list';
 import { groupByToEntries } from 'lib/utils/group-by-to-entries';
 import { useAllEvmChains, useAllTezosChains } from 'temple/front';
 import { ChainGroupedSlugs } from 'temple/front/chains';
 import { TempleChainKind } from 'temple/types';
+
+import { TokensPageWrapper } from '../tokens-page-wrapper';
+import { useEnsureTezosCollectibles } from '../use-ensure-tezos-collectibles';
 
 import { PageContentBaseBody } from './content-base-body';
 import { MultiChainTokensPageContext } from './context';
@@ -43,40 +36,21 @@ export const MultiChainTokensPage: FC<MultiChainTokensPageProps> = ({
 }) => {
   const { manageActive, toggleManageActive } = useTokensManageState();
 
-  const tezosCollectibles = useTezosAccountCollectibles(accountTezAddress);
-  const evmCollectibles = useEvmAccountCollectibles(accountEvmAddress);
-  const tezAssetsLoading = useAreAssetsLoading('collectibles');
-  const evmBalancesLoading = useEvmBalancesAreLoading();
-  const evmCollectiblesMetadataLoading = useEvmCollectiblesMetadataLoadingSelector();
-  const collectiblesSortPredicate = useAccountCollectiblesSortPredicate(accountTezAddress, accountEvmAddress);
-  const collectiblesReady =
-    (tezosCollectibles.length > 0 || !tezAssetsLoading) &&
-    (evmCollectibles.length > 0 || (!evmBalancesLoading && !evmCollectiblesMetadataLoading));
-  const contextValue = {
-    accountId,
-    accountEvmAddress,
-    accountTezAddress,
-    tezosCollectibles,
-    evmCollectibles,
-    collectiblesReady,
-    collectiblesSortPredicate,
-    toggleManageActive
-  };
-
-  const tezEnabledCollectiblesChainsSlugs = toTezEnabledCollectiblesChainSlugs(tezosCollectibles);
-  useTezosCollectiblesMetadataPresenceCheck(tezEnabledCollectiblesChainsSlugs);
+  useEnsureTezosCollectibles(accountTezAddress);
   useEvmCollectiblesMetadataLoading(accountEvmAddress);
 
   return (
-    <MultiChainTokensPageContext value={contextValue}>
-      <Activity mode={manageActive ? 'hidden' : 'visible'} name="multichain-tokens-page-default">
-        <PageContent />
-      </Activity>
+    <TokensPageWrapper manageActive={manageActive} toggleManageActive={toggleManageActive}>
+      <MultiChainTokensPageContext value={{ accountId, accountEvmAddress, accountTezAddress }}>
+        <Activity mode={manageActive ? 'hidden' : 'visible'} name="multichain-tokens-page-default">
+          <PageContent />
+        </Activity>
 
-      <Activity mode={manageActive ? 'visible' : 'hidden'} name="multichain-tokens-page-manage">
-        <PageContentWithManageActive />
-      </Activity>
-    </MultiChainTokensPageContext>
+        <Activity mode={manageActive ? 'visible' : 'hidden'} name="multichain-tokens-page-manage">
+          <PageContentWithManageActive />
+        </Activity>
+      </MultiChainTokensPageContext>
+    </TokensPageWrapper>
   );
 };
 

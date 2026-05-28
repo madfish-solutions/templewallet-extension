@@ -1,7 +1,6 @@
 import { Activity, FC, useContext } from 'react';
 
 import { useEvmAccountTokensForListing } from 'app/hooks/listing-logic/use-evm-account-tokens-listing-logic';
-import { useEvmBalancesAreLoading } from 'app/hooks/listing-logic/use-evm-balances-loading-state';
 import {
   usePreservedOrderSlugsGroupsToManage,
   usePreservedOrderSlugsToManage
@@ -12,14 +11,13 @@ import {
   useGroupByNetworkBehaviorSelector,
   useTokensListOptionsSelector
 } from 'app/store/assets-filter-options/selectors';
-import { useEvmCollectiblesMetadataLoadingSelector } from 'app/store/evm/selectors';
-import { useEvmAccountCollectibles } from 'lib/assets/hooks/collectibles';
-import { useEvmAccountCollectiblesSortPredicate } from 'lib/assets/use-sorting';
 import { parseChainAssetSlug } from 'lib/assets/utils';
 import { useMemoWithCompare } from 'lib/ui/hooks';
 import { toNotRemovedChainTokensSlugs } from 'lib/ui/tokens-list';
 import { groupByToEntries } from 'lib/utils/group-by-to-entries';
 import { TempleChainKind } from 'temple/types';
+
+import { TokensPageWrapper } from '../tokens-page-wrapper';
 
 import { PageContentBase } from './content-base';
 import { EvmTokensPageContext } from './context';
@@ -27,32 +25,21 @@ import { EvmTokensPageProps } from './types';
 
 export const EvmTokensPage: FC<EvmTokensPageProps> = ({ publicKeyHash, accountId }) => {
   const { manageActive, toggleManageActive } = useTokensManageState();
-  const evmCollectibles = useEvmAccountCollectibles(publicKeyHash);
-  const balancesLoading = useEvmBalancesAreLoading();
-  const collectiblesMetadataLoading = useEvmCollectiblesMetadataLoadingSelector();
-  const collectiblesReady = evmCollectibles.length > 0 || (!balancesLoading && !collectiblesMetadataLoading);
-  const collectiblesSortPredicate = useEvmAccountCollectiblesSortPredicate(publicKeyHash);
-  const contextValue = {
-    publicKeyHash,
-    accountId,
-    evmCollectibles,
-    collectiblesReady,
-    collectiblesSortPredicate,
-    toggleManageActive
-  };
 
   useEvmCollectiblesMetadataLoading(publicKeyHash);
 
   return (
-    <EvmTokensPageContext value={contextValue}>
-      <Activity mode={manageActive ? 'hidden' : 'visible'} name="evm-tokens-tab-default">
-        <PageContent />
-      </Activity>
+    <TokensPageWrapper manageActive={manageActive} toggleManageActive={toggleManageActive}>
+      <EvmTokensPageContext value={{ publicKeyHash, accountId }}>
+        <Activity mode={manageActive ? 'hidden' : 'visible'} name="evm-tokens-tab-default">
+          <PageContent />
+        </Activity>
 
-      <Activity mode={manageActive ? 'visible' : 'hidden'} name="evm-tokens-tab-manage">
-        <PageContentWithManageActive />
-      </Activity>
-    </EvmTokensPageContext>
+        <Activity mode={manageActive ? 'visible' : 'hidden'} name="evm-tokens-tab-manage">
+          <PageContentWithManageActive />
+        </Activity>
+      </EvmTokensPageContext>
+    </TokensPageWrapper>
   );
 };
 

@@ -188,12 +188,13 @@ export function makeFallbackChain(network: StoredEvmNetwork | StoredTezosNetwork
 export const useRenderPromo = (manageActive: boolean, page: 'home' | 'tokens', promoRef?: Ref<HTMLDivElement>) => {
   const PartnersPromotionModule = usePartnersPromotionModule();
   const AdsConstantsModule = useAdsConstantsModule();
+  const id = page === 'home' ? 'promo-token-item' : 'promo-token-item-tokens';
 
   return () =>
     manageActive || !PartnersPromotionModule || !AdsConstantsModule ? null : (
       <PartnersPromotionModule.PartnersPromotion
-        id="promo-token-item"
-        key="promo-token-item"
+        id={id}
+        key={id}
         variant={PartnersPromotionModule.PartnersPromotionVariant.Text}
         pageName={page === 'home' ? AdsConstantsModule.HOME_PAGE_NAME : AdsConstantsModule.TOKENS_PAGE_NAME}
         ref={promoRef}

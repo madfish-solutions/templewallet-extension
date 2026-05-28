@@ -16,25 +16,29 @@ import { toNotRemovedChainTokensSlugs } from 'lib/ui/tokens-list';
 import { groupByToEntries } from 'lib/utils/group-by-to-entries';
 import { TempleChainKind } from 'temple/types';
 
+import { TokensPageWrapper } from '../tokens-page-wrapper';
+import { useEnsureTezosCollectibles } from '../use-ensure-tezos-collectibles';
+
 import { PageContentBase } from './content-base';
 import { TezosTokensPageContext } from './context';
 import { TezosTokensPageProps } from './types';
 
 export const TezosTokensPage: FC<TezosTokensPageProps> = ({ publicKeyHash, accountId }) => {
   const { manageActive, toggleManageActive } = useTokensManageState();
-
-  const value = { publicKeyHash, accountId, toggleManageActive };
+  useEnsureTezosCollectibles(publicKeyHash);
 
   return (
-    <TezosTokensPageContext value={value}>
-      <Activity mode={manageActive ? 'hidden' : 'visible'} name="tezos-tokens-page-default">
-        <PageContent />
-      </Activity>
+    <TokensPageWrapper manageActive={manageActive} toggleManageActive={toggleManageActive}>
+      <TezosTokensPageContext value={{ publicKeyHash, accountId }}>
+        <Activity mode={manageActive ? 'hidden' : 'visible'} name="tezos-tokens-page-default">
+          <PageContent />
+        </Activity>
 
-      <Activity mode={manageActive ? 'visible' : 'hidden'} name="tezos-tokens-page-manage">
-        <PageContentWithManageActive />
-      </Activity>
-    </TezosTokensPageContext>
+        <Activity mode={manageActive ? 'visible' : 'hidden'} name="tezos-tokens-page-manage">
+          <PageContentWithManageActive />
+        </Activity>
+      </TezosTokensPageContext>
+    </TokensPageWrapper>
   );
 };
 

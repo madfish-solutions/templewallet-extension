@@ -47,11 +47,11 @@ export const ContentBodyWithMultiChainTokens: FC<ContentBodyWithMultiChainTokens
     hideSmallBalance,
     groupByNetwork
   );
-  const {
-    displayedSlugs: fullPageDisplayedSlugs,
-    isSyncing,
-    isInSearchMode
-  } = useAccountTokensListingLogic(enabledChainsSlugsSorted, null);
+  const { displayedSlugs: fullPageDisplayedSlugs, isSyncing } = useAccountTokensListingLogic(
+    enabledChainsSlugsSorted,
+    null,
+    true
+  );
   const displayedSlugs = fullPageDisplayedSlugs.slice(0, 3);
 
   const tezosChains = useAllTezosChains();
@@ -63,7 +63,6 @@ export const ContentBodyWithMultiChainTokens: FC<ContentBodyWithMultiChainTokens
 
   return (
     <ContentBaseBody
-      isInSearchMode={isInSearchMode}
       isSyncingTokens={isSyncing}
       displayedSlugs={displayedSlugs}
       tezosChains={tezosChains}

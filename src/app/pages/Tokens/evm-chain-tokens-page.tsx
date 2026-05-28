@@ -1,7 +1,5 @@
 import { Activity, createContext, FC, useContext, useRef } from 'react';
 
-import { noop } from 'lodash';
-
 import { DeadEndBoundaryError } from 'app/ErrorBoundary';
 import {
   useEvmChainAccountTokensForListing,
@@ -23,7 +21,8 @@ import {
 import { EvmChain, useEvmChainByChainId } from 'temple/front/chains';
 import { EVM_DEFAULT_NETWORKS } from 'temple/networks';
 
-import { TokensPageBase, TokensPageBaseProps } from './tokens-page-base';
+import { TokensPageBase } from './tokens-page-base';
+import { TokensPageWrapper } from './tokens-page-wrapper';
 
 interface Props {
   chainId: number;
@@ -31,13 +30,10 @@ interface Props {
   accountId: string;
 }
 
-const EvmChainTokensPageContext = createContext<
-  Omit<Props, 'chainId'> & { network: EvmChain } & Pick<TokensPageBaseProps, 'toggleManageActive'>
->({
+const EvmChainTokensPageContext = createContext<Omit<Props, 'chainId'> & { network: EvmChain }>({
   network: makeFallbackChain(EVM_DEFAULT_NETWORKS[0]),
   publicKeyHash: '0x',
-  accountId: '',
-  toggleManageActive: noop
+  accountId: ''
 });
 
 export const EvmChainTokensPage: FC<Props> = ({ chainId, publicKeyHash, accountId }) => {
@@ -48,15 +44,17 @@ export const EvmChainTokensPage: FC<Props> = ({ chainId, publicKeyHash, accountI
   const { manageActive, toggleManageActive } = useTokensManageState();
 
   return (
-    <EvmChainTokensPageContext value={{ accountId, network, publicKeyHash, toggleManageActive }}>
-      <Activity mode={manageActive ? 'hidden' : 'visible'} name="evm-chain-tokens-page-default">
-        <PageContent />
-      </Activity>
+    <TokensPageWrapper manageActive={manageActive} toggleManageActive={toggleManageActive}>
+      <EvmChainTokensPageContext value={{ accountId, network, publicKeyHash }}>
+        <Activity mode={manageActive ? 'hidden' : 'visible'} name="evm-chain-tokens-page-default">
+          <PageContent />
+        </Activity>
 
-      <Activity mode={manageActive ? 'visible' : 'hidden'} name="evm-chain-tokens-page-manage">
-        <PageContentWithManageActive />
-      </Activity>
-    </EvmChainTokensPageContext>
+        <Activity mode={manageActive ? 'visible' : 'hidden'} name="evm-chain-tokens-page-manage">
+          <PageContentWithManageActive />
+        </Activity>
+      </EvmChainTokensPageContext>
+    </TokensPageWrapper>
   );
 };
 

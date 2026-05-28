@@ -47,7 +47,11 @@ export const useEvmChainAccountTokensForListing = (
   };
 };
 
-export const useEvmChainAccountTokensListingLogic = (allSlugsSorted: string[], chainId: number) => {
+export const useEvmChainAccountTokensListingLogic = (
+  allSlugsSorted: string[],
+  chainId: number,
+  ignoreSearch = false
+) => {
   const { slugs: paginatedSlugs, loadNext } = useSimpleAssetsPaginationLogic(allSlugsSorted);
 
   const balancesLoading = useEvmChainBalancesLoadingSelector(chainId);
@@ -62,10 +66,10 @@ export const useEvmChainAccountTokensListingLogic = (allSlugsSorted: string[], c
 
   const displayedSlugs = useMemo(
     () =>
-      isInSearchMode
+      isInSearchMode && !ignoreSearch
         ? searchEvmChainTokensWithNoMeta(searchValueDebounced, allSlugsSorted, getMetadata, slug => slug)
         : paginatedSlugs,
-    [paginatedSlugs, allSlugsSorted, isInSearchMode, getMetadata, searchValueDebounced]
+    [paginatedSlugs, allSlugsSorted, isInSearchMode, getMetadata, searchValueDebounced, ignoreSearch]
   );
 
   return {

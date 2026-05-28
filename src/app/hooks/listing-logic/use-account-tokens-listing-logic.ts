@@ -82,7 +82,8 @@ export const useAccountTokensForListing = (
 
 export const useAccountTokensListingLogic = (
   allSlugsSorted: string[],
-  allSlugsSortedGrouped: ChainGroupedSlugs | null
+  allSlugsSortedGrouped: ChainGroupedSlugs | null,
+  ignoreSearch = false
 ) => {
   const { selectedChainsSlugsSorted, selectedChainsSlugsSortedGrouped } = useSelectedChainsTokensSlugs(
     allSlugsSorted,
@@ -109,18 +110,19 @@ export const useAccountTokensListingLogic = (
   const getTezMetadata = useGetTokenOrGasMetadata();
   const getEvmMetadata = useGetEvmGasOrTokenMetadata();
 
-  const displayedSlugs = isInSearchMode
-    ? searchAssetsWithNoMeta(
-        searchValueDebounced,
-        selectedChainsSlugsSorted,
-        getTezMetadata,
-        getEvmMetadata,
-        slug => slug,
-        getSlugFromChainSlug
-      )
-    : paginatedSlugs;
+  const displayedSlugs =
+    isInSearchMode && !ignoreSearch
+      ? searchAssetsWithNoMeta(
+          searchValueDebounced,
+          selectedChainsSlugsSorted,
+          getTezMetadata,
+          getEvmMetadata,
+          slug => slug,
+          getSlugFromChainSlug
+        )
+      : paginatedSlugs;
   let displayedGroupedSlugs: ChainGroupedSlugs | null;
-  if (!isInSearchMode) {
+  if (!isInSearchMode || ignoreSearch) {
     displayedGroupedSlugs = paginatedSlugsGroups;
   } else if (!selectedChainsSlugsSortedGrouped) {
     displayedGroupedSlugs = null;
