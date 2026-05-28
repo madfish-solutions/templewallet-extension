@@ -66,7 +66,11 @@ export const useTezosChainAccountTokensForListing = (publicKeyHash: string, chai
   };
 };
 
-export const useTezosChainAccountTokensListingLogic = (allSlugsSorted: string[], chainId: string) => {
+export const useTezosChainAccountTokensListingLogic = (
+  allSlugsSorted: string[],
+  chainId: string,
+  ignoreSearch = false
+) => {
   const { slugs: paginatedSlugs, loadNext } = useSimpleAssetsPaginationLogic(allSlugsSorted);
 
   const assetsAreLoading = useAreAssetsLoading('tokens');
@@ -80,10 +84,10 @@ export const useTezosChainAccountTokensListingLogic = (allSlugsSorted: string[],
 
   const displayedSlugs = useMemoWithCompare(
     () =>
-      isInSearchMode
+      isInSearchMode && !ignoreSearch
         ? searchTezosChainAssetsWithNoMeta(searchValueDebounced, allSlugsSorted, getTokenMetadata, slug => slug)
         : paginatedSlugs,
-    [isInSearchMode, paginatedSlugs, allSlugsSorted, getTokenMetadata, searchValueDebounced]
+    [isInSearchMode, paginatedSlugs, allSlugsSorted, getTokenMetadata, searchValueDebounced, ignoreSearch]
   );
 
   return {

@@ -2399,6 +2399,12 @@
   "hiddenTokensHint": {
     "message": "You have hidden tokens, disable\n“Hide small balances” filter to see them all"
   },
+  "shortHiddenTokensHint": {
+    "message": "You have hidden tokens with small balances"
+  },
+  "displayAllTokens": {
+    "message": "Display all"
+  },
   "noCollectibles": {
     "message": "No collectibles"
   },
@@ -3989,11 +3995,11 @@
   "buyWithFiatDescription": {
     "message": "Purchase crypto via credit or debit card with 26+ currencies options"
   },
-  "crossChainSwap": {
-    "message": "Cross-Chain Swap"
+  "depositWithCrypto": {
+    "message": "Deposit with BTC, SOL or other"
   },
-  "crossChainSwapDescription": {
-    "message": "Exchange crypto instantly from Solana, Bitcoin and other networks"
+  "depositWithCryptoDescription": {
+    "message": "Top-up balance from Solana, Bitcoin and other networks without KYC"
   },
   "receiveOnChain": {
     "message": "Receive on-chain"

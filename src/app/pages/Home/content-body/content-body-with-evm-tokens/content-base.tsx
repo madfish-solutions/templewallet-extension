@@ -27,11 +27,11 @@ export const ContentBase: FC<ContentBaseProps> = ({
   accountId,
   ...tokensContentBaseProps
 }) => {
-  const {
-    displayedSlugs: fullPageDisplayedSlugs,
-    isSyncing,
-    isInSearchMode
-  } = useEvmAccountTokensListingLogic(allSlugsSorted, null);
+  const { displayedSlugs: fullPageDisplayedSlugs, isSyncing } = useEvmAccountTokensListingLogic(
+    allSlugsSorted,
+    null,
+    true
+  );
   const displayedSlugs = fullPageDisplayedSlugs.slice(0, 3);
 
   const mainnetChain = useEthereumMainnetChain();
@@ -59,7 +59,6 @@ export const ContentBase: FC<ContentBaseProps> = ({
       accountId={accountId}
       tokensCount={displayedSlugs.length}
       isSyncingTokens={isSyncing}
-      isInSearchMode={isInSearchMode}
       network={mainnetChain}
       shouldShowHiddenTokensHint={shouldShowHiddenTokensHint}
       {...tokensContentBaseProps}

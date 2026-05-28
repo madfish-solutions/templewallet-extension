@@ -28,11 +28,11 @@ export const ContentBase: FC<ContentBaseProps> = ({
   accountId,
   ...contentBodyBaseProps
 }) => {
-  const {
-    displayedSlugs: fullPageDisplayedSlugs,
-    isSyncing,
-    isInSearchMode
-  } = useTezosAccountTokensListingLogic(allSlugsSorted, null);
+  const { displayedSlugs: fullPageDisplayedSlugs, isSyncing } = useTezosAccountTokensListingLogic(
+    allSlugsSorted,
+    null,
+    true
+  );
   const displayedSlugs = fullPageDisplayedSlugs.slice(0, 3);
 
   const mainnetChain = useTezosMainnetChain();
@@ -61,7 +61,6 @@ export const ContentBase: FC<ContentBaseProps> = ({
       accountId={accountId}
       tokensCount={displayedSlugs.length}
       isSyncingTokens={isSyncing}
-      isInSearchMode={isInSearchMode}
       network={mainnetChain}
       shouldShowHiddenTokensHint={shouldShowHiddenTokensHint}
       {...contentBodyBaseProps}

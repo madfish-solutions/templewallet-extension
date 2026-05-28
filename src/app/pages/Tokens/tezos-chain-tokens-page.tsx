@@ -1,6 +1,6 @@
 import { Activity, createContext, FC, useContext, useRef } from 'react';
 
-import { constant, noop } from 'lodash';
+import { constant } from 'lodash';
 
 import { DeadEndBoundaryError } from 'app/ErrorBoundary';
 import { usePreservedOrderSlugsToManage } from 'app/hooks/listing-logic/use-manageable-slugs';
@@ -17,7 +17,8 @@ import { getTokenElementIndex, makeFallbackChain, TokenListItemElement, useRende
 import { TezosChain, useTezosChainByChainId } from 'temple/front';
 import { TEZOS_DEFAULT_NETWORKS } from 'temple/networks';
 
-import { TokensPageBase, TokensPageBaseProps } from './tokens-page-base';
+import { TokensPageBase } from './tokens-page-base';
+import { TokensPageWrapper } from './tokens-page-wrapper';
 
 interface Props {
   chainId: string;
@@ -25,13 +26,10 @@ interface Props {
   accountId: string;
 }
 
-const TezosChainTokensPageContext = createContext<
-  Omit<Props, 'chainId'> & { network: TezosChain } & Pick<TokensPageBaseProps, 'toggleManageActive'>
->({
+const TezosChainTokensPageContext = createContext<Omit<Props, 'chainId'> & { network: TezosChain }>({
   network: makeFallbackChain(TEZOS_DEFAULT_NETWORKS[0]),
   publicKeyHash: '',
-  accountId: '',
-  toggleManageActive: noop
+  accountId: ''
 });
 
 export const TezosChainTokensPage: FC<Props> = ({ chainId, accountId, publicKeyHash }) => {
@@ -42,15 +40,17 @@ export const TezosChainTokensPage: FC<Props> = ({ chainId, accountId, publicKeyH
   const { manageActive, toggleManageActive } = useTokensManageState();
 
   return (
-    <TezosChainTokensPageContext value={{ accountId, network, publicKeyHash, toggleManageActive }}>
-      <Activity mode={manageActive ? 'hidden' : 'visible'} name="tezos-chain-tokens-page-default">
-        <PageContent />
-      </Activity>
+    <TokensPageWrapper manageActive={manageActive} toggleManageActive={toggleManageActive}>
+      <TezosChainTokensPageContext value={{ accountId, network, publicKeyHash }}>
+        <Activity mode={manageActive ? 'hidden' : 'visible'} name="tezos-chain-tokens-page-default">
+          <PageContent />
+        </Activity>
 
-      <Activity mode={manageActive ? 'visible' : 'hidden'} name="tezos-chain-tokens-page-manage">
-        <PageContentWithManageActive />
-      </Activity>
-    </TezosChainTokensPageContext>
+        <Activity mode={manageActive ? 'visible' : 'hidden'} name="tezos-chain-tokens-page-manage">
+          <PageContentWithManageActive />
+        </Activity>
+      </TezosChainTokensPageContext>
+    </TokensPageWrapper>
   );
 };
 

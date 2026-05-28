@@ -3,41 +3,24 @@ import { FC } from 'react';
 import { noop } from 'lodash';
 
 import { FadeTransition } from 'app/a11y/FadeTransition';
-import { IconBase, ToggleSwitch } from 'app/atoms';
 import { AddCustomTokenButton } from 'app/atoms/AddCustomTokenButton';
-import { IconButton } from 'app/atoms/IconButton';
 import { PageLoader } from 'app/atoms/Loader';
-import { MiniPageModal } from 'app/atoms/PageModal/mini-page-modal';
-import { SettingsCellSingle } from 'app/atoms/SettingsCell';
-import { SettingsCellGroup } from 'app/atoms/SettingsCellGroup';
 import {
   VisibilityTrackingInfiniteScroll,
   VisibilityTrackingInfiniteScrollProps
 } from 'app/atoms/visibility-tracking-infinite-scroll';
-import { useTokensSearchState, useTokensSelectedChainsState } from 'app/hooks/use-assets-view-state';
-import { ReactComponent as FilterOffIcon } from 'app/icons/base/filteroff.svg';
-import { ReactComponent as FilterOnIcon } from 'app/icons/base/filteron.svg';
-import { ReactComponent as ManageIcon } from 'app/icons/base/manage.svg';
-import { ReactComponent as CloseIcon } from 'app/icons/base/x.svg';
-import PageLayout from 'app/layouts/PageLayout';
+import { useTokensSelectedChainsState } from 'app/hooks/use-assets-view-state';
 import BuyWithFiatImageSrc from 'app/misc/deposit/buy-with-fiat.png';
 import CrossChainSwapImageSrc from 'app/misc/deposit/cross-chain-swap.png';
-import { dispatch } from 'app/store';
 import {
   useIsAccountInitializedLoadingSelector,
   useIsAccountInitializedSelector
 } from 'app/store/accounts-initialization/selectors';
-import {
-  setTokensGroupByNetworkFilterOption,
-  setTokensHideSmallBalanceFilterOption
-} from 'app/store/assets-filter-options/actions';
-import { useAssetsFilterOptionsSelector } from 'app/store/assets-filter-options/selectors';
 import { useTestnetModeEnabledSelector } from 'app/store/settings/selectors';
 import { AddTokenModal } from 'app/templates/add-token-modal';
 import { AssetsEmptySection } from 'app/templates/assets-empty-section';
 import { DepositOption } from 'app/templates/deposit-option';
 import { usePartnersPromotionModule } from 'app/templates/partners-promotion';
-import { SearchBarField } from 'app/templates/SearchField';
 import { useAdsConstantsModule } from 'lib/ads-constants';
 import { t, T } from 'lib/i18n';
 import { useBooleanState } from 'lib/ui/hooks';
@@ -55,7 +38,6 @@ export interface TokensPageBaseProps {
   accountId: string;
   isInSearchMode: boolean;
   manageActive: boolean;
-  toggleManageActive: EmptyFn;
   network?: OneOfChains;
   shouldShowHiddenTokensHint?: boolean;
   children: ReactChildren;
@@ -70,7 +52,6 @@ export const TokensPageBase: FC<TokensPageBaseProps> = ({
   accountId,
   isInSearchMode,
   manageActive,
-  toggleManageActive,
   network,
   shouldShowHiddenTokensHint,
   children
@@ -78,11 +59,7 @@ export const TokensPageBase: FC<TokensPageBaseProps> = ({
   const isTestnet = useTestnetModeEnabledSelector();
   const accountIsInitialized = useIsAccountInitializedSelector(accountId);
   const isSyncingInitializedState = useIsAccountInitializedLoadingSelector(accountId);
-  const { searchValue, setSearchValue } = useTokensSearchState();
-  const { tokensListOptions } = useAssetsFilterOptionsSelector();
   const { chainIsGloballySelected } = useTokensSelectedChainsState();
-  const [filtersModalOpen, openFiltersModal, closeFiltersModal] = useBooleanState(false);
-  const { hideSmallBalance, groupByNetwork } = tokensListOptions;
   const AdsConstantsModule = useAdsConstantsModule();
   const PartnersPromotionModule = usePartnersPromotionModule();
   const [customTokenModalOpened, openCustomTokenModal, closeCustomTokenModal] = useBooleanState(false);
@@ -91,7 +68,8 @@ export const TokensPageBase: FC<TokensPageBaseProps> = ({
     <AssetsEmptySection
       forCollectibles={false}
       forSearch={isInSearchMode}
-      manageActive={manageActive}
+      // Intentionally forcing the same look for both variants
+      manageActive={false}
       shouldShowHiddenTokensHint={shouldShowHiddenTokensHint}
       stretchSpaceBeforeButton={false}
       onAddCustomTokenClick={openCustomTokenModal}
@@ -150,30 +128,7 @@ export const TokensPageBase: FC<TokensPageBaseProps> = ({
   }
 
   return (
-    <PageLayout
-      pageTitle={<T id="tokens" />}
-      contentPadding={false}
-      contentClassName="px-4 pb-8"
-      headerRightElem={
-        <IconBase
-          Icon={hideSmallBalance || groupByNetwork ? FilterOnIcon : FilterOffIcon}
-          className="text-primary cursor-pointer"
-          onClick={openFiltersModal}
-        />
-      }
-      headerChildren={
-        <div className="flex p-4 gap-2 bg-background items-center">
-          <SearchBarField
-            value={searchValue}
-            placeholder={t('search')}
-            onValueChange={setSearchValue}
-            testID={TokensPageSelectors.searchField}
-          />
-
-          <IconButton Icon={manageActive ? CloseIcon : ManageIcon} color="blue" onClick={toggleManageActive} />
-        </div>
-      }
-    >
+    <>
       <FadeTransition trigger={manageActive}>
         {!manageActive && !chainIsGloballySelected && accountIsInitialized && (
           <div className="mb-1">
@@ -184,35 +139,13 @@ export const TokensPageBase: FC<TokensPageBaseProps> = ({
         {content}
       </FadeTransition>
 
-      <MiniPageModal opened={filtersModalOpen} onRequestClose={closeFiltersModal} title={t('filters')}>
-        <SettingsCellGroup className="m-4 mb-8">
-          <SettingsCellSingle Component="div" cellName={t('hideSmallBalance')} isLast={false}>
-            <ToggleSwitch
-              checked={hideSmallBalance}
-              disabled={isTestnet}
-              onChange={value => dispatch(setTokensHideSmallBalanceFilterOption(value))}
-              testID={TokensPageSelectors.hideSmallBalanceToggle}
-            />
-          </SettingsCellSingle>
-
-          <SettingsCellSingle Component="div" cellName={t('groupByNetwork')}>
-            <ToggleSwitch
-              checked={groupByNetwork}
-              disabled={chainIsGloballySelected}
-              onChange={value => dispatch(setTokensGroupByNetworkFilterOption(value))}
-              testID={TokensPageSelectors.groupByNetworkToggle}
-            />
-          </SettingsCellSingle>
-        </SettingsCellGroup>
-      </MiniPageModal>
-
       <AddTokenModal
         forCollectible={false}
         opened={customTokenModalOpened}
         onRequestClose={closeCustomTokenModal}
         initialNetwork={network}
       />
-    </PageLayout>
+    </>
   );
 };
 
@@ -234,8 +167,8 @@ const UninitializedAccountContent: FC<PropsWithChildren> = ({ children }) => (
 
     <DepositOption
       to="/buy/crypto"
-      title={t('crossChainSwap')}
-      description={t('crossChainSwapDescription')}
+      title={t('depositWithCrypto')}
+      description={t('depositWithCryptoDescription')}
       testID={TokensPageSelectors.crossChainSwapButton}
       imageSrc={CrossChainSwapImageSrc}
       className="mb-4"

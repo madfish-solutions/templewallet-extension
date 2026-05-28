@@ -114,7 +114,8 @@ export const makeUseChainKindAccountTokensListingLogic = <T extends TempleChainK
 }: TokensListingLogicFactoryConfig<T>) => {
   const useChainKindAccountTokensListingLogic = (
     allSlugsSorted: string[],
-    allSlugsSortedGrouped: ChainGroupedSlugs<T> | null
+    allSlugsSortedGrouped: ChainGroupedSlugs<T> | null,
+    ignoreSearch = false
   ) => {
     const { selectedChainsSlugsSorted, selectedChainsSlugsSortedGrouped } = useSelectedChainsTokensSlugs(
       allSlugsSorted,
@@ -139,13 +140,13 @@ export const makeUseChainKindAccountTokensListingLogic = <T extends TempleChainK
 
     const displayedSlugs = useMemo(
       () =>
-        isInSearchMode
+        isInSearchMode && !ignoreSearch
           ? searchTokensWithNoMeta(searchValueDebounced, selectedChainsSlugsSorted, getMetadata, getSlugWithChainId)
           : paginatedSlugs,
-      [isInSearchMode, paginatedSlugs, selectedChainsSlugsSorted, searchValueDebounced, getMetadata]
+      [isInSearchMode, paginatedSlugs, selectedChainsSlugsSorted, searchValueDebounced, getMetadata, ignoreSearch]
     );
     const displayedGroupedSlugs = useMemo(() => {
-      if (!isInSearchMode) return paginatedSlugsGroups;
+      if (!isInSearchMode || ignoreSearch) return paginatedSlugsGroups;
       if (!selectedChainsSlugsSortedGrouped) return null;
 
       const result: [ChainId<T>, string[]][] = [];
@@ -159,7 +160,14 @@ export const makeUseChainKindAccountTokensListingLogic = <T extends TempleChainK
       }
 
       return result;
-    }, [selectedChainsSlugsSortedGrouped, getMetadata, isInSearchMode, paginatedSlugsGroups, searchValueDebounced]);
+    }, [
+      selectedChainsSlugsSortedGrouped,
+      getMetadata,
+      isInSearchMode,
+      paginatedSlugsGroups,
+      searchValueDebounced,
+      ignoreSearch
+    ]);
 
     return {
       applicableNetworks,

@@ -42,11 +42,11 @@ export const ContentBodyWithTezChainTokens: FC<Props> = ({ chainId, accountId, p
   );
   useTezosCollectiblesMetadataPresenceCheck(tezEnabledCollectiblesChainsSlugs);
 
-  const {
-    displayedSlugs: fullPageDisplayedSlugs,
-    isSyncing,
-    isInSearchMode
-  } = useTezosChainAccountTokensListingLogic(enabledTokenSlugsSorted, network.chainId);
+  const { displayedSlugs: fullPageDisplayedSlugs, isSyncing } = useTezosChainAccountTokensListingLogic(
+    enabledTokenSlugsSorted,
+    network.chainId,
+    true
+  );
   const displayedSlugs = fullPageDisplayedSlugs.slice(0, 3);
 
   const mainnetTokensScamSlugsRecord = useMainnetTokensScamlistSelector();
@@ -69,7 +69,6 @@ export const ContentBodyWithTezChainTokens: FC<Props> = ({ chainId, accountId, p
       accountId={accountId}
       tokensCount={displayedSlugs.length}
       isSyncingTokens={isSyncing}
-      isInSearchMode={isInSearchMode}
       network={network}
       shouldShowHiddenTokensHint={shouldShowHiddenTokensHint}
       tezosCollectibles={tezosCollectibles}
