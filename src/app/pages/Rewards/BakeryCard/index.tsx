@@ -73,10 +73,10 @@ export const BakeryCard: FC = () => {
   };
 
   const renderContent = () => {
-    if (!delegatedToTemple) {
+    if (!delegatedToTemple && !isDelegating) {
       return (
         <>
-          <div className="w-full px-2 flex flex-col gap-3">
+          <div className="w-full px-2 flex flex-col gap-2">
             <div className="pl-1 w-full flex items-center justify-between h-6">
               <span className="text-font-description-bold">{t('bakery')}</span>
               <AnimatedMenuChevron ref={animatedChevronRef} />
@@ -90,14 +90,14 @@ export const BakeryCard: FC = () => {
       );
     }
 
-    if (isLoading) {
+    if (isLoading || isDelegating) {
       return (
         <>
           <div className="w-full px-2 flex items-center justify-between">
             <span className="text-font-description-bold">{t('bakery')}</span>
             <AnimatedMenuChevron ref={animatedChevronRef} />
           </div>
-          <div className="flex-1 w-full flex justify-center items-center pb-3">
+          <div className="flex-1 w-full flex justify-center items-center">
             <Loader size="L" trackVariant="dark" className="text-secondary" />
           </div>
         </>
@@ -122,8 +122,8 @@ export const BakeryCard: FC = () => {
         onMouseEnter={handleHover}
         onMouseLeave={handleUnhover}
         className={clsx(
-          'flex-1 bg-white rounded-8 border-0.5 border-lines text-left flex flex-col gap-2 items-start overflow-clip transition-colors min-h-29',
-          !delegatedToTemple ? 'pt-3' : 'py-3',
+          'flex-1 bg-white rounded-8 border-0.5 border-lines text-left flex flex-col items-start overflow-clip transition-colors min-h-29',
+          !delegatedToTemple && !isDelegating && !isLoading ? 'gap-3 pt-3' : 'gap-2 py-3',
           !isDelegating && 'hover:bg-grey-4'
         )}
       >
