@@ -61,6 +61,7 @@ const ConstantAppRootHooks = memo(() => {
   useCancelConfirmDialogOnLock();
   useConversionVerification();
   useGlobalErrorTracking();
+  useDealsSync();
 
   return null;
 });
@@ -89,7 +90,6 @@ const AppReadyRootHooks = memo(() => {
   useStorageAnalytics();
   useConversionVerification();
   useReactivateAdsOnce();
-  useDealsSync();
   useAdsImpressionsLinking();
 
   useChainIDsCheck();

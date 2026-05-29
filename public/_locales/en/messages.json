@@ -5262,5 +5262,35 @@
   },
   "redirectButListInWallet": {
     "message": "Redirect me, but I'd like list in-wallet"
+  },
+  "templeDeals": {
+    "message": "Temple Deals"
+  },
+  "upTo25CashbackInUSDT": {
+    "message": "Up to 25% cashback in USDT"
+  },
+  "cashbackTagline": {
+    "message": "No points, no expiry - real crypto straight to your wallet every month. Works at 10,000+ merchants."
+  },
+  "cashbackParticipationDisclaimer": {
+    "message": "By activation, you are agree to participate in customer-based ads program."
+  },
+  "activateCashback": {
+    "message": "Activate Cashback"
+  },
+  "cashbackActivated": {
+    "message": "Cashback activated"
+  },
+  "cashbackActivatedReloadHint": {
+    "message": "Reload page to see available offers for you! Track your earnings on Rewards page."
+  },
+  "featureUnlockedCashback": {
+    "message": "Feature unlocked: Cashback in USDT"
+  },
+  "cashbackInWalletPitch": {
+    "message": "Your wallet is ready to earn up to 25% cashback in real crypto. No points, no expiry - rewards accrue passively with auto-payouts. Try now, works at 10,000+ merchants."
+  },
+  "cashbackActivatedBrowseHint": {
+    "message": "Browse like normal, activate offers from partners and track your payouts on Rewards page. Thanks for supporting Temple development!"
   }
 }

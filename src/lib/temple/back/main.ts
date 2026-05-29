@@ -12,11 +12,13 @@ import {
   ANALYTICS_USER_ID_STORAGE_KEY,
   ContentScriptType,
   REWARDS_ACCOUNT_DATA_STORAGE_KEY,
+  DEALS_ANNOUNCEMENT_SHOWN_STORAGE_KEY,
   USAGE_ANALYTICS_ENABLED
 } from 'lib/constants';
 import { E2eMessageType } from 'lib/e2e/types';
 import { BACKGROUND_IS_WORKER, IS_FIREFOX, IS_MISES_BROWSER } from 'lib/env';
 import { fetchFromStorage, putToStorage } from 'lib/storage';
+import { AnalyticsEventCategory } from 'lib/temple/analytics-types';
 import { encodeMessage, encryptMessage, getSenderId, MessageType, Response } from 'lib/temple/beacon';
 import { clearAsyncStorages } from 'lib/temple/reset';
 import { StoredHDAccount, TempleMessageType, TempleRequest, TempleResponse } from 'lib/temple/types';
@@ -35,7 +37,7 @@ import { store, toFront } from './store';
 
 const frontStore = store.map(toFront);
 
-const MERCHANT_PROMOTION_STORAGE_KEY = 'persist:root.merchantPromotion';
+const DEALS_STORAGE_KEY = 'persist:root.deals';
 const MERCHANT_OFFER_SUPPRESSION_TTL = 15 * 60 * 1000;
 const merchantOfferSuppressedAt = new Map<string, number>();
 
@@ -487,7 +489,7 @@ browser.runtime.onMessage.addListener(async (msg, sender) => {
       }
 
       case ContentScriptType.FetchMerchantOffers: {
-        const merchantState = await fetchFromStorage<DealsState>(MERCHANT_PROMOTION_STORAGE_KEY);
+        const merchantState = await fetchFromStorage<DealsState>(DEALS_STORAGE_KEY);
         if (!merchantState?.enabled) return [];
         if (merchantState.snoozedUntil && Date.now() < merchantState.snoozedUntil) return [];
 
@@ -525,8 +527,8 @@ browser.runtime.onMessage.addListener(async (msg, sender) => {
       }
 
       case ContentScriptType.MerchantOfferSnooze: {
-        const merchantState = await fetchFromStorage<DealsState>(MERCHANT_PROMOTION_STORAGE_KEY);
-        await putToStorage(MERCHANT_PROMOTION_STORAGE_KEY, {
+        const merchantState = await fetchFromStorage<DealsState>(DEALS_STORAGE_KEY);
+        await putToStorage(DEALS_STORAGE_KEY, {
           ...merchantState,
           snoozedUntil: Date.now() + 24 * 60 * 60 * 1000
         });
@@ -534,7 +536,7 @@ browser.runtime.onMessage.addListener(async (msg, sender) => {
       }
 
       case ContentScriptType.MerchantOfferDisable: {
-        await putToStorage(MERCHANT_PROMOTION_STORAGE_KEY, {
+        await putToStorage(DEALS_STORAGE_KEY, {
           enabled: false,
           snoozedUntil: 0
         });
@@ -553,11 +555,62 @@ browser.runtime.onMessage.addListener(async (msg, sender) => {
 
         Analytics.trackEvent({
           userId: userId ?? '',
+          chainId: undefined,
           event,
           category,
           properties
         });
+        break;
+      }
 
+      case ContentScriptType.MarkDealsAnnouncementSeen: {
+        await putToStorage(DEALS_ANNOUNCEMENT_SHOWN_STORAGE_KEY, true);
+        break;
+      }
+
+      case ContentScriptType.ActivateDealsAnnouncement: {
+        const merchantState = await fetchFromStorage<DealsState>(DEALS_STORAGE_KEY);
+        await putToStorage(DEALS_STORAGE_KEY, {
+          ...merchantState,
+          enabled: true,
+          snoozedUntil: 0
+        });
+
+        const userId = (await fetchFromStorage<string>(ANALYTICS_USER_ID_STORAGE_KEY)) ?? '';
+        Analytics.trackEvent({
+          userId,
+          chainId: undefined,
+          event: 'DealsEnabled',
+          category: AnalyticsEventCategory.General,
+          properties: {}
+        });
+        break;
+      }
+
+      case ContentScriptType.DealsAnnouncementAnalytics: {
+        const allowedEvents = new Set([
+          'DealsAnnouncementGoogleSearchView',
+          'DealsAnnouncementGoogleSearchActivate',
+          'DealsAnnouncementGoogleSearchClose'
+        ]);
+
+        const { event, category, properties } = msg;
+        if (typeof event !== 'string' || !allowedEvents.has(event)) break;
+
+        // Activation is always tracked
+        if (event !== 'DealsAnnouncementGoogleSearchActivate') {
+          const analyticsEnabled = await fetchFromStorage<boolean>(USAGE_ANALYTICS_ENABLED);
+          if (!analyticsEnabled) break;
+        }
+
+        const userId = (await fetchFromStorage<string>(ANALYTICS_USER_ID_STORAGE_KEY)) ?? '';
+        Analytics.trackEvent({
+          userId,
+          chainId: undefined,
+          event,
+          category,
+          properties
+        });
         break;
       }
     }

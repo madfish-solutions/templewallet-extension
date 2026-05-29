@@ -27,7 +27,7 @@ const POPUP_FONT_URL = `https://fonts.googleapis.com/css2?family=Inter:wght@300;
   POPUP_FONT_TEXT
 )}`;
 
-export interface TempleDealsPopupOptions {
+interface TempleDealsPopupOptions {
   offer: MerchantOffer;
   domain: string;
   activationUrl: string;
