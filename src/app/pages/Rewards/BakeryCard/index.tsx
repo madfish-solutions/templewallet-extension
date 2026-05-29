@@ -1,10 +1,11 @@
-import { FC, useState, useTransition } from 'react';
+import { FC, useEffect, useLayoutEffect, useRef, useState } from 'react';
 
 import clsx from 'clsx';
 
 import { Button, Loader } from 'app/atoms';
 import { AnimatedMenuChevron } from 'app/atoms/animated-menu-chevron';
 import { DelegationModal } from 'app/pages/EarnTez/modals/delegation';
+import { useHasPendingTezosDelegation } from 'app/store/tezos/pending-transactions/utils';
 import { AnalyticsEventCategory, useAnalytics } from 'lib/analytics';
 import { TKEY_TOKEN_METADATA } from 'lib/assets/known-tokens';
 import { TEMPLE_BAKERY_REWARDS_STATS_STORAGE_KEY } from 'lib/constants';
@@ -13,8 +14,7 @@ import { TEMPLE_BAKER_ADDRESS } from 'lib/known-bakers';
 import { useDelegate } from 'lib/temple/front';
 import { useActivateAnimatedChevron } from 'lib/ui/hooks/use-activate-animated-chevron';
 import { navigate } from 'lib/woozie';
-import { useAccountForTezos, useTezosMainnetChain } from 'temple/front';
-import { confirmTezosOperation, getTezosReadOnlyRpcClient } from 'temple/tezos';
+import { useAccountForTezos, useOnTezosBlock, useTezosMainnetChain } from 'temple/front';
 
 import { AllTimeStats } from '../all-time-stats';
 import { TEMPLE_BAKERY_PAYOUT_ADDRESS } from '../constants';
@@ -37,9 +37,47 @@ export const BakeryCard: FC = () => {
   const [isDelegationOpen, setDelegationOpen] = useState(false);
   const closeDelegation = () => setDelegationOpen(false);
 
-  const [isDelegating, startDelegation] = useTransition();
   const { data: myBakerPkh, mutate: updateBakerPkh } = useDelegate(account?.address ?? '', tezosMainnet, false, true);
   const delegatedToTemple = myBakerPkh === TEMPLE_BAKER_ADDRESS;
+
+  const hasPendingDelegation = useHasPendingTezosDelegation(account?.address ?? '', tezosMainnet.chainId);
+
+  const [bakerChecked, setBakerChecked] = useState(false);
+
+  useEffect(() => {
+    void updateBakerPkh().finally(() => setBakerChecked(true));
+  }, [updateBakerPkh]);
+
+  useOnTezosBlock(tezosMainnet, () => void updateBakerPkh());
+
+  const [isSettlingDelegation, setIsSettlingDelegation] = useState(false);
+  const hadPendingDelegationRef = useRef(hasPendingDelegation);
+  const bakerBeforeDelegationRef = useRef(myBakerPkh);
+
+  useLayoutEffect(() => {
+    const wasPending = hadPendingDelegationRef.current;
+    if (!wasPending && hasPendingDelegation) {
+      bakerBeforeDelegationRef.current = myBakerPkh;
+    } else if (wasPending && !hasPendingDelegation) {
+      setIsSettlingDelegation(true);
+    }
+    hadPendingDelegationRef.current = hasPendingDelegation;
+  }, [hasPendingDelegation, myBakerPkh]);
+
+  useEffect(() => {
+    if (!isSettlingDelegation) return;
+    if (myBakerPkh !== bakerBeforeDelegationRef.current) {
+      setIsSettlingDelegation(false);
+      return;
+    }
+    const intervalId = setInterval(() => void updateBakerPkh(), 3000);
+    const timeoutId = setTimeout(() => setIsSettlingDelegation(false), 15000);
+
+    return () => {
+      clearInterval(intervalId);
+      clearTimeout(timeoutId);
+    };
+  }, [isSettlingDelegation, myBakerPkh, updateBakerPkh]);
 
   const { isLoading, stats } = useRewardsStatsEntry(
     TEMPLE_BAKERY_REWARDS_STATS_STORAGE_KEY,
@@ -51,8 +89,16 @@ export const BakeryCard: FC = () => {
 
   if (!account) return null;
 
+  const getView = () => {
+    if (hasPendingDelegation || isSettlingDelegation || myBakerPkh === undefined) return 'loader';
+    if (!delegatedToTemple) return 'promo';
+    if (isLoading || !bakerChecked) return 'loader';
+    return 'stats';
+  };
+  const view = getView();
+
   const handleClick = () => {
-    if (isDelegating) return;
+    if (view === 'loader') return;
     if (!delegatedToTemple) {
       trackEvent(BakeryCardSelectors.confirmationTrigger, AnalyticsEventCategory.ButtonPress);
       setDelegationOpen(true);
@@ -61,19 +107,8 @@ export const BakeryCard: FC = () => {
     navigate(`/earn-tez/${tezosMainnet.chainId}`);
   };
 
-  const handleDelegationSuccess = (opHash: string) => {
-    startDelegation(async () => {
-      try {
-        await confirmTezosOperation(getTezosReadOnlyRpcClient(tezosMainnet), opHash, 2);
-        await updateBakerPkh();
-      } catch (err) {
-        console.error('Failed to confirm successful delegation: ', err);
-      }
-    });
-  };
-
   const renderContent = () => {
-    if (!delegatedToTemple && !isDelegating) {
+    if (view === 'promo') {
       return (
         <>
           <div className="w-full px-2 flex flex-col gap-2">
@@ -83,17 +118,17 @@ export const BakeryCard: FC = () => {
             </div>
             <p className="pl-1 w-full text-font-description">{t('bakeryDescription')}</p>
           </div>
-          <span className="w-full bg-secondary-hover-low text-secondary text-font-num-bold-10 text-center p-2">
+          <span className="w-full mt-auto bg-secondary-hover-low text-secondary text-font-num-bold-10 text-center p-2">
             {t('apyOnTez')}
           </span>
         </>
       );
     }
 
-    if (isLoading || isDelegating) {
+    if (view === 'loader') {
       return (
         <>
-          <div className="w-full px-2 flex items-center justify-between">
+          <div className="w-full pl-3 pr-2 flex items-center justify-between">
             <span className="text-font-description-bold">{t('bakery')}</span>
             <AnimatedMenuChevron ref={animatedChevronRef} />
           </div>
@@ -105,13 +140,15 @@ export const BakeryCard: FC = () => {
     }
 
     return (
-      <div className="w-full px-2 flex flex-col gap-2">
-        <div className="w-full flex items-center justify-between">
+      <>
+        <div className="w-full pl-3 pr-2 flex items-center justify-between">
           <span className="text-font-description-bold">{t('bakery')}</span>
           <AnimatedMenuChevron ref={animatedChevronRef} />
         </div>
-        <AllTimeStats total={stats?.total} lastAmount={stats?.lastAmount} unit="TKEY" />
-      </div>
+        <div className="w-full pl-3 pr-2 mt-auto">
+          <AllTimeStats total={stats?.total} lastAmount={stats?.lastAmount} unit="TKEY" />
+        </div>
+      </>
     );
   };
 
@@ -123,8 +160,8 @@ export const BakeryCard: FC = () => {
         onMouseLeave={handleUnhover}
         className={clsx(
           'flex-1 bg-white rounded-8 border-0.5 border-lines text-left flex flex-col items-start overflow-clip transition-colors min-h-29',
-          !delegatedToTemple && !isDelegating && !isLoading ? 'gap-3 pt-3' : 'gap-2 py-3',
-          !isDelegating && 'hover:bg-grey-4'
+          view === 'promo' ? 'gap-3 pt-3' : 'gap-2 py-3',
+          view !== 'loader' && 'hover:bg-grey-4'
         )}
       >
         {renderContent()}
@@ -135,7 +172,6 @@ export const BakeryCard: FC = () => {
           network={tezosMainnet}
           account={account}
           directBakerPkh={TEMPLE_BAKER_ADDRESS}
-          onDelegationSuccess={handleDelegationSuccess}
           onClose={closeDelegation}
         />
       )}

@@ -59,7 +59,7 @@ export const PromoCard: FC = () => {
           </div>
           <p className="pl-1 w-full text-font-description">{t('promoDescription')}</p>
         </div>
-        <span className="w-full bg-primary-low text-primary text-font-num-bold-10 text-center p-2">
+        <span className="w-full mt-auto bg-primary-low text-primary text-font-num-bold-10 text-center p-2">
           {t('upTo2435TkeyPerMonth')}
         </span>
       </Button>
@@ -69,7 +69,7 @@ export const PromoCard: FC = () => {
   if (isLoading) {
     return (
       <div className="flex-1 bg-white border-0.5 border-lines rounded-8 overflow-clip py-3 flex flex-col gap-2 min-h-29">
-        <div className="w-full px-2 flex items-center justify-between">
+        <div className="w-full pl-3 pr-2 flex items-center justify-between">
           <span className="text-font-description-bold">{t('promo')}</span>
           <PromoInfoIcon />
         </div>
@@ -82,11 +82,11 @@ export const PromoCard: FC = () => {
 
   return (
     <div className="flex-1 bg-white border-0.5 border-lines rounded-8 overflow-clip py-3 flex flex-col min-h-29">
-      <div className="w-full px-2 flex flex-col gap-2">
-        <div className="w-full flex items-center justify-between">
-          <span className="text-font-description-bold">{t('promo')}</span>
-          <PromoInfoIcon />
-        </div>
+      <div className="w-full pl-3 pr-2 flex items-center justify-between">
+        <span className="text-font-description-bold">{t('promo')}</span>
+        <PromoInfoIcon />
+      </div>
+      <div className="w-full pl-3 pr-2 mt-auto">
         <AllTimeStats total={stats?.total} lastAmount={stats?.lastAmount} unit="TKEY" />
       </div>
     </div>

@@ -18,8 +18,8 @@ export const AllTimeStats: FC<AllTimeStatsProps> = ({ total, lastAmount, unit })
   const lastAmountBn = new BigNumber(lastAmount ?? 0);
   const isPositive = lastAmountBn.isGreaterThan(0);
   return (
-    <div className="w-full pt-1 flex flex-col">
-      <span className="text-font-description text-grey-1">{t('allTime')}</span>
+    <div className="w-full flex flex-col">
+      <span className="text-font-description text-grey-1 mb-0.5">{t('allTime')}</span>
       <span className="text-font-num-bold-16 text-text inline-flex items-baseline gap-1">
         <BalanceAmount value={total ?? ZERO} />
         <span>{unit}</span>
