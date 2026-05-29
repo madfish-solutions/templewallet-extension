@@ -65,15 +65,12 @@ export const TEZOS_FALLBACK_RPC_URLS: Record<string, string[]> = {
   [TempleTezosChainId.Mainnet]: [
     'https://prod.tcinfra.net/rpc/mainnet',
     'https://mainnet.smartpy.io',
-    'https://mainnet.api.tez.ie',
     'https://rpc.tzkt.io/mainnet',
-    'https://rpc.tzbeta.net',
-    'https://mainnet.tezos.ecadinfra.com'
+    'https://rpc.tzbeta.net'
   ],
   [TempleTezosChainId.Shadownet]: [
     'https://rpc.shadownet.teztnets.com',
-    'https://rpc.tzkt.io/shadownet',
-    'https://shadownet.tezos.ecadinfra.com'
+    'https://rpc.tzkt.io/shadownet'
   ],
   [TempleTezosChainId.TezosX]: ['https://michelson.previewnet.tezosx.nomadic-labs.com'],
   [TempleTezosChainId.Tezlink]: ['https://rpc.shadownet.tezlink.nomadic-labs.com', 'https://rpc.tzkt.io/tezlink']
@@ -99,15 +96,6 @@ export const TEZOS_DEFAULT_NETWORKS: NonEmptyArray<StoredTezosNetwork> = [
     rpcBaseURL: TEZOS_FALLBACK_RPC_URLS[TempleTezosChainId.Mainnet][1],
     description: 'SmartPy Mainnet',
     color: '#34D399'
-  },
-  {
-    id: 'tezie-mainnet',
-    name: 'ECAD Labs',
-    chain: TempleChainKind.Tezos,
-    chainId: TempleTezosChainId.Mainnet,
-    rpcBaseURL: TEZOS_FALLBACK_RPC_URLS[TempleTezosChainId.Mainnet][2],
-    description: 'Highly available Tezos Mainnet nodes operated by ECAD Labs',
-    color: '#047857'
   },
   {
     id: 'shadownet',

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo } from 'react';
+import { startTransition, useCallback, useEffect, useMemo } from 'react';
 
 import { useAppEnv } from 'app/env';
 import { useLocationSearchParamValue } from 'app/hooks/use-location';
@@ -9,7 +9,7 @@ import { EvmNativeTokenMetadata } from 'lib/metadata/types';
 import { useRetryableSWR } from 'lib/swr';
 import { EvmChainSpecs, TezosChainSpecs } from 'lib/temple/chains-specs';
 import { useTempleClient } from 'lib/temple/front/client';
-import { TempleDAppPayload } from 'lib/temple/types';
+import { TempleDAppPayload, TempleTezosChainId } from 'lib/temple/types';
 import {
   ChainsActiveRpcUrls,
   ChainsAllRpcUrls,
@@ -30,7 +30,13 @@ import type { ChainBase, EvmChain, OneOfChains, TezosChain } from '../chains';
 import { useBlockExplorers } from '../use-block-explorers';
 import { useEvmChainsSpecs, useTezosChainsSpecs } from '../use-chains-specs';
 
+const TEZOS_RPC_URLS_TO_REMOVE: Record<string, string[]> = {
+  [TempleTezosChainId.Mainnet]: ['https://mainnet.api.tez.ie', 'https://mainnet.tezos.ecadinfra.com'],
+  [TempleTezosChainId.Shadownet]: ['https://shadownet.tezos.ecadinfra.com']
+};
+
 export function useReadyTempleTezosNetworks(customTezosNetworks: StoredTezosNetwork[]) {
+  const { updateSettings } = useTempleClient();
   const allTezosNetworks = useMemo<typeof TEZOS_DEFAULT_NETWORKS>(
     () => [...TEZOS_DEFAULT_NETWORKS, ...customTezosNetworks],
     [customTezosNetworks]
@@ -53,6 +59,25 @@ export function useReadyTempleTezosNetworks(customTezosNetworks: StoredTezosNetw
     TEZOS_DEFAULT_NETWORKS,
     TempleChainKind.Tezos
   );
+
+  useEffect(() => {
+    const rpcsIdsToRemove: string[] = [];
+    for (const chainId in TEZOS_RPC_URLS_TO_REMOVE) {
+      const chain = allChains[chainId];
+
+      if (!chain) continue;
+
+      chain.allRpcs.forEach(({ rpcBaseURL, id }) => {
+        if (TEZOS_RPC_URLS_TO_REMOVE[chainId].includes(rpcBaseURL)) rpcsIdsToRemove.push(id);
+      })
+    }
+
+    if (rpcsIdsToRemove.length) {
+      startTransition(() => updateSettings({
+        customTezosNetworks: customTezosNetworks.filter(network => !rpcsIdsToRemove.includes(network.id))
+      }));
+    }
+  }, [allChains, updateSettings, customTezosNetworks]);
 
   return {
     allTezosChains: allChains,
