@@ -594,10 +594,10 @@ browser.runtime.onMessage.addListener(async (msg, sender) => {
           'DealsAnnouncementGoogleSearchClose'
         ]);
 
-        const { event, properties } = msg;
+        const { event, category, properties } = msg;
         if (typeof event !== 'string' || !allowedEvents.has(event)) break;
 
-        // Activation is always tracked; view/close respect the analytics setting.
+        // Activation is always tracked
         if (event !== 'DealsAnnouncementGoogleSearchActivate') {
           const analyticsEnabled = await fetchFromStorage<boolean>(USAGE_ANALYTICS_ENABLED);
           if (!analyticsEnabled) break;
@@ -608,7 +608,7 @@ browser.runtime.onMessage.addListener(async (msg, sender) => {
           userId,
           chainId: undefined,
           event,
-          category: AnalyticsEventCategory.ButtonPress,
+          category,
           properties
         });
         break;

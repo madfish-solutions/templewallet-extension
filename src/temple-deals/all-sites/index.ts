@@ -4,12 +4,7 @@ import { ContentScriptType } from 'lib/constants';
 import { delay } from 'lib/utils';
 
 import { injectTempleDealsPopupFont, mountTempleDealsPopup } from '../popup/layout';
-import {
-  isGoogleSearchPage,
-  isTempleDealPopupSuppressed,
-  normalizeDomain,
-  suppressTempleDealPopup,
-} from '../utils';
+import { isGoogleSearchPage, isTempleDealPopupSuppressed, normalizeDomain, suppressTempleDealPopup } from '../utils';
 
 const POPUP_HOST_ID = 'temple-deals-popup-host';
 const PAGE_STABLE_DELAY = 1_500;

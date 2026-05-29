@@ -2,8 +2,8 @@ import type { MerchantOffer } from 'lib/apis/ads-api/ads-api';
 import { browser } from 'lib/browser';
 import { ContentScriptType } from 'lib/constants';
 
-export const TEMPLE_DEALS_POPUP_SUPPRESSION_TTL = 15 * 60 * 1000;
-export const TEMPLE_DEALS_SUPPRESSED_KEY_PREFIX = 'temple-merchant-offer-suppressed:';
+const TEMPLE_DEALS_POPUP_SUPPRESSION_TTL = 15 * 60 * 1000;
+const TEMPLE_DEALS_SUPPRESSED_KEY_PREFIX = 'temple-merchant-offer-suppressed:';
 
 export const TEMPLE_DEALS_EVENTS = {
   cpcWidgetView: 'Deals CPC Widget / View',
@@ -44,8 +44,7 @@ export function el(tag: string, className: string, text?: string) {
 
   return elem;
 }
-
-export function stripSubdomain(hostname: string, subdomain: string) {
+function stripSubdomain(hostname: string, subdomain: string) {
   if (hostname.startsWith(`${subdomain}.`)) {
     return hostname.slice(subdomain.length + 1);
   }
