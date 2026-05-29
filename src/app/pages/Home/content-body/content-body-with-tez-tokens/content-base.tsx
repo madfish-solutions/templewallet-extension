@@ -44,6 +44,7 @@ export const ContentBase: FC<ContentBaseProps> = ({
 
     return (
       <TezosTokenListItem
+        showTags={false}
         network={tezosChains[chainId]}
         index={index}
         publicKeyHash={publicKeyHash}
