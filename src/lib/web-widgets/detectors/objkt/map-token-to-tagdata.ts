@@ -8,10 +8,7 @@ interface ObjktTokenIdentity {
   tokenId: string;
 }
 
-export const mapTokenToTagData = (
-  token: ObjktToken | null,
-  { fa, tokenId }: ObjktTokenIdentity
-): TagData | null => {
+export const mapTokenToTagData = (token: ObjktToken | null, { fa, tokenId }: ObjktTokenIdentity): TagData | null => {
   if (!token) return null;
   if (token.flag && token.flag.toLowerCase() !== 'none') return null;
 
