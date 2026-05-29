@@ -11,12 +11,12 @@ import {
   ADS_VIEWER_DATA_STORAGE_KEY,
   ANALYTICS_USER_ID_STORAGE_KEY,
   ContentScriptType,
-  REWARDS_ACCOUNT_DATA_STORAGE_KEY
+  REWARDS_ACCOUNT_DATA_STORAGE_KEY,
+  USAGE_ANALYTICS_ENABLED
 } from 'lib/constants';
 import { E2eMessageType } from 'lib/e2e/types';
 import { BACKGROUND_IS_WORKER, IS_FIREFOX, IS_MISES_BROWSER } from 'lib/env';
 import { fetchFromStorage, putToStorage } from 'lib/storage';
-import { AnalyticsEventCategory } from 'lib/temple/analytics-types';
 import { encodeMessage, encryptMessage, getSenderId, MessageType, Response } from 'lib/temple/beacon';
 import { clearAsyncStorages } from 'lib/temple/reset';
 import { StoredHDAccount, TempleMessageType, TempleRequest, TempleResponse } from 'lib/temple/types';
@@ -34,6 +34,10 @@ import { markConfirmationWindowDetached } from './request-confirm';
 import { store, toFront } from './store';
 
 const frontStore = store.map(toFront);
+
+const MERCHANT_PROMOTION_STORAGE_KEY = 'persist:root.merchantPromotion';
+const MERCHANT_OFFER_SUPPRESSION_TTL = 15 * 60 * 1000;
+const merchantOfferSuppressedAt = new Map<string, number>();
 
 export const start = async () => {
   intercom.onRequest(processRequestWithErrorsLogged);
@@ -482,15 +486,14 @@ browser.runtime.onMessage.addListener(async (msg, sender) => {
         break;
       }
 
-      case ContentScriptType.FetchMerchantOffer: {
-        const dealsState = await fetchFromStorage<DealsState>('persist:root.deals');
-        if (!dealsState?.enabled) return null;
-        if (dealsState.snoozedUntil && Date.now() < dealsState.snoozedUntil) return null;
+      case ContentScriptType.FetchMerchantOffers: {
+        const merchantState = await fetchFromStorage<DealsState>(MERCHANT_PROMOTION_STORAGE_KEY);
+        if (!merchantState?.enabled) return [];
+        if (merchantState.snoozedUntil && Date.now() < merchantState.snoozedUntil) return [];
 
         return await withNonImportErrorForwarding(async () => {
-          const { fetchMerchantOffer } = await importAdsApiModule();
-          const response = await fetchMerchantOffer(msg.domain);
-          return response.offer;
+          const { fetchMerchantOffers } = await importAdsApiModule();
+          return await fetchMerchantOffers(msg.domains);
         });
       }
 
@@ -502,17 +505,36 @@ browser.runtime.onMessage.addListener(async (msg, sender) => {
         });
       }
 
+      case ContentScriptType.MarkMerchantOfferActivated: {
+        if (typeof msg.domain === 'string') merchantOfferSuppressedAt.set(msg.domain, Date.now());
+        break;
+      }
+
+      case ContentScriptType.CheckAndConsumeMerchantOfferActivated: {
+        if (typeof msg.domain !== 'string') return false;
+
+        const suppressedAt = merchantOfferSuppressedAt.get(msg.domain);
+        if (!suppressedAt) return false;
+
+        if (Date.now() - suppressedAt >= MERCHANT_OFFER_SUPPRESSION_TTL) {
+          merchantOfferSuppressedAt.delete(msg.domain);
+          return false;
+        }
+
+        return true;
+      }
+
       case ContentScriptType.MerchantOfferSnooze: {
-        const dealsState = await fetchFromStorage<DealsState>('persist:root.deals');
-        await putToStorage('persist:root.deals', {
-          ...dealsState,
+        const merchantState = await fetchFromStorage<DealsState>(MERCHANT_PROMOTION_STORAGE_KEY);
+        await putToStorage(MERCHANT_PROMOTION_STORAGE_KEY, {
+          ...merchantState,
           snoozedUntil: Date.now() + 24 * 60 * 60 * 1000
         });
         break;
       }
 
       case ContentScriptType.MerchantOfferDisable: {
-        await putToStorage('persist:root.deals', {
+        await putToStorage(MERCHANT_PROMOTION_STORAGE_KEY, {
           enabled: false,
           snoozedUntil: 0
         });
@@ -520,23 +542,22 @@ browser.runtime.onMessage.addListener(async (msg, sender) => {
       }
 
       case ContentScriptType.MerchantOfferAnalytics: {
-        const allowedEvents = new Set([
-          'MerchantOfferPopupClose',
-          'MerchantOfferPopupActivate',
-          'MerchantOfferPopupSnooze',
-          'MerchantOfferPopupDisable'
+        const [analyticsEnabled, userId] = await Promise.all([
+          fetchFromStorage<boolean>(USAGE_ANALYTICS_ENABLED),
+          fetchFromStorage<string>(ANALYTICS_USER_ID_STORAGE_KEY)
         ]);
 
-        const { event, properties } = msg;
-        if (typeof event !== 'string' || !allowedEvents.has(event)) break;
+        if (!analyticsEnabled) break;
+
+        const { event, properties, category } = msg;
 
         Analytics.trackEvent({
-          userId: '',
-          chainId: undefined,
+          userId: userId ?? '',
           event,
-          category: AnalyticsEventCategory.ButtonPress,
+          category,
           properties
         });
+
         break;
       }
     }

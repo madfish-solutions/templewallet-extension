@@ -3838,38 +3838,63 @@
   "commissionsAndIpNote": {
     "message": "Commissions arrive in multiple currencies, so your balance may be slightly different from actual payout, due to exchange rates. Your IP helps us surface the best deals for your region and your public wallet address collected for automatic payouts."
   },
-  "merchantOfferPopupTitle": {
-    "message": "Rewards"
+  "earnValue": {
+    "message": "Earn ≈ $value$",
+    "placeholders": {
+      "value": {
+        "content": "$1"
+      }
+    }
   },
-  "merchantOfferPopupSettings": {
-    "message": "Settings"
+  "cashbackValue": {
+    "message": "Cashback $value$",
+    "placeholders": {
+      "value": {
+        "content": "$1"
+      }
+    }
   },
-  "merchantOfferPopupEarnUpTo": {
-    "message": "Earn up to $1 $2"
+  "bountyValueApprox": {
+    "message": "Bounty ≈ $value$",
+    "placeholders": {
+      "value": {
+        "content": "$1"
+      }
+    }
   },
-  "merchantOfferPopupActivateDescription": {
-    "message": "Activate to visit $1 through our link and earn your reward."
+  "templeDealActivateBountyDescription": {
+    "message": "Activate to visit $merchantName$ through our link and earn your bounty.",
+    "placeholders": {
+      "merchantName": {
+        "content": "$1"
+      }
+    }
   },
-  "merchantOfferPopupActivate": {
+  "templeDealActivateCashbackDescription": {
+    "message": "Activate to visit $merchantName$ through our link and earn cashback.",
+    "placeholders": {
+      "merchantName": {
+        "content": "$1"
+      }
+    }
+  },
+  "activateBounty": {
     "message": "Activate Bounty"
   },
-  "merchantOfferPopupActivating": {
+  "activateCashback": {
+    "message": "Activate Cashback"
+  },
+  "activating": {
     "message": "Activating..."
   },
-  "merchantOfferPopupSnooze": {
+  "snoozeFor24h": {
     "message": "Snooze for 24h"
   },
-  "merchantOfferPopupShowMore": {
+  "showMore": {
     "message": "Show more"
   },
-  "merchantOfferPopupShowLess": {
+  "showLess": {
     "message": "Show less"
-  },
-  "merchantOfferPopupDisclaimer1": {
-    "message": "By pressing Activate Bounty you agree with the"
-  },
-  "merchantOfferPopupDisclaimer2": {
-    "message": "and"
   },
   "referrals": {
     "message": "Referrals"
