@@ -1,28 +1,35 @@
-import { useMemo } from 'react';
-
 import { useTezosUsdToTokenRatesSelector } from 'app/store/currency/selectors';
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
 import { useEnabledTezosChainAccountTokenSlugs } from 'lib/assets/hooks';
+import { toChainAssetSlug } from 'lib/assets/utils';
 import { useGetTezosChainAccountTokenOrGasBalanceWithDecimals } from 'lib/balances/hooks';
 import { TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
+import { useMemoWithCompare } from 'lib/ui/hooks';
+import { TempleChainKind } from 'temple/types';
 
+import { useIsTezosBigBalance } from '../listing-logic/use-is-big-balance';
+
+import { useTezosStakingSummand } from './use-tezos-staking-summand';
 import { calculateTotalDollarValue } from './utils';
 
-export const useTezosTotalBalance = (publicKeyHash: string) => {
+export const useTezosTotalBalance = (publicKeyHash: string, ignoreSmallBalances = false, includeStaking = false) => {
   const tokensSlugs = useEnabledTezosChainAccountTokenSlugs(publicKeyHash, TEZOS_MAINNET_CHAIN_ID);
 
   const getBalance = useGetTezosChainAccountTokenOrGasBalanceWithDecimals(publicKeyHash, TEZOS_MAINNET_CHAIN_ID);
   const allUsdToTokenRates = useTezosUsdToTokenRatesSelector();
+  const isBigBalance = useIsTezosBigBalance(publicKeyHash);
+  const stakingSummand = useTezosStakingSummand(publicKeyHash, includeStaking);
 
-  const slugs = useMemo(() => [TEZ_TOKEN_SLUG, ...tokensSlugs], [tokensSlugs]);
-
-  return useMemo(
+  const slugs = useMemoWithCompare(
     () =>
-      calculateTotalDollarValue(
-        slugs,
-        slug => getBalance(slug),
-        slug => allUsdToTokenRates[slug]
+      [TEZ_TOKEN_SLUG, ...tokensSlugs].filter(
+        slug =>
+          !ignoreSmallBalances || isBigBalance(toChainAssetSlug(TempleChainKind.Tezos, TEZOS_MAINNET_CHAIN_ID, slug))
       ),
-    [slugs, getBalance, allUsdToTokenRates]
+    [tokensSlugs, ignoreSmallBalances, isBigBalance]
   );
+
+  return calculateTotalDollarValue(slugs, getBalance, slug => allUsdToTokenRates[slug])
+    .plus(stakingSummand)
+    .toString();
 };

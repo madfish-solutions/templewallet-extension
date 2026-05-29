@@ -343,19 +343,6 @@ export const useTezosTokensMetadataPresenceCheck = (network: TezosNetworkEssenti
   useTezosChainAssetsMetadataPresenceCheck(network, false, metadataLoading, getMetadata, slugsToCheck);
 };
 
-/**
- * @param slugsToCheck // Memoize
- */
-export const useTezosChainCollectiblesMetadataPresenceCheck = (
-  network: TezosNetworkEssentials,
-  slugsToCheck?: string[]
-) => {
-  const metadataLoading = useCollectiblesMetadataLoadingSelector();
-  const getMetadata = useGetCollectibleMetadata();
-
-  useTezosChainAssetsMetadataPresenceCheck(network, true, metadataLoading, getMetadata, slugsToCheck);
-};
-
 export const useTezosCollectiblesMetadataPresenceCheck = (chainSlugsToCheck?: string[]) => {
   const metadataLoading = useCollectiblesMetadataLoadingSelector();
   const getMetadata = useGetCollectibleMetadata();

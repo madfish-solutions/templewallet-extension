@@ -7,7 +7,7 @@ import { DeadEndBoundaryError } from 'app/ErrorBoundary';
 import { SwapFieldName } from 'app/pages/Swap/form/interfaces';
 import { useFirstValue } from 'app/pages/Swap/modals/SwapSelectAsset/hooks';
 import { useAllAccountBalancesSelector } from 'app/store/tezos/balances/selectors';
-import { TezosTokenListItem } from 'app/templates/TokenListItem';
+import { TezosTokenListItem } from 'app/templates/tokens/token-list-item';
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
 import { searchTezosChainAssetsWithNoMeta } from 'lib/assets/search.utils';
 import { useTezosChainAccountTokensSortPredicate } from 'lib/assets/use-sorting';

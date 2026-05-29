@@ -1,4 +1,4 @@
-import { FC, memo } from 'react';
+import { FC } from 'react';
 
 import clsx from 'clsx';
 
@@ -72,15 +72,14 @@ interface DefaultShowMoreLayoutProps<T extends TempleChainKind> {
   testID?: string;
 }
 
-// Failed to find another way to make React Compiler process ShowMoreLayoutHOC
 const ShowMoreLayoutHOC = <
   T extends TempleChainKind,
   P extends DefaultShowMoreLayoutProps<T> = DefaultShowMoreLayoutProps<T>
 >(
   CollectibleItemImage: FC<Pick<P, 'metadata' | 'assetSlug'> & Omit<P, keyof DefaultShowMoreLayoutProps<T>>>,
   className?: string
-) =>
-  memo<P>(props => {
+) => {
+  function ShowMoreLayout(props: P) {
     const {
       assetSlug,
       metadata,
@@ -128,7 +127,10 @@ const ShowMoreLayoutHOC = <
         </div>
       </Button>
     );
-  });
+  }
+
+  return ShowMoreLayout;
+};
 
 const TezosShowMoreLayout = ShowMoreLayoutHOC<
   TempleChainKind.Tezos,

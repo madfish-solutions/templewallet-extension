@@ -37,7 +37,7 @@ export const ListView: FC<ListViewProps> = ({
         <PageLoader
           className={AdsConstantsModule && PartnersPromotionModule ? 'mb-8' : undefined}
           stretch
-          text={t('nftsLoaderText')}
+          text={t('assetsLoaderText')}
         />
 
         {AdsConstantsModule && PartnersPromotionModule && (

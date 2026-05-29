@@ -47,8 +47,8 @@ export const NetworkSelectContent = memo<Props>(({ opened, selectedNetwork, hand
   const tezosChains = useEnabledTezosChains();
   const evmChains = useEnabledEvmChains();
 
-  const totalTezBalanceInDollar = useTezosTotalBalance(accountTezAddress ?? '');
-  const getEvmChainAccountTotalBalance = useGetEvmChainAccountTotalBalance(accountEvmAddress ?? '0x');
+  const totalTezBalanceInDollar = useTezosTotalBalance(accountTezAddress ?? '', false, true);
+  const getEvmChainAccountTotalBalance = useGetEvmChainAccountTotalBalance(accountEvmAddress ?? '0x', false, true);
   const getChainTotalBalance = useCallback(
     (chain: OneOfChains) =>
       chain.kind === TempleChainKind.Tezos ? totalTezBalanceInDollar : getEvmChainAccountTotalBalance(chain.chainId),

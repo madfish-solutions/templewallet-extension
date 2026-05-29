@@ -22,6 +22,7 @@ import { Home } from './pages/Home';
 import { NftsPage } from './pages/Nfts';
 import { Notifications } from './pages/Notifications';
 import { TokenPage } from './pages/Token';
+import { TokensPage } from './pages/Tokens';
 
 // Lazy-loaded pages (heavy/rare routes)
 const LazySwap = React.lazy(() => import('app/pages/Swap'));
@@ -100,6 +101,7 @@ const ROUTE_MAP = Woozie.createMap<RouteContext>([
   ['/loading', (_p, ctx) => (ctx.ready ? <Woozie.Redirect to="/" /> : <RootSuspenseFallback />)],
   ['/', (_p, ctx) => (ctx.ready ? <Home /> : <Welcome />)],
   ['/nfts', onlyReady(() => <NftsPage />)],
+  ['/tokens', onlyReady(() => <TokensPage />)],
   ['/activity', onlyReady(() => <ActivityPage />)],
   ['/receive/:chainKind?', onlyReady(({ chainKind }) => <Receive chainKind={chainKind} />)],
   [

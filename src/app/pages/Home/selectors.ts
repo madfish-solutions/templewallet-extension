@@ -8,5 +8,6 @@ export enum HomeSelectors {
   updateAppBanner = 'Home/Update App Banner',
   enableAdsBanner = 'Home/Enable Ads Banner',
   coverMyCostsButton = 'Home/Cover My Costs Button',
-  nftsSection = 'Home/NFTs Section'
+  nftsSection = 'Home/NFTs Section',
+  tokensSection = 'Home/Tokens Section'
 }
