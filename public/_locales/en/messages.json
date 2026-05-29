@@ -4860,6 +4860,9 @@
   "turnOnWhenNeeded": {
     "message": "Turn feature on when it works for you"
   },
+  "missingPayoutsCaption": {
+    "message": "Inactive - missing payouts"
+  },
   "earnTkeyDisclaimer": {
     "message": "By enabling ads, you agree to share your wallet address and IP\nto receive tokens and ads content."
   },
@@ -5059,6 +5062,9 @@
   },
   "yourDeposits": {
     "message": "Your deposits"
+  },
+  "deposits": {
+    "message": "Deposits"
   },
   "activation": {
     "message": "Activation"

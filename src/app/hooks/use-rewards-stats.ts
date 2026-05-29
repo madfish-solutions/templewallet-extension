@@ -2,6 +2,7 @@ import { useEffect, useTransition } from 'react';
 
 import { BigNumber } from 'bignumber.js';
 
+import { TEMPLE_BAKERY_PAYOUT_ADDRESS, TEMPLE_REWARDS_PAYOUT_ADDRESS } from 'app/pages/Rewards/constants';
 import { fetchTokenTransfers, TZKT_MAX_QUERY_ITEMS_LIMIT } from 'lib/apis/tzkt/api';
 import { TKEY_TOKEN_METADATA } from 'lib/assets/known-tokens';
 import { usePassiveStorage } from 'lib/temple/front/storage';
@@ -9,8 +10,11 @@ import { atomsToTokens } from 'lib/temple/helpers';
 import { TempleTezosChainId } from 'lib/temple/types';
 import { useUpdatableRef } from 'lib/ui/hooks';
 import { ZERO } from 'lib/utils/numbers';
+import { useAccountAddressForTezos } from 'temple/front';
 
-export const useRewardsStatsEntry = (
+import { useRewardsAddresses } from './use-rewards-addresses';
+
+const useRewardsStatsEntry = (
   storageKey: string,
   senderPkh: string,
   accountAddress: string | undefined,
@@ -62,4 +66,30 @@ export const useRewardsStatsEntry = (
   }, [accountAddress, senderPkh, errorLogPrefix, setStats, startLoading, statsRef]);
 
   return { isLoading, stats: stats ? { total: new BigNumber(stats.total), lastAmount: stats.lastAmount } : null };
+};
+
+const makeTkeyRewardsStatsStorageKey = (accountAddress: string | undefined) => `TKEY_REWARDS_STATS-${accountAddress}`;
+const makeBakeryRewardsStatsStorageKey = (accountAddress: string | undefined) =>
+  `TEMPLE_BAKERY_REWARDS_STATS-${accountAddress}`;
+
+export const useTkeyRewardsStats = () => {
+  const { tezosAddress: tezosRewardsAddress } = useRewardsAddresses();
+
+  return useRewardsStatsEntry(
+    makeTkeyRewardsStatsStorageKey(tezosRewardsAddress),
+    TEMPLE_REWARDS_PAYOUT_ADDRESS,
+    tezosRewardsAddress,
+    'Failed to load Tkey stats: '
+  );
+};
+
+export const useBakeryRewardsStats = () => {
+  const tezosBakeryAddress = useAccountAddressForTezos();
+
+  return useRewardsStatsEntry(
+    makeBakeryRewardsStatsStorageKey(tezosBakeryAddress),
+    TEMPLE_BAKERY_PAYOUT_ADDRESS,
+    tezosBakeryAddress,
+    'Failed to load bakery stats: '
+  );
 };

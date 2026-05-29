@@ -5,7 +5,6 @@ import PageLayout from 'app/layouts/PageLayout';
 import { AppHeader } from 'app/templates/AppHeader';
 import { DAppConnectionRefsProvider } from 'app/templates/DAppConnection/dapp-connection-refs';
 import { DepositModal } from 'app/templates/DepositModal';
-import { EarnDepositStats } from 'app/templates/EarnDepositStats';
 import { ExploreActionButtonsBar } from 'app/templates/ExploreActionButtons';
 import { KoloCardWidgetModal } from 'app/templates/KoloCard/KoloCardWidgetModal';
 import { toastSuccess } from 'app/toaster';
@@ -13,6 +12,7 @@ import { useInitToastMessage } from 'lib/temple/front/toasts-context';
 import { useBooleanState } from 'lib/ui/hooks';
 
 import { ContentBody } from './content-body';
+import { IncomeDashboard } from './income-dashboard';
 import { NotificationBanner } from './notification-banner';
 import { TotalEquityBanner } from './total-equity-banner';
 
@@ -35,15 +35,15 @@ export const HomeContent = () => {
 
   return (
     <PageLayout Header={AppHeader} bgWhite={false} contentPadding={false}>
-      <div className="flex flex-col pt-2 pb-0 px-4">
+      <div className="flex flex-col pt-2 pb-6 px-4">
         <TotalEquityBanner />
 
         <ExploreActionButtonsBar additionalButtonType="activity" onDepositClick={openDepositModal} className="mt-4" />
       </div>
 
-      <EarnDepositStats isHomePage containerClassName="mt-6 mb-3" onCryptoCardClick={openCryptoCardModal} />
-
       <NotificationBanner />
+
+      <IncomeDashboard />
 
       <SuspenseContainer>
         <DAppConnectionRefsProvider>

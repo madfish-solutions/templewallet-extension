@@ -4,12 +4,12 @@ import { getEthAccountTransactions } from '@temple-wallet/everstake-wallet-sdk';
 import BigNumber from 'bignumber.js';
 import { formatEther } from 'viem';
 
-import { useTokenHistoricalPrices } from 'app/templates/EarnDepositStats/hooks/use-token-historical-prices';
+import { useTokenHistoricalPrices } from 'app/hooks/deposits/use-token-historical-prices';
 import { useFiatCurrency } from 'lib/fiat-currency/core';
 import { useTypedSWR } from 'lib/swr';
 
-import { DEFAULT_CHART_DAYS_COUNT, ONE_MONTH_IN_MS } from '../constants';
-import { toMsTimestamp } from '../utils';
+import { ONE_MONTH_IN_MS, DEFAULT_CHART_DAYS_COUNT } from './constants';
+import { toMsTimestamp } from './utils';
 
 export const useEthDepositChangeChart = (accountPkh: HexString) => {
   const { selectedFiatCurrency } = useFiatCurrency();

@@ -54,7 +54,7 @@ export const ContentBodyWithEvmChainTokens: FC<Props> = ({ chainId, publicKeyHas
   const TokenListItem: TokenListItemFC = ({ slug, ref, index }) => {
     return (
       <EvmTokenListItem
-        showTags
+        showTags={false}
         network={network}
         index={index}
         assetSlug={slug}
