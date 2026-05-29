@@ -1,5 +1,7 @@
 import memoizee from 'memoizee';
 
+import { delay } from 'lib/utils';
+
 import { OBJKT_TOKEN_QUERY, type ObjktToken, type ObjktTokenQueryResponse } from './objkt-query';
 
 const TTL_MS = 10 * 60 * 1000;
@@ -7,8 +9,6 @@ const TTL_MS = 10 * 60 * 1000;
 const OBJKT_GRAPHQL_ENDPOINT = 'https://data.objkt.com/v3/graphql/';
 const MAX_RETRIES = 2;
 const BACKOFF_MS = 1000;
-
-const delay = (ms: number) => new Promise<void>(resolve => setTimeout(resolve, ms));
 
 export const fetchObjktToken = memoizee(
   async (fa: string, tokenId: string): Promise<ObjktToken | null> => {
