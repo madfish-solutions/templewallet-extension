@@ -69,13 +69,15 @@ export function useReadyTempleTezosNetworks(customTezosNetworks: StoredTezosNetw
 
       chain.allRpcs.forEach(({ rpcBaseURL, id }) => {
         if (TEZOS_RPC_URLS_TO_REMOVE[chainId].includes(rpcBaseURL)) rpcsIdsToRemove.push(id);
-      })
+      });
     }
 
     if (rpcsIdsToRemove.length) {
-      startTransition(() => updateSettings({
-        customTezosNetworks: customTezosNetworks.filter(network => !rpcsIdsToRemove.includes(network.id))
-      }));
+      startTransition(() =>
+        updateSettings({
+          customTezosNetworks: customTezosNetworks.filter(network => !rpcsIdsToRemove.includes(network.id))
+        })
+      );
     }
   }, [allChains, updateSettings, customTezosNetworks]);
 
