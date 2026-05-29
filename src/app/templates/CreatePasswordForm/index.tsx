@@ -13,7 +13,7 @@ import { PASSWORD_PATTERN, PasswordValidation, formatMnemonic, passwordValidatio
 import { setIsSidebarByDefault } from 'app/env';
 import { useFirefoxDataConsent } from 'app/pages/Welcome/data-collection-agreement/use-firefox-data-consent.hook';
 import { dispatch } from 'app/store';
-import { setMerchantPromotionEnabledAction } from 'app/store/merchant-promotion/actions';
+import { setDealsEnabledAction } from 'app/store/deals/actions';
 import { togglePartnersPromotionAction } from 'app/store/partners-promotion/actions';
 import { setIsAnalyticsEnabledAction, setReferralLinksEnabledAction } from 'app/store/settings/actions';
 import { toastError } from 'app/toaster';
@@ -30,7 +30,8 @@ import {
   SHOULD_SHOW_WELCOME_REWARDS_MODAL_STORAGE_KEY,
   SIDE_VIEW_WAS_FORCED_STORAGE_KEY,
   TERMS_OF_USE_URL,
-  WEBSITES_ANALYTICS_ENABLED
+  USAGE_ANALYTICS_ENABLED,
+  WEBSITES_ADS_ENABLED
 } from 'lib/constants';
 import { DISABLE_ADS, IS_SIDE_PANEL_AVAILABLE } from 'lib/env';
 import { T, TID, t } from 'lib/i18n';
@@ -137,12 +138,13 @@ export const CreatePasswordForm = memo<CreatePasswordFormProps>(
 
           dispatch(togglePartnersPromotionAction(adsViewEnabled));
           dispatch(setIsAnalyticsEnabledAction(analyticsEnabled));
-          dispatch(setMerchantPromotionEnabledAction(adsViewEnabled));
+          dispatch(setDealsEnabledAction(adsViewEnabled));
           dispatch(setReferralLinksEnabledAction(adsViewEnabled));
 
           // registerWallet function clears async storages
           await putToStorage(REPLACE_REFERRALS_ENABLED, adsViewEnabled);
-          await putToStorage(WEBSITES_ANALYTICS_ENABLED, adsViewEnabled);
+          await putToStorage(WEBSITES_ADS_ENABLED, adsViewEnabled);
+          await putToStorage(USAGE_ANALYTICS_ENABLED, analyticsEnabled);
           await putToStorage(SHOULD_OPEN_LETS_EXCHANGE_MODAL_STORAGE_KEY, false);
           await putToStorage(SHOULD_PROMOTE_ROOTSTOCK_STORAGE_KEY, false);
           await putToStorage(SHOULD_DISABLE_NOT_ACTIVE_NETWORKS_STORAGE_KEY, true);

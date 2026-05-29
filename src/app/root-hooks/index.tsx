@@ -6,9 +6,9 @@ import { useAssetsMigrations } from 'app/hooks/use-assets-migrations';
 import { useCancelConfirmDialogOnLock } from 'app/hooks/use-cancel-confirm-dialog-on-lock';
 import { useCollectiblesDetailsLoading } from 'app/hooks/use-collectibles-details-loading';
 import { useConversionVerification } from 'app/hooks/use-conversion-verification';
+import { useDealsSync } from 'app/hooks/use-deals-sync';
 import { useTokensApyLoading } from 'app/hooks/use-load-tokens-apy.hook';
 import { useLongRefreshLoading } from 'app/hooks/use-long-refresh-loading.hook';
-import { useMerchantPromotionSync } from 'app/hooks/use-merchant-promotion-sync';
 import { useMetadataRefresh } from 'app/hooks/use-metadata-refresh';
 import { useNoCategoryEvmAssetsLoading } from 'app/hooks/use-no-category-evm-assets-loading';
 import { useNoCategoryTezosAssetsLoading } from 'app/hooks/use-no-category-tezos-assets-loading';
@@ -61,7 +61,7 @@ const ConstantAppRootHooks = memo(() => {
   useCancelConfirmDialogOnLock();
   useConversionVerification();
   useGlobalErrorTracking();
-  useMerchantPromotionSync();
+  useDealsSync();
 
   return null;
 });

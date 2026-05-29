@@ -4,15 +4,16 @@ import browser, { Runtime } from 'webextension-polyfill';
 import { ValidationError } from 'yup';
 
 import { getStoredAppInstallIdentity } from 'app/storage/app-install-id';
-import type { MerchantPromotionState } from 'app/store/merchant-promotion/state';
+import type { DealsState } from 'app/store/deals/state';
 import { importUpdateRulesStorageModule } from 'lib/ads/import-update-rules-storage';
 import { importAdsApiModule } from 'lib/apis/ads-api';
 import {
   ADS_VIEWER_DATA_STORAGE_KEY,
   ANALYTICS_USER_ID_STORAGE_KEY,
   ContentScriptType,
+  REWARDS_ACCOUNT_DATA_STORAGE_KEY,
   DEALS_ANNOUNCEMENT_SHOWN_STORAGE_KEY,
-  REWARDS_ACCOUNT_DATA_STORAGE_KEY
+  USAGE_ANALYTICS_ENABLED
 } from 'lib/constants';
 import { E2eMessageType } from 'lib/e2e/types';
 import { BACKGROUND_IS_WORKER, IS_FIREFOX, IS_MISES_BROWSER } from 'lib/env';
@@ -35,6 +36,10 @@ import { markConfirmationWindowDetached } from './request-confirm';
 import { store, toFront } from './store';
 
 const frontStore = store.map(toFront);
+
+const DEALS_STORAGE_KEY = 'persist:root.deals';
+const MERCHANT_OFFER_SUPPRESSION_TTL = 15 * 60 * 1000;
+const merchantOfferSuppressedAt = new Map<string, number>();
 
 export const start = async () => {
   intercom.onRequest(processRequestWithErrorsLogged);
@@ -483,15 +488,14 @@ browser.runtime.onMessage.addListener(async (msg, sender) => {
         break;
       }
 
-      case ContentScriptType.FetchMerchantOffer: {
-        const merchantState = await fetchFromStorage<MerchantPromotionState>('persist:root.merchantPromotion');
-        if (!merchantState?.enabled) return null;
-        if (merchantState.snoozedUntil && Date.now() < merchantState.snoozedUntil) return null;
+      case ContentScriptType.FetchMerchantOffers: {
+        const merchantState = await fetchFromStorage<DealsState>(DEALS_STORAGE_KEY);
+        if (!merchantState?.enabled) return [];
+        if (merchantState.snoozedUntil && Date.now() < merchantState.snoozedUntil) return [];
 
         return await withNonImportErrorForwarding(async () => {
-          const { fetchMerchantOffer } = await importAdsApiModule();
-          const response = await fetchMerchantOffer(msg.domain);
-          return response.offer;
+          const { fetchMerchantOffers } = await importAdsApiModule();
+          return await fetchMerchantOffers(msg.domains);
         });
       }
 
@@ -503,9 +507,28 @@ browser.runtime.onMessage.addListener(async (msg, sender) => {
         });
       }
 
+      case ContentScriptType.MarkMerchantOfferActivated: {
+        if (typeof msg.domain === 'string') merchantOfferSuppressedAt.set(msg.domain, Date.now());
+        break;
+      }
+
+      case ContentScriptType.CheckAndConsumeMerchantOfferActivated: {
+        if (typeof msg.domain !== 'string') return false;
+
+        const suppressedAt = merchantOfferSuppressedAt.get(msg.domain);
+        if (!suppressedAt) return false;
+
+        if (Date.now() - suppressedAt >= MERCHANT_OFFER_SUPPRESSION_TTL) {
+          merchantOfferSuppressedAt.delete(msg.domain);
+          return false;
+        }
+
+        return true;
+      }
+
       case ContentScriptType.MerchantOfferSnooze: {
-        const merchantState = await fetchFromStorage<MerchantPromotionState>('persist:root.merchantPromotion');
-        await putToStorage('persist:root.merchantPromotion', {
+        const merchantState = await fetchFromStorage<DealsState>(DEALS_STORAGE_KEY);
+        await putToStorage(DEALS_STORAGE_KEY, {
           ...merchantState,
           snoozedUntil: Date.now() + 24 * 60 * 60 * 1000
         });
@@ -513,7 +536,7 @@ browser.runtime.onMessage.addListener(async (msg, sender) => {
       }
 
       case ContentScriptType.MerchantOfferDisable: {
-        await putToStorage('persist:root.merchantPromotion', {
+        await putToStorage(DEALS_STORAGE_KEY, {
           enabled: false,
           snoozedUntil: 0
         });
@@ -521,22 +544,20 @@ browser.runtime.onMessage.addListener(async (msg, sender) => {
       }
 
       case ContentScriptType.MerchantOfferAnalytics: {
-        const allowedEvents = new Set([
-          'MerchantOfferPopupClose',
-          'MerchantOfferPopupActivate',
-          'MerchantOfferPopupSnooze',
-          'MerchantOfferPopupDisable'
+        const [analyticsEnabled, userId] = await Promise.all([
+          fetchFromStorage<boolean>(USAGE_ANALYTICS_ENABLED),
+          fetchFromStorage<string>(ANALYTICS_USER_ID_STORAGE_KEY)
         ]);
 
-        const { event, properties } = msg;
-        if (typeof event !== 'string' || !allowedEvents.has(event)) break;
+        if (!analyticsEnabled) break;
 
-        const userId = (await fetchFromStorage<string>(ANALYTICS_USER_ID_STORAGE_KEY)) ?? '';
+        const { event, properties, category } = msg;
+
         Analytics.trackEvent({
-          userId,
+          userId: userId ?? '',
           chainId: undefined,
           event,
-          category: AnalyticsEventCategory.ButtonPress,
+          category,
           properties
         });
         break;
@@ -548,8 +569,8 @@ browser.runtime.onMessage.addListener(async (msg, sender) => {
       }
 
       case ContentScriptType.ActivateDealsAnnouncement: {
-        const merchantState = await fetchFromStorage<MerchantPromotionState>('persist:root.merchantPromotion');
-        await putToStorage('persist:root.merchantPromotion', {
+        const merchantState = await fetchFromStorage<DealsState>(DEALS_STORAGE_KEY);
+        await putToStorage(DEALS_STORAGE_KEY, {
           ...merchantState,
           enabled: true,
           snoozedUntil: 0
@@ -576,12 +597,10 @@ browser.runtime.onMessage.addListener(async (msg, sender) => {
         const { event, properties } = msg;
         if (typeof event !== 'string' || !allowedEvents.has(event)) break;
 
-        // Activation should always be tracked
+        // Activation is always tracked; view/close respect the analytics setting.
         if (event !== 'DealsAnnouncementGoogleSearchActivate') {
-          const rootState = await fetchFromStorage<{ settings?: { isAnalyticsEnabled?: boolean } }>(
-            'persist:temple-root'
-          );
-          if (rootState?.settings?.isAnalyticsEnabled !== true) break;
+          const analyticsEnabled = await fetchFromStorage<boolean>(USAGE_ANALYTICS_ENABLED);
+          if (!analyticsEnabled) break;
         }
 
         const userId = (await fetchFromStorage<string>(ANALYTICS_USER_ID_STORAGE_KEY)) ?? '';

@@ -1,20 +1,10 @@
-import axios from 'axios';
-
-import { BROWSER_IDENTIFIER_HEADER } from 'lib/browser';
-import { APP_VERSION, EnvVars } from 'lib/env';
+import { APP_VERSION } from 'lib/env';
 import { RewardsAddresses, HDAccountRewardsAddresses, NoAccountRewardsAddresses } from 'temple/types';
 
 import { withAxiosDataExtract } from '../utils';
 
+import { axiosClient } from './client';
 import { RpStatsResponse } from './types';
-
-const axiosClient = axios.create({
-  baseURL: EnvVars.TEMPLE_ADS_API_URL,
-  adapter: 'fetch',
-  headers: {
-    'x-temple-browser': BROWSER_IDENTIFIER_HEADER
-  }
-});
 
 interface ImpressionDetails {
   /** For external */
@@ -171,17 +161,25 @@ export interface MerchantOffer {
   imageUri: string | null;
   description: string;
   domain: string;
-  cpcRate: number;
-  currencyCode: string;
+  rate: Rate;
   trackingLink: string;
 }
 
-interface MerchantOfferResponse {
-  offer: MerchantOffer | null;
-}
+type Rate =
+  | {
+      type: 'cpc';
+      value: string;
+      currency: 'USDT';
+    }
+  | {
+      type: 'cpa';
+      value: string;
+      currency: '%';
+      tier: string;
+    };
 
-export const fetchMerchantOffer = withAxiosDataExtract((domain: string) =>
-  axiosClient.get<MerchantOfferResponse>('/takeads/merchant-offer', { params: { domain } })
+export const fetchMerchantOffers = withAxiosDataExtract((domains: string[]) =>
+  axiosClient.post<MerchantOffer[]>('/takeads/merchant-offers', domains)
 );
 
 interface ActivateMerchantOfferResponse {

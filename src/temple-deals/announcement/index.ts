@@ -1,4 +1,4 @@
-import type { MerchantPromotionState } from 'app/store/merchant-promotion/state';
+import type { DealsState } from 'app/store/deals/state';
 import { browser } from 'lib/browser';
 import { ContentScriptType, DEALS_ANNOUNCEMENT_SHOWN_STORAGE_KEY } from 'lib/constants';
 import { fetchFromStorage } from 'lib/storage';
@@ -8,7 +8,7 @@ import { getDealsAnnouncementStyles } from './styles';
 import { DEALS_ANNOUNCEMENT_GOOGLE_SEARCH_EVENTS, trackDealsAnnouncementGoogleSearchEvent } from './utils';
 
 const POPUP_HOST_ID = 'temple-deals-announcement-host';
-const MERCHANT_PROMOTION_STORAGE_KEY = 'persist:root.merchantPromotion';
+const DEALS_STORAGE_KEY = 'persist:root.deals';
 
 (async () => {
   if (window.self !== window.top) return;
@@ -18,8 +18,8 @@ const MERCHANT_PROMOTION_STORAGE_KEY = 'persist:root.merchantPromotion';
   const alreadyShown = await fetchFromStorage<boolean>(DEALS_ANNOUNCEMENT_SHOWN_STORAGE_KEY);
   if (alreadyShown === true) return;
 
-  const merchantState = await fetchFromStorage<MerchantPromotionState>(MERCHANT_PROMOTION_STORAGE_KEY);
-  if (merchantState?.enabled) {
+  const dealsState = await fetchFromStorage<DealsState>(DEALS_STORAGE_KEY);
+  if (dealsState?.enabled) {
     browser.runtime.sendMessage({ type: ContentScriptType.MarkDealsAnnouncementSeen }).catch(() => {});
     return;
   }

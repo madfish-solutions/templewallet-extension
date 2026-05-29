@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react';
 
 import retry from 'async-retry';
 
-import { useMerchantPromotionEnabledSelector } from 'app/store/merchant-promotion/selectors';
+import { useDealsEnabledSelector } from 'app/store/deals/selectors';
 import { useShouldShowPartnersPromoSelector } from 'app/store/partners-promotion/selectors';
 import { useUserIdSelector } from 'app/store/settings/selectors';
 import { performLinkingOfAdsImpressions } from 'lib/ads/link-ads-impressions';
@@ -16,14 +16,14 @@ export const useAdsImpressionsLinking = () => {
   const adsViewerAddresses = useRewardsAddresses();
   const userId = useUserIdSelector();
   const promoEnabled = useShouldShowPartnersPromoSelector();
-  const isMerchantEnabled = useMerchantPromotionEnabledSelector();
+  const isDealsEnabled = useDealsEnabledSelector();
   const [linked, setLinked] = usePassiveStorage<boolean>(ADS_IMPRESSIONS_LINKED_V2_STORAGE_KEY);
   const runningRef = useRef(false);
 
   const adsViewerAddressesRef = useUpdatableRef(adsViewerAddresses);
   const userIdRef = useUpdatableRef(userId);
 
-  const eitherEnabled = promoEnabled || isMerchantEnabled;
+  const eitherEnabled = promoEnabled || isDealsEnabled;
 
   useEffect(() => {
     if (linked || !eitherEnabled || runningRef.current) return;

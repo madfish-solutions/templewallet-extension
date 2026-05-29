@@ -6,8 +6,8 @@ import { DoneAnimation } from 'app/atoms/done-animation';
 import { ActionsButtonsBox, CloseButton } from 'app/atoms/PageModal';
 import { MiniPageModal } from 'app/atoms/PageModal/mini-page-modal';
 import { StyledButton } from 'app/atoms/StyledButton';
-import { setMerchantPromotionEnabledAction } from 'app/store/merchant-promotion/actions';
-import { useMerchantPromotionEnabledSelector } from 'app/store/merchant-promotion/selectors';
+import { setDealsEnabledAction } from 'app/store/deals/actions';
+import { useDealsEnabledSelector } from 'app/store/deals/selectors';
 import { useAnalyticsEnabledSelector } from 'app/store/settings/selectors';
 import { AnalyticsEventCategory, useAnalytics } from 'lib/analytics';
 import { DEALS_ANNOUNCEMENT_SHOWN_STORAGE_KEY } from 'lib/constants';
@@ -32,7 +32,7 @@ export const DealsAnnouncementModal = () => {
   const [step, setStep] = useState<OverlayStep>(OverlayStep.Offer);
   const dispatch = useDispatch();
   const account = useAccount();
-  const dealsEnabled = useMerchantPromotionEnabledSelector();
+  const dealsEnabled = useDealsEnabledSelector();
   const { trackEvent } = useAnalytics();
   const analyticsEnabled = useAnalyticsEnabledSelector();
 
@@ -52,7 +52,7 @@ export const DealsAnnouncementModal = () => {
   const handleClose = () => setExplicitlyClosed(true);
 
   const handleActivate = () => {
-    dispatch(setMerchantPromotionEnabledAction(true));
+    dispatch(setDealsEnabledAction(true));
 
     const accountPkh = getAccountAddressForChain(account, TempleChainKind.Tezos) ?? '';
     trackEvent('DealsEnabled', AnalyticsEventCategory.General, { accountPkh }, true);
