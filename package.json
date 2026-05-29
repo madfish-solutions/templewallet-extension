@@ -252,7 +252,8 @@
     "zip-a-folder/glob": "11.1.0",
     "valibot": "^1.2.0",
     "minimatch": "^3.1.4",
-    "serialize-javascript": "^7.0.3"
+    "serialize-javascript": "^7.0.3",
+    "tmp": "^0.2.6"
   },
   "optionalDependencies": {
     "@temple-wallet/extension-ads": "18.0.0-beta.1"

@@ -291,7 +291,10 @@ function renderTempleDealsPopup(
           return;
         }
 
-        trackTempleDealsEvent(getOfferActivationEvent(offer, activationSource), getOfferAnalyticsProperties(offer, domain));
+        trackTempleDealsEvent(
+          getOfferActivationEvent(offer, activationSource),
+          getOfferAnalyticsProperties(offer, domain)
+        );
         await browser.runtime
           .sendMessage({
             type: ContentScriptType.ReferralClick,

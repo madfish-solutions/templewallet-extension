@@ -4,7 +4,7 @@ import browser, { Runtime } from 'webextension-polyfill';
 import { ValidationError } from 'yup';
 
 import { getStoredAppInstallIdentity } from 'app/storage/app-install-id';
-import type { MerchantPromotionState } from 'app/store/merchant-promotion/state';
+import type { DealsState } from 'app/store/deals/state';
 import { importUpdateRulesStorageModule } from 'lib/ads/import-update-rules-storage';
 import { importAdsApiModule } from 'lib/apis/ads-api';
 import {
@@ -487,7 +487,7 @@ browser.runtime.onMessage.addListener(async (msg, sender) => {
       }
 
       case ContentScriptType.FetchMerchantOffers: {
-        const merchantState = await fetchFromStorage<MerchantPromotionState>(MERCHANT_PROMOTION_STORAGE_KEY);
+        const merchantState = await fetchFromStorage<DealsState>(MERCHANT_PROMOTION_STORAGE_KEY);
         if (!merchantState?.enabled) return [];
         if (merchantState.snoozedUntil && Date.now() < merchantState.snoozedUntil) return [];
 
@@ -525,7 +525,7 @@ browser.runtime.onMessage.addListener(async (msg, sender) => {
       }
 
       case ContentScriptType.MerchantOfferSnooze: {
-        const merchantState = await fetchFromStorage<MerchantPromotionState>(MERCHANT_PROMOTION_STORAGE_KEY);
+        const merchantState = await fetchFromStorage<DealsState>(MERCHANT_PROMOTION_STORAGE_KEY);
         await putToStorage(MERCHANT_PROMOTION_STORAGE_KEY, {
           ...merchantState,
           snoozedUntil: Date.now() + 24 * 60 * 60 * 1000

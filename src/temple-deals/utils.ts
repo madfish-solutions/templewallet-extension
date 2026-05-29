@@ -86,9 +86,7 @@ export function getOfferViewEvent(offer: MerchantOffer) {
 
 export function getOfferActivationEvent(offer: MerchantOffer, source: TempleDealsActivationSource) {
   if (source === 'tag') {
-    return offer.rate.type === 'cpa'
-      ? TEMPLE_DEALS_EVENTS.tagActivateCashback
-      : TEMPLE_DEALS_EVENTS.tagActivateBounty;
+    return offer.rate.type === 'cpa' ? TEMPLE_DEALS_EVENTS.tagActivateCashback : TEMPLE_DEALS_EVENTS.tagActivateBounty;
   }
 
   return offer.rate.type === 'cpa'
@@ -115,9 +113,7 @@ function formatNumericRateValue(value: string, forceFractionDigits = false) {
 
   const safeValue = Math.max(numericValue, 0.01);
 
-  return forceFractionDigits
-    ? safeValue.toFixed(2)
-    : safeValue.toLocaleString('en-US', { maximumFractionDigits: 2 });
+  return forceFractionDigits ? safeValue.toFixed(2) : safeValue.toLocaleString('en-US', { maximumFractionDigits: 2 });
 }
 
 export async function suppressTempleDealPopup(domain: string) {

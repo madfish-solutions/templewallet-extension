@@ -13,7 +13,7 @@ import { PASSWORD_PATTERN, PasswordValidation, formatMnemonic, passwordValidatio
 import { setIsSidebarByDefault } from 'app/env';
 import { useFirefoxDataConsent } from 'app/pages/Welcome/data-collection-agreement/use-firefox-data-consent.hook';
 import { dispatch } from 'app/store';
-import { setMerchantPromotionEnabledAction } from 'app/store/merchant-promotion/actions';
+import { setDealsEnabledAction } from 'app/store/deals/actions';
 import { togglePartnersPromotionAction } from 'app/store/partners-promotion/actions';
 import { setIsAnalyticsEnabledAction, setReferralLinksEnabledAction } from 'app/store/settings/actions';
 import { toastError } from 'app/toaster';
@@ -138,7 +138,7 @@ export const CreatePasswordForm = memo<CreatePasswordFormProps>(
 
           dispatch(togglePartnersPromotionAction(adsViewEnabled));
           dispatch(setIsAnalyticsEnabledAction(analyticsEnabled));
-          dispatch(setMerchantPromotionEnabledAction(adsViewEnabled));
+          dispatch(setDealsEnabledAction(adsViewEnabled));
           dispatch(setReferralLinksEnabledAction(adsViewEnabled));
 
           // registerWallet function clears async storages

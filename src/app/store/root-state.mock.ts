@@ -7,6 +7,7 @@ import { mockBuyWithCreditCardState } from './buy-with-credit-card/state.mock';
 import { mockCryptoExchangeState } from './crypto-exchange/state.mock';
 import { mockCurrencyState } from './currency/state.mock';
 import { mockDAppsState } from './d-apps/state.mock';
+import { mockDealsState } from './deals/state.mock';
 import { mockEvmAssetsState } from './evm/assets/state.mock';
 import { mockEvmBalancesState } from './evm/balances/state.mock';
 import { mockEvmCollectiblesMetadataState } from './evm/collectibles-metadata/state.mock';
@@ -16,7 +17,6 @@ import { mockEvmLoadingState } from './evm/state.mock';
 import { mockRoute3EvmTokensMetadataState } from './evm/swap-3route-metadata/state.mock';
 import { mockEvmTokensExchangeRatesState } from './evm/tokens-exchange-rates/state.mock';
 import { mockEvmTokensMetadataState } from './evm/tokens-metadata/state.mock';
-import { mockMerchantPromotionState } from './merchant-promotion/state.mock';
 import { mockNewsletterState } from './newsletter/newsletter-state.mock';
 import { mockNotificationsState } from './notifications/state.mock';
 import { mockPartnersPromotionState } from './partners-promotion/state.mock';
@@ -39,7 +39,7 @@ export const mockRootState: RootState = {
   notifications: mockNotificationsState,
   dApps: mockDAppsState,
   swap: mockSwapState,
-  merchantPromotion: mockMerchantPromotionState,
+  deals: mockDealsState,
   partnersPromotion: mockPartnersPromotionState,
   balances: mockBalancesState,
   assets: mockAssetsState,
