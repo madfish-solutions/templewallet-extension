@@ -11,13 +11,13 @@ const BACKOFF_MS = 1000;
 const delay = (ms: number) => new Promise<void>(resolve => setTimeout(resolve, ms));
 
 export const fetchObjktToken = memoizee(
-  async (contract: string, tokenId: string): Promise<ObjktToken | null> => {
+  async (fa: string, tokenId: string): Promise<ObjktToken | null> => {
     try {
       for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
         const response = await fetch(OBJKT_GRAPHQL_ENDPOINT, {
           method: 'POST',
           headers: { 'content-type': 'application/json' },
-          body: JSON.stringify({ query: OBJKT_TOKEN_QUERY, variables: { fa: contract, id: tokenId } })
+          body: JSON.stringify({ query: OBJKT_TOKEN_QUERY, variables: { fa, id: tokenId } })
         });
 
         if (response.status === 429) {

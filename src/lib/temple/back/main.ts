@@ -454,7 +454,7 @@ browser.runtime.onMessage.addListener(async (msg, sender) => {
 
       case ContentScriptType.FetchObjktToken: {
         const { fetchObjktToken } = await importFetchObjktTokenModule();
-        return await fetchObjktToken(msg.contract, msg.tokenId);
+        return await fetchObjktToken(msg.fa, msg.tokenId);
       }
 
       case ContentScriptType.FetchThumbnailBlob: {

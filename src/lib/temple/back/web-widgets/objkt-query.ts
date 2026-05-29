@@ -1,6 +1,6 @@
 export const OBJKT_TOKEN_QUERY = `
   query WebWidgetObjktToken($fa: String!, $id: String!) {
-    token(where: { fa_contract: { _eq: $fa }, token_id: { _eq: $id } }) {
+    token(where: { token_id: { _eq: $id }, _or: [{ fa_contract: { _eq: $fa } }, { fa: { path: { _eq: $fa } } }] }) {
       name
       supply
       mime
