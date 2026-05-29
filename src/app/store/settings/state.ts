@@ -11,6 +11,7 @@ export interface SettingsState {
   adsImpressionsLinked: boolean;
   referralLinksEnabled: boolean;
   isTestnetModeEnabled: boolean;
+  webWidgetsTokenInsightEnabled: boolean;
   onRampAsset: ChainAssetSlug | null;
   onRampTitle?: string;
   favoriteTokens: string[];
@@ -33,6 +34,7 @@ export const settingsInitialState: SettingsState = {
   adsImpressionsLinked: false,
   referralLinksEnabled: IS_MISES_BROWSER,
   isTestnetModeEnabled: false,
+  webWidgetsTokenInsightEnabled: true,
   onRampAsset: null,
   favoriteTokens: []
 };

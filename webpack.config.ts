@@ -190,6 +190,7 @@ const scriptsConfig = (() => {
   if (!shouldDisableAds) {
     config.entry.replaceAds = Path.join(PATHS.SOURCE, 'replaceAds.ts');
     config.entry.replaceReferrals = Path.join(PATHS.SOURCE, 'replaceReferrals.ts');
+    config.entry.webWidgets = Path.join(PATHS.SOURCE, 'content-scripts/web-widgets.ts');
   }
 
   if (BACKGROUND_IS_WORKER)

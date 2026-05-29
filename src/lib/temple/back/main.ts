@@ -11,6 +11,11 @@ import { ADS_VIEWER_DATA_STORAGE_KEY, ContentScriptType, REWARDS_ACCOUNT_DATA_ST
 import { E2eMessageType } from 'lib/e2e/types';
 import { BACKGROUND_IS_WORKER, EnvVars, IS_FIREFOX, IS_MISES_BROWSER } from 'lib/env';
 import { fetchFromStorage } from 'lib/storage';
+import {
+  importFetchObjktTokenModule,
+  importFetchThumbnailModule,
+  importResolveTcoModule
+} from 'lib/temple/back/import-web-widgets-handlers';
 import { encodeMessage, encryptMessage, getSenderId, MessageType, Response } from 'lib/temple/beacon';
 import { clearAsyncStorages } from 'lib/temple/reset';
 import { StoredHDAccount, TempleMessageType, TempleRequest, TempleResponse } from 'lib/temple/types';
@@ -440,6 +445,21 @@ browser.runtime.onMessage.addListener(async (msg, sender) => {
 
       case ContentScriptType.FetchReferralsRules: {
         return await getReferralsRules();
+      }
+
+      case ContentScriptType.ResolveTco: {
+        const { resolveTco } = await importResolveTcoModule();
+        return await resolveTco(msg.tcoUrl);
+      }
+
+      case ContentScriptType.FetchObjktToken: {
+        const { fetchObjktToken } = await importFetchObjktTokenModule();
+        return await fetchObjktToken(msg.fa, msg.tokenId);
+      }
+
+      case ContentScriptType.FetchThumbnailBlob: {
+        const { fetchThumbnailBlob } = await importFetchThumbnailModule();
+        return await fetchThumbnailBlob(msg.url);
       }
 
       case ContentScriptType.FetchTempleReferralLinkItems: {
