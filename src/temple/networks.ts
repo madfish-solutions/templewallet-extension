@@ -95,7 +95,8 @@ export const TEZOS_DEFAULT_NETWORKS: NonEmptyArray<StoredTezosNetwork> = [
     chainId: TempleTezosChainId.Mainnet,
     rpcBaseURL: TEZOS_FALLBACK_RPC_URLS[TempleTezosChainId.Mainnet][1],
     description: 'SmartPy Mainnet',
-    color: '#34D399'
+    color: '#34D399',
+    default: true
   },
   {
     id: 'shadownet',
