@@ -9,12 +9,13 @@ inputs:
 runs:
   using: 'composite'
   steps:
-    - run: yarn install
-      if: inputs.optional_modules == 'true'
+    - name: Install dependencies
+      run: yarn install
       shell: bash
 
-    - run: yarn install --ignore-optional
+    - name: Remove optional private modules
       if: inputs.optional_modules != 'true'
+      run: rm -rf node_modules/@temple-wallet/extension-ads
       shell: bash
 
     - name: Audit dependencies
