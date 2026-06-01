@@ -123,7 +123,7 @@ const OfferBody = () => (
 
 const SuccessBody = () => (
   <div className="flex flex-col items-center text-center p-4 rounded-t-8 bg-background min-h-65.5">
-    <DoneAnimation withBackground={false} animationSize={100} className="mb-8 mt-4" />
+    <DoneAnimation hideBackground animationSize={100} className="mb-8 mt-4" />
 
     <h1 className="text-font-regular-bold mb-2">
       <T id="cashbackActivated" />

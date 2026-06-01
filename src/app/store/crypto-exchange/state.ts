@@ -16,9 +16,11 @@ export type ExolixNetworksMap = Record<number, string>;
 export interface CryptoExchangeState {
   exolixCurrencies: LoadableEntityState<Array<StoredExolixCurrency>>;
   exolixNetworksMap: LoadableEntityState<ExolixNetworksMap>;
+  exolixNetworksMapLoadedAt: number;
 }
 
 export const cryptoExchangeInitialState: CryptoExchangeState = {
   exolixCurrencies: createEntity([]),
-  exolixNetworksMap: createEntity({})
+  exolixNetworksMap: createEntity({}),
+  exolixNetworksMapLoadedAt: 0
 };

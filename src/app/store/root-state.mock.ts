@@ -4,6 +4,7 @@ import { mockABTestingState } from './ab-testing/state.mock';
 import { mockAccountsInitializationState } from './accounts-initialization/state.mock';
 import { mockAssetsFilterOptionsState } from './assets-filter-options/state.mock';
 import { mockBuyWithCreditCardState } from './buy-with-credit-card/state.mock';
+import { mockCrossChainSendState } from './cross-chain-send/state.mock';
 import { mockCryptoExchangeState } from './crypto-exchange/state.mock';
 import { mockCurrencyState } from './currency/state.mock';
 import { mockDAppsState } from './d-apps/state.mock';
@@ -47,6 +48,7 @@ export const mockRootState: RootState = {
   collectiblesMetadata: mockCollectiblesMetadataState,
   noCategoryAssetMetadata: mockNoCategoryTezosAssetsMetadataState,
   abTesting: mockABTestingState,
+  crossChainSend: mockCrossChainSendState,
   cryptoExchange: mockCryptoExchangeState,
   buyWithCreditCard: mockBuyWithCreditCardState,
   collectibles: mockCollectiblesState,

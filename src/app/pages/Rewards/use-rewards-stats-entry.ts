@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useTransition } from 'react';
+import { useEffect, useTransition } from 'react';
 
 import { BigNumber } from 'bignumber.js';
 
@@ -80,10 +80,5 @@ export const useRewardsStatsEntry = (
     statsRef
   ]);
 
-  const parsedStats = useMemo(
-    () => (stats ? { total: new BigNumber(stats.total), lastAmount: stats.lastAmount } : null),
-    [stats]
-  );
-
-  return { isLoading, stats: parsedStats };
+  return { isLoading, stats: stats ? { total: new BigNumber(stats.total), lastAmount: stats.lastAmount } : null };
 };

@@ -34,3 +34,25 @@ export function searchAndFilterItems<T, P extends null | ((item: T) => any)>(
 }
 
 type KeysOfUnionType<T> = T extends infer U ? keyof U : never;
+
+interface NameCodeNetworkFields {
+  name: string;
+  code: string;
+  networkName: string;
+}
+
+export const searchAndFilterByNameCodeNetwork = <T>(
+  items: T[],
+  searchValue: string,
+  toFields: (item: T) => NameCodeNetworkFields
+) =>
+  searchAndFilterItems(
+    items,
+    searchValue.trim(),
+    [
+      { name: 'name', weight: 1 },
+      { name: 'code', weight: 1 },
+      { name: 'networkName', weight: 0.75 }
+    ],
+    toFields
+  );

@@ -20,12 +20,12 @@
   resolved "https://registry.yarnpkg.com/@adraffy/ens-normalize/-/ens-normalize-1.11.0.tgz#42cc67c5baa407ac25059fcd7d405cc5ecdb0c33"
   integrity sha512-/3DDPKHqqIqxUULp8yP4zODUY1i+2xvVWsv8A79xGWdCAG+8sb0hRh0Rk2QyOJUnnbyPUAZYcpBuRe3nS2OIUg==
 
-"@airgap/beacon-types@^4.5.1":
-  version "4.5.1"
-  resolved "https://registry.yarnpkg.com/@airgap/beacon-types/-/beacon-types-4.5.1.tgz#30559e7ee9b24eda36e4f77d278697d97fb052d2"
-  integrity sha512-eeEwGyIyuZ9mzq5tRXQC4ZL0xbXYzGHW9cSVG1iPkvzFaxRztseOeJDqmPHL53GjldOpCX9fr2a05TDXCJ20/Q==
+"@airgap/beacon-types@npm:@tezos-x/octez.connect-types@^4.8.4":
+  version "4.8.4"
+  resolved "https://registry.yarnpkg.com/@tezos-x/octez.connect-types/-/octez.connect-types-4.8.4.tgz#1f249cbbe1962913580970db1edc66983cffb412"
+  integrity sha512-dQ0OZjv0sOMrmsVE6KKsrBUHVp0hyVgcn4jwHlnIHFBZn/jsrxr7Tt6tmNr0xdQ7AXtQGznT3mM3gppmO2IVbQ==
   dependencies:
-    "@types/chrome" "0.0.246"
+    "@types/chrome" "^0.1.40"
 
 "@alloc/quick-lru@^5.2.0":
   version "5.2.0"
@@ -4120,10 +4120,10 @@
     buffer "^6.0.3"
     typedarray-to-buffer "^4.0.0"
 
-"@temple-wallet/dapp@^11.0.0":
-  version "11.0.0"
-  resolved "https://registry.yarnpkg.com/@temple-wallet/dapp/-/dapp-11.0.0.tgz#16a9d7335466191fccd6f07ed62a2e6ad8e6d67c"
-  integrity sha512-Uo8X4S4mC+hd5LvcRJLyS36KELDjuPqerjO/3rSdT8oUTX1s4H3cGclHHdQNk3rBRpYNOeW8AdNyMhT22iihIA==
+"@temple-wallet/dapp@^12.0.0":
+  version "12.0.0"
+  resolved "https://registry.yarnpkg.com/@temple-wallet/dapp/-/dapp-12.0.0.tgz#89a60290519978a2fe9fd882c3d271b46fa74634"
+  integrity sha512-QEZTAxT1LYc11K4wfXYahWQhga8VJ0/ayf3GMrCCGVpXHHIkE2PY7kuKGzObGOT0mkMdV/4I5uJU8n7mTZUq2A==
   dependencies:
     nanoid "^3.1.30"
 
@@ -4352,18 +4352,18 @@
   dependencies:
     "@types/node" "*"
 
-"@types/chrome@0.0.246":
-  version "0.0.246"
-  resolved "https://registry.yarnpkg.com/@types/chrome/-/chrome-0.0.246.tgz#412ee1b162a67d1cfebe413887b9aa0c28998ef1"
-  integrity sha512-MxGxEomGxsJiL9xe/7ZwVgwdn8XVKWbPvxpVQl3nWOjrS0Ce63JsfzxUc4aU3GvRcUPYsfufHmJ17BFyKxeA4g==
-  dependencies:
-    "@types/filesystem" "*"
-    "@types/har-format" "*"
-
 "@types/chrome@^0.0.329":
   version "0.0.329"
   resolved "https://registry.yarnpkg.com/@types/chrome/-/chrome-0.0.329.tgz#7a27c1287be43dae73a428570db20ae79779896f"
   integrity sha512-jAZX4QMnAa1bTSWoQ5/EhhiY1t+1B7a5ZCY5ZEs61tWiQfxXAkfBSxCkQWhGxJoiq/4b4vtcmYEebNEmlLKecg==
+  dependencies:
+    "@types/filesystem" "*"
+    "@types/har-format" "*"
+
+"@types/chrome@^0.1.40":
+  version "0.1.42"
+  resolved "https://registry.yarnpkg.com/@types/chrome/-/chrome-0.1.42.tgz#b13d3e711fb7ceafe67f95909455c22fe6253f7e"
+  integrity sha512-tdT2roFqGecZZDjA9fUEAINb2STxSPifHMDvY6EfRjNRCjdrs/0FwKt5RCIA9MKMd1arAYZZL3nwEkp6ZLZu2w==
   dependencies:
     "@types/filesystem" "*"
     "@types/har-format" "*"

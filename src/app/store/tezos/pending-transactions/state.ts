@@ -10,6 +10,8 @@ export interface TransactionState {
   network: TezosNetworkEssentials;
   blockExplorerUrl: string;
   kind?: string;
+  /** When true, the pending-tx watcher skips the success/failure toasts for this entry. */
+  silent?: boolean;
 }
 
 export interface PendingTezosTransactionsState {

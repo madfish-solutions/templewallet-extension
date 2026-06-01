@@ -3556,6 +3556,9 @@
   "done": {
     "message": "Done!"
   },
+  "doneAction": {
+    "message": "Done"
+  },
   "standWithUkraine": {
     "message": "Stand with Ukraine"
   },
@@ -3721,6 +3724,9 @@
   "referralLinksDescription": {
     "message": "Automatically receive referral links while order products and services at your favourite online stores."
   },
+  "referralLinksHint": {
+    "message": "All your referrals connected to your first created or imported account in Temple. Make sure you backed up your wallet to prevent unnecessary losses."
+  },
   "deals": {
     "message": "Deals"
   },
@@ -3732,6 +3738,12 @@
   },
   "templeDealsDescription": {
     "message": "Up to 25% cashback in USDT. No points, no expiry - real crypto. Try now!"
+  },
+  "disableDealsModalTitle": {
+    "message": "Disable deals and earning?"
+  },
+  "disableDealsModalDescription": {
+    "message": "Disabling will stop automated offers from merchants, TKEY rewards earning and sharing your data to the reward system. You can turn this back on anytime here, in Settings."
   },
   "partnersCountBadge": {
     "message": "10,000+ Partners"
@@ -3881,9 +3893,6 @@
   "activateBounty": {
     "message": "Activate Bounty"
   },
-  "activateCashback": {
-    "message": "Activate Cashback"
-  },
   "activating": {
     "message": "Activating..."
   },
@@ -3904,6 +3913,9 @@
   },
   "inviteLink": {
     "message": "Invite Link"
+  },
+  "inviteAccount": {
+    "message": "Your invite account"
   },
   "rewardsAccount": {
     "message": "Your rewards account"
@@ -4578,12 +4590,6 @@
   "properties": {
     "message": "Properties"
   },
-  "disableDealsModalTitle": {
-    "message": "Disable deals and earning?"
-  },
-  "disableDealsModalDescription": {
-    "message": "Disabling will stop automated offers from merchants, TKEY rewards earning and sharing your data to the reward system. You can turn this back on anytime here, in Settings."
-  },
   "closePartnersPromotion": {
     "message": "Disable promo and earning?"
   },
@@ -4597,7 +4603,7 @@
     "message": "Earning Mode"
   },
   "earningModeDescription": {
-    "message": "By enabling this checkbox, you agree to activate advanced features, share your wallet address and IP to participate in our rewards program. This information is used to serve rewarded promo and affiliate ads, and to send you crypto token payouts."
+    "message": "By enabling this checkbox, you are agreeing to activate advanced features, share your wallet address, IP to receive ads and rewards in TKEY token."
   },
   "earnTkeyRewardsDescription": {
     "message": "I agree to share my wallet address and IP to receive ads, referral links and rewards in TKEY token."
@@ -5263,20 +5269,185 @@
   "redirectButListInWallet": {
     "message": "Redirect me, but I'd like list in-wallet"
   },
-  "templeDeals": {
-    "message": "Temple Deals"
+  "advanced": {
+    "message": "Advanced"
   },
-  "upTo25CashbackInUSDT": {
-    "message": "Up to 25% cashback in USDT"
+  "balanceLabel": {
+    "message": "Balance:"
+  },
+  "byProceedingTermsAgreement": {
+    "message": "By proceeding with operation you are agree with the $terms$ and $privacy$.",
+    "placeholders": {
+      "terms": { "content": "$1" },
+      "privacy": { "content": "$2" }
+    }
+  },
+  "couldNotComplete": {
+    "message": "Couldn't complete"
+  },
+  "couldNotCompleteDescription": {
+    "message": "Your funds return to your account automatically.\nIf this hasn't happened, please contact Exolix support to request a refund manually."
+  },
+  "crossChainActivityTitle": {
+    "message": "Cross-chain Activity"
+  },
+  "crossChainSendCompletedToast": {
+    "message": "Cross-chain send completed"
+  },
+  "crossChainSendFailedToast": {
+    "message": "Cross-chain send isn't completed"
+  },
+  "crossChainWarningBody": {
+    "message": "To prevent loss of funds, always make sure the recipient address can receive the token on selected network.\n\nPowered by Exolix as a third-party. You stay in full control of your assets. All transactions are anonymous - no personal data is shared."
+  },
+  "crossChainWarningTitle": {
+    "message": "Sending Cross-chain"
+  },
+  "depositTxHash": {
+    "message": "Deposit Tx Hash"
+  },
+  "dontShowAnymore": {
+    "message": "Don't show me anymore"
+  },
+  "estimationNotReady": {
+    "message": "Estimation not ready"
+  },
+  "expectedResult": {
+    "message": "Expected result"
+  },
+  "failedBadge": {
+    "message": "FAILED"
+  },
+  "failedToGetOperationHash": {
+    "message": "Failed to get operation hash"
+  },
+  "feelFreeToCloseNote": {
+    "message": "Feel free to close - we'll notify when completed"
+  },
+  "insufficientBalance": {
+    "message": "Insufficient balance"
+  },
+  "invalidAmount": {
+    "message": "Invalid amount"
+  },
+  "invalidBitcoinAddress": {
+    "message": "Invalid Bitcoin address"
+  },
+  "invalidEvmAddress": {
+    "message": "Invalid EVM address"
+  },
+  "invalidTezosAddress": {
+    "message": "Invalid Tezos address"
+  },
+  "maxWithSymbol": {
+    "message": "Max: $value$ $symbol$",
+    "placeholders": {
+      "value": { "content": "$1" },
+      "symbol": { "content": "$2" }
+    }
+  },
+  "minWithSymbol": {
+    "message": "Min: $value$ $symbol$",
+    "placeholders": {
+      "value": { "content": "$1" },
+      "symbol": { "content": "$2" }
+    }
+  },
+  "minWithValue": {
+    "message": "Min $value$",
+    "placeholders": {
+      "value": { "content": "$1" }
+    }
+  },
+  "noActivityYet": {
+    "message": "No activity yet"
+  },
+  "noTokensAvailable": {
+    "message": "No tokens available"
+  },
+  "orderExpiredCrossChain": {
+    "message": "Order expired"
+  },
+  "orderExpiredCrossChainPostBroadcastDescription": {
+    "message": "Your order has expired before the deposit was confirmed. Please contact Exolix support to request a refund manually."
+  },
+  "orderExpiredCrossChainPreBroadcastDescription": {
+    "message": "Your order has expired before the deposit was sent. Please start a new exchange."
+  },
+  "pairNotAvailable": {
+    "message": "This pair is not available"
+  },
+  "pasteAddress": {
+    "message": "Paste $1 address",
+    "placeholders": {
+      "1": { "content": "$1" }
+    }
+  },
+  "crossChainAssetMetadataNotFound": {
+    "message": "Asset metadata not found"
+  },
+  "crossChainUnsupportedDestination": {
+    "message": "Unsupported destination"
+  },
+  "toLabel": {
+    "message": "To:"
+  },
+  "processingFailureNote": {
+    "message": "If the operation fails, funds return to your account automatically"
+  },
+  "refundTxHash": {
+    "message": "Refund Tx Hash"
+  },
+  "refunded": {
+    "message": "Refunded"
+  },
+  "refundedDescription": {
+    "message": "Your funds return to your account automatically.\nIf this hasn't happened, please contact Exolix support to request a refund manually."
+  },
+  "processingStepTitle": {
+    "message": "Processing"
+  },
+  "selectGetToken": {
+    "message": "Select Get Token"
+  },
+  "selectTokenAction": {
+    "message": "Select token"
+  },
+  "sendPreview": {
+    "message": "Send Preview"
+  },
+  "sendStepperConfirmation": {
+    "message": "Confirmation"
+  },
+  "sendStepperExchange": {
+    "message": "Exchange"
+  },
+  "sendStepperSending": {
+    "message": "Sending"
+  },
+  "switchToCurrency": {
+    "message": "Switch to $1",
+    "placeholders": {
+      "1": { "content": "$1" }
+    }
+  },
+  "tezosMetadataNotAvailable": {
+    "message": "Tezos asset metadata not available"
+  },
+  "tokenExchangePoweredByExolix": {
+    "message": "Token exchange is powered by Exolix as a third-party. Temple Wallet is not responsible for work of third-party services."
+  },
+  "tokenNamePlaceholder": {
+    "message": "Token name"
+  },
+  "unableToFetchRate": {
+    "message": "Unable to fetch rate, please try again"
   },
   "cashbackTagline": {
     "message": "No points, no expiry - real crypto straight to your wallet every month. Works at 10,000+ merchants."
   },
   "cashbackParticipationDisclaimer": {
     "message": "By activation, you are agree to participate in customer-based ads program."
-  },
-  "activateCashback": {
-    "message": "Activate Cashback"
   },
   "cashbackActivated": {
     "message": "Cashback activated"

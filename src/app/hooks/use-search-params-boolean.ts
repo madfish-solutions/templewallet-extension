@@ -11,5 +11,9 @@ export const useSearchParamsBoolean = (paramName: string) => {
   return { value: rawValue === 'true', setTrue, setFalse };
 };
 
-export const readSearchParamsBoolean = (paramName: string) =>
-  new URLSearchParams(window.location.search).get(paramName) === 'true';
+export const readSearchParamsBoolean = (paramName: string) => {
+  const { hash, origin } = window.location;
+  const woozieUrl = new URL(hash.startsWith('#') ? hash.slice(1) : hash, origin);
+
+  return new URLSearchParams(woozieUrl.search).get(paramName) === 'true';
+};

@@ -1,5 +1,6 @@
 import { FC, useMemo } from 'react';
 
+import { CrossChainActivityRow } from 'app/pages/Send/cross-chain/components/CrossChainActivityRow';
 import { dispatch } from 'app/store';
 import { putEvmNoCategoryAssetsMetadataAction } from 'app/store/evm/no-category-assets-metadata/actions';
 import { Activity, EvmActivity, TezosActivity } from 'lib/activity';
@@ -9,6 +10,7 @@ import { isKnownChainId as isKnownTzktChainId } from 'lib/apis/tzkt/api';
 import { useMemoWithCompare } from 'lib/ui/hooks';
 import { isTruthy } from 'lib/utils';
 import {
+  useAccount,
   useAccountAddressForEvm,
   useAccountAddressForTezos,
   useAllEvmChains,
@@ -27,10 +29,12 @@ import {
 import { ActivitiesDateGroup, useGroupingByDate } from './grouping-by-date';
 import { useActivitiesLoadingLogic } from './loading-logic';
 import { useAssetsFromActivitiesCheck } from './use-assets-from-activites-check';
-import { FilterKind, getActivityFilterKind, getAllEtherlinkActivitiesPageParams, isTezosActivity } from './utils';
+import { useInterleavedFeed } from './use-interleaved-feed';
+import { FilterKind, getActivityFilterKind, getAllEtherlinkActivitiesPageParams } from './utils';
 
 interface Props {
   filterKind?: FilterKind;
+  onCrossChainExchangeClick?: (id: string) => void;
 }
 
 const compareByChainId = <T extends { chainId: string | number }>(prev: T[], next: T[]): boolean => {
@@ -40,7 +44,8 @@ const compareByChainId = <T extends { chainId: string | number }>(prev: T[], nex
   return prev.every((l, i) => l.chainId === next[i]?.chainId);
 };
 
-export const MultichainActivityList: FC<Props> = ({ filterKind }) => {
+export const MultichainActivityList: FC<Props> = ({ filterKind, onCrossChainExchangeClick }) => {
+  const currentAccount = useAccount();
   const tezosChains = useEnabledTezosChains();
   const evmChains = useEnabledEvmChains();
 
@@ -133,26 +138,51 @@ export const MultichainActivityList: FC<Props> = ({ filterKind }) => {
     return filtered.toSorted((a, b) => (a.addedAt < b.addedAt ? 1 : -1));
   }, [activities, filterKind]);
 
-  const groupedActivities = useGroupingByDate(displayActivities);
+  const feed = useInterleavedFeed({
+    activities: displayActivities,
+    remoteReachedTheEnd: reachedTheEnd,
+    filterChain: null,
+    accountId: currentAccount.id,
+    enabled: Boolean(onCrossChainExchangeClick)
+  });
+
+  const groupedFeed = useGroupingByDate(feed);
 
   const contentJsx = useMemo(
     () =>
-      groupedActivities.map(([dateStr, activities]) => (
+      groupedFeed.map(([dateStr, items]) => (
         <ActivitiesDateGroup key={dateStr} title={dateStr}>
-          {activities.map(activity =>
-            isTezosActivity(activity) ? (
-              <TezosActivityComponent
-                key={activity.hash}
-                activity={activity}
-                chain={allTezosChains[activity.chainId]!}
-              />
-            ) : (
-              <EvmActivityComponent key={activity.hash} activity={activity} chain={allEvmChains[activity.chainId]!} />
-            )
-          )}
+          {items.map(item => {
+            switch (item.kind) {
+              case 'tezos':
+                return (
+                  <TezosActivityComponent
+                    key={item.data.hash}
+                    activity={item.data}
+                    chain={allTezosChains[item.data.chainId]!}
+                  />
+                );
+              case 'evm':
+                return (
+                  <EvmActivityComponent
+                    key={item.data.hash}
+                    activity={item.data}
+                    chain={allEvmChains[item.data.chainId]!}
+                  />
+                );
+              case 'cross-chain':
+                return (
+                  <CrossChainActivityRow
+                    key={item.data.id}
+                    exchange={item.data}
+                    onClick={() => onCrossChainExchangeClick?.(item.data.id)}
+                  />
+                );
+            }
+          })}
         </ActivitiesDateGroup>
       )),
-    [groupedActivities, allTezosChains, allEvmChains]
+    [groupedFeed, allTezosChains, allEvmChains, onCrossChainExchangeClick]
   );
 
   const tezosAssetsCheckConfig = {
@@ -164,7 +194,7 @@ export const MultichainActivityList: FC<Props> = ({ filterKind }) => {
 
   return (
     <ActivityListView
-      activitiesNumber={displayActivities.length}
+      activitiesNumber={feed.length}
       isSyncing={isLoading}
       reachedTheEnd={reachedTheEnd}
       loadNext={loadNext}

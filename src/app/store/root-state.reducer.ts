@@ -6,6 +6,7 @@ import { abTestingReducer } from './ab-testing/reducers';
 import { accountsInitializationReducer } from './accounts-initialization/reducers';
 import { assetsFilterOptionsReducer } from './assets-filter-options/reducer';
 import { buyWithCreditCardReducer } from './buy-with-credit-card/reducers';
+import { crossChainSendPersistedReducer } from './cross-chain-send/reducers';
 import { cryptoExchangePersistedReducer } from './crypto-exchange/reducers';
 import { currencyPersistedReducer } from './currency/reducers';
 import { dAppsReducer } from './d-apps/reducers';
@@ -48,6 +49,7 @@ const rootStateReducersMap = {
   noCategoryAssetMetadata: noCategoryTezosAssetsMetadataPersistedReducer,
   abTesting: abTestingReducer,
   cryptoExchange: cryptoExchangePersistedReducer,
+  crossChainSend: crossChainSendPersistedReducer,
   buyWithCreditCard: buyWithCreditCardReducer,
   collectibles: collectiblesPersistedReducer,
   newsletter: newsletterReducers,

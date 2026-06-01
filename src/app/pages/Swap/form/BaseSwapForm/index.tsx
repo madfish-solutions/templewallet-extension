@@ -2,7 +2,7 @@ import React, { FC, useCallback, useMemo } from 'react';
 
 import { isDefined } from '@rnw-community/shared';
 import BigNumber from 'bignumber.js';
-import { isEmpty, noop } from 'lodash';
+import { noop } from 'lodash';
 import { Controller, SubmitErrorHandler, useFormContext, useWatch } from 'react-hook-form';
 
 import { IconBase } from 'app/atoms';
@@ -105,7 +105,7 @@ export const BaseSwapForm: FC<Props> = ({
   onSubmit
 }) => {
   const { handleSubmit, control, setValue, getValues, formState } = useFormContext<SwapFormValue>();
-  const { isSubmitting, submitCount, errors } = formState;
+  const { isSubmitting, submitCount, isValid } = formState;
 
   const formSubmitted = submitCount > 0;
 
@@ -358,7 +358,7 @@ export const BaseSwapForm: FC<Props> = ({
           size="L"
           color="primary"
           loading={swapParamsAreLoading || isSubmitting}
-          disabled={formSubmitted && !isEmpty(errors)}
+          disabled={formSubmitted && !isValid}
           testID={SwapFormSelectors.swapButton}
         >
           <T id="review" />

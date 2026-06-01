@@ -1,5 +1,7 @@
 import React, { memo, useEffect } from 'react';
 
+import { TempleDAppNetwork } from '@temple-wallet/dapp';
+
 import { IconBase } from 'app/atoms';
 import DAppLogo from 'app/atoms/DAppLogo';
 import { EvmNetworkLogo, TezosNetworkLogo } from 'app/atoms/NetworkLogo';
@@ -93,6 +95,18 @@ interface DAppConnectionBoxProps {
   disconnectOne: (origin: string) => Promise<void>;
 }
 
+const knownDAppNetworksChainIds = {
+  mainnet: TempleTezosChainId.Mainnet,
+  ghostnet: TempleTezosChainId.Ghostnet,
+  shadownet: TempleTezosChainId.Shadownet,
+  tezlink: TempleTezosChainId.Tezlink,
+  tezosx: TempleTezosChainId.TezosX
+};
+
+const isKnownDAppNetwork = (network: TempleDAppNetwork): network is keyof typeof knownDAppNetworksChainIds => {
+  return typeof network === 'string' && network in knownDAppNetworksChainIds;
+};
+
 const DAppConnectionBox = memo(({ activeDApp, disconnectOne }: DAppConnectionBoxProps) => {
   const [origin, dapp] = activeDApp;
   const rootRef = useBottomShiftChangingElement(true);
@@ -102,10 +116,7 @@ const DAppConnectionBox = memo(({ activeDApp, disconnectOne }: DAppConnectionBox
   const { data: tezosChainId } = useTypedSWR(['dapp-connection', 'tezos-chain-id'], () => {
     if (!isTezosDAppSession(dapp)) return null;
 
-    if (dapp.network === 'mainnet') return TempleTezosChainId.Mainnet;
-    if (dapp.network === 'ghostnet') return TempleTezosChainId.Ghostnet;
-    if (dapp.network === 'shadownet') return TempleTezosChainId.Shadownet;
-    if (dapp.network === 'tezlink') return TempleTezosChainId.Tezlink;
+    if (isKnownDAppNetwork(dapp.network)) return knownDAppNetworksChainIds[dapp.network];
 
     if (dapp.network === 'sandbox') return loadTezosChainId('http://localhost:8732');
 

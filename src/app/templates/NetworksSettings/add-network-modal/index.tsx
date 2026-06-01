@@ -66,7 +66,7 @@ export const AddNetworkModal = memo<AddNetworkModalComponentProps>(props => {
     mode: 'onChange',
     defaultValues
   });
-  const { control, reset, formState, register, setValue, handleSubmit } = formReturn;
+  const { control, reset, formState, setValue, handleSubmit } = formReturn;
   const formValues = useWatch({ control, defaultValue: defaultValues });
   const { chainId = '', rpcUrl = '', symbol = '' } = formValues;
   const { errors } = formState;
@@ -222,45 +222,61 @@ export const AddNetworkModal = memo<AddNetworkModalComponentProps>(props => {
                 testID={NetworkSettingsSelectors.rpcUrlInput}
               />
 
-              <FormField
-                {...register('chainId', {
-                  required: t('required'),
-                  validate: validateChainId,
-                  onChange: resetSubmitError
-                })}
-                cleanable={Boolean(chainId)}
-                disabled={isSubmitting}
-                onClean={clearChainId}
-                labelContainerClassName="w-full flex justify-between items-center"
-                label={
-                  <>
-                    <T id="chainId" />
-                    <Tooltip
-                      content={
-                        <span className="font-normal">
-                          <T id="chainIdTooltip" />
-                        </span>
-                      }
-                      size={16}
-                      className="text-grey-3"
-                      wrapperClassName="max-w-60"
-                    />
-                  </>
-                }
-                placeholder="1"
-                errorCaption={submitError ?? errors.chainId?.message}
-                testID={NetworkSettingsSelectors.chainIdInput}
+              <Controller
+                control={control}
+                name="chainId"
+                rules={{ required: t('required'), validate: validateChainId, onChange: resetSubmitError }}
+                render={({ field: { onChange, onBlur, ref, value }, fieldState: { error } }) => (
+                  <FormField
+                    ref={ref}
+                    value={value}
+                    onChange={onChange}
+                    onBlur={onBlur}
+                    cleanable={Boolean(chainId)}
+                    disabled={isSubmitting}
+                    onClean={clearChainId}
+                    labelContainerClassName="w-full flex justify-between items-center"
+                    label={
+                      <>
+                        <T id="chainId" />
+                        <Tooltip
+                          content={
+                            <span className="font-normal">
+                              <T id="chainIdTooltip" />
+                            </span>
+                          }
+                          size={16}
+                          className="text-grey-3"
+                          wrapperClassName="max-w-60"
+                        />
+                      </>
+                    }
+                    placeholder="1"
+                    errorCaption={submitError ?? error?.message}
+                    testID={NetworkSettingsSelectors.chainIdInput}
+                  />
+                )}
               />
 
-              <FormField
-                {...register('symbol', { required: t('required') })}
-                cleanable={Boolean(symbol)}
-                disabled={isSubmitting}
-                onClean={clearSymbol}
-                label={<T id="symbol" />}
-                placeholder="ETH"
-                errorCaption={errors.symbol?.message}
-                testID={NetworkSettingsSelectors.symbolInput}
+              <Controller
+                control={control}
+                name="symbol"
+                rules={{ required: t('required') }}
+                render={({ field: { onChange, onBlur, ref, value }, fieldState: { error } }) => (
+                  <FormField
+                    ref={ref}
+                    value={value}
+                    onChange={onChange}
+                    onBlur={onBlur}
+                    cleanable={Boolean(symbol)}
+                    disabled={isSubmitting}
+                    onClean={clearSymbol}
+                    label={<T id="symbol" />}
+                    placeholder="ETH"
+                    errorCaption={error?.message}
+                    testID={NetworkSettingsSelectors.symbolInput}
+                  />
+                )}
               />
             </div>
 

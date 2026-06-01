@@ -1,7 +1,7 @@
 import React, { ReactNode, useCallback, useMemo } from 'react';
 
 import clsx from 'clsx';
-import { Path, PathValue, UseFormReturn, useWatch } from 'react-hook-form';
+import { Controller, Path, PathValue, UseFormReturn, useWatch } from 'react-hook-form';
 
 import { FormField, IconBase } from 'app/atoms';
 import { TextButton } from 'app/atoms/TextButton';
@@ -50,10 +50,8 @@ export const UrlInput = <K extends string, T extends Record<K, string>>({
   allowHttp = false
 }: UrlInputProps<K, T>) => {
   const castName = name as unknown as Path<T>;
-  const { control, register, formState, setValue } = formReturn;
-  const { errors } = formState;
+  const { control, setValue } = formReturn;
   const url = useWatch({ control, name: castName });
-  const fieldError = errors[castName]?.message;
 
   const applyValueChangeEffects = useCallback(
     (newValue: string) => {
@@ -96,15 +94,11 @@ export const UrlInput = <K extends string, T extends Record<K, string>>({
     [applyValueChangeEffects]
   );
 
-  const errorCaption = useMemo(
-    () => (typeof fieldError === 'string' ? fieldError : submitError),
-    [fieldError, submitError]
-  );
-
   return (
-    <FormField
-      {...register(
-        castName,
+    <Controller
+      control={control}
+      name={castName}
+      rules={
         isEditable
           ? {
               required: required && t('required'),
@@ -114,31 +108,39 @@ export const UrlInput = <K extends string, T extends Record<K, string>>({
               onChange: handleChange
             }
           : undefined
-      )}
-      className={clsx(!isEditable && 'text-grey-1', 'resize-none')}
-      cleanable={Boolean(url) && (!textarea || isEditable)}
-      onClean={clearUrl}
-      additionalActionButtons={additionalActionButtons}
-      labelContainerClassName="w-full flex justify-between items-center"
-      label={
-        required ? (
-          label
-        ) : (
-          <>
-            {label}
-            <span className="text-font-description font-normal text-grey-2">
-              <T id="optionalComment" />
-            </span>
-          </>
-        )
       }
-      id={id}
-      placeholder={placeholder}
-      textarea={textarea}
-      rows={textarea ? 3 : undefined}
-      errorCaption={errorCaption}
-      disabled={!isEditable || disabled}
-      testID={testID}
+      render={({ field: { onChange, onBlur, ref, value }, fieldState: { error } }) => (
+        <FormField
+          ref={ref}
+          value={value as string}
+          className={clsx(!isEditable && 'text-grey-1', 'resize-none')}
+          cleanable={Boolean(value) && (!textarea || isEditable)}
+          onClean={clearUrl}
+          additionalActionButtons={additionalActionButtons}
+          labelContainerClassName="w-full flex justify-between items-center"
+          label={
+            required ? (
+              label
+            ) : (
+              <>
+                {label}
+                <span className="text-font-description font-normal text-grey-2">
+                  <T id="optionalComment" />
+                </span>
+              </>
+            )
+          }
+          id={id}
+          placeholder={placeholder}
+          textarea={textarea}
+          rows={textarea ? 3 : undefined}
+          errorCaption={typeof error?.message === 'string' ? error.message : submitError}
+          disabled={!isEditable || disabled}
+          testID={testID}
+          onChange={onChange}
+          onBlur={onBlur}
+        />
+      )}
     />
   );
 };

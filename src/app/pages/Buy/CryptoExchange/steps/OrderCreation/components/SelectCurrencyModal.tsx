@@ -18,7 +18,7 @@ import {
 import { StoredExolixCurrency } from 'app/store/crypto-exchange/state';
 import { SearchBarField } from 'app/templates/SearchField';
 import { t } from 'lib/i18n';
-import { isSearchStringApplicable, searchAndFilterItems } from 'lib/utils/search-items';
+import { isSearchStringApplicable, searchAndFilterByNameCodeNetwork } from 'lib/utils/search-items';
 import { useAccountAddressForEvm, useAccountAddressForTezos, useEnabledEvmChains } from 'temple/front';
 
 import { CurrencyIcon } from '../../../components/CurrencyIcon';
@@ -153,17 +153,8 @@ const Item = memo<ItemProps>(({ currency, selectCurrency }) => {
 });
 
 const searchAndFilterCurrencies = (currencies: StoredExolixCurrency[], searchValue: string) =>
-  searchAndFilterItems(
-    currencies,
-    searchValue.trim(),
-    [
-      { name: 'name', weight: 1 },
-      { name: 'code', weight: 1 },
-      { name: 'networkName', weight: 0.75 }
-    ],
-    ({ name, code, network }) => ({
-      name,
-      code,
-      networkName: network.fullName
-    })
-  );
+  searchAndFilterByNameCodeNetwork(currencies, searchValue, ({ name, code, network }) => ({
+    name,
+    code,
+    networkName: network.fullName
+  }));

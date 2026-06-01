@@ -1,4 +1,4 @@
-import { Activity, createContext, FC, Ref, useContext, useMemo, useRef } from 'react';
+import { Activity, createContext, FC, useContext, useRef } from 'react';
 
 import {
   useAccountTokensForListing,
@@ -14,24 +14,24 @@ import {
   useTokensListOptionsSelector
 } from 'app/store/assets-filter-options/selectors';
 import { useMainnetTokensScamlistSelector } from 'app/store/tezos/assets/selectors';
-import { usePartnersPromotionModule } from 'app/templates/partners-promotion';
 import { EvmTokenListItem, TezosTokenListItem } from 'app/templates/TokenListItem';
-import { useAdsConstantsModule } from 'lib/ads-constants';
-import { parseChainAssetSlug, toChainAssetSlug } from 'lib/assets/utils';
+import { parseChainAssetSlug } from 'lib/assets/utils';
 import { useMemoWithCompare } from 'lib/ui/hooks';
 import {
-  makeGetTokenElementIndexFunction,
-  makeGroupedTokenElementIndexFunction,
-  TokenListItemElement
+  getGroupedTokenElementIndex,
+  getTokenElementIndex,
+  TokenListItemElement,
+  useTokenWillBeRendered
 } from 'lib/ui/tokens-list';
 import { groupByToEntries } from 'lib/utils/group-by-to-entries';
 import { EvmChain, TezosChain, useAllEvmChains, useAllTezosChains } from 'temple/front';
 import { ChainGroupedSlugs } from 'temple/front/chains';
 import { TempleChainKind } from 'temple/types';
 
-import { getGroupedTokensViewWithPromo, getTokensViewWithPromo } from '../utils';
+import { toNotRemovedChainTokensSlugs, useRenderPromo } from '../utils';
 
 import { TokensTabBase, TokensTabBaseProps } from './tokens-tab-base';
+import { GroupedTokensViewWithPromo, TokenListItemFC, TokensViewWithPromo } from './tokens-views';
 
 interface Props {
   accountTezAddress: string;
@@ -88,17 +88,8 @@ const TabContentWithManageActive: FC = () => {
   const { enabledChainsSlugsSorted, enabledChainsSlugsSortedGrouped, tezTokens, evmTokens, tokensSortPredicate } =
     useAccountTokensForListing(accountTezAddress, accountEvmAddress, hideSmallBalance, groupByNetwork);
 
-  const tokensChainsSlugs = useMemo(
-    () =>
-      tezTokens
-        .filter(({ status }) => status !== 'removed')
-        .map(({ chainId, slug }) => toChainAssetSlug(TempleChainKind.Tezos, chainId, slug))
-        .concat(
-          evmTokens
-            .filter(({ status }) => status !== 'removed')
-            .map(({ chainId, slug }) => toChainAssetSlug(TempleChainKind.EVM, chainId, slug))
-        ),
-    [tezTokens, evmTokens]
+  const tokensChainsSlugs = toNotRemovedChainTokensSlugs(tezTokens, TempleChainKind.Tezos).concat(
+    toNotRemovedChainTokensSlugs(evmTokens, TempleChainKind.EVM)
   );
 
   const otherChainSlugsSorted = useMemoWithCompare(
@@ -186,124 +177,70 @@ const TabContentBaseBody: FC<TabContentBaseBodyProps> = ({
   const firstHeaderRef = useRef<HTMLDivElement>(null);
   const firstListItemRef = useRef<TokenListItemElement>(null);
   const mainnetTokensScamSlugsRecord = useMainnetTokensScamlistSelector();
-  const PartnersPromotionModule = usePartnersPromotionModule();
-  const AdsConstantsModule = useAdsConstantsModule();
 
-  const { tokensView, getElementIndex } = useMemo(() => {
-    const promoJsx =
-      manageActive || !PartnersPromotionModule || !AdsConstantsModule ? null : (
-        <PartnersPromotionModule.PartnersPromotion
-          id="promo-token-item"
-          key="promo-token-item"
-          variant={PartnersPromotionModule.PartnersPromotionVariant.Text}
-          pageName={AdsConstantsModule.HOME_PAGE_NAME}
-          ref={promoRef}
+  const tokenWillBeRendered = useTokenWillBeRendered();
+
+  const TokenListItem: TokenListItemFC = ({ slug: chainSlug, ref, index }) => {
+    const [chainKind, chainId, assetSlug] = parseChainAssetSlug(chainSlug);
+
+    const commonProps = { index, ref, assetSlug, manageActive };
+
+    if (chainKind === TempleChainKind.Tezos) {
+      return (
+        <TezosTokenListItem
+          network={tezosChains[chainId]!}
+          publicKeyHash={accountTezAddress}
+          scam={mainnetTokensScamSlugsRecord[assetSlug]}
+          {...commonProps}
         />
       );
-
-    if (groupedSlugs) {
-      return {
-        tokensView: getGroupedTokensViewWithPromo({
-          groupedSlugs,
-          evmChains,
-          tezosChains,
-          promoJsx,
-          firstListItemRef,
-          firstHeaderRef,
-          buildTokensJsxArray: (slugs, firstListItemRef, indexShift) =>
-            buildTokensJsxArray(
-              mainnetTokensScamSlugsRecord,
-              slugs,
-              tezosChains,
-              evmChains,
-              accountTezAddress,
-              accountEvmAddress,
-              manageActive,
-              firstListItemRef,
-              indexShift
-            )
-        }),
-        getElementIndex: makeGroupedTokenElementIndexFunction(promoRef, firstListItemRef, firstHeaderRef, groupedSlugs)
-      };
     }
 
-    const tokensJsx = buildTokensJsxArray(
-      mainnetTokensScamSlugsRecord,
-      displayedSlugs,
-      tezosChains,
-      evmChains,
-      accountTezAddress,
-      accountEvmAddress,
-      manageActive,
-      firstListItemRef
+    return (
+      <EvmTokenListItem showTags network={evmChains[chainId]!} publicKeyHash={accountEvmAddress} {...commonProps} />
     );
+  };
 
-    if (manageActive) {
-      return {
-        tokensView: tokensJsx,
-        getElementIndex: makeGetTokenElementIndexFunction(promoRef, firstListItemRef, tokensJsx.length)
-      };
-    }
+  const getElementIndex = (y: number) =>
+    groupedSlugs
+      ? getGroupedTokenElementIndex(
+          promoRef.current,
+          firstListItemRef.current,
+          firstHeaderRef.current,
+          groupedSlugs,
+          tokenWillBeRendered,
+          y
+        )
+      : getTokenElementIndex(promoRef.current, firstListItemRef.current, displayedSlugs, tokenWillBeRendered, y);
 
-    return {
-      tokensView: getTokensViewWithPromo(tokensJsx, promoJsx),
-      getElementIndex: makeGetTokenElementIndexFunction(promoRef, firstListItemRef, tokensJsx.length)
-    };
-  }, [groupedSlugs, displayedSlugs, evmChains, tezosChains, manageActive, accountEvmAddress, accountTezAddress]);
+  const Promo = useRenderPromo(manageActive, promoRef);
 
   return (
     <TokensTabBase
       accountId={accountId}
       tokensCount={displayedSlugs.length}
       getElementIndex={getElementIndex}
-      {...restProps}
       manageActive={manageActive}
+      {...restProps}
     >
-      {tokensView}
+      {groupedSlugs ? (
+        <GroupedTokensViewWithPromo
+          groupedSlugs={groupedSlugs}
+          evmChains={evmChains}
+          tezosChains={tezosChains}
+          Promo={Promo}
+          firstListItemRef={firstListItemRef}
+          firstHeaderRef={firstHeaderRef}
+          TokenListItem={TokenListItem}
+        />
+      ) : (
+        <TokensViewWithPromo
+          displayedSlugs={displayedSlugs}
+          Promo={Promo}
+          firstListItemRef={firstListItemRef}
+          TokenListItem={TokenListItem}
+        />
+      )}
     </TokensTabBase>
   );
 };
-
-function buildTokensJsxArray(
-  scamSlugs: Record<string, boolean>,
-  chainSlugs: string[],
-  tezosChains: StringRecord<TezosChain>,
-  evmChains: StringRecord<EvmChain>,
-  accountTezAddress: string,
-  accountEvmAddress: HexString,
-  manageActive: boolean,
-  firstListItemRef: Ref<TokenListItemElement>,
-  indexShift = 0
-) {
-  return chainSlugs.map((chainSlug, i) => {
-    const [chainKind, chainId, assetSlug] = parseChainAssetSlug(chainSlug);
-
-    if (chainKind === TempleChainKind.Tezos) {
-      return (
-        <TezosTokenListItem
-          network={tezosChains[chainId]!}
-          index={i + indexShift}
-          key={chainSlug}
-          publicKeyHash={accountTezAddress}
-          scam={scamSlugs[assetSlug]}
-          assetSlug={assetSlug}
-          manageActive={manageActive}
-          ref={i === 0 ? firstListItemRef : null}
-        />
-      );
-    }
-
-    return (
-      <EvmTokenListItem
-        showTags
-        key={chainSlug}
-        network={evmChains[chainId]!}
-        index={i + indexShift}
-        assetSlug={assetSlug}
-        publicKeyHash={accountEvmAddress}
-        manageActive={manageActive}
-        ref={i === 0 ? firstListItemRef : null}
-      />
-    );
-  });
-}

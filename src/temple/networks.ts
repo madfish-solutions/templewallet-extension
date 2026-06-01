@@ -75,6 +75,7 @@ export const TEZOS_FALLBACK_RPC_URLS: Record<string, string[]> = {
     'https://rpc.tzkt.io/shadownet',
     'https://shadownet.tezos.ecadinfra.com'
   ],
+  [TempleTezosChainId.TezosX]: ['https://michelson.previewnet.tezosx.nomadic-labs.com'],
   [TempleTezosChainId.Tezlink]: ['https://rpc.shadownet.tezlink.nomadic-labs.com', 'https://rpc.tzkt.io/tezlink']
 };
 
@@ -126,6 +127,16 @@ export const TEZOS_DEFAULT_NETWORKS: NonEmptyArray<StoredTezosNetwork> = [
     rpcBaseURL: TEZOS_FALLBACK_RPC_URLS[TempleTezosChainId.Tezlink][DEFAULT_RPC_INDEX],
     description: 'Tezlink testnet',
     color: '#5B7523',
+    default: true
+  },
+  {
+    id: 'tezosx',
+    name: 'Tezos X Previewnet',
+    chain: TempleChainKind.Tezos,
+    chainId: TempleTezosChainId.TezosX,
+    rpcBaseURL: TEZOS_FALLBACK_RPC_URLS[TempleTezosChainId.TezosX][DEFAULT_RPC_INDEX],
+    description: 'Tezos X Previewnet',
+    color: '#4bf6d4',
     default: true
   }
 ];
