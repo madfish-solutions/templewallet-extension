@@ -1,4 +1,4 @@
-import { jitsuClient } from '@jitsu/sdk-js';
+import { jitsuClient } from '@jitsu/sdk-js/packages/javascript-sdk';
 
 import { EnvVars } from 'lib/env';
 import { TempleSendPageEventRequest, TempleSendTrackEventRequest } from 'lib/temple/analytics-types';
