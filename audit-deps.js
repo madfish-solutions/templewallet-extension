@@ -1,6 +1,6 @@
-const { exec } = require("child_process");
+const { exec } = require('child_process');
 
-exec("yarn npm audit --recursive --severity high", (error, stdout) => {
+exec('yarn npm audit --recursive --severity high', (error, stdout) => {
   if (error) {
     console.log(stdout);
 
