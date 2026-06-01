@@ -3,6 +3,7 @@ import { FC } from 'react';
 import clsx from 'clsx';
 
 import { AddCustomTokenButton } from 'app/atoms/AddCustomTokenButton';
+import { DisplayAllTokensButton } from 'app/atoms/display-all-tokens-button';
 import { EmptyState } from 'app/atoms/EmptyState';
 import { TID } from 'lib/i18n';
 
@@ -11,8 +12,11 @@ interface Props {
   forSearch: boolean;
   manageActive: boolean;
   shouldShowHiddenTokensHint?: boolean;
+  textI18n?: TID;
   stretchSpaceBeforeButton?: boolean;
+  action?: 'addCustomToken' | 'displayAllTokens';
   onAddCustomTokenClick: EmptyFn;
+  onDisplayAllTokensClick?: EmptyFn;
 }
 
 export const AssetsEmptySection: FC<Props> = ({
@@ -20,11 +24,16 @@ export const AssetsEmptySection: FC<Props> = ({
   forSearch,
   manageActive,
   shouldShowHiddenTokensHint = false,
+  textI18n: textI18nFromProps,
   stretchSpaceBeforeButton = true,
+  action = 'addCustomToken',
+  onDisplayAllTokensClick,
   onAddCustomTokenClick
 }) => {
   let textI18n: TID;
-  if (forSearch) {
+  if (textI18nFromProps) {
+    textI18n = textI18nFromProps;
+  } else if (forSearch) {
     textI18n = 'noAssetsFound';
   } else if (!forCollectibles && shouldShowHiddenTokensHint) {
     textI18n = 'hiddenTokensHint';
@@ -43,7 +52,12 @@ export const AssetsEmptySection: FC<Props> = ({
     >
       {shouldShowAddButtonAtTop && <AddCustomTokenButton {...commonProps} className="w-full mt-4" />}
       <EmptyState forSearch={forSearch} textI18n={textI18n} stretch={stretchSpaceBeforeButton} />
-      {!shouldShowAddButtonAtTop && <AddCustomTokenButton {...commonProps} className="mb-8" />}
+      {!shouldShowAddButtonAtTop &&
+        (action === 'displayAllTokens' ? (
+          <DisplayAllTokensButton onClick={onDisplayAllTokensClick} />
+        ) : (
+          <AddCustomTokenButton {...commonProps} className="mb-8" />
+        ))}
     </div>
   );
 };
