@@ -3,8 +3,8 @@ import { FC, useContext, useState } from 'react';
 import { FadeTransition } from 'app/a11y/FadeTransition';
 import { SyncSpinner } from 'app/atoms';
 import { AddCustomTokenButton } from 'app/atoms/AddCustomTokenButton';
+import { DisplayAllTokensButton } from 'app/atoms/display-all-tokens-button';
 import { PageLoader } from 'app/atoms/Loader';
-import { StyledButton } from 'app/atoms/StyledButton';
 import { TotalEquity } from 'app/atoms/TotalEquity';
 import { ContentContainer } from 'app/layouts/containers';
 import BuyWithFiatImageSrc from 'app/misc/deposit/buy-with-fiat.png';
@@ -137,9 +137,7 @@ const ContentBodyBaseInternal: FC<
             <p className="text-font-description-bold text-grey-1 text-center">
               <T id="shortHiddenTokensHint" />
             </p>
-            <StyledButton color="secondary-low" size="S" onClick={showSmallBalancesTokens}>
-              <T id="displayAllTokens" />
-            </StyledButton>
+            <DisplayAllTokensButton onClick={showSmallBalancesTokens} />
           </div>
         )}
         {tokensCount === 0 && !shouldShowHiddenTokensHint && <DepositOptions />}

@@ -12,10 +12,12 @@ import {
 import { useTokensSelectedChainsState } from 'app/hooks/use-assets-view-state';
 import BuyWithFiatImageSrc from 'app/misc/deposit/buy-with-fiat.png';
 import CrossChainSwapImageSrc from 'app/misc/deposit/cross-chain-swap.png';
+import { dispatch } from 'app/store';
 import {
   useIsAccountInitializedLoadingSelector,
   useIsAccountInitializedSelector
 } from 'app/store/accounts-initialization/selectors';
+import { setTokensHideSmallBalanceFilterOption } from 'app/store/assets-filter-options/actions';
 import { useTestnetModeEnabledSelector } from 'app/store/settings/selectors';
 import { AddTokenModal } from 'app/templates/add-token-modal';
 import { AssetsEmptySection } from 'app/templates/assets-empty-section';
@@ -64,18 +66,6 @@ export const TokensPageBase: FC<TokensPageBaseProps> = ({
   const PartnersPromotionModule = usePartnersPromotionModule();
   const [customTokenModalOpened, openCustomTokenModal, closeCustomTokenModal] = useBooleanState(false);
 
-  const LocalEmptyAssetsSection = () => (
-    <AssetsEmptySection
-      forCollectibles={false}
-      forSearch={isInSearchMode}
-      // Intentionally forcing the same look for both variants
-      manageActive={false}
-      shouldShowHiddenTokensHint={shouldShowHiddenTokensHint}
-      stretchSpaceBeforeButton={false}
-      onAddCustomTokenClick={openCustomTokenModal}
-    />
-  );
-
   let content: ReactChildren;
   if (accountIsInitialized === false && !isSyncingInitializedState && !isTestnet && !manageActive) {
     content = (
@@ -85,13 +75,17 @@ export const TokensPageBase: FC<TokensPageBaseProps> = ({
             {children}
           </VisibilityTrackingInfiniteScroll>
         ) : (
-          <LocalEmptyAssetsSection />
+          <LocalEmptyAssetsSection
+            isInSearchMode={isInSearchMode}
+            shouldShowHiddenTokensHint={shouldShowHiddenTokensHint}
+            openCustomTokenModal={openCustomTokenModal}
+          />
         )}
       </UninitializedAccountContent>
     );
   } else if (
     (accountIsInitialized !== true && isSyncingInitializedState && !isTestnet) ||
-    (tokensCount === 0 && isSyncing && !isInSearchMode)
+    (tokensCount === 0 && isSyncing && !isInSearchMode && !shouldShowHiddenTokensHint)
   ) {
     content = (
       <>
@@ -102,18 +96,22 @@ export const TokensPageBase: FC<TokensPageBaseProps> = ({
         />
 
         {AdsConstantsModule && PartnersPromotionModule && (
-          <div className="-mb-7">
-            <PartnersPromotionModule.PartnersPromotion
-              variant={PartnersPromotionModule.PartnersPromotionVariant.Text}
-              id="tokens-loading-view"
-              pageName={AdsConstantsModule.TOKENS_PAGE_NAME}
-            />
-          </div>
+          <PartnersPromotionModule.PartnersPromotion
+            variant={PartnersPromotionModule.PartnersPromotionVariant.Text}
+            id="tokens-loading-view"
+            pageName={AdsConstantsModule.TOKENS_PAGE_NAME}
+          />
         )}
       </>
     );
   } else if (tokensCount === 0) {
-    content = <LocalEmptyAssetsSection />;
+    content = (
+      <LocalEmptyAssetsSection
+        isInSearchMode={isInSearchMode}
+        shouldShowHiddenTokensHint={shouldShowHiddenTokensHint}
+        openCustomTokenModal={openCustomTokenModal}
+      />
+    );
   } else {
     content = (
       <>
@@ -148,6 +146,31 @@ export const TokensPageBase: FC<TokensPageBaseProps> = ({
     </>
   );
 };
+
+interface LocalEmptyAssetsSectionProps extends Pick<
+  TokensPageBaseProps,
+  'isInSearchMode' | 'shouldShowHiddenTokensHint'
+> {
+  openCustomTokenModal: EmptyFn;
+}
+
+const LocalEmptyAssetsSection = ({
+  isInSearchMode,
+  shouldShowHiddenTokensHint = false,
+  openCustomTokenModal
+}: LocalEmptyAssetsSectionProps) => (
+  <AssetsEmptySection
+    forCollectibles={false}
+    forSearch={isInSearchMode || shouldShowHiddenTokensHint}
+    // Intentionally forcing the same look for both variants
+    manageActive={false}
+    textI18n={shouldShowHiddenTokensHint ? 'shortHiddenTokensHint' : undefined}
+    stretchSpaceBeforeButton={false}
+    action={shouldShowHiddenTokensHint ? 'displayAllTokens' : 'addCustomToken'}
+    onAddCustomTokenClick={openCustomTokenModal}
+    onDisplayAllTokensClick={() => dispatch(setTokensHideSmallBalanceFilterOption(false))}
+  />
+);
 
 const UninitializedAccountContent: FC<PropsWithChildren> = ({ children }) => (
   <>
