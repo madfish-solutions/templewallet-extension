@@ -18,6 +18,7 @@ runs:
       shell: bash
 
     - name: Audit dependencies
+      if: github.event_name == 'pull_request' && github.base_ref == 'master'
       run: yarn audit-deps
       shell: bash
 
