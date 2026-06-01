@@ -3685,10 +3685,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@jitsu/sdk-js@madfish-solutions/jitsu-js#87c49de334f5747952f7beda573b95ceb5d86903":
-  version: 3.0.0
-  resolution: "@jitsu/sdk-js@https://github.com/madfish-solutions/jitsu-js.git#commit=87c49de334f5747952f7beda573b95ceb5d86903"
-  checksum: 10c0/1847e552edef3eae12abb88388a69909fb5506b6ae9fc46f256b37ee977f73988cdb7393a9bb7197fa4e7e6965aa1c4fc73144a8fd79a4e254926cc181e7dcb7
+"@jitsu/sdk-js@https://github.com/madfish-solutions/jitsu-js.git#workspace=@jitsu/sdk-js&commit=87c49de334f5747952f7beda573b95ceb5d86903":
+  version: 3.1.5
+  resolution: "@jitsu/sdk-js@https://github.com/madfish-solutions/jitsu-js.git#workspace=%40jitsu%2Fsdk-js&commit=87c49de334f5747952f7beda573b95ceb5d86903"
+  checksum: 10c0/f3f353cf80ddf936bc98b62cfcb3a2ec47242f58c558792a95a1e97f21dfdcec01e7416868890136835ed43e17b5e132be4d690289a6bd42cb00e3561f4657d8
   languageName: node
   linkType: hard
 
@@ -18024,7 +18024,7 @@ __metadata:
     "@fontsource/rubik": "npm:^5.0.20"
     "@google/model-viewer": "npm:3.5.0"
     "@hypelab/sdk-react": "npm:^1.0.3"
-    "@jitsu/sdk-js": "madfish-solutions/jitsu-js#87c49de334f5747952f7beda573b95ceb5d86903"
+    "@jitsu/sdk-js": "https://github.com/madfish-solutions/jitsu-js.git#workspace=@jitsu/sdk-js&commit=87c49de334f5747952f7beda573b95ceb5d86903"
     "@ledgerhq/errors": "npm:^6"
     "@ledgerhq/hw-app-eth": "npm:^6.42.8"
     "@ledgerhq/hw-transport": "npm:^6.30.6"

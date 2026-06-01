@@ -52,7 +52,7 @@
     "@fontsource/rubik": "^5.0.20",
     "@google/model-viewer": "3.5.0",
     "@hypelab/sdk-react": "^1.0.3",
-    "@jitsu/sdk-js": "madfish-solutions/jitsu-js#87c49de334f5747952f7beda573b95ceb5d86903",
+    "@jitsu/sdk-js": "https://github.com/madfish-solutions/jitsu-js.git#workspace=@jitsu/sdk-js&commit=87c49de334f5747952f7beda573b95ceb5d86903",
     "@ledgerhq/errors": "^6",
     "@ledgerhq/hw-app-eth": "^6.42.8",
     "@ledgerhq/hw-transport": "^6.30.6",
