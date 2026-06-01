@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 
-import { emptyFn } from '@rnw-community/shared';
+import { emptyFn, isDefined } from '@rnw-community/shared';
 import BigNumber from 'bignumber.js';
 import { useDispatch } from 'react-redux';
 
@@ -58,7 +58,7 @@ const useGetBalanceWithDecimals = <RawBalances, ChainId>(
 
       const metadata = getMetadata(chainId, slug);
 
-      return metadata?.decimals ? atomsToTokens(rawBalance, metadata.decimals) : undefined;
+      return isDefined(metadata?.decimals) ? atomsToTokens(rawBalance, metadata.decimals) : undefined;
     },
     [getBalance, getMetadata, rawBalancesRef]
   );

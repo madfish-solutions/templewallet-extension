@@ -13,7 +13,6 @@ import { getAccountAssetsStoreKey } from 'app/store/tezos/assets/utils';
 import { useAllAccountBalancesSelector, useBalancesAtomicRecordSelector } from 'app/store/tezos/balances/selectors';
 import { getKeyForBalancesRecord } from 'app/store/tezos/balances/utils';
 import type { AccountAsset } from 'lib/assets/types';
-import { useMemoWithCompare } from 'lib/ui/hooks';
 import { EMPTY_FROZEN_OBJ } from 'lib/utils';
 import { useEnabledEvmChains, useEnabledTezosChains } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
@@ -138,35 +137,3 @@ export const toEvmEnabledCollectiblesChainSlugs = (collectibles: AccountCollecti
   collectibles
     .filter(({ status }) => status === 'enabled')
     .map(({ slug, chainId }) => toChainAssetSlug(TempleChainKind.EVM, chainId, slug));
-
-export const useTezCollectiblesChainSlugs = (account: string) => {
-  const tezosCollectibles = useTezosAccountCollectibles(account);
-
-  const allSlugs = useMemoWithCompare(
-    () => tezosCollectibles.map(({ slug, chainId }) => toChainAssetSlug(TempleChainKind.Tezos, chainId, slug)),
-    [tezosCollectibles]
-  );
-
-  const enabledCollectiblesSlugs = useMemoWithCompare(
-    () => toTezEnabledCollectiblesChainSlugs(tezosCollectibles),
-    [tezosCollectibles]
-  );
-
-  return { allSlugs, enabledCollectiblesSlugs };
-};
-
-export const useEvmCollectiblesChainSlugs = (account: HexString) => {
-  const evmCollectibles = useEvmAccountCollectibles(account);
-
-  const allSlugs = useMemoWithCompare(
-    () => evmCollectibles.map(({ slug, chainId }) => toChainAssetSlug(TempleChainKind.EVM, chainId, slug)),
-    [evmCollectibles]
-  );
-
-  const enabledCollectiblesSlugs = useMemoWithCompare(
-    () => toEvmEnabledCollectiblesChainSlugs(evmCollectibles),
-    [evmCollectibles]
-  );
-
-  return { allSlugs, enabledCollectiblesSlugs };
-};

@@ -4,6 +4,7 @@ import memoizee from 'memoizee';
 
 import { BAKING_STAKE_SYNC_INTERVAL } from 'lib/fixed-times';
 import { useRetryableSWR } from 'lib/swr';
+import { ZERO } from 'lib/utils/numbers';
 import { TezosNetworkEssentials } from 'temple/networks';
 import { getTezosRpcClient } from 'temple/tezos';
 
@@ -19,6 +20,7 @@ export const useStakedAmount = (network: TezosNetworkEssentials, accountPkh: str
     () =>
       getTezosRpcClient(network)
         .getStakedBalance(accountPkh)
+        .then(res => (res.isFinite() ? res : ZERO))
         .catch(error => processIsStakingNotSupportedEndpointError(error, null)),
     { ...COMMON_SWR_OPTIONS, suspense }
   );

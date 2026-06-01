@@ -26,6 +26,7 @@ export function navigate(to: To, action?: HistoryAction.Push | HistoryAction.Rep
   changeState(action, state, url);
 }
 
+// ts-prune-ignore-next
 export function setNavigateSearchParams(
   searchParams: StringRecord,
   action: HistoryAction.Replace | HistoryAction.Push = HistoryAction.Replace

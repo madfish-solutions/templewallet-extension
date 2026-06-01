@@ -2,7 +2,7 @@ import { memo, useMemo, MouseEvent, useCallback, Ref } from 'react';
 
 import { useTezosAccountTokensForListing } from 'app/hooks/listing-logic/use-tezos-account-tokens-listing-logic';
 import { getSlugWithChainId } from 'app/hooks/listing-logic/utils';
-import { TezosTokenListItem } from 'app/templates/TokenListItem';
+import { TezosTokenListItem } from 'app/templates/tokens/token-list-item';
 import { searchTezosAssetsWithNoMeta } from 'lib/assets/search.utils';
 import { parseChainAssetSlug } from 'lib/assets/utils';
 import { useGetTokenOrGasMetadata } from 'lib/metadata';

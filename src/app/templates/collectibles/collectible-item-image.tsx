@@ -8,6 +8,7 @@ import { useCollectibleIsAdultSelector } from 'app/store/tezos/collectibles/sele
 import { buildCollectibleImagesStack, buildEvmCollectibleIconSources, buildHttpLinkFromUri } from 'lib/images-uri';
 import type { TokenMetadata } from 'lib/metadata';
 import { EvmCollectibleMetadata } from 'lib/metadata/types';
+import { useMemoWithCompare } from 'lib/ui/hooks';
 import { ImageStacked } from 'lib/ui/ImageStacked';
 import { EMPTY_FROZEN_ARRAY } from 'lib/utils';
 
@@ -43,13 +44,16 @@ export const TezosCollectibleItemImage: FC<TezosCollectibleItemImageProps> = ({
   const isAdultFlagLoading = areDetailsLoading && !isDefined(isAdultContent);
   const shouldShowBlur = isAdultContent && adultBlur;
 
-  let sources: string[] = EMPTY_FROZEN_ARRAY;
-  if (metadata) {
-    sources = buildCollectibleImagesStack(metadata);
+  const sources = useMemoWithCompare(() => {
+    if (!metadata) return EMPTY_FROZEN_ARRAY;
+
+    const sources = buildCollectibleImagesStack(metadata);
     if (extraSrc !== undefined) {
       sources.push(extraSrc);
     }
-  }
+
+    return sources;
+  }, [metadata, extraSrc]);
 
   const isAudioCollectible = Boolean(mime?.startsWith('audio'));
 
@@ -86,8 +90,11 @@ export const EvmCollectibleItemImage: FC<EvmCollectibleItemImageProps> = ({
   className,
   shouldUseBlurredBg = false
 }) => {
-  const sources = [buildHttpLinkFromUri(metadata?.image)].filter(isString);
-  const sourcesWithCompressedFallback = metadata ? buildEvmCollectibleIconSources(metadata) : EMPTY_FROZEN_ARRAY;
+  const sources = useMemoWithCompare(() => [buildHttpLinkFromUri(metadata?.image)].filter(isString), [metadata]);
+  const sourcesWithCompressedFallback = useMemoWithCompare(
+    () => (metadata ? buildEvmCollectibleIconSources(metadata) : EMPTY_FROZEN_ARRAY),
+    [metadata]
+  );
 
   return (
     <>
