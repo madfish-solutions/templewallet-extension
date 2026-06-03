@@ -4,6 +4,8 @@
 node_modules/
 /.pnp
 .pnp.js
+.pnp.*
+.yarn/
 
 # testing
 /coverage
@@ -46,8 +48,5 @@ DerivedData
 
 #e2e
 video-rep
-
-#private package config
-.npmrc
 
 .scannerwork
