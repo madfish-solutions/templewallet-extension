@@ -135,7 +135,7 @@ runs:
     - name: Authenticate with private NPM package
       shell: bash
       if: ${{ inputs.NPM_TOKEN }}
-      run: echo "//registry.npmjs.org/:_authToken=${{ inputs.NPM_TOKEN }}" > .npmrc
+      run: echo "NPM_TOKEN=${{ inputs.NPM_TOKEN }}" >> "$GITHUB_ENV"
     - name: Create .env file
       shell: bash
       run: |

@@ -22,7 +22,6 @@ import {
   DEVELOPMENT_ENV,
   PRODUCTION_ENV,
   TARGET_BROWSER,
-  MANIFEST_VERSION,
   BACKGROUND_IS_WORKER,
   REACT_DEVTOOLS,
   RELOADER_PORTS,
@@ -261,8 +260,7 @@ const backgroundConfig = (() => {
       BACKGROUND_IS_WORKER &&
         new WebExtensionTargetPlugin({
           background: {
-            entry: 'background',
-            manifest: MANIFEST_VERSION
+            serviceWorkerEntry: 'background'
           }
         }),
 

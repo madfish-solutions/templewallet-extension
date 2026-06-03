@@ -2,6 +2,7 @@
   "name": "temple-wallet-extension-e2e",
   "version": "2.0.0",
   "private": true,
+  "packageManager": "yarn@4.15.0",
   "license": "MIT",
   "scripts": {
     "install": "yarn playwright install chromium",
