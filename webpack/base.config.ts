@@ -57,7 +57,7 @@ export const buildBaseConfig = (): WebPack.Configuration & Pick<WebPack.WebpackO
   },
 
   resolve: {
-    modules: [PATHS.NODE_MODULES, ...ADDITIONAL_MODULE_PATHS],
+    modules: ['node_modules', ...ADDITIONAL_MODULE_PATHS],
     extensions: MODULE_FILE_EXTENSIONS,
 
     /*
