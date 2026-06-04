@@ -244,9 +244,7 @@ function renderTempleDealsPopup(
 
     const descEl = el(
       'div',
-      showMoreExpanded
-        ? 'tw-popup-offer-desc'
-        : 'tw-popup-offer-desc tw-popup-offer-desc-clamped',
+      showMoreExpanded ? 'tw-popup-offer-desc' : 'tw-popup-offer-desc tw-popup-offer-desc-clamped',
       offerDescription
     );
     offerInfo.appendChild(descEl);
