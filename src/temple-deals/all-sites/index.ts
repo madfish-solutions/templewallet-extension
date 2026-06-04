@@ -86,7 +86,6 @@ async function injectTempleDealsPopup(offer: MerchantOffer, domain: string) {
     pageDomain: domain,
     activationSource: 'popup',
     showSettings: true,
-    showDescriptionToggle: true,
     onClose: () => host.remove()
   });
 }

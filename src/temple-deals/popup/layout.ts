@@ -35,7 +35,6 @@ interface TempleDealsPopupOptions {
   closeTitle?: string;
   activationSource: TempleDealsActivationSource;
   showSettings?: boolean;
-  showDescriptionToggle?: boolean;
   onSettingsChange?: () => void;
   onClose: () => void;
 }
@@ -73,7 +72,6 @@ function renderTempleDealsPopup(
     closeTitle = 'Close',
     activationSource,
     showSettings = true,
-    showDescriptionToggle = false,
     onSettingsChange,
     onClose
   }: TempleDealsPopupOptions
@@ -246,25 +244,33 @@ function renderTempleDealsPopup(
 
     const descEl = el(
       'div',
-      showDescriptionToggle && !showMoreExpanded
-        ? 'tw-popup-offer-desc tw-popup-offer-desc-clamped'
-        : 'tw-popup-offer-desc',
+      showMoreExpanded
+        ? 'tw-popup-offer-desc'
+        : 'tw-popup-offer-desc tw-popup-offer-desc-clamped',
       offerDescription
     );
     offerInfo.appendChild(descEl);
 
-    if (showDescriptionToggle) {
-      requestAnimationFrame(() => {
-        if (showMoreExpanded || descEl.scrollHeight > descEl.clientHeight) {
-          const toggle = el('button', 'tw-popup-show-more', msg(showMoreExpanded ? 'showLess' : 'showMore'));
-          toggle.addEventListener('click', () => {
-            showMoreExpanded = !showMoreExpanded;
-            render();
-          });
-          offerInfo.appendChild(toggle);
-        }
-      });
-    }
+    requestAnimationFrame(() => {
+      if (!descEl.isConnected) return;
+
+      const isOverflowing = descEl.scrollHeight > descEl.clientHeight;
+
+      if (showMoreExpanded || isOverflowing) {
+        const toggle = el(
+          'button',
+          'tw-popup-show-more',
+          msg(showMoreExpanded ? 'showLess' : 'showMore')
+        ) as HTMLButtonElement;
+
+        toggle.addEventListener('click', () => {
+          showMoreExpanded = !showMoreExpanded;
+          descEl.classList.toggle('tw-popup-offer-desc-clamped', !showMoreExpanded);
+          toggle.textContent = msg(showMoreExpanded ? 'showLess' : 'showMore');
+        });
+        offerInfo.appendChild(toggle);
+      }
+    });
 
     offerCard.appendChild(offerInfo);
 
