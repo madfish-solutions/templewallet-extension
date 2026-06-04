@@ -159,7 +159,7 @@ export interface MerchantOffer {
   merchantId: number | null;
   name: string;
   imageUri: string | null;
-  description: string;
+  description: string | null;
   domain: string;
   rate: Rate;
   trackingLink: string;
