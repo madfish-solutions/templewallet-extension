@@ -102,7 +102,7 @@ const ContentBodyBaseInternal: FC<
   if (accountIsInitialized === false && !isSyncingInitializedState && !isTestnet) {
     return (
       <ContentBodyBaseInternalWrapper className="pt-0!">
-        <TokensSection>
+        <TokensSection showTotalEquity={false}>
           <DepositOptions />
         </TokensSection>
 
@@ -130,7 +130,7 @@ const ContentBodyBaseInternal: FC<
 
   return (
     <ContentBodyBaseInternalWrapper>
-      <TokensSection>
+      <TokensSection showTotalEquity>
         {tokensCount > 0 && children}
         {tokensCount === 0 && shouldShowHiddenTokensHint && (
           <div className="flex flex-col items-center px-2 py-3 gap-3">
@@ -214,7 +214,7 @@ const NftsSection = ({
   );
 };
 
-const TokensSection = ({ children }: PropsWithChildren) => {
+const TokensSection = ({ children, showTotalEquity }: PropsWithChildren<{ showTotalEquity: boolean }>) => {
   const { onCryptoCardClick, account, filterChain } = useContext(ContentBodyBaseContext);
   return (
     <div className="flex flex-col relative mb-17 -mx-4">
@@ -226,15 +226,17 @@ const TokensSection = ({ children }: PropsWithChildren) => {
             <span className="text-font-description-bold">
               <T id="tokens" />
             </span>
-            <span className="text-font-num-bold-12 font-medium text-grey-1">
-              <TotalEquity
-                account={account}
-                currency="fiat"
-                tooltip={false}
-                filterChain={filterChain}
-                includeDeposits={false}
-              />
-            </span>
+            {showTotalEquity && (
+              <span className="text-font-num-bold-12 font-medium text-grey-1">
+                <TotalEquity
+                  account={account}
+                  currency="fiat"
+                  tooltip={false}
+                  filterChain={filterChain}
+                  includeDeposits={false}
+                />
+              </span>
+            )}
           </div>
         }
         linkTo="/tokens"
