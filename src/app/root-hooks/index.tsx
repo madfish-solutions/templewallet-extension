@@ -14,6 +14,8 @@ import { useReactivateAdsOnce } from 'app/hooks/use-reactivate-ads-once';
 import { useStorageAnalytics } from 'app/hooks/use-storage-analytics';
 import { useUserAnalyticsAndAdsSettings } from 'app/hooks/use-user-analytics-and-ads-settings.hook';
 import { useUserIdAccountPkhSync } from 'app/hooks/use-user-id-account-pkh-sync';
+import { useWebWidgetsMirrors } from 'app/hooks/use-web-widgets-mirrors';
+import { useWebWidgetsSync } from 'app/hooks/use-web-widgets-sync';
 import { useCrossChainToast } from 'app/pages/Send/cross-chain/hooks/use-cross-chain-toast';
 import { useFetchSupportedLifiChainIds, useLifiTokensMetadataSync } from 'app/pages/Swap/form/hooks';
 import { dispatch } from 'app/store';
@@ -91,6 +93,8 @@ const AppReadyRootHooks = memo(() => {
 
   useChainIDsCheck();
   useUserIdAccountPkhSync();
+  useWebWidgetsMirrors();
+  useWebWidgetsSync();
   useAccountsInitializedSync();
   useDisableInactiveNetworks();
   useEnableAutodisabledNetworks();

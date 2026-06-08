@@ -23,14 +23,14 @@ export const objktDetector: Detector = {
       if (!pointsAtObjkt(visibleText(anchor))) continue;
       const href = anchor.getAttribute('href');
       if (!href) continue;
-      refs.push({ sourceHref: href, postEl: post, statusId });
+      refs.push({ sourceHref: href, postEl: post, statusId, linkEl: anchor });
     }
 
     // Direct objkt links
     for (const anchor of post.querySelectorAll<HTMLAnchorElement>(DIRECT_OBJKT_LINK)) {
       const href = anchor.getAttribute('href');
       if (!href) continue;
-      refs.push({ sourceHref: href, postEl: post, statusId });
+      refs.push({ sourceHref: href, postEl: post, statusId, linkEl: anchor });
     }
 
     return refs;

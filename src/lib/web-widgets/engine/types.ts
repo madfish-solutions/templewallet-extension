@@ -8,6 +8,7 @@ export interface DetectedRef {
   sourceHref: string;
   postEl: HTMLElement;
   statusId?: string;
+  linkEl?: HTMLAnchorElement;
 }
 
 export interface TagData {

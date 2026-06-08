@@ -1,6 +1,10 @@
 import memoizee from 'memoizee';
 
-import { OBJKT_TOKEN_QUERY, type ObjktToken, type ObjktTokenQueryResponse } from './objkt-query';
+import { OBJKT_OWNED_QUERY, OBJKT_TOKEN_QUERY, type ObjktToken, type ObjktTokenQueryResponse } from './objkt-query';
+
+interface ObjktOwnedResponse {
+  data?: { token: Array<{ holders: Array<{ quantity: number | string }> }> };
+}
 
 const TTL_MS = 10 * 60 * 1000;
 
@@ -38,4 +42,28 @@ export const fetchObjktToken = memoizee(
     }
   },
   { promise: true, maxAge: TTL_MS, length: 2 }
+);
+
+export const fetchObjktOwnedCount = memoizee(
+  async (contract: string, tokenId: string, addressesKey: string): Promise<number> => {
+    const addresses = addressesKey ? addressesKey.split(',') : [];
+    if (addresses.length === 0) return 0;
+
+    try {
+      const response = await fetch(OBJKT_GRAPHQL_ENDPOINT, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ query: OBJKT_OWNED_QUERY, variables: { fa: contract, id: tokenId, addresses } })
+      });
+
+      if (!response.ok) return 0;
+
+      const json: ObjktOwnedResponse = await response.json();
+      const holders = json.data?.token[0]?.holders ?? [];
+      return holders.reduce((sum, holder) => sum + Number(holder.quantity), 0);
+    } catch {
+      return 0;
+    }
+  },
+  { promise: true, maxAge: TTL_MS, length: 3 }
 );

@@ -1,3 +1,4 @@
+import { AES } from 'crypto-js';
 import { pick } from 'lodash';
 import memoizee from 'memoizee';
 import browser, { Runtime } from 'webextension-polyfill';
@@ -7,7 +8,17 @@ import { getStoredAppInstallIdentity } from 'app/storage/app-install-id';
 import { importExtensionAdsReferralsModule } from 'lib/ads/import-extension-ads-module';
 import { importUpdateRulesStorageModule } from 'lib/ads/import-update-rules-storage';
 import { importAdsApiModule } from 'lib/apis/ads-api';
-import { ADS_VIEWER_DATA_STORAGE_KEY, ContentScriptType, REWARDS_ACCOUNT_DATA_STORAGE_KEY } from 'lib/constants';
+import {
+  ADS_VIEWER_DATA_STORAGE_KEY,
+  ANALYTICS_ENABLED_MIRROR,
+  ContentScriptType,
+  REWARDS_ACCOUNT_DATA_STORAGE_KEY,
+  SHOULD_SHOW_PROMOTION_MIRROR,
+  WEB_WIDGETS_LOCAL_AD_PERMIT,
+  WEB_WIDGETS_SNOOZE_DURATION_MS,
+  WEB_WIDGETS_SNOOZE_UNTIL,
+  WEB_WIDGETS_TOKEN_INSIGHT_ENABLED
+} from 'lib/constants';
 import { E2eMessageType } from 'lib/e2e/types';
 import { BACKGROUND_IS_WORKER, EnvVars, IS_FIREFOX, IS_MISES_BROWSER } from 'lib/env';
 import { fetchFromStorage } from 'lib/storage';
@@ -462,6 +473,98 @@ browser.runtime.onMessage.addListener(async (msg, sender) => {
         return await fetchThumbnailBlob(msg.url);
       }
 
+      case ContentScriptType.WidgetContext: {
+        // The 'MIRROR' keys are flat copies of redux flags written by 'useWebWidgetsMirrors'
+        const stored = await browser.storage.local.get([
+          WEB_WIDGETS_LOCAL_AD_PERMIT,
+          WEB_WIDGETS_SNOOZE_UNTIL,
+          SHOULD_SHOW_PROMOTION_MIRROR,
+          ANALYTICS_ENABLED_MIRROR
+        ]);
+
+        let tezFiatRate: number | null = null;
+        try {
+          const { fetchTezExchangeRate } = await import('lib/apis/temple/endpoints/get-exchange-rates');
+          tezFiatRate = await fetchTezExchangeRate();
+        } catch {
+          tezFiatRate = null;
+        }
+
+        const snoozeUntil = stored[WEB_WIDGETS_SNOOZE_UNTIL];
+        const shouldShowPromotion = Boolean(stored[SHOULD_SHOW_PROMOTION_MIRROR]);
+
+        let evmAddress: string | undefined;
+        if (shouldShowPromotion) {
+          evmAddress = (await getRewardsAccountCredentials()).evmAddress;
+        }
+        const origin = sender.tab?.url ? new URL(sender.tab.url).origin : 'https://x.com';
+
+        return {
+          permitGranted: Boolean(stored[WEB_WIDGETS_LOCAL_AD_PERMIT]),
+          snoozeUntil: typeof snoozeUntil === 'number' ? snoozeUntil : null,
+          shouldShowPromotion,
+          analyticsEnabled: Boolean(stored[ANALYTICS_ENABLED_MIRROR]),
+          tezFiatRate,
+          adUrl: buildWidgetAdUrl(origin, evmAddress)
+        };
+      }
+
+      case ContentScriptType.WidgetOwnedCount: {
+        const { fetchObjktOwnedCount } = await importFetchObjktTokenModule();
+        const { accounts } = await Actions.getFrontState();
+        const addresses = accounts
+          .map(account => (account as StoredHDAccount).tezosAddress)
+          .filter((address): address is string => Boolean(address));
+        return await fetchObjktOwnedCount(msg.contract, msg.tokenId, addresses.join(','));
+      }
+
+      case ContentScriptType.WebWidgetAdImpression: {
+        await withNonImportErrorForwarding(async () => {
+          const { postAdImpression, postAnonymousAdImpression } = await importAdsApiModule();
+          const urlDomain = sender.tab?.url ? new URL(sender.tab.url).hostname : 'x.com';
+          // Consent gate: with promo off, report, 'Unverified' rather than the user's real PKH.
+          const promoStored = await browser.storage.local.get(SHOULD_SHOW_PROMOTION_MIRROR);
+
+          if (!promoStored[SHOULD_SHOW_PROMOTION_MIRROR]) {
+            await postAdImpression({ tezosAddress: 'Unverified', evmAddress: 'Unverified' }, msg.provider, {
+              urlDomain
+            });
+            return;
+          }
+
+          const rewardsAddresses = await getRewardsAccountCredentials();
+          if (rewardsAddresses.evmAddress) {
+            await postAdImpression(rewardsAddresses, msg.provider, { urlDomain });
+          } else {
+            const identity = await getStoredAppInstallIdentity();
+            if (!identity) throw new Error('App identity not found');
+            await postAnonymousAdImpression(identity.publicKeyHash, msg.provider, { urlDomain });
+          }
+        });
+        break;
+      }
+
+      case ContentScriptType.WebWidgetTrackEvent: {
+        const analyticsStored = await browser.storage.local.get(ANALYTICS_ENABLED_MIRROR);
+        if (!analyticsStored[ANALYTICS_ENABLED_MIRROR]) break;
+        await Analytics.client.track(msg.event, msg.properties);
+        break;
+      }
+
+      case ContentScriptType.WebWidgetSnooze: {
+        await browser.storage.local.set({ [WEB_WIDGETS_SNOOZE_UNTIL]: Date.now() + WEB_WIDGETS_SNOOZE_DURATION_MS });
+        break;
+      }
+
+      case ContentScriptType.WebWidgetDisable: {
+        await browser.storage.local.set({
+          [WEB_WIDGETS_TOKEN_INSIGHT_ENABLED]: false,
+          [WEB_WIDGETS_SNOOZE_UNTIL]: 0,
+          [WEB_WIDGETS_LOCAL_AD_PERMIT]: false
+        });
+        break;
+      }
+
       case ContentScriptType.FetchTempleReferralLinkItems: {
         let browser = 'chrome';
         if (IS_FIREFOX) browser = 'firefox';
@@ -531,6 +634,22 @@ async function getRewardsAccountCredentials() {
   }
 
   return await getAdsViewerCredentials();
+}
+
+function buildWidgetAdUrl(origin: string, evmAddress?: string): string | null {
+  if (!EnvVars.HYPELAB_ADS_WINDOW_URL || !EnvVars.HYPELAB_EXTERNAL_PROPERTY_SLUG) return null;
+  if (!EnvVars.HYPELAB_EXTERNAL_NATIVE_WIDGET_PLACEMENT_SLUG) return null;
+
+  const url = new URL(EnvVars.HYPELAB_ADS_WINDOW_URL);
+  url.searchParams.set('ps', EnvVars.HYPELAB_EXTERNAL_PROPERTY_SLUG);
+  url.searchParams.set('ap', 'hypelab');
+  url.searchParams.set('p', EnvVars.HYPELAB_EXTERNAL_NATIVE_WIDGET_PLACEMENT_SLUG);
+  url.searchParams.set('w', '444');
+  url.searchParams.set('h', '78');
+  url.searchParams.set('id', crypto.randomUUID());
+  if (evmAddress) url.searchParams.set('ea', evmAddress);
+  url.searchParams.set('o', AES.encrypt(origin, EnvVars.TEMPLE_ADS_ORIGIN_PASSPHRASE).toString());
+  return url.toString();
 }
 
 const DEFAULT_MEMO_CONFIG = {

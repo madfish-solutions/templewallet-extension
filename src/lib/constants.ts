@@ -16,7 +16,13 @@ export enum ContentScriptType {
   FetchTempleReferralLinkItems = 'FetchTempleReferralLinkItems',
   ResolveTco = 'ResolveTco',
   FetchObjktToken = 'FetchObjktToken',
-  FetchThumbnailBlob = 'FetchThumbnailBlob'
+  FetchThumbnailBlob = 'FetchThumbnailBlob',
+  WidgetContext = 'WidgetContext',
+  WidgetOwnedCount = 'WidgetOwnedCount',
+  WebWidgetAdImpression = 'WebWidgetAdImpression',
+  WebWidgetTrackEvent = 'WebWidgetTrackEvent',
+  WebWidgetSnooze = 'WebWidgetSnooze',
+  WebWidgetDisable = 'WebWidgetDisable'
 }
 
 export const APP_TITLE = 'Temple Wallet';
@@ -26,6 +32,16 @@ export const WEBSITES_ANALYTICS_ENABLED = 'WEBSITES_ANALYTICS_ENABLED';
 export const REPLACE_REFERRALS_ENABLED = 'REPLACE_REFERRALS_ENABLED';
 
 export const WEB_WIDGETS_TOKEN_INSIGHT_ENABLED = 'WEB_WIDGETS_TOKEN_INSIGHT_ENABLED';
+
+export const WEB_WIDGETS_LOCAL_AD_PERMIT = 'WEB_WIDGETS_LOCAL_AD_PERMIT';
+
+export const WEB_WIDGETS_SNOOZE_UNTIL = 'WEB_WIDGETS_SNOOZE_UNTIL';
+
+export const WEB_WIDGETS_SNOOZE_DURATION_MS = 24 * 60 * 60 * 1000;
+
+export const SHOULD_SHOW_PROMOTION_MIRROR = 'SHOULD_SHOW_PROMOTION_MIRROR';
+
+export const ANALYTICS_ENABLED_MIRROR = 'ANALYTICS_ENABLED_MIRROR';
 
 /** @deprecated */
 export const ACCOUNT_PKH_STORAGE_KEY = 'account_publickeyhash';

@@ -1,5 +1,6 @@
 import { debounce } from 'lodash';
 
+import { mountLinkHover } from '../pill/mount-link-hover';
 import { mountPill, type MountedPill } from '../pill/mount-pill';
 import type { DetectorRegistry } from '../registry';
 import { TWEET } from '../x-dom/selectors';
@@ -130,14 +131,17 @@ export class ScanEngine {
     if (!tagData) return;
     if (!this.trackedPosts.has(ref.postEl)) return;
 
-    const mounted = mountPill(ref, tagData);
-    if (!mounted) return;
+    const mounts: MountedPill[] = [];
+    const pill = mountPill(ref, tagData);
+    if (pill) mounts.push(pill);
+    if (ref.linkEl) mounts.push(mountLinkHover(ref.linkEl, tagData));
+    if (mounts.length === 0) return;
 
     const existing = this.rootsByPost.get(ref.postEl);
     if (existing) {
-      existing.push(mounted);
+      existing.push(...mounts);
     } else {
-      this.rootsByPost.set(ref.postEl, [mounted]);
+      this.rootsByPost.set(ref.postEl, mounts);
     }
   }
 
