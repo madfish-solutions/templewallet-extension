@@ -5,12 +5,12 @@ import {
   WEB_WIDGETS_SNOOZE_UNTIL,
   WEB_WIDGETS_TOKEN_INSIGHT_ENABLED
 } from 'lib/constants';
+import { onStorageChanged } from 'lib/storage';
 
 import { objktDetector } from './detectors/objkt/objkt-detector';
 import { ScanEngine } from './engine/scan-engine';
 import { loadWidgetFonts } from './load-fonts';
 import { DetectorRegistry } from './registry';
-import { onStorageKey } from './storage';
 
 const toEnabled = (value: unknown): boolean => value === undefined || Boolean(value);
 
@@ -55,12 +55,12 @@ export function bootstrap(): void {
     syncEngine();
   });
 
-  onStorageKey(WEB_WIDGETS_TOKEN_INSIGHT_ENABLED, value => {
+  onStorageChanged(WEB_WIDGETS_TOKEN_INSIGHT_ENABLED, value => {
     tokenInsightEnabled = toEnabled(value);
     syncEngine();
   });
 
-  onStorageKey(WEB_WIDGETS_SNOOZE_UNTIL, value => {
+  onStorageChanged(WEB_WIDGETS_SNOOZE_UNTIL, value => {
     snoozeUntil = toSnoozeUntil(value);
     syncEngine();
   });

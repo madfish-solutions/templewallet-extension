@@ -27,7 +27,7 @@ interface NftCardProps {
 const parseTokenRef = (href?: string): { contract: string; tokenId: string } => {
   if (!href) return { contract: '', tokenId: '' };
   const parts = href.split('/');
-  return { contract: parts[parts.length - 2] ?? '', tokenId: parts[parts.length - 1] ?? '' };
+  return { contract: parts.at(-2) ?? '', tokenId: parts.at(-1) ?? '' };
 };
 
 const isObjktToken = (raw: unknown): raw is ObjktToken =>

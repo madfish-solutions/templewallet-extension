@@ -1,8 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-import browser, { Storage } from 'webextension-polyfill';
-
-import { fetchFromStorage, putToStorage } from 'lib/storage';
+import { fetchFromStorage, onStorageChanged, putToStorage } from 'lib/storage';
 import { useInitialSuspenseSWR } from 'lib/swr';
 import { useDidUpdate } from 'lib/ui/hooks';
 
@@ -103,22 +101,4 @@ function getInitialStoragePromise<T>(key: string) {
     initialStoragePromises.set(key, fetchFromStorage<T>(key));
   }
   return initialStoragePromises.get(key) as Promise<T | null>;
-}
-
-function onStorageChanged<T = any>(key: string, callback: (newValue: T) => void) {
-  const handleChanged = (changes: Storage.StorageAreaOnChangedChangesType) => {
-    if (key in changes) {
-      // onChanged reports newValue === undefined when a key is removed.
-      // Our fetcher uses null to mean “missing”, so normalize to null here.
-      // This keeps SWR (with suspense) from re-suspending on storage.clear(),
-      // preventing transient unmount/remount (e.g., modal flicker) during resets.
-      callback((changes[key] as Storage.StorageChange).newValue ?? null);
-    }
-  };
-
-  // (!) Do not sub to all storages at once (via `browser.storage.onChanged`).
-  // See: https://bugzilla.mozilla.org/show_bug.cgi?id=1838448#c14
-  browser.storage.local.onChanged.addListener(handleChanged);
-
-  return () => browser.storage.local.onChanged.removeListener(handleChanged);
 }
