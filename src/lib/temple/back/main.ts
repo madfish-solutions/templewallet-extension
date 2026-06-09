@@ -10,14 +10,14 @@ import { importUpdateRulesStorageModule } from 'lib/ads/import-update-rules-stor
 import { importAdsApiModule } from 'lib/apis/ads-api';
 import {
   ADS_VIEWER_DATA_STORAGE_KEY,
-  ANALYTICS_ENABLED_MIRROR,
   ContentScriptType,
   REWARDS_ACCOUNT_DATA_STORAGE_KEY,
-  SHOULD_SHOW_PROMOTION_MIRROR,
+  USAGE_ANALYTICS_ENABLED,
   WEB_WIDGETS_LOCAL_AD_PERMIT,
   WEB_WIDGETS_SNOOZE_DURATION_MS,
   WEB_WIDGETS_SNOOZE_UNTIL,
-  WEB_WIDGETS_TOKEN_INSIGHT_ENABLED
+  WEB_WIDGETS_TOKEN_INSIGHT_ENABLED,
+  WEBSITES_ADS_ENABLED
 } from 'lib/constants';
 import { E2eMessageType } from 'lib/e2e/types';
 import { BACKGROUND_IS_WORKER, EnvVars, IS_FIREFOX, IS_MISES_BROWSER } from 'lib/env';
@@ -474,12 +474,11 @@ browser.runtime.onMessage.addListener(async (msg, sender) => {
       }
 
       case ContentScriptType.WidgetContext: {
-        // The 'MIRROR' keys are flat copies of redux flags written by 'useWebWidgetsMirrors'
         const stored = await browser.storage.local.get([
           WEB_WIDGETS_LOCAL_AD_PERMIT,
           WEB_WIDGETS_SNOOZE_UNTIL,
-          SHOULD_SHOW_PROMOTION_MIRROR,
-          ANALYTICS_ENABLED_MIRROR
+          WEBSITES_ADS_ENABLED,
+          USAGE_ANALYTICS_ENABLED
         ]);
 
         let tezFiatRate: number | null = null;
@@ -491,7 +490,7 @@ browser.runtime.onMessage.addListener(async (msg, sender) => {
         }
 
         const snoozeUntil = stored[WEB_WIDGETS_SNOOZE_UNTIL];
-        const shouldShowPromotion = Boolean(stored[SHOULD_SHOW_PROMOTION_MIRROR]);
+        const shouldShowPromotion = Boolean(stored[WEBSITES_ADS_ENABLED]);
 
         let evmAddress: string | undefined;
         if (shouldShowPromotion) {
@@ -503,7 +502,7 @@ browser.runtime.onMessage.addListener(async (msg, sender) => {
           permitGranted: Boolean(stored[WEB_WIDGETS_LOCAL_AD_PERMIT]),
           snoozeUntil: typeof snoozeUntil === 'number' ? snoozeUntil : null,
           shouldShowPromotion,
-          analyticsEnabled: Boolean(stored[ANALYTICS_ENABLED_MIRROR]),
+          analyticsEnabled: Boolean(stored[USAGE_ANALYTICS_ENABLED]),
           tezFiatRate,
           adUrl: buildWidgetAdUrl(origin, evmAddress)
         };
@@ -523,9 +522,9 @@ browser.runtime.onMessage.addListener(async (msg, sender) => {
           const { postAdImpression, postAnonymousAdImpression } = await importAdsApiModule();
           const urlDomain = sender.tab?.url ? new URL(sender.tab.url).hostname : 'x.com';
           // Consent gate: with promo off, report, 'Unverified' rather than the user's real PKH.
-          const promoStored = await browser.storage.local.get(SHOULD_SHOW_PROMOTION_MIRROR);
+          const promoStored = await browser.storage.local.get(WEBSITES_ADS_ENABLED);
 
-          if (!promoStored[SHOULD_SHOW_PROMOTION_MIRROR]) {
+          if (!promoStored[WEBSITES_ADS_ENABLED]) {
             await postAdImpression({ tezosAddress: 'Unverified', evmAddress: 'Unverified' }, msg.provider, {
               urlDomain
             });
@@ -545,8 +544,8 @@ browser.runtime.onMessage.addListener(async (msg, sender) => {
       }
 
       case ContentScriptType.WebWidgetTrackEvent: {
-        const analyticsStored = await browser.storage.local.get(ANALYTICS_ENABLED_MIRROR);
-        if (!analyticsStored[ANALYTICS_ENABLED_MIRROR]) break;
+        const analyticsStored = await browser.storage.local.get(USAGE_ANALYTICS_ENABLED);
+        if (!analyticsStored[USAGE_ANALYTICS_ENABLED]) break;
         await Analytics.client.track(msg.event, msg.properties);
         break;
       }

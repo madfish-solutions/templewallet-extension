@@ -6,7 +6,7 @@ interface CardAdProps {
   adUrl: string | null;
 }
 
-const READY_MESSAGE_TYPES = ['ready', 'resize', 'adRenderStart', 'impression', 'error'];
+const READY_MESSAGE_TYPES = ['ready', 'resize', 'impression', 'error'];
 
 const getMessageType = (data: unknown): string | undefined => {
   let value: unknown = data;

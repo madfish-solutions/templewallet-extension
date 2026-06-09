@@ -17,9 +17,6 @@ export const useWebWidgetsSettings = () => {
   const setEnabled = (toChecked: boolean, event?: ChangeEvent<HTMLInputElement>) => {
     event?.preventDefault();
 
-    // Storage holds the canonical flag read by the content script/worker; the dispatch keeps
-    // the toggle UI in sync synchronously. Toggling also clears the snooze and local ad consent
-    // so re-enabling starts fresh (re-shows the welcome/agreement).
     dispatch(setWebWidgetsTokenInsightEnabledAction(toChecked));
     browser.storage.local.set({
       [WEB_WIDGETS_TOKEN_INSIGHT_ENABLED]: toChecked,
