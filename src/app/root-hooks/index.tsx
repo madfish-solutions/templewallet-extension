@@ -3,8 +3,10 @@ import React, { memo, useEffect } from 'react';
 import { useAccountsInitializedSync } from 'app/hooks/use-accounts-initialized-sync';
 import { useAdsImpressionsLinking } from 'app/hooks/use-ads-impressions-linking';
 import { useAssetsMigrations } from 'app/hooks/use-assets-migrations';
+import { useCancelConfirmDialogOnLock } from 'app/hooks/use-cancel-confirm-dialog-on-lock';
 import { useCollectiblesDetailsLoading } from 'app/hooks/use-collectibles-details-loading';
 import { useConversionVerification } from 'app/hooks/use-conversion-verification';
+import { useDealsSync } from 'app/hooks/use-deals-sync';
 import { useTokensApyLoading } from 'app/hooks/use-load-tokens-apy.hook';
 import { useLongRefreshLoading } from 'app/hooks/use-long-refresh-loading.hook';
 import { useMetadataRefresh } from 'app/hooks/use-metadata-refresh';
@@ -57,8 +59,10 @@ export const ConfirmWindowRootHooks = memo(() => {
 });
 
 const ConstantAppRootHooks = memo(() => {
+  useCancelConfirmDialogOnLock();
   useConversionVerification();
   useGlobalErrorTracking();
+  useDealsSync();
 
   return null;
 });

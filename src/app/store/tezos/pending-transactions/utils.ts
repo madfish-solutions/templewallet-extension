@@ -21,3 +21,13 @@ export const usePendingTezosTransactionsHashes = (accountPkh: string, chainId: s
     [hashesByAccountChainId, transactions, accountPkh, chainId]
   );
 };
+
+export const useHasPendingTezosDelegation = (accountPkh: string, chainId: string) => {
+  const { hashesByAccountChainId, transactions } = useSelector(
+    ({ pendingTezosTransactions }) => pendingTezosTransactions
+  );
+
+  return (hashesByAccountChainId[toAccountChainIdSlug(accountPkh, chainId)] ?? []).some(
+    hash => transactions[hash]?.status === 'PENDING' && transactions[hash]?.kind === 'delegation'
+  );
+};

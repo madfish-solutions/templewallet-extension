@@ -7,7 +7,6 @@ export const mockSettingsState: SettingsState = {
   userId: '0',
   onRampAsset: null,
   pendingReactivateAds: false,
-  adsImpressionsLinked: false,
   referralLinksEnabled: IS_MISES_BROWSER,
   isTestnetModeEnabled: false,
   favoriteTokens: []
