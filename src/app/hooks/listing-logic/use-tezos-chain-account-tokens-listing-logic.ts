@@ -31,9 +31,7 @@ export const useTezosChainAccountTokensForListing = (publicKeyHash: string, chai
   }, [tokens]);
 
   const enabledTokenSlugsSorted = useMemoWithCompare(() => {
-    const nonLeadingTokensSlugsFiltered = filterSmallBalances
-      ? tokensSlugs.filter(isBigBalance)
-      : tokensSlugs;
+    const nonLeadingTokensSlugsFiltered = filterSmallBalances ? tokensSlugs.filter(isBigBalance) : tokensSlugs;
 
     return Array.from(new Set(nonLeadingTokensSlugsFiltered)).sort(tokensSortPredicate);
   }, [filterSmallBalances, isBigBalance, tokensSlugs, tokensSortPredicate]);
