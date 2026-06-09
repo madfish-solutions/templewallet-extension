@@ -643,6 +643,7 @@ function buildWidgetAdUrl(origin: string, evmAddress?: string): string | null {
   url.searchParams.set('ps', EnvVars.HYPELAB_EXTERNAL_PROPERTY_SLUG);
   url.searchParams.set('ap', 'hypelab');
   url.searchParams.set('p', EnvVars.HYPELAB_EXTERNAL_NATIVE_WIDGET_PLACEMENT_SLUG);
+  url.searchParams.set('at', 'native');
   url.searchParams.set('w', '444');
   url.searchParams.set('h', '78');
   url.searchParams.set('id', crypto.randomUUID());
