@@ -45,7 +45,7 @@ export const objktDetector: Detector = {
     const parsed = parseObjktUrl(objktUrl);
     if (!parsed) return null;
 
-    const token = await messaging.fetchObjktToken(parsed.contract, parsed.tokenId);
+    const token = await messaging.fetchObjktToken(parsed.fa, parsed.tokenId);
     if (!token) return null;
 
     const tagData = mapTokenToTagData(token, parsed);

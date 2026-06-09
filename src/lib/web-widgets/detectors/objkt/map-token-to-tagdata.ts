@@ -4,16 +4,16 @@ import type { ObjktToken } from 'lib/temple/back/web-widgets/objkt-query';
 import type { TagData } from '../../engine/types';
 
 interface ObjktTokenIdentity {
-  contract: string;
+  fa: string;
   tokenId: string;
 }
 
-export const mapTokenToTagData = (
-  token: ObjktToken | null,
-  { contract, tokenId }: ObjktTokenIdentity
-): TagData | null => {
+export const mapTokenToTagData = (token: ObjktToken | null, { fa, tokenId }: ObjktTokenIdentity): TagData | null => {
   if (!token) return null;
   if (token.flag && token.flag.toLowerCase() !== 'none') return null;
+
+  // token.fa.contract is the canonical KT1 address, fa may be a collection alias
+  const contract = token.fa?.contract ?? fa;
 
   const stack = buildCollectibleImagesStack({
     name: token.name ?? '',

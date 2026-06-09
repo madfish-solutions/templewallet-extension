@@ -1,5 +1,7 @@
 import memoizee from 'memoizee';
 
+import { delay } from 'lib/utils';
+
 import { OBJKT_OWNED_QUERY, OBJKT_TOKEN_QUERY, type ObjktToken, type ObjktTokenQueryResponse } from './objkt-query';
 
 interface ObjktOwnedResponse {
@@ -12,16 +14,14 @@ const OBJKT_GRAPHQL_ENDPOINT = 'https://data.objkt.com/v3/graphql/';
 const MAX_RETRIES = 2;
 const BACKOFF_MS = 1000;
 
-const delay = (ms: number) => new Promise<void>(resolve => setTimeout(resolve, ms));
-
 export const fetchObjktToken = memoizee(
-  async (contract: string, tokenId: string): Promise<ObjktToken | null> => {
+  async (fa: string, tokenId: string): Promise<ObjktToken | null> => {
     try {
       for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
         const response = await fetch(OBJKT_GRAPHQL_ENDPOINT, {
           method: 'POST',
           headers: { 'content-type': 'application/json' },
-          body: JSON.stringify({ query: OBJKT_TOKEN_QUERY, variables: { fa: contract, id: tokenId } })
+          body: JSON.stringify({ query: OBJKT_TOKEN_QUERY, variables: { fa, id: tokenId } })
         });
 
         if (response.status === 429) {

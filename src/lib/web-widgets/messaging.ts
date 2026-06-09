@@ -8,10 +8,10 @@ export const resolveTco = (tcoUrl: string): Promise<string | null> =>
     tcoUrl
   });
 
-export const fetchObjktToken = (contract: string, tokenId: string): Promise<ObjktToken | null> =>
+export const fetchObjktToken = (fa: string, tokenId: string): Promise<ObjktToken | null> =>
   browser.runtime.sendMessage({
     type: ContentScriptType.FetchObjktToken,
-    contract,
+    fa,
     tokenId
   });
 

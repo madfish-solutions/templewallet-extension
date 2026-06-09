@@ -1,4 +1,4 @@
-export const parseObjktUrl = (url: string): { contract: string; tokenId: string } | null => {
+export const parseObjktUrl = (url: string): { fa: string; tokenId: string } | null => {
   let parsed: URL;
   try {
     parsed = new URL(url);
@@ -12,11 +12,13 @@ export const parseObjktUrl = (url: string): { contract: string; tokenId: string 
   const segments = parsed.pathname.split('/').filter(Boolean);
   if (segments.length < 3) return null;
 
-  const [kind, contract, tokenId] = segments;
+  const [kind, fa, tokenId] = segments;
   if (kind !== 'tokens' && kind !== 'asset') return null;
 
-  if (!/^KT1[1-9A-HJ-NP-Za-km-z]{33}$/.test(contract)) return null;
+  const isContract = /^KT1[1-9A-HJ-NP-Za-km-z]{33}$/.test(fa);
+  const isAlias = /^[a-z0-9_-]+$/i.test(fa);
+  if (!isContract && !isAlias) return null;
   if (!/^\d+$/.test(tokenId)) return null;
 
-  return { contract, tokenId };
+  return { fa, tokenId };
 };
