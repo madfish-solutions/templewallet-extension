@@ -6,4 +6,5 @@ export const importAdsApiModule = () => {
   return import('lib/apis/ads-api/ads-api');
 };
 
+export * from './endpoints/temple-deals-balance';
 export * from './types';

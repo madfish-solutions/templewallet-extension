@@ -13,6 +13,7 @@ import { PASSWORD_PATTERN, PasswordValidation, formatMnemonic, passwordValidatio
 import { setIsSidebarByDefault } from 'app/env';
 import { useFirefoxDataConsent } from 'app/pages/Welcome/data-collection-agreement/use-firefox-data-consent.hook';
 import { dispatch } from 'app/store';
+import { setDealsEnabledAction } from 'app/store/deals/actions';
 import { togglePartnersPromotionAction } from 'app/store/partners-promotion/actions';
 import { setIsAnalyticsEnabledAction, setReferralLinksEnabledAction } from 'app/store/settings/actions';
 import { toastError } from 'app/toaster';
@@ -26,10 +27,12 @@ import {
   SHOULD_DISABLE_NOT_ACTIVE_NETWORKS_STORAGE_KEY,
   SHOULD_OPEN_LETS_EXCHANGE_MODAL_STORAGE_KEY,
   SHOULD_PROMOTE_ROOTSTOCK_STORAGE_KEY,
+  SHOULD_SHOW_WELCOME_REWARDS_MODAL_STORAGE_KEY,
   SHOULD_SHOW_NEW_DAPPS_MODAL_STORAGE_KEY,
   SIDE_VIEW_WAS_FORCED_STORAGE_KEY,
   TERMS_OF_USE_URL,
-  WEBSITES_ANALYTICS_ENABLED
+  USAGE_ANALYTICS_ENABLED,
+  WEBSITES_ADS_ENABLED
 } from 'lib/constants';
 import { DISABLE_ADS, IS_SIDE_PANEL_AVAILABLE } from 'lib/env';
 import { T, TID, t } from 'lib/i18n';
@@ -136,12 +139,15 @@ export const CreatePasswordForm = memo<CreatePasswordFormProps>(
 
           dispatch(togglePartnersPromotionAction(adsViewEnabled));
           dispatch(setIsAnalyticsEnabledAction(analyticsEnabled));
+          dispatch(setDealsEnabledAction(adsViewEnabled));
           dispatch(setReferralLinksEnabledAction(adsViewEnabled));
 
           // registerWallet function clears async storages
           await putManyToStorage({
             [REPLACE_REFERRALS_ENABLED]: adsViewEnabled,
-            [WEBSITES_ANALYTICS_ENABLED]: adsViewEnabled,
+            [WEBSITES_ADS_ENABLED]: adsViewEnabled,
+            [USAGE_ANALYTICS_ENABLED]: analyticsEnabled,
+            [SHOULD_SHOW_WELCOME_REWARDS_MODAL_STORAGE_KEY]: adsViewEnabled,
             [SHOULD_OPEN_LETS_EXCHANGE_MODAL_STORAGE_KEY]: false,
             [SHOULD_PROMOTE_ROOTSTOCK_STORAGE_KEY]: false,
             [SHOULD_SHOW_NEW_DAPPS_MODAL_STORAGE_KEY]: false,
@@ -149,12 +155,9 @@ export const CreatePasswordForm = memo<CreatePasswordFormProps>(
             [KOLO_FORCE_LOGOUT_ON_NEXT_OPEN_STORAGE_KEY]: true
           });
 
-          if (adsViewEnabled && analyticsEnabled) {
-            trackEvent('AnalyticsAndAdsEnabled', AnalyticsEventCategory.General, { accountPkh }, true);
-          } else {
-            trackEvent('AnalyticsEnabled', AnalyticsEventCategory.General, { accountPkh }, analyticsEnabled);
-            trackEvent('AdsEnabled', AnalyticsEventCategory.General, { accountPkh }, adsViewEnabled);
-          }
+          trackEvent('AnalyticsEnabled', AnalyticsEventCategory.General, { accountPkh }, analyticsEnabled);
+          trackEvent('AdsEnabled', AnalyticsEventCategory.General, { accountPkh }, adsViewEnabled);
+          trackEvent('DealsEnabled', AnalyticsEventCategory.General, { accountPkh }, adsViewEnabled);
 
           if (IS_SIDE_PANEL_AVAILABLE) {
             await setIsSidebarByDefault(true);
@@ -162,7 +165,9 @@ export const CreatePasswordForm = memo<CreatePasswordFormProps>(
           }
 
           if (mnemonicToImport) {
-            setInitToast(t(backupPassword ? 'yourWalletIsReady' : 'importSuccessful'));
+            if (!adsViewEnabled) {
+              setInitToast(t(backupPassword ? 'yourWalletIsReady' : 'importSuccessful'));
+            }
             navigate('/loading');
           } else if (!googleAuthToken) {
             await putToStorage(SHOULD_BACKUP_MNEMONIC_STORAGE_KEY, true);

@@ -64,17 +64,19 @@ export const TKEY_TOKEN_METADATA: TokenMetadata = {
   standard: TezosTokenStandardsEnum.Fa2
 };
 
+export const USDT_TOKEN_METADATA: TokenMetadata = {
+  id: '0',
+  address: 'KT1XnTn74bUtxHfDtBmm2bGZAQfhPbvKWR8o',
+  name: 'Tether USD',
+  symbol: 'USDt',
+  decimals: 6,
+  thumbnailUri: 'ipfs://QmRymVGWEudMfLrbjaEiXxngCRTDgWCsscjQMwizy4ZJjX',
+  standard: TezosTokenStandardsEnum.Fa2
+};
+
 const PREDEFINED_MAINNET_TOKENS_METADATA: TokenMetadata[] = [
   TKEY_TOKEN_METADATA,
-  {
-    id: '0',
-    address: 'KT1XnTn74bUtxHfDtBmm2bGZAQfhPbvKWR8o',
-    name: 'Tether USD',
-    symbol: 'USDt',
-    decimals: 6,
-    thumbnailUri: 'ipfs://QmRymVGWEudMfLrbjaEiXxngCRTDgWCsscjQMwizy4ZJjX',
-    standard: TezosTokenStandardsEnum.Fa2
-  },
+  USDT_TOKEN_METADATA,
   {
     id: '0',
     address: 'KT1K9gCRgaLRFKTErYt1wVxA3Frb9FjasjTV',

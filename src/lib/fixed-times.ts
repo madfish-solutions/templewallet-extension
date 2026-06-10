@@ -26,5 +26,7 @@ export const LIFI_SUPPORTED_CHAIN_IDS_INTERVAL = LONG_INTERVAL * 12;
 
 export const REFERRERS_COUNTER_SYNC_INTERVAL = LONG_INTERVAL;
 
+export const DEALS_PENDING_BALANCE_SYNC_INTERVAL = LONG_INTERVAL;
+
 // Disk cache may be used for this request if we set the refresh interval to LONG_INTERVAL
 export const ENABLE_INTERNAL_HYPELAB_ADS_SYNC_INTERVAL = LONG_INTERVAL + 1000;

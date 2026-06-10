@@ -1,9 +1,9 @@
 import { useEffect, useRef } from 'react';
 
 import { useShouldShowPartnersPromoSelector } from 'app/store/partners-promotion/selectors';
-import { useReferralLinksEnabledSelector } from 'app/store/settings/selectors';
+import { useAnalyticsEnabledSelector, useReferralLinksEnabledSelector } from 'app/store/settings/selectors';
 import { useAnalytics } from 'lib/analytics';
-import { REPLACE_REFERRALS_ENABLED, WEBSITES_ANALYTICS_ENABLED } from 'lib/constants';
+import { REPLACE_REFERRALS_ENABLED, USAGE_ANALYTICS_ENABLED, WEBSITES_ADS_ENABLED } from 'lib/constants';
 import { AnalyticsEventCategory } from 'lib/temple/analytics-types';
 import { usePassiveStorage } from 'lib/temple/front/storage';
 
@@ -12,16 +12,19 @@ import { useRewardsAddresses } from './use-rewards-addresses';
 export const useUserAnalyticsAndAdsSettings = () => {
   const { trackEvent } = useAnalytics();
   const isAdsEnabled = useShouldShowPartnersPromoSelector();
+  const isAnalyticsEnabled = useAnalyticsEnabledSelector();
   const isReferralLinksEnabled = useReferralLinksEnabledSelector();
 
-  const [, setIsWebsitesAnalyticsEnabled] = usePassiveStorage(WEBSITES_ANALYTICS_ENABLED);
+  const [, setWebsitesAdsEnabled] = usePassiveStorage(WEBSITES_ADS_ENABLED);
+  const [, setAnalyticsEnabled] = usePassiveStorage(USAGE_ANALYTICS_ENABLED);
   const [, setIsReplaceReferralsEnabled] = usePassiveStorage(REPLACE_REFERRALS_ENABLED);
 
   const prevAdsEnabledRef = useRef(isAdsEnabled);
   const { tezosAddress: accountPkh } = useRewardsAddresses();
 
   useEffect(() => {
-    setIsWebsitesAnalyticsEnabled(isAdsEnabled);
+    setWebsitesAdsEnabled(isAdsEnabled);
+    setAnalyticsEnabled(isAnalyticsEnabled);
     setIsReplaceReferralsEnabled(isReferralLinksEnabled);
 
     // It happens when the wallet is not ready although `registerWallet` promise has been resolved
@@ -36,8 +39,10 @@ export const useUserAnalyticsAndAdsSettings = () => {
     prevAdsEnabledRef.current = isAdsEnabled;
   }, [
     isAdsEnabled,
+    isAnalyticsEnabled,
     isReferralLinksEnabled,
-    setIsWebsitesAnalyticsEnabled,
+    setWebsitesAdsEnabled,
+    setAnalyticsEnabled,
     setIsReplaceReferralsEnabled,
     trackEvent,
     accountPkh

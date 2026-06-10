@@ -98,7 +98,7 @@ export const ReferralsCard = memo(() => {
 
       <div className="flex items-center justify-between gap-2 bg-white px-3 py-2">
         <div className="flex items-center gap-1">
-          <span className="text-font-description text-grey-1">{t('inviteAccount')}</span>
+          <span className="text-font-description text-grey-1">{t('rewardsAccount')}</span>
           <IconBase ref={inviteAccountInfoRef} size={16} Icon={InfoIcon} className="text-grey-2" />
         </div>
         <div className="flex items-center gap-1">
