@@ -1,5 +1,5 @@
 export enum AdvancedFeaturesSelectors {
   referralLinksCheckbox = 'Advanced Features/Referral Links Checkbox',
   partnersPromotion = 'Advanced Features/Partners Promotion Checkbox',
-  tokenInsightCheckbox = 'Advanced Features/Token Insight Checkbox'
+  tokenInsightCheckbox = 'Advanced Features/Preview NFT Checkbox'
 }

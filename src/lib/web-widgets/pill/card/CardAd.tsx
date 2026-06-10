@@ -6,7 +6,8 @@ interface CardAdProps {
   adUrl: string | null;
 }
 
-const READY_MESSAGE_TYPES = ['ready', 'resize', 'impression', 'error'];
+const SUCCESS_MESSAGE_TYPES = ['ready', 'resize', 'impression'];
+const FAIL_TIMEOUT_MS = 6000;
 
 const getMessageType = (data: unknown): string | undefined => {
   let value: unknown = data;
@@ -27,16 +28,25 @@ export const CardAd = ({ adUrl }: CardAdProps) => {
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const impressionFiredRef = useRef(false);
   const [adReady, setAdReady] = useState(false);
+  const [adFailed, setAdFailed] = useState(false);
 
   useEffect(() => {
-    const fallback = setTimeout(() => setAdReady(true), 6000);
+    const failTimer = setTimeout(() => setAdFailed(true), FAIL_TIMEOUT_MS);
 
     const onMessage = (event: MessageEvent) => {
       if (event.source !== iframeRef.current?.contentWindow) return;
       const type = getMessageType(event.data);
       if (!type) return;
 
-      if (READY_MESSAGE_TYPES.includes(type)) setAdReady(true);
+      if (SUCCESS_MESSAGE_TYPES.includes(type)) {
+        clearTimeout(failTimer);
+        setAdReady(true);
+      }
+
+      if (type === 'error') {
+        clearTimeout(failTimer);
+        setAdFailed(true);
+      }
 
       if (type === 'impression' && !impressionFiredRef.current) {
         impressionFiredRef.current = true;
@@ -47,12 +57,12 @@ export const CardAd = ({ adUrl }: CardAdProps) => {
     window.addEventListener('message', onMessage);
 
     return () => {
-      clearTimeout(fallback);
+      clearTimeout(failTimer);
       window.removeEventListener('message', onMessage);
     };
   }, []);
 
-  if (!adUrl) return null;
+  if (!adUrl || adFailed) return null;
 
   return (
     <div className="tw-card__ad">
