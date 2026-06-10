@@ -41,13 +41,11 @@ export const ListView: FC<ListViewProps> = ({
         />
 
         {AdsConstantsModule && PartnersPromotionModule && (
-          <div className="-mb-7">
-            <PartnersPromotionModule.PartnersPromotion
-              variant={PartnersPromotionModule.PartnersPromotionVariant.Text}
-              id="nfts-loading-view"
-              pageName={AdsConstantsModule.NFTS_PAGE_NAME}
-            />
-          </div>
+          <PartnersPromotionModule.PartnersPromotion
+            variant={PartnersPromotionModule.PartnersPromotionVariant.Text}
+            id="nfts-loading-view"
+            pageName={AdsConstantsModule.NFTS_PAGE_NAME}
+          />
         )}
       </>
     );
@@ -73,7 +71,7 @@ export const ListView: FC<ListViewProps> = ({
   }
 
   return (
-    <ContentContainer withShadow={false} padding={!isEmpty}>
+    <ContentContainer withShadow={false} padding={!isEmpty} className={isEmpty ? 'mx-4 mb-8' : undefined}>
       {content}
     </ContentContainer>
   );
