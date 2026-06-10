@@ -1,20 +1,10 @@
-import axios from 'axios';
-
-import { BROWSER_IDENTIFIER_HEADER } from 'lib/browser';
-import { APP_VERSION, EnvVars } from 'lib/env';
+import { APP_VERSION } from 'lib/env';
 import { RewardsAddresses, HDAccountRewardsAddresses, NoAccountRewardsAddresses } from 'temple/types';
 
 import { withAxiosDataExtract } from '../utils';
 
+import { axiosClient } from './client';
 import { RpStatsResponse } from './types';
-
-const axiosClient = axios.create({
-  baseURL: EnvVars.TEMPLE_ADS_API_URL,
-  adapter: 'fetch',
-  headers: {
-    'x-temple-browser': BROWSER_IDENTIFIER_HEADER
-  }
-});
 
 interface ImpressionDetails {
   /** For external */
@@ -78,16 +68,32 @@ export async function postReferralClick(
   });
 }
 
+/** Post a referral click identified by Jitsu userId (for TakeAds merchant offers) */
+export async function postReferralClickByUserId(
+  userId: string,
+  { urlDomain, pageDomain, provider }: ReferralClickDetails
+) {
+  await axiosClient.post('/takeads/referrals/click', {
+    provider,
+    userId,
+    urlDomain,
+    pageDomain,
+    appVersion: APP_VERSION
+  });
+}
+
 export async function postLinkAdsImpressions(
   { tezosAddress, evmAddress }: RewardsAddresses,
   installId: string,
-  signature: string
+  signature: string,
+  userId?: string
 ) {
   await axiosClient.post('/link-impressions', {
     accountPkh: tezosAddress,
     evmPkh: evmAddress,
     installId,
     signature,
+    userId,
     appVersion: APP_VERSION
   });
 }
@@ -112,13 +118,7 @@ export interface TempleReferralLinkItem {
 }
 
 export const fetchReferralsRules = withAxiosDataExtract(() =>
-  axiosClient.get<ReferralsRulesResponse>('/takeads/referrals/rules')
-);
-
-export const fetchReferralsAffiliateLinks = withAxiosDataExtract((links: string[]) =>
-  axiosClient.post<TekeadsAffiliateResponse>('/takeads/referrals/affiliate-links', links).catch(err => {
-    throw err;
-  })
+  axiosClient.get<ReferralsRulesResponse>('/referrals/rules')
 );
 
 export const fetchTempleReferralLinkItems = withAxiosDataExtract((browser: string) =>
@@ -155,12 +155,38 @@ export const fetchInternalBlacklistedHypelabCampaignsSlugs = withAxiosDataExtrac
   axiosClient.get<string[]>(`/ads-rules/${APP_VERSION}/hypelab-campaigns-blacklist-internal`)
 );
 
-interface TekeadsAffiliateResponse {
-  data: AffiliateLink[];
+export interface MerchantOffer {
+  merchantId: number | null;
+  name: string;
+  imageUri: string | null;
+  description: string | null;
+  domain: string;
+  rate: Rate;
+  trackingLink: string;
 }
 
-interface AffiliateLink {
-  iri: string;
+type Rate =
+  | {
+      type: 'cpc';
+      value: string;
+      currency: 'USDT';
+    }
+  | {
+      type: 'cpa';
+      value: string;
+      currency: '%';
+      tier: string;
+    };
+
+export const fetchMerchantOffers = withAxiosDataExtract((domains: string[]) =>
+  axiosClient.post<MerchantOffer[]>('/takeads/merchant-offers', domains)
+);
+
+interface ActivateMerchantOfferResponse {
   trackingLink: string;
   imageUrl: string | null;
 }
+
+export const activateMerchantOffer = withAxiosDataExtract((url: string, userId?: string) =>
+  axiosClient.post<ActivateMerchantOfferResponse>('/takeads/merchant-offer/activate', { url, userId })
+);

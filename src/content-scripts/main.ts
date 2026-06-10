@@ -15,7 +15,7 @@ import {
   SWITCH_CHAIN_MSG_TYPE,
   TEMPLE_SET_DEFAULT_PROVIDER_MSG_TYPE,
   TEMPLE_SWITCH_PROVIDER_EVENT,
-  WEBSITES_ANALYTICS_ENABLED
+  WEBSITES_ADS_ENABLED
 } from 'lib/constants';
 import { serealizeError } from 'lib/intercom/helpers';
 import { EvmDefaultWallet, TempleMessageType, TempleNotification, TempleResponse } from 'lib/temple/types';
@@ -42,8 +42,8 @@ type BeaconPageMessage = BeaconMessage | { message: BeaconMessage; sender: { id:
 
 // Prevents the script from running in an Iframe
 if (window.frameElement === null) {
-  browser.storage.local.get(WEBSITES_ANALYTICS_ENABLED).then(storage => {
-    if (storage[WEBSITES_ANALYTICS_ENABLED]) {
+  browser.storage.local.get(WEBSITES_ADS_ENABLED).then(storage => {
+    if (storage[WEBSITES_ADS_ENABLED]) {
       let oldHref = '';
 
       const trackUrlChange = () => {

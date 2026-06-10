@@ -42,6 +42,15 @@ const LazyCryptoExchange = React.lazy(() =>
   import('./pages/Buy/CryptoExchange').then(m => ({ default: m.CryptoExchange }))
 );
 const LazyRewardsPage = React.lazy(() => import('./pages/Rewards').then(m => ({ default: m.RewardsPage })));
+const LazyRewardsDealsActivate = React.lazy(() =>
+  import('./pages/Rewards/Deals/Activate').then(m => ({ default: m.RewardsDealsActivate }))
+);
+const LazyRewardsDealsHowItWorks = React.lazy(() =>
+  import('./pages/Rewards/Deals/HowItWorks').then(m => ({ default: m.RewardsDealsHowItWorks }))
+);
+const LazyRewardsPromoActivate = React.lazy(() =>
+  import('./pages/Rewards/Promo/Activate').then(m => ({ default: m.RewardsPromoActivate }))
+);
 const LazyImportWallet = React.lazy(() => import('./pages/ImportWallet').then(m => ({ default: m.ImportWallet })));
 
 interface RouteContext {
@@ -142,6 +151,9 @@ const ROUTE_MAP = Woozie.createMap<RouteContext>([
   ['/notifications', onlyReady(() => <Notifications />)],
   ['/dapps', onlyReady(() => <Dapps />)],
   ['/account/:id', onlyReady(({ id }) => lazily(<LazyAccountSettings id={id!} />))],
+  ['/rewards/deals/activate', onlyReady(() => lazily(<LazyRewardsDealsActivate />))],
+  ['/rewards/deals/how-it-works', onlyReady(() => lazily(<LazyRewardsDealsHowItWorks />))],
+  ['/rewards/promo/activate', onlyReady(() => lazily(<LazyRewardsPromoActivate />))],
   ['/rewards', onlyReady(() => <RewardsRoute />)],
   ['*', () => <Woozie.Redirect to="/" />]
 ]);

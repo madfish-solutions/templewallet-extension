@@ -8,12 +8,14 @@ export interface SettingsState {
   userId: string;
   isAnalyticsEnabled: boolean;
   pendingReactivateAds: boolean;
-  adsImpressionsLinked: boolean;
+  /** Now only used for Temple referral link replacement (TakeAds replacement removed, replaced by merchant offers popup) */
   referralLinksEnabled: boolean;
   isTestnetModeEnabled: boolean;
   onRampAsset: ChainAssetSlug | null;
   onRampTitle?: string;
   favoriteTokens: string[];
+  /** @deprecated Replaced by ADS_IMPRESSIONS_LINKED_V2_STORAGE_KEY. Key persists in users' stored data — do not reuse. */
+  adsImpressionsLinked?: boolean;
   /** @deprecated */
   isOnRampPossibility?: boolean;
   /** @deprecated */
@@ -30,7 +32,6 @@ export const settingsInitialState: SettingsState = {
   userId: nanoid(),
   isAnalyticsEnabled: false,
   pendingReactivateAds: false,
-  adsImpressionsLinked: false,
   referralLinksEnabled: IS_MISES_BROWSER,
   isTestnetModeEnabled: false,
   onRampAsset: null,

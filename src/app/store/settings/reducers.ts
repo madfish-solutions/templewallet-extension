@@ -1,7 +1,6 @@
 import { createReducer } from '@reduxjs/toolkit';
 
 import {
-  setAdsImpressionsLinkedAction,
   setIsAnalyticsEnabledAction,
   setOnRampAssetAction,
   setPendingReactivateAdsAction,
@@ -24,10 +23,6 @@ export const settingsReducer = createReducer<SettingsState>(settingsInitialState
 
   builder.addCase(setPendingReactivateAdsAction, (state, { payload }) => {
     state.pendingReactivateAds = payload;
-  });
-
-  builder.addCase(setAdsImpressionsLinkedAction, state => {
-    state.adsImpressionsLinked = true;
   });
 
   builder.addCase(setReferralLinksEnabledAction, (state, { payload }) => {

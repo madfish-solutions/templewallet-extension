@@ -11,14 +11,25 @@ export enum ContentScriptType {
   ExternalAdsActivity = 'ExternalAdsActivity',
   UpdateAdsRules = 'UpdateAdsRules',
   FetchReferralsRules = 'FetchReferralsRules',
-  FetchTakeAdsReferrals = 'FetchTakeAdsReferrals',
   ReferralClick = 'ReferralClick',
-  FetchTempleReferralLinkItems = 'FetchTempleReferralLinkItems'
+  FetchTempleReferralLinkItems = 'FetchTempleReferralLinkItems',
+  FetchMerchantOffers = 'FetchMerchantOffers',
+  ActivateMerchantOffer = 'ActivateMerchantOffer',
+  MarkMerchantOfferActivated = 'MarkMerchantOfferActivated',
+  CheckAndConsumeMerchantOfferActivated = 'CheckAndConsumeMerchantOfferActivated',
+  MerchantOfferSnooze = 'MerchantOfferSnooze',
+  MerchantOfferDisable = 'MerchantOfferDisable',
+  MerchantOfferAnalytics = 'MerchantOfferAnalytics',
+  MarkDealsAnnouncementSeen = 'MarkDealsAnnouncementSeen',
+  ActivateDealsAnnouncement = 'ActivateDealsAnnouncement',
+  DealsAnnouncementAnalytics = 'DealsAnnouncementAnalytics'
 }
 
 export const APP_TITLE = 'Temple Wallet';
 
-export const WEBSITES_ANALYTICS_ENABLED = 'WEBSITES_ANALYTICS_ENABLED';
+export const WEBSITES_ADS_ENABLED = 'WEBSITES_ANALYTICS_ENABLED';
+
+export const USAGE_ANALYTICS_ENABLED = 'USAGE_ANALYTICS_ENABLED';
 
 export const REPLACE_REFERRALS_ENABLED = 'REPLACE_REFERRALS_ENABLED';
 
@@ -88,6 +99,10 @@ export const SHOULD_PROMOTE_ROOTSTOCK_STORAGE_KEY = 'SHOULD_PROMOTE_ROOTSTOCK';
 
 export const SHOULD_SHOW_REWARDS_PUSH_STORAGE_KEY = 'SHOULD_SHOW_REWARDS_PUSH';
 
+export const DEALS_ANNOUNCEMENT_SHOWN_STORAGE_KEY = 'DEALS_ANNOUNCEMENT_SHOWN';
+
+export const SHOULD_SHOW_WELCOME_REWARDS_MODAL_STORAGE_KEY = 'SHOULD_SHOW_WELCOME_REWARDS_MODAL';
+
 export const SHOULD_SHOW_NEW_DAPPS_MODAL_STORAGE_KEY = 'SHOULD_SHOW_NEW_DAPPS_MODAL';
 
 export const AUTOLOCK_TIME_STORAGE_KEY = 'AUTOLOCK_TIME';
@@ -106,7 +121,15 @@ export const ACCOUNTS_FOR_REENABLING_NETWORKS_STORAGE_KEY = 'ACCOUNTS_FOR_REENAB
 
 export const SHOULD_HIDE_ENABLE_ADS_BANNER_STORAGE_KEY = 'SHOULD_HIDE_ENABLE_ADS_BANNER';
 
+export const ADS_IMPRESSIONS_LINKED_V2_STORAGE_KEY = 'ADS_IMPRESSIONS_LINKED_V2';
+
 export const KOLO_FORCE_LOGOUT_ON_NEXT_OPEN_STORAGE_KEY = 'KOLO_FORCE_LOGOUT_ON_NEXT_OPEN';
+
+export const TKEY_REWARDS_STATS_STORAGE_KEY = 'TKEY_REWARDS_STATS';
+
+export const TEMPLE_BAKERY_REWARDS_STATS_STORAGE_KEY = 'TEMPLE_BAKERY_REWARDS_STATS';
+
+export const DEALS_REWARDS_STATS_STORAGE_KEY = 'DEALS_REWARDS_STATS';
 
 // Browser storage cannot set a value to Infinity
 export const NEVER_AUTOLOCK_VALUE = Number.MAX_SAFE_INTEGER;
