@@ -5,7 +5,7 @@ import { ValidationError } from 'yup';
 
 import { getStoredAppInstallIdentity } from 'app/storage/app-install-id';
 import type { DealsState } from 'app/store/deals/state';
-import { getTempleAdsApiInstance } from 'lib/ads/get-temple-ads-api';
+import { importGetTempleAdsApiModule } from 'lib/ads/import-get-temple-ads-api';
 import { importUpdateRulesStorageModule } from 'lib/ads/import-update-rules-storage';
 import { importAdsApiModule } from 'lib/apis/ads-api';
 import {
@@ -387,6 +387,7 @@ const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<T
       }
 
     case TempleMessageType.AnalyzeYoutubeSearchPageRequest: {
+      const { getTempleAdsApiInstance } = await importGetTempleAdsApiModule();
       const templeAdsApi = await getTempleAdsApiInstance();
 
       return {
@@ -400,6 +401,7 @@ const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<T
     }
 
     case TempleMessageType.AnalyzeYoutubeWatchPageRequest:
+      const { getTempleAdsApiInstance } = await importGetTempleAdsApiModule();
       const templeAdsApi = await getTempleAdsApiInstance();
 
       return {
