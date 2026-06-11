@@ -7,7 +7,7 @@ import { useTypedSWR } from 'lib/swr';
 import { TempleTezosChainId } from 'lib/temple/types';
 import { useTezosMainnetChain } from 'temple/front';
 
-import { HOURS_IN_DAYS_COUNT } from '../constants';
+import { HOURS_IN_DAYS_COUNT } from './constants';
 
 export const useTezosAccountBalanceHistory = (accountPkh: string) => {
   const tezMainnet = useTezosMainnetChain();

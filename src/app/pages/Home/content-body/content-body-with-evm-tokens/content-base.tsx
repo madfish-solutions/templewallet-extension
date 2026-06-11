@@ -42,7 +42,7 @@ export const ContentBase: FC<ContentBaseProps> = ({
 
     return (
       <EvmTokenListItem
-        showTags
+        showTags={false}
         network={evmChains[chainId]!}
         index={index}
         assetSlug={assetSlug}

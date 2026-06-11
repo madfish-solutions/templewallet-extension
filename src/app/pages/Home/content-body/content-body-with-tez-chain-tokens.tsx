@@ -53,6 +53,7 @@ export const ContentBodyWithTezChainTokens: FC<Props> = ({ chainId, accountId, p
 
   const TokenListItem: TokenListItemFC = ({ slug, ref, index }) => (
     <TezosTokenListItem
+      showTags={false}
       network={network}
       index={index}
       publicKeyHash={publicKeyHash}

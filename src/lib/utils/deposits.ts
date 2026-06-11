@@ -1,5 +1,3 @@
-export const toMsTimestamp = (isoTimestamp: string) => new Date(isoTimestamp).getTime();
-
 export const mergeDepositSeries = (tezosSeries?: number[][], ethSeries?: number[][]) => {
   if (!tezosSeries?.length && !ethSeries?.length) return;
   if (!ethSeries?.length) return tezosSeries;

@@ -18,7 +18,7 @@ export const BannerBase = memo<BannerBaseProps>(({ animationData, title, descrip
 
   return (
     <Button
-      className="flex mx-4 mb-3 gap-x-2 p-4 rounded-8 border-0.5 border-lines cursor-pointer bg-white hover:bg-grey-4"
+      className="flex mx-4 mb-2 gap-x-2 p-4 rounded-8 border-0.5 border-lines cursor-pointer bg-white hover:bg-grey-4"
       onClick={onClick}
       testID={testID}
     >

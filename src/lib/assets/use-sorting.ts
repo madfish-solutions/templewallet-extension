@@ -103,8 +103,8 @@ export const useTezosAccountTokensSortPredicate = (publicKeyHash: string) => {
       const aBalance = getBalance(aChainId, aSlug) ?? ZERO;
       const bBalance = getBalance(bChainId, bSlug) ?? ZERO;
 
-      const aRate = aChainId === TEZOS_MAINNET_CHAIN_ID ? mainnetUsdToTokenRates[aSlug] : ZERO;
-      const bRate = bChainId === TEZOS_MAINNET_CHAIN_ID ? mainnetUsdToTokenRates[bSlug] : ZERO;
+      const aRate = aChainId === TEZOS_MAINNET_CHAIN_ID ? (mainnetUsdToTokenRates[aSlug] ?? ZERO) : ZERO;
+      const bRate = bChainId === TEZOS_MAINNET_CHAIN_ID ? (mainnetUsdToTokenRates[bSlug] ?? ZERO) : ZERO;
 
       const aEquity = aBalance.multipliedBy(aRate);
       const bEquity = bBalance.multipliedBy(bRate);

@@ -7,7 +7,7 @@ import { ReactComponent as ReceiveCheckIcon } from 'app/icons/base/receive-check
 import { ReactComponent as SearchSparkleIcon } from 'app/icons/base/search-sparkle.svg';
 import { ReactComponent as VerifiedIcon } from 'app/icons/base/verified.svg';
 import PageLayout from 'app/layouts/PageLayout';
-import rewardsAnimation from 'app/pages/Home/OtherComponents/Tokens/components/NotificationBanner/enable-ads-banner/rewards-animation.json';
+import rewardsAnimation from 'app/pages/Home/notification-banner/enable-ads-banner/rewards-animation.json';
 import { t } from 'lib/i18n';
 import { Lottie } from 'lib/ui/react-lottie';
 

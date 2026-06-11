@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { startTransition, useEffect, useState } from 'react';
 
 import constate from 'constate';
 import { useDebounce } from 'use-debounce';
@@ -18,7 +18,6 @@ const useAssetsKindViewState = (shouldPersistStateFn: SyncFn<string, boolean>) =
 
   const [customTokenModalOpened, openCustomTokenModal, closeCustomTokenModal] = useBooleanState(false);
   const [manageActive, setManageActive, setManageInactive, toggleManageActive] = useBooleanState(false);
-  const prevShouldPersistStateRef = useRef(shouldPersistStateFn(pathname));
 
   const [searchValue, setSearchValue] = useState('');
   const [searchValueDebounced] = useDebounce(searchValue, 300);
@@ -27,16 +26,14 @@ const useAssetsKindViewState = (shouldPersistStateFn: SyncFn<string, boolean>) =
   const resetSelectedChains = () => setSelectedChains(filterChainId ? [filterChainId] : []);
 
   useEffect(() => {
-    const shouldPersistState = shouldPersistStateFn(pathname);
-
-    if (!shouldPersistState && prevShouldPersistStateRef.current) {
-      setManageInactive();
-      resetSearchValue();
-      resetSelectedChains();
+    if (!shouldPersistStateFn(pathname)) {
+      startTransition(() => {
+        setManageInactive();
+        resetSearchValue();
+        resetSelectedChains();
+      });
     }
-
-    prevShouldPersistStateRef.current = shouldPersistState;
-  }, [pathname, shouldPersistStateFn, setManageInactive, resetSearchValue, resetSelectedChains]);
+  }, [filterChainId, pathname, shouldPersistStateFn, setManageInactive, resetSearchValue, resetSelectedChains]);
 
   return {
     manageActive,

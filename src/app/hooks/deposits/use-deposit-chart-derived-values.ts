@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 
 import BigNumber from 'bignumber.js';
 
-import { checkDeposit } from '../utils';
+import { checkDeposit } from 'lib/utils/deposits';
 
 export const useDepositChartDerivedValues = (chartData?: number[][]) => {
   const changePercent = useMemo(() => {

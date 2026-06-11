@@ -34,7 +34,7 @@ export const ContentBaseBody: FC<ContentBaseBodyProps> = ({
   const TokenListItem: TokenListItemFC = ({ slug: chainSlug, ref, index }) => {
     const [chainKind, chainId, assetSlug] = parseChainAssetSlug(chainSlug);
 
-    const commonProps = { index, ref, assetSlug };
+    const commonProps = { index, ref, assetSlug, showTags: false };
 
     if (chainKind === TempleChainKind.Tezos) {
       return (
@@ -47,9 +47,7 @@ export const ContentBaseBody: FC<ContentBaseBodyProps> = ({
       );
     }
 
-    return (
-      <EvmTokenListItem showTags network={evmChains[chainId]!} publicKeyHash={accountEvmAddress} {...commonProps} />
-    );
+    return <EvmTokenListItem network={evmChains[chainId]!} publicKeyHash={accountEvmAddress} {...commonProps} />;
   };
 
   const Promo = useRenderPromo(false, 'home');
