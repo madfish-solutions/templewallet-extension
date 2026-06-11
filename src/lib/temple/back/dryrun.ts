@@ -1,6 +1,6 @@
 import { localForger } from '@taquito/local-forging';
 import { ForgeOperationsParams } from '@taquito/rpc';
-import { TezosToolkit, TezosOperationError, getRevealGasLimit, getRevealFee, Estimate } from '@taquito/taquito';
+import { TezosToolkit, TezosOperationError, Estimate } from '@taquito/taquito';
 import { ProhibitedActionError } from '@taquito/utils';
 import { omit } from 'lodash';
 
@@ -132,18 +132,7 @@ export async function dryRunOpParams({
         }));
 
         if (revealEstimate) {
-          // tezos.estimate reports reveal fee that is less than the actual fee
-          const feeDelta = getRevealFee(sourcePkh) - revealEstimate.suggestedFeeMutez;
-          const gasLimit = getRevealGasLimit(sourcePkh);
-          serializedEstimates.unshift({
-            ...serializeEstimate(revealEstimate),
-            consumedMilligas: gasLimit * 1000,
-            gasLimit,
-            minimalFeeMutez: revealEstimate.minimalFeeMutez + feeDelta,
-            suggestedFeeMutez: revealEstimate.suggestedFeeMutez + feeDelta,
-            totalCost: revealEstimate.totalCost + feeDelta,
-            usingBaseFeeMutez: revealEstimate.usingBaseFeeMutez + feeDelta
-          });
+          serializedEstimates.unshift(serializeEstimate(revealEstimate));
         }
       }
     } catch (e) {
