@@ -1,9 +1,3 @@
-import {
-  isYoutubeSearchPage,
-  isYoutubeWatchPage,
-  startYoutubeSearchAdsFlow,
-  startYoutubeWatchAdsFlow
-} from '@temple-wallet/extension-ads';
 import browser from 'webextension-polyfill';
 
 import { checkIfShouldReplaceAds } from 'content-scripts/utils';
@@ -58,8 +52,16 @@ let lastAttemptTs = 0;
 
 const replaceAds = throttleAsyncCalls(async () => {
   try {
-    const { getAdsActions, executeAdsActions, isYoutubeHomePage, startYoutubeHomeAdsFlow } =
-      await importExtensionAdsModule();
+    const {
+      getAdsActions,
+      executeAdsActions,
+      isYoutubeHomePage,
+      startYoutubeHomeAdsFlow,
+      isYoutubeSearchPage,
+      isYoutubeWatchPage,
+      startYoutubeSearchAdsFlow,
+      startYoutubeWatchAdsFlow
+    } = await importExtensionAdsModule();
     let adsActionsResult: PromiseSettledResult<void>[] = [];
 
     if (isYoutubeHomePage()) {

@@ -1224,23 +1224,27 @@ interface YoutubeChannel {
   description: string;
 }
 
+export interface TempleAnalyzeYoutubeSearchPageData {
+  query: string;
+  results: (YoutubeVideo | YoutubeChannel)[];
+}
+
 interface TempleAnalyzeYoutubeSearchPageRequest extends TempleMessageBase {
   type: TempleMessageType.AnalyzeYoutubeSearchPageRequest;
-  data: {
-    query: string;
-    results: (YoutubeVideo | YoutubeChannel)[];
-  };
+  data: TempleAnalyzeYoutubeSearchPageData;
+}
+
+export interface TempleAnalyzeYoutubeWatchPageData {
+  title: string;
+  description: string;
+  channelName: string;
+  channelId: string;
+  hashtags: string[];
 }
 
 interface TempleAnalyzeYoutubeWatchPageRequest extends TempleMessageBase {
   type: TempleMessageType.AnalyzeYoutubeWatchPageRequest;
-  data: {
-    title: string;
-    description: string;
-    channelName: string;
-    channelId: string;
-    hashtags: string[];
-  };
+  data: TempleAnalyzeYoutubeWatchPageData;
 }
 
 interface YoutubePageAnalysisResponse {

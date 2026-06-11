@@ -16,7 +16,7 @@ import {
 import { ADS_VIEWER_DATA_STORAGE_KEY, ContentScriptType } from 'lib/constants';
 import { APP_VERSION, EnvVars, IS_MISES_BROWSER } from 'lib/env';
 import { fetchFromStorage } from 'lib/storage';
-import { TempleMessageType, TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
+import { TempleAnalyzeYoutubeSearchPageData, TempleAnalyzeYoutubeWatchPageData, TempleMessageType, TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
 import { isTruthy } from 'lib/utils';
 import { TempleChainKind, type AdsViewerData } from 'temple/types';
 
@@ -24,8 +24,8 @@ import { TempleChainKind, type AdsViewerData } from 'temple/types';
 import evmChainsNames from './evm-chains-names.json';
 import { importExtensionAdsModule } from './import-extension-ads-module';
 
-// #region These interfaces below are copied from '@temple-wallet/extension-ads' to avoid importing it to ensure that a
-// core build runs without errors.
+// #region These interfaces below are copied from '@temple-wallet/extension-ads' or based on this module to avoid
+// importing it to ensure that a core build runs without errors.
 interface AdSource {
   shouldNotUseStrictContainerLimits?: boolean;
   providerName: 'Temple' | 'HypeLab' | 'Bitmedia';
@@ -429,11 +429,11 @@ export const configureAds = async () => {
         ? evmChainsNames[String(chainId) as keyof typeof evmChainsNames]
         : `0x${chainId.toString(16)}`,
     makeThemingParamsChangeMessage: (params: AdThemeParams) => JSON.stringify({ type: 'setParams', params }),
-    analyzeYoutubeSearchPage: data =>
+    analyzeYoutubeSearchPage: (data: TempleAnalyzeYoutubeSearchPageData) =>
       getIntercom()
         .request({ type: TempleMessageType.AnalyzeYoutubeSearchPageRequest, data })
         .then(res => res.data),
-    analyzeYoutubeVideoPage: data =>
+    analyzeYoutubeVideoPage: (data: TempleAnalyzeYoutubeWatchPageData) =>
       getIntercom()
         .request({ type: TempleMessageType.AnalyzeYoutubeWatchPageRequest, data })
         .then(res => res.data)
