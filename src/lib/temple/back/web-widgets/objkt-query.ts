@@ -7,24 +7,42 @@ export const OBJKT_TOKEN_QUERY = `
       thumbnail_uri
       display_uri
       artifact_uri
-      lowest_ask
       flag
       fa {
         name
+        logo
         contract
-        path
-        floor_price
-        editions
-        owners
+      }
+      creators {
+        holder {
+          alias
+          address
+        }
       }
       listings_active(limit: 1, order_by: { price_xtz: asc }) {
         price
         price_xtz
-        amount_left
         currency {
           symbol
           decimals
         }
+      }
+      english_auctions_active(limit: 1, order_by: { end_time: asc }) {
+        reserve_xtz
+        highest_bid_xtz
+      }
+      dutch_auctions_active(limit: 1, order_by: { end_time: asc }) {
+        start_price_xtz
+      }
+    }
+  }
+`;
+
+export const OBJKT_OWNED_QUERY = `
+  query WebWidgetOwned($fa: String!, $id: String!, $addresses: [String!]!) {
+    token(where: { fa_contract: { _eq: $fa }, token_id: { _eq: $id } }) {
+      holders(where: { holder_address: { _in: $addresses } }) {
+        quantity
       }
     }
   }
@@ -38,17 +56,29 @@ interface ObjktCurrency {
 interface ObjktListing {
   price: number;
   price_xtz: number | null;
-  amount_left: number;
   currency: ObjktCurrency | null;
+}
+
+interface ObjktEnglishAuction {
+  reserve_xtz: number | null;
+  highest_bid_xtz: number | null;
+}
+
+interface ObjktDutchAuction {
+  start_price_xtz: number | null;
 }
 
 interface ObjktFa {
   name: string | null;
+  logo: string | null;
   contract: string;
-  path: string | null;
-  floor_price: number | null;
-  editions: number | null;
-  owners: number | null;
+}
+
+interface ObjktCreator {
+  holder: {
+    alias: string | null;
+    address: string;
+  } | null;
 }
 
 export interface ObjktToken {
@@ -58,10 +88,12 @@ export interface ObjktToken {
   thumbnail_uri: string | null;
   display_uri: string | null;
   artifact_uri: string | null;
-  lowest_ask: number | null;
   flag: string | null;
   fa: ObjktFa | null;
+  creators: ObjktCreator[];
   listings_active: ObjktListing[];
+  english_auctions_active: ObjktEnglishAuction[];
+  dutch_auctions_active: ObjktDutchAuction[];
 }
 
 export interface ObjktTokenQueryResponse {

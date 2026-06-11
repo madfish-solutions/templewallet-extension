@@ -29,7 +29,8 @@ import {
   SHOULD_SHOW_NEW_DAPPS_MODAL_STORAGE_KEY,
   SIDE_VIEW_WAS_FORCED_STORAGE_KEY,
   TERMS_OF_USE_URL,
-  WEBSITES_ANALYTICS_ENABLED
+  USAGE_ANALYTICS_ENABLED,
+  WEBSITES_ADS_ENABLED
 } from 'lib/constants';
 import { DISABLE_ADS, IS_SIDE_PANEL_AVAILABLE } from 'lib/env';
 import { T, TID, t } from 'lib/i18n';
@@ -141,7 +142,8 @@ export const CreatePasswordForm = memo<CreatePasswordFormProps>(
           // registerWallet function clears async storages
           await putManyToStorage({
             [REPLACE_REFERRALS_ENABLED]: adsViewEnabled,
-            [WEBSITES_ANALYTICS_ENABLED]: adsViewEnabled,
+            [WEBSITES_ADS_ENABLED]: adsViewEnabled,
+            [USAGE_ANALYTICS_ENABLED]: analyticsEnabled,
             [SHOULD_OPEN_LETS_EXCHANGE_MODAL_STORAGE_KEY]: false,
             [SHOULD_PROMOTE_ROOTSTOCK_STORAGE_KEY]: false,
             [SHOULD_SHOW_NEW_DAPPS_MODAL_STORAGE_KEY]: false,
