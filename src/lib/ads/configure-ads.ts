@@ -1,3 +1,4 @@
+import { getIntercom } from 'intercom-client';
 import browser from 'webextension-polyfill';
 
 import { buildSwapPagePath } from 'app/pages/Swap/build-url-query';
@@ -22,7 +23,6 @@ import { TempleChainKind, type AdsViewerData } from 'temple/types';
 // TODO: Fetch them from CDN for ads data
 import evmChainsNames from './evm-chains-names.json';
 import { importExtensionAdsModule } from './import-extension-ads-module';
-import { getIntercom } from 'intercom-client';
 
 // #region These interfaces below are copied from '@temple-wallet/extension-ads' to avoid importing it to ensure that a
 // core build runs without errors.
