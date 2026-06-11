@@ -16,7 +16,12 @@ import {
 import { ADS_VIEWER_DATA_STORAGE_KEY, ContentScriptType } from 'lib/constants';
 import { APP_VERSION, EnvVars, IS_MISES_BROWSER } from 'lib/env';
 import { fetchFromStorage } from 'lib/storage';
-import { TempleAnalyzeYoutubeSearchPageData, TempleAnalyzeYoutubeWatchPageData, TempleMessageType, TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
+import {
+  TempleAnalyzeYoutubeSearchPageData,
+  TempleAnalyzeYoutubeWatchPageData,
+  TempleMessageType,
+  TEZOS_MAINNET_CHAIN_ID
+} from 'lib/temple/types';
 import { isTruthy } from 'lib/utils';
 import { TempleChainKind, type AdsViewerData } from 'temple/types';
 
