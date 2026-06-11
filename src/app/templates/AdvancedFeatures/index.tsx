@@ -1,35 +1,41 @@
-import React from 'react';
+import { FC, PropsWithChildren } from 'react';
 
 import { FadeTransition } from 'app/a11y/FadeTransition';
 import { IS_MISES_BROWSER } from 'lib/env';
-import { T } from 'lib/i18n';
+import { TID, T } from 'lib/i18n';
 
+import { DealsSettings } from './deals-settings';
 import { PartnersPromotionSettings } from './partners-promotion-settings';
 import { ReferralLinksSettings } from './referral-links-settings';
 import { TokenInsightSettings } from './token-insight-settings';
 
-export const AdvancedFeatures = () => {
-  return (
-    <FadeTransition>
-      <div className="w-full flex flex-col gap-4">
-        <div className="flex flex-col gap-1">
-          <p className="text-font-description-bold p-1">
-            <T id="templeRewards" />
-          </p>
+export const AdvancedFeatures = () => (
+  <FadeTransition>
+    <div className="flex flex-col gap-4">
+      <SettingsGroup title="templeRewards">
+        <PartnersPromotionSettings />
+        <DealsSettings />
+      </SettingsGroup>
 
-          <PartnersPromotionSettings />
-        </div>
+      <SettingsGroup title="webWidgets">
+        <TokenInsightSettings />
+      </SettingsGroup>
 
-        <div className="flex flex-col gap-1">
-          <p className="text-font-description-bold p-1">
-            <T id="webWidgets" />
-          </p>
+      {IS_MISES_BROWSER && <ReferralLinksSettings />}
+    </div>
+  </FadeTransition>
+);
 
-          <TokenInsightSettings />
-        </div>
+interface SettingsGroupProps extends PropsWithChildren {
+  title: TID;
+}
 
-        {IS_MISES_BROWSER && <ReferralLinksSettings />}
-      </div>
-    </FadeTransition>
-  );
-};
+const SettingsGroup: FC<SettingsGroupProps> = ({ title, children }) => (
+  <div className="flex flex-col">
+    <div className="p-1 mb-1 text-font-description-bold">
+      <T id={title} />
+    </div>
+
+    <div className="flex flex-col gap-4">{children}</div>
+  </div>
+);

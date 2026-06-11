@@ -22,7 +22,6 @@ import {
   DEVELOPMENT_ENV,
   PRODUCTION_ENV,
   TARGET_BROWSER,
-  MANIFEST_VERSION,
   BACKGROUND_IS_WORKER,
   REACT_DEVTOOLS,
   RELOADER_PORTS,
@@ -191,6 +190,9 @@ const scriptsConfig = (() => {
     config.entry.replaceAds = Path.join(PATHS.SOURCE, 'replaceAds.ts');
     config.entry.replaceReferrals = Path.join(PATHS.SOURCE, 'replaceReferrals.ts');
     config.entry.webWidgets = Path.join(PATHS.SOURCE, 'content-scripts/web-widgets.ts');
+    config.entry.templeDealsAllSites = Path.join(PATHS.SOURCE, 'temple-deals/all-sites/index.ts');
+    config.entry.templeDealsGoogleSearch = Path.join(PATHS.SOURCE, 'temple-deals/google-search/index.ts');
+    config.entry.templeDealsAnnouncement = Path.join(PATHS.SOURCE, 'temple-deals/announcement/index.ts');
   }
 
   if (BACKGROUND_IS_WORKER)
@@ -259,8 +261,7 @@ const backgroundConfig = (() => {
       BACKGROUND_IS_WORKER &&
         new WebExtensionTargetPlugin({
           background: {
-            entry: 'background',
-            manifest: MANIFEST_VERSION
+            serviceWorkerEntry: 'background'
           }
         }),
 

@@ -15,10 +15,13 @@ import { getKeyForBalancesRecord } from 'app/store/tezos/balances/utils';
 import type { AccountAsset } from 'lib/assets/types';
 import { EMPTY_FROZEN_OBJ } from 'lib/utils';
 import { useEnabledEvmChains, useEnabledTezosChains } from 'temple/front';
+import { TempleChainKind } from 'temple/types';
+
+import { toChainAssetSlug } from '../utils';
 
 import { getAssetStatus } from './utils';
 
-interface AccountCollectible extends AccountAsset {
+export interface AccountCollectible extends AccountAsset {
   chainId: string | number;
 }
 
@@ -124,3 +127,13 @@ export const useEvmChainAccountCollectibles = (account: HexString, chainId: numb
     [stored, balances, chainId]
   );
 };
+
+export const toTezEnabledCollectiblesChainSlugs = (collectibles: AccountCollectible[]) =>
+  collectibles
+    .filter(({ status }) => status === 'enabled')
+    .map(({ slug, chainId }) => toChainAssetSlug(TempleChainKind.Tezos, chainId, slug));
+
+export const toEvmEnabledCollectiblesChainSlugs = (collectibles: AccountCollectible[]) =>
+  collectibles
+    .filter(({ status }) => status === 'enabled')
+    .map(({ slug, chainId }) => toChainAssetSlug(TempleChainKind.EVM, chainId, slug));

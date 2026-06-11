@@ -2,7 +2,7 @@ import { useAllTokensMetadataSelector } from 'app/store/tezos/tokens-metadata/se
 import { migrateFromIndexedDB } from 'lib/assets/migrations';
 import { SHOULD_DISABLE_NOT_ACTIVE_NETWORKS_STORAGE_KEY, EVM_CHAINS_SPECS_STORAGE_KEY } from 'lib/constants';
 import { migrate } from 'lib/local-storage/migrator';
-import { fetchFromStorage, putToStorage } from 'lib/storage';
+import { fetchFromStorage, putToStorage, removeFromStorageByPrefix } from 'lib/storage';
 import { ETHERLINK_MAINNET_CHAIN_ID } from 'lib/temple/types';
 import { useDidMount } from 'lib/ui/hooks';
 
@@ -34,6 +34,10 @@ export const useAssetsMigrations = () => {
               }
             });
           }
+        },
+        {
+          name: 'rewards-stats-keys-cleanup@2.0.29',
+          up: () => removeFromStorageByPrefix('tkey_rewards_stats:', 'tkey_bakery_rewards_stats:')
         }
       ])
   );

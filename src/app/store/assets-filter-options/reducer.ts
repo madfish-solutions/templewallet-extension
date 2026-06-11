@@ -7,7 +7,8 @@ import {
   resetTokensFilterOptions,
   setCollectiblesBlurFilterOption,
   setCollectiblesShowInfoFilterOption,
-  swapOptionsForTestnetSwitch
+  swapOptionsForTestnetSwitch,
+  setCollectiblesViewAsCollectionsFilterOption
 } from './actions';
 import { AssetsFilterOptionsInitialState, AssetsFilterOptionsStateInterface, modeOptionsInitialState } from './state';
 
@@ -49,7 +50,19 @@ export const assetsFilterOptionsReducer = createReducer<AssetsFilterOptionsState
       state.collectiblesListOptions.blur = payload;
     });
     builder.addCase(setCollectiblesShowInfoFilterOption, (state, { payload }) => {
+      state.collectiblesListOptions.infoWasShown = payload;
       state.collectiblesListOptions.showInfo = payload;
+    });
+    builder.addCase(setCollectiblesViewAsCollectionsFilterOption, (state, { payload }) => {
+      state.collectiblesListOptions.infoWasShown ??= false;
+      if (state.collectiblesListOptions.viewAsCollections && !payload) {
+        state.collectiblesListOptions.showInfo = state.collectiblesListOptions.infoWasShown;
+      } else if (payload) {
+        state.collectiblesListOptions.showInfo = true;
+      } else {
+        state.collectiblesListOptions.infoWasShown = state.collectiblesListOptions.showInfo;
+      }
+      state.collectiblesListOptions.viewAsCollections = payload;
     });
   }
 );

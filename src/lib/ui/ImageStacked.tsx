@@ -10,6 +10,7 @@ import React, {
   startTransition
 } from 'react';
 
+import { useDidMount } from 'lib/ui/hooks';
 import { useImagesStackLoading } from 'lib/ui/use-images-stack-loading';
 
 export interface ImageStackedProps extends React.ImgHTMLAttributes<HTMLImageElement> {
@@ -39,11 +40,7 @@ export const ImageStacked: FC<ImageStackedProps> = ({
   const [preventLoadImage, setPreventLoadImage] = useState(true);
   const { src, isLoading, isStackFailed, onSuccess, onFail } = useImagesStackLoading(sources);
 
-  useEffect(() => {
-    startTransition(() => setPreventLoadImage(false));
-
-    return () => setPreventLoadImage(true);
-  }, []);
+  useDidMount(() => startTransition(() => setPreventLoadImage(false)));
 
   const styleMemo: CSSProperties | undefined = useMemo(
     () =>

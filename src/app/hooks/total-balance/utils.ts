@@ -18,5 +18,5 @@ export const calculateTotalDollarValue = (
     dollarValue = dollarValue.plus(tokenDollarValue);
   }
 
-  return dollarValue.toString();
+  return dollarValue;
 };

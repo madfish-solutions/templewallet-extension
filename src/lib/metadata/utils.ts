@@ -3,6 +3,7 @@ import { isString, pick } from 'lodash';
 
 import type { TokenMetadataResponse, WhitelistResponseToken } from 'lib/apis/temple';
 import { TEZOS_SYMBOL } from 'lib/assets';
+import { t } from 'lib/i18n';
 
 import {
   AssetMetadataBase,
@@ -29,7 +30,7 @@ export function getCollectibleName(metadata: EvmCollectibleMetadata | nullish) {
 }
 
 export function getCollectionName(metadata: EvmCollectibleMetadata | nullish) {
-  return metadata?.name || 'Unknown Collection';
+  return metadata?.name || t('unknownCollection');
 }
 
 /** Empty string for `artifactUri` counts */

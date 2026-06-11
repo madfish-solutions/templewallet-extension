@@ -11,7 +11,7 @@ import { use3RouteEvmTokensMetadataRecordSelector } from 'app/store/evm/swap-3ro
 import { useLifiConnectedEvmTokensMetadataRecordSelector } from 'app/store/evm/swap-lifi-metadata/selectors';
 import { useEvmTokensMetadataRecordSelector } from 'app/store/evm/tokens-metadata/selectors';
 import { useAllAccountBalancesSelector } from 'app/store/tezos/balances/selectors';
-import { EvmTokenListItem, TezosTokenListItem } from 'app/templates/TokenListItem';
+import { EvmTokenListItem, TezosTokenListItem } from 'app/templates/tokens/token-list-item';
 import { EVM_TOKEN_SLUG, TEZ_TOKEN_SLUG } from 'lib/assets/defaults';
 import { useEnabledEvmAccountTokenSlugs } from 'lib/assets/hooks/tokens';
 import { searchAssetsWithNoMeta } from 'lib/assets/search.utils';

@@ -366,6 +366,7 @@ export const PILL_STYLES = `
     position: relative;
     flex: none;
     height: 78px;
+    margin-bottom: 8px;
   }
   .tw-card__ad-iframe {
     width: 100%;
@@ -546,6 +547,12 @@ export const PILL_STYLES = `
     width: 24px;
     height: 24px;
     flex: none;
+    display: inline-flex;
+  }
+  .tw-card__menu-icon svg {
+    width: 100%;
+    height: 100%;
+    display: block;
   }
   .tw-card__menu-icon path {
     fill: #1373E4;

@@ -2,6 +2,7 @@
   "name": "temple-wallet",
   "version": "2.0.28",
   "private": true,
+  "packageManager": "yarn@4.15.0",
   "scripts": {
     "start-run": "cross-env TS_NODE_PROJECT=\"webpack/tsconfig.json\" webpack --watch --stats errors-warnings",
     "start": "cross-env NODE_ENV=development run-s start-run",
@@ -143,6 +144,9 @@
     "dotenv": "8.2.0",
     "ed25519-hd-key": "1.1.2",
     "effector": "21.2.0",
+    "embla-carousel": "^8.6.0",
+    "embla-carousel-autoplay": "^8.6.0",
+    "embla-carousel-react": "^8.6.0",
     "fast-glob": "^3.2.12",
     "fontfaceobserver": "2.1.0",
     "fuse.js": "6.4.6",
@@ -256,6 +260,6 @@
     "tmp": "^0.2.6"
   },
   "optionalDependencies": {
-    "@temple-wallet/extension-ads": "17.0.0-beta.1"
+    "@temple-wallet/extension-ads": "18.0.0-beta.1"
   }
 }

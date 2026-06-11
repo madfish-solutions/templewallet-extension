@@ -26,11 +26,13 @@ import { BackupMnemonicOverlay } from './BackupMnemonicOverlay';
 import { ChangelogOverlay } from './ChangelogOverlay/ChangelogOverlay';
 import ConfirmationOverlay from './ConfirmationOverlay';
 import { ContentPaperRefContext } from './context';
+import { DealsAnnouncementModal } from './DealsAnnouncementModal';
 import { DefaultHeader, DefaultHeaderProps } from './DefaultHeader';
 import { OnRampOverlay } from './OnRampOverlay/OnRampOverlay';
 import { ReactivateAdsOverlay } from './ReactivateAdsOverlay';
 import { ScrollRestorer } from './ScrollRestorer';
 import { ShortcutAccountSwitchOverlay } from './ShortcutAccountSwitchOverlay';
+import { WelcomeRewardsModal } from './WelcomeRewardsModal';
 
 interface ScrollEdgesVisibilityProps {
   onBottomEdgeVisibilityChange?: SyncFn<boolean>;
@@ -128,6 +130,8 @@ const PageLayout: FC<PropsWithChildren<PageLayoutProps>> = ({
           {/*TODO: Update overlay UI*/}
           {/*<NewsletterOverlay />*/}
           <ReactivateAdsOverlay />
+          <WelcomeRewardsModal />
+          <DealsAnnouncementModal />
         </>
       )}
       {ready && (

@@ -15,12 +15,10 @@ import {
   ETHERLINK_MAINNET_CHAIN_ID
 } from 'lib/temple/types';
 import { useUpdatableRef } from 'lib/ui/hooks';
-import { EMPTY_FROZEN_OBJ } from 'lib/utils';
+import { EMPTY_FROZEN_ARRAY, EMPTY_FROZEN_OBJ } from 'lib/utils';
 import { TempleChainKind } from 'temple/types';
 
 import { useEvmChainsSpecs, useTezosChainsSpecs } from './use-chains-specs';
-
-const FALLBACK_CHAIN_BLOCK_EXPLORERS: BlockExplorer[] = [];
 
 export type BlockExplorerEntityType = 'address' | 'tx';
 
@@ -124,7 +122,7 @@ function useGetBlockExplorers(chainKind: TempleChainKind) {
     (chainId: string) =>
       allBlockExplorersRef.current[chainKind]?.[chainId] ??
       DEFAULT_BLOCK_EXPLORERS[chainKind]?.[chainId] ??
-      FALLBACK_CHAIN_BLOCK_EXPLORERS,
+      EMPTY_FROZEN_ARRAY,
     [allBlockExplorersRef, chainKind]
   );
 }

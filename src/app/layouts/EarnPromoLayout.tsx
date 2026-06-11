@@ -52,7 +52,7 @@ export const EarnPromoLayout = memo<EarnPromoLayoutProps>(
         onTopEdgeVisibilityChange={setShouldCastShadow}
       >
         <div className="flex-1 px-4">
-          <div className="flex justify-center pt-6 pb-4">{TopVisual}</div>
+          <div className="flex justify-center">{TopVisual}</div>
 
           <h3 className="text-font-h3 text-center pb-4">{headline}</h3>
 

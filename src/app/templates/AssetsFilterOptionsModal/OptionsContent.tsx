@@ -1,4 +1,4 @@
-import React, { FC, memo, useCallback } from 'react';
+import { FC } from 'react';
 
 import clsx from 'clsx';
 
@@ -23,29 +23,10 @@ interface Props {
   onNetworkSelectClick: EmptyFn;
 }
 
-export const OptionsContent = memo<Props>(({ onNetworkSelectClick }) => {
-  const options = useAssetsFilterOptionsSelector();
+export const OptionsContent: FC<Props> = ({ onNetworkSelectClick }) => {
+  const { filterChain, tokensListOptions, collectiblesListOptions } = useAssetsFilterOptionsSelector();
   const testnetModeEnabled = useTestnetModeEnabledSelector();
-  const { filterChain, tokensListOptions, collectiblesListOptions } = options;
   const hasActiveFilters = useHasActiveFiltersSelector();
-
-  const handleTokensHideSmallBalanceChange = useCallback(
-    (checked: boolean) => dispatch(setTokensHideSmallBalanceFilterOption(checked)),
-    []
-  );
-  const handleTokensGroupByNetworkChange = useCallback(
-    (checked: boolean) => dispatch(setTokensGroupByNetworkFilterOption(checked)),
-    []
-  );
-
-  const handleCollectiblesBlurChange = useCallback(
-    (checked: boolean) => dispatch(setCollectiblesBlurFilterOption(checked)),
-    []
-  );
-  const handleCollectiblesShowInfoChange = useCallback(
-    (checked: boolean) => dispatch(setCollectiblesShowInfoFilterOption(checked)),
-    []
-  );
 
   return (
     <FadeTransition>
@@ -77,7 +58,7 @@ export const OptionsContent = memo<Props>(({ onNetworkSelectClick }) => {
             labelId="hideSmallBalance"
             checked={tokensListOptions.hideSmallBalance}
             disabled={testnetModeEnabled}
-            onChange={handleTokensHideSmallBalanceChange}
+            onChange={checked => dispatch(setTokensHideSmallBalanceFilterOption(checked))}
             isFirst
           />
           <Divider thinest />
@@ -85,7 +66,7 @@ export const OptionsContent = memo<Props>(({ onNetworkSelectClick }) => {
             labelId="groupByNetwork"
             checked={tokensListOptions.groupByNetwork}
             disabled={Boolean(filterChain)}
-            onChange={handleTokensGroupByNetworkChange}
+            onChange={checked => dispatch(setTokensGroupByNetworkFilterOption(checked))}
             isLast
           />
         </TogglesContainer>
@@ -94,21 +75,22 @@ export const OptionsContent = memo<Props>(({ onNetworkSelectClick }) => {
           <ToggleRow
             labelId="blurSensitiveContent"
             checked={collectiblesListOptions.blur}
-            onChange={handleCollectiblesBlurChange}
+            onChange={checked => dispatch(setCollectiblesBlurFilterOption(checked))}
             isFirst
           />
           <Divider thinest />
           <ToggleRow
+            disabled={collectiblesListOptions.viewAsCollections}
             labelId="showDetails"
             checked={collectiblesListOptions.showInfo}
-            onChange={handleCollectiblesShowInfoChange}
+            onChange={checked => dispatch(setCollectiblesShowInfoFilterOption(checked))}
             isLast
           />
         </TogglesContainer>
       </ContentContainer>
     </FadeTransition>
   );
-});
+};
 
 interface TogglesContainerProps extends PropsWithChildren {
   labelTitle: TID;

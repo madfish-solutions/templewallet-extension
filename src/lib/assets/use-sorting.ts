@@ -26,7 +26,7 @@ import { TempleChainKind } from 'temple/types';
 
 import { EMPTY_FROZEN_OBJ } from '../utils';
 
-import { fromChainAssetSlug, toChainAssetSlug } from './utils';
+import { parseChainAssetSlug, toChainAssetSlug } from './utils';
 
 export const useAccountTokensSortPredicate = (
   accountTezAddress: string,
@@ -51,8 +51,8 @@ export const useAccountTokensSortPredicate = (
         }
       }
 
-      const [aChainKind, aChainId, aSlug] = fromChainAssetSlug(aChainAssetSlug);
-      const [bChainKind, bChainId, bSlug] = fromChainAssetSlug(bChainAssetSlug);
+      const [aChainKind, aChainId, aSlug] = parseChainAssetSlug(aChainAssetSlug);
+      const [bChainKind, bChainId, bSlug] = parseChainAssetSlug(bChainAssetSlug);
 
       const aBalance =
         (aChainKind === TempleChainKind.Tezos
@@ -97,14 +97,14 @@ export const useTezosAccountTokensSortPredicate = (publicKeyHash: string) => {
 
   return useCallback(
     (aChainSlug: string, bChainSlug: string) => {
-      const [_, aChainId, aSlug] = fromChainAssetSlug<string>(aChainSlug);
-      const [_2, bChainId, bSlug] = fromChainAssetSlug<string>(bChainSlug);
+      const [_, aChainId, aSlug] = parseChainAssetSlug<TempleChainKind.Tezos>(aChainSlug);
+      const [_2, bChainId, bSlug] = parseChainAssetSlug<TempleChainKind.Tezos>(bChainSlug);
 
       const aBalance = getBalance(aChainId, aSlug) ?? ZERO;
       const bBalance = getBalance(bChainId, bSlug) ?? ZERO;
 
-      const aRate = aChainId === TEZOS_MAINNET_CHAIN_ID ? mainnetUsdToTokenRates[aSlug] : ZERO;
-      const bRate = bChainId === TEZOS_MAINNET_CHAIN_ID ? mainnetUsdToTokenRates[bSlug] : ZERO;
+      const aRate = aChainId === TEZOS_MAINNET_CHAIN_ID ? (mainnetUsdToTokenRates[aSlug] ?? ZERO) : ZERO;
+      const bRate = bChainId === TEZOS_MAINNET_CHAIN_ID ? (mainnetUsdToTokenRates[bSlug] ?? ZERO) : ZERO;
 
       const aEquity = aBalance.multipliedBy(aRate);
       const bEquity = bBalance.multipliedBy(bRate);
@@ -172,8 +172,8 @@ export const useEvmAccountTokensSortPredicate = (publicKeyHash: HexString, apply
         }
       }
 
-      const [_, aChainId, aSlug] = fromChainAssetSlug<number>(aChainAssetSlug);
-      const [_2, bChainId, bSlug] = fromChainAssetSlug<number>(bChainAssetSlug);
+      const [_, aChainId, aSlug] = parseChainAssetSlug<TempleChainKind.EVM>(aChainAssetSlug);
+      const [_2, bChainId, bSlug] = parseChainAssetSlug<TempleChainKind.EVM>(bChainAssetSlug);
 
       const aBalance = getBalance(aChainId, aSlug) ?? ZERO;
       const bBalance = getBalance(bChainId, bSlug) ?? ZERO;
@@ -230,8 +230,8 @@ export const useAccountCollectiblesSortPredicate = (accountTezAddress: string, a
 
   return useCallback(
     (aChainAssetSlug: string, bChainAssetSlug: string) => {
-      const [aChainKind, aChainId, aSlug] = fromChainAssetSlug(aChainAssetSlug);
-      const [bChainKind, bChainId, bSlug] = fromChainAssetSlug(bChainAssetSlug);
+      const [aChainKind, aChainId, aSlug] = parseChainAssetSlug(aChainAssetSlug);
+      const [bChainKind, bChainId, bSlug] = parseChainAssetSlug(bChainAssetSlug);
 
       const aBalance =
         aChainKind === TempleChainKind.Tezos
@@ -258,8 +258,8 @@ export const useTezosAccountCollectiblesSortPredicate = (account: string) => {
 
   return useCallback(
     (aChainSlug: string, bChainSlug: string) => {
-      const [_, aChainId, aSlug] = fromChainAssetSlug<string>(aChainSlug);
-      const [_2, bChainId, bSlug] = fromChainAssetSlug<string>(bChainSlug);
+      const [_, aChainId, aSlug] = parseChainAssetSlug<TempleChainKind.Tezos>(aChainSlug);
+      const [_2, bChainId, bSlug] = parseChainAssetSlug<TempleChainKind.Tezos>(bChainSlug);
 
       const aBalancesKey = getKeyForBalancesRecord(account, aChainId);
       const bBalancesKey = getKeyForBalancesRecord(account, bChainId);
@@ -292,8 +292,8 @@ export const useEvmAccountCollectiblesSortPredicate = (publicKeyHash: HexString)
 
   return useCallback(
     (aChainAssetSlug: string, bChainAssetSlug: string) => {
-      const [_, aChainId, aSlug] = fromChainAssetSlug<number>(aChainAssetSlug);
-      const [_2, bChainId, bSlug] = fromChainAssetSlug<number>(bChainAssetSlug);
+      const [_, aChainId, aSlug] = parseChainAssetSlug<TempleChainKind.EVM>(aChainAssetSlug);
+      const [_2, bChainId, bSlug] = parseChainAssetSlug<TempleChainKind.EVM>(bChainAssetSlug);
 
       const aBalance = new BigNumber(balancesRecord[aChainId]?.[aSlug] ?? ZERO);
       const bBalance = new BigNumber(balancesRecord[bChainId]?.[bSlug] ?? ZERO);
