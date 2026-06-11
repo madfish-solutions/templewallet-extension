@@ -15,13 +15,14 @@ import {
 import { ADS_VIEWER_DATA_STORAGE_KEY, ContentScriptType } from 'lib/constants';
 import { APP_VERSION, EnvVars, IS_MISES_BROWSER } from 'lib/env';
 import { fetchFromStorage } from 'lib/storage';
-import { TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
+import { TempleMessageType, TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
 import { isTruthy } from 'lib/utils';
 import { TempleChainKind, type AdsViewerData } from 'temple/types';
 
 // TODO: Fetch them from CDN for ads data
 import evmChainsNames from './evm-chains-names.json';
 import { importExtensionAdsModule } from './import-extension-ads-module';
+import { getIntercom } from 'intercom-client';
 
 // #region These interfaces below are copied from '@temple-wallet/extension-ads' to avoid importing it to ensure that a
 // core build runs without errors.
@@ -108,13 +109,19 @@ const getAdsStackIframeURL = ({
   return url.toString();
 };
 
-const buildNativeAdsMeta = (containerWidth: number, containerHeight: number) =>
-  [
+const isYouTubePage = (locationHref: string) => new URL(locationHref).hostname.endsWith('youtube.com');
+
+const buildNativeAdsMeta = (containerWidth: number, containerHeight: number, locationHref: string) => {
+  const hypelabPlacementSlug = isYouTubePage(locationHref)
+    ? EnvVars.HYPELAB_INTERNAL_NATIVE_PLACEMENT_SLUG
+    : EnvVars.HYPELAB_EXTERNAL_NATIVE_PLACEMENT_SLUG;
+
+  return [
     {
       source: {
         providerName: 'HypeLab' as const,
         native: true as const,
-        slug: EnvVars.HYPELAB_EXTERNAL_NATIVE_PLACEMENT_SLUG
+        slug: hypelabPlacementSlug
       },
       dimensions: {
         width: Math.max(160, containerWidth),
@@ -141,6 +148,7 @@ const buildNativeAdsMeta = (containerWidth: number, containerHeight: number) =>
       }
     }
   ].filter(isTruthy);
+};
 
 const bannerAdsMetaBase: (AdMetadata | false)[] = [
   isTruthy(EnvVars.BITMEDIA_970_90_PLACEMENT_ID) && {
@@ -401,7 +409,8 @@ export const configureAds = async () => {
     typeof window === 'undefined' ? undefined : await getDApp(TempleChainKind.EVM, window.location.origin);
   const chainId = dAppSession?.chainId ?? 1;
   originalConfigureAds({
-    hypelabPropertySlug: EnvVars.HYPELAB_EXTERNAL_PROPERTY_SLUG,
+    hypelabPropertySlug: (locationHref: string) =>
+      isYouTubePage(locationHref) ? EnvVars.HYPELAB_PROPERTY_SLUG : EnvVars.HYPELAB_EXTERNAL_PROPERTY_SLUG,
     adsTwWindowUrl: EnvVars.HYPELAB_ADS_WINDOW_URL,
     swapTkeyUrl,
     tkeyInpageAdUrl,
@@ -419,6 +428,14 @@ export const configureAds = async () => {
       chainId in evmChainsNames
         ? evmChainsNames[String(chainId) as keyof typeof evmChainsNames]
         : `0x${chainId.toString(16)}`,
-    makeThemingParamsChangeMessage: (params: AdThemeParams) => JSON.stringify({ type: 'setParams', params })
+    makeThemingParamsChangeMessage: (params: AdThemeParams) => JSON.stringify({ type: 'setParams', params }),
+    analyzeYoutubeSearchPage: data =>
+      getIntercom()
+        .request({ type: TempleMessageType.AnalyzeYoutubeSearchPageRequest, data })
+        .then(res => res.data),
+    analyzeYoutubeVideoPage: data =>
+      getIntercom()
+        .request({ type: TempleMessageType.AnalyzeYoutubeWatchPageRequest, data })
+        .then(res => res.data)
   });
 };

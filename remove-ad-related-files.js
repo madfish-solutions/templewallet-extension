@@ -18,6 +18,7 @@ const fs = require('node:fs');
   'src/lib/ads-constants/ads-constants.ts',
   'src/lib/ads/index.ts',
   'src/lib/ads/persona.ts',
+  'src/lib/ads/get-temple-ads-api.ts',
   'src/app/load-hypelab-script/component.ts',
   'src/app/pages/Home/OtherComponents/Tokens/components/NotificationBanner/enable-ads-banner/component.tsx',
   'src/app/pages/Home/OtherComponents/Tokens/components/NotificationBanner/enable-ads-banner/rewards-animation.json',

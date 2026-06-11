@@ -1,3 +1,9 @@
+import {
+  isYoutubeSearchPage,
+  isYoutubeWatchPage,
+  startYoutubeSearchAdsFlow,
+  startYoutubeWatchAdsFlow
+} from '@temple-wallet/extension-ads';
 import browser from 'webextension-polyfill';
 
 import { checkIfShouldReplaceAds } from 'content-scripts/utils';
@@ -23,6 +29,9 @@ setInterval(async () => {
   element.id = INJECTED_PIXEL_ID;
   element.setAttribute('twa', 'true');
   element.style.cssText = INJECTED_PIXEL_STYLE;
+
+  if (!document?.body) return;
+
   document.body.appendChild(element);
   if (!impressionWasPosted) {
     impressionWasPosted = true;
@@ -45,19 +54,38 @@ checkIfShouldReplaceAds().then(async shouldReplace => {
   setInterval(() => replaceAds(), 1000);
 });
 
+let lastAttemptTs = 0;
+
 const replaceAds = throttleAsyncCalls(async () => {
   try {
-    const { getAdsActions, executeAdsActions } = await importExtensionAdsModule();
-    const adsRules = await getRulesFromContentScript(window.location);
+    const { getAdsActions, executeAdsActions, isYoutubeHomePage, startYoutubeHomeAdsFlow } =
+      await importExtensionAdsModule();
+    let adsActionsResult: PromiseSettledResult<void>[] = [];
 
-    if (adsRules.timestamp < Date.now() - ADS_RULES_UPDATE_INTERVAL) {
-      clearRulesCache();
-      browser.runtime.sendMessage({ type: ContentScriptType.UpdateAdsRules }).catch(e => console.error(e));
+    if (isYoutubeHomePage()) {
+      adsActionsResult = await startYoutubeHomeAdsFlow();
+    } else if (isYoutubeSearchPage()) {
+      adsActionsResult = await startYoutubeSearchAdsFlow();
+    } else if (isYoutubeWatchPage()) {
+      adsActionsResult = await startYoutubeWatchAdsFlow();
+    } else {
+      const adsRules = await getRulesFromContentScript(window.location);
+
+      if (
+        adsRules.timestamp < Date.now() - ADS_RULES_UPDATE_INTERVAL &&
+        lastAttemptTs < Date.now() - ADS_RULES_UPDATE_INTERVAL
+      ) {
+        lastAttemptTs = Date.now();
+        clearRulesCache();
+        browser.runtime.sendMessage({ type: ContentScriptType.UpdateAdsRules }).catch(e => {
+          console.error(e);
+        });
+      }
+
+      const adsActions = await getAdsActions(adsRules);
+
+      adsActionsResult = await executeAdsActions(adsActions);
     }
-
-    const adsActions = await getAdsActions(adsRules);
-
-    const adsActionsResult = await executeAdsActions(adsActions);
     adsActionsResult.forEach(
       (result: PromiseSettledResult<void>) =>
         void (result.status === 'rejected' && console.error('Replacing an ad error:', result.reason))
