@@ -10,6 +10,9 @@ type Truthy<T> = T extends null | undefined | void | false | '' | 0 | 0n ? never
 export const EMPTY_FROZEN_OBJ: StringRecord<never> = {};
 Object.freeze(EMPTY_FROZEN_OBJ);
 
+export const EMPTY_FROZEN_ARRAY: never[] = [];
+Object.freeze(EMPTY_FROZEN_ARRAY);
+
 /** From lodash */
 function noop() {}
 

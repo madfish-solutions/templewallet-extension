@@ -6,6 +6,9 @@ import { isString } from 'lodash';
 import { Model3DViewer } from 'app/atoms/Model3DViewer';
 import { useCollectiblesListOptionsSelector } from 'app/store/assets-filter-options/selectors';
 import { TezosAssetImageStacked } from 'app/templates/AssetImage';
+import { CollectibleBlur } from 'app/templates/collectibles/collectible-blur';
+import { CollectibleImageFallback } from 'app/templates/collectibles/collectible-image-fallback';
+import { CollectibleImageLoader } from 'app/templates/collectibles/collectible-image-loader';
 import {
   isSvgDataUriInUtf8Encoding,
   buildObjktCollectibleArtifactUri,
@@ -17,9 +20,6 @@ import { EvmCollectibleMetadata } from 'lib/metadata/types';
 import { ImageStacked } from 'lib/ui/ImageStacked';
 
 import { AudioCollectible } from '../../components/AudioCollectible';
-import { CollectibleBlur } from '../../components/CollectibleBlur';
-import { CollectibleImageFallback } from '../../components/CollectibleImageFallback';
-import { CollectibleImageLoader } from '../../components/CollectibleImageLoader';
 import { VideoCollectible } from '../../components/VideoCollectible';
 
 interface TezosCollectiblePageImageProps {

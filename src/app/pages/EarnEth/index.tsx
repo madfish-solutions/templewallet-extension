@@ -14,6 +14,7 @@ import { useTypedSWR } from 'lib/swr';
 import { ETHEREUM_HOODI_CHAIN_ID, ETHEREUM_MAINNET_CHAIN_ID } from 'lib/temple/types';
 import { useUpdatableRef } from 'lib/ui/hooks';
 import { Lottie } from 'lib/ui/react-lottie';
+import { makeEthereumToolkit } from 'lib/utils/eth-staking';
 import { useAccountAddressForEvm, useAllEvmChains } from 'temple/front';
 
 import { ClaimModal } from './claim-modal';
@@ -23,7 +24,6 @@ import { EarnEthSelectors } from './selectors';
 import { StakingModal } from './staking-modal';
 import { EthStakingStats } from './types';
 import { UnstakeModal } from './unstake-modal';
-import { makeEthereumToolkit } from './utils';
 
 const advantages: EarnPromoAdvantageItem[] = [
   { Icon: NoLockIcon, textI18nKey: 'nonCustodialStaking' },

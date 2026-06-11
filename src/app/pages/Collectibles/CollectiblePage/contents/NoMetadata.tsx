@@ -5,10 +5,10 @@ import { PageLoader } from 'app/atoms/Loader';
 import { StyledButton } from 'app/atoms/StyledButton';
 import { ReactComponent as RefreshIcon } from 'app/icons/base/refresh.svg';
 import PageLayout from 'app/layouts/PageLayout';
+import { CollectibleImageFallback } from 'app/templates/collectibles/collectible-image-fallback';
 import { t, T } from 'lib/i18n';
 import { EvmChain, TezosChain, OneOfChains } from 'temple/front';
 
-import { CollectibleImageFallback } from '../../components/CollectibleImageFallback';
 import { EvmDetails, TezosDetails } from '../components/Details';
 import { ImageContainer } from '../components/ImageContainer';
 import { QuickActionsPopper } from '../components/QuickActionsPopper';

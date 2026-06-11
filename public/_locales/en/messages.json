@@ -2399,11 +2399,32 @@
   "hiddenTokensHint": {
     "message": "You have hidden tokens, disable\n“Hide small balances” filter to see them all"
   },
+  "shortHiddenTokensHint": {
+    "message": "You have hidden tokens with small balances"
+  },
+  "displayAllTokens": {
+    "message": "Display all"
+  },
   "noCollectibles": {
     "message": "No collectibles"
   },
   "selectNetwork": {
     "message": "Select Network"
+  },
+  "search": {
+    "message": "Search"
+  },
+  "viewAsCollections": {
+    "message": "View as collections"
+  },
+  "assetsLoaderText": {
+    "message": "Assets are loading..."
+  },
+  "startYourCollectionToday": {
+    "message": "Start your collection today!"
+  },
+  "unknownCollection": {
+    "message": "Unknown Collection"
   },
   "searchNetworkName": {
     "message": "Search network name"
@@ -4149,17 +4170,23 @@
   "depositTokensToGetStarted": {
     "message": "Deposit tokens to get started!"
   },
+  "makeTheFirstDepositToGetStarted": {
+    "message": "Make the first deposit to get started!"
+  },
+  "whitelistedTokens": {
+    "message": "Whitelisted tokens"
+  },
   "buyWithFiat": {
     "message": "Buy with Fiat"
   },
   "buyWithFiatDescription": {
     "message": "Purchase crypto via credit or debit card with 26+ currencies options"
   },
-  "crossChainSwap": {
-    "message": "Cross-Chain Swap"
+  "depositWithCrypto": {
+    "message": "Deposit with BTC, SOL or other"
   },
-  "crossChainSwapDescription": {
-    "message": "Exchange crypto instantly from Solana, Bitcoin and other networks"
+  "depositWithCryptoDescription": {
+    "message": "Top-up balance from Solana, Bitcoin and other networks without KYC"
   },
   "receiveOnChain": {
     "message": "Receive on-chain"
@@ -5035,6 +5062,9 @@
   "turnOnWhenNeeded": {
     "message": "Turn feature on when it works for you"
   },
+  "missingPayoutsCaption": {
+    "message": "Inactive - missing payouts"
+  },
   "earnTkeyDisclaimer": {
     "message": "By enabling ads, you agree to share your wallet address and IP\nto receive tokens and ads content."
   },
@@ -5234,6 +5264,9 @@
   },
   "yourDeposits": {
     "message": "Your deposits"
+  },
+  "deposits": {
+    "message": "Deposits"
   },
   "activation": {
     "message": "Activation"

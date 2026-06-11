@@ -7,16 +7,27 @@ import { useEnabledAccountChainTokenSlugs } from 'lib/assets/hooks';
 import { fromChainAssetSlug, toChainAssetSlug } from 'lib/assets/utils';
 import { useGetEvmTokenBalanceWithDecimals, useGetTezosAccountTokenOrGasBalanceWithDecimals } from 'lib/balances/hooks';
 import { TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
+import { useMemoWithCompare } from 'lib/ui/hooks';
 import { useEnabledEvmChains, useEnabledTezosChains } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
 
+import { useIsMultichainBigBalance } from '../listing-logic/use-is-big-balance';
+
+import { useEthStakingSummand } from './use-eth-staking-summand';
+import { useTezosStakingSummand } from './use-tezos-staking-summand';
 import { calculateTotalDollarValue } from './utils';
 
-export const useMultiChainTotalBalance = (accountTezAddress: string, accountEvmAddress: HexString) => {
+export const useMultiChainTotalBalance = (
+  accountTezAddress: string,
+  accountEvmAddress: HexString,
+  ignoreSmallBalances = false,
+  includeStaking = false
+) => {
   const enabledChainSlugs = useEnabledAccountChainTokenSlugs(accountTezAddress, accountEvmAddress);
 
   const getTezBalance = useGetTezosAccountTokenOrGasBalanceWithDecimals(accountTezAddress);
   const getEvmBalance = useGetEvmTokenBalanceWithDecimals(accountEvmAddress);
+  const isBigBalance = useIsMultichainBigBalance(accountTezAddress, accountEvmAddress);
 
   const tezMainnetUsdToTokenRates = useTezosUsdToTokenRatesSelector();
   const evmUsdToTokenRates = useEvmUsdToTokenRatesSelector();
@@ -24,14 +35,20 @@ export const useMultiChainTotalBalance = (accountTezAddress: string, accountEvmA
   const enabledTezChains = useEnabledTezosChains();
   const enabledEvmChains = useEnabledEvmChains();
 
-  const chainSlugs = useMemo(
-    () => [
-      ...enabledTezChains.map(chain => toChainAssetSlug(TempleChainKind.Tezos, chain.chainId, TEZ_TOKEN_SLUG)),
-      ...enabledEvmChains.map(chain => toChainAssetSlug(TempleChainKind.EVM, chain.chainId, EVM_TOKEN_SLUG)),
-      ...enabledChainSlugs
-    ],
-    [enabledChainSlugs, enabledEvmChains, enabledTezChains]
+  const chainSlugs = useMemoWithCompare(
+    () =>
+      enabledTezChains
+        .map(chain => toChainAssetSlug(TempleChainKind.Tezos, chain.chainId, TEZ_TOKEN_SLUG))
+        .concat(
+          enabledEvmChains.map(chain => toChainAssetSlug(TempleChainKind.EVM, chain.chainId, EVM_TOKEN_SLUG)),
+          enabledChainSlugs
+        )
+        .filter(slug => !ignoreSmallBalances || isBigBalance(slug)),
+    [enabledChainSlugs, enabledEvmChains, enabledTezChains, isBigBalance, ignoreSmallBalances]
   );
+
+  const tezStakingSummand = useTezosStakingSummand(accountTezAddress, includeStaking);
+  const ethStakingSummand = useEthStakingSummand(accountEvmAddress, includeStaking);
 
   return useMemo(
     () =>
@@ -53,7 +70,18 @@ export const useMultiChainTotalBalance = (accountTezAddress: string, accountEvmA
               : undefined
             : evmUsdToTokenRates[Number(chainId)]?.[slug];
         }
-      ),
-    [chainSlugs, evmUsdToTokenRates, getEvmBalance, getTezBalance, tezMainnetUsdToTokenRates]
+      )
+        .plus(tezStakingSummand)
+        .plus(ethStakingSummand)
+        .toString(),
+    [
+      chainSlugs,
+      evmUsdToTokenRates,
+      getEvmBalance,
+      getTezBalance,
+      tezMainnetUsdToTokenRates,
+      tezStakingSummand,
+      ethStakingSummand
+    ]
   );
 };

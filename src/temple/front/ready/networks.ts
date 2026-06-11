@@ -10,6 +10,7 @@ import { useRetryableSWR } from 'lib/swr';
 import { EvmChainSpecs, TezosChainSpecs } from 'lib/temple/chains-specs';
 import { useTempleClient } from 'lib/temple/front/client';
 import { TempleDAppPayload, TempleTezosChainId } from 'lib/temple/types';
+import { useMemoWithCompare } from 'lib/ui/hooks';
 import {
   ChainsActiveRpcUrls,
   ChainsAllRpcUrls,
@@ -181,7 +182,7 @@ function useChains<T extends OneOfChains>(
   const { allBlockExplorers } = useBlockExplorers();
   const testnetModeEnabled = useTestnetModeEnabledSelector();
 
-  const allChains = useMemo(() => {
+  const allChains = useMemoWithCompare(() => {
     const rpcByChainId = new Map<T['chainId'], NonEmptyArray<StoredNetwork<T>>>();
 
     for (const rpc of networks) {
@@ -225,7 +226,7 @@ function useChains<T extends OneOfChains>(
     return chains;
   }, [allBlockExplorers, chainKind, chainsSpecs, defaultNetworks, makeChain, networks]);
 
-  const enabledChains = useMemo(
+  const enabledChains = useMemoWithCompare(
     () =>
       Object.values(allChains).filter(chain => {
         const isTestnet = chain.testnet !== false;
