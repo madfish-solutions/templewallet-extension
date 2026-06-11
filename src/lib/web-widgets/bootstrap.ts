@@ -1,11 +1,14 @@
 import browser from 'webextension-polyfill';
 
+import { checkIfAccountExists } from 'content-scripts/utils';
 import {
+  ADS_VIEWER_DATA_STORAGE_KEY,
   WEB_WIDGETS_SNOOZE_DURATION_MS,
   WEB_WIDGETS_SNOOZE_UNTIL,
   WEB_WIDGETS_TOKEN_INSIGHT_ENABLED
 } from 'lib/constants';
 import { onStorageChanged } from 'lib/storage';
+import type { AdsViewerData } from 'temple/types';
 
 import { objktDetector } from './detectors/objkt/objkt-detector';
 import { ScanEngine } from './engine/scan-engine';
@@ -25,6 +28,7 @@ export function bootstrap(): void {
 
   const engine = new ScanEngine(registry);
 
+  let walletExists = false;
   let tokenInsightEnabled = true;
   let snoozeUntil = 0;
   let resumeTimer: NodeJS.Timeout | null = null;
@@ -38,18 +42,22 @@ export function bootstrap(): void {
     const now = Date.now();
     const snoozed = snoozeUntil > now;
 
-    if (tokenInsightEnabled && !snoozed) {
+    if (walletExists && tokenInsightEnabled && !snoozed) {
       engine.start();
     } else {
       engine.stop();
     }
 
-    if (tokenInsightEnabled && snoozed) {
+    if (walletExists && tokenInsightEnabled && snoozed) {
       resumeTimer = setTimeout(syncEngine, snoozeUntil - now);
     }
   };
 
-  browser.storage.local.get([WEB_WIDGETS_TOKEN_INSIGHT_ENABLED, WEB_WIDGETS_SNOOZE_UNTIL]).then(storage => {
+  Promise.all([
+    browser.storage.local.get([WEB_WIDGETS_TOKEN_INSIGHT_ENABLED, WEB_WIDGETS_SNOOZE_UNTIL]),
+    checkIfAccountExists()
+  ]).then(([storage, hasAccount]) => {
+    walletExists = hasAccount;
     tokenInsightEnabled = toEnabled(storage[WEB_WIDGETS_TOKEN_INSIGHT_ENABLED]);
     snoozeUntil = toSnoozeUntil(storage[WEB_WIDGETS_SNOOZE_UNTIL]);
     syncEngine();
@@ -62,6 +70,11 @@ export function bootstrap(): void {
 
   onStorageChanged(WEB_WIDGETS_SNOOZE_UNTIL, value => {
     snoozeUntil = toSnoozeUntil(value);
+    syncEngine();
+  });
+
+  onStorageChanged<AdsViewerData | null>(ADS_VIEWER_DATA_STORAGE_KEY, value => {
+    walletExists = Boolean(value?.tezosAddress || value?.evmAddress);
     syncEngine();
   });
 }

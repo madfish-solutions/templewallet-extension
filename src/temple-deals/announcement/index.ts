@@ -1,4 +1,5 @@
 import type { DealsState } from 'app/store/deals/state';
+import { checkIfAccountExists } from 'content-scripts/utils';
 import { browser } from 'lib/browser';
 import { ContentScriptType, DEALS_ANNOUNCEMENT_SHOWN_STORAGE_KEY } from 'lib/constants';
 import { fetchFromStorage } from 'lib/storage';
@@ -14,6 +15,8 @@ const DEALS_STORAGE_KEY = 'persist:root.deals';
   if (window.self !== window.top) return;
   if (window.location.hostname !== 'www.google.com') return;
   if (!window.location.pathname.startsWith('/search')) return;
+
+  if (!(await checkIfAccountExists())) return;
 
   const alreadyShown = await fetchFromStorage<boolean>(DEALS_ANNOUNCEMENT_SHOWN_STORAGE_KEY);
   if (alreadyShown === true) return;
