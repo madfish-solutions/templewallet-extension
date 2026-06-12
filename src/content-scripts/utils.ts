@@ -1,6 +1,13 @@
 import { ADS_VIEWER_DATA_STORAGE_KEY, WEBSITES_ADS_ENABLED } from 'lib/constants';
 import { IS_MISES_BROWSER } from 'lib/env';
 import { fetchFromStorage } from 'lib/storage';
+import type { AdsViewerData } from 'temple/types';
+
+export async function checkIfAccountExists() {
+  const adsViewerData = await fetchFromStorage<AdsViewerData>(ADS_VIEWER_DATA_STORAGE_KEY);
+
+  return Boolean(adsViewerData?.tezosAddress || adsViewerData?.evmAddress);
+}
 
 export function checkIfShouldReplaceAds() {
   return runInMainWindow(async () => {
