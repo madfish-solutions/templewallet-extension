@@ -195,7 +195,14 @@ export const NftCard = ({ tagData, onClose }: NftCardProps) => {
         ) : null}
       </div>
 
-      {permit ? <CardAd adUrl={adUrl} /> : <WelcomeOverlay onContinue={handleContinue} />}
+      {permit ? (
+        <CardAd adUrl={adUrl} />
+      ) : (
+        <>
+          <div className="tw-card__ad-placeholder" />
+          <WelcomeOverlay onContinue={handleContinue} />
+        </>
+      )}
     </div>
   );
 };

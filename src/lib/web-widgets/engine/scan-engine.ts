@@ -58,6 +58,12 @@ export class ScanEngine {
 
     for (const post of this.trackedPosts) this.teardownPost(post);
     this.trackedPosts.clear();
+
+    // Clear processed markers so re-enabling Token Insight re-scans every post and
+    // re-renders its pills instead of skipping them as already processed.
+    for (const post of document.querySelectorAll<HTMLElement>(`[${PROCESSED_MARKER_ATTR}]`)) {
+      post.removeAttribute(PROCESSED_MARKER_ATTR);
+    }
   }
 
   private discover(): void {

@@ -360,13 +360,17 @@ export const PILL_STYLES = `
     fill: currentColor;
   }
 
+  .tw-card__ad,
+  .tw-card__ad-placeholder {
+    flex: none;
+    height: 78px;
+    margin-bottom: 8px;
+  }
   .tw-card__ad {
     display: flex;
     align-items: center;
     position: relative;
-    flex: none;
-    height: 78px;
-    margin-bottom: 8px;
+    padding: 0 4px;
   }
   .tw-card__ad-iframe {
     width: 100%;
@@ -381,6 +385,20 @@ export const PILL_STYLES = `
     align-items: center;
     justify-content: center;
     background: #ffffff;
+  }
+  .tw-card__ad-fallback {
+    flex: 1;
+    align-self: stretch;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    background: #f4f4f4;
+    color: #aeaeb2;
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 16px;
   }
 
   .tw-card__welcome {

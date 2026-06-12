@@ -62,7 +62,13 @@ export const CardAd = ({ adUrl }: CardAdProps) => {
     };
   }, []);
 
-  if (!adUrl || adFailed) return null;
+  if (!adUrl || adFailed) {
+    return (
+      <div className="tw-card__ad">
+        <div className="tw-card__ad-fallback">Thanks for supporting Temple</div>
+      </div>
+    );
+  }
 
   return (
     <div className="tw-card__ad">

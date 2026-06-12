@@ -26,6 +26,9 @@ const VIEWPORT_GAP = 4;
 // Match the card's fixed CSS dimensions, used for the first layout pass before the child
 const FALLBACK_CARD_HEIGHT = 392;
 const FALLBACK_CARD_WIDTH = 452;
+// Keep the card mounted this long after close so it fades out at full size instead of
+// collapsing first; matches the .tw-hover-placeholder opacity/transform transition.
+const FADE_OUT_MS = 160;
 
 const createCardHost = (): CardHost => {
   const host = document.createElement('div');
@@ -50,11 +53,22 @@ export const HoverPlaceholder = memo<HoverPlaceholderProps>(
     const { host, mount } = hostRef.current;
 
     const [flipped, setFlipped] = useState(false);
+    const [cardMounted, setCardMounted] = useState(false);
 
     useEffect(() => {
       document.body.appendChild(host);
       return () => host.remove();
     }, [host]);
+
+    // Defer unmount until the fade-out finishes so the card doesn't collapse first.
+    useEffect(() => {
+      if (open) {
+        setCardMounted(true);
+        return;
+      }
+      const timer = setTimeout(() => setCardMounted(false), FADE_OUT_MS);
+      return () => clearTimeout(timer);
+    }, [open]);
 
     // Position the fixed host at the pill before paint: prefer below, flip above when it would
     // overflow the viewport bottom, then clamp inside the viewport.
@@ -102,7 +116,7 @@ export const HoverPlaceholder = memo<HoverPlaceholderProps>(
         onMouseEnter={onMouseEnter}
         onMouseLeave={onMouseLeave}
       >
-        {open ? <NftCard tagData={tagData} onClose={onClose} /> : null}
+        {open || cardMounted ? <NftCard tagData={tagData} onClose={onClose} /> : null}
       </div>,
       mount
     );
