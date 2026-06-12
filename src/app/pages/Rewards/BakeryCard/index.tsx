@@ -4,11 +4,10 @@ import clsx from 'clsx';
 
 import { Button, Loader } from 'app/atoms';
 import { AnimatedMenuChevron } from 'app/atoms/animated-menu-chevron';
+import { useBakeryRewardsStats } from 'app/hooks/use-rewards-stats';
 import { DelegationModal } from 'app/pages/EarnTez/modals/delegation';
 import { useHasPendingTezosDelegation } from 'app/store/tezos/pending-transactions/utils';
 import { AnalyticsEventCategory, useAnalytics } from 'lib/analytics';
-import { TKEY_TOKEN_METADATA } from 'lib/assets/known-tokens';
-import { TEMPLE_BAKERY_REWARDS_STATS_STORAGE_KEY } from 'lib/constants';
 import { t } from 'lib/i18n';
 import { TEMPLE_BAKER_ADDRESS } from 'lib/known-bakers';
 import { useDelegate } from 'lib/temple/front';
@@ -17,16 +16,8 @@ import { navigate } from 'lib/woozie';
 import { useAccountForTezos, useOnTezosBlock, useTezosMainnetChain } from 'temple/front';
 
 import { AllTimeStats } from '../all-time-stats';
-import { TEMPLE_BAKERY_PAYOUT_ADDRESS } from '../constants';
-import { useRewardsStatsEntry } from '../use-rewards-stats-entry';
 
 import { BakeryCardSelectors } from './selectors';
-
-const tkeyMeta = {
-  contract: TKEY_TOKEN_METADATA.address,
-  tokenId: TKEY_TOKEN_METADATA.id,
-  decimals: TKEY_TOKEN_METADATA.decimals
-};
 
 export const BakeryCard: FC = () => {
   const tezosMainnet = useTezosMainnetChain();
@@ -79,13 +70,7 @@ export const BakeryCard: FC = () => {
     };
   }, [isSettlingDelegation, myBakerPkh, updateBakerPkh]);
 
-  const { isLoading, stats } = useRewardsStatsEntry(
-    TEMPLE_BAKERY_REWARDS_STATS_STORAGE_KEY,
-    TEMPLE_BAKERY_PAYOUT_ADDRESS,
-    account?.address,
-    tkeyMeta,
-    'Failed to load bakery stats: '
-  );
+  const { isLoading, stats } = useBakeryRewardsStats();
 
   if (!account) return null;
 

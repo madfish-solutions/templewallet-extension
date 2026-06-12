@@ -7,5 +7,7 @@ export enum HomeSelectors {
   earnSectionCard = 'Home/Earn Section Card',
   updateAppBanner = 'Home/Update App Banner',
   enableAdsBanner = 'Home/Enable Ads Banner',
-  coverMyCostsButton = 'Home/Cover My Costs Button'
+  coverMyCostsButton = 'Home/Cover My Costs Button',
+  nftsSection = 'Home/NFTs Section',
+  tokensSection = 'Home/Tokens Section'
 }

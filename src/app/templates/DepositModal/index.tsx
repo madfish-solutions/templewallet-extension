@@ -44,8 +44,8 @@ export const DepositModal: FC<DepositModalProps> = ({ chainKind, opened, onReque
 
       <DepositOption
         to="/buy/crypto"
-        title={t('crossChainSwap')}
-        description={t('crossChainSwapDescription')}
+        title={t('depositWithCrypto')}
+        description={t('depositWithCryptoDescription')}
         imageSrc={CrossChainSwapImageSrc}
         testID={DepositModalSelectors.crossChainSwap}
       />

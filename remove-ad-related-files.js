@@ -20,12 +20,14 @@ const fs = require('node:fs');
   'src/lib/ads/persona.ts',
   'src/lib/ads/get-temple-ads-api.ts',
   'src/app/load-hypelab-script/component.ts',
-  'src/app/pages/Home/OtherComponents/Tokens/components/NotificationBanner/enable-ads-banner/component.tsx',
-  'src/app/pages/Home/OtherComponents/Tokens/components/NotificationBanner/enable-ads-banner/rewards-cover-card.tsx',
-  'src/app/pages/Home/OtherComponents/Tokens/components/NotificationBanner/enable-ads-banner/rewards-modal.tsx',
+  'src/app/pages/Home/notification-banner/enable-ads-banner/component.tsx',
+  'src/app/pages/Home/notification-banner/enable-ads-banner/rewards-cover-card.tsx',
+  'src/app/pages/Home/notification-banner/enable-ads-banner/rewards-modal.tsx',
   'src/lib/apis/ads-api/ads-api.ts'
 ].forEach(file => {
   try {
     fs.rmSync(file, { force: true, recursive: true });
-  } catch {}
+  } catch (e) {
+    console.error(e);
+  }
 });

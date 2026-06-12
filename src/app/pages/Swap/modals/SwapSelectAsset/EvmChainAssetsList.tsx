@@ -11,7 +11,7 @@ import { DeadEndBoundaryError } from 'app/ErrorBoundary';
 import { use3RouteEvmTokensMetadataRecordSelector } from 'app/store/evm/swap-3route-metadata/selectors';
 import { useLifiConnectedEvmTokensMetadataRecordSelector } from 'app/store/evm/swap-lifi-metadata/selectors';
 import { useEvmTokensMetadataRecordSelector } from 'app/store/evm/tokens-metadata/selectors';
-import { EvmTokenListItem } from 'app/templates/TokenListItem';
+import { EvmTokenListItem } from 'app/templates/tokens/token-list-item';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { useEnabledEvmChainAccountTokenSlugs } from 'lib/assets/hooks';
 import { searchEvmChainTokensWithNoMeta } from 'lib/assets/search.utils';
