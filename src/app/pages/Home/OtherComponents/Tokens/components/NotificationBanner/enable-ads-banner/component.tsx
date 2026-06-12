@@ -1,6 +1,7 @@
 import React, { memo, useCallback } from 'react';
 
 import { CLOSE_ANIMATION_TIMEOUT } from 'app/atoms/PageModal';
+import rewardsAnimation from 'app/atoms/rewards-animation/rewards-animation.json';
 import { useRewardsAddresses } from 'app/hooks/use-rewards-addresses';
 import { HomeSelectors } from 'app/pages/Home/selectors';
 import { dispatch } from 'app/store';
@@ -14,7 +15,6 @@ import { useBooleanState } from 'lib/ui/hooks';
 
 import { BannerBase } from '../banner-base';
 
-import rewardsAnimation from './rewards-animation.json';
 import { RewardsModal } from './rewards-modal';
 
 export const EnableAdsBanner = memo(() => {

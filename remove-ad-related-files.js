@@ -21,7 +21,6 @@ const fs = require('node:fs');
   'src/lib/ads/get-temple-ads-api.ts',
   'src/app/load-hypelab-script/component.ts',
   'src/app/pages/Home/OtherComponents/Tokens/components/NotificationBanner/enable-ads-banner/component.tsx',
-  'src/app/pages/Home/OtherComponents/Tokens/components/NotificationBanner/enable-ads-banner/rewards-animation.json',
   'src/app/pages/Home/OtherComponents/Tokens/components/NotificationBanner/enable-ads-banner/rewards-cover-card.tsx',
   'src/app/pages/Home/OtherComponents/Tokens/components/NotificationBanner/enable-ads-banner/rewards-modal.tsx',
   'src/lib/apis/ads-api/ads-api.ts'
