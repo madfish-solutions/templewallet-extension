@@ -6,6 +6,7 @@ import { getDApp } from 'app/storage/dapps';
 import {
   AD_CATEGORIES_PARAM_NAME,
   ADS_META_SEARCH_PARAM_NAME,
+  BACKGROUND_COLOR_SEARCH_PARAM_NAME,
   CHAIN_NAME_SEARCH_PARAM_NAME,
   EVM_ACCOUNT_SEARCH_PARAM_NAME,
   FONT_SIZE_SEARCH_PARAM_NAME,
@@ -59,6 +60,7 @@ interface AdsStackIframeURLParams {
   origin: string;
   adCategories: string[];
   themeColor?: string;
+  backgroundColor?: string;
   fontSize?: number;
   lineHeight?: number;
   evmAccountAddress?: string;
@@ -67,6 +69,7 @@ interface AdsStackIframeURLParams {
 
 interface AdThemeParams {
   themeColor?: string;
+  backgroundColor?: string;
   fontSize?: number;
   lineHeight?: number;
 }
@@ -84,6 +87,7 @@ const swapTkeyUrl = `${browser.runtime.getURL('fullpage.html')}#${buildSwapPageP
 const searchParamsNames = {
   id: 'id',
   themeColor: THEME_COLOR_SEARCH_PARAM_NAME,
+  backgroundColor: BACKGROUND_COLOR_SEARCH_PARAM_NAME,
   fontSize: FONT_SIZE_SEARCH_PARAM_NAME,
   lineHeight: LINE_HEIGHT_SEARCH_PARAM_NAME,
   evmAccountAddress: EVM_ACCOUNT_SEARCH_PARAM_NAME,
