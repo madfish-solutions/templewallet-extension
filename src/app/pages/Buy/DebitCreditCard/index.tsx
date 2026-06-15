@@ -9,10 +9,7 @@ import { loadAllCurrenciesActions } from 'app/store/buy-with-credit-card/actions
 import { t } from 'lib/i18n';
 import { useBooleanState, useInterval } from 'lib/ui/hooks';
 
-import {
-  DEFAULT_FORM_VALUES,
-  FORM_REFRESH_INTERVAL
-} from "./config";
+import { DEFAULT_FORM_VALUES, FORM_REFRESH_INTERVAL } from './config';
 import { Form } from './Form';
 import { useErrorAlert } from './hooks/use-error-alert';
 import { useFormInputsCallbacks } from './hooks/use-form-inputs-callbacks';

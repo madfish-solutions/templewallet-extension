@@ -4,7 +4,8 @@ import { toTopUpTokenSlug } from 'lib/buy-with-credit-card/top-up-token-slug.uti
 import { TopUpInputInterface, TopUpOutputInterface } from 'lib/buy-with-credit-card/topup.interface';
 import { ETHEREUM_MAINNET_CHAIN_ID, TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
 import { TempleChainKind } from 'temple/types';
-import { BuyWithCreditCardFormData } from "./types";
+
+import { BuyWithCreditCardFormData } from './types';
 
 export const FORM_REFRESH_INTERVAL = 30000;
 
