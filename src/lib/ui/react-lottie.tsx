@@ -61,7 +61,7 @@ interface EventListener {
   callback: () => void;
 }
 
-interface LottieProps {
+export interface LottieProps {
   /**
    * Object representing animation settings
    */
