@@ -258,7 +258,7 @@
     "minimatch": "^3.1.4",
     "serialize-javascript": "^7.0.3",
     "tmp": "^0.2.6",
-    "form-data": "^2.5.4",
+    "request/form-data": "^2.5.4",
     "useragent/semver": "^5.7.2"
   },
   "optionalDependencies": {
