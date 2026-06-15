@@ -41,15 +41,17 @@ export async function estimateBatchWithGasRebalance(
   opParams: WalletParamsWithKind[]
 ): Promise<Estimate[]> {
   let currentOpParams = opParams;
-  let attempt = 0;
   let context: RebalanceContext | undefined;
+  let lastError: unknown;
 
-  while (true) {
+  for (let attempt = 0; attempt <= MAX_GAS_REBALANCE_ATTEMPTS; attempt++) {
     try {
       return await tezos.estimate.batch(currentOpParams.map(params => ({ ...params, source: sourcePkh })));
     } catch (estimationError) {
-      if (attempt >= MAX_GAS_REBALANCE_ATTEMPTS || !isRescuableGasExhaustion(estimationError)) {
-        throw estimationError;
+      lastError = estimationError;
+
+      if (attempt === MAX_GAS_REBALANCE_ATTEMPTS || !isRescuableGasExhaustion(estimationError)) {
+        break;
       }
 
       if (!context) {
@@ -58,13 +60,14 @@ export async function estimateBatchWithGasRebalance(
 
       const rebalancedOpParams = rebalanceGasFromError(currentOpParams, estimationError, context);
       if (!rebalancedOpParams) {
-        throw estimationError;
+        break;
       }
 
       currentOpParams = rebalancedOpParams;
-      attempt++;
     }
   }
+
+  throw lastError;
 }
 
 function isRescuableGasExhaustion(error: unknown): error is TezosOperationError {
