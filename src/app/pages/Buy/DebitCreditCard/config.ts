@@ -4,6 +4,7 @@ import { toTopUpTokenSlug } from 'lib/buy-with-credit-card/top-up-token-slug.uti
 import { TopUpInputInterface, TopUpOutputInterface } from 'lib/buy-with-credit-card/topup.interface';
 import { ETHEREUM_MAINNET_CHAIN_ID, TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
 import { TempleChainKind } from 'temple/types';
+import { BuyWithCreditCardFormData } from "./types";
 
 export const FORM_REFRESH_INTERVAL = 30000;
 
@@ -19,20 +20,16 @@ export const DEFAULT_INPUT_CURRENCY: TopUpInputInterface = {
   precision: 2
 };
 
-export const DEFAULT_TEZOS_OUTPUT_TOKEN: TopUpOutputInterface = {
-  code: 'XTZ',
-  name: 'Tezos',
-  icon: `${MOONPAY_ASSETS_BASE_URL}/widget/currencies/xtz.svg`,
-  providers: allProviders,
-  precision: 1,
-  slug: toTopUpTokenSlug('XTZ', TempleChainKind.Tezos, TEZOS_MAINNET_CHAIN_ID)
-};
-
-export const DEFAULT_EVM_OUTPUT_TOKEN: TopUpOutputInterface = {
+export const DEFAULT_OUTPUT_TOKEN: TopUpOutputInterface = {
   code: 'ETH',
   name: 'Ethereum',
   icon: `${MOONPAY_ASSETS_BASE_URL}/widget/currencies/eth.svg`,
   providers: [TopUpProviderId.MoonPay, TopUpProviderId.Utorg],
   precision: 1,
   slug: toTopUpTokenSlug('ETH', TempleChainKind.EVM, ETHEREUM_MAINNET_CHAIN_ID.toString())
+};
+
+export const DEFAULT_FORM_VALUES: BuyWithCreditCardFormData = {
+  inputCurrency: DEFAULT_INPUT_CURRENCY,
+  outputToken: DEFAULT_OUTPUT_TOKEN
 };

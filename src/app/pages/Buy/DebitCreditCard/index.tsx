@@ -8,14 +8,11 @@ import { dispatch } from 'app/store';
 import { loadAllCurrenciesActions } from 'app/store/buy-with-credit-card/actions';
 import { t } from 'lib/i18n';
 import { useBooleanState, useInterval } from 'lib/ui/hooks';
-import { useAccountAddressForTezos } from 'temple/front';
 
 import {
-  DEFAULT_EVM_OUTPUT_TOKEN,
-  DEFAULT_INPUT_CURRENCY,
-  DEFAULT_TEZOS_OUTPUT_TOKEN,
+  DEFAULT_FORM_VALUES,
   FORM_REFRESH_INTERVAL
-} from './config';
+} from "./config";
 import { Form } from './Form';
 import { useErrorAlert } from './hooks/use-error-alert';
 import { useFormInputsCallbacks } from './hooks/use-form-inputs-callbacks';
@@ -33,20 +30,10 @@ export const DebitCreditCard: FC = () => {
   const [selectTokenModalOpened, openSelectTokenModal, closeSelectTokenModal] = useBooleanState(false);
   const [selectProviderModalOpened, openSelectProviderModal, closeSelectProviderModal] = useBooleanState(false);
 
-  const tezosAddress = useAccountAddressForTezos();
-
-  const defaultValues = useMemo<BuyWithCreditCardFormData>(
-    () => ({
-      inputCurrency: DEFAULT_INPUT_CURRENCY,
-      outputToken: tezosAddress ? DEFAULT_TEZOS_OUTPUT_TOKEN : DEFAULT_EVM_OUTPUT_TOKEN
-    }),
-    [tezosAddress]
-  );
-
   const form = useForm<BuyWithCreditCardFormData>({
     mode: 'onChange',
     reValidateMode: 'onChange',
-    defaultValues: defaultValues
+    defaultValues: DEFAULT_FORM_VALUES
   });
 
   const { control } = form;
