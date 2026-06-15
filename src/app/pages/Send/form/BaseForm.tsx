@@ -280,7 +280,6 @@ export const BaseForm: FC<Props> = ({
                 cleanable={Boolean(value)}
                 onClean={handleToClean}
                 onPasteButtonClick={handlePasteButtonClick}
-                id="send-to"
                 label={t('recipient')}
                 placeholder="Address or Domain name"
                 errorCaption={!toFieldFocused && formSubmitted ? error?.message : null}

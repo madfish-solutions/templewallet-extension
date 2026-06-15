@@ -11,7 +11,7 @@ interface UrlInputProps<T extends { url: string }> {
   urlsToExclude: string[];
   disabled: boolean;
   isEditable: boolean;
-  id: string;
+  id?: string;
   placeholder: string;
   submitError: string | null;
   resetSubmitError: EmptyFn;

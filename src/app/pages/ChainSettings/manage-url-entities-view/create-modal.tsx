@@ -155,7 +155,6 @@ export const CreateUrlEntityModal = memo(
                 })}
                 disabled={isSubmitting}
                 label={t('name')}
-                id="createurlentity-name"
                 placeholder={namePlaceholder}
                 errorCaption={isSubmitted && errors.name?.message}
                 testID={ChainSettingsSelectors.nameInput}
@@ -167,7 +166,6 @@ export const CreateUrlEntityModal = memo(
                 urlsToExclude={urlsToExclude}
                 disabled={isSubmitting}
                 isEditable
-                id="createurlentity-url"
                 placeholder={urlInputPlaceholder}
                 submitError={submitError}
                 resetSubmitError={resetSubmitError}
