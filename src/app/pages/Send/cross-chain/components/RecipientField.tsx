@@ -1,17 +1,18 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 
-import { Controller, useFormContext, useFormState, useWatch } from 'react-hook-form';
-import { useDebounce } from 'use-debounce';
+import { Controller, useFormContext, useFormState, useWatch } from "react-hook-form";
+import { useDebounce } from "use-debounce";
 
-import { NoSpaceField } from 'app/atoms';
-import { SelectAccountButton, SELECT_ACCOUNT_BUTTON_ID } from 'app/pages/Send/form/SelectAccountButton';
-import { SelectAccountModal } from 'app/pages/Send/modals/SelectAccount';
-import { CrossChainAsset, CrossChainDest, validateCrossChainRecipient } from 'lib/cross-chain';
-import { t } from 'lib/i18n';
-import { useBooleanState } from 'lib/ui/hooks';
-import { readClipboard } from 'lib/ui/utils';
+import { NoSpaceField } from "app/atoms";
+import { SelectAccountButton, SELECT_ACCOUNT_BUTTON_ID } from "app/pages/Send/form/SelectAccountButton";
+import { SelectAccountModal } from "app/pages/Send/modals/SelectAccount";
+import { CrossChainAsset, CrossChainDest, validateCrossChainRecipient } from "lib/cross-chain";
+import { t } from "lib/i18n";
+import { useBooleanState } from "lib/ui/hooks";
+import { readClipboard } from "lib/ui/utils";
 
-import { CrossChainFormData } from '../form-data';
+import { CrossChainFormData } from "../form-data";
+import clsx from "clsx";
 
 interface Props {
   fromAsset: CrossChainAsset;
@@ -19,20 +20,18 @@ interface Props {
 }
 
 const DEST_LABEL: Record<CrossChainDest, string> = {
-  btc: 'Bitcoin',
-  evm: 'EVM',
-  tezos: 'Tezos'
+  btc: "Bitcoin",
+  evm: "EVM",
+  tezos: "Tezos"
 };
 
 export const RecipientField: React.FC<Props> = ({ fromAsset, toAsset }) => {
   const { control, setValue } = useFormContext<CrossChainFormData>();
-  const { errors, submitCount } = useFormState<CrossChainFormData>({ control, name: 'to' });
+  const { submitCount } = useFormState<CrossChainFormData>({ control, name: "to" });
 
-  const toValue = useWatch({ control, name: 'to' });
+  const toValue = useWatch({ control, name: "to" });
   const [toValueDebounced] = useDebounce(toValue, 300);
   const formSubmitted = submitCount > 0;
-  const hasRecipientError = formSubmitted && Boolean(errors.to);
-  const hideSelectAccount = hasRecipientError && Boolean(toValue);
 
   const [focused, setFocused] = useState(false);
   const [selectModalOpened, openSelectModal, closeSelectModal] = useBooleanState(false);
@@ -43,10 +42,10 @@ export const RecipientField: React.FC<Props> = ({ fromAsset, toAsset }) => {
   };
 
   const handlePasteClick = () => {
-    readClipboard().then(value => setValue('to', value, { shouldValidate: formSubmitted }));
+    readClipboard().then(value => setValue("to", value, { shouldValidate: formSubmitted }));
   };
 
-  const handleClean = () => setValue('to', '', { shouldValidate: formSubmitted });
+  const handleClean = () => setValue("to", "", { shouldValidate: formSubmitted });
 
   const handleBlur = (e: React.FocusEvent) => {
     if (e.relatedTarget?.id === SELECT_ACCOUNT_BUTTON_ID) return;
@@ -54,25 +53,31 @@ export const RecipientField: React.FC<Props> = ({ fromAsset, toAsset }) => {
   };
 
   const handleSelectAccount = (address: string) => {
-    setValue('to', address, { shouldValidate: formSubmitted });
+    setValue("to", address, { shouldValidate: formSubmitted });
     closeSelectModal();
   };
 
-  const isNonBtc = toAsset.dest !== 'btc';
-  const isEvm = toAsset.dest === 'evm';
+  const handleSelectAccountButtonClick = () => {
+    setFocused(false);
+    openSelectModal();
+  };
+
+  const isNonBtc = toAsset.dest !== "btc";
+  const showSelectAccount = isNonBtc && focused;
+  const isEvm = toAsset.dest === "evm";
   const includeCurrentAccount =
-    (fromAsset.dest === 'evm' && toAsset.dest === 'tezos') || (fromAsset.dest === 'tezos' && toAsset.dest === 'evm');
+    (fromAsset.dest === "evm" && toAsset.dest === "tezos") || (fromAsset.dest === "tezos" && toAsset.dest === "evm");
 
   return (
     <>
-      <div className="my-4">
+      <div className="mt-2">
         <Controller
           name="to"
           control={control}
           rules={{ validate }}
           render={({ field: { onChange, value }, fieldState }) => (
             <NoSpaceField
-              value={value ?? ''}
+              value={value ?? ""}
               onChange={onChange}
               onFocus={() => setFocused(true)}
               onBlur={handleBlur}
@@ -84,35 +89,42 @@ export const RecipientField: React.FC<Props> = ({ fromAsset, toAsset }) => {
               onClean={handleClean}
               onPasteButtonClick={handlePasteClick}
               id="cross-chain-to"
-              placeholder={t('pasteAddress', DEST_LABEL[toAsset.dest])}
+              placeholder={t("pasteAddress", DEST_LABEL[toAsset.dest])}
               errorCaption={
                 !focused && formSubmitted
-                  ? typeof fieldState.error?.message === 'string'
+                  ? typeof fieldState.error?.message === "string"
                     ? fieldState.error.message
                     : null
                   : null
               }
-              style={{ resize: 'none' }}
+              style={{ resize: "none" }}
             />
           )}
         />
       </div>
 
-      {isNonBtc && !hideSelectAccount && (
-        <div className="mb-4">
-          <SelectAccountButton value={toValueDebounced ?? ''} onClick={openSelectModal} />
-        </div>
-      )}
-
       {isNonBtc && (
-        <SelectAccountModal
-          selectedAccountAddress={toValueDebounced ?? ''}
-          onAccountSelect={handleSelectAccount}
-          opened={selectModalOpened}
-          onRequestClose={closeSelectModal}
-          evm={isEvm}
-          includeCurrentAccount={includeCurrentAccount}
-        />
+        <>
+          <div
+            inert={showSelectAccount ? undefined : true}
+            className={clsx(
+              "grid overflow-hidden transition-[grid-template-rows,margin-bottom] duration-200 ease-in-out",
+              showSelectAccount ? "grid-rows-[1fr]" : "grid-rows-[0fr] pointer-events-none")
+            }
+          >
+            <div className="min-h-0">
+              <SelectAccountButton value={toValueDebounced ?? ""} onClick={handleSelectAccountButtonClick} />
+            </div>
+          </div>
+          <SelectAccountModal
+            selectedAccountAddress={toValueDebounced ?? ""}
+            onAccountSelect={handleSelectAccount}
+            opened={selectModalOpened}
+            onRequestClose={closeSelectModal}
+            evm={isEvm}
+            includeCurrentAccount={includeCurrentAccount}
+          />
+        </>
       )}
     </>
   );
