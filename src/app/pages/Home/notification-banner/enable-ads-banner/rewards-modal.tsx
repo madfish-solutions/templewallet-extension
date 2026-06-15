@@ -5,16 +5,13 @@ import { FireAnimatedEmoji } from 'app/atoms/fire-animated-emoji';
 import { EvmNetworkLogo, TezosNetworkLogo } from 'app/atoms/NetworkLogo';
 import { EvmNetworksLogos } from 'app/atoms/NetworksLogos';
 import { PageModal } from 'app/atoms/PageModal';
+import { RewardsAnimation } from 'app/atoms/rewards-animation';
 import { HomeSelectors } from 'app/pages/Home/selectors';
 import { PageModalScrollViewWithActions } from 'app/templates/page-modal-scroll-view-with-actions';
 import { t, T } from 'lib/i18n';
 import { ETHERLINK_MAINNET_CHAIN_ID, TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
-import { Lottie } from 'lib/ui/react-lottie';
 import { toPercentage } from 'lib/ui/utils';
 
-import { makeAnimationOptions } from '../utils';
-
-import rewardsAnimation from './rewards-animation.json';
 import { RewardsCoverCard } from './rewards-cover-card';
 
 interface RewardsModalProps {
@@ -22,8 +19,6 @@ interface RewardsModalProps {
   onRequestClose: EmptyFn;
   onActionClick: EmptyFn;
 }
-
-const REWARDS_ANIMATION_OPTIONS = makeAnimationOptions(rewardsAnimation);
 
 const rewardsCoverCardsProps = [
   {
@@ -81,7 +76,7 @@ export const RewardsModal = memo<RewardsModalProps>(({ isOpen, onRequestClose, o
     <PageModal title={<T id="templeRewards" />} opened={isOpen} onRequestClose={onRequestClose}>
       <PageModalScrollViewWithActions initialBottomEdgeVisible={false} actionsBoxProps={actionsBoxProps}>
         <div className="py-4 flex flex-col items-center text-center">
-          <Lottie options={REWARDS_ANIMATION_OPTIONS} height={120} width={120} />
+          <RewardsAnimation loop width={120} height={120} />
           <h1 className="mt-4 mb-1 text-font-h3">
             <T id="coverNetworkCosts" />
           </h1>
