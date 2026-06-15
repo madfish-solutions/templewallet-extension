@@ -1,31 +1,23 @@
 import { FC } from 'react';
 
 import { IconBase, PageTitle } from 'app/atoms';
+import { RewardsAnimation } from 'app/atoms/rewards-animation';
 import { ReactComponent as ClockCheckIcon } from 'app/icons/base/clock-check.svg';
 import { ReactComponent as InfoIcon } from 'app/icons/base/InfoFill.svg';
 import { ReactComponent as ReceiveCheckIcon } from 'app/icons/base/receive-check.svg';
 import { ReactComponent as SearchSparkleIcon } from 'app/icons/base/search-sparkle.svg';
 import { ReactComponent as VerifiedIcon } from 'app/icons/base/verified.svg';
 import PageLayout from 'app/layouts/PageLayout';
-import rewardsAnimation from 'app/pages/Home/notification-banner/enable-ads-banner/rewards-animation.json';
 import { t } from 'lib/i18n';
-import { Lottie } from 'lib/ui/react-lottie';
 
 import dealsIllustration from './assets/deals-illustration.png';
-
-const rewardsAnimationOptions = {
-  loop: false,
-  autoplay: true,
-  animationData: rewardsAnimation,
-  rendererSettings: { preserveAspectRatio: 'xMidYMid slice' }
-};
 
 export const RewardsDealsHowItWorks: FC = () => (
   <PageLayout pageTitle={<PageTitle title={t('howItWorks')} />} contentPadding={false}>
     <div className="bg-white px-4 flex flex-col">
       <section className="flex flex-col gap-4 items-center pt-4 pb-8">
         <div className="w-20 h-20 mx-auto">
-          <Lottie options={rewardsAnimationOptions} />
+          <RewardsAnimation loop={false} />
         </div>
         <div className="flex flex-col gap-1 w-full">
           <h3 className="text-font-h3 text-center">{t('templeDeals')}</h3>
