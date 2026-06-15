@@ -2,7 +2,7 @@ import React, { memo, useMemo, MouseEvent, useCallback, Ref } from 'react';
 
 import { getSlugWithChainId } from 'app/hooks/listing-logic/utils';
 import { useEvmTokensMetadataRecordSelector } from 'app/store/evm/tokens-metadata/selectors';
-import { EvmTokenListItem } from 'app/templates/TokenListItem';
+import { EvmTokenListItem } from 'app/templates/tokens/token-list-item';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { useEnabledEvmAccountTokenSlugs } from 'lib/assets/hooks/tokens';
 import { searchEvmTokensWithNoMeta } from 'lib/assets/search.utils';

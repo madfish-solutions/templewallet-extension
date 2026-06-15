@@ -1,71 +1,83 @@
-import { useCallback, useMemo } from 'react';
-
 import { useEvmUsdToTokenRatesSelector } from 'app/store/evm/tokens-exchange-rates/selectors';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { useEnabledEvmAccountTokenSlugs } from 'lib/assets/hooks';
 import { parseChainAssetSlug, toChainAssetSlug } from 'lib/assets/utils';
 import { useGetEvmTokenBalanceWithDecimals } from 'lib/balances/hooks';
+import { ETHEREUM_MAINNET_CHAIN_ID } from 'lib/temple/types';
+import { useMemoWithCompare } from 'lib/ui/hooks';
+import { ZERO } from 'lib/utils/numbers';
 import { useEnabledEvmChains } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
 
+import { useIsEvmBigBalance } from '../listing-logic/use-is-big-balance';
+
+import { useEthStakingSummand } from './use-eth-staking-summand';
 import { calculateTotalDollarValue as genericCalculateTotalDollarValue } from './utils';
 
 const useCalculateTotalDollarValue = (publicKeyHash: HexString) => {
   const getBalance = useGetEvmTokenBalanceWithDecimals(publicKeyHash);
   const usdToTokenRates = useEvmUsdToTokenRatesSelector();
 
-  return useCallback(
-    (chainSlugs: string[]) =>
-      genericCalculateTotalDollarValue(
-        chainSlugs,
-        chainSlug => {
-          const [, chainId, slug] = parseChainAssetSlug(chainSlug, TempleChainKind.EVM);
+  return (chainSlugs: string[]) =>
+    genericCalculateTotalDollarValue(
+      chainSlugs,
+      chainSlug => {
+        const [, chainId, slug] = parseChainAssetSlug(chainSlug, TempleChainKind.EVM);
 
-          return getBalance(chainId, slug);
-        },
-        chainSlug => {
-          const [, chainId, slug] = parseChainAssetSlug(chainSlug, TempleChainKind.EVM);
+        return getBalance(chainId, slug);
+      },
+      chainSlug => {
+        const [, chainId, slug] = parseChainAssetSlug(chainSlug, TempleChainKind.EVM);
 
-          return usdToTokenRates[chainId]?.[slug];
-        }
-      ),
-    [getBalance, usdToTokenRates]
-  );
+        return usdToTokenRates[chainId]?.[slug];
+      }
+    );
 };
 
-export const useGetEvmChainAccountTotalBalance = (publicKeyHash: HexString) => {
+export const useGetEvmChainAccountTotalBalance = (
+  publicKeyHash: HexString,
+  ignoreSmallBalances = false,
+  includeStaking = false
+) => {
+  const enabledChainSlugs = useEnabledEvmAccountTokenSlugs(publicKeyHash);
+  const possibleStakingSummand = useEthStakingSummand(publicKeyHash, includeStaking);
+
+  const calculateTotalDollarValue = useCalculateTotalDollarValue(publicKeyHash);
+  const isBigBalance = useIsEvmBigBalance(publicKeyHash);
+
+  return (chainId: number) =>
+    calculateTotalDollarValue(
+      enabledChainSlugs
+        .filter(slug => {
+          const [, id] = parseChainAssetSlug(slug, TempleChainKind.EVM);
+          return id === chainId;
+        })
+        .concat(toChainAssetSlug(TempleChainKind.EVM, chainId, EVM_TOKEN_SLUG))
+        .filter(slug => !ignoreSmallBalances || isBigBalance(slug))
+    ).plus(chainId === ETHEREUM_MAINNET_CHAIN_ID ? possibleStakingSummand : ZERO);
+};
+
+export const useEvmAccountTotalBalance = (
+  publicKeyHash: HexString,
+  ignoreSmallBalances = false,
+  includeStaking = false
+) => {
   const enabledChainSlugs = useEnabledEvmAccountTokenSlugs(publicKeyHash);
 
   const calculateTotalDollarValue = useCalculateTotalDollarValue(publicKeyHash);
-
-  return useCallback(
-    (chainId: number) =>
-      calculateTotalDollarValue(
-        enabledChainSlugs
-          .filter(slug => {
-            const [, id] = parseChainAssetSlug(slug, TempleChainKind.EVM);
-            return id === chainId;
-          })
-          .concat(toChainAssetSlug(TempleChainKind.EVM, chainId, EVM_TOKEN_SLUG))
-      ),
-    [calculateTotalDollarValue, enabledChainSlugs]
-  );
-};
-
-export const useEvmAccountTotalBalance = (publicKeyHash: HexString) => {
-  const enabledChainSlugs = useEnabledEvmAccountTokenSlugs(publicKeyHash);
-
-  const calculateTotalDollarValue = useCalculateTotalDollarValue(publicKeyHash);
-
+  const isBigBalance = useIsEvmBigBalance(publicKeyHash);
   const enabledChains = useEnabledEvmChains();
 
-  const chainSlugs = useMemo(
-    () => [
-      ...enabledChains.map(chain => toChainAssetSlug(TempleChainKind.EVM, chain.chainId, EVM_TOKEN_SLUG)),
-      ...enabledChainSlugs
-    ],
-    [enabledChainSlugs, enabledChains]
+  const chainSlugs = useMemoWithCompare(
+    () =>
+      enabledChains
+        .map(chain => toChainAssetSlug(TempleChainKind.EVM, chain.chainId, EVM_TOKEN_SLUG))
+        .concat(enabledChainSlugs)
+        .filter(slug => !ignoreSmallBalances || isBigBalance(slug)),
+    [enabledChainSlugs, enabledChains, ignoreSmallBalances, isBigBalance]
   );
 
-  return useMemo(() => calculateTotalDollarValue(chainSlugs), [calculateTotalDollarValue, chainSlugs]);
+  const stakingSummand = useEthStakingSummand(publicKeyHash, includeStaking);
+
+  return calculateTotalDollarValue(chainSlugs).plus(stakingSummand).toString();
 };

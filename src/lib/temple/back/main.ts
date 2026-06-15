@@ -4,13 +4,21 @@ import browser, { Runtime } from 'webextension-polyfill';
 import { ValidationError } from 'yup';
 
 import { getStoredAppInstallIdentity } from 'app/storage/app-install-id';
-import { importExtensionAdsReferralsModule } from 'lib/ads/import-extension-ads-module';
+import type { DealsState } from 'app/store/deals/state';
 import { importUpdateRulesStorageModule } from 'lib/ads/import-update-rules-storage';
 import { importAdsApiModule } from 'lib/apis/ads-api';
-import { ADS_VIEWER_DATA_STORAGE_KEY, ContentScriptType, REWARDS_ACCOUNT_DATA_STORAGE_KEY } from 'lib/constants';
+import {
+  ADS_VIEWER_DATA_STORAGE_KEY,
+  ANALYTICS_USER_ID_STORAGE_KEY,
+  ContentScriptType,
+  REWARDS_ACCOUNT_DATA_STORAGE_KEY,
+  DEALS_ANNOUNCEMENT_SHOWN_STORAGE_KEY,
+  USAGE_ANALYTICS_ENABLED
+} from 'lib/constants';
 import { E2eMessageType } from 'lib/e2e/types';
-import { BACKGROUND_IS_WORKER, EnvVars, IS_FIREFOX, IS_MISES_BROWSER } from 'lib/env';
-import { fetchFromStorage } from 'lib/storage';
+import { BACKGROUND_IS_WORKER, IS_FIREFOX, IS_MISES_BROWSER } from 'lib/env';
+import { fetchFromStorage, putToStorage } from 'lib/storage';
+import { AnalyticsEventCategory } from 'lib/temple/analytics-types';
 import { encodeMessage, encryptMessage, getSenderId, MessageType, Response } from 'lib/temple/beacon';
 import { clearAsyncStorages } from 'lib/temple/reset';
 import { StoredHDAccount, TempleMessageType, TempleRequest, TempleResponse } from 'lib/temple/types';
@@ -28,6 +36,10 @@ import { markConfirmationWindowDetached } from './request-confirm';
 import { store, toFront } from './store';
 
 const frontStore = store.map(toFront);
+
+const DEALS_STORAGE_KEY = 'persist:root.deals';
+const MERCHANT_OFFER_SUPPRESSION_TTL = 15 * 60 * 1000;
+const merchantOfferSuppressedAt = new Map<string, number>();
 
 export const start = async () => {
   intercom.onRequest(processRequestWithErrorsLogged);
@@ -450,34 +462,154 @@ browser.runtime.onMessage.addListener(async (msg, sender) => {
         return await getTempleReferralLinkItems(browser);
       }
 
-      case ContentScriptType.FetchTakeAdsReferrals: {
-        if (BACKGROUND_IS_WORKER) {
-          const { buildTakeadsClient } = await importExtensionAdsReferralsModule();
-          const takeads = buildTakeadsClient(EnvVars.TAKE_ADS_TOKEN);
-          return await takeads.affiliateLinks(msg.links);
-        }
+      case ContentScriptType.ReferralClick: {
+        const { urlDomain, pageDomain, provider } = msg;
+
+        await withNonImportErrorForwarding(async () => {
+          // TakeAds merchant offer clicks use Jitsu userId
+          if (provider === 'TakeAds') {
+            const { postReferralClickByUserId } = await importAdsApiModule();
+            const userId = await fetchFromStorage<string>(ANALYTICS_USER_ID_STORAGE_KEY);
+            if (!userId) throw new Error('Analytics userId not found');
+            await postReferralClickByUserId(userId, { urlDomain, pageDomain, provider });
+          } else {
+            const { postReferralClick } = await importAdsApiModule();
+            const rewardsAddresses = await getRewardsAccountCredentials();
+            if (rewardsAddresses.evmAddress) {
+              await postReferralClick(rewardsAddresses, undefined, { urlDomain, pageDomain, provider });
+            } else {
+              const identity = await getStoredAppInstallIdentity();
+              if (!identity) throw new Error('App identity not found');
+              const installId = identity.publicKeyHash;
+              await postReferralClick({}, installId, { urlDomain, pageDomain, provider });
+            }
+          }
+        });
+        break;
+      }
+
+      case ContentScriptType.FetchMerchantOffers: {
+        const merchantState = await fetchFromStorage<DealsState>(DEALS_STORAGE_KEY);
+        if (!merchantState?.enabled) return [];
+        if (merchantState.snoozedUntil && Date.now() < merchantState.snoozedUntil) return [];
 
         return await withNonImportErrorForwarding(async () => {
-          const { fetchReferralsAffiliateLinks } = await importAdsApiModule();
-
-          return await fetchReferralsAffiliateLinks(msg.links);
+          const { fetchMerchantOffers } = await importAdsApiModule();
+          return await fetchMerchantOffers(msg.domains);
         });
       }
 
-      case ContentScriptType.ReferralClick: {
-        const { urlDomain, pageDomain, provider } = msg;
-        const rewardsAddresses = await getRewardsAccountCredentials();
+      case ContentScriptType.ActivateMerchantOffer: {
+        return await withNonImportErrorForwarding(async () => {
+          const { activateMerchantOffer } = await importAdsApiModule();
+          const userId = await fetchFromStorage<string>(ANALYTICS_USER_ID_STORAGE_KEY);
+          return await activateMerchantOffer(msg.url, userId ?? undefined);
+        });
+      }
 
-        await withNonImportErrorForwarding(async () => {
-          const { postReferralClick } = await importAdsApiModule();
-          if (rewardsAddresses.evmAddress) {
-            await postReferralClick(rewardsAddresses, undefined, { urlDomain, pageDomain, provider });
-          } else {
-            const identity = await getStoredAppInstallIdentity();
-            if (!identity) throw new Error('App identity not found');
-            const installId = identity.publicKeyHash;
-            await postReferralClick({}, installId, { urlDomain, pageDomain, provider });
-          }
+      case ContentScriptType.MarkMerchantOfferActivated: {
+        if (typeof msg.domain === 'string') merchantOfferSuppressedAt.set(msg.domain, Date.now());
+        break;
+      }
+
+      case ContentScriptType.CheckAndConsumeMerchantOfferActivated: {
+        if (typeof msg.domain !== 'string') return false;
+
+        const suppressedAt = merchantOfferSuppressedAt.get(msg.domain);
+        if (!suppressedAt) return false;
+
+        if (Date.now() - suppressedAt >= MERCHANT_OFFER_SUPPRESSION_TTL) {
+          merchantOfferSuppressedAt.delete(msg.domain);
+          return false;
+        }
+
+        return true;
+      }
+
+      case ContentScriptType.MerchantOfferSnooze: {
+        const merchantState = await fetchFromStorage<DealsState>(DEALS_STORAGE_KEY);
+        await putToStorage(DEALS_STORAGE_KEY, {
+          ...merchantState,
+          snoozedUntil: Date.now() + 24 * 60 * 60 * 1000
+        });
+        break;
+      }
+
+      case ContentScriptType.MerchantOfferDisable: {
+        await putToStorage(DEALS_STORAGE_KEY, {
+          enabled: false,
+          snoozedUntil: 0
+        });
+        break;
+      }
+
+      case ContentScriptType.MerchantOfferAnalytics: {
+        const [analyticsEnabled, userId] = await Promise.all([
+          fetchFromStorage<boolean>(USAGE_ANALYTICS_ENABLED),
+          fetchFromStorage<string>(ANALYTICS_USER_ID_STORAGE_KEY)
+        ]);
+
+        if (!analyticsEnabled) break;
+
+        const { event, properties, category } = msg;
+
+        Analytics.trackEvent({
+          userId: userId ?? '',
+          chainId: undefined,
+          event,
+          category,
+          properties
+        });
+        break;
+      }
+
+      case ContentScriptType.MarkDealsAnnouncementSeen: {
+        await putToStorage(DEALS_ANNOUNCEMENT_SHOWN_STORAGE_KEY, true);
+        break;
+      }
+
+      case ContentScriptType.ActivateDealsAnnouncement: {
+        const merchantState = await fetchFromStorage<DealsState>(DEALS_STORAGE_KEY);
+        await putToStorage(DEALS_STORAGE_KEY, {
+          ...merchantState,
+          enabled: true,
+          snoozedUntil: 0
+        });
+
+        const userId = (await fetchFromStorage<string>(ANALYTICS_USER_ID_STORAGE_KEY)) ?? '';
+        Analytics.trackEvent({
+          userId,
+          chainId: undefined,
+          event: 'DealsEnabled',
+          category: AnalyticsEventCategory.General,
+          properties: {}
+        });
+        break;
+      }
+
+      case ContentScriptType.DealsAnnouncementAnalytics: {
+        const allowedEvents = new Set([
+          'DealsAnnouncementGoogleSearchView',
+          'DealsAnnouncementGoogleSearchActivate',
+          'DealsAnnouncementGoogleSearchClose'
+        ]);
+
+        const { event, category, properties } = msg;
+        if (typeof event !== 'string' || !allowedEvents.has(event)) break;
+
+        // Activation is always tracked
+        if (event !== 'DealsAnnouncementGoogleSearchActivate') {
+          const analyticsEnabled = await fetchFromStorage<boolean>(USAGE_ANALYTICS_ENABLED);
+          if (!analyticsEnabled) break;
+        }
+
+        const userId = (await fetchFromStorage<string>(ANALYTICS_USER_ID_STORAGE_KEY)) ?? '';
+        Analytics.trackEvent({
+          userId,
+          chainId: undefined,
+          event,
+          category,
+          properties
         });
         break;
       }

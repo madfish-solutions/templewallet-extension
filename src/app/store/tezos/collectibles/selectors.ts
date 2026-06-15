@@ -2,6 +2,10 @@ import { useSelector } from '../../root-state.selector';
 
 import type { CollectibleDetails } from './state';
 
+export const useAllCollectiblesDetailsSelector = () => useSelector(({ collectibles }) => collectibles.details.data);
+
+export const useCollectiblesDetailsErrorSelector = () => useSelector(({ collectibles }) => collectibles.details.error);
+
 export const useCollectibleDetailsSelector = (slug: string): CollectibleDetails | nullish =>
   useSelector(({ collectibles }) => collectibles.details.data[slug]);
 

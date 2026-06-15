@@ -1,0 +1,19 @@
+import { use } from 'react';
+
+const importEnableAdsBannerModule = async () => {
+  try {
+    return await import(
+      // An error appears below if and only the imported file is removed
+      // oxlint-disable-next-line @typescript-eslint/prefer-ts-expect-error
+      // @ts-ignore
+      // oxlint-disable-next-line import/no-unresolved
+      'app/pages/Home/notification-banner/enable-ads-banner/component'
+    );
+  } catch {
+    return null;
+  }
+};
+
+const importPromise = importEnableAdsBannerModule();
+
+export const useEnableAdsBannerModule = () => use(importPromise);

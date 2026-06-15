@@ -10,15 +10,16 @@ inputs:
 runs:
   using: 'composite'
   steps:
-    - working-directory: ./e2e
-      if: inputs.optional_modules == 'true'
+    - name: Install dependencies
+      working-directory: ./e2e
       shell: bash
       run: yarn install
-    
-    - working-directory: ./e2e
+
+    - name: Remove optional private modules
+      working-directory: ./e2e
       if: inputs.optional_modules != 'true'
       shell: bash
-      run: yarn install --ignore-optional
+      run: rm -rf ../node_modules/@temple-wallet/extension-ads
 
     - name: Run tests
       working-directory: ./e2e

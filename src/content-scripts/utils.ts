@@ -1,22 +1,22 @@
-import { ADS_VIEWER_DATA_STORAGE_KEY, REPLACE_REFERRALS_ENABLED, WEBSITES_ANALYTICS_ENABLED } from 'lib/constants';
+import { ADS_VIEWER_DATA_STORAGE_KEY, WEBSITES_ADS_ENABLED } from 'lib/constants';
 import { IS_MISES_BROWSER } from 'lib/env';
 import { fetchFromStorage } from 'lib/storage';
+import type { AdsViewerData } from 'temple/types';
+
+export async function checkIfAccountExists() {
+  const adsViewerData = await fetchFromStorage<AdsViewerData>(ADS_VIEWER_DATA_STORAGE_KEY);
+
+  return Boolean(adsViewerData?.tezosAddress || adsViewerData?.evmAddress);
+}
 
 export function checkIfShouldReplaceAds() {
   return runInMainWindow(async () => {
     const accountDataFromStorage = await fetchFromStorage<string>(ADS_VIEWER_DATA_STORAGE_KEY);
-    const websitesAnalyticsEnabled = await fetchFromStorage<boolean>(WEBSITES_ANALYTICS_ENABLED);
+    const websitesAdsEnabled = await fetchFromStorage<boolean>(WEBSITES_ADS_ENABLED);
 
-    if (accountDataFromStorage) return websitesAnalyticsEnabled ?? false;
+    if (accountDataFromStorage) return websitesAdsEnabled ?? false;
 
     return IS_MISES_BROWSER;
-  });
-}
-
-export function checkIfShouldReplaceTakeAdsReferrals() {
-  return runInMainWindow(async () => {
-    const value = await fetchFromStorage<boolean>(REPLACE_REFERRALS_ENABLED);
-    return value ?? IS_MISES_BROWSER;
   });
 }
 

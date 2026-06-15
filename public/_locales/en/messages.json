@@ -2399,11 +2399,32 @@
   "hiddenTokensHint": {
     "message": "You have hidden tokens, disable\n“Hide small balances” filter to see them all"
   },
+  "shortHiddenTokensHint": {
+    "message": "You have hidden tokens with small balances"
+  },
+  "displayAllTokens": {
+    "message": "Display all"
+  },
   "noCollectibles": {
     "message": "No collectibles"
   },
   "selectNetwork": {
     "message": "Select Network"
+  },
+  "search": {
+    "message": "Search"
+  },
+  "viewAsCollections": {
+    "message": "View as collections"
+  },
+  "assetsLoaderText": {
+    "message": "Assets are loading..."
+  },
+  "startYourCollectionToday": {
+    "message": "Start your collection today!"
+  },
+  "unknownCollection": {
+    "message": "Unknown Collection"
   },
   "searchNetworkName": {
     "message": "Search network name"
@@ -3101,10 +3122,16 @@
     "message": "Search DApps"
   },
   "inviteAccountTooltip": {
-    "message": "All your referrals connected to your first created or imported account in Temple. Make sure you backed up your wallet to prevent unnecessary losses."
+    "message": "All your referrals, rewards payouts for activities are connected to your first created or imported account in Temple. Make sure you backed up your wallet to prevent unnecessary losses."
   },
   "advancedFeaturesTooltip": {
     "message": "This section display your rewards for enabled advanced features. You can manage these features anytime in the settings."
+  },
+  "rewardsFromDealsTooltip": {
+    "message": "This section display your rewards from Deals. You can manage this feature in the Settings."
+  },
+  "rewardsFromPromoTooltip": {
+    "message": "This section display your rewards from Promo. You can manage this feature in the Settings."
   },
   "yourRewards": {
     "message": "Your rewards"
@@ -3498,13 +3525,13 @@
     "message": "Did you know, you can earn TKEY tokens by viewing ads? If ads are turned off, you can easily enable them anytime in the settings and start earning rewards!"
   },
   "enablePartnersPromotionConfirm": {
-    "message": "Earning TKEY has started"
+    "message": "Earn TKEY & Support Temple"
   },
   "thanksForSupportingTemple": {
     "message": "Thanks for supporting Temple"
   },
   "enablePartnersPromotionDescriptionConfirm": {
-    "message": "Congrats, you've started earning TKEY tokens! Note, rewards are paid automatically each month. Track your performance on Rewards page, and you can always opt out of promo content and data sharing here, in the settings. "
+    "message": "Congrats, you've started earning TKEY tokens!\nBy enabling this feature, you agreed to share your Wallet address and IP to receive tokens and view ads. You can turn ads off or on anytime in the settings."
   },
   "ownAccount": {
     "message": "Own"
@@ -3721,6 +3748,184 @@
   "referralLinksHint": {
     "message": "All your referrals connected to your first created or imported account in Temple. Make sure you backed up your wallet to prevent unnecessary losses."
   },
+  "deals": {
+    "message": "Deals"
+  },
+  "dealsDescription": {
+    "message": "Enable offers from merchants and earn cashback in USDT. By activating, you agree to share your wallet address and IP."
+  },
+  "templeDeals": {
+    "message": "Temple Deals"
+  },
+  "templeDealsDescription": {
+    "message": "Up to 25% cashback in USDT. No points, no expiry - real crypto. Try now!"
+  },
+  "disableDealsModalTitle": {
+    "message": "Disable deals and earning?"
+  },
+  "disableDealsModalDescription": {
+    "message": "Disabling will stop automated offers from merchants, TKEY rewards earning and sharing your data to the reward system. You can turn this back on anytime here, in Settings."
+  },
+  "partnersCountBadge": {
+    "message": "10,000+ Partners"
+  },
+  "noRewardsFromMerchantsYet": {
+    "message": "No rewards from merchants yet."
+  },
+  "yourEarningsWillBeHere": {
+    "message": "Your earnings will be here."
+  },
+  "howItWorks": {
+    "message": "How it works"
+  },
+  "thisIsLastActivity": {
+    "message": "This is last activity"
+  },
+  "upTo25CashbackInUSDT": {
+    "message": "Up to 25% cashback in USDT"
+  },
+  "activateInOneClickFeature": {
+    "message": "Activate in one click and browse like normal"
+  },
+  "accessPartnerOffersFeature": {
+    "message": "Access 10,000+ partner offers"
+  },
+  "autoPayoutMonthlyFeature": {
+    "message": "Auto-payout rewards every month"
+  },
+  "paymentDetailsPrivateFeature": {
+    "message": "Your payment details are never shared"
+  },
+  "enableCashbackDisclaimer": {
+    "message": "By enabling Cashback, you agree to share your wallet address and IP to participate in our rewards program."
+  },
+  "activateCashback": {
+    "message": "Activate Cashback"
+  },
+  "cashbackRewardsActivated": {
+    "message": "Cashback rewards activated"
+  },
+  "promo": {
+    "message": "Promo"
+  },
+  "promoDescription": {
+    "message": "Claim your slice of 20% monthly ad rewards."
+  },
+  "upTo2435TkeyPerMonth": {
+    "message": "Up to 2435 TKEY / month"
+  },
+  "receiveShareOf20PromoRewards": {
+    "message": "Receive share of 20% promo rewards"
+  },
+  "nonIntrusiveContentFeature": {
+    "message": "Non-intrusive promo content"
+  },
+  "autoPayoutsWithoutClaimFeature": {
+    "message": "Auto-payouts every month without claim"
+  },
+  "earnInBackgroundFeature": {
+    "message": "Earn on background and boost with mobile"
+  },
+  "turnOnWhenWorksFeature": {
+    "message": "Turn feature on when it works for you"
+  },
+  "enablePromoDisclaimer": {
+    "message": "By enabling Promo, you agree to share your wallet address and IP to receive content and rewards."
+  },
+  "promoRewardsActivated": {
+    "message": "Promo rewards activated"
+  },
+  "bakery": {
+    "message": "Bakery"
+  },
+  "bakeryDescription": {
+    "message": "Tezos delegation with auto-payouts in TKEY."
+  },
+  "apyOnTez": {
+    "message": "Up to 6.5% APY"
+  },
+  "dealsExplanationBody": {
+    "message": "Temple automatically finds you best offers from 10,000+ partners worldwide. When you visit a partner website, with our affiliate link - merchants may pay us commissions. We share these commissions with our users as rewards."
+  },
+  "dealsExplanationCard1": {
+    "message": "Automate finder pop up you a deal when visiting partner website."
+  },
+  "dealsExplanationCard2": {
+    "message": "One click reward application with instant activation."
+  },
+  "howRewardsReachYou": {
+    "message": "How rewards reach you"
+  },
+  "howRewardsReachYouBody": {
+    "message": "Rewards are sent to your wallet every month. Temple payouts are fully automated - no claiming, no extra steps, nothing to do on your end."
+  },
+  "howRewardsReachYouCard1": {
+    "message": "Browse like normal. We'll find the best deals for you."
+  },
+  "howRewardsReachYouCard2": {
+    "message": "Rewards are credited after confirmation from our partner."
+  },
+  "note": {
+    "message": "Note"
+  },
+  "commissionsAndIpNote": {
+    "message": "Commissions arrive in multiple currencies, so your balance may be slightly different from actual payout, due to exchange rates. Your IP helps us surface the best deals for your region and your public wallet address collected for automatic payouts."
+  },
+  "earnValue": {
+    "message": "Earn ≈ $value$",
+    "placeholders": {
+      "value": {
+        "content": "$1"
+      }
+    }
+  },
+  "cashbackValue": {
+    "message": "Cashback $value$",
+    "placeholders": {
+      "value": {
+        "content": "$1"
+      }
+    }
+  },
+  "bountyValueApprox": {
+    "message": "Bounty ≈ $value$",
+    "placeholders": {
+      "value": {
+        "content": "$1"
+      }
+    }
+  },
+  "templeDealActivateBountyDescription": {
+    "message": "Activate to visit $merchantName$ through our link and earn your bounty.",
+    "placeholders": {
+      "merchantName": {
+        "content": "$1"
+      }
+    }
+  },
+  "templeDealActivateCashbackDescription": {
+    "message": "Activate to visit $merchantName$ through our link and earn cashback.",
+    "placeholders": {
+      "merchantName": {
+        "content": "$1"
+      }
+    }
+  },
+  "activateBounty": {
+    "message": "Activate Bounty"
+  },
+  "activating": {
+    "message": "Activating..."
+  },
+  "snoozeFor24h": {
+    "message": "Snooze for 24h"
+  },
+  "showMore": {
+    "message": "Show more"
+  },
+  "showLess": {
+    "message": "Show less"
+  },
   "referrals": {
     "message": "Referrals"
   },
@@ -3732,6 +3937,9 @@
   },
   "inviteAccount": {
     "message": "Your invite account"
+  },
+  "rewardsAccount": {
+    "message": "Your rewards account"
   },
   "totalEquityValue": {
     "message": "Total Equity Value"
@@ -3962,17 +4170,23 @@
   "depositTokensToGetStarted": {
     "message": "Deposit tokens to get started!"
   },
+  "makeTheFirstDepositToGetStarted": {
+    "message": "Make the first deposit to get started!"
+  },
+  "whitelistedTokens": {
+    "message": "Whitelisted tokens"
+  },
   "buyWithFiat": {
     "message": "Buy with Fiat"
   },
   "buyWithFiatDescription": {
     "message": "Purchase crypto via credit or debit card with 26+ currencies options"
   },
-  "crossChainSwap": {
-    "message": "Cross-Chain Swap"
+  "depositWithCrypto": {
+    "message": "Deposit with BTC, SOL or other"
   },
-  "crossChainSwapDescription": {
-    "message": "Exchange crypto instantly from Solana, Bitcoin and other networks"
+  "depositWithCryptoDescription": {
+    "message": "Top-up balance from Solana, Bitcoin and other networks without KYC"
   },
   "receiveOnChain": {
     "message": "Receive on-chain"
@@ -4562,6 +4776,21 @@
   "yourWalletIsReady": {
     "message": "Your wallet is ready"
   },
+  "welcomeToRewards": {
+    "message": "Welcome to Rewards"
+  },
+  "welcomeToRewardsDescription": {
+    "message": "Your wallet is ready and now earning. No extra steps, no points - rewards accrue passively with auto-payouts. Here's what's unlocked for you:"
+  },
+  "welcomeRewardsCashback": {
+    "message": "Up to 25% cashback in USDT from thousands of partners."
+  },
+  "welcomeRewardsPromo": {
+    "message": "Automatic rewards in TKEY for non-intrusive promo content."
+  },
+  "goToRewards": {
+    "message": "Go to Rewards"
+  },
   "walletCreatedSuccessfully": {
     "message": "Wallet has been created successfully"
   },
@@ -4833,6 +5062,9 @@
   "turnOnWhenNeeded": {
     "message": "Turn feature on when it works for you"
   },
+  "missingPayoutsCaption": {
+    "message": "Inactive - missing payouts"
+  },
   "earnTkeyDisclaimer": {
     "message": "By enabling ads, you agree to share your wallet address and IP\nto receive tokens and ads content."
   },
@@ -5032,6 +5264,9 @@
   },
   "yourDeposits": {
     "message": "Your deposits"
+  },
+  "deposits": {
+    "message": "Deposits"
   },
   "activation": {
     "message": "Activation"
@@ -5240,5 +5475,26 @@
   },
   "unableToFetchRate": {
     "message": "Unable to fetch rate, please try again"
+  },
+  "cashbackTagline": {
+    "message": "No points, no expiry - real crypto straight to your wallet every month. Works at 10,000+ merchants."
+  },
+  "cashbackParticipationDisclaimer": {
+    "message": "By activation, you are agree to participate in customer-based ads program."
+  },
+  "cashbackActivated": {
+    "message": "Cashback activated"
+  },
+  "cashbackActivatedReloadHint": {
+    "message": "Reload page to see available offers for you! Track your earnings on Rewards page."
+  },
+  "featureUnlockedCashback": {
+    "message": "Feature unlocked: Cashback in USDT"
+  },
+  "cashbackInWalletPitch": {
+    "message": "Your wallet is ready to earn up to 25% cashback in real crypto. No points, no expiry - rewards accrue passively with auto-payouts. Try now, works at 10,000+ merchants."
+  },
+  "cashbackActivatedBrowseHint": {
+    "message": "Browse like normal, activate offers from partners and track your payouts on Rewards page. Thanks for supporting Temple development!"
   }
 }

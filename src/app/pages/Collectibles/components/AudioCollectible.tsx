@@ -3,10 +3,10 @@ import React, { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { emptyFn } from '@rnw-community/shared';
 
 import { TezosAssetImageStacked } from 'app/templates/AssetImage';
+import { CollectibleImageFallback } from 'app/templates/collectibles/collectible-image-fallback';
+import { CollectibleImageLoader } from 'app/templates/collectibles/collectible-image-loader';
 import { AssetMetadataBase } from 'lib/metadata';
 
-import { CollectibleImageFallback } from './CollectibleImageFallback';
-import { CollectibleImageLoader } from './CollectibleImageLoader';
 import { Player } from './VideoPlayer/Player';
 
 interface Props {

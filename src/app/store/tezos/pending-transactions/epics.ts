@@ -41,7 +41,7 @@ const txDoneAction$ = ({
   transactionBeingWatched,
   silent
 }: HandleTxStatusInput) => {
-  if (!transactionBeingWatched && !silent) {
+  if (!transactionBeingWatched && !silent && kind !== 'delegation') {
     toastSuccess(capitalize(`${kind} completed`), true, { hash: txHash, blockExplorerHref: blockExplorerUrl });
   }
 
@@ -56,7 +56,7 @@ const txFailedAction$ = ({
   transactionBeingWatched,
   silent
 }: HandleTxStatusInput) => {
-  if (!transactionBeingWatched && !silent) {
+  if (!transactionBeingWatched && !silent && kind !== 'delegation') {
     toastError(capitalize(`${kind} failed`), true, { hash: txHash, blockExplorerHref: blockExplorerUrl });
   }
 

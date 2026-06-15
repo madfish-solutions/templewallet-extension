@@ -16,7 +16,7 @@ const WEB_ACCCESSIBLE_RESOURSES = [
   'scripts/*.chunk.js',
   // For `<script />` injection
   'scripts/*.embed.js',
-  // For triggering extension page open from scripts
+  // For triggering the extension page open from scripts
   'fullpage.html',
   // For ads' images
   'misc/ad-banners/*',
@@ -196,6 +196,25 @@ const buildManifestCommons = (vendor: string): Omit<Manifest.WebExtensionManifes
         exclude_matches: ['http://localhost/*'],
         js: ['scripts/replaceAds.js', 'scripts/replaceReferrals.js'],
         run_at: 'document_start' as const,
+        all_frames: false
+      },
+      !shouldDisableAds && {
+        matches: ['https://*/*', 'http://*/*'],
+        exclude_matches: ['http://localhost/*', 'https://www.google.com/search*'],
+        js: ['scripts/templeDealsAllSites.js'],
+        run_at: 'document_idle' as const,
+        all_frames: false
+      },
+      !shouldDisableAds && {
+        matches: ['https://www.google.com/search*'],
+        js: ['scripts/templeDealsGoogleSearch.js'],
+        run_at: 'document_idle' as const,
+        all_frames: false
+      },
+      !shouldDisableAds && {
+        matches: ['https://www.google.com/search*'],
+        js: ['scripts/templeDealsAnnouncement.js'],
+        run_at: 'document_idle' as const,
         all_frames: false
       },
       {

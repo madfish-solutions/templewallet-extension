@@ -1,4 +1,4 @@
-import { MutableRefObject, ForwardedRef } from 'react';
+import { RefObject, ForwardedRef } from 'react';
 
 import { isDefined } from '@rnw-community/shared';
 import BigNumber from 'bignumber.js';
@@ -6,9 +6,7 @@ import BigNumber from 'bignumber.js';
 import { browser } from 'lib/browser';
 import { toLocalFormat } from 'lib/i18n';
 
-export const combineRefs = <E extends HTMLElement>(
-  ...refs: (MutableRefObject<E | nullish> | ForwardedRef<E | null> | nullish)[]
-) => {
+export const combineRefs = <E>(...refs: (RefObject<E | nullish> | ForwardedRef<E | null> | nullish)[]) => {
   return (elem: E | null) => {
     for (const ref of refs)
       if (ref) {

@@ -19,8 +19,10 @@ import { RewardsPushOverlay } from './layouts/PageLayout/RewardsPushOverlay';
 import { ActivityPage } from './pages/Activity';
 import { Dapps } from './pages/Dapps';
 import { Home } from './pages/Home';
+import { NftsPage } from './pages/Nfts';
 import { Notifications } from './pages/Notifications';
 import { TokenPage } from './pages/Token';
+import { TokensPage } from './pages/Tokens';
 
 // Lazy-loaded pages (heavy/rare routes)
 const LazySwap = React.lazy(() => import('app/pages/Swap'));
@@ -40,6 +42,15 @@ const LazyCryptoExchange = React.lazy(() =>
   import('./pages/Buy/CryptoExchange').then(m => ({ default: m.CryptoExchange }))
 );
 const LazyRewardsPage = React.lazy(() => import('./pages/Rewards').then(m => ({ default: m.RewardsPage })));
+const LazyRewardsDealsActivate = React.lazy(() =>
+  import('./pages/Rewards/Deals/Activate').then(m => ({ default: m.RewardsDealsActivate }))
+);
+const LazyRewardsDealsHowItWorks = React.lazy(() =>
+  import('./pages/Rewards/Deals/HowItWorks').then(m => ({ default: m.RewardsDealsHowItWorks }))
+);
+const LazyRewardsPromoActivate = React.lazy(() =>
+  import('./pages/Rewards/Promo/Activate').then(m => ({ default: m.RewardsPromoActivate }))
+);
 const LazyImportWallet = React.lazy(() => import('./pages/ImportWallet').then(m => ({ default: m.ImportWallet })));
 
 interface RouteContext {
@@ -98,6 +109,8 @@ const ROUTE_MAP = Woozie.createMap<RouteContext>([
   ],
   ['/loading', (_p, ctx) => (ctx.ready ? <Woozie.Redirect to="/" /> : <RootSuspenseFallback />)],
   ['/', (_p, ctx) => (ctx.ready ? <Home /> : <Welcome />)],
+  ['/nfts', onlyReady(() => <NftsPage />)],
+  ['/tokens', onlyReady(() => <TokensPage />)],
   ['/activity', onlyReady(() => <ActivityPage />)],
   ['/receive/:chainKind?', onlyReady(({ chainKind }) => <Receive chainKind={chainKind} />)],
   [
@@ -138,6 +151,9 @@ const ROUTE_MAP = Woozie.createMap<RouteContext>([
   ['/notifications', onlyReady(() => <Notifications />)],
   ['/dapps', onlyReady(() => <Dapps />)],
   ['/account/:id', onlyReady(({ id }) => lazily(<LazyAccountSettings id={id!} />))],
+  ['/rewards/deals/activate', onlyReady(() => lazily(<LazyRewardsDealsActivate />))],
+  ['/rewards/deals/how-it-works', onlyReady(() => lazily(<LazyRewardsDealsHowItWorks />))],
+  ['/rewards/promo/activate', onlyReady(() => lazily(<LazyRewardsPromoActivate />))],
   ['/rewards', onlyReady(() => <RewardsRoute />)],
   ['*', () => <Woozie.Redirect to="/" />]
 ]);
