@@ -132,7 +132,7 @@ const DAppConnectionBox = memo(({ activeDApp, disconnectOne }: DAppConnectionBox
     : (evmChains[dapp.chainId] ?? null);
 
   return (
-    <div className="sticky bottom-0 flex items-center gap-x-2 py-3 px-4 bg-white shadow-bottom" ref={rootRef}>
+    <div className="sticky bottom-0 flex items-center gap-x-2 py-3 px-4 bg-white shadow-bottom z-20" ref={rootRef}>
       <div className="relative flex">
         <DAppLogo origin={origin} icon={dapp.appMeta.icon} size={36} className="m-[2px] rounded-full" />
 
