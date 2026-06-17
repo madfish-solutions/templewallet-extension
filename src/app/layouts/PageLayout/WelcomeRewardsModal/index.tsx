@@ -16,10 +16,10 @@ import { WelcomeRewardsSelectors } from './selectors';
 export const WelcomeRewardsModal = () => {
   const [opened, setOpened] = useStorage(SHOULD_SHOW_WELCOME_REWARDS_MODAL_STORAGE_KEY, false);
 
-  const close = () => void setOpened(false);
+  const close = () => setOpened(false);
 
-  const handleGoToRewards = () => {
-    close();
+  const handleGoToRewards = async () => {
+    await close();
     navigate('/rewards');
   };
 
