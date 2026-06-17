@@ -37,8 +37,7 @@
     "format:check": "oxfmt --check",
     "clear:lint": "rimraf .oxlint-cache .oxlint_cache node_modules/.cache/.oxlintcache",
     "find-deadcode": "ts-prune --error",
-    "audit-deps": "node ./audit-deps.js",
-    "postinstall": "husky"
+    "audit-deps": "node ./audit-deps.js"
   },
   "engines": {
     "node": ">=20"
@@ -236,7 +235,6 @@
     "babel-plugin-react-compiler": "^1.0.0",
     "eslint-plugin-react-hooks": "^7.1.1",
     "fake-indexeddb": "^6.0.0",
-    "husky": "^9.1.7",
     "oxfmt": "^0.36.0",
     "oxlint": "^1.51.0",
     "react-devtools-core": "^7.0.1",

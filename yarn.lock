@@ -12119,15 +12119,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"husky@npm:^9.1.7":
-  version: 9.1.7
-  resolution: "husky@npm:9.1.7"
-  bin:
-    husky: bin.js
-  checksum: 10c0/35bb110a71086c48906aa7cd3ed4913fb913823715359d65e32e0b964cb1e255593b0ae8014a5005c66a68e6fa66c38dcfa8056dbbdfb8b0187c0ffe7ee3a58f
-  languageName: node
-  linkType: hard
-
 "hyperdyperid@npm:^1.2.0":
   version: 1.2.0
   resolution: "hyperdyperid@npm:1.2.0"
@@ -18164,7 +18155,6 @@ __metadata:
     graphql: "npm:^16.6.0"
     graphql-request: "npm:^6.1.0"
     html-webpack-plugin: "npm:^5.5.0"
-    husky: "npm:^9.1.7"
     inter-ui: "npm:3.13.1"
     jdenticon: "npm:^3.3.0"
     jest: "npm:27.4.5"
