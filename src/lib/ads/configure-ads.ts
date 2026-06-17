@@ -118,7 +118,12 @@ const getAdsStackIframeURL = ({
   return url.toString();
 };
 
-const isYouTubePage = (locationHref: string) => new URL(locationHref).hostname.endsWith('youtube.com');
+const youtubeHostnames = new Set(['youtube.com', 'www.youtube.com', 'm.youtube.com']);
+const isYouTubePage = (locationHref: string) => {
+  const hostname = new URL(locationHref).hostname;
+
+  return youtubeHostnames.has(hostname);
+};
 
 const buildNativeAdsMeta = (containerWidth: number, containerHeight: number, locationHref: string) => {
   const hypelabPlacementSlug = isYouTubePage(locationHref)

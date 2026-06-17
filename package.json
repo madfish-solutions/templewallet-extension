@@ -262,6 +262,6 @@
     "useragent/semver": "^5.7.2"
   },
   "optionalDependencies": {
-    "@temple-wallet/extension-ads": "19.0.0-beta.1"
+    "@temple-wallet/extension-ads": "19.0.0-beta.2"
   }
 }
