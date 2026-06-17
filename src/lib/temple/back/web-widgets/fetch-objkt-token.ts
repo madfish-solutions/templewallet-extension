@@ -1,3 +1,4 @@
+import { Semaphore } from 'async-mutex';
 import memoizee from 'memoizee';
 
 import { delay } from 'lib/utils';
@@ -14,15 +15,29 @@ const OBJKT_GRAPHQL_ENDPOINT = 'https://data.objkt.com/v3/graphql/';
 const MAX_RETRIES = 2;
 const BACKOFF_MS = 1000;
 
+// objkt's edge resets a flood of parallel connections, so cap concurrent GraphQL requests
+const objktGraphqlSemaphore = new Semaphore(3);
+
+const objktGraphqlFetch = async (body: string): Promise<Response> => {
+  const [, release] = await objktGraphqlSemaphore.acquire();
+  try {
+    return await fetch(OBJKT_GRAPHQL_ENDPOINT, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body
+    });
+  } finally {
+    release();
+  }
+};
+
 export const fetchObjktToken = memoizee(
   async (fa: string, tokenId: string): Promise<ObjktToken | null> => {
     try {
       for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
-        const response = await fetch(OBJKT_GRAPHQL_ENDPOINT, {
-          method: 'POST',
-          headers: { 'content-type': 'application/json' },
-          body: JSON.stringify({ query: OBJKT_TOKEN_QUERY, variables: { fa, id: tokenId } })
-        });
+        const response = await objktGraphqlFetch(
+          JSON.stringify({ query: OBJKT_TOKEN_QUERY, variables: { fa, id: tokenId } })
+        );
 
         if (response.status === 429) {
           if (attempt === MAX_RETRIES) return null;
@@ -50,11 +65,9 @@ export const fetchObjktOwnedCount = memoizee(
     if (addresses.length === 0) return 0;
 
     try {
-      const response = await fetch(OBJKT_GRAPHQL_ENDPOINT, {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ query: OBJKT_OWNED_QUERY, variables: { fa: contract, id: tokenId, addresses } })
-      });
+      const response = await objktGraphqlFetch(
+        JSON.stringify({ query: OBJKT_OWNED_QUERY, variables: { fa: contract, id: tokenId, addresses } })
+      );
 
       if (!response.ok) return 0;
 
