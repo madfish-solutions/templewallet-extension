@@ -44,6 +44,7 @@ export const ControlButton = memo<Props>(
         'flex items-center h-8 p-[3.5px] rounded-full border-0.5 border-lines overflow-hidden',
         active ? 'bg-secondary-low' : 'bg-grey-4 hover:bg-secondary-low'
       )}
+      initial={false}
       animate={{
         width: expanded ? (stretch ? 116 : 84) : 32
       }}
