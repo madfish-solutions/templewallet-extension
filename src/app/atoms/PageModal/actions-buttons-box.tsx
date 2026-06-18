@@ -28,7 +28,7 @@ export const ActionsButtonsBox: FC<ActionsButtonsBoxProps> = ({
         'p-4 pb-6 flex gap-2.5',
         `flex-${flexDirection}`,
         bgSet && 'bg-white',
-        shouldCastShadow && 'shadow-bottom border-t-0.5 border-lines overflow-y-visible',
+        shouldCastShadow && 'shadow-top overflow-y-visible',
         className
       )}
       {...restProps}
