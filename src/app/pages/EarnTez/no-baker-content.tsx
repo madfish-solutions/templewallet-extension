@@ -31,7 +31,6 @@ const tezCoinAnimationOptions = {
 export const NoBakerContent = memo<NoBakerContentProps>(({ cannotDelegate, openDelegationModal }) => (
   <>
     <PageModalScrollViewWithActions
-      initialBottomEdgeVisible
       actionsBoxProps={{
         children: (
           <StyledButton

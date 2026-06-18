@@ -1,4 +1,4 @@
-import React, { memo, useMemo, useState } from 'react';
+import React, { memo, useMemo, useRef } from 'react';
 
 import { Alert } from 'app/atoms';
 import { ActionsButtonsBox } from 'app/atoms/PageModal/actions-buttons-box';
@@ -17,7 +17,7 @@ interface MnemonicViewProps extends TestIDProps {
 }
 
 export const MnemonicView = memo<MnemonicViewProps>(({ mnemonic, isNewMnemonic, onConfirm }) => {
-  const [bottomEdgeIsVisible, setBottomEdgeIsVisible] = useState(true);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   const manualBackupSubstitutions = useMemo(() => {
     const i18nKeys: TID[] = isNewMnemonic ? ['neverShare', 'enterSeedPhrase'] : ['neverShare'];
@@ -31,7 +31,7 @@ export const MnemonicView = memo<MnemonicViewProps>(({ mnemonic, isNewMnemonic, 
 
   return (
     <>
-      <ScrollView className="py-4" bottomEdgeThreshold={16} onBottomEdgeVisibilityChange={setBottomEdgeIsVisible}>
+      <ScrollView ref={scrollContainerRef} className="py-4">
         <Alert
           className="mb-4"
           type="warning"
@@ -52,7 +52,7 @@ export const MnemonicView = memo<MnemonicViewProps>(({ mnemonic, isNewMnemonic, 
       </ScrollView>
 
       {isNewMnemonic && (
-        <ActionsButtonsBox shouldCastShadow={!bottomEdgeIsVisible}>
+        <ActionsButtonsBox scrollContainerRef={scrollContainerRef}>
           <StyledButton
             className="w-full"
             size="L"

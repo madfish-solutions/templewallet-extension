@@ -1,31 +1,24 @@
-import React, { FC, useState } from 'react';
+import { FC, useRef } from 'react';
 
 import { ActionsButtonsBox } from 'app/atoms/PageModal';
 import { ActionsButtonsBoxProps } from 'app/atoms/PageModal/actions-buttons-box';
 import { ScrollView, ScrollViewProps } from 'app/atoms/PageModal/scroll-view';
 
-interface PageModalScrollViewWithActionsProps extends Omit<
-  ScrollViewProps,
-  'onBottomEdgeVisibilityChange' | 'onTopEdgeVisibilityChange'
-> {
-  actionsBoxProps?: Omit<ActionsButtonsBoxProps, 'shouldCastShadow'>;
-  initialBottomEdgeVisible?: boolean;
+interface PageModalScrollViewWithActionsProps extends Omit<ScrollViewProps, 'onBottomEdgeVisibilityChange'> {
+  actionsBoxProps?: ActionsButtonsBoxProps;
 }
 
-const DEFAULT_ACTIONS_BOX_PROPS: Omit<ActionsButtonsBoxProps, 'shouldCastShadow'> = {};
-
 export const PageModalScrollViewWithActions: FC<PageModalScrollViewWithActionsProps> = ({
-  actionsBoxProps = DEFAULT_ACTIONS_BOX_PROPS,
-  initialBottomEdgeVisible = true,
+  actionsBoxProps = {},
   ...restProps
 }) => {
-  const [bottomEdgeIsVisible, setBottomEdgeIsVisible] = useState(initialBottomEdgeVisible);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   return (
     <>
-      <ScrollView onBottomEdgeVisibilityChange={setBottomEdgeIsVisible} {...restProps} />
+      <ScrollView ref={scrollContainerRef} {...restProps} />
 
-      <ActionsButtonsBox shouldCastShadow={!bottomEdgeIsVisible} {...actionsBoxProps} />
+      <ActionsButtonsBox scrollContainerRef={scrollContainerRef} {...actionsBoxProps} />
     </>
   );
 };

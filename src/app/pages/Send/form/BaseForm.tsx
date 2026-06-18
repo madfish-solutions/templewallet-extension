@@ -74,6 +74,8 @@ export const BaseForm: FC<Props> = ({
 }) => {
   const [selectAccountModalOpened, setSelectAccountModalOpen, setSelectAccountModalClosed] = useBooleanState(false);
 
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+
   const { handleSubmit, control, setValue, getValues, formState } = useFormContext<SendFormData>();
   const { isSubmitting, submitCount, isValid } = formState;
 
@@ -187,7 +189,7 @@ export const BaseForm: FC<Props> = ({
 
   return (
     <>
-      <div className="flex-1 px-4 flex flex-col overflow-y-auto">
+      <div ref={scrollContainerRef} className="flex-1 px-4 flex flex-col overflow-y-auto">
         <div className="text-font-description-bold py-1 mb-1">
           <T id="token" />
         </div>
@@ -301,7 +303,7 @@ export const BaseForm: FC<Props> = ({
         </form>
       </div>
 
-      <ActionsButtonsBox bgSet={false}>
+      <ActionsButtonsBox bgSet={false} scrollContainerRef={scrollContainerRef}>
         <StyledButton
           type="submit"
           form="send-form"
