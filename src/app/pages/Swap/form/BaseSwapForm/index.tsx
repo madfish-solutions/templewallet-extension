@@ -1,4 +1,4 @@
-import React, { FC, useCallback, useMemo } from 'react';
+import React, { FC, useCallback, useMemo, useRef } from 'react';
 
 import { isDefined } from '@rnw-community/shared';
 import BigNumber from 'bignumber.js';
@@ -106,6 +106,7 @@ export const BaseSwapForm: FC<Props> = ({
 }) => {
   const { handleSubmit, control, setValue, getValues, formState } = useFormContext<SwapFormValue>();
   const { isSubmitting, submitCount, isValid } = formState;
+  const scrollContainerRef = useRef<HTMLFormElement>(null);
 
   const formSubmitted = submitCount > 0;
 
@@ -234,6 +235,7 @@ export const BaseSwapForm: FC<Props> = ({
   return (
     <>
       <form
+        ref={scrollContainerRef}
         id="swap-form"
         className="flex-1 pt-4 px-4 flex flex-col overflow-y-auto"
         onSubmit={handleSubmit(onSubmit, onInvalidSubmit)}
@@ -346,12 +348,13 @@ export const BaseSwapForm: FC<Props> = ({
           </div>
         )}
       </form>
-      <CashbackProgressBar
-        visible={shouldShowCashbackProgressBar}
-        inputAmountInUSD={inputAmountInUSD}
-        templeAssetPriceInUSD={new BigNumber(templeAssetUsdPrice ?? 0)}
-      />
-      <ActionsButtonsBox className="mt-auto">
+      <ActionsButtonsBox className="mt-auto gap-0!" scrollContainerRef={scrollContainerRef}>
+        <CashbackProgressBar
+          visible={shouldShowCashbackProgressBar}
+          inputAmountInUSD={inputAmountInUSD}
+          templeAssetPriceInUSD={new BigNumber(templeAssetUsdPrice ?? 0)}
+        />
+
         <StyledButton
           type="submit"
           form="swap-form"

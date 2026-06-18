@@ -19,9 +19,6 @@ const SUCCESS_ANIMATION_OPTIONS = {
   }
 } as const;
 
-const TRANSITION_CLASSNAMES = 'transition-all duration-300 ease-in-out';
-const HIDDEN_OFFSCREEN_CLASSNAMES = 'h-0 opacity-0 overflow-hidden pointer-events-none';
-
 const CASHBACK_DISPLAY_AMOUNT_THRESHOLD = 0.01;
 
 interface Props {
@@ -59,9 +56,8 @@ export const CashbackProgressBar: FC<Props> = ({ visible, inputAmountInUSD, temp
   return (
     <div
       className={clsx(
-        'pt-4 px-5 bg-white',
-        TRANSITION_CLASSNAMES,
-        visible ? 'h-12 opacity-100' : HIDDEN_OFFSCREEN_CLASSNAMES
+        'px-1 transition-all duration-300 ease-in-out',
+        visible ? 'h-12 opacity-100' : 'h-0 opacity-0 overflow-hidden pointer-events-none'
       )}
       aria-hidden={!visible}
     >
