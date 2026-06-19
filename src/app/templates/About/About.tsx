@@ -45,19 +45,13 @@ const LINKS: LinkProps[] = [
 const COMMUNITY_LINKS: LinkProps[] = [
   {
     key: 'knowledgeBase',
-    link: 'https://madfish.crunch.help/en/temple-wallet',
+    link: 'https://docs.templewallet.com',
     testID: AboutSelectors.knowledgeBaseLink,
     Icon: KnowledgeBaseIcon
   },
   {
-    key: 'featureRequest',
-    link: 'https://madfish.canny.io/feature-requests',
-    testID: AboutSelectors.featureRequestLink,
-    Icon: KnowledgeBaseIcon
-  },
-  {
     key: 'xSocial',
-    link: 'https://x.com/madfishofficial',
+    link: 'https://x.com/templewallet',
     testID: AboutSelectors.xSocialLink,
     Icon: XSocialIcon
   },
@@ -69,7 +63,7 @@ const COMMUNITY_LINKS: LinkProps[] = [
   },
   {
     key: 'discord',
-    link: 'https://www.madfish.solutions/discord',
+    link: 'https://discord.com/invite/qFRZ8kVzkv',
     testID: AboutSelectors.discordLink,
     Icon: DiscordIcon
   },

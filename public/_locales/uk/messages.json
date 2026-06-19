@@ -508,9 +508,6 @@
   "knowledgeBase": {
     "message": "База знань"
   },
-  "featureRequest": {
-    "message": "Попросити функцію"
-  },
   "minimalFeeDescription": {
     "message": "Мінімально"
   },
