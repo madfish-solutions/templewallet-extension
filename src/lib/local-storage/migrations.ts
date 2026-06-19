@@ -74,22 +74,18 @@ migrate([
         Partial<Record<TempleChainKind, OptionalRecord<BlockExplorer[]> | undefined>>
       >(BLOCKCHAIN_EXPLORERS_OVERRIDES_STORAGE_KEY);
       const mainnetExplorers = blockExplorersOverrides?.[TempleChainKind.Tezos]?.[TempleTezosChainId.Mainnet];
+      const remainingMainnetExplorers = mainnetExplorers?.filter(({ id }) => !removedBlockExplorerIds.includes(id));
 
-      const remainingExplorers = mainnetExplorers?.filter(({ id }) => !removedBlockExplorerIds.includes(id));
+      if (!remainingMainnetExplorers?.length) return;
 
-      if (!remainingExplorers?.length) return;
-
-      const { [TempleTezosChainId.Mainnet]: _mainnetExplorers, ...tezosOverridesWithoutMainnet } =
-        blockExplorersOverrides?.[TempleChainKind.Tezos] ?? {};
+      const updatedTezosOverrides = { ...(blockExplorersOverrides?.[TempleChainKind.Tezos] ?? {}) };
+      updatedTezosOverrides[TempleTezosChainId.Mainnet] = remainingMainnetExplorers;
 
       await putToStorage<Partial<Record<TempleChainKind, OptionalRecord<BlockExplorer[]> | undefined>>>(
         BLOCKCHAIN_EXPLORERS_OVERRIDES_STORAGE_KEY,
         {
           ...blockExplorersOverrides,
-          [TempleChainKind.Tezos]: {
-            ...tezosOverridesWithoutMainnet,
-            [TempleTezosChainId.Mainnet]: remainingExplorers
-          }
+          [TempleChainKind.Tezos]: updatedTezosOverrides
         }
       );
     }
