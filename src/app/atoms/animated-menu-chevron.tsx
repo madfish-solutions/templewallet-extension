@@ -1,64 +1,42 @@
-import { Component } from 'react';
+import { FC, Ref, useImperativeHandle, useState } from 'react';
 
-import { animated, Spring } from '@react-spring/web';
+import { motion } from 'motion/react';
 
 import { ReactComponent as ChevronRightIcon } from 'app/icons/base/chevron_right.svg';
 
 import { IconBase } from './IconBase';
 
-interface AnimatedMenuChevronState {
-  paused: boolean;
-  reset: boolean;
-  reverse: boolean;
+export interface AnimatedMenuChevron {
+  handleHover: EmptyFn;
+  handleUnhover: EmptyFn;
 }
 
-export class AnimatedMenuChevron extends Component<object, AnimatedMenuChevronState> {
-  state = {
-    paused: true,
-    reset: false,
-    reverse: false
-  };
+const CHEVRON_TRANSITION = {
+  type: 'spring',
+  stiffness: 650,
+  damping: 25,
+  mass: 1
+} as const;
 
-  constructor(props: object) {
-    super(props);
-    this.handleHover = this.handleHover.bind(this);
-    this.handleUnhover = this.handleUnhover.bind(this);
-  }
-
-  handleHover() {
-    this.setState({ reset: true, paused: false, reverse: false });
-  }
-
-  handleUnhover() {
-    this.setState({ reset: true, reverse: true });
-  }
-
-  componentDidUpdate() {
-    if (this.state.reset) {
-      this.setState({ reset: false });
-    }
-  }
-
-  render() {
-    const { paused, reset, reverse } = this.state;
-
-    return (
-      <Spring
-        config={{ mass: 1, tension: 675, friction: 30 }}
-        from={{ marginRight: '0rem' }}
-        to={{ marginRight: '0.25rem' }}
-        pause={paused}
-        reverse={reverse}
-        reset={reset}
-      >
-        {style => (
-          <>
-            <animated.div style={style}>
-              <IconBase Icon={ChevronRightIcon} size={16} className="text-primary" />
-            </animated.div>
-          </>
-        )}
-      </Spring>
-    );
-  }
+interface AnimatedMenuChevronProps {
+  ref?: Ref<AnimatedMenuChevron>;
 }
+
+export const AnimatedMenuChevron: FC<AnimatedMenuChevronProps> = ({ ref }) => {
+  const [isHovered, setIsHovered] = useState(false);
+
+  useImperativeHandle(ref, () => ({
+    handleHover: () => void setIsHovered(true),
+    handleUnhover: () => void setIsHovered(false)
+  }));
+
+  return (
+    <motion.div
+      initial={false}
+      animate={{ marginRight: isHovered ? '0.25rem' : '0rem' }}
+      transition={CHEVRON_TRANSITION}
+    >
+      <IconBase Icon={ChevronRightIcon} className="text-primary" />
+    </motion.div>
+  );
+};

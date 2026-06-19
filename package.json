@@ -63,7 +63,6 @@
     "@microsoft/signalr": "^8.0.0",
     "@peculiar/webcrypto": "1.1.6",
     "@popperjs/core": "2.4.4",
-    "@react-spring/web": "^10.0.1",
     "@redux-devtools/remote": "^0.9.5",
     "@reduxjs/toolkit": "^2.11.2",
     "@rnw-community/shared": "^0.48.0",
