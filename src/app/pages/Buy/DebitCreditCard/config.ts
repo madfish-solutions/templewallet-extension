@@ -13,7 +13,7 @@ export const VALUE_PLACEHOLDER = '---';
 
 const allProviders = [TopUpProviderId.MoonPay, TopUpProviderId.Utorg];
 
-export const DEFAULT_INPUT_CURRENCY: TopUpInputInterface = {
+const DEFAULT_INPUT_CURRENCY: TopUpInputInterface = {
   code: 'USD',
   icon: `${MOONPAY_ASSETS_BASE_URL}/widget/currencies/usd.svg`,
   providers: allProviders,
