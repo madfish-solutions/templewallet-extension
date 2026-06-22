@@ -16,7 +16,7 @@
     "build:core": "cross-env CORE_BUILD=true run-s build",
     "build:without-zip": "cross-env NODE_ENV=production run-s build-run:without-zip",
     "build-all": "run-s build:*",
-    "build-all:core": "run-s  build:*:core",
+    "build-all:core": "run-s build:*:core",
     "build:chrome": "cross-env TARGET_BROWSER=chrome run-s build",
     "build:without-zip:chrome": "cross-env TARGET_BROWSER=chrome run-s build:without-zip",
     "build:chrome:core": "cross-env CORE_BUILD=true run-s build:chrome",
