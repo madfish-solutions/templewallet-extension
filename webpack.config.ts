@@ -192,6 +192,7 @@ const scriptsConfig = (() => {
     config.entry.templeDealsAllSites = Path.join(PATHS.SOURCE, 'temple-deals/all-sites/index.ts');
     config.entry.templeDealsGoogleSearch = Path.join(PATHS.SOURCE, 'temple-deals/google-search/index.ts');
     config.entry.templeDealsAnnouncement = Path.join(PATHS.SOURCE, 'temple-deals/announcement/index.ts');
+    config.entry.aiChatbotAds = Path.join(PATHS.SOURCE, 'content-scripts/ai-chatbot-ads/index.ts');
   }
 
   if (BACKGROUND_IS_WORKER)
