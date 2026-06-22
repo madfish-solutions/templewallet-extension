@@ -1248,7 +1248,6 @@ interface TempleAnalyzeYoutubeWatchPageRequest extends TempleMessageBase {
 }
 
 interface YoutubePageAnalysisResponse {
-  reasoning: string;
   isCryptoRelated: boolean;
   confidence: number;
 }
