@@ -16,6 +16,7 @@ export enum ContentScriptType {
   ResolveTco = 'ResolveTco',
   FetchObjktToken = 'FetchObjktToken',
   FetchThumbnailBlob = 'FetchThumbnailBlob',
+  GetCoinIndex = 'GetCoinIndex',
   WidgetContext = 'WidgetContext',
   WidgetOwnedCount = 'WidgetOwnedCount',
   WebWidgetAdImpression = 'WebWidgetAdImpression',

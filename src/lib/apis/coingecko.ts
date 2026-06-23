@@ -189,3 +189,41 @@ export function fetchMarketChartData(params: MarketChartParams) {
     })
     .then(({ data }) => data);
 }
+
+export interface TopCoinRaw {
+  id: string;
+  symbol: string;
+  name: string;
+  image: string;
+  market_cap: number | null;
+}
+
+export async function fetchTopCoinsByMarketCap(pages: number, perPage = 250): Promise<TopCoinRaw[]> {
+  const all: TopCoinRaw[] = [];
+
+  for (let page = 1; page <= pages; page++) {
+    try {
+      const { data } = await coingeckoApi.get<TopCoinRaw[]>('coins/markets', {
+        params: { vs_currency: 'usd', order: 'market_cap_desc', per_page: perPage, page, sparkline: false }
+      });
+      all.push(...data);
+    } catch {
+      break;
+    }
+  }
+
+  return all;
+}
+
+export async function fetchCoinsByIds(ids: string[]): Promise<TopCoinRaw[]> {
+  if (ids.length === 0) return [];
+
+  try {
+    const { data } = await coingeckoApi.get<TopCoinRaw[]>('coins/markets', {
+      params: { vs_currency: 'usd', ids: ids.join(','), sparkline: false }
+    });
+    return data;
+  } catch {
+    return [];
+  }
+}
