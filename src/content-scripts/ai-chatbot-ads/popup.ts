@@ -1,5 +1,7 @@
 import { AI_CHATBOT_ADS_HOST_ID, AI_CHATBOT_ADS_TIMING } from './constants';
 
+const POPUP_STAYS_VISIBLE_FOR_TESTS = true;
+
 export type AiChatbotAdsPopupAction = 'enable' | 'dismiss' | 'timeout';
 
 interface AiChatbotAdsPopupProps {
@@ -66,6 +68,7 @@ export function mountAiChatbotAdsPopup({
 
   const tick = () => {
     if (closed || paused) return;
+    if (POPUP_STAYS_VISIBLE_FOR_TESTS) return;
 
     const elapsed = Date.now() - lastStartedAt;
     const nextRemaining = Math.max(0, remainingMs - elapsed);
@@ -83,6 +86,7 @@ export function mountAiChatbotAdsPopup({
 
   container.addEventListener('mouseenter', () => {
     if (closed || paused) return;
+    if (POPUP_STAYS_VISIBLE_FOR_TESTS) return;
     paused = true;
     remainingMs = Math.max(0, remainingMs - (Date.now() - lastStartedAt));
     stopCountdown();
@@ -90,6 +94,7 @@ export function mountAiChatbotAdsPopup({
 
   container.addEventListener('mouseleave', () => {
     if (closed || !paused) return;
+    if (POPUP_STAYS_VISIBLE_FOR_TESTS) return;
     paused = false;
     lastStartedAt = Date.now();
     animationFrame = window.requestAnimationFrame(tick);
@@ -112,7 +117,7 @@ function positionHost(host: HTMLDivElement): () => void {
     const main = document.querySelector('main');
     const rect = (main ?? document.body).getBoundingClientRect();
     const left = rect.left + rect.width / 2;
-    const top = Math.max(88, rect.top + 94);
+    const top = Math.max(0, rect.top - 2);
 
     host.style.left = `${left}px`;
     host.style.top = `${top}px`;
@@ -130,7 +135,9 @@ function positionHost(host: HTMLDivElement): () => void {
 }
 
 function formatCopy(text: string): string {
-  return escapeHtml(text).replace('20% revenue', '<strong>20% revenue</strong>');
+  return escapeHtml(text)
+    .replace('20% revenue', '<strong>20% revenue</strong>')
+    .replace('20% promo revenue', '<strong>20% promo revenue</strong>');
 }
 
 function escapeHtml(text: string): string {
@@ -162,15 +169,15 @@ function getStyles(): string {
       font-weight: 400;
       gap: 12px;
       line-height: 20px;
-      max-width: min(820px, calc(100vw - 40px));
-      min-height: 56px;
+      height: 40px;
+      max-width: calc(100vw - 40px);
       opacity: 0;
       overflow: hidden;
-      padding: 10px 16px 10px 22px;
+      padding: 8px 16px 8px 22px;
       pointer-events: auto;
       position: relative;
       transition: opacity ${AI_CHATBOT_ADS_TIMING.entranceMs}ms cubic-bezier(0.2, 0.8, 0.2, 1);
-      width: max-content;
+      width: 675px;
     }
 
     .temple-nudge-visible {
@@ -253,13 +260,10 @@ function getStyles(): string {
 
     @media (max-width: 720px) {
       .temple-nudge {
-        align-items: stretch;
-        flex-wrap: wrap;
         font-size: 14px;
         gap: 8px;
-        min-height: 0;
-        padding: 10px 12px;
-        width: min(420px, calc(100vw - 24px));
+        padding: 8px 12px;
+        width: calc(100vw - 24px);
       }
 
       .temple-copy {
