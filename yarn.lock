@@ -5655,10 +5655,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@temple-wallet/extension-ads@npm:^18.0.0":
-  version: 18.0.0
-  resolution: "@temple-wallet/extension-ads@npm:18.0.0"
+"@temple-wallet/extension-ads@npm:19.0.0-beta.4":
+  version: 19.0.0-beta.4
+  resolution: "@temple-wallet/extension-ads@npm:19.0.0-beta.4"
   dependencies:
+    "@types/ahocorasick": "npm:^1.0.0"
+    ahocorasick: "npm:^1.0.2"
     axios: "npm:^1.8.4"
     crypto-js: "npm:^4.2.0"
     lodash: "npm:^4.17.21"
@@ -5666,7 +5668,7 @@ __metadata:
     nanoid: "npm:^5.0.6"
     semver: "npm:^7.6.2"
     webextension-polyfill: "npm:^0.10.0"
-  checksum: 10c0/625235496b1666d6558f7edb8466a9b62098cf659c12478e4f5fc246ec7d69679200bbc0b602bcfdaae43c0b777224f3634004e192dea0c4cf248ea80e5b8955
+  checksum: 10c0/5c19c7ed917cb5bed92435eb6d8ba94546b647f28160511ac8da658cddcbf1774703641f4d90c35871fe9297eb2fa085b0009ff835f4d1484d8325017eb32152
   languageName: node
   linkType: hard
 
@@ -5833,6 +5835,13 @@ __metadata:
   dependencies:
     tslib: "npm:^2.4.0"
   checksum: 10c0/b255094f293794c6d2289300c5fbcafbb5532a3aed3a5ffd2f8dc1828e639b88d75f6a376dd8f94347a44813fd7a7149d8463477a9a49525c8b2dcaa38c2d1e8
+  languageName: node
+  linkType: hard
+
+"@types/ahocorasick@npm:^1.0.0":
+  version: 1.0.0
+  resolution: "@types/ahocorasick@npm:1.0.0"
+  checksum: 10c0/b82265b6b530c5fd19a13f141cc3babfe949e6d21388a67d72b8c498c4ff6ad60d675bb6f478b2e0870d8f23c12f539e2579e86bd181f9c4a714d02a084cc306
   languageName: node
   linkType: hard
 
@@ -7292,6 +7301,13 @@ __metadata:
   dependencies:
     humanize-ms: "npm:^1.2.1"
   checksum: 10c0/235c182432f75046835b05f239708107138a40103deee23b6a08caee5136873709155753b394ec212e49e60e94a378189562cb01347765515cff61b692c69187
+  languageName: node
+  linkType: hard
+
+"ahocorasick@npm:^1.0.2":
+  version: 1.0.2
+  resolution: "ahocorasick@npm:1.0.2"
+  checksum: 10c0/2036f8bf42877e3300ca9bc7d716c3c75a7ef34c682ea967e5759b92fa81e69d3f391e3e58f01a9c4d3d707f48c395bc9f53838f8ce789da96158bb526f75064
   languageName: node
   linkType: hard
 
@@ -18070,7 +18086,7 @@ __metadata:
     "@taquito/utils": "npm:^24.1.0"
     "@temple-wallet/dapp": "npm:^12.0.0"
     "@temple-wallet/everstake-wallet-sdk": "npm:^5.0.1"
-    "@temple-wallet/extension-ads": "npm:^18.0.0"
+    "@temple-wallet/extension-ads": "npm:19.0.0-beta.4"
     "@temple-wallet/jest-webextension-mock": "npm:^5.0.0"
     "@temple-wallet/save-remote-file-webpack-plugin": "npm:^1.1.4"
     "@temple-wallet/wallet-address-validator": "npm:^0.4.3"

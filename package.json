@@ -267,6 +267,6 @@
     "viem/ws": "^8.21.0"
   },
   "optionalDependencies": {
-    "@temple-wallet/extension-ads": "^18.0.0"
+    "@temple-wallet/extension-ads": "19.0.0-beta.4"
   }
 }

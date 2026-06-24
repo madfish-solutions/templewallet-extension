@@ -518,7 +518,11 @@ export enum TempleMessageType {
   SetWindowSidebarStateRequest = 'SET_WINDOW_SIDEBAR_STATE_REQUEST',
   SetWindowSidebarStateResponse = 'SET_WINDOW_SIDEBAR_STATE_RESPONSE',
   ProvePossessionRequest = 'PROVE_POSSESSION_REQUEST',
-  ProvePossessionResponse = 'PROVE_POSSESSION_RESPONSE'
+  ProvePossessionResponse = 'PROVE_POSSESSION_RESPONSE',
+  AnalyzeYoutubeSearchPageRequest = 'ANALYZE_YOUTUBE_SEARCH_PAGE_REQUEST',
+  AnalyzeYoutubeSearchPageResponse = 'ANALYZE_YOUTUBE_SEARCH_PAGE_RESPONSE',
+  AnalyzeYoutubeWatchPageRequest = 'ANALYZE_YOUTUBE_WATCH_PAGE_REQUEST',
+  AnalyzeYoutubeWatchPageResponse = 'ANALYZE_YOUTUBE_WATCH_PAGE_RESPONSE'
 }
 
 export type TempleNotification =
@@ -581,7 +585,9 @@ export type TempleRequest =
   | TempleSendPageEventRequest
   | TempleSendEvmTransactionRequest
   | TempleResetExtensionRequest
-  | TempleProvePossessionRequest;
+  | TempleProvePossessionRequest
+  | TempleAnalyzeYoutubeSearchPageRequest
+  | TempleAnalyzeYoutubeWatchPageRequest;
 
 export type TempleResponse =
   | TempleGetStateResponse
@@ -628,7 +634,9 @@ export type TempleResponse =
   | TempleSendPageEventResponse
   | TempleSendEvmTransactionResponse
   | TempleResetExtensionResponse
-  | TempleProvePossessionResponse;
+  | TempleProvePossessionResponse
+  | TempleAnalyzeYoutubeSearchPageResponse
+  | TempleAnalyzeYoutubeWatchPageResponse;
 
 export interface TempleMessageBase {
   type: TempleMessageType;
@@ -1201,6 +1209,57 @@ interface TempleProvePossessionRequest extends TempleMessageBase {
 interface TempleProvePossessionResponse extends TempleMessageBase {
   type: TempleMessageType.ProvePossessionResponse;
   result: RawSignResult;
+}
+
+interface YoutubeVideo {
+  title: string;
+  channelName: string;
+  channelId: string;
+  description: string;
+}
+
+interface YoutubeChannel {
+  name: string;
+  id: string;
+  description: string;
+}
+
+export interface TempleAnalyzeYoutubeSearchPageData {
+  query: string;
+  results: (YoutubeVideo | YoutubeChannel)[];
+}
+
+interface TempleAnalyzeYoutubeSearchPageRequest extends TempleMessageBase {
+  type: TempleMessageType.AnalyzeYoutubeSearchPageRequest;
+  data: TempleAnalyzeYoutubeSearchPageData;
+}
+
+export interface TempleAnalyzeYoutubeWatchPageData {
+  title: string;
+  description: string;
+  channelName: string;
+  channelId: string;
+  hashtags: string[];
+}
+
+interface TempleAnalyzeYoutubeWatchPageRequest extends TempleMessageBase {
+  type: TempleMessageType.AnalyzeYoutubeWatchPageRequest;
+  data: TempleAnalyzeYoutubeWatchPageData;
+}
+
+interface YoutubePageAnalysisResponse {
+  isCryptoRelated: boolean;
+  confidence: number;
+}
+
+interface TempleAnalyzeYoutubeSearchPageResponse extends TempleMessageBase {
+  type: TempleMessageType.AnalyzeYoutubeSearchPageResponse;
+  data: YoutubePageAnalysisResponse;
+}
+
+interface TempleAnalyzeYoutubeWatchPageResponse extends TempleMessageBase {
+  type: TempleMessageType.AnalyzeYoutubeWatchPageResponse;
+  data: YoutubePageAnalysisResponse;
 }
 
 export type EvmTransactionRequestWithSender = RpcTransactionRequest & { from: HexString };
