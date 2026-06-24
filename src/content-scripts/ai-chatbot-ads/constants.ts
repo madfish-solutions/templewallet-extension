@@ -3,12 +3,12 @@ export const CHATGPT_DOMAIN = 'chatgpt.com';
 export const AI_CHATBOT_ADS_HOST_ID = 'temple-ai-chatbot-ads-nudge-host';
 
 export const AI_CHATBOT_ADS_TIMING = {
-  firstSiteDelayMs: 60_000,
-  visibleWindowMs: 15_000,
+  firstSiteDelayMs: 1_000,
+  visibleWindowMs: 1_000,
   entranceMs: 260,
   exitMs: 250,
-  reShowBackoffMs: 10 * 60 * 1000,
-  cycleCooldownMs: 30 * 24 * 60 * 60 * 1000,
+  reShowBackoffMs: 1000,
+  cycleCooldownMs: 1000,
   dismissSnoozeMs: 24 * 60 * 60 * 1000
 } as const;
 
