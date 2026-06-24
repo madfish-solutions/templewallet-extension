@@ -1,4 +1,4 @@
-import type { CoinIndex } from 'lib/temple/back/web-widgets/fetch-coin-index';
+import type { CoinsBySymbol } from 'lib/temple/back/web-widgets/fetch-coins-by-symbol';
 
 import type { DetectedRef, Detector, TagData, TickerRef } from '../../engine/types';
 import * as messaging from '../../messaging';
@@ -7,31 +7,31 @@ import { detectTickers } from './detect-tickers';
 import { extractPostText } from './extract-post-text';
 
 const DETECTOR_ID = 'crypto-token';
-const INDEX_TTL_MS = 10 * 60 * 1000;
+const CACHE_TTL_MS = 10 * 60 * 1000;
 
-let indexPromise: Promise<CoinIndex> | null = null;
+let coinsPromise: Promise<CoinsBySymbol> | null = null;
 let fetchedAt = 0;
 
-const getCoinIndexCached = (): Promise<CoinIndex> => {
-  if (!indexPromise || Date.now() - fetchedAt > INDEX_TTL_MS) {
+const getCoinsBySymbolCached = (): Promise<CoinsBySymbol> => {
+  if (!coinsPromise || Date.now() - fetchedAt > CACHE_TTL_MS) {
     fetchedAt = Date.now();
-    indexPromise = messaging
-      .getCoinIndex()
-      .then(index => {
-        if (!index || Object.keys(index).length === 0) {
-          indexPromise = null;
+    coinsPromise = messaging
+      .getCoinsBySymbol()
+      .then(coins => {
+        if (!coins || Object.keys(coins).length === 0) {
+          coinsPromise = null;
           fetchedAt = 0;
         }
-        return index ?? {};
+        return coins ?? {};
       })
       .catch(error => {
-        indexPromise = null;
+        coinsPromise = null;
         fetchedAt = 0;
         throw error;
       });
   }
 
-  return indexPromise;
+  return coinsPromise;
 };
 
 export const cryptoTokenDetector: Detector = {
@@ -49,8 +49,8 @@ export const cryptoTokenDetector: Detector = {
   async resolve(ref: DetectedRef): Promise<TagData | null> {
     if (ref.kind !== 'ticker') return null;
 
-    const index = await getCoinIndexCached();
-    const coin = index[ref.symbol];
+    const coins = await getCoinsBySymbolCached();
+    const coin = coins[ref.symbol];
     if (!coin) return null;
 
     const tagData: TagData = { kind: 'ticker', iconUrl: coin.iconUrl, label: coin.symbol };

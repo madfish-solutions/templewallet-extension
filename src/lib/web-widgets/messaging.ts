@@ -1,6 +1,6 @@
 import { browser } from 'lib/browser';
 import { ContentScriptType } from 'lib/constants';
-import type { CoinIndex } from 'lib/temple/back/web-widgets/fetch-coin-index';
+import type { CoinsBySymbol } from 'lib/temple/back/web-widgets/fetch-coins-by-symbol';
 import type { ObjktToken } from 'lib/temple/back/web-widgets/objkt-query';
 
 export const resolveTco = (tcoUrl: string): Promise<string | null> =>
@@ -22,9 +22,9 @@ export const fetchThumbnailBlob = (url: string): Promise<string | null> =>
     url
   });
 
-export const getCoinIndex = (): Promise<CoinIndex> =>
+export const getCoinsBySymbol = (): Promise<CoinsBySymbol> =>
   browser.runtime.sendMessage({
-    type: ContentScriptType.GetCoinIndex
+    type: ContentScriptType.GetCoinsBySymbol
   });
 
 interface WidgetContextData {

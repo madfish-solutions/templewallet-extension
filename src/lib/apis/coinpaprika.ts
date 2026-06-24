@@ -17,7 +17,7 @@ export async function fetchTopCoinsFromPaprika(limit: number): Promise<TopCoinRa
 
   return data
     .filter(coin => coin.rank > 0)
-    .sort((a, b) => a.rank - b.rank)
+    .toSorted((a, b) => a.rank - b.rank)
     .slice(0, limit)
     .map(coin => ({
       id: coin.id,
