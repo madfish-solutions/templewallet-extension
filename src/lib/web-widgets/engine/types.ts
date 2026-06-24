@@ -9,7 +9,7 @@ interface DetectedRefBase {
   statusId?: string;
 }
 
-export interface ObjktRef extends DetectedRefBase {
+interface ObjktRef extends DetectedRefBase {
   kind: 'objkt';
   sourceHref: string;
   linkEl?: HTMLAnchorElement;
