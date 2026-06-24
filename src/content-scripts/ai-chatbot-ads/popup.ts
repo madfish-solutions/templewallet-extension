@@ -29,7 +29,7 @@ export function mountAiChatbotAdsPopup({
   container.innerHTML = `
     <div class="temple-copy">${formatCopy(text)}</div>
     <button class="temple-enable" type="button">Enable now</button>
-    <button class="temple-close" type="button" title="Close">x</button>
+    <button class="temple-close" type="button" title="Close">${closeIcon}</button>
     <div class="temple-countdown" aria-hidden="true"></div>
   `;
   shadow.appendChild(container);
@@ -218,17 +218,24 @@ function getStyles(): string {
     }
 
     .temple-close {
+      align-items: center;
       appearance: none;
       background: transparent;
       border: 0;
       color: #a8adb5;
       cursor: pointer;
+      display: inline-flex;
       flex: 0 0 auto;
-      font: inherit;
-      font-size: 26px;
-      font-weight: 300;
-      line-height: 20px;
-      padding: 2px 0 4px;
+      height: 24px;
+      justify-content: center;
+      padding: 0;
+      width: 24px;
+    }
+
+    .temple-close svg {
+      display: block;
+      height: 8px;
+      width: 8px;
     }
 
     .temple-close:hover {
@@ -237,10 +244,10 @@ function getStyles(): string {
 
     .temple-countdown {
       background: #1d7afc;
-      bottom: 0;
       height: 2px;
       left: 0;
       position: absolute;
+      top: 0;
       width: 100%;
     }
 
@@ -261,3 +268,7 @@ function getStyles(): string {
     }
   `;
 }
+
+const closeIcon = `<svg width="8" height="8" viewBox="0 0 8 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M6.95117 0.170898C7.02279 0.0992839 7.10417 0.0537109 7.19531 0.0341797C7.28971 0.0113932 7.38249 0.0113932 7.47363 0.0341797C7.56803 0.0569661 7.65267 0.104167 7.72754 0.175781C7.7959 0.244141 7.84147 0.325521 7.86426 0.419922C7.8903 0.514323 7.8903 0.608724 7.86426 0.703125C7.84147 0.794271 7.7959 0.875651 7.72754 0.947266L0.950195 7.72461C0.881836 7.79297 0.800456 7.83854 0.706055 7.86133C0.614909 7.88411 0.522135 7.88411 0.427734 7.86133C0.333333 7.83854 0.248698 7.79134 0.173828 7.71973C0.102214 7.65137 0.055013 7.56999 0.0322266 7.47559C0.0094401 7.38118 0.0094401 7.28678 0.0322266 7.19238C0.0582682 7.09798 0.105469 7.01823 0.173828 6.95312L6.95117 0.170898ZM7.72754 6.94824C7.7959 7.01986 7.84147 7.10286 7.86426 7.19727C7.88704 7.28841 7.88704 7.38118 7.86426 7.47559C7.84147 7.56999 7.7959 7.65137 7.72754 7.71973C7.65592 7.79134 7.57292 7.83854 7.47852 7.86133C7.38411 7.88411 7.28971 7.88411 7.19531 7.86133C7.10091 7.83854 7.01953 7.79297 6.95117 7.72461L0.173828 0.942383C0.105469 0.877279 0.0598958 0.797526 0.0371094 0.703125C0.0143229 0.608724 0.0143229 0.514323 0.0371094 0.419922C0.0598958 0.325521 0.105469 0.244141 0.173828 0.175781C0.245443 0.104167 0.328451 0.0569661 0.422852 0.0341797C0.517253 0.0113932 0.611654 0.0113932 0.706055 0.0341797C0.800456 0.0569661 0.881836 0.102539 0.950195 0.170898L7.72754 6.94824Z" fill="#AEAEB2"/>
+</svg>`;
