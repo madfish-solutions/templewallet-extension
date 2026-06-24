@@ -53,7 +53,7 @@ export class AiChatbotAdsController {
       })
     );
 
-    const evaluateOnFocus = () => this.evaluate('tick');
+    const evaluateOnFocus = () => this.handlePageStateTick();
     window.addEventListener('focus', evaluateOnFocus);
     document.addEventListener('visibilitychange', evaluateOnFocus);
     this.cleanups.push(() => {
@@ -61,7 +61,7 @@ export class AiChatbotAdsController {
       document.removeEventListener('visibilitychange', evaluateOnFocus);
     });
 
-    const intervalId = window.setInterval(() => this.evaluate('tick'), 1_000);
+    const intervalId = window.setInterval(() => this.handlePageStateTick(), 1_000);
     this.cleanups.push(() => window.clearInterval(intervalId));
 
     window.addEventListener('pagehide', this.dispose, { once: true });
@@ -96,6 +96,15 @@ export class AiChatbotAdsController {
     this.evaluate('tick');
   }
 
+  private handlePageStateTick(): void {
+    if (this.adapter.hasActiveModal() && this.popupClose) {
+      this.popupClose('timeout');
+      return;
+    }
+
+    this.evaluate('tick');
+  }
+
   private async evaluate(trigger: AiChatbotAdsTrigger): Promise<void> {
     if (this.disposed || this.evaluating || this.popupClose) return;
     if (document.getElementById(AI_CHATBOT_ADS_HOST_ID)) return;
@@ -113,6 +122,7 @@ export class AiChatbotAdsController {
         completedAnswers: this.completedAnswers,
         enabled: state.enabled,
         focused: this.adapter.isFocused(),
+        hasActiveModal: this.adapter.hasActiveModal(),
         answerState,
         trigger,
         domainState: state.domainState,

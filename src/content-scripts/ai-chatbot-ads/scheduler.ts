@@ -12,6 +12,7 @@ export interface AiChatbotAdsEligibilityInput {
   completedAnswers: number;
   enabled: boolean;
   focused: boolean;
+  hasActiveModal: boolean;
   answerState: AiChatbotAnswerState;
   trigger: AiChatbotAdsTrigger;
   domainState: AiChatbotAdsDomainState;
@@ -29,13 +30,14 @@ export function getEligibleAiChatbotAdsOffer({
   completedAnswers,
   enabled,
   focused,
+  hasActiveModal,
   answerState,
   trigger,
   domainState,
   sessionDomainState
 }: AiChatbotAdsEligibilityInput): AiChatbotAdsEligibleOffer | null {
   if (enabled) return null;
-  if (!focused || answerState !== 'idle') return null;
+  if (!focused || hasActiveModal || answerState !== 'idle') return null;
   if (domainState.disabled) return null;
   if (domainState.snoozedUntil && now < domainState.snoozedUntil) return null;
   if (domainState.cooldownUntil && now < domainState.cooldownUntil) return null;
