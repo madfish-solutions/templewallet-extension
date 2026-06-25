@@ -8,7 +8,7 @@ const config = {
   coverageProvider: 'v8',
   // To have Jest respect `baseUrl`:
   moduleDirectories: ['node_modules', 'src'],
-  testEnvironment: 'jsdom',
+  testEnvironment: './jest-fixed-environment.js',
   transform: {
     '.+\\.ts$': 'ts-jest',
     '.+\\.tsx$': 'ts-jest'
