@@ -29,6 +29,7 @@ import {
   importCoinsBySymbolModule,
   importFetchObjktTokenModule,
   importFetchThumbnailModule,
+  importFetchTokenChartModule,
   importResolveTcoModule
 } from 'lib/temple/back/import-web-widgets-handlers';
 import { encodeMessage, encryptMessage, getSenderId, MessageType, Response } from 'lib/temple/beacon';
@@ -484,6 +485,11 @@ browser.runtime.onMessage.addListener(async (msg, sender) => {
       case ContentScriptType.GetCoinsBySymbol: {
         const { getCoinsBySymbol } = await importCoinsBySymbolModule();
         return await getCoinsBySymbol();
+      }
+
+      case ContentScriptType.FetchTokenChart: {
+        const { fetchTokenChart } = await importFetchTokenChartModule();
+        return await fetchTokenChart(msg.coinId);
       }
 
       case ContentScriptType.WidgetContext: {

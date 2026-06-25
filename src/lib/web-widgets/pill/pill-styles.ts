@@ -37,7 +37,7 @@ export const PILL_STYLES = `
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    width: 452px;
+    width: 460px;
     padding: 4px;
     border-radius: 16px;
     background: #ffffff;
@@ -183,6 +183,38 @@ export const PILL_STYLES = `
   }
   .tw-card__icon-btn:hover {
     background: #f4f4f4;
+  }
+
+  .tw-card__token {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    min-width: 0;
+  }
+  .tw-card__token-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex: none;
+    background: #f4f4f4;
+  }
+  .tw-card__token-avatar--empty {
+    background: #f4f4f4;
+  }
+  .tw-card__token-symbol {
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 16px;
+    color: #000000;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+  .tw-card__more-icon {
+    width: 24px;
+    height: 24px;
   }
 
   .tw-card__body {
@@ -334,6 +366,116 @@ export const PILL_STYLES = `
     font-size: 12px;
     line-height: 16px;
     color: #151618;
+  }
+
+  .tw-card__panel {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 12px 16px;
+    border-radius: 8px;
+    background: #FBFBFB;
+  }
+  .tw-card__ticker-row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+  }
+  .tw-card__ticker-info {
+    display: flex;
+    flex-direction: column;
+    width: fit-content;
+    gap: 8px;
+    min-width: 0;
+  }
+  .tw-card__ticker-headline {
+    display: flex;
+    flex-direction: column;
+  }
+  .tw-card__ticker-price-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .tw-card__market-cap {
+    font-family: 'Rubik', sans-serif;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 20px;
+    color: #707070;
+  }
+  .tw-card__change {
+    display: inline-flex;
+    align-items: center;
+    flex: none;
+    padding: 2px 4px;
+    border-radius: 4px;
+    border: 0.5px solid;
+    font-family: 'Inter', sans-serif;
+    font-size: 10px;
+    font-weight: 600;
+    line-height: 12px;
+  }
+  .tw-card__change--up {
+    color: #34cc4e;
+    background: #e6f5e9;
+    border-color: #34cc4e;
+  }
+  .tw-card__change--down {
+    color: #ff3b30;
+    background: #fae7e6;
+    border-color: #ff3b30;
+  }
+  .tw-card__ticker-props-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .tw-card__ticker-info .tw-card__divider {
+    margin: 0;
+    height: 0;
+    border-top: 0.5px solid #e4e4e4;
+    background: none;
+  }
+  .tw-card__ticker-info .tw-card__prop-label {
+    font-family: 'Inter', sans-serif;
+    font-weight: 400;
+  }
+  .tw-card__ticker-info .tw-card__prop-value {
+    color: #000000;
+  }
+  .tw-card__chart {
+    position: relative;
+    width: 202px;
+    height: 108px;
+    flex: none;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .tw-card__chart-loader {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+  }
+  .tw-card__hilo {
+    position: absolute;
+    font-family: 'Rubik', sans-serif;
+    font-size: 10px;
+    font-weight: 400;
+    line-height: 12px;
+    color: #000000;
+  }
+  .tw-card__hilo--high {
+    top: 4px;
+    right: 8px;
+  }
+  .tw-card__hilo--low {
+    bottom: 4px;
+    left: 8px;
   }
 
   .tw-card__cta {

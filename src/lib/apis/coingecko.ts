@@ -196,23 +196,27 @@ export interface TopCoinRaw {
   name: string;
   image: string;
   market_cap: number | null;
+  current_price: number | null;
+  price_change_percentage_24h: number | null;
+  fully_diluted_valuation: number | null;
+  total_volume: number | null;
+  high_24h: number | null;
+  low_24h: number | null;
+  sparkline_in_7d?: { price?: number[] };
 }
 
 export async function fetchTopCoinsByMarketCap(pages: number, perPage = 250): Promise<TopCoinRaw[]> {
-  const all: TopCoinRaw[] = [];
+  const requests = Array.from({ length: pages }, (_, i) =>
+    coingeckoApi
+      .get<TopCoinRaw[]>('coins/markets', {
+        params: { vs_currency: 'usd', order: 'market_cap_desc', per_page: perPage, page: i + 1, sparkline: true }
+      })
+      .then(({ data }) => data)
+      .catch(() => [])
+  );
 
-  for (let page = 1; page <= pages; page++) {
-    try {
-      const { data } = await coingeckoApi.get<TopCoinRaw[]>('coins/markets', {
-        params: { vs_currency: 'usd', order: 'market_cap_desc', per_page: perPage, page, sparkline: false }
-      });
-      all.push(...data);
-    } catch {
-      break;
-    }
-  }
-
-  return all;
+  const pagesData = await Promise.all(requests);
+  return pagesData.flat();
 }
 
 export async function fetchCoinsByIds(ids: string[]): Promise<TopCoinRaw[]> {
@@ -220,7 +224,7 @@ export async function fetchCoinsByIds(ids: string[]): Promise<TopCoinRaw[]> {
 
   try {
     const { data } = await coingeckoApi.get<TopCoinRaw[]>('coins/markets', {
-      params: { vs_currency: 'usd', ids: ids.join(','), sparkline: false }
+      params: { vs_currency: 'usd', ids: ids.join(','), sparkline: true }
     });
     return data;
   } catch {
