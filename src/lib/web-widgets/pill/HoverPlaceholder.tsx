@@ -6,6 +6,7 @@ import { createPortal } from 'react-dom';
 import type { TagData } from '../engine/types';
 
 import { NftCard } from './card/NftCard';
+import { TickerPlaceholderCard } from './card/TickerPlaceholderCard';
 import { PILL_STYLES } from './pill-styles';
 
 interface HoverPlaceholderProps {
@@ -116,7 +117,13 @@ export const HoverPlaceholder = memo<HoverPlaceholderProps>(
         onMouseEnter={onMouseEnter}
         onMouseLeave={onMouseLeave}
       >
-        {open || cardMounted ? <NftCard tagData={tagData} onClose={onClose} /> : null}
+        {open || cardMounted ? (
+          tagData.kind === 'ticker' ? (
+            <TickerPlaceholderCard />
+          ) : (
+            <NftCard tagData={tagData} onClose={onClose} />
+          )
+        ) : null}
       </div>,
       mount
     );

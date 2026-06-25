@@ -27,6 +27,7 @@ import { BACKGROUND_IS_WORKER, EnvVars, IS_FIREFOX, IS_MISES_BROWSER } from 'lib
 import { fetchFromStorage, putToStorage } from 'lib/storage';
 import { AnalyticsEventCategory } from 'lib/temple/analytics-types';
 import {
+  importCoinsBySymbolModule,
   importFetchObjktTokenModule,
   importFetchThumbnailModule,
   importResolveTcoModule
@@ -502,6 +503,11 @@ browser.runtime.onMessage.addListener(async (msg, sender) => {
       case ContentScriptType.FetchThumbnailBlob: {
         const { fetchThumbnailBlob } = await importFetchThumbnailModule();
         return await fetchThumbnailBlob(msg.url);
+      }
+
+      case ContentScriptType.GetCoinsBySymbol: {
+        const { getCoinsBySymbol } = await importCoinsBySymbolModule();
+        return await getCoinsBySymbol();
       }
 
       case ContentScriptType.WidgetContext: {
