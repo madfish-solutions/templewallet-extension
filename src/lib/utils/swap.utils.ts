@@ -204,21 +204,30 @@ export const getRoutingFeeTransferParams = async (
   return [];
 };
 
-function is3RouteOpParam(p: WalletParamsWithKind) {
+export function isRoute3SwapOp(p: WalletParamsWithKind) {
   return p.kind === OpKind.TRANSACTION && (p.to === ROUTE3_CONTRACT || p.to === LIQUIDITY_BAKING_PROXY_CONTRACT);
 }
 
+function isLiquidityBakingOpParam(p: WalletParamsWithKind) {
+  return p.kind === OpKind.TRANSACTION && p.to === LIQUIDITY_BAKING_PROXY_CONTRACT;
+}
+
 // Applies mainly to "approve" and "transfer" operations.
-// Those take less than 5,000 gas on average,
-// so this value is with a generous buffer.
+// Those take less than 5,000 gas on average, so this value is with a generous buffer.
 const NON_3ROUTE_OPERATIONS_GAS_LIMIT = 15000;
 
+// Reserve for a SIRS swap's bundled cashback route3 op, so the heavy
+// LB-proxy mint isn't starved when the budget is split.
+const SECONDARY_3ROUTE_OPERATIONS_GAS_LIMIT = 150000;
+
+// Taquito gives gas-limit-less ops an equal share of the block, so reserve fixed budgets for the light
+// ops and hand the remainder to the heavy op (the LB-proxy mint if present, else the route3 execute).
 export async function getParamsWithCustomGasLimitFor3RouteSwap(
   tezos: TezosToolkit,
   sourcePkh: string,
   opParams: WalletParamsWithKind[]
 ) {
-  if (opParams.length < 2 || !opParams.some(op => is3RouteOpParam(op))) {
+  if (opParams.length < 2 || !opParams.some(op => isRoute3SwapOp(op))) {
     return opParams;
   }
 
@@ -229,12 +238,20 @@ export async function getParamsWithCustomGasLimitFor3RouteSwap(
     const constants = await tezos.rpc.getConstants();
 
     const blockGasLimitWithRevealReserve = constants.hard_gas_limit_per_block.minus(revealGasLimit);
-    const non3RouteOpParamsCount = opParams.filter(op => !is3RouteOpParam(op)).length;
 
-    const gasPer3RouteOperation = Math.min(
+    // Heavy = the LB-proxy mint if present, else every route3 execute.
+    const hasLiquidityBakingOp = opParams.some(isLiquidityBakingOpParam);
+    const isHeavyOp = hasLiquidityBakingOp ? isLiquidityBakingOpParam : isRoute3SwapOp;
+    const gasLimitForLightOp = (op: WalletParamsWithKind) =>
+      isRoute3SwapOp(op) ? SECONDARY_3ROUTE_OPERATIONS_GAS_LIMIT : NON_3ROUTE_OPERATIONS_GAS_LIMIT;
+
+    const lightOpsGasReserve = opParams.reduce((sum, op) => (isHeavyOp(op) ? sum : sum + gasLimitForLightOp(op)), 0);
+    const heavyOpsCount = opParams.filter(isHeavyOp).length;
+
+    const gasPerHeavyOperation = Math.min(
       blockGasLimitWithRevealReserve
-        .minus(non3RouteOpParamsCount * NON_3ROUTE_OPERATIONS_GAS_LIMIT)
-        .div(opParams.length - non3RouteOpParamsCount)
+        .minus(lightOpsGasReserve)
+        .div(heavyOpsCount)
         .integerValue(BigNumber.ROUND_DOWN)
         .toNumber(),
       constants.hard_gas_limit_per_operation.toNumber()
@@ -242,7 +259,7 @@ export async function getParamsWithCustomGasLimitFor3RouteSwap(
 
     return opParams.map(op => ({
       ...op,
-      gasLimit: is3RouteOpParam(op) ? gasPer3RouteOperation : NON_3ROUTE_OPERATIONS_GAS_LIMIT
+      gasLimit: isHeavyOp(op) ? gasPerHeavyOperation : gasLimitForLightOp(op)
     }));
   } catch {
     return opParams;

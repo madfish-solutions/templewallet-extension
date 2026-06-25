@@ -1,6 +1,6 @@
 import { localForger } from '@taquito/local-forging';
 import { ForgeOperationsParams } from '@taquito/rpc';
-import { TezosToolkit, TezosOperationError, getRevealGasLimit, getRevealFee, Estimate } from '@taquito/taquito';
+import { TezosToolkit, TezosOperationError, Estimate, getRevealFee } from '@taquito/taquito';
 import { ProhibitedActionError } from '@taquito/utils';
 import { omit } from 'lodash';
 
@@ -20,9 +20,6 @@ interface DryRunParams {
   network: TezosNetworkEssentials;
   sourcePkh: string;
   sourcePublicKey: string;
-  apply3RouteGasWorkaround?: boolean;
-  attemptCounter?: number;
-  prevFailedOperationIndex?: number;
 }
 
 export interface DryRunResult {
@@ -35,14 +32,52 @@ export interface DryRunResult {
   };
 }
 
+const MAX_GAS_EXHAUSTION_RETRIES = 3;
+
+/**
+ * Taquito patches operations missing gas limits with an equal share of the block gas, which can
+ * starve a gas-heavy operation in a batch (see getParamsWithCustomGasLimitFor3RouteSwap
+ * for the proactive fix covering 3Route swaps). For other batch shapes, reuse the simulation's own
+ * hint: the error reports which operation ran out of gas and the limit it ran with, so double that
+ * limit and retry.
+ */
+function getDoubledGasOpParams(opParams: any[], estimationError: unknown) {
+  if (
+    !(estimationError instanceof TezosOperationError) ||
+    !estimationError.errors.some(err => err.id.includes('gas_exhausted'))
+  ) {
+    return null;
+  }
+
+  const { operationsWithResults } = estimationError;
+  const revealOffset = operationsWithResults.length - opParams.length;
+  if (revealOffset !== 0 && revealOffset !== 1) return null;
+
+  const firstSkippedIndex = operationsWithResults.findIndex(
+    op => 'metadata' in op && 'operation_result' in op.metadata && op.metadata.operation_result.status === 'skipped'
+  );
+  // An internal operation of this operation may be marked as failed but this one as backtracked
+  const failedResultIndex = firstSkippedIndex === -1 ? operationsWithResults.length - 1 : firstSkippedIndex - 1;
+  const failedOpIndex = failedResultIndex - revealOffset;
+  const failedOperationWithResult = operationsWithResults[failedResultIndex];
+
+  if (failedOpIndex < 0 || !failedOperationWithResult || !('gas_limit' in failedOperationWithResult)) return null;
+
+  return {
+    failedOpIndex,
+    opParams: opParams.map((op, index) =>
+      index === failedOpIndex
+        ? { ...op, gasLimit: Math.max(op.gasLimit ?? 0, Number(failedOperationWithResult.gas_limit)) * 2 }
+        : op
+    )
+  };
+}
+
 export async function dryRunOpParams({
   opParams,
   network,
   sourcePkh,
-  sourcePublicKey,
-  apply3RouteGasWorkaround = false,
-  attemptCounter = 0,
-  prevFailedOperationIndex = -1
+  sourcePublicKey
 }: DryRunParams): Promise<DryRunResult | null> {
   try {
     const tezos = new TezosToolkit(getTezosRpcClient(network));
@@ -69,46 +104,36 @@ export async function dryRunOpParams({
     let serializedEstimates: SerializedEstimate[] | undefined;
     let error: any = [];
     try {
-      const preparedOpParams = apply3RouteGasWorkaround
+      const noExplicitGasLimits = opParams.every(op => op.gasLimit === undefined);
+      const preparedOpParams = noExplicitGasLimits
         ? await getParamsWithCustomGasLimitFor3RouteSwap(tezos, sourcePkh, opParams)
         : opParams;
       const formatted = preparedOpParams.map(operation => formatOpParamsBeforeSend(operation, sourcePkh));
 
-      const [estimationResult] = await Promise.allSettled([tezos.estimate.batch(formatted)]);
-      const [contractBatchResult] = await Promise.allSettled([tezos.contract.batch(formatted).send()]);
+      let [estimationResult] = await Promise.allSettled([tezos.estimate.batch(formatted)]);
+      let [contractBatchResult] = await Promise.allSettled([tezos.contract.batch(formatted).send()]);
+
+      let retryOpParams = preparedOpParams;
+      let attemptCounter = 0;
+      let prevFailedOpIndex = -1;
+      while (
+        attemptCounter < MAX_GAS_EXHAUSTION_RETRIES &&
+        estimationResult.status === 'rejected' &&
+        contractBatchResult.status === 'rejected'
+      ) {
+        const rescue = getDoubledGasOpParams(retryOpParams, estimationResult.reason);
+        if (!rescue) break;
+
+        retryOpParams = rescue.opParams;
+        attemptCounter = rescue.failedOpIndex > prevFailedOpIndex ? 0 : attemptCounter + 1;
+        prevFailedOpIndex = Math.max(rescue.failedOpIndex, prevFailedOpIndex);
+
+        const retryFormatted = retryOpParams.map(operation => formatOpParamsBeforeSend(operation, sourcePkh));
+        [estimationResult] = await Promise.allSettled([tezos.estimate.batch(retryFormatted)]);
+        [contractBatchResult] = await Promise.allSettled([tezos.contract.batch(retryFormatted).send()]);
+      }
 
       if (estimationResult.status === 'rejected' && contractBatchResult.status === 'rejected') {
-        if (
-          estimationResult.reason instanceof TezosOperationError &&
-          estimationResult.reason.errors.some(error => error.id.includes('gas_exhausted'))
-        ) {
-          const { operationsWithResults } = estimationResult.reason;
-          const firstSkippedOperationIndex = operationsWithResults.findIndex(
-            op =>
-              'metadata' in op && 'operation_result' in op.metadata && op.metadata.operation_result.status === 'skipped'
-          );
-          // An internal operation of this operation may be marked as failed but this one as backtracked
-          const failedOperationIndex =
-            firstSkippedOperationIndex === -1 ? operationsWithResults.length - 1 : firstSkippedOperationIndex - 1;
-          const failedOperationWithResult = operationsWithResults[failedOperationIndex];
-          if ('gas_limit' in failedOperationWithResult) {
-            const newOpParams = Array.from(opParams);
-            newOpParams[failedOperationIndex].gasLimit =
-              Math.max(opParams[failedOperationIndex].gasLimit ?? 0, Number(failedOperationWithResult.gas_limit)) * 2;
-
-            if (attemptCounter < 3) {
-              return dryRunOpParams({
-                opParams: newOpParams,
-                network,
-                sourcePkh,
-                sourcePublicKey,
-                apply3RouteGasWorkaround,
-                attemptCounter: failedOperationIndex > prevFailedOperationIndex ? 0 : attemptCounter + 1,
-                prevFailedOperationIndex: Math.max(failedOperationIndex, prevFailedOperationIndex)
-              });
-            }
-          }
-        }
         error = [
           { ...estimationResult.reason, isError: true },
           { ...contractBatchResult.reason, isError: true }
@@ -132,17 +157,11 @@ export async function dryRunOpParams({
         }));
 
         if (revealEstimate) {
-          // tezos.estimate reports reveal fee that is less than the actual fee
-          const feeDelta = getRevealFee(sourcePkh) - revealEstimate.suggestedFeeMutez;
-          const gasLimit = getRevealGasLimit(sourcePkh);
+          // Taquito attaches getRevealFee() to the auto-prepended reveal at send time, which can exceed
+          // the simulation-based estimate; report the fee that will actually be paid.
           serializedEstimates.unshift({
             ...serializeEstimate(revealEstimate),
-            consumedMilligas: gasLimit * 1000,
-            gasLimit,
-            minimalFeeMutez: revealEstimate.minimalFeeMutez + feeDelta,
-            suggestedFeeMutez: revealEstimate.suggestedFeeMutez + feeDelta,
-            totalCost: revealEstimate.totalCost + feeDelta,
-            usingBaseFeeMutez: revealEstimate.usingBaseFeeMutez + feeDelta
+            suggestedFeeMutez: Math.max(revealEstimate.suggestedFeeMutez, getRevealFee(sourcePkh))
           });
         }
       }
