@@ -7,9 +7,26 @@ import { getStoredAppInstallIdentity } from 'app/storage/app-install-id';
 import type { DealsState } from 'app/store/deals/state';
 import { importGetTempleAdsApiModule } from 'lib/ads/import-get-temple-ads-api';
 import { importUpdateRulesStorageModule } from 'lib/ads/import-update-rules-storage';
+import {
+  AI_CHATBOT_PROMO_OFFER_EVENT,
+  GENERAL_ADS_ENABLED_EVENT,
+  getAiChatbotAdsDomainSessionState,
+  getAiChatbotAdsDomainState,
+  normalizeAiChatbotAdsDomain,
+  setAiChatbotAdsDomainSessionState,
+  setAiChatbotAdsDomainState,
+  type AiChatbotAdsDomainSessionState,
+  type AiChatbotAdsDomainState,
+  type AiChatbotAdsNudgeSessionState,
+  type AiChatbotAdsNudgeState,
+  type AiChatbotAdsOfferAction
+} from 'lib/ai-chatbot-ads';
 import { importAdsApiModule } from 'lib/apis/ads-api';
 import {
   ADS_VIEWER_DATA_STORAGE_KEY,
+  AI_CHATBOT_ADS_ENABLED_DOMAINS_STORAGE_KEY,
+  AI_CHATBOT_ADS_NUDGE_SESSION_STORAGE_KEY,
+  AI_CHATBOT_ADS_NUDGE_STATE_STORAGE_KEY,
   ANALYTICS_USER_ID_STORAGE_KEY,
   ContentScriptType,
   REWARDS_ACCOUNT_DATA_STORAGE_KEY,
@@ -41,6 +58,18 @@ const frontStore = store.map(toFront);
 const DEALS_STORAGE_KEY = 'persist:root.deals';
 const MERCHANT_OFFER_SUPPRESSION_TTL = 15 * 60 * 1000;
 const merchantOfferSuppressedAt = new Map<string, number>();
+const aiChatbotAdsActiveNudges = new Map<string, { claimId: string; tabId?: number }>();
+const aiChatbotAdsOfferActions = new Set<AiChatbotAdsOfferAction>(['view', 'enable', 'dismiss']);
+
+type StorageWithSession = typeof browser.storage & { session?: typeof browser.storage.local };
+
+const getAiChatbotAdsSessionStorage = () => (browser.storage as StorageWithSession).session ?? browser.storage.local;
+
+browser.tabs.onRemoved.addListener(tabId => {
+  for (const [domain, claim] of aiChatbotAdsActiveNudges) {
+    if (claim.tabId === tabId) aiChatbotAdsActiveNudges.delete(domain);
+  }
+});
 
 export const start = async () => {
   intercom.onRequest(processRequestWithErrorsLogged);
@@ -637,6 +666,79 @@ browser.runtime.onMessage.addListener(async (msg, sender) => {
         });
         break;
       }
+
+      case ContentScriptType.ClaimAiChatbotAdsNudge: {
+        if (typeof msg.domain !== 'string' || typeof msg.claimId !== 'string') return false;
+
+        const domain = normalizeAiChatbotAdsDomain(msg.domain);
+        const activeClaim = aiChatbotAdsActiveNudges.get(domain);
+        if (activeClaim && activeClaim.claimId !== msg.claimId) return false;
+
+        aiChatbotAdsActiveNudges.set(domain, {
+          claimId: msg.claimId,
+          tabId: sender.tab?.id
+        });
+
+        return true;
+      }
+
+      case ContentScriptType.ReleaseAiChatbotAdsNudge: {
+        if (typeof msg.domain !== 'string' || typeof msg.claimId !== 'string') return;
+
+        const domain = normalizeAiChatbotAdsDomain(msg.domain);
+        const activeClaim = aiChatbotAdsActiveNudges.get(domain);
+        if (activeClaim?.claimId === msg.claimId) aiChatbotAdsActiveNudges.delete(domain);
+        break;
+      }
+
+      case ContentScriptType.RecordAiChatbotAdsOffer: {
+        await recordAiChatbotAdsOffer(msg.domain, msg.action);
+        break;
+      }
+
+      case ContentScriptType.EnableAiChatbotAdsDomain: {
+        if (typeof msg.domain !== 'string') return;
+
+        const domain = normalizeAiChatbotAdsDomain(msg.domain);
+        const enabledDomains = (await fetchFromStorage<string[]>(AI_CHATBOT_ADS_ENABLED_DOMAINS_STORAGE_KEY)) ?? [];
+        if (!enabledDomains.includes(domain)) {
+          await putToStorage(AI_CHATBOT_ADS_ENABLED_DOMAINS_STORAGE_KEY, [...enabledDomains, domain]);
+        }
+
+        await recordAiChatbotAdsOffer(domain, 'enable');
+        break;
+      }
+
+      case ContentScriptType.GetAiChatbotAdsNudgeState: {
+        if (typeof msg.domain !== 'string') return null;
+
+        const domain = normalizeAiChatbotAdsDomain(msg.domain);
+        const [nudgeState, sessionRecords, enabledDomains] = await Promise.all([
+          fetchFromStorage<AiChatbotAdsNudgeState>(AI_CHATBOT_ADS_NUDGE_STATE_STORAGE_KEY),
+          getAiChatbotAdsSessionStorage().get(AI_CHATBOT_ADS_NUDGE_SESSION_STORAGE_KEY),
+          fetchFromStorage<string[]>(AI_CHATBOT_ADS_ENABLED_DOMAINS_STORAGE_KEY)
+        ]);
+        const sessionState = (sessionRecords[AI_CHATBOT_ADS_NUDGE_SESSION_STORAGE_KEY] ??
+          null) as AiChatbotAdsNudgeSessionState | null;
+
+        return {
+          enabled: Boolean(enabledDomains?.includes(domain)),
+          domainState: getAiChatbotAdsDomainState(nudgeState, domain),
+          sessionDomainState: getAiChatbotAdsDomainSessionState(sessionState, domain)
+        };
+      }
+
+      case ContentScriptType.UpdateAiChatbotAdsNudgeState: {
+        if (typeof msg.domain !== 'string') return;
+
+        const domain = normalizeAiChatbotAdsDomain(msg.domain);
+
+        await Promise.all([
+          updateAiChatbotAdsPersistentState(domain, msg.domainState),
+          updateAiChatbotAdsSessionState(domain, msg.sessionDomainState)
+        ]);
+        break;
+      }
     }
   } catch (e) {
     console.error(e);
@@ -644,6 +746,75 @@ browser.runtime.onMessage.addListener(async (msg, sender) => {
 
   return;
 });
+
+async function updateAiChatbotAdsPersistentState(domain: string, domainStateInput: unknown) {
+  if (!isObjectRecord(domainStateInput)) return;
+
+  const nudgeState = await fetchFromStorage<AiChatbotAdsNudgeState>(AI_CHATBOT_ADS_NUDGE_STATE_STORAGE_KEY);
+  await putToStorage(
+    AI_CHATBOT_ADS_NUDGE_STATE_STORAGE_KEY,
+    setAiChatbotAdsDomainState(nudgeState, domain, domainStateInput as AiChatbotAdsDomainState)
+  );
+}
+
+async function updateAiChatbotAdsSessionState(domain: string, sessionDomainStateInput: unknown) {
+  if (!isObjectRecord(sessionDomainStateInput)) return;
+
+  const sessionStorage = getAiChatbotAdsSessionStorage();
+  const records = await sessionStorage.get(AI_CHATBOT_ADS_NUDGE_SESSION_STORAGE_KEY);
+  const sessionState = (records[AI_CHATBOT_ADS_NUDGE_SESSION_STORAGE_KEY] ??
+    null) as AiChatbotAdsNudgeSessionState | null;
+
+  await sessionStorage.set({
+    [AI_CHATBOT_ADS_NUDGE_SESSION_STORAGE_KEY]: setAiChatbotAdsDomainSessionState(
+      sessionState,
+      domain,
+      sessionDomainStateInput as AiChatbotAdsDomainSessionState
+    )
+  });
+}
+
+function isObjectRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+async function recordAiChatbotAdsOffer(domainInput: unknown, actionInput: unknown) {
+  if (typeof domainInput !== 'string' || !aiChatbotAdsOfferActions.has(actionInput as AiChatbotAdsOfferAction)) return;
+
+  const domain = normalizeAiChatbotAdsDomain(domainInput);
+  const action = actionInput as AiChatbotAdsOfferAction;
+  const [analyticsEnabled, userId] = await Promise.all([
+    fetchFromStorage<boolean>(USAGE_ANALYTICS_ENABLED),
+    fetchFromStorage<string>(ANALYTICS_USER_ID_STORAGE_KEY)
+  ]);
+
+  if (analyticsEnabled) {
+    Analytics.trackEvent({
+      userId: userId ?? '',
+      chainId: undefined,
+      event: AI_CHATBOT_PROMO_OFFER_EVENT,
+      category: AnalyticsEventCategory.General,
+      properties: {
+        Domain: domain,
+        Type: action
+      }
+    });
+
+    return;
+  }
+
+  if (action === 'enable') {
+    Analytics.trackEvent({
+      userId: userId ?? '',
+      chainId: undefined,
+      event: GENERAL_ADS_ENABLED_EVENT,
+      category: AnalyticsEventCategory.General,
+      properties: {
+        Domain: domain
+      }
+    });
+  }
+}
 
 async function getAdsViewerCredentials(): Promise<AdsViewerData | Partial<Record<keyof AdsViewerData, undefined>>> {
   const credentialsFromStorage = await fetchFromStorage<AdsViewerData>(ADS_VIEWER_DATA_STORAGE_KEY);
