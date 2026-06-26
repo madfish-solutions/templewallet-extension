@@ -181,7 +181,6 @@ export const EditUrlEntityModal = <T extends UrlEntityBase>({
                 !isEditable && <IconBase size={16} Icon={LockFillIcon} className="text-grey-3" />
               }
               label={t('name')}
-              id="editurlentity-name"
               placeholder={namePlaceholder}
               errorCaption={isSubmitted && errors.name?.message}
               disabled={!isEditable || isSubmitting}
@@ -193,7 +192,6 @@ export const EditUrlEntityModal = <T extends UrlEntityBase>({
               formReturn={formReturn}
               urlsToExclude={urlsToExclude}
               isEditable={isEditable}
-              id="editurlentity-url"
               placeholder={urlInputPlaceholder}
               submitError={submitError}
               resetSubmitError={resetSubmitError}

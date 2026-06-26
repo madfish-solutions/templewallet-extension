@@ -4631,72 +4631,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@react-spring/animated@npm:~10.0.1":
-  version: 10.0.1
-  resolution: "@react-spring/animated@npm:10.0.1"
-  dependencies:
-    "@react-spring/shared": "npm:~10.0.1"
-    "@react-spring/types": "npm:~10.0.1"
-  peerDependencies:
-    react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
-  checksum: 10c0/aaccd4a8b0280ac846d463b253ad8f092ee4afc9dbedc8e77616adf5399ffec755344f09fdd8487cadaf815840dff84d354d1143579c27c2fcd6937549b5fc40
-  languageName: node
-  linkType: hard
-
-"@react-spring/core@npm:~10.0.1":
-  version: 10.0.1
-  resolution: "@react-spring/core@npm:10.0.1"
-  dependencies:
-    "@react-spring/animated": "npm:~10.0.1"
-    "@react-spring/shared": "npm:~10.0.1"
-    "@react-spring/types": "npm:~10.0.1"
-  peerDependencies:
-    react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
-  checksum: 10c0/059b122dda4138e5e7e461abd49350921e326735ca9a1d8aa19b1fdbae0937661b5f71af6fe82fd8f59e8db5549627849b38cc3f7ef2ec7ee9c93c3d6225174f
-  languageName: node
-  linkType: hard
-
-"@react-spring/rafz@npm:~10.0.1":
-  version: 10.0.1
-  resolution: "@react-spring/rafz@npm:10.0.1"
-  checksum: 10c0/cba76f143d3a06f79dd0c09f7aefd17df9cca9b2c1ef7f9103255e5351326f4a42a5a1366f731a78f74380d96ba683bcc2a49312ed1e4b9e9e249e72c9ff68cb
-  languageName: node
-  linkType: hard
-
-"@react-spring/shared@npm:~10.0.1":
-  version: 10.0.1
-  resolution: "@react-spring/shared@npm:10.0.1"
-  dependencies:
-    "@react-spring/rafz": "npm:~10.0.1"
-    "@react-spring/types": "npm:~10.0.1"
-  peerDependencies:
-    react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
-  checksum: 10c0/f056aaa018b3744afd8244e8eea24534d32f92fad9ace815b80e159b296fb5db148e2c9bd840ad9a5188e7a3c0778fd564b8af9ae02cd500e019a228398fb3cf
-  languageName: node
-  linkType: hard
-
-"@react-spring/types@npm:~10.0.1":
-  version: 10.0.1
-  resolution: "@react-spring/types@npm:10.0.1"
-  checksum: 10c0/260890f9c156dc69b77c846510017156d8c0a07cce70edc7c108e57b0cf4122b26a15e724b191481a51b2c914296de9e81d56618b2c339339d4b221930691baa
-  languageName: node
-  linkType: hard
-
-"@react-spring/web@npm:^10.0.1":
-  version: 10.0.1
-  resolution: "@react-spring/web@npm:10.0.1"
-  dependencies:
-    "@react-spring/animated": "npm:~10.0.1"
-    "@react-spring/core": "npm:~10.0.1"
-    "@react-spring/shared": "npm:~10.0.1"
-    "@react-spring/types": "npm:~10.0.1"
-  peerDependencies:
-    react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
-    react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
-  checksum: 10c0/a0c788c9fd881ccb834feb22fc0694e74e59f7b76e498f0096f5b65e2c9812513955bf45ee27d7c5348f56a7bba7c5a6961d4be663728bb2172fe5aa6b6bdfc4
-  languageName: node
-  linkType: hard
-
 "@redux-devtools/core@npm:^4.1.1":
   version: 4.1.1
   resolution: "@redux-devtools/core@npm:4.1.1"
@@ -11214,6 +11148,28 @@ __metadata:
   languageName: node
   linkType: hard
 
+"framer-motion@npm:^12.40.0":
+  version: 12.40.0
+  resolution: "framer-motion@npm:12.40.0"
+  dependencies:
+    motion-dom: "npm:^12.40.0"
+    motion-utils: "npm:^12.39.0"
+    tslib: "npm:^2.4.0"
+  peerDependencies:
+    "@emotion/is-prop-valid": "*"
+    react: ^18.0.0 || ^19.0.0
+    react-dom: ^18.0.0 || ^19.0.0
+  peerDependenciesMeta:
+    "@emotion/is-prop-valid":
+      optional: true
+    react:
+      optional: true
+    react-dom:
+      optional: true
+  checksum: 10c0/a1d26908d6661028fcdba0cf200fca18927a4d4eae0b1e64c37dfb7fdea9da66a8991abd0007079e98687060ba9c83db55620c238bc363106a24ff411d22f533
+  languageName: node
+  linkType: hard
+
 "fresh@npm:~0.5.2":
   version: 0.5.2
   resolution: "fresh@npm:0.5.2"
@@ -14365,6 +14321,43 @@ __metadata:
   bin:
     mkdirp: bin/cmd.js
   checksum: 10c0/46ea0f3ffa8bc6a5bc0c7081ffc3907777f0ed6516888d40a518c5111f8366d97d2678911ad1a6882bf592fa9de6c784fea32e1687bb94e1f4944170af48a5cf
+  languageName: node
+  linkType: hard
+
+"motion-dom@npm:^12.40.0":
+  version: 12.40.0
+  resolution: "motion-dom@npm:12.40.0"
+  dependencies:
+    motion-utils: "npm:^12.39.0"
+  checksum: 10c0/79da846a36fd5f6762a0fcfa6e0b7128e4d58f7c07d1467a9f789a9cd0b5adbef9bfbde75760901a13cf2bddd9b31e93e4348a714f570c45ca1e2bfabd22859e
+  languageName: node
+  linkType: hard
+
+"motion-utils@npm:^12.39.0":
+  version: 12.39.0
+  resolution: "motion-utils@npm:12.39.0"
+  checksum: 10c0/6d7a2a2cc0797b72410a666a9cc1c201c8e39bf9669670464e433fe1e72af5f0217154c869867b34fbadf3664cf222c0d022bbc4eed7927f201ae971918e7440
+  languageName: node
+  linkType: hard
+
+"motion@npm:^12.40.0":
+  version: 12.40.0
+  resolution: "motion@npm:12.40.0"
+  dependencies:
+    framer-motion: "npm:^12.40.0"
+    tslib: "npm:^2.4.0"
+  peerDependencies:
+    "@emotion/is-prop-valid": "*"
+    react: ^18.0.0 || ^19.0.0
+    react-dom: ^18.0.0 || ^19.0.0
+  peerDependenciesMeta:
+    "@emotion/is-prop-valid":
+      optional: true
+    react:
+      optional: true
+    react-dom:
+      optional: true
+  checksum: 10c0/d0c118ed4829f2999c3ab7eb1ee916df70c65e95d262e951b69d3cea67a74e4a1d12e181badf4180e0d01c1ca8a9b109be4ea5456cad04bb58d4510f071af60f
   languageName: node
   linkType: hard
 
@@ -18012,7 +18005,6 @@ __metadata:
     "@microsoft/signalr": "npm:^8.0.0"
     "@peculiar/webcrypto": "npm:1.1.6"
     "@popperjs/core": "npm:2.4.4"
-    "@react-spring/web": "npm:^10.0.1"
     "@redux-devtools/remote": "npm:^0.9.5"
     "@reduxjs/toolkit": "npm:^2.11.2"
     "@rnw-community/shared": "npm:^0.48.0"
@@ -18118,6 +18110,7 @@ __metadata:
     lottie-web: "npm:^5.12.2"
     memoizee: "npm:^0.4.15"
     mini-css-extract-plugin: "npm:^2"
+    motion: "npm:^12.40.0"
     multiformats: "npm:^13.3.1"
     nanoid: "npm:3.1.31"
     npm-run-all: "npm:^4.1.5"

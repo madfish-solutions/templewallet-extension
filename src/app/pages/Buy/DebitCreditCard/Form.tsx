@@ -1,4 +1,4 @@
-import React, { FC, RefObject, useCallback, useEffect, useMemo } from 'react';
+import React, { FC, RefObject, useCallback, useEffect, useMemo, useRef } from 'react';
 
 import { isDefined } from '@rnw-community/shared';
 import BigNumber from 'bignumber.js';
@@ -60,6 +60,7 @@ export const Form: FC<Props> = ({
 }) => {
   const { control, handleSubmit, formState, setValue } = useFormContext<BuyWithCreditCardFormData>();
   const { isSubmitting, submitCount, errors } = formState;
+  const scrollContainerRef = useRef<HTMLFormElement>(null);
 
   const formSubmitted = submitCount > 0;
 
@@ -139,7 +140,12 @@ export const Form: FC<Props> = ({
 
   return (
     <>
-      <form id="main-form" className="flex-1 pt-4 px-4 flex flex-col overflow-y-auto" onSubmit={handleSubmit(onSubmit)}>
+      <form
+        ref={scrollContainerRef}
+        id="main-form"
+        className="flex-1 pt-4 px-4 flex flex-col overflow-y-auto"
+        onSubmit={handleSubmit(onSubmit)}
+      >
         <Controller
           name="inputAmount"
           control={control}
@@ -209,7 +215,7 @@ export const Form: FC<Props> = ({
         </InfoContainer>
       </form>
 
-      <ActionsButtonsBox>
+      <ActionsButtonsBox scrollContainerRef={scrollContainerRef}>
         <StyledButton
           type="submit"
           form="main-form"

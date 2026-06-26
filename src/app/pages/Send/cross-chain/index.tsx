@@ -74,6 +74,8 @@ export const CrossChainForm: FC<Props> = ({ onReview, resetSignal }) => {
   const [selectKind, setSelectKind] = useState<SelectKind>('from');
   const [isFiatMode, setIsFiatMode] = useState(false);
 
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+
   const { map: networksMap, isReady: networksMapReady } = useCrossChainExolixNetworksMap();
 
   const fromAsset = refreshAsset(baseFromAsset, networksMapReady, getAllowedFromAssets(networksMap));
@@ -315,7 +317,7 @@ export const CrossChainForm: FC<Props> = ({ onReview, resetSignal }) => {
         />
       )}
 
-      <div className="flex-1 px-4 flex flex-col overflow-y-auto">
+      <div ref={scrollContainerRef} className="flex-1 px-4 flex flex-col overflow-y-auto">
         <form id="cross-chain-form" onSubmit={handleSubmit(onSubmit)}>
           <SendCard
             asset={fromAsset}
@@ -352,7 +354,7 @@ export const CrossChainForm: FC<Props> = ({ onReview, resetSignal }) => {
         </form>
       </div>
 
-      <ActionsButtonsBox shouldCastShadow>
+      <ActionsButtonsBox bgSet={false} scrollContainerRef={scrollContainerRef}>
         <StyledButton
           type="submit"
           form="cross-chain-form"

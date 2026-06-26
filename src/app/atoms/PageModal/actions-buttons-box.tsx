@@ -1,37 +1,40 @@
-import { HTMLAttributes, FC } from 'react';
+import { HTMLAttributes, FC, RefObject } from 'react';
 
 import clsx from 'clsx';
 
+import { useActionsButtonsBoxShadow } from 'app/hooks/use-actions-buttons-box-shadow';
 import { useBottomShiftChangingElement } from 'app/hooks/use-bottom-shift-changing-element';
+import { combineRefs } from 'lib/ui/utils';
 
 export interface ActionsButtonsBoxProps extends HTMLAttributes<HTMLDivElement> {
-  shouldCastShadow?: boolean;
-  flexDirection?: 'row' | 'col';
   bgSet?: boolean;
+  flexDirection?: 'row' | 'col';
   shouldChangeBottomShift?: boolean;
+  scrollContainerRef?: RefObject<HTMLElement | null>;
 }
 
 export const ActionsButtonsBox: FC<ActionsButtonsBoxProps> = ({
-  className,
-  flexDirection = 'col',
-  shouldCastShadow,
   bgSet = true,
+  flexDirection = 'col',
   shouldChangeBottomShift = true,
-  ...restProps
+  scrollContainerRef,
+  className,
+  ...rest
 }) => {
-  const rootRef = useBottomShiftChangingElement(shouldChangeBottomShift);
+  const bottomShiftRef = useBottomShiftChangingElement(shouldChangeBottomShift);
+  const [castsShadow, shadowRef] = useActionsButtonsBoxShadow(scrollContainerRef);
 
   return (
     <div
-      ref={rootRef}
+      ref={combineRefs(bottomShiftRef, shadowRef)}
       className={clsx(
         'p-4 pb-6 flex gap-2.5',
         `flex-${flexDirection}`,
         bgSet && 'bg-white',
-        shouldCastShadow && 'shadow-bottom border-t-0.5 border-lines overflow-y-visible',
+        castsShadow && 'shadow-top overflow-y-visible',
         className
       )}
-      {...restProps}
+      {...rest}
     />
   );
 };

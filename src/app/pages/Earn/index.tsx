@@ -116,6 +116,7 @@ export const Earn: FC = () => {
               color="secondary-low"
               testID={EarnSelectors.dAppExternalLinkButton}
               href={dAppForDeposit.link}
+              onClick={handleCloseDAppForDepositModal}
               testIDProperties={{ dAppName: dAppForDeposit.name }}
             >
               <T id="goToDApp" substitutions={dAppForDeposit.name} />

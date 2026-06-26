@@ -199,7 +199,6 @@ export const AddNetworkModal = memo<AddNetworkModalComponentProps>(props => {
                 </StyledButton>
               )
             }}
-            initialBottomEdgeVisible={false}
           >
             <NameInput namesToExclude={namesToExclude} onChainSelect={handleChainSelect} />
 

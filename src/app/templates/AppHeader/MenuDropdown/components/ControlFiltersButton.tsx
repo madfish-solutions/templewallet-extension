@@ -11,11 +11,13 @@ import { ControlButton } from './ControlButton';
 interface Props {
   expanded: boolean;
   onClick: EmptyFn;
+  onHoverStart?: EmptyFn;
+  onHoverEnd?: EmptyFn;
   stretch?: boolean;
   testID?: string;
 }
 
-export const ControlFiltersButton = memo<Props>(({ expanded, onClick, stretch, testID }) => {
+export const ControlFiltersButton = memo<Props>(props => {
   const { filterChain } = useAssetsFilterOptionsSelector();
   const hasActiveFilters = useHasActiveFiltersSelector();
 
@@ -34,13 +36,10 @@ export const ControlFiltersButton = memo<Props>(({ expanded, onClick, stretch, t
   return (
     <ControlButton
       labelI18n="filters"
-      expanded={expanded}
-      stretch={stretch}
       Icon={hasActiveFilters ? FilterOnIcon : FilterOffIcon}
       iconNode={iconNode}
       active={hasActiveFilters}
-      onClick={onClick}
-      testID={testID}
+      {...props}
     />
   );
 });

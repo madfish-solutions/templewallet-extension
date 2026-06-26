@@ -68,7 +68,6 @@ export const DecryptBackup = memo<DecryptBackupProps>(({ next, backupContent }) 
   return (
     <>
       <PageModalScrollViewWithActions
-        initialBottomEdgeVisible
         actionsBoxProps={{
           children: (
             <StyledButton
