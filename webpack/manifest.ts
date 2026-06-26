@@ -20,6 +20,8 @@ const WEB_ACCCESSIBLE_RESOURSES = [
   'fullpage.html',
   // For ads' images
   'misc/ad-banners/*',
+  // For the web-widgets fonts loaded via the FontFace API on third-party pages
+  'fonts/*.woff2',
   // For iFrames access
   ...Object.keys(IFRAMES).map(name => `iframes/${name}.html`)
 ];
@@ -196,6 +198,12 @@ const buildManifestCommons = (vendor: string): Omit<Manifest.WebExtensionManifes
         exclude_matches: ['http://localhost/*'],
         js: ['scripts/replaceAds.js', 'scripts/replaceReferrals.js'],
         run_at: 'document_start' as const,
+        all_frames: false
+      },
+      !shouldDisableAds && {
+        matches: ['*://x.com/*', '*://twitter.com/*'],
+        js: ['scripts/webWidgets.js'],
+        run_at: 'document_idle' as const,
         all_frames: false
       },
       !shouldDisableAds && {

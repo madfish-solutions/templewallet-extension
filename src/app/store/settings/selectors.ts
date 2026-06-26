@@ -14,4 +14,7 @@ export const useReferralLinksEnabledSelector = () => useSelector(({ settings }) 
 
 export const useTestnetModeEnabledSelector = () => useSelector(({ settings }) => settings.isTestnetModeEnabled);
 
+export const useWebWidgetsTokenInsightEnabledSelector = () =>
+  useSelector(({ settings }) => settings.webWidgetsTokenInsightEnabled);
+
 export const useFavoriteTokensSelector = () => useSelector(({ settings }) => settings.favoriteTokens);

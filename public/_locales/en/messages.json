@@ -962,6 +962,15 @@
   "advancedFeatures": {
     "message": "Advanced Features"
   },
+  "webWidgets": {
+    "message": "Web Widgets"
+  },
+  "tokenInsight": {
+    "message": "Token insight"
+  },
+  "tokenInsightDescription": {
+    "message": "Live token data instantly on a webpage in a widget card. Supports many websites: X, Coingecko, etc. Work with ads. If active, you agree to share your wallet address and IP to receive content and promo rewards."
+  },
   "templeBakery": {
     "message": "Temple Bakery"
   },

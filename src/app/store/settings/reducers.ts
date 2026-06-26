@@ -6,6 +6,7 @@ import {
   setPendingReactivateAdsAction,
   setReferralLinksEnabledAction,
   setIsTestnetModeEnabledAction,
+  setWebWidgetsTokenInsightEnabledAction,
   toggleFavoriteTokenAction
 } from './actions';
 import { SettingsState, settingsInitialState } from './state';
@@ -31,6 +32,9 @@ export const settingsReducer = createReducer<SettingsState>(settingsInitialState
 
   builder.addCase(setIsTestnetModeEnabledAction, (state, { payload }) => {
     state.isTestnetModeEnabled = payload;
+  });
+  builder.addCase(setWebWidgetsTokenInsightEnabledAction, (state, { payload }) => {
+    state.webWidgetsTokenInsightEnabled = payload;
   });
   builder.addCase(toggleFavoriteTokenAction, (state, { payload: tokenSlug }) => {
     const newFavoriteTokens = new Set(state.favoriteTokens);

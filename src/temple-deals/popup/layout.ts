@@ -2,6 +2,7 @@ import { TEMPLE_ICON } from 'content-scripts/constants';
 import type { MerchantOffer } from 'lib/apis/ads-api/ads-api';
 import { browser } from 'lib/browser';
 import { ContentScriptType } from 'lib/constants';
+import { DISABLE_ICON_SVG, SNOOZE_ICON_SVG } from 'lib/icons/snooze-disable-icons';
 
 import {
   el,
@@ -18,7 +19,7 @@ import {
   trackTempleDealsEvent
 } from '../utils';
 
-import { CLOSE_ICON, DISABLE_ICON, SETTINGS_ICON, SNOOZE_ICON } from './icons';
+import { CLOSE_ICON, SETTINGS_ICON } from './icons';
 import { getPopupStyles } from './styles';
 
 const POPUP_FONT_TEXT =
@@ -46,6 +47,16 @@ export function injectTempleDealsPopupFont() {
   fontLink.rel = 'stylesheet';
   fontLink.href = POPUP_FONT_URL;
   document.head.appendChild(fontLink);
+}
+
+function createDropdownIcon(svgMarkup: string, color: string): SVGElement {
+  const wrapper = document.createElement('div');
+  wrapper.innerHTML = svgMarkup;
+  const icon = wrapper.firstElementChild as SVGElement;
+  icon.classList.add('tw-popup-dropdown-icon');
+  icon.style.color = color;
+
+  return icon;
 }
 
 export function mountTempleDealsPopup(host: HTMLElement, options: TempleDealsPopupOptions) {
@@ -153,7 +164,7 @@ function renderTempleDealsPopup(
 
     const snoozeBtn = document.createElement('button');
     snoozeBtn.className = 'tw-popup-dropdown-item';
-    snoozeBtn.innerHTML = SNOOZE_ICON;
+    snoozeBtn.appendChild(createDropdownIcon(SNOOZE_ICON_SVG, '#1373E4'));
     snoozeBtn.appendChild(document.createTextNode(` ${msg('snoozeFor24h')}`));
     snoozeBtn.addEventListener('click', async () => {
       trackTempleDealsEvent(TEMPLE_DEALS_EVENTS.popupSnooze, { domain });
@@ -165,7 +176,7 @@ function renderTempleDealsPopup(
 
     const disableBtn = document.createElement('button');
     disableBtn.className = 'tw-popup-dropdown-item';
-    disableBtn.innerHTML = DISABLE_ICON;
+    disableBtn.appendChild(createDropdownIcon(DISABLE_ICON_SVG, '#FF3B30'));
     const disableText = el('span', '', msg('disable'));
     disableText.style.color = '#FF3B30';
     disableBtn.appendChild(document.createTextNode(' '));

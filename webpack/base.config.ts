@@ -3,6 +3,7 @@
   https://github.com/facebook/create-react-app/blob/main/packages/react-scripts/config/webpack.config.js
 */
 
+import CopyWebpackPlugin from 'copy-webpack-plugin';
 import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 import * as path from 'path';
 import ForkTsCheckerWebpackPlugin from 'react-dev-utils/ForkTsCheckerWebpackPlugin';
@@ -197,10 +198,21 @@ export const buildBaseConfig = (): WebPack.Configuration & Pick<WebPack.WebpackO
     shouldDisableAds &&
       new WebPack.IgnorePlugin({
         resourceRegExp:
-          /^(?:@temple-wallet\/extension-ads(?:\/.+)?|lib\/ads\/update-rules-storage|app\/templates\/partners-promotion\/partners-promotion|app\/load-hypelab-script\/component|app\/pages\/Home\/OtherComponents\/Tokens\/components\/NotificationBanner\/enable-ads-banner\/component|lib\/apis\/ads-api\/ads-api|lib\/ads\/get-temple-ads-api)$/
+          /^(?:@temple-wallet\/extension-ads(?:\/.+)?|lib\/ads\/update-rules-storage|app\/templates\/partners-promotion\/partners-promotion|app\/load-hypelab-script\/component|app\/pages\/Home\/OtherComponents\/Tokens\/components\/NotificationBanner\/enable-ads-banner\/component|lib\/apis\/ads-api\/ads-api|lib\/ads\/get-temple-ads-api|lib\/temple\/back\/web-widgets\/.+)$/
       }),
 
     new ModuleNotFoundPlugin(PATHS.SOURCE),
+
+    !shouldDisableAds &&
+      new CopyWebpackPlugin({
+        patterns: [
+          { from: path.join(PATHS.NODE_MODULES, 'inter-ui/Inter (web latin)/Inter-Regular.woff2'), to: 'fonts/Inter-Regular.woff2' },
+          { from: path.join(PATHS.NODE_MODULES, 'inter-ui/Inter (web latin)/Inter-Medium.woff2'), to: 'fonts/Inter-Medium.woff2' },
+          { from: path.join(PATHS.NODE_MODULES, 'inter-ui/Inter (web latin)/Inter-SemiBold.woff2'), to: 'fonts/Inter-SemiBold.woff2' },
+          { from: path.join(PATHS.NODE_MODULES, '@fontsource/rubik/files/rubik-latin-400-normal.woff2'), to: 'fonts/Rubik-Regular.woff2' },
+          { from: path.join(PATHS.NODE_MODULES, '@fontsource/rubik/files/rubik-latin-500-normal.woff2'), to: 'fonts/Rubik-Medium.woff2' }
+        ]
+      }),
 
     new WebPack.DefinePlugin({
       SharedArrayBuffer: '_SharedArrayBuffer',

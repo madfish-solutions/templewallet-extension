@@ -9,5 +9,6 @@ export const mockSettingsState: SettingsState = {
   pendingReactivateAds: false,
   referralLinksEnabled: IS_MISES_BROWSER,
   isTestnetModeEnabled: false,
+  webWidgetsTokenInsightEnabled: true,
   favoriteTokens: []
 };
