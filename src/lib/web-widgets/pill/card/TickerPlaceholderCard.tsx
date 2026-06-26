@@ -118,8 +118,6 @@ export const TickerPlaceholderCard = ({ tagData, onClose }: TickerPlaceholderCar
     );
   }
 
-  const hasChart = series.length > 0;
-
   return (
     <div className="tw-card">
       <CardHeader
@@ -133,23 +131,21 @@ export const TickerPlaceholderCard = ({ tagData, onClose }: TickerPlaceholderCar
       <div className="tw-card__panel">
         <div className="tw-card__ticker-row">
           <TickerInfoPanel market={info} />
-          {chartLoading || hasChart ? (
-            <div className="tw-card__chart">
-              {chartLoading ? (
-                <div className="tw-card__chart-loader">
-                  <span className="tw-card__spinner" />
-                </div>
-              ) : (
-                <MiniChart
-                  data={series}
-                  width={202}
-                  height={108}
-                  highLabel={info.high24 != null ? formatPrice(info.high24) : undefined}
-                  lowLabel={info.low24 != null ? formatPrice(info.low24) : undefined}
-                />
-              )}
-            </div>
-          ) : null}
+          <div className="tw-card__chart">
+            {chartLoading ? (
+              <div className="tw-card__chart-loader">
+                <span className="tw-card__spinner" />
+              </div>
+            ) : (
+              <MiniChart
+                data={series}
+                width={202}
+                height={108}
+                highLabel={info.high24 != null ? formatPrice(info.high24) : undefined}
+                lowLabel={info.low24 != null ? formatPrice(info.low24) : undefined}
+              />
+            )}
+          </div>
         </div>
       </div>
     </div>

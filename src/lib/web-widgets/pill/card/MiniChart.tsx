@@ -19,7 +19,26 @@ const STROKE = '#2D6CDF';
 const LABEL_COLOR = '#151618';
 
 export const MiniChart = ({ data, width, height, highLabel, lowLabel }: MiniChartProps) => {
-  if (data.length < 2) return null;
+  // draw a flat baseline instead of an empty slot
+  if (data.length < 2) {
+    const mid = height / 2;
+    return (
+      <svg
+        viewBox={`0 0 ${width} ${height}`}
+        preserveAspectRatio="none"
+        style={{ display: 'block', width: '100%', height: '100%' }}
+      >
+        <defs>
+          <linearGradient id="tw-spark-fill" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor={STROKE} stopOpacity={0.35} />
+            <stop offset="100%" stopColor={STROKE} stopOpacity={0} />
+          </linearGradient>
+        </defs>
+        <path d={`M0,${mid} L${width},${mid} L${width},${height} L0,${height} Z`} fill="url(#tw-spark-fill)" />
+        <line x1="0" y1={mid} x2={width} y2={mid} stroke={STROKE} strokeWidth={2} />
+      </svg>
+    );
+  }
 
   let maxIndex = 0;
   let minIndex = 0;
