@@ -5542,9 +5542,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@temple-wallet/extension-ads@npm:19.0.0-beta.3":
-  version: 19.0.0-beta.3
-  resolution: "@temple-wallet/extension-ads@npm:19.0.0-beta.3"
+"@temple-wallet/extension-ads@npm:19.0.0-beta.4":
+  version: 19.0.0-beta.4
+  resolution: "@temple-wallet/extension-ads@npm:19.0.0-beta.4"
   dependencies:
     "@types/ahocorasick": "npm:^1.0.0"
     ahocorasick: "npm:^1.0.2"
@@ -5555,7 +5555,7 @@ __metadata:
     nanoid: "npm:^5.0.6"
     semver: "npm:^7.6.2"
     webextension-polyfill: "npm:^0.10.0"
-  checksum: 10c0/f369c60e1a05f7368c197d69e4509680f511649a49312610239edcc2278e0b11a54cfdfff9c3dfa891b06b1db02b28ab74444b8779f3de9d1e5a53664565660b
+  checksum: 10c0/5c19c7ed917cb5bed92435eb6d8ba94546b647f28160511ac8da658cddcbf1774703641f4d90c35871fe9297eb2fa085b0009ff835f4d1484d8325017eb32152
   languageName: node
   linkType: hard
 
@@ -18022,7 +18022,7 @@ __metadata:
     "@taquito/utils": "npm:^24.3.0"
     "@temple-wallet/dapp": "npm:^12.0.0"
     "@temple-wallet/everstake-wallet-sdk": "npm:^5.0.1"
-    "@temple-wallet/extension-ads": "npm:19.0.0-beta.3"
+    "@temple-wallet/extension-ads": "npm:19.0.0-beta.4"
     "@temple-wallet/jest-webextension-mock": "npm:^5.0.0"
     "@temple-wallet/save-remote-file-webpack-plugin": "npm:^1.1.4"
     "@temple-wallet/wallet-address-validator": "npm:^0.4.3"
