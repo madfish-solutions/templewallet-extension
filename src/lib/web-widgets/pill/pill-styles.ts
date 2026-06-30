@@ -202,6 +202,68 @@ export const PILL_STYLES = `
   .tw-card__token-avatar--empty {
     background: #f4f4f4;
   }
+  .tw-card__token-avatar-wrap {
+    position: relative;
+    display: inline-flex;
+    flex: none;
+  }
+  .tw-card__token-chain {
+    position: absolute;
+    right: -3px;
+    bottom: -3px;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    border: 1.5px solid #ffffff;
+    background: #ffffff;
+    display: block;
+  }
+  .tw-card__token-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    min-width: 0;
+  }
+  .tw-card__token-label--copyable {
+    position: relative;
+    border: none;
+    padding: 0;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+  }
+  .tw-card__token-label--copyable:hover .tw-card__token-symbol,
+  .tw-card__token-label--copied .tw-card__token-symbol {
+    color: #1373e4;
+  }
+  .tw-card__token-label--copyable:hover .tw-card__copy-icon,
+  .tw-card__token-label--copied .tw-card__copy-icon {
+    opacity: 1;
+  }
+  .tw-card__copy-icon {
+    width: 16px;
+    height: 16px;
+    flex: none;
+    display: block;
+    color: #1373e4;
+    opacity: 0;
+    transition: opacity 0.12s ease;
+  }
+  .tw-card__copy-tip {
+    position: absolute;
+    bottom: calc(100% + 4px);
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 2px 6px;
+    border-radius: 4px;
+    background: #151618;
+    color: #ffffff;
+    font-family: 'Inter', sans-serif;
+    font-size: 10px;
+    line-height: 14px;
+    white-space: nowrap;
+    pointer-events: none;
+  }
   .tw-card__token-symbol {
     font-family: 'Inter', sans-serif;
     font-size: 12px;
@@ -483,17 +545,31 @@ export const PILL_STYLES = `
     align-items: center;
     justify-content: center;
     gap: 6px;
+    width: 100%;
     height: 40px;
+    border: none;
     border-radius: 8px;
     background: #e3ecf8;
     color: #1373e4;
     font-family: 'Inter', sans-serif;
     font-size: 16px;
     font-weight: 600;
+    line-height: 24px;
     text-decoration: none;
+    cursor: pointer;
+  }
+  button.tw-card__cta {
+    font-family: 'Inter', sans-serif;
   }
   .tw-card__cta:hover {
     background: #d7e4f5;
+  }
+  .tw-card__cta--primary {
+    background: #ff5b00;
+    color: #ffffff;
+  }
+  .tw-card__cta--primary:hover {
+    background: #e85200;
   }
   .tw-card__cta-icon {
     width: 20px;
@@ -507,6 +583,7 @@ export const PILL_STYLES = `
     flex: none;
     height: 78px;
     margin-bottom: 8px;
+    margin-top: 8px;
   }
   .tw-card__ad {
     display: flex;
@@ -621,6 +698,17 @@ export const PILL_STYLES = `
     gap: 16px;
     min-height: 224px;
     padding: 0px 10px;
+    text-align: center;
+  }
+  .tw-card__loader {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    min-height: 132px;
+    padding: 16px;
     text-align: center;
   }
   .tw-card__spinner-box {

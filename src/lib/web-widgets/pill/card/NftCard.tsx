@@ -60,8 +60,14 @@ export const NftCard = ({ tagData, onClose }: NftCardProps) => {
       .then(ctx => {
         if (!active) return;
         if (ctx.permitGranted) setPermit(true);
-        setFiatRate(ctx.tezFiatRate);
         setAdUrl(ctx.adUrl);
+      })
+      .catch(() => {});
+
+    messaging
+      .getTezFiatRate()
+      .then(rate => {
+        if (active) setFiatRate(rate);
       })
       .catch(() => {});
 

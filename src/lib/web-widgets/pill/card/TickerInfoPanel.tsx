@@ -18,7 +18,9 @@ interface TickerInfoPanelProps {
 
 export const formatPrice = (value: number | null): string => {
   if (value == null) return '—';
-  return `${value.toLocaleString('en-US', { maximumFractionDigits: 2 })} $`;
+  const abs = Math.abs(value);
+  const maximumFractionDigits = abs >= 100 ? 2 : abs >= 0.01 ? 4 : 8;
+  return `${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits })} $`;
 };
 
 export const formatCompact = (value: number | null): string => {

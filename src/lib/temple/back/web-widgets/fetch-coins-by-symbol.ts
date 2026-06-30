@@ -1,5 +1,12 @@
-import { fetchCoinsByIds, fetchTopCoinsByMarketCap, type TopCoinRaw } from 'lib/apis/coingecko';
+import {
+  fetchCoinsByIds,
+  fetchCoinsListWithPlatforms,
+  fetchTopCoinsByMarketCap,
+  type TopCoinRaw
+} from 'lib/apis/coingecko';
 import { fetchTopCoinsFromPaprika } from 'lib/apis/coinpaprika';
+
+import { persistentCache } from './persistent-cache';
 
 export interface CoinMetadata {
   symbol: string;
@@ -19,21 +26,13 @@ export type CoinsBySymbol = Record<string, CoinMetadata>;
 
 const PAGES = 4;
 const TOP_N = PAGES * 250;
-const TTL_MS = 10 * 60 * 1000;
-const FAILURE_BACKOFF_MS = 30 * 1000;
 
 const SUPPLEMENTAL_IDS = ['wrapped-bitcoin', 'weth', 'wrapped-steth', 'coinbase-wrapped-btc'];
 
-interface CacheEntry {
+interface CoinsBundle {
   data: CoinsBySymbol;
   sparklinesById: Record<string, number[]>;
-  builtAt: number;
 }
-
-const EMPTY: CacheEntry = { data: {}, sparklinesById: {}, builtAt: 0 };
-
-let cache: CacheEntry | null = null;
-let lastFailureAt = 0;
 
 const fetchTopCoins = async (): Promise<TopCoinRaw[]> => {
   const [primary, supplemental] = await Promise.all([
@@ -52,7 +51,7 @@ const fetchTopCoins = async (): Promise<TopCoinRaw[]> => {
   }
 };
 
-const buildCoinsBySymbol = async (): Promise<{ data: CoinsBySymbol; sparklinesById: Record<string, number[]> }> => {
+const buildCoinsBySymbol = async (): Promise<CoinsBundle> => {
   const coins = await fetchTopCoins();
 
   const bySymbol: CoinsBySymbol = {};
@@ -83,29 +82,41 @@ const buildCoinsBySymbol = async (): Promise<{ data: CoinsBySymbol; sparklinesBy
   return { data: bySymbol, sparklinesById };
 };
 
-const ensureCache = async (): Promise<CacheEntry> => {
-  if (cache && Date.now() - cache.builtAt <= TTL_MS) {
-    return cache;
-  }
-
-  if (Date.now() - lastFailureAt < FAILURE_BACKOFF_MS) {
-    return cache ?? EMPTY;
-  }
-
-  try {
-    const built = await buildCoinsBySymbol();
-    if (Object.keys(built.data).length === 0) {
-      lastFailureAt = Date.now();
-      return cache ?? EMPTY;
-    }
-    cache = { ...built, builtAt: Date.now() };
-    return cache;
-  } catch {
-    lastFailureAt = Date.now();
-    return cache ?? EMPTY;
-  }
-};
+const ensureCache = persistentCache<CoinsBundle>({
+  storageKey: 'WEB_WIDGETS_COINS_BY_SYMBOL',
+  ttlMs: 10 * 60 * 1000,
+  fallback: { data: {}, sparklinesById: {} },
+  build: buildCoinsBySymbol,
+  isValid: ({ data }) => Object.keys(data).length > 0
+});
 
 export const getCoinsBySymbol = async (): Promise<CoinsBySymbol> => (await ensureCache()).data;
 
 export const getCoinSparkline = async (id: string): Promise<number[]> => (await ensureCache()).sparklinesById[id] ?? [];
+
+type CoinPlatforms = Record<string, Record<string, string>>;
+
+const ensurePlatforms = persistentCache<CoinPlatforms>({
+  storageKey: 'WEB_WIDGETS_COIN_PLATFORMS',
+  ttlMs: 6 * 60 * 60 * 1000,
+  fallback: {},
+  build: async () => {
+    const [entry, list] = await Promise.all([ensureCache(), fetchCoinsListWithPlatforms()]);
+    if (list.length === 0) throw new Error('empty coins/list response');
+
+    const surfaced = new Set(Object.values(entry.data).map(coin => coin.id));
+    const byId: CoinPlatforms = {};
+    for (const coin of list) {
+      if (!coin.platforms || !surfaced.has(coin.id)) continue;
+      const deployments: Record<string, string> = {};
+      for (const [slug, address] of Object.entries(coin.platforms)) {
+        if (address) deployments[slug] = address;
+      }
+      if (Object.keys(deployments).length > 0) byId[coin.id] = deployments;
+    }
+    return byId;
+  }
+});
+
+export const getCoinPlatforms = async (coinId: string): Promise<Record<string, string>> =>
+  (await ensurePlatforms())[coinId] ?? {};

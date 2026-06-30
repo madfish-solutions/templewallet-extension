@@ -3,6 +3,7 @@ import { ContentScriptType } from 'lib/constants';
 import type { CoinsBySymbol } from 'lib/temple/back/web-widgets/fetch-coins-by-symbol';
 import type { ChartPoint } from 'lib/temple/back/web-widgets/fetch-token-market';
 import type { ObjktToken } from 'lib/temple/back/web-widgets/objkt-query';
+import type { ResolvedAsset } from 'lib/temple/back/web-widgets/resolve-asset';
 
 export const resolveTco = (tcoUrl: string): Promise<string | null> =>
   browser.runtime.sendMessage({
@@ -34,18 +35,34 @@ export const fetchTokenChart = (coinId: string): Promise<ChartPoint[]> =>
     coinId
   });
 
+export const resolveAsset = (coinId: string): Promise<ResolvedAsset> =>
+  browser.runtime.sendMessage({
+    type: ContentScriptType.ResolveAsset,
+    coinId
+  });
+
+export const openFullPage = (hash: string): Promise<void> =>
+  browser.runtime.sendMessage({
+    type: ContentScriptType.OpenFullPage,
+    hash
+  });
+
 interface WidgetContextData {
   permitGranted: boolean;
   snoozeUntil: number | null;
   shouldShowPromotion: boolean;
   analyticsEnabled: boolean;
-  tezFiatRate: number | null;
   adUrl: string | null;
 }
 
 export const getWidgetContext = (): Promise<WidgetContextData> =>
   browser.runtime.sendMessage({
     type: ContentScriptType.WidgetContext
+  });
+
+export const getTezFiatRate = (): Promise<number | null> =>
+  browser.runtime.sendMessage({
+    type: ContentScriptType.GetTezFiatRate
   });
 
 export const getWidgetOwnedCount = (contract: string, tokenId: string): Promise<number> =>

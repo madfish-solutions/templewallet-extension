@@ -1,14 +1,22 @@
 import React, { useEffect, useState } from 'react';
 
+import clsx from 'clsx';
+
 import { ReactComponent as SadSearchIcon } from 'app/icons/monochrome/sad-search.svg';
 import type { ChartPoint } from 'lib/temple/back/web-widgets/fetch-token-market';
+import type { ResolvedAsset } from 'lib/temple/back/web-widgets/resolve-asset';
 
 import type { TagData } from '../../engine/types';
 import * as messaging from '../../messaging';
 
+import { CardAd } from './CardAd';
 import { CardHeader } from './CardHeader';
+import { ChainBadge } from './ChainBadge';
 import { MiniChart } from './MiniChart';
+import { grantAdPermit, readAdPermit, subscribeAdPermitGranted } from './permit';
+import { SwapButton } from './SwapButton';
 import { formatPrice, TickerInfo, TickerInfoPanel } from './TickerInfoPanel';
+import { WelcomeOverlay } from './WelcomeOverlay';
 
 interface TickerPlaceholderCardProps {
   tagData: TagData;
@@ -31,6 +39,9 @@ export const TickerPlaceholderCard = ({ tagData, onClose }: TickerPlaceholderCar
   const [info, setInfo] = useState<TickerInfo | null>(null);
   const [series, setSeries] = useState<ChartPoint[]>([]);
   const [chartLoading, setChartLoading] = useState(true);
+  const [resolved, setResolved] = useState<ResolvedAsset | null>(null);
+  const [permit, setPermit] = useState(false);
+  const [adUrl, setAdUrl] = useState<string | null>(null);
 
   useEffect(() => {
     let active = true;
@@ -66,6 +77,13 @@ export const TickerPlaceholderCard = ({ tagData, onClose }: TickerPlaceholderCar
           .finally(() => {
             if (active) setChartLoading(false);
           });
+
+        messaging
+          .resolveAsset(entry.id)
+          .then(result => {
+            if (active) setResolved(result);
+          })
+          .catch(() => {});
       })
       .catch(() => {
         if (active) {
@@ -78,6 +96,40 @@ export const TickerPlaceholderCard = ({ tagData, onClose }: TickerPlaceholderCar
       active = false;
     };
   }, [symbol]);
+
+  useEffect(() => {
+    let active = true;
+
+    messaging.trackWebWidgetEvent('Web Token Widget / View').catch(() => {});
+
+    readAdPermit().then(granted => {
+      if (active && granted) setPermit(true);
+    });
+
+    messaging
+      .getWidgetContext()
+      .then(ctx => {
+        if (!active) return;
+        if (ctx.permitGranted) setPermit(true);
+        setAdUrl(ctx.adUrl);
+      })
+      .catch(() => {});
+
+    const unsubscribe = subscribeAdPermitGranted(() => {
+      if (active) setPermit(true);
+    });
+
+    return () => {
+      active = false;
+      unsubscribe();
+    };
+  }, []);
+
+  const handleContinue = () => {
+    void grantAdPermit();
+    setPermit(true);
+    messaging.trackWebWidgetEvent('Web Token Widget / Agreement').catch(() => {});
+  };
 
   const handleSnooze = () => {
     messaging.trackWebWidgetEvent('Web Token Widget / Snooze').catch(() => {});
@@ -93,14 +145,14 @@ export const TickerPlaceholderCard = ({ tagData, onClose }: TickerPlaceholderCar
   if (loading) {
     return (
       <div className="tw-card">
-        <div className="tw-card__body tw-card__body--state">
-          <div className="tw-card__state">
-            <div className="tw-card__spinner-box">
-              <span className="tw-card__spinner" />
-            </div>
-            <div className="tw-card__loading-text">Loading token...</div>
+        <CardHeader menuIcon={<ThreeDotsIcon />} onClose={onClose} onSnooze={handleSnooze} onDisable={handleDisable} />
+        <div className="tw-card__loader">
+          <div className="tw-card__spinner-box">
+            <span className="tw-card__spinner" />
           </div>
+          <div className="tw-card__loading-text">Loading token...</div>
         </div>
+        {permit ? <CardAd adUrl={adUrl} /> : <div className="tw-card__ad-placeholder" />}
       </div>
     );
   }
@@ -108,27 +160,40 @@ export const TickerPlaceholderCard = ({ tagData, onClose }: TickerPlaceholderCar
   if (notFound || !info) {
     return (
       <div className="tw-card">
-        <div className="tw-card__body tw-card__body--state">
-          <div className="tw-card__state">
-            <SadSearchIcon className="tw-card__sadface" />
-            <div className="tw-card__state-text tw-card__state-text--bold">Couldn't find anything about this token</div>
-          </div>
+        <CardHeader menuIcon={<ThreeDotsIcon />} onClose={onClose} onSnooze={handleSnooze} onDisable={handleDisable} />
+        <div className="tw-card__loader">
+          <SadSearchIcon className="tw-card__sadface" />
+          <div className="tw-card__state-text tw-card__state-text--bold">Couldn't find anything about this token</div>
         </div>
+        {permit ? <CardAd adUrl={adUrl} /> : <div className="tw-card__ad-placeholder" />}
       </div>
     );
   }
+
+  const resolvedAsset = resolved && resolved.resolved ? resolved : null;
+  const swappableTarget = resolvedAsset && resolvedAsset.swappable ? resolvedAsset : null;
 
   return (
     <div className="tw-card">
       <CardHeader
         tokenSymbol={tagData.label}
         tokenAvatarUrl={tagData.iconUrl}
+        chainBadge={
+          resolvedAsset ? (
+            <ChainBadge
+              chainKind={resolvedAsset.chainKind}
+              chainId={resolvedAsset.chainId}
+              className="tw-card__token-chain"
+            />
+          ) : null
+        }
+        copyContract={resolvedAsset ? resolvedAsset.contract : undefined}
         menuIcon={<ThreeDotsIcon />}
         onClose={onClose}
         onSnooze={handleSnooze}
         onDisable={handleDisable}
       />
-      <div className="tw-card__panel">
+      <div className={clsx('tw-card__panel', !permit && 'tw-card__body--blurred')}>
         <div className="tw-card__ticker-row">
           <TickerInfoPanel market={info} />
           <div className="tw-card__chart">
@@ -147,7 +212,23 @@ export const TickerPlaceholderCard = ({ tagData, onClose }: TickerPlaceholderCar
             )}
           </div>
         </div>
+        {swappableTarget ? (
+          <SwapButton
+            chainKind={swappableTarget.chainKind}
+            chainId={swappableTarget.chainId}
+            assetSlug={swappableTarget.assetSlug}
+          />
+        ) : null}
       </div>
+
+      {permit ? (
+        <CardAd adUrl={adUrl} />
+      ) : (
+        <>
+          <div className="tw-card__ad-placeholder" />
+          <WelcomeOverlay onContinue={handleContinue} />
+        </>
+      )}
     </div>
   );
 };

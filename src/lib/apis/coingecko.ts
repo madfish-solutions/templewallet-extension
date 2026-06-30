@@ -231,3 +231,21 @@ export async function fetchCoinsByIds(ids: string[]): Promise<TopCoinRaw[]> {
     return [];
   }
 }
+
+export interface CoinListEntry {
+  id: string;
+  symbol: string;
+  name: string;
+  platforms?: Record<string, string | null>;
+}
+
+export async function fetchCoinsListWithPlatforms(): Promise<CoinListEntry[]> {
+  try {
+    const { data } = await coingeckoApi.get<CoinListEntry[]>('coins/list', {
+      params: { include_platform: true }
+    });
+    return data;
+  } catch {
+    return [];
+  }
+}
