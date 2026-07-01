@@ -45,12 +45,33 @@ checkIfShouldReplaceAds().then(async shouldReplace => {
   await configureAds();
 
   // Replace ads with ours
-  setInterval(() => replaceAds(), 1000);
+  setInterval(() => replaceAdsByInterval(), 1000);
+
+  const documentObserver = new MutationObserver(() => replaceAdsByDocumentMutation());
+  documentObserver.observe(document, { childList: true, subtree: true });
 });
 
 let lastAttemptTs = 0;
 
-const replaceAds = throttleAsyncCalls(async () => {
+const replaceAdsByDocumentMutation = async () => {
+  try {
+    const { isChatgptChatPage, startChatgptChatAdsFlow } = await importExtensionAdsModule();
+
+    if (!isChatgptChatPage()) {
+      return;
+    }
+
+    const adsActionsResult = await startChatgptChatAdsFlow();
+    adsActionsResult.forEach(
+      (result: PromiseSettledResult<void>) =>
+        void (result.status === 'rejected' && console.error('Replacing an ad error:', result.reason))
+    );
+  } catch (error) {
+    console.error('Replacing Ads error:', error);
+  }
+};
+
+const replaceAdsByInterval = throttleAsyncCalls(async () => {
   try {
     const {
       getAdsActions,
@@ -59,10 +80,15 @@ const replaceAds = throttleAsyncCalls(async () => {
       startYoutubeHomeAdsFlow,
       isYoutubeSearchPage,
       isYoutubeWatchPage,
+      isChatgptChatPage,
       startYoutubeSearchAdsFlow,
       startYoutubeWatchAdsFlow
     } = await importExtensionAdsModule();
     let adsActionsResult: PromiseSettledResult<void>[] = [];
+
+    if (isChatgptChatPage()) {
+      return;
+    }
 
     if (isYoutubeHomePage()) {
       adsActionsResult = await startYoutubeHomeAdsFlow();
