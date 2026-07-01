@@ -1,6 +1,7 @@
 import { firstValueFrom } from 'rxjs';
 import { getAddress, isAddress } from 'viem';
 
+import { fetchAssetPlatforms } from 'lib/apis/coingecko';
 import { fetchgetRoute3Tokens, type Route3Token } from 'lib/apis/route3/fetch-route3-tokens';
 import { getLifiSwapTokens, type TokensByChain } from 'lib/apis/temple/endpoints/evm';
 import { toTokenSlug } from 'lib/assets/utils';
@@ -57,8 +58,50 @@ const ensureLists = persistentCache<SwapLists>({
 const isEvmSwappable = (lifiTokens: TokensByChain, chainId: number, contract: string): boolean =>
   (lifiTokens[chainId] ?? []).some(token => token.address && token.address.toLowerCase() === contract.toLowerCase());
 
+const ensureNativeGasCoins = persistentCache<Record<string, { chainKind: TempleChainKind; chainId: string }>>({
+  storageKey: 'WEB_WIDGETS_NATIVE_GAS_COINS',
+  ttlMs: 24 * 60 * 60 * 1000,
+  fallback: {},
+  build: async () => {
+    const platforms = await fetchAssetPlatforms();
+    const bySlug = new Map(platforms.map(entry => [entry.id, entry]));
+    const map: Record<string, { chainKind: TempleChainKind; chainId: string }> = {};
+
+    for (const { slug, chainId } of SUPPORTED_EVM_CHAINS) {
+      const nativeCoinId = bySlug.get(slug)?.native_coin_id;
+      if (nativeCoinId && !map[nativeCoinId]) {
+        map[nativeCoinId] = { chainKind: TempleChainKind.EVM, chainId: String(chainId) };
+      }
+    }
+
+    const tezosNativeCoinId = bySlug.get(TEZOS_PLATFORM)?.native_coin_id;
+    if (tezosNativeCoinId) {
+      map[tezosNativeCoinId] = { chainKind: TempleChainKind.Tezos, chainId: TEZOS_MAINNET_CHAIN_ID };
+    }
+
+    return map;
+  },
+  isValid: map => Object.keys(map).length > 0
+});
+
 export const resolveAsset = async (coinId: string): Promise<ResolvedAsset> => {
-  const [lists, platforms] = await Promise.all([ensureLists(), getCoinPlatforms(coinId)]);
+  const [nativeGasCoins, lists, platforms] = await Promise.all([
+    ensureNativeGasCoins(),
+    ensureLists(),
+    getCoinPlatforms(coinId)
+  ]);
+
+  const nativeGas = nativeGasCoins[coinId];
+  if (nativeGas) {
+    return {
+      resolved: true,
+      swappable: false,
+      chainKind: nativeGas.chainKind,
+      chainId: nativeGas.chainId,
+      contract: '',
+      assetSlug: nativeGas.chainKind === TempleChainKind.Tezos ? 'tez' : 'eth'
+    };
+  }
 
   for (const { slug, chainId } of SUPPORTED_EVM_CHAINS) {
     const raw = platforms[slug];

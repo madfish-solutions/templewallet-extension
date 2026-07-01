@@ -5,10 +5,12 @@ import clsx from 'clsx';
 import { ReactComponent as SadSearchIcon } from 'app/icons/monochrome/sad-search.svg';
 import type { ChartPoint } from 'lib/temple/back/web-widgets/fetch-token-market';
 import type { ResolvedAsset } from 'lib/temple/back/web-widgets/resolve-asset';
+import { TempleChainKind } from 'temple/types';
 
 import type { TagData } from '../../engine/types';
 import * as messaging from '../../messaging';
 
+import { BuyButton } from './BuyButton';
 import { CardAd } from './CardAd';
 import { CardHeader } from './CardHeader';
 import { ChainBadge } from './ChainBadge';
@@ -40,6 +42,9 @@ export const TickerPlaceholderCard = ({ tagData, onClose }: TickerPlaceholderCar
   const [series, setSeries] = useState<ChartPoint[]>([]);
   const [chartLoading, setChartLoading] = useState(true);
   const [resolved, setResolved] = useState<ResolvedAsset | null>(null);
+  const [buyTarget, setBuyTarget] = useState<{ chainKind: TempleChainKind; chainId: string; fiat: string } | null>(
+    null
+  );
   const [permit, setPermit] = useState(false);
   const [adUrl, setAdUrl] = useState<string | null>(null);
 
@@ -96,6 +101,24 @@ export const TickerPlaceholderCard = ({ tagData, onClose }: TickerPlaceholderCar
       active = false;
     };
   }, [symbol]);
+
+  useEffect(() => {
+    if (!resolved || !resolved.resolved || resolved.swappable) return;
+
+    let active = true;
+    const { chainKind, chainId } = resolved;
+
+    messaging
+      .getBuyPreselect(symbol, chainKind, chainId)
+      .then(result => {
+        if (active && result.supported) setBuyTarget({ chainKind, chainId, fiat: result.fiat });
+      })
+      .catch(() => {});
+
+    return () => {
+      active = false;
+    };
+  }, [resolved, symbol]);
 
   useEffect(() => {
     let active = true;
@@ -187,7 +210,7 @@ export const TickerPlaceholderCard = ({ tagData, onClose }: TickerPlaceholderCar
             />
           ) : null
         }
-        copyContract={resolvedAsset ? resolvedAsset.contract : undefined}
+        copyContract={resolvedAsset && resolvedAsset.contract ? resolvedAsset.contract : undefined}
         menuIcon={<ThreeDotsIcon />}
         onClose={onClose}
         onSnooze={handleSnooze}
@@ -217,6 +240,13 @@ export const TickerPlaceholderCard = ({ tagData, onClose }: TickerPlaceholderCar
             chainKind={swappableTarget.chainKind}
             chainId={swappableTarget.chainId}
             assetSlug={swappableTarget.assetSlug}
+          />
+        ) : buyTarget ? (
+          <BuyButton
+            symbol={symbol}
+            chainKind={buyTarget.chainKind}
+            chainId={buyTarget.chainId}
+            fiat={buyTarget.fiat}
           />
         ) : null}
       </div>

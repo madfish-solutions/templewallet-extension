@@ -20,6 +20,7 @@ export enum ContentScriptType {
   FetchTokenChart = 'FetchTokenChart',
   OpenFullPage = 'OpenFullPage',
   ResolveAsset = 'ResolveAsset',
+  GetBuyPreselect = 'GetBuyPreselect',
   GetTezFiatRate = 'GetTezFiatRate',
   WidgetContext = 'WidgetContext',
   WidgetOwnedCount = 'WidgetOwnedCount',

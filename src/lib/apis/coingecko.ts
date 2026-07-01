@@ -249,3 +249,18 @@ export async function fetchCoinsListWithPlatforms(): Promise<CoinListEntry[]> {
     return [];
   }
 }
+
+export interface AssetPlatformEntry {
+  id: string;
+  chain_identifier: number | null;
+  native_coin_id: string | null;
+}
+
+export async function fetchAssetPlatforms(): Promise<AssetPlatformEntry[]> {
+  try {
+    const { data } = await coingeckoApi.get<AssetPlatformEntry[]>('asset_platforms');
+    return data;
+  } catch {
+    return [];
+  }
+}

@@ -1,9 +1,11 @@
 import { browser } from 'lib/browser';
 import { ContentScriptType } from 'lib/constants';
+import type { BuyPreselect } from 'lib/temple/back/web-widgets/buy-preselect';
 import type { CoinsBySymbol } from 'lib/temple/back/web-widgets/fetch-coins-by-symbol';
 import type { ChartPoint } from 'lib/temple/back/web-widgets/fetch-token-market';
 import type { ObjktToken } from 'lib/temple/back/web-widgets/objkt-query';
 import type { ResolvedAsset } from 'lib/temple/back/web-widgets/resolve-asset';
+import { TempleChainKind } from 'temple/types';
 
 export const resolveTco = (tcoUrl: string): Promise<string | null> =>
   browser.runtime.sendMessage({
@@ -45,6 +47,14 @@ export const openFullPage = (hash: string): Promise<void> =>
   browser.runtime.sendMessage({
     type: ContentScriptType.OpenFullPage,
     hash
+  });
+
+export const getBuyPreselect = (symbol: string, chainKind: TempleChainKind, chainId: string): Promise<BuyPreselect> =>
+  browser.runtime.sendMessage({
+    type: ContentScriptType.GetBuyPreselect,
+    symbol,
+    chainKind,
+    chainId
   });
 
 interface WidgetContextData {

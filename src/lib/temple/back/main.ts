@@ -26,6 +26,7 @@ import { BACKGROUND_IS_WORKER, EnvVars, IS_FIREFOX, IS_MISES_BROWSER } from 'lib
 import { fetchFromStorage, putToStorage } from 'lib/storage';
 import { AnalyticsEventCategory } from 'lib/temple/analytics-types';
 import {
+  importBuyPreselectModule,
   importCoinsBySymbolModule,
   importFetchObjktTokenModule,
   importFetchThumbnailModule,
@@ -496,6 +497,11 @@ browser.runtime.onMessage.addListener(async (msg, sender) => {
       case ContentScriptType.ResolveAsset: {
         const { resolveAsset } = await importResolveAssetModule();
         return await resolveAsset(msg.coinId);
+      }
+
+      case ContentScriptType.GetBuyPreselect: {
+        const { getBuyPreselect } = await importBuyPreselectModule();
+        return await getBuyPreselect(msg.symbol, msg.chainKind, msg.chainId);
       }
 
       case ContentScriptType.OpenFullPage: {
