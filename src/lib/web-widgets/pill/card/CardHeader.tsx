@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { ReactNode, useState } from 'react';
 
 import { ReactComponent as OutLinkIcon } from 'app/icons/base/outLink.svg';
 import { ReactComponent as BrokenImageSvg } from 'app/icons/broken-image.svg';
@@ -6,11 +6,17 @@ import { ReactComponent as SettingsIcon } from 'app/icons/settings-icon.svg';
 import { ReactComponent as CloseIcon } from 'app/icons/x.svg';
 
 import { CardMenu } from './CardMenu';
+import { CopyAddress } from './CopyAddress';
 
 interface CardHeaderProps {
   collectionName?: string | null;
   collectionHref?: string;
   avatarUrl?: string;
+  tokenSymbol?: string;
+  tokenAvatarUrl?: string;
+  chainBadge?: ReactNode;
+  copyContract?: string;
+  menuIcon?: ReactNode;
   onClose: EmptyFn;
   onSnooze: EmptyFn;
   onDisable: EmptyFn;
@@ -20,6 +26,11 @@ export const CardHeader = ({
   collectionName,
   collectionHref,
   avatarUrl,
+  tokenSymbol,
+  tokenAvatarUrl,
+  chainBadge,
+  copyContract,
+  menuIcon,
   onClose,
   onSnooze,
   onDisable
@@ -29,7 +40,28 @@ export const CardHeader = ({
 
   return (
     <div className="tw-card__header">
-      {collectionName != null ? (
+      {tokenSymbol != null ? (
+        <div className="tw-card__token">
+          <span className="tw-card__token-avatar-wrap">
+            {tokenAvatarUrl && !avatarFailed ? (
+              <img
+                className="tw-card__token-avatar"
+                src={tokenAvatarUrl}
+                alt=""
+                onError={() => setAvatarFailed(true)}
+              />
+            ) : (
+              <div className="tw-card__token-avatar tw-card__token-avatar--empty" />
+            )}
+            {chainBadge}
+          </span>
+          {copyContract != null ? (
+            <CopyAddress contract={copyContract} symbol={tokenSymbol} />
+          ) : (
+            <span className="tw-card__token-symbol">{tokenSymbol}</span>
+          )}
+        </div>
+      ) : collectionName != null ? (
         <a className="tw-card__collection" href={collectionHref} target="_blank" rel="noopener noreferrer">
           {avatarUrl && !avatarFailed ? (
             <img className="tw-card__avatar" src={avatarUrl} alt="" onError={() => setAvatarFailed(true)} />
@@ -53,7 +85,7 @@ export const CardHeader = ({
           aria-label="More"
           onClick={() => setMenuOpen(open => !open)}
         >
-          <SettingsIcon className="tw-card__settings-icon" />
+          {menuIcon ?? <SettingsIcon className="tw-card__settings-icon" />}
         </button>
         <button className="tw-card__icon-btn" type="button" aria-label="Close" onClick={onClose}>
           <CloseIcon className="tw-card__close-icon" />

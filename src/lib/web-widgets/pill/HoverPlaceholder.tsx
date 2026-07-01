@@ -119,7 +119,7 @@ export const HoverPlaceholder = memo<HoverPlaceholderProps>(
       >
         {open || cardMounted ? (
           tagData.kind === 'ticker' ? (
-            <TickerPlaceholderCard />
+            <TickerPlaceholderCard tagData={tagData} onClose={onClose} />
           ) : (
             <NftCard tagData={tagData} onClose={onClose} />
           )

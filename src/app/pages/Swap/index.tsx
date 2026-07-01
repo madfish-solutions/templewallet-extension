@@ -33,6 +33,7 @@ import {
 } from './form/interfaces';
 import { ConfirmSwapModal } from './modals/ConfirmSwap';
 import { SwapSettingsModal } from './modals/SwapSettings';
+import { useWidgetSwapFromOverride } from './use-widget-swap-from';
 
 type ChainSlug = {
   chainKind?: string | null;
@@ -114,6 +115,42 @@ const Swap = memo<Props>(() => {
     const main = selectedChainAssets.from ?? selectedChainAssets.to;
     return main ? parseChainAssetSlug(main) : [null, null, null];
   }, [selectedChainAssets.from, selectedChainAssets.to]);
+
+  // Token-widget Swap navigations carry `fromBalance=1`: replace the gas-token baseline From with the user's
+  // highest-USD-value (> $10) token on the same chain. No-op for any other caller.
+  const fromBalanceRequested = searchParams.get('fromBalance') === '1';
+  const baselineFromSlug =
+    from?.chainKind && from?.chainId && from?.assetSlug
+      ? toChainAssetSlug(from.chainKind as TempleChainKind, from.chainId, from.assetSlug)
+      : null;
+  const widgetFromOverride = useWidgetSwapFromOverride(fromBalanceRequested, from?.chainKind, from?.chainId);
+  const widgetFromAppliedRef = useRef(false);
+
+  useEffect(() => {
+    if (!fromBalanceRequested || widgetFromAppliedRef.current || !widgetFromOverride || !baselineFromSlug) return;
+    if (selectedChainAssets.from !== baselineFromSlug) {
+      widgetFromAppliedRef.current = true;
+      return;
+    }
+    widgetFromAppliedRef.current = true;
+    const toSlug = selectedChainAssets.to;
+    if (
+      widgetFromOverride === baselineFromSlug ||
+      (toSlug != null && widgetFromOverride.toLowerCase() === toSlug.toLowerCase())
+    ) {
+      return;
+    }
+    setSelectedChainAssets(prev => ({ ...prev, from: widgetFromOverride }));
+    formControlRef.current?.handleSelectedAssetChange?.('input', widgetFromOverride);
+  }, [
+    fromBalanceRequested,
+    widgetFromOverride,
+    baselineFromSlug,
+    selectedChainAssets.from,
+    selectedChainAssets.to,
+    setSelectedChainAssets,
+    formControlRef
+  ]);
 
   const [selectAssetModalOpened, setSelectAssetModalOpen, setSelectAssetModalClosed] = useBooleanState(false);
   const [settingsModalOpened, setSettingsModalOpen, setSettingsModalClosed] = useBooleanState(false);

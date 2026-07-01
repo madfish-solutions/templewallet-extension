@@ -1,11 +1,14 @@
-import React, { FC, useEffect, useMemo, useState } from 'react';
+import React, { FC, useEffect, useMemo, useRef, useState } from 'react';
 
 import { FormProvider, useForm, useWatch } from 'react-hook-form';
 
 import { PageTitle } from 'app/atoms';
+import { useLocationSearchParamValue } from 'app/hooks/use-location';
 import PageLayout from 'app/layouts/PageLayout';
 import { dispatch } from 'app/store';
 import { loadAllCurrenciesActions } from 'app/store/buy-with-credit-card/actions';
+import { useCryptoCurrenciesSelector, useFiatCurrenciesSelector } from 'app/store/buy-with-credit-card/selectors';
+import { TopUpProviderId } from 'lib/buy-with-credit-card/top-up-provider-id.enum';
 import { t } from 'lib/i18n';
 import { useBooleanState, useInterval } from 'lib/ui/hooks';
 import { useAccountAddressForTezos } from 'temple/front';
@@ -50,6 +53,54 @@ export const DebitCreditCard: FC = () => {
   });
 
   const { control } = form;
+  const { isDirty } = form.formState;
+
+  const [currencyParam] = useLocationSearchParamValue('currency');
+  const [tokenParam] = useLocationSearchParamValue('token');
+  const moonpayFiatCurrencies = useFiatCurrenciesSelector(TopUpProviderId.MoonPay);
+  const utorgFiatCurrencies = useFiatCurrenciesSelector(TopUpProviderId.Utorg);
+  const moonpayCryptoCurrencies = useCryptoCurrenciesSelector(TopUpProviderId.MoonPay);
+  const utorgCryptoCurrencies = useCryptoCurrenciesSelector(TopUpProviderId.Utorg);
+
+  const presetsAppliedRef = useRef(false);
+
+  useEffect(() => {
+    if (presetsAppliedRef.current) return;
+    if (!currencyParam && !tokenParam) return;
+    if (isDirty) {
+      presetsAppliedRef.current = true;
+      return;
+    }
+
+    const fiatCurrencies = [...moonpayFiatCurrencies, ...utorgFiatCurrencies];
+    const cryptoCurrencies = [...moonpayCryptoCurrencies, ...utorgCryptoCurrencies];
+    if (currencyParam && fiatCurrencies.length === 0) return;
+    if (tokenParam && cryptoCurrencies.length === 0) return;
+
+    presetsAppliedRef.current = true;
+
+    const presetCurrency = currencyParam
+      ? fiatCurrencies.find(({ code }) => code.toUpperCase() === currencyParam.toUpperCase())
+      : undefined;
+    const presetToken = tokenParam
+      ? cryptoCurrencies.find(({ slug }) => slug.toUpperCase() === tokenParam.toUpperCase())
+      : undefined;
+
+    form.reset({
+      inputCurrency: presetCurrency ?? DEFAULT_INPUT_CURRENCY,
+      outputToken: presetToken ?? (tezosAddress ? DEFAULT_TEZOS_OUTPUT_TOKEN : DEFAULT_EVM_OUTPUT_TOKEN)
+    });
+  }, [
+    currencyParam,
+    tokenParam,
+    isDirty,
+    moonpayFiatCurrencies,
+    utorgFiatCurrencies,
+    moonpayCryptoCurrencies,
+    utorgCryptoCurrencies,
+    form,
+    tezosAddress
+  ]);
 
   const inputAmount = useWatch({ name: 'inputAmount', control });
   const inputCurrency = useWatch({ name: 'inputCurrency', control });
