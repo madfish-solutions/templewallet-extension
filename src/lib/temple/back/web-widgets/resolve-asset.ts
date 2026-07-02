@@ -53,8 +53,6 @@ const ensureLists = persistentCache<SwapLists>({
     ]);
     return { route3, lifiTokens };
   },
-  // Only cache a build where BOTH lists returned data — an empty result (a failed 3Route or Li.Fi fetch) would
-  // otherwise be cached for the full TTL and hide every Swap button. persistentCache retries (30s backoff) instead.
   isValid: ({ route3, lifiTokens }) => route3.length > 0 && Object.keys(lifiTokens).length > 0
 });
 
@@ -62,9 +60,7 @@ const isEvmSwappable = (lifiTokens: TokensByChain, chainId: number, contract: st
   (lifiTokens[chainId] ?? []).some(token => token.address && token.address.toLowerCase() === contract.toLowerCase());
 
 interface NativeCoinsInfo {
-  /** Native gas coin id → the SUPPORTED Temple chain it's the gas token of (ETH, BNB, POL, AVAX, XTZ…). */
   supported: Record<string, { chainKind: TempleChainKind; chainId: string }>;
-  /** Every chain's native coin id (supported or not) — a coin native to an unsupported chain resolves to data-only. */
   allNatives: string[];
 }
 
@@ -103,20 +99,6 @@ export const resolveAsset = async (coinId: string): Promise<ResolvedAsset> => {
     getCoinPlatforms(coinId)
   ]);
 
-  // TEMP DEBUG (remove): full decision path for a ticker.
-  console.info('[TW-DEBUG resolveAsset]', coinId, {
-    platformKeys: Object.keys(platforms),
-    platformEthereum: platforms['ethereum'],
-    supportedSize: Object.keys(nativeCoins.supported).length,
-    allNativesSize: nativeCoins.allNatives.length,
-    inSupported: Boolean(nativeCoins.supported[coinId]),
-    inAllNatives: nativeCoins.allNatives.includes(coinId),
-    lifiChains: Object.keys(lists.lifiTokens),
-    lifiEthCount: lists.lifiTokens[1]?.length ?? 0,
-    route3Count: lists.route3.length
-  });
-
-  // 1. Native gas coin of a supported chain (ETH/BNB/POL/AVAX/XTZ) → Buy target (not swappable to itself).
   const supported = nativeCoins.supported[coinId];
   if (supported) {
     return {
@@ -129,15 +111,9 @@ export const resolveAsset = async (coinId: string): Promise<ResolvedAsset> => {
     };
   }
 
-  // 2. Coin native to an UNSUPPORTED chain (ATOM→Cosmos, SOL→Solana, ADA→Cardano…) → data-only, so we don't surface
-  //    a bridged wrapper (e.g. ATOM's Binance-Peg BSC copy). EXCEPTION: some coins are the native coin of an obscure
-  //    chain yet are primarily an Ethereum/Tezos token (USDC/WETH/WBTC) — an Ethereum or Tezos contract means "real
-  //    token here", so let those resolve normally. ATOM/SOL/ADA have neither and stay data-only.
   if (nativeCoins.allNatives.includes(coinId) && !platforms['ethereum'] && !platforms[TEZOS_PLATFORM]) {
     return { resolved: false };
   }
-
-  // 3. Token → the first supported chain it has a contract on (Ethereum-first priority).
   for (const { slug, chainId } of SUPPORTED_EVM_CHAINS) {
     const raw = platforms[slug];
     if (!raw) continue;
