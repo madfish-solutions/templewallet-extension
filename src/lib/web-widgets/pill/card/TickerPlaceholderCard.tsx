@@ -45,6 +45,7 @@ export const TickerPlaceholderCard = ({ tagData, onClose }: TickerPlaceholderCar
   const [buyTarget, setBuyTarget] = useState<{ chainKind: TempleChainKind; chainId: string; fiat: string } | null>(
     null
   );
+  const [buyChecked, setBuyChecked] = useState(false);
   const [permit, setPermit] = useState(false);
   const [adUrl, setAdUrl] = useState<string | null>(null);
 
@@ -113,7 +114,10 @@ export const TickerPlaceholderCard = ({ tagData, onClose }: TickerPlaceholderCar
       .then(result => {
         if (active && result.supported) setBuyTarget({ chainKind, chainId, fiat: result.fiat });
       })
-      .catch(() => {});
+      .catch(() => {})
+      .finally(() => {
+        if (active) setBuyChecked(true);
+      });
 
     return () => {
       active = false;
@@ -195,6 +199,9 @@ export const TickerPlaceholderCard = ({ tagData, onClose }: TickerPlaceholderCar
 
   const resolvedAsset = resolved && resolved.resolved ? resolved : null;
   const swappableTarget = resolvedAsset && resolvedAsset.swappable ? resolvedAsset : null;
+  // Still determining the CTA: either resolveAsset hasn't returned yet, or it resolved to a non-swappable
+  // token whose Buy-support check is still pending. Render a disabled placeholder rather than an empty slot.
+  const ctaResolving = resolved === null || (resolvedAsset != null && swappableTarget == null && !buyChecked);
 
   return (
     <div className="tw-card">
@@ -248,6 +255,10 @@ export const TickerPlaceholderCard = ({ tagData, onClose }: TickerPlaceholderCar
             chainId={buyTarget.chainId}
             fiat={buyTarget.fiat}
           />
+        ) : ctaResolving ? (
+          <button className="tw-card__cta tw-card__cta--pending" type="button" disabled>
+            <span className="tw-card__spinner tw-card__spinner--sm" />
+          </button>
         ) : null}
       </div>
 

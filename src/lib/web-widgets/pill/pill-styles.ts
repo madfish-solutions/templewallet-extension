@@ -48,8 +48,6 @@ export const PILL_STYLES = `
     transition: opacity 160ms ease, transform 160ms ease;
     pointer-events: none;
   }
-  /* Slides up into place when below the pill; slides down when shown above (matches the
-     temple-deals google-search popup appear animation). */
   .tw-hover-placeholder--above {
     transform: translateY(-6px);
   }
@@ -88,7 +86,6 @@ export const PILL_STYLES = `
   .tw-card *::after {
     box-sizing: border-box;
   }
-  /* Native form controls don't inherit font-family — without this buttons fall back to the UA font (Arial). */
   .tw-card button,
   .tw-card input,
   .tw-card select,
@@ -293,8 +290,6 @@ export const PILL_STYLES = `
     pointer-events: none;
     user-select: none;
   }
-
-  /* Loading & not-found states: centered, no card background. */
   .tw-card__body--state {
     align-items: center;
     justify-content: center;
@@ -392,6 +387,7 @@ export const PILL_STYLES = `
     font-size: 24px;
     line-height: 36px;
     color: #000000;
+    white-space: nowrap;
   }
   .tw-card__price--auction {
     color: #34cc4e;
@@ -458,6 +454,7 @@ export const PILL_STYLES = `
   .tw-card__ticker-price-row {
     display: flex;
     align-items: center;
+    flex-wrap: wrap;
     gap: 8px;
   }
   .tw-card__market-cap {
@@ -570,6 +567,32 @@ export const PILL_STYLES = `
   }
   .tw-card__cta--primary:hover {
     background: #e85200;
+  }
+  .tw-card__cta:active {
+    background: #c3d7ed;
+  }
+  .tw-card__cta--primary:active {
+    background: #cc4900;
+  }
+  .tw-card__cta:focus-visible {
+    outline: 2px solid #1373e4;
+    outline-offset: 2px;
+  }
+  .tw-card__cta--primary:focus-visible {
+    outline-color: #ff5b00;
+  }
+  .tw-card__cta--pending {
+    background: #f4f4f4;
+    color: #aeaeb2;
+    cursor: default;
+  }
+  .tw-card__cta--pending:hover {
+    background: #f4f4f4;
+  }
+  .tw-card__spinner--sm {
+    width: 18px;
+    height: 18px;
+    border-width: 2px;
   }
   .tw-card__cta-icon {
     width: 20px;

@@ -232,6 +232,17 @@ export async function fetchCoinsByIds(ids: string[]): Promise<TopCoinRaw[]> {
   }
 }
 
+export async function fetchCoinsByCategory(category: string): Promise<TopCoinRaw[]> {
+  try {
+    const { data } = await coingeckoApi.get<TopCoinRaw[]>('coins/markets', {
+      params: { vs_currency: 'usd', category, order: 'market_cap_desc', per_page: 250, sparkline: true }
+    });
+    return data;
+  } catch {
+    return [];
+  }
+}
+
 export interface CoinListEntry {
   id: string;
   symbol: string;

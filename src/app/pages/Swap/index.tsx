@@ -116,23 +116,21 @@ const Swap = memo<Props>(() => {
     return main ? parseChainAssetSlug(main) : [null, null, null];
   }, [selectedChainAssets.from, selectedChainAssets.to]);
 
-  // Token-widget Swap navigations carry `fromBalance=1`: replace the gas-token baseline From with the user's
-  // highest-USD-value (> $10) token on the same chain. No-op for any other caller.
   const fromBalanceRequested = searchParams.get('fromBalance') === '1';
   const baselineFromSlug =
     from?.chainKind && from?.chainId && from?.assetSlug
       ? toChainAssetSlug(from.chainKind as TempleChainKind, from.chainId, from.assetSlug)
       : null;
   const widgetFromOverride = useWidgetSwapFromOverride(fromBalanceRequested, from?.chainKind, from?.chainId);
-  const widgetFromAppliedRef = useRef(false);
+  const widgetLastWrittenFromRef = useRef<string | null>(null);
 
   useEffect(() => {
-    if (!fromBalanceRequested || widgetFromAppliedRef.current || !widgetFromOverride || !baselineFromSlug) return;
-    if (selectedChainAssets.from !== baselineFromSlug) {
-      widgetFromAppliedRef.current = true;
-      return;
-    }
-    widgetFromAppliedRef.current = true;
+    if (!fromBalanceRequested || !widgetFromOverride || !baselineFromSlug) return;
+
+    const currentFrom = selectedChainAssets.from;
+    const isOursToSet = currentFrom === baselineFromSlug || currentFrom === widgetLastWrittenFromRef.current;
+    if (!isOursToSet) return;
+
     const toSlug = selectedChainAssets.to;
     if (
       widgetFromOverride === baselineFromSlug ||
@@ -140,6 +138,9 @@ const Swap = memo<Props>(() => {
     ) {
       return;
     }
+    if (currentFrom === widgetFromOverride) return;
+
+    widgetLastWrittenFromRef.current = widgetFromOverride;
     setSelectedChainAssets(prev => ({ ...prev, from: widgetFromOverride }));
     formControlRef.current?.handleSelectedAssetChange?.('input', widgetFromOverride);
   }, [

@@ -1,4 +1,5 @@
 import {
+  fetchCoinsByCategory,
   fetchCoinsByIds,
   fetchCoinsListWithPlatforms,
   fetchTopCoinsByMarketCap,
@@ -24,10 +25,12 @@ export interface CoinMetadata {
 
 export type CoinsBySymbol = Record<string, CoinMetadata>;
 
-const PAGES = 4;
+const PAGES = 2;
 const TOP_N = PAGES * 250;
 
 const SUPPLEMENTAL_IDS = ['wrapped-bitcoin', 'weth', 'wrapped-steth', 'coinbase-wrapped-btc'];
+
+const TEZOS_ECOSYSTEM_CATEGORY = 'tezos-ecosystem';
 
 interface CoinsBundle {
   data: CoinsBySymbol;
@@ -35,13 +38,14 @@ interface CoinsBundle {
 }
 
 const fetchTopCoins = async (): Promise<TopCoinRaw[]> => {
-  const [primary, supplemental] = await Promise.all([
+  const [primary, supplemental, tezos] = await Promise.all([
     fetchTopCoinsByMarketCap(PAGES),
-    fetchCoinsByIds(SUPPLEMENTAL_IDS)
+    fetchCoinsByIds(SUPPLEMENTAL_IDS),
+    fetchCoinsByCategory(TEZOS_ECOSYSTEM_CATEGORY)
   ]);
 
   if (primary.length > 0) {
-    return [...primary, ...supplemental];
+    return [...primary, ...supplemental, ...tezos];
   }
 
   try {

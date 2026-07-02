@@ -42,11 +42,6 @@ const pickHighestUsdSlug = (
   return bestSlug;
 };
 
-/**
- * Highest-USD-value token (> $10) the user holds on the resolved chain, as a chain-asset-slug, else null.
- * Computed in the UI because balances and USD rates live only in the redux store (never reachable from the
- * background). Returns null until those stores hydrate, so the caller keeps the gas-token baseline meanwhile.
- */
 export const useWidgetSwapFromOverride = (
   enabled: boolean,
   chainKind: string | null | undefined,

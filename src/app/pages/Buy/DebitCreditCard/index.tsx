@@ -1,5 +1,6 @@
 import React, { FC, useEffect, useMemo, useRef, useState } from 'react';
 
+import { union } from 'lodash';
 import { FormProvider, useForm, useWatch } from 'react-hook-form';
 
 import { PageTitle } from 'app/atoms';
@@ -7,7 +8,7 @@ import { useLocationSearchParamValue } from 'app/hooks/use-location';
 import PageLayout from 'app/layouts/PageLayout';
 import { dispatch } from 'app/store';
 import { loadAllCurrenciesActions } from 'app/store/buy-with-credit-card/actions';
-import { useCryptoCurrenciesSelector, useFiatCurrenciesSelector } from 'app/store/buy-with-credit-card/selectors';
+import { useFiatCurrenciesSelector } from 'app/store/buy-with-credit-card/selectors';
 import { TopUpProviderId } from 'lib/buy-with-credit-card/top-up-provider-id.enum';
 import { t } from 'lib/i18n';
 import { useBooleanState, useInterval } from 'lib/ui/hooks';
@@ -20,6 +21,7 @@ import {
   FORM_REFRESH_INTERVAL
 } from './config';
 import { Form } from './Form';
+import { useAllCryptoCurrencies } from './hooks/use-all-crypto-currencies';
 import { useErrorAlert } from './hooks/use-error-alert';
 import { useFormInputsCallbacks } from './hooks/use-form-inputs-callbacks';
 import { usePaymentProviders } from './hooks/use-payment-providers';
@@ -59,31 +61,30 @@ export const DebitCreditCard: FC = () => {
   const [tokenParam] = useLocationSearchParamValue('token');
   const moonpayFiatCurrencies = useFiatCurrenciesSelector(TopUpProviderId.MoonPay);
   const utorgFiatCurrencies = useFiatCurrenciesSelector(TopUpProviderId.Utorg);
-  const moonpayCryptoCurrencies = useCryptoCurrenciesSelector(TopUpProviderId.MoonPay);
-  const utorgCryptoCurrencies = useCryptoCurrenciesSelector(TopUpProviderId.Utorg);
+  const allCryptoCurrencies = useAllCryptoCurrencies();
 
   const presetsAppliedRef = useRef(false);
 
   useEffect(() => {
     if (presetsAppliedRef.current) return;
     if (!currencyParam && !tokenParam) return;
-    if (isDirty) {
-      presetsAppliedRef.current = true;
-      return;
-    }
 
     const fiatCurrencies = [...moonpayFiatCurrencies, ...utorgFiatCurrencies];
-    const cryptoCurrencies = [...moonpayCryptoCurrencies, ...utorgCryptoCurrencies];
     if (currencyParam && fiatCurrencies.length === 0) return;
-    if (tokenParam && cryptoCurrencies.length === 0) return;
+    if (tokenParam && allCryptoCurrencies.length === 0) return;
 
     presetsAppliedRef.current = true;
 
-    const presetCurrency = currencyParam
-      ? fiatCurrencies.find(({ code }) => code.toUpperCase() === currencyParam.toUpperCase())
+    if (isDirty) return;
+
+    const fiatMatches = currencyParam
+      ? fiatCurrencies.filter(({ code }) => code.toUpperCase() === currencyParam.toUpperCase())
+      : [];
+    const presetCurrency = fiatMatches.length
+      ? { ...fiatMatches[0]!, providers: union(...fiatMatches.map(({ providers }) => providers)) }
       : undefined;
     const presetToken = tokenParam
-      ? cryptoCurrencies.find(({ slug }) => slug.toUpperCase() === tokenParam.toUpperCase())
+      ? allCryptoCurrencies.find(({ slug }) => slug.toUpperCase() === tokenParam.toUpperCase())
       : undefined;
 
     form.reset({
@@ -96,8 +97,7 @@ export const DebitCreditCard: FC = () => {
     isDirty,
     moonpayFiatCurrencies,
     utorgFiatCurrencies,
-    moonpayCryptoCurrencies,
-    utorgCryptoCurrencies,
+    allCryptoCurrencies,
     form,
     tezosAddress
   ]);
