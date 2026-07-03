@@ -1,4 +1,4 @@
-import browser from 'webextension-polyfill';
+import browser, { Storage } from 'webextension-polyfill';
 
 const DEPRECATED_KEYS = [
   'detailed_asset_metadata_', // `detailed_asset_metadata_${slug}`
@@ -51,4 +51,22 @@ export async function moveValueInStorage(oldKey: string, newKey: string) {
   await putToStorage(newKey, value);
 
   await removeFromStorage(oldKey);
+}
+
+export function onStorageChanged<T = any>(key: string, callback: (newValue: T) => void) {
+  const handleChanged = (changes: Storage.StorageAreaOnChangedChangesType) => {
+    if (key in changes) {
+      // onChanged reports newValue === undefined when a key is removed.
+      // Our fetcher uses null to mean “missing”, so normalize to null here.
+      // This keeps SWR (with suspense) from re-suspending on storage.clear(),
+      // preventing transient unmount/remount (e.g., modal flicker) during resets.
+      callback((changes[key] as Storage.StorageChange).newValue ?? null);
+    }
+  };
+
+  // (!) Do not sub to all storages at once (via `browser.storage.onChanged`).
+  // See: https://bugzilla.mozilla.org/show_bug.cgi?id=1838448#c14
+  browser.storage.local.onChanged.addListener(handleChanged);
+
+  return () => browser.storage.local.onChanged.removeListener(handleChanged);
 }

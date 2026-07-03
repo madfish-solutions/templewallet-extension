@@ -74,7 +74,7 @@ export const RewardsModal = memo<RewardsModalProps>(({ isOpen, onRequestClose, o
 
   return (
     <PageModal title={<T id="templeRewards" />} opened={isOpen} onRequestClose={onRequestClose}>
-      <PageModalScrollViewWithActions initialBottomEdgeVisible={false} actionsBoxProps={actionsBoxProps}>
+      <PageModalScrollViewWithActions actionsBoxProps={actionsBoxProps}>
         <div className="py-4 flex flex-col items-center text-center">
           <RewardsAnimation loop width={120} height={120} />
           <h1 className="mt-4 mb-1 text-font-h3">

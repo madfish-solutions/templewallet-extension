@@ -15,6 +15,7 @@ import { useAllAccountsReactiveOnRemoval } from 'app/hooks/use-all-accounts-reac
 import { useEquityCurrency } from 'app/hooks/use-equity-currency';
 import { ReactComponent as ChevronRightIcon } from 'app/icons/base/chevron_right.svg';
 import PageLayout from 'app/layouts/PageLayout';
+import { useContentPaperRef } from 'app/layouts/PageLayout/context';
 import { useAssetsFilterOptionsSelector } from 'app/store/assets-filter-options/selectors';
 import { T, t } from 'lib/i18n';
 import { useTempleClient } from 'lib/temple/front';
@@ -49,7 +50,6 @@ export const AccountSettings = memo<AccountSettingsProps>(({ id }) => {
   useAllAccountsReactiveOnRemoval();
   const allAccounts = useAllAccounts();
   const hdGroups = useHDGroups();
-  const [bottomEdgeIsVisible, setBottomEdgeIsVisible] = useState(true);
 
   const [visibilityBeingChanged, setVisibilityBeingChanged] = useState(false);
   const [currentModal, setCurrentModal] = useState<AccountSettingsModal | null>(null);
@@ -138,12 +138,7 @@ export const AccountSettings = memo<AccountSettingsProps>(({ id }) => {
   }
 
   return (
-    <PageLayout
-      pageTitle={t('editAccount')}
-      contentPadding={false}
-      onBottomEdgeVisibilityChange={setBottomEdgeIsVisible}
-      bottomEdgeThreshold={16}
-    >
+    <PageLayout pageTitle={t('editAccount')} contentPadding={false}>
       <div className="w-full h-full flex flex-col px-4">
         <div className="flex gap-1 items-end justify-between py-4">
           <div className="flex gap-1">
@@ -225,7 +220,7 @@ export const AccountSettings = memo<AccountSettingsProps>(({ id }) => {
       </div>
 
       {!(account.type === TempleAccountType.HD && account.hdIndex === 0 && hdGroups[0]?.id === account.walletId) && (
-        <ActionsButtonsBox className="sticky left-0 bottom-0" shouldCastShadow={!bottomEdgeIsVisible}>
+        <RemoveAccountActionsButtonsBox>
           <StyledButton
             className="flex-1"
             size="L"
@@ -235,10 +230,20 @@ export const AccountSettings = memo<AccountSettingsProps>(({ id }) => {
           >
             <T id="removeAccount" />
           </StyledButton>
-        </ActionsButtonsBox>
+        </RemoveAccountActionsButtonsBox>
       )}
 
       {modal}
     </PageLayout>
+  );
+});
+
+const RemoveAccountActionsButtonsBox = memo<PropsWithChildren>(({ children }) => {
+  const scrollContainerRef = useContentPaperRef();
+
+  return (
+    <ActionsButtonsBox className="sticky left-0 bottom-0" scrollContainerRef={scrollContainerRef}>
+      {children}
+    </ActionsButtonsBox>
   );
 });

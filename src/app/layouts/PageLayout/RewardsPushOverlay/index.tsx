@@ -96,7 +96,7 @@ const OfferModal = memo<OfferModalProps>(({ opened, onClose, onActivate }) => {
       onRequestClose={onClose}
       testID={RewardsPushOverlaySelectors.closeButton}
     >
-      <PageModalScrollViewWithActions initialBottomEdgeVisible={false} actionsBoxProps={actionsBoxProps}>
+      <PageModalScrollViewWithActions actionsBoxProps={actionsBoxProps}>
         <div className="py-4 flex flex-col items-center text-center mb-3">
           <Lottie isClickToPauseDisabled options={cashbackAnimationOptions} height={138} width={138} />
 

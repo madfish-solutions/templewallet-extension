@@ -22,6 +22,7 @@ import { runConnectedLedgerOperationFlow } from 'lib/ui';
 import { useLedgerWebHidFullViewGuard } from 'lib/ui/ledger-webhid-guard';
 import { LedgerFullViewPromptModal } from 'lib/ui/LedgerFullViewPrompt';
 import { showTxSubmitToastWithDelay } from 'lib/ui/show-tx-submit-toast.util';
+import { estimateBatchWithGasRebalance } from 'lib/utils/estimate-with-gas-rebalance';
 import { serializeEstimate } from 'lib/utils/serialize-estimate';
 import { getParamsWithCustomGasLimitFor3RouteSwap } from 'lib/utils/swap.utils';
 import { getTezosToolkitWithSigner } from 'temple/front';
@@ -71,9 +72,7 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
   const estimate = useCallback(async () => {
     try {
       const route3HandledParams = await getParamsWithCustomGasLimitFor3RouteSwap(tezos, sourcePkh, opParams);
-      const estimates = await tezos.estimate.batch(
-        route3HandledParams.map(params => ({ ...params, source: sourcePkh }))
-      );
+      const estimates = await estimateBatchWithGasRebalance(tezos, sourcePkh, route3HandledParams);
 
       const estimatedBaseFee = mutezToTz(
         BigNumber.sum(...estimates.map(est => est.suggestedFeeMutez + est.burnFeeMutez))

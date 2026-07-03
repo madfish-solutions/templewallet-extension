@@ -1,6 +1,7 @@
 import {
   ADS_META_SEARCH_PARAM_NAME,
   AD_CATEGORIES_PARAM_NAME,
+  BACKGROUND_COLOR_SEARCH_PARAM_NAME,
   CHAIN_NAME_SEARCH_PARAM_NAME,
   EVM_ACCOUNT_SEARCH_PARAM_NAME,
   FONT_SIZE_SEARCH_PARAM_NAME,
@@ -15,7 +16,7 @@ import { getRulesFromStorage } from './ads-rules';
 
 const usp = new URLSearchParams(window.location.search);
 const id = usp.get('id');
-const rawThemeColor = usp.get(THEME_COLOR_SEARCH_PARAM_NAME);
+const themeColor = usp.get(THEME_COLOR_SEARCH_PARAM_NAME) ?? undefined;
 const rawFontSize = usp.get(FONT_SIZE_SEARCH_PARAM_NAME);
 const rawLineHeight = usp.get(LINE_HEIGHT_SEARCH_PARAM_NAME);
 const origin = usp.get(ORIGIN_SEARCH_PARAM_NAME) ?? window.location.href;
@@ -23,6 +24,7 @@ const adsMetadataIds = usp.getAll(ADS_META_SEARCH_PARAM_NAME).map(value => JSON.
 const adCategories = usp.getAll(AD_CATEGORIES_PARAM_NAME);
 const evmAccountAddress = usp.get(EVM_ACCOUNT_SEARCH_PARAM_NAME) ?? undefined;
 const chainName = usp.get(CHAIN_NAME_SEARCH_PARAM_NAME) ?? undefined;
+const backgroundColor = usp.get(BACKGROUND_COLOR_SEARCH_PARAM_NAME) ?? undefined;
 
 configureAds()
   .then(() => importExtensionAdsModule())
@@ -37,7 +39,8 @@ configureAds()
       pageHasPlacesRules: permanentAdPlacesRules.length > 0 || adPlacesRules.length > 0,
       adCategories,
       hypelabBlacklistedCampaignsSlugs: blacklistedHypelabCampaignsSlugs,
-      themeColor: rawThemeColor ?? undefined,
+      themeColor,
+      backgroundColor,
       fontSize: rawFontSize ? Number(rawFontSize) : undefined,
       lineHeight: rawLineHeight ? Number(rawLineHeight) : undefined,
       evmAccountAddress,

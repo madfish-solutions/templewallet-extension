@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useEffect, useMemo, useState, ReactNode } from 'react';
+import React, { memo, useCallback, useEffect, useMemo, useRef, useState, ReactNode } from 'react';
 
 import { isDefined } from '@rnw-community/shared';
 import { DerivationType } from '@taquito/ledger-signer';
@@ -78,12 +78,12 @@ export const SelectAccountStep = memo<SelectAccountStepProps>(({ initialAccount,
     [DerivationType.BIP32_ED25519]: defaultDerivationType === DerivationType.BIP32_ED25519 ? 0 : -1
   });
   const [isSwitchingDerivation, setIsSwitchingDerivation] = useState(false);
-  const [bottomEdgeIsVisible, setBottomEdgeIsVisible] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [derivationType, setDerivationType] = useState<DerivationType>(defaultDerivationType);
   const [customPathModalIsOpen, openCustomPathModal, closeCustomPathModal] = useBooleanState(false);
   const knownLedgerAccounts = knownAccountsByDerivation[derivationType];
   const activeAccountIndex = activeAccountsIndexes[derivationType];
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   const ledgerAccountsGroups = useMemo<LedgerAccountsGroups>(() => {
     if (!pickTezosAccounts) {
@@ -253,7 +253,7 @@ export const SelectAccountStep = memo<SelectAccountStepProps>(({ initialAccount,
         />
       )}
 
-      <ScrollView className="pt-4 gap-2" onBottomEdgeVisibilityChange={setBottomEdgeIsVisible} bottomEdgeThreshold={4}>
+      <ScrollView ref={scrollContainerRef} className="pt-4 gap-2">
         <>
           {pickTezosAccounts && (
             <div className="flex flex-col gap-2">
@@ -339,7 +339,7 @@ export const SelectAccountStep = memo<SelectAccountStepProps>(({ initialAccount,
         </>
       </ScrollView>
 
-      <ActionsButtonsBox shouldCastShadow={!bottomEdgeIsVisible}>
+      <ActionsButtonsBox scrollContainerRef={scrollContainerRef}>
         <StyledButton
           size="L"
           className="w-full"

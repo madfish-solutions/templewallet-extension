@@ -189,6 +189,7 @@ const scriptsConfig = (() => {
   if (!shouldDisableAds) {
     config.entry.replaceAds = Path.join(PATHS.SOURCE, 'replaceAds.ts');
     config.entry.replaceReferrals = Path.join(PATHS.SOURCE, 'replaceReferrals.ts');
+    config.entry.webWidgets = Path.join(PATHS.SOURCE, 'content-scripts/web-widgets.ts');
     config.entry.templeDealsAllSites = Path.join(PATHS.SOURCE, 'temple-deals/all-sites/index.ts');
     config.entry.templeDealsGoogleSearch = Path.join(PATHS.SOURCE, 'temple-deals/google-search/index.ts');
     config.entry.templeDealsAnnouncement = Path.join(PATHS.SOURCE, 'temple-deals/announcement/index.ts');
