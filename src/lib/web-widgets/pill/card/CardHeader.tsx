@@ -51,7 +51,7 @@ export const CardHeader = ({
                 onError={() => setAvatarFailed(true)}
               />
             ) : (
-              <div className="tw-card__token-avatar tw-card__token-avatar--empty" />
+              <div className="tw-card__token-avatar" />
             )}
             {chainBadge}
           </span>

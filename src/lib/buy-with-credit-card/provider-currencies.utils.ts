@@ -12,7 +12,7 @@ import { TempleChainKind } from 'temple/types';
 
 import { toTopUpTokenSlug } from './top-up-token-slug.utils';
 
-export const utorgChainChainIdMap: Record<string, string> = {
+const utorgChainChainIdMap: Record<string, string> = {
   ARBITRUM: '42161',
   AVALANCHE: '43114',
   POLYGON: '137',
@@ -21,10 +21,10 @@ export const utorgChainChainIdMap: Record<string, string> = {
   VECHAIN: '100009'
 };
 
-export const isMoonPayTezosNetwork = (metadata: MoonPayCryptoCurrency['metadata']) =>
+const isMoonPayTezosNetwork = (metadata: MoonPayCryptoCurrency['metadata']) =>
   metadata.networkCode.toLowerCase() === 'tezos';
 
-export const isUtorgTezosChain = (chain?: string) => chain === 'TEZOS';
+const isUtorgTezosChain = (chain?: string) => chain === 'TEZOS';
 
 export const isEligibleMoonPayFiat = (currency: MoonPayCurrency): currency is MoonPayFiatCurrency =>
   currency.type === MoonPayCurrencyType.Fiat && currency.isSellSupported;

@@ -245,7 +245,7 @@ export async function fetchCoinsByCategory(category: string): Promise<TopCoinRaw
   }
 }
 
-export interface CoinListEntry {
+interface CoinListEntry {
   id: string;
   symbol: string;
   name: string;
@@ -263,7 +263,7 @@ export async function fetchCoinsListWithPlatforms(): Promise<CoinListEntry[]> {
   }
 }
 
-export interface AssetPlatformEntry {
+interface AssetPlatformEntry {
   id: string;
   chain_identifier: number | null;
   native_coin_id: string | null;

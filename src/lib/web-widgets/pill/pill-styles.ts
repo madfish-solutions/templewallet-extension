@@ -196,9 +196,6 @@ export const PILL_STYLES = `
     flex: none;
     background: #f4f4f4;
   }
-  .tw-card__token-avatar--empty {
-    background: #f4f4f4;
-  }
   .tw-card__token-avatar-wrap {
     position: relative;
     display: inline-flex;
@@ -520,23 +517,6 @@ export const PILL_STYLES = `
     width: 100%;
     height: 100%;
   }
-  .tw-card__hilo {
-    position: absolute;
-    font-family: 'Rubik', sans-serif;
-    font-size: 10px;
-    font-weight: 400;
-    line-height: 12px;
-    color: #000000;
-  }
-  .tw-card__hilo--high {
-    top: 4px;
-    right: 8px;
-  }
-  .tw-card__hilo--low {
-    bottom: 4px;
-    left: 8px;
-  }
-
   .tw-card__cta {
     display: flex;
     align-items: center;

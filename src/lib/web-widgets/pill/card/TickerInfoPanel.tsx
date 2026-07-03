@@ -23,12 +23,12 @@ export const formatPrice = (value: number | null): string => {
   return `${value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits })} $`;
 };
 
-export const formatCompact = (value: number | null): string => {
+const formatCompact = (value: number | null): string => {
   if (value == null) return '—';
   return `${value.toLocaleString('en-US', { notation: 'compact', maximumFractionDigits: 2 })} $`;
 };
 
-export const formatPercent = (value: number): string => `${value >= 0 ? '+' : '-'}${Math.abs(value).toFixed(2)}%`;
+const formatPercent = (value: number): string => `${value >= 0 ? '+' : '-'}${Math.abs(value).toFixed(2)}%`;
 
 export const TickerInfoPanel = ({ market }: TickerInfoPanelProps) => {
   const { price, change24h, marketCap, fdv, volume } = market;
