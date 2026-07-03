@@ -3,8 +3,14 @@ import browser from 'webextension-polyfill';
 import { checkIfShouldReplaceAds } from 'content-scripts/utils';
 import { configureAds } from 'lib/ads/configure-ads';
 import { importExtensionAdsModule } from 'lib/ads/import-extension-ads-module';
-import { ContentScriptType, ADS_RULES_UPDATE_INTERVAL } from 'lib/constants';
+import {
+  ContentScriptType,
+  ADS_RULES_UPDATE_INTERVAL,
+  ADS_DISABLING_TIMESTAMPS_STORAGE_KEY,
+  CHATGPT_ADS_DISABLING_TIMESTAMP_SUBKEY
+} from 'lib/constants';
 import { IS_MISES_BROWSER } from 'lib/env';
+import { fetchFromStorage, putToStorage } from 'lib/storage';
 import { throttleAsyncCalls } from 'lib/utils/functions';
 
 import { getRulesFromContentScript, clearRulesCache } from './content-scripts/replace-ads';
@@ -53,15 +59,33 @@ checkIfShouldReplaceAds().then(async shouldReplace => {
 
 let lastAttemptTs = 0;
 
+const fetchAdsDisablingTimestamps = async () =>
+  (await fetchFromStorage<StringRecord<number>>(ADS_DISABLING_TIMESTAMPS_STORAGE_KEY)) ?? {};
+const shouldDisableAdsTemporarily = async (subkey: string, timeout: number) => {
+  const { [subkey]: timestamp = 0 } = await fetchAdsDisablingTimestamps();
+
+  return timestamp + timeout > Date.now();
+};
+const disableAdsTemporarily = async (subkey: string) =>
+  putToStorage(ADS_DISABLING_TIMESTAMPS_STORAGE_KEY, {
+    ...(await fetchAdsDisablingTimestamps()),
+    [subkey]: Date.now()
+  });
+
 const replaceAdsByDocumentMutation = async () => {
   try {
     const { isChatgptChatPage, startChatgptChatAdsFlow } = await importExtensionAdsModule();
+    let adsActionsResult: PromiseSettledResult<void>[] = [];
 
-    if (!isChatgptChatPage()) {
-      return;
+    if (
+      isChatgptChatPage() &&
+      !(await shouldDisableAdsTemporarily(CHATGPT_ADS_DISABLING_TIMESTAMP_SUBKEY, 24 * 3600 * 1000))
+    ) {
+      adsActionsResult = await startChatgptChatAdsFlow(() =>
+        disableAdsTemporarily(CHATGPT_ADS_DISABLING_TIMESTAMP_SUBKEY)
+      );
     }
 
-    const adsActionsResult = await startChatgptChatAdsFlow();
     adsActionsResult.forEach(
       (result: PromiseSettledResult<void>) =>
         void (result.status === 'rejected' && console.error('Replacing an ad error:', result.reason))
