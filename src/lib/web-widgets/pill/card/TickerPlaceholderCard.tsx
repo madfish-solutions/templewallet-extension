@@ -89,7 +89,9 @@ export const TickerPlaceholderCard = ({ tagData, onClose }: TickerPlaceholderCar
           .then(result => {
             if (active) setResolved(result);
           })
-          .catch(() => {});
+          .catch(() => {
+            if (active) setResolved({ resolved: false });
+          });
       })
       .catch(() => {
         if (active) {
@@ -199,8 +201,7 @@ export const TickerPlaceholderCard = ({ tagData, onClose }: TickerPlaceholderCar
 
   const resolvedAsset = resolved && resolved.resolved ? resolved : null;
   const swappableTarget = resolvedAsset && resolvedAsset.swappable ? resolvedAsset : null;
-  // Still determining the CTA: either resolveAsset hasn't returned yet, or it resolved to a non-swappable
-  // token whose Buy-support check is still pending. Render a disabled placeholder rather than an empty slot.
+  // resolveAsset still pending, or a non-swappable token whose Buy-support check is still pending
   const ctaResolving = resolved === null || (resolvedAsset != null && swappableTarget == null && !buyChecked);
 
   return (

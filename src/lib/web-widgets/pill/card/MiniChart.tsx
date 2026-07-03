@@ -12,14 +12,12 @@ interface MiniChartProps {
 
 // The shared recharts SimpleChart relies on ResponsiveContainer measuring its parent,
 // which returns 0 inside the web-widget shadow DOM, so it paints nothing here.
-// This renders deterministically from a fixed coordinate space scaled to the box via viewBox
 const PADDING_TOP = 16;
 const PADDING_BOTTOM = 18;
 const STROKE = '#2D6CDF';
 const LABEL_COLOR = '#151618';
 
 export const MiniChart = ({ data, width, height, highLabel, lowLabel }: MiniChartProps) => {
-  // draw a flat baseline instead of an empty slot
   if (data.length < 2) {
     const mid = height / 2;
     return (

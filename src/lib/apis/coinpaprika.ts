@@ -17,6 +17,7 @@ interface PaprikaTickerRaw {
   symbol: string;
   rank: number;
   max_supply?: number | null;
+  total_supply?: number | null;
   quotes?: { USD?: PaprikaQuoteUSD };
 }
 
@@ -30,7 +31,8 @@ export async function fetchTopCoinsFromPaprika(limit: number): Promise<TopCoinRa
     .map(coin => {
       const usd = coin.quotes?.USD;
       const price = usd?.price ?? null;
-      const maxSupply = coin.max_supply ?? 0;
+      // Coinpaprika reports max_supply: 0 for uncapped coins (e.g. stablecoins)
+      const fdvSupply = coin.max_supply || coin.total_supply || 0;
       return {
         id: coin.id,
         symbol: coin.symbol,
@@ -39,8 +41,8 @@ export async function fetchTopCoinsFromPaprika(limit: number): Promise<TopCoinRa
         market_cap: usd?.market_cap ?? null,
         current_price: price,
         price_change_percentage_24h: usd?.percent_change_24h ?? null,
-        // Coinpaprika has no FDV field, derive it from price × max supply
-        fully_diluted_valuation: price != null && maxSupply > 0 ? price * maxSupply : null,
+        // Coinpaprika has no FDV field, derive it from price × (max supply, falling back to total supply)
+        fully_diluted_valuation: price != null && fdvSupply > 0 ? price * fdvSupply : null,
         total_volume: usd?.volume_24h ?? null,
         high_24h: null,
         low_24h: null

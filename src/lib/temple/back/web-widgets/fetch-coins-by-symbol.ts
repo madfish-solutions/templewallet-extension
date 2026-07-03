@@ -96,9 +96,17 @@ const ensureCache = persistentCache<CoinsBundle>({
 
 export const getCoinsBySymbol = async (): Promise<CoinsBySymbol> => (await ensureCache()).data;
 
+export const getCoinById = async (id: string): Promise<CoinMetadata | undefined> =>
+  Object.values((await ensureCache()).data).find(coin => coin.id === id);
+
 export const getCoinSparkline = async (id: string): Promise<number[]> => (await ensureCache()).sparklinesById[id] ?? [];
 
-type CoinPlatforms = Record<string, Record<string, string>>;
+export interface PlatformDeployment {
+  slug: string;
+  address: string;
+}
+
+type CoinPlatforms = Record<string, PlatformDeployment[]>;
 
 const ensurePlatforms = persistentCache<CoinPlatforms>({
   storageKey: 'WEB_WIDGETS_COIN_PLATFORMS',
@@ -112,15 +120,16 @@ const ensurePlatforms = persistentCache<CoinPlatforms>({
     const byId: CoinPlatforms = {};
     for (const coin of list) {
       if (!coin.platforms || !surfaced.has(coin.id)) continue;
-      const deployments: Record<string, string> = {};
-      for (const [slug, address] of Object.entries(coin.platforms)) {
-        if (address) deployments[slug] = address;
-      }
-      if (Object.keys(deployments).length > 0) byId[coin.id] = deployments;
+      const deployments = Object.entries(coin.platforms).flatMap(([slug, address]) =>
+        address ? [{ slug, address }] : []
+      );
+      if (deployments.length > 0) byId[coin.id] = deployments;
     }
     return byId;
   }
 });
 
-export const getCoinPlatforms = async (coinId: string): Promise<Record<string, string>> =>
-  (await ensurePlatforms())[coinId] ?? {};
+export const getCoinPlatforms = async (coinId: string): Promise<PlatformDeployment[]> => {
+  const entry = (await ensurePlatforms())[coinId];
+  return Array.isArray(entry) ? entry : [];
+};

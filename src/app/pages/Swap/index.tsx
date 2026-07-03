@@ -122,25 +122,23 @@ const Swap = memo<Props>(() => {
       ? toChainAssetSlug(from.chainKind as TempleChainKind, from.chainId, from.assetSlug)
       : null;
   const widgetFromOverride = useWidgetSwapFromOverride(fromBalanceRequested, from?.chainKind, from?.chainId);
-  const widgetLastWrittenFromRef = useRef<string | null>(null);
+  const widgetFromAppliedRef = useRef(false);
 
   useEffect(() => {
+    if (widgetFromAppliedRef.current) return;
     if (!fromBalanceRequested || !widgetFromOverride || !baselineFromSlug) return;
 
-    const currentFrom = selectedChainAssets.from;
-    const isOursToSet = currentFrom === baselineFromSlug || currentFrom === widgetLastWrittenFromRef.current;
-    if (!isOursToSet) return;
+    widgetFromAppliedRef.current = true;
 
     const toSlug = selectedChainAssets.to;
     if (
+      selectedChainAssets.from !== baselineFromSlug ||
       widgetFromOverride === baselineFromSlug ||
       (toSlug != null && widgetFromOverride.toLowerCase() === toSlug.toLowerCase())
     ) {
       return;
     }
-    if (currentFrom === widgetFromOverride) return;
 
-    widgetLastWrittenFromRef.current = widgetFromOverride;
     setSelectedChainAssets(prev => ({ ...prev, from: widgetFromOverride }));
     formControlRef.current?.handleSelectedAssetChange?.('input', widgetFromOverride);
   }, [

@@ -1,6 +1,5 @@
 import React, { FC, useEffect, useMemo, useRef, useState } from 'react';
 
-import { union } from 'lodash';
 import { FormProvider, useForm, useWatch } from 'react-hook-form';
 
 import { PageTitle } from 'app/atoms';
@@ -8,8 +7,6 @@ import { useLocationSearchParamValue } from 'app/hooks/use-location';
 import PageLayout from 'app/layouts/PageLayout';
 import { dispatch } from 'app/store';
 import { loadAllCurrenciesActions } from 'app/store/buy-with-credit-card/actions';
-import { useFiatCurrenciesSelector } from 'app/store/buy-with-credit-card/selectors';
-import { TopUpProviderId } from 'lib/buy-with-credit-card/top-up-provider-id.enum';
 import { t } from 'lib/i18n';
 import { useBooleanState, useInterval } from 'lib/ui/hooks';
 import { useAccountAddressForTezos } from 'temple/front';
@@ -22,6 +19,7 @@ import {
 } from './config';
 import { Form } from './Form';
 import { useAllCryptoCurrencies } from './hooks/use-all-crypto-currencies';
+import { useAllFiatCurrencies } from './hooks/use-all-fiat-currencies';
 import { useErrorAlert } from './hooks/use-error-alert';
 import { useFormInputsCallbacks } from './hooks/use-form-inputs-callbacks';
 import { usePaymentProviders } from './hooks/use-payment-providers';
@@ -55,12 +53,14 @@ export const DebitCreditCard: FC = () => {
   });
 
   const { control } = form;
-  const { isDirty } = form.formState;
+
+  const inputAmount = useWatch({ name: 'inputAmount', control });
+  const inputCurrency = useWatch({ name: 'inputCurrency', control });
+  const outputToken = useWatch({ name: 'outputToken', control });
 
   const [currencyParam] = useLocationSearchParamValue('currency');
   const [tokenParam] = useLocationSearchParamValue('token');
-  const moonpayFiatCurrencies = useFiatCurrenciesSelector(TopUpProviderId.MoonPay);
-  const utorgFiatCurrencies = useFiatCurrenciesSelector(TopUpProviderId.Utorg);
+  const allFiatCurrencies = useAllFiatCurrencies(inputCurrency.code, outputToken.slug);
   const allCryptoCurrencies = useAllCryptoCurrencies();
 
   const presetsAppliedRef = useRef(false);
@@ -68,43 +68,21 @@ export const DebitCreditCard: FC = () => {
   useEffect(() => {
     if (presetsAppliedRef.current) return;
     if (!currencyParam && !tokenParam) return;
-
-    const fiatCurrencies = [...moonpayFiatCurrencies, ...utorgFiatCurrencies];
-    if (currencyParam && fiatCurrencies.length === 0) return;
+    if (currencyParam && allFiatCurrencies.length === 0) return;
     if (tokenParam && allCryptoCurrencies.length === 0) return;
 
     presetsAppliedRef.current = true;
 
-    if (isDirty) return;
-
-    const fiatMatches = currencyParam
-      ? fiatCurrencies.filter(({ code }) => code.toUpperCase() === currencyParam.toUpperCase())
-      : [];
-    const presetCurrency = fiatMatches.length
-      ? { ...fiatMatches[0]!, providers: union(...fiatMatches.map(({ providers }) => providers)) }
+    const presetCurrency = currencyParam
+      ? allFiatCurrencies.find(({ code }) => code.toUpperCase() === currencyParam.toUpperCase())
       : undefined;
     const presetToken = tokenParam
       ? allCryptoCurrencies.find(({ slug }) => slug.toUpperCase() === tokenParam.toUpperCase())
       : undefined;
 
-    form.reset({
-      inputCurrency: presetCurrency ?? DEFAULT_INPUT_CURRENCY,
-      outputToken: presetToken ?? (tezosAddress ? DEFAULT_TEZOS_OUTPUT_TOKEN : DEFAULT_EVM_OUTPUT_TOKEN)
-    });
-  }, [
-    currencyParam,
-    tokenParam,
-    isDirty,
-    moonpayFiatCurrencies,
-    utorgFiatCurrencies,
-    allCryptoCurrencies,
-    form,
-    tezosAddress
-  ]);
-
-  const inputAmount = useWatch({ name: 'inputAmount', control });
-  const inputCurrency = useWatch({ name: 'inputCurrency', control });
-  const outputToken = useWatch({ name: 'outputToken', control });
+    if (presetCurrency) form.setValue('inputCurrency', presetCurrency);
+    if (presetToken) form.setValue('outputToken', presetToken);
+  }, [currencyParam, tokenParam, allFiatCurrencies, allCryptoCurrencies, form]);
 
   const { allPaymentProviders, paymentProvidersToDisplay, providersErrors, updateOutputAmounts } = usePaymentProviders(
     inputAmount,

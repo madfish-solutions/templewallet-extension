@@ -4,11 +4,12 @@ import { getAddress, isAddress } from 'viem';
 import { fetchAssetPlatforms } from 'lib/apis/coingecko';
 import { fetchgetRoute3Tokens, type Route3Token } from 'lib/apis/route3/fetch-route3-tokens';
 import { getLifiSwapTokens, type TokensByChain } from 'lib/apis/temple/endpoints/evm';
+import { EVM_TOKEN_SLUG, TEZ_TOKEN_SLUG } from 'lib/assets/defaults';
 import { toTokenSlug } from 'lib/assets/utils';
 import { COMMON_MAINNET_CHAIN_IDS, ETHEREUM_MAINNET_CHAIN_ID, TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
 import { TempleChainKind } from 'temple/types';
 
-import { getCoinPlatforms } from './fetch-coins-by-symbol';
+import { getCoinById, getCoinPlatforms, type PlatformDeployment } from './fetch-coins-by-symbol';
 import { persistentCache } from './persistent-cache';
 
 export type ResolvedAsset =
@@ -41,7 +42,6 @@ interface SwapLists {
   lifiTokens: TokensByChain;
 }
 
-// Swappable-token lists (3Route + Li.Fi), used to decide Swap vs. Buy once the chain is known.
 const ensureLists = persistentCache<SwapLists>({
   storageKey: 'WEB_WIDGETS_SWAP_LISTS',
   ttlMs: 6 * 60 * 60 * 1000,
@@ -92,11 +92,30 @@ const ensureNativeGasCoins = persistentCache<NativeCoinsInfo>({
   isValid: ({ supported }) => Object.keys(supported).length > 0
 });
 
+const toEvmAsset = (chainId: number, contract: string, swappable: boolean): ResolvedAsset => ({
+  resolved: true,
+  swappable,
+  chainKind: TempleChainKind.EVM,
+  chainId: String(chainId),
+  contract,
+  assetSlug: toTokenSlug(contract, 0)
+});
+
+const toTezosAsset = (contract: string, r3: Route3Token | undefined): ResolvedAsset => ({
+  resolved: true,
+  swappable: Boolean(r3),
+  chainKind: TempleChainKind.Tezos,
+  chainId: TEZOS_MAINNET_CHAIN_ID,
+  contract,
+  assetSlug: toTokenSlug(contract, r3?.tokenId ?? 0)
+});
+
 export const resolveAsset = async (coinId: string): Promise<ResolvedAsset> => {
-  const [nativeCoins, lists, platforms] = await Promise.all([
+  const [nativeCoins, lists, platforms, coin] = await Promise.all([
     ensureNativeGasCoins(),
     ensureLists(),
-    getCoinPlatforms(coinId)
+    getCoinPlatforms(coinId),
+    getCoinById(coinId)
   ]);
 
   const supported = nativeCoins.supported[coinId];
@@ -107,39 +126,42 @@ export const resolveAsset = async (coinId: string): Promise<ResolvedAsset> => {
       chainKind: supported.chainKind,
       chainId: supported.chainId,
       contract: '',
-      assetSlug: supported.chainKind === TempleChainKind.Tezos ? 'tez' : 'eth'
+      assetSlug: supported.chainKind === TempleChainKind.Tezos ? TEZ_TOKEN_SLUG : EVM_TOKEN_SLUG
     };
   }
 
-  if (nativeCoins.allNatives.includes(coinId) && !platforms['ethereum'] && !platforms[TEZOS_PLATFORM]) {
+  const findPlatform = (slug: string) =>
+    platforms.find((deployment: PlatformDeployment) => deployment.slug === slug)?.address;
+
+  if (nativeCoins.allNatives.includes(coinId) && !findPlatform('ethereum') && !findPlatform(TEZOS_PLATFORM)) {
     return { resolved: false };
   }
-  for (const { slug, chainId } of SUPPORTED_EVM_CHAINS) {
-    const raw = platforms[slug];
-    if (!raw) continue;
-    const contract = isAddress(raw) ? getAddress(raw) : raw;
-    return {
-      resolved: true,
-      swappable: isEvmSwappable(lists.lifiTokens, chainId, contract),
-      chainKind: TempleChainKind.EVM,
-      chainId: String(chainId),
-      contract,
-      assetSlug: toTokenSlug(contract, 0)
-    };
-  }
 
-  const tezContract = platforms[TEZOS_PLATFORM];
-  if (tezContract) {
-    const r3 = lists.route3.find(token => token.contract && token.contract.toLowerCase() === tezContract.toLowerCase());
-    return {
-      resolved: true,
-      swappable: Boolean(r3),
-      chainKind: TempleChainKind.Tezos,
-      chainId: TEZOS_MAINNET_CHAIN_ID,
-      contract: tezContract,
-      assetSlug: toTokenSlug(tezContract, r3?.tokenId ?? 0)
-    };
-  }
+  const chainIdBySlug = new Map(SUPPORTED_EVM_CHAINS.map(({ slug, chainId }) => [slug, chainId]));
+  const evmDeployments = platforms.flatMap(({ slug, address }) => {
+    const chainId = chainIdBySlug.get(slug);
+    if (chainId == null) return [];
+    const contract = isAddress(address) ? getAddress(address) : address;
+    return [{ chainId, contract }];
+  });
+
+  const tezContract = findPlatform(TEZOS_PLATFORM);
+  const tezMatches = tezContract
+    ? lists.route3.filter(token => token.contract && token.contract.toLowerCase() === tezContract.toLowerCase())
+    : [];
+  const tezRoute3 =
+    tezMatches.find(token => coin && token.symbol.toUpperCase() === coin.symbol.toUpperCase()) ?? tezMatches[0];
+
+  // Resolution rules prefer a swappable deployment over plain chain priority.
+  const swappableEvm = evmDeployments.find(({ chainId, contract }) =>
+    isEvmSwappable(lists.lifiTokens, chainId, contract)
+  );
+  if (swappableEvm) return toEvmAsset(swappableEvm.chainId, swappableEvm.contract, true);
+  if (tezContract && tezRoute3) return toTezosAsset(tezContract, tezRoute3);
+
+  const [firstEvm] = evmDeployments;
+  if (firstEvm) return toEvmAsset(firstEvm.chainId, firstEvm.contract, false);
+  if (tezContract) return toTezosAsset(tezContract, undefined);
 
   return { resolved: false };
 };

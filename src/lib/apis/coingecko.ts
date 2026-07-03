@@ -212,11 +212,13 @@ export async function fetchTopCoinsByMarketCap(pages: number, perPage = 250): Pr
         params: { vs_currency: 'usd', order: 'market_cap_desc', per_page: perPage, page: i + 1, sparkline: true }
       })
       .then(({ data }) => data)
-      .catch(() => [])
   );
 
-  const pagesData = await Promise.all(requests);
-  return pagesData.flat();
+  try {
+    return (await Promise.all(requests)).flat();
+  } catch {
+    return [];
+  }
 }
 
 export async function fetchCoinsByIds(ids: string[]): Promise<TopCoinRaw[]> {
