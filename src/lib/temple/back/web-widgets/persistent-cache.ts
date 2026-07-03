@@ -18,12 +18,12 @@ interface PersistentCacheConfig<T> {
 export const persistentCache = <T>({ storageKey, ttlMs, fallback, build, isValid }: PersistentCacheConfig<T>) => {
   let memo: Entry<T> | null = null;
   let failureAt = 0;
+  let pending: Promise<T> | null = null;
 
   const isFresh = (entry: Entry<T>, now: number) => entry.value !== undefined && now - entry.builtAt <= ttlMs;
 
-  return async (): Promise<T> => {
+  const revive = async (): Promise<T> => {
     const now = Date.now();
-    if (memo && isFresh(memo, now)) return memo.value;
 
     if (!memo) {
       const persisted = await fetchFromStorage<Entry<T>>(storageKey).catch(() => null);
@@ -48,5 +48,15 @@ export const persistentCache = <T>({ storageKey, ttlMs, fallback, build, isValid
       failureAt = now;
       return memo?.value ?? fallback;
     }
+  };
+
+  return async (): Promise<T> => {
+    if (memo && isFresh(memo, Date.now())) return memo.value;
+
+    pending ??= revive().finally(() => {
+      pending = null;
+    });
+
+    return pending;
   };
 };

@@ -15,6 +15,8 @@ import { TempleChainKind } from 'temple/types';
 
 import { persistentCache } from './persistent-cache';
 
+const BUY_LISTS_TTL_MS = 6 * 60 * 60 * 1000;
+
 export interface BuyPreselect {
   fiat: string;
   supported: boolean;
@@ -55,7 +57,7 @@ const buildLists = async (): Promise<ProviderLists> => {
 
 const ensureLists = persistentCache<ProviderLists>({
   storageKey: 'WEB_WIDGETS_BUY_LISTS',
-  ttlMs: 6 * 60 * 60 * 1000,
+  ttlMs: BUY_LISTS_TTL_MS,
   fallback: { moonpay: EMPTY_LIST, utorg: EMPTY_LIST },
   build: buildLists,
   isValid: ({ moonpay, utorg }) => moonpay.cryptoSlugs.length > 0 || utorg.cryptoSlugs.length > 0

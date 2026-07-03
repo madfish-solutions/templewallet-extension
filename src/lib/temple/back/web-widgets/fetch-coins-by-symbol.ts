@@ -25,6 +25,9 @@ export interface CoinMetadata {
 
 export type CoinsBySymbol = Record<string, CoinMetadata>;
 
+const COINS_TTL_MS = 10 * 60 * 1000;
+const PLATFORMS_TTL_MS = 6 * 60 * 60 * 1000;
+
 const PAGES = 2;
 const TOP_N = PAGES * 250;
 
@@ -88,7 +91,7 @@ const buildCoinsBySymbol = async (): Promise<CoinsBundle> => {
 
 const ensureCache = persistentCache<CoinsBundle>({
   storageKey: 'WEB_WIDGETS_COINS_BY_SYMBOL',
-  ttlMs: 10 * 60 * 1000,
+  ttlMs: COINS_TTL_MS,
   fallback: { data: {}, sparklinesById: {} },
   build: buildCoinsBySymbol,
   isValid: ({ data }) => Object.keys(data).length > 0
@@ -110,7 +113,7 @@ type CoinPlatforms = Record<string, PlatformDeployment[]>;
 
 const ensurePlatforms = persistentCache<CoinPlatforms>({
   storageKey: 'WEB_WIDGETS_COIN_PLATFORMS',
-  ttlMs: 6 * 60 * 60 * 1000,
+  ttlMs: PLATFORMS_TTL_MS,
   fallback: {},
   build: async () => {
     const [entry, list] = await Promise.all([ensureCache(), fetchCoinsListWithPlatforms()]);

@@ -23,6 +23,9 @@ export type ResolvedAsset =
       assetSlug: string;
     };
 
+const SWAP_LISTS_TTL_MS = 6 * 60 * 60 * 1000;
+const NATIVE_COINS_TTL_MS = 24 * 60 * 60 * 1000;
+
 const TEZOS_PLATFORM = 'tezos';
 
 const SUPPORTED_EVM_CHAINS: ReadonlyArray<{ slug: string; chainId: number }> = [
@@ -44,7 +47,7 @@ interface SwapLists {
 
 const ensureLists = persistentCache<SwapLists>({
   storageKey: 'WEB_WIDGETS_SWAP_LISTS',
-  ttlMs: 6 * 60 * 60 * 1000,
+  ttlMs: SWAP_LISTS_TTL_MS,
   fallback: { route3: [], lifiTokens: {} },
   build: async () => {
     const [route3, lifiTokens] = await Promise.all([
@@ -66,7 +69,7 @@ interface NativeCoinsInfo {
 
 const ensureNativeGasCoins = persistentCache<NativeCoinsInfo>({
   storageKey: 'WEB_WIDGETS_NATIVE_GAS_COINS_V2',
-  ttlMs: 24 * 60 * 60 * 1000,
+  ttlMs: NATIVE_COINS_TTL_MS,
   fallback: { supported: {}, allNatives: [] },
   build: async () => {
     const platforms = await fetchAssetPlatforms();

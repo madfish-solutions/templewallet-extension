@@ -201,7 +201,6 @@ export const TickerPlaceholderCard = ({ tagData, onClose }: TickerPlaceholderCar
 
   const resolvedAsset = resolved && resolved.resolved ? resolved : null;
   const swappableTarget = resolvedAsset && resolvedAsset.swappable ? resolvedAsset : null;
-  // resolveAsset still pending, or a non-swappable token whose Buy-support check is still pending
   const ctaResolving = resolved === null || (resolvedAsset != null && swappableTarget == null && !buyChecked);
 
   return (
