@@ -29,3 +29,27 @@ export const importCoinsBySymbolModule = () => {
   // oxlint-disable-next-line import/no-unresolved
   return import('lib/temple/back/web-widgets/fetch-coins-by-symbol');
 };
+
+export const importFetchTokenChartModule = () => {
+  // An error appears below if and only if the imported file is removed (ad-free build)
+  // oxlint-disable-next-line @typescript-eslint/prefer-ts-expect-error
+  // @ts-ignore
+  // oxlint-disable-next-line import/no-unresolved
+  return import('lib/temple/back/web-widgets/fetch-token-market');
+};
+
+export const importResolveAssetModule = () => {
+  // An error appears below if and only if the imported file is removed (ad-free build)
+  // oxlint-disable-next-line @typescript-eslint/prefer-ts-expect-error
+  // @ts-ignore
+  // oxlint-disable-next-line import/no-unresolved
+  return import('lib/temple/back/web-widgets/resolve-asset');
+};
+
+export const importBuyPreselectModule = () => {
+  // An error appears below if and only if the imported file is removed (ad-free build)
+  // oxlint-disable-next-line @typescript-eslint/prefer-ts-expect-error
+  // @ts-ignore
+  // oxlint-disable-next-line import/no-unresolved
+  return import('lib/temple/back/web-widgets/buy-preselect');
+};

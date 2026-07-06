@@ -8,7 +8,7 @@ import { TextButton } from 'app/atoms/TextButton';
 import { ReactComponent as CopyIcon } from 'app/icons/base/copy.svg';
 import { AccountsModal } from 'app/templates/AccountsModal';
 import { toastSuccess } from 'app/toaster';
-import { equalsIgnoreCase } from 'lib/evm/on-chain/utils/common.utils';
+import { equalsIgnoreCase } from 'lib/utils';
 import { T, t } from 'lib/i18n';
 import { TempleEvmDAppSignPayload, TempleTezosDAppSignPayload } from 'lib/temple/types';
 import { useBooleanState } from 'lib/ui/hooks';

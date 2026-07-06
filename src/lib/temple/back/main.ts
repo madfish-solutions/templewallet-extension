@@ -26,9 +26,12 @@ import { BACKGROUND_IS_WORKER, EnvVars, IS_FIREFOX, IS_MISES_BROWSER } from 'lib
 import { fetchFromStorage, putToStorage } from 'lib/storage';
 import { AnalyticsEventCategory } from 'lib/temple/analytics-types';
 import {
+  importBuyPreselectModule,
   importCoinsBySymbolModule,
   importFetchObjktTokenModule,
   importFetchThumbnailModule,
+  importFetchTokenChartModule,
+  importResolveAssetModule,
   importResolveTcoModule
 } from 'lib/temple/back/import-web-widgets-handlers';
 import { encodeMessage, encryptMessage, getSenderId, MessageType, Response } from 'lib/temple/beacon';
@@ -486,6 +489,29 @@ browser.runtime.onMessage.addListener(async (msg, sender) => {
         return await getCoinsBySymbol();
       }
 
+      case ContentScriptType.FetchTokenChart: {
+        const { fetchTokenChart } = await importFetchTokenChartModule();
+        return await fetchTokenChart(msg.coinId);
+      }
+
+      case ContentScriptType.ResolveAsset: {
+        const { resolveAsset } = await importResolveAssetModule();
+        return await resolveAsset(msg.coinId);
+      }
+
+      case ContentScriptType.GetBuyPreselect: {
+        const { getBuyPreselect } = await importBuyPreselectModule();
+        return await getBuyPreselect(msg.symbol, msg.chainKind, msg.chainId);
+      }
+
+      case ContentScriptType.OpenFullPage: {
+        const hash = (typeof msg.hash === 'string' ? msg.hash : '').trim();
+        if (/^[a-zA-Z][a-zA-Z0-9+.-]*:/.test(hash)) break;
+        const sanitizedHash = hash.startsWith('#') ? hash : '#' + hash;
+        await browser.tabs.create({ url: browser.runtime.getURL('fullpage.html' + sanitizedHash) });
+        break;
+      }
+
       case ContentScriptType.WidgetContext: {
         const stored = await browser.storage.local.get([
           WEB_WIDGETS_LOCAL_AD_PERMIT,
@@ -493,14 +519,6 @@ browser.runtime.onMessage.addListener(async (msg, sender) => {
           WEBSITES_ADS_ENABLED,
           USAGE_ANALYTICS_ENABLED
         ]);
-
-        let tezFiatRate: number | null = null;
-        try {
-          const { fetchTezExchangeRate } = await import('lib/apis/temple/endpoints/get-exchange-rates');
-          tezFiatRate = await fetchTezExchangeRate();
-        } catch {
-          tezFiatRate = null;
-        }
 
         const snoozeUntil = stored[WEB_WIDGETS_SNOOZE_UNTIL];
         const shouldShowPromotion = Boolean(stored[WEBSITES_ADS_ENABLED]);
@@ -516,9 +534,17 @@ browser.runtime.onMessage.addListener(async (msg, sender) => {
           snoozeUntil: typeof snoozeUntil === 'number' ? snoozeUntil : null,
           shouldShowPromotion,
           analyticsEnabled: Boolean(stored[USAGE_ANALYTICS_ENABLED]),
-          tezFiatRate,
           adUrl: buildWidgetAdUrl(origin, evmAddress)
         };
+      }
+
+      case ContentScriptType.GetTezFiatRate: {
+        try {
+          const { fetchTezExchangeRate } = await import('lib/apis/temple/endpoints/get-exchange-rates');
+          return await fetchTezExchangeRate();
+        } catch {
+          return null;
+        }
       }
 
       case ContentScriptType.WidgetOwnedCount: {

@@ -16,7 +16,7 @@ const MAX_RETRIES = 2;
 const BACKOFF_MS = 1000;
 
 // objkt's edge resets a flood of parallel connections, so cap concurrent GraphQL requests
-const objktGraphqlSemaphore = new Semaphore(3);
+const objktGraphqlSemaphore = new Semaphore(2);
 
 const objktGraphqlFetch = async (body: string): Promise<Response> => {
   const [, release] = await objktGraphqlSemaphore.acquire();

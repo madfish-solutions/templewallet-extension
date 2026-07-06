@@ -37,7 +37,7 @@ export const PILL_STYLES = `
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    width: 452px;
+    width: 460px;
     padding: 4px;
     border-radius: 16px;
     background: #ffffff;
@@ -48,8 +48,6 @@ export const PILL_STYLES = `
     transition: opacity 160ms ease, transform 160ms ease;
     pointer-events: none;
   }
-  /* Slides up into place when below the pill; slides down when shown above (matches the
-     temple-deals google-search popup appear animation). */
   .tw-hover-placeholder--above {
     transform: translateY(-6px);
   }
@@ -88,7 +86,6 @@ export const PILL_STYLES = `
   .tw-card *::after {
     box-sizing: border-box;
   }
-  /* Native form controls don't inherit font-family — without this buttons fall back to the UA font (Arial). */
   .tw-card button,
   .tw-card input,
   .tw-card select,
@@ -185,6 +182,97 @@ export const PILL_STYLES = `
     background: #f4f4f4;
   }
 
+  .tw-card__token {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    min-width: 0;
+  }
+  .tw-card__token-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex: none;
+    background: #f4f4f4;
+  }
+  .tw-card__token-avatar-wrap {
+    position: relative;
+    display: inline-flex;
+    flex: none;
+  }
+  .tw-card__token-chain {
+    position: absolute;
+    right: -3px;
+    bottom: -3px;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    border: 1.5px solid #ffffff;
+    background: #ffffff;
+    display: block;
+  }
+  .tw-card__token-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    min-width: 0;
+  }
+  .tw-card__token-label--copyable {
+    position: relative;
+    border: none;
+    padding: 0;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+  }
+  .tw-card__token-label--copyable:hover .tw-card__token-symbol,
+  .tw-card__token-label--copied .tw-card__token-symbol {
+    color: #1373e4;
+  }
+  .tw-card__token-label--copyable:hover .tw-card__copy-icon,
+  .tw-card__token-label--copied .tw-card__copy-icon {
+    opacity: 1;
+  }
+  .tw-card__copy-icon {
+    width: 16px;
+    height: 16px;
+    flex: none;
+    display: block;
+    color: #1373e4;
+    opacity: 0;
+    transition: opacity 0.12s ease;
+  }
+  .tw-card__copy-tip {
+    position: absolute;
+    bottom: calc(100% + 4px);
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 2px 6px;
+    border-radius: 4px;
+    background: #151618;
+    color: #ffffff;
+    font-family: 'Inter', sans-serif;
+    font-size: 10px;
+    line-height: 14px;
+    white-space: nowrap;
+    pointer-events: none;
+  }
+  .tw-card__token-symbol {
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 16px;
+    color: #000000;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+  .tw-card__more-icon {
+    width: 24px;
+    height: 24px;
+  }
+
   .tw-card__body {
     min-height: 258px;
     display: flex;
@@ -199,8 +287,6 @@ export const PILL_STYLES = `
     pointer-events: none;
     user-select: none;
   }
-
-  /* Loading & not-found states: centered, no card background. */
   .tw-card__body--state {
     align-items: center;
     justify-content: center;
@@ -298,6 +384,7 @@ export const PILL_STYLES = `
     font-size: 24px;
     line-height: 36px;
     color: #000000;
+    white-space: nowrap;
   }
   .tw-card__price--auction {
     color: #34cc4e;
@@ -336,22 +423,156 @@ export const PILL_STYLES = `
     color: #151618;
   }
 
+  .tw-card__panel {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 12px 16px;
+    border-radius: 8px;
+    background: #FBFBFB;
+  }
+  .tw-card__ticker-row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+  }
+  .tw-card__ticker-info {
+    display: flex;
+    flex-direction: column;
+    width: fit-content;
+    gap: 8px;
+    min-width: 0;
+  }
+  .tw-card__ticker-headline {
+    display: flex;
+    flex-direction: column;
+  }
+  .tw-card__ticker-price-row {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .tw-card__market-cap {
+    font-family: 'Rubik', sans-serif;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 20px;
+    color: #707070;
+  }
+  .tw-card__change {
+    display: inline-flex;
+    align-items: center;
+    flex: none;
+    padding: 2px 4px;
+    border-radius: 4px;
+    border: 0.5px solid;
+    font-family: 'Inter', sans-serif;
+    font-size: 10px;
+    font-weight: 600;
+    line-height: 12px;
+  }
+  .tw-card__change--up {
+    color: #34cc4e;
+    background: #e6f5e9;
+    border-color: #34cc4e;
+  }
+  .tw-card__change--down {
+    color: #ff3b30;
+    background: #fae7e6;
+    border-color: #ff3b30;
+  }
+  .tw-card__ticker-props-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .tw-card__ticker-info .tw-card__divider {
+    margin: 0;
+    height: 0;
+    border-top: 0.5px solid #e4e4e4;
+    background: none;
+  }
+  .tw-card__ticker-info .tw-card__prop-label {
+    font-family: 'Inter', sans-serif;
+    font-weight: 400;
+  }
+  .tw-card__ticker-info .tw-card__prop-value {
+    color: #000000;
+  }
+  .tw-card__chart {
+    position: relative;
+    width: 202px;
+    height: 108px;
+    flex: none;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .tw-card__chart-loader {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+  }
   .tw-card__cta {
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 6px;
+    width: 100%;
     height: 40px;
+    border: none;
     border-radius: 8px;
     background: #e3ecf8;
     color: #1373e4;
     font-family: 'Inter', sans-serif;
     font-size: 16px;
     font-weight: 600;
+    line-height: 24px;
     text-decoration: none;
+    cursor: pointer;
+  }
+  button.tw-card__cta {
+    font-family: 'Inter', sans-serif;
   }
   .tw-card__cta:hover {
     background: #d7e4f5;
+  }
+  .tw-card__cta--primary {
+    background: #ff5b00;
+    color: #ffffff;
+  }
+  .tw-card__cta--primary:hover {
+    background: #e85200;
+  }
+  .tw-card__cta:active {
+    background: #c3d7ed;
+  }
+  .tw-card__cta--primary:active {
+    background: #cc4900;
+  }
+  .tw-card__cta:focus-visible {
+    outline: 2px solid #1373e4;
+    outline-offset: 2px;
+  }
+  .tw-card__cta--primary:focus-visible {
+    outline-color: #ff5b00;
+  }
+  .tw-card__cta--pending {
+    background: #f4f4f4;
+    color: #aeaeb2;
+    cursor: default;
+  }
+  .tw-card__cta--pending:hover {
+    background: #f4f4f4;
+  }
+  .tw-card__spinner--sm {
+    width: 18px;
+    height: 18px;
+    border-width: 2px;
   }
   .tw-card__cta-icon {
     width: 20px;
@@ -365,6 +586,7 @@ export const PILL_STYLES = `
     flex: none;
     height: 78px;
     margin-bottom: 8px;
+    margin-top: 8px;
   }
   .tw-card__ad {
     display: flex;
@@ -479,6 +701,17 @@ export const PILL_STYLES = `
     gap: 16px;
     min-height: 224px;
     padding: 0px 10px;
+    text-align: center;
+  }
+  .tw-card__loader {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    min-height: 132px;
+    padding: 16px;
     text-align: center;
   }
   .tw-card__spinner-box {
