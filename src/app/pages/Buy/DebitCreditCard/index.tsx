@@ -11,12 +11,11 @@ import { fromTopUpTokenSlug } from 'lib/buy-with-credit-card/top-up-token-slug.u
 import { t } from 'lib/i18n';
 import { useBooleanState, useInterval } from 'lib/ui/hooks';
 import { equalsIgnoreCase } from 'lib/utils';
-import { useAccountAddressForTezos } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
 
 import {
-  DEFAULT_EVM_OUTPUT_TOKEN,
   DEFAULT_INPUT_CURRENCY,
+  DEFAULT_OUTPUT_TOKEN,
   DEFAULT_TEZOS_OUTPUT_TOKEN,
   FORM_REFRESH_INTERVAL
 } from './config';
@@ -39,23 +38,21 @@ export const DebitCreditCard: FC = () => {
   const [selectTokenModalOpened, openSelectTokenModal, closeSelectTokenModal] = useBooleanState(false);
   const [selectProviderModalOpened, openSelectProviderModal, closeSelectProviderModal] = useBooleanState(false);
 
-  const tezosAddress = useAccountAddressForTezos();
-
   const [currencyParam] = useLocationSearchParamValue('currency');
   const [tokenParam] = useLocationSearchParamValue('token');
 
   const tokenChainKind = tokenParam ? fromTopUpTokenSlug(tokenParam)[1]?.toLowerCase() : undefined;
-  const preferTezos = tokenChainKind ? tokenChainKind === TempleChainKind.Tezos : Boolean(tezosAddress);
+  const preferTezos = tokenChainKind === TempleChainKind.Tezos;
 
   const defaultValues: BuyWithCreditCardFormData = {
     inputCurrency: DEFAULT_INPUT_CURRENCY,
-    outputToken: preferTezos ? DEFAULT_TEZOS_OUTPUT_TOKEN : DEFAULT_EVM_OUTPUT_TOKEN
+    outputToken: preferTezos ? DEFAULT_TEZOS_OUTPUT_TOKEN : DEFAULT_OUTPUT_TOKEN
   };
 
   const form = useForm<BuyWithCreditCardFormData>({
     mode: 'onChange',
     reValidateMode: 'onChange',
-    defaultValues: defaultValues
+    defaultValues
   });
 
   const { control } = form;

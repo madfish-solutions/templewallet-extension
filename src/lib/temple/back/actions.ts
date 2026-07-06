@@ -421,8 +421,7 @@ export function sendOperations(
       opParams,
       network,
       sourcePkh,
-      sourcePublicKey,
-      apply3RouteGasWorkaround: true
+      sourcePublicKey
     });
     if (dryRunResult && dryRunResult.result) {
       opParams = dryRunResult.result.opParams;

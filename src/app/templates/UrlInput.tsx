@@ -19,7 +19,7 @@ interface UrlInputProps<K extends string, T extends Record<K, string>> {
   urlsToExclude?: string[];
   disabled?: boolean;
   isEditable: boolean;
-  id: string;
+  id?: string;
   placeholder: string;
   submitError: ReactNode | undefined;
   textarea: boolean;

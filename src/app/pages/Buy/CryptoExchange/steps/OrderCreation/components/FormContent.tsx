@@ -50,6 +50,7 @@ export const FormContent: FC<Props> = ({ onSelectInputCurrency, onSelectOutputCu
 
   const { control, handleSubmit, formState, trigger, setValue } = useFormContext<CryptoExchangeFormData>();
   const { isSubmitting, submitCount, errors } = formState;
+  const scrollContainerRef = useRef<HTMLFormElement>(null);
 
   const formSubmitted = submitCount > 0;
 
@@ -176,6 +177,7 @@ export const FormContent: FC<Props> = ({ onSelectInputCurrency, onSelectOutputCu
   return (
     <>
       <form
+        ref={scrollContainerRef}
         id="create-order-form"
         className="flex-1 pt-4 px-4 flex flex-col overflow-y-auto"
         onSubmit={handleSubmit(onSubmit)}
@@ -230,7 +232,7 @@ export const FormContent: FC<Props> = ({ onSelectInputCurrency, onSelectOutputCu
         <InfoCard rate={rate} inputCurrencyCode={inputCurrency.code} outputCurrencyCode={outputCurrency.code} />
       </form>
 
-      <ActionsButtonsBox>
+      <ActionsButtonsBox scrollContainerRef={scrollContainerRef}>
         <StyledButton
           type="submit"
           form="create-order-form"

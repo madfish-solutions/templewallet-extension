@@ -6,6 +6,7 @@ import { ValidationError } from 'yup';
 
 import { getStoredAppInstallIdentity } from 'app/storage/app-install-id';
 import type { DealsState } from 'app/store/deals/state';
+import { importGetTempleAdsApiModule } from 'lib/ads/import-get-temple-ads-api';
 import { importUpdateRulesStorageModule } from 'lib/ads/import-update-rules-storage';
 import { importAdsApiModule } from 'lib/apis/ads-api';
 import {
@@ -400,6 +401,29 @@ const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<T
         };
       }
 
+    case TempleMessageType.AnalyzeYoutubeSearchPageRequest: {
+      const { getTempleAdsApiInstance } = await importGetTempleAdsApiModule();
+      const templeAdsApi = await getTempleAdsApiInstance();
+
+      return {
+        type: TempleMessageType.AnalyzeYoutubeSearchPageResponse,
+        data: await templeAdsApi.analyzeYoutubePage({
+          ...req.data,
+          hostname: 'www.youtube.com',
+          pageType: 'search-results'
+        })
+      };
+    }
+
+    case TempleMessageType.AnalyzeYoutubeWatchPageRequest:
+      const { getTempleAdsApiInstance } = await importGetTempleAdsApiModule();
+      const templeAdsApi = await getTempleAdsApiInstance();
+
+      return {
+        type: TempleMessageType.AnalyzeYoutubeWatchPageResponse,
+        data: await templeAdsApi.analyzeYoutubePage({ ...req.data, hostname: 'www.youtube.com', pageType: 'video' })
+      };
+
     case TempleMessageType.ResetExtensionRequest:
       await Actions.resetExtension(req.password);
       return {
@@ -413,7 +437,7 @@ browser.runtime.onMessage.addListener(async (msg, sender) => {
     switch (msg?.type) {
       case ContentScriptType.UpdateAdsRules:
         const { updateRulesStorage } = await importUpdateRulesStorageModule();
-        await updateRulesStorage();
+        await updateRulesStorage()?.catch(() => {});
         return;
 
       case E2eMessageType.ResetRequest:
@@ -520,6 +544,14 @@ browser.runtime.onMessage.addListener(async (msg, sender) => {
           USAGE_ANALYTICS_ENABLED
         ]);
 
+        let tezFiatRate: number | null = null;
+        try {
+          const { fetchTezExchangeRate } = await import('lib/apis/temple/endpoints/get-exchange-rates');
+          tezFiatRate = await fetchTezExchangeRate();
+        } catch {
+          tezFiatRate = null;
+        }
+
         const snoozeUntil = stored[WEB_WIDGETS_SNOOZE_UNTIL];
         const shouldShowPromotion = Boolean(stored[WEBSITES_ADS_ENABLED]);
 
@@ -534,17 +566,9 @@ browser.runtime.onMessage.addListener(async (msg, sender) => {
           snoozeUntil: typeof snoozeUntil === 'number' ? snoozeUntil : null,
           shouldShowPromotion,
           analyticsEnabled: Boolean(stored[USAGE_ANALYTICS_ENABLED]),
+          tezFiatRate,
           adUrl: buildWidgetAdUrl(origin, evmAddress)
         };
-      }
-
-      case ContentScriptType.GetTezFiatRate: {
-        try {
-          const { fetchTezExchangeRate } = await import('lib/apis/temple/endpoints/get-exchange-rates');
-          return await fetchTezExchangeRate();
-        } catch {
-          return null;
-        }
       }
 
       case ContentScriptType.WidgetOwnedCount: {

@@ -21,7 +21,6 @@ export enum ContentScriptType {
   OpenFullPage = 'OpenFullPage',
   ResolveAsset = 'ResolveAsset',
   GetBuyPreselect = 'GetBuyPreselect',
-  GetTezFiatRate = 'GetTezFiatRate',
   WidgetContext = 'WidgetContext',
   WidgetOwnedCount = 'WidgetOwnedCount',
   WebWidgetAdImpression = 'WebWidgetAdImpression',

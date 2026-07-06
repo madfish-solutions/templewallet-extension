@@ -220,8 +220,6 @@ export const MnemonicForm = memo<ImportAccountFormProps>(({ onSuccess }) => {
     <form className="flex-1 flex flex-col max-h-full" onSubmit={handleSubmit(onSubmit)}>
       <PageModalScrollViewWithActions
         className="py-4"
-        bottomEdgeThreshold={16}
-        initialBottomEdgeVisible={false}
         actionsBoxProps={{
           children: (
             <StyledButton

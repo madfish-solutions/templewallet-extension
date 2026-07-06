@@ -62,17 +62,13 @@ interface WidgetContextData {
   snoozeUntil: number | null;
   shouldShowPromotion: boolean;
   analyticsEnabled: boolean;
+  tezFiatRate: number | null;
   adUrl: string | null;
 }
 
 export const getWidgetContext = (): Promise<WidgetContextData> =>
   browser.runtime.sendMessage({
     type: ContentScriptType.WidgetContext
-  });
-
-export const getTezFiatRate = (): Promise<number | null> =>
-  browser.runtime.sendMessage({
-    type: ContentScriptType.GetTezFiatRate
   });
 
 export const getWidgetOwnedCount = (contract: string, tokenId: string): Promise<number> =>

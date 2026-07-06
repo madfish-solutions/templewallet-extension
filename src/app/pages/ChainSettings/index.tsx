@@ -8,6 +8,7 @@ import { SettingsCellGroup } from 'app/atoms/SettingsCellGroup';
 import { StyledButton } from 'app/atoms/StyledButton';
 import { ReactComponent as EditIcon } from 'app/icons/base/edit.svg';
 import PageLayout from 'app/layouts/PageLayout';
+import { useContentPaperRef } from 'app/layouts/PageLayout/context';
 import { toastError } from 'app/toaster';
 import { MAIN_CHAINS_IDS } from 'lib/constants';
 import { T, t } from 'lib/i18n';
@@ -32,7 +33,6 @@ interface ChainSettingsProps {
 
 interface ChainExistentSettingsProps {
   chain: OneOfChains;
-  bottomEdgeIsVisible: boolean;
   editModalIsOpen: boolean;
   closeEditModal: EmptyFn;
 }
@@ -40,155 +40,153 @@ interface ChainExistentSettingsProps {
 const rpcUrlFn = (item: { rpcBaseURL: string }) => item.rpcBaseURL;
 const explorerUrlFn = (item: { url: string }) => item.url;
 
-const ChainExistentSettings = memo<ChainExistentSettingsProps>(
-  ({ chain, bottomEdgeIsVisible, editModalIsOpen, closeEditModal }) => {
-    const [removeChainModalIsOpen, openRemoveChainModal, closeRemoveChainModal] = useBooleanState(false);
-    const { kind: chainKind, chainId } = chain;
-    const {
-      setChainEnabled,
-      addRpc,
-      addExplorer,
-      updateRpc,
-      updateExplorer,
-      updateChain,
-      removeRpc,
-      removeBlockExplorer,
-      removeChain
-    } = useChainOperations(chainKind, chainId);
-    const disablingIsForbidden = MAIN_CHAINS_IDS.includes(chainId);
+const ChainExistentSettings = memo<ChainExistentSettingsProps>(({ chain, editModalIsOpen, closeEditModal }) => {
+  const scrollContainerRef = useContentPaperRef();
+  const [removeChainModalIsOpen, openRemoveChainModal, closeRemoveChainModal] = useBooleanState(false);
+  const { kind: chainKind, chainId } = chain;
+  const {
+    setChainEnabled,
+    addRpc,
+    addExplorer,
+    updateRpc,
+    updateExplorer,
+    updateChain,
+    removeRpc,
+    removeBlockExplorer,
+    removeChain
+  } = useChainOperations(chainKind, chainId);
+  const disablingIsForbidden = MAIN_CHAINS_IDS.includes(chainId);
 
-    const handleConfirmRemoveClick = useCallback(() => {
-      closeRemoveChainModal();
-      removeChain()
-        .then(() => navigate('/settings/networks', HistoryAction.Replace))
-        .catch(console.error);
-    }, [closeRemoveChainModal, removeChain]);
+  const handleConfirmRemoveClick = useCallback(() => {
+    closeRemoveChainModal();
+    removeChain()
+      .then(() => navigate('/settings/networks', HistoryAction.Replace))
+      .catch(console.error);
+  }, [closeRemoveChainModal, removeChain]);
 
-    const handleEditChainSubmit = useCallback(
-      (values: EditNetworkFormValues) =>
-        updateChain(values)
-          .then(closeEditModal)
-          .catch(e => {
-            console.error(e);
+  const handleEditChainSubmit = useCallback(
+    (values: EditNetworkFormValues) =>
+      updateChain(values)
+        .then(closeEditModal)
+        .catch(e => {
+          console.error(e);
 
-            toastError(t('failedToUpdateNetwork'));
-          }),
-      [closeEditModal, updateChain]
-    );
+          toastError(t('failedToUpdateNetwork'));
+        }),
+    [closeEditModal, updateChain]
+  );
 
-    return (
-      <>
-        <div className="w-full h-full flex flex-col p-4 gap-4">
-          {!disablingIsForbidden && (
-            <SettingsCellGroup>
-              <SettingsCellSingle cellName={<T id="networkEnabled" />} Component="div">
-                <ToggleSwitch
-                  checked={!chain.disabled}
-                  onChange={setChainEnabled}
-                  testID={ChainSettingsSelectors.networkEnabledSwitch}
-                />
-              </SettingsCellSingle>
-            </SettingsCellGroup>
-          )}
-
-          <ManageUrlEntitiesView<StoredTezosNetwork | StoredEvmNetwork>
-            activeI18nKey="activeRpc"
-            activeItemId={chain.rpc.id}
-            title={<T id="rpcEndpoints" />}
-            items={chain.allRpcs}
-            editModalTitleI18nKeyBase="editSomeRpc"
-            createModalTitle={t('addSomeRpc', chain.name)}
-            confirmDeleteTitleI18nKeyBase="confirmDeleteRpcTitle"
-            confirmDeleteDescriptionI18nKey="confirmDeleteRpcDescription"
-            deleteLabelI18nKey="deleteRpc"
-            successfullyAddedMessageI18nKey="rpcAdded"
-            hideDefaultUrlEntityText="Default RPC"
-            urlInputPlaceholder="https://rpc.link"
-            namePlaceholder="RPC"
-            getEntityUrl={rpcUrlFn}
-            createEntity={addRpc}
-            updateEntity={updateRpc}
-            removeEntity={removeRpc}
-            addButtonTestID={ChainSettingsSelectors.addRpcButton}
-            itemTestID={ChainSettingsSelectors.rpcEndpointItem}
-            activeSwitchTestID={ChainSettingsSelectors.activeRpcSwitch}
-            activeCheckboxTestID={ChainSettingsSelectors.activeRpcCheckbox}
-            warnOnInsecureUrl
-          />
-
-          <ManageUrlEntitiesView<BlockExplorer>
-            activeI18nKey="activeBlockExplorer"
-            activeItemId={chain.activeBlockExplorer?.id ?? ''}
-            title={<T id="blockExplorer" />}
-            items={chain.allBlockExplorers}
-            editModalTitleI18nKeyBase="editSomeBlockExplorer"
-            createModalTitle={t('addSomeBlockExplorer', chain.name)}
-            confirmDeleteTitleI18nKeyBase="confirmDeleteBlockExplorerTitle"
-            deleteLabelI18nKey="deleteBlockExplorer"
-            confirmDeleteDescriptionI18nKey="confirmDeleteBlockExplorerDescription"
-            successfullyAddedMessageI18nKey="blockExplorerAdded"
-            urlInputPlaceholder="https://explorer.link"
-            namePlaceholder={t('blockExplorer')}
-            getEntityUrl={explorerUrlFn}
-            createEntity={addExplorer}
-            updateEntity={updateExplorer}
-            removeEntity={removeBlockExplorer}
-            addButtonTestID={ChainSettingsSelectors.addExplorerButton}
-            itemTestID={ChainSettingsSelectors.blockExplorerItem}
-            activeSwitchTestID={ChainSettingsSelectors.activeExplorerSwitch}
-            activeCheckboxTestID={ChainSettingsSelectors.activeExplorerCheckbox}
-          />
-        </div>
-        {!chain.default && (
-          <ActionsButtonsBox className="sticky left-0 bottom-0" shouldCastShadow={!bottomEdgeIsVisible}>
-            <StyledButton
-              size="L"
-              color="red-low"
-              onClick={openRemoveChainModal}
-              testID={ChainSettingsSelectors.removeNetworkButton}
-            >
-              <T id="removeNetwork" />
-            </StyledButton>
-          </ActionsButtonsBox>
+  return (
+    <>
+      <div className="w-full h-full flex flex-col p-4 gap-4">
+        {!disablingIsForbidden && (
+          <SettingsCellGroup>
+            <SettingsCellSingle cellName={<T id="networkEnabled" />} Component="div">
+              <ToggleSwitch
+                checked={!chain.disabled}
+                onChange={setChainEnabled}
+                testID={ChainSettingsSelectors.networkEnabledSwitch}
+              />
+            </SettingsCellSingle>
+          </SettingsCellGroup>
         )}
-        {removeChainModalIsOpen && (
-          <ShortenedEntityNameActionModal
-            titleI18nKeyBase="removeNetworkModalTitle"
-            entityName={chain.nameI18nKey ? <T id={chain.nameI18nKey} /> : chain.name}
-            hasCloseButton={false}
+
+        <ManageUrlEntitiesView<StoredTezosNetwork | StoredEvmNetwork>
+          activeI18nKey="activeRpc"
+          activeItemId={chain.rpc.id}
+          title={<T id="rpcEndpoints" />}
+          items={chain.allRpcs}
+          editModalTitleI18nKeyBase="editSomeRpc"
+          createModalTitle={t('addSomeRpc', chain.name)}
+          confirmDeleteTitleI18nKeyBase="confirmDeleteRpcTitle"
+          confirmDeleteDescriptionI18nKey="confirmDeleteRpcDescription"
+          deleteLabelI18nKey="deleteRpc"
+          successfullyAddedMessageI18nKey="rpcAdded"
+          hideDefaultUrlEntityText="Default RPC"
+          urlInputPlaceholder="https://rpc.link"
+          namePlaceholder="RPC"
+          getEntityUrl={rpcUrlFn}
+          createEntity={addRpc}
+          updateEntity={updateRpc}
+          removeEntity={removeRpc}
+          addButtonTestID={ChainSettingsSelectors.addRpcButton}
+          itemTestID={ChainSettingsSelectors.rpcEndpointItem}
+          activeSwitchTestID={ChainSettingsSelectors.activeRpcSwitch}
+          activeCheckboxTestID={ChainSettingsSelectors.activeRpcCheckbox}
+          warnOnInsecureUrl
+        />
+
+        <ManageUrlEntitiesView<BlockExplorer>
+          activeI18nKey="activeBlockExplorer"
+          activeItemId={chain.activeBlockExplorer?.id ?? ''}
+          title={<T id="blockExplorer" />}
+          items={chain.allBlockExplorers}
+          editModalTitleI18nKeyBase="editSomeBlockExplorer"
+          createModalTitle={t('addSomeBlockExplorer', chain.name)}
+          confirmDeleteTitleI18nKeyBase="confirmDeleteBlockExplorerTitle"
+          deleteLabelI18nKey="deleteBlockExplorer"
+          confirmDeleteDescriptionI18nKey="confirmDeleteBlockExplorerDescription"
+          successfullyAddedMessageI18nKey="blockExplorerAdded"
+          urlInputPlaceholder="https://explorer.link"
+          namePlaceholder={t('blockExplorer')}
+          getEntityUrl={explorerUrlFn}
+          createEntity={addExplorer}
+          updateEntity={updateExplorer}
+          removeEntity={removeBlockExplorer}
+          addButtonTestID={ChainSettingsSelectors.addExplorerButton}
+          itemTestID={ChainSettingsSelectors.blockExplorerItem}
+          activeSwitchTestID={ChainSettingsSelectors.activeExplorerSwitch}
+          activeCheckboxTestID={ChainSettingsSelectors.activeExplorerCheckbox}
+        />
+      </div>
+      {!chain.default && (
+        <ActionsButtonsBox className="sticky left-0 bottom-0" scrollContainerRef={scrollContainerRef}>
+          <StyledButton
+            size="L"
+            color="red-low"
+            onClick={openRemoveChainModal}
+            testID={ChainSettingsSelectors.removeNetworkButton}
           >
-            <ActionModalBodyContainer>
-              <p className="text-center text-grey-1 text-font-description">
-                <T id="removeNetworkModalDescription" />
-              </p>
-            </ActionModalBodyContainer>
-            <ActionModalButtonsContainer>
-              <ActionModalButton
-                color="red-low"
-                onClick={closeRemoveChainModal}
-                testID={ChainSettingsSelectors.cancelRemoveNetworkButton}
-              >
-                <T id="cancel" />
-              </ActionModalButton>
+            <T id="removeNetwork" />
+          </StyledButton>
+        </ActionsButtonsBox>
+      )}
+      {removeChainModalIsOpen && (
+        <ShortenedEntityNameActionModal
+          titleI18nKeyBase="removeNetworkModalTitle"
+          entityName={chain.nameI18nKey ? <T id={chain.nameI18nKey} /> : chain.name}
+          hasCloseButton={false}
+        >
+          <ActionModalBodyContainer>
+            <p className="text-center text-grey-1 text-font-description">
+              <T id="removeNetworkModalDescription" />
+            </p>
+          </ActionModalBodyContainer>
+          <ActionModalButtonsContainer>
+            <ActionModalButton
+              color="red-low"
+              onClick={closeRemoveChainModal}
+              testID={ChainSettingsSelectors.cancelRemoveNetworkButton}
+            >
+              <T id="cancel" />
+            </ActionModalButton>
 
-              <ActionModalButton
-                color="red"
-                onClick={handleConfirmRemoveClick}
-                testID={ChainSettingsSelectors.confirmRemoveNetworkButton}
-              >
-                <T id="remove" />
-              </ActionModalButton>
-            </ActionModalButtonsContainer>
-          </ShortenedEntityNameActionModal>
-        )}
-        {editModalIsOpen && <EditChainModal chain={chain} onClose={closeEditModal} onSubmit={handleEditChainSubmit} />}
-      </>
-    );
-  }
-);
+            <ActionModalButton
+              color="red"
+              onClick={handleConfirmRemoveClick}
+              testID={ChainSettingsSelectors.confirmRemoveNetworkButton}
+            >
+              <T id="remove" />
+            </ActionModalButton>
+          </ActionModalButtonsContainer>
+        </ShortenedEntityNameActionModal>
+      )}
+      {editModalIsOpen && <EditChainModal chain={chain} onClose={closeEditModal} onSubmit={handleEditChainSubmit} />}
+    </>
+  );
+});
 
 export const ChainSettings = memo<ChainSettingsProps>(props => {
-  const [bottomEdgeIsVisible, setBottomEdgeIsVisible] = useState(true);
   const [editModalIsOpen, openEditModal, closeEditModal] = useBooleanState(false);
   const { chainId, chainKind } = props;
   const evmChains = useAllEvmChains();
@@ -207,20 +205,13 @@ export const ChainSettings = memo<ChainSettingsProps>(props => {
     <PageLayout
       contentPadding={false}
       pageTitle={<span className="truncate">{pageTitle}</span>}
-      onBottomEdgeVisibilityChange={setBottomEdgeIsVisible}
-      bottomEdgeThreshold={16}
       headerRightElem={
         chain &&
         !chain.default && <IconBase className="text-primary cursor-pointer" Icon={EditIcon} onClick={openEditModal} />
       }
     >
       {chain ? (
-        <ChainExistentSettings
-          chain={chain}
-          bottomEdgeIsVisible={bottomEdgeIsVisible}
-          editModalIsOpen={editModalIsOpen}
-          closeEditModal={closeEditModal}
-        />
+        <ChainExistentSettings chain={chain} editModalIsOpen={editModalIsOpen} closeEditModal={closeEditModal} />
       ) : null}
     </PageLayout>
   );

@@ -16,6 +16,7 @@ export const SEND_PAGE_NAME = 'Send page';
 export const TOKEN_PAGE_NAME = 'Token page';
 
 export const THEME_COLOR_SEARCH_PARAM_NAME = 'tc';
+export const BACKGROUND_COLOR_SEARCH_PARAM_NAME = 'bg';
 export const FONT_SIZE_SEARCH_PARAM_NAME = 'fs';
 export const LINE_HEIGHT_SEARCH_PARAM_NAME = 'lh';
 export const EVM_ACCOUNT_SEARCH_PARAM_NAME = 'ea';
