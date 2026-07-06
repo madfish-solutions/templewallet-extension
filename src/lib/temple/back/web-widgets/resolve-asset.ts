@@ -152,7 +152,9 @@ export const resolveAsset = async (coinId: string): Promise<ResolvedAsset> => {
 
   const tezContract = findPlatform(TEZOS_PLATFORM);
   const tezMatches = tezContract
-    ? lists.route3.filter(token => Boolean(token.contract) && equalsIgnoreCase(token.contract ?? undefined, tezContract))
+    ? lists.route3.filter(
+        token => Boolean(token.contract) && equalsIgnoreCase(token.contract ?? undefined, tezContract)
+      )
     : [];
   const tezRoute3 = tezMatches.find(token => coin && equalsIgnoreCase(token.symbol, coin.symbol)) ?? tezMatches[0];
 

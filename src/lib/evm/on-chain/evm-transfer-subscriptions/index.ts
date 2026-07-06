@@ -1,9 +1,8 @@
 import memoizee from 'memoizee';
 
 import { EvmAssetStandard } from 'lib/evm/types';
-import { EvmNetworkEssentials } from 'temple/networks';
-
 import { equalsIgnoreCase } from 'lib/utils';
+import { EvmNetworkEssentials } from 'temple/networks';
 
 import { EvmNewBlockListener, getEvmNewBlockListener } from './evm-new-block-listener';
 import { getERC20TransferEventsListener } from './transfer-events-listeners/erc20-transfer-events-listener';

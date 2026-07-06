@@ -7,12 +7,12 @@ import { TransactionRequest, decodeFunctionData, formatTransactionRequest } from
 import { HashChip } from 'app/atoms/HashChip';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { EvmOperationKind, approveAbis, getOperationKind } from 'lib/evm/on-chain/transactions';
-import { equalsIgnoreCase } from 'lib/utils';
 import { parseEvmTxRequest } from 'lib/evm/on-chain/utils/parse-evm-tx-request';
 import { T } from 'lib/i18n';
 import { useEvmGenericAssetsMetadataLoading } from 'lib/metadata';
 import { EvmEstimationDataProvider } from 'lib/temple/front/estimation-data-providers';
 import { EvmTransactionRequestWithSender, TempleEvmDAppTransactionPayload } from 'lib/temple/types';
+import { equalsIgnoreCase } from 'lib/utils';
 import { getAccountAddressForEvm } from 'temple/accounts';
 import { deserializeEstimationData } from 'temple/evm/estimate';
 import { isEvmEstimationData, isSerializedEvmEstimationData } from 'temple/evm/utils';

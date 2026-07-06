@@ -48,8 +48,7 @@ export const PILL_STYLES = `
     transition: opacity 160ms ease, transform 160ms ease;
     pointer-events: none;
   }
-  /* Slides up into place when below the pill; slides down when shown above (matches the
-     temple-deals google-search popup appear animation). */
+
   .tw-hover-placeholder--above {
     transform: translateY(-6px);
   }
@@ -88,7 +87,7 @@ export const PILL_STYLES = `
   .tw-card *::after {
     box-sizing: border-box;
   }
-  /* Native form controls don't inherit font-family — without this buttons fall back to the UA font (Arial). */
+
   .tw-card button,
   .tw-card input,
   .tw-card select,
@@ -291,7 +290,6 @@ export const PILL_STYLES = `
     user-select: none;
   }
 
-  /* Loading & not-found states: centered, no card background. */
   .tw-card__body--state {
     align-items: center;
     justify-content: center;

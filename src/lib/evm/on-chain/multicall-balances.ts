@@ -11,7 +11,6 @@ import { EvmNetworkEssentials } from 'temple/networks';
 
 import { EvmAssetStandard } from '../types';
 
-
 interface MulticallBalanceRequest {
   assetSlug: string;
   standard: EvmAssetStandard;
