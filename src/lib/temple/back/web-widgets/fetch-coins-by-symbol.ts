@@ -6,6 +6,7 @@ import {
   type TopCoinRaw
 } from 'lib/apis/coingecko';
 import { fetchTopCoinsFromPaprika } from 'lib/apis/coinpaprika';
+import { ONE_HOUR_MS } from 'lib/utils/numbers';
 
 import { persistentCache } from './persistent-cache';
 
@@ -26,7 +27,7 @@ export interface CoinMetadata {
 export type CoinsBySymbol = Record<string, CoinMetadata>;
 
 const COINS_TTL_MS = 10 * 60 * 1000;
-const PLATFORMS_TTL_MS = 6 * 60 * 60 * 1000;
+const PLATFORMS_TTL_MS = 6 * ONE_HOUR_MS;
 
 const PAGES = 2;
 const TOP_N = PAGES * 250;
@@ -48,7 +49,7 @@ const fetchTopCoins = async (): Promise<TopCoinRaw[]> => {
   ]);
 
   if (primary.length > 0) {
-    return [...primary, ...supplemental, ...tezos];
+    return primary.concat(supplemental, tezos);
   }
 
   try {

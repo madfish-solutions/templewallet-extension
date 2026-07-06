@@ -17,6 +17,9 @@ import { TempleChainKind } from 'temple/types';
 
 const MIN_USD_THRESHOLD = new BigNumber(10);
 
+const EVM_BASE_SLUGS: string[] = [EVM_TOKEN_SLUG];
+const TEZ_BASE_SLUGS: string[] = [TEZ_TOKEN_SLUG];
+
 type RateGetter = (slug: string) => string | number | undefined;
 
 const pickHighestUsdSlug = (
@@ -66,13 +69,13 @@ export const useWidgetSwapFromOverride = (
   const tezSlugs = useEnabledTezosChainAccountTokenSlugs(tezPkh, tezChainId);
 
   if (isEvm && evmAddress) {
-    const best = pickHighestUsdSlug([EVM_TOKEN_SLUG, ...evmSlugs], getEvmBalance, slug => evmRates[slug]);
+    const best = pickHighestUsdSlug(EVM_BASE_SLUGS.concat(evmSlugs), getEvmBalance, slug => evmRates[slug]);
     return best ? toChainAssetSlug(TempleChainKind.EVM, evmChainId, best) : null;
   }
 
   if (isTez && tezAddress) {
     const rates = tezChainId === TEZOS_MAINNET_CHAIN_ID ? tezRates : {};
-    const best = pickHighestUsdSlug([TEZ_TOKEN_SLUG, ...tezSlugs], getTezBalance, slug => rates[slug]);
+    const best = pickHighestUsdSlug(TEZ_BASE_SLUGS.concat(tezSlugs), getTezBalance, slug => rates[slug]);
     return best ? toChainAssetSlug(TempleChainKind.Tezos, tezChainId, best) : null;
   }
 

@@ -7,6 +7,8 @@ import { getLifiSwapTokens, type TokensByChain } from 'lib/apis/temple/endpoints
 import { EVM_TOKEN_SLUG, TEZ_TOKEN_SLUG } from 'lib/assets/defaults';
 import { toTokenSlug } from 'lib/assets/utils';
 import { COMMON_MAINNET_CHAIN_IDS, ETHEREUM_MAINNET_CHAIN_ID, TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
+import { equalsIgnoreCase } from 'lib/utils';
+import { ONE_HOUR_MS } from 'lib/utils/numbers';
 import { TempleChainKind } from 'temple/types';
 
 import { getCoinById, getCoinPlatforms, type PlatformDeployment } from './fetch-coins-by-symbol';
@@ -23,8 +25,8 @@ export type ResolvedAsset =
       assetSlug: string;
     };
 
-const SWAP_LISTS_TTL_MS = 6 * 60 * 60 * 1000;
-const NATIVE_COINS_TTL_MS = 24 * 60 * 60 * 1000;
+const SWAP_LISTS_TTL_MS = 6 * ONE_HOUR_MS;
+const NATIVE_COINS_TTL_MS = 24 * ONE_HOUR_MS;
 
 const TEZOS_PLATFORM = 'tezos';
 
@@ -60,7 +62,7 @@ const ensureLists = persistentCache<SwapLists>({
 });
 
 const isEvmSwappable = (lifiTokens: TokensByChain, chainId: number, contract: string): boolean =>
-  (lifiTokens[chainId] ?? []).some(token => token.address && token.address.toLowerCase() === contract.toLowerCase());
+  (lifiTokens[chainId] ?? []).some(token => Boolean(token.address) && equalsIgnoreCase(token.address, contract));
 
 interface NativeCoinsInfo {
   supported: Record<string, { chainKind: TempleChainKind; chainId: string }>;
@@ -150,10 +152,9 @@ export const resolveAsset = async (coinId: string): Promise<ResolvedAsset> => {
 
   const tezContract = findPlatform(TEZOS_PLATFORM);
   const tezMatches = tezContract
-    ? lists.route3.filter(token => token.contract && token.contract.toLowerCase() === tezContract.toLowerCase())
+    ? lists.route3.filter(token => Boolean(token.contract) && equalsIgnoreCase(token.contract ?? undefined, tezContract))
     : [];
-  const tezRoute3 =
-    tezMatches.find(token => coin && token.symbol.toUpperCase() === coin.symbol.toUpperCase()) ?? tezMatches[0];
+  const tezRoute3 = tezMatches.find(token => coin && equalsIgnoreCase(token.symbol, coin.symbol)) ?? tezMatches[0];
 
   // Resolution rules prefer a swappable deployment over plain chain priority.
   const swappableEvm = evmDeployments.find(({ chainId, contract }) =>

@@ -4,14 +4,13 @@ import { erc20Abi, erc721Abi } from 'viem';
 
 import { erc1155Abi } from 'lib/abi/erc1155';
 import { fromAssetSlug } from 'lib/assets';
-import { delay } from 'lib/utils';
+import { delay, equalsIgnoreCase } from 'lib/utils';
 import { ONE, ZERO } from 'lib/utils/numbers';
 import { getViemPublicClient } from 'temple/evm';
 import { EvmNetworkEssentials } from 'temple/networks';
 
 import { EvmAssetStandard } from '../types';
 
-import { equalsIgnoreCase } from './utils/common.utils';
 
 interface MulticallBalanceRequest {
   assetSlug: string;

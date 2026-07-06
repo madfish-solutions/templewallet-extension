@@ -38,18 +38,24 @@ export const CardHeader = ({
   const [menuOpen, setMenuOpen] = useState(false);
   const [avatarFailed, setAvatarFailed] = useState(false);
 
+  const handleAvatarError = () => setAvatarFailed(true);
+  const toggleMenu = () => setMenuOpen(open => !open);
+  const handleSnooze = () => {
+    setMenuOpen(false);
+    onSnooze();
+  };
+  const handleDisable = () => {
+    setMenuOpen(false);
+    onDisable();
+  };
+
   return (
     <div className="tw-card__header">
       {tokenSymbol != null ? (
         <div className="tw-card__token">
           <span className="tw-card__token-avatar-wrap">
             {tokenAvatarUrl && !avatarFailed ? (
-              <img
-                className="tw-card__token-avatar"
-                src={tokenAvatarUrl}
-                alt=""
-                onError={() => setAvatarFailed(true)}
-              />
+              <img className="tw-card__token-avatar" src={tokenAvatarUrl} alt="" onError={handleAvatarError} />
             ) : (
               <div className="tw-card__token-avatar" />
             )}
@@ -64,7 +70,7 @@ export const CardHeader = ({
       ) : collectionName != null ? (
         <a className="tw-card__collection" href={collectionHref} target="_blank" rel="noopener noreferrer">
           {avatarUrl && !avatarFailed ? (
-            <img className="tw-card__avatar" src={avatarUrl} alt="" onError={() => setAvatarFailed(true)} />
+            <img className="tw-card__avatar" src={avatarUrl} alt="" onError={handleAvatarError} />
           ) : (
             <div className="tw-card__avatar tw-card__avatar--empty">
               <BrokenImageSvg className="tw-card__avatar-fallback" />
@@ -79,29 +85,13 @@ export const CardHeader = ({
         <div className="tw-card__collection" />
       )}
       <div className="tw-card__header-actions">
-        <button
-          className="tw-card__icon-btn"
-          type="button"
-          aria-label="More"
-          onClick={() => setMenuOpen(open => !open)}
-        >
+        <button className="tw-card__icon-btn" type="button" aria-label="More" onClick={toggleMenu}>
           {menuIcon ?? <SettingsIcon className="tw-card__settings-icon" />}
         </button>
         <button className="tw-card__icon-btn" type="button" aria-label="Close" onClick={onClose}>
           <CloseIcon className="tw-card__close-icon" />
         </button>
-        {menuOpen ? (
-          <CardMenu
-            onSnooze={() => {
-              setMenuOpen(false);
-              onSnooze();
-            }}
-            onDisable={() => {
-              setMenuOpen(false);
-              onDisable();
-            }}
-          />
-        ) : null}
+        {menuOpen ? <CardMenu onSnooze={handleSnooze} onDisable={handleDisable} /> : null}
       </div>
     </div>
   );

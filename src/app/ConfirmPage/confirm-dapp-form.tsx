@@ -16,7 +16,6 @@ import { DappInteractionSuccess, DappInteractionSuccessType } from 'app/template
 import { LedgerApprovalModal } from 'app/templates/ledger-approval-modal';
 import { DAPP_SUCCESS_SETTLE_DELAY_MS } from 'lib/constants';
 import { EvmOperationKind, getOperationKind } from 'lib/evm/on-chain/transactions';
-import { equalsIgnoreCase } from 'lib/evm/on-chain/utils/common.utils';
 import { parseEvmTxRequest } from 'lib/evm/on-chain/utils/parse-evm-tx-request';
 import { T, t } from 'lib/i18n';
 import { useTempleClient } from 'lib/temple/front';
@@ -25,7 +24,7 @@ import { LedgerOperationState, runConnectedLedgerOperationFlow } from 'lib/ui';
 import { useBooleanState, useSafeState } from 'lib/ui/hooks';
 import { useLedgerWebHidFullViewGuard } from 'lib/ui/ledger-webhid-guard';
 import { LedgerFullViewPromptModal } from 'lib/ui/LedgerFullViewPrompt';
-import { delay } from 'lib/utils';
+import { delay, equalsIgnoreCase } from 'lib/utils';
 import { getAccountForEvm, getAccountForTezos } from 'temple/accounts';
 import { useCurrentAccountId } from 'temple/front';
 import { makeIntercomRequest } from 'temple/front/intercom-client';

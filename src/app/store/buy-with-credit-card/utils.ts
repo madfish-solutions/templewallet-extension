@@ -41,7 +41,7 @@ const getMoonpayTokenIconUrl = (tokenCode: string) => {
   if (tokenCode.includes('usdt')) return `${MOONPAY_ICONS_BASE_URL}usdt.svg`;
   if (polygonCodes.includes(tokenCode)) return `${MOONPAY_ICONS_BASE_URL}matic.svg`;
 
-  return `${MOONPAY_ICONS_BASE_URL + tokenCode}.svg`;
+  return `${MOONPAY_ICONS_BASE_URL}${tokenCode}.svg`;
 };
 
 export const mapMoonPayProviderCurrencies = (currencies: Currency[]): TopUpProviderCurrencies => ({
@@ -49,7 +49,7 @@ export const mapMoonPayProviderCurrencies = (currencies: Currency[]): TopUpProvi
     name,
     code: code.toUpperCase(),
     codeToDisplay: code.toUpperCase().split('_')[0],
-    icon: `${MOONPAY_ICONS_BASE_URL + code}.svg`,
+    icon: `${MOONPAY_ICONS_BASE_URL}${code}.svg`,
     providers: [TopUpProviderId.MoonPay],
     minAmount: minBuyAmount,
     maxAmount: maxBuyAmount,
@@ -71,7 +71,7 @@ const getUtorgTokenIconUrl = (code: string, symbol: string) => {
   if (symbol.startsWith('USDT')) return `${MOONPAY_ICONS_BASE_URL}usdt.svg`;
   if (symbol.startsWith('USDC')) return `${MOONPAY_ICONS_BASE_URL}usdc.svg`;
 
-  return `${UTORG_CRYPTO_ICONS_BASE_URL + code}.svg`;
+  return `${UTORG_CRYPTO_ICONS_BASE_URL}${code}.svg`;
 };
 
 export const mapUtorgProviderCurrencies = (currencies: UtorgCurrencyInfo[]): TopUpProviderCurrencies => ({

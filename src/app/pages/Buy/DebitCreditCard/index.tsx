@@ -7,9 +7,12 @@ import { useLocationSearchParamValue } from 'app/hooks/use-location';
 import PageLayout from 'app/layouts/PageLayout';
 import { dispatch } from 'app/store';
 import { loadAllCurrenciesActions } from 'app/store/buy-with-credit-card/actions';
+import { fromTopUpTokenSlug } from 'lib/buy-with-credit-card/top-up-token-slug.utils';
 import { t } from 'lib/i18n';
 import { useBooleanState, useInterval } from 'lib/ui/hooks';
+import { equalsIgnoreCase } from 'lib/utils';
 import { useAccountAddressForTezos } from 'temple/front';
+import { TempleChainKind } from 'temple/types';
 
 import {
   DEFAULT_EVM_OUTPUT_TOKEN,
@@ -38,13 +41,18 @@ export const DebitCreditCard: FC = () => {
 
   const tezosAddress = useAccountAddressForTezos();
 
-  const defaultValues = useMemo<BuyWithCreditCardFormData>(
-    () => ({
+  const [currencyParam] = useLocationSearchParamValue('currency');
+  const [tokenParam] = useLocationSearchParamValue('token');
+
+  const defaultValues = useMemo<BuyWithCreditCardFormData>(() => {
+    const tokenChainKind = tokenParam ? fromTopUpTokenSlug(tokenParam)[1]?.toLowerCase() : undefined;
+    const preferTezos = tokenChainKind ? tokenChainKind === TempleChainKind.Tezos : Boolean(tezosAddress);
+
+    return {
       inputCurrency: DEFAULT_INPUT_CURRENCY,
-      outputToken: tezosAddress ? DEFAULT_TEZOS_OUTPUT_TOKEN : DEFAULT_EVM_OUTPUT_TOKEN
-    }),
-    [tezosAddress]
-  );
+      outputToken: preferTezos ? DEFAULT_TEZOS_OUTPUT_TOKEN : DEFAULT_EVM_OUTPUT_TOKEN
+    };
+  }, [tezosAddress, tokenParam]);
 
   const form = useForm<BuyWithCreditCardFormData>({
     mode: 'onChange',
@@ -57,9 +65,6 @@ export const DebitCreditCard: FC = () => {
   const inputAmount = useWatch({ name: 'inputAmount', control });
   const inputCurrency = useWatch({ name: 'inputCurrency', control });
   const outputToken = useWatch({ name: 'outputToken', control });
-
-  const [currencyParam] = useLocationSearchParamValue('currency');
-  const [tokenParam] = useLocationSearchParamValue('token');
   const allFiatCurrencies = useAllFiatCurrencies(inputCurrency.code, outputToken.slug);
   const allCryptoCurrencies = useAllCryptoCurrencies();
 
@@ -74,10 +79,10 @@ export const DebitCreditCard: FC = () => {
     presetsAppliedRef.current = true;
 
     const presetCurrency = currencyParam
-      ? allFiatCurrencies.find(({ code }) => code.toUpperCase() === currencyParam.toUpperCase())
+      ? allFiatCurrencies.find(({ code }) => equalsIgnoreCase(code, currencyParam))
       : undefined;
     const presetToken = tokenParam
-      ? allCryptoCurrencies.find(({ slug }) => slug.toUpperCase() === tokenParam.toUpperCase())
+      ? allCryptoCurrencies.find(({ slug }) => equalsIgnoreCase(slug, tokenParam))
       : undefined;
 
     if (presetCurrency) form.setValue('inputCurrency', presetCurrency);

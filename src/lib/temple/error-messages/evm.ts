@@ -19,7 +19,7 @@ import {
 } from 'viem';
 
 import { erc1155Abi } from 'lib/abi/erc1155';
-import { equalsIgnoreCase } from 'lib/evm/on-chain/utils/common.utils';
+import { equalsIgnoreCase } from 'lib/utils';
 
 import { ERROR_MESSAGES } from './messages';
 

@@ -1,3 +1,5 @@
+import { ONE_HOUR_MS } from 'lib/utils/numbers';
+
 import { getCoinSparkline } from './fetch-coins-by-symbol';
 
 export interface ChartPoint {
@@ -5,7 +7,6 @@ export interface ChartPoint {
   value: number;
 }
 
-const HOUR_MS = 60 * 60 * 1000;
 const HOURS_24 = 24;
 
 export const fetchTokenChart = async (coinId: string): Promise<ChartPoint[]> => {
@@ -13,6 +14,6 @@ export const fetchTokenChart = async (coinId: string): Promise<ChartPoint[]> => 
   if (prices.length === 0) return [];
 
   const recent = prices.slice(-HOURS_24);
-  const base = Date.now() - (recent.length - 1) * HOUR_MS;
-  return recent.map((value, index) => ({ timestamp: base + index * HOUR_MS, value }));
+  const base = Date.now() - (recent.length - 1) * ONE_HOUR_MS;
+  return recent.map((value, index) => ({ timestamp: base + index * ONE_HOUR_MS, value }));
 };

@@ -18,6 +18,7 @@ import { ETHEREUM_MAINNET_CHAIN_ID, TEZOS_MAINNET_CHAIN_ID, TempleAccountType } 
 import { useBooleanState } from 'lib/ui/hooks';
 import { LEDGER_WEBHID_PENDING_PREFIX, useLedgerWebHidFullViewGuard } from 'lib/ui/ledger-webhid-guard';
 import { LedgerFullViewPromptModal } from 'lib/ui/LedgerFullViewPrompt';
+import { equalsIgnoreCase } from 'lib/utils';
 import { HistoryAction, navigate, useLocation } from 'lib/woozie';
 import { useAccountAddressForEvm, useAccountAddressForTezos, useAccountForEvm, useAccountForTezos } from 'temple/front';
 import { useEvmChainByChainId, useTezosChainByChainId } from 'temple/front/chains';
@@ -74,12 +75,12 @@ const Swap = memo<Props>(() => {
   const [activeField, setActiveField] = useState<SwapFieldName>('input');
   const [selectedChainAssets, setSelectedChainAssets] = useState<SelectedChainAssets>(() => {
     const fromSlug =
-      from?.chainKind && from?.chainId && from?.assetSlug
+      from?.chainKind && from.chainId && from.assetSlug
         ? toChainAssetSlug(from.chainKind as TempleChainKind, from.chainId, from.assetSlug)
         : null;
 
     const toSlug =
-      to?.chainKind && to?.chainId && to?.assetSlug
+      to?.chainKind && to.chainId && to.assetSlug
         ? toChainAssetSlug(to.chainKind as TempleChainKind, to.chainId, to.assetSlug)
         : null;
 
@@ -118,7 +119,7 @@ const Swap = memo<Props>(() => {
 
   const fromBalanceRequested = searchParams.get('fromBalance') === '1';
   const baselineFromSlug =
-    from?.chainKind && from?.chainId && from?.assetSlug
+    from?.chainKind && from.chainId && from.assetSlug
       ? toChainAssetSlug(from.chainKind as TempleChainKind, from.chainId, from.assetSlug)
       : null;
   const widgetFromOverride = useWidgetSwapFromOverride(fromBalanceRequested, from?.chainKind, from?.chainId);
@@ -134,7 +135,7 @@ const Swap = memo<Props>(() => {
     if (
       selectedChainAssets.from !== baselineFromSlug ||
       widgetFromOverride === baselineFromSlug ||
-      (toSlug != null && widgetFromOverride.toLowerCase() === toSlug.toLowerCase())
+      (toSlug != null && equalsIgnoreCase(widgetFromOverride, toSlug))
     ) {
       return;
     }

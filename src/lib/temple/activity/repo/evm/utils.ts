@@ -4,8 +4,7 @@ import { getAddress } from 'viem';
 
 import { EvmActivity, EvmActivityAsset, EvmOperation } from 'lib/activity';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
-import { equalsIgnoreCase } from 'lib/evm/on-chain/utils/common.utils';
-import { filterUnique } from 'lib/utils';
+import { equalsIgnoreCase, filterUnique } from 'lib/utils';
 
 import { DbEvmActivity, DbEvmActivityAsset, NO_TOKEN_ID_VALUE, evmActivityAssets } from '../db';
 

@@ -11,11 +11,13 @@ import {
 import { toTopUpTokenSlug } from 'lib/buy-with-credit-card/top-up-token-slug.utils';
 import type { FiatCurrencyOptionBase } from 'lib/fiat-currency/types';
 import { fetchFromStorage } from 'lib/storage';
+import { equalsIgnoreCase } from 'lib/utils';
+import { ONE_HOUR_MS } from 'lib/utils/numbers';
 import { TempleChainKind } from 'temple/types';
 
 import { persistentCache } from './persistent-cache';
 
-const BUY_LISTS_TTL_MS = 6 * 60 * 60 * 1000;
+const BUY_LISTS_TTL_MS = 6 * ONE_HOUR_MS;
 
 export interface BuyPreselect {
   fiat: string;
@@ -70,9 +72,9 @@ export const getBuyPreselect = async (
 ): Promise<BuyPreselect> => {
   const { moonpay, utorg } = await ensureLists();
 
-  const tokenSlug = toTopUpTokenSlug(symbol.toUpperCase(), chainKind, chainId).toUpperCase();
+  const tokenSlug = toTopUpTokenSlug(symbol.toUpperCase(), chainKind, chainId);
   const eligibleProviders = [moonpay, utorg].filter(({ cryptoSlugs }) =>
-    cryptoSlugs.some(slug => slug.toUpperCase() === tokenSlug)
+    cryptoSlugs.some(slug => equalsIgnoreCase(slug, tokenSlug))
   );
   const supported = eligibleProviders.length > 0;
 
