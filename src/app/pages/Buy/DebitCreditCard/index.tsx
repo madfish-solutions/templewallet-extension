@@ -1,4 +1,4 @@
-import React, { FC, useEffect, useMemo, useRef, useState } from 'react';
+import React, { FC, useEffect, useRef, useState } from 'react';
 
 import { FormProvider, useForm, useWatch } from 'react-hook-form';
 
@@ -44,15 +44,13 @@ export const DebitCreditCard: FC = () => {
   const [currencyParam] = useLocationSearchParamValue('currency');
   const [tokenParam] = useLocationSearchParamValue('token');
 
-  const defaultValues = useMemo<BuyWithCreditCardFormData>(() => {
-    const tokenChainKind = tokenParam ? fromTopUpTokenSlug(tokenParam)[1]?.toLowerCase() : undefined;
-    const preferTezos = tokenChainKind ? tokenChainKind === TempleChainKind.Tezos : Boolean(tezosAddress);
+  const tokenChainKind = tokenParam ? fromTopUpTokenSlug(tokenParam)[1]?.toLowerCase() : undefined;
+  const preferTezos = tokenChainKind ? tokenChainKind === TempleChainKind.Tezos : Boolean(tezosAddress);
 
-    return {
-      inputCurrency: DEFAULT_INPUT_CURRENCY,
-      outputToken: preferTezos ? DEFAULT_TEZOS_OUTPUT_TOKEN : DEFAULT_EVM_OUTPUT_TOKEN
-    };
-  }, [tezosAddress, tokenParam]);
+  const defaultValues: BuyWithCreditCardFormData = {
+    inputCurrency: DEFAULT_INPUT_CURRENCY,
+    outputToken: preferTezos ? DEFAULT_TEZOS_OUTPUT_TOKEN : DEFAULT_EVM_OUTPUT_TOKEN
+  };
 
   const form = useForm<BuyWithCreditCardFormData>({
     mode: 'onChange',
