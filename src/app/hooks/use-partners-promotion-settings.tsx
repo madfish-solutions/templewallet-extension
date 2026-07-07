@@ -6,6 +6,8 @@ import { togglePartnersPromotionAction } from 'app/store/partners-promotion/acti
 import { useShouldShowPartnersPromoSelector } from 'app/store/partners-promotion/selectors';
 import { t } from 'lib/i18n';
 import { useConfirm } from 'lib/ui/dialog';
+import { putToStorage } from 'lib/storage';
+import { ADS_DISABLING_TIMESTAMPS_STORAGE_KEY } from 'lib/constants';
 
 export const usePartnersPromotionSettings = () => {
   const dispatch = useDispatch();
@@ -23,6 +25,7 @@ export const usePartnersPromotionSettings = () => {
 
     if (confirmed) {
       dispatch(togglePartnersPromotionAction(false));
+      await putToStorage(ADS_DISABLING_TIMESTAMPS_STORAGE_KEY, {});
     }
   };
 
