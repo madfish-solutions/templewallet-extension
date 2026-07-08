@@ -830,8 +830,6 @@ async function getRewardsAccountCredentials() {
   return await getAdsViewerCredentials();
 }
 
-
-// The card requests widget context on every hover; the XTZ rate barely moves, so cache briefly
 const getTezFiatRateMemo = memoizee(
   async (): Promise<number | null> => {
     try {
