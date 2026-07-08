@@ -20,7 +20,6 @@ export function getStyles(): string {
       position: relative;
       transition: opacity ${AI_CHATBOT_ADS_TIMING.entranceMs}ms cubic-bezier(0.2, 0.8, 0.2, 1);
       height: 40px;
-      width: 608px;
     }
 
     .temple-nudge-visible {
@@ -36,7 +35,7 @@ export function getStyles(): string {
       font-family: Inter, Arial, sans-serif;
       font-size: 12px;
       font-style: normal;
-      font-weight: 300;
+      font-weight: 400;
       line-height: 16px;
       color: #707070;
     }
@@ -44,7 +43,7 @@ export function getStyles(): string {
     .temple-copy span {
       font-size: 12px;
       font-style: normal;
-      font-weight: 500;
+      font-weight: 600;
       line-height: 16px;
       color: #1373E4;
     }
@@ -60,7 +59,7 @@ export function getStyles(): string {
       font-family: Inter, Arial, sans-serif;
       font-size: 12px;
       font-style: normal;
-      font-weight: 500;
+      font-weight: 600;
       line-height: 16px;
       padding: 4px 8px;
       margin-left: 8px;
@@ -89,6 +88,14 @@ export function getStyles(): string {
       position: absolute;
       top: 0;
       width: 100%;
+    }
+
+    .temple-nudge.temple-dark {
+      background: #202020;
+
+      & .temple-copy {
+        color: #FFFFFF;
+      }
     }
   `;
 }

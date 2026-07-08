@@ -830,13 +830,14 @@ browser.runtime.onMessage.addListener(async (msg, sender) => {
         if (typeof msg.domain !== 'string') return null;
 
         const domain = normalizeAiChatbotAdsDomain(msg.domain);
-        const [nudgeState, sessionRecords, enabledDomains] = await Promise.all([
+        const [nudgeState, sessionState, enabledDomains] = await Promise.all([
           fetchFromStorage<AiChatbotAdsNudgeState>(AI_CHATBOT_ADS_NUDGE_STATE_STORAGE_KEY),
-          getAiChatbotAdsSessionStorage().get(AI_CHATBOT_ADS_NUDGE_SESSION_STORAGE_KEY),
+          fetchFromStorage<AiChatbotAdsNudgeSessionState>(
+            AI_CHATBOT_ADS_NUDGE_SESSION_STORAGE_KEY,
+            getAiChatbotAdsSessionStorage()
+          ),
           fetchFromStorage<string[]>(AI_CHATBOT_ADS_ENABLED_DOMAINS_STORAGE_KEY)
         ]);
-        const sessionState = (sessionRecords[AI_CHATBOT_ADS_NUDGE_SESSION_STORAGE_KEY] ??
-          null) as AiChatbotAdsNudgeSessionState | null;
 
         return {
           enabled: Boolean(enabledDomains?.includes(domain)),
@@ -878,9 +879,10 @@ async function updateAiChatbotAdsSessionState(domain: string, sessionDomainState
   if (!isObjectRecord(sessionDomainStateInput)) return;
 
   const sessionStorage = getAiChatbotAdsSessionStorage();
-  const records = await sessionStorage.get(AI_CHATBOT_ADS_NUDGE_SESSION_STORAGE_KEY);
-  const sessionState = (records[AI_CHATBOT_ADS_NUDGE_SESSION_STORAGE_KEY] ??
-    null) as AiChatbotAdsNudgeSessionState | null;
+  const sessionState = await fetchFromStorage<AiChatbotAdsNudgeSessionState>(
+    AI_CHATBOT_ADS_NUDGE_SESSION_STORAGE_KEY,
+    sessionStorage
+  );
 
   await sessionStorage.set({
     [AI_CHATBOT_ADS_NUDGE_SESSION_STORAGE_KEY]: setAiChatbotAdsDomainSessionState(

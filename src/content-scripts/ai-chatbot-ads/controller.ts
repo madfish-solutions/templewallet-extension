@@ -124,6 +124,7 @@ export class AiChatbotAdsController {
         focused: this.adapter.isFocused(),
         hasActiveModal: this.adapter.hasActiveModal(),
         answerState,
+        previousAnswerState: this.previousAnswerState,
         trigger,
         domainState: state.domainState,
         sessionDomainState: state.sessionDomainState

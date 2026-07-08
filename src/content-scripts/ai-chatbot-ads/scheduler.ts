@@ -6,7 +6,7 @@ export type AiChatbotAnswerState = 'idle' | 'answering' | 'indeterminate';
 
 export type AiChatbotAdsTrigger = 'timer' | 'completed-answer' | 'tick';
 
-export interface AiChatbotAdsEligibilityInput {
+interface AiChatbotAdsEligibilityInput {
   now: number;
   siteStartedAt: number;
   completedAnswers: number;
@@ -14,12 +14,13 @@ export interface AiChatbotAdsEligibilityInput {
   focused: boolean;
   hasActiveModal: boolean;
   answerState: AiChatbotAnswerState;
+  previousAnswerState: AiChatbotAnswerState;
   trigger: AiChatbotAdsTrigger;
   domainState: AiChatbotAdsDomainState;
   sessionDomainState: AiChatbotAdsDomainSessionState;
 }
 
-export interface AiChatbotAdsEligibleOffer {
+interface AiChatbotAdsEligibleOffer {
   copyId: string;
   text: string;
 }
@@ -32,12 +33,13 @@ export function getEligibleAiChatbotAdsOffer({
   focused,
   hasActiveModal,
   answerState,
+  previousAnswerState,
   trigger,
   domainState,
   sessionDomainState
 }: AiChatbotAdsEligibilityInput): AiChatbotAdsEligibleOffer | null {
   if (enabled) return null;
-  if (!focused || hasActiveModal || answerState !== 'idle') return null;
+  if (!focused || hasActiveModal || answerState !== 'idle' || previousAnswerState !== 'answering') return null;
   if (domainState.disabled) return null;
   if (domainState.snoozedUntil && now < domainState.snoozedUntil) return null;
   if (domainState.cooldownUntil && now < domainState.cooldownUntil) return null;

@@ -1,7 +1,7 @@
 import { AI_CHATBOT_ADS_HOST_ID, AI_CHATBOT_ADS_TIMING } from './constants';
 import { getStyles } from './styles';
 
-const POPUP_STAYS_VISIBLE_FOR_TESTS = true;
+const POPUP_STAYS_VISIBLE_FOR_TESTS = false;
 const POPUP_FONT_TEXT =
   ' _-,;:!?.\'"()[]{}@*/\\&#%`+<>|~≈$£¥€₴₺₿0123456789aAbBcCçdDeEéèfFgGhHiIıjJkKlLmMnNoOõpPqQrRsSştTuUvVwWxXyYzZ';
 const POPUP_FONT_URL = `https://fonts.googleapis.com/css2?family=Inter:wght@300;500&display=swap&text=${encodeURIComponent(
@@ -42,6 +42,15 @@ export function mountAiChatbotAdsPopup({
     <button class="temple-enable">Enable now</button>
     <button class="temple-close">${closeIcon}</button>
   `;
+
+  const updateTheme = () => {
+    const colorScheme = globalThis.getComputedStyle(document.documentElement).getPropertyValue('color-scheme');
+    container.classList.toggle('temple-dark', colorScheme === 'dark');
+  };
+  updateTheme();
+  const schemeAttributeObserver = new MutationObserver(updateTheme);
+  schemeAttributeObserver.observe(document.documentElement, { attributeFilter: ['color-scheme'] });
+
   shadow.appendChild(container);
 
   const enableButton = container.querySelector<HTMLButtonElement>('.temple-enable');
@@ -62,6 +71,7 @@ export function mountAiChatbotAdsPopup({
   const close = (action?: AiChatbotAdsPopupAction) => {
     if (closed) return;
     closed = true;
+    schemeAttributeObserver.disconnect();
     stopCountdown();
     cleanupPosition();
     if (action) onAction(action);
@@ -158,11 +168,11 @@ function formatCopy(text: string): string {
 
 function escapeHtml(text: string): string {
   return text
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#39;');
 }
 
 const closeIcon = `<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">

@@ -1,8 +1,9 @@
 import { AiChatbotAnswerState } from './scheduler';
 
-const SUBMIT_BUTTON_SELECTOR = '#composer-submit-button.composer-submit-btn';
-const SEND_BUTTON_SELECTOR = `${SUBMIT_BUTTON_SELECTOR}[data-testid="send-button"]`;
-const STOP_BUTTON_SELECTOR = `${SUBMIT_BUTTON_SELECTOR}[data-testid="stop-button"]`;
+const TEXT_SUBMIT_BUTTON_SELECTOR = '#composer-submit-button.composer-submit-btn';
+const SEND_BUTTON_SELECTOR = `${TEXT_SUBMIT_BUTTON_SELECTOR}[data-testid="send-button"], \
+button.composer-submit-button-color.text-submit-btn-text[style*="view-transition-name: var(--vt-composer-speech-button)"]`;
+const STOP_BUTTON_SELECTOR = `${TEXT_SUBMIT_BUTTON_SELECTOR}[data-testid="stop-button"]`;
 const ACTIVE_MODAL_SELECTORS = [
   '[id^="modal-"]',
   '[data-testid^="modal-"]',
