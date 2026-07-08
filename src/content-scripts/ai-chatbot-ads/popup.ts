@@ -1,7 +1,6 @@
 import { AI_CHATBOT_ADS_HOST_ID, AI_CHATBOT_ADS_TIMING } from './constants';
 import { getStyles } from './styles';
 
-const POPUP_STAYS_VISIBLE_FOR_TESTS = false;
 const POPUP_FONT_TEXT =
   ' _-,;:!?.\'"()[]{}@*/\\&#%`+<>|~≈$£¥€₴₺₿0123456789aAbBcCçdDeEéèfFgGhHiIıjJkKlLmMnNoOõpPqQrRsSştTuUvVwWxXyYzZ';
 const POPUP_FONT_URL = `https://fonts.googleapis.com/css2?family=Inter:wght@300;500&display=swap&text=${encodeURIComponent(
@@ -86,7 +85,6 @@ export function mountAiChatbotAdsPopup({
 
   const tick = () => {
     if (closed || paused) return;
-    if (POPUP_STAYS_VISIBLE_FOR_TESTS) return;
 
     const elapsed = Date.now() - lastStartedAt;
     const nextRemaining = Math.max(0, remainingMs - elapsed);
@@ -104,7 +102,6 @@ export function mountAiChatbotAdsPopup({
 
   container.addEventListener('mouseenter', () => {
     if (closed || paused) return;
-    if (POPUP_STAYS_VISIBLE_FOR_TESTS) return;
     paused = true;
     remainingMs = Math.max(0, remainingMs - (Date.now() - lastStartedAt));
     stopCountdown();
@@ -112,7 +109,6 @@ export function mountAiChatbotAdsPopup({
 
   container.addEventListener('mouseleave', () => {
     if (closed || !paused) return;
-    if (POPUP_STAYS_VISIBLE_FOR_TESTS) return;
     paused = false;
     lastStartedAt = Date.now();
     animationFrame = window.requestAnimationFrame(tick);
