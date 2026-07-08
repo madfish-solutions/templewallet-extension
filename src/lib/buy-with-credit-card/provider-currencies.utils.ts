@@ -38,12 +38,14 @@ export const isEligibleMoonPayCrypto = (currency: MoonPayCurrency): currency is 
 export const isEligibleUtorgFiat = ({ type, depositMax }: UtorgCurrencyInfo) =>
   type === UtorgCurrencyInfoType.FIAT && depositMax > 0;
 
-export const isEligibleUtorgCrypto = ({ chain, type, depositMax, enabled }: UtorgCurrencyInfo) =>
-  type === UtorgCurrencyInfoType.CRYPTO &&
-  depositMax > 0 &&
-  enabled &&
-  isDefined(chain) &&
-  (isDefined(utorgChainChainIdMap[chain]) || isUtorgTezosChain(chain));
+type UtorgCryptoWithChain = UtorgCurrencyInfo & { chain: string };
+
+export const isEligibleUtorgCrypto = (currency: UtorgCurrencyInfo): currency is UtorgCryptoWithChain =>
+  currency.type === UtorgCurrencyInfoType.CRYPTO &&
+  currency.depositMax > 0 &&
+  currency.enabled &&
+  isDefined(currency.chain) &&
+  (isDefined(utorgChainChainIdMap[currency.chain]) || isUtorgTezosChain(currency.chain));
 
 export const moonPayCryptoToTopUpSlug = ({ code, metadata }: MoonPayCryptoCurrency) =>
   toTopUpTokenSlug(
@@ -52,9 +54,9 @@ export const moonPayCryptoToTopUpSlug = ({ code, metadata }: MoonPayCryptoCurren
     isDefined(metadata.chainId) ? metadata.chainId : TEZOS_MAINNET_CHAIN_ID
   );
 
-export const utorgCryptoToTopUpSlug = ({ display, chain }: UtorgCurrencyInfo) =>
+export const utorgCryptoToTopUpSlug = ({ display, chain }: UtorgCryptoWithChain) =>
   toTopUpTokenSlug(
     display,
     isUtorgTezosChain(chain) ? TempleChainKind.Tezos : TempleChainKind.EVM,
-    isUtorgTezosChain(chain) ? TEZOS_MAINNET_CHAIN_ID : utorgChainChainIdMap[chain!]
+    isUtorgTezosChain(chain) ? TEZOS_MAINNET_CHAIN_ID : utorgChainChainIdMap[chain]
   );

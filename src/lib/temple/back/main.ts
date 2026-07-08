@@ -41,6 +41,7 @@ import { clearAsyncStorages } from 'lib/temple/reset';
 import { StoredHDAccount, TempleMessageType, TempleRequest, TempleResponse } from 'lib/temple/types';
 import { withNonImportErrorForwarding } from 'lib/utils/import-error';
 import { getTrackedCashbackServiceDomain, getTrackedUrl } from 'lib/utils/url-track/url-track.utils';
+import { getAccountAddressForChain, getAccountAddressForTezos } from 'temple/accounts';
 import { EVMErrorCodes } from 'temple/evm/constants';
 import { ErrorWithCode } from 'temple/evm/types';
 import { parseTransactionRequest } from 'temple/evm/utils';
@@ -535,10 +536,8 @@ browser.runtime.onMessage.addListener(async (msg, sender) => {
           const { accounts } = await Actions.getFrontState();
           const stored = await browser.storage.local.get('CURRENT_ACCOUNT_ID');
           const currentId = stored['CURRENT_ACCOUNT_ID'];
-          const current = (accounts.find(account => account.id === currentId) ?? accounts[0]) as
-            | StoredHDAccount
-            | undefined;
-          const address = msg.chainKind === TempleChainKind.Tezos ? current?.tezosAddress : current?.evmAddress;
+          const current = accounts.find(account => account.id === currentId) ?? accounts.at(0);
+          const address = current && getAccountAddressForChain(current, msg.chainKind);
           return address ? await hasChainFunds(msg.chainKind, msg.chainId, [address]) : false;
         } catch (error) {
           console.error('GetChainFunds failed:', error);
@@ -587,7 +586,7 @@ browser.runtime.onMessage.addListener(async (msg, sender) => {
         const { fetchObjktOwnedCount } = await importFetchObjktTokenModule();
         const { accounts } = await Actions.getFrontState();
         const addresses = accounts
-          .map(account => (account as StoredHDAccount).tezosAddress)
+          .map(getAccountAddressForTezos)
           .filter((address): address is string => Boolean(address));
         return await fetchObjktOwnedCount(msg.contract, msg.tokenId, addresses.join(','));
       }

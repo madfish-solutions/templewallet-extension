@@ -37,11 +37,11 @@ import { ConfirmSwapModal } from './modals/ConfirmSwap';
 import { SwapSettingsModal } from './modals/SwapSettings';
 import { useWidgetSwapFromOverride } from './use-widget-swap-from';
 
-type ChainSlug = {
-  chainKind?: string | null;
-  chainId?: string | null;
-  assetSlug?: string | null;
-};
+interface ChainSlug {
+  chainKind: TempleChainKind;
+  chainId: string;
+  assetSlug: string;
+}
 
 interface Props {
   from?: ChainSlug;
@@ -50,22 +50,24 @@ interface Props {
 
 const PENDING_SWAP_STORAGE_KEY = `${LEDGER_WEBHID_PENDING_PREFIX}:swap`;
 
+const isTempleChainKind = (value: string): value is TempleChainKind =>
+  value === TempleChainKind.Tezos || value === TempleChainKind.EVM;
+
+const parseChainSlugParam = (value: string | null): ChainSlug | undefined => {
+  const [chainKind, chainId, assetSlug] = (value ?? '').split('/');
+
+  return chainKind && isTempleChainKind(chainKind) && chainId && assetSlug
+    ? { chainKind, chainId, assetSlug }
+    : undefined;
+};
+
 const Swap = memo<Props>(() => {
   const formControlRef = useRef<SwapFormControl | null>(null);
   const { guard, readPending, clearPending, ledgerPromptProps } = useLedgerWebHidFullViewGuard();
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
-  const [chainKindFrom, chainIdFrom, assetSlugFrom] = (searchParams.get('from') || '').split('/');
-  const [chainKindTo, chainIdTo, assetSlugTo] = (searchParams.get('to') || '').split('/');
-
-  const from =
-    chainKindFrom && chainIdFrom && assetSlugFrom
-      ? { chainKind: chainKindFrom, chainId: chainIdFrom, assetSlug: assetSlugFrom }
-      : undefined;
-  const to =
-    chainKindTo && chainIdTo && assetSlugTo
-      ? { chainKind: chainKindTo, chainId: chainIdTo, assetSlug: assetSlugTo }
-      : undefined;
+  const from = parseChainSlugParam(searchParams.get('from'));
+  const to = parseChainSlugParam(searchParams.get('to'));
 
   const [slippageTolerance, setSlippageTolerance] = useStorage<number>(SWAP_SLIPPAGE_TOLERANCE_STORAGE_KEY, 0.5);
 
@@ -75,15 +77,8 @@ const Swap = memo<Props>(() => {
 
   const [activeField, setActiveField] = useState<SwapFieldName>('input');
   const [selectedChainAssets, setSelectedChainAssets] = useState<SelectedChainAssets>(() => {
-    const fromSlug =
-      from?.chainKind && from.chainId && from.assetSlug
-        ? toChainAssetSlug(from.chainKind as TempleChainKind, from.chainId, from.assetSlug)
-        : null;
-
-    const toSlug =
-      to?.chainKind && to.chainId && to.assetSlug
-        ? toChainAssetSlug(to.chainKind as TempleChainKind, to.chainId, to.assetSlug)
-        : null;
+    const fromSlug = from ? toChainAssetSlug(from.chainKind, from.chainId, from.assetSlug) : null;
+    const toSlug = to ? toChainAssetSlug(to.chainKind, to.chainId, to.assetSlug) : null;
 
     if (fromSlug && toSlug) {
       return { from: fromSlug, to: toSlug };
@@ -126,10 +121,7 @@ const Swap = memo<Props>(() => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const baselineFromSlug =
-    from?.chainKind && from.chainId && from.assetSlug
-      ? toChainAssetSlug(from.chainKind as TempleChainKind, from.chainId, from.assetSlug)
-      : null;
+  const baselineFromSlug = from ? toChainAssetSlug(from.chainKind, from.chainId, from.assetSlug) : null;
   const widgetFromOverride = useWidgetSwapFromOverride(fromBalanceRequested, from?.chainKind, from?.chainId);
   const widgetFromAppliedRef = useRef(false);
 

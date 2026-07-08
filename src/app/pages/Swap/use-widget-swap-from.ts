@@ -47,8 +47,8 @@ const pickHighestUsdSlug = (
 
 export const useWidgetSwapFromOverride = (
   enabled: boolean,
-  chainKind: string | null | undefined,
-  chainId: string | null | undefined
+  chainKind: TempleChainKind | undefined,
+  chainId: string | undefined
 ): string | null => {
   const evmAddress = useAccountAddressForEvm();
   const tezAddress = useAccountAddressForTezos();
