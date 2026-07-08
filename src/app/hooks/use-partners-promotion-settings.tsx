@@ -12,6 +12,7 @@ import {
 import { t } from 'lib/i18n';
 import { removeFromStorage } from 'lib/storage';
 import { useConfirm } from 'lib/ui/dialog';
+import { browser } from 'lib/browser';
 
 export const usePartnersPromotionSettings = () => {
   const dispatch = useDispatch();
@@ -34,6 +35,7 @@ export const usePartnersPromotionSettings = () => {
         AI_CHATBOT_ADS_NUDGE_SESSION_STORAGE_KEY,
         AI_CHATBOT_ADS_NUDGE_STATE_STORAGE_KEY
       ]);
+      await browser.storage.session?.remove(AI_CHATBOT_ADS_NUDGE_SESSION_STORAGE_KEY);
     }
   };
 
