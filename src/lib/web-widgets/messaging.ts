@@ -57,6 +57,13 @@ export const getBuyPreselect = (symbol: string, chainKind: TempleChainKind, chai
     chainId
   });
 
+export const getChainFunds = (chainKind: TempleChainKind, chainId: string): Promise<boolean> =>
+  browser.runtime.sendMessage({
+    type: ContentScriptType.GetChainFunds,
+    chainKind,
+    chainId
+  });
+
 interface WidgetContextData {
   permitGranted: boolean;
   snoozeUntil: number | null;
@@ -66,9 +73,10 @@ interface WidgetContextData {
   adUrl: string | null;
 }
 
-export const getWidgetContext = (): Promise<WidgetContextData> =>
+export const getWidgetContext = (includeTezRate = false): Promise<WidgetContextData> =>
   browser.runtime.sendMessage({
-    type: ContentScriptType.WidgetContext
+    type: ContentScriptType.WidgetContext,
+    includeTezRate
   });
 
 export const getWidgetOwnedCount = (contract: string, tokenId: string): Promise<number> =>

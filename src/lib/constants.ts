@@ -21,6 +21,7 @@ export enum ContentScriptType {
   OpenFullPage = 'OpenFullPage',
   ResolveAsset = 'ResolveAsset',
   GetBuyPreselect = 'GetBuyPreselect',
+  GetChainFunds = 'GetChainFunds',
   WidgetContext = 'WidgetContext',
   WidgetOwnedCount = 'WidgetOwnedCount',
   WebWidgetAdImpression = 'WebWidgetAdImpression',

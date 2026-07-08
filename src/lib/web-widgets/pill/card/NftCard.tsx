@@ -56,7 +56,7 @@ export const NftCard = ({ tagData, onClose }: NftCardProps) => {
     });
 
     messaging
-      .getWidgetContext()
+      .getWidgetContext(true)
       .then(ctx => {
         if (!active) return;
         if (ctx.permitGranted) setPermit(true);

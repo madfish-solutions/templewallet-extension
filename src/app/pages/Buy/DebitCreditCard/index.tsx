@@ -7,6 +7,8 @@ import { useLocationSearchParamValue } from 'app/hooks/use-location';
 import PageLayout from 'app/layouts/PageLayout';
 import { dispatch } from 'app/store';
 import { loadAllCurrenciesActions } from 'app/store/buy-with-credit-card/actions';
+import { toastInfo } from 'app/toaster';
+import { getAssetSymbolToDisplay } from 'lib/buy-with-credit-card/get-asset-symbol-to-display';
 import { fromTopUpTokenSlug } from 'lib/buy-with-credit-card/top-up-token-slug.utils';
 import { t } from 'lib/i18n';
 import { useBooleanState, useInterval } from 'lib/ui/hooks';
@@ -81,7 +83,10 @@ export const DebitCreditCard: FC = () => {
       : undefined;
 
     if (presetCurrency) form.setValue('inputCurrency', presetCurrency);
-    if (presetToken) form.setValue('outputToken', presetToken);
+    if (presetToken) {
+      form.setValue('outputToken', presetToken);
+      toastInfo(t('tokenIsReadyToBuy', getAssetSymbolToDisplay(presetToken)));
+    }
   }, [currencyParam, tokenParam, allFiatCurrencies, allCryptoCurrencies, form]);
 
   const { allPaymentProviders, paymentProvidersToDisplay, providersErrors, updateOutputAmounts } = usePaymentProviders(

@@ -6,18 +6,21 @@ import { TempleChainKind } from 'temple/types';
 import * as messaging from '../../messaging';
 
 interface SwapButtonProps {
+  symbol: string;
   chainKind: TempleChainKind;
   chainId: string;
   assetSlug: string;
 }
 
-export const SwapButton = ({ chainKind, chainId, assetSlug }: SwapButtonProps) => {
+export const SwapButton = ({ symbol, chainKind, chainId, assetSlug }: SwapButtonProps) => {
   const handleClick = () => {
     const gasSlug = chainKind === TempleChainKind.Tezos ? TEZ_TOKEN_SLUG : EVM_TOKEN_SLUG;
     const from = `${chainKind}/${chainId}/${gasSlug}`;
     const to = `${chainKind}/${chainId}/${assetSlug}`;
     messaging.trackWebWidgetEvent('Web Token Widget / Swap').catch(() => {});
-    messaging.openFullPage(`#/swap?from=${from}&to=${to}&fromBalance=1`).catch(() => {});
+    messaging
+      .openFullPage(`#/swap?from=${from}&to=${to}&fromBalance=1&toSymbol=${encodeURIComponent(symbol)}`)
+      .catch(() => {});
   };
 
   return (

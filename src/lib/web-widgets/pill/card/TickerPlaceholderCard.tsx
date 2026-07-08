@@ -106,20 +106,27 @@ export const TickerPlaceholderCard = ({ tagData, onClose }: TickerPlaceholderCar
   }, [symbol]);
 
   useEffect(() => {
-    if (!resolved || !resolved.resolved || resolved.swappable) return;
+    if (!resolved || !resolved.resolved) return;
 
     let active = true;
-    const { chainKind, chainId } = resolved;
+    const { chainKind, chainId, swappable } = resolved;
 
-    messaging
-      .getBuyPreselect(symbol, chainKind, chainId)
-      .then(result => {
-        if (active && result.supported) setBuyTarget({ chainKind, chainId, fiat: result.fiat });
-      })
-      .catch(() => {})
-      .finally(() => {
-        if (active) setBuyChecked(true);
-      });
+    const decideCta = async () => {
+      if (swappable) {
+        const hasFunds = await messaging.getChainFunds(chainKind, chainId).catch(error => {
+          console.error('GetChainFunds failed:', error);
+          return false;
+        });
+        if (!active || hasFunds === true) return;
+      }
+
+      const result = await messaging.getBuyPreselect(symbol, chainKind, chainId).catch(() => null);
+      if (active && result?.supported) setBuyTarget({ chainKind, chainId, fiat: result.fiat });
+    };
+
+    decideCta().finally(() => {
+      if (active) setBuyChecked(true);
+    });
 
     return () => {
       active = false;
@@ -201,7 +208,7 @@ export const TickerPlaceholderCard = ({ tagData, onClose }: TickerPlaceholderCar
 
   const resolvedAsset = resolved && resolved.resolved ? resolved : null;
   const swappableTarget = resolvedAsset && resolvedAsset.swappable ? resolvedAsset : null;
-  const ctaResolving = resolved === null || (resolvedAsset != null && swappableTarget == null && !buyChecked);
+  const ctaResolving = resolved === null || (resolvedAsset != null && !buyChecked);
 
   return (
     <div className="tw-card">
@@ -242,12 +249,10 @@ export const TickerPlaceholderCard = ({ tagData, onClose }: TickerPlaceholderCar
             )}
           </div>
         </div>
-        {swappableTarget ? (
-          <SwapButton
-            chainKind={swappableTarget.chainKind}
-            chainId={swappableTarget.chainId}
-            assetSlug={swappableTarget.assetSlug}
-          />
+        {ctaResolving ? (
+          <button className="tw-card__cta tw-card__cta--pending" type="button" disabled>
+            <span className="tw-card__spinner tw-card__spinner--sm" />
+          </button>
         ) : buyTarget ? (
           <BuyButton
             symbol={symbol}
@@ -255,10 +260,13 @@ export const TickerPlaceholderCard = ({ tagData, onClose }: TickerPlaceholderCar
             chainId={buyTarget.chainId}
             fiat={buyTarget.fiat}
           />
-        ) : ctaResolving ? (
-          <button className="tw-card__cta tw-card__cta--pending" type="button" disabled>
-            <span className="tw-card__spinner tw-card__spinner--sm" />
-          </button>
+        ) : swappableTarget ? (
+          <SwapButton
+            symbol={symbol}
+            chainKind={swappableTarget.chainKind}
+            chainId={swappableTarget.chainId}
+            assetSlug={swappableTarget.assetSlug}
+          />
         ) : null}
       </div>
 

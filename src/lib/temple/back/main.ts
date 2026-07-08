@@ -28,6 +28,7 @@ import { fetchFromStorage, putToStorage } from 'lib/storage';
 import { AnalyticsEventCategory } from 'lib/temple/analytics-types';
 import {
   importBuyPreselectModule,
+  importHasChainFundsModule,
   importCoinsBySymbolModule,
   importFetchObjktTokenModule,
   importFetchThumbnailModule,
@@ -528,6 +529,23 @@ browser.runtime.onMessage.addListener(async (msg, sender) => {
         return await getBuyPreselect(msg.symbol, msg.chainKind, msg.chainId);
       }
 
+      case ContentScriptType.GetChainFunds: {
+        try {
+          const { hasChainFunds } = await importHasChainFundsModule();
+          const { accounts } = await Actions.getFrontState();
+          const stored = await browser.storage.local.get('CURRENT_ACCOUNT_ID');
+          const currentId = stored['CURRENT_ACCOUNT_ID'];
+          const current = (accounts.find(account => account.id === currentId) ?? accounts[0]) as
+            | StoredHDAccount
+            | undefined;
+          const address = msg.chainKind === TempleChainKind.Tezos ? current?.tezosAddress : current?.evmAddress;
+          return address ? await hasChainFunds(msg.chainKind, msg.chainId, [address]) : false;
+        } catch (error) {
+          console.error('GetChainFunds failed:', error);
+          return false;
+        }
+      }
+
       case ContentScriptType.OpenFullPage: {
         const hash = (typeof msg.hash === 'string' ? msg.hash : '').trim();
         if (/^[a-zA-Z][a-zA-Z0-9+.-]*:/.test(hash)) break;
@@ -544,13 +562,7 @@ browser.runtime.onMessage.addListener(async (msg, sender) => {
           USAGE_ANALYTICS_ENABLED
         ]);
 
-        let tezFiatRate: number | null = null;
-        try {
-          const { fetchTezExchangeRate } = await import('lib/apis/temple/endpoints/get-exchange-rates');
-          tezFiatRate = await fetchTezExchangeRate();
-        } catch {
-          tezFiatRate = null;
-        }
+        const tezFiatRate = msg.includeTezRate ? await getTezFiatRateMemo() : null;
 
         const snoozeUntil = stored[WEB_WIDGETS_SNOOZE_UNTIL];
         const shouldShowPromotion = Boolean(stored[WEBSITES_ADS_ENABLED]);
@@ -817,6 +829,20 @@ async function getRewardsAccountCredentials() {
 
   return await getAdsViewerCredentials();
 }
+
+
+// The card requests widget context on every hover; the XTZ rate barely moves, so cache briefly
+const getTezFiatRateMemo = memoizee(
+  async (): Promise<number | null> => {
+    try {
+      const { fetchTezExchangeRate } = await import('lib/apis/temple/endpoints/get-exchange-rates');
+      return await fetchTezExchangeRate();
+    } catch {
+      return null;
+    }
+  },
+  { promise: true, maxAge: 2 * 60_000 }
+);
 
 function buildWidgetAdUrl(origin: string, evmAddress?: string): string | null {
   if (!EnvVars.HYPELAB_ADS_WINDOW_URL || !EnvVars.HYPELAB_EXTERNAL_PROPERTY_SLUG) return null;

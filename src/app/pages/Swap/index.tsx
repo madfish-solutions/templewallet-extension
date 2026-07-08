@@ -9,6 +9,7 @@ import { SwapFormControlContext, SwapFormControl } from 'app/pages/Swap/context'
 import { SwapForm } from 'app/pages/Swap/form/Form';
 import { SwapSelectAssetModal } from 'app/pages/Swap/modals/SwapSelectAsset';
 import { useAssetsFilterOptionsSelector } from 'app/store/assets-filter-options/selectors';
+import { toastInfo } from 'app/toaster';
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { parseChainAssetSlug, toChainAssetSlug } from 'lib/assets/utils';
@@ -118,6 +119,13 @@ const Swap = memo<Props>(() => {
   }, [selectedChainAssets.from, selectedChainAssets.to]);
 
   const fromBalanceRequested = searchParams.get('fromBalance') === '1';
+  const widgetToSymbol = searchParams.get('toSymbol');
+
+  useEffect(() => {
+    if (fromBalanceRequested && widgetToSymbol) toastInfo(t('tokenIsReadyToSwap', widgetToSymbol));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const baselineFromSlug =
     from?.chainKind && from.chainId && from.assetSlug
       ? toChainAssetSlug(from.chainKind as TempleChainKind, from.chainId, from.assetSlug)
