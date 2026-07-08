@@ -4,6 +4,7 @@ import { useDispatch } from 'react-redux';
 
 import { togglePartnersPromotionAction } from 'app/store/partners-promotion/actions';
 import { useShouldShowPartnersPromoSelector } from 'app/store/partners-promotion/selectors';
+import { browser } from 'lib/browser';
 import {
   AI_CHATBOT_ADS_ENABLED_DOMAINS_STORAGE_KEY,
   AI_CHATBOT_ADS_NUDGE_SESSION_STORAGE_KEY,
@@ -12,7 +13,6 @@ import {
 import { t } from 'lib/i18n';
 import { removeFromStorage } from 'lib/storage';
 import { useConfirm } from 'lib/ui/dialog';
-import { browser } from 'lib/browser';
 
 export const usePartnersPromotionSettings = () => {
   const dispatch = useDispatch();
