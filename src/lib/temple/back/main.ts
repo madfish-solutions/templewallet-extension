@@ -1,7 +1,7 @@
 import { AES } from 'crypto-js';
 import { pick } from 'lodash';
 import memoizee from 'memoizee';
-import browser, { Runtime } from 'webextension-polyfill';
+import { Runtime } from 'webextension-polyfill';
 import { ValidationError } from 'yup';
 
 import { getStoredAppInstallIdentity } from 'app/storage/app-install-id';
@@ -23,6 +23,7 @@ import {
   type AiChatbotAdsOfferAction
 } from 'lib/ai-chatbot-ads';
 import { importAdsApiModule } from 'lib/apis/ads-api';
+import { browser } from 'lib/browser';
 import {
   ADS_VIEWER_DATA_STORAGE_KEY,
   AI_CHATBOT_ADS_ENABLED_DOMAINS_STORAGE_KEY,
@@ -72,9 +73,7 @@ const merchantOfferSuppressedAt = new Map<string, number>();
 const aiChatbotAdsActiveNudges = new Map<string, { claimId: string; tabId?: number }>();
 const aiChatbotAdsOfferActions = new Set<AiChatbotAdsOfferAction>(['view', 'enable', 'dismiss']);
 
-type StorageWithSession = typeof browser.storage & { session?: typeof browser.storage.local };
-
-const getAiChatbotAdsSessionStorage = () => (browser.storage as StorageWithSession).session ?? browser.storage.local;
+const getAiChatbotAdsSessionStorage = () => browser.storage.session ?? browser.storage.local;
 
 browser.tabs.onRemoved.addListener(tabId => {
   for (const [domain, claim] of aiChatbotAdsActiveNudges) {
