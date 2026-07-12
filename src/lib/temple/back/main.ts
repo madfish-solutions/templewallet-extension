@@ -42,7 +42,7 @@ import {
 } from 'lib/constants';
 import { E2eMessageType } from 'lib/e2e/types';
 import { BACKGROUND_IS_WORKER, EnvVars, IS_FIREFOX, IS_MISES_BROWSER } from 'lib/env';
-import { fetchFromStorage, putToStorage } from 'lib/storage';
+import { fetchFromStorage, putManyToStorage, putToStorage } from 'lib/storage';
 import { AnalyticsEventCategory } from 'lib/temple/analytics-types';
 import {
   importFetchObjktTokenModule,
@@ -67,6 +67,7 @@ import { store, toFront } from './store';
 
 const frontStore = store.map(toFront);
 
+const PARTNERS_PROMOTION_STORAGE_KEY = 'persist:root.partnersPromotion';
 const DEALS_STORAGE_KEY = 'persist:root.deals';
 const MERCHANT_OFFER_SUPPRESSION_TTL = 15 * 60 * 1000;
 const merchantOfferSuppressedAt = new Map<string, number>();
@@ -818,9 +819,16 @@ browser.runtime.onMessage.addListener(async (msg, sender) => {
         const domain = normalizeAiChatbotAdsDomain(msg.domain);
         const enabledDomains = (await fetchFromStorage<string[]>(AI_CHATBOT_ADS_ENABLED_DOMAINS_STORAGE_KEY)) ?? [];
         if (!enabledDomains.includes(domain)) {
-          await putToStorage(AI_CHATBOT_ADS_ENABLED_DOMAINS_STORAGE_KEY, [...enabledDomains, domain]);
+          await putToStorage(AI_CHATBOT_ADS_ENABLED_DOMAINS_STORAGE_KEY, enabledDomains.concat(domain));
         }
 
+        await putManyToStorage({
+          [PARTNERS_PROMOTION_STORAGE_KEY]: {
+            ...((await fetchFromStorage(PARTNERS_PROMOTION_STORAGE_KEY)) ?? { promotionHidingTimestamps: {} }),
+            shouldShowPromotion: true
+          },
+          [WEBSITES_ADS_ENABLED]: true
+        });
         await recordAiChatbotAdsOffer(domain, 'enable');
         break;
       }

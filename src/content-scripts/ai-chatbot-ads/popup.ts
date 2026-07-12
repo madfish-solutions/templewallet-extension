@@ -25,8 +25,6 @@ export function mountAiChatbotAdsPopup({
   host.style.cssText = ['all: initial', 'position: fixed', 'z-index: 2147483647', 'pointer-events: none'].join(';');
   document.body.appendChild(host);
 
-  injectAiChatbotAdsPopupFont();
-
   const cleanupPosition = positionHost(host);
   const shadow = host.attachShadow({ mode: 'closed' });
   const style = document.createElement('style');
@@ -36,6 +34,7 @@ export function mountAiChatbotAdsPopup({
   const container = document.createElement('div');
   container.className = 'temple-nudge';
   container.innerHTML = `
+    <link rel="stylesheet" href="${POPUP_FONT_URL}" />
     <div class="temple-countdown" aria-hidden="true"></div>
     <div class="temple-copy">${formatCopy(text)}</div>
     <button class="temple-enable">Enable now</button>
@@ -124,15 +123,6 @@ export function mountAiChatbotAdsPopup({
   });
 
   return () => close();
-}
-
-function injectAiChatbotAdsPopupFont() {
-  if (document.querySelector<HTMLLinkElement>(`link[href="${POPUP_FONT_URL}"]`)) return;
-
-  const fontLink = document.createElement('link');
-  fontLink.rel = 'stylesheet';
-  fontLink.href = POPUP_FONT_URL;
-  document.head.appendChild(fontLink);
 }
 
 function positionHost(host: HTMLDivElement): () => void {

@@ -1,5 +1,3 @@
-export const CHATGPT_DOMAIN = 'chatgpt.com';
-
 export const AI_CHATBOT_ADS_HOST_ID = 'temple-ai-chatbot-ads-nudge-host';
 
 const ONE_DAY_MS = 24 * 60 * 60 * 1000;

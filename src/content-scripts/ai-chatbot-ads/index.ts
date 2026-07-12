@@ -1,7 +1,7 @@
+import { CHATGPT_DOMAIN } from 'lib/ads-constants/ads-constants';
 import { normalizeAiChatbotAdsDomain } from 'lib/ai-chatbot-ads';
 
 import { ChatGptAdapter } from './chatgpt-adapter';
-import { CHATGPT_DOMAIN } from './constants';
 import { AiChatbotAdsController } from './controller';
 
 (async () => {
