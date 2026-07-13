@@ -31,14 +31,16 @@ export const RewardsCard = () => {
       value={
         <div className="flex items-center gap-1">
           <img src={browser.runtime.getURL('misc/token-logos/tkey.png')} alt="TKEY" className="h-4 w-auto" />
-          <Money smallFractionFont={false}>{total}</Money>
+          <Money smallFractionFont={false} tooltip={false}>
+            {total}
+          </Money>
         </div>
       }
       change={
         (!isAdvertisingEnabled && !referralsEnabled) || !isDefined(lastAmount) ? undefined : (
           <>
             +
-            <Money cryptoDecimals={2} smallFractionFont={false}>
+            <Money cryptoDecimals={2} smallFractionFont={false} tooltip={false}>
               {lastAmount}
             </Money>
           </>

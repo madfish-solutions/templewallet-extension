@@ -51,7 +51,7 @@ export const StatsCard: FC<StatsCardProps> = ({
         )}
       </div>
       {chartData && (
-        <div className="flex-1">
+        <div className="flex-1 **:cursor-pointer">
           <SimpleChart data={chartData} />
         </div>
       )}
