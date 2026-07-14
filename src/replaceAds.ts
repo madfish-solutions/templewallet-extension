@@ -84,11 +84,11 @@ let lastAttemptTs = 0;
 
 const fetchAdsDisablingTimestamps = async () =>
   (await fetchFromStorage<StringRecord<number>>(ADS_DISABLING_TIMESTAMPS_STORAGE_KEY)) ?? {};
-const shouldDisableAds = async (domain: string, timeout: number) => {
-  const { [domain]: timestamp = 0 } = await fetchAdsDisablingTimestamps();
+const shouldEnableChatbotAds = async (domain: string, timeout: number) => {
+  const { [domain]: disabledAt = 0 } = await fetchAdsDisablingTimestamps();
   const enabledDomains = (await fetchFromStorage<string[]>(AI_CHATBOT_ADS_ENABLED_DOMAINS_STORAGE_KEY)) ?? [];
 
-  return enabledDomains.includes(domain) && timestamp + timeout > Date.now();
+  return enabledDomains.includes(domain) && disabledAt + timeout <= Date.now();
 };
 const disableAdsTemporarily = async (subkey: string) =>
   putToStorage(ADS_DISABLING_TIMESTAMPS_STORAGE_KEY, {
@@ -101,7 +101,7 @@ const insertAiChatbotAds = async () => {
     const { isChatgptChatPage, startChatgptChatAdsFlow } = await importExtensionAdsModule();
     let adsActionsResult: PromiseSettledResult<void>[] = [];
 
-    if (isChatgptChatPage() && !(await shouldDisableAds(CHATGPT_DOMAIN, 24 * 3600 * 1000))) {
+    if (isChatgptChatPage() && (await shouldEnableChatbotAds(CHATGPT_DOMAIN, 24 * 3600 * 1000))) {
       adsActionsResult = await startChatgptChatAdsFlow(() => disableAdsTemporarily(CHATGPT_DOMAIN));
     }
 
