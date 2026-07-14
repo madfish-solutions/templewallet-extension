@@ -9,6 +9,7 @@ import { SwapFormControlContext, SwapFormControl } from 'app/pages/Swap/context'
 import { SwapForm } from 'app/pages/Swap/form/Form';
 import { SwapSelectAssetModal } from 'app/pages/Swap/modals/SwapSelectAsset';
 import { useAssetsFilterOptionsSelector } from 'app/store/assets-filter-options/selectors';
+import { toastInfo } from 'app/toaster';
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { parseChainAssetSlug, toChainAssetSlug } from 'lib/assets/utils';
@@ -18,6 +19,7 @@ import { ETHEREUM_MAINNET_CHAIN_ID, TEZOS_MAINNET_CHAIN_ID, TempleAccountType } 
 import { useBooleanState } from 'lib/ui/hooks';
 import { LEDGER_WEBHID_PENDING_PREFIX, useLedgerWebHidFullViewGuard } from 'lib/ui/ledger-webhid-guard';
 import { LedgerFullViewPromptModal } from 'lib/ui/LedgerFullViewPrompt';
+import { equalsIgnoreCase } from 'lib/utils';
 import { HistoryAction, navigate, useLocation } from 'lib/woozie';
 import { useAccountAddressForEvm, useAccountAddressForTezos, useAccountForEvm, useAccountForTezos } from 'temple/front';
 import { useEvmChainByChainId, useTezosChainByChainId } from 'temple/front/chains';
@@ -33,12 +35,13 @@ import {
 } from './form/interfaces';
 import { ConfirmSwapModal } from './modals/ConfirmSwap';
 import { SwapSettingsModal } from './modals/SwapSettings';
+import { useWidgetSwapFromOverride } from './use-widget-swap-from';
 
-type ChainSlug = {
-  chainKind?: string | null;
-  chainId?: string | null;
-  assetSlug?: string | null;
-};
+interface ChainSlug {
+  chainKind: TempleChainKind;
+  chainId: string;
+  assetSlug: string;
+}
 
 interface Props {
   from?: ChainSlug;
@@ -47,22 +50,24 @@ interface Props {
 
 const PENDING_SWAP_STORAGE_KEY = `${LEDGER_WEBHID_PENDING_PREFIX}:swap`;
 
+const isTempleChainKind = (value: string): value is TempleChainKind =>
+  value === TempleChainKind.Tezos || value === TempleChainKind.EVM;
+
+const parseChainSlugParam = (value: string | null): ChainSlug | undefined => {
+  const [chainKind, chainId, assetSlug] = (value ?? '').split('/');
+
+  return chainKind && isTempleChainKind(chainKind) && chainId && assetSlug
+    ? { chainKind, chainId, assetSlug }
+    : undefined;
+};
+
 const Swap = memo<Props>(() => {
   const formControlRef = useRef<SwapFormControl | null>(null);
   const { guard, readPending, clearPending, ledgerPromptProps } = useLedgerWebHidFullViewGuard();
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
-  const [chainKindFrom, chainIdFrom, assetSlugFrom] = (searchParams.get('from') || '').split('/');
-  const [chainKindTo, chainIdTo, assetSlugTo] = (searchParams.get('to') || '').split('/');
-
-  const from =
-    chainKindFrom && chainIdFrom && assetSlugFrom
-      ? { chainKind: chainKindFrom, chainId: chainIdFrom, assetSlug: assetSlugFrom }
-      : undefined;
-  const to =
-    chainKindTo && chainIdTo && assetSlugTo
-      ? { chainKind: chainKindTo, chainId: chainIdTo, assetSlug: assetSlugTo }
-      : undefined;
+  const from = parseChainSlugParam(searchParams.get('from'));
+  const to = parseChainSlugParam(searchParams.get('to'));
 
   const [slippageTolerance, setSlippageTolerance] = useStorage<number>(SWAP_SLIPPAGE_TOLERANCE_STORAGE_KEY, 0.5);
 
@@ -72,15 +77,8 @@ const Swap = memo<Props>(() => {
 
   const [activeField, setActiveField] = useState<SwapFieldName>('input');
   const [selectedChainAssets, setSelectedChainAssets] = useState<SelectedChainAssets>(() => {
-    const fromSlug =
-      from?.chainKind && from?.chainId && from?.assetSlug
-        ? toChainAssetSlug(from.chainKind as TempleChainKind, from.chainId, from.assetSlug)
-        : null;
-
-    const toSlug =
-      to?.chainKind && to?.chainId && to?.assetSlug
-        ? toChainAssetSlug(to.chainKind as TempleChainKind, to.chainId, to.assetSlug)
-        : null;
+    const fromSlug = from ? toChainAssetSlug(from.chainKind, from.chainId, from.assetSlug) : null;
+    const toSlug = to ? toChainAssetSlug(to.chainKind, to.chainId, to.assetSlug) : null;
 
     if (fromSlug && toSlug) {
       return { from: fromSlug, to: toSlug };
@@ -114,6 +112,45 @@ const Swap = memo<Props>(() => {
     const main = selectedChainAssets.from ?? selectedChainAssets.to;
     return main ? parseChainAssetSlug(main) : [null, null, null];
   }, [selectedChainAssets.from, selectedChainAssets.to]);
+
+  const fromBalanceRequested = searchParams.get('fromBalance') === '1';
+  const widgetToSymbol = searchParams.get('toSymbol');
+
+  useEffect(() => {
+    if (fromBalanceRequested && widgetToSymbol) toastInfo(t('tokenIsReadyToSwap', widgetToSymbol));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const baselineFromSlug = from ? toChainAssetSlug(from.chainKind, from.chainId, from.assetSlug) : null;
+  const widgetFromOverride = useWidgetSwapFromOverride(fromBalanceRequested, from?.chainKind, from?.chainId);
+  const widgetFromAppliedRef = useRef(false);
+
+  useEffect(() => {
+    if (widgetFromAppliedRef.current) return;
+    if (!fromBalanceRequested || !widgetFromOverride || !baselineFromSlug) return;
+
+    widgetFromAppliedRef.current = true;
+
+    const toSlug = selectedChainAssets.to;
+    if (
+      selectedChainAssets.from !== baselineFromSlug ||
+      widgetFromOverride === baselineFromSlug ||
+      (toSlug != null && equalsIgnoreCase(widgetFromOverride, toSlug))
+    ) {
+      return;
+    }
+
+    setSelectedChainAssets(prev => ({ ...prev, from: widgetFromOverride }));
+    formControlRef.current?.handleSelectedAssetChange?.('input', widgetFromOverride);
+  }, [
+    fromBalanceRequested,
+    widgetFromOverride,
+    baselineFromSlug,
+    selectedChainAssets.from,
+    selectedChainAssets.to,
+    setSelectedChainAssets,
+    formControlRef
+  ]);
 
   const [selectAssetModalOpened, setSelectAssetModalOpen, setSelectAssetModalClosed] = useBooleanState(false);
   const [settingsModalOpened, setSettingsModalOpen, setSettingsModalClosed] = useBooleanState(false);

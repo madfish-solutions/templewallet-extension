@@ -10,6 +10,7 @@ import {
 import { onStorageChanged } from 'lib/storage';
 import type { AdsViewerData } from 'temple/types';
 
+import { cryptoTokenDetector } from './detectors/crypto/crypto-token-detector';
 import { objktDetector } from './detectors/objkt/objkt-detector';
 import { ScanEngine } from './engine/scan-engine';
 import { loadWidgetFonts } from './load-fonts';
@@ -25,6 +26,7 @@ export function bootstrap(): void {
 
   const registry = new DetectorRegistry();
   registry.register(objktDetector);
+  registry.register(cryptoTokenDetector);
 
   const engine = new ScanEngine(registry);
 

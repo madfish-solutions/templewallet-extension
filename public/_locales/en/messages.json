@@ -4782,6 +4782,22 @@
   "yourWalletIsReady": {
     "message": "Your wallet is ready"
   },
+  "tokenIsReadyToBuy": {
+    "message": "$symbol$ token is ready to buy",
+    "placeholders": {
+      "symbol": {
+        "content": "$1"
+      }
+    }
+  },
+  "tokenIsReadyToSwap": {
+    "message": "$symbol$ token is ready to swap",
+    "placeholders": {
+      "symbol": {
+        "content": "$1"
+      }
+    }
+  },
   "welcomeToRewards": {
     "message": "Welcome to Rewards"
   },

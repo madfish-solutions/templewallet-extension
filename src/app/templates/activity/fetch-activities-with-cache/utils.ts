@@ -28,12 +28,12 @@ import {
 import { toEvmAssetSlug } from 'lib/assets/utils';
 import { EVM_ZERO_ADDRESS } from 'lib/constants';
 import { EvmOperationKind, getOperationKind } from 'lib/evm/on-chain/transactions';
-import { equalsIgnoreCase } from 'lib/evm/on-chain/utils/common.utils';
 import { EvmAssetStandard } from 'lib/evm/types';
 import { getEvmNativeAssetIcon } from 'lib/images-uri';
 import { EvmCollectibleMetadata, EvmTokenMetadata } from 'lib/metadata/types';
 import { getSeparateEvmActivities } from 'lib/temple/activity/repo';
 import { DEFAULT_EVM_CHAINS_SPECS } from 'lib/temple/chains-specs';
+import { equalsIgnoreCase } from 'lib/utils';
 import { TempleChainKind } from 'temple/types';
 
 export interface AllEtherlinkActivitiesPageParams {

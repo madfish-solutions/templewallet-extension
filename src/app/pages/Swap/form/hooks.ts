@@ -33,11 +33,11 @@ import { Route3EvmTokenWithPrice } from 'lib/apis/temple/endpoints/evm/api.inter
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { toChainAssetSlug, toTokenSlug } from 'lib/assets/utils';
 import { EVM_ZERO_ADDRESS } from 'lib/constants';
-import { equalsIgnoreCase } from 'lib/evm/on-chain/utils/common.utils';
 import { EvmAssetStandard } from 'lib/evm/types';
 import { LIFI_SUPPORTED_CHAIN_IDS_INTERVAL } from 'lib/fixed-times';
 import { ETHERLINK_MAINNET_CHAIN_ID } from 'lib/temple/types';
 import { useInterval } from 'lib/ui/hooks';
+import { equalsIgnoreCase } from 'lib/utils';
 import { EvmChain, useEnabledEvmChains } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
 

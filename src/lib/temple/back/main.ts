@@ -27,8 +27,13 @@ import { BACKGROUND_IS_WORKER, EnvVars, IS_FIREFOX, IS_MISES_BROWSER } from 'lib
 import { fetchFromStorage, putToStorage } from 'lib/storage';
 import { AnalyticsEventCategory } from 'lib/temple/analytics-types';
 import {
+  importBuyPreselectModule,
+  importHasChainFundsModule,
+  importCoinsBySymbolModule,
   importFetchObjktTokenModule,
   importFetchThumbnailModule,
+  importFetchTokenChartModule,
+  importResolveAssetModule,
   importResolveTcoModule
 } from 'lib/temple/back/import-web-widgets-handlers';
 import { encodeMessage, encryptMessage, getSenderId, MessageType, Response } from 'lib/temple/beacon';
@@ -36,6 +41,7 @@ import { clearAsyncStorages } from 'lib/temple/reset';
 import { StoredHDAccount, TempleMessageType, TempleRequest, TempleResponse } from 'lib/temple/types';
 import { withNonImportErrorForwarding } from 'lib/utils/import-error';
 import { getTrackedCashbackServiceDomain, getTrackedUrl } from 'lib/utils/url-track/url-track.utils';
+import { getAccountAddressForChain, getAccountAddressForTezos } from 'temple/accounts';
 import { EVMErrorCodes } from 'temple/evm/constants';
 import { ErrorWithCode } from 'temple/evm/types';
 import { parseTransactionRequest } from 'temple/evm/utils';
@@ -504,6 +510,49 @@ browser.runtime.onMessage.addListener(async (msg, sender) => {
         return await fetchThumbnailBlob(msg.url);
       }
 
+      case ContentScriptType.GetCoinsBySymbol: {
+        const { getCoinsBySymbol } = await importCoinsBySymbolModule();
+        return await getCoinsBySymbol();
+      }
+
+      case ContentScriptType.FetchTokenChart: {
+        const { fetchTokenChart } = await importFetchTokenChartModule();
+        return await fetchTokenChart(msg.coinId);
+      }
+
+      case ContentScriptType.ResolveAsset: {
+        const { resolveAsset } = await importResolveAssetModule();
+        return await resolveAsset(msg.coinId);
+      }
+
+      case ContentScriptType.GetBuyPreselect: {
+        const { getBuyPreselect } = await importBuyPreselectModule();
+        return await getBuyPreselect(msg.symbol, msg.chainKind, msg.chainId);
+      }
+
+      case ContentScriptType.GetChainFunds: {
+        try {
+          const { hasChainFunds } = await importHasChainFundsModule();
+          const { accounts } = await Actions.getFrontState();
+          const stored = await browser.storage.local.get('CURRENT_ACCOUNT_ID');
+          const currentId = stored['CURRENT_ACCOUNT_ID'];
+          const current = accounts.find(account => account.id === currentId) ?? accounts.at(0);
+          const address = current && getAccountAddressForChain(current, msg.chainKind);
+          return address ? await hasChainFunds(msg.chainKind, msg.chainId, [address]) : false;
+        } catch (error) {
+          console.error('GetChainFunds failed:', error);
+          return false;
+        }
+      }
+
+      case ContentScriptType.OpenFullPage: {
+        const hash = (typeof msg.hash === 'string' ? msg.hash : '').trim();
+        if (/^[a-zA-Z][a-zA-Z0-9+.-]*:/.test(hash)) break;
+        const sanitizedHash = hash.startsWith('#') ? hash : '#' + hash;
+        await browser.tabs.create({ url: browser.runtime.getURL('fullpage.html' + sanitizedHash) });
+        break;
+      }
+
       case ContentScriptType.WidgetContext: {
         const stored = await browser.storage.local.get([
           WEB_WIDGETS_LOCAL_AD_PERMIT,
@@ -512,13 +561,7 @@ browser.runtime.onMessage.addListener(async (msg, sender) => {
           USAGE_ANALYTICS_ENABLED
         ]);
 
-        let tezFiatRate: number | null = null;
-        try {
-          const { fetchTezExchangeRate } = await import('lib/apis/temple/endpoints/get-exchange-rates');
-          tezFiatRate = await fetchTezExchangeRate();
-        } catch {
-          tezFiatRate = null;
-        }
+        const tezFiatRate = msg.includeTezRate ? await getTezFiatRateMemo() : null;
 
         const snoozeUntil = stored[WEB_WIDGETS_SNOOZE_UNTIL];
         const shouldShowPromotion = Boolean(stored[WEBSITES_ADS_ENABLED]);
@@ -543,7 +586,7 @@ browser.runtime.onMessage.addListener(async (msg, sender) => {
         const { fetchObjktOwnedCount } = await importFetchObjktTokenModule();
         const { accounts } = await Actions.getFrontState();
         const addresses = accounts
-          .map(account => (account as StoredHDAccount).tezosAddress)
+          .map(getAccountAddressForTezos)
           .filter((address): address is string => Boolean(address));
         return await fetchObjktOwnedCount(msg.contract, msg.tokenId, addresses.join(','));
       }
@@ -785,6 +828,18 @@ async function getRewardsAccountCredentials() {
 
   return await getAdsViewerCredentials();
 }
+
+const getTezFiatRateMemo = memoizee(
+  async (): Promise<number | null> => {
+    try {
+      const { fetchTezExchangeRate } = await import('lib/apis/temple/endpoints/get-exchange-rates');
+      return await fetchTezExchangeRate();
+    } catch {
+      return null;
+    }
+  },
+  { promise: true, maxAge: 2 * 60_000 }
+);
 
 function buildWidgetAdUrl(origin: string, evmAddress?: string): string | null {
   if (!EnvVars.HYPELAB_ADS_WINDOW_URL || !EnvVars.HYPELAB_EXTERNAL_PROPERTY_SLUG) return null;

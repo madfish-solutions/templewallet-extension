@@ -7,7 +7,6 @@ import { fetchOperGroupsForOperations, fetchOperations } from 'lib/activity/tezo
 import { TezosActivityOlderThan } from 'lib/activity/tezos/types';
 import { EtherlinkChainId } from 'lib/apis/etherlink';
 import { fromAssetSlug } from 'lib/assets';
-import { equalsIgnoreCase } from 'lib/evm/on-chain/utils/common.utils';
 import { EvmCollectibleMetadata, EvmTokenMetadata } from 'lib/metadata/types';
 import {
   GetEvmActivitiesIntervalResult,
@@ -21,7 +20,7 @@ import {
   getSeparateTezosActivities
 } from 'lib/temple/activity/repo';
 import { TempleTezosChainId } from 'lib/temple/types';
-import { filterUnique } from 'lib/utils';
+import { equalsIgnoreCase, filterUnique } from 'lib/utils';
 
 import {
   AllEtherlinkActivitiesPageParams,

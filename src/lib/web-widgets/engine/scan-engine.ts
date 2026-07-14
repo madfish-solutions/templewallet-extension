@@ -140,7 +140,7 @@ export class ScanEngine {
     const mounts: MountedPill[] = [];
     const pill = mountPill(ref, tagData);
     if (pill) mounts.push(pill);
-    if (ref.linkEl) mounts.push(mountLinkHover(ref.linkEl, tagData));
+    if (ref.kind === 'objkt' && ref.linkEl) mounts.push(mountLinkHover(ref.linkEl, tagData));
     if (mounts.length === 0) return;
 
     const existing = this.rootsByPost.get(ref.postEl);
