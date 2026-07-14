@@ -18,7 +18,7 @@ export const Pill = ({ tagData }: PillProps) => {
 
   return (
     <span ref={pillRef} className="tw-pill" onMouseEnter={handleEnter} onMouseLeave={handleLeave}>
-      {tagData.iconUrl ? <img className="tw-pill__icon" src={tagData.iconUrl} alt="nft" /> : null}
+      {tagData.iconUrl ? <img className="tw-pill__icon" src={tagData.iconUrl} alt={tagData.label} /> : null}
       <span className="tw-pill__label">{label}</span>
       <HoverPlaceholder
         tagData={tagData}

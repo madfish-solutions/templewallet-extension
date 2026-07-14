@@ -33,8 +33,8 @@ const objktGraphqlFetch = async (body: string): Promise<Response> => {
 
 export const fetchObjktToken = memoizee(
   async (fa: string, tokenId: string): Promise<ObjktToken | null> => {
-    try {
-      for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+    for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+      try {
         const response = await objktGraphqlFetch(
           JSON.stringify({ query: OBJKT_TOKEN_QUERY, variables: { fa, id: tokenId } })
         );
@@ -49,12 +49,13 @@ export const fetchObjktToken = memoizee(
 
         const json: ObjktTokenQueryResponse = await response.json();
         return json.data?.token[0] ?? null;
+      } catch {
+        if (attempt === MAX_RETRIES) return null;
+        await delay(BACKOFF_MS * (attempt + 1));
       }
-
-      return null;
-    } catch {
-      return null;
     }
+
+    return null;
   },
   { promise: true, maxAge: TTL_MS, length: 2 }
 );

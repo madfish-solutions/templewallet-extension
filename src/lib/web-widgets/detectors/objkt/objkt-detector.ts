@@ -23,20 +23,22 @@ export const objktDetector: Detector = {
       if (!pointsAtObjkt(visibleText(anchor))) continue;
       const href = anchor.getAttribute('href');
       if (!href) continue;
-      refs.push({ sourceHref: href, postEl: post, statusId, linkEl: anchor });
+      refs.push({ kind: 'objkt', sourceHref: href, postEl: post, statusId, linkEl: anchor });
     }
 
     // Direct objkt links
     for (const anchor of post.querySelectorAll<HTMLAnchorElement>(DIRECT_OBJKT_LINK)) {
       const href = anchor.getAttribute('href');
       if (!href) continue;
-      refs.push({ sourceHref: href, postEl: post, statusId, linkEl: anchor });
+      refs.push({ kind: 'objkt', sourceHref: href, postEl: post, statusId, linkEl: anchor });
     }
 
     return refs;
   },
 
   async resolve(ref: DetectedRef): Promise<TagData | null> {
+    if (ref.kind !== 'objkt') return null;
+
     const isDirect = ref.sourceHref.startsWith('https://objkt.com/');
 
     const objktUrl = isDirect ? ref.sourceHref : await messaging.resolveTco(ref.sourceHref);

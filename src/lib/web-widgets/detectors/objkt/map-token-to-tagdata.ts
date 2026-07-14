@@ -34,6 +34,7 @@ export const mapTokenToTagData = (token: ObjktToken | null, { fa, tokenId }: Obj
   if (!label && !iconUrl) return null;
 
   return {
+    kind: 'objkt',
     iconUrl: iconUrl ?? '',
     label,
     href: `https://objkt.com/tokens/${contract}/${tokenId}`,

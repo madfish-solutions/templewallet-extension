@@ -62,7 +62,7 @@ const lifiEvmTokensMetadataReducer = createReducer<LifiEvmTokensMetadataState>(
 export const lifiEvmTokensMetadataPersistedReducer = persistReducer(
   {
     key: 'root.lifiEvmTokensMetadata',
-    blacklist: ['isLoading', 'error', 'connectedTokensMetadataRecord', 'enabledChainsTokensMetadataRecord'],
+    blacklist: ['isLoading', 'error', 'connectedTokensMetadataRecord'],
     ...storageConfig
   },
   lifiEvmTokensMetadataReducer

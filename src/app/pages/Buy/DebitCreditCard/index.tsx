@@ -1,16 +1,29 @@
-import React, { FC, useEffect, useState } from 'react';
+import React, { FC, useEffect, useRef, useState } from 'react';
 
 import { FormProvider, useForm, useWatch } from 'react-hook-form';
 
 import { PageTitle } from 'app/atoms';
+import { useLocationSearchParamValue } from 'app/hooks/use-location';
 import PageLayout from 'app/layouts/PageLayout';
 import { dispatch } from 'app/store';
 import { loadAllCurrenciesActions } from 'app/store/buy-with-credit-card/actions';
+import { toastInfo } from 'app/toaster';
+import { getAssetSymbolToDisplay } from 'lib/buy-with-credit-card/get-asset-symbol-to-display';
+import { fromTopUpTokenSlug } from 'lib/buy-with-credit-card/top-up-token-slug.utils';
 import { t } from 'lib/i18n';
 import { useBooleanState, useInterval } from 'lib/ui/hooks';
+import { equalsIgnoreCase } from 'lib/utils';
+import { TempleChainKind } from 'temple/types';
 
-import { DEFAULT_FORM_VALUES, FORM_REFRESH_INTERVAL } from './config';
+import {
+  DEFAULT_INPUT_CURRENCY,
+  DEFAULT_OUTPUT_TOKEN,
+  DEFAULT_TEZOS_OUTPUT_TOKEN,
+  FORM_REFRESH_INTERVAL
+} from './config';
 import { Form } from './Form';
+import { useAllCryptoCurrencies } from './hooks/use-all-crypto-currencies';
+import { useAllFiatCurrencies } from './hooks/use-all-fiat-currencies';
 import { useErrorAlert } from './hooks/use-error-alert';
 import { useFormInputsCallbacks } from './hooks/use-form-inputs-callbacks';
 import { usePaymentProviders } from './hooks/use-payment-providers';
@@ -27,10 +40,21 @@ export const DebitCreditCard: FC = () => {
   const [selectTokenModalOpened, openSelectTokenModal, closeSelectTokenModal] = useBooleanState(false);
   const [selectProviderModalOpened, openSelectProviderModal, closeSelectProviderModal] = useBooleanState(false);
 
+  const [currencyParam] = useLocationSearchParamValue('currency');
+  const [tokenParam] = useLocationSearchParamValue('token');
+
+  const tokenChainKind = tokenParam ? fromTopUpTokenSlug(tokenParam)[1]?.toLowerCase() : undefined;
+  const preferTezos = tokenChainKind === TempleChainKind.Tezos;
+
+  const defaultValues: BuyWithCreditCardFormData = {
+    inputCurrency: DEFAULT_INPUT_CURRENCY,
+    outputToken: preferTezos ? DEFAULT_TEZOS_OUTPUT_TOKEN : DEFAULT_OUTPUT_TOKEN
+  };
+
   const form = useForm<BuyWithCreditCardFormData>({
     mode: 'onChange',
     reValidateMode: 'onChange',
-    defaultValues: DEFAULT_FORM_VALUES
+    defaultValues
   });
 
   const { control } = form;
@@ -38,6 +62,32 @@ export const DebitCreditCard: FC = () => {
   const inputAmount = useWatch({ name: 'inputAmount', control });
   const inputCurrency = useWatch({ name: 'inputCurrency', control });
   const outputToken = useWatch({ name: 'outputToken', control });
+  const allFiatCurrencies = useAllFiatCurrencies(inputCurrency.code, outputToken.slug);
+  const allCryptoCurrencies = useAllCryptoCurrencies();
+
+  const presetsAppliedRef = useRef(false);
+
+  useEffect(() => {
+    if (presetsAppliedRef.current) return;
+    if (!currencyParam && !tokenParam) return;
+    if (currencyParam && allFiatCurrencies.length === 0) return;
+    if (tokenParam && allCryptoCurrencies.length === 0) return;
+
+    presetsAppliedRef.current = true;
+
+    const presetCurrency = currencyParam
+      ? allFiatCurrencies.find(({ code }) => equalsIgnoreCase(code, currencyParam))
+      : undefined;
+    const presetToken = tokenParam
+      ? allCryptoCurrencies.find(({ slug }) => equalsIgnoreCase(slug, tokenParam))
+      : undefined;
+
+    if (presetCurrency) form.setValue('inputCurrency', presetCurrency);
+    if (presetToken) {
+      form.setValue('outputToken', presetToken);
+      toastInfo(t('tokenIsReadyToBuy', getAssetSymbolToDisplay(presetToken)));
+    }
+  }, [currencyParam, tokenParam, allFiatCurrencies, allCryptoCurrencies, form]);
 
   const { allPaymentProviders, paymentProvidersToDisplay, providersErrors, updateOutputAmounts } = usePaymentProviders(
     inputAmount,
