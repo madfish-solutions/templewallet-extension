@@ -4,7 +4,9 @@ import { useDispatch } from 'react-redux';
 
 import { togglePartnersPromotionAction } from 'app/store/partners-promotion/actions';
 import { useShouldShowPartnersPromoSelector } from 'app/store/partners-promotion/selectors';
+import { ADS_DISABLING_TIMESTAMPS_STORAGE_KEY } from 'lib/constants';
 import { t } from 'lib/i18n';
+import { putToStorage } from 'lib/storage';
 import { useConfirm } from 'lib/ui/dialog';
 
 export const usePartnersPromotionSettings = () => {
@@ -23,6 +25,7 @@ export const usePartnersPromotionSettings = () => {
 
     if (confirmed) {
       dispatch(togglePartnersPromotionAction(false));
+      await putToStorage(ADS_DISABLING_TIMESTAMPS_STORAGE_KEY, {});
     }
   };
 
