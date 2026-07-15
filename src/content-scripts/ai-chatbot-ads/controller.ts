@@ -32,7 +32,7 @@ export class AiChatbotAdsController {
   private readonly siteStartedAt = Date.now();
   private completedAnswers = 0;
   private currentAnswerState: AiChatbotAnswerState;
-  private previousAnswerState: AiChatbotAnswerState;
+  private previousAnswerState: Exclude<AiChatbotAnswerState, 'indeterminate'>;
   private popupClose: ((action?: AiChatbotAdsPopupAction) => void) | null = null;
   private activeClaimId: string | null = null;
   private disposed = false;
@@ -43,7 +43,7 @@ export class AiChatbotAdsController {
     this.adapter = adapter;
     this.domain = domain;
     this.currentAnswerState = adapter.getAnswerState();
-    this.previousAnswerState = this.currentAnswerState;
+    this.previousAnswerState = this.currentAnswerState === 'indeterminate' ? 'idle' : this.currentAnswerState;
   }
 
   start(): void {
@@ -73,39 +73,45 @@ export class AiChatbotAdsController {
   dispose = (): void => {
     if (this.disposed) return;
     this.disposed = true;
-    this.popupClose?.('timeout');
+    this.popupClose?.();
     this.releaseClaim();
     this.cleanups.splice(0).forEach(cleanup => cleanup());
   };
 
-  private handleAnswerStateChange(state: AiChatbotAnswerState): void {
-    this.previousAnswerState = this.currentAnswerState;
+  private assignAnswerState(state: AiChatbotAnswerState): void {
+    if (this.currentAnswerState !== 'indeterminate') {
+      this.previousAnswerState = this.currentAnswerState;
+    }
     this.currentAnswerState = state;
+  }
+
+  private handleAnswerStateChange(state: AiChatbotAnswerState): void {
+    this.assignAnswerState(state);
 
     if (state !== 'idle' && this.popupClose) {
-      this.popupClose('timeout');
+      this.popupClose();
       return;
     }
 
     if (this.previousAnswerState === 'answering' && state === 'idle') {
       this.completedAnswers++;
-      this.evaluate('completed-answer');
+      this.evaluate('completed-answer', false);
       return;
     }
 
-    this.evaluate('tick');
+    this.evaluate('tick', false);
   }
 
   private handlePageStateTick(): void {
     if (this.adapter.hasActiveModal() && this.popupClose) {
-      this.popupClose('timeout');
+      this.popupClose();
       return;
     }
 
     this.evaluate('tick');
   }
 
-  private async evaluate(trigger: AiChatbotAdsTrigger): Promise<void> {
+  private async evaluate(trigger: AiChatbotAdsTrigger, shouldAssignAnswerState = true): Promise<void> {
     if (this.disposed || this.evaluating || this.popupClose) return;
     if (document.getElementById(AI_CHATBOT_ADS_HOST_ID)) return;
 
@@ -114,7 +120,8 @@ export class AiChatbotAdsController {
     try {
       const state = await this.fetchNudgeState();
       const answerState = this.adapter.getAnswerState();
-      this.currentAnswerState = answerState;
+
+      if (shouldAssignAnswerState) this.assignAnswerState(answerState);
 
       const offer = getEligibleAiChatbotAdsOffer({
         now: Date.now(),

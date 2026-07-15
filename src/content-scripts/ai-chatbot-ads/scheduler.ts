@@ -43,7 +43,7 @@ export function getEligibleAiChatbotAdsOffer({
   if (domainState.disabled) return null;
   if (domainState.snoozedUntil && now < domainState.snoozedUntil) return null;
   if (domainState.cooldownUntil && now < domainState.cooldownUntil) return null;
-  if (sessionDomainState.stopped) return null;
+  if (sessionDomainState.stoppedUntil && now < sessionDomainState.stoppedUntil) return null;
 
   const appearanceCount = sessionDomainState.appearanceCount ?? 0;
   if (appearanceCount >= AI_CHATBOT_ADS_MAX_APPEARANCES) return null;
@@ -92,14 +92,16 @@ export function buildTimedOutState(
   const appearanceCount = sessionDomainState.appearanceCount ?? 0;
 
   if (appearanceCount >= AI_CHATBOT_ADS_MAX_APPEARANCES) {
+    const cooldownUntil = now + AI_CHATBOT_ADS_TIMING.cycleCooldownMs;
+
     return {
       domainState: {
         ...domainState,
-        cooldownUntil: now + AI_CHATBOT_ADS_TIMING.cycleCooldownMs
+        cooldownUntil
       },
       sessionDomainState: {
         ...sessionDomainState,
-        stopped: true
+        stoppedUntil: cooldownUntil
       }
     };
   }
@@ -135,7 +137,8 @@ export function buildDismissedState(
           },
     sessionDomainState: {
       ...sessionDomainState,
-      stopped: true
+      stoppedUntil:
+        dismissCount === 0 ? now + AI_CHATBOT_ADS_TIMING.dismissSnoozeMs : Number.MAX_SAFE_INTEGER
     }
   };
 }
@@ -143,6 +146,6 @@ export function buildDismissedState(
 export function buildEnabledSessionState(sessionDomainState: AiChatbotAdsDomainSessionState) {
   return {
     ...sessionDomainState,
-    stopped: true
+    stoppedUntil: Number.MAX_SAFE_INTEGER
   };
 }

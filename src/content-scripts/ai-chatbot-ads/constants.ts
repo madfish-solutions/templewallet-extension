@@ -7,7 +7,7 @@ export const AI_CHATBOT_ADS_TIMING = {
   visibleWindowMs: 15_000,
   entranceMs: 260,
   exitMs: 250,
-  reShowBackoffMs: 5 * 60 * 1000,
+  reShowBackoffMs: 10 * 60 * 1000,
   cycleCooldownMs: 30 * ONE_DAY_MS,
   dismissSnoozeMs: ONE_DAY_MS
 } as const;

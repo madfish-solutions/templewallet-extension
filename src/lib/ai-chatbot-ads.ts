@@ -14,7 +14,7 @@ export interface AiChatbotAdsNudgeState {
 export interface AiChatbotAdsDomainSessionState {
   appearanceCount?: number;
   firstIgnoredAt?: number;
-  stopped?: boolean;
+  stoppedUntil?: number;
   usedCopyIds?: string[];
 }
 
