@@ -137,8 +137,7 @@ export function buildDismissedState(
           },
     sessionDomainState: {
       ...sessionDomainState,
-      stoppedUntil:
-        dismissCount === 0 ? now + AI_CHATBOT_ADS_TIMING.dismissSnoozeMs : Number.MAX_SAFE_INTEGER
+      stoppedUntil: dismissCount === 0 ? now + AI_CHATBOT_ADS_TIMING.dismissSnoozeMs : Number.MAX_SAFE_INTEGER
     }
   };
 }
