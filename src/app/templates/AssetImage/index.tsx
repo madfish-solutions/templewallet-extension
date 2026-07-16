@@ -17,6 +17,7 @@ export { TezosAssetImageStacked } from './AssetImageStacked';
 export interface TezosAssetImageProps extends Omit<TezosAssetImageStackedProps, 'sources' | 'metadata'> {
   tezosChainId: string;
   assetSlug: string;
+  withNetworkLogoTooltip?: boolean;
   Loader?: Placeholder<TezosAssetImageProps, AssetMetadataBase>;
   Fallback?: Placeholder<TezosAssetImageProps, AssetMetadataBase>;
 }
@@ -39,6 +40,7 @@ export const TezosAssetImage = memo<TezosAssetImageProps>(({ Loader, Fallback, .
 export interface EvmAssetImageProps extends Omit<EvmAssetImageStackedProps, 'sources' | 'metadata'> {
   evmChainId: number;
   assetSlug: string;
+  withNetworkLogoTooltip?: boolean;
   Loader?: Placeholder<EvmAssetImageProps, EvmAssetMetadataBase>;
   Fallback?: Placeholder<EvmAssetImageProps, EvmAssetMetadataBase>;
   metadata?: EvmAssetMetadataBase;
