@@ -1,7 +1,9 @@
 import { isDefined } from '@rnw-community/shared';
 
 import { Money } from 'app/atoms';
+import { PostUpdateRewardsFooter } from 'app/atoms/post-update-rewards-footer';
 import { usePartnersPromotionSettings } from 'app/hooks/use-partners-promotion-settings';
+import { usePostUpdateRewards } from 'app/hooks/use-post-update-rewards';
 import { useReferralLinksSettings } from 'app/hooks/use-referral-links-settings';
 import { useTkeyRewardsStats } from 'app/hooks/use-rewards-stats';
 import { browser } from 'lib/browser';
@@ -15,6 +17,7 @@ export const RewardsCard = () => {
   const { isEnabled: isAdvertisingEnabled } = usePartnersPromotionSettings();
   const { isEnabled: isReferralLinksEnabled } = useReferralLinksSettings();
   const { isLoading: isTkeyLoading, stats: tkeyStats } = useTkeyRewardsStats();
+  const { multiplierActive, daysRemaining } = usePostUpdateRewards();
 
   const referralsEnabled = isReferralLinksEnabled && IS_MISES_BROWSER;
 
@@ -47,6 +50,7 @@ export const RewardsCard = () => {
         )
       }
       caption={isAdvertisingEnabled || referralsEnabled ? undefined : <T id="missingPayoutsCaption" />}
+      footer={multiplierActive ? <PostUpdateRewardsFooter daysRemaining={daysRemaining} /> : undefined}
     />
   );
 };

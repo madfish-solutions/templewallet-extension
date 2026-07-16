@@ -51,6 +51,9 @@ const LazyRewardsDealsHowItWorks = React.lazy(() =>
 const LazyRewardsPromoActivate = React.lazy(() =>
   import('./pages/Rewards/Promo/Activate').then(m => ({ default: m.RewardsPromoActivate }))
 );
+const LazyPostUpdateRewardsPage = React.lazy(() =>
+  import('./pages/PostUpdateRewards').then(m => ({ default: m.PostUpdateRewardsPage }))
+);
 const LazyImportWallet = React.lazy(() => import('./pages/ImportWallet').then(m => ({ default: m.ImportWallet })));
 
 interface RouteContext {
@@ -92,6 +95,7 @@ const ROUTE_MAP = Woozie.createMap<RouteContext>([
       return lazily(<LazyImportWallet />);
     }
   ],
+  ['/post-update-rewards', (_p, ctx) => (ctx.fullPage ? lazily(<LazyPostUpdateRewardsPage />) : <OpenInFullPage />)],
   [
     '*',
     (_p, ctx) => {

@@ -2,7 +2,9 @@ import { FC } from 'react';
 
 import { Button, IconBase, Loader } from 'app/atoms';
 import { AnimatedMenuChevron } from 'app/atoms/animated-menu-chevron';
+import { PostUpdateRewardsFooter } from 'app/atoms/post-update-rewards-footer';
 import { usePartnersPromotionSettings } from 'app/hooks/use-partners-promotion-settings';
+import { usePostUpdateRewards } from 'app/hooks/use-post-update-rewards';
 import { useTkeyRewardsStats } from 'app/hooks/use-rewards-stats';
 import { ReactComponent as InfoIcon } from 'app/icons/base/InfoFill.svg';
 import { t } from 'lib/i18n';
@@ -22,6 +24,7 @@ const PromoInfoIcon: FC = () => {
 
 export const PromoCard: FC = () => {
   const { isEnabled } = usePartnersPromotionSettings();
+  const { multiplierActive, daysRemaining } = usePostUpdateRewards();
   const { animatedChevronRef, handleHover, handleUnhover } = useActivateAnimatedChevron();
 
   const { isLoading, stats } = useTkeyRewardsStats();
@@ -51,7 +54,7 @@ export const PromoCard: FC = () => {
 
   if (isLoading) {
     return (
-      <div className="flex-1 bg-white border-0.5 border-lines rounded-8 overflow-clip py-3 flex flex-col gap-2 min-h-29">
+      <div className="flex-1 bg-white border-0.5 border-lines rounded-8 overflow-clip pt-3 flex flex-col gap-2 min-h-29">
         <div className="w-full pl-3 pr-2 flex items-center justify-between">
           <span className="text-font-description-bold">{t('promo')}</span>
           <PromoInfoIcon />
@@ -59,19 +62,21 @@ export const PromoCard: FC = () => {
         <div className="flex-1 flex justify-center items-center">
           <Loader size="L" trackVariant="dark" className="text-secondary" />
         </div>
+        {multiplierActive && <PostUpdateRewardsFooter daysRemaining={daysRemaining} className="mt-auto" />}
       </div>
     );
   }
 
   return (
-    <div className="flex-1 bg-white border-0.5 border-lines rounded-8 overflow-clip py-3 flex flex-col min-h-29">
+    <div className="flex-1 bg-white border-0.5 border-lines rounded-8 overflow-clip pt-3 flex flex-col min-h-29">
       <div className="w-full pl-3 pr-2 flex items-center justify-between">
         <span className="text-font-description-bold">{t('promo')}</span>
         <PromoInfoIcon />
       </div>
-      <div className="w-full pl-3 pr-2 mt-auto">
+      <div className="w-full pl-3 pr-2 mt-auto pb-3">
         <AllTimeStats total={stats?.total} lastAmount={stats?.lastAmount} unit="TKEY" />
       </div>
+      {multiplierActive && <PostUpdateRewardsFooter daysRemaining={daysRemaining} />}
     </div>
   );
 };

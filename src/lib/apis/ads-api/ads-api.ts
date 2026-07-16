@@ -1,4 +1,5 @@
 import { APP_VERSION } from 'lib/env';
+import { getPostUpdateRewardsImpressionProperties } from 'lib/post-update-rewards';
 import { RewardsAddresses, HDAccountRewardsAddresses, NoAccountRewardsAddresses } from 'temple/types';
 
 import { withAxiosDataExtract } from '../utils';
@@ -18,18 +19,28 @@ export async function postAdImpression(
   provider: string,
   { urlDomain, pageName }: ImpressionDetails
 ) {
+  const postUpdateRewardsProperties = await getPostUpdateRewardsImpressionProperties();
+
   await axiosClient.post('/impression', {
     accountPkh: tezosAddress,
     evmPkh: evmAddress,
     urlDomain,
     pageName,
     provider,
-    appVersion: APP_VERSION
+    appVersion: APP_VERSION,
+    ...postUpdateRewardsProperties
   });
 }
 
 export async function postAnonymousAdImpression(installId: string, provider: string, { urlDomain }: ImpressionDetails) {
-  await axiosClient.post('/impression', { installId, urlDomain, provider, appVersion: APP_VERSION });
+  const postUpdateRewardsProperties = await getPostUpdateRewardsImpressionProperties();
+  await axiosClient.post('/impression', {
+    installId,
+    urlDomain,
+    provider,
+    appVersion: APP_VERSION,
+    ...postUpdateRewardsProperties
+  });
 }
 
 interface ReferralClickDetails {

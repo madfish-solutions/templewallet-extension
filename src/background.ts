@@ -20,6 +20,10 @@ import {
   SIDE_VIEW_WAS_FORCED_STORAGE_KEY
 } from 'lib/constants';
 import { EnvVars, IS_SIDE_PANEL_AVAILABLE } from 'lib/env';
+import {
+  POST_UPDATE_REWARDS_LAST_OPENED_VERSION_STORAGE_KEY,
+  shouldOpenPostUpdateRewardsPage
+} from 'lib/post-update-rewards';
 import { fetchFromStorage, fetchManyFromStorage, putToStorage } from 'lib/storage';
 import { start } from 'lib/temple/back/main';
 import { Vault } from 'lib/temple/back/vault';
@@ -45,34 +49,14 @@ const updateStorageKeysToEnsure = [
   SHOULD_SHOW_NEW_DAPPS_MODAL_STORAGE_KEY
 ] as const;
 
-browser.runtime.onInstalled.addListener(({ reason }) => {
+browser.runtime.onInstalled.addListener(({ reason, previousVersion }) => {
   if (reason === 'install') {
     ensureAppIdentity().finally(openFullPage);
     return;
   }
 
   if (reason === 'update') {
-    Promise.all([
-      getStoredAppUpdateDetails(),
-      fetchManyFromStorage<UpdateStorageKey, Record<UpdateStorageKey, boolean>>(updateStorageKeys)
-    ]).then(([details, { [SHOULD_SHOW_REWARDS_PUSH_STORAGE_KEY]: shouldShowRewardsPush, ...rest }]) => {
-      if (details?.triggeredManually) openFullPage();
-      Promise.all(
-        updateStorageKeysToEnsure.map(key => {
-          if (rest[key] == null) putToStorage(key, true);
-        })
-      );
-      if (shouldShowRewardsPush == null) {
-        Promise.all([Vault.isExist(), fetchFromStorage<PartnersPromotionState>('persist:root.partnersPromotion')]).then(
-          ([vaultExists, partnersPromoState]) => {
-            if (vaultExists && !partnersPromoState?.shouldShowPromotion) {
-              putToStorage(SHOULD_SHOW_REWARDS_PUSH_STORAGE_KEY, true);
-              openFullPage();
-            }
-          }
-        );
-      }
-    });
+    void handleExtensionUpdate(previousVersion);
 
     ensureAppIdentity()
       .then(() => linkAdsImpressionsIfNeeded())
@@ -90,6 +74,52 @@ function openFullPage() {
   browser.tabs.create({
     url: browser.runtime.getURL('fullpage.html')
   });
+}
+
+async function handleExtensionUpdate(previousVersion?: string) {
+  const [details, updateStorage, lastAnnouncementVersion] = await Promise.all([
+    getStoredAppUpdateDetails(),
+    fetchManyFromStorage<UpdateStorageKey, Record<UpdateStorageKey, boolean>>(updateStorageKeys),
+    fetchFromStorage<string>(POST_UPDATE_REWARDS_LAST_OPENED_VERSION_STORAGE_KEY)
+  ]);
+
+  const shouldOpenAnnouncement = shouldOpenPostUpdateRewardsPage(
+    previousVersion,
+    PackageJSON.version,
+    lastAnnouncementVersion
+  );
+
+  if (shouldOpenAnnouncement) {
+    await Promise.all([
+      putToStorage(POST_UPDATE_REWARDS_LAST_OPENED_VERSION_STORAGE_KEY, PackageJSON.version),
+      putToStorage(SHOULD_SHOW_REWARDS_PUSH_STORAGE_KEY, false)
+    ]);
+    browser.tabs.create({
+      url: browser.runtime.getURL('fullpage.html#/post-update-rewards')
+    });
+  } else if (details?.triggeredManually) {
+    openFullPage();
+  }
+
+  const { [SHOULD_SHOW_REWARDS_PUSH_STORAGE_KEY]: shouldShowRewardsPush, ...rest } = updateStorage;
+  await Promise.all(
+    updateStorageKeysToEnsure.map(key => {
+      if (rest[key] == null) return putToStorage(key, true);
+      return Promise.resolve();
+    })
+  );
+
+  if (shouldOpenAnnouncement || shouldShowRewardsPush != null) return;
+
+  const [vaultExists, partnersPromoState] = await Promise.all([
+    Vault.isExist(),
+    fetchFromStorage<PartnersPromotionState>('persist:root.partnersPromotion')
+  ]);
+
+  if (vaultExists && !partnersPromoState?.shouldShowPromotion) {
+    await putToStorage(SHOULD_SHOW_REWARDS_PUSH_STORAGE_KEY, true);
+    openFullPage();
+  }
 }
 
 globalThis.addEventListener('notificationclick', event => {
