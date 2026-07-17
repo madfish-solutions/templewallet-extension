@@ -2,8 +2,8 @@ import { isDefined } from '@rnw-community/shared';
 
 import { Money } from 'app/atoms';
 import { DoubleRewardsWidgetFooter } from 'app/atoms/DoubleRewardsWidgetFooter';
+import { useDoubleRewardsEngagement } from 'app/hooks/use-double-rewards-engagement';
 import { usePartnersPromotionSettings } from 'app/hooks/use-partners-promotion-settings';
-import { usePostUpdateRewards } from 'app/hooks/use-post-update-rewards';
 import { useReferralLinksSettings } from 'app/hooks/use-referral-links-settings';
 import { useTkeyRewardsStats } from 'app/hooks/use-rewards-stats';
 import { browser } from 'lib/browser';
@@ -17,7 +17,7 @@ export const RewardsCard = () => {
   const { isEnabled: isAdvertisingEnabled } = usePartnersPromotionSettings();
   const { isEnabled: isReferralLinksEnabled } = useReferralLinksSettings();
   const { isLoading: isTkeyLoading, stats: tkeyStats } = useTkeyRewardsStats();
-  const { multiplierActive, daysRemaining } = usePostUpdateRewards();
+  const { multiplierActive, daysRemaining } = useDoubleRewardsEngagement();
 
   const referralsEnabled = isReferralLinksEnabled && IS_MISES_BROWSER;
 

@@ -3,8 +3,8 @@ import { FC } from 'react';
 import { Button, IconBase, Loader } from 'app/atoms';
 import { AnimatedMenuChevron } from 'app/atoms/animated-menu-chevron';
 import { DoubleRewardsWidgetFooter } from 'app/atoms/DoubleRewardsWidgetFooter';
+import { useDoubleRewardsEngagement } from 'app/hooks/use-double-rewards-engagement';
 import { usePartnersPromotionSettings } from 'app/hooks/use-partners-promotion-settings';
-import { usePostUpdateRewards } from 'app/hooks/use-post-update-rewards';
 import { useTkeyRewardsStats } from 'app/hooks/use-rewards-stats';
 import { ReactComponent as InfoIcon } from 'app/icons/base/InfoFill.svg';
 import { t } from 'lib/i18n';
@@ -24,7 +24,7 @@ const PromoInfoIcon: FC = () => {
 
 export const PromoCard: FC = () => {
   const { isEnabled } = usePartnersPromotionSettings();
-  const { multiplierActive, daysRemaining } = usePostUpdateRewards();
+  const { multiplierActive, daysRemaining } = useDoubleRewardsEngagement();
   const { animatedChevronRef, handleHover, handleUnhover } = useActivateAnimatedChevron();
 
   const { isLoading, stats } = useTkeyRewardsStats();

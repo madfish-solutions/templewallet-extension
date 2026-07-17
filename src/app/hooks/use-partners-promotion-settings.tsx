@@ -2,7 +2,7 @@ import { ChangeEvent } from 'react';
 
 import { useDispatch } from 'react-redux';
 
-import { usePostUpdateRewards } from 'app/hooks/use-post-update-rewards';
+import { useDoubleRewardsEngagement } from 'app/hooks/use-double-rewards-engagement';
 import { togglePartnersPromotionAction } from 'app/store/partners-promotion/actions';
 import { useShouldShowPartnersPromoSelector } from 'app/store/partners-promotion/selectors';
 import { t } from 'lib/i18n';
@@ -11,15 +11,15 @@ import { useConfirm } from 'lib/ui/dialog';
 export const usePartnersPromotionSettings = () => {
   const dispatch = useDispatch();
   const confirm = useConfirm();
-  const { promoState, setPromoState, isParticipant, daysRemaining } = usePostUpdateRewards();
+  const { promoState, setPromoState, isParticipant, daysRemaining } = useDoubleRewardsEngagement();
 
   const isEnabled = useShouldShowPartnersPromoSelector();
 
   const handleHidePromotion = async () => {
     if (isParticipant && daysRemaining > 0) {
       const confirmed = await confirm({
-        title: t('postUpdateRewardsOptOutTitle'),
-        description: t('postUpdateRewardsOptOutDescription'),
+        title: t('doubleRewardsEngagementOptOutTitle'),
+        description: t('doubleRewardsEngagementOptOutDescription'),
         confirmButtonText: t('gotIt'),
         hasCancelButton: false
       });

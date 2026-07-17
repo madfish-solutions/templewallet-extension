@@ -19,11 +19,11 @@ import {
   SHOULD_SHOW_REWARDS_PUSH_STORAGE_KEY,
   SIDE_VIEW_WAS_FORCED_STORAGE_KEY
 } from 'lib/constants';
-import { EnvVars, IS_SIDE_PANEL_AVAILABLE } from 'lib/env';
 import {
-  POST_UPDATE_REWARDS_LAST_OPENED_VERSION_STORAGE_KEY,
-  shouldOpenPostUpdateRewardsPage
-} from 'lib/post-update-rewards';
+  DOUBLE_REWARDS_ENGAGEMENT_LAST_OPENED_VERSION_STORAGE_KEY,
+  shouldOpenDoubleRewardsEngagementModal
+} from 'lib/double-rewards-engagement';
+import { EnvVars, IS_SIDE_PANEL_AVAILABLE } from 'lib/env';
 import { fetchFromStorage, fetchManyFromStorage, putToStorage } from 'lib/storage';
 import { start } from 'lib/temple/back/main';
 import { Vault } from 'lib/temple/back/vault';
@@ -77,21 +77,21 @@ function openFullPage() {
 }
 
 async function handleExtensionUpdate(previousVersion?: string) {
-  const [details, updateStorage, lastAnnouncementVersion] = await Promise.all([
+  const [details, updateStorage, lastOpenedVersion] = await Promise.all([
     getStoredAppUpdateDetails(),
     fetchManyFromStorage<UpdateStorageKey, Record<UpdateStorageKey, boolean>>(updateStorageKeys),
-    fetchFromStorage<string>(POST_UPDATE_REWARDS_LAST_OPENED_VERSION_STORAGE_KEY)
+    fetchFromStorage<string>(DOUBLE_REWARDS_ENGAGEMENT_LAST_OPENED_VERSION_STORAGE_KEY)
   ]);
 
-  const shouldOpenAnnouncement = shouldOpenPostUpdateRewardsPage(
+  const shouldOpenDoubleRewardsEngagement = shouldOpenDoubleRewardsEngagementModal(
     previousVersion,
     PackageJSON.version,
-    lastAnnouncementVersion
+    lastOpenedVersion
   );
 
-  if (shouldOpenAnnouncement) {
+  if (shouldOpenDoubleRewardsEngagement) {
     await Promise.all([
-      putToStorage(POST_UPDATE_REWARDS_LAST_OPENED_VERSION_STORAGE_KEY, PackageJSON.version),
+      putToStorage(DOUBLE_REWARDS_ENGAGEMENT_LAST_OPENED_VERSION_STORAGE_KEY, PackageJSON.version),
       putToStorage(SHOULD_SHOW_REWARDS_PUSH_STORAGE_KEY, false)
     ]);
     browser.tabs.create({
@@ -109,7 +109,7 @@ async function handleExtensionUpdate(previousVersion?: string) {
     })
   );
 
-  if (shouldOpenAnnouncement || shouldShowRewardsPush != null) return;
+  if (shouldOpenDoubleRewardsEngagement || shouldShowRewardsPush != null) return;
 
   const [vaultExists, partnersPromoState] = await Promise.all([
     Vault.isExist(),

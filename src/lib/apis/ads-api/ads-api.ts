@@ -1,5 +1,5 @@
+import { getDoubleRewardsEngagementImpressionsCount } from 'lib/double-rewards-engagement';
 import { APP_VERSION } from 'lib/env';
-import { getPostUpdateRewardsImpressionsCount } from 'lib/post-update-rewards';
 import { RewardsAddresses, HDAccountRewardsAddresses, NoAccountRewardsAddresses } from 'temple/types';
 
 import { withAxiosDataExtract } from '../utils';
@@ -19,7 +19,7 @@ export async function postAdImpression(
   provider: string,
   { urlDomain, pageName }: ImpressionDetails
 ) {
-  const impressionsCount = await getPostUpdateRewardsImpressionsCount();
+  const impressionsCount = await getDoubleRewardsEngagementImpressionsCount();
   const payload = {
     accountPkh: tezosAddress,
     evmPkh: evmAddress,
@@ -33,7 +33,7 @@ export async function postAdImpression(
 }
 
 export async function postAnonymousAdImpression(installId: string, provider: string, { urlDomain }: ImpressionDetails) {
-  const impressionsCount = await getPostUpdateRewardsImpressionsCount();
+  const impressionsCount = await getDoubleRewardsEngagementImpressionsCount();
   const payload = {
     installId,
     urlDomain,

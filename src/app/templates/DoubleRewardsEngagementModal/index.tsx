@@ -9,12 +9,12 @@ import { PageModalScrollViewWithActions } from 'app/templates/page-modal-scroll-
 import { removeToast, toastSuccess } from 'app/toaster';
 import { AnalyticsEventCategory, useAnalytics } from 'lib/analytics';
 import { WEBSITES_ADS_ENABLED } from 'lib/constants';
-import { t, T } from 'lib/i18n';
 import {
-  activatePostUpdateRewardsPromo,
-  getPostUpdateRewardsDaysRemaining,
-  getPostUpdateRewardsEstimatedBonus
-} from 'lib/post-update-rewards';
+  activateDoubleRewardsEngagementPromo,
+  getDoubleRewardsEngagementDaysRemaining,
+  getDoubleRewardsEngagementEstimatedBonus
+} from 'lib/double-rewards-engagement';
+import { t, T } from 'lib/i18n';
 import { putToStorage } from 'lib/storage';
 
 import rewards2xSrc from './assets/rewards2x.png';
@@ -34,8 +34,8 @@ export const DoubleRewardsEngagementModal: FC<Props> = ({ opened, onRequestClose
   const [isActivating, setIsActivating] = useState(false);
   const [initialDate] = useState(() => new Date());
 
-  const daysRemaining = getPostUpdateRewardsDaysRemaining(initialDate);
-  const estimatedBonus = getPostUpdateRewardsEstimatedBonus(initialDate);
+  const daysRemaining = getDoubleRewardsEngagementDaysRemaining(initialDate);
+  const estimatedBonus = getDoubleRewardsEngagementEstimatedBonus(initialDate);
 
   const closePromoModal = () => {
     setCloseConfirmationOpen(false);
@@ -49,9 +49,9 @@ export const DoubleRewardsEngagementModal: FC<Props> = ({ opened, onRequestClose
     setIsActivating(true);
     dispatch(togglePartnersPromotionAction(true));
     try {
-      await Promise.all([activatePostUpdateRewardsPromo(), putToStorage(WEBSITES_ADS_ENABLED, true)]);
+      await Promise.all([activateDoubleRewardsEngagementPromo(), putToStorage(WEBSITES_ADS_ENABLED, true)]);
       setCloseConfirmationOpen(false);
-      const toastId = toastSuccess(t('postUpdateRewardsActivated'));
+      const toastId = toastSuccess(t('doubleRewardsActivated'));
       setTimeout(() => {
         removeToast(toastId);
         closePromoModal();
@@ -117,7 +117,7 @@ export const DoubleRewardsEngagementModal: FC<Props> = ({ opened, onRequestClose
                 onClick={handleAnnouncementActivation}
                 testID={DoubleRewardsEngagementModalSelectors.ctaButton}
               >
-                <T id="postUpdateRewardsActivate" />
+                <T id="activeteDoubleRewards" />
               </StyledButton>
             )
           }}
@@ -126,14 +126,14 @@ export const DoubleRewardsEngagementModal: FC<Props> = ({ opened, onRequestClose
             <img src={rewards2xSrc} alt="" className="mt-8 mb-4 w-33 h-40 object-contain" />
 
             <h3 className="text-font-h3">
-              <T id="postUpdateRewardsHeadline" />
+              <T id="doubleRewardsEngagementHeadline" />
             </h3>
             <p className="text-font-description text-grey-1 mt-1">
               <T
-                id="postUpdateRewardsDescription"
+                id="doubleRewardsEngagementDescription"
                 substitutions={
                   <span className="font-bold">
-                    <T id="postUpdateRewardsMultiplier" />
+                    <T id="2xTkey" />
                   </span>
                 }
               />
@@ -142,34 +142,34 @@ export const DoubleRewardsEngagementModal: FC<Props> = ({ opened, onRequestClose
             <div className="w-full bg-grey-4 rounded-8 px-6 py-3 mt-7 flex items-center justify-between text-left">
               <div>
                 <p className="text-font-description">
-                  <T id="postUpdateRewardsEstimatedBonus" />
+                  <T id="yourEstimatedBonus" />
                 </p>
                 <p className="text-font-num-bold-24 text-primary">
-                  <T id="postUpdateRewardsBonusAmount" substitutions={estimatedBonus} />
+                  <T id="positiveTkeyAmount" substitutions={estimatedBonus} />
                 </p>
               </div>
               <p className="text-font-small text-grey-1">
-                <T id="postUpdateRewardsActivity" />
+                <T id="doubleRewardsEngagementActivity" />
               </p>
             </div>
 
             <p className="text-font-description-bold mt-3">
               <T
-                id={daysRemaining === 1 ? 'postUpdateRewardsDayLeft' : 'postUpdateRewardsDaysLeft'}
+                id={daysRemaining === 1 ? 'doubleRewardsEngagementDayLeft' : 'doubleRewardsEngagementDaysLeft'}
                 substitutions={daysRemaining}
               />
             </p>
             <p className="text-font-small text-grey-1 mt-5 px-4">
-              <T id="postUpdateRewardsDisclaimer" />
+              <T id="doubleRewardsEngagementDisclaimer" />
             </p>
           </div>
         </PageModalScrollViewWithActions>
       </PageModal>
 
       {closeConfirmationOpen && (
-        <ActionModal title={t('postUpdateRewardsOneTimeTitle')} onClose={() => setCloseConfirmationOpen(false)}>
+        <ActionModal title={t('doubleRewardsEngagementOneTimeTitle')} onClose={() => setCloseConfirmationOpen(false)}>
           <p className="px-4 pt-4 text-font-description text-grey-1 text-center">
-            <T id="postUpdateRewardsOneTimeDescription" />
+            <T id="doubleRewardsEngagementOneTimeDescription" />
           </p>
           <ActionModalButtonsContainer className="flex-col">
             <ActionModalButton
@@ -178,7 +178,7 @@ export const DoubleRewardsEngagementModal: FC<Props> = ({ opened, onRequestClose
               onClick={handleConfirmationActivation}
               testID={DoubleRewardsEngagementModalSelectors.confirmationActivateButton}
             >
-              <T id="postUpdateRewardsActivate" />
+              <T id="activeteDoubleRewards" />
             </ActionModalButton>
             <ActionModalButton
               color="primary-low"
@@ -186,7 +186,7 @@ export const DoubleRewardsEngagementModal: FC<Props> = ({ opened, onRequestClose
               onClick={closeAnyway}
               testID={DoubleRewardsEngagementModalSelectors.confirmationCloseButton}
             >
-              <T id="postUpdateRewardsCloseAnyway" />
+              <T id="closeAnyway" />
             </ActionModalButton>
           </ActionModalButtonsContainer>
         </ActionModal>

@@ -3841,10 +3841,10 @@
   "promoRewardsActivated": {
     "message": "Promo rewards activated"
   },
-  "postUpdateRewardsHeadline": {
+  "doubleRewardsEngagementHeadline": {
     "message": "Double your TKEY this month"
   },
-  "postUpdateRewardsDescription": {
+  "doubleRewardsEngagementDescription": {
     "message": "Turn on promo content and earn $reward$ on every reward until July 31.",
     "placeholders": {
       "reward": {
@@ -3852,13 +3852,13 @@
       }
     }
   },
-  "postUpdateRewardsMultiplier": {
+  "2xTkey": {
     "message": "2x TKEY"
   },
-  "postUpdateRewardsEstimatedBonus": {
+  "yourEstimatedBonus": {
     "message": "Your estimated bonus"
   },
-  "postUpdateRewardsBonusAmount": {
+  "positiveTkeyAmount": {
     "message": "+$amount$ TKEY",
     "placeholders": {
       "amount": {
@@ -3866,10 +3866,10 @@
       }
     }
   },
-  "postUpdateRewardsActivity": {
+  "doubleRewardsEngagementActivity": {
     "message": "based on recent\ntop user activity"
   },
-  "postUpdateRewardsDayLeft": {
+  "doubleRewardsEngagementDayLeft": {
     "message": "Ends July 31 - $days$ day left",
     "placeholders": {
       "days": {
@@ -3877,7 +3877,7 @@
       }
     }
   },
-  "postUpdateRewardsDaysLeft": {
+  "doubleRewardsEngagementDaysLeft": {
     "message": "Ends July 31 - $days$ days left",
     "placeholders": {
       "days": {
@@ -3885,34 +3885,34 @@
       }
     }
   },
-  "postUpdateRewardsDisclaimer": {
+  "doubleRewardsEngagementDisclaimer": {
     "message": "By activating 2x rewards you enable promo content and agree to share your wallet address and IP to receive tokens and promo ads."
   },
-  "postUpdateRewardsActivate": {
+  "activeteDoubleRewards": {
     "message": "Activate 2x rewards"
   },
-  "postUpdateRewardsOneTimeTitle": {
+  "doubleRewardsEngagementOneTimeTitle": {
     "message": "This offer is one-time only"
   },
-  "postUpdateRewardsOneTimeDescription": {
+  "doubleRewardsEngagementOneTimeDescription": {
     "message": "2x TKEY rewards can only be turned on from this screen, and it won't come back. Want to activate before you close?"
   },
-  "postUpdateRewardsCloseAnyway": {
+  "closeAnyway": {
     "message": "Close anyway"
   },
-  "postUpdateRewardsActivated": {
+  "doubleRewardsActivated": {
     "message": "2x rewards successfully activated"
   },
-  "postUpdateRewardsOptOutTitle": {
+  "doubleRewardsEngagementOptOutTitle": {
     "message": "Turning off ends your 2x"
   },
-  "postUpdateRewardsOptOutDescription": {
+  "doubleRewardsEngagementOptOutDescription": {
     "message": "Keep promo on through July 31 to earn your full 2x bonus. Turning it off early ends the doubling permanently - you keep what you've earned, but reactivating won't restore the double rate."
   },
-  "postUpdateRewardsFooterTitle": {
+  "doubleRewardsEngagementFooterTitle": {
     "message": "You earn 2x:"
   },
-  "postUpdateRewardsFooterDayLeft": {
+  "doubleRewardsEngagementFooterDayLeft": {
     "message": "$days$ day left",
     "placeholders": {
       "days": {
@@ -3920,7 +3920,7 @@
       }
     }
   },
-  "postUpdateRewardsFooterDaysLeft": {
+  "doubleRewardsEngagementFooterDaysLeft": {
     "message": "$days$ days left",
     "placeholders": {
       "days": {
