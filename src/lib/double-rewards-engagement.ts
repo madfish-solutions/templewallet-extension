@@ -4,8 +4,8 @@ export const DOUBLE_REWARDS_ENGAGEMENT_LAST_OPENED_VERSION_STORAGE_KEY =
   'DOUBLE_REWARDS_ENGAGEMENT_LAST_OPENED_VERSION';
 export const DOUBLE_REWARDS_ENGAGEMENT_PROMO_STATE_STORAGE_KEY = 'DOUBLE_REWARDS_ENGAGEMENT_PROMO_STATE';
 
-export const DOUBLE_REWARDS_ENGAGEMENT_MIN_PREVIOUS_VERSION = '2.0.29';
-export const DOUBLE_REWARDS_ENGAGEMENT_ESTIMATED_MONTHLY_TKEY = 2435;
+const DOUBLE_REWARDS_ENGAGEMENT_MIN_PREVIOUS_VERSION = '2.0.29';
+const DOUBLE_REWARDS_ENGAGEMENT_ESTIMATED_MONTHLY_TKEY = 2435;
 
 const CAMPAIGN_END = new Date(2026, 7, 1);
 
@@ -24,7 +24,7 @@ export const getDoubleRewardsEngagementDaysRemaining = (date = new Date()) => {
 export const getDoubleRewardsEngagementEstimatedBonus = (date = new Date()) =>
   Math.round((DOUBLE_REWARDS_ENGAGEMENT_ESTIMATED_MONTHLY_TKEY / 31) * getDoubleRewardsEngagementDaysRemaining(date));
 
-export const isDoubleRewardsEngagementCampaignActive = (date = new Date()) =>
+const isDoubleRewardsEngagementCampaignActive = (date = new Date()) =>
   date.getFullYear() === 2026 && date.getMonth() === 6 && date.getTime() < CAMPAIGN_END.getTime();
 
 export const isDoubleRewardsEngagementMultiplierActive = (
