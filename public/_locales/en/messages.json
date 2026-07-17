@@ -3895,6 +3895,31 @@
   "postUpdateRewardsActivated": {
     "message": "2x rewards successfully activated"
   },
+  "postUpdateRewardsOptOutTitle": {
+    "message": "Turning off ends your 2x"
+  },
+  "postUpdateRewardsOptOutDescription": {
+    "message": "Keep promo on through July 31 to earn your full 2x bonus. Turning it off early ends the doubling permanently - you keep what you've earned, but reactivating won't restore the double rate."
+  },
+  "postUpdateRewardsFooterTitle": {
+    "message": "You earn 2x:"
+  },
+  "postUpdateRewardsFooterDayLeft": {
+    "message": "$days$ day left",
+    "placeholders": {
+      "days": {
+        "content": "$1"
+      }
+    }
+  },
+  "postUpdateRewardsFooterDaysLeft": {
+    "message": "$days$ days left",
+    "placeholders": {
+      "days": {
+        "content": "$1"
+      }
+    }
+  },
   "bakery": {
     "message": "Bakery"
   },

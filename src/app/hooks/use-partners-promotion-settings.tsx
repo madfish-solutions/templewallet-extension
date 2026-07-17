@@ -18,9 +18,8 @@ export const usePartnersPromotionSettings = () => {
   const handleHidePromotion = async () => {
     if (isParticipant && daysRemaining > 0) {
       const confirmed = await confirm({
-        title: 'Turning off ends your 2x',
-        description:
-          "Keep promo on through July 31 to earn your full 2x bonus. Turning it off early ends the doubling permanently - you keep what you've earned, but reactivating won't restore the double rate.",
+        title: t('postUpdateRewardsOptOutTitle'),
+        description: t('postUpdateRewardsOptOutDescription'),
         confirmButtonText: t('gotIt'),
         hasCancelButton: false
       });
