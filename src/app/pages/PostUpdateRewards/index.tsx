@@ -1,10 +1,12 @@
 import { FC, useState } from 'react';
 
 import { ActionModal, ActionModalButton, ActionModalButtonsContainer } from 'app/atoms/action-modal';
-import { ActionsButtonsBox, CloseButton, PageModal } from 'app/atoms/PageModal';
+import { CloseButton, PageModal } from 'app/atoms/PageModal';
+import { StyledButton } from 'app/atoms/StyledButton';
 import { dispatch } from 'app/store';
 import { togglePartnersPromotionAction } from 'app/store/partners-promotion/actions';
-import { toastSuccess } from 'app/toaster';
+import { PageModalScrollViewWithActions } from 'app/templates/page-modal-scroll-view-with-actions';
+import { removeToast, toastSuccess } from 'app/toaster';
 import { AnalyticsEventCategory, setTestID, useAnalytics } from 'lib/analytics';
 import { WEBSITES_ADS_ENABLED } from 'lib/constants';
 import { t, T } from 'lib/i18n';
@@ -23,7 +25,7 @@ interface DoubleRewardsEngagementModalProps {
   onRequestClose: EmptyFn;
 }
 
-const ACTIVATION_TOAST_VISIBLE_DURATION = 1_500;
+const ACTIVATION_TOAST_VISIBLE_DURATION = 2_000;
 
 export const DoubleRewardsEngagementModal: FC<DoubleRewardsEngagementModalProps> = ({ opened, onRequestClose }) => {
   const { trackEvent } = useAnalytics();
@@ -49,8 +51,11 @@ export const DoubleRewardsEngagementModal: FC<DoubleRewardsEngagementModalProps>
     try {
       await Promise.all([activatePostUpdateRewardsPromo(), putToStorage(WEBSITES_ADS_ENABLED, true)]);
       setCloseConfirmationOpen(false);
-      toastSuccess(t('postUpdateRewardsActivated'));
-      setTimeout(closePromoModal, ACTIVATION_TOAST_VISIBLE_DURATION);
+      const toastId = toastSuccess(t('postUpdateRewardsActivated'));
+      setTimeout(() => {
+        removeToast(toastId);
+        closePromoModal();
+      }, ACTIVATION_TOAST_VISIBLE_DURATION);
     } catch {
       setIsActivating(false);
     }
@@ -96,49 +101,54 @@ export const DoubleRewardsEngagementModal: FC<DoubleRewardsEngagementModalProps>
           />
         }
       >
-        <div className="flex-1 px-4 pt-6 pb-4 flex flex-col items-center text-center">
-          <img src={rewards2xSrc} alt="" className="w-33 h-40 object-contain" />
+        <PageModalScrollViewWithActions
+          actionsBoxProps={{
+            children: (
+              <StyledButton
+                size="L"
+                color="primary"
+                className="w-full"
+                disabled={isActivating}
+                onClick={handleAnnouncementActivation}
+                testID={PostUpdateRewardsSelectors.ctaButton}
+              >
+                <T id="postUpdateRewardsActivate" />
+              </StyledButton>
+            )
+          }}
+        >
+          <div className="flex flex-col items-center text-center">
+            <img src={rewards2xSrc} alt="" className="mt-8 mb-4 w-33 h-40 object-contain" />
 
-          <h2 className="text-font-h3 mt-1">
-            <T id="postUpdateRewardsHeadline" />
-          </h2>
-          <p className="text-font-description text-grey-1 mt-1">
-            <T id="postUpdateRewardsDescription" />
-          </p>
+            <h3 className="text-font-h3">
+              <T id="postUpdateRewardsHeadline" />
+            </h3>
+            <p className="text-font-description text-grey-1 mt-1">
+              <T id="postUpdateRewardsDescription" />
+            </p>
 
-          <div className="w-full bg-grey-4 rounded-8 px-6 py-3 mt-5 flex items-center justify-between text-left">
-            <div>
-              <p className="text-font-description">
-                <T id="postUpdateRewardsEstimatedBonus" />
-              </p>
-              <p className="font-rubik text-2xl font-medium leading-9 text-primary">
-                {t('postUpdateRewardsBonusAmount', String(estimatedBonus))}
+            <div className="w-full bg-grey-4 rounded-8 px-6 py-3 mt-5 flex items-center justify-between text-left">
+              <div>
+                <p className="text-font-description">
+                  <T id="postUpdateRewardsEstimatedBonus" />
+                </p>
+                <p className="font-rubik text-2xl font-medium leading-9 text-primary">
+                  {t('postUpdateRewardsBonusAmount', String(estimatedBonus))}
+                </p>
+              </div>
+              <p className="text-font-small text-grey-1">
+                <T id="postUpdateRewardsActivity" />
               </p>
             </div>
-            <p className="text-font-small text-grey-1">
-              <T id="postUpdateRewardsActivity" />
+
+            <p className="text-font-description-bold mt-3">
+              {t(daysRemaining === 1 ? 'postUpdateRewardsDayLeft' : 'postUpdateRewardsDaysLeft', String(daysRemaining))}
+            </p>
+            <p className="text-font-small text-grey-1 mt-5 px-4">
+              <T id="postUpdateRewardsDisclaimer" />
             </p>
           </div>
-
-          <p className="text-font-description-bold mt-3">
-            {t(daysRemaining === 1 ? 'postUpdateRewardsDayLeft' : 'postUpdateRewardsDaysLeft', String(daysRemaining))}
-          </p>
-          <p className="text-font-small text-grey-1 mt-5 px-4">
-            <T id="postUpdateRewardsDisclaimer" />
-          </p>
-        </div>
-
-        <ActionsButtonsBox>
-          <ActionModalButton
-            color="primary"
-            className="w-full"
-            disabled={isActivating}
-            onClick={handleAnnouncementActivation}
-            {...setTestID(PostUpdateRewardsSelectors.ctaButton)}
-          >
-            <T id="postUpdateRewardsActivate" />
-          </ActionModalButton>
-        </ActionsButtonsBox>
+        </PageModalScrollViewWithActions>
       </PageModal>
 
       {closeConfirmationOpen && (
