@@ -12,9 +12,10 @@ interface AllTimeStatsProps {
   total: BigNumber | null | undefined;
   lastAmount: string | null | undefined;
   unit: string;
+  showLastAmount?: boolean;
 }
 
-export const AllTimeStats: FC<AllTimeStatsProps> = ({ total, lastAmount, unit }) => {
+export const AllTimeStats: FC<AllTimeStatsProps> = ({ total, lastAmount, unit, showLastAmount = true }) => {
   const lastAmountBn = new BigNumber(lastAmount ?? 0);
   const isPositive = lastAmountBn.isGreaterThan(0);
   return (
@@ -24,10 +25,12 @@ export const AllTimeStats: FC<AllTimeStatsProps> = ({ total, lastAmount, unit })
         <BalanceAmount value={total ?? ZERO} />
         <span>{unit}</span>
       </span>
-      <span className={clsx('text-font-num-12', isPositive ? 'text-success' : 'text-grey-1')}>
-        {isPositive && '+'}
-        <BalanceAmount value={lastAmountBn} />
-      </span>
+      {showLastAmount && (
+        <span className={clsx('text-font-num-12', isPositive ? 'text-success' : 'text-grey-1')}>
+          {isPositive && '+'}
+          <BalanceAmount value={lastAmountBn} />
+        </span>
+      )}
     </div>
   );
 };

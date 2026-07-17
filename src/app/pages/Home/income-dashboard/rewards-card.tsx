@@ -40,7 +40,7 @@ export const RewardsCard = () => {
         </div>
       }
       change={
-        (!isAdvertisingEnabled && !referralsEnabled) || !isDefined(lastAmount) ? undefined : (
+        multiplierActive || (!isAdvertisingEnabled && !referralsEnabled) || !isDefined(lastAmount) ? undefined : (
           <>
             +
             <Money cryptoDecimals={2} smallFractionFont={false} tooltip={false}>
@@ -49,7 +49,9 @@ export const RewardsCard = () => {
           </>
         )
       }
-      caption={isAdvertisingEnabled || referralsEnabled ? undefined : <T id="missingPayoutsCaption" />}
+      caption={
+        multiplierActive || isAdvertisingEnabled || referralsEnabled ? undefined : <T id="missingPayoutsCaption" />
+      }
       footer={multiplierActive ? <DoubleRewardsWidgetFooter daysRemaining={daysRemaining} /> : undefined}
     />
   );
