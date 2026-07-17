@@ -1,7 +1,6 @@
 import { FC, useCallback, useEffect, useState } from 'react';
 
 import { SubmitHandler, useForm } from 'react-hook-form';
-import { DoubleRewardsEngagementModal } from 'src/app/templates/PostUpdateRewards';
 
 import { FormField, IconBase } from 'app/atoms';
 import { StyledButton } from 'app/atoms/StyledButton';
@@ -13,6 +12,7 @@ import { PlanetsBgPageLayout } from 'app/layouts/planets-bg-page-layout';
 import { dispatch } from 'app/store';
 import { getUserTestingGroupNameActions } from 'app/store/ab-testing/actions';
 import { useUserTestingGroupNameSelector } from 'app/store/ab-testing/selectors';
+import { DoubleRewardsEngagementModal } from 'app/templates/DoubleRewardsEngagementModal';
 import { useFormAnalytics } from 'lib/analytics';
 import { ABTestGroup } from 'lib/apis/temple';
 import { DEFAULT_PASSWORD_INPUT_PLACEHOLDER } from 'lib/constants';

@@ -2,7 +2,7 @@ import { FC } from 'react';
 
 import { Button, IconBase, Loader } from 'app/atoms';
 import { AnimatedMenuChevron } from 'app/atoms/animated-menu-chevron';
-import { PostUpdateRewardsFooter } from 'app/atoms/post-update-rewards-footer';
+import { DoubleRewardsWidgetFooter } from 'app/atoms/DoubleRewardsWidgetFooter';
 import { usePartnersPromotionSettings } from 'app/hooks/use-partners-promotion-settings';
 import { usePostUpdateRewards } from 'app/hooks/use-post-update-rewards';
 import { useTkeyRewardsStats } from 'app/hooks/use-rewards-stats';
@@ -62,7 +62,7 @@ export const PromoCard: FC = () => {
         <div className="flex-1 flex justify-center items-center">
           <Loader size="L" trackVariant="dark" className="text-secondary" />
         </div>
-        {multiplierActive && <PostUpdateRewardsFooter daysRemaining={daysRemaining} className="mt-auto" />}
+        {multiplierActive && <DoubleRewardsWidgetFooter daysRemaining={daysRemaining} className="mt-auto" />}
       </div>
     );
   }
@@ -76,7 +76,7 @@ export const PromoCard: FC = () => {
       <div className="w-full pl-3 pr-2 mt-auto pb-3">
         <AllTimeStats total={stats?.total} lastAmount={stats?.lastAmount} unit="TKEY" />
       </div>
-      {multiplierActive && <PostUpdateRewardsFooter daysRemaining={daysRemaining} />}
+      {multiplierActive && <DoubleRewardsWidgetFooter daysRemaining={daysRemaining} />}
     </div>
   );
 };

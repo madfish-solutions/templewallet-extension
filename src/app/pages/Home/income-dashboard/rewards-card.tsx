@@ -1,7 +1,7 @@
 import { isDefined } from '@rnw-community/shared';
 
 import { Money } from 'app/atoms';
-import { PostUpdateRewardsFooter } from 'app/atoms/post-update-rewards-footer';
+import { DoubleRewardsWidgetFooter } from 'app/atoms/DoubleRewardsWidgetFooter';
 import { usePartnersPromotionSettings } from 'app/hooks/use-partners-promotion-settings';
 import { usePostUpdateRewards } from 'app/hooks/use-post-update-rewards';
 import { useReferralLinksSettings } from 'app/hooks/use-referral-links-settings';
@@ -50,7 +50,7 @@ export const RewardsCard = () => {
         )
       }
       caption={isAdvertisingEnabled || referralsEnabled ? undefined : <T id="missingPayoutsCaption" />}
-      footer={multiplierActive ? <PostUpdateRewardsFooter daysRemaining={daysRemaining} /> : undefined}
+      footer={multiplierActive ? <DoubleRewardsWidgetFooter daysRemaining={daysRemaining} /> : undefined}
     />
   );
 };
