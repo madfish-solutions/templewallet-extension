@@ -8,6 +8,7 @@ import { togglePartnersPromotionAction } from 'app/store/partners-promotion/acti
 import { toastSuccess } from 'app/toaster';
 import { AnalyticsEventCategory, setTestID, useAnalytics } from 'lib/analytics';
 import { WEBSITES_ADS_ENABLED } from 'lib/constants';
+import { t, T } from 'lib/i18n';
 import {
   activatePostUpdateRewardsPromo,
   getPostUpdateRewardsDaysRemaining,
@@ -34,7 +35,7 @@ export const PostUpdateRewardsPage: FC = () => {
     try {
       await Promise.all([activatePostUpdateRewardsPromo(), putToStorage(WEBSITES_ADS_ENABLED, true)]);
       setCloseConfirmationOpen(false);
-      setTimeout(() => toastSuccess('2x rewards activated'), 0);
+      setTimeout(() => toastSuccess(t('postUpdateRewardsActivated')), 0);
       setTimeout(() => window.close(), 2500);
     } catch {
       setIsActivating(false);
@@ -69,7 +70,7 @@ export const PostUpdateRewardsPage: FC = () => {
   return (
     <>
       <PageModal
-        title="Rewards"
+        title={t('rewards')}
         opened
         animated={false}
         onRequestClose={isActivating ? undefined : handleAnnouncementClose}
@@ -84,29 +85,32 @@ export const PostUpdateRewardsPage: FC = () => {
         <div className="flex-1 px-4 pt-6 pb-4 flex flex-col items-center text-center">
           <RewardsAnimation loop width={150} height={150} />
 
-          <h2 className="text-font-h3 mt-1">Double your TKEY this month</h2>
+          <h2 className="text-font-h3 mt-1">
+            <T id="postUpdateRewardsHeadline" />
+          </h2>
           <p className="text-font-description text-grey-1 mt-1">
-            Turn on promo content and earn <strong>2x TKEY</strong> on every reward until July 31.
+            <T id="postUpdateRewardsDescription" />
           </p>
 
           <div className="w-full bg-grey-4 rounded-8 px-6 py-3 mt-5 flex items-center justify-between text-left">
             <div>
-              <p className="text-font-description">Your estimated bonus</p>
-              <p className="font-rubik text-2xl font-medium leading-9 text-primary">+{estimatedBonus} TKEY</p>
+              <p className="text-font-description">
+                <T id="postUpdateRewardsEstimatedBonus" />
+              </p>
+              <p className="font-rubik text-2xl font-medium leading-9 text-primary">
+                {t('postUpdateRewardsBonusAmount', String(estimatedBonus))}
+              </p>
             </div>
             <p className="text-font-small text-grey-1">
-              based on recent
-              <br />
-              top user activity
+              <T id="postUpdateRewardsActivity" />
             </p>
           </div>
 
           <p className="text-font-description-bold mt-3">
-            Ends July 31 - {daysRemaining} {daysRemaining === 1 ? 'day' : 'days'} left
+            {t(daysRemaining === 1 ? 'postUpdateRewardsDayLeft' : 'postUpdateRewardsDaysLeft', String(daysRemaining))}
           </p>
           <p className="text-font-small text-grey-1 mt-5 px-4">
-            By activating 2x rewards you enable promo content and agree to share your wallet address and IP to receive
-            tokens and promo ads.
+            <T id="postUpdateRewardsDisclaimer" />
           </p>
         </div>
 
@@ -118,16 +122,15 @@ export const PostUpdateRewardsPage: FC = () => {
             onClick={handleAnnouncementActivation}
             {...setTestID(PostUpdateRewardsSelectors.ctaButton)}
           >
-            Activate 2x rewards
+            <T id="postUpdateRewardsActivate" />
           </ActionModalButton>
         </ActionsButtonsBox>
       </PageModal>
 
       {closeConfirmationOpen && (
-        <ActionModal title="This offer is one-time only" onClose={() => setCloseConfirmationOpen(false)}>
+        <ActionModal title={<T id="postUpdateRewardsOneTimeTitle" />} onClose={() => setCloseConfirmationOpen(false)}>
           <p className="px-4 pt-4 text-font-description text-grey-1 text-center">
-            2x TKEY rewards can only be turned on from this screen, and it won't come back. Want to activate before you
-            close?
+            <T id="postUpdateRewardsOneTimeDescription" />
           </p>
           <ActionModalButtonsContainer className="flex-col">
             <ActionModalButton
@@ -136,7 +139,7 @@ export const PostUpdateRewardsPage: FC = () => {
               onClick={handleConfirmationActivation}
               {...setTestID(PostUpdateRewardsSelectors.confirmationActivateButton)}
             >
-              Activate 2x rewards
+              <T id="postUpdateRewardsActivate" />
             </ActionModalButton>
             <ActionModalButton
               color="primary-low"
@@ -144,7 +147,7 @@ export const PostUpdateRewardsPage: FC = () => {
               onClick={closeAnyway}
               {...setTestID(PostUpdateRewardsSelectors.confirmationCloseButton)}
             >
-              Close anyway
+              <T id="postUpdateRewardsCloseAnyway" />
             </ActionModalButton>
           </ActionModalButtonsContainer>
         </ActionModal>

@@ -3841,6 +3841,60 @@
   "promoRewardsActivated": {
     "message": "Promo rewards activated"
   },
+  "postUpdateRewardsHeadline": {
+    "message": "Double your TKEY this month"
+  },
+  "postUpdateRewardsDescription": {
+    "message": "Turn on promo content and earn <b>2x TKEY</b> on every reward until July 31."
+  },
+  "postUpdateRewardsEstimatedBonus": {
+    "message": "Your estimated bonus"
+  },
+  "postUpdateRewardsBonusAmount": {
+    "message": "+$amount$ TKEY",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "postUpdateRewardsActivity": {
+    "message": "based on recent\ntop user activity"
+  },
+  "postUpdateRewardsDayLeft": {
+    "message": "Ends July 31 - $days$ day left",
+    "placeholders": {
+      "days": {
+        "content": "$1"
+      }
+    }
+  },
+  "postUpdateRewardsDaysLeft": {
+    "message": "Ends July 31 - $days$ days left",
+    "placeholders": {
+      "days": {
+        "content": "$1"
+      }
+    }
+  },
+  "postUpdateRewardsDisclaimer": {
+    "message": "By activating 2x rewards you enable promo content and agree to share your wallet address and IP to receive tokens and promo ads."
+  },
+  "postUpdateRewardsActivate": {
+    "message": "Activate 2x rewards"
+  },
+  "postUpdateRewardsOneTimeTitle": {
+    "message": "This offer is one-time only"
+  },
+  "postUpdateRewardsOneTimeDescription": {
+    "message": "2x TKEY rewards can only be turned on from this screen, and it won't come back. Want to activate before you close?"
+  },
+  "postUpdateRewardsCloseAnyway": {
+    "message": "Close anyway"
+  },
+  "postUpdateRewardsActivated": {
+    "message": "2x rewards successfully activated"
+  },
   "bakery": {
     "message": "Bakery"
   },
