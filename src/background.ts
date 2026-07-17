@@ -95,7 +95,7 @@ async function handleExtensionUpdate(previousVersion?: string) {
       putToStorage(SHOULD_SHOW_REWARDS_PUSH_STORAGE_KEY, false)
     ]);
     browser.tabs.create({
-      url: browser.runtime.getURL('fullpage.html#/post-update-rewards')
+      url: browser.runtime.getURL('fullpage.html#/?doubleRewardsEngagementModal=true')
     });
   } else if (details?.triggeredManually) {
     openFullPage();

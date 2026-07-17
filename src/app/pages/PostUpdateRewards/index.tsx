@@ -18,14 +18,28 @@ import { putToStorage } from 'lib/storage';
 import rewards2xSrc from './assets/rewards2x.png';
 import { PostUpdateRewardsSelectors } from './selectors';
 
-export const PostUpdateRewardsPage: FC = () => {
+interface DoubleRewardsEngagementModalProps {
+  opened: boolean;
+  onRequestClose: EmptyFn;
+}
+
+const ACTIVATION_TOAST_VISIBLE_DURATION = 1_500;
+
+export const DoubleRewardsEngagementModal: FC<DoubleRewardsEngagementModalProps> = ({ opened, onRequestClose }) => {
   const { trackEvent } = useAnalytics();
+  const [promoModalClosing, setPromoModalClosing] = useState(false);
   const [closeConfirmationOpen, setCloseConfirmationOpen] = useState(false);
   const [isActivating, setIsActivating] = useState(false);
   const [initialDate] = useState(() => new Date());
 
   const daysRemaining = getPostUpdateRewardsDaysRemaining(initialDate);
   const estimatedBonus = getPostUpdateRewardsEstimatedBonus(initialDate);
+
+  const closePromoModal = () => {
+    setCloseConfirmationOpen(false);
+    setPromoModalClosing(true);
+    onRequestClose();
+  };
 
   const activate = async () => {
     if (isActivating) return;
@@ -35,8 +49,8 @@ export const PostUpdateRewardsPage: FC = () => {
     try {
       await Promise.all([activatePostUpdateRewardsPromo(), putToStorage(WEBSITES_ADS_ENABLED, true)]);
       setCloseConfirmationOpen(false);
-      setTimeout(() => toastSuccess(t('postUpdateRewardsActivated')), 0);
-      setTimeout(() => window.close(), 2500);
+      toastSuccess(t('postUpdateRewardsActivated'));
+      setTimeout(closePromoModal, ACTIVATION_TOAST_VISIBLE_DURATION);
     } catch {
       setIsActivating(false);
     }
@@ -64,15 +78,15 @@ export const PostUpdateRewardsPage: FC = () => {
 
   const closeAnyway = () => {
     trackEvent(PostUpdateRewardsSelectors.confirmationCloseButton, AnalyticsEventCategory.ButtonPress, undefined, true);
-    window.close();
+    closePromoModal();
   };
 
   return (
     <>
       <PageModal
         title={t('rewards')}
-        opened
-        animated={false}
+        opened={opened}
+        animated={promoModalClosing}
         onRequestClose={isActivating ? undefined : handleAnnouncementClose}
         titleRight={
           <CloseButton

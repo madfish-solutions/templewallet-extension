@@ -15,6 +15,7 @@ import * as Woozie from 'lib/woozie';
 import { useAccount } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
 
+import { readSearchParamsBoolean } from './hooks/use-search-params-boolean';
 import { RewardsPushOverlay } from './layouts/PageLayout/RewardsPushOverlay';
 import { ActivityPage } from './pages/Activity';
 import { Dapps } from './pages/Dapps';
@@ -50,9 +51,6 @@ const LazyRewardsDealsHowItWorks = React.lazy(() =>
 );
 const LazyRewardsPromoActivate = React.lazy(() =>
   import('./pages/Rewards/Promo/Activate').then(m => ({ default: m.RewardsPromoActivate }))
-);
-const LazyPostUpdateRewardsPage = React.lazy(() =>
-  import('./pages/PostUpdateRewards').then(m => ({ default: m.PostUpdateRewardsPage }))
 );
 const LazyImportWallet = React.lazy(() => import('./pages/ImportWallet').then(m => ({ default: m.ImportWallet })));
 
@@ -95,7 +93,6 @@ const ROUTE_MAP = Woozie.createMap<RouteContext>([
       return lazily(<LazyImportWallet />);
     }
   ],
-  ['/post-update-rewards', (_p, ctx) => (ctx.fullPage ? lazily(<LazyPostUpdateRewardsPage />) : <OpenInFullPage />)],
   [
     '*',
     (_p, ctx) => {
@@ -112,7 +109,11 @@ const ROUTE_MAP = Woozie.createMap<RouteContext>([
     }
   ],
   ['/loading', (_p, ctx) => (ctx.ready ? <Woozie.Redirect to="/" /> : <RootSuspenseFallback />)],
-  ['/', (_p, ctx) => (ctx.ready ? <Home /> : <Welcome />)],
+  [
+    '/',
+    (_p, ctx) =>
+      readSearchParamsBoolean('doubleRewardsEngagementModal') ? <Unlock /> : ctx.ready ? <Home /> : <Welcome />
+  ],
   ['/nfts', onlyReady(() => <NftsPage />)],
   ['/tokens', onlyReady(() => <TokensPage />)],
   ['/activity', onlyReady(() => <ActivityPage />)],
