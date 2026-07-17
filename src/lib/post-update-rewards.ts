@@ -43,12 +43,10 @@ export const shouldOpenPostUpdateRewardsPage = (
     isPostUpdateRewardsCampaignActive(date)
   );
 
-export const getPostUpdateRewardsImpressionProperties = async () => {
+export const getPostUpdateRewardsImpressionsCount = async () => {
   const state = await fetchFromStorage<PostUpdateRewardsPromoState>(POST_UPDATE_REWARDS_PROMO_STATE_STORAGE_KEY);
 
-  return isPostUpdateRewardsMultiplierActive(state)
-    ? { rewardsMultiplier: 2, postUpdatePromoActivatedViaModal: true }
-    : {};
+  return isPostUpdateRewardsMultiplierActive(state) ? 2 : 1;
 };
 
 export const activatePostUpdateRewardsPromo = () =>

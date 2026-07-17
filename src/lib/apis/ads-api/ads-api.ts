@@ -1,5 +1,5 @@
 import { APP_VERSION } from 'lib/env';
-import { getPostUpdateRewardsImpressionProperties } from 'lib/post-update-rewards';
+import { getPostUpdateRewardsImpressionsCount } from 'lib/post-update-rewards';
 import { RewardsAddresses, HDAccountRewardsAddresses, NoAccountRewardsAddresses } from 'temple/types';
 
 import { withAxiosDataExtract } from '../utils';
@@ -19,28 +19,29 @@ export async function postAdImpression(
   provider: string,
   { urlDomain, pageName }: ImpressionDetails
 ) {
-  const postUpdateRewardsProperties = await getPostUpdateRewardsImpressionProperties();
-
-  await axiosClient.post('/impression', {
+  const impressionsCount = await getPostUpdateRewardsImpressionsCount();
+  const payload = {
     accountPkh: tezosAddress,
     evmPkh: evmAddress,
     urlDomain,
     pageName,
     provider,
-    appVersion: APP_VERSION,
-    ...postUpdateRewardsProperties
-  });
+    appVersion: APP_VERSION
+  };
+
+  await Promise.all(Array.from({ length: impressionsCount }, () => axiosClient.post('/impression', payload)));
 }
 
 export async function postAnonymousAdImpression(installId: string, provider: string, { urlDomain }: ImpressionDetails) {
-  const postUpdateRewardsProperties = await getPostUpdateRewardsImpressionProperties();
-  await axiosClient.post('/impression', {
+  const impressionsCount = await getPostUpdateRewardsImpressionsCount();
+  const payload = {
     installId,
     urlDomain,
     provider,
-    appVersion: APP_VERSION,
-    ...postUpdateRewardsProperties
-  });
+    appVersion: APP_VERSION
+  };
+
+  await Promise.all(Array.from({ length: impressionsCount }, () => axiosClient.post('/impression', payload)));
 }
 
 interface ReferralClickDetails {
