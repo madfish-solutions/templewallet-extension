@@ -2,7 +2,6 @@ import { FC, useState } from 'react';
 
 import { ActionModal, ActionModalButton, ActionModalButtonsContainer } from 'app/atoms/action-modal';
 import { ActionsButtonsBox, CloseButton, PageModal } from 'app/atoms/PageModal';
-import { RewardsAnimation } from 'app/atoms/rewards-animation';
 import { dispatch } from 'app/store';
 import { togglePartnersPromotionAction } from 'app/store/partners-promotion/actions';
 import { toastSuccess } from 'app/toaster';
@@ -16,6 +15,7 @@ import {
 } from 'lib/post-update-rewards';
 import { putToStorage } from 'lib/storage';
 
+import rewards2xSrc from './assets/rewards2x.png';
 import { PostUpdateRewardsSelectors } from './selectors';
 
 export const PostUpdateRewardsPage: FC = () => {
@@ -83,7 +83,7 @@ export const PostUpdateRewardsPage: FC = () => {
         }
       >
         <div className="flex-1 px-4 pt-6 pb-4 flex flex-col items-center text-center">
-          <RewardsAnimation loop width={150} height={150} />
+          <img src={rewards2xSrc} alt="" className="w-33 h-40 object-contain" />
 
           <h2 className="text-font-h3 mt-1">
             <T id="postUpdateRewardsHeadline" />
