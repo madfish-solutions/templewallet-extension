@@ -1,14 +1,11 @@
 import { FC, useState } from 'react';
 
-import { useDispatch } from 'react-redux';
-
-import DocBg from 'app/a11y/DocBg';
-import { Button, IconBase } from 'app/atoms';
 import { ActionModal, ActionModalButton, ActionModalButtonsContainer } from 'app/atoms/action-modal';
+import { ActionsButtonsBox, CloseButton, PageModal } from 'app/atoms/PageModal';
 import { RewardsAnimation } from 'app/atoms/rewards-animation';
-import { ReactComponent as CloseIcon } from 'app/icons/base/x.svg';
-import { FULL_PAGE_WRAP_CLASSNAME, LAYOUT_CONTAINER_CLASSNAME } from 'app/layouts/containers';
+import { dispatch } from 'app/store';
 import { togglePartnersPromotionAction } from 'app/store/partners-promotion/actions';
+import { toastSuccess } from 'app/toaster';
 import { AnalyticsEventCategory, setTestID, useAnalytics } from 'lib/analytics';
 import { WEBSITES_ADS_ENABLED } from 'lib/constants';
 import {
@@ -21,18 +18,27 @@ import { putToStorage } from 'lib/storage';
 import { PostUpdateRewardsSelectors } from './selectors';
 
 export const PostUpdateRewardsPage: FC = () => {
-  const dispatch = useDispatch();
   const { trackEvent } = useAnalytics();
   const [closeConfirmationOpen, setCloseConfirmationOpen] = useState(false);
+  const [isActivating, setIsActivating] = useState(false);
   const [initialDate] = useState(() => new Date());
 
   const daysRemaining = getPostUpdateRewardsDaysRemaining(initialDate);
   const estimatedBonus = getPostUpdateRewardsEstimatedBonus(initialDate);
 
   const activate = async () => {
+    if (isActivating) return;
+
+    setIsActivating(true);
     dispatch(togglePartnersPromotionAction(true));
-    await Promise.all([activatePostUpdateRewardsPromo(), putToStorage(WEBSITES_ADS_ENABLED, true)]);
-    window.close();
+    try {
+      await Promise.all([activatePostUpdateRewardsPromo(), putToStorage(WEBSITES_ADS_ENABLED, true)]);
+      setCloseConfirmationOpen(false);
+      setTimeout(() => toastSuccess('2x rewards activated'), 0);
+      setTimeout(() => window.close(), 2500);
+    } catch {
+      setIsActivating(false);
+    }
   };
 
   const handleConfirmationActivation = () => {
@@ -62,63 +68,60 @@ export const PostUpdateRewardsPage: FC = () => {
 
   return (
     <>
-      <DocBg bgClassName="bg-secondary-low" />
-      <div className={FULL_PAGE_WRAP_CLASSNAME}>
-        <main
-          className={`${LAYOUT_CONTAINER_CLASSNAME} min-h-[600px] bg-background rounded-6 shadow-bottom overflow-hidden flex flex-col`}
-        >
-          <header className="h-14 shrink-0 bg-white border-b-0.5 border-lines flex items-center justify-center relative px-4">
-            <h1 className="text-font-regular-bold">Rewards</h1>
-            <Button
-              className="absolute right-4 text-grey-2"
-              onClick={handleAnnouncementClose}
-              {...setTestID(PostUpdateRewardsSelectors.closeButton)}
-            >
-              <IconBase Icon={CloseIcon} />
-            </Button>
-          </header>
+      <PageModal
+        title="Rewards"
+        opened
+        animated={false}
+        onRequestClose={isActivating ? undefined : handleAnnouncementClose}
+        titleRight={
+          <CloseButton
+            disabled={isActivating}
+            onClick={handleAnnouncementClose}
+            {...setTestID(PostUpdateRewardsSelectors.closeButton)}
+          />
+        }
+      >
+        <div className="flex-1 px-4 pt-6 pb-4 flex flex-col items-center text-center">
+          <RewardsAnimation loop width={150} height={150} />
 
-          <div className="flex-1 px-4 pt-6 pb-4 flex flex-col items-center text-center">
-            <RewardsAnimation loop width={150} height={150} />
+          <h2 className="text-font-h3 mt-1">Double your TKEY this month</h2>
+          <p className="text-font-description text-grey-1 mt-1">
+            Turn on promo content and earn <strong>2x TKEY</strong> on every reward until July 31.
+          </p>
 
-            <h2 className="text-font-h3 mt-1">Double your TKEY this month</h2>
-            <p className="text-font-description text-grey-1 mt-1">
-              Turn on promo content and earn <strong>2x TKEY</strong> on every reward until July 31.
-            </p>
-
-            <div className="w-full bg-grey-4 rounded-8 px-6 py-3 mt-5 flex items-center justify-between text-left">
-              <div>
-                <p className="text-font-description">Your estimated bonus</p>
-                <p className="font-rubik text-2xl font-medium leading-9 text-primary">+{estimatedBonus} TKEY</p>
-              </div>
-              <p className="text-font-small text-grey-1">
-                based on recent
-                <br />
-                top user activity
-              </p>
+          <div className="w-full bg-grey-4 rounded-8 px-6 py-3 mt-5 flex items-center justify-between text-left">
+            <div>
+              <p className="text-font-description">Your estimated bonus</p>
+              <p className="font-rubik text-2xl font-medium leading-9 text-primary">+{estimatedBonus} TKEY</p>
             </div>
-
-            <p className="text-font-description-bold mt-3">
-              Ends July 31 - {daysRemaining} {daysRemaining === 1 ? 'day' : 'days'} left
-            </p>
-            <p className="text-font-small text-grey-1 mt-5 px-4">
-              By activating 2x rewards you enable promo content and agree to share your wallet address and IP to receive
-              tokens and promo ads.
+            <p className="text-font-small text-grey-1">
+              based on recent
+              <br />
+              top user activity
             </p>
           </div>
 
-          <div className="bg-white shadow-top px-4 pt-4 pb-6">
-            <ActionModalButton
-              color="primary"
-              className="w-full"
-              onClick={handleAnnouncementActivation}
-              {...setTestID(PostUpdateRewardsSelectors.ctaButton)}
-            >
-              Activate 2x rewards
-            </ActionModalButton>
-          </div>
-        </main>
-      </div>
+          <p className="text-font-description-bold mt-3">
+            Ends July 31 - {daysRemaining} {daysRemaining === 1 ? 'day' : 'days'} left
+          </p>
+          <p className="text-font-small text-grey-1 mt-5 px-4">
+            By activating 2x rewards you enable promo content and agree to share your wallet address and IP to receive
+            tokens and promo ads.
+          </p>
+        </div>
+
+        <ActionsButtonsBox>
+          <ActionModalButton
+            color="primary"
+            className="w-full"
+            disabled={isActivating}
+            onClick={handleAnnouncementActivation}
+            {...setTestID(PostUpdateRewardsSelectors.ctaButton)}
+          >
+            Activate 2x rewards
+          </ActionModalButton>
+        </ActionsButtonsBox>
+      </PageModal>
 
       {closeConfirmationOpen && (
         <ActionModal title="This offer is one-time only" onClose={() => setCloseConfirmationOpen(false)}>
@@ -129,6 +132,7 @@ export const PostUpdateRewardsPage: FC = () => {
           <ActionModalButtonsContainer className="flex-col">
             <ActionModalButton
               color="primary"
+              disabled={isActivating}
               onClick={handleConfirmationActivation}
               {...setTestID(PostUpdateRewardsSelectors.confirmationActivateButton)}
             >
@@ -136,6 +140,7 @@ export const PostUpdateRewardsPage: FC = () => {
             </ActionModalButton>
             <ActionModalButton
               color="primary-low"
+              disabled={isActivating}
               onClick={closeAnyway}
               {...setTestID(PostUpdateRewardsSelectors.confirmationCloseButton)}
             >
