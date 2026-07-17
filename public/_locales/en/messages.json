@@ -3845,7 +3845,15 @@
     "message": "Double your TKEY this month"
   },
   "postUpdateRewardsDescription": {
-    "message": "Turn on promo content and earn <b>2x TKEY</b> on every reward until July 31."
+    "message": "Turn on promo content and earn $reward$ on every reward until July 31.",
+    "placeholders": {
+      "reward": {
+        "content": "$1"
+      }
+    }
+  },
+  "postUpdateRewardsMultiplier": {
+    "message": "2x TKEY"
   },
   "postUpdateRewardsEstimatedBonus": {
     "message": "Your estimated bonus"

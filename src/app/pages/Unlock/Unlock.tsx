@@ -1,6 +1,7 @@
 import { FC, useCallback, useEffect, useState } from 'react';
 
 import { SubmitHandler, useForm } from 'react-hook-form';
+import { DoubleRewardsEngagementModal } from 'src/app/templates/PostUpdateRewards';
 
 import { FormField, IconBase } from 'app/atoms';
 import { StyledButton } from 'app/atoms/StyledButton';
@@ -9,7 +10,6 @@ import { useSearchParamsBoolean } from 'app/hooks/use-search-params-boolean';
 import { useShouldShowIntroModals } from 'app/hooks/use-should-show-v2-intro-modal';
 import { ReactComponent as LockFillIcon } from 'app/icons/base/lock_fill.svg';
 import { PlanetsBgPageLayout } from 'app/layouts/planets-bg-page-layout';
-import { DoubleRewardsEngagementModal } from 'app/pages/PostUpdateRewards';
 import { dispatch } from 'app/store';
 import { getUserTestingGroupNameActions } from 'app/store/ab-testing/actions';
 import { useUserTestingGroupNameSelector } from 'app/store/ab-testing/selectors';
