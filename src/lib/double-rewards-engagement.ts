@@ -1,8 +1,8 @@
+import { compareVersions } from 'compare-versions';
+
 import { fetchFromStorage, putToStorage } from 'lib/storage';
 
-export const DOUBLE_REWARDS_ENGAGEMENT_LAST_OPENED_VERSION_STORAGE_KEY =
-  'DOUBLE_REWARDS_ENGAGEMENT_LAST_OPENED_VERSION';
-export const DOUBLE_REWARDS_ENGAGEMENT_PROMO_STATE_STORAGE_KEY = 'DOUBLE_REWARDS_ENGAGEMENT_PROMO_STATE';
+import { DOUBLE_REWARDS_ENGAGEMENT_PROMO_STATE_STORAGE_KEY } from './constants';
 
 const DOUBLE_REWARDS_ENGAGEMENT_MIN_PREVIOUS_VERSION = '2.0.29';
 const DOUBLE_REWARDS_ENGAGEMENT_ESTIMATED_MONTHLY_TKEY = 2435;
@@ -58,16 +58,3 @@ export const activateDoubleRewardsEngagementPromo = () =>
   putToStorage<DoubleRewardsEngagementPromoState>(DOUBLE_REWARDS_ENGAGEMENT_PROMO_STATE_STORAGE_KEY, {
     activatedAt: Date.now()
   });
-
-const compareVersions = (left: string, right: string) => {
-  const leftParts = left.split('.').map(Number);
-  const rightParts = right.split('.').map(Number);
-  const length = Math.max(leftParts.length, rightParts.length);
-
-  for (let index = 0; index < length; index++) {
-    const difference = (leftParts[index] ?? 0) - (rightParts[index] ?? 0);
-    if (difference !== 0) return difference;
-  }
-
-  return 0;
-};

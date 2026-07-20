@@ -12,6 +12,7 @@ import { importUpdateRulesStorageModule } from 'lib/ads/import-update-rules-stor
 import {
   ADS_IMPRESSIONS_LINKED_V2_STORAGE_KEY,
   ANALYTICS_USER_ID_STORAGE_KEY,
+  DOUBLE_REWARDS_ENGAGEMENT_LAST_OPENED_VERSION_STORAGE_KEY,
   REWARDS_ACCOUNT_DATA_STORAGE_KEY,
   SHOULD_OPEN_LETS_EXCHANGE_MODAL_STORAGE_KEY,
   SHOULD_PROMOTE_ROOTSTOCK_STORAGE_KEY,
@@ -19,10 +20,7 @@ import {
   SHOULD_SHOW_REWARDS_PUSH_STORAGE_KEY,
   SIDE_VIEW_WAS_FORCED_STORAGE_KEY
 } from 'lib/constants';
-import {
-  DOUBLE_REWARDS_ENGAGEMENT_LAST_OPENED_VERSION_STORAGE_KEY,
-  shouldOpenDoubleRewardsEngagementModal
-} from 'lib/double-rewards-engagement';
+import { shouldOpenDoubleRewardsEngagementModal } from 'lib/double-rewards-engagement';
 import { EnvVars, IS_SIDE_PANEL_AVAILABLE } from 'lib/env';
 import { fetchFromStorage, fetchManyFromStorage, putToStorage } from 'lib/storage';
 import { start } from 'lib/temple/back/main';
@@ -77,17 +75,15 @@ function openFullPage() {
 }
 
 async function handleExtensionUpdate(previousVersion?: string) {
-  const [details, updateStorage, lastOpenedVersion] = await Promise.all([
+  const [details, updateStorage, lastOpenedVersion, hasAccount] = await Promise.all([
     getStoredAppUpdateDetails(),
     fetchManyFromStorage<UpdateStorageKey, Record<UpdateStorageKey, boolean>>(updateStorageKeys),
-    fetchFromStorage<string>(DOUBLE_REWARDS_ENGAGEMENT_LAST_OPENED_VERSION_STORAGE_KEY)
+    fetchFromStorage<string>(DOUBLE_REWARDS_ENGAGEMENT_LAST_OPENED_VERSION_STORAGE_KEY),
+    Vault.isExist()
   ]);
 
-  const shouldOpenDoubleRewardsEngagement = shouldOpenDoubleRewardsEngagementModal(
-    previousVersion,
-    PackageJSON.version,
-    lastOpenedVersion
-  );
+  const shouldOpenDoubleRewardsEngagement =
+    hasAccount && shouldOpenDoubleRewardsEngagementModal(previousVersion, PackageJSON.version, lastOpenedVersion);
 
   if (shouldOpenDoubleRewardsEngagement) {
     await Promise.all([
@@ -111,12 +107,9 @@ async function handleExtensionUpdate(previousVersion?: string) {
 
   if (shouldOpenDoubleRewardsEngagement || shouldShowRewardsPush != null) return;
 
-  const [vaultExists, partnersPromoState] = await Promise.all([
-    Vault.isExist(),
-    fetchFromStorage<PartnersPromotionState>('persist:root.partnersPromotion')
-  ]);
+  const partnersPromoState = await fetchFromStorage<PartnersPromotionState>('persist:root.partnersPromotion');
 
-  if (vaultExists && !partnersPromoState?.shouldShowPromotion) {
+  if (hasAccount && !partnersPromoState?.shouldShowPromotion) {
     await putToStorage(SHOULD_SHOW_REWARDS_PUSH_STORAGE_KEY, true);
     openFullPage();
   }

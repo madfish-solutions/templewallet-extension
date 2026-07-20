@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 
+import { DOUBLE_REWARDS_ENGAGEMENT_PROMO_STATE_STORAGE_KEY } from 'lib/constants';
 import {
-  DOUBLE_REWARDS_ENGAGEMENT_PROMO_STATE_STORAGE_KEY,
   DoubleRewardsEngagementPromoState,
   getDoubleRewardsEngagementDaysRemaining,
   isDoubleRewardsEngagementMultiplierActive
