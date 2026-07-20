@@ -11,12 +11,12 @@ import { useConfirm } from 'lib/ui/dialog';
 export const usePartnersPromotionSettings = () => {
   const dispatch = useDispatch();
   const confirm = useConfirm();
-  const { promoState, setPromoState, isParticipant, daysRemaining } = useDoubleRewardsEngagement();
+  const { promoState, setPromoState, multiplierActive } = useDoubleRewardsEngagement();
 
   const isEnabled = useShouldShowPartnersPromoSelector();
 
   const handleHidePromotion = async () => {
-    if (isParticipant && daysRemaining > 0) {
+    if (multiplierActive) {
       const confirmed = await confirm({
         title: t('doubleRewardsEngagementOptOutTitle'),
         description: t('doubleRewardsEngagementOptOutDescription'),

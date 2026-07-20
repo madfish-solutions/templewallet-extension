@@ -26,7 +26,6 @@ export const useDoubleRewardsEngagement = () => {
   return {
     promoState,
     setPromoState,
-    isParticipant: Boolean(promoState),
     multiplierActive: isDoubleRewardsEngagementMultiplierActive(promoState, now),
     daysRemaining: getDoubleRewardsEngagementDaysRemaining(now)
   };
