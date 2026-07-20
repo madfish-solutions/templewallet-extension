@@ -75,15 +75,18 @@ function openFullPage() {
 }
 
 async function handleExtensionUpdate(previousVersion?: string) {
-  const [details, updateStorage, lastOpenedVersion, hasAccount] = await Promise.all([
+  const [details, updateStorage, lastOpenedVersion, hasAccount, partnersPromoState] = await Promise.all([
     getStoredAppUpdateDetails(),
     fetchManyFromStorage<UpdateStorageKey, Record<UpdateStorageKey, boolean>>(updateStorageKeys),
     fetchFromStorage<string>(DOUBLE_REWARDS_ENGAGEMENT_LAST_OPENED_VERSION_STORAGE_KEY),
-    Vault.isExist()
+    Vault.isExist(),
+    fetchFromStorage<PartnersPromotionState>('persist:root.partnersPromotion')
   ]);
 
   const shouldOpenDoubleRewardsEngagement =
-    hasAccount && shouldOpenDoubleRewardsEngagementModal(previousVersion, PackageJSON.version, lastOpenedVersion);
+    hasAccount &&
+    !partnersPromoState?.shouldShowPromotion &&
+    shouldOpenDoubleRewardsEngagementModal(previousVersion, PackageJSON.version, lastOpenedVersion);
 
   if (shouldOpenDoubleRewardsEngagement) {
     await Promise.all([
@@ -106,8 +109,6 @@ async function handleExtensionUpdate(previousVersion?: string) {
   );
 
   if (shouldOpenDoubleRewardsEngagement || shouldShowRewardsPush != null) return;
-
-  const partnersPromoState = await fetchFromStorage<PartnersPromotionState>('persist:root.partnersPromotion');
 
   if (hasAccount && !partnersPromoState?.shouldShowPromotion) {
     await putToStorage(SHOULD_SHOW_REWARDS_PUSH_STORAGE_KEY, true);
