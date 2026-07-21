@@ -3901,8 +3901,11 @@
   "doubleRewardsEngagementOptOutDescription": {
     "message": "Keep promo on through July 31 to earn your full 2x bonus. Turning it off early ends the doubling permanently - you keep what you've earned, but reactivating won't restore the double rate."
   },
-  "doubleRewardsEngagementFooter": {
-    "message": "You earn 2x: $duration$ left",
+  "doubleRewardsEngagementFooterTitle": {
+    "message": "You earn 2x:"
+  },
+  "doubleRewardsEngagementFooterDaysLeft": {
+    "message": "$duration$ left",
     "placeholders": {
       "duration": {
         "content": "$1"
