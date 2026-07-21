@@ -37,6 +37,7 @@ export const EarnNoDepositsCard = () => {
                   <TezosAssetIconWithNetwork
                     assetSlug={TEZ_TOKEN_SLUG}
                     tezosChainId={TEZOS_MAINNET_CHAIN_ID}
+                    withNetworkLogoTooltip={false}
                     size={24}
                   />
                 }
@@ -50,6 +51,7 @@ export const EarnNoDepositsCard = () => {
                   <EvmAssetIconWithNetwork
                     assetSlug={EVM_TOKEN_SLUG}
                     evmChainId={ETHEREUM_MAINNET_CHAIN_ID}
+                    withNetworkLogoTooltip={false}
                     size={24}
                   />
                 }
