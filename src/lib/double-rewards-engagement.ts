@@ -4,10 +4,10 @@ import { fetchFromStorage, putToStorage } from 'lib/storage';
 
 import { DOUBLE_REWARDS_ENGAGEMENT_PROMO_STATE_STORAGE_KEY } from './constants';
 
-const DOUBLE_REWARDS_ENGAGEMENT_MIN_PREVIOUS_VERSION = '2.0.29';
-const DOUBLE_REWARDS_ENGAGEMENT_ESTIMATED_MONTHLY_TKEY = 2435;
+const LAST_PUBLIC_VERSION = '2.0.29';
+const ESTIMATED_MONTHLY_TKEY = 4870;
 
-const CAMPAIGN_END = new Date(2026, 7, 1);
+const CAMPAIGN_END = new Date(2026, 8, 1);
 
 export interface DoubleRewardsEngagementPromoState {
   activatedAt: number;
@@ -22,7 +22,7 @@ export const getDoubleRewardsEngagementDaysRemaining = (date = new Date()) => {
 };
 
 export const getDoubleRewardsEngagementEstimatedBonus = (date = new Date()) =>
-  Math.round((DOUBLE_REWARDS_ENGAGEMENT_ESTIMATED_MONTHLY_TKEY / 31) * getDoubleRewardsEngagementDaysRemaining(date));
+  Math.round((ESTIMATED_MONTHLY_TKEY / 31) * getDoubleRewardsEngagementDaysRemaining(date));
 
 const isDoubleRewardsEngagementCampaignActive = (date = new Date()) => date.getTime() < CAMPAIGN_END.getTime();
 
@@ -40,7 +40,7 @@ export const shouldOpenDoubleRewardsEngagementModal = (
   Boolean(
     previousVersion &&
     previousVersion !== currentVersion &&
-    compareVersions(previousVersion, DOUBLE_REWARDS_ENGAGEMENT_MIN_PREVIOUS_VERSION) >= 0 &&
+    compareVersions(previousVersion, LAST_PUBLIC_VERSION) >= 0 &&
     lastOpenedVersion !== currentVersion &&
     isDoubleRewardsEngagementCampaignActive(date)
   );

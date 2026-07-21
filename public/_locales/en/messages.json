@@ -3845,7 +3845,7 @@
     "message": "Double your TKEY this month"
   },
   "doubleRewardsEngagementDescription": {
-    "message": "Turn on promo content and earn $reward$ on every reward until July 31.",
+    "message": "Turn on promo content and earn $reward$ on every reward until August 31.",
     "placeholders": {
       "reward": {
         "content": "$1"
@@ -3859,7 +3859,7 @@
     "message": "Your estimated bonus"
   },
   "positiveTkeyAmount": {
-    "message": "+$amount$ TKEY",
+    "message": "≈$amount$ TKEY",
     "placeholders": {
       "amount": {
         "content": "$1"
@@ -3870,7 +3870,7 @@
     "message": "based on recent\ntop user activity"
   },
   "doubleRewardsEngagementDaysLeft": {
-    "message": "Ends July 31 - $duration$ left",
+    "message": "Ends August 31 - $duration$ left",
     "placeholders": {
       "duration": {
         "content": "$1"
@@ -3899,7 +3899,7 @@
     "message": "Turning off ends your 2x"
   },
   "doubleRewardsEngagementOptOutDescription": {
-    "message": "Keep promo on through July 31 to earn your full 2x bonus. Turning it off early ends the doubling permanently - you keep what you've earned, but reactivating won't restore the double rate."
+    "message": "Keep promo on through August 31 to earn your full 2x bonus. Turning it off early ends the doubling permanently - you keep what you've earned, but reactivating won't restore the double rate."
   },
   "doubleRewardsEngagementFooterTitle": {
     "message": "You earn 2x:"
