@@ -3869,18 +3869,10 @@
   "doubleRewardsEngagementActivity": {
     "message": "based on recent\ntop user activity"
   },
-  "doubleRewardsEngagementDayLeft": {
-    "message": "Ends July 31 - $days$ day left",
-    "placeholders": {
-      "days": {
-        "content": "$1"
-      }
-    }
-  },
   "doubleRewardsEngagementDaysLeft": {
-    "message": "Ends July 31 - $days$ days left",
+    "message": "Ends July 31 - $duration$ left",
     "placeholders": {
-      "days": {
+      "duration": {
         "content": "$1"
       }
     }
@@ -3909,21 +3901,10 @@
   "doubleRewardsEngagementOptOutDescription": {
     "message": "Keep promo on through July 31 to earn your full 2x bonus. Turning it off early ends the doubling permanently - you keep what you've earned, but reactivating won't restore the double rate."
   },
-  "doubleRewardsEngagementFooterTitle": {
-    "message": "You earn 2x:"
-  },
-  "doubleRewardsEngagementFooterDayLeft": {
-    "message": "$days$ day left",
+  "doubleRewardsEngagementFooter": {
+    "message": "You earn 2x: $duration$ left",
     "placeholders": {
-      "days": {
-        "content": "$1"
-      }
-    }
-  },
-  "doubleRewardsEngagementFooterDaysLeft": {
-    "message": "$days$ days left",
-    "placeholders": {
-      "days": {
+      "duration": {
         "content": "$1"
       }
     }

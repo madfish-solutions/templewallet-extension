@@ -15,7 +15,9 @@ import {
   getDoubleRewardsEngagementEstimatedBonus
 } from 'lib/double-rewards-engagement';
 import { t, T } from 'lib/i18n';
+import { formatDuration } from 'lib/i18n/core';
 import { putToStorage } from 'lib/storage';
+import { ONE_DAY_SECONDS } from 'lib/utils/numbers';
 
 import rewards2xSrc from './assets/rewards2x.png';
 import { DoubleRewardsEngagementModalSelectors } from './selectors';
@@ -155,8 +157,8 @@ export const DoubleRewardsEngagementModal: FC<Props> = ({ opened, onRequestClose
 
             <p className="text-font-description-bold mt-3">
               <T
-                id={daysRemaining === 1 ? 'doubleRewardsEngagementDayLeft' : 'doubleRewardsEngagementDaysLeft'}
-                substitutions={daysRemaining}
+                id="doubleRewardsEngagementDaysLeft"
+                substitutions={formatDuration(daysRemaining * ONE_DAY_SECONDS, ['days'])}
               />
             </p>
             <p className="text-font-small text-grey-1 mt-5 px-4">

@@ -24,8 +24,7 @@ export const getDoubleRewardsEngagementDaysRemaining = (date = new Date()) => {
 export const getDoubleRewardsEngagementEstimatedBonus = (date = new Date()) =>
   Math.round((DOUBLE_REWARDS_ENGAGEMENT_ESTIMATED_MONTHLY_TKEY / 31) * getDoubleRewardsEngagementDaysRemaining(date));
 
-const isDoubleRewardsEngagementCampaignActive = (date = new Date()) =>
-  date.getFullYear() === 2026 && date.getMonth() === 6 && date.getTime() < CAMPAIGN_END.getTime();
+const isDoubleRewardsEngagementCampaignActive = (date = new Date()) => date.getTime() < CAMPAIGN_END.getTime();
 
 export const isDoubleRewardsEngagementMultiplierActive = (
   state: DoubleRewardsEngagementPromoState | nullish,
