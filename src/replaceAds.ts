@@ -81,6 +81,23 @@ browser.storage.local.onChanged.addListener(changes => {
 });
 
 let lastAttemptTs = 0;
+let shouldAddAdsForNextReply = false;
+let prevShouldEnableChatbotAds = false;
+
+const handleUrlChange = () => {
+  shouldAddAdsForNextReply = false;
+};
+const originalPushState = history.pushState;
+const originalReplaceState = history.replaceState;
+history.pushState = function (...args) {
+  originalPushState.apply(this, args);
+  handleUrlChange();
+};
+history.replaceState = function (...args) {
+  originalReplaceState.apply(this, args);
+  handleUrlChange();
+};
+window.addEventListener('popstate', handleUrlChange);
 
 const fetchAdsDisablingTimestamps = async () =>
   (await fetchFromStorage<StringRecord<number>>(ADS_DISABLING_TIMESTAMPS_STORAGE_KEY)) ?? {};
@@ -102,7 +119,19 @@ const insertAiChatbotAds = async () => {
     let adsActionsResult: PromiseSettledResult<void>[] = [];
 
     if (isChatgptChatPage() && (await shouldEnableChatbotAds(CHATGPT_DOMAIN, 24 * 3600 * 1000))) {
-      adsActionsResult = await startChatgptChatAdsFlow(() => disableAdsTemporarily(CHATGPT_DOMAIN));
+      const currentShouldEnableChatbotAds = await shouldEnableChatbotAds(CHATGPT_DOMAIN, 24 * 3600 * 1000);
+      if (prevShouldEnableChatbotAds === false && currentShouldEnableChatbotAds) {
+        shouldAddAdsForNextReply = true;
+      }
+      prevShouldEnableChatbotAds = currentShouldEnableChatbotAds;
+      adsActionsResult = await startChatgptChatAdsFlow(
+        () => disableAdsTemporarily(CHATGPT_DOMAIN),
+        shouldAddAdsForNextReply
+      );
+
+      if (adsActionsResult.length > 0) {
+        shouldAddAdsForNextReply = false;
+      }
     }
 
     adsActionsResult.forEach(
