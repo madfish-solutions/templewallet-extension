@@ -29,7 +29,7 @@ export const StatsCard: FC<StatsCardProps> = ({
 }) => (
   <Link
     className={clsx(
-      'bg-white rounded-8 border-0.5 border-lines p-4 flex flex-col min-h-25',
+      'bg-white hover:bg-grey-4 rounded-8 border-0.5 border-lines p-4 flex flex-col min-h-25',
       isDefined(caption) && 'pb-0'
     )}
     to={linkTo}
@@ -51,7 +51,7 @@ export const StatsCard: FC<StatsCardProps> = ({
         )}
       </div>
       {chartData && (
-        <div className="flex-1">
+        <div className="flex-1 **:cursor-pointer">
           <SimpleChart data={chartData} />
         </div>
       )}
