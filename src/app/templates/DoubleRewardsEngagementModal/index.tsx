@@ -7,7 +7,6 @@ import { dispatch } from 'app/store';
 import { togglePartnersPromotionAction } from 'app/store/partners-promotion/actions';
 import { PageModalScrollViewWithActions } from 'app/templates/page-modal-scroll-view-with-actions';
 import { removeToast, toastSuccess } from 'app/toaster';
-import { AnalyticsEventCategory, useAnalytics } from 'lib/analytics';
 import { WEBSITES_ADS_ENABLED } from 'lib/constants';
 import {
   activateDoubleRewardsEngagementPromo,
@@ -30,7 +29,6 @@ interface Props {
 const ACTIVATION_TOAST_VISIBLE_DURATION = 2_000;
 
 export const DoubleRewardsEngagementModal: FC<Props> = ({ opened, onRequestClose }) => {
-  const { trackEvent } = useAnalytics();
   const [promoModalClosing, setPromoModalClosing] = useState(false);
   const [closeConfirmationOpen, setCloseConfirmationOpen] = useState(false);
   const [isActivating, setIsActivating] = useState(false);
@@ -63,35 +61,7 @@ export const DoubleRewardsEngagementModal: FC<Props> = ({ opened, onRequestClose
     }
   };
 
-  const handleConfirmationActivation = () => {
-    trackEvent(
-      DoubleRewardsEngagementModalSelectors.confirmationActivateButton,
-      AnalyticsEventCategory.ButtonPress,
-      undefined,
-      true
-    );
-    void activate();
-  };
-
-  const handleAnnouncementActivation = () => {
-    trackEvent(DoubleRewardsEngagementModalSelectors.ctaButton, AnalyticsEventCategory.ButtonPress, undefined, true);
-    void activate();
-  };
-
-  const handleAnnouncementClose = () => {
-    trackEvent(DoubleRewardsEngagementModalSelectors.closeButton, AnalyticsEventCategory.ButtonPress, undefined, true);
-    setCloseConfirmationOpen(true);
-  };
-
-  const closeAnyway = () => {
-    trackEvent(
-      DoubleRewardsEngagementModalSelectors.confirmationCloseButton,
-      AnalyticsEventCategory.ButtonPress,
-      undefined,
-      true
-    );
-    closePromoModal();
-  };
+  const handleAnnouncementClose = () => void setCloseConfirmationOpen(true);
 
   return (
     <>
@@ -116,7 +86,7 @@ export const DoubleRewardsEngagementModal: FC<Props> = ({ opened, onRequestClose
                 color="primary"
                 className="w-full"
                 disabled={isActivating}
-                onClick={handleAnnouncementActivation}
+                onClick={activate}
                 testID={DoubleRewardsEngagementModalSelectors.ctaButton}
               >
                 <T id="activeteDoubleRewards" />
@@ -177,16 +147,16 @@ export const DoubleRewardsEngagementModal: FC<Props> = ({ opened, onRequestClose
             <ActionModalButton
               color="primary"
               disabled={isActivating}
-              onClick={handleConfirmationActivation}
-              testID={DoubleRewardsEngagementModalSelectors.confirmationActivateButton}
+              onClick={activate}
+              testID={DoubleRewardsEngagementModalSelectors.actionModalCtaButton}
             >
               <T id="activeteDoubleRewards" />
             </ActionModalButton>
             <ActionModalButton
               color="primary-low"
               disabled={isActivating}
-              onClick={closeAnyway}
-              testID={DoubleRewardsEngagementModalSelectors.confirmationCloseButton}
+              onClick={closePromoModal}
+              testID={DoubleRewardsEngagementModalSelectors.actionModalCloseButton}
             >
               <T id="closeAnyway" />
             </ActionModalButton>

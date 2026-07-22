@@ -19,7 +19,7 @@ export async function postAdImpression(
   provider: string,
   { urlDomain, pageName }: ImpressionDetails
 ) {
-  const impressionsCount = await getDoubleRewardsEngagementImpressionsCount();
+  const impressionsCount = await getDoubleRewardsEngagementImpressionsCount(provider);
   const payload = {
     accountPkh: tezosAddress,
     evmPkh: evmAddress,
@@ -33,7 +33,7 @@ export async function postAdImpression(
 }
 
 export async function postAnonymousAdImpression(installId: string, provider: string, { urlDomain }: ImpressionDetails) {
-  const impressionsCount = await getDoubleRewardsEngagementImpressionsCount();
+  const impressionsCount = await getDoubleRewardsEngagementImpressionsCount(provider);
   const payload = {
     installId,
     urlDomain,

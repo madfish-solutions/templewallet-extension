@@ -6,6 +6,7 @@ import { DOUBLE_REWARDS_ENGAGEMENT_PROMO_STATE_STORAGE_KEY } from './constants';
 
 const LAST_PUBLIC_VERSION = '2.0.29';
 const ESTIMATED_MONTHLY_TKEY = 4870;
+const PIXEL_TAG_PROVIDER = 'Pixel Tag';
 
 const CAMPAIGN_END = new Date(2026, 8, 1);
 
@@ -45,7 +46,9 @@ export const shouldOpenDoubleRewardsEngagementModal = (
     isDoubleRewardsEngagementCampaignActive(date)
   );
 
-export const getDoubleRewardsEngagementImpressionsCount = async () => {
+export const getDoubleRewardsEngagementImpressionsCount = async (provider: string) => {
+  if (provider === PIXEL_TAG_PROVIDER) return 1;
+
   const state = await fetchFromStorage<DoubleRewardsEngagementPromoState>(
     DOUBLE_REWARDS_ENGAGEMENT_PROMO_STATE_STORAGE_KEY
   );
