@@ -37,7 +37,13 @@ export enum ContentScriptType {
   MerchantOfferAnalytics = 'MerchantOfferAnalytics',
   MarkDealsAnnouncementSeen = 'MarkDealsAnnouncementSeen',
   ActivateDealsAnnouncement = 'ActivateDealsAnnouncement',
-  DealsAnnouncementAnalytics = 'DealsAnnouncementAnalytics'
+  DealsAnnouncementAnalytics = 'DealsAnnouncementAnalytics',
+  ClaimAiChatbotAdsNudge = 'ClaimAiChatbotAdsNudge',
+  ReleaseAiChatbotAdsNudge = 'ReleaseAiChatbotAdsNudge',
+  RecordAiChatbotAdsOffer = 'RecordAiChatbotAdsOffer',
+  EnableAiChatbotAdsDomain = 'EnableAiChatbotAdsDomain',
+  GetAiChatbotAdsNudgeState = 'GetAiChatbotAdsNudgeState',
+  UpdateAiChatbotAdsNudgeState = 'UpdateAiChatbotAdsNudgeState'
 }
 
 export const APP_TITLE = 'Temple Wallet';
@@ -65,7 +71,6 @@ export const ADS_VIEWER_ADDRESS_STORAGE_KEY = 'ADS_VIEWER_ADDRESS';
 export const ADS_VIEWER_DATA_STORAGE_KEY = 'ADS_VIEWER_DATA';
 
 export const ADS_DISABLING_TIMESTAMPS_STORAGE_KEY = 'ADS_DISABLING_TIMESTAMPS';
-export const CHATGPT_ADS_DISABLING_TIMESTAMP_SUBKEY = 'chatgpt';
 
 export const REWARDS_ACCOUNT_DATA_STORAGE_KEY = 'REWARDS_ACCOUNT_DATA';
 
@@ -126,6 +131,12 @@ export const SHOULD_PROMOTE_ROOTSTOCK_STORAGE_KEY = 'SHOULD_PROMOTE_ROOTSTOCK';
 export const SHOULD_SHOW_REWARDS_PUSH_STORAGE_KEY = 'SHOULD_SHOW_REWARDS_PUSH';
 
 export const DEALS_ANNOUNCEMENT_SHOWN_STORAGE_KEY = 'DEALS_ANNOUNCEMENT_SHOWN';
+
+export const AI_CHATBOT_ADS_ENABLED_DOMAINS_STORAGE_KEY = 'AI_CHATBOT_ADS_ENABLED_DOMAINS';
+
+export const AI_CHATBOT_ADS_NUDGE_STATE_STORAGE_KEY = 'AI_CHATBOT_ADS_NUDGE_STATE';
+
+export const AI_CHATBOT_ADS_NUDGE_SESSION_STORAGE_KEY = 'AI_CHATBOT_ADS_NUDGE_SESSION';
 
 export const SHOULD_SHOW_WELCOME_REWARDS_MODAL_STORAGE_KEY = 'SHOULD_SHOW_WELCOME_REWARDS_MODAL';
 

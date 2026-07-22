@@ -6,10 +6,10 @@ const DEPRECATED_KEYS = [
   'collectibles:adult-blur'
 ];
 
-export async function fetchFromStorage<T = any>(key: string): Promise<T | null> {
+export async function fetchFromStorage<T = any>(key: string, storageArea = browser.storage.local): Promise<T | null> {
   if (DEPRECATED_KEYS.some(k => key.startsWith(k))) throw new Error(`Storage key ${key} is deprecated`);
 
-  const items = await browser.storage.local.get([key]);
+  const items = await storageArea.get([key]);
   if (key in items) {
     return items[key];
   } else {

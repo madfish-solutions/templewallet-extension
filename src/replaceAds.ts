@@ -1,13 +1,15 @@
 import browser from 'webextension-polyfill';
 
 import { checkIfShouldReplaceAds } from 'content-scripts/utils';
+import { CHATGPT_DOMAIN } from 'lib/ads-constants/ads-constants';
 import { configureAds } from 'lib/ads/configure-ads';
 import { importExtensionAdsModule } from 'lib/ads/import-extension-ads-module';
 import {
   ContentScriptType,
   ADS_RULES_UPDATE_INTERVAL,
   ADS_DISABLING_TIMESTAMPS_STORAGE_KEY,
-  CHATGPT_ADS_DISABLING_TIMESTAMP_SUBKEY
+  AI_CHATBOT_ADS_ENABLED_DOMAINS_STORAGE_KEY,
+  WEBSITES_ADS_ENABLED
 } from 'lib/constants';
 import { IS_MISES_BROWSER } from 'lib/env';
 import { fetchFromStorage, putToStorage } from 'lib/storage';
@@ -45,26 +47,65 @@ setInterval(async () => {
   }
 }, 1000);
 
-checkIfShouldReplaceAds().then(async shouldReplace => {
-  if (!shouldReplace) return;
+let adsActionTriggers: { documentObserver: MutationObserver; interval: NodeJS.Timeout } | undefined;
 
-  await configureAds();
+const updateAdsActionTriggers = () =>
+  checkIfShouldReplaceAds().then(async shouldReplace => {
+    if (shouldReplace) {
+      if (adsActionTriggers) return;
 
-  // Replace ads with ours
-  setInterval(() => replaceAdsByInterval(), 1000);
+      await configureAds();
 
-  const documentObserver = new MutationObserver(() => replaceAdsByDocumentMutation());
-  documentObserver.observe(document, { childList: true, subtree: true });
+      // Replace ads with ours
+      const interval = setInterval(() => replaceAdsByInterval(), 1000);
+      const documentObserver = new MutationObserver(() => insertAiChatbotAds());
+      documentObserver.observe(document, { childList: true, subtree: true });
+
+      adsActionTriggers = { documentObserver, interval };
+
+      return;
+    }
+
+    if (!adsActionTriggers) return;
+
+    adsActionTriggers.documentObserver.disconnect();
+    clearInterval(adsActionTriggers.interval);
+    adsActionTriggers = undefined;
+  });
+
+updateAdsActionTriggers();
+browser.storage.local.onChanged.addListener(changes => {
+  if (WEBSITES_ADS_ENABLED in changes) {
+    updateAdsActionTriggers();
+  }
 });
 
 let lastAttemptTs = 0;
+let shouldAddAdsForNextReply = false;
+let prevShouldEnableChatbotAds = false;
+
+const handleUrlChange = () => {
+  shouldAddAdsForNextReply = false;
+};
+const originalPushState = history.pushState;
+const originalReplaceState = history.replaceState;
+history.pushState = function (...args) {
+  originalPushState.apply(this, args);
+  handleUrlChange();
+};
+history.replaceState = function (...args) {
+  originalReplaceState.apply(this, args);
+  handleUrlChange();
+};
+window.addEventListener('popstate', handleUrlChange);
 
 const fetchAdsDisablingTimestamps = async () =>
   (await fetchFromStorage<StringRecord<number>>(ADS_DISABLING_TIMESTAMPS_STORAGE_KEY)) ?? {};
-const shouldDisableAdsTemporarily = async (subkey: string, timeout: number) => {
-  const { [subkey]: timestamp = 0 } = await fetchAdsDisablingTimestamps();
+const shouldEnableChatbotAds = async (domain: string, timeout: number) => {
+  const { [domain]: disabledAt = 0 } = await fetchAdsDisablingTimestamps();
+  const enabledDomains = (await fetchFromStorage<string[]>(AI_CHATBOT_ADS_ENABLED_DOMAINS_STORAGE_KEY)) ?? [];
 
-  return timestamp + timeout > Date.now();
+  return enabledDomains.includes(domain) && disabledAt + timeout <= Date.now();
 };
 const disableAdsTemporarily = async (subkey: string) =>
   putToStorage(ADS_DISABLING_TIMESTAMPS_STORAGE_KEY, {
@@ -72,18 +113,25 @@ const disableAdsTemporarily = async (subkey: string) =>
     [subkey]: Date.now()
   });
 
-const replaceAdsByDocumentMutation = async () => {
+const insertAiChatbotAds = async () => {
   try {
     const { isChatgptChatPage, startChatgptChatAdsFlow } = await importExtensionAdsModule();
     let adsActionsResult: PromiseSettledResult<void>[] = [];
 
-    if (
-      isChatgptChatPage() &&
-      !(await shouldDisableAdsTemporarily(CHATGPT_ADS_DISABLING_TIMESTAMP_SUBKEY, 24 * 3600 * 1000))
-    ) {
-      adsActionsResult = await startChatgptChatAdsFlow(() =>
-        disableAdsTemporarily(CHATGPT_ADS_DISABLING_TIMESTAMP_SUBKEY)
+    if (isChatgptChatPage() && (await shouldEnableChatbotAds(CHATGPT_DOMAIN, 24 * 3600 * 1000))) {
+      const currentShouldEnableChatbotAds = await shouldEnableChatbotAds(CHATGPT_DOMAIN, 24 * 3600 * 1000);
+      if (prevShouldEnableChatbotAds === false && currentShouldEnableChatbotAds) {
+        shouldAddAdsForNextReply = true;
+      }
+      prevShouldEnableChatbotAds = currentShouldEnableChatbotAds;
+      adsActionsResult = await startChatgptChatAdsFlow(
+        () => disableAdsTemporarily(CHATGPT_DOMAIN),
+        shouldAddAdsForNextReply
       );
+
+      if (adsActionsResult.length > 0) {
+        shouldAddAdsForNextReply = false;
+      }
     }
 
     adsActionsResult.forEach(
