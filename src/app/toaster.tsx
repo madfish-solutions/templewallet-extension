@@ -37,6 +37,8 @@ const withToastsLimit =
     const newToastId = toastFn(...args);
     toastsIdsPool.push(newToastId);
     toastsHashesPool.push(toastHashFn(...args));
+
+    return newToastId;
   };
 
 const withUniqCheck =
@@ -79,6 +81,8 @@ export const toastWarning = withToastsLimit(
 );
 
 export const toastUniqWarning = withUniqCheck(toastWarning, getWarningToastHash);
+
+export const removeToast = (toastId: string) => toast.remove(toastId);
 
 export const ToasterProvider = memo(() => {
   const [bottomShift] = useToastsContainerBottomShift();

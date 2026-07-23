@@ -1,0 +1,168 @@
+import { FC, useState } from 'react';
+
+import { ActionModal, ActionModalButton, ActionModalButtonsContainer } from 'app/atoms/action-modal';
+import { CloseButton, PageModal } from 'app/atoms/PageModal';
+import { StyledButton } from 'app/atoms/StyledButton';
+import { dispatch } from 'app/store';
+import { togglePartnersPromotionAction } from 'app/store/partners-promotion/actions';
+import { PageModalScrollViewWithActions } from 'app/templates/page-modal-scroll-view-with-actions';
+import { removeToast, toastSuccess } from 'app/toaster';
+import { WEBSITES_ADS_ENABLED } from 'lib/constants';
+import {
+  activateDoubleRewardsEngagementPromo,
+  getDoubleRewardsEngagementDaysRemaining,
+  getDoubleRewardsEngagementEstimatedBonus
+} from 'lib/double-rewards-engagement';
+import { t, T } from 'lib/i18n';
+import { formatDuration } from 'lib/i18n/core';
+import { putToStorage } from 'lib/storage';
+import { ONE_DAY_SECONDS } from 'lib/utils/numbers';
+
+import rewards2xSrc from './assets/rewards2x.png';
+import { DoubleRewardsEngagementModalSelectors } from './selectors';
+
+interface Props {
+  opened: boolean;
+  onRequestClose: EmptyFn;
+}
+
+const ACTIVATION_TOAST_VISIBLE_DURATION = 2_000;
+
+export const DoubleRewardsEngagementModal: FC<Props> = ({ opened, onRequestClose }) => {
+  const [promoModalClosing, setPromoModalClosing] = useState(false);
+  const [closeConfirmationOpen, setCloseConfirmationOpen] = useState(false);
+  const [isActivating, setIsActivating] = useState(false);
+  const [initialDate] = useState(() => new Date());
+
+  const daysRemaining = getDoubleRewardsEngagementDaysRemaining(initialDate);
+  const estimatedBonus = getDoubleRewardsEngagementEstimatedBonus(initialDate);
+
+  const closePromoModal = () => {
+    setCloseConfirmationOpen(false);
+    setPromoModalClosing(true);
+    onRequestClose();
+  };
+
+  const activate = async () => {
+    if (isActivating) return;
+
+    setIsActivating(true);
+    dispatch(togglePartnersPromotionAction(true));
+    try {
+      await Promise.all([activateDoubleRewardsEngagementPromo(), putToStorage(WEBSITES_ADS_ENABLED, true)]);
+      setCloseConfirmationOpen(false);
+      const toastId = toastSuccess(t('doubleRewardsActivated'));
+      setTimeout(() => {
+        removeToast(toastId);
+        closePromoModal();
+      }, ACTIVATION_TOAST_VISIBLE_DURATION);
+    } catch {
+      setIsActivating(false);
+    }
+  };
+
+  const handleAnnouncementClose = () => void setCloseConfirmationOpen(true);
+
+  return (
+    <>
+      <PageModal
+        title={t('rewards')}
+        opened={opened}
+        animated={promoModalClosing}
+        onRequestClose={isActivating ? undefined : handleAnnouncementClose}
+        titleRight={
+          <CloseButton
+            disabled={isActivating}
+            onClick={handleAnnouncementClose}
+            testID={DoubleRewardsEngagementModalSelectors.closeButton}
+          />
+        }
+      >
+        <PageModalScrollViewWithActions
+          actionsBoxProps={{
+            children: (
+              <StyledButton
+                size="L"
+                color="primary"
+                className="w-full"
+                disabled={isActivating}
+                onClick={activate}
+                testID={DoubleRewardsEngagementModalSelectors.ctaButton}
+              >
+                <T id="activeteDoubleRewards" />
+              </StyledButton>
+            )
+          }}
+        >
+          <div className="flex flex-col items-center text-center pb-4">
+            <img src={rewards2xSrc} alt="" className="mt-8 mb-4 w-33 h-40 object-contain" />
+
+            <h3 className="text-font-h3">
+              <T id="doubleRewardsEngagementHeadline" />
+            </h3>
+            <p className="text-font-description text-grey-1 mt-1">
+              <T
+                id="doubleRewardsEngagementDescription"
+                substitutions={
+                  <span className="font-bold">
+                    <T id="2xTkey" />
+                  </span>
+                }
+              />
+            </p>
+
+            <div className="w-full bg-grey-4 rounded-8 px-6 py-3 mt-7 flex items-center justify-between text-left">
+              <div>
+                <p className="text-font-description">
+                  <T id="yourEstimatedBonus" />
+                </p>
+                <p className="text-font-num-bold-24 text-primary">
+                  <T id="positiveTkeyAmount" substitutions={estimatedBonus} />
+                </p>
+              </div>
+              <p className="text-font-small text-grey-1">
+                <T id="doubleRewardsEngagementActivity" />
+              </p>
+            </div>
+
+            <p className="text-font-description-bold mt-3">
+              <T
+                id="doubleRewardsEngagementDaysLeft"
+                substitutions={formatDuration(daysRemaining * ONE_DAY_SECONDS, ['days'])}
+              />
+            </p>
+            <p className="text-font-small text-grey-1 mt-5 px-4">
+              <T id="doubleRewardsEngagementDisclaimer" />
+            </p>
+          </div>
+        </PageModalScrollViewWithActions>
+      </PageModal>
+
+      {closeConfirmationOpen && (
+        <ActionModal title={t('doubleRewardsEngagementOneTimeTitle')} onClose={() => setCloseConfirmationOpen(false)}>
+          <p className="px-4 pt-4 text-font-description text-grey-1 text-center">
+            <T id="doubleRewardsEngagementOneTimeDescription" />
+          </p>
+          <ActionModalButtonsContainer className="flex-col">
+            <ActionModalButton
+              color="primary"
+              disabled={isActivating}
+              onClick={activate}
+              testID={DoubleRewardsEngagementModalSelectors.actionModalCtaButton}
+            >
+              <T id="activeteDoubleRewards" />
+            </ActionModalButton>
+            <ActionModalButton
+              color="primary-low"
+              disabled={isActivating}
+              onClick={closePromoModal}
+              testID={DoubleRewardsEngagementModalSelectors.actionModalCloseButton}
+            >
+              <T id="closeAnyway" />
+            </ActionModalButton>
+          </ActionModalButtonsContainer>
+        </ActionModal>
+      )}
+    </>
+  );
+};

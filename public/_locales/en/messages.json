@@ -3841,6 +3841,77 @@
   "promoRewardsActivated": {
     "message": "Promo rewards activated"
   },
+  "doubleRewardsEngagementHeadline": {
+    "message": "Double your TKEY this month"
+  },
+  "doubleRewardsEngagementDescription": {
+    "message": "Turn on promo content and earn $reward$ on every reward until August 31.",
+    "placeholders": {
+      "reward": {
+        "content": "$1"
+      }
+    }
+  },
+  "2xTkey": {
+    "message": "2x TKEY"
+  },
+  "yourEstimatedBonus": {
+    "message": "Your estimated bonus"
+  },
+  "positiveTkeyAmount": {
+    "message": "≈$amount$ TKEY",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "doubleRewardsEngagementActivity": {
+    "message": "based on recent\ntop user activity"
+  },
+  "doubleRewardsEngagementDaysLeft": {
+    "message": "Ends August 31 - $duration$ left",
+    "placeholders": {
+      "duration": {
+        "content": "$1"
+      }
+    }
+  },
+  "doubleRewardsEngagementDisclaimer": {
+    "message": "By activating 2x rewards you enable promo content and agree to share your wallet address and IP to receive tokens and promo ads."
+  },
+  "activeteDoubleRewards": {
+    "message": "Activate 2x rewards"
+  },
+  "doubleRewardsEngagementOneTimeTitle": {
+    "message": "This offer is one-time only"
+  },
+  "doubleRewardsEngagementOneTimeDescription": {
+    "message": "2x TKEY rewards can only be turned on from this screen, and it won't come back. Want to activate before you close?"
+  },
+  "closeAnyway": {
+    "message": "Close anyway"
+  },
+  "doubleRewardsActivated": {
+    "message": "2x rewards successfully activated"
+  },
+  "doubleRewardsEngagementOptOutTitle": {
+    "message": "Turning off ends your 2x"
+  },
+  "doubleRewardsEngagementOptOutDescription": {
+    "message": "Keep promo on through August 31 to earn your full 2x bonus. Turning it off early ends the doubling permanently - you keep what you've earned, but reactivating won't restore the double rate."
+  },
+  "doubleRewardsEngagementFooterTitle": {
+    "message": "You earn 2x:"
+  },
+  "doubleRewardsEngagementFooterDaysLeft": {
+    "message": "$duration$ left",
+    "placeholders": {
+      "duration": {
+        "content": "$1"
+      }
+    }
+  },
   "bakery": {
     "message": "Bakery"
   },

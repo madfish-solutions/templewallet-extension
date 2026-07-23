@@ -1,6 +1,8 @@
 import { isDefined } from '@rnw-community/shared';
 
 import { Money } from 'app/atoms';
+import { DoubleRewardsWidgetFooter } from 'app/atoms/DoubleRewardsWidgetFooter';
+import { useDoubleRewardsEngagement } from 'app/hooks/use-double-rewards-engagement';
 import { usePartnersPromotionSettings } from 'app/hooks/use-partners-promotion-settings';
 import { useReferralLinksSettings } from 'app/hooks/use-referral-links-settings';
 import { useTkeyRewardsStats } from 'app/hooks/use-rewards-stats';
@@ -15,6 +17,7 @@ export const RewardsCard = () => {
   const { isEnabled: isAdvertisingEnabled } = usePartnersPromotionSettings();
   const { isEnabled: isReferralLinksEnabled } = useReferralLinksSettings();
   const { isLoading: isTkeyLoading, stats: tkeyStats } = useTkeyRewardsStats();
+  const { multiplierActive, daysRemaining } = useDoubleRewardsEngagement();
 
   const referralsEnabled = isReferralLinksEnabled && IS_MISES_BROWSER;
 
@@ -37,7 +40,7 @@ export const RewardsCard = () => {
         </div>
       }
       change={
-        (!isAdvertisingEnabled && !referralsEnabled) || !isDefined(lastAmount) ? undefined : (
+        multiplierActive || (!isAdvertisingEnabled && !referralsEnabled) || !isDefined(lastAmount) ? undefined : (
           <>
             +
             <Money cryptoDecimals={2} smallFractionFont={false} tooltip={false}>
@@ -46,7 +49,10 @@ export const RewardsCard = () => {
           </>
         )
       }
-      caption={isAdvertisingEnabled || referralsEnabled ? undefined : <T id="missingPayoutsCaption" />}
+      caption={
+        multiplierActive || isAdvertisingEnabled || referralsEnabled ? undefined : <T id="missingPayoutsCaption" />
+      }
+      footer={multiplierActive ? <DoubleRewardsWidgetFooter daysRemaining={daysRemaining} /> : undefined}
     />
   );
 };
