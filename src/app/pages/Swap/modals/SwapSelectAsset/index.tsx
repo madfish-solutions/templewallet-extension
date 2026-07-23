@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useState, MouseEvent, Suspense, useEffect, useMemo, FC } from 'react';
+import React, { memo, useCallback, useState, MouseEvent, Suspense, useMemo, FC } from 'react';
 
 import clsx from 'clsx';
 import { uniq } from 'lodash';
@@ -8,7 +8,6 @@ import { Button, IconBase } from 'app/atoms';
 import { PageLoader } from 'app/atoms/Loader';
 import { PageModal } from 'app/atoms/PageModal';
 import { ReactComponent as CompactDown } from 'app/icons/base/compact_down.svg';
-import { useAssetsFilterOptionsSelector } from 'app/store/assets-filter-options/selectors';
 import { FilterChain } from 'app/store/assets-filter-options/state';
 import {
   use3RouteEvmSupportedChainIdsSelector,
@@ -21,8 +20,8 @@ import {
 import { NetworkPopper } from 'app/templates/network-popper';
 import { FAVORITES } from 'app/templates/network-popper/constants';
 import { SearchBarField } from 'app/templates/SearchField';
+import { parseChainAssetSlug } from 'lib/assets/utils';
 import { t } from 'lib/i18n';
-import { useMemoWithCompare } from 'lib/ui/hooks';
 import { useAccountAddressForEvm, useAccountAddressForTezos, useTezosMainnetChain } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
 
@@ -40,10 +39,11 @@ interface SelectTokenModalProps {
   opened: boolean;
   onRequestClose: EmptyFn;
   chainKind: TempleChainKind.EVM | TempleChainKind.Tezos | null;
+  fromChainAssetSlug: string | null;
 }
 
 export const SwapSelectAssetModal = memo<SelectTokenModalProps>(
-  ({ activeField, onAssetSelect, opened, onRequestClose, chainKind }) => {
+  ({ activeField, onAssetSelect, opened, onRequestClose, chainKind, fromChainAssetSlug }) => {
     const [searchValue, setSearchValue] = useState('');
     const [searchValueDebounced] = useDebounce(searchValue, 300);
     const lifiMetadataRecord = useLifiConnectedEvmTokensMetadataRecordSelector();
@@ -51,19 +51,28 @@ export const SwapSelectAssetModal = memo<SelectTokenModalProps>(
 
     const tezosNetwork = useTezosMainnetChain();
 
-    const { filterChain } = useAssetsFilterOptionsSelector();
-
-    const [localFilterChain, setLocalFilterChain] = useState<FilterChain | string>(filterChain);
+    const [localFilterChain, setLocalFilterChain] = useState<FilterChain | string>(null);
 
     const accountTezAddress = useAccountAddressForTezos();
     const accountEvmAddress = useAccountAddressForEvm();
 
-    useEffect(() => {
+    const fromEvmChain: FilterChain =
+      chainKind === TempleChainKind.EVM && fromChainAssetSlug
+        ? { kind: TempleChainKind.EVM, chainId: parseChainAssetSlug(fromChainAssetSlug, TempleChainKind.EVM)[1] }
+        : null;
+
+    const [prevOpened, setPrevOpened] = useState(opened);
+
+    if (opened !== prevOpened) {
+      setPrevOpened(opened);
+
       if (!opened) {
         setSearchValue('');
         setLocalFilterChain(null);
+      } else if (activeField === 'output') {
+        setLocalFilterChain(chainKind === TempleChainKind.EVM ? fromEvmChain : tezosNetwork);
       }
-    }, [opened]);
+    }
 
     const handleAssetSelect = useCallback(
       (e: MouseEvent, chainSlug: string) => {
@@ -72,14 +81,6 @@ export const SwapSelectAssetModal = memo<SelectTokenModalProps>(
       },
       [onAssetSelect]
     );
-
-    const tezosNetworkMemoized = useMemoWithCompare(() => tezosNetwork, [tezosNetwork]);
-
-    useEffect(() => {
-      if (activeField === 'output' && opened) {
-        setLocalFilterChain(chainKind === TempleChainKind.EVM ? null : tezosNetworkMemoized);
-      }
-    }, [activeField, chainKind, opened, tezosNetworkMemoized]);
 
     const assetsList = useMemo(() => {
       if (isFilterChain(localFilterChain) && localFilterChain?.kind === TempleChainKind.Tezos && accountTezAddress)
