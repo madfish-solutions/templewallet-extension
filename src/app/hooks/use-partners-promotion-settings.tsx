@@ -4,7 +4,15 @@ import { useDispatch } from 'react-redux';
 
 import { togglePartnersPromotionAction } from 'app/store/partners-promotion/actions';
 import { useShouldShowPartnersPromoSelector } from 'app/store/partners-promotion/selectors';
+import { browser } from 'lib/browser';
+import {
+  AI_CHATBOT_ADS_ENABLED_DOMAINS_STORAGE_KEY,
+  AI_CHATBOT_ADS_NUDGE_SESSION_STORAGE_KEY,
+  AI_CHATBOT_ADS_NUDGE_STATE_STORAGE_KEY,
+  ADS_DISABLING_TIMESTAMPS_STORAGE_KEY
+} from 'lib/constants';
 import { t } from 'lib/i18n';
+import { putToStorage, removeFromStorage } from 'lib/storage';
 import { useConfirm } from 'lib/ui/dialog';
 
 export const usePartnersPromotionSettings = () => {
@@ -23,6 +31,13 @@ export const usePartnersPromotionSettings = () => {
 
     if (confirmed) {
       dispatch(togglePartnersPromotionAction(false));
+      await removeFromStorage([
+        AI_CHATBOT_ADS_ENABLED_DOMAINS_STORAGE_KEY,
+        AI_CHATBOT_ADS_NUDGE_SESSION_STORAGE_KEY,
+        AI_CHATBOT_ADS_NUDGE_STATE_STORAGE_KEY
+      ]);
+      await browser.storage.session?.remove(AI_CHATBOT_ADS_NUDGE_SESSION_STORAGE_KEY);
+      await putToStorage(ADS_DISABLING_TIMESTAMPS_STORAGE_KEY, {});
     }
   };
 

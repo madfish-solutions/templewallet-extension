@@ -21,3 +21,5 @@ export const FONT_SIZE_SEARCH_PARAM_NAME = 'fs';
 export const LINE_HEIGHT_SEARCH_PARAM_NAME = 'lh';
 export const EVM_ACCOUNT_SEARCH_PARAM_NAME = 'ea';
 export const CHAIN_NAME_SEARCH_PARAM_NAME = 'cn';
+
+export const CHATGPT_DOMAIN = 'chatgpt.com';
