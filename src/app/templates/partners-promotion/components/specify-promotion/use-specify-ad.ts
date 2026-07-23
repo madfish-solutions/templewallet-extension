@@ -15,7 +15,7 @@ export const useSpecifyAd = (
 
   const fetcher = () => (evmAddress ? serveSpecifyAd(evmAddress, imageFormat, adUnitId) : Promise.resolve(null));
 
-  const { data, isLoading, error } = useTypedSWR(evmAddress ? ['specify-ad', adUnitId, evmAddress] : null, fetcher, {
+  const { data, isValidating, error } = useTypedSWR(evmAddress ? ['specify-ad', adUnitId, evmAddress] : null, fetcher, {
     revalidateOnFocus: false,
     revalidateOnReconnect: false
   });
@@ -23,10 +23,10 @@ export const useSpecifyAd = (
   const ad: SpecifyAd | null = data ?? null;
 
   useEffect(() => {
-    if (!evmAddress || error || (!isLoading && !ad)) {
+    if (!evmAddress || error || (!isValidating && !ad)) {
       onError();
     }
-  }, [evmAddress, error, isLoading, ad, onError]);
+  }, [evmAddress, error, isValidating, ad, onError]);
 
   useEffect(() => {
     if (ad) {

@@ -43,8 +43,9 @@ export const SpecifyTextPromotion: FC<Omit<SingleProviderPromotionProps, 'varian
   onReady,
   onError
 }) => {
+  // NO_IMAGE has (almost) no production inventory, so request an image format and render only its text fields
   const { ad, onAdRectVisible } = useSpecifyAd(
-    SpecifyImageFormat.NO_IMAGE,
+    SpecifyImageFormat.SHORT_BANNER,
     'temple-extension-native',
     onReady,
     onError,
