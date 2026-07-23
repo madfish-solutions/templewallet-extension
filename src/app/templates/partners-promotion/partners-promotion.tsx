@@ -1,4 +1,4 @@
-import { Ref, memo, MouseEventHandler, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Ref, memo, MouseEventHandler, useEffect, useRef, useState } from 'react';
 
 import clsx from 'clsx';
 import { useDispatch } from 'react-redux';
@@ -126,12 +126,8 @@ export const PartnersPromotion = memo<PartnersPromotionProps>(({ variant, id, pa
     }
   );
 
-  const activeSteps = useMemo(
-    () =>
-      WATERFALL.filter(step =>
-        step.provider === 'hypelab' ? enableInternalHypelabAds !== false : enableInternalSpecifyAds !== false
-      ),
-    [enableInternalHypelabAds, enableInternalSpecifyAds]
+  const activeSteps = WATERFALL.filter(step =>
+    step.provider === 'hypelab' ? enableInternalHypelabAds !== false : enableInternalSpecifyAds !== false
   );
 
   const currentStep = activeSteps[stepIndex];
@@ -149,27 +145,24 @@ export const PartnersPromotion = memo<PartnersPromotionProps>(({ variant, id, pa
     setAdIsReady(false);
   }, [disabledKey]);
 
-  const handleImpression = useCallback(() => {
+  const handleImpression = () => {
     const provider =
       currentStepRef.current?.provider === 'specify' ? AdsProviderTitle.Specify : AdsProviderTitle.HypeLab;
     postAdImpression(rewardsAddresses, provider, { pageName });
-  }, [pageName, rewardsAddresses, currentStepRef]);
+  };
 
-  const handleClosePartnersPromoClick = useCallback<MouseEventHandler<HTMLButtonElement>>(
-    e => {
-      e.preventDefault();
-      e.stopPropagation();
-      dispatch(hidePromotionAction({ timestamp: Date.now(), id }));
-    },
-    [id, dispatch]
-  );
+  const handleClosePartnersPromoClick: MouseEventHandler<HTMLButtonElement> = e => {
+    e.preventDefault();
+    e.stopPropagation();
+    dispatch(hidePromotionAction({ timestamp: Date.now(), id }));
+  };
 
-  const handleAdReady = useCallback(() => setAdIsReady(true), []);
+  const handleAdReady = () => setAdIsReady(true);
 
-  const handleAdvance = useCallback(() => {
+  const handleAdvance = () => {
     setAdIsReady(false);
     setStepIndex(index => index + 1);
-  }, []);
+  };
 
   const isHiddenTemporarily =
     isHiddenByTimeout || (isLoadingEnableInternalHypelabAds && enableInternalHypelabAds === undefined);

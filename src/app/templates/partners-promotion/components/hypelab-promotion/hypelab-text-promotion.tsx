@@ -1,4 +1,4 @@
-import { FC, useCallback, useEffect, useRef, useState } from 'react';
+import { FC, useEffect, useRef, useState } from 'react';
 
 import { Native, NativeElement } from '@hypelab/sdk-react';
 
@@ -51,7 +51,7 @@ export const HypelabTextPromotion: FC<Omit<HypelabPromotionProps, 'variant'>> = 
   const ctaUrl = useElementValue(hypelabCtaLinkRef, getLinkHref, '/', attributesObserverOptions);
   const iconUrl = useElementValue(hypelabIconRef, getImageSrc, dummyImageSrc, attributesObserverOptions);
 
-  const handleImageError = useCallback(() => setAdIsHidden(true), []);
+  const handleImageError = () => setAdIsHidden(true);
 
   useTimeout(() => {
     if (headlineText.length === 0) {

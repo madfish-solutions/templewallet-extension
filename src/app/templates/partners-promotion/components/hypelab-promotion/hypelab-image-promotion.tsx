@@ -58,6 +58,8 @@ export const HypelabImagePromotion: FC<Omit<HypelabPromotionProps, 'variant'>> =
 
   const adId = useMemo(() => nanoid(), []);
 
+  // Keep useCallback here: react-compiler skips this component (conditionals inside the try/catch below),
+  // so nothing is auto-memoized
   const isBlacklistedAd = useCallback(
     (ad: HypelabBannerAd | nullish) => blacklistedCampaignSlugs?.includes(ad?.campaign_slug ?? '') ?? false,
     [blacklistedCampaignSlugs]
