@@ -11,6 +11,7 @@ export interface SettingsState {
   /** Now only used for Temple referral link replacement (TakeAds replacement removed, replaced by merchant offers popup) */
   referralLinksEnabled: boolean;
   isTestnetModeEnabled: boolean;
+  webWidgetsTokenInsightEnabled: boolean;
   onRampAsset: ChainAssetSlug | null;
   onRampTitle?: string;
   favoriteTokens: string[];
@@ -34,6 +35,7 @@ export const settingsInitialState: SettingsState = {
   pendingReactivateAds: false,
   referralLinksEnabled: IS_MISES_BROWSER,
   isTestnetModeEnabled: false,
+  webWidgetsTokenInsightEnabled: true,
   onRampAsset: null,
   favoriteTokens: []
 };

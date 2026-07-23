@@ -1,10 +1,13 @@
-import { FC } from 'react';
+import { FC, PropsWithChildren } from 'react';
 
 import { FadeTransition } from 'app/a11y/FadeTransition';
+import { IS_MISES_BROWSER } from 'lib/env';
 import { TID, T } from 'lib/i18n';
 
 import { DealsSettings } from './deals-settings';
 import { PartnersPromotionSettings } from './partners-promotion-settings';
+import { ReferralLinksSettings } from './referral-links-settings';
+import { TokenInsightSettings } from './token-insight-settings';
 
 export const AdvancedFeatures = () => (
   <FadeTransition>
@@ -13,6 +16,12 @@ export const AdvancedFeatures = () => (
         <PartnersPromotionSettings />
         <DealsSettings />
       </SettingsGroup>
+
+      <SettingsGroup title="webWidgets">
+        <TokenInsightSettings />
+      </SettingsGroup>
+
+      {IS_MISES_BROWSER && <ReferralLinksSettings />}
     </div>
   </FadeTransition>
 );

@@ -178,7 +178,6 @@ export const GoogleAuth = memo<GoogleAuthProps>(({ next }) => {
   return (
     <PageModalScrollViewWithActions
       className="relative"
-      initialBottomEdgeVisible
       actionsBoxProps={{
         children: (
           <StyledButton

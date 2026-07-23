@@ -233,16 +233,6 @@ const DEFAULT_BLOCK_EXPLORERS_BASE: Record<TempleChainKind, Record<string, Omit<
         name: 'TzKT',
         url: 'https://tzkt.io',
         id: 'tzkt-mainnet'
-      },
-      {
-        name: 'TzStats',
-        url: 'https://tzstats.com',
-        id: 'tzstats-mainnet'
-      },
-      {
-        name: 'Better Call Dev',
-        url: 'https://better-call.dev/mainnet/opg',
-        id: 'bcd-mainnet'
       }
     ],
     [TempleTezosChainId.Ghostnet]: [

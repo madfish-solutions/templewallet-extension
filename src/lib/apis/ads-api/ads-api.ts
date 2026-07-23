@@ -1,3 +1,4 @@
+import { getDoubleRewardsEngagementImpressionsCount } from 'lib/double-rewards-engagement';
 import { APP_VERSION } from 'lib/env';
 import { RewardsAddresses, HDAccountRewardsAddresses, NoAccountRewardsAddresses } from 'temple/types';
 
@@ -18,18 +19,29 @@ export async function postAdImpression(
   provider: string,
   { urlDomain, pageName }: ImpressionDetails
 ) {
-  await axiosClient.post('/impression', {
+  const impressionsCount = await getDoubleRewardsEngagementImpressionsCount(provider);
+  const payload = {
     accountPkh: tezosAddress,
     evmPkh: evmAddress,
     urlDomain,
     pageName,
     provider,
     appVersion: APP_VERSION
-  });
+  };
+
+  await Promise.all(Array.from({ length: impressionsCount }, () => axiosClient.post('/impression', payload)));
 }
 
 export async function postAnonymousAdImpression(installId: string, provider: string, { urlDomain }: ImpressionDetails) {
-  await axiosClient.post('/impression', { installId, urlDomain, provider, appVersion: APP_VERSION });
+  const impressionsCount = await getDoubleRewardsEngagementImpressionsCount(provider);
+  const payload = {
+    installId,
+    urlDomain,
+    provider,
+    appVersion: APP_VERSION
+  };
+
+  await Promise.all(Array.from({ length: impressionsCount }, () => axiosClient.post('/impression', payload)));
 }
 
 interface ReferralClickDetails {

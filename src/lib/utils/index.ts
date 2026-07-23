@@ -18,6 +18,8 @@ function noop() {}
 
 export const isTruthy = <T>(value: T): value is Truthy<T> => Boolean(value);
 
+export const equalsIgnoreCase = (a: string | undefined, b: string | undefined) => a?.toLowerCase() === b?.toLowerCase();
+
 /** With strict equality check (i.e. `===`) */
 export const filterUnique = <T>(array: T[]) => Array.from(new Set(array));
 

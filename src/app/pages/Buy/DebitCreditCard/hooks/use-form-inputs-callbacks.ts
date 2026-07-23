@@ -16,9 +16,8 @@ import {
   TopUpInputInterface,
   TopUpOutputInterface
 } from 'lib/buy-with-credit-card/topup.interface';
-import { useAccountAddressForTezos } from 'temple/front';
 
-import { DEFAULT_EVM_OUTPUT_TOKEN, DEFAULT_TEZOS_OUTPUT_TOKEN } from '../config';
+import { DEFAULT_OUTPUT_TOKEN } from '../config';
 import { BuyWithCreditCardFormData } from '../types';
 
 import { usePaymentProviders } from './use-payment-providers';
@@ -30,8 +29,6 @@ export const useFormInputsCallbacks = (
   setFormIsLoading: SyncFn<boolean>
 ) => {
   const { control, setValue, trigger } = form;
-
-  const tezosAddress = useAccountAddressForTezos();
 
   const inputAmount = useWatch({ control, name: 'inputAmount' });
   const inputCurrency = useWatch({ control, name: 'inputCurrency' });
@@ -86,7 +83,7 @@ export const useFormInputsCallbacks = (
       let newOutputAsset = outputToken;
 
       if (intersection(newInputAsset.providers, outputToken.providers).length === 0) {
-        newOutputAsset = tezosAddress ? DEFAULT_TEZOS_OUTPUT_TOKEN : DEFAULT_EVM_OUTPUT_TOKEN;
+        newOutputAsset = DEFAULT_OUTPUT_TOKEN;
       }
 
       outputCalculationDataRef.current = {
@@ -97,7 +94,7 @@ export const useFormInputsCallbacks = (
       setFormIsLoading(true);
       void updateOutput(newInputAmount, newInputAsset, newOutputAsset);
     },
-    [outputToken, setFormIsLoading, tezosAddress, updateOutput]
+    [outputToken, setFormIsLoading, updateOutput]
   );
 
   const handleInputAssetChange = useCallback(

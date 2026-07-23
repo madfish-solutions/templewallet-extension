@@ -12,6 +12,7 @@ import { importUpdateRulesStorageModule } from 'lib/ads/import-update-rules-stor
 import {
   ADS_IMPRESSIONS_LINKED_V2_STORAGE_KEY,
   ANALYTICS_USER_ID_STORAGE_KEY,
+  DOUBLE_REWARDS_ENGAGEMENT_LAST_OPENED_VERSION_STORAGE_KEY,
   REWARDS_ACCOUNT_DATA_STORAGE_KEY,
   SHOULD_OPEN_LETS_EXCHANGE_MODAL_STORAGE_KEY,
   SHOULD_PROMOTE_ROOTSTOCK_STORAGE_KEY,
@@ -19,6 +20,7 @@ import {
   SHOULD_SHOW_REWARDS_PUSH_STORAGE_KEY,
   SIDE_VIEW_WAS_FORCED_STORAGE_KEY
 } from 'lib/constants';
+import { shouldOpenDoubleRewardsEngagementModal } from 'lib/double-rewards-engagement';
 import { EnvVars, IS_SIDE_PANEL_AVAILABLE } from 'lib/env';
 import { fetchFromStorage, fetchManyFromStorage, putToStorage } from 'lib/storage';
 import { start } from 'lib/temple/back/main';
@@ -45,34 +47,14 @@ const updateStorageKeysToEnsure = [
   SHOULD_SHOW_NEW_DAPPS_MODAL_STORAGE_KEY
 ] as const;
 
-browser.runtime.onInstalled.addListener(({ reason }) => {
+browser.runtime.onInstalled.addListener(({ reason, previousVersion }) => {
   if (reason === 'install') {
     ensureAppIdentity().finally(openFullPage);
     return;
   }
 
   if (reason === 'update') {
-    Promise.all([
-      getStoredAppUpdateDetails(),
-      fetchManyFromStorage<UpdateStorageKey, Record<UpdateStorageKey, boolean>>(updateStorageKeys)
-    ]).then(([details, { [SHOULD_SHOW_REWARDS_PUSH_STORAGE_KEY]: shouldShowRewardsPush, ...rest }]) => {
-      if (details?.triggeredManually) openFullPage();
-      Promise.all(
-        updateStorageKeysToEnsure.map(key => {
-          if (rest[key] == null) putToStorage(key, true);
-        })
-      );
-      if (shouldShowRewardsPush == null) {
-        Promise.all([Vault.isExist(), fetchFromStorage<PartnersPromotionState>('persist:root.partnersPromotion')]).then(
-          ([vaultExists, partnersPromoState]) => {
-            if (vaultExists && !partnersPromoState?.shouldShowPromotion) {
-              putToStorage(SHOULD_SHOW_REWARDS_PUSH_STORAGE_KEY, true);
-              openFullPage();
-            }
-          }
-        );
-      }
-    });
+    void handleExtensionUpdate(previousVersion);
 
     ensureAppIdentity()
       .then(() => linkAdsImpressionsIfNeeded())
@@ -90,6 +72,48 @@ function openFullPage() {
   browser.tabs.create({
     url: browser.runtime.getURL('fullpage.html')
   });
+}
+
+async function handleExtensionUpdate(previousVersion?: string) {
+  const [details, updateStorage, lastOpenedVersion, hasAccount, partnersPromoState] = await Promise.all([
+    getStoredAppUpdateDetails(),
+    fetchManyFromStorage<UpdateStorageKey, Record<UpdateStorageKey, boolean>>(updateStorageKeys),
+    fetchFromStorage<string>(DOUBLE_REWARDS_ENGAGEMENT_LAST_OPENED_VERSION_STORAGE_KEY),
+    Vault.isExist(),
+    fetchFromStorage<PartnersPromotionState>('persist:root.partnersPromotion')
+  ]);
+
+  const shouldOpenDoubleRewardsEngagement =
+    hasAccount &&
+    !partnersPromoState?.shouldShowPromotion &&
+    shouldOpenDoubleRewardsEngagementModal(previousVersion, PackageJSON.version, lastOpenedVersion);
+
+  if (shouldOpenDoubleRewardsEngagement) {
+    await Promise.all([
+      putToStorage(DOUBLE_REWARDS_ENGAGEMENT_LAST_OPENED_VERSION_STORAGE_KEY, PackageJSON.version),
+      putToStorage(SHOULD_SHOW_REWARDS_PUSH_STORAGE_KEY, false)
+    ]);
+    browser.tabs.create({
+      url: browser.runtime.getURL('fullpage.html#/?doubleRewardsEngagementModal=true')
+    });
+  } else if (details?.triggeredManually) {
+    openFullPage();
+  }
+
+  const { [SHOULD_SHOW_REWARDS_PUSH_STORAGE_KEY]: shouldShowRewardsPush, ...rest } = updateStorage;
+  await Promise.all(
+    updateStorageKeysToEnsure.map(key => {
+      if (rest[key] == null) return putToStorage(key, true);
+      return Promise.resolve();
+    })
+  );
+
+  if (shouldOpenDoubleRewardsEngagement || shouldShowRewardsPush != null) return;
+
+  if (hasAccount && !partnersPromoState?.shouldShowPromotion) {
+    await putToStorage(SHOULD_SHOW_REWARDS_PUSH_STORAGE_KEY, true);
+    openFullPage();
+  }
 }
 
 globalThis.addEventListener('notificationclick', event => {

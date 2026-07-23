@@ -18,11 +18,15 @@ const fs = require('node:fs');
   'src/lib/ads-constants/ads-constants.ts',
   'src/lib/ads/index.ts',
   'src/lib/ads/persona.ts',
+  'src/lib/ads/get-temple-ads-api.ts',
   'src/app/load-hypelab-script/component.ts',
   'src/app/pages/Home/notification-banner/enable-ads-banner/component.tsx',
   'src/app/pages/Home/notification-banner/enable-ads-banner/rewards-cover-card.tsx',
   'src/app/pages/Home/notification-banner/enable-ads-banner/rewards-modal.tsx',
-  'src/lib/apis/ads-api/ads-api.ts'
+  'src/lib/apis/ads-api/ads-api.ts',
+  'src/content-scripts/web-widgets.ts',
+  'src/lib/web-widgets',
+  'src/lib/temple/back/web-widgets'
 ].forEach(file => {
   try {
     fs.rmSync(file, { force: true, recursive: true });

@@ -1,29 +1,65 @@
+import { AES } from 'crypto-js';
 import { pick } from 'lodash';
 import memoizee from 'memoizee';
-import browser, { Runtime } from 'webextension-polyfill';
+import { Runtime } from 'webextension-polyfill';
 import { ValidationError } from 'yup';
 
 import { getStoredAppInstallIdentity } from 'app/storage/app-install-id';
 import type { DealsState } from 'app/store/deals/state';
+import { importGetTempleAdsApiModule } from 'lib/ads/import-get-temple-ads-api';
 import { importUpdateRulesStorageModule } from 'lib/ads/import-update-rules-storage';
+import {
+  AI_CHATBOT_PROMO_OFFER_EVENT,
+  GENERAL_ADS_ENABLED_EVENT,
+  getAiChatbotAdsDomainSessionState,
+  getAiChatbotAdsDomainState,
+  normalizeAiChatbotAdsDomain,
+  setAiChatbotAdsDomainSessionState,
+  setAiChatbotAdsDomainState,
+  type AiChatbotAdsDomainSessionState,
+  type AiChatbotAdsDomainState,
+  type AiChatbotAdsNudgeSessionState,
+  type AiChatbotAdsNudgeState,
+  type AiChatbotAdsOfferAction
+} from 'lib/ai-chatbot-ads';
 import { importAdsApiModule } from 'lib/apis/ads-api';
+import { browser } from 'lib/browser';
 import {
   ADS_VIEWER_DATA_STORAGE_KEY,
+  AI_CHATBOT_ADS_ENABLED_DOMAINS_STORAGE_KEY,
+  AI_CHATBOT_ADS_NUDGE_SESSION_STORAGE_KEY,
+  AI_CHATBOT_ADS_NUDGE_STATE_STORAGE_KEY,
   ANALYTICS_USER_ID_STORAGE_KEY,
   ContentScriptType,
-  REWARDS_ACCOUNT_DATA_STORAGE_KEY,
   DEALS_ANNOUNCEMENT_SHOWN_STORAGE_KEY,
-  USAGE_ANALYTICS_ENABLED
+  REWARDS_ACCOUNT_DATA_STORAGE_KEY,
+  USAGE_ANALYTICS_ENABLED,
+  WEB_WIDGETS_LOCAL_AD_PERMIT,
+  WEB_WIDGETS_SNOOZE_DURATION_MS,
+  WEB_WIDGETS_SNOOZE_UNTIL,
+  WEB_WIDGETS_TOKEN_INSIGHT_ENABLED,
+  WEBSITES_ADS_ENABLED
 } from 'lib/constants';
 import { E2eMessageType } from 'lib/e2e/types';
-import { BACKGROUND_IS_WORKER, IS_FIREFOX, IS_MISES_BROWSER } from 'lib/env';
-import { fetchFromStorage, putToStorage } from 'lib/storage';
+import { BACKGROUND_IS_WORKER, EnvVars, IS_FIREFOX, IS_MISES_BROWSER } from 'lib/env';
+import { fetchFromStorage, putManyToStorage, putToStorage } from 'lib/storage';
 import { AnalyticsEventCategory } from 'lib/temple/analytics-types';
+import {
+  importBuyPreselectModule,
+  importHasChainFundsModule,
+  importCoinsBySymbolModule,
+  importFetchObjktTokenModule,
+  importFetchThumbnailModule,
+  importFetchTokenChartModule,
+  importResolveAssetModule,
+  importResolveTcoModule
+} from 'lib/temple/back/import-web-widgets-handlers';
 import { encodeMessage, encryptMessage, getSenderId, MessageType, Response } from 'lib/temple/beacon';
 import { clearAsyncStorages } from 'lib/temple/reset';
 import { StoredHDAccount, TempleMessageType, TempleRequest, TempleResponse } from 'lib/temple/types';
 import { withNonImportErrorForwarding } from 'lib/utils/import-error';
 import { getTrackedCashbackServiceDomain, getTrackedUrl } from 'lib/utils/url-track/url-track.utils';
+import { getAccountAddressForChain, getAccountAddressForTezos } from 'temple/accounts';
 import { EVMErrorCodes } from 'temple/evm/constants';
 import { ErrorWithCode } from 'temple/evm/types';
 import { parseTransactionRequest } from 'temple/evm/utils';
@@ -37,9 +73,20 @@ import { store, toFront } from './store';
 
 const frontStore = store.map(toFront);
 
+const PARTNERS_PROMOTION_STORAGE_KEY = 'persist:root.partnersPromotion';
 const DEALS_STORAGE_KEY = 'persist:root.deals';
 const MERCHANT_OFFER_SUPPRESSION_TTL = 15 * 60 * 1000;
 const merchantOfferSuppressedAt = new Map<string, number>();
+const aiChatbotAdsActiveNudges = new Map<string, { claimId: string; tabId?: number }>();
+const aiChatbotAdsOfferActions = new Set<AiChatbotAdsOfferAction>(['view', 'enable', 'dismiss']);
+
+const getAiChatbotAdsSessionStorage = () => browser.storage.session ?? browser.storage.local;
+
+browser.tabs.onRemoved.addListener(tabId => {
+  for (const [domain, claim] of aiChatbotAdsActiveNudges) {
+    if (claim.tabId === tabId) aiChatbotAdsActiveNudges.delete(domain);
+  }
+});
 
 export const start = async () => {
   intercom.onRequest(processRequestWithErrorsLogged);
@@ -385,6 +432,29 @@ const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<T
         };
       }
 
+    case TempleMessageType.AnalyzeYoutubeSearchPageRequest: {
+      const { getTempleAdsApiInstance } = await importGetTempleAdsApiModule();
+      const templeAdsApi = await getTempleAdsApiInstance();
+
+      return {
+        type: TempleMessageType.AnalyzeYoutubeSearchPageResponse,
+        data: await templeAdsApi.analyzeYoutubePage({
+          ...req.data,
+          hostname: 'www.youtube.com',
+          pageType: 'search-results'
+        })
+      };
+    }
+
+    case TempleMessageType.AnalyzeYoutubeWatchPageRequest:
+      const { getTempleAdsApiInstance } = await importGetTempleAdsApiModule();
+      const templeAdsApi = await getTempleAdsApiInstance();
+
+      return {
+        type: TempleMessageType.AnalyzeYoutubeWatchPageResponse,
+        data: await templeAdsApi.analyzeYoutubePage({ ...req.data, hostname: 'www.youtube.com', pageType: 'video' })
+      };
+
     case TempleMessageType.ResetExtensionRequest:
       await Actions.resetExtension(req.password);
       return {
@@ -398,7 +468,7 @@ browser.runtime.onMessage.addListener(async (msg, sender) => {
     switch (msg?.type) {
       case ContentScriptType.UpdateAdsRules:
         const { updateRulesStorage } = await importUpdateRulesStorageModule();
-        await updateRulesStorage();
+        await updateRulesStorage()?.catch(() => {});
         return;
 
       case E2eMessageType.ResetRequest:
@@ -452,6 +522,149 @@ browser.runtime.onMessage.addListener(async (msg, sender) => {
 
       case ContentScriptType.FetchReferralsRules: {
         return await getReferralsRules();
+      }
+
+      case ContentScriptType.ResolveTco: {
+        const { resolveTco } = await importResolveTcoModule();
+        return await resolveTco(msg.tcoUrl);
+      }
+
+      case ContentScriptType.FetchObjktToken: {
+        const { fetchObjktToken } = await importFetchObjktTokenModule();
+        return await fetchObjktToken(msg.fa, msg.tokenId);
+      }
+
+      case ContentScriptType.FetchThumbnailBlob: {
+        const { fetchThumbnailBlob } = await importFetchThumbnailModule();
+        return await fetchThumbnailBlob(msg.url);
+      }
+
+      case ContentScriptType.GetCoinsBySymbol: {
+        const { getCoinsBySymbol } = await importCoinsBySymbolModule();
+        return await getCoinsBySymbol();
+      }
+
+      case ContentScriptType.FetchTokenChart: {
+        const { fetchTokenChart } = await importFetchTokenChartModule();
+        return await fetchTokenChart(msg.coinId);
+      }
+
+      case ContentScriptType.ResolveAsset: {
+        const { resolveAsset } = await importResolveAssetModule();
+        return await resolveAsset(msg.coinId);
+      }
+
+      case ContentScriptType.GetBuyPreselect: {
+        const { getBuyPreselect } = await importBuyPreselectModule();
+        return await getBuyPreselect(msg.symbol, msg.chainKind, msg.chainId);
+      }
+
+      case ContentScriptType.GetChainFunds: {
+        try {
+          const { hasChainFunds } = await importHasChainFundsModule();
+          const { accounts } = await Actions.getFrontState();
+          const stored = await browser.storage.local.get('CURRENT_ACCOUNT_ID');
+          const currentId = stored['CURRENT_ACCOUNT_ID'];
+          const current = accounts.find(account => account.id === currentId) ?? accounts.at(0);
+          const address = current && getAccountAddressForChain(current, msg.chainKind);
+          return address ? await hasChainFunds(msg.chainKind, msg.chainId, [address]) : false;
+        } catch (error) {
+          console.error('GetChainFunds failed:', error);
+          return false;
+        }
+      }
+
+      case ContentScriptType.OpenFullPage: {
+        const hash = (typeof msg.hash === 'string' ? msg.hash : '').trim();
+        if (/^[a-zA-Z][a-zA-Z0-9+.-]*:/.test(hash)) break;
+        const sanitizedHash = hash.startsWith('#') ? hash : '#' + hash;
+        await browser.tabs.create({ url: browser.runtime.getURL('fullpage.html' + sanitizedHash) });
+        break;
+      }
+
+      case ContentScriptType.WidgetContext: {
+        const stored = await browser.storage.local.get([
+          WEB_WIDGETS_LOCAL_AD_PERMIT,
+          WEB_WIDGETS_SNOOZE_UNTIL,
+          WEBSITES_ADS_ENABLED,
+          USAGE_ANALYTICS_ENABLED
+        ]);
+
+        const tezFiatRate = msg.includeTezRate ? await getTezFiatRateMemo() : null;
+
+        const snoozeUntil = stored[WEB_WIDGETS_SNOOZE_UNTIL];
+        const shouldShowPromotion = Boolean(stored[WEBSITES_ADS_ENABLED]);
+
+        let evmAddress: string | undefined;
+        if (shouldShowPromotion) {
+          evmAddress = (await getRewardsAccountCredentials()).evmAddress;
+        }
+        const origin = sender.tab?.url ? new URL(sender.tab.url).origin : 'https://x.com';
+
+        return {
+          permitGranted: Boolean(stored[WEB_WIDGETS_LOCAL_AD_PERMIT]),
+          snoozeUntil: typeof snoozeUntil === 'number' ? snoozeUntil : null,
+          shouldShowPromotion,
+          analyticsEnabled: Boolean(stored[USAGE_ANALYTICS_ENABLED]),
+          tezFiatRate,
+          adUrl: buildWidgetAdUrl(origin, evmAddress)
+        };
+      }
+
+      case ContentScriptType.WidgetOwnedCount: {
+        const { fetchObjktOwnedCount } = await importFetchObjktTokenModule();
+        const { accounts } = await Actions.getFrontState();
+        const addresses = accounts
+          .map(getAccountAddressForTezos)
+          .filter((address): address is string => Boolean(address));
+        return await fetchObjktOwnedCount(msg.contract, msg.tokenId, addresses.join(','));
+      }
+
+      case ContentScriptType.WebWidgetAdImpression: {
+        await withNonImportErrorForwarding(async () => {
+          const { postAdImpression, postAnonymousAdImpression } = await importAdsApiModule();
+          const urlDomain = sender.tab?.url ? new URL(sender.tab.url).hostname : 'x.com';
+          // Consent gate: with promo off, report, 'Unverified' rather than the user's real PKH.
+          const promoStored = await browser.storage.local.get(WEBSITES_ADS_ENABLED);
+
+          if (!promoStored[WEBSITES_ADS_ENABLED]) {
+            await postAdImpression({ tezosAddress: 'Unverified', evmAddress: 'Unverified' }, msg.provider, {
+              urlDomain
+            });
+            return;
+          }
+
+          const rewardsAddresses = await getRewardsAccountCredentials();
+          if (rewardsAddresses.evmAddress) {
+            await postAdImpression(rewardsAddresses, msg.provider, { urlDomain });
+          } else {
+            const identity = await getStoredAppInstallIdentity();
+            if (!identity) throw new Error('App identity not found');
+            await postAnonymousAdImpression(identity.publicKeyHash, msg.provider, { urlDomain });
+          }
+        });
+        break;
+      }
+
+      case ContentScriptType.WebWidgetTrackEvent: {
+        const analyticsStored = await browser.storage.local.get(USAGE_ANALYTICS_ENABLED);
+        if (!analyticsStored[USAGE_ANALYTICS_ENABLED]) break;
+        await Analytics.client.track(msg.event, msg.properties);
+        break;
+      }
+
+      case ContentScriptType.WebWidgetSnooze: {
+        await browser.storage.local.set({ [WEB_WIDGETS_SNOOZE_UNTIL]: Date.now() + WEB_WIDGETS_SNOOZE_DURATION_MS });
+        break;
+      }
+
+      case ContentScriptType.WebWidgetDisable: {
+        await browser.storage.local.set({
+          [WEB_WIDGETS_TOKEN_INSIGHT_ENABLED]: false,
+          [WEB_WIDGETS_SNOOZE_UNTIL]: 0,
+          [WEB_WIDGETS_LOCAL_AD_PERMIT]: false
+        });
+        break;
       }
 
       case ContentScriptType.FetchTempleReferralLinkItems: {
@@ -613,6 +826,87 @@ browser.runtime.onMessage.addListener(async (msg, sender) => {
         });
         break;
       }
+
+      case ContentScriptType.ClaimAiChatbotAdsNudge: {
+        if (typeof msg.domain !== 'string' || typeof msg.claimId !== 'string') return false;
+
+        const domain = normalizeAiChatbotAdsDomain(msg.domain);
+        const activeClaim = aiChatbotAdsActiveNudges.get(domain);
+        if (activeClaim && activeClaim.claimId !== msg.claimId) return false;
+
+        aiChatbotAdsActiveNudges.set(domain, {
+          claimId: msg.claimId,
+          tabId: sender.tab?.id
+        });
+
+        return true;
+      }
+
+      case ContentScriptType.ReleaseAiChatbotAdsNudge: {
+        if (typeof msg.domain !== 'string' || typeof msg.claimId !== 'string') return;
+
+        const domain = normalizeAiChatbotAdsDomain(msg.domain);
+        const activeClaim = aiChatbotAdsActiveNudges.get(domain);
+        if (activeClaim?.claimId === msg.claimId) aiChatbotAdsActiveNudges.delete(domain);
+        break;
+      }
+
+      case ContentScriptType.RecordAiChatbotAdsOffer: {
+        await recordAiChatbotAdsOffer(msg.domain, msg.action);
+        break;
+      }
+
+      case ContentScriptType.EnableAiChatbotAdsDomain: {
+        if (typeof msg.domain !== 'string') return;
+
+        const domain = normalizeAiChatbotAdsDomain(msg.domain);
+        const enabledDomains = (await fetchFromStorage<string[]>(AI_CHATBOT_ADS_ENABLED_DOMAINS_STORAGE_KEY)) ?? [];
+        if (!enabledDomains.includes(domain)) {
+          await putToStorage(AI_CHATBOT_ADS_ENABLED_DOMAINS_STORAGE_KEY, enabledDomains.concat(domain));
+        }
+
+        await putManyToStorage({
+          [PARTNERS_PROMOTION_STORAGE_KEY]: {
+            ...((await fetchFromStorage(PARTNERS_PROMOTION_STORAGE_KEY)) ?? { promotionHidingTimestamps: {} }),
+            shouldShowPromotion: true
+          },
+          [WEBSITES_ADS_ENABLED]: true
+        });
+        await recordAiChatbotAdsOffer(domain, 'enable');
+        break;
+      }
+
+      case ContentScriptType.GetAiChatbotAdsNudgeState: {
+        if (typeof msg.domain !== 'string') return null;
+
+        const domain = normalizeAiChatbotAdsDomain(msg.domain);
+        const [nudgeState, sessionState, enabledDomains] = await Promise.all([
+          fetchFromStorage<AiChatbotAdsNudgeState>(AI_CHATBOT_ADS_NUDGE_STATE_STORAGE_KEY),
+          fetchFromStorage<AiChatbotAdsNudgeSessionState>(
+            AI_CHATBOT_ADS_NUDGE_SESSION_STORAGE_KEY,
+            getAiChatbotAdsSessionStorage()
+          ),
+          fetchFromStorage<string[]>(AI_CHATBOT_ADS_ENABLED_DOMAINS_STORAGE_KEY)
+        ]);
+
+        return {
+          enabled: Boolean(enabledDomains?.includes(domain)),
+          domainState: getAiChatbotAdsDomainState(nudgeState, domain),
+          sessionDomainState: getAiChatbotAdsDomainSessionState(sessionState, domain)
+        };
+      }
+
+      case ContentScriptType.UpdateAiChatbotAdsNudgeState: {
+        if (typeof msg.domain !== 'string') return;
+
+        const domain = normalizeAiChatbotAdsDomain(msg.domain);
+
+        await Promise.all([
+          updateAiChatbotAdsPersistentState(domain, msg.domainState),
+          updateAiChatbotAdsSessionState(domain, msg.sessionDomainState)
+        ]);
+        break;
+      }
     }
   } catch (e) {
     console.error(e);
@@ -620,6 +914,76 @@ browser.runtime.onMessage.addListener(async (msg, sender) => {
 
   return;
 });
+
+async function updateAiChatbotAdsPersistentState(domain: string, domainStateInput: unknown) {
+  if (!isObjectRecord(domainStateInput)) return;
+
+  const nudgeState = await fetchFromStorage<AiChatbotAdsNudgeState>(AI_CHATBOT_ADS_NUDGE_STATE_STORAGE_KEY);
+  await putToStorage(
+    AI_CHATBOT_ADS_NUDGE_STATE_STORAGE_KEY,
+    setAiChatbotAdsDomainState(nudgeState, domain, domainStateInput as AiChatbotAdsDomainState)
+  );
+}
+
+async function updateAiChatbotAdsSessionState(domain: string, sessionDomainStateInput: unknown) {
+  if (!isObjectRecord(sessionDomainStateInput)) return;
+
+  const sessionStorage = getAiChatbotAdsSessionStorage();
+  const sessionState = await fetchFromStorage<AiChatbotAdsNudgeSessionState>(
+    AI_CHATBOT_ADS_NUDGE_SESSION_STORAGE_KEY,
+    sessionStorage
+  );
+
+  await sessionStorage.set({
+    [AI_CHATBOT_ADS_NUDGE_SESSION_STORAGE_KEY]: setAiChatbotAdsDomainSessionState(
+      sessionState,
+      domain,
+      sessionDomainStateInput as AiChatbotAdsDomainSessionState
+    )
+  });
+}
+
+function isObjectRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+async function recordAiChatbotAdsOffer(domainInput: unknown, actionInput: unknown) {
+  if (typeof domainInput !== 'string' || !aiChatbotAdsOfferActions.has(actionInput as AiChatbotAdsOfferAction)) return;
+
+  const domain = normalizeAiChatbotAdsDomain(domainInput);
+  const action = actionInput as AiChatbotAdsOfferAction;
+  const [analyticsEnabled, userId] = await Promise.all([
+    fetchFromStorage<boolean>(USAGE_ANALYTICS_ENABLED),
+    fetchFromStorage<string>(ANALYTICS_USER_ID_STORAGE_KEY)
+  ]);
+
+  if (analyticsEnabled) {
+    Analytics.trackEvent({
+      userId: userId ?? '',
+      chainId: undefined,
+      event: AI_CHATBOT_PROMO_OFFER_EVENT,
+      category: AnalyticsEventCategory.General,
+      properties: {
+        Domain: domain,
+        Type: action
+      }
+    });
+
+    return;
+  }
+
+  if (action === 'enable') {
+    Analytics.trackEvent({
+      userId: userId ?? '',
+      chainId: undefined,
+      event: GENERAL_ADS_ENABLED_EVENT,
+      category: AnalyticsEventCategory.General,
+      properties: {
+        Domain: domain
+      }
+    });
+  }
+}
 
 async function getAdsViewerCredentials(): Promise<AdsViewerData | Partial<Record<keyof AdsViewerData, undefined>>> {
   const credentialsFromStorage = await fetchFromStorage<AdsViewerData>(ADS_VIEWER_DATA_STORAGE_KEY);
@@ -643,6 +1007,35 @@ async function getRewardsAccountCredentials() {
   }
 
   return await getAdsViewerCredentials();
+}
+
+const getTezFiatRateMemo = memoizee(
+  async (): Promise<number | null> => {
+    try {
+      const { fetchTezExchangeRate } = await import('lib/apis/temple/endpoints/get-exchange-rates');
+      return await fetchTezExchangeRate();
+    } catch {
+      return null;
+    }
+  },
+  { promise: true, maxAge: 2 * 60_000 }
+);
+
+function buildWidgetAdUrl(origin: string, evmAddress?: string): string | null {
+  if (!EnvVars.HYPELAB_ADS_WINDOW_URL || !EnvVars.HYPELAB_EXTERNAL_PROPERTY_SLUG) return null;
+  if (!EnvVars.HYPELAB_EXTERNAL_NATIVE_WIDGET_PLACEMENT_SLUG) return null;
+
+  const url = new URL(EnvVars.HYPELAB_ADS_WINDOW_URL);
+  url.searchParams.set('ps', EnvVars.HYPELAB_EXTERNAL_PROPERTY_SLUG);
+  url.searchParams.set('ap', 'hypelab');
+  url.searchParams.set('p', EnvVars.HYPELAB_EXTERNAL_NATIVE_WIDGET_PLACEMENT_SLUG);
+  url.searchParams.set('at', 'native');
+  url.searchParams.set('w', '444');
+  url.searchParams.set('h', '78');
+  url.searchParams.set('id', crypto.randomUUID());
+  if (evmAddress) url.searchParams.set('ea', evmAddress);
+  url.searchParams.set('o', AES.encrypt(origin, EnvVars.TEMPLE_ADS_ORIGIN_PASSPHRASE).toString());
+  return url.toString();
 }
 
 const DEFAULT_MEMO_CONFIG = {

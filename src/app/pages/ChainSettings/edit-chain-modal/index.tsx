@@ -96,7 +96,6 @@ export const EditChainModal = memo<EditChainModalProps>(({ chain, onClose, onSub
                 </StyledButton>
               )
             }}
-            initialBottomEdgeVisible={false}
           >
             <div className="flex flex-col relative">
               <div className="flex flex-col gap-4">

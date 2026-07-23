@@ -14,6 +14,7 @@ interface StatsCardProps {
   isChangePositive?: boolean;
   isChangeNegative?: boolean;
   caption?: ReactChildren;
+  footer?: ReactChildren;
   chartData?: { timestamp: number; value: number }[];
 }
 
@@ -25,12 +26,14 @@ export const StatsCard: FC<StatsCardProps> = ({
   isChangePositive = true,
   isChangeNegative = false,
   caption,
+  footer,
   chartData
 }) => (
   <Link
     className={clsx(
-      'bg-white rounded-8 border-0.5 border-lines p-4 flex flex-col min-h-25',
-      isDefined(caption) && 'pb-0'
+      'bg-white hover:bg-grey-4 rounded-8 border-0.5 border-lines p-4 flex flex-col min-h-25',
+      (isDefined(caption) || isDefined(footer)) && 'pb-0',
+      'overflow-hidden'
     )}
     to={linkTo}
   >
@@ -51,7 +54,7 @@ export const StatsCard: FC<StatsCardProps> = ({
         )}
       </div>
       {chartData && (
-        <div className="flex-1">
+        <div className="flex-1 **:cursor-pointer">
           <SimpleChart data={chartData} />
         </div>
       )}
@@ -66,5 +69,6 @@ export const StatsCard: FC<StatsCardProps> = ({
         {caption}
       </div>
     )}
+    {isDefined(footer) && <div className="-mx-4 mt-auto">{footer}</div>}
   </Link>
 );

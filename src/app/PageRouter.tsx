@@ -15,6 +15,7 @@ import * as Woozie from 'lib/woozie';
 import { useAccount } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
 
+import { readSearchParamsBoolean } from './hooks/use-search-params-boolean';
 import { RewardsPushOverlay } from './layouts/PageLayout/RewardsPushOverlay';
 import { ActivityPage } from './pages/Activity';
 import { Dapps } from './pages/Dapps';
@@ -108,7 +109,11 @@ const ROUTE_MAP = Woozie.createMap<RouteContext>([
     }
   ],
   ['/loading', (_p, ctx) => (ctx.ready ? <Woozie.Redirect to="/" /> : <RootSuspenseFallback />)],
-  ['/', (_p, ctx) => (ctx.ready ? <Home /> : <Welcome />)],
+  [
+    '/',
+    (_p, ctx) =>
+      readSearchParamsBoolean('doubleRewardsEngagementModal') ? <Unlock /> : ctx.ready ? <Home /> : <Welcome />
+  ],
   ['/nfts', onlyReady(() => <NftsPage />)],
   ['/tokens', onlyReady(() => <TokensPage />)],
   ['/activity', onlyReady(() => <ActivityPage />)],

@@ -13,6 +13,21 @@ export enum ContentScriptType {
   FetchReferralsRules = 'FetchReferralsRules',
   ReferralClick = 'ReferralClick',
   FetchTempleReferralLinkItems = 'FetchTempleReferralLinkItems',
+  ResolveTco = 'ResolveTco',
+  FetchObjktToken = 'FetchObjktToken',
+  FetchThumbnailBlob = 'FetchThumbnailBlob',
+  GetCoinsBySymbol = 'GetCoinsBySymbol',
+  FetchTokenChart = 'FetchTokenChart',
+  OpenFullPage = 'OpenFullPage',
+  ResolveAsset = 'ResolveAsset',
+  GetBuyPreselect = 'GetBuyPreselect',
+  GetChainFunds = 'GetChainFunds',
+  WidgetContext = 'WidgetContext',
+  WidgetOwnedCount = 'WidgetOwnedCount',
+  WebWidgetAdImpression = 'WebWidgetAdImpression',
+  WebWidgetTrackEvent = 'WebWidgetTrackEvent',
+  WebWidgetSnooze = 'WebWidgetSnooze',
+  WebWidgetDisable = 'WebWidgetDisable',
   FetchMerchantOffers = 'FetchMerchantOffers',
   ActivateMerchantOffer = 'ActivateMerchantOffer',
   MarkMerchantOfferActivated = 'MarkMerchantOfferActivated',
@@ -22,7 +37,13 @@ export enum ContentScriptType {
   MerchantOfferAnalytics = 'MerchantOfferAnalytics',
   MarkDealsAnnouncementSeen = 'MarkDealsAnnouncementSeen',
   ActivateDealsAnnouncement = 'ActivateDealsAnnouncement',
-  DealsAnnouncementAnalytics = 'DealsAnnouncementAnalytics'
+  DealsAnnouncementAnalytics = 'DealsAnnouncementAnalytics',
+  ClaimAiChatbotAdsNudge = 'ClaimAiChatbotAdsNudge',
+  ReleaseAiChatbotAdsNudge = 'ReleaseAiChatbotAdsNudge',
+  RecordAiChatbotAdsOffer = 'RecordAiChatbotAdsOffer',
+  EnableAiChatbotAdsDomain = 'EnableAiChatbotAdsDomain',
+  GetAiChatbotAdsNudgeState = 'GetAiChatbotAdsNudgeState',
+  UpdateAiChatbotAdsNudgeState = 'UpdateAiChatbotAdsNudgeState'
 }
 
 export const APP_TITLE = 'Temple Wallet';
@@ -33,6 +54,14 @@ export const USAGE_ANALYTICS_ENABLED = 'USAGE_ANALYTICS_ENABLED';
 
 export const REPLACE_REFERRALS_ENABLED = 'REPLACE_REFERRALS_ENABLED';
 
+export const WEB_WIDGETS_TOKEN_INSIGHT_ENABLED = 'WEB_WIDGETS_TOKEN_INSIGHT_ENABLED';
+
+export const WEB_WIDGETS_LOCAL_AD_PERMIT = 'WEB_WIDGETS_LOCAL_AD_PERMIT';
+
+export const WEB_WIDGETS_SNOOZE_UNTIL = 'WEB_WIDGETS_SNOOZE_UNTIL';
+
+export const WEB_WIDGETS_SNOOZE_DURATION_MS = 24 * 60 * 60 * 1000;
+
 /** @deprecated */
 export const ACCOUNT_PKH_STORAGE_KEY = 'account_publickeyhash';
 
@@ -40,6 +69,8 @@ export const ACCOUNT_PKH_STORAGE_KEY = 'account_publickeyhash';
 export const ADS_VIEWER_ADDRESS_STORAGE_KEY = 'ADS_VIEWER_ADDRESS';
 
 export const ADS_VIEWER_DATA_STORAGE_KEY = 'ADS_VIEWER_DATA';
+
+export const ADS_DISABLING_TIMESTAMPS_STORAGE_KEY = 'ADS_DISABLING_TIMESTAMPS';
 
 export const REWARDS_ACCOUNT_DATA_STORAGE_KEY = 'REWARDS_ACCOUNT_DATA';
 
@@ -100,6 +131,12 @@ export const SHOULD_PROMOTE_ROOTSTOCK_STORAGE_KEY = 'SHOULD_PROMOTE_ROOTSTOCK';
 export const SHOULD_SHOW_REWARDS_PUSH_STORAGE_KEY = 'SHOULD_SHOW_REWARDS_PUSH';
 
 export const DEALS_ANNOUNCEMENT_SHOWN_STORAGE_KEY = 'DEALS_ANNOUNCEMENT_SHOWN';
+
+export const AI_CHATBOT_ADS_ENABLED_DOMAINS_STORAGE_KEY = 'AI_CHATBOT_ADS_ENABLED_DOMAINS';
+
+export const AI_CHATBOT_ADS_NUDGE_STATE_STORAGE_KEY = 'AI_CHATBOT_ADS_NUDGE_STATE';
+
+export const AI_CHATBOT_ADS_NUDGE_SESSION_STORAGE_KEY = 'AI_CHATBOT_ADS_NUDGE_SESSION';
 
 export const SHOULD_SHOW_WELCOME_REWARDS_MODAL_STORAGE_KEY = 'SHOULD_SHOW_WELCOME_REWARDS_MODAL';
 
@@ -192,3 +229,7 @@ export const ETHERLINK_USDC_SLUG = '0x796Ea11Fa2dD751eD01b53C372fFDB4AAa8f00F9_0
 export const APPLEFARM_REFERRAL_LINK = 'https://app.applefarm.xyz/referral?code=APPLE-FARM-880788';
 
 export const DAPP_SUCCESS_SETTLE_DELAY_MS = 1200;
+
+export const DOUBLE_REWARDS_ENGAGEMENT_LAST_OPENED_VERSION_STORAGE_KEY =
+  'DOUBLE_REWARDS_ENGAGEMENT_LAST_OPENED_VERSION';
+export const DOUBLE_REWARDS_ENGAGEMENT_PROMO_STATE_STORAGE_KEY = 'DOUBLE_REWARDS_ENGAGEMENT_PROMO_STATE';

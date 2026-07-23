@@ -35,7 +35,7 @@ const COLLECTIBLE_IMAGE_DEFAULT_SIZE = 36;
 const NETWORK_IMAGE_DEFAULT_SIZE = 16;
 
 export const TezosAssetIconWithNetwork = memo<TezosAssetImageProps>(
-  ({ assetSlug, tezosChainId, className, style, size, ...props }) => {
+  ({ assetSlug, tezosChainId, className, style, size, withNetworkLogoTooltip = true, ...props }) => {
     const network = useTezosChainByChainId(tezosChainId);
     const metadata = useGenericTezosAssetMetadata(assetSlug, tezosChainId);
 
@@ -57,7 +57,7 @@ export const TezosAssetIconWithNetwork = memo<TezosAssetImageProps>(
             size={NETWORK_IMAGE_DEFAULT_SIZE}
             chainId={network.chainId}
             className="absolute bottom-0 right-0"
-            withTooltip
+            withTooltip={withNetworkLogoTooltip}
           />
         )}
       </div>
@@ -84,7 +84,7 @@ const EvmAssetIconPlaceholder: EvmAssetImageProps['Fallback'] = memo(({ metadata
 );
 
 export const EvmAssetIconWithNetwork = memo<EvmAssetImageProps>(
-  ({ assetSlug, evmChainId, className, style, size, ...props }) => {
+  ({ assetSlug, evmChainId, className, style, size, withNetworkLogoTooltip = true, ...props }) => {
     const network = useEvmChainByChainId(evmChainId);
     const metadata = useEvmGenericAssetMetadata(assetSlug, evmChainId);
 
@@ -106,7 +106,7 @@ export const EvmAssetIconWithNetwork = memo<EvmAssetImageProps>(
             chainId={network.chainId}
             size={NETWORK_IMAGE_DEFAULT_SIZE}
             className="absolute bottom-0 right-0"
-            withTooltip
+            withTooltip={withNetworkLogoTooltip}
           />
         )}
       </div>

@@ -28,7 +28,7 @@ export const DEFAULT_TEZOS_OUTPUT_TOKEN: TopUpOutputInterface = {
   slug: toTopUpTokenSlug('XTZ', TempleChainKind.Tezos, TEZOS_MAINNET_CHAIN_ID)
 };
 
-export const DEFAULT_EVM_OUTPUT_TOKEN: TopUpOutputInterface = {
+export const DEFAULT_OUTPUT_TOKEN: TopUpOutputInterface = {
   code: 'ETH',
   name: 'Ethereum',
   icon: `${MOONPAY_ASSETS_BASE_URL}/widget/currencies/eth.svg`,

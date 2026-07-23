@@ -15,4 +15,8 @@ export const setReferralLinksEnabledAction = createAction<boolean>('settings/SET
 
 export const setIsTestnetModeEnabledAction = createAction<boolean>('settings/SET_IS_TESTNET_MODE_ENABLED');
 
+export const setWebWidgetsTokenInsightEnabledAction = createAction<boolean>(
+  'settings/SET_WEB_WIDGETS_TOKEN_INSIGHT_ENABLED'
+);
+
 export const toggleFavoriteTokenAction = createAction<string>('settings/TOGGLE_FAVORITE_TOKEN');

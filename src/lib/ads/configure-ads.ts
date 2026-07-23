@@ -1,3 +1,4 @@
+import { getIntercom } from 'intercom-client';
 import browser from 'webextension-polyfill';
 
 import { buildSwapPagePath } from 'app/pages/Swap/build-url-query';
@@ -5,6 +6,7 @@ import { getDApp } from 'app/storage/dapps';
 import {
   AD_CATEGORIES_PARAM_NAME,
   ADS_META_SEARCH_PARAM_NAME,
+  BACKGROUND_COLOR_SEARCH_PARAM_NAME,
   CHAIN_NAME_SEARCH_PARAM_NAME,
   EVM_ACCOUNT_SEARCH_PARAM_NAME,
   FONT_SIZE_SEARCH_PARAM_NAME,
@@ -15,7 +17,12 @@ import {
 import { ADS_VIEWER_DATA_STORAGE_KEY, ContentScriptType } from 'lib/constants';
 import { APP_VERSION, EnvVars, IS_MISES_BROWSER } from 'lib/env';
 import { fetchFromStorage } from 'lib/storage';
-import { TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
+import {
+  TempleAnalyzeYoutubeSearchPageData,
+  TempleAnalyzeYoutubeWatchPageData,
+  TempleMessageType,
+  TEZOS_MAINNET_CHAIN_ID
+} from 'lib/temple/types';
 import { isTruthy } from 'lib/utils';
 import { TempleChainKind, type AdsViewerData } from 'temple/types';
 
@@ -23,8 +30,8 @@ import { TempleChainKind, type AdsViewerData } from 'temple/types';
 import evmChainsNames from './evm-chains-names.json';
 import { importExtensionAdsModule } from './import-extension-ads-module';
 
-// #region These interfaces below are copied from '@temple-wallet/extension-ads' to avoid importing it to ensure that a
-// core build runs without errors.
+// #region These interfaces below are copied from '@temple-wallet/extension-ads' or based on this module to avoid
+// importing it to ensure that a core build runs without errors.
 interface AdSource {
   shouldNotUseStrictContainerLimits?: boolean;
   providerName: 'Temple' | 'HypeLab' | 'Bitmedia';
@@ -53,6 +60,7 @@ interface AdsStackIframeURLParams {
   origin: string;
   adCategories: string[];
   themeColor?: string;
+  backgroundColor?: string;
   fontSize?: number;
   lineHeight?: number;
   evmAccountAddress?: string;
@@ -61,6 +69,7 @@ interface AdsStackIframeURLParams {
 
 interface AdThemeParams {
   themeColor?: string;
+  backgroundColor?: string;
   fontSize?: number;
   lineHeight?: number;
 }
@@ -78,6 +87,7 @@ const swapTkeyUrl = `${browser.runtime.getURL('fullpage.html')}#${buildSwapPageP
 const searchParamsNames = {
   id: 'id',
   themeColor: THEME_COLOR_SEARCH_PARAM_NAME,
+  backgroundColor: BACKGROUND_COLOR_SEARCH_PARAM_NAME,
   fontSize: FONT_SIZE_SEARCH_PARAM_NAME,
   lineHeight: LINE_HEIGHT_SEARCH_PARAM_NAME,
   evmAccountAddress: EVM_ACCOUNT_SEARCH_PARAM_NAME,
@@ -108,13 +118,24 @@ const getAdsStackIframeURL = ({
   return url.toString();
 };
 
-const buildNativeAdsMeta = (containerWidth: number, containerHeight: number) =>
-  [
+const youtubeHostnames = new Set(['youtube.com', 'www.youtube.com', 'm.youtube.com']);
+const isYouTubePage = (locationHref: string) => {
+  const hostname = new URL(locationHref).hostname;
+
+  return youtubeHostnames.has(hostname);
+};
+
+const buildNativeAdsMeta = (containerWidth: number, containerHeight: number, locationHref: string) => {
+  const hypelabPlacementSlug = isYouTubePage(locationHref)
+    ? EnvVars.HYPELAB_INTERNAL_NATIVE_PLACEMENT_SLUG
+    : EnvVars.HYPELAB_EXTERNAL_NATIVE_PLACEMENT_SLUG;
+
+  return [
     {
       source: {
         providerName: 'HypeLab' as const,
         native: true as const,
-        slug: EnvVars.HYPELAB_EXTERNAL_NATIVE_PLACEMENT_SLUG
+        slug: hypelabPlacementSlug
       },
       dimensions: {
         width: Math.max(160, containerWidth),
@@ -141,6 +162,7 @@ const buildNativeAdsMeta = (containerWidth: number, containerHeight: number) =>
       }
     }
   ].filter(isTruthy);
+};
 
 const bannerAdsMetaBase: (AdMetadata | false)[] = [
   isTruthy(EnvVars.BITMEDIA_970_90_PLACEMENT_ID) && {
@@ -401,7 +423,8 @@ export const configureAds = async () => {
     typeof window === 'undefined' ? undefined : await getDApp(TempleChainKind.EVM, window.location.origin);
   const chainId = dAppSession?.chainId ?? 1;
   originalConfigureAds({
-    hypelabPropertySlug: EnvVars.HYPELAB_EXTERNAL_PROPERTY_SLUG,
+    hypelabPropertySlug: (locationHref: string) =>
+      isYouTubePage(locationHref) ? EnvVars.HYPELAB_PROPERTY_SLUG : EnvVars.HYPELAB_EXTERNAL_PROPERTY_SLUG,
     adsTwWindowUrl: EnvVars.HYPELAB_ADS_WINDOW_URL,
     swapTkeyUrl,
     tkeyInpageAdUrl,
@@ -419,6 +442,14 @@ export const configureAds = async () => {
       chainId in evmChainsNames
         ? evmChainsNames[String(chainId) as keyof typeof evmChainsNames]
         : `0x${chainId.toString(16)}`,
-    makeThemingParamsChangeMessage: (params: AdThemeParams) => JSON.stringify({ type: 'setParams', params })
+    makeThemingParamsChangeMessage: (params: AdThemeParams) => JSON.stringify({ type: 'setParams', params }),
+    analyzeYoutubeSearchPage: (data: TempleAnalyzeYoutubeSearchPageData) =>
+      getIntercom()
+        .request({ type: TempleMessageType.AnalyzeYoutubeSearchPageRequest, data })
+        .then(res => res.data),
+    analyzeYoutubeVideoPage: (data: TempleAnalyzeYoutubeWatchPageData) =>
+      getIntercom()
+        .request({ type: TempleMessageType.AnalyzeYoutubeWatchPageRequest, data })
+        .then(res => res.data)
   });
 };

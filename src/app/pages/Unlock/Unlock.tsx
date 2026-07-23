@@ -5,12 +5,14 @@ import { SubmitHandler, useForm } from 'react-hook-form';
 import { FormField, IconBase } from 'app/atoms';
 import { StyledButton } from 'app/atoms/StyledButton';
 import { TextButton } from 'app/atoms/TextButton';
+import { useSearchParamsBoolean } from 'app/hooks/use-search-params-boolean';
 import { useShouldShowIntroModals } from 'app/hooks/use-should-show-v2-intro-modal';
 import { ReactComponent as LockFillIcon } from 'app/icons/base/lock_fill.svg';
 import { PlanetsBgPageLayout } from 'app/layouts/planets-bg-page-layout';
 import { dispatch } from 'app/store';
 import { getUserTestingGroupNameActions } from 'app/store/ab-testing/actions';
 import { useUserTestingGroupNameSelector } from 'app/store/ab-testing/selectors';
+import { DoubleRewardsEngagementModal } from 'app/templates/DoubleRewardsEngagementModal';
 import { useFormAnalytics } from 'lib/analytics';
 import { ABTestGroup } from 'lib/apis/temple';
 import { DEFAULT_PASSWORD_INPUT_PLACEHOLDER } from 'lib/constants';
@@ -60,6 +62,8 @@ const Unlock: FC<UnlockProps> = ({ canImportNew = true }) => {
   useShouldShowIntroModals(true);
 
   const [pageModalName, setPageModalName] = useState<PageModalName | null>(null);
+  const { value: doubleRewardsEngagementModalOpen, setFalse: closeDoubleRewardsEngagementModal } =
+    useSearchParamsBoolean('doubleRewardsEngagementModal');
   const [attempt, setAttempt] = useLocalStorage<number>(TempleSharedStorageKey.PasswordAttempts, 1);
   const [timelock, setTimeLock] = useLocalStorage<number>(TempleSharedStorageKey.TimeLock, 0);
   const lockLevel = LOCK_TIME * Math.floor(attempt / 3);
@@ -219,6 +223,10 @@ const Unlock: FC<UnlockProps> = ({ canImportNew = true }) => {
         <ForgotPasswordModal onClose={handleModalClose} onContinueClick={handleForgotPasswordContinueClick} />
       )}
       {pageModalName === PageModalName.ResetExtension && <ResetExtensionModal onClose={handleModalClose} />}
+      <DoubleRewardsEngagementModal
+        opened={doubleRewardsEngagementModalOpen}
+        onRequestClose={closeDoubleRewardsEngagementModal}
+      />
     </>
   );
 };

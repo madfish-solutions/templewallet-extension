@@ -46,6 +46,8 @@ export const ControlsSection = memo<Props>(
           expanded={fullPage || expandedButton === 'filters'}
           stretch={stretch}
           onClick={onFiltersClick}
+          onHoverStart={expandFilters}
+          onHoverEnd={expandFilters}
           testID={MenuDropdownSelectors.filtersButton}
         />
 
@@ -56,8 +58,8 @@ export const ControlsSection = memo<Props>(
             active={isSidebarEnabled}
             expanded={expandedButton === 'sidebar'}
             onClick={onSidebarClick}
-            onMouseEnter={expandSidebar}
-            onMouseLeave={expandFilters}
+            onHoverStart={expandSidebar}
+            onHoverEnd={expandFilters}
             testID={MenuDropdownSelectors.sidebarButton}
           />
         )}
@@ -69,8 +71,8 @@ export const ControlsSection = memo<Props>(
           expanded={fullPage || expandedButton === 'testnet'}
           stretch={stretch}
           onClick={onTestnetClick}
-          onMouseEnter={expandTestnet}
-          onMouseLeave={expandFilters}
+          onHoverStart={expandTestnet}
+          onHoverEnd={expandFilters}
           testID={MenuDropdownSelectors.testnetButton}
         />
       </div>

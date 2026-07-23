@@ -1,4 +1,4 @@
-import React, { ReactNode, memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { FC, ReactNode, memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { Alert, Anchor, IconBase } from 'app/atoms';
 import DAppLogo from 'app/atoms/DAppLogo';
@@ -11,12 +11,12 @@ import { useLedgerApprovalModalState } from 'app/hooks/use-ledger-approval-modal
 import { ReactComponent as LinkIcon } from 'app/icons/base/link.svg';
 import { ReactComponent as OutLinkIcon } from 'app/icons/base/outLink.svg';
 import PageLayout from 'app/layouts/PageLayout';
+import { useContentPaperRef } from 'app/layouts/PageLayout/context';
 import { AccountsModal } from 'app/templates/AccountsModal';
 import { DappInteractionSuccess, DappInteractionSuccessType } from 'app/templates/DappInteractionSuccess';
 import { LedgerApprovalModal } from 'app/templates/ledger-approval-modal';
 import { DAPP_SUCCESS_SETTLE_DELAY_MS } from 'lib/constants';
 import { EvmOperationKind, getOperationKind } from 'lib/evm/on-chain/transactions';
-import { equalsIgnoreCase } from 'lib/evm/on-chain/utils/common.utils';
 import { parseEvmTxRequest } from 'lib/evm/on-chain/utils/parse-evm-tx-request';
 import { T, t } from 'lib/i18n';
 import { useTempleClient } from 'lib/temple/front';
@@ -25,7 +25,7 @@ import { LedgerOperationState, runConnectedLedgerOperationFlow } from 'lib/ui';
 import { useBooleanState, useSafeState } from 'lib/ui/hooks';
 import { useLedgerWebHidFullViewGuard } from 'lib/ui/ledger-webhid-guard';
 import { LedgerFullViewPromptModal } from 'lib/ui/LedgerFullViewPrompt';
-import { delay } from 'lib/utils';
+import { delay, equalsIgnoreCase } from 'lib/utils';
 import { getAccountForEvm, getAccountForTezos } from 'temple/accounts';
 import { useCurrentAccountId } from 'temple/front';
 import { makeIntercomRequest } from 'temple/front/intercom-client';
@@ -99,7 +99,6 @@ export const ConfirmDAppForm = memo<ConfirmDAppFormProps>(
     const { ledgerApprovalModalState, setLedgerApprovalModalState, handleLedgerModalClose } =
       useLedgerApprovalModalState();
 
-    const [bottomEdgeIsVisible, setBottomEdgeIsVisible] = useState(true);
     const { confirmWindow, fullPage, sidebar } = useAppEnv();
     const isDappConfirmationContext = confirmWindow || sidebar;
 
@@ -374,8 +373,6 @@ export const ConfirmDAppForm = memo<ConfirmDAppFormProps>(
         }
         shouldShowBackButton={false}
         contentPadding={false}
-        onBottomEdgeVisibilityChange={setBottomEdgeIsVisible}
-        bottomEdgeThreshold={16}
       >
         <div className="flex-1 p-4 gap-4">
           {!showConflict && payload.type !== 'add_asset' && (
@@ -420,11 +417,7 @@ export const ConfirmDAppForm = memo<ConfirmDAppFormProps>(
         </div>
 
         {!showConflict && (
-          <ActionsButtonsBox
-            flexDirection="row"
-            className="sticky left-0 bottom-0"
-            shouldCastShadow={!bottomEdgeIsVisible}
-          >
+          <ConfirmActionsButtonsBox>
             <StyledButton
               key="cancel"
               size="L"
@@ -451,7 +444,7 @@ export const ConfirmDAppForm = memo<ConfirmDAppFormProps>(
             >
               {confirmButtonName}
             </StyledButton>
-          </ActionsButtonsBox>
+          </ConfirmActionsButtonsBox>
         )}
 
         <AccountsModal
@@ -471,3 +464,13 @@ export const ConfirmDAppForm = memo<ConfirmDAppFormProps>(
     );
   }
 );
+
+const ConfirmActionsButtonsBox: FC<PropsWithChildren> = ({ children }) => {
+  const scrollContainerRef = useContentPaperRef();
+
+  return (
+    <ActionsButtonsBox flexDirection="row" className="sticky left-0 bottom-0" scrollContainerRef={scrollContainerRef}>
+      {children}
+    </ActionsButtonsBox>
+  );
+};

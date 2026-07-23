@@ -81,7 +81,7 @@ export const EarnCardContent: FC<EarnCardContentProps> = ({
       }
       value={
         <span className="text-nowrap">
-          <Money fiat smallFractionFont={false}>
+          <Money fiat tooltip={false} smallFractionFont={false}>
             {latestFiatValue}
           </Money>{' '}
           {selectedFiatCurrency.symbol}
@@ -90,7 +90,7 @@ export const EarnCardContent: FC<EarnCardContentProps> = ({
       change={
         changePercentBn && (
           <>
-            <Money fiat={false} withSign smallFractionFont={false}>
+            <Money fiat={false} withSign tooltip={false} smallFractionFont={false}>
               {changePercentBn}
             </Money>
             %

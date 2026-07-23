@@ -1,9 +1,16 @@
 import { isNotEmptyString } from '@rnw-community/shared';
 
-import { AUTOLOCK_TIME_STORAGE_KEY, NEVER_AUTOLOCK_VALUE } from 'lib/constants';
+import {
+  AUTOLOCK_TIME_STORAGE_KEY,
+  BLOCKCHAIN_EXPLORERS_OVERRIDES_STORAGE_KEY,
+  NEVER_AUTOLOCK_VALUE,
+  TEZOS_CHAINS_SPECS_STORAGE_KEY
+} from 'lib/constants';
 import { DEFAULT_WALLET_AUTOLOCK_TIME } from 'lib/fixed-times';
 import { fetchFromStorage, putToStorage } from 'lib/storage';
-import { TempleSharedStorageKey } from 'lib/temple/types';
+import { type TezosChainSpecs } from 'lib/temple/chains-specs';
+import { BlockExplorer, TempleSharedStorageKey, TempleTezosChainId } from 'lib/temple/types';
+import { TempleChainKind } from 'temple/types';
 
 import { migrate } from './migrator';
 
@@ -44,5 +51,43 @@ migrate([
   {
     name: '2.0.1',
     up: () => localStorage.removeItem('onboarding')
+  },
+  {
+    name: '2.0.30',
+    up: async () => {
+      const removedBlockExplorerIds = ['tzstats-mainnet', 'bcd-mainnet'];
+
+      const tezosChainsSpecs = await fetchFromStorage<OptionalRecord<TezosChainSpecs>>(TEZOS_CHAINS_SPECS_STORAGE_KEY);
+      const mainnetSpecs = tezosChainsSpecs?.[TempleTezosChainId.Mainnet];
+
+      if (mainnetSpecs && removedBlockExplorerIds.includes(mainnetSpecs.activeBlockExplorerId ?? '')) {
+        await putToStorage<OptionalRecord<TezosChainSpecs>>(TEZOS_CHAINS_SPECS_STORAGE_KEY, {
+          ...tezosChainsSpecs,
+          [TempleTezosChainId.Mainnet]: {
+            ...mainnetSpecs,
+            activeBlockExplorerId: 'tzkt-mainnet'
+          }
+        });
+      }
+
+      const blockExplorersOverrides = await fetchFromStorage<
+        Partial<Record<TempleChainKind, OptionalRecord<BlockExplorer[]> | undefined>>
+      >(BLOCKCHAIN_EXPLORERS_OVERRIDES_STORAGE_KEY);
+      const mainnetExplorers = blockExplorersOverrides?.[TempleChainKind.Tezos]?.[TempleTezosChainId.Mainnet];
+      const remainingMainnetExplorers = mainnetExplorers?.filter(({ id }) => !removedBlockExplorerIds.includes(id));
+
+      if (!remainingMainnetExplorers?.length) return;
+
+      const updatedTezosOverrides = { ...(blockExplorersOverrides?.[TempleChainKind.Tezos] ?? {}) };
+      updatedTezosOverrides[TempleTezosChainId.Mainnet] = remainingMainnetExplorers;
+
+      await putToStorage<Partial<Record<TempleChainKind, OptionalRecord<BlockExplorer[]> | undefined>>>(
+        BLOCKCHAIN_EXPLORERS_OVERRIDES_STORAGE_KEY,
+        {
+          ...blockExplorersOverrides,
+          [TempleChainKind.Tezos]: updatedTezosOverrides
+        }
+      );
+    }
   }
 ]);
