@@ -55,7 +55,7 @@ export const TextPromotionView = memo<Props>(
         )}
         href={href}
         target="_blank"
-        rel="noreferrer"
+        rel="noreferrer sponsored"
         ref={ref}
         testID={PartnersPromotionSelectors.promoLink}
         testIDProperties={testIDProperties}

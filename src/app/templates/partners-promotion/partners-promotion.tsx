@@ -1,4 +1,4 @@
-import { Ref, memo, MouseEventHandler, useCallback, useEffect, useRef, useState } from 'react';
+import { Ref, memo, MouseEventHandler, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import clsx from 'clsx';
 import { useDispatch } from 'react-redux';
@@ -14,16 +14,20 @@ import {
 import { AdsProviderTitle } from 'lib/ads';
 import {
   fetchEnableInternalHypelabAds,
+  fetchEnableInternalSpecifyAds,
   fetchInternalBlacklistedHypelabCampaignsSlugs,
+  fetchInternalUnpaidHypelabCampaignsSlugs,
   postAdImpression
 } from 'lib/apis/ads-api/ads-api';
 import { AD_HIDING_TIMEOUT } from 'lib/constants';
 import { ENABLE_INTERNAL_HYPELAB_ADS_SYNC_INTERVAL } from 'lib/fixed-times';
 import { T } from 'lib/i18n';
 import { useTypedSWR } from 'lib/swr';
+import { useUpdatableRef } from 'lib/ui/hooks';
 
 import { CloseButton } from './components/close-button';
 import { HypelabPromotion } from './components/hypelab-promotion';
+import { SpecifyPromotion } from './components/specify-promotion';
 import { PartnersPromotionVariant } from './types';
 
 export { PartnersPromotionVariant } from './types';
@@ -36,6 +40,19 @@ interface PartnersPromotionProps {
   className?: string;
   ref?: Ref<HTMLDivElement>;
 }
+
+type AdProvider = 'hypelab' | 'specify';
+
+interface WaterfallStep {
+  provider: AdProvider;
+  showNonPaidAd?: boolean;
+}
+
+const WATERFALL: WaterfallStep[] = [
+  { provider: 'hypelab' },
+  { provider: 'specify' },
+  { provider: 'hypelab', showNonPaidAd: true }
+];
 
 const shouldBeHiddenByTimeout = (hiddenAt: number) => {
   return Date.now() - hiddenAt < AD_HIDING_TIMEOUT;
@@ -50,7 +67,7 @@ export const PartnersPromotion = memo<PartnersPromotionProps>(({ variant, id, pa
   const shouldShowPartnersPromo = useShouldShowPartnersPromoSelector();
 
   const [isHiddenByTimeout, setIsHiddenByTimeout] = useState(shouldBeHiddenByTimeout(hiddenAt));
-  const [adError, setAdError] = useState(false);
+  const [stepIndex, setStepIndex] = useState(0);
   const [adIsReady, setAdIsReady] = useState(false);
 
   useEffect(() => {
@@ -69,23 +86,6 @@ export const PartnersPromotion = memo<PartnersPromotionProps>(({ variant, id, pa
     return;
   }, [hiddenAt]);
 
-  const handleImpression = useCallback(() => {
-    postAdImpression(rewardsAddresses, AdsProviderTitle.HypeLab, { pageName });
-  }, [pageName, rewardsAddresses]);
-
-  const handleClosePartnersPromoClick = useCallback<MouseEventHandler<HTMLButtonElement>>(
-    e => {
-      e.preventDefault();
-      e.stopPropagation();
-      dispatch(hidePromotionAction({ timestamp: Date.now(), id }));
-    },
-    [id, dispatch]
-  );
-
-  const handleHypelabError = useCallback(() => setAdError(true), []);
-
-  const handleAdReady = useCallback(() => setAdIsReady(true), []);
-
   const { data: enableInternalHypelabAds, isLoading: isLoadingEnableInternalHypelabAds } = useTypedSWR(
     'enable-internal-hypelab-ads',
     fetchEnableInternalHypelabAds,
@@ -97,6 +97,13 @@ export const PartnersPromotion = memo<PartnersPromotionProps>(({ variant, id, pa
     }
   );
 
+  const { data: enableInternalSpecifyAds } = useTypedSWR('enable-internal-specify-ads', fetchEnableInternalSpecifyAds, {
+    revalidateOnFocus: false,
+    revalidateOnMount: true,
+    revalidateOnReconnect: false,
+    refreshInterval: ENABLE_INTERNAL_HYPELAB_ADS_SYNC_INTERVAL
+  });
+
   const { data: blacklistedCampaignSlugs } = useTypedSWR(
     'blacklisted-internal-hypelab-campaigns-slugs',
     fetchInternalBlacklistedHypelabCampaignsSlugs,
@@ -107,24 +114,67 @@ export const PartnersPromotion = memo<PartnersPromotionProps>(({ variant, id, pa
       refreshInterval: ENABLE_INTERNAL_HYPELAB_ADS_SYNC_INTERVAL
     }
   );
-  const prevEnableInternalHypelabAdsRef = useRef(enableInternalHypelabAds);
+
+  const { data: unpaidCampaignSlugs } = useTypedSWR(
+    'unpaid-internal-hypelab-campaigns-slugs',
+    fetchInternalUnpaidHypelabCampaignsSlugs,
+    {
+      revalidateOnFocus: false,
+      revalidateOnMount: true,
+      revalidateOnReconnect: false,
+      refreshInterval: ENABLE_INTERNAL_HYPELAB_ADS_SYNC_INTERVAL
+    }
+  );
+
+  const activeSteps = useMemo(
+    () =>
+      WATERFALL.filter(step =>
+        step.provider === 'hypelab' ? enableInternalHypelabAds !== false : enableInternalSpecifyAds !== false
+      ),
+    [enableInternalHypelabAds, enableInternalSpecifyAds]
+  );
+
+  const currentStep = activeSteps[stepIndex];
+  const currentStepRef = useUpdatableRef(currentStep);
+  const disabledKey = `${enableInternalHypelabAds === false}-${enableInternalSpecifyAds === false}`;
+  const prevDisabledKeyRef = useRef(disabledKey);
+
+  useEffect(() => {
+    if (prevDisabledKeyRef.current === disabledKey) {
+      return;
+    }
+    prevDisabledKeyRef.current = disabledKey;
+
+    setStepIndex(0);
+    setAdIsReady(false);
+  }, [disabledKey]);
+
+  const handleImpression = useCallback(() => {
+    const provider =
+      currentStepRef.current?.provider === 'specify' ? AdsProviderTitle.Specify : AdsProviderTitle.HypeLab;
+    postAdImpression(rewardsAddresses, provider, { pageName });
+  }, [pageName, rewardsAddresses, currentStepRef]);
+
+  const handleClosePartnersPromoClick = useCallback<MouseEventHandler<HTMLButtonElement>>(
+    e => {
+      e.preventDefault();
+      e.stopPropagation();
+      dispatch(hidePromotionAction({ timestamp: Date.now(), id }));
+    },
+    [id, dispatch]
+  );
+
+  const handleAdReady = useCallback(() => setAdIsReady(true), []);
+
+  const handleAdvance = useCallback(() => {
+    setAdIsReady(false);
+    setStepIndex(index => index + 1);
+  }, []);
 
   const isHiddenTemporarily =
     isHiddenByTimeout || (isLoadingEnableInternalHypelabAds && enableInternalHypelabAds === undefined);
 
-  useEffect(() => {
-    const prevEnableInternalHypelabAds = prevEnableInternalHypelabAdsRef.current;
-    prevEnableInternalHypelabAdsRef.current = enableInternalHypelabAds;
-    if (enableInternalHypelabAds === false) {
-      handleHypelabError();
-    }
-    if (prevEnableInternalHypelabAds === false && enableInternalHypelabAds) {
-      setAdIsReady(false);
-      setAdError(false);
-    }
-  }, [enableInternalHypelabAds, handleHypelabError]);
-
-  if (!shouldShowPartnersPromo || adError || isHiddenTemporarily) {
+  if (!shouldShowPartnersPromo || isHiddenTemporarily || !currentStep) {
     return null;
   }
 
@@ -134,21 +184,38 @@ export const PartnersPromotion = memo<PartnersPromotionProps>(({ variant, id, pa
         ref={ref}
         className={clsx(
           'group w-full relative flex flex-col items-center',
-          !adIsReady && (isImageAd ? 'min-h-[101px]' : 'min-h-16'),
+          !adIsReady && (isImageAd ? 'min-h-25.25' : 'min-h-16'),
           className
         )}
       >
         <div className="w-full flex flex-col items-center z-10">
-          <HypelabPromotion
-            accountPkh={evmViewerAddress}
-            variant={variant}
-            isVisible={adIsReady}
-            pageName={pageName}
-            blacklistedCampaignSlugs={blacklistedCampaignSlugs}
-            onImpression={handleImpression}
-            onReady={handleAdReady}
-            onError={handleHypelabError}
-          />
+          {currentStep.provider === 'specify' ? (
+            <SpecifyPromotion
+              key={`${disabledKey}-${stepIndex}`}
+              accountPkh={evmViewerAddress}
+              variant={variant}
+              isVisible={adIsReady}
+              pageName={pageName}
+              onImpression={handleImpression}
+              onReady={handleAdReady}
+              onError={handleAdvance}
+            />
+          ) : (
+            <HypelabPromotion
+              key={`${disabledKey}-${stepIndex}`}
+              accountPkh={evmViewerAddress}
+              variant={variant}
+              isVisible={adIsReady}
+              pageName={pageName}
+              blacklistedCampaignSlugs={blacklistedCampaignSlugs}
+              unpaidCampaignSlugs={unpaidCampaignSlugs}
+              showNonPaidAd={currentStep.showNonPaidAd ?? false}
+              onImpression={handleImpression}
+              onReady={handleAdReady}
+              onError={handleAdvance}
+              onNoPaidAd={handleAdvance}
+            />
+          )}
         </div>
 
         <div className="absolute inset-0 bg-grey-4 text-secondary flex justify-center items-center rounded-lg">

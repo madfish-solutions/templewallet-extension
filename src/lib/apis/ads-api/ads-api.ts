@@ -151,8 +151,16 @@ export const fetchEnableInternalHypelabAds = withAxiosDataExtract(() =>
   axiosClient.get<boolean>(`/ads-rules/${APP_VERSION}/enable-internal-hypelab-ads`)
 );
 
+export const fetchEnableInternalSpecifyAds = withAxiosDataExtract(() =>
+  axiosClient.get<boolean>(`/ads-rules/${APP_VERSION}/enable-internal-specify-ads`)
+);
+
 export const fetchInternalBlacklistedHypelabCampaignsSlugs = withAxiosDataExtract(() =>
   axiosClient.get<string[]>(`/ads-rules/${APP_VERSION}/hypelab-campaigns-blacklist-internal`)
+);
+
+export const fetchInternalUnpaidHypelabCampaignsSlugs = withAxiosDataExtract(() =>
+  axiosClient.get<string[]>(`/ads-rules/${APP_VERSION}/hypelab-campaigns-unpaid-internal`)
 );
 
 export interface MerchantOffer {

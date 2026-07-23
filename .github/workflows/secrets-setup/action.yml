@@ -85,6 +85,8 @@ inputs:
     required: false
   CONVERSION_API_URL:
     required: true
+  SPECIFY_PUBLISHER_KEY:
+    required: false
   GOOGLE_AUTH_PAGE_URL:
     required: true
   # [e2e]
@@ -189,6 +191,7 @@ runs:
         TEMPLE_ADS_ORIGIN_PASSPHRASE=${{ inputs.TEMPLE_ADS_ORIGIN_PASSPHRASE }}
         TAKE_ADS_TOKEN=${{ inputs.TAKE_ADS_TOKEN }}
         CONVERSION_API_URL=${{ inputs.CONVERSION_API_URL }}
+        SPECIFY_PUBLISHER_KEY=${{ inputs.SPECIFY_PUBLISHER_KEY }}
 
         GOOGLE_AUTH_PAGE_URL=${{ inputs.GOOGLE_AUTH_PAGE_URL }}
 
