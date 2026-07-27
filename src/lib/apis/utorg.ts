@@ -82,4 +82,4 @@ export const getCurrenciesInfo = () =>
   api
     .post<{ data: UtorgCurrencyInfo[] }>('/settings/currency')
     .then(r => r.data.data)
-    .catch(() => []);
+    .catch((): UtorgCurrencyInfo[] => []);
