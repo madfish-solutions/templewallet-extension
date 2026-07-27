@@ -77,5 +77,9 @@ export async function convertFiatAmountToCrypto(
   return response.data.data;
 }
 
+// TODO: Remove Utorg provider
 export const getCurrenciesInfo = () =>
-  api.post<{ data: UtorgCurrencyInfo[] }>('/settings/currency').then(r => r.data.data);
+  api
+    .post<{ data: UtorgCurrencyInfo[] }>('/settings/currency')
+    .then(r => r.data.data)
+    .catch((): UtorgCurrencyInfo[] => []);
