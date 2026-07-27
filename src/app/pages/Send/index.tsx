@@ -5,7 +5,9 @@ import { PageLoader } from 'app/atoms/Loader';
 import { useLocationSearchParamValue } from 'app/hooks/use-location';
 import PageLayout from 'app/layouts/PageLayout';
 import { useAssetsFilterOptionsSelector } from 'app/store/assets-filter-options/selectors';
+import { useEvmCollectibleMetadataSelector } from 'app/store/evm/collectibles-metadata/selectors';
 import { useTestnetModeEnabledSelector } from 'app/store/settings/selectors';
+import { useCollectibleMetadataSelector } from 'app/store/tezos/collectibles-metadata/selectors';
 import { EVM_TOKEN_SLUG, TEZ_TOKEN_SLUG } from 'lib/assets/defaults';
 import { toChainAssetSlug } from 'lib/assets/utils';
 import { t } from 'lib/i18n';
@@ -47,6 +49,12 @@ const Send = memo<Props>(({ chainKind, chainId, assetSlug }) => {
   const accountEvmAddress = useAccountAddressForEvm();
   const { filterChain } = useAssetsFilterOptionsSelector();
   const testnetModeEnabled = useTestnetModeEnabledSelector();
+
+  const specifiedTezosCollectibleMetadata = useCollectibleMetadataSelector(assetSlug ?? '');
+  const specifiedEvmCollectibleMetadata = useEvmCollectibleMetadataSelector(Number(chainId) || 0, assetSlug ?? '');
+  const specifiedAssetIsNft =
+    (chainKind === TempleChainKind.Tezos && Boolean(specifiedTezosCollectibleMetadata)) ||
+    (chainKind === TempleChainKind.EVM && Boolean(specifiedEvmCollectibleMetadata));
 
   const formControlRef = useRef<SendFormControl>(null);
 
@@ -206,9 +214,13 @@ const Send = memo<Props>(({ chainKind, chainId, assetSlug }) => {
         ) : undefined
       }
     >
-      <div className="px-4 py-4">
-        <SendTabs activeTab={activeTab} onChange={handleSetActiveTab} crossChainDisabled={testnetModeEnabled} />
-      </div>
+      {specifiedAssetIsNft ? (
+        <div className="pt-4" />
+      ) : (
+        <div className="px-4 py-4">
+          <SendTabs activeTab={activeTab} onChange={handleSetActiveTab} crossChainDisabled={testnetModeEnabled} />
+        </div>
+      )}
 
       <Suspense fallback={<PageLoader stretch />}>
         {activeTab === 'default' ? (
