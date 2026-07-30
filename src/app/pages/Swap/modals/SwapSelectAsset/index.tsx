@@ -51,8 +51,6 @@ export const SwapSelectAssetModal = memo<SelectTokenModalProps>(
 
     const tezosNetwork = useTezosMainnetChain();
 
-    const [localFilterChain, setLocalFilterChain] = useState<FilterChain | string>(null);
-
     const accountTezAddress = useAccountAddressForTezos();
     const accountEvmAddress = useAccountAddressForEvm();
 
@@ -61,25 +59,45 @@ export const SwapSelectAssetModal = memo<SelectTokenModalProps>(
         ? { kind: TempleChainKind.EVM, chainId: parseChainAssetSlug(fromChainAssetSlug, TempleChainKind.EVM)[1] }
         : null;
 
+    const fromFilterChain = chainKind === TempleChainKind.EVM ? fromEvmChain : tezosNetwork;
+
+    const [outputFilterChain, setOutputFilterChain] = useState<FilterChain | string>(fromFilterChain);
+    const [localFilterChain, setLocalFilterChain] = useState<FilterChain | string>(null);
+
+    const [prevFromChainAssetSlug, setPrevFromChainAssetSlug] = useState(fromChainAssetSlug);
+
+    if (fromChainAssetSlug !== prevFromChainAssetSlug) {
+      setPrevFromChainAssetSlug(fromChainAssetSlug);
+      setOutputFilterChain(fromFilterChain);
+    }
+
     const [prevOpened, setPrevOpened] = useState(opened);
 
     if (opened !== prevOpened) {
       setPrevOpened(opened);
 
-      if (!opened) {
+      if (opened) {
+        setLocalFilterChain(activeField === 'output' ? outputFilterChain : null);
+      } else {
         setSearchValue('');
-        setLocalFilterChain(null);
-      } else if (activeField === 'output') {
-        setLocalFilterChain(chainKind === TempleChainKind.EVM ? fromEvmChain : tezosNetwork);
       }
     }
 
     const handleAssetSelect = useCallback(
       (e: MouseEvent, chainSlug: string) => {
         e.preventDefault();
+
+        if (activeField === 'input') {
+          setOutputFilterChain(
+            parseChainAssetSlug(chainSlug)[0] === TempleChainKind.EVM
+              ? { kind: TempleChainKind.EVM, chainId: parseChainAssetSlug(chainSlug, TempleChainKind.EVM)[1] }
+              : tezosNetwork
+          );
+        }
+
         onAssetSelect(chainSlug);
       },
-      [onAssetSelect]
+      [activeField, onAssetSelect, tezosNetwork]
     );
 
     const assetsList = useMemo(() => {
@@ -153,8 +171,12 @@ export const SwapSelectAssetModal = memo<SelectTokenModalProps>(
     ]);
 
     const handleFilterOptionSelect = useCallback(
-      (filterChain: FilterChain | string) => setLocalFilterChain(filterChain),
-      []
+      (filterChain: FilterChain | string) => {
+        setLocalFilterChain(filterChain);
+
+        if (activeField === 'output') setOutputFilterChain(filterChain);
+      },
+      [activeField]
     );
 
     const disabledNetworkPopper = useMemo(
