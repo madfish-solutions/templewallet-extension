@@ -211,10 +211,7 @@ export const TickerPlaceholderCard = ({ tagData, onClose }: TickerPlaceholderCar
   const resolvedAsset = resolved && resolved.resolved ? resolved : null;
   const swappableTarget = resolvedAsset && resolvedAsset.swappable ? resolvedAsset : null;
   const ctaResolving = resolved === null || (resolvedAsset != null && !buyChecked);
-  const buyTokenRef = useMemo(
-    () => (resolvedAsset ? toBuyTokenRef(resolvedAsset.assetSlug) : null),
-    [resolvedAsset]
-  );
+  const buyTokenRef = useMemo(() => (resolvedAsset ? toBuyTokenRef(resolvedAsset.assetSlug) : null), [resolvedAsset]);
 
   return (
     <div className="tw-card">
