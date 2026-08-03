@@ -14,15 +14,20 @@ import { TopUpProviderCurrencies } from './state';
 
 const MOONPAY_ICONS_BASE_URL = 'https://static.moonpay.com/widget/currencies/';
 
-const polygonCodes = ['pol_polygon', 'pol'];
+const irregularMoonpayTokenCodes = [
+  { regex: /^usd1/, iconName: 'usd1.png' },
+  { regex: /^pyusd/, iconName: 'paypal-usd-pyusd-logo.svg' },
+  { regex: /^(pol_polygon|pol)$/, iconName: 'matic.svg' }
+];
 
 const getMoonpayFiatIconUrl = (currencyCode: string) => `${MOONPAY_ICONS_BASE_URL}${currencyCode.toLowerCase()}.svg`;
 
 const getMoonpayTokenIconUrl = (tokenCode: string) => {
   const normalizedTokenCode = tokenCode.toLowerCase();
 
-  if (normalizedTokenCode.includes('usdt')) return `${MOONPAY_ICONS_BASE_URL}usdt.svg`;
-  if (polygonCodes.includes(normalizedTokenCode)) return `${MOONPAY_ICONS_BASE_URL}matic.svg`;
+  const irregularMoonpayTokenMatch = irregularMoonpayTokenCodes.find(code => code.regex.test(normalizedTokenCode));
+
+  if (irregularMoonpayTokenMatch) return `${MOONPAY_ICONS_BASE_URL}${irregularMoonpayTokenMatch.iconName}`;
 
   return `${MOONPAY_ICONS_BASE_URL}${normalizedTokenCode}.svg`;
 };
