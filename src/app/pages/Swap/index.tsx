@@ -353,6 +353,7 @@ const Swap = memo<Props>(() => {
         opened={selectAssetModalOpened}
         onRequestClose={setSelectAssetModalClosed}
         chainKind={activeChainKind}
+        fromChainAssetSlug={selectedChainAssets.from}
       />
       <SwapSettingsModal
         currentSlippageTolerance={slippageTolerance}
