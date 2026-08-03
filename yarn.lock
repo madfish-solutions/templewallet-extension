@@ -4906,6 +4906,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@specify-sh/sdk@npm:0.4.2":
+  version: 0.4.2
+  resolution: "@specify-sh/sdk@npm:0.4.2"
+  dependencies:
+    cross-fetch: "npm:4.0.0"
+  checksum: 10c0/14f0ef4330f0447fffaa6bdb8521b2c15bff06892649725614e6d5229613b02da88f4e84ce4b240d5550551a54ee45c13535181414b25d0cc8c160192305b537
+  languageName: node
+  linkType: hard
+
 "@stablelib/binary@npm:^1.0.1":
   version: 1.0.1
   resolution: "@stablelib/binary@npm:1.0.1"
@@ -9123,6 +9132,15 @@ __metadata:
     cross-env: src/bin/cross-env.js
     cross-env-shell: src/bin/cross-env-shell.js
   checksum: 10c0/f3765c25746c69fcca369655c442c6c886e54ccf3ab8c16847d5ad0e91e2f337d36eedc6599c1227904bf2a228d721e690324446876115bc8e7b32a866735ecf
+  languageName: node
+  linkType: hard
+
+"cross-fetch@npm:4.0.0":
+  version: 4.0.0
+  resolution: "cross-fetch@npm:4.0.0"
+  dependencies:
+    node-fetch: "npm:^2.6.12"
+  checksum: 10c0/386727dc4c6b044746086aced959ff21101abb85c43df5e1d151547ccb6f338f86dec3f28b9dbddfa8ff5b9ec8662ed2263ad4607a93b2dc354fb7fe3bbb898a
   languageName: node
   linkType: hard
 
@@ -18067,6 +18085,7 @@ __metadata:
     "@redux-devtools/remote": "npm:^0.9.5"
     "@reduxjs/toolkit": "npm:^2.11.2"
     "@rnw-community/shared": "npm:^0.48.0"
+    "@specify-sh/sdk": "npm:0.4.2"
     "@svgr/webpack": "npm:^8"
     "@tailwindcss/postcss": "npm:^4.3.3"
     "@taquito/ledger-signer": "npm:^24.3.0"

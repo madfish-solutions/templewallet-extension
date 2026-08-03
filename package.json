@@ -66,6 +66,7 @@
     "@redux-devtools/remote": "^0.9.5",
     "@reduxjs/toolkit": "^2.11.2",
     "@rnw-community/shared": "^0.48.0",
+    "@specify-sh/sdk": "0.4.2",
     "@svgr/webpack": "^8",
     "@tailwindcss/postcss": "^4.3.3",
     "@taquito/ledger-signer": "^24.3.0",

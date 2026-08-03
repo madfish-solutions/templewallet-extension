@@ -14,6 +14,13 @@ export interface SingleProviderPromotionProps {
   onImpression: EmptyFn;
 }
 
+export interface HypelabPromotionProps extends SingleProviderPromotionProps {
+  /** Free campaign slugs */
+  unpaidCampaignSlugs: string[] | undefined;
+  onNoPaidAd: EmptyFn;
+  showNonPaidAd: boolean;
+}
+
 interface HypelabImageCreativeSet {
   image: {
     url: string;
