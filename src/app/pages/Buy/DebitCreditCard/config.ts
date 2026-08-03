@@ -9,7 +9,7 @@ export const FORM_REFRESH_INTERVAL = 30000;
 
 export const VALUE_PLACEHOLDER = '---';
 
-const allProviders = [TopUpProviderId.MoonPay, TopUpProviderId.Utorg];
+const allProviders = [TopUpProviderId.MoonPay, TopUpProviderId.MtPelerin];
 
 export const DEFAULT_INPUT_CURRENCY: TopUpInputInterface = {
   code: 'USD',
@@ -25,14 +25,14 @@ export const DEFAULT_TEZOS_OUTPUT_TOKEN: TopUpOutputInterface = {
   icon: `${MOONPAY_ASSETS_BASE_URL}/widget/currencies/xtz.svg`,
   providers: allProviders,
   precision: 1,
-  slug: toTopUpTokenSlug('XTZ', TempleChainKind.Tezos, TEZOS_MAINNET_CHAIN_ID)
+  slug: toTopUpTokenSlug(null, undefined, TempleChainKind.Tezos, TEZOS_MAINNET_CHAIN_ID)
 };
 
 export const DEFAULT_OUTPUT_TOKEN: TopUpOutputInterface = {
   code: 'ETH',
   name: 'Ethereum',
   icon: `${MOONPAY_ASSETS_BASE_URL}/widget/currencies/eth.svg`,
-  providers: [TopUpProviderId.MoonPay, TopUpProviderId.Utorg],
+  providers: [TopUpProviderId.MoonPay, TopUpProviderId.MtPelerin],
   precision: 1,
-  slug: toTopUpTokenSlug('ETH', TempleChainKind.EVM, ETHEREUM_MAINNET_CHAIN_ID.toString())
+  slug: toTopUpTokenSlug(null, undefined, TempleChainKind.EVM, ETHEREUM_MAINNET_CHAIN_ID.toString())
 };

@@ -11,7 +11,7 @@ export interface TopUpInputInterface {
   precision: number;
 }
 
-export interface TopUpOutputInterface extends Omit<TopUpInputInterface, 'codeToDisplay'> {
+export interface TopUpOutputInterface extends TopUpInputInterface {
   slug: string;
 }
 

@@ -18,20 +18,20 @@ export const usePaymentProviders = (
     outputAmountLoading: moonPayOutputLoading
   } = usePaymentProvider(TopUpProviderId.MoonPay, inputAmount, inputAsset, outputAsset);
   const {
-    errors: utorgErrors,
-    provider: utorgProvider,
-    updateOutputAmount: updateUtorgOutputAmount,
-    outputAmountLoading: utorgOutputLoading
-  } = usePaymentProvider(TopUpProviderId.Utorg, inputAmount, inputAsset, outputAsset);
+    errors: mtPelerinErrors,
+    provider: mtPelerinProvider,
+    updateOutputAmount: updateMtPelerinOutputAmount,
+    outputAmountLoading: mtPelerinOutputLoading
+  } = usePaymentProvider(TopUpProviderId.MtPelerin, inputAmount, inputAsset, outputAsset);
 
-  const allPaymentProviders = useMemo(() => [moonPayProvider, utorgProvider], [moonPayProvider, utorgProvider]);
+  const allPaymentProviders = useMemo(() => [moonPayProvider, mtPelerinProvider], [moonPayProvider, mtPelerinProvider]);
 
   const providersErrors = useMemo(
     () => ({
       [TopUpProviderId.MoonPay]: moonPayErrors,
-      [TopUpProviderId.Utorg]: utorgErrors
+      [TopUpProviderId.MtPelerin]: mtPelerinErrors
     }),
-    [moonPayErrors, utorgErrors]
+    [moonPayErrors, mtPelerinErrors]
   );
 
   const paymentProvidersToDisplay = useMemo(
@@ -41,26 +41,26 @@ export const usePaymentProviders = (
         providersErrors,
         {
           [TopUpProviderId.MoonPay]: moonPayOutputLoading,
-          [TopUpProviderId.Utorg]: utorgOutputLoading
+          [TopUpProviderId.MtPelerin]: mtPelerinOutputLoading
         },
         inputAmount
       ),
-    [allPaymentProviders, providersErrors, inputAmount, moonPayOutputLoading, utorgOutputLoading]
+    [allPaymentProviders, providersErrors, inputAmount, moonPayOutputLoading, mtPelerinOutputLoading]
   );
 
   const updateOutputAmounts = useCallback(
     async (newInputAmount?: number, newInputAsset = inputAsset, newOutputAsset = outputAsset) => {
-      const [moonPayOutputAmount, utorgOutputAmount] = await Promise.all([
+      const [moonPayOutputAmount, mtPelerinOutputAmount] = await Promise.all([
         updateMoonPayOutputAmount(newInputAmount, newInputAsset, newOutputAsset),
-        updateUtorgOutputAmount(newInputAmount, newInputAsset, newOutputAsset)
+        updateMtPelerinOutputAmount(newInputAmount, newInputAsset, newOutputAsset)
       ]);
 
       return {
         [TopUpProviderId.MoonPay]: moonPayOutputAmount,
-        [TopUpProviderId.Utorg]: utorgOutputAmount
+        [TopUpProviderId.MtPelerin]: mtPelerinOutputAmount
       };
     },
-    [inputAsset, outputAsset, updateMoonPayOutputAmount, updateUtorgOutputAmount]
+    [inputAsset, outputAsset, updateMoonPayOutputAmount, updateMtPelerinOutputAmount]
   );
 
   return {

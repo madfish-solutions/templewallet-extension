@@ -9,13 +9,14 @@ import { TopUpOutputInterface } from 'lib/buy-with-credit-card/topup.interface';
 
 export const useAllCryptoCurrencies = () => {
   const moonpayCryptoCurrencies = useCryptoCurrenciesSelector(TopUpProviderId.MoonPay);
-  const utorgCryptoCurrencies = useCryptoCurrenciesSelector(TopUpProviderId.Utorg);
+  const mtPelerinCryptoCurrencies = useCryptoCurrenciesSelector(TopUpProviderId.MtPelerin);
 
   return useMemo(
     () =>
       Object.values(
-        [...moonpayCryptoCurrencies, ...utorgCryptoCurrencies].reduce<Record<string, TopUpOutputInterface>>(
-          (acc, token) => {
+        moonpayCryptoCurrencies
+          .concat(mtPelerinCryptoCurrencies)
+          .reduce<Record<string, TopUpOutputInterface>>((acc, token) => {
             const accToken = acc[token.slug];
 
             if (isDefined(accToken)) {
@@ -28,10 +29,8 @@ export const useAllCryptoCurrencies = () => {
             }
 
             return acc;
-          },
-          {}
-        )
+          }, {})
       ).sort(({ code: aCode }, { code: bCode }) => aCode.localeCompare(bCode)),
-    [moonpayCryptoCurrencies, utorgCryptoCurrencies]
+    [moonpayCryptoCurrencies, mtPelerinCryptoCurrencies]
   );
 };

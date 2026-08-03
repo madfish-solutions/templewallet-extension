@@ -34,7 +34,7 @@ export const SelectTokenModal: FC<Props> = ({ onTokenSelect, onRequestClose, ...
   const enabledTokens = useMemo(
     () =>
       allTokens.filter(token => {
-        const [_, chainKind, chainId] = fromTopUpTokenSlug(token.slug);
+        const [, chainKind, chainId] = fromTopUpTokenSlug(token.slug);
 
         const isTezosNetwork = Boolean(tezosAddress) && chainKind === TempleChainKind.Tezos;
         const isEnabledEvmNetwork = Boolean(evmAddress) && evmChains.some(chain => chain.chainId === Number(chainId));

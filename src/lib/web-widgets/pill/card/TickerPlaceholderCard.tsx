@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 
 import clsx from 'clsx';
 
 import { ReactComponent as SadSearchIcon } from 'app/icons/monochrome/sad-search.svg';
+import { EVM_TOKEN_SLUG, fromAssetSlug, TEZ_TOKEN_SLUG } from 'lib/assets';
 import type { ChartPoint } from 'lib/temple/back/web-widgets/fetch-token-market';
 import type { ResolvedAsset } from 'lib/temple/back/web-widgets/resolve-asset';
 import { TempleChainKind } from 'temple/types';
@@ -109,7 +110,8 @@ export const TickerPlaceholderCard = ({ tagData, onClose }: TickerPlaceholderCar
     if (!resolved || !resolved.resolved) return;
 
     let active = true;
-    const { chainKind, chainId, swappable } = resolved;
+    const { chainKind, chainId, swappable, assetSlug } = resolved;
+    const { tokenAddress, tokenId } = toBuyTokenRef(assetSlug);
 
     const decideCta = async () => {
       if (swappable) {
@@ -120,7 +122,7 @@ export const TickerPlaceholderCard = ({ tagData, onClose }: TickerPlaceholderCar
         if (!active || hasFunds === true) return;
       }
 
-      const result = await messaging.getBuyPreselect(symbol, chainKind, chainId).catch(() => null);
+      const result = await messaging.getBuyPreselect(tokenAddress, tokenId, chainKind, chainId).catch(() => null);
       if (active && result?.supported) setBuyTarget({ chainKind, chainId, fiat: result.fiat });
     };
 
@@ -209,6 +211,10 @@ export const TickerPlaceholderCard = ({ tagData, onClose }: TickerPlaceholderCar
   const resolvedAsset = resolved && resolved.resolved ? resolved : null;
   const swappableTarget = resolvedAsset && resolvedAsset.swappable ? resolvedAsset : null;
   const ctaResolving = resolved === null || (resolvedAsset != null && !buyChecked);
+  const buyTokenRef = useMemo(
+    () => (resolvedAsset ? toBuyTokenRef(resolvedAsset.assetSlug) : null),
+    [resolvedAsset]
+  );
 
   return (
     <div className="tw-card">
@@ -253,9 +259,10 @@ export const TickerPlaceholderCard = ({ tagData, onClose }: TickerPlaceholderCar
           <button className="tw-card__cta tw-card__cta--pending" type="button" disabled>
             <span className="tw-card__spinner tw-card__spinner--sm" />
           </button>
-        ) : buyTarget ? (
+        ) : buyTarget && buyTokenRef ? (
           <BuyButton
-            symbol={symbol}
+            tokenAddress={buyTokenRef.tokenAddress}
+            tokenId={buyTokenRef.tokenId}
             chainKind={buyTarget.chainKind}
             chainId={buyTarget.chainId}
             fiat={buyTarget.fiat}
@@ -280,4 +287,15 @@ export const TickerPlaceholderCard = ({ tagData, onClose }: TickerPlaceholderCar
       )}
     </div>
   );
+};
+
+/** Map wallet asset slug → buy-flow token ref (`null` address for native gas tokens). */
+const toBuyTokenRef = (assetSlug: string) => {
+  const [contract, tokenId] = fromAssetSlug(assetSlug);
+  const isNative = contract === EVM_TOKEN_SLUG || contract === TEZ_TOKEN_SLUG;
+
+  return {
+    tokenAddress: isNative ? null : contract,
+    tokenId: tokenId ? Number(tokenId) : undefined
+  };
 };

@@ -556,7 +556,7 @@ browser.runtime.onMessage.addListener(async (msg, sender) => {
 
       case ContentScriptType.GetBuyPreselect: {
         const { getBuyPreselect } = await importBuyPreselectModule();
-        return await getBuyPreselect(msg.symbol, msg.chainKind, msg.chainId);
+        return await getBuyPreselect(msg.tokenAddress, msg.tokenId, msg.chainKind, msg.chainId);
       }
 
       case ContentScriptType.GetChainFunds: {

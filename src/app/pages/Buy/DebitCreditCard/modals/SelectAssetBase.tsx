@@ -1,6 +1,5 @@
 import React, { useCallback, useMemo, useState } from 'react';
 
-import { isDefined } from '@rnw-community/shared';
 import { useDebounce } from 'use-debounce';
 
 import { EmptyState } from 'app/atoms/EmptyState';
@@ -8,6 +7,7 @@ import { PageLoader } from 'app/atoms/Loader';
 import { PageModal } from 'app/atoms/PageModal';
 import { SearchBarField } from 'app/templates/SearchField';
 import { getAssetSymbolToDisplay } from 'lib/buy-with-credit-card/get-asset-symbol-to-display';
+import { TopUpProviderId } from 'lib/buy-with-credit-card/top-up-provider-id.enum';
 import { fromTopUpTokenSlug } from 'lib/buy-with-credit-card/top-up-token-slug.utils';
 import { TopUpInputInterface, TopUpOutputInterface } from 'lib/buy-with-credit-card/topup.interface';
 import { isSearchStringApplicable, searchAndFilterItems } from 'lib/utils/search-items';
@@ -49,7 +49,7 @@ export const SelectAssetBase = <T extends Asset>({ assets, loading, onCurrencySe
         ) : (
           <>
             {searchedAssets.map(asset => (
-              <Asset key={asset.code} asset={asset} onClick={onCurrencySelect} />
+              <Asset key={'slug' in asset ? asset.slug : asset.code} asset={asset} onClick={onCurrencySelect} />
             ))}
           </>
         )}
@@ -68,9 +68,9 @@ const Asset = <T extends Asset>({ asset, onClick }: AssetProps<T>) => {
   const allEvmChains = useAllEvmChains();
 
   const networkName = useMemo(() => {
-    if (isFiat(asset)) return;
+    if (!isCrypto(asset)) return;
 
-    const [_, chainKind, chainId] = fromTopUpTokenSlug(asset.slug);
+    const [, chainKind, chainId] = fromTopUpTokenSlug(asset.slug);
 
     if (chainKind === TempleChainKind.Tezos) return tezosMainnet.name;
 
@@ -87,7 +87,12 @@ const Asset = <T extends Asset>({ asset, onClick }: AssetProps<T>) => {
       onClick={handleClick}
     >
       <div className="flex items-center gap-x-2 min-h-10">
-        <AssetIcon useFlagIcon={isFiat(asset)} src={asset.icon} code={asset.code} />
+        <AssetIcon
+          useFlagIcon={!isCrypto(asset)}
+          src={asset.icon}
+          code={asset.code}
+          rounded={asset.providers.length !== 1 || asset.providers[0] !== TopUpProviderId.MtPelerin}
+        />
 
         <div className="flex flex-col">
           <span className="text-font-medium">{getAssetSymbolToDisplay(asset)}</span>
@@ -101,7 +106,7 @@ const Asset = <T extends Asset>({ asset, onClick }: AssetProps<T>) => {
   );
 };
 
-const isFiat = (asset: Asset): asset is TopUpInputInterface => !isDefined((asset as TopUpOutputInterface).slug);
+const isCrypto = (asset: Asset): asset is TopUpOutputInterface => 'slug' in asset && Boolean(asset.slug);
 
 const searchAndFilterAssets = <T extends Asset>(assets: T[], searchValue: string) =>
   searchAndFilterItems(assets, searchValue.trim(), [

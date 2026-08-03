@@ -5,11 +5,11 @@ import { SubmitHandler } from 'react-hook-form';
 import browser from 'webextension-polyfill';
 
 import { useCryptoCurrenciesSelector } from 'app/store/buy-with-credit-card/selectors';
-import { useUserIdSelector } from 'app/store/settings/selectors';
 import { toastError } from 'app/toaster';
 import { useFormAnalytics } from 'lib/analytics';
+import { buildMtPelerinBuyUrl } from 'lib/apis/mt-pelerin';
 import { getMoonpaySign } from 'lib/apis/temple';
-import { createOrder as createUtorgOrder } from 'lib/apis/utorg';
+import { getMtPelerinNetworkByChain } from 'lib/buy-with-credit-card/provider-currencies.utils';
 import { TopUpProviderId } from 'lib/buy-with-credit-card/top-up-provider-id.enum';
 import { fromTopUpTokenSlug } from 'lib/buy-with-credit-card/top-up-token-slug.utils';
 import { TopUpOutputInterface } from 'lib/buy-with-credit-card/topup.interface';
@@ -25,19 +25,18 @@ export const useBuyWithCreditCardFormSubmit = () => {
   const [purchaseLinkLoading, setPurchaseLinkLoading] = useState(false);
 
   const formAnalytics = useFormAnalytics('BuyWithCreditCardForm');
-  const userId = useUserIdSelector();
 
   const tezosAddress = useAccountAddressForTezos();
   const evmAddress = useAccountAddressForEvm();
 
   const moonpayCryptoCurrencies = useCryptoCurrenciesSelector(TopUpProviderId.MoonPay);
-  const utorgCryptoCurrencies = useCryptoCurrenciesSelector(TopUpProviderId.Utorg);
+  const mtPelerinCryptoCurrencies = useCryptoCurrenciesSelector(TopUpProviderId.MtPelerin);
 
   const onSubmit = useCallback<SubmitHandler<BuyWithCreditCardFormData>>(
     async formValues => {
       const { inputAmount, inputCurrency, outputAmount, outputToken, provider } = formValues;
 
-      const [_, chainKind] = fromTopUpTokenSlug(outputToken.slug);
+      const [, chainKind, chainId] = fromTopUpTokenSlug(outputToken.slug);
 
       const publicKeyHash = chainKind === TempleChainKind.Tezos ? tezosAddress : evmAddress;
 
@@ -75,14 +74,20 @@ export const useBuyWithCreditCardFormSubmit = () => {
               inputCurrency.code
             );
             break;
-          case TopUpProviderId.Utorg:
-            url = await createUtorgOrder(
-              outputAmount,
-              inputCurrency.code,
-              publicKeyHash!,
-              getProviderTokenCode(utorgCryptoCurrencies, outputToken.slug)
-            );
+          case TopUpProviderId.MtPelerin: {
+            const network = getMtPelerinNetworkByChain(chainKind, chainId);
+            if (!network) {
+              throw new Error(`Mt Pelerin network is not configured for chain ${chainId}`);
+            }
+
+            url = buildMtPelerinBuyUrl({
+              fiatCode: inputCurrency.code,
+              cryptoCode: getProviderTokenCode(mtPelerinCryptoCurrencies, outputToken.slug),
+              sourceAmount: inputAmount,
+              network
+            });
             break;
+          }
           default:
             return assertUnreachable(provider.id);
         }
@@ -96,7 +101,7 @@ export const useBuyWithCreditCardFormSubmit = () => {
         setPurchaseLinkLoading(false);
       }
     },
-    [evmAddress, formAnalytics, moonpayCryptoCurrencies, tezosAddress, userId, utorgCryptoCurrencies]
+    [evmAddress, formAnalytics, moonpayCryptoCurrencies, mtPelerinCryptoCurrencies, tezosAddress]
   );
 
   return {

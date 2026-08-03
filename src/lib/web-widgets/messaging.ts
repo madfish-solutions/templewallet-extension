@@ -49,10 +49,16 @@ export const openFullPage = (hash: string): Promise<void> =>
     hash
   });
 
-export const getBuyPreselect = (symbol: string, chainKind: TempleChainKind, chainId: string): Promise<BuyPreselect> =>
+export const getBuyPreselect = (
+  tokenAddress: string | null,
+  tokenId: number | undefined,
+  chainKind: TempleChainKind,
+  chainId: string
+): Promise<BuyPreselect> =>
   browser.runtime.sendMessage({
     type: ContentScriptType.GetBuyPreselect,
-    symbol,
+    tokenAddress,
+    tokenId,
     chainKind,
     chainId
   });

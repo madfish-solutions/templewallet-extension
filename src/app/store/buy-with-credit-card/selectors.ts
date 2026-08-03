@@ -20,9 +20,9 @@ const useCurrenciesByProviderLoadingSelector = (topUpProvider: TopUpProviderId) 
 
 export const useCurrenciesLoadingSelector = () => {
   const moonPayLoading = useCurrenciesByProviderLoadingSelector(TopUpProviderId.MoonPay);
-  const utorgLoading = useCurrenciesByProviderLoadingSelector(TopUpProviderId.Utorg);
+  const mtPelerinLoading = useCurrenciesByProviderLoadingSelector(TopUpProviderId.MtPelerin);
 
-  return moonPayLoading || utorgLoading;
+  return moonPayLoading || mtPelerinLoading;
 };
 
 const useCurrenciesErrorSelector = (topUpProvider: TopUpProviderId) =>
@@ -30,14 +30,14 @@ const useCurrenciesErrorSelector = (topUpProvider: TopUpProviderId) =>
 
 export const useCurrenciesErrorsSelector = () => {
   const moonPayError = useCurrenciesErrorSelector(TopUpProviderId.MoonPay);
-  const utorgError = useCurrenciesErrorSelector(TopUpProviderId.Utorg);
+  const mtPelerinError = useCurrenciesErrorSelector(TopUpProviderId.MtPelerin);
 
   return useMemo(
     () => ({
       [TopUpProviderId.MoonPay]: moonPayError,
-      [TopUpProviderId.Utorg]: utorgError
+      [TopUpProviderId.MtPelerin]: mtPelerinError
     }),
-    [moonPayError, utorgError]
+    [moonPayError, mtPelerinError]
   );
 };
 
@@ -60,13 +60,13 @@ const usePairLimitsErrorSelector = (fiatSymbol: string, cryptoSlug: string, topU
 
 export const usePairLimitsErrorsSelector = (fiatSymbol: string, cryptoSlug: string) => {
   const moonPayError = usePairLimitsErrorSelector(fiatSymbol, cryptoSlug, TopUpProviderId.MoonPay);
-  const utorgError = usePairLimitsErrorSelector(fiatSymbol, cryptoSlug, TopUpProviderId.Utorg);
+  const mtPelerinError = usePairLimitsErrorSelector(fiatSymbol, cryptoSlug, TopUpProviderId.MtPelerin);
 
   return useMemo(
     () => ({
       [TopUpProviderId.MoonPay]: moonPayError,
-      [TopUpProviderId.Utorg]: utorgError
+      [TopUpProviderId.MtPelerin]: mtPelerinError
     }),
-    [moonPayError, utorgError]
+    [moonPayError, mtPelerinError]
   );
 };

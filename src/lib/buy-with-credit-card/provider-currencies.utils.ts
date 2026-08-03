@@ -6,25 +6,40 @@ import {
   CurrencyType as MoonPayCurrencyType,
   FiatCurrency as MoonPayFiatCurrency
 } from 'lib/apis/moonpay';
-import { CurrencyInfoType as UtorgCurrencyInfoType, UtorgCurrencyInfo } from 'lib/apis/utorg';
+import { MtPelerinFiatCurrency, MtPelerinToken } from 'lib/apis/temple';
+import { EVM_ZERO_ADDRESS } from 'lib/constants';
 import { TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
 import { TempleChainKind } from 'temple/types';
 
 import { toTopUpTokenSlug } from './top-up-token-slug.utils';
 
-const utorgChainChainIdMap: Record<string, string> = {
-  ARBITRUM: '42161',
-  AVALANCHE: '43114',
-  POLYGON: '137',
-  ETHEREUM: '1',
-  BINANCE_SMART_CHAIN: '56',
-  VECHAIN: '100009'
+const mtPelerinNetworkChainIdMap: Record<string, string> = {
+  mainnet: '1',
+  optimism_mainnet: '10',
+  rsk_mainnet: '30',
+  bsc_mainnet: '56',
+  xdai_mainnet: '100',
+  matic_mainnet: '137',
+  fantom_mainnet: '250',
+  zksync_mainnet: '324',
+  arbitrum_mainnet: '42161',
+  celo_mainnet: '42220',
+  avalanche_mainnet: '43114',
+  base_mainnet: '8453',
+  sonic_mainnet: '146'
 };
 
 const isMoonPayTezosNetwork = (metadata: MoonPayCryptoCurrency['metadata']) =>
   metadata.networkCode.toLowerCase() === 'tezos';
 
-const isUtorgTezosChain = (chain?: string) => chain === 'TEZOS';
+const isMtPelerinTezosNetwork = (network: string) => network === 'tezos_mainnet';
+
+/** Null/empty/zero-address → native gas token; anything else is kept for slug building. */
+const toContractAddressOrNative = (address: string | null | undefined): string | null => {
+  if (!address?.trim()) return null;
+
+  return address.toLowerCase() === EVM_ZERO_ADDRESS.toLowerCase() ? null : address;
+};
 
 export const isEligibleMoonPayFiat = (currency: MoonPayCurrency): currency is MoonPayFiatCurrency =>
   currency.type === MoonPayCurrencyType.Fiat && currency.isSellSupported;
@@ -35,28 +50,29 @@ export const isEligibleMoonPayCrypto = (currency: MoonPayCurrency): currency is 
   !currency.isSuspended &&
   (isMoonPayTezosNetwork(currency.metadata) || isDefined(currency.metadata.chainId));
 
-export const isEligibleUtorgFiat = ({ type, depositMax }: UtorgCurrencyInfo) =>
-  type === UtorgCurrencyInfoType.FIAT && depositMax > 0;
+export const isEligibleMtPelerinFiat = ({ isBuySupported }: MtPelerinFiatCurrency) => isBuySupported;
 
-type UtorgCryptoWithChain = UtorgCurrencyInfo & { chain: string };
+export const isEligibleMtPelerinCrypto = ({ network }: MtPelerinToken) =>
+  isMtPelerinTezosNetwork(network) || isDefined(mtPelerinNetworkChainIdMap[network]);
 
-export const isEligibleUtorgCrypto = (currency: UtorgCurrencyInfo): currency is UtorgCryptoWithChain =>
-  currency.type === UtorgCurrencyInfoType.CRYPTO &&
-  currency.depositMax > 0 &&
-  currency.enabled &&
-  isDefined(currency.chain) &&
-  (isDefined(utorgChainChainIdMap[currency.chain]) || isUtorgTezosChain(currency.chain));
-
-export const moonPayCryptoToTopUpSlug = ({ code, metadata }: MoonPayCryptoCurrency) =>
+export const moonPayCryptoToTopUpSlug = ({ metadata }: MoonPayCryptoCurrency) =>
   toTopUpTokenSlug(
-    code.toUpperCase().split('_')[0],
+    toContractAddressOrNative(metadata.contractAddress),
+    undefined,
     isMoonPayTezosNetwork(metadata) ? TempleChainKind.Tezos : TempleChainKind.EVM,
     isDefined(metadata.chainId) ? metadata.chainId : TEZOS_MAINNET_CHAIN_ID
   );
 
-export const utorgCryptoToTopUpSlug = ({ display, chain }: UtorgCryptoWithChain) =>
+export const mtPelerinCryptoToTopUpSlug = ({ network, tokenId, address }: MtPelerinToken) =>
   toTopUpTokenSlug(
-    display,
-    isUtorgTezosChain(chain) ? TempleChainKind.Tezos : TempleChainKind.EVM,
-    isUtorgTezosChain(chain) ? TEZOS_MAINNET_CHAIN_ID : utorgChainChainIdMap[chain]
+    toContractAddressOrNative(address),
+    tokenId,
+    isMtPelerinTezosNetwork(network) ? TempleChainKind.Tezos : TempleChainKind.EVM,
+    isMtPelerinTezosNetwork(network) ? TEZOS_MAINNET_CHAIN_ID : mtPelerinNetworkChainIdMap[network]
   );
+
+export const getMtPelerinNetworkByChain = (chainKind: TempleChainKind, chainId: string) => {
+  if (chainKind === TempleChainKind.Tezos) return 'tezos_mainnet';
+
+  return Object.entries(mtPelerinNetworkChainIdMap).find(([, networkChainId]) => networkChainId === chainId)?.[0];
+};
