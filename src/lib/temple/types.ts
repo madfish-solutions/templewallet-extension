@@ -476,6 +476,8 @@ export enum TempleMessageType {
   OperationsResponse = 'TEMPLE_OPERATIONS_RESPONSE',
   SignRequest = 'TEMPLE_SIGN_REQUEST',
   SignResponse = 'TEMPLE_SIGN_RESPONSE',
+  SilentSignRequest = 'TEMPLE_SILENT_SIGN_REQUEST',
+  SilentSignResponse = 'TEMPLE_SILENT_SIGN_RESPONSE',
   ConfirmationRequest = 'TEMPLE_CONFIRMATION_REQUEST',
   ConfirmationResponse = 'TEMPLE_CONFIRMATION_RESPONSE',
   ConfirmationWindowDetachRequest = 'TEMPLE_CONFIRMATION_WINDOW_DETACH_REQUEST',
@@ -561,6 +563,7 @@ export type TempleRequest =
   | TempleCreateLedgerAccountRequest
   | TempleOperationsRequest
   | TempleSignRequest
+  | TempleSilentSignRequest
   | TempleConfirmationRequest
   | TempleConfirmationWindowDetachRequest
   | TempleRemoveAccountRequest
@@ -611,6 +614,7 @@ export type TempleResponse =
   | TempleCreateLedgerAccountResponse
   | TempleOperationsResponse
   | TempleSignResponse
+  | TempleSilentSignResponse
   | TempleConfirmationResponse
   | TempleConfirmationWindowDetachResponse
   | TempleRemoveAccountResponse
@@ -988,6 +992,18 @@ interface TempleSignRequest extends TempleMessageBase {
 interface TempleSignResponse extends TempleMessageBase {
   type: TempleMessageType.SignResponse;
   result: any;
+}
+
+interface TempleSilentSignRequest extends TempleMessageBase {
+  type: TempleMessageType.SilentSignRequest;
+  accountPkh: string;
+  message: string;
+  watermark?: string;
+}
+
+interface TempleSilentSignResponse extends TempleMessageBase {
+  type: TempleMessageType.SilentSignResponse;
+  result: string;
 }
 
 interface TempleConfirmationRequest extends TempleMessageBase {

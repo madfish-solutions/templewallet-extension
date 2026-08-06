@@ -589,6 +589,14 @@ export function sign(
   );
 }
 
+export async function silentSign(accountPkh: string, bytes: string, watermark?: string) {
+  return withUnlocked(({ vault }) => vault.sign(accountPkh, bytes, watermark));
+}
+
+export async function silentEvmSign(accountPkh: string, bytes: string) {
+  return withUnlocked(({ vault }) => vault.signEvmMessage(accountPkh, bytes));
+}
+
 export async function processDApp(origin: string, req: TempleDAppRequest): Promise<TempleDAppResponse | void> {
   switch (req?.type) {
     case TempleDAppMessageType.GetCurrentPermissionRequest:

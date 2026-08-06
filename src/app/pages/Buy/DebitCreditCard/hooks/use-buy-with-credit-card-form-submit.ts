@@ -14,6 +14,7 @@ import { TopUpProviderId } from 'lib/buy-with-credit-card/top-up-provider-id.enu
 import { fromTopUpTokenSlug } from 'lib/buy-with-credit-card/top-up-token-slug.utils';
 import { TopUpOutputInterface } from 'lib/buy-with-credit-card/topup.interface';
 import { t } from 'lib/i18n';
+import { useTempleClient } from 'lib/temple/front';
 import { getAxiosQueryErrorMessage } from 'lib/utils/get-axios-query-error-message';
 import { assertUnreachable } from 'lib/utils/switch-cases';
 import { useAccountAddressForEvm, useAccountAddressForTezos } from 'temple/front';
@@ -22,6 +23,7 @@ import { TempleChainKind } from 'temple/types';
 import { BuyWithCreditCardFormData } from '../types';
 
 export const useBuyWithCreditCardFormSubmit = () => {
+  const { silentSign } = useTempleClient();
   const [purchaseLinkLoading, setPurchaseLinkLoading] = useState(false);
 
   const formAnalytics = useFormAnalytics('BuyWithCreditCardForm');
@@ -80,11 +82,23 @@ export const useBuyWithCreditCardFormSubmit = () => {
               throw new Error(`Mt Pelerin network is not configured for chain ${chainId}`);
             }
 
+            const accountPkh = chainKind === TempleChainKind.Tezos ? tezosAddress : evmAddress;
+
+            if (!accountPkh) {
+              throw new Error('There is no account address for the selected asset');
+            }
+
+            const code = (1000 + Math.floor(Math.random() * 9000)).toString();
+            const signature = await silentSign(accountPkh, `MtPelerin-${code}`);
+
             url = buildMtPelerinBuyUrl({
               fiatCode: inputCurrency.code,
               cryptoCode: getProviderTokenCode(mtPelerinCryptoCurrencies, outputToken.slug),
               sourceAmount: inputAmount,
-              network
+              network,
+              accountPkh,
+              code,
+              signature
             });
             break;
           }

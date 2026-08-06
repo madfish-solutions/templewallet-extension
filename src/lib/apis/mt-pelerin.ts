@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { isHex } from 'viem';
 
 import { EnvVars } from 'lib/env';
 import { getCurrentLocale } from 'lib/i18n';
@@ -29,6 +30,9 @@ interface BuildMtPelerinBuyUrlParams {
   cryptoCode: string;
   sourceAmount: number;
   network: string;
+  accountPkh: string;
+  code: string;
+  signature: string;
 }
 
 const getMtPelerinLang = () => {
@@ -37,7 +41,15 @@ const getMtPelerinLang = () => {
   return localeBase && MT_PELERIN_SUPPORTED_LANGS.has(localeBase) ? localeBase : 'en';
 };
 
-export const buildMtPelerinBuyUrl = ({ fiatCode, cryptoCode, sourceAmount, network }: BuildMtPelerinBuyUrlParams) => {
+export const buildMtPelerinBuyUrl = ({
+  fiatCode,
+  cryptoCode,
+  sourceAmount,
+  network,
+  accountPkh,
+  code,
+  signature
+}: BuildMtPelerinBuyUrlParams) => {
   const url = new URL(MT_PELERIN_WIDGET_URL);
 
   url.searchParams.set('_ctkn', EnvVars.MT_PELERIN_ACTIVATION_KEY);
@@ -56,6 +68,15 @@ export const buildMtPelerinBuyUrl = ({ fiatCode, cryptoCode, sourceAmount, netwo
   url.searchParams.set('pm', 'card');
   url.searchParams.set('primary', MT_PELERIN_PRIMARY_COLOR);
   url.searchParams.set('mylogo', MT_PELERIN_LOGO_URL);
+  url.searchParams.set('addr', accountPkh);
+  url.searchParams.set('code', code);
+  // TODO: Figure out correct encoding for Tezos signature
+  url.searchParams.set(
+    'hash',
+    isHex(signature)
+      ? Buffer.from(signature.slice(2), 'hex').toString('base64')
+      : Buffer.from(signature, 'utf-8').toString('base64')
+  );
 
   return url.toString();
 };
