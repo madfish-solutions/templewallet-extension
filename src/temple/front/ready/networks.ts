@@ -201,7 +201,7 @@ function useChains<T extends OneOfChains>(
 
       const defaultRpc = defaultNetworks.find(n => n.chainId === chainId);
       const { name: fallbackName, nameI18nKey } = defaultRpc ?? activeRpc;
-      const name = specs?.name ?? fallbackName;
+      const name = specs?.name || fallbackName;
       const chainBlockExplorers = allBlockExplorers[chainKind]?.[chainId] ?? [];
 
       const baseProps: ChainBaseProps<T> = {
@@ -238,7 +238,7 @@ function useChains<T extends OneOfChains>(
 }
 
 const getCurrency = (chainId: number, specsCurrency?: EvmNativeTokenMetadata): EvmNativeTokenMetadata => {
-  if (specsCurrency) return specsCurrency;
+  if (specsCurrency) return { ...DEFAULT_EVM_CURRENCY, ...specsCurrency };
 
   const viemChain = getViemChainByChainId(chainId);
 
