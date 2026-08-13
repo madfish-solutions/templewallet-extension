@@ -40,7 +40,7 @@ const inputId = 'new-network-name';
 export const NameInput = memo(({ namesToExclude, onChainSelect }: NameInputProps) => {
   // React Compiler memoizes the `register('name', ...)` call, but RHF `reset()` empties its fields
   // registry, relying on `register` re-running on the next render; a memoized call never re-runs, so
-  // the field silently loses validation. See TW-2339.
+  // the field silently loses validation.
   'use no memo';
 
   const existentEvmChains = useAllEvmChains();
