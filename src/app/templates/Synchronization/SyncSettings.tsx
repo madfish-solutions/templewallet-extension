@@ -13,6 +13,7 @@ import { T, t } from 'lib/i18n';
 import { useTempleClient } from 'lib/temple/front';
 import { TempleAccountType } from 'lib/temple/types';
 import { useVanishingState } from 'lib/ui/hooks';
+import { shouldDisableSubmitButton } from 'lib/ui/should-disable-submit-button';
 import { useAccount } from 'temple/front';
 
 import { QrCodeModal } from './QrCodeModal';
@@ -52,9 +53,7 @@ const SyncSettings: FC = () => {
     }
   );
 
-  const { errors, isSubmitting, isValid, submitCount } = formState;
-
-  const formSubmitted = submitCount > 0;
+  const { errors, isSubmitting } = formState;
 
   const resetPayload = useCallback(() => void setPayload(null), [setPayload]);
 
@@ -92,7 +91,7 @@ const SyncSettings: FC = () => {
           size="L"
           color="primary"
           loading={isSubmitting}
-          disabled={formSubmitted && !isValid}
+          disabled={shouldDisableSubmitButton({ errors, formState })}
           testID={SyncSettingsSelectors.syncButton}
         >
           <T id="sync" />

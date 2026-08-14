@@ -1,7 +1,15 @@
 import React, { FC, FocusEventHandler, useCallback, useMemo, useRef, useState } from 'react';
 
 import BigNumber from 'bignumber.js';
-import { Controller, SubmitErrorHandler, SubmitHandler, useFormContext, useWatch, Validate } from 'react-hook-form';
+import {
+  Controller,
+  SubmitErrorHandler,
+  SubmitHandler,
+  useFormContext,
+  useFormState,
+  useWatch,
+  Validate
+} from 'react-hook-form';
 import { useDebounce } from 'use-debounce';
 
 import { Button, NoSpaceField } from 'app/atoms';
@@ -18,6 +26,7 @@ import { toChainAssetSlug } from 'lib/assets/utils';
 import { useFiatCurrency } from 'lib/fiat-currency';
 import { t, T } from 'lib/i18n';
 import { useBooleanState } from 'lib/ui/hooks';
+import { shouldDisableSubmitButton } from 'lib/ui/should-disable-submit-button';
 import { readClipboard } from 'lib/ui/utils';
 import { ZERO } from 'lib/utils/numbers';
 import { OneOfChains } from 'temple/front';
@@ -76,8 +85,12 @@ export const BaseForm: FC<Props> = ({
 
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
-  const { handleSubmit, control, setValue, getValues, formState } = useFormContext<SendFormData>();
-  const { isSubmitting, submitCount, isValid } = formState;
+  const { handleSubmit, control, setValue, getValues } = useFormContext<SendFormData>();
+  // Subscribing through `useFormState` instead of the context `formState`: React Compiler caches
+  // `<FormProvider {...form}>` on the stable `form` object, so context consumers don't re-render on
+  // form state changes; this hook owns its subscription and re-renders this component directly
+  const formState = useFormState<SendFormData>({ control });
+  const { isSubmitting, submitCount, errors } = formState;
 
   const formSubmitted = submitCount > 0;
 
@@ -310,7 +323,7 @@ export const BaseForm: FC<Props> = ({
           size="L"
           color="primary"
           loading={maxEstimating || isSubmitting}
-          disabled={formSubmitted && !isValid}
+          disabled={shouldDisableSubmitButton({ errors, formState })}
           testID={SendFormSelectors.sendButton}
         >
           Review
