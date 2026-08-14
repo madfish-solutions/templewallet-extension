@@ -86,9 +86,7 @@ export const BaseForm: FC<Props> = ({
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   const { handleSubmit, control, setValue, getValues } = useFormContext<SendFormData>();
-  // Subscribing through `useFormState` instead of the context `formState`: React Compiler caches
-  // `<FormProvider {...form}>` on the stable `form` object, so context consumers don't re-render on
-  // form state changes; this hook owns its subscription and re-renders this component directly
+  // React Compiler caches `<FormProvider {...form}>` on RHF's stable form, so context consumers stop re-rendering
   const formState = useFormState<SendFormData>({ control });
   const { isSubmitting, submitCount, errors } = formState;
 

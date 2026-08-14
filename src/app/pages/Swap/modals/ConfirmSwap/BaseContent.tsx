@@ -1,7 +1,7 @@
 import React, { useCallback } from 'react';
 
 import BigNumber from 'bignumber.js';
-import { SubmitHandler, useFormContext } from 'react-hook-form';
+import { SubmitHandler, useFormContext, useFormState } from 'react-hook-form';
 
 import { FadeTransition } from 'app/a11y/FadeTransition';
 import { Loader } from 'app/atoms';
@@ -75,7 +75,9 @@ export const BaseContent = <T extends TxParamsFormData>({
   bridgeData,
   submitDisabled
 }: BaseContentProps<T>) => {
-  const { formState } = useFormContext<T>();
+  const { control } = useFormContext<T>();
+  // React Compiler caches `<FormProvider {...form}>` on RHF's stable form, so context consumers stop re-rendering
+  const formState = useFormState<T>({ control });
 
   const goToFeeTab = useCallback(() => setSelectedTab('fee'), [setSelectedTab]);
 

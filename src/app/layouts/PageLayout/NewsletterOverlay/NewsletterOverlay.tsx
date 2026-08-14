@@ -17,6 +17,7 @@ import { newsletterApi } from 'lib/apis/newsletter';
 import { useYupValidationResolver } from 'lib/form/use-yup-validation-resolver';
 import { T } from 'lib/i18n/react';
 import { useTempleClient } from 'lib/temple/front';
+import { shouldDisableSubmitButton } from 'lib/ui/should-disable-submit-button';
 import { useLocation } from 'lib/woozie';
 import { HOME_PAGE_PATH } from 'lib/woozie/config';
 
@@ -50,7 +51,7 @@ export const NewsletterOverlay = memo(() => {
   });
   const { errors } = formState;
   const email = useWatch({ name: 'email', control });
-  const isValid = Object.keys(errors).length === 0;
+  const isValid = !shouldDisableSubmitButton({ errors, formState, disableWhileSubmitting: false });
 
   const [isLoading, setIsLoading] = useState(false);
   const [successSubscribing, setSuccessSubscribing] = useState(false);

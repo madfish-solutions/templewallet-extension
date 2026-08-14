@@ -28,6 +28,9 @@ interface EditChainModalProps {
 }
 
 export const EditChainModal = memo<EditChainModalProps>(({ chain, onClose, onSubmit }) => {
+  // Compiler-cached `register(...)` would not re-run after RHF `reset()` clears the field registry
+  'use no memo';
+
   const { abort } = useAbortSignal();
   const { namesToExclude } = useNetworksValuesToExclude(chain);
   const [submitError, setSubmitError] = useState<string | null>(null);

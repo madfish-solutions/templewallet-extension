@@ -10,6 +10,8 @@ interface DisableSubmitButtonConfig<T extends FieldValues = FieldValues> {
   disableWhileSubmitting?: boolean;
 }
 
+// Takes `formState` besides `errors` on purpose: RHF mutates `errors` in place, so a React Compiler
+// cache keyed on it alone would never recompute
 export const shouldDisableSubmitButton = <T extends FieldValues = FieldValues>({
   errors,
   formState,
