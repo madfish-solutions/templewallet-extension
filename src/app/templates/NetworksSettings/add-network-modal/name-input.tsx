@@ -14,7 +14,7 @@ import {
 
 import clsx from 'clsx';
 import { uniqBy } from 'lodash';
-import { useFormContext, useWatch } from 'react-hook-form';
+import { useFormContext, useFormState, useWatch } from 'react-hook-form';
 
 import { FormField } from 'app/atoms';
 import { FormFieldElement } from 'app/atoms/FormField';
@@ -38,14 +38,13 @@ interface NameInputProps {
 const inputId = 'new-network-name';
 
 export const NameInput = memo(({ namesToExclude, onChainSelect }: NameInputProps) => {
-  // React Compiler memoizes the `register('name', ...)` call, but RHF `reset()` empties its fields
-  // registry, relying on `register` re-running on the next render; a memoized call never re-runs, so
-  // the field silently loses validation.
+  // Compiler-cached `register(...)` would not re-run after RHF `reset()` clears the field registry
   'use no memo';
 
   const existentEvmChains = useAllEvmChains();
-  const { control, register, setValue, formState } = useFormContext<AddNetworkFormValues>();
-  const { submitCount, errors } = formState;
+  const { control, register, setValue } = useFormContext<AddNetworkFormValues>();
+  // React Compiler caches `<FormProvider {...form}>` on RHF's stable form, so context consumers stop re-rendering
+  const { submitCount, errors } = useFormState<AddNetworkFormValues>({ control });
   const inputValue = useWatch({ control, name: 'name' });
   const wasSubmitted = submitCount > 0;
 
