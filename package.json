@@ -1,6 +1,6 @@
 {
   "name": "temple-wallet",
-  "version": "2.0.30",
+  "version": "2.0.31",
   "private": true,
   "packageManager": "yarn@4.15.0",
   "scripts": {
@@ -269,6 +269,6 @@
     "viem/ws": "^8.21.0"
   },
   "optionalDependencies": {
-    "@temple-wallet/extension-ads": "22.0.0-beta.0"
+    "@temple-wallet/extension-ads": "22.1.0-beta.0"
   }
 }
