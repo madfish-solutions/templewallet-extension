@@ -67,6 +67,24 @@ const validateTezosAddress = (value: string) => {
   return !value || isValidTezosImplicitAddress(value) || t('invalidAddress');
 };
 
+const validateMnemonicDerivationPath = (value: string) => {
+  const basicValidationResult = validateDerivationPath(value);
+
+  if (basicValidationResult !== true || !value) return basicValidationResult;
+
+  // viem allows unhardened indexes, while `ed25519-hd-key` requires all of them to be hardened
+  const segmentsRegex = isEvmDerivationPath(value) ? /^m(\/\d+'?)+$/ : /^m(\/\d+')+$/;
+
+  if (!segmentsRegex.test(value)) return t('invalidDerivationPath');
+
+  const indexesOverflow = value
+    .split('/')
+    .slice(1)
+    .some(part => Number(part.endsWith("'") ? part.slice(0, -1) : part) > 0x7fffffff);
+
+  return !indexesOverflow || t('invalidDerivationPath');
+};
+
 export const MnemonicForm = memo<ImportAccountFormProps>(({ onSuccess }) => {
   const { createOrImportWallet, importMnemonicAccount, importAccount } = useTempleClient();
   const formAnalytics = useFormAnalytics(ImportAccountFormType.Mnemonic);
@@ -252,7 +270,7 @@ export const MnemonicForm = memo<ImportAccountFormProps>(({ onSuccess }) => {
         <Controller
           name="derivationPath"
           control={control}
-          rules={{ validate: validateDerivationPath }}
+          rules={{ validate: validateMnemonicDerivationPath }}
           render={({ field }) => (
             <FormField
               {...field}

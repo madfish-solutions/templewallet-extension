@@ -13,6 +13,7 @@ import { T, t } from 'lib/i18n';
 import { useTempleClient } from 'lib/temple/front';
 import { TempleAccountType } from 'lib/temple/types';
 import { useVanishingState } from 'lib/ui/hooks';
+import { useShakeOnErrorTrigger } from 'lib/ui/hooks/use-shake-on-error-trigger';
 import { shouldDisableSubmitButton } from 'lib/ui/should-disable-submit-button';
 import { useAccount } from 'temple/front';
 
@@ -53,7 +54,9 @@ const SyncSettings: FC = () => {
     }
   );
 
-  const { errors, isSubmitting } = formState;
+  const { errors, isSubmitting, submitCount } = formState;
+
+  const passwordShakeTrigger = useShakeOnErrorTrigger(submitCount, errors.password);
 
   const resetPayload = useCallback(() => void setPayload(null), [setPayload]);
 
@@ -76,6 +79,7 @@ const SyncSettings: FC = () => {
                 label={t('syncSettingsPassword')}
                 placeholder={DEFAULT_PASSWORD_INPUT_PLACEHOLDER}
                 errorCaption={errors.password?.message}
+                shakeTrigger={passwordShakeTrigger}
                 testID={SyncSettingsSelectors.passwordInput}
                 containerClassName="mt-6"
               />
