@@ -31,6 +31,7 @@ interface BuildMtPelerinBuyUrlParams {
   sourceAmount: number;
   network: string;
   accountPkh: string;
+  publicKey: string;
   code: string;
   signature: string;
 }
@@ -47,6 +48,7 @@ export const buildMtPelerinBuyUrl = ({
   sourceAmount,
   network,
   accountPkh,
+  publicKey,
   code,
   signature
 }: BuildMtPelerinBuyUrlParams) => {
@@ -70,13 +72,21 @@ export const buildMtPelerinBuyUrl = ({
   url.searchParams.set('mylogo', MT_PELERIN_LOGO_URL);
   url.searchParams.set('addr', accountPkh);
   url.searchParams.set('code', code);
-  // TODO: Figure out correct encoding for Tezos signature
-  url.searchParams.set(
-    'hash',
-    isHex(signature)
-      ? Buffer.from(signature.slice(2), 'hex').toString('base64')
-      : Buffer.from(signature, 'utf-8').toString('base64')
-  );
+  if (isHex(signature)) {
+    url.searchParams.set('hash', Buffer.from(signature.slice(2), 'hex').toString('base64'));
+  } else {
+    url.searchParams.set(
+      'hash',
+      [
+        '-----BEGIN TEZOS SIGNED MESSAGE-----',
+        `Tezos Signed Message: MtPelerin-${code}`,
+        '-----BEGIN SIGNATURE-----',
+        publicKey,
+        signature,
+        '-----END TEZOS SIGNED MESSAGE-----'
+      ].join('\n')
+    );
+  }
 
   return url.toString();
 };

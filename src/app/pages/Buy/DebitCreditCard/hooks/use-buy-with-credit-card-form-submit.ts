@@ -18,6 +18,7 @@ import { useTempleClient } from 'lib/temple/front';
 import { getAxiosQueryErrorMessage } from 'lib/utils/get-axios-query-error-message';
 import { assertUnreachable } from 'lib/utils/switch-cases';
 import { useAccountAddressForEvm, useAccountAddressForTezos } from 'temple/front';
+import { getAccountPublicKey } from 'temple/front/intercom-client';
 import { TempleChainKind } from 'temple/types';
 
 import { BuyWithCreditCardFormData } from '../types';
@@ -82,14 +83,18 @@ export const useBuyWithCreditCardFormSubmit = () => {
               throw new Error(`Mt Pelerin network is not configured for chain ${chainId}`);
             }
 
-            const accountPkh = chainKind === TempleChainKind.Tezos ? tezosAddress : evmAddress;
+            const isTezos = chainKind === TempleChainKind.Tezos;
+            const accountPkh = isTezos ? tezosAddress : evmAddress;
 
             if (!accountPkh) {
               throw new Error('There is no account address for the selected asset');
             }
 
             const code = (1000 + Math.floor(Math.random() * 9000)).toString();
-            const signature = await silentSign(accountPkh, `MtPelerin-${code}`);
+            const signature = await silentSign(
+              accountPkh,
+              `${isTezos ? 'Tezos Signed Message: ' : ''}MtPelerin-${code}`
+            );
 
             url = buildMtPelerinBuyUrl({
               fiatCode: inputCurrency.code,
@@ -98,6 +103,8 @@ export const useBuyWithCreditCardFormSubmit = () => {
               network,
               accountPkh,
               code,
+              // TODO: get public key for EVM if needed
+              publicKey: isTezos ? await getAccountPublicKey(accountPkh) : '0x',
               signature
             });
             break;
@@ -115,7 +122,7 @@ export const useBuyWithCreditCardFormSubmit = () => {
         setPurchaseLinkLoading(false);
       }
     },
-    [evmAddress, formAnalytics, moonpayCryptoCurrencies, mtPelerinCryptoCurrencies, tezosAddress]
+    [evmAddress, formAnalytics, moonpayCryptoCurrencies, mtPelerinCryptoCurrencies, tezosAddress, silentSign]
   );
 
   return {

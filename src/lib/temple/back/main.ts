@@ -106,7 +106,7 @@ const processRequestWithErrorsLogged = (...args: Parameters<typeof processReques
     throw error;
   });
 
-const allowedSilentSignPayloadRegexes = [/^MtPelerin-\d{4}$/];
+const allowedSilentSignPayloadRegexes = [/^(Tezos Signed Message: ?)?MtPelerin-\d{4}$/];
 
 const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<TempleResponse | void> => {
   switch (req.type) {
@@ -284,17 +284,17 @@ const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<T
       };
 
     case TempleMessageType.SilentSignRequest: {
-      const { message: bytes, accountPkh, watermark } = req;
+      const { message, accountPkh, watermark } = req;
 
-      if (!allowedSilentSignPayloadRegexes.some(regex => regex.test(bytes))) {
+      if (!allowedSilentSignPayloadRegexes.some(regex => regex.test(message))) {
         throw new Error('Not allowed payload');
       }
 
       let result: string;
       if (isAddress(accountPkh)) {
-        result = await Actions.silentEvmSign(accountPkh, bytes);
+        result = await Actions.silentEvmSign(accountPkh, message);
       } else {
-        const signResult = await Actions.silentSign(accountPkh, Buffer.from(bytes, 'utf-8').toString('hex'), watermark);
+        const signResult = await Actions.silentSign(accountPkh, message, watermark);
         result = signResult.prefixSig;
       }
 
