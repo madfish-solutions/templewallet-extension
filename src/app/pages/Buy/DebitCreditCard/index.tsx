@@ -1,4 +1,4 @@
-import React, { FC, useEffect, useRef, useState } from 'react';
+import React, { FC, useEffect, useRef, useState, startTransition } from 'react';
 
 import { FormProvider, useForm, useWatch } from 'react-hook-form';
 
@@ -34,7 +34,9 @@ import { BuyWithCreditCardFormData } from './types';
 
 export const DebitCreditCard: FC = () => {
   const [formIsLoading, setFormIsLoading] = useState(false);
-  const [lastFormRefreshTimestamp, setLastFormRefreshTimestamp] = useState(0);
+  const [nextFormRefreshAttemptTimestamp, setNextFormRefreshAttemptTimestamp] = useState(
+    () => Date.now() + FORM_REFRESH_INTERVAL
+  );
 
   const [selectCurrencyModalOpened, openSelectCurrencyModal, closeSelectCurrencyModal] = useBooleanState(false);
   const [selectTokenModalOpened, openSelectTokenModal, closeSelectTokenModal] = useBooleanState(false);
@@ -110,17 +112,13 @@ export const DebitCreditCard: FC = () => {
   useEffect(() => void dispatch(loadAllCurrenciesActions.submit()), []);
 
   useEffect(() => {
-    const timeout = setTimeout(() => {
-      setLastFormRefreshTimestamp(Date.now());
-    }, 0);
-
-    return () => clearTimeout(timeout);
-  }, []);
+    startTransition(() => setNextFormRefreshAttemptTimestamp(Date.now() + FORM_REFRESH_INTERVAL));
+  }, [refreshForm]);
 
   useInterval(
     () => {
       refreshForm();
-      setLastFormRefreshTimestamp(Date.now());
+      setNextFormRefreshAttemptTimestamp(Date.now() + FORM_REFRESH_INTERVAL);
     },
     [refreshForm],
     FORM_REFRESH_INTERVAL,
@@ -132,7 +130,7 @@ export const DebitCreditCard: FC = () => {
       <FormProvider {...form}>
         <Form
           formIsLoading={formIsLoading}
-          lastFormRefreshTimestamp={lastFormRefreshTimestamp}
+          nextFormRefreshAttemptTimestamp={nextFormRefreshAttemptTimestamp}
           allPaymentProviders={allPaymentProviders}
           providersErrors={providersErrors}
           paymentProvidersToDisplay={paymentProvidersToDisplay}
@@ -163,7 +161,7 @@ export const DebitCreditCard: FC = () => {
           opened={selectProviderModalOpened}
           onRequestClose={closeSelectProviderModal}
           paymentProvidersToDisplay={paymentProvidersToDisplay}
-          lastFormRefreshTimestamp={lastFormRefreshTimestamp}
+          nextFormRefreshAttemptTimestamp={nextFormRefreshAttemptTimestamp}
           onProviderSelect={handlePaymentProviderChange}
         />
       </FormProvider>

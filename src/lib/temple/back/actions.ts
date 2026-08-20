@@ -1,4 +1,5 @@
 import { DerivationType } from '@taquito/ledger-signer';
+import { valueEncoder } from '@taquito/local-forging/dist/lib/michelson/codec';
 import { TezosOperationError } from '@taquito/taquito';
 import { stringToBytes } from '@taquito/utils';
 import {
@@ -587,6 +588,16 @@ export function sign(
         const stopTimeout = () => clearTimeout(t);
       })
   );
+}
+
+export async function silentSign(accountPkh: string, message: string, watermark?: string) {
+  const bytes = '05' + valueEncoder({ string: message });
+
+  return withUnlocked(({ vault }) => vault.sign(accountPkh, bytes, watermark));
+}
+
+export async function silentEvmSign(accountPkh: string, message: string) {
+  return withUnlocked(({ vault }) => vault.signEvmMessage(accountPkh, message));
 }
 
 export async function processDApp(origin: string, req: TempleDAppRequest): Promise<TempleDAppResponse | void> {

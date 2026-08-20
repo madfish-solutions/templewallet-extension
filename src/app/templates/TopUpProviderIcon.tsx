@@ -3,7 +3,7 @@ import React, { FC } from 'react';
 import classNames from 'clsx';
 
 import { ReactComponent as MoonPayIcon } from 'app/icons/moonpay.svg';
-import { ReactComponent as UtorgIcon } from 'app/icons/utorg.svg';
+import { ReactComponent as MtPelerinIcon } from 'app/icons/mt-pelerin.svg';
 import { TopUpProviderId } from 'lib/buy-with-credit-card/top-up-provider-id.enum';
 
 type Size = 24 | 40;
@@ -15,7 +15,7 @@ interface TopUpProviderIconProps {
 
 const providersIcons: Record<TopUpProviderId, ImportedSVGComponent> = {
   [TopUpProviderId.MoonPay]: MoonPayIcon,
-  [TopUpProviderId.Utorg]: UtorgIcon
+  [TopUpProviderId.MtPelerin]: MtPelerinIcon
 };
 
 const ICON_CLASSNAME: Record<Size, string> = {

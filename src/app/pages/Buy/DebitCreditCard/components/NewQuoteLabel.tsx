@@ -5,24 +5,22 @@ import Countdown from 'react-countdown';
 
 import { T, TID } from 'lib/i18n';
 
-import { FORM_REFRESH_INTERVAL } from '../config';
-
 interface Props {
   title: TID;
-  lastFormRefreshTimestamp: number;
+  nextFormRefreshAttemptTimestamp: number;
   className?: string;
 }
 
-export const NewQuoteLabel = memo<Props>(({ title, lastFormRefreshTimestamp, className }) => {
+export const NewQuoteLabel = memo<Props>(({ title, nextFormRefreshAttemptTimestamp, className }) => {
   const countdownRef = useRef<Countdown>(null);
-  const lastTimestampRef = useRef(lastFormRefreshTimestamp);
+  const lastTimestampRef = useRef(nextFormRefreshAttemptTimestamp);
 
   useEffect(() => {
-    if (lastTimestampRef.current !== lastFormRefreshTimestamp) {
+    if (lastTimestampRef.current !== nextFormRefreshAttemptTimestamp) {
       countdownRef.current?.start();
-      lastTimestampRef.current = lastFormRefreshTimestamp;
+      lastTimestampRef.current = nextFormRefreshAttemptTimestamp;
     }
-  }, [lastFormRefreshTimestamp]);
+  }, [nextFormRefreshAttemptTimestamp]);
 
   return (
     <div className={clsx('flex flex-row justify-between py-1', className)}>
@@ -41,7 +39,7 @@ export const NewQuoteLabel = memo<Props>(({ title, lastFormRefreshTimestamp, cla
               {props.minutes}:{String(props.seconds).padStart(2, '0')}
             </span>
           )}
-          date={lastFormRefreshTimestamp + FORM_REFRESH_INTERVAL}
+          date={nextFormRefreshAttemptTimestamp}
         />
       </span>
     </div>

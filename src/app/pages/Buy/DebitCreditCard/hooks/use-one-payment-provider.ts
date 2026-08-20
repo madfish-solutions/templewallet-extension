@@ -10,10 +10,12 @@ import {
   usePairLimitsErrorsSelector
 } from 'app/store/buy-with-credit-card/selectors';
 import { getMoonPayBuyQuote } from 'lib/apis/moonpay';
-import { convertFiatAmountToCrypto } from 'lib/apis/utorg';
+import { getMtPelerinOutputAmount } from 'lib/apis/mt-pelerin';
 import { getAssetSymbolToDisplay } from 'lib/buy-with-credit-card/get-asset-symbol-to-display';
 import { getUpdatedFiatLimits } from 'lib/buy-with-credit-card/get-updated-fiat-limits';
+import { getMtPelerinNetworkByChain } from 'lib/buy-with-credit-card/provider-currencies.utils';
 import { TopUpProviderId } from 'lib/buy-with-credit-card/top-up-provider-id.enum';
+import { fromTopUpTokenSlug } from 'lib/buy-with-credit-card/top-up-token-slug.utils';
 import {
   PaymentProviderInterface,
   TopUpInputInterface,
@@ -56,8 +58,13 @@ const getOutputAmountFunctions: Record<TopUpProviderId, getOutputAmountFunction>
 
     return quoteCurrencyAmount;
   },
-  [TopUpProviderId.Utorg]: async (inputAmount, inputAsset, outputAsset) =>
-    convertFiatAmountToCrypto(inputAsset.code, outputAsset.code, inputAmount)
+  [TopUpProviderId.MtPelerin]: async (inputAmount, inputAsset, outputAsset) => {
+    const [, chainKind, chainId] = fromTopUpTokenSlug(outputAsset.slug);
+    const network = getMtPelerinNetworkByChain(chainKind, chainId);
+    if (!network) throw new Error(`Mt Pelerin network is not configured for chain ${chainId}`);
+
+    return getMtPelerinOutputAmount(inputAsset.code, outputAsset.code, inputAmount, network);
+  }
 };
 
 const initialPaymentProvidersData: Record<TopUpProviderId, PaymentProviderInitialData> = {
@@ -66,9 +73,9 @@ const initialPaymentProvidersData: Record<TopUpProviderId, PaymentProviderInitia
     id: TopUpProviderId.MoonPay,
     kycRequired: true
   },
-  [TopUpProviderId.Utorg]: {
-    name: 'Utorg',
-    id: TopUpProviderId.Utorg,
+  [TopUpProviderId.MtPelerin]: {
+    name: 'Mt Pelerin',
+    id: TopUpProviderId.MtPelerin,
     kycRequired: true
   }
 };

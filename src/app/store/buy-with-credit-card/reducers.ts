@@ -12,7 +12,7 @@ export const buyWithCreditCardReducer = createReducer<BuyWithCreditCardState>(
   builder => {
     builder.addCase(loadAllCurrenciesActions.submit, state => {
       state.currencies[TopUpProviderId.MoonPay].isLoading = true;
-      state.currencies[TopUpProviderId.Utorg].isLoading = true;
+      state.currencies[TopUpProviderId.MtPelerin].isLoading = true;
     });
 
     builder.addCase(loadAllCurrenciesActions.success, (state, { payload: currencies }) => ({
@@ -24,7 +24,7 @@ export const buyWithCreditCardReducer = createReducer<BuyWithCreditCardState>(
       ...state,
       currencies: {
         [TopUpProviderId.MoonPay]: createEntity(state.currencies[TopUpProviderId.MoonPay].data, false, error),
-        [TopUpProviderId.Utorg]: createEntity(state.currencies[TopUpProviderId.Utorg].data, false, error)
+        [TopUpProviderId.MtPelerin]: createEntity(state.currencies[TopUpProviderId.MtPelerin].data, false, error)
       }
     }));
 
@@ -40,11 +40,11 @@ export const buyWithCreditCardReducer = createReducer<BuyWithCreditCardState>(
         };
 
         updatePerProvider(TopUpProviderId.MoonPay);
-        updatePerProvider(TopUpProviderId.Utorg);
+        updatePerProvider(TopUpProviderId.MtPelerin);
       } else {
         dataPerFiat[cryptoSlug] = {
           [TopUpProviderId.MoonPay]: createEntity(undefined, true),
-          [TopUpProviderId.Utorg]: createEntity(undefined, true)
+          [TopUpProviderId.MtPelerin]: createEntity(undefined, true)
         };
       }
     });
@@ -71,7 +71,11 @@ export const buyWithCreditCardReducer = createReducer<BuyWithCreditCardState>(
             ...(state.pairLimits[fiatSymbol] ?? {}),
             [cryptoSlug]: {
               [TopUpProviderId.MoonPay]: createEntity(previousEntities?.[TopUpProviderId.MoonPay]?.data, false, error),
-              [TopUpProviderId.Utorg]: createEntity(previousEntities?.[TopUpProviderId.Utorg]?.data, false, error)
+              [TopUpProviderId.MtPelerin]: createEntity(
+                previousEntities?.[TopUpProviderId.MtPelerin]?.data,
+                false,
+                error
+              )
             }
           }
         }

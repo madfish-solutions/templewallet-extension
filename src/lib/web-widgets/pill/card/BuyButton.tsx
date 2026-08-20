@@ -6,15 +6,16 @@ import { TempleChainKind } from 'temple/types';
 import * as messaging from '../../messaging';
 
 interface BuyButtonProps {
-  symbol: string;
+  tokenAddress: string | null;
+  tokenId: number | undefined;
   chainKind: TempleChainKind;
   chainId: string;
   fiat: string;
 }
 
-export const BuyButton = ({ symbol, chainKind, chainId, fiat }: BuyButtonProps) => {
+export const BuyButton = ({ tokenAddress, tokenId, chainKind, chainId, fiat }: BuyButtonProps) => {
   const handleClick = () => {
-    const token = toTopUpTokenSlug(symbol.toUpperCase(), chainKind, chainId);
+    const token = toTopUpTokenSlug(tokenAddress, tokenId, chainKind, chainId);
     messaging.trackWebWidgetEvent('Web Token Widget / Buy').catch(() => {});
     messaging
       .openFullPage(`#/buy/card?currency=${encodeURIComponent(fiat)}&token=${encodeURIComponent(token)}`)

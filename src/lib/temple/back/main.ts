@@ -1,6 +1,7 @@
 import { AES } from 'crypto-js';
 import { pick } from 'lodash';
 import memoizee from 'memoizee';
+import { isAddress } from 'viem';
 import { Runtime } from 'webextension-polyfill';
 import { ValidationError } from 'yup';
 
@@ -104,6 +105,8 @@ const processRequestWithErrorsLogged = (...args: Parameters<typeof processReques
     console.error(error);
     throw error;
   });
+
+const allowedSilentSignPayloadRegexes = [/^(Tezos Signed Message: ?)?MtPelerin-\d{4}$/];
 
 const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<TempleResponse | void> => {
   switch (req.type) {
@@ -279,6 +282,27 @@ const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<T
         type: TempleMessageType.SignResponse,
         result
       };
+
+    case TempleMessageType.SilentSignRequest: {
+      const { message, accountPkh, watermark } = req;
+
+      if (!allowedSilentSignPayloadRegexes.some(regex => regex.test(message))) {
+        throw new Error('Not allowed payload');
+      }
+
+      let result: string;
+      if (isAddress(accountPkh)) {
+        result = await Actions.silentEvmSign(accountPkh, message);
+      } else {
+        const signResult = await Actions.silentSign(accountPkh, message, watermark);
+        result = signResult.prefixSig;
+      }
+
+      return {
+        type: TempleMessageType.SilentSignResponse,
+        result
+      };
+    }
 
     case TempleMessageType.ConfirmationWindowDetachRequest:
       markConfirmationWindowDetached(req.id);
@@ -556,7 +580,7 @@ browser.runtime.onMessage.addListener(async (msg, sender) => {
 
       case ContentScriptType.GetBuyPreselect: {
         const { getBuyPreselect } = await importBuyPreselectModule();
-        return await getBuyPreselect(msg.symbol, msg.chainKind, msg.chainId);
+        return await getBuyPreselect(msg.tokenAddress, msg.tokenId, msg.chainKind, msg.chainId);
       }
 
       case ContentScriptType.GetChainFunds: {

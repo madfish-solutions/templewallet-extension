@@ -38,7 +38,7 @@ interface Props {
   allPaymentProviders: PaymentProviderInterface[];
   paymentProvidersToDisplay: PaymentProviderInterface[];
   providersErrors: Record<TopUpProviderId, ProviderErrors>;
-  lastFormRefreshTimestamp: number;
+  nextFormRefreshAttemptTimestamp: number;
   setPaymentProvider: SyncFn<PaymentProviderInterface | undefined>;
   manuallySelectedProviderIdRef: RefObject<TopUpProviderId | undefined>;
   onInputAmountChange: SyncFn<number | undefined>;
@@ -51,7 +51,7 @@ export const Form: FC<Props> = ({
   formIsLoading,
   paymentProvidersToDisplay,
   manuallySelectedProviderIdRef,
-  lastFormRefreshTimestamp,
+  nextFormRefreshAttemptTimestamp,
   setPaymentProvider,
   onInputAmountChange,
   onSelectCurrency,
@@ -191,7 +191,11 @@ export const Form: FC<Props> = ({
           testID={BuyWithCreditCardSelectors.getInput}
         />
 
-        <NewQuoteLabel title="provider" lastFormRefreshTimestamp={lastFormRefreshTimestamp} className="mb-1" />
+        <NewQuoteLabel
+          title="provider"
+          nextFormRefreshAttemptTimestamp={nextFormRefreshAttemptTimestamp}
+          className="mb-1"
+        />
 
         <SelectProviderButton provider={provider} onClick={onSelectProvider} />
 

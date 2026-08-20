@@ -84,7 +84,9 @@ export const AddNetworkModal = memo<AddNetworkModalComponentProps>(props => {
     prevSuggestedFormValuesRef.current = suggestedFormValues;
 
     if (suggestedFormValues) {
-      reset({ ...formValues, ...suggestedFormValues });
+      // keepFieldsRef: reset() otherwise clears field registrations; memoized NameInput
+      // may not re-register, so typed name never reaches form state.
+      reset({ ...formValues, ...suggestedFormValues }, { keepFieldsRef: true });
     }
   }, [formValues, reset, suggestedFormValues]);
 

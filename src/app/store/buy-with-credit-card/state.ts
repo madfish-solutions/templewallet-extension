@@ -21,7 +21,7 @@ export interface BuyWithCreditCardState {
 export const buyWithCreditCardInitialState: BuyWithCreditCardState = {
   currencies: {
     [TopUpProviderId.MoonPay]: createEntity({ fiat: [], crypto: [] }),
-    [TopUpProviderId.Utorg]: createEntity({ fiat: [], crypto: [] })
+    [TopUpProviderId.MtPelerin]: createEntity({ fiat: [], crypto: [] })
   },
   pairLimits: {}
 };
