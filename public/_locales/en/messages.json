@@ -787,6 +787,9 @@
   "invalidPath": {
     "message": "Invalid path"
   },
+  "invalidDerivationPath": {
+    "message": "Invalid derivation path"
+  },
   "email": {
     "message": "Email"
   },

@@ -1,7 +1,6 @@
 import React, { FC, useEffect, useRef, useState } from 'react';
 
 import BigNumber from 'bignumber.js';
-import { isEmpty } from 'lodash';
 import { FormProvider, useForm, useWatch } from 'react-hook-form';
 
 import { ActionsButtonsBox } from 'app/atoms/PageModal/actions-buttons-box';
@@ -24,6 +23,7 @@ import {
 import { useAssetFiatCurrencyPrice, useFiatCurrency } from 'lib/fiat-currency';
 import { T, t } from 'lib/i18n';
 import { useBooleanState } from 'lib/ui/hooks';
+import { shouldDisableSubmitButton } from 'lib/ui/should-disable-submit-button';
 import { useAccountForEvm, useAccountForTezos } from 'temple/front';
 import { useEvmChainByChainId, useTezosChainByChainId } from 'temple/front/chains';
 import { TempleChainKind } from 'temple/types';
@@ -361,7 +361,7 @@ export const CrossChainForm: FC<Props> = ({ onReview, resetSignal }) => {
           size="L"
           color="primary"
           loading={rateLoading}
-          disabled={formSubmitted && !isEmpty(errors)}
+          disabled={shouldDisableSubmitButton({ errors, formState, disableWhileSubmitting: false })}
         >
           <T id="review" />
         </StyledButton>

@@ -9,6 +9,9 @@ export const useTempleBackendActionForm = <T extends object>(
   submitErrorField: FieldPath<T>,
   options?: UseFormProps<T>
 ) => {
+  // Compiler-cached destructuring of the stable `useForm(...)` object would freeze `formState` at its first-render snapshot
+  'use no memo';
+
   const { register, handleSubmit, setError, clearErrors, formState, ...rest } = useForm<T>(options);
   const { isSubmitting, errors } = formState;
 

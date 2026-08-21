@@ -113,10 +113,12 @@ export const useEvmUserActions = (opened: boolean, onRequestClose: EmptyFn, revi
     cancelledRef.current = true;
     setCancelConfirmClosed();
     onRequestClose();
-    if (reviewData && isSwapEvmReviewData(reviewData)) {
+    // Reset the form only if some route steps have already been executed, so that after a plain
+    // cancel the user can review the same swap again with the inputs kept
+    if (reviewData && isSwapEvmReviewData(reviewData) && currentActionIndex > firstExecuteAction.index) {
       reviewData.handleResetForm();
     }
-  }, [onRequestClose, reviewData, setCancelConfirmClosed]);
+  }, [onRequestClose, reviewData, setCancelConfirmClosed, currentActionIndex, firstExecuteAction.index]);
 
   const handleRequestClose = useCallback(() => {
     if (reviewData && isSwapEvmReviewData(reviewData)) {

@@ -71,6 +71,9 @@ const validationsLabelsInputs: Array<{ textI18nKey: TID; key: keyof PasswordVali
 
 export const CreatePasswordForm = memo<CreatePasswordFormProps>(
   ({ mnemonic: mnemonicToImport, backupPassword, onNewBackupState }) => {
+    // Compiler-cached `register(...)` would not re-run after RHF `reset()` clears the field registry
+    'use no memo';
+
     const { googleAuthToken, registerWallet, setSuppressReady } = useTempleClient();
     const { trackEvent } = useAnalytics();
     const [, setInitToast] = useInitToastMessage();

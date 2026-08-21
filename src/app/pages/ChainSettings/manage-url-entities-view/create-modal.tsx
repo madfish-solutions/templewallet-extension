@@ -54,6 +54,9 @@ export const CreateUrlEntityModal = memo(
     activeCheckboxTestID,
     warnOnInsecureUrl
   }: CreateUrlEntityModalProps) => {
+    // Compiler-cached `register(...)` would not re-run after RHF `reset()` clears the field registry
+    'use no memo';
+
     const { abort, abortAndRenewSignal } = useAbortSignal();
     const [submitError, setSubmitError] = useState<string | null>(null);
     const [warningOpen, setWarningOpen] = useState(false);

@@ -2,8 +2,8 @@ import React, { FC, RefObject, useCallback, useEffect, useMemo, useRef } from 'r
 
 import { isDefined } from '@rnw-community/shared';
 import BigNumber from 'bignumber.js';
-import { isEmpty, isEqual } from 'lodash';
-import { Controller, useFormContext, useWatch } from 'react-hook-form';
+import { isEqual } from 'lodash';
+import { Controller, useFormContext, useFormState, useWatch } from 'react-hook-form';
 
 import AssetField from 'app/atoms/AssetField';
 import Money from 'app/atoms/Money';
@@ -17,6 +17,7 @@ import { TopUpProviderId } from 'lib/buy-with-credit-card/top-up-provider-id.enu
 import { PaymentProviderInterface } from 'lib/buy-with-credit-card/topup.interface';
 import { ProviderErrors } from 'lib/buy-with-credit-card/types';
 import { T, t } from 'lib/i18n';
+import { shouldDisableSubmitButton } from 'lib/ui/should-disable-submit-button';
 
 import { InfoContainer, InfoRaw } from '../info-block';
 import { ErrorType, MinMaxDisplay } from '../min-max-display';
@@ -58,11 +59,11 @@ export const Form: FC<Props> = ({
   onSelectToken,
   onSelectProvider
 }) => {
-  const { control, handleSubmit, formState, setValue } = useFormContext<BuyWithCreditCardFormData>();
-  const { isSubmitting, submitCount, errors } = formState;
+  const { control, handleSubmit, setValue } = useFormContext<BuyWithCreditCardFormData>();
+  // React Compiler caches `<FormProvider {...form}>` on RHF's stable form, so context consumers stop re-rendering
+  const formState = useFormState<BuyWithCreditCardFormData>({ control });
+  const { isSubmitting, errors } = formState;
   const scrollContainerRef = useRef<HTMLFormElement>(null);
-
-  const formSubmitted = submitCount > 0;
 
   const inputAmount = useWatch({ control, name: 'inputAmount' });
   const outputAmount = useWatch({ control, name: 'outputAmount' });
@@ -226,7 +227,12 @@ export const Form: FC<Props> = ({
           size="L"
           color="primary"
           loading={isLoading}
-          disabled={formSubmitted && (!outputAmount || !isEmpty(errors))}
+          disabled={shouldDisableSubmitButton({
+            errors,
+            formState,
+            otherErrors: [outputAmount ? null : 'output-amount-missing'],
+            disableWhileSubmitting: false
+          })}
           testID={BuyWithCreditCardSelectors.topUpButton}
         >
           <T id="topUp" />

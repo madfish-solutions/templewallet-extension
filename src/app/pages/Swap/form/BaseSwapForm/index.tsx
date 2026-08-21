@@ -3,7 +3,7 @@ import React, { FC, useCallback, useMemo, useRef } from 'react';
 import { isDefined } from '@rnw-community/shared';
 import BigNumber from 'bignumber.js';
 import { noop } from 'lodash';
-import { Controller, SubmitErrorHandler, useFormContext, useWatch } from 'react-hook-form';
+import { Controller, SubmitErrorHandler, useFormContext, useFormState, useWatch } from 'react-hook-form';
 
 import { IconBase } from 'app/atoms';
 import { ActionsButtonsBox } from 'app/atoms/PageModal';
@@ -25,6 +25,7 @@ import { useFiatCurrency } from 'lib/fiat-currency';
 import { useAssetUSDPrice } from 'lib/fiat-currency/core';
 import { t, T, toLocalFixed } from 'lib/i18n';
 import { TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
+import { shouldDisableSubmitButton } from 'lib/ui/should-disable-submit-button';
 import { ZERO } from 'lib/utils/numbers';
 import { TempleChainKind } from 'temple/types';
 
@@ -104,11 +105,11 @@ export const BaseSwapForm: FC<Props> = ({
   handleToggleIconClick,
   onSubmit
 }) => {
-  const { handleSubmit, control, setValue, getValues, formState } = useFormContext<SwapFormValue>();
-  const { isSubmitting, submitCount, isValid } = formState;
+  const { handleSubmit, control, setValue, getValues } = useFormContext<SwapFormValue>();
+  // React Compiler caches `<FormProvider {...form}>` on RHF's stable form, so context consumers stop re-rendering
+  const formState = useFormState<SwapFormValue>({ control });
+  const { isSubmitting, errors } = formState;
   const scrollContainerRef = useRef<HTMLFormElement>(null);
-
-  const formSubmitted = submitCount > 0;
 
   const isFiatMode = useWatch({ control, name: 'isFiatMode' });
 
@@ -361,7 +362,7 @@ export const BaseSwapForm: FC<Props> = ({
           size="L"
           color="primary"
           loading={swapParamsAreLoading || isSubmitting}
-          disabled={formSubmitted && !isValid}
+          disabled={shouldDisableSubmitButton({ errors, formState })}
           testID={SwapFormSelectors.swapButton}
         >
           <T id="review" />
