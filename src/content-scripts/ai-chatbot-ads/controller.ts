@@ -127,7 +127,7 @@ export class AiChatbotAdsController {
         now: Date.now(),
         siteStartedAt: this.siteStartedAt,
         completedAnswers: this.completedAnswers,
-        enabled: state.enabled,
+        enabled: true, // use state.enabled once we decide to enable the nudge
         focused: this.adapter.isFocused(),
         hasActiveModal: this.adapter.hasActiveModal(),
         answerState,
