@@ -13,7 +13,7 @@ const COMPRESSED_TOKEN_ICON_SIZE = 80;
 const COMPRESSED_COLLECTIBLE_ICON_SIZE = 250;
 
 const IPFS_PROTOCOL = 'ipfs://';
-const IPFS_GATE = 'https://ipfs.io';
+const IPFS_GATE = 'https://ipfs.filebase.io';
 const MEDIA_HOST = 'https://static.tcinfra.net/media';
 const DEFAULT_MEDIA_SIZE: TcInfraMediaSize = 'small';
 const OBJKT_MEDIA_HOST = 'https://assets.objkt.media/file/assets-003';
@@ -163,11 +163,10 @@ const buildIpfsMediaUriByInfo = (
   }
 
   if (ipfsInfo) {
-    const additionalPath = ipfsInfo.path.includes('ipfs/') ? '' : 'ipfs/';
+    const ipfsPathPrefix = ipfsInfo.path.includes('ipfs/') ? '' : 'ipfs/';
+    const ipfsPath = ipfsPathPrefix + ipfsInfo.path + ipfsInfo.search;
 
-    return useMediaHost
-      ? `${MEDIA_HOST}/${size}/${additionalPath + ipfsInfo.path + ipfsInfo.search}`
-      : `${IPFS_GATE}/${additionalPath + ipfsInfo.path + ipfsInfo.search}`;
+    return useMediaHost ? `${MEDIA_HOST}/${size}/${ipfsPath}` : `${IPFS_GATE}/${ipfsPath}`;
   }
 
   if (useMediaHost && uri.startsWith('http')) {
