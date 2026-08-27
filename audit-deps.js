@@ -1,11 +1,10 @@
 const { exec } = require('child_process');
 
-const ignoredAdvisories = new Map([
-  [
-    'GHSA-mh99-v99m-4gvg',
-    'Only legacy brace-expansion v1/v2 instances used by build tooling remain; v5 is pinned to the patched release.'
-  ]
-]);
+/* Entry example:[
+  'GHSA-mh99-v99m-4gvg',
+  'Only legacy brace-expansion v1/v2 instances used by build tooling remain; v5 is pinned to the patched release.'
+] */
+const ignoredAdvisories = new Map([]);
 
 const formatAdvisory = advisory => {
   const details = Object.entries(advisory.children).map(([name, value]) => {
