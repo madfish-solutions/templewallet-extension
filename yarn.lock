@@ -14475,7 +14475,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"nanoid@npm:^3.1.30, nanoid@npm:^3.3.16":
+"nanoid@npm:^3, nanoid@npm:^3.1.30, nanoid@npm:^3.3.16":
   version: 3.3.18
   resolution: "nanoid@npm:3.3.18"
   bin:
@@ -14490,15 +14490,6 @@ __metadata:
   bin:
     nanoid: bin/nanoid.js
   checksum: 10c0/04b4f96237f5639716da0e98f453361b313bebaf458bb67dea2d384724fc8b3340a28f032a4373052150bcf3b801d122e291d81ae4fc522969f55c134f4401a3
-  languageName: node
-  linkType: hard
-
-"nanoid@npm:^6.0.1":
-  version: 6.0.1
-  resolution: "nanoid@npm:6.0.1"
-  bin:
-    nanoid: bin/nanoid.js
-  checksum: 10c0/5b362ad9822388dfebdf655849c76d3539e074d1003fbe6eb5dff8687faf93a9abbb19bdc5d134b9b8599f875f9b091feacfd7099b34b5fef23bc3f5be41dd10
   languageName: node
   linkType: hard
 
@@ -18172,7 +18163,7 @@ __metadata:
     mini-css-extract-plugin: "npm:^2"
     motion: "npm:^12.40.0"
     multiformats: "npm:^13.3.1"
-    nanoid: "npm:^6.0.1"
+    nanoid: "npm:^3"
     npm-run-all: "npm:^4.1.5"
     oxfmt: "npm:^0.36.0"
     oxlint: "npm:^1.51.0"
