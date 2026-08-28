@@ -13,7 +13,7 @@ const COMPRESSED_TOKEN_ICON_SIZE = 80;
 const COMPRESSED_COLLECTIBLE_ICON_SIZE = 250;
 
 const IPFS_PROTOCOL = 'ipfs://';
-const IPFS_GATE = 'https://ipfs.filebase.io';
+const IPFS_GATE = 'https://gateway.pinata.cloud';
 const MEDIA_HOST = 'https://static.tcinfra.net/media';
 const DEFAULT_MEDIA_SIZE: TcInfraMediaSize = 'small';
 const OBJKT_MEDIA_HOST = 'https://assets.objkt.media/file/assets-003';
