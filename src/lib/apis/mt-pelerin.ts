@@ -8,6 +8,7 @@ const api = axios.create({ baseURL: 'https://api.mtpelerin.com' });
 
 const MT_PELERIN_WIDGET_URL = 'https://widget.mtpelerin.com/';
 const MT_PELERIN_SUPPORTED_LANGS = new Set(['en', 'fr', 'de', 'it', 'es', 'pt']);
+const MT_PELERIN_CARD_PAYMENT_FIAT_CODES = new Set(['CHF', 'EUR', 'USD', 'GBP']);
 const MT_PELERIN_PRIMARY_COLOR = '#1373E4';
 const MT_PELERIN_LOGO_URL =
   'https://cdn.prod.website-files.com/650900ffe9db068e47c2b612/67f3c559e2132028a21c5c21_Sketches.svg';
@@ -67,7 +68,9 @@ export const buildMtPelerinBuyUrl = ({
   url.searchParams.set('crys', cryptoCode);
   url.searchParams.set('dnet', network);
   url.searchParams.set('nets', network);
-  url.searchParams.set('pm', 'card');
+  if (MT_PELERIN_CARD_PAYMENT_FIAT_CODES.has(fiatCode)) {
+    url.searchParams.set('pm', 'card');
+  }
   url.searchParams.set('primary', MT_PELERIN_PRIMARY_COLOR);
   url.searchParams.set('mylogo', MT_PELERIN_LOGO_URL);
   url.searchParams.set('addr', accountPkh);
