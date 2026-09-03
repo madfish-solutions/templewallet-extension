@@ -1,8 +1,7 @@
 import React, { FC, useCallback, useEffect, useMemo, useRef } from 'react';
 
 import axios from 'axios';
-import { isEmpty } from 'lodash';
-import { Controller, useFormContext, SubmitHandler, useWatch } from 'react-hook-form';
+import { Controller, useFormContext, useFormState, SubmitHandler, useWatch } from 'react-hook-form';
 import { useDebounce } from 'use-debounce';
 
 import AssetField from 'app/atoms/AssetField';
@@ -13,6 +12,7 @@ import { useFormAnalytics } from 'lib/analytics';
 import { loadMinMaxExchangeValues, queryExchange, submitExchange } from 'lib/apis/exolix/utils';
 import { t, T } from 'lib/i18n';
 import { useTypedSWR } from 'lib/swr';
+import { shouldDisableSubmitButton } from 'lib/ui/should-disable-submit-button';
 import { useAccountAddressForEvm, useAccountAddressForTezos } from 'temple/front';
 
 import { ErrorType, MinMaxDisplay } from '../../../../min-max-display';
@@ -48,11 +48,11 @@ export const FormContent: FC<Props> = ({ onSelectInputCurrency, onSelectOutputCu
 
   const { setExchangeData, setStep } = useCryptoExchangeDataState();
 
-  const { control, handleSubmit, formState, trigger, setValue } = useFormContext<CryptoExchangeFormData>();
-  const { isSubmitting, submitCount, errors } = formState;
+  const { control, handleSubmit, trigger, setValue } = useFormContext<CryptoExchangeFormData>();
+  // React Compiler caches `<FormProvider {...form}>` on RHF's stable form, so context consumers stop re-rendering
+  const formState = useFormState<CryptoExchangeFormData>({ control });
+  const { isSubmitting, errors } = formState;
   const scrollContainerRef = useRef<HTMLFormElement>(null);
-
-  const formSubmitted = submitCount > 0;
 
   const inputValue = useWatch({ control, name: 'inputValue' });
   const [inputValueDebounced] = useDebounce(inputValue, 300);
@@ -239,7 +239,12 @@ export const FormContent: FC<Props> = ({ onSelectInputCurrency, onSelectOutputCu
           size="L"
           color="primary"
           loading={isSubmitting || isMinMaxLoading || isRatesLoading}
-          disabled={formSubmitted && (!toAmount || !isEmpty(errors))}
+          disabled={shouldDisableSubmitButton({
+            errors,
+            formState,
+            otherErrors: [toAmount ? null : 'output-amount-missing'],
+            disableWhileSubmitting: false
+          })}
         >
           <T id="exchange" />
         </StyledButton>

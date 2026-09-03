@@ -1,7 +1,7 @@
 import React, { memo, ReactNode, useCallback, useState } from 'react';
 
 import { startCase } from 'lodash';
-import { useForm } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 
 import { FormField } from 'app/atoms';
 import { StyledButton } from 'app/atoms/StyledButton';
@@ -67,6 +67,24 @@ const validateTezosAddress = (value: string) => {
   return !value || isValidTezosImplicitAddress(value) || t('invalidAddress');
 };
 
+const validateMnemonicDerivationPath = (value: string) => {
+  const basicValidationResult = validateDerivationPath(value);
+
+  if (basicValidationResult !== true || !value) return basicValidationResult;
+
+  // viem allows unhardened indexes, while `ed25519-hd-key` requires all of them to be hardened
+  const segmentsRegex = isEvmDerivationPath(value) ? /^m(\/\d+'?)+$/ : /^m(\/\d+')+$/;
+
+  if (!segmentsRegex.test(value)) return t('invalidDerivationPath');
+
+  const indexesOverflow = value
+    .split('/')
+    .slice(1)
+    .some(part => Number(part.endsWith("'") ? part.slice(0, -1) : part) > 0x7fffffff);
+
+  return !indexesOverflow || t('invalidDerivationPath');
+};
+
 export const MnemonicForm = memo<ImportAccountFormProps>(({ onSuccess }) => {
   const { createOrImportWallet, importMnemonicAccount, importAccount } = useTempleClient();
   const formAnalytics = useFormAnalytics(ImportAccountFormType.Mnemonic);
@@ -75,7 +93,7 @@ export const MnemonicForm = memo<ImportAccountFormProps>(({ onSuccess }) => {
   const [seedError, setSeedError] = useState('');
   const [error, setError] = useState<ReactNode>(null);
   const {
-    register,
+    control,
     handleSubmit,
     formState,
     reset,
@@ -249,46 +267,54 @@ export const MnemonicForm = memo<ImportAccountFormProps>(({ onSuccess }) => {
           setNumberOfWords={setNumberOfWords}
         />
 
-        <FormField
-          {...register('derivationPath', {
-            required: false,
-            validate: validateDerivationPath
-          })}
-          id="derivationPath"
-          labelContainerClassName="w-full flex justify-between items-center"
-          label={
-            <>
-              {startCase(t('customDerivationPath'))}
-              <span className="text-font-description font-normal text-grey-2">
-                <T id="optionalComment" />
-              </span>
-            </>
-          }
-          placeholder={t('derivationPathExample2', DEFAULT_EVM_DERIVATION_PATH)}
-          errorCaption={errors.derivationPath?.message}
-          containerClassName="my-3"
-          testID={ImportAccountSelectors.customDerivationPathInput}
-          reserveSpaceForError
+        <Controller
+          name="derivationPath"
+          control={control}
+          rules={{ validate: validateMnemonicDerivationPath }}
+          render={({ field }) => (
+            <FormField
+              {...field}
+              id="derivationPath"
+              labelContainerClassName="w-full flex justify-between items-center"
+              label={
+                <>
+                  {startCase(t('customDerivationPath'))}
+                  <span className="text-font-description font-normal text-grey-2">
+                    <T id="optionalComment" />
+                  </span>
+                </>
+              }
+              placeholder={t('derivationPathExample2', DEFAULT_EVM_DERIVATION_PATH)}
+              errorCaption={errors.derivationPath?.message}
+              containerClassName="my-3"
+              testID={ImportAccountSelectors.customDerivationPathInput}
+              reserveSpaceForError
+            />
+          )}
         />
 
-        <FormField
-          {...register('accountAddress', {
-            required: false,
-            validate: validateTezosAddress
-          })}
-          id="accountAddress"
-          labelContainerClassName="w-full flex justify-between items-center"
-          label={
-            <>
-              {t('accountAddress')}
-              <span className="text-font-description font-normal text-grey-2">
-                <T id="optionalTezosOnlyComment" />
-              </span>
-            </>
-          }
-          placeholder={t('accountAddressInputPlaceholder')}
-          errorCaption={errors.accountAddress?.message}
-          testID={ImportAccountSelectors.accountAddressInput}
+        <Controller
+          name="accountAddress"
+          control={control}
+          rules={{ validate: validateTezosAddress }}
+          render={({ field }) => (
+            <FormField
+              {...field}
+              id="accountAddress"
+              labelContainerClassName="w-full flex justify-between items-center"
+              label={
+                <>
+                  {t('accountAddress')}
+                  <span className="text-font-description font-normal text-grey-2">
+                    <T id="optionalTezosOnlyComment" />
+                  </span>
+                </>
+              }
+              placeholder={t('accountAddressInputPlaceholder')}
+              errorCaption={errors.accountAddress?.message}
+              testID={ImportAccountSelectors.accountAddressInput}
+            />
+          )}
         />
       </PageModalScrollViewWithActions>
     </form>

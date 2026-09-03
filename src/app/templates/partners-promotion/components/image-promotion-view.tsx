@@ -49,7 +49,7 @@ export const ImagePromotionView = memo<Props>(
         )}
         href={href}
         target="_blank"
-        rel="noreferrer"
+        rel="noreferrer sponsored"
         ref={ref}
         testID={PartnersPromotionSelectors.promoLink}
         testIDProperties={testIDProperties}

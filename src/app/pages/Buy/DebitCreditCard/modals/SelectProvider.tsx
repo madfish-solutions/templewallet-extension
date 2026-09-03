@@ -18,7 +18,7 @@ import { BuyWithCreditCardFormData, DefaultModalProps } from '../types';
 
 interface Props extends DefaultModalProps {
   paymentProvidersToDisplay: PaymentProviderInterface[];
-  lastFormRefreshTimestamp: number;
+  nextFormRefreshAttemptTimestamp: number;
   onProviderSelect?: SyncFn<PaymentProviderInterface>;
 }
 
@@ -27,7 +27,7 @@ export const SelectProviderModal: FC<Props> = ({
   opened,
   onRequestClose,
   paymentProvidersToDisplay,
-  lastFormRefreshTimestamp,
+  nextFormRefreshAttemptTimestamp,
   onProviderSelect
 }) => {
   const { control, setValue } = useFormContext<BuyWithCreditCardFormData>();
@@ -45,7 +45,11 @@ export const SelectProviderModal: FC<Props> = ({
 
   return (
     <PageModal title={title} opened={opened} onRequestClose={onRequestClose}>
-      <NewQuoteLabel title="providers" lastFormRefreshTimestamp={lastFormRefreshTimestamp} className="m-4" />
+      <NewQuoteLabel
+        title="providers"
+        nextFormRefreshAttemptTimestamp={nextFormRefreshAttemptTimestamp}
+        className="m-4"
+      />
 
       <div className="flex flex-col px-4 pb-4">
         {paymentProvidersToDisplay.length === 0 ? (

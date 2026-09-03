@@ -21,7 +21,9 @@ inputs:
     required: true
   TEMPLE_WALLET_EVERSTAKE_LINK_ID:
     required: true
-  TEMPLE_WALLET_UTORG_SID:
+  MT_PELERIN_ACTIVATION_KEY:
+    required: true
+  MT_PELERIN_REF_CODE:
     required: true
   TEMPLE_WALLET_API_URL:
     required: true
@@ -85,6 +87,8 @@ inputs:
     required: false
   CONVERSION_API_URL:
     required: true
+  SPECIFY_PUBLISHER_KEY:
+    required: false
   GOOGLE_AUTH_PAGE_URL:
     required: true
   # [e2e]
@@ -149,7 +153,8 @@ runs:
         TEMPLE_WALLET_EXOLIX_API_KEY=${{ inputs.TEMPLE_WALLET_EXOLIX_API_KEY }}
         TEMPLE_WALLET_EVERSTAKE_API_KEY=${{ inputs.TEMPLE_WALLET_EVERSTAKE_API_KEY }}
         TEMPLE_WALLET_EVERSTAKE_LINK_ID=${{ inputs.TEMPLE_WALLET_EVERSTAKE_LINK_ID }}
-        TEMPLE_WALLET_UTORG_SID=${{ inputs.TEMPLE_WALLET_UTORG_SID }}
+        MT_PELERIN_ACTIVATION_KEY=${{ inputs.MT_PELERIN_ACTIVATION_KEY }}
+        MT_PELERIN_REF_CODE=${{ inputs.MT_PELERIN_REF_CODE }}
 
         TEMPLE_WALLET_API_URL=${{ inputs.TEMPLE_WALLET_API_URL }}
         TEMPLE_WALLET_DEXES_API_URL=${{ inputs.TEMPLE_WALLET_DEXES_API_URL }}
@@ -189,6 +194,7 @@ runs:
         TEMPLE_ADS_ORIGIN_PASSPHRASE=${{ inputs.TEMPLE_ADS_ORIGIN_PASSPHRASE }}
         TAKE_ADS_TOKEN=${{ inputs.TAKE_ADS_TOKEN }}
         CONVERSION_API_URL=${{ inputs.CONVERSION_API_URL }}
+        SPECIFY_PUBLISHER_KEY=${{ inputs.SPECIFY_PUBLISHER_KEY }}
 
         GOOGLE_AUTH_PAGE_URL=${{ inputs.GOOGLE_AUTH_PAGE_URL }}
 

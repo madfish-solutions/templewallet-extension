@@ -1,7 +1,7 @@
 import React, { FC } from 'react';
 
 import clsx from 'clsx';
-import { Controller, useFormContext } from 'react-hook-form';
+import { Controller, useFormContext, useFormState } from 'react-hook-form';
 import ReactJson from 'react-json-view';
 
 import { FadeTransition } from 'app/a11y/FadeTransition';
@@ -25,8 +25,9 @@ export const AdvancedTab: FC<AdvancedTabProps> = ({ isEvm = false }) => {
 };
 
 const EvmContent = () => {
-  const { control, getValues, formState } = useFormContext<EvmTxParamsFormData>();
-  const { errors } = formState;
+  const { control, getValues } = useFormContext<EvmTxParamsFormData>();
+  // React Compiler caches `<FormProvider {...form}>` on RHF's stable form, so context consumers stop re-rendering
+  const { errors } = useFormState<EvmTxParamsFormData>({ control });
   const { data } = useEvmEstimationDataState();
 
   const gasLimitError = errors.gasLimit?.message;

@@ -1,7 +1,6 @@
 import React, { memo, useCallback, useEffect, useState } from 'react';
 
 import clsx from 'clsx';
-import { isEmpty } from 'lodash';
 import { Controller, RegisterOptions, SubmitHandler, useForm, useWatch } from 'react-hook-form';
 
 import { CaptionAlert } from 'app/atoms';
@@ -9,6 +8,7 @@ import AssetField from 'app/atoms/AssetField';
 import { ActionsButtonsBox, PageModal } from 'app/atoms/PageModal';
 import { StyledButton } from 'app/atoms/StyledButton';
 import { t, T } from 'lib/i18n';
+import { shouldDisableSubmitButton } from 'lib/ui/should-disable-submit-button';
 
 type Option = '0.5' | '1' | 'custom';
 const options = ['0.5', '1', 'custom'] as const;
@@ -28,16 +28,11 @@ export const SwapSettingsModal = memo<SelectTokenModalProps>(
   ({ currentSlippageTolerance, opened, onRequestClose, onConfirm }) => {
     const [selectedOption, setSelectedOption] = useState(getOptionFromSlippage(currentSlippageTolerance));
 
-    const {
-      control,
-      handleSubmit,
-      setValue,
-      setError,
-      formState: { errors, submitCount, isSubmitting }
-    } = useForm<SwapSettingForm>({
+    const { control, handleSubmit, setValue, setError, formState } = useForm<SwapSettingForm>({
       mode: 'onSubmit',
       reValidateMode: 'onChange'
     });
+    const { errors, submitCount, isSubmitting } = formState;
 
     const customSlippageValue = useWatch({ control, name: 'customSlippage' });
     const formSubmitted = submitCount > 0;
@@ -147,7 +142,7 @@ export const SwapSettingsModal = memo<SelectTokenModalProps>(
             size="L"
             color="primary"
             loading={isSubmitting}
-            disabled={formSubmitted && !isEmpty(errors)}
+            disabled={shouldDisableSubmitButton({ errors, formState })}
           >
             Apply
           </StyledButton>

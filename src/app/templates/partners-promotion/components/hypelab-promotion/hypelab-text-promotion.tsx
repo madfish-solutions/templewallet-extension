@@ -1,13 +1,13 @@
-import { FC, useCallback, useEffect, useRef, useState } from 'react';
+import { FC, useEffect, useRef, useState } from 'react';
 
 import { Native, NativeElement } from '@hypelab/sdk-react';
 
 import { useElementValue } from 'app/hooks/ads/use-element-value';
 import { AdsProviderTitle } from 'lib/ads';
 import { EnvVars } from 'lib/env';
-import { useUpdatableRef } from 'lib/ui/hooks';
+import { useTimeout, useUpdatableRef } from 'lib/ui/hooks';
 
-import { SingleProviderPromotionProps } from '../../types';
+import { HypelabPromotionProps } from '../../types';
 import { TextPromotionView } from '../text-promotion-view';
 
 import { useChildAdElementRef } from './use-child-ad-element-ref';
@@ -22,14 +22,19 @@ const attributesObserverOptions = { attributes: true };
 const dummyImageSrc =
   'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==';
 
-export const HypelabTextPromotion: FC<Omit<SingleProviderPromotionProps, 'variant'>> = ({
+const AD_LOADING_TIMEOUT = 3_000;
+
+export const HypelabTextPromotion: FC<Omit<HypelabPromotionProps, 'variant'>> = ({
   accountPkh,
   isVisible,
   pageName,
   blacklistedCampaignSlugs,
+  unpaidCampaignSlugs,
   onImpression,
   onReady,
-  onError
+  onError,
+  onNoPaidAd,
+  showNonPaidAd
 }) => {
   const [adRectVisible, setAdRectVisible] = useState(false);
   const adRectVisibleRef = useUpdatableRef(adRectVisible);
@@ -39,14 +44,20 @@ export const HypelabTextPromotion: FC<Omit<SingleProviderPromotionProps, 'varian
   const hypelabIconRef = useRef<HTMLImageElement>(null);
   const hypelabNativeParentRef = useRef<HTMLDivElement>(null);
   const hypelabNativeElementRef = useChildAdElementRef(hypelabNativeParentRef, 'hype-native');
-  const [adIsBanned, setAdIsBanned] = useState(false);
+  const [adIsHidden, setAdIsHidden] = useState(false);
 
   const headlineText = useElementValue(hypelabHeadlineRef, getInnerText, '', innerTextObserverOptions);
   const bodyText = useElementValue(hypelabBodyRef, getInnerText, '', innerTextObserverOptions);
   const ctaUrl = useElementValue(hypelabCtaLinkRef, getLinkHref, '/', attributesObserverOptions);
   const iconUrl = useElementValue(hypelabIconRef, getImageSrc, dummyImageSrc, attributesObserverOptions);
 
-  const handleImageError = useCallback(() => setAdIsBanned(true), []);
+  const handleImageError = () => setAdIsHidden(true);
+
+  useTimeout(() => {
+    if (headlineText.length === 0) {
+      onError();
+    }
+  }, AD_LOADING_TIMEOUT);
 
   useEffect(() => {
     const impressionsListener = (event: Event) => {
@@ -61,19 +72,44 @@ export const HypelabTextPromotion: FC<Omit<SingleProviderPromotionProps, 'varian
   }, [adRectVisibleRef, onImpression, hypelabNativeElementRef]);
 
   useEffect(() => {
+    const errorListener = (event: Event) => {
+      if (event.target === hypelabNativeElementRef.current) {
+        onError();
+      }
+    };
+
+    globalThis.addEventListener('error', errorListener);
+
+    return () => globalThis.removeEventListener('error', errorListener);
+  }, [onError, hypelabNativeElementRef]);
+
+  useEffect(() => {
     const adIsReady = headlineText.length > 0;
 
     if (!adIsReady) return;
 
     const el = hypelabNativeElementRef.current as unknown as { bid?: { cid?: string } } | null;
-    const campaignSlug = el?.bid?.cid;
-    if (campaignSlug && blacklistedCampaignSlugs?.includes(campaignSlug)) {
-      setAdIsBanned(true);
-    } else {
-      setAdIsBanned(false);
+    const campaignSlug = el?.bid?.cid ?? '';
+    const isBlacklisted = blacklistedCampaignSlugs?.includes(campaignSlug) ?? false;
+    const isUnpaid = unpaidCampaignSlugs?.includes(campaignSlug) ?? false;
+
+    const isDisplayable = !isBlacklisted && (!isUnpaid || showNonPaidAd);
+    if (isDisplayable) {
+      setAdIsHidden(false);
       onReady();
+    } else {
+      setAdIsHidden(true);
+      onNoPaidAd();
     }
-  }, [headlineText, onError, onReady, blacklistedCampaignSlugs, hypelabNativeElementRef]);
+  }, [
+    headlineText,
+    onReady,
+    onNoPaidAd,
+    showNonPaidAd,
+    blacklistedCampaignSlugs,
+    unpaidCampaignSlugs,
+    hypelabNativeElementRef
+  ]);
 
   useEffect(() => {
     // Ad refreshing isn't stopped by `@hypelab/sdk-react` itself
@@ -118,7 +154,7 @@ export const HypelabTextPromotion: FC<Omit<SingleProviderPromotionProps, 'varian
           accountPkh={accountPkh}
           href={ctaUrl || '/'}
           imageSrc={iconUrl || dummyImageSrc}
-          isVisible={isVisible && !adIsBanned}
+          isVisible={isVisible && !adIsHidden}
           headline={headlineText}
           contentText={bodyText}
           providerTitle={AdsProviderTitle.HypeLab}

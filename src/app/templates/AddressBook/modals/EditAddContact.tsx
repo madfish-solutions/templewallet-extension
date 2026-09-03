@@ -15,6 +15,7 @@ import { useContactsActions } from 'lib/temple/front';
 import { TempleContact } from 'lib/temple/types';
 import { isValidTezosAddress } from 'lib/tezos';
 import { useBooleanState } from 'lib/ui/hooks';
+import { shouldDisableSubmitButton } from 'lib/ui/should-disable-submit-button';
 import { readClipboard } from 'lib/ui/utils';
 import { delay } from 'lib/utils';
 
@@ -53,7 +54,7 @@ export const EditAddContact = memo<Props>(({ contact, opened, onRequestClose }) 
     reValidateMode: 'onChange',
     defaultValues
   });
-  const { isSubmitting, submitCount, isValid } = formState;
+  const { isSubmitting, submitCount, errors } = formState;
 
   const formSubmitted = submitCount > 0;
 
@@ -218,7 +219,7 @@ export const EditAddContact = memo<Props>(({ contact, opened, onRequestClose }) 
           size="L"
           color="primary"
           loading={isSubmitting}
-          disabled={formSubmitted && !isValid}
+          disabled={shouldDisableSubmitButton({ errors, formState })}
         >
           <T id="save" />
         </StyledButton>

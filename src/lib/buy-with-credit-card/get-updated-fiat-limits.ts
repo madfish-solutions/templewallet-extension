@@ -1,14 +1,24 @@
 import { isDefined } from '@rnw-community/shared';
 import axios from 'axios';
+import { BigNumber } from 'bignumber.js';
 
 import { PairLimits } from 'app/store/buy-with-credit-card/state';
 import { getMoonPayBuyQuote } from 'lib/apis/moonpay';
-import { convertFiatAmountToCrypto as utorgConvertFiatAmountToCrypto } from 'lib/apis/utorg';
+import { getMtPelerinConvertQuote, getMtPelerinSellLimit } from 'lib/apis/mt-pelerin';
 import { createEntity } from 'lib/store';
 import { getAxiosQueryErrorMessage } from 'lib/utils/get-axios-query-error-message';
 
+import { getMtPelerinNetworkByChain } from './provider-currencies.utils';
 import { TopUpProviderId } from './top-up-provider-id.enum';
+import { fromTopUpTokenSlug } from './top-up-token-slug.utils';
 import { TopUpInputInterface, TopUpOutputInterface } from './topup.interface';
+
+const MT_PELERIN_MAX_BUY_CHF = 100_000;
+/** Arbitrary fiat amount used only to discover network/fix fees from the convert quote. */
+const MT_PELERIN_FEE_PROBE_AMOUNT = 100;
+
+const roundToFiatPrecision = (value: number, precision: number, roundingMode: BigNumber.RoundingMode) =>
+  new BigNumber(value).decimalPlaces(precision, roundingMode).toNumber();
 
 const getInputAmountFunctions: Partial<
   Record<TopUpProviderId, (fiatSymbol: string, cryptoSymbol: string, amount: number) => Promise<number>>
@@ -22,9 +32,45 @@ const getInputAmountFunctions: Partial<
     );
 
     return baseCurrencyAmount;
-  },
-  [TopUpProviderId.Utorg]: async (fiatSymbol, cryptoSymbol, amount) =>
-    utorgConvertFiatAmountToCrypto(fiatSymbol, cryptoSymbol, undefined, amount)
+  }
+};
+
+const getMtPelerinUpdatedFiatLimits = async (
+  fiatCurrency: TopUpInputInterface,
+  cryptoCurrency: TopUpOutputInterface
+): Promise<PairLimits[TopUpProviderId]> => {
+  try {
+    const [, chainKind, chainId] = fromTopUpTokenSlug(cryptoCurrency.slug);
+    const network = getMtPelerinNetworkByChain(chainKind, chainId);
+
+    if (!network) {
+      return createEntity(undefined, false, `Mt Pelerin network is not configured for chain ${chainId}`);
+    }
+
+    const fiatCode = fiatCurrency.code.toUpperCase();
+    const fractionalUnit = 10 ** -fiatCurrency.precision;
+    const quotePromise = getMtPelerinConvertQuote(fiatCode, cryptoCurrency.code, MT_PELERIN_FEE_PROBE_AMOUNT, network);
+
+    const [{ fees }, max] = await Promise.all([
+      quotePromise,
+      fiatCode === 'CHF'
+        ? Promise.resolve(MT_PELERIN_MAX_BUY_CHF)
+        : Promise.all([getMtPelerinSellLimit(fiatCode), getMtPelerinSellLimit('CHF')]).then(
+            ([fiatSellLimit, chfSellLimit]) => (MT_PELERIN_MAX_BUY_CHF * fiatSellLimit) / chfSellLimit
+          )
+    ]);
+
+    const min = roundToFiatPrecision(
+      Number(fees.networkFee) + Number(fees.fixFee) + fractionalUnit,
+      fiatCurrency.precision,
+      BigNumber.ROUND_CEIL
+    );
+    const flooredMax = roundToFiatPrecision(max, fiatCurrency.precision, BigNumber.ROUND_FLOOR);
+
+    return createEntity({ min, max: flooredMax });
+  } catch (err) {
+    return createEntity(undefined, false, getAxiosQueryErrorMessage(err));
+  }
 };
 
 export const getUpdatedFiatLimits = async (
@@ -32,6 +78,10 @@ export const getUpdatedFiatLimits = async (
   cryptoCurrency: TopUpOutputInterface,
   providerId: TopUpProviderId
 ): Promise<PairLimits[TopUpProviderId]> => {
+  if (providerId === TopUpProviderId.MtPelerin) {
+    return getMtPelerinUpdatedFiatLimits(fiatCurrency, cryptoCurrency);
+  }
+
   const { minAmount: minCryptoAmount, maxAmount: maxCryptoAmount } = cryptoCurrency;
 
   const limitsResult = await Promise.all(
@@ -45,6 +95,24 @@ export const getUpdatedFiatLimits = async (
           return createEntity(result);
         } catch (err) {
           if (axios.isAxiosError(err) && err.response?.status === 400) {
+            const { moonPayErrorCode, metadata } = err.response.data ?? {};
+            if (moonPayErrorCode === '5_TM_MIN_BUY_AMOUNT_NOT_MET' && typeof metadata?.minBuyAmountBase === 'string') {
+              const parsedMinBuyAmount = Number.parseFloat(metadata.minBuyAmountBase);
+
+              if (parsedMinBuyAmount > 0) {
+                return createEntity(parsedMinBuyAmount);
+              }
+            } else if (
+              moonPayErrorCode === '5_TM_MAX_BUY_AMOUNT_EXCEEDED' &&
+              typeof metadata?.maxBuyAmountBase === 'string'
+            ) {
+              const parsedMaxBuyAmount = Number.parseFloat(metadata.maxBuyAmountBase);
+
+              if (parsedMaxBuyAmount > 0) {
+                return createEntity(parsedMaxBuyAmount);
+              }
+            }
+
             return createEntity(undefined);
           }
 

@@ -1,12 +1,12 @@
 import { getMoonPayCurrencies } from 'lib/apis/moonpay';
-import { getCurrenciesInfo } from 'lib/apis/utorg';
+import { getMtPelerinAssets } from 'lib/apis/temple';
 import {
+  isEligibleMtPelerinCrypto,
+  isEligibleMtPelerinFiat,
   isEligibleMoonPayCrypto,
   isEligibleMoonPayFiat,
-  isEligibleUtorgCrypto,
-  isEligibleUtorgFiat,
-  moonPayCryptoToTopUpSlug,
-  utorgCryptoToTopUpSlug
+  mtPelerinCryptoToTopUpSlug,
+  moonPayCryptoToTopUpSlug
 } from 'lib/buy-with-credit-card/provider-currencies.utils';
 import { toTopUpTokenSlug } from 'lib/buy-with-credit-card/top-up-token-slug.utils';
 import type { FiatCurrencyOptionBase } from 'lib/fiat-currency/types';
@@ -31,13 +31,13 @@ interface ProviderList {
 
 interface ProviderLists {
   moonpay: ProviderList;
-  utorg: ProviderList;
+  mtPelerin: ProviderList;
 }
 
 const EMPTY_LIST: ProviderList = { cryptoSlugs: [], fiatCodes: [] };
 
 const buildLists = async (): Promise<ProviderLists> => {
-  const [moonpay, utorg] = await Promise.allSettled([getMoonPayCurrencies(), getCurrenciesInfo()]);
+  const [moonpay, mtPelerin] = await Promise.allSettled([getMoonPayCurrencies(), getMtPelerinAssets()]);
 
   return {
     moonpay:
@@ -47,33 +47,36 @@ const buildLists = async (): Promise<ProviderLists> => {
             fiatCodes: moonpay.value.filter(isEligibleMoonPayFiat).map(({ code }) => code.toUpperCase())
           }
         : EMPTY_LIST,
-    utorg:
-      utorg.status === 'fulfilled'
+    mtPelerin:
+      mtPelerin.status === 'fulfilled'
         ? {
-            cryptoSlugs: utorg.value.filter(isEligibleUtorgCrypto).map(utorgCryptoToTopUpSlug),
-            fiatCodes: utorg.value.filter(isEligibleUtorgFiat).map(({ symbol }) => symbol.toUpperCase())
+            cryptoSlugs: mtPelerin.value.cryptoTokens.filter(isEligibleMtPelerinCrypto).map(mtPelerinCryptoToTopUpSlug),
+            fiatCodes: mtPelerin.value.fiatCurrencies
+              .filter(isEligibleMtPelerinFiat)
+              .map(({ symbol }) => symbol.toUpperCase())
           }
         : EMPTY_LIST
   };
 };
 
 const ensureLists = persistentCache<ProviderLists>({
-  storageKey: 'WEB_WIDGETS_BUY_LISTS',
+  storageKey: 'WEB_WIDGETS_BUY_LISTS_V2',
   ttlMs: BUY_LISTS_TTL_MS,
-  fallback: { moonpay: EMPTY_LIST, utorg: EMPTY_LIST },
+  fallback: { moonpay: EMPTY_LIST, mtPelerin: EMPTY_LIST },
   build: buildLists,
-  isValid: ({ moonpay, utorg }) => moonpay.cryptoSlugs.length > 0 || utorg.cryptoSlugs.length > 0
+  isValid: ({ moonpay, mtPelerin }) => moonpay.cryptoSlugs.length > 0 || mtPelerin.cryptoSlugs.length > 0
 });
 
 export const getBuyPreselect = async (
-  symbol: string,
+  tokenAddress: string | null,
+  tokenId: number | undefined,
   chainKind: TempleChainKind,
   chainId: string
 ): Promise<BuyPreselect> => {
-  const { moonpay, utorg } = await ensureLists();
+  const { moonpay, mtPelerin } = await ensureLists();
 
-  const tokenSlug = toTopUpTokenSlug(symbol.toUpperCase(), chainKind, chainId);
-  const eligibleProviders = [moonpay, utorg].filter(({ cryptoSlugs }) =>
+  const tokenSlug = toTopUpTokenSlug(tokenAddress, tokenId, chainKind, chainId);
+  const eligibleProviders = [moonpay, mtPelerin].filter(({ cryptoSlugs }) =>
     cryptoSlugs.some(slug => equalsIgnoreCase(slug, tokenSlug))
   );
   const supported = eligibleProviders.length > 0;

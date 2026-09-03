@@ -5,6 +5,7 @@ import { nanoid } from 'nanoid';
 
 import { ArtificialError } from 'app/defaults';
 import { toastError } from 'app/toaster';
+import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { EvmAssetStandard } from 'lib/evm/types';
 import { t } from 'lib/i18n';
 import { getRandomColor } from 'lib/ui/colors';
@@ -93,6 +94,7 @@ export const useAddNetwork = (
                 ...commonChainSpecs,
                 currency: {
                   standard: EvmAssetStandard.NATIVE,
+                  address: EVM_TOKEN_SLUG,
                   symbol,
                   name: currencyName,
                   decimals: currencyDecimals

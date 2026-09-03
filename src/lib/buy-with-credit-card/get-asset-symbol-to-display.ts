@@ -1,8 +1,4 @@
-import { isDefined } from '@rnw-community/shared';
-
 import { TEZOS_METADATA } from 'lib/metadata';
-
-import { fromTopUpTokenSlug } from './top-up-token-slug.utils';
 
 interface AssetBase {
   code: string;
@@ -10,14 +6,5 @@ interface AssetBase {
   slug?: string;
 }
 
-export const getAssetSymbolToDisplay = (asset: AssetBase) => {
-  if (asset.code.toLowerCase() === 'xtz') {
-    return TEZOS_METADATA.symbol;
-  }
-
-  if (isDefined(asset.slug)) {
-    return fromTopUpTokenSlug(asset.slug)[0];
-  }
-
-  return asset.codeToDisplay ?? asset.code;
-};
+export const getAssetSymbolToDisplay = (asset: AssetBase) =>
+  asset.code.toLowerCase() === 'xtz' ? TEZOS_METADATA.symbol : (asset.codeToDisplay ?? asset.code);

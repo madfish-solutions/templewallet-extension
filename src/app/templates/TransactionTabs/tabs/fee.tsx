@@ -1,7 +1,7 @@
 import React, { FC, useMemo } from 'react';
 
 import clsx from 'clsx';
-import { Controller, useFormContext } from 'react-hook-form';
+import { Controller, useFormContext, useFormState } from 'react-hook-form';
 import { formatEther } from 'viem';
 
 import { FadeTransition } from 'app/a11y/FadeTransition';
@@ -105,7 +105,9 @@ const EvmContent: FC<ContentProps<TempleChainKind.EVM>> = ({ selectedOption, onO
 };
 
 const TezosContent: FC<ContentProps<TempleChainKind.Tezos>> = ({ network, selectedOption, onOptionSelect }) => {
-  const { control, formState } = useFormContext<TezosTxParamsFormData>();
+  const { control } = useFormContext<TezosTxParamsFormData>();
+  // React Compiler caches `<FormProvider {...form}>` on RHF's stable form, so context consumers stop re-rendering
+  const formState = useFormState<TezosTxParamsFormData>({ control });
   const { data } = useTezosEstimationDataState();
   const { decimals: gasDecimals, symbol: gasSymbol } = useTezosGasMetadata(network.chainId);
 

@@ -1,5 +1,8 @@
 import { useCallback } from 'react';
 
+import { dispatch } from 'app/store';
+import { setAssetsFilterChain } from 'app/store/assets-filter-options/actions';
+import { useAssetsFilterOptionsSelector } from 'app/store/assets-filter-options/selectors';
 import { t } from 'lib/i18n';
 import { useTempleClient } from 'lib/temple/front/client';
 import { NetworkBase, StoredEvmNetwork, StoredTezosNetwork } from 'temple/networks';
@@ -12,6 +15,7 @@ export const getNetworkTitle = ({
 
 export const useTempleNetworksActions = () => {
   const { customTezosNetworks, customEvmNetworks, updateSettings } = useTempleClient();
+  const { filterChain } = useAssetsFilterOptionsSelector();
 
   const addTezosNetwork = useCallback(
     (newNetwork: StoredTezosNetwork) =>
@@ -29,12 +33,28 @@ export const useTempleNetworksActions = () => {
     [customTezosNetworks, updateSettings]
   );
 
+  const removeSomeNetworks = useCallback(
+    <T extends NetworkBase>(
+      networkIds: string[],
+      customNetworks: T[],
+      setCustomNetworks: (networks: T[]) => Promise<void>
+    ) => {
+      const filterNetwork = customNetworks.find(({ chainId }) => chainId === filterChain?.chainId);
+      if (filterNetwork && networkIds.includes(filterNetwork.id)) {
+        dispatch(setAssetsFilterChain(null));
+      }
+
+      return setCustomNetworks(customNetworks.filter(n => !networkIds.includes(n.id)));
+    },
+    [filterChain]
+  );
+
   const removeTezosNetworks = useCallback(
     (networkIds: string[]) =>
-      updateSettings({
-        customTezosNetworks: customTezosNetworks.filter(n => !networkIds.includes(n.id))
-      }),
-    [customTezosNetworks, updateSettings]
+      removeSomeNetworks(networkIds, customTezosNetworks, networks =>
+        updateSettings({ customTezosNetworks: networks })
+      ),
+    [customTezosNetworks, updateSettings, removeSomeNetworks]
   );
 
   const addEvmNetwork = useCallback(
@@ -55,10 +75,8 @@ export const useTempleNetworksActions = () => {
 
   const removeEvmNetworks = useCallback(
     (networkIds: string[]) =>
-      updateSettings({
-        customEvmNetworks: customEvmNetworks.filter(n => !networkIds.includes(n.id))
-      }),
-    [customEvmNetworks, updateSettings]
+      removeSomeNetworks(networkIds, customEvmNetworks, networks => updateSettings({ customEvmNetworks: networks })),
+    [customEvmNetworks, updateSettings, removeSomeNetworks]
   );
 
   return {
