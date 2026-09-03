@@ -11,7 +11,7 @@ import type { TokenMetadata, EvmAssetMetadataBase, EvmCollectibleMetadata } from
 
 type TcInfraMediaSize = 'small' | 'medium' | 'large' | 'raw';
 type ObjktMediaTail = 'display' | 'artifact' | 'thumb288';
-type IpfsGate = (info: IpfsUriInfo) => string;
+type IpfsGate = SyncFn<IpfsUriInfo, string>;
 
 const COMPRESSED_TOKEN_ICON_SIZE = 80;
 const COMPRESSED_COLLECTIBLE_ICON_SIZE = 250;

@@ -14,8 +14,6 @@ import { useDidMount } from 'lib/ui/hooks';
 import { type ImageSourceStage } from 'lib/ui/race-image-urls';
 import { useImagesStackLoading } from 'lib/ui/use-images-stack-loading';
 
-export type { ImageSourceStage } from 'lib/ui/race-image-urls';
-
 export interface ImageStackedProps extends React.ImgHTMLAttributes<HTMLImageElement> {
   /**
    * (!) Memoize.

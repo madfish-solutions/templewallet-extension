@@ -3,7 +3,7 @@ export interface ImageSourceStage {
   delayMs?: number;
 }
 
-export interface RaceImageUrlsOptions {
+interface RaceImageUrlsOptions {
   timeoutMs?: number;
   signal?: AbortSignal;
   immediate?: boolean;
