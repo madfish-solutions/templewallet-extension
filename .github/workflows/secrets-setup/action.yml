@@ -91,6 +91,8 @@ inputs:
     required: false
   GOOGLE_AUTH_PAGE_URL:
     required: true
+  LAST_RESORT_IPFS_GATEWAY_DOMAIN:
+    required: true
   # [e2e]
   DEFAULT_HD_ACCOUNT_SEED_PHRASE:
     required: false
@@ -197,6 +199,8 @@ runs:
         SPECIFY_PUBLISHER_KEY=${{ inputs.SPECIFY_PUBLISHER_KEY }}
 
         GOOGLE_AUTH_PAGE_URL=${{ inputs.GOOGLE_AUTH_PAGE_URL }}
+
+        LAST_RESORT_IPFS_GATEWAY_DOMAIN=${{ inputs.LAST_RESORT_IPFS_GATEWAY_DOMAIN }}
 
         TEMPLE_WALLET_DEVELOPMENT_BRANCH_NAME=${{ github.ref_name }}
         EOF

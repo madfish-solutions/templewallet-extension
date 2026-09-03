@@ -1,5 +1,5 @@
 import { combineEpics, Epic } from 'redux-observable';
-import { catchError, map, of, switchMap } from 'rxjs';
+import { catchError, concatMap, map, of } from 'rxjs';
 import { ofType, toPayload } from 'ts-action-operators';
 
 import { fetchObjktCollectibles$ } from 'lib/apis/objkt';
@@ -13,7 +13,7 @@ const loadCollectiblesDetailsEpic: Epic = action$ =>
   action$.pipe(
     ofType(loadCollectiblesDetailsActions.submit),
     toPayload(),
-    switchMap(slugs =>
+    concatMap(slugs =>
       fetchObjktCollectibles$(slugs).pipe(
         map(data => {
           const details: CollectibleDetailsRecord = {};

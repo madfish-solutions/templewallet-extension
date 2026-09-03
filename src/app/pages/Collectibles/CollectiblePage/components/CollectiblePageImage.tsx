@@ -1,7 +1,6 @@
 import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
 
 import clsx from 'clsx';
-import { isString } from 'lodash';
 
 import { Model3DViewer } from 'app/atoms/Model3DViewer';
 import { useCollectiblesListOptionsSelector } from 'app/store/assets-filter-options/selectors';
@@ -12,8 +11,8 @@ import { CollectibleImageLoader } from 'app/templates/collectibles/collectible-i
 import {
   isSvgDataUriInUtf8Encoding,
   buildObjktCollectibleArtifactUri,
-  buildHttpLinkFromUri,
-  buildEvmCollectibleIconSources
+  buildEvmCollectibleIconSources,
+  buildIpfsGatewaySourceStages
 } from 'lib/images-uri';
 import { TokenMetadata } from 'lib/metadata';
 import { EvmCollectibleMetadata } from 'lib/metadata/types';
@@ -122,14 +121,22 @@ interface EvmCollectiblePageImageProps {
 export const EvmCollectiblePageImage = memo<EvmCollectiblePageImageProps>(({ metadata, className }) => {
   const { image } = metadata;
 
-  const sources = useMemo(() => [buildHttpLinkFromUri(image)].filter(isString), [image]);
-  const sourcesWithCompressedFallback = useMemo(() => buildEvmCollectibleIconSources(metadata), [metadata]);
+  const sources = useMemo(() => buildIpfsGatewaySourceStages(image), [image]);
+  const sourcesWithCompressedFallback = useMemo(
+    () => buildEvmCollectibleIconSources(metadata, { includeCompressed: false }),
+    [metadata]
+  );
 
   return (
     <>
-      <ImageStacked sources={sourcesWithCompressedFallback} className="absolute w-full h-full object-cover blur" />
+      <ImageStacked
+        sources={sourcesWithCompressedFallback}
+        immediate
+        className="absolute w-full h-full object-cover blur"
+      />
       <ImageStacked
         sources={sources}
+        immediate
         loader={<CollectibleImageLoader large />}
         fallback={<CollectibleImageFallback large />}
         className={clsx('w-full h-full object-contain z-1', className)}

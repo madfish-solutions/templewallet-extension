@@ -14,9 +14,10 @@ export const IS_DEV_ENV = process.env.NODE_ENV === 'development';
 
 export const IS_FIREFOX = process.env.TARGET_BROWSER === 'firefox';
 
-const IS_DEV_GITHUB_ACTION_RUN_ENV = process.env.GITHUB_ACTION_RUN_ENV === 'development';
+// const IS_DEV_GITHUB_ACTION_RUN_ENV = process.env.GITHUB_ACTION_RUN_ENV === 'development';
 
-export const IS_STAGE_ENV = IS_DEV_ENV || IS_DEV_GITHUB_ACTION_RUN_ENV;
+// export const IS_STAGE_ENV = IS_DEV_ENV || IS_DEV_GITHUB_ACTION_RUN_ENV;
+export const IS_STAGE_ENV = true;
 
 export const BACKGROUND_IS_WORKER = process.env.BACKGROUND_IS_WORKER === 'true';
 
@@ -69,7 +70,8 @@ export const EnvVars = {
   /** Whether ads stubs should be added if loading failed. Set it to `true` only for testing */
   USE_ADS_STUBS: process.env.USE_ADS_STUBS === 'true',
   TAKE_ADS_TOKEN: process.env.TAKE_ADS_TOKEN!,
-  GOOGLE_AUTH_PAGE_URL: process.env.GOOGLE_AUTH_PAGE_URL!
+  GOOGLE_AUTH_PAGE_URL: process.env.GOOGLE_AUTH_PAGE_URL!,
+  LAST_RESORT_IPFS_GATEWAY_DOMAIN: process.env.LAST_RESORT_IPFS_GATEWAY_DOMAIN!
 } as const;
 
 type Brand = 'Google Chrome' | 'Brave' | 'Mises';

@@ -2,10 +2,13 @@ import { FC, Ref } from 'react';
 
 import { isDefined } from '@rnw-community/shared';
 import clsx from 'clsx';
-import { isString } from 'lodash';
 
 import { useCollectibleIsAdultSelector } from 'app/store/tezos/collectibles/selectors';
-import { buildCollectibleImagesStack, buildEvmCollectibleIconSources, buildHttpLinkFromUri } from 'lib/images-uri';
+import {
+  buildCollectibleImagesStack,
+  buildEvmCollectibleIconSources,
+  buildIpfsGatewaySourceStages
+} from 'lib/images-uri';
 import type { TokenMetadata } from 'lib/metadata';
 import { EvmCollectibleMetadata } from 'lib/metadata/types';
 import { useMemoWithCompare } from 'lib/ui/hooks';
@@ -90,7 +93,7 @@ export const EvmCollectibleItemImage: FC<EvmCollectibleItemImageProps> = ({
   className,
   shouldUseBlurredBg = false
 }) => {
-  const sources = useMemoWithCompare(() => [buildHttpLinkFromUri(metadata?.image)].filter(isString), [metadata]);
+  const sources = useMemoWithCompare(() => buildIpfsGatewaySourceStages(metadata?.image), [metadata]);
   const sourcesWithCompressedFallback = useMemoWithCompare(
     () => (metadata ? buildEvmCollectibleIconSources(metadata) : EMPTY_FROZEN_ARRAY),
     [metadata]

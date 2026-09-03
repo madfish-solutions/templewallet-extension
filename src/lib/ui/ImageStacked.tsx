@@ -11,7 +11,10 @@ import React, {
 } from 'react';
 
 import { useDidMount } from 'lib/ui/hooks';
+import { type ImageSourceStage } from 'lib/ui/race-image-urls';
 import { useImagesStackLoading } from 'lib/ui/use-images-stack-loading';
+
+export type { ImageSourceStage } from 'lib/ui/race-image-urls';
 
 export interface ImageStackedProps extends React.ImgHTMLAttributes<HTMLImageElement> {
   /**
@@ -19,7 +22,9 @@ export interface ImageStackedProps extends React.ImgHTMLAttributes<HTMLImageElem
    *
    * (i) Don't let empty string (`''`) get inside. Filter to not get endless loader.
    */
-  sources: string[];
+  sources: string[] | ImageSourceStage[];
+  /** Skip the in-flight cap (detail views). */
+  immediate?: boolean;
   size?: number;
   loader?: ReactNode;
   fallback?: ReactNode;
@@ -29,6 +34,7 @@ export interface ImageStackedProps extends React.ImgHTMLAttributes<HTMLImageElem
 
 export const ImageStacked: FC<ImageStackedProps> = ({
   sources,
+  immediate = false,
   size,
   loader,
   fallback,
@@ -38,7 +44,7 @@ export const ImageStacked: FC<ImageStackedProps> = ({
   ...imgProps
 }) => {
   const [preventLoadImage, setPreventLoadImage] = useState(true);
-  const { src, isLoading, isStackFailed, onSuccess, onFail } = useImagesStackLoading(sources);
+  const { src, isLoading, isStackFailed, onSuccess, onFail } = useImagesStackLoading(sources, immediate);
 
   useDidMount(() => startTransition(() => setPreventLoadImage(false)));
 
@@ -76,14 +82,16 @@ export const ImageStacked: FC<ImageStackedProps> = ({
   return (
     <>
       {isLoading ? (loader ?? null) : null}
-      <img
-        {...imgProps}
-        alt={isLoading ? '' : imgProps.alt}
-        src={src}
-        style={styleMemo}
-        onLoad={onLoadLocal}
-        onError={onFail}
-      />
+      {src ? (
+        <img
+          {...imgProps}
+          alt={isLoading ? '' : imgProps.alt}
+          src={src}
+          style={styleMemo}
+          onLoad={onLoadLocal}
+          onError={onFail}
+        />
+      ) : null}
     </>
   );
 };

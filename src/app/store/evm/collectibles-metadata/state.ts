@@ -6,8 +6,13 @@ export type EvmCollectibleMetadataRecord = Record<ChainId, CollectibleSlugCollec
 
 export interface EvmCollectiblesMetadataState {
   metadataRecord: EvmCollectibleMetadataRecord;
+  lastFullLoadAccount?: HexString;
+  seenChainsByAccount: StringRecord<number[]>;
+  checkedSlugsByAccount: StringRecord<Record<number, string[]>>;
 }
 
 export const evmCollectiblesMetadataInitialState: EvmCollectiblesMetadataState = {
-  metadataRecord: {}
+  metadataRecord: {},
+  seenChainsByAccount: {},
+  checkedSlugsByAccount: {}
 };
