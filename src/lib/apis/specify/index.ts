@@ -1,4 +1,4 @@
-import Specify, { ImageFormat, SpecifyAd } from '@specify-sh/sdk';
+import Specify, { ImageFormat, SpecifyAd } from '@specify-sh/publisher-sdk';
 import { isAddress } from 'viem';
 
 import { EnvVars } from 'lib/env';
@@ -33,7 +33,14 @@ export const serveSpecifyAd = async (
   }
 
   try {
-    return await specify.serve(accountAddress, { imageFormat, adUnitId });
+    const ad = await specify.serve(accountAddress, { imageFormat, adUnitId });
+
+    // `imageUrl` is nullable since SDK v1; an image placement without an image is a no-fill
+    if (!ad || (imageFormat !== ImageFormat.NO_IMAGE && !ad.imageUrl)) {
+      return null;
+    }
+
+    return ad;
   } catch (e) {
     console.error(e);
 
