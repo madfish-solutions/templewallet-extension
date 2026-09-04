@@ -356,13 +356,6 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
         const data = await fetchEvmSwapRoute(params);
         if (requestId !== latestRequestIdRef.current) return;
         if (data) {
-          if (isRoute3EvmRoute(data)) {
-            console.log('3route EVM route amounts', {
-              requestedAmount: params.amount,
-              fromAmount: data.fromAmount
-            });
-          }
-
           setSwapRoute(data);
           setIsRouteLoading(false);
           isRouteLoadingRef.current = false;
