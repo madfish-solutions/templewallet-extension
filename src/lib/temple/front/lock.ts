@@ -13,19 +13,18 @@ export const CLOSURE_STORAGE_KEY = 'last-page-closure-timestamp';
 const isSinglePageOpened = () => getOpenedTemplePagesN() === 1;
 
 export async function getShouldBeLockedOnStartup(didMount: boolean) {
+  if (!didMount && (await fetchFromStorage<boolean>(SHOULD_BACKUP_MNEMONIC_STORAGE_KEY).catch(() => false))) {
+    return true;
+  }
+
   if (!isSinglePageOpened()) {
     return false;
   }
 
   const closureTimestamp = Number(localStorage.getItem(CLOSURE_STORAGE_KEY));
-  const [shouldBackupMnemonic, autoLockTime] = await Promise.all([
-    fetchFromStorage<boolean>(SHOULD_BACKUP_MNEMONIC_STORAGE_KEY).catch(() => false),
-    getLockUpTimeout()
-  ]);
+  const autoLockTime = await getLockUpTimeout();
 
-  const shouldLockByTimeout = closureTimestamp && Date.now() - closureTimestamp >= autoLockTime;
-
-  return shouldLockByTimeout || (!didMount && shouldBackupMnemonic);
+  return Boolean(closureTimestamp && Date.now() - closureTimestamp >= autoLockTime);
 }
 
 let lockTimeout: ReturnType<typeof setTimeout> | undefined;
