@@ -73,15 +73,15 @@ export const PromoCard: FC = () => {
         <span className="text-font-description-bold">{t('promo')}</span>
         <PromoInfoIcon />
       </div>
-      <div className="w-full pl-3 pr-2 mt-auto">
+      <div className="w-full pl-3 pr-2 mt-2">
         <AllTimeStats
+          unit="TKEY"
           total={stats?.total}
           lastAmount={stats?.lastAmount}
-          unit="TKEY"
-          showLastAmount={!multiplierActive}
+          multiplierActive={multiplierActive}
         />
       </div>
-      {multiplierActive && <DoubleRewardsWidgetFooter daysRemaining={daysRemaining} />}
+      {multiplierActive && <DoubleRewardsWidgetFooter daysRemaining={daysRemaining} className="mt-auto" />}
     </div>
   );
 };
