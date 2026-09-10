@@ -5,7 +5,7 @@ import { erc20Abi, erc721Abi, parseAbi, PublicClient } from 'viem';
 import { erc1155Abi } from 'lib/abi/erc1155';
 import { NftCollectionAttribute } from 'lib/apis/temple/endpoints/evm/api.interfaces';
 import { fromAssetSlug } from 'lib/assets';
-import { buildHttpLinkFromUri } from 'lib/images-uri';
+import { buildLastResortIpfsGatewayUrl, buildPrimaryIpfsGatewayUrls, LAST_RESORT_IPFS_DELAY } from 'lib/images-uri';
 import { EvmCollectibleMetadata, EvmTokenMetadata } from 'lib/metadata/types';
 import { getViemPublicClient } from 'temple/evm';
 import { EvmNetworkEssentials } from 'temple/networks';
@@ -232,6 +232,54 @@ interface CollectibleMetadata {
   animation_url?: string;
 }
 
+const IPFS_METADATA_REQUEST = { maxRedirects: 4 } as const;
+const delayUnlessAborted = (ms: number, signal: AbortSignal) =>
+  new Promise<void>((resolve, reject) => {
+    if (signal.aborted) {
+      reject(signal.reason);
+      return;
+    }
+
+    const timeoutId = setTimeout(resolve, ms);
+    signal.addEventListener(
+      'abort',
+      () => {
+        clearTimeout(timeoutId);
+        reject(signal.reason);
+      },
+      { once: true }
+    );
+  });
+
+const fetchCollectibleMetadataJson = async (metadataUri: string) => {
+  const lastResortUri = buildLastResortIpfsGatewayUrl(metadataUri);
+
+  if (!lastResortUri) throw new Error();
+
+  if (lastResortUri === metadataUri) {
+    return axios.get<CollectibleMetadata>(metadataUri, IPFS_METADATA_REQUEST);
+  }
+
+  const controller = new AbortController();
+  const { signal } = controller;
+  const requestOptions = { ...IPFS_METADATA_REQUEST, signal };
+
+  const requests = buildPrimaryIpfsGatewayUrls(metadataUri)
+    .map(uri => axios.get<CollectibleMetadata>(uri, requestOptions))
+    .concat(
+      delayUnlessAborted(LAST_RESORT_IPFS_DELAY, signal).then(() =>
+        axios.get<CollectibleMetadata>(lastResortUri, requestOptions)
+      )
+    );
+  requests.forEach(request => void request.catch(() => undefined));
+
+  try {
+    return await Promise.any(requests);
+  } finally {
+    controller.abort();
+  }
+};
+
 const getCollectiblePropertiesFromUri = async (
   metadataUri?: string
 ): Promise<
@@ -240,11 +288,9 @@ const getCollectiblePropertiesFromUri = async (
     'image' | 'collectibleName' | 'description' | 'attributes' | 'externalUrl' | 'animationUrl'
   >
 > => {
-  const uri = buildHttpLinkFromUri(metadataUri);
+  if (!metadataUri) throw new Error();
 
-  if (!uri) throw new Error();
-
-  const { data } = await axios.get<CollectibleMetadata>(uri);
+  const { data } = await fetchCollectibleMetadataJson(metadataUri);
 
   if (typeof data !== 'object' || !data.image) throw new Error();
 
