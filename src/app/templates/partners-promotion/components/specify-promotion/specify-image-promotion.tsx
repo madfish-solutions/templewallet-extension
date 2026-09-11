@@ -24,7 +24,7 @@ export const SpecifyImagePromotion: FC<Omit<SingleProviderPromotionProps, 'varia
     onImpression
   );
 
-  if (!ad) {
+  if (!ad || !ad.imageUrl) {
     return null;
   }
 
