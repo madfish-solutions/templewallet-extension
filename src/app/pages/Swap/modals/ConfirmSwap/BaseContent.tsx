@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { ReactNode, useCallback } from 'react';
 
 import BigNumber from 'bignumber.js';
 import { SubmitHandler, useFormContext, useFormState } from 'react-hook-form';
@@ -12,7 +12,7 @@ import { CurrentAccount } from 'app/templates/current-account';
 import { FeeSummary } from 'app/templates/fee-summary';
 import { LedgerApprovalModal } from 'app/templates/ledger-approval-modal';
 import { TransactionTabs } from 'app/templates/TransactionTabs';
-import { Tab, TxParamsFormData } from 'app/templates/TransactionTabs/types';
+import { EvmTxParamsFormData, Tab, TxParamsFormData } from 'app/templates/TransactionTabs/types';
 import { T } from 'lib/i18n';
 import { DisplayedFeeOptions, FeeOptionLabel } from 'lib/temple/front/estimation-data-providers';
 import { LedgerOperationState } from 'lib/ui';
@@ -53,6 +53,9 @@ interface BaseContentProps<T extends TxParamsFormData> {
   readOnlyFees?: boolean;
   feeSymbol?: string;
   retry?: boolean;
+  accountAlert?: ReactNode;
+  evmGasPriceOverride?: string;
+  evmAdvancedValues?: Partial<EvmTxParamsFormData>;
 }
 
 export const BaseContent = <T extends TxParamsFormData>({
@@ -79,7 +82,10 @@ export const BaseContent = <T extends TxParamsFormData>({
   submitDisabled,
   readOnlyFees,
   feeSymbol,
-  retry
+  retry,
+  accountAlert,
+  evmGasPriceOverride,
+  evmAdvancedValues
 }: BaseContentProps<T>) => {
   const { control } = useFormContext<T>();
   // React Compiler caches `<FormProvider {...form}>` on RHF's stable form, so context consumers stop re-rendering
@@ -110,7 +116,7 @@ export const BaseContent = <T extends TxParamsFormData>({
                       gasFee={displayedFee}
                       storageFee={displayedStorageFee}
                       protocolFee={feeSymbol ? undefined : bridgeData?.protocolFee}
-                      onOpenFeeTab={readOnlyFees ? undefined : goToFeeTab}
+                      onOpenFeeTab={goToFeeTab}
                       assetSymbol={feeSymbol}
                       embedded
                     />
@@ -126,6 +132,7 @@ export const BaseContent = <T extends TxParamsFormData>({
         </div>
 
         <CurrentAccount />
+        {accountAlert}
 
         <TransactionTabs<T>
           network={network}
@@ -143,6 +150,8 @@ export const BaseContent = <T extends TxParamsFormData>({
           formId="confirm-form"
           tabsName="confirm-send-tabs"
           readOnlyFees={readOnlyFees}
+          evmGasPriceOverride={evmGasPriceOverride}
+          evmAdvancedValues={evmAdvancedValues}
         />
       </div>
 

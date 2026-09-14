@@ -15,12 +15,21 @@ interface RpcResponse<T> {
   error?: { code: number; message: string };
 }
 
+export class AlchemyRpcError extends Error {
+  constructor(
+    readonly code: number,
+    message: string
+  ) {
+    super(message);
+  }
+}
+
 async function request<T>(method: string, body: object, signal?: AbortSignal): Promise<T> {
   const { data } = await templeWalletApi.post<RpcResponse<T>>(`evm/alchemy/${method}`, body, {
     signal,
     timeout: 30_000
   });
-  if (data.error) throw new Error(data.error.message);
+  if (data.error) throw new AlchemyRpcError(data.error.code, data.error.message);
   if (data.result === undefined) throw new Error('Alchemy returned an empty response');
   return data.result;
 }

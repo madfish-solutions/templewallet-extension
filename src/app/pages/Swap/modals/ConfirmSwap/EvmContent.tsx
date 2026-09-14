@@ -1,4 +1,4 @@
-import { FC, RefObject, useEffect, useMemo, useState } from 'react';
+import React, { FC, RefObject, useEffect, useMemo, useState } from 'react';
 
 import { LiFiStep, StatusResponse } from '@lifi/sdk';
 import retry from 'async-retry';
@@ -6,6 +6,7 @@ import BigNumber from 'bignumber.js';
 import { FormProvider } from 'react-hook-form';
 import { TransactionRequest, isAddress } from 'viem';
 
+import { Alert } from 'app/atoms/Alert';
 import { useLedgerApprovalModalState } from 'app/hooks/use-ledger-approval-modal-state';
 import { useEvmEstimationData } from 'app/pages/Send/hooks/use-evm-estimation-data';
 import { dispatch } from 'app/store';
@@ -24,7 +25,7 @@ import { getAlchemyMaxFee } from 'lib/evm/alchemy/validation';
 import { fetchEvmRawBalance } from 'lib/evm/on-chain/balance';
 import { fetchEvmTokenMetadataFromChain } from 'lib/evm/on-chain/metadata';
 import { EvmAssetStandard } from 'lib/evm/types';
-import { t } from 'lib/i18n';
+import { T, t } from 'lib/i18n';
 import { useTempleClient } from 'lib/temple/front';
 import { atomsToTokens, tokensToAtoms } from 'lib/temple/helpers';
 import { ETHERLINK_MAINNET_CHAIN_ID, TempleAccountType } from 'lib/temple/types';
@@ -83,6 +84,7 @@ export const EvmContent: FC<EvmContentProps> = ({
   skipStatusWait,
   submitDisabled,
   batchSteps,
+  onUseLegacyFlow,
   onBatchBusyChange
 }) => {
   const {
@@ -388,6 +390,10 @@ export const EvmContent: FC<EvmContentProps> = ({
 
     if (batchSteps) {
       if (batch.busy) return;
+      if ((latestSubmitError || batch.error) && !batch.submitted) {
+        onUseLegacyFlow?.();
+        return;
+      }
       if (!batch.quote || (batch.expired && !batch.submitted)) {
         setLatestSubmitError(null);
         setTab('details');
@@ -396,11 +402,8 @@ export const EvmContent: FC<EvmContentProps> = ({
       }
       try {
         if (!batch.submitted) {
-          const { request, prepared } = batch.quote;
-          const nativeAmount = request.calls.reduce((sum, call) => sum + BigInt(call.value), 0n);
-          const maxFee = getAlchemyMaxFee(prepared);
-          const nativeRequired = nativeAmount + maxFee;
-          if (tokensToAtoms(ethBalance, inputNetwork.currency.decimals).lt(nativeRequired.toString())) {
+          const maxFee = getAlchemyMaxFee(batch.quote.prepared);
+          if (tokensToAtoms(ethBalance, inputNetwork.currency.decimals).lt(maxFee.toString())) {
             throw new Error(t('insufficientBalance'));
           }
         }
@@ -473,10 +476,10 @@ export const EvmContent: FC<EvmContentProps> = ({
           selectedTab={tab}
           setSelectedTab={setTab}
           latestSubmitError={latestSubmitError || batch.error}
-          selectedFeeOption={selectedFeeOption}
-          onFeeOptionSelect={handleFeeOptionSelect}
+          selectedFeeOption={batchSteps ? batch.selectedFeeOption : selectedFeeOption}
+          onFeeOptionSelect={batchSteps ? batch.selectFeeOption : handleFeeOptionSelect}
           displayedFee={batchSteps ? batch.fee : displayedFee}
-          displayedFeeOptions={feeOptions?.displayed}
+          displayedFeeOptions={batchSteps ? batch.feeOptions : feeOptions?.displayed}
           minimumReceived={minimumReceived}
           onCancel={onClose}
           onSubmit={onSubmit}
@@ -487,6 +490,21 @@ export const EvmContent: FC<EvmContentProps> = ({
           submitDisabled={submitDisabled || batch.busy}
           readOnlyFees={Boolean(batchSteps)}
           retry={batch.expired || (batch.submitted && !batch.replacementReady)}
+          accountAlert={
+            batch.delegationRequired ? (
+              <Alert
+                type="info"
+                className="mt-3"
+                description={
+                  <p className="text-font-description">
+                    <T id="delegationToSmartContractDisclaimer" />
+                  </p>
+                }
+              />
+            ) : undefined
+          }
+          evmGasPriceOverride={batchSteps ? batch.gasPrice : undefined}
+          evmAdvancedValues={batchSteps ? batch.advancedValues : undefined}
         />
       </FormProvider>
       <LedgerFullViewPromptModal {...ledgerPromptProps} />

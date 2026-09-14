@@ -34,10 +34,15 @@ export async function buildAlchemySwapCalls(
     const prepared = await getEvmStepTransaction(step, signal);
     if (!prepared?.transactionRequest) throw new Error('LiFi did not return a transaction');
     const { transactionRequest: tx, action, estimate } = prepared;
+    const expectedToAddress = step.action.toAddress ?? account;
+    const actualToAddress = action.toAddress ?? account;
     if (
       action.fromAmount !== step.action.fromAmount ||
       !isAddressEqual(action.fromToken.address as HexString, step.action.fromToken.address as HexString) ||
       !isAddressEqual(action.toToken.address as HexString, step.action.toToken.address as HexString) ||
+      !isAddress(expectedToAddress) ||
+      !isAddress(actualToAddress) ||
+      !isAddressEqual(actualToAddress, expectedToAddress) ||
       action.toChainId !== step.action.toChainId ||
       BigInt(estimate.toAmountMin) < BigInt(step.estimate.toAmountMin)
     ) {
@@ -57,7 +62,15 @@ export async function buildAlchemySwapCalls(
     if (!isAddressEqual(action.fromToken.address as HexString, zeroAddress)) {
       const token = action.fromToken.address as HexString;
       const spender = estimate.approvalAddress as HexString;
-      if (!isAddress(token) || !isAddress(spender)) throw new Error('LiFi returned an invalid approval');
+      const expectedSpender = step.estimate.approvalAddress as HexString;
+      if (
+        !isAddress(token) ||
+        !isAddress(spender) ||
+        !isAddress(expectedSpender) ||
+        !isAddressEqual(spender, expectedSpender)
+      ) {
+        throw new Error('LiFi returned an invalid approval');
+      }
       const key = `${token}:${spender}`.toLowerCase();
       const allowance =
         remainingAllowances.get(key) ??

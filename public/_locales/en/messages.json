@@ -4872,6 +4872,9 @@
       }
     }
   },
+  "delegationToSmartContractDisclaimer": {
+    "message": "This confirmation also delegates this address to the smart wallet contract. The delegation remains active for future batches."
+  },
   "welcomeToRewards": {
     "message": "Welcome to Rewards"
   },

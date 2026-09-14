@@ -94,3 +94,17 @@ it('rejects destination-chain execution and changed minimum output', async () =>
   prepareStep.mockImplementation(async input => ({ ...input, estimate: { ...input.estimate, toAmountMin: '97' } }));
   await expect(buildAlchemySwapCalls([step()], account, network)).rejects.toThrow('quote changed');
 });
+
+it('rejects a changed recipient or approval spender', async () => {
+  prepareStep.mockImplementationOnce(async input => ({
+    ...input,
+    action: { ...input.action, toAddress: target }
+  }));
+  await expect(buildAlchemySwapCalls([step()], account, network)).rejects.toThrow('quote changed');
+
+  prepareStep.mockImplementationOnce(async input => ({
+    ...input,
+    estimate: { ...input.estimate, approvalAddress: account }
+  }));
+  await expect(buildAlchemySwapCalls([step()], account, network)).rejects.toThrow('invalid approval');
+});

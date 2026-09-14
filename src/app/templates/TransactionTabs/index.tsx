@@ -14,7 +14,7 @@ import { AdvancedTab } from './tabs/advanced';
 import { DetailsTab } from './tabs/details';
 import { ErrorTab } from './tabs/error';
 import { FeeTab } from './tabs/fee';
-import { Tab, TxParamsFormData } from './types';
+import { EvmTxParamsFormData, Tab, TxParamsFormData } from './types';
 
 export interface TransactionTabsProps<T extends TxParamsFormData> {
   network: OneOfChains;
@@ -48,6 +48,8 @@ export interface TransactionTabsProps<T extends TxParamsFormData> {
   detailsContent?: ReactNode;
   children?: ReactNode;
   readOnlyFees?: boolean;
+  evmGasPriceOverride?: string;
+  evmAdvancedValues?: Partial<EvmTxParamsFormData>;
 }
 
 export const TransactionTabs = <T extends TxParamsFormData>({
@@ -70,7 +72,9 @@ export const TransactionTabs = <T extends TxParamsFormData>({
   bridgeData,
   detailsContent,
   children,
-  readOnlyFees
+  readOnlyFees,
+  evmGasPriceOverride,
+  evmAdvancedValues
 }: TransactionTabsProps<T>) => {
   const { handleSubmit } = useFormContext<T>();
   const detailsTabRef = useRef<HTMLDivElement>(null);
@@ -102,16 +106,12 @@ export const TransactionTabs = <T extends TxParamsFormData>({
             value: 'details',
             ref: detailsTabRef
           },
-          ...(!readOnlyFees
-            ? [
-                {
-                  label: 'Fee',
-                  value: 'fee' as const,
-                  ref: feeTabRef
-                },
-                { label: 'Advanced', value: 'advanced' as const, ref: advancedTabRef }
-              ]
-            : []),
+          {
+            label: 'Fee',
+            value: 'fee' as const,
+            ref: feeTabRef
+          },
+          { label: 'Advanced', value: 'advanced' as const, ref: advancedTabRef },
           ...(error ? [{ label: t('error'), value: 'error' as const, ref: errorTabRef }] : [])
         ]}
       />
@@ -134,10 +134,12 @@ export const TransactionTabs = <T extends TxParamsFormData>({
                     displayedFeeOptions={displayedFeeOptions}
                     selectedOption={selectedFeeOption}
                     onOptionSelect={onFeeOptionSelect}
+                    readOnly={readOnlyFees}
+                    gasPriceOverride={evmGasPriceOverride}
                   />
                 );
               case 'advanced':
-                return <AdvancedTab isEvm={isEvm} />;
+                return <AdvancedTab isEvm={isEvm} readOnly={readOnlyFees} evmValues={evmAdvancedValues} />;
               case 'error':
                 return <ErrorTab isEvm={isEvm} submitError={latestSubmitError} estimationError={estimationError} />;
               default:

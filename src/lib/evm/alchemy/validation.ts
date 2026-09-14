@@ -5,6 +5,7 @@ import {
   AlchemyBatchQuote,
   AlchemyBatchRequest,
   AlchemyCall,
+  AlchemyFeeOption,
   AlchemyPreparedCalls,
   AlchemyPreparedOperation
 } from './types';
@@ -14,6 +15,11 @@ export const ALCHEMY_DELEGATIONS = [
   '0x77021100bD87b7008E5E1989d0eB38555d0d0000'
 ] as const;
 export const ALCHEMY_QUOTE_LIFETIME = 60_000;
+export const ALCHEMY_FEE_MULTIPLIERS: Record<AlchemyFeeOption, number> = {
+  slow: 1,
+  mid: 1.05,
+  fast: 1.1
+};
 
 const alchemyExecutionAbi = parseAbi([
   'function execute(address target, uint256 value, bytes data) payable returns (bytes)',
@@ -41,6 +47,36 @@ export function getAlchemyMaxFee(prepared: AlchemyPreparedCalls): bigint {
       BigInt(data.paymasterPostOpGasLimit ?? '0x0')) *
     BigInt(data.maxFeePerGas)
   );
+}
+
+export function addAlchemyGasParamsOverride(
+  request: Omit<AlchemyBatchRequest, 'capabilities'>,
+  feeOption: AlchemyFeeOption
+): AlchemyBatchRequest {
+  const multiplier = ALCHEMY_FEE_MULTIPLIERS[feeOption];
+
+  return {
+    ...request,
+    capabilities: {
+      gasParamsOverride: {
+        maxFeePerGas: { multiplier },
+        maxPriorityFeePerGas: { multiplier }
+      }
+    }
+  };
+}
+
+function validateAlchemyFeeOption(quote: AlchemyBatchQuote): void {
+  const expectedMultiplier = ALCHEMY_FEE_MULTIPLIERS[quote.feeOption];
+  const override = quote.request.capabilities?.gasParamsOverride;
+  if (
+    expectedMultiplier === undefined ||
+    !override ||
+    override.maxFeePerGas.multiplier !== expectedMultiplier ||
+    override.maxPriorityFeePerGas.multiplier !== expectedMultiplier
+  ) {
+    throw new Error('Invalid Alchemy fee option');
+  }
 }
 
 function sameCall(actual: AlchemyCall, expected: AlchemyCall): boolean {
@@ -130,5 +166,6 @@ export function validateAlchemyQuote(quote: AlchemyBatchQuote): Hex {
   ) {
     throw new Error('The fee quote expired. Retry to review a new quote.');
   }
+  validateAlchemyFeeOption(quote);
   return validateAlchemyPreparedCalls(quote.prepared, quote.request);
 }

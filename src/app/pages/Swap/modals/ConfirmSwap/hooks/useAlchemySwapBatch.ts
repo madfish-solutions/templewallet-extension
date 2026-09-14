@@ -4,6 +4,7 @@ import type { LiFiStep } from '@lifi/sdk';
 import { formatUnits, numberToHex, type Hex } from 'viem';
 
 import {
+  AlchemyRpcError,
   getAlchemyCallsStatus,
   prepareAlchemyCalls,
   sendAlchemyCalls
@@ -11,9 +12,11 @@ import {
 import { browser } from 'lib/browser';
 import { AlchemySubmission, getAlchemySubmission, getAlchemySubmissionKey } from 'lib/evm/alchemy/submission';
 import { buildAlchemySwapCalls } from 'lib/evm/alchemy/swap';
-import type { AlchemyBatchQuote } from 'lib/evm/alchemy/types';
+import type { AlchemyBatchQuote, AlchemyFeeOption } from 'lib/evm/alchemy/types';
 import {
+  ALCHEMY_FEE_MULTIPLIERS,
   ALCHEMY_QUOTE_LIFETIME,
+  addAlchemyGasParamsOverride,
   getAlchemyMaxFee,
   getAlchemyOperation,
   validateAlchemyPreparedCalls
@@ -28,6 +31,13 @@ interface Params {
   network: EvmChain;
 }
 
+const feeMultiplierPercent: Record<AlchemyFeeOption, number> = { slow: 100, mid: 105, fast: 110 };
+
+const isDefinitiveAlchemyRejection = (error: unknown): error is AlchemyRpcError =>
+  error instanceof AlchemyRpcError &&
+  error.code !== 429 &&
+  !/unavailable|rate limit|replacement underpriced|already known/i.test(error.message);
+
 export function useAlchemySwapBatch({ steps, account, network }: Params) {
   const { signAlchemyBatch } = useTempleClient();
   const [quote, setQuote] = useState<AlchemyBatchQuote>();
@@ -36,6 +46,7 @@ export function useAlchemySwapBatch({ steps, account, network }: Params) {
   const [submitted, setSubmitted] = useState(false);
   const [replacementReady, setReplacementReady] = useState(false);
   const [expired, setExpired] = useState(false);
+  const [selectedFeeOption, setSelectedFeeOption] = useState<AlchemyFeeOption>('mid');
   const [revision, setRevision] = useState(0);
   const submission = useRef<AlchemySubmission | undefined>(undefined);
   const lock = useRef(false);
@@ -69,17 +80,27 @@ export function useAlchemySwapBatch({ steps, account, network }: Params) {
       const stored = await getAlchemySubmission(account, network.chainId);
       if (controller.signal.aborted) return;
       if (stored) {
-        if (stored.version !== 1) throw new Error('Unsupported batch recovery record');
         submission.current = stored;
         setSubmitted(true);
+        setSelectedFeeOption(stored.quote.feeOption);
         setQuote(stored.quote);
         return;
       }
       const { calls } = await buildAlchemySwapCalls(steps, account, network, controller.signal);
-      const request = { from: account, chainId: numberToHex(network.chainId), calls };
+      const request = addAlchemyGasParamsOverride(
+        { from: account, chainId: numberToHex(network.chainId), calls },
+        selectedFeeOption
+      );
       const prepared = await prepareAlchemyCalls(request, controller.signal);
       validateAlchemyPreparedCalls(prepared, request);
-      if (!controller.signal.aborted) setQuote({ request, prepared, expiresAt: Date.now() + ALCHEMY_QUOTE_LIFETIME });
+      if (!controller.signal.aborted) {
+        setQuote({
+          request,
+          prepared,
+          expiresAt: Date.now() + ALCHEMY_QUOTE_LIFETIME,
+          feeOption: selectedFeeOption
+        });
+      }
     };
     void prepare()
       .catch(cause => {
@@ -89,7 +110,7 @@ export function useAlchemySwapBatch({ steps, account, network }: Params) {
         if (!controller.signal.aborted) setBusy(false);
       });
     return () => controller.abort();
-  }, [steps, account, network, revision, key]);
+  }, [steps, account, network, revision, key, selectedFeeOption]);
 
   useEffect(() => {
     if (!quote || submitted) return;
@@ -107,8 +128,8 @@ export function useAlchemySwapBatch({ steps, account, network }: Params) {
     let pending = false;
     let statusError: unknown;
     for (const [index, attempt] of current.attempts.entries()) {
+      let callId = attempt.id;
       try {
-        let callId = attempt.id;
         if (!callId) {
           // A lost response must reuse the identical signature and nonce.
           const { id } = await sendAlchemyCalls(attempt.signed);
@@ -133,6 +154,19 @@ export function useAlchemySwapBatch({ steps, account, network }: Params) {
           throw new Error('Alchemy returned a partial or unknown batch status. Retry the status check.');
         }
       } catch (cause) {
+        if (!callId && isDefinitiveAlchemyRejection(cause)) {
+          const attempts = current.attempts.filter((_, i) => i !== index);
+          if (attempts.length) {
+            current = { ...current, attempts };
+            await saveSubmission(current);
+          } else {
+            await browser.storage.local.remove(key);
+            submission.current = undefined;
+            setSubmitted(false);
+            setQuote(undefined);
+          }
+          throw cause;
+        }
         statusError = cause;
       }
     }
@@ -172,7 +206,8 @@ export function useAlchemySwapBatch({ steps, account, network }: Params) {
           setQuote({
             request: submission.current.quote.request,
             prepared,
-            expiresAt: Date.now() + ALCHEMY_QUOTE_LIFETIME
+            expiresAt: Date.now() + ALCHEMY_QUOTE_LIFETIME,
+            feeOption: submission.current.quote.feeOption
           });
           setExpired(false);
           setReplacementReady(true);
@@ -209,6 +244,29 @@ export function useAlchemySwapBatch({ steps, account, network }: Params) {
     setSubmitted(false);
   };
 
+  const selectFeeOption = (feeOption: AlchemyFeeOption): void => {
+    if (submitted || busy || feeOption === selectedFeeOption) return;
+    setSelectedFeeOption(feeOption);
+  };
+
+  const feeOptions = (() => {
+    if (!quote) return undefined;
+    const selectedFee = getAlchemyMaxFee(quote.prepared);
+    const selectedPercent = feeMultiplierPercent[quote.feeOption];
+
+    return Object.fromEntries(
+      (Object.keys(ALCHEMY_FEE_MULTIPLIERS) as AlchemyFeeOption[]).map(option => [
+        option,
+        formatUnits(
+          (selectedFee * BigInt(feeMultiplierPercent[option]) + BigInt(selectedPercent - 1)) / BigInt(selectedPercent),
+          network.currency.decimals
+        )
+      ])
+    ) as Record<AlchemyFeeOption, string>;
+  })();
+
+  const operation = quote ? getAlchemyOperation(quote.prepared) : undefined;
+
   return {
     enabled: Boolean(steps),
     quote,
@@ -217,7 +275,24 @@ export function useAlchemySwapBatch({ steps, account, network }: Params) {
     submitted,
     replacementReady,
     expired,
+    selectedFeeOption,
+    selectFeeOption,
+    feeOptions,
     fee: quote ? formatUnits(getAlchemyMaxFee(quote.prepared), network.currency.decimals) : undefined,
+    gasPrice: operation ? formatUnits(BigInt(operation.data.maxFeePerGas), 9) : undefined,
+    advancedValues: operation
+      ? {
+          gasLimit: BigInt(operation.data.callGasLimit).toString(),
+          nonce: BigInt(operation.data.nonce).toString(),
+          data: operation.data.callData,
+          rawTransaction: JSON.stringify(
+            { type: operation.type, chainId: operation.chainId, data: operation.data },
+            null,
+            2
+          )
+        }
+      : undefined,
+    delegationRequired: quote?.prepared.type === 'array',
     refresh,
     execute,
     complete

@@ -17,20 +17,23 @@ export const getAlchemySubmissionKey = (account: Hex, chainId: number): string =
 
 export async function getAlchemySubmission(account: Hex, chainId: number): Promise<AlchemySubmission | undefined> {
   const key = getAlchemySubmissionKey(account, chainId);
-  const local = (await browser.storage.local.get(key))[key];
-  // Migrate session records to durable storage before a retry or browser restart.
-  const previous = local === undefined ? (await browser.storage.session?.get(key))?.[key] : undefined;
-  const stored = migrateAlchemySubmission(local ?? previous);
-  if (previous !== undefined && stored) {
-    await browser.storage.local.set({ [key]: stored });
-    await browser.storage.session?.remove(key);
-  }
-  return stored;
+  return parseAlchemySubmission((await browser.storage.local.get(key))[key]);
 }
 
-export function migrateAlchemySubmission(value: unknown): AlchemySubmission | undefined {
+export function parseAlchemySubmission(value: unknown): AlchemySubmission | undefined {
   if (value === undefined) return undefined;
   if (!value || typeof value !== 'object' || !('version' in value) || value.version !== 1) {
+    throw new Error('Unsupported batch recovery record');
+  }
+  if (
+    !('quote' in value) ||
+    !value.quote ||
+    typeof value.quote !== 'object' ||
+    !('steps' in value) ||
+    !Array.isArray(value.steps) ||
+    !('attempts' in value) ||
+    !Array.isArray(value.attempts)
+  ) {
     throw new Error('Unsupported batch recovery record');
   }
   return value as AlchemySubmission;

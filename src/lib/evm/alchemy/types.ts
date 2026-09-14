@@ -1,5 +1,12 @@
 import type { Address, Hex } from 'viem';
 
+export type AlchemyFeeOption = 'slow' | 'mid' | 'fast';
+
+export interface AlchemyGasParamsOverride {
+  maxFeePerGas: { multiplier: number };
+  maxPriorityFeePerGas: { multiplier: number };
+}
+
 export interface AlchemyCall {
   to: Address;
   data: Hex;
@@ -14,6 +21,7 @@ export interface AlchemyBatchRequest {
   from: Address;
   chainId: Hex;
   calls: AlchemyCall[];
+  capabilities?: { gasParamsOverride: AlchemyGasParamsOverride };
 }
 
 interface AlchemyUserOperation {
@@ -71,4 +79,5 @@ export interface AlchemyBatchQuote {
   request: AlchemyBatchRequest;
   prepared: AlchemyPreparedCalls;
   expiresAt: number;
+  feeOption: AlchemyFeeOption;
 }

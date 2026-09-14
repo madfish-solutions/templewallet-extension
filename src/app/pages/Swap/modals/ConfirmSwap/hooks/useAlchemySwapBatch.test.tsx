@@ -17,13 +17,31 @@ import type { EvmChain } from 'temple/front';
 import { useAlchemySwapBatch } from './useAlchemySwapBatch';
 
 jest.mock('lib/apis/temple/endpoints/evm/alchemy-wallet', () => ({
+  AlchemyRpcError: class AlchemyRpcError extends Error {
+    constructor(
+      readonly code: number,
+      message: string
+    ) {
+      super(message);
+    }
+  },
   getAlchemyCallsStatus: jest.fn(),
   prepareAlchemyCalls: jest.fn(),
   sendAlchemyCalls: jest.fn()
 }));
 jest.mock('lib/evm/alchemy/swap', () => ({ buildAlchemySwapCalls: jest.fn() }));
 jest.mock('lib/evm/alchemy/validation', () => ({
+  ALCHEMY_FEE_MULTIPLIERS: { slow: 1, mid: 1.05, fast: 1.1 },
   ALCHEMY_QUOTE_LIFETIME: 60_000,
+  addAlchemyGasParamsOverride: (request: object, feeOption: string) => ({
+    ...request,
+    capabilities: {
+      gasParamsOverride: {
+        maxFeePerGas: { multiplier: feeOption === 'slow' ? 1 : feeOption === 'mid' ? 1.05 : 1.1 },
+        maxPriorityFeePerGas: { multiplier: feeOption === 'slow' ? 1 : feeOption === 'mid' ? 1.05 : 1.1 }
+      }
+    }
+  }),
   validateAlchemyPreparedCalls: jest.fn(),
   getAlchemyMaxFee: () => 100n,
   getAlchemyOperation: (value: unknown) => value
@@ -126,6 +144,32 @@ it('uses one confirmation signature request and returns the final transaction ha
   expect(status).toHaveBeenCalledWith('0xaaa');
 });
 
+it('prepares the selected fee multiplier', async () => {
+  expect(prepare).toHaveBeenLastCalledWith(
+    expect.objectContaining({
+      capabilities: {
+        gasParamsOverride: {
+          maxFeePerGas: { multiplier: 1.05 },
+          maxPriorityFeePerGas: { multiplier: 1.05 }
+        }
+      }
+    }),
+    expect.any(AbortSignal)
+  );
+  await act(async () => current.selectFeeOption('fast'));
+  expect(prepare).toHaveBeenLastCalledWith(
+    expect.objectContaining({
+      capabilities: {
+        gasParamsOverride: {
+          maxFeePerGas: { multiplier: 1.1 },
+          maxPriorityFeePerGas: { multiplier: 1.1 }
+        }
+      }
+    }),
+    expect.any(AbortSignal)
+  );
+});
+
 it('refreshes an expired fee quote without a signature', async () => {
   current.quote!.expiresAt = Date.now() - 1;
   await act(async () => {
@@ -150,6 +194,16 @@ it('reuses the signed operation after a lost send response and popup closure', a
   });
   expect(sign).toHaveBeenCalledTimes(1);
   expect(send.mock.calls[0][0]).toEqual(send.mock.calls[1][0]);
+});
+
+it('discards a definitively rejected operation without a call ID', async () => {
+  const { AlchemyRpcError } = jest.requireMock('lib/apis/temple/endpoints/evm/alchemy-wallet');
+  send.mockRejectedValue(new AlchemyRpcError(-32507, 'invalid account signature'));
+  await act(async () => {
+    await expect(current.execute()).rejects.toThrow('invalid account signature');
+  });
+  expect(current.submitted).toBe(false);
+  expect(stored).toEqual({});
 });
 
 it('reviews a replacement quote before a second signature and tracks both call IDs', async () => {
