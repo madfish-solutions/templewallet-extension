@@ -51,7 +51,6 @@ import {
 import { formatDuration, getBufferedExecutionDuration } from '../../form/utils';
 import { getTokenSlugFromEvmDexTokenAddress } from '../../utils';
 
-import { AlchemyBatchControls } from './AlchemyBatchControls';
 import { BaseContent } from './BaseContent';
 import { useAlchemySwapBatch } from './hooks/useAlchemySwapBatch';
 import { InitialInputData } from './types';
@@ -84,7 +83,6 @@ export const EvmContent: FC<EvmContentProps> = ({
   skipStatusWait,
   submitDisabled,
   batchSteps,
-  onUseLegacyFlow,
   onBatchBusyChange
 }) => {
   const {
@@ -489,16 +487,6 @@ export const EvmContent: FC<EvmContentProps> = ({
           submitDisabled={submitDisabled || batch.busy}
           readOnlyFees={Boolean(batchSteps)}
           retry={batch.expired || (batch.submitted && !batch.replacementReady)}
-          batchControls={
-            batchSteps && (
-              <AlchemyBatchControls
-                batch={batch}
-                network={inputNetwork}
-                submitLoading={submitLoading}
-                onUseLegacyFlow={onUseLegacyFlow}
-              />
-            )
-          }
         />
       </FormProvider>
       <LedgerFullViewPromptModal {...ledgerPromptProps} />

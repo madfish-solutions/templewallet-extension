@@ -1,4 +1,4 @@
-import React, { ReactNode, useCallback } from 'react';
+import React, { useCallback } from 'react';
 
 import BigNumber from 'bignumber.js';
 import { SubmitHandler, useFormContext, useFormState } from 'react-hook-form';
@@ -52,7 +52,6 @@ interface BaseContentProps<T extends TxParamsFormData> {
   submitDisabled?: boolean;
   readOnlyFees?: boolean;
   feeSymbol?: string;
-  batchControls?: ReactNode;
   retry?: boolean;
 }
 
@@ -80,7 +79,6 @@ export const BaseContent = <T extends TxParamsFormData>({
   submitDisabled,
   readOnlyFees,
   feeSymbol,
-  batchControls,
   retry
 }: BaseContentProps<T>) => {
   const { control } = useFormContext<T>();
@@ -128,7 +126,6 @@ export const BaseContent = <T extends TxParamsFormData>({
         </div>
 
         <CurrentAccount />
-        {batchControls}
 
         <TransactionTabs<T>
           network={network}

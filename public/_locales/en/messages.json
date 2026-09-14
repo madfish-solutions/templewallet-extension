@@ -5592,26 +5592,5 @@
   },
   "cashbackActivatedBrowseHint": {
     "message": "Browse like normal, activate offers from partners and track your payouts on Rewards page. Thanks for supporting Temple development!"
-  },
-  "alchemyDelegationNotice": {
-    "message": "This confirmation enables the Alchemy smart wallet for this account on this network. The account keeps this authorization until you revoke it."
-  },
-  "alchemyFeeNotice": {
-    "message": "The fee estimate is fixed for this confirmation. Retry refreshes an expired quote before you confirm."
-  },
-  "alchemyQuoteExpired": {
-    "message": "The fee quote expired. Retry to review a new quote."
-  },
-  "alchemyPendingNotice": {
-    "message": "The batch is pending. Retry checks its status first. Cancel closes this preview, but it does not cancel the batch."
-  },
-  "alchemyPayFeeWith": {
-    "message": "Pay the fee with"
-  },
-  "alchemyUseSeparateConfirmations": {
-    "message": "Use separate confirmations"
-  },
-  "alchemyReplacementNotice": {
-    "message": "Review the replacement fee. Confirm replaces the pending batch with the same calls and nonce."
   }
 }
