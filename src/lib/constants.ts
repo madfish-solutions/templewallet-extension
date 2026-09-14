@@ -50,6 +50,10 @@ export const APP_TITLE = 'Temple Wallet';
 
 export const WEBSITES_ADS_ENABLED = 'WEBSITES_ANALYTICS_ENABLED';
 
+export const AI_CHATBOT_ADS_ENABLED = 'AI_CHATBOT_ADS_ENABLED';
+
+export const PARTNERS_PROMOTION_STORAGE_KEY = 'persist:root.partnersPromotion';
+
 export const USAGE_ANALYTICS_ENABLED = 'USAGE_ANALYTICS_ENABLED';
 
 export const REPLACE_REFERRALS_ENABLED = 'REPLACE_REFERRALS_ENABLED';
@@ -99,6 +103,9 @@ export const TERMS_OF_USE_URL = 'https://www.templewallet.com/terms';
 
 export const PRIVACY_POLICY_URL = 'https://www.templewallet.com/privacy';
 
+export const PROMO_PRIVACY_POLICY_URL =
+  'https://www.templewallet.com/privacy-policy#:~:text=What%20Personal%20Data%20is%20Collected';
+
 const isMacOS = /Mac OS/.test(navigator.userAgent);
 export const searchHotkey = ` (${isMacOS ? '⌘' : 'Ctrl + '}K)`;
 
@@ -128,10 +135,13 @@ export const SHOULD_SHOW_EARN_ETH_INTRO_MODAL_STORAGE_KEY = 'SHOULD_SHOW_EARN_ET
 
 export const SHOULD_PROMOTE_ROOTSTOCK_STORAGE_KEY = 'SHOULD_PROMOTE_ROOTSTOCK';
 
+/** @deprecated */
+// ts-prune-ignore-next
 export const SHOULD_SHOW_REWARDS_PUSH_STORAGE_KEY = 'SHOULD_SHOW_REWARDS_PUSH';
 
 export const DEALS_ANNOUNCEMENT_SHOWN_STORAGE_KEY = 'DEALS_ANNOUNCEMENT_SHOWN';
 
+/** @deprecated Migrated into partnersPromotion.aiChatAdsEnabled */
 export const AI_CHATBOT_ADS_ENABLED_DOMAINS_STORAGE_KEY = 'AI_CHATBOT_ADS_ENABLED_DOMAINS';
 
 export const AI_CHATBOT_ADS_NUDGE_STATE_STORAGE_KEY = 'AI_CHATBOT_ADS_NUDGE_STATE';
@@ -141,6 +151,10 @@ export const AI_CHATBOT_ADS_NUDGE_SESSION_STORAGE_KEY = 'AI_CHATBOT_ADS_NUDGE_SE
 export const SHOULD_SHOW_WELCOME_REWARDS_MODAL_STORAGE_KEY = 'SHOULD_SHOW_WELCOME_REWARDS_MODAL';
 
 export const SHOULD_SHOW_NEW_DAPPS_MODAL_STORAGE_KEY = 'SHOULD_SHOW_NEW_DAPPS_MODAL';
+
+export const SHOULD_SHOW_FINE_TUNE_REWARDS_MODAL_STORAGE_KEY = 'SHOULD_SHOW_FINE_TUNE_REWARDS_MODAL';
+
+export const SHOULD_SHOW_EARNING_REWARDS_TOAST_STORAGE_KEY = 'SHOULD_SHOW_EARNING_REWARDS_TOAST';
 
 export const AUTOLOCK_TIME_STORAGE_KEY = 'AUTOLOCK_TIME';
 

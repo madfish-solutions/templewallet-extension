@@ -7,17 +7,19 @@ import browser from 'webextension-polyfill';
 import { getStoredAppInstallIdentity, putStoredAppInstallIdentity } from 'app/storage/app-install-id';
 import { getStoredAppUpdateDetails, putStoredAppUpdateDetails } from 'app/storage/app-update';
 import type { DealsState } from 'app/store/deals/state';
-import type { PartnersPromotionState } from 'app/store/partners-promotion/state';
+import { migratePersistedPartnersPromotionIfNeeded } from 'app/store/partners-promotion/migrate';
+import { isInWalletAdsEnabledFromPersisted, type PartnersPromotionState } from 'app/store/partners-promotion/state';
 import { importUpdateRulesStorageModule } from 'lib/ads/import-update-rules-storage';
 import {
   ADS_IMPRESSIONS_LINKED_V2_STORAGE_KEY,
   ANALYTICS_USER_ID_STORAGE_KEY,
   DOUBLE_REWARDS_ENGAGEMENT_LAST_OPENED_VERSION_STORAGE_KEY,
+  PARTNERS_PROMOTION_STORAGE_KEY,
   REWARDS_ACCOUNT_DATA_STORAGE_KEY,
   SHOULD_OPEN_LETS_EXCHANGE_MODAL_STORAGE_KEY,
   SHOULD_PROMOTE_ROOTSTOCK_STORAGE_KEY,
   SHOULD_SHOW_NEW_DAPPS_MODAL_STORAGE_KEY,
-  SHOULD_SHOW_REWARDS_PUSH_STORAGE_KEY,
+  SHOULD_SHOW_FINE_TUNE_REWARDS_MODAL_STORAGE_KEY,
   SIDE_VIEW_WAS_FORCED_STORAGE_KEY
 } from 'lib/constants';
 import { shouldOpenDoubleRewardsEngagementModal } from 'lib/double-rewards-engagement';
@@ -33,13 +35,13 @@ import PackageJSON from '../package.json';
 type UpdateStorageKey =
   | typeof SHOULD_OPEN_LETS_EXCHANGE_MODAL_STORAGE_KEY
   | typeof SHOULD_PROMOTE_ROOTSTOCK_STORAGE_KEY
-  | typeof SHOULD_SHOW_REWARDS_PUSH_STORAGE_KEY
-  | typeof SHOULD_SHOW_NEW_DAPPS_MODAL_STORAGE_KEY;
+  | typeof SHOULD_SHOW_NEW_DAPPS_MODAL_STORAGE_KEY
+  | typeof SHOULD_SHOW_FINE_TUNE_REWARDS_MODAL_STORAGE_KEY;
 const updateStorageKeys: UpdateStorageKey[] = [
   SHOULD_OPEN_LETS_EXCHANGE_MODAL_STORAGE_KEY,
   SHOULD_PROMOTE_ROOTSTOCK_STORAGE_KEY,
-  SHOULD_SHOW_REWARDS_PUSH_STORAGE_KEY,
-  SHOULD_SHOW_NEW_DAPPS_MODAL_STORAGE_KEY
+  SHOULD_SHOW_NEW_DAPPS_MODAL_STORAGE_KEY,
+  SHOULD_SHOW_FINE_TUNE_REWARDS_MODAL_STORAGE_KEY
 ];
 const updateStorageKeysToEnsure = [
   SHOULD_OPEN_LETS_EXCHANGE_MODAL_STORAGE_KEY,
@@ -57,6 +59,7 @@ browser.runtime.onInstalled.addListener(({ reason, previousVersion }) => {
     void handleExtensionUpdate(previousVersion);
 
     ensureAppIdentity()
+      .then(() => migratePersistedPartnersPromotionIfNeeded())
       .then(() => linkAdsImpressionsIfNeeded())
       .catch(() => {});
   }
@@ -67,6 +70,7 @@ browser.runtime.onUpdateAvailable.addListener(newManifest => {
 });
 
 start();
+void migratePersistedPartnersPromotionIfNeeded();
 
 function openFullPage() {
   browser.tabs.create({
@@ -75,32 +79,35 @@ function openFullPage() {
 }
 
 async function handleExtensionUpdate(previousVersion?: string) {
+  let fullPageHasBeenOpened = false;
+  await migratePersistedPartnersPromotionIfNeeded();
+
   const [details, updateStorage, lastOpenedVersion, hasAccount, partnersPromoState] = await Promise.all([
     getStoredAppUpdateDetails(),
     fetchManyFromStorage<UpdateStorageKey, Record<UpdateStorageKey, boolean>>(updateStorageKeys),
     fetchFromStorage<string>(DOUBLE_REWARDS_ENGAGEMENT_LAST_OPENED_VERSION_STORAGE_KEY),
     Vault.isExist(),
-    fetchFromStorage<PartnersPromotionState>('persist:root.partnersPromotion')
+    fetchFromStorage<PartnersPromotionState>(PARTNERS_PROMOTION_STORAGE_KEY)
   ]);
+
+  const { [SHOULD_SHOW_FINE_TUNE_REWARDS_MODAL_STORAGE_KEY]: shouldShowFineTuneRewardsModal, ...rest } = updateStorage;
 
   const shouldOpenDoubleRewardsEngagement =
     hasAccount &&
-    !partnersPromoState?.shouldShowPromotion &&
+    !isInWalletAdsEnabledFromPersisted(partnersPromoState) &&
     shouldOpenDoubleRewardsEngagementModal(previousVersion, PackageJSON.version, lastOpenedVersion);
 
   if (shouldOpenDoubleRewardsEngagement) {
-    await Promise.all([
-      putToStorage(DOUBLE_REWARDS_ENGAGEMENT_LAST_OPENED_VERSION_STORAGE_KEY, PackageJSON.version),
-      putToStorage(SHOULD_SHOW_REWARDS_PUSH_STORAGE_KEY, false)
-    ]);
+    await putToStorage(DOUBLE_REWARDS_ENGAGEMENT_LAST_OPENED_VERSION_STORAGE_KEY, PackageJSON.version);
     browser.tabs.create({
       url: browser.runtime.getURL('fullpage.html#/?doubleRewardsEngagementModal=true')
     });
+    fullPageHasBeenOpened = true;
   } else if (details?.triggeredManually) {
     openFullPage();
+    fullPageHasBeenOpened = true;
   }
 
-  const { [SHOULD_SHOW_REWARDS_PUSH_STORAGE_KEY]: shouldShowRewardsPush, ...rest } = updateStorage;
   await Promise.all(
     updateStorageKeysToEnsure.map(key => {
       if (rest[key] == null) return putToStorage(key, true);
@@ -108,11 +115,13 @@ async function handleExtensionUpdate(previousVersion?: string) {
     })
   );
 
-  if (shouldOpenDoubleRewardsEngagement || shouldShowRewardsPush != null) return;
-
-  if (hasAccount && !partnersPromoState?.shouldShowPromotion) {
-    await putToStorage(SHOULD_SHOW_REWARDS_PUSH_STORAGE_KEY, true);
-    openFullPage();
+  if (shouldShowFineTuneRewardsModal == null) {
+    const shouldShow = hasAccount && !isInWalletAdsEnabledFromPersisted(partnersPromoState);
+    await putToStorage(SHOULD_SHOW_FINE_TUNE_REWARDS_MODAL_STORAGE_KEY, shouldShow);
+    if (shouldShow && !fullPageHasBeenOpened) {
+      openFullPage();
+      fullPageHasBeenOpened = true;
+    }
   }
 }
 
@@ -135,11 +144,11 @@ async function linkAdsImpressionsIfNeeded() {
   if (alreadyLinked) return;
 
   const [partnersPromoState, dealsState] = await Promise.all([
-    fetchFromStorage<PartnersPromotionState>('persist:root.partnersPromotion'),
+    fetchFromStorage<PartnersPromotionState>(PARTNERS_PROMOTION_STORAGE_KEY),
     fetchFromStorage<DealsState>('persist:root.deals')
   ]);
 
-  const promoEnabled = partnersPromoState?.shouldShowPromotion === true;
+  const promoEnabled = isInWalletAdsEnabledFromPersisted(partnersPromoState);
   const isDealsEnabled = dealsState?.enabled === true;
   if (!promoEnabled && !isDealsEnabled) return;
 

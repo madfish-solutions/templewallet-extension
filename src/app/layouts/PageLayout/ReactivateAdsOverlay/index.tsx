@@ -8,7 +8,7 @@ import { useAppEnv } from 'app/env';
 import { dispatch } from 'app/store';
 import { useShouldShowNewsletterModalSelector } from 'app/store/newsletter/newsletter-selectors';
 import { togglePartnersPromotionAction } from 'app/store/partners-promotion/actions';
-import { useShouldShowPartnersPromoSelector } from 'app/store/partners-promotion/selectors';
+import { useShouldShowInWalletAdsSelector } from 'app/store/partners-promotion/selectors';
 import { setPendingReactivateAdsAction } from 'app/store/settings/actions';
 import { useIsPendingReactivateAdsSelector, useOnRampAssetSelector } from 'app/store/settings/selectors';
 import { EmojiInlineIcon } from 'lib/icons/emoji';
@@ -29,7 +29,7 @@ export const ReactivateAdsOverlay = memo<Props>(({ onClose }) => {
   const { fullPage } = useAppEnv();
   const forcedModal = !onClose;
 
-  const shouldShowPartnersPromo = useShouldShowPartnersPromoSelector();
+  const shouldShowPartnersPromo = useShouldShowInWalletAdsSelector();
   const isPendingReactivateAds = useIsPendingReactivateAdsSelector();
 
   const shouldShowNewsletterModal = useShouldShowNewsletterModalSelector();
