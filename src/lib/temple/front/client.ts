@@ -6,6 +6,7 @@ import { TransactionRequest, formatTransactionRequest } from 'viem';
 import browser from 'webextension-polyfill';
 
 import { WALLETS_SPECS_STORAGE_KEY } from 'lib/constants';
+import type { AlchemyBatchQuote } from 'lib/evm/alchemy/types';
 import { useRetryableSWR } from 'lib/swr';
 import { clearLocalStorage } from 'lib/temple/reset';
 import {
@@ -529,6 +530,12 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
     browser.runtime.reload();
   }, []);
 
+  const signAlchemyBatch = async (accountPkh: HexString, network: EvmChain, quote: AlchemyBatchQuote) => {
+    const res = await request({ type: TempleMessageType.SignAlchemyBatchRequest, accountPkh, network, quote });
+    assertResponse(res.type === TempleMessageType.SignAlchemyBatchResponse);
+    return res.signed;
+  };
+
   useEffect(() => void (data?.shouldLockOnStartup && lock()), [data?.shouldLockOnStartup, lock]);
 
   return {
@@ -594,6 +601,7 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
     switchDAppEvmAccount,
     switchDAppTezosAccount,
     sendEvmTransaction,
+    signAlchemyBatch,
     resetExtension
   };
 });

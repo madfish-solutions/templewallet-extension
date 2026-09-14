@@ -7,6 +7,8 @@ import * as Bip39 from 'bip39';
 import { nanoid } from 'nanoid';
 import {
   createWalletClient,
+  isAddressEqual,
+  serializeSignature,
   LocalAccount,
   PrivateKeyAccount,
   SignableMessage,
@@ -24,6 +26,8 @@ import {
   DEFAULT_TEZOS_DERIVATION_PATH,
   WALLETS_SPECS_STORAGE_KEY
 } from 'lib/constants';
+import type { AlchemyBatchQuote, AlchemySignedCalls, AlchemySignedItem } from 'lib/evm/alchemy/types';
+import { ALCHEMY_DELEGATIONS, getAlchemyOperation, validateAlchemyQuote } from 'lib/evm/alchemy/validation';
 import { fetchFromStorage as getPlain, putToStorage as savePlain } from 'lib/storage';
 import { mnemonicToPrivateKey } from 'lib/temple/accounts-helpers';
 import { deleteEvmActivitiesByAddress, deleteTezosActivitiesByAddress } from 'lib/temple/activity/repo';
@@ -46,6 +50,7 @@ import {
 } from 'lib/temple/types';
 import { delay, isTruthy } from 'lib/utils';
 import { getAccountAddressForChain, getAccountAddressForEvm, getAccountAddressForTezos } from 'temple/accounts';
+import { getViemPublicClient } from 'temple/evm';
 import { TypedDataV1, typedV1SignatureHash } from 'temple/evm/typed-data-v1';
 import { getCustomViemChain, getViemTransportForNetwork } from 'temple/evm/utils';
 import { EvmChain } from 'temple/front';
@@ -891,6 +896,56 @@ export class Vault {
 
   async signEvmMessage(accPublicKeyHash: string, message: SignableMessage) {
     return this.withSigningEvmAccount(accPublicKeyHash, async account => account.signMessage({ message }));
+  }
+
+  async signAlchemyBatch(
+    accountPkh: HexString,
+    network: EvmChain,
+    quote: AlchemyBatchQuote
+  ): Promise<AlchemySignedCalls> {
+    if (!isAddressEqual(accountPkh, quote.request.from) || network.chainId !== Number(BigInt(quote.request.chainId))) {
+      throw new PublicError('The batch account or chain does not match');
+    }
+    const hash = validateAlchemyQuote(quote);
+    const client = getViemPublicClient(network);
+    const code = await client.getCode({ address: accountPkh });
+    const delegated = ALCHEMY_DELEGATIONS.some(
+      address => code?.toLowerCase() === `0xef0100${address.slice(2)}`.toLowerCase()
+    );
+    if (code && code !== '0x' && !delegated) throw new PublicError('The account uses a different smart contract');
+    if (!delegated && quote.prepared.type !== 'array') throw new PublicError('The batch lacks account authorization');
+    return this.withSigningEvmAccount(accountPkh, async account => {
+      if (!account.signAuthorization) throw new PublicError('This account does not support Alchemy batches');
+      const signed: AlchemySignedItem[] = [];
+      if (quote.prepared.type === 'array') {
+        const authorization = quote.prepared.data[0];
+        const nonce = Number(BigInt(authorization.data.nonce));
+        if (nonce !== (await client.getTransactionCount({ address: accountPkh, blockTag: 'pending' }))) {
+          throw new PublicError('Account authorization expired. Retry the quote.');
+        }
+        const signature = await account.signAuthorization({
+          address: authorization.data.address,
+          chainId: network.chainId,
+          nonce
+        });
+        signed.push({
+          type: authorization.type,
+          chainId: authorization.chainId,
+          data: authorization.data,
+          signature: { type: 'secp256k1', data: serializeSignature(signature) }
+        });
+      }
+      // Compute the digest from the validated operation. Do not sign a remote raw payload.
+      validateAlchemyQuote(quote);
+      const operation = getAlchemyOperation(quote.prepared);
+      signed.push({
+        type: operation.type,
+        chainId: operation.chainId,
+        data: operation.data,
+        signature: { type: 'secp256k1', data: await account.signMessage({ message: { raw: hash } }) }
+      });
+      return quote.prepared.type === 'array' ? { type: 'array', data: signed } : signed[0];
+    });
   }
 
   async sendOperations(accPublicKeyHash: string, network: TezosNetworkEssentials, opParams: any[]) {

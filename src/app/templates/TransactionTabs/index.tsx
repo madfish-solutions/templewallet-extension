@@ -47,6 +47,7 @@ export interface TransactionTabsProps<T extends TxParamsFormData> {
   };
   detailsContent?: ReactNode;
   children?: ReactNode;
+  readOnlyFees?: boolean;
 }
 
 export const TransactionTabs = <T extends TxParamsFormData>({
@@ -68,7 +69,8 @@ export const TransactionTabs = <T extends TxParamsFormData>({
   minimumReceived,
   bridgeData,
   detailsContent,
-  children
+  children,
+  readOnlyFees
 }: TransactionTabsProps<T>) => {
   const { handleSubmit } = useFormContext<T>();
   const detailsTabRef = useRef<HTMLDivElement>(null);
@@ -100,12 +102,16 @@ export const TransactionTabs = <T extends TxParamsFormData>({
             value: 'details',
             ref: detailsTabRef
           },
-          {
-            label: 'Fee',
-            value: 'fee',
-            ref: feeTabRef
-          },
-          { label: 'Advanced', value: 'advanced', ref: advancedTabRef },
+          ...(!readOnlyFees
+            ? [
+                {
+                  label: 'Fee',
+                  value: 'fee' as const,
+                  ref: feeTabRef
+                },
+                { label: 'Advanced', value: 'advanced' as const, ref: advancedTabRef }
+              ]
+            : []),
           ...(error ? [{ label: t('error'), value: 'error' as const, ref: errorTabRef }] : [])
         ]}
       />
@@ -113,7 +119,7 @@ export const TransactionTabs = <T extends TxParamsFormData>({
       {children}
 
       <form id={formId} className="flex-1 flex flex-col" onSubmit={handleSubmit(onSubmit)}>
-        {!displayedFeeOptions && !estimationError ? (
+        {!readOnlyFees && !displayedFeeOptions && !estimationError && !latestSubmitError ? (
           <div className="flex justify-center my-10">
             <Loader size="M" trackVariant="dark" className="text-secondary" />
           </div>

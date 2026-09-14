@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { ReactNode, useCallback } from 'react';
 
 import BigNumber from 'bignumber.js';
 import { SubmitHandler, useFormContext, useFormState } from 'react-hook-form';
@@ -50,6 +50,10 @@ interface BaseContentProps<T extends TxParamsFormData> {
   displayedStorageFee?: string;
   displayedFeeOptions?: DisplayedFeeOptions;
   submitDisabled?: boolean;
+  readOnlyFees?: boolean;
+  feeSymbol?: string;
+  batchControls?: ReactNode;
+  retry?: boolean;
 }
 
 export const BaseContent = <T extends TxParamsFormData>({
@@ -73,7 +77,11 @@ export const BaseContent = <T extends TxParamsFormData>({
   displayedStorageFee,
   displayedFeeOptions,
   bridgeData,
-  submitDisabled
+  submitDisabled,
+  readOnlyFees,
+  feeSymbol,
+  batchControls,
+  retry
 }: BaseContentProps<T>) => {
   const { control } = useFormContext<T>();
   // React Compiler caches `<FormProvider {...form}>` on RHF's stable form, so context consumers stop re-rendering
@@ -92,15 +100,23 @@ export const BaseContent = <T extends TxParamsFormData>({
                 chain={network}
                 bridgeData={bridgeData}
                 footer={
-                  <FeeSummary
-                    network={network}
-                    assetSlug={nativeAssetSlug}
-                    gasFee={displayedFee}
-                    storageFee={displayedStorageFee}
-                    protocolFee={bridgeData?.protocolFee}
-                    onOpenFeeTab={goToFeeTab}
-                    embedded
-                  />
+                  readOnlyFees && displayedFee === undefined ? (
+                    <div className="flex justify-between py-2 text-font-description">
+                      <T id="totalFee" />
+                      <span>—</span>
+                    </div>
+                  ) : (
+                    <FeeSummary
+                      network={network}
+                      assetSlug={nativeAssetSlug}
+                      gasFee={displayedFee}
+                      storageFee={displayedStorageFee}
+                      protocolFee={feeSymbol ? undefined : bridgeData?.protocolFee}
+                      onOpenFeeTab={readOnlyFees ? undefined : goToFeeTab}
+                      assetSymbol={feeSymbol}
+                      embedded
+                    />
+                  )
                 }
               />
             </FadeTransition>
@@ -112,6 +128,7 @@ export const BaseContent = <T extends TxParamsFormData>({
         </div>
 
         <CurrentAccount />
+        {batchControls}
 
         <TransactionTabs<T>
           network={network}
@@ -128,11 +145,18 @@ export const BaseContent = <T extends TxParamsFormData>({
           bridgeData={bridgeData}
           formId="confirm-form"
           tabsName="confirm-send-tabs"
+          readOnlyFees={readOnlyFees}
         />
       </div>
 
       <ActionsButtonsBox flexDirection="row" shouldChangeBottomShift={false}>
-        <StyledButton size="L" className="w-full" color="primary-low" onClick={onCancel}>
+        <StyledButton
+          size="L"
+          className="w-full"
+          color="primary-low"
+          onClick={onCancel}
+          disabled={readOnlyFees && submitLoadingOverride}
+        >
           <T id="cancel" />
         </StyledButton>
 
@@ -145,7 +169,7 @@ export const BaseContent = <T extends TxParamsFormData>({
           loading={submitLoadingOverride ?? formState.isSubmitting}
           disabled={!formState.isValid || Boolean(submitDisabled)}
         >
-          <T id={latestSubmitError ? 'retry' : 'confirm'} />
+          <T id={latestSubmitError || retry ? 'retry' : 'confirm'} />
         </StyledButton>
       </ActionsButtonsBox>
 

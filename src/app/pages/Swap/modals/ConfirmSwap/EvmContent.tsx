@@ -20,9 +20,12 @@ import { getEvmSwapStatus } from 'lib/apis/temple/endpoints/evm';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { useEvmAssetBalance } from 'lib/balances/hooks';
 import { EVM_ZERO_ADDRESS } from 'lib/constants';
+import type { AlchemyFeeToken } from 'lib/evm/alchemy/types';
+import { getAlchemyMaxFee } from 'lib/evm/alchemy/validation';
 import { fetchEvmRawBalance } from 'lib/evm/on-chain/balance';
 import { fetchEvmTokenMetadataFromChain } from 'lib/evm/on-chain/metadata';
 import { EvmAssetStandard } from 'lib/evm/types';
+import { t } from 'lib/i18n';
 import { useTempleClient } from 'lib/temple/front';
 import { atomsToTokens, tokensToAtoms } from 'lib/temple/helpers';
 import { ETHERLINK_MAINNET_CHAIN_ID, TempleAccountType } from 'lib/temple/types';
@@ -49,7 +52,9 @@ import {
 import { formatDuration, getBufferedExecutionDuration } from '../../form/utils';
 import { getTokenSlugFromEvmDexTokenAddress } from '../../utils';
 
+import { AlchemyBatchControls } from './AlchemyBatchControls';
 import { BaseContent } from './BaseContent';
+import { useAlchemySwapBatch } from './hooks/useAlchemySwapBatch';
 import { InitialInputData } from './types';
 import { mapLiFiTxToEvmEstimationData, parseTxRequestToViem } from './utils';
 
@@ -61,6 +66,10 @@ interface EvmContentProps {
   cancelledRef?: RefObject<boolean | null>;
   skipStatusWait?: boolean;
   submitDisabled?: boolean;
+  batchSteps?: LiFiStep[];
+  batchFeeTokens?: AlchemyFeeToken[];
+  onUseLegacyFlow?: EmptyFn;
+  onBatchBusyChange?: SyncFn<boolean>;
 }
 
 const swapNotConfirmedError = new Error(
@@ -75,7 +84,11 @@ export const EvmContent: FC<EvmContentProps> = ({
   onStepCompleted,
   cancelledRef,
   skipStatusWait,
-  submitDisabled
+  submitDisabled,
+  batchSteps,
+  batchFeeTokens,
+  onUseLegacyFlow,
+  onBatchBusyChange
 }) => {
   const {
     account,
@@ -96,12 +109,28 @@ export const EvmContent: FC<EvmContentProps> = ({
 
   const { sendEvmTransaction } = useTempleClient();
   const { value: ethBalance = ZERO } = useEvmAssetBalance(EVM_TOKEN_SLUG, accountPkh, inputNetwork);
+  const batch = useAlchemySwapBatch({
+    steps: batchSteps,
+    account: accountPkh,
+    network: inputNetwork,
+    feeTokens: batchFeeTokens
+  });
+  const { value: feeTokenBalance = ZERO } = useEvmAssetBalance(
+    batch.feeToken?.address ?? EVM_TOKEN_SLUG,
+    accountPkh,
+    inputNetwork
+  );
   const getActiveBlockExplorer = useGetEvmActiveBlockExplorer();
 
   const [latestSubmitError, setLatestSubmitError] = useState<unknown>(null);
   const [stepFinalized, setStepFinalized] = useState(false);
   const [submitLoading, setSubmitLoading] = useState(false);
   const { guard, preconnectIfNeeded, ledgerPromptProps } = useLedgerWebHidFullViewGuard();
+
+  useEffect(() => {
+    onBatchBusyChange?.(Boolean(batchSteps) && (submitLoading || batch.busy));
+    return () => onBatchBusyChange?.(false);
+  }, [batchSteps, batch.busy, submitLoading, onBatchBusyChange]);
 
   useEffect(() => {
     setStepFinalized(false);
@@ -122,7 +151,7 @@ export const EvmContent: FC<EvmContentProps> = ({
     network: inputNetwork,
     balance,
     ethBalance,
-    toFilled: isValidTxTo && !stepFinalized && !submitLoading && !cancelledRef?.current,
+    toFilled: !batchSteps && isValidTxTo && !stepFinalized && !submitLoading && !cancelledRef?.current,
     amount: atomsToTokens(fromAmount, fromToken.decimals ?? 0).toFixed(),
     silent: true
   });
@@ -192,7 +221,9 @@ export const EvmContent: FC<EvmContentProps> = ({
     if (cancelledRef?.current) return;
 
     let txParams: TransactionRequest | null = null;
-    if (isLifiStep(step)) {
+    if (batchSteps) {
+      // The batch executor uses the exact LiFi calls from the prepared quote.
+    } else if (isLifiStep(step)) {
       const transactionRequest = step.transactionRequest;
       if (!transactionRequest) {
         console.error(`No transactionRequest found for step ${step.tool}`);
@@ -219,12 +250,13 @@ export const EvmContent: FC<EvmContentProps> = ({
       };
     }
 
-    if (!txParams) {
+    if (!txParams && !batchSteps) {
       console.error(`Failed to parse transactionRequest for step ${isLifiStep(step) ? step.tool : '3Route'}`);
       return;
     }
 
-    const txHash = await sendEvmTransaction(accountPkh, inputNetwork, txParams);
+    const txHash = batchSteps ? await batch.execute() : await sendEvmTransaction(accountPkh, inputNetwork, txParams!);
+    if (!txHash) return;
 
     const blockExplorer = getActiveBlockExplorer(inputNetwork.chainId.toString(), !!bridgeData);
     showTxSubmitToastWithDelay(TempleChainKind.EVM, txHash, blockExplorer.url);
@@ -256,6 +288,8 @@ export const EvmContent: FC<EvmContentProps> = ({
       );
 
       dispatch(monitorPendingSwapsAction());
+
+      if (batchSteps) await batch.complete();
 
       setStepFinalized(true);
       onStepCompleted();
@@ -363,6 +397,43 @@ export const EvmContent: FC<EvmContentProps> = ({
     if (submitDisabled) return;
     if (formState.isSubmitting) return;
 
+    if (batchSteps) {
+      if (batch.busy) return;
+      if (!batch.quote || (batch.expired && !batch.submitted)) {
+        setLatestSubmitError(null);
+        setTab('details');
+        batch.refresh();
+        return;
+      }
+      try {
+        if (!batch.submitted) {
+          const { request, prepared } = batch.quote;
+          const nativeAmount = request.calls.reduce((sum, call) => sum + BigInt(call.value), 0n);
+          const maxFee = getAlchemyMaxFee(prepared);
+          const nativeRequired = nativeAmount + (request.feeToken ? 0n : maxFee);
+          if (tokensToAtoms(ethBalance, inputNetwork.currency.decimals).lt(nativeRequired.toString())) {
+            throw new Error(t('insufficientBalance'));
+          }
+          if (batch.feeToken) {
+            const inputAmount =
+              batch.feeToken.address.toLowerCase() === fromToken.address.toLowerCase() ? BigInt(fromAmount) : 0n;
+            if (tokensToAtoms(feeTokenBalance, batch.feeToken.decimals).lt((maxFee + inputAmount).toString())) {
+              throw new Error(t('insufficientBalance'));
+            }
+          }
+        }
+        setLatestSubmitError(null);
+        setTab('details');
+        setSubmitLoading(true);
+        await executeRouteStep(routeStep, {});
+      } catch (cause) {
+        onSubmitError(cause);
+      } finally {
+        setSubmitLoading(false);
+      }
+      return;
+    }
+
     const feesPerGas = getFeesPerGas(gasPrice);
     if (!providerEstimationData || !feesPerGas) {
       if (!estimationLoading && estimationError) {
@@ -416,13 +487,13 @@ export const EvmContent: FC<EvmContentProps> = ({
           ledgerApprovalModalState={ledgerApprovalModalState}
           onLedgerModalClose={handleLedgerModalClose}
           network={inputNetwork}
-          nativeAssetSlug={EVM_TOKEN_SLUG}
+          nativeAssetSlug={batch.feeToken?.address ?? EVM_TOKEN_SLUG}
           selectedTab={tab}
           setSelectedTab={setTab}
-          latestSubmitError={latestSubmitError}
+          latestSubmitError={latestSubmitError || batch.error}
           selectedFeeOption={selectedFeeOption}
           onFeeOptionSelect={handleFeeOptionSelect}
-          displayedFee={displayedFee}
+          displayedFee={batchSteps ? batch.fee : displayedFee}
           displayedFeeOptions={feeOptions?.displayed}
           minimumReceived={minimumReceived}
           onCancel={onClose}
@@ -430,8 +501,25 @@ export const EvmContent: FC<EvmContentProps> = ({
           someBalancesChanges={true}
           filteredBalancesChanges={balancesChanges}
           bridgeData={bridgeData}
-          submitLoadingOverride={submitLoading}
-          submitDisabled={submitDisabled}
+          submitLoadingOverride={submitLoading || batch.busy}
+          submitDisabled={submitDisabled || batch.busy}
+          readOnlyFees={Boolean(batchSteps)}
+          retry={batch.expired || (batch.submitted && !batch.replacementReady)}
+          feeSymbol={batch.feeToken?.symbol}
+          batchControls={
+            batchSteps && (
+              <AlchemyBatchControls
+                batch={batch}
+                network={inputNetwork}
+                submitLoading={submitLoading}
+                onUseLegacyFlow={onUseLegacyFlow}
+                onFeeTokenSelect={token => {
+                  setLatestSubmitError(null);
+                  batch.setFeeToken(token);
+                }}
+              />
+            )
+          }
         />
       </FormProvider>
       <LedgerFullViewPromptModal {...ledgerPromptProps} />
