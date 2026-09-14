@@ -44,11 +44,7 @@ export const FineTuneRewardsModal: FC<Props> = ({ onClose, opened, onShown }) =>
     handleClose();
   };
 
-  useEffect(() => {
-    if (opened) {
-      onShown();
-    }
-  }, [opened, onShown]);
+  useEffect(() => void (opened && onShown()), [opened, onShown]);
 
   return (
     <>

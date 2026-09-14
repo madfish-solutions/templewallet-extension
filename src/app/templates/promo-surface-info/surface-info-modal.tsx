@@ -16,7 +16,7 @@ import { AiAdExample, BrowsingAdExample, InWalletAdExample } from './surface-inf
 export type SurfaceInfoId = 'in-wallet' | 'browsing' | 'ai';
 
 interface SurfaceInfoContent {
-  title: string;
+  titleI18nKey: TID;
   Example: FC;
   descriptionI18nKey: TID;
   dataUsageDescriptionI18nKey: TID;
@@ -24,19 +24,19 @@ interface SurfaceInfoContent {
 
 const SURFACE_INFO: Record<SurfaceInfoId, SurfaceInfoContent> = {
   'in-wallet': {
-    title: t('promoInWallet'),
+    titleI18nKey: 'promoInWallet',
     Example: InWalletAdExample,
     descriptionI18nKey: 'inWalletAdsModalDescription',
     dataUsageDescriptionI18nKey: 'inWalletAdsUsedData'
   },
   browsing: {
-    title: t('promoWhileBrowsing'),
+    titleI18nKey: 'promoWhileBrowsing',
     Example: BrowsingAdExample,
     descriptionI18nKey: 'browsingAdsModalDescription',
     dataUsageDescriptionI18nKey: 'browsingAdsCollectedData'
   },
   ai: {
-    title: t('promoWhileUsingAi'),
+    titleI18nKey: 'promoWhileUsingAi',
     Example: AiAdExample,
     descriptionI18nKey: 'aiAdsModalDescription',
     dataUsageDescriptionI18nKey: 'aiAdsCollectedData'
@@ -58,10 +58,10 @@ export const SurfaceInfoModal: FC<Props> = ({
   gotItButtonTestID,
   privacyLinkTestID
 }) => {
-  const { title, Example, descriptionI18nKey, dataUsageDescriptionI18nKey } = SURFACE_INFO[surface];
+  const { titleI18nKey, Example, descriptionI18nKey, dataUsageDescriptionI18nKey } = SURFACE_INFO[surface];
 
   return (
-    <ActionModal title={title} onClose={onClose} closeButtonTestID={closeButtonTestID}>
+    <ActionModal title={t(titleI18nKey)} onClose={onClose} closeButtonTestID={closeButtonTestID}>
       <ActionModalBodyContainer className="pt-3! gap-4 items-center">
         <div className="w-full flex flex-col gap-1">
           <p className="py-1 text-font-description-bold">Example</p>

@@ -17,7 +17,7 @@ import {
   AI_CHATBOT_ADS_NUDGE_STATE_STORAGE_KEY,
   ADS_DISABLING_TIMESTAMPS_STORAGE_KEY
 } from 'lib/constants';
-import { t, T } from 'lib/i18n';
+import { t } from 'lib/i18n';
 import { putToStorage, removeFromStorage } from 'lib/storage';
 import { useConfirm } from 'lib/ui/dialog';
 
@@ -52,7 +52,7 @@ export const usePartnersPromotionSettings = () => {
 
     const confirmed = await confirm({
       title: t('closePartnersPromotion'),
-      description: <T id="closePartnersPromoConfirm" />,
+      description: t('closePartnersPromoConfirm'),
       confirmButtonText: t('disable'),
       hasCloseButton: false
     });
@@ -74,12 +74,8 @@ export const usePartnersPromotionSettings = () => {
       title: t('enablePartnersPromotionConfirm'),
       children: (
         <div className="flex flex-col gap-1 w-full text-center text-font-description text-grey-1 pt-1.5 pb-1">
-          <p>
-            <T id="enablePartnersPromotionDescriptionConfirm" />
-          </p>
-          <p>
-            <T id="enablePartnersPromotionPrivacyConfirm" />
-          </p>
+          <p>{t('enablePartnersPromotionDescriptionConfirm')}</p>
+          <p>{t('enablePartnersPromotionPrivacyConfirm')}</p>
         </div>
       ),
       confirmButtonText: t('gotIt'),
@@ -104,9 +100,7 @@ export const usePartnersPromotionSettings = () => {
       children: (
         <div className="flex flex-col gap-1 w-full">
           <CaptionAlert type="warning" message={t('disablePromoBrowsingWarning')} />
-          <p className="text-center text-font-description text-grey-1 py-1">
-            <T id="disablePromoSurfaceConfirm" />
-          </p>
+          <p className="text-center text-font-description text-grey-1 py-1">{t('disablePromoSurfaceConfirm')}</p>
         </div>
       ),
       confirmButtonText: t('disable'),
@@ -121,7 +115,7 @@ export const usePartnersPromotionSettings = () => {
   const handleHideAiChat = async () => {
     const confirmed = await confirm({
       title: t('disablePromoAiTitle'),
-      description: <T id="disablePromoSurfaceConfirm" />,
+      description: t('disablePromoSurfaceConfirm'),
       confirmButtonText: t('disable'),
       hasCloseButton: false
     });
