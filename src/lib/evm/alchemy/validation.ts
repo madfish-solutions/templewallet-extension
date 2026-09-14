@@ -15,7 +15,7 @@ export const ALCHEMY_DELEGATIONS = [
 ] as const;
 export const ALCHEMY_QUOTE_LIFETIME = 60_000;
 
-export const alchemyExecutionAbi = parseAbi([
+const alchemyExecutionAbi = parseAbi([
   'function execute(address target, uint256 value, bytes data) payable returns (bytes)',
   'function executeBatch((address target, uint256 value, bytes data)[] calls) payable returns (bytes[])'
 ]);
