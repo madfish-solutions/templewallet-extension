@@ -162,7 +162,6 @@ export const ConfirmEvmUserAction = memo<ConfirmEvmUserActionProps>(
             submitDisabled={submitDisabled}
             onClose={onRequestClose}
             batchSteps={userAction.batchSteps}
-            batchFeeTokens={userAction.feeTokens}
             onUseLegacyFlow={onUseLegacyFlow}
             onBatchBusyChange={onBatchBusyChange}
           />

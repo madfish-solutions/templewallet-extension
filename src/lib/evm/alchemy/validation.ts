@@ -1,11 +1,10 @@
-import { decodeFunctionData, erc20Abi, hashMessage, isAddressEqual, parseAbi, zeroAddress, type Hex } from 'viem';
+import { decodeFunctionData, hashMessage, isAddressEqual, parseAbi, type Hex } from 'viem';
 import { entryPoint07Address, getUserOperationHash } from 'viem/account-abstraction';
 
 import {
   AlchemyBatchQuote,
   AlchemyBatchRequest,
   AlchemyCall,
-  AlchemyFeeToken,
   AlchemyPreparedCalls,
   AlchemyPreparedOperation
 } from './types';
@@ -32,20 +31,16 @@ export function getAlchemyOperation(prepared: AlchemyPreparedCalls): AlchemyPrep
 }
 
 export function getAlchemyMaxFee(prepared: AlchemyPreparedCalls): bigint {
-  const operation = getAlchemyOperation(prepared);
-  if (operation.feePayment?.tokenAddress && !isAddressEqual(operation.feePayment.tokenAddress, zeroAddress)) {
-    return BigInt(operation.feePayment.maxAmount);
-  }
-  const data = operation.data;
-  const maximum =
+  const { data } = getAlchemyOperation(prepared);
+
+  return (
     (BigInt(data.callGasLimit) +
       BigInt(data.verificationGasLimit) +
       BigInt(data.preVerificationGas) +
       BigInt(data.paymasterVerificationGasLimit ?? '0x0') +
       BigInt(data.paymasterPostOpGasLimit ?? '0x0')) *
-    BigInt(data.maxFeePerGas);
-  const quoted = BigInt(operation.feePayment?.maxAmount ?? '0x0');
-  return quoted > maximum ? quoted : maximum;
+    BigInt(data.maxFeePerGas)
+  );
 }
 
 function sameCall(actual: AlchemyCall, expected: AlchemyCall): boolean {
@@ -56,11 +51,7 @@ function sameCall(actual: AlchemyCall, expected: AlchemyCall): boolean {
   );
 }
 
-export function validateAlchemyPreparedCalls(
-  prepared: AlchemyPreparedCalls,
-  request: AlchemyBatchRequest,
-  feeToken?: AlchemyFeeToken
-): Hex {
+export function validateAlchemyPreparedCalls(prepared: AlchemyPreparedCalls, request: AlchemyBatchRequest): Hex {
   const operation = getAlchemyOperation(prepared);
   if (operation.type !== 'user-operation-v070' || BigInt(operation.chainId) !== BigInt(request.chainId)) {
     throw new Error('Unsupported Alchemy operation or chain');
@@ -80,22 +71,7 @@ export function validateAlchemyPreparedCalls(
     const nonce = Number(BigInt(authorization.data.nonce));
     if (!Number.isSafeInteger(nonce) || nonce < 0) throw new Error('Invalid authorization nonce');
   }
-  const fee = operation.feePayment;
-  if (request.feeToken) {
-    if (
-      !fee?.tokenAddress ||
-      !isAddressEqual(fee.tokenAddress, request.feeToken) ||
-      !data.paymaster ||
-      fee.sponsored ||
-      !feeToken ||
-      !isAddressEqual(feeToken.address, request.feeToken) ||
-      !isAddressEqual(feeToken.paymaster, data.paymaster)
-    ) {
-      throw new Error('Alchemy changed the fee token');
-    }
-  } else if (data.paymaster || (fee?.tokenAddress && !isAddressEqual(fee.tokenAddress, zeroAddress))) {
-    throw new Error('Unexpected Alchemy fee payment');
-  }
+
   const callData = data.callData.toLowerCase().startsWith('0x8dd7712f')
     ? (`0x${data.callData.slice(10)}` as Hex)
     : data.callData;
@@ -109,24 +85,7 @@ export function validateAlchemyPreparedCalls(
     data: call.data,
     value: `0x${call.value.toString(16)}`
   }));
-  // Exact token-fee approval is the only additional call that the paymaster can insert.
-  if (actualCalls.length === request.calls.length + 1 && request.feeToken && data.paymaster) {
-    const approvalIndex = actualCalls.findIndex(
-      (call, index) => !request.calls[index] || !sameCall(call, request.calls[index])
-    );
-    const approval = actualCalls[approvalIndex];
-    const decodedApproval = decodeFunctionData({ abi: erc20Abi, data: approval.data });
-    if (
-      !isAddressEqual(approval.to, request.feeToken) ||
-      BigInt(approval.value) !== 0n ||
-      decodedApproval.functionName !== 'approve' ||
-      !isAddressEqual(decodedApproval.args[0], data.paymaster) ||
-      decodedApproval.args[1] !== getAlchemyMaxFee(prepared)
-    ) {
-      throw new Error('Unexpected token-fee approval');
-    }
-    actualCalls.splice(approvalIndex, 1);
-  }
+
   if (
     actualCalls.length !== request.calls.length ||
     actualCalls.some((call, index) => !sameCall(call, request.calls[index]))
@@ -171,5 +130,5 @@ export function validateAlchemyQuote(quote: AlchemyBatchQuote): Hex {
   ) {
     throw new Error('The fee quote expired. Retry to review a new quote.');
   }
-  return validateAlchemyPreparedCalls(quote.prepared, quote.request, quote.feeToken);
+  return validateAlchemyPreparedCalls(quote.prepared, quote.request);
 }

@@ -68,8 +68,7 @@ export const useEvmUserActions = (opened: boolean, onRequestClose: EmptyFn, revi
           type: 'execute',
           stepIndex: 0,
           routeStep: getAlchemyBatchReviewStep(recovery.steps),
-          batchSteps: recovery.steps,
-          feeTokens: recovery.feeToken ? [recovery.feeToken] : []
+          batchSteps: recovery.steps
         }
       ]);
       setActionsInitialized(true);
@@ -87,8 +86,7 @@ export const useEvmUserActions = (opened: boolean, onRequestClose: EmptyFn, revi
           type: 'execute',
           stepIndex: 0,
           routeStep: getAlchemyBatchReviewStep(evmSteps),
-          batchSteps: evmSteps,
-          feeTokens: batchConfig.feeTokens[evmSteps[0].action.fromChainId] ?? []
+          batchSteps: evmSteps
         }
       ]);
       setActionsInitialized(true);

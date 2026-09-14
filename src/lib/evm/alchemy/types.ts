@@ -6,26 +6,17 @@ export interface AlchemyCall {
   value: Hex;
 }
 
-export interface AlchemyFeeToken {
-  address: Address;
-  symbol: string;
-  decimals: number;
-  paymaster: Address;
-}
-
 export interface AlchemyWalletConfig {
   chains: number[];
-  feeTokens: Record<number, AlchemyFeeToken[]>;
 }
 
 export interface AlchemyBatchRequest {
   from: Address;
   chainId: Hex;
   calls: AlchemyCall[];
-  feeToken?: Address;
 }
 
-export interface AlchemyUserOperation {
+interface AlchemyUserOperation {
   sender: Address;
   nonce: Hex;
   callData: Hex;
@@ -42,21 +33,14 @@ export interface AlchemyUserOperation {
   paymasterPostOpGasLimit?: Hex;
 }
 
-export interface AlchemyFeePayment {
-  sponsored?: boolean;
-  tokenAddress?: Address;
-  maxAmount: Hex;
-}
-
 export interface AlchemyPreparedOperation {
   type: 'user-operation-v070';
   chainId: Hex;
   data: AlchemyUserOperation;
   signatureRequest: { type: 'personal_sign'; data: { raw: Hex }; rawPayload?: Hex };
-  feePayment?: AlchemyFeePayment;
 }
 
-export interface AlchemyPreparedAuthorization {
+interface AlchemyPreparedAuthorization {
   type: 'authorization';
   chainId: Hex;
   data: { address: Address; nonce: Hex };
@@ -87,5 +71,4 @@ export interface AlchemyBatchQuote {
   request: AlchemyBatchRequest;
   prepared: AlchemyPreparedCalls;
   expiresAt: number;
-  feeToken?: AlchemyFeeToken;
 }

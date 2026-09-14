@@ -11,7 +11,7 @@ import {
 import { browser } from 'lib/browser';
 import { AlchemySubmission, getAlchemySubmission, getAlchemySubmissionKey } from 'lib/evm/alchemy/submission';
 import { buildAlchemySwapCalls } from 'lib/evm/alchemy/swap';
-import type { AlchemyBatchQuote, AlchemyFeeToken } from 'lib/evm/alchemy/types';
+import type { AlchemyBatchQuote } from 'lib/evm/alchemy/types';
 import {
   ALCHEMY_QUOTE_LIFETIME,
   getAlchemyMaxFee,
@@ -26,13 +26,11 @@ interface Params {
   steps?: LiFiStep[];
   account: Hex;
   network: EvmChain;
-  feeTokens?: AlchemyFeeToken[];
 }
 
-export function useAlchemySwapBatch({ steps, account, network, feeTokens = [] }: Params) {
+export function useAlchemySwapBatch({ steps, account, network }: Params) {
   const { signAlchemyBatch } = useTempleClient();
   const [quote, setQuote] = useState<AlchemyBatchQuote>();
-  const [feeToken, setFeeToken] = useState<AlchemyFeeToken>();
   const [error, setError] = useState<unknown>();
   const [busy, setBusy] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -75,15 +73,13 @@ export function useAlchemySwapBatch({ steps, account, network, feeTokens = [] }:
         submission.current = stored;
         setSubmitted(true);
         setQuote(stored.quote);
-        setFeeToken(previous => (previous?.address === stored.feeToken?.address ? previous : stored.feeToken));
         return;
       }
       const { calls } = await buildAlchemySwapCalls(steps, account, network, controller.signal);
-      const request = { from: account, chainId: numberToHex(network.chainId), calls, feeToken: feeToken?.address };
+      const request = { from: account, chainId: numberToHex(network.chainId), calls };
       const prepared = await prepareAlchemyCalls(request, controller.signal);
-      validateAlchemyPreparedCalls(prepared, request, feeToken);
-      if (!controller.signal.aborted)
-        setQuote({ request, prepared, feeToken, expiresAt: Date.now() + ALCHEMY_QUOTE_LIFETIME });
+      validateAlchemyPreparedCalls(prepared, request);
+      if (!controller.signal.aborted) setQuote({ request, prepared, expiresAt: Date.now() + ALCHEMY_QUOTE_LIFETIME });
     };
     void prepare()
       .catch(cause => {
@@ -93,7 +89,7 @@ export function useAlchemySwapBatch({ steps, account, network, feeTokens = [] }:
         if (!controller.signal.aborted) setBusy(false);
       });
     return () => controller.abort();
-  }, [steps, account, network, feeToken, revision, key]);
+  }, [steps, account, network, revision, key]);
 
   useEffect(() => {
     if (!quote || submitted) return;
@@ -166,7 +162,7 @@ export function useAlchemySwapBatch({ steps, account, network, feeTokens = [] }:
         if (hash) return hash;
         // Alchemy selects the pending nonce and raises the replacement gas price.
         const prepared = await prepareAlchemyCalls(submission.current.quote.request);
-        validateAlchemyPreparedCalls(prepared, submission.current.quote.request, submission.current.quote.feeToken);
+        validateAlchemyPreparedCalls(prepared, submission.current.quote.request);
         if (
           getAlchemyOperation(prepared).data.nonce !== getAlchemyOperation(submission.current.quote.prepared).data.nonce
         ) {
@@ -176,7 +172,6 @@ export function useAlchemySwapBatch({ steps, account, network, feeTokens = [] }:
           setQuote({
             request: submission.current.quote.request,
             prepared,
-            feeToken: submission.current.quote.feeToken,
             expiresAt: Date.now() + ALCHEMY_QUOTE_LIFETIME
           });
           setExpired(false);
@@ -188,7 +183,6 @@ export function useAlchemySwapBatch({ steps, account, network, feeTokens = [] }:
       const current: AlchemySubmission = {
         version: 1,
         steps,
-        feeToken,
         quote,
         attempts: [...(submission.current?.attempts ?? []), { signed }]
       };
@@ -223,16 +217,7 @@ export function useAlchemySwapBatch({ steps, account, network, feeTokens = [] }:
     submitted,
     replacementReady,
     expired,
-    feeToken,
-    feeTokens,
-    fee: quote
-      ? formatUnits(getAlchemyMaxFee(quote.prepared), feeToken?.decimals ?? network.currency.decimals)
-      : undefined,
-    setFeeToken: (token: AlchemyFeeToken | undefined): void => {
-      if (submitted || busy || lock.current) return;
-      setQuote(undefined);
-      setFeeToken(token);
-    },
+    fee: quote ? formatUnits(getAlchemyMaxFee(quote.prepared), network.currency.decimals) : undefined,
     refresh,
     execute,
     complete

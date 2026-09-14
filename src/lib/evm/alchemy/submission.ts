@@ -3,13 +3,12 @@ import type { Hex } from 'viem';
 
 import { browser } from 'lib/browser';
 
-import type { AlchemyBatchQuote, AlchemyFeeToken, AlchemySignedCalls } from './types';
+import type { AlchemyBatchQuote, AlchemySignedCalls } from './types';
 
 export interface AlchemySubmission {
   version: 1;
   quote: AlchemyBatchQuote;
   steps: LiFiStep[];
-  feeToken?: AlchemyFeeToken;
   attempts: { signed: AlchemySignedCalls; id?: Hex }[];
 }
 
