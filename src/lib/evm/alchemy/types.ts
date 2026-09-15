@@ -2,12 +2,12 @@ import type { Address, Hex } from 'viem';
 
 export type AlchemyFeeOption = 'slow' | 'mid' | 'fast';
 
-export interface AlchemyGasParamsOverride {
+interface AlchemyGasParamsOverride {
   maxFeePerGas: { multiplier: number };
   maxPriorityFeePerGas: { multiplier: number };
 }
 
-export interface AlchemyEip7702Auth {
+interface AlchemyEip7702Auth {
   delegation: 'ModularAccountV2';
   version: 'v1.1.0';
 }
