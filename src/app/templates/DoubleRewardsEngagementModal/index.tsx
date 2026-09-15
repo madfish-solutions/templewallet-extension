@@ -7,7 +7,7 @@ import { dispatch } from 'app/store';
 import { togglePartnersPromotionAction } from 'app/store/partners-promotion/actions';
 import { PageModalScrollViewWithActions } from 'app/templates/page-modal-scroll-view-with-actions';
 import { removeToast, toastSuccess } from 'app/toaster';
-import { WEBSITES_ADS_ENABLED } from 'lib/constants';
+import { AI_CHATBOT_ADS_ENABLED, WEBSITES_ADS_ENABLED } from 'lib/constants';
 import {
   activateDoubleRewardsEngagementPromo,
   getDoubleRewardsEngagementDaysRemaining,
@@ -49,7 +49,11 @@ export const DoubleRewardsEngagementModal: FC<Props> = ({ opened, onRequestClose
     setIsActivating(true);
     dispatch(togglePartnersPromotionAction(true));
     try {
-      await Promise.all([activateDoubleRewardsEngagementPromo(), putToStorage(WEBSITES_ADS_ENABLED, true)]);
+      await Promise.all([
+        activateDoubleRewardsEngagementPromo(),
+        putToStorage(WEBSITES_ADS_ENABLED, true),
+        putToStorage(AI_CHATBOT_ADS_ENABLED, true)
+      ]);
       setCloseConfirmationOpen(false);
       const toastId = toastSuccess(t('doubleRewardsActivated'));
       setTimeout(() => {
