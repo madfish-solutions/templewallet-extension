@@ -1,50 +1,29 @@
 import { uniq } from 'lodash';
-import { CID } from 'multiformats/cid';
 
 import type { ImageSourceStage } from 'lib/ui/race-image-urls';
 import { isTruthy } from 'lib/utils';
 
 import chainIdsMapping from './chain-id-to-image-chain-name.json';
-import { EnvVars } from './env';
 import { EvmAssetStandard } from './evm/types';
 import type { TokenMetadata, EvmAssetMetadataBase, EvmCollectibleMetadata } from './metadata/types';
+import {
+  buildLastResortIpfsGatewayUrl,
+  buildPrimaryIpfsGatewayUrls,
+  DEFAULT_IPFS_GATE,
+  getIpfsItemInfo,
+  getMediaUriInfo,
+  IPFS_PROTOCOL,
+  IpfsUriInfo,
+  LAST_RESORT_IPFS_DELAY,
+  MediaUriInfo,
+  parseMediaUri
+} from './utils/ipfs';
 
 type TcInfraMediaSize = 'small' | 'medium' | 'large' | 'raw';
 type ObjktMediaTail = 'display' | 'artifact' | 'thumb288';
-type IpfsGate = SyncFn<IpfsUriInfo, string>;
 
 const COMPRESSED_TOKEN_ICON_SIZE = 80;
 const COMPRESSED_COLLECTIBLE_ICON_SIZE = 250;
-
-const IPFS_PROTOCOL = 'ipfs://';
-
-const joinCidPath = (cid: string, { pathWithoutCid, search }: IpfsUriInfo) => {
-  const nestedPath = pathWithoutCid ? `/${pathWithoutCid}` : '';
-
-  return `${cid}${nestedPath}${search}`;
-};
-
-const makeCidInPathIpfsGate =
-  (domain: string): IpfsGate =>
-  info =>
-    `https://${domain}/ipfs/${joinCidPath(info.id, info)}`;
-
-const makeCidInDomainIpfsGate =
-  (domain: string): IpfsGate =>
-  info => {
-    const nestedPath = info.pathWithoutCid ? `/${info.pathWithoutCid}` : '';
-
-    return `https://${info.idV1}.${domain}${nestedPath}${info.search}`;
-  };
-
-const DEFAULT_IPFS_GATE = makeCidInPathIpfsGate('ipfs.filebase.io');
-const LAST_RESORT_IPFS_GATE = makeCidInPathIpfsGate(EnvVars.LAST_RESORT_IPFS_GATEWAY_DOMAIN);
-const PRIMARY_IPFS_GATES = [
-  DEFAULT_IPFS_GATE,
-  makeCidInDomainIpfsGate('ipfs.4everland.io'),
-  makeCidInDomainIpfsGate('ipfs.dweb.link')
-];
-export const LAST_RESORT_IPFS_DELAY = 5_000;
 
 const MEDIA_HOST = 'https://static.tcinfra.net/media';
 const DEFAULT_MEDIA_SIZE: TcInfraMediaSize = 'small';
@@ -54,34 +33,6 @@ const SVG_DATA_URI_UTF8_PREFIX = 'data:image/svg+xml;charset=utf-8,';
 
 export const isSvgDataUriInUtf8Encoding = (uri: string) =>
   uri.slice(0, SVG_DATA_URI_UTF8_PREFIX.length).toLowerCase() === SVG_DATA_URI_UTF8_PREFIX;
-
-const tryRecoverIpfsUri = (url: string) => {
-  const [urlBeforeSearch, searchWithoutMark = ''] = url.split('?');
-  const search = searchWithoutMark ? `?${searchWithoutMark}` : '';
-  const urlBeforeSearchParts = urlBeforeSearch.split('/');
-  const cidIndex = urlBeforeSearchParts.findIndex(part => {
-    try {
-      CID.parse(part);
-
-      return true;
-    } catch {
-      return false;
-    }
-  });
-
-  if (cidIndex === -1) return;
-
-  const cid = urlBeforeSearchParts[cidIndex];
-  let nestedPath = urlBeforeSearchParts
-    .slice(cidIndex + 1)
-    .filter(isTruthy)
-    .join('/');
-  if (nestedPath) {
-    nestedPath = `/${nestedPath}`;
-  }
-
-  return `${IPFS_PROTOCOL}${cid}${nestedPath}${search}`;
-};
 
 const flattenImageSourceStages = (stages: ImageSourceStage[]) => stages.flatMap(stage => stage.urls);
 
@@ -140,75 +91,12 @@ export const buildCollectibleImagesStack = (
   return uniq(result.filter(isTruthy));
 };
 
-interface MediaUriInfo {
-  uri?: string;
-  ipfs: IpfsUriInfo | nullish;
-}
-
-const getMediaUriInfo = (uri?: string): MediaUriInfo => ({
-  uri,
-  ipfs: uri ? getIpfsItemInfo(uri) : null
-});
-
-/** Native URI info plus IPFS info parsed from path-style HTTP gateways. */
-const parseMediaUri = (uri?: string) => {
-  const native = getMediaUriInfo(uri);
-  if (native.ipfs || !uri) return { native, ipfsAware: native };
-
-  const ipfsUri = tryRecoverIpfsUri(uri);
-  const ipfs = ipfsUri ? getIpfsItemInfo(ipfsUri) : null;
-  if (!ipfs) return { native, ipfsAware: native };
-
-  return { native, ipfsAware: { uri, ipfs } };
-};
-
 const buildTcInfraMediaUrls = (uri: string | undefined, sizes: TcInfraMediaSize[]) => {
   const { native, ipfsAware } = parseMediaUri(uri);
   const infos = native === ipfsAware ? [native] : [native, ipfsAware];
 
   return sizes.flatMap(size => infos.map(info => buildIpfsMediaUriByInfo(info, size)));
 };
-
-interface IpfsUriInfo {
-  id: string;
-  idV1: string;
-  pathWithoutCid: string;
-  /** With leading `?` if applicable */
-  search: '' | `?${string}`;
-}
-
-const getIpfsItemInfo = (uri: string): IpfsUriInfo | null => {
-  if (!uri.startsWith(IPFS_PROTOCOL)) {
-    return null;
-  }
-
-  const [pathWithCid, search] = uri.slice(IPFS_PROTOCOL.length).split('?');
-  const id = pathWithCid.split('/')[0];
-  const pathWithoutCid = pathWithCid.slice(id.length + 1);
-
-  if (!id || id === INVALID_IPFS_ID) {
-    return null;
-  }
-
-  try {
-    return {
-      id,
-      idV1: CID.parse(id).toV1().toString(),
-      pathWithoutCid,
-      search: search ? `?${search}` : ''
-    };
-  } catch {
-    return null;
-  }
-};
-
-/** Black circle in `thumbnailUri`
- * See:
- * - KT1M2JnD1wsg7w2B4UXJXtKQPuDUpU2L7cJH_79
- * - KT1RJ6PbjHpwc3M5rw5s2Nbmefwbuwbdxton_19484
- * - KT1RJ6PbjHpwc3M5rw5s2Nbmefwbuwbdxton_3312
- */
-const INVALID_IPFS_ID = 'QmNrhZHUaEqxhyLfqoq1mtHSipkWHeT31LNHb1QEbDHgnc';
 
 export const buildObjktCollectibleArtifactUri = (artifactUri: string) =>
   buildObjktMediaURI(getIpfsItemInfo(artifactUri), 'artifact') || artifactUri;
@@ -257,19 +145,6 @@ const buildIpfsMediaUriByInfo = (
 
   return;
 };
-
-const buildGatewayUrls = (uri: string | undefined, gates: IpfsGate[]) => {
-  if (!uri) return [];
-
-  const { ipfsAware } = parseMediaUri(uri);
-  if (!ipfsAware.ipfs) return [uri];
-
-  return gates.map(gate => buildIpfsMediaUriByInfo(ipfsAware, 'small', false, gate)).filter(isTruthy);
-};
-
-export const buildPrimaryIpfsGatewayUrls = (uri?: string) => buildGatewayUrls(uri, PRIMARY_IPFS_GATES);
-
-export const buildLastResortIpfsGatewayUrl = (uri?: string) => buildGatewayUrls(uri, [LAST_RESORT_IPFS_GATE])[0];
 
 export const buildIpfsGatewaySourceStages = (uri?: string): ImageSourceStage[] => {
   const primaryUrls = buildPrimaryIpfsGatewayUrls(uri);
