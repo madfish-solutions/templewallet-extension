@@ -404,13 +404,12 @@ export const EvmContent: FC<EvmContentProps> = ({
 
         setBatchRetryAttempted(true);
         setLatestSubmitError(null);
-        setTab('details');
+        if (tab === 'error') setTab('details');
         batch.refresh();
         return;
       }
       if (!batch.quote || (batch.expired && !batch.submitted)) {
         setLatestSubmitError(null);
-        setTab('details');
         batch.refresh();
         return;
       }
@@ -422,7 +421,6 @@ export const EvmContent: FC<EvmContentProps> = ({
           }
         }
         setLatestSubmitError(null);
-        setTab('details');
         setSubmitLoading(true);
         await executeRouteStep(routeStep, {});
       } catch (cause) {
@@ -519,7 +517,8 @@ export const EvmContent: FC<EvmContentProps> = ({
                   }
                   size={16}
                   className="text-grey-2"
-                  wrapperClassName="max-w-[192px]"
+                  wrapperClassName="w-[274px]"
+                  appendToBody
                 />
               </div>
             ) : undefined

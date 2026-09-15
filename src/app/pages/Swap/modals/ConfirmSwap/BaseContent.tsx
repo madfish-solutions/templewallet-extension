@@ -1,6 +1,7 @@
-import React, { ReactNode, useCallback } from 'react';
+import React, { ReactNode, useCallback, useRef } from 'react';
 
 import BigNumber from 'bignumber.js';
+import clsx from 'clsx';
 import { SubmitHandler, useFormContext, useFormState } from 'react-hook-form';
 
 import { FadeTransition } from 'app/a11y/FadeTransition';
@@ -92,6 +93,7 @@ export const BaseContent = <T extends TxParamsFormData>({
   const { control } = useFormContext<T>();
   // React Compiler caches `<FormProvider {...form}>` on RHF's stable form, so context consumers stop re-rendering
   const formState = useFormState<T>({ control });
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   const goToFeeTab = useCallback(() => setSelectedTab('fee'), [setSelectedTab]);
   const actionButtons = (
@@ -116,7 +118,7 @@ export const BaseContent = <T extends TxParamsFormData>({
 
   return (
     <>
-      <div className="px-4 flex flex-col flex-1 overflow-y-scroll">
+      <div ref={scrollContainerRef} className="px-4 flex flex-col flex-1 overflow-y-scroll">
         <div className="my-4">
           {someBalancesChanges ? (
             <FadeTransition>
@@ -176,12 +178,21 @@ export const BaseContent = <T extends TxParamsFormData>({
       </div>
 
       <ActionsButtonsBox
-        flexDirection={actionsNotice ? 'col' : 'row'}
+        flexDirection="col"
         shouldChangeBottomShift={false}
-        className={actionsNotice ? 'gap-4!' : undefined}
+        className="gap-0!"
+        scrollContainerRef={scrollContainerRef}
       >
-        {actionsNotice}
-        {actionsNotice ? <div className="flex w-full gap-2.5">{actionButtons}</div> : actionButtons}
+        <div
+          className={clsx(
+            'relative z-0 transition-all duration-300 ease-in-out',
+            actionsNotice ? 'h-10 opacity-100' : 'h-0 opacity-0 overflow-hidden pointer-events-none'
+          )}
+          aria-hidden={!actionsNotice}
+        >
+          {actionsNotice}
+        </div>
+        <div className="relative z-1 flex w-full gap-2.5 bg-white">{actionButtons}</div>
       </ActionsButtonsBox>
 
       <LedgerApprovalModal state={ledgerApprovalModalState} onClose={onLedgerModalClose} chainKind={network.kind} />
