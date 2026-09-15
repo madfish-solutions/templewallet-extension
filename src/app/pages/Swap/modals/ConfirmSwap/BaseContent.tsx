@@ -33,6 +33,7 @@ interface BaseContentProps<T extends TxParamsFormData> {
   onFeeOptionSelect: SyncFn<FeeOptionLabel>;
   onSubmit: SubmitHandler<T>;
   onCancel: EmptyFn;
+  cancelDisabled?: boolean;
   submitLoadingOverride?: boolean;
   minimumReceived?: {
     amount: string;
@@ -71,6 +72,7 @@ export const BaseContent = <T extends TxParamsFormData>({
   setSelectedTab,
   onSubmit,
   onCancel,
+  cancelDisabled,
   onLedgerModalClose,
   submitLoadingOverride,
   minimumReceived,
@@ -156,13 +158,7 @@ export const BaseContent = <T extends TxParamsFormData>({
       </div>
 
       <ActionsButtonsBox flexDirection="row" shouldChangeBottomShift={false}>
-        <StyledButton
-          size="L"
-          className="w-full"
-          color="primary-low"
-          onClick={onCancel}
-          disabled={readOnlyFees && submitLoadingOverride}
-        >
+        <StyledButton size="L" className="w-full" color="primary-low" onClick={onCancel} disabled={cancelDisabled}>
           <T id="cancel" />
         </StyledButton>
 

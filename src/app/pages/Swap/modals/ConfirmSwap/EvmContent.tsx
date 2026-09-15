@@ -116,16 +116,22 @@ export const EvmContent: FC<EvmContentProps> = ({
   const [latestSubmitError, setLatestSubmitError] = useState<unknown>(null);
   const [stepFinalized, setStepFinalized] = useState(false);
   const [submitLoading, setSubmitLoading] = useState(false);
+  const [batchRetryAttempted, setBatchRetryAttempted] = useState(false);
   const { guard, preconnectIfNeeded, ledgerPromptProps } = useLedgerWebHidFullViewGuard();
 
   useEffect(() => {
-    onBatchBusyChange?.(Boolean(batchSteps) && (submitLoading || batch.busy));
+    onBatchBusyChange?.(Boolean(batchSteps) && submitLoading);
     return () => onBatchBusyChange?.(false);
-  }, [batchSteps, batch.busy, submitLoading, onBatchBusyChange]);
+  }, [batchSteps, submitLoading, onBatchBusyChange]);
 
   useEffect(() => {
     setStepFinalized(false);
+    setBatchRetryAttempted(false);
   }, [routeStep]);
+
+  useEffect(() => {
+    if (batchRetryAttempted && !batch.busy && batch.quote && !batch.error) setBatchRetryAttempted(false);
+  }, [batchRetryAttempted, batch.busy, batch.error, batch.quote]);
 
   const { value: balance = ZERO } = useEvmAssetBalance(inputTokenSlug, accountPkh, inputNetwork);
 
@@ -391,7 +397,15 @@ export const EvmContent: FC<EvmContentProps> = ({
     if (batchSteps) {
       if (batch.busy) return;
       if ((latestSubmitError || batch.error) && !batch.submitted) {
-        onUseLegacyFlow?.();
+        if (batchRetryAttempted) {
+          onUseLegacyFlow?.();
+          return;
+        }
+
+        setBatchRetryAttempted(true);
+        setLatestSubmitError(null);
+        setTab('details');
+        batch.refresh();
         return;
       }
       if (!batch.quote || (batch.expired && !batch.submitted)) {
@@ -482,12 +496,13 @@ export const EvmContent: FC<EvmContentProps> = ({
           displayedFeeOptions={batchSteps ? batch.feeOptions : feeOptions?.displayed}
           minimumReceived={minimumReceived}
           onCancel={onClose}
+          cancelDisabled={Boolean(batchSteps) && submitLoading}
           onSubmit={onSubmit}
           someBalancesChanges={true}
           filteredBalancesChanges={balancesChanges}
           bridgeData={bridgeData}
           submitLoadingOverride={submitLoading || batch.busy}
-          submitDisabled={submitDisabled || batch.busy}
+          submitDisabled={submitDisabled}
           readOnlyFees={Boolean(batchSteps)}
           retry={batch.expired || (batch.submitted && !batch.replacementReady)}
           accountAlert={

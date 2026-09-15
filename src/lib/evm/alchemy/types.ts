@@ -7,6 +7,11 @@ export interface AlchemyGasParamsOverride {
   maxPriorityFeePerGas: { multiplier: number };
 }
 
+export interface AlchemyEip7702Auth {
+  delegation: 'ModularAccountV2';
+  version: 'v1.1.0';
+}
+
 export interface AlchemyCall {
   to: Address;
   data: Hex;
@@ -21,7 +26,10 @@ export interface AlchemyBatchRequest {
   from: Address;
   chainId: Hex;
   calls: AlchemyCall[];
-  capabilities?: { gasParamsOverride: AlchemyGasParamsOverride };
+  capabilities?: {
+    eip7702Auth: AlchemyEip7702Auth;
+    gasParamsOverride: AlchemyGasParamsOverride;
+  };
 }
 
 interface AlchemyUserOperation {

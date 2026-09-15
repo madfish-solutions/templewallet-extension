@@ -63,7 +63,10 @@ const EvmContent: FC<EvmContentProps> = ({ readOnly, values }) => {
         )}
       />
 
-      <FieldLabelWithTooltip title={t('nonce')} tooltipContent={t('nonceInfoContent')} />
+      <FieldLabelWithTooltip
+        title={t('nonce')}
+        tooltipContent={t(readOnly ? 'userOperationNonceInfoContent' : 'nonceInfoContent')}
+      />
 
       <Controller
         name="nonce"

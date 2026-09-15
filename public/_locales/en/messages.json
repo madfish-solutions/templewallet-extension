@@ -4989,6 +4989,9 @@
   "nonceInfoContent": {
     "message": "The nonce is the number of transactions sent from a given address. Each time you send a transaction, the nonce value increases by 1."
   },
+  "userOperationNonceInfoContent": {
+    "message": "ERC-4337 uses this UserOperation nonce for replay protection. It combines a nonce key with a sequence number and differs from the account transaction nonce."
+  },
   "enLangName": {
     "message": "English"
   },

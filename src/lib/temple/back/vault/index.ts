@@ -27,7 +27,12 @@ import {
   WALLETS_SPECS_STORAGE_KEY
 } from 'lib/constants';
 import type { AlchemyBatchQuote, AlchemySignedCalls, AlchemySignedItem } from 'lib/evm/alchemy/types';
-import { ALCHEMY_DELEGATIONS, getAlchemyOperation, validateAlchemyQuote } from 'lib/evm/alchemy/validation';
+import {
+  ALCHEMY_DELEGATIONS,
+  getAlchemyOperation,
+  isEip7702DelegationCode,
+  validateAlchemyQuote
+} from 'lib/evm/alchemy/validation';
 import { fetchFromStorage as getPlain, putToStorage as savePlain } from 'lib/storage';
 import { mnemonicToPrivateKey } from 'lib/temple/accounts-helpers';
 import { deleteEvmActivitiesByAddress, deleteTezosActivitiesByAddress } from 'lib/temple/activity/repo';
@@ -912,7 +917,9 @@ export class Vault {
     const delegated = ALCHEMY_DELEGATIONS.some(
       address => code?.toLowerCase() === `0xef0100${address.slice(2)}`.toLowerCase()
     );
-    if (code && code !== '0x' && !delegated) throw new PublicError('The account uses a different smart contract');
+    if (code && code !== '0x' && !isEip7702DelegationCode(code)) {
+      throw new PublicError('The account contains unsupported contract code');
+    }
     if (!delegated && quote.prepared.type !== 'array') throw new PublicError('The batch lacks account authorization');
     return this.withSigningEvmAccount(accountPkh, async account => {
       if (!account.signAuthorization) throw new PublicError('This account does not support Alchemy batches');

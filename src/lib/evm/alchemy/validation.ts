@@ -10,16 +10,16 @@ import {
   AlchemyPreparedOperation
 } from './types';
 
-export const ALCHEMY_DELEGATIONS = [
-  '0x69007702764179f14F51cdce752f4f775d74E139',
-  '0x77021100bD87b7008E5E1989d0eB38555d0d0000'
-] as const;
+export const ALCHEMY_DELEGATION = '0x77021100bD87b7008E5E1989d0eB38555d0d0000';
+export const ALCHEMY_DELEGATIONS = [ALCHEMY_DELEGATION] as const;
 export const ALCHEMY_QUOTE_LIFETIME = 60_000;
 export const ALCHEMY_FEE_MULTIPLIERS: Record<AlchemyFeeOption, number> = {
   slow: 1,
   mid: 1.05,
   fast: 1.1
 };
+
+export const isEip7702DelegationCode = (code: Hex): boolean => /^0xef0100[0-9a-f]{40}$/i.test(code);
 
 const alchemyExecutionAbi = parseAbi([
   'function execute(address target, uint256 value, bytes data) payable returns (bytes)',
@@ -58,6 +58,10 @@ export function addAlchemyGasParamsOverride(
   return {
     ...request,
     capabilities: {
+      eip7702Auth: {
+        delegation: 'ModularAccountV2',
+        version: 'v1.1.0'
+      },
       gasParamsOverride: {
         maxFeePerGas: { multiplier },
         maxPriorityFeePerGas: { multiplier }
@@ -66,16 +70,19 @@ export function addAlchemyGasParamsOverride(
   };
 }
 
-function validateAlchemyFeeOption(quote: AlchemyBatchQuote): void {
+function validateAlchemyCapabilities(quote: AlchemyBatchQuote): void {
   const expectedMultiplier = ALCHEMY_FEE_MULTIPLIERS[quote.feeOption];
-  const override = quote.request.capabilities?.gasParamsOverride;
+  const capabilities = quote.request.capabilities;
+  const override = capabilities?.gasParamsOverride;
   if (
     expectedMultiplier === undefined ||
+    capabilities?.eip7702Auth.delegation !== 'ModularAccountV2' ||
+    capabilities.eip7702Auth.version !== 'v1.1.0' ||
     !override ||
     override.maxFeePerGas.multiplier !== expectedMultiplier ||
     override.maxPriorityFeePerGas.multiplier !== expectedMultiplier
   ) {
-    throw new Error('Invalid Alchemy fee option');
+    throw new Error('Invalid Alchemy request capabilities');
   }
 }
 
@@ -100,7 +107,7 @@ export function validateAlchemyPreparedCalls(prepared: AlchemyPreparedCalls, req
     const authorization = prepared.data[0];
     if (
       BigInt(authorization.chainId) !== BigInt(request.chainId) ||
-      !ALCHEMY_DELEGATIONS.some(address => isAddressEqual(address, authorization.data.address))
+      !isAddressEqual(ALCHEMY_DELEGATION, authorization.data.address)
     ) {
       throw new Error('Untrusted Alchemy delegation');
     }
@@ -166,6 +173,6 @@ export function validateAlchemyQuote(quote: AlchemyBatchQuote): Hex {
   ) {
     throw new Error('The fee quote expired. Retry to review a new quote.');
   }
-  validateAlchemyFeeOption(quote);
+  validateAlchemyCapabilities(quote);
   return validateAlchemyPreparedCalls(quote.prepared, quote.request);
 }

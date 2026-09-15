@@ -36,6 +36,10 @@ jest.mock('lib/evm/alchemy/validation', () => ({
   addAlchemyGasParamsOverride: (request: object, feeOption: string) => ({
     ...request,
     capabilities: {
+      eip7702Auth: {
+        delegation: 'ModularAccountV2',
+        version: 'v1.1.0'
+      },
       gasParamsOverride: {
         maxFeePerGas: { multiplier: feeOption === 'slow' ? 1 : feeOption === 'mid' ? 1.05 : 1.1 },
         maxPriorityFeePerGas: { multiplier: feeOption === 'slow' ? 1 : feeOption === 'mid' ? 1.05 : 1.1 }
@@ -148,6 +152,10 @@ it('prepares the selected fee multiplier', async () => {
   expect(prepare).toHaveBeenLastCalledWith(
     expect.objectContaining({
       capabilities: {
+        eip7702Auth: {
+          delegation: 'ModularAccountV2',
+          version: 'v1.1.0'
+        },
         gasParamsOverride: {
           maxFeePerGas: { multiplier: 1.05 },
           maxPriorityFeePerGas: { multiplier: 1.05 }
@@ -160,6 +168,10 @@ it('prepares the selected fee multiplier', async () => {
   expect(prepare).toHaveBeenLastCalledWith(
     expect.objectContaining({
       capabilities: {
+        eip7702Auth: {
+          delegation: 'ModularAccountV2',
+          version: 'v1.1.0'
+        },
         gasParamsOverride: {
           maxFeePerGas: { multiplier: 1.1 },
           maxPriorityFeePerGas: { multiplier: 1.1 }
@@ -168,6 +180,42 @@ it('prepares the selected fee multiplier', async () => {
     }),
     expect.any(AbortSignal)
   );
+});
+
+it('keeps the current quote visible while a new fee prepares', async () => {
+  let resolvePreparation: SyncFn<AlchemyPreparedOperation>;
+  const pendingPreparation = new Promise<AlchemyPreparedOperation>(resolve => {
+    resolvePreparation = resolve;
+  });
+  prepare.mockReturnValueOnce(pendingPreparation);
+  const initialQuote = current.quote;
+
+  await act(async () => current.selectFeeOption('fast'));
+
+  expect(current.busy).toBe(true);
+  expect(current.quote).toBe(initialQuote);
+  expect(current.selectedFeeOption).toBe('fast');
+  expect(buildAlchemySwapCalls).toHaveBeenCalledTimes(1);
+
+  await act(async () => {
+    resolvePreparation(prepared);
+    await pendingPreparation;
+  });
+
+  expect(current.busy).toBe(false);
+  expect(current.quote?.feeOption).toBe('fast');
+});
+
+it('aborts fee preparation when the confirmation closes', async () => {
+  prepare.mockReturnValueOnce(new Promise(() => undefined));
+  await act(async () => current.selectFeeOption('fast'));
+  const signal = prepare.mock.calls[prepare.mock.calls.length - 1][1] as AbortSignal;
+
+  await act(async () => root.unmount());
+
+  expect(signal.aborted).toBe(true);
+  container.remove();
+  await mount();
 });
 
 it('refreshes an expired fee quote without a signature', async () => {

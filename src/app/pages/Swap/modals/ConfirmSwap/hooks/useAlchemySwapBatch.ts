@@ -33,6 +33,10 @@ interface Params {
 
 const feeMultiplierPercent: Record<AlchemyFeeOption, number> = { slow: 100, mid: 105, fast: 110 };
 
+const scaleFeeValue = (value: bigint, from: AlchemyFeeOption, to: AlchemyFeeOption): bigint =>
+  (value * BigInt(feeMultiplierPercent[to]) + BigInt(feeMultiplierPercent[from] - 1)) /
+  BigInt(feeMultiplierPercent[from]);
+
 const isDefinitiveAlchemyRejection = (error: unknown): error is AlchemyRpcError =>
   error instanceof AlchemyRpcError &&
   error.code !== 429 &&
@@ -49,6 +53,9 @@ export function useAlchemySwapBatch({ steps, account, network }: Params) {
   const [selectedFeeOption, setSelectedFeeOption] = useState<AlchemyFeeOption>('mid');
   const [revision, setRevision] = useState(0);
   const submission = useRef<AlchemySubmission | undefined>(undefined);
+  const currentQuote = useRef<AlchemyBatchQuote | undefined>(undefined);
+  const selectedFeeOptionRef = useRef<AlchemyFeeOption>('mid');
+  const preparationController = useRef<AbortController | undefined>(undefined);
   const lock = useRef(false);
   const mounted = useRef(true);
   const key = getAlchemySubmissionKey(account, network.chainId);
@@ -65,14 +72,18 @@ export function useAlchemySwapBatch({ steps, account, network }: Params) {
     mounted.current = true;
     return () => {
       mounted.current = false;
+      preparationController.current?.abort();
     };
   }, []);
 
   useEffect(() => {
     if (!steps) return;
     const controller = new AbortController();
+    preparationController.current?.abort();
+    preparationController.current = controller;
     setBusy(true);
     setQuote(undefined);
+    currentQuote.current = undefined;
     setError(undefined);
     setExpired(false);
     setReplacementReady(false);
@@ -83,23 +94,27 @@ export function useAlchemySwapBatch({ steps, account, network }: Params) {
         submission.current = stored;
         setSubmitted(true);
         setSelectedFeeOption(stored.quote.feeOption);
+        selectedFeeOptionRef.current = stored.quote.feeOption;
         setQuote(stored.quote);
+        currentQuote.current = stored.quote;
         return;
       }
       const { calls } = await buildAlchemySwapCalls(steps, account, network, controller.signal);
       const request = addAlchemyGasParamsOverride(
         { from: account, chainId: numberToHex(network.chainId), calls },
-        selectedFeeOption
+        selectedFeeOptionRef.current
       );
       const prepared = await prepareAlchemyCalls(request, controller.signal);
       validateAlchemyPreparedCalls(prepared, request);
       if (!controller.signal.aborted) {
-        setQuote({
+        const nextQuote = {
           request,
           prepared,
           expiresAt: Date.now() + ALCHEMY_QUOTE_LIFETIME,
-          feeOption: selectedFeeOption
-        });
+          feeOption: selectedFeeOptionRef.current
+        };
+        setQuote(nextQuote);
+        currentQuote.current = nextQuote;
       }
     };
     void prepare()
@@ -107,10 +122,10 @@ export function useAlchemySwapBatch({ steps, account, network }: Params) {
         if (!controller.signal.aborted) setError(cause);
       })
       .finally(() => {
-        if (!controller.signal.aborted) setBusy(false);
+        if (!controller.signal.aborted && preparationController.current === controller) setBusy(false);
       });
     return () => controller.abort();
-  }, [steps, account, network, revision, key, selectedFeeOption]);
+  }, [steps, account, network, revision, key]);
 
   useEffect(() => {
     if (!quote || submitted) return;
@@ -245,22 +260,57 @@ export function useAlchemySwapBatch({ steps, account, network }: Params) {
   };
 
   const selectFeeOption = (feeOption: AlchemyFeeOption): void => {
-    if (submitted || busy || feeOption === selectedFeeOption) return;
+    const previousQuote = currentQuote.current;
+    if (submitted || busy || !previousQuote || feeOption === selectedFeeOption) return;
+
     setSelectedFeeOption(feeOption);
+    selectedFeeOptionRef.current = feeOption;
+    setError(undefined);
+    const controller = new AbortController();
+    preparationController.current?.abort();
+    preparationController.current = controller;
+    setBusy(true);
+
+    const request = addAlchemyGasParamsOverride(
+      {
+        from: previousQuote.request.from,
+        chainId: previousQuote.request.chainId,
+        calls: previousQuote.request.calls
+      },
+      feeOption
+    );
+
+    void prepareAlchemyCalls(request, controller.signal)
+      .then(prepared => {
+        validateAlchemyPreparedCalls(prepared, request);
+        if (controller.signal.aborted) return;
+
+        const nextQuote = {
+          request,
+          prepared,
+          expiresAt: Date.now() + ALCHEMY_QUOTE_LIFETIME,
+          feeOption
+        };
+        setQuote(nextQuote);
+        currentQuote.current = nextQuote;
+        setExpired(false);
+      })
+      .catch(cause => {
+        if (!controller.signal.aborted) setError(cause);
+      })
+      .finally(() => {
+        if (!controller.signal.aborted && preparationController.current === controller) setBusy(false);
+      });
   };
 
   const feeOptions = (() => {
     if (!quote) return undefined;
     const selectedFee = getAlchemyMaxFee(quote.prepared);
-    const selectedPercent = feeMultiplierPercent[quote.feeOption];
 
     return Object.fromEntries(
       (Object.keys(ALCHEMY_FEE_MULTIPLIERS) as AlchemyFeeOption[]).map(option => [
         option,
-        formatUnits(
-          (selectedFee * BigInt(feeMultiplierPercent[option]) + BigInt(selectedPercent - 1)) / BigInt(selectedPercent),
-          network.currency.decimals
-        )
+        formatUnits(scaleFeeValue(selectedFee, quote.feeOption, option), network.currency.decimals)
       ])
     ) as Record<AlchemyFeeOption, string>;
   })();
@@ -278,8 +328,11 @@ export function useAlchemySwapBatch({ steps, account, network }: Params) {
     selectedFeeOption,
     selectFeeOption,
     feeOptions,
-    fee: quote ? formatUnits(getAlchemyMaxFee(quote.prepared), network.currency.decimals) : undefined,
-    gasPrice: operation ? formatUnits(BigInt(operation.data.maxFeePerGas), 9) : undefined,
+    fee: feeOptions?.[selectedFeeOption],
+    gasPrice:
+      operation && quote
+        ? formatUnits(scaleFeeValue(BigInt(operation.data.maxFeePerGas), quote.feeOption, selectedFeeOption), 9)
+        : undefined,
     advancedValues: operation
       ? {
           gasLimit: BigInt(operation.data.callGasLimit).toString(),
