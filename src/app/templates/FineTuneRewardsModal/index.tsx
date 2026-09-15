@@ -31,7 +31,11 @@ export const FineTuneRewardsModal: FC<Props> = ({ onClose, opened, onShown }) =>
 
   const handleSave = () => {
     patchPersistedPartnersPromotionState({ inBrowserAdsEnabled: browsingEnabled, aiChatAdsEnabled: aiEnabled }).finally(
-      onClose
+      () => {
+        // Changes in storage do not trigger Redux store update, so we need to dispatch the action manually.
+        dispatch(setAdsSurfacesEnabledAction({ inWallet: true, inBrowser: browsingEnabled, aiChat: aiEnabled }));
+        onClose();
+      }
     );
   };
 
