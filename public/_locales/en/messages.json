@@ -4872,6 +4872,12 @@
       }
     }
   },
+  "smartWalletFeaturesNotice": {
+    "message": "Operation enable Smart Wallet features"
+  },
+  "smartWalletFeaturesTooltip": {
+    "message": "This operation upgrade your account with Smart Wallet permissions to combine approvals, swaps and bridges into a single click. You remain in control of your funds at all times."
+  },
   "welcomeToRewards": {
     "message": "Welcome to Rewards"
   },
@@ -4985,6 +4991,9 @@
   },
   "nonceInfoContent": {
     "message": "The nonce is the number of transactions sent from a given address. Each time you send a transaction, the nonce value increases by 1."
+  },
+  "userOperationNonceInfoContent": {
+    "message": "The nonce keeps Smart Wallet operations in the correct order and prevents duplicates. It is separate from your regular transaction nonce, so it can be much larger."
   },
   "enLangName": {
     "message": "English"

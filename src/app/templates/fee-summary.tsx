@@ -19,9 +19,10 @@ interface FeesInfoProps {
   assetSlug: string;
   amount?: string;
   goToFeeTab?: EmptyFn;
+  assetSymbol?: string;
 }
 
-const FeesInfo = ({ network, assetSlug, amount = '0.00', goToFeeTab }: FeesInfoProps) => {
+const FeesInfo = ({ network, assetSlug, amount = '0.00', goToFeeTab, assetSymbol }: FeesInfoProps) => {
   const isEvm = network.kind === TempleChainKind.EVM;
   const getTezosGasMetadata = useGetTezosGasMetadata();
 
@@ -54,7 +55,7 @@ const FeesInfo = ({ network, assetSlug, amount = '0.00', goToFeeTab }: FeesInfoP
           <Money smallFractionFont={false} tooltipPlacement="bottom">
             {amount}
           </Money>{' '}
-          {nativeAssetSymbol}
+          {assetSymbol ?? nativeAssetSymbol}
         </span>
       </div>
       {goToFeeTab && <IconBase Icon={ChevronRightIcon} className="text-primary cursor-pointer" onClick={goToFeeTab} />}
@@ -78,6 +79,7 @@ interface FeeSummaryProps {
   protocolFee?: string;
   onOpenFeeTab?: EmptyFn;
   embedded?: boolean;
+  assetSymbol?: string;
 }
 
 export const FeeSummary: FC<FeeSummaryProps> = ({
@@ -87,7 +89,8 @@ export const FeeSummary: FC<FeeSummaryProps> = ({
   storageFee,
   protocolFee,
   onOpenFeeTab,
-  embedded = false
+  embedded = false,
+  assetSymbol
 }) => {
   const total = useMemo(() => {
     const values = [gasFee, storageFee, protocolFee].filter((value): value is string => Boolean(value));
@@ -97,8 +100,8 @@ export const FeeSummary: FC<FeeSummaryProps> = ({
   const getTezosGasMetadata = useGetTezosGasMetadata();
   const nativeSymbol = useMemo(() => {
     const isEvm = network.kind === TempleChainKind.EVM;
-    return getAssetSymbol(isEvm ? network.currency : getTezosGasMetadata(network.chainId));
-  }, [network, getTezosGasMetadata]);
+    return assetSymbol ?? getAssetSymbol(isEvm ? network.currency : getTezosGasMetadata(network.chainId));
+  }, [network, getTezosGasMetadata, assetSymbol]);
 
   const evm = network.kind === TempleChainKind.EVM;
   const price = useAssetFiatCurrencyPrice(assetSlug, network.chainId, evm);
@@ -184,7 +187,13 @@ export const FeeSummary: FC<FeeSummaryProps> = ({
             )}
           </span>
         </Tippy>
-        <FeesInfo network={network} assetSlug={assetSlug} amount={total.toFixed()} goToFeeTab={onOpenFeeTab} />
+        <FeesInfo
+          network={network}
+          assetSlug={assetSlug}
+          amount={total.toFixed()}
+          goToFeeTab={onOpenFeeTab}
+          assetSymbol={assetSymbol}
+        />
       </div>
     </div>
   );

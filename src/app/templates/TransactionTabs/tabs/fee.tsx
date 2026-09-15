@@ -5,7 +5,9 @@ import { Controller, useFormContext, useFormState } from 'react-hook-form';
 import { formatEther } from 'viem';
 
 import { FadeTransition } from 'app/a11y/FadeTransition';
+import { IconBase } from 'app/atoms';
 import AssetField from 'app/atoms/AssetField';
+import { ReactComponent as LockFillIcon } from 'app/icons/base/lock_fill.svg';
 import { t, T } from 'lib/i18n';
 import { useTezosGasMetadata } from 'lib/metadata';
 import {
@@ -29,6 +31,8 @@ interface FeeTabProps {
   displayedFeeOptions?: DisplayedFeeOptions;
   selectedOption: FeeOptionLabel | nullish;
   onOptionSelect: (label: FeeOptionLabel) => void;
+  readOnly?: boolean;
+  gasPriceOverride?: string;
 }
 
 export const FeeTab: FC<FeeTabProps> = ({
@@ -36,7 +40,9 @@ export const FeeTab: FC<FeeTabProps> = ({
   assetSlug,
   displayedFeeOptions,
   selectedOption,
-  onOptionSelect
+  onOptionSelect,
+  readOnly,
+  gasPriceOverride
 }) => (
   <FadeTransition>
     {displayedFeeOptions && (
@@ -49,18 +55,32 @@ export const FeeTab: FC<FeeTabProps> = ({
       />
     )}
     {network.kind === TempleChainKind.EVM ? (
-      <EvmContent selectedOption={selectedOption} network={network} onOptionSelect={onOptionSelect} />
+      <EvmContent
+        selectedOption={selectedOption}
+        network={network}
+        onOptionSelect={onOptionSelect}
+        readOnly={readOnly}
+        gasPriceOverride={gasPriceOverride}
+      />
     ) : (
       <TezosContent selectedOption={selectedOption} network={network} onOptionSelect={onOptionSelect} />
     )}
   </FadeTransition>
 );
 
-type ContentProps<T extends TempleChainKind> = Pick<FeeTabProps, 'selectedOption' | 'onOptionSelect'> & {
+type ContentProps<T extends TempleChainKind> = Pick<
+  FeeTabProps,
+  'selectedOption' | 'onOptionSelect' | 'readOnly' | 'gasPriceOverride'
+> & {
   network: ChainOfKind<T>;
 };
 
-const EvmContent: FC<ContentProps<TempleChainKind.EVM>> = ({ selectedOption, onOptionSelect }) => {
+const EvmContent: FC<ContentProps<TempleChainKind.EVM>> = ({
+  selectedOption,
+  onOptionSelect,
+  readOnly,
+  gasPriceOverride
+}) => {
   const { control } = useFormContext<EvmTxParamsFormData>();
   const { data } = useEvmEstimationDataState();
 
@@ -82,21 +102,28 @@ const EvmContent: FC<ContentProps<TempleChainKind.EVM>> = ({ selectedOption, onO
       <Controller
         name="gasPrice"
         control={control}
-        rules={{ validate: v => validateNonZero(v, t('gasPrice')) }}
+        rules={readOnly ? undefined : { validate: v => validateNonZero(v, t('gasPrice')) }}
         render={({ field: { value, onChange, onBlur }, formState: { errors } }) => (
           <AssetField
-            value={value || gasPriceFallback}
+            value={gasPriceOverride ?? (value || gasPriceFallback)}
             placeholder="1.0"
             min={0}
             assetDecimals={DEFAULT_EVM_CURRENCY.decimals}
-            rightSideComponent={<div className="text-font-description-bold text-grey-2">GWEI</div>}
+            rightSideComponent={
+              <div className="flex items-center gap-1">
+                <div className={clsx('text-font-description-bold', readOnly ? 'text-grey-1' : 'text-grey-2')}>GWEI</div>
+                {readOnly && <IconBase size={16} Icon={LockFillIcon} className="text-grey-3" />}
+              </div>
+            }
             onChange={v => onChange(v ?? '')}
             onBlur={() => {
-              if (!value) onOptionSelect('mid');
+              if (!readOnly && !value) onOptionSelect('mid');
               onBlur();
             }}
             errorCaption={errors.gasPrice?.message}
             containerClassName="mb-7"
+            className={readOnly ? 'text-grey-1' : undefined}
+            readOnly={readOnly}
           />
         )}
       />
@@ -173,13 +200,16 @@ const TezosContent: FC<ContentProps<TempleChainKind.Tezos>> = ({ network, select
 interface OptionalFieldLabelProps {
   title: string;
   className?: string;
+  optional?: boolean;
 }
 
-const OptionalFieldLabel: FC<OptionalFieldLabelProps> = ({ title, className }) => (
+const OptionalFieldLabel: FC<OptionalFieldLabelProps> = ({ title, className, optional = true }) => (
   <div className={clsx('mb-1 flex flex-row justify-between items-center', className)}>
     <p className="text-font-description-bold">{title}</p>
-    <p className="text-grey-2 text-font-description">
-      <T id="optional" />
-    </p>
+    {optional && (
+      <p className="text-grey-2 text-font-description">
+        <T id="optional" />
+      </p>
+    )}
   </div>
 );

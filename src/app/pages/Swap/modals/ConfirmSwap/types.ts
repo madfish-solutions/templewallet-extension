@@ -10,6 +10,7 @@ export interface UserAction {
   type: UserActionType;
   stepIndex: number;
   routeStep: LiFiStep | Route3EvmRoute;
+  batchSteps?: LiFiStep[];
 }
 
 export interface InitialInputData {

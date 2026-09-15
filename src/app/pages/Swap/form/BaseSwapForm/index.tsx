@@ -361,6 +361,7 @@ export const BaseSwapForm: FC<Props> = ({
           form="swap-form"
           size="L"
           color="primary"
+          className="relative z-1"
           loading={swapParamsAreLoading || isSubmitting}
           disabled={shouldDisableSubmitButton({ errors, formState })}
           testID={SwapFormSelectors.swapButton}

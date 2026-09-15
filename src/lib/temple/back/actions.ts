@@ -19,6 +19,7 @@ import {
   SHOULD_DISABLE_NOT_ACTIVE_NETWORKS_STORAGE_KEY
 } from 'lib/constants';
 import { BACKGROUND_IS_WORKER } from 'lib/env';
+import type { AlchemyBatchQuote } from 'lib/evm/alchemy/types';
 import { putToStorage, removeFromStorage } from 'lib/storage';
 import { addLocalOperation } from 'lib/temple/activity';
 import * as Beacon from 'lib/temple/beacon';
@@ -221,6 +222,10 @@ export function sendEvmTransaction(accountPkh: HexString, network: EvmChain, txP
   return withUnlocked(async ({ vault }) => {
     return await vault.sendEvmTransaction(accountPkh, network, txParams);
   });
+}
+
+export function signAlchemyBatch(accountPkh: HexString, network: EvmChain, quote: AlchemyBatchQuote) {
+  return withUnlocked(({ vault }) => vault.signAlchemyBatch(accountPkh, network, quote));
 }
 
 export function registerNewWallet(password: string, mnemonic?: string) {

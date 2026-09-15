@@ -1,6 +1,11 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { isLifiStep, isSwapEvmReviewData, SwapReviewData } from 'app/pages/Swap/form/interfaces';
+import { getAlchemyWalletConfig } from 'lib/apis/temple/endpoints/evm/alchemy-wallet';
+import { AlchemySubmission, getAlchemySubmission } from 'lib/evm/alchemy/submission';
+import { canBatchLifiSteps, getAlchemyBatchReviewStep } from 'lib/evm/alchemy/swap';
+import type { AlchemyWalletConfig } from 'lib/evm/alchemy/types';
+import { TempleAccountType } from 'lib/temple/types';
 import { useBooleanState } from 'lib/ui/hooks';
 
 import { useEvmAllowances } from '../../SwapSelectAsset/hooks';
@@ -18,10 +23,75 @@ export const useEvmUserActions = (opened: boolean, onRequestClose: EmptyFn, revi
 
   const [userActions, setUserActions] = useState<Array<UserAction>>([]);
   const [actionsInitialized, setActionsInitialized] = useState(false);
+  const [batchConfig, setBatchConfig] = useState<AlchemyWalletConfig | null>();
+  const [legacy, setLegacy] = useState(false);
+  const [batchBusy, setBatchBusy] = useState(false);
+  const [recovery, setRecovery] = useState<AlchemySubmission>();
+  const [initializationError, setInitializationError] = useState<unknown>();
+
+  useEffect(() => {
+    if (!opened || !reviewData || !isSwapEvmReviewData(reviewData)) return;
+    const controller = new AbortController();
+    setBatchConfig(undefined);
+    setLegacy(false);
+    setRecovery(undefined);
+    setInitializationError(undefined);
+    const { type } = reviewData.account;
+    if (type !== TempleAccountType.HD && type !== TempleAccountType.Imported) {
+      setBatchConfig(null);
+      return;
+    }
+    void Promise.all([
+      evmSteps.every(isLifiStep) && canBatchLifiSteps(evmSteps)
+        ? getAlchemyWalletConfig(controller.signal).catch(() => null)
+        : Promise.resolve(null),
+      getAlchemySubmission(reviewData.account.address as HexString, reviewData.network.chainId)
+    ])
+      .then(([config, stored]) => {
+        if (controller.signal.aborted) return;
+        setRecovery(stored);
+        setBatchConfig(config);
+      })
+      .catch(cause => {
+        if (!controller.signal.aborted) setInitializationError(cause);
+      });
+    return () => controller.abort();
+  }, [opened, reviewData, evmSteps]);
 
   useEffect(() => {
     if (actionsInitialized) return;
     if (!reviewData || !isSwapEvmReviewData(reviewData)) return;
+    if (batchConfig === undefined) return;
+    if (recovery) {
+      setUserActions([
+        {
+          type: 'execute',
+          stepIndex: 0,
+          routeStep: getAlchemyBatchReviewStep(recovery.steps),
+          batchSteps: recovery.steps
+        }
+      ]);
+      setActionsInitialized(true);
+      return;
+    }
+    if (
+      !legacy &&
+      batchConfig &&
+      evmSteps.every(isLifiStep) &&
+      canBatchLifiSteps(evmSteps) &&
+      batchConfig.chains.includes(evmSteps[0].action.fromChainId)
+    ) {
+      setUserActions([
+        {
+          type: 'execute',
+          stepIndex: 0,
+          routeStep: getAlchemyBatchReviewStep(evmSteps),
+          batchSteps: evmSteps
+        }
+      ]);
+      setActionsInitialized(true);
+      return;
+    }
     if (allowancesLoading) return;
     if (allowanceSufficient.length !== evmSteps.length) return;
 
@@ -37,7 +107,7 @@ export const useEvmUserActions = (opened: boolean, onRequestClose: EmptyFn, revi
 
     setUserActions(actions);
     setActionsInitialized(true);
-  }, [actionsInitialized, reviewData, evmSteps, allowanceSufficient, allowancesLoading]);
+  }, [actionsInitialized, reviewData, evmSteps, allowanceSufficient, allowancesLoading, batchConfig, legacy, recovery]);
 
   const [currentActionIndex, setCurrentActionIndex] = useState(0);
   const [isCancelConfirmOpen, setCancelConfirmOpened, setCancelConfirmClosed] = useBooleanState(false);
@@ -50,7 +120,7 @@ export const useEvmUserActions = (opened: boolean, onRequestClose: EmptyFn, revi
 
   const { progressionBlocked } = usePrefetchEvmStepTransactions({
     opened,
-    actionsInitialized,
+    actionsInitialized: actionsInitialized && !userActions[0]?.batchSteps,
     steps: evmSteps,
     senderAddress,
     cancelledRef
@@ -121,6 +191,7 @@ export const useEvmUserActions = (opened: boolean, onRequestClose: EmptyFn, revi
   }, [onRequestClose, reviewData, setCancelConfirmClosed, currentActionIndex, firstExecuteAction.index]);
 
   const handleRequestClose = useCallback(() => {
+    if (batchBusy) return;
     if (reviewData && isSwapEvmReviewData(reviewData)) {
       if (currentActionIndex > firstExecuteAction.index) {
         setCancelConfirmOpened();
@@ -128,7 +199,16 @@ export const useEvmUserActions = (opened: boolean, onRequestClose: EmptyFn, revi
       }
     }
     performCancel();
-  }, [reviewData, performCancel, currentActionIndex, firstExecuteAction.index, setCancelConfirmOpened]);
+  }, [reviewData, performCancel, currentActionIndex, firstExecuteAction.index, setCancelConfirmOpened, batchBusy]);
+
+  const useLegacyFlow = (): void => {
+    if (batchBusy) return;
+    setLegacy(true);
+    setRecovery(undefined);
+    setActionsInitialized(false);
+    setUserActions([]);
+    setCurrentActionIndex(0);
+  };
 
   return {
     userActions,
@@ -143,6 +223,9 @@ export const useEvmUserActions = (opened: boolean, onRequestClose: EmptyFn, revi
     performCancel,
     onStepCompleted,
     handleRequestClose,
-    setCancelConfirmClosed
+    setCancelConfirmClosed,
+    useLegacyFlow,
+    setBatchBusy,
+    initializationError
   };
 };
