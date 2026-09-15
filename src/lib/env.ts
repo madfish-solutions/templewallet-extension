@@ -69,7 +69,8 @@ export const EnvVars = {
   /** Whether ads stubs should be added if loading failed. Set it to `true` only for testing */
   USE_ADS_STUBS: process.env.USE_ADS_STUBS === 'true',
   TAKE_ADS_TOKEN: process.env.TAKE_ADS_TOKEN!,
-  GOOGLE_AUTH_PAGE_URL: process.env.GOOGLE_AUTH_PAGE_URL!
+  GOOGLE_AUTH_PAGE_URL: process.env.GOOGLE_AUTH_PAGE_URL!,
+  LAST_RESORT_IPFS_GATEWAY_DOMAIN: process.env.LAST_RESORT_IPFS_GATEWAY_DOMAIN!
 } as const;
 
 type Brand = 'Google Chrome' | 'Brave' | 'Mises';

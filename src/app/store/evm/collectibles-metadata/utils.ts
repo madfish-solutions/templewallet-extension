@@ -1,8 +1,14 @@
 import { getAddress } from 'viem';
 
-import { NftData, NftTokenContractBalanceItem } from 'lib/apis/temple/endpoints/evm/api.interfaces';
+import {
+  NftAddressBalanceNftResponse,
+  NftData,
+  NftTokenContractBalanceItem
+} from 'lib/apis/temple/endpoints/evm/api.interfaces';
+import { toTokenSlug } from 'lib/assets';
 import { EvmAssetStandard } from 'lib/evm/types';
 import { EvmCollectibleMetadata } from 'lib/metadata/types';
+import { isProperCollectibleMetadata } from 'lib/utils/evm.utils';
 
 export const buildEvmCollectibleMetadataFromFetched = (
   collectible: NonNullableField<NftData, 'token_id' | 'external_data' | 'token_url'>,
@@ -37,4 +43,18 @@ const getCollectibleStandard = (supportedErcs: string[]) => {
   }
 
   return undefined;
+};
+
+export const getSlugsWithProperCollectibleMetadata = (data: NftAddressBalanceNftResponse) => {
+  const slugs = new Set<string>();
+
+  for (const contract of data.items) {
+    for (const collectible of contract.nft_data) {
+      if (!isProperCollectibleMetadata(collectible)) continue;
+
+      slugs.add(toTokenSlug(getAddress(contract.contract_address), collectible.token_id));
+    }
+  }
+
+  return slugs;
 };

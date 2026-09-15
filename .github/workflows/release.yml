@@ -68,6 +68,7 @@ jobs:
           CONVERSION_API_URL: ${{ vars.CONVERSION_API_URL }}
           SPECIFY_PUBLISHER_KEY: ${{ secrets.SPECIFY_PUBLISHER_KEY }}
           GOOGLE_AUTH_PAGE_URL: ${{ vars.GOOGLE_AUTH_PAGE_URL }}
+          LAST_RESORT_IPFS_GATEWAY_DOMAIN: ${{ vars.LAST_RESORT_IPFS_GATEWAY_DOMAIN }}
 
       - name: Install dependencies and code quality
         uses: ./.github/workflows/code-quality-check

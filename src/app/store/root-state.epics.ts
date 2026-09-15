@@ -11,6 +11,7 @@ import { crossChainSendEpics } from './cross-chain-send/epics';
 import { cryptoExchangeEpics } from './crypto-exchange/epics';
 import { currencyEpics } from './currency/epics';
 import { evmBalancesEpics } from './evm/balances/epics';
+import { evmCollectiblesMetadataEpics } from './evm/collectibles-metadata/epics';
 import { evmNoCategoryAssetsMetadataEpics } from './evm/no-category-assets-metadata/epics';
 import { pendingEvmSwapsEpics } from './evm/pending-transactions/epics';
 import { notificationsEpics } from './notifications/epics';
@@ -35,6 +36,7 @@ const allEpics = combineEpics(
   collectiblesMetadataEpics,
   tezosNoCategoryAssetsMetadataEpics,
   evmNoCategoryAssetsMetadataEpics,
+  evmCollectiblesMetadataEpics,
   abTestingEpics,
   cryptoExchangeEpics,
   crossChainSendEpics,

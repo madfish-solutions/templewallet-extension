@@ -1,6 +1,6 @@
 import { combineEpics, Epic } from 'redux-observable';
 import { from, of } from 'rxjs';
-import { catchError, map, switchMap } from 'rxjs/operators';
+import { catchError, concatMap, map } from 'rxjs/operators';
 import { ofType, toPayload } from 'ts-action-operators';
 
 import { loadTokensMetadata } from 'lib/metadata/fetch';
@@ -15,7 +15,7 @@ const loadCollectiblesMetadataEpic: Epic = action$ =>
   action$.pipe(
     ofType(loadCollectiblesMetadataAction),
     toPayload(),
-    switchMap(({ network, slugs }) =>
+    concatMap(({ network, slugs }) =>
       from(loadTokensMetadata(network, slugs)).pipe(
         map(records => putCollectiblesMetadataAction({ records, resetLoading: true })),
         catchError(() => of(resetCollectiblesMetadataLoadingAction()))

@@ -1,9 +1,8 @@
-import React, { memo, useCallback, useMemo, useState } from 'react';
+import React, { memo, useCallback, useMemo } from 'react';
 
 import browser from 'webextension-polyfill';
 
 import { Anchor, IconBase } from 'app/atoms';
-import { PageLoader } from 'app/atoms/Loader';
 import { CloseButton } from 'app/atoms/PageModal';
 import { ReactComponent as OutLinkIcon } from 'app/icons/base/outLink.svg';
 import { ReactComponent as ApplePayIcon } from 'app/icons/payment-options/apple-pay.svg';
@@ -15,7 +14,7 @@ import { ReactComponent as SmileIcon } from 'app/icons/smile.svg';
 import { dispatch } from 'app/store';
 import { setOnRampAssetAction } from 'app/store/settings/actions';
 import { useOnRampAssetSelector, useOnRampTitleSelector } from 'app/store/settings/selectors';
-import { getWertLink, wertCommodityEvmChainIdMap } from 'lib/apis/wert';
+import { getWertCommodity, getWertOnRampUrl, wertCommodityEvmChainIdMap } from 'lib/apis/wert';
 import { parseChainAssetSlug } from 'lib/assets/utils';
 import { T } from 'lib/i18n/react';
 import { getAccountAddressForChain } from 'temple/accounts';
@@ -31,10 +30,8 @@ export const OnRampOverlay = memo(() => {
   const onRampTitle = useOnRampTitleSelector();
   const isOnRampPossibility = Boolean(onRampAsset);
 
-  const [isLinkLoading, setIsLinkLoading] = useState(false);
-
   const tokenSymbol = useMemo(() => {
-    if (!onRampAsset) return;
+    if (!onRampAsset) return undefined;
 
     const [chainKind, chainId] = parseChainAssetSlug(onRampAsset);
 
@@ -42,33 +39,23 @@ export const OnRampOverlay = memo(() => {
     return wertCommodityEvmChainIdMap[chainId]?.commodity;
   }, [onRampAsset]);
 
-  const close = useCallback(() => {
-    setIsLinkLoading(false);
-    dispatch(setOnRampAssetAction({ chainAssetSlug: null }));
-  }, []);
+  const close = useCallback(() => void dispatch(setOnRampAssetAction({ chainAssetSlug: null })), []);
 
-  const handleRedirect = useCallback(
-    async (amount?: number) => {
+  const handleBuy = useCallback(
+    (amount?: number) => {
       if (!onRampAsset) return;
 
-      try {
-        setIsLinkLoading(true);
+      const commodity = getWertCommodity(onRampAsset);
+      const [chainKind] = parseChainAssetSlug(onRampAsset);
+      const walletAddress = getAccountAddressForChain(account, chainKind);
 
-        const [chainKind] = parseChainAssetSlug(onRampAsset);
+      close();
 
-        const accountAddress = getAccountAddressForChain(account, chainKind);
+      if (!commodity || !walletAddress) return;
 
-        if (!accountAddress) throw new Error();
-        const url = await getWertLink(accountAddress, onRampAsset, amount);
-
-        close();
-
-        await browser.tabs.create({ url });
-      } catch {
-        close();
-      }
+      browser.tabs.create({ url: getWertOnRampUrl(walletAddress, commodity, amount) });
     },
-    [account, close, onRampAsset]
+    [account, onRampAsset, close]
   );
 
   if (!isOnRampPossibility) return null;
@@ -80,60 +67,54 @@ export const OnRampOverlay = memo(() => {
           <CloseButton onClick={close} />
         </div>
 
-        {isLinkLoading ? (
-          <PageLoader stretch />
-        ) : (
-          <>
-            <h1 className="text-font-regular-bold my-1">
-              {onRampTitle ?? <T id="insufficientBalanceForGas" substitutions={[tokenSymbol]} />}
-            </h1>
+        <h1 className="text-font-regular-bold my-1">
+          {onRampTitle ?? <T id="insufficientBalanceForGas" substitutions={[tokenSymbol]} />}
+        </h1>
 
-            <p className="text-font-medium text-grey-1 mb-1">
-              <T id="topupBalanceDescription" />
-            </p>
+        <p className="text-font-medium text-grey-1 mb-1">
+          <T id="topupBalanceDescription" />
+        </p>
 
-            <div className="flex flex-row justify-center items-center py-4 gap-x-2">
-              <OnRampSmileButton
-                SmileIcon={SmileIcon}
-                amount={50}
-                onClick={() => handleRedirect(50)}
-                testID={OnRampOverlaySelectors.fiftyDollarButton}
-              />
-              <OnRampSmileButton
-                SmileIcon={SmileWithGlassesIcon}
-                amount={100}
-                accentColors
-                onClick={() => handleRedirect(100)}
-                testID={OnRampOverlaySelectors.oneHundredDollarButton}
-              />
-              <OnRampSmileButton
-                SmileIcon={SmileWithDollarIcon}
-                amount={200}
-                onClick={() => handleRedirect(200)}
-                testID={OnRampOverlaySelectors.twoHundredDollarButton}
-              />
-            </div>
+        <div className="flex flex-row justify-center items-center py-4 gap-x-2">
+          <OnRampSmileButton
+            SmileIcon={SmileIcon}
+            amount={50}
+            onClick={() => handleBuy(50)}
+            testID={OnRampOverlaySelectors.fiftyDollarButton}
+          />
+          <OnRampSmileButton
+            SmileIcon={SmileWithGlassesIcon}
+            amount={100}
+            accentColors
+            onClick={() => handleBuy(100)}
+            testID={OnRampOverlaySelectors.oneHundredDollarButton}
+          />
+          <OnRampSmileButton
+            SmileIcon={SmileWithDollarIcon}
+            amount={200}
+            onClick={() => handleBuy(200)}
+            testID={OnRampOverlaySelectors.twoHundredDollarButton}
+          />
+        </div>
 
-            <Anchor
-              className="flex items-center self-center text-secondary text-font-description-bold cursor-pointer"
-              onClick={() => handleRedirect()}
-              testID={OnRampOverlaySelectors.customAmountButton}
-            >
-              <T id="customAmount" />
-              <IconBase Icon={OutLinkIcon} className="text-secondary" />
-            </Anchor>
+        <Anchor
+          className="flex items-center self-center text-secondary text-font-description-bold cursor-pointer"
+          onClick={() => handleBuy()}
+          testID={OnRampOverlaySelectors.customAmountButton}
+        >
+          <T id="customAmount" />
+          <IconBase Icon={OutLinkIcon} className="text-secondary" />
+        </Anchor>
 
-            <p className="text-font-small mt-3 mb-2 text-grey-1">
-              <T id="thirdParty" />
-            </p>
+        <p className="text-font-small mt-3 mb-2 text-grey-1">
+          <T id="thirdParty" />
+        </p>
 
-            <div className="flex items-center self-center mb-1 gap-x-2">
-              <VisaIcon />
-              <MastercardIcon />
-              <ApplePayIcon />
-            </div>
-          </>
-        )}
+        <div className="flex items-center self-center mb-1 gap-x-2">
+          <VisaIcon />
+          <MastercardIcon />
+          <ApplePayIcon />
+        </div>
       </div>
     </div>
   );
