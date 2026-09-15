@@ -54,7 +54,7 @@ interface BaseContentProps<T extends TxParamsFormData> {
   readOnlyFees?: boolean;
   feeSymbol?: string;
   retry?: boolean;
-  accountAlert?: ReactNode;
+  actionsNotice?: ReactNode;
   evmGasPriceOverride?: string;
   evmAdvancedValues?: Partial<EvmTxParamsFormData>;
 }
@@ -85,7 +85,7 @@ export const BaseContent = <T extends TxParamsFormData>({
   readOnlyFees,
   feeSymbol,
   retry,
-  accountAlert,
+  actionsNotice,
   evmGasPriceOverride,
   evmAdvancedValues
 }: BaseContentProps<T>) => {
@@ -94,6 +94,25 @@ export const BaseContent = <T extends TxParamsFormData>({
   const formState = useFormState<T>({ control });
 
   const goToFeeTab = useCallback(() => setSelectedTab('fee'), [setSelectedTab]);
+  const actionButtons = (
+    <>
+      <StyledButton size="L" className="w-full" color="primary-low" onClick={onCancel} disabled={cancelDisabled}>
+        <T id="cancel" />
+      </StyledButton>
+
+      <StyledButton
+        type="submit"
+        form="confirm-form"
+        color="primary"
+        size="L"
+        className="w-full"
+        loading={submitLoadingOverride ?? formState.isSubmitting}
+        disabled={!formState.isValid || Boolean(submitDisabled)}
+      >
+        <T id={latestSubmitError || retry ? 'retry' : 'confirm'} />
+      </StyledButton>
+    </>
+  );
 
   return (
     <>
@@ -134,7 +153,6 @@ export const BaseContent = <T extends TxParamsFormData>({
         </div>
 
         <CurrentAccount />
-        {accountAlert}
 
         <TransactionTabs<T>
           network={network}
@@ -157,22 +175,13 @@ export const BaseContent = <T extends TxParamsFormData>({
         />
       </div>
 
-      <ActionsButtonsBox flexDirection="row" shouldChangeBottomShift={false}>
-        <StyledButton size="L" className="w-full" color="primary-low" onClick={onCancel} disabled={cancelDisabled}>
-          <T id="cancel" />
-        </StyledButton>
-
-        <StyledButton
-          type="submit"
-          form="confirm-form"
-          color="primary"
-          size="L"
-          className="w-full"
-          loading={submitLoadingOverride ?? formState.isSubmitting}
-          disabled={!formState.isValid || Boolean(submitDisabled)}
-        >
-          <T id={latestSubmitError || retry ? 'retry' : 'confirm'} />
-        </StyledButton>
+      <ActionsButtonsBox
+        flexDirection={actionsNotice ? 'col' : 'row'}
+        shouldChangeBottomShift={false}
+        className={actionsNotice ? 'gap-4!' : undefined}
+      >
+        {actionsNotice}
+        {actionsNotice ? <div className="flex w-full gap-2.5">{actionButtons}</div> : actionButtons}
       </ActionsButtonsBox>
 
       <LedgerApprovalModal state={ledgerApprovalModalState} onClose={onLedgerModalClose} chainKind={network.kind} />

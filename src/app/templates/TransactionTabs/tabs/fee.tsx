@@ -5,7 +5,9 @@ import { Controller, useFormContext, useFormState } from 'react-hook-form';
 import { formatEther } from 'viem';
 
 import { FadeTransition } from 'app/a11y/FadeTransition';
+import { IconBase } from 'app/atoms';
 import AssetField from 'app/atoms/AssetField';
+import { ReactComponent as LockFillIcon } from 'app/icons/base/lock_fill.svg';
 import { t, T } from 'lib/i18n';
 import { useTezosGasMetadata } from 'lib/metadata';
 import {
@@ -95,7 +97,7 @@ const EvmContent: FC<ContentProps<TempleChainKind.EVM>> = ({
 
   return (
     <>
-      <OptionalFieldLabel title={t('gasPrice')} className="mt-4" optional={!readOnly} />
+      <OptionalFieldLabel title={t('gasPrice')} className="mt-4" />
 
       <Controller
         name="gasPrice"
@@ -107,7 +109,12 @@ const EvmContent: FC<ContentProps<TempleChainKind.EVM>> = ({
             placeholder="1.0"
             min={0}
             assetDecimals={DEFAULT_EVM_CURRENCY.decimals}
-            rightSideComponent={<div className="text-font-description-bold text-grey-2">GWEI</div>}
+            rightSideComponent={
+              <div className="flex items-center gap-1">
+                <div className={clsx('text-font-description-bold', readOnly ? 'text-grey-1' : 'text-grey-2')}>GWEI</div>
+                {readOnly && <IconBase size={16} Icon={LockFillIcon} className="text-grey-3" />}
+              </div>
+            }
             onChange={v => onChange(v ?? '')}
             onBlur={() => {
               if (!readOnly && !value) onOptionSelect('mid');
@@ -115,6 +122,7 @@ const EvmContent: FC<ContentProps<TempleChainKind.EVM>> = ({
             }}
             errorCaption={errors.gasPrice?.message}
             containerClassName="mb-7"
+            className={readOnly ? 'text-grey-1' : undefined}
             readOnly={readOnly}
           />
         )}

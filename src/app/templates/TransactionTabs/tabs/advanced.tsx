@@ -10,6 +10,7 @@ import AssetField from 'app/atoms/AssetField';
 import { CopyButton } from 'app/atoms/CopyButton';
 import { Tooltip } from 'app/atoms/Tooltip';
 import { ReactComponent as CopyIcon } from 'app/icons/base/copy.svg';
+import { ReactComponent as LockFillIcon } from 'app/icons/base/lock_fill.svg';
 import { t } from 'lib/i18n';
 import { useEvmEstimationDataState } from 'lib/temple/front/estimation-data-providers';
 
@@ -58,6 +59,8 @@ const EvmContent: FC<EvmContentProps> = ({ readOnly, values }) => {
             onBlur={onBlur}
             errorCaption={gasLimitError}
             containerClassName="mb-3"
+            className={readOnly ? 'text-grey-1' : undefined}
+            additionalActionButtons={readOnly && <IconBase size={16} Icon={LockFillIcon} className="text-grey-3" />}
             readOnly={readOnly}
           />
         )}
@@ -82,6 +85,8 @@ const EvmContent: FC<EvmContentProps> = ({ readOnly, values }) => {
             onBlur={onBlur}
             errorCaption={nonceError}
             containerClassName="mb-3"
+            className={readOnly ? 'text-grey-1' : undefined}
+            additionalActionButtons={readOnly && <IconBase size={16} Icon={LockFillIcon} className="text-grey-3" />}
             readOnly={readOnly}
           />
         )}

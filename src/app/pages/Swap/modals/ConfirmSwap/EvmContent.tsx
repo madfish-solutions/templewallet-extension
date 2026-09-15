@@ -6,7 +6,7 @@ import BigNumber from 'bignumber.js';
 import { FormProvider } from 'react-hook-form';
 import { TransactionRequest, isAddress } from 'viem';
 
-import { Alert } from 'app/atoms/Alert';
+import { Tooltip } from 'app/atoms/Tooltip';
 import { useLedgerApprovalModalState } from 'app/hooks/use-ledger-approval-modal-state';
 import { useEvmEstimationData } from 'app/pages/Send/hooks/use-evm-estimation-data';
 import { dispatch } from 'app/store';
@@ -505,17 +505,23 @@ export const EvmContent: FC<EvmContentProps> = ({
           submitDisabled={submitDisabled}
           readOnlyFees={Boolean(batchSteps)}
           retry={batch.expired || (batch.submitted && !batch.replacementReady)}
-          accountAlert={
+          actionsNotice={
             batch.delegationRequired ? (
-              <Alert
-                type="info"
-                className="mt-3"
-                description={
-                  <p className="text-font-description">
-                    <T id="delegationToSmartContractDisclaimer" />
-                  </p>
-                }
-              />
+              <div className="flex items-center justify-center">
+                <p className="p-1 text-font-description text-grey-1">
+                  <T id="smartWalletFeaturesNotice" />
+                </p>
+                <Tooltip
+                  content={
+                    <p className="text-font-description text-white">
+                      <T id="smartWalletFeaturesTooltip" />
+                    </p>
+                  }
+                  size={16}
+                  className="text-grey-2"
+                  wrapperClassName="max-w-[192px]"
+                />
+              </div>
             ) : undefined
           }
           evmGasPriceOverride={batchSteps ? batch.gasPrice : undefined}
