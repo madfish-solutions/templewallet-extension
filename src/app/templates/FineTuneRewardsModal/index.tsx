@@ -6,12 +6,12 @@ import { CloseButton, PageModal } from 'app/atoms/PageModal';
 import { InfoButton, PrivacyCell, SurfaceCell } from 'app/atoms/SettingsSurfaceCell';
 import { dispatch } from 'app/store';
 import { setAdsSurfacesEnabledAction } from 'app/store/partners-promotion/actions';
+import { patchPersistedPartnersPromotionState } from 'app/store/partners-promotion/migrate';
 import { AdvancedFeaturesSelectors } from 'app/templates/AdvancedFeatures/selectors';
 import { PageModalScrollViewWithActions } from 'app/templates/page-modal-scroll-view-with-actions';
 import { SurfaceInfoId, SurfaceInfoModal } from 'app/templates/promo-surface-info/surface-info-modal';
-import { PROMO_PRIVACY_POLICY_URL, SHOULD_SHOW_EARNING_REWARDS_TOAST_STORAGE_KEY } from 'lib/constants';
+import { PROMO_PRIVACY_POLICY_URL } from 'lib/constants';
 import { T } from 'lib/i18n';
-import { putToStorage } from 'lib/storage';
 
 import openGiftSrc from './open-gift.png';
 import { FineTuneRewardsModalSelectors } from './selectors';
@@ -29,19 +29,10 @@ export const FineTuneRewardsModal: FC<Props> = ({ onClose, opened, onShown }) =>
 
   useEffect(() => void (opened && dispatch(setAdsSurfacesEnabledAction({ inWallet: true }))), [opened]);
 
-  const handleClose = async () => {
-    await putToStorage(SHOULD_SHOW_EARNING_REWARDS_TOAST_STORAGE_KEY, true);
-    onClose();
-  };
-
   const handleSave = () => {
-    dispatch(
-      setAdsSurfacesEnabledAction({
-        inBrowser: browsingEnabled,
-        aiChat: aiEnabled
-      })
+    patchPersistedPartnersPromotionState({ inBrowserAdsEnabled: browsingEnabled, aiChatAdsEnabled: aiEnabled }).finally(
+      onClose
     );
-    handleClose();
   };
 
   useEffect(() => void (opened && onShown()), [opened, onShown]);
@@ -51,8 +42,8 @@ export const FineTuneRewardsModal: FC<Props> = ({ onClose, opened, onShown }) =>
       <PageModal
         title="Temple Update"
         opened={opened}
-        onRequestClose={handleClose}
-        titleRight={<CloseButton onClick={handleClose} testID={FineTuneRewardsModalSelectors.closeButton} />}
+        onRequestClose={onClose}
+        titleRight={<CloseButton onClick={onClose} testID={FineTuneRewardsModalSelectors.closeButton} />}
       >
         <PageModalScrollViewWithActions
           actionsBoxProps={{
