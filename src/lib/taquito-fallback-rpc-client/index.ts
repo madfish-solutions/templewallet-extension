@@ -69,6 +69,10 @@ export class FallbackRpcClient extends RpcClient {
     return this.preferredClient.getRpcUrl();
   }
 
+  deleteAllCachedData() {
+    this.clients.forEach(client => client.deleteAllCachedData());
+  }
+
   async getChainId() {
     return this.callWithFallback(client => client.getChainId());
   }

@@ -930,6 +930,9 @@ export class Vault {
           }
         });
 
+        // Prepare against the current head: a memoized counter can be a block old within the hash TTL
+        rpc.deleteAllCachedData();
+
         const { hash, results } = await tezos.contract
           .batch(opParams.map(operation => formatOpParamsBeforeSend(operation, accPublicKeyHash)))
           .send();

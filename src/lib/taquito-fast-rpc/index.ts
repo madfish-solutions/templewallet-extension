@@ -39,6 +39,11 @@ export class FastRpcClient extends RpcClient {
     super(url, chain, new TempleHttpBackend());
   }
 
+  // Reads are memoized under the head hash, so forgetting the hash invalidates them all; Taquito also calls this after injecting
+  deleteAllCachedData() {
+    this.latestBlock = undefined;
+  }
+
   async getChainId() {
     const cacheKey = makeCachedChainIdKey(this.url, this.chain);
 
