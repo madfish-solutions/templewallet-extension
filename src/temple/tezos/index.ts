@@ -1,8 +1,3 @@
-<<<<<<< HEAD
-import { TezosToolkit, MichelCodecPacker } from '@taquito/taquito';
-import { Tzip16Module } from '@taquito/tzip16';
-=======
-import { isDefined } from '@rnw-community/shared';
 import {
   TezosToolkit,
   MichelCodecPacker,
@@ -20,8 +15,6 @@ import {
   IpfsHttpHandler,
   Tzip16Uri
 } from '@taquito/tzip16';
-import { uniq } from 'lodash';
->>>>>>> 180db5c7676a5daf695dc5e8355d662b65ab7747
 import memoizee from 'memoizee';
 
 import { rejectOnTimeout } from 'lib/utils';
