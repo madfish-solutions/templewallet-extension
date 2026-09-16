@@ -154,6 +154,14 @@ function tryMakeTezosOperationError(error: SerializedHttpResponseError) {
   return isTezosGenericOperationErrorArray(body) ? new TezosOperationError(body, '', []) : undefined;
 }
 
+export function parseHttpResponseErrorBody(error: unknown): object | undefined {
+  if (!(error instanceof HttpResponseError) && !isSerializedHttpResponseError(error)) return undefined;
+
+  const body = parseJsonBody(error.body);
+
+  return isObject(body) ? body : undefined;
+}
+
 export const getHumanTezosErrorMessage = (
   error: TezosOperationError | HttpResponseError | SerializedDryRunError
 ): string => {
