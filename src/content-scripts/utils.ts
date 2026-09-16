@@ -25,6 +25,17 @@ export function checkIfShouldReplaceTempleReferrals() {
   return runInMainWindow(() => Promise.resolve(false));
 }
 
+export function runWhenDocumentIsActive(callback: () => void) {
+  const prerenderingDocument = document as Document & { prerendering?: boolean };
+
+  if (!prerenderingDocument.prerendering) {
+    callback();
+    return;
+  }
+
+  document.addEventListener('prerenderingchange', callback, { once: true });
+}
+
 async function runInMainWindow(callback: () => Promise<boolean>) {
   if (window.frameElement) return false; // Prevents the scripts from running in an Iframe
 
