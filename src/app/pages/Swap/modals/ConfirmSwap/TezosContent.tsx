@@ -249,6 +249,7 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
           minimumReceived={minimumReceived}
           onCancel={onClose}
           onSubmit={onSubmit}
+          submitDisabled={!opParams}
           someBalancesChanges={someBalancesChanges}
           filteredBalancesChanges={[filteredBalancesChanges]}
         />
