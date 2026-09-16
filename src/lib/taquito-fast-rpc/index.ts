@@ -22,7 +22,9 @@ const MEMOIZE_MAX_AGE = 90_000;
  * Alternative to Taquito's `RpcClientCache`.
  *
  * Different in a way that TTL (same default - 1 second) is set only to one piece of data - head block hash.
- * Memoization of requests is then based on the value of that block hash.
+ * Memoization of requests is then based on the value of that block hash, while the requests themselves
+ * stay addressed by `head`: some nodes serve hash-addressed reads orders of magnitude slower. A value
+ * memoized under a hash may therefore come from the head that followed it, which is fresher, never staler.
  *
  * Thus, block hash is updated frequently, and other requests are memoized for
  * block life time +- provided TTL. This strategy further reduces the number of
@@ -69,67 +71,73 @@ export class FastRpcClient extends RpcClient {
   }
 
   async getBalance(address: string, opts?: RPCOptions) {
-    opts = await this.withLatestBlock(opts);
-    return this.getBalanceMemo(address, opts);
+    return this.getBalanceMemo(address, opts, await this.getMemoKey(opts));
   }
 
-  getBalanceMemo = memoizee(super.getBalance.bind(this), {
-    normalizer: ([address, opts]) => `${toOptsKey(opts)}${address}`,
-    maxAge: MEMOIZE_MAX_AGE,
-    promise: true
-  });
+  getBalanceMemo = memoizee(
+    (address: string, opts: RPCOptions | undefined, _memoKey: string) => super.getBalance(address, opts),
+    {
+      normalizer: ([address, , memoKey]) => `${memoKey}${address}`,
+      maxAge: MEMOIZE_MAX_AGE,
+      promise: true
+    }
+  );
 
   async getLiveBlocks(opts?: RPCOptions) {
-    opts = await this.withLatestBlock(opts);
-    return this.getLiveBlocksMemo(opts);
+    return this.getLiveBlocksMemo(opts, await this.getMemoKey(opts));
   }
 
-  getLiveBlocksMemo = memoizee(super.getLiveBlocks.bind(this), {
-    normalizer: ([opts]) => toOptsKey(opts),
+  getLiveBlocksMemo = memoizee((opts: RPCOptions | undefined, _memoKey: string) => super.getLiveBlocks(opts), {
+    normalizer: ([, memoKey]) => memoKey,
     maxAge: MEMOIZE_MAX_AGE,
     promise: true
   });
 
   async getStorage(address: string, opts?: RPCOptions) {
-    opts = await this.withLatestBlock(opts);
-    return this.getStorageMemo(address, opts);
+    return this.getStorageMemo(address, opts, await this.getMemoKey(opts));
   }
 
-  getStorageMemo = memoizee(super.getStorage.bind(this), {
-    normalizer: ([address, opts]) => `${toOptsKey(opts)}${address}`,
-    maxAge: MEMOIZE_MAX_AGE,
-    promise: true
-  });
+  getStorageMemo = memoizee(
+    (address: string, opts: RPCOptions | undefined, _memoKey: string) => super.getStorage(address, opts),
+    {
+      normalizer: ([address, , memoKey]) => `${memoKey}${address}`,
+      maxAge: MEMOIZE_MAX_AGE,
+      promise: true
+    }
+  );
 
   async getScript(address: string, opts?: RPCOptions) {
-    opts = await this.withLatestBlock(opts);
-    return this.getScriptMemo(address, opts);
+    return this.getScriptMemo(address, opts, await this.getMemoKey(opts));
   }
 
-  getScriptMemo = memoizee(super.getScript.bind(this), {
-    normalizer: ([address, opts]) => `${toOptsKey(opts)}${address}`,
-    maxAge: MEMOIZE_MAX_AGE,
-    promise: true
-  });
+  getScriptMemo = memoizee(
+    (address: string, opts: RPCOptions | undefined, _memoKey: string) => super.getScript(address, opts),
+    {
+      normalizer: ([address, , memoKey]) => `${memoKey}${address}`,
+      maxAge: MEMOIZE_MAX_AGE,
+      promise: true
+    }
+  );
 
   async getContract(address: string, opts?: RPCOptions) {
-    opts = await this.withLatestBlock(opts);
-    return this.getContractMemo(address, opts);
+    return this.getContractMemo(address, opts, await this.getMemoKey(opts));
   }
 
-  getContractMemo = memoizee(super.getContract.bind(this), {
-    normalizer: ([address, opts]) => `${toOptsKey(opts)}${address}`,
-    maxAge: MEMOIZE_MAX_AGE,
-    promise: true
-  });
+  getContractMemo = memoizee(
+    (address: string, opts: RPCOptions | undefined, _memoKey: string) => super.getContract(address, opts),
+    {
+      normalizer: ([address, , memoKey]) => `${memoKey}${address}`,
+      maxAge: MEMOIZE_MAX_AGE,
+      promise: true
+    }
+  );
 
   async getProtocols(opts?: RPCOptions) {
-    opts = await this.withLatestBlock(opts);
-    return this.getProtocolsMemo(opts);
+    return this.getProtocolsMemo(opts, await this.getMemoKey(opts));
   }
 
-  getProtocolsMemo = memoizee(super.getProtocols.bind(this), {
-    normalizer: ([opts]) => toOptsKey(opts),
+  getProtocolsMemo = memoizee((opts: RPCOptions | undefined, _memoKey: string) => super.getProtocols(opts), {
+    normalizer: ([, memoKey]) => memoKey,
     maxAge: MEMOIZE_MAX_AGE,
     promise: true
   });
@@ -141,7 +149,6 @@ export class FastRpcClient extends RpcClient {
     const cached = getCachedEntrypoints(cacheKey);
     if (cached) return cached;
 
-    opts = await this.withLatestBlock(opts);
     const result = await super.getEntrypoints(contract, opts);
 
     setCachedEntrypoints(cacheKey, result);
@@ -150,29 +157,32 @@ export class FastRpcClient extends RpcClient {
   }
 
   async getManagerKey(address: string, opts?: RPCOptions) {
-    opts = await this.withLatestBlock(opts);
-    return this.getManagerKeyMemo(address, opts);
+    return this.getManagerKeyMemo(address, opts, await this.getMemoKey(opts));
   }
 
-  getManagerKeyMemo = memoizee(super.getManagerKey.bind(this), {
-    normalizer: ([address, opts]) => `${toOptsKey(opts)}${address}`,
-    maxAge: MEMOIZE_MAX_AGE,
-    promise: true
-  });
+  getManagerKeyMemo = memoizee(
+    (address: string, opts: RPCOptions | undefined, _memoKey: string) => super.getManagerKey(address, opts),
+    {
+      normalizer: ([address, , memoKey]) => `${memoKey}${address}`,
+      maxAge: MEMOIZE_MAX_AGE,
+      promise: true
+    }
+  );
 
   async getDelegate(address: string, opts?: RPCOptions) {
-    opts = await this.withLatestBlock(opts);
-    return this.getDelegateMemo(address, opts);
+    return this.getDelegateMemo(address, opts, await this.getMemoKey(opts));
   }
 
-  getDelegateMemo = memoizee(super.getDelegate.bind(this), {
-    normalizer: ([address, opts]) => `${toOptsKey(opts)}${address}`,
-    maxAge: MEMOIZE_MAX_AGE,
-    promise: true
-  });
+  getDelegateMemo = memoizee(
+    (address: string, opts: RPCOptions | undefined, _memoKey: string) => super.getDelegate(address, opts),
+    {
+      normalizer: ([address, , memoKey]) => `${memoKey}${address}`,
+      maxAge: MEMOIZE_MAX_AGE,
+      promise: true
+    }
+  );
 
   async getDelegateActiveStakingParameters(bakerPkh: string, opts?: RPCOptions) {
-    opts = await this.withLatestBlock(opts);
     const block = opts?.block ?? 'head';
 
     return this.httpBackend.createRequest<DelegateActiveStakingParameters | nullish>({
@@ -195,77 +205,75 @@ export class FastRpcClient extends RpcClient {
   }
 
   async getBigMapExpr(id: string, expr: string, opts?: RPCOptions) {
-    opts = await this.withLatestBlock(opts);
-    return this.getBigMapExprMemo(id, expr, opts);
+    return this.getBigMapExprMemo(id, expr, opts, await this.getMemoKey(opts));
   }
 
-  getBigMapExprMemo = memoizee(super.getBigMapExpr.bind(this), {
-    normalizer: ([id, expr, opts]) => `${id}${expr}${toOptsKey(opts)}`,
-    maxAge: MEMOIZE_MAX_AGE,
-    promise: true
-  });
+  getBigMapExprMemo = memoizee(
+    (id: string, expr: string, opts: RPCOptions | undefined, _memoKey: string) => super.getBigMapExpr(id, expr, opts),
+    {
+      normalizer: ([id, expr, , memoKey]) => `${id}${expr}${memoKey}`,
+      maxAge: MEMOIZE_MAX_AGE,
+      promise: true
+    }
+  );
 
   async getDelegates(address: string, opts?: RPCOptions) {
-    opts = await this.withLatestBlock(opts);
-    return this.getDelegatesMemo(address, opts);
+    return this.getDelegatesMemo(address, opts, await this.getMemoKey(opts));
   }
 
-  getDelegatesMemo = memoizee(super.getDelegates.bind(this), {
-    normalizer: ([address, opts]) => `${toOptsKey(opts)}${address}`,
-    maxAge: MEMOIZE_MAX_AGE,
-    promise: true
-  });
+  getDelegatesMemo = memoizee(
+    (address: string, opts: RPCOptions | undefined, _memoKey: string) => super.getDelegates(address, opts),
+    {
+      normalizer: ([address, , memoKey]) => `${memoKey}${address}`,
+      maxAge: MEMOIZE_MAX_AGE,
+      promise: true
+    }
+  );
 
   async getConstants(opts?: RPCOptions) {
-    opts = await this.withLatestBlock(opts);
-    return this.getConstantsMemo(opts);
+    return this.getConstantsMemo(opts, await this.getMemoKey(opts));
   }
 
-  getConstantsMemo = memoizee(super.getConstants.bind(this), {
-    normalizer: ([opts]) => toOptsKey(opts),
+  getConstantsMemo = memoizee((opts: RPCOptions | undefined, _memoKey: string) => super.getConstants(opts), {
+    normalizer: ([, memoKey]) => memoKey,
     maxAge: MEMOIZE_MAX_AGE,
     promise: true
   });
 
   async getBlock(opts?: RPCOptions) {
-    opts = await this.withLatestBlock(opts);
-    return this.getBlockMemo(opts);
+    return this.getBlockMemo(opts, await this.getMemoKey(opts));
   }
 
-  getBlockMemo = memoizee(super.getBlock.bind(this), {
-    normalizer: ([opts]) => toOptsKey(opts),
+  getBlockMemo = memoizee((opts: RPCOptions | undefined, _memoKey: string) => super.getBlock(opts), {
+    normalizer: ([, memoKey]) => memoKey,
     maxAge: MEMOIZE_MAX_AGE,
     promise: true
   });
 
   async getBlockHeader(opts?: RPCOptions) {
-    opts = await this.withLatestBlock(opts);
-    return this.getBlockHeaderMemo(opts);
+    return this.getBlockHeaderMemo(opts, await this.getMemoKey(opts));
   }
 
-  getBlockHeaderMemo = memoizee(super.getBlockHeader.bind(this), {
-    normalizer: ([opts]) => toOptsKey(opts),
+  getBlockHeaderMemo = memoizee((opts: RPCOptions | undefined, _memoKey: string) => super.getBlockHeader(opts), {
+    normalizer: ([, memoKey]) => memoKey,
     maxAge: MEMOIZE_MAX_AGE,
     promise: true
   });
 
   async getBlockMetadata(opts?: RPCOptions) {
-    opts = await this.withLatestBlock(opts);
-    return this.getBlockMetadataMemo(await this.withLatestBlock(opts));
+    return this.getBlockMetadataMemo(opts, await this.getMemoKey(opts));
   }
 
-  getBlockMetadataMemo = memoizee(super.getBlockMetadata.bind(this), {
-    normalizer: ([opts]) => toOptsKey(opts),
+  getBlockMetadataMemo = memoizee((opts: RPCOptions | undefined, _memoKey: string) => super.getBlockMetadata(opts), {
+    normalizer: ([, memoKey]) => memoKey,
     maxAge: MEMOIZE_MAX_AGE,
     promise: true
   });
 
-  private async withLatestBlock(opts?: RPCOptions): Promise<RPCOptions | undefined> {
-    if (!wantsHead(opts)) return opts;
+  private async getMemoKey(opts?: RPCOptions) {
+    const block = wantsHead(opts) ? (await this.loadLatestBlock()).hash : opts?.block;
 
-    const { hash } = await this.loadLatestBlock();
-
-    return { ...opts, block: hash };
+    return `${block}${opts?.version ?? ''}`;
   }
 
   private loadLatestBlock = onlyOncePerExec(async () => {
@@ -281,16 +289,6 @@ export class FastRpcClient extends RpcClient {
 
 function wantsHead(opts?: RPCOptions) {
   return !opts?.block || opts.block === 'head';
-}
-
-function toOptsKey(opts?: RPCOptions) {
-  if (!opts) return 'head';
-
-  let key = opts.block;
-
-  if (opts.version != null) key += opts.version;
-
-  return key;
 }
 
 function onlyOncePerExec<T>(factory: () => Promise<T>) {
