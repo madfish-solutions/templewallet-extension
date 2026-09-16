@@ -26,7 +26,7 @@ import { getTezosRpcClient } from './rpc-client';
 import { getTezosFastRpcClient } from './utils';
 
 export * from './confirmation';
-export * from './network-timing';
+export { loadTezosNetworkTiming, FALLBACK_TEZOS_NETWORK_TIMING } from './network-timing';
 export * from './rpc-client';
 
 class MultiSourceIpfsHttpHandler extends IpfsHttpHandler {

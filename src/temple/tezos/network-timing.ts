@@ -10,7 +10,7 @@ const FALLBACK_BLOCK_DURATION_MS = 6_000;
 const MIN_CONFIRMATION_TIMEOUT_MS = 30_000;
 const CONFIRMATION_TIMEOUT_BLOCKS = 3;
 
-export interface TezosNetworkTiming {
+interface TezosNetworkTiming {
   blockDurationMs: number;
   confirmationTimeoutMs: number;
 }
