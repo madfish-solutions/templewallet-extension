@@ -6,6 +6,7 @@ export interface TransactionState {
   lastCheckedAt: number;
   status: PendingTransactionStatus;
   txHash: string;
+  startingBlockHash: string;
   accountPkh: string;
   network: TezosNetworkEssentials;
   blockExplorerUrl: string;

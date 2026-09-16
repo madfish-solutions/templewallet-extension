@@ -75,6 +75,7 @@ export const TezosContent: FC<TezosContentProps> = ({
   const { data: estimationData, error: estimationError } = useTezosEstimationData({
     to,
     tezos,
+    network,
     chainId,
     account,
     accountPkh,
@@ -163,13 +164,15 @@ export const TezosContent: FC<TezosContentProps> = ({
       }
 
       const doOperation = async () => {
-        const operation = await submitOperation(
+        const result = await submitOperation(
           tezos,
           gasFee,
           storageLimit,
           estimationData.revealFee,
           displayedFeeOptions
         );
+        if (!result) return;
+        const { operation, startingBlockHash } = result;
 
         onConfirm();
 
@@ -186,6 +189,7 @@ export const TezosContent: FC<TezosContentProps> = ({
         dispatch(
           addPendingTezosTransactionAction({
             txHash,
+            startingBlockHash,
             accountPkh,
             network,
             blockExplorerUrl: makeBlockExplorerHref(blockExplorer.url, txHash, 'tx', TempleChainKind.Tezos),

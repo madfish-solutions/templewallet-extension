@@ -722,6 +722,7 @@ interface TempleEvmDAppTransactionSent extends TempleDAppTransactionSentBase<Tem
 
 interface TempleTezosDAppTransactionSent extends TempleDAppTransactionSentBase<TempleChainKind.Tezos> {
   network: TezosNetworkEssentials;
+  startingBlockHash: string;
 }
 
 type TempleDAppTransactionSent = TempleEvmDAppTransactionSent | TempleTezosDAppTransactionSent;
@@ -978,6 +979,7 @@ interface TempleOperationsRequest extends TempleMessageBase {
 interface TempleOperationsResponse extends TempleMessageBase {
   type: TempleMessageType.OperationsResponse;
   opHash: string;
+  startingBlockHash: string;
 }
 
 interface TempleSignRequest extends TempleMessageBase {

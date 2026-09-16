@@ -208,9 +208,16 @@ const ConfirmEarnOperationContentBodyWrapper = <R extends TezosEarnReviewDataBas
         }
 
         const doOperation = async () => {
-          const op = await submitOperation(tezos, gasFee, storageLimit, estimationData.revealFee, displayedFeeOptions);
+          const result = await submitOperation(
+            tezos,
+            gasFee,
+            storageLimit,
+            estimationData.revealFee,
+            displayedFeeOptions
+          );
+          if (!result) return;
 
-          onConfirm(op!.opHash);
+          onConfirm(result.operation.opHash, result.startingBlockHash);
         };
 
         if (isLedgerAccount) {

@@ -903,7 +903,10 @@ export class Vault {
         tezos.setPackerProvider(michelEncoder);
         batch = tezos.contract.batch(opParams.map(operation => formatOpParamsBeforeSend(operation, accPublicKeyHash)));
 
-        return await batch.send();
+        const startingBlockHash = await tezos.rpc.getBlockHash();
+        const operation = await batch.send();
+
+        return { operation, startingBlockHash };
       } catch (err: any) {
         console.error(err);
         throw new PublicError('Failed to send operations', [err]);
