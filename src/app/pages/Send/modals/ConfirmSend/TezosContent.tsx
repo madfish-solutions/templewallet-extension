@@ -24,6 +24,7 @@ import { tzToMutez } from 'lib/temple/helpers';
 import { TempleAccountType } from 'lib/temple/types';
 import { isTezosContractAddress } from 'lib/tezos';
 import { runConnectedLedgerOperationFlow } from 'lib/ui';
+import { useUpdatableRef } from 'lib/ui/hooks';
 import { useLedgerWebHidFullViewGuard } from 'lib/ui/ledger-webhid-guard';
 import { LedgerFullViewPromptModal } from 'lib/ui/LedgerFullViewPrompt';
 import { showTxSubmitToastWithDelay } from 'lib/ui/show-tx-submit-toast.util';
@@ -72,7 +73,11 @@ export const TezosContent: FC<TezosContentProps> = ({
 
   const tezos = getTezosToolkitWithSigner(network, account.ownerAddress || accountPkh, true);
 
-  const { data: estimationData, error: estimationError } = useTezosEstimationData({
+  const {
+    data: estimationData,
+    error: estimationError,
+    mutate: revalidateEstimation
+  } = useTezosEstimationData({
     to,
     tezos,
     chainId,
@@ -138,6 +143,8 @@ export const TezosContent: FC<TezosContentProps> = ({
     onSubmittingChange?.(isSubmitting);
   }, [isSubmitting, onSubmittingChange]);
 
+  const latestEstimationErrorRef = useUpdatableRef<unknown>(estimationError);
+
   const onSubmitError = (err: unknown) => {
     console.error(err);
     setLatestSubmitError(err);
@@ -157,7 +164,16 @@ export const TezosContent: FC<TezosContentProps> = ({
       }
 
       if (!estimationData || estimationError) {
-        onSubmitError(estimationError);
+        await revalidateEstimation();
+
+        const freshEstimationError = latestEstimationErrorRef.current;
+
+        if (freshEstimationError) {
+          onSubmitError(freshEstimationError);
+        } else {
+          setLatestSubmitError(null);
+          setTab('details');
+        }
 
         return;
       }
