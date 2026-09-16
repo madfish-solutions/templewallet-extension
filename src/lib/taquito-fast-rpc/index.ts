@@ -4,6 +4,7 @@ import memoizee from 'memoizee';
 
 import { makeCachedChainIdKey, getCachedChainId, setCachedChainId } from './chain-ids-cache';
 import { getCachedEntrypoints, setCachedEntrypoints } from './entrypoints-cache';
+import { TempleHttpBackend } from './http-backend';
 
 interface LatestBlock {
   hash: string;
@@ -31,6 +32,10 @@ const MEMOIZE_MAX_AGE = 90_000;
  */
 export class FastRpcClient extends RpcClient {
   private latestBlock?: LatestBlock;
+
+  constructor(url: string, chain?: string) {
+    super(url, chain, new TempleHttpBackend());
+  }
 
   async getChainId() {
     const cacheKey = makeCachedChainIdKey(this.url, this.chain);
