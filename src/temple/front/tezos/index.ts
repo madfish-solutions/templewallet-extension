@@ -36,7 +36,21 @@ import { setPendingConfirmationId } from '../pending-confirm';
 
 export { validateTezosContractAddress } from './helpers';
 export { useOnTezosBlock, useTezosBlockLevel } from './use-block';
+export { useTezosNetworkTiming } from './use-network-timing';
 export { isTezosDomainsNameValid, getTezosDomainsClient, useTezosAddressByDomainName } from './tzdns';
+
+const startingBlockHashes = new Map<string, string>();
+
+export const takeOperationStartingBlockHash = (operationHash: string) => {
+  const startingBlockHash = startingBlockHashes.get(operationHash);
+  startingBlockHashes.delete(operationHash);
+
+  if (!startingBlockHash) {
+    throw new Error(`Starting block hash is unavailable for operation ${operationHash}`);
+  }
+
+  return startingBlockHash;
+};
 
 export const getTezosToolkitWithSigner = memoizee(
   (network: TezosNetworkEssentials, signerPkh: string, straightaway?: boolean) => {
@@ -147,6 +161,7 @@ class TempleTaquitoWallet implements WalletProvider {
       straightaway: this.straightaway
     });
     assertResponse(res.type === TempleMessageType.OperationsResponse);
+    startingBlockHashes.set(res.opHash, res.startingBlockHash);
 
     return res.opHash;
   }

@@ -415,7 +415,7 @@ export function sendOperations(
   network: TezosNetworkEssentials,
   opParams: any[],
   straightaway?: boolean
-): Promise<{ opHash: string }> {
+): Promise<{ opHash: string; startingBlockHash: string }> {
   return withUnlocked(async ({ vault }) => {
     const sourcePublicKey = await revealPublicKey(sourcePkh);
     const dryRunResult = await dryRunOpParams({
@@ -431,11 +431,11 @@ export function sendOperations(
     return new Promise(async (resolve, reject) => {
       if (straightaway) {
         try {
-          const op = await vault.sendOperations(sourcePkh, network, opParams);
+          const sentOperation = await vault.sendOperations(sourcePkh, network, opParams);
 
-          await safeAddLocalOperation(network.rpcBaseURL, op);
+          await safeAddLocalOperation(network.rpcBaseURL, sentOperation);
 
-          resolve({ opHash: op.hash });
+          resolve({ opHash: sentOperation.hash, startingBlockHash: sentOperation.startingBlockHash });
         } catch (err: any) {
           reject(err);
         }
@@ -447,7 +447,7 @@ export function sendOperations(
 }
 
 const promisableUnlock = async (
-  resolve: (arg: { opHash: string }) => void,
+  resolve: (arg: { opHash: string; startingBlockHash: string }) => void,
   reject: (err: Error) => void,
   port: Runtime.Port,
   id: string,
@@ -484,7 +484,7 @@ const promisableUnlock = async (
       const { confirmed, modifiedStorageLimit, modifiedTotalFee } = req;
       if (confirmed) {
         try {
-          const op = await withUnlocked(({ vault }) =>
+          const sentOperation = await withUnlocked(({ vault }) =>
             vault.sendOperations(
               sourcePkh,
               network,
@@ -492,9 +492,9 @@ const promisableUnlock = async (
             )
           );
 
-          await safeAddLocalOperation(network.rpcBaseURL, op);
+          await safeAddLocalOperation(network.rpcBaseURL, sentOperation);
 
-          resolve({ opHash: op.hash });
+          resolve({ opHash: sentOperation.hash, startingBlockHash: sentOperation.startingBlockHash });
         } catch (err: any) {
           if (err instanceof TezosOperationError) {
             reject(err);

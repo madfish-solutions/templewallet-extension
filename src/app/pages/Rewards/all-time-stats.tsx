@@ -12,20 +12,20 @@ interface AllTimeStatsProps {
   total: BigNumber | null | undefined;
   lastAmount: string | null | undefined;
   unit: string;
-  showLastAmount?: boolean;
+  multiplierActive?: boolean;
 }
 
-export const AllTimeStats: FC<AllTimeStatsProps> = ({ total, lastAmount, unit, showLastAmount = true }) => {
+export const AllTimeStats: FC<AllTimeStatsProps> = ({ total, lastAmount, unit, multiplierActive = false }) => {
   const lastAmountBn = new BigNumber(lastAmount ?? 0);
   const isPositive = lastAmountBn.isGreaterThan(0);
   return (
     <div className="w-full flex flex-col">
-      <span className="text-font-description text-grey-1 mb-0.5">{t('allTime')}</span>
+      <span className={clsx('text-font-description text-grey-1', !multiplierActive && 'mb-0.5')}>{t('allTime')}</span>
       <span className="text-font-num-bold-16 text-text inline-flex items-baseline gap-1">
         <BalanceAmount value={total ?? ZERO} />
         <span>{unit}</span>
       </span>
-      {showLastAmount && (
+      {!multiplierActive && (
         <span className={clsx('text-font-num-12', isPositive ? 'text-success' : 'text-grey-1')}>
           {isPositive && '+'}
           <BalanceAmount value={lastAmountBn} />

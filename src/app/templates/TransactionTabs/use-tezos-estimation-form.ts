@@ -22,7 +22,7 @@ import { useSafeState } from 'lib/ui/hooks';
 import { ZERO } from 'lib/utils/numbers';
 import { serializeEstimate } from 'lib/utils/serialize-estimate';
 import { AccountForChain, getAccountAddressForTezos } from 'temple/accounts';
-import { getTezosToolkitWithSigner } from 'temple/front';
+import { getTezosToolkitWithSigner, takeOperationStartingBlockHash } from 'temple/front';
 import { provePossession } from 'temple/front/tezos';
 import { TezosNetworkEssentials } from 'temple/networks';
 import { getTezosRpcClient, michelEncoder } from 'temple/tezos';
@@ -269,7 +269,14 @@ export const useTezosEstimationForm = ({
     ) => {
       const opParams = makeFinalOpParams(gasFee, storageLimit, revealFee, displayedFeeOptions);
 
-      return opParams ? await tezos.wallet.batch(opParams).send() : undefined;
+      if (!opParams) return;
+
+      const operation = await tezos.wallet.batch(opParams).send();
+
+      return {
+        operation,
+        startingBlockHash: takeOperationStartingBlockHash(operation.opHash)
+      };
     },
     [makeFinalOpParams]
   );

@@ -2,12 +2,13 @@ import React, { FC, ReactNode, useEffect, useMemo } from 'react';
 
 import type { WalletOperation } from '@taquito/taquito';
 
-import { OldStyleHashChip, Alert } from 'app/atoms';
+import { Alert, OldStyleHashChip } from 'app/atoms';
 import { setTestID } from 'lib/analytics';
 import { T, t } from 'lib/i18n';
 import { useSafeState } from 'lib/ui/hooks';
+import { useTezosNetworkTiming } from 'temple/front';
 import { TezosNetworkEssentials } from 'temple/networks';
-import { getTezosReadOnlyRpcClient, confirmTezosOperation, TEZOS_CONFIRMATION_TIMED_OUT_ERROR_MSG } from 'temple/tezos';
+import { confirmTezosOperation, getTezosReadOnlyRpcClient, TEZOS_CONFIRMATION_TIMED_OUT_ERROR_MSG } from 'temple/tezos';
 
 import { OpenInExplorerChip } from './OpenInExplorerChip';
 import { OperationStatusSelectors } from './OperationStatus.selectors';
@@ -15,14 +16,24 @@ import { OperationStatusSelectors } from './OperationStatus.selectors';
 interface OperationStatusProps {
   network: TezosNetworkEssentials;
   operation: WalletOperation;
+  startingBlockHash: string;
   className?: string;
   closable?: boolean;
   onClose?: () => void;
   typeTitle: string;
 }
 
-const OperationStatus: FC<OperationStatusProps> = ({ network, typeTitle, operation, className, closable, onClose }) => {
+const OperationStatus: FC<OperationStatusProps> = ({
+  network,
+  typeTitle,
+  operation,
+  startingBlockHash,
+  className,
+  closable,
+  onClose
+}) => {
   const { chainId } = network;
+  const { confirmationTimeoutMs, isLoading: networkTimingIsLoading } = useTezosNetworkTiming(network);
 
   const hash = useMemo(
     () =>
@@ -63,7 +74,12 @@ const OperationStatus: FC<OperationStatusProps> = ({ network, typeTitle, operati
   }));
 
   useEffect(() => {
-    confirmTezosOperation(getTezosReadOnlyRpcClient(network), hash)
+    if (networkTimingIsLoading) return;
+
+    confirmTezosOperation(getTezosReadOnlyRpcClient(network), hash, {
+      startingBlockHash,
+      timeoutMs: confirmationTimeoutMs
+    })
       .then(() => {
         setAlert(a => ({
           ...a,
@@ -86,7 +102,16 @@ const OperationStatus: FC<OperationStatusProps> = ({ network, typeTitle, operati
               : err?.message || 'Operation confirmation failed'
         });
       });
-  }, [network, hash, setAlert, descFooter, typeTitle]);
+  }, [
+    network,
+    hash,
+    startingBlockHash,
+    confirmationTimeoutMs,
+    networkTimingIsLoading,
+    setAlert,
+    descFooter,
+    typeTitle
+  ]);
 
   return (
     <Alert

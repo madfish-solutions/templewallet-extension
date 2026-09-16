@@ -80,6 +80,7 @@ export const TezosContent: FC<TezosContentProps> = ({
   } = useTezosEstimationData({
     to,
     tezos,
+    network,
     chainId,
     account,
     accountPkh,
@@ -179,16 +180,16 @@ export const TezosContent: FC<TezosContentProps> = ({
       }
 
       const doOperation = async () => {
-        const operation = await submitOperation(
+        const result = await submitOperation(
           tezos,
           gasFee,
           storageLimit,
           estimationData.revealFee,
           displayedFeeOptions
         );
+        if (!result) return;
 
-        if (!operation) throw new Error('Operation params are not ready');
-
+        const { operation, startingBlockHash } = result;
         const txHash = operation.opHash;
 
         onSuccess({ txHash, displayedFee, displayedStorageFee });
@@ -199,6 +200,7 @@ export const TezosContent: FC<TezosContentProps> = ({
         dispatch(
           addPendingTezosTransactionAction({
             txHash,
+            startingBlockHash,
             accountPkh,
             network,
             blockExplorerUrl: makeBlockExplorerHref(blockExplorer.url, txHash, 'tx', TempleChainKind.Tezos),
@@ -240,6 +242,7 @@ export const TezosContent: FC<TezosContentProps> = ({
           decimals={assetMetadata.decimals}
           displayedFeeOptions={displayedFeeOptions}
           displayedFee={displayedFee}
+          submitDisabled={!basicSendParams}
           selectedTab={tab}
           setSelectedTab={setTab}
           latestSubmitError={latestSubmitError}

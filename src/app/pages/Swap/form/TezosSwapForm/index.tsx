@@ -169,7 +169,18 @@ export const TezosSwapForm: FC<TezosSwapFormProps> = ({
     TEZOS_MAINNET_CHAIN_ID
   )!;
 
-  const [operation, setOperation] = useState<BatchWalletOperation>();
+  const [trackedOperation, setTrackedOperation] = useState<{
+    operation: BatchWalletOperation;
+    startingBlockHash: string;
+  }>();
+  const setTezosOperation = useCallback(
+    (nextOperation: BatchWalletOperation | undefined, startingBlockHash?: string) => {
+      setTrackedOperation(
+        nextOperation && startingBlockHash ? { operation: nextOperation, startingBlockHash } : undefined
+      );
+    },
+    []
+  );
 
   const slippageRatio = useMemo(() => getPercentageRatio(slippageTolerance ?? 0), [slippageTolerance]);
 
@@ -364,7 +375,7 @@ export const TezosSwapForm: FC<TezosSwapFormProps> = ({
     const next = {
       ...(swapFormControl.current ?? {}),
       resetForm,
-      setTezosOperation: setOperation,
+      setTezosOperation,
       handleSelectedAssetChange
     };
     swapFormControl.current = next;
@@ -375,7 +386,7 @@ export const TezosSwapForm: FC<TezosSwapFormProps> = ({
         delete updated.resetForm;
         swapFormControl.current = updated;
       }
-      if (swapFormControl.current?.setTezosOperation === setOperation) {
+      if (swapFormControl.current?.setTezosOperation === setTezosOperation) {
         const updated = { ...(swapFormControl.current ?? {}) };
         delete updated.setTezosOperation;
         swapFormControl.current = updated;
@@ -386,7 +397,7 @@ export const TezosSwapForm: FC<TezosSwapFormProps> = ({
         swapFormControl.current = updated;
       }
     };
-  }, [handleSelectedAssetChange, swapFormControl, resetForm, setOperation]);
+  }, [handleSelectedAssetChange, swapFormControl, resetForm, setTezosOperation]);
 
   useEffect(() => {
     const currentOutput = swapParams.data.output;
@@ -495,7 +506,7 @@ export const TezosSwapForm: FC<TezosSwapFormProps> = ({
     }
 
     try {
-      setOperation(undefined);
+      setTezosOperation(undefined);
 
       const allSwapParams: Array<TransferParams> = [];
       let routingOutputFeeTransferParams: TransferParams[] = await getRoutingFeeTransferParams(
@@ -676,9 +687,9 @@ export const TezosSwapForm: FC<TezosSwapFormProps> = ({
         network,
         opParams,
         cashbackInTkey: cashback ? atomsToTokens(new BigNumber(cashback), TEMPLE_TOKEN.decimals).toString() : undefined,
-        onConfirm: o => {
+        onConfirm: (operation, startingBlockHash) => {
           resetForm();
-          setOperation(o);
+          setTezosOperation(operation, startingBlockHash);
         },
         minimumReceived: {
           amount: atomsToTokens(new BigNumber(minimumReceivedAtomic), outputAssetMetadata.decimals).toString(),
@@ -716,6 +727,7 @@ export const TezosSwapForm: FC<TezosSwapFormProps> = ({
     outputValue,
     publicKeyHash,
     resetForm,
+    setTezosOperation,
     slippageRatio,
     swapParams.data,
     tezos,
@@ -725,9 +737,14 @@ export const TezosSwapForm: FC<TezosSwapFormProps> = ({
 
   return (
     <FormProvider {...form}>
-      {operation && (
+      {trackedOperation && (
         <div className="px-4 hidden">
-          <OperationStatus network={network} typeTitle={t('swapNoun')} operation={operation} />
+          <OperationStatus
+            network={network}
+            typeTitle={t('swapNoun')}
+            operation={trackedOperation.operation}
+            startingBlockHash={trackedOperation.startingBlockHash}
+          />
         </div>
       )}
       <BaseSwapForm

@@ -5,7 +5,6 @@ import BigNumber from 'bignumber.js';
 
 import { isTezAsset, toPenny } from 'lib/assets';
 import { toTransferParams } from 'lib/assets/contract.utils';
-import { TEZOS_BLOCK_DURATION } from 'lib/fixed-times';
 import { AssetMetadataBase } from 'lib/metadata';
 import { useTypedSWR } from 'lib/swr';
 import { TezosEstimationData } from 'lib/temple/front/estimation-data-providers';
@@ -15,12 +14,15 @@ import { checkZeroBalance } from 'lib/utils/check-zero-balance';
 import { ZERO } from 'lib/utils/numbers';
 import { serializeEstimate } from 'lib/utils/serialize-estimate';
 import { AccountForTezos } from 'temple/accounts';
+import { useTezosNetworkTiming } from 'temple/front';
+import { TezosNetworkEssentials } from 'temple/networks';
 
 import { estimateTezosMaxFee } from '../form/utils';
 
 interface TezosEstimationInput {
   to: string;
   tezos: TezosToolkit;
+  network: TezosNetworkEssentials;
   chainId: string;
   account: AccountForTezos;
   accountPkh: string;
@@ -34,6 +36,7 @@ interface TezosEstimationInput {
 export const useTezosEstimationData = ({
   to,
   tezos,
+  network,
   chainId,
   account,
   accountPkh,
@@ -43,6 +46,8 @@ export const useTezosEstimationData = ({
   assetMetadata,
   toFilled
 }: TezosEstimationInput) => {
+  const { blockDurationMs } = useTezosNetworkTiming(network);
+
   const estimate = useCallback(async (): Promise<TezosEstimationData | undefined> => {
     const isTez = isTezAsset(assetSlug);
     const from = account.ownerAddress || accountPkh;
@@ -73,7 +78,7 @@ export const useTezosEstimationData = ({
     {
       onError: err => console.error(err),
       focusThrottleInterval: 10_000,
-      dedupingInterval: TEZOS_BLOCK_DURATION
+      dedupingInterval: blockDurationMs
     }
   );
 };

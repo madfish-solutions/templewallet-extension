@@ -205,7 +205,7 @@ const handleIntercomRequest = async (
     const { modifiedStorageLimit, modifiedTotalFee, confirmed } = confirmReq;
     if (confirmed) {
       try {
-        const op = await withUnlocked(({ vault }) =>
+        const sentOperation = await withUnlocked(({ vault }) =>
           vault.sendOperations(
             dApp.pkh,
             network,
@@ -213,20 +213,21 @@ const handleIntercomRequest = async (
           )
         );
 
-        safeGetChain(network.rpcBaseURL, op);
+        safeGetChain(network.rpcBaseURL, sentOperation);
 
         intercom.broadcast({
           type: TempleMessageType.TempleDAppTransactionSent,
           origin,
           chainType: TempleChainKind.Tezos,
           network,
-          txHash: op.hash,
+          txHash: sentOperation.hash,
+          startingBlockHash: sentOperation.startingBlockHash,
           accountPkh: dApp.pkh
         });
 
         resolve({
           type: TempleDAppMessageType.OperationResponse,
-          opHash: op.hash
+          opHash: sentOperation.hash
         });
       } catch (err: any) {
         if (err instanceof TezosOperationError) {

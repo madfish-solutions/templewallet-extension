@@ -29,11 +29,12 @@ export const useDAppTransactionsListener = () => {
           })
         );
       } else {
-        const { txHash, accountPkh, network } = msg;
+        const { txHash, startingBlockHash, accountPkh, network } = msg;
         const blockExplorer = getTezosActiveBlockExplorer(network.chainId);
         dispatch(
           addPendingTezosTransactionAction({
             txHash,
+            startingBlockHash,
             accountPkh,
             network,
             blockExplorerUrl: makeBlockExplorerHref(blockExplorer.url, txHash, 'tx', TempleChainKind.Tezos),

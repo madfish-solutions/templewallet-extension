@@ -95,6 +95,7 @@ export const useTezosMaxAmount = ({
   const realEst = useTezosEstimationData({
     to: to ?? TEZ_BURN_ADDRESS,
     tezos,
+    network,
     chainId: network.chainId,
     account,
     accountPkh,
@@ -108,6 +109,7 @@ export const useTezosMaxAmount = ({
   const fallbackEst = useTezosEstimationData({
     to: TEZ_BURN_ADDRESS,
     tezos,
+    network,
     chainId: network.chainId,
     account,
     accountPkh,
