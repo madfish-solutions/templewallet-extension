@@ -57,10 +57,16 @@ export class FallbackRpcClient extends RpcClient {
     throw new Error('FallbackRpcClient: no RPCs available');
   }
 
+  private get preferredClient() {
+    const client = this.clients.at(this.preferredIndex % this.clients.length);
+
+    if (!client) throw new Error('FallbackRpcClient: no RPCs available');
+
+    return client;
+  }
+
   getRpcUrl() {
-    const total = this.clients.length;
-    const idx = this.preferredIndex % total;
-    return this.clients[idx].getRpcUrl();
+    return this.preferredClient.getRpcUrl();
   }
 
   async getChainId() {
@@ -223,8 +229,9 @@ export class FallbackRpcClient extends RpcClient {
     return this.callWithFallback(client => client.preapplyOperations(ops, opts));
   }
 
+  // Never re-sent to another node: after an ambiguous failure, the bytes may already be in the first node's mempool
   async injectOperation(signedOpBytes: string) {
-    return this.callWithFallback(client => client.injectOperation(signedOpBytes));
+    return this.preferredClient.injectOperation(signedOpBytes);
   }
 
   async forgeOperations(data: ForgeOperationsParams, opts?: RPCOptions) {

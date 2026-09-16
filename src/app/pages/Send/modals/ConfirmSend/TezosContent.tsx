@@ -187,17 +187,14 @@ export const TezosContent: FC<TezosContentProps> = ({
           displayedFeeOptions
         );
 
+        if (!operation) throw new Error('Operation params are not ready');
+
+        const txHash = operation.opHash;
+
+        onSuccess({ txHash, displayedFee, displayedStorageFee });
         onConfirm();
 
-        // @ts-expect-error
-        const txHash = operation?.hash || operation?.opHash;
-        onSuccess({ txHash, displayedFee, displayedStorageFee });
-
         const blockExplorer = getActiveBlockExplorer(network.chainId);
-
-        if (!suppressSubmitToast) {
-          showTxSubmitToastWithDelay(TempleChainKind.Tezos, txHash, blockExplorer.url);
-        }
 
         dispatch(
           addPendingTezosTransactionAction({
@@ -211,6 +208,10 @@ export const TezosContent: FC<TezosContentProps> = ({
           })
         );
         dispatch(monitorPendingTezosTransactionsAction());
+
+        if (!suppressSubmitToast) {
+          showTxSubmitToastWithDelay(TempleChainKind.Tezos, txHash, blockExplorer.url);
+        }
       };
 
       if (isLedgerAccount) {

@@ -100,7 +100,7 @@ import {
   sidebarOpened,
   sidebarClosed
 } from './store';
-import { Vault } from './vault';
+import { SentTezosOperation, Vault } from './vault';
 
 export { switchTezosAccount } from './dapp';
 export { switchChain as switchEvmChain, switchAccount as switchEvmAccount } from './evm-dapp';
@@ -522,12 +522,13 @@ const promisableUnlock = async (
   const stopTimeout = () => clearTimeout(t);
 };
 
-const safeAddLocalOperation = async (networkRpc: string, op: any) => {
+const safeAddLocalOperation = async (networkRpc: string, { hash, results }: SentTezosOperation) => {
+  if (!results) return;
+
   try {
     const chainId = await loadTezosChainId(networkRpc);
-    await addLocalOperation(chainId, op.hash, op.results);
+    await addLocalOperation(chainId, hash, results);
   } catch {}
-  return undefined;
 };
 
 export function sign(

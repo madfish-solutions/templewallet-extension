@@ -1,7 +1,9 @@
 import type Eth from '@ledgerhq/hw-app-eth';
+import { HttpRequestFailed, HttpTimeoutError } from '@taquito/http-utils';
 import { DerivationType } from '@taquito/ledger-signer';
 import { localForger } from '@taquito/local-forging';
-import { CompositeForger, OperationBatch, RpcForger, Signer, TezosToolkit } from '@taquito/taquito';
+import { OperationContentsAndResult } from '@taquito/rpc';
+import { CompositeForger, RpcForger, Signer, TezosToolkit } from '@taquito/taquito';
 import * as TaquitoUtils from '@taquito/utils';
 import * as Bip39 from 'bip39';
 import { nanoid } from 'nanoid';
@@ -44,6 +46,7 @@ import {
   TempleSettings,
   WalletSpecs
 } from 'lib/temple/types';
+import { isTransientTezosRpcError } from 'lib/tezos';
 import { delay, isTruthy } from 'lib/utils';
 import { getAccountAddressForChain, getAccountAddressForEvm, getAccountAddressForTezos } from 'temple/accounts';
 import { TypedDataV1, typedV1SignatureHash } from 'temple/evm/typed-data-v1';
@@ -94,6 +97,18 @@ import {
   settingsStrgKey,
   walletMnemonicStrgKey
 } from './storage-keys';
+
+export interface SentTezosOperation {
+  hash: string;
+  results?: OperationContentsAndResult[];
+}
+
+// An unclassified transport failure counts as one that may have reached the node
+const isInjectionOutcomeUnknown = (error: unknown) =>
+  error instanceof HttpTimeoutError ||
+  (error instanceof HttpRequestFailed
+    ? error.transportError?.mayHaveReachedServer !== false
+    : isTransientTezosRpcError(error));
 
 const TEMPLE_SYNC_PREFIX = 'templesync';
 const libthemisWasmSrc = '/wasm/libthemis.wasm';
@@ -893,19 +908,39 @@ export class Vault {
     return this.withSigningEvmAccount(accPublicKeyHash, async account => account.signMessage({ message }));
   }
 
-  async sendOperations(accPublicKeyHash: string, network: TezosNetworkEssentials, opParams: any[]) {
+  async sendOperations(
+    accPublicKeyHash: string,
+    network: TezosNetworkEssentials,
+    opParams: any[]
+  ): Promise<SentTezosOperation> {
     return this.withSigner(accPublicKeyHash, async signer => {
-      let batch: OperationBatch;
+      const rpc = getTezosRpcClient(network);
+      let attemptedOpHash: string | undefined;
+
       try {
-        const tezos = new TezosToolkit(getTezosRpcClient(network));
+        const tezos = new TezosToolkit(rpc);
         tezos.setSignerProvider(signer);
         tezos.setForgerProvider(new CompositeForger([tezos.getFactory(RpcForger)(), localForger]));
         tezos.setPackerProvider(michelEncoder);
-        batch = tezos.contract.batch(opParams.map(operation => formatOpParamsBeforeSend(operation, accPublicKeyHash)));
+        tezos.setInjectorProvider({
+          inject: signedOperationBytes => {
+            attemptedOpHash = TaquitoUtils.encodeOpHash(signedOperationBytes);
 
-        return await batch.send();
+            return rpc.injectOperation(signedOperationBytes);
+          }
+        });
+
+        const { hash, results } = await tezos.contract
+          .batch(opParams.map(operation => formatOpParamsBeforeSend(operation, accPublicKeyHash)))
+          .send();
+
+        return { hash, results };
       } catch (err: any) {
         console.error(err);
+
+        // The node never answered the injection, so the operation may be in its mempool: report it as submitted and let the tracker decide
+        if (attemptedOpHash && isInjectionOutcomeUnknown(err)) return { hash: attemptedOpHash };
+
         throw new PublicError('Failed to send operations', [err]);
       }
     });
