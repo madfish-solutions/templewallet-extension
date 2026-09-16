@@ -33,7 +33,7 @@ const OperationStatus: FC<OperationStatusProps> = ({
   onClose
 }) => {
   const { chainId } = network;
-  const { confirmationTimeoutMs } = useTezosNetworkTiming(network);
+  const { confirmationTimeoutMs, isLoading: networkTimingIsLoading } = useTezosNetworkTiming(network);
 
   const hash = useMemo(
     () =>
@@ -74,6 +74,8 @@ const OperationStatus: FC<OperationStatusProps> = ({
   }));
 
   useEffect(() => {
+    if (networkTimingIsLoading) return;
+
     confirmTezosOperation(getTezosReadOnlyRpcClient(network), hash, {
       startingBlockHash,
       timeoutMs: confirmationTimeoutMs
@@ -100,7 +102,16 @@ const OperationStatus: FC<OperationStatusProps> = ({
               : err?.message || 'Operation confirmation failed'
         });
       });
-  }, [network, hash, startingBlockHash, confirmationTimeoutMs, setAlert, descFooter, typeTitle]);
+  }, [
+    network,
+    hash,
+    startingBlockHash,
+    confirmationTimeoutMs,
+    networkTimingIsLoading,
+    setAlert,
+    descFooter,
+    typeTitle
+  ]);
 
   return (
     <Alert

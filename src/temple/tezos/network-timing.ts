@@ -20,7 +20,7 @@ const makeTezosNetworkTiming = (blockDurationMs: number): TezosNetworkTiming => 
   confirmationTimeoutMs: Math.max(CONFIRMATION_TIMEOUT_BLOCKS * blockDurationMs, MIN_CONFIRMATION_TIMEOUT_MS)
 });
 
-const fallbackTiming = makeTezosNetworkTiming(FALLBACK_BLOCK_DURATION_MS);
+export const FALLBACK_TEZOS_NETWORK_TIMING = makeTezosNetworkTiming(FALLBACK_BLOCK_DURATION_MS);
 
 export const loadTezosNetworkTiming = memoizee(
   async (network: TezosNetworkEssentials): Promise<TezosNetworkTiming> => {
@@ -30,9 +30,9 @@ export const loadTezosNetworkTiming = memoizee(
 
       return Number.isFinite(blockDurationMs) && blockDurationMs > 0
         ? makeTezosNetworkTiming(blockDurationMs)
-        : fallbackTiming;
+        : FALLBACK_TEZOS_NETWORK_TIMING;
     } catch {
-      return fallbackTiming;
+      return FALLBACK_TEZOS_NETWORK_TIMING;
     }
   },
   {
