@@ -3534,13 +3534,16 @@
     "message": "Did you know, you can earn TKEY tokens by viewing ads? If ads are turned off, you can easily enable them anytime in the settings and start earning rewards!"
   },
   "enablePartnersPromotionConfirm": {
-    "message": "Earn TKEY & Support Temple"
+    "message": "You're earning Promo rewards"
   },
   "thanksForSupportingTemple": {
     "message": "Thanks for supporting Temple"
   },
   "enablePartnersPromotionDescriptionConfirm": {
-    "message": "Congrats, you've started earning TKEY tokens!\nBy enabling this feature, you agreed to share your Wallet address and IP to receive tokens and view ads. You can turn ads off or on anytime in the settings."
+    "message": "View clearly labeled sponsored content and receive <b>20% promo revenue</b>. Eligible views contribute to your monthly TKEY rewards. This choice is optional."
+  },
+  "enablePartnersPromotionPrivacyConfirm": {
+    "message": "If enabled, you agree to share your wallet address and IP to receive rewards and sponsored content."
   },
   "ownAccount": {
     "message": "Own"
@@ -3737,7 +3740,7 @@
     "message": "Auto-Lock"
   },
   "partnersPromoSettings": {
-    "message": "Promo content"
+    "message": "Promo"
   },
   "rewards": {
     "message": "Rewards"
@@ -3746,7 +3749,49 @@
     "message": "This is your account for Temple rewards. All payouts for activities will be distributed to this account addresses."
   },
   "partnersPromoDescription": {
-    "message": "Enable non-intrusive promo ads in your wallet and browser, join Temple rewards program and get paid in TKEY. If active, you agree to share your wallet address and IP to receive content and rewards."
+    "message": "Receive a share of eligible revenue in TKEY from sponsored content in your wallet."
+  },
+  "promoYoureInControl": {
+    "message": "You’re in control"
+  },
+  "promoInWallet": {
+    "message": "In-wallet"
+  },
+  "promoWhileBrowsing": {
+    "message": "While browsing"
+  },
+  "promoWhileBrowsingDescription": {
+    "message": "Show labeled content on webpages. <b>High reward contribution</b>"
+  },
+  "promoWhileUsingAi": {
+    "message": "While using AI"
+  },
+  "promoWhileUsingAiDescription": {
+    "message": "Sponsored cards while you wait for response. <b>Your prompts, answers are never tracked or modified</b>"
+  },
+  "promoPrivacy": {
+    "message": "Privacy"
+  },
+  "promoPrivacyDescription": {
+    "message": "You agree to share your wallet address and IP to receive rewards and sponsored content."
+  },
+  "inWalletAdsUsedData": {
+    "message": "<b>Data used:</b> your IP to surface relevant content and commission rate for your region, public wallet address for automatic payouts. <b>Never used:</b> information about your keys, transactions or any other private data."
+  },
+  "inWalletAdsModalDescription": {
+    "message": "See clearly labeled sponsored cards within wallet sections. Never appears on confirmations or critical flows."
+  },
+  "browsingAdsCollectedData": {
+    "message": "<b>Collected:</b> your IP to surface relevant content and commission rate for your region, public wallet address for automatic payouts. <b>Never collected:</b> webpage content, search results, browsing history, or other private data."
+  },
+  "browsingAdsModalDescription": {
+    "message": "See clearly labeled sponsored cards on webpages. Ads never hide, alter, or interfere with native interface."
+  },
+  "aiAdsCollectedData": {
+    "message": "<b>Collected:</b> your IP to surface relevant content and commission rate for your region, public wallet address for automatic payouts. <b>Never collected:</b> your conversations, prompts, AI responses, chat history, or other private data."
+  },
+  "aiAdsModalDescription": {
+    "message": "See clearly labeled sponsored content in AI chats while you wait for response."
   },
   "referralLinks": {
     "message": "Referral Links"
@@ -3761,7 +3806,7 @@
     "message": "Deals"
   },
   "dealsDescription": {
-    "message": "Enable offers from merchants and earn cashback in USDT. By activating, you agree to share your wallet address and IP."
+    "message": "Enable offers from merchants in your wallet and browser, join Temple rewards program and get paid in TKEY. If active, you agree to share your wallet address and IP to receive content and rewards."
   },
   "templeDeals": {
     "message": "Temple Deals"
@@ -4698,10 +4743,22 @@
     "message": "Properties"
   },
   "closePartnersPromotion": {
-    "message": "Disable promo and earning?"
+    "message": "Disable Promo?"
   },
   "closePartnersPromoConfirm": {
-    "message": "Disabling promo content will stop your TKEY rewards earning and sharing your data to the reward system. You can turn this back on anytime here, in Settings."
+    "message": "New rewards and data usage from sponsored content <b>on all surfaces</b> will pause. Your existing rewards remain yours and your wallet works as usual. You can turn this back on whenever you choose."
+  },
+  "disablePromoBrowsingTitle": {
+    "message": "Disable promo while browsing?"
+  },
+  "disablePromoAiTitle": {
+    "message": "Disable promo while using AI?"
+  },
+  "disablePromoBrowsingWarning": {
+    "message": "High reduction of reward contribution. You're going to receive less TKEY than usual."
+  },
+  "disablePromoSurfaceConfirm": {
+    "message": "New rewards and data usage from this surface will pause. Your existing rewards remain yours and your wallet works as usual. You can turn this back on whenever you choose."
   },
   "earnTkeyRewards": {
     "message": "Earn TKEY Rewards"

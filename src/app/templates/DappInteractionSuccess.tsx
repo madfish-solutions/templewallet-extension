@@ -2,7 +2,7 @@ import React, { memo } from 'react';
 
 import { DoneAnimation } from 'app/atoms/done-animation';
 import PageLayout from 'app/layouts/PageLayout';
-import { useShouldShowPartnersPromoSelector } from 'app/store/partners-promotion/selectors';
+import { useShouldShowInWalletAdsSelector } from 'app/store/partners-promotion/selectors';
 import { usePartnersPromotionModule } from 'app/templates/partners-promotion';
 import { T, TID } from 'lib/i18n';
 import { NullComponent } from 'lib/ui/null-component';
@@ -20,7 +20,7 @@ interface Props {
 }
 
 export const DappInteractionSuccess = memo<Props>(({ type }) => {
-  const shouldShowPartnersPromoState = useShouldShowPartnersPromoSelector();
+  const shouldShowPartnersPromoState = useShouldShowInWalletAdsSelector();
   const PartnersPromotionModule = usePartnersPromotionModule();
 
   return (
