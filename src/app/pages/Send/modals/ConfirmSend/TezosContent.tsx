@@ -227,6 +227,7 @@ export const TezosContent: FC<TezosContentProps> = ({
           decimals={assetMetadata.decimals}
           displayedFeeOptions={displayedFeeOptions}
           displayedFee={displayedFee}
+          disableSubmit={!basicSendParams}
           selectedTab={tab}
           setSelectedTab={setTab}
           latestSubmitError={latestSubmitError}
