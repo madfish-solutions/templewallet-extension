@@ -4,7 +4,7 @@ export const TEZOS_OPERATION_NOT_CONFIRMED_ERROR_MSG = 'Operation was not confir
 export const TEZOS_CONFIRMATION_TIMED_OUT_ERROR_MSG = 'Confirmation polling timed out';
 
 interface ConfirmTezosOperationOptions {
-  startingBlockHash: string;
+  startingBlockLevel: number;
   timeoutMs: number;
   confirmations?: number;
 }
@@ -12,11 +12,12 @@ interface ConfirmTezosOperationOptions {
 export const confirmTezosOperation = (
   tezos: TezosToolkit,
   opHash: string,
-  { startingBlockHash, timeoutMs, confirmations = 1 }: ConfirmTezosOperationOptions
+  { startingBlockLevel, timeoutMs, confirmations = 1 }: ConfirmTezosOperationOptions
 ) =>
   Promise.race([
     tezos.operation
-      .createOperation(opHash, { blockIdentifier: startingBlockHash })
+      // By level, not hash: Taquito reads this block back, and some nodes serve hash-addressed reads orders of magnitude slower
+      .createOperation(opHash, { blockIdentifier: String(startingBlockLevel) })
       .then(op => op.confirmation(confirmations))
       .then(confirmation => {
         if (!confirmation) throw new Error(TEZOS_OPERATION_NOT_CONFIRMED_ERROR_MSG);

@@ -16,7 +16,7 @@ import { OperationStatusSelectors } from './OperationStatus.selectors';
 interface OperationStatusProps {
   network: TezosNetworkEssentials;
   operation: WalletOperation;
-  startingBlockHash: string;
+  startingBlockLevel: number;
   className?: string;
   closable?: boolean;
   onClose?: () => void;
@@ -27,7 +27,7 @@ const OperationStatus: FC<OperationStatusProps> = ({
   network,
   typeTitle,
   operation,
-  startingBlockHash,
+  startingBlockLevel,
   className,
   closable,
   onClose
@@ -77,7 +77,7 @@ const OperationStatus: FC<OperationStatusProps> = ({
     if (networkTimingIsLoading) return;
 
     confirmTezosOperation(getTezosReadOnlyRpcClient(network), hash, {
-      startingBlockHash,
+      startingBlockLevel,
       timeoutMs: confirmationTimeoutMs
     })
       .then(() => {
@@ -105,7 +105,7 @@ const OperationStatus: FC<OperationStatusProps> = ({
   }, [
     network,
     hash,
-    startingBlockHash,
+    startingBlockLevel,
     confirmationTimeoutMs,
     networkTimingIsLoading,
     setAlert,

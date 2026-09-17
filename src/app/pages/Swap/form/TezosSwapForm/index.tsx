@@ -171,12 +171,12 @@ export const TezosSwapForm: FC<TezosSwapFormProps> = ({
 
   const [trackedOperation, setTrackedOperation] = useState<{
     operation: BatchWalletOperation;
-    startingBlockHash: string;
+    startingBlockLevel: number;
   }>();
   const setTezosOperation = useCallback(
-    (nextOperation: BatchWalletOperation | undefined, startingBlockHash?: string) => {
+    (nextOperation: BatchWalletOperation | undefined, startingBlockLevel?: number) => {
       setTrackedOperation(
-        nextOperation && startingBlockHash ? { operation: nextOperation, startingBlockHash } : undefined
+        nextOperation && startingBlockLevel !== undefined ? { operation: nextOperation, startingBlockLevel } : undefined
       );
     },
     []
@@ -687,9 +687,9 @@ export const TezosSwapForm: FC<TezosSwapFormProps> = ({
         network,
         opParams,
         cashbackInTkey: cashback ? atomsToTokens(new BigNumber(cashback), TEMPLE_TOKEN.decimals).toString() : undefined,
-        onConfirm: (operation, startingBlockHash) => {
+        onConfirm: (operation, startingBlockLevel) => {
           resetForm();
-          setTezosOperation(operation, startingBlockHash);
+          setTezosOperation(operation, startingBlockLevel);
         },
         minimumReceived: {
           amount: atomsToTokens(new BigNumber(minimumReceivedAtomic), outputAssetMetadata.decimals).toString(),
@@ -743,7 +743,7 @@ export const TezosSwapForm: FC<TezosSwapFormProps> = ({
             network={network}
             typeTitle={t('swapNoun')}
             operation={trackedOperation.operation}
-            startingBlockHash={trackedOperation.startingBlockHash}
+            startingBlockLevel={trackedOperation.startingBlockLevel}
           />
         </div>
       )}

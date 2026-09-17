@@ -6,7 +6,7 @@ import type { SwapFieldName } from './form/interfaces';
 
 export interface SwapFormControl {
   resetForm?: EmptyFn;
-  setTezosOperation?: (operation: BatchWalletOperation | undefined, startingBlockHash?: string) => void;
+  setTezosOperation?: (operation: BatchWalletOperation | undefined, startingBlockLevel?: number) => void;
   handleSelectedAssetChange?: (field: SwapFieldName, chainAssetSlug: string) => void;
 }
 

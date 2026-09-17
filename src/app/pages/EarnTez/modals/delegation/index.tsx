@@ -58,7 +58,7 @@ export const DelegationModal = memo<DelegationModalProps>(({ bakerPkh, directBak
   const makeReviewData = useCallback<GenericModalProps['makeReviewData']>(
     (data, onSuccess) => ({
       baker: data,
-      onConfirm: (opHash, startingBlockHash) => {
+      onConfirm: (opHash, startingBlockLevel) => {
         onSuccess(opHash);
         if (getBakerAddress(data) === EVERSTAKE_BAKER_ADDRESS) {
           submitDelegation(opHash).catch(noop);
@@ -67,7 +67,7 @@ export const DelegationModal = memo<DelegationModalProps>(({ bakerPkh, directBak
         dispatch(
           addPendingTezosTransactionAction({
             txHash: opHash,
-            startingBlockHash,
+            startingBlockLevel,
             accountPkh: account.address,
             network,
             blockExplorerUrl: makeBlockExplorerHref(blockExplorer.url, opHash, 'tx', TempleChainKind.Tezos),

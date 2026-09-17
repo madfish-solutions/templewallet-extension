@@ -21,13 +21,13 @@ describe('confirmTezosOperation', () => {
     const tezos = { operation: { createOperation } } as unknown as TezosToolkit;
 
     await confirmTezosOperation(tezos, 'operation-hash', {
-      startingBlockHash: 'starting-block-hash',
+      startingBlockLevel: 917_202,
       timeoutMs: 30_000,
       confirmations: 2
     });
 
     expect(createOperation).toHaveBeenCalledWith('operation-hash', {
-      blockIdentifier: 'starting-block-hash'
+      blockIdentifier: '917202'
     });
     expect(confirmation).toHaveBeenCalledWith(2);
   });
@@ -40,7 +40,7 @@ describe('confirmTezosOperation', () => {
 
     await expect(
       confirmTezosOperation(tezos, 'operation-hash', {
-        startingBlockHash: 'starting-block-hash',
+        startingBlockLevel: 917_202,
         timeoutMs: 30_000
       })
     ).rejects.toThrow(TEZOS_OPERATION_NOT_CONFIRMED_ERROR_MSG);
@@ -53,7 +53,7 @@ describe('confirmTezosOperation', () => {
       }
     } as unknown as TezosToolkit;
     const result = confirmTezosOperation(tezos, 'operation-hash', {
-      startingBlockHash: 'starting-block-hash',
+      startingBlockLevel: 917_202,
       timeoutMs: 12_000
     });
 

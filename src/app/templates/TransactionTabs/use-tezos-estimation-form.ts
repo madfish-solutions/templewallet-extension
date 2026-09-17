@@ -22,7 +22,7 @@ import { useSafeState } from 'lib/ui/hooks';
 import { ZERO } from 'lib/utils/numbers';
 import { serializeEstimate } from 'lib/utils/serialize-estimate';
 import { AccountForChain, getAccountAddressForTezos } from 'temple/accounts';
-import { getTezosToolkitWithSigner, takeOperationStartingBlockHash } from 'temple/front';
+import { getTezosToolkitWithSigner, takeOperationStartingBlockLevel } from 'temple/front';
 import { provePossession } from 'temple/front/tezos';
 import { TezosNetworkEssentials } from 'temple/networks';
 import { getTezosRpcClient, michelEncoder } from 'temple/tezos';
@@ -275,7 +275,7 @@ export const useTezosEstimationForm = ({
 
       return {
         operation,
-        startingBlockHash: takeOperationStartingBlockHash(operation.opHash)
+        startingBlockLevel: takeOperationStartingBlockLevel(operation.opHash)
       };
     },
     [makeFinalOpParams]

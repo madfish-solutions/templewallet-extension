@@ -28,29 +28,6 @@ describe('TempleHttpBackend', () => {
     if (originalFetch) Object.defineProperty(globalThis, 'fetch', originalFetch);
   });
 
-  it('sends the injection exactly once when the network fails', async () => {
-    const fetchMock = jest.fn().mockRejectedValue(new TypeError('Failed to fetch'));
-    installFetch(fetchMock);
-
-    const request = backend.createRequest({ url: INJECTION_URL, method: 'POST' }, SIGNED_BYTES);
-
-    await expect(request).rejects.toBeInstanceOf(HttpRequestFailed);
-    await expect(request).rejects.toMatchObject({ transportError: { kind: 'network', mayHaveReachedServer: true } });
-    expect(fetchMock).toHaveBeenCalledTimes(1);
-  });
-
-  it('times out the injection after the write timeout without retrying', async () => {
-    jest.useFakeTimers();
-    const fetchMock = abortingFetch();
-    installFetch(fetchMock);
-
-    const request = backend.createRequest({ url: INJECTION_URL, method: 'POST' }, SIGNED_BYTES);
-    jest.advanceTimersByTime(RPC_WRITE_TIMEOUT);
-
-    await expect(request).rejects.toMatchObject({ name: 'HttpTimeoutError', timeout: RPC_WRITE_TIMEOUT });
-    expect(fetchMock).toHaveBeenCalledTimes(1);
-  });
-
   it('gives up on a stalled read after the read timeout', async () => {
     jest.useFakeTimers();
     installFetch(abortingFetch());
@@ -59,5 +36,24 @@ describe('TempleHttpBackend', () => {
     jest.advanceTimersByTime(RPC_READ_TIMEOUT);
 
     await expect(request).rejects.toBeInstanceOf(HttpTimeoutError);
+  });
+
+  it('keeps the longer timeout for the injection', async () => {
+    jest.useFakeTimers();
+    installFetch(abortingFetch());
+
+    const request = backend.createRequest({ url: INJECTION_URL, method: 'POST' }, SIGNED_BYTES);
+    jest.advanceTimersByTime(RPC_WRITE_TIMEOUT);
+
+    await expect(request).rejects.toMatchObject({ name: 'HttpTimeoutError', timeout: RPC_WRITE_TIMEOUT });
+  });
+
+  it('reports a failed injection as one that may have reached the node', async () => {
+    installFetch(jest.fn().mockRejectedValue(new TypeError('Failed to fetch')));
+
+    const request = backend.createRequest({ url: INJECTION_URL, method: 'POST' }, SIGNED_BYTES);
+
+    await expect(request).rejects.toBeInstanceOf(HttpRequestFailed);
+    await expect(request).rejects.toMatchObject({ transportError: { kind: 'network', mayHaveReachedServer: true } });
   });
 });

@@ -189,7 +189,7 @@ export const TezosContent: FC<TezosContentProps> = ({
         );
         if (!result) return;
 
-        const { operation, startingBlockHash } = result;
+        const { operation, startingBlockLevel } = result;
         const txHash = operation.opHash;
 
         onSuccess({ txHash, displayedFee, displayedStorageFee });
@@ -200,7 +200,7 @@ export const TezosContent: FC<TezosContentProps> = ({
         dispatch(
           addPendingTezosTransactionAction({
             txHash,
-            startingBlockHash,
+            startingBlockLevel,
             accountPkh,
             network,
             blockExplorerUrl: makeBlockExplorerHref(blockExplorer.url, txHash, 'tx', TempleChainKind.Tezos),

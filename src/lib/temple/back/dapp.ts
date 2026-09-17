@@ -221,7 +221,7 @@ const handleIntercomRequest = async (
           chainType: TempleChainKind.Tezos,
           network,
           txHash: sentOperation.hash,
-          startingBlockHash: sentOperation.startingBlockHash,
+          startingBlockLevel: sentOperation.startingBlockLevel,
           accountPkh: dApp.pkh
         });
 

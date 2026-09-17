@@ -100,7 +100,7 @@ import {
 
 export interface SentTezosOperation {
   hash: string;
-  startingBlockHash: string;
+  startingBlockLevel: number;
   results?: OperationContentsAndResult[];
 }
 
@@ -917,7 +917,7 @@ export class Vault {
     return this.withSigner(accPublicKeyHash, async signer => {
       const rpc = getTezosRpcClient(network);
       let attemptedOpHash: string | undefined;
-      let startingBlockHash: string | undefined;
+      let startingBlockLevel: number | undefined;
 
       try {
         const tezos = new TezosToolkit(rpc);
@@ -934,19 +934,19 @@ export class Vault {
 
         // Prepare against the current head: a memoized counter can be a block old within the hash TTL
         rpc.deleteAllCachedData();
-        startingBlockHash = await rpc.getBlockHash();
+        startingBlockLevel = (await rpc.getBlockHeader()).level;
 
         const { hash, results } = await tezos.contract
           .batch(opParams.map(operation => formatOpParamsBeforeSend(operation, accPublicKeyHash)))
           .send();
 
-        return { hash, results, startingBlockHash };
+        return { hash, results, startingBlockLevel };
       } catch (err: any) {
         console.error(err);
 
         // The node never answered the injection, so the operation may be in its mempool: report it as submitted and let the tracker decide
-        if (attemptedOpHash && startingBlockHash && isInjectionOutcomeUnknown(err)) {
-          return { hash: attemptedOpHash, startingBlockHash };
+        if (attemptedOpHash && startingBlockLevel !== undefined && isInjectionOutcomeUnknown(err)) {
+          return { hash: attemptedOpHash, startingBlockLevel };
         }
 
         throw new PublicError('Failed to send operations', [err]);

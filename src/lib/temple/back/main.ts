@@ -263,7 +263,7 @@ const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<T
       };
 
     case TempleMessageType.OperationsRequest: {
-      const { opHash, startingBlockHash } = await Actions.sendOperations(
+      const { opHash, startingBlockLevel } = await Actions.sendOperations(
         port,
         req.id,
         req.sourcePkh,
@@ -274,7 +274,7 @@ const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<T
       return {
         type: TempleMessageType.OperationsResponse,
         opHash,
-        startingBlockHash
+        startingBlockLevel
       };
     }
 
