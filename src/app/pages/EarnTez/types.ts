@@ -1,3 +1,5 @@
 import { TezosReviewData } from 'lib/temple/front/estimation-data-providers';
 
-export type TezosEarnReviewDataBase = TezosReviewData<{ onConfirm: SyncFn<string> }>;
+export type TezosEarnReviewDataBase = TezosReviewData<{
+  onConfirm: (operationHash: string, startingBlockLevel: number) => void;
+}>;
