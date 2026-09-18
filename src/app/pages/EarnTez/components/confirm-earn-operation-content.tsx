@@ -229,7 +229,7 @@ const ConfirmEarnOperationContentBodyWrapper = <R extends TezosEarnReviewDataBas
           );
           if (!result) return;
 
-          onConfirm(result.operation.opHash, result.startingBlockHash);
+          onConfirm(result.operation.opHash, result.startingBlockLevel);
         };
 
         if (isLedgerAccount) {

@@ -3,7 +3,7 @@ import { MichelsonV1Expression, TezosGenericOperationError } from '@taquito/rpc'
 import { TezosOperationError } from '@taquito/taquito';
 import { isObject } from 'lodash';
 
-import { isTezosContractAddress } from 'lib/tezos';
+import { isTezosContractAddress, isTezosGenericOperationErrorArray, parseJsonBody } from 'lib/tezos';
 
 import { ERROR_MESSAGES } from '../messages';
 
@@ -73,8 +73,7 @@ const TEZOS_ERROR_PATTERNS: Partial<Record<ErrorMessageKey, string[]>> = {
     'period_overflow',
     'malformed_period',
     'timestamp_sub',
-    'non_existing_contract',
-    'failure'
+    'non_existing_contract'
   ],
   nonceTooHigh: ['counter_in_the_future'],
   nonceTooLow: ['counter_in_the_past']
@@ -149,28 +148,18 @@ function hasErrorPattern(error: SerializedTezosOperationError, patterns: readonl
   return error.errors.some(err => patterns.some(pattern => err.id.includes(pattern)));
 }
 
-function isTezosGenericOperationErrorArray(body: unknown): body is TezosGenericOperationError[] {
-  return (
-    Array.isArray(body) &&
-    body.length > 0 &&
-    body.every(
-      item =>
-        isObject(item) && 'kind' in item && 'id' in item && typeof item.kind === 'string' && typeof item.id === 'string'
-    )
-  );
+function tryMakeTezosOperationError(error: SerializedHttpResponseError) {
+  const body = parseJsonBody(error.body);
+
+  return isTezosGenericOperationErrorArray(body) ? new TezosOperationError(body, '', []) : undefined;
 }
 
-function tryMakeTezosOperationError(error: SerializedHttpResponseError) {
-  try {
-    const body = JSON.parse(error.body);
-    if (isTezosGenericOperationErrorArray(body)) {
-      return new TezosOperationError(body, '', []);
-    }
-  } catch {
-    // ignore parse errors
-  }
+export function parseHttpResponseErrorBody(error: unknown): object | undefined {
+  if (!(error instanceof HttpResponseError) && !isSerializedHttpResponseError(error)) return undefined;
 
-  return undefined;
+  const body = parseJsonBody(error.body);
+
+  return isObject(body) ? body : undefined;
 }
 
 export const getHumanTezosErrorMessage = (

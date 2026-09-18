@@ -41,13 +41,13 @@ import { selectAllPendingTezosTransactions } from './utils';
 
 const MAX_PENDING_TRANSACTION_AGE = 60_000;
 
-type TxStatusInput = Pick<TransactionState, 'network' | 'txHash' | 'startingBlockHash'>;
+type TxStatusInput = Pick<TransactionState, 'network' | 'txHash' | 'startingBlockLevel'>;
 
-const getRpcTxStatus$ = ({ network, txHash, startingBlockHash }: TxStatusInput) =>
+const getRpcTxStatus$ = ({ network, txHash, startingBlockLevel }: TxStatusInput) =>
   from(loadTezosNetworkTiming(network)).pipe(
     mergeMap(({ confirmationTimeoutMs }) =>
       confirmTezosOperation(getTezosReadOnlyRpcClient(network), txHash, {
-        startingBlockHash,
+        startingBlockLevel,
         timeoutMs: confirmationTimeoutMs
       })
     ),
@@ -172,9 +172,10 @@ const cleanupOutdatedTezosPendingTransactionsEpic: Epic<Action, Action, RootStat
         .filter(tx => now - tx.submittedAt > MAX_PENDING_TRANSACTION_AGE)
         .map(tx => tx.txHash);
 
-      return outdatedTxHashes.length > 0
-        ? of(removePendingTezosTransactionsAction(outdatedTxHashes))
-        : of(monitorPendingTezosTransactionsAction());
+      return concat(
+        outdatedTxHashes.length > 0 ? of(removePendingTezosTransactionsAction(outdatedTxHashes)) : EMPTY,
+        of(monitorPendingTezosTransactionsAction())
+      );
     })
   );
 

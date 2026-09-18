@@ -24,6 +24,7 @@ import { tzToMutez } from 'lib/temple/helpers';
 import { TempleAccountType } from 'lib/temple/types';
 import { isTezosContractAddress } from 'lib/tezos';
 import { runConnectedLedgerOperationFlow } from 'lib/ui';
+import { useUpdatableRef } from 'lib/ui/hooks';
 import { useLedgerWebHidFullViewGuard } from 'lib/ui/ledger-webhid-guard';
 import { LedgerFullViewPromptModal } from 'lib/ui/LedgerFullViewPrompt';
 import { showTxSubmitToastWithDelay } from 'lib/ui/show-tx-submit-toast.util';
@@ -72,7 +73,11 @@ export const TezosContent: FC<TezosContentProps> = ({
 
   const tezos = getTezosToolkitWithSigner(network, account.ownerAddress || accountPkh, true);
 
-  const { data: estimationData, error: estimationError } = useTezosEstimationData({
+  const {
+    data: estimationData,
+    error: estimationError,
+    mutate: revalidateEstimation
+  } = useTezosEstimationData({
     to,
     tezos,
     network,
@@ -139,6 +144,8 @@ export const TezosContent: FC<TezosContentProps> = ({
     onSubmittingChange?.(isSubmitting);
   }, [isSubmitting, onSubmittingChange]);
 
+  const latestEstimationErrorRef = useUpdatableRef<unknown>(estimationError);
+
   const onSubmitError = (err: unknown) => {
     console.error(err);
     setLatestSubmitError(err);
@@ -158,7 +165,16 @@ export const TezosContent: FC<TezosContentProps> = ({
       }
 
       if (!estimationData || estimationError) {
-        onSubmitError(estimationError);
+        await revalidateEstimation();
+
+        const freshEstimationError = latestEstimationErrorRef.current;
+
+        if (freshEstimationError) {
+          onSubmitError(freshEstimationError);
+        } else {
+          setLatestSubmitError(null);
+          setTab('details');
+        }
 
         return;
       }
@@ -172,24 +188,19 @@ export const TezosContent: FC<TezosContentProps> = ({
           displayedFeeOptions
         );
         if (!result) return;
-        const { operation, startingBlockHash } = result;
 
+        const { operation, startingBlockLevel } = result;
+        const txHash = operation.opHash;
+
+        onSuccess({ txHash, displayedFee, displayedStorageFee });
         onConfirm();
 
-        // @ts-expect-error
-        const txHash = operation?.hash || operation?.opHash;
-        onSuccess({ txHash, displayedFee, displayedStorageFee });
-
         const blockExplorer = getActiveBlockExplorer(network.chainId);
-
-        if (!suppressSubmitToast) {
-          showTxSubmitToastWithDelay(TempleChainKind.Tezos, txHash, blockExplorer.url);
-        }
 
         dispatch(
           addPendingTezosTransactionAction({
             txHash,
-            startingBlockHash,
+            startingBlockLevel,
             accountPkh,
             network,
             blockExplorerUrl: makeBlockExplorerHref(blockExplorer.url, txHash, 'tx', TempleChainKind.Tezos),
@@ -199,6 +210,10 @@ export const TezosContent: FC<TezosContentProps> = ({
           })
         );
         dispatch(monitorPendingTezosTransactionsAction());
+
+        if (!suppressSubmitToast) {
+          showTxSubmitToastWithDelay(TempleChainKind.Tezos, txHash, blockExplorer.url);
+        }
       };
 
       if (isLedgerAccount) {

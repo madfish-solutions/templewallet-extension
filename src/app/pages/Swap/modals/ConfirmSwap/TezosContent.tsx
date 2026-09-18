@@ -171,9 +171,9 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
             displayedFeeOptions
           );
           if (!result) return;
-          const { operation, startingBlockHash } = result;
+          const { operation, startingBlockLevel } = result;
 
-          onConfirm(operation, startingBlockHash);
+          onConfirm(operation, startingBlockLevel);
           onClose();
 
           // @ts-expect-error
@@ -184,7 +184,7 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
           dispatch(
             addPendingTezosTransactionAction({
               txHash,
-              startingBlockHash,
+              startingBlockLevel,
               accountPkh,
               network,
               blockExplorerUrl: makeBlockExplorerHref(blockExplorer.url, txHash, 'tx', TempleChainKind.Tezos),

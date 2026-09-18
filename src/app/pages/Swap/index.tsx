@@ -195,9 +195,9 @@ const Swap = memo<Props>(() => {
       opParams: storedPending.opParams,
       cashbackInTkey: storedPending.cashbackInTkey,
       minimumReceived: storedPending.minimumReceived,
-      onConfirm: (operation, startingBlockHash) => {
+      onConfirm: (operation, startingBlockLevel) => {
         formControlRef.current?.resetForm?.();
-        formControlRef.current?.setTezosOperation?.(operation, startingBlockHash);
+        formControlRef.current?.setTezosOperation?.(operation, startingBlockLevel);
       }
     });
     setConfirmSwapModalOpen();

@@ -28,7 +28,7 @@ export { searchAndFilterAccounts, useRelevantAccounts, useVisibleAccounts } from
 
 export {
   getTezosToolkitWithSigner,
-  takeOperationStartingBlockHash,
+  takeOperationStartingBlockLevel,
   useOnTezosBlock,
   useTezosBlockLevel,
   useTezosNetworkTiming
