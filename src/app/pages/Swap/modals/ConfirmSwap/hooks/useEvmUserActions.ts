@@ -191,7 +191,6 @@ export const useEvmUserActions = (opened: boolean, onRequestClose: EmptyFn, revi
   }, [onRequestClose, reviewData, setCancelConfirmClosed, currentActionIndex, firstExecuteAction.index]);
 
   const handleRequestClose = useCallback(() => {
-    if (batchBusy) return;
     if (reviewData && isSwapEvmReviewData(reviewData)) {
       if (currentActionIndex > firstExecuteAction.index) {
         setCancelConfirmOpened();
@@ -199,7 +198,7 @@ export const useEvmUserActions = (opened: boolean, onRequestClose: EmptyFn, revi
       }
     }
     performCancel();
-  }, [reviewData, performCancel, currentActionIndex, firstExecuteAction.index, setCancelConfirmOpened, batchBusy]);
+  }, [reviewData, performCancel, currentActionIndex, firstExecuteAction.index, setCancelConfirmOpened]);
 
   const useLegacyFlow = (): void => {
     if (batchBusy) return;

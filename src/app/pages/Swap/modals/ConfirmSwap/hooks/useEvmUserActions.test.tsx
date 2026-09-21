@@ -109,6 +109,18 @@ it('restores the original actions through the backdoor', async () => {
   expect(current.userActions[0].batchSteps).toBeUndefined();
 });
 
+it('allows the user to close while an Alchemy batch is busy', async () => {
+  await render();
+  await act(async () => {
+    current.setBatchBusy(true);
+  });
+  await act(async () => {
+    current.handleRequestClose();
+  });
+  expect(onClose).toHaveBeenCalledTimes(1);
+  expect(current.cancelledRef.current).toBe(true);
+});
+
 it('resumes a submitted route when the feature flag is disabled', async () => {
   const review = makeReview();
   (getAlchemyWalletConfig as jest.Mock).mockResolvedValue({ chains: [], feeTokens: {} });

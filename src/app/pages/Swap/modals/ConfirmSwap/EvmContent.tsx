@@ -514,7 +514,6 @@ export const EvmContent: FC<EvmContentProps> = ({
           displayedFeeOptions={batchSteps ? batch.feeOptions : feeOptions?.displayed}
           minimumReceived={minimumReceived}
           onCancel={onClose}
-          cancelDisabled={Boolean(batchSteps) && submitLoading}
           onSubmit={onSubmit}
           someBalancesChanges={true}
           filteredBalancesChanges={balancesChanges}
