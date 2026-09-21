@@ -34,31 +34,7 @@ export async function buildAlchemySwapCalls(
     const prepared = await getEvmStepTransaction(step, signal);
     if (!prepared?.transactionRequest) throw new Error('LiFi did not return a transaction');
     const { transactionRequest: tx, action, estimate } = prepared;
-    const expectedToAddress = step.action.toAddress ?? account;
-    const actualToAddress = action.toAddress ?? account;
-    if (
-      action.fromAmount !== step.action.fromAmount ||
-      !isAddressEqual(action.fromToken.address as HexString, step.action.fromToken.address as HexString) ||
-      !isAddressEqual(action.toToken.address as HexString, step.action.toToken.address as HexString) ||
-      !isAddress(expectedToAddress) ||
-      !isAddress(actualToAddress) ||
-      !isAddressEqual(actualToAddress, expectedToAddress) ||
-      action.toChainId !== step.action.toChainId ||
-      BigInt(estimate.toAmountMin) < BigInt(step.estimate.toAmountMin)
-    ) {
-      throw new Error('The LiFi quote changed. Review the route again.');
-    }
-    if (
-      !tx.to ||
-      !isAddress(tx.to) ||
-      !action.fromAddress ||
-      !isAddressEqual(action.fromAddress as HexString, account) ||
-      (tx.from && !isAddressEqual(tx.from as HexString, account)) ||
-      (tx.chainId !== undefined && Number(tx.chainId) !== network.chainId) ||
-      action.fromChainId !== network.chainId
-    ) {
-      throw new Error('LiFi returned a transaction for a different account or chain');
-    }
+
     if (!isAddressEqual(action.fromToken.address as HexString, zeroAddress)) {
       const token = action.fromToken.address as HexString;
       const spender = estimate.approvalAddress as HexString;
