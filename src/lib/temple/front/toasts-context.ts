@@ -2,18 +2,26 @@ import { useState } from 'react';
 
 import constate from 'constate';
 
-export const [ToastsContextProvider, useInitToastMessage, useToastsContainerBottomShift] = constate(
+import { ToastTxData } from 'app/toaster';
+
+interface ToastParams {
+  title: string;
+  textBold?: boolean | undefined;
+  txDataOrLink?: ReactChildren | ToastTxData;
+}
+
+export const [ToastsContextProvider, useInitToastParams, useToastsContainerBottomShift] = constate(
   useToastsContext,
-  v => v.initToastMessage,
+  v => v.initToastParams,
   v => v.toastsContainerBottomShift
 );
 
 function useToastsContext() {
-  const initToastMessage = useState<string | undefined>();
+  const initToastParams = useState<ToastParams | undefined>();
   const toastsContainerBottomShift = useState(0);
 
   return {
-    initToastMessage,
+    initToastParams,
     toastsContainerBottomShift
   };
 }
