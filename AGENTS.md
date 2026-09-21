@@ -13,6 +13,11 @@ Optimize for clarity, polish, and performance in every change.
 4. Do not quietly change security-sensitive behavior. Call it out.
 5. When instructions are unclear or conflicting, ask for clarification.
 
+## Safety Gates
+- Never bypass repository safety gates, including the npm package age gate.
+- Do not use environment overrides, command flags, another package manager, or file edits to evade a gate.
+- If a gate blocks a task, stop and tell the user which gate blocked it.
+
 ## Commands
 - `yarn start`: Dev build / watch
 - `yarn build`: Production build (zips output)
