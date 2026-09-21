@@ -4,7 +4,7 @@ import { LiFiStep, StatusResponse } from '@lifi/sdk';
 import retry from 'async-retry';
 import BigNumber from 'bignumber.js';
 import { FormProvider } from 'react-hook-form';
-import { TransactionRequest, isAddress } from 'viem';
+import { FeeValuesEIP1559, FeeValuesLegacy, TransactionRequest, isAddress } from 'viem';
 
 import { Tooltip } from 'app/atoms/Tooltip';
 import { useLedgerApprovalModalState } from 'app/hooks/use-ledger-approval-modal-state';
@@ -21,7 +21,7 @@ import { getEvmSwapStatus } from 'lib/apis/temple/endpoints/evm';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { useEvmAssetBalance } from 'lib/balances/hooks';
 import { EVM_ZERO_ADDRESS } from 'lib/constants';
-import { getAlchemyMaxFee } from 'lib/evm/alchemy/validation';
+import { getAlchemyMaxCost } from 'lib/evm/alchemy/validation';
 import { fetchEvmRawBalance } from 'lib/evm/on-chain/balance';
 import { fetchEvmTokenMetadataFromChain } from 'lib/evm/on-chain/metadata';
 import { EvmAssetStandard } from 'lib/evm/types';
@@ -213,7 +213,8 @@ export const EvmContent: FC<EvmContentProps> = ({
 
   const executeRouteStep = async (
     step: LiFiStep | Route3EvmRoute,
-    { gasPrice, gasLimit, nonce }: Partial<EvmTxParamsFormData>
+    { gasPrice, gasLimit, nonce }: Partial<EvmTxParamsFormData>,
+    feesPerGas?: FeeValuesEIP1559 | FeeValuesLegacy
   ) => {
     if (cancelledRef?.current) return;
 
@@ -241,8 +242,6 @@ export const EvmContent: FC<EvmContentProps> = ({
         gas: BigInt(gas),
         data: txData,
         value: BigInt(fromToken.address === EVM_ZERO_ADDRESS ? fromAmount : '0'),
-        ...(gasPrice ? { gasPrice: BigInt(gasPrice) } : {}),
-        ...(gasLimit ? { gasLimit: BigInt(gasLimit) } : {}),
         ...(nonce ? { nonce: Number(nonce) } : {})
       };
     }
@@ -250,6 +249,29 @@ export const EvmContent: FC<EvmContentProps> = ({
     if (!txParams && !batchSteps) {
       console.error(`Failed to parse transactionRequest for step ${isLifiStep(step) ? step.tool : '3Route'}`);
       return;
+    }
+
+    if (txParams && feesPerGas) {
+      delete txParams.gasPrice;
+      delete txParams.maxFeePerGas;
+      delete txParams.maxPriorityFeePerGas;
+      delete txParams.type;
+      Object.assign(txParams, feesPerGas);
+      txParams.gas = gasLimit ? BigInt(gasLimit) : (txParams.gas ?? providerEstimationData?.gas);
+    }
+
+    let requiredNativeBalance: bigint | undefined;
+    if (batchSteps) {
+      if ((!batch.submitted || batch.replacementReady) && batch.quote)
+        requiredNativeBalance = getAlchemyMaxCost(batch.quote);
+    } else if (txParams) {
+      const gasPrice = txParams.gasPrice ?? txParams.maxFeePerGas;
+      if (!txParams.gas || !gasPrice) throw new Error(t('invalidParamsError'));
+      requiredNativeBalance = (txParams.value ?? 0n) + txParams.gas * gasPrice;
+    }
+    if (requiredNativeBalance !== undefined) {
+      const nativeBalance = await getViemPublicClient(inputNetwork).getBalance({ address: accountPkh });
+      if (nativeBalance < requiredNativeBalance) throw new Error(t('lowGasBalanceError'));
     }
 
     const txHash = batchSteps ? await batch.execute() : await sendEvmTransaction(accountPkh, inputNetwork, txParams!);
@@ -414,12 +436,6 @@ export const EvmContent: FC<EvmContentProps> = ({
         return;
       }
       try {
-        if (!batch.submitted) {
-          const maxFee = getAlchemyMaxFee(batch.quote.prepared);
-          if (tokensToAtoms(ethBalance, inputNetwork.currency.decimals).lt(maxFee.toString())) {
-            throw new Error(t('insufficientBalance'));
-          }
-        }
         setLatestSubmitError(null);
         setSubmitLoading(true);
         await executeRouteStep(routeStep, {});
@@ -459,16 +475,20 @@ export const EvmContent: FC<EvmContentProps> = ({
         await preconnectIfNeeded(account.type, TempleChainKind.EVM);
         await runConnectedLedgerOperationFlow(
           () =>
-            executeRouteStep(routeStep, {
-              gasPrice,
-              gasLimit,
-              nonce
-            }),
+            executeRouteStep(
+              routeStep,
+              {
+                gasPrice,
+                gasLimit,
+                nonce
+              },
+              feesPerGas
+            ),
           setLedgerApprovalModalState,
           true
         );
       } else {
-        await executeRouteStep(routeStep, { gasPrice, gasLimit, nonce });
+        await executeRouteStep(routeStep, { gasPrice, gasLimit, nonce }, feesPerGas);
       }
     } catch (err: any) {
       onSubmitError(err);

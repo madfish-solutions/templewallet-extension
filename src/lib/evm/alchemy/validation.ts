@@ -49,6 +49,12 @@ export function getAlchemyMaxFee(prepared: AlchemyPreparedCalls): bigint {
   );
 }
 
+export function getAlchemyMaxCost(quote: AlchemyBatchQuote): bigint {
+  const operation = getAlchemyOperation(quote.prepared);
+  const gasCost = operation.data.paymaster ? 0n : getAlchemyMaxFee(quote.prepared);
+  return quote.request.calls.reduce((cost, call) => cost + BigInt(call.value), gasCost);
+}
+
 export function addAlchemyGasParamsOverride(
   request: Omit<AlchemyBatchRequest, 'capabilities'>,
   feeOption: AlchemyFeeOption

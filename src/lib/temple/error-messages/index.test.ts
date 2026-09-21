@@ -1,3 +1,7 @@
+import { encodeErrorResult, parseAbi } from 'viem';
+
+import { AlchemyRpcError } from 'lib/apis/temple/endpoints/evm/alchemy-wallet';
+import { t } from 'lib/i18n';
 import { IntercomError } from 'lib/intercom/helpers';
 
 import { ERROR_MESSAGES } from './messages';
@@ -57,6 +61,38 @@ import {
 import { getHumanErrorMessage } from './index';
 
 describe('getHumanErrorMessage', () => {
+  describe('Alchemy Wallet API', () => {
+    it.each([
+      [-32000, 'precheck failed: sender balance is too low', ERROR_MESSAGES.lowGasBalance],
+      [-32521, 'ERC20: transfer amount exceeds balance', ERROR_MESSAGES.balance],
+      [-32521, 'execution reverted', ERROR_MESSAGES.executionFailed],
+      [-32602, 'replacement underpriced', ERROR_MESSAGES.feeTooLow],
+      [-32507, 'invalid account signature', t('alchemySignatureError')],
+      [-32000, 'precheck failed: callGasLimit is too low', t('alchemyGasEstimateError')],
+      [-32602, 'This network requires sponsored operations', t('alchemySponsorshipRequiredError')],
+      [-32602, 'EIP-7702 is not enabled on Polygon', t('alchemyUnsupportedNetworkError')]
+    ])('maps code %s and message %s', (code, message, expected) => {
+      expect(getHumanErrorMessage(new AlchemyRpcError(code, message))).toBe(expected);
+    });
+
+    it('uses a nested validation reason', () => {
+      expect(getHumanErrorMessage(new AlchemyRpcError(-32500, 'validation reverted', { reason: 'AA21' }))).toBe(
+        ERROR_MESSAGES.lowGasBalance
+      );
+    });
+
+    it('decodes a standard revert reason', () => {
+      const revertData = encodeErrorResult({
+        abi: parseAbi(['error Error(string)']),
+        errorName: 'Error',
+        args: ['ERC20: insufficient allowance']
+      });
+      expect(getHumanErrorMessage(new AlchemyRpcError(-32521, 'execution reverted', { revertData }))).toBe(
+        ERROR_MESSAGES.allowanceTooLow
+      );
+    });
+  });
+
   describe('EVM dApps operations', () => {
     it('should return the message about low gas balance when the ETH balance is too low to pay for gas', () => {
       expect(getHumanErrorMessage(cannotAffordGas)).toBe(ERROR_MESSAGES.lowGasBalance);

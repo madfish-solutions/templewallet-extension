@@ -5218,6 +5218,33 @@
   "lowGasBalanceError": {
     "message": "Gas balance is not enough to complete transaction. Top up and retry."
   },
+  "alchemyNonceChangedError": {
+    "message": "The account nonce changed. Review a new quote and retry."
+  },
+  "alchemyQuoteExpiredError": {
+    "message": "The transaction quote expired. Review a new quote and retry."
+  },
+  "alchemyPendingOperationError": {
+    "message": "This account has a pending transaction. Wait for it to finish and retry."
+  },
+  "alchemySponsorshipError": {
+    "message": "Gas sponsorship is unavailable for this transaction. Try another route or contact support."
+  },
+  "alchemySponsorshipRequiredError": {
+    "message": "This network requires gas sponsorship for this transaction. Try another route or contact support."
+  },
+  "alchemyUnsupportedNetworkError": {
+    "message": "Smart Wallet transactions are not available on this network. Try another route."
+  },
+  "alchemyTemporaryError": {
+    "message": "The transaction service is temporarily unavailable. Retry in a moment."
+  },
+  "alchemySignatureError": {
+    "message": "The transaction signature is invalid. Review a new quote and retry."
+  },
+  "alchemyGasEstimateError": {
+    "message": "The gas estimate is no longer valid. Review a new quote and retry."
+  },
   "feeTooLowError": {
     "message": "Fee is too low, blockchain says: \"No tip, no trip\". Add more fee and try again."
   },
