@@ -31,11 +31,12 @@ interface Params {
   network: EvmChain;
 }
 
-const feeMultiplierPercent: Record<AlchemyFeeOption, number> = { slow: 100, mid: 105, fast: 110 };
+const scaleFeeValue = (value: bigint, from: AlchemyFeeOption, to: AlchemyFeeOption): bigint => {
+  const fromPercent = BigInt(Math.round(ALCHEMY_FEE_MULTIPLIERS[from] * 100));
+  const toPercent = BigInt(Math.round(ALCHEMY_FEE_MULTIPLIERS[to] * 100));
 
-const scaleFeeValue = (value: bigint, from: AlchemyFeeOption, to: AlchemyFeeOption): bigint =>
-  (value * BigInt(feeMultiplierPercent[to]) + BigInt(feeMultiplierPercent[from] - 1)) /
-  BigInt(feeMultiplierPercent[from]);
+  return (value * toPercent + fromPercent - 1n) / fromPercent;
+};
 
 const isDefinitiveAlchemyRejection = (error: unknown): error is AlchemyRpcError =>
   error instanceof AlchemyRpcError &&

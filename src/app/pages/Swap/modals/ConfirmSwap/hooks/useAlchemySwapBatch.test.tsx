@@ -31,7 +31,7 @@ jest.mock('lib/apis/temple/endpoints/evm/alchemy-wallet', () => ({
 }));
 jest.mock('lib/evm/alchemy/swap', () => ({ buildAlchemySwapCalls: jest.fn() }));
 jest.mock('lib/evm/alchemy/validation', () => ({
-  ALCHEMY_FEE_MULTIPLIERS: { slow: 1, mid: 1.05, fast: 1.1 },
+  ALCHEMY_FEE_MULTIPLIERS: { slow: 0.7, mid: 0.85, fast: 1 },
   ALCHEMY_QUOTE_LIFETIME: 60_000,
   addAlchemyGasParamsOverride: (request: object, feeOption: string) => ({
     ...request,
@@ -41,8 +41,8 @@ jest.mock('lib/evm/alchemy/validation', () => ({
         version: 'v1.1.0'
       },
       gasParamsOverride: {
-        maxFeePerGas: { multiplier: feeOption === 'slow' ? 1 : feeOption === 'mid' ? 1.05 : 1.1 },
-        maxPriorityFeePerGas: { multiplier: feeOption === 'slow' ? 1 : feeOption === 'mid' ? 1.05 : 1.1 }
+        maxFeePerGas: { multiplier: feeOption === 'slow' ? 0.7 : feeOption === 'mid' ? 0.85 : 1 },
+        maxPriorityFeePerGas: { multiplier: feeOption === 'slow' ? 0.7 : feeOption === 'mid' ? 0.85 : 1 }
       }
     }
   }),
@@ -157,8 +157,8 @@ it('prepares the selected fee multiplier', async () => {
           version: 'v1.1.0'
         },
         gasParamsOverride: {
-          maxFeePerGas: { multiplier: 1.05 },
-          maxPriorityFeePerGas: { multiplier: 1.05 }
+          maxFeePerGas: { multiplier: 0.85 },
+          maxPriorityFeePerGas: { multiplier: 0.85 }
         }
       }
     }),
@@ -173,13 +173,21 @@ it('prepares the selected fee multiplier', async () => {
           version: 'v1.1.0'
         },
         gasParamsOverride: {
-          maxFeePerGas: { multiplier: 1.1 },
-          maxPriorityFeePerGas: { multiplier: 1.1 }
+          maxFeePerGas: { multiplier: 1 },
+          maxPriorityFeePerGas: { multiplier: 1 }
         }
       }
     }),
     expect.any(AbortSignal)
   );
+});
+
+it('scales the fee preview from the selected multiplier', () => {
+  expect(current.feeOptions).toEqual({
+    slow: '0.000000000000000083',
+    mid: '0.0000000000000001',
+    fast: '0.000000000000000118'
+  });
 });
 
 it('keeps the current quote visible while a new fee prepares', async () => {

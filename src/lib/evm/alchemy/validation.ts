@@ -14,9 +14,9 @@ export const ALCHEMY_DELEGATION = '0x77021100bD87b7008E5E1989d0eB38555d0d0000';
 export const ALCHEMY_DELEGATIONS = [ALCHEMY_DELEGATION] as const;
 export const ALCHEMY_QUOTE_LIFETIME = 60_000;
 export const ALCHEMY_FEE_MULTIPLIERS: Record<AlchemyFeeOption, number> = {
-  slow: 1,
-  mid: 1.05,
-  fast: 1.1
+  slow: 0.7,
+  mid: 0.85,
+  fast: 1
 };
 
 export const isEip7702DelegationCode = (code: Hex): boolean => /^0xef0100[0-9a-f]{40}$/i.test(code);
