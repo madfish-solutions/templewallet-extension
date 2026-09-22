@@ -12,13 +12,14 @@ import { templeWalletApi } from '../templewallet.api';
 
 interface RpcResponse<T> {
   result?: T;
-  error?: { code: number; message: string };
+  error?: { code: number; message: string; data?: unknown };
 }
 
 export class AlchemyRpcError extends Error {
   constructor(
     readonly code: number,
-    message: string
+    message: string,
+    readonly data?: unknown
   ) {
     super(message);
   }
@@ -29,7 +30,7 @@ async function request<T>(method: string, body: object, signal?: AbortSignal): P
     signal,
     timeout: 30_000
   });
-  if (data.error) throw new AlchemyRpcError(data.error.code, data.error.message);
+  if (data.error) throw new AlchemyRpcError(data.error.code, data.error.message, data.error.data);
   if (data.result === undefined) throw new Error('Alchemy returned an empty response');
   return data.result;
 }
