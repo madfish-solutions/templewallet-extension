@@ -49,9 +49,10 @@ export function getAlchemyMaxFee(prepared: AlchemyPreparedCalls): bigint {
   );
 }
 
-export function getAlchemyMaxCost(quote: AlchemyBatchQuote): bigint {
+export function getAlchemyMaxCost(quote: AlchemyBatchQuote, entryPointDeposit = 0n): bigint {
   const operation = getAlchemyOperation(quote.prepared);
-  const gasCost = operation.data.paymaster ? 0n : getAlchemyMaxFee(quote.prepared);
+  const prefund = operation.data.paymaster ? 0n : getAlchemyMaxFee(quote.prepared);
+  const gasCost = prefund > entryPointDeposit ? prefund - entryPointDeposit : 0n;
   return quote.request.calls.reduce((cost, call) => cost + BigInt(call.value), gasCost);
 }
 
@@ -141,25 +142,7 @@ export function validateAlchemyPreparedCalls(prepared: AlchemyPreparedCalls, req
   ) {
     throw new Error('Alchemy changed the batch calls');
   }
-  const hash = getUserOperationHash({
-    chainId: Number(BigInt(request.chainId)),
-    entryPointAddress: entryPoint07Address,
-    entryPointVersion: '0.7',
-    userOperation: {
-      ...data,
-      nonce: BigInt(data.nonce),
-      callGasLimit: BigInt(data.callGasLimit),
-      verificationGasLimit: BigInt(data.verificationGasLimit),
-      preVerificationGas: BigInt(data.preVerificationGas),
-      maxFeePerGas: BigInt(data.maxFeePerGas),
-      maxPriorityFeePerGas: BigInt(data.maxPriorityFeePerGas),
-      paymasterVerificationGasLimit: data.paymasterVerificationGasLimit
-        ? BigInt(data.paymasterVerificationGasLimit)
-        : undefined,
-      paymasterPostOpGasLimit: data.paymasterPostOpGasLimit ? BigInt(data.paymasterPostOpGasLimit) : undefined,
-      signature: '0x'
-    }
-  });
+  const hash = getAlchemyOperationHash(operation);
   if (
     operation.signatureRequest?.type !== 'personal_sign' ||
     operation.signatureRequest.data.raw.toLowerCase() !== hash.toLowerCase() ||
@@ -181,4 +164,27 @@ export function validateAlchemyQuote(quote: AlchemyBatchQuote): Hex {
   }
   validateAlchemyCapabilities(quote);
   return validateAlchemyPreparedCalls(quote.prepared, quote.request);
+}
+
+export function getAlchemyOperationHash(operation: Pick<AlchemyPreparedOperation, 'data' | 'chainId'>): Hex {
+  const { data } = operation;
+  return getUserOperationHash({
+    chainId: Number(BigInt(operation.chainId)),
+    entryPointAddress: entryPoint07Address,
+    entryPointVersion: '0.7',
+    userOperation: {
+      ...data,
+      nonce: BigInt(data.nonce),
+      callGasLimit: BigInt(data.callGasLimit),
+      verificationGasLimit: BigInt(data.verificationGasLimit),
+      preVerificationGas: BigInt(data.preVerificationGas),
+      maxFeePerGas: BigInt(data.maxFeePerGas),
+      maxPriorityFeePerGas: BigInt(data.maxPriorityFeePerGas),
+      paymasterVerificationGasLimit: data.paymasterVerificationGasLimit
+        ? BigInt(data.paymasterVerificationGasLimit)
+        : undefined,
+      paymasterPostOpGasLimit: data.paymasterPostOpGasLimit ? BigInt(data.paymasterPostOpGasLimit) : undefined,
+      signature: '0x'
+    }
+  });
 }

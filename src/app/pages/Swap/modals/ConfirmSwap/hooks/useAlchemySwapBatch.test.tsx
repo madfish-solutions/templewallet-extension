@@ -1,94 +1,45 @@
 import { act, useEffect } from 'react';
 
-import type { LiFiStep } from '@lifi/sdk';
-import { createRoot, Root } from 'react-dom/client';
+import { createRoot, type Root } from 'react-dom/client';
 
-import {
-  getAlchemyCallsStatus,
-  prepareAlchemyCalls,
-  sendAlchemyCalls
-} from 'lib/apis/temple/endpoints/evm/alchemy-wallet';
+import { prepareAlchemyCalls } from 'lib/apis/temple/endpoints/evm/alchemy-wallet';
 import { browser } from 'lib/browser';
+import { getAlchemySubmissionKey, type AlchemySubmission } from 'lib/evm/alchemy/submission';
 import { buildAlchemySwapCalls } from 'lib/evm/alchemy/swap';
-import type { AlchemyPreparedOperation, AlchemySignedCalls } from 'lib/evm/alchemy/types';
+import { account, makeQuote, makeStep, makeSubmission } from 'lib/evm/alchemy/test-fixtures';
+import { getAlchemyOperation, getAlchemyOperationHash } from 'lib/evm/alchemy/validation';
 import { useTempleClient } from 'lib/temple/front';
 import type { EvmChain } from 'temple/front';
 
 import { useAlchemySwapBatch } from './useAlchemySwapBatch';
 
 jest.mock('lib/apis/temple/endpoints/evm/alchemy-wallet', () => ({
-  AlchemyRpcError: class AlchemyRpcError extends Error {
-    constructor(
-      readonly code: number,
-      message: string
-    ) {
-      super(message);
-    }
-  },
-  getAlchemyCallsStatus: jest.fn(),
-  prepareAlchemyCalls: jest.fn(),
-  sendAlchemyCalls: jest.fn()
+  ...jest.requireActual('lib/apis/temple/endpoints/evm/alchemy-wallet'),
+  prepareAlchemyCalls: jest.fn()
 }));
 jest.mock('lib/evm/alchemy/swap', () => ({ buildAlchemySwapCalls: jest.fn() }));
-jest.mock('lib/evm/alchemy/validation', () => ({
-  ALCHEMY_FEE_MULTIPLIERS: { slow: 0.7, mid: 0.85, fast: 1 },
-  ALCHEMY_QUOTE_LIFETIME: 60_000,
-  addAlchemyGasParamsOverride: (request: object, feeOption: string) => ({
-    ...request,
-    capabilities: {
-      eip7702Auth: {
-        delegation: 'ModularAccountV2',
-        version: 'v1.1.0'
-      },
-      gasParamsOverride: {
-        maxFeePerGas: { multiplier: feeOption === 'slow' ? 0.7 : feeOption === 'mid' ? 0.85 : 1 },
-        maxPriorityFeePerGas: { multiplier: feeOption === 'slow' ? 0.7 : feeOption === 'mid' ? 0.85 : 1 }
-      }
-    }
-  }),
-  validateAlchemyPreparedCalls: jest.fn(),
-  getAlchemyMaxFee: () => 100n,
-  getAlchemyOperation: (value: unknown) => value
-}));
 jest.mock('lib/temple/front', () => ({ useTempleClient: jest.fn() }));
 jest.mock('lib/utils', () => ({ delay: () => Promise.resolve() }));
 jest.mock('lib/browser', () => ({
-  browser: { storage: { local: { get: jest.fn(), set: jest.fn(), remove: jest.fn() } } }
+  browser: {
+    storage: {
+      local: { get: jest.fn(), remove: jest.fn() },
+      onChanged: { addListener: jest.fn(), removeListener: jest.fn() }
+    }
+  }
 }));
-
-const account = '0x1111111111111111111111111111111111111111';
 const network = { chainId: 1, currency: { decimals: 18 } } as EvmChain;
-const steps = [{ id: 'route' }] as LiFiStep[];
-const prepared: AlchemyPreparedOperation = {
-  type: 'user-operation-v070',
-  chainId: '0x1',
-  data: {
-    sender: account,
-    nonce: '0x10',
-    callData: '0x',
-    callGasLimit: '0x1',
-    verificationGasLimit: '0x1',
-    preVerificationGas: '0x1',
-    maxFeePerGas: '0x1',
-    maxPriorityFeePerGas: '0x1'
-  },
-  signatureRequest: { type: 'personal_sign', data: { raw: '0x00' } }
-};
-const signed: AlchemySignedCalls = {
-  type: 'user-operation-v070',
-  chainId: '0x1',
-  data: prepared.data,
-  signature: { type: 'secp256k1', data: '0x1234' }
-};
-const sign = jest.fn();
-const prepare = prepareAlchemyCalls as jest.Mock;
-const send = sendAlchemyCalls as jest.Mock;
-const status = getAlchemyCallsStatus as jest.Mock;
+const steps = [makeStep()];
+const submit = jest.fn();
+const check = jest.fn();
+const complete = jest.fn();
+const prepare = prepareAlchemyCalls as jest.MockedFunction<typeof prepareAlchemyCalls>;
 let current: ReturnType<typeof useAlchemySwapBatch>;
 let root: Root;
 let container: HTMLDivElement;
-let stored: Record<string, unknown>;
-
+let stored: AlchemySubmission | undefined;
+const key = getAlchemySubmissionKey(account, 1);
+const hash = `0x${'ab'.repeat(32)}` as const;
 function Harness() {
   const result = useAlchemySwapBatch({ steps, account, network });
   useEffect(() => {
@@ -96,7 +47,6 @@ function Harness() {
   }, [result]);
   return null;
 }
-
 async function mount(): Promise<void> {
   container = document.createElement('div');
   document.body.appendChild(container);
@@ -105,235 +55,162 @@ async function mount(): Promise<void> {
     root.render(<Harness />);
   });
 }
-
 beforeEach(async () => {
-  jest.clearAllMocks();
+  jest.resetAllMocks();
   Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true });
-  stored = {};
-  const storage = browser.storage.local;
-  (storage.get as jest.Mock).mockImplementation(async () => JSON.parse(JSON.stringify(stored)));
-  (storage.set as jest.Mock).mockImplementation(async value => {
-    Object.assign(stored, JSON.parse(JSON.stringify(value)));
+  stored = undefined;
+  (browser.storage.local.get as jest.Mock).mockImplementation(async () => ({ [key]: stored }));
+  (browser.storage.local.remove as jest.Mock).mockImplementation(async () => {
+    stored = undefined;
   });
-  (storage.remove as jest.Mock).mockImplementation(async key => {
-    delete stored[key];
+  (useTempleClient as jest.Mock).mockReturnValue({
+    submitAlchemyBatch: submit,
+    checkAlchemyBatch: check,
+    completeAlchemyBatch: complete
   });
-  (useTempleClient as jest.Mock).mockReturnValue({ signAlchemyBatch: sign });
-  (buildAlchemySwapCalls as jest.Mock).mockResolvedValue({ calls: [{ to: account, value: '0x0', data: '0x' }], steps });
-  prepare.mockResolvedValue(prepared);
-  sign.mockResolvedValue(signed);
-  send.mockResolvedValue({ id: '0xaaa' });
-  status.mockResolvedValue({
-    chainId: '0x1',
-    atomic: true,
-    status: 200,
-    receipts: [{ status: '0x1', transactionHash: '0xbbb' }]
+  const quote = makeQuote();
+  (buildAlchemySwapCalls as jest.MockedFunction<typeof buildAlchemySwapCalls>).mockResolvedValue({
+    calls: quote.request.calls,
+    steps
+  });
+  prepare.mockResolvedValue(quote.prepared);
+  check.mockImplementation(async () => stored);
+  submit.mockImplementation(async () => {
+    stored = { ...makeSubmission(), result: { status: 'confirmed', transactionHash: hash } };
+    return stored;
   });
   await mount();
 });
-
 afterEach(async () => {
   await act(async () => root.unmount());
   container.remove();
 });
-
-it('uses one confirmation signature request and returns the final transaction hash', async () => {
-  let hash;
+it('submits the reviewed quote once through the background', async () => {
+  const reviewed = current.quote;
   await act(async () => {
-    hash = await current.execute();
+    expect(await current.execute()).toBe(hash);
   });
-  expect(hash).toBe('0xbbb');
-  expect(sign).toHaveBeenCalledTimes(1);
-  expect(send).toHaveBeenCalledTimes(1);
-  expect(status).toHaveBeenCalledWith('0xaaa');
+  expect(submit).toHaveBeenCalledTimes(1);
+  expect(submit.mock.calls[0][2]).toEqual(reviewed);
 });
-
-it('prepares the selected fee multiplier', async () => {
-  expect(prepare).toHaveBeenLastCalledWith(
-    expect.objectContaining({
-      capabilities: {
-        eip7702Auth: {
-          delegation: 'ModularAccountV2',
-          version: 'v1.1.0'
-        },
-        gasParamsOverride: {
-          maxFeePerGas: { multiplier: 0.85 },
-          maxPriorityFeePerGas: { multiplier: 0.85 }
-        }
-      }
-    }),
-    expect.any(AbortSignal)
-  );
-  await act(async () => current.selectFeeOption('fast'));
-  expect(prepare).toHaveBeenLastCalledWith(
-    expect.objectContaining({
-      capabilities: {
-        eip7702Auth: {
-          delegation: 'ModularAccountV2',
-          version: 'v1.1.0'
-        },
-        gasParamsOverride: {
-          maxFeePerGas: { multiplier: 1 },
-          maxPriorityFeePerGas: { multiplier: 1 }
-        }
-      }
-    }),
-    expect.any(AbortSignal)
-  );
-});
-
-it('scales the fee preview from the selected multiplier', () => {
-  expect(current.feeOptions).toEqual({
-    slow: '0.000000000000000083',
-    mid: '0.0000000000000001',
-    fast: '0.000000000000000118'
-  });
-});
-
-it('keeps the current quote visible while a new fee prepares', async () => {
-  let resolvePreparation: SyncFn<AlchemyPreparedOperation>;
-  const pendingPreparation = new Promise<AlchemyPreparedOperation>(resolve => {
-    resolvePreparation = resolve;
-  });
-  prepare.mockReturnValueOnce(pendingPreparation);
-  const initialQuote = current.quote;
-
-  await act(async () => current.selectFeeOption('fast'));
-
-  expect(current.busy).toBe(true);
-  expect(current.quote).toBe(initialQuote);
-  expect(current.selectedFeeOption).toBe('fast');
-  expect(buildAlchemySwapCalls).toHaveBeenCalledTimes(1);
-
+it.each([
+  ['slow', 0.7],
+  ['mid', 0.85],
+  ['fast', 1]
+] as const)('uses the real fee helper for %s', async (option, multiplier) => {
   await act(async () => {
-    resolvePreparation(prepared);
-    await pendingPreparation;
+    current.selectFeeOption(option);
   });
-
-  expect(current.busy).toBe(false);
-  expect(current.quote?.feeOption).toBe('fast');
+  expect(prepare.mock.calls[prepare.mock.calls.length - 1]?.[0].capabilities?.gasParamsOverride).toEqual({
+    maxFeePerGas: { multiplier },
+    maxPriorityFeePerGas: { multiplier }
+  });
 });
-
-it('aborts fee preparation when the confirmation closes', async () => {
-  prepare.mockReturnValueOnce(new Promise(() => undefined));
-  await act(async () => current.selectFeeOption('fast'));
-  const signal = prepare.mock.calls[prepare.mock.calls.length - 1][1] as AbortSignal;
-
-  await act(async () => root.unmount());
-
-  expect(signal.aborted).toBe(true);
-  container.remove();
-  await mount();
-});
-
-it('refreshes an expired fee quote without a signature', async () => {
-  current.quote!.expiresAt = Date.now() - 1;
+it('prepares a fresh LiFi transaction after quote expiry', async () => {
+  const quote = current.quote!;
+  jest.spyOn(Date, 'now').mockReturnValue(quote.expiresAt + 1);
   await act(async () => {
     await current.execute();
   });
-  expect(sign).not.toHaveBeenCalled();
-  expect(prepare).toHaveBeenCalledTimes(2);
+  expect(submit).not.toHaveBeenCalled();
+  expect(buildAlchemySwapCalls).toHaveBeenCalledTimes(2);
+  jest.restoreAllMocks();
 });
-
-it('reuses the signed operation after a lost send response and popup closure', async () => {
-  send.mockRejectedValueOnce(new Error('Lost response'));
-  await act(async () => {
-    await expect(current.execute()).rejects.toThrow('Lost response');
+it('displays the refreshed LiFi values', async () => {
+  const refreshed = makeStep();
+  refreshed.action.fromAmount = '150';
+  refreshed.estimate.toAmountMin = '140';
+  (buildAlchemySwapCalls as jest.MockedFunction<typeof buildAlchemySwapCalls>).mockResolvedValueOnce({
+    calls: makeQuote().request.calls,
+    steps: [refreshed]
   });
-  expect(Object.keys(stored)).toHaveLength(1);
-  await act(async () => root.unmount());
-  container.remove();
-  await mount();
+  await act(async () => {
+    current.refresh();
+  });
+  expect(current.reviewSteps[0].estimate.toAmountMin).toBe('140');
+});
+it('restores a pending submission without a new quote', async () => {
+  stored = makeSubmission();
+  stored.attempts[0].state = 'pending';
+  await act(async () => {
+    current.refresh();
+  });
   expect(current.submitted).toBe(true);
-  await act(async () => {
-    expect(await current.execute()).toBe('0xbbb');
-  });
-  expect(sign).toHaveBeenCalledTimes(1);
-  expect(send.mock.calls[0][0]).toEqual(send.mock.calls[1][0]);
+  expect(prepare).toHaveBeenCalledTimes(1);
 });
-
-it('discards a definitively rejected operation without a call ID', async () => {
-  const { AlchemyRpcError } = jest.requireMock('lib/apis/temple/endpoints/evm/alchemy-wallet');
-  send.mockRejectedValue(new AlchemyRpcError(-32507, 'invalid account signature'));
+it('requires review of a replacement, then submits it without another preparation', async () => {
+  stored = makeSubmission();
+  stored.attempts[0].state = 'pending';
   await act(async () => {
-    await expect(current.execute()).rejects.toThrow('invalid account signature');
+    current.refresh();
   });
-  expect(current.submitted).toBe(false);
-  expect(stored).toEqual({});
-});
-
-it('reviews a replacement quote before a second signature and tracks both call IDs', async () => {
-  status.mockResolvedValue({ chainId: '0x1', status: 100 });
-  await act(async () => {
-    await expect(current.execute()).rejects.toThrow('pending');
-  });
+  const replacement = getAlchemyOperation(makeQuote().prepared);
+  replacement.data.maxFeePerGas = '0x3';
+  replacement.signatureRequest.data.raw = getAlchemyOperationHash(replacement);
+  prepare.mockResolvedValueOnce(replacement);
   await act(async () => {
     expect(await current.execute()).toBeUndefined();
   });
-  expect(sign).toHaveBeenCalledTimes(1);
-  send.mockResolvedValue({ id: '0xccc' });
-  status.mockImplementation(async id =>
-    id === '0xaaa'
-      ? { chainId: '0x1', status: 100 }
-      : { chainId: '0x1', atomic: true, status: 200, receipts: [{ status: '0x1', transactionHash: '0xddd' }] }
-  );
+  expect(current.replacementReady).toBe(true);
+  expect(submit).not.toHaveBeenCalled();
+  const reviewed = current.quote;
+  prepare.mockRejectedValueOnce(new Error('Unexpected extra preparation'));
   await act(async () => {
-    expect(await current.execute()).toBe('0xddd');
+    expect(await current.execute()).toBe(hash);
   });
-  expect(sign).toHaveBeenCalledTimes(2);
-  expect(status).toHaveBeenCalledWith('0xaaa');
-  expect(status).toHaveBeenCalledWith('0xccc');
+  expect(prepare).toHaveBeenCalledTimes(2);
+  expect(submit.mock.calls[0][2]).toEqual(reviewed);
 });
-
-it('does not replace a batch that completes before Retry', async () => {
-  status.mockResolvedValueOnce({ chainId: '0x1', status: 100 }).mockRejectedValueOnce(new Error('Status unavailable'));
+it('returns a completed original operation before any replacement', async () => {
+  stored = { ...makeSubmission(), result: { status: 'confirmed', transactionHash: hash } };
   await act(async () => {
-    await expect(current.execute()).rejects.toThrow('Status unavailable');
+    expect(await current.execute()).toBe(hash);
   });
-  status.mockResolvedValue({
-    chainId: '0x1',
-    atomic: true,
-    status: 200,
-    receipts: [{ status: '0x1', transactionHash: '0xbbb' }]
-  });
-  await act(async () => {
-    expect(await current.execute()).toBe('0xbbb');
-  });
-  expect(sign).toHaveBeenCalledTimes(1);
+  expect(submit).not.toHaveBeenCalled();
+  expect(prepare).toHaveBeenCalledTimes(1);
 });
-
-it('keeps recovery data for partial or unknown statuses', async () => {
-  status.mockResolvedValue({ chainId: '0x1', status: 600 });
-  await act(async () => {
-    await expect(current.execute()).rejects.toThrow('partial or unknown');
-  });
-  expect(current.submitted).toBe(true);
-  expect(Object.keys(stored)).toHaveLength(1);
-  expect(sign).toHaveBeenCalledTimes(1);
-});
-
-it('rejects a replacement quote with a new nonce', async () => {
-  status.mockResolvedValue({ chainId: '0x1', status: 100 });
-  await act(async () => {
-    await expect(current.execute()).rejects.toThrow('pending');
-  });
-  prepare.mockResolvedValueOnce({ ...prepared, data: { ...prepared.data, nonce: '0x11' } });
+it('refuses a replacement with a new nonce', async () => {
+  stored = makeSubmission();
+  stored.attempts[0].state = 'pending';
+  const replacement = getAlchemyOperation(makeQuote().prepared);
+  replacement.data.nonce = '0x11';
+  replacement.signatureRequest.data.raw = getAlchemyOperationHash(replacement);
+  prepare.mockResolvedValueOnce(replacement);
   await act(async () => {
     await expect(current.execute()).rejects.toThrow('nonce changed');
   });
-  expect(sign).toHaveBeenCalledTimes(1);
+  expect(submit).not.toHaveBeenCalled();
 });
-
-it('releases a fully failed batch for a fresh quote', async () => {
-  status.mockResolvedValue({ chainId: '0x1', status: 500 });
+it('blocks a new signature while the original submission remains ambiguous', async () => {
+  stored = makeSubmission();
+  stored.attempts[0].state = 'unknown';
   await act(async () => {
-    await expect(current.execute()).rejects.toThrow('failed');
+    await expect(current.execute()).rejects.toThrow('unresolved');
+  });
+  expect(submit).not.toHaveBeenCalled();
+  expect(prepare).toHaveBeenCalledTimes(1);
+});
+it('asks the background to clear only the completed transaction', async () => {
+  await act(async () => {
+    await current.complete(hash);
+  });
+  expect(complete).toHaveBeenCalledWith(account, 1, hash);
+  expect(browser.storage.local.remove).not.toHaveBeenCalled();
+});
+it('permits a fresh quote after a definitive failure', async () => {
+  stored = { ...makeSubmission(), result: { status: 'failed' } };
+  await act(async () => {
+    current.refresh();
   });
   expect(current.submitted).toBe(false);
-  expect(stored).toEqual({});
-  await act(async () => {
-    await current.execute();
-  });
-  expect(sign).toHaveBeenCalledTimes(1);
   expect(prepare).toHaveBeenCalledTimes(2);
+});
+it('does not show a previous failed swap when a new preparation fails', async () => {
+  stored = { ...makeSubmission(), steps: [makeStep(10)], result: { status: 'failed' } };
+  prepare.mockRejectedValueOnce(new Error('Quote unavailable'));
+  await act(async () => {
+    current.refresh();
+  });
+  expect(current.reviewSteps).toEqual(steps);
+  expect(current.quote).toBeUndefined();
 });

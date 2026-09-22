@@ -63,7 +63,7 @@ async function render(review = makeReview()): Promise<void> {
 }
 
 beforeEach(() => {
-  jest.clearAllMocks();
+  jest.resetAllMocks();
   Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true });
   (getAlchemyWalletConfig as jest.Mock).mockResolvedValue({ chains: [1], feeTokens: {} });
   (getAlchemySubmission as jest.Mock).mockResolvedValue(undefined);
@@ -85,10 +85,13 @@ it('collapses approval and execution on a supported chain', async () => {
   expect(current.skipStatusWait).toBe(true);
 });
 
-it('keeps the original actions on an unsupported chain or unavailable backend', async () => {
+it('keeps the original actions on an unsupported chain', async () => {
   (getAlchemyWalletConfig as jest.Mock).mockResolvedValueOnce({ chains: [], feeTokens: {} });
   await render();
   expect(current.userActions.map(action => action.type)).toEqual(['approve', 'execute']);
+});
+
+it('keeps the original actions when the backend is unavailable', async () => {
   (getAlchemyWalletConfig as jest.Mock).mockRejectedValueOnce(new Error('Unavailable'));
   await render(makeReview());
   expect(current.userActions.map(action => action.type)).toEqual(['approve', 'execute']);
@@ -131,4 +134,17 @@ it('resumes a submitted route when the feature flag is disabled', async () => {
   await render(review);
   expect(current.userActions).toHaveLength(1);
   expect(current.userActions[0].batchSteps).toHaveLength(1);
+});
+
+it('skips legacy allowance requests for a batch', async () => {
+  await render();
+  expect((useEvmAllowances as jest.Mock).mock.calls.every(([steps]) => steps.length === 0)).toBe(true);
+});
+it('fetches legacy allowances after the explicit fallback action', async () => {
+  const review = makeReview();
+  await render(review);
+  await act(async () => {
+    current.useLegacyFlow();
+  });
+  expect(useEvmAllowances).toHaveBeenLastCalledWith('steps' in review.swapRoute ? review.swapRoute.steps : []);
 });

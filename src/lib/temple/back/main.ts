@@ -74,6 +74,7 @@ import { parseTransactionRequest } from 'temple/evm/utils';
 import { AdsViewerData, RewardsAddresses, TempleChainKind } from 'temple/types';
 
 import * as Actions from './actions';
+import { checkAlchemyBatch, completeAlchemyBatch, startAlchemyRecovery } from './alchemy';
 import * as Analytics from './analytics';
 import { intercom } from './defaults';
 import { markConfirmationWindowDetached } from './request-confirm';
@@ -97,6 +98,7 @@ browser.tabs.onRemoved.addListener(tabId => {
 
 export const start = async () => {
   intercom.onRequest(processRequestWithErrorsLogged);
+  void startAlchemyRecovery();
   await Actions.init();
 
   if (BACKGROUND_IS_WORKER) await Actions.unlockFromSession().catch(e => console.error(e));
@@ -139,10 +141,20 @@ const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<T
       );
       return { type: TempleMessageType.SendEvmTransactionResponse, txHash };
 
-    case TempleMessageType.SignAlchemyBatchRequest:
+    case TempleMessageType.CompleteAlchemyBatchRequest:
+      await completeAlchemyBatch(req.accountPkh, req.chainId, req.transactionHash);
+      return { type: TempleMessageType.CompleteAlchemyBatchResponse };
+
+    case TempleMessageType.CheckAlchemyBatchRequest:
       return {
-        type: TempleMessageType.SignAlchemyBatchResponse,
-        signed: await Actions.signAlchemyBatch(req.accountPkh, req.network, req.quote)
+        type: TempleMessageType.CheckAlchemyBatchResponse,
+        submission: await checkAlchemyBatch(req.accountPkh, req.chainId)
+      };
+
+    case TempleMessageType.SubmitAlchemyBatchRequest:
+      return {
+        type: TempleMessageType.SubmitAlchemyBatchResponse,
+        submission: await Actions.submitAlchemyBatch(req.accountPkh, req.network, req.quote, req.steps)
       };
 
     case TempleMessageType.NewWalletRequest:

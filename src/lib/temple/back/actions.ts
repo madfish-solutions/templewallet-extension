@@ -1,3 +1,4 @@
+import type { LiFiStep } from '@lifi/sdk';
 import { DerivationType } from '@taquito/ledger-signer';
 import { valueEncoder } from '@taquito/local-forging/dist/lib/michelson/codec';
 import { TezosOperationError } from '@taquito/taquito';
@@ -43,6 +44,7 @@ import { TezosNetworkEssentials } from 'temple/networks';
 import { loadTezosChainId } from 'temple/tezos';
 import { TempleChainKind } from 'temple/types';
 
+import { submitAlchemyBatch as submitAlchemySwap } from './alchemy';
 import {
   getCurrentPermission,
   init as initTezos,
@@ -224,8 +226,15 @@ export function sendEvmTransaction(accountPkh: HexString, network: EvmChain, txP
   });
 }
 
-export function signAlchemyBatch(accountPkh: HexString, network: EvmChain, quote: AlchemyBatchQuote) {
-  return withUnlocked(({ vault }) => vault.signAlchemyBatch(accountPkh, network, quote));
+export function submitAlchemyBatch(
+  accountPkh: HexString,
+  network: EvmChain,
+  quote: AlchemyBatchQuote,
+  steps: LiFiStep[]
+) {
+  return withUnlocked(({ vault }) =>
+    submitAlchemySwap(accountPkh, network, quote, steps, () => vault.signAlchemyBatch(accountPkh, network, quote))
+  );
 }
 
 export function registerNewWallet(password: string, mnemonic?: string) {

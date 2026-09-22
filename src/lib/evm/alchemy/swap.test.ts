@@ -1,4 +1,3 @@
-import type { LiFiStep } from '@lifi/sdk';
 import { decodeFunctionData, erc20Abi, zeroAddress } from 'viem';
 
 import { getEvmStepTransaction } from 'lib/apis/temple/endpoints/evm';
@@ -9,44 +8,14 @@ import { buildAlchemySwapCalls, canBatchLifiSteps } from './swap';
 jest.mock('lib/apis/temple/endpoints/evm', () => ({ getEvmStepTransaction: jest.fn() }));
 jest.mock('temple/evm', () => ({ getViemPublicClient: jest.fn() }));
 
-const account = '0x1111111111111111111111111111111111111111';
-const token = '0x2222222222222222222222222222222222222222';
-const target = '0x3333333333333333333333333333333333333333';
+import { account, target, makeStep as step } from './test-fixtures';
 const network = { chainId: 1, rpcBaseURL: 'https://example.test' };
 const readContract = jest.fn();
 const prepareStep = getEvmStepTransaction as jest.MockedFunction<typeof getEvmStepTransaction>;
 
-function step(destination = 1): LiFiStep {
-  return {
-    includedSteps: [],
-    id: `step-${destination}`,
-    type: 'lifi',
-    tool: 'test',
-    toolDetails: { key: 'test', name: 'test', logoURI: '' },
-    action: {
-      fromChainId: 1,
-      toChainId: destination,
-      fromAmount: '100',
-      fromAddress: account,
-      toAddress: account,
-      fromToken: { address: token, chainId: 1, decimals: 6, symbol: 'T', name: 'Token', priceUSD: '1' },
-      toToken: { address: token, chainId: destination, decimals: 6, symbol: 'T', name: 'Token', priceUSD: '1' },
-      slippage: 0.01
-    },
-    estimate: {
-      tool: 'test',
-      approvalAddress: target,
-      fromAmount: '100',
-      toAmount: '99',
-      toAmountMin: '98',
-      executionDuration: 10
-    },
-    transactionRequest: { chainId: 1, from: account, to: target, data: '0x1234', value: '0x5', gasLimit: '1000' }
-  };
-}
-
 beforeEach(() => {
-  jest.clearAllMocks();
+  jest.resetAllMocks();
+  readContract.mockResolvedValue(0n);
   (getViemPublicClient as unknown as jest.Mock).mockReturnValue({ readContract });
   prepareStep.mockImplementation(async input => input);
 });
@@ -71,14 +40,6 @@ it('resets an insufficient nonzero allowance within the same batch', async () =>
   expect(decodeFunctionData({ abi: erc20Abi, data: calls[0].data }).args).toEqual([target, 0n]);
 });
 
-it('accounts for allowance consumption across a swap and bridge', async () => {
-  readContract.mockResolvedValue(100n);
-  const { calls } = await buildAlchemySwapCalls([step(), step(10)], account, network);
-  expect(calls).toHaveLength(3);
-  expect(readContract).toHaveBeenCalledTimes(1);
-  expect(decodeFunctionData({ abi: erc20Abi, data: calls[1].data }).args).toEqual([target, 100n]);
-});
-
 it('omits approval for native tokens', async () => {
   const native = step();
   native.action.fromToken.address = zeroAddress;
@@ -86,25 +47,50 @@ it('omits approval for native tokens', async () => {
   expect(readContract).not.toHaveBeenCalled();
 });
 
-it('rejects destination-chain execution and changed minimum output', async () => {
-  const later = step();
-  later.action.fromChainId = 10;
-  expect(canBatchLifiSteps([step(10), later])).toBe(false);
-  await expect(buildAlchemySwapCalls([step(10), later], account, network)).rejects.toThrow('separate chains');
-  prepareStep.mockImplementation(async input => ({ ...input, estimate: { ...input.estimate, toAmountMin: '97' } }));
-  await expect(buildAlchemySwapCalls([step()], account, network)).rejects.toThrow('quote changed');
+it('rejects multiple top-level steps', async () => {
+  expect(canBatchLifiSteps([step(), step(10)])).toBe(false);
+  await expect(buildAlchemySwapCalls([step(), step(10)], account, network)).rejects.toThrow('one LiFi step');
 });
-
-it('rejects a changed recipient or approval spender', async () => {
+it('accepts one bridge step with internal destination-chain execution', async () => {
+  const bridge = step(10);
+  bridge.includedSteps = [{ ...step(10), type: 'swap', action: { ...step(10).action, fromChainId: 10 } }];
+  expect(canBatchLifiSteps([bridge])).toBe(true);
+  await expect(buildAlchemySwapCalls([bridge], account, network)).resolves.toBeDefined();
+});
+it.each(['fromToken', 'toToken'] as const)('rejects a changed %s', async field => {
   prepareStep.mockImplementationOnce(async input => ({
     ...input,
-    action: { ...input.action, toAddress: target }
+    action: { ...input.action, [field]: { ...input.action[field], address: account } }
   }));
-  await expect(buildAlchemySwapCalls([step()], account, network)).rejects.toThrow('quote changed');
-
+  await expect(buildAlchemySwapCalls([step()], account, network)).rejects.toThrow('token pair or chains');
+});
+it.each(['fromChainId', 'toChainId'] as const)('rejects a changed %s', async field => {
+  prepareStep.mockImplementationOnce(async input => ({ ...input, action: { ...input.action, [field]: 10 } }));
+  await expect(buildAlchemySwapCalls([step()], account, network)).rejects.toThrow('token pair or chains');
+});
+it('uses refreshed amounts, recipient, spender, contract, and minimum output', async () => {
   prepareStep.mockImplementationOnce(async input => ({
     ...input,
-    estimate: { ...input.estimate, approvalAddress: account }
+    action: { ...input.action, fromAmount: '150', toAddress: target },
+    estimate: { ...input.estimate, fromAmount: '150', toAmountMin: '140', approvalAddress: account },
+    transactionRequest: { ...input.transactionRequest, to: account, value: '0x9' }
+  }));
+  const { calls, steps } = await buildAlchemySwapCalls([step()], account, network);
+  expect(decodeFunctionData({ abi: erc20Abi, data: calls[0].data }).args).toEqual([account, 150n]);
+  expect(calls[1]).toEqual({ to: account, value: '0x9', data: '0x1234' });
+  expect(steps[0].estimate.toAmountMin).toBe('140');
+});
+it('rejects an invalid approval address', async () => {
+  prepareStep.mockImplementationOnce(async input => ({
+    ...input,
+    estimate: { ...input.estimate, approvalAddress: 'invalid' }
   }));
   await expect(buildAlchemySwapCalls([step()], account, network)).rejects.toThrow('invalid approval');
+});
+it('rejects a transaction on another chain', async () => {
+  prepareStep.mockImplementationOnce(async input => ({
+    ...input,
+    transactionRequest: { ...input.transactionRequest, chainId: 10 }
+  }));
+  await expect(buildAlchemySwapCalls([step()], account, network)).rejects.toThrow('invalid transaction');
 });

@@ -1,8 +1,15 @@
+import { encodeFunctionData, hashMessage, parseAbi } from 'viem';
+import { getUserOperationHash, entryPoint07Address } from 'viem/account-abstraction';
+
+import { account, target, makeQuote } from './test-fixtures';
 import {
   addAlchemyGasParamsOverride,
   ALCHEMY_DELEGATION,
   getAlchemyMaxCost,
-  isEip7702DelegationCode
+  isEip7702DelegationCode,
+  getAlchemyOperation,
+  validateAlchemyPreparedCalls,
+  validateAlchemyQuote
 } from './validation';
 
 it('recognizes an EIP-7702 delegation designation', () => {
@@ -79,4 +86,115 @@ it('includes every native call value in the maximum batch cost', () => {
       feeOption: 'mid'
     })
   ).toBe(160n);
+});
+
+it('validates the prepared calls against an independently computed operation hash', () => {
+  const quote = makeQuote();
+  const operation = getAlchemyOperation(quote.prepared);
+  const expected = getUserOperationHash({
+    chainId: 1,
+    entryPointAddress: entryPoint07Address,
+    entryPointVersion: '0.7',
+    userOperation: {
+      sender: account,
+      nonce: 16n,
+      callData: operation.data.callData,
+      callGasLimit: 10n,
+      verificationGasLimit: 10n,
+      preVerificationGas: 10n,
+      maxFeePerGas: 2n,
+      maxPriorityFeePerGas: 1n,
+      signature: '0x'
+    }
+  });
+  expect(validateAlchemyPreparedCalls(quote.prepared, quote.request)).toBe(expected);
+  expect(validateAlchemyQuote(quote)).toBe(expected);
+});
+it.each(['target', 'value', 'data', 'count'] as const)('rejects changed batch call %s', field => {
+  const quote = makeQuote();
+  const calls: { target: `0x${string}`; value: bigint; data: `0x${string}` }[] = [
+    {
+      target: field === 'target' ? account : target,
+      value: field === 'value' ? 6n : 5n,
+      data: field === 'data' ? ('0xabcd' as const) : ('0x1234' as const)
+    }
+  ];
+  if (field === 'count') calls.push(calls[0]);
+  getAlchemyOperation(quote.prepared).data.callData = encodeFunctionData({
+    abi: parseAbi(['function executeBatch((address target, uint256 value, bytes data)[] calls)']),
+    functionName: 'executeBatch',
+    args: [calls]
+  });
+  expect(() => validateAlchemyPreparedCalls(quote.prepared, quote.request)).toThrow('changed the batch calls');
+});
+it('rejects a changed account', () => {
+  const quote = makeQuote();
+  getAlchemyOperation(quote.prepared).data.sender = target;
+  expect(() => validateAlchemyPreparedCalls(quote.prepared, quote.request)).toThrow('changed the account');
+});
+it('rejects a changed chain', () => {
+  const quote = makeQuote();
+  getAlchemyOperation(quote.prepared).chainId = '0xa';
+  expect(() => validateAlchemyPreparedCalls(quote.prepared, quote.request)).toThrow('chain');
+});
+it('rejects an arbitrary signature payload', () => {
+  const quote = makeQuote();
+  getAlchemyOperation(quote.prepared).signatureRequest.data.raw = `0x${'ff'.repeat(32)}`;
+  expect(() => validateAlchemyPreparedCalls(quote.prepared, quote.request)).toThrow('signature');
+});
+it('accepts only the personal-sign digest for rawPayload', () => {
+  const quote = makeQuote();
+  const operation = getAlchemyOperation(quote.prepared);
+  operation.signatureRequest.rawPayload = hashMessage({ raw: operation.signatureRequest.data.raw });
+  expect(() => validateAlchemyPreparedCalls(quote.prepared, quote.request)).not.toThrow();
+  operation.signatureRequest.rawPayload = operation.signatureRequest.data.raw;
+  expect(() => validateAlchemyPreparedCalls(quote.prepared, quote.request)).toThrow('signature');
+});
+it.each([target, ALCHEMY_DELEGATION] as const)('checks the delegation allowlist for %s', address => {
+  const quote = makeQuote();
+  quote.prepared = {
+    type: 'array',
+    data: [
+      { type: 'authorization', chainId: '0x1', data: { address, nonce: '0x0' } },
+      getAlchemyOperation(quote.prepared)
+    ]
+  };
+  if (address === ALCHEMY_DELEGATION) expect(() => validateAlchemyQuote(quote)).not.toThrow();
+  else expect(() => validateAlchemyQuote(quote)).toThrow('Untrusted');
+});
+it('rejects authorization on a different chain', () => {
+  const quote = makeQuote();
+  quote.prepared = {
+    type: 'array',
+    data: [
+      { type: 'authorization', chainId: '0xa', data: { address: ALCHEMY_DELEGATION, nonce: '0x0' } },
+      getAlchemyOperation(quote.prepared)
+    ]
+  };
+  expect(() => validateAlchemyQuote(quote)).toThrow('Untrusted');
+});
+it.each([-1, 60_001])('rejects a quote with expiry offset %i', offset => {
+  jest.spyOn(Date, 'now').mockReturnValue(100_000);
+  const quote = makeQuote();
+  quote.expiresAt = Date.now() + offset;
+  expect(() => validateAlchemyQuote(quote)).toThrow('expired');
+  jest.restoreAllMocks();
+});
+it('rejects a fee multiplier that differs from the selected option', () => {
+  const quote = makeQuote();
+  quote.request.capabilities!.gasParamsOverride.maxFeePerGas.multiplier = 1;
+  expect(() => validateAlchemyQuote(quote)).toThrow('capabilities');
+});
+it.each([
+  [0n, 65n],
+  [20n, 45n],
+  [60n, 5n],
+  [100n, 5n]
+])('uses a deposit of %s for gas only', (deposit, required) => {
+  expect(getAlchemyMaxCost(makeQuote(), deposit)).toBe(required);
+});
+it('does not charge a native gas contribution for a sponsored operation', () => {
+  const quote = makeQuote();
+  getAlchemyOperation(quote.prepared).data.paymaster = target;
+  expect(getAlchemyMaxCost(quote)).toBe(5n);
 });

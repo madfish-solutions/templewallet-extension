@@ -62,6 +62,12 @@ import { getHumanErrorMessage } from './index';
 
 describe('getHumanErrorMessage', () => {
   describe('Alchemy Wallet API', () => {
+    it('maps transfer amount exceeds allowance to an allowance error', () => {
+      expect(getHumanErrorMessage(new AlchemyRpcError(-32521, 'ERC20: transfer amount exceeds allowance'))).toBe(
+        ERROR_MESSAGES.allowanceTooLow
+      );
+    });
+
     it.each([
       [-32000, 'precheck failed: sender balance is too low', ERROR_MESSAGES.lowGasBalance],
       [-32521, 'ERC20: transfer amount exceeds balance', ERROR_MESSAGES.balance],

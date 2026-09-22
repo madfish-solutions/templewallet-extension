@@ -52,9 +52,9 @@ interface BaseContentProps<T extends TxParamsFormData> {
   displayedFeeOptions?: DisplayedFeeOptions;
   submitDisabled?: boolean;
   readOnlyFees?: boolean;
-  feeSymbol?: string;
   retry?: boolean;
   actionsNotice?: ReactNode;
+  secondaryAction?: ReactNode;
   evmGasPriceOverride?: string;
   evmAdvancedValues?: Partial<EvmTxParamsFormData>;
 }
@@ -82,9 +82,9 @@ export const BaseContent = <T extends TxParamsFormData>({
   bridgeData,
   submitDisabled,
   readOnlyFees,
-  feeSymbol,
   retry,
   actionsNotice,
+  secondaryAction,
   evmGasPriceOverride,
   evmAdvancedValues
 }: BaseContentProps<T>) => {
@@ -136,9 +136,8 @@ export const BaseContent = <T extends TxParamsFormData>({
                       assetSlug={nativeAssetSlug}
                       gasFee={displayedFee}
                       storageFee={displayedStorageFee}
-                      protocolFee={feeSymbol ? undefined : bridgeData?.protocolFee}
+                      protocolFee={bridgeData?.protocolFee}
                       onOpenFeeTab={goToFeeTab}
-                      assetSymbol={feeSymbol}
                       embedded
                     />
                   )
@@ -190,6 +189,7 @@ export const BaseContent = <T extends TxParamsFormData>({
         >
           {actionsNotice}
         </div>
+        {secondaryAction && <div className="mb-2 flex justify-center">{secondaryAction}</div>}
         <div className="relative z-1 flex w-full gap-2.5 bg-white">{actionButtons}</div>
       </ActionsButtonsBox>
 

@@ -8,12 +8,8 @@ import type { EvmNetworkEssentials } from 'temple/networks';
 import type { AlchemyCall } from './types';
 
 export function canBatchLifiSteps(steps: LiFiStep[]): boolean {
-  if (!steps.length) return false;
-  const chainId = steps[0].action.fromChainId;
-  return steps.every(
-    (step, index) =>
-      step.action.fromChainId === chainId && (index === steps.length - 1 || step.action.toChainId === chainId)
-  );
+  // Each top-level step requires a separate transaction. Internal steps belong to one LiFi call.
+  return steps.length === 1;
 }
 
 export async function buildAlchemySwapCalls(
@@ -23,64 +19,55 @@ export async function buildAlchemySwapCalls(
   signal?: AbortSignal
 ): Promise<{ calls: AlchemyCall[]; steps: LiFiStep[] }> {
   if (!canBatchLifiSteps(steps) || steps[0].action.fromChainId !== network.chainId) {
-    throw new Error('The route requires transactions on separate chains');
+    throw new Error('The batch requires one LiFi step on the active chain');
   }
   const client = getViemPublicClient(network);
   const calls: AlchemyCall[] = [];
-  const preparedSteps: LiFiStep[] = [];
-  const remainingAllowances = new Map<string, bigint>();
-  for (const step of steps) {
-    signal?.throwIfAborted();
-    const prepared = await getEvmStepTransaction(step, signal);
-    if (!prepared?.transactionRequest) throw new Error('LiFi did not return a transaction');
-    const { transactionRequest: tx, action, estimate } = prepared;
+  const step = steps[0];
+  signal?.throwIfAborted();
+  const prepared = await getEvmStepTransaction(step, signal);
+  if (!prepared?.transactionRequest) throw new Error('LiFi did not return a transaction');
+  const { transactionRequest: tx, action, estimate } = prepared;
+  validateLifiRefresh(step, prepared);
+  if (
+    (tx.chainId !== undefined && Number(tx.chainId) !== network.chainId) ||
+    !isAddress(tx.to ?? '') ||
+    (tx.from !== undefined && !isAddressEqual(tx.from as HexString, account))
+  )
+    throw new Error('LiFi returned an invalid transaction');
 
-    if (!isAddressEqual(action.fromToken.address as HexString, zeroAddress)) {
-      const token = action.fromToken.address as HexString;
-      const spender = estimate.approvalAddress as HexString;
-      const expectedSpender = step.estimate.approvalAddress as HexString;
-      if (
-        !isAddress(token) ||
-        !isAddress(spender) ||
-        !isAddress(expectedSpender) ||
-        !isAddressEqual(spender, expectedSpender)
-      ) {
-        throw new Error('LiFi returned an invalid approval');
-      }
-      const key = `${token}:${spender}`.toLowerCase();
-      const allowance =
-        remainingAllowances.get(key) ??
-        (await client.readContract({
-          address: token,
-          abi: erc20Abi,
-          functionName: 'allowance',
-          args: [account, spender]
-        }));
-      const amount = BigInt(action.fromAmount);
-      if (allowance < amount) {
-        // Reset a nonzero allowance for tokens such as USDT.
-        if (allowance > 0n)
-          calls.push({
-            to: token,
-            value: '0x0',
-            data: encodeFunctionData({ abi: erc20Abi, functionName: 'approve', args: [spender, 0n] })
-          });
+  if (!isAddressEqual(action.fromToken.address as HexString, zeroAddress)) {
+    const token = action.fromToken.address as HexString;
+    const spender = estimate.approvalAddress as HexString;
+    if (!isAddress(token) || !isAddress(spender)) throw new Error('LiFi returned an invalid approval');
+    const allowance = await client.readContract({
+      address: token,
+      abi: erc20Abi,
+      functionName: 'allowance',
+      args: [account, spender]
+    });
+    const amount = BigInt(action.fromAmount);
+    if (allowance < amount) {
+      // Reset a nonzero allowance for tokens such as USDT.
+      if (allowance > 0n)
         calls.push({
           to: token,
           value: '0x0',
-          data: encodeFunctionData({ abi: erc20Abi, functionName: 'approve', args: [spender, amount] })
+          data: encodeFunctionData({ abi: erc20Abi, functionName: 'approve', args: [spender, 0n] })
         });
-      }
-      remainingAllowances.set(key, allowance < amount ? 0n : allowance - amount);
+      calls.push({
+        to: token,
+        value: '0x0',
+        data: encodeFunctionData({ abi: erc20Abi, functionName: 'approve', args: [spender, amount] })
+      });
     }
-    calls.push({
-      to: tx.to as HexString,
-      data: (tx.data ?? '0x') as HexString,
-      value: numberToHex(BigInt(tx.value ?? 0))
-    });
-    preparedSteps.push(prepared);
   }
-  return { calls, steps: preparedSteps };
+  calls.push({
+    to: tx.to as HexString,
+    data: (tx.data ?? '0x') as HexString,
+    value: numberToHex(BigInt(tx.value ?? 0))
+  });
+  return { calls, steps: [prepared] };
 }
 
 /** Use the first input and final output for the batch preview. LiFi transactions stay intact. */
@@ -98,4 +85,21 @@ export function getAlchemyBatchReviewStep(steps: LiFiStep[]): LiFiStep {
     },
     estimate: { ...last.estimate, fromAmount: first.estimate.fromAmount }
   };
+}
+
+/** Refresh prices and transaction terms, but retain the selected token pair and chains. */
+export function validateLifiRefresh(previous: LiFiStep, refreshed: LiFiStep): void {
+  const original = previous.action;
+  const next = refreshed.action;
+  if (
+    original.fromChainId !== next.fromChainId ||
+    original.toChainId !== next.toChainId ||
+    original.fromToken.chainId !== next.fromToken.chainId ||
+    original.toToken.chainId !== next.toToken.chainId ||
+    next.fromToken.chainId !== next.fromChainId ||
+    next.toToken.chainId !== next.toChainId ||
+    !isAddressEqual(original.fromToken.address as HexString, next.fromToken.address as HexString) ||
+    !isAddressEqual(original.toToken.address as HexString, next.toToken.address as HexString)
+  )
+    throw new Error('LiFi changed the token pair or chains');
 }

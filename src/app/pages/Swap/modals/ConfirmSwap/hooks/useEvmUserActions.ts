@@ -19,7 +19,6 @@ export const useEvmUserActions = (opened: boolean, onRequestClose: EmptyFn, revi
 
     return 'steps' in reviewData.swapRoute ? reviewData.swapRoute.steps : [reviewData.swapRoute];
   }, [reviewData]);
-  const { allowanceSufficient, loading: allowancesLoading } = useEvmAllowances(evmSteps);
 
   const [userActions, setUserActions] = useState<Array<UserAction>>([]);
   const [actionsInitialized, setActionsInitialized] = useState(false);
@@ -28,6 +27,16 @@ export const useEvmUserActions = (opened: boolean, onRequestClose: EmptyFn, revi
   const [batchBusy, setBatchBusy] = useState(false);
   const [recovery, setRecovery] = useState<AlchemySubmission>();
   const [initializationError, setInitializationError] = useState<unknown>();
+  const eligible =
+    !legacy &&
+    batchConfig !== undefined &&
+    batchConfig !== null &&
+    evmSteps.every(isLifiStep) &&
+    canBatchLifiSteps(evmSteps) &&
+    batchConfig.chains.includes(evmSteps[0].action.fromChainId);
+  const { allowanceSufficient, loading: allowancesLoading } = useEvmAllowances(
+    opened && batchConfig !== undefined && !recovery && !eligible ? evmSteps : []
+  );
 
   useEffect(() => {
     if (!opened || !reviewData || !isSwapEvmReviewData(reviewData)) return;
@@ -49,7 +58,7 @@ export const useEvmUserActions = (opened: boolean, onRequestClose: EmptyFn, revi
     ])
       .then(([config, stored]) => {
         if (controller.signal.aborted) return;
-        setRecovery(stored);
+        setRecovery(stored?.result?.status === 'failed' ? undefined : stored);
         setBatchConfig(config);
       })
       .catch(cause => {
@@ -74,13 +83,7 @@ export const useEvmUserActions = (opened: boolean, onRequestClose: EmptyFn, revi
       setActionsInitialized(true);
       return;
     }
-    if (
-      !legacy &&
-      batchConfig &&
-      evmSteps.every(isLifiStep) &&
-      canBatchLifiSteps(evmSteps) &&
-      batchConfig.chains.includes(evmSteps[0].action.fromChainId)
-    ) {
+    if (eligible) {
       setUserActions([
         {
           type: 'execute',
@@ -107,7 +110,16 @@ export const useEvmUserActions = (opened: boolean, onRequestClose: EmptyFn, revi
 
     setUserActions(actions);
     setActionsInitialized(true);
-  }, [actionsInitialized, reviewData, evmSteps, allowanceSufficient, allowancesLoading, batchConfig, legacy, recovery]);
+  }, [
+    actionsInitialized,
+    reviewData,
+    evmSteps,
+    allowanceSufficient,
+    allowancesLoading,
+    batchConfig,
+    eligible,
+    recovery
+  ]);
 
   const [currentActionIndex, setCurrentActionIndex] = useState(0);
   const [isCancelConfirmOpen, setCancelConfirmOpened, setCancelConfirmClosed] = useBooleanState(false);

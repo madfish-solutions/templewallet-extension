@@ -200,16 +200,13 @@ const TezosContent: FC<ContentProps<TempleChainKind.Tezos>> = ({ network, select
 interface OptionalFieldLabelProps {
   title: string;
   className?: string;
-  optional?: boolean;
 }
 
-const OptionalFieldLabel: FC<OptionalFieldLabelProps> = ({ title, className, optional = true }) => (
+const OptionalFieldLabel: FC<OptionalFieldLabelProps> = ({ title, className }) => (
   <div className={clsx('mb-1 flex flex-row justify-between items-center', className)}>
     <p className="text-font-description-bold">{title}</p>
-    {optional && (
-      <p className="text-grey-2 text-font-description">
-        <T id="optional" />
-      </p>
-    )}
+    <p className="text-grey-2 text-font-description">
+      <T id="optional" />
+    </p>
   </div>
 );

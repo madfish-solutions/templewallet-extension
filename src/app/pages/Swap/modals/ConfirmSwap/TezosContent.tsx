@@ -1,6 +1,5 @@
 import React, { FC, useCallback, useMemo, useState } from 'react';
 
-import { OpKind } from '@taquito/taquito';
 import BigNumber from 'bignumber.js';
 import { FormProvider } from 'react-hook-form';
 
@@ -15,9 +14,8 @@ import { TezosTxParamsFormData } from 'app/templates/TransactionTabs/types';
 import { useTezosEstimationForm } from 'app/templates/TransactionTabs/use-tezos-estimation-form';
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
 import { TEZOS_BLOCK_DURATION } from 'lib/fixed-times';
-import { t } from 'lib/i18n';
 import { useTypedSWR } from 'lib/swr';
-import { mutezToTz, tzToMutez } from 'lib/temple/helpers';
+import { mutezToTz } from 'lib/temple/helpers';
 import { TempleAccountType } from 'lib/temple/types';
 import { tezosManagerKeyHasManager } from 'lib/tezos';
 import { runConnectedLedgerOperationFlow } from 'lib/ui';
@@ -165,24 +163,6 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
         }
 
         const doOperation = async () => {
-          const nativeAmount = opParams.reduce(
-            (amount, param) =>
-              param.kind === OpKind.TRANSACTION
-                ? amount.plus(param.mutez ? param.amount : tzToMutez(param.amount))
-                : amount,
-            new BigNumber(0)
-          );
-          const selectedGasFee = gasFee || displayedFeeOptions[selectedFeeOption || 'mid'];
-          const burnFee = estimationData.baseFee.minus(estimationData.gasFee);
-          const requiredFee = tzToMutez(new BigNumber(selectedGasFee).plus(burnFee));
-          const sourceBalance = new BigNumber((await tezos.rpc.getBalance(sourcePkh)).toString());
-          const sourceRequired = requiredFee.plus(sourcePkh === accountPkh ? nativeAmount : 0);
-          if (sourceBalance.lt(sourceRequired)) throw new Error(t('lowGasBalanceError'));
-          if (sourcePkh !== accountPkh && nativeAmount.gt(0)) {
-            const accountBalance = new BigNumber((await tezos.rpc.getBalance(accountPkh)).toString());
-            if (accountBalance.lt(nativeAmount)) throw new Error(t('lowBalanceError'));
-          }
-
           const operation = await submitOperation(
             tezos,
             gasFee,
@@ -229,9 +209,6 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
       formState.isSubmitting,
       estimationData,
       displayedFeeOptions,
-      selectedFeeOption,
-      opParams,
-      sourcePkh,
       isLedgerAccount,
       assertCustomGasFeeNotTooLow,
       onSubmitError,

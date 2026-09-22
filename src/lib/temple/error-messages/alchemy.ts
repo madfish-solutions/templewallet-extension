@@ -30,7 +30,7 @@ export function getHumanAlchemyErrorMessage(error: AlchemyRpcError): string {
   if (/aa21|sender balance|prefund|insufficient funds|insufficient balance for gas/.test(message)) {
     return ERROR_MESSAGES.lowGasBalance;
   }
-  if (/transfer amount exceeds balance|transfer amount exceeds|erc20.*balance/.test(message)) {
+  if (/transfer amount exceeds balance|erc20.*balance/.test(message)) {
     return ERROR_MESSAGES.balance;
   }
   if (/insufficient allowance|transfer amount exceeds allowance/.test(message)) {
