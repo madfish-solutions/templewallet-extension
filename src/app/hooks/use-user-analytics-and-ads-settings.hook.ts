@@ -1,9 +1,18 @@
 import { useEffect, useRef } from 'react';
 
-import { useShouldShowPartnersPromoSelector } from 'app/store/partners-promotion/selectors';
+import {
+  useShouldShowAiChatAdsSelector,
+  useShouldShowInBrowserAdsSelector,
+  useShouldShowInWalletAdsSelector
+} from 'app/store/partners-promotion/selectors';
 import { useAnalyticsEnabledSelector, useReferralLinksEnabledSelector } from 'app/store/settings/selectors';
 import { useAnalytics } from 'lib/analytics';
-import { REPLACE_REFERRALS_ENABLED, USAGE_ANALYTICS_ENABLED, WEBSITES_ADS_ENABLED } from 'lib/constants';
+import {
+  AI_CHATBOT_ADS_ENABLED,
+  REPLACE_REFERRALS_ENABLED,
+  USAGE_ANALYTICS_ENABLED,
+  WEBSITES_ADS_ENABLED
+} from 'lib/constants';
 import { AnalyticsEventCategory } from 'lib/temple/analytics-types';
 import { usePassiveStorage } from 'lib/temple/front/storage';
 
@@ -11,19 +20,23 @@ import { useRewardsAddresses } from './use-rewards-addresses';
 
 export const useUserAnalyticsAndAdsSettings = () => {
   const { trackEvent } = useAnalytics();
-  const isAdsEnabled = useShouldShowPartnersPromoSelector();
+  const isInWalletAdsEnabled = useShouldShowInWalletAdsSelector();
+  const isInBrowserAdsEnabled = useShouldShowInBrowserAdsSelector();
+  const isAiChatAdsEnabled = useShouldShowAiChatAdsSelector();
   const isAnalyticsEnabled = useAnalyticsEnabledSelector();
   const isReferralLinksEnabled = useReferralLinksEnabledSelector();
 
   const [, setWebsitesAdsEnabled] = usePassiveStorage(WEBSITES_ADS_ENABLED);
+  const [, setAiChatAdsEnabled] = usePassiveStorage(AI_CHATBOT_ADS_ENABLED);
   const [, setAnalyticsEnabled] = usePassiveStorage(USAGE_ANALYTICS_ENABLED);
   const [, setIsReplaceReferralsEnabled] = usePassiveStorage(REPLACE_REFERRALS_ENABLED);
 
-  const prevAdsEnabledRef = useRef(isAdsEnabled);
+  const prevAdsEnabledRef = useRef(isInWalletAdsEnabled);
   const { tezosAddress: accountPkh } = useRewardsAddresses();
 
   useEffect(() => {
-    setWebsitesAdsEnabled(isAdsEnabled);
+    setWebsitesAdsEnabled(isInBrowserAdsEnabled);
+    setAiChatAdsEnabled(isAiChatAdsEnabled);
     setAnalyticsEnabled(isAnalyticsEnabled);
     setIsReplaceReferralsEnabled(isReferralLinksEnabled);
 
@@ -32,16 +45,19 @@ export const useUserAnalyticsAndAdsSettings = () => {
       return;
     }
 
-    if (isAdsEnabled && !prevAdsEnabledRef.current) {
+    if (isInWalletAdsEnabled && !prevAdsEnabledRef.current) {
       trackEvent('AdsEnabled', AnalyticsEventCategory.General, { accountPkh }, true);
     }
 
-    prevAdsEnabledRef.current = isAdsEnabled;
+    prevAdsEnabledRef.current = isInWalletAdsEnabled;
   }, [
-    isAdsEnabled,
+    isInWalletAdsEnabled,
+    isInBrowserAdsEnabled,
+    isAiChatAdsEnabled,
     isAnalyticsEnabled,
     isReferralLinksEnabled,
     setWebsitesAdsEnabled,
+    setAiChatAdsEnabled,
     setAnalyticsEnabled,
     setIsReplaceReferralsEnabled,
     trackEvent,

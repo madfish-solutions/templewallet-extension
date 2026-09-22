@@ -19,6 +19,7 @@ import { setIsAnalyticsEnabledAction, setReferralLinksEnabledAction } from 'app/
 import { toastError } from 'app/toaster';
 import { AnalyticsEventCategory, useAnalytics } from 'lib/analytics';
 import {
+  AI_CHATBOT_ADS_ENABLED,
   DEFAULT_PASSWORD_INPUT_PLACEHOLDER,
   KOLO_FORCE_LOGOUT_ON_NEXT_OPEN_STORAGE_KEY,
   PRIVACY_POLICY_URL,
@@ -40,7 +41,7 @@ import { putManyToStorage, putToStorage } from 'lib/storage';
 import { writeGoogleDriveBackup } from 'lib/temple/backup';
 import { useStorage, useTempleClient } from 'lib/temple/front';
 import { setBackupCredentials } from 'lib/temple/front/mnemonic-to-backup-keeper';
-import { useInitToastMessage } from 'lib/temple/front/toasts-context';
+import { useInitToastParams } from 'lib/temple/front/toasts-context';
 import { useBooleanState } from 'lib/ui/hooks';
 import { navigate } from 'lib/woozie';
 
@@ -76,7 +77,7 @@ export const CreatePasswordForm = memo<CreatePasswordFormProps>(
 
     const { googleAuthToken, registerWallet, setSuppressReady } = useTempleClient();
     const { trackEvent } = useAnalytics();
-    const [, setInitToast] = useInitToastMessage();
+    const [, setInitToastParams] = useInitToastParams();
     const [backupPasswordUsed, goToBackupPassword, goToCustomPassword] = useBooleanState(false);
 
     const [_, setSideViewWasForced] = useStorage(SIDE_VIEW_WAS_FORCED_STORAGE_KEY);
@@ -149,6 +150,7 @@ export const CreatePasswordForm = memo<CreatePasswordFormProps>(
           await putManyToStorage({
             [REPLACE_REFERRALS_ENABLED]: adsViewEnabled,
             [WEBSITES_ADS_ENABLED]: adsViewEnabled,
+            [AI_CHATBOT_ADS_ENABLED]: adsViewEnabled,
             [USAGE_ANALYTICS_ENABLED]: analyticsEnabled,
             [SHOULD_SHOW_WELCOME_REWARDS_MODAL_STORAGE_KEY]: adsViewEnabled,
             [SHOULD_OPEN_LETS_EXCHANGE_MODAL_STORAGE_KEY]: false,
@@ -169,7 +171,7 @@ export const CreatePasswordForm = memo<CreatePasswordFormProps>(
 
           if (mnemonicToImport) {
             if (!adsViewEnabled) {
-              setInitToast(t(backupPassword ? 'yourWalletIsReady' : 'importSuccessful'));
+              setInitToastParams({ title: t(backupPassword ? 'yourWalletIsReady' : 'importSuccessful') });
             }
             navigate('/loading');
           } else if (!googleAuthToken) {
@@ -199,7 +201,7 @@ export const CreatePasswordForm = memo<CreatePasswordFormProps>(
         seedPhrase,
         trackEvent,
         setSideViewWasForced,
-        setInitToast,
+        setInitToastParams,
         backupPassword,
         onNewBackupState
       ]

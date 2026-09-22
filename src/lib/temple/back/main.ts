@@ -7,6 +7,11 @@ import { ValidationError } from 'yup';
 
 import { getStoredAppInstallIdentity } from 'app/storage/app-install-id';
 import type { DealsState } from 'app/store/deals/state';
+import {
+  patchPersistedPartnersPromotionState,
+  migratePersistedPartnersPromotionIfNeeded
+} from 'app/store/partners-promotion/migrate';
+import { isAiChatAdsEnabled, type PartnersPromotionState } from 'app/store/partners-promotion/state';
 import { importGetTempleAdsApiModule } from 'lib/ads/import-get-temple-ads-api';
 import { importUpdateRulesStorageModule } from 'lib/ads/import-update-rules-storage';
 import {
@@ -27,12 +32,14 @@ import { importAdsApiModule } from 'lib/apis/ads-api';
 import { browser } from 'lib/browser';
 import {
   ADS_VIEWER_DATA_STORAGE_KEY,
+  AI_CHATBOT_ADS_ENABLED,
   AI_CHATBOT_ADS_ENABLED_DOMAINS_STORAGE_KEY,
   AI_CHATBOT_ADS_NUDGE_SESSION_STORAGE_KEY,
   AI_CHATBOT_ADS_NUDGE_STATE_STORAGE_KEY,
   ANALYTICS_USER_ID_STORAGE_KEY,
   ContentScriptType,
   DEALS_ANNOUNCEMENT_SHOWN_STORAGE_KEY,
+  PARTNERS_PROMOTION_STORAGE_KEY,
   REWARDS_ACCOUNT_DATA_STORAGE_KEY,
   USAGE_ANALYTICS_ENABLED,
   WEB_WIDGETS_LOCAL_AD_PERMIT,
@@ -43,7 +50,7 @@ import {
 } from 'lib/constants';
 import { E2eMessageType } from 'lib/e2e/types';
 import { BACKGROUND_IS_WORKER, EnvVars, IS_FIREFOX, IS_MISES_BROWSER } from 'lib/env';
-import { fetchFromStorage, putManyToStorage, putToStorage } from 'lib/storage';
+import { fetchFromStorage, putToStorage } from 'lib/storage';
 import { AnalyticsEventCategory } from 'lib/temple/analytics-types';
 import {
   importBuyPreselectModule,
@@ -74,7 +81,6 @@ import { store, toFront } from './store';
 
 const frontStore = store.map(toFront);
 
-const PARTNERS_PROMOTION_STORAGE_KEY = 'persist:root.partnersPromotion';
 const DEALS_STORAGE_KEY = 'persist:root.deals';
 const MERCHANT_OFFER_SUPPRESSION_TTL = 15 * 60 * 1000;
 const merchantOfferSuppressedAt = new Map<string, number>();
@@ -890,18 +896,7 @@ browser.runtime.onMessage.addListener(async (msg, sender) => {
         if (typeof msg.domain !== 'string') return;
 
         const domain = normalizeAiChatbotAdsDomain(msg.domain);
-        const enabledDomains = (await fetchFromStorage<string[]>(AI_CHATBOT_ADS_ENABLED_DOMAINS_STORAGE_KEY)) ?? [];
-        if (!enabledDomains.includes(domain)) {
-          await putToStorage(AI_CHATBOT_ADS_ENABLED_DOMAINS_STORAGE_KEY, enabledDomains.concat(domain));
-        }
-
-        await putManyToStorage({
-          [PARTNERS_PROMOTION_STORAGE_KEY]: {
-            ...((await fetchFromStorage(PARTNERS_PROMOTION_STORAGE_KEY)) ?? { promotionHidingTimestamps: {} }),
-            shouldShowPromotion: true
-          },
-          [WEBSITES_ADS_ENABLED]: true
-        });
+        await patchPersistedPartnersPromotionState({ inWalletAdsEnabled: true, aiChatAdsEnabled: true });
         await recordAiChatbotAdsOffer(domain, 'enable');
         break;
       }
@@ -910,17 +905,30 @@ browser.runtime.onMessage.addListener(async (msg, sender) => {
         if (typeof msg.domain !== 'string') return null;
 
         const domain = normalizeAiChatbotAdsDomain(msg.domain);
-        const [nudgeState, sessionState, enabledDomains] = await Promise.all([
+        await migratePersistedPartnersPromotionIfNeeded();
+
+        const [nudgeState, sessionState, persistState, aiChatAdsEnabled, enabledDomains] = await Promise.all([
           fetchFromStorage<AiChatbotAdsNudgeState>(AI_CHATBOT_ADS_NUDGE_STATE_STORAGE_KEY),
           fetchFromStorage<AiChatbotAdsNudgeSessionState>(
             AI_CHATBOT_ADS_NUDGE_SESSION_STORAGE_KEY,
             getAiChatbotAdsSessionStorage()
           ),
+          fetchFromStorage<PartnersPromotionState>(PARTNERS_PROMOTION_STORAGE_KEY),
+          fetchFromStorage<boolean>(AI_CHATBOT_ADS_ENABLED),
           fetchFromStorage<string[]>(AI_CHATBOT_ADS_ENABLED_DOMAINS_STORAGE_KEY)
         ]);
 
+        const enabled = persistState
+          ? isAiChatAdsEnabled({
+              inWalletAdsEnabled: persistState.inWalletAdsEnabled === true,
+              aiChatAdsEnabled: persistState.aiChatAdsEnabled === true
+            })
+          : typeof aiChatAdsEnabled === 'boolean'
+            ? aiChatAdsEnabled
+            : Boolean(enabledDomains?.includes(domain));
+
         return {
-          enabled: Boolean(enabledDomains?.includes(domain)),
+          enabled,
           domainState: getAiChatbotAdsDomainState(nudgeState, domain),
           sessionDomainState: getAiChatbotAdsDomainSessionState(sessionState, domain)
         };
