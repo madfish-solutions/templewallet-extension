@@ -1,6 +1,10 @@
 import browser from 'webextension-polyfill';
 
-import { checkIfShouldReplaceAiChatAds, checkIfShouldReplaceInBrowserAds, runWhenDocumentIsActive } from 'content-scripts/utils';
+import {
+  checkIfShouldReplaceAiChatAds,
+  checkIfShouldReplaceInBrowserAds,
+  runWhenDocumentIsActive
+} from 'content-scripts/utils';
 import { CHATGPT_DOMAIN } from 'lib/ads-constants/ads-constants';
 import { configureAds } from 'lib/ads/configure-ads';
 import { importExtensionAdsModule } from 'lib/ads/import-extension-ads-module';
@@ -23,13 +27,13 @@ const INJECTED_PIXEL_STYLE =
 let impressionWasPosted = false;
 
 const startPixelTag = () =>
-setInterval(async () => {
-  if (
-    document.getElementById(INJECTED_PIXEL_ID) ||
-    (!IS_MISES_BROWSER && !(await checkIfShouldReplaceInBrowserAds()))
-  ) {
-    return;
-  }
+  setInterval(async () => {
+    if (
+      document.getElementById(INJECTED_PIXEL_ID) ||
+      (!IS_MISES_BROWSER && !(await checkIfShouldReplaceInBrowserAds()))
+    ) {
+      return;
+    }
 
     const element = document.createElement('div');
     element.id = INJECTED_PIXEL_ID;
