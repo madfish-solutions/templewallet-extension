@@ -110,7 +110,7 @@ export const TezosDetails = memo<TezosDetailsProps>(
         {details?.metadataHash && (
           <ChartListItem title={<T id="metadata" />}>
             <Anchor
-              href={`https://ipfs.io/ipfs/${details.metadataHash}`}
+              href={buildHttpLinkFromUri(`ipfs://${details.metadataHash}`)}
               className="flex flex-row items-center gap-x-0.5 text-secondary"
             >
               <p className="py-0.5 text-font-description">IPFS</p>

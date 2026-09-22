@@ -1,4 +1,9 @@
-import { ADS_VIEWER_DATA_STORAGE_KEY, WEBSITES_ADS_ENABLED } from 'lib/constants';
+import {
+  ADS_VIEWER_DATA_STORAGE_KEY,
+  AI_CHATBOT_ADS_ENABLED,
+  AI_CHATBOT_ADS_ENABLED_DOMAINS_STORAGE_KEY,
+  WEBSITES_ADS_ENABLED
+} from 'lib/constants';
 import { IS_MISES_BROWSER } from 'lib/env';
 import { fetchFromStorage } from 'lib/storage';
 import type { AdsViewerData } from 'temple/types';
@@ -9,15 +14,38 @@ export async function checkIfAccountExists() {
   return Boolean(adsViewerData?.tezosAddress || adsViewerData?.evmAddress);
 }
 
-export function checkIfShouldReplaceAds() {
-  return runInMainWindow(async () => {
-    const accountDataFromStorage = await fetchFromStorage<string>(ADS_VIEWER_DATA_STORAGE_KEY);
-    const websitesAdsEnabled = await fetchFromStorage<boolean>(WEBSITES_ADS_ENABLED);
+const hasAccountForAds = async () => {
+  const accountDataFromStorage = await fetchFromStorage<string>(ADS_VIEWER_DATA_STORAGE_KEY);
 
-    if (accountDataFromStorage) return websitesAdsEnabled ?? false;
+  return Boolean(accountDataFromStorage);
+};
 
-    return IS_MISES_BROWSER;
-  });
+const resolveInBrowserAdsEnabled = async () => {
+  const websitesAdsEnabled = await fetchFromStorage<boolean>(WEBSITES_ADS_ENABLED);
+
+  if (await hasAccountForAds()) return websitesAdsEnabled ?? false;
+
+  return IS_MISES_BROWSER;
+};
+
+const resolveAiChatAdsEnabled = async () => {
+  const accountExists = await hasAccountForAds();
+  if (!accountExists && !IS_MISES_BROWSER) return false;
+
+  const aiChatAdsEnabled = await fetchFromStorage<boolean>(AI_CHATBOT_ADS_ENABLED);
+  if (typeof aiChatAdsEnabled === 'boolean') return aiChatAdsEnabled;
+
+  const enabledDomains = (await fetchFromStorage<string[]>(AI_CHATBOT_ADS_ENABLED_DOMAINS_STORAGE_KEY)) ?? [];
+
+  return Array.isArray(enabledDomains) && enabledDomains.length > 0;
+};
+
+export function checkIfShouldReplaceInBrowserAds() {
+  return runInMainWindow(resolveInBrowserAdsEnabled);
+}
+
+export function checkIfShouldReplaceAiChatAds() {
+  return runInMainWindow(resolveAiChatAdsEnabled);
 }
 
 export function checkIfShouldReplaceTempleReferrals() {

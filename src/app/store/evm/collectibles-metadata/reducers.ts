@@ -6,7 +6,11 @@ import { toTokenSlug } from 'lib/assets';
 import { storageConfig } from 'lib/store';
 import { isProperCollectibleMetadata } from 'lib/utils/evm.utils';
 
-import { processLoadedEvmCollectiblesMetadataAction, putEvmCollectiblesMetadataAction } from './actions';
+import {
+  processLoadedEvmCollectiblesMetadataAction,
+  putEvmCollectiblesMetadataAction,
+  updateEvmCollectiblesMetadataSessionAction
+} from './actions';
 import { evmCollectiblesMetadataInitialState, EvmCollectiblesMetadataState } from './state';
 import { buildEvmCollectibleMetadataFromFetched } from './utils';
 
@@ -50,13 +54,28 @@ const evmCollectiblesMetadataReducer = createReducer<EvmCollectiblesMetadataStat
         chainCollectiblesMetadata[slug] = metadata;
       }
     });
+
+    builder.addCase(updateEvmCollectiblesMetadataSessionAction, (state, { payload }) => {
+      const { publicKeyHash, lastFullLoadAccount, seenChains, checkedSlugsByChain } = payload;
+
+      state.lastFullLoadAccount = lastFullLoadAccount;
+      state.seenChainsByAccount[publicKeyHash] = seenChains;
+      state.checkedSlugsByAccount[publicKeyHash] = checkedSlugsByChain;
+    });
   }
 );
+
+const EVM_COLLECTIBLES_METADATA_PERSIST_BLACKLIST: Array<keyof EvmCollectiblesMetadataState> = [
+  'lastFullLoadAccount',
+  'seenChainsByAccount',
+  'checkedSlugsByAccount'
+];
 
 export const evmCollectiblesMetadataPersistedReducer = persistReducer(
   {
     key: 'root.evmCollectiblesMetadata',
-    ...storageConfig
+    ...storageConfig,
+    blacklist: EVM_COLLECTIBLES_METADATA_PERSIST_BLACKLIST
   },
   evmCollectiblesMetadataReducer
 );

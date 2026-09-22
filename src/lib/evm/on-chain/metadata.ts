@@ -1,12 +1,11 @@
-import axios from 'axios';
 import { pickBy } from 'lodash';
 import { erc20Abi, erc721Abi, parseAbi, PublicClient } from 'viem';
 
 import { erc1155Abi } from 'lib/abi/erc1155';
 import { NftCollectionAttribute } from 'lib/apis/temple/endpoints/evm/api.interfaces';
 import { fromAssetSlug } from 'lib/assets';
-import { buildHttpLinkFromUri } from 'lib/images-uri';
 import { EvmCollectibleMetadata, EvmTokenMetadata } from 'lib/metadata/types';
+import { getIpfsGenericFile } from 'lib/utils/ipfs';
 import { getViemPublicClient } from 'temple/evm';
 import { EvmNetworkEssentials } from 'temple/networks';
 
@@ -240,11 +239,9 @@ const getCollectiblePropertiesFromUri = async (
     'image' | 'collectibleName' | 'description' | 'attributes' | 'externalUrl' | 'animationUrl'
   >
 > => {
-  const uri = buildHttpLinkFromUri(metadataUri);
+  if (!metadataUri) throw new Error();
 
-  if (!uri) throw new Error();
-
-  const { data } = await axios.get<CollectibleMetadata>(uri);
+  const { data } = await getIpfsGenericFile<CollectibleMetadata>(metadataUri);
 
   if (typeof data !== 'object' || !data.image) throw new Error();
 

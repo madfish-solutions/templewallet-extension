@@ -13,7 +13,7 @@ import { ReactComponent as WarningIcon } from 'app/icons/typed-msg/warning.svg';
 import { useToastsContainerBottomShift } from 'lib/temple/front/toasts-context';
 import PortalToDocumentBody from 'lib/ui/Portal';
 
-interface TxData {
+export interface ToastTxData {
   hash: string;
   blockExplorerHref: string;
 }
@@ -52,13 +52,24 @@ const withUniqCheck =
     }
   };
 
-export const toastSuccess = withToastsLimit((title: string, textBold?: boolean, txData?: TxData) =>
-  toast.custom(toast => (
-    <CustomToastBar toast={{ ...toast, message: title }} customType="success" textBold={textBold} txData={txData} />
-  ))
+export const toastSuccess = withToastsLimit(
+  (title: string, textBold?: boolean, txDataOrLink?: ToastTxData | ReactChildren) =>
+    toast.custom(toast => {
+      const commonProps = {
+        toast: { ...toast, message: title },
+        customType: 'success' as const,
+        textBold
+      };
+
+      if (typeof txDataOrLink === 'object' && txDataOrLink && 'blockExplorerHref' in txDataOrLink) {
+        return <CustomToastBar {...commonProps} txData={txDataOrLink} />;
+      }
+
+      return <CustomToastBar {...commonProps} link={txDataOrLink} />;
+    })
 );
 
-export const toastError = withToastsLimit((title, textBold?, txData?: TxData) =>
+export const toastError = withToastsLimit((title, textBold?, txData?: ToastTxData) =>
   toast.custom(toast => (
     <CustomToastBar toast={{ ...toast, message: title }} customType="error" textBold={textBold} txData={txData} />
   ))
@@ -116,7 +127,7 @@ interface CustomToastBarProps {
   toast: Toast;
   customType?: ToastTypeExtended;
   textBold?: boolean;
-  txData?: TxData;
+  txData?: ToastTxData;
   link?: ReactChildren;
 }
 

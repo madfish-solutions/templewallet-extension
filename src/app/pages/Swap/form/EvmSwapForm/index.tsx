@@ -545,7 +545,7 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
   const estimatedTokensFromAmount = useMemo(
     () =>
       isDefined(swapRoute?.fromAmount)
-        ? atomsToTokens(new BigNumber(+swapRoute.fromAmount), inputAssetMetadata?.decimals ?? 0)
+        ? atomsToTokens(new BigNumber(swapRoute.fromAmount), inputAssetMetadata?.decimals ?? 0)
         : undefined,
     [inputAssetMetadata?.decimals, swapRoute?.fromAmount]
   );
@@ -553,7 +553,7 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
   const estimatedTokensToAmount = useMemo(
     () =>
       isDefined(swapRoute?.toAmount)
-        ? atomsToTokens(new BigNumber(+swapRoute.toAmount), outputAssetMetadata?.decimals ?? 0)
+        ? atomsToTokens(new BigNumber(swapRoute.toAmount), outputAssetMetadata?.decimals ?? 0)
         : undefined,
     [outputAssetMetadata?.decimals, swapRoute?.toAmount]
   );

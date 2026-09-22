@@ -11,7 +11,7 @@ import {
   clearBackupCredentials,
   getBackupCredentials
 } from 'lib/temple/front/mnemonic-to-backup-keeper';
-import { useInitToastMessage } from 'lib/temple/front/toasts-context';
+import { useInitToastParams } from 'lib/temple/front/toasts-context';
 import { useBooleanState } from 'lib/ui/hooks';
 
 import { BackupOptionType } from './backup-option';
@@ -24,7 +24,7 @@ export const BackupMnemonicOverlay = memo(() => {
   const [backupCredentials, setBackupCredentials] = useState<BackupCredentials>();
   const [, setShouldBackupMnemonic] = useStorage(SHOULD_BACKUP_MNEMONIC_STORAGE_KEY, false);
   const [shouldShowWelcomeRewardsModal] = useStorage(SHOULD_SHOW_WELCOME_REWARDS_MODAL_STORAGE_KEY, false);
-  const [, setInitToast] = useInitToastMessage();
+  const [, setInitToastParams] = useInitToastParams();
   const nonceRef = useRef(0);
 
   const [shouldVerifySeedPhrase, goToVerifySeedPhrase, goToBackupSeedPhrase] = useBooleanState(false);
@@ -52,11 +52,11 @@ export const BackupMnemonicOverlay = memo(() => {
   }, []);
   const handleBackupSuccess = useCallback(() => {
     if (!shouldShowWelcomeRewardsModal) {
-      setInitToast(isManualBackup ? t('backupSuccessful') : t('yourWalletIsReady'));
+      setInitToastParams({ title: isManualBackup ? t('backupSuccessful') : t('yourWalletIsReady') });
     }
     clearBackupCredentials();
     setShouldBackupMnemonic(false).catch(e => console.error(e));
-  }, [setInitToast, isManualBackup, setShouldBackupMnemonic, shouldShowWelcomeRewardsModal]);
+  }, [setInitToastParams, isManualBackup, setShouldBackupMnemonic, shouldShowWelcomeRewardsModal]);
 
   if (!backupType) {
     return <BackupOptionsModal onSelect={handleBackupOptionSelect} />;

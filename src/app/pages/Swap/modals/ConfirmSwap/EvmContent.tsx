@@ -450,7 +450,7 @@ const getBalancesChanges = (
   let output: AssetsAmounts;
   if (isLifiStep(routeStep)) {
     input = {
-      [inputTokenSlug]: { atomicAmount: new BigNumber(-routeStep.estimate.fromAmount), isNft: false }
+      [inputTokenSlug]: { atomicAmount: new BigNumber(routeStep.estimate.fromAmount).negated(), isNft: false }
     };
 
     output = {
@@ -465,7 +465,7 @@ const getBalancesChanges = (
     }
   } else {
     input = {
-      [inputTokenSlug]: { atomicAmount: new BigNumber(-routeStep.fromAmount), isNft: false }
+      [inputTokenSlug]: { atomicAmount: new BigNumber(routeStep.fromAmount).negated(), isNft: false }
     };
     output = {
       [outputTokenSlug]: { atomicAmount: new BigNumber(routeStep.toAmount), isNft: false }
