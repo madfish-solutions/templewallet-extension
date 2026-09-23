@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import type { LiFiStep } from '@lifi/sdk';
 import { formatUnits, numberToHex, type Hex } from 'viem';
 
-import { getAlchemyCallsStatus, prepareAlchemyCalls } from 'lib/apis/temple/endpoints/evm/alchemy-wallet';
+import { prepareAlchemyCalls } from 'lib/apis/temple/endpoints/evm/alchemy-wallet';
 import { buildAlchemySwapCalls } from 'lib/evm/alchemy/swap';
 import type { AlchemyBatchQuote, AlchemyFeeOption } from 'lib/evm/alchemy/types';
 import {
@@ -15,7 +15,6 @@ import {
   validateAlchemyPreparedCalls
 } from 'lib/evm/alchemy/validation';
 import { useTempleClient } from 'lib/temple/front';
-import { delay } from 'lib/utils';
 import type { EvmChain } from 'temple/front';
 
 interface Params {
@@ -47,13 +46,13 @@ export function useAlchemySwapBatch({ steps, account, network }: Params) {
   const { submitAlchemyBatch } = useTempleClient();
   const [state, setState] = useState<BatchState>({ phase: 'preparing' });
   const [callId, setCallId] = useState<Hex>();
+  const callIdRef = useRef<Hex | undefined>(undefined);
   const [executing, setExecuting] = useState(false);
   const [executionError, setExecutionError] = useState<unknown>();
   const [selectedFeeOption, setSelectedFeeOption] = useState<AlchemyFeeOption>('mid');
   const [revision, setRevision] = useState(0);
   const lock = useRef(false);
   const mounted = useRef(true);
-  const statusController = useRef<AbortController | undefined>(undefined);
   const previousParams = useRef<Params | undefined>(undefined);
   const submitted = Boolean(callId);
   const preview = getBatchPreview(state);
@@ -64,7 +63,6 @@ export function useAlchemySwapBatch({ steps, account, network }: Params) {
     mounted.current = true;
     return () => {
       mounted.current = false;
-      statusController.current?.abort();
     };
   }, []);
 
@@ -115,51 +113,28 @@ export function useAlchemySwapBatch({ steps, account, network }: Params) {
   }, [state]);
 
   const refresh = (): void => {
-    if (!callId) setRevision(value => value + 1);
+    if (!callIdRef.current) setRevision(value => value + 1);
   };
   const execute = async (): Promise<Hex | undefined> => {
     if (lock.current || state.phase === 'preparing') return;
     lock.current = true;
     setExecuting(true);
     setExecutionError(undefined);
-    const controller = new AbortController();
-    statusController.current = controller;
     try {
-      let id = callId;
-      if (!id) {
-        if (state.phase !== 'ready' || Date.now() >= state.quote.expiresAt) {
-          refresh();
-          return;
-        }
-        id = await submitAlchemyBatch(account, network, state.quote);
-        if (!mounted.current) return;
+      if (callIdRef.current) return callIdRef.current;
+      if (state.phase !== 'ready' || Date.now() >= state.quote.expiresAt) {
+        refresh();
+        return;
+      }
+      const id = await submitAlchemyBatch(account, network, state.quote);
+      callIdRef.current = id;
+      if (mounted.current) {
         setCallId(id);
         setState({ ...state, phase: 'pending' });
       }
-      for (let attempt = 0; attempt < 45; attempt++) {
-        if (controller.signal.aborted) return;
-        const status = await getAlchemyCallsStatus(id, controller.signal);
-        if (controller.signal.aborted) return;
-        if (BigInt(status.chainId) !== BigInt(network.chainId) || status.id.toLowerCase() !== id.toLowerCase())
-          throw new Error('Alchemy status identity mismatch');
-        if (status.status === 200) {
-          const receipt = status.receipts?.[0];
-          if (!status.atomic || receipt?.status !== '0x1' || !receipt.transactionHash)
-            throw new Error('Alchemy returned an invalid batch receipt');
-          return receipt.transactionHash;
-        }
-        if (status.status === 400 || status.status === 500) {
-          setCallId(undefined);
-          throw new Error('The Alchemy batch failed. Retry to review a new quote.');
-        }
-        if (status.status < 100 || status.status >= 200)
-          throw new Error('Alchemy returned a partial or unknown batch status. Retry the status check.');
-        if (attempt < 44) await delay(1000);
-      }
-      throw new Error('The batch is pending. Retry to check its status.');
+      return id;
     } catch (error) {
-      if (controller.signal.aborted) return;
-      setExecutionError(error);
+      if (mounted.current) setExecutionError(error);
       throw error;
     } finally {
       lock.current = false;

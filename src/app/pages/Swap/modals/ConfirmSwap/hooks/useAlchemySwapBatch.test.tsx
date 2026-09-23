@@ -28,7 +28,6 @@ const prepare = prepareAlchemyCalls as jest.MockedFunction<typeof prepareAlchemy
 let current: ReturnType<typeof useAlchemySwapBatch>;
 let root: Root;
 let container: HTMLDivElement;
-const hash = `0x${'ab'.repeat(32)}` as const;
 function Harness() {
   const result = useAlchemySwapBatch({ steps, account, network });
   useEffect(() => {
@@ -55,13 +54,6 @@ beforeEach(async () => {
   });
   prepare.mockResolvedValue(quote.prepared);
   submit.mockResolvedValue(callId);
-  status.mockResolvedValue({
-    id: callId,
-    chainId: '0x1',
-    atomic: true,
-    status: 200,
-    receipts: [{ status: '0x1', transactionHash: hash }]
-  });
   await mount();
 });
 afterEach(async () => {
@@ -71,11 +63,11 @@ afterEach(async () => {
 it('submits the reviewed quote once through the background', async () => {
   const reviewed = current.quote;
   await act(async () => {
-    expect(await current.execute()).toBe(hash);
+    expect(await current.execute()).toBe(callId);
   });
   expect(submit).toHaveBeenCalledTimes(1);
   expect(submit.mock.calls[0][2]).toEqual(reviewed);
-  expect(status).toHaveBeenCalledWith(callId, expect.any(AbortSignal));
+  expect(status).not.toHaveBeenCalled();
 });
 it.each([
   ['slow', 0.7],
@@ -161,81 +153,19 @@ it('displays the refreshed LiFi values', async () => {
   expect(current.reviewSteps[0].estimate.toAmountMin).toBe('140');
 });
 
-it('checks the same call ID after a status error without another submission', async () => {
-  status.mockRejectedValueOnce(new Error('Connection lost'));
+it('returns the call ID without waiting for a transaction hash', async () => {
   await act(async () => {
-    await expect(current.execute()).rejects.toThrow('Connection lost');
+    expect(await current.execute()).toBe(callId);
   });
   expect(current.submitted).toBe(true);
-  const quote = current.quote;
-  await act(async () => {
-    current.refresh();
-    current.selectFeeOption('fast');
-  });
-  expect(current.quote).toBe(quote);
-  expect(current.selectedFeeOption).toBe('mid');
-  await act(async () => expect(await current.execute()).toBe(hash));
-  expect(submit).toHaveBeenCalledTimes(1);
-  expect(prepare).toHaveBeenCalledTimes(1);
-  expect(status.mock.calls.map(([id]) => id)).toEqual([callId, callId]);
+  expect(status).not.toHaveBeenCalled();
 });
 
-it('retains the call ID after a status timeout even if the quote expires', async () => {
-  status.mockResolvedValue({ id: callId, chainId: '0x1', atomic: true, status: 100 });
+it('reuses the call ID after submission', async () => {
   await act(async () => {
-    await expect(current.execute()).rejects.toThrow('pending');
+    expect(await current.execute()).toBe(callId);
+    expect(await current.execute()).toBe(callId);
   });
-  expect(status).toHaveBeenCalledTimes(45);
-  expect(current.submitted).toBe(true);
-  jest.spyOn(Date, 'now').mockReturnValue(current.quote!.expiresAt + 1);
-  status.mockResolvedValue({
-    id: callId,
-    chainId: '0x1',
-    atomic: true,
-    status: 200,
-    receipts: [{ status: '0x1', transactionHash: hash }]
-  });
-  try {
-    await act(async () => expect(await current.execute()).toBe(hash));
-    expect(submit).toHaveBeenCalledTimes(1);
-    expect(prepare).toHaveBeenCalledTimes(1);
-  } finally {
-    jest.restoreAllMocks();
-  }
-});
-
-it.each([400, 500])('permits a fresh quote after terminal status %s', async statusCode => {
-  status.mockResolvedValueOnce({ id: callId, chainId: '0x1', atomic: true, status: statusCode });
-  await act(async () => {
-    await expect(current.execute()).rejects.toThrow('batch failed');
-  });
-  expect(current.submitted).toBe(false);
-  await act(async () => current.refresh());
-  expect(prepare).toHaveBeenCalledTimes(2);
-  expect(submit).toHaveBeenCalledTimes(1);
-  await act(async () => expect(await current.execute()).toBe(hash));
-  expect(submit).toHaveBeenCalledTimes(2);
-});
-
-it.each([
-  { status: 600 },
-  { status: 200, atomic: false },
-  { status: 200, receipts: [] },
-  { status: 200, receipts: [{ status: '0x0', transactionHash: hash }] },
-  { status: 400, chainId: '0xa' },
-  { status: 500, id: '0x1234' }
-] as const)('retains the call ID for an ambiguous or invalid result: %j', async response => {
-  status.mockResolvedValueOnce({
-    id: callId,
-    chainId: '0x1',
-    atomic: true,
-    ...response,
-    receipts: response.receipts?.slice()
-  });
-  await act(async () => {
-    await expect(current.execute()).rejects.toThrow();
-  });
-  expect(current.submitted).toBe(true);
   expect(submit).toHaveBeenCalledTimes(1);
 });
 
@@ -245,7 +175,6 @@ it('propagates a send error and allows an explicit re-estimation', async () => {
     await expect(current.execute()).rejects.toThrow('Submission unavailable');
   });
   expect(current.submitted).toBe(false);
-  expect(status).not.toHaveBeenCalled();
   await act(async () => current.refresh());
   expect(prepare).toHaveBeenCalledTimes(2);
   expect(submit).toHaveBeenCalledTimes(1);
@@ -262,32 +191,12 @@ it('prevents concurrent confirmation clicks from submitting twice', async () => 
     const first = current.execute();
     expect(await current.execute()).toBeUndefined();
     finish(callId);
-    expect(await first).toBe(hash);
+    expect(await first).toBe(callId);
   });
   expect(submit).toHaveBeenCalledTimes(1);
 });
 
-it('aborts the status request when the popup closes', async () => {
-  let rejectStatus!: (error: Error) => void;
-  status.mockReturnValueOnce(
-    new Promise((_, reject) => {
-      rejectStatus = reject;
-    })
-  );
-  let execution!: ReturnType<typeof current.execute>;
-  await act(async () => {
-    execution = current.execute();
-  });
-  const signal = status.mock.calls[0][1];
-  await act(async () => root.render(null));
-  expect(signal?.aborted).toBe(true);
-  rejectStatus(new Error('Aborted'));
-  expect(await execution).toBeUndefined();
-  expect(status).toHaveBeenCalledTimes(1);
-  expect(submit).toHaveBeenCalledTimes(1);
-});
-
-it('does not start status checks if the popup closes before the call ID arrives', async () => {
+it('returns the call ID if the modal closes before submission returns', async () => {
   let finish!: (id: typeof callId) => void;
   submit.mockReturnValueOnce(
     new Promise(resolve => {
@@ -300,7 +209,6 @@ it('does not start status checks if the popup closes before the call ID arrives'
   });
   await act(async () => root.render(null));
   finish(callId);
-  expect(await execution).toBeUndefined();
-  expect(status).not.toHaveBeenCalled();
+  expect(await execution).toBe(callId);
   expect(submit).toHaveBeenCalledTimes(1);
 });

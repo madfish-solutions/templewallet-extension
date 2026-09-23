@@ -110,12 +110,18 @@ it('restores the original actions after the batch retry fallback', async () => {
   expect(current.userActions[0].batchSteps).toBeUndefined();
 });
 
-it('allows the user to close while an Alchemy batch is busy', async () => {
+it('keeps the modal open until the Alchemy call ID can be saved', async () => {
   await render();
   await act(async () => {
     current.setBatchBusy(true);
   });
   await act(async () => {
+    current.handleRequestClose();
+  });
+  expect(onClose).not.toHaveBeenCalled();
+  expect(current.cancelledRef.current).toBe(false);
+  await act(async () => {
+    current.setBatchBusy(false);
     current.handleRequestClose();
   });
   expect(onClose).toHaveBeenCalledTimes(1);

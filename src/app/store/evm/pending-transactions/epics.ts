@@ -21,6 +21,7 @@ import { WaitForTransactionReceiptTimeoutError } from 'viem';
 import type { RootState } from 'app/store/root-state.type';
 import { toastError, toastSuccess } from 'app/toaster';
 import { getEvmSwapStatus } from 'lib/apis/temple/endpoints/evm';
+import { getAlchemyCallsStatus } from 'lib/apis/temple/endpoints/evm/alchemy-wallet';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { fetchEvmRawBalance } from 'lib/evm/on-chain/balance';
 import { fetchEvmTokenMetadataFromChain } from 'lib/evm/on-chain/metadata';
@@ -35,6 +36,9 @@ import { putEvmTokensMetadataAction } from '../tokens-metadata/actions';
 
 import {
   incrementSwapCheckAttemptsAction,
+  addPendingEvmSwapAction,
+  monitorPendingEvmBatchesAction,
+  removePendingEvmBatchAction,
   monitorPendingSwapsAction,
   removePendingEvmSwapAction,
   updateBalancesAfterSwapAction,
@@ -49,7 +53,12 @@ import {
   monitorPendingOtherTransactionsAction,
   updatePendingOtherTransactionStatusAction
 } from './actions';
-import { selectAllPendingSwaps, selectAllPendingOtherTransactions, selectAllPendingTransfers } from './utils';
+import {
+  selectAllPendingBatches,
+  selectAllPendingSwaps,
+  selectAllPendingOtherTransactions,
+  selectAllPendingTransfers
+} from './utils';
 
 const MAX_SWAP_STATUS_CHECK_ATTEMPTS = 50;
 
@@ -60,6 +69,70 @@ const ONE_MINUTE = 60 * 1_000;
 const MAX_PENDING_SWAP_AGE = 10 * ONE_MINUTE;
 const MAX_PENDING_TRANSFER_AGE = 2 * ONE_MINUTE;
 const MAX_PENDING_OTHER_TRANSACTION_AGE = 2 * ONE_MINUTE;
+
+export const monitorPendingEvmBatchesEpic: Epic<Action, Action, RootState> = (action$, state$) =>
+  action$.pipe(
+    ofType(monitorPendingEvmBatchesAction),
+    withLatestFrom(state$),
+    exhaustMap(([, state]) =>
+      from(selectAllPendingBatches(state)).pipe(
+        mergeMap(batch =>
+          from(getAlchemyCallsStatus(batch.callId)).pipe(
+            mergeMap(result => {
+              if (
+                BigInt(result.chainId) !== BigInt(batch.inputNetwork.chainId) ||
+                result.id.toLowerCase() !== batch.callId.toLowerCase()
+              ) {
+                throw new Error('Alchemy status identity mismatch');
+              }
+              if (result.status === 400 || result.status === 500) {
+                toastError('Swap failed', true);
+                return of(removePendingEvmBatchAction(batch.callId));
+              }
+              if (result.status !== 200) {
+                if (result.status < 100 || result.status >= 200) {
+                  throw new Error('Alchemy returned a partial or unknown batch status');
+                }
+                return EMPTY;
+              }
+              const receipt = result.receipts?.[0];
+              if (!result.atomic || receipt?.status !== '0x1' || !receipt.transactionHash) {
+                throw new Error('Alchemy returned an invalid batch receipt');
+              }
+              const txHash = receipt.transactionHash;
+              return from([
+                addPendingEvmSwapAction({
+                  txHash,
+                  batchKey: batch.batchKey,
+                  accountPkh: batch.accountPkh,
+                  outputTokenSlug: batch.outputTokenSlug,
+                  outputNetwork: batch.outputNetwork,
+                  initialInputTokenSlug: batch.initialInputTokenSlug,
+                  initialInputNetwork: batch.initialInputNetwork,
+                  blockExplorerUrl: new URL(`tx/${txHash}`, batch.blockExplorerBaseUrl).href,
+                  statusCheckParams: batch.statusCheckParams,
+                  submittedAt: batch.submittedAt
+                }),
+                removePendingEvmBatchAction(batch.callId),
+                monitorPendingSwapsAction()
+              ]);
+            }),
+            catchError(error => {
+              console.warn(`Failed to check Alchemy batch status ${batch.callId}: `, error);
+              return EMPTY;
+            })
+          )
+        )
+      )
+    )
+  );
+
+const periodicBatchMonitorTriggerEpic: Epic<Action, Action, RootState> = (_, state$) =>
+  interval(LONG_MONITOR_INTERVAL).pipe(
+    withLatestFrom(state$),
+    filter(([, state]) => selectAllPendingBatches(state).length > 0),
+    map(() => monitorPendingEvmBatchesAction())
+  );
 
 const monitorPendingSwapsEpic: Epic<Action, Action, RootState> = (action$, state$) =>
   action$.pipe(
@@ -470,6 +543,7 @@ const cleanupOutdatedEvmPendingTransactionsEpic: Epic<Action, Action, RootState>
       const pendingSwaps = selectAllPendingSwaps(state);
       const pendingTransfers = selectAllPendingTransfers(state);
       const pendingTransactions = selectAllPendingOtherTransactions(state);
+      const pendingBatches = selectAllPendingBatches(state);
       const now = Date.now();
 
       const outdatedSwaps = pendingSwaps.filter(swap => now - swap.submittedAt > MAX_PENDING_SWAP_AGE);
@@ -485,6 +559,7 @@ const cleanupOutdatedEvmPendingTransactionsEpic: Epic<Action, Action, RootState>
       ];
 
       const monitorActions: Action[] = [
+        ...(pendingBatches.length > 0 ? [monitorPendingEvmBatchesAction()] : []),
         monitorPendingSwapsAction(),
         monitorPendingTransfersAction(),
         monitorPendingOtherTransactionsAction()
@@ -499,6 +574,8 @@ const cleanupOutdatedEvmPendingTransactionsEpic: Epic<Action, Action, RootState>
   );
 
 export const pendingEvmSwapsEpics = combineEpics(
+  monitorPendingEvmBatchesEpic,
+  periodicBatchMonitorTriggerEpic,
   monitorPendingSwapsEpic,
   updateBalancesAfterSwapEpic,
   periodicSwapMonitorTriggerEpic,

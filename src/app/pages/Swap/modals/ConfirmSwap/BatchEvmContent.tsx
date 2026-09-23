@@ -4,24 +4,24 @@ import type { LiFiStep } from '@lifi/sdk';
 import { FormProvider, useForm } from 'react-hook-form';
 
 import { Tooltip } from 'app/atoms/Tooltip';
-import { dispatch } from 'app/store';
-import { addPendingEvmSwapAction, monitorPendingSwapsAction } from 'app/store/evm/pending-transactions/actions';
+import { dispatch, persistor, store, useSelector } from 'app/store';
+import { addPendingEvmBatchAction, monitorPendingEvmBatchesAction } from 'app/store/evm/pending-transactions/actions';
+import { hasPendingEvmBatch } from 'app/store/evm/pending-transactions/utils';
 import type { EvmTxParamsFormData, Tab } from 'app/templates/TransactionTabs/types';
+import { toastInfo } from 'app/toaster';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { getAlchemyBatchReviewStep } from 'lib/evm/alchemy/swap';
 import { T } from 'lib/i18n';
 import { atomsToTokens } from 'lib/temple/helpers';
 import { LedgerOperationState } from 'lib/ui';
-import { showTxSubmitToastWithDelay } from 'lib/ui/show-tx-submit-toast.util';
 import { useGetEvmActiveBlockExplorer } from 'temple/front/ready';
-import { makeBlockExplorerHref } from 'temple/front/use-block-explorers';
-import { TempleChainKind } from 'temple/types';
 
 import { getProtocolFeeForRouteStep } from '../../form/EvmSwapForm/utils';
 import { formatDuration, getBufferedExecutionDuration } from '../../form/utils';
 import { getTokenSlugFromEvmDexTokenAddress } from '../../utils';
 
 import { BaseContent } from './BaseContent';
+import { getBatchKey } from './batch-key';
 import { getBalancesChanges } from './evm-balances';
 import type { EvmContentProps } from './EvmContent';
 import { useAlchemySwapBatch } from './hooks/useAlchemySwapBatch';
@@ -39,6 +39,8 @@ export const BatchEvmContent: FC<EvmContentProps & { batchSteps: LiFiStep[] }> =
 }) => {
   const { account, inputNetwork, outputNetwork, destinationChainGasTokenAmount } = stepReviewData;
   const accountPkh = account.address as HexString;
+  const batchKey = getBatchKey(batchSteps);
+  const alreadyPending = useSelector(state => hasPendingEvmBatch(state, accountPkh, inputNetwork.chainId, batchKey));
   const batch = useAlchemySwapBatch({ steps: batchSteps, account: accountPkh, network: inputNetwork });
   const form = useForm<EvmTxParamsFormData>({
     defaultValues: { gasPrice: '', gasLimit: '', nonce: '', data: '', rawTransaction: '' }
@@ -68,7 +70,7 @@ export const BatchEvmContent: FC<EvmContentProps & { batchSteps: LiFiStep[] }> =
   }, [submitting, onBatchBusyChange]);
 
   const onSubmit = async (): Promise<void> => {
-    if (submitDisabled || batch.busy || submitting || cancelledRef?.current) return;
+    if (submitDisabled || alreadyPending || batch.busy || submitting || cancelledRef?.current) return;
     setError(undefined);
     if ((batch.error || error) && tab === 'error') setTab('details');
     if ((batch.error || error) && !batch.submitted) {
@@ -81,19 +83,23 @@ export const BatchEvmContent: FC<EvmContentProps & { batchSteps: LiFiStep[] }> =
       return;
     }
     setSubmitting(true);
+    onBatchBusyChange?.(true);
     try {
-      const txHash = await batch.execute();
-      if (!txHash || cancelledRef?.current) return;
+      const callId = await batch.execute();
+      if (!callId) return;
+      if (hasPendingEvmBatch(store.getState(), accountPkh, inputNetwork.chainId, batchKey)) return;
       const explorer = getExplorer(inputNetwork.chainId.toString(), Boolean(bridgeData));
       dispatch(
-        addPendingEvmSwapAction({
-          txHash,
+        addPendingEvmBatchAction({
+          callId,
+          batchKey,
           accountPkh,
+          inputNetwork,
+          blockExplorerBaseUrl: explorer.url,
           outputTokenSlug: outputSlug,
           outputNetwork,
           initialInputTokenSlug: initialInputData.tokenSlug,
           initialInputNetwork: initialInputData.network,
-          blockExplorerUrl: makeBlockExplorerHref(explorer.url, txHash, 'tx', TempleChainKind.EVM),
           statusCheckParams: {
             fromChain: step.action.fromChainId,
             toChain: step.action.toChainId,
@@ -103,14 +109,16 @@ export const BatchEvmContent: FC<EvmContentProps & { batchSteps: LiFiStep[] }> =
           submittedAt: Date.now()
         })
       );
-      dispatch(monitorPendingSwapsAction());
-      showTxSubmitToastWithDelay(TempleChainKind.EVM, txHash, explorer.url);
-      onStepCompleted();
+      dispatch(monitorPendingEvmBatchesAction());
+      await persistor.flush();
+      toastInfo('Swap submitted', true);
+      if (!cancelledRef?.current) onStepCompleted();
     } catch (cause) {
       setError(cause);
       setTab('error');
     } finally {
       setSubmitting(false);
+      onBatchBusyChange?.(false);
     }
   };
 
@@ -144,13 +152,15 @@ export const BatchEvmContent: FC<EvmContentProps & { batchSteps: LiFiStep[] }> =
         )}
         bridgeData={bridgeData}
         submitLoadingOverride={submitting || batch.busy}
-        submitDisabled={submitDisabled}
+        submitDisabled={submitDisabled || alreadyPending}
         readOnlyFees
         retry={batch.expired || batch.submitted}
         evmGasPriceOverride={batch.gasPrice}
         evmAdvancedValues={batch.advancedValues}
         actionsNotice={
-          batch.delegationRequired ? (
+          alreadyPending ? (
+            <p className="p-1 text-font-description text-grey-1">This swap is already pending.</p>
+          ) : batch.delegationRequired ? (
             <div className="flex items-center justify-center">
               <p className="p-1 text-font-description text-grey-1">
                 <T id="smartWalletFeaturesNotice" />

@@ -23,7 +23,12 @@ export const useEvmUserActions = (opened: boolean, onRequestClose: EmptyFn, revi
   const [actionsInitialized, setActionsInitialized] = useState(false);
   const [batchConfig, setBatchConfig] = useState<AlchemyWalletConfig | 'unavailable' | null>();
   const [legacy, setLegacy] = useState(false);
-  const [batchBusy, setBatchBusy] = useState(false);
+  const [batchBusy, setBatchBusyState] = useState(false);
+  const batchBusyRef = useRef(false);
+  const setBatchBusy = useCallback((busy: boolean): void => {
+    batchBusyRef.current = busy;
+    setBatchBusyState(busy);
+  }, []);
   const eligible =
     !legacy &&
     batchConfig !== undefined &&
@@ -174,6 +179,7 @@ export const useEvmUserActions = (opened: boolean, onRequestClose: EmptyFn, revi
   }, [onRequestClose, reviewData, setCancelConfirmClosed, currentActionIndex, firstExecuteAction.index]);
 
   const handleRequestClose = useCallback(() => {
+    if (batchBusyRef.current) return;
     if (reviewData && isSwapEvmReviewData(reviewData)) {
       if (currentActionIndex > firstExecuteAction.index) {
         setCancelConfirmOpened();
