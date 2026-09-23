@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-import type { LiFiStep } from '@lifi/sdk';
 import constate from 'constate';
 import { omit } from 'lodash';
 import { TransactionRequest, formatTransactionRequest } from 'viem';
@@ -531,31 +530,10 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
     browser.runtime.reload();
   }, []);
 
-  const submitAlchemyBatch = async (
-    accountPkh: HexString,
-    network: EvmChain,
-    quote: AlchemyBatchQuote,
-    steps: LiFiStep[]
-  ) => {
-    const res = await request({ type: TempleMessageType.SubmitAlchemyBatchRequest, accountPkh, network, quote, steps });
+  const submitAlchemyBatch = async (accountPkh: HexString, network: EvmChain, quote: AlchemyBatchQuote) => {
+    const res = await request({ type: TempleMessageType.SubmitAlchemyBatchRequest, accountPkh, network, quote });
     assertResponse(res.type === TempleMessageType.SubmitAlchemyBatchResponse);
-    return res.submission;
-  };
-
-  const completeAlchemyBatch = async (accountPkh: HexString, chainId: number, transactionHash: HexString) => {
-    const res = await request({
-      type: TempleMessageType.CompleteAlchemyBatchRequest,
-      accountPkh,
-      chainId,
-      transactionHash
-    });
-    assertResponse(res.type === TempleMessageType.CompleteAlchemyBatchResponse);
-  };
-
-  const checkAlchemyBatch = async (accountPkh: HexString, chainId: number) => {
-    const res = await request({ type: TempleMessageType.CheckAlchemyBatchRequest, accountPkh, chainId });
-    assertResponse(res.type === TempleMessageType.CheckAlchemyBatchResponse);
-    return res.submission;
+    return res.callId;
   };
 
   useEffect(() => void (data?.shouldLockOnStartup && lock()), [data?.shouldLockOnStartup, lock]);
@@ -624,8 +602,6 @@ export const [TempleClientProvider, useTempleClient] = constate(() => {
     switchDAppTezosAccount,
     sendEvmTransaction,
     submitAlchemyBatch,
-    checkAlchemyBatch,
-    completeAlchemyBatch,
     resetExtension
   };
 });

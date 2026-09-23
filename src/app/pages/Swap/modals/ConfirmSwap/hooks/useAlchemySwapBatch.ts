@@ -3,14 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import type { LiFiStep } from '@lifi/sdk';
 import { formatUnits, numberToHex, type Hex } from 'viem';
 
-import { AlchemyRpcError, prepareAlchemyCalls } from 'lib/apis/temple/endpoints/evm/alchemy-wallet';
-import { browser } from 'lib/browser';
-import {
-  getAlchemySubmission,
-  getAlchemySubmissionKey,
-  parseAlchemySubmission,
-  type AlchemySubmission
-} from 'lib/evm/alchemy/submission';
+import { getAlchemyCallsStatus, prepareAlchemyCalls } from 'lib/apis/temple/endpoints/evm/alchemy-wallet';
 import { buildAlchemySwapCalls } from 'lib/evm/alchemy/swap';
 import type { AlchemyBatchQuote, AlchemyFeeOption } from 'lib/evm/alchemy/types';
 import {
@@ -30,11 +23,19 @@ interface Params {
   account: Hex;
   network: EvmChain;
 }
+interface BatchPreview {
+  quote: AlchemyBatchQuote;
+  steps: LiFiStep[];
+}
 type BatchState =
-  | { phase: 'preparing' }
+  | { phase: 'preparing'; preview?: BatchPreview }
   | { phase: 'error'; error: unknown }
-  | { phase: 'pending' }
-  | { phase: 'ready' | 'replacement' | 'expired'; quote: AlchemyBatchQuote; steps: LiFiStep[] };
+  | { phase: 'ready' | 'pending' | 'expired'; quote: AlchemyBatchQuote; steps: LiFiStep[] };
+
+function getBatchPreview(state: BatchState): BatchPreview | undefined {
+  if ('quote' in state) return state;
+  return state.phase === 'preparing' ? state.preview : undefined;
+}
 
 const scaleFeeValue = (value: bigint, from: AlchemyFeeOption, to: AlchemyFeeOption): bigint => {
   const fromPercent = BigInt(Math.round(ALCHEMY_FEE_MULTIPLIERS[from] * 100));
@@ -43,54 +44,42 @@ const scaleFeeValue = (value: bigint, from: AlchemyFeeOption, to: AlchemyFeeOpti
 };
 
 export function useAlchemySwapBatch({ steps, account, network }: Params) {
-  const { submitAlchemyBatch, checkAlchemyBatch, completeAlchemyBatch } = useTempleClient();
+  const { submitAlchemyBatch } = useTempleClient();
   const [state, setState] = useState<BatchState>({ phase: 'preparing' });
-  const [submission, setSubmission] = useState<AlchemySubmission>();
+  const [callId, setCallId] = useState<Hex>();
   const [executing, setExecuting] = useState(false);
   const [executionError, setExecutionError] = useState<unknown>();
   const [selectedFeeOption, setSelectedFeeOption] = useState<AlchemyFeeOption>('mid');
   const [revision, setRevision] = useState(0);
   const lock = useRef(false);
   const mounted = useRef(true);
-  const key = getAlchemySubmissionKey(account, network.chainId);
-  const submitted = Boolean(submission && submission.result?.status !== 'failed');
-  const activeSubmission = submitted ? submission : undefined;
-  const quote = 'quote' in state ? state.quote : activeSubmission?.quote;
-  const reviewSteps = 'steps' in state ? state.steps : (activeSubmission?.steps ?? steps);
+  const statusController = useRef<AbortController | undefined>(undefined);
+  const previousParams = useRef<Params | undefined>(undefined);
+  const submitted = Boolean(callId);
+  const preview = getBatchPreview(state);
+  const quote = preview?.quote;
+  const reviewSteps = preview?.steps ?? steps;
 
   useEffect(() => {
     mounted.current = true;
     return () => {
       mounted.current = false;
+      statusController.current?.abort();
     };
   }, []);
 
   useEffect(() => {
-    const listener: Parameters<typeof browser.storage.onChanged.addListener>[0] = (changes, area) => {
-      if (area !== 'local' || !changes[key]) return;
-      try {
-        setSubmission(parseAlchemySubmission(changes[key].newValue));
-      } catch (error) {
-        setState({ phase: 'error', error });
-      }
-    };
-    browser.storage.onChanged.addListener(listener);
-    return () => browser.storage.onChanged.removeListener(listener);
-  }, [key]);
-
-  useEffect(() => {
     const controller = new AbortController();
-    setState({ phase: 'preparing' });
+    const previous = previousParams.current;
+    const sameRequest = previous?.steps === steps && previous.account === account && previous.network === network;
+    previousParams.current = { steps, account, network };
+    // Preserve the current review during fee updates, but never submit this preview.
+    setState(current => ({
+      phase: 'preparing',
+      preview: sameRequest ? getBatchPreview(current) : undefined
+    }));
     setExecutionError(undefined);
     const prepare = async (): Promise<void> => {
-      const stored = await getAlchemySubmission(account, network.chainId);
-      if (controller.signal.aborted) return;
-      setSubmission(stored);
-      if (stored && stored.result?.status !== 'failed') {
-        setSelectedFeeOption(stored.quote.feeOption);
-        setState({ phase: 'pending' });
-        return;
-      }
       const result = await buildAlchemySwapCalls(steps, account, network, controller.signal);
       const request = addAlchemyGasParamsOverride(
         { from: account, chainId: numberToHex(network.chainId), calls: result.calls },
@@ -117,7 +106,7 @@ export function useAlchemySwapBatch({ steps, account, network }: Params) {
   }, [steps, account, network, revision, selectedFeeOption]);
 
   useEffect(() => {
-    if (state.phase !== 'ready' && state.phase !== 'replacement') return;
+    if (state.phase !== 'ready') return;
     const timer = setTimeout(
       () => setState(current => (current === state ? { ...state, phase: 'expired' } : current)),
       Math.max(0, state.quote.expiresAt - Date.now())
@@ -126,75 +115,60 @@ export function useAlchemySwapBatch({ steps, account, network }: Params) {
   }, [state]);
 
   const refresh = (): void => {
-    setRevision(value => value + 1);
+    if (!callId) setRevision(value => value + 1);
   };
   const execute = async (): Promise<Hex | undefined> => {
-    if (lock.current) return;
+    if (lock.current || state.phase === 'preparing') return;
     lock.current = true;
     setExecuting(true);
     setExecutionError(undefined);
+    const controller = new AbortController();
+    statusController.current = controller;
     try {
-      let stored = await checkAlchemyBatch(account, network.chainId);
-      setSubmission(stored);
-      if (stored?.result?.status === 'confirmed') return stored.result.transactionHash;
-      if (stored && stored.result?.status !== 'failed') {
-        if (stored.attempts.some(attempt => attempt.state === 'unknown' || attempt.state === 'queued'))
-          throw new Error('The batch submission is unresolved. Retry the status check.');
-        if (state.phase !== 'replacement' || Date.now() >= state.quote.expiresAt) {
-          const prepared = await prepareAlchemyCalls(stored.quote.request);
-          validateAlchemyPreparedCalls(prepared, stored.quote.request);
-          if (
-            BigInt(getAlchemyOperation(prepared).data.nonce) !==
-            BigInt(getAlchemyOperation(stored.quote.prepared).data.nonce)
-          )
-            throw new Error('The batch nonce changed. Retry the status check.');
-          setState({
-            phase: 'replacement',
-            steps: stored.steps,
-            quote: {
-              ...stored.quote,
-              prepared,
-              expiresAt: Date.now() + ALCHEMY_QUOTE_LIFETIME
-            }
-          });
+      let id = callId;
+      if (!id) {
+        if (state.phase !== 'ready' || Date.now() >= state.quote.expiresAt) {
+          refresh();
           return;
         }
-      } else if (state.phase !== 'ready' || Date.now() >= state.quote.expiresAt) {
-        refresh();
-        return;
-      }
-      if (!('quote' in state)) return;
-      stored = await submitAlchemyBatch(account, network, state.quote, state.steps);
-      setSubmission(stored);
-      setState({ phase: 'pending' });
-      // Only read local results here. The background owns all network status checks.
-      for (let attempt = 0; attempt < 45; attempt++) {
-        if (stored?.result?.status === 'confirmed') return stored.result.transactionHash;
-        if (stored?.result?.status === 'failed')
-          throw stored.error?.code !== undefined
-            ? new AlchemyRpcError(stored.error.code, stored.error.message, stored.error.data)
-            : new Error(stored.error?.message ?? 'The Alchemy batch failed. Retry to review a new quote.');
+        id = await submitAlchemyBatch(account, network, state.quote);
         if (!mounted.current) return;
-        await delay(1000);
-        stored = await getAlchemySubmission(account, network.chainId);
+        setCallId(id);
+        setState({ ...state, phase: 'pending' });
       }
-      throw new Error('The batch is pending. Retry to check its status and review a replacement fee.');
+      for (let attempt = 0; attempt < 45; attempt++) {
+        if (controller.signal.aborted) return;
+        const status = await getAlchemyCallsStatus(id, controller.signal);
+        if (controller.signal.aborted) return;
+        if (BigInt(status.chainId) !== BigInt(network.chainId) || status.id.toLowerCase() !== id.toLowerCase())
+          throw new Error('Alchemy status identity mismatch');
+        if (status.status === 200) {
+          const receipt = status.receipts?.[0];
+          if (!status.atomic || receipt?.status !== '0x1' || !receipt.transactionHash)
+            throw new Error('Alchemy returned an invalid batch receipt');
+          return receipt.transactionHash;
+        }
+        if (status.status === 400 || status.status === 500) {
+          setCallId(undefined);
+          throw new Error('The Alchemy batch failed. Retry to review a new quote.');
+        }
+        if (status.status < 100 || status.status >= 200)
+          throw new Error('Alchemy returned a partial or unknown batch status. Retry the status check.');
+        if (attempt < 44) await delay(1000);
+      }
+      throw new Error('The batch is pending. Retry to check its status.');
     } catch (error) {
+      if (controller.signal.aborted) return;
       setExecutionError(error);
       throw error;
     } finally {
       lock.current = false;
-      setExecuting(false);
+      if (mounted.current) setExecuting(false);
     }
   };
 
-  const complete = async (transactionHash: Hex): Promise<void> => {
-    await completeAlchemyBatch(account, network.chainId, transactionHash);
-    setSubmission(undefined);
-  };
-
   const selectFeeOption = (option: AlchemyFeeOption): void => {
-    if (!submitted && !executing && state.phase !== 'preparing') setSelectedFeeOption(option);
+    if (!submitted && !executing) setSelectedFeeOption(option);
   };
   const feeOptions = quote
     ? (Object.fromEntries(
@@ -215,7 +189,6 @@ export function useAlchemySwapBatch({ steps, account, network }: Params) {
     error: executionError ?? (state.phase === 'error' ? state.error : undefined),
     busy: executing || state.phase === 'preparing',
     submitted,
-    replacementReady: state.phase === 'replacement',
     expired: state.phase === 'expired',
     selectedFeeOption,
     selectFeeOption,
@@ -236,8 +209,6 @@ export function useAlchemySwapBatch({ steps, account, network }: Params) {
       : undefined,
     delegationRequired: quote?.prepared.type === 'array',
     refresh,
-    checkSubmission: () => checkAlchemyBatch(account, network.chainId),
-    execute,
-    complete
+    execute
   };
 }

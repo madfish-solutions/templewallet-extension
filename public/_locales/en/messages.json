@@ -4929,9 +4929,6 @@
       }
     }
   },
-  "swapUseSeparateTransactions": {
-    "message": "Use separate transactions"
-  },
   "smartWalletFeaturesNotice": {
     "message": "Operation enable Smart Wallet features"
   },

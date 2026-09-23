@@ -1,4 +1,3 @@
-import type { LiFiStep } from '@lifi/sdk';
 import { DerivationType } from '@taquito/ledger-signer';
 import { valueEncoder } from '@taquito/local-forging/dist/lib/michelson/codec';
 import { TezosOperationError } from '@taquito/taquito';
@@ -226,14 +225,9 @@ export function sendEvmTransaction(accountPkh: HexString, network: EvmChain, txP
   });
 }
 
-export function submitAlchemyBatch(
-  accountPkh: HexString,
-  network: EvmChain,
-  quote: AlchemyBatchQuote,
-  steps: LiFiStep[]
-) {
+export function submitAlchemyBatch(accountPkh: HexString, network: EvmChain, quote: AlchemyBatchQuote) {
   return withUnlocked(({ vault }) =>
-    submitAlchemySwap(accountPkh, network, quote, steps, () => vault.signAlchemyBatch(accountPkh, network, quote))
+    submitAlchemySwap(accountPkh, network, quote, () => vault.signAlchemyBatch(accountPkh, network, quote))
   );
 }
 

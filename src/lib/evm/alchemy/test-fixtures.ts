@@ -1,8 +1,7 @@
 import type { LiFiStep } from '@lifi/sdk';
 import { encodeFunctionData, parseAbi } from 'viem';
 
-import { getAlchemyCallId, type AlchemySubmission } from './submission';
-import type { AlchemyBatchQuote, AlchemyPreparedOperation, AlchemySignedCalls } from './types';
+import type { AlchemyBatchQuote, AlchemyPreparedOperation } from './types';
 import { addAlchemyGasParamsOverride, getAlchemyOperationHash } from './validation';
 
 export const account = '0x1111111111111111111111111111111111111111';
@@ -64,21 +63,4 @@ export function makeQuote(): AlchemyBatchQuote {
   };
   operation.signatureRequest.data.raw = getAlchemyOperationHash(operation);
   return { request, prepared: operation, feeOption: 'mid', expiresAt: Date.now() + 60_000 };
-}
-
-export function makeSubmission(): AlchemySubmission {
-  const quote = makeQuote();
-  const operation = quote.prepared as AlchemyPreparedOperation;
-  const signed: AlchemySignedCalls = {
-    type: operation.type,
-    chainId: operation.chainId,
-    data: operation.data,
-    signature: { type: 'secp256k1', data: `0x${'11'.repeat(65)}` }
-  };
-  return {
-    version: 2,
-    quote,
-    steps: [makeStep()],
-    attempts: [{ signed, id: getAlchemyCallId(operation), state: 'queued', checks: 0, nextCheckAt: 0 }]
-  };
 }

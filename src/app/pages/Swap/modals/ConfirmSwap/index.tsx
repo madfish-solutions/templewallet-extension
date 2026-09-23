@@ -5,7 +5,6 @@ import { isDefined } from '@rnw-community/shared';
 import { PageModal } from 'app/atoms/PageModal';
 import { isSwapEvmReviewData, SwapReviewData } from 'app/pages/Swap/form/interfaces';
 import { ConfirmationModal } from 'app/templates/ConfirmationModal/ConfirmationModal';
-import { ErrorTab } from 'app/templates/TransactionTabs/tabs/error';
 import { t, T } from 'lib/i18n';
 import { TezosEstimationDataProvider } from 'lib/temple/front/estimation-data-providers';
 
@@ -35,8 +34,7 @@ export const ConfirmSwapModal: FC<ConfirmSwapModalProps> = ({ opened, onRequestC
     handleRequestClose,
     setCancelConfirmClosed,
     useLegacyFlow,
-    setBatchBusy,
-    initializationError
+    setBatchBusy
   } = useEvmUserActions(opened, onRequestClose, reviewData);
 
   const title = useMemo(() => {
@@ -84,10 +82,6 @@ export const ConfirmSwapModal: FC<ConfirmSwapModalProps> = ({ opened, onRequestC
                   onUseLegacyFlow={useLegacyFlow}
                   onBatchBusyChange={setBatchBusy}
                 />
-              ) : initializationError ? (
-                <div className="p-4">
-                  <ErrorTab isEvm submitError={initializationError} estimationError={undefined} />
-                </div>
               ) : (
                 <></>
               )

@@ -54,7 +54,6 @@ interface BaseContentProps<T extends TxParamsFormData> {
   readOnlyFees?: boolean;
   retry?: boolean;
   actionsNotice?: ReactNode;
-  secondaryAction?: ReactNode;
   evmGasPriceOverride?: string;
   evmAdvancedValues?: Partial<EvmTxParamsFormData>;
 }
@@ -84,7 +83,6 @@ export const BaseContent = <T extends TxParamsFormData>({
   readOnlyFees,
   retry,
   actionsNotice,
-  secondaryAction,
   evmGasPriceOverride,
   evmAdvancedValues
 }: BaseContentProps<T>) => {
@@ -189,7 +187,6 @@ export const BaseContent = <T extends TxParamsFormData>({
         >
           {actionsNotice}
         </div>
-        {secondaryAction && <div className="mb-2 flex justify-center">{secondaryAction}</div>}
         <div className="relative z-1 flex w-full gap-2.5 bg-white">{actionButtons}</div>
       </ActionsButtonsBox>
 

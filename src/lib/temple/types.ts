@@ -1,4 +1,3 @@
-import type { LiFiStep } from '@lifi/sdk';
 import type { RawSignResult } from '@taquito/core';
 import type { DerivationType } from '@taquito/ledger-signer';
 import type { TempleDAppMetadata } from '@temple-wallet/dapp/dist/types';
@@ -6,7 +5,6 @@ import BigNumber from 'bignumber.js';
 import type { RpcTransactionRequest, SignableMessage, TypedDataDefinition } from 'viem';
 
 import type { DAppsSessionsRecord } from 'app/storage/dapps';
-import type { AlchemySubmission } from 'lib/evm/alchemy/submission';
 import type { AlchemyBatchQuote } from 'lib/evm/alchemy/types';
 import type { PromisesQueueCounters } from 'lib/utils';
 import type { EvmEstimationData, SerializedEvmEstimationData } from 'temple/evm/estimate';
@@ -517,10 +515,6 @@ export enum TempleMessageType {
   SendEvmTransactionRequest = 'SEND_EVM_TRANSACTION_REQUEST',
   SendEvmTransactionResponse = 'SEND_EVM_TRANSACTION_RESPONSE',
   SubmitAlchemyBatchRequest = 'SUBMIT_ALCHEMY_BATCH_REQUEST',
-  CompleteAlchemyBatchRequest = 'COMPLETE_ALCHEMY_BATCH_REQUEST',
-  CompleteAlchemyBatchResponse = 'COMPLETE_ALCHEMY_BATCH_RESPONSE',
-  CheckAlchemyBatchRequest = 'CHECK_ALCHEMY_BATCH_REQUEST',
-  CheckAlchemyBatchResponse = 'CHECK_ALCHEMY_BATCH_RESPONSE',
   SubmitAlchemyBatchResponse = 'SUBMIT_ALCHEMY_BATCH_RESPONSE',
   ResetExtensionRequest = 'RESET_EXTENSION_REQUEST',
   ResetExtensionResponse = 'RESET_EXTENSION_RESPONSE',
@@ -551,8 +545,6 @@ export type TempleNotification =
   | TempleDAppTransactionSent;
 
 export type TempleRequest =
-  | TempleCompleteAlchemyBatchRequest
-  | TempleCheckAlchemyBatchRequest
   | TempleSubmitAlchemyBatchRequest
   | TempleAcknowledgeRequest
   | TempleGetStateRequest
@@ -605,8 +597,6 @@ export type TempleRequest =
   | TempleAnalyzeYoutubeWatchPageRequest;
 
 export type TempleResponse =
-  | TempleCompleteAlchemyBatchResponse
-  | TempleCheckAlchemyBatchResponse
   | TempleSubmitAlchemyBatchResponse
   | TempleGetStateResponse
   | TempleAcknowledgeResponse
@@ -1057,12 +1047,11 @@ interface TempleSubmitAlchemyBatchRequest extends TempleMessageBase {
   accountPkh: HexString;
   network: EvmChain;
   quote: AlchemyBatchQuote;
-  steps: LiFiStep[];
 }
 
 interface TempleSubmitAlchemyBatchResponse extends TempleMessageBase {
   type: TempleMessageType.SubmitAlchemyBatchResponse;
-  submission: AlchemySubmission;
+  callId: HexString;
 }
 
 interface TempleSendEvmTransactionResponse extends TempleMessageBase {
@@ -1309,23 +1298,3 @@ interface TempleAnalyzeYoutubeWatchPageResponse extends TempleMessageBase {
 export type EvmTransactionRequestWithSender = RpcTransactionRequest & { from: HexString };
 
 export type OperationsPreview = any[] | { branch: string; contents: any[] };
-
-interface TempleCheckAlchemyBatchRequest extends TempleMessageBase {
-  type: TempleMessageType.CheckAlchemyBatchRequest;
-  accountPkh: HexString;
-  chainId: number;
-}
-interface TempleCheckAlchemyBatchResponse extends TempleMessageBase {
-  type: TempleMessageType.CheckAlchemyBatchResponse;
-  submission?: AlchemySubmission;
-}
-
-interface TempleCompleteAlchemyBatchRequest extends TempleMessageBase {
-  type: TempleMessageType.CompleteAlchemyBatchRequest;
-  accountPkh: HexString;
-  chainId: number;
-  transactionHash: HexString;
-}
-interface TempleCompleteAlchemyBatchResponse extends TempleMessageBase {
-  type: TempleMessageType.CompleteAlchemyBatchResponse;
-}

@@ -1,9 +1,8 @@
-import { useEffect, useState, type FC } from 'react';
+import { useEffect, useRef, useState, type FC } from 'react';
 
 import type { LiFiStep } from '@lifi/sdk';
 import { FormProvider, useForm } from 'react-hook-form';
 
-import { StyledButton } from 'app/atoms/StyledButton';
 import { Tooltip } from 'app/atoms/Tooltip';
 import { dispatch } from 'app/store';
 import { addPendingEvmSwapAction, monitorPendingSwapsAction } from 'app/store/evm/pending-transactions/actions';
@@ -47,6 +46,7 @@ export const BatchEvmContent: FC<EvmContentProps & { batchSteps: LiFiStep[] }> =
   const [tab, setTab] = useState<Tab>('details');
   const [error, setError] = useState<unknown>();
   const [submitting, setSubmitting] = useState(false);
+  const retried = useRef(false);
   const getExplorer = useGetEvmActiveBlockExplorer();
   const step = getAlchemyBatchReviewStep(batch.reviewSteps);
   const inputSlug = getTokenSlugFromEvmDexTokenAddress(step.action.fromToken.address);
@@ -72,7 +72,12 @@ export const BatchEvmContent: FC<EvmContentProps & { batchSteps: LiFiStep[] }> =
     setError(undefined);
     setTab('details');
     if ((batch.error || error) && !batch.submitted) {
-      batch.refresh();
+      if (retried.current && onUseLegacyFlow) {
+        onUseLegacyFlow();
+      } else {
+        retried.current = true;
+        batch.refresh();
+      }
       return;
     }
     setSubmitting(true);
@@ -100,25 +105,12 @@ export const BatchEvmContent: FC<EvmContentProps & { batchSteps: LiFiStep[] }> =
       );
       dispatch(monitorPendingSwapsAction());
       showTxSubmitToastWithDelay(TempleChainKind.EVM, txHash, explorer.url);
-      await batch.complete(txHash);
       onStepCompleted();
     } catch (cause) {
       setError(cause);
       setTab('error');
     } finally {
       setSubmitting(false);
-    }
-  };
-
-  const useLegacy = async (): Promise<void> => {
-    try {
-      const stored = await batch.checkSubmission();
-      if (stored && stored.result?.status !== 'failed')
-        throw new Error('The batch submission is unresolved. Retry the status check.');
-      onUseLegacyFlow?.();
-    } catch (cause) {
-      setError(cause);
-      setTab('error');
     }
   };
 
@@ -154,16 +146,9 @@ export const BatchEvmContent: FC<EvmContentProps & { batchSteps: LiFiStep[] }> =
         submitLoadingOverride={submitting || batch.busy}
         submitDisabled={submitDisabled}
         readOnlyFees
-        retry={batch.expired || (batch.submitted && !batch.replacementReady)}
+        retry={batch.expired || batch.submitted}
         evmGasPriceOverride={batch.gasPrice}
         evmAdvancedValues={batch.advancedValues}
-        secondaryAction={
-          !batch.submitted && !batch.busy && !submitting && onUseLegacyFlow ? (
-            <StyledButton size="S" color="primary-low" onClick={useLegacy}>
-              <T id="swapUseSeparateTransactions" />
-            </StyledButton>
-          ) : undefined
-        }
         actionsNotice={
           batch.delegationRequired ? (
             <div className="flex items-center justify-center">

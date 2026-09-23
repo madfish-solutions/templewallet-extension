@@ -4,7 +4,6 @@ import { createRoot, Root } from 'react-dom/client';
 
 import { EvmReviewData } from 'app/pages/Swap/form/interfaces';
 import { getAlchemyWalletConfig } from 'lib/apis/temple/endpoints/evm/alchemy-wallet';
-import { getAlchemySubmission } from 'lib/evm/alchemy/submission';
 import { TempleAccountType } from 'lib/temple/types';
 import { TempleChainKind } from 'temple/types';
 
@@ -13,7 +12,6 @@ import { useEvmAllowances } from '../../SwapSelectAsset/hooks';
 import { useEvmUserActions } from './useEvmUserActions';
 
 jest.mock('lib/apis/temple/endpoints/evm/alchemy-wallet', () => ({ getAlchemyWalletConfig: jest.fn() }));
-jest.mock('lib/evm/alchemy/submission', () => ({ getAlchemySubmission: jest.fn() }));
 jest.mock('../../SwapSelectAsset/hooks', () => ({ useEvmAllowances: jest.fn() }));
 jest.mock('./usePrefetchEvmStepTransactions', () => ({
   usePrefetchEvmStepTransactions: () => ({ progressionBlocked: false })
@@ -66,7 +64,6 @@ beforeEach(() => {
   jest.resetAllMocks();
   Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true });
   (getAlchemyWalletConfig as jest.Mock).mockResolvedValue({ chains: [1], feeTokens: {} });
-  (getAlchemySubmission as jest.Mock).mockResolvedValue(undefined);
   (useEvmAllowances as jest.Mock).mockReturnValue({ allowanceSufficient: [false], loading: false });
   container = document.createElement('div');
   document.body.appendChild(container);
@@ -91,10 +88,11 @@ it('keeps the original actions on an unsupported chain', async () => {
   expect(current.userActions.map(action => action.type)).toEqual(['approve', 'execute']);
 });
 
-it('keeps the original actions when the backend is unavailable', async () => {
+it('keeps the batch retry flow when the config request fails', async () => {
   (getAlchemyWalletConfig as jest.Mock).mockRejectedValueOnce(new Error('Unavailable'));
   await render(makeReview());
-  expect(current.userActions.map(action => action.type)).toEqual(['approve', 'execute']);
+  expect(current.userActions).toHaveLength(1);
+  expect(current.userActions[0].batchSteps).toHaveLength(1);
 });
 
 it('keeps Ledger on the original flow', async () => {
@@ -103,7 +101,7 @@ it('keeps Ledger on the original flow', async () => {
   expect(current.userActions.map(action => action.type)).toEqual(['approve', 'execute']);
 });
 
-it('restores the original actions through the backdoor', async () => {
+it('restores the original actions after the batch retry fallback', async () => {
   await render();
   await act(async () => {
     current.useLegacyFlow();
@@ -122,18 +120,6 @@ it('allows the user to close while an Alchemy batch is busy', async () => {
   });
   expect(onClose).toHaveBeenCalledTimes(1);
   expect(current.cancelledRef.current).toBe(true);
-});
-
-it('resumes a submitted route when the feature flag is disabled', async () => {
-  const review = makeReview();
-  (getAlchemyWalletConfig as jest.Mock).mockResolvedValue({ chains: [], feeTokens: {} });
-  (getAlchemySubmission as jest.Mock).mockResolvedValue({
-    version: 1,
-    steps: 'steps' in review.swapRoute ? review.swapRoute.steps : []
-  });
-  await render(review);
-  expect(current.userActions).toHaveLength(1);
-  expect(current.userActions[0].batchSteps).toHaveLength(1);
 });
 
 it('skips legacy allowance requests for a batch', async () => {

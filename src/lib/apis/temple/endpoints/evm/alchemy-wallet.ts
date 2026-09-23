@@ -46,5 +46,5 @@ export const prepareAlchemyCalls = (body: AlchemyBatchRequest, signal?: AbortSig
 export const sendAlchemyCalls = (body: AlchemySignedCalls): Promise<{ id: Hex }> =>
   request('wallet_sendPreparedCalls', body);
 
-export const getAlchemyCallsStatus = (callId: Hex): Promise<AlchemyCallsStatus> =>
-  request('wallet_getCallsStatus', { callId });
+export const getAlchemyCallsStatus = (callId: Hex, signal?: AbortSignal): Promise<AlchemyCallsStatus> =>
+  request('wallet_getCallsStatus', { callId }, signal);
