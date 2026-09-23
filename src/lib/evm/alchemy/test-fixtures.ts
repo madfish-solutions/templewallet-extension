@@ -5,8 +5,8 @@ import type { AlchemyBatchQuote, AlchemyPreparedOperation } from './types';
 import { addAlchemyGasParamsOverride, getAlchemyOperationHash } from './validation';
 
 export const account = '0x1111111111111111111111111111111111111111';
-export const token = '0x2222222222222222222222222222222222222222';
 export const target = '0x3333333333333333333333333333333333333333';
+const token = '0x2222222222222222222222222222222222222222';
 
 export function makeStep(destination = 1): LiFiStep {
   return {

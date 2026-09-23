@@ -39,15 +39,18 @@ export async function buildAlchemySwapCalls(
   for (const step of steps) {
     signal?.throwIfAborted();
     const prepared = await getEvmStepTransaction(step, signal);
-    if (!prepared?.transactionRequest) throw new Error('LiFi did not return a transaction');
+    if (!prepared?.transactionRequest) {
+      throw new Error('LiFi did not return a transaction');
+    }
     const { transactionRequest: tx, action, estimate } = prepared;
     validateLifiRefresh(step, prepared);
     if (
       (tx.chainId !== undefined && Number(tx.chainId) !== network.chainId) ||
       !isAddress(tx.to ?? '') ||
       (tx.from !== undefined && !isAddressEqual(tx.from as HexString, account))
-    )
+    ) {
       throw new Error('LiFi returned an invalid transaction');
+    }
 
     if (!isAddressEqual(action.fromToken.address as HexString, zeroAddress)) {
       const token = action.fromToken.address as HexString;
@@ -107,7 +110,7 @@ export function getAlchemyBatchReviewStep(steps: LiFiStep[]): LiFiStep {
 }
 
 /** Refresh prices and transaction terms, but retain the selected token pair and chains. */
-export function validateLifiRefresh(previous: LiFiStep, refreshed: LiFiStep): void {
+function validateLifiRefresh(previous: LiFiStep, refreshed: LiFiStep): void {
   const original = previous.action;
   const next = refreshed.action;
   if (
