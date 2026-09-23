@@ -11,5 +11,9 @@ export const serializeError = (error: unknown) => {
     return JSON.stringify(error);
   }
 
+  if (error instanceof Error) {
+    return JSON.stringify({ ...error, name: error.name, message: error.message });
+  }
+
   return JSON.stringify({ ...error });
 };

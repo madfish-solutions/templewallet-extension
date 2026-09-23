@@ -1,0 +1,142 @@
+import { act, useEffect } from 'react';
+
+import { createRoot, Root } from 'react-dom/client';
+
+import { EvmReviewData } from 'app/pages/Swap/form/interfaces';
+import { getAlchemyWalletConfig } from 'lib/apis/temple/endpoints/evm/alchemy-wallet';
+import { TempleAccountType } from 'lib/temple/types';
+import { TempleChainKind } from 'temple/types';
+
+import { useEvmAllowances } from '../../SwapSelectAsset/hooks';
+
+import { useEvmUserActions } from './useEvmUserActions';
+
+jest.mock('lib/apis/temple/endpoints/evm/alchemy-wallet', () => ({ getAlchemyWalletConfig: jest.fn() }));
+jest.mock('../../SwapSelectAsset/hooks', () => ({ useEvmAllowances: jest.fn() }));
+jest.mock('./usePrefetchEvmStepTransactions', () => ({
+  usePrefetchEvmStepTransactions: () => ({ progressionBlocked: false })
+}));
+jest.mock('lib/ui/hooks', () => ({ useBooleanState: () => [false, jest.fn(), jest.fn()] }));
+
+let current: ReturnType<typeof useEvmUserActions>;
+let root: Root;
+let container: HTMLDivElement;
+const onClose = jest.fn();
+
+function Harness({ review }: { review: EvmReviewData }) {
+  const result = useEvmUserActions(true, onClose, review);
+  useEffect(() => {
+    current = result;
+  }, [result]);
+  return null;
+}
+
+function makeReview(type = TempleAccountType.HD): EvmReviewData {
+  return {
+    account: { address: '0x1111111111111111111111111111111111111111', type },
+    network: { kind: TempleChainKind.EVM, chainId: 1 },
+    swapRoute: {
+      steps: [
+        {
+          id: 'route',
+          type: 'lifi',
+          action: {
+            fromChainId: 1,
+            toChainId: 10,
+            fromAmount: '100',
+            fromToken: { address: '0x2222222222222222222222222222222222222222' }
+          },
+          estimate: { fromAmount: '100' }
+        }
+      ]
+    },
+    handleResetForm: jest.fn()
+  } as unknown as EvmReviewData;
+}
+
+async function render(review = makeReview()): Promise<void> {
+  await act(async () => {
+    root.render(<Harness review={review} />);
+  });
+}
+
+beforeEach(() => {
+  jest.resetAllMocks();
+  Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true });
+  (getAlchemyWalletConfig as jest.Mock).mockResolvedValue({ chains: [1], feeTokens: {} });
+  (useEvmAllowances as jest.Mock).mockReturnValue({ allowanceSufficient: [false], loading: false });
+  container = document.createElement('div');
+  document.body.appendChild(container);
+  root = createRoot(container);
+});
+
+afterEach(async () => {
+  await act(async () => root.unmount());
+  container.remove();
+});
+
+it('collapses approval and execution on a supported chain', async () => {
+  await render();
+  expect(current.userActions).toHaveLength(1);
+  expect(current.userActions[0].batchSteps).toHaveLength(1);
+  expect(current.skipStatusWait).toBe(true);
+});
+
+it('keeps the original actions on an unsupported chain', async () => {
+  (getAlchemyWalletConfig as jest.Mock).mockResolvedValueOnce({ chains: [], feeTokens: {} });
+  await render();
+  expect(current.userActions.map(action => action.type)).toEqual(['approve', 'execute']);
+});
+
+it('keeps the batch retry flow when the config request fails', async () => {
+  (getAlchemyWalletConfig as jest.Mock).mockRejectedValueOnce(new Error('Unavailable'));
+  await render(makeReview());
+  expect(current.userActions).toHaveLength(1);
+  expect(current.userActions[0].batchSteps).toHaveLength(1);
+});
+
+it('keeps Ledger on the original flow', async () => {
+  await render(makeReview(TempleAccountType.Ledger));
+  expect(getAlchemyWalletConfig).not.toHaveBeenCalled();
+  expect(current.userActions.map(action => action.type)).toEqual(['approve', 'execute']);
+});
+
+it('restores the original actions after the batch retry fallback', async () => {
+  await render();
+  await act(async () => {
+    current.useLegacyFlow();
+  });
+  expect(current.userActions.map(action => action.type)).toEqual(['approve', 'execute']);
+  expect(current.userActions[0].batchSteps).toBeUndefined();
+});
+
+it('keeps the modal open until the Alchemy call ID can be saved', async () => {
+  await render();
+  await act(async () => {
+    current.setBatchBusy(true);
+  });
+  await act(async () => {
+    current.handleRequestClose();
+  });
+  expect(onClose).not.toHaveBeenCalled();
+  expect(current.cancelledRef.current).toBe(false);
+  await act(async () => {
+    current.setBatchBusy(false);
+    current.handleRequestClose();
+  });
+  expect(onClose).toHaveBeenCalledTimes(1);
+  expect(current.cancelledRef.current).toBe(true);
+});
+
+it('skips legacy allowance requests for a batch', async () => {
+  await render();
+  expect((useEvmAllowances as jest.Mock).mock.calls.every(([steps]) => steps.length === 0)).toBe(true);
+});
+it('fetches legacy allowances after the explicit fallback action', async () => {
+  const review = makeReview();
+  await render(review);
+  await act(async () => {
+    current.useLegacyFlow();
+  });
+  expect(useEvmAllowances).toHaveBeenLastCalledWith('steps' in review.swapRoute ? review.swapRoute.steps : []);
+});

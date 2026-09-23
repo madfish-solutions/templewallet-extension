@@ -5,6 +5,7 @@ import BigNumber from 'bignumber.js';
 import type { RpcTransactionRequest, SignableMessage, TypedDataDefinition } from 'viem';
 
 import type { DAppsSessionsRecord } from 'app/storage/dapps';
+import type { AlchemyBatchQuote } from 'lib/evm/alchemy/types';
 import type { PromisesQueueCounters } from 'lib/utils';
 import type { EvmEstimationData, SerializedEvmEstimationData } from 'temple/evm/estimate';
 import type { TypedDataV1 } from 'temple/evm/typed-data-v1';
@@ -513,6 +514,8 @@ export enum TempleMessageType {
   SendPageEventResponse = 'SEND_PAGE_EVENT_RESPONSE',
   SendEvmTransactionRequest = 'SEND_EVM_TRANSACTION_REQUEST',
   SendEvmTransactionResponse = 'SEND_EVM_TRANSACTION_RESPONSE',
+  SubmitAlchemyBatchRequest = 'SUBMIT_ALCHEMY_BATCH_REQUEST',
+  SubmitAlchemyBatchResponse = 'SUBMIT_ALCHEMY_BATCH_RESPONSE',
   ResetExtensionRequest = 'RESET_EXTENSION_REQUEST',
   ResetExtensionResponse = 'RESET_EXTENSION_RESPONSE',
   SetWindowPopupStateRequest = 'SET_WINDOW_POPUP_STATE_REQUEST',
@@ -542,6 +545,7 @@ export type TempleNotification =
   | TempleDAppTransactionSent;
 
 export type TempleRequest =
+  | TempleSubmitAlchemyBatchRequest
   | TempleAcknowledgeRequest
   | TempleGetStateRequest
   | TempleNewWalletRequest
@@ -593,6 +597,7 @@ export type TempleRequest =
   | TempleAnalyzeYoutubeWatchPageRequest;
 
 export type TempleResponse =
+  | TempleSubmitAlchemyBatchResponse
   | TempleGetStateResponse
   | TempleAcknowledgeResponse
   | TempleNewWalletResponse
@@ -1035,6 +1040,18 @@ interface TempleSendEvmTransactionRequest extends TempleMessageBase {
   spender?: HexString;
   tokenAddress?: HexString;
   fromAmount?: BigNumber;
+}
+
+interface TempleSubmitAlchemyBatchRequest extends TempleMessageBase {
+  type: TempleMessageType.SubmitAlchemyBatchRequest;
+  accountPkh: HexString;
+  network: EvmChain;
+  quote: AlchemyBatchQuote;
+}
+
+interface TempleSubmitAlchemyBatchResponse extends TempleMessageBase {
+  type: TempleMessageType.SubmitAlchemyBatchResponse;
+  callId: HexString;
 }
 
 interface TempleSendEvmTransactionResponse extends TempleMessageBase {

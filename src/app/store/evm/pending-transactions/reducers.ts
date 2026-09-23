@@ -1,10 +1,12 @@
 import { createReducer } from '@reduxjs/toolkit';
-import { persistReducer } from 'redux-persist';
+import { createMigrate, persistReducer } from 'redux-persist';
 
 import { storageConfig } from 'lib/store';
 
 import {
   addPendingEvmSwapAction,
+  addPendingEvmBatchAction,
+  removePendingEvmBatchAction,
   updatePendingSwapStatusAction,
   incrementSwapCheckAttemptsAction,
   removePendingEvmSwapAction,
@@ -20,6 +22,14 @@ import {
 import { pendingEvmTransactionsInitialState, PendingEvmTransactionsState } from './state';
 
 const pendingEvmTransactionsReducer = createReducer(pendingEvmTransactionsInitialState, builder => {
+  builder.addCase(addPendingEvmBatchAction, (state, { payload }) => {
+    state.batches[payload.callId] = payload;
+  });
+
+  builder.addCase(removePendingEvmBatchAction, (state, { payload: callId }) => {
+    delete state.batches[callId];
+  });
+
   builder.addCase(addPendingEvmSwapAction, (state, { payload }) => {
     state.swaps[payload.txHash] = {
       ...payload,
@@ -105,7 +115,11 @@ const pendingEvmTransactionsReducer = createReducer(pendingEvmTransactionsInitia
 export const pendingEvmTransactionsPersistedReducer = persistReducer<PendingEvmTransactionsState>(
   {
     key: 'root.evm.pendingTransactions',
+    version: 1,
     ...storageConfig,
+    migrate: createMigrate({
+      1: state => (state ? { ...state, batches: {} } : state)
+    }),
     blacklist: ['transferBeingWatched']
   },
   pendingEvmTransactionsReducer

@@ -31,6 +31,8 @@ interface ConfirmEvmUserActionProps {
   cancelledRef?: RefObject<boolean | null>;
   skipStatusWait?: boolean;
   submitDisabled?: boolean;
+  onUseLegacyFlow?: EmptyFn;
+  onBatchBusyChange?: SyncFn<boolean>;
 }
 
 export const ConfirmEvmUserAction = memo<ConfirmEvmUserActionProps>(
@@ -42,7 +44,9 @@ export const ConfirmEvmUserAction = memo<ConfirmEvmUserActionProps>(
     onRequestClose,
     cancelledRef,
     skipStatusWait,
-    submitDisabled
+    submitDisabled,
+    onUseLegacyFlow,
+    onBatchBusyChange
   }) => {
     const { type, routeStep } = userAction;
     const { fromChainId: firstActionFromChainId } = getCommonStepProps(firstExecuteAction.routeStep);
@@ -72,12 +76,24 @@ export const ConfirmEvmUserAction = memo<ConfirmEvmUserActionProps>(
       } as const;
 
       if (type === 'execute') {
-        const safeExecuteStep = routeStepWithTransactionRequest ?? { ...routeStep, transactionRequest: undefined };
+        const safeExecuteStep = userAction.batchSteps
+          ? routeStep
+          : (routeStepWithTransactionRequest ?? { ...routeStep, transactionRequest: undefined });
         return { ...base, routeStep: safeExecuteStep };
       }
 
       return { ...base, routeStep };
-    }, [account, inputNetwork, outputNetwork, routeStep, toAmountMin, toToken, type, routeStepWithTransactionRequest]);
+    }, [
+      account,
+      inputNetwork,
+      outputNetwork,
+      routeStep,
+      toAmountMin,
+      toToken,
+      type,
+      routeStepWithTransactionRequest,
+      userAction.batchSteps
+    ]);
 
     const initialInputData = useMemo<InitialInputData>(
       () => ({
@@ -92,6 +108,7 @@ export const ConfirmEvmUserAction = memo<ConfirmEvmUserActionProps>(
 
     useEffect(() => {
       if (type !== 'execute') return;
+      if (userAction.batchSteps) return;
       let cancelled = false;
 
       const run = async () => {
@@ -120,7 +137,7 @@ export const ConfirmEvmUserAction = memo<ConfirmEvmUserActionProps>(
       return () => {
         cancelled = true;
       };
-    }, [cancelledRef, type, routeStep]);
+    }, [cancelledRef, type, routeStep, userAction.batchSteps]);
 
     return (
       <EvmEstimationDataProvider>
@@ -144,6 +161,9 @@ export const ConfirmEvmUserAction = memo<ConfirmEvmUserActionProps>(
             skipStatusWait={skipStatusWait}
             submitDisabled={submitDisabled}
             onClose={onRequestClose}
+            batchSteps={userAction.batchSteps}
+            onUseLegacyFlow={onUseLegacyFlow}
+            onBatchBusyChange={onBatchBusyChange}
           />
         )}
       </EvmEstimationDataProvider>

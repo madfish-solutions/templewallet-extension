@@ -32,7 +32,9 @@ export const ConfirmSwapModal: FC<ConfirmSwapModalProps> = ({ opened, onRequestC
     performCancel,
     onStepCompleted,
     handleRequestClose,
-    setCancelConfirmClosed
+    setCancelConfirmClosed,
+    useLegacyFlow,
+    setBatchBusy
   } = useEvmUserActions(opened, onRequestClose, reviewData);
 
   const title = useMemo(() => {
@@ -77,6 +79,8 @@ export const ConfirmSwapModal: FC<ConfirmSwapModalProps> = ({ opened, onRequestC
                   cancelledRef={cancelledRef}
                   skipStatusWait={skipStatusWait}
                   submitDisabled={progressionBlocked}
+                  onUseLegacyFlow={useLegacyFlow}
+                  onBatchBusyChange={setBatchBusy}
                 />
               ) : (
                 <></>

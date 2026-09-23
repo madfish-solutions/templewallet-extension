@@ -2,6 +2,7 @@ import { createAction } from '@reduxjs/toolkit';
 
 import {
   MonitorStatesBase,
+  PendingEvmBatch,
   PendingEvmSwap,
   PendingEvmSwapBase,
   PendingEvmTransactionBase,
@@ -40,6 +41,10 @@ export const updateBalancesAfterSwapAction = createAction<PendingEvmSwap>(
 export const removePendingEvmSwapAction = createAction<TxHash>('evm/pending-swaps/REMOVE_SWAP');
 
 export const monitorPendingSwapsAction = createAction('evm/pending-transactions/MONITOR_SWAP');
+
+export const addPendingEvmBatchAction = createAction<PendingEvmBatch>('evm/pending-transactions/ADD_BATCH');
+export const removePendingEvmBatchAction = createAction<HexString>('evm/pending-transactions/REMOVE_BATCH');
+export const monitorPendingEvmBatchesAction = createAction('evm/pending-transactions/MONITOR_BATCHES');
 
 export const cleanupOutdatedEvmPendingTxWithInitialMonitorTriggerAction = createAction(
   'evm/pending-transactions/CLEANUP_OUTDATED_EVM_PENDING_TX_WITH_MONITOR_TRIGGER'
