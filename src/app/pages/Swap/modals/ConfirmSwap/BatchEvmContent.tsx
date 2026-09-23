@@ -8,7 +8,8 @@ import { dispatch, persistor, store, useSelector } from 'app/store';
 import { addPendingEvmBatchAction, monitorPendingEvmBatchesAction } from 'app/store/evm/pending-transactions/actions';
 import { hasPendingEvmBatch } from 'app/store/evm/pending-transactions/utils';
 import type { EvmTxParamsFormData, Tab } from 'app/templates/TransactionTabs/types';
-import { toastInfo } from 'app/toaster';
+import { toastInfo, toastWarning } from 'app/toaster';
+import { isAlchemySubmissionTimeout } from 'lib/apis/temple/endpoints/evm/alchemy-wallet';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { getAlchemyBatchReviewStep } from 'lib/evm/alchemy/swap';
 import { T } from 'lib/i18n';
@@ -114,8 +115,16 @@ export const BatchEvmContent: FC<EvmContentProps & { batchSteps: LiFiStep[] }> =
       toastInfo('Swap submitted', true);
       if (!cancelledRef?.current) onStepCompleted();
     } catch (cause) {
-      setError(cause);
-      setTab('error');
+      if (isAlchemySubmissionTimeout(cause)) {
+        onBatchBusyChange?.(false);
+        onClose();
+        toastWarning(
+          'We could not confirm submission because the request timed out. Your swap may still complete. Check Activity before trying again.'
+        );
+      } else {
+        setError(cause);
+        setTab('error');
+      }
     } finally {
       setSubmitting(false);
       onBatchBusyChange?.(false);

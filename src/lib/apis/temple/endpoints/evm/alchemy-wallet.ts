@@ -1,3 +1,4 @@
+import axios from 'axios';
 import type { Hex } from 'viem';
 
 import type {
@@ -14,6 +15,14 @@ interface RpcResponse<T> {
   result?: T;
   error?: { code: number; message: string; data?: unknown };
 }
+
+export const ALCHEMY_SUBMISSION_TIMEOUT_MESSAGE = 'Alchemy submission response timed out';
+
+export const isAlchemySubmissionTimeout = (error: unknown): boolean =>
+  typeof error === 'object' &&
+  error !== null &&
+  'message' in error &&
+  error.message === ALCHEMY_SUBMISSION_TIMEOUT_MESSAGE;
 
 export class AlchemyRpcError extends Error {
   constructor(
@@ -43,8 +52,16 @@ export async function getAlchemyWalletConfig(signal?: AbortSignal): Promise<Alch
 export const prepareAlchemyCalls = (body: AlchemyBatchRequest, signal?: AbortSignal): Promise<AlchemyPreparedCalls> =>
   request('wallet_prepareCalls', body, signal);
 
-export const sendAlchemyCalls = (body: AlchemySignedCalls): Promise<{ id: Hex }> =>
-  request('wallet_sendPreparedCalls', body);
+export const sendAlchemyCalls = async (body: AlchemySignedCalls): Promise<{ id: Hex }> => {
+  try {
+    return await request('wallet_sendPreparedCalls', body);
+  } catch (error) {
+    if (axios.isAxiosError(error) && (error.code === 'ECONNABORTED' || error.code === 'ETIMEDOUT')) {
+      throw new Error(ALCHEMY_SUBMISSION_TIMEOUT_MESSAGE);
+    }
+    throw error;
+  }
+};
 
 export const getAlchemyCallsStatus = (callId: Hex, signal?: AbortSignal): Promise<AlchemyCallsStatus> =>
   request('wallet_getCallsStatus', { callId }, signal);
