@@ -50,6 +50,7 @@ beforeEach(async () => {
   const quote = makeQuote();
   (buildAlchemySwapCalls as jest.MockedFunction<typeof buildAlchemySwapCalls>).mockResolvedValue({
     calls: quote.request.calls,
+    minNativeReceivedByCall: {},
     steps
   });
   prepare.mockResolvedValue(quote.prepared);
@@ -68,6 +69,20 @@ it('submits the reviewed quote once through the background', async () => {
   expect(submit).toHaveBeenCalledTimes(1);
   expect(submit.mock.calls[0][2]).toEqual(reviewed);
   expect(status).not.toHaveBeenCalled();
+});
+
+it('includes minimum native receipts in the submitted quote', async () => {
+  (buildAlchemySwapCalls as jest.MockedFunction<typeof buildAlchemySwapCalls>).mockResolvedValueOnce({
+    calls: makeQuote().request.calls,
+    minNativeReceivedByCall: { 0: '0x5' },
+    steps
+  });
+  await act(async () => current.refresh());
+  await act(async () => {
+    await current.execute();
+  });
+
+  expect(submit.mock.calls[0][2].minNativeReceivedByCall).toEqual({ 0: '0x5' });
 });
 it.each([
   ['slow', 0.7],
@@ -145,6 +160,7 @@ it('displays the refreshed LiFi values', async () => {
   refreshed.estimate.toAmountMin = '140';
   (buildAlchemySwapCalls as jest.MockedFunction<typeof buildAlchemySwapCalls>).mockResolvedValueOnce({
     calls: makeQuote().request.calls,
+    minNativeReceivedByCall: {},
     steps: [refreshed]
   });
   await act(async () => {

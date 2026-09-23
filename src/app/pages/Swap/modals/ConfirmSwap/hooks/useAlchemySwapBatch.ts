@@ -92,6 +92,7 @@ export function useAlchemySwapBatch({ steps, account, network }: Params) {
           quote: {
             request,
             prepared,
+            minNativeReceivedByCall: result.minNativeReceivedByCall,
             expiresAt: Date.now() + ALCHEMY_QUOTE_LIFETIME,
             feeOption: selectedFeeOption
           }

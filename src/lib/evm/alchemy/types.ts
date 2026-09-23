@@ -86,6 +86,8 @@ export interface AlchemyCallsStatus {
 export interface AlchemyBatchQuote {
   request: AlchemyBatchRequest;
   prepared: AlchemyPreparedCalls;
+  /** Minimum native amount paid to the account after each indexed call. */
+  minNativeReceivedByCall?: Record<number, Hex>;
   expiresAt: number;
   feeOption: AlchemyFeeOption;
 }

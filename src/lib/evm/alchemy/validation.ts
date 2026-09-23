@@ -53,7 +53,15 @@ export function getAlchemyMaxCost(quote: AlchemyBatchQuote, entryPointDeposit = 
   const operation = getAlchemyOperation(quote.prepared);
   const prefund = operation.data.paymaster ? 0n : getAlchemyMaxFee(quote.prepared);
   const gasCost = prefund > entryPointDeposit ? prefund - entryPointDeposit : 0n;
-  return quote.request.calls.reduce((cost, call) => cost + BigInt(call.value), gasCost);
+  let required = gasCost;
+  let cost = gasCost;
+  for (const [index, call] of quote.request.calls.entries()) {
+    cost += BigInt(call.value);
+    if (cost > required) required = cost;
+    // A call can fund only later calls.
+    cost -= BigInt(quote.minNativeReceivedByCall?.[index] ?? '0x0');
+  }
+  return required;
 }
 
 export function addAlchemyGasParamsOverride(

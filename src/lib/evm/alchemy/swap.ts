@@ -28,12 +28,13 @@ export async function buildAlchemySwapCalls(
   account: HexString,
   network: EvmNetworkEssentials,
   signal?: AbortSignal
-): Promise<{ calls: AlchemyCall[]; steps: LiFiStep[] }> {
+): Promise<{ calls: AlchemyCall[]; minNativeReceivedByCall: Record<number, HexString>; steps: LiFiStep[] }> {
   if (!canBatchLifiSteps(steps) || steps[0].action.fromChainId !== network.chainId) {
     throw new Error('The route requires transactions on separate chains');
   }
   const client = getViemPublicClient(network);
   const calls: AlchemyCall[] = [];
+  const minNativeReceivedByCall: Record<number, HexString> = {};
   const preparedSteps: LiFiStep[] = [];
   const remainingAllowances = new Map<string, bigint>();
   for (const step of steps) {
@@ -87,9 +88,19 @@ export async function buildAlchemySwapCalls(
       data: (tx.data ?? '0x') as HexString,
       value: numberToHex(BigInt(tx.value ?? 0))
     });
+    const recipient = action.toAddress || action.fromAddress;
+    if (
+      action.toChainId === network.chainId &&
+      isAddressEqual(action.toToken.address as HexString, zeroAddress) &&
+      isAddress(recipient ?? '') &&
+      isAddressEqual(recipient as HexString, account)
+    ) {
+      const minNativeReceived = BigInt(estimate.toAmountMin);
+      if (minNativeReceived > 0n) minNativeReceivedByCall[calls.length - 1] = numberToHex(minNativeReceived);
+    }
     preparedSteps.push(prepared);
   }
-  return { calls, steps: preparedSteps };
+  return { calls, minNativeReceivedByCall, steps: preparedSteps };
 }
 
 /** Use the first input and final output for the batch preview. LiFi transactions stay intact. */

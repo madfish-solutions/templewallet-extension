@@ -1,7 +1,9 @@
+import { encodeFunctionData, parseAbi } from 'viem';
+
 import { AlchemyRpcError, sendAlchemyCalls } from 'lib/apis/temple/endpoints/evm/alchemy-wallet';
-import { account, makeQuote } from 'lib/evm/alchemy/test-fixtures';
+import { account, makeQuote, target } from 'lib/evm/alchemy/test-fixtures';
 import type { AlchemySignedCalls } from 'lib/evm/alchemy/types';
-import { getAlchemyOperation } from 'lib/evm/alchemy/validation';
+import { getAlchemyOperation, getAlchemyOperationHash } from 'lib/evm/alchemy/validation';
 import { getViemPublicClient } from 'temple/evm';
 import type { EvmChain } from 'temple/front';
 
@@ -54,6 +56,33 @@ it('does not allow EntryPoint deposits to fund call values', async () => {
   getBalance.mockResolvedValue(4n);
   readContract.mockResolvedValue(1_000_000n);
   await expect(submitAlchemyBatch(account, network, makeQuote(), sign)).rejects.toThrow('Insufficient balance');
+});
+
+it('submits a batch funded by a prior native swap output', async () => {
+  getBalance.mockResolvedValue(60n);
+  readContract.mockResolvedValue(0n);
+  const quote = makeQuote();
+  quote.request.calls = [
+    { to: target, data: '0x1234', value: '0x0' },
+    { to: target, data: '0x5678', value: '0xa' }
+  ];
+  quote.minNativeReceivedByCall = { 0: '0xa' };
+  const operation = getAlchemyOperation(quote.prepared);
+  operation.data.callData = encodeFunctionData({
+    abi: parseAbi(['function executeBatch((address target, uint256 value, bytes data)[] calls)']),
+    functionName: 'executeBatch',
+    args: [
+      [
+        { target, value: 0n, data: '0x1234' },
+        { target, value: 10n, data: '0x5678' }
+      ]
+    ]
+  });
+  operation.signatureRequest.data.raw = getAlchemyOperationHash(operation);
+
+  expect(await submitAlchemyBatch(account, network, quote, sign)).toBe(callId);
+  expect(sign).toHaveBeenCalledTimes(1);
+  expect(send).toHaveBeenCalledTimes(1);
 });
 
 it('propagates submission errors without an automatic resend', async () => {

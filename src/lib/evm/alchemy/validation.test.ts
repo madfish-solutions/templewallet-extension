@@ -88,6 +88,26 @@ it('includes every native call value in the maximum batch cost', () => {
   ).toBe(160n);
 });
 
+it('uses prior native receipts to reduce the initial balance requirement', () => {
+  const quote = makeQuote();
+  quote.request.calls = [
+    { to: target, data: '0x1234', value: '0x0' },
+    { to: target, data: '0x5678', value: '0xa' }
+  ];
+  quote.minNativeReceivedByCall = { 0: '0xa' };
+  expect(getAlchemyMaxCost(quote)).toBe(60n);
+
+  quote.minNativeReceivedByCall = { 0: '0x6' };
+  expect(getAlchemyMaxCost(quote)).toBe(64n);
+
+  quote.minNativeReceivedByCall = { 1: '0xa' };
+  expect(getAlchemyMaxCost(quote)).toBe(70n);
+
+  quote.request.calls[0].value = '0x5';
+  quote.minNativeReceivedByCall = { 0: '0xa' };
+  expect(getAlchemyMaxCost(quote)).toBe(65n);
+});
+
 it('validates the prepared calls against an independently computed operation hash', () => {
   const quote = makeQuote();
   const operation = getAlchemyOperation(quote.prepared);

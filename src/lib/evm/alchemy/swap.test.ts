@@ -47,6 +47,45 @@ it('omits approval for native tokens', async () => {
   expect(readContract).not.toHaveBeenCalled();
 });
 
+it('credits native output only after its swap call', async () => {
+  const first = step();
+  first.action.toToken.address = zeroAddress;
+  first.estimate.toAmountMin = '100';
+  first.transactionRequest!.value = '0x0';
+  const second = step();
+  second.action.fromToken.address = zeroAddress;
+  second.transactionRequest!.value = '0x5a';
+
+  const result = await buildAlchemySwapCalls([first, second], account, network);
+  expect(result.calls).toHaveLength(3);
+  expect(result.minNativeReceivedByCall).toEqual({ 1: '0x64' });
+});
+
+it('uses the sender as the native output recipient when LiFi omits one', async () => {
+  const nativeOutput = step();
+  nativeOutput.action.toToken.address = zeroAddress;
+  nativeOutput.action.toAddress = undefined;
+
+  expect((await buildAlchemySwapCalls([nativeOutput], account, network)).minNativeReceivedByCall).toEqual({
+    1: '0x62'
+  });
+});
+
+it('does not credit native output sent to another account', async () => {
+  const nativeOutput = step();
+  nativeOutput.action.toToken.address = zeroAddress;
+  nativeOutput.action.toAddress = target;
+
+  expect((await buildAlchemySwapCalls([nativeOutput], account, network)).minNativeReceivedByCall).toEqual({});
+});
+
+it('does not credit native output on another chain', async () => {
+  const bridge = step(10);
+  bridge.action.toToken.address = zeroAddress;
+
+  expect((await buildAlchemySwapCalls([bridge], account, network)).minNativeReceivedByCall).toEqual({});
+});
+
 it.each([
   ['one swap', [step()]],
   ['one bridge', [step(10)]],
