@@ -124,9 +124,11 @@ export const BaseContent = <T extends TxParamsFormData>({
                 bridgeData={bridgeData}
                 footer={
                   readOnlyFees && displayedFee === undefined ? (
-                    <div className="flex justify-between py-2 text-font-description">
-                      <T id="totalFee" />
-                      <span>—</span>
+                    <div className="flex justify-between py-2 text-grey-1 text-font-description-bold">
+                      <span className="p-1">
+                        <T id="totalFee" />
+                      </span>
+                      <span className="py-1">—</span>
                     </div>
                   ) : (
                     <FeeSummary
