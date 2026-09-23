@@ -7,7 +7,7 @@ import {
   TEZOS_CHAINS_SPECS_STORAGE_KEY
 } from 'lib/constants';
 import { DEFAULT_WALLET_AUTOLOCK_TIME } from 'lib/fixed-times';
-import { fetchFromStorage, putToStorage, removeFromStorageByPrefix } from 'lib/storage';
+import { fetchFromStorage, putToStorage } from 'lib/storage';
 import { type TezosChainSpecs } from 'lib/temple/chains-specs';
 import { BlockExplorer, TempleSharedStorageKey, TempleTezosChainId } from 'lib/temple/types';
 import { TempleChainKind } from 'temple/types';
@@ -89,9 +89,5 @@ migrate([
         }
       );
     }
-  },
-  {
-    name: 'remove-alchemy-swap-recovery',
-    up: () => removeFromStorageByPrefix('alchemy-swap-v1:')
   }
 ]);

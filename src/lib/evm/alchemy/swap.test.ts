@@ -47,9 +47,70 @@ it('omits approval for native tokens', async () => {
   expect(readContract).not.toHaveBeenCalled();
 });
 
-it('rejects multiple top-level steps', async () => {
-  expect(canBatchLifiSteps([step(), step(10)])).toBe(false);
-  await expect(buildAlchemySwapCalls([step(), step(10)], account, network)).rejects.toThrow('one LiFi step');
+it.each([
+  ['one swap', [step()]],
+  ['one bridge', [step(10)]],
+  ['two swaps on one chain', [step(), step()]],
+  ['a swap then a bridge', [step(), step(10)]]
+] as const)('accepts %s', async (_name, steps) => {
+  expect(canBatchLifiSteps([...steps])).toBe(true);
+  const result = await buildAlchemySwapCalls([...steps], account, network);
+  expect(result.steps).toEqual(steps);
+  expect(prepareStep).toHaveBeenCalledTimes(steps.length);
+});
+
+it.each([0n, 150n, 200n])('preserves call order and accounts for prior allowance use: %s', async allowance => {
+  readContract.mockResolvedValue(allowance);
+  const first = step();
+  const second = step();
+  second.transactionRequest = { ...second.transactionRequest, data: '0x5678' };
+  const { calls } = await buildAlchemySwapCalls([first, second], account, network);
+  const swap = { to: target, data: '0x1234', value: '0x5' };
+  const nextSwap = { ...swap, data: '0x5678' };
+  if (allowance === 0n) {
+    expect(calls).toHaveLength(4);
+    expect(decodeFunctionData({ abi: erc20Abi, data: calls[0].data }).args).toEqual([target, 100n]);
+    expect(calls[1]).toEqual(swap);
+    expect(decodeFunctionData({ abi: erc20Abi, data: calls[2].data }).args).toEqual([target, 100n]);
+    expect(calls[3]).toEqual(nextSwap);
+  } else if (allowance === 150n) {
+    expect(calls).toHaveLength(4);
+    expect(calls[0]).toEqual(swap);
+    expect(decodeFunctionData({ abi: erc20Abi, data: calls[1].data }).args).toEqual([target, 0n]);
+    expect(decodeFunctionData({ abi: erc20Abi, data: calls[2].data }).args).toEqual([target, 100n]);
+    expect(calls[3]).toEqual(nextSwap);
+  } else {
+    expect(calls).toEqual([swap, nextSwap]);
+  }
+  expect(readContract).toHaveBeenCalledTimes(1);
+});
+
+it('rejects a bridge followed by a destination-chain swap', async () => {
+  const destinationSwap = step(10);
+  destinationSwap.action.fromChainId = 10;
+  const steps = [step(10), destinationSwap];
+  expect(canBatchLifiSteps(steps)).toBe(false);
+  await expect(buildAlchemySwapCalls(steps, account, network)).rejects.toThrow('separate chains');
+  expect(prepareStep).not.toHaveBeenCalled();
+});
+
+it('rejects an intermediate bridge even if the next step starts on the source chain', async () => {
+  const steps = [step(10), step()];
+  expect(canBatchLifiSteps(steps)).toBe(false);
+  await expect(buildAlchemySwapCalls(steps, account, network)).rejects.toThrow('separate chains');
+  expect(prepareStep).not.toHaveBeenCalled();
+});
+
+it('rejects an empty route', async () => {
+  expect(canBatchLifiSteps([])).toBe(false);
+  await expect(buildAlchemySwapCalls([], account, network)).rejects.toThrow('separate chains');
+});
+
+it('rejects a route on a different source network', async () => {
+  await expect(buildAlchemySwapCalls([step()], account, { ...network, chainId: 10 })).rejects.toThrow(
+    'separate chains'
+  );
+  expect(prepareStep).not.toHaveBeenCalled();
 });
 it('accepts one bridge step with internal destination-chain execution', async () => {
   const bridge = step(10);
