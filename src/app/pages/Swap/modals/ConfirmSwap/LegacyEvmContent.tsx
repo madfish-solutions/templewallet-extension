@@ -106,7 +106,8 @@ export const LegacyEvmContent: FC<EvmContentProps> = ({
     network: inputNetwork,
     balance,
     ethBalance,
-    toFilled: isValidTxTo && !stepFinalized && !submitLoading && !cancelledRef?.current,
+    toFilled: isValidTxTo && !stepFinalized && !cancelledRef?.current,
+    paused: submitLoading,
     amount: atomsToTokens(fromAmount, fromToken.decimals ?? 0).toFixed(),
     silent: true
   });

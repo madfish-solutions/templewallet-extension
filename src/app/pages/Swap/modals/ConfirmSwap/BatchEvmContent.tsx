@@ -70,7 +70,7 @@ export const BatchEvmContent: FC<EvmContentProps & { batchSteps: LiFiStep[] }> =
   const onSubmit = async (): Promise<void> => {
     if (submitDisabled || batch.busy || submitting || cancelledRef?.current) return;
     setError(undefined);
-    setTab('details');
+    if ((batch.error || error) && tab === 'error') setTab('details');
     if ((batch.error || error) && !batch.submitted) {
       if (retried.current && onUseLegacyFlow) {
         onUseLegacyFlow();
