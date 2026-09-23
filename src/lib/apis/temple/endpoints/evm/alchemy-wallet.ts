@@ -17,12 +17,14 @@ interface RpcResponse<T> {
 }
 
 export const ALCHEMY_SUBMISSION_TIMEOUT_MESSAGE = 'Alchemy submission response timed out';
+export const ALCHEMY_SUBMISSION_NETWORK_ERROR_MESSAGE = 'Alchemy submission response unavailable';
 
-export const isAlchemySubmissionTimeout = (error: unknown): boolean =>
-  typeof error === 'object' &&
-  error !== null &&
-  'message' in error &&
-  error.message === ALCHEMY_SUBMISSION_TIMEOUT_MESSAGE;
+export const getAlchemySubmissionFailureReason = (error: unknown): 'timeout' | 'network' | undefined => {
+  if (typeof error !== 'object' || error === null || !('message' in error)) return;
+  if (error.message === ALCHEMY_SUBMISSION_TIMEOUT_MESSAGE) return 'timeout';
+  if (error.message === ALCHEMY_SUBMISSION_NETWORK_ERROR_MESSAGE) return 'network';
+  return;
+};
 
 export class AlchemyRpcError extends Error {
   constructor(
@@ -56,8 +58,11 @@ export const sendAlchemyCalls = async (body: AlchemySignedCalls): Promise<{ id: 
   try {
     return await request('wallet_sendPreparedCalls', body);
   } catch (error) {
-    if (axios.isAxiosError(error) && (error.code === 'ECONNABORTED' || error.code === 'ETIMEDOUT')) {
-      throw new Error(ALCHEMY_SUBMISSION_TIMEOUT_MESSAGE);
+    if (axios.isAxiosError(error)) {
+      if (error.code === 'ECONNABORTED' || error.code === 'ETIMEDOUT') {
+        throw new Error(ALCHEMY_SUBMISSION_TIMEOUT_MESSAGE);
+      }
+      if (error.code === 'ERR_NETWORK') throw new Error(ALCHEMY_SUBMISSION_NETWORK_ERROR_MESSAGE);
     }
     throw error;
   }

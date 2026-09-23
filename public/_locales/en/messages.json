@@ -5296,6 +5296,20 @@
   "alchemyTemporaryError": {
     "message": "The transaction service is temporarily unavailable. Retry in a moment."
   },
+  "alchemySubmissionUnconfirmedWarning": {
+    "message": "We could not confirm submission because $reason$. Your swap may still complete. Check Activity before trying again.",
+    "placeholders": {
+      "reason": {
+        "content": "$1"
+      }
+    }
+  },
+  "alchemySubmissionTimeoutReason": {
+    "message": "the request timed out"
+  },
+  "alchemySubmissionNetworkReason": {
+    "message": "the network request failed"
+  },
   "alchemySignatureError": {
     "message": "The transaction signature is invalid. Review a new quote and retry."
   },

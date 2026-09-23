@@ -9,10 +9,10 @@ import { addPendingEvmBatchAction, monitorPendingEvmBatchesAction } from 'app/st
 import { hasPendingEvmBatch } from 'app/store/evm/pending-transactions/utils';
 import type { EvmTxParamsFormData, Tab } from 'app/templates/TransactionTabs/types';
 import { toastInfo, toastWarning } from 'app/toaster';
-import { isAlchemySubmissionTimeout } from 'lib/apis/temple/endpoints/evm/alchemy-wallet';
+import { getAlchemySubmissionFailureReason } from 'lib/apis/temple/endpoints/evm/alchemy-wallet';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { getAlchemyBatchReviewStep } from 'lib/evm/alchemy/swap';
-import { T } from 'lib/i18n';
+import { t, T } from 'lib/i18n';
 import { atomsToTokens } from 'lib/temple/helpers';
 import { LedgerOperationState } from 'lib/ui';
 import { useGetEvmActiveBlockExplorer } from 'temple/front/ready';
@@ -115,12 +115,13 @@ export const BatchEvmContent: FC<EvmContentProps & { batchSteps: LiFiStep[] }> =
       toastInfo('Swap submitted', true);
       if (!cancelledRef?.current) onStepCompleted();
     } catch (cause) {
-      if (isAlchemySubmissionTimeout(cause)) {
+      const submissionFailure = getAlchemySubmissionFailureReason(cause);
+      if (submissionFailure) {
         onBatchBusyChange?.(false);
         onClose();
-        toastWarning(
-          'We could not confirm submission because the request timed out. Your swap may still complete. Check Activity before trying again.'
-        );
+        const reasonId =
+          submissionFailure === 'timeout' ? 'alchemySubmissionTimeoutReason' : 'alchemySubmissionNetworkReason';
+        toastWarning(t('alchemySubmissionUnconfirmedWarning', [t(reasonId)]));
       } else {
         setError(cause);
         setTab('error');
