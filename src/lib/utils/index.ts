@@ -2,6 +2,8 @@ import { Mutex } from 'async-mutex';
 import EventEmitter from 'events';
 import { capitalize } from 'lodash';
 
+import { el } from 'lib/el';
+
 export { arrayBufferToString, stringToArrayBuffer, uInt8ArrayToString, stringToUInt8Array } from './buffers';
 
 /** From lodash */
@@ -119,7 +121,7 @@ export class PromisesQueue extends EventEmitter {
 }
 
 export const openLink = (href: string, newTab = true, noreferrer = false) => {
-  const anchor = document.createElement('a');
+  const anchor = el('a');
   anchor.href = href;
   if (newTab) anchor.target = '_blank';
   if (noreferrer) anchor.rel = 'noreferrer';

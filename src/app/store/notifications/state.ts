@@ -1,4 +1,4 @@
-import { NotificationInterface } from 'app/pages/Notifications/types';
+import { NotificationInterface } from 'lib/notifications';
 import { createEntity, LoadableEntityState } from 'lib/store';
 
 export interface NotificationsState {

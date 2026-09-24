@@ -1,3 +1,5 @@
+import { el } from 'lib/el';
+
 import { AI_CHATBOT_ADS_HOST_ID, AI_CHATBOT_ADS_TIMING } from './constants';
 import { getStyles } from './styles';
 
@@ -20,19 +22,18 @@ export function mountAiChatbotAdsPopup({
   onAction,
   onClosed
 }: AiChatbotAdsPopupProps): (action?: AiChatbotAdsPopupAction) => void {
-  const host = document.createElement('div');
+  const host = el('div');
   host.id = AI_CHATBOT_ADS_HOST_ID;
   host.style.cssText = ['all: initial', 'position: fixed', 'z-index: 2147483647', 'pointer-events: none'].join(';');
   document.body.appendChild(host);
 
   const cleanupPosition = positionHost(host);
   const shadow = host.attachShadow({ mode: 'closed' });
-  const style = document.createElement('style');
+  const style = el('style');
   style.textContent = getStyles();
   shadow.appendChild(style);
 
-  const container = document.createElement('div');
-  container.className = 'temple-nudge';
+  const container = el('div', 'temple-nudge');
   container.innerHTML = `
     <link rel="stylesheet" href="${POPUP_FONT_URL}" />
     <div class="temple-countdown" aria-hidden="true"></div>

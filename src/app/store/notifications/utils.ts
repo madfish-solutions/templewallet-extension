@@ -1,11 +1,8 @@
-import { isAccountNotificationType } from 'app/pages/Notifications/enums/notification-type.enum';
-import type { NotificationInterface } from 'app/pages/Notifications/types';
 import { MAX_NOTIFICATION_ACCOUNT_ADDRESSES } from 'lib/apis/temple/endpoints/get-notifications';
+import { isAccountNotificationType, type NotificationInterface } from 'lib/notifications';
 import { StoredAccount } from 'lib/temple/types';
 import { filterUnique, isTruthy } from 'lib/utils';
 import { getAccountAddressForTezos } from 'temple/accounts';
-
-export const ACCOUNT_NOTIFICATION_POPUP_DURATION_MS = 3_000;
 
 /** Account notifications are keyed by Tezos addresses only. */
 export const getTezosNotificationAccountAddresses = (accounts: StoredAccount[]): string[] =>

@@ -1,6 +1,5 @@
-import { NotificationType } from '../../enums/notification-type.enum';
-
-import { formatNftActivityCounts, getNftActivityCounts } from './utils';
+import { formatNftActivityCounts, getNftActivityCounts } from './nft-activity';
+import { NotificationType } from './notification-type';
 
 describe('nft activity popup summary', () => {
   it('counts offers, bids and sales', () => {

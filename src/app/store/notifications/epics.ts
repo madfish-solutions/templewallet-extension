@@ -4,11 +4,9 @@ import { catchError, map, switchMap, withLatestFrom } from 'rxjs/operators';
 import { Action } from 'ts-action';
 import { ofType } from 'ts-action-operators';
 
-import { NotificationPlatformType } from 'app/pages/Notifications/enums/notification-platform-type.enum';
-import { NotificationStatus } from 'app/pages/Notifications/enums/notification-status.enum';
-import type { NotificationInterface } from 'app/pages/Notifications/types';
 import type { RootState } from 'app/store/root-state.type';
 import { fetchNotifications } from 'lib/apis/temple';
+import { NotificationPlatformType, NotificationStatus, type NotificationInterface } from 'lib/notifications';
 
 import { loadNotificationsAction } from './actions';
 import { getAccountNotificationsStartID, getLatestNotificationCreatedAt } from './utils';

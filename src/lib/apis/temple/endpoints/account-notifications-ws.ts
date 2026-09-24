@@ -7,9 +7,7 @@ import {
   string as stringSchema
 } from 'yup';
 
-import { NotificationPlatformType } from 'app/pages/Notifications/enums/notification-platform-type.enum';
-import { ACCOUNT_NOTIFICATION_TYPES } from 'app/pages/Notifications/enums/notification-type.enum';
-import type { NotificationInterface } from 'app/pages/Notifications/types';
+import { ACCOUNT_NOTIFICATION_TYPES, NotificationPlatformType, type NotificationInterface } from 'lib/notifications';
 
 const ACCOUNT_NOTIFICATIONS_WS_PATH = '/api/notifications';
 
@@ -32,9 +30,7 @@ const accountNotificationEventSchema = objectSchema({
   description: stringSchema().required(),
   content: arraySchema()
     .of(
-      lazySchema(value =>
-        typeof value === 'string' ? stringSchema().required() : notificationLinkSchema.required()
-      )
+      lazySchema(value => (typeof value === 'string' ? stringSchema().required() : notificationLinkSchema.required()))
     )
     .required(),
   extensionImageUrl: stringSchema().required(),

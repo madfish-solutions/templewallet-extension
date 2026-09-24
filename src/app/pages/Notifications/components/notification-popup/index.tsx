@@ -12,32 +12,55 @@ import { LAYOUT_CONTAINER_CLASSNAME } from 'app/layouts/containers';
 import { dispatch } from 'app/store';
 import { loadNotificationsAction } from 'app/store/notifications/actions';
 import { useIsAccountNotificationsEnabledSelector } from 'app/store/notifications/selectors';
-import { ACCOUNT_NOTIFICATION_POPUP_DURATION_MS } from 'app/store/notifications/utils';
 import { useShouldShowInWalletAdsSelector } from 'app/store/partners-promotion/selectors';
 import { useTestnetModeEnabledSelector } from 'app/store/settings/selectors';
 import { usePartnersPromotionModule } from 'app/templates/partners-promotion';
 import { useAdsConstantsModule } from 'lib/ads-constants';
 import { setTestID } from 'lib/analytics';
 import { getPluralKey, t } from 'lib/i18n';
+import {
+  ACCOUNT_NOTIFICATION_POPUP_DURATION_MS,
+  formatNftActivityCounts,
+  getNftActivityCounts,
+  type NotificationInterface
+} from 'lib/notifications';
 import { useWindowIsActive } from 'lib/temple/front/window-is-active-context';
 import { TempleMessageType, TempleNotification } from 'lib/temple/types';
 import { useTimeout, useUpdatableRef } from 'lib/ui/hooks';
 import { navigate } from 'lib/woozie';
 import { intercomClient } from 'temple/front/intercom-client';
 
-import type { NotificationInterface } from '../../types';
 import { ListItem } from '../list-item';
 
 import { NotificationPopupSelectors } from './selectors';
-import { formatNftActivityCounts, getNftActivityCounts } from './utils';
 
 const OBJKT_BASE_URL = 'https://objkt.com';
+const FULL_PAGE_POPUP_CLASSNAME = 'fixed z-overlay top-2 right-10 w-96 max-w-[calc(100%-1rem)] pointer-events-auto';
+
+const useDocumentHasFocus = () => {
+  const [documentHasFocus, setDocumentHasFocus] = useState(() => document.hasFocus());
+
+  useEffect(() => {
+    const syncFocus = () => setDocumentHasFocus(document.hasFocus());
+
+    window.addEventListener('focus', syncFocus);
+    window.addEventListener('blur', syncFocus);
+
+    return () => {
+      window.removeEventListener('focus', syncFocus);
+      window.removeEventListener('blur', syncFocus);
+    };
+  }, []);
+
+  return documentHasFocus;
+};
 
 export const AccountNotificationPopup = memo(() => {
   const windowIsActive = useWindowIsActive();
   const { data: thisWindowLocation } = useThisWindowLocation();
+  const documentHasFocus = useDocumentHasFocus();
   const isAccountNotificationsEnabled = useIsAccountNotificationsEnabledSelector();
-  const canShowPopup = windowIsActive && thisWindowLocation !== undefined;
+  const canShowPopup = windowIsActive && thisWindowLocation !== undefined && documentHasFocus;
   const canShowPopupRef = useUpdatableRef(canShowPopup);
   const isAccountNotificationsEnabledRef = useUpdatableRef(isAccountNotificationsEnabled);
   const [notifications, setNotifications] = useState<NotificationInterface[]>([]);
@@ -82,13 +105,7 @@ interface CardProps {
   onClose: EmptyFn;
 }
 
-const getOverlayTopClassName = (fullPage: boolean, testnetModeEnabled: boolean) => {
-  if (fullPage) {
-    return testnetModeEnabled ? 'top-15' : 'top-11';
-  }
-
-  return testnetModeEnabled ? 'top-8' : 'top-2';
-};
+const getPopupOverlayTopClassName = (testnetModeEnabled: boolean) => (testnetModeEnabled ? 'top-8' : 'top-2');
 
 const NotificationPopupCard = memo<CardProps>(({ notifications, onClose }) => {
   const { fullPage } = useAppEnv();
@@ -109,46 +126,52 @@ const NotificationPopupCard = memo<CardProps>(({ notifications, onClose }) => {
     event.stopPropagation();
   };
 
+  const card = (
+    <div
+      className="bg-background rounded-8 shadow-bottom overflow-hidden cursor-pointer"
+      onClick={openNotificationsPage}
+      {...setTestID(NotificationPopupSelectors.card)}
+    >
+      <div className="flex items-center gap-1 p-4">
+        <div className="flex items-center justify-center size-6 shrink-0">
+          <Logo type="icon" size={20} />
+        </div>
+        <p className="flex-1 min-w-0 text-font-medium-bold truncate">{t('notifications')}</p>
+        <Button className="shrink-0" onClick={handleCloseClick} testID={NotificationPopupSelectors.closeButton}>
+          <IconBase Icon={CloseIcon} className="text-grey-2" />
+        </Button>
+      </div>
+
+      <div className="flex flex-col gap-1 px-1 pb-1">
+        {notifications.length === 1 ? (
+          <ListItem notification={notifications[0]} compact />
+        ) : (
+          <NftActivitiesSummary notifications={notifications} onOpen={onClose} />
+        )}
+
+        {shouldShowPartnersPromo && (
+          <div onClick={handleAdsClick}>
+            <Suspense fallback={null}>
+              <NotificationPopupAds />
+            </Suspense>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+
+  if (fullPage) {
+    return <div className={FULL_PAGE_POPUP_CLASSNAME}>{card}</div>;
+  }
+
   return (
     <div
       className={clsx(
         'fixed z-overlay inset-x-0 flex justify-center pointer-events-none',
-        getOverlayTopClassName(fullPage, testnetModeEnabled)
+        getPopupOverlayTopClassName(testnetModeEnabled)
       )}
     >
-      <div className={clsx(LAYOUT_CONTAINER_CLASSNAME, 'px-2 pointer-events-auto')}>
-        <div
-          className="bg-background rounded-8 shadow-bottom overflow-hidden cursor-pointer"
-          onClick={openNotificationsPage}
-          {...setTestID(NotificationPopupSelectors.card)}
-        >
-          <div className="flex items-center gap-1 p-4">
-            <div className="flex items-center justify-center size-6 shrink-0">
-              <Logo type="icon" size={20} />
-            </div>
-            <p className="flex-1 min-w-0 text-font-medium-bold truncate">{t('notifications')}</p>
-            <Button className="shrink-0" onClick={handleCloseClick} testID={NotificationPopupSelectors.closeButton}>
-              <IconBase Icon={CloseIcon} className="text-grey-2" />
-            </Button>
-          </div>
-
-          <div className="flex flex-col gap-1 px-1 pb-1">
-            {notifications.length === 1 ? (
-              <ListItem notification={notifications[0]} compact />
-            ) : (
-              <NftActivitiesSummary notifications={notifications} onOpen={onClose} />
-            )}
-
-            {shouldShowPartnersPromo && (
-              <div onClick={handleAdsClick}>
-                <Suspense fallback={null}>
-                  <NotificationPopupAds />
-                </Suspense>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
+      <div className={clsx(LAYOUT_CONTAINER_CLASSNAME, 'px-2 pointer-events-auto')}>{card}</div>
     </div>
   );
 });

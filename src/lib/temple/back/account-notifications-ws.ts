@@ -1,14 +1,14 @@
-import { NotificationStatus } from 'app/pages/Notifications/enums/notification-status.enum';
-import type { NotificationInterface } from 'app/pages/Notifications/types';
-import {
-  ACCOUNT_NOTIFICATION_POPUP_DURATION_MS,
-  getTezosNotificationAccountAddresses
-} from 'app/store/notifications/utils';
+import { getTezosNotificationAccountAddresses } from 'app/store/notifications/utils';
 import {
   buildAccountNotificationsWsUrl,
   parseAccountNotificationWsMessage
 } from 'lib/apis/temple/endpoints/account-notifications-ws';
 import { EnvVars } from 'lib/env';
+import {
+  ACCOUNT_NOTIFICATION_POPUP_DURATION_MS,
+  NotificationStatus,
+  type NotificationInterface
+} from 'lib/notifications';
 import { StoredAccount, TempleMessageType, TempleStatus } from 'lib/temple/types';
 
 import { intercom } from './defaults';

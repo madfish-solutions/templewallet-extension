@@ -10,14 +10,14 @@ import { ReactComponent as OfferFillIcon } from 'app/icons/base/offer-fill.svg';
 import { ReactComponent as SoldFillIcon } from 'app/icons/base/sold-fill.svg';
 import { ReactComponent as UpdateIcon } from 'app/icons/base/update.svg';
 import { AnalyticsEventCategory, setAnotherSelector, setTestID, useAnalytics } from 'lib/analytics';
-
-import { NotificationStatus } from '../../enums/notification-status.enum';
 import {
-  AccountNotificationType,
   isAccountNotificationType,
-  NotificationType
-} from '../../enums/notification-type.enum';
-import type { NotificationInterface } from '../../types';
+  NotificationStatus,
+  NotificationType,
+  type AccountNotificationType,
+  type NotificationInterface
+} from 'lib/notifications';
+
 import { formatGeneralDate, formatWeekdayHourDate } from '../../utils';
 
 import { PreviewItemSelectors } from './selectors';
@@ -36,14 +36,17 @@ export const ListItem = memo<Props>(({ notification, onClick, compact = false })
 
   const isRead = notification.status === NotificationStatus.Read;
 
-  const handleClick = useCallback((sourceUrl?: string) => {
-    trackEvent(PreviewItemSelectors.notificationItem, AnalyticsEventCategory.ButtonPress, {
-      id: notification.id,
-      type: notification.type
-    });
+  const handleClick = useCallback(
+    (sourceUrl?: string) => {
+      trackEvent(PreviewItemSelectors.notificationItem, AnalyticsEventCategory.ButtonPress, {
+        id: notification.id,
+        type: notification.type
+      });
 
-    return onClick?.(notification.id, sourceUrl);
-  }, [notification.id, notification.type, onClick, trackEvent]);
+      return onClick?.(notification.id, sourceUrl);
+    },
+    [notification.id, notification.type, onClick, trackEvent]
+  );
 
   const handleGeneralNotificationClick = useCallback(() => {
     handleClick();

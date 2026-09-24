@@ -193,6 +193,12 @@ const buildManifestCommons = (vendor: string): Omit<Manifest.WebExtensionManifes
         run_at: 'document_start' as const,
         all_frames: true
       },
+      {
+        matches: ['https://*/*', 'http://*/*'],
+        js: ['scripts/accountNotificationsPopup.js'],
+        run_at: 'document_idle' as const,
+        all_frames: false
+      },
       !shouldDisableAds && {
         matches: ['https://*/*', 'http://*/*'],
         exclude_matches: ['http://localhost/*'],

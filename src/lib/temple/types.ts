@@ -4,8 +4,8 @@ import type { TempleDAppMetadata } from '@temple-wallet/dapp/dist/types';
 import BigNumber from 'bignumber.js';
 import type { RpcTransactionRequest, SignableMessage, TypedDataDefinition } from 'viem';
 
-import type { NotificationInterface } from 'app/pages/Notifications/types';
 import type { DAppsSessionsRecord } from 'app/storage/dapps';
+import type { NotificationInterface } from 'lib/notifications';
 import type { PromisesQueueCounters } from 'lib/utils';
 import type { EvmEstimationData, SerializedEvmEstimationData } from 'temple/evm/estimate';
 import type { TypedDataV1 } from 'temple/evm/typed-data-v1';

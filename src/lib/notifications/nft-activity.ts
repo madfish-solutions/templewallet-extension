@@ -1,5 +1,6 @@
-import { NotificationType } from '../../enums/notification-type.enum';
-import type { NotificationInterface } from '../../types';
+import { NotificationType } from './notification-type';
+
+export const ACCOUNT_NOTIFICATION_POPUP_DURATION_MS = 3_000;
 
 export interface NftActivityCounts {
   offers: number;
@@ -7,7 +8,7 @@ export interface NftActivityCounts {
   sales: number;
 }
 
-export const getNftActivityCounts = (notifications: Pick<NotificationInterface, 'type'>[]): NftActivityCounts => {
+export const getNftActivityCounts = (notifications: Array<{ type: NotificationType }>): NftActivityCounts => {
   const counts: NftActivityCounts = { offers: 0, bids: 0, sales: 0 };
 
   for (const notification of notifications) {

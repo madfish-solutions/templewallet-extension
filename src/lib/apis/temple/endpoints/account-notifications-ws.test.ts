@@ -1,5 +1,4 @@
-import { NotificationPlatformType } from 'app/pages/Notifications/enums/notification-platform-type.enum';
-import { NotificationType } from 'app/pages/Notifications/enums/notification-type.enum';
+import { NotificationPlatformType, NotificationType } from 'lib/notifications';
 
 import { buildAccountNotificationsWsUrl, parseAccountNotificationWsMessage } from './account-notifications-ws';
 

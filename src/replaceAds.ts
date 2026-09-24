@@ -11,6 +11,7 @@ import {
   AI_CHATBOT_ADS_ENABLED,
   WEBSITES_ADS_ENABLED
 } from 'lib/constants';
+import { el } from 'lib/el';
 import { IS_MISES_BROWSER } from 'lib/env';
 import { fetchFromStorage, putToStorage } from 'lib/storage';
 import { throttleAsyncCalls } from 'lib/utils/functions';
@@ -30,7 +31,7 @@ setInterval(async () => {
     return;
   }
 
-  const element = document.createElement('div');
+  const element = el('div');
   element.id = INJECTED_PIXEL_ID;
   element.setAttribute('twa', 'true');
   element.style.cssText = INJECTED_PIXEL_STYLE;

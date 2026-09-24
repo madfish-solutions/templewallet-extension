@@ -1,8 +1,7 @@
 import { useMemo } from 'react';
 
-import { NotificationStatus } from 'app/pages/Notifications/enums/notification-status.enum';
-import { isAccountNotificationType, NotificationType } from 'app/pages/Notifications/enums/notification-type.enum';
 import { useSelector } from 'app/store/index';
+import { isAccountNotificationType, NotificationStatus, NotificationType } from 'lib/notifications';
 
 export const useNotificationsSelector = () => {
   const notifications = useSelector(state => state.notifications.list.data);
