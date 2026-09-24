@@ -20,4 +20,7 @@ export interface NotificationInterface {
   extensionImageUrl: string;
   mobileImageUrl: string;
   sourceUrl?: string;
+  expirationDate?: string;
+  isMandatory?: boolean;
+  accountAddresses?: string[];
 }

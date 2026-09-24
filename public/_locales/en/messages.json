@@ -4601,8 +4601,179 @@
   "notificationsSettingsDescription": {
     "message": "Configure the notifications you want to receive. (Platform updates and emergency notifications can’t be disabled)"
   },
+  "pushNotifications": {
+    "message": "Push Notifications"
+  },
+  "pushNotificationsDescription": {
+    "message": "Get on-chain activities on your browser screen, even when the extension is closed."
+  },
   "noNotificationsYet": {
     "message": "No notifications yet"
+  },
+  "newNftActivities": {
+    "message": "You have new activities for NFTs"
+  },
+  "nftActivityOffers_one": {
+    "message": "$amount$ offer",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "nftActivityOffers_zero": {
+    "message": "$amount$ offers",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "nftActivityOffers_two": {
+    "message": "$amount$ offers",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "nftActivityOffers_few": {
+    "message": "$amount$ offers",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "nftActivityOffers_many": {
+    "message": "$amount$ offers",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "nftActivityOffers_other": {
+    "message": "$amount$ offers",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "nftActivityBids_one": {
+    "message": "$amount$ bid",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "nftActivityBids_zero": {
+    "message": "$amount$ bids",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "nftActivityBids_two": {
+    "message": "$amount$ bids",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "nftActivityBids_few": {
+    "message": "$amount$ bids",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "nftActivityBids_many": {
+    "message": "$amount$ bids",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "nftActivityBids_other": {
+    "message": "$amount$ bids",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "nftActivitySales_one": {
+    "message": "$amount$ sale",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "nftActivitySales_zero": {
+    "message": "$amount$ sales",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "nftActivitySales_two": {
+    "message": "$amount$ sales",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "nftActivitySales_few": {
+    "message": "$amount$ sales",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "nftActivitySales_many": {
+    "message": "$amount$ sales",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
+  },
+  "nftActivitySales_other": {
+    "message": "$amount$ sales",
+    "description": "For plural forms",
+    "placeholders": {
+      "amount": {
+        "content": "$1"
+      }
+    }
   },
   "readInOriginal": {
     "message": "Read in original"

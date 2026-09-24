@@ -8,30 +8,41 @@ import { NotificationPlatformType } from 'app/pages/Notifications/enums/notifica
 import { NotificationStatus } from 'app/pages/Notifications/enums/notification-status.enum';
 import type { NotificationInterface } from 'app/pages/Notifications/types';
 import type { RootState } from 'app/store/root-state.type';
-import { templeWalletApi } from 'lib/apis/temple';
+import { fetchNotifications } from 'lib/apis/temple';
 
 import { loadNotificationsAction } from './actions';
+import { getAccountNotificationsStartID, getLatestNotificationCreatedAt } from './utils';
 
-const loadNotifications$ = (startFromTime: number) =>
+type NotificationsApiItem = Omit<NotificationInterface, 'status'>;
+
+const loadNotifications$ = (startFromTime: number, startID: number, accountAddresses: string[]) =>
   from(
-    templeWalletApi.get<NotificationInterface[]>('/notifications', {
-      params: {
-        platform: NotificationPlatformType.Extension,
-        startFromTime
-      }
+    fetchNotifications<NotificationsApiItem>({
+      platform: NotificationPlatformType.Extension,
+      startFromTime,
+      startID,
+      accountAddresses
     })
-  ).pipe(map(response => response.data.map(notification => ({ ...notification, status: NotificationStatus.New }))));
+  ).pipe(
+    map(notifications => notifications.map(notification => ({ ...notification, status: NotificationStatus.New })))
+  );
 
 const loadNotificationsEpic: Epic<Action, Action, RootState> = (action$, state$) =>
   action$.pipe(
     ofType(loadNotificationsAction.submit),
     withLatestFrom(state$),
-    switchMap(([, rootState]) =>
-      loadNotifications$(rootState.notifications.startFromTime).pipe(
+    switchMap(([{ payload }, rootState]) => {
+      const { startFromTime, list } = rootState.notifications;
+
+      return loadNotifications$(
+        Math.max(startFromTime, getLatestNotificationCreatedAt(list.data)),
+        getAccountNotificationsStartID(list.data),
+        payload.accountAddresses
+      ).pipe(
         map(newNotifications => loadNotificationsAction.success(newNotifications)),
         catchError(err => of(loadNotificationsAction.fail(err.message)))
-      )
-    )
+      );
+    })
   );
 
 export const notificationsEpics = combineEpics(loadNotificationsEpic);

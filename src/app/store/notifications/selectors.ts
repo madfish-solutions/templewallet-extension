@@ -1,17 +1,28 @@
 import { useMemo } from 'react';
 
 import { NotificationStatus } from 'app/pages/Notifications/enums/notification-status.enum';
-import { NotificationType } from 'app/pages/Notifications/enums/notification-type.enum';
+import { isAccountNotificationType, NotificationType } from 'app/pages/Notifications/enums/notification-type.enum';
 import { useSelector } from 'app/store/index';
 
 export const useNotificationsSelector = () => {
   const notifications = useSelector(state => state.notifications.list.data);
   const isNewsEnabled = useSelector(state => state.notifications.isNewsEnabled);
+  const isAccountNotificationsEnabled = useSelector(state => state.notifications.isAccountNotificationsEnabled);
 
   return useMemo(
     () =>
-      isNewsEnabled ? notifications : notifications.filter(notification => notification.type !== NotificationType.News),
-    [notifications, isNewsEnabled]
+      notifications.filter(notification => {
+        if (notification.type === NotificationType.News) {
+          return isNewsEnabled;
+        }
+
+        if (isAccountNotificationType(notification.type)) {
+          return isAccountNotificationsEnabled;
+        }
+
+        return true;
+      }),
+    [notifications, isNewsEnabled, isAccountNotificationsEnabled]
   );
 };
 
@@ -28,3 +39,6 @@ export const useNewNotificationsAmountSelector = () => {
 };
 
 export const useIsNewsEnabledSelector = () => useSelector(({ notifications }) => notifications.isNewsEnabled);
+
+export const useIsAccountNotificationsEnabledSelector = () =>
+  useSelector(({ notifications }) => notifications.isAccountNotificationsEnabled);

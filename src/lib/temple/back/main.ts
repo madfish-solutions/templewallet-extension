@@ -73,6 +73,7 @@ import { ErrorWithCode } from 'temple/evm/types';
 import { parseTransactionRequest } from 'temple/evm/utils';
 import { AdsViewerData, RewardsAddresses, TempleChainKind } from 'temple/types';
 
+import { startAccountNotificationsWebSocket } from './account-notifications-ws';
 import * as Actions from './actions';
 import * as Analytics from './analytics';
 import { intercom } from './defaults';
@@ -104,6 +105,8 @@ export const start = async () => {
   frontStore.watch(() => {
     intercom.broadcast({ type: TempleMessageType.StateUpdated });
   });
+
+  startAccountNotificationsWebSocket();
 };
 
 const processRequestWithErrorsLogged = (...args: Parameters<typeof processRequest>) =>

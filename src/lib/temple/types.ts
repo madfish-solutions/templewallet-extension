@@ -4,6 +4,7 @@ import type { TempleDAppMetadata } from '@temple-wallet/dapp/dist/types';
 import BigNumber from 'bignumber.js';
 import type { RpcTransactionRequest, SignableMessage, TypedDataDefinition } from 'viem';
 
+import type { NotificationInterface } from 'app/pages/Notifications/types';
 import type { DAppsSessionsRecord } from 'app/storage/dapps';
 import type { PromisesQueueCounters } from 'lib/utils';
 import type { EvmEstimationData, SerializedEvmEstimationData } from 'temple/evm/estimate';
@@ -425,6 +426,7 @@ export enum TempleMessageType {
   TempleTezosAccountSwitched = 'TEMPLE_SWITCH_TEZOS_ACCOUNT',
   TempleSwitchEvmProvider = 'TEMPLE_SWITCH_EVM_PROVIDER',
   TempleDAppTransactionSent = 'TEMPLE_DAPP_TRANSACTION_SENT',
+  AccountNotificationReceived = 'TEMPLE_ACCOUNT_NOTIFICATION_RECEIVED',
   // Request-Response pairs
   GetStateRequest = 'TEMPLE_GET_STATE_REQUEST',
   GetStateResponse = 'TEMPLE_GET_STATE_RESPONSE',
@@ -539,7 +541,8 @@ export type TempleNotification =
   | TempleSwitchEvmProvider
   | TempleEvmAccountSwitched
   | TempleTezosAccountSwitched
-  | TempleDAppTransactionSent;
+  | TempleDAppTransactionSent
+  | TempleAccountNotificationReceived;
 
 export type TempleRequest =
   | TempleAcknowledgeRequest
@@ -725,6 +728,11 @@ interface TempleTezosDAppTransactionSent extends TempleDAppTransactionSentBase<T
 }
 
 type TempleDAppTransactionSent = TempleEvmDAppTransactionSent | TempleTezosDAppTransactionSent;
+
+interface TempleAccountNotificationReceived extends TempleMessageBase {
+  type: TempleMessageType.AccountNotificationReceived;
+  notifications: NotificationInterface[];
+}
 
 interface TempleGetStateRequest extends TempleMessageBase {
   type: TempleMessageType.GetStateRequest;
