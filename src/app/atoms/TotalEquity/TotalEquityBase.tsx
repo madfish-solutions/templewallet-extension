@@ -13,6 +13,8 @@ import { ZERO } from 'lib/utils/numbers';
 
 import Money from '../Money';
 
+import { TotalEquitySelectors } from './selectors';
+
 const BTC_DECIMALS = 8;
 const ETH_DECIMALS = 18;
 
@@ -74,7 +76,7 @@ const TotalEquityOneCaseHOC = (
 
     return (
       <>
-        <Money smallFractionFont={false} fiat={!isCrypto} tooltip={tooltip}>
+        <Money smallFractionFont={false} fiat={!isCrypto} tooltip={tooltip} testID={TotalEquitySelectors.value}>
           {amount}
         </Money>
         <span style={SYMBOL_STYLE}>{symbol}</span>

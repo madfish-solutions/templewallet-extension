@@ -44,7 +44,7 @@ export const AppHeader = memo(() => {
 
       <AccountsModal opened={accountsModalIsOpen} onRequestClose={closeAccountsModal} />
 
-      <AccountName account={account} />
+      <AccountName account={account} testID={HomeSelectors.accountName} />
 
       <div className="flex-1" />
 
