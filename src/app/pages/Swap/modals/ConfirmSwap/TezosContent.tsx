@@ -13,7 +13,6 @@ import {
 import { TezosTxParamsFormData } from 'app/templates/TransactionTabs/types';
 import { useTezosEstimationForm } from 'app/templates/TransactionTabs/use-tezos-estimation-form';
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
-import { TEZOS_BLOCK_DURATION } from 'lib/fixed-times';
 import { useTypedSWR } from 'lib/swr';
 import { mutezToTz } from 'lib/temple/helpers';
 import { TempleAccountType } from 'lib/temple/types';
@@ -25,7 +24,7 @@ import { showTxSubmitToastWithDelay } from 'lib/ui/show-tx-submit-toast.util';
 import { estimateBatchWithGasRebalance } from 'lib/utils/estimate-with-gas-rebalance';
 import { serializeEstimate } from 'lib/utils/serialize-estimate';
 import { getParamsWithCustomGasLimitFor3RouteSwap } from 'lib/utils/swap.utils';
-import { getTezosToolkitWithSigner } from 'temple/front';
+import { getTezosToolkitWithSigner, useTezosNetworkTiming } from 'temple/front';
 import { useGetTezosActiveBlockExplorer } from 'temple/front/ready';
 import { makeBlockExplorerHref } from 'temple/front/use-block-explorers';
 import { TempleChainKind } from 'temple/types';
@@ -50,6 +49,7 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
   const getActiveBlockExplorer = useGetTezosActiveBlockExplorer();
 
   const tezos = getTezosToolkitWithSigner(network, sourcePkh, true);
+  const { blockDurationMs } = useTezosNetworkTiming(network);
 
   const getSourcePkIsRevealed = useCallback(async () => {
     try {
@@ -65,7 +65,7 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
     {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
-      dedupingInterval: TEZOS_BLOCK_DURATION
+      dedupingInterval: blockDurationMs
     }
   );
 
@@ -97,7 +97,7 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
   } = useTypedSWR(() => ['tezos-estimation-data', chainId, accountPkh, opParams], estimate, {
     shouldRetryOnError: false,
     focusThrottleInterval: 10_000,
-    dedupingInterval: TEZOS_BLOCK_DURATION
+    dedupingInterval: blockDurationMs
   });
 
   const {
@@ -163,15 +163,17 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
         }
 
         const doOperation = async () => {
-          const operation = await submitOperation(
+          const result = await submitOperation(
             tezos,
             gasFee,
             storageLimit,
             estimationData.revealFee,
             displayedFeeOptions
           );
+          if (!result) return;
+          const { operation, startingBlockLevel } = result;
 
-          onConfirm(operation);
+          onConfirm(operation, startingBlockLevel);
           onClose();
 
           // @ts-expect-error
@@ -182,6 +184,7 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
           dispatch(
             addPendingTezosTransactionAction({
               txHash,
+              startingBlockLevel,
               accountPkh,
               network,
               blockExplorerUrl: makeBlockExplorerHref(blockExplorer.url, txHash, 'tx', TempleChainKind.Tezos),
@@ -246,6 +249,7 @@ export const TezosContent: FC<TezosContentProps> = ({ data, onClose }) => {
           minimumReceived={minimumReceived}
           onCancel={onClose}
           onSubmit={onSubmit}
+          submitDisabled={!opParams}
           someBalancesChanges={someBalancesChanges}
           filteredBalancesChanges={[filteredBalancesChanges]}
         />

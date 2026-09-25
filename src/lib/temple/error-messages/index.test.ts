@@ -1,3 +1,5 @@
+import { HttpResponseError, STATUS_CODE } from '@taquito/http-utils';
+
 import { IntercomError } from 'lib/intercom/helpers';
 
 import { ERROR_MESSAGES } from './messages';
@@ -55,6 +57,21 @@ import {
 } from './mocks/serialized-tez-errors.json';
 
 import { getHumanErrorMessage } from './index';
+
+const TEZOS_X_SIMULATE_URL =
+  'https://michelson.previewnet.tezosx.nomadic-labs.com/chains/main/blocks/head/helpers/scripts/simulate_operation';
+
+const temporaryFailureBody = JSON.stringify([
+  { kind: 'temporary', id: 'failure', msg: 'No value found at the entrypoint output path /base/__simulation/result' }
+]);
+
+const temporaryFailureError = new HttpResponseError(
+  'Http error response: (500)',
+  STATUS_CODE.INTERNAL_SERVER_ERROR,
+  'Internal Server Error',
+  temporaryFailureBody,
+  TEZOS_X_SIMULATE_URL
+);
 
 describe('getHumanErrorMessage', () => {
   describe('EVM dApps operations', () => {
@@ -150,6 +167,10 @@ describe('getHumanErrorMessage', () => {
           emptyImplicitDelegatedContractError
         ].map(error => getHumanErrorMessage(error))
       ).toEqual(Array(4).fill(ERROR_MESSAGES.lowGasBalance));
+    });
+
+    it('should return the default message for a generic temporary node failure, not the execution failure one', () => {
+      expect(getHumanErrorMessage(temporaryFailureError)).toBe(ERROR_MESSAGES.default);
     });
 
     describe('FA1.2 tokens operations', () => {

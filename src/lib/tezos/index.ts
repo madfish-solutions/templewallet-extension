@@ -1,12 +1,15 @@
+import { HttpRequestFailed, HttpResponseError } from '@taquito/http-utils';
 import {
   InternalOperationResult,
   OpKind,
   OperationContents,
   type ManagerKeyResponse,
-  type OperationContentsAndResult
+  type OperationContentsAndResult,
+  type TezosGenericOperationError
 } from '@taquito/rpc';
 import { validateAddress, validateChain, ValidationResult } from '@taquito/utils';
 import BigNumber from 'bignumber.js';
+import { isObject } from 'lodash';
 
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
 import { ZERO } from 'lib/utils/numbers';
@@ -32,6 +35,35 @@ export function isValidTezosImplicitAddress(address: string) {
 
 export function isValidTezosContractAddress(address: string) {
   return isTezosContractAddress(address) && isValidTezosAddress(address);
+}
+
+export function isTezosGenericOperationErrorArray(body: unknown): body is TezosGenericOperationError[] {
+  return (
+    Array.isArray(body) &&
+    body.length > 0 &&
+    body.every(
+      item =>
+        isObject(item) && 'kind' in item && 'id' in item && typeof item.kind === 'string' && typeof item.id === 'string'
+    )
+  );
+}
+
+export function parseJsonBody(body: string): unknown {
+  try {
+    return JSON.parse(body);
+  } catch {
+    return undefined;
+  }
+}
+
+export function isTransientTezosRpcError(error: unknown): boolean {
+  if (error instanceof HttpRequestFailed) return true;
+
+  if (!(error instanceof HttpResponseError) || Number(error.status) < 500) return false;
+
+  const body = parseJsonBody(error.body);
+
+  return !isTezosGenericOperationErrorArray(body) || body.every(err => !err.id.startsWith('proto.'));
 }
 
 export function tezosManagerKeyHasManager(manager: ManagerKeyResponse) {

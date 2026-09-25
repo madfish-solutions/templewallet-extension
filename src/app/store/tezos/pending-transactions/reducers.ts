@@ -1,5 +1,5 @@
 import { createReducer } from '@reduxjs/toolkit';
-import { persistReducer } from 'redux-persist';
+import { createMigrate, persistReducer } from 'redux-persist';
 
 import { storageConfig } from 'lib/store';
 
@@ -58,8 +58,19 @@ const pendingTezosTransactionsReducer = createReducer(pendingTezosTransactionsIn
 export const pendingTezosTransactionsPersistedReducer = persistReducer<PendingTezosTransactionsState>(
   {
     key: 'root.tezos.pendingTransactions',
+    version: 1,
     ...storageConfig,
-    blacklist: ['transactionBeingWatched']
+    blacklist: ['transactionBeingWatched'],
+    migrate: createMigrate({
+      '1': persistedState =>
+        persistedState
+          ? {
+              ...persistedState,
+              transactions: {},
+              hashesByAccountChainId: {}
+            }
+          : persistedState
+    })
   },
   pendingTezosTransactionsReducer
 );
