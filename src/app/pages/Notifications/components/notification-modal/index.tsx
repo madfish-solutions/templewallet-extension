@@ -26,10 +26,18 @@ export const NotificationModal: FC<Props> = ({ id, opened, onRequestClose }) => 
     return null;
   }
 
+  const image = <img src={notification.extensionImageUrl} alt="notification" className="w-full max-h-55 rounded-8" />;
+
   return (
     <PageModal title="" opened={opened} onRequestClose={onRequestClose}>
       <ScrollView className="p-4 pb-8">
-        <img src={notification.extensionImageUrl} alt="notification" className="w-full max-h-55 rounded-8" />
+        {notification.sourceUrl ? (
+          <a href={notification.sourceUrl} target="_blank" rel="noopener noreferrer" className="block">
+            {image}
+          </a>
+        ) : (
+          image
+        )}
 
         <div className="flex justify-between items-center text-font-num-12 text-grey-1 mt-2 mb-4">
           <p>{formatGeneralDate(notification.createdAt)}</p>

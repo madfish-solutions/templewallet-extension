@@ -16,12 +16,3 @@ export function trackDealsAnnouncementGoogleSearchEvent(event: string, propertie
     })
     .catch(() => {});
 }
-
-export const msg = (key: string) => browser.i18n.getMessage(key) || key;
-
-export function el(tag: string, className: string, text?: string): HTMLElement {
-  const elem = document.createElement(tag);
-  if (className) elem.className = className;
-  if (text) elem.textContent = text;
-  return elem;
-}
