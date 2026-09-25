@@ -268,8 +268,8 @@ const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<T
         type: TempleMessageType.CreateOrImportWalletResponse
       };
 
-    case TempleMessageType.OperationsRequest:
-      const { opHash } = await Actions.sendOperations(
+    case TempleMessageType.OperationsRequest: {
+      const { opHash, startingBlockLevel } = await Actions.sendOperations(
         port,
         req.id,
         req.sourcePkh,
@@ -279,8 +279,10 @@ const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<T
       );
       return {
         type: TempleMessageType.OperationsResponse,
-        opHash
+        opHash,
+        startingBlockLevel
       };
+    }
 
     case TempleMessageType.SignRequest:
       const result = await Actions.sign(port, req.id, req.sourcePkh, req.network, req.bytes, req.watermark);
