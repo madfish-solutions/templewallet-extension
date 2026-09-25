@@ -79,6 +79,7 @@ node perf/compare.mjs --profile whale-tezos base=$(git merge-base HEAD origin/de
 - Rate limiting swings numbers more than any code change. The same commit opened the tokens page in 0.64 s and 0.81 s on healthy runs, but in 7.9 s while an IPFS server was throttling it. A production build sends tens of thousands of requests to public servers per run, so don't run comparisons in a loop: the servers start rate-limiting, and the next run's numbers are off (see Trust above).
 - Expect the "unreliable" caveat on every comparison against a `development` commit from before the NFT-page request storm was fixed (TW-2390): that storm always triggers the throttle.
 - The wallet locks itself 5 minutes after the page loses focus or after the last mouse or keyboard input. The check moves the pointer a little every 30 seconds to prevent that; if it happens anyway, the report says so under Broken and leaves the affected rows empty instead of measuring the unlock screen.
+- Exclude `perf/out` from your IDE's indexing (WebStorm: right-click the folder → Mark Directory as → Excluded; `dist` too). Being git-ignored does not stop the IDE from parsing what is in there, and a few runs leave gigabytes of JSON traces and heap snapshots that make it run out of memory and keep the laptop hot.
 - Old runs are never deleted. A comparison leaves about 1 GB per version: the trace and the build in `perf/out/cmp-…/` (not committed), and two copies of the test wallet in the `temple-perf-profiles` folder of your system temp directory. Delete old `cmp-…` folders and profile copies now and then; keep the test wallets (`whale`, `whale-tezos`) and their `-scratch` copies (see below). To open that folder on macOS:
 
   ```bash
@@ -113,4 +114,5 @@ TW_EXT=$BUILD node perf/unlock.mjs                     # unlock timings only, ab
 ```
 
 - The other measurements work the same way: `tokens.mjs`, `nfts.mjs`, `network.mjs`, `jank.mjs`. Each file's first lines say what it measures and which settings it takes.
+- `soak.mjs` is the long one: it keeps one page open for an hour and, every 6 minutes, opens Tokens, NFTs, Activity and Home and reports how long each takes, memory, storage size and long tasks, so you can see whether the wallet gets slower the longer it stays open (`MINUTES`, `STEP_MIN` and the other settings are in its first lines).
 - A single script runs on `whale-scratch` (or `whale-tezos-scratch`), a copy of the test wallet made on the first run, so the wallet itself stays as setup left it for comparisons. The copy keeps what the wallet cached in earlier runs, so numbers drift a little from run to run; delete the folder to start from a cold wallet. That's fine for a quick look; for a fair "before vs after" answer, use `compare.mjs`.
