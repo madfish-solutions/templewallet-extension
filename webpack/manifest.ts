@@ -20,6 +20,8 @@ const WEB_ACCCESSIBLE_RESOURSES = [
   'fullpage.html',
   // For ads' images
   'misc/ad-banners/*',
+  // For Objkt notification fallback icon in the website overlay
+  'misc/objkt-notification-fallback.svg',
   // For the web-widgets fonts loaded via the FontFace API on third-party pages
   'fonts/*.woff2',
   // For iFrames access

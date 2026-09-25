@@ -1,9 +1,11 @@
+import { ACCOUNT_NOTIFICATION_POPUP_AD_HEIGHT } from 'lib/notifications';
+
 export const ACCOUNT_NOTIFICATION_POPUP_STYLES = `
   :host {
     all: initial;
     position: fixed;
-    top: 16px;
-    right: 16px;
+    top: 8px;
+    right: 40px;
     z-index: 2147483647;
     width: 360px;
     max-width: calc(100vw - 32px);
@@ -133,10 +135,9 @@ export const ACCOUNT_NOTIFICATION_POPUP_STYLES = `
   }
 
   .badge svg {
-    width: 12px;
-    height: 12px;
+    width: 14px;
+    height: 14px;
     fill: currentColor;
-    transform: scale(0.875);
   }
 
   .text {
@@ -191,5 +192,55 @@ export const ACCOUNT_NOTIFICATION_POPUP_STYLES = `
     border-radius: 999px;
     background: #1373e4;
     flex-shrink: 0;
+  }
+
+  .ad {
+    position: relative;
+    display: flex;
+    align-items: center;
+    padding-vertical: 8px;
+  }
+
+  .ad-iframe {
+    width: 100%;
+    height: ${ACCOUNT_NOTIFICATION_POPUP_AD_HEIGHT}px;
+    border: none;
+    display: block;
+  }
+
+  .ad-loader {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #fbfbfb;
+  }
+
+  .ad-spinner {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    border: 2px solid #e4e4e4;
+    border-top-color: #1373e4;
+    animation: ad-spin 0.8s linear infinite;
+  }
+
+  .ad-fallback {
+    justify-content: center;
+  }
+
+  .ad-fallback-text {
+    margin: 0;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 16px;
+    color: #aeaeb2;
+  }
+
+  @keyframes ad-spin {
+    to {
+      transform: rotate(360deg);
+    }
   }
 `;

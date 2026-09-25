@@ -31,6 +31,7 @@ Optimize for clarity, polish, and performance in every change.
 - React Compiler is integrated in this repo; do not add manual memoization with `useMemo`, `useCallback`, or `memo` by default
 - Add manual memoization only when there is a clear, demonstrated need that the compiler does not already cover
 - prefer useWatch() instead of watch() when working with react-hook-form
+- Do not add files that re-export only one other file
 
 ## TypeScript
 - Enforce proper typing (avoid `any` unless absolutely necessary)
@@ -51,6 +52,7 @@ Optimize for clarity, polish, and performance in every change.
 - Assets utils and constants: `src/lib/assets/`
 - Data fetching: `src/lib/swr/index.ts` (SWR hooks)
 - API clients: `src/lib/apis/` (shared API wrappers)
+- Notifications shared types/helpers: `src/lib/notifications/`
 
 ## A Note to the Agent
-We are building this together. When you learn something non-obvious, add it here so future changes go faster.
+We are building this together. When you learn something non-obvious, add it here if it is always-on (every task), or as a project skill in `.cursor/skills/` if it is only needed for a specific area of the codebase.

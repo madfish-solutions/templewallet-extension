@@ -1,4 +1,4 @@
-import React, { memo, MouseEventHandler, Suspense, useEffect, useState } from 'react';
+import React, { memo, MouseEventHandler, useEffect, useState } from 'react';
 
 import clsx from 'clsx';
 
@@ -14,8 +14,6 @@ import { loadNotificationsAction } from 'app/store/notifications/actions';
 import { useIsAccountNotificationsEnabledSelector } from 'app/store/notifications/selectors';
 import { useShouldShowInWalletAdsSelector } from 'app/store/partners-promotion/selectors';
 import { useTestnetModeEnabledSelector } from 'app/store/settings/selectors';
-import { usePartnersPromotionModule } from 'app/templates/partners-promotion';
-import { useAdsConstantsModule } from 'lib/ads-constants';
 import { setTestID } from 'lib/analytics';
 import { getPluralKey, t } from 'lib/i18n';
 import {
@@ -30,8 +28,10 @@ import { useTimeout, useUpdatableRef } from 'lib/ui/hooks';
 import { navigate } from 'lib/woozie';
 import { intercomClient } from 'temple/front/intercom-client';
 
+import { AccountNotificationImage } from '../account-notification-image';
 import { ListItem } from '../list-item';
 
+import { NotificationPopupAd } from './native-ad';
 import { NotificationPopupSelectors } from './selectors';
 
 const OBJKT_BASE_URL = 'https://objkt.com';
@@ -151,9 +151,7 @@ const NotificationPopupCard = memo<CardProps>(({ notifications, onClose }) => {
 
         {shouldShowPartnersPromo && (
           <div onClick={handleAdsClick}>
-            <Suspense fallback={null}>
-              <NotificationPopupAds />
-            </Suspense>
+            <NotificationPopupAd />
           </div>
         )}
       </div>
@@ -199,9 +197,8 @@ const NftActivitiesSummary = memo<SummaryProps>(({ notifications, onOpen }) => {
       onClick={handleClick}
     >
       <div className="relative flex justify-center items-center size-11 shrink-0">
-        <img
+        <AccountNotificationImage
           src={notifications[0].extensionImageUrl}
-          alt=""
           className="w-[83.3333%] aspect-square rounded-circle object-cover"
         />
         <div
@@ -222,22 +219,5 @@ const NftActivitiesSummary = memo<SummaryProps>(({ notifications, onOpen }) => {
         <p className="min-w-0 text-font-description text-grey-1 max-h-4 truncate">{description}</p>
       </div>
     </Anchor>
-  );
-});
-
-const NotificationPopupAds = memo(() => {
-  const PartnersPromotionModule = usePartnersPromotionModule();
-  const AdsConstantsModule = useAdsConstantsModule();
-
-  if (!PartnersPromotionModule || !AdsConstantsModule) {
-    return null;
-  }
-
-  return (
-    <PartnersPromotionModule.PartnersPromotion
-      id="promo-notification-popup"
-      variant={PartnersPromotionModule.PartnersPromotionVariant.Text}
-      pageName={AdsConstantsModule.NOTIFICATIONS_PAGE_NAME}
-    />
   );
 });

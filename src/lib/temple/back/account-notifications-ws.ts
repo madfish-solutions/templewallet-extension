@@ -3,16 +3,20 @@ import {
   buildAccountNotificationsWsUrl,
   parseAccountNotificationWsMessage
 } from 'lib/apis/temple/endpoints/account-notifications-ws';
+import { MAX_NOTIFICATION_ACCOUNT_ADDRESSES } from 'lib/apis/temple/endpoints/get-notifications';
+import { ACCOUNT_NOTIFICATION_ADDRESSES_STORAGE_KEY } from 'lib/constants';
 import { EnvVars } from 'lib/env';
 import {
   ACCOUNT_NOTIFICATION_POPUP_DURATION_MS,
   NotificationStatus,
   type NotificationInterface
 } from 'lib/notifications';
+import { fetchFromStorage, putToStorage } from 'lib/storage';
 import { StoredAccount, TempleMessageType, TempleStatus } from 'lib/temple/types';
+import { filterUnique } from 'lib/utils';
 
 import { intercom } from './defaults';
-import { accountsUpdated, locked, store, unlocked } from './store';
+import { accountsUpdated, store, unlocked } from './store';
 
 const RECONNECT_BASE_DELAY_MS = 1000;
 const RECONNECT_MAX_DELAY_MS = 30_000;
@@ -92,7 +96,7 @@ const disconnectSocket = () => {
 };
 
 const scheduleReconnect = () => {
-  if (manuallyClosed || reconnectTimer !== undefined) {
+  if (manuallyClosed || desiredAddresses.length === 0 || reconnectTimer !== undefined) {
     return;
   }
 
@@ -132,6 +136,7 @@ const handleMessage = (event: MessageEvent<string>) => {
 const openSocket = () => {
   if (
     manuallyClosed ||
+    desiredAddresses.length === 0 ||
     (socket && (socket.readyState === WebSocket.OPEN || socket.readyState === WebSocket.CONNECTING))
   ) {
     return;
@@ -168,15 +173,50 @@ const openSocket = () => {
   });
 };
 
-const syncAccountAddresses = (accounts: StoredAccount[]) => {
-  desiredAddresses = getTezosNotificationAccountAddresses(accounts);
-  sendAccountAddresses(desiredAddresses);
+const persistDesiredAddresses = (accountAddresses: string[]) => {
+  void putToStorage(ACCOUNT_NOTIFICATION_ADDRESSES_STORAGE_KEY, accountAddresses).catch(() => {});
+};
+
+const parseStoredAccountAddresses = (value: unknown): string[] => {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return filterUnique(value.filter((item): item is string => typeof item === 'string' && item.length > 0)).slice(
+    0,
+    MAX_NOTIFICATION_ACCOUNT_ADDRESSES
+  );
+};
+
+const applyAccountAddresses = (accountAddresses: string[], persist: boolean) => {
+  desiredAddresses = accountAddresses;
+
+  if (persist) {
+    persistDesiredAddresses(accountAddresses);
+  }
+
+  if (accountAddresses.length === 0) {
+    disconnectSocket();
+    return;
+  }
+
+  manuallyClosed = false;
+  sendAccountAddresses(accountAddresses);
+  openSocket();
 };
 
 const connectForAccounts = (accounts: StoredAccount[]) => {
-  manuallyClosed = false;
-  syncAccountAddresses(accounts);
-  openSocket();
+  applyAccountAddresses(getTezosNotificationAccountAddresses(accounts), true);
+};
+
+const restoreFromStorage = async () => {
+  const stored = parseStoredAccountAddresses(await fetchFromStorage(ACCOUNT_NOTIFICATION_ADDRESSES_STORAGE_KEY));
+
+  if (store.getState().status === TempleStatus.Ready || stored.length === 0) {
+    return;
+  }
+
+  applyAccountAddresses(stored, false);
 };
 
 export const startAccountNotificationsWebSocket = () => {
@@ -192,13 +232,14 @@ export const startAccountNotificationsWebSocket = () => {
       return;
     }
 
-    syncAccountAddresses(accounts);
-    openSocket();
+    connectForAccounts(accounts);
   });
-  locked.watch(disconnectSocket);
 
   const state = store.getState();
   if (state.status === TempleStatus.Ready) {
     connectForAccounts(state.accounts);
+    return;
   }
+
+  void restoreFromStorage();
 };

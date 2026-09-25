@@ -1,6 +1,10 @@
 import { getIntercom } from 'intercom-client';
 
-import { ACCOUNT_NOTIFICATION_POPUP_DURATION_MS, type NotificationInterface } from 'lib/notifications';
+import {
+  ACCOUNT_NOTIFICATION_POPUP_DURATION_MS,
+  getAccountNotificationAdContext,
+  type NotificationInterface
+} from 'lib/notifications';
 import { TempleMessageType, TempleNotification } from 'lib/temple/types';
 import { loadWidgetFonts } from 'lib/web-widgets/load-fonts';
 
@@ -13,6 +17,7 @@ if (window.self === window.top) {
 
 function bootstrapAccountNotificationsPopup() {
   loadWidgetFonts();
+  void getAccountNotificationAdContext().catch(() => {});
 
   let enabled = true;
   let unmount: EmptyFn | undefined;

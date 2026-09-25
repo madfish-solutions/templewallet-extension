@@ -6,6 +6,7 @@ import { Anchor } from 'app/atoms/Anchor';
 import { useAdRectObservation } from 'app/hooks/ads/use-ad-rect-observation';
 import type { AdsProviderTitle } from 'lib/ads';
 import { DAPPS_PAGE_NAME, EARN_PAGE_NAME } from 'lib/ads-constants/ads-constants';
+import { ACCOUNT_NOTIFICATION_POPUP_AD_PAGE_NAME } from 'lib/notifications';
 
 import { PartnersPromotionSelectors } from '../selectors';
 import { PartnersPromotionVariant } from '../types';
@@ -48,11 +49,13 @@ export const TextPromotionView = memo<Props>(
     );
 
     const customPadding = pageName === DAPPS_PAGE_NAME || pageName === EARN_PAGE_NAME;
+    const isNotificationPopupAd = pageName === ACCOUNT_NOTIFICATION_POPUP_AD_PAGE_NAME;
 
     return (
       <Anchor
         className={clsx(
-          'rounded-lg relative w-full flex bg-grey-4 hover:bg-secondary-low group-hover:bg-secondary-low',
+          'rounded-lg relative w-full flex hover:bg-secondary-low group-hover:bg-secondary-low',
+          !isNotificationPopupAd && 'bg-grey-4',
           !isVisible && 'invisible pointer-events-none'
         )}
         href={href}
@@ -62,7 +65,14 @@ export const TextPromotionView = memo<Props>(
         testID={PartnersPromotionSelectors.promoLink}
         testIDProperties={testIDProperties}
       >
-        <div className={clsx(customPadding ? 'p-3' : 'p-2', 'w-full flex-1 flex gap-2 pr-9', className)}>
+        <div
+          className={clsx(
+            customPadding ? 'p-3' : 'p-2',
+            'w-full flex-1 flex gap-2',
+            !isNotificationPopupAd && 'pr-9',
+            className
+          )}
+        >
           <div className="shrink-0">
             <img
               className={clsx(customPadding ? 'p-0.5' : 'p-1', 'w-10 h-auto rounded-circle')}

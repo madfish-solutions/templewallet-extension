@@ -19,6 +19,7 @@ import {
 } from 'lib/notifications';
 
 import { formatGeneralDate, formatWeekdayHourDate } from '../../utils';
+import { AccountNotificationImage } from '../account-notification-image';
 
 import { PreviewItemSelectors } from './selectors';
 
@@ -52,7 +53,8 @@ export const ListItem = memo<Props>(({ notification, onClick, compact = false })
     handleClick();
   }, [handleClick]);
 
-  const handleAccountNotificationClick = useCallback(() => {
+  const handleAccountNotificationClick = useCallback((e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
     handleClick(notification.sourceUrl);
   }, [handleClick, notification.sourceUrl]);
 
@@ -162,9 +164,8 @@ const icons: Record<AccountNotificationType, ImportedSVGComponent> = {
 const AccountNotificationIcon = memo<{ src: string; isRead: boolean; type: AccountNotificationType }>(
   ({ src, isRead, type }) => (
     <div className="relative flex justify-center items-center size-11 shrink-0">
-      <img
+      <AccountNotificationImage
         src={src}
-        alt=""
         className={classNames('w-[83.3333%] aspect-square rounded-circle object-cover', isRead && 'grayscale')}
       />
       <div

@@ -67,7 +67,7 @@ const ConstantAppRootHooks = memo(() => {
   useWebWidgetsSync();
   useDealsSync();
 
-  return null;
+  return <AccountNotificationPopup />;
 });
 
 const AppReadyRootHooks = memo(() => {
@@ -110,7 +110,6 @@ const AppReadyRootHooks = memo(() => {
     <>
       {tezosAddress && <TezosAccountHooks publicKeyHash={tezosAddress} />}
       {evmAddress && <EvmAccountHooks publicKeyHash={evmAddress} />}
-      <AccountNotificationPopup />
     </>
   );
 });

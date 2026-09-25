@@ -3,15 +3,19 @@ import { ContentScriptType } from 'lib/constants';
 import { el } from 'lib/el';
 import { getNativeLocale } from 'lib/i18n/helpers';
 import { msg } from 'lib/msg';
-import { formatNftActivityCounts, getNftActivityCounts, type NotificationInterface } from 'lib/notifications';
+import {
+  bindAccountNotificationImage,
+  formatNftActivityCounts,
+  getNftActivityCounts,
+  type NotificationInterface
+} from 'lib/notifications';
 
+import { appendAccountNotificationAd } from './ad';
 import { CLOSE_ICON, INFO_FILL_ICON, TEMPLE_LOGO_SRC, TYPE_BADGE_ICONS } from './icons';
 import { ACCOUNT_NOTIFICATION_POPUP_STYLES } from './styles';
 
 const HOST_ID = 'temple-account-notification-popup-host';
 const OBJKT_BASE_URL = 'https://objkt.com';
-
-const isSafeHttpUrl = (url: string) => /^https?:/i.test(url);
 
 const pluralKey = (prefix: string, count: number) => {
   const locale = getNativeLocale().replace('_', '-');
@@ -60,13 +64,10 @@ const appendActivityRow = (parent: HTMLElement, notifications: NotificationInter
 
 const buildIcon = (imageUrl: string, badgeMarkup: string) => {
   const icon = el('div', 'icon');
-
-  if (isSafeHttpUrl(imageUrl)) {
-    const image = el('img');
-    image.src = imageUrl;
-    image.alt = '';
-    icon.append(image);
-  }
+  const image = el('img');
+  image.alt = '';
+  bindAccountNotificationImage(image, imageUrl);
+  icon.append(image);
 
   const badge = el('div', 'badge');
   setIcon(badge, badgeMarkup);
@@ -129,10 +130,14 @@ export const mountAccountNotificationPopup = (notifications: NotificationInterfa
 
   const body = el('div', 'body');
   appendActivityRow(body, notifications, onClose);
+  const unbindAd = appendAccountNotificationAd(body);
 
   card.append(header, body);
   shadow.append(card);
   (document.body ?? document.documentElement).append(host);
 
-  return () => host.remove();
+  return () => {
+    unbindAd();
+    host.remove();
+  };
 };
