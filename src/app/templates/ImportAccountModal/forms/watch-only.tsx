@@ -156,7 +156,7 @@ export const WatchOnlyForm = memo<ImportAccountFormProps>(({ onSuccess }) => {
               size="L"
               type="submit"
               disabled={shouldDisableSubmitButton({ errors, formState, otherErrors: [submitError] })}
-              testID={ImportAccountSelectors.privateKeyImportButton}
+              testID={ImportAccountSelectors.watchOnlyImportButton}
               color="primary"
             >
               <T id="watchAddress" />
