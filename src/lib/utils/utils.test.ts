@@ -65,7 +65,7 @@ describe('Queue', () => {
 });
 
 describe('fifoResolve', () => {
-  it('should run promises paralelly but resolve them in FIFO order', async () => {
+  it('should run promises parallelly but resolve them in FIFO order', async () => {
     const t0 = Date.now();
     const ids: number[] = [];
     const fn = fifoResolve((ms: number) => delay(ms));
