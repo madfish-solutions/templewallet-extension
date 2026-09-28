@@ -15,6 +15,7 @@ import { getAlchemyBatchReviewStep } from 'lib/evm/alchemy/swap';
 import { t, T } from 'lib/i18n';
 import { atomsToTokens } from 'lib/temple/helpers';
 import { LedgerOperationState } from 'lib/ui';
+import { delay } from 'lib/utils';
 import { useGetEvmActiveBlockExplorer } from 'temple/front/ready';
 
 import { getProtocolFeeForRouteStep } from '../../form/EvmSwapForm/utils';
@@ -111,6 +112,8 @@ export const BatchEvmContent: FC<EvmContentProps & { batchSteps: LiFiStep[] }> =
         })
       );
       dispatch(monitorPendingEvmBatchesAction());
+      // human delay
+      await delay(500);
       onStepCompleted();
     } catch (cause) {
       const submissionFailure = getAlchemySubmissionFailureReason(cause);
@@ -166,9 +169,7 @@ export const BatchEvmContent: FC<EvmContentProps & { batchSteps: LiFiStep[] }> =
         evmGasPriceOverride={batch.gasPrice}
         evmAdvancedValues={batch.advancedValues}
         actionsNotice={
-          alreadyPending ? (
-            <p className="p-1 text-font-description text-grey-1">This swap is already pending.</p>
-          ) : batch.delegationRequired ? (
+          batch.delegationRequired ? (
             <div className="flex items-center justify-center">
               <p className="p-1 text-font-description text-grey-1">
                 <T id="smartWalletFeaturesNotice" />

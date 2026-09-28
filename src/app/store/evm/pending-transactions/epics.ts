@@ -7,10 +7,12 @@ import {
   delay,
   exhaustMap,
   filter,
+  finalize,
   from,
   map,
   mergeMap,
   of,
+  timer,
   withLatestFrom,
   interval,
   EMPTY
@@ -26,9 +28,10 @@ import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { fetchEvmRawBalance } from 'lib/evm/on-chain/balance';
 import { fetchEvmTokenMetadataFromChain } from 'lib/evm/on-chain/metadata';
 import { EvmAssetStandard } from 'lib/evm/types';
-import { showTxSubmitToastWithDelay } from 'lib/ui/show-tx-submit-toast.util';
+import { t } from 'lib/i18n';
 import { isEvmNativeTokenSlug } from 'lib/utils/evm.utils';
 import { getViemPublicClient } from 'temple/evm';
+import { makeBlockExplorerHref } from 'temple/front/use-block-explorers';
 import { EvmNetworkEssentials } from 'temple/networks';
 import { TempleChainKind } from 'temple/types';
 
@@ -66,20 +69,60 @@ const MAX_SWAP_STATUS_CHECK_ATTEMPTS = 50;
 
 const LONG_MONITOR_INTERVAL = 12_000;
 const SHORT_MONITOR_INTERVAL = 4_000;
+const BATCH_MONITOR_INTERVAL = 500;
+const BATCH_FAST_MONITOR_DURATION = 5_000;
+const MAX_BATCH_MONITOR_INTERVAL = 30_000;
+
+interface BatchMonitorSchedule {
+  nextCheckAt: number;
+  interval: number;
+  inFlight: boolean;
+}
 
 const ONE_MINUTE = 60 * 1_000;
 const MAX_PENDING_SWAP_AGE = 10 * ONE_MINUTE;
 const MAX_PENDING_TRANSFER_AGE = 2 * ONE_MINUTE;
 const MAX_PENDING_OTHER_TRANSACTION_AGE = 2 * ONE_MINUTE;
 
-export const monitorPendingEvmBatchesEpic: Epic<Action, Action, RootState> = (action$, state$) =>
-  action$.pipe(
+export const monitorPendingEvmBatchesEpic: Epic<Action, Action, RootState> = (action$, state$) => {
+  const schedules = new Map<HexString, BatchMonitorSchedule>();
+
+  return action$.pipe(
     ofType(monitorPendingEvmBatchesAction),
     withLatestFrom(state$),
-    exhaustMap(([, state]) =>
-      from(selectAllPendingBatches(state)).pipe(
-        mergeMap(batch =>
-          from(getAlchemyCallsStatus(batch.callId)).pipe(
+    mergeMap(([, state]) => {
+      const batches = selectAllPendingBatches(state);
+      const pendingCallIds = new Set(batches.map(batch => batch.callId));
+      for (const callId of schedules.keys()) {
+        if (!pendingCallIds.has(callId)) schedules.delete(callId);
+      }
+
+      return from(batches).pipe(
+        filter(batch => {
+          const schedule = schedules.get(batch.callId);
+          return !schedule?.inFlight;
+        }),
+        mergeMap(batch => {
+          const schedule = schedules.get(batch.callId) ?? {
+            nextCheckAt: Date.now() + BATCH_MONITOR_INTERVAL,
+            interval: BATCH_MONITOR_INTERVAL,
+            inFlight: false
+          };
+          schedule.inFlight = true;
+          schedules.set(batch.callId, schedule);
+
+          const wait = Math.max(0, schedule.nextCheckAt - Date.now());
+          return (wait > 0 ? timer(wait) : of(0)).pipe(
+            filter(() => Boolean(state$.value.pendingEvmTransactions?.batches?.[batch.callId])),
+            mergeMap(() => {
+              const now = Date.now();
+              schedule.interval =
+                now - batch.submittedAt < BATCH_FAST_MONITOR_DURATION
+                  ? BATCH_MONITOR_INTERVAL
+                  : Math.min(schedule.interval * 2, MAX_BATCH_MONITOR_INTERVAL);
+              schedule.nextCheckAt = now + schedule.interval;
+              return getAlchemyCallsStatus(batch.callId);
+            }),
             mergeMap(result => {
               if (
                 BigInt(result.chainId) !== BigInt(batch.inputNetwork.chainId) ||
@@ -102,7 +145,10 @@ export const monitorPendingEvmBatchesEpic: Epic<Action, Action, RootState> = (ac
                 throw new Error('Alchemy returned an invalid batch receipt');
               }
               const txHash = receipt.transactionHash;
-              showTxSubmitToastWithDelay(TempleChainKind.EVM, txHash, batch.blockExplorerBaseUrl);
+              toastSuccess(t('transactionSubmitted'), true, {
+                hash: txHash,
+                blockExplorerHref: makeBlockExplorerHref(batch.blockExplorerBaseUrl, txHash, 'tx', TempleChainKind.EVM)
+              });
               return from([
                 addPendingEvmSwapAction({
                   txHash,
@@ -123,15 +169,19 @@ export const monitorPendingEvmBatchesEpic: Epic<Action, Action, RootState> = (ac
             catchError(error => {
               console.warn(`Failed to check Alchemy batch status ${batch.callId}: `, error);
               return EMPTY;
+            }),
+            finalize(() => {
+              schedule.inFlight = false;
             })
-          )
-        )
-      )
-    )
+          );
+        })
+      );
+    })
   );
+};
 
-const periodicBatchMonitorTriggerEpic: Epic<Action, Action, RootState> = (_, state$) =>
-  interval(LONG_MONITOR_INTERVAL).pipe(
+export const periodicBatchMonitorTriggerEpic: Epic<Action, Action, RootState> = (_, state$) =>
+  interval(BATCH_MONITOR_INTERVAL).pipe(
     withLatestFrom(state$),
     filter(([, state]) => selectAllPendingBatches(state).length > 0),
     map(() => monitorPendingEvmBatchesAction())
