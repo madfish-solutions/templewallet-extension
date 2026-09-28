@@ -1,5 +1,4 @@
 import { HttpResponseError, STATUS_CODE } from '@taquito/http-utils';
-
 import { encodeErrorResult, parseAbi } from 'viem';
 
 import { AlchemyRpcError } from 'lib/apis/temple/endpoints/evm/alchemy-wallet';
