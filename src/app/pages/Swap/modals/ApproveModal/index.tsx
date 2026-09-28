@@ -1,4 +1,4 @@
-import React, { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { FC, useCallback, useMemo, useState } from 'react';
 
 import { encodeFunctionData } from 'viem';
 import { toHex } from 'viem/utils';
@@ -28,7 +28,7 @@ import { runConnectedLedgerOperationFlow, LedgerOperationState } from 'lib/ui';
 import { useLedgerWebHidFullViewGuard } from 'lib/ui/ledger-webhid-guard';
 import { LedgerFullViewPromptModal } from 'lib/ui/LedgerFullViewPrompt';
 import { showTxSubmitToastWithDelay } from 'lib/ui/show-tx-submit-toast.util';
-import { getViemPublicClient } from 'temple/evm';
+import { delay } from 'lib/utils';
 import { useGetEvmActiveBlockExplorer } from 'temple/front/ready';
 import { TempleChainKind } from 'temple/types';
 
@@ -62,16 +62,7 @@ const ApproveModal: FC<ApproveModalProps> = ({
   const { approvalAddress, fromAmount, fromToken, fromAddress } = getCommonStepProps(routeStep);
 
   const [loading, setLoading] = useState(false);
-  const [submittedTxHash, setSubmittedTxHash] = useState<HexString>();
   const approvalAmount = resetAllowance ? 0n : BigInt(fromAmount);
-  const activeRef = useRef(false);
-
-  useEffect(() => {
-    activeRef.current = true;
-    return () => {
-      activeRef.current = false;
-    };
-  }, []);
 
   const { sendEvmTransaction } = useTempleClient();
   const getActiveBlockExplorer = useGetEvmActiveBlockExplorer();
@@ -140,24 +131,16 @@ const ApproveModal: FC<ApproveModalProps> = ({
           return;
         }
 
-        const txHash =
-          submittedTxHash ?? (await sendEvmTransaction(account.address as HexString, inputNetwork, txParams));
-        if (!submittedTxHash) {
-          setSubmittedTxHash(txHash);
-          const blockExplorer = getActiveBlockExplorer(inputNetwork.chainId.toString());
-          showTxSubmitToastWithDelay(TempleChainKind.EVM, txHash, blockExplorer.url);
-        }
-        const receipt = await getViemPublicClient(inputNetwork).waitForTransactionReceipt({ hash: txHash });
-        if (receipt.status !== 'success') {
-          setSubmittedTxHash(undefined);
-          throw new Error('Approval transaction failed');
-        }
+        const txHash = await sendEvmTransaction(account.address as HexString, inputNetwork, txParams);
+        const blockExplorer = getActiveBlockExplorer(inputNetwork.chainId.toString());
+        showTxSubmitToastWithDelay(TempleChainKind.EVM, txHash, blockExplorer.url);
+        await delay(1000);
 
-        if (activeRef.current) onStepCompleted();
+        onStepCompleted();
       };
 
       try {
-        if (isLedgerAccount && !submittedTxHash) {
+        if (isLedgerAccount) {
           const redirected = await guard(account.type);
           if (redirected) return;
           setLedgerApprovalModalState(LedgerOperationState.InProgress);
@@ -175,7 +158,6 @@ const ApproveModal: FC<ApproveModalProps> = ({
     },
     [
       submitDisabled,
-      submittedTxHash,
       sendEvmTransaction,
       account.address,
       account.type,
@@ -214,12 +196,12 @@ const ApproveModal: FC<ApproveModalProps> = ({
           <EvmTransactionView
             payload={payload}
             formId="swap-approve"
-            error={latestSubmitError}
+            error={null}
             setError={handleSubmitError}
             setFinalEvmTransaction={setFinalEvmTransaction}
             onSubmit={onSubmit}
             minAllowance={approvalAmount}
-            allowanceEditable={!resetAllowance && !submittedTxHash}
+            allowanceEditable={!resetAllowance}
           />
         ) : (
           <PageLoader />

@@ -4,11 +4,11 @@ import type { LiFiStep } from '@lifi/sdk';
 import { FormProvider, useForm } from 'react-hook-form';
 
 import { Tooltip } from 'app/atoms/Tooltip';
-import { dispatch, persistor, store, useSelector } from 'app/store';
+import { dispatch, store, useSelector } from 'app/store';
 import { addPendingEvmBatchAction, monitorPendingEvmBatchesAction } from 'app/store/evm/pending-transactions/actions';
 import { hasPendingEvmBatch } from 'app/store/evm/pending-transactions/utils';
 import type { EvmTxParamsFormData, Tab } from 'app/templates/TransactionTabs/types';
-import { toastInfo, toastWarning } from 'app/toaster';
+import { toastWarning } from 'app/toaster';
 import { getAlchemySubmissionFailureReason } from 'lib/apis/temple/endpoints/evm/alchemy-wallet';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { getAlchemyBatchReviewStep } from 'lib/evm/alchemy/swap';
@@ -111,9 +111,7 @@ export const BatchEvmContent: FC<EvmContentProps & { batchSteps: LiFiStep[] }> =
         })
       );
       dispatch(monitorPendingEvmBatchesAction());
-      await persistor.flush();
-      toastInfo('Swap submitted', true);
-      if (!cancelledRef?.current) onStepCompleted();
+      onStepCompleted();
     } catch (cause) {
       const submissionFailure = getAlchemySubmissionFailureReason(cause);
       if (submissionFailure) {

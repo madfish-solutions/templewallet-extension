@@ -26,9 +26,11 @@ import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { fetchEvmRawBalance } from 'lib/evm/on-chain/balance';
 import { fetchEvmTokenMetadataFromChain } from 'lib/evm/on-chain/metadata';
 import { EvmAssetStandard } from 'lib/evm/types';
+import { showTxSubmitToastWithDelay } from 'lib/ui/show-tx-submit-toast.util';
 import { isEvmNativeTokenSlug } from 'lib/utils/evm.utils';
 import { getViemPublicClient } from 'temple/evm';
 import { EvmNetworkEssentials } from 'temple/networks';
+import { TempleChainKind } from 'temple/types';
 
 import { putNewEvmTokenAction } from '../assets/actions';
 import { processLoadedOnchainBalancesAction } from '../balances/actions';
@@ -100,6 +102,7 @@ export const monitorPendingEvmBatchesEpic: Epic<Action, Action, RootState> = (ac
                 throw new Error('Alchemy returned an invalid batch receipt');
               }
               const txHash = receipt.transactionHash;
+              showTxSubmitToastWithDelay(TempleChainKind.EVM, txHash, batch.blockExplorerBaseUrl);
               return from([
                 addPendingEvmSwapAction({
                   txHash,

@@ -11,6 +11,7 @@ import type { PendingEvmBatch } from './state';
 
 jest.mock('lib/apis/temple/endpoints/evm/alchemy-wallet', () => ({ getAlchemyCallsStatus: jest.fn() }));
 jest.mock('app/toaster', () => ({ toastError: jest.fn(), toastSuccess: jest.fn() }));
+jest.mock('lib/ui/show-tx-submit-toast.util', () => ({ showTxSubmitToastWithDelay: jest.fn() }));
 
 const callId = `0x${'aa'.repeat(64)}` as const;
 const txHash = `0x${'bb'.repeat(32)}` as const;
