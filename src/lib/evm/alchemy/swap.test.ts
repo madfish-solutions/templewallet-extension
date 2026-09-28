@@ -35,9 +35,48 @@ it('omits approval when the current allowance covers the input', async () => {
 
 it('resets an insufficient nonzero allowance within the same batch', async () => {
   readContract.mockResolvedValue(10n);
-  const { calls } = await buildAlchemySwapCalls([step()], account, network);
+  const input = step();
+  input.estimate.approvalReset = true;
+  const { calls } = await buildAlchemySwapCalls([input], account, network);
   expect(calls).toHaveLength(3);
   expect(decodeFunctionData({ abi: erc20Abi, data: calls[0].data }).args).toEqual([target, 0n]);
+  expect(decodeFunctionData({ abi: erc20Abi, data: calls[1].data }).args).toEqual([target, 100n]);
+  expect(calls[2]).toEqual({ to: target, data: '0x1234', value: '0x5' });
+});
+
+it.each([false, undefined])(
+  'replaces a nonzero allowance without a reset when approvalReset is %s',
+  async approvalReset => {
+    readContract.mockResolvedValue(10n);
+    const input = step();
+    input.estimate.approvalReset = approvalReset;
+    const { calls } = await buildAlchemySwapCalls([input], account, network);
+    expect(calls).toHaveLength(2);
+    expect(decodeFunctionData({ abi: erc20Abi, data: calls[0].data }).args).toEqual([target, 100n]);
+  }
+);
+
+it.each([0n, 100n, 150n])('omits a reset for a flagged token with allowance %s', async allowance => {
+  readContract.mockResolvedValue(allowance);
+  const input = step();
+  input.estimate.approvalReset = true;
+  const { calls } = await buildAlchemySwapCalls([input], account, network);
+  expect(calls).toHaveLength(allowance === 0n ? 2 : 1);
+  if (allowance === 0n) {
+    expect(decodeFunctionData({ abi: erc20Abi, data: calls[0].data }).args).toEqual([target, 100n]);
+  }
+});
+
+it.each([true, false])('uses approvalReset from the refreshed step: %s', async approvalReset => {
+  readContract.mockResolvedValue(10n);
+  const input = step();
+  input.estimate.approvalReset = !approvalReset;
+  prepareStep.mockImplementationOnce(async previous => ({
+    ...previous,
+    estimate: { ...previous.estimate, approvalReset }
+  }));
+  const { calls } = await buildAlchemySwapCalls([input], account, network);
+  expect(calls).toHaveLength(approvalReset ? 3 : 2);
 });
 
 it('omits approval for native tokens', async () => {
@@ -102,6 +141,8 @@ it.each([0n, 150n, 200n])('preserves call order and accounts for prior allowance
   readContract.mockResolvedValue(allowance);
   const first = step();
   const second = step();
+  first.estimate.approvalReset = true;
+  second.estimate.approvalReset = true;
   second.transactionRequest = { ...second.transactionRequest, data: '0x5678' };
   const { calls } = await buildAlchemySwapCalls([first, second], account, network);
   const swap = { to: target, data: '0x1234', value: '0x5' };

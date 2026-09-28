@@ -64,7 +64,11 @@ beforeEach(() => {
   jest.resetAllMocks();
   Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true });
   (getAlchemyWalletConfig as jest.Mock).mockResolvedValue({ chains: [1], feeTokens: {} });
-  (useEvmAllowances as jest.Mock).mockReturnValue({ allowanceSufficient: [false], loading: false });
+  (useEvmAllowances as jest.Mock).mockReturnValue({
+    allowanceSufficient: [false],
+    onChainAllowances: [0n],
+    loading: false
+  });
   container = document.createElement('div');
   document.body.appendChild(container);
   root = createRoot(container);
@@ -99,6 +103,64 @@ it('keeps Ledger on the original flow', async () => {
   await render(makeReview(TempleAccountType.Ledger));
   expect(getAlchemyWalletConfig).not.toHaveBeenCalled();
   expect(current.userActions.map(action => action.type)).toEqual(['approve', 'execute']);
+});
+
+it('adds a reset before approval and execution for a flagged token with a nonzero allowance', async () => {
+  const review = makeReview(TempleAccountType.Ledger);
+  if ('steps' in review.swapRoute) review.swapRoute.steps[0].estimate.approvalReset = true;
+  (useEvmAllowances as jest.Mock).mockReturnValue({
+    allowanceSufficient: [false],
+    onChainAllowances: [10n],
+    loading: false
+  });
+  await render(review);
+  expect(current.userActions.map(action => action.type)).toEqual(['reset-approval', 'approve', 'execute']);
+  expect(current.firstExecuteAction.index).toBe(2);
+  expect(current.skipStatusWait).toBe(false);
+  await act(async () => current.onStepCompleted());
+  expect(current.currentUserAction.value?.type).toBe('approve');
+  await act(async () => current.onStepCompleted());
+  expect(current.currentUserAction.value?.type).toBe('execute');
+  expect(current.skipStatusWait).toBe(true);
+});
+
+it.each([false, undefined])('does not reset an unflagged token: %s', async approvalReset => {
+  const review = makeReview(TempleAccountType.Ledger);
+  if ('steps' in review.swapRoute) review.swapRoute.steps[0].estimate.approvalReset = approvalReset;
+  (useEvmAllowances as jest.Mock).mockReturnValue({
+    allowanceSufficient: [false],
+    onChainAllowances: [10n],
+    loading: false
+  });
+  await render(review);
+  expect(current.userActions.map(action => action.type)).toEqual(['approve', 'execute']);
+});
+
+it.each([0n, 100n, 150n])('does not reset a flagged token with allowance %s', async allowance => {
+  const review = makeReview(TempleAccountType.Ledger);
+  if ('steps' in review.swapRoute) review.swapRoute.steps[0].estimate.approvalReset = true;
+  (useEvmAllowances as jest.Mock).mockReturnValue({
+    allowanceSufficient: [allowance >= 100n],
+    onChainAllowances: [allowance],
+    loading: false
+  });
+  await render(review);
+  expect(current.userActions.map(action => action.type)).toEqual(
+    allowance === 0n ? ['approve', 'execute'] : ['execute']
+  );
+});
+
+it('keeps the reset action after the batch fallback', async () => {
+  const review = makeReview();
+  if ('steps' in review.swapRoute) review.swapRoute.steps[0].estimate.approvalReset = true;
+  (useEvmAllowances as jest.Mock).mockReturnValue({
+    allowanceSufficient: [false],
+    onChainAllowances: [10n],
+    loading: false
+  });
+  await render(review);
+  await act(async () => current.useLegacyFlow());
+  expect(current.userActions.map(action => action.type)).toEqual(['reset-approval', 'approve', 'execute']);
 });
 
 it('restores the original actions after the batch retry fallback', async () => {

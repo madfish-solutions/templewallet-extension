@@ -2,6 +2,7 @@ import type { LiFiStep } from '@lifi/sdk';
 import { encodeFunctionData, erc20Abi, isAddress, isAddressEqual, numberToHex, zeroAddress } from 'viem';
 
 import { getEvmStepTransaction } from 'lib/apis/temple/endpoints/evm';
+import { needsApprovalReset } from 'lib/evm/approval';
 import { getViemPublicClient } from 'temple/evm';
 import type { EvmNetworkEssentials } from 'temple/networks';
 
@@ -68,8 +69,7 @@ export async function buildAlchemySwapCalls(
         }));
       const amount = BigInt(action.fromAmount);
       if (allowance < amount) {
-        // Reset a nonzero allowance for tokens such as USDT.
-        if (allowance > 0n)
+        if (needsApprovalReset(estimate, allowance, amount))
           calls.push({
             to: token,
             value: '0x0',

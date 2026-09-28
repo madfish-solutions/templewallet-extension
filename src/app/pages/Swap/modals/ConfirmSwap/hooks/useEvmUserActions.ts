@@ -4,6 +4,7 @@ import { isLifiStep, isSwapEvmReviewData, SwapReviewData } from 'app/pages/Swap/
 import { getAlchemyWalletConfig } from 'lib/apis/temple/endpoints/evm/alchemy-wallet';
 import { canBatchLifiSteps, getAlchemyBatchReviewStep } from 'lib/evm/alchemy/swap';
 import type { AlchemyWalletConfig } from 'lib/evm/alchemy/types';
+import { needsApprovalReset } from 'lib/evm/approval';
 import { TempleAccountType } from 'lib/temple/types';
 import { useBooleanState } from 'lib/ui/hooks';
 
@@ -36,9 +37,11 @@ export const useEvmUserActions = (opened: boolean, onRequestClose: EmptyFn, revi
     evmSteps.every(isLifiStep) &&
     canBatchLifiSteps(evmSteps) &&
     (batchConfig === 'unavailable' || batchConfig.chains.includes(evmSteps[0].action.fromChainId));
-  const { allowanceSufficient, loading: allowancesLoading } = useEvmAllowances(
-    opened && batchConfig !== undefined && !eligible ? evmSteps : []
-  );
+  const {
+    allowanceSufficient,
+    onChainAllowances,
+    loading: allowancesLoading
+  } = useEvmAllowances(opened && batchConfig !== undefined && !eligible ? evmSteps : []);
 
   useEffect(() => {
     if (!opened || !reviewData || !isSwapEvmReviewData(reviewData)) return;
@@ -82,20 +85,35 @@ export const useEvmUserActions = (opened: boolean, onRequestClose: EmptyFn, revi
     }
     if (allowancesLoading) return;
     if (allowanceSufficient.length !== evmSteps.length) return;
+    if (onChainAllowances.length !== evmSteps.length) return;
 
-    const needsApprovalByIndex = allowanceSufficient.map(sufficient => !sufficient);
-    const actions = evmSteps.flatMap<UserAction>((step, stepIndex) =>
-      needsApprovalByIndex[stepIndex]
-        ? [
-            { type: 'approve', stepIndex, routeStep: step },
-            { type: 'execute', stepIndex, routeStep: step }
-          ]
-        : [{ type: 'execute', stepIndex, routeStep: step }]
-    );
+    const actions = evmSteps.flatMap<UserAction>((step, stepIndex) => {
+      const stepActions: UserAction[] = [];
+      if (!allowanceSufficient[stepIndex]) {
+        if (
+          isLifiStep(step) &&
+          needsApprovalReset(step.estimate, onChainAllowances[stepIndex], BigInt(step.action.fromAmount))
+        ) {
+          stepActions.push({ type: 'reset-approval', stepIndex, routeStep: step });
+        }
+        stepActions.push({ type: 'approve', stepIndex, routeStep: step });
+      }
+      stepActions.push({ type: 'execute', stepIndex, routeStep: step });
+      return stepActions;
+    });
 
     setUserActions(actions);
     setActionsInitialized(true);
-  }, [actionsInitialized, reviewData, evmSteps, allowanceSufficient, allowancesLoading, batchConfig, eligible]);
+  }, [
+    actionsInitialized,
+    reviewData,
+    evmSteps,
+    allowanceSufficient,
+    onChainAllowances,
+    allowancesLoading,
+    batchConfig,
+    eligible
+  ]);
 
   const [currentActionIndex, setCurrentActionIndex] = useState(0);
   const [isCancelConfirmOpen, setCancelConfirmOpened, setCancelConfirmClosed] = useBooleanState(false);

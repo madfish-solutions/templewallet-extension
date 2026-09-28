@@ -4,7 +4,7 @@ import { EvmNetworkEssentials } from 'temple/networks';
 
 import { Route3EvmRoute } from '../../form/interfaces';
 
-type UserActionType = 'approve' | 'execute';
+type UserActionType = 'reset-approval' | 'approve' | 'execute';
 
 export interface UserAction {
   type: UserActionType;

@@ -1,4 +1,4 @@
-import React, { FC, useCallback, useMemo, useState } from 'react';
+import React, { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { encodeFunctionData } from 'viem';
 import { toHex } from 'viem/utils';
@@ -28,7 +28,7 @@ import { runConnectedLedgerOperationFlow, LedgerOperationState } from 'lib/ui';
 import { useLedgerWebHidFullViewGuard } from 'lib/ui/ledger-webhid-guard';
 import { LedgerFullViewPromptModal } from 'lib/ui/LedgerFullViewPrompt';
 import { showTxSubmitToastWithDelay } from 'lib/ui/show-tx-submit-toast.util';
-import { delay } from 'lib/utils';
+import { getViemPublicClient } from 'temple/evm';
 import { useGetEvmActiveBlockExplorer } from 'temple/front/ready';
 import { TempleChainKind } from 'temple/types';
 
@@ -44,9 +44,16 @@ interface ApproveModalProps {
   onClose: EmptyFn;
   onStepCompleted: EmptyFn;
   submitDisabled?: boolean;
+  resetAllowance?: boolean;
 }
 
-const ApproveModal: FC<ApproveModalProps> = ({ stepReviewData, onClose, onStepCompleted, submitDisabled }) => {
+const ApproveModal: FC<ApproveModalProps> = ({
+  stepReviewData,
+  onClose,
+  onStepCompleted,
+  submitDisabled,
+  resetAllowance = false
+}) => {
   const { account, inputNetwork, routeStep } = stepReviewData;
   const currentStepIsLifi = isLifiStep(routeStep);
   const appName = currentStepIsLifi ? 'li.fi' : '3Route';
@@ -55,6 +62,16 @@ const ApproveModal: FC<ApproveModalProps> = ({ stepReviewData, onClose, onStepCo
   const { approvalAddress, fromAmount, fromToken, fromAddress } = getCommonStepProps(routeStep);
 
   const [loading, setLoading] = useState(false);
+  const [submittedTxHash, setSubmittedTxHash] = useState<HexString>();
+  const approvalAmount = resetAllowance ? 0n : BigInt(fromAmount);
+  const activeRef = useRef(false);
+
+  useEffect(() => {
+    activeRef.current = true;
+    return () => {
+      activeRef.current = false;
+    };
+  }, []);
 
   const { sendEvmTransaction } = useTempleClient();
   const getActiveBlockExplorer = useGetEvmActiveBlockExplorer();
@@ -67,9 +84,9 @@ const ApproveModal: FC<ApproveModalProps> = ({ stepReviewData, onClose, onStepCo
     return encodeFunctionData({
       abi: [erc20ApproveAbi],
       functionName: 'approve',
-      args: [approvalAddress as HexString, BigInt(fromAmount)]
+      args: [approvalAddress as HexString, approvalAmount]
     });
-  }, [fromAmount, approvalAddress]);
+  }, [approvalAmount, approvalAddress]);
 
   const assetSlug = useMemo(() => toTokenSlug(fromToken.address, 0), [fromToken.address]);
 
@@ -123,16 +140,24 @@ const ApproveModal: FC<ApproveModalProps> = ({ stepReviewData, onClose, onStepCo
           return;
         }
 
-        const txHash = await sendEvmTransaction(account.address as HexString, inputNetwork, txParams);
-        const blockExplorer = getActiveBlockExplorer(inputNetwork.chainId.toString());
-        showTxSubmitToastWithDelay(TempleChainKind.EVM, txHash, blockExplorer.url);
-        await delay(1000);
+        const txHash =
+          submittedTxHash ?? (await sendEvmTransaction(account.address as HexString, inputNetwork, txParams));
+        if (!submittedTxHash) {
+          setSubmittedTxHash(txHash);
+          const blockExplorer = getActiveBlockExplorer(inputNetwork.chainId.toString());
+          showTxSubmitToastWithDelay(TempleChainKind.EVM, txHash, blockExplorer.url);
+        }
+        const receipt = await getViemPublicClient(inputNetwork).waitForTransactionReceipt({ hash: txHash });
+        if (receipt.status !== 'success') {
+          setSubmittedTxHash(undefined);
+          throw new Error('Approval transaction failed');
+        }
 
-        onStepCompleted();
+        if (activeRef.current) onStepCompleted();
       };
 
       try {
-        if (isLedgerAccount) {
+        if (isLedgerAccount && !submittedTxHash) {
           const redirected = await guard(account.type);
           if (redirected) return;
           setLedgerApprovalModalState(LedgerOperationState.InProgress);
@@ -150,6 +175,7 @@ const ApproveModal: FC<ApproveModalProps> = ({ stepReviewData, onClose, onStepCo
     },
     [
       submitDisabled,
+      submittedTxHash,
       sendEvmTransaction,
       account.address,
       account.type,
@@ -188,11 +214,12 @@ const ApproveModal: FC<ApproveModalProps> = ({ stepReviewData, onClose, onStepCo
           <EvmTransactionView
             payload={payload}
             formId="swap-approve"
-            error={null}
+            error={latestSubmitError}
             setError={handleSubmitError}
             setFinalEvmTransaction={setFinalEvmTransaction}
             onSubmit={onSubmit}
-            minAllowance={BigInt(fromAmount)}
+            minAllowance={approvalAmount}
+            allowanceEditable={!resetAllowance && !submittedTxHash}
           />
         ) : (
           <PageLoader />

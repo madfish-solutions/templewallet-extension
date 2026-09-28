@@ -141,11 +141,13 @@ export const ConfirmEvmUserAction = memo<ConfirmEvmUserActionProps>(
 
     return (
       <EvmEstimationDataProvider>
-        {type === 'approve' ? (
+        {type !== 'execute' ? (
           <AddChainDataProvider>
             <AddAssetProvider>
               <ApproveModal
+                key={type}
                 stepReviewData={stepReviewData}
+                resetAllowance={type === 'reset-approval'}
                 onClose={onRequestClose}
                 onStepCompleted={onStepCompleted}
                 submitDisabled={submitDisabled}
