@@ -18,7 +18,6 @@ import { useRichFormatTooltip } from 'app/hooks/use-rich-format-tooltip';
 import { ReactComponent as OutLinkIcon } from 'app/icons/base/outLink.svg';
 import { StakingCard } from 'app/templates/staking-card';
 import { toPenny } from 'lib/assets';
-import { TEZOS_BLOCK_DURATION } from 'lib/fixed-times';
 import { t, T, toShortened } from 'lib/i18n';
 import { useTezosGasMetadata } from 'lib/metadata';
 import { useTypedSWR } from 'lib/swr';
@@ -27,7 +26,7 @@ import { mutezToTz } from 'lib/temple/helpers';
 import { Lottie } from 'lib/ui/react-lottie';
 import { toPercentage } from 'lib/ui/utils';
 import { AccountForTezos } from 'temple/accounts';
-import { getTezosToolkitWithSigner, useOnTezosBlock } from 'temple/front';
+import { getTezosToolkitWithSigner, useOnTezosBlock, useTezosNetworkTiming } from 'temple/front';
 import { TezosNetworkEssentials } from 'temple/networks';
 
 import unstakePendingAnimation from './animations/unstake-pending-animation.json';
@@ -63,6 +62,7 @@ export const TezosStakingList = memo<Props>(
     const { data: stakedData, mutate: updateStakedAmount } = useStakedAmount(network, accountPkh, true);
     const { data: requests, mutate: updateUnstakeRequests } = useUnstakeRequests(network, accountPkh, true);
     const { data: cyclesInfo } = useStakingCyclesInfo(network);
+    const { blockDurationMs } = useTezosNetworkTiming(network);
     const blockLevelInfo = useBlockLevelInfo(network);
     const blockExplorerUrl = useBlockExplorerUrl(network);
     const unfinalizableRequests = requests?.unfinalizable;
@@ -197,6 +197,7 @@ export const TezosStakingList = memo<Props>(
               key={i}
               index={i}
               cyclesInfo={cyclesInfo}
+              blockDurationMs={blockDurationMs}
               blockLevelInfo={blockLevelInfo}
               gasTokenSymbol={symbol}
               blockExplorerUrl={blockExplorerUrl}
@@ -209,6 +210,7 @@ export const TezosStakingList = memo<Props>(
               key={i}
               index={(readyRequests?.length ?? 0) + i}
               cyclesInfo={cyclesInfo}
+              blockDurationMs={blockDurationMs}
               blockLevelInfo={blockLevelInfo}
               gasTokenSymbol={symbol}
               blockExplorerUrl={blockExplorerUrl}
@@ -227,6 +229,7 @@ interface UnstakeRequestItemProps {
   amount: BigNumber;
   index: number;
   cyclesInfo: StakingCyclesInfo | null | undefined;
+  blockDurationMs: number;
   blockLevelInfo: LevelInfo | undefined;
   gasTokenSymbol: string;
   blockExplorerUrl?: string;
@@ -254,6 +257,7 @@ const UnstakeRequestItem = memo<UnstakeRequestItemProps>(
     amount,
     index,
     cyclesInfo,
+    blockDurationMs,
     blockLevelInfo,
     gasTokenSymbol,
     blockExplorerUrl,
@@ -281,11 +285,11 @@ const UnstakeRequestItem = memo<UnstakeRequestItemProps>(
 
       const blocksLeft = blocks_per_cycle * fullCyclesLeft + blocksLeftInCurrentCycle;
 
-      const blockDuration = minimal_block_delay?.toNumber() ?? TEZOS_BLOCK_DURATION / 1000;
-      const secondsLeft = blocksLeft * blockDuration;
+      const blockDurationSeconds = minimal_block_delay?.toNumber() ?? blockDurationMs / 1_000;
+      const secondsLeft = blocksLeft * blockDurationSeconds;
 
       return Math.round(secondsLeft / 3600);
-    }, [cyclesInfo, blockLevelInfo, endCycle, delegate]);
+    }, [cyclesInfo, blockDurationMs, blockLevelInfo, endCycle, delegate]);
 
     const cooldownTimeStr = cooldownTime == null ? '---' : `≈ ${cooldownTime}h`;
 

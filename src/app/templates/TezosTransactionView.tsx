@@ -5,7 +5,6 @@ import { nanoid } from 'nanoid';
 import { FormProvider } from 'react-hook-form';
 
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
-import { TEZOS_BLOCK_DURATION } from 'lib/fixed-times';
 import { useTezosGenericAssetsMetadataLoading } from 'lib/metadata';
 import { useTypedSWR } from 'lib/swr';
 import { TezosEstimationDataProvider } from 'lib/temple/front/estimation-data-providers';
@@ -13,7 +12,7 @@ import { mutezToTz, tzToMutez } from 'lib/temple/helpers';
 import { TempleTezosDAppOperationsPayload } from 'lib/temple/types';
 import { tezosManagerKeyHasManager } from 'lib/tezos';
 import { getAccountAddressForTezos } from 'temple/accounts';
-import { TezosChain, useAllAccounts, useAllTezosChains } from 'temple/front';
+import { TezosChain, useAllAccounts, useAllTezosChains, useTezosNetworkTiming } from 'temple/front';
 import { StoredTezosNetwork } from 'temple/networks';
 import { getTezosReadOnlyRpcClient } from 'temple/tezos';
 import { TempleChainKind } from 'temple/types';
@@ -51,6 +50,7 @@ export const TezosTransactionView = memo<TezosTransactionViewProps>(
 const TezosTransactionViewBody = memo<TezosTransactionViewProps>(
   ({ payload, formId, error: submitError, setError: setSubmitError, setTotalFee, setStorageLimit, onSubmit }) => {
     const { network, opParams, sourcePkh, estimates, error: estimationError } = payload;
+    const { blockDurationMs } = useTezosNetworkTiming(network);
     const tezosChains = useAllTezosChains();
     const accounts = useAllAccounts();
     const sendingAccount = useMemo(
@@ -124,7 +124,7 @@ const TezosTransactionViewBody = memo<TezosTransactionViewProps>(
       {
         revalidateOnFocus: false,
         revalidateOnReconnect: false,
-        dedupingInterval: TEZOS_BLOCK_DURATION,
+        dedupingInterval: blockDurationMs,
         suspense: true
       }
     );

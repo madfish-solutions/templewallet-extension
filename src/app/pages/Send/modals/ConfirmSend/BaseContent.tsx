@@ -35,6 +35,7 @@ interface BaseContentProps<T extends TxParamsFormData> {
   displayedFee?: string;
   displayedStorageFee?: string;
   displayedFeeOptions?: DisplayedFeeOptions;
+  submitDisabled?: boolean;
   decimals?: number;
   /** Replaces the default recipient row in the details tab (used for cross-chain extra rows). */
   detailsContent?: ReactNode;
@@ -58,6 +59,7 @@ export const BaseContent = <T extends TxParamsFormData>({
   displayedFee,
   displayedStorageFee,
   displayedFeeOptions,
+  submitDisabled,
   decimals,
   detailsContent
 }: BaseContentProps<T>) => {
@@ -119,7 +121,7 @@ export const BaseContent = <T extends TxParamsFormData>({
           size="L"
           className="w-full"
           loading={isSubmitting}
-          disabled={!isValid}
+          disabled={!isValid || submitDisabled}
         >
           <T id={latestSubmitError ? 'retry' : 'confirm'} />
         </StyledButton>

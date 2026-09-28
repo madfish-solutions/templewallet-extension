@@ -26,4 +26,10 @@ export { useTempleNetworksActions } from './networks';
 
 export { searchAndFilterAccounts, useRelevantAccounts, useVisibleAccounts } from './accounts';
 
-export { getTezosToolkitWithSigner, useOnTezosBlock, useTezosBlockLevel } from './tezos';
+export {
+  getTezosToolkitWithSigner,
+  takeOperationStartingBlockLevel,
+  useOnTezosBlock,
+  useTezosBlockLevel,
+  useTezosNetworkTiming
+} from './tezos';

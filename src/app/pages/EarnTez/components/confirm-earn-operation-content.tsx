@@ -1,7 +1,8 @@
-import React, { ComponentType, useCallback, useEffect, useMemo, useState } from 'react';
+import React, { ComponentType, createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 
 import { TezosToolkit, WalletParamsWithKind } from '@taquito/taquito';
 import BigNumber from 'bignumber.js';
+import { noop } from 'lodash';
 import { FormProvider } from 'react-hook-form';
 import { SWRResponse } from 'swr';
 
@@ -57,6 +58,8 @@ export interface ConfirmEarnOperationContentProps<R extends TezosEarnReviewDataB
   onCancel: EmptyFn;
 }
 
+const SubmitDisabledContext = createContext<React.Dispatch<React.SetStateAction<boolean>>>(noop);
+
 export const ConfirmEarnOperationContent = <R extends TezosEarnReviewDataBase>({
   reviewData,
   cancelTestID,
@@ -67,48 +70,53 @@ export const ConfirmEarnOperationContent = <R extends TezosEarnReviewDataBase>({
   ...restProps
 }: ConfirmEarnOperationContentProps<R>) => {
   const [loading, setLoading] = useState(true);
+  const submitDisabledState = useState(false);
+  const [submitDisabled, setSubmitDisabled] = submitDisabledState;
 
   return (
     <FadeTransition>
-      <PageModalScrollViewWithActions
-        actionsBoxProps={{
-          flexDirection: 'row',
-          children: (
-            <>
-              <ActionModalButton
-                className="flex-1"
-                color="primary-low"
-                onClick={onCancel}
-                disabled={loading}
-                testID={cancelTestID}
-              >
-                <T id="cancel" />
-              </ActionModalButton>
-              <ActionModalButton
-                className="flex-1"
-                color="primary"
-                type="submit"
-                form={formId}
-                loading={loading}
-                testID={confirmTestID}
-              >
-                {confirmText ?? <T id="confirm" />}
-              </ActionModalButton>
-            </>
-          )
-        }}
-      >
-        <TezosEstimationDataProvider>
-          {reviewData ? (
-            <ConfirmEarnOperationContentBodyWrapper
-              formId={formId}
-              data={reviewData}
-              setLoading={setLoading}
-              {...restProps}
-            />
-          ) : null}
-        </TezosEstimationDataProvider>
-      </PageModalScrollViewWithActions>
+      <SubmitDisabledContext value={setSubmitDisabled}>
+        <PageModalScrollViewWithActions
+          actionsBoxProps={{
+            flexDirection: 'row',
+            children: (
+              <>
+                <ActionModalButton
+                  className="flex-1"
+                  color="primary-low"
+                  onClick={onCancel}
+                  disabled={loading}
+                  testID={cancelTestID}
+                >
+                  <T id="cancel" />
+                </ActionModalButton>
+                <ActionModalButton
+                  className="flex-1"
+                  color="primary"
+                  type="submit"
+                  form={formId}
+                  disabled={submitDisabled}
+                  loading={loading}
+                  testID={confirmTestID}
+                >
+                  {confirmText ?? <T id="confirm" />}
+                </ActionModalButton>
+              </>
+            )
+          }}
+        >
+          <TezosEstimationDataProvider>
+            {reviewData ? (
+              <ConfirmEarnOperationContentBodyWrapper
+                formId={formId}
+                data={reviewData}
+                setLoading={setLoading}
+                {...restProps}
+              />
+            ) : null}
+          </TezosEstimationDataProvider>
+        </PageModalScrollViewWithActions>
+      </SubmitDisabledContext>
     </FadeTransition>
   );
 };
@@ -143,6 +151,7 @@ const ConfirmEarnOperationContentBodyWrapper = <R extends TezosEarnReviewDataBas
 
   const isLedgerAccount = account.type === TempleAccountType.Ledger;
   const [latestSubmitError, setLatestSubmitError] = useState<unknown>(null);
+  const setSubmitDisabled = useContext(SubmitDisabledContext);
 
   const tezos = getTezosToolkitWithSigner(network, ownerAddress || accountPkh, true);
   const { value: tezBalance = ZERO } = useTezosAssetBalance(TEZ_TOKEN_SLUG, accountPkh, network);
@@ -170,6 +179,9 @@ const ConfirmEarnOperationContentBodyWrapper = <R extends TezosEarnReviewDataBas
     estimationDataLoading,
     isEstimationError: Boolean(estimationError)
   });
+  useEffect(() => {
+    setSubmitDisabled(!basicParams);
+  }, [basicParams, setSubmitDisabled]);
   const { formState } = form;
   useEffect(
     () => setLoading(estimationDataLoading || formState.isSubmitting),
@@ -208,9 +220,16 @@ const ConfirmEarnOperationContentBodyWrapper = <R extends TezosEarnReviewDataBas
         }
 
         const doOperation = async () => {
-          const op = await submitOperation(tezos, gasFee, storageLimit, estimationData.revealFee, displayedFeeOptions);
+          const result = await submitOperation(
+            tezos,
+            gasFee,
+            storageLimit,
+            estimationData.revealFee,
+            displayedFeeOptions
+          );
+          if (!result) return;
 
-          onConfirm(op!.opHash);
+          onConfirm(result.operation.opHash, result.startingBlockLevel);
         };
 
         if (isLedgerAccount) {

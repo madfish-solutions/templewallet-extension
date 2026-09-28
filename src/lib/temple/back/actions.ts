@@ -102,7 +102,7 @@ import {
   sidebarOpened,
   sidebarClosed
 } from './store';
-import { Vault } from './vault';
+import { SentTezosOperation, Vault } from './vault';
 
 export { switchTezosAccount } from './dapp';
 export { switchChain as switchEvmChain, switchAccount as switchEvmAccount } from './evm-dapp';
@@ -423,7 +423,7 @@ export function sendOperations(
   network: TezosNetworkEssentials,
   opParams: any[],
   straightaway?: boolean
-): Promise<{ opHash: string }> {
+): Promise<{ opHash: string; startingBlockLevel: number }> {
   return withUnlocked(async ({ vault }) => {
     const sourcePublicKey = await revealPublicKey(sourcePkh);
     const dryRunResult = await dryRunOpParams({
@@ -439,11 +439,11 @@ export function sendOperations(
     return new Promise(async (resolve, reject) => {
       if (straightaway) {
         try {
-          const op = await vault.sendOperations(sourcePkh, network, opParams);
+          const sentOperation = await vault.sendOperations(sourcePkh, network, opParams);
 
-          await safeAddLocalOperation(network.rpcBaseURL, op);
+          await safeAddLocalOperation(network.rpcBaseURL, sentOperation);
 
-          resolve({ opHash: op.hash });
+          resolve({ opHash: sentOperation.hash, startingBlockLevel: sentOperation.startingBlockLevel });
         } catch (err: any) {
           reject(err);
         }
@@ -455,7 +455,7 @@ export function sendOperations(
 }
 
 const promisableUnlock = async (
-  resolve: (arg: { opHash: string }) => void,
+  resolve: (arg: { opHash: string; startingBlockLevel: number }) => void,
   reject: (err: Error) => void,
   port: Runtime.Port,
   id: string,
@@ -492,7 +492,7 @@ const promisableUnlock = async (
       const { confirmed, modifiedStorageLimit, modifiedTotalFee } = req;
       if (confirmed) {
         try {
-          const op = await withUnlocked(({ vault }) =>
+          const sentOperation = await withUnlocked(({ vault }) =>
             vault.sendOperations(
               sourcePkh,
               network,
@@ -500,9 +500,9 @@ const promisableUnlock = async (
             )
           );
 
-          await safeAddLocalOperation(network.rpcBaseURL, op);
+          await safeAddLocalOperation(network.rpcBaseURL, sentOperation);
 
-          resolve({ opHash: op.hash });
+          resolve({ opHash: sentOperation.hash, startingBlockLevel: sentOperation.startingBlockLevel });
         } catch (err: any) {
           if (err instanceof TezosOperationError) {
             reject(err);
@@ -530,12 +530,13 @@ const promisableUnlock = async (
   const stopTimeout = () => clearTimeout(t);
 };
 
-const safeAddLocalOperation = async (networkRpc: string, op: any) => {
+const safeAddLocalOperation = async (networkRpc: string, { hash, results }: SentTezosOperation) => {
+  if (!results) return;
+
   try {
     const chainId = await loadTezosChainId(networkRpc);
-    await addLocalOperation(chainId, op.hash, op.results);
+    await addLocalOperation(chainId, hash, results);
   } catch {}
-  return undefined;
 };
 
 export function sign(

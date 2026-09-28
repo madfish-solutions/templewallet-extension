@@ -1,6 +1,10 @@
 import browser from 'webextension-polyfill';
 
-import { checkIfShouldReplaceAiChatAds, checkIfShouldReplaceInBrowserAds } from 'content-scripts/utils';
+import {
+  checkIfShouldReplaceAiChatAds,
+  checkIfShouldReplaceInBrowserAds,
+  runWhenDocumentIsActive
+} from 'content-scripts/utils';
 import { CHATGPT_DOMAIN } from 'lib/ads-constants/ads-constants';
 import { configureAds } from 'lib/ads/configure-ads';
 import { importExtensionAdsModule } from 'lib/ads/import-extension-ads-module';
@@ -22,33 +26,34 @@ const INJECTED_PIXEL_STYLE =
   'width: 1px; height: 1px; position: absolute; top: 0; right: 1px; background-color: transparent;';
 let impressionWasPosted = false;
 
-setInterval(async () => {
-  if (
-    document.getElementById(INJECTED_PIXEL_ID) ||
-    (!IS_MISES_BROWSER && !(await checkIfShouldReplaceInBrowserAds()))
-  ) {
-    return;
-  }
+const startPixelTag = () =>
+  setInterval(async () => {
+    if (
+      document.getElementById(INJECTED_PIXEL_ID) ||
+      (!IS_MISES_BROWSER && !(await checkIfShouldReplaceInBrowserAds()))
+    ) {
+      return;
+    }
 
-  const element = document.createElement('div');
-  element.id = INJECTED_PIXEL_ID;
-  element.setAttribute('twa', 'true');
-  element.style.cssText = INJECTED_PIXEL_STYLE;
+    const element = document.createElement('div');
+    element.id = INJECTED_PIXEL_ID;
+    element.setAttribute('twa', 'true');
+    element.style.cssText = INJECTED_PIXEL_STYLE;
 
-  if (!document?.body) return;
+    if (!document?.body) return;
 
-  document.body.appendChild(element);
-  if (!impressionWasPosted) {
-    impressionWasPosted = true;
-    browser.runtime
-      .sendMessage({
-        type: ContentScriptType.ExternalAdsActivity,
-        url: window.location.href,
-        provider: 'Pixel Tag'
-      })
-      .catch(e => console.error(e));
-  }
-}, 1000);
+    document.body.appendChild(element);
+    if (!impressionWasPosted) {
+      impressionWasPosted = true;
+      browser.runtime
+        .sendMessage({
+          type: ContentScriptType.ExternalAdsActivity,
+          url: window.location.href,
+          provider: 'Pixel Tag'
+        })
+        .catch(e => console.error(e));
+    }
+  }, 1000);
 
 let adsActionTriggers: { documentObserver?: MutationObserver; interval?: NodeJS.Timeout } | undefined;
 
@@ -78,12 +83,14 @@ const updateAdsActionTriggers = async () => {
   }
 };
 
-updateAdsActionTriggers();
-browser.storage.local.onChanged.addListener(changes => {
-  if (WEBSITES_ADS_ENABLED in changes || AI_CHATBOT_ADS_ENABLED in changes) {
-    updateAdsActionTriggers();
-  }
-});
+const startAdsReplacement = () => {
+  updateAdsActionTriggers();
+  browser.storage.local.onChanged.addListener(changes => {
+    if (WEBSITES_ADS_ENABLED in changes || AI_CHATBOT_ADS_ENABLED in changes) {
+      updateAdsActionTriggers();
+    }
+  });
+};
 
 let lastAttemptTs = 0;
 
@@ -168,4 +175,9 @@ const replaceAdsByInterval = throttleAsyncCalls(async () => {
   } catch (error) {
     console.error('Replacing Ads error:', error);
   }
+});
+
+runWhenDocumentIsActive(() => {
+  startPixelTag();
+  startAdsReplacement();
 });
