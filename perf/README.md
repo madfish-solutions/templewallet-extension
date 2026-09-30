@@ -4,7 +4,9 @@ Compares two versions of the extension on the same test wallet, usually your cha
 
 ## Before the first run
 
-Once per machine, about 5 minutes:
+Once per machine, about 5 minutes.
+
+First, make sure `_MANIFEST_KEY_` is set in your `.env`. It pins the extension id, and the test wallet is tied to that id: without it every build gets a different id, the wallet looks uninitialized to the check, and nothing runs. Then:
 
 ```bash
 cd e2e && yarn && cd ..    # installs the browser the check drives
