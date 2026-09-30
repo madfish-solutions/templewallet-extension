@@ -69,9 +69,7 @@ export const TickerPlaceholderCard = ({ tagData, onClose }: TickerPlaceholderCar
           change24h: entry.change24h,
           marketCap: entry.marketCap,
           fdv: entry.fdv,
-          volume: entry.volume,
-          high24: entry.high24,
-          low24: entry.low24
+          volume: entry.volume
         });
         setLoading(false);
 
@@ -208,6 +206,8 @@ export const TickerPlaceholderCard = ({ tagData, onClose }: TickerPlaceholderCar
     );
   }
 
+  const seriesHigh = series.length > 0 ? Math.max(...series.map(point => point.value)) : null;
+  const seriesLow = series.length > 0 ? Math.min(...series.map(point => point.value)) : null;
   const resolvedAsset = resolved && resolved.resolved ? resolved : null;
   const swappableTarget = resolvedAsset && resolvedAsset.swappable ? resolvedAsset : null;
   const ctaResolving = resolved === null || (resolvedAsset != null && !buyChecked);
@@ -246,8 +246,8 @@ export const TickerPlaceholderCard = ({ tagData, onClose }: TickerPlaceholderCar
                 data={series}
                 width={202}
                 height={108}
-                highLabel={info.high24 != null ? formatPrice(info.high24) : undefined}
-                lowLabel={info.low24 != null ? formatPrice(info.low24) : undefined}
+                highLabel={seriesHigh != null ? formatPrice(seriesHigh) : undefined}
+                lowLabel={seriesLow != null ? formatPrice(seriesLow) : undefined}
               />
             )}
           </div>

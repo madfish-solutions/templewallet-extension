@@ -1,12 +1,12 @@
 import { firstValueFrom } from 'rxjs';
 import { getAddress, isAddress } from 'viem';
 
-import { fetchAssetPlatforms } from 'lib/apis/coingecko';
+import { CONTRACT_MARKET_PLATFORMS, MARKET_PLATFORMS, TEZOS_PLATFORM_SLUG } from 'lib/apis/market-platforms';
 import { fetchgetRoute3Tokens, type Route3Token } from 'lib/apis/route3/fetch-route3-tokens';
 import { getLifiSwapTokens, type TokensByChain } from 'lib/apis/temple/endpoints/evm';
 import { EVM_TOKEN_SLUG, TEZ_TOKEN_SLUG } from 'lib/assets/defaults';
 import { toTokenSlug } from 'lib/assets/utils';
-import { COMMON_MAINNET_CHAIN_IDS, ETHEREUM_MAINNET_CHAIN_ID, TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
+import { TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
 import { equalsIgnoreCase } from 'lib/utils';
 import { ONE_HOUR_MS } from 'lib/utils/numbers';
 import { TempleChainKind } from 'temple/types';
@@ -26,21 +26,20 @@ export type ResolvedAsset =
     };
 
 const SWAP_LISTS_TTL_MS = 6 * ONE_HOUR_MS;
-const NATIVE_COINS_TTL_MS = 24 * ONE_HOUR_MS;
 
-const TEZOS_PLATFORM = 'tezos';
+const EVM_CHAIN_ID_BY_PLATFORM_SLUG = new Map<string, number>();
 
-const SUPPORTED_EVM_CHAINS: ReadonlyArray<{ slug: string; chainId: number }> = [
-  { slug: 'ethereum', chainId: ETHEREUM_MAINNET_CHAIN_ID },
-  { slug: 'binance-smart-chain', chainId: COMMON_MAINNET_CHAIN_IDS.bsc },
-  { slug: 'polygon-pos', chainId: COMMON_MAINNET_CHAIN_IDS.polygon },
-  { slug: 'arbitrum-one', chainId: COMMON_MAINNET_CHAIN_IDS.arbitrum },
-  { slug: 'optimistic-ethereum', chainId: COMMON_MAINNET_CHAIN_IDS.optimism },
-  { slug: 'base', chainId: COMMON_MAINNET_CHAIN_IDS.base },
-  { slug: 'avalanche', chainId: COMMON_MAINNET_CHAIN_IDS.avalanche },
-  { slug: 'rootstock', chainId: COMMON_MAINNET_CHAIN_IDS.rootstock }
-];
-const SUPPORTED_CHAIN_IDS = SUPPORTED_EVM_CHAINS.map(entry => entry.chainId);
+for (const platform of CONTRACT_MARKET_PLATFORMS) {
+  if (
+    platform.chainKind === 'evm' &&
+    typeof platform.chainId === 'number' &&
+    !EVM_CHAIN_ID_BY_PLATFORM_SLUG.has(platform.slug)
+  ) {
+    EVM_CHAIN_ID_BY_PLATFORM_SLUG.set(platform.slug, platform.chainId);
+  }
+}
+
+const SUPPORTED_CHAIN_IDS = Array.from(EVM_CHAIN_ID_BY_PLATFORM_SLUG.values());
 
 interface SwapLists {
   route3: Route3Token[];
@@ -64,38 +63,26 @@ const ensureLists = persistentCache<SwapLists>({
 const isEvmSwappable = (lifiTokens: TokensByChain, chainId: number, contract: string): boolean =>
   (lifiTokens[chainId] ?? []).some(token => Boolean(token.address) && equalsIgnoreCase(token.address, contract));
 
-interface NativeCoinsInfo {
-  supported: Record<string, { chainKind: TempleChainKind; chainId: string }>;
-  allNatives: string[];
+const toTempleChainKind = (kind: 'evm' | 'tezos'): TempleChainKind =>
+  kind === 'tezos' ? TempleChainKind.Tezos : TempleChainKind.EVM;
+
+const supportedNativeCoins: Record<string, { chainKind: TempleChainKind; chainId: string }> = {};
+
+for (const platform of CONTRACT_MARKET_PLATFORMS) {
+  if (platform.chainKind === 'other' || platform.chainId == null || supportedNativeCoins[platform.nativeCoinId])
+    continue;
+  supportedNativeCoins[platform.nativeCoinId] = {
+    chainKind: toTempleChainKind(platform.chainKind),
+    chainId: String(platform.chainId)
+  };
 }
 
-const ensureNativeGasCoins = persistentCache<NativeCoinsInfo>({
-  storageKey: 'WEB_WIDGETS_NATIVE_GAS_COINS_V2',
-  ttlMs: NATIVE_COINS_TTL_MS,
-  fallback: { supported: {}, allNatives: [] },
-  build: async () => {
-    const platforms = await fetchAssetPlatforms();
-    const bySlug = new Map(platforms.map(entry => [entry.id, entry]));
-    const supported: Record<string, { chainKind: TempleChainKind; chainId: string }> = {};
-
-    for (const { slug, chainId } of SUPPORTED_EVM_CHAINS) {
-      const nativeCoinId = bySlug.get(slug)?.native_coin_id;
-      if (nativeCoinId && !supported[nativeCoinId]) {
-        supported[nativeCoinId] = { chainKind: TempleChainKind.EVM, chainId: String(chainId) };
-      }
-    }
-
-    const tezosNativeCoinId = bySlug.get(TEZOS_PLATFORM)?.native_coin_id;
-    if (tezosNativeCoinId) {
-      supported[tezosNativeCoinId] = { chainKind: TempleChainKind.Tezos, chainId: TEZOS_MAINNET_CHAIN_ID };
-    }
-
-    const allNatives = platforms.map(entry => entry.native_coin_id).filter((id): id is string => Boolean(id));
-
-    return { supported, allNatives };
-  },
-  isValid: ({ supported }) => Object.keys(supported).length > 0
-});
+const supportedNativeCoinIds = new Set(Object.keys(supportedNativeCoins));
+const otherNativeCoinIds = new Set(
+  MARKET_PLATFORMS.flatMap(platform =>
+    supportedNativeCoinIds.has(platform.nativeCoinId) ? [] : [platform.nativeCoinId]
+  )
+);
 
 const toEvmAsset = (chainId: number, contract: string, swappable: boolean): ResolvedAsset => ({
   resolved: true,
@@ -116,14 +103,9 @@ const toTezosAsset = (contract: string, r3: Route3Token | undefined): ResolvedAs
 });
 
 export const resolveAsset = async (coinId: string): Promise<ResolvedAsset> => {
-  const [nativeCoins, lists, platforms, coin] = await Promise.all([
-    ensureNativeGasCoins(),
-    ensureLists(),
-    getCoinPlatforms(coinId),
-    getCoinById(coinId)
-  ]);
+  const [lists, platforms, coin] = await Promise.all([ensureLists(), getCoinPlatforms(coinId), getCoinById(coinId)]);
 
-  const supported = nativeCoins.supported[coinId];
+  const supported = supportedNativeCoins[coinId];
   if (supported) {
     return {
       resolved: true,
@@ -138,19 +120,18 @@ export const resolveAsset = async (coinId: string): Promise<ResolvedAsset> => {
   const findPlatform = (slug: string) =>
     platforms.find((deployment: PlatformDeployment) => deployment.slug === slug)?.address;
 
-  if (nativeCoins.allNatives.includes(coinId) && !findPlatform('ethereum') && !findPlatform(TEZOS_PLATFORM)) {
+  if (otherNativeCoinIds.has(coinId) && !findPlatform('ethereum') && !findPlatform(TEZOS_PLATFORM_SLUG)) {
     return { resolved: false };
   }
 
-  const chainIdBySlug = new Map(SUPPORTED_EVM_CHAINS.map(({ slug, chainId }) => [slug, chainId]));
   const evmDeployments = platforms.flatMap(({ slug, address }) => {
-    const chainId = chainIdBySlug.get(slug);
+    const chainId = EVM_CHAIN_ID_BY_PLATFORM_SLUG.get(slug);
     if (chainId == null) return [];
     const contract = isAddress(address) ? getAddress(address) : address;
     return [{ chainId, contract }];
   });
 
-  const tezContract = findPlatform(TEZOS_PLATFORM);
+  const tezContract = findPlatform(TEZOS_PLATFORM_SLUG);
   const tezMatches = tezContract
     ? lists.route3.filter(
         token => Boolean(token.contract) && equalsIgnoreCase(token.contract ?? undefined, tezContract)

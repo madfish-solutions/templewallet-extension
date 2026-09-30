@@ -8,7 +8,7 @@ import { Divider, IconBase, Money } from 'app/atoms';
 import { HashChip } from 'app/atoms/HashChip';
 import { EvmNetworkLogo, TezosNetworkLogo } from 'app/atoms/NetworkLogo';
 import { ReactComponent as InfoFillSvg } from 'app/icons/base/InfoFill.svg';
-import { fetchTokenMarketInfo } from 'lib/apis/coingecko';
+import { fetchTokenMarketInfo } from 'lib/apis/token-market-info';
 import { fromAssetSlug, isFA2Token, isTezAsset } from 'lib/assets';
 import { fromAssetSlugWithStandardDetect } from 'lib/assets/contract.utils';
 import { useAssetFiatCurrencyPrice, useFiatCurrency, useFiatToUsdRate } from 'lib/fiat-currency';

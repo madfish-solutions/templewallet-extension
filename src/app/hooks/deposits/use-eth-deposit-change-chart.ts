@@ -5,25 +5,21 @@ import BigNumber from 'bignumber.js';
 import { formatEther } from 'viem';
 
 import { useTokenHistoricalPrices } from 'app/hooks/deposits/use-token-historical-prices';
-import { useFiatCurrency } from 'lib/fiat-currency/core';
+import { useFiatToUsdRate } from 'lib/fiat-currency/core';
 import { useTypedSWR } from 'lib/swr';
 
 import { ONE_MONTH_IN_MS, DEFAULT_CHART_DAYS_COUNT } from './constants';
 import { toMsTimestamp } from './utils';
 
 export const useEthDepositChangeChart = (accountPkh: HexString) => {
-  const { selectedFiatCurrency } = useFiatCurrency();
+  const fiatToUsdRate = useFiatToUsdRate();
   const [nowMs, setNowMs] = useState<number | null>(null);
 
   const {
     data: marketChartData,
     isLoading: isMarketChartLoading,
     error: marketChartError
-  } = useTokenHistoricalPrices({
-    id: 'ethereum',
-    vs_currency: selectedFiatCurrency.apiLabel,
-    days: DEFAULT_CHART_DAYS_COUNT
-  });
+  } = useTokenHistoricalPrices('eth-ethereum', DEFAULT_CHART_DAYS_COUNT);
 
   const {
     data: stakingTransactions,
@@ -54,14 +50,14 @@ export const useEthDepositChangeChart = (accountPkh: HexString) => {
   }, [marketChartData, stakingTransactions]);
 
   const data = useMemo(() => {
-    if (nowMs === null || !stakingTransactions?.length || !marketChartData?.prices?.length) {
+    if (nowMs === null || fiatToUsdRate == null || !stakingTransactions?.length || !marketChartData?.prices?.length) {
       return;
     }
 
     const monthAgoMs = nowMs - ONE_MONTH_IN_MS;
 
     const pricePoints = marketChartData.prices
-      .map(([timestamp, fiatPrice]) => ({ timestamp, fiatPrice }))
+      .map(([timestamp, usdPrice]) => ({ timestamp, fiatPrice: usdPrice * fiatToUsdRate }))
       .filter(point => point.timestamp >= monthAgoMs && point.timestamp <= nowMs);
 
     if (!pricePoints.length) {
@@ -109,7 +105,7 @@ export const useEthDepositChangeChart = (accountPkh: HexString) => {
     }
 
     return series;
-  }, [marketChartData, nowMs, stakingTransactions]);
+  }, [marketChartData, nowMs, stakingTransactions, fiatToUsdRate]);
 
   return {
     data,

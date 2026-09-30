@@ -1,28 +1,14 @@
 import BigNumber from 'bignumber.js';
 
-import { coingeckoApi } from 'lib/apis/coingecko';
-import { useFiatCurrency } from 'lib/fiat-currency';
-import { useTypedSWR } from 'lib/swr';
-
-const COINGECKO_ID_BY_EXOLIX_COIN: Record<string, string | undefined> = {
-  BTC: 'bitcoin'
-};
+import { useBtcToUsdRateSelector } from 'app/store/currency/selectors';
+import { BTC_EXOLIX_COIN_CODE } from 'lib/cross-chain/constants';
+import { useFiatToUsdRate } from 'lib/fiat-currency';
 
 export const useExternalCoinPrice = (exolixCoin: string): BigNumber => {
-  const { selectedFiatCurrency } = useFiatCurrency();
-  const fiatCode = selectedFiatCurrency.apiLabel;
-  const coingeckoId = COINGECKO_ID_BY_EXOLIX_COIN[exolixCoin];
+  const btcToUsdRate = useBtcToUsdRateSelector();
+  const fiatToUsdRate = useFiatToUsdRate();
 
-  const { data } = useTypedSWR<number>(
-    coingeckoId ? ['external-coin-price', coingeckoId, fiatCode] : null,
-    () =>
-      coingeckoApi
-        .get<Record<string, Record<string, number>>>('/simple/price', {
-          params: { ids: coingeckoId, vs_currencies: fiatCode }
-        })
-        .then(r => r.data[coingeckoId!]?.[fiatCode] ?? 0),
-    { revalidateOnFocus: false, dedupingInterval: 60_000 }
-  );
+  if (exolixCoin !== BTC_EXOLIX_COIN_CODE || btcToUsdRate == null || fiatToUsdRate == null) return new BigNumber(0);
 
-  return new BigNumber(data ?? 0);
+  return new BigNumber(btcToUsdRate).times(fiatToUsdRate);
 };

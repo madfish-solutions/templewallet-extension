@@ -33,7 +33,3 @@ export interface FiatCurrencyOptionBase {
 export interface FiatCurrencyOption extends FiatCurrencyOptionBase {
   fullname: string;
 }
-
-export interface CoingeckoFiatInterface {
-  tezos: Record<string, number>;
-}

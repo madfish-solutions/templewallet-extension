@@ -17,6 +17,7 @@ export enum ContentScriptType {
   FetchObjktToken = 'FetchObjktToken',
   FetchThumbnailBlob = 'FetchThumbnailBlob',
   GetCoinsBySymbol = 'GetCoinsBySymbol',
+  GetCoinLogo = 'GetCoinLogo',
   FetchTokenChart = 'FetchTokenChart',
   OpenFullPage = 'OpenFullPage',
   ResolveAsset = 'ResolveAsset',

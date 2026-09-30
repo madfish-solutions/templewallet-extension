@@ -26,3 +26,6 @@ export const fetchUsdToTokenRates = () =>
   });
 
 export const fetchBtcToUsdRateRate = () => templeWalletApi.get<number>('/exchange-rates/btc').then(({ data }) => data);
+
+export const getAllFiatsTezExchangeRates = () =>
+  templeWalletApi.get<Record<string, number>>('/exchange-rates/all-fiats/tez').then(({ data }) => data);

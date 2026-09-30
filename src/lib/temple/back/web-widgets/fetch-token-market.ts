@@ -1,19 +1,13 @@
-import { ONE_HOUR_MS } from 'lib/utils/numbers';
-
-import { getCoinSparkline } from './fetch-coins-by-symbol';
+import { fetchHistoricalUsdPrices } from 'lib/apis/coinpaprika';
 
 export interface ChartPoint {
   timestamp: number;
   value: number;
 }
 
-const HOURS_24 = 24;
+const CHART_DAYS = 1;
 
 export const fetchTokenChart = async (coinId: string): Promise<ChartPoint[]> => {
-  const prices = await getCoinSparkline(coinId);
-  if (prices.length === 0) return [];
-
-  const recent = prices.slice(-HOURS_24);
-  const base = Date.now() - (recent.length - 1) * ONE_HOUR_MS;
-  return recent.map((value, index) => ({ timestamp: base + index * ONE_HOUR_MS, value }));
+  const prices = await fetchHistoricalUsdPrices(coinId, CHART_DAYS, '1h');
+  return prices.map(point => ({ timestamp: point.timestamp, value: point.price }));
 };

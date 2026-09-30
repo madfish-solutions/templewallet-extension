@@ -1,5 +1,7 @@
 import memoizee from 'memoizee';
 
+import { browser } from 'lib/browser';
+
 const TTL_MS = 10 * 60 * 1000;
 
 /**
@@ -8,9 +10,23 @@ const TTL_MS = 10 * 60 * 1000;
  * as a `data:` URL, so the background fetches them here and hands the
  * content script a self-contained URL.
  */
+const PAPRIKA_LOGO_HOST = 'static.coinpaprika.com';
+
+// Cloudflare blocks this host when the request has no Referer. Fetch cannot set that header
+// to another origin, so send the extension's own URL — any non-empty Referer is accepted.
+const paprikaLogoInit = (url: string): RequestInit | undefined => {
+  try {
+    if (new URL(url).hostname !== PAPRIKA_LOGO_HOST) return undefined;
+  } catch {
+    return undefined;
+  }
+
+  return { referrer: browser.runtime.getURL('/'), referrerPolicy: 'unsafe-url' };
+};
+
 const fetchThumbnailData = memoizee(
   async (url: string): Promise<string> => {
-    const res = await fetch(url);
+    const res = await fetch(url, paprikaLogoInit(url));
     if (!res.ok) throw new Error(`Thumbnail fetch failed with status ${res.status}`);
 
     const buf = await res.arrayBuffer();

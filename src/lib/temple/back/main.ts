@@ -576,6 +576,11 @@ browser.runtime.onMessage.addListener(async (msg, sender) => {
         return await getCoinsBySymbol();
       }
 
+      case ContentScriptType.GetCoinLogo: {
+        const { getCoinLogo } = await importCoinsBySymbolModule();
+        return await getCoinLogo(msg.coinId);
+      }
+
       case ContentScriptType.FetchTokenChart: {
         const { fetchTokenChart } = await importFetchTokenChartModule();
         return await fetchTokenChart(msg.coinId);
