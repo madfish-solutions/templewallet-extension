@@ -82,10 +82,10 @@ node perf/compare.mjs --profile whale-tezos base=$(git merge-base HEAD origin/de
 - Expect the "unreliable" caveat on every comparison against a `development` commit from before the NFT-page request storm was fixed (TW-2390): that storm always triggers the throttle.
 - The wallet locks itself 5 minutes after the page loses focus or after the last mouse or keyboard input. The check moves the pointer a little every 30 seconds to prevent that; if it happens anyway, the report says so under Broken and leaves the affected rows empty instead of measuring the unlock screen.
 - Exclude `perf/out` from your IDE's indexing (WebStorm: right-click the folder → Mark Directory as → Excluded; `dist` too). Being git-ignored does not stop the IDE from parsing what is in there, and a few runs leave gigabytes of JSON traces and heap snapshots that make it run out of memory and keep the laptop hot.
-- Old runs are never deleted. A comparison leaves about 1 GB per version: the trace and the build in `perf/out/cmp-…/` (not committed), and two copies of the test wallet in the `temple-perf-profiles` folder of your system temp directory. Delete old `cmp-…` folders and profile copies now and then; keep the test wallets (`whale`, `whale-tezos`) and their `-scratch` copies (see below). To open that folder on macOS:
+- Old runs are never deleted. A comparison leaves about 1 GB per version: the trace and the build in `perf/out/cmp-…/` (not committed), and two copies of the test wallet in `~/.temple-perf-profiles`. Delete old `cmp-…` folders and profile copies now and then; keep the test wallets (`whale`, `whale-tezos`) and their `-scratch` copies (see below). The wallets live in your home folder on purpose: macOS deletes temp files that were not used for three days, and they disappeared that way once. To open the folder on macOS:
 
   ```bash
-  open "$(node -p 'require("os").tmpdir()')/temple-perf-profiles"
+  open ~/.temple-perf-profiles
   ```
 
 ## For deeper investigation

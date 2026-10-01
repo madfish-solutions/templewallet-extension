@@ -15,7 +15,7 @@ import { fileURLToPath } from 'node:url';
 import { renderReport } from './results.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
-const PROFILES = path.join(os.tmpdir(), 'temple-perf-profiles');
+const PROFILES = path.join(os.homedir(), '.temple-perf-profiles'); // same as lib.mjs; not the temp folder, macOS empties it
 const PROBE_TIMEOUT_MS = 20 * 60_000;
 const USAGE = `usage: node perf/compare.mjs <name>=<branch | commit | . | build folder> [<name>=… ...]
        [--unlocks N] [--profile NAME] [--no-warmup] [--out DIR]

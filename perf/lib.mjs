@@ -19,7 +19,22 @@ const { chromium } = playwright;
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 export const ROOT = path.resolve(HERE, '..');
 export const EXT = process.env.TW_EXT ?? path.join(ROOT, 'dist', 'chrome_unpacked');
-export const PROFILES = path.join(os.tmpdir(), 'temple-perf-profiles');
+// An empty TW_EXT (a `BUILD=$(perf/build.sh .)` whose build failed) would launch Chrome without the extension and end
+// in a service-worker timeout half a minute later; say what is wrong instead.
+if (process.env.TW_EXT === '') {
+  console.error(
+    'TW_EXT is empty: the build probably failed (perf/build.sh prints its errors to stderr). Run it again and read its output.'
+  );
+  process.exit(2);
+}
+if (!fs.existsSync(path.join(EXT, 'manifest.json'))) {
+  console.error(
+    `No extension at ${EXT} (no manifest.json): build it first with \`perf/build.sh .\` or point TW_EXT at a build.`
+  );
+  process.exit(2);
+}
+// Not in os.tmpdir(): macOS deletes temp files that were not used for three days, and the test wallets vanished that way.
+export const PROFILES = path.join(os.homedir(), '.temple-perf-profiles');
 const PROFILE_NAME = process.env.TW_PROFILE_NAME ?? 'whale';
 export const PROFILE = process.env.TW_PROFILE ?? path.join(PROFILES, PROFILE_NAME);
 /**
