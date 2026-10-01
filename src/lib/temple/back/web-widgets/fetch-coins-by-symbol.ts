@@ -1,11 +1,12 @@
 import {
-  fetchCoinsByCategory,
-  fetchCoinsByIds,
-  fetchCoinsListWithPlatforms,
-  fetchTopCoinsByMarketCap,
+  fetchActiveTickers,
+  fetchCoinLogo,
+  fetchPlatformContracts,
+  type PaprikaContract,
   type TopCoinRaw
-} from 'lib/apis/coingecko';
-import { fetchTopCoinsFromPaprika } from 'lib/apis/coinpaprika';
+} from 'lib/apis/coinpaprika';
+import { CONTRACT_MARKET_PLATFORMS, TEZOS_PAPRIKA_PLATFORM_ID } from 'lib/apis/market-platforms';
+import { fetchFromStorage, putToStorage } from 'lib/storage';
 import { ONE_HOUR_MS } from 'lib/utils/numbers';
 
 import { persistentCache } from './persistent-cache';
@@ -13,15 +14,12 @@ import { persistentCache } from './persistent-cache';
 export interface CoinMetadata {
   symbol: string;
   name: string;
-  iconUrl: string;
   marketCap: number;
   id: string;
   price: number | null;
   change24h: number | null;
   fdv: number | null;
   volume: number | null;
-  high24: number | null;
-  low24: number | null;
 }
 
 export type CoinsBySymbol = Record<string, CoinMetadata>;
@@ -29,81 +27,9 @@ export type CoinsBySymbol = Record<string, CoinMetadata>;
 const COINS_TTL_MS = 10 * 60 * 1000;
 const PLATFORMS_TTL_MS = 6 * ONE_HOUR_MS;
 
-const PAGES = 2;
-const TOP_N = PAGES * 250;
+const TOP_N = 500;
 
-const SUPPLEMENTAL_IDS = ['wrapped-bitcoin', 'weth', 'wrapped-steth', 'coinbase-wrapped-btc'];
-
-const TEZOS_ECOSYSTEM_CATEGORY = 'tezos-ecosystem';
-
-interface CoinsBundle {
-  data: CoinsBySymbol;
-  sparklinesById: Record<string, number[]>;
-}
-
-const fetchTopCoins = async (): Promise<TopCoinRaw[]> => {
-  const [primary, supplemental, tezos] = await Promise.all([
-    fetchTopCoinsByMarketCap(PAGES),
-    fetchCoinsByIds(SUPPLEMENTAL_IDS),
-    fetchCoinsByCategory(TEZOS_ECOSYSTEM_CATEGORY)
-  ]);
-
-  if (primary.length > 0) {
-    return primary.concat(supplemental, tezos);
-  }
-
-  try {
-    return await fetchTopCoinsFromPaprika(TOP_N);
-  } catch {
-    return [];
-  }
-};
-
-const buildCoinsBySymbol = async (): Promise<CoinsBundle> => {
-  const coins = await fetchTopCoins();
-
-  const bySymbol: CoinsBySymbol = {};
-  const sparklinesById: Record<string, number[]> = {};
-  for (const coin of coins) {
-    sparklinesById[coin.id] = coin.sparkline_in_7d?.price ?? [];
-
-    const key = coin.symbol.toUpperCase();
-    const marketCap = coin.market_cap ?? 0;
-    const existing = bySymbol[key];
-    if (!existing || marketCap > existing.marketCap) {
-      bySymbol[key] = {
-        symbol: key,
-        name: coin.name,
-        iconUrl: coin.image ?? '',
-        marketCap,
-        id: coin.id,
-        price: coin.current_price ?? null,
-        change24h: coin.price_change_percentage_24h ?? null,
-        fdv: coin.fully_diluted_valuation ?? null,
-        volume: coin.total_volume ?? null,
-        high24: coin.high_24h ?? null,
-        low24: coin.low_24h ?? null
-      };
-    }
-  }
-
-  return { data: bySymbol, sparklinesById };
-};
-
-const ensureCache = persistentCache<CoinsBundle>({
-  storageKey: 'WEB_WIDGETS_COINS_BY_SYMBOL',
-  ttlMs: COINS_TTL_MS,
-  fallback: { data: {}, sparklinesById: {} },
-  build: buildCoinsBySymbol,
-  isValid: ({ data }) => Object.keys(data).length > 0
-});
-
-export const getCoinsBySymbol = async (): Promise<CoinsBySymbol> => (await ensureCache()).data;
-
-export const getCoinById = async (id: string): Promise<CoinMetadata | undefined> =>
-  Object.values((await ensureCache()).data).find(coin => coin.id === id);
-
-export const getCoinSparkline = async (id: string): Promise<number[]> => (await ensureCache()).sparklinesById[id] ?? [];
+const SUPPLEMENTAL_IDS = ['wbtc-wrapped-bitcoin', 'weth-weth', 'cbbtc-coinbase-wrapped-btc'];
 
 export interface PlatformDeployment {
   slug: string;
@@ -112,26 +38,146 @@ export interface PlatformDeployment {
 
 type CoinPlatforms = Record<string, PlatformDeployment[]>;
 
+const fetchListedCoins = async (): Promise<TopCoinRaw[]> => {
+  const [tickers, tezosContracts] = await Promise.all([
+    fetchActiveTickers(),
+    fetchPlatformContracts(TEZOS_PAPRIKA_PLATFORM_ID).catch((): PaprikaContract[] => [])
+  ]);
+
+  const extraIds = new Set([
+    ...SUPPLEMENTAL_IDS,
+    ...tezosContracts.flatMap(contract => (contract.active ? [contract.id] : []))
+  ]);
+  const top = tickers.slice(0, TOP_N);
+  const included = new Set(top.map(coin => coin.id));
+
+  return top.concat(tickers.filter(coin => extraIds.has(coin.id) && !included.has(coin.id)));
+};
+
+const buildCoinsBySymbol = async (): Promise<CoinsBySymbol> => {
+  const coins = await fetchListedCoins();
+  const bySymbol: CoinsBySymbol = {};
+
+  for (const coin of coins) {
+    const key = coin.symbol.toUpperCase();
+    const marketCap = coin.market_cap ?? 0;
+    const existing = bySymbol[key];
+    if (!existing || marketCap > existing.marketCap) {
+      bySymbol[key] = {
+        symbol: key,
+        name: coin.name,
+        marketCap,
+        id: coin.id,
+        price: coin.current_price ?? null,
+        change24h: coin.price_change_percentage_24h ?? null,
+        fdv: coin.fully_diluted_valuation ?? null,
+        volume: coin.total_volume ?? null
+      };
+    }
+  }
+
+  return bySymbol;
+};
+
+const ensureCache = persistentCache<CoinsBySymbol>({
+  storageKey: 'WEB_WIDGETS_COINS_BY_SYMBOL_V2',
+  ttlMs: COINS_TTL_MS,
+  fallback: {},
+  build: buildCoinsBySymbol,
+  isValid: data => Object.keys(data).length > 0
+});
+
+export const getCoinsBySymbol = (): Promise<CoinsBySymbol> => ensureCache();
+
+export const getCoinById = async (id: string): Promise<CoinMetadata | undefined> =>
+  Object.values(await ensureCache()).find(coin => coin.id === id);
+
 const ensurePlatforms = persistentCache<CoinPlatforms>({
-  storageKey: 'WEB_WIDGETS_COIN_PLATFORMS',
+  storageKey: 'WEB_WIDGETS_COIN_PLATFORMS_V2',
   ttlMs: PLATFORMS_TTL_MS,
   fallback: {},
   build: async () => {
-    const [entry, list] = await Promise.all([ensureCache(), fetchCoinsListWithPlatforms()]);
-    if (list.length === 0) throw new Error('empty coins/list response');
+    const [coins, lists] = await Promise.all([
+      ensureCache(),
+      Promise.all(
+        CONTRACT_MARKET_PLATFORMS.map(platform =>
+          fetchPlatformContracts(platform.paprikaPlatformId)
+            .then(contracts => ({ platform, contracts }))
+            .catch(() => null)
+        )
+      )
+    ]);
+    if (lists.every(list => list == null)) throw new Error('contract platforms unavailable');
 
-    const surfaced = new Set(Object.values(entry.data).map(coin => coin.id));
+    const surfaced = new Set(Object.values(coins).map(coin => coin.id));
+    const seen = new Set<string>();
     const byId: CoinPlatforms = {};
-    for (const coin of list) {
-      if (!coin.platforms || !surfaced.has(coin.id)) continue;
-      const deployments = Object.entries(coin.platforms).flatMap(([slug, address]) =>
-        address ? [{ slug, address }] : []
-      );
-      if (deployments.length > 0) byId[coin.id] = deployments;
+
+    for (const list of lists) {
+      if (!list) continue;
+
+      for (const contract of list.contracts) {
+        if (!contract.active || !contract.address || !surfaced.has(contract.id)) continue;
+
+        const key = `${contract.id}:${list.platform.slug}:${contract.address.toLowerCase()}`;
+        if (seen.has(key)) continue;
+        seen.add(key);
+
+        const deployments = byId[contract.id] ?? [];
+        deployments.push({ slug: list.platform.slug, address: contract.address });
+        byId[contract.id] = deployments;
+      }
     }
+
     return byId;
   }
 });
+
+const LOGOS_TTL_MS = 7 * 24 * ONE_HOUR_MS;
+const LOGOS_STORAGE_KEY = 'WEB_WIDGETS_COIN_LOGOS_V1';
+
+interface StoredLogo {
+  url: string;
+  fetchedAt: number;
+}
+
+let storedLogosPromise: Promise<Record<string, StoredLogo>> | null = null;
+const logoRequests = new Map<string, Promise<string>>();
+
+const readStoredLogos = () => {
+  storedLogosPromise ??= fetchFromStorage<Record<string, StoredLogo>>(LOGOS_STORAGE_KEY)
+    .catch((): Record<string, StoredLogo> | null => null)
+    .then(persisted => persisted ?? {});
+
+  return storedLogosPromise;
+};
+
+const loadCoinLogo = async (coinId: string): Promise<string> => {
+  const logos = await readStoredLogos();
+  const cached = logos[coinId];
+  if (cached && Date.now() - cached.fetchedAt <= LOGOS_TTL_MS) return cached.url;
+
+  try {
+    const url = await fetchCoinLogo(coinId);
+    logos[coinId] = { url, fetchedAt: Date.now() };
+    putToStorage(LOGOS_STORAGE_KEY, logos).catch(() => {});
+    return url;
+  } catch {
+    return cached?.url ?? '';
+  }
+};
+
+/** Logo from Coinpaprika Get coin by ID, including its per-coin `rev` when the API sends one. */
+export const getCoinLogo = (coinId: string): Promise<string> => {
+  const pending = logoRequests.get(coinId);
+  if (pending) return pending;
+
+  const request = loadCoinLogo(coinId).finally(() => {
+    logoRequests.delete(coinId);
+  });
+  logoRequests.set(coinId, request);
+  return request;
+};
 
 export const getCoinPlatforms = async (coinId: string): Promise<PlatformDeployment[]> => {
   const entry = (await ensurePlatforms())[coinId];

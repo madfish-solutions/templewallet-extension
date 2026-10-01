@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 
 import { type TzktStakingUpdate } from 'lib/apis/tzkt';
-import { useFiatCurrency } from 'lib/fiat-currency/core';
+import { useFiatCurrency, useFiatToUsdRate } from 'lib/fiat-currency/core';
 import { mutezToTz } from 'lib/temple/helpers';
 import { TempleTezosChainId } from 'lib/temple/types';
 
@@ -14,6 +14,7 @@ import { toMsTimestamp } from './utils';
 
 export const useTezosDepositChangeChart = (accountPkh: string) => {
   const { selectedFiatCurrency } = useFiatCurrency();
+  const fiatToUsdRate = useFiatToUsdRate();
   const [nowMs, setNowMs] = useState<number | null>(null);
 
   const {
@@ -32,11 +33,7 @@ export const useTezosDepositChangeChart = (accountPkh: string) => {
     data: marketChartData,
     isLoading: isMarketChartLoading,
     error: marketChartError
-  } = useTokenHistoricalPrices({
-    id: 'tezos',
-    vs_currency: selectedFiatCurrency.apiLabel,
-    days: DEFAULT_CHART_DAYS_COUNT
-  });
+  } = useTokenHistoricalPrices('xtz-tezos', DEFAULT_CHART_DAYS_COUNT);
 
   const {
     data: delegatedFromMs,
@@ -60,14 +57,14 @@ export const useTezosDepositChangeChart = (accountPkh: string) => {
   }, [balanceHistory, marketChartData]);
 
   const data = useMemo(() => {
-    if (nowMs === null || !balanceHistory?.length || !marketChartData?.prices?.length) {
+    if (nowMs === null || fiatToUsdRate == null || !balanceHistory?.length || !marketChartData?.prices?.length) {
       return;
     }
 
     const monthAgoMs = nowMs - ONE_MONTH_IN_MS;
 
     const basePricePoints = marketChartData.prices
-      .map(([timestamp, fiatPrice]) => ({ timestamp, fiatPrice }))
+      .map(([timestamp, usdPrice]) => ({ timestamp, fiatPrice: usdPrice * fiatToUsdRate }))
       .filter(point => point.timestamp >= monthAgoMs && point.timestamp <= nowMs);
 
     if (!basePricePoints.length) {
@@ -116,7 +113,7 @@ export const useTezosDepositChangeChart = (accountPkh: string) => {
 
       return [timestamp, depositInFiat];
     });
-  }, [balanceHistory, stakingUpdates, marketChartData, delegatedFromMs, nowMs]);
+  }, [balanceHistory, stakingUpdates, marketChartData, delegatedFromMs, nowMs, fiatToUsdRate]);
 
   return {
     data,

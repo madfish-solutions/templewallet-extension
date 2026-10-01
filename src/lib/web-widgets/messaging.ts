@@ -31,6 +31,12 @@ export const getCoinsBySymbol = (): Promise<CoinsBySymbol> =>
     type: ContentScriptType.GetCoinsBySymbol
   });
 
+export const getCoinLogo = (coinId: string): Promise<string> =>
+  browser.runtime.sendMessage({
+    type: ContentScriptType.GetCoinLogo,
+    coinId
+  });
+
 export const fetchTokenChart = (coinId: string): Promise<ChartPoint[]> =>
   browser.runtime.sendMessage({
     type: ContentScriptType.FetchTokenChart,

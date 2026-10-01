@@ -8,8 +8,6 @@ export interface TickerInfo {
   marketCap: number | null;
   fdv: number | null;
   volume: number | null;
-  high24: number | null;
-  low24: number | null;
 }
 
 interface TickerInfoPanelProps {

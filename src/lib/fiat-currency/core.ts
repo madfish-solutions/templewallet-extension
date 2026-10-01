@@ -8,7 +8,7 @@ import { use3RouteEvmTokenMetadataSelector } from 'app/store/evm/swap-3route-met
 import { useLifiEvmTokenMetadataSelector } from 'app/store/evm/swap-lifi-metadata/selectors';
 import { useEvmUsdToTokenRatesSelector } from 'app/store/evm/tokens-exchange-rates/selectors';
 import { useSelector } from 'app/store/root-state.selector';
-import { coingeckoApi } from 'lib/apis/coingecko';
+import { getAllFiatsTezExchangeRates } from 'lib/apis/temple';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { toChainAssetSlug } from 'lib/assets/utils';
 import { useStorage } from 'lib/temple/front';
@@ -17,7 +17,7 @@ import { ZERO } from 'lib/utils/numbers';
 import { TempleChainKind } from 'temple/types';
 
 import { FIAT_CURRENCIES_BASE } from './consts';
-import type { CoingeckoFiatInterface, FiatCurrencyOptionBase } from './types';
+import type { FiatCurrencyOptionBase } from './types';
 
 const FIAT_CURRENCY_STORAGE_KEY = 'fiat_currency';
 
@@ -85,17 +85,12 @@ export const useFiatCurrency = () => {
 };
 
 export const fetchFiatToTezosRates = () =>
-  coingeckoApi
-    .get<CoingeckoFiatInterface>(
-      `/simple/price?ids=tezos&vs_currencies=${FIAT_CURRENCIES_BASE.map(({ apiLabel }) => apiLabel).join(',')}`
-    )
-    .then(({ data }) => {
-      const mappedRates: Record<string, number> = {};
-      const tezosData = Object.keys(data.tezos);
+  getAllFiatsTezExchangeRates().then(rates => {
+    const normalized: Record<string, number> = {};
 
-      for (const quote of tezosData) {
-        mappedRates[quote] = data.tezos[quote];
-      }
+    for (const [currency, rate] of Object.entries(rates)) {
+      normalized[currency.toLowerCase()] = rate;
+    }
 
-      return mappedRates;
-    });
+    return normalized;
+  });
