@@ -1,4 +1,4 @@
-import { act, useEffect } from 'react';
+import { act } from 'react';
 
 import { createRoot, type Root } from 'react-dom/client';
 
@@ -7,6 +7,7 @@ import { buildAlchemySwapCalls } from 'lib/evm/alchemy/swap';
 import { account, makeQuote, makeStep } from 'lib/evm/alchemy/test-fixtures';
 import { ALCHEMY_DELEGATION, getAlchemyOperation } from 'lib/evm/alchemy/validation';
 import { useTempleClient } from 'lib/temple/front';
+import { createHookWrapper } from 'lib/ui/test-helpers';
 import type { EvmChain } from 'temple/front';
 
 import { useAlchemySwapBatch } from './useAlchemySwapBatch';
@@ -28,13 +29,12 @@ const prepare = prepareAlchemyCalls as jest.MockedFunction<typeof prepareAlchemy
 let current: ReturnType<typeof useAlchemySwapBatch>;
 let root: Root;
 let container: HTMLDivElement;
-function Harness() {
-  const result = useAlchemySwapBatch({ steps, account, network });
-  useEffect(() => {
+const Harness = createHookWrapper(
+  () => useAlchemySwapBatch({ steps, account, network }),
+  result => {
     current = result;
-  }, [result]);
-  return null;
-}
+  }
+);
 async function mount(): Promise<void> {
   container = document.createElement('div');
   document.body.appendChild(container);

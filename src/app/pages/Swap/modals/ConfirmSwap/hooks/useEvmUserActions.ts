@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
+import { isDefined } from '@rnw-community/shared';
+
 import { isLifiStep, isSwapEvmReviewData, SwapReviewData } from 'app/pages/Swap/form/interfaces';
 import { getAlchemyWalletConfig } from 'lib/apis/temple/endpoints/evm/alchemy-wallet';
 import { canBatchLifiSteps, getAlchemyBatchReviewStep } from 'lib/evm/alchemy/swap';
@@ -32,8 +34,7 @@ export const useEvmUserActions = (opened: boolean, onRequestClose: EmptyFn, revi
   }, []);
   const eligible =
     !legacy &&
-    batchConfig !== undefined &&
-    batchConfig !== null &&
+    isDefined(batchConfig) &&
     evmSteps.every(isLifiStep) &&
     canBatchLifiSteps(evmSteps) &&
     (batchConfig === 'unavailable' || batchConfig.chains.includes(evmSteps[0].action.fromChainId));

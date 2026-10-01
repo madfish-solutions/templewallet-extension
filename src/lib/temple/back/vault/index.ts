@@ -942,7 +942,7 @@ export class Vault {
       const signed: AlchemySignedItem[] = [];
       if (quote.prepared.type === 'array') {
         const authorization = quote.prepared.data[0];
-        const nonce = Number(BigInt(authorization.data.nonce));
+        const nonce = Number(authorization.data.nonce);
         if (nonce !== (await client.getTransactionCount({ address: accountPkh, blockTag: 'pending' }))) {
           throw new PublicError('Account authorization expired. Retry the quote.');
         }

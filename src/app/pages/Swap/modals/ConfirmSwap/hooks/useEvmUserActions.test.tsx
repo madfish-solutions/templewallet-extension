@@ -1,10 +1,11 @@
-import { act, useEffect } from 'react';
+import { act } from 'react';
 
 import { createRoot, Root } from 'react-dom/client';
 
 import { EvmReviewData } from 'app/pages/Swap/form/interfaces';
 import { getAlchemyWalletConfig } from 'lib/apis/temple/endpoints/evm/alchemy-wallet';
 import { TempleAccountType } from 'lib/temple/types';
+import { createHookWrapper } from 'lib/ui/test-helpers';
 import { TempleChainKind } from 'temple/types';
 
 import { useEvmAllowances } from '../../SwapSelectAsset/hooks';
@@ -23,13 +24,16 @@ let root: Root;
 let container: HTMLDivElement;
 const onClose = jest.fn();
 
-function Harness({ review }: { review: EvmReviewData }) {
-  const result = useEvmUserActions(true, onClose, review);
-  useEffect(() => {
-    current = result;
-  }, [result]);
-  return null;
+interface HarnessProps {
+  review: EvmReviewData;
 }
+
+const Harness = createHookWrapper(
+  ({ review }: HarnessProps) => useEvmUserActions(true, onClose, review),
+  result => {
+    current = result;
+  }
+);
 
 function makeReview(type = TempleAccountType.HD): EvmReviewData {
   return {
