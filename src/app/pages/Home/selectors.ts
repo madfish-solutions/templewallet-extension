@@ -1,6 +1,7 @@
 export enum HomeSelectors {
   delegateButton = 'Home/Delegate Button',
   accountIcon = 'Home/Account Icon',
+  accountName = 'Home/Account Name',
   accountMenuButton = 'Home/Menu Button',
   buyWithFiatButton = 'Home/Buy with Fiat Button',
   crossChainSwapButton = 'Home/Cross Chain Swap Button',
