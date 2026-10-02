@@ -3,6 +3,7 @@ import { FC, useEffect } from 'react';
 import browser from 'webextension-polyfill';
 
 import { useShouldShowInWalletAdsSelector } from 'app/store/partners-promotion/selectors';
+import { el } from 'lib/el';
 import { EnvVars, IS_STAGE_ENV } from 'lib/env';
 
 export const LoadHypelabScript: FC = () => {
@@ -14,7 +15,7 @@ export const LoadHypelabScript: FC = () => {
     }
 
     try {
-      const script = document.createElement('script');
+      const script = el('script');
       script.setAttribute('hypelab-script', '');
       script.src = browser.runtime.getURL('/scripts/hypelab.embed.js');
       script.async = true;

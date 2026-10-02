@@ -2,6 +2,7 @@ import React, { ReactNode, memo, useCallback } from 'react';
 
 import { useRichFormatTooltip } from 'app/hooks/use-rich-format-tooltip';
 import { ReactComponent as InfoFillIcon } from 'app/icons/base/InfoFill.svg';
+import { el } from 'lib/el';
 
 import { IconBase, IconBaseProps } from './IconBase';
 
@@ -21,8 +22,7 @@ const basicTooltipProps = {
 export const Tooltip = memo<TooltipProps>(
   ({ Icon = InfoFillIcon, content, wrapperClassName = 'max-w-52', ...restProps }) => {
     const tooltipWrapperFactory = useCallback(() => {
-      const element = document.createElement('div');
-      element.className = wrapperClassName;
+      const element = el('div', wrapperClassName);
 
       return element;
     }, [wrapperClassName]);

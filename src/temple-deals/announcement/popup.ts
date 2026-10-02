@@ -1,8 +1,9 @@
 import { TEMPLE_ICON } from 'content-scripts/constants';
+import { el } from 'lib/el';
+import { msg } from 'lib/msg';
 
 import { MERCHANTS_IMG } from './assets';
 import { CLOSE_ICON } from './icons';
-import { el, msg } from './utils';
 
 async function playSuccessAnimation(target: HTMLElement) {
   const [{ default: lottie }, { default: doneAnimation }] = await Promise.all([
@@ -21,8 +22,7 @@ async function playSuccessAnimation(target: HTMLElement) {
 function buildHeader(container: HTMLElement, onClose: () => void) {
   const header = el('div', 'tw-deals-header');
 
-  const templeIcon = document.createElement('img');
-  templeIcon.className = 'tw-deals-temple-icon';
+  const templeIcon = el('img', 'tw-deals-temple-icon');
   templeIcon.src = TEMPLE_ICON;
   templeIcon.alt = '';
   header.appendChild(templeIcon);
@@ -52,8 +52,7 @@ export function renderPreActivationState(
 
   const hero = el('div', 'tw-deals-hero');
 
-  const heroImg = document.createElement('img');
-  heroImg.className = 'tw-deals-hero-img';
+  const heroImg = el('img', 'tw-deals-hero-img');
   heroImg.src = MERCHANTS_IMG;
   heroImg.alt = '';
   hero.appendChild(heroImg);

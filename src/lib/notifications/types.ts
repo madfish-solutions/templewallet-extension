@@ -1,6 +1,6 @@
-import type { NotificationPlatformType } from './enums/notification-platform-type.enum';
-import type { NotificationStatus } from './enums/notification-status.enum';
-import type { NotificationType } from './enums/notification-type.enum';
+import type { NotificationPlatformType } from './notification-platform-type';
+import type { NotificationStatus } from './notification-status';
+import type { NotificationType } from './notification-type';
 
 interface NotificationLink {
   text: string;
@@ -20,4 +20,7 @@ export interface NotificationInterface {
   extensionImageUrl: string;
   mobileImageUrl: string;
   sourceUrl?: string;
+  expirationDate?: string;
+  isMandatory?: boolean;
+  accountAddresses?: string[];
 }

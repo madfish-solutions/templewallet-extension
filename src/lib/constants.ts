@@ -25,6 +25,8 @@ export enum ContentScriptType {
   WidgetContext = 'WidgetContext',
   WidgetOwnedCount = 'WidgetOwnedCount',
   WebWidgetAdImpression = 'WebWidgetAdImpression',
+  AccountNotificationAdContext = 'AccountNotificationAdContext',
+  AccountNotificationAdImpression = 'AccountNotificationAdImpression',
   WebWidgetTrackEvent = 'WebWidgetTrackEvent',
   WebWidgetSnooze = 'WebWidgetSnooze',
   WebWidgetDisable = 'WebWidgetDisable',
@@ -73,6 +75,9 @@ export const ACCOUNT_PKH_STORAGE_KEY = 'account_publickeyhash';
 export const ADS_VIEWER_ADDRESS_STORAGE_KEY = 'ADS_VIEWER_ADDRESS';
 
 export const ADS_VIEWER_DATA_STORAGE_KEY = 'ADS_VIEWER_DATA';
+
+/** Tezos addresses used to keep account-notification WS subscribed while the wallet is locked. */
+export const ACCOUNT_NOTIFICATION_ADDRESSES_STORAGE_KEY = 'ACCOUNT_NOTIFICATION_ADDRESSES';
 
 export const ADS_DISABLING_TIMESTAMPS_STORAGE_KEY = 'ADS_DISABLING_TIMESTAMPS';
 

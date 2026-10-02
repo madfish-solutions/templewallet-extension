@@ -17,6 +17,7 @@ import { useStorageAnalytics } from 'app/hooks/use-storage-analytics';
 import { useUserAnalyticsAndAdsSettings } from 'app/hooks/use-user-analytics-and-ads-settings.hook';
 import { useUserIdAccountPkhSync } from 'app/hooks/use-user-id-account-pkh-sync';
 import { useWebWidgetsSync } from 'app/hooks/use-web-widgets-sync';
+import { AccountNotificationPopup } from 'app/pages/Notifications/components/notification-popup';
 import { useCrossChainToast } from 'app/pages/Send/cross-chain/hooks/use-cross-chain-toast';
 import { useFetchSupportedLifiChainIds, useLifiTokensMetadataSync } from 'app/pages/Swap/form/hooks';
 import { dispatch } from 'app/store';
@@ -66,7 +67,7 @@ const ConstantAppRootHooks = memo(() => {
   useWebWidgetsSync();
   useDealsSync();
 
-  return null;
+  return <AccountNotificationPopup />;
 });
 
 const AppReadyRootHooks = memo(() => {

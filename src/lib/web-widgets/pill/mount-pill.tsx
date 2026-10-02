@@ -2,6 +2,8 @@ import React from 'react';
 
 import { createRoot, type Root } from 'react-dom/client';
 
+import { el } from 'lib/el';
+
 import type { DetectedRef, TagData } from '../engine/types';
 import { parseStatusId, USER_NAME, TWEET_TEXT } from '../x-dom/selectors';
 
@@ -21,7 +23,7 @@ const ensurePillsRow = (post: HTMLElement, userName: Element): HTMLElement => {
   const existing = post.querySelector<HTMLElement>(`[${ROW_MARKER_ATTR}]`);
   if (existing) return existing;
 
-  const row = document.createElement('div');
+  const row = el('div');
   row.setAttribute(ROW_MARKER_ATTR, 'true');
   row.style.display = 'flex';
   row.style.flexWrap = 'wrap';
@@ -46,16 +48,16 @@ export const mountPill = (ref: DetectedRef, tagData: TagData): MountedPill | nul
 
   const row = ensurePillsRow(post, userName);
 
-  const host = document.createElement('div');
+  const host = el('div');
   host.setAttribute(HOST_MARKER_ATTR, 'true');
   host.style.display = 'inline-flex';
 
   const shadowRoot = host.attachShadow({ mode: 'open' });
-  const style = document.createElement('style');
+  const style = el('style');
   style.textContent = PILL_STYLES;
   shadowRoot.appendChild(style);
 
-  const mountPoint = document.createElement('span');
+  const mountPoint = el('span');
   shadowRoot.appendChild(mountPoint);
 
   row.appendChild(host);

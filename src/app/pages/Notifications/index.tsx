@@ -14,6 +14,7 @@ import { useBooleanState, useTimeout } from 'lib/ui/hooks';
 
 import { ListItem } from './components/list-item';
 import { NotificationModal } from './components/notification-modal';
+import { browser } from 'lib/browser';
 
 const VIEW_ALL_NOTIFICATIONS_TIMEOUT = 5 * 1000;
 
@@ -31,9 +32,13 @@ export const Notifications = () => {
   useTimeout(viewAllNotifications, VIEW_ALL_NOTIFICATIONS_TIMEOUT, true, [notifications]);
 
   const handleItemClick = useCallback(
-    (id: number) => {
+    (id: number, sourceUrl?: string) => {
       setSelectedNotificationId(id);
-      setNotificationModalOpen();
+      if (sourceUrl) {
+        browser.tabs.create({ url: sourceUrl });
+      } else {
+        setNotificationModalOpen();
+      }
     },
     [setNotificationModalOpen]
   );
