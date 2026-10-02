@@ -23,11 +23,20 @@ interface Common {
 }
 
 export interface PendingEvmSwapBase extends Common {
+  batchKey?: string;
   initialInputTokenSlug: string;
   initialInputNetwork: EvmNetworkEssentials;
   outputTokenSlug: string;
   outputNetwork: EvmNetworkEssentials;
   statusCheckParams: Omit<GetStatusRequest, 'txHash'> & { provider?: 'lifi' | '3route' };
+}
+
+export interface PendingEvmBatch
+  extends MonitorStatesBase, Omit<PendingEvmSwapBase, 'txHash' | 'blockExplorerUrl' | 'batchKey'> {
+  callId: HexString;
+  batchKey: string;
+  inputNetwork: EvmNetworkEssentials;
+  blockExplorerBaseUrl: string;
 }
 
 export interface PendingEvmTransactionBase extends Common {
@@ -48,6 +57,7 @@ export type PendingEvmTransfer = PendingEvmTransferBase & MonitorStates;
 export type PendingEvmTransaction = PendingEvmTransactionBase & MonitorStates;
 
 export interface PendingEvmTransactionsState {
+  batches: Record<HexString, PendingEvmBatch>;
   transfers: Record<TxHash, PendingEvmTransfer>;
   swaps: Record<TxHash, PendingEvmSwap>;
   otherTransactions: Record<TxHash, PendingEvmTransaction>;
@@ -55,6 +65,7 @@ export interface PendingEvmTransactionsState {
 }
 
 export const pendingEvmTransactionsInitialState: PendingEvmTransactionsState = {
+  batches: {},
   transfers: {},
   swaps: {},
   otherTransactions: {}

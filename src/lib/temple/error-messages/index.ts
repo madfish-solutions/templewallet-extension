@@ -3,8 +3,10 @@ import { TezosOperationError } from '@taquito/taquito';
 import { isObject } from 'lodash';
 import { BaseError as ViemBaseError } from 'viem';
 
+import { AlchemyRpcError } from 'lib/apis/temple/endpoints/evm/alchemy-wallet';
 import { IntercomError } from 'lib/intercom/helpers';
 
+import { getHumanAlchemyErrorMessage } from './alchemy';
 import { getHumanEvmErrorMessage, isSerializedViemError } from './evm';
 import { ERROR_MESSAGES } from './messages';
 import { getHumanTezosErrorMessage, isSerializedDryRunError } from './tezos';
@@ -16,6 +18,10 @@ import { getHumanTezosErrorMessage, isSerializedDryRunError } from './tezos';
  */
 export function getHumanErrorMessage(error: unknown): string {
   try {
+    if (error instanceof AlchemyRpcError) {
+      return getHumanAlchemyErrorMessage(error);
+    }
+
     if (error instanceof ViemBaseError || isSerializedViemError(error)) {
       return getHumanEvmErrorMessage(error);
     }

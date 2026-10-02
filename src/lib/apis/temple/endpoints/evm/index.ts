@@ -78,7 +78,7 @@ export const getEvmSwapQuote = (params: RouteParams, signal?: AbortSignal) =>
   );
 
 export const getLifiSupportedChains = () =>
-  templeWalletApi.get<number[]>('evm/swap-chains').then(
+  templeWalletApi.get<number[]>('evm/swap-chains', { timeout: 10_000 }).then(
     res => res.data,
     error => {
       console.error(error);
