@@ -1,7 +1,8 @@
 import { FC } from 'react';
 
 import {
-  buildCollectibleImagesStack,
+  appendExtraSource,
+  buildCollectibleImageSourceStages,
   buildTokenImageSourceStages,
   buildEvmTokenIconSources,
   buildEvmCollectibleIconSources
@@ -11,7 +12,6 @@ import { EvmAssetMetadataBase } from 'lib/metadata/types';
 import { isEvmCollectibleMetadata } from 'lib/metadata/utils';
 import { useMemoWithCompare } from 'lib/ui/hooks';
 import { ImageStacked, ImageStackedProps } from 'lib/ui/ImageStacked';
-import { normalizeImageSources } from 'lib/ui/race-image-urls';
 
 interface AssetImageStackedPropsBase extends Omit<ImageStackedProps, 'pauseRender' | 'sources'> {
   extraSrc?: string;
@@ -31,15 +31,15 @@ export const TezosAssetImageStacked: FC<TezosAssetImageStackedProps> = ({
   const sources = useMemoWithCompare(() => {
     const stack =
       metadata && isTezosCollectibleMetadata(metadata)
-        ? buildCollectibleImagesStack(metadata, fullViewCollectible)
+        ? buildCollectibleImageSourceStages(metadata, fullViewCollectible)
         : buildTokenImageSourceStages(metadata?.thumbnailUri);
 
-    if (!extraSrc) return stack;
-
-    return normalizeImageSources(stack).concat({ urls: [extraSrc] });
+    return appendExtraSource(stack, extraSrc);
   }, [metadata, fullViewCollectible, extraSrc]);
 
-  return <ImageStacked sources={sources} alt={metadata?.name} {...rest} />;
+  const progressive = Boolean(metadata && isTezosCollectibleMetadata(metadata));
+
+  return <ImageStacked sources={sources} progressive={progressive} alt={metadata?.name} {...rest} />;
 };
 
 export interface EvmAssetImageStackedProps extends AssetImageStackedPropsBase {

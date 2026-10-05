@@ -11,6 +11,7 @@ import { CollectibleImageLoader } from 'app/templates/collectibles/collectible-i
 import {
   isSvgDataUriInUtf8Encoding,
   buildObjktCollectibleArtifactUri,
+  buildObjktCollectibleArtifactUris,
   buildEvmCollectibleIconSources,
   buildIpfsGatewaySourceStages
 } from 'lib/images-uri';
@@ -37,14 +38,20 @@ export const TezosCollectiblePageImage = memo<TezosCollectiblePageImageProps>(
 
     const blurred = isAdultContent && blur;
 
-    const [isRenderFailedOnce, setIsRenderFailedOnce] = useState(false);
+    const [failedArtifactUris, setFailedArtifactUris] = useState<string[]>([]);
 
     const [shouldShowBlur, setShouldShowBlur] = useState(blurred);
     useEffect(() => setShouldShowBlur(blurred), [blurred]);
 
     const handleBlurClick = useCallback(() => setShouldShowBlur(false), []);
 
-    const handleError = useCallback(() => setIsRenderFailedOnce(true), []);
+    const artifactUri = objktArtifactUri
+      ? buildObjktCollectibleArtifactUris(objktArtifactUri).find(uri => !failedArtifactUris.includes(uri))
+      : undefined;
+
+    const handleError = () => {
+      if (artifactUri) setFailedArtifactUris(prev => prev.concat(artifactUri));
+    };
 
     if (areDetailsLoading) {
       return <CollectibleImageLoader large />;
@@ -54,36 +61,25 @@ export const TezosCollectiblePageImage = memo<TezosCollectiblePageImageProps>(
       return <CollectibleBlur assetSlug={assetSlug} large onClick={handleBlurClick} />;
     }
 
-    if (objktArtifactUri && !isRenderFailedOnce) {
-      if (isSvgDataUriInUtf8Encoding(objktArtifactUri)) {
-        return <img src={objktArtifactUri} alt={metadata?.name} className={className} onError={handleError} />;
+    if (artifactUri) {
+      if (isSvgDataUriInUtf8Encoding(artifactUri)) {
+        return <img src={artifactUri} alt={metadata?.name} className={className} onError={handleError} />;
       }
 
       if (mime) {
         if (mime.startsWith('model')) {
-          return (
-            <Model3DViewer
-              uri={buildObjktCollectibleArtifactUri(objktArtifactUri)}
-              alt={metadata?.name}
-              onError={handleError}
-            />
-          );
+          return <Model3DViewer key={artifactUri} uri={artifactUri} alt={metadata?.name} onError={handleError} />;
         }
 
         if (mime.startsWith('video')) {
-          return (
-            <VideoCollectible
-              uri={buildObjktCollectibleArtifactUri(objktArtifactUri)}
-              className={className}
-              onError={handleError}
-            />
-          );
+          return <VideoCollectible key={artifactUri} uri={artifactUri} className={className} onError={handleError} />;
         }
 
         if (mime.startsWith('audio')) {
           return (
             <AudioCollectible
-              uri={buildObjktCollectibleArtifactUri(objktArtifactUri)}
+              key={artifactUri}
+              uri={artifactUri}
               metadata={metadata}
               className={className}
               onAudioError={handleError}
