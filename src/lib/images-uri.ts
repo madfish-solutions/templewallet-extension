@@ -39,8 +39,6 @@ export const isSvgDataUriInUtf8Encoding = (uri: string) =>
 
 const isImageDataUri = (uri: string) => uri.startsWith('data:image/');
 
-const flattenImageSourceStages = (stages: ImageSourceStage[]) => stages.flatMap(stage => stage.urls);
-
 export const buildTokenImageSourceStages = (url?: string): ImageSourceStage[] => {
   if (!url) return [];
 
@@ -62,49 +60,41 @@ export const buildTokenImageSourceStages = (url?: string): ImageSourceStage[] =>
 const isGatewayFallbackUri = (uri: string) =>
   !isInvalidIpfsMediaUri(uri) && !isObjktAssetUrl(uri) && (uri.startsWith(IPFS_PROTOCOL) || uri.startsWith('http'));
 
-const dedupeStages = (stages: ImageSourceStage[]): ImageSourceStage[] => {
-  const seen = new Set<string>();
-
-  return stages.flatMap(stage => {
-    const urls = stage.urls.filter(url => !seen.has(url));
-    urls.forEach(url => seen.add(url));
-
-    return urls.length > 0 ? [{ ...stage, urls }] : [];
-  });
-};
-
-const buildObjktStages = (uris: Array<string | undefined>, rendition: ObjktAssetRendition): ImageSourceStage[] =>
-  uris
-    .filter(isTruthy)
-    .flatMap(uri => (isImageDataUri(uri) ? [uri] : buildObjktAssetUrls(uri, rendition)))
-    .map(url => ({ urls: [url] }));
+const buildObjktStages = (uris: string[], renditions: ObjktAssetRendition[]): ImageSourceStage[] =>
+  uniq(
+    uris.flatMap(uri =>
+      isImageDataUri(uri) ? [uri] : renditions.flatMap(rendition => buildObjktAssetUrls(uri, rendition))
+    )
+  ).map(url => ({ urls: [url] }));
 
 /** objkt's CDN first, then the IPFS gateways for the first URI they can serve. */
-const buildTezosMediaStages = (uris: Array<string | undefined>, rendition: ObjktAssetRendition) => {
-  const gatewayUri = uris.filter(isTruthy).find(isGatewayFallbackUri);
+const buildTezosMediaStages = (
+  uris: Array<string | undefined>,
+  renditions: ObjktAssetRendition[] = ['artifact']
+): ImageSourceStage[] => {
+  const definedUris = uris.filter(isTruthy);
 
-  return dedupeStages(buildObjktStages(uris, rendition).concat(buildIpfsGatewaySourceStages(gatewayUri)));
+  return buildObjktStages(definedUris, renditions).concat(
+    buildIpfsGatewaySourceStages(definedUris.find(isGatewayFallbackUri))
+  );
 };
 
 export const buildCollectibleImageSourceStages = (
   { address, id, artifactUri, displayUri, thumbnailUri }: TokenMetadata,
   fullView = false
 ): ImageSourceStage[] => {
-  if (fullView) return buildTezosMediaStages([displayUri, artifactUri, thumbnailUri], 'artifact');
+  if (fullView) return buildTezosMediaStages([displayUri, artifactUri, thumbnailUri]);
 
-  const previewStages = buildTezosMediaStages([thumbnailUri, displayUri], 'artifact');
+  const previewStages = buildTezosMediaStages([thumbnailUri, displayUri]);
 
-  return dedupeStages([
+  return [
     { urls: [buildObjktTokenThumbnailUrl(address, id)] },
-    ...(previewStages.length > 0 ? previewStages : buildTezosMediaStages([artifactUri], 'artifact'))
-  ]);
+    ...(previewStages.length > 0 ? previewStages : buildTezosMediaStages([artifactUri]))
+  ];
 };
 
-export const buildCollectionLogoSourceStages = (logoUri?: string): ImageSourceStage[] =>
-  dedupeStages(buildObjktStages([logoUri], 'thumb288').concat(buildTezosMediaStages([logoUri], 'artifact')));
-
-export const buildCollectionLogoSources = (logoUri?: string): string[] =>
-  flattenImageSourceStages(buildCollectionLogoSourceStages(logoUri));
+export const buildCollectionLogoSourceStages = (logoUri?: string) =>
+  buildTezosMediaStages([logoUri], ['thumb288', 'artifact']);
 
 export const appendExtraSource = (stages: ImageSourceStage[], extraSrc?: string): ImageSourceStage[] =>
   extraSrc && !stages.some(stage => stage.urls.includes(extraSrc)) ? stages.concat({ urls: [extraSrc] }) : stages;
@@ -118,7 +108,7 @@ export const buildObjktCollectibleArtifactUris = (artifactUri: string): string[]
   return uniq(objktUrls.concat(fallbacks));
 };
 
-export const buildObjktCollectibleArtifactUri = (artifactUri: string) =>
+export const buildObjktArtifactExtraSrc = (artifactUri: string) =>
   isDirectlyLoadableUri(artifactUri) ? artifactUri : buildObjktAssetUrls(artifactUri, 'artifact').at(0);
 
 const buildTcInfraMediaUrls = (uri: string | undefined, sizes: TcInfraMediaSize[]) => {

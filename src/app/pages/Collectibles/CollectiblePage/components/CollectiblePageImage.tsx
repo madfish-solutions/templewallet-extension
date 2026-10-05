@@ -10,7 +10,7 @@ import { CollectibleImageFallback } from 'app/templates/collectibles/collectible
 import { CollectibleImageLoader } from 'app/templates/collectibles/collectible-image-loader';
 import {
   isSvgDataUriInUtf8Encoding,
-  buildObjktCollectibleArtifactUri,
+  buildObjktArtifactExtraSrc,
   buildObjktCollectibleArtifactUris,
   buildEvmCollectibleIconSources,
   buildIpfsGatewaySourceStages
@@ -98,7 +98,7 @@ export const TezosCollectiblePageImage = memo<TezosCollectiblePageImageProps>(
         />
         <TezosAssetImageStacked
           metadata={metadata}
-          extraSrc={objktArtifactUri && buildObjktCollectibleArtifactUri(objktArtifactUri)}
+          extraSrc={objktArtifactUri && buildObjktArtifactExtraSrc(objktArtifactUri)}
           fullViewCollectible
           loader={<CollectibleImageLoader large />}
           fallback={<CollectibleImageFallback large />}

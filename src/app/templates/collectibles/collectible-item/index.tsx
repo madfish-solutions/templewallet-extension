@@ -16,7 +16,7 @@ import {
 import { getAssetStatus } from 'lib/assets/hooks/utils';
 import { getTezCollectionName } from 'lib/assets/utils';
 import { useEvmAssetBalance } from 'lib/balances/hooks';
-import { buildObjktCollectibleArtifactUri } from 'lib/images-uri';
+import { buildObjktArtifactExtraSrc } from 'lib/images-uri';
 import { getTokenName } from 'lib/metadata';
 import { getCollectibleName, getCollectionName } from 'lib/metadata/utils';
 import { CollectiblesListItemElement } from 'lib/ui/collectibles-list';
@@ -84,7 +84,7 @@ export const TezosCollectibleItem: FC<TezosCollectibleItemProps> = ({
     metadata,
     adultBlur,
     areDetailsLoading: areDetailsLoading && details === undefined,
-    extraSrc: details?.objktArtifactUri && buildObjktCollectibleArtifactUri(details?.objktArtifactUri),
+    extraSrc: details?.objktArtifactUri && buildObjktArtifactExtraSrc(details?.objktArtifactUri),
     mime: details?.mime,
     scam,
     index,

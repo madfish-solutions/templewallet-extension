@@ -58,7 +58,7 @@ export const useImagesStackLoading = (
       setIsLoading(true);
       setIsStackFailed(false);
 
-      if (firstRacedStageIndex(stages, progressive) > 0) {
+      if (racedFrom > 0) {
         const img = new Image();
         img.src = stages[0].urls[0];
         if (img.complete) {
@@ -71,7 +71,7 @@ export const useImagesStackLoading = (
       setIsLoading(false);
       setIsStackFailed(true);
     }
-  }, [stages, progressive]);
+  }, [stages, racedFrom]);
 
   useEffect(() => {
     if (!racing || racedFrom >= stages.length) {
