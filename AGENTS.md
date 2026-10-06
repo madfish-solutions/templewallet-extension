@@ -51,6 +51,3 @@ Optimize for clarity, polish, and performance in every change.
 - Assets utils and constants: `src/lib/assets/`
 - Data fetching: `src/lib/swr/index.ts` (SWR hooks)
 - API clients: `src/lib/apis/` (shared API wrappers)
-
-## A Note to the Agent
-We are building this together. When you learn something non-obvious, add it here so future changes go faster.
