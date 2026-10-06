@@ -1,4 +1,3 @@
-import { TEZ_TOKEN_SLUG } from 'lib/assets/defaults';
 import { KNOWN_TOKENS_SLUGS } from 'lib/assets/known-tokens';
 import { COMMON_MAINNET_CHAIN_IDS, ETHEREUM_MAINNET_CHAIN_ID, TEZOS_MAINNET_CHAIN_ID } from 'lib/temple/types';
 import { TempleChainKind } from 'temple/types';
@@ -98,19 +97,6 @@ export const EVM_CHAIN_CONFIGS: EvmChainConfig[] = [
     usdc: { contract: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913', decimals: 6 }
   }
 ];
-
-export const TEZOS_XTZ: CrossChainAsset = {
-  dest: 'tezos',
-  chainKind: TempleChainKind.Tezos,
-  chainId: TEZOS_MAINNET_CHAIN_ID,
-  assetSlug: TEZ_TOKEN_SLUG,
-  exolixCoin: 'XTZ',
-  exolixNetwork: 'XTZ',
-  symbol: 'XTZ',
-  decimals: 6,
-  name: 'Tezos',
-  iconUrl: iconForExolix('XTZ')
-};
 
 export const TEZOS_USDT: CrossChainAsset = {
   dest: 'tezos',
