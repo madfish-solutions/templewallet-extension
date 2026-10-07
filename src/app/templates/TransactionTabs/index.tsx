@@ -14,7 +14,7 @@ import { AdvancedTab } from './tabs/advanced';
 import { DetailsTab } from './tabs/details';
 import { ErrorTab } from './tabs/error';
 import { FeeTab } from './tabs/fee';
-import { Tab, TxParamsFormData } from './types';
+import { EvmTxParamsFormData, Tab, TxParamsFormData } from './types';
 
 export interface TransactionTabsProps<T extends TxParamsFormData> {
   network: OneOfChains;
@@ -47,6 +47,9 @@ export interface TransactionTabsProps<T extends TxParamsFormData> {
   };
   detailsContent?: ReactNode;
   children?: ReactNode;
+  readOnlyFees?: boolean;
+  evmGasPriceOverride?: string;
+  evmAdvancedValues?: Partial<EvmTxParamsFormData>;
 }
 
 export const TransactionTabs = <T extends TxParamsFormData>({
@@ -68,7 +71,10 @@ export const TransactionTabs = <T extends TxParamsFormData>({
   minimumReceived,
   bridgeData,
   detailsContent,
-  children
+  children,
+  readOnlyFees,
+  evmGasPriceOverride,
+  evmAdvancedValues
 }: TransactionTabsProps<T>) => {
   const { handleSubmit } = useFormContext<T>();
   const detailsTabRef = useRef<HTMLDivElement>(null);
@@ -102,10 +108,10 @@ export const TransactionTabs = <T extends TxParamsFormData>({
           },
           {
             label: 'Fee',
-            value: 'fee',
+            value: 'fee' as const,
             ref: feeTabRef
           },
-          { label: 'Advanced', value: 'advanced', ref: advancedTabRef },
+          { label: 'Advanced', value: 'advanced' as const, ref: advancedTabRef },
           ...(error ? [{ label: t('error'), value: 'error' as const, ref: errorTabRef }] : [])
         ]}
       />
@@ -113,7 +119,7 @@ export const TransactionTabs = <T extends TxParamsFormData>({
       {children}
 
       <form id={formId} className="flex-1 flex flex-col" onSubmit={handleSubmit(onSubmit)}>
-        {!displayedFeeOptions && !estimationError ? (
+        {!readOnlyFees && !displayedFeeOptions && !estimationError && !latestSubmitError ? (
           <div className="flex justify-center my-10">
             <Loader size="M" trackVariant="dark" className="text-secondary" />
           </div>
@@ -128,10 +134,12 @@ export const TransactionTabs = <T extends TxParamsFormData>({
                     displayedFeeOptions={displayedFeeOptions}
                     selectedOption={selectedFeeOption}
                     onOptionSelect={onFeeOptionSelect}
+                    readOnly={readOnlyFees}
+                    gasPriceOverride={evmGasPriceOverride}
                   />
                 );
               case 'advanced':
-                return <AdvancedTab isEvm={isEvm} />;
+                return <AdvancedTab isEvm={isEvm} readOnly={readOnlyFees} evmValues={evmAdvancedValues} />;
               case 'error':
                 return <ErrorTab isEvm={isEvm} submitError={latestSubmitError} estimationError={estimationError} />;
               default:

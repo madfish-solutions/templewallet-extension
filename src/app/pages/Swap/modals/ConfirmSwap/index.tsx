@@ -32,14 +32,16 @@ export const ConfirmSwapModal: FC<ConfirmSwapModalProps> = ({ opened, onRequestC
     performCancel,
     onStepCompleted,
     handleRequestClose,
-    setCancelConfirmClosed
+    setCancelConfirmClosed,
+    useLegacyFlow,
+    setBatchBusy
   } = useEvmUserActions(opened, onRequestClose, reviewData);
 
   const title = useMemo(() => {
     if (!reviewData) return '';
 
     if (isSwapEvmReviewData(reviewData) && currentUserAction) {
-      if (currentUserAction?.value?.type === 'approve') return t('approval');
+      if (currentUserAction?.value && currentUserAction.value.type !== 'execute') return t('approval');
 
       return t(isBridgeOperation ? 'bridgePreview' : 'swapPreview');
     }
@@ -77,6 +79,8 @@ export const ConfirmSwapModal: FC<ConfirmSwapModalProps> = ({ opened, onRequestC
                   cancelledRef={cancelledRef}
                   skipStatusWait={skipStatusWait}
                   submitDisabled={progressionBlocked}
+                  onUseLegacyFlow={useLegacyFlow}
+                  onBatchBusyChange={setBatchBusy}
                 />
               ) : (
                 <></>
