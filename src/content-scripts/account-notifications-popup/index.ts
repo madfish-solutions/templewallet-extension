@@ -33,7 +33,7 @@ function bootstrapAccountNotificationsPopup() {
     unmount = undefined;
   };
 
-  const canShowOnThisPage = () => enabled && document.visibilityState === 'visible' && document.hasFocus();
+  const canShowOnThisPage = () => enabled && document.visibilityState === 'visible';
 
   const show = (notifications: NotificationInterface[]) => {
     if (!canShowOnThisPage() || notifications.length === 0) {
@@ -69,5 +69,4 @@ function bootstrapAccountNotificationsPopup() {
       hide();
     }
   });
-  window.addEventListener('blur', hide);
 }

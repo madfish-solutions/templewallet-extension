@@ -15,6 +15,7 @@ import { useIsAccountNotificationsEnabledSelector } from 'app/store/notification
 import { useShouldShowInWalletAdsSelector } from 'app/store/partners-promotion/selectors';
 import { useTestnetModeEnabledSelector } from 'app/store/settings/selectors';
 import { setTestID } from 'lib/analytics';
+import { browser } from 'lib/browser';
 import { getPluralKey, t } from 'lib/i18n';
 import {
   ACCOUNT_NOTIFICATION_POPUP_DURATION_MS,
@@ -55,7 +56,18 @@ const useDocumentHasFocus = () => {
   return documentHasFocus;
 };
 
+const windowHasShownTab = async (windowId: number | null) => {
+  if (windowId === null) {
+    return false;
+  }
+
+  const tabs = await browser.tabs.query({ active: true, windowId }).catch(() => []);
+
+  return tabs.length > 0;
+};
+
 export const AccountNotificationPopup = memo(() => {
+  const { sidebar } = useAppEnv();
   const windowIsActive = useWindowIsActive();
   const { data: thisWindowLocation } = useThisWindowLocation();
   const documentHasFocus = useDocumentHasFocus();
@@ -63,21 +75,49 @@ export const AccountNotificationPopup = memo(() => {
   const canShowPopup = windowIsActive && thisWindowLocation !== undefined && documentHasFocus;
   const canShowPopupRef = useUpdatableRef(canShowPopup);
   const isAccountNotificationsEnabledRef = useUpdatableRef(isAccountNotificationsEnabled);
+  const sidebarRef = useUpdatableRef(sidebar);
+  const windowIdRef = useUpdatableRef(thisWindowLocation?.windowId ?? null);
   const [notifications, setNotifications] = useState<NotificationInterface[]>([]);
 
   useEffect(
-    () =>
-      intercomClient.subscribe((msg: TempleNotification) => {
+    () => {
+      let showRequestId = 0;
+
+      return intercomClient.subscribe((msg: TempleNotification) => {
         if (msg?.type !== TempleMessageType.AccountNotificationReceived) {
           return;
         }
 
         dispatch(loadNotificationsAction.success(msg.notifications));
 
-        if (canShowPopupRef.current && isAccountNotificationsEnabledRef.current) {
-          setNotifications(msg.notifications);
+        if (!isAccountNotificationsEnabledRef.current) {
+          return;
         }
-      }),
+
+        const requestId = ++showRequestId;
+        const notificationsToShow = msg.notifications;
+        const showIfStillCurrent = () => {
+          if (requestId !== showRequestId || !canShowPopupRef.current) {
+            return;
+          }
+
+          setNotifications(notificationsToShow);
+        };
+
+        if (!sidebarRef.current) {
+          showIfStillCurrent();
+          return;
+        }
+
+        void windowHasShownTab(windowIdRef.current).then(tabIsShown => {
+          if (requestId !== showRequestId || tabIsShown) {
+            return;
+          }
+
+          showIfStillCurrent();
+        });
+      });
+    },
     // Refs are updated in-place; keep a single subscription for the popup lifetime.
     // oxlint-disable-next-line react-hooks/exhaustive-deps
     []
