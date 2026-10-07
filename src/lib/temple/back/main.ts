@@ -139,6 +139,12 @@ const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<T
       );
       return { type: TempleMessageType.SendEvmTransactionResponse, txHash };
 
+    case TempleMessageType.SubmitAlchemyBatchRequest:
+      return {
+        type: TempleMessageType.SubmitAlchemyBatchResponse,
+        callId: await Actions.submitAlchemyBatch(req.accountPkh, req.network, req.quote)
+      };
+
     case TempleMessageType.NewWalletRequest:
       const accountPkh = await Actions.registerNewWallet(req.password, req.mnemonic);
       return { type: TempleMessageType.NewWalletResponse, accountPkh };

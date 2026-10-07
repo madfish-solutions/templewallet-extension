@@ -12,20 +12,14 @@ import {
 import {
   putLifiConnectedEvmTokensMetadataAction,
   putLifiEnabledNetworksEvmTokensMetadataAction,
-  putLifiEvmTokensMetadataLoadingAction,
-  putLifiSupportedChainIdsAction,
-  setLifiMetadataLastFetchTimeAction
+  putLifiEvmTokensMetadataLoadingAction
 } from 'app/store/evm/swap-lifi-metadata/actions';
-import {
-  useLifiEvmMetadataLastFetchTimeSelector,
-  useLifiSupportedChainIdsSelector
-} from 'app/store/evm/swap-lifi-metadata/selectors';
+import { useLifiSupportedChainIdsSelector } from 'app/store/evm/swap-lifi-metadata/selectors';
 import { TokenSlugTokenMetadataRecord } from 'app/store/evm/swap-lifi-metadata/state';
 import { processLoadedEvmExchangeRatesAction } from 'app/store/evm/tokens-exchange-rates/actions';
 import {
   get3RouteEvmTokens,
   getEvmSwapConnectionsMetadata,
-  getLifiSupportedChains,
   getLifiSwapTokens,
   TokensByChain
 } from 'lib/apis/temple/endpoints/evm';
@@ -34,7 +28,6 @@ import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { toChainAssetSlug, toTokenSlug } from 'lib/assets/utils';
 import { EVM_ZERO_ADDRESS } from 'lib/constants';
 import { EvmAssetStandard } from 'lib/evm/types';
-import { LIFI_SUPPORTED_CHAIN_IDS_INTERVAL } from 'lib/fixed-times';
 import { ETHERLINK_MAINNET_CHAIN_ID } from 'lib/temple/types';
 import { useInterval } from 'lib/ui/hooks';
 import { equalsIgnoreCase } from 'lib/utils';
@@ -45,26 +38,6 @@ interface FetchTokensSlugsPayload {
   fromChain: number;
   fromToken: string;
 }
-
-export const useFetchSupportedLifiChainIds = () => {
-  const lastFetchTime = useLifiEvmMetadataLastFetchTimeSelector();
-
-  const fetchLifiSupportedChainIds = useCallback(async () => {
-    if (Date.now() - (lastFetchTime ?? 0) < LIFI_SUPPORTED_CHAIN_IDS_INTERVAL) {
-      return;
-    }
-
-    dispatch(setLifiMetadataLastFetchTimeAction(Date.now()));
-
-    try {
-      dispatch(putLifiSupportedChainIdsAction(await getLifiSupportedChains()));
-    } catch (err) {
-      console.error('Failed to fetch LIFI supported chains:', err);
-    }
-  }, [lastFetchTime]);
-
-  useEffect(() => void fetchLifiSupportedChainIds(), [fetchLifiSupportedChainIds]);
-};
 
 export const useLifiTokensMetadataSync = () => {
   const supportedChainIds = useLifiSupportedChainIdsSelector();

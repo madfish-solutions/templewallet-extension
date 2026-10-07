@@ -10,6 +10,7 @@ import AssetField from 'app/atoms/AssetField';
 import { CopyButton } from 'app/atoms/CopyButton';
 import { Tooltip } from 'app/atoms/Tooltip';
 import { ReactComponent as CopyIcon } from 'app/icons/base/copy.svg';
+import { ReactComponent as LockFillIcon } from 'app/icons/base/lock_fill.svg';
 import { t } from 'lib/i18n';
 import { useEvmEstimationDataState } from 'lib/temple/front/estimation-data-providers';
 
@@ -18,13 +19,20 @@ import { validateNonZero } from '../utils';
 
 interface AdvancedTabProps {
   isEvm?: boolean;
+  readOnly?: boolean;
+  evmValues?: Partial<EvmTxParamsFormData>;
 }
 
-export const AdvancedTab: FC<AdvancedTabProps> = ({ isEvm = false }) => {
-  return <FadeTransition>{isEvm ? <EvmContent /> : <TezosContent />}</FadeTransition>;
-};
+export const AdvancedTab: FC<AdvancedTabProps> = ({ isEvm = false, readOnly, evmValues }) => (
+  <FadeTransition>{isEvm ? <EvmContent readOnly={readOnly} values={evmValues} /> : <TezosContent />}</FadeTransition>
+);
 
-const EvmContent = () => {
+interface EvmContentProps {
+  readOnly?: boolean;
+  values?: Partial<EvmTxParamsFormData>;
+}
+
+const EvmContent: FC<EvmContentProps> = ({ readOnly, values }) => {
   const { control, getValues } = useFormContext<EvmTxParamsFormData>();
   // React Compiler caches `<FormProvider {...form}>` on RHF's stable form, so context consumers stop re-rendering
   const { errors } = useFormState<EvmTxParamsFormData>({ control });
@@ -40,10 +48,10 @@ const EvmContent = () => {
       <Controller
         name="gasLimit"
         control={control}
-        rules={{ validate: v => validateNonZero(v, t('gasLimit')) }}
+        rules={readOnly ? undefined : { validate: v => validateNonZero(v, t('gasLimit')) }}
         render={({ field: { value, onChange, onBlur } }) => (
           <AssetField
-            value={value || data?.gas.toString()}
+            value={values?.gasLimit ?? (value || data?.gas.toString())}
             placeholder="0.00"
             min={0}
             onlyInteger
@@ -51,19 +59,25 @@ const EvmContent = () => {
             onBlur={onBlur}
             errorCaption={gasLimitError}
             containerClassName="mb-3"
+            className={readOnly ? 'text-grey-1' : undefined}
+            additionalActionButtons={readOnly && <IconBase size={16} Icon={LockFillIcon} className="text-grey-3" />}
+            readOnly={readOnly}
           />
         )}
       />
 
-      <FieldLabelWithTooltip title={t('nonce')} tooltipContent={t('nonceInfoContent')} />
+      <FieldLabelWithTooltip
+        title={t('nonce')}
+        tooltipContent={t(readOnly ? 'userOperationNonceInfoContent' : 'nonceInfoContent')}
+      />
 
       <Controller
         name="nonce"
         control={control}
-        rules={{ validate: v => validateNonZero(v, t('nonce')) }}
+        rules={readOnly ? undefined : { validate: v => validateNonZero(v, t('nonce')) }}
         render={({ field: { value, onChange, onBlur } }) => (
           <AssetField
-            value={value || data?.nonce}
+            value={values?.nonce ?? (value || data?.nonce)}
             placeholder="0"
             min={0}
             onlyInteger
@@ -71,18 +85,21 @@ const EvmContent = () => {
             onBlur={onBlur}
             errorCaption={nonceError}
             containerClassName="mb-3"
+            className={readOnly ? 'text-grey-1' : undefined}
+            additionalActionButtons={readOnly && <IconBase size={16} Icon={LockFillIcon} className="text-grey-3" />}
+            readOnly={readOnly}
           />
         )}
       />
 
-      <FieldLabelWithCopyButton title="Data" copyableText={data?.data ?? ''} />
+      <FieldLabelWithCopyButton title="Data" copyableText={values?.data ?? data?.data ?? ''} />
 
       <Controller
         name="data"
         control={control}
         render={() => (
           <NoSpaceField
-            value={data?.data}
+            value={values?.data ?? data?.data}
             textarea
             rows={5}
             readOnly
@@ -94,7 +111,10 @@ const EvmContent = () => {
         )}
       />
 
-      <FieldLabelWithCopyButton title="RAW Transaction" copyableText={getValues().rawTransaction} />
+      <FieldLabelWithCopyButton
+        title="RAW Transaction"
+        copyableText={values?.rawTransaction ?? getValues().rawTransaction}
+      />
 
       <Controller
         name="rawTransaction"
@@ -107,6 +127,7 @@ const EvmContent = () => {
             placeholder="Info"
             style={{ resize: 'none' }}
             {...field}
+            value={values?.rawTransaction ?? field.value}
             reserveSpaceForError={false}
             containerClassName="mb-5"
           />

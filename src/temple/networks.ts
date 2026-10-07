@@ -155,12 +155,13 @@ export const EVM_FALLBACK_RPC_URLS: Record<number, string[]> = {
     'https://ethereum-public.nodies.app'
   ],
   [COMMON_MAINNET_CHAIN_IDS.polygon]: [
-    'https://polygon-bor-rpc.publicnode.com',
+    'https://rpc-polygon.blockmachine.io',
+    'https://rpc-mainnet.matic.quiknode.pro',
     'https://polygon.drpc.org',
+    'https://rpc.nodeflare.app/polygon/public',
     'https://1rpc.io/matic',
-    'https://polygon.meowrpc.com',
-    'https://polygon-public.nodies.app',
-    'https://polygon.api.onfinality.io/public'
+    'https://polygon-bor-rpc.publicnode.com',
+    'https://polygon.meowrpc.com'
   ],
   [COMMON_MAINNET_CHAIN_IDS.bsc]: [
     `https://bsc.kolibr.io${EnvVars.TEMPLE_WALLET_KOLIBRIO_PARAMS}`,

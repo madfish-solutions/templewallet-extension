@@ -44,9 +44,16 @@ interface ApproveModalProps {
   onClose: EmptyFn;
   onStepCompleted: EmptyFn;
   submitDisabled?: boolean;
+  resetAllowance?: boolean;
 }
 
-const ApproveModal: FC<ApproveModalProps> = ({ stepReviewData, onClose, onStepCompleted, submitDisabled }) => {
+const ApproveModal: FC<ApproveModalProps> = ({
+  stepReviewData,
+  onClose,
+  onStepCompleted,
+  submitDisabled,
+  resetAllowance = false
+}) => {
   const { account, inputNetwork, routeStep } = stepReviewData;
   const currentStepIsLifi = isLifiStep(routeStep);
   const appName = currentStepIsLifi ? 'li.fi' : '3Route';
@@ -55,6 +62,7 @@ const ApproveModal: FC<ApproveModalProps> = ({ stepReviewData, onClose, onStepCo
   const { approvalAddress, fromAmount, fromToken, fromAddress } = getCommonStepProps(routeStep);
 
   const [loading, setLoading] = useState(false);
+  const approvalAmount = resetAllowance ? 0n : BigInt(fromAmount);
 
   const { sendEvmTransaction } = useTempleClient();
   const getActiveBlockExplorer = useGetEvmActiveBlockExplorer();
@@ -67,9 +75,9 @@ const ApproveModal: FC<ApproveModalProps> = ({ stepReviewData, onClose, onStepCo
     return encodeFunctionData({
       abi: [erc20ApproveAbi],
       functionName: 'approve',
-      args: [approvalAddress as HexString, BigInt(fromAmount)]
+      args: [approvalAddress as HexString, approvalAmount]
     });
-  }, [fromAmount, approvalAddress]);
+  }, [approvalAmount, approvalAddress]);
 
   const assetSlug = useMemo(() => toTokenSlug(fromToken.address, 0), [fromToken.address]);
 
@@ -192,7 +200,8 @@ const ApproveModal: FC<ApproveModalProps> = ({ stepReviewData, onClose, onStepCo
             setError={handleSubmitError}
             setFinalEvmTransaction={setFinalEvmTransaction}
             onSubmit={onSubmit}
-            minAllowance={BigInt(fromAmount)}
+            minAllowance={approvalAmount}
+            allowanceEditable={!resetAllowance}
           />
         ) : (
           <PageLoader />
