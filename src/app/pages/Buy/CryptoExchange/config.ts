@@ -22,9 +22,9 @@ export const INITIAL_INPUT_CURRENCY: StoredExolixCurrency = {
 };
 
 export const INITIAL_TEZOS_ACC_OUTPUT_CURRENCY: StoredExolixCurrency = {
-  code: 'XTZ',
-  name: 'Tezos',
-  icon: 'https://exolix.com/icons/coins/XTZ.png',
+  code: 'USDT',
+  name: 'TetherUS',
+  icon: 'https://exolix.com/icons/coins/USDT.png',
   network: {
     code: 'XTZ',
     fullName: 'Tezos',

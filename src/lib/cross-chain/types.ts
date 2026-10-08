@@ -12,7 +12,7 @@ export interface CrossChainAsset {
   chainId?: string | number;
   /** Temple asset slug — undefined for BTC */
   assetSlug?: string;
-  /** Exolix coin code (e.g. 'ETH', 'USDT', 'USDC', 'XTZ', 'BTC') */
+  /** Exolix coin code (e.g. 'ETH', 'USDT', 'USDC', 'BTC') */
   exolixCoin: string;
   /** Exolix network code (e.g. 'ETH', 'XTZ', 'BTC') */
   exolixNetwork: string;

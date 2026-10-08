@@ -92,10 +92,10 @@ export const FormContent: FC<Props> = ({ onSelectInputCurrency, onSelectOutputCu
 
       return queryExchange({
         coinFrom: inputCurrency.code,
-        coinFromNetwork: inputCurrency.network.code,
+        networkFrom: inputCurrency.network.code,
         amount,
         coinTo: outputCurrency.code,
-        coinToNetwork: outputCurrency.network.code
+        networkTo: outputCurrency.network.code
       });
     },
     DEFAULT_SWR_CONFIG
