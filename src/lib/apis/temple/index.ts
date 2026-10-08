@@ -7,5 +7,3 @@ export * from './endpoints/get-kolo-widget-url';
 export * from './endpoints/get-notifications';
 export * from './endpoints/mt-pelerin';
 export * from './whitelist-tokens';
-
-export { templeWalletApi } from './endpoints/templewallet.api';

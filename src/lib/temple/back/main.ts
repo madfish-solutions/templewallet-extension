@@ -59,7 +59,7 @@ import {
   ACCOUNT_NOTIFICATION_POPUP_AD_IMPRESSION_EVENT,
   ACCOUNT_NOTIFICATION_POPUP_AD_PAGE_NAME,
   ACCOUNT_NOTIFICATION_POPUP_AD_WIDTH
-} from 'lib/notifications/popup-ad';
+} from 'lib/notifications';
 import { fetchFromStorage, putToStorage } from 'lib/storage';
 import { AnalyticsEventCategory } from 'lib/temple/analytics-types';
 import {

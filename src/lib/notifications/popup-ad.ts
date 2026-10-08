@@ -9,7 +9,7 @@ export const ACCOUNT_NOTIFICATION_POPUP_AD_HEIGHT = 72;
 export const ACCOUNT_NOTIFICATION_POPUP_AD_FAIL_TIMEOUT_MS = 6_000;
 export const ACCOUNT_NOTIFICATION_POPUP_AD_SUCCESS_MESSAGE_TYPES = ['ready', 'resize', 'impression'];
 
-export interface AccountNotificationAdContext {
+interface AccountNotificationAdContext {
   adUrl: string | null;
 }
 

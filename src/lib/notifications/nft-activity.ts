@@ -2,7 +2,7 @@ import { NotificationType } from './notification-type';
 
 export const ACCOUNT_NOTIFICATION_POPUP_DURATION_MS = 3_000;
 
-export interface NftActivityCounts {
+interface NftActivityCounts {
   offers: number;
   bids: number;
   sales: number;

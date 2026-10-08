@@ -3,7 +3,7 @@ import { createAction } from '@reduxjs/toolkit';
 import { NotificationInterface } from 'lib/notifications';
 import { createActions } from 'lib/store';
 
-export interface LoadNotificationsPayload {
+interface LoadNotificationsPayload {
   accountAddresses: string[];
 }
 

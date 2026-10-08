@@ -1,4 +1,4 @@
-import { MAX_NOTIFICATION_ACCOUNT_ADDRESSES } from 'lib/apis/temple/endpoints/get-notifications';
+import { MAX_NOTIFICATION_ACCOUNT_ADDRESSES } from 'lib/apis/temple';
 import { isAccountNotificationType, type NotificationInterface } from 'lib/notifications';
 import { StoredAccount } from 'lib/temple/types';
 import { filterUnique, isTruthy } from 'lib/utils';
