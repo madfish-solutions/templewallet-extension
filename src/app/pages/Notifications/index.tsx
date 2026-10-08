@@ -9,12 +9,12 @@ import { useNotificationsSelector } from 'app/store/notifications/selectors';
 import { useShouldShowInWalletAdsSelector } from 'app/store/partners-promotion/selectors';
 import { usePartnersPromotionModule } from 'app/templates/partners-promotion';
 import { useAdsConstantsModule } from 'lib/ads-constants';
+import { browser } from 'lib/browser';
 import { t } from 'lib/i18n';
 import { useBooleanState, useTimeout } from 'lib/ui/hooks';
 
 import { ListItem } from './components/list-item';
 import { NotificationModal } from './components/notification-modal';
-import { browser } from 'lib/browser';
 
 const VIEW_ALL_NOTIFICATIONS_TIMEOUT = 5 * 1000;
 

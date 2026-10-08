@@ -53,10 +53,13 @@ export const ListItem = memo<Props>(({ notification, onClick, compact = false })
     handleClick();
   }, [handleClick]);
 
-  const handleAccountNotificationClick = useCallback((e: React.MouseEvent<HTMLAnchorElement>) => {
-    e.preventDefault();
-    handleClick(notification.sourceUrl);
-  }, [handleClick, notification.sourceUrl]);
+  const handleAccountNotificationClick = useCallback(
+    (e: React.MouseEvent<HTMLAnchorElement>) => {
+      e.preventDefault();
+      handleClick(notification.sourceUrl);
+    },
+    [handleClick, notification.sourceUrl]
+  );
 
   const innerContent = (
     <>
