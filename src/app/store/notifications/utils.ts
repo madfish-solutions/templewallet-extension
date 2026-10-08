@@ -8,8 +8,8 @@ import { getAccountAddressForTezos } from 'temple/accounts';
 export const getTezosNotificationAccountAddresses = (accounts: StoredAccount[]): string[] =>
   filterUnique(accounts.map(getAccountAddressForTezos).filter(isTruthy)).slice(0, MAX_NOTIFICATION_ACCOUNT_ADDRESSES);
 
-export const getLatestNotificationCreatedAt = (notifications: NotificationInterface[]): number =>
-  notifications.reduce((latest, notification) => Math.max(latest, new Date(notification.createdAt).getTime()), 0);
+export const getLatestNotificationCreatedAt = (notifications: NotificationInterface[]) =>
+  notifications.reduce((latest, notification) => Math.max(latest, Date.parse(notification.createdAt)), 0);
 
 /** Broadcast notification ids are createdAt millis and must not be used as the account-notification cursor. */
 export const getAccountNotificationsStartID = (notifications: NotificationInterface[]): number =>
@@ -19,8 +19,8 @@ export const getAccountNotificationsStartID = (notifications: NotificationInterf
     0
   );
 
-export const compareNotificationsNewestFirst = (a: NotificationInterface, b: NotificationInterface): number => {
-  const createdAtDiff = new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+export const compareNotificationsNewestFirst = (a: NotificationInterface, b: NotificationInterface) => {
+  const createdAtDiff = Date.parse(b.createdAt) - Date.parse(a.createdAt);
   if (createdAtDiff !== 0) {
     return createdAtDiff;
   }
@@ -28,11 +28,8 @@ export const compareNotificationsNewestFirst = (a: NotificationInterface, b: Not
   return b.id - a.id;
 };
 
-export const isNotificationExpired = (notification: NotificationInterface, now = Date.now()): boolean => {
+export const isNotificationExpired = (notification: NotificationInterface, now = Date.now()) => {
   const { expirationDate } = notification;
-  if (!expirationDate) {
-    return false;
-  }
 
-  return new Date(expirationDate).getTime() < now;
+  return !!expirationDate && Date.parse(expirationDate) < now;
 };

@@ -2,7 +2,6 @@ import { browser } from 'lib/browser';
 import { ContentScriptType } from 'lib/constants';
 
 export const ACCOUNT_NOTIFICATION_POPUP_AD_PAGE_NAME = 'Account notification popup';
-export const ACCOUNT_NOTIFICATION_POPUP_AD_IMPRESSION_EVENT = 'Account Notification Popup Ad Impression';
 export const ACCOUNT_NOTIFICATION_POPUP_AD_PROVIDER = 'HypeLab';
 export const ACCOUNT_NOTIFICATION_POPUP_AD_WIDTH = 344;
 export const ACCOUNT_NOTIFICATION_POPUP_AD_HEIGHT = 72;

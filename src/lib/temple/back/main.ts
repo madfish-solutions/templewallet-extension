@@ -56,7 +56,6 @@ import { E2eMessageType } from 'lib/e2e/types';
 import { BACKGROUND_IS_WORKER, DISABLE_ADS, EnvVars, IS_FIREFOX, IS_MISES_BROWSER } from 'lib/env';
 import {
   ACCOUNT_NOTIFICATION_POPUP_AD_HEIGHT,
-  ACCOUNT_NOTIFICATION_POPUP_AD_IMPRESSION_EVENT,
   ACCOUNT_NOTIFICATION_POPUP_AD_PAGE_NAME,
   ACCOUNT_NOTIFICATION_POPUP_AD_WIDTH
 } from 'lib/notifications';
@@ -676,55 +675,12 @@ browser.runtime.onMessage.addListener(async (msg, sender) => {
       }
 
       case ContentScriptType.WebWidgetAdImpression: {
-        await withNonImportErrorForwarding(async () => {
-          const { postAdImpression, postAnonymousAdImpression } = await importAdsApiModule();
-          const urlDomain = sender.tab?.url ? new URL(sender.tab.url).hostname : 'x.com';
-          // Consent gate: with promo off, report, 'Unverified' rather than the user's real PKH.
-          const promoStored = await browser.storage.local.get(WEBSITES_ADS_ENABLED);
-
-          if (!promoStored[WEBSITES_ADS_ENABLED]) {
-            await postAdImpression({ tezosAddress: 'Unverified', evmAddress: 'Unverified' }, msg.provider, {
-              urlDomain
-            });
-            return;
-          }
-
-          const rewardsAddresses = await getRewardsAccountCredentials();
-          if (rewardsAddresses.evmAddress) {
-            await postAdImpression(rewardsAddresses, msg.provider, { urlDomain });
-          } else {
-            const identity = await getStoredAppInstallIdentity();
-            if (!identity) throw new Error('App identity not found');
-            await postAnonymousAdImpression(identity.publicKeyHash, msg.provider, { urlDomain });
-          }
-        });
+        await handleSiteWidgetAdImpression(sender, msg);
         break;
       }
 
       case ContentScriptType.AccountNotificationAdImpression: {
-        await withNonImportErrorForwarding(async () => {
-          const { postAdImpression, postAnonymousAdImpression } = await importAdsApiModule();
-          const pageName = ACCOUNT_NOTIFICATION_POPUP_AD_PAGE_NAME;
-          const urlDomain = sender.tab?.url ? new URL(sender.tab.url).hostname : undefined;
-          const rewardsAddresses = await getRewardsAccountCredentials();
-
-          if (rewardsAddresses.evmAddress) {
-            await postAdImpression(rewardsAddresses, msg.provider, { pageName, urlDomain });
-          } else {
-            const identity = await getStoredAppInstallIdentity();
-            if (!identity) throw new Error('App identity not found');
-            await postAnonymousAdImpression(identity.publicKeyHash, msg.provider, { pageName, urlDomain });
-          }
-        });
-
-        const analyticsEnabled = await fetchFromStorage<boolean>(USAGE_ANALYTICS_ENABLED);
-        if (analyticsEnabled) {
-          await Analytics.client.track(ACCOUNT_NOTIFICATION_POPUP_AD_IMPRESSION_EVENT, {
-            provider: msg.provider,
-            pageName: ACCOUNT_NOTIFICATION_POPUP_AD_PAGE_NAME,
-            urlDomain: sender.tab?.url ? new URL(sender.tab.url).hostname : undefined
-          });
-        }
+        await handleSiteWidgetAdImpression(sender, msg, ACCOUNT_NOTIFICATION_POPUP_AD_PAGE_NAME);
         break;
       }
 
@@ -998,6 +954,32 @@ browser.runtime.onMessage.addListener(async (msg, sender) => {
 
   return;
 });
+
+function handleSiteWidgetAdImpression(sender: Runtime.MessageSender, msg: any, pageName?: string) {
+  return withNonImportErrorForwarding(async () => {
+    const { postAdImpression, postAnonymousAdImpression } = await importAdsApiModule();
+    const urlDomain = sender.tab?.url ? new URL(sender.tab.url).hostname : 'x.com';
+    // Consent gate: with promo off, report, 'Unverified' rather than the user's real PKH.
+    const promoStored = await browser.storage.local.get(WEBSITES_ADS_ENABLED);
+
+    if (!promoStored[WEBSITES_ADS_ENABLED]) {
+      await postAdImpression({ tezosAddress: 'Unverified', evmAddress: 'Unverified' }, msg.provider, {
+        pageName,
+        urlDomain
+      });
+      return;
+    }
+
+    const rewardsAddresses = await getRewardsAccountCredentials();
+    if (rewardsAddresses.evmAddress) {
+      await postAdImpression(rewardsAddresses, msg.provider, { pageName, urlDomain });
+    } else {
+      const identity = await getStoredAppInstallIdentity();
+      if (!identity) throw new Error('App identity not found');
+      await postAnonymousAdImpression(identity.publicKeyHash, msg.provider, { pageName, urlDomain });
+    }
+  });
+}
 
 async function updateAiChatbotAdsPersistentState(domain: string, domainStateInput: unknown) {
   if (!isObjectRecord(domainStateInput)) return;
