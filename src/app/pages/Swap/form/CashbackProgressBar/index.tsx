@@ -56,7 +56,7 @@ export const CashbackProgressBar: FC<Props> = ({ visible, inputAmountInUSD, temp
   return (
     <div
       className={clsx(
-        'px-1 transition-all duration-300 ease-in-out',
+        'relative z-0 px-1 transition-all duration-300 ease-in-out',
         visible ? 'h-12 opacity-100' : 'h-0 opacity-0 overflow-hidden pointer-events-none'
       )}
       aria-hidden={!visible}

@@ -39,13 +39,14 @@ interface ApproveLayoutProps {
   setFinalEvmTransaction: ReactSetStateFn<EvmTransactionRequestWithSender>;
   onLoadingState: SyncFn<boolean>;
   minAllowance?: bigint;
+  allowanceEditable?: boolean;
   footer?: ReactNode;
 }
 
 const unlimitedAtomicAmountThreshold = toBigNumber(MAX_EVM_ALLOWANCE);
 
 export const ApproveLayout = memo<ApproveLayoutProps>(
-  ({ chain, req, setFinalEvmTransaction, onLoadingState, minAllowance, footer }) => {
+  ({ chain, req, setFinalEvmTransaction, onLoadingState, minAllowance, allowanceEditable, footer }) => {
     const tokenAddress = req.to!;
     const txData = req.data!;
     const { from } = req;
@@ -96,6 +97,7 @@ export const ApproveLayout = memo<ApproveLayoutProps>(
         chain={chain}
         setFinalEvmTransaction={setFinalEvmTransaction}
         minAllowance={minAllowance}
+        allowanceEditable={allowanceEditable}
         footer={footer}
       />
     ) : null;
@@ -110,7 +112,15 @@ interface ApproveLayoutContentProps extends Omit<ApproveLayoutProps, 'onLoadingS
 }
 
 const ApproveLayoutContent = memo<ApproveLayoutContentProps>(
-  ({ allowancesAmountsContext, chain, req, setFinalEvmTransaction, minAllowance, footer }) => {
+  ({
+    allowancesAmountsContext,
+    chain,
+    req,
+    setFinalEvmTransaction,
+    minAllowance,
+    allowanceEditable = true,
+    footer
+  }) => {
     const tokenAddress = req.to!;
     const txData = req.data!;
     const { from } = req;
@@ -195,7 +205,7 @@ const ApproveLayoutContent = memo<ApproveLayoutContentProps>(
             volume={volume.isFinite() ? volume : t('unlimited')}
             symbol={symbol}
             rightContent={
-              isErc20 ? (
+              isErc20 && allowanceEditable ? (
                 <StyledButton size="S" color="secondary-low" className="flex items-center" onClick={openEditModal}>
                   <T id="edit" />
                   <IconBase size={12} Icon={EditIcon} />
@@ -208,7 +218,7 @@ const ApproveLayoutContent = memo<ApproveLayoutContentProps>(
           {footer}
         </OperationConfirmationCard>
 
-        {editModalIsVisible && (
+        {allowanceEditable && editModalIsVisible && (
           <EditModal
             assetSlug={assetSlug}
             chain={chain}

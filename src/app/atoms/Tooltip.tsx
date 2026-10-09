@@ -8,6 +8,7 @@ import { IconBase, IconBaseProps } from './IconBase';
 interface TooltipProps extends Partial<IconBaseProps> {
   content: ReactNode;
   wrapperClassName?: string;
+  appendToBody?: boolean;
 }
 
 const basicTooltipProps = {
@@ -18,15 +19,25 @@ const basicTooltipProps = {
   animation: 'shift-away-subtle'
 };
 
+const bodyTooltipProps = {
+  ...basicTooltipProps,
+  placement: 'top-end' as const,
+  appendTo: () => document.body
+};
+
 export const Tooltip = memo<TooltipProps>(
-  ({ Icon = InfoFillIcon, content, wrapperClassName = 'max-w-52', ...restProps }) => {
+  ({ Icon = InfoFillIcon, content, wrapperClassName = 'max-w-52', appendToBody = false, ...restProps }) => {
     const tooltipWrapperFactory = useCallback(() => {
       const element = document.createElement('div');
       element.className = wrapperClassName;
 
       return element;
     }, [wrapperClassName]);
-    const infoIconWrapperRef = useRichFormatTooltip<HTMLDivElement>(basicTooltipProps, tooltipWrapperFactory, content);
+    const infoIconWrapperRef = useRichFormatTooltip<HTMLDivElement>(
+      appendToBody ? bodyTooltipProps : basicTooltipProps,
+      tooltipWrapperFactory,
+      content
+    );
 
     return (
       <div ref={infoIconWrapperRef}>
