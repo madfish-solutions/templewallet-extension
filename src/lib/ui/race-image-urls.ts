@@ -165,7 +165,7 @@ export class ImageUrlRacer {
     try {
       throwIfAborted(signal);
 
-      for (let index = 0; index < normalized.length; ) {
+      for (let index = 0; index < normalized.length;) {
         throwIfAborted(signal);
 
         const stage = normalized[index];
