@@ -4,7 +4,7 @@ import clsx from 'clsx';
 
 import { ReactComponent as OutLinkIcon } from 'app/icons/base/outLink.svg';
 import { ReactComponent as SadSearchIcon } from 'app/icons/monochrome/sad-search.svg';
-import { buildTokenImagesStack } from 'lib/images-uri';
+import { buildCollectionLogoSourceStages } from 'lib/images-uri';
 import type { ObjktToken } from 'lib/temple/back/web-widgets/objkt-query';
 
 import type { TagData } from '../../engine/types';
@@ -85,7 +85,7 @@ export const NftCard = ({ tagData, onClose }: NftCardProps) => {
         });
     }
 
-    const logoSrc = logoUri ? buildTokenImagesStack(logoUri)[0] : undefined;
+    const logoSrc = logoUri ? buildCollectionLogoSourceStages(logoUri).at(0)?.urls.at(0) : undefined;
     if (logoSrc) {
       messaging
         .fetchThumbnailBlob(logoSrc)

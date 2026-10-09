@@ -17410,6 +17410,7 @@ __metadata:
     "@ledgerhq/hw-transport-webhid": "npm:^6.28.6"
     "@lifi/sdk": "npm:4.8.1"
     "@microsoft/signalr": "npm:^8.0.0"
+    "@noble/hashes": "npm:1.8.0"
     "@peculiar/webcrypto": "npm:1.1.6"
     "@popperjs/core": "npm:2.4.4"
     "@redux-devtools/remote": "npm:^0.9.5"

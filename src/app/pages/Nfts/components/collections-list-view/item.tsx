@@ -1,4 +1,4 @@
-import { FC, Ref, useEffect, useState } from 'react';
+import { FC, Ref } from 'react';
 
 import clsx from 'clsx';
 
@@ -16,6 +16,8 @@ import { fromAssetSlug, parseChainAssetSlug } from 'lib/assets/utils';
 import { t } from 'lib/i18n';
 import { TempleTezosChainId } from 'lib/temple/types';
 import { CollectiblesListItemElement } from 'lib/ui/collectibles-list';
+import { ImageStacked } from 'lib/ui/ImageStacked';
+import { EMPTY_FROZEN_ARRAY } from 'lib/utils';
 
 import { NftsPageSelectors } from '../../selectors';
 import { CollectiblesCollection } from '../../types';
@@ -47,15 +49,10 @@ export const CollectionsListItem: FC<CollectionsListItemProps> = ({
   firstItemRef,
   onToggleOpened
 }) => {
-  const { collectionSlug, title = t('unknownCollection'), logoSrc, chainId } = collection;
-  const [srcIndex, setSrcIndex] = useState(logoSrc ? 0 : -1);
+  const { collectionSlug, title = t('unknownCollection'), logoSources = EMPTY_FROZEN_ARRAY, chainId } = collection;
   const handleToggleOpened = () => onToggleOpened(collectionSlug);
   const isVisible = useIsItemVisible(index);
   const { searchValue } = useCollectiblesSearchState();
-
-  useEffect(() => setSrcIndex(logoSrc?.length ? 0 : -1), [logoSrc, setSrcIndex]);
-
-  const handleLogoLoadingError = () => setSrcIndex(prev => (logoSrc && prev < logoSrc.length - 1 ? prev + 1 : -1));
 
   return (
     <div className="flex flex-col bg-white border-0.5 border-lines mb-4 last:mb-0 p-3 pt-2 rounded-8 gap-2">
@@ -64,16 +61,13 @@ export const CollectionsListItem: FC<CollectionsListItemProps> = ({
           {isVisible ? (
             <>
               <div className="size-10 rounded-8 overflow-hidden">
-                {!logoSrc || srcIndex === -1 ? (
-                  <UnknownCollectible className="size-full" />
-                ) : (
-                  <img
-                    src={logoSrc[srcIndex]}
-                    alt="Collection logo"
-                    className="size-full"
-                    onError={handleLogoLoadingError}
-                  />
-                )}
+                <ImageStacked
+                  sources={logoSources}
+                  progressive
+                  alt="Collection logo"
+                  className="size-full"
+                  fallback={<UnknownCollectible className="size-full" />}
+                />
               </div>
 
               {typeof chainId === 'number' ? (

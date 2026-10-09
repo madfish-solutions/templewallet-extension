@@ -61,6 +61,7 @@
     "@ledgerhq/hw-transport-webhid": "^6.28.6",
     "@lifi/sdk": "4.8.1",
     "@microsoft/signalr": "^8.0.0",
+    "@noble/hashes": "1.8.0",
     "@peculiar/webcrypto": "1.1.6",
     "@popperjs/core": "2.4.4",
     "@redux-devtools/remote": "^0.9.5",

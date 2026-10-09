@@ -1,6 +1,8 @@
+import type { ImageSourceStage } from 'lib/ui/race-image-urls';
+
 export interface CollectiblesCollection {
   chainId: string | number;
   title?: string;
-  logoSrc?: string[];
+  logoSources?: ImageSourceStage[];
   collectionSlug: string;
 }
