@@ -7,7 +7,13 @@ interface LoadNotificationsPayload {
   accountAddresses: string[];
 }
 
-export const loadNotificationsAction = createActions<LoadNotificationsPayload, NotificationInterface[]>(
+interface LoadNotificationsSuccessPayload {
+  notifications: NotificationInterface[];
+  /** Clock time for expiry checks. Callers pass it so the reducer stays deterministic. */
+  timestamp: number;
+}
+
+export const loadNotificationsAction = createActions<LoadNotificationsPayload, LoadNotificationsSuccessPayload>(
   'notifications/LOAD_NOTIFICATIONS'
 );
 

@@ -82,6 +82,7 @@ import { ErrorWithCode } from 'temple/evm/types';
 import { parseTransactionRequest } from 'temple/evm/utils';
 import { AdsViewerData, RewardsAddresses, TempleChainKind } from 'temple/types';
 
+import { listenForAccountNotifications, unlistenForAccountNotifications } from './account-notifications-sync';
 import { startAccountNotificationsWebSocket } from './account-notifications-ws';
 import * as Actions from './actions';
 import * as Analytics from './analytics';
@@ -135,6 +136,17 @@ const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<T
     case TempleMessageType.SendPageEventRequest:
       await Analytics.pageEvent(req);
       return { type: TempleMessageType.SendPageEventResponse };
+
+    case TempleMessageType.AccountNotificationsListenRequest:
+      return {
+        type: TempleMessageType.AccountNotificationsListenResponse,
+        notifications: await listenForAccountNotifications(port)
+      };
+
+    case TempleMessageType.AccountNotificationsUnlistenRequest:
+      unlistenForAccountNotifications(port);
+
+      return { type: TempleMessageType.AccountNotificationsUnlistenResponse };
 
     case TempleMessageType.GetStateRequest:
       const state = await Actions.getFrontState();

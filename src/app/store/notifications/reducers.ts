@@ -19,18 +19,17 @@ export const notificationsReducer = createReducer<NotificationsState>(notificati
     ...state,
     list: createEntity(state.list.data, true)
   }));
-  builder.addCase(loadNotificationsAction.success, (state, { payload: notifications }) => {
-    const now = Date.now();
+  builder.addCase(loadNotificationsAction.success, (state, { payload: { notifications, timestamp } }) => {
     const notificationsById = new Map<number, NotificationInterface>();
 
     for (const notification of state.list.data) {
-      if (!isNotificationExpired(notification, now)) {
+      if (!isNotificationExpired(notification, timestamp)) {
         notificationsById.set(notification.id, notification);
       }
     }
 
     for (const notification of notifications) {
-      if (isNotificationExpired(notification, now)) {
+      if (isNotificationExpired(notification, timestamp)) {
         continue;
       }
 

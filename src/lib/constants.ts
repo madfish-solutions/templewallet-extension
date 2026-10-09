@@ -79,6 +79,9 @@ export const ADS_VIEWER_DATA_STORAGE_KEY = 'ADS_VIEWER_DATA';
 /** Tezos addresses used to keep account-notification WS subscribed while the wallet is locked. */
 export const ACCOUNT_NOTIFICATION_ADDRESSES_STORAGE_KEY = 'ACCOUNT_NOTIFICATION_ADDRESSES';
 
+/** Latest notifications fetch saved while no extension page is listening. */
+export const ACCOUNT_NOTIFICATIONS_PENDING_STORAGE_KEY = 'ACCOUNT_NOTIFICATIONS_PENDING';
+
 export const ADS_DISABLING_TIMESTAMPS_STORAGE_KEY = 'ADS_DISABLING_TIMESTAMPS';
 
 export const REWARDS_ACCOUNT_DATA_STORAGE_KEY = 'REWARDS_ACCOUNT_DATA';
@@ -103,6 +106,8 @@ export const ALL_ADS_RULES_STORAGE_KEY = 'ALL_ADS_RULES';
 export const ADS_RULES_UPDATE_INTERVAL = 5 * 60 * 1000;
 
 export const AD_HIDING_TIMEOUT = 12 * 3600 * 1000;
+
+export const MAX_NOTIFICATION_ACCOUNT_ADDRESSES = 100;
 
 export const TERMS_OF_USE_URL = 'https://www.templewallet.com/terms';
 

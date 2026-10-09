@@ -1,8 +1,8 @@
-import React, { memo, MouseEventHandler, useEffect, useRef, useState } from 'react';
+import { FocusEventHandler, memo, MouseEventHandler, startTransition, useEffect, useRef, useState } from 'react';
 
 import clsx from 'clsx';
 
-import { Anchor, Button, IconBase } from 'app/atoms';
+import { Button, IconBase } from 'app/atoms';
 import { Logo } from 'app/atoms/Logo';
 import { useAppEnv } from 'app/env';
 import { useThisWindowLocation } from 'app/hooks/use-this-window-location';
@@ -15,7 +15,6 @@ import { useIsAccountNotificationsEnabledSelector } from 'app/store/notification
 import { useShouldShowInWalletAdsSelector } from 'app/store/partners-promotion/selectors';
 import { useTestnetModeEnabledSelector } from 'app/store/settings/selectors';
 import { setTestID } from 'lib/analytics';
-import { browser } from 'lib/browser';
 import { getPluralKey, t } from 'lib/i18n';
 import {
   ACCOUNT_NOTIFICATION_POPUP_DURATION_MS,
@@ -26,8 +25,8 @@ import {
 import { useWindowIsActive } from 'lib/temple/front/window-is-active-context';
 import { TempleMessageType, TempleNotification } from 'lib/temple/types';
 import { useBooleanState, useUpdatableRef } from 'lib/ui/hooks';
-import { navigate } from 'lib/woozie';
-import { intercomClient } from 'temple/front/intercom-client';
+import { Link, navigate } from 'lib/woozie';
+import { intercomClient, makeIntercomRequest } from 'temple/front/intercom-client';
 
 import { AccountNotificationImage } from '../account-notification-image';
 import { ListItem } from '../list-item';
@@ -35,145 +34,130 @@ import { ListItem } from '../list-item';
 import { NotificationPopupAd } from './native-ad';
 import { NotificationPopupSelectors } from './selectors';
 
-const OBJKT_BASE_URL = 'https://objkt.com';
 const FULL_PAGE_POPUP_CLASSNAME = 'fixed z-overlay top-2 right-10 w-96 max-w-[calc(100%-1rem)] pointer-events-auto';
 
-const windowHasShownTab = async (windowId: number | null) => {
-  if (windowId === null) {
-    return false;
-  }
+/** Pauses the dismiss timer while the pointer or focus is on the toast, then continues with the time left. */
+const useDismissWhenIdle = (onClose: EmptyFn, paused: boolean, resetKey: unknown) => {
+  const onCloseRef = useUpdatableRef(onClose);
+  const remainingRef = useRef(ACCOUNT_NOTIFICATION_POPUP_DURATION_MS);
+  const startedAtRef = useRef(0);
 
-  const tabs = await browser.tabs.query({ active: true, windowId }).catch(() => []);
+  useEffect(() => {
+    remainingRef.current = ACCOUNT_NOTIFICATION_POPUP_DURATION_MS;
+    startedAtRef.current = Date.now();
+  }, [resetKey]);
 
-  return tabs.length > 0;
+  useEffect(() => {
+    if (paused) {
+      remainingRef.current = Math.max(0, remainingRef.current - (Date.now() - startedAtRef.current));
+
+      return;
+    }
+
+    startedAtRef.current = Date.now();
+    const timeoutId = setTimeout(() => onCloseRef.current(), remainingRef.current);
+
+    return () => clearTimeout(timeoutId);
+  }, [onCloseRef, paused, resetKey]);
 };
 
 export const AccountNotificationPopup = memo(() => {
-  const { sidebar } = useAppEnv();
   const windowIsActive = useWindowIsActive();
   const { data: thisWindowLocation } = useThisWindowLocation();
   const isAccountNotificationsEnabled = useIsAccountNotificationsEnabledSelector();
   const canShowPopup = windowIsActive && thisWindowLocation !== undefined;
   const canShowPopupRef = useUpdatableRef(canShowPopup);
   const isAccountNotificationsEnabledRef = useUpdatableRef(isAccountNotificationsEnabled);
-  const sidebarRef = useUpdatableRef(sidebar);
-  const windowIdRef = useUpdatableRef(thisWindowLocation?.windowId ?? null);
   const [notifications, setNotifications] = useState<NotificationInterface[]>([]);
-  const [hideTimeoutPaused, pauseHideTimeout, resumeHideTimeout] = useBooleanState(false);
-  const hideTimeoutRemainingRef = useRef(ACCOUNT_NOTIFICATION_POPUP_DURATION_MS);
-  const hideTimeoutNotificationsRef = useRef(notifications);
 
-  useEffect(
-    () => {
-      let showRequestId = 0;
+  useEffect(() => {
+    let cancelled = false;
 
-      return intercomClient.subscribe((msg: TempleNotification) => {
-        if (msg?.type !== TempleMessageType.AccountNotificationReceived) {
+    const storeFetchedNotifications = (fetched: NotificationInterface[]) => {
+      if (cancelled || fetched.length === 0) {
+        return;
+      }
+
+      dispatch(loadNotificationsAction.success({ notifications: fetched, timestamp: Date.now() }));
+    };
+
+    const unsubscribe = intercomClient.subscribe((msg: TempleNotification) => {
+      if (msg?.type === TempleMessageType.AccountNotificationsSync) {
+        storeFetchedNotifications(msg.notifications);
+        return;
+      }
+
+      if (msg?.type !== TempleMessageType.AccountNotificationReceived) {
+        return;
+      }
+
+      if (canShowPopupRef.current && isAccountNotificationsEnabledRef.current) {
+        setNotifications(msg.notifications);
+      }
+    });
+
+    void makeIntercomRequest({ type: TempleMessageType.AccountNotificationsListenRequest })
+      .then(response => {
+        if (response.type !== TempleMessageType.AccountNotificationsListenResponse) {
           return;
         }
 
-        dispatch(loadNotificationsAction.success(msg.notifications));
+        storeFetchedNotifications(response.notifications);
+      })
+      .catch(() => undefined);
 
-        if (!isAccountNotificationsEnabledRef.current) {
-          return;
-        }
-
-        const requestId = ++showRequestId;
-        const notificationsToShow = msg.notifications;
-        const showIfStillCurrent = () => {
-          if (requestId !== showRequestId || !canShowPopupRef.current) {
-            return;
-          }
-
-          setNotifications(notificationsToShow);
-        };
-
-        if (!sidebarRef.current) {
-          showIfStillCurrent();
-          return;
-        }
-
-        void windowHasShownTab(windowIdRef.current).then(tabIsShown => {
-          if (requestId !== showRequestId || tabIsShown) {
-            return;
-          }
-
-          showIfStillCurrent();
-        });
-      });
-    },
+    return () => {
+      cancelled = true;
+      unsubscribe();
+      void makeIntercomRequest({ type: TempleMessageType.AccountNotificationsUnlistenRequest }).catch(() => undefined);
+    };
     // Refs are updated in-place; keep a single subscription for the popup lifetime.
     // oxlint-disable-next-line react-hooks/exhaustive-deps
-    []
-  );
+  }, []);
 
   useEffect(() => {
     if (!canShowPopup) {
-      setNotifications([]);
+      startTransition(() => setNotifications([]));
     }
   }, [canShowPopup]);
 
   const close = () => setNotifications([]);
 
-  useEffect(() => {
-    if (notifications.length === 0 && hideTimeoutPaused) {
-      resumeHideTimeout();
-    }
-  }, [hideTimeoutPaused, notifications.length, resumeHideTimeout]);
-
-  // Hover pauses the hide timer and keeps the time left. A new payload starts the full duration again.
-  useEffect(() => {
-    const notificationsChanged = hideTimeoutNotificationsRef.current !== notifications;
-    hideTimeoutNotificationsRef.current = notifications;
-
-    if (notificationsChanged) {
-      hideTimeoutRemainingRef.current = ACCOUNT_NOTIFICATION_POPUP_DURATION_MS;
-    }
-
-    if (notifications.length === 0 || hideTimeoutPaused) {
-      return;
-    }
-
-    const startedAt = Date.now();
-    const timeoutId = setTimeout(() => setNotifications([]), hideTimeoutRemainingRef.current);
-
-    return () => {
-      clearTimeout(timeoutId);
-      hideTimeoutRemainingRef.current = Math.max(0, hideTimeoutRemainingRef.current - (Date.now() - startedAt));
-    };
-  }, [hideTimeoutPaused, notifications]);
-
   if (notifications.length === 0) {
     return null;
   }
 
-  return (
-    <NotificationPopupCard
-      notifications={notifications}
-      onClose={close}
-      onMouseEnter={pauseHideTimeout}
-      onMouseLeave={resumeHideTimeout}
-    />
-  );
+  return <NotificationPopupCard notifications={notifications} onClose={close} />;
 });
 
 interface CardProps {
   notifications: NotificationInterface[];
   onClose: EmptyFn;
-  onMouseEnter: MouseEventHandler<HTMLDivElement>;
-  onMouseLeave: MouseEventHandler<HTMLDivElement>;
 }
 
 const getPopupOverlayTopClassName = (testnetModeEnabled: boolean) => (testnetModeEnabled ? 'top-8' : 'top-2');
 
-const NotificationPopupCard = memo<CardProps>(({ notifications, onClose, onMouseEnter, onMouseLeave }) => {
+const NotificationPopupCard = memo<CardProps>(({ notifications, onClose }) => {
   const { fullPage } = useAppEnv();
   const testnetModeEnabled = useTestnetModeEnabledSelector();
   const shouldShowPartnersPromo = useShouldShowInWalletAdsSelector();
+  const [pointerInside, markPointerInside, markPointerOutside] = useBooleanState(false);
+  const [focused, markFocused, markBlurred] = useBooleanState(false);
+
+  useDismissWhenIdle(onClose, pointerInside || focused, notifications);
 
   const openNotificationsPage = () => {
     onClose();
     navigate('/notifications');
+  };
+
+  const handleBlur: FocusEventHandler<HTMLDivElement> = event => {
+    const nextTarget = event.relatedTarget;
+    if (nextTarget instanceof Node && event.currentTarget.contains(nextTarget)) {
+      return;
+    }
+
+    markBlurred();
   };
 
   const handleCloseClick: MouseEventHandler<HTMLButtonElement> = event => {
@@ -189,8 +173,10 @@ const NotificationPopupCard = memo<CardProps>(({ notifications, onClose, onMouse
     <div
       className="bg-background rounded-8 shadow-bottom overflow-hidden cursor-pointer"
       onClick={openNotificationsPage}
-      onMouseEnter={onMouseEnter}
-      onMouseLeave={onMouseLeave}
+      onPointerEnter={markPointerInside}
+      onPointerLeave={markPointerOutside}
+      onFocus={markFocused}
+      onBlur={handleBlur}
       {...setTestID(NotificationPopupSelectors.card)}
     >
       <div className="flex items-center gap-1 p-4">
@@ -205,9 +191,9 @@ const NotificationPopupCard = memo<CardProps>(({ notifications, onClose, onMouse
 
       <div className="flex flex-col gap-1 px-1 pb-1">
         {notifications.length === 1 ? (
-          <ListItem notification={notifications[0]} compact />
+          <ListItem notification={notifications[0]} compact onClick={openNotificationsPage} />
         ) : (
-          <NftActivitiesSummary notifications={notifications} onOpen={onClose} />
+          <NftActivitiesSummary notifications={notifications} onClose={onClose} />
         )}
 
         {shouldShowPartnersPromo && (
@@ -237,22 +223,22 @@ const NotificationPopupCard = memo<CardProps>(({ notifications, onClose, onMouse
 
 interface SummaryProps {
   notifications: NotificationInterface[];
-  onOpen: EmptyFn;
+  onClose: EmptyFn;
 }
 
-const NftActivitiesSummary = memo<SummaryProps>(({ notifications, onOpen }) => {
+const NftActivitiesSummary = memo<SummaryProps>(({ notifications, onClose }) => {
   const description = formatNftActivityCounts(getNftActivityCounts(notifications), (keyPrefix, count) =>
     t(getPluralKey(keyPrefix, count), String(count))
   );
 
   const handleClick: MouseEventHandler<HTMLAnchorElement> = event => {
     event.stopPropagation();
-    onOpen();
+    onClose();
   };
 
   return (
-    <Anchor
-      href={OBJKT_BASE_URL}
+    <Link
+      to="/notifications"
       className="flex flex-row items-center p-2 gap-x-2 rounded-8 group hover:bg-secondary-low"
       testID={NotificationPopupSelectors.activitiesSummary}
       onClick={handleClick}
@@ -279,6 +265,6 @@ const NftActivitiesSummary = memo<SummaryProps>(({ notifications, onOpen }) => {
         </div>
         <p className="min-w-0 text-font-description text-grey-1 max-h-4 truncate">{description}</p>
       </div>
-    </Anchor>
+    </Link>
   );
 });

@@ -15,7 +15,6 @@ import { CLOSE_ICON, INFO_FILL_ICON, TEMPLE_LOGO_SRC, TYPE_BADGE_ICONS } from '.
 import { ACCOUNT_NOTIFICATION_POPUP_STYLES } from './styles';
 
 const HOST_ID = 'temple-account-notification-popup-host';
-const OBJKT_BASE_URL = 'https://objkt.com';
 
 const pluralKey = (prefix: string, count: number) => {
   const locale = getNativeLocale().replace('_', '-');
@@ -34,7 +33,7 @@ const openWalletNotifications = () => {
   });
 };
 
-const appendActivityRow = (parent: HTMLElement, notifications: NotificationInterface[], onOpen: EmptyFn) => {
+const appendActivityRow = (parent: HTMLElement, notifications: NotificationInterface[]) => {
   if (notifications.length === 1) {
     const notification = notifications[0];
     const row = el('div', 'row');
@@ -44,14 +43,7 @@ const appendActivityRow = (parent: HTMLElement, notifications: NotificationInter
     return;
   }
 
-  const row = el('a', 'row');
-  row.href = OBJKT_BASE_URL;
-  row.target = '_blank';
-  row.rel = 'noopener noreferrer';
-  row.addEventListener('click', event => {
-    event.stopPropagation();
-    onOpen();
-  });
+  const row = el('div', 'row');
 
   const description = formatNftActivityCounts(getNftActivityCounts(notifications), (keyPrefix, count) =>
     msg(pluralKey(keyPrefix, count), String(count))
@@ -91,7 +83,11 @@ const buildText = (title: string, description: string, mutedDescription = false)
   return text;
 };
 
-export const mountAccountNotificationPopup = (notifications: NotificationInterface[], onClose: EmptyFn) => {
+export const mountAccountNotificationPopup = (
+  notifications: NotificationInterface[],
+  onClose: EmptyFn,
+  onSurfaceActiveChange: (active: boolean) => void
+) => {
   document.getElementById(HOST_ID)?.remove();
 
   const host = el('div');
@@ -103,9 +99,34 @@ export const mountAccountNotificationPopup = (notifications: NotificationInterfa
   shadow.append(style);
 
   const card = el('div', 'card');
+  let pointerInside = false;
+  let focused = false;
+  const syncSurfaceActive = () => onSurfaceActiveChange(pointerInside || focused);
+
   card.addEventListener('click', () => {
     onClose();
     openWalletNotifications();
+  });
+  card.addEventListener('pointerenter', () => {
+    pointerInside = true;
+    syncSurfaceActive();
+  });
+  card.addEventListener('pointerleave', () => {
+    pointerInside = false;
+    syncSurfaceActive();
+  });
+  card.addEventListener('focusin', () => {
+    focused = true;
+    syncSurfaceActive();
+  });
+  card.addEventListener('focusout', event => {
+    const nextTarget = event.relatedTarget;
+    if (nextTarget instanceof Node && card.contains(nextTarget)) {
+      return;
+    }
+
+    focused = false;
+    syncSurfaceActive();
   });
 
   const header = el('div', 'header');
@@ -129,7 +150,7 @@ export const mountAccountNotificationPopup = (notifications: NotificationInterfa
   header.append(logoWrap, title, closeButton);
 
   const body = el('div', 'body');
-  appendActivityRow(body, notifications, onClose);
+  appendActivityRow(body, notifications);
   const unbindAd = appendAccountNotificationAd(body);
 
   card.append(header, body);

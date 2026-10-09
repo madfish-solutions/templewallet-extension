@@ -37,7 +37,9 @@ const loadNotificationsEpic: Epic<Action, Action, RootState> = (action$, state$)
         getAccountNotificationsStartID(list.data),
         payload.accountAddresses
       ).pipe(
-        map(newNotifications => loadNotificationsAction.success(newNotifications)),
+        map(newNotifications =>
+          loadNotificationsAction.success({ notifications: newNotifications, timestamp: Date.now() })
+        ),
         catchError(err => of(loadNotificationsAction.fail(err.message)))
       );
     })

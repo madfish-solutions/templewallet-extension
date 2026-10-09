@@ -428,6 +428,12 @@ export enum TempleMessageType {
   TempleSwitchEvmProvider = 'TEMPLE_SWITCH_EVM_PROVIDER',
   TempleDAppTransactionSent = 'TEMPLE_DAPP_TRANSACTION_SENT',
   AccountNotificationReceived = 'TEMPLE_ACCOUNT_NOTIFICATION_RECEIVED',
+  /** Fetched notification window for the Redux store. Content scripts ignore this. */
+  AccountNotificationsSync = 'TEMPLE_ACCOUNT_NOTIFICATIONS_SYNC',
+  AccountNotificationsListenRequest = 'TEMPLE_ACCOUNT_NOTIFICATIONS_LISTEN_REQUEST',
+  AccountNotificationsListenResponse = 'TEMPLE_ACCOUNT_NOTIFICATIONS_LISTEN_RESPONSE',
+  AccountNotificationsUnlistenRequest = 'TEMPLE_ACCOUNT_NOTIFICATIONS_UNLISTEN_REQUEST',
+  AccountNotificationsUnlistenResponse = 'TEMPLE_ACCOUNT_NOTIFICATIONS_UNLISTEN_RESPONSE',
   // Request-Response pairs
   GetStateRequest = 'TEMPLE_GET_STATE_REQUEST',
   GetStateResponse = 'TEMPLE_GET_STATE_RESPONSE',
@@ -545,12 +551,15 @@ export type TempleNotification =
   | TempleEvmAccountSwitched
   | TempleTezosAccountSwitched
   | TempleDAppTransactionSent
-  | TempleAccountNotificationReceived;
+  | TempleAccountNotificationReceived
+  | TempleAccountNotificationsSync;
 
 export type TempleRequest =
   | TempleSubmitAlchemyBatchRequest
   | TempleAcknowledgeRequest
   | TempleGetStateRequest
+  | TempleAccountNotificationsListenRequest
+  | TempleAccountNotificationsUnlistenRequest
   | TempleNewWalletRequest
   | TempleUnlockRequest
   | TempleLockRequest
@@ -602,6 +611,8 @@ export type TempleRequest =
 export type TempleResponse =
   | TempleSubmitAlchemyBatchResponse
   | TempleGetStateResponse
+  | TempleAccountNotificationsListenResponse
+  | TempleAccountNotificationsUnlistenResponse
   | TempleAcknowledgeResponse
   | TempleNewWalletResponse
   | TempleUnlockResponse
@@ -738,6 +749,28 @@ type TempleDAppTransactionSent = TempleEvmDAppTransactionSent | TempleTezosDAppT
 interface TempleAccountNotificationReceived extends TempleMessageBase {
   type: TempleMessageType.AccountNotificationReceived;
   notifications: NotificationInterface[];
+}
+
+interface TempleAccountNotificationsSync extends TempleMessageBase {
+  type: TempleMessageType.AccountNotificationsSync;
+  notifications: NotificationInterface[];
+}
+
+interface TempleAccountNotificationsListenRequest extends TempleMessageBase {
+  type: TempleMessageType.AccountNotificationsListenRequest;
+}
+
+interface TempleAccountNotificationsListenResponse extends TempleMessageBase {
+  type: TempleMessageType.AccountNotificationsListenResponse;
+  notifications: NotificationInterface[];
+}
+
+interface TempleAccountNotificationsUnlistenRequest extends TempleMessageBase {
+  type: TempleMessageType.AccountNotificationsUnlistenRequest;
+}
+
+interface TempleAccountNotificationsUnlistenResponse extends TempleMessageBase {
+  type: TempleMessageType.AccountNotificationsUnlistenResponse;
 }
 
 interface TempleGetStateRequest extends TempleMessageBase {

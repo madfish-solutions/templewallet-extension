@@ -13,6 +13,16 @@ description: >-
 
 Shared types and helpers live in `src/lib/notifications/`. Content scripts, background, store, and UI must import these from `lib/`, never from a page or from each other.
 
+## Live sync
+
+The socket payload is only the website and in-wallet toast (`AccountNotificationReceived`). Saving it directly moves `startFromTime` past news the poll has not loaded.
+
+On each socket event the background fetches only the gap after rows it already holds (or after the persisted cursor, once Redux has caught up). The held rows plus that gap are sent as `AccountNotificationsSync` when `AccountNotificationPopup` is listening. Otherwise they replace `ACCOUNT_NOTIFICATIONS_PENDING` until the popup listens. The popup listens on mount, including the lock screen, and unlistens on unmount (sidebar confirmation does not keep the listener).
+
+## Toast
+
+The in-wallet toast and the website overlay open the extension `/notifications` page. A grouped activity row uses that same destination (`Link` in the app) so its href does not point at another site. Hovering or focusing the toast pauses its dismiss timer and resumes with the time left.
+
 ## Locked wallet
 
 Keep Tezos subscription addresses in `ACCOUNT_NOTIFICATION_ADDRESSES` (`ACCOUNT_NOTIFICATION_ADDRESSES_STORAGE_KEY`) so the background WebSocket stays subscribed while the wallet is locked. Do not disconnect on lock.

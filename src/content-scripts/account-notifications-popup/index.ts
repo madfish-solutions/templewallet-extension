@@ -22,18 +22,55 @@ function bootstrapAccountNotificationsPopup() {
   let enabled = true;
   let unmount: EmptyFn | undefined;
   let hideTimer: ReturnType<typeof setTimeout> | undefined;
+  let surfaceActive = false;
+  let remainingMs = ACCOUNT_NOTIFICATION_POPUP_DURATION_MS;
+  let startedAt = 0;
 
-  const hide = () => {
-    if (hideTimer !== undefined) {
-      clearTimeout(hideTimer);
-      hideTimer = undefined;
+  const clearHideTimer = () => {
+    if (hideTimer === undefined) {
+      return;
     }
 
+    clearTimeout(hideTimer);
+    hideTimer = undefined;
+  };
+
+  const startHideTimer = () => {
+    if (surfaceActive) {
+      return;
+    }
+
+    clearHideTimer();
+    startedAt = Date.now();
+    hideTimer = setTimeout(hide, remainingMs);
+  };
+
+  const hide = () => {
+    clearHideTimer();
+    surfaceActive = false;
     unmount?.();
     unmount = undefined;
   };
 
   const canShowOnThisPage = () => enabled && document.visibilityState === 'visible';
+
+  const setSurfaceActive = (active: boolean) => {
+    if (active === surfaceActive) {
+      return;
+    }
+
+    if (active) {
+      if (hideTimer !== undefined) {
+        remainingMs = Math.max(0, remainingMs - (Date.now() - startedAt));
+        clearHideTimer();
+      }
+      surfaceActive = true;
+      return;
+    }
+
+    surfaceActive = false;
+    startHideTimer();
+  };
 
   const show = (notifications: NotificationInterface[]) => {
     if (!canShowOnThisPage() || notifications.length === 0) {
@@ -41,8 +78,9 @@ function bootstrapAccountNotificationsPopup() {
     }
 
     hide();
-    unmount = mountAccountNotificationPopup(notifications, hide);
-    hideTimer = setTimeout(hide, ACCOUNT_NOTIFICATION_POPUP_DURATION_MS);
+    remainingMs = ACCOUNT_NOTIFICATION_POPUP_DURATION_MS;
+    unmount = mountAccountNotificationPopup(notifications, hide, setSurfaceActive);
+    startHideTimer();
   };
 
   void isAccountNotificationsPopupEnabled().then(value => {

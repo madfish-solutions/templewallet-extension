@@ -3,8 +3,7 @@ import {
   buildAccountNotificationsWsUrl,
   parseAccountNotificationWsMessage
 } from 'lib/apis/temple/endpoints/account-notifications-ws';
-import { MAX_NOTIFICATION_ACCOUNT_ADDRESSES } from 'lib/apis/temple/endpoints/get-notifications';
-import { ACCOUNT_NOTIFICATION_ADDRESSES_STORAGE_KEY } from 'lib/constants';
+import { ACCOUNT_NOTIFICATION_ADDRESSES_STORAGE_KEY, MAX_NOTIFICATION_ACCOUNT_ADDRESSES } from 'lib/constants';
 import { EnvVars } from 'lib/env';
 import {
   ACCOUNT_NOTIFICATION_POPUP_DURATION_MS,
@@ -15,6 +14,7 @@ import { fetchFromStorage, putToStorage } from 'lib/storage';
 import { StoredAccount, TempleMessageType, TempleStatus } from 'lib/temple/types';
 import { filterUnique } from 'lib/utils';
 
+import { scheduleAccountNotificationsSync } from './account-notifications-sync';
 import { intercom } from './defaults';
 import { accountsUpdated, store, unlocked } from './store';
 
@@ -118,6 +118,7 @@ const handleMessage = (event: MessageEvent<string>) => {
   }
 
   const notification = parseAccountNotificationWsMessage(parsed);
+
   if (!notification) {
     return;
   }
@@ -131,6 +132,7 @@ const handleMessage = (event: MessageEvent<string>) => {
     type: TempleMessageType.AccountNotificationReceived,
     notifications: rememberForPopupBurst(notificationWithStatus)
   });
+  scheduleAccountNotificationsSync(desiredAddresses);
 };
 
 const openSocket = () => {
