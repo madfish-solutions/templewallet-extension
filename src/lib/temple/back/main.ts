@@ -11,7 +11,11 @@ import {
   patchPersistedPartnersPromotionState,
   migratePersistedPartnersPromotionIfNeeded
 } from 'app/store/partners-promotion/migrate';
-import { isAiChatAdsEnabled, type PartnersPromotionState } from 'app/store/partners-promotion/state';
+import {
+  isAiChatAdsEnabled,
+  isInWalletAdsEnabledFromPersisted,
+  type PartnersPromotionState
+} from 'app/store/partners-promotion/state';
 import { importGetTempleAdsApiModule } from 'lib/ads/import-get-temple-ads-api';
 import { importUpdateRulesStorageModule } from 'lib/ads/import-update-rules-storage';
 import {
@@ -49,7 +53,12 @@ import {
   WEBSITES_ADS_ENABLED
 } from 'lib/constants';
 import { E2eMessageType } from 'lib/e2e/types';
-import { BACKGROUND_IS_WORKER, EnvVars, IS_FIREFOX, IS_MISES_BROWSER } from 'lib/env';
+import { BACKGROUND_IS_WORKER, DISABLE_ADS, EnvVars, IS_FIREFOX, IS_MISES_BROWSER } from 'lib/env';
+import {
+  ACCOUNT_NOTIFICATION_POPUP_AD_HEIGHT,
+  ACCOUNT_NOTIFICATION_POPUP_AD_PAGE_NAME,
+  ACCOUNT_NOTIFICATION_POPUP_AD_WIDTH
+} from 'lib/notifications';
 import { fetchFromStorage, putToStorage } from 'lib/storage';
 import { AnalyticsEventCategory } from 'lib/temple/analytics-types';
 import {
@@ -73,6 +82,8 @@ import { ErrorWithCode } from 'temple/evm/types';
 import { parseTransactionRequest } from 'temple/evm/utils';
 import { AdsViewerData, RewardsAddresses, TempleChainKind } from 'temple/types';
 
+import { listenForAccountNotifications, unlistenForAccountNotifications } from './account-notifications-sync';
+import { startAccountNotificationsWebSocket } from './account-notifications-ws';
 import * as Actions from './actions';
 import * as Analytics from './analytics';
 import { intercom } from './defaults';
@@ -104,6 +115,8 @@ export const start = async () => {
   frontStore.watch(() => {
     intercom.broadcast({ type: TempleMessageType.StateUpdated });
   });
+
+  startAccountNotificationsWebSocket();
 };
 
 const processRequestWithErrorsLogged = (...args: Parameters<typeof processRequest>) =>
@@ -123,6 +136,17 @@ const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<T
     case TempleMessageType.SendPageEventRequest:
       await Analytics.pageEvent(req);
       return { type: TempleMessageType.SendPageEventResponse };
+
+    case TempleMessageType.AccountNotificationsListenRequest:
+      return {
+        type: TempleMessageType.AccountNotificationsListenResponse,
+        notifications: await listenForAccountNotifications(port)
+      };
+
+    case TempleMessageType.AccountNotificationsUnlistenRequest:
+      unlistenForAccountNotifications(port);
+
+      return { type: TempleMessageType.AccountNotificationsUnlistenResponse };
 
     case TempleMessageType.GetStateRequest:
       const state = await Actions.getFrontState();
@@ -658,29 +682,17 @@ browser.runtime.onMessage.addListener(async (msg, sender) => {
         return await fetchObjktOwnedCount(msg.contract, msg.tokenId, addresses.join(','));
       }
 
+      case ContentScriptType.AccountNotificationAdContext: {
+        return { adUrl: await buildAccountNotificationAdUrl(sender) };
+      }
+
       case ContentScriptType.WebWidgetAdImpression: {
-        await withNonImportErrorForwarding(async () => {
-          const { postAdImpression, postAnonymousAdImpression } = await importAdsApiModule();
-          const urlDomain = sender.tab?.url ? new URL(sender.tab.url).hostname : 'x.com';
-          // Consent gate: with promo off, report, 'Unverified' rather than the user's real PKH.
-          const promoStored = await browser.storage.local.get(WEBSITES_ADS_ENABLED);
+        await handleSiteWidgetAdImpression(sender, msg);
+        break;
+      }
 
-          if (!promoStored[WEBSITES_ADS_ENABLED]) {
-            await postAdImpression({ tezosAddress: 'Unverified', evmAddress: 'Unverified' }, msg.provider, {
-              urlDomain
-            });
-            return;
-          }
-
-          const rewardsAddresses = await getRewardsAccountCredentials();
-          if (rewardsAddresses.evmAddress) {
-            await postAdImpression(rewardsAddresses, msg.provider, { urlDomain });
-          } else {
-            const identity = await getStoredAppInstallIdentity();
-            if (!identity) throw new Error('App identity not found');
-            await postAnonymousAdImpression(identity.publicKeyHash, msg.provider, { urlDomain });
-          }
-        });
+      case ContentScriptType.AccountNotificationAdImpression: {
+        await handleSiteWidgetAdImpression(sender, msg, ACCOUNT_NOTIFICATION_POPUP_AD_PAGE_NAME);
         break;
       }
 
@@ -955,6 +967,32 @@ browser.runtime.onMessage.addListener(async (msg, sender) => {
   return;
 });
 
+function handleSiteWidgetAdImpression(sender: Runtime.MessageSender, msg: any, pageName?: string) {
+  return withNonImportErrorForwarding(async () => {
+    const { postAdImpression, postAnonymousAdImpression } = await importAdsApiModule();
+    const urlDomain = sender.tab?.url ? new URL(sender.tab.url).hostname : 'x.com';
+    // Consent gate: with promo off, report, 'Unverified' rather than the user's real PKH.
+    const promoStored = await browser.storage.local.get(WEBSITES_ADS_ENABLED);
+
+    if (!promoStored[WEBSITES_ADS_ENABLED]) {
+      await postAdImpression({ tezosAddress: 'Unverified', evmAddress: 'Unverified' }, msg.provider, {
+        pageName,
+        urlDomain
+      });
+      return;
+    }
+
+    const rewardsAddresses = await getRewardsAccountCredentials();
+    if (rewardsAddresses.evmAddress) {
+      await postAdImpression(rewardsAddresses, msg.provider, { pageName, urlDomain });
+    } else {
+      const identity = await getStoredAppInstallIdentity();
+      if (!identity) throw new Error('App identity not found');
+      await postAnonymousAdImpression(identity.publicKeyHash, msg.provider, { pageName, urlDomain });
+    }
+  });
+}
+
 async function updateAiChatbotAdsPersistentState(domain: string, domainStateInput: unknown) {
   if (!isObjectRecord(domainStateInput)) return;
 
@@ -1062,16 +1100,61 @@ const getTezFiatRateMemo = memoizee(
 );
 
 function buildWidgetAdUrl(origin: string, evmAddress?: string): string | null {
-  if (!EnvVars.HYPELAB_ADS_WINDOW_URL || !EnvVars.HYPELAB_EXTERNAL_PROPERTY_SLUG) return null;
-  if (!EnvVars.HYPELAB_EXTERNAL_NATIVE_WIDGET_PLACEMENT_SLUG) return null;
+  return buildHypeLabNativeAdUrl({
+    origin,
+    evmAddress,
+    propertySlug: EnvVars.HYPELAB_EXTERNAL_PROPERTY_SLUG,
+    placementSlug: EnvVars.HYPELAB_EXTERNAL_NATIVE_WIDGET_PLACEMENT_SLUG,
+    width: 444,
+    height: 78
+  });
+}
+
+async function buildAccountNotificationAdUrl(sender: Runtime.MessageSender): Promise<string | null> {
+  if (DISABLE_ADS) return null;
+
+  const tabUrl = sender.tab?.url;
+  if (!tabUrl || !/^https?:/i.test(tabUrl)) return null;
+
+  const partnersPromotion = await fetchFromStorage<PartnersPromotionState>(PARTNERS_PROMOTION_STORAGE_KEY);
+  if (!isInWalletAdsEnabledFromPersisted(partnersPromotion)) return null;
+
+  const evmAddress = (await getRewardsAccountCredentials()).evmAddress;
+
+  return buildHypeLabNativeAdUrl({
+    origin: new URL(tabUrl).origin,
+    evmAddress,
+    propertySlug: EnvVars.HYPELAB_EXTERNAL_PROPERTY_SLUG,
+    placementSlug: EnvVars.HYPELAB_EXTERNAL_NATIVE_WIDGET_PLACEMENT_SLUG,
+    width: ACCOUNT_NOTIFICATION_POPUP_AD_WIDTH,
+    height: ACCOUNT_NOTIFICATION_POPUP_AD_HEIGHT
+  });
+}
+
+function buildHypeLabNativeAdUrl({
+  origin,
+  evmAddress,
+  propertySlug,
+  placementSlug,
+  width,
+  height
+}: {
+  origin: string;
+  evmAddress?: string;
+  propertySlug: string;
+  placementSlug: string;
+  width: number;
+  height: number;
+}): string | null {
+  if (!EnvVars.HYPELAB_ADS_WINDOW_URL || !propertySlug || !placementSlug) return null;
 
   const url = new URL(EnvVars.HYPELAB_ADS_WINDOW_URL);
-  url.searchParams.set('ps', EnvVars.HYPELAB_EXTERNAL_PROPERTY_SLUG);
+  url.searchParams.set('ps', propertySlug);
   url.searchParams.set('ap', 'hypelab');
-  url.searchParams.set('p', EnvVars.HYPELAB_EXTERNAL_NATIVE_WIDGET_PLACEMENT_SLUG);
+  url.searchParams.set('p', placementSlug);
   url.searchParams.set('at', 'native');
-  url.searchParams.set('w', '444');
-  url.searchParams.set('h', '78');
+  url.searchParams.set('w', String(width));
+  url.searchParams.set('h', String(height));
   url.searchParams.set('id', crypto.randomUUID());
   if (evmAddress) url.searchParams.set('ea', evmAddress);
   url.searchParams.set('o', AES.encrypt(origin, EnvVars.TEMPLE_ADS_ORIGIN_PASSPHRASE).toString());

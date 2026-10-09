@@ -1,8 +1,7 @@
 import React, { FC } from 'react';
 
 import { setTestID, TestIDProps } from 'lib/analytics';
-
-import { NotificationInterface } from '../../types';
+import type { NotificationInterface } from 'lib/notifications';
 
 type Props = TestIDProps & Pick<NotificationInterface, 'content'>;
 

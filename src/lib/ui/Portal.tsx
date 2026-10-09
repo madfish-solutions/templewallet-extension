@@ -3,8 +3,10 @@ import React, { FC, useEffect, useMemo } from 'react';
 import { eventHandlers } from 'jsx-ast-utils';
 import * as ReactDOM from 'react-dom';
 
+import { el } from 'lib/el';
+
 const PortalToDocumentBody: FC<PropsWithChildren> = ({ children }) => {
-  const portalEl = useMemo(() => document.createElement('div'), []);
+  const portalEl = useMemo(() => el('div'), []);
 
   useEffect(() => {
     document.body.appendChild(portalEl);
