@@ -12,6 +12,7 @@ import {
   usePromotionHidingTimestampSelector
 } from 'app/store/partners-promotion/selectors';
 import { AdsProviderTitle } from 'lib/ads';
+import { DAPPS_PAGE_NAME, EARN_PAGE_NAME } from 'lib/ads-constants/ads-constants';
 import {
   fetchEnableInternalHypelabAds,
   fetchEnableInternalSpecifyAds,
@@ -166,6 +167,7 @@ export const PartnersPromotion = memo<PartnersPromotionProps>(({ variant, id, pa
 
   const isHiddenTemporarily =
     isHiddenByTimeout || (isLoadingEnableInternalHypelabAds && enableInternalHypelabAds === undefined);
+  const customPadding = pageName === DAPPS_PAGE_NAME || pageName === EARN_PAGE_NAME;
 
   if (!shouldShowPartnersPromo || isHiddenTemporarily || !currentStep) {
     return null;
@@ -177,7 +179,7 @@ export const PartnersPromotion = memo<PartnersPromotionProps>(({ variant, id, pa
         ref={ref}
         className={clsx(
           'group w-full relative flex flex-col items-center',
-          !adIsReady && (isImageAd ? 'min-h-25.25' : 'min-h-16'),
+          !adIsReady && (isImageAd ? 'min-h-25.25' : customPadding ? 'min-h-20' : 'min-h-18'),
           className
         )}
       >
