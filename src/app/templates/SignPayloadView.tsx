@@ -120,7 +120,7 @@ export const SignPayloadView = memo<SignPayloadViewProps>(({ payload, error }) =
           className={clsx('max-h-44 overflow-auto', typeof previewSource !== 'string' && 'bg-input-low rounded-lg p-3')}
         >
           {typeof previewSource === 'string' ? (
-            <span className="text-font-medium">{previewSource}</span>
+            <span className="text-font-medium whitespace-pre-wrap">{previewSource}</span>
           ) : (
             <ReactJson
               src={previewSource}
