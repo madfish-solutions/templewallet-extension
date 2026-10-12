@@ -1124,8 +1124,8 @@ async function buildAccountNotificationAdUrl(sender: Runtime.MessageSender): Pro
   return buildHypeLabNativeAdUrl({
     origin: new URL(tabUrl).origin,
     evmAddress,
-    propertySlug: EnvVars.HYPELAB_EXTERNAL_PROPERTY_SLUG,
-    placementSlug: EnvVars.HYPELAB_EXTERNAL_NATIVE_WIDGET_PLACEMENT_SLUG,
+    propertySlug: EnvVars.HYPELAB_PROPERTY_SLUG,
+    placementSlug: EnvVars.HYPELAB_INTERNAL_NATIVE_PLACEMENT_SLUG,
     width: ACCOUNT_NOTIFICATION_POPUP_AD_WIDTH,
     height: ACCOUNT_NOTIFICATION_POPUP_AD_HEIGHT
   });

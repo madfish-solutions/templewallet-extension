@@ -27,6 +27,8 @@ The in-wallet toast and the website overlay open the extension `/notifications` 
 
 Keep Tezos subscription addresses in `ACCOUNT_NOTIFICATION_ADDRESSES` (`ACCOUNT_NOTIFICATION_ADDRESSES_STORAGE_KEY`) so the background WebSocket stays subscribed while the wallet is locked. Do not disconnect on lock.
 
+Subscribe only while account notifications are enabled. Read `isAccountNotificationsEnabled` from persisted `persist:temple-root` with `isAccountNotificationsPopupEnabled` and `subscribeAccountNotificationsEnabled` (`src/lib/notifications/is-enabled.ts`). When the setting is off, close the socket and do not send `setAccountAddresses`. Keep the stored address list so enabling the setting later can resubscribe without waiting for unlock.
+
 ## Popup ads
 
 Gate display with the **in-wallet ads** switcher, not webpage ads. Impressions use page name `Account notification popup` (`ACCOUNT_NOTIFICATION_POPUP_AD_PAGE_NAME`), not `WebWidgetAdImpression` or `NOTIFICATIONS_PAGE_NAME`.

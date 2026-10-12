@@ -7,7 +7,9 @@ import { ACCOUNT_NOTIFICATION_ADDRESSES_STORAGE_KEY, MAX_NOTIFICATION_ACCOUNT_AD
 import { EnvVars } from 'lib/env';
 import {
   ACCOUNT_NOTIFICATION_POPUP_DURATION_MS,
+  isAccountNotificationsPopupEnabled,
   NotificationStatus,
+  subscribeAccountNotificationsEnabled,
   type NotificationInterface
 } from 'lib/notifications';
 import { fetchFromStorage, putToStorage } from 'lib/storage';
@@ -30,14 +32,19 @@ let manuallyClosed = false;
 let started = false;
 let popupBurst: NotificationInterface[] = [];
 let popupBurstTimer: ReturnType<typeof setTimeout> | undefined;
+/** `undefined` until the persisted setting has been read. Missing storage counts as enabled. */
+let accountNotificationsEnabled: boolean | undefined;
+let enabledReadId = 0;
 
 const getReconnectDelay = () => Math.min(RECONNECT_BASE_DELAY_MS * 2 ** reconnectAttempt, RECONNECT_MAX_DELAY_MS);
 
 const addressesKey = (accountAddresses: string[]) => accountAddresses.join(',');
 
+const canSubscribe = () => accountNotificationsEnabled === true && desiredAddresses.length > 0;
+
 const sendAccountAddresses = (accountAddresses: string[]) => {
   const currentSocket = socket;
-  if (currentSocket?.readyState !== WebSocket.OPEN) {
+  if (accountNotificationsEnabled !== true || currentSocket?.readyState !== WebSocket.OPEN) {
     return;
   }
 
@@ -96,7 +103,7 @@ const disconnectSocket = () => {
 };
 
 const scheduleReconnect = () => {
-  if (manuallyClosed || desiredAddresses.length === 0 || reconnectTimer !== undefined) {
+  if (manuallyClosed || !canSubscribe() || reconnectTimer !== undefined) {
     return;
   }
 
@@ -119,7 +126,7 @@ const handleMessage = (event: MessageEvent<string>) => {
 
   const notification = parseAccountNotificationWsMessage(parsed);
 
-  if (!notification) {
+  if (!notification || accountNotificationsEnabled !== true) {
     return;
   }
 
@@ -138,7 +145,7 @@ const handleMessage = (event: MessageEvent<string>) => {
 const openSocket = () => {
   if (
     manuallyClosed ||
-    desiredAddresses.length === 0 ||
+    !canSubscribe() ||
     (socket && (socket.readyState === WebSocket.OPEN || socket.readyState === WebSocket.CONNECTING))
   ) {
     return;
@@ -190,6 +197,21 @@ const parseStoredAccountAddresses = (value: unknown): string[] => {
   );
 };
 
+const syncSubscription = () => {
+  if (accountNotificationsEnabled === undefined) {
+    return;
+  }
+
+  if (!canSubscribe()) {
+    disconnectSocket();
+    return;
+  }
+
+  manuallyClosed = false;
+  sendAccountAddresses(desiredAddresses);
+  openSocket();
+};
+
 const applyAccountAddresses = (accountAddresses: string[], persist: boolean) => {
   desiredAddresses = accountAddresses;
 
@@ -197,14 +219,29 @@ const applyAccountAddresses = (accountAddresses: string[], persist: boolean) => 
     persistDesiredAddresses(accountAddresses);
   }
 
-  if (accountAddresses.length === 0) {
-    disconnectSocket();
-    return;
-  }
+  syncSubscription();
+};
 
-  manuallyClosed = false;
-  sendAccountAddresses(accountAddresses);
-  openSocket();
+const setAccountNotificationsEnabled = (enabled: boolean) => {
+  accountNotificationsEnabled = enabled;
+  syncSubscription();
+};
+
+const watchAccountNotificationsEnabled = () => {
+  const readId = ++enabledReadId;
+
+  void isAccountNotificationsPopupEnabled().then(enabled => {
+    if (readId !== enabledReadId) {
+      return;
+    }
+
+    setAccountNotificationsEnabled(enabled);
+  });
+
+  subscribeAccountNotificationsEnabled(enabled => {
+    enabledReadId += 1;
+    setAccountNotificationsEnabled(enabled);
+  });
 };
 
 const connectForAccounts = (accounts: StoredAccount[]) => {
@@ -227,6 +264,8 @@ export const startAccountNotificationsWebSocket = () => {
   }
 
   started = true;
+
+  watchAccountNotificationsEnabled();
 
   unlocked.watch(({ accounts }) => connectForAccounts(accounts));
   accountsUpdated.watch(accounts => {

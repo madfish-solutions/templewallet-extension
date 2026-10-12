@@ -10,3 +10,5 @@ export * from './nft-activity';
 export * from './objkt-image';
 
 export * from './popup-ad';
+
+export { isAccountNotificationsPopupEnabled, subscribeAccountNotificationsEnabled } from './is-enabled';

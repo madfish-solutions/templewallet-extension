@@ -3,12 +3,13 @@ import { getIntercom } from 'intercom-client';
 import {
   ACCOUNT_NOTIFICATION_POPUP_DURATION_MS,
   getAccountNotificationAdContext,
+  isAccountNotificationsPopupEnabled,
+  subscribeAccountNotificationsEnabled,
   type NotificationInterface
 } from 'lib/notifications';
 import { TempleMessageType, TempleNotification } from 'lib/temple/types';
 import { loadWidgetFonts } from 'lib/web-widgets/load-fonts';
 
-import { isAccountNotificationsPopupEnabled, subscribeAccountNotificationsEnabled } from './is-enabled';
 import { mountAccountNotificationPopup } from './render';
 
 if (window.self === window.top) {

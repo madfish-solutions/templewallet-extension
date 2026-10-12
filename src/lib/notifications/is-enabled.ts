@@ -10,13 +10,25 @@ interface PersistedRoot {
   notifications?: NotificationsSlice | string;
 }
 
-const parseSlice = <T>(slice: T | string | undefined): T | undefined => {
+const parseSlice = (slice: NotificationsSlice | string | undefined): NotificationsSlice | undefined => {
   if (typeof slice !== 'string') {
     return slice;
   }
 
   try {
-    return JSON.parse(slice) as T;
+    const parsed: unknown = JSON.parse(slice);
+    if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) {
+      return undefined;
+    }
+
+    if (!('isAccountNotificationsEnabled' in parsed)) {
+      return {};
+    }
+
+    return {
+      isAccountNotificationsEnabled:
+        typeof parsed.isAccountNotificationsEnabled === 'boolean' ? parsed.isAccountNotificationsEnabled : undefined
+    };
   } catch {
     return undefined;
   }
