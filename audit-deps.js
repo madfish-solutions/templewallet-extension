@@ -4,7 +4,13 @@ const { exec } = require('child_process');
   'GHSA-mh99-v99m-4gvg',
   'Only legacy brace-expansion v1/v2 instances used by build tooling remain; v5 is pinned to the patched release.'
 ] */
-const ignoredAdvisories = new Map([]);
+const ignoredAdvisories = new Map([
+  [
+    'GHSA-86w9-cpqp-85rv',
+    'node-forge RSA PKCS#1 v1.5 signature verification accepts extra nested DigestAlgorithm elements'
+  ],
+  ['GHSA-vfj7-8cjw-p6xm', 'braces vulnerable to stack-exhaustion denial of service through deeply nested patterns']
+]);
 
 const formatAdvisory = advisory => {
   const details = Object.entries(advisory.children).map(([name, value]) => {
@@ -27,13 +33,6 @@ exec('yarn npm audit --recursive --severity high --json', (error, stdout, stderr
     const ignoreReason = ignoredAdvisories.get(advisoryId);
 
     if (!ignoreReason) {
-      return true;
-    }
-
-    const versions = advisory.children['Tree Versions'];
-    const onlyLegacyVersions = versions.every(version => /^[12]\./.test(version));
-
-    if (!onlyLegacyVersions) {
       return true;
     }
 

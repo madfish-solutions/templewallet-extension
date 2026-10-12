@@ -7,10 +7,12 @@ import {
   delay,
   exhaustMap,
   filter,
+  finalize,
   from,
   map,
   mergeMap,
   of,
+  timer,
   withLatestFrom,
   interval,
   EMPTY
@@ -21,13 +23,17 @@ import { WaitForTransactionReceiptTimeoutError } from 'viem';
 import type { RootState } from 'app/store/root-state.type';
 import { toastError, toastSuccess } from 'app/toaster';
 import { getEvmSwapStatus } from 'lib/apis/temple/endpoints/evm';
+import { getAlchemyCallsStatus } from 'lib/apis/temple/endpoints/evm/alchemy-wallet';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { fetchEvmRawBalance } from 'lib/evm/on-chain/balance';
 import { fetchEvmTokenMetadataFromChain } from 'lib/evm/on-chain/metadata';
 import { EvmAssetStandard } from 'lib/evm/types';
+import { t } from 'lib/i18n';
 import { isEvmNativeTokenSlug } from 'lib/utils/evm.utils';
 import { getViemPublicClient } from 'temple/evm';
+import { makeBlockExplorerHref } from 'temple/front/use-block-explorers';
 import { EvmNetworkEssentials } from 'temple/networks';
+import { TempleChainKind } from 'temple/types';
 
 import { putNewEvmTokenAction } from '../assets/actions';
 import { processLoadedOnchainBalancesAction } from '../balances/actions';
@@ -35,6 +41,9 @@ import { putEvmTokensMetadataAction } from '../tokens-metadata/actions';
 
 import {
   incrementSwapCheckAttemptsAction,
+  addPendingEvmSwapAction,
+  monitorPendingEvmBatchesAction,
+  removePendingEvmBatchAction,
   monitorPendingSwapsAction,
   removePendingEvmSwapAction,
   updateBalancesAfterSwapAction,
@@ -49,17 +58,134 @@ import {
   monitorPendingOtherTransactionsAction,
   updatePendingOtherTransactionStatusAction
 } from './actions';
-import { selectAllPendingSwaps, selectAllPendingOtherTransactions, selectAllPendingTransfers } from './utils';
+import {
+  selectAllPendingBatches,
+  selectAllPendingSwaps,
+  selectAllPendingOtherTransactions,
+  selectAllPendingTransfers
+} from './utils';
 
 const MAX_SWAP_STATUS_CHECK_ATTEMPTS = 50;
 
 const LONG_MONITOR_INTERVAL = 12_000;
 const SHORT_MONITOR_INTERVAL = 4_000;
+const BATCH_MONITOR_INTERVAL = 500;
+const BATCH_FAST_MONITOR_DURATION = 5_000;
+const MAX_BATCH_MONITOR_INTERVAL = 30_000;
+
+interface BatchMonitorSchedule {
+  nextCheckAt: number;
+  interval: number;
+  inFlight: boolean;
+}
 
 const ONE_MINUTE = 60 * 1_000;
 const MAX_PENDING_SWAP_AGE = 10 * ONE_MINUTE;
 const MAX_PENDING_TRANSFER_AGE = 2 * ONE_MINUTE;
 const MAX_PENDING_OTHER_TRANSACTION_AGE = 2 * ONE_MINUTE;
+
+export const monitorPendingEvmBatchesEpic: Epic<Action, Action, RootState> = (action$, state$) => {
+  const schedules = new Map<HexString, BatchMonitorSchedule>();
+
+  return action$.pipe(
+    ofType(monitorPendingEvmBatchesAction),
+    withLatestFrom(state$),
+    mergeMap(([, state]) => {
+      const batches = selectAllPendingBatches(state);
+      const pendingCallIds = new Set(batches.map(batch => batch.callId));
+      for (const callId of schedules.keys()) {
+        if (!pendingCallIds.has(callId)) schedules.delete(callId);
+      }
+
+      return from(batches).pipe(
+        filter(batch => {
+          const schedule = schedules.get(batch.callId);
+          return !schedule?.inFlight;
+        }),
+        mergeMap(batch => {
+          const schedule = schedules.get(batch.callId) ?? {
+            nextCheckAt: Date.now() + BATCH_MONITOR_INTERVAL,
+            interval: BATCH_MONITOR_INTERVAL,
+            inFlight: false
+          };
+          schedule.inFlight = true;
+          schedules.set(batch.callId, schedule);
+
+          const wait = Math.max(0, schedule.nextCheckAt - Date.now());
+          return (wait > 0 ? timer(wait) : of(0)).pipe(
+            filter(() => Boolean(state$.value.pendingEvmTransactions?.batches?.[batch.callId])),
+            mergeMap(() => {
+              const now = Date.now();
+              schedule.interval =
+                now - batch.submittedAt < BATCH_FAST_MONITOR_DURATION
+                  ? BATCH_MONITOR_INTERVAL
+                  : Math.min(schedule.interval * 2, MAX_BATCH_MONITOR_INTERVAL);
+              schedule.nextCheckAt = now + schedule.interval;
+              return getAlchemyCallsStatus(batch.callId);
+            }),
+            mergeMap(result => {
+              if (
+                BigInt(result.chainId) !== BigInt(batch.inputNetwork.chainId) ||
+                result.id.toLowerCase() !== batch.callId.toLowerCase()
+              ) {
+                throw new Error('Alchemy status identity mismatch');
+              }
+              if (result.status === 400 || result.status === 500) {
+                toastError('Swap failed', true);
+                return of(removePendingEvmBatchAction(batch.callId));
+              }
+              if (result.status !== 200) {
+                if (result.status < 100 || result.status >= 200) {
+                  throw new Error('Alchemy returned a partial or unknown batch status');
+                }
+                return EMPTY;
+              }
+              const receipt = result.receipts?.[0];
+              if (!result.atomic || receipt?.status !== '0x1' || !receipt.transactionHash) {
+                throw new Error('Alchemy returned an invalid batch receipt');
+              }
+              const txHash = receipt.transactionHash;
+              toastSuccess(t('transactionSubmitted'), true, {
+                hash: txHash,
+                blockExplorerHref: makeBlockExplorerHref(batch.blockExplorerBaseUrl, txHash, 'tx', TempleChainKind.EVM)
+              });
+              return from([
+                addPendingEvmSwapAction({
+                  txHash,
+                  batchKey: batch.batchKey,
+                  accountPkh: batch.accountPkh,
+                  outputTokenSlug: batch.outputTokenSlug,
+                  outputNetwork: batch.outputNetwork,
+                  initialInputTokenSlug: batch.initialInputTokenSlug,
+                  initialInputNetwork: batch.initialInputNetwork,
+                  blockExplorerUrl: new URL(`tx/${txHash}`, batch.blockExplorerBaseUrl).href,
+                  statusCheckParams: batch.statusCheckParams,
+                  submittedAt: batch.submittedAt
+                }),
+                removePendingEvmBatchAction(batch.callId),
+                monitorPendingSwapsAction()
+              ]);
+            }),
+            catchError(error => {
+              console.warn(`Failed to check Alchemy batch status ${batch.callId}: `, error);
+              return EMPTY;
+            }),
+            finalize(() => {
+              schedule.inFlight = false;
+            })
+          );
+        })
+      );
+    })
+  );
+};
+
+export const periodicBatchMonitorTriggerEpic: Epic<Action, Action, RootState> = (_, state$) =>
+  interval(BATCH_MONITOR_INTERVAL).pipe(
+    withLatestFrom(state$),
+    filter(([, state]) => selectAllPendingBatches(state).length > 0),
+    map(() => monitorPendingEvmBatchesAction())
+  );
 
 const monitorPendingSwapsEpic: Epic<Action, Action, RootState> = (action$, state$) =>
   action$.pipe(
@@ -470,6 +596,7 @@ const cleanupOutdatedEvmPendingTransactionsEpic: Epic<Action, Action, RootState>
       const pendingSwaps = selectAllPendingSwaps(state);
       const pendingTransfers = selectAllPendingTransfers(state);
       const pendingTransactions = selectAllPendingOtherTransactions(state);
+      const pendingBatches = selectAllPendingBatches(state);
       const now = Date.now();
 
       const outdatedSwaps = pendingSwaps.filter(swap => now - swap.submittedAt > MAX_PENDING_SWAP_AGE);
@@ -485,6 +612,7 @@ const cleanupOutdatedEvmPendingTransactionsEpic: Epic<Action, Action, RootState>
       ];
 
       const monitorActions: Action[] = [
+        ...(pendingBatches.length > 0 ? [monitorPendingEvmBatchesAction()] : []),
         monitorPendingSwapsAction(),
         monitorPendingTransfersAction(),
         monitorPendingOtherTransactionsAction()
@@ -499,6 +627,8 @@ const cleanupOutdatedEvmPendingTransactionsEpic: Epic<Action, Action, RootState>
   );
 
 export const pendingEvmSwapsEpics = combineEpics(
+  monitorPendingEvmBatchesEpic,
+  periodicBatchMonitorTriggerEpic,
   monitorPendingSwapsEpic,
   updateBalancesAfterSwapEpic,
   periodicSwapMonitorTriggerEpic,

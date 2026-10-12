@@ -7,7 +7,7 @@ import memoizee from 'memoizee';
 import browser from 'webextension-polyfill';
 
 import { AppUpdateDetails, useStoredAppUpdateDetails } from 'app/storage/app-update/use-value.hook';
-import { useShouldShowPartnersPromoSelector } from 'app/store/partners-promotion/selectors';
+import { useShouldShowInWalletAdsSelector } from 'app/store/partners-promotion/selectors';
 import { SHOULD_HIDE_ENABLE_ADS_BANNER_STORAGE_KEY } from 'lib/constants';
 import { APP_VERSION } from 'lib/env';
 import { useStorage } from 'lib/temple/front';
@@ -53,7 +53,7 @@ export const NotificationBanner: FC = () => {
   const [shouldHideEnableAdsBanner, setShouldHideEnableAdsBanner] = useStorage(
     SHOULD_HIDE_ENABLE_ADS_BANNER_STORAGE_KEY
   );
-  const adsEnabled = useShouldShowPartnersPromoSelector();
+  const adsEnabled = useShouldShowInWalletAdsSelector();
 
   useEffect(
     () => void (!shouldHideEnableAdsBanner && adsEnabled && setShouldHideEnableAdsBanner(true)),

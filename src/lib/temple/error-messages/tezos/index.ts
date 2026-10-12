@@ -3,7 +3,7 @@ import { MichelsonV1Expression, TezosGenericOperationError } from '@taquito/rpc'
 import { TezosOperationError } from '@taquito/taquito';
 import { isObject } from 'lodash';
 
-import { isTezosContractAddress } from 'lib/tezos';
+import { isTezosContractAddress, isTezosGenericOperationErrorArray, parseJsonBody } from 'lib/tezos';
 
 import { ERROR_MESSAGES } from '../messages';
 
@@ -73,8 +73,7 @@ const TEZOS_ERROR_PATTERNS: Partial<Record<ErrorMessageKey, string[]>> = {
     'period_overflow',
     'malformed_period',
     'timestamp_sub',
-    'non_existing_contract',
-    'failure'
+    'non_existing_contract'
   ],
   nonceTooHigh: ['counter_in_the_future'],
   nonceTooLow: ['counter_in_the_past']
@@ -108,8 +107,19 @@ interface SerializedParameterValidationError {
   name: (typeof PARAMETER_VALIDATION_ERROR_NAMES)[number];
 }
 
+interface SerializedBatchGasLimitExceededError {
+  name: 'BatchGasLimitExceededError';
+  requiredGasLimit: number;
+  hardGasLimitPerBlock: number;
+}
+
 interface SerializedDryRunError {
-  error: (SerializedTezosOperationError | SerializedHttpResponseError | SerializedParameterValidationError)[];
+  error: (
+    | SerializedTezosOperationError
+    | SerializedHttpResponseError
+    | SerializedParameterValidationError
+    | SerializedBatchGasLimitExceededError
+  )[];
 }
 
 function isSerializedHttpResponseError(error: unknown): error is SerializedHttpResponseError {
@@ -128,6 +138,10 @@ function isSerializedParameterValidationError(error: unknown): error is Serializ
   );
 }
 
+function isSerializedBatchGasLimitExceededError(error: unknown): error is SerializedBatchGasLimitExceededError {
+  return isObject(error) && 'name' in error && error.name === 'BatchGasLimitExceededError';
+}
+
 export function isSerializedDryRunError(error: unknown): error is SerializedDryRunError {
   return (
     isObject(error) &&
@@ -137,7 +151,8 @@ export function isSerializedDryRunError(error: unknown): error is SerializedDryR
       err =>
         isSerializedHttpResponseError(err) ||
         isSerializedTezosOperationError(err) ||
-        isSerializedParameterValidationError(err)
+        isSerializedParameterValidationError(err) ||
+        isSerializedBatchGasLimitExceededError(err)
     )
   );
 }
@@ -149,28 +164,18 @@ function hasErrorPattern(error: SerializedTezosOperationError, patterns: readonl
   return error.errors.some(err => patterns.some(pattern => err.id.includes(pattern)));
 }
 
-function isTezosGenericOperationErrorArray(body: unknown): body is TezosGenericOperationError[] {
-  return (
-    Array.isArray(body) &&
-    body.length > 0 &&
-    body.every(
-      item =>
-        isObject(item) && 'kind' in item && 'id' in item && typeof item.kind === 'string' && typeof item.id === 'string'
-    )
-  );
+function tryMakeTezosOperationError(error: SerializedHttpResponseError) {
+  const body = parseJsonBody(error.body);
+
+  return isTezosGenericOperationErrorArray(body) ? new TezosOperationError(body, '', []) : undefined;
 }
 
-function tryMakeTezosOperationError(error: SerializedHttpResponseError) {
-  try {
-    const body = JSON.parse(error.body);
-    if (isTezosGenericOperationErrorArray(body)) {
-      return new TezosOperationError(body, '', []);
-    }
-  } catch {
-    // ignore parse errors
-  }
+export function parseHttpResponseErrorBody(error: unknown): object | undefined {
+  if (!(error instanceof HttpResponseError) && !isSerializedHttpResponseError(error)) return undefined;
 
-  return undefined;
+  const body = parseJsonBody(error.body);
+
+  return isObject(body) ? body : undefined;
 }
 
 export const getHumanTezosErrorMessage = (
@@ -238,6 +243,10 @@ export const getHumanTezosErrorMessage = (
 
     const serializedParameterValidationError = error.error.find(isSerializedParameterValidationError);
     if (serializedParameterValidationError) {
+      return ERROR_MESSAGES.invalidParams;
+    }
+
+    if (error.error.some(isSerializedBatchGasLimitExceededError)) {
       return ERROR_MESSAGES.invalidParams;
     }
 

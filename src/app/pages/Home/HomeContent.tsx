@@ -8,7 +8,7 @@ import { DepositModal } from 'app/templates/DepositModal';
 import { ExploreActionButtonsBar } from 'app/templates/ExploreActionButtons';
 import { KoloCardWidgetModal } from 'app/templates/KoloCard/KoloCardWidgetModal';
 import { toastSuccess } from 'app/toaster';
-import { useInitToastMessage } from 'lib/temple/front/toasts-context';
+import { useInitToastParams } from 'lib/temple/front/toasts-context';
 import { useBooleanState } from 'lib/ui/hooks';
 
 import { ContentBody } from './content-body';
@@ -17,21 +17,22 @@ import { NotificationBanner } from './notification-banner';
 import { TotalEquityBanner } from './total-equity-banner';
 
 export const HomeContent = () => {
-  const [initToastMessage, setInitToastMessage] = useInitToastMessage();
+  const [initToastParams, setInitToastParams] = useInitToastParams();
 
   const [depositModalOpened, openDepositModal, closeDepositModal] = useBooleanState(false);
   const [cryptoCardModalOpened, openCryptoCardModal, closeCryptoCardModal] = useBooleanState(false);
 
   useEffect(() => {
-    if (!initToastMessage) return;
+    if (!initToastParams) return;
 
     const timeout = setTimeout(() => {
-      setInitToastMessage(undefined);
-      toastSuccess(initToastMessage);
+      const { title, textBold, txDataOrLink } = initToastParams;
+      setInitToastParams(undefined);
+      toastSuccess(title, textBold, txDataOrLink);
     }, 100);
 
     return () => clearTimeout(timeout);
-  }, [initToastMessage, setInitToastMessage]);
+  }, [initToastParams, setInitToastParams]);
 
   return (
     <PageLayout Header={AppHeader} bgWhite={false} contentPadding={false}>

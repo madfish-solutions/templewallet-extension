@@ -74,17 +74,17 @@ export enum OrderStatusEnum {
 
 export interface GetRateRequestData {
   coinFrom: string;
-  coinFromNetwork: string;
+  networkFrom: string;
   coinTo: string;
-  coinToNetwork: string;
+  networkTo: string;
   amount: number;
 }
 
 export interface CrossChainRateRequestData {
   coinFrom: string;
-  coinFromNetwork: string;
+  networkFrom: string;
   coinTo: string;
-  coinToNetwork: string;
+  networkTo: string;
   /** String to preserve precision for 18-decimal tokens. */
   amount: string;
 }

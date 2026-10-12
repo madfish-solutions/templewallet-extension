@@ -10,20 +10,26 @@ interface EnablingSettingProps {
   description: ReactNode;
   onChange: (value: boolean, event: React.ChangeEvent<HTMLInputElement>) => void;
   testID: string;
+  children?: ReactNode;
 }
 
-export const EnablingSetting = memo(({ title, enabled, description, onChange, testID }: EnablingSettingProps) => (
-  <SettingsCellGroup>
-    <SettingsCellSingle Component="div" isLast={false} cellName={title}>
-      <ToggleSwitch checked={enabled} onChange={onChange} testID={testID} />
-    </SettingsCellSingle>
+export const EnablingSetting = memo(
+  ({ title, enabled, description, onChange, testID, children }: EnablingSettingProps) => (
+    <SettingsCellGroup>
+      <SettingsCellSingle Component="div" isLast={false} cellName={title}>
+        <ToggleSwitch checked={enabled} onChange={onChange} testID={testID} />
+      </SettingsCellSingle>
 
-    <SettingsCellSingle
-      Component="div"
-      cellName={description}
-      cellNameClassName="text-grey-1 text-font-description font-normal"
-    >
-      {null}
-    </SettingsCellSingle>
-  </SettingsCellGroup>
-));
+      <SettingsCellSingle
+        Component="div"
+        isLast={!children}
+        cellName={description}
+        cellNameClassName="text-grey-1 text-font-description font-normal"
+      >
+        {null}
+      </SettingsCellSingle>
+
+      {children}
+    </SettingsCellGroup>
+  )
+);

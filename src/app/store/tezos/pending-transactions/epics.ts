@@ -1,17 +1,32 @@
 import { capitalize } from 'lodash';
 import { Action } from 'redux';
 import { Epic, combineEpics } from 'redux-observable';
-import { EMPTY, concat, delay, exhaustMap, from, mergeMap, of, withLatestFrom } from 'rxjs';
+import {
+  EMPTY,
+  NEVER,
+  catchError,
+  concat,
+  delay,
+  exhaustMap,
+  from,
+  map,
+  mergeMap,
+  of,
+  race,
+  withLatestFrom
+} from 'rxjs';
 import { ofType } from 'ts-action-operators';
 
 import { RootState } from 'app/store/root-state.type';
 import { toastError, toastSuccess } from 'app/toaster';
 import { fetchGetOperationsByHash, isKnownChainId } from 'lib/apis/tzkt';
 import { refetchOnce429 } from 'lib/apis/utils';
+import { TempleTezosChainId } from 'lib/temple/types';
 import {
   TEZOS_OPERATION_NOT_CONFIRMED_ERROR_MSG,
   confirmTezosOperation,
-  getTezosReadOnlyRpcClient
+  getTezosReadOnlyRpcClient,
+  loadTezosNetworkTiming
 } from 'temple/tezos';
 import { PendingTransactionStatus } from 'temple/types';
 
@@ -25,6 +40,36 @@ import { TransactionState } from './state';
 import { selectAllPendingTezosTransactions } from './utils';
 
 const MAX_PENDING_TRANSACTION_AGE = 60_000;
+
+type TxStatusInput = Pick<TransactionState, 'network' | 'txHash' | 'startingBlockLevel'>;
+
+const getRpcTxStatus$ = ({ network, txHash, startingBlockLevel }: TxStatusInput) =>
+  from(loadTezosNetworkTiming(network)).pipe(
+    mergeMap(({ confirmationTimeoutMs }) =>
+      confirmTezosOperation(getTezosReadOnlyRpcClient(network), txHash, {
+        startingBlockLevel,
+        timeoutMs: confirmationTimeoutMs
+      })
+    ),
+    map((): PendingTransactionStatus => 'DONE'),
+    catchError(error =>
+      of<PendingTransactionStatus>(
+        error instanceof Error && error.message === TEZOS_OPERATION_NOT_CONFIRMED_ERROR_MSG ? 'FAILED' : 'PENDING'
+      )
+    )
+  );
+
+const getTzktTxStatus$ = (chainId: TempleTezosChainId, txHash: string) =>
+  from(refetchOnce429(() => fetchGetOperationsByHash(chainId, txHash))).pipe(
+    mergeMap(operations => {
+      if (operations.length === 0) return NEVER;
+
+      return of<PendingTransactionStatus>(
+        operations.some(operation => operation.status === 'failed') ? 'FAILED' : 'DONE'
+      );
+    }),
+    catchError(() => NEVER)
+  );
 
 type HandleTxStatusInput = Pick<
   TransactionState,
@@ -83,32 +128,12 @@ const monitorPendingTransactionsEpic: Epic<Action, Action, RootState> = (action$
           return EMPTY;
         case 'FAILED':
           return of(removePendingTezosTransactionsAction([transaction.txHash]));
-        default:
+        default: {
           const lastCheckedAt = Date.now();
+          const rpcStatus$ = getRpcTxStatus$(transaction);
+          const status$ = isKnownChainId(chainId) ? race(getTzktTxStatus$(chainId, txHash), rpcStatus$) : rpcStatus$;
 
-          return from(
-            new Promise<PendingTransactionStatus>(resolve => {
-              if (isKnownChainId(chainId)) {
-                refetchOnce429(() => fetchGetOperationsByHash(chainId, transaction.txHash)).then(
-                  operations =>
-                    void (
-                      operations.length > 0 &&
-                      resolve(operations.some(operation => operation.status === 'failed') ? 'FAILED' : 'DONE')
-                    )
-                );
-              }
-
-              confirmTezosOperation(getTezosReadOnlyRpcClient(network), txHash)
-                .then(() => resolve('DONE'))
-                .catch(error =>
-                  resolve(
-                    error instanceof Error && error.message === TEZOS_OPERATION_NOT_CONFIRMED_ERROR_MSG
-                      ? 'FAILED'
-                      : 'PENDING'
-                  )
-                );
-            })
-          ).pipe(
+          return status$.pipe(
             withLatestFrom(state$),
             mergeMap(([status, state]) => {
               const transactionBeingWatched = state.pendingTezosTransactions?.transactionBeingWatched === txHash;
@@ -130,6 +155,7 @@ const monitorPendingTransactionsEpic: Epic<Action, Action, RootState> = (action$
               }
             })
           );
+        }
       }
     })
   );
@@ -146,9 +172,10 @@ const cleanupOutdatedTezosPendingTransactionsEpic: Epic<Action, Action, RootStat
         .filter(tx => now - tx.submittedAt > MAX_PENDING_TRANSACTION_AGE)
         .map(tx => tx.txHash);
 
-      return outdatedTxHashes.length > 0
-        ? of(removePendingTezosTransactionsAction(outdatedTxHashes))
-        : of(monitorPendingTezosTransactionsAction());
+      return concat(
+        outdatedTxHashes.length > 0 ? of(removePendingTezosTransactionsAction(outdatedTxHashes)) : EMPTY,
+        of(monitorPendingTezosTransactionsAction())
+      );
     })
   );
 

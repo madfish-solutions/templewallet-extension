@@ -1,4 +1,4 @@
-import { FC, useCallback, useEffect, useState } from 'react';
+import { FC, startTransition, useCallback, useEffect, useState } from 'react';
 
 import { SubmitHandler, useForm } from 'react-hook-form';
 
@@ -7,23 +7,27 @@ import { StyledButton } from 'app/atoms/StyledButton';
 import { TextButton } from 'app/atoms/TextButton';
 import { useSearchParamsBoolean } from 'app/hooks/use-search-params-boolean';
 import { useShouldShowIntroModals } from 'app/hooks/use-should-show-v2-intro-modal';
+import { ReactComponent as ChevronRightIcon } from 'app/icons/base/chevron_right.svg';
 import { ReactComponent as LockFillIcon } from 'app/icons/base/lock_fill.svg';
 import { PlanetsBgPageLayout } from 'app/layouts/planets-bg-page-layout';
 import { dispatch } from 'app/store';
 import { getUserTestingGroupNameActions } from 'app/store/ab-testing/actions';
 import { useUserTestingGroupNameSelector } from 'app/store/ab-testing/selectors';
 import { DoubleRewardsEngagementModal } from 'app/templates/DoubleRewardsEngagementModal';
+import { FineTuneRewardsModal } from 'app/templates/FineTuneRewardsModal';
 import { useFormAnalytics } from 'lib/analytics';
 import { ABTestGroup } from 'lib/apis/temple';
-import { DEFAULT_PASSWORD_INPUT_PLACEHOLDER } from 'lib/constants';
+import { DEFAULT_PASSWORD_INPUT_PLACEHOLDER, SHOULD_SHOW_FINE_TUNE_REWARDS_MODAL_STORAGE_KEY } from 'lib/constants';
 import { USER_ACTION_TIMEOUT } from 'lib/fixed-times';
 import { T, t } from 'lib/i18n';
-import { useTempleClient } from 'lib/temple/front';
+import { useStorage, useTempleClient } from 'lib/temple/front';
 import { loadBackupCredentials } from 'lib/temple/front/mnemonic-to-backup-keeper';
+import { useInitToastParams } from 'lib/temple/front/toasts-context';
 import { TempleSharedStorageKey } from 'lib/temple/types';
 import { useShakeOnErrorTrigger } from 'lib/ui/hooks/use-shake-on-error-trigger';
 import { useLocalStorage } from 'lib/ui/local-storage';
 import { delay } from 'lib/utils';
+import { Link } from 'lib/woozie';
 
 import { ForgotPasswordModal } from './forgot-password-modal';
 import { ResetExtensionModal } from './reset-extension-modal';
@@ -58,12 +62,28 @@ const getTimeLeft = (start: number, end: number, now: number) => {
 const Unlock: FC<UnlockProps> = ({ canImportNew = true }) => {
   const { unlock } = useTempleClient();
   const formAnalytics = useFormAnalytics('UnlockWallet');
+  const [, setInitToastParams] = useInitToastParams();
 
   useShouldShowIntroModals(true);
 
   const [pageModalName, setPageModalName] = useState<PageModalName | null>(null);
   const { value: doubleRewardsEngagementModalOpen, setFalse: closeDoubleRewardsEngagementModal } =
     useSearchParamsBoolean('doubleRewardsEngagementModal');
+  const [doubleRewardsEngagementModalHasBeenOpen] = useState(doubleRewardsEngagementModalOpen);
+  const [initialShouldShowFineTuneRewardsModal, setInitialShouldShowFineTuneRewardsModal] = useStorage<boolean>(
+    SHOULD_SHOW_FINE_TUNE_REWARDS_MODAL_STORAGE_KEY
+  );
+
+  const [shouldShowFineTuneRewardsModal, setShouldShowFineTuneRewardsModal] = useState(
+    initialShouldShowFineTuneRewardsModal
+  );
+  useEffect(
+    () =>
+      startTransition(() =>
+        setShouldShowFineTuneRewardsModal(prevValue => prevValue ?? initialShouldShowFineTuneRewardsModal)
+      ),
+    [initialShouldShowFineTuneRewardsModal]
+  );
   const [attempt, setAttempt] = useLocalStorage<number>(TempleSharedStorageKey.PasswordAttempts, 1);
   const [timelock, setTimeLock] = useLocalStorage<number>(TempleSharedStorageKey.TimeLock, 0);
   const lockLevel = LOCK_TIME * Math.floor(attempt / 3);
@@ -84,15 +104,31 @@ const Unlock: FC<UnlockProps> = ({ canImportNew = true }) => {
 
   const passwordShakeTrigger = useShakeOnErrorTrigger(formState.submitCount, errors.password);
 
-  const setPasswordErrorMessage = useCallback(
-    async (message: string) => {
-      // Human delay.
-      await delay();
+  const setPasswordErrorMessage = async (message: string) => {
+    // Human delay.
+    await delay();
 
-      setError('password', { type: 'submit-error', message });
-    },
-    [setError]
-  );
+    setError('password', { type: 'submit-error', message });
+  };
+
+  const handleFineTuneRewardsModalClose = () => {
+    setShouldShowFineTuneRewardsModal(false);
+    setInitToastParams({
+      title: 'You’re earning rewards from Promo',
+      textBold: true,
+      txDataOrLink: (
+        <Link
+          to="/settings/additional-settings"
+          className="flex items-center px-1 py-0.5 text-secondary text-font-num-12 font-semibold"
+        >
+          <T id="settings" />
+          <IconBase Icon={ChevronRightIcon} size={12} className="text-secondary" />
+        </Link>
+      )
+    });
+  };
+
+  const handleFineTuneRewardsModalShown = () => setInitialShouldShowFineTuneRewardsModal(false);
 
   const onSubmit = useCallback<SubmitHandler<FormData>>(
     async ({ password }) => {
@@ -226,6 +262,11 @@ const Unlock: FC<UnlockProps> = ({ canImportNew = true }) => {
       <DoubleRewardsEngagementModal
         opened={doubleRewardsEngagementModalOpen}
         onRequestClose={closeDoubleRewardsEngagementModal}
+      />
+      <FineTuneRewardsModal
+        opened={!!shouldShowFineTuneRewardsModal && !doubleRewardsEngagementModalHasBeenOpen}
+        onClose={handleFineTuneRewardsModalClose}
+        onShown={handleFineTuneRewardsModalShown}
       />
     </>
   );

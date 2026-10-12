@@ -1,6 +1,7 @@
-import React, { useCallback } from 'react';
+import React, { ReactNode, useCallback, useRef } from 'react';
 
 import BigNumber from 'bignumber.js';
+import clsx from 'clsx';
 import { SubmitHandler, useFormContext, useFormState } from 'react-hook-form';
 
 import { FadeTransition } from 'app/a11y/FadeTransition';
@@ -12,7 +13,7 @@ import { CurrentAccount } from 'app/templates/current-account';
 import { FeeSummary } from 'app/templates/fee-summary';
 import { LedgerApprovalModal } from 'app/templates/ledger-approval-modal';
 import { TransactionTabs } from 'app/templates/TransactionTabs';
-import { Tab, TxParamsFormData } from 'app/templates/TransactionTabs/types';
+import { EvmTxParamsFormData, Tab, TxParamsFormData } from 'app/templates/TransactionTabs/types';
 import { T } from 'lib/i18n';
 import { DisplayedFeeOptions, FeeOptionLabel } from 'lib/temple/front/estimation-data-providers';
 import { LedgerOperationState } from 'lib/ui';
@@ -50,6 +51,11 @@ interface BaseContentProps<T extends TxParamsFormData> {
   displayedStorageFee?: string;
   displayedFeeOptions?: DisplayedFeeOptions;
   submitDisabled?: boolean;
+  readOnlyFees?: boolean;
+  retry?: boolean;
+  actionsNotice?: ReactNode;
+  evmGasPriceOverride?: string;
+  evmAdvancedValues?: Partial<EvmTxParamsFormData>;
 }
 
 export const BaseContent = <T extends TxParamsFormData>({
@@ -73,17 +79,42 @@ export const BaseContent = <T extends TxParamsFormData>({
   displayedStorageFee,
   displayedFeeOptions,
   bridgeData,
-  submitDisabled
+  submitDisabled,
+  readOnlyFees,
+  retry,
+  actionsNotice,
+  evmGasPriceOverride,
+  evmAdvancedValues
 }: BaseContentProps<T>) => {
   const { control } = useFormContext<T>();
   // React Compiler caches `<FormProvider {...form}>` on RHF's stable form, so context consumers stop re-rendering
   const formState = useFormState<T>({ control });
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   const goToFeeTab = useCallback(() => setSelectedTab('fee'), [setSelectedTab]);
+  const actionButtons = (
+    <>
+      <StyledButton size="L" className="w-full" color="primary-low" onClick={onCancel}>
+        <T id="cancel" />
+      </StyledButton>
+
+      <StyledButton
+        type="submit"
+        form="confirm-form"
+        color="primary"
+        size="L"
+        className="w-full"
+        loading={submitLoadingOverride ?? formState.isSubmitting}
+        disabled={!formState.isValid || Boolean(submitDisabled)}
+      >
+        <T id={latestSubmitError || retry ? 'retry' : 'confirm'} />
+      </StyledButton>
+    </>
+  );
 
   return (
     <>
-      <div className="px-4 flex flex-col flex-1 overflow-y-scroll">
+      <div ref={scrollContainerRef} className="px-4 flex flex-col flex-1 overflow-y-scroll">
         <div className="my-4">
           {someBalancesChanges ? (
             <FadeTransition>
@@ -92,15 +123,24 @@ export const BaseContent = <T extends TxParamsFormData>({
                 chain={network}
                 bridgeData={bridgeData}
                 footer={
-                  <FeeSummary
-                    network={network}
-                    assetSlug={nativeAssetSlug}
-                    gasFee={displayedFee}
-                    storageFee={displayedStorageFee}
-                    protocolFee={bridgeData?.protocolFee}
-                    onOpenFeeTab={goToFeeTab}
-                    embedded
-                  />
+                  readOnlyFees && displayedFee === undefined ? (
+                    <div className="flex justify-between py-2 text-grey-1 text-font-description-bold">
+                      <span className="p-1">
+                        <T id="totalFee" />
+                      </span>
+                      <span className="py-1">—</span>
+                    </div>
+                  ) : (
+                    <FeeSummary
+                      network={network}
+                      assetSlug={nativeAssetSlug}
+                      gasFee={displayedFee}
+                      storageFee={displayedStorageFee}
+                      protocolFee={bridgeData?.protocolFee}
+                      onOpenFeeTab={goToFeeTab}
+                      embedded
+                    />
+                  )
                 }
               />
             </FadeTransition>
@@ -128,25 +168,28 @@ export const BaseContent = <T extends TxParamsFormData>({
           bridgeData={bridgeData}
           formId="confirm-form"
           tabsName="confirm-send-tabs"
+          readOnlyFees={readOnlyFees}
+          evmGasPriceOverride={evmGasPriceOverride}
+          evmAdvancedValues={evmAdvancedValues}
         />
       </div>
 
-      <ActionsButtonsBox flexDirection="row" shouldChangeBottomShift={false}>
-        <StyledButton size="L" className="w-full" color="primary-low" onClick={onCancel}>
-          <T id="cancel" />
-        </StyledButton>
-
-        <StyledButton
-          type="submit"
-          form="confirm-form"
-          color="primary"
-          size="L"
-          className="w-full"
-          loading={submitLoadingOverride ?? formState.isSubmitting}
-          disabled={!formState.isValid || Boolean(submitDisabled)}
+      <ActionsButtonsBox
+        flexDirection="col"
+        shouldChangeBottomShift={false}
+        className="gap-0!"
+        scrollContainerRef={scrollContainerRef}
+      >
+        <div
+          className={clsx(
+            'relative z-0 transition-all duration-300 ease-in-out',
+            actionsNotice ? 'h-10 opacity-100' : 'h-0 opacity-0 overflow-hidden pointer-events-none'
+          )}
+          aria-hidden={!actionsNotice}
         >
-          <T id={latestSubmitError ? 'retry' : 'confirm'} />
-        </StyledButton>
+          {actionsNotice}
+        </div>
+        <div className="relative z-1 flex w-full gap-2.5 bg-white">{actionButtons}</div>
       </ActionsButtonsBox>
 
       <LedgerApprovalModal state={ledgerApprovalModalState} onClose={onLedgerModalClose} chainKind={network.kind} />

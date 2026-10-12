@@ -29,9 +29,9 @@ export const useCrossChainRate = ({ from, to, amount }: RateArgs) => {
     () =>
       queryCrossChainRate({
         coinFrom: from.exolixCoin,
-        coinFromNetwork: from.exolixNetwork,
+        networkFrom: from.exolixNetwork,
         coinTo: to.exolixCoin,
-        coinToNetwork: to.exolixNetwork,
+        networkTo: to.exolixNetwork,
         amount: probeAmount
       }),
     { refreshInterval: 10_000, revalidateOnFocus: false, dedupingInterval: 5_000 }

@@ -13,6 +13,7 @@ import { buildAdClickAnalyticsProperties } from '../utils';
 
 interface Props {
   accountPkh: string;
+  className?: string;
   href: string;
   isVisible: boolean;
   imageSrc: string;
@@ -27,6 +28,7 @@ interface Props {
 export const TextPromotionView = memo<Props>(
   ({
     accountPkh,
+    className,
     imageSrc,
     href,
     headline,
@@ -60,7 +62,7 @@ export const TextPromotionView = memo<Props>(
         testID={PartnersPromotionSelectors.promoLink}
         testIDProperties={testIDProperties}
       >
-        <div className={clsx(customPadding ? 'p-3' : 'p-2', 'w-full flex-1 flex gap-2 pr-9')}>
+        <div className={clsx(customPadding ? 'p-3' : 'p-2', 'w-full flex-1 flex gap-2 pr-9', className)}>
           <div className="shrink-0">
             <img
               className={clsx(customPadding ? 'p-0.5' : 'p-1', 'w-10 h-auto rounded-circle')}

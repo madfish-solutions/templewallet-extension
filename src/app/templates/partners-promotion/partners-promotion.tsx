@@ -8,7 +8,7 @@ import { useAdsViewerPkh } from 'app/hooks/use-ads-viewer-addresses';
 import { useRewardsAddresses } from 'app/hooks/use-rewards-addresses';
 import { hidePromotionAction } from 'app/store/partners-promotion/actions';
 import {
-  useShouldShowPartnersPromoSelector,
+  useShouldShowInWalletAdsSelector,
   usePromotionHidingTimestampSelector
 } from 'app/store/partners-promotion/selectors';
 import { AdsProviderTitle } from 'lib/ads';
@@ -64,7 +64,7 @@ export const PartnersPromotion = memo<PartnersPromotionProps>(({ variant, id, pa
   const { evmAddress: evmViewerAddress } = useAdsViewerPkh();
   const dispatch = useDispatch();
   const hiddenAt = usePromotionHidingTimestampSelector(id);
-  const shouldShowPartnersPromo = useShouldShowPartnersPromoSelector();
+  const shouldShowPartnersPromo = useShouldShowInWalletAdsSelector();
 
   const [isHiddenByTimeout, setIsHiddenByTimeout] = useState(shouldBeHiddenByTimeout(hiddenAt));
   const [stepIndex, setStepIndex] = useState(0);

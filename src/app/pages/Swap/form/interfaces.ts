@@ -45,7 +45,7 @@ interface EvmSwapReviewData {
 interface TezosSwapReviewData {
   opParams: WalletParamsWithKind[];
   cashbackInTkey?: string;
-  onConfirm: SyncFn<BatchWalletOperation | undefined>;
+  onConfirm: (operation: BatchWalletOperation | undefined, startingBlockLevel: number) => void;
   minimumReceived: {
     amount: string;
     symbol: string;

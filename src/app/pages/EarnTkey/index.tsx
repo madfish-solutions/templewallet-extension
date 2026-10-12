@@ -7,7 +7,7 @@ import { ReactComponent as ScheduleIcon } from 'app/icons/base/schedule.svg';
 import { EarnPromoAdvantageItem, EarnPromoLayout } from 'app/layouts/EarnPromoLayout';
 import { dispatch } from 'app/store';
 import { togglePartnersPromotionAction } from 'app/store/partners-promotion/actions';
-import { useShouldShowPartnersPromoSelector } from 'app/store/partners-promotion/selectors';
+import { useShouldShowInWalletAdsSelector } from 'app/store/partners-promotion/selectors';
 import { toastSuccess } from 'app/toaster';
 import { T, t } from 'lib/i18n';
 import { Lottie } from 'lib/ui/react-lottie';
@@ -32,7 +32,7 @@ const advantages: EarnPromoAdvantageItem[] = [
 ];
 
 export const EarnTkeyPage = memo(() => {
-  const isEnabled = useShouldShowPartnersPromoSelector();
+  const isEnabled = useShouldShowInWalletAdsSelector();
 
   const handleStartEarningClick = useCallback(() => {
     dispatch(togglePartnersPromotionAction(true));

@@ -221,5 +221,15 @@ export const MIGRATIONS: MigrationManifest = {
     };
 
     return newState;
+  },
+  '9': (persistedState: PersistedState) => {
+    if (!persistedState) return persistedState;
+    const state = persistedState as TypedPersistedRootState;
+    return {
+      ...state,
+      pendingEvmTransactions: state.pendingEvmTransactions
+        ? { ...state.pendingEvmTransactions, batches: {} }
+        : state.pendingEvmTransactions
+    };
   }
 };

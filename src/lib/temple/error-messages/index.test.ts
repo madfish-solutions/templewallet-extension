@@ -1,3 +1,8 @@
+import { HttpResponseError, STATUS_CODE } from '@taquito/http-utils';
+import { encodeErrorResult, parseAbi } from 'viem';
+
+import { AlchemyRpcError } from 'lib/apis/temple/endpoints/evm/alchemy-wallet';
+import { t } from 'lib/i18n';
 import { IntercomError } from 'lib/intercom/helpers';
 
 import { ERROR_MESSAGES } from './messages';
@@ -56,7 +61,60 @@ import {
 
 import { getHumanErrorMessage } from './index';
 
+const TEZOS_X_SIMULATE_URL =
+  'https://michelson.previewnet.tezosx.nomadic-labs.com/chains/main/blocks/head/helpers/scripts/simulate_operation';
+
+const temporaryFailureBody = JSON.stringify([
+  { kind: 'temporary', id: 'failure', msg: 'No value found at the entrypoint output path /base/__simulation/result' }
+]);
+
+const temporaryFailureError = new HttpResponseError(
+  'Http error response: (500)',
+  STATUS_CODE.INTERNAL_SERVER_ERROR,
+  'Internal Server Error',
+  temporaryFailureBody,
+  TEZOS_X_SIMULATE_URL
+);
+
 describe('getHumanErrorMessage', () => {
+  describe('Alchemy Wallet API', () => {
+    it('maps transfer amount exceeds allowance to an allowance error', () => {
+      expect(getHumanErrorMessage(new AlchemyRpcError(-32521, 'ERC20: transfer amount exceeds allowance'))).toBe(
+        ERROR_MESSAGES.allowanceTooLow
+      );
+    });
+
+    it.each([
+      [-32000, 'precheck failed: sender balance is too low', ERROR_MESSAGES.lowGasBalance],
+      [-32521, 'ERC20: transfer amount exceeds balance', ERROR_MESSAGES.balance],
+      [-32521, 'execution reverted', ERROR_MESSAGES.executionFailed],
+      [-32602, 'replacement underpriced', ERROR_MESSAGES.feeTooLow],
+      [-32507, 'invalid account signature', t('alchemySignatureError')],
+      [-32000, 'precheck failed: callGasLimit is too low', t('alchemyGasEstimateError')],
+      [-32602, 'This network requires sponsored operations', t('alchemySponsorshipRequiredError')],
+      [-32602, 'EIP-7702 is not enabled on Polygon', t('alchemyUnsupportedNetworkError')]
+    ])('maps code %s and message %s', (code, message, expected) => {
+      expect(getHumanErrorMessage(new AlchemyRpcError(code, message))).toBe(expected);
+    });
+
+    it('uses a nested validation reason', () => {
+      expect(getHumanErrorMessage(new AlchemyRpcError(-32500, 'validation reverted', { reason: 'AA21' }))).toBe(
+        ERROR_MESSAGES.lowGasBalance
+      );
+    });
+
+    it('decodes a standard revert reason', () => {
+      const revertData = encodeErrorResult({
+        abi: parseAbi(['error Error(string)']),
+        errorName: 'Error',
+        args: ['ERC20: insufficient allowance']
+      });
+      expect(getHumanErrorMessage(new AlchemyRpcError(-32521, 'execution reverted', { revertData }))).toBe(
+        ERROR_MESSAGES.allowanceTooLow
+      );
+    });
+  });
+
   describe('EVM dApps operations', () => {
     it('should return the message about low gas balance when the ETH balance is too low to pay for gas', () => {
       expect(getHumanErrorMessage(cannotAffordGas)).toBe(ERROR_MESSAGES.lowGasBalance);
@@ -150,6 +208,10 @@ describe('getHumanErrorMessage', () => {
           emptyImplicitDelegatedContractError
         ].map(error => getHumanErrorMessage(error))
       ).toEqual(Array(4).fill(ERROR_MESSAGES.lowGasBalance));
+    });
+
+    it('should return the default message for a generic temporary node failure, not the execution failure one', () => {
+      expect(getHumanErrorMessage(temporaryFailureError)).toBe(ERROR_MESSAGES.default);
     });
 
     describe('FA1.2 tokens operations', () => {

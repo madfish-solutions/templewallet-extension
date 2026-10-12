@@ -88,7 +88,18 @@ export const UpdateModal = () => {
   };
 
   const handleCloseModal = () =>
-    setModalToShow(prevModal => (prevModal ? modalsNames[modalsNames.indexOf(prevModal) + 1] : undefined));
+    setModalToShow(prevModal => {
+      if (!prevModal) {
+        return undefined;
+      }
+
+      const prevModalIndex = modalsNames.indexOf(prevModal);
+      const nextModalSliceIndex = modalsNames
+        .slice(prevModalIndex + 1)
+        .findIndex(modalName => data[updateModals[modalName].storageKey]);
+
+      return nextModalSliceIndex === -1 ? undefined : modalsNames[prevModalIndex + nextModalSliceIndex + 1];
+    });
 
   const Component = modalToShow && updateModals[modalToShow].Component;
 

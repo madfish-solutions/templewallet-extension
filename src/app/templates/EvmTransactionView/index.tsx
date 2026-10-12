@@ -32,10 +32,11 @@ interface EvmTransactionViewProps {
   setFinalEvmTransaction: ReactSetStateFn<EvmTransactionRequestWithSender>;
   onSubmit: (tx?: EvmTransactionRequestWithSender) => void;
   minAllowance?: bigint;
+  allowanceEditable?: boolean;
 }
 
 export const EvmTransactionView = memo<EvmTransactionViewProps>(
-  ({ payload, formId, error, setError, setFinalEvmTransaction, onSubmit, minAllowance }) => (
+  ({ payload, formId, error, setError, setFinalEvmTransaction, onSubmit, minAllowance, allowanceEditable }) => (
     <EvmEstimationDataProvider>
       <EvmTransactionViewBody
         error={error}
@@ -44,6 +45,7 @@ export const EvmTransactionView = memo<EvmTransactionViewProps>(
         formId={formId}
         setFinalEvmTransaction={setFinalEvmTransaction}
         minAllowance={minAllowance}
+        allowanceEditable={allowanceEditable}
         onSubmit={onSubmit}
       />
     </EvmEstimationDataProvider>
@@ -51,7 +53,7 @@ export const EvmTransactionView = memo<EvmTransactionViewProps>(
 );
 
 const EvmTransactionViewBody = memo<EvmTransactionViewProps>(
-  ({ payload, formId, error, setFinalEvmTransaction, setError, onSubmit, minAllowance }) => {
+  ({ payload, formId, error, setFinalEvmTransaction, setError, onSubmit, minAllowance, allowanceEditable }) => {
     const chains = useAllEvmChains();
     const { chainId, req, estimationData: serializedEstimationData, error: estimationError } = payload;
     const parsedChainId = Number(chainId);
@@ -193,6 +195,7 @@ const EvmTransactionViewBody = memo<EvmTransactionViewProps>(
                 setFinalEvmTransaction={setFinalEvmTransaction}
                 onLoadingState={setApprovesLoading}
                 minAllowance={minAllowance}
+                allowanceEditable={allowanceEditable}
                 footer={footer}
               />
             ) : undefined

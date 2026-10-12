@@ -3,7 +3,7 @@ import { useEffect, useRef } from 'react';
 import retry from 'async-retry';
 
 import { useDealsEnabledSelector } from 'app/store/deals/selectors';
-import { useShouldShowPartnersPromoSelector } from 'app/store/partners-promotion/selectors';
+import { useShouldShowInWalletAdsSelector } from 'app/store/partners-promotion/selectors';
 import { useUserIdSelector } from 'app/store/settings/selectors';
 import { performLinkingOfAdsImpressions } from 'lib/ads/link-ads-impressions';
 import { ADS_IMPRESSIONS_LINKED_V2_STORAGE_KEY } from 'lib/constants';
@@ -15,7 +15,7 @@ import { useRewardsAddresses } from './use-rewards-addresses';
 export const useAdsImpressionsLinking = () => {
   const adsViewerAddresses = useRewardsAddresses();
   const userId = useUserIdSelector();
-  const promoEnabled = useShouldShowPartnersPromoSelector();
+  const promoEnabled = useShouldShowInWalletAdsSelector();
   const isDealsEnabled = useDealsEnabledSelector();
   const [linked, setLinked] = usePassiveStorage<boolean>(ADS_IMPRESSIONS_LINKED_V2_STORAGE_KEY);
   const runningRef = useRef(false);

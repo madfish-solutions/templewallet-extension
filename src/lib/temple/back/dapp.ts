@@ -52,7 +52,7 @@ import { intercom } from './defaults';
 import { dryRunOpParams } from './dryrun';
 import { RequestConfirmParams, requestConfirm as genericRequestConfirm } from './request-confirm';
 import { withUnlocked } from './store';
-import { Vault } from './vault';
+import { SentTezosOperation, Vault } from './vault';
 
 const HEX_PATTERN = /^[0-9a-fA-F]+$/;
 const TEZ_MSG_SIGN_PATTERN = /^0501[a-f0-9]{8}54657a6f73205369676e6564204d6573736167653a20[a-f0-9]*$/;
@@ -205,7 +205,7 @@ const handleIntercomRequest = async (
     const { modifiedStorageLimit, modifiedTotalFee, confirmed } = confirmReq;
     if (confirmed) {
       try {
-        const op = await withUnlocked(({ vault }) =>
+        const sentOperation = await withUnlocked(({ vault }) =>
           vault.sendOperations(
             dApp.pkh,
             network,
@@ -213,20 +213,21 @@ const handleIntercomRequest = async (
           )
         );
 
-        safeGetChain(network.rpcBaseURL, op);
+        safeGetChain(network.rpcBaseURL, sentOperation);
 
         intercom.broadcast({
           type: TempleMessageType.TempleDAppTransactionSent,
           origin,
           chainType: TempleChainKind.Tezos,
           network,
-          txHash: op.hash,
+          txHash: sentOperation.hash,
+          startingBlockLevel: sentOperation.startingBlockLevel,
           accountPkh: dApp.pkh
         });
 
         resolve({
           type: TempleDAppMessageType.OperationResponse,
-          opHash: op.hash
+          opHash: sentOperation.hash
         });
       } catch (err: any) {
         if (err instanceof TezosOperationError) {
@@ -248,10 +249,12 @@ const handleIntercomRequest = async (
   return undefined;
 };
 
-const safeGetChain = async (networkRpc: string, op: any) => {
+const safeGetChain = async (networkRpc: string, { hash, results }: SentTezosOperation) => {
+  if (!results) return;
+
   try {
     const chainId = await loadTezosChainId(networkRpc);
-    await addLocalOperation(chainId, op.hash, op.results);
+    await addLocalOperation(chainId, hash, results);
   } catch {}
 };
 

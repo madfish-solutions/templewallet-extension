@@ -16,7 +16,6 @@ import { useAccount } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
 
 import { readSearchParamsBoolean } from './hooks/use-search-params-boolean';
-import { RewardsPushOverlay } from './layouts/PageLayout/RewardsPushOverlay';
 import { ActivityPage } from './pages/Activity';
 import { Dapps } from './pages/Dapps';
 import { Home } from './pages/Home';
@@ -195,12 +194,7 @@ export const PageRouter = memo(() => {
 
   const routeElement = useMemo(() => Woozie.resolve(ROUTE_MAP, pathname, ctx), [pathname, ctx]);
 
-  return (
-    <>
-      {routeElement}
-      <RewardsPushOverlay />
-    </>
-  );
+  return routeElement;
 });
 
 function onlyReady(factory: RouteFactory): RouteFactory {

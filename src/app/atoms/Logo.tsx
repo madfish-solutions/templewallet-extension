@@ -23,5 +23,5 @@ const logoIcons = {
 export const Logo: FC<LogoProps> = ({ size = 40, type, style: customStyle, ...rest }) => {
   const Component = logoIcons[type];
 
-  return <Component style={{ ...(customStyle ?? {}), height: size }} title={APP_TITLE} {...rest} />;
+  return <Component style={{ ...(customStyle ?? {}), height: size, width: 'auto' }} title={APP_TITLE} {...rest} />;
 };

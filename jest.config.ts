@@ -8,7 +8,7 @@ const config = {
   coverageProvider: 'v8',
   // To have Jest respect `baseUrl`:
   moduleDirectories: ['node_modules', 'src'],
-  testEnvironment: './jest-fixed-environment.js',
+  testEnvironment: 'jsdom',
   // `multiformats` is ESM-only (no `require` export). Map subpaths to files and transpile them.
   moduleNameMapper: {
     '^multiformats$': '<rootDir>/node_modules/multiformats/dist/src/index.js',

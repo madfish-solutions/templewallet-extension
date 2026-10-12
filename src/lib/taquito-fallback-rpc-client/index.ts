@@ -37,7 +37,10 @@ export class FallbackRpcClient extends RpcClient {
     this.clients = urls.map(url => getTezosFastRpcClient(url));
   }
 
-  private async callWithFallback<T>(method: (client: FastRpcClient) => Promise<T>): Promise<T> {
+  private async callWithFallback<T>(
+    method: (client: FastRpcClient) => Promise<T>,
+    shouldFallback: (error: unknown) => boolean = shouldFallbackToNext
+  ): Promise<T> {
     const total = this.clients.length;
     const start = this.preferredIndex % total;
 
@@ -49,7 +52,7 @@ export class FallbackRpcClient extends RpcClient {
         this.preferredIndex = idx;
         return result;
       } catch (err: any) {
-        if (!shouldFallbackToNext(err) || i === total - 1) throw err;
+        if (!shouldFallback(err) || i === total - 1) throw err;
       }
     }
 
@@ -57,10 +60,20 @@ export class FallbackRpcClient extends RpcClient {
     throw new Error('FallbackRpcClient: no RPCs available');
   }
 
+  private get preferredClient() {
+    const client = this.clients.at(this.preferredIndex % this.clients.length);
+
+    if (!client) throw new Error('FallbackRpcClient: no RPCs available');
+
+    return client;
+  }
+
   getRpcUrl() {
-    const total = this.clients.length;
-    const idx = this.preferredIndex % total;
-    return this.clients[idx].getRpcUrl();
+    return this.preferredClient.getRpcUrl();
+  }
+
+  deleteAllCachedData() {
+    this.clients.forEach(client => client.deleteAllCachedData());
   }
 
   async getChainId() {
@@ -223,8 +236,9 @@ export class FallbackRpcClient extends RpcClient {
     return this.callWithFallback(client => client.preapplyOperations(ops, opts));
   }
 
+  // Re-sent to another node only after a refusal: after an ambiguous failure, the bytes may already be in the first node's mempool
   async injectOperation(signedOpBytes: string) {
-    return this.callWithFallback(client => client.injectOperation(signedOpBytes));
+    return this.callWithFallback(client => client.injectOperation(signedOpBytes), isInjectionRefused);
   }
 
   async forgeOperations(data: ForgeOperationsParams, opts?: RPCOptions) {
@@ -312,6 +326,14 @@ function shouldFallbackToNext(error: any): boolean {
   }
   // Network/transport errors -> fallback
   return true;
+}
+
+// Answers a node gives before processing the body, so the bytes are provably not in its mempool; 500/502/504 may come
+// from an upstream that did process the request, and a transport failure is ambiguous, so neither is ever sent twice
+const INJECTION_REFUSED_STATUSES = [403, 404, 408, 429, 503];
+
+function isInjectionRefused(error: unknown): boolean {
+  return error instanceof HttpResponseError && INJECTION_REFUSED_STATUSES.includes(error.status);
 }
 
 const COUNTER_ERROR_MESSAGES = ['counter_in_the_past', 'counter_in_the_future'];

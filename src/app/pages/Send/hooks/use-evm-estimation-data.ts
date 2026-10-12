@@ -22,6 +22,7 @@ interface EvmEstimationInput {
   toFilled?: boolean;
   amount?: string;
   silent?: boolean;
+  paused?: boolean;
 }
 
 export const useEvmEstimationData = ({
@@ -33,7 +34,8 @@ export const useEvmEstimationData = ({
   ethBalance,
   toFilled,
   amount,
-  silent
+  silent,
+  paused = false
 }: EvmEstimationInput) => {
   const assetMetadata = useEvmCategorizedAssetMetadata(assetSlug, network.chainId);
 
@@ -66,6 +68,7 @@ export const useEvmEstimationData = ({
     estimate,
     {
       shouldRetryOnError: false,
+      isPaused: () => paused,
       focusThrottleInterval: 10_000,
       dedupingInterval: 10_000
     }

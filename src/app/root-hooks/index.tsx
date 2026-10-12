@@ -18,7 +18,8 @@ import { useUserAnalyticsAndAdsSettings } from 'app/hooks/use-user-analytics-and
 import { useUserIdAccountPkhSync } from 'app/hooks/use-user-id-account-pkh-sync';
 import { useWebWidgetsSync } from 'app/hooks/use-web-widgets-sync';
 import { useCrossChainToast } from 'app/pages/Send/cross-chain/hooks/use-cross-chain-toast';
-import { useFetchSupportedLifiChainIds, useLifiTokensMetadataSync } from 'app/pages/Swap/form/hooks';
+import { useLifiTokensMetadataSync } from 'app/pages/Swap/form/hooks';
+import { useFetchSupportedLifiChainIds } from 'app/pages/Swap/form/use-fetch-supported-lifi-chain-ids';
 import { dispatch } from 'app/store';
 import { cleanupOutdatedEvmPendingTxWithInitialMonitorTriggerAction } from 'app/store/evm/pending-transactions/actions';
 import { useTestnetModeEnabledSelector } from 'app/store/settings/selectors';

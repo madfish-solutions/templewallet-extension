@@ -1,6 +1,10 @@
 import browser from 'webextension-polyfill';
 
-import { checkIfShouldReplaceAds } from 'content-scripts/utils';
+import {
+  checkIfShouldReplaceAiChatAds,
+  checkIfShouldReplaceInBrowserAds,
+  runWhenDocumentIsActive
+} from 'content-scripts/utils';
 import { CHATGPT_DOMAIN } from 'lib/ads-constants/ads-constants';
 import { configureAds } from 'lib/ads/configure-ads';
 import { importExtensionAdsModule } from 'lib/ads/import-extension-ads-module';
@@ -8,7 +12,7 @@ import {
   ContentScriptType,
   ADS_RULES_UPDATE_INTERVAL,
   ADS_DISABLING_TIMESTAMPS_STORAGE_KEY,
-  AI_CHATBOT_ADS_ENABLED_DOMAINS_STORAGE_KEY,
+  AI_CHATBOT_ADS_ENABLED,
   WEBSITES_ADS_ENABLED
 } from 'lib/constants';
 import { IS_MISES_BROWSER } from 'lib/env';
@@ -22,63 +26,71 @@ const INJECTED_PIXEL_STYLE =
   'width: 1px; height: 1px; position: absolute; top: 0; right: 1px; background-color: transparent;';
 let impressionWasPosted = false;
 
-setInterval(async () => {
-  if (document.getElementById(INJECTED_PIXEL_ID) || (!IS_MISES_BROWSER && !(await checkIfShouldReplaceAds()))) {
-    return;
-  }
-
-  const element = document.createElement('div');
-  element.id = INJECTED_PIXEL_ID;
-  element.setAttribute('twa', 'true');
-  element.style.cssText = INJECTED_PIXEL_STYLE;
-
-  if (!document?.body) return;
-
-  document.body.appendChild(element);
-  if (!impressionWasPosted) {
-    impressionWasPosted = true;
-    browser.runtime
-      .sendMessage({
-        type: ContentScriptType.ExternalAdsActivity,
-        url: window.location.href,
-        provider: 'Pixel Tag'
-      })
-      .catch(e => console.error(e));
-  }
-}, 1000);
-
-let adsActionTriggers: { documentObserver: MutationObserver; interval: NodeJS.Timeout } | undefined;
-
-const updateAdsActionTriggers = () =>
-  checkIfShouldReplaceAds().then(async shouldReplace => {
-    if (shouldReplace) {
-      if (adsActionTriggers) return;
-
-      await configureAds();
-
-      // Replace ads with ours
-      const interval = setInterval(() => replaceAdsByInterval(), 1000);
-      const documentObserver = new MutationObserver(() => insertAiChatbotAds());
-      documentObserver.observe(document, { childList: true, subtree: true });
-
-      adsActionTriggers = { documentObserver, interval };
-
+const startPixelTag = () =>
+  setInterval(async () => {
+    if (
+      document.getElementById(INJECTED_PIXEL_ID) ||
+      (!IS_MISES_BROWSER && !(await checkIfShouldReplaceInBrowserAds()))
+    ) {
       return;
     }
 
-    if (!adsActionTriggers) return;
+    const element = document.createElement('div');
+    element.id = INJECTED_PIXEL_ID;
+    element.setAttribute('twa', 'true');
+    element.style.cssText = INJECTED_PIXEL_STYLE;
 
-    adsActionTriggers.documentObserver.disconnect();
+    if (!document?.body) return;
+
+    document.body.appendChild(element);
+    if (!impressionWasPosted) {
+      impressionWasPosted = true;
+      browser.runtime
+        .sendMessage({
+          type: ContentScriptType.ExternalAdsActivity,
+          url: window.location.href,
+          provider: 'Pixel Tag'
+        })
+        .catch(e => console.error(e));
+    }
+  }, 1000);
+
+let adsActionTriggers: { documentObserver?: MutationObserver; interval?: NodeJS.Timeout } | undefined;
+
+const updateAdsActionTriggers = async () => {
+  const [inBrowserAdsEnabled, aiChatAdsEnabled] = await Promise.all([
+    checkIfShouldReplaceInBrowserAds(),
+    checkIfShouldReplaceAiChatAds()
+  ]);
+
+  if (inBrowserAdsEnabled && !adsActionTriggers?.interval) {
+    await configureAds();
+    const interval = setInterval(() => replaceAdsByInterval(), 1000);
+    adsActionTriggers = { ...adsActionTriggers, interval };
+  } else if (!inBrowserAdsEnabled && adsActionTriggers?.interval) {
     clearInterval(adsActionTriggers.interval);
-    adsActionTriggers = undefined;
-  });
-
-updateAdsActionTriggers();
-browser.storage.local.onChanged.addListener(changes => {
-  if (WEBSITES_ADS_ENABLED in changes) {
-    updateAdsActionTriggers();
+    adsActionTriggers = { ...adsActionTriggers, interval: undefined };
   }
-});
+
+  if (aiChatAdsEnabled && !adsActionTriggers?.documentObserver) {
+    await configureAds();
+    const documentObserver = new MutationObserver(() => insertAiChatbotAds());
+    documentObserver.observe(document, { childList: true, subtree: true });
+    adsActionTriggers = { ...adsActionTriggers, documentObserver };
+  } else if (!aiChatAdsEnabled && adsActionTriggers?.documentObserver) {
+    adsActionTriggers.documentObserver.disconnect();
+    adsActionTriggers = { ...adsActionTriggers, documentObserver: undefined };
+  }
+};
+
+const startAdsReplacement = () => {
+  updateAdsActionTriggers();
+  browser.storage.local.onChanged.addListener(changes => {
+    if (WEBSITES_ADS_ENABLED in changes || AI_CHATBOT_ADS_ENABLED in changes) {
+      updateAdsActionTriggers();
+    }
+  });
+};
 
 let lastAttemptTs = 0;
 
@@ -86,9 +98,8 @@ const fetchAdsDisablingTimestamps = async () =>
   (await fetchFromStorage<StringRecord<number>>(ADS_DISABLING_TIMESTAMPS_STORAGE_KEY)) ?? {};
 const shouldEnableChatbotAds = async (domain: string, timeout: number) => {
   const { [domain]: disabledAt = 0 } = await fetchAdsDisablingTimestamps();
-  const enabledDomains = (await fetchFromStorage<string[]>(AI_CHATBOT_ADS_ENABLED_DOMAINS_STORAGE_KEY)) ?? [];
 
-  return enabledDomains.includes(domain) && disabledAt + timeout <= Date.now();
+  return (await checkIfShouldReplaceAiChatAds()) && disabledAt + timeout <= Date.now();
 };
 const disableAdsTemporarily = async (subkey: string) =>
   putToStorage(ADS_DISABLING_TIMESTAMPS_STORAGE_KEY, {
@@ -164,4 +175,9 @@ const replaceAdsByInterval = throttleAsyncCalls(async () => {
   } catch (error) {
     console.error('Replacing Ads error:', error);
   }
+});
+
+runWhenDocumentIsActive(() => {
+  startPixelTag();
+  startAdsReplacement();
 });

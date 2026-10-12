@@ -9,7 +9,7 @@ import { EarnPromoLayout, EarnPromoAdvantageItem } from 'app/layouts/EarnPromoLa
 import tkeyCoinAnimation from 'app/pages/EarnTkey/tkey-coin-animation.json';
 import { dispatch } from 'app/store';
 import { togglePartnersPromotionAction } from 'app/store/partners-promotion/actions';
-import { useShouldShowPartnersPromoSelector } from 'app/store/partners-promotion/selectors';
+import { useShouldShowInWalletAdsSelector } from 'app/store/partners-promotion/selectors';
 import { toastSuccess } from 'app/toaster';
 import { AnalyticsEventCategory, useAnalytics } from 'lib/analytics';
 import { t } from 'lib/i18n';
@@ -35,7 +35,7 @@ const tkeyCoinAnimationOptions = {
 };
 
 export const RewardsPromoActivate: FC = () => {
-  const isEnabled = useShouldShowPartnersPromoSelector();
+  const isEnabled = useShouldShowInWalletAdsSelector();
   const { trackEvent } = useAnalytics();
 
   const handleActivate = () => {

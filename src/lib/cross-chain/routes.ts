@@ -3,7 +3,7 @@ import { toTokenSlug } from 'lib/assets/utils';
 import { ETHEREUM_MAINNET_CHAIN_ID } from 'lib/temple/types';
 import { TempleChainKind } from 'temple/types';
 
-import { BTC_ASSET, EVM_CHAIN_CONFIGS, EvmChainConfig, TEZOS_USDT, TEZOS_XTZ, iconForExolix } from './config';
+import { BTC_ASSET, EVM_CHAIN_CONFIGS, EvmChainConfig, TEZOS_USDT, iconForExolix } from './config';
 import { BTC_CHAIN_ASSET_SLUG } from './constants';
 import { CrossChainAsset } from './types';
 
@@ -78,7 +78,6 @@ const requireEvmAsset = (
 };
 
 export const CROSS_CHAIN_ASSETS = {
-  TEZOS_XTZ,
   TEZOS_USDT,
   ETH_NATIVE: requireEvmAsset(ETHEREUM_MAINNET_CHAIN_ID, a => a.assetSlug === EVM_TOKEN_SLUG, 'ETH_NATIVE'),
   ETH_USDT: requireEvmAsset(ETHEREUM_MAINNET_CHAIN_ID, a => a.exolixCoin === 'USDT', 'ETH_USDT'),
@@ -86,16 +85,16 @@ export const CROSS_CHAIN_ASSETS = {
   BTC: BTC_ASSET
 };
 
-const TEZOS_FROM_ASSETS: CrossChainAsset[] = [TEZOS_XTZ, TEZOS_USDT];
+const TEZOS_ASSETS: CrossChainAsset[] = [TEZOS_USDT];
 
 export const getAllowedFromAssets = (override?: ExolixNetworksOverride): CrossChainAsset[] => [
-  ...TEZOS_FROM_ASSETS,
+  ...TEZOS_ASSETS,
   ...buildEvmAssetsAll(override)
 ];
 
 export const getAllowedToAssets = (from: CrossChainAsset, override?: ExolixNetworksOverride): CrossChainAsset[] => {
   if (from.dest === 'tezos') return [...buildEvmAssetsAll(override), BTC_ASSET];
-  if (from.dest === 'evm') return [...TEZOS_FROM_ASSETS, BTC_ASSET];
+  if (from.dest === 'evm') return [...TEZOS_ASSETS, BTC_ASSET];
   return [];
 };
 

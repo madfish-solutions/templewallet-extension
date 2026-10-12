@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 
-import { useShouldShowPartnersPromoSelector } from 'app/store/partners-promotion/selectors';
+import { useShouldShowInWalletAdsSelector } from 'app/store/partners-promotion/selectors';
 import { usePartnersPromotionModule } from 'app/templates/partners-promotion';
 import { useAdsConstantsModule } from 'lib/ads-constants';
 import { t } from 'lib/i18n/react';
@@ -16,7 +16,7 @@ export const ActivityListContainer = withSuspense<Props>(
     const partnersPromotionModule = usePartnersPromotionModule();
     const adsConstantsModule = useAdsConstantsModule();
 
-    const shouldShowPartnersPromo = useShouldShowPartnersPromoSelector();
+    const shouldShowPartnersPromo = useShouldShowInWalletAdsSelector();
 
     const promotion = useMemo(() => {
       if (!partnersPromotionModule || !adsConstantsModule) return null;

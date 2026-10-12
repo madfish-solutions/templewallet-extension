@@ -50,3 +50,6 @@ DerivedData
 video-rep
 
 .scannerwork
+
+# perf probe traces and failure screenshots
+perf/out/

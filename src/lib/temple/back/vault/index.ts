@@ -1,12 +1,16 @@
 import type Eth from '@ledgerhq/hw-app-eth';
+import { HttpRequestFailed, HttpTimeoutError } from '@taquito/http-utils';
 import { DerivationType } from '@taquito/ledger-signer';
 import { localForger } from '@taquito/local-forging';
-import { CompositeForger, OperationBatch, RpcForger, Signer, TezosToolkit } from '@taquito/taquito';
+import { OperationContentsAndResult } from '@taquito/rpc';
+import { CompositeForger, RpcForger, Signer, TezosToolkit } from '@taquito/taquito';
 import * as TaquitoUtils from '@taquito/utils';
 import * as Bip39 from 'bip39';
 import { nanoid } from 'nanoid';
 import {
   createWalletClient,
+  isAddressEqual,
+  serializeSignature,
   LocalAccount,
   PrivateKeyAccount,
   SignableMessage,
@@ -24,6 +28,13 @@ import {
   DEFAULT_TEZOS_DERIVATION_PATH,
   WALLETS_SPECS_STORAGE_KEY
 } from 'lib/constants';
+import type { AlchemyBatchQuote, AlchemySignedCalls, AlchemySignedItem } from 'lib/evm/alchemy/types';
+import {
+  ALCHEMY_DELEGATIONS,
+  getAlchemyOperation,
+  isEip7702DelegationCode,
+  validateAlchemyQuote
+} from 'lib/evm/alchemy/validation';
 import { fetchFromStorage as getPlain, putToStorage as savePlain } from 'lib/storage';
 import { mnemonicToPrivateKey } from 'lib/temple/accounts-helpers';
 import { deleteEvmActivitiesByAddress, deleteTezosActivitiesByAddress } from 'lib/temple/activity/repo';
@@ -44,8 +55,10 @@ import {
   TempleSettings,
   WalletSpecs
 } from 'lib/temple/types';
+import { isTransientTezosRpcError } from 'lib/tezos';
 import { delay, isTruthy } from 'lib/utils';
 import { getAccountAddressForChain, getAccountAddressForEvm, getAccountAddressForTezos } from 'temple/accounts';
+import { getViemPublicClient } from 'temple/evm';
 import { TypedDataV1, typedV1SignatureHash } from 'temple/evm/typed-data-v1';
 import { getCustomViemChain, getViemTransportForNetwork } from 'temple/evm/utils';
 import { EvmChain } from 'temple/front';
@@ -94,6 +107,19 @@ import {
   settingsStrgKey,
   walletMnemonicStrgKey
 } from './storage-keys';
+
+export interface SentTezosOperation {
+  hash: string;
+  startingBlockLevel: number;
+  results?: OperationContentsAndResult[];
+}
+
+// An unclassified transport failure counts as one that may have reached the node
+const isInjectionOutcomeUnknown = (error: unknown) =>
+  error instanceof HttpTimeoutError ||
+  (error instanceof HttpRequestFailed
+    ? error.transportError?.mayHaveReachedServer !== false
+    : isTransientTezosRpcError(error));
 
 const TEMPLE_SYNC_PREFIX = 'templesync';
 const libthemisWasmSrc = '/wasm/libthemis.wasm';
@@ -893,19 +919,98 @@ export class Vault {
     return this.withSigningEvmAccount(accPublicKeyHash, async account => account.signMessage({ message }));
   }
 
-  async sendOperations(accPublicKeyHash: string, network: TezosNetworkEssentials, opParams: any[]) {
+  async signAlchemyBatch(
+    accountPkh: HexString,
+    network: EvmChain,
+    quote: AlchemyBatchQuote
+  ): Promise<AlchemySignedCalls> {
+    if (!isAddressEqual(accountPkh, quote.request.from) || network.chainId !== Number(BigInt(quote.request.chainId))) {
+      throw new PublicError('The batch account or chain does not match');
+    }
+    const hash = validateAlchemyQuote(quote);
+    const client = getViemPublicClient(network);
+    const code = await client.getCode({ address: accountPkh });
+    const delegated = ALCHEMY_DELEGATIONS.some(
+      address => code?.toLowerCase() === `0xef0100${address.slice(2)}`.toLowerCase()
+    );
+    if (code && code !== '0x' && !isEip7702DelegationCode(code)) {
+      throw new PublicError('The account contains unsupported contract code');
+    }
+    if (!delegated && quote.prepared.type !== 'array') throw new PublicError('The batch lacks account authorization');
+    return this.withSigningEvmAccount(accountPkh, async account => {
+      if (!account.signAuthorization) throw new PublicError('This account does not support Alchemy batches');
+      const signed: AlchemySignedItem[] = [];
+      if (quote.prepared.type === 'array') {
+        const authorization = quote.prepared.data[0];
+        const nonce = Number(authorization.data.nonce);
+        if (nonce !== (await client.getTransactionCount({ address: accountPkh, blockTag: 'pending' }))) {
+          throw new PublicError('Account authorization expired. Retry the quote.');
+        }
+        const signature = await account.signAuthorization({
+          address: authorization.data.address,
+          chainId: network.chainId,
+          nonce
+        });
+        signed.push({
+          type: authorization.type,
+          chainId: authorization.chainId,
+          data: authorization.data,
+          signature: { type: 'secp256k1', data: serializeSignature(signature) }
+        });
+      }
+      // Compute the digest from the validated operation. Do not sign a remote raw payload.
+      validateAlchemyQuote(quote);
+      const operation = getAlchemyOperation(quote.prepared);
+      signed.push({
+        type: operation.type,
+        chainId: operation.chainId,
+        data: operation.data,
+        signature: { type: 'secp256k1', data: await account.signMessage({ message: { raw: hash } }) }
+      });
+      return quote.prepared.type === 'array' ? { type: 'array', data: signed } : signed[0];
+    });
+  }
+
+  async sendOperations(
+    accPublicKeyHash: string,
+    network: TezosNetworkEssentials,
+    opParams: any[]
+  ): Promise<SentTezosOperation> {
     return this.withSigner(accPublicKeyHash, async signer => {
-      let batch: OperationBatch;
+      const rpc = getTezosRpcClient(network);
+      let attemptedOpHash: string | undefined;
+      let startingBlockLevel: number | undefined;
+
       try {
-        const tezos = new TezosToolkit(getTezosRpcClient(network));
+        const tezos = new TezosToolkit(rpc);
         tezos.setSignerProvider(signer);
         tezos.setForgerProvider(new CompositeForger([tezos.getFactory(RpcForger)(), localForger]));
         tezos.setPackerProvider(michelEncoder);
-        batch = tezos.contract.batch(opParams.map(operation => formatOpParamsBeforeSend(operation, accPublicKeyHash)));
+        tezos.setInjectorProvider({
+          inject: signedOperationBytes => {
+            attemptedOpHash = TaquitoUtils.encodeOpHash(signedOperationBytes);
 
-        return await batch.send();
+            return rpc.injectOperation(signedOperationBytes);
+          }
+        });
+
+        // Prepare against the current head: a memoized counter can be a block old within the hash TTL
+        rpc.deleteAllCachedData();
+        startingBlockLevel = (await rpc.getBlockHeader()).level;
+
+        const { hash, results } = await tezos.contract
+          .batch(opParams.map(operation => formatOpParamsBeforeSend(operation, accPublicKeyHash)))
+          .send();
+
+        return { hash, results, startingBlockLevel };
       } catch (err: any) {
         console.error(err);
+
+        // The node never answered the injection, so the operation may be in its mempool: report it as submitted and let the tracker decide
+        if (attemptedOpHash && startingBlockLevel !== undefined && isInjectionOutcomeUnknown(err)) {
+          return { hash: attemptedOpHash, startingBlockLevel };
+        }
+
         throw new PublicError('Failed to send operations', [err]);
       }
     });

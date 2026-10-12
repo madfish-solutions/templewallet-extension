@@ -1,3 +1,4 @@
+import { HttpRequestFailed, HttpResponseError, HttpTimeoutError, STATUS_CODE } from '@taquito/http-utils';
 import BigNumber from 'bignumber.js';
 
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
@@ -23,8 +24,12 @@ import {
   isTezosContractAddress,
   isValidTezosChainId,
   getBalancesChanges,
+  isTransientTezosRpcError,
   isValidTezosImplicitAddress
 } from './index';
+
+const TEZOS_X_SIMULATE_URL =
+  'https://michelson.previewnet.tezosx.nomadic-labs.com/chains/main/blocks/head/helpers/scripts/simulate_operation';
 
 describe('Tezos Helpers', () => {
   it('isValidTezosChainId', () => {
@@ -188,5 +193,53 @@ describe('Tezos Helpers', () => {
         });
       });
     });
+  });
+});
+
+describe('isTransientTezosRpcError', () => {
+  it('should not treat a request timeout as transient', () => {
+    expect(isTransientTezosRpcError(new HttpTimeoutError(30_000, TEZOS_X_SIMULATE_URL))).toBe(false);
+  });
+
+  it('should not treat a 5xx carrying a protocol validation error as transient', () => {
+    const protocolValidationError = new HttpResponseError(
+      'Http error response: (500)',
+      STATUS_CODE.INTERNAL_SERVER_ERROR,
+      'Internal Server Error',
+      JSON.stringify([{ kind: 'temporary', id: 'proto.023-PtSeouLo.contract.balance_too_low' }]),
+      TEZOS_X_SIMULATE_URL
+    );
+
+    expect(isTransientTezosRpcError(protocolValidationError)).toBe(false);
+  });
+
+  it('should treat a transport failure as transient', () => {
+    const transportFailure = new HttpRequestFailed('POST', TEZOS_X_SIMULATE_URL, new TypeError('Failed to fetch'));
+
+    expect(isTransientTezosRpcError(transportFailure)).toBe(true);
+  });
+
+  it('should treat a 5xx without a Tezos error body as transient', () => {
+    const gatewayError = new HttpResponseError(
+      'Http error response: (502)',
+      STATUS_CODE.BAD_GATEWAY,
+      'Bad Gateway',
+      '<html>502 Bad Gateway</html>',
+      TEZOS_X_SIMULATE_URL
+    );
+
+    expect(isTransientTezosRpcError(gatewayError)).toBe(true);
+  });
+
+  it('should treat a 5xx carrying a non-protocol node failure as transient', () => {
+    const nodeFailure = new HttpResponseError(
+      'Http error response: (500)',
+      STATUS_CODE.INTERNAL_SERVER_ERROR,
+      'Internal Server Error',
+      JSON.stringify([{ kind: 'temporary', id: 'failure', msg: 'No value found at the entrypoint output path' }]),
+      TEZOS_X_SIMULATE_URL
+    );
+
+    expect(isTransientTezosRpcError(nodeFailure)).toBe(true);
   });
 });

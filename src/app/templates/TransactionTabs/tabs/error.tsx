@@ -1,5 +1,6 @@
 import React, { memo, useMemo } from 'react';
 
+import { isObject, isPlainObject } from 'lodash';
 import ReactJson from 'react-json-view';
 
 import { FadeTransition } from 'app/a11y/FadeTransition';
@@ -8,6 +9,7 @@ import { ReactComponent as CopyIcon } from 'app/icons/base/copy.svg';
 import { ReactComponent as OutLinkIcon } from 'app/icons/base/outLink.svg';
 import { T, t } from 'lib/i18n';
 import { getHumanErrorMessage } from 'lib/temple/error-messages';
+import { parseHttpResponseErrorBody } from 'lib/temple/error-messages/tezos';
 import { serializeError } from 'lib/utils/serialize-error';
 
 interface ErrorTabProps {
@@ -16,16 +18,33 @@ interface ErrorTabProps {
   estimationError: unknown;
 }
 
+const isJsonContainer = (value: unknown): value is object => Array.isArray(value) || isPlainObject(value);
+
+// react-json-view rejects any `src` whose toString tag is not Object or Array, Error instances included
+const getRenderableErrorJson = (error: unknown): object | null => {
+  if (isJsonContainer(error)) return error;
+
+  if (isObject(error) && 'errors' in error && isJsonContainer(error.errors)) {
+    const { errors } = error;
+    const singleError = Array.isArray(errors) && errors.length === 1 ? errors.at(0) : undefined;
+
+    return (singleError === undefined ? undefined : parseHttpResponseErrorBody(singleError)) ?? errors;
+  }
+
+  return parseHttpResponseErrorBody(error) ?? null;
+};
+
+const getErrorText = (error: unknown) =>
+  error instanceof Error && Object.keys(error).length === 0
+    ? error.message || serializeError(error)
+    : serializeError(error);
+
 export const ErrorTab = memo<ErrorTabProps>(({ isEvm, submitError, estimationError }) => {
   const error = submitError || estimationError;
-  const message = useMemo(() => serializeError(error), [error]);
+  const message = useMemo(() => getErrorText(error), [error]);
   const humanErrorMessage = useMemo(() => getHumanErrorMessage(error), [error]);
   const showEstimationErrorMessage = !submitError && Boolean(estimationError);
-  const errorJson = isEvm
-    ? null
-    : typeof error === 'object' && error !== null && 'errors' in error
-      ? error.errors
-      : error;
+  const errorJson = isEvm ? null : getRenderableErrorJson(error);
 
   if (!message) return null;
 

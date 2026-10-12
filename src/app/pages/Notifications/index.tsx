@@ -6,7 +6,7 @@ import PageLayout from 'app/layouts/PageLayout';
 import { dispatch } from 'app/store';
 import { viewAllNotificationsAction } from 'app/store/notifications/actions';
 import { useNotificationsSelector } from 'app/store/notifications/selectors';
-import { useShouldShowPartnersPromoSelector } from 'app/store/partners-promotion/selectors';
+import { useShouldShowInWalletAdsSelector } from 'app/store/partners-promotion/selectors';
 import { usePartnersPromotionModule } from 'app/templates/partners-promotion';
 import { useAdsConstantsModule } from 'lib/ads-constants';
 import { t } from 'lib/i18n';
@@ -22,7 +22,7 @@ export const Notifications = () => {
   const [notificationModalOpened, setNotificationModalOpen, setNotificationModalClosed] = useBooleanState(false);
 
   const notifications = useNotificationsSelector();
-  const shouldShowPartnersPromoState = useShouldShowPartnersPromoSelector();
+  const shouldShowPartnersPromoState = useShouldShowInWalletAdsSelector();
   const PartnersPromotionModule = usePartnersPromotionModule();
   const AdsConstantsModule = useAdsConstantsModule();
 

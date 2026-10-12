@@ -19,6 +19,7 @@ import {
   SHOULD_DISABLE_NOT_ACTIVE_NETWORKS_STORAGE_KEY
 } from 'lib/constants';
 import { BACKGROUND_IS_WORKER } from 'lib/env';
+import type { AlchemyBatchQuote } from 'lib/evm/alchemy/types';
 import { putToStorage, removeFromStorage } from 'lib/storage';
 import { addLocalOperation } from 'lib/temple/activity';
 import * as Beacon from 'lib/temple/beacon';
@@ -42,6 +43,7 @@ import { TezosNetworkEssentials } from 'temple/networks';
 import { loadTezosChainId } from 'temple/tezos';
 import { TempleChainKind } from 'temple/types';
 
+import { submitAlchemyBatch as submitAlchemySwap } from './alchemy';
 import {
   getCurrentPermission,
   init as initTezos,
@@ -100,7 +102,7 @@ import {
   sidebarOpened,
   sidebarClosed
 } from './store';
-import { Vault } from './vault';
+import { SentTezosOperation, Vault } from './vault';
 
 export { switchTezosAccount } from './dapp';
 export { switchChain as switchEvmChain, switchAccount as switchEvmAccount } from './evm-dapp';
@@ -221,6 +223,12 @@ export function sendEvmTransaction(accountPkh: HexString, network: EvmChain, txP
   return withUnlocked(async ({ vault }) => {
     return await vault.sendEvmTransaction(accountPkh, network, txParams);
   });
+}
+
+export function submitAlchemyBatch(accountPkh: HexString, network: EvmChain, quote: AlchemyBatchQuote) {
+  return withUnlocked(({ vault }) =>
+    submitAlchemySwap(accountPkh, network, quote, () => vault.signAlchemyBatch(accountPkh, network, quote))
+  );
 }
 
 export function registerNewWallet(password: string, mnemonic?: string) {
@@ -415,14 +423,15 @@ export function sendOperations(
   network: TezosNetworkEssentials,
   opParams: any[],
   straightaway?: boolean
-): Promise<{ opHash: string }> {
+): Promise<{ opHash: string; startingBlockLevel: number }> {
   return withUnlocked(async ({ vault }) => {
     const sourcePublicKey = await revealPublicKey(sourcePkh);
     const dryRunResult = await dryRunOpParams({
       opParams,
       network,
       sourcePkh,
-      sourcePublicKey
+      sourcePublicKey,
+      apply3RouteGasWorkaround: true
     });
     if (dryRunResult && dryRunResult.result) {
       opParams = dryRunResult.result.opParams;
@@ -431,11 +440,11 @@ export function sendOperations(
     return new Promise(async (resolve, reject) => {
       if (straightaway) {
         try {
-          const op = await vault.sendOperations(sourcePkh, network, opParams);
+          const sentOperation = await vault.sendOperations(sourcePkh, network, opParams);
 
-          await safeAddLocalOperation(network.rpcBaseURL, op);
+          await safeAddLocalOperation(network.rpcBaseURL, sentOperation);
 
-          resolve({ opHash: op.hash });
+          resolve({ opHash: sentOperation.hash, startingBlockLevel: sentOperation.startingBlockLevel });
         } catch (err: any) {
           reject(err);
         }
@@ -447,7 +456,7 @@ export function sendOperations(
 }
 
 const promisableUnlock = async (
-  resolve: (arg: { opHash: string }) => void,
+  resolve: (arg: { opHash: string; startingBlockLevel: number }) => void,
   reject: (err: Error) => void,
   port: Runtime.Port,
   id: string,
@@ -484,7 +493,7 @@ const promisableUnlock = async (
       const { confirmed, modifiedStorageLimit, modifiedTotalFee } = req;
       if (confirmed) {
         try {
-          const op = await withUnlocked(({ vault }) =>
+          const sentOperation = await withUnlocked(({ vault }) =>
             vault.sendOperations(
               sourcePkh,
               network,
@@ -492,9 +501,9 @@ const promisableUnlock = async (
             )
           );
 
-          await safeAddLocalOperation(network.rpcBaseURL, op);
+          await safeAddLocalOperation(network.rpcBaseURL, sentOperation);
 
-          resolve({ opHash: op.hash });
+          resolve({ opHash: sentOperation.hash, startingBlockLevel: sentOperation.startingBlockLevel });
         } catch (err: any) {
           if (err instanceof TezosOperationError) {
             reject(err);
@@ -522,12 +531,13 @@ const promisableUnlock = async (
   const stopTimeout = () => clearTimeout(t);
 };
 
-const safeAddLocalOperation = async (networkRpc: string, op: any) => {
+const safeAddLocalOperation = async (networkRpc: string, { hash, results }: SentTezosOperation) => {
+  if (!results) return;
+
   try {
     const chainId = await loadTezosChainId(networkRpc);
-    await addLocalOperation(chainId, op.hash, op.results);
+    await addLocalOperation(chainId, hash, results);
   } catch {}
-  return undefined;
 };
 
 export function sign(

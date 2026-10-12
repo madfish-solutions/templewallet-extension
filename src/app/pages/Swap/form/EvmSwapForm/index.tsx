@@ -59,6 +59,18 @@ interface EvmSwapFormProps {
 
 const AUTO_REFRESH_INTERVAL_MS = 60000; // 60 seconds
 
+const getRouteParamsKey = (params: RouteParams): string =>
+  JSON.stringify([
+    params.fromChain,
+    params.toChain,
+    params.fromToken.toLowerCase(),
+    params.toToken.toLowerCase(),
+    params.amount,
+    params.fromAddress.toLowerCase(),
+    params.slippage,
+    params.amountForGas
+  ]);
+
 export const EvmSwapForm: FC<EvmSwapFormProps> = ({
   chainId,
   slippageTolerance,
@@ -78,6 +90,9 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
   const [isRouteLoading, setIsRouteLoading] = useState(false);
   const [isAlertVisible, setIsAlertVisible] = useState(false);
   const isRouteLoadingRef = useRef(false);
+  const routeAbortControllerRef = useRef<AbortController>(null);
+  const latestRequestIdRef = useRef(0);
+  const quotedRouteKeyRef = useRef<string | null>(null);
 
   const sourceAssetInfo = useMemo<ChainAssetInfo<TempleChainKind.EVM> | null>(() => {
     if (!selectedChainAssets.from) return null;
@@ -176,14 +191,32 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
   const inputAssetPrice = useAssetFiatCurrencyPrice(inputValue.assetSlug ?? '', inputNetwork.chainId, true);
   const outputAssetPrice = useAssetFiatCurrencyPrice(outputValue.assetSlug ?? '', outputNetwork.chainId, true);
 
-  const resetForm = useCallback(() => {
+  const clearSwapRoute = useCallback(() => {
+    latestRequestIdRef.current += 1;
+    routeAbortControllerRef.current?.abort();
+    routeAbortControllerRef.current = null;
+    quotedRouteKeyRef.current = null;
+    isRouteLoadingRef.current = false;
+    setIsRouteLoading(false);
     setSwapRoute(null);
+  }, []);
+
+  const resetForm = useCallback(() => {
+    clearSwapRoute();
     reset(defaultValues);
-  }, [defaultValues, reset]);
+  }, [clearSwapRoute, defaultValues, reset]);
 
   const handleInputChange = useCallback(
     (newInputValue: SwapInputValue) => {
       const currentFormState = getValues();
+      if (
+        newInputValue.assetSlug !== currentFormState.input.assetSlug ||
+        newInputValue.chainId !== currentFormState.input.chainId ||
+        newInputValue.amount?.toString() !== currentFormState.input.amount?.toString()
+      ) {
+        clearSwapRoute();
+        setValue('output', { ...currentFormState.output, amount: undefined });
+      }
       setValue('input', newInputValue);
       clearErrors('input');
 
@@ -200,18 +233,21 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
         newInputValue.chainId === currentFormState.output.chainId
       ) {
         setValue('output', { assetSlug: undefined, chainId: undefined, amount: undefined });
-        setSwapRoute(null);
       }
 
       if (formSubmitted) trigger();
     },
-    [clearErrors, getValues, setValue, trigger, formSubmitted]
+    [clearErrors, clearSwapRoute, getValues, setValue, trigger, formSubmitted]
   );
 
   const handleOutputChange = useCallback(
     (newOutputValue: SwapInputValue) => {
       const currentFormState = getValues();
-      setValue('output', newOutputValue);
+      const assetChanged =
+        newOutputValue.assetSlug !== currentFormState.output.assetSlug ||
+        newOutputValue.chainId !== currentFormState.output.chainId;
+      if (assetChanged) clearSwapRoute();
+      setValue('output', assetChanged ? { ...newOutputValue, amount: undefined } : newOutputValue);
       clearErrors('output');
 
       if (
@@ -219,12 +255,11 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
         newOutputValue.chainId === currentFormState.input.chainId
       ) {
         setValue('input', { assetSlug: undefined, chainId: undefined, amount: undefined });
-        setSwapRoute(null);
       }
 
       if (formSubmitted) trigger();
     },
-    [clearErrors, getValues, setValue, trigger, formSubmitted]
+    [clearErrors, clearSwapRoute, getValues, setValue, trigger, formSubmitted]
   );
 
   const handleSelectedAssetChange = useCallback(
@@ -293,9 +328,6 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
     return tokensToAtoms(inputValueToUse || ZERO, inputAssetMetadata?.decimals ?? 0);
   }, [inputAssetMetadata?.decimals, inputValue.amount, parseFiatValueToAssetAmount, getValues]);
 
-  const routeAbortControllerRef = useRef<AbortController>(null);
-  const latestRequestIdRef = useRef(0);
-
   const fetchEvmSwapRoute = useCallback(
     async (params: RouteParams) => {
       routeAbortControllerRef.current?.abort();
@@ -356,12 +388,14 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
         const data = await fetchEvmSwapRoute(params);
         if (requestId !== latestRequestIdRef.current) return;
         if (data) {
+          quotedRouteKeyRef.current = getRouteParamsKey(params);
           setSwapRoute(data);
           setIsRouteLoading(false);
           isRouteLoadingRef.current = false;
           return data;
         }
 
+        quotedRouteKeyRef.current = null;
         setSwapRoute(null);
         setIsAlertVisible(data === null);
         setIsRouteLoading(false);
@@ -369,6 +403,7 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
         return;
       } catch (error) {
         if (requestId !== latestRequestIdRef.current) return;
+        quotedRouteKeyRef.current = null;
         setSwapRoute(null);
         setIsAlertVisible(true);
         setIsRouteLoading(false);
@@ -405,25 +440,35 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
   const getAndSetSwapRoute = useCallback(async () => {
     const params = buildSwapRouteParams();
     if (!params) {
-      setSwapRoute(null);
+      clearSwapRoute();
       return;
     }
 
     void updateSwapRoute(params);
-  }, [buildSwapRouteParams, updateSwapRoute]);
+  }, [buildSwapRouteParams, clearSwapRoute, updateSwapRoute]);
 
   const getAndSetSwapRouteRef = useRef(getAndSetSwapRoute);
   getAndSetSwapRouteRef.current = getAndSetSwapRoute;
 
   useEffect(() => {
     if (!debouncedInputAmount || new BigNumber(debouncedInputAmount).isLessThanOrEqualTo(0)) {
-      setSwapRoute(null);
+      clearSwapRoute();
       return;
     }
     if (sourceAssetInfo?.assetSlug && targetAssetInfo?.assetSlug) {
       void getAndSetSwapRouteRef.current();
+    } else {
+      clearSwapRoute();
     }
-  }, [debouncedInputAmount, sourceAssetInfo?.assetSlug, targetAssetInfo?.assetSlug, slippageTolerance]);
+  }, [
+    debouncedInputAmount,
+    sourceAssetInfo?.assetSlug,
+    sourceAssetInfo?.chainId,
+    targetAssetInfo?.assetSlug,
+    targetAssetInfo?.chainId,
+    slippageTolerance,
+    clearSwapRoute
+  ]);
 
   useInterval(
     () => {
@@ -485,7 +530,8 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
     if (isSubmitting) return;
     if (!inputValue.assetSlug || !outputValue.assetSlug) return;
 
-    if (!swapRoute) {
+    const currentRouteParams = buildSwapRouteParams();
+    if (!swapRoute || !currentRouteParams || quotedRouteKeyRef.current !== getRouteParamsKey(currentRouteParams)) {
       setIsAlertVisible(true);
       return;
     }
@@ -520,6 +566,7 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
     }
   }, [
     account,
+    buildSwapRouteParams,
     formAnalytics,
     isSubmitting,
     getValues,
@@ -633,7 +680,7 @@ export const EvmSwapForm: FC<EvmSwapFormProps> = ({
         handleSetMaxAmount={handleSetMaxAmount}
         handleToggleIconClick={() => {
           handleToggleIconClick();
-          setSwapRoute(null);
+          clearSwapRoute();
         }}
         onSubmit={onSubmit}
       />

@@ -20,6 +20,7 @@ interface DryRunParams {
   network: TezosNetworkEssentials;
   sourcePkh: string;
   sourcePublicKey: string;
+  apply3RouteGasWorkaround?: boolean;
 }
 
 export interface DryRunResult {
@@ -77,7 +78,8 @@ export async function dryRunOpParams({
   opParams,
   network,
   sourcePkh,
-  sourcePublicKey
+  sourcePublicKey,
+  apply3RouteGasWorkaround = false
 }: DryRunParams): Promise<DryRunResult | null> {
   try {
     const tezos = new TezosToolkit(getTezosRpcClient(network));
@@ -104,8 +106,7 @@ export async function dryRunOpParams({
     let serializedEstimates: SerializedEstimate[] | undefined;
     let error: any = [];
     try {
-      const noExplicitGasLimits = opParams.every(op => op.gasLimit === undefined);
-      const preparedOpParams = noExplicitGasLimits
+      const preparedOpParams = apply3RouteGasWorkaround
         ? await getParamsWithCustomGasLimitFor3RouteSwap(tezos, sourcePkh, opParams)
         : opParams;
       const formatted = preparedOpParams.map(operation => formatOpParamsBeforeSend(operation, sourcePkh));
