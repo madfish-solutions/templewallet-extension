@@ -13,13 +13,22 @@ import {
   ADS_RULES_UPDATE_INTERVAL,
   ADS_DISABLING_TIMESTAMPS_STORAGE_KEY,
   AI_CHATBOT_ADS_ENABLED,
+  AI_CHATBOT_ADS_ENABLED_DOMAINS_STORAGE_KEY,
+  ADS_VIEWER_DATA_STORAGE_KEY,
+  ALL_ADS_RULES_STORAGE_KEY,
   WEBSITES_ADS_ENABLED
 } from 'lib/constants';
 import { IS_MISES_BROWSER } from 'lib/env';
 import { fetchFromStorage, putToStorage } from 'lib/storage';
-import { throttleAsyncCalls } from 'lib/utils/functions';
 
 import { getRulesFromContentScript, clearRulesCache } from './content-scripts/replace-ads';
+import {
+  AdsScanRequest,
+  AdsScanScheduler,
+  createAdsScanScheduler,
+  getPublisherMutationRoots,
+  publisherMutationDelay
+} from './content-scripts/replace-ads/scan-scheduler';
 
 const INJECTED_PIXEL_ID = 'twa-injected-pixel';
 const INJECTED_PIXEL_STYLE =
@@ -55,41 +64,143 @@ const startPixelTag = () =>
     }
   }, 1000);
 
-let adsActionTriggers: { documentObserver?: MutationObserver; interval?: NodeJS.Timeout } | undefined;
+let scheduler: AdsScanScheduler | undefined;
+let documentObserver: MutationObserver | undefined;
+let routeInterval: ReturnType<typeof setInterval> | undefined;
+let websiteAdsEnabled = false;
+let chatbotAdsEnabled = false;
+let generation = 0;
+let updateQueue = Promise.resolve();
+let routeKey = window.location.href;
+let observedRouteKey = routeKey;
+let pageIsActive = true;
+let activeAdsModule: Awaited<ReturnType<typeof importExtensionAdsModule>> | undefined;
 
-const updateAdsActionTriggers = async () => {
-  const [inBrowserAdsEnabled, aiChatAdsEnabled] = await Promise.all([
-    checkIfShouldReplaceInBrowserAds(),
-    checkIfShouldReplaceAiChatAds()
-  ]);
+const stopAdsActionTriggers = () => {
+  scheduler?.dispose();
+  scheduler = undefined;
+  documentObserver?.disconnect();
+  documentObserver = undefined;
+  if (routeInterval) clearInterval(routeInterval);
+  routeInterval = undefined;
+};
 
-  if (inBrowserAdsEnabled && !adsActionTriggers?.interval) {
-    await configureAds();
-    const interval = setInterval(() => replaceAdsByInterval(), 1000);
-    adsActionTriggers = { ...adsActionTriggers, interval };
-  } else if (!inBrowserAdsEnabled && adsActionTriggers?.interval) {
-    clearInterval(adsActionTriggers.interval);
-    adsActionTriggers = { ...adsActionTriggers, interval: undefined };
+const requestRouteScan = () => {
+  if (window.location.href !== observedRouteKey) {
+    observedRouteKey = window.location.href;
+    activeAdsModule?.restoreWebsiteAds();
+    clearRulesCache();
   }
+  if (window.location.href !== routeKey) scheduler?.request(undefined, 0);
+};
 
-  if (aiChatAdsEnabled && !adsActionTriggers?.documentObserver) {
-    await configureAds();
-    const documentObserver = new MutationObserver(() => insertAiChatbotAds());
-    documentObserver.observe(document, { childList: true, subtree: true });
-    adsActionTriggers = { ...adsActionTriggers, documentObserver };
-  } else if (!aiChatAdsEnabled && adsActionTriggers?.documentObserver) {
-    adsActionTriggers.documentObserver.disconnect();
-    adsActionTriggers = { ...adsActionTriggers, documentObserver: undefined };
-  }
+const updateAdsActionTriggers = () => {
+  const currentGeneration = ++generation;
+  stopAdsActionTriggers();
+  websiteAdsEnabled = false;
+  chatbotAdsEnabled = false;
+  activeAdsModule?.restoreWebsiteAds();
+  updateQueue = updateQueue
+    .then(async () => {
+      if (!pageIsActive || currentGeneration !== generation) return;
+      const [inBrowserAdsEnabled, aiChatAdsEnabled, adsModule] = await Promise.all([
+        checkIfShouldReplaceInBrowserAds(),
+        checkIfShouldReplaceAiChatAds(),
+        importExtensionAdsModule()
+      ]);
+      if (!pageIsActive || currentGeneration !== generation) return;
+      activeAdsModule = adsModule;
+      // Restore first so an older configuration cannot retain website placements.
+      adsModule.restoreWebsiteAds();
+      if (!inBrowserAdsEnabled && !aiChatAdsEnabled) return;
+      await configureAds();
+      if (!pageIsActive || currentGeneration !== generation) return;
+      websiteAdsEnabled = inBrowserAdsEnabled;
+      chatbotAdsEnabled = aiChatAdsEnabled;
+      scheduler = createAdsScanScheduler(
+        request => scanAds(request, currentGeneration),
+        error => console.error('Replacing Ads error:', error)
+      );
+      if (inBrowserAdsEnabled) {
+        adsModule.configureWebsiteAdsLifecycle(root => scheduler?.request(root));
+      }
+      documentObserver = new MutationObserver(mutations => {
+        const roots = getPublisherMutationRoots(mutations);
+        if (roots.length === 0) return;
+        const delay = document.visibilityState === 'hidden' ? 700 : publisherMutationDelay(roots);
+        for (const root of roots) scheduler?.request(root, delay);
+      });
+      documentObserver.observe(document, {
+        childList: true,
+        subtree: true,
+        attributes: true,
+        attributeFilter: ['class', 'id', 'style', 'src', 'width', 'height', 'hidden']
+      });
+      // Content scripts use an isolated world; a history wrapper cannot observe page-world calls.
+      routeInterval = setInterval(requestRouteScan, 1000);
+    })
+    .catch(error => console.error('Ads configuration error:', error));
 };
 
 const startAdsReplacement = () => {
   updateAdsActionTriggers();
   browser.storage.local.onChanged.addListener(changes => {
-    if (WEBSITES_ADS_ENABLED in changes || AI_CHATBOT_ADS_ENABLED in changes) {
+    if (
+      WEBSITES_ADS_ENABLED in changes ||
+      AI_CHATBOT_ADS_ENABLED in changes ||
+      AI_CHATBOT_ADS_ENABLED_DOMAINS_STORAGE_KEY in changes ||
+      ADS_VIEWER_DATA_STORAGE_KEY in changes
+    ) {
       updateAdsActionTriggers();
+    } else if (ALL_ADS_RULES_STORAGE_KEY in changes) {
+      clearRulesCache();
+      scheduler?.request(undefined, 0);
     }
   });
+  window.addEventListener('popstate', requestRouteScan);
+  window.addEventListener('hashchange', requestRouteScan);
+  document.addEventListener('yt-navigate-finish', requestRouteScan);
+  window.addEventListener('pagehide', () => {
+    pageIsActive = false;
+    ++generation;
+    stopAdsActionTriggers();
+    websiteAdsEnabled = false;
+    chatbotAdsEnabled = false;
+    activeAdsModule?.restoreWebsiteAds();
+  });
+  window.addEventListener('pageshow', event => {
+    if (!event.persisted) return;
+    pageIsActive = true;
+    updateAdsActionTriggers();
+  });
+};
+
+const scanIsCurrent = (scanGeneration: number, href: string) =>
+  pageIsActive &&
+  generation === scanGeneration &&
+  window.location.href === href &&
+  document.visibilityState !== 'hidden';
+
+const scanAds = async (request: AdsScanRequest, scanGeneration: number) => {
+  const href = window.location.href;
+  if (!scanIsCurrent(scanGeneration, href)) return;
+  const adsModule = await importExtensionAdsModule();
+  if (!scanIsCurrent(scanGeneration, href)) return;
+  if (routeKey !== href) {
+    routeKey = href;
+    observedRouteKey = href;
+    clearRulesCache();
+    adsModule.restoreWebsiteAds();
+    if (websiteAdsEnabled) adsModule.configureWebsiteAdsLifecycle(root => scheduler?.request(root));
+    request = {};
+  }
+  if (websiteAdsEnabled) {
+    adsModule.reconcileWebsiteAds();
+    await replaceWebsiteAds(request, scanGeneration, href);
+  }
+  if (chatbotAdsEnabled && scanIsCurrent(scanGeneration, href)) {
+    await insertAiChatbotAds(scanGeneration, href);
+  }
 };
 
 let lastAttemptTs = 0;
@@ -107,12 +218,16 @@ const disableAdsTemporarily = async (subkey: string) =>
     [subkey]: Date.now()
   });
 
-const insertAiChatbotAds = async () => {
+const insertAiChatbotAds = async (scanGeneration: number, href: string) => {
   try {
     const { isChatgptChatPage, startChatgptChatAdsFlow } = await importExtensionAdsModule();
     let adsActionsResult: PromiseSettledResult<void>[] = [];
 
-    if (isChatgptChatPage() && (await shouldEnableChatbotAds(CHATGPT_DOMAIN, 24 * 3600 * 1000))) {
+    if (
+      isChatgptChatPage() &&
+      (await shouldEnableChatbotAds(CHATGPT_DOMAIN, 24 * 3600 * 1000)) &&
+      scanIsCurrent(scanGeneration, href)
+    ) {
       adsActionsResult = await startChatgptChatAdsFlow(() => disableAdsTemporarily(CHATGPT_DOMAIN));
     }
 
@@ -125,7 +240,7 @@ const insertAiChatbotAds = async () => {
   }
 };
 
-const replaceAdsByInterval = throttleAsyncCalls(async () => {
+const replaceWebsiteAds = async (request: AdsScanRequest, scanGeneration: number, href: string) => {
   try {
     const {
       getAdsActions,
@@ -140,7 +255,7 @@ const replaceAdsByInterval = throttleAsyncCalls(async () => {
     } = await importExtensionAdsModule();
     let adsActionsResult: PromiseSettledResult<void>[] = [];
 
-    if (isChatgptChatPage()) {
+    if (!scanIsCurrent(scanGeneration, href) || !websiteAdsEnabled || isChatgptChatPage()) {
       return;
     }
 
@@ -164,8 +279,9 @@ const replaceAdsByInterval = throttleAsyncCalls(async () => {
         });
       }
 
-      const adsActions = await getAdsActions(adsRules);
-
+      if (!scanIsCurrent(scanGeneration, href)) return;
+      const adsActions = await getAdsActions(adsRules, request);
+      if (!scanIsCurrent(scanGeneration, href)) return;
       adsActionsResult = await executeAdsActions(adsActions);
     }
     adsActionsResult.forEach(
@@ -175,7 +291,7 @@ const replaceAdsByInterval = throttleAsyncCalls(async () => {
   } catch (error) {
     console.error('Replacing Ads error:', error);
   }
-});
+};
 
 runWhenDocumentIsActive(() => {
   startPixelTag();
