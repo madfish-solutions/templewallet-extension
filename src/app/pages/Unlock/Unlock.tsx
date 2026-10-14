@@ -14,7 +14,7 @@ import { dispatch } from 'app/store';
 import { getUserTestingGroupNameActions } from 'app/store/ab-testing/actions';
 import { useUserTestingGroupNameSelector } from 'app/store/ab-testing/selectors';
 import { DoubleRewardsEngagementModal } from 'app/templates/DoubleRewardsEngagementModal';
-import { FineTuneRewardsModal } from 'app/templates/FineTuneRewardsModal';
+import { useFineTuneRewardsModalModule } from 'app/templates/FineTuneRewardsModal';
 import { useFormAnalytics } from 'lib/analytics';
 import { ABTestGroup } from 'lib/apis/temple';
 import { DEFAULT_PASSWORD_INPUT_PLACEHOLDER, SHOULD_SHOW_FINE_TUNE_REWARDS_MODAL_STORAGE_KEY } from 'lib/constants';
@@ -60,6 +60,7 @@ const getTimeLeft = (start: number, end: number, now: number) => {
 };
 
 const Unlock: FC<UnlockProps> = ({ canImportNew = true }) => {
+  const FineTuneRewardsModalModule = useFineTuneRewardsModalModule();
   const { unlock } = useTempleClient();
   const formAnalytics = useFormAnalytics('UnlockWallet');
   const [, setInitToastParams] = useInitToastParams();
@@ -263,11 +264,13 @@ const Unlock: FC<UnlockProps> = ({ canImportNew = true }) => {
         opened={doubleRewardsEngagementModalOpen}
         onRequestClose={closeDoubleRewardsEngagementModal}
       />
-      <FineTuneRewardsModal
-        opened={!!shouldShowFineTuneRewardsModal && !doubleRewardsEngagementModalHasBeenOpen}
-        onClose={handleFineTuneRewardsModalClose}
-        onShown={handleFineTuneRewardsModalShown}
-      />
+      {FineTuneRewardsModalModule && (
+        <FineTuneRewardsModalModule.FineTuneRewardsModal
+          opened={!!shouldShowFineTuneRewardsModal && !doubleRewardsEngagementModalHasBeenOpen}
+          onClose={handleFineTuneRewardsModalClose}
+          onShown={handleFineTuneRewardsModalShown}
+        />
+      )}
     </>
   );
 };
