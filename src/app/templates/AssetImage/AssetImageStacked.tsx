@@ -1,7 +1,8 @@
 import { FC } from 'react';
 
 import {
-  buildCollectibleImagesStack,
+  appendExtraSource,
+  buildCollectibleImageSourceStages,
   buildTokenImageSourceStages,
   buildEvmTokenIconSources,
   buildEvmCollectibleIconSources
@@ -11,7 +12,6 @@ import { EvmAssetMetadataBase } from 'lib/metadata/types';
 import { isEvmCollectibleMetadata } from 'lib/metadata/utils';
 import { useMemoWithCompare } from 'lib/ui/hooks';
 import { ImageStacked, ImageStackedProps } from 'lib/ui/ImageStacked';
-import { normalizeImageSources } from 'lib/ui/race-image-urls';
 
 interface AssetImageStackedPropsBase extends Omit<ImageStackedProps, 'pauseRender' | 'sources'> {
   extraSrc?: string;
@@ -28,18 +28,17 @@ export const TezosAssetImageStacked: FC<TezosAssetImageStackedProps> = ({
   extraSrc,
   ...rest
 }) => {
+  const collectibleMetadata = metadata && isTezosCollectibleMetadata(metadata) ? metadata : undefined;
+
   const sources = useMemoWithCompare(() => {
-    const stack =
-      metadata && isTezosCollectibleMetadata(metadata)
-        ? buildCollectibleImagesStack(metadata, fullViewCollectible)
-        : buildTokenImageSourceStages(metadata?.thumbnailUri);
+    const stack = collectibleMetadata
+      ? buildCollectibleImageSourceStages(collectibleMetadata, fullViewCollectible)
+      : buildTokenImageSourceStages(metadata?.thumbnailUri);
 
-    if (!extraSrc) return stack;
+    return appendExtraSource(stack, extraSrc);
+  }, [collectibleMetadata, metadata, fullViewCollectible, extraSrc]);
 
-    return normalizeImageSources(stack).concat({ urls: [extraSrc] });
-  }, [metadata, fullViewCollectible, extraSrc]);
-
-  return <ImageStacked sources={sources} alt={metadata?.name} {...rest} />;
+  return <ImageStacked sources={sources} progressive={Boolean(collectibleMetadata)} alt={metadata?.name} {...rest} />;
 };
 
 export interface EvmAssetImageStackedProps extends AssetImageStackedPropsBase {
@@ -49,12 +48,10 @@ export interface EvmAssetImageStackedProps extends AssetImageStackedPropsBase {
 
 export const EvmAssetImageStacked: FC<EvmAssetImageStackedProps> = ({ evmChainId, metadata, extraSrc, ...rest }) => {
   const sources = useMemoWithCompare(() => {
-    if (!metadata) return extraSrc ? [{ urls: [extraSrc] }] : [];
+    if (!metadata) return appendExtraSource([], extraSrc);
 
-    if (isEvmCollectibleMetadata(metadata)) {
-      const baseSources = buildEvmCollectibleIconSources(metadata);
-      return extraSrc ? baseSources.concat({ urls: [extraSrc] }) : baseSources;
-    }
+    if (isEvmCollectibleMetadata(metadata))
+      return appendExtraSource(buildEvmCollectibleIconSources(metadata), extraSrc);
     if (extraSrc) return [{ urls: [extraSrc] }];
 
     return buildEvmTokenIconSources(metadata, evmChainId);

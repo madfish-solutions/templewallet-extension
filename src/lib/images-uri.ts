@@ -10,34 +10,34 @@ import {
   buildLastResortIpfsGatewayUrl,
   buildPrimaryIpfsGatewayUrls,
   DEFAULT_IPFS_GATE,
-  getIpfsItemInfo,
-  getMediaUriInfo,
   IPFS_PROTOCOL,
   IpfsUriInfo,
+  isInvalidIpfsMediaUri,
   LAST_RESORT_IPFS_DELAY,
   MediaUriInfo,
   parseMediaUri
 } from './utils/ipfs';
+import {
+  buildObjktAssetUrls,
+  buildObjktTokenThumbnailUrl,
+  isObjktAssetUrl,
+  ObjktAssetRendition
+} from './utils/objkt-cdn';
 
 type TcInfraMediaSize = 'small' | 'medium' | 'large' | 'raw';
-type ObjktMediaTail = 'display' | 'artifact' | 'thumb288';
 
 const COMPRESSED_TOKEN_ICON_SIZE = 80;
 const COMPRESSED_COLLECTIBLE_ICON_SIZE = 250;
 
 const MEDIA_HOST = 'https://static.tcinfra.net/media';
 const DEFAULT_MEDIA_SIZE: TcInfraMediaSize = 'small';
-const OBJKT_MEDIA_HOST = 'https://assets.objkt.media/file/assets-003';
 
 const SVG_DATA_URI_UTF8_PREFIX = 'data:image/svg+xml;charset=utf-8,';
 
 export const isSvgDataUriInUtf8Encoding = (uri: string) =>
   uri.slice(0, SVG_DATA_URI_UTF8_PREFIX.length).toLowerCase() === SVG_DATA_URI_UTF8_PREFIX;
 
-const flattenImageSourceStages = (stages: ImageSourceStage[]) => stages.flatMap(stage => stage.urls);
-
-export const buildTokenImagesStack = (url?: string): string[] =>
-  flattenImageSourceStages(buildTokenImageSourceStages(url));
+const isImageDataUri = (uri: string) => uri.startsWith('data:image/');
 
 export const buildTokenImageSourceStages = (url?: string): ImageSourceStage[] => {
   if (!url) return [];
@@ -50,46 +50,66 @@ export const buildTokenImageSourceStages = (url?: string): ImageSourceStage[] =>
     return tcinfraStages.concat(buildIpfsGatewaySourceStages(url));
   }
 
-  if (url.startsWith('data:image/') || url.startsWith('chrome-extension') || url.startsWith('moz-extension')) {
+  if (isImageDataUri(url) || url.startsWith('chrome-extension') || url.startsWith('moz-extension')) {
     return [{ urls: [url] }];
   }
 
   return [];
 };
 
-export const buildCollectibleImagesStack = (
+const isGatewayFallbackUri = (uri: string) =>
+  !isInvalidIpfsMediaUri(uri) && !isObjktAssetUrl(uri) && (uri.startsWith(IPFS_PROTOCOL) || uri.startsWith('http'));
+
+const buildObjktStages = (uris: string[], renditions: ObjktAssetRendition[]): ImageSourceStage[] =>
+  uniq(
+    uris.flatMap(uri =>
+      isImageDataUri(uri) ? [uri] : renditions.flatMap(rendition => buildObjktAssetUrls(uri, rendition))
+    )
+  ).map(url => ({ urls: [url] }));
+
+/** objkt's CDN first, then the IPFS gateways for the first URI they can serve. */
+const buildTezosMediaStages = (
+  uris: Array<string | undefined>,
+  renditions: ObjktAssetRendition[] = ['artifact']
+): ImageSourceStage[] => {
+  const definedUris = uris.filter(isTruthy);
+
+  return buildObjktStages(definedUris, renditions).concat(
+    buildIpfsGatewaySourceStages(definedUris.find(isGatewayFallbackUri))
+  );
+};
+
+export const buildCollectibleImageSourceStages = (
   { address, id, artifactUri, displayUri, thumbnailUri }: TokenMetadata,
   fullView = false
-): string[] => {
-  // May wanna loose artifactUri entirely for non-image media
-  const artifactInfo = getMediaUriInfo(artifactUri);
-  const displayInfo = getMediaUriInfo(displayUri);
-  const thumbnailInfo = getMediaUriInfo(thumbnailUri);
+): ImageSourceStage[] => {
+  if (fullView) return buildTezosMediaStages([displayUri, artifactUri, thumbnailUri]);
 
-  const result = fullView
-    ? [
-        buildObjktMediaURI(artifactInfo.ipfs, 'display'),
-        buildObjktMediaURI(displayInfo.ipfs, 'display'),
-        buildObjktMediaURI(thumbnailInfo.ipfs, 'display'),
+  const previewStages = buildTezosMediaStages([thumbnailUri, displayUri]);
 
-        ...buildTcInfraMediaUrls(displayUri, ['raw', 'large', 'medium', 'small']),
-        ...buildTcInfraMediaUrls(artifactUri, ['raw', 'large', 'medium', 'small'])
-      ]
-    : [
-        // Some image of video asset (see: KT1RJ6PbjHpwc3M5rw5s2Nbmefwbuwbdxton_773019) only available through this option:
-        buildObjktMediaUriForItemPath(`${address}/${id}`, 'thumb288'),
-
-        buildObjktMediaURI(artifactInfo.ipfs, 'thumb288'),
-        buildObjktMediaURI(displayInfo.ipfs, 'thumb288'),
-        buildObjktMediaURI(thumbnailInfo.ipfs, 'thumb288'),
-
-        ...buildTcInfraMediaUrls(thumbnailUri, ['medium', 'small']),
-        ...buildTcInfraMediaUrls(displayUri, ['medium', 'small']),
-        ...buildTcInfraMediaUrls(artifactUri, ['medium', 'small'])
-      ];
-
-  return uniq(result.filter(isTruthy));
+  return [
+    { urls: [buildObjktTokenThumbnailUrl(address, id)] },
+    ...(previewStages.length > 0 ? previewStages : buildTezosMediaStages([artifactUri]))
+  ];
 };
+
+export const buildCollectionLogoSourceStages = (logoUri?: string) =>
+  buildTezosMediaStages([logoUri], ['thumb288', 'artifact']);
+
+export const appendExtraSource = (stages: ImageSourceStage[], extraSrc?: string): ImageSourceStage[] =>
+  extraSrc && !stages.some(stage => stage.urls.includes(extraSrc)) ? stages.concat({ urls: [extraSrc] }) : stages;
+
+const isDirectlyLoadableUri = (uri: string) => /^(https?|data|blob):/.test(uri);
+
+export const buildObjktCollectibleArtifactUris = (artifactUri: string): string[] => {
+  const objktUrls = buildObjktAssetUrls(artifactUri, 'artifact');
+  const fallbacks = objktUrls.length === 0 || isDirectlyLoadableUri(artifactUri) ? [artifactUri] : [];
+
+  return uniq(objktUrls.concat(fallbacks));
+};
+
+export const buildObjktArtifactExtraSrc = (artifactUri: string) =>
+  isDirectlyLoadableUri(artifactUri) ? artifactUri : buildObjktAssetUrls(artifactUri, 'artifact').at(0);
 
 const buildTcInfraMediaUrls = (uri: string | undefined, sizes: TcInfraMediaSize[]) => {
   const { native, ipfsAware } = parseMediaUri(uri);
@@ -97,25 +117,6 @@ const buildTcInfraMediaUrls = (uri: string | undefined, sizes: TcInfraMediaSize[
 
   return sizes.flatMap(size => infos.map(info => buildIpfsMediaUriByInfo(info, size)));
 };
-
-export const buildObjktCollectibleArtifactUri = (artifactUri: string) =>
-  buildObjktMediaURI(getIpfsItemInfo(artifactUri), 'artifact') || artifactUri;
-
-const buildObjktMediaURI = (ipfsInfo: IpfsUriInfo | nullish, tail: ObjktMediaTail) => {
-  if (!ipfsInfo) {
-    return;
-  }
-
-  let result = buildObjktMediaUriForItemPath(ipfsInfo.id, tail);
-  if (ipfsInfo.search) {
-    result += `/index.html${ipfsInfo.search}`;
-  }
-
-  return result;
-};
-
-export const buildObjktMediaUriForItemPath = (itemId: string, tail: ObjktMediaTail) =>
-  `${OBJKT_MEDIA_HOST}/${itemId}/${tail}`;
 
 const toMediaHostIpfsPath = ({ id, pathWithoutCid, search }: IpfsUriInfo) => {
   const pathWithCid = pathWithoutCid ? `${id}/${pathWithoutCid}` : id;
@@ -229,7 +230,11 @@ export const buildEvmCollectibleIconSources = (
   const { ipfsAware } = parseMediaUri(originalUrl);
   const mediaHostUrl = buildIpfsMediaUriByInfo(ipfsAware) ?? originalUrl;
 
-  return [{ urls: [getCompressedImageUrl(mediaHostUrl, COMPRESSED_COLLECTIBLE_ICON_SIZE)] }].concat(
+  return [
+    {
+      urls: [getCompressedImageUrl(mediaHostUrl, COMPRESSED_COLLECTIBLE_ICON_SIZE)]
+    }
+  ].concat(
     gatewayStages.map(({ urls, ...rest }) => ({
       ...rest,
       urls: urls.map(url => getCompressedImageUrl(url, COMPRESSED_COLLECTIBLE_ICON_SIZE))

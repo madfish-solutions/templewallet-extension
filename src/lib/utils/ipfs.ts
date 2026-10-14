@@ -32,6 +32,8 @@ export const IPFS_PROTOCOL = 'ipfs://';
  */
 const INVALID_IPFS_ID = 'QmNrhZHUaEqxhyLfqoq1mtHSipkWHeT31LNHb1QEbDHgnc';
 
+export const isInvalidIpfsMediaUri = (uri: string) => uri.includes(INVALID_IPFS_ID);
+
 const joinCidPath = (cid: string, { pathWithoutCid, search }: IpfsUriInfo) => {
   const nestedPath = pathWithoutCid ? `/${pathWithoutCid}` : '';
 
@@ -112,7 +114,7 @@ export const getIpfsItemInfo = (uri: string): IpfsUriInfo | null => {
   }
 };
 
-export const getMediaUriInfo = (uri?: string): MediaUriInfo => ({
+const getMediaUriInfo = (uri?: string): MediaUriInfo => ({
   uri,
   ipfs: uri ? getIpfsItemInfo(uri) : null
 });
