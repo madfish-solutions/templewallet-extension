@@ -1,4 +1,22 @@
 [Adblock Plus 2.0]
 ! Title: Temple ad replacement overrides
 ! Version: 1
+! Filter syntax: https://help.adblockplus.org/adblock-plus-help-center/how-to-write-filters
+! Temple supports native CSS selectors (##), exact selector exceptions (#@#), and page exceptions ($elemhide, $generichide, $document).
+! Temple uses matched elements as ad replacement candidates.
+! Exceptions apply to exact selector text across all feeds.
 ! Add verified publisher selectors and exact exceptions here.
+
+! Etherscan explorer family: self-hosted sponsor banners.
+etherscan.io,bscscan.com,polygonscan.com,arbiscan.io,basescan.org,snowtrace.io##img[src*='/images/gen/']
+
+! Etherscan: Sevio banner containers.
+etherscan.io##.sevioads
+
+! Crypto media and data websites: sponsored images.
+cointelegraph.com,theblock.co,coinmarketcap.com,coingecko.com,dexscreener.com##a[rel~='sponsored'] img
+
+! Publisher banner markers.
+cointelegraph.com##[class*='promo-banner' i]
+theblock.co##[class*='sponsor-banner' i]
+coinmarketcap.com##[data-role*='banner-ad' i]
