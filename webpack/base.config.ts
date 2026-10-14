@@ -97,6 +97,7 @@ export const buildBaseConfig = (): WebPack.Configuration & Pick<WebPack.WebpackO
         // match the requirements. When no loader matches it will fall
         // back to the "file" loader at the end of the loader list.
         oneOf: [
+          { test: /\.txt$/, resourceQuery: /raw/, type: 'asset/source' },
           // "url" loader works like "file" loader except that it embeds assets
           // smaller than specified limit in bytes as data URLs to avoid requests.
           // A missing `test` is equivalent to a match.
@@ -206,6 +207,8 @@ export const buildBaseConfig = (): WebPack.Configuration & Pick<WebPack.WebpackO
     !shouldDisableAds &&
       new CopyWebpackPlugin({
         patterns: [
+          { from: path.join(PATHS.SOURCE, 'lib/ads/selectors/NOTICES.txt'), to: 'misc/ad-selectors/NOTICES.txt' },
+          { from: path.join(PATHS.SOURCE, 'lib/ads/selectors/ghostery-MPL-2.0.txt'), to: 'misc/ad-selectors/ghostery-MPL-2.0.txt' },
           { from: path.join(PATHS.NODE_MODULES, 'inter-ui/Inter (web latin)/Inter-Regular.woff2'), to: 'fonts/Inter-Regular.woff2' },
           { from: path.join(PATHS.NODE_MODULES, 'inter-ui/Inter (web latin)/Inter-Medium.woff2'), to: 'fonts/Inter-Medium.woff2' },
           { from: path.join(PATHS.NODE_MODULES, 'inter-ui/Inter (web latin)/Inter-SemiBold.woff2'), to: 'fonts/Inter-SemiBold.woff2' },

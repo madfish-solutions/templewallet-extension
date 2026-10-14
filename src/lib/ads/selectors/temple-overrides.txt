@@ -1,0 +1,4 @@
+[Adblock Plus 2.0]
+! Title: Temple ad replacement overrides
+! Version: 1
+! Add verified publisher selectors and exact exceptions here.

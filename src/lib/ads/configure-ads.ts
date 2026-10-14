@@ -55,6 +55,7 @@ interface AdMetadata {
 }
 
 interface AdsStackIframeURLParams {
+  placementKind?: 'selector';
   id: string;
   adsMetadataIds: any[];
   origin: string;
@@ -85,6 +86,7 @@ const swapTkeyUrl = `${browser.runtime.getURL('fullpage.html')}#${buildSwapPageP
 )}`;
 
 const searchParamsNames = {
+  placementKind: 'placementKind',
   id: 'id',
   themeColor: THEME_COLOR_SEARCH_PARAM_NAME,
   backgroundColor: BACKGROUND_COLOR_SEARCH_PARAM_NAME,

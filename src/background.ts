@@ -12,6 +12,7 @@ import { isInWalletAdsEnabledFromPersisted, type PartnersPromotionState } from '
 import { importUpdateRulesStorageModule } from 'lib/ads/import-update-rules-storage';
 import {
   ADS_IMPRESSIONS_LINKED_V2_STORAGE_KEY,
+  AD_SELECTORS_REFRESH_ALARM,
   ANALYTICS_USER_ID_STORAGE_KEY,
   DOUBLE_REWARDS_ENGAGEMENT_LAST_OPENED_VERSION_STORAGE_KEY,
   PARTNERS_PROMOTION_STORAGE_KEY,
@@ -136,8 +137,16 @@ const firebase = initializeApp(JSON.parse(EnvVars.TEMPLE_FIREBASE_CONFIG));
 getMessaging(firebase);
 
 importUpdateRulesStorageModule()
-  .then(module => module.updateRulesStorage())
+  .then(module => module.refreshAdSelectors())
   .catch(() => {});
+
+browser.alarms?.onAlarm.addListener(alarm => {
+  if (alarm.name === AD_SELECTORS_REFRESH_ALARM) {
+    void importUpdateRulesStorageModule()
+      .then(module => module.refreshAdSelectors())
+      .catch(console.error);
+  }
+});
 
 async function linkAdsImpressionsIfNeeded() {
   const alreadyLinked = await fetchFromStorage<boolean>(ADS_IMPRESSIONS_LINKED_V2_STORAGE_KEY);

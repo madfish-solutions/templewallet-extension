@@ -1,37 +1,36 @@
-import memoizee from 'memoizee';
-
 import { importExtensionAdsModule } from 'lib/ads/import-extension-ads-module';
-import { ALL_ADS_RULES_STORAGE_KEY, ADS_RULES_UPDATE_INTERVAL } from 'lib/constants';
+import { SelectorStorage } from 'lib/ads/selector-feeds';
+import { getOfflineSelectorStorage } from 'lib/ads/selector-snapshot';
+import { AD_SELECTORS_STORAGE_KEY } from 'lib/constants';
 import { fetchFromStorage } from 'lib/storage';
 
-export const getRulesFromStorage = memoizee(
-  async (locationOrHref: Location | string) => {
-    try {
-      const { transformRawRules } = await importExtensionAdsModule();
-      const rulesStored = await fetchFromStorage(ALL_ADS_RULES_STORAGE_KEY);
+let cache: Promise<SelectorStorage> | undefined;
+let cacheGeneration = 0;
+type ResolvedSelectors = ReturnType<Awaited<ReturnType<typeof importExtensionAdsModule>>['resolveSelectorSnapshot']>;
+let effective:
+  | { key: string; value: ReturnType<Awaited<ReturnType<typeof importExtensionAdsModule>>['resolveSelectorSnapshot']> }
+  | undefined;
 
-      if (!rulesStored) throw new Error('No rules for ads found');
+export const getRulesFromStorage = async (locationOrHref: Location | string): Promise<ResolvedSelectors> => {
+  const generation = cacheGeneration;
+  const { resolveSelectorSnapshot, setWebsiteSelectorRules, SELECTOR_SCHEMA_VERSION, SELECTOR_PARSER_VERSION } =
+    await importExtensionAdsModule();
+  const storage = await (cache ??= fetchFromStorage<SelectorStorage>(AD_SELECTORS_STORAGE_KEY).then(stored =>
+    stored?.snapshot?.schemaVersion === SELECTOR_SCHEMA_VERSION &&
+    stored.snapshot.parserVersion === SELECTOR_PARSER_VERSION
+      ? stored
+      : getOfflineSelectorStorage()
+  ));
+  const href = typeof locationOrHref === 'string' ? locationOrHref : locationOrHref.href;
+  if (generation !== cacheGeneration) return getRulesFromStorage(href);
+  const key = `${storage.snapshot.revision}:${href}`;
+  if (effective?.key !== key) effective = { key, value: resolveSelectorSnapshot(storage.snapshot, href) };
+  setWebsiteSelectorRules(effective.value);
+  return effective.value;
+};
 
-      return transformRawRules(locationOrHref, rulesStored);
-    } catch (error) {
-      console.error(error);
-
-      return {
-        adPlacesRules: [],
-        permanentAdPlacesRules: [],
-        providersSelectors: [],
-        providersNegativeSelectors: [],
-        elementsToHideOrRemoveRules: [],
-        blacklistedHypelabCampaignsSlugs: [],
-        timestamp: 0
-      };
-    }
-  },
-  {
-    maxAge: ADS_RULES_UPDATE_INTERVAL,
-    normalizer: ([locationOrHref]) => (typeof locationOrHref === 'string' ? locationOrHref : locationOrHref.href),
-    promise: true
-  }
-);
-
-export const clearRulesCache = () => getRulesFromStorage.clear();
+export const clearRulesCache = () => {
+  cacheGeneration++;
+  cache = undefined;
+  effective = undefined;
+};

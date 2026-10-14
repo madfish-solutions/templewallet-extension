@@ -504,10 +504,10 @@ const processRequest = async (req: TempleRequest, port: Runtime.Port): Promise<T
 browser.runtime.onMessage.addListener(async (msg, sender) => {
   try {
     switch (msg?.type) {
-      case ContentScriptType.UpdateAdsRules:
-        const { updateRulesStorage } = await importUpdateRulesStorageModule();
-        await updateRulesStorage()?.catch(() => {});
-        return;
+      case ContentScriptType.RefreshAdSelectors:
+        if (sender.id !== browser.runtime.id) return;
+        const { refreshAdSelectors } = await importUpdateRulesStorageModule();
+        return await refreshAdSelectors();
 
       case E2eMessageType.ResetRequest:
         return clearAsyncStorages().then(() => ({ type: E2eMessageType.ResetResponse }));

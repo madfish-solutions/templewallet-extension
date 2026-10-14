@@ -9,7 +9,7 @@ export enum ContentScriptType {
   ExternalLinksActivity = 'ExternalLinksActivity',
   ExternalPageLocation = 'ExternalPageLocation',
   ExternalAdsActivity = 'ExternalAdsActivity',
-  UpdateAdsRules = 'UpdateAdsRules',
+  RefreshAdSelectors = 'RefreshAdSelectors',
   FetchReferralsRules = 'FetchReferralsRules',
   ReferralClick = 'ReferralClick',
   FetchTempleReferralLinkItems = 'FetchTempleReferralLinkItems',
@@ -93,9 +93,11 @@ export const BLOCKCHAIN_EXPLORERS_OVERRIDES_STORAGE_KEY = 'BLOCKCHAIN_EXPLORERS_
 
 export const ANALYTICS_USER_ID_STORAGE_KEY = 'analytics_user_id';
 
-export const ALL_ADS_RULES_STORAGE_KEY = 'ALL_ADS_RULES';
+export const AD_SELECTORS_STORAGE_KEY = 'AD_SELECTORS_V1';
 
-export const ADS_RULES_UPDATE_INTERVAL = 5 * 60 * 1000;
+export const AD_CAMPAIGN_POLICY_STORAGE_KEY = 'AD_CAMPAIGN_POLICY';
+
+export const AD_SELECTORS_REFRESH_ALARM = 'ad-selectors-refresh';
 
 export const AD_HIDING_TIMEOUT = 12 * 3600 * 1000;
 

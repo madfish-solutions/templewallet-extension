@@ -78,3 +78,7 @@ declare module 'react-devtools-core/backend' {
   export const initialize: (settings?: DevToolsSettings | Promise<DevToolsSettings> | null) => void;
   export const connectToDevTools: (options?: ConnectToDevToolsOptions) => void;
 }
+declare module '*.txt?raw' {
+  const text: string;
+  export default text;
+}

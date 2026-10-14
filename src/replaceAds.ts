@@ -1,4 +1,4 @@
-import browser from 'webextension-polyfill';
+import browser, { Storage } from 'webextension-polyfill';
 
 import {
   checkIfShouldReplaceAiChatAds,
@@ -10,12 +10,11 @@ import { configureAds } from 'lib/ads/configure-ads';
 import { importExtensionAdsModule } from 'lib/ads/import-extension-ads-module';
 import {
   ContentScriptType,
-  ADS_RULES_UPDATE_INTERVAL,
   ADS_DISABLING_TIMESTAMPS_STORAGE_KEY,
   AI_CHATBOT_ADS_ENABLED,
   AI_CHATBOT_ADS_ENABLED_DOMAINS_STORAGE_KEY,
   ADS_VIEWER_DATA_STORAGE_KEY,
-  ALL_ADS_RULES_STORAGE_KEY,
+  AD_SELECTORS_STORAGE_KEY,
   WEBSITES_ADS_ENABLED
 } from 'lib/constants';
 import { IS_MISES_BROWSER } from 'lib/env';
@@ -152,9 +151,18 @@ const startAdsReplacement = () => {
       ADS_VIEWER_DATA_STORAGE_KEY in changes
     ) {
       updateAdsActionTriggers();
-    } else if (ALL_ADS_RULES_STORAGE_KEY in changes) {
+    } else if (AD_SELECTORS_STORAGE_KEY in changes) {
+      const change = changes[AD_SELECTORS_STORAGE_KEY] as Storage.StorageChange;
+      if (change.oldValue?.snapshot?.revision === change.newValue?.snapshot?.revision) return;
+      ++selectorGeneration;
+      activeAdsModule?.setWebsiteSelectorRules({ revision: '', selectors: [], disabled: true, genericDisabled: false });
       clearRulesCache();
-      scheduler?.request(undefined, 0);
+      void getRulesFromContentScript(window.location)
+        .then(() => {
+          activeAdsModule?.reconcileWebsiteAds();
+          scheduler?.request(undefined, 0);
+        })
+        .catch(console.error);
     }
   });
   window.addEventListener('popstate', requestRouteScan);
@@ -203,7 +211,7 @@ const scanAds = async (request: AdsScanRequest, scanGeneration: number) => {
   }
 };
 
-let lastAttemptTs = 0;
+let selectorGeneration = 0;
 
 const fetchAdsDisablingTimestamps = async () =>
   (await fetchFromStorage<StringRecord<number>>(ADS_DISABLING_TIMESTAMPS_STORAGE_KEY)) ?? {};
@@ -268,20 +276,11 @@ const replaceWebsiteAds = async (request: AdsScanRequest, scanGeneration: number
     } else {
       const adsRules = await getRulesFromContentScript(window.location);
 
-      if (
-        adsRules.timestamp < Date.now() - ADS_RULES_UPDATE_INTERVAL &&
-        lastAttemptTs < Date.now() - ADS_RULES_UPDATE_INTERVAL
-      ) {
-        lastAttemptTs = Date.now();
-        clearRulesCache();
-        browser.runtime.sendMessage({ type: ContentScriptType.UpdateAdsRules }).catch(e => {
-          console.error(e);
-        });
-      }
-
       if (!scanIsCurrent(scanGeneration, href)) return;
+      const revisionGeneration = selectorGeneration;
+      activeAdsModule?.reconcileWebsiteAds();
       const adsActions = await getAdsActions(adsRules, request);
-      if (!scanIsCurrent(scanGeneration, href)) return;
+      if (!scanIsCurrent(scanGeneration, href) || revisionGeneration !== selectorGeneration) return;
       adsActionsResult = await executeAdsActions(adsActions);
     }
     adsActionsResult.forEach(
