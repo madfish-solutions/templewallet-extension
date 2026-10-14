@@ -2,6 +2,7 @@ import React, { memo, useMemo } from 'react';
 
 import { StyledButton } from 'app/atoms/StyledButton';
 import { useRichFormatTooltip } from 'app/hooks/use-rich-format-tooltip';
+import { el } from 'lib/el';
 import { T, t } from 'lib/i18n';
 import { formatDuration } from 'lib/i18n/core';
 import { ONE_DAY_SECONDS } from 'lib/utils/numbers';
@@ -14,12 +15,7 @@ const notReadyClaimTooltipProps = {
   animation: 'shift-away-subtle',
   placement: 'bottom-end'
 } as const;
-const wrapperFactory = () => {
-  const element = document.createElement('div');
-  element.className = 'max-w-60';
-
-  return element;
-};
+const wrapperFactory = () => el('div', 'max-w-60');
 
 export const NotReadyClaimButton = memo<{ stats: EthStakingStats }>(({ stats }) => {
   const { validator_withdraw_time, validator_exit_time, lastUnstakeTimestamp } = stats;
