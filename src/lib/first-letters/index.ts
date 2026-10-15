@@ -1,6 +1,6 @@
 // Original: https://github.com/dicebear/dicebear/blob/8.x/packages/%40dicebear/initials/src/index.ts
 
-import type { StyleCreate, StyleMeta } from '@dicebear/core';
+import { escape, type StyleCreate, type StyleMeta } from '@dicebear/core';
 
 import { convertColor } from './convertColor';
 import type { Options } from './types';
@@ -23,8 +23,9 @@ export const create: StyleCreate<Options> = ({ prng, options }) => {
   const initials = Array.from(prng.seed.trim())
     .slice(0, options.chars ?? 2)
     .join('');
+  // Rendered inline from on-chain symbols, so the body is escaped too; DiceBear escapes only attributes.
   const svg = [
-    `<text x="50%" y="50%" font-family="${fontFamily}" font-size="${fontSize}" font-weight="${fontWeight}" fill="${textColor}" text-anchor="middle" dy="${(fontSize * 0.356).toFixed(3)}">${initials}</text>`
+    `<text x="50%" y="50%" font-family="${escape.xml(fontFamily)}" font-size="${fontSize}" font-weight="${fontWeight}" fill="${escape.xml(textColor)}" text-anchor="middle" dy="${(fontSize * 0.356).toFixed(3)}">${escape.xml(initials)}</text>`
   ].join('');
 
   return {
