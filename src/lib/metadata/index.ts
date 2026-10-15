@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import { merge } from 'lodash';
 
@@ -165,27 +165,114 @@ const useGetterBySlug = <T>(input: GetterBySlugInput<T>, fallbackValueFn?: SyncF
   return useGetter(input, getterFn);
 };
 
+type EvmTokenMetadataSlugRecord = StringRecord<EvmTokenMetadata> | undefined;
+
+const pickEvmTokenMetadata = (
+  slug: string,
+  tokens: EvmTokenMetadataSlugRecord,
+  lifiConnected: EvmTokenMetadataSlugRecord,
+  lifiEnabled: EvmTokenMetadataSlugRecord,
+  route3: EvmTokenMetadataSlugRecord
+) => {
+  let result: EvmTokenMetadata | undefined;
+
+  for (const entry of [tokens?.[slug], lifiConnected?.[slug], lifiEnabled?.[slug], route3?.[slug]]) {
+    if (entry) result = result ? merge({}, result, entry) : entry;
+  }
+
+  return result;
+};
+
+interface EvmTokenMetadataPickEntry {
+  tokens: EvmTokenMetadataSlugRecord;
+  lifiConnected: EvmTokenMetadataSlugRecord;
+  lifiEnabled: EvmTokenMetadataSlugRecord;
+  route3: EvmTokenMetadataSlugRecord;
+  bySlug: Map<string, EvmTokenMetadata | undefined>;
+}
+
+// not a useMemo keyed on the records: React Compiler drops deps the factory does not read, so it would never be replaced
+const useCachedEvmTokenMetadataPick = () => {
+  const [cache] = useState(() => new Map<number, EvmTokenMetadataPickEntry>());
+
+  return useCallback(
+    (
+      chainId: number,
+      slug: string,
+      tokens: EvmTokenMetadataSlugRecord,
+      lifiConnected: EvmTokenMetadataSlugRecord,
+      lifiEnabled: EvmTokenMetadataSlugRecord,
+      route3: EvmTokenMetadataSlugRecord
+    ) => {
+      let entry = cache.get(chainId);
+
+      if (
+        !entry ||
+        entry.tokens !== tokens ||
+        entry.lifiConnected !== lifiConnected ||
+        entry.lifiEnabled !== lifiEnabled ||
+        entry.route3 !== route3
+      ) {
+        entry = { tokens, lifiConnected, lifiEnabled, route3, bySlug: new Map() };
+        cache.set(chainId, entry);
+      }
+
+      if (entry.bySlug.has(slug)) return entry.bySlug.get(slug);
+
+      const metadata = pickEvmTokenMetadata(slug, tokens, lifiConnected, lifiEnabled, route3);
+
+      entry.bySlug.set(slug, metadata);
+
+      return metadata;
+    },
+    [cache]
+  );
+};
+
+interface EvmTokenMetadataSources {
+  tokens: EvmTokenMetadataRecord;
+  lifiConnected: EvmTokenMetadataRecord;
+  lifiEnabled: EvmTokenMetadataRecord;
+  route3: EvmTokenMetadataRecord;
+}
+
 export const useGetEvmGasOrTokenMetadata = () => {
   const evmChains = useAllEvmChains();
   const tokensMetadata = useEvmTokensMetadataRecordSelector();
   const lifiConnectedTokensMetadata = useLifiConnectedEvmTokensMetadataRecordSelector();
   const route3EvmTokensMetadata = use3RouteEvmTokensMetadataRecordSelector();
   const lifiEnabledNetworksTokensMetadata = useLifiEnabledNetworksEvmTokensMetadataRecordSelector();
+  const sources: EvmTokenMetadataSources = {
+    tokens: tokensMetadata,
+    lifiConnected: lifiConnectedTokensMetadata,
+    lifiEnabled: lifiEnabledNetworksTokensMetadata,
+    route3: route3EvmTokensMetadata
+  };
+  const pick = useCachedEvmTokenMetadataPick();
   const getterFn = useCallback(
-    (input: EvmTokenMetadataRecord, chainId: number, slug: string) =>
-      isEvmNativeTokenSlug(slug) ? evmChains[chainId]?.currency : input[chainId]?.[slug],
-    [evmChains]
-  );
-  const mergedMetadata = merge(
-    {},
-    tokensMetadata,
-    lifiConnectedTokensMetadata,
-    lifiEnabledNetworksTokensMetadata,
-    route3EvmTokensMetadata
+    (input: EvmTokenMetadataSources, chainId: number, slug: string) =>
+      isEvmNativeTokenSlug(slug)
+        ? evmChains[chainId]?.currency
+        : pick(
+            chainId,
+            slug,
+            input.tokens[chainId],
+            input.lifiConnected[chainId],
+            input.lifiEnabled[chainId],
+            input.route3[chainId]
+          ),
+    [evmChains, pick]
   );
 
-  return useGetter(mergedMetadata, getterFn);
+  return useGetter(sources, getterFn);
 };
+
+interface EvmChainTokenMetadataSources {
+  tokens: EvmTokenMetadataSlugRecord;
+  lifiConnected: EvmTokenMetadataSlugRecord;
+  lifiEnabled: EvmTokenMetadataSlugRecord;
+  route3: EvmTokenMetadataSlugRecord;
+}
 
 export const useGetEvmChainTokenOrGasMetadata = (chainId: number) => {
   const network = useEvmChainByChainId(chainId);
@@ -193,19 +280,21 @@ export const useGetEvmChainTokenOrGasMetadata = (chainId: number) => {
   const connectedLifiTokensMetadata = useLifiConnectedEvmChainTokensMetadataSelector(chainId);
   const route3EvmTokensMetadata = use3RouteEvmChainTokensMetadataSelector(chainId);
   const enabledNetworksLifiTokensMetadata = useLifiEnabledNetworksEvmChainTokensMetadataSelector(chainId);
-  const fallbackValueFn = useCallback(
-    (slug: string) => (isEvmNativeTokenSlug(slug) ? network?.currency : undefined),
-    [network]
-  );
-  const mergedMetadata = merge(
-    {},
-    tokensMetadata,
-    connectedLifiTokensMetadata,
-    enabledNetworksLifiTokensMetadata,
-    route3EvmTokensMetadata
+  const sources: EvmChainTokenMetadataSources = {
+    tokens: tokensMetadata,
+    lifiConnected: connectedLifiTokensMetadata,
+    lifiEnabled: enabledNetworksLifiTokensMetadata,
+    route3: route3EvmTokensMetadata
+  };
+  const pick = useCachedEvmTokenMetadataPick();
+  const getterFn = useCallback(
+    (input: EvmChainTokenMetadataSources, slug: string): EvmNativeTokenMetadata | EvmTokenMetadata | undefined =>
+      pick(chainId, slug, input.tokens, input.lifiConnected, input.lifiEnabled, input.route3) ??
+      (isEvmNativeTokenSlug(slug) ? network?.currency : undefined),
+    [chainId, network, pick]
   );
 
-  return useGetterBySlug<EvmNativeTokenMetadata | EvmTokenMetadata>(mergedMetadata, fallbackValueFn);
+  return useGetter(sources, getterFn);
 };
 
 export const useGetEvmNoCategoryAssetMetadata = (chainId: number) => {
