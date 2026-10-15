@@ -19,6 +19,9 @@ interface Props extends HTMLAttributes<HTMLDivElement> {
 let SCROLL_RESTORATION = new Map<string, number>();
 const MEMOIZED_SCROLLS_LIMIT = 10;
 
+/** The position a `popstate` navigation to `href` will restore, for content that must be ready for it before paint. */
+export const getRestoredScrollTop = (href: string) => SCROLL_RESTORATION.get(href);
+
 export const ScrollRestorer: FC<PropsWithChildren<Props>> = ({ ref, ...props }) => {
   const { trigger, href } = Woozie.useLocation();
 

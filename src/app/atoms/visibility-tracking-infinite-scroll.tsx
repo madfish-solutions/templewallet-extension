@@ -4,6 +4,7 @@ import React, {
   useCallback,
   useContext,
   useEffect,
+  useLayoutEffect,
   useRef,
   useState,
   useSyncExternalStore
@@ -11,7 +12,9 @@ import React, {
 
 import InfiniteScroll from 'react-infinite-scroll-component';
 
+import { getRestoredScrollTop } from 'app/layouts/PageLayout/ScrollRestorer';
 import { combineRefs } from 'lib/ui/utils';
+import * as Woozie from 'lib/woozie';
 
 import { SimpleInfiniteScroll, SimpleInfiniteScrollProps } from './SimpleInfiniteScroll';
 
@@ -112,8 +115,10 @@ const VisibilityTrackingInfiniteScrollContent: FC<VisibilityTrackingInfiniteScro
   ...restProps
 }) => {
   const store = useContext(InfiniteScrollVisibilityContext);
+  const { trigger, href } = Woozie.useLocation();
   const internalScrollViewRef = useRef<InfiniteScroll>(null);
   const scrollViewRef = combineRefs(internalScrollViewRef, ref);
+  const restoredRef = useRef(false);
 
   const getScrollableNode = useCallback((): HTMLElement | nullish => {
     const scrollView = internalScrollViewRef.current;
@@ -132,6 +137,23 @@ const VisibilityTrackingInfiniteScrollContent: FC<VisibilityTrackingInfiniteScro
       bottom: Math.max(...getElementsIndexes(scrollableNode.scrollTop + scrollableNode.clientHeight))
     });
   }, [getElementsIndexes, getScrollableNode, store]);
+
+  // Back navigation restores the scroll position after this effect; the rows there must already be real ones in the
+  // first paint, or their later swap-in leaves the browser without a scroll anchor if the header or promo changes size.
+  useLayoutEffect(() => {
+    if (restoredRef.current) return;
+    restoredRef.current = true;
+
+    const scrollTop = trigger === 'popstate' ? getRestoredScrollTop(href) : undefined;
+    const scrollableNode = getScrollableNode();
+
+    if (scrollTop == null || !scrollableNode) return;
+
+    store.update({
+      top: Math.min(...getElementsIndexes(scrollTop)),
+      bottom: Math.max(...getElementsIndexes(scrollTop + scrollableNode.clientHeight))
+    });
+  }, [trigger, href, getScrollableNode, getElementsIndexes, store]);
 
   useEffect(() => {
     updateScrollDimensions();
