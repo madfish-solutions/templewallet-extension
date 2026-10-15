@@ -20,7 +20,9 @@ export const create: StyleCreate<Options> = ({ prng, options }) => {
   const fontSize = options.fontSize ?? 50;
   const fontWeight = options.fontWeight ?? 400;
   const textColor = convertColor(prng.pick(options.textColor ?? []) ?? 'ffffff');
-  const initials = prng.seed.trim().slice(0, options.chars ?? 2);
+  const initials = Array.from(prng.seed.trim())
+    .slice(0, options.chars ?? 2)
+    .join('');
   const svg = [
     `<text x="50%" y="50%" font-family="${fontFamily}" font-size="${fontSize}" font-weight="${fontWeight}" fill="${textColor}" text-anchor="middle" dy="${(fontSize * 0.356).toFixed(3)}">${initials}</text>`
   ].join('');
