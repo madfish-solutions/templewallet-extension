@@ -10,12 +10,18 @@ import { SELECT_ASSET_SCROLLABLE_ID } from './constants';
 
 interface TokensListViewProps {
   slugs: string[];
+  tokenWillBeRendered?: SyncFn<string, boolean>;
   children: (slug: string, index: number, ref?: Ref<TokenListItemElement>) => ReactNode;
 }
 
-export const TokensListView: FC<TokensListViewProps> = ({ slugs, children }) => {
+export const TokensListView: FC<TokensListViewProps> = ({
+  slugs,
+  tokenWillBeRendered: ownTokenWillBeRendered,
+  children
+}) => {
   const firstListItemRef = useRef<TokenListItemElement>(null);
-  const tokenWillBeRendered = useTokenWillBeRendered();
+  const chainSlugWillBeRendered = useTokenWillBeRendered();
+  const tokenWillBeRendered = ownTokenWillBeRendered ?? chainSlugWillBeRendered;
   const localGetTokenElementIndex = useCallback(
     (y: number) => getTokenElementIndex(null, firstListItemRef.current, slugs, tokenWillBeRendered, y, false),
     [slugs, tokenWillBeRendered]
@@ -28,6 +34,7 @@ export const TokensListView: FC<TokensListViewProps> = ({ slugs, children }) => 
       getElementsIndexes={localGetTokenElementIndex}
       loadNext={noop}
       scrollableTargetId={SELECT_ASSET_SCROLLABLE_ID}
+      slidingWindow
     >
       {slugs.map((slug, index) => children(slug, index, index === 0 ? firstListItemRef : undefined))}
     </VisibilityTrackingInfiniteScroll>
