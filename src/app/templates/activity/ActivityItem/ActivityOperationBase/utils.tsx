@@ -73,7 +73,11 @@ const StatusTagFailed = (
   </div>
 );
 
-const StatusTagPending = <PendingSpinSvg className="w-4 h-4 animate-spin" />;
+const StatusTagPending = (
+  <span className="inline-flex animate-spin">
+    <PendingSpinSvg className="w-4 h-4" />
+  </span>
+);
 
 export function getTitleByKind(kind: FaceKind, transferType?: ActivityOperTransferType) {
   if (kind === 'bundle') return 'Bundle';
