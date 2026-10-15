@@ -11,6 +11,18 @@ import {
 const shouldRaceOffDom = (stages: ImageSourceStage[]) =>
   stages.some(stage => stage.urls.length > 1 || Boolean(stage.delayMs));
 
+const loadedSrcs = new Set<string>();
+
+const findLoadedSrc = (stages: ImageSourceStage[]) => {
+  for (let index = 0; index < stages.length; index++) {
+    const url = stages[index].urls.find(url => loadedSrcs.has(url));
+
+    if (url) return { index, url };
+  }
+
+  return undefined;
+};
+
 /**
  * @arg sources // Memoize
  */
@@ -22,9 +34,10 @@ export const useImagesStackLoading = (sources: string[] | ImageSourceStage[], im
   const prevStagesRef = useRef(stages);
   const loadGenerationRef = useRef(0);
 
-  const [index, setIndex] = useState(emptyStack ? -1 : 0);
-  const [racedSrc, setRacedSrc] = useState<string>();
-  const [isLoading, setIsLoading] = useState(!emptyStack);
+  const [loadedAtMount] = useState(() => findLoadedSrc(stages));
+  const [index, setIndex] = useState(loadedAtMount?.index ?? (emptyStack ? -1 : 0));
+  const [racedSrc, setRacedSrc] = useState(loadedAtMount?.url);
+  const [isLoading, setIsLoading] = useState(!emptyStack && !loadedAtMount);
   const [isStackFailed, setIsStackFailed] = useState(emptyStack);
 
   useDidUpdate(() => {
@@ -35,12 +48,14 @@ export const useImagesStackLoading = (sources: string[] | ImageSourceStage[], im
     prevStagesRef.current = stages;
 
     if (stages.length > 0) {
-      setIndex(0);
-      setRacedSrc(undefined);
-      setIsLoading(true);
+      const loaded = findLoadedSrc(stages);
+
+      setIndex(loaded?.index ?? 0);
+      setRacedSrc(loaded?.url);
+      setIsLoading(!loaded);
       setIsStackFailed(false);
 
-      if (!shouldRaceOffDom(stages)) {
+      if (!loaded && !shouldRaceOffDom(stages)) {
         const img = new Image();
         img.src = stages[0].urls[0];
         if (img.complete) {
@@ -56,7 +71,7 @@ export const useImagesStackLoading = (sources: string[] | ImageSourceStage[], im
   }, [stages]);
 
   useEffect(() => {
-    if (!shouldRaceOffDom(stages) || stages.length === 0) {
+    if (!shouldRaceOffDom(stages) || stages.length === 0 || findLoadedSrc(stages)) {
       return;
     }
 
@@ -100,12 +115,17 @@ export const useImagesStackLoading = (sources: string[] | ImageSourceStage[], im
 
   const src = raceOffDom ? racedSrc : stages.at(index)?.urls[0];
 
-  const onSuccess = () => void setIsLoading(false);
+  const onSuccess = () => {
+    if (src) loadedSrcs.add(src);
+    setIsLoading(false);
+  };
 
   const onFail = () => {
     if (isStackFailed) {
       return;
     }
+
+    if (src) loadedSrcs.delete(src);
 
     if (raceOffDom) {
       if (racedSrc) {

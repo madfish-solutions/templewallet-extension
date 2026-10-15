@@ -14,6 +14,8 @@ import { TempleChainKind } from 'temple/types';
 
 export type NetworkChipChain = Pick<EvmChain, 'chainId' | 'kind'> | Pick<TezosChain, 'chainId' | 'kind'>;
 
+const FITTED_LAYOUTS = new Map<string, { count: number; showMoreCount: number }>();
+
 interface NetworkChipsProps {
   chips: Pick<NetworkChipProps, 'label' | 'chain'>[];
   selectedChains: Array<string | number>;
@@ -26,8 +28,13 @@ export const NetworkChips: FC<NetworkChipsProps> = ({ chips, selectedChains, set
   const allElementsHiddenRef = useRef<HTMLDivElement>(null);
   const fitIterationSandboxWrapperRef = useRef<HTMLDivElement>(null);
   const fitIterationSandboxRef = useRef<HTMLDivElement>(null);
-  const [displayedChips, setDisplayedChips] = useState<typeof chips>(EMPTY_FROZEN_ARRAY);
-  const [showMoreCount, setShowMoreCount] = useState(0);
+  const layoutKey = `${chips.map(({ chain }) => chain.chainId).join(',')}|${window.innerWidth}`;
+  const [displayedChips, setDisplayedChips] = useState<typeof chips>(() => {
+    const fitted = FITTED_LAYOUTS.get(layoutKey);
+
+    return fitted ? chips.slice(0, fitted.count) : EMPTY_FROZEN_ARRAY;
+  });
+  const [showMoreCount, setShowMoreCount] = useState(() => FITTED_LAYOUTS.get(layoutKey)?.showMoreCount ?? 0);
   const [fitIterationChips, setFitIterationChips] = useState<typeof chips>(EMPTY_FROZEN_ARRAY);
   const prevFitIterationChipsRef = useRef(fitIterationChips);
 
@@ -86,6 +93,12 @@ export const NetworkChips: FC<NetworkChipsProps> = ({ chips, selectedChains, set
   useEffect(() => {
     startLayoutUpdate();
   }, [startLayoutUpdate]);
+
+  useEffect(() => {
+    if (collapsed && displayedChips.length > 0) {
+      FITTED_LAYOUTS.set(layoutKey, { count: displayedChips.length, showMoreCount });
+    }
+  }, [collapsed, displayedChips, showMoreCount, layoutKey]);
 
   useEffect(() => {
     const resizeListener = throttle(() => startLayoutUpdate(), 100);
