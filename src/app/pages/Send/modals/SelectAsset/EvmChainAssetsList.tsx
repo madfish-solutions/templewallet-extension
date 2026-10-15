@@ -9,7 +9,7 @@ import { searchEvmChainTokensWithNoMeta } from 'lib/assets/search.utils';
 import { useEvmAccountTokensSortPredicate } from 'lib/assets/use-sorting';
 import { toChainAssetSlug } from 'lib/assets/utils';
 import { useMemoWithCompare } from 'lib/ui/hooks';
-import { TokenListItemElement } from 'lib/ui/tokens-list';
+import { TokenListItemElement, useEvmChainTokenWillBeRendered } from 'lib/ui/tokens-list';
 import { useEvmChainByChainId } from 'temple/front/chains';
 import { TempleChainKind } from 'temple/types';
 
@@ -26,6 +26,7 @@ export const EvmChainAssetsList = memo<Props>(({ chainId, publicKeyHash, searchV
   const chain = useEvmChainByChainId(chainId);
   const tokensSlugs = useEnabledEvmChainAccountTokenSlugs(publicKeyHash, chainId);
   const tokensSortPredicate = useEvmAccountTokensSortPredicate(publicKeyHash);
+  const tokenWillBeRendered = useEvmChainTokenWillBeRendered(chainId);
 
   if (!chain) throw new DeadEndBoundaryError();
 
@@ -67,5 +68,9 @@ export const EvmChainAssetsList = memo<Props>(({ chainId, publicKeyHash, searchV
     [chain, chainId, onAssetSelect, publicKeyHash]
   );
 
-  return <TokensListView slugs={searchedSlugs}>{renderListItem}</TokensListView>;
+  return (
+    <TokensListView slugs={searchedSlugs} tokenWillBeRendered={tokenWillBeRendered}>
+      {renderListItem}
+    </TokensListView>
+  );
 });

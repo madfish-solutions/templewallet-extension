@@ -128,7 +128,7 @@ const PageContentBase: FC<PageContentBaseProps> = ({ allSlugsSorted, manageActiv
     );
   };
 
-  const tokenWillBeRendered = useEvmChainTokenWillBeRendered(network);
+  const tokenWillBeRendered = useEvmChainTokenWillBeRendered(network.chainId);
   const getElementIndex = (y: number) =>
     getTokenElementIndex(promoRef.current, firstListItemRef.current, displayedSlugs, tokenWillBeRendered, y);
 

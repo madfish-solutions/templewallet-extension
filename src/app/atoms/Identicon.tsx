@@ -1,4 +1,4 @@
-import React, { FC, HTMLAttributes, ImgHTMLAttributes, useMemo } from 'react';
+import React, { FC, HTMLAttributes, useMemo } from 'react';
 
 import clsx from 'clsx';
 
@@ -7,7 +7,7 @@ import {
   ImageIdenticonOptions,
   InitialsIdenticonOptions,
   buildImageIdenticonUri,
-  buildInitialsIdenticonUri
+  buildInitialsIdenticonSvg
 } from 'lib/identicon';
 
 interface IdenticonProps<T extends IdenticonImgType> extends HTMLAttributes<HTMLDivElement> {
@@ -43,13 +43,32 @@ export const Identicon = <T extends IdenticonImgType>({
   );
 };
 
-interface IdenticonInitialsProps extends ImgHTMLAttributes<HTMLImageElement> {
+interface IdenticonInitialsProps extends Omit<HTMLAttributes<HTMLSpanElement>, 'children' | 'dangerouslySetInnerHTML'> {
   value: string;
   options?: InitialsIdenticonOptions;
+  width?: number | string;
+  height?: number | string;
 }
 
-export const IdenticonInitials: FC<IdenticonInitialsProps> = ({ value, options, ...props }) => {
-  const src = useMemo(() => buildInitialsIdenticonUri(value, options), [options, value]);
+export const IdenticonInitials: FC<IdenticonInitialsProps> = ({
+  value,
+  options,
+  className,
+  style,
+  width,
+  height,
+  ...props
+}) => {
+  const svg = useMemo(() => buildInitialsIdenticonSvg(value, options), [options, value]);
 
-  return <img src={src} alt="" {...props} />;
+  return (
+    <span
+      {...props}
+      className={clsx('block shrink-0 overflow-hidden [&>svg]:w-full [&>svg]:h-full', className)}
+      style={{ width, height, ...style }}
+      aria-hidden="true"
+      /* escaped in lib/first-letters */
+      dangerouslySetInnerHTML={{ __html: svg }}
+    />
+  );
 };

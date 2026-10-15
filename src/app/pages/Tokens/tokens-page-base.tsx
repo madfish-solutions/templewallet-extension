@@ -71,7 +71,7 @@ export const TokensPageBase: FC<TokensPageBaseProps> = ({
     content = (
       <UninitializedAccountContent>
         {tokensCount > 0 ? (
-          <VisibilityTrackingInfiniteScroll getElementsIndexes={getElementIndex} loadNext={noop}>
+          <VisibilityTrackingInfiniteScroll getElementsIndexes={getElementIndex} loadNext={noop} slidingWindow>
             {children}
           </VisibilityTrackingInfiniteScroll>
         ) : (
@@ -118,7 +118,7 @@ export const TokensPageBase: FC<TokensPageBaseProps> = ({
         {manageActive && (
           <AddCustomTokenButton manageActive={manageActive} className="mb-4" onClick={openCustomTokenModal} />
         )}
-        <VisibilityTrackingInfiniteScroll getElementsIndexes={getElementIndex} loadNext={loadNextPage}>
+        <VisibilityTrackingInfiniteScroll getElementsIndexes={getElementIndex} loadNext={loadNextPage} slidingWindow>
           {children}
         </VisibilityTrackingInfiniteScroll>
       </>

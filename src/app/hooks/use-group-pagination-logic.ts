@@ -22,11 +22,21 @@ const groupSlice = <K, T>(items: [K, T[]][], end: number) => {
 
   return result;
 };
-const totalGroupsLength = <K, T>(items: [K, T[]][]) => items.reduce((acc, [, group]) => acc + group.length, 0);
+export const totalGroupsLength = <K, T>(items: [K, T[]][]) => items.reduce((acc, [, group]) => acc + group.length, 0);
 
 export const useGroupPaginationLogic = <K, T>(
   items: [K, T[]][],
   deps: unknown[] = [],
   minInitialItemsCount = 10,
-  itemsPerPage = 30
-) => useGenericPaginationLogic(items, deps, minInitialItemsCount, itemsPerPage, groupSlice, totalGroupsLength);
+  itemsPerPage = 30,
+  initialItemsCount = itemsPerPage
+) =>
+  useGenericPaginationLogic(
+    items,
+    deps,
+    minInitialItemsCount,
+    itemsPerPage,
+    groupSlice,
+    totalGroupsLength,
+    initialItemsCount
+  );

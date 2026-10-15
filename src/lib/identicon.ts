@@ -28,16 +28,27 @@ function buildImageIdenticonUriLocal<T extends IdenticonImgType>(
   return `data:image/svg+xml,${encodeURIComponent(jdenticon.toSvg(hash, size))}`;
 }
 
-export type InitialsIdenticonOptions = Omit<firstLetters.Options & Options, 'seed'>;
+/** Options that make DiceBear emit elements with fixed ids are excluded: inlined icons would all resolve them to the first copy. */
+export type InitialsIdenticonOptions = Omit<
+  firstLetters.Options & Options,
+  'seed' | 'clip' | 'radius' | 'backgroundType' | 'backgroundRotation'
+>;
 
-export const buildInitialsIdenticonUri = memoizee(
+/** Inlined, the licence block would land in the DOM for every icon; the style is CC0. */
+const stripLicenseMetadata = (svg: string) => svg.replace(/<metadata[\s\S]*?<\/metadata>/g, '');
+
+/** Markup rather than a data URI: an `<img>` per distinct data URI costs Chromium an isolated SVG document each. */
+export const buildInitialsIdenticonSvg = memoizee(
   (seed: string, options?: InitialsIdenticonOptions) =>
-    createAvatar(firstLetters, {
-      ...options,
-      seed,
-      fontFamily: ['Menlo', 'Monaco', 'monospace'],
-      fontSize: estimateOptimalFontSize(options?.chars ?? 2)
-    }).toDataUri(),
+    stripLicenseMetadata(
+      createAvatar(firstLetters, {
+        ...options,
+        seed,
+        clip: false,
+        fontFamily: ['Menlo', 'Monaco', 'monospace'],
+        fontSize: estimateOptimalFontSize(options?.chars ?? 2)
+      }).toString()
+    ),
   {
     max: 1024,
     normalizer: ([seed, options]) => JSON.stringify([seed, options])

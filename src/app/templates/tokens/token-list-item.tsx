@@ -18,7 +18,7 @@ import { useStoredTezosTokenSelector } from 'app/store/tezos/assets/selectors';
 import { EvmAssetIconWithNetwork, TezosAssetIconWithNetwork } from 'app/templates/AssetIcon';
 import { DeleteAssetModal } from 'app/templates/remove-asset-modal/delete-asset-modal';
 import { ScamTag } from 'app/templates/scam-tag';
-import { setAnotherSelector } from 'lib/analytics';
+import { setAnotherSelector, setTestID } from 'lib/analytics';
 import { TEMPLE_TOKEN_SLUG } from 'lib/assets';
 import { EVM_TOKEN_SLUG, TEZ_TOKEN_SLUG } from 'lib/assets/defaults';
 import { getAssetStatus } from 'lib/assets/hooks/utils';
@@ -28,7 +28,7 @@ import { ASSET_HUGE_AMOUNT } from 'lib/constants';
 import { getTokenName, getAssetSymbol } from 'lib/metadata';
 import { useBooleanState } from 'lib/ui/hooks';
 import { toExploreAssetLink } from 'lib/ui/links';
-import { TokenListItemElement } from 'lib/ui/tokens-list';
+import { TokenListItemElement, useEvmTokenListItemWillRender } from 'lib/ui/tokens-list';
 import { ZERO } from 'lib/utils/numbers';
 import { Link } from 'lib/woozie';
 import { ChainId, PublicKeyHash } from 'temple/front/chains';
@@ -47,8 +47,53 @@ const LIST_ITEM_CLASSNAME = clsx(
 );
 const LIST_ITEM_STYLE: CSSProperties = {
   contentVisibility: 'auto',
-  containIntrinsicSize: '0 56px'
+  // content box only: with p-2 a skipped row is 56px, the same as a rendered one, which the list's index math assumes
+  containIntrinsicSize: '0 40px'
 };
+
+interface TokenListItemSkeletonProps {
+  manageActive: boolean;
+  ref?: Ref<TokenListItemElement>;
+}
+
+const TokenListItemSkeleton = memo<TokenListItemSkeletonProps>(({ manageActive, ref }) => (
+  <div
+    className={LIST_ITEM_CLASSNAME}
+    style={LIST_ITEM_STYLE}
+    ref={ref as Ref<HTMLDivElement>}
+    aria-hidden="true"
+    {...setTestID(AssetsSelectors.assetItemPlaceholder)}
+  >
+    <div className="flex items-center justify-center relative shrink-0" style={{ width: 40, height: 40 }}>
+      <div className="rounded-full bg-grey-3" style={{ width: 30, height: 30 }} />
+      <div className="absolute bottom-0 right-0 rounded-full bg-grey-3" style={{ width: 16, height: 16 }} />
+    </div>
+
+    {manageActive ? (
+      <div className="grow flex gap-x-2 items-center overflow-hidden">
+        <div className="grow flex flex-col gap-y-1 overflow-hidden">
+          <div className="w-10 h-5 bg-grey-3 rounded-sm" />
+          <div className="w-20 h-4 bg-grey-3 rounded-sm" />
+        </div>
+
+        <div className="size-6 bg-grey-3 rounded-sm" />
+        <div className="w-12 h-6 bg-grey-3 rounded-sm" />
+      </div>
+    ) : (
+      <div className="grow flex flex-col gap-y-1 overflow-hidden">
+        <div className="flex justify-between gap-x-4">
+          <div className="w-10 h-5 bg-grey-3 rounded-sm" />
+          <div className="w-20 h-5 bg-grey-3 rounded-sm" />
+        </div>
+
+        <div className="flex justify-between gap-x-4">
+          <div className="w-20 h-4 bg-grey-3 rounded-sm" />
+          <div className="w-10 h-4 bg-grey-3 rounded-sm" />
+        </div>
+      </div>
+    )}
+  </div>
+));
 
 interface TezosTokenListItemProps {
   network: TezosNetworkEssentials;
@@ -66,16 +111,14 @@ interface TezosTokenListItemProps {
   ref?: Ref<TokenListItemElement>;
 }
 
-export const TezosTokenListItem = memo<TezosTokenListItemProps>(
+const TezosTokenListItemContent = memo<TezosTokenListItemProps>(
   ({
     network,
-    index,
     publicKeyHash,
     assetSlug,
     active,
     scam,
     manageActive = false,
-    requiresVisibility = true,
     showTags = true,
     showFavoritesMark = false,
     showOnlyFavorites = false,
@@ -106,7 +149,6 @@ export const TezosTokenListItem = memo<TezosTokenListItemProps>(
           scam={scam}
           checked={checked}
           network={network}
-          index={index}
           publicKeyHash={publicKeyHash}
           onClick={onClick}
           ref={ref}
@@ -121,13 +163,11 @@ export const TezosTokenListItem = memo<TezosTokenListItemProps>(
         network={network}
         showFavoritesMark={showFavoritesMark}
         showOnlyFavorites={showOnlyFavorites}
-        index={index}
         balance={balance}
         onClick={onClick}
-        requiresVisibility={requiresVisibility}
         ref={ref}
       >
-        <div className="flex items-center flex-grow gap-x-2 truncate">
+        <div className="flex items-center grow gap-x-2 truncate">
           <div className="text-font-medium truncate">{assetSymbol}</div>
 
           {showTags && (
@@ -145,6 +185,15 @@ export const TezosTokenListItem = memo<TezosTokenListItemProps>(
   }
 );
 
+export const TezosTokenListItem = memo<TezosTokenListItemProps>(props => {
+  const { index, manageActive = false, requiresVisibility = true, ref } = props;
+  const isVisible = useIsItemVisible(index);
+
+  if (requiresVisibility && !isVisible) return <TokenListItemSkeleton manageActive={manageActive} ref={ref} />;
+
+  return <TezosTokenListItemContent {...props} />;
+});
+
 interface EvmTokenListItemProps {
   network: EvmNetworkEssentials;
   index?: number;
@@ -159,14 +208,12 @@ interface EvmTokenListItemProps {
   ref?: Ref<TokenListItemElement>;
 }
 
-export const EvmTokenListItem = memo<EvmTokenListItemProps>(
+const EvmTokenListItemContent = memo<EvmTokenListItemProps>(
   ({
     network,
-    index,
     publicKeyHash,
     assetSlug,
     manageActive = false,
-    requiresVisibility = true,
     showTags = false,
     showFavoritesMark = false,
     showOnlyFavorites = false,
@@ -198,10 +245,9 @@ export const EvmTokenListItem = memo<EvmTokenListItemProps>(
           assetSlug={assetSlug}
           assetSymbol={assetSymbol}
           assetName={assetName}
-          className="focus:bg-secondary-low, hover:bg-secondary-low"
+          className="focus:bg-secondary-low hover:bg-secondary-low"
           checked={checked}
           network={network}
-          index={index}
           publicKeyHash={publicKeyHash}
           onClick={onClick}
           ref={ref}
@@ -212,17 +258,15 @@ export const EvmTokenListItem = memo<EvmTokenListItemProps>(
       <DefaultEvmListItemLayout
         assetSlug={assetSlug}
         assetName={assetName}
-        className="focus:bg-secondary-low, hover:bg-secondary-low"
+        className="focus:bg-secondary-low hover:bg-secondary-low"
         network={network}
         showFavoritesMark={showFavoritesMark}
         showOnlyFavorites={showOnlyFavorites}
-        index={index}
         balance={balance}
         onClick={onClick}
-        requiresVisibility={requiresVisibility}
         ref={ref}
       >
-        <div className={clsx('flex items-center flex-grow gap-x-2', balance.lt(ASSET_HUGE_AMOUNT) && 'truncate')}>
+        <div className={clsx('flex items-center grow gap-x-2', balance.lt(ASSET_HUGE_AMOUNT) && 'truncate')}>
           <div className="text-font-medium truncate">{assetSymbol}</div>
           {showTags && <EvmIncentiveTag chainId={chainId} assetSlug={assetSlug} symbol={assetSymbol} />}
         </div>
@@ -230,6 +274,18 @@ export const EvmTokenListItem = memo<EvmTokenListItemProps>(
     );
   }
 );
+
+export const EvmTokenListItem = memo<EvmTokenListItemProps>(props => {
+  const { network, index, assetSlug, manageActive = false, requiresVisibility = true, ref } = props;
+  const isVisible = useIsItemVisible(index);
+  const willRender = useEvmTokenListItemWillRender(network.chainId, assetSlug);
+
+  if (requiresVisibility && !isVisible) {
+    return willRender ? <TokenListItemSkeleton manageActive={manageActive} ref={ref} /> : null;
+  }
+
+  return <EvmTokenListItemContent {...props} />;
+});
 
 interface ManageActiveListItemLayoutProps<T extends TempleChainKind> {
   assetSlug: string;
@@ -239,7 +295,6 @@ interface ManageActiveListItemLayoutProps<T extends TempleChainKind> {
   scam?: boolean;
   checked: boolean;
   network: NetworkEssentials<T>;
-  index?: number;
   publicKeyHash: PublicKeyHash<T>;
   onClick?: MouseEventHandler<TokenListItemElement>;
   ref?: Ref<TokenListItemElement>;
@@ -262,11 +317,10 @@ const ManageActiveListItemLayoutHOC = <T extends TempleChainKind>(
   deleteItem: (assetSlug: string, chainId: ChainId<T>, publicKeyHash: PublicKeyHash<T>) => void
 ) =>
   memo<ManageActiveListItemLayoutProps<T>>(
-    ({ assetSlug, assetSymbol, assetName, className, scam, checked, network, index, publicKeyHash, onClick, ref }) => {
+    ({ assetSlug, assetSymbol, assetName, className, scam, checked, network, publicKeyHash, onClick, ref }) => {
       const { chainId } = network;
       const [deleteModalOpened, setDeleteModalOpened, setDeleteModalClosed] = useBooleanState(false);
       const isUnmanageable = UNMANAGABLE_TOKENS_SLUGS[networkKind].includes(assetSlug);
-      const isVisible = useIsItemVisible(index);
 
       const handleTokenStatusSwitch = useCallback(
         () => toggleTokenStatus(checked ? 'disabled' : 'enabled', assetSlug, chainId, publicKeyHash),
@@ -286,51 +340,30 @@ const ManageActiveListItemLayoutHOC = <T extends TempleChainKind>(
             ref={ref as Ref<HTMLDivElement>}
             style={LIST_ITEM_STYLE}
           >
-            {isVisible ? (
-              <>
-                <AssetIconWithNetwork chainId={chainId} assetSlug={assetSlug} className="shrink-0" />
+            <AssetIconWithNetwork chainId={chainId} assetSlug={assetSlug} className="shrink-0" />
 
-                <div className="grow flex gap-x-2 items-center overflow-hidden">
-                  <div className="grow flex flex-col gap-y-1 overflow-hidden">
-                    <div className="flex items-center gap-0.5">
-                      <div className="text-font-medium truncate">{assetSymbol}</div>
-                      {scam && <ScamTag />}
-                    </div>
-
-                    <div className="text-font-description items-center text-grey-1 truncate">{assetName}</div>
-                  </div>
-
-                  <IconBase
-                    Icon={DeleteIcon}
-                    className={clsx('shrink-0', isUnmanageable ? 'text-disable' : 'cursor-pointer text-error')}
-                    onClick={isUnmanageable ? undefined : setDeleteModalOpened}
-                  />
-
-                  <ToggleSwitch
-                    checked={isUnmanageable ? true : checked}
-                    disabled={isUnmanageable}
-                    onChange={handleTokenStatusSwitch}
-                  />
-                </div>
-              </>
-            ) : (
-              <>
-                <div className="flex items-center justify-center relative shrink-0" style={{ width: 40, height: 40 }}>
-                  <div className="rounded-full bg-grey-3" style={{ width: 30, height: 30 }} />
-                  <div className="absolute bottom-0 right-0 rounded-full bg-grey-3" style={{ width: 16, height: 16 }} />
+            <div className="grow flex gap-x-2 items-center overflow-hidden">
+              <div className="grow flex flex-col gap-y-1 overflow-hidden">
+                <div className="flex items-center gap-0.5">
+                  <div className="text-font-medium truncate">{assetSymbol}</div>
+                  {scam && <ScamTag />}
                 </div>
 
-                <div className="flex-grow flex gap-x-2 items-center overflow-hidden">
-                  <div className="flex-grow flex flex-col gap-y-1 overflow-hidden">
-                    <div className="w-10 h-5 bg-grey-3 rounded-sm" />
-                    <div className="w-20 h-4 bg-grey-3 rounded-sm" />
-                  </div>
+                <div className="text-font-description items-center text-grey-1 truncate">{assetName}</div>
+              </div>
 
-                  <div className="size-6 bg-grey-3 rounded-sm" />
-                  <div className="w-12 h-6 bg-grey-3 rounded-sm" />
-                </div>
-              </>
-            )}
+              <IconBase
+                Icon={DeleteIcon}
+                className={clsx('shrink-0', isUnmanageable ? 'text-disable' : 'cursor-pointer text-error')}
+                onClick={isUnmanageable ? undefined : setDeleteModalOpened}
+              />
+
+              <ToggleSwitch
+                checked={isUnmanageable ? true : checked}
+                disabled={isUnmanageable}
+                onChange={handleTokenStatusSwitch}
+              />
+            </div>
           </div>
 
           {deleteModalOpened && <DeleteAssetModal onClose={setDeleteModalClosed} onDelete={handleDeleteClick} />}
@@ -356,10 +389,8 @@ interface DefaultListItemLayoutProps<T extends TempleChainKind> {
   assetName: string;
   className?: string;
   network: NetworkEssentials<T>;
-  index?: number;
   balance: BigNumber;
   onClick?: MouseEventHandler<TokenListItemElement>;
-  requiresVisibility?: boolean;
   showFavoritesMark?: boolean;
   showOnlyFavorites: boolean;
   ref?: Ref<TokenListItemElement>;
@@ -380,17 +411,13 @@ const DefaultListItemLayoutHOC = <T extends TempleChainKind>(
       assetName,
       className,
       network,
-      index,
       balance,
       onClick,
-      requiresVisibility,
       showFavoritesMark,
       showOnlyFavorites,
       ref
     }) => {
       const { chainId } = network;
-      const isVisible = useIsItemVisible(index);
-      const visible = !requiresVisibility || isVisible;
 
       const chainAssetSlug = toChainAssetSlug(networkKind, chainId, assetSlug);
 
@@ -422,64 +449,41 @@ const DefaultListItemLayoutHOC = <T extends TempleChainKind>(
           ref={ref as Ref<HTMLAnchorElement>}
           {...setAnotherSelector('name', assetName)}
         >
-          {visible ? (
-            <>
-              <AssetIconWithNetwork chainId={chainId} assetSlug={assetSlug} className="shrink-0" />
+          <AssetIconWithNetwork chainId={chainId} assetSlug={assetSlug} className="shrink-0" />
 
-              <div className="flex-grow flex flex-col gap-y-1 overflow-hidden">
-                <div className="flex gap-x-4">
-                  {children}
+          <div className="grow flex flex-col gap-y-1 overflow-hidden">
+            <div className="flex gap-x-4">
+              {children}
 
-                  <CryptoBalance
-                    value={balance}
-                    testID={AssetsSelectors.assetItemCryptoBalanceButton}
-                    testIDProperties={{ assetSlug }}
-                  />
-                </div>
+              <CryptoBalance
+                value={balance}
+                testID={AssetsSelectors.assetItemCryptoBalanceButton}
+                testIDProperties={{ assetSlug }}
+              />
+            </div>
 
-                <div className="flex gap-x-4">
-                  <div className="self-center flex-grow text-font-description text-grey-1 truncate">{assetName}</div>
+            <div className="flex gap-x-4">
+              <div className="self-center grow text-font-description text-grey-1 truncate">{assetName}</div>
 
-                  <FiatBalance
-                    evm={networkKind === TempleChainKind.EVM}
-                    chainId={chainId}
-                    assetSlug={assetSlug}
-                    value={balance}
-                    testID={AssetsSelectors.assetItemFiatBalanceButton}
-                    testIDProperties={{ assetSlug }}
-                  />
-                </div>
-              </div>
-              {showFavoritesMark && (
-                <button
-                  type="button"
-                  className="px-2 py-2.5 h-full z-10"
-                  onClick={handleFavoriteClick}
-                  aria-label={isFavoriteToken ? 'Remove from favorites' : 'Add to favorites'}
-                >
-                  {isFavoriteToken ? <StarFillIcon /> : <StarIcon />}
-                </button>
-              )}
-            </>
-          ) : (
-            <>
-              <div className="flex items-center justify-center relative shrink-0" style={{ width: 40, height: 40 }}>
-                <div className="rounded-full bg-grey-3" style={{ width: 30, height: 30 }} />
-                <div className="absolute bottom-0 right-0 rounded-full bg-grey-3" style={{ width: 16, height: 16 }} />
-              </div>
-
-              <div className="flex-grow flex flex-col gap-y-1 overflow-hidden">
-                <div className="flex justify-between gap-x-4">
-                  <div className="w-10 h-5 bg-grey-3 rounded-sm" />
-                  <div className="w-20 h-5 bg-grey-3 rounded-sm" />
-                </div>
-
-                <div className="flex justify-between gap-x-4">
-                  <div className="w-20 h-4 bg-grey-3 rounded-sm" />
-                  <div className="w-10 h-4 bg-grey-3 rounded-sm" />
-                </div>
-              </div>
-            </>
+              <FiatBalance
+                evm={networkKind === TempleChainKind.EVM}
+                chainId={chainId}
+                assetSlug={assetSlug}
+                value={balance}
+                testID={AssetsSelectors.assetItemFiatBalanceButton}
+                testIDProperties={{ assetSlug }}
+              />
+            </div>
+          </div>
+          {showFavoritesMark && (
+            <button
+              type="button"
+              className="px-2 py-2.5 h-full z-10"
+              onClick={handleFavoriteClick}
+              aria-label={isFavoriteToken ? 'Remove from favorites' : 'Add to favorites'}
+            >
+              {isFavoriteToken ? <StarFillIcon /> : <StarIcon />}
+            </button>
           )}
         </Link>
       );

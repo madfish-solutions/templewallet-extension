@@ -41,8 +41,8 @@ export const ImageStacked: FC<ImageStackedProps> = ({
   onStackFailed,
   ...imgProps
 }) => {
-  const [preventLoadImage, setPreventLoadImage] = useState(true);
   const { src, isLoading, isStackFailed, onSuccess, onFail } = useImagesStackLoading(sources, immediate);
+  const [preventLoadImage, setPreventLoadImage] = useState(isLoading);
 
   useDidMount(() => startTransition(() => setPreventLoadImage(false)));
 
