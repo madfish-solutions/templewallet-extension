@@ -17,7 +17,7 @@ import {
   AI_CHATBOT_ADS_NUDGE_STATE_STORAGE_KEY,
   ADS_DISABLING_TIMESTAMPS_STORAGE_KEY
 } from 'lib/constants';
-import { t } from 'lib/i18n';
+import { t, T } from 'lib/i18n';
 import { putToStorage, removeFromStorage } from 'lib/storage';
 import { useConfirm } from 'lib/ui/dialog';
 
@@ -52,7 +52,7 @@ export const usePartnersPromotionSettings = () => {
 
     const confirmed = await confirm({
       title: t('closePartnersPromotion'),
-      description: t('closePartnersPromoConfirm'),
+      description: <T id="closePartnersPromoConfirm" />,
       confirmButtonText: t('disable'),
       hasCloseButton: false
     });
@@ -74,7 +74,9 @@ export const usePartnersPromotionSettings = () => {
       title: t('enablePartnersPromotionConfirm'),
       children: (
         <div className="flex flex-col gap-1 w-full text-center text-font-description text-grey-1 pt-1.5 pb-1">
-          <p>{t('enablePartnersPromotionDescriptionConfirm')}</p>
+          <p>
+            <T id="enablePartnersPromotionDescriptionConfirm" />
+          </p>
           <p>{t('enablePartnersPromotionPrivacyConfirm')}</p>
         </div>
       ),
