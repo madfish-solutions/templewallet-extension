@@ -40,7 +40,7 @@ export const FineTuneRewardsModal: FC<Props> = ({ onClose, opened, onShown }) =>
 
     didEnablePromoRef.current = true;
     dispatch(setAdsSurfacesEnabledAction({ inWallet: true }));
-    trackEvent('AdsEnabled', AnalyticsEventCategory.General, { accountPkh });
+    trackEvent('AdsEnabled', AnalyticsEventCategory.General, { accountPkh }, true);
   }, [accountPkh, opened, trackEvent]);
 
   const handleSave = () => {
