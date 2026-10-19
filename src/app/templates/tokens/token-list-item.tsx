@@ -1,10 +1,9 @@
-import { CSSProperties, FC, PropsWithChildren, Ref, memo, MouseEventHandler, useCallback } from 'react';
+import { CSSProperties, FC, PropsWithChildren, memo, MouseEventHandler, useCallback } from 'react';
 
 import BigNumber from 'bignumber.js';
 import clsx from 'clsx';
 
 import { IconBase, ToggleSwitch } from 'app/atoms';
-import { useIsItemVisible } from 'app/atoms/visibility-tracking-infinite-scroll';
 import { ReactComponent as DeleteIcon } from 'app/icons/base/delete.svg';
 import { ReactComponent as StarIcon } from 'app/icons/star.svg';
 import { ReactComponent as StarFillIcon } from 'app/icons/starfill.svg';
@@ -18,7 +17,7 @@ import { useStoredTezosTokenSelector } from 'app/store/tezos/assets/selectors';
 import { EvmAssetIconWithNetwork, TezosAssetIconWithNetwork } from 'app/templates/AssetIcon';
 import { DeleteAssetModal } from 'app/templates/remove-asset-modal/delete-asset-modal';
 import { ScamTag } from 'app/templates/scam-tag';
-import { setAnotherSelector, setTestID } from 'lib/analytics';
+import { setAnotherSelector } from 'lib/analytics';
 import { TEMPLE_TOKEN_SLUG } from 'lib/assets';
 import { EVM_TOKEN_SLUG, TEZ_TOKEN_SLUG } from 'lib/assets/defaults';
 import { getAssetStatus } from 'lib/assets/hooks/utils';
@@ -28,7 +27,7 @@ import { ASSET_HUGE_AMOUNT } from 'lib/constants';
 import { getTokenName, getAssetSymbol } from 'lib/metadata';
 import { useBooleanState } from 'lib/ui/hooks';
 import { toExploreAssetLink } from 'lib/ui/links';
-import { TokenListItemElement, useEvmTokenListItemWillRender } from 'lib/ui/tokens-list';
+import { TokenListItemElement } from 'lib/ui/tokens-list';
 import { ZERO } from 'lib/utils/numbers';
 import { Link } from 'lib/woozie';
 import { ChainId, PublicKeyHash } from 'temple/front/chains';
@@ -45,59 +44,17 @@ const LIST_ITEM_CLASSNAME = clsx(
   'flex items-center gap-x-1 p-2 rounded-lg',
   'transition ease-in-out duration-200 focus:outline-hidden'
 );
+// A row is p-2 (1rem) around the taller of the 40px icon and its two text lines (1.25rem + 0.25rem gap + 1rem): the virtual
+// slot height and the contain-intrinsic-size (content box only) below must follow any change to that markup
+export const getTokenListItemHeight = (rem: number) => rem + Math.max(40, 2.5 * rem);
+
 const LIST_ITEM_STYLE: CSSProperties = {
   contentVisibility: 'auto',
-  // content box only: with p-2 a skipped row is 56px, the same as a rendered one, which the list's index math assumes
-  containIntrinsicSize: '0 40px'
+  containIntrinsicSize: '0 max(40px, 2.5rem)'
 };
-
-interface TokenListItemSkeletonProps {
-  manageActive: boolean;
-  ref?: Ref<TokenListItemElement>;
-}
-
-const TokenListItemSkeleton = memo<TokenListItemSkeletonProps>(({ manageActive, ref }) => (
-  <div
-    className={LIST_ITEM_CLASSNAME}
-    style={LIST_ITEM_STYLE}
-    ref={ref as Ref<HTMLDivElement>}
-    aria-hidden="true"
-    {...setTestID(AssetsSelectors.assetItemPlaceholder)}
-  >
-    <div className="flex items-center justify-center relative shrink-0" style={{ width: 40, height: 40 }}>
-      <div className="rounded-full bg-grey-3" style={{ width: 30, height: 30 }} />
-      <div className="absolute bottom-0 right-0 rounded-full bg-grey-3" style={{ width: 16, height: 16 }} />
-    </div>
-
-    {manageActive ? (
-      <div className="grow flex gap-x-2 items-center overflow-hidden">
-        <div className="grow flex flex-col gap-y-1 overflow-hidden">
-          <div className="w-10 h-5 bg-grey-3 rounded-sm" />
-          <div className="w-20 h-4 bg-grey-3 rounded-sm" />
-        </div>
-
-        <div className="size-6 bg-grey-3 rounded-sm" />
-        <div className="w-12 h-6 bg-grey-3 rounded-sm" />
-      </div>
-    ) : (
-      <div className="grow flex flex-col gap-y-1 overflow-hidden">
-        <div className="flex justify-between gap-x-4">
-          <div className="w-10 h-5 bg-grey-3 rounded-sm" />
-          <div className="w-20 h-5 bg-grey-3 rounded-sm" />
-        </div>
-
-        <div className="flex justify-between gap-x-4">
-          <div className="w-20 h-4 bg-grey-3 rounded-sm" />
-          <div className="w-10 h-4 bg-grey-3 rounded-sm" />
-        </div>
-      </div>
-    )}
-  </div>
-));
 
 interface TezosTokenListItemProps {
   network: TezosNetworkEssentials;
-  index?: number;
   publicKeyHash: string;
   assetSlug: string;
   active?: boolean;
@@ -106,12 +63,10 @@ interface TezosTokenListItemProps {
   showTags?: boolean;
   showFavoritesMark?: boolean;
   showOnlyFavorites?: boolean;
-  requiresVisibility?: boolean;
   onClick?: MouseEventHandler<TokenListItemElement>;
-  ref?: Ref<TokenListItemElement>;
 }
 
-const TezosTokenListItemContent = memo<TezosTokenListItemProps>(
+export const TezosTokenListItem = memo<TezosTokenListItemProps>(
   ({
     network,
     publicKeyHash,
@@ -122,8 +77,7 @@ const TezosTokenListItemContent = memo<TezosTokenListItemProps>(
     showTags = true,
     showFavoritesMark = false,
     showOnlyFavorites = false,
-    onClick,
-    ref
+    onClick
   }) => {
     const {
       value: balance = ZERO,
@@ -151,7 +105,6 @@ const TezosTokenListItemContent = memo<TezosTokenListItemProps>(
           network={network}
           publicKeyHash={publicKeyHash}
           onClick={onClick}
-          ref={ref}
         />
       );
 
@@ -165,7 +118,6 @@ const TezosTokenListItemContent = memo<TezosTokenListItemProps>(
         showOnlyFavorites={showOnlyFavorites}
         balance={balance}
         onClick={onClick}
-        ref={ref}
       >
         <div className="flex items-center grow gap-x-2 truncate">
           <div className="text-font-medium truncate">{assetSymbol}</div>
@@ -185,18 +137,8 @@ const TezosTokenListItemContent = memo<TezosTokenListItemProps>(
   }
 );
 
-export const TezosTokenListItem = memo<TezosTokenListItemProps>(props => {
-  const { index, manageActive = false, requiresVisibility = true, ref } = props;
-  const isVisible = useIsItemVisible(index);
-
-  if (requiresVisibility && !isVisible) return <TokenListItemSkeleton manageActive={manageActive} ref={ref} />;
-
-  return <TezosTokenListItemContent {...props} />;
-});
-
 interface EvmTokenListItemProps {
   network: EvmNetworkEssentials;
-  index?: number;
   publicKeyHash: HexString;
   assetSlug: string;
   manageActive?: boolean;
@@ -204,11 +146,9 @@ interface EvmTokenListItemProps {
   showFavoritesMark?: boolean;
   showOnlyFavorites?: boolean;
   onClick?: MouseEventHandler<TokenListItemElement>;
-  requiresVisibility?: boolean;
-  ref?: Ref<TokenListItemElement>;
 }
 
-const EvmTokenListItemContent = memo<EvmTokenListItemProps>(
+export const EvmTokenListItem = memo<EvmTokenListItemProps>(
   ({
     network,
     publicKeyHash,
@@ -217,8 +157,7 @@ const EvmTokenListItemContent = memo<EvmTokenListItemProps>(
     showTags = false,
     showFavoritesMark = false,
     showOnlyFavorites = false,
-    onClick,
-    ref
+    onClick
   }) => {
     const { chainId } = network;
     const lifiTokenMetadata = useLifiEvmTokenMetadataSelector(chainId, assetSlug);
@@ -234,6 +173,7 @@ const EvmTokenListItemContent = memo<EvmTokenListItemProps>(
 
     const checked = getAssetStatus(rawBalance, storedToken?.status) === 'enabled';
 
+    // evmTokenWillRender (lib/ui/tokens-list.tsx) mirrors this: the virtual lists reserve no slot for a row that renders null
     if (metadata == null && dexTokenMetadata == null) return null;
 
     const assetSymbol = getAssetSymbol(metadata?.decimals ? metadata : dexTokenMetadata);
@@ -250,7 +190,6 @@ const EvmTokenListItemContent = memo<EvmTokenListItemProps>(
           network={network}
           publicKeyHash={publicKeyHash}
           onClick={onClick}
-          ref={ref}
         />
       );
 
@@ -264,7 +203,6 @@ const EvmTokenListItemContent = memo<EvmTokenListItemProps>(
         showOnlyFavorites={showOnlyFavorites}
         balance={balance}
         onClick={onClick}
-        ref={ref}
       >
         <div className={clsx('flex items-center grow gap-x-2', balance.lt(ASSET_HUGE_AMOUNT) && 'truncate')}>
           <div className="text-font-medium truncate">{assetSymbol}</div>
@@ -274,18 +212,6 @@ const EvmTokenListItemContent = memo<EvmTokenListItemProps>(
     );
   }
 );
-
-export const EvmTokenListItem = memo<EvmTokenListItemProps>(props => {
-  const { network, index, assetSlug, manageActive = false, requiresVisibility = true, ref } = props;
-  const isVisible = useIsItemVisible(index);
-  const willRender = useEvmTokenListItemWillRender(network.chainId, assetSlug);
-
-  if (requiresVisibility && !isVisible) {
-    return willRender ? <TokenListItemSkeleton manageActive={manageActive} ref={ref} /> : null;
-  }
-
-  return <EvmTokenListItemContent {...props} />;
-});
 
 interface ManageActiveListItemLayoutProps<T extends TempleChainKind> {
   assetSlug: string;
@@ -297,7 +223,6 @@ interface ManageActiveListItemLayoutProps<T extends TempleChainKind> {
   network: NetworkEssentials<T>;
   publicKeyHash: PublicKeyHash<T>;
   onClick?: MouseEventHandler<TokenListItemElement>;
-  ref?: Ref<TokenListItemElement>;
 }
 
 const UNMANAGABLE_TOKENS_SLUGS = {
@@ -317,7 +242,7 @@ const ManageActiveListItemLayoutHOC = <T extends TempleChainKind>(
   deleteItem: (assetSlug: string, chainId: ChainId<T>, publicKeyHash: PublicKeyHash<T>) => void
 ) =>
   memo<ManageActiveListItemLayoutProps<T>>(
-    ({ assetSlug, assetSymbol, assetName, className, scam, checked, network, publicKeyHash, onClick, ref }) => {
+    ({ assetSlug, assetSymbol, assetName, className, scam, checked, network, publicKeyHash, onClick }) => {
       const { chainId } = network;
       const [deleteModalOpened, setDeleteModalOpened, setDeleteModalClosed] = useBooleanState(false);
       const isUnmanageable = UNMANAGABLE_TOKENS_SLUGS[networkKind].includes(assetSlug);
@@ -334,12 +259,7 @@ const ManageActiveListItemLayoutHOC = <T extends TempleChainKind>(
 
       return (
         <>
-          <div
-            className={clsx(LIST_ITEM_CLASSNAME, className)}
-            onClick={onClick}
-            ref={ref as Ref<HTMLDivElement>}
-            style={LIST_ITEM_STYLE}
-          >
+          <div className={clsx(LIST_ITEM_CLASSNAME, className)} onClick={onClick} style={LIST_ITEM_STYLE}>
             <AssetIconWithNetwork chainId={chainId} assetSlug={assetSlug} className="shrink-0" />
 
             <div className="grow flex gap-x-2 items-center overflow-hidden">
@@ -393,7 +313,6 @@ interface DefaultListItemLayoutProps<T extends TempleChainKind> {
   onClick?: MouseEventHandler<TokenListItemElement>;
   showFavoritesMark?: boolean;
   showOnlyFavorites: boolean;
-  ref?: Ref<TokenListItemElement>;
 }
 
 const DefaultListItemLayoutHOC = <T extends TempleChainKind>(
@@ -414,8 +333,7 @@ const DefaultListItemLayoutHOC = <T extends TempleChainKind>(
       balance,
       onClick,
       showFavoritesMark,
-      showOnlyFavorites,
-      ref
+      showOnlyFavorites
     }) => {
       const { chainId } = network;
 
@@ -446,7 +364,6 @@ const DefaultListItemLayoutHOC = <T extends TempleChainKind>(
           style={LIST_ITEM_STYLE}
           testID={AssetsSelectors.assetItemButton}
           testIDProperties={{ key: `${assetSlug}-${chainId}` }}
-          ref={ref as Ref<HTMLAnchorElement>}
           {...setAnotherSelector('name', assetName)}
         >
           <AssetIconWithNetwork chainId={chainId} assetSlug={assetSlug} className="shrink-0" />

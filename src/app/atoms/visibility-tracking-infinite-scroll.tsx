@@ -28,9 +28,6 @@ interface ListItemsVisibility {
   the real window expands once updateScrollDimensions runs after layout.
 */
 const INITIAL_VISIBLE_COUNT = 20;
-// The scroll library reports the position at most every 150 ms; margin and slack must cover a fling's rows in that time.
-const RENDER_MARGIN = 40;
-const RENDER_SLACK = 15;
 
 interface VisibilityStore {
   subscribe: (listener: EmptyFn) => EmptyFn;
@@ -38,14 +35,9 @@ interface VisibilityStore {
   update: (next: ListItemsVisibility) => void;
 }
 
-const createVisibilityStore = (sliding: boolean): VisibilityStore => {
+const createVisibilityStore = (): VisibilityStore => {
   let rendered: ListItemsVisibility = { top: 0, bottom: INITIAL_VISIBLE_COUNT };
   const listeners = new Set<EmptyFn>();
-
-  const move = (next: ListItemsVisibility) => {
-    rendered = next;
-    listeners.forEach(listener => listener());
-  };
 
   return {
     subscribe: listener => {
@@ -58,52 +50,34 @@ const createVisibilityStore = (sliding: boolean): VisibilityStore => {
       // an empty getElementsIndexes result arrives as ±Infinity through Math.min/max
       if (!Number.isFinite(next.top) || !Number.isFinite(next.bottom)) return;
 
-      if (!sliding) {
-        const top = Math.min(rendered.top, next.top);
-        const bottom = Math.max(rendered.bottom, next.bottom);
+      const top = Math.min(rendered.top, next.top);
+      const bottom = Math.max(rendered.bottom, next.bottom);
 
-        if (top !== rendered.top || bottom !== rendered.bottom) move({ top, bottom });
+      if (top === rendered.top && bottom === rendered.bottom) return;
 
-        return;
-      }
-
-      const withinTop = rendered.top === 0 || next.top - rendered.top >= RENDER_SLACK;
-      const withinBottom = rendered.bottom - next.bottom >= RENDER_SLACK;
-
-      if (!withinTop || !withinBottom) {
-        move({ top: Math.max(0, next.top - RENDER_MARGIN), bottom: next.bottom + RENDER_MARGIN });
-      }
+      rendered = { top, bottom };
+      listeners.forEach(listener => listener());
     }
   };
 };
 
-const defaultVisibilityStore = createVisibilityStore(false);
+const defaultVisibilityStore = createVisibilityStore();
 
 const InfiniteScrollVisibilityContext = createContext<VisibilityStore>(defaultVisibilityStore);
 
-const InfiniteScrollVisibilityContextProvider: FC<PropsWithChildren<{ sliding: boolean }>> = ({
-  sliding,
-  children
-}) => {
-  const [store] = useState(() => createVisibilityStore(sliding));
+const InfiniteScrollVisibilityContextProvider: FC<PropsWithChildren> = ({ children }) => {
+  const [store] = useState(createVisibilityStore);
 
   return <InfiniteScrollVisibilityContext value={store}>{children}</InfiniteScrollVisibilityContext>;
 };
 
-export interface VisibilityTrackingInfiniteScrollProps extends PropsWithChildren<
-  Omit<SimpleInfiniteScrollProps, 'onScroll'>
-> {
+interface VisibilityTrackingInfiniteScrollProps extends PropsWithChildren<Omit<SimpleInfiniteScrollProps, 'onScroll'>> {
   /** Return the indexes of the elements that are located at the height of `y` relatively to the scrollable node */
   getElementsIndexes: (y: number) => number[];
-  /** Rows far out of view unmount; off by default, rows then stay rendered once seen. Read on mount. */
-  slidingWindow?: boolean;
 }
 
-export const VisibilityTrackingInfiniteScroll: FC<VisibilityTrackingInfiniteScrollProps> = ({
-  slidingWindow = false,
-  ...props
-}) => (
-  <InfiniteScrollVisibilityContextProvider sliding={slidingWindow}>
+export const VisibilityTrackingInfiniteScroll: FC<VisibilityTrackingInfiniteScrollProps> = props => (
+  <InfiniteScrollVisibilityContextProvider>
     <VisibilityTrackingInfiniteScrollContent {...props} />
   </InfiniteScrollVisibilityContextProvider>
 );

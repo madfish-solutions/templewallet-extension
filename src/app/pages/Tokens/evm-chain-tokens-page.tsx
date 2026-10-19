@@ -1,4 +1,4 @@
-import { Activity, createContext, FC, useContext, useRef } from 'react';
+import { Activity, createContext, FC, useContext } from 'react';
 
 import { DeadEndBoundaryError } from 'app/ErrorBoundary';
 import {
@@ -9,15 +9,9 @@ import { usePreservedOrderSlugsToManage } from 'app/hooks/listing-logic/use-mana
 import { useTokensManageState } from 'app/hooks/use-assets-view-state';
 import { useTokensListOptionsSelector } from 'app/store/assets-filter-options/selectors';
 import { EvmTokenListItem } from 'app/templates/tokens/token-list-item';
-import { TokenListItemFC, TokensViewWithPromo } from 'app/templates/tokens/tokens-views';
+import { TokenListItemFC, VirtualTokensView } from 'app/templates/tokens/tokens-views';
 import { useMemoWithCompare } from 'lib/ui/hooks';
-import {
-  makeFallbackChain,
-  getTokenElementIndex,
-  TokenListItemElement,
-  useRenderPromo,
-  useEvmChainTokenWillBeRendered
-} from 'lib/ui/tokens-list';
+import { makeFallbackChain, useRenderPromo, useEvmChainTokenWillBeRendered } from 'lib/ui/tokens-list';
 import { EvmChain, useEvmChainByChainId } from 'temple/front/chains';
 import { EVM_DEFAULT_NETWORKS } from 'temple/networks';
 
@@ -107,40 +101,29 @@ interface PageContentBaseProps {
 
 const PageContentBase: FC<PageContentBaseProps> = ({ allSlugsSorted, manageActive, shouldShowHiddenTokensHint }) => {
   const { publicKeyHash, network, accountId, ...tokensPageBaseProps } = useContext(EvmChainTokensPageContext);
-  const { displayedSlugs, isSyncing, loadNext, isInSearchMode } = useEvmChainAccountTokensListingLogic(
+  const { displayedSlugs, isSyncing, isInSearchMode } = useEvmChainAccountTokensListingLogic(
     allSlugsSorted,
     network.chainId
   );
-  const promoRef = useRef<HTMLDivElement>(null);
-  const firstListItemRef = useRef<TokenListItemElement>(null);
 
-  const TokenListItem: TokenListItemFC = ({ slug, ref, index }) => {
-    return (
-      <EvmTokenListItem
-        showTags
-        network={network}
-        index={index}
-        assetSlug={slug}
-        publicKeyHash={publicKeyHash}
-        manageActive={manageActive}
-        ref={ref}
-      />
-    );
-  };
+  const TokenListItem: TokenListItemFC = ({ slug }) => (
+    <EvmTokenListItem
+      showTags
+      network={network}
+      assetSlug={slug}
+      publicKeyHash={publicKeyHash}
+      manageActive={manageActive}
+    />
+  );
 
   const tokenWillBeRendered = useEvmChainTokenWillBeRendered(network.chainId);
-  const getElementIndex = (y: number) =>
-    getTokenElementIndex(promoRef.current, firstListItemRef.current, displayedSlugs, tokenWillBeRendered, y);
-
-  const Promo = useRenderPromo(manageActive, 'tokens', promoRef);
+  const Promo = useRenderPromo(manageActive, 'tokens');
 
   return (
     <TokensPageBase
       applicableNetworks={[network]}
       accountId={accountId}
       tokensCount={displayedSlugs.length}
-      getElementIndex={getElementIndex}
-      loadNextPage={loadNext}
       isSyncing={isSyncing}
       isInSearchMode={isInSearchMode}
       manageActive={manageActive}
@@ -148,10 +131,10 @@ const PageContentBase: FC<PageContentBaseProps> = ({ allSlugsSorted, manageActiv
       shouldShowHiddenTokensHint={shouldShowHiddenTokensHint}
       {...tokensPageBaseProps}
     >
-      <TokensViewWithPromo
-        displayedSlugs={displayedSlugs}
+      <VirtualTokensView
+        slugs={displayedSlugs}
+        tokenWillBeRendered={tokenWillBeRendered}
         Promo={Promo}
-        firstListItemRef={firstListItemRef}
         TokenListItem={TokenListItem}
       />
     </TokensPageBase>
