@@ -18,17 +18,18 @@ const FITTED_LAYOUTS = new Map<string, { count: number; showMoreCount: number }>
 
 interface NetworkChipsProps {
   chips: Pick<NetworkChipProps, 'label' | 'chain'>[];
+  layoutScope: string;
   selectedChains: Array<string | number>;
   setSelectedChains: Dispatch<SetStateAction<Array<string | number>>>;
 }
 
-export const NetworkChips: FC<NetworkChipsProps> = ({ chips, selectedChains, setSelectedChains }) => {
+export const NetworkChips: FC<NetworkChipsProps> = ({ chips, layoutScope, selectedChains, setSelectedChains }) => {
   const [collapsed, , expand] = useBooleanState(true);
   const allElementsHiddenWrapperRef = useRef<HTMLDivElement>(null);
   const allElementsHiddenRef = useRef<HTMLDivElement>(null);
   const fitIterationSandboxWrapperRef = useRef<HTMLDivElement>(null);
   const fitIterationSandboxRef = useRef<HTMLDivElement>(null);
-  const layoutKey = `${chips.map(({ chain }) => chain.chainId).join(',')}|${window.innerWidth}`;
+  const layoutKey = `${layoutScope}|${chips.map(({ chain }) => chain.chainId).join(',')}|${window.innerWidth}`;
   const [displayedChips, setDisplayedChips] = useState<typeof chips>(() => {
     const fitted = FITTED_LAYOUTS.get(layoutKey);
 

@@ -22,6 +22,15 @@ export interface LoadOnChainBalancePayload {
   throwOnTimeout?: boolean;
 }
 
+export const evmBalanceOnChainRequestedAt = new Map<string, number>();
+
+export const getEvmBalanceOnChainRequestKey = ({
+  network,
+  account,
+  assetSlug
+}: Pick<LoadOnChainBalancePayload, 'network' | 'account' | 'assetSlug'>) =>
+  `${network.rpcBaseURL}:${network.chainId}:${account}:${assetSlug}`;
+
 export const fetchEvmRawBalance = async (
   network: EvmNetworkEssentials,
   assetSlug: string,

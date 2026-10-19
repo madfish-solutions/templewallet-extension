@@ -11,16 +11,17 @@ import {
 const shouldRaceOffDom = (stages: ImageSourceStage[]) =>
   stages.some(stage => stage.urls.length > 1 || Boolean(stage.delayMs));
 
-const loadedSrcs = new Set<string>();
+const loadedSrcs = new Map<string, string>();
+
+const getStackKey = (stages: ImageSourceStage[]) => stages.flatMap(stage => stage.urls).join('\0');
 
 const findLoadedSrc = (stages: ImageSourceStage[]) => {
-  for (let index = 0; index < stages.length; index++) {
-    const url = stages[index].urls.find(url => loadedSrcs.has(url));
+  const url = loadedSrcs.get(getStackKey(stages));
+  if (!url) return undefined;
 
-    if (url) return { index, url };
-  }
+  const index = stages.findIndex(stage => stage.urls.includes(url));
 
-  return undefined;
+  return index === -1 ? undefined : { index, url };
 };
 
 /**
@@ -118,7 +119,7 @@ export const useImagesStackLoading = (sources: string[] | ImageSourceStage[], im
   const src = raceOffDom ? racedSrc : stages.at(index)?.urls[0];
 
   const onSuccess = () => {
-    if (src) loadedSrcs.add(src);
+    if (src) loadedSrcs.set(getStackKey(stages), src);
     setIsLoading(false);
   };
 
@@ -127,7 +128,7 @@ export const useImagesStackLoading = (sources: string[] | ImageSourceStage[], im
       return;
     }
 
-    if (src) loadedSrcs.delete(src);
+    if (src) loadedSrcs.delete(getStackKey(stages));
 
     if (raceOffDom) {
       if (racedSrc) {

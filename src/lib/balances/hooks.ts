@@ -22,6 +22,7 @@ import {
 import { getKeyForBalancesRecord } from 'app/store/tezos/balances/utils';
 import { isSupportedChainId } from 'lib/apis/temple/endpoints/evm/api.utils';
 import { isKnownChainId } from 'lib/apis/tzkt';
+import { evmBalanceOnChainRequestedAt, getEvmBalanceOnChainRequestKey } from 'lib/evm/on-chain/balance';
 import { createEvmTransfersListener } from 'lib/evm/on-chain/evm-transfer-subscriptions';
 import { EvmAssetStandard } from 'lib/evm/types';
 import { EVM_BALANCES_SYNC_INTERVAL } from 'lib/fixed-times';
@@ -42,8 +43,6 @@ import { EvmNetworkEssentials, TezosNetworkEssentials } from 'temple/networks';
 import { getTezosReadOnlyRpcClient } from 'temple/tezos';
 
 import { fetchRawBalance as fetchRawBalanceFromBlockchain } from './fetch';
-
-const lastOnChainRefreshAt = new Map<string, number>();
 
 const useGetBalanceWithDecimals = <RawBalances, ChainId>(
   rawBalances: RawBalances,
@@ -228,11 +227,11 @@ function useEvmAssetRawBalance(
     [address, assetSlug, assetStandard, network, usingOnchainRequests]
   );
 
-  const refreshKey = `${chainId}:${address}:${assetSlug}`;
+  const refreshKey = getEvmBalanceOnChainRequestKey({ network, account: address, assetSlug });
 
   const refreshBalanceOnChain = useCallback(() => {
     refreshOnChainDoneRef.current = true;
-    lastOnChainRefreshAt.set(refreshKey, Date.now());
+    evmBalanceOnChainRequestedAt.set(refreshKey, Date.now());
     // Blockchains with small block intervals are likely to decrease the app performance here
     if (assetStandard !== EvmAssetStandard.NATIVE) {
       dispatch(setEvmBalancesLoadingState({ chainId, isLoading: true, source: 'onchain' }));
@@ -244,7 +243,7 @@ function useEvmAssetRawBalance(
     () => {
       // rows remount while the virtualized lists scroll: an asset refreshed less than half an interval ago is not fetched again
       if (usingOnchainRequests) {
-        if (Date.now() - (lastOnChainRefreshAt.get(refreshKey) ?? 0) >= EVM_BALANCES_SYNC_INTERVAL / 2)
+        if (Date.now() - (evmBalanceOnChainRequestedAt.get(refreshKey) ?? 0) >= EVM_BALANCES_SYNC_INTERVAL / 2)
           refreshBalanceOnChain();
       } else if (forceFirstRefreshOnChain && refreshOnChainDoneRef.current) {
         refreshBalanceOnChain();
