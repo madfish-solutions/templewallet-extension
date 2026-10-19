@@ -24,5 +24,5 @@ cointelegraph.com##[class*='promo-banner' i]
 theblock.co##[class*='sponsor-banner' i]
 coinmarketcap.com##[data-role*='banner-ad' i]
 
-! CoinGecko: sponsored market rows.
-coingecko.com##tr[data-ads-target="banner"]
+! CoinGecko: first sponsored market row content inside a table cell.
+coingecko.com##tr[data-ads-target="banner"]:not(tr[data-ads-target="banner"] ~ tr) > td[colspan] > div
