@@ -71,14 +71,16 @@ export const useImagesStackLoading = (sources: string[] | ImageSourceStage[], im
   }, [stages]);
 
   useEffect(() => {
-    if (!shouldRaceOffDom(stages) || stages.length === 0 || findLoadedSrc(stages)) {
-      return;
-    }
+    if (!shouldRaceOffDom(stages) || stages.length === 0) return;
 
     const controller = new AbortController();
     const generation = ++loadGenerationRef.current;
+    const loaded = findLoadedSrc(stages);
+    const load: ReturnType<typeof loadImageSourceStages> = loaded
+      ? Promise.resolve(loaded.url)
+      : loadImageSourceStages(stages, { signal: controller.signal, immediate });
 
-    void loadImageSourceStages(stages, { signal: controller.signal, immediate })
+    void load
       .then(winner => {
         if (controller.signal.aborted || generation !== loadGenerationRef.current) {
           return;
