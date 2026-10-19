@@ -43,6 +43,8 @@ import { getTezosReadOnlyRpcClient } from 'temple/tezos';
 
 import { fetchRawBalance as fetchRawBalanceFromBlockchain } from './fetch';
 
+const lastOnChainRefreshAt = new Map<string, number>();
+
 const useGetBalanceWithDecimals = <RawBalances, ChainId>(
   rawBalances: RawBalances,
   getMetadata: (chainId: ChainId, slug: string) => { decimals?: number } | undefined,
@@ -226,22 +228,29 @@ function useEvmAssetRawBalance(
     [address, assetSlug, assetStandard, network, usingOnchainRequests]
   );
 
+  const refreshKey = `${chainId}:${address}:${assetSlug}`;
+
   const refreshBalanceOnChain = useCallback(() => {
     refreshOnChainDoneRef.current = true;
+    lastOnChainRefreshAt.set(refreshKey, Date.now());
     // Blockchains with small block intervals are likely to decrease the app performance here
     if (assetStandard !== EvmAssetStandard.NATIVE) {
       dispatch(setEvmBalancesLoadingState({ chainId, isLoading: true, source: 'onchain' }));
     }
     dispatch(loadEvmBalanceOnChainActions.submit({ network, assetSlug, account: address, assetStandard }));
-  }, [dispatch, chainId, network, assetSlug, address, assetStandard]);
+  }, [dispatch, chainId, network, assetSlug, address, assetStandard, refreshKey]);
 
   useInterval(
     () => {
-      if (usingOnchainRequests || (forceFirstRefreshOnChain && refreshOnChainDoneRef.current)) {
+      // rows remount while the virtualized lists scroll: an asset refreshed less than half an interval ago is not fetched again
+      if (usingOnchainRequests) {
+        if (Date.now() - (lastOnChainRefreshAt.get(refreshKey) ?? 0) >= EVM_BALANCES_SYNC_INTERVAL / 2)
+          refreshBalanceOnChain();
+      } else if (forceFirstRefreshOnChain && refreshOnChainDoneRef.current) {
         refreshBalanceOnChain();
       }
     },
-    [usingOnchainRequests, forceFirstRefreshOnChain, refreshBalanceOnChain],
+    [usingOnchainRequests, forceFirstRefreshOnChain, refreshBalanceOnChain, refreshKey],
     EVM_BALANCES_SYNC_INTERVAL,
     true
   );
