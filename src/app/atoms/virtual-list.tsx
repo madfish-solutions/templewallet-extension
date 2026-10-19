@@ -1,4 +1,4 @@
-import { ReactNode, RefObject, useLayoutEffect, useRef, useState } from 'react';
+import { ReactNode, RefObject, useEffect, useLayoutEffect, useRef, useState } from 'react';
 
 import {
   observeElementOffset,
@@ -22,11 +22,19 @@ interface VirtualListProps<T> {
   scrollElementId?: string;
 }
 
-// Looked up by id, not through a ref: the page scroller's ref is attached after its children's layout effects run
 const getScrollElement = (scrollElementId?: string) =>
   document.getElementById(scrollElementId ?? APP_CONTENT_PAPER_DOM_ID);
 
 const getRootFontSize = () => parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
+
+const getScrollMargin = (root: HTMLElement, scrollElementId: string | undefined, scrollsWindow: boolean) => {
+  const rootTop = root.getBoundingClientRect().top;
+  const scroller = scrollsWindow ? null : getScrollElement(scrollElementId);
+  const viewportTop = scroller ? scroller.getBoundingClientRect().top : 0;
+  const scrollOffset = scrollsWindow ? window.scrollY : (scroller?.scrollTop ?? 0);
+
+  return rootTop - viewportTop + scrollOffset;
+};
 
 const useVirtualListOptions = <T,>(
   { items, itemHeight, itemKey, scrollElementId }: VirtualListProps<T>,
@@ -44,16 +52,46 @@ const useVirtualListOptions = <T,>(
     const root = rootRef.current;
     if (!root) return;
 
-    const rootTop = root.getBoundingClientRect().top;
-    const scroller = scrollsWindow ? null : getScrollElement(scrollElementId);
-    const viewportTop = scroller ? scroller.getBoundingClientRect().top : 0;
-    const scrollOffset = scrollsWindow ? window.scrollY : (scroller?.scrollTop ?? 0);
-    const margin = rootTop - viewportTop + scrollOffset;
+    const margin = getScrollMargin(root, scrollElementId, scrollsWindow);
 
     setScrollMargin(prev => (Math.abs(prev - margin) < 1 ? prev : margin));
   };
 
   useLayoutEffect(measureScrollMargin, [items, scrollElementId, scrollsWindow]);
+
+  useEffect(() => {
+    const root = rootRef.current;
+    const scroller = scrollsWindow ? document.body : getScrollElement(scrollElementId);
+    if (!root || !scroller) return;
+
+    const measure = () => {
+      const margin = getScrollMargin(root, scrollElementId, scrollsWindow);
+
+      setScrollMargin(prev => (Math.abs(prev - margin) < 1 ? prev : margin));
+    };
+    const resizeObserver = new ResizeObserver(measure);
+    const observePrecedingContent = () => {
+      resizeObserver.disconnect();
+      for (let node: Element | null = root; node && node !== scroller; node = node.parentElement) {
+        for (let sibling = node.previousElementSibling; sibling; sibling = sibling.previousElementSibling) {
+          resizeObserver.observe(sibling);
+        }
+      }
+    };
+    const mutationObserver = new MutationObserver(() => {
+      observePrecedingContent();
+      measure();
+    });
+    for (let node = root.parentElement; node; node = node === scroller ? null : node.parentElement) {
+      mutationObserver.observe(node, { childList: true });
+    }
+    observePrecedingContent();
+
+    return () => {
+      resizeObserver.disconnect();
+      mutationObserver.disconnect();
+    };
+  }, [scrollElementId, scrollsWindow]);
 
   return {
     rootRef,
@@ -65,8 +103,7 @@ const useVirtualListOptions = <T,>(
       getItemKey: (index: number) => itemKey(items[index]),
       overscan: OVERSCAN_ITEMS,
       scrollMargin,
-      initialOffset: () => restoredOffset() ?? 0,
-      onChange: measureScrollMargin
+      initialOffset: () => restoredOffset() ?? 0
     }
   };
 };
@@ -96,7 +133,6 @@ const ElementVirtualList = <T,>(props: VirtualListProps<T>) => {
   const virtualizer = useVirtualizer({
     ...options,
     getScrollElement: () => getScrollElement(props.scrollElementId),
-    // tanstack writes its cached offset into the scroller on attach; report the offset it should hold first
     observeElementOffset: (instance, cb) => {
       cb(restoredOffset() ?? instance.scrollElement?.scrollTop ?? 0, false);
       return observeElementOffset(instance, cb);
