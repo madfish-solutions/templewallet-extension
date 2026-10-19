@@ -10,8 +10,11 @@
 ! Etherscan explorer family: self-hosted sponsor banners.
 etherscan.io,bscscan.com,polygonscan.com,arbiscan.io,basescan.org,snowtrace.io##img[src*='/images/gen/']
 
-! Etherscan: Sevio banner containers.
-etherscan.io##.sevioads
+! Etherscan explorer family: Sevio banner containers.
+etherscan.io,bscscan.com,polygonscan.com,arbiscan.io,basescan.org,snowtrace.io##.sevioads
+
+! Etherscan explorer family: Revive ad containers.
+etherscan.io,bscscan.com,polygonscan.com,arbiscan.io,basescan.org,snowtrace.io##ins[data-revive-id]
 
 ! Crypto media and data websites: sponsored images.
 cointelegraph.com,theblock.co,coinmarketcap.com,coingecko.com,dexscreener.com##a[rel~='sponsored'] img
@@ -20,3 +23,6 @@ cointelegraph.com,theblock.co,coinmarketcap.com,coingecko.com,dexscreener.com##a
 cointelegraph.com##[class*='promo-banner' i]
 theblock.co##[class*='sponsor-banner' i]
 coinmarketcap.com##[data-role*='banner-ad' i]
+
+! CoinGecko: sponsored market rows.
+coingecko.com##tr[data-ads-target="banner"]

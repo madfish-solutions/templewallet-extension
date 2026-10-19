@@ -15,7 +15,7 @@ import {
   THEME_COLOR_SEARCH_PARAM_NAME
 } from 'lib/ads-constants/ads-constants';
 import { ADS_VIEWER_DATA_STORAGE_KEY, ContentScriptType } from 'lib/constants';
-import { APP_VERSION, EnvVars, IS_MISES_BROWSER } from 'lib/env';
+import { APP_VERSION, EnvVars, IS_DEV_ENV, IS_MISES_BROWSER } from 'lib/env';
 import { fetchFromStorage } from 'lib/storage';
 import {
   TempleAnalyzeYoutubeSearchPageData,
@@ -425,6 +425,7 @@ export const configureAds = async () => {
     typeof window === 'undefined' ? undefined : await getDApp(TempleChainKind.EVM, window.location.origin);
   const chainId = dAppSession?.chainId ?? 1;
   originalConfigureAds({
+    debugAds: IS_DEV_ENV,
     hypelabPropertySlug: (locationHref: string) =>
       isYouTubePage(locationHref) ? EnvVars.HYPELAB_PROPERTY_SLUG : EnvVars.HYPELAB_EXTERNAL_PROPERTY_SLUG,
     adsTwWindowUrl: EnvVars.HYPELAB_ADS_WINDOW_URL,

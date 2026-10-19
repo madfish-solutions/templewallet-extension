@@ -17,7 +17,7 @@ import {
   AD_SELECTORS_STORAGE_KEY,
   WEBSITES_ADS_ENABLED
 } from 'lib/constants';
-import { IS_MISES_BROWSER } from 'lib/env';
+import { IS_DEV_ENV, IS_MISES_BROWSER } from 'lib/env';
 import { fetchFromStorage, putToStorage } from 'lib/storage';
 
 import { getRulesFromContentScript, clearRulesCache } from './content-scripts/replace-ads';
@@ -109,6 +109,17 @@ const updateAdsActionTriggers = () => {
       ]);
       if (!pageIsActive || currentGeneration !== generation) return;
       activeAdsModule = adsModule;
+      if (IS_DEV_ENV) {
+        console.debug(
+          '[Temple Ads]',
+          'ads-enabled',
+          JSON.stringify({
+            websiteAdsEnabled: inBrowserAdsEnabled,
+            chatbotAdsEnabled: aiChatAdsEnabled,
+            generation: currentGeneration
+          })
+        );
+      }
       // Restore first so an older configuration cannot retain website placements.
       adsModule.restoreWebsiteAds();
       if (!inBrowserAdsEnabled && !aiChatAdsEnabled) return;
@@ -142,6 +153,16 @@ const updateAdsActionTriggers = () => {
 };
 
 const startAdsReplacement = () => {
+  if (IS_DEV_ENV) {
+    console.debug(
+      '[Temple Ads]',
+      'content-script-start',
+      JSON.stringify({
+        hostname: window.location.hostname,
+        visibility: document.visibilityState
+      })
+    );
+  }
   updateAdsActionTriggers();
   browser.storage.local.onChanged.addListener(changes => {
     if (
@@ -280,7 +301,22 @@ const replaceWebsiteAds = async (request: AdsScanRequest, scanGeneration: number
       const revisionGeneration = selectorGeneration;
       activeAdsModule?.reconcileWebsiteAds();
       const adsActions = await getAdsActions(adsRules, request);
-      if (!scanIsCurrent(scanGeneration, href) || revisionGeneration !== selectorGeneration) return;
+      if (!scanIsCurrent(scanGeneration, href) || revisionGeneration !== selectorGeneration) {
+        if (IS_DEV_ENV) {
+          console.debug(
+            '[Temple Ads]',
+            'scan-discarded',
+            JSON.stringify({
+              scanGeneration,
+              generation,
+              revisionGeneration,
+              selectorGeneration,
+              visibility: document.visibilityState
+            })
+          );
+        }
+        return;
+      }
       adsActionsResult = await executeAdsActions(adsActions);
     }
     adsActionsResult.forEach(
