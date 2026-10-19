@@ -191,7 +191,6 @@ interface EvmTokenMetadataPickEntry {
   bySlug: Map<string, EvmTokenMetadata | undefined>;
 }
 
-// not a useMemo keyed on the records: React Compiler drops deps the factory does not read, so it would never be replaced
 const useCachedEvmTokenMetadataPick = () => {
   const [cache] = useState(() => new Map<number, EvmTokenMetadataPickEntry>());
 

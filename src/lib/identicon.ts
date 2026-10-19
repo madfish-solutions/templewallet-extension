@@ -28,16 +28,13 @@ function buildImageIdenticonUriLocal<T extends IdenticonImgType>(
   return `data:image/svg+xml,${encodeURIComponent(jdenticon.toSvg(hash, size))}`;
 }
 
-/** Options that make DiceBear emit elements with fixed ids are excluded: inlined icons would all resolve them to the first copy. */
-export type InitialsIdenticonOptions = Omit<
-  firstLetters.Options & Options,
-  'seed' | 'clip' | 'radius' | 'backgroundType' | 'backgroundRotation'
->;
+type SvgIdEmittingOptions = 'clip' | 'radius' | 'backgroundType' | 'backgroundRotation';
 
-/** Inlined, the licence block would land in the DOM for every icon; the style is CC0. */
+export type InitialsIdenticonOptions = Omit<firstLetters.Options & Options, 'seed' | SvgIdEmittingOptions>;
+
+/** The initials style is CC0, so its license metadata can go. */
 const stripLicenseMetadata = (svg: string) => svg.replace(/<metadata[\s\S]*?<\/metadata>/g, '');
 
-/** Markup rather than a data URI: an `<img>` per distinct data URI costs Chromium an isolated SVG document each. */
 export const buildInitialsIdenticonSvg = memoizee(
   (seed: string, options?: InitialsIdenticonOptions) =>
     stripLicenseMetadata(

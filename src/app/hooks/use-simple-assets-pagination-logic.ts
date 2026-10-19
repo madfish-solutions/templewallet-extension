@@ -7,7 +7,7 @@ const ITEMS_PER_PAGE = 30;
 
 export const useSimpleAssetsPaginationLogic = (sortedSlugs: string[]) => {
   const { filterChain } = useAssetsFilterOptionsSelector();
-  // a remembered count below one page would stick: the generic hook tops up only when the total exceeds the minimum
+  // restoring below one page would stick when the whole list fits in a page: the generic hook's top-up needs total > minimum
   const rememberedCount = useLoadedItemsCount('plain') ?? 0;
   const { paginatedItems: slugs, loadNext } = useSimplePaginationLogic(
     sortedSlugs,
