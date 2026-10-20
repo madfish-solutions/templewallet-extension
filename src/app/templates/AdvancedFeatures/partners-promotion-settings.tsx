@@ -42,7 +42,6 @@ export const PartnersPromotionSettings: FC = () => {
               title={<T id="promoWhileBrowsing" />}
               titleBold={false}
               description={<T id="promoWhileBrowsingDescription" />}
-              isLast={false}
             >
               <InfoButton
                 onClick={() => setInfoSurface('browsing')}
@@ -60,7 +59,6 @@ export const PartnersPromotionSettings: FC = () => {
               title={<T id="promoWhileUsingAi" />}
               titleBold={false}
               description={<T id="promoWhileUsingAiDescription" />}
-              isLast={false}
             >
               <InfoButton onClick={() => setInfoSurface('ai')} testID={AdvancedFeaturesSelectors.promoAiInfoButton} />
               <ToggleSwitch

@@ -75,7 +75,7 @@ const updateAdsActionTriggers = async () => {
   if (aiChatAdsEnabled && !adsActionTriggers?.documentObserver) {
     await configureAds();
     const documentObserver = new MutationObserver(() => insertAiChatbotAds());
-    documentObserver.observe(document, { childList: true, subtree: true });
+    documentObserver.observe(document, { attributes: true, attributeFilter: ['d'], childList: true, subtree: true });
     adsActionTriggers = { ...adsActionTriggers, documentObserver };
   } else if (!aiChatAdsEnabled && adsActionTriggers?.documentObserver) {
     adsActionTriggers.documentObserver.disconnect();
