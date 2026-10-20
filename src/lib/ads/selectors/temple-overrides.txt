@@ -7,22 +7,32 @@
 ! Exceptions apply to exact selector text across all feeds.
 ! Add verified publisher selectors and exact exceptions here.
 
-! Etherscan explorer family: self-hosted sponsor banners.
-etherscan.io,bscscan.com,polygonscan.com,arbiscan.io,basescan.org,snowtrace.io##img[src*='/images/gen/']
+dextools.io##.ad-banner
+dextools.io##.banner-content
+dextools.io##.coinzilla-banner
 
-! Etherscan explorer family: Sevio banner containers.
-etherscan.io,bscscan.com,polygonscan.com,arbiscan.io,basescan.org,snowtrace.io##.sevioads
+etherscan.io,bscscan.com,polygonscan.com,arbiscan.io,basescan.org,snowtrace.io,solscan.io,dextools.io##.sevioads
+etherscan.io,bscscan.com,polygonscan.com,arbiscan.io,basescan.org,snowtrace.io,solscan.io###ad-container
+etherscan.io,bscscan.com,polygonscan.com,arbiscan.io,basescan.org,snowtrace.io,solscan.io##ins[data-revive-id]
+etherscan.io,bscscan.com,polygonscan.com,arbiscan.io,basescan.org,snowtrace.io,solscan.io##img[src*='/images/gen/']
 
-! Etherscan explorer family: Revive ad containers.
-etherscan.io,bscscan.com,polygonscan.com,arbiscan.io,basescan.org,snowtrace.io##ins[data-revive-id]
+tzkt.io##.app-searchbar + div
+tzkt.io##.v-banner__content
 
-! Crypto media and data websites: sponsored images.
 cointelegraph.com,theblock.co,coinmarketcap.com,coingecko.com,dexscreener.com##a[rel~='sponsored'] img
-
-! Publisher banner markers.
 cointelegraph.com##[class*='promo-banner' i]
-theblock.co##[class*='sponsor-banner' i]
-coinmarketcap.com##[data-role*='banner-ad' i]
 
-! CoinGecko: first sponsored market row content inside a table cell.
+theblock.co##[class*='sponsor-banner' i]
+
+coinmarketcap.com##[data-role*='banner-ad' i]
+coinmarketcap.com##.cmc-sponsor-wrapper
+
 coingecko.com##tr[data-ads-target="banner"]:not(tr[data-ads-target="banner"] ~ tr) > td[colspan] > div
+coingecko.com###sponsored-search-desktop
+
+cryptorank.io##.filled-color-banner
+
+publish0x.com##iframe[data-aa="2308443"]
+
+dexview.com##iframe[data-aa="2177768"]
+dexview.com##hype-banner
