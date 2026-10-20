@@ -19,6 +19,8 @@ interface Props extends HTMLAttributes<HTMLDivElement> {
 let SCROLL_RESTORATION = new Map<string, number>();
 const MEMOIZED_SCROLLS_LIMIT = 10;
 
+export const getRestoredScrollTop = (href: string) => SCROLL_RESTORATION.get(href);
+
 export const ScrollRestorer: FC<PropsWithChildren<Props>> = ({ ref, ...props }) => {
   const { trigger, href } = Woozie.useLocation();
 

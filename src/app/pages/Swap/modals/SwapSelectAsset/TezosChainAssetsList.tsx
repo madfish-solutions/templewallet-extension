@@ -2,12 +2,12 @@ import React, { memo, MouseEvent, useCallback, useMemo } from 'react';
 
 import { isDefined } from '@rnw-community/shared';
 
-import { EmptyState } from 'app/atoms/EmptyState';
 import { DeadEndBoundaryError } from 'app/ErrorBoundary';
 import { SwapFieldName } from 'app/pages/Swap/form/interfaces';
 import { useFirstValue } from 'app/pages/Swap/modals/SwapSelectAsset/hooks';
 import { useAllAccountBalancesSelector } from 'app/store/tezos/balances/selectors';
 import { TezosTokenListItem } from 'app/templates/tokens/token-list-item';
+import { TokensListView } from 'app/templates/tokens/tokens-list-view';
 import { TEZ_TOKEN_SLUG } from 'lib/assets';
 import { searchTezosChainAssetsWithNoMeta } from 'lib/assets/search.utils';
 import { useTezosChainAccountTokensSortPredicate } from 'lib/assets/use-sorting';
@@ -17,6 +17,8 @@ import { useAvailableRoute3TokensSlugs } from 'lib/route3/assets';
 import { useMemoWithCompare } from 'lib/ui/hooks';
 import { useTezosChainByChainId } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
+
+import { SWAP_SELECT_ASSET_SCROLLABLE_ID } from '../../constants';
 
 interface Props {
   chainId: string;
@@ -62,22 +64,18 @@ export const TezosChainAssetsList = memo<Props>(
     }, [filterZeroBalances, assetsSlugs, searchValue, getAssetMetadata, isNonZeroBalance]);
 
     return (
-      <div className="px-4 pb-4 flex-1 flex flex-col overflow-y-auto">
-        {filteredAssets.length === 0 && <EmptyState />}
-
-        {filteredAssets.map(slug => (
+      <TokensListView slugs={filteredAssets} scrollElementId={SWAP_SELECT_ASSET_SCROLLABLE_ID}>
+        {slug => (
           <TezosTokenListItem
-            key={slug}
             network={network}
             publicKeyHash={publicKeyHash}
             assetSlug={slug}
             showTags={false}
             showFavoritesMark={showFavorites}
-            requiresVisibility={false}
             onClick={e => onAssetSelect(e, toChainAssetSlug(TempleChainKind.Tezos, chainId, slug))}
           />
-        ))}
-      </div>
+        )}
+      </TokensListView>
     );
   }
 );

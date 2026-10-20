@@ -51,15 +51,13 @@ export const ContentBodyWithTezChainTokens: FC<Props> = ({ chainId, accountId, p
 
   const mainnetTokensScamSlugsRecord = useMainnetTokensScamlistSelector();
 
-  const TokenListItem: TokenListItemFC = ({ slug, ref, index }) => (
+  const TokenListItem: TokenListItemFC = ({ slug }) => (
     <TezosTokenListItem
       showTags={false}
       network={network}
-      index={index}
       publicKeyHash={publicKeyHash}
       assetSlug={slug}
       scam={mainnetTokensScamSlugsRecord[slug]}
-      ref={ref}
     />
   );
 

@@ -51,17 +51,8 @@ export const ContentBodyWithEvmChainTokens: FC<Props> = ({ chainId, publicKeyHas
   );
   const displayedSlugs = fullPageDisplayedSlugs.slice(0, 3);
 
-  const TokenListItem: TokenListItemFC = ({ slug, ref, index }) => {
-    return (
-      <EvmTokenListItem
-        showTags={false}
-        network={network}
-        index={index}
-        assetSlug={slug}
-        publicKeyHash={publicKeyHash}
-        ref={ref}
-      />
-    );
+  const TokenListItem: TokenListItemFC = ({ slug }) => {
+    return <EvmTokenListItem showTags={false} network={network} assetSlug={slug} publicKeyHash={publicKeyHash} />;
   };
 
   const Promo = useRenderPromo(false, 'home');

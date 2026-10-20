@@ -39,18 +39,16 @@ export const ContentBase: FC<ContentBaseProps> = ({
   const tezosChains = useAllTezosChains();
   const mainnetTokensScamSlugsRecord = useMainnetTokensScamlistSelector();
 
-  const TokenListItem: TokenListItemFC = ({ slug: chainSlug, ref, index }) => {
+  const TokenListItem: TokenListItemFC = ({ slug: chainSlug }) => {
     const [_, chainId, assetSlug] = parseChainAssetSlug(chainSlug, TempleChainKind.Tezos);
 
     return (
       <TezosTokenListItem
         showTags={false}
         network={tezosChains[chainId]}
-        index={index}
         publicKeyHash={publicKeyHash}
         assetSlug={assetSlug}
         scam={mainnetTokensScamSlugsRecord[assetSlug]}
-        ref={ref}
       />
     );
   };
