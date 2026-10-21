@@ -5,7 +5,8 @@ import clsx from 'clsx';
 
 import { useCollectibleIsAdultSelector } from 'app/store/tezos/collectibles/selectors';
 import {
-  buildCollectibleImagesStack,
+  appendExtraSource,
+  buildCollectibleImageSourceStages,
   buildEvmCollectibleIconSources,
   buildIpfsGatewaySourceStages
 } from 'lib/images-uri';
@@ -50,12 +51,7 @@ export const TezosCollectibleItemImage: FC<TezosCollectibleItemImageProps> = ({
   const sources = useMemoWithCompare(() => {
     if (!metadata) return EMPTY_FROZEN_ARRAY;
 
-    const sources = buildCollectibleImagesStack(metadata);
-    if (extraSrc !== undefined) {
-      sources.push(extraSrc);
-    }
-
-    return sources;
+    return appendExtraSource(buildCollectibleImageSourceStages(metadata), extraSrc);
   }, [metadata, extraSrc]);
 
   const isAudioCollectible = Boolean(mime?.startsWith('audio'));
@@ -69,10 +65,16 @@ export const TezosCollectibleItemImage: FC<TezosCollectibleItemImageProps> = ({
   ) : (
     <>
       {shouldUseBlurredBg && (
-        <ImageStacked sources={sources} loading="lazy" className="absolute w-full h-full object-cover blur-xs" />
+        <ImageStacked
+          sources={sources}
+          progressive
+          loading="lazy"
+          className="absolute w-full h-full object-cover blur-xs"
+        />
       )}
       <ImageStacked
         sources={sources}
+        progressive
         loading="lazy"
         loader={<CollectibleImageLoader />}
         fallback={<CollectibleImageFallback isAudioCollectible={isAudioCollectible} />}

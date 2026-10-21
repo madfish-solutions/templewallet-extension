@@ -10,7 +10,7 @@ import React, {
   startTransition
 } from 'react';
 
-import { useDidMount } from 'lib/ui/hooks';
+import { useDidMount, useUpdatableRef } from 'lib/ui/hooks';
 import { type ImageSourceStage } from 'lib/ui/race-image-urls';
 import { useImagesStackLoading } from 'lib/ui/use-images-stack-loading';
 
@@ -23,6 +23,8 @@ export interface ImageStackedProps extends React.ImgHTMLAttributes<HTMLImageElem
   sources: string[] | ImageSourceStage[];
   /** Skip the in-flight cap (detail views). */
   immediate?: boolean;
+  /** Load the leading single-URL stages through the `<img>` element and race only the rest off-DOM. */
+  progressive?: boolean;
   size?: number;
   loader?: ReactNode;
   fallback?: ReactNode;
@@ -33,6 +35,7 @@ export interface ImageStackedProps extends React.ImgHTMLAttributes<HTMLImageElem
 export const ImageStacked: FC<ImageStackedProps> = ({
   sources,
   immediate = false,
+  progressive = false,
   size,
   loader,
   fallback,
@@ -42,7 +45,7 @@ export const ImageStacked: FC<ImageStackedProps> = ({
   ...imgProps
 }) => {
   const [preventLoadImage, setPreventLoadImage] = useState(true);
-  const { src, isLoading, isStackFailed, onSuccess, onFail } = useImagesStackLoading(sources, immediate);
+  const { src, isLoading, isStackFailed, onSuccess, onFail } = useImagesStackLoading(sources, immediate, progressive);
 
   useDidMount(() => startTransition(() => setPreventLoadImage(false)));
 
@@ -71,9 +74,11 @@ export const ImageStacked: FC<ImageStackedProps> = ({
     onStackLoadedRef.current?.();
   }, [onSuccess]);
 
+  const onStackFailedRef = useUpdatableRef(onStackFailed);
+
   useEffect(() => {
-    if (isStackFailed && onStackFailed) onStackFailed();
-  }, [isStackFailed]);
+    if (isStackFailed) onStackFailedRef.current?.();
+  }, [isStackFailed, onStackFailedRef]);
 
   if (isStackFailed || preventLoadImage) return fallback ?? null;
 
