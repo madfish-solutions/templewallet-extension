@@ -29,6 +29,7 @@ coinmarketcap.com##.cmc-sponsor-wrapper
 
 coingecko.com##tr[data-ads-target="banner"]:not(tr[data-ads-target="banner"] ~ tr) > td[colspan] > div
 coingecko.com###sponsored-search-desktop
+coingecko.com##[data-ads-paywall-unit="popular_coin"]
 
 cryptorank.io##.filled-color-banner
 

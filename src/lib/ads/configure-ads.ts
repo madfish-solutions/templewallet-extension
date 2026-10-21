@@ -127,6 +127,8 @@ const isYouTubePage = (locationHref: string) => {
   return youtubeHostnames.has(hostname);
 };
 
+const NATIVE_AD_MIN_WIDTH = 200;
+
 const buildNativeAdsMeta = (containerWidth: number, containerHeight: number, locationHref: string) => {
   const hypelabPlacementSlug = isYouTubePage(locationHref)
     ? EnvVars.HYPELAB_INTERNAL_NATIVE_PLACEMENT_SLUG
@@ -140,9 +142,9 @@ const buildNativeAdsMeta = (containerWidth: number, containerHeight: number, loc
         slug: hypelabPlacementSlug
       },
       dimensions: {
-        width: Math.max(160, containerWidth),
+        width: Math.max(NATIVE_AD_MIN_WIDTH, containerWidth),
         height: Math.max(16, containerHeight),
-        minContainerWidth: 2,
+        minContainerWidth: NATIVE_AD_MIN_WIDTH,
         minContainerHeight: 2,
         maxContainerWidth: Infinity,
         maxContainerHeight: Infinity
@@ -155,9 +157,9 @@ const buildNativeAdsMeta = (containerWidth: number, containerHeight: number, loc
         native: true as const
       },
       dimensions: {
-        width: Math.max(160, containerWidth),
+        width: Math.max(NATIVE_AD_MIN_WIDTH, containerWidth),
         height: Math.max(16, containerHeight),
-        minContainerWidth: 2,
+        minContainerWidth: NATIVE_AD_MIN_WIDTH,
         minContainerHeight: 2,
         maxContainerWidth: Infinity,
         maxContainerHeight: Infinity
