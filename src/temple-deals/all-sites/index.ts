@@ -1,6 +1,7 @@
 import type { MerchantOffer } from 'lib/apis/ads-api/ads-api';
 import { browser } from 'lib/browser';
 import { ContentScriptType } from 'lib/constants';
+import { el } from 'lib/el';
 import { delay } from 'lib/utils';
 
 import { injectTempleDealsPopupFont, mountTempleDealsPopup } from '../popup/layout';
@@ -74,7 +75,7 @@ async function injectTempleDealsPopup(offer: MerchantOffer, domain: string) {
   await suppressTempleDealPopup(domain);
   injectTempleDealsPopupFont();
 
-  const host = document.createElement('div');
+  const host = el('div');
   host.id = POPUP_HOST_ID;
   host.style.cssText = 'all: initial; position: fixed; top: 16px; right: 16px; z-index: 2147483647;';
   document.body.appendChild(host);

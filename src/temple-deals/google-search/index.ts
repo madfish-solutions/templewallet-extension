@@ -2,6 +2,7 @@ import { TEMPLE_ICON } from 'content-scripts/constants';
 import type { MerchantOffer } from 'lib/apis/ads-api/ads-api';
 import { browser } from 'lib/browser';
 import { ContentScriptType } from 'lib/constants';
+import { el } from 'lib/el';
 
 import { injectTempleDealsPopupFont, mountTempleDealsPopup } from '../popup/layout';
 import { getOfferLabel, isGoogleSearchPage, normalizeDomain } from '../utils';
@@ -43,14 +44,14 @@ if (window.self === window.top && isGoogleSearchPage()) {
 function injectStyles() {
   injectTempleDealsPopupFont();
 
-  const fontLink = document.createElement('link');
+  const fontLink = el('link');
   fontLink.rel = 'stylesheet';
   fontLink.href = `https://fonts.googleapis.com/css2?family=Rubik:wght@500&display=swap&text=${encodeURIComponent(
     GOOGLE_SEARCH_FONT_TEXT
   )}`;
   document.head.appendChild(fontLink);
 
-  const style = document.createElement('style');
+  const style = el('style');
   style.textContent = `
     .${LABEL_CLASS} {
       align-items: center;
@@ -274,13 +275,11 @@ function addLabel(
   domain: string,
   offer: MerchantOffer
 ) {
-  const label = document.createElement('span');
-  label.className = LABEL_CLASS;
+  const label = el('span', LABEL_CLASS);
   label.dataset.templeDomain = domain;
   label.dataset.templeRoot = '';
 
-  const icon = document.createElement('img');
-  icon.className = `${LABEL_CLASS}-icon`;
+  const icon = el('img', `${LABEL_CLASS}-icon`);
   icon.src = TEMPLE_ICON;
   icon.alt = '';
   label.appendChild(icon);
@@ -360,8 +359,7 @@ function showHoverPopup(label: HTMLElement, offer: MerchantOffer, url: string, d
   }
 
   hoverHost?.remove();
-  hoverHost = document.createElement('div');
-  hoverHost.className = 'temple-google-deal-popup-host';
+  hoverHost = el('div', 'temple-google-deal-popup-host');
   hoverHost.addEventListener('mouseenter', () => {
     if (hideHoverTimeout) window.clearTimeout(hideHoverTimeout);
   });
