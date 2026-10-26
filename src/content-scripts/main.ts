@@ -157,18 +157,11 @@ getIntercom().subscribe((msg?: TempleNotification) => {
 });
 
 window.addEventListener(PASS_TO_BG_EVENT, evt => {
-  const {
-    origin,
-    args: payload,
-    chainId,
-    iconUrl,
-    requestId,
-    providers
-  } = (evt as CustomEvent<PassToBgEventDetail>).detail;
+  const { args: payload, chainId, iconUrl, requestId, providers } = (evt as CustomEvent<PassToBgEventDetail>).detail;
   getIntercom()
     .request({
       type: TempleMessageType.PageRequest,
-      origin,
+      origin: window.origin,
       iconUrl,
       payload,
       chainId,
