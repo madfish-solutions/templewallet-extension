@@ -1,4 +1,4 @@
-import { cloneDeep } from 'lodash';
+import { cloneDeep, omit } from 'lodash';
 import type { MigrationManifest, PersistedState } from 'redux-persist';
 
 import { TEZOS_CHAIN_ASSET_SLUG } from 'lib/apis/wert';
@@ -234,7 +234,7 @@ export const MIGRATIONS: MigrationManifest = {
   },
   '10': (persistedState: PersistedState) => {
     if (!persistedState || !('dApps' in persistedState)) return persistedState;
-    const { dApps: _dApps, ...state } = persistedState;
-    return state;
+
+    return omit(persistedState, 'dApps');
   }
 };
