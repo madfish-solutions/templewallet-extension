@@ -3,7 +3,7 @@ import React, { memo, useMemo, MouseEvent, useCallback } from 'react';
 import { isDefined } from '@rnw-community/shared';
 import clsx from 'clsx';
 import { uniq } from 'lodash';
-import { FixedSizeList as List, ListChildComponentProps } from 'react-window';
+import { ListChildComponentProps, VariableSizeList as List } from 'react-window';
 
 import { EmptyState } from 'app/atoms/EmptyState';
 import { PageLoader } from 'app/atoms/Loader';
@@ -26,9 +26,14 @@ import { TempleChainKind } from 'temple/types';
 import { TOKEN_ITEM_HEIGHT } from '../../constants';
 import { SwapFieldName } from '../../form/interfaces';
 
+import { BRIDGE_CARD_HEIGHT, BridgeCard, BridgeDirection } from './bridge-card';
 import { use3RouteEvmTokensSlugs, useFirstValue, useLifiEvmTokensSlugs } from './hooks';
 
+const BRIDGE_CARD_ROW_HEIGHT = BRIDGE_CARD_HEIGHT + 8;
+
 interface ItemData {
+  bridgeDirection?: BridgeDirection;
+  headerRowsCount: number;
   showFavoritesMark: boolean;
   searchedSlugs: string[];
   publicKeyHash: HexString;
@@ -42,92 +47,128 @@ interface Props {
   activeField: SwapFieldName;
   publicKeyHash: HexString;
   searchValue: string;
+  bridgeDirection?: BridgeDirection;
   onAssetSelect: (e: MouseEvent, chainSlug: string) => void;
 }
 
-export const EvmChainAssetsList = memo<Props>(({ chainId, activeField, publicKeyHash, searchValue, onAssetSelect }) => {
-  const network = useEvmChainByChainId(chainId);
-  if (!network) throw new DeadEndBoundaryError();
+export const EvmChainAssetsList = memo<Props>(
+  ({ chainId, activeField, publicKeyHash, searchValue, bridgeDirection, onAssetSelect }) => {
+    const network = useEvmChainByChainId(chainId);
+    if (!network) throw new DeadEndBoundaryError();
 
-  const { lifiTokenSlugs, isLoading: lifiTokensSlugsLoading } = useLifiEvmTokensSlugs(chainId);
-  const { route3EvmTokenSlugs, isLoading: route3EvmTokensSlugsLoading } = use3RouteEvmTokensSlugs(chainId);
-  const getEvmBalance = useGetEvmTokenBalanceWithDecimals(publicKeyHash);
+    const { lifiTokenSlugs, isLoading: lifiTokensSlugsLoading } = useLifiEvmTokensSlugs(chainId);
+    const { route3EvmTokenSlugs, isLoading: route3EvmTokensSlugsLoading } = use3RouteEvmTokensSlugs(chainId);
+    const getEvmBalance = useGetEvmTokenBalanceWithDecimals(publicKeyHash);
 
-  const isEvmNonZeroBalance = useCallback(
-    (assetSlug: string) => {
-      return isDefined(getEvmBalance(chainId, assetSlug));
-    },
-    [chainId, getEvmBalance]
-  );
-  const showFavoritesMark = activeField === 'output';
-  const filterZeroBalances = activeField === 'input';
+    const isEvmNonZeroBalance = useCallback(
+      (assetSlug: string) => {
+        return isDefined(getEvmBalance(chainId, assetSlug));
+      },
+      [chainId, getEvmBalance]
+    );
+    const showFavoritesMark = activeField === 'output';
+    const filterZeroBalances = activeField === 'input';
 
-  const tokensSlugs = useEnabledEvmChainAccountTokenSlugs(publicKeyHash, chainId);
+    const headerRowsCount = bridgeDirection ? 1 : 0;
 
-  const rawTokensSortPredicate = useEvmChainTokensSortPredicate(publicKeyHash, chainId, showFavoritesMark);
-  const tokensSortPredicate = useFirstValue(rawTokensSortPredicate);
+    const tokensSlugs = useEnabledEvmChainAccountTokenSlugs(publicKeyHash, chainId);
 
-  const evmChainAssetsSlugs = useMemo(() => {
-    const gasTokensSlugs: string[] = [EVM_TOKEN_SLUG];
+    const rawTokensSortPredicate = useEvmChainTokensSortPredicate(publicKeyHash, chainId, showFavoritesMark);
+    const tokensSortPredicate = useFirstValue(rawTokensSortPredicate);
 
-    return filterZeroBalances
-      ? gasTokensSlugs.concat(tokensSlugs).filter(isEvmNonZeroBalance)
-      : uniq(lifiTokenSlugs.concat(route3EvmTokenSlugs));
-  }, [filterZeroBalances, isEvmNonZeroBalance, lifiTokenSlugs, route3EvmTokenSlugs, tokensSlugs]);
+    const evmChainAssetsSlugs = useMemo(() => {
+      const gasTokensSlugs: string[] = [EVM_TOKEN_SLUG];
 
-  const evmChainAssetsSlugsSorted = useMemoWithCompare(
-    () => evmChainAssetsSlugs.toSorted(tokensSortPredicate),
-    [evmChainAssetsSlugs, tokensSortPredicate]
-  );
+      return filterZeroBalances
+        ? gasTokensSlugs.concat(tokensSlugs).filter(isEvmNonZeroBalance)
+        : uniq(lifiTokenSlugs.concat(route3EvmTokenSlugs));
+    }, [filterZeroBalances, isEvmNonZeroBalance, lifiTokenSlugs, route3EvmTokenSlugs, tokensSlugs]);
 
-  const metadata = useEvmTokensMetadataRecordSelector();
-  const lifiMetadata = useLifiConnectedEvmTokensMetadataRecordSelector();
-  const route3EvmMetadata = use3RouteEvmTokensMetadataRecordSelector();
+    const evmChainAssetsSlugsSorted = useMemoWithCompare(
+      () => evmChainAssetsSlugs.toSorted(tokensSortPredicate),
+      [evmChainAssetsSlugs, tokensSortPredicate]
+    );
 
-  const getMetadata = useCallback(
-    (slug: string) =>
-      slug === EVM_TOKEN_SLUG
-        ? network?.currency
-        : (metadata[chainId]?.[slug] ?? lifiMetadata[chainId]?.[slug] ?? route3EvmMetadata[chainId]?.[slug]),
-    [chainId, lifiMetadata, metadata, network?.currency, route3EvmMetadata]
-  );
+    const metadata = useEvmTokensMetadataRecordSelector();
+    const lifiMetadata = useLifiConnectedEvmTokensMetadataRecordSelector();
+    const route3EvmMetadata = use3RouteEvmTokensMetadataRecordSelector();
 
-  const searchedSlugs = useMemo(
-    () => searchEvmChainTokensWithNoMeta(searchValue, evmChainAssetsSlugsSorted, getMetadata, s => s),
-    [evmChainAssetsSlugsSorted, getMetadata, searchValue]
-  );
+    const getMetadata = useCallback(
+      (slug: string) =>
+        slug === EVM_TOKEN_SLUG
+          ? network?.currency
+          : (metadata[chainId]?.[slug] ?? lifiMetadata[chainId]?.[slug] ?? route3EvmMetadata[chainId]?.[slug]),
+      [chainId, lifiMetadata, metadata, network?.currency, route3EvmMetadata]
+    );
 
-  if ((lifiTokensSlugsLoading || route3EvmTokensSlugsLoading) && !filterZeroBalances) return <PageLoader stretch />;
-  if (searchedSlugs.length === 0) return <EmptyState />;
+    const searchedSlugs = useMemo(
+      () => searchEvmChainTokensWithNoMeta(searchValue, evmChainAssetsSlugsSorted, getMetadata, s => s),
+      [evmChainAssetsSlugsSorted, getMetadata, searchValue]
+    );
 
-  const itemData: ItemData = {
+    if ((lifiTokensSlugsLoading || route3EvmTokensSlugsLoading) && !filterZeroBalances) return <PageLoader stretch />;
+    if (searchedSlugs.length === 0)
+      return (
+        <>
+          {bridgeDirection && (
+            <div className="px-4 pb-2 shrink-0">
+              <BridgeCard direction={bridgeDirection} />
+            </div>
+          )}
+          <EmptyState />
+        </>
+      );
+
+    const itemData: ItemData = {
+      bridgeDirection,
+      headerRowsCount,
+      searchedSlugs,
+      publicKeyHash,
+      network,
+      onAssetSelect,
+      chainId,
+      showFavoritesMark
+    };
+
+    return (
+      <List
+        key={bridgeDirection ? 'with-bridge-card' : 'without-bridge-card'}
+        overscanCount={10}
+        itemKey={index => (bridgeDirection && index === 0 ? 'bridge-card' : searchedSlugs[index - headerRowsCount])}
+        height={window.innerHeight}
+        itemCount={searchedSlugs.length + headerRowsCount}
+        style={{ paddingBottom: 16 }}
+        itemSize={index => (bridgeDirection && index === 0 ? BRIDGE_CARD_ROW_HEIGHT : TOKEN_ITEM_HEIGHT)}
+        estimatedItemSize={TOKEN_ITEM_HEIGHT}
+        width="100%"
+        itemData={itemData}
+      >
+        {TokenListItemRenderer}
+      </List>
+    );
+  }
+);
+
+const TokenListItemRenderer = ({ index, style, data }: ListChildComponentProps<ItemData>) => {
+  const {
     searchedSlugs,
     publicKeyHash,
     network,
     onAssetSelect,
     chainId,
-    showFavoritesMark
-  };
+    showFavoritesMark,
+    bridgeDirection,
+    headerRowsCount
+  } = data;
 
-  return (
-    <List
-      overscanCount={10}
-      itemKey={index => searchedSlugs[index]}
-      height={window.innerHeight}
-      itemCount={searchedSlugs.length}
-      style={{ paddingBottom: 16 }}
-      itemSize={TOKEN_ITEM_HEIGHT}
-      width="100%"
-      itemData={itemData}
-    >
-      {TokenListItemRenderer}
-    </List>
-  );
-});
+  if (bridgeDirection && index === 0)
+    return (
+      <div style={style} className="px-4 pb-2">
+        <BridgeCard direction={bridgeDirection} />
+      </div>
+    );
 
-const TokenListItemRenderer = ({ index, style, data }: ListChildComponentProps<ItemData>) => {
-  const { searchedSlugs, publicKeyHash, network, onAssetSelect, chainId, showFavoritesMark } = data;
-  const slug = searchedSlugs[index];
+  const slug = searchedSlugs[index - headerRowsCount];
 
   return (
     <div style={style} key={slug} className={clsx('px-4')}>

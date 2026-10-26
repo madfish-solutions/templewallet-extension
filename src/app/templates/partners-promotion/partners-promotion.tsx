@@ -4,6 +4,7 @@ import clsx from 'clsx';
 import { useDispatch } from 'react-redux';
 
 import { FadeTransition } from 'app/a11y/FadeTransition';
+import { FloatingCloseButton } from 'app/atoms/FloatingCloseButton';
 import { useAdsViewerPkh } from 'app/hooks/use-ads-viewer-addresses';
 import { useRewardsAddresses } from 'app/hooks/use-rewards-addresses';
 import { hidePromotionAction } from 'app/store/partners-promotion/actions';
@@ -22,11 +23,10 @@ import {
 } from 'lib/apis/ads-api/ads-api';
 import { AD_HIDING_TIMEOUT } from 'lib/constants';
 import { ENABLE_INTERNAL_HYPELAB_ADS_SYNC_INTERVAL } from 'lib/fixed-times';
-import { T } from 'lib/i18n';
+import { T, t } from 'lib/i18n';
 import { useTypedSWR } from 'lib/swr';
 import { useUpdatableRef } from 'lib/ui/hooks';
 
-import { CloseButton } from './components/close-button';
 import { HypelabPromotion } from './components/hypelab-promotion';
 import { SpecifyPromotion } from './components/specify-promotion';
 import { PartnersPromotionVariant } from './types';
@@ -219,8 +219,9 @@ export const PartnersPromotion = memo<PartnersPromotionProps>(({ variant, id, pa
           </span>
         </div>
 
-        <CloseButton
+        <FloatingCloseButton
           className="opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto"
+          title={t('hideAd')}
           onClick={handleClosePartnersPromoClick}
         />
       </div>

@@ -29,6 +29,7 @@ import { SwapFieldName } from '../../form/interfaces';
 import { isFilterChain } from '../../form/utils';
 
 import { AllEvmChainsAssetsList } from './AllEvmChainsAssetsList';
+import { getBridgeDirection } from './bridge-card';
 import { EvmChainAssetsList } from './EvmChainAssetsList';
 import { MultiChainAssetsList } from './MultiChainAssetsList';
 import { TezosChainAssetsList } from './TezosChainAssetsList';
@@ -40,10 +41,11 @@ interface SelectTokenModalProps {
   onRequestClose: EmptyFn;
   chainKind: TempleChainKind.EVM | TempleChainKind.Tezos | null;
   fromChainAssetSlug: string | null;
+  bridgeCardSnoozedUntil: number;
 }
 
 export const SwapSelectAssetModal = memo<SelectTokenModalProps>(
-  ({ activeField, onAssetSelect, opened, onRequestClose, chainKind, fromChainAssetSlug }) => {
+  ({ activeField, onAssetSelect, opened, onRequestClose, chainKind, fromChainAssetSlug, bridgeCardSnoozedUntil }) => {
     const [searchValue, setSearchValue] = useState('');
     const [searchValueDebounced] = useDebounce(searchValue, 300);
     const lifiMetadataRecord = useLifiConnectedEvmTokensMetadataRecordSelector();
@@ -108,6 +110,7 @@ export const SwapSelectAssetModal = memo<SelectTokenModalProps>(
             activeField={activeField}
             publicKeyHash={accountTezAddress}
             searchValue={searchValueDebounced}
+            bridgeDirection={getBridgeDirection(activeField, localFilterChain, bridgeCardSnoozedUntil)}
             onAssetSelect={handleAssetSelect}
           />
         );
@@ -119,6 +122,7 @@ export const SwapSelectAssetModal = memo<SelectTokenModalProps>(
             activeField={activeField}
             publicKeyHash={accountEvmAddress}
             searchValue={searchValueDebounced}
+            bridgeDirection={getBridgeDirection(activeField, localFilterChain, bridgeCardSnoozedUntil)}
             onAssetSelect={handleAssetSelect}
           />
         );
@@ -143,6 +147,9 @@ export const SwapSelectAssetModal = memo<SelectTokenModalProps>(
               activeField={activeField}
               publicKeyHash={accountTezAddress}
               searchValue={searchValueDebounced}
+              bridgeDirection={
+                localFilterChain ? undefined : getBridgeDirection(activeField, tezosNetwork, bridgeCardSnoozedUntil)
+              }
               onAssetSelect={handleAssetSelect}
             />
           );
@@ -164,10 +171,11 @@ export const SwapSelectAssetModal = memo<SelectTokenModalProps>(
       accountEvmAddress,
       accountTezAddress,
       activeField,
+      bridgeCardSnoozedUntil,
       handleAssetSelect,
       localFilterChain,
       searchValueDebounced,
-      tezosNetwork.chainId
+      tezosNetwork
     ]);
 
     const handleFilterOptionSelect = useCallback(

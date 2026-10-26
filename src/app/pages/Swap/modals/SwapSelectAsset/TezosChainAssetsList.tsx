@@ -18,16 +18,19 @@ import { useMemoWithCompare } from 'lib/ui/hooks';
 import { useTezosChainByChainId } from 'temple/front';
 import { TempleChainKind } from 'temple/types';
 
+import { BridgeCard, BridgeDirection } from './bridge-card';
+
 interface Props {
   chainId: string;
   activeField: SwapFieldName;
   publicKeyHash: string;
   searchValue: string;
+  bridgeDirection?: BridgeDirection;
   onAssetSelect: (e: MouseEvent, chainSlug: string) => void;
 }
 
 export const TezosChainAssetsList = memo<Props>(
-  ({ chainId, activeField, publicKeyHash, searchValue, onAssetSelect }) => {
+  ({ chainId, activeField, publicKeyHash, searchValue, bridgeDirection, onAssetSelect }) => {
     const network = useTezosChainByChainId(chainId);
     if (!network) throw new DeadEndBoundaryError();
 
@@ -63,6 +66,8 @@ export const TezosChainAssetsList = memo<Props>(
 
     return (
       <div className="px-4 pb-4 flex-1 flex flex-col overflow-y-auto">
+        {bridgeDirection && <BridgeCard direction={bridgeDirection} className="mb-2 shrink-0" />}
+
         {filteredAssets.length === 0 && <EmptyState />}
 
         {filteredAssets.map(slug => (
