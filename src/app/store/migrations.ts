@@ -231,5 +231,10 @@ export const MIGRATIONS: MigrationManifest = {
         ? { ...state.pendingEvmTransactions, batches: {} }
         : state.pendingEvmTransactions
     };
+  },
+  '10': (persistedState: PersistedState) => {
+    if (!persistedState || !('dApps' in persistedState)) return persistedState;
+    const { dApps: _dApps, ...state } = persistedState;
+    return state;
   }
 };

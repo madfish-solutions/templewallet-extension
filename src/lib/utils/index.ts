@@ -118,14 +118,6 @@ export class PromisesQueue extends EventEmitter {
   }
 }
 
-export const openLink = (href: string, newTab = true, noreferrer = false) => {
-  const anchor = document.createElement('a');
-  anchor.href = href;
-  if (newTab) anchor.target = '_blank';
-  if (noreferrer) anchor.rel = 'noreferrer';
-  anchor.click();
-};
-
 const getEntityNameTokens = (input: string) => input.split(/[^a-z0-9]/i).filter(Boolean);
 
 export const generateEntityNameFromUrl = (url: string) => {

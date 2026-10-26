@@ -135,7 +135,6 @@ export const TezosTokenListItem = memo<TezosTokenListItemProps>(
               network={network}
               tezPkh={publicKeyHash}
               assetSlug={assetSlug}
-              assetSymbol={assetSymbol}
               scam={scam}
             />
           )}
