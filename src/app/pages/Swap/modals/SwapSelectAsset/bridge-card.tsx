@@ -1,4 +1,4 @@
-import { FC, MouseEvent } from 'react';
+import { FC } from 'react';
 
 import clsx from 'clsx';
 
@@ -47,12 +47,7 @@ export const BridgeCard: FC<BridgeCardProps> = ({ direction, className }) => {
 
   const testIDProperties = { direction };
 
-  const handleCloseClick = (e: MouseEvent<HTMLButtonElement>) => {
-    const modalContent = e.currentTarget.closest('[role="dialog"]');
-    if (modalContent instanceof HTMLElement) modalContent.focus();
-
-    void setSnoozedUntil(Date.now() + AD_HIDING_TIMEOUT);
-  };
+  const handleCloseClick = () => void setSnoozedUntil(Date.now() + AD_HIDING_TIMEOUT);
 
   return (
     <div className={clsx('relative group', className)}>
