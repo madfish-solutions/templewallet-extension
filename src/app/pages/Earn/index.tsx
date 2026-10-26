@@ -27,7 +27,7 @@ import { EarnSelectors } from './selectors';
 import { EarnOffer } from './types';
 
 export const Earn: FC = () => {
-  const { searchValue, setSearchValue, savingsOffers, externalOffers, dAppsForDeposits } = useFilteredEarnOffers();
+  const { searchValue, setSearchValue, savingsOffers, dAppsForDeposits } = useFilteredEarnOffers();
   const PartnersPromotionModule = usePartnersPromotionModule();
   const [dAppForDeposit, setDAppForDeposit] = useState<DAppForDeposit | null>(null);
   const AdsConstantsModule = useAdsConstantsModule();
@@ -49,19 +49,17 @@ export const Earn: FC = () => {
 
   const savingsItems = getItems(savingsOffers, toRenderItem, false);
   const savingsAvailable = savingsItems.length > 0;
-  const externalItems = getItems(externalOffers, toRenderItem, savingsAvailable);
-  const externalOffersAvailable = externalItems.length > 0;
 
   const dAppsForDepositsItems = getItems(
     dAppsForDeposits,
     dApp => <DAppForDepositItem key={dApp.id} dApp={dApp} onClick={setDAppForDeposit} />,
-    savingsAvailable || externalOffersAvailable,
+    savingsAvailable,
     DAppsForDepositsPromoWrapper
   );
   const dAppsForDepositsAvailable = dAppsForDeposits.length > 0;
 
   const handleCloseDAppForDepositModal = () => setDAppForDeposit(null);
-  const shouldShowEmptyState = !savingsAvailable && !externalOffersAvailable && !dAppsForDepositsAvailable;
+  const shouldShowEmptyState = !savingsAvailable && !dAppsForDepositsAvailable;
 
   return (
     <PageLayout pageTitle={t('earn')} bgWhite={false} contentClassName="pb-8!">
@@ -85,14 +83,6 @@ export const Earn: FC = () => {
             <EarnDepositStats />
             {savingsItems}
           </div>
-        </div>
-      )}
-
-      {externalOffersAvailable && (
-        <div>
-          <Title i18nKey="externalOffers" />
-
-          <div className="flex flex-col gap-y-2">{externalItems}</div>
         </div>
       )}
 
@@ -147,7 +137,7 @@ const Title: FC<{ i18nKey: TID }> = ({ i18nKey }) => (
 );
 
 const DAppsForDepositsPromoWrapper: FC<PropsWithChildren> = ({ children }) => (
-  <div className="col-span-2">{children}</div>
+  <div className="col-span-2 empty:hidden">{children}</div>
 );
 
 const withPromo = (
