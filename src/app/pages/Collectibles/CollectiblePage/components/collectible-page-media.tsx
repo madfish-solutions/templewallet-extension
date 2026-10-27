@@ -1,4 +1,4 @@
-import { FC, ReactNode, useState } from 'react';
+import { FC, ReactNode } from 'react';
 
 import { Model3DViewer } from 'app/atoms/Model3DViewer';
 import { CollectibleMediaKind } from 'lib/metadata/collectible-media';
@@ -14,6 +14,8 @@ interface CollectiblePageMediaProps {
   className?: string;
   background: ReactNode;
   foreground: ReactNode;
+  failed?: boolean;
+  onError: EmptyFn;
   audioPoster?: ReactNode;
 }
 
@@ -32,31 +34,26 @@ const PlayableCollectiblePageMedia: FC<CollectiblePageMediaProps & { kind: Colle
   uri,
   alt,
   className,
-  background,
   foreground,
-  audioPoster
+  audioPoster,
+  onError
 }) => {
-  const [failed, setFailed] = useState(false);
-  const handleError = () => setFailed(true);
-
-  if (failed) return <CollectibleImageLayers background={background} foreground={foreground} />;
-
-  if (kind === 'model') return <Model3DViewer uri={uri} alt={alt} onError={handleError} />;
+  if (kind === 'model') return <Model3DViewer uri={uri} alt={alt} onError={onError} />;
 
   if (kind === 'video') {
-    return <VideoCollectible uri={uri} className={className} poster={foreground} onError={handleError} />;
+    return <VideoCollectible uri={uri} className={className} poster={foreground} onError={onError} />;
   }
 
   if (kind === 'audio') {
-    return <AudioCollectible uri={uri} className={className} poster={audioPoster} onAudioError={handleError} />;
+    return <AudioCollectible uri={uri} className={className} poster={audioPoster} onAudioError={onError} />;
   }
 
-  return <HtmlCollectible uri={uri} title={alt} className={className} onError={handleError} />;
+  return <HtmlCollectible uri={uri} title={alt} className={className} onError={onError} />;
 };
 
 export const CollectiblePageMedia: FC<CollectiblePageMediaProps> = props => {
-  const { kind, uri } = props;
-  if (!kind || !uri) return <CollectibleImageLayers background={props.background} foreground={props.foreground} />;
+  const { kind, uri, background, foreground, failed } = props;
+  if (!kind || !uri || failed) return <CollectibleImageLayers background={background} foreground={foreground} />;
 
   return <PlayableCollectiblePageMedia key={`${kind}:${uri}`} {...props} kind={kind} uri={uri} />;
 };

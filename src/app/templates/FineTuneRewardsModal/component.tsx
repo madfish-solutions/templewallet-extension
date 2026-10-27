@@ -1,4 +1,4 @@
-import { FC, useEffect, useState } from 'react';
+import { FC, useEffect, useRef, useState } from 'react';
 
 import { CaptionAlert, ToggleSwitch } from 'app/atoms';
 import { ActionModalButton } from 'app/atoms/action-modal';
@@ -10,8 +10,11 @@ import { patchPersistedPartnersPromotionState } from 'app/store/partners-promoti
 import { AdvancedFeaturesSelectors } from 'app/templates/AdvancedFeatures/selectors';
 import { PageModalScrollViewWithActions } from 'app/templates/page-modal-scroll-view-with-actions';
 import { SurfaceInfoId, SurfaceInfoModal } from 'app/templates/promo-surface-info/surface-info-modal';
-import { PROMO_PRIVACY_POLICY_URL } from 'lib/constants';
+import { AnalyticsEventCategory, useAnalytics } from 'lib/analytics';
+import { PROMO_PRIVACY_POLICY_URL, REWARDS_ACCOUNT_DATA_STORAGE_KEY } from 'lib/constants';
 import { T } from 'lib/i18n';
+import { useStorage } from 'lib/temple/front/storage';
+import { RewardsAddresses } from 'temple/types';
 
 import openGiftSrc from './open-gift.png';
 import { FineTuneRewardsModalSelectors } from './selectors';
@@ -27,7 +30,18 @@ export const FineTuneRewardsModal: FC<Props> = ({ onClose, opened, onShown }) =>
   const [aiEnabled, setAiEnabled] = useState(true);
   const [infoSurface, setInfoSurface] = useState<SurfaceInfoId>();
 
-  useEffect(() => void (opened && dispatch(setAdsSurfacesEnabledAction({ inWallet: true }))), [opened]);
+  const { trackEvent } = useAnalytics();
+  const [rewardsAccountData] = useStorage<RewardsAddresses>(REWARDS_ACCOUNT_DATA_STORAGE_KEY);
+  const accountPkh = rewardsAccountData?.tezosAddress;
+  const didEnablePromoRef = useRef(false);
+
+  useEffect(() => {
+    if (!opened || didEnablePromoRef.current) return;
+
+    didEnablePromoRef.current = true;
+    dispatch(setAdsSurfacesEnabledAction({ inWallet: true }));
+    trackEvent('AdsEnabled', AnalyticsEventCategory.General, { accountPkh }, true);
+  }, [accountPkh, opened, trackEvent]);
 
   const handleSave = () => {
     patchPersistedPartnersPromotionState({ inBrowserAdsEnabled: browsingEnabled, aiChatAdsEnabled: aiEnabled }).finally(
@@ -93,7 +107,7 @@ export const FineTuneRewardsModal: FC<Props> = ({ onClose, opened, onShown }) =>
                     <SurfaceCell
                       title={<T id="promoInWallet" />}
                       titleHint="(by default)"
-                      description="Sponsored content appears inside Temple."
+                      description={<T id="promoInWalletDescription" />}
                       isLast={false}
                     >
                       <InfoButton
@@ -105,12 +119,7 @@ export const FineTuneRewardsModal: FC<Props> = ({ onClose, opened, onShown }) =>
                     <SurfaceCell
                       title={<T id="promoWhileBrowsing" />}
                       titleHint="(optional)"
-                      description={
-                        <>
-                          Labeled content on webpages.{' '}
-                          <span className="text-font-small-bold">High reward contribution</span>
-                        </>
-                      }
+                      description={<T id="promoWhileBrowsingModalDescription" />}
                       isLast={false}
                     >
                       <InfoButton

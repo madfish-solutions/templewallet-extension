@@ -12,7 +12,7 @@ import {
 } from 'app/store/tezos/collectibles-metadata/selectors';
 import { useCollectibleDetailsSelector } from 'app/store/tezos/collectibles/selectors';
 import { parseChainAssetSlug } from 'lib/assets/utils';
-import { buildObjktCollectibleArtifactUri } from 'lib/images-uri';
+import { buildObjktArtifactExtraSrc } from 'lib/images-uri';
 import { CollectibleMetadata } from 'lib/metadata/types';
 import { ChainId } from 'temple/front/chains';
 import { TempleChainKind } from 'temple/types';
@@ -177,7 +177,7 @@ const TezosShowMoreContent: FC<ShowMoreContentProps> = ({ chainSlug, ...restProp
       metadatasLoading={metadatasLoading}
       metadata={metadata}
       mime={details?.mime}
-      extraSrc={details?.objktArtifactUri && buildObjktCollectibleArtifactUri(details?.objktArtifactUri)}
+      extraSrc={details?.objktArtifactUri && buildObjktArtifactExtraSrc(details?.objktArtifactUri)}
     />
   );
 };

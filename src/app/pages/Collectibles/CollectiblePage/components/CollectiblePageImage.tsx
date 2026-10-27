@@ -1,4 +1,4 @@
-import React, { FC, memo, ReactNode, useMemo, useState } from 'react';
+import React, { FC, memo, ReactNode, useCallback, useMemo, useState } from 'react';
 
 import clsx from 'clsx';
 
@@ -10,7 +10,8 @@ import { CollectibleImageFallback } from 'app/templates/collectibles/collectible
 import { CollectibleImageLoader } from 'app/templates/collectibles/collectible-image-loader';
 import {
   isSvgDataUriInUtf8Encoding,
-  buildObjktCollectibleArtifactUri,
+  buildObjktArtifactExtraSrc,
+  buildObjktCollectibleArtifactUris,
   buildEvmCollectibleIconSources,
   buildEvmCollectiblePreviewSources,
   buildHttpLinkFromUri
@@ -22,6 +23,7 @@ import { getCollectibleName } from 'lib/metadata/utils';
 import { ImageStacked } from 'lib/ui/ImageStacked';
 
 import { CollectiblePageMedia } from './collectible-page-media';
+import { useBooleanState } from 'lib/ui/hooks';
 
 interface TezosCollectiblePageImageProps {
   assetSlug: string;
@@ -50,6 +52,9 @@ export const TezosCollectiblePageImage = memo<TezosCollectiblePageImageProps>(
     const { blur } = useCollectiblesListOptionsSelector();
 
     const blurred = isAdultContent && blur;
+
+    const [failedArtifactUris, setFailedArtifactUris] = useState<string[]>([]);
+
     const [shouldShowBlur, setShouldShowBlur] = useState(blurred);
     const [trackedBlur, setTrackedBlur] = useState(blurred);
     if (blurred !== trackedBlur) {
@@ -57,7 +62,16 @@ export const TezosCollectiblePageImage = memo<TezosCollectiblePageImageProps>(
       setShouldShowBlur(blurred);
     }
 
-    const handleBlurClick = () => setShouldShowBlur(false);
+    const handleBlurClick = useCallback(() => setShouldShowBlur(false), []);
+
+    const artifactUri = objktArtifactUri
+      ? buildObjktCollectibleArtifactUris(objktArtifactUri).find(uri => !failedArtifactUris.includes(uri))
+      : undefined;
+    const kind = collectibleMediaKindFromMime(mime);
+
+    const handleError = () => {
+      if (artifactUri) setFailedArtifactUris(prev => prev.concat(artifactUri));
+    };
 
     if (areDetailsLoading) {
       return <CollectibleImageLoader large />;
@@ -67,8 +81,6 @@ export const TezosCollectiblePageImage = memo<TezosCollectiblePageImageProps>(
       return <CollectibleBlur assetSlug={assetSlug} large onClick={handleBlurClick} />;
     }
 
-    const kind = collectibleMediaKindFromMime(mime);
-    const artifactUri = objktArtifactUri ? buildObjktCollectibleArtifactUri(objktArtifactUri) : undefined;
     const background = (
       <TezosAssetImageStacked
         metadata={metadata}
@@ -79,7 +91,7 @@ export const TezosCollectiblePageImage = memo<TezosCollectiblePageImageProps>(
     const foreground = (
       <TezosAssetImageStacked
         metadata={metadata}
-        extraSrc={artifactUri}
+        extraSrc={artifactUri && buildObjktArtifactExtraSrc(artifactUri)}
         fullViewCollectible
         loader={<CollectibleImageLoader large />}
         fallback={<CollectibleImageFallback large />}
@@ -95,11 +107,11 @@ export const TezosCollectiblePageImage = memo<TezosCollectiblePageImageProps>(
       />
     );
 
-    if (objktArtifactUri && isSvgDataUriInUtf8Encoding(objktArtifactUri)) {
+    if (artifactUri && isSvgDataUriInUtf8Encoding(artifactUri)) {
       return (
         <SvgCollectibleAttempt
-          key={objktArtifactUri}
-          uri={objktArtifactUri}
+          key={artifactUri}
+          uri={artifactUri}
           alt={metadata?.name}
           className={className}
           fallback={
@@ -121,6 +133,7 @@ export const TezosCollectiblePageImage = memo<TezosCollectiblePageImageProps>(
         background={background}
         foreground={foreground}
         audioPoster={audioPoster}
+        onError={handleError}
       />
     );
   }
@@ -140,7 +153,11 @@ export const EvmCollectiblePageImage = memo<EvmCollectiblePageImageProps>(
       () => buildEvmCollectibleIconSources(metadata, { includeCompressed: false }),
       [metadata]
     );
-    const handlePreviewFailed = () => reportDeadEvmCollectiblePreview(chainId, assetSlug, metadata);
+    const [previewFailed, setPreviewFailedState] = useBooleanState(false);
+    const handlePreviewFailed = () => {
+      reportDeadEvmCollectiblePreview(chainId, assetSlug, metadata);
+      setPreviewFailedState();
+    };
     const kind = collectiblePageMediaKind(metadata.artifactUrl);
     const audioPoster = sources.length ? (
       <ImageStacked
@@ -154,6 +171,7 @@ export const EvmCollectiblePageImage = memo<EvmCollectiblePageImageProps>(
 
     return (
       <CollectiblePageMedia
+        failed={previewFailed}
         kind={kind}
         uri={kind ? buildHttpLinkFromUri(metadata.artifactUrl) : undefined}
         alt={getCollectibleName(metadata)}
@@ -176,6 +194,7 @@ export const EvmCollectiblePageImage = memo<EvmCollectiblePageImageProps>(
           />
         }
         audioPoster={audioPoster}
+        onError={handlePreviewFailed}
       />
     );
   }

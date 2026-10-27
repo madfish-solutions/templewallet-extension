@@ -34,7 +34,7 @@ import {
   toChainAssetSlug,
   toTokenSlug
 } from 'lib/assets/utils';
-import { buildTokenImagesStack } from 'lib/images-uri';
+import { buildCollectionLogoSourceStages } from 'lib/images-uri';
 import { useGetCollectibleMetadata, useTezosCollectiblesMetadataPresenceCheck } from 'lib/metadata';
 import { getCollectionName as getEvmCollectionName } from 'lib/metadata/utils';
 import { useMemoWithCompare } from 'lib/ui/hooks';
@@ -43,6 +43,32 @@ import { useAccountAddressForEvm, useAccountAddressForTezos } from 'temple/front
 import { TempleChainKind } from 'temple/types';
 
 import { CollectiblesCollection } from '../types';
+
+type GetCollectionName = (chainKind: TempleChainKind, chainId: string | number, assetSlug: string) => string;
+
+const groupSlugsByCollectionsInContracts = (chainCollectibleSlugs: string[], getCollectionName: GetCollectionName) => {
+  const slugsByCollectionsInContracts = new Map<string, Map<string, string[]>>();
+
+  chainCollectibleSlugs.forEach(chainCollectibleSlug => {
+    const [chainKind, chainId, assetSlug] = parseChainAssetSlug(chainCollectibleSlug);
+    const [address] = fromAssetSlug(assetSlug);
+    const contractSlug = toChainAssetSlug(chainKind, chainId, toTokenSlug(address));
+    const collectionName = getCollectionName(chainKind, chainId, assetSlug);
+    let sameContractCollections = slugsByCollectionsInContracts.get(contractSlug);
+    if (!sameContractCollections) {
+      sameContractCollections = new Map<string, string[]>();
+      slugsByCollectionsInContracts.set(contractSlug, sameContractCollections);
+    }
+    let sameCollectionSlugs = sameContractCollections.get(collectionName);
+    if (!sameCollectionSlugs) {
+      sameCollectionSlugs = [];
+      sameContractCollections.set(collectionName, sameCollectionSlugs);
+    }
+    sameCollectionSlugs.push(chainCollectibleSlug);
+  });
+
+  return slugsByCollectionsInContracts;
+};
 
 export const useCollectiblesListingLogic = (
   allAccountCollectibles: AccountCollectible[],
@@ -143,24 +169,7 @@ export const useCollectiblesListingLogic = (
       ? getTezCollectionName(assetSlug, allTezosCollectiblesDetails[assetSlug])
       : evmCollectionTitle(chainId as number, assetSlug);
 
-  const slugsByCollectionsInContracts = new Map<string, Map<string, string[]>>();
-  searchedSlugs.forEach(chainCollectibleSlug => {
-    const [chainKind, chainId, assetSlug] = parseChainAssetSlug(chainCollectibleSlug);
-    const [address] = fromAssetSlug(assetSlug);
-    const contractSlug = toChainAssetSlug(chainKind, chainId, toTokenSlug(address));
-    const collectionName = getCollectionName(chainKind, chainId, assetSlug);
-    let sameContractCollections = slugsByCollectionsInContracts.get(contractSlug);
-    if (!sameContractCollections) {
-      sameContractCollections = new Map<string, string[]>();
-      slugsByCollectionsInContracts.set(contractSlug, sameContractCollections);
-    }
-    let sameCollectionSlugs = sameContractCollections.get(collectionName);
-    if (!sameCollectionSlugs) {
-      sameCollectionSlugs = [];
-      sameContractCollections.set(collectionName, sameCollectionSlugs);
-    }
-    sameCollectionSlugs.push(chainCollectibleSlug);
-  });
+  const slugsByCollectionsInContracts = groupSlugsByCollectionsInContracts(searchedSlugs, getCollectionName);
 
   const unsortedSearchedSlugsByCollections = useMemoWithCompare(
     () =>
@@ -170,16 +179,16 @@ export const useCollectiblesListingLogic = (
             .entries()
             .map(([collectionName, chainCollectibleSlugs]): [CollectiblesCollection, string[]] => {
               const [chainKind, chainId, firstAssetSlug] = parseChainAssetSlug(chainCollectibleSlugs[0]);
-              const logoSrc =
+              const logoSources =
                 chainKind === TempleChainKind.Tezos
-                  ? buildTokenImagesStack(allTezosCollectiblesDetails[firstAssetSlug]?.fa.logo)
+                  ? buildCollectionLogoSourceStages(allTezosCollectiblesDetails[firstAssetSlug]?.fa.logo)
                   : undefined;
 
               return [
                 {
                   chainId,
                   title: collectionName,
-                  logoSrc,
+                  logoSources,
                   collectionSlug: `${contractSlug}_${collectionName}`,
                   contractSlug
                 },
