@@ -54,8 +54,7 @@ export const TextPromotionView = memo<Props>(
     return (
       <Anchor
         className={clsx(
-          'rounded-lg relative w-full flex hover:bg-secondary-low group-hover:bg-secondary-low',
-          !isNotificationPopupAd && 'bg-grey-4',
+          'rounded-lg relative w-full flex bg-grey-4 hover:bg-secondary-low group-hover:bg-secondary-low',
           !isVisible && 'invisible pointer-events-none'
         )}
         href={href}
