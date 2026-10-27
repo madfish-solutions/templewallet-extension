@@ -1,4 +1,4 @@
-import { BalanceItem, BalanceNftData, NftData } from 'lib/apis/temple/endpoints/evm/api.interfaces';
+import { BalanceItem, BalanceNftData, NftData } from 'lib/apis/temple/endpoints/evm';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 
 export const isPositiveTokenBalance = (data: BalanceItem): data is NonNullableField<BalanceItem, 'balance'> =>

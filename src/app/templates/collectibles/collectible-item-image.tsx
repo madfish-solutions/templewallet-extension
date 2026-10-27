@@ -3,11 +3,12 @@ import { FC, Ref } from 'react';
 import { isDefined } from '@rnw-community/shared';
 import clsx from 'clsx';
 
+import { reportDeadEvmCollectiblePreview } from 'app/hooks/evm-collectible-dead-preview';
 import { useCollectibleIsAdultSelector } from 'app/store/tezos/collectibles/selectors';
 import {
   buildCollectibleImagesStack,
   buildEvmCollectibleIconSources,
-  buildIpfsGatewaySourceStages
+  buildEvmCollectiblePreviewSources
 } from 'lib/images-uri';
 import type { TokenMetadata } from 'lib/metadata';
 import { EvmCollectibleMetadata } from 'lib/metadata/types';
@@ -84,20 +85,25 @@ export const TezosCollectibleItemImage: FC<TezosCollectibleItemImageProps> = ({
 
 interface EvmCollectibleItemImageProps {
   metadata?: EvmCollectibleMetadata;
+  assetSlug?: string;
+  chainId?: number;
   className?: string;
   shouldUseBlurredBg?: boolean;
 }
 
 export const EvmCollectibleItemImage: FC<EvmCollectibleItemImageProps> = ({
   metadata,
+  assetSlug,
+  chainId,
   className,
   shouldUseBlurredBg = false
 }) => {
-  const sources = useMemoWithCompare(() => buildIpfsGatewaySourceStages(metadata?.image), [metadata]);
+  const sources = useMemoWithCompare(() => buildEvmCollectiblePreviewSources(metadata), [metadata]);
   const sourcesWithCompressedFallback = useMemoWithCompare(
     () => (metadata ? buildEvmCollectibleIconSources(metadata) : EMPTY_FROZEN_ARRAY),
     [metadata]
   );
+  const handlePreviewFailed = () => reportDeadEvmCollectiblePreview(chainId, assetSlug, metadata);
 
   return (
     <>
@@ -114,6 +120,7 @@ export const EvmCollectibleItemImage: FC<EvmCollectibleItemImageProps> = ({
         loader={<CollectibleImageLoader />}
         fallback={<CollectibleImageFallback />}
         className={clsx('w-full h-full z-1', className)}
+        onStackFailed={handlePreviewFailed}
       />
     </>
   );

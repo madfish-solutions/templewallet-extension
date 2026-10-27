@@ -2,6 +2,7 @@ import { FC, Ref, useRef } from 'react';
 
 import { useStoredEvmCollectibleSelector } from 'app/store/evm/assets/selectors';
 import { useEvmCollectibleMetadataSelector } from 'app/store/evm/collectibles-metadata/selectors';
+import { evmStoredCollectionName, isSharedStorefrontTokenId } from 'app/store/evm/collectibles-metadata/utils';
 import { useEvmCollectiblesMetadataLoadingSelector } from 'app/store/evm/selectors';
 import { useStoredTezosCollectibleSelector } from 'app/store/tezos/assets/selectors';
 import { useBalanceSelector } from 'app/store/tezos/balances/selectors';
@@ -14,7 +15,7 @@ import {
   useCollectibleDetailsSelector
 } from 'app/store/tezos/collectibles/selectors';
 import { getAssetStatus } from 'lib/assets/hooks/utils';
-import { getTezCollectionName } from 'lib/assets/utils';
+import { fromAssetSlug, getTezCollectionName } from 'lib/assets/utils';
 import { useEvmAssetBalance } from 'lib/balances/hooks';
 import { buildObjktCollectibleArtifactUri } from 'lib/images-uri';
 import { getTokenName } from 'lib/metadata';
@@ -135,7 +136,10 @@ export const EvmCollectibleItem: FC<EvmCollectibleItemProps> = ({
   const checked = getAssetStatus(balanceBeforeTruncate, storedToken?.status) === 'enabled';
 
   const assetName = getCollectibleName(metadata);
-  const collectionName = getCollectionName(metadata);
+  const storedCollectionName = evmStoredCollectionName(metadata, assetSlug);
+  const collectionName = isSharedStorefrontTokenId(metadata?.tokenId ?? fromAssetSlug(assetSlug)[1])
+    ? storedCollectionName || getCollectionName(undefined)
+    : getCollectionName(metadata);
 
   const commonProps = {
     chainId: evmChainId,

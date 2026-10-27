@@ -1,14 +1,17 @@
-import { FC, Ref } from 'react';
+import { FC, Ref, useRef } from 'react';
 
 import clsx from 'clsx';
 
 import { EvmNetworkLogo, NetworkLogoPropsBase, TezosNetworkLogo } from 'app/atoms/NetworkLogo';
 import { SearchHighlightText } from 'app/atoms/SearchHighlightText';
 import { useIsItemVisible } from 'app/atoms/visibility-tracking-infinite-scroll';
+import { useReportEvmCollectibleVisibility } from 'app/hooks/evm-collectible-visibility';
 import { useCollectiblesSearchState } from 'app/hooks/use-assets-view-state';
 import { ScamTag } from 'app/templates/scam-tag';
 import { setAnotherSelector, setTestID } from 'lib/analytics';
+import { toChainAssetSlug } from 'lib/assets/utils';
 import { toExploreAssetLink } from 'lib/ui/links';
+import { combineRefs } from 'lib/ui/utils';
 import { Link } from 'lib/woozie';
 import { ChainId, ChainOfKind, useEvmChainByChainId, useTezosChainByChainId } from 'temple/front/chains';
 import { TempleChainKind } from 'temple/types';
@@ -32,7 +35,8 @@ const DefaultCollectibleListItemLayoutHOC = <
   chainKind: T,
   NetworkLogo: FC<NetworkLogoPropsBase<T>>,
   CollectibleItemImage: FC<
-    Pick<P, 'metadata' | 'assetSlug' | 'wrapperElemRef'> & Omit<P, keyof DefaultCollectibleListItemLayoutProps<T>>
+    Pick<P, 'metadata' | 'assetSlug' | 'chainId' | 'wrapperElemRef'> &
+      Omit<P, keyof DefaultCollectibleListItemLayoutProps<T>>
   >,
   useNetwork: (chainId: ChainId<T>) => ChainOfKind<T> | nullish,
   className?: string
@@ -59,6 +63,11 @@ const DefaultCollectibleListItemLayoutHOC = <
     const network = useNetwork(chainId);
     const defaultIsVisible = useIsItemVisible(index);
     const isVisible = isVisibleFromProps ?? defaultIsVisible;
+    const visibilityElemRef = useRef<HTMLAnchorElement>(null);
+    useReportEvmCollectibleVisibility(
+      chainKind === TempleChainKind.EVM ? toChainAssetSlug(chainKind, chainId, assetSlug) : undefined,
+      visibilityElemRef
+    );
 
     return (
       <Link
@@ -66,7 +75,7 @@ const DefaultCollectibleListItemLayoutHOC = <
         className={clsx('flex flex-col overflow-hidden group', className)}
         testID={testID}
         testIDProperties={{ assetSlug }}
-        ref={ref as Ref<HTMLAnchorElement>}
+        ref={combineRefs(visibilityElemRef, ref)}
       >
         <div
           ref={wrapperElemRef}
@@ -93,7 +102,7 @@ const DefaultCollectibleListItemLayoutHOC = <
           {metadatasLoading && !metadata && isVisible && <CollectibleImageLoader />}
           {(!metadatasLoading || metadata) && isVisible && (
             <>
-              <CollectibleItemImage metadata={metadata} assetSlug={assetSlug} {...restProps} />
+              <CollectibleItemImage metadata={metadata} assetSlug={assetSlug} chainId={chainId} {...restProps} />
 
               {network && (
                 <NetworkLogo
@@ -156,6 +165,14 @@ export const DefaultTezosListItemLayout = DefaultCollectibleListItemLayoutHOC<
 export const DefaultEvmListItemLayout = DefaultCollectibleListItemLayoutHOC<TempleChainKind.EVM>(
   TempleChainKind.EVM,
   EvmNetworkLogo,
-  ({ metadata }) => <EvmCollectibleItemImage shouldUseBlurredBg metadata={metadata} className="object-contain" />,
+  ({ metadata, assetSlug, chainId }) => (
+    <EvmCollectibleItemImage
+      shouldUseBlurredBg
+      metadata={metadata}
+      assetSlug={assetSlug}
+      chainId={chainId}
+      className="object-contain"
+    />
+  ),
   useEvmChainByChainId
 );

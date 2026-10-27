@@ -15,8 +15,7 @@ import { useLifiEvmTokenMetadataSelector } from 'app/store/evm/swap-lifi-metadat
 import { useEvmTokenMetadataSelector } from 'app/store/evm/tokens-metadata/selectors';
 import { toastError } from 'app/toaster';
 import { useFormAnalytics } from 'lib/analytics';
-import { get3RouteEvmSwap, getEvmAllSwapRoutes, getEvmSwapQuote } from 'lib/apis/temple/endpoints/evm';
-import { RouteParams } from 'lib/apis/temple/endpoints/evm/api.interfaces';
+import { get3RouteEvmSwap, getEvmAllSwapRoutes, getEvmSwapQuote, RouteParams } from 'lib/apis/temple/endpoints/evm';
 import { EVM_TOKEN_SLUG } from 'lib/assets/defaults';
 import { fromAssetSlug, parseChainAssetSlug } from 'lib/assets/utils';
 import { useEvmAssetBalance } from 'lib/balances/hooks';
