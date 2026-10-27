@@ -8,8 +8,16 @@ import {
   normalizeImageSources
 } from 'lib/ui/race-image-urls';
 
-const shouldRaceOffDom = (stages: ImageSourceStage[]) =>
-  stages.some(stage => stage.urls.length > 1 || Boolean(stage.delayMs));
+const needsRacer = (stage: ImageSourceStage) => stage.urls.length > 1 || Boolean(stage.delayMs);
+
+/** Index of the first stage the `<img>` element cannot try on its own; `stages.length` when every stage can be. */
+const firstRacedStageIndex = (stages: ImageSourceStage[], progressive: boolean) => {
+  if (!progressive) return stages.some(needsRacer) ? 0 : stages.length;
+
+  const index = stages.findIndex(needsRacer);
+
+  return index === -1 ? stages.length : index;
+};
 
 const loadedSrcs = new Map<string, string>();
 
@@ -26,11 +34,19 @@ const findLoadedSrc = (stages: ImageSourceStage[]) => {
 
 /**
  * @arg sources // Memoize
+ * @arg immediate // Start the off-DOM race right away instead of waiting for a slot under the loader's in-flight cap.
+ * @arg progressive // Load the leading single-URL stages through the `<img>` element (progressive rendering, no
+ * timeout, no concurrency cap) and race only the remaining stages off-DOM. Otherwise, a stack with any multi-URL or
+ * delayed stage is raced off-DOM from its first stage.
  */
-export const useImagesStackLoading = (sources: string[] | ImageSourceStage[], immediate = false) => {
+export const useImagesStackLoading = (
+  sources: string[] | ImageSourceStage[],
+  immediate = false,
+  progressive = false
+) => {
   const stages = useMemoWithCompare(() => normalizeImageSources(sources), [sources], areImageSourceStagesEqual);
   const emptyStack = stages.length < 1;
-  const raceOffDom = shouldRaceOffDom(stages);
+  const racedFrom = firstRacedStageIndex(stages, progressive);
 
   const prevStagesRef = useRef(stages);
   const loadGenerationRef = useRef(0);
@@ -40,6 +56,8 @@ export const useImagesStackLoading = (sources: string[] | ImageSourceStage[], im
   const [racedSrc, setRacedSrc] = useState(loadedAtMount?.url);
   const [isLoading, setIsLoading] = useState(!emptyStack && !loadedAtMount);
   const [isStackFailed, setIsStackFailed] = useState(emptyStack);
+
+  const racing = index >= 0 && index >= racedFrom;
 
   useDidUpdate(() => {
     if (areImageSourceStagesEqual(prevStagesRef.current, stages)) {
@@ -56,7 +74,7 @@ export const useImagesStackLoading = (sources: string[] | ImageSourceStage[], im
       setIsLoading(!loaded);
       setIsStackFailed(false);
 
-      if (!loaded && !shouldRaceOffDom(stages)) {
+      if (!loaded && racedFrom > 0) {
         const img = new Image();
         img.src = stages[0].urls[0];
         if (img.complete) {
@@ -69,17 +87,17 @@ export const useImagesStackLoading = (sources: string[] | ImageSourceStage[], im
       setIsLoading(false);
       setIsStackFailed(true);
     }
-  }, [stages]);
+  }, [stages, racedFrom]);
 
   useEffect(() => {
-    if (!shouldRaceOffDom(stages) || stages.length === 0) return;
+    if (!racing || racedFrom >= stages.length) return;
 
     const controller = new AbortController();
     const generation = ++loadGenerationRef.current;
     const loaded = findLoadedSrc(stages);
     const load: ReturnType<typeof loadImageSourceStages> = loaded
       ? Promise.resolve(loaded.url)
-      : loadImageSourceStages(stages, { signal: controller.signal, immediate });
+      : loadImageSourceStages(stages.slice(racedFrom), { signal: controller.signal, immediate });
 
     void load
       .then(winner => {
@@ -114,9 +132,9 @@ export const useImagesStackLoading = (sources: string[] | ImageSourceStage[], im
       loadGenerationRef.current += 1;
       controller.abort();
     };
-  }, [stages, immediate]);
+  }, [stages, immediate, racing, racedFrom]);
 
-  const src = raceOffDom ? racedSrc : stages.at(index)?.urls[0];
+  const src = index < 0 ? undefined : racing ? racedSrc : stages.at(index)?.urls.at(0);
 
   const onSuccess = () => {
     if (src) loadedSrcs.set(getStackKey(stages), src);
@@ -130,7 +148,7 @@ export const useImagesStackLoading = (sources: string[] | ImageSourceStage[], im
 
     if (src) loadedSrcs.delete(getStackKey(stages));
 
-    if (raceOffDom) {
+    if (racing) {
       if (racedSrc) {
         setRacedSrc(undefined);
         setIndex(-1);
