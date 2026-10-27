@@ -9,7 +9,6 @@ let publishTimer = 0;
 
 const publishVisibleSlugs = () => {
   visibleSlugs = Array.from(visibleCounts.keys());
-  console.log('publishVisibleSlugs', visibleSlugs);
   listeners.forEach(listener => listener());
 };
 
