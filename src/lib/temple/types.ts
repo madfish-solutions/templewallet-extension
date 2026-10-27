@@ -6,6 +6,7 @@ import type { RpcTransactionRequest, SignableMessage, TypedDataDefinition } from
 
 import type { DAppsSessionsRecord } from 'app/storage/dapps';
 import type { AlchemyBatchQuote } from 'lib/evm/alchemy/types';
+import type { NotificationInterface } from 'lib/notifications';
 import type { PromisesQueueCounters } from 'lib/utils';
 import type { EvmEstimationData, SerializedEvmEstimationData } from 'temple/evm/estimate';
 import type { TypedDataV1 } from 'temple/evm/typed-data-v1';
@@ -426,6 +427,13 @@ export enum TempleMessageType {
   TempleTezosAccountSwitched = 'TEMPLE_SWITCH_TEZOS_ACCOUNT',
   TempleSwitchEvmProvider = 'TEMPLE_SWITCH_EVM_PROVIDER',
   TempleDAppTransactionSent = 'TEMPLE_DAPP_TRANSACTION_SENT',
+  AccountNotificationReceived = 'TEMPLE_ACCOUNT_NOTIFICATION_RECEIVED',
+  /** Fetched notification window for the Redux store. Content scripts ignore this. */
+  AccountNotificationsSync = 'TEMPLE_ACCOUNT_NOTIFICATIONS_SYNC',
+  AccountNotificationsListenRequest = 'TEMPLE_ACCOUNT_NOTIFICATIONS_LISTEN_REQUEST',
+  AccountNotificationsListenResponse = 'TEMPLE_ACCOUNT_NOTIFICATIONS_LISTEN_RESPONSE',
+  AccountNotificationsUnlistenRequest = 'TEMPLE_ACCOUNT_NOTIFICATIONS_UNLISTEN_REQUEST',
+  AccountNotificationsUnlistenResponse = 'TEMPLE_ACCOUNT_NOTIFICATIONS_UNLISTEN_RESPONSE',
   // Request-Response pairs
   GetStateRequest = 'TEMPLE_GET_STATE_REQUEST',
   GetStateResponse = 'TEMPLE_GET_STATE_RESPONSE',
@@ -542,12 +550,16 @@ export type TempleNotification =
   | TempleSwitchEvmProvider
   | TempleEvmAccountSwitched
   | TempleTezosAccountSwitched
-  | TempleDAppTransactionSent;
+  | TempleDAppTransactionSent
+  | TempleAccountNotificationReceived
+  | TempleAccountNotificationsSync;
 
 export type TempleRequest =
   | TempleSubmitAlchemyBatchRequest
   | TempleAcknowledgeRequest
   | TempleGetStateRequest
+  | TempleAccountNotificationsListenRequest
+  | TempleAccountNotificationsUnlistenRequest
   | TempleNewWalletRequest
   | TempleUnlockRequest
   | TempleLockRequest
@@ -599,6 +611,8 @@ export type TempleRequest =
 export type TempleResponse =
   | TempleSubmitAlchemyBatchResponse
   | TempleGetStateResponse
+  | TempleAccountNotificationsListenResponse
+  | TempleAccountNotificationsUnlistenResponse
   | TempleAcknowledgeResponse
   | TempleNewWalletResponse
   | TempleUnlockResponse
@@ -731,6 +745,33 @@ interface TempleTezosDAppTransactionSent extends TempleDAppTransactionSentBase<T
 }
 
 type TempleDAppTransactionSent = TempleEvmDAppTransactionSent | TempleTezosDAppTransactionSent;
+
+interface TempleAccountNotificationReceived extends TempleMessageBase {
+  type: TempleMessageType.AccountNotificationReceived;
+  notifications: NotificationInterface[];
+}
+
+interface TempleAccountNotificationsSync extends TempleMessageBase {
+  type: TempleMessageType.AccountNotificationsSync;
+  notifications: NotificationInterface[];
+}
+
+interface TempleAccountNotificationsListenRequest extends TempleMessageBase {
+  type: TempleMessageType.AccountNotificationsListenRequest;
+}
+
+interface TempleAccountNotificationsListenResponse extends TempleMessageBase {
+  type: TempleMessageType.AccountNotificationsListenResponse;
+  notifications: NotificationInterface[];
+}
+
+interface TempleAccountNotificationsUnlistenRequest extends TempleMessageBase {
+  type: TempleMessageType.AccountNotificationsUnlistenRequest;
+}
+
+interface TempleAccountNotificationsUnlistenResponse extends TempleMessageBase {
+  type: TempleMessageType.AccountNotificationsUnlistenResponse;
+}
 
 interface TempleGetStateRequest extends TempleMessageBase {
   type: TempleMessageType.GetStateRequest;

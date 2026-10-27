@@ -2,10 +2,11 @@ import { TEMPLE_ICON } from 'content-scripts/constants';
 import type { MerchantOffer } from 'lib/apis/ads-api/ads-api';
 import { browser } from 'lib/browser';
 import { ContentScriptType } from 'lib/constants';
+import { el } from 'lib/el';
 import { DISABLE_ICON_SVG, SNOOZE_ICON_SVG } from 'lib/icons/snooze-disable-icons';
+import { msg } from 'lib/msg';
 
 import {
-  el,
   getOfferActivateText,
   getOfferActivationEvent,
   getOfferAnalyticsProperties,
@@ -13,7 +14,6 @@ import {
   getOfferTitle,
   getOfferViewEvent,
   suppressTempleDealPopup,
-  msg,
   type TempleDealsActivationSource,
   TEMPLE_DEALS_EVENTS,
   trackTempleDealsEvent
@@ -43,14 +43,14 @@ interface TempleDealsPopupOptions {
 export function injectTempleDealsPopupFont() {
   if (document.querySelector<HTMLLinkElement>(`link[href="${POPUP_FONT_URL}"]`)) return;
 
-  const fontLink = document.createElement('link');
+  const fontLink = el('link');
   fontLink.rel = 'stylesheet';
   fontLink.href = POPUP_FONT_URL;
   document.head.appendChild(fontLink);
 }
 
 function createDropdownIcon(svgMarkup: string, color: string): SVGElement {
-  const wrapper = document.createElement('div');
+  const wrapper = el('div');
   wrapper.innerHTML = svgMarkup;
   const icon = wrapper.firstElementChild as SVGElement;
   icon.classList.add('tw-popup-dropdown-icon');
@@ -62,11 +62,11 @@ function createDropdownIcon(svgMarkup: string, color: string): SVGElement {
 export function mountTempleDealsPopup(host: HTMLElement, options: TempleDealsPopupOptions) {
   const shadow = host.attachShadow({ mode: 'closed' });
 
-  const style = document.createElement('style');
+  const style = el('style');
   style.textContent = getPopupStyles();
   shadow.appendChild(style);
 
-  const container = document.createElement('div');
+  const container = el('div');
   shadow.appendChild(container);
 
   renderTempleDealsPopup(container, shadow, options);
@@ -122,8 +122,7 @@ function renderTempleDealsPopup(
   function renderHeader() {
     const header = el('div', 'tw-popup-header');
 
-    const templeIcon = document.createElement('img');
-    templeIcon.className = 'tw-popup-temple-icon';
+    const templeIcon = el('img', 'tw-popup-temple-icon');
     templeIcon.src = TEMPLE_ICON;
     templeIcon.alt = '';
     header.appendChild(templeIcon);
@@ -133,7 +132,7 @@ function renderTempleDealsPopup(
     const headerActions = el('div', 'tw-popup-header-actions');
 
     if (showSettings) {
-      const settingsButton = el('button', 'tw-popup-settings-btn', msg('settings')) as HTMLButtonElement;
+      const settingsButton = el('button', 'tw-popup-settings-btn', msg('settings'));
       settingsBtn = settingsButton;
       settingsButton.title = msg('settings');
       settingsButton.innerHTML += ` ${SETTINGS_ICON}`;
@@ -143,8 +142,7 @@ function renderTempleDealsPopup(
       headerActions.appendChild(settingsButton);
     }
 
-    const closeBtn = document.createElement('button');
-    closeBtn.className = 'tw-popup-close-btn';
+    const closeBtn = el('button', 'tw-popup-close-btn');
     closeBtn.title = closeTitle;
     closeBtn.innerHTML = CLOSE_ICON;
     closeBtn.addEventListener('click', () => {
@@ -162,8 +160,7 @@ function renderTempleDealsPopup(
     const dropdown = el('div', 'tw-popup-settings-dropdown');
     settingsDropdown = dropdown;
 
-    const snoozeBtn = document.createElement('button');
-    snoozeBtn.className = 'tw-popup-dropdown-item';
+    const snoozeBtn = el('button', 'tw-popup-dropdown-item');
     snoozeBtn.appendChild(createDropdownIcon(SNOOZE_ICON_SVG, '#1373E4'));
     snoozeBtn.appendChild(document.createTextNode(` ${msg('snoozeFor24h')}`));
     snoozeBtn.addEventListener('click', async () => {
@@ -174,8 +171,7 @@ function renderTempleDealsPopup(
     });
     dropdown.appendChild(snoozeBtn);
 
-    const disableBtn = document.createElement('button');
-    disableBtn.className = 'tw-popup-dropdown-item';
+    const disableBtn = el('button', 'tw-popup-dropdown-item');
     disableBtn.appendChild(createDropdownIcon(DISABLE_ICON_SVG, '#FF3B30'));
     const disableText = el('span', '', msg('disable'));
     disableText.style.color = '#FF3B30';
@@ -241,8 +237,7 @@ function renderTempleDealsPopup(
     const offerCard = el('div', 'tw-popup-offer-card');
 
     if (offer.imageUri) {
-      const merchantIcon = document.createElement('img');
-      merchantIcon.className = 'tw-popup-merchant-icon';
+      const merchantIcon = el('img', 'tw-popup-merchant-icon');
       merchantIcon.src = offer.imageUri;
       merchantIcon.alt = '';
       offerCard.appendChild(merchantIcon);
@@ -266,11 +261,7 @@ function renderTempleDealsPopup(
       const isOverflowing = descEl.scrollHeight > descEl.clientHeight;
 
       if (showMoreExpanded || isOverflowing) {
-        const toggle = el(
-          'button',
-          'tw-popup-show-more',
-          msg(showMoreExpanded ? 'showLess' : 'showMore')
-        ) as HTMLButtonElement;
+        const toggle = el('button', 'tw-popup-show-more', msg(showMoreExpanded ? 'showLess' : 'showMore'));
 
         toggle.addEventListener('click', () => {
           showMoreExpanded = !showMoreExpanded;
@@ -287,9 +278,7 @@ function renderTempleDealsPopup(
   }
 
   function renderActivateButton() {
-    const activateBtn = document.createElement('button');
-    activateBtn.className = 'tw-popup-activate-btn';
-    activateBtn.textContent = activateText;
+    const activateBtn = el('button', 'tw-popup-activate-btn', activateText);
     activateBtn.addEventListener('click', async () => {
       activateBtn.textContent = msg('activating');
       activateBtn.disabled = true;

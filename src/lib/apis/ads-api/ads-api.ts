@@ -32,11 +32,16 @@ export async function postAdImpression(
   await Promise.all(Array.from({ length: impressionsCount }, () => axiosClient.post('/impression', payload)));
 }
 
-export async function postAnonymousAdImpression(installId: string, provider: string, { urlDomain }: ImpressionDetails) {
+export async function postAnonymousAdImpression(
+  installId: string,
+  provider: string,
+  { urlDomain, pageName }: ImpressionDetails
+) {
   const impressionsCount = await getDoubleRewardsEngagementImpressionsCount(provider);
   const payload = {
     installId,
     urlDomain,
+    pageName,
     provider,
     appVersion: APP_VERSION
   };

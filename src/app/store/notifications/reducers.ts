@@ -1,39 +1,49 @@
 import { createReducer } from '@reduxjs/toolkit';
 import { isDefined } from '@rnw-community/shared';
 
-import { NotificationStatus } from 'app/pages/Notifications/enums/notification-status.enum';
+import { NotificationStatus, type NotificationInterface } from 'lib/notifications';
 import { createEntity } from 'lib/store';
 
 import {
   loadNotificationsAction,
   setIsNewsEnabledAction,
+  setIsAccountNotificationsEnabledAction,
   readNotificationsItemAction,
   viewAllNotificationsAction
 } from './actions';
 import { notificationsInitialState, NotificationsState } from './state';
+import { compareNotificationsNewestFirst, getLatestNotificationCreatedAt, isNotificationExpired } from './utils';
 
 export const notificationsReducer = createReducer<NotificationsState>(notificationsInitialState, builder => {
   builder.addCase(loadNotificationsAction.submit, state => ({
     ...state,
     list: createEntity(state.list.data, true)
   }));
-  builder.addCase(loadNotificationsAction.success, (state, { payload: notifications }) => {
-    const notificationsWithStatus = notifications.map(notification => {
-      const prevNotification = state.list.data.find(item => item.id === notification.id);
+  builder.addCase(loadNotificationsAction.success, (state, { payload: { notifications, timestamp } }) => {
+    const notificationsById = new Map<number, NotificationInterface>();
 
-      if (isDefined(prevNotification)) {
-        return {
-          ...notification,
-          status: prevNotification.status
-        };
+    for (const notification of state.list.data) {
+      if (!isNotificationExpired(notification, timestamp)) {
+        notificationsById.set(notification.id, notification);
+      }
+    }
+
+    for (const notification of notifications) {
+      if (isNotificationExpired(notification, timestamp)) {
+        continue;
       }
 
-      return notification;
-    });
+      const prevNotification = notificationsById.get(notification.id);
+      notificationsById.set(
+        notification.id,
+        isDefined(prevNotification) ? { ...notification, status: prevNotification.status } : notification
+      );
+    }
 
     return {
       ...state,
-      list: createEntity(notificationsWithStatus, false)
+      startFromTime: Math.max(state.startFromTime, getLatestNotificationCreatedAt(notifications)),
+      list: createEntity(Array.from(notificationsById.values()).sort(compareNotificationsNewestFirst), false)
     };
   });
   builder.addCase(loadNotificationsAction.fail, state => ({
@@ -75,5 +85,9 @@ export const notificationsReducer = createReducer<NotificationsState>(notificati
   builder.addCase(setIsNewsEnabledAction, (state, { payload: isNewsEnabled }) => ({
     ...state,
     isNewsEnabled
+  }));
+  builder.addCase(setIsAccountNotificationsEnabledAction, (state, { payload: isAccountNotificationsEnabled }) => ({
+    ...state,
+    isAccountNotificationsEnabled
   }));
 });

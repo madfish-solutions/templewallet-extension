@@ -184,7 +184,8 @@ const scriptsConfig = (() => {
 
   config.entry = {
     main: Path.join(PATHS.SOURCE, 'content-scripts/main.ts'),
-    inpage: Path.join(PATHS.SOURCE, 'content-scripts/inpage.ts')
+    inpage: Path.join(PATHS.SOURCE, 'content-scripts/inpage.ts'),
+    accountNotificationsPopup: Path.join(PATHS.SOURCE, 'content-scripts/account-notifications-popup/index.ts')
   };
   if (!shouldDisableAds) {
     config.entry.replaceAds = Path.join(PATHS.SOURCE, 'replaceAds.ts');
