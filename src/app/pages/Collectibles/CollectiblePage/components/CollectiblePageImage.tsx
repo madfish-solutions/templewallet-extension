@@ -20,10 +20,10 @@ import { TokenMetadata } from 'lib/metadata';
 import { collectibleMediaKindFromMime, collectiblePageMediaKind } from 'lib/metadata/collectible-media';
 import { EvmCollectibleMetadata } from 'lib/metadata/types';
 import { getCollectibleName } from 'lib/metadata/utils';
+import { useBooleanState } from 'lib/ui/hooks';
 import { ImageStacked } from 'lib/ui/ImageStacked';
 
 import { CollectiblePageMedia } from './collectible-page-media';
-import { useBooleanState } from 'lib/ui/hooks';
 
 interface TezosCollectiblePageImageProps {
   assetSlug: string;

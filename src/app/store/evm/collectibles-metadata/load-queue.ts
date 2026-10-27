@@ -1,4 +1,4 @@
-export interface MetadataLoadQueue {
+interface MetadataLoadQueue {
   nextId: number;
   oldestRunnableId: number;
 }
