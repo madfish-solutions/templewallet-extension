@@ -3757,8 +3757,14 @@
   "promoInWallet": {
     "message": "In-wallet"
   },
+  "promoInWalletDescription": {
+    "message": "Sponsored content appears inside Temple."
+  },
   "promoWhileBrowsing": {
     "message": "While browsing"
+  },
+  "promoWhileBrowsingModalDescription": {
+    "message": "Labeled content on webpages. <b>High reward contribution</b>"
   },
   "promoWhileBrowsingDescription": {
     "message": "Show labeled content on webpages. <b>High reward contribution</b>"

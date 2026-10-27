@@ -75,7 +75,7 @@ export const TextPromotionView = memo<Props>(
         >
           <div className="shrink-0">
             <img
-              className={clsx(customPadding ? 'p-0.5' : 'p-1', 'w-10 h-auto rounded-circle')}
+              className={clsx(customPadding ? 'p-0.5' : 'p-1', contentText ? 'w-10' : 'w-6', 'h-auto rounded-circle')}
               src={imageSrc}
               alt="Partners promotion"
               onError={onImageError}
