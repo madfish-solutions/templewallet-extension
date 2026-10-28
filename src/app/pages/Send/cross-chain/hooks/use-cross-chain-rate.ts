@@ -1,8 +1,7 @@
-import { useState } from 'react';
-
 import BigNumber from 'bignumber.js';
 import { useDebounce } from 'use-debounce';
 
+import { useExolixPairUnavailable } from 'app/hooks/use-exolix-pair-unavailable';
 import { ExolixPairUnavailableError, getExolixPairKey } from 'lib/apis/exolix/pair';
 import { GetRateResponse, NormalizedRateResult } from 'lib/apis/exolix/types';
 import { normalizeRateResponse, queryCrossChainRate } from 'lib/apis/exolix/utils';
@@ -30,8 +29,7 @@ export const useCrossChainRate = ({ from, to, amount }: RateArgs) => {
     coinTo: to.exolixCoin,
     networkTo: to.exolixNetwork
   });
-  const [unavailablePairs, setUnavailablePairs] = useState<string[]>([]);
-  const isRouteUnavailable = unavailablePairs.includes(pairKey);
+  const isRouteUnavailable = useExolixPairUnavailable(pairKey);
 
   const key = isRouteUnavailable ? null : ['cross-chain-rate', pairKey, probeKey];
 
@@ -49,12 +47,7 @@ export const useCrossChainRate = ({ from, to, amount }: RateArgs) => {
       refreshInterval: 10_000,
       revalidateOnFocus: false,
       dedupingInterval: 5_000,
-      shouldRetryOnError: (error: unknown) => !(error instanceof ExolixPairUnavailableError),
-      onError: (error: unknown) => {
-        if (error instanceof ExolixPairUnavailableError) {
-          setUnavailablePairs(pairs => (pairs.includes(error.pairKey) ? pairs : [...pairs, error.pairKey]));
-        }
-      }
+      shouldRetryOnError: (error: unknown) => !(error instanceof ExolixPairUnavailableError)
     }
   );
 

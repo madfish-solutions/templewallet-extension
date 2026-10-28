@@ -1,9 +1,11 @@
 import retry from 'async-retry';
 import axios from 'axios';
+import memoizee from 'memoizee';
 
 import { StoredExolixCurrency } from 'app/store/crypto-exchange/state';
 import { templeWalletApi } from 'lib/apis/temple/endpoints/templewallet.api';
 
+import { EXOLIX_CACHE_TTL_MS } from './constants';
 import { ExolixPairUnavailableError, getExolixPairKey, requestExolixPair } from './pair';
 import {
   CrossChainRateRequestData,
@@ -25,7 +27,9 @@ const COMMON_RETRY_CONFIG = { retries: 5, minTimeout: 250, maxTimeout: 1000 };
 
 const currenciesLimit = 100;
 
-export const getAllCurrencies = async (): Promise<Array<StoredExolixCurrency>> => {
+export const getAllCurrencies = memoizee(loadAllCurrencies, { promise: true, maxAge: EXOLIX_CACHE_TTL_MS });
+
+async function loadAllCurrencies(): Promise<Array<StoredExolixCurrency>> {
   let page = 1;
   let result = await getCurrencies(page);
   let totalData = result.data;
@@ -50,7 +54,7 @@ export const getAllCurrencies = async (): Promise<Array<StoredExolixCurrency>> =
       }))
     )
     .flat();
-};
+}
 
 const getCurrencies = (page: number) =>
   retry(

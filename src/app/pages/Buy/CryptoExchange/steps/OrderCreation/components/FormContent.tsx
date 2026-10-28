@@ -1,4 +1,4 @@
-import React, { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { FC, useCallback, useEffect, useMemo, useRef } from 'react';
 
 import axios from 'axios';
 import { Controller, useFormContext, useFormState, SubmitHandler, useWatch } from 'react-hook-form';
@@ -7,6 +7,7 @@ import { useDebounce } from 'use-debounce';
 import AssetField from 'app/atoms/AssetField';
 import { ActionsButtonsBox } from 'app/atoms/PageModal/actions-buttons-box';
 import { StyledButton } from 'app/atoms/StyledButton';
+import { useExolixPairUnavailable } from 'app/hooks/use-exolix-pair-unavailable';
 import { toastError } from 'app/toaster';
 import { useFormAnalytics } from 'lib/analytics';
 import { ExolixPairUnavailableError, getExolixPairKey } from 'lib/apis/exolix/pair';
@@ -66,20 +67,11 @@ export const FormContent: FC<Props> = ({ onSelectInputCurrency, onSelectOutputCu
     coinTo: outputCurrency.code,
     networkTo: outputCurrency.network.code
   });
-  const [unavailablePairs, setUnavailablePairs] = useState<string[]>([]);
-  const isPairUnavailable = unavailablePairs.includes(pairKey);
-
-  const handlePairError = (error: unknown): void => {
-    if (error instanceof ExolixPairUnavailableError) {
-      setUnavailablePairs(pairs => (pairs.includes(error.pairKey) ? pairs : [...pairs, error.pairKey]));
-    }
-  };
+  const isPairUnavailable = useExolixPairUnavailable(pairKey);
 
   useEffect(() => {
     if (isPairUnavailable) toastError(t('pairNotAvailable'));
   }, [pairKey, isPairUnavailable]);
-
-  const swrConfig = { ...DEFAULT_SWR_CONFIG, onError: handlePairError };
 
   const { data: minMaxData, isValidating: isMinMaxLoading } = useTypedSWR(
     isPairUnavailable ? null : ['exolix/api/min-max', pairKey],
@@ -90,7 +82,7 @@ export const FormContent: FC<Props> = ({ onSelectInputCurrency, onSelectOutputCu
         outputCurrency.code,
         outputCurrency.network.code
       ),
-    swrConfig
+    DEFAULT_SWR_CONFIG
   );
 
   const minMaxDataRef = useRef(minMaxData);
@@ -119,7 +111,7 @@ export const FormContent: FC<Props> = ({ onSelectInputCurrency, onSelectOutputCu
         networkTo: outputCurrency.network.code
       });
     },
-    swrConfig
+    DEFAULT_SWR_CONFIG
   );
 
   const { rate, toAmount } = useMemo(
@@ -188,15 +180,12 @@ export const FormContent: FC<Props> = ({ onSelectInputCurrency, onSelectOutputCu
       } catch (e) {
         console.error(e);
         formAnalytics.trackSubmitFail();
-        if (e instanceof ExolixPairUnavailableError) {
-          handlePairError(e);
-          return;
-        }
+        if (e instanceof ExolixPairUnavailableError) return;
         if (axios.isAxiosError(e) && e.response && e.response.status === 422) return;
         toastError('Something went wrong! Please try again later.');
       }
     },
-    [formAnalytics, handlePairError, isPairUnavailable, isSubmitting, setExchangeData, setStep, withdrawalAddress]
+    [formAnalytics, isPairUnavailable, isSubmitting, setExchangeData, setStep, withdrawalAddress]
   );
 
   return (
