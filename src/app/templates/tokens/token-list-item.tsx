@@ -130,15 +130,7 @@ export const TezosTokenListItem = memo<TezosTokenListItemProps>(
         <div className="flex items-center flex-grow gap-x-2 truncate">
           <div className="text-font-medium truncate">{assetSymbol}</div>
 
-          {showTags && (
-            <TokenTag
-              network={network}
-              tezPkh={publicKeyHash}
-              assetSlug={assetSlug}
-              assetSymbol={assetSymbol}
-              scam={scam}
-            />
-          )}
+          {showTags && <TokenTag network={network} tezPkh={publicKeyHash} assetSlug={assetSlug} scam={scam} />}
         </div>
       </DefaultTezosListItemLayout>
     );

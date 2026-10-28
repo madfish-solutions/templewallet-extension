@@ -7,7 +7,6 @@ import { useCancelConfirmDialogOnLock } from 'app/hooks/use-cancel-confirm-dialo
 import { useCollectiblesDetailsLoading } from 'app/hooks/use-collectibles-details-loading';
 import { useConversionVerification } from 'app/hooks/use-conversion-verification';
 import { useDealsSync } from 'app/hooks/use-deals-sync';
-import { useTokensApyLoading } from 'app/hooks/use-load-tokens-apy.hook';
 import { useLongRefreshLoading } from 'app/hooks/use-long-refresh-loading.hook';
 import { useMetadataRefresh } from 'app/hooks/use-metadata-refresh';
 import { useNoCategoryEvmAssetsLoading } from 'app/hooks/use-no-category-evm-assets-loading';
@@ -83,7 +82,6 @@ const AppReadyRootHooks = memo(() => {
   useMetadataRefresh();
 
   useLongRefreshLoading();
-  useTokensApyLoading();
 
   useEffect(() => {
     dispatch(loadSwapDexesAction.submit());
