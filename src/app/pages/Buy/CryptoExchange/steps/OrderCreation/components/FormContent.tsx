@@ -1,4 +1,4 @@
-import React, { FC, useCallback, useEffect, useMemo, useRef } from 'react';
+import React, { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import axios from 'axios';
 import { Controller, useFormContext, useFormState, SubmitHandler, useWatch } from 'react-hook-form';
@@ -9,6 +9,7 @@ import { ActionsButtonsBox } from 'app/atoms/PageModal/actions-buttons-box';
 import { StyledButton } from 'app/atoms/StyledButton';
 import { toastError } from 'app/toaster';
 import { useFormAnalytics } from 'lib/analytics';
+import { ExolixPairUnavailableError, getExolixPairKey } from 'lib/apis/exolix/pair';
 import { loadMinMaxExchangeValues, queryExchange, submitExchange } from 'lib/apis/exolix/utils';
 import { t, T } from 'lib/i18n';
 import { useTypedSWR } from 'lib/swr';
@@ -59,9 +60,29 @@ export const FormContent: FC<Props> = ({ onSelectInputCurrency, onSelectOutputCu
 
   const inputCurrency = useWatch({ control, name: 'inputCurrency' });
   const outputCurrency = useWatch({ control, name: 'outputCurrency' });
+  const pairKey = getExolixPairKey({
+    coinFrom: inputCurrency.code,
+    networkFrom: inputCurrency.network.code,
+    coinTo: outputCurrency.code,
+    networkTo: outputCurrency.network.code
+  });
+  const [unavailablePairs, setUnavailablePairs] = useState<string[]>([]);
+  const isPairUnavailable = unavailablePairs.includes(pairKey);
+
+  const handlePairError = (error: unknown): void => {
+    if (error instanceof ExolixPairUnavailableError) {
+      setUnavailablePairs(pairs => (pairs.includes(error.pairKey) ? pairs : [...pairs, error.pairKey]));
+    }
+  };
+
+  useEffect(() => {
+    if (isPairUnavailable) toastError(t('pairNotAvailable'));
+  }, [pairKey, isPairUnavailable]);
+
+  const swrConfig = { ...DEFAULT_SWR_CONFIG, onError: handlePairError };
 
   const { data: minMaxData, isValidating: isMinMaxLoading } = useTypedSWR(
-    ['exolix/api/min-max', inputCurrency, outputCurrency],
+    isPairUnavailable ? null : ['exolix/api/min-max', pairKey],
     () =>
       loadMinMaxExchangeValues(
         inputCurrency.code,
@@ -69,7 +90,7 @@ export const FormContent: FC<Props> = ({ onSelectInputCurrency, onSelectOutputCu
         outputCurrency.code,
         outputCurrency.network.code
       ),
-    DEFAULT_SWR_CONFIG
+    swrConfig
   );
 
   const minMaxDataRef = useRef(minMaxData);
@@ -82,7 +103,7 @@ export const FormContent: FC<Props> = ({ onSelectInputCurrency, onSelectOutputCu
   }, [inputValue, minMaxData, trigger]);
 
   const { data: ratesData, isValidating: isRatesLoading } = useTypedSWR(
-    ['exolix/api/rate', minMaxData, inputValueDebounced],
+    isPairUnavailable || !minMaxData ? null : ['exolix/api/rate', pairKey, minMaxData, inputValueDebounced],
     () => {
       const amount = getParsedAmount(inputValueDebounced);
 
@@ -98,7 +119,7 @@ export const FormContent: FC<Props> = ({ onSelectInputCurrency, onSelectOutputCu
         networkTo: outputCurrency.network.code
       });
     },
-    DEFAULT_SWR_CONFIG
+    swrConfig
   );
 
   const { rate, toAmount } = useMemo(
@@ -144,7 +165,7 @@ export const FormContent: FC<Props> = ({ onSelectInputCurrency, onSelectOutputCu
   const onSubmit = useCallback<SubmitHandler<CryptoExchangeFormData>>(
     async ({ inputValue, inputCurrency, outputCurrency }) => {
       try {
-        if (isSubmitting || !withdrawalAddress) return;
+        if (isSubmitting || isPairUnavailable || !withdrawalAddress) return;
 
         formAnalytics.trackSubmit();
 
@@ -167,11 +188,15 @@ export const FormContent: FC<Props> = ({ onSelectInputCurrency, onSelectOutputCu
       } catch (e) {
         console.error(e);
         formAnalytics.trackSubmitFail();
+        if (e instanceof ExolixPairUnavailableError) {
+          handlePairError(e);
+          return;
+        }
         if (axios.isAxiosError(e) && e.response && e.response.status === 422) return;
         toastError('Something went wrong! Please try again later.');
       }
     },
-    [formAnalytics, isSubmitting, setExchangeData, setStep, withdrawalAddress]
+    [formAnalytics, handlePairError, isPairUnavailable, isSubmitting, setExchangeData, setStep, withdrawalAddress]
   );
 
   return (
@@ -242,7 +267,7 @@ export const FormContent: FC<Props> = ({ onSelectInputCurrency, onSelectOutputCu
           disabled={shouldDisableSubmitButton({
             errors,
             formState,
-            otherErrors: [toAmount ? null : 'output-amount-missing'],
+            otherErrors: [isPairUnavailable || !toAmount ? 'output-amount-missing' : null],
             disableWhileSubmitting: false
           })}
         >

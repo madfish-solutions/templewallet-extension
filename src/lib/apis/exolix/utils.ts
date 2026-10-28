@@ -4,6 +4,7 @@ import axios from 'axios';
 import { StoredExolixCurrency } from 'app/store/crypto-exchange/state';
 import { templeWalletApi } from 'lib/apis/temple/endpoints/templewallet.api';
 
+import { ExolixPairUnavailableError, getExolixPairKey, requestExolixPair } from './pair';
 import {
   CrossChainRateRequestData,
   ExchangeData,
@@ -153,6 +154,18 @@ export const loadMinMaxExchangeValues = async (
       finalMaxAmount: Math.min(minAmountExchangeResponse.maxAmount, maxDollarValueMaxAmount ?? Infinity)
     };
   } catch (error) {
+    if (
+      error instanceof ExolixPairUnavailableError &&
+      error.pairKey ===
+        getExolixPairKey({
+          coinFrom: inputAssetCode,
+          networkFrom: inputAssetNetwork,
+          coinTo: outputAssetCode,
+          networkTo: outputAssetNetwork
+        })
+    ) {
+      throw error;
+    }
     console.error({ error });
 
     return { finalMinAmount: 0, finalMaxAmount: 0 };
@@ -160,19 +173,19 @@ export const loadMinMaxExchangeValues = async (
 };
 
 export const queryExchange = (data: GetRateRequestData): Promise<GetRateResponse> =>
-  retry(
+  requestExolixPair(
+    data,
     () =>
-      templeWalletApi.get<GetRateResponse>('/exolix/rate', { params: { ...data, rateType: 'fixed' } }).then(
-        r => r.data,
-        (error: unknown) => {
+      templeWalletApi
+        .get<GetRateResponse>('/exolix/rate', { params: { ...data, rateType: 'fixed' } })
+        .catch((error: unknown) => {
           if (axios.isAxiosError(error) && error.response && error.response.status === 422) {
             const data = error.response.data;
-            if (data && data.error == null) return data;
+            if (data && data.error == null) return error.response;
           }
           console.error(error);
           throw error;
-        }
-      ),
+        }),
     COMMON_RETRY_CONFIG
   );
 
@@ -185,8 +198,9 @@ export const submitExchange = (data: {
   withdrawalAddress: string;
   withdrawalExtraId: string;
 }) =>
-  retry(
-    () => templeWalletApi.post('/exolix/transactions', { ...data, rateType: 'fixed' }).then(r => r.data),
+  requestExolixPair(
+    data,
+    () => templeWalletApi.post<ExchangeData>('/exolix/transactions', { ...data, rateType: 'fixed' }),
     COMMON_RETRY_CONFIG
   );
 
@@ -223,14 +237,13 @@ export const normalizeRateResponse = (raw: GetRateResponse): NormalizedRateResul
 };
 
 export const queryCrossChainRate = (data: CrossChainRateRequestData): Promise<GetRateResponse> =>
-  retry(
+  requestExolixPair(
+    data,
     () =>
-      templeWalletApi
-        .get<GetRateResponse>('/exolix/rate', {
-          params: { ...data, rateType: 'float' },
-          validateStatus: status => status === 200 || status === 422
-        })
-        .then(r => r.data),
+      templeWalletApi.get<GetRateResponse>('/exolix/rate', {
+        params: { ...data, rateType: 'float' },
+        validateStatus: status => status === 200 || status === 422
+      }),
     COMMON_RETRY_CONFIG
   );
 
@@ -247,10 +260,13 @@ interface CreateCrossChainExchangeInput {
 }
 
 export const createCrossChainExchange = (input: CreateCrossChainExchangeInput): Promise<ExchangeData> =>
-  templeWalletApi
-    .post<ExchangeData>('/exolix/transactions', {
-      ...input,
-      withdrawalExtraId: '',
-      rateType: 'float'
-    })
-    .then(r => r.data);
+  requestExolixPair(
+    input,
+    () =>
+      templeWalletApi.post<ExchangeData>('/exolix/transactions', {
+        ...input,
+        withdrawalExtraId: '',
+        rateType: 'float'
+      }),
+    { retries: 0 }
+  );

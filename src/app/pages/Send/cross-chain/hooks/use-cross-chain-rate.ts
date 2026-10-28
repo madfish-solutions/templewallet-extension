@@ -1,6 +1,9 @@
+import { useState } from 'react';
+
 import BigNumber from 'bignumber.js';
 import { useDebounce } from 'use-debounce';
 
+import { ExolixPairUnavailableError, getExolixPairKey } from 'lib/apis/exolix/pair';
 import { GetRateResponse, NormalizedRateResult } from 'lib/apis/exolix/types';
 import { normalizeRateResponse, queryCrossChainRate } from 'lib/apis/exolix/utils';
 import { CrossChainAsset } from 'lib/cross-chain';
@@ -21,8 +24,16 @@ export const useCrossChainRate = ({ from, to, amount }: RateArgs) => {
   const hasAmount = parsed.isFinite() && parsed.isGreaterThan(0);
   const probeAmount = hasAmount ? debouncedAmount : SEED_PROBE_AMOUNT;
   const probeKey = hasAmount ? debouncedAmount : `seed:${SEED_PROBE_AMOUNT}`;
+  const pairKey = getExolixPairKey({
+    coinFrom: from.exolixCoin,
+    networkFrom: from.exolixNetwork,
+    coinTo: to.exolixCoin,
+    networkTo: to.exolixNetwork
+  });
+  const [unavailablePairs, setUnavailablePairs] = useState<string[]>([]);
+  const isRouteUnavailable = unavailablePairs.includes(pairKey);
 
-  const key = ['cross-chain-rate', from.exolixCoin, from.exolixNetwork, to.exolixCoin, to.exolixNetwork, probeKey];
+  const key = isRouteUnavailable ? null : ['cross-chain-rate', pairKey, probeKey];
 
   const swr = useTypedSWR<GetRateResponse>(
     key,
@@ -34,10 +45,24 @@ export const useCrossChainRate = ({ from, to, amount }: RateArgs) => {
         networkTo: to.exolixNetwork,
         amount: probeAmount
       }),
-    { refreshInterval: 10_000, revalidateOnFocus: false, dedupingInterval: 5_000 }
+    {
+      refreshInterval: 10_000,
+      revalidateOnFocus: false,
+      dedupingInterval: 5_000,
+      shouldRetryOnError: (error: unknown) => !(error instanceof ExolixPairUnavailableError),
+      onError: (error: unknown) => {
+        if (error instanceof ExolixPairUnavailableError) {
+          setUnavailablePairs(pairs => (pairs.includes(error.pairKey) ? pairs : [...pairs, error.pairKey]));
+        }
+      }
+    }
   );
 
-  const normalized: NormalizedRateResult | undefined = swr.data ? normalizeRateResponse(swr.data) : undefined;
+  const normalized: NormalizedRateResult | undefined = isRouteUnavailable
+    ? { kind: 'unsupported' }
+    : swr.data
+      ? normalizeRateResponse(swr.data)
+      : undefined;
 
-  return { ...swr, normalized };
+  return { ...swr, normalized, isRouteUnavailable };
 };

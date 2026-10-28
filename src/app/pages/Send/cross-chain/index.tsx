@@ -139,7 +139,11 @@ export const CrossChainForm: FC<Props> = ({ onReview, resetSignal }) => {
     return fromAmount;
   })();
 
-  const { normalized: rate, isValidating: rateLoading } = useCrossChainRate({
+  const {
+    normalized: rate,
+    isValidating: rateLoading,
+    isRouteUnavailable
+  } = useCrossChainRate({
     from: fromAsset,
     to: toAsset,
     amount: fromAmountInTokens
@@ -148,24 +152,26 @@ export const CrossChainForm: FC<Props> = ({ onReview, resetSignal }) => {
   const rateMinAmount = rate?.kind === 'ok' || rate?.kind === 'min-bound' ? rate.minAmount : undefined;
   const rateMaxAmount = rate?.kind === 'ok' || rate?.kind === 'max-bound' ? rate.maxAmount : undefined;
 
-  const lastUnsupportedPairRef = useRef<string | null>(null);
+  const unsupportedPairToastRef = useRef({ pairKey: '', shown: false });
   useEffect(() => {
     const isUnsupportedPair = rate?.kind === 'unsupported';
     const pairKey = `${fromAsset.exolixCoin}:${fromAsset.exolixNetwork}->${toAsset.exolixCoin}:${toAsset.exolixNetwork}`;
 
-    if (!isUnsupportedPair) {
-      if (lastUnsupportedPairRef.current === pairKey) lastUnsupportedPairRef.current = null;
-      return;
+    if (unsupportedPairToastRef.current.pairKey !== pairKey || !isUnsupportedPair) {
+      unsupportedPairToastRef.current = { pairKey, shown: false };
     }
 
-    const hasMeaningfulAmount = fromAmountInTokens && new BigNumber(fromAmountInTokens).isGreaterThan(0);
-    if (!hasMeaningfulAmount) return;
+    if (!isUnsupportedPair) return;
 
-    if (lastUnsupportedPairRef.current === pairKey) return;
-    lastUnsupportedPairRef.current = pairKey;
+    const hasMeaningfulAmount = fromAmountInTokens && new BigNumber(fromAmountInTokens).isGreaterThan(0);
+    if (!hasMeaningfulAmount && !isRouteUnavailable) return;
+
+    if (unsupportedPairToastRef.current.shown) return;
+    unsupportedPairToastRef.current.shown = true;
     toastError(t('pairNotAvailable'));
   }, [
     rate,
+    isRouteUnavailable,
     fromAsset.exolixCoin,
     fromAsset.exolixNetwork,
     toAsset.exolixCoin,
