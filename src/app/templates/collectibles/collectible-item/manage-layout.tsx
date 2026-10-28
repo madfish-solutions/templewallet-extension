@@ -21,7 +21,7 @@ import { EvmCollectibleItemImage, TezosCollectibleItemImage } from '../collectib
 import { CommonLayoutProps } from './types';
 
 // Fixed sizes to improve large grid performance
-const manageImgStyle = { width: '2.625rem', height: '2.625rem' };
+const manageImgStyle = { width: '2.625rem', height: '2.625rem', contentVisibility: 'auto' } as const;
 const NETWORK_IMAGE_DEFAULT_SIZE = 16;
 
 interface ManageCollectibleListItemLayoutProps<T extends TempleChainKind> extends CommonLayoutProps<T> {

@@ -19,6 +19,19 @@ const firstRacedStageIndex = (stages: ImageSourceStage[], progressive: boolean) 
   return index === -1 ? stages.length : index;
 };
 
+const loadedSrcs = new Map<string, string>();
+
+const getStackKey = (stages: ImageSourceStage[]) => stages.flatMap(stage => stage.urls).join('\0');
+
+const findLoadedSrc = (stages: ImageSourceStage[]) => {
+  const url = loadedSrcs.get(getStackKey(stages));
+  if (!url) return undefined;
+
+  const index = stages.findIndex(stage => stage.urls.includes(url));
+
+  return index === -1 ? undefined : { index, url };
+};
+
 /**
  * @arg sources // Memoize
  * @arg immediate // Start the off-DOM race right away instead of waiting for a slot under the loader's in-flight cap.
@@ -38,9 +51,10 @@ export const useImagesStackLoading = (
   const prevStagesRef = useRef(stages);
   const loadGenerationRef = useRef(0);
 
-  const [index, setIndex] = useState(emptyStack ? -1 : 0);
-  const [racedSrc, setRacedSrc] = useState<string>();
-  const [isLoading, setIsLoading] = useState(!emptyStack);
+  const [loadedAtMount] = useState(() => findLoadedSrc(stages));
+  const [index, setIndex] = useState(loadedAtMount?.index ?? (emptyStack ? -1 : 0));
+  const [racedSrc, setRacedSrc] = useState(loadedAtMount?.url);
+  const [isLoading, setIsLoading] = useState(!emptyStack && !loadedAtMount);
   const [isStackFailed, setIsStackFailed] = useState(emptyStack);
 
   const racing = index >= 0 && index >= racedFrom;
@@ -53,12 +67,14 @@ export const useImagesStackLoading = (
     prevStagesRef.current = stages;
 
     if (stages.length > 0) {
-      setIndex(0);
-      setRacedSrc(undefined);
-      setIsLoading(true);
+      const loaded = findLoadedSrc(stages);
+
+      setIndex(loaded?.index ?? 0);
+      setRacedSrc(loaded?.url);
+      setIsLoading(!loaded);
       setIsStackFailed(false);
 
-      if (racedFrom > 0) {
+      if (!loaded && racedFrom > 0) {
         const img = new Image();
         img.src = stages[0].urls[0];
         if (img.complete) {
@@ -74,14 +90,16 @@ export const useImagesStackLoading = (
   }, [stages, racedFrom]);
 
   useEffect(() => {
-    if (!racing || racedFrom >= stages.length) {
-      return;
-    }
+    if (!racing || racedFrom >= stages.length) return;
 
     const controller = new AbortController();
     const generation = ++loadGenerationRef.current;
+    const loaded = findLoadedSrc(stages);
+    const load: ReturnType<typeof loadImageSourceStages> = loaded
+      ? Promise.resolve(loaded.url)
+      : loadImageSourceStages(stages.slice(racedFrom), { signal: controller.signal, immediate });
 
-    void loadImageSourceStages(stages.slice(racedFrom), { signal: controller.signal, immediate })
+    void load
       .then(winner => {
         if (controller.signal.aborted || generation !== loadGenerationRef.current) {
           return;
@@ -118,12 +136,17 @@ export const useImagesStackLoading = (
 
   const src = index < 0 ? undefined : racing ? racedSrc : stages.at(index)?.urls.at(0);
 
-  const onSuccess = () => void setIsLoading(false);
+  const onSuccess = () => {
+    if (src) loadedSrcs.set(getStackKey(stages), src);
+    setIsLoading(false);
+  };
 
   const onFail = () => {
     if (isStackFailed) {
       return;
     }
+
+    if (src) loadedSrcs.delete(getStackKey(stages));
 
     if (racing) {
       if (racedSrc) {

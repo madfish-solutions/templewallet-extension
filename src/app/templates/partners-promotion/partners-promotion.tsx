@@ -169,7 +169,7 @@ export const PartnersPromotion = memo<PartnersPromotionProps>(({ variant, id, pa
     isHiddenByTimeout || (isLoadingEnableInternalHypelabAds && enableInternalHypelabAds === undefined);
   const customPadding = pageName === DAPPS_PAGE_NAME || pageName === EARN_PAGE_NAME;
 
-  if (!shouldShowPartnersPromo || isHiddenTemporarily || !currentStep) {
+  if (!shouldShowPartnersPromo || isHiddenTemporarily || activeSteps.length === 0) {
     return null;
   }
 
@@ -184,7 +184,7 @@ export const PartnersPromotion = memo<PartnersPromotionProps>(({ variant, id, pa
         )}
       >
         <div className="w-full flex flex-col items-center z-10">
-          {currentStep.provider === 'specify' ? (
+          {!currentStep ? null : currentStep.provider === 'specify' ? (
             <SpecifyPromotion
               key={`${disabledKey}-${stepIndex}`}
               accountPkh={evmViewerAddress}
